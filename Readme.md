@@ -11,3 +11,4 @@ Note that this is a rather simple project and is only meant to be a frontend to 
 (Which has also the benefit of being way more advanced.)
 
 
+Demo @ http://eeisti.eistiens.net/panda
