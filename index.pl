@@ -26,8 +26,9 @@ my $table = new HTML::Table(-rows=>0,
                             -evenrowclass=>'gtr0',
                             -oddrowclass=>'gtr1');
 							
-$table->setSectionStyle ( 'thead', 0, 'font-weight:bold;' );
+
 $table->addSectionRow ( 'thead', 0, ""," Title"," Artist/Group"," Series"," Language"," Tags");
+$table->setSectionRowHead('thead', -1, -1, 1);
 
 #Special parameters for list.js implementation (i want to die)
 $table->setSectionCellAttr('thead', 0, 1, 2, 'data-sort="title"');
