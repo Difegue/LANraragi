@@ -65,7 +65,7 @@ if ($qedit->param()) {
 			if (rename &get_dirname.'/'.$oldfilename, $newfilename) #rename returns 1 if successful, 0 otherwise.
 				{print "<div class='ido' style='text-align:center'><h1>Edit Successful!</h1><br/>";}
 			else
-				{print "<div class='ido' style='text-align:center'><h1>The edit process failed for some reason. Maybe you don't have permission to rename files?</h1><br/>";}
+				{print "<div class='ido' style='text-align:center'><h1>The edit process failed for some reason. Maybe you don't have permission to rename files, or your filename hit the character limit.</h1><br/>";}
 			}
 			
 		print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/></div>";
@@ -76,7 +76,7 @@ if ($qedit->param()) {
 	    
 		#Does the passed file exist?
 		my $test = $qedit->param('file');
-		print &get_dirname.'/'.$test.'.zip';
+		#print &get_dirname.'/'.$test.'.zip';
 		if (-e (&get_dirname.'/'.$test.'.zip'))
 		{
 			generateForm($qedit);	

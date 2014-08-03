@@ -1,6 +1,6 @@
 #Default config variables. Change as you see fit.
 my $htmltitle = "LANraragi"; #Title of the html page.
-my $motd = "Welcome to this Library running LANraragi v.0.0.1!"; #Text that appears on top of the page. Empty for no text.
+my $motd = "Welcome to this Library running LANraragi v.0.0.8!"; #Text that appears on top of the page. Empty for no text. (look at me ma i'm versioning)
 my $thumbnails = 1; #Whether or not you load thumbnails when hovering over a title.
 my $password = "kamimamita"; #Password for editing titles. You should probably change this, even though it's not "admin" 
 my $dirname = "./content"; #Directory of the zip archives.
