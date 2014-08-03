@@ -64,7 +64,7 @@ sub parseName
 		removeSpace($temp);		
 
 		#does the filename contain tags?
-		if (substr($temp, 0, 1)eq"%") 
+		if (substr($temp, 0, 1)eq"$") 
 		{
 			$tags = substr($temp,1); #only tags left
 		}
