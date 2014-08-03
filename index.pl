@@ -2,13 +2,11 @@
 
 use strict;
 use CGI qw(:standard);
-use Cwd;
 use HTML::Table;
 use File::Basename;
 
-#Require other .pl's to be present 
+#Require config 
 require 'config.pl';
-require 'edit.pl';
 
 my $q = CGI->new;  #our html 
 my $table = new HTML::Table(0,6);
