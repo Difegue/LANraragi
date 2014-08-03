@@ -24,8 +24,8 @@ sub removeSpace
 #Removes spaces at the end of a file.
 sub removeSpaceR
 	{
-	until (substr($_[0],-1,1)ne" "){
-			$_[0] = substr($_[0],-1);}
+	until (substr($_[0],-1)ne" "){
+			chop $_[0];} #perl is literally too based to exist
 	}
 	
 sub parseName
@@ -73,7 +73,7 @@ sub parseName
 		removeSpace($temp);		
 
 		#does the filename contain tags?
-		if (substr($temp, 0, 1)eq"$") 
+		if (substr($temp, 0, 1)eq"%") 
 		{
 			$tags = substr($temp,1); #only tags left
 		}

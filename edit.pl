@@ -102,7 +102,7 @@ sub generateForm
 	my ($event,$artist,$title,$series,$language,$tags) = &parseName($value);
 
 	print "<div class='ido' style='text-align:center'>";
-	print $_[0]->h1({-class=>'ih', -style=>'text-align:center'},'Editing '.$value);
+	print $_[0]->h1({-class=>'ih', -style=>'text-align:center'},'Editing '.$title.' by '.$artist);
 	print $_[0]->start_form;
 	print "<table style='margin:auto'><tbody>";
 	
