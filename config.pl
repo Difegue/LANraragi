@@ -21,13 +21,22 @@ sub removeSpace
 			$_[0] = substr($_[0],1);}
 	}
 
+#Removes spaces at the end of a file.
+sub removeSpaceR
+	{
+	until (substr($_[0],-1,1)ne" "){
+			$_[0] = substr($_[0],-1);}
+	}
+	
 sub parseName
 	{
 		my ($event,$artist,$title,$series,$language,$tags) = (" "," "," "," "," "," ");
 		my @values=(" "," ");
 		my $temp=$_[0];
+		
 		#Split up the filename
 		#Is the field present? If not, skip it.
+		removeSpace($temp);
 		if (substr($temp, 0, 1)eq'(') 
 			{
 			@values = split('\)', $temp, 2); # (Event)
