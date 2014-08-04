@@ -2,7 +2,7 @@ LANraragi
 ============
 
 Web interface and reader for a server-stored directory of comics (as zip archives).  
-Supports tags, and runs on a basic installation of Perl(with HTML:Tables installed).  
+Supports tags, and runs on a basic installation of Perl(with HTML:Tables and Archive::Zip installed).  
 ![No Databases!](http://a.pomf.se/okalua.png "")
 
 To-be UI and project mostly inspired by the good folks over at sadpanda, and the Wani takedowns. ;_;7

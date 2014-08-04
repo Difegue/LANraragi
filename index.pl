@@ -5,6 +5,8 @@ use CGI qw(:standard);
 use HTML::Table;
 use File::Basename;
 
+use Archive::Zip qw/ :ERROR_CODES :CONSTANTS /;
+
 #Require config 
 require 'config.pl';
 
@@ -40,9 +42,9 @@ my $file = "";
 my $path = "";
 my $suffix = "";
 my $name = "";
-my ($event,$artist,$title,$series,$language,$tags) = (" "," "," "," "," "," ");
+my ($event,$artist,$title,$series,$language,$tags,$id) = (" "," "," "," "," "," ");
 
-opendir(DIR, &get_dirname) or die "can't opendir".&get_dirname.": $!";
+opendir(DIR, &get_dirname) or die "Can't open the content directory ".&get_dirname.": $!";
 while (defined($file = readdir(DIR))) 
 {
     # let's do something with "&get_dirname/$file"
@@ -53,11 +55,42 @@ while (defined($file = readdir(DIR)))
 		{
 		
 		#parseName function is in edit.pl
-		($event,$artist,$title,$series,$language,$tags) = &parseName($name);
+		($event,$artist,$title,$series,$language,$tags,$id) = &parseName($name);
+		
+		my $thumbname = &get_dirname."/thumb/".$id.".jpg";
+		#print $thumbname;
+		
+		#Has a thumbnail already been made? And is it enabled in config?
+		unless (-e $thumbname)
+		{ #if it doesn't, let's create it!
+			my $zipFile = &get_dirname."/".$file;
+			my $zip = Archive::Zip->new();
+			
+			unless ( $zip->read( $zipFile ) == AZ_OK ) 
+			{  # Make sure archive got read
+				die 'Archive parsing error!';
+			}
+			my @files = $zip->memberNames();  # Lists all members in archive. We'll extract the first one and resize it.
+			
+			@files = sort @files;
+			
+			my $filefullsize = &get_dirname."/thumb/".@files[0];
+			$zip->extractMember( @files[0], $filefullsize);
+			
+			# use ImageMagick to make the thumbnail. I tried using PerlMagick but it's a piece of ass, can't get it to build :s
+			#These lines fuck up with strict refs somehow... Might wanna fix that.
+			
+			#print $filefullsize $thumbname;
+			print `convert -size 200x -geometry 200x -quality 75 $filefullsize $thumbname`;
+			`rm $filefullsize`;
+			
+		}
+		my $test = substr($thumbname,1);
 		
 		#WHAT THE FUCK AM I DOING
-		my $icons = "<a href='".&get_dirname."/$file'><img src='./img/save.png'><a/> <a href='./edit.pl?file=$name'><img src='./img/edit.gif'><a/> ";
-		$table->addRow($icons,"<a href='./reader.pl?file=$name$suffix'>$title</a>",$artist,$series,$language,$event." ".$tags);
+		#version with hover thumbnails
+		my $icons = qq(<a href="&get_dirname/$file"><img src="./img/save.png"><a/> <a href="./edit.pl?file=$name"><img src="./img/edit.gif"><a/>);
+		$table->addRow($icons,qq(<a href="./reader.pl?file=$name$suffix" onmouseover="showtrail(200,'$thumbname'.height,'$thumbname');" onmouseout="hidetrail();">$title</a>),$artist,$series,$language,$event." ".$tags);
 		
 		$table->setSectionClass ('tbody', -1, 'list' );
 		#TODO: if thumbnail (and variable set to 1), add hover: thumbnail to the entire row.
@@ -72,16 +105,20 @@ $table->setColClass(3,'artist itd');
 $table->setColClass(4,'series itd');
 $table->setColClass(5,'language itd');
 $table->setColClass(6,'tags itu');
+$table->setColWidth(1,36);
 
 print header,start_html
 	(
 	-title=>&get_htmltitle,
     -author=>'lanraragi-san',
     -style=>{'src'=>'./styles/ex.css'},
-	-script=>{-type=>'JAVASCRIPT',
-					-src=>'https://cdnjs.cloudflare.com/ajax/libs/list.js/1.1.1/list.min.js'},					
+	-script=>[{-type=>'JAVASCRIPT',
+					-src=>'https://cdnjs.cloudflare.com/ajax/libs/list.js/1.1.1/list.min.js'},			
+				{-type=>'JAVASCRIPT',
+					-src=>'./js/thumb.js'}],	
 	-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'}),],
-	#onLoad, initialize list.js.
+	
+	#on Load, initialize list.js.
 	-onLoad => "javascript:var options = {valueNames: ['title', 'artist', 'series', 'language', 'tags']};
 							var mangoList = new List('toppane', options);
 				document.getElementById('srch').value = '';" #and empty cached filter.

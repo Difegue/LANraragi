@@ -30,6 +30,9 @@ if ($qedit->param()) {
 		my $tags = $qedit->param('tags');
 		my $oldfilename = $qedit->param('filename');
 		
+		my $id = md5sum(&get_dirname.'/'.$oldfilename);
+		#print $id;
+		
 		#clean up inputs
 		removeSpace($event);
 		removeSpace($artist);
@@ -42,16 +45,15 @@ if ($qedit->param()) {
 		if ($event ne '')
 			{$event = '('.$event.') ';}
 		if ($artist ne '')
-			{$artist = '['.$artist.'] ';}
+			{$artist = ' ['.$artist.'] ';}
 		if ($series ne '')
 			{$series = ' ('.$series.') ';}
 		if ($language ne '')
-			{$language = '['.$language.'] ';}
-		if ($tags ne '')
-			{$tags = '%'.$tags;}
+			{$language = ' ['.$language.'] ';}
 			
 		
-		my $newfilename = &get_dirname.'/'.$event.$artist.$title.$series.$language.$tags;
+		my $newfilename = &get_dirname.'/'.$event.$artist.$title.$series.$language;
+		removeSpace($newfilename);
 		removeSpaceR($newfilename);
 		$newfilename = $newfilename.'.zip';
 		
@@ -62,6 +64,11 @@ if ($qedit->param()) {
 			}
 		else #good to go!
 			{
+			
+			open (MYFILE, '>'.&get_dirname.'/tags/'.$id.'.txt');
+			print MYFILE $tags;
+			close (MYFILE); 
+			
 			if (rename &get_dirname.'/'.$oldfilename, $newfilename) #rename returns 1 if successful, 0 otherwise.
 				{print "<div class='ido' style='text-align:center'><h1>Edit Successful!</h1><br/>";}
 			else
@@ -99,7 +106,7 @@ print $qedit->end_html;
 sub generateForm
 	{
 	my $value = $_[0]->param('file');
-	my ($event,$artist,$title,$series,$language,$tags) = &parseName($value);
+	my ($event,$artist,$title,$series,$language,$tags,$id) = &parseName($value);
 
 	print "<div class='ido' style='text-align:center'>";
 	print $_[0]->h1({-class=>'ih', -style=>'text-align:center'},'Editing '.$title.' by '.$artist);
