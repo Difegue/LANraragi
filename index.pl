@@ -4,6 +4,7 @@ use strict;
 use CGI qw(:standard);
 use HTML::Table;
 use File::Basename;
+use URI::Escape;
 
 use Archive::Zip qw/ :ERROR_CODES :CONSTANTS /;
 
@@ -53,17 +54,17 @@ while (defined($file = readdir(DIR)))
 	#Is it a zip archive?
 	if ($suffix eq ".zip")
 		{
-		
+		my $dirname = &get_dirname; #calling the function in strings doesn't work too well.
 		#parseName function is in edit.pl
 		($event,$artist,$title,$series,$language,$tags,$id) = &parseName($name);
 		
-		my $thumbname = &get_dirname."/thumb/".$id.".jpg";
+		my $thumbname = $dirname."/thumb/".$id.".jpg";
 		#print $thumbname;
 		
 		#Has a thumbnail already been made? And is it enabled in config?
 		unless (-e $thumbname)
 		{ #if it doesn't, let's create it!
-			my $zipFile = &get_dirname."/".$file;
+			my $zipFile = $dirname."/".$file;
 			my $zip = Archive::Zip->new();
 			
 			unless ( $zip->read( $zipFile ) == AZ_OK ) 
@@ -74,7 +75,7 @@ while (defined($file = readdir(DIR)))
 			
 			@files = sort @files;
 			
-			my $filefullsize = &get_dirname."/thumb/".@files[0];
+			my $filefullsize = $dirname."/thumb/".@files[0];
 			$zip->extractMember( @files[0], $filefullsize);
 			
 			# use ImageMagick to make the thumbnail. I tried using PerlMagick but it's a piece of ass, can't get it to build :s
@@ -87,9 +88,12 @@ while (defined($file = readdir(DIR)))
 		}
 		my $test = substr($thumbname,1);
 		
+		#sanitize we must.
+		$name = uri_escape($name);
+		
 		#WHAT THE FUCK AM I DOING
 		#version with hover thumbnails
-		my $icons = qq(<a href="&get_dirname/$file"><img src="./img/save.png"><a/> <a href="./edit.pl?file=$name"><img src="./img/edit.gif"><a/>);
+		my $icons = qq(<a href="$dirname/$file"><img src="./img/save.png"><a/> <a href="./edit.pl?file=$name"><img src="./img/edit.gif"><a/>);
 		$table->addRow($icons,qq(<a href="./reader.pl?file=$name$suffix" onmouseover="showtrail(200,'$thumbname'.height,'$thumbname');" onmouseout="hidetrail();">$title</a>),$artist,$series,$language,$event." ".$tags);
 		
 		$table->setSectionClass ('tbody', -1, 'list' );

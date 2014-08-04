@@ -50,24 +50,26 @@ if ($qedit->param()) {
 			{$series = ' ('.$series.') ';}
 		if ($language ne '')
 			{$language = ' ['.$language.'] ';}
-			
+		
+		#You can use the \Q and \E pair of escape sequences to stop and restart interpretation regular expression metacharacters.		
+		#$title=\Q$title\E;
 		
 		my $newfilename = &get_dirname.'/'.$event.$artist.$title.$series.$language;
 		removeSpace($newfilename);
 		removeSpaceR($newfilename);
 		$newfilename = $newfilename.'.zip';
 		
+		open (MYFILE, '>'.&get_dirname.'/tags/'.$id.'.txt');
+		print MYFILE $tags;
+		close (MYFILE); 
+			
 		#Maybe it already exists? Return an error if so.
 		if (-e $newfilename)
 			{
-			print "<div class='ido' style='text-align:center'><h1>A file with the same name already exists in the library. Please change it before proceeding. </h1><br/>";
+			print "<div class='ido' style='text-align:center'><h1>A file with the same name already exists in the library. Please change it before proceeding. <br/>Any tag editing you might've done has been applied. </h1><br/>";
 			}
 		else #good to go!
 			{
-			
-			open (MYFILE, '>'.&get_dirname.'/tags/'.$id.'.txt');
-			print MYFILE $tags;
-			close (MYFILE); 
 			
 			if (rename &get_dirname.'/'.$oldfilename, $newfilename) #rename returns 1 if successful, 0 otherwise.
 				{print "<div class='ido' style='text-align:center'><h1>Edit Successful!</h1><br/>";}

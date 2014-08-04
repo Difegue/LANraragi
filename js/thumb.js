@@ -8,7 +8,7 @@ var w=1
 var h=1
 
 if (document.getElementById || document.all)
-document.write('<div id="trailimageid" style="position:absolute;visibility:hidden;left:0px;top:-1000px;width:1px;height:1px;border:1px solid #888888;background:#DDDDDD;"><img id="ttimg" src="img/s.gif" /></div>')
+document.write('<div id="trailimageid" style="position:absolute;visibility:hidden;left:0px;top:-1000px;width:1px;height:1px;border:1px solid #888888;background:#DDDDDD;z-index: 99999;"><img id="ttimg" src="img/s.gif" /></div>')
 
 function gettrailobj()
 {
