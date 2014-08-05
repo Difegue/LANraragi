@@ -75,14 +75,22 @@ while (defined($file = readdir(DIR)))
 			
 			@files = sort @files;
 			
-			my $filefullsize = $dirname."/thumb/".@files[0];
+			#in case the images are inside folders in the zip (shit happens), let's remove the path with fileparse.
+			my $namet = "";
+			my $patht = "";
+			my $suffixt = "";
+			
+			($namet,$patht,$suffixt) = fileparse($files[0], qr/\.[^.]*/);
+			
+			my $filefullsize = $dirname."/thumb/".$namet.$suffixt;
+			#print $filefullsize;
+			
 			$zip->extractMember( @files[0], $filefullsize);
 			
 			# use ImageMagick to make the thumbnail. I tried using PerlMagick but it's a piece of ass, can't get it to build :s
-			#These lines fuck up with strict refs somehow... Might wanna fix that.
 			
 			#print $filefullsize $thumbname;
-			print `convert -size 200x -geometry 200x -quality 75 $filefullsize $thumbname`;
+			`convert -size 200x -geometry 200x -quality 75 $filefullsize $thumbname`;
 			`rm $filefullsize`;
 			
 		}

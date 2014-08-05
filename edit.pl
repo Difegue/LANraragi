@@ -66,7 +66,15 @@ if ($qedit->param()) {
 		#Maybe it already exists? Return an error if so.
 		if (-e $newfilename)
 			{
-			print "<div class='ido' style='text-align:center'><h1>A file with the same name already exists in the library. Please change it before proceeding. <br/>Any tag editing you might've done has been applied. </h1><br/>";
+			#If the filename is the same, maybe the user only changed tags? We should check if the md5 of the existing file is the same as ours.
+			if ($id eq md5sum($newfilename))
+				{
+				print "<div class='ido' style='text-align:center'><h1>Edit Successful!</h1><br/>";
+				}
+			else
+				{
+				print "<div class='ido' style='text-align:center'><h1>A file with the same name already exists in the library. Please change it before proceeding.</h1><br/>";
+				}
 			}
 		else #good to go!
 			{
