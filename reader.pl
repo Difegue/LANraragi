@@ -5,22 +5,14 @@ use CGI qw(:standard);
 use File::Basename;
 use File::Path;
 use Archive::Zip qw/ :ERROR_CODES :CONSTANTS /;
+use Image::Info qw(image_info dim);
+use URI::Escape;
 
 require 'config.pl';
 
 #I ripped off some code from edit.pl to begin.
 my $path;
 my $qedit = new CGI;
-print $qedit->header;
-print $qedit->start_html
-	(
-	-title=>&get_htmltitle,
-    -author=>'lanraragi-san',
-    -style=>{'src'=>'./styles/ex.css'},					
-	-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],
-	-script=>{-type=>'JAVASCRIPT',
-					-src=>'./js/reader.js'},
-	);
 
 if ($qedit->param()) 
 {
@@ -76,7 +68,7 @@ if ($qedit->param())
 				#convert it to a cheaper on bandwidth format if the option is enabled.
 				if (&get_bd)
 				{
-					`mogrify -size 1064x1500 -geometry 1064x1500 -quality $quality $destination`; 
+					`mogrify -geometry 1064x -quality $quality $destination`; 
 					#since we're operating on the extracted file, the original, tucked away in the .zip, isn't harmed. Downloading the zip grants the highest quality.
 				}
 				
@@ -97,51 +89,76 @@ if ($qedit->param())
 			@images = sort @images;
 		}
 	
-	#At this point, @images contains paths to the images extracted from the archive, in numeric order. Now what we have to do is jam these into our javascript reader.
-	#First, let's define a JS array that'll contain @images.
+	#Get the page number from the GET parameters. Default is page 1.
+	my $pagenum = 1;
 	
-	print '<script>';
-	foreach (@images)
+	if ($qedit->param('page')) #Has a specific page been mentioned? If so, that's the one we'll need to display.
 		{
-		print 'images.push("'.$_.'");'; #We push an element of @images to the images JS array.
+		$pagenum = $qedit->param('page');
+		
+		if ($pagenum <= 0)
+			{$pagenum = 1;}
+			
+		if ($pagenum >= $#images+1)
+			{$pagenum = $#images+1;}
+		
 		}
-	print '</script>';
+	
+	#At this point, @images contains paths to the images extracted from the archive, in numeric order. 
+	#We also have the page number that needs to be displayed. That's all we need!
+	
+	#Let's get more precise info on the image to display. 
+	my $info = image_info(@images[$pagenum-1]);
+	if (my $error = $info->{error}) 
+		{
+		die "Can't parse image info: $error\n";
+		}	
+		
+	#gonna reuse those variables.
+	($namet,$patht,$suffixt) = fileparse(@images[$pagenum-1], qr/\.[^.]*/);
+	
+	#sanitize we must.
+	$filename = uri_escape($filename);
 	
 	#HTML printout. Tried to make it as clean as I could!
 	
+	print $qedit->header;
+	print $qedit->start_html
+		(
+		-title=>&uri_unescape($filename),
+		-author=>'lanraragi-san',
+		-style=>{'src'=>'./styles/ex.css'},					
+		-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],		
+		);
+		
+	print '<script src="./js/reader.js"></script>';
+	
+	#These are the pretty arrows you use to switch pages.
 	my $arrows = '<div class="sn">
-					<a onclick="javascript:goto_first(images)"> <img src="./img/f.png"></img> </a> 
-					<a id="prev" onclick="goto_prev(images)"> <img src="./img/p.png"></img> </a>
-					<div><span id ="current1">1</span> / <span>'.($#images+1).'</span> </div>
-					<a id="next" onclick="goto_next(images)"> <img src="./img/n.png"></img> </a>
-					<a onclick="javascript:goto_last(images)"> <img src="./img/l.png"></img> </a>
+					<a href="./reader.pl?file='.$filename.'&page=1" style="text-decoration:none;"> <img src="./img/f.png"></img> </a> 
+					<a id="prev" href="./reader.pl?file='.$filename.'&page='.($pagenum-1).'" style="text-decoration:none;"> <img src="./img/p.png"></img> </a>
+					<div><span id ="current">'.$pagenum.'</span> / <span id ="max">'.($#images+1).'</span> </div>
+					<a id="next" href="./reader.pl?file='.$filename.'&page='.($pagenum+1).'" style="text-decoration:none;"> <img src="./img/n.png"></img> </a>
+					<a href="./reader.pl?file='.$filename.'&page='.($#images+1).'" style="text-decoration:none;"> <img src="./img/l.png"></img> </a>
 				</div>';
 				
-	my $arrows2 = '<div class="sn">
-					<a onclick="goto_first(images)"> <img src="./img/f.png"></img> </a> 
-					<a id="prev" onclick="goto_prev(images)"> <img src="./img/p.png"></img> </a>
-					<div><span id ="current2">1</span> / <span>'.($#images+1).'</span> </div>
-					<a id="next" onclick="goto_next(images)"> <img src="./img/n.png"></img> </a>
-					<a onclick="goto_last(images)"> <img src="./img/l.png"></img> </a>
-				</div>';
+	#Outputs something like "0001.png :: 1052 x 1500 :: 996.6 KB".
+	my $size = (int((-s (@images[$pagenum-1]) )/ 1024*10)/10 ) ;
+	
+	my $fileinfo ='<div id = "fileinfo">'. $namet.$suffixt .' :: '. $info->{width} .' x '. $info->{height} .' :: '. $size .'KBs</div>';
 	
 	print '<div id="i1" class="sni" style="width: 1072px; max-width: 1072px;">
-			<h1>'.$filename.'</h1>
+			<h1>'.uri_unescape($filename).'</h1>
 			
-			<div id="i2">'.$arrows.'
-			<div id = "fileinfo"> FILE INFO GOES HERE </div>
-			</div>
+			<div id="i2">'.$arrows.$fileinfo.'</div>
 			
 			<div id ="i3">
-			<a id ="display" onclick="goto_next(images)">
-			<img id="img" style="width: 1052px; height: 1500px; max-width: 1052px; max-height: 1500px;" src="'.@images[0].'"></img>
+			<a id ="display" href="./reader.pl?file='.$filename.'&page='.($pagenum+1).'">
+			<img id="img" style="width: 1052px; max-width: 1052px; max-height: 1500px;" src="'.@images[$pagenum-1].'"></img>
 			</a>
 			</div>
 			
-			<div id = "i4">
-			<div id = "fileinfo"> FILE INFO GOES HERE'.
-			$arrows2.'
-			</div>
+			<div id = "i4">'.$fileinfo.$arrows.'</div>
 			
 			<div id="i5">
 			<div class="sb">
@@ -153,25 +170,33 @@ if ($qedit->param())
 			
 			<div id="i6" class="if">
 			<img class="mr" src="./img/mr.gif"></img>
-			<a href="./reader.pl?file='.$filename.'&force-reload=1">Clear archive cache</a>
+			<a href="./reader.pl?file='.$filename.'&page='.$pagenum.'&force-reload=1">Clear archive cache</a>
 			<img class="mr" src="./img/mr.gif"></img>
 			<a href="./">Go back to library </a>
 			</div>
 			
 			<div id="i7" class="if"></div>
-		</div>
-		<p class="ip">
+		</div>'
+} 
+else 
+{
+    # No parameters back the fuck off
+	print $qedit->header;
+	print $qedit->start_html
+		(
+		-title=>&get_htmltitle,
+		-author=>'lanraragi-san',
+		-style=>{'src'=>'./styles/ex.css'},					
+		-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],			
+		);
+    print $qedit->redirect('./');
+}
+
+print '		<p class="ip">
 			[
 			<a href="https://github.com/Difegue/LANraragi">
 				Powered by LANraragi.
 			</a>
 			]
-		</p>'
-} 
-else 
-{
-    # No parameters back the fuck off
-    print $qedit->redirect('./');
-}
-
+		</p>';
 print $qedit->end_html;
