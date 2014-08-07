@@ -3,6 +3,7 @@
 use strict;
 use CGI qw(:standard);
 use HTML::Table;
+use File::Path qw(make_path remove_tree);
 use File::Basename;
 use URI::Escape;
 
@@ -10,6 +11,8 @@ use Archive::Zip qw/ :ERROR_CODES :CONSTANTS /;
 
 #Require config 
 require 'config.pl';
+
+remove_tree(&get_dirname.'/temp'); #Remove temp dir.
 
 my $q = CGI->new;  #our html 
 my $table = new HTML::Table(0,6);
@@ -88,10 +91,11 @@ while (defined($file = readdir(DIR)))
 			$zip->extractMember( @files[0], $filefullsize);
 			
 			# use ImageMagick to make the thumbnail. I tried using PerlMagick but it's a piece of ass, can't get it to build :s
-			
-			#print $filefullsize $thumbname;
 			`convert -size 200x -geometry 200x -quality 75 $filefullsize $thumbname`;
-			`rm $filefullsize`;
+			
+			#Delete the previously extracted file.
+			unlink $filefullsize;
+
 			
 		}
 		my $test = substr($thumbname,1);

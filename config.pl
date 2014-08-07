@@ -1,9 +1,29 @@
 #Default config variables. Change as you see fit.
-my $htmltitle = "LANraragi"; #Title of the html page.
-my $motd = "Welcome to this Library running LANraragi v.0.0.9!"; #Text that appears on top of the page. Empty for no text. (look at me ma i'm versioning)
-my $thumbnails = 1; #Whether or not you load thumbnails when hovering over a title. Requires an imagemagick install. (Just imagemagick, none of these perlmagick thingamabobs)
-my $password = "kamimamita"; #Password for editing titles. You should probably change this, even though it's not "admin" 
-my $dirname = "./content"; #Directory of the zip archives.
+
+#Title of the html page.
+my $htmltitle = "LANraragi"; 
+
+#Text that appears on top of the page. Empty for no text. (look at me ma i'm versioning)
+my $motd = "Welcome to this Library running LANraragi v.0.0.9!"; 
+
+#Whether or not you load thumbnails when hovering over a title. Requires an imagemagick install. (Just imagemagick, none of these perlmagick thingamabobs)
+my $thumbnails = 1; 
+
+#Password for editing titles. You should probably change this, even though it's not "admin" 
+my $password = "kamimamita"; 
+
+#Directory of the zip archives. Make sure your web server can serve what's inside this directory.
+my $dirname = "./content"; 
+
+#If enabled, images will be resized when viewed through the reader to allow faster image transferring. (You can downsize individual images to 300KBs or so with 50% quality on) 
+#Keep in mind the resizing will take some extra time upon loading an archive, so you should only use this when making your library available through the internet. Requires imagemagick.
+my $shitbandwidth = 0; 
+
+#Quality of the converted images if passed through the shitbandwidth resizer.
+my $readerquality = 50; 
+
+#Lifetime of the temporary directories in minutes. They will be deleted after this time has elapsed.
+my $temptimeout = 60;
 
 ###############VARIABLE SET UP ENDS HERE####################
 ######################END OF RINE###########################
@@ -15,6 +35,9 @@ sub get_motd { return $motd };
 sub get_thumbnails { return $thumbnails };
 sub get_password { return $password };
 sub get_dirname  { return $dirname };
+sub get_bd { return $shitbandwidth };
+sub get_quality { return $readerquality };
+sub get_timeout { return $temptimeour };
 
 use Digest::MD5 qw(md5 md5_hex md5_base64); #habbening
 
