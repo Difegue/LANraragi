@@ -3,6 +3,7 @@
 use strict;
 use CGI qw(:standard);
 use File::Basename;
+use utf8;
 
 require 'config.pl';
 
@@ -14,6 +15,7 @@ print $qedit->start_html
     -author=>'lanraragi-san',
     -style=>{'src'=>'./styles/ex.css'},					
 	-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],
+	-encoding => "utf-8",
 	);
 	
 if ($qedit->param()) {

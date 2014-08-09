@@ -8,6 +8,7 @@ use File::Basename;
 use URI::Escape;
 use File::Tee qw(tee);
 use Archive::Zip qw/ :ERROR_CODES :CONSTANTS /;
+use utf8;
 
 #Require config 
 require 'config.pl';
@@ -132,6 +133,8 @@ $table->setColClass(4,'series itd');
 $table->setColClass(5,'language itd');
 $table->setColClass(6,'tags itu');
 $table->setColWidth(1,36);
+
+
 
 #let's print the HTML.
 

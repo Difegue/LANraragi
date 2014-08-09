@@ -3,6 +3,7 @@
 use strict;
 use CGI qw(:standard);
 use File::Basename;
+ use utf8;
 
 require 'config.pl';
 
@@ -14,6 +15,7 @@ print $qupload->start_html
     -author=>'lanraragi-san',
     -style=>{'src'=>'./styles/ex.css'},					
 	-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],
+	-encoding => "utf-8",
 	);
 	
 if ($qupload->param()) {
@@ -45,22 +47,32 @@ if ($qupload->param()) {
 			else
 				{
 				my $output_file = &get_dirname.'/'.$filename; #open up a file on our side
-				my ($bytesread, $buffer);
-				my $numbytes = 1024;
-
-				open (OUTFILE, ">", "$output_file") 
-					or die "Couldn't open $output_file for writing: $!";
-				while ($bytesread = read($filename, $buffer, $numbytes)) 
+				#if it doesn't already exist, that is.
+				
+				if (-e $output_file)
 					{
-					print OUTFILE $buffer; #Write the uploaded contents to that file.
+					print "<div class='ido' style='text-align:center'><h1>A file bearing this name already exists in the Library.</h1><br/>";
+					print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/>";
 					}
-				close OUTFILE;
-				
-				&rebuild_index; #Delete the cached index so that the uploaded file appears.
-				
-				print "<div class='ido' style='text-align:center'><h1>Upload Successful!</h1><br/>";
-				print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/>";
-				print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./edit.pl?file=".$name."');\" value='Edit Uploaded Gallery'/></div>";
+				else
+					{
+					my ($bytesread, $buffer);
+					my $numbytes = 1024;
+
+					open (OUTFILE, ">", "$output_file") 
+						or die "Couldn't open $output_file for writing: $!";
+					while ($bytesread = read($filename, $buffer, $numbytes)) 
+						{
+						print OUTFILE $buffer; #Write the uploaded contents to that file.
+						}
+					close OUTFILE;
+					
+					&rebuild_index; #Delete the cached index so that the uploaded file appears.
+					
+					print "<div class='ido' style='text-align:center'><h1>Upload Successful!</h1><br/>";
+					print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/>";
+					print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./edit.pl?file=".$name."');\" value='Edit Uploaded Gallery'/></div>";
+					}
 				}
 			
 			}

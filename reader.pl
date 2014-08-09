@@ -7,6 +7,7 @@ use File::Path;
 use Archive::Zip qw/ :ERROR_CODES :CONSTANTS /;
 use Image::Info qw(image_info dim);
 use URI::Escape;
+use utf8;
 
 require 'config.pl';
 
@@ -131,6 +132,7 @@ if ($qedit->param())
 		-author=>'lanraragi-san',
 		-style=>{'src'=>'./styles/ex.css'},					
 		-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],		
+		-encoding => "utf-8",
 		);
 		
 	
