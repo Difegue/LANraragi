@@ -4,12 +4,15 @@
 my $htmltitle = "LANraragi"; 
 
 #Text that appears on top of the page. Empty for no text. (look at me ma i'm versioning)
-my $motd = "Welcome to this Library running LANraragi v.0.1.0!"; 
+my $motd = "Welcome to this Library running LANraragi v.0.1.1!"; 
 
 #Whether or not you load thumbnails when hovering over a title. Requires an imagemagick install. (Just imagemagick, none of these perlmagick thingamabobs)
 my $thumbnails = 1; 
 
-#Password for editing titles. You should probably change this, even though it's not "admin" 
+#Password-protect edit and upload modes. You'd do well to enable this if making the library available online.
+my $enablepass = 1;
+
+#Password for editing and uploading titles. You should probably change this, even though it's not "admin".
 my $password = "kamimamita"; 
 
 #Directory of the zip archives. Make sure your web server can serve what's inside this directory.
@@ -22,9 +25,6 @@ my $shitbandwidth = 0;
 #Quality of the converted images if passed through the shitbandwidth resizer.
 my $readerquality = 50; 
 
-#Lifetime of the temporary directories in minutes. They will be deleted after this time has elapsed.
-my $temptimeout = 60;
-
 ###############VARIABLE SET UP ENDS HERE####################
 ######################END OF RINE###########################
 
@@ -32,12 +32,13 @@ my $temptimeout = 60;
 
 sub get_htmltitle { return $htmltitle };
 sub get_motd { return $motd };
-sub get_thumbnails { return $thumbnails };
+sub enable_thumbs { return $thumbnails };
+sub enable_pass { return $enablepass };
 sub get_password { return $password };
 sub get_dirname  { return $dirname };
 sub get_bd { return $shitbandwidth };
 sub get_quality { return $readerquality };
-sub get_timeout { return $temptimeour };
+
 
 use Digest::MD5 qw(md5 md5_hex md5_base64); #habbening
 
@@ -72,13 +73,29 @@ sub removeSpaceR
 	until (substr($_[0],-1)ne" "){
 			chop $_[0];} #perl is literally too based to exist
 	}
+
+sub removeSpaceF #hue
+	{
+	removeSpace($_[0]);
+	removeSpaceR($_[0]);
+	}
 	
+#Delete the cached index.html. 
+#This doesn't really require a sub, but it's cleaner in code to have "rebuild_index" instead of "unlink(./index.html);"
+
+sub rebuild_index
+	{
+	unlink("./index.html");
+	}
+
+#Splits a name into fields that are treated. Syntax is (Release) [Artist (Pseudonym) ] TITLE (Series) [Language] misc shit .zip
 sub parseName
 	{
 		my ($event,$artist,$title,$series,$language,$tags) = (" "," "," "," "," "," ");
 		my @values=(" "," ");
 		my $temp=$_[0];
 		my $id = md5sum(&get_dirname.'/'.$_[0].'.zip');
+		my $noseries = 0;
 		
 		#Split up the filename
 		#Is the field present? If not, skip it.
@@ -100,17 +117,30 @@ sub parseName
 		removeSpace($temp);
 			
 		#Always needs something in title, so it can't be empty
-		@values = split('\(', $temp, 2); #Title. If there's no following (Series), the entire filename is taken and other variables are emptied by default. ┐(￣ー￣)┌
+		
+		@values = split('\(', $temp, 2); #Title. If there's no following (Series), we try again, looking for a [ instead, for language.
+		#we'll know that there was no series if the array resulting from the split has only one element. That'd mean that there was no split.
+		
+		if (@values[1] eq '')
+			{
+			@values = split('\[', $temp, 2);
+			$values[1] = "\[".$values[1]; #ugly as shit fix to make the language parsing work in both cases. Since split removes the [, we gotta...add it back.
+			$noseries = 1;
+			}
+		
 		$title = $values[0];
 		$temp = $values[1];
 		
 		removeSpace($temp);
 		
-		@values = split('\)', $temp, 2); #Series
-		$series = $values[0];
-		$temp = $values[1];
+		unless ($noseries)
+		{
+			@values = split('\)', $temp, 2); #Series
+			$series = $values[0];
+			$temp = $values[1];
 
-		removeSpace($temp);
+			removeSpace($temp);
+		}
 		
 		@values = split(']', $temp, 2); #Language
 		$language = substr($values[0],1);

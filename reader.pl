@@ -46,6 +46,7 @@ if ($qedit->param())
 
 			unless ( $zip->read( $zipFile ) == AZ_OK ) 
 				{  # Make sure archive got read
+				&rebuild_index;
 				die 'Archive parsing error!';
 				}
 			my @files = $zip->memberNames();  # Lists all members in archive.
@@ -64,13 +65,6 @@ if ($qedit->param())
 				$destination = $path."/".$namet.$suffixt; #With it, we define the extraction path
 				
 				$zip->extractMember($_, $destination); #We extract the file.
-				
-				#convert it to a cheaper on bandwidth format if the option is enabled.
-				if (&get_bd)
-				{
-					`mogrify -geometry 1064x -quality $quality $destination`; 
-					#since we're operating on the extracted file, the original, tucked away in the .zip, isn't harmed. Downloading the zip grants the highest quality.
-				}
 				
 				#Picture is extracted and placed in the temp folder. Add it to the image index array.
 				push(@images,$destination);
@@ -92,6 +86,7 @@ if ($qedit->param())
 	#Get the page number from the GET parameters. Default is page 1.
 	my $pagenum = 1;
 	
+	
 	if ($qedit->param('page')) #Has a specific page been mentioned? If so, that's the one we'll need to display.
 		{
 		$pagenum = $qedit->param('page');
@@ -102,6 +97,13 @@ if ($qedit->param())
 		if ($pagenum >= $#images+1)
 			{$pagenum = $#images+1;}
 		
+		}
+	
+	#convert to a cheaper on bandwidth format if the option is enabled.
+	if (&get_bd)
+		{
+			`mogrify -geometry 1064x -quality $quality @images[$pagenum-1]`; 
+			#since we're operating on the extracted file, the original, tucked away in the .zip, isn't harmed. Downloading the zip grants the highest quality.
 		}
 	
 	#At this point, @images contains paths to the images extracted from the archive, in numeric order. 
@@ -131,6 +133,7 @@ if ($qedit->param())
 		-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],		
 		);
 		
+	
 	print '<script src="./js/reader.js"></script>';
 	
 	#These are the pretty arrows you use to switch pages.
@@ -189,6 +192,7 @@ else
 		-style=>{'src'=>'./styles/ex.css'},					
 		-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],			
 		);
+	
     print $qedit->redirect('./');
 }
 

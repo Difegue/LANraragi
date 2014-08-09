@@ -6,7 +6,7 @@ use HTML::Table;
 use File::Path qw(make_path remove_tree);
 use File::Basename;
 use URI::Escape;
-
+use File::Tee qw(tee);
 use Archive::Zip qw/ :ERROR_CODES :CONSTANTS /;
 
 #Require config 
@@ -46,11 +46,13 @@ my $file = "";
 my $path = "";
 my $suffix = "";
 my $name = "";
+my $thumbname = "";
 my ($event,$artist,$title,$series,$language,$tags,$id) = (" "," "," "," "," "," ");
 
 opendir(DIR, &get_dirname) or die "Can't open the content directory ".&get_dirname.": $!";
 while (defined($file = readdir(DIR))) 
 {
+	
     # let's do something with "&get_dirname/$file"
 	($name,$path,$suffix) = fileparse("&get_dirname/$file", qr/\.[^.]*/);
 	
@@ -61,55 +63,63 @@ while (defined($file = readdir(DIR)))
 		#parseName function is in edit.pl
 		($event,$artist,$title,$series,$language,$tags,$id) = &parseName($name);
 		
-		my $thumbname = $dirname."/thumb/".$id.".jpg";
-		#print $thumbname;
-		
-		#Has a thumbnail already been made? And is it enabled in config?
-		unless (-e $thumbname)
-		{ #if it doesn't, let's create it!
-			my $zipFile = $dirname."/".$file;
-			my $zip = Archive::Zip->new();
-			
-			unless ( $zip->read( $zipFile ) == AZ_OK ) 
-			{  # Make sure archive got read
-				die 'Archive parsing error!';
-			}
-			my @files = $zip->memberNames();  # Lists all members in archive. We'll extract the first one and resize it.
-			
-			@files = sort @files;
-			
-			#in case the images are inside folders in the zip (shit happens), let's remove the path with fileparse.
-			my $namet = "";
-			my $patht = "";
-			my $suffixt = "";
-			
-			($namet,$patht,$suffixt) = fileparse($files[0], qr/\.[^.]*/);
-			
-			my $filefullsize = $dirname."/thumb/".$namet.$suffixt;
-			#print $filefullsize;
-			
-			$zip->extractMember( @files[0], $filefullsize);
-			
-			# use ImageMagick to make the thumbnail. I tried using PerlMagick but it's a piece of ass, can't get it to build :s
-			`convert -size 200x -geometry 200x -quality 75 $filefullsize $thumbname`;
-			
-			#Delete the previously extracted file.
-			unlink $filefullsize;
-
-			
-		}
-		my $test = substr($thumbname,1);
-		
 		#sanitize we must.
 		$name = uri_escape($name);
 		
+		if (&enable_thumbs)
+		{
+			$thumbname = $dirname."/thumb/".$id.".jpg";
+			#print $thumbname;
+			
+			#Has a thumbnail already been made? And is it enabled in config?
+			unless (-e $thumbname)
+			{ #if it doesn't, let's create it!
+				my $zipFile = $dirname."/".$file;
+				my $zip = Archive::Zip->new();
+				
+				unless ( $zip->read( $zipFile ) == AZ_OK ) 
+				{  # Make sure archive got read
+					die 'Archive parsing error!';
+				}
+				my @files = $zip->memberNames();  # Lists all members in archive. We'll extract the first one and resize it.
+				
+				@files = sort @files;
+				
+				#in case the images are inside folders in the zip (shit happens), let's remove the path with fileparse.
+				my $namet = "";
+				my $patht = "";
+				my $suffixt = "";
+				
+				($namet,$patht,$suffixt) = fileparse($files[0], qr/\.[^.]*/);
+				
+				my $filefullsize = $dirname."/thumb/".$namet.$suffixt;
+				#print $filefullsize;
+				
+				$zip->extractMember( @files[0], $filefullsize);
+				
+				# use ImageMagick to make the thumbnail. I tried using PerlMagick but it's a piece of ass, can't get it to build :s
+				`convert -size 200x -geometry 200x -quality 75 $filefullsize $thumbname`;
+				
+				#Delete the previously extracted file.
+				unlink $filefullsize;
+			}
+		}
+		
+		my $icons = qq(<a href="$dirname/$file" title="Download this archive."><img src="./img/save.png"><a/> <a href="./edit.pl?file=$name" title="Edit this archive's tags and data."><img src="./img/edit.gif"><a/>);
 		#WHAT THE FUCK AM I DOING
-		#version with hover thumbnails
-		my $icons = qq(<a href="$dirname/$file"><img src="./img/save.png"><a/> <a href="./edit.pl?file=$name"><img src="./img/edit.gif"><a/>);
+		#When generating the line that'll be added to the table, user-defined options have to be taken into account.
+		
+		#version with hover thumbnails 
+		if (&enable_thumbs)
+		{
 		$table->addRow($icons,qq(<a href="./reader.pl?file=$name$suffix" onmouseover="showtrail(200,'$thumbname'.height,'$thumbname');" onmouseout="hidetrail();">$title</a>),$artist,$series,$language,$event." ".$tags);
+		}
+		else #version without. ezpz
+		{
+		$table->addRow($icons,qq(<a href="./reader.pl?file=$name$suffix">$title</a>),$artist,$series,$language,$event." ".$tags);
+		}
 		
 		$table->setSectionClass ('tbody', -1, 'list' );
-		#TODO: if thumbnail (and variable set to 1), add hover: thumbnail to the entire row.
 		
 		}	
 }
@@ -123,6 +133,11 @@ $table->setColClass(5,'language itd');
 $table->setColClass(6,'tags itu');
 $table->setColWidth(1,36);
 
+#let's print the HTML.
+
+#Everything printed in the following will be printed into index.html, effectively creating a cache. wow!
+tee(STDOUT, '>', 'index.html');
+
 print header,start_html
 	(
 	-title=>&get_htmltitle,
@@ -133,7 +148,7 @@ print header,start_html
 				{-type=>'JAVASCRIPT',
 					-src=>'./js/thumb.js'}],	
 	-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'}),],
-	
+	-encoding => "utf-8",
 	#on Load, initialize list.js.
 	-onLoad => "javascript:var options = {valueNames: ['title', 'artist', 'series', 'language', 'tags']};
 							var mangoList = new List('toppane', options);
@@ -155,3 +170,12 @@ $table->print; #print our finished table
 print "</div></div>";
 
 print end_html; #close html
+
+#clean up our index.html a bit. 
+#With straight STDOUT to file, "Content-Type: text/html; charset=ISO-8859-1 " is added at the beginning.
+#Remove the first line with code ripped from stackoverflow (again):
+use Tie::File;
+my @array;
+tie @array, 'Tie::File', './index.html' or die $!;
+shift @array;
+untie @array;

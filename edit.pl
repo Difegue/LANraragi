@@ -17,11 +17,20 @@ print $qedit->start_html
 	);
 	
 if ($qedit->param()) {
-    # Parameters are defined, therefore something has been submitted...
-	#is it POST?
+    # Parameters are defined, therefore something has been submitted...	
+	
+	#Are the submitted arguments POST?
 	if ('POST' eq $qedit->request_method ) { # ty stack overflow 
-		# It is, which means parameters for a rename have been passed. Let's get cracking!
-		
+	# It is, which means parameters for a rename have been passed. Let's get cracking!
+	#Check for password first.
+	my $pass = $qedit->param('pass');
+	unless (&enable_pass && ($pass eq &get_password))
+		{
+		print "<div class='ido' style='text-align:center'><h1>Wrong password.</h1><br/>";
+		print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/></div>";
+		}
+	else
+		{ 
 		my $event = $qedit->param('event');
 		my $artist = $qedit->param('artist');
 		my $title = $qedit->param('title');
@@ -33,13 +42,13 @@ if ($qedit->param()) {
 		my $id = md5sum(&get_dirname.'/'.$oldfilename);
 		#print $id;
 		
-		#clean up inputs
-		removeSpace($event);
-		removeSpace($artist);
-		removeSpace($title);
-		removeSpace($series);
-		removeSpace($language);
-		removeSpace($tags);
+		#clean up the user's inputs.
+		removeSpaceF($event);
+		removeSpaceF($artist);
+		removeSpaceF($title);
+		removeSpaceF($series);
+		removeSpaceF($language);
+		removeSpaceF($tags);
 		
 		#Create new filename.
 		if ($event ne '')
@@ -50,13 +59,11 @@ if ($qedit->param()) {
 			{$series = ' ('.$series.') ';}
 		if ($language ne '')
 			{$language = ' ['.$language.'] ';}
-		
-		#You can use the \Q and \E pair of escape sequences to stop and restart interpretation regular expression metacharacters.		
-		#$title=\Q$title\E;
+
 		
 		my $newfilename = &get_dirname.'/'.$event.$artist.$title.$series.$language;
-		removeSpace($newfilename);
-		removeSpaceR($newfilename);
+		
+		removeSpaceF($newfilename);
 		$newfilename = $newfilename.'.zip';
 		
 		open (MYFILE, '>'.&get_dirname.'/tags/'.$id.'.txt');
@@ -69,7 +76,9 @@ if ($qedit->param()) {
 			#If the filename is the same, maybe the user only changed tags? We should check if the md5 of the existing file is the same as ours.
 			if ($id eq md5sum($newfilename))
 				{
-				print "<div class='ido' style='text-align:center'><h1>Edit Successful!</h1><br/>";
+				&rebuild_index;
+				print "<div class='ido' style='text-align:center'><h1>Edit Successful!</h1><br/>"; 
+				#no need to go through renaming if the user only changed tags.
 				}
 			else
 				{
@@ -80,12 +89,16 @@ if ($qedit->param()) {
 			{
 			
 			if (rename &get_dirname.'/'.$oldfilename, $newfilename) #rename returns 1 if successful, 0 otherwise.
-				{print "<div class='ido' style='text-align:center'><h1>Edit Successful!</h1><br/>";}
+				{
+				&rebuild_index;
+				print "<div class='ido' style='text-align:center'><h1>Edit Successful!</h1><br/>";
+				}
 			else
 				{print "<div class='ido' style='text-align:center'><h1>The edit process failed for some reason. Maybe you don't have permission to rename files, or your filename hit the character limit.</h1><br/>";}
 			}
 			
 		print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/></div>";
+		}
 		
 	} else {
 		# It's GET. That means we've only been given a file name. Generate the renaming form.
@@ -103,7 +116,7 @@ if ($qedit->param()) {
 			print "<div class='ido' style='text-align:center'><h1>File not found. </h1><br/>";
 			print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/></div>";
 			}
-	}
+	} 
 } else {
     # No parameters back the fuck off
     print $qedit->redirect('./');
@@ -202,6 +215,20 @@ sub generateForm
 		);
 	print "</td></tr>";
 	
+		if (&enable_pass)
+	{
+		print "<tr><td style='text-align:left; width:100px'>Admin Password:</td><td>";
+		print $_[0]->password_field(
+				-name      => 'pass',
+				-value     => '',
+				-size      => 20,
+				-maxlength => 255,
+				-class => "stdinput",
+				-style => "width:820px",
+			);
+		print "</td></tr>";
+	}
+	
 	print "<tr><td></td><td style='text-align:left'>";
 	print $_[0]->submit(
 			-name     => 'submit_form',
@@ -211,6 +238,7 @@ sub generateForm
 		);
 	print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/>";
 	
+
 	print "</td></tbody></table>";
 	print $_[0]->end_form;
 	
