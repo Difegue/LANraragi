@@ -4,11 +4,12 @@ LANraragi
 ![Demo(fuck das lewd)!](http://a.pomf.se/opzrwv.jpg "")
 Web interface and reader for a server-stored directory of comics (as zip archives).  
 Supports tags, and runs on a basic installation of Perl with the following packages installed:  
-	*HTML:Tables 
-	*Image::Info
-	*Archive::Zip
-	*File::Tee  
-	*Tie::File  
+
+	* HTML:Tables   
+	* Image::Info  
+	* Archive::Zip  
+	* File::Tee  	
+	* Tie::File  
 	
 You will also require ImageMagick installed on your server to use thumbnails and image compression. (These are optional.)
 	

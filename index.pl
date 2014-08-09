@@ -136,6 +136,10 @@ $table->setColWidth(1,36);
 #let's print the HTML.
 
 #Everything printed in the following will be printed into index.html, effectively creating a cache. wow!
+if (-e "index.html")
+{
+	unlink("index.html");
+}
 tee(STDOUT, '>', 'index.html');
 
 print header,start_html
@@ -144,7 +148,7 @@ print header,start_html
     -author=>'lanraragi-san',
     -style=>{'src'=>'./styles/ex.css'},
 	-script=>[{-type=>'JAVASCRIPT',
-					-src=>'https://cdnjs.cloudflare.com/ajax/libs/list.js/1.1.1/list.min.js'},			
+					-src=>'https://raw.githubusercontent.com/javve/list.js/v1.1.1/dist/list.min.js'},			
 				{-type=>'JAVASCRIPT',
 					-src=>'./js/thumb.js'}],	
 	-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'}),],
@@ -155,7 +159,17 @@ print header,start_html
 				document.getElementById('srch').value = '';" #and empty cached filter.
 	);
 	
+print '<p id="nb">
 
+    <img alt="" src="./img/mr.gif"></img>
+    <a href="./index.pl">Rebuild Front Page</a>
+    <img alt="" src="./img/mr.gif"></img>
+    <a href="./upload.pl">Upload Archive</a>
+    <img alt="" src="./img/mr.gif"></img>
+    <a href="./torrent.pl">Get Torrent</a>
+    <img alt="" src="./img/mr.gif"></img>
+    <a href="./tags.pl">Import/Export Tags</a>
+</p>';
 	
 print "<div class='ido'>
 <div id='toppane'>

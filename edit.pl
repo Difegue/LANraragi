@@ -10,7 +10,7 @@ my $qedit = new CGI;
 print $qedit->header;
 print $qedit->start_html
 	(
-	-title=>&get_htmltitle,
+	-title=>&get_htmltitle.' - Edit Mode',
     -author=>'lanraragi-san',
     -style=>{'src'=>'./styles/ex.css'},					
 	-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],
@@ -145,7 +145,6 @@ sub generateForm
 			-class => "stdinput",
 			-style => "width:820px",
 			-readonly,
-			#-style='',
 		);
 	print "</td></tr>";
 	
