@@ -4,7 +4,7 @@
 my $htmltitle = "LANraragi"; 
 
 #Text that appears on top of the page. Empty for no text. (look at me ma i'm versioning)
-my $motd = "Welcome to this Library running LANraragi v.0.1.2!"; 
+my $motd = "Welcome to this Library running LANraragi v.0.1.3!"; 
 
 #Whether or not you load thumbnails when hovering over a title. Requires an imagemagick install. (Just imagemagick, none of these perlmagick thingamabobs)
 my $thumbnails = 1; 
@@ -160,4 +160,36 @@ sub parseName
 		
 		return ($event,$artist,$title,$series,$language,$tags,$id);
 	}
+
 	
+#Sort an array of parsable filenames by their titles.
+sub parseSort
+{
+my $file= "";
+my @params;
+
+my ($event,$artist,$title,$series,$language,$tags,$id);
+
+foreach $file (@_)
+	{
+	($event,$artist,$title,$series,$language,$tags,$id) = &parseName(substr($file,0,-4));
+	push(@params, $title);		
+	}
+	
+#print "@params\n";
+
+#Both @params and the argument array's indexes match. All we have to do now is sort both at the same time, with params as reference.
+#This is perl magic. Took me a while to understand, so I'll try to explain as best as I can.
+
+my @indx = sort {lc $params[$a] cmp lc $params[$b] } (0..$#params); 
+#We have an array of 0 to length(params). That's (0..$#params). 
+#We sort it according to the contents of $params. If 1 matched BTile and 2 matched ATitle, the result in @idk would be [2,1].
+#@idx ends up being our sorted index, which we apply to the original array of file names.
+
+@params = @params[@indx]; 
+@_ = @_[@indx];
+
+#print "@params\n";
+return @_;
+	
+}	

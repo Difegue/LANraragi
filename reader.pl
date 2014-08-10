@@ -52,7 +52,7 @@ if ($qedit->param())
 				}
 			my @files = $zip->memberNames();  # Lists all members in archive.
 			
-			@files = sort @files;
+			@files = sort { lc($a) cmp lc($b) } @files;
 			
 			foreach (@files) #For all the zip's files...
 			{

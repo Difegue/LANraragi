@@ -49,13 +49,32 @@ my $suffix = "";
 my $name = "";
 my $thumbname = "";
 my ($event,$artist,$title,$series,$language,$tags,$id) = (" "," "," "," "," "," ");
-
+my @dircontents;
 opendir(DIR, &get_dirname) or die "Can't open the content directory ".&get_dirname.": $!";
+
 while (defined($file = readdir(DIR))) 
+{
+($name,$path,$suffix) = fileparse("&get_dirname/$file", qr/\.[^.]*/);
+if ($suffix eq ".zip")
+	{push(@dircontents, $file);}
+}
+
+@dircontents = &parseSort(@dircontents);
+
+#print @dircontents;
+
+foreach $file (@dircontents)
 {
 	
     # let's do something with "&get_dirname/$file"
 	($name,$path,$suffix) = fileparse("&get_dirname/$file", qr/\.[^.]*/);
+	
+	#Slapped-on cbz support.
+	#if ($suffix eq ".cbz")
+	#	{
+	#	$suffix = ".zip";
+	#	rename &get_dirname."/".$file, &get_dirname."/".$name.".zip"; #cbzs are just zip archives after all.
+	#	}
 	
 	#Is it a zip archive?
 	if ($suffix eq ".zip")
@@ -84,7 +103,8 @@ while (defined($file = readdir(DIR)))
 				}
 				my @files = $zip->memberNames();  # Lists all members in archive. We'll extract the first one and resize it.
 				
-				@files = sort @files;
+				
+				@files = sort { lc($a) cmp lc($b) } @files;
 				
 				#in case the images are inside folders in the zip (shit happens), let's remove the path with fileparse.
 				my $namet = "";
@@ -134,8 +154,6 @@ $table->setColClass(5,'language itd');
 $table->setColClass(6,'tags itu');
 $table->setColWidth(1,36);
 
-
-
 #let's print the HTML.
 
 #Everything printed in the following will be printed into index.html, effectively creating a cache. wow!
@@ -159,7 +177,7 @@ print header,start_html
 	#on Load, initialize list.js.
 	-onLoad => "javascript:var options = {valueNames: ['title', 'artist', 'series', 'language', 'tags']};
 							var mangoList = new List('toppane', options);
-				document.getElementById('srch').value = '';" #and empty cached filter.
+				document.getElementById('srch').value = '';" #empty cached filter, while we're at it.
 	);
 	
 print '<p id="nb">
