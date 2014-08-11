@@ -141,12 +141,26 @@ if ($qedit->param())
 	#These are the pretty arrows you use to switch pages.
 	my $arrows = '<div class="sn">
 					<a href="./reader.pl?file='.$filename.'&page=1" style="text-decoration:none;"> <img src="./img/f.png"></img> </a> 
-					<a id="prev" href="./reader.pl?file='.$filename.'&page='.($pagenum-1).'" style="text-decoration:none;"> <img src="./img/p.png"></img> </a>
+					<a id="prev" href="./reader.pl?file='.$filename.'&page='.($pagenum-1).'" style="text-decoration:none; "> <img src="./img/p.png"></img> </a>
 					<div><span id ="current">'.$pagenum.'</span> / <span id ="max">'.($#images+1).'</span> </div>
-					<a id="next" href="./reader.pl?file='.$filename.'&page='.($pagenum+1).'" style="text-decoration:none;"> <img src="./img/n.png"></img> </a>
-					<a href="./reader.pl?file='.$filename.'&page='.($#images+1).'" style="text-decoration:none;"> <img src="./img/l.png"></img> </a>
-				</div>';
-				
+					<a id="next" href="./reader.pl?file='.$filename.'&page='.($pagenum+1).'" style="text-decoration:none; "> <img src="./img/n.png"></img> </a>
+					<a href="./reader.pl?file='.$filename.'&page='.($#images+1).'" style="text-decoration:none; "> <img src="./img/l.png"></img> </a></div>';
+					
+					
+	my $pagesel = '<div style="position: absolute; right: 20px;" ><form style="float: right;"><select size="1"  onChange="location = this.options[this.selectedIndex].value;">';
+
+	#We opened a drop-down list. Now, we'll fill it.
+	for ( my $i = 1; $i < $#images+2; $i++) 
+	{
+		if ($i eq $pagenum) #If the option we'll print is our current page, we should make it the selected choice.
+		{$pagesel = $pagesel.'<option selected="selected" value="./reader.pl?file='.$filename.'&page='.$i.'">Page '.$i.'</option>';}
+		else
+		{$pagesel = $pagesel.'<option value="./reader.pl?file='.$filename.'&page='.$i.'">Page '.$i.'</option>';}
+	}		
+
+	$pagesel = $pagesel.'</select></form></div>';
+	
+	
 	#Outputs something like "0001.png :: 1052 x 1500 :: 996.6 KB".
 	my $size = (int((-s (@images[$pagenum-1]) )/ 1024*10)/10 ) ;
 	
@@ -155,7 +169,7 @@ if ($qedit->param())
 	print '<div id="i1" class="sni" style="width: 1072px; max-width: 1072px;">
 			<h1>'.uri_unescape($filename).'</h1>
 			
-			<div id="i2">'.$arrows.$fileinfo.'</div>
+			<div id="i2">'.$pagesel.$arrows.$fileinfo.'</div>
 			
 			<div id ="i3">
 			<a id ="display" href="./reader.pl?file='.$filename.'&page='.($pagenum+1).'">
@@ -163,7 +177,7 @@ if ($qedit->param())
 			</a>
 			</div>
 			
-			<div id = "i4">'.$fileinfo.$arrows.'</div>
+			<div id = "i4">'.$fileinfo.$pagesel.$arrows.'</div>
 			
 			<div id="i5">
 			<div class="sb">

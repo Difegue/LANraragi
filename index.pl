@@ -8,6 +8,7 @@ use File::Basename;
 use URI::Escape;
 use File::Tee qw(tee);
 use Archive::Zip qw/ :ERROR_CODES :CONSTANTS /;
+use Image::Info qw(image_info dim);
 use utf8;
 
 #Require config 
@@ -70,11 +71,11 @@ foreach $file (@dircontents)
 	($name,$path,$suffix) = fileparse("&get_dirname/$file", qr/\.[^.]*/);
 	
 	#Slapped-on cbz support.
-	#if ($suffix eq ".cbz")
-	#	{
-	#	$suffix = ".zip";
-	#	rename &get_dirname."/".$file, &get_dirname."/".$name.".zip"; #cbzs are just zip archives after all.
-	#	}
+	if ($suffix eq ".cbz")
+		{
+		$suffix = ".zip";
+		rename &get_dirname."/".$file, &get_dirname."/".$name.".zip"; #cbzs are just zip archives after all.
+		}
 	
 	#Is it a zip archive?
 	if ($suffix eq ".zip")
@@ -133,7 +134,10 @@ foreach $file (@dircontents)
 		#version with hover thumbnails 
 		if (&enable_thumbs)
 		{
-		$table->addRow($icons,qq(<a href="./reader.pl?file=$name$suffix" onmouseover="showtrail(200,'$thumbname'.height,'$thumbname');" onmouseout="hidetrail();">$title</a>),$artist,$series,$language,$event." ".$tags);
+		my $height = image_info($thumbname);
+		$height = $height->{height};
+		
+		$table->addRow($icons,qq(<a href="./reader.pl?file=$name$suffix" onmouseover="showtrail(200,$height,'$thumbname');" onmouseout="hidetrail();">$title</a>),$artist,$series,$language,$event." ".$tags);
 		}
 		else #version without. ezpz
 		{
