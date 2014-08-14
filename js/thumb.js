@@ -24,7 +24,7 @@ function truebody()
 function hidetrail()
 {
 	document.onmousemove=""
-	document.getElementById('ttimg').src='/img/s.gif'
+	document.getElementById('ttimg').src='img/s.gif'
 	gettrailobj().visibility="hidden"
 	gettrailobj().left=-1000
 	gettrailobj().top=0
