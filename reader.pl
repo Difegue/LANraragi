@@ -4,10 +4,10 @@ use strict;
 use CGI qw(:standard);
 use File::Basename;
 use File::Path;
-use Archive::Zip qw/ :ERROR_CODES :CONSTANTS /;
 use Image::Info qw(image_info dim);
 use URI::Escape;
 use utf8;
+use File::Find qw(find);
 
 require 'config.pl';
 
@@ -29,63 +29,41 @@ if ($qedit->param())
 	my $destination = "";
 	my @images = ();
 	
+	#We'll get the page number from the GET parameters. Default is page 1.
+	my $pagenum = 1;
 	my $quality = &get_quality;
 	
 	$tempdir = &get_dirname."/temp";
 	
 	#Now, has our file been extracted to the temporary directory recently?
-	#If it hasn't, a quick call to Archive::Zip will solve that.
+	#If it hasn't, a quick call to the Unarchiver will solve that.
 	$path = $tempdir."/".$id;
 	my $force = $qedit->param('force-reload');
 	
 	unless((-e $path) && ($force eq "0"))
 		{
+			my $zipFile= &get_dirname."/".$filename;
 			
-			my $zipFile = &get_dirname."/".$filename;
-			my $zip = Archive::Zip->new();
-			
-
-			unless ( $zip->read( $zipFile ) == AZ_OK ) 
+			unless ( `unar -o $path "$zipFile"`) #Extraction using unar
 				{  # Make sure archive got read
 				&rebuild_index;
 				die 'Archive parsing error!';
 				}
-			my @files = $zip->memberNames();  # Lists all members in archive.
-			
-			@files = sort { lc($a) cmp lc($b) } @files;
-			
-			foreach (@files) #For all the zip's files...
-			{
-			
-			#Is it an image? We don't care about shit like txt files.
-			if ($_ =~ /^(.*\/)*.+\.(png|jpg|gif|bmp|jpeg|PNG|JPG|GIF|BMP)$/ ) #regex magic! :o
-				{
-				
-				($namet,$patht,$suffixt) = fileparse($_, qr/\.[^.]*/); #We get the filename
-				#print $namet;
-				$destination = $path."/".$namet.$suffixt; #With it, we define the extraction path
-				
-				$zip->extractMember($_, $destination); #We extract the file.
-				
-				#Picture is extracted and placed in the temp folder. Add it to the image index array.
-				push(@images,$destination);
-				}
-			}
 		}
-	else #If the archive's already cached, no need to re-extract.
-		{ 	
-			opendir (DIR, $path);
-			
-			while (my $file = readdir(DIR)) 
-				{
-				if ($file =~ /^(.*\/)*.+\.(png|jpg|gif|bmp|jpeg|PNG|JPG|GIF|BMP)$/ ) #is it an image? readdir tends to read folder names too...
-					{push(@images, $file);}
-				}
-			@images = sort @images;
+		
+	#We have to go deeper. Most archives often hide their images a few folders in...	
+	my @extracted;
+	find({ wanted => sub { push @extracted, $_ } , no_chdir => 1 }, $path); #find () does exactly that. 
+		
+	foreach my $file (@extracted) 
+		{
+		
+		if ($file =~ /^(.*\/)*.+\.(png|jpg|gif|bmp|jpeg|PNG|JPG|GIF|BMP)$/ ) #is it an image? readdir tends to read folder names too...
+		{push(@images, $file);}
 		}
-	
-	#Get the page number from the GET parameters. Default is page 1.
-	my $pagenum = 1;
+		
+	@images = sort { lc($a) cmp lc($b) } @images;
+		
 	
 	
 	if ($qedit->param('page')) #Has a specific page been mentioned? If so, that's the one we'll need to display.
@@ -111,6 +89,7 @@ if ($qedit->param())
 	#We also have the page number that needs to be displayed. That's all we need!
 	
 	#Let's get more precise info on the image to display. 
+
 	my $info = image_info(@images[$pagenum-1]);
 	if (my $error = $info->{error}) 
 		{
@@ -135,7 +114,6 @@ if ($qedit->param())
 		-encoding => "utf-8",
 		);
 		
-	
 	print '<script src="./js/reader.js"></script>';
 	
 	#These are the pretty arrows you use to switch pages.

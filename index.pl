@@ -7,7 +7,6 @@ use File::Path qw(make_path remove_tree);
 use File::Basename;
 use URI::Escape;
 use File::Tee qw(tee);
-use Archive::Zip qw/ :ERROR_CODES :CONSTANTS /;
 use Image::Info qw(image_info dim);
 use utf8;
 
@@ -50,103 +49,109 @@ my $suffix = "";
 my $name = "";
 my $thumbname = "";
 my ($event,$artist,$title,$series,$language,$tags,$id) = (" "," "," "," "," "," ");
+my $fullfile="";
+my $count;
 my @dircontents;
+
 opendir(DIR, &get_dirname) or die "Can't open the content directory ".&get_dirname.": $!";
 
 while (defined($file = readdir(DIR))) 
-{
-($name,$path,$suffix) = fileparse("&get_dirname/$file", qr/\.[^.]*/);
-if ($suffix eq ".zip")
-	{push(@dircontents, $file);}
-}
+	{
+	$fullfile = &get_dirname."/".$file;
+	
+	#print $fullfile."/n";
+    # let's do something with "&get_dirname/$file"
+	($name,$path,$suffix) = fileparse($fullfile, qr/\.[^.]*/);
+	
+	#We need to test if it's an archive unar can handle.
+	#For this, we use lsar. lsar prints at least two lines upon a successful detection. it's kinda hacky, but it works. Even on Windows!
+	
+	my $filez = "lsaroutput";
+	unlink $filez;
+	`lsar "$fullfile" >> $filez`;
+	
+	open(FILE, "< $filez") or die "can't open $filez: $!"; 
+	for ($count=0; <FILE>; $count++) { } #counts line through a for statement. the iterator is our line number.
+	
+	if ($count >1)
+		{push(@dircontents, $file);}
+	
+	}
 
 @dircontents = &parseSort(@dircontents);
 
-#print @dircontents;
-
 foreach $file (@dircontents)
 {
+	#bis repetita
+	$fullfile = &get_dirname."/".$file;
+	($name,$path,$suffix) = fileparse($fullfile, qr/\.[^.]*/);
 	
-    # let's do something with "&get_dirname/$file"
-	($name,$path,$suffix) = fileparse("&get_dirname/$file", qr/\.[^.]*/);
-	
-	#Slapped-on cbz support.
-	if ($suffix eq ".cbz")
-		{
-		$suffix = ".zip";
-		rename &get_dirname."/".$file, &get_dirname."/".$name.".zip"; #cbzs are just zip archives after all.
-		}
-	
-	#Is it a zip archive?
-	if ($suffix eq ".zip")
-		{
-		my $dirname = &get_dirname; #calling the function in strings doesn't work too well.
-		#parseName function is in edit.pl
-		($event,$artist,$title,$series,$language,$tags,$id) = &parseName($name);
+	my $dirname = &get_dirname; #calling the function in strings doesn't work too well.
+	#parseName function is in edit.pl
+	($event,$artist,$title,$series,$language,$tags,$id) = &parseName($name.$suffix);
 		
-		#sanitize we must.
-		$name = uri_escape($name);
-		
-		if (&enable_thumbs)
-		{
+	#sanitize we must.
+	$name = uri_escape($name);
+	
+	if (&enable_thumbs)
+	{
 			$thumbname = $dirname."/thumb/".$id.".jpg";
 			#print $thumbname;
 			
 			#Has a thumbnail already been made? And is it enabled in config?
 			unless (-e $thumbname)
 			{ #if it doesn't, let's create it!
-				my $zipFile = $dirname."/".$file;
-				my $zip = Archive::Zip->new();
+				#my $zipFile = $dirname."/".$file;
+				#my $zip = Archive::Zip->new();
 				
-				unless ( $zip->read( $zipFile ) == AZ_OK ) 
-				{  # Make sure archive got read
-					die 'Archive parsing error!';
-				}
-				my @files = $zip->memberNames();  # Lists all members in archive. We'll extract the first one and resize it.
+				#unless ( $zip->read( $zipFile ) == AZ_OK ) 
+				#{  # Make sure archive got read
+					#die 'Archive parsing error!';
+				#}
+				#my @files = $zip->memberNames();  # Lists all members in archive. We'll extract the first one and resize it.
 				
 				
-				@files = sort { lc($a) cmp lc($b) } @files;
+				#@files = sort { lc($a) cmp lc($b) } @files;
 				
 				#in case the images are inside folders in the zip (shit happens), let's remove the path with fileparse.
-				my $namet = "";
-				my $patht = "";
-				my $suffixt = "";
+				#my $namet = "";
+			#	my $patht = "";
+			#	my $suffixt = "";
 				
-				($namet,$patht,$suffixt) = fileparse($files[0], qr/\.[^.]*/);
+				#($namet,$patht,$suffixt) = fileparse($files[0], qr/\.[^.]*/);
 				
-				my $filefullsize = $dirname."/thumb/".$namet.$suffixt;
+			#	my $filefullsize = $dirname."/thumb/".$namet.$suffixt;
 				#print $filefullsize;
 				
-				$zip->extractMember( @files[0], $filefullsize);
+				#$zip->extractMember( @files[0], $filefullsize);
 				
 				# use ImageMagick to make the thumbnail. I tried using PerlMagick but it's a piece of ass, can't get it to build :s
-				`convert -size 200x -geometry 200x -quality 75 $filefullsize $thumbname`;
+			#	`convert -size 200x -geometry 200x -quality 75 $filefullsize $thumbname`;
 				
 				#Delete the previously extracted file.
-				unlink $filefullsize;
+			#	unlink $filefullsize;
 			}
-		}
+	}
 		
-		my $icons = qq(<a href="$dirname/$file" title="Download this archive."><img src="./img/save.png"><a/> <a href="./edit.pl?file=$name" title="Edit this archive's tags and data."><img src="./img/edit.gif"><a/>);
-		#WHAT THE FUCK AM I DOING
-		#When generating the line that'll be added to the table, user-defined options have to be taken into account.
+	my $icons = qq(<a href="$dirname/$file" title="Download this archive."><img src="./img/save.png"><a/> <a href="./edit.pl?file=$name" title="Edit this archive's tags and data."><img src="./img/edit.gif"><a/>);
+	#WHAT THE FUCK AM I DOING
+	#When generating the line that'll be added to the table, user-defined options have to be taken into account.
 		
-		#version with hover thumbnails 
-		if (&enable_thumbs)
-		{
+	#version with hover thumbnails 
+	if (&enable_thumbs)
+	{
 		my $height = image_info($thumbname);
 		$height = $height->{height};
 		
 		$table->addRow($icons,qq(<a href="./reader.pl?file=$name$suffix" onmouseover="showtrail(200,$height,'$thumbname');" onmouseout="hidetrail();">$title</a>),$artist,$series,$language,$event." ".$tags);
-		}
-		else #version without. ezpz
-		{
+	}
+	else #version without. ezpz
+	{
 		$table->addRow($icons,qq(<a href="./reader.pl?file=$name$suffix">$title</a>),$artist,$series,$language,$event." ".$tags);
-		}
+	}
 		
-		$table->setSectionClass ('tbody', -1, 'list' );
-		
-		}	
+	$table->setSectionClass ('tbody', -1, 'list' );
+	
 }
 closedir(DIR);
 

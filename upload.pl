@@ -31,21 +31,14 @@ if ($qupload->param()) {
 		unless (&enable_pass && ($pass eq &get_password))
 			{
 			print "<div class='ido' style='text-align:center'><h1>Wrong password.</h1><br/>";
-			print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/></div>";
+			print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/>";
+			print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./upload.pl');\" value='Upload another Gallery'/></div>";
 			}
 		else
 			{ 
 			my $filename = $qupload->param('file');
 			my ($name,$path,$suffix) = fileparse("&get_dirname/$filename", qr/\.[^.]*/);
-	
-			#Then, check if the user uploaded a filetype we support. (only zip for now)
-			unless ($suffix eq ".zip")
-				{
-				print "<div class='ido' style='text-align:center'><h1>Unsupported archive type.</h1><br/>";
-				print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/>";
-				}
-			else
-				{
+		
 				my $output_file = &get_dirname.'/'.$filename; #open up a file on our side
 				#if it doesn't already exist, that is.
 				
@@ -53,6 +46,7 @@ if ($qupload->param()) {
 					{
 					print "<div class='ido' style='text-align:center'><h1>A file bearing this name already exists in the Library.</h1><br/>";
 					print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/>";
+					print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./upload.pl');\" value='Upload another Gallery'/></div>";
 					}
 				else
 					{
@@ -67,13 +61,34 @@ if ($qupload->param()) {
 						}
 					close OUTFILE;
 					
-					&rebuild_index; #Delete the cached index so that the uploaded file appears.
-					
-					print "<div class='ido' style='text-align:center'><h1>Upload Successful!</h1><br/>";
-					print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/>";
-					print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./edit.pl?file=".$name."');\" value='Edit Uploaded Gallery'/></div>";
+					#Has the user uploaded an archive? Do the LSAR check. (run lsar on archive, look if # of lines is >1.)
+					my $filez = "lsaroutput";
+					my $count;
+					unlink $filez;
+					`lsar "$output_file" >> $filez`;
+	
+					open(FILE, "< $filez") or die "can't open $filez: $!"; 
+					for ($count=0; <FILE>; $count++) { } #counts line through a for statement. the iterator is our line number.
+	
+					if ($count >1)
+					{
+						print "<div class='ido' style='text-align:center'><h1>Upload Successful!</h1><br/>";
+						print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/>";
+						print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./edit.pl?file=".$name."');\" value='Edit Uploaded Gallery'/>";
+						print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./upload.pl');\" value='Upload another Gallery'/></div>";
+						&rebuild_index; #Delete the cached index so that the uploaded file appears.
+						
 					}
-				}
+					else
+					{
+						print "<div class='ido' style='text-align:center'><h1>Unsupported archive type.</h1><br/>";
+						print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/>";
+						print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./upload.pl');\" value='Upload another Gallery'/></div>";
+						unlink $output_file; #shut it down
+						
+					}
+					}
+				
 			
 			}
 		}

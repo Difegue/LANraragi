@@ -4,10 +4,10 @@
 my $htmltitle = "LANraragi"; 
 
 #Text that appears on top of the page. Empty for no text. (look at me ma i'm versioning)
-my $motd = "Welcome to this Library running LANraragi v.0.1.4!"; 
+my $motd = "Welcome to this Library running LANraragi v.0.1.5!"; 
 
 #Whether or not you load thumbnails when hovering over a title. Requires an imagemagick install. (Just imagemagick, none of these perlmagick thingamabobs)
-my $thumbnails = 1; 
+my $thumbnails = 0; 
 
 #Password-protect edit and upload modes. You'd do well to enable this if making the library available online.
 my $enablepass = 1;
@@ -88,13 +88,13 @@ sub rebuild_index
 	unlink("./index.html");
 	}
 
-#Splits a name into fields that are treated. Syntax is (Release) [Artist (Pseudonym) ] TITLE (Series) [Language] misc shit .zip
+#Splits a name into fields that are treated. Syntax is (Release) [Artist (Pseudonym) ] TITLE (Series) [Language] misc shit .extension
 sub parseName
 	{
 		my ($event,$artist,$title,$series,$language,$tags) = (" "," "," "," "," "," ");
 		my @values=(" "," ");
 		my $temp=$_[0];
-		my $id = md5sum(&get_dirname.'/'.$_[0].'.zip');
+		my $id = md5sum(&get_dirname.'/'.$_[0]);
 		my $noseries = 0;
 		
 		#Split up the filename
@@ -172,7 +172,7 @@ my ($event,$artist,$title,$series,$language,$tags,$id);
 
 foreach $file (@_)
 	{
-	($event,$artist,$title,$series,$language,$tags,$id) = &parseName(substr($file,0,-4));
+	($event,$artist,$title,$series,$language,$tags,$id) = &parseName($file);
 	push(@params, $title);		
 	}
 	
