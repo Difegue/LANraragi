@@ -7,7 +7,7 @@ my $htmltitle = "LANraragi";
 my $motd = "Welcome to this Library running LANraragi v.0.1.5!"; 
 
 #Whether or not you load thumbnails when hovering over a title. Requires an imagemagick install. (Just imagemagick, none of these perlmagick thingamabobs)
-my $thumbnails = 0; 
+my $thumbnails = 1; 
 
 #Password-protect edit and upload modes. You'd do well to enable this if making the library available online.
 my $enablepass = 1;

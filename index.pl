@@ -9,6 +9,7 @@ use URI::Escape;
 use File::Tee qw(tee);
 use Image::Info qw(image_info dim);
 use utf8;
+use File::Find qw(find);
 
 #Require config 
 require 'config.pl';
@@ -101,39 +102,34 @@ foreach $file (@dircontents)
 			#Has a thumbnail already been made? And is it enabled in config?
 			unless (-e $thumbname)
 			{ #if it doesn't, let's create it!
-				#my $zipFile = $dirname."/".$file;
-				#my $zip = Archive::Zip->new();
+			
+				my $zipFile = $dirname."/".$file;
 				
-				#unless ( $zip->read( $zipFile ) == AZ_OK ) 
-				#{  # Make sure archive got read
-					#die 'Archive parsing error!';
-				#}
-				#my @files = $zip->memberNames();  # Lists all members in archive. We'll extract the first one and resize it.
+				my $path = $dirname."/thumb/temp";		
 				
+				`unar -D -o $path "$zipFile"`; #Extract the archive with unar. 
+				#In case you're wondering why I extract it all instead of only extracting the first file, the -i 0 option doesn't always return the first image.
+				#So I extract them all and sort before picking the first. I could work with lsar but fuck that shit it's too bothersome, extracting is far from being the longest task in this anyway (that award goes to convert)
+								
+				#gotta find the image..
+				my @extracted;
+				find({ wanted => sub { 
+										if ($_ =~ /^(.*\/)*.+\.(png|jpg|gif|bmp|jpeg|PNG|JPG|GIF|BMP)$/ ) #is it an image? readdir tends to read folder names too...
+											{push @extracted, $_ }
+									} , no_chdir => 1 }, $path); #find () does exactly that. 
+		
+				@extracted = sort { lc($a) cmp lc($b) } @extracted;
 				
-				#@files = sort { lc($a) cmp lc($b) } @files;
+				#use ImageMagick to make the thumbnail. I tried using PerlMagick but it's a piece of ass, can't get it to build :s
+				`convert -size 200x -geometry 200x -quality 75 "@extracted[0]" $thumbname`;
 				
-				#in case the images are inside folders in the zip (shit happens), let's remove the path with fileparse.
-				#my $namet = "";
-			#	my $patht = "";
-			#	my $suffixt = "";
-				
-				#($namet,$patht,$suffixt) = fileparse($files[0], qr/\.[^.]*/);
-				
-			#	my $filefullsize = $dirname."/thumb/".$namet.$suffixt;
-				#print $filefullsize;
-				
-				#$zip->extractMember( @files[0], $filefullsize);
-				
-				# use ImageMagick to make the thumbnail. I tried using PerlMagick but it's a piece of ass, can't get it to build :s
-			#	`convert -size 200x -geometry 200x -quality 75 $filefullsize $thumbname`;
-				
-				#Delete the previously extracted file.
-			#	unlink $filefullsize;
+				#Delete the previously extracted files.
+				foreach (@extracted)
+					{unlink $_};
 			}
 	}
 		
-	my $icons = qq(<a href="$dirname/$file" title="Download this archive."><img src="./img/save.png"><a/> <a href="./edit.pl?file=$name" title="Edit this archive's tags and data."><img src="./img/edit.gif"><a/>);
+	my $icons = qq(<a href="$dirname/$file" title="Download this archive."><img src="./img/save.png"><a/> <a href="./edit.pl?file=$name$suffix" title="Edit this archive's tags and data."><img src="./img/edit.gif"><a/>);
 	#WHAT THE FUCK AM I DOING
 	#When generating the line that'll be added to the table, user-defined options have to be taken into account.
 		

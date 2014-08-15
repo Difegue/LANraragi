@@ -52,15 +52,11 @@ if ($qedit->param())
 		}
 		
 	#We have to go deeper. Most archives often hide their images a few folders in...	
-	my @extracted;
-	find({ wanted => sub { push @extracted, $_ } , no_chdir => 1 }, $path); #find () does exactly that. 
-		
-	foreach my $file (@extracted) 
-		{
-		
-		if ($file =~ /^(.*\/)*.+\.(png|jpg|gif|bmp|jpeg|PNG|JPG|GIF|BMP)$/ ) #is it an image? readdir tends to read folder names too...
-		{push(@images, $file);}
-		}
+	my @images;
+	find({ wanted => sub { 
+							if ($_ =~ /^(.*\/)*.+\.(png|jpg|gif|bmp|jpeg|PNG|JPG|GIF|BMP)$/ ) #is it an image? readdir tends to read folder names too...
+								{push @images, $_ }
+						} , no_chdir => 1 }, $path); #find () does exactly that. 
 		
 	@images = sort { lc($a) cmp lc($b) } @images;
 		

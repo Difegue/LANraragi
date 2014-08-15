@@ -42,7 +42,8 @@ if ($qedit->param()) {
 		my $oldfilename = $qedit->param('filename');
 		
 		my $id = md5sum(&get_dirname.'/'.$oldfilename);
-		#print $id;
+		
+		my ($name,$path,$suffix) = fileparse($oldfilename, qr/\.[^.]*/);
 		
 		#clean up the user's inputs.
 		removeSpaceF($event);
@@ -66,7 +67,8 @@ if ($qedit->param()) {
 		my $newfilename = &get_dirname.'/'.$event.$artist.$title.$series.$language;
 		
 		removeSpaceF($newfilename);
-		$newfilename = $newfilename.'.zip';
+		
+		$newfilename = $newfilename.$suffix;
 		
 		open (MYFILE, '>'.&get_dirname.'/tags/'.$id.'.txt');
 		print MYFILE $tags;
@@ -108,8 +110,7 @@ if ($qedit->param()) {
 	    
 		#Does the passed file exist?
 		my $test = $qedit->param('file');
-		#print &get_dirname.'/'.$test.'.zip';
-		if (-e (&get_dirname.'/'.$test.'.zip'))
+		if (-e (&get_dirname.'/'.$test))
 		{
 			generateForm($qedit);	
 		}
@@ -134,14 +135,17 @@ sub generateForm
 	my ($event,$artist,$title,$series,$language,$tags,$id) = &parseName($value);
 
 	print "<div class='ido' style='text-align:center'>";
-	print $_[0]->h1({-class=>'ih', -style=>'text-align:center'},'Editing '.$title.' by '.$artist);
+	if ($artist eq "")
+		{print $_[0]->h1({-class=>'ih', -style=>'text-align:center'},'Editing '.$title);}
+	else
+		{print $_[0]->h1({-class=>'ih', -style=>'text-align:center'},'Editing '.$title.' by '.$artist);}
 	print $_[0]->start_form;
 	print "<table style='margin:auto'><tbody>";
 	
 	print "<tr><td style='text-align:left; width:100px'>Current File Name:</td><td>";
 	print $_[0]->textfield(
 			-name      => 'filename',
-			-value     => $value.'.zip',
+			-value     => $value,
 			-size      => 20,
 			-maxlength => 255,
 			-class => "stdinput",
