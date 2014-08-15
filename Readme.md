@@ -7,10 +7,10 @@ Supports tags, and runs on a basic installation of Perl with the following packa
 
 	* HTML:Tables   
 	* Image::Info  
-	* Archive::Zip  
 	* File::Tee  	
-	* Tie::File  
+	* Tie::File
 	
+An installation of unar is also required. (For Windows users, be sure to have unar and lsar in your $PATH.)  
 You will also require ImageMagick installed on your server to use thumbnails and image compression. (These are optional.)
 	
 ![No Databases!](http://a.pomf.se/okalua.png "") (almost)
