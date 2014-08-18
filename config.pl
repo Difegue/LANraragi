@@ -14,8 +14,7 @@ my $enablepass = 1;
 
 #Password for editing and uploading titles. You should probably change this, even though it's not "admin".
 my $password = "kamimamita"; 
-
-#Directory of the zip archives. Make sure your web server can serve what's inside this directory.
+#Directory of the zip archives. Make sure your web server can serve what's inside this directory. (Write rights would help too.)
 my $dirname = "./content"; 
 
 #If enabled, images will be resized when viewed through the reader to allow faster image transferring. (You can downsize individual images to 300KBs or so with 50% quality on) 
@@ -24,6 +23,9 @@ my $shitbandwidth = 0;
 
 #Quality of the converted images if passed through the shitbandwidth resizer.
 my $readerquality = 50; 
+
+#Regular Expressions used for parsing the gallery filenames.
+#my @syntax = 
 
 ###############VARIABLE SET UP ENDS HERE####################
 ######################END OF RINE###########################
@@ -88,8 +90,38 @@ sub rebuild_index
 	unlink("./index.html");
 	}
 
-#Splits a name into fields that are treated. Syntax is (Release) [Artist (Pseudonym) ] TITLE (Series) [Language] misc shit .extension
+#parseName, with regex. [^([]+ Syntax is (Release) [Artist (Pseudonym) ] TITLE (Series) [Language] misc shit .extension
 sub parseName
+	{
+	my $id = md5sum(&get_dirname.'/'.$_[0]);
+	#This regex autoparses the given string. Stuff that's between () is put in a numbered variable: $1,$2,etc
+	#(\(([^([]+)\))? returns the content of (Release). Optional.
+	#(\[([^]]+)\])? returns the content of [Artist]. Optional.
+	#([^([]+) returns the title. Mandatory.
+	#(\(([^([)]+)\))? returns the content of (Series). Optional.
+	#(\[([^]]+)\])? returns the content of [Language]. Optional.
+	#\s* indicates zero or more whitespaces.
+	$_[0] =~ /(\(([^([]+)\))?\s*(\[([^]]+)\])?\s*([^([]+)\s*(\(([^([)]+)\))?\s*(\[([^]]+)\])?/ || next;
+	my ($event,$artist,$title,$series,$language) = ($2,$4,$5,$7,$9);
+	my $tags ="";
+	
+	
+	#Is there a tag file?
+	if (-e &get_dirname.'/tags/'.$id.'.txt')
+	{
+		open (MYFILE, &get_dirname.'/tags/'.$id.'.txt'); 
+		while (<MYFILE>) {
+			$tags = $tags.$_; #copy txt into tags
+		}
+	close (MYFILE); 
+	}
+		
+	return ($event,$artist,$title,$series,$language,$tags,$id);
+	}
+	
+#Splits a name into fields that are treated. Syntax is (Release) [Artist (Pseudonym) ] TITLE (Series) [Language] misc shit .extension
+#old version with substr and stuff, use if you don't like regexes or something
+sub parseNameOld
 	{
 		my ($event,$artist,$title,$series,$language,$tags) = (" "," "," "," "," "," ");
 		my @values=(" "," ");
