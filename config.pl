@@ -4,7 +4,7 @@
 my $htmltitle = "LANraragi"; 
 
 #Text that appears on top of the page. Empty for no text. (look at me ma i'm versioning)
-my $motd = "Welcome to this Library running LANraragi v.0.1.5!"; 
+my $motd = "Welcome to this Library running LANraragi v.0.1.6!"; 
 
 #Whether or not you load thumbnails when hovering over a title. Requires an imagemagick install. (Just imagemagick, none of these perlmagick thingamabobs)
 my $thumbnails = 1; 
@@ -24,8 +24,23 @@ my $shitbandwidth = 0;
 #Quality of the converted images if passed through the shitbandwidth resizer.
 my $readerquality = 50; 
 
-#Regular Expressions used for parsing the gallery filenames.
-#my @syntax = 
+#Syntax of a gallery filename. Used in editing.
+my $syntax = "(%RELEASE) [%ARTIST] %TITLE (%SERIES) [%LANGUAGE]";
+
+#Regular Expression matching the above syntax. Used in parsing. Stuff that's between unescaped () is put in a numbered variable: $1,$2,etc
+	#This regex autoparses the given string according to the exhentai standard convention: (Release) [Artist] TITLE (Series) [Language]
+	#()? indicates the field is optional.
+	#(\(([^([]+)\))? returns the content of (Release). Optional.
+	#(\[([^]]+)\])? returns the content of [Artist]. Optional.
+	#([^([]+) returns the title. Mandatory.
+	#(\(([^([)]+)\))? returns the content of (Series). Optional.
+	#(\[([^]]+)\])? returns the content of [Language]. Optional.
+	#\s* indicates zero or more whitespaces.
+my $regex = qr/(\(([^([]+)\))?\s*(\[([^]]+)\])?\s*([^([]+)\s*(\(([^([)]+)\))?\s*(\[([^]]+)\])?/;
+
+#This sub defines which numbered variables from the regex selection are taken for display. In order:
+# [release, artist, title, series, language]
+sub regexsel { return ($2,$4,$5,$7,$9)};
 
 ###############VARIABLE SET UP ENDS HERE####################
 ######################END OF RINE###########################
@@ -40,7 +55,7 @@ sub get_password { return $password };
 sub get_dirname  { return $dirname };
 sub get_bd { return $shitbandwidth };
 sub get_quality { return $readerquality };
-
+sub get_syntax { return $syntax };
 
 use Digest::MD5 qw(md5 md5_hex md5_base64); #habbening
 
@@ -90,19 +105,15 @@ sub rebuild_index
 	unlink("./index.html");
 	}
 
-#parseName, with regex. [^([]+ Syntax is (Release) [Artist (Pseudonym) ] TITLE (Series) [Language] misc shit .extension
+#parseName, with regex. [^([]+ 
 sub parseName
 	{
 	my $id = md5sum(&get_dirname.'/'.$_[0]);
-	#This regex autoparses the given string. Stuff that's between () is put in a numbered variable: $1,$2,etc
-	#(\(([^([]+)\))? returns the content of (Release). Optional.
-	#(\[([^]]+)\])? returns the content of [Artist]. Optional.
-	#([^([]+) returns the title. Mandatory.
-	#(\(([^([)]+)\))? returns the content of (Series). Optional.
-	#(\[([^]]+)\])? returns the content of [Language]. Optional.
-	#\s* indicates zero or more whitespaces.
-	$_[0] =~ /(\(([^([]+)\))?\s*(\[([^]]+)\])?\s*([^([]+)\s*(\(([^([)]+)\))?\s*(\[([^]]+)\])?/ || next;
-	my ($event,$artist,$title,$series,$language) = ($2,$4,$5,$7,$9);
+	
+	#Use the regex.
+	$_[0] =~ $regex || next;
+	print @regexsel;
+	my ($event,$artist,$title,$series,$language) = &regexsel;
 	my $tags ="";
 	
 	

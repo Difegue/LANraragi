@@ -54,21 +54,17 @@ if ($qedit->param()) {
 		removeSpaceF($tags);
 		
 		#Create new filename.
-		if ($event ne '')
-			{$event = '('.$event.') ';}
-		if ($artist ne '')
-			{$artist = ' ['.$artist.'] ';}
-		if ($series ne '')
-			{$series = ' ('.$series.') ';}
-		if ($language ne '')
-			{$language = ' ['.$language.'] ';}
+		my $newfilename = &get_dirname.'/'.&get_syntax.$suffix;
 
+		#[REGEX INTENSIFIES]
+		$newfilename =~ s/%RELEASE/$event/g;
+		$newfilename =~ s/%ARTIST/$artist/g;
+		$newfilename =~ s/%TITLE/$title/g;
+		$newfilename =~ s/%SERIES/$series/g;
+		$newfilename =~ s/%LANGUAGE/$language/g;
 		
-		my $newfilename = &get_dirname.'/'.$event.$artist.$title.$series.$language;
-		
-		removeSpaceF($newfilename);
-		
-		$newfilename = $newfilename.$suffix;
+		#Remove empty fields.
+		$newfilename =~ s/(\(|\[|\{)(\)|\]|\})//g;
 		
 		open (MYFILE, '>'.&get_dirname.'/tags/'.$id.'.txt');
 		print MYFILE $tags;
