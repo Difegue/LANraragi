@@ -24,7 +24,7 @@ my $shitbandwidth = 0;
 #Quality of the converted images if passed through the shitbandwidth resizer.
 my $readerquality = 50; 
 
-#Syntax of a gallery filename. Used in editing.
+#Syntax of an archive's filename. Used in editing.
 my $syntax = "(%RELEASE) [%ARTIST] %TITLE (%SERIES) [%LANGUAGE]";
 
 #Regular Expression matching the above syntax. Used in parsing. Stuff that's between unescaped () is put in a numbered variable: $1,$2,etc
@@ -112,7 +112,7 @@ sub parseName
 	
 	#Use the regex.
 	$_[0] =~ $regex || next;
-	print @regexsel;
+
 	my ($event,$artist,$title,$series,$language) = &regexsel;
 	my $tags ="";
 	

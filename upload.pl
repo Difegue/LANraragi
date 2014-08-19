@@ -74,16 +74,16 @@ if ($qupload->param()) {
 					{
 						print "<div class='ido' style='text-align:center'><h1>Upload Successful!</h1><br/>";
 						print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/>";
-						print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./edit.pl?file=".$name."');\" value='Edit Uploaded Gallery'/>";
-						print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./upload.pl');\" value='Upload another Gallery'/></div>";
+						print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./edit.pl?file=".$name.$suffix."');\" value='Edit Uploaded Archive'/>";
+						print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./upload.pl');\" value='Upload another Archive'/></div>";
 						&rebuild_index; #Delete the cached index so that the uploaded file appears.
 						
 					}
 					else
 					{
-						print "<div class='ido' style='text-align:center'><h1>Unsupported archive type.</h1><br/>";
+						print "<div class='ido' style='text-align:center'><h1>Unsupported or damaged archive.</h1><br/>";
 						print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/>";
-						print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./upload.pl');\" value='Upload another Gallery'/></div>";
+						print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./upload.pl');\" value='Upload another Archive'/></div>";
 						unlink $output_file; #shut it down
 						
 					}

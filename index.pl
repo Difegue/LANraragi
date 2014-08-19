@@ -209,6 +209,14 @@ $table->print; #print our finished table
 
 print "</div></div>";
 
+print '		<p class="ip">
+			[
+			<a href="https://github.com/Difegue/LANraragi">
+				Spread da word, yo.
+			</a>
+			]
+		</p>';
+		
 print end_html; #close html
 
 #clean up our index.html a bit. 
@@ -217,5 +225,6 @@ print end_html; #close html
 use Tie::File;
 my @array;
 tie @array, 'Tie::File', './index.html' or die $!;
+shift @array;
 shift @array;
 untie @array;
