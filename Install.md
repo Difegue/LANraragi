@@ -15,8 +15,9 @@ apt-get install apache2
 apt-get install perl
 ```
 
-* The Required **Perl packages**. I recommend installing cpanminus (curl -L http://cpanmin.us | perl - --sudo App::cpanminus) to make it easier: 
+* The Required **Perl packages**. I recommend installing cpanminus to make it easier: 
 ``` 
+curl -L http://cpanmin.us | perl - --sudo App::cpanminus
 cpanm -i HTML::Table Image::Info File::Tee Tie::File  
 ```
 * **unar**. 
