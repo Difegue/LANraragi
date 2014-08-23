@@ -41,10 +41,10 @@ Something like this in **sites-enabled**:
 Be sure to set **read-write permissions** for your web server on the LANraragi directory.  
 
 ##For Windows Users:  
-http://httpd.apache.org/docs/2.2/platform/windows.html for Apache.
+http://httpd.apache.org/docs/2.2/platform/windows.html for Apache.  
 http://learn.perl.org/installing/windows.html for Perl and cpanm.  
-http://www.imagemagick.org/script/binary-releases.php for Imagemagick.
-http://theunarchiver.googlecode.com/files/unar1.8.1_win.zip for unar.
+http://www.imagemagick.org/script/binary-releases.php for Imagemagick.  
+http://theunarchiver.googlecode.com/files/unar1.8.1_win.zip for unar.  
 
-It hasn't been tested, but a LANraragi install should run well on a Windows system if you install these. 
+It hasn't been tested, but a LANraragi install should run well on a Windows system if you install these.  
 **Remember to add unar to your $PATH.**
