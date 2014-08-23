@@ -132,6 +132,14 @@ foreach $file (@dircontents)
 	my $icons = qq(<a href="$dirname/$file" title="Download this archive."><img src="./img/save.png"><a/> <a href="./edit.pl?file=$name$suffix" title="Edit this archive's tags and data."><img src="./img/edit.gif"><a/>);
 	#WHAT THE FUCK AM I DOING
 	#When generating the line that'll be added to the table, user-defined options have to be taken into account.
+	
+	#Truncated tag display.
+	my $printedtags = $event." ".$tags;
+	if (length $printedtags > 50)
+		{
+		my $trunc = substr($event." ".$tags,0,47)."...";
+		$printedtags = qq(<a onmouseover="this.innerHTML='$printedtags';" onmouseout="this.innerHTML='$trunc';">$trunc</a>); #create a popup here or smthng
+		}
 		
 	#version with hover thumbnails 
 	if (&enable_thumbs)
@@ -139,11 +147,11 @@ foreach $file (@dircontents)
 		my $height = image_info($thumbname);
 		$height = $height->{height};
 		
-		$table->addRow($icons,qq(<a href="./reader.pl?file=$name$suffix" onmouseover="showtrail(200,$height,'$thumbname');" onmouseout="hidetrail();">$title</a>),$artist,$series,$language,$event." ".$tags);
+		$table->addRow($icons,qq(<a href="./reader.pl?file=$name$suffix" onmouseover="showtrail(200,$height,'$thumbname');" onmouseout="hidetrail();">$title</a>),$artist,$series,$language,$printedtags);
 	}
 	else #version without. ezpz
 	{
-		$table->addRow($icons,qq(<a href="./reader.pl?file=$name$suffix">$title</a>),$artist,$series,$language,$event." ".$tags);
+		$table->addRow($icons,qq(<a href="./reader.pl?file=$name$suffix">$title</a>),$artist,$series,$language,$printedtags);
 	}
 		
 	$table->setSectionClass ('tbody', -1, 'list' );

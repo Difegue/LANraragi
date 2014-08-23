@@ -5,7 +5,7 @@ LANraragi
 Web interface and reader for a server-stored directory of comics (as archives).
 Supports tags, and runs on a basic installation of Perl with the following packages installed:  
 
-	* HTML:Tables   
+	* HTML:Table  
 	* Image::Info  
 	* File::Tee  	
 	* Tie::File
