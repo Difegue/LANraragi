@@ -10,6 +10,8 @@ Supports tags, and runs on a basic installation of Perl with the following packa
 	* File::Tee  	
 	* Tie::File
 	
+You can find a basic installation guide [here](https://github.com/Difegue/LANraragi/blob/master/Install.md).
+	
 An installation of unar is also required. (For Windows users, be sure to have unar and lsar in your $PATH.)  
 You will also require ImageMagick installed on your server to use thumbnails and image compression. (These are optional.)
 	

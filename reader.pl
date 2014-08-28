@@ -43,11 +43,11 @@ if ($qedit->param())
 	unless((-e $path) && ($force eq "0"))
 		{
 			my $zipFile= &get_dirname."/".$filename;
-			
 			unless ( `unar -o $path "$zipFile"`) #Extraction using unar
 				{  # Make sure archive got read
 				&rebuild_index;
-				die 'Archive parsing error!';
+				print 'Archive parsing error!';
+				exit;
 				}
 		}
 		
@@ -76,10 +76,15 @@ if ($qedit->param())
 	
 	#convert to a cheaper on bandwidth format if the option is enabled.
 	if (&get_bd)
-		{
-			`mogrify -geometry 1064x -quality $quality @images[$pagenum-1]`; 
+	{
+			#Is the file size higher than the threshold?
+			if ( (int((-s @images[$pagenum-1] )/ 1024*10)/10 ) > &get_threshold)
+			{
+				#print "mogrify -geometry 1064x -quality $quality $i";
+				`mogrify -geometry 1064x -quality $quality "@images[$pagenum-1]"`; 
+			}
 			#since we're operating on the extracted file, the original, tucked away in the .zip, isn't harmed. Downloading the zip grants the highest quality.
-		}
+	}
 	
 	#At this point, @images contains paths to the images extracted from the archive, in numeric order. 
 	#We also have the page number that needs to be displayed. That's all we need!
@@ -140,8 +145,16 @@ if ($qedit->param())
 	
 	my $fileinfo ='<div id = "fileinfo">'. $namet.$suffixt .' :: '. $info->{width} .' x '. $info->{height} .' :: '. $size .'KBs</div>';
 	
+	#We need to sanitize the image's path, in case the folder contains illegal characters, but uri_escape would also nuke the / needed for navigation.
+	#Let's solve this with a quick regex search&replace.
+	#First, we sanitize it all...
+	@images[$pagenum-1] = &uri_escape(@images[$pagenum-1]);
+	
+	#Then we bring the slashes back.
+	@images[$pagenum-1] =~ s!%2F!/!g;
+	
 	print '<div id="i1" class="sni" style="width: 1072px; max-width: 1072px;">
-			<h1>'.uri_unescape($filename).'</h1>
+			<h1>'.&uri_unescape($filename).'</h1>
 			
 			<div id="i2">'.$pagesel.$arrows.$fileinfo.'</div>
 			
