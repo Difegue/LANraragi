@@ -107,50 +107,59 @@ foreach $file (@dircontents)
 				
 				my $path = $dirname."/thumb/temp";		
 				
-				`unar -D -o $path "$zipFile"`; #Extract the archive with unar. 
-				#In case you're wondering why I extract it all instead of only extracting the first file, the -i 0 option doesn't always return the first image.
-				#So I extract them all and sort before picking the first. I could work with lsar but fuck that shit it's too bothersome, extracting is far from being the longest task in this anyway (that award goes to convert)
-								
-				#gotta find the image..
-				my @extracted;
-				find({ wanted => sub { 
-										if ($_ =~ /^(.*\/)*.+\.(png|jpg|gif|bmp|jpeg|PNG|JPG|GIF|BMP)$/ ) #is it an image? readdir tends to read folder names too...
-											{push @extracted, $_ }
-									} , no_chdir => 1 }, $path); #find () does exactly that. 
-		
+				#Get lsar's output, jam it in an array, and use it as @extracted.
+				my $vals = `lsar "$zipFile"`; 
+				#print $vals;
+				my @lsarout = split /\n/, $vals;
+				my @extracted; 
+				
+				#The -i 0 option doesn't always return the first image, so we gotta rely on that lsar thing.
+				#Sort on the lsar output to find the first image.					
+				foreach $_ (@lsarout) 
+					{
+					if ($_ =~ /^(.*\/)*.+\.(png|jpg|gif|bmp|jpeg|PNG|JPG|GIF|BMP)$/ ) #is it an image? lsar can give us folder names.
+						{push @extracted, $_ }
+					}
+						
 				@extracted = sort { lc($a) cmp lc($b) } @extracted;
 				
-				#use ImageMagick to make the thumbnail. I tried using PerlMagick but it's a piece of ass, can't get it to build :s
-				`convert -size 200x -geometry 200x -quality 75 "@extracted[0]" $thumbname`;
+				#print @extracted[0];
 				
-				#Delete the previously extracted files.
-				foreach (@extracted)
-					{unlink $_};
+				#let's extract now.
+				print qq(unar -D -o $path "$zipFile" "@extracted[0]");
+				`unar -D -o $path "$zipFile" "@extracted[0]"`;	
+				
+				my $path2 = $path.'/'.@extracted[0];
+				#use ImageMagick to make the thumbnail. I tried using PerlMagick but it's a piece of ass, can't get it to build :s
+				`convert -strip -thumbnail 200x "$path2" $thumbname`;
+				
+				#Delete the previously extracted file.
+				#unlink $path2;
 			}
 	}
 		
-	my $icons = qq(<a href="$dirname/$file" title="Download this archive."><img src="./img/save.png"><a/> <a href="./edit.pl?file=$name$suffix" title="Edit this archive's tags and data."><img src="./img/edit.gif"><a/>);
+	my $icons = qq(<a href="$dirname/$name$suffix" title="Download this archive."><img src="./img/save.png"><a/> <a href="./edit.pl?file=$name$suffix" title="Edit this archive's tags and data."><img src="./img/edit.gif"><a/>);
 	#WHAT THE FUCK AM I DOING
 	#When generating the line that'll be added to the table, user-defined options have to be taken into account.
 	
-	#Truncated tag display.
+	#Truncated tag display. Works with some hella disgusting CSS shit.
 	my $printedtags = $event." ".$tags;
 	if (length $printedtags > 50)
-		{
-		my $trunc = substr($event." ".$tags,0,47)."...";
-		$printedtags = qq(<a onmouseover="this.innerHTML='$printedtags';" onmouseout="this.innerHTML='$trunc';">$trunc</a>); #create a popup here or smthng
-		}
+	{
+		$printedtags = qq(<a class="tags" style="text-overflow:ellipsis;">$printedtags</a><div class="ido caption" style="position:absolute;">$printedtags</div>); 
+	}
 		
 	#version with hover thumbnails 
 	if (&enable_thumbs)
 	{
 		my $height = image_info($thumbname);
 		$height = $height->{height};
-		
+		#add row to table
 		$table->addRow($icons,qq(<a href="./reader.pl?file=$name$suffix" onmouseover="showtrail(200,$height,'$thumbname');" onmouseout="hidetrail();">$title</a>),$artist,$series,$language,$printedtags);
 	}
-	else #version without. ezpz
+	else #version without, ezpz
 	{
+		#add row to table
 		$table->addRow($icons,qq(<a href="./reader.pl?file=$name$suffix">$title</a>),$artist,$series,$language,$printedtags);
 	}
 		
@@ -192,6 +201,36 @@ print header,start_html
 							var mangoList = new List('toppane', options);
 				document.getElementById('srch').value = '';" #empty cached filter, while we're at it.
 	);
+
+#Pure CSS for the tag hover popups. The javascript used for the image thumbnails would've worked poorly here(due to moving along the mouse and the overall size of the tag popups)
+#It ain't the prettiest, but as usual, fuck JQuery.
+print '<style> 
+
+.tags
+{
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.caption {
+   border: 1px solid #888888;
+   background-color: #65F74E;
+   min-width: 0px !important;
+   width: 50% !important;
+   max-width: 50% !important;
+   white-space: normal !important;
+   margin-top: 0px !important;
+   margin-left: -25% !important;
+   display: none;
+}
+
+.tags:hover .caption {
+   display: block;
+}
+
+</style>';
 	
 print '<p id="nb">
 

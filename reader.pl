@@ -43,6 +43,8 @@ if ($qedit->param())
 	unless((-e $path) && ($force eq "0"))
 		{
 			my $zipFile= &get_dirname."/".$filename;
+			#print 'unar -o '.$path.' "'.$zipFile.'"';
+			
 			unless ( `unar -o $path "$zipFile"`) #Extraction using unar
 				{  # Make sure archive got read
 				&rebuild_index;
@@ -60,7 +62,7 @@ if ($qedit->param())
 		
 	@images = sort { lc($a) cmp lc($b) } @images;
 		
-	
+	#print @images;
 	
 	if ($qedit->param('page')) #Has a specific page been mentioned? If so, that's the one we'll need to display.
 		{
@@ -75,13 +77,14 @@ if ($qedit->param())
 		}
 	
 	#convert to a cheaper on bandwidth format if the option is enabled.
-	if (&get_bd)
+	if (&get_threshold != 0)
 	{
 			#Is the file size higher than the threshold?
+			#print (int((-s @images[$pagenum-1] )/ 1024*10)/10 );
 			if ( (int((-s @images[$pagenum-1] )/ 1024*10)/10 ) > &get_threshold)
 			{
 				#print "mogrify -geometry 1064x -quality $quality $i";
-				`mogrify -geometry 1064x -quality $quality "@images[$pagenum-1]"`; 
+				`mogrify -scale 1064x -quality $quality "@images[$pagenum-1]"`; 
 			}
 			#since we're operating on the extracted file, the original, tucked away in the .zip, isn't harmed. Downloading the zip grants the highest quality.
 	}
@@ -181,8 +184,12 @@ if ($qedit->param())
 			<a href="./">Go back to library </a>
 			</div>
 			
-			<div id="i7" class="if"></div>
-		</div>'
+			<div id="i7" class="if">
+			<img class="mr" src="./img/mr.gif"></img>
+			<a href="'.@images[$pagenum-1].'">View full-size image</a>
+			</div>
+			
+		</div>';
 } 
 else 
 {

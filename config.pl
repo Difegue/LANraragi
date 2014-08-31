@@ -22,15 +22,13 @@ my $password = "kamimamita";
 #Directory of the zip archives. Make sure your web server can serve what's inside this directory. (Write rights would help too.)
 my $dirname = "./content"; 
 
-#If enabled, images will be resized when viewed through the reader to allow faster image transferring. (You can downsize individual images to 300KBs or so with 50% quality on) 
-#Keep in mind the resizing will take some extra time upon loading images, so you should only use this when making your library available through the internet. Requires imagemagick.
-my $shitbandwidth = 1; 
+#Resize images in reader when the original is heavier than this size. (in KBs.) (0 for no resizing)
+my $sizethreshold = 900;
 
-#Quality of the converted images if passed through the shitbandwidth resizer.
+#Quality of the converted images if resized.
 my $readerquality = 90; 
 
-#How big must the original image be to trigger a resize? Size in KBs.
-my $sizethreshold = 900;
+
 
 #Number of archives shown on a page. 0 for no pages.
 my $pagesize = 100;
@@ -64,7 +62,6 @@ sub enable_thumbs { return $thumbnails };
 sub enable_pass { return $enablepass };
 sub get_password { return $password };
 sub get_dirname  { return $dirname };
-sub get_bd { return $shitbandwidth };
 sub get_quality { return $readerquality };
 sub get_syntax { return $syntax };
 sub get_threshold { return $sizethreshold };
