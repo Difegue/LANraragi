@@ -1,7 +1,7 @@
 LANraragi
 ============
 
-![Demo(fuck das lewd)!](http://a.pomf.se/lrnzmv.jpg "")
+![Demo(fuck das lewd)!](http://a.pomf.se/dzjwgn.png "")
 Web interface and reader for a server-stored directory of comics (as archives).
 Supports tags, and runs on a basic installation of Perl with the following packages installed:  
 
