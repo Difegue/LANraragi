@@ -1,0 +1,40 @@
+/*Pure CSS for the tag hover popups. The javascript used for the image thumbnails would've worked poorly here(due to moving along the mouse and the overall size of the tag popups)
+It ain't the prettiest, but as usual, fuck JQuery.*/
+.tags
+{
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.caption {
+   border: 1px solid #888888;
+   background-color: #65F74E;
+   min-width: 0px !important;
+   width: 50% !important;
+   max-width: 50% !important;
+   white-space: normal !important;
+   margin-top: 0px !important;
+   margin-left: -25% !important;
+   display: none;
+}
+
+.tags:hover .caption {
+   display: block;
+}
+
+table .sort {
+background-image: url(../img/down.png);
+background-repeat: no-repeat;
+background-position: right center;
+padding-right: 14px;
+cursor: pointer;
+cursor: hand;
+}
+table .sort.asc {
+background-image: url(../img/down.png);
+}
+table .sort.desc {
+background-image: url(../img/up.png);
+}

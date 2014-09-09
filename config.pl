@@ -28,8 +28,6 @@ my $sizethreshold = 900;
 #Quality of the converted images if resized.
 my $readerquality = 90; 
 
-
-
 #Number of archives shown on a page. 0 for no pages.
 my $pagesize = 100;
 

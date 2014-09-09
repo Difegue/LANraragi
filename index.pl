@@ -33,7 +33,8 @@ my $table = new HTML::Table(-rows=>0,
                             -oddrowclass=>'gtr1');
 							
 
-$table->addSectionRow ( 'thead', 0, ""," Title"," Artist/Group"," Series"," Language"," Tags");
+
+$table->addSectionRow ( 'thead', 0, "",'<a class="sort desc" data-sort="title">Title</a>','<a class="sort desc" data-sort="artist">Artist/Group</a>','<a class="sort desc" data-sort="series">Series</a>'," Language"," Tags");
 $table->setSectionRowHead('thead', -1, -1, 1);
 
 #Special parameters for list.js implementation (i want to die)
@@ -155,12 +156,12 @@ foreach $file (@dircontents)
 		my $height = image_info($thumbname);
 		$height = $height->{height};
 		#add row to table
-		$table->addRow($icons,qq(<a href="./reader.pl?file=$name$suffix" onmouseover="showtrail(200,$height,'$thumbname');" onmouseout="hidetrail();">$title</a>),$artist,$series,$language,$printedtags);
+		$table->addRow($icons,qq(<span style="display: none;">$title</span><a href="./reader.pl?file=$name$suffix" onmouseover="showtrail(200,$height,'$thumbname');" onmouseout="hidetrail();">$title</a>),$artist,$series,$language,$printedtags);
 	}
 	else #version without, ezpz
 	{
 		#add row to table
-		$table->addRow($icons,qq(<a href="./reader.pl?file=$name$suffix">$title</a>),$artist,$series,$language,$printedtags);
+		$table->addRow($icons,qq(<span style="display: none;">$title</span><a href="./reader.pl?file=$name$suffix">$title</a>),$artist,$series,$language,$printedtags);
 	}
 		
 	$table->setSectionClass ('tbody', -1, 'list' );
@@ -189,7 +190,8 @@ print header,start_html
 	(
 	-title=>&get_htmltitle,
     -author=>'lanraragi-san',
-    -style=>{'src'=>'./styles/ex.css'},
+    -style=>[{'src'=>'./styles/ex.css'},
+				{'src'=>'./styles/lrr.css'}],
 	-script=>[{-type=>'JAVASCRIPT',
 					-src=>'https://raw.githubusercontent.com/javve/list.js/v1.1.1/dist/list.min.js'},			
 				{-type=>'JAVASCRIPT',
@@ -201,36 +203,6 @@ print header,start_html
 							var mangoList = new List('toppane', options);
 				document.getElementById('srch').value = '';" #empty cached filter, while we're at it.
 	);
-
-#Pure CSS for the tag hover popups. The javascript used for the image thumbnails would've worked poorly here(due to moving along the mouse and the overall size of the tag popups)
-#It ain't the prettiest, but as usual, fuck JQuery.
-print '<style> 
-
-.tags
-{
-    max-width: 250px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.caption {
-   border: 1px solid #888888;
-   background-color: #65F74E;
-   min-width: 0px !important;
-   width: 50% !important;
-   max-width: 50% !important;
-   white-space: normal !important;
-   margin-top: 0px !important;
-   margin-left: -25% !important;
-   display: none;
-}
-
-.tags:hover .caption {
-   display: block;
-}
-
-</style>';
 	
 print '<p id="nb">
 
