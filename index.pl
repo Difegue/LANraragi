@@ -126,16 +126,19 @@ foreach $file (@dircontents)
 				
 				#print @extracted[0];
 				
+				#unar sometimes crashes on certain folder names inside archives. To solve that, we replace folder names with the wildcard * through regex.
+				my $unarfix = @extracted[0];
+				$unarfix =~ s/[^\/]+\//*\//g;
+				
 				#let's extract now.
-				print qq(unar -D -o $path "$zipFile" "@extracted[0]");
-				`unar -D -o $path "$zipFile" "@extracted[0]"`;	
+				`unar -D -o $path "$zipFile" "$unarfix"`;	
 				
 				my $path2 = $path.'/'.@extracted[0];
 				#use ImageMagick to make the thumbnail. I tried using PerlMagick but it's a piece of ass, can't get it to build :s
 				`convert -strip -thumbnail 200x "$path2" $thumbname`;
 				
 				#Delete the previously extracted file.
-				#unlink $path2;
+				unlink $path2;
 			}
 	}
 		
