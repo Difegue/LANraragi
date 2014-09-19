@@ -18,7 +18,7 @@ apt-get install perl
 * The Required **Perl packages**. I recommend installing cpanminus to make it easier: 
 ``` 
 curl -L http://cpanmin.us | perl - --sudo App::cpanminus
-cpanm -i HTML::Table Image::Info File::Tee Tie::File  
+cpanm -i HTML::Table Image::Info File::Tee Tie::File Digest::SHA
 ```
 * **unar**. 
 ```
@@ -47,5 +47,5 @@ http://learn.perl.org/installing/windows.html for Perl and cpanm.
 http://www.imagemagick.org/script/binary-releases.php for Imagemagick.  
 http://theunarchiver.googlecode.com/files/unar1.8.1_win.zip for unar.  
 
-It hasn't been tested, but a LANraragi install should run well on a Windows system if you install these.  
+It hasn't been tested, but a LANraragi install should run well on a Windows system if you install these and go through the steps of the Linux installation. 
 **Remember to add unar to your $PATH.**

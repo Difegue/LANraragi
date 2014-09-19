@@ -41,7 +41,7 @@ if ($qedit->param()) {
 		my $tags = $qedit->param('tags');
 		my $oldfilename = $qedit->param('filename');
 		
-		my $id = md5sum(&get_dirname.'/'.$oldfilename);
+		my $id = shasum(&get_dirname.'/'.$oldfilename);
 		
 		my ($name,$path,$suffix) = fileparse($oldfilename, qr/\.[^.]*/);
 		
@@ -73,8 +73,8 @@ if ($qedit->param()) {
 		#Maybe it already exists? Return an error if so.
 		if (-e $newfilename)
 			{
-			#If the filename is the same, maybe the user only changed tags? We should check if the md5 of the existing file is the same as ours.
-			if ($id eq md5sum($newfilename))
+			#If the filename is the same, maybe the user only changed tags? We should check if the sha of the existing file is the same as ours.
+			if ($id eq shasum($newfilename))
 				{
 				&rebuild_index;
 				print "<div class='ido' style='text-align:center'><h1>Edit Successful!</h1><br/>"; 

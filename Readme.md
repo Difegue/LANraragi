@@ -9,6 +9,7 @@ Supports tags, and runs on a basic installation of Perl with the following packa
 	* Image::Info  
 	* File::Tee  	
 	* Tie::File
+	* Digest::SHA
 	
 You can find a basic installation guide [here](https://github.com/Difegue/LANraragi/blob/master/Install.md).
 	

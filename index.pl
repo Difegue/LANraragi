@@ -134,6 +134,13 @@ foreach $file (@dircontents)
 				`unar -D -o $path "$zipFile" "$unarfix"`;	
 				
 				my $path2 = $path.'/'.@extracted[0];
+				
+				#While we have the image, grab its SHA-1 hash for potential tag research later.
+				#TODO: Remake with JSON in one $id file
+				open (MYFILE, '>'.&get_dirname.'/tags/'.$id.'-SHA.txt');
+				print MYFILE shasum($path2);
+				close (MYFILE); 
+				
 				#use ImageMagick to make the thumbnail. I tried using PerlMagick but it's a piece of ass, can't get it to build :s
 				`convert -strip -thumbnail 200x "$path2" $thumbname`;
 				

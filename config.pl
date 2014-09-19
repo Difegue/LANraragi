@@ -66,15 +66,14 @@ sub get_threshold { return $sizethreshold };
 sub get_pagesize { return $pagesize };
 sub get_thumbpref { return $generateonindex };
 
-use Digest::MD5 qw(md5 md5_hex md5_base64); #habbening
+use Digest::SHA qw(sha1 sha1_hex sha1_base64); #habbening
 
-#This handy function gives us a md5 hash for the passed file, which is used as an id for some files. It's possible to make it so that two files have the same md5 hashes, but I ain't gonna bother implementing something else, hf breaking it if you want to
-sub md5sum{
-  my $file = shift;
+#This handy function gives us a SHA-1 hash for the passed file, which is used as an id for some files. 
+sub shasum{
   my $digest = "";
   eval{
-    open(FILE, $file) or die "Can't find file $file\n";
-    my $ctx = Digest::MD5->new;
+    open(FILE, $_[0]) or die "Can't find file $file\n";
+    my $ctx = Digest::SHA->new;
     $ctx->addfile(*FILE);
     $digest = $ctx->hexdigest;
     close(FILE);
@@ -117,7 +116,7 @@ sub rebuild_index
 #parseName, with regex. [^([]+ 
 sub parseName
 	{
-	my $id = md5sum(&get_dirname.'/'.$_[0]);
+	my $id = shasum(&get_dirname.'/'.$_[0]);
 	
 	#Use the regex.
 	$_[0] =~ $regex || next;
@@ -146,7 +145,7 @@ sub parseNameOld
 		my ($event,$artist,$title,$series,$language,$tags) = (" "," "," "," "," "," ");
 		my @values=(" "," ");
 		my $temp=$_[0];
-		my $id = md5sum(&get_dirname.'/'.$_[0]);
+		my $id = shasum(&get_dirname.'/'.$_[0]);
 		my $noseries = 0;
 		
 		#Split up the filename

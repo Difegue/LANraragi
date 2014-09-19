@@ -19,7 +19,7 @@ if ($qedit->param())
 {
     # We got a file name, let's get crackin'.
 	my $filename = $qedit->param('file');
-	my $id = md5sum(&get_dirname.'/'.$filename);
+	my $id = shasum(&get_dirname.'/'.$filename);
 	
 	#First, where is our temporary directory? Makes it so that if the same user opens an archive, it doesn't re-extract it all the time.
 	my $tempdir= "";
