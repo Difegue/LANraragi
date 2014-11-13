@@ -29,7 +29,7 @@ sub EHSearch_Hash
 	my $content = get('http://g.e-hentai.org/?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1&f_search=Search+Keywords&f_apply=Apply+Filter&f_shash='.$_[0].'&fs_similar=1') or die 'Unable to get page';
 	
 	#$content is a full web page. But it contains the gallery ID we'll pass to the JSON API afterwards. Let's look for it:
-	$content =~ m/g\/xxxx\/yyyyy/;
+	$content =~ m/g\/[^\/]+\/[^\/]/;
 	
 	#GID needs to be in a xxxx/"yyyyy" format. Regex!
 	
@@ -68,16 +68,18 @@ if ($qupload->param()) {
 			}
 		else
 			{ 
-			#Search for the mentioned hash, get 
+			#Get hash from $id-SHA.txt, then use EHSearch_Hash.
+			
+			
 			}
 		}
 }
 else
 {
-	#Print the upload form.
+	#Print the form.
 	
 	print "<div class='ido' style='text-align:center'>";
-	print $qupload->h1( {-class=>'ih', -style=>'text-align:center'},"Import Tags from g.e-hentai.org");
+	print $qupload->h1( {-class=>'ih', -style=>'text-align:center'},"Import Tags from E-Hentai API.");
 	print $qupload->start_form;
 	print "<table style='margin:auto'><tbody>";
 	

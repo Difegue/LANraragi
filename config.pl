@@ -104,6 +104,12 @@ sub removeSpaceF #hue
 	removeSpace($_[0]);
 	removeSpaceR($_[0]);
 	}
+
+#Parse index.html and return a map where name -> table line html.
+sub parse_index
+	{
+	
+	}
 	
 #Delete the cached index.html. 
 #This doesn't really require a sub, but it's cleaner in code to have "rebuild_index" instead of "unlink(./index.html);"

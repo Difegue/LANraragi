@@ -162,9 +162,14 @@ if ($qedit->param())
 			<div id="i2">'.$pagesel.$arrows.$fileinfo.'</div>
 			
 			<div id ="i3">
-			<a id ="display" href="./reader.pl?file='.$filename.'&page='.($pagenum+1).'">
+			
+			<a style=" z-index: 10; position: absolute; width:50%; height:100%;" href="./reader.pl?file='.$filename.'&page='.($pagenum-1).'"></a>
+			<a style=" z-index: 10; position: absolute; left:50%; width:50%; height:100%;" href="./reader.pl?file='.$filename.'&page='.($pagenum+1).'"></a>
+			
+			<a id ="display">
 			<img id="img" style="width: 1052px; max-width: 1052px; max-height: 1500px;" src="'.@images[$pagenum-1].'"></img>
 			</a>
+	
 			</div>
 			
 			<div id = "i4">'.$fileinfo.$pagesel.$arrows.'</div>

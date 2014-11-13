@@ -136,7 +136,7 @@ foreach $file (@dircontents)
 				my $path2 = $path.'/'.@extracted[0];
 				
 				#While we have the image, grab its SHA-1 hash for potential tag research later.
-				#TODO: Remake with JSON in one $id file
+				#TODO: Remake with JSON in one $id file. Maybe.
 				open (MYFILE, '>'.&get_dirname.'/tags/'.$id.'-SHA.txt');
 				print MYFILE shasum($path2);
 				close (MYFILE); 
