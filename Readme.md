@@ -23,5 +23,5 @@ UI and project mostly inspired by the good folks over at sadpanda, and the Wani 
 Note that this is a rather simple project and is only meant to be a frontend to an archive, if you're looking for a non-Web, non-Server solution I'd recommend [the Hydrus suite](http://github.com/hydrusnetwork).
 (Which has also the benefit of being way more advanced.)
 
-Demo @ http://eeisti.eistiens.net/panda (Might not be up-to-date!)  
+New demo website coming soonish. 
 config.pl contains a lot of variables you can define yourself. They're properly explained in the file itself.

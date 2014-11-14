@@ -203,15 +203,21 @@ print header,start_html
     -style=>[{'src'=>'./styles/ex.css'},
 				{'src'=>'./styles/lrr.css'}],
 	-script=>[{-type=>'JAVASCRIPT',
-					-src=>'https://raw.githubusercontent.com/javve/list.js/v1.1.1/dist/list.min.js'},			
+					-src=>'https://raw.githubusercontent.com/javve/list.js/v1.1.1/dist/list.min.js'},
+				{-type=>'JAVASCRIPT',
+					-src=>'https://raw.githubusercontent.com/javve/list.pagination.js/v0.1.1/dist/list.pagination.min.js'},	
 				{-type=>'JAVASCRIPT',
 					-src=>'./js/thumb.js'}],	
 	-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'}),],
 	-encoding => "utf-8",
-	#on Load, initialize list.js.
-	-onLoad => "javascript:var options = {valueNames: ['title', 'artist', 'series', 'language', 'tags']};
+	#on Load, initialize list.js and pages.
+	-onLoad => "javascript:var options = {
+											valueNames: ['title', 'artist', 'series', 'language', 'tags'], 
+											page:".&get_pagesize.", outerWindow: 1, 
+											plugins: [ ListPagination({}) ]
+										};
 							var mangoList = new List('toppane', options);
-				document.getElementById('srch').value = '';" #empty cached filter, while we're at it.
+				document.getElementById('srch').value = '';" #empty the cached filter, while we're at it.
 	);
 	
 print '<p id="nb">
@@ -236,7 +242,7 @@ print "<input type='text' id='srch' class='search stdinput' size='90' placeholde
 
 $table->print; #print our finished table
 
-print "</div></div>";
+print "<ul class='pagination'></ul></div></div>";
 
 print '		<p class="ip">
 			[
