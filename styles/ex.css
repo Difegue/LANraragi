@@ -81,17 +81,15 @@ td.itu div{width:120px;overflow:hidden}
 td.itdc{text-align:left;padding:0 1px 0 2px;margin:0;border-right:1px solid #40454b}
 
 /* page selector */
-table.ptt{padding:0px;border-collapse:collapse;clear:both;color:#f1f1f1}
-table.ptt td{text-align:center;height:15px;width:31px;background:#34353b;cursor:pointer;border:1px solid #000000;border-bottom:0}
-table.ptt td:hover{color:#000000;background:#43464e}
-table.ptt a{text-decoration:none}
-table.ptt span{color:#C2A8A4}
+.paginationTop li {display:inline-block; text-align:center;height:15px;width:31px;background:#34353b;cursor:pointer;border:1px solid #000000}
+.paginationTop li:hover{color:#000000;background:#43464e}
+.paginationTop a{text-decoration:none}
+.paginationTop span{color:#C2A8A4}
 
-table.ptb{padding:0px;border-collapse:collapse;clear:both;color:#f1f1f1}
-table.ptb td{text-align:center;height:15px;width:31px;background:#34353b;cursor:pointer;border:1px solid #000000;border-top:0}
-table.ptb td:hover{color:#000000;background:#43464e}
-table.ptb a{text-decoration:none}
-table.ptb span{color:#C2A8A4}
+.paginationBottom li {display:inline-block; text-align:center;height:15px;width:31px;background:#34353b;cursor:pointer;border:1px solid #000000}
+.paginationBottom li:hover{color:#000000;background:#43464e}
+.paginationBottom a{text-decoration:none}
+.paginationBottom span{color:#C2A8A4}
 
 td.ptds{font-weight:bold;font-size:10pt;color:#000000 !important;background:#43464e !important}
 td.ptds a{font-weight:bold;font-size:10pt}

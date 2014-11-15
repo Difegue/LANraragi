@@ -6,7 +6,7 @@ use HTML::Table;
 use File::Path qw(make_path remove_tree);
 use File::Basename;
 use URI::Escape;
-use File::Tee qw(tee);
+use Capture::Tiny qw(tee_stdout); 
 use Image::Info qw(image_info dim);
 use utf8;
 use File::Find qw(find);
@@ -15,6 +15,8 @@ use File::Find qw(find);
 require 'config.pl';
 
 remove_tree(&get_dirname.'/temp'); #Remove temp dir.
+
+print("Setting up main table..\n");
 
 my $q = CGI->new;  #our html 
 my $table = new HTML::Table(0,6);
@@ -55,6 +57,7 @@ my $fullfile="";
 my $count;
 my @dircontents;
 
+print("Opening and reading files in content directory.. (".(time() - $^T)." seconds)\n");
 opendir(DIR, &get_dirname) or die "Can't open the content directory ".&get_dirname.": $!";
 
 while (defined($file = readdir(DIR))) 
@@ -80,7 +83,11 @@ while (defined($file = readdir(DIR)))
 	
 	}
 
+print("Sorting files...(".(time() - $^T)." seconds)\n");
+	
 @dircontents = &parseSort(@dircontents);
+
+print("Parsing contents and making thumbnails...(".(time() - $^T)." seconds)\n");
 
 foreach $file (@dircontents)
 {
@@ -188,72 +195,94 @@ $table->setColClass(6,'tags itu');
 $table->setColWidth(1,36);
 
 #let's print the HTML.
+print("Printing HTML...(".(time() - $^T)." seconds)");
 
 #Everything printed in the following will be printed into index.html, effectively creating a cache. wow!
 if (-e "index.html")
 {
 	unlink("index.html");
 }
-tee(STDOUT, '>', 'index.html');
 
-print header,start_html
-	(
-	-title=>&get_htmltitle,
-    -author=>'lanraragi-san',
-    -style=>[{'src'=>'./styles/ex.css'},
-				{'src'=>'./styles/lrr.css'}],
-	-script=>[{-type=>'JAVASCRIPT',
-					-src=>'https://raw.githubusercontent.com/javve/list.js/v1.1.1/dist/list.min.js'},
-				{-type=>'JAVASCRIPT',
-					-src=>'https://raw.githubusercontent.com/javve/list.pagination.js/v0.1.1/dist/list.pagination.min.js'},	
-				{-type=>'JAVASCRIPT',
-					-src=>'./js/thumb.js'}],	
-	-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'}),],
-	-encoding => "utf-8",
-	#on Load, initialize list.js and pages.
-	-onLoad => "javascript:var options = {
-											valueNames: ['title', 'artist', 'series', 'language', 'tags'], 
-											page:".&get_pagesize.", outerWindow: 1, 
-											plugins: [ ListPagination({}) ]
-										};
-							var mangoList = new List('toppane', options);
-				document.getElementById('srch').value = '';" #empty the cached filter, while we're at it.
-	);
-	
-print '<p id="nb">
+open(my $fh, ">", "index.html");
 
-    <img alt="" src="./img/mr.gif"></img>
-    <a href="./index.pl">Rebuild Front Page</a>
-    <img alt="" src="./img/mr.gif"></img>
-    <a href="./upload.pl">Upload Archive</a>
-    <img alt="" src="./img/mr.gif"></img>
-    <a href="./torrent.pl">Get Torrent</a>
-    <img alt="" src="./img/mr.gif"></img>
-    <a href="./tags.pl">Import/Export Tags</a>
-</p>';
-	
-print "<div class='ido'>
-<div id='toppane'>
-<h1 class='ih'>".&get_motd."</h1> 
-<div class='idi'>";
-	
-#Search field (stdinput class in panda css)
-print "<input type='text' id='srch' class='search stdinput' size='90' placeholder='Search Title, Artist, Series, Language or Tags' /> <input class='stdbtn' type='button' onclick=\"window.location.reload();\" value='Clear Filter'/></div>";
-
-$table->print; #print our finished table
-
-print "<ul class='pagination'></ul></div></div>";
-
-print '		<p class="ip">
-			[
-			<a href="https://github.com/Difegue/LANraragi">
-				Spread da word, yo.
-			</a>
-			]
-		</p>';
+(my $stdout, $fh) = tee_stdout {
+     # BIG PRINTS
+	 
+	print header,start_html
+		(
+		-title=>&get_htmltitle,
+		-author=>'lanraragi-san',
+		-style=>[{'src'=>'./styles/ex.css'},
+					{'src'=>'./styles/lrr.css'}],
+		-script=>[{-type=>'JAVASCRIPT',
+						-src=>'https://raw.githubusercontent.com/javve/list.js/v1.1.1/dist/list.min.js'},
+					{-type=>'JAVASCRIPT',
+						-src=>'https://raw.githubusercontent.com/javve/list.pagination.js/v0.1.1/dist/list.pagination.min.js'},	
+					{-type=>'JAVASCRIPT',
+						-src=>'./js/thumb.js'}],	
+		-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'}),],
+		-encoding => "utf-8",
+		#on Load, initialize list.js and pages.
+		-onLoad => "javascript:
+								var paginationTopOptions = {
+										name: 'paginationTop',
+										paginationClass: 'paginationTop', 
+										}
+								var paginationBottomOptions = {
+										name: 'paginationBottom',
+										paginationClass: 'paginationBottom', 
+										}
+								var options = {
+												valueNames: ['title', 'artist', 'series', 'language', 'tags'], 
+												page:".&get_pagesize.", outerWindow: 1, innerWindow:5, 
+												plugins: [ 
+												ListPagination(paginationTopOptions),
+												ListPagination(paginationBottomOptions) 
+												]
+											};
+								var mangoList = new List('toppane', options);
+					document.getElementById('srch').value = '';" #empty the cached filter, while we're at it.
+		);
 		
-print end_html; #close html
+	print '<p id="nb">
 
+		<img alt="" src="./img/mr.gif"></img>
+		<a href="./index.pl">Rebuild Front Page</a>
+		<img alt="" src="./img/mr.gif"></img>
+		<a href="./upload.pl">Upload Archive</a>
+		<img alt="" src="./img/mr.gif"></img>
+		<a href="./torrent.pl">Get Torrent</a>
+		<img alt="" src="./img/mr.gif"></img>
+		<a href="./tags.pl">Import/Export Tags</a>
+	</p>';
+		
+	print "<div class='ido'>
+	<div id='toppane'>
+	<h1 class='ih'>".&get_motd."</h1> 
+	<div class='idi'>";
+		
+	#Search field (stdinput class in panda css)
+	print "<input type='text' id='srch' class='search stdinput' size='90' placeholder='Search Title, Artist, Series, Language or Tags' /> <input class='stdbtn' type='button' onclick=\"window.location.reload();\" value='Clear Filter'/></div>";
+
+	#Paging and Archive Count
+	print "<p class='ip' style='margin-top:5px'> Serving a total of ".(scalar @dircontents)." chinese lithographies. </p>";
+	print "<ul class='paginationTop' style='margin:2px auto 0px; text-align:center; border-top:0;' ></ul>";
+
+	$table->print; #print our finished table
+
+	print "<ul class='paginationBottom' style='margin:0px auto 10px; text-align:center; border-bottom:0;' ></ul></div></div>";
+
+	print '		<p class="ip">
+				[
+				<a href="https://github.com/Difegue/LANraragi">
+					Spread da word, yo.
+				</a>
+				]
+			</p>';
+			
+	print end_html; #close html
+} stdout => $fh;
+	
 #clean up our index.html a bit. 
 #With straight STDOUT to file, "Content-Type: text/html; charset=ISO-8859-1 " is added at the beginning.
 #Remove the first line with code ripped from stackoverflow (again):

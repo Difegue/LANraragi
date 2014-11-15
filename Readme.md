@@ -7,7 +7,7 @@ Supports tags, and runs on a basic installation of Perl with the following packa
 
 	* HTML:Table  
 	* Image::Info  
-	* File::Tee  	
+	* Capture::Tiny  	
 	* Tie::File
 	* Digest::SHA
 	

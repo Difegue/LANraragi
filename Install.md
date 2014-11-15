@@ -18,7 +18,7 @@ apt-get install perl
 * The Required **Perl packages**. I recommend installing cpanminus to make it easier: 
 ``` 
 curl -L http://cpanmin.us | perl - --sudo App::cpanminus
-cpanm -i HTML::Table Image::Info File::Tee Tie::File Digest::SHA
+cpanm -i HTML::Table Image::Info Capture::Tiny Tie::File Digest::SHA
 ```
 * **unar**. 
 ```

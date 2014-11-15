@@ -1,6 +1,6 @@
 /*Pure CSS for the tag hover popups. The javascript used for the image thumbnails would've worked poorly here(due to moving along the mouse and the overall size of the tag popups)
 It ain't the prettiest, but as usual, fuck JQuery.*/
-.tags
+td
 {
     max-width: 250px;
     overflow: hidden;
@@ -38,3 +38,4 @@ background-image: url(../img/down.png);
 table .sort.desc {
 background-image: url(../img/up.png);
 }
+
