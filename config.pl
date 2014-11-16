@@ -67,6 +67,7 @@ sub get_pagesize { return $pagesize };
 sub get_thumbpref { return $generateonindex };
 
 use Digest::SHA qw(sha1 sha1_hex sha1_base64); #habbening
+use URI::Escape;
 
 #This handy function gives us a SHA-1 hash for the passed file, which is used as an id for some files. 
 sub shasum{
@@ -219,7 +220,7 @@ sub parseNameOld
 	}
 
 	
-#Sort an array of parsable filenames by their titles.
+#Sort an array of parsable filenames by their titles. Unused as of now.
 sub parseSort
 {
 my $file= "";
@@ -250,3 +251,60 @@ my @indx = sort {lc $params[$a] cmp lc $params[$b] } (0..$#params);
 return @_;
 	
 }	
+
+#returns the thumbnail path for a filename. Creates the thumbnail if it doesn't exist.
+sub getThumb
+{
+my $dirname = &get_dirname;
+my $id = $_[0];
+my $file = uri_unescape($_[1]);
+
+my $thumbname = $dirname."/thumb/".$id.".jpg";
+
+#Has a thumbnail already been made? And is it enabled in config?
+	unless (-e $thumbname)
+	{ #if it doesn't, let's create it!
+		
+		my $zipFile = $dirname."/".$file;
+		
+		my $path = $dirname."/thumb/temp";		
+				
+		#Get lsar's output, jam it in an array, and use it as @extracted.
+		my $vals = `lsar "$zipFile"`; 
+		#print $vals;
+		my @lsarout = split /\n/, $vals;
+		my @extracted; 
+			
+		#The -i 0 option doesn't always return the first image, so we gotta rely on that lsar thing.
+		#Sort on the lsar output to find the first image.					
+		foreach $_ (@lsarout) 
+			{
+			if ($_ =~ /^(.*\/)*.+\.(png|jpg|gif|bmp|jpeg|PNG|JPG|GIF|BMP)$/ ) #is it an image? lsar can give us folder names.
+				{push @extracted, $_ }
+			}
+					
+		@extracted = sort { lc($a) cmp lc($b) } @extracted;
+				
+		#unar sometimes crashes on certain folder names inside archives. To solve that, we replace folder names with the wildcard * through regex.
+		my $unarfix = @extracted[0];
+		$unarfix =~ s/[^\/]+\//*\//g;
+				
+		#let's extract now.
+		`unar -D -o $path "$zipFile" "$unarfix"`;	
+				
+		my $path2 = $path.'/'.@extracted[0];
+				
+		#While we have the image, grab its SHA-1 hash for potential tag research later.
+		#TODO: Remake with JSON in one $id file. Maybe.
+		open (MYFILE, '>'.$dirname.'/tags/'.$id.'-SHA.txt');
+		print MYFILE shasum($path2);
+		close (MYFILE); 
+				
+		#use ImageMagick to make the thumbnail. I tried using PerlMagick but it's a piece of ass, can't get it to build :s
+		`convert -strip -thumbnail 200x "$path2" $thumbname`;
+				
+		#Delete the previously extracted file.
+		unlink $path2;
+	}
+	return $thumbname;
+}

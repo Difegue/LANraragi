@@ -6,7 +6,6 @@ Web interface and reader for a server-stored directory of comics (as archives).
 Supports tags, and runs on a basic installation of Perl with the following packages installed:  
 
 	* HTML:Table  
-	* Image::Info  
 	* Capture::Tiny  	
 	* Tie::File
 	* Digest::SHA

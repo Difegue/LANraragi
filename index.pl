@@ -7,34 +7,20 @@ use File::Path qw(make_path remove_tree);
 use File::Basename;
 use URI::Escape;
 use Capture::Tiny qw(tee_stdout); 
-use Image::Info qw(image_info dim);
 use utf8;
 use File::Find qw(find);
 
 #Require config 
 require 'config.pl';
 
-remove_tree(&get_dirname.'/temp'); #Remove temp dir.
+#print("Setting up main table..\n");
 
-print("Setting up main table..\n");
-
-my $q = CGI->new;  #our html 
+#my $q = CGI->new;  #our html 
 my $table = new HTML::Table(0,6);
 my $table = new HTML::Table(-rows=>0,
                             -cols=>6,
-                            #-align=>'center',
-                            #-rules=>'rows',
-                            #-border=>0,
-                            #-bgcolor=>'blue',
-                            #-width=>'50%',
-                            #-spacing=>0,
-                            #-padding=>0,
-                            #-style=>'color: blue',
-                            -class=>'itg',
-                            -evenrowclass=>'gtr0',
-                            -oddrowclass=>'gtr1');
-							
-
+                            -class=>'itg'
+                            );
 
 $table->addSectionRow ( 'thead', 0, "",'<a class="sort desc" data-sort="title">Title</a>','<a class="sort desc" data-sort="artist">Artist/Group</a>','<a class="sort desc" data-sort="series">Series</a>'," Language"," Tags");
 $table->setSectionRowHead('thead', -1, -1, 1);
@@ -56,105 +42,33 @@ my ($event,$artist,$title,$series,$language,$tags,$id) = (" "," "," "," "," "," 
 my $fullfile="";
 my $count;
 my @dircontents;
+my $dirname = &get_dirname;
 
-print("Opening and reading files in content directory.. (".(time() - $^T)." seconds)\n");
-opendir(DIR, &get_dirname) or die "Can't open the content directory ".&get_dirname.": $!";
+remove_tree($dirname.'/temp'); #Remove temp dir.
 
-while (defined($file = readdir(DIR))) 
-	{
-	$fullfile = &get_dirname."/".$file;
-	
-	#print $fullfile."/n";
-    # let's do something with "&get_dirname/$file"
-	($name,$path,$suffix) = fileparse($fullfile, qr/\.[^.]*/);
-	
-	#We need to test if it's an archive unar can handle.
-	#For this, we use lsar. lsar prints at least two lines upon a successful detection. it's kinda hacky, but it works. Even on Windows!
-	
-	my $filez = "lsaroutput";
-	unlink $filez;
-	`lsar "$fullfile" >> $filez`;
-	
-	open(FILE, "< $filez") or die "can't open $filez: $!"; 
-	for ($count=0; <FILE>; $count++) { } #counts line through a for statement. the iterator is our line number.
-	
-	if ($count >1)
-		{push(@dircontents, $file);}
-	
+#print("Opening and reading files in content directory.. (".(time() - $^T)." seconds)\n");
+
+my @filez = glob("$dirname/*.zip $dirname/*.rar $dirname/*.7z $dirname/*.tar $dirname/*.tar.gz $dirname/*.lzma $dirname/*.xz $dirname/*.cbz $dirname/*.cbr");
+
+foreach $file (@filez) 
+	{	
+	push(@dircontents, $file);
 	}
+closedir(DIR);
 
-print("Sorting files...(".(time() - $^T)." seconds)\n");
-	
-@dircontents = &parseSort(@dircontents);
-
-print("Parsing contents and making thumbnails...(".(time() - $^T)." seconds)\n");
+#print("Parsing contents and making thumbnails...(".(time() - $^T)." seconds)\n");
 
 foreach $file (@dircontents)
 {
 	#bis repetita
-	$fullfile = &get_dirname."/".$file;
-	($name,$path,$suffix) = fileparse($fullfile, qr/\.[^.]*/);
+	#$fullfile = $dirname."/".$file;
+	($name,$path,$suffix) = fileparse($file, qr/\.[^.]*/);
 	
-	my $dirname = &get_dirname; #calling the function in strings doesn't work too well.
-	#parseName function is in edit.pl
+	#parseName function is in config.pl
 	($event,$artist,$title,$series,$language,$tags,$id) = &parseName($name.$suffix);
 		
 	#sanitize we must.
 	$name = uri_escape($name);
-	
-	if (&enable_thumbs)
-	{
-			$thumbname = $dirname."/thumb/".$id.".jpg";
-			#print $thumbname;
-			
-			#Has a thumbnail already been made? And is it enabled in config?
-			unless (-e $thumbname)
-			{ #if it doesn't, let's create it!
-			
-				my $zipFile = $dirname."/".$file;
-				
-				my $path = $dirname."/thumb/temp";		
-				
-				#Get lsar's output, jam it in an array, and use it as @extracted.
-				my $vals = `lsar "$zipFile"`; 
-				#print $vals;
-				my @lsarout = split /\n/, $vals;
-				my @extracted; 
-				
-				#The -i 0 option doesn't always return the first image, so we gotta rely on that lsar thing.
-				#Sort on the lsar output to find the first image.					
-				foreach $_ (@lsarout) 
-					{
-					if ($_ =~ /^(.*\/)*.+\.(png|jpg|gif|bmp|jpeg|PNG|JPG|GIF|BMP)$/ ) #is it an image? lsar can give us folder names.
-						{push @extracted, $_ }
-					}
-						
-				@extracted = sort { lc($a) cmp lc($b) } @extracted;
-				
-				#print @extracted[0];
-				
-				#unar sometimes crashes on certain folder names inside archives. To solve that, we replace folder names with the wildcard * through regex.
-				my $unarfix = @extracted[0];
-				$unarfix =~ s/[^\/]+\//*\//g;
-				
-				#let's extract now.
-				`unar -D -o $path "$zipFile" "$unarfix"`;	
-				
-				my $path2 = $path.'/'.@extracted[0];
-				
-				#While we have the image, grab its SHA-1 hash for potential tag research later.
-				#TODO: Remake with JSON in one $id file. Maybe.
-				open (MYFILE, '>'.&get_dirname.'/tags/'.$id.'-SHA.txt');
-				print MYFILE shasum($path2);
-				close (MYFILE); 
-				
-				#use ImageMagick to make the thumbnail. I tried using PerlMagick but it's a piece of ass, can't get it to build :s
-				`convert -strip -thumbnail 200x "$path2" $thumbname`;
-				
-				#Delete the previously extracted file.
-				unlink $path2;
-			}
-	}
 		
 	my $icons = qq(<a href="$dirname/$name$suffix" title="Download this archive."><img src="./img/save.png"><a/> <a href="./edit.pl?file=$name$suffix" title="Edit this archive's tags and data."><img src="./img/edit.gif"><a/>);
 	#WHAT THE FUCK AM I DOING
@@ -166,14 +80,14 @@ foreach $file (@dircontents)
 	{
 		$printedtags = qq(<a class="tags" style="text-overflow:ellipsis;">$printedtags</a><div class="ido caption" style="position:absolute;">$printedtags</div>); 
 	}
-		
+	
+	
 	#version with hover thumbnails 
 	if (&enable_thumbs)
 	{
-		my $height = image_info($thumbname);
-		$height = $height->{height};
 		#add row to table
-		$table->addRow($icons,qq(<span style="display: none;">$title</span><a href="./reader.pl?file=$name$suffix" onmouseover="showtrail(200,$height,'$thumbname');" onmouseout="hidetrail();">$title</a>),$artist,$series,$language,$printedtags);
+		my $zawa = &getThumb($id,$name.$suffix);
+		$table->addRow($icons,qq(<span style="display: none;">$title</span><a href="./reader.pl?file=$name$suffix" onmouseover="showtrail('$zawa');" onmouseout="hidetrail();">$title</a>),$artist,$series,$language,$printedtags);
 	}
 	else #version without, ezpz
 	{
@@ -184,7 +98,7 @@ foreach $file (@dircontents)
 	$table->setSectionClass ('tbody', -1, 'list' );
 	
 }
-closedir(DIR);
+
 
 $table->setColClass(1,'itdc');
 $table->setColClass(2,'title itd');
@@ -194,8 +108,7 @@ $table->setColClass(5,'language itd');
 $table->setColClass(6,'tags itu');
 $table->setColWidth(1,36);
 
-#let's print the HTML.
-print("Printing HTML...(".(time() - $^T)." seconds)");
+#print("Printing HTML...(".(time() - $^T)." seconds)");
 
 #Everything printed in the following will be printed into index.html, effectively creating a cache. wow!
 if (-e "index.html")
@@ -224,6 +137,18 @@ open(my $fh, ">", "index.html");
 		-encoding => "utf-8",
 		#on Load, initialize list.js and pages.
 		-onLoad => "javascript:
+								var table = document.getElementsByTagName('tbody');   
+								var rows = table[0].getElementsByTagName('tr');
+								
+								function tableStyle()
+									{
+									for (i = 0; i < rows.length; i++){           
+										if(i % 2 == 0)
+											{rows[i].className = 'gtr0'; } 
+										else {rows[i].className = 'gtr1'; }      
+									}
+									}
+								
 								var paginationTopOptions = {
 										name: 'paginationTop',
 										paginationClass: 'paginationTop', 
@@ -241,9 +166,14 @@ open(my $fh, ">", "index.html");
 												]
 											};
 								var mangoList = new List('toppane', options);
-					document.getElementById('srch').value = '';" #empty the cached filter, while we're at it.
+								mangoList.sort('title', { order: 'asc' });
+								mangoList.on('updated',tableStyle());
+								tableStyle();
+					document.getElementById('srch').value = ''; 
+					"
+					#empty the cached filter, while we're at it.
 		);
-		
+	
 	print '<p id="nb">
 
 		<img alt="" src="./img/mr.gif"></img>

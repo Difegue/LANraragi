@@ -30,13 +30,24 @@ function hidetrail()
 	gettrailobj().top=0
 }
 
+function findHHandWW() {
+    h = this.height;
+	w = this.width;
+	return true;
+  }
+  
+function showImage(imgPath) {
+    var myImage = new Image();
+    myImage.name = imgPath;
+    myImage.onload = findHHandWW;
+    myImage.src = imgPath;
+  }
 
-function showtrail(width,height,file)
+function showtrail(file)
 {
 	if(navigator.userAgent.toLowerCase().indexOf('opera') == -1)
 	{
-		w=width
-		h=height
+		showImage(file)
 		
 		// followmouse()
 	
