@@ -61,7 +61,6 @@ function showtrail(file)
 	}
 }
 
-
 function followmouse(e)
 {
 

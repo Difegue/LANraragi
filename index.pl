@@ -16,7 +16,7 @@ require 'config.pl';
 #print("Setting up main table..\n");
 
 #my $q = CGI->new;  #our html 
-my $table = new HTML::Table(0,6);
+#my $table = new HTML::Table(0,6);
 my $table = new HTML::Table(-rows=>0,
                             -cols=>6,
                             -class=>'itg'
@@ -136,18 +136,8 @@ open(my $fh, ">", "index.html");
 		-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'}),],
 		-encoding => "utf-8",
 		#on Load, initialize list.js and pages.
-		-onLoad => "javascript:
-								var table = document.getElementsByTagName('tbody');   
+		-onLoad => "var table = document.getElementsByTagName('tbody');   
 								var rows = table[0].getElementsByTagName('tr');
-								
-								function tableStyle()
-									{
-									for (i = 0; i < rows.length; i++){           
-										if(i % 2 == 0)
-											{rows[i].className = 'gtr0'; } 
-										else {rows[i].className = 'gtr1'; }      
-									}
-									}
 								
 								var paginationTopOptions = {
 										name: 'paginationTop',
@@ -159,7 +149,7 @@ open(my $fh, ">", "index.html");
 										}
 								var options = {
 												valueNames: ['title', 'artist', 'series', 'language', 'tags'], 
-												page:".&get_pagesize.", outerWindow: 1, innerWindow:5, 
+												page:".&get_pagesize.", outerWindow: 1, innerWindow:5,
 												plugins: [ 
 												ListPagination(paginationTopOptions),
 												ListPagination(paginationBottomOptions) 
@@ -167,8 +157,21 @@ open(my $fh, ">", "index.html");
 											};
 								var mangoList = new List('toppane', options);
 								mangoList.sort('title', { order: 'asc' });
-								mangoList.on('updated',tableStyle());
-								tableStyle();
+								
+								mangoList.on('updated',function(){
+									for (i = 0; i < rows.length; i++){           
+										if(i % 2 == 0)
+											{rows[i].className = 'gtr0'; } 
+										else {rows[i].className = 'gtr1'; }      
+									}
+									});
+								
+								for (i = 0; i < rows.length; i++){           
+									if(i % 2 == 0)
+										{rows[i].className = 'gtr0'; } 
+									else {rows[i].className = 'gtr1'; }      
+								}
+								
 					document.getElementById('srch').value = ''; 
 					"
 					#empty the cached filter, while we're at it.
