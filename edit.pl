@@ -4,6 +4,7 @@ use strict;
 use CGI qw(:standard);
 use File::Basename;
 use utf8;
+use Redis;
 
 require 'config.pl';
 

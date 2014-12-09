@@ -9,6 +9,8 @@ use URI::Escape;
 use Capture::Tiny qw(tee_stdout); 
 use utf8;
 use File::Find qw(find);
+use Redis;
+use Digest::SHA qw(sha256_hex);
 
 #Require config 
 require 'config.pl';
@@ -44,10 +46,17 @@ my $count;
 my @dircontents;
 my $dirname = &get_dirname;
 
+#Default redis server location is localhost:6379. 
+#Auto-reconnect on, one attempt every 100ms up to 2 seconds. Die after that.
+my $redis = Redis->new(server => &get_redisad, 
+						reconnect => 100,
+						every     => 3000);
+
 remove_tree($dirname.'/temp'); #Remove temp dir.
 
 #print("Opening and reading files in content directory.. (".(time() - $^T)." seconds)\n");
 
+#This should be enough supported file extensions, right? The old lsar method was hacky and took too long.
 my @filez = glob("$dirname/*.zip $dirname/*.rar $dirname/*.7z $dirname/*.tar $dirname/*.tar.gz $dirname/*.lzma $dirname/*.xz $dirname/*.cbz $dirname/*.cbr");
 
 foreach $file (@filez) 
@@ -60,20 +69,49 @@ closedir(DIR);
 
 foreach $file (@dircontents)
 {
-	#bis repetita
-	#$fullfile = $dirname."/".$file;
-	($name,$path,$suffix) = fileparse($file, qr/\.[^.]*/);
+	#ID of the archive, used for storing data in Redis.
+	$id = sha256_hex($file);
 	
-	#parseName function is in config.pl
-	($event,$artist,$title,$series,$language,$tags,$id) = &parseName($name.$suffix);
-		
-	#sanitize we must.
-	$name = uri_escape($name);
-		
+	#Let's check out the Redis cache first! It might already have the info we need.
+	if ($redis->hexists($id,"title"))
+		{
+			#bingo, no need for expensive file parsing operations.
+			my %hash = $redis->hgetall($id);
+			#Hash Slice! I have no idea how this works.
+			($name,$event,$artist,$title,$series,$language,$tags) = @hash{qw(name event artist title series language tags)};
+		}
+	else	#can't be helped. Do it the old way, and add the results to redis afterwards.
+		{
+			#bis repetita
+			($name,$path,$suffix) = fileparse($file, qr/\.[^.]*/);
+			
+			#parseName function is in config.pl
+			($event,$artist,$title,$series,$language,$tags,$id) = &parseName($name.$suffix);
+				
+			#sanitize we must.
+			$name = uri_escape($name);
+			
+			#jam dis shit in redis
+			#prepare the hash which'll be inserted.
+			my %hash = (
+				name => $name,
+				event => $event,
+				artist => $artist,
+				title => $title,
+				series => $series,
+				language => $language,
+				tags => $tags,
+				);
+				
+			#for all keys of the hash, add them to the redis hash $id with the matching keys.
+			$redis->hset($id, $_, $hash{$_}, sub {}) for keys %hash; 
+			$redis->wait_all_responses;
+		}
+	
 	my $icons = qq(<a href="$dirname/$name$suffix" title="Download this archive."><img src="./img/save.png"><a/> <a href="./edit.pl?file=$name$suffix" title="Edit this archive's tags and data."><img src="./img/edit.gif"><a/>);
-	#WHAT THE FUCK AM I DOING
+			
 	#When generating the line that'll be added to the table, user-defined options have to be taken into account.
-	
+			
 	#Truncated tag display. Works with some hella disgusting CSS shit.
 	my $printedtags = $event." ".$tags;
 	if (length $printedtags > 50)
@@ -81,12 +119,11 @@ foreach $file (@dircontents)
 		$printedtags = qq(<a class="tags" style="text-overflow:ellipsis;">$printedtags</a><div class="ido caption" style="position:absolute;">$printedtags</div>); 
 	}
 	
-	
 	#version with hover thumbnails 
 	if (&enable_thumbs)
 	{
 		#add row to table
-		my $zawa = &getThumb($id,$name.$suffix);
+		my $zawa = &getThumb($id,$file);
 		$table->addRow($icons,qq(<span style="display: none;">$title</span><a href="./reader.pl?file=$name$suffix" onmouseover="showtrail('$zawa');" onmouseout="hidetrail();">$title</a>),$artist,$series,$language,$printedtags);
 	}
 	else #version without, ezpz
@@ -98,7 +135,7 @@ foreach $file (@dircontents)
 	$table->setSectionClass ('tbody', -1, 'list' );
 	
 }
-
+$redis.close();
 
 $table->setColClass(1,'itdc');
 $table->setColClass(2,'title itd');

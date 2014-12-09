@@ -31,6 +31,9 @@ my $readerquality = 90;
 #Number of archives shown on a page. 0 for no pages.
 my $pagesize = 100;
 
+#Adress and port of redis instance.
+my $redisaddress = "127.0.0.1:6379";
+
 #Syntax of an archive's filename. Used in editing.
 my $syntax = "(%RELEASE) [%ARTIST] %TITLE (%SERIES) [%LANGUAGE]";
 
@@ -65,9 +68,11 @@ sub get_syntax { return $syntax };
 sub get_threshold { return $sizethreshold };
 sub get_pagesize { return $pagesize };
 sub get_thumbpref { return $generateonindex };
+sub get_redisad { return $redisaddress };
 
 use Digest::SHA qw(sha1 sha1_hex sha1_base64); #habbening
 use URI::Escape;
+use Redis;
 
 #This handy function gives us a SHA-1 hash for the passed file, which is used as an id for some files. 
 sub shasum{
@@ -105,12 +110,6 @@ sub removeSpaceF #hue
 	removeSpace($_[0]);
 	removeSpaceR($_[0]);
 	}
-
-#Parse index.html and return a map where name -> table line html.
-sub parse_index
-	{
-	
-	}
 	
 #Delete the cached index.html. 
 #This doesn't really require a sub, but it's cleaner in code to have "rebuild_index" instead of "unlink(./index.html);"
@@ -123,7 +122,7 @@ sub rebuild_index
 #parseName, with regex. [^([]+ 
 sub parseName
 	{
-	my $id = shasum(&get_dirname.'/'.$_[0]);
+	my $id = sha256_hex(&get_dirname.'/'.$_[0]);
 	
 	#Use the regex.
 	$_[0] =~ $regex || next;
@@ -255,27 +254,27 @@ return @_;
 #returns the thumbnail path for a filename. Creates the thumbnail if it doesn't exist.
 sub getThumb
 {
+
 my $dirname = &get_dirname;
 my $id = $_[0];
-my $file = uri_unescape($_[1]);
+my $file = $_[1];
 
 my $thumbname = $dirname."/thumb/".$id.".jpg";
 
 #Has a thumbnail already been made? And is it enabled in config?
 	unless (-e $thumbname)
 	{ #if it doesn't, let's create it!
-		
-		my $zipFile = $dirname."/".$file;
+		#my $zipFile = $dirname."/".$file;
 		
 		my $path = $dirname."/thumb/temp";		
 				
 		#Get lsar's output, jam it in an array, and use it as @extracted.
-		my $vals = `lsar "$zipFile"`; 
+		my $vals = `lsar "$file"`; 
 		#print $vals;
 		my @lsarout = split /\n/, $vals;
 		my @extracted; 
 			
-		#The -i 0 option doesn't always return the first image, so we gotta rely on that lsar thing.
+		#The -i 0 option on unar doesn't always return the first image, so we gotta rely on that lsar thing.
 		#Sort on the lsar output to find the first image.					
 		foreach $_ (@lsarout) 
 			{
@@ -290,16 +289,20 @@ my $thumbname = $dirname."/thumb/".$id.".jpg";
 		$unarfix =~ s/[^\/]+\//*\//g;
 				
 		#let's extract now.
-		`unar -D -o $path "$zipFile" "$unarfix"`;	
-				
+		print("ZIPFILE-----"+$file+"bb--------");	
+		`unar -D -o $path "$file" "$unarfix"`;
+		
 		my $path2 = $path.'/'.@extracted[0];
 				
-		#While we have the image, grab its SHA-1 hash for potential tag research later.
-		#TODO: Remake with JSON in one $id file. Maybe.
-		open (MYFILE, '>'.$dirname.'/tags/'.$id.'-SHA.txt');
-		print MYFILE shasum($path2);
-		close (MYFILE); 
-				
+		#While we have the image, grab its SHA-1 hash for potential tag research later. 
+		#That way, no need to repeat the costly extraction later.
+		my $redis = Redis->new(server => &get_redisad, 
+						reconnect => 100,
+						every     => 2000);
+		
+		$redis->hset($id,"thumbhash",shasum($path2));
+		$redis.close();
+		
 		#use ImageMagick to make the thumbnail. I tried using PerlMagick but it's a piece of ass, can't get it to build :s
 		`convert -strip -thumbnail 200x "$path2" $thumbname`;
 				
