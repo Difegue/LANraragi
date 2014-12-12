@@ -22,6 +22,12 @@ print $qedit->start_html
 if ($qedit->param()) {
     # Parameters are defined, therefore something has been submitted...	
 	
+	#Redis initialization.
+	my $redis = Redis->new(server => &get_redisad, 
+						reconnect => 100,
+						every     => 3000);
+
+	
 	#Are the submitted arguments POST?
 	if ('POST' eq $qedit->request_method ) { # ty stack overflow 
 	# It is, which means parameters for a rename have been passed. Let's get cracking!
@@ -40,11 +46,7 @@ if ($qedit->param()) {
 		my $series = $qedit->param('series');
 		my $language = $qedit->param('language');
 		my $tags = $qedit->param('tags');
-		my $oldfilename = $qedit->param('filename');
-		
-		my $id = shasum(&get_dirname.'/'.$oldfilename);
-		
-		my ($name,$path,$suffix) = fileparse($oldfilename, qr/\.[^.]*/);
+		my $id = $qedit->param('id');
 		
 		#clean up the user's inputs.
 		removeSpaceF($event);
@@ -54,60 +56,33 @@ if ($qedit->param()) {
 		removeSpaceF($language);
 		removeSpaceF($tags);
 		
-		#Create new filename.
-		my $newfilename = &get_dirname.'/'.&get_syntax.$suffix;
-
-		#[REGEX INTENSIFIES]
-		$newfilename =~ s/%RELEASE/$event/g;
-		$newfilename =~ s/%ARTIST/$artist/g;
-		$newfilename =~ s/%TITLE/$title/g;
-		$newfilename =~ s/%SERIES/$series/g;
-		$newfilename =~ s/%LANGUAGE/$language/g;
-		
-		#Remove empty fields.
-		$newfilename =~ s/(\(|\[|\{)(\)|\]|\})//g;
-		
-		open (MYFILE, '>'.&get_dirname.'/tags/'.$id.'.txt');
-		print MYFILE $tags;
-		close (MYFILE); 
+		#Input new values into redis hash.
+		#prepare the hash which'll be inserted.
+		my %hash = (
+				event => $event,
+				artist => $artist,
+				title => $title,
+				series => $series,
+				language => $language,
+				tags => $tags
+			);
 			
-		#Maybe it already exists? Return an error if so.
-		if (-e $newfilename)
-			{
-			#If the filename is the same, maybe the user only changed tags? We should check if the sha of the existing file is the same as ours.
-			if ($id eq shasum($newfilename))
-				{
-				&rebuild_index;
-				print "<div class='ido' style='text-align:center'><h1>Edit Successful!</h1><br/>"; 
-				#no need to go through renaming if the user only changed tags.
-				}
-			else
-				{
-				print "<div class='ido' style='text-align:center'><h1>A file with the same name already exists in the library. Please change it before proceeding.</h1><br/>";
-				}
-			}
-		else #good to go!
-			{
-			
-			if (rename &get_dirname.'/'.$oldfilename, $newfilename) #rename returns 1 if successful, 0 otherwise.
-				{
-				&rebuild_index;
-				print "<div class='ido' style='text-align:center'><h1>Edit Successful!</h1><br/>";
-				}
-			else
-				{print "<div class='ido' style='text-align:center'><h1>The edit process failed for some reason. Maybe you don't have permission to rename files, or your filename hit the character limit.</h1><br/>";}
-			}
+		#for all keys of the hash, add them to the redis hash $id with the matching keys.
+		$redis->hset($id, $_, $hash{$_}, sub {}) for keys %hash;
+		$redis->wait_all_responses;
+		&rebuild_index;
+		print "<div class='ido' style='text-align:center'><h1>Edit Successful!</h1><br/>";
 			
 		print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/></div>";
 		}
 		
 	} else {
-		# It's GET. That means we've only been given a file name. Generate the renaming form.
-		#ToDo: Check for login?
+		# It's GET. That means we've only been given a file id. Generate the renaming form.
 	    
 		#Does the passed file exist?
-		my $test = $qedit->param('file');
-		if (-e (&get_dirname.'/'.$test))
+		my $id = $qedit->param('id');
+		
+		if ($redis->hexists($id,"title"))
 		{
 			generateForm($qedit);	
 		}
@@ -128,8 +103,14 @@ print $qedit->end_html;
 
 sub generateForm
 	{
-	my $value = $_[0]->param('file');
-	my ($event,$artist,$title,$series,$language,$tags,$id) = &parseName($value);
+	my $id = $_[0]->param('id');
+	
+	my $redis = Redis->new(server => &get_redisad, 
+						reconnect => 100,
+						every     => 3000);
+						
+	my %hash = $redis->hgetall($id);					
+	my ($name,$event,$artist,$title,$series,$language,$tags,$file) = @hash{qw(name event artist title series language tags file)};
 
 	print "<div class='ido' style='text-align:center'>";
 	if ($artist eq "")
@@ -142,7 +123,19 @@ sub generateForm
 	print "<tr><td style='text-align:left; width:100px'>Current File Name:</td><td>";
 	print $_[0]->textfield(
 			-name      => 'filename',
-			-value     => $value,
+			-value     => $file,
+			-size      => 20,
+			-maxlength => 255,
+			-class => "stdinput",
+			-style => "width:820px",
+			-readonly,
+		);
+	print "</td></tr>";
+	
+	print "<tr><td style='text-align:left; width:100px'>ID:</td><td>";
+	print $_[0]->textfield(
+			-name      => 'id',
+			-value     => $id,
 			-size      => 20,
 			-maxlength => 255,
 			-class => "stdinput",

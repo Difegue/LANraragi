@@ -7,7 +7,7 @@ use File::Path qw(make_path remove_tree);
 use File::Basename;
 use URI::Escape;
 use Capture::Tiny qw(tee_stdout); 
-use utf8;
+use Encode;
 use File::Find qw(find);
 use Redis;
 use Digest::SHA qw(sha256_hex);
@@ -70,7 +70,10 @@ closedir(DIR);
 foreach $file (@dircontents)
 {
 	#ID of the archive, used for storing data in Redis.
+	#Can't be encoded in UTF-8! Wide characters(yuno what it is) fuck this up.
 	$id = sha256_hex($file);
+	
+
 	
 	#Let's check out the Redis cache first! It might already have the info we need.
 	if ($redis->hexists($id,"title"))
@@ -86,10 +89,7 @@ foreach $file (@dircontents)
 			($name,$path,$suffix) = fileparse($file, qr/\.[^.]*/);
 			
 			#parseName function is in config.pl
-			($event,$artist,$title,$series,$language,$tags,$id) = &parseName($name.$suffix);
-				
-			#sanitize we must.
-			$name = uri_escape($name);
+			($event,$artist,$title,$series,$language,$tags,$id) = &parseName($name.$suffix,$id);
 			
 			#jam dis shit in redis
 			#prepare the hash which'll be inserted.
@@ -101,17 +101,22 @@ foreach $file (@dircontents)
 				series => $series,
 				language => $language,
 				tags => $tags,
+				file => $file
 				);
 				
 			#for all keys of the hash, add them to the redis hash $id with the matching keys.
 			$redis->hset($id, $_, $hash{$_}, sub {}) for keys %hash; 
 			$redis->wait_all_responses;
 		}
+	#Parameters have been obtained, let's decode them.
+	($_ = Encode::decode_utf8($_)) for ($file, $name, $event, $artist, $title, $series, $language, $tags, $file);
 	
-	my $icons = qq(<a href="$dirname/$name$suffix" title="Download this archive."><img src="./img/save.png"><a/> <a href="./edit.pl?file=$name$suffix" title="Edit this archive's tags and data."><img src="./img/edit.gif"><a/>);
+	
+	my $icons = qq(<a href="$dirname/$name$suffix" title="Download this archive."><img src="./img/save.png"><a/> <a href="./edit.pl?id=$id" title="Edit this archive's tags and data."><img src="./img/edit.gif"><a/>);
 			
 	#When generating the line that'll be added to the table, user-defined options have to be taken into account.
-			
+	my $rdrstring = uri_escape_utf8($name.$suffix);
+	
 	#Truncated tag display. Works with some hella disgusting CSS shit.
 	my $printedtags = $event." ".$tags;
 	if (length $printedtags > 50)
@@ -124,18 +129,19 @@ foreach $file (@dircontents)
 	{
 		#add row to table
 		my $zawa = &getThumb($id,$file);
-		$table->addRow($icons,qq(<span style="display: none;">$title</span><a href="./reader.pl?file=$name$suffix" onmouseover="showtrail('$zawa');" onmouseout="hidetrail();">$title</a>),$artist,$series,$language,$printedtags);
+		#my $zawa = "benis";
+		$table->addRow($icons,qq(<span style="display: none;">$title</span><a href="./reader.pl?file=$rdrstring" onmouseover="showtrail('$zawa');" onmouseout="hidetrail();">$title</a>),$artist,$series,$language,$printedtags);
 	}
 	else #version without, ezpz
 	{
 		#add row to table
-		$table->addRow($icons,qq(<span style="display: none;">$title</span><a href="./reader.pl?file=$name$suffix">$title</a>),$artist,$series,$language,$printedtags);
+		$table->addRow($icons,qq(<span style="display: none;">$title</span><a href="./reader.pl?file=$rdrstring">$title</a>),$artist,$series,$language,$printedtags);
 	}
 		
 	$table->setSectionClass ('tbody', -1, 'list' );
 	
 }
-$redis.close();
+
 
 $table->setColClass(1,'itdc');
 $table->setColClass(2,'title itd');
@@ -148,16 +154,16 @@ $table->setColWidth(1,36);
 #print("Printing HTML...(".(time() - $^T)." seconds)");
 
 #Everything printed in the following will be printed into index.html, effectively creating a cache. wow!
-if (-e "index.html")
-{
-	unlink("index.html");
-}
+#if (-e "index.html")
+#{
+#	unlink("index.html");
+#}
 
-open(my $fh, ">", "index.html");
+#open(my $fh, ">", "index.html");
 
-(my $stdout, $fh) = tee_stdout {
+#(my $stdout, $fh) = tee_stdout {
      # BIG PRINTS
-	 
+
 	print header,start_html
 		(
 		-title=>&get_htmltitle,
@@ -171,7 +177,7 @@ open(my $fh, ">", "index.html");
 					{-type=>'JAVASCRIPT',
 						-src=>'./js/thumb.js'}],	
 		-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'}),],
-		-encoding => "utf-8",
+		-encoding => "UTF-8",
 		#on Load, initialize list.js and pages.
 		-onLoad => "var table = document.getElementsByTagName('tbody');   
 								var rows = table[0].getElementsByTagName('tr');
@@ -251,14 +257,15 @@ open(my $fh, ">", "index.html");
 			</p>';
 			
 	print end_html; #close html
-} stdout => $fh;
+	$redis.close();
+#} stdout => $fh;
 	
 #clean up our index.html a bit. 
 #With straight STDOUT to file, "Content-Type: text/html; charset=ISO-8859-1 " is added at the beginning.
 #Remove the first line with code ripped from stackoverflow (again):
-use Tie::File;
-my @array;
-tie @array, 'Tie::File', './index.html' or die $!;
-shift @array;
-shift @array;
-untie @array;
+#use Tie::File;
+#my @array;
+#tie @array, 'Tie::File', './index.html' or die $!;
+#shift @array;
+#shift @array;
+#untie @array;

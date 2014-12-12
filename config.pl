@@ -122,7 +122,7 @@ sub rebuild_index
 #parseName, with regex. [^([]+ 
 sub parseName
 	{
-	my $id = sha256_hex(&get_dirname.'/'.$_[0]);
+	my $id = $_[1];
 	
 	#Use the regex.
 	$_[0] =~ $regex || next;
