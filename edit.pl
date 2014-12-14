@@ -3,13 +3,15 @@
 use strict;
 use CGI qw(:standard);
 use File::Basename;
-use utf8;
 use Redis;
+use Encode;
 
 require 'config.pl';
 
 my $qedit = new CGI;
-print $qedit->header;
+print $qedit->header(-type    => 'text/html',
+                   -charset => 'utf-8');
+				   
 print $qedit->start_html
 	(
 	-title=>&get_htmltitle.' - Edit Mode',
@@ -111,6 +113,7 @@ sub generateForm
 						
 	my %hash = $redis->hgetall($id);					
 	my ($name,$event,$artist,$title,$series,$language,$tags,$file) = @hash{qw(name event artist title series language tags file)};
+	($_ = decode_utf8($_)) for ($name, $event, $artist, $title, $series, $language, $tags, $file);
 
 	print "<div class='ido' style='text-align:center'>";
 	if ($artist eq "")

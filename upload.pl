@@ -3,12 +3,13 @@
 use strict;
 use CGI qw(:standard);
 use File::Basename;
- use utf8;
+use utf8;
 
 require 'config.pl';
 
 my $qupload = new CGI;
-print $qupload->header;
+print $qupload->header(-type    => 'text/html',
+                   -charset => 'utf-8');
 print $qupload->start_html
 	(
 	-title=>&get_htmltitle." - Upload Mode",

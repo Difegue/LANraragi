@@ -1,11 +1,10 @@
 #!/usr/bin/perl
 
 use strict;
-use CGI qw(:standard);
+use CGI qw/:standard/;
 use HTML::Table;
 use File::Path qw(make_path remove_tree);
 use File::Basename;
-use URI::Escape;
 use Capture::Tiny qw(tee_stdout); 
 use Encode;
 use File::Find qw(find);
@@ -70,11 +69,8 @@ closedir(DIR);
 foreach $file (@dircontents)
 {
 	#ID of the archive, used for storing data in Redis.
-	#Can't be encoded in UTF-8! Wide characters(yuno what it is) fuck this up.
 	$id = sha256_hex($file);
-	
 
-	
 	#Let's check out the Redis cache first! It might already have the info we need.
 	if ($redis->hexists($id,"title"))
 		{
@@ -94,14 +90,14 @@ foreach $file (@dircontents)
 			#jam dis shit in redis
 			#prepare the hash which'll be inserted.
 			my %hash = (
-				name => $name,
-				event => $event,
-				artist => $artist,
-				title => $title,
-				series => $series,
-				language => $language,
-				tags => $tags,
-				file => $file
+				name => encode_utf8($name),
+				event => encode_utf8($event),
+				artist => encode_utf8($artist),
+				title => encode_utf8($title),
+				series => encode_utf8($series),
+				language => encode_utf8($language),
+				tags => encode_utf8($tags),
+				file => encode_utf8($file)
 				);
 				
 			#for all keys of the hash, add them to the redis hash $id with the matching keys.
@@ -109,14 +105,11 @@ foreach $file (@dircontents)
 			$redis->wait_all_responses;
 		}
 	#Parameters have been obtained, let's decode them.
-	($_ = Encode::decode_utf8($_)) for ($file, $name, $event, $artist, $title, $series, $language, $tags, $file);
-	
+	($_ = decode_utf8($_)) for ($name, $event, $artist, $title, $series, $language, $tags, $file);
 	
 	my $icons = qq(<a href="$dirname/$name$suffix" title="Download this archive."><img src="./img/save.png"><a/> <a href="./edit.pl?id=$id" title="Edit this archive's tags and data."><img src="./img/edit.gif"><a/>);
 			
 	#When generating the line that'll be added to the table, user-defined options have to be taken into account.
-	my $rdrstring = uri_escape_utf8($name.$suffix);
-	
 	#Truncated tag display. Works with some hella disgusting CSS shit.
 	my $printedtags = $event." ".$tags;
 	if (length $printedtags > 50)
@@ -130,12 +123,12 @@ foreach $file (@dircontents)
 		#add row to table
 		my $zawa = &getThumb($id,$file);
 		#my $zawa = "benis";
-		$table->addRow($icons,qq(<span style="display: none;">$title</span><a href="./reader.pl?file=$rdrstring" onmouseover="showtrail('$zawa');" onmouseout="hidetrail();">$title</a>),$artist,$series,$language,$printedtags);
+		$table->addRow($icons,qq(<span style="display: none;">$title</span><a href="./reader.pl?id=$id" onmouseover="showtrail('$zawa');" onmouseout="hidetrail();">$title</a>),$artist,$series,$language,$printedtags);
 	}
 	else #version without, ezpz
 	{
 		#add row to table
-		$table->addRow($icons,qq(<span style="display: none;">$title</span><a href="./reader.pl?file=$rdrstring">$title</a>),$artist,$series,$language,$printedtags);
+		$table->addRow($icons,qq(<span style="display: none;">$title</span><a href="./reader.pl?id=$id">$title</a>),$artist,$series,$language,$printedtags);
 	}
 		
 	$table->setSectionClass ('tbody', -1, 'list' );
@@ -163,8 +156,13 @@ $table->setColWidth(1,36);
 
 #(my $stdout, $fh) = tee_stdout {
      # BIG PRINTS
-
-	print header,start_html
+	 
+    #binmode OUT, ':bytes';
+	#binmode STDOUT, ':bytes';
+	
+	print header(-type    => 'text/html',
+                   -charset => 'utf-8');
+	print start_html
 		(
 		-title=>&get_htmltitle,
 		-author=>'lanraragi-san',

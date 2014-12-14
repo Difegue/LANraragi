@@ -5,9 +5,8 @@ use CGI qw(:standard);
 use File::Basename;
 use File::Path;
 use Image::Info qw(image_info dim);
-use URI::Escape;
-use utf8;
 use File::Find qw(find);
+use Encode;
 
 require 'config.pl';
 
@@ -18,8 +17,7 @@ my $qedit = new CGI;
 if ($qedit->param()) 
 {
     # We got a file name, let's get crackin'.
-	my $filename = $qedit->param('file');
-	my $id = shasum(&get_dirname.'/'.$filename);
+	my $id = $qedit->param('id');
 	
 	#First, where is our temporary directory? Makes it so that if the same user opens an archive, it doesn't re-extract it all the time.
 	my $tempdir= "";
@@ -36,16 +34,32 @@ if ($qedit->param())
 	$tempdir = &get_dirname."/temp";
 	
 	#Now, has our file been extracted to the temporary directory recently?
-	#If it hasn't, a quick call to the Unarchiver will solve that.
-	$path = $tempdir."/".$id;
+	#If it hasn't, a quick call to unar will solve that.
 	my $force = $qedit->param('force-reload');
 	
-	unless((-e $path) && ($force eq "0"))
+	#Redis initialization.
+	my $redis = Redis->new(server => &get_redisad, 
+				reconnect => 100,
+				every     => 3000);
+	
+	#Get the path from Redis.
+	my $zipFile = $redis->hget($id,"file");
+	
+	#Get the archive name as well.
+	my $arcname = $redis->hget($id,"title")." by ".$redis->hget($id,"artist");
+	
+	($_ = decode_utf8($_)) for ($zipFile, $arcname);
+	
+	my ($name,$fpath,$suffix) = fileparse($zipFile, qr/\.[^.]*/);
+	my $filename = $name.$suffix;
+	
+	my $path = $tempdir."/".$id;
+	
+	unless((-e $path) && ($force eq "0")) #If the file hasn't been extracted, or if force-reload =1
 		{
-			my $zipFile= &get_dirname."/".$filename;
 			#print 'unar -o '.$path.' "'.$zipFile.'"';
 			
-			unless ( `unar -o $path "$zipFile"`) #Extraction using unar
+			unless ( `unar -D -o $path "$zipFile"`) #Extraction using unar without creating extra folders.
 				{  # Make sure archive got read
 				&rebuild_index;
 				print 'Archive parsing error!';
@@ -56,7 +70,7 @@ if ($qedit->param())
 	#We have to go deeper. Most archives often hide their images a few folders in...	
 	my @images;
 	find({ wanted => sub { 
-							if ($_ =~ /^(.*\/)*.+\.(png|jpg|gif|bmp|jpeg|PNG|JPG|GIF|BMP)$/ ) #is it an image? readdir tends to read folder names too...
+							if ($_ =~ /^*.+\.(png|jpg|gif|bmp|jpeg|PNG|JPG|GIF|BMP)$/ ) #is it an image? readdir tends to read folder names too...
 								{push @images, $_ }
 						} , no_chdir => 1 }, $path); #find () does exactly that. 
 		
@@ -103,15 +117,13 @@ if ($qedit->param())
 	#gonna reuse those variables.
 	($namet,$patht,$suffixt) = fileparse(@images[$pagenum-1], qr/\.[^.]*/);
 	
-	#sanitize we must.
-	$filename = uri_escape($filename);
-	
 	#HTML printout. Tried to make it as clean as I could!
 	
-	print $qedit->header;
+	print $qedit->header(-type    => 'text/html',
+                   -charset => 'utf-8');
 	print $qedit->start_html
 		(
-		-title=>&uri_unescape($filename),
+		-title=>$arcname,
 		-author=>'lanraragi-san',
 		-style=>{'src'=>'./styles/ex.css'},					
 		-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],		
@@ -122,11 +134,11 @@ if ($qedit->param())
 	
 	#These are the pretty arrows you use to switch pages.
 	my $arrows = '<div class="sn">
-					<a href="./reader.pl?file='.$filename.'&page=1" style="text-decoration:none;"> <img src="./img/f.png"></img> </a> 
-					<a id="prev" href="./reader.pl?file='.$filename.'&page='.($pagenum-1).'" style="text-decoration:none; "> <img src="./img/p.png"></img> </a>
+					<a href="./reader.pl?id='.$id.'&page=1" style="text-decoration:none;"> <img src="./img/f.png"></img> </a> 
+					<a id="prev" href="./reader.pl?id='.$id.'&page='.($pagenum-1).'" style="text-decoration:none; "> <img src="./img/p.png"></img> </a>
 					<div><span id ="current">'.$pagenum.'</span> / <span id ="max">'.($#images+1).'</span> </div>
-					<a id="next" href="./reader.pl?file='.$filename.'&page='.($pagenum+1).'" style="text-decoration:none; "> <img src="./img/n.png"></img> </a>
-					<a href="./reader.pl?file='.$filename.'&page='.($#images+1).'" style="text-decoration:none; "> <img src="./img/l.png"></img> </a></div>';
+					<a id="next" href="./reader.pl?id='.$id.'&page='.($pagenum+1).'" style="text-decoration:none; "> <img src="./img/n.png"></img> </a>
+					<a href="./reader.pl?id='.$id.'&page='.($#images+1).'" style="text-decoration:none; "> <img src="./img/l.png"></img> </a></div>';
 					
 					
 	my $pagesel = '<div style="position: absolute; right: 20px;" ><form style="float: right;"><select size="1"  onChange="location = this.options[this.selectedIndex].value;">';
@@ -135,9 +147,9 @@ if ($qedit->param())
 	for ( my $i = 1; $i < $#images+2; $i++) 
 	{
 		if ($i eq $pagenum) #If the option we'll print is our current page, we should make it the selected choice.
-		{$pagesel = $pagesel.'<option selected="selected" value="./reader.pl?file='.$filename.'&page='.$i.'">Page '.$i.'</option>';}
+		{$pagesel = $pagesel.'<option selected="selected" value="./reader.pl?id='.$id.'&page='.$i.'">Page '.$i.'</option>';}
 		else
-		{$pagesel = $pagesel.'<option value="./reader.pl?file='.$filename.'&page='.$i.'">Page '.$i.'</option>';}
+		{$pagesel = $pagesel.'<option value="./reader.pl?id='.$id.'&page='.$i.'">Page '.$i.'</option>';}
 	}		
 
 	$pagesel = $pagesel.'</select></form></div>';
@@ -151,20 +163,19 @@ if ($qedit->param())
 	#We need to sanitize the image's path, in case the folder contains illegal characters, but uri_escape would also nuke the / needed for navigation.
 	#Let's solve this with a quick regex search&replace.
 	#First, we sanitize it all...
-	@images[$pagenum-1] = &uri_escape(@images[$pagenum-1]);
+	@images[$pagenum-1] = escapeHTML(@images[$pagenum-1]);
 	
 	#Then we bring the slashes back.
 	@images[$pagenum-1] =~ s!%2F!/!g;
 	
 	print '<div id="i1" class="sni" style="width: 1072px; max-width: 1072px;">
-			<h1>'.&uri_unescape($filename).'</h1>
+			<h1>'.$arcname.'</h1>
 			
 			<div id="i2">'.$pagesel.$arrows.$fileinfo.'</div>
 			
 			<div id ="i3">
-			
-			<a style=" z-index: 10; position: absolute; width:50%; height:100%;" href="./reader.pl?file='.$filename.'&page='.($pagenum-1).'"></a>
-			<a style=" z-index: 10; position: absolute; left:50%; width:50%; height:100%;" href="./reader.pl?file='.$filename.'&page='.($pagenum+1).'"></a>
+			<a style=" z-index: 10; position: absolute; width:50%; height:88%;" href="./reader.pl?id='.$id.'&page='.($pagenum-1).'"></a>
+			<a style=" z-index: 10; position: absolute; left:50%; width:50%; height:88%;" href="./reader.pl?id='.$id.'&page='.($pagenum+1).'"></a>
 			
 			<a id ="display">
 			<img id="img" style="width: 1052px; max-width: 1052px; max-height: 1500px;" src="'.@images[$pagenum-1].'"></img>
@@ -184,7 +195,7 @@ if ($qedit->param())
 			
 			<div id="i6" class="if">
 			<img class="mr" src="./img/mr.gif"></img>
-			<a href="./reader.pl?file='.$filename.'&page='.$pagenum.'&force-reload=1">Clear archive cache</a>
+			<a href="./reader.pl?id='.$id.'&page='.$pagenum.'&force-reload=1">Clear archive cache</a>
 			<img class="mr" src="./img/mr.gif"></img>
 			<a href="./">Go back to library </a>
 			</div>
