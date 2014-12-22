@@ -8,7 +8,7 @@ var w=1
 var h=1
 
 if (document.getElementById || document.all)
-document.write('<div id="trailimageid" style="position:absolute;visibility:hidden;left:0px;top:-1000px;width:1px;height:1px;border:1px solid #888888;background:#DDDDDD;z-index: 99999;"><img id="ttimg" src="img/s.gif" /></div>')
+document.write('<div id="trailimageid" style="position:absolute;visibility:hidden;left:0px;top:-1000px;width:1px;height:1px;border:1px solid #888888;background:#DDDDDD;z-index: 99999;"><img id="ttimg" src="img/empty.png" /></div>')
 
 function gettrailobj()
 {
@@ -24,7 +24,7 @@ function truebody()
 function hidetrail()
 {
 	document.onmousemove=""
-	document.getElementById('ttimg').src='img/s.gif'
+	document.getElementById('ttimg').src='img/empty.png'
 	gettrailobj().visibility="hidden"
 	gettrailobj().left=-1000
 	gettrailobj().top=0
@@ -47,16 +47,22 @@ function showtrail(file)
 {
 	if(navigator.userAgent.toLowerCase().indexOf('opera') == -1)
 	{
+		if(file.indexOf(".jpg") !=-1) //Have we been given a proper thumbnail?
+		{
 		showImage(file)
-		
-		// followmouse()
-	
 		document.getElementById('ttimg').src=file
-		document.onmousemove=followmouse
+		}
+		else
+		{
+		showImage('img/noThumb.png')
+		document.getElementById('ttimg').src='img/noThumb.png'
+		}
+		
+		document.onmouseover=followmouse
 		gettrailobj().visibility="visible"
 		gettrailobj().width=w+"px"
 		gettrailobj().height=h+"px"
-
+		
 
 	}
 }

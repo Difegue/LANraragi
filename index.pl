@@ -122,9 +122,16 @@ foreach $file (@dircontents)
 	if (&enable_thumbs)
 	{
 		#add row to table
-		#my $zawa = &getThumb($id);
-		#$table->addRow($icons,qq(<span style="display: none;">$title</span><a href="./reader.pl?id=$id" onmouseover="showtrail('$zawa');" onmouseout="hidetrail();">$title</a>),$artist,$series,$language,$printedtags);
+		#ajaxThumbnail gets the image file from the getThumb perl sub, and gives its path to the JS showtrail() function.
+		my $thumbname = $dirname."/thumb/".$id.".jpg";
+		if (-e $thumbname)
+		{
+		$table->addRow($icons,qq(<span style="display: none;">$title</span><a href="./reader.pl?id=$id" onmouseover="showtrail('$thumbname');" onmouseout="hidetrail();">$title</a>),$artist,$series,$language,$printedtags);
+		}
+		else
+		{
 		$table->addRow($icons.qq(<input type="text" style="display:none;" id="$id" value="$id"/>),qq(<span style="display: none;">$title</span><a href="./reader.pl?id=$id" onmouseover="ajaxThumbnail(['$id'],[showtrail]);" onmouseout="hidetrail();">$title</a>),$artist,$series,$language,$printedtags);
+		}
 	}
 	else #version without, ezpz
 	{
@@ -147,10 +154,11 @@ $table->setColWidth(1,36);
 
 #print("Printing HTML...(".(time() - $^T)." seconds)");
 	my $cgi = new CGI;
-	my $pjx = new CGI::Ajax( 'ajaxThumbnail' => \&getThumb );
-     # BIG PRINTS
 	
-				   
+	#Bind the ajax function to the getThumb subroutine.
+	my $pjx = new CGI::Ajax( 'ajaxThumbnail' => \&getThumb );
+	
+	# BIG PRINTS		   
 	sub printPage {
 		my $html = start_html
 			(
@@ -250,6 +258,7 @@ $table->setColWidth(1,36);
 		return $html;
 	}
 	
+	#We let CGI::Ajax print the HTML we specified in the printPage sub, with the header options specified (utf-8)
 	print $pjx->build_html($cgi, \&printPage,{-type => 'text/html', -charset => 'utf-8'});
 
 	$redis.close();
