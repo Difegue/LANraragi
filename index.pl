@@ -10,6 +10,7 @@ use Encode;
 use File::Find qw(find);
 use Redis;
 use Digest::SHA qw(sha256_hex);
+use CGI::Ajax
 
 #Require config 
 require 'config.pl';
@@ -121,9 +122,9 @@ foreach $file (@dircontents)
 	if (&enable_thumbs)
 	{
 		#add row to table
-		my $zawa = &getThumb($id,$file);
-		#my $zawa = "benis";
-		$table->addRow($icons,qq(<span style="display: none;">$title</span><a href="./reader.pl?id=$id" onmouseover="showtrail('$zawa');" onmouseout="hidetrail();">$title</a>),$artist,$series,$language,$printedtags);
+		#my $zawa = &getThumb($id);
+		#$table->addRow($icons,qq(<span style="display: none;">$title</span><a href="./reader.pl?id=$id" onmouseover="showtrail('$zawa');" onmouseout="hidetrail();">$title</a>),$artist,$series,$language,$printedtags);
+		$table->addRow($icons.qq(<input type="text" style="display:none;" id="$id" value="$id"/>),qq(<span style="display: none;">$title</span><a href="./reader.pl?id=$id" onmouseover="ajaxThumbnail(['$id'],[showtrail]);" onmouseout="hidetrail();">$title</a>),$artist,$series,$language,$printedtags);
 	}
 	else #version without, ezpz
 	{
@@ -145,125 +146,110 @@ $table->setColClass(6,'tags itu');
 $table->setColWidth(1,36);
 
 #print("Printing HTML...(".(time() - $^T)." seconds)");
-
-#Everything printed in the following will be printed into index.html, effectively creating a cache. wow!
-#if (-e "index.html")
-#{
-#	unlink("index.html");
-#}
-
-#open(my $fh, ">", "index.html");
-
-#(my $stdout, $fh) = tee_stdout {
+	my $cgi = new CGI;
+	my $pjx = new CGI::Ajax( 'ajaxThumbnail' => \&getThumb );
      # BIG PRINTS
-	 
-    #binmode OUT, ':bytes';
-	#binmode STDOUT, ':bytes';
 	
-	print header(-type    => 'text/html',
-                   -charset => 'utf-8');
-	print start_html
-		(
-		-title=>&get_htmltitle,
-		-author=>'lanraragi-san',
-		-style=>[{'src'=>'./styles/ex.css'},
-					{'src'=>'./styles/lrr.css'}],
-		-script=>[{-type=>'JAVASCRIPT',
-						-src=>'https://raw.githubusercontent.com/javve/list.js/v1.1.1/dist/list.min.js'},
-					{-type=>'JAVASCRIPT',
-						-src=>'https://raw.githubusercontent.com/javve/list.pagination.js/v0.1.1/dist/list.pagination.min.js'},	
-					{-type=>'JAVASCRIPT',
-						-src=>'./js/thumb.js'}],	
-		-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'}),],
-		-encoding => "UTF-8",
-		#on Load, initialize list.js and pages.
-		-onLoad => "var table = document.getElementsByTagName('tbody');   
-								var rows = table[0].getElementsByTagName('tr');
-								
-								var paginationTopOptions = {
-										name: 'paginationTop',
-										paginationClass: 'paginationTop', 
+				   
+	sub printPage {
+		my $html = start_html
+			(
+			-title=>&get_htmltitle,
+			-author=>'lanraragi-san',
+			-style=>[{'src'=>'./styles/ex.css'},
+						{'src'=>'./styles/lrr.css'}],
+			-script=>[{-type=>'JAVASCRIPT',
+							-src=>'https://raw.githubusercontent.com/javve/list.js/v1.1.1/dist/list.min.js'},
+						{-type=>'JAVASCRIPT',
+							-src=>'https://raw.githubusercontent.com/javve/list.pagination.js/v0.1.1/dist/list.pagination.min.js'},	
+						{-type=>'JAVASCRIPT',
+							-src=>'./js/thumb.js'}],	
+			-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'}),],
+			-encoding => "UTF-8",
+			#on Load, initialize list.js and pages.
+			-onLoad => "var table = document.getElementsByTagName('tbody');   
+									var rows = table[0].getElementsByTagName('tr');
+									
+									var paginationTopOptions = {
+											name: 'paginationTop',
+											paginationClass: 'paginationTop', 
+											}
+									var paginationBottomOptions = {
+											name: 'paginationBottom',
+											paginationClass: 'paginationBottom', 
+											}
+									var options = {
+													valueNames: ['title', 'artist', 'series', 'language', 'tags'], 
+													page:".&get_pagesize.", outerWindow: 1, innerWindow:5,
+													plugins: [ 
+													ListPagination(paginationTopOptions),
+													ListPagination(paginationBottomOptions) 
+													]
+												};
+									var mangoList = new List('toppane', options);
+									mangoList.sort('title', { order: 'asc' });
+									
+									mangoList.on('updated',function(){
+										for (i = 0; i < rows.length; i++){           
+											if(i % 2 == 0)
+												{rows[i].className = 'gtr0'; } 
+											else {rows[i].className = 'gtr1'; }      
 										}
-								var paginationBottomOptions = {
-										name: 'paginationBottom',
-										paginationClass: 'paginationBottom', 
-										}
-								var options = {
-												valueNames: ['title', 'artist', 'series', 'language', 'tags'], 
-												page:".&get_pagesize.", outerWindow: 1, innerWindow:5,
-												plugins: [ 
-												ListPagination(paginationTopOptions),
-												ListPagination(paginationBottomOptions) 
-												]
-											};
-								var mangoList = new List('toppane', options);
-								mangoList.sort('title', { order: 'asc' });
-								
-								mangoList.on('updated',function(){
+										});
+									
 									for (i = 0; i < rows.length; i++){           
 										if(i % 2 == 0)
 											{rows[i].className = 'gtr0'; } 
 										else {rows[i].className = 'gtr1'; }      
 									}
-									});
-								
-								for (i = 0; i < rows.length; i++){           
-									if(i % 2 == 0)
-										{rows[i].className = 'gtr0'; } 
-									else {rows[i].className = 'gtr1'; }      
-								}
-								
-					document.getElementById('srch').value = ''; 
-					"
-					#empty the cached filter, while we're at it.
-		);
-	
-	print '<p id="nb">
-
-		<img alt="" src="./img/mr.gif"></img>
-		<a href="./index.pl">Rebuild Front Page</a>
-		<img alt="" src="./img/mr.gif"></img>
-		<a href="./upload.pl">Upload Archive</a>
-		<img alt="" src="./img/mr.gif"></img>
-		<a href="./torrent.pl">Get Torrent</a>
-		<img alt="" src="./img/mr.gif"></img>
-		<a href="./tags.pl">Import/Export Tags</a>
-	</p>';
+									
+						document.getElementById('srch').value = ''; 
+						"
+						#empty the cached filter, while we're at it.
+			);
 		
-	print "<div class='ido'>
-	<div id='toppane'>
-	<h1 class='ih'>".&get_motd."</h1> 
-	<div class='idi'>";
 		
-	#Search field (stdinput class in panda css)
-	print "<input type='text' id='srch' class='search stdinput' size='90' placeholder='Search Title, Artist, Series, Language or Tags' /> <input class='stdbtn' type='button' onclick=\"window.location.reload();\" value='Clear Filter'/></div>";
+		
+		$html = $html.'<p id="nb">
 
-	#Paging and Archive Count
-	print "<p class='ip' style='margin-top:5px'> Serving a total of ".(scalar @dircontents)." chinese lithographies. </p>";
-	print "<ul class='paginationTop' style='margin:2px auto 0px; text-align:center; border-top:0;' ></ul>";
-
-	$table->print; #print our finished table
-
-	print "<ul class='paginationBottom' style='margin:0px auto 10px; text-align:center; border-bottom:0;' ></ul></div></div>";
-
-	print '		<p class="ip">
-				[
-				<a href="https://github.com/Difegue/LANraragi">
-					Spread da word, yo.
-				</a>
-				]
-			</p>';
+			<img alt="" src="./img/mr.gif"></img>
+			<a href="./index.pl">Rebuild Front Page</a>
+			<img alt="" src="./img/mr.gif"></img>
+			<a href="./upload.pl">Upload Archive</a>
+			<img alt="" src="./img/mr.gif"></img>
+			<a href="./torrent.pl">Get Torrent</a>
+			<img alt="" src="./img/mr.gif"></img>
+			<a href="./tags.pl">Import/Export Tags</a>
+		</p>';
 			
-	print end_html; #close html
-	$redis.close();
-#} stdout => $fh;
+		$html = $html."<div class='ido'>
+		<div id='toppane'>
+		<h1 class='ih'>".&get_motd."</h1> 
+		<div class='idi'>";
+			
+		#Search field (stdinput class in panda css)
+		$html = $html."<input type='text' id='srch' class='search stdinput' size='90' placeholder='Search Title, Artist, Series, Language or Tags' /> <input class='stdbtn' type='button' onclick=\"window.location.reload();\" value='Clear Filter'/></div>";
+
+		#Paging and Archive Count
+		$html = $html."<p class='ip' style='margin-top:5px'> Serving a total of ".(scalar @dircontents)." chinese lithographies. </p>";
+		$html = $html."<ul class='paginationTop' style='margin:2px auto 0px; text-align:center; border-top:0;' ></ul>";
+
+		$html = $html.($table->getTable); #print our finished table
+
+		$html = $html."<ul class='paginationBottom' style='margin:0px auto 10px; text-align:center; border-bottom:0;' ></ul></div></div>";
+
+		$html = $html.'		<p class="ip">
+					[
+					<a href="https://github.com/Difegue/LANraragi">
+						Spread da word, yo.
+					</a>
+					]
+				</p>';
+				
+		$html = $html.end_html; #close html
+		return $html;
+	}
 	
-#clean up our index.html a bit. 
-#With straight STDOUT to file, "Content-Type: text/html; charset=ISO-8859-1 " is added at the beginning.
-#Remove the first line with code ripped from stackoverflow (again):
-#use Tie::File;
-#my @array;
-#tie @array, 'Tie::File', './index.html' or die $!;
-#shift @array;
-#shift @array;
-#untie @array;
+	print $pjx->build_html($cgi, \&printPage,{-type => 'text/html', -charset => 'utf-8'});
+
+	$redis.close();
