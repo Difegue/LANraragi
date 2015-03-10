@@ -16,7 +16,7 @@ print $qedit->start_html
 	(
 	-title=>&get_htmltitle.' - Edit Mode',
     -author=>'lanraragi-san',
-    -style=>{'src'=>'./styles/ex.css'},					
+    -style=>{'src'=>'./styles/'.&get_style},					
 	-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],
 	-encoding => "utf-8",
 	);

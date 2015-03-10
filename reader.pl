@@ -125,7 +125,7 @@ if ($qedit->param())
 		(
 		-title=>$arcname,
 		-author=>'lanraragi-san',
-		-style=>{'src'=>'./styles/ex.css'},					
+		-style=>{'src'=>'./styles/'.&get_style},					
 		-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],		
 		-encoding => "utf-8",
 		);
@@ -168,17 +168,17 @@ if ($qedit->param())
 	#Then we bring the slashes back.
 	@images[$pagenum-1] =~ s!%2F!/!g;
 	
-	print '<div id="i1" class="sni" style="width: 1072px; max-width: 1072px;">
+	print '<div id="i1" class="sni">
 			<h1>'.$arcname.'</h1>
 			
 			<div id="i2">'.$pagesel.$arrows.$fileinfo.'</div>
 			
 			<div id ="i3">
-			<a style=" z-index: 10; position: absolute; width:50%; height:88%;" href="./reader.pl?id='.$id.'&page='.($pagenum-1).'"></a>
-			<a style=" z-index: 10; position: absolute; left:50%; width:50%; height:88%;" href="./reader.pl?id='.$id.'&page='.($pagenum+1).'"></a>
+			<a style=" z-index: 10; position: absolute; width:50%; height:87%;" href="./reader.pl?id='.$id.'&page='.($pagenum-1).'"></a>
+			<a style=" z-index: 10; position: absolute; left:50%; width:50%; height:87%;" href="./reader.pl?id='.$id.'&page='.($pagenum+1).'"></a>
 			
 			<a id ="display">
-			<img id="img" style="width: 1052px; max-width: 1052px; max-height: 1500px;" src="'.@images[$pagenum-1].'"></img>
+			<img id="img" style="width: 1172px; max-width: 1172px; max-height: 1500px;" src="'.@images[$pagenum-1].'"></img>
 			</a>
 	
 			</div>

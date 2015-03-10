@@ -14,7 +14,7 @@ print $qupload->start_html
 	(
 	-title=>&get_htmltitle." - Upload Mode",
     -author=>'lanraragi-san',
-    -style=>{'src'=>'./styles/ex.css'},					
+    -style=>{'src'=>'./styles/'.&get_style},					
 	-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],
 	-encoding => "utf-8",
 	);
@@ -116,7 +116,7 @@ else
 	
 		if (&enable_pass)
 	{
-		print "<tr><td style='text-align:left; width:100px'>Admin Password:</td><td>";
+		print "<tr><td style='text-align:left; width:100px'>Admin Password:</td><td style='text-align:left'>";
 		print $qupload->password_field(
 				-name      => 'pass',
 				-value     => '',

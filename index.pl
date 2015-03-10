@@ -126,7 +126,7 @@ foreach $file (@dircontents)
 		my $thumbname = $dirname."/thumb/".$id.".jpg";
 		if (-e $thumbname)
 		{
-		$table->addRow($icons,qq(<span style="display: none;">$title</span><a href="./reader.pl?id=$id" onmouseover="showtrail('$thumbname');" onmouseout="hidetrail();">$title</a>),$artist,$series,$language,$printedtags);
+		$table->addRow($icons,qq(<span style="display: none; ">$title</span><a href="./reader.pl?id=$id" onmouseover="showtrail('$thumbname');" onmouseout="hidetrail();">$title</a>),$artist,$series,$language,$printedtags);
 		}
 		else
 		{
@@ -164,8 +164,8 @@ $table->setColWidth(1,36);
 			(
 			-title=>&get_htmltitle,
 			-author=>'lanraragi-san',
-			-style=>[{'src'=>'./styles/ex.css'},
-						{'src'=>'./styles/lrr.css'}],
+			-style=>[{'src'=>'./styles/lrr.css'},
+						{'src'=>'./styles/'.&get_style}],
 			-script=>[{-type=>'JAVASCRIPT',
 							-src=>'https://raw.githubusercontent.com/javve/list.js/v1.1.1/dist/list.min.js'},
 						{-type=>'JAVASCRIPT',
@@ -221,11 +221,9 @@ $table->setColWidth(1,36);
 		$html = $html.'<p id="nb">
 
 			<img alt="" src="./img/mr.gif"></img>
-			<a href="./index.pl">Rebuild Front Page</a>
-			<img alt="" src="./img/mr.gif"></img>
 			<a href="./upload.pl">Upload Archive</a>
-			<img alt="" src="./img/mr.gif"></img>
-			<a href="./torrent.pl">Get Torrent</a>
+			<!--img alt="" src="./img/mr.gif"></img>
+			<a href="./torrent.pl">Get Torrent</a>--!>
 			<img alt="" src="./img/mr.gif"></img>
 			<a href="./tags.pl">Import/Export Tags</a>
 		</p>';
@@ -239,12 +237,12 @@ $table->setColWidth(1,36);
 		$html = $html."<input type='text' id='srch' class='search stdinput' size='90' placeholder='Search Title, Artist, Series, Language or Tags' /> <input class='stdbtn' type='button' onclick=\"window.location.reload();\" value='Clear Filter'/></div>";
 
 		#Paging and Archive Count
-		$html = $html."<p class='ip' style='margin-top:5px'> Serving a total of ".(scalar @dircontents)." chinese lithographies. </p>";
-		$html = $html."<ul class='paginationTop' style='margin:2px auto 0px; text-align:center; border-top:0;' ></ul>";
+		$html = $html."<p class='ip' style='margin-top:-5px'> Serving a total of ".(scalar @dircontents)." chinese lithographies. </p>";
+		$html = $html."<ul class='paginationTop' style=' text-align:center; border-top:0;' ></ul>";
 
 		$html = $html.($table->getTable); #print our finished table
 
-		$html = $html."<ul class='paginationBottom' style='margin:0px auto 10px; text-align:center; border-bottom:0;' ></ul></div></div>";
+		$html = $html."<ul class='paginationBottom' style=' text-align:center; border-bottom:0;' ></ul></div></div>";
 
 		$html = $html.'		<p class="ip">
 					[

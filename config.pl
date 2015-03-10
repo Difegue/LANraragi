@@ -32,6 +32,9 @@ my $redisaddress = "127.0.0.1:6379";
 #Syntax of an archive's filename. Used in editing.
 my $syntax = "(%RELEASE) [%ARTIST] %TITLE (%SERIES) [%LANGUAGE]";
 
+#CSS file to load. Must be in the styles folder.
+my $css = "modern.css";
+
 #Regular Expression matching the above syntax. Used in parsing. Stuff that's between unescaped ()s is put in a numbered variable: $1,$2,etc
 	#This regex autoparses the given string according to the exhentai standard convention: (Release) [Artist] TITLE (Series) [Language]
 	#Parsing is only done the first time the file is found. The parsed info is then stored into Redis. 
@@ -67,6 +70,7 @@ sub get_threshold { return $sizethreshold };
 sub get_pagesize { return $pagesize };
 sub get_thumbpref { return $generateonindex };
 sub get_redisad { return $redisaddress };
+sub get_style { return $css };
 
 use Digest::SHA qw(sha1 sha1_hex sha1_base64); #habbening
 use URI::Escape;
