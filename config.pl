@@ -114,13 +114,6 @@ sub removeSpaceF #hue
 	removeSpaceR($_[0]);
 	}
 	
-#Delete the cached index.html. 
-#This doesn't really require a sub, but it's cleaner in code to have "rebuild_index" instead of "unlink(./index.html);"
-
-sub rebuild_index
-	{
-	unlink("./index.html");
-	}
 
 #parseName, with regex. [^([]+ 
 sub parseName
@@ -197,7 +190,13 @@ sub getThumb
 	
 #-------------------------------Unused Shit Below----------------------
 
+#Delete the cached index.html. 
+#This doesn't really require a sub, but it's cleaner in code to have "rebuild_index" instead of "unlink(./index.html);"
 
+sub rebuild_index
+	{
+	unlink("./index.html");
+	}
 
 #Splits a name into fields that are treated. Syntax is (Release) [Artist (Pseudonym) ] TITLE (Series) [Language] misc shit .extension
 #old version with substr and stuff, use if you don't like regexes or something

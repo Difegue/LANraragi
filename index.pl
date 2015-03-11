@@ -158,20 +158,32 @@ $table->setColWidth(1,36);
 	#Bind the ajax function to the getThumb subroutine.
 	my $pjx = new CGI::Ajax( 'ajaxThumbnail' => \&getThumb );
 	
+	#Getting all the available CSS sheets.
+	my @css;
+	opendir (DIR, "./styles/") or die $!;
+	while (my $file = readdir(DIR)) 
+	{
+		if ($file =~ /.+\.css/)
+		{push(@css, $file);}
+
+	}
+	closedir(DIR);
+
 	# BIG PRINTS		   
 	sub printPage {
 		my $html = start_html
 			(
 			-title=>&get_htmltitle,
 			-author=>'lanraragi-san',
-			-style=>[{'src'=>'./styles/lrr.css'},
-						{'src'=>'./styles/'.&get_style}],
+			-style=>[{'src'=>'./styles/lrr.css'}],
 			-script=>[{-type=>'JAVASCRIPT',
 							-src=>'https://raw.githubusercontent.com/javve/list.js/v1.1.1/dist/list.min.js'},
 						{-type=>'JAVASCRIPT',
 							-src=>'https://raw.githubusercontent.com/javve/list.pagination.js/v0.1.1/dist/list.pagination.min.js'},	
 						{-type=>'JAVASCRIPT',
-							-src=>'./js/thumb.js'}],	
+							-src=>'./js/thumb.js'},
+						{-type=>'JAVASCRIPT',
+							-src=>'./js/css.js'}],	
 			-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'}),],
 			-encoding => "UTF-8",
 			#on Load, initialize list.js and pages.
@@ -212,10 +224,30 @@ $table->setColWidth(1,36);
 									}
 									
 						document.getElementById('srch').value = ''; 
+
+						//Set the correct CSS from the cookie on the user's machine.
+						set_style_from_cookie();
 						"
-						#empty the cached filter, while we're at it.
 			);
 		
+
+		#Dropdown list for changing CSSes on the fly.
+		my $CSSsel = '<div style="position: absolute; right: 20px;" ><form style="float: right;"><select size="1"  onChange="switch_style()">';
+
+
+		#We opened a drop-down list. Now, we'll fill it.
+		for ( my $i = 0; $i < $#css+1; $i++) 
+		{
+			if (@css[$i] ne "lrr.css") #quality work
+			{
+				$CSSsel = $CSSsel.'<option onclick="switch_style(\''.$i.'\');return false;">'.@css[$i].' </option>';
+				$html=$html.'<link rel="alternate stylesheet" type="text/css" title="'.$i.'" href="./styles/'.@css[$i].'"> ';
+
+			}
+		}		
+
+		$CSSsel = $CSSsel.'</select></form></div>';
+
 		
 		
 		$html = $html.'<p id="nb">
@@ -232,6 +264,9 @@ $table->setColWidth(1,36);
 		<div id='toppane'>
 		<h1 class='ih'>".&get_motd."</h1> 
 		<div class='idi'>";
+
+		#Adding CSS dropdown here!
+		$html=$html.$CSSsel;
 			
 		#Search field (stdinput class in panda css)
 		$html = $html."<input type='text' id='srch' class='search stdinput' size='90' placeholder='Search Title, Artist, Series, Language or Tags' /> <input class='stdbtn' type='button' onclick=\"window.location.reload();\" value='Clear Filter'/></div>";

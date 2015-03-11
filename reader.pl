@@ -168,7 +168,7 @@ if ($qedit->param())
 	#Then we bring the slashes back.
 	@images[$pagenum-1] =~ s!%2F!/!g;
 	
-	print '<div id="i1" class="sni">
+	print '<div id="i1" class="sni" style="max-width: 1200px;">
 			<h1>'.$arcname.'</h1>
 			
 			<div id="i2">'.$pagesel.$arrows.$fileinfo.'</div>
