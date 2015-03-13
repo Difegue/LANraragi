@@ -157,17 +157,6 @@ $table->setColWidth(1,36);
 	
 	#Bind the ajax function to the getThumb subroutine.
 	my $pjx = new CGI::Ajax( 'ajaxThumbnail' => \&getThumb );
-	
-	#Getting all the available CSS sheets.
-	my @css;
-	opendir (DIR, "./styles/") or die $!;
-	while (my $file = readdir(DIR)) 
-	{
-		if ($file =~ /.+\.css/)
-		{push(@css, $file);}
-
-	}
-	closedir(DIR);
 
 	# BIG PRINTS		   
 	sub printPage {
@@ -232,23 +221,7 @@ $table->setColWidth(1,36);
 		
 
 		#Dropdown list for changing CSSes on the fly.
-		my $CSSsel = '<div style="position: absolute; right: 20px;" ><form style="float: right;"><select size="1"  onChange="switch_style()">';
-
-
-		#We opened a drop-down list. Now, we'll fill it.
-		for ( my $i = 0; $i < $#css+1; $i++) 
-		{
-			if (@css[$i] ne "lrr.css") #quality work
-			{
-				$CSSsel = $CSSsel.'<option onclick="switch_style(\''.$i.'\');return false;">'.@css[$i].' </option>';
-				$html=$html.'<link rel="alternate stylesheet" type="text/css" title="'.$i.'" href="./styles/'.@css[$i].'"> ';
-
-			}
-		}		
-
-		$CSSsel = $CSSsel.'</select></form></div>';
-
-		
+		my $CSSsel = &printCssDropdown(1);
 		
 		$html = $html.'<p id="nb">
 

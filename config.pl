@@ -35,6 +35,19 @@ my $syntax = "(%RELEASE) [%ARTIST] %TITLE (%SERIES) [%LANGUAGE]";
 #CSS file to load. Must be in the styles folder.
 my $css = "modern.css";
 
+#Assign a name to the css file passed. You can add names by adding cases.
+sub cssNames{
+
+	switch($_[0]){
+		case "g.css" {return "G.E-H"}
+		case "modern.css" {return "Hachikuji"}
+		case "modern_clear.css" {return "Yotsugi"}
+		case "ex.css" {return "Sad Panda"}
+		else {return $_[0]}
+	} 
+
+}
+
 #Regular Expression matching the above syntax. Used in parsing. Stuff that's between unescaped ()s is put in a numbered variable: $1,$2,etc
 	#This regex autoparses the given string according to the exhentai standard convention: (Release) [Artist] TITLE (Series) [Language]
 	#Parsing is only done the first time the file is found. The parsed info is then stored into Redis. 
@@ -76,6 +89,49 @@ use Digest::SHA qw(sha1 sha1_hex sha1_base64); #habbening
 use URI::Escape;
 use Redis;
 use Encode;
+
+#Print a dropdown list to select CSS, and adds <link> tags for all the style sheets present in the /style folder.
+#Takes a boolean as argument: if true, return the styles and the dropdown. If false, only return the styles.
+sub printCssDropdown{
+
+	#Getting all the available CSS sheets.
+	my @css;
+	opendir (DIR, "./styles/") or die $!;
+	while (my $file = readdir(DIR)) 
+	{
+		if ($file =~ /.+\.css/)
+		{push(@css, $file);}
+
+	}
+	closedir(DIR);
+
+	#dropdown list
+	my $CSSsel = '<div style="position: absolute; right: 20px;" ><form style="float: right;"><select size="1">'; 
+	
+	$CSSsel = $CSSsel.'<option>Select a custom style</option>';
+
+	#link tags
+	my $html;
+
+	#We opened a drop-down list. Now, we'll fill it.
+	for ( my $i = 0; $i < $#css+1; $i++) 
+	{
+		if (@css[$i] ne "lrr.css") #quality work
+		{
+			$CSSsel = $CSSsel.'<option onclick="switch_style(\''.$i.'\');return false;">'.&cssNames(@css[$i]).' </option>';
+			$html=$html.'<link rel="alternate stylesheet" type="text/css" title="'.$i.'" href="./styles/'.@css[$i].'"> ';
+
+		}
+	}		
+
+	$CSSsel = $CSSsel.'</select></form></div>';
+
+	if ($_[0])
+	{return $html.$CSSsel;}
+	else
+	{return $html;}
+}
+	
 
 #This handy function gives us a SHA-1 hash for the passed file, which is used as an id for some files. 
 sub shasum{
@@ -146,8 +202,11 @@ sub getThumb
 	my $file = $redis->hget($id,"file");
 	$file = decode_utf8($file);
 			
-	my $path = $dirname."/thumb/temp";		
-						#Get lsar's output, jam it in an array, and use it as @extracted.
+	my $path = $dirname."/thumb/temp";	
+	#delete everything in tmp to prevent file mismatch errors.
+	unlink glob $path."/*.*";
+
+	#Get lsar's output, jam it in an array, and use it as @extracted.
 	my $vals = `lsar "$file"`; 
 	#print $vals;
 	my @lsarout = split /\n/, $vals;

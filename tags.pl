@@ -16,10 +16,15 @@ print $qupload->start_html
 	(
 	-title=>&get_htmltitle." - Tag Importer/Exporter",
     -author=>'lanraragi-san',
-    -style=>{'src'=>'./styles/'.&get_style},					
+    -style=>{'src'=>'./styles/'.&get_style},		
+    -script=>{-type=>'JAVASCRIPT',
+							-src=>'./js/css.js'},			
 	-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],
 	-encoding => "utf-8",
+	-onload=> "set_style_from_cookie();",
 	);
+
+print &printCssDropdown(0);
 
 #http://g.e-hentai.org/?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1&f_search=Search+Keywords&f_apply=Apply+Filter&f_shash=F316F69594D3E21910367085E9136591D8D3E212&fs_similar=1
 

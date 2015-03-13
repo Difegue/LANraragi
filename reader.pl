@@ -125,11 +125,16 @@ if ($qedit->param())
 		(
 		-title=>$arcname,
 		-author=>'lanraragi-san',
-		-style=>{'src'=>'./styles/'.&get_style},					
+		-style=>{'src'=>'./styles/'.&get_style},	
+		-script=>{-type=>'JAVASCRIPT',
+							-src=>'./js/css.js'},				
 		-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],		
 		-encoding => "utf-8",
+		-onload=> "set_style_from_cookie();",
 		);
 		
+	print &printCssDropdown(0);
+
 	print '<script src="./js/reader.js"></script>';
 	
 	#These are the pretty arrows you use to switch pages.

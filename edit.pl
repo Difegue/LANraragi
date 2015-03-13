@@ -16,10 +16,16 @@ print $qedit->start_html
 	(
 	-title=>&get_htmltitle.' - Edit Mode',
     -author=>'lanraragi-san',
-    -style=>{'src'=>'./styles/'.&get_style},					
+    -style=>{'src'=>'./styles/'.&get_style},			
+    -script=>{-type=>'JAVASCRIPT',
+							-src=>'./js/css.js'},		
 	-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],
 	-encoding => "utf-8",
+	-onload=> "set_style_from_cookie();",
 	);
+
+print &printCssDropdown(0);
+
 	
 if ($qedit->param()) {
     # Parameters are defined, therefore something has been submitted...	
