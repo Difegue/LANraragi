@@ -1,5 +1,5 @@
 #Default config variables. Change as you see fit.
-
+use Switch;
 #Title of the html page.
 my $htmltitle = "LANraragi"; 
 
