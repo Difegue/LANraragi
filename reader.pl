@@ -9,6 +9,7 @@ use File::Find qw(find);
 use Encode;
 
 require 'config.pl';
+require 'functions.pl';
 
 #I ripped off some code from edit.pl to begin.
 my $path;
@@ -124,8 +125,7 @@ if ($qedit->param())
 	print $qedit->start_html
 		(
 		-title=>$arcname,
-		-author=>'lanraragi-san',
-		-style=>{'src'=>'./styles/'.&get_style},	
+		-author=>'lanraragi-san',	
 		-script=>{-type=>'JAVASCRIPT',
 							-src=>'./js/css.js'},				
 		-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],		

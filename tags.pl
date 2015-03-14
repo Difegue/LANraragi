@@ -9,14 +9,14 @@ use utf8;
 use JSON;
 
 require 'config.pl';
+require 'functions.pl';
 
 my $qupload = new CGI;
 print $qupload->header;
 print $qupload->start_html
 	(
 	-title=>&get_htmltitle." - Tag Importer/Exporter",
-    -author=>'lanraragi-san',
-    -style=>{'src'=>'./styles/'.&get_style},		
+    -author=>'lanraragi-san',	
     -script=>{-type=>'JAVASCRIPT',
 							-src=>'./js/css.js'},			
 	-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],

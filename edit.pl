@@ -7,6 +7,7 @@ use Redis;
 use Encode;
 
 require 'config.pl';
+require 'functions.pl';
 
 my $qedit = new CGI;
 print $qedit->header(-type    => 'text/html',
@@ -15,8 +16,7 @@ print $qedit->header(-type    => 'text/html',
 print $qedit->start_html
 	(
 	-title=>&get_htmltitle.' - Edit Mode',
-    -author=>'lanraragi-san',
-    -style=>{'src'=>'./styles/'.&get_style},			
+    -author=>'lanraragi-san',		
     -script=>{-type=>'JAVASCRIPT',
 							-src=>'./js/css.js'},		
 	-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],

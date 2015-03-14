@@ -14,6 +14,7 @@ use CGI::Ajax
 
 #Require config 
 require 'config.pl';
+require 'functions.pl';
 
 #print("Setting up main table..\n");
 

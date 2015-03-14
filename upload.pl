@@ -6,6 +6,7 @@ use File::Basename;
 use utf8;
 
 require 'config.pl';
+require 'functions.pl';
 
 my $qupload = new CGI;
 print $qupload->header(-type    => 'text/html',
@@ -14,7 +15,6 @@ print $qupload->start_html
 	(
 	-title=>&get_htmltitle." - Upload Mode",
     -author=>'lanraragi-san',
-    -style=>{'src'=>'./styles/'.&get_style},
     -script=>{-type=>'JAVASCRIPT',
 							-src=>'./js/css.js'},					
 	-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],
