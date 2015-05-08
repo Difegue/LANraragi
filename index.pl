@@ -123,16 +123,19 @@ foreach $file (@dircontents)
 	if (&enable_thumbs)
 	{
 		#add row to table
-		#ajaxThumbnail gets the image file from the getThumb perl sub, and gives its path to the JS showtrail() function.
+		#ajaxThumbnail makes the thumbnail for that album if it doesn't already exist.
 		my $thumbname = $dirname."/thumb/".$id.".jpg";
-		if (-e $thumbname)
-		{
-		$table->addRow($icons,qq(<span style="display: none; ">$title</span><a href="./reader.pl?id=$id" onmouseover="showtrail('$thumbname');" onmouseout="hidetrail();">$title</a>),$artist,$series,$language,$printedtags);
-		}
-		else
-		{
-		$table->addRow($icons.qq(<input type="text" style="display:none;" id="$id" value="$id"/>),qq(<span style="display: none;">$title</span><a href="./reader.pl?id=$id" onmouseover="ajaxThumbnail(['$id'],[showtrail]);" onmouseout="hidetrail();">$title</a>),$artist,$series,$language,$printedtags);
-		}
+		$table->addRow($icons.qq(<input type="text" style="display:none;" id="$id" value="$id"/>),
+						qq(<span style="display: none;">$title</span>
+								<a href="./reader.pl?id=$id" 
+									onmouseover="checkImage( '$thumbname', 
+														function(){ showtrail('$thumbname') }, 
+														function(){ showtrail('$thumbname'); ajaxThumbnail(['$id'],[]); } );" 
+									onmouseout="hidetrail();">
+								$title
+								</a>
+							),
+						$artist,$series,$language,$printedtags);
 	}
 	else #version without, ezpz
 	{
@@ -158,6 +161,7 @@ $table->setColWidth(1,36);
 	
 	#Bind the ajax function to the getThumb subroutine.
 	my $pjx = new CGI::Ajax( 'ajaxThumbnail' => \&getThumb );
+	$pjx->DEBUG(1);
 
 	# BIG PRINTS		   
 	sub printPage {

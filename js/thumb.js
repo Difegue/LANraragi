@@ -6,6 +6,7 @@ This notice must stay intact
 
 var w=1
 var h=1
+var thumbnail
 
 if (document.getElementById || document.all)
 document.write('<div id="trailimageid" style="position:absolute;visibility:hidden;left:0px;top:-1000px;width:1px;height:1px;border:1px solid #888888;background:#DDDDDD;z-index: 99999;"><img id="ttimg" src="img/empty.png" /></div>')
@@ -28,6 +29,8 @@ function hidetrail()
 	gettrailobj().visibility="hidden"
 	gettrailobj().left=-1000
 	gettrailobj().top=0
+	//No need to look for the thumbnail anymore, we clear the loop.
+	clearInterval(thumbnail)
 }
 
 function findHHandWW() {
@@ -42,15 +45,32 @@ function showImage(imgPath) {
     myImage.onload = findHHandWW;
     myImage.src = imgPath;
   }
+  
+  function checkImage (src, good, bad) {
+    var img = new Image();
+    img.onload = good; 
+    img.onerror = bad;
+    img.src = src;
+}
+
+function showImageorSpinner(file)
+{
+	checkImage(file, function(){document.getElementById('ttimg').src=file},function(){document.getElementById('ttimg').src='img/wait_warmly.gif'});
+}
 
 function showtrail(file)
 {
+
 	if(navigator.userAgent.toLowerCase().indexOf('opera') == -1)
 	{
 		if(file.indexOf(".jpg") !=-1) //Have we been given a proper thumbnail?
 		{
 		showImage(file)
-		document.getElementById('ttimg').src=file
+		showImageorSpinner(file)
+		
+		//The thumbnail is created through ajax if it doesn't exist yet, so we try to get the image again every second.
+		clearInterval(thumbnail)
+		thumbnail = setInterval(function(){showImageorSpinner(file);},1000)
 		}
 		else
 		{

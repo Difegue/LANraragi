@@ -60,6 +60,11 @@ if ($qedit->param())
 		{
 			#print 'unar -o '.$path.' "'.$zipFile.'"';
 			
+			if (-e $path) #If the file has been extracted, we delete it all
+				{
+				unlink $path;
+				}
+			
 			unless ( `unar -D -o $path "$zipFile"`) #Extraction using unar without creating extra folders.
 				{  # Make sure archive got read
 				&rebuild_index;
@@ -75,9 +80,14 @@ if ($qedit->param())
 								{push @images, $_ }
 						} , no_chdir => 1 }, $path); #find () does exactly that. 
 		
-	@images = sort { lc($a) cmp lc($b) } @images;
-		
-	#print @images;
+	#magical sort function
+	sub expand {
+                   my $file=shift; 
+                   $file=~s{(\d+)}{sprintf "%04d", $1}eg;
+                   return $file;
+              }
+			  
+    my @images = sort { expand($a) cmp expand($b) } @images;
 	
 	if ($qedit->param('page')) #Has a specific page been mentioned? If so, that's the one we'll need to display.
 		{
@@ -130,11 +140,14 @@ if ($qedit->param())
 							-src=>'./js/css.js'},				
 		-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],		
 		-encoding => "utf-8",
-		-onload=> "set_style_from_cookie();",
+		-onload=> "set_style_from_cookie();
+					//fit the clickable areas for switching pages to the image height.
+					document.getElementById('gotonext').style.height=document.getElementById('img').height+'px';
+					document.getElementById('gotoprev').style.height=document.getElementById('img').height+'px';
+					",
 		);
 		
 	print &printCssDropdown(0);
-
 	print '<script src="./js/reader.js"></script>';
 	
 	#These are the pretty arrows you use to switch pages.
@@ -179,8 +192,8 @@ if ($qedit->param())
 			<div id="i2">'.$pagesel.$arrows.$fileinfo.'</div>
 			
 			<div id ="i3">
-			<a style=" z-index: 10; position: absolute; width:50%; height:87%;" href="./reader.pl?id='.$id.'&page='.($pagenum-1).'"></a>
-			<a style=" z-index: 10; position: absolute; left:50%; width:50%; height:87%;" href="./reader.pl?id='.$id.'&page='.($pagenum+1).'"></a>
+			<a id="gotoprev" style=" z-index: 10; position: absolute; width:50%; height:87%;" href="./reader.pl?id='.$id.'&page='.($pagenum-1).'"></a>
+			<a id="gotonext" style=" z-index: 10; position: absolute; left:50%; width:50%; height:87%;" href="./reader.pl?id='.$id.'&page='.($pagenum+1).'"></a>
 			
 			<a id ="display">
 			<img id="img" style="width: 1172px; max-width: 1172px; max-height: 1500px;" src="'.@images[$pagenum-1].'"></img>
