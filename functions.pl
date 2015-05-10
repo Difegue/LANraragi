@@ -2,8 +2,71 @@ use Digest::SHA qw(sha1 sha1_hex sha1_base64); #habbening
 use URI::Escape;
 use Redis;
 use Encode;
+use LWP::Simple;
+use JSON::Parse 'parse_json';
 
 require 'config.pl';
+
+#Takes an image hash, performs a remote search on g.e-hentai, and builds the matching JSON to send to the API for data.
+sub getGalleryId{
+
+	my $hash = $_[0];
+	my $URL = "http://g.e-hentai.org/".
+				"?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1"."&f_search=Search+Keywords&f_apply=Apply+Filter&f_shash=".$hash."&fs_similar=1";
+	my $content = get $URL;
+
+	#now for the parsing of the HTML we obtained.
+	#the first occurence of <tr class="gtr0"> matches the first row of the results. 
+	#If it doesn't exist, what we searched isn't on E-hentai.
+	my @benis = split('<tr class="gtr0">', $content);
+	
+	#Inside that <tr>, we look for <div class="it5"> . the <a> tag inside has an href to the URL we want.
+	my @final = split('<div class="it5">',@benis[1]);
+
+	my $url = (split('http://g.e-hentai.org/g/',@final[1]))[1];
+
+	
+	my @values = (split('/',$url));
+
+	my $gID = @values[0];
+	my $gToken = @values[1];
+
+	#Returning shit yo
+	return qq({
+				"method": "gdata",
+				"gidlist": [
+					[$gID,"$gToken"]
+				]
+				});
+	
+}
+
+#Executes an API request with the given JSON and returns 
+sub getTagsFromAPI{
+	
+	my $uri = 'http://g.e-hentai.org/api.php';
+	my $json = $_[0];
+	my $req = HTTP::Request->new( 'POST', $uri );
+	$req->header( 'Content-Type' => 'application/json' );
+	$req->content( $json );
+
+	#Then you can execute the request with LWP:
+
+	my $ua = LWP::UserAgent->new; 
+	my $res = $ua->request($req);
+	
+	#$res is a JSON response. 
+	#print $res->decoded_content;
+	my $jsonresponse = $res -> decoded_content;
+	my $hash = parse_json($jsonresponse);
+	
+	my $data = $hash->{"gmetadata"};
+	
+	my $tags = @$data[0]->{"tags"};
+	
+	return @$tags;
+}
+
 
 #Print a dropdown list to select CSS, and adds <link> tags for all the style sheets present in the /style folder.
 #Takes a boolean as argument: if true, return the styles and the dropdown. If false, only return the styles.
@@ -284,3 +347,6 @@ my @indx = sort {lc $params[$a] cmp lc $params[$b] } (0..$#params);
 return @_;
 	
 }	
+
+
+#getTagsFromAPI(getGalleryId("57a4c1274096996d9ee02c11bd1eaacbb7af971b"));

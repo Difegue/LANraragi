@@ -161,7 +161,6 @@ $table->setColWidth(1,36);
 	
 	#Bind the ajax function to the getThumb subroutine.
 	my $pjx = new CGI::Ajax( 'ajaxThumbnail' => \&getThumb );
-	$pjx->DEBUG(1);
 
 	# BIG PRINTS		   
 	sub printPage {

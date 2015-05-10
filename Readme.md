@@ -10,6 +10,8 @@ Supports tags, and runs on a basic installation of Perl with the following packa
 	* Tie::File
 	* Digest::SHA
 	* Redis
+	* LWP::Simple
+	* JSON::Parse
 	
 You can find a basic installation guide [here](https://github.com/Difegue/LANraragi/blob/master/Install.md).
 	
