@@ -3,10 +3,7 @@
 use strict;
 use CGI qw(:standard);
 use File::Basename;
-use LWP::Simple;
-use LWP::UserAgent;
 use utf8;
-use JSON;
 
 require 'config.pl';
 require 'functions.pl';
@@ -25,43 +22,15 @@ print $qupload->start_html
 	);
 
 print &printCssDropdown(0);
+	
 
-#http://g.e-hentai.org/?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1&f_search=Search+Keywords&f_apply=Apply+Filter&f_shash=F316F69594D3E21910367085E9136591D8D3E212&fs_similar=1
-
-#Search g.e-hentai for the provided image hash, and return the tags in a string.
-sub EHSearch_Hash
-	{
-	my $content = get('http://g.e-hentai.org/?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1&f_search=Search+Keywords&f_apply=Apply+Filter&f_shash='.$_[0].'&fs_similar=1') or die 'Unable to get page';
-	
-	#$content is a full web page. But it contains the gallery ID we'll pass to the JSON API afterwards. Let's look for it:
-	$content =~ m/g\/[^\/]+\/[^\/]/;
-	
-	#GID needs to be in a xxxx/"yyyyy" format. Regex!
-	
-	#Now that we have the GID, let's call the E-H API.
-	my $uri = 'http://g.e-hentai.org/api.php';
-	my $json = '{"method": "gdata", "gidlist": [['.$GID.']]}';
-	my $req = HTTP::Request->new( 'POST', $uri );
-	$req->header( 'Content-Type' => 'application/json' );
-	$req->content( $json );
-
-	my $lwp = LWP::UserAgent->new;
-	my $json = $lwp->request( $req );
-	
-	#Let's parse the JSON output:
-	my $decoded = decode_json($json);
-	
-	return $decoded->{'gmetadata'}{'tags'};
-	
-	}
-	
 if ($qupload->param()) {
     # Parameters are defined, therefore something has been submitted...	
-	
+    my $id = $qupload->param('id');
+
 	#Are the submitted arguments POST?
 	if ('POST' eq $qupload->request_method )
 		{
-		#let's do eet
 		
 		#Check if password is correct first.
 		my $pass = $qupload->param('pass');
@@ -69,68 +38,99 @@ if ($qupload->param()) {
 			{
 			print "<div class='ido' style='text-align:center'><h1>Wrong password.</h1><br/>";
 			print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/>";
-			print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./upload.pl');\" value='Upload another Gallery'/></div>";
+			print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./tags.pl');\" value='Try Again'/></div>";
 			}
 		else
 			{ 
-			#Get hash from $id-SHA.txt, then use EHSearch_Hash.
+			#Get hash from Redis, then use EHSearch_Hash.
+
+			#Open up Redis
+			my $redis = Redis->new(server => &get_redisad, 
+						reconnect => 100,
+						every     => 3000);
 			
+			my $hash = $redis->hget($id,"thumbhash");
+			print $hash."<br/>";
 			
+			#This rings up g.e-hentai with the SHA hash we obtained.
+			my $queryJson = &getGalleryId($hash);
+			print $queryJson."<br/>";
+
+			my $tags = &getTagsFromAPI($queryJson);
+
+			if ($tags eq(""))
+				{
+					print "No tags!";
+				}
+			else
+				{
+					print "tags are: ".$tags;
+				}
+
+			my $oldtags = $redis->hget($id,"tags");
+
+			$redis->hset($id,"tags",$oldtags.", ".$tags);
+			$redis->close();
+
 			}
 		}
-}
-else
-{
-	#Print the form.
-	
-	print "<div class='ido' style='text-align:center'>";
-	print $qupload->h1( {-class=>'ih', -style=>'text-align:center'},"Import Tags from E-Hentai API.");
-	print $qupload->start_form;
-	print "<table style='margin:auto'><tbody>";
-	
-	print "<tr><td style='text-align:left; width:100px'>Select File:</td><td>";
-	print $qupload->filefield(
-			-name      => 'file',
-			-size      => 20,
-			-maxlength => 255,
-			-style => "width:820px",
-			-readonly,
-			#-style='',
-		);
-	print "</td></tr>";
-	
-		if (&enable_pass)
-	{
-		print "<tr><td style='text-align:left; width:100px'>Admin Password:</td><td>";
-		print $qupload->password_field(
-				-name      => 'pass',
-				-value     => '',
-				-size      => 20,
-				-maxlength => 255,
-				-class => "stdinput",
-				-style => "width:820px",
-			);
-		print "</td></tr>";
-	}
-	
-	print "<tr><td></td><td style='text-align:left'>";
-	print $qupload->submit(
-			-name     => 'submit_form',
-			-value    => 'Upload Archive',
-			-onsubmit => 'javascript: validate_form()',
-			-class => 'stdbtn', 
-		);
-		
-	print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/>";
-	
+	else
+		{
+			#It's GET. Print the form.
+			
+			print "<div class='ido' style='text-align:center'>";
+			print $qupload->h1( {-class=>'ih', -style=>'text-align:center'},"Import Tags from E-Hentai API.");
+			print $qupload->start_form;
+			print "<table style='margin:auto'><tbody>";
+			
+			print "<tr><td style='text-align:left; width:100px'>Select File:</td><td>";
+			print $qupload->textfield(
+					-name      => 'id',
+					-value     => $id,
+					-size      => 20,
+					-maxlength => 255,
+					-class => "stdinput",
+					-style => "width:820px",
+				);
+			print "</td></tr>";
+			
+				if (&enable_pass)
+			{
+				print "<tr><td style='text-align:left; width:100px'>Admin Password:</td><td>";
+				print $qupload->password_field(
+						-name      => 'pass',
+						-value     => '',
+						-size      => 20,
+						-maxlength => 255,
+						-class => "stdinput",
+						-style => "width:820px",
+					);
+				print "</td></tr>";
+			}
+			
+			print "<tr><td></td><td style='text-align:left'>";
+			print $qupload->submit(
+					-name     => 'submit_form',
+					-value    => 'Upload Archive',
+					-onsubmit => 'javascript: validate_form()',
+					-class => 'stdbtn', 
+				);
+				
+			print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/>";
+			
 
-	print "</td></tbody></table>";
-	print $qupload->end_form;
-	
-	print "</div>";
-	
-	
-	
-}
+			print "</td></tbody></table>";
+			print $qupload->end_form;
+			
+			print "</div>";
+			
+			
+			
+		}
+	}
+	else 
+	{
+		print "gib arguments";
+	}
 
 print $qupload->end_html;

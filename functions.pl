@@ -2,7 +2,7 @@ use Digest::SHA qw(sha1 sha1_hex sha1_base64); #habbening
 use URI::Escape;
 use Redis;
 use Encode;
-use LWP::Simple;
+use LWP::Simple qw/get/;
 use JSON::Parse 'parse_json';
 
 require 'config.pl';
@@ -60,11 +60,16 @@ sub getTagsFromAPI{
 	my $jsonresponse = $res -> decoded_content;
 	my $hash = parse_json($jsonresponse);
 	
+	#eval {
+
 	my $data = $hash->{"gmetadata"};
-	
 	my $tags = @$data[0]->{"tags"};
-	
-	return @$tags;
+
+	my $return = join(", ", @$tags);
+	return $return;
+
+	#}; return "" if $@; #if an error occurs(no tags available) return an empty string.
+
 }
 
 
@@ -349,4 +354,4 @@ return @_;
 }	
 
 
-#getTagsFromAPI(getGalleryId("57a4c1274096996d9ee02c11bd1eaacbb7af971b"));
+

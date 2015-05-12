@@ -109,7 +109,9 @@ foreach $file (@dircontents)
 	#Parameters have been obtained, let's decode them.
 	($_ = decode_utf8($_)) for ($name, $event, $artist, $title, $series, $language, $tags, $file);
 	
-	my $icons = qq(<a href="$dirname/$name$suffix" title="Download this archive."><img src="./img/save.png"><a/> <a href="./edit.pl?id=$id" title="Edit this archive's tags and data."><img src="./img/edit.gif"><a/>);
+	my $icons = qq(<a href="$dirname/$name$suffix" title="Download this archive."><img src="./img/save.png"><a/> 
+					<a href="./edit.pl?id=$id" title="Edit this archive's tags and data."><img src="./img/edit.gif"><a/>
+					<a href="./tags.pl?id=$id" title="E-Hentai Tag Import (Unfinished)."><img src="./img/n.gif"><a/>);
 			
 	#When generating the line that'll be added to the table, user-defined options have to be taken into account.
 	#Truncated tag display. Works with some hella disgusting CSS shit.
