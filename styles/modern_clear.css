@@ -5,30 +5,22 @@ p{padding:3px 1px;margin:0}
 img{border:0}
 
 @font-face {
-	font-family: 'Open Sans';
-	font-style: normal;
-	font-weight: 400;
-	src: local('Open Sans'), local('OpenSans'), url(http://fonts.gstatic.com/s/opensans/v10/cJZKeOuBrn4kERxqtaUH3T8E0i7KZn-EPnyo3HZu7kw.woff) format('woff');
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Roboto'), local('Roboto-Regular'), url(http://fonts.gstatic.com/s/roboto/v15/2UX7WLTfW3W8TclTUvlFyQ.woff) format('woff');
 }
-
 @font-face {
-	font-family: 'Open Sans';
-	font-style: normal;
-	font-weight: 600;
-	src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(http://fonts.gstatic.com/s/opensans/v10/MTP_ySUJH_bn48VBG8sNSnhCUOGz7vYGh680lGh-uXM.woff) format('woff');
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Roboto Bold'), local('Roboto-Bold'), url(http://fonts.gstatic.com/s/roboto/v15/d-6IYplOFocCacKzxwXSOD8E0i7KZn-EPnyo3HZu7kw.woff) format('woff');
 }
-
-@font-face {
-	font-family: 'Open Sans';
-	font-style: normal;
-	font-weight: 700;
-	src: local('Open Sans Bold'), local('OpenSans-Bold'), url(http://fonts.gstatic.com/s/opensans/v10/k3k702ZOKiLJc3WVjuplzHhCUOGz7vYGh680lGh-uXM.woff) format('woff');
-} 
 
 body {
-    background-color: #34353B;
-    color: #DDDDDD;
-    font-family: 'Open Sans',arial,sans-serif;
+    background-color: #FCFCFC;
+    color: #efeaea;
+    font-family: 'Roboto',arial,sans-serif;
     height: 100%;
     text-align: center;
     padding:2px;
@@ -38,11 +30,11 @@ body {
 
 
 a {
-    color: #DDDDDD;
+    color: #efeaea;
     text-decoration: none;
 }
 a:hover {
-    color: #3b97ea;
+    color: #00BCD4;
     text-decoration: none;
 }
 
@@ -54,7 +46,7 @@ img.mr{border:0;margin-left:10px;width:5px;height:7px}
 h1.ih{font-size:10pt;font-weight:bold;margin:2px auto;text-align:center;padding-bottom:6px}
 
 div.ido{
-    background-color: #4F535B;
+    background-color: #EE6E7B;
     border-radius: 9px 9px 9px 9px;
     clear: both;
     display: block;
@@ -72,28 +64,31 @@ div.ido{
 /* navbar */
 p#nb{margin:2px auto;text-align:center}
 p#nb img{border:0;margin-left:10px;width:5px;height:7px}
-p#nb a{font-weight:bold}
+p#nb a{font-weight:bold; color: #34495E;}
+
+p.ip a{color: #34495E;}
+p.ip a:hover{color: #00BCD4;}
 
 /* shared table stuff */
 table.itg{
 	width:99%;min-width:925px;max-width:1175px;border-collapse:collapse;margin:0px auto;padding:3px;font-size:9pt;
-	border: 1px solid #363940;
+	border: 0 none;
 	border-radius: 9px 9px 9px 9px;
 }
-table.itg th{font-weight:bold;text-align:left;padding:3px 4px 3px 4px;background:#363940}
+table.itg th{font-weight:bold;text-align:left;padding:3px 4px 3px 4px;background:#b84655}
 
 /* gallery table */
 tr.gtr{background:#40454b}
-tr.gtr0{background:#4F535B}
-tr.gtr1{background:#363940}
+tr.gtr0{background:#df696e}
+tr.gtr1{background:#b84655}
 
 /* input */
 .stdbtn{
-    background-color: #34353B;
+    background-color: #df696e;
     border: 0 none;
     border-radius: 3px 3px 3px 3px;
-    color: #FFFFFF;
-    font-family: 'Open Sans',arial,sans-serif;
+    color: #f1f1f1;
+    font-family: 'Roboto',arial,sans-serif;
     font-size: 9pt;
     height: 28px;
     margin: 1px;
@@ -101,12 +96,12 @@ tr.gtr1{background:#363940}
     padding: 0 4px 1px;
     cursor: pointer;
 }
-.stdbtn:hover{background-color: #43464E}
+.stdbtn:hover{background-color: #ed2553}
 .stdinput{
-    background: none repeat scroll 0 0 #ECF0F1;
-    font-family: 'Open Sans',arial,sans-serif;
+    background: none repeat scroll 0 0 #fcfcfc;
+    font-family: 'Roboto',arial,sans-serif;
     border: medium none;
-    color: #34353B;
+    color: #ed2553;
     font-size: 9pt;
     height: 21px;
     margin: 4px 1px 0;
@@ -115,35 +110,35 @@ tr.gtr1{background:#363940}
 }
 
 /* gallery row */
-td.itd{text-align:left;padding:3px 4px;border-right:1px solid #40454b}
+td.itd{text-align:left;padding:3px 4px;border-right:1px solid #b84b55}
 td.itd a{text-decoration:none}
-td.itu{text-align:left;padding:3px 4px 3px 4px;border-right:1px solid #40454b}
+td.itu{text-align:left;padding:3px 4px 3px 4px;border-right:1px solid #b84b55}
 td.itu a{text-decoration:none}
 td.itu div{width:120px;overflow:hidden}
-td.itdc{text-align:left;padding:0 1px 0 2px;margin:0;border-right:1px solid #40454b}
+td.itdc{text-align:left;padding:0 1px 0 2px;margin:0;border-right:1px solid #b84b55}
 
 /* page selector */
 .paginationTop li {display:inline-block; text-align:center;height:30px;width:31px;cursor:pointer;font-size: 2em;}
 .paginationTop li:hover{
-	background-color: #F5F7F7;
+	background-color: #ed2553;
     border-radius: 100% 100% 100% 100%;
 }
 .paginationTop a{text-decoration:none}
 .paginationTop .active {
     font-weight: bold;
-    background-color: #363940;
+    background-color: #df696e;
     border-radius: 100% 100% 100% 100%;
 }
 
 .paginationBottom li {display:inline-block; text-align:center;height:30px;width:31px;cursor:pointer;font-size: 2em;}
 .paginationBottom li:hover{
-	background-color: #F5F7F7;
+	background-color: #ed2553;
     border-radius: 100% 100% 100% 100%;
 }
 .paginationBottom a{text-decoration:none}
 .paginationBottom .active {
     font-weight: bold;
-    background-color: #363940;
+    background-color: #df696e;
     border-radius: 100% 100% 100% 100%;
 }
 
@@ -155,7 +150,8 @@ div.sni{
 	min-width:800px;
 	position:relative;
 	z-index:1;
-	background-color: #4F535B;
+	background-color: #E1E7E9;
+    color: #34495E;
     border-radius: 9px 9px 9px 9px;
     clear: both;
     display: block;
@@ -165,13 +161,23 @@ div.sni{
     width: 99%;
 
 }
-div.sni h1{font-size:12pt;font-weight:bold;text-align:center}
+div.sni h1{font-size:12pt;font-weight:bold;text-align:center;}
 div.sni img{border:0;vertical-align:middle;margin:1px;clear:both}
 div.if{margin:-5px auto 5px}
 div.sn{margin:10px auto;font-size:15pt;height:32px;z-index:1}
 div.sn div{margin:2px 25px 0px;display:inline}
 div.sn span{font-weight:bold}
 div.sn img{width:30px;height:30px;padding:0px 2px}
+
+div.sn a{color: #34495E;}
+div.sn a:hover{color: #00BCD4;}
+
+div.if a{color: #34495E;}
+div.if a:hover{color: #00BCD4;}
+
+div.sb a{color: #34495E;}
+div.sb a:hover{color: #00BCD4;}
+
 
 div.sb{margin-top:-10px;position:relative;z-index:2}
 div.sb img{border:0}

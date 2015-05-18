@@ -140,7 +140,8 @@ if ($qedit->param())
 							-src=>'./js/css.js'},				
 		-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],		
 		-encoding => "utf-8",
-		-onload=> "set_style_from_cookie();
+		-style=>[{'src'=>'//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css'}],
+		-onload=> "
 					//fit the clickable areas for switching pages to the image height.
 					document.getElementById('gotonext').style.height=document.getElementById('img').height+'px';
 					document.getElementById('gotoprev').style.height=document.getElementById('img').height+'px';
@@ -149,14 +150,14 @@ if ($qedit->param())
 		
 	print &printCssDropdown(0);
 	print '<script src="./js/reader.js"></script>';
-	
+	print '<script>set_style_from_cookie();</script>'; #we have to set the custom CSS as soon as possible.
 	#These are the pretty arrows you use to switch pages.
 	my $arrows = '<div class="sn">
-					<a href="./reader.pl?id='.$id.'&page=1" style="text-decoration:none;"> <img src="./img/f.png"></img> </a> 
-					<a id="prev" href="./reader.pl?id='.$id.'&page='.($pagenum-1).'" style="text-decoration:none; "> <img src="./img/p.png"></img> </a>
+					<a href="./reader.pl?id='.$id.'&page=1" style="text-decoration:none;"> <i class="fa fa-angle-double-left fa-2x"></i> </a> 
+					<a id="prev" href="./reader.pl?id='.$id.'&page='.($pagenum-1).'" style="text-decoration:none; "> <i class="fa fa-angle-left fa-2x"></i> </a>
 					<div><span id ="current">'.$pagenum.'</span> / <span id ="max">'.($#images+1).'</span> </div>
-					<a id="next" href="./reader.pl?id='.$id.'&page='.($pagenum+1).'" style="text-decoration:none; "> <img src="./img/n.png"></img> </a>
-					<a href="./reader.pl?id='.$id.'&page='.($#images+1).'" style="text-decoration:none; "> <img src="./img/l.png"></img> </a></div>';
+					<a id="next" href="./reader.pl?id='.$id.'&page='.($pagenum+1).'" style="text-decoration:none; "> <i class="fa fa-angle-right fa-2x"></i> </a>
+					<a href="./reader.pl?id='.$id.'&page='.($#images+1).'" style="text-decoration:none; "> <i class="fa fa-angle-double-right fa-2x"></i> </a></div>';
 					
 					
 	my $pagesel = '<div style="position: absolute; right: 20px;" ><form style="float: right;"><select size="1"  onChange="location = this.options[this.selectedIndex].value;">';
@@ -186,7 +187,7 @@ if ($qedit->param())
 	#Then we bring the slashes back.
 	@images[$pagenum-1] =~ s!%2F!/!g;
 	
-	print '<div id="i1" class="sni" style="max-width: 1200px;">
+	print '<div id="i1" class="sni" style="max-width: 1200px;min-width:1172px;">
 			<h1>'.$arcname.'</h1>
 			
 			<div id="i2">'.$pagesel.$arrows.$fileinfo.'</div>
@@ -206,20 +207,20 @@ if ($qedit->param())
 			<div id="i5">
 			<div class="sb">
 			<a href="./">
-			<img src="./img/b.png"></img>
+			<i class="fa fa-angle-down fa-4x"></i>
 			</a>
 			</div>
 			</div>
 			
 			<div id="i6" class="if">
-			<img class="mr" src="./img/mr.gif"></img>
+			<i class="fa fa-caret-right fa-lg"></i>
 			<a href="./reader.pl?id='.$id.'&page='.$pagenum.'&force-reload=1">Clear archive cache</a>
-			<img class="mr" src="./img/mr.gif"></img>
+			<i class="fa fa-caret-right fa-lg"></i>
 			<a href="./">Go back to library </a>
 			</div>
 			
 			<div id="i7" class="if">
-			<img class="mr" src="./img/mr.gif"></img>
+			<i class="fa fa-caret-right fa-lg"></i>
 			<a href="'.@images[$pagenum-1].'">View full-size image</a>
 			</div>
 			

@@ -9,19 +9,21 @@ td
 }
 
 .caption {
-   border: 1px solid #888888;
-   background-color: #65F74E;
+
    min-width: 0px !important;
    width: 50% !important;
    max-width: 50% !important;
    white-space: normal !important;
+   padding: 5px !important;
    margin-top: 0px !important;
    margin-left: -25% !important;
-   display: none;
+   display: none !important;
+   box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+   border-radius: 0px 0px 0px 0px !important;
 }
 
 .tags:hover .caption {
-   display: block;
+   display: block !important;
 }
 
 table .sort {

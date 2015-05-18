@@ -65,7 +65,7 @@ sub getTagsFromAPI{
 	my $data = $hash->{"gmetadata"};
 	my $tags = @$data[0]->{"tags"};
 
-	my $return = join(", ", @$tags);
+	my $return = join(" ", @$tags);
 	return $return;
 
 	#}; return "" if $@; #if an error occurs(no tags available) return an empty string.

@@ -21,11 +21,10 @@ print $qedit->start_html
 							-src=>'./js/css.js'},		
 	-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],
 	-encoding => "utf-8",
-	-onload=> "set_style_from_cookie();",
 	);
 
 print &printCssDropdown(0);
-
+print "<script>set_style_from_cookie();</script>";
 	
 if ($qedit->param()) {
     # Parameters are defined, therefore something has been submitted...	

@@ -109,9 +109,9 @@ foreach $file (@dircontents)
 	#Parameters have been obtained, let's decode them.
 	($_ = decode_utf8($_)) for ($name, $event, $artist, $title, $series, $language, $tags, $file);
 	
-	my $icons = qq(<a href="$dirname/$name$suffix" title="Download this archive."><img src="./img/save.png"><a/> 
-					<a href="./edit.pl?id=$id" title="Edit this archive's tags and data."><img src="./img/edit.gif"><a/>
-					<a href="./tags.pl?id=$id" title="E-Hentai Tag Import (Unfinished)."><img src="./img/n.gif"><a/>);
+	my $icons = qq(<div style="font-size:14px"><a href="$dirname/$name$suffix" title="Download this archive."><i class="fa fa-save"></i><a/> 
+					<a href="./edit.pl?id=$id" title="Edit this archive's tags and data."><i class="fa fa-pencil"></i><a/>
+					<a href="./tags.pl?id=$id" title="E-Hentai Tag Import (Unfinished)."><i class="fa fa-server"></i><a/></div>);
 			
 	#When generating the line that'll be added to the table, user-defined options have to be taken into account.
 	#Truncated tag display. Works with some hella disgusting CSS shit.
@@ -156,7 +156,7 @@ $table->setColClass(3,'artist itd');
 $table->setColClass(4,'series itd');
 $table->setColClass(5,'language itd');
 $table->setColClass(6,'tags itu');
-$table->setColWidth(1,36);
+$table->setColWidth(1,50);
 
 #print("Printing HTML...(".(time() - $^T)." seconds)");
 	my $cgi = new CGI;
@@ -170,7 +170,8 @@ $table->setColWidth(1,36);
 			(
 			-title=>&get_htmltitle,
 			-author=>'lanraragi-san',
-			-style=>[{'src'=>'./styles/lrr.css'}],
+			-style=>[{'src'=>'./styles/lrr.css'},
+					{'src'=>'//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css'}],
 			-script=>[{-type=>'JAVASCRIPT',
 							-src=>'https://raw.githubusercontent.com/javve/list.js/v1.1.1/dist/list.min.js'},
 						{-type=>'JAVASCRIPT',
@@ -188,14 +189,18 @@ $table->setColWidth(1,36);
 									var paginationTopOptions = {
 											name: 'paginationTop',
 											paginationClass: 'paginationTop', 
+											innerWindow:5,
+											outerWindow:2,
 											}
 									var paginationBottomOptions = {
 											name: 'paginationBottom',
 											paginationClass: 'paginationBottom', 
+											innerWindow:5,
+											outerWindow:2,
 											}
 									var options = {
 													valueNames: ['title', 'artist', 'series', 'language', 'tags'], 
-													page:".&get_pagesize.", outerWindow: 1, innerWindow:5,
+													page:".&get_pagesize.",
 													plugins: [ 
 													ListPagination(paginationTopOptions),
 													ListPagination(paginationBottomOptions) 
@@ -219,9 +224,6 @@ $table->setColWidth(1,36);
 									}
 									
 						document.getElementById('srch').value = ''; 
-
-						//Set the correct CSS from the cookie on the user's machine.
-						set_style_from_cookie();
 						"
 			);
 		
@@ -239,13 +241,18 @@ $table->setColWidth(1,36);
 			<a href="./tags.pl">Import/Export Tags</a>
 		</p>';
 			
-		$html = $html."<div class='ido'>
+		$html = $html."<div class='ido' style='min-width: 1250px;'>
 		<div id='toppane'>
 		<h1 class='ih'>".&get_motd."</h1> 
 		<div class='idi'>";
 
 		#Adding CSS dropdown here!
 		$html=$html.$CSSsel;
+
+		$html = $html.'<script>
+				//Set the correct CSS from the cookie on the users machine.
+						set_style_from_cookie();
+				</script>';
 			
 		#Search field (stdinput class in panda css)
 		$html = $html."<input type='text' id='srch' class='search stdinput' size='90' placeholder='Search Title, Artist, Series, Language or Tags' /> <input class='stdbtn' type='button' onclick=\"window.location.reload();\" value='Clear Filter'/></div>";
@@ -259,11 +266,9 @@ $table->setColWidth(1,36);
 		$html = $html."<ul class='paginationBottom' style=' text-align:center; border-bottom:0;' ></ul></div></div>";
 
 		$html = $html.'		<p class="ip">
-					[
 					<a href="https://github.com/Difegue/LANraragi">
 						Spread da word, yo.
 					</a>
-					]
 				</p>';
 				
 		$html = $html.end_html; #close html
