@@ -40,7 +40,7 @@ if ($qedit->param()) {
 	# It is, which means parameters for a rename have been passed. Let's get cracking!
 	#Check for password first.
 	my $pass = $qedit->param('pass');
-	unless (&enable_pass && ($pass eq &get_password))
+	unless ((&enable_pass && ($pass eq &get_password)) || &enable_pass==0)
 		{
 		print "<div class='ido' style='text-align:center'><h1>Wrong password.</h1><br/>";
 		print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/></div>";

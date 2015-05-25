@@ -241,11 +241,4 @@ else
     print $qedit->redirect('./');
 }
 
-print '		<p class="ip">
-			[
-			<a href="https://github.com/Difegue/LANraragi">
-				Powered by LANraragi.
-			</a>
-			]
-		</p>';
 print $qedit->end_html;

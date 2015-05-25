@@ -267,7 +267,7 @@ $table->setColWidth(1,50);
 
 		$html = $html.'		<p class="ip">
 					<a href="https://github.com/Difegue/LANraragi">
-						Spread da word, yo.
+						Sorry, I stuttered.
 					</a>
 				</p>';
 				

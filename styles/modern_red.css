@@ -19,7 +19,7 @@ img{border:0}
 
 body {
     background-color: #FCFCFC;
-    color: #34495E;
+    color: #efeaea;
     font-family: 'Roboto',arial,sans-serif;
     height: 100%;
     text-align: center;
@@ -30,11 +30,11 @@ body {
 
 
 a {
-    color: #34495E;
+    color: #efeaea;
     text-decoration: none;
 }
 a:hover {
-    color: #ed2553;
+    color: #00BCD4;
     text-decoration: none;
 }
 
@@ -46,7 +46,7 @@ img.mr{border:0;margin-left:10px;width:5px;height:7px}
 h1.ih{font-size:10pt;font-weight:bold;margin:2px auto;text-align:center;padding-bottom:6px}
 
 div.ido{
-    background-color: #E1E7E9;
+    background-color: #EE6E7B;
     border-radius: 9px 9px 9px 9px;
     clear: both;
     display: block;
@@ -65,30 +65,26 @@ div.ido{
 p#nb{margin:2px auto;text-align:center}
 p#nb img{border:0;margin-left:10px;width:5px;height:7px}
 p#nb a{font-weight:bold; color: #34495E;}
-p#nb a:hover{color: #ed2553;}
 
 p.ip a{color: #34495E;}
-p.ip a:hover{color: #ed2553;}
+p.ip a:hover{color: #00BCD4;}
 
 /* shared table stuff */
 table.itg{
 	width:99%;min-width:925px;max-width:1175px;border-collapse:collapse;margin:0px auto;padding:3px;font-size:9pt;
 	border: 0 none;
 	border-radius: 9px 9px 9px 9px;
-    color: #FCFCFC;
 }
-table.itg th{font-weight:bold;text-align:left;padding:3px 4px 3px 4px;background:#34495E;color:#FCFCFC;}
-table.itg a{color:#FCFCFC;}
-table.itg a:hover{color:#ed2553;}
+table.itg th{font-weight:bold;text-align:left;padding:3px 4px 3px 4px;background:#b84655}
 
 /* gallery table */
 tr.gtr{background:#40454b}
-tr.gtr0{background:#475D73}
-tr.gtr1{background:#34495E}
+tr.gtr0{background:#df696e}
+tr.gtr1{background:#b84655}
 
 /* input */
 .stdbtn{
-    background-color: #34495E;
+    background-color: #df696e;
     border: 0 none;
     border-radius: 3px 3px 3px 3px;
     color: #f1f1f1;
@@ -105,7 +101,7 @@ tr.gtr1{background:#34495E}
     background: none repeat scroll 0 0 #fcfcfc;
     font-family: 'Roboto',arial,sans-serif;
     border: medium none;
-    color: #34495E;
+    color: #ed2553;
     font-size: 9pt;
     height: 21px;
     margin: 4px 1px 0;
@@ -114,39 +110,37 @@ tr.gtr1{background:#34495E}
 }
 
 /* gallery row */
-td.itd{text-align:left;padding:3px 4px;border-right:1px solid #566D75}
+td.itd{text-align:left;padding:3px 4px;border-right:1px solid #b84b55}
 td.itd a{text-decoration:none}
-td.itu{text-align:left;padding:3px 4px 3px 4px;border-right:1px solid #566D75}
+td.itu{text-align:left;padding:3px 4px 3px 4px;border-right:1px solid #b84b55}
 td.itu a{text-decoration:none}
 td.itu div{width:120px;overflow:hidden}
-td.itdc{text-align:left;padding:0 1px 0 2px;margin:0;border-right:1px solid #566D75}
+td.itdc{text-align:left;padding:0 1px 0 2px;margin:0;border-right:1px solid #b84b55}
 
 /* page selector */
 .paginationTop li {display:inline-block; text-align:center;height:30px;width:31px;cursor:pointer;font-size: 2em;}
 .paginationTop li:hover{
-	background-color: #df696e;
+	background-color: #ed2553;
     border-radius: 100% 100% 100% 100%;
 }
 .paginationTop a{text-decoration:none}
 .paginationTop .active {
     font-weight: bold;
-    background-color: #566D75;
+    background-color: #df696e;
     border-radius: 100% 100% 100% 100%;
 }
-.paginationTop .active a {color:#E1E7E9;}
 
 .paginationBottom li {display:inline-block; text-align:center;height:30px;width:31px;cursor:pointer;font-size: 2em;}
 .paginationBottom li:hover{
-	background-color: #df696e;
+	background-color: #ed2553;
     border-radius: 100% 100% 100% 100%;
 }
-.paginationBottom a{text-decoration:none;}
+.paginationBottom a{text-decoration:none}
 .paginationBottom .active {
     font-weight: bold;
-    background-color: #566D75;
+    background-color: #df696e;
     border-radius: 100% 100% 100% 100%;
 }
-.paginationBottom .active a {color:#E1E7E9;}
 
 /* image pages */
 div.sni{
@@ -176,13 +170,13 @@ div.sn span{font-weight:bold}
 div.sn img{width:30px;height:30px;padding:0px 2px}
 
 div.sn a{color: #34495E;}
-div.sn a:hover{color: #ed2553;}
+div.sn a:hover{color: #00BCD4;}
 
 div.if a{color: #34495E;}
-div.if a:hover{color: #ed2553;}
+div.if a:hover{color: #00BCD4;}
 
 div.sb a{color: #34495E;}
-div.sb a:hover{color: #ed2553;}
+div.sb a:hover{color: #00BCD4;}
 
 
 div.sb{margin-top:-10px;position:relative;z-index:2}

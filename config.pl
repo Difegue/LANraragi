@@ -40,9 +40,10 @@ my $css = "modern.css";
 sub cssNames{
 
 	switch($_[0]){
-		case "g.css" {return "G.E-H"}
+		case "g.css" {return "Old School"}
 		case "modern.css" {return "Hachikuji"}
 		case "modern_clear.css" {return "Yotsugi"}
+		case "modern_red.css" {return "Nadeko"}
 		case "ex.css" {return "Sad Panda"}
 		else {return $_[0]}
 	} 
