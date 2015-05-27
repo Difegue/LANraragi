@@ -275,7 +275,7 @@ $table->setColWidth(1,50);
 		return $html;
 	}
 	
+	$redis->quit();
 	#We let CGI::Ajax print the HTML we specified in the printPage sub, with the header options specified (utf-8)
 	print $pjx->build_html($cgi, \&printPage,{-type => 'text/html', -charset => 'utf-8'});
 
-	$redis.close();

@@ -61,14 +61,18 @@ sub getTagsFromAPI{
 	my $hash = parse_json($jsonresponse);
 	
 	#eval {
+	unless (exists $hash->{"error"})
+	{
+		my $data = $hash->{"gmetadata"};
+		my $tags = @$data[0]->{"tags"};
 
-	my $data = $hash->{"gmetadata"};
-	my $tags = @$data[0]->{"tags"};
-
-	my $return = join(" ", @$tags);
-	return $return;
-
-	#}; return "" if $@; #if an error occurs(no tags available) return an empty string.
+		my $return = join(" ", @$tags);
+		return $return;
+	}	
+	else 
+	{
+	return ""; #if an error occurs(no tags available) return an empty string.
+	}
 
 }
 
