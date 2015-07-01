@@ -43,6 +43,7 @@ my $name = "";
 my $thumbname = "";
 my ($event,$artist,$title,$series,$language,$tags,$id) = (" "," "," "," "," "," ");
 my $fullfile="";
+my $isnew = "none";
 my $count;
 my @dircontents;
 my $dirname = &get_dirname;
@@ -78,12 +79,18 @@ foreach $file (@dircontents)
 		{
 			#bingo, no need for expensive file parsing operations.
 			my %hash = $redis->hgetall($id);
+
+			#It's not a new archive, though.
+			$isnew="none";
+			
 			#Hash Slice! I have no idea how this works.
 			($name,$event,$artist,$title,$series,$language,$tags) = @hash{qw(name event artist title series language tags)};
 		}
 	else	#can't be helped. Do it the old way, and add the results to redis afterwards.
 		{
-			#bis repetita
+			#This means it's a new archive, though! We can notify the user about that later on.
+			$isnew="block";
+			
 			($name,$path,$suffix) = fileparse($file, qr/\.[^.]*/);
 			
 			#parseName function is in config.pl
@@ -136,13 +143,14 @@ foreach $file (@dircontents)
 									onmouseout="hidetrail();">
 								$title
 								</a>
+								<img src="img/n.gif" style="float: right; margin-top: -15px; z-index: -1; display: $isnew">
 							),
 						$artist,$series,$language,$printedtags);
 	}
 	else #version without, ezpz
 	{
 		#add row to table
-		$table->addRow($icons,qq(<span style="display: none;">$title</span><a href="./reader.pl?id=$id">$title</a>),$artist,$series,$language,$printedtags);
+		$table->addRow($icons,qq(<span style="display: none;">$title</span><a href="./reader.pl?id=$id" title="$title">$title</a>),$artist,$series,$language,$printedtags);
 	}
 		
 	$table->setSectionClass ('tbody', -1, 'list' );
