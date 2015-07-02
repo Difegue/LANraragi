@@ -113,12 +113,13 @@ foreach $file (@dircontents)
 			$redis->hset($id, $_, $hash{$_}, sub {}) for keys %hash; 
 			$redis->wait_all_responses;
 		}
+		
 	#Parameters have been obtained, let's decode them.
 	($_ = decode_utf8($_)) for ($name, $event, $artist, $title, $series, $language, $tags, $file);
 	
 	my $icons = qq(<div style="font-size:14px"><a href="$dirname/$name$suffix" title="Download this archive."><i class="fa fa-save"></i><a/> 
-					<a href="./edit.pl?id=$id" title="Edit this archive's tags and data."><i class="fa fa-pencil"></i><a/>
-					<a href="./tags.pl?id=$id" title="E-Hentai Tag Import (Unfinished)."><i class="fa fa-server"></i><a/></div>);
+					<a href="./edit.pl?id=$id" title="Edit this archive's tags and data."><i class="fa fa-pencil"></i><a/></div>);
+			#<a href="./tags.pl?id=$id" title="E-Hentai Tag Import (Unfinished)."><i class="fa fa-server"></i><a/>
 			
 	#When generating the line that'll be added to the table, user-defined options have to be taken into account.
 	#Truncated tag display. Works with some hella disgusting CSS shit.
@@ -164,7 +165,7 @@ $table->setColClass(3,'artist itd');
 $table->setColClass(4,'series itd');
 $table->setColClass(5,'language itd');
 $table->setColClass(6,'tags itu');
-$table->setColWidth(1,50);
+$table->setColWidth(1,30);
 
 #print("Printing HTML...(".(time() - $^T)." seconds)");
 	my $cgi = new CGI;
@@ -265,6 +266,9 @@ $table->setColWidth(1,50);
 		#Search field (stdinput class in panda css)
 		$html = $html."<input type='text' id='srch' class='search stdinput' size='90' placeholder='Search Title, Artist, Series, Language or Tags' /> <input class='stdbtn' type='button' onclick=\"window.location.reload();\" value='Clear Filter'/></div>";
 
+		#Random button
+		$html = $html."<p class='ip'><input class='stdbtn' type='button' onclick=\"window.location='random.pl';\" value='Give me a random archive'/></p>";
+		
 		#Paging and Archive Count
 		$html = $html."<p class='ip' style='margin-top:-5px'> Serving a total of ".(scalar @dircontents)." chinese lithographies. </p>";
 		$html = $html."<ul class='paginationTop' style=' text-align:center; border-top:0;' ></ul>";

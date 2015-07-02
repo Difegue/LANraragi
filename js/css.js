@@ -45,14 +45,12 @@ function set_cookie ( cookie_name, cookie_value,
 }
 function get_cookie ( cookie_name )
 {
-    // http://www.thesitewizard.com/javascripts/cookies.shtml
-    var cookie_string = document.cookie ;
+	//rewritten.
+	var cookie_string = document.cookie ;
     if (cookie_string.length != 0) {
-        var cookie_value = cookie_string.match (
-                        '(^|;)[\s]*' +
-                        cookie_name +
-                        '=([^;]*)' );
-        return decodeURIComponent ( cookie_value[2] ) ;
-    }
+        //var cookie_value = cookie_string.match ('(^|;)[\s]*' + cookie_name + '=([^;]*)' );
+        //return decodeURIComponent ( cookie_value[2] ) ;
+		return cookie_string.substr(document.cookie.indexOf(cookie_name)).split("=")[1]
+	}
     return '' ;
 }

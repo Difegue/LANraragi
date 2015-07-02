@@ -192,6 +192,7 @@ sub generateForm
 	$html .= "<tr><td style='text-align:left; width:100px'>Title:</td><td>";
 	$html .= $_[0]->textfield(
 			-name      => 'title',
+			-id		   => 'title',
 			-value     => $title,
 			-size      => 20,
 			-maxlength => 255,
@@ -245,11 +246,16 @@ sub generateForm
 	$html .= "</td></tr>";
 	
 	$html .="<div style='display:none' id='hashDiv' >".$thumbhash."</div>";
-	#The button here calls the ajax function, which in turn calls the getTags sub.
+	
+	#These buttons here call the ajax functions, which in turn calls the getTags/getTagsSearch subs.
 	$html .= qq(<tr><td style='text-align:left; width:100px; vertical-align:top'>Tags:
-			<input type='button' name='tag_import' value='Import E-Hentai&#x00A; Tags' onclick="import_tags(['hashDiv'], [updateTags]);" 
-			class='stdbtn' style='margin-top:25px;max-width:100px;height:50px '>
+			<input type='button' name='tag_import' value='Import E-Hentai&#x00A; Tags&#x00A;(Image Search)' onclick="import_tags(['hashDiv'], [updateTags]);" 
+			class='stdbtn' style='margin-top:25px;max-width:100px;height:60px '></input>
 			</td><td>);
+			#<input type='button' name='tag_import' value='Import E-Hentai&#x00A; Tags&#x00A;(Text Search)' onclick="import_tags_text(['title'], [updateTags]);" 
+			#class='stdbtn' style='margin-top:25px;max-width:100px;height:60px '>
+			
+			
 	$html .= $_[0]->textarea(
 			-name      => 'tags',
 			-id  	   => 'tagText',
