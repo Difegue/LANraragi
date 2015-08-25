@@ -10,7 +10,6 @@ use Encode;
 use File::Find qw(find);
 use Redis;
 use Digest::SHA qw(sha256_hex);
-use CGI::Ajax
 
 #Require config 
 require 'config.pl';
@@ -132,21 +131,37 @@ foreach $file (@dircontents)
 	#version with hover thumbnails 
 	if (&enable_thumbs)
 	{
-		#add row to table
-		#ajaxThumbnail makes the thumbnail for that album if it doesn't already exist.
+		#ajaxThumbnail makes the thumbnail for that album if it doesn't already exist. 
+		#(If it fails for some reason, it won't return an image path, triggering the "no thumbnail" image on the JS side.)
 		my $thumbname = $dirname."/thumb/".$id.".jpg";
-		$table->addRow($icons.qq(<input type="text" style="display:none;" id="$id" value="$id"/>),
-						qq(<span style="display: none;">$title</span>
-								<a href="./reader.pl?id=$id" 
-									onmouseover="checkImage( '$thumbname', 
-														function(){ showtrail('$thumbname') }, 
-														function(){ showtrail('$thumbname'); ajaxThumbnail(['$id'],[]); } );" 
-									onmouseout="hidetrail();">
+
+		my $row = qq(<span style="display: none;">$title</span>
+								<a href="./reader.pl?id=$id" );
+
+		if (-e $thumbname)
+		{
+			$row.=qq(onmouseover="showtrail('$thumbname')" );
+		}
+		else
+		{
+			$row.=qq(onmouseover="checkImage( '$thumbname', 
+						function(){ this.onmouseover= function(){showtrail('$thumbname')}; showtrail('$thumbname') }, 
+						function(){ var deferred = \$.Deferred(); 
+
+										deferred.done(function(value) {
+										   showtrail(value);
+										});
+
+										deferred.resolve(ajaxThumbnail('$id')); } );" );
+		}
+									
+		$row.=qq(onmouseout="hidetrail();">
 								$title
 								</a>
-								<img src="img/n.gif" style="float: right; margin-top: -15px; z-index: -1; display: $isnew">
-							),
-						$artist,$series,$language,$printedtags);
+								<img src="img/n.gif" style="float: right; margin-top: -15px; z-index: -1; display: $isnew">);
+
+		#add row for this archive to table
+		$table->addRow($icons.qq(<input type="text" style="display:none;" id="$id" value="$id"/>),$row,$artist,$series,$language,$printedtags);
 	}
 	else #version without, ezpz
 	{
@@ -167,11 +182,8 @@ $table->setColClass(5,'language itd');
 $table->setColClass(6,'tags itu');
 $table->setColWidth(1,30);
 
-#print("Printing HTML...(".(time() - $^T)." seconds)");
+	#print("Printing HTML...(".(time() - $^T)." seconds)");
 	my $cgi = new CGI;
-	
-	#Bind the ajax function to the getThumb subroutine.
-	my $pjx = new CGI::Ajax( 'ajaxThumbnail' => \&getThumb );
 
 	# BIG PRINTS		   
 	sub printPage {
@@ -185,6 +197,10 @@ $table->setColWidth(1,30);
 							-src=>'https://raw.githubusercontent.com/javve/list.js/v1.1.1/dist/list.min.js'},
 						{-type=>'JAVASCRIPT',
 							-src=>'https://raw.githubusercontent.com/javve/list.pagination.js/v0.1.1/dist/list.pagination.min.js'},	
+						{-type=>'JAVASCRIPT',
+							-src=>'https://code.jquery.com/jquery-2.1.4.min.js'},
+						{-type=>'JAVASCRIPT',
+							-src=>'./js/ajax.js'},	
 						{-type=>'JAVASCRIPT',
 							-src=>'./js/thumb.js'},
 						{-type=>'JAVASCRIPT',
@@ -288,6 +304,8 @@ $table->setColWidth(1,30);
 	}
 	
 	$redis->quit();
-	#We let CGI::Ajax print the HTML we specified in the printPage sub, with the header options specified (utf-8)
-	print $pjx->build_html($cgi, \&printPage,{-type => 'text/html', -charset => 'utf-8'});
 
+	#We print the html we generated.
+	print $cgi->header(-type    => 'text/html',
+                   -charset => 'utf-8');
+	print &printPage;

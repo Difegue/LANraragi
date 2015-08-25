@@ -8,6 +8,13 @@ td
     white-space: nowrap;
 }
 
+.ttspinner{
+  color:black; 
+  position:relative; 
+  top:-162px; 
+  left:-1px; 
+}
+
 .caption {
 
    min-width: 0px !important;

@@ -5,24 +5,29 @@ use CGI qw(:standard);
 use File::Basename;
 use Redis;
 use Encode;
-use CGI::Ajax;
 
 require 'config.pl';
 require 'functions.pl';
 
-my $qedit = new CGI;
-
-#Bind the ajax function to the getThumb subroutine.
-my $pjx = new CGI::Ajax( 'import_tags' => \&getTags );				   
+my $qedit = new CGI;			   
 
 my $html = start_html
 	(
 	-title=>&get_htmltitle.' - Edit Mode',
     -author=>'lanraragi-san',		
-    -script=>{-type=>'JAVASCRIPT',
-							-src=>'./js/css.js'},		
+    -script=>[{-type=>'JAVASCRIPT',
+							-src=>'./js/css.js'},
+			 {-type=>'JAVASCRIPT',
+							-src=>'https://code.jquery.com/jquery-2.1.4.min.js'},
+			 {-type=>'JAVASCRIPT',
+							-src=>'./js/ajax.js'}],			
 	-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],
 	-encoding => "utf-8",
+	-onLoad => "deferred = \$.Deferred();
+
+				deferred.done(function(value) {
+				   \$('#tagText').append(value);
+				});",
 	);
 
 $html .= &printCssDropdown(0);
@@ -122,26 +127,11 @@ if ($qedit->param()) {
 
 $html .= end_html;
 
-#We let CGI::Ajax print the HTML we specified in the $html .=Page sub, with the header options specified (utf-8)
-print $pjx->build_html($qedit, $html,{-type => 'text/html', -charset => 'utf-8'});
+#We print the html we generated.
+print $qedit->header(-type    => 'text/html',
+                   	-charset => 'utf-8');
+print $html;
 
-sub getTags
-	{
-			
-		#This rings up g.e-hentai with the SHA hash we obtained.
-		my $queryJson = &getGalleryId($_[0]);
-		#print $queryJson."<br/>";
-		my $tags = &getTagsFromAPI($queryJson);
-
-		unless ($tags eq(""))
-			{
-				return $tags;
-			}	
-		else
-			{
-				return "No tags found!";
-			}
-	}
 
 sub generateForm
 	{
@@ -244,16 +234,18 @@ sub generateForm
 			-style => "width:820px",
 		);
 	$html .= "</td></tr>";
-	
-	$html .="<div style='display:none' id='hashDiv' >".$thumbhash."</div>";
-	
+
 	#These buttons here call the ajax functions, which in turn calls the getTags/getTagsSearch subs.
 	$html .= qq(<tr><td style='text-align:left; width:100px; vertical-align:top'>Tags:
-			<input type='button' name='tag_import' value='Import E-Hentai&#x00A; Tags&#x00A;(Image Search)' onclick="import_tags(['hashDiv'], [updateTags]);" 
-			class='stdbtn' style='margin-top:25px;max-width:100px;height:60px '></input>
+
+			<input type='button' name='tag_import' value='Import E-Hentai&#x00A; Tags&#x00A;(Image Search)' onclick="deferred.resolve(ajaxTags('$thumbhash',1));" 
+				class='stdbtn' style='margin-top:25px;max-width:100px;height:60px '></input> 
+			
+			<input type='button' name='tag_import' value='Import E-Hentai&#x00A; Tags&#x00A;(Text Search)' onclick="deferred.resolve(ajaxTags('$title',0));" 
+				class='stdbtn' style='margin-top:25px;max-width:100px;height:60px '></input>
+
 			</td><td>);
-			#<input type='button' name='tag_import' value='Import E-Hentai&#x00A; Tags&#x00A;(Text Search)' onclick="import_tags_text(['title'], [updateTags]);" 
-			#class='stdbtn' style='margin-top:25px;max-width:100px;height:60px '>
+			#>
 			
 			
 	$html .= $_[0]->textarea(

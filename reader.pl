@@ -56,15 +56,14 @@ if ($qedit->param())
 	
 	my $path = $tempdir."/".$id;
 	
-	unless((-e $path) && ($force eq "0")) #If the file hasn't been extracted, or if force-reload =1
+	if (-e $path && $force eq "1") #If the file has been extracted and force-reload=1, we delete it all
+	{
+		unlink $path;
+	}
+
+	unless(-e $path) #If the file hasn't been extracted, or if force-reload =1
 		{
-			#print 'unar -o '.$path.' "'.$zipFile.'"';
-			
-			if (-e $path) #If the file has been extracted, we delete it all
-				{
-				unlink $path;
-				}
-			
+
 			unless ( `unar -D -o $path "$zipFile"`) #Extraction using unar without creating extra folders.
 				{  # Make sure archive got read
 				&rebuild_index;
@@ -85,7 +84,7 @@ if ($qedit->param())
                    my $file=shift; 
                    $file=~s{(\d+)}{sprintf "%04d", $1}eg;
                    return $file;
-              }
+               }
 			  
     my @images = sort { expand($a) cmp expand($b) } @images;
 	
@@ -214,7 +213,7 @@ if ($qedit->param())
 			
 			<div id="i6" class="if">
 			<i class="fa fa-caret-right fa-lg"></i>
-			<a href="./reader.pl?id='.$id.'&page='.$pagenum.'&force-reload=1">Clear archive cache</a>
+			<a href="./reader.pl?id='.$id.'&page='.$pagenum.'&force-reload=1">Garbled image? (Clean Archive Cache)</a>
 			<i class="fa fa-caret-right fa-lg"></i>
 			<a href="./">Go back to library </a>
 			</div>

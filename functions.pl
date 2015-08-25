@@ -7,12 +7,26 @@ use JSON::Parse 'parse_json';
 
 require 'config.pl';
 
-#Takes an image hash, performs a remote search on g.e-hentai, and builds the matching JSON to send to the API for data.
+#getGalleryId(hash(or text),isHash)
+#Takes an image hash or basic text, performs a remote search on g.e-hentai, and builds the matching JSON to send to the API for data.
 sub getGalleryId{
 
 	my $hash = $_[0];
-	my $URL = "http://g.e-hentai.org/".
-				"?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1"."&f_search=Search+Keywords&f_apply=Apply+Filter&f_shash=".$hash."&fs_similar=1";
+	my $isHash = $_[1];
+	my $URL;
+
+	if ($isHash eq "1")
+	{	#search with image SHA hash
+		$URL = "http://g.e-hentai.org/".
+				"?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1".
+				"&f_search=Search+Keywords&f_apply=Apply+Filter&f_shash=".$hash."&fs_similar=1";
+	}
+	else
+	{	#search with archive title
+		$URL = "http://g.e-hentai.org/".
+				"?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1".
+				"&f_search=".$hash."&f_apply=Apply+Filter";
+	}
 	my $content = get $URL;
 
 	#now for the parsing of the HTML we obtained.

@@ -9,7 +9,8 @@ var h=1
 var thumbnail
 
 if (document.getElementById || document.all)
-document.write('<div id="trailimageid" style="position:absolute;visibility:hidden;left:0px;top:-1000px;width:1px;height:1px;border:1px solid #888888;background:#DDDDDD;z-index: 99999;"><img id="ttimg" src="img/empty.png" /></div>')
+document.write('<div id="trailimageid" style="position:absolute;visibility:hidden;left:0px;top:-1000px;width:1px;height:1px;border:1px solid #888888;background:#DDDDDD;z-index: 99999;">'
+				+'<img id="ttimg" src="img/empty.png" /><i id="ttspinner" class="fa fa-4x fa-cog fa-spin ttspinner" style="display:none"></i></div>')
 
 function gettrailobj()
 {
@@ -26,6 +27,7 @@ function hidetrail()
 {
 	document.onmousemove=""
 	document.getElementById('ttimg').src='img/empty.png'
+	document.getElementById('ttspinner').style='display:none'
 	gettrailobj().visibility="hidden"
 	gettrailobj().left=-1000
 	gettrailobj().top=0
@@ -55,7 +57,9 @@ function showImage(imgPath) {
 
 function showImageorSpinner(file)
 {
-	checkImage(file, function(){document.getElementById('ttimg').src=file},function(){document.getElementById('ttimg').src='img/wait_warmly.gif'});
+	checkImage(file, function(){document.getElementById('ttimg').src=file;document.getElementById('ttspinner').style='display:none'},
+					function(){document.getElementById('ttimg').src='img/wait_warmly.gif';document.getElementById('ttspinner').style='display:block'}
+			);
 }
 
 function showtrail(file)
@@ -65,8 +69,9 @@ function showtrail(file)
 	{
 		if(file.indexOf(".jpg") !=-1) //Have we been given a proper thumbnail?
 		{
-		showImage(file)
+		
 		showImageorSpinner(file)
+		showImage(file)
 		
 		//The thumbnail is created through ajax if it doesn't exist yet, so we try to get the image again every second.
 		clearInterval(thumbnail)
@@ -76,6 +81,7 @@ function showtrail(file)
 		{
 		showImage('img/noThumb.png')
 		document.getElementById('ttimg').src='img/noThumb.png'
+		document.getElementById('ttspinner').style='display:none'
 		}
 		
 		document.onmouseover=followmouse
