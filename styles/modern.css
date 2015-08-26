@@ -169,7 +169,11 @@ div.sni h1{font-size:12pt;font-weight:bold;text-align:center}
 div.sni img{border:0;vertical-align:middle;margin:1px;clear:both}
 div.if{margin:-5px auto 5px}
 div.sn{margin:10px auto;font-size:15pt;height:32px;z-index:1}
-div.sn div{margin:2px 25px 0px;display:inline}
+div.sn div{
+    margin:2px 25px 0px;display:inline;
+    padding-bottom: 15px;
+    vertical-align: middle;
+}
 div.sn span{font-weight:bold}
 div.sn img{width:30px;height:30px;padding:0px 2px}
 
