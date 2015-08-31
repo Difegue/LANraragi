@@ -44,7 +44,7 @@ if ($qajax->param())
 				}	
 			else
 				{
-					print "No tags found!";
+					print "NOTAGS";
 				}
 		}
 

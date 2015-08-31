@@ -15,6 +15,7 @@ my $html = start_html
 	(
 	-title=>&get_htmltitle.' - Edit Mode',
     -author=>'lanraragi-san',		
+    -style=>[{'src'=>'//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css'}],
     -script=>[{-type=>'JAVASCRIPT',
 							-src=>'./js/css.js'},
 			 {-type=>'JAVASCRIPT',
@@ -23,11 +24,6 @@ my $html = start_html
 							-src=>'./js/ajax.js'}],			
 	-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],
 	-encoding => "utf-8",
-	-onLoad => "deferred = \$.Deferred();
-
-				deferred.done(function(value) {
-				   \$('#tagText').append(value);
-				});",
 	);
 
 $html .= &printCssDropdown(0);
@@ -238,10 +234,10 @@ sub generateForm
 	#These buttons here call the ajax functions, which in turn calls the getTags/getTagsSearch subs.
 	$html .= qq(<tr><td style='text-align:left; width:100px; vertical-align:top'>Tags:
 
-			<input type='button' name='tag_import' value='Import E-Hentai&#x00A; Tags&#x00A;(Image Search)' onclick="deferred.resolve(ajaxTags('$thumbhash',1));" 
+			<input type='button' name='tag_import' value='Import E-Hentai&#x00A; Tags&#x00A;(Image Search)' onclick="ajaxTags('$thumbhash',1);" 
 				class='stdbtn' style='margin-top:25px;max-width:100px;height:60px '></input> 
 			
-			<input type='button' name='tag_import' value='Import E-Hentai&#x00A; Tags&#x00A;(Text Search)' onclick="deferred.resolve(ajaxTags('$title',0));" 
+			<input type='button' name='tag_import' value='Import E-Hentai&#x00A; Tags&#x00A;(Text Search)' onclick="ajaxTags('$title',0);" 
 				class='stdbtn' style='margin-top:25px;max-width:100px;height:60px '></input>
 
 			</td><td>);
@@ -257,7 +253,12 @@ sub generateForm
 			-class => "stdinput",
 			-style => "width:820px; height:300px",
 		);
-	$html .= "</td></tr>";
+	$html .= qq(<i class="fa fa-5x fa-cog fa-spin" style="  color:black;
+			    position:absolute;
+			  top:60%; 
+			  left:52%; 
+			  display:none" id="tag-spinner"></i>
+			</td></tr>);
 	
 		if (&enable_pass)
 	{

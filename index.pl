@@ -258,11 +258,12 @@ $table->setColWidth(1,30);
 		
 		$html = $html.'<p id="nb">
 
-			<img alt="" src="./img/mr.gif"></img>
+			<i class="fa fa-caret-right"></i>
 			<a href="./upload.pl">Upload Archive</a>
+			<span style="margin-left:5px"></span>
 			<!--img alt="" src="./img/mr.gif"></img>
 			<a href="./torrent.pl">Get Torrent</a>--!>
-			<img alt="" src="./img/mr.gif"></img>
+			<i class="fa fa-caret-right"></i>
 			<a href="./tags.pl">Import/Export Tags</a>
 		</p>';
 			

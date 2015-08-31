@@ -21,11 +21,25 @@ function ajaxThumbnail(archiveId)
 //Returns "ERROR" on failure.
 function ajaxTags(tagInput,isHash)
 {
+	$('#tag-spinner').css("display","block");
+	$('#tagText').css("background-color","lightgray");
+
 	$.get( "ajax.pl", { function: "tags", ishash: isHash, input: tagInput} )
 		.done(function( data ) {
+			
+			if (data=="NOTAGS")
+				alert("No tags found !");
+			else
+				$('#tagText').val($('#tagText').val() + " "+ data);
+
+			$('#tag-spinner').css("display","none");
+			$('#tagText').css("background-color","white");
 			return data;
 		})
-		.fail(function() {
+		.fail(function(data) {
+			alert("An error occured while getting tags. "+data);
+			$('#tag-spinner').css("display","none");
+			$('#tagText').css("background-color","white");
 			return "ERROR";
 		});
 

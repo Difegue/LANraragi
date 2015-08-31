@@ -27,7 +27,9 @@ function switch_style ( css_title )
 function set_style_from_cookie()
 {
   var css_title = get_cookie( style_cookie_name );
-  if (css_title.length) {
+
+  //if (css_title.length) {
+    if (css_title!=undefined) { 
     switch_style( css_title );
   }
 }
