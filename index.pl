@@ -144,15 +144,7 @@ foreach $file (@dircontents)
 		}
 		else
 		{
-			$row.=qq(onmouseover="checkImage( '$thumbname', 
-						function(){ this.onmouseover= function(){showtrail('$thumbname')}; showtrail('$thumbname') }, 
-						function(){ var deferred = \$.Deferred(); 
-
-										deferred.done(function(value) {
-										   showtrail(value);
-										});
-
-										deferred.resolve(ajaxThumbnail('$id')); } );" );
+			$row.=qq(onmouseover="ajaxThumbnail('$id')" );
 		}
 									
 		$row.=qq(onmouseout="hidetrail();">
@@ -261,8 +253,9 @@ $table->setColWidth(1,30);
 			<i class="fa fa-caret-right"></i>
 			<a href="./upload.pl">Upload Archive</a>
 			<span style="margin-left:5px"></span>
-			<!--img alt="" src="./img/mr.gif"></img>
-			<a href="./torrent.pl">Get Torrent</a>--!>
+			<i class="fa fa-caret-right"></i>
+			<a href="./stats.pl">Statistics</a>
+			<span style="margin-left:5px"></span>
 			<i class="fa fa-caret-right"></i>
 			<a href="./tags.pl">Import/Export Tags</a>
 		</p>';

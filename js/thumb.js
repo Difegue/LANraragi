@@ -27,17 +27,19 @@ function hidetrail()
 {
 	document.onmousemove=""
 	document.getElementById('ttimg').src='img/empty.png'
-	document.getElementById('ttspinner').style='display:none'
+	hideSpinner();
 	gettrailobj().visibility="hidden"
 	gettrailobj().left=-1000
 	gettrailobj().top=0
-	//No need to look for the thumbnail anymore, we clear the loop.
-	clearInterval(thumbnail)
 }
 
 function findHHandWW() {
     h = this.height;
 	w = this.width;
+	gettrailobj().width=w+"px";
+	gettrailobj().height=h+"px";
+	document.onmouseover=followmouse
+	gettrailobj().visibility="visible"
 	return true;
   }
   
@@ -45,51 +47,33 @@ function showImage(imgPath) {
     var myImage = new Image();
     myImage.name = imgPath;
     myImage.onload = findHHandWW;
+    myImage.onerror = function(){showImage('img/noThumb.png')};
     myImage.src = imgPath;
+    document.getElementById('ttimg').src=imgPath;
   }
-  
-  function checkImage (src, good, bad) {
-    var img = new Image();
-    img.onload = good; 
-    img.onerror = bad;
-    img.src = src;
+
+function showSpinner()
+{
+	showtrail('img/wait_warmly.jpg');
+	document.getElementById('ttspinner').style='display:block';
 }
 
-function showImageorSpinner(file)
+function hideSpinner()
 {
-	checkImage(file, function(){document.getElementById('ttimg').src=file;document.getElementById('ttspinner').style='display:none'},
-					function(){document.getElementById('ttimg').src='img/wait_warmly.gif';document.getElementById('ttspinner').style='display:block'}
-			);
+	document.getElementById('ttspinner').style='display:none';
 }
 
 function showtrail(file)
 {
+	hideSpinner();
 
 	if(navigator.userAgent.toLowerCase().indexOf('opera') == -1)
 	{
-		if(file.indexOf(".jpg") !=-1) //Have we been given a proper thumbnail?
-		{
-		
-		showImageorSpinner(file)
-		showImage(file)
-		
-		//The thumbnail is created through ajax if it doesn't exist yet, so we try to get the image again every second.
-		clearInterval(thumbnail)
-		thumbnail = setInterval(function(){showImageorSpinner(file);},1000)
-		}
-		else
-		{
-		showImage('img/noThumb.png')
-		document.getElementById('ttimg').src='img/noThumb.png'
-		document.getElementById('ttspinner').style='display:none'
-		}
-		
-		document.onmouseover=followmouse
-		gettrailobj().visibility="visible"
-		gettrailobj().width=w+"px"
-		gettrailobj().height=h+"px"
-		
 
+		if(file.indexOf(".jpg") !=-1) //Have we been given a proper thumbnail?
+			showImage(file);
+		else
+			showImage('img/noThumb.png');
 	}
 }
 
