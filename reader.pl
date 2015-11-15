@@ -58,7 +58,7 @@ if ($qedit->param())
 	
 	if (-e $path && $force eq "1") #If the file has been extracted and force-reload=1, we delete it all
 	{
-		unlink $path;
+		remove_tree($path);
 	}
 
 	unless(-e $path) #If the file hasn't been extracted, or if force-reload =1
@@ -154,7 +154,7 @@ if ($qedit->param())
 	my $arrows = '<div class="sn">
 					<a href="./reader.pl?id='.$id.'&page=1" style="text-decoration:none;"> <i class="fa fa-angle-double-left fa-2x"></i> </a> 
 					<a id="prev" href="./reader.pl?id='.$id.'&page='.($pagenum-1).'" style="text-decoration:none; "> <i class="fa fa-angle-left fa-2x"></i> </a>
-					<div><span id ="current">'.$pagenum.'</span> / <span id ="max">'.($#images+1).'</span> </div>
+					<div class="pagecount"><span id ="current">'.$pagenum.'</span> / <span id ="max">'.($#images+1).'</span> </div>
 					<a id="next" href="./reader.pl?id='.$id.'&page='.($pagenum+1).'" style="text-decoration:none; "> <i class="fa fa-angle-right fa-2x"></i> </a>
 					<a href="./reader.pl?id='.$id.'&page='.($#images+1).'" style="text-decoration:none; "> <i class="fa fa-angle-double-right fa-2x"></i> </a></div>';
 					

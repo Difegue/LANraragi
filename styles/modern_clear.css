@@ -176,6 +176,11 @@ div.sn div{
     padding-bottom: 15px;
     vertical-align: middle;
 }
+
+div.pagecount{
+    position:relative;
+}
+
 div.sn span{font-weight:bold}
 div.sn img{width:30px;height:30px;padding:0px 2px}
 
