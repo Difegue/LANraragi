@@ -43,6 +43,9 @@ if ($qedit->param())
 				reconnect => 100,
 				every     => 3000);
 	
+	#We opened this id in the reader, so we can't mark it as "new" anymore.
+	$redis->hset($id,"isnew","none");
+
 	#Get the path from Redis.
 	my $zipFile = $redis->hget($id,"file");
 	

@@ -79,15 +79,14 @@ foreach $file (@dircontents)
 			#bingo, no need for expensive file parsing operations.
 			my %hash = $redis->hgetall($id);
 
-			#It's not a new archive, though.
-			$isnew="none";
-			
+			#It's not a new archive, though. But it might have never been clicked on yet, so we'll grab the value for $isnew stored in redis.
+
 			#Hash Slice! I have no idea how this works.
-			($name,$event,$artist,$title,$series,$language,$tags) = @hash{qw(name event artist title series language tags)};
+			($name,$event,$artist,$title,$series,$language,$tags,$isnew) = @hash{qw(name event artist title series language tags isnew)};
 		}
 	else	#can't be helped. Do it the old way, and add the results to redis afterwards.
 		{
-			#This means it's a new archive, though! We can notify the user about that later on.
+			#This means it's a new archive, though! We can notify the user about that later on, and specify it in the hash.
 			$isnew="block";
 			
 			($name,$path,$suffix) = fileparse($file, qr/\.[^.]*/);
@@ -95,7 +94,7 @@ foreach $file (@dircontents)
 			#parseName function is in config.pl
 			($event,$artist,$title,$series,$language,$tags,$id) = &parseName($name.$suffix,$id);
 			
-			#jam dis shit in redis
+			#jam this shit in redis
 			#prepare the hash which'll be inserted.
 			my %hash = (
 				name => encode_utf8($name),
@@ -105,7 +104,8 @@ foreach $file (@dircontents)
 				series => encode_utf8($series),
 				language => encode_utf8($language),
 				tags => encode_utf8($tags),
-				file => encode_utf8($file)
+				file => encode_utf8($file),
+				isnew => encode_utf8($isnew),
 				);
 				
 			#for all keys of the hash, add them to the redis hash $id with the matching keys.
@@ -150,7 +150,7 @@ foreach $file (@dircontents)
 		$row.=qq(onmouseout="hidetrail();">
 								$title
 								</a>
-								<img src="img/n.gif" style="float: right; margin-top: -15px; z-index: -1; display: $isnew">);
+								<img src="img/n.gif" style="float: right; margin-top: -15px; z-index: -1; display: $isnew">); #user is notified here if archive is new (ie if it hasn't been clicked on yet)
 
 		#add row for this archive to table
 		$table->addRow($icons.qq(<input type="text" style="display:none;" id="$id" value="$id"/>),$row,$artist,$series,$language,$printedtags);
