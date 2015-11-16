@@ -150,8 +150,8 @@ div.sni{
 	min-width:800px;
 	position:relative;
 	z-index:1;
-	background-color: #E1E7E9;
-    color: #34495E;
+	background-color: #EE6E7B;
+    color: #EFEAEA;
     border-radius: 9px 9px 9px 9px;
     clear: both;
     display: block;
@@ -178,13 +178,13 @@ div.pagecount{
 div.sn span{font-weight:bold}
 div.sn img{width:30px;height:30px;padding:0px 2px}
 
-div.sn a{color: #34495E;}
+div.sn a{color: #EFEAEA;}
 div.sn a:hover{color: #00BCD4;}
 
-div.if a{color: #34495E;}
+div.if a{color: #EFEAEA;}
 div.if a:hover{color: #00BCD4;}
 
-div.sb a{color: #34495E;}
+div.sb a{color: #EFEAEA;}
 div.sb a:hover{color: #00BCD4;}
 
 

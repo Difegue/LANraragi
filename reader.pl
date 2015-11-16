@@ -3,7 +3,7 @@
 use strict;
 use CGI qw(:standard);
 use File::Basename;
-use File::Path;
+use File::Path qw(remove_tree);;
 use Image::Info qw(image_info dim);
 use File::Find qw(find);
 use Encode;

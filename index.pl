@@ -140,14 +140,14 @@ foreach $file (@dircontents)
 
 		if (-e $thumbname)
 		{
-			$row.=qq(onmouseover="showtrail('$thumbname')" );
+			$row.=qq(onmouseover="thumbTimeout = setTimeout(showtrail, 200,'$thumbname')" );
 		}
 		else
 		{
-			$row.=qq(onmouseover="ajaxThumbnail('$id')" );
+			$row.=qq(onmouseover="thumbTimeout = setTimeout(ajaxThumbnail, 200,'$id')" );
 		}
 									
-		$row.=qq(onmouseout="hidetrail();">
+		$row.=qq(onmouseout="hidetrail(); clearTimeout(thumbTimeout);">
 								$title
 								</a>
 								<img src="img/n.gif" style="float: right; margin-top: -15px; z-index: -1; display: $isnew">); #user is notified here if archive is new (ie if it hasn't been clicked on yet)
@@ -201,6 +201,9 @@ $table->setColWidth(1,30);
 			-encoding => "UTF-8",
 			#on Load, initialize list.js and pages.
 			-onLoad => "var table = document.getElementsByTagName('tbody');   
+
+									var thumbTimeout = null;
+
 									var rows = table[0].getElementsByTagName('tr');
 									
 									var paginationTopOptions = {
