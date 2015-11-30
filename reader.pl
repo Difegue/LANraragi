@@ -138,15 +138,20 @@ if ($qedit->param())
 		(
 		-title=>$arcname,
 		-author=>'lanraragi-san',	
-		-script=>{-type=>'JAVASCRIPT',
-							-src=>'./js/css.js'},				
-		-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],		
+		-script=>[{-type=>'JAVASCRIPT',
+							-src=>'./js/css.js'},
+				  {-type=>'JAVASCRIPT',
+							-src=>'./js/jquery-2.1.4.min.js'},
+				  {-type=>'JAVASCRIPT',
+							-src=>'./js/jquery.rwdImageMaps.min.js'}],				
+		-head=>[Link({-rel=>'icon', -type=>'image/png', -href=>'favicon.ico'}),
+				meta({-name=>'viewport', -content=>'width=device-width'})],		
 		-encoding => "utf-8",
-		-style=>[{'src'=>'//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css'}],
+		-style=>[{'src'=>'./styles/lrr.css'},
+				{'src'=>'//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css'}],
 		-onload=> "
-					//fit the clickable areas for switching pages to the image height.
-					document.getElementById('gotonext').style.height=document.getElementById('img').height+'px';
-					document.getElementById('gotoprev').style.height=document.getElementById('img').height+'px';
+					//dynamic html imagemap magic
+					\$('img[usemap]').rwdImageMaps();
 					",
 		);
 		
@@ -179,7 +184,11 @@ if ($qedit->param())
 	#Outputs something like "0001.png :: 1052 x 1500 :: 996.6 KB".
 	my $size = (int((-s (@images[$pagenum-1]) )/ 1024*10)/10 ) ;
 	
-	my $fileinfo ='<div id = "fileinfo">'. $namet.$suffixt .' :: '. $info->{width} .' x '. $info->{height} .' :: '. $size .'KBs</div>';
+	my $imgwidth = $info->{width}; 
+	my $imgheight = $info->{height}; 
+	my $imgmapwidth = int($imgwidth/2 + 0.5);
+
+	my $fileinfo ='<div id = "fileinfo">'. $namet.$suffixt .' :: '. $imgwidth .' x '. $imgheight .' :: '. $size .'KBs</div>';
 	
 	#We need to sanitize the image's path, in case the folder contains illegal characters, but uri_escape would also nuke the / needed for navigation.
 	#Let's solve this with a quick regex search&replace.
@@ -189,17 +198,19 @@ if ($qedit->param())
 	#Then we bring the slashes back.
 	@images[$pagenum-1] =~ s!%2F!/!g;
 	
-	print '<div id="i1" class="sni" style="max-width: 1200px;min-width:1172px;">
+	print '<div id="i1" class="sni" style="max-width: 1200px">
 			<h1>'.$arcname.'</h1>
 			
 			<div id="i2">'.$pagesel.$arrows.$fileinfo.'</div>
 			
 			<div id ="i3">
-			<a id="gotoprev" style=" z-index: 10; position: absolute; width:50%; height:87%;" href="./reader.pl?id='.$id.'&page='.($pagenum-1).'"></a>
-			<a id="gotonext" style=" z-index: 10; position: absolute; left:50%; width:50%; height:87%;" href="./reader.pl?id='.$id.'&page='.($pagenum+1).'"></a>
 			
 			<a id ="display">
-			<img id="img" style="width: 1172px; max-width: 1172px; max-height: 1500px;" src="'.@images[$pagenum-1].'"></img>
+			<img id="img" style="max-width:100%; height: auto; width: auto; " src="'.@images[$pagenum-1].'" usemap="#Map" />
+			<map name="Map" id="Map">
+			    <area alt="" title="" href="./reader.pl?id='.$id.'&page='.($pagenum-1).'" shape="rect" coords="0,0,'.$imgmapwidth.','.$imgheight.'" />
+			    <area alt="" title="" href="./reader.pl?id='.$id.'&page='.($pagenum+1).'" shape="rect" coords="'.($imgmapwidth+1).',0,'.$imgwidth.','.$imgheight.'" />
+			</map>
 			</a>
 	
 			</div>

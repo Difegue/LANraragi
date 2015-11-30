@@ -9,7 +9,7 @@ a:hover{color:#FFFBDB}
 p.ip{margin:-3px auto;text-align:center;padding:0px 5px 5px 5px;clear:both}
 
 img.mr{border:0;margin-left:10px;width:5px;height:7px}
-div.ido{background:#4f535b;border:1px solid #000000;text-align:justify;width:99%;min-width:950px;max-width:1200px;margin:10px auto 10px auto;padding:5px;position:relative}
+div.ido{background:#4f535b;border:1px solid #000000;text-align:justify;width:99%;max-width:1200px;margin:10px auto 10px auto;padding:5px;position:relative}
 h1.ih{font-size:10pt;font-weight:bold;margin:2px auto;text-align:center;padding-bottom:6px}
 
 
@@ -19,7 +19,7 @@ p#nb img{border:0;margin-left:10px;width:5px;height:7px}
 p#nb a{font-weight:bold}
 
 /* shared table stuff */
-table.itg{width:99%;min-width:925px;max-width:1175px;border-collapse:collapse;margin:0px auto;padding:3px;border:2px ridge #000000;font-size:9pt}
+table.itg{width:99%;max-width:1175px;border-collapse:collapse;margin:0px auto;padding:3px;border:2px ridge #000000;font-size:9pt}
 table.itg th{font-weight:bold;text-align:left;padding:3px 4px 3px 4px;background:#40454b}
 
 /* gallery table */
@@ -32,7 +32,7 @@ tr.gtr1{background:#363940}
 .stdbtn:hover{color:#f1f1f1;background:#43464e;border:2px outset #000000}
 .stdbtn:focus{color:#f1f1f1;background:#43464e}
 
-.stdinput{font-size:8pt;color:#f1f1f1;background:#34353b;border:1px solid #000000;margin:4px 1px 0px 1px;padding:2px 3px 2px 3px}
+.stdinput{font-size:8pt;color:#f1f1f1;background:#34353b;border:1px solid #000000;margin:4px 1px 0px 1px;padding:2px 3px 2px 3px; width:80%;}
 .stdinput:hover{color:#f1f1f1;background:#43464e}
 .stdinput:focus{color:#f1f1f1;background:#43464e}
 .stdinput:disabled{color:#f1f1f1;background:#34353b}
@@ -58,7 +58,7 @@ td.itdc{text-align:left;padding:0 1px 0 2px;margin:0;border-right:1px solid #404
 
 
 /* image pages */
-div.sni{background:#4f535b;border:1px solid #000000;text-align:center;margin:2px auto 6px;padding:0 10px 5px;min-width:800px;position:relative;z-index:1}
+div.sni{background:#4f535b;border:1px solid #000000;text-align:center;margin:2px auto 6px;padding:0 10px 5px;position:relative;z-index:1}
 div.sni h1{font-size:12pt;font-weight:bold;text-align:center}
 div.sni img{border:0;vertical-align:middle;margin:1px;clear:both}
 div.if{margin:-5px auto 5px}
@@ -74,5 +74,5 @@ div.sb{margin-top:-10px;position:relative;z-index:2}
 div.sb img{border:0}
 
 /* index */
-div.idi{margin:auto;width:598px;border-collapse:collapse;margin:0px auto 8px auto;padding:5px;border:2px ridge #000000;text-align:center}
+div.idi{margin:auto;border-collapse:collapse;margin:0px auto 8px auto;padding:5px;border:2px ridge #000000;text-align:center}
 div#toppane{margin:auto;width:99%}

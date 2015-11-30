@@ -64,7 +64,7 @@ div.ido{
     padding-top: 10px;
     padding-bottom: 10px;
     width:99%;
-    min-width:950px;
+    /*min-width:950px;*/
     max-width:1300px;
     position:relative;
 }
@@ -76,7 +76,9 @@ p#nb a{font-weight:bold}
 
 /* shared table stuff */
 table.itg{
-	width:99%;min-width:925px;max-width:1175px;border-collapse:collapse;margin:0px auto;padding:3px;font-size:9pt;
+	width:99%;
+    /*min-width:925px;*/
+    max-width:1175px;border-collapse:collapse;margin:0px auto;padding:3px;font-size:9pt;
 	border: 1px solid #363940;
 	border-radius: 9px 9px 9px 9px;
 }
@@ -112,6 +114,7 @@ tr.gtr1{background:#363940}
     margin: 4px 1px 0;
     padding: 2px 3px;
     max-width: 450px;
+    width: 80%;
 }
 
 /* gallery row */
@@ -152,7 +155,7 @@ div.sni{
 	text-align:center;
 	margin:2px auto 6px;
 	padding:0 10px 5px;
-	min-width:800px;
+	/*min-width:800px;*/
 	position:relative;
 	z-index:1;
 	background-color: #4F535B;
@@ -192,6 +195,6 @@ div.idi {
     margin: 0 auto 25px;
     padding: 15px;
     text-align: center;
-    width: 598px;
+    /*width: 598px;*/
 }
 div#toppane{margin:auto;width:99%}

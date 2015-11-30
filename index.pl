@@ -28,11 +28,11 @@ $table->addSectionRow ( 'thead', 0, "",'<a class="sort desc" data-sort="title">T
 $table->setSectionRowHead('thead', -1, -1, 1);
 
 #Special parameters for list.js implementation (i want to die)
-$table->setSectionCellAttr('thead', 0, 1, 2, 'data-sort="title"');
-$table->setSectionCellAttr('thead', 0, 1, 3, 'data-sort="artist"');
-$table->setSectionCellAttr('thead', 0, 1, 4, 'data-sort="series"');
-$table->setSectionCellAttr('thead', 0, 1, 5, 'data-sort="language"');
-$table->setSectionCellAttr('thead', 0, 1, 6, 'data-sort="tags"');
+$table->setSectionCellAttr('thead', 0, 1, 2, 'data-sort="title" id="titleheader"');
+$table->setSectionCellAttr('thead', 0, 1, 3, 'data-sort="artist" id="artistheader"');
+$table->setSectionCellAttr('thead', 0, 1, 4, 'data-sort="series" id="seriesheader"');
+$table->setSectionCellAttr('thead', 0, 1, 5, 'data-sort="language" id="langheader"');
+$table->setSectionCellAttr('thead', 0, 1, 6, 'data-sort="tags" id="tagsheader"');
 
 #define variables
 my $file = "";
@@ -197,7 +197,8 @@ $table->setColWidth(1,30);
 							-src=>'./js/thumb.js'},
 						{-type=>'JAVASCRIPT',
 							-src=>'./js/css.js'}],	
-			-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'}),],
+			-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'}),
+					meta({-name=>'viewport', -content=>'width=device-width'})],
 			-encoding => "UTF-8",
 			#on Load, initialize list.js and pages.
 			-onLoad => "var table = document.getElementsByTagName('tbody');   
@@ -244,6 +245,8 @@ $table->setColWidth(1,30);
 									}
 									
 						document.getElementById('srch').value = ''; 
+						//Set the correct CSS from the cookie on the users machine.
+						set_style_from_cookie();
 						"
 			);
 		
@@ -263,21 +266,20 @@ $table->setColWidth(1,30);
 			<a href="./tags.pl">Import/Export Tags</a>
 		</p>';
 			
-		$html = $html."<div class='ido' style='min-width: 1250px;'>
+		$html = $html."<div class='ido'>
 		<div id='toppane'>
 		<h1 class='ih'>".&get_motd."</h1> 
 		<div class='idi'>";
 
-		#Adding CSS dropdown here!
-		$html=$html.$CSSsel;
-
 		$html = $html.'<script>
-				//Set the correct CSS from the cookie on the users machine.
-						set_style_from_cookie();
+				
 				</script>';
 			
 		#Search field (stdinput class in panda css)
 		$html = $html."<input type='text' id='srch' class='search stdinput' size='90' placeholder='Search Title, Artist, Series, Language or Tags' /> <input class='stdbtn' type='button' onclick=\"window.location.reload();\" value='Clear Filter'/></div>";
+
+		#Adding CSS dropdown here!
+		$html=$html.$CSSsel;
 
 		#Random button
 		$html = $html."<p class='ip'><input class='stdbtn' type='button' onclick=\"window.location='random.pl';\" value='Give me a random archive'/></p>";

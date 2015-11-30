@@ -40,11 +40,20 @@ apt-get install redis-server
 apt-get install imagemagick
 ```
 
-Download the current build in your directory:
+Download the current build in your directory:  
 ```
 wget https://github.com/Difegue/LANraragi/archive/master.zip
 unzip master.zip -d /var/www
 mv /var/www/LANraragi-master/ /var/www/panda
+```
+
+Get the JS dependencies and add them to the js folder:  
+```
+wget https://raw.githubusercontent.com/javve/list.js/v1.1.1/dist/list.min.js
+wget https://raw.githubusercontent.com/javve/list.pagination.js/v0.1.1/dist/list.pagination.min.js
+wget https://raw.githubusercontent.com/stowball/jQuery-rwdImageMaps/master/jquery.rwdImageMaps.min.js
+wget https://code.jquery.com/jquery-2.1.4.min.js
+mv *.js /var/www/panda/js
 ```
 
 Configure apache so that your LANraragi directory can execute .pl files.  

@@ -1,5 +1,6 @@
-/*Pure CSS for the tag hover popups. The javascript used for the image thumbnails would've worked poorly here(due to moving along the mouse and the overall size of the tag popups)
-It ain't the prettiest, but as usual, fuck JQuery.*/
+/*Misc CSS trickery applies on pages that need it go here */
+
+/*tag hover popups.*/
 td
 {
     max-width: 250px;
@@ -7,6 +8,15 @@ td
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+#seriesheader {max-width: 150px;}
+#langheader {max-width: 100px;}
+#artistheader {max-width: 150px;}
+#tagsheader {max-width: 150px;}
+td.series {max-width: 150px;}
+td.language {max-width: 100px;}
+td.artist {max-width: 150px;}
+td.tags {max-width: 150px;}
 
 .ttspinner{
   color:black; 
@@ -33,6 +43,7 @@ td
    display: block !important;
 }
 
+/*Archive list Sorting*/
 table .sort {
 background-image: url(../img/down.png);
 background-repeat: no-repeat;
@@ -48,3 +59,29 @@ table .sort.desc {
 background-image: url(../img/up.png);
 }
 
+/*Hide elements within the pages on small screens*/
+@media all and (max-device-width: 1000px) {
+    #i2 { display: none; }
+    #i1 {padding: 2px;}
+    #seriesheader {max-width: 50px;}
+    #langheader {max-width: 50px;}
+    #artistheader {max-width: 50px;}
+    #tagsheader {max-width: 50px;}
+    td.series {max-width: 50px;;}
+    td.language {max-width: 50px;}
+    td.artist {max-width: 50px;}
+    td.tags {max-width: 50px;}
+}
+
+@media all and (max-width: 1000px) {
+    #i2 { display: none; }
+    #i1 {padding: 2px;}
+    #seriesheader {max-width: 50px;}
+    #langheader {max-width: 50px;}
+    #artistheader {max-width: 50px;}
+    #tagsheader {max-width: 50px;}
+    td.series {max-width: 50px;;}
+    td.language {max-width: 50px;}
+    td.artist {max-width: 50px;}
+    td.tags {max-width: 50px;}
+}

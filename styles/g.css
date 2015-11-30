@@ -39,7 +39,6 @@ div.ido {
     border-radius: 9px 9px 9px 9px;
     margin: 10px auto;
     max-width: 1200px;
-    min-width: 950px;
     padding: 5px;
     position: relative;
     text-align: justify;
@@ -71,7 +70,6 @@ table.itg {
     font-size: 9pt;
     margin: 0 auto;
     max-width: 1175px;
-    min-width: 925px;
     padding: 3px;
     width: 99%;
 }
@@ -112,6 +110,7 @@ tr.gtr1 {
     font-size: 8pt;
     margin: 4px 1px 0;
     padding: 2px 3px;
+    width: 80%;
 }
 .stdinput:hover {
     background: none repeat scroll 0 0 #F2EFDF;
@@ -144,7 +143,6 @@ div.sni {
     background: none repeat scroll 0 0 #EDEBDF;
     border: 1px solid #5C0D12;
     margin: 2px auto 6px;
-    min-width: 800px;
     padding: 0 10px 5px;
     position: relative;
     text-align: center;
@@ -197,7 +195,6 @@ div.idi {
     margin: 0 auto 8px;
     padding: 5px;
     text-align: center;
-    width: 598px;
 }
 div#toppane {
     margin: auto;

@@ -19,7 +19,7 @@ my $html = start_html
     -script=>[{-type=>'JAVASCRIPT',
 							-src=>'./js/css.js'},
 			 {-type=>'JAVASCRIPT',
-							-src=>'https://code.jquery.com/jquery-2.1.4.min.js'},
+							-src=>'./js/jquery-2.1.4.min.js'},
 			 {-type=>'JAVASCRIPT',
 							-src=>'./js/ajax.js'}],			
 	-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],

@@ -107,7 +107,7 @@ sub printCssDropdown{
 	closedir(DIR);
 
 	#dropdown list
-	my $CSSsel = '<div style="position: absolute; right: 20px;" ><form style="float: right;"><select size="1">'; 
+	my $CSSsel = '<div style="position: absolute; right: 20px; margin-top: -30px;" ><form style="float: right;"><select size="1">'; 
 	
 	$CSSsel = $CSSsel.'<option>Select a custom style</option>';
 
