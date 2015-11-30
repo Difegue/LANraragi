@@ -94,6 +94,7 @@ tr.gtr1{background:#b84655}
     outline: 0 none;
     padding: 0 4px 1px;
     cursor: pointer;
+}
     
 .stdbtn:hover{background-color: #ed2553}
 .stdinput{
