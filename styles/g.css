@@ -111,6 +111,7 @@ tr.gtr1 {
     margin: 4px 1px 0;
     padding: 2px 3px;
     width: 80%;
+    max-width: 450px;
 }
 .stdinput:hover {
     background: none repeat scroll 0 0 #F2EFDF;

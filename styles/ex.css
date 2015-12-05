@@ -32,7 +32,7 @@ tr.gtr1{background:#363940}
 .stdbtn:hover{color:#f1f1f1;background:#43464e;border:2px outset #000000}
 .stdbtn:focus{color:#f1f1f1;background:#43464e}
 
-.stdinput{font-size:8pt;color:#f1f1f1;background:#34353b;border:1px solid #000000;margin:4px 1px 0px 1px;padding:2px 3px 2px 3px; width:80%;}
+.stdinput{font-size:8pt;color:#f1f1f1;background:#34353b;border:1px solid #000000;margin:4px 1px 0px 1px;padding:2px 3px 2px 3px; width:80%; max-width: 450px;}
 .stdinput:hover{color:#f1f1f1;background:#43464e}
 .stdinput:focus{color:#f1f1f1;background:#43464e}
 .stdinput:disabled{color:#f1f1f1;background:#34353b}

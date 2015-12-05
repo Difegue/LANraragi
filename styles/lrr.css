@@ -85,3 +85,29 @@ background-image: url(../img/up.png);
     td.artist {max-width: 50px;}
     td.tags {max-width: 50px;}
 }
+
+@media all and (max-device-width: 530px) {
+    #i2 { display: none; }
+    #i1 {padding: 2px;}
+    #seriesheader {display:none;}
+    #langheader {display:none;}
+    #artistheader {display:none;}
+    #tagsheader {display:none;;}
+    td.series {display:none;}
+    td.language {display:none;}
+    td.artist {display:none;}
+    td.tags {display:none;}
+}
+
+@media all and (max-width: 530px) {
+    #i2 { display: none; }
+    #i1 {padding: 2px;}
+    #seriesheader {display:none;}
+    #langheader {display:none;}
+    #artistheader {display:none;}
+    #tagsheader {display:none;;}
+    td.series {display:none;}
+    td.language {display:none;}
+    td.artist {display:none;}
+    td.tags {display:none;}
+}
