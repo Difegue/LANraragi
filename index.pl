@@ -125,7 +125,7 @@ foreach $file (@dircontents)
 	my $printedtags = $event." ".$tags;
 	if (length $printedtags > 50)
 	{
-		$printedtags = qq(<a class="tags" style="text-overflow:ellipsis;">$printedtags</a><div class="ido caption" style="position:absolute;">$printedtags</div>); 
+		$printedtags = qq(<a class="tags" style="text-overflow:ellipsis;">$printedtags</a><div class="caption" style="position:absolute;">$printedtags</div>); 
 	}
 	
 	#version with hover thumbnails 
@@ -192,6 +192,8 @@ $table->setColWidth(1,30);
 						{-type=>'JAVASCRIPT',
 							-src=>'./js/jquery-2.1.4.min.js'},
 						{-type=>'JAVASCRIPT',
+							-src=>'./js/dropit.js'},
+						{-type=>'JAVASCRIPT',
 							-src=>'./js/ajax.js'},	
 						{-type=>'JAVASCRIPT',
 							-src=>'./js/thumb.js'},
@@ -245,8 +247,13 @@ $table->setColWidth(1,30);
 									}
 									
 						document.getElementById('srch').value = ''; 
-						//Set the correct CSS from the cookie on the users machine.
-						set_style_from_cookie();
+
+						//Set the correct CSS from the user's localStorage.
+						set_style_from_storage();
+
+						//Initialize CSS dropdown with dropit
+						\$('.menu').dropit();
+
 						"
 			);
 		
@@ -270,22 +277,15 @@ $table->setColWidth(1,30);
 		<div id='toppane'>
 		<h1 class='ih'>".&get_motd."</h1> 
 		<div class='idi'>";
-
-		$html = $html.'<script>
-				
-				</script>';
 			
 		#Search field (stdinput class in panda css)
 		$html = $html."<input type='text' id='srch' class='search stdinput' size='90' placeholder='Search Title, Artist, Series, Language or Tags' /> <input class='stdbtn' type='button' onclick=\"window.location.reload();\" value='Clear Filter'/></div>";
 
-		#Adding CSS dropdown here!
-		$html=$html.$CSSsel;
-
-		#Random button
-		$html = $html."<p class='ip'><input class='stdbtn' type='button' onclick=\"window.location='random.pl';\" value='Give me a random archive'/></p>";
+		#Random button + CSS dropdown with popr
+		$html = $html."<p class='ip' style='display:inline'><input class='stdbtn' type='button' onclick=\"window.location='random.pl';\" value='Give me a random archive'/>".$CSSsel."</p>";
 		
 		#Paging and Archive Count
-		$html = $html."<p class='ip' style='margin-top:-5px'> Serving a total of ".(scalar @dircontents)." chinese lithographies. </p>";
+		$html = $html."<p class='ip'> Serving a total of ".(scalar @dircontents)." chinese lithographies. </p>";
 		$html = $html."<ul class='paginationTop' style=' text-align:center; border-top:0;' ></ul>";
 
 		$html = $html.($table->getTable); #print our finished table

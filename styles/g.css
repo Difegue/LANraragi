@@ -6,6 +6,7 @@ body {
     font-size: 8pt;
     margin: 0;
     padding: 2px;
+    text-align: center;
 }
 p {
     margin: 0;
@@ -41,7 +42,6 @@ div.ido {
     max-width: 1200px;
     padding: 5px;
     position: relative;
-    text-align: justify;
     width: 99%;
 }
 h1.ih {
@@ -93,6 +93,7 @@ tr.gtr1 {
     height: 21px;
     margin: 4px 1px 0;
     padding: 0 4px 1px;
+    min-width: 150px;
 }
 .stdbtn:hover {
     background: none repeat scroll 0 0 #F2EFDF;
@@ -201,3 +202,46 @@ div#toppane {
     margin: auto;
     width: 99%;
 }
+
+
+/* page selector */
+.paginationTop li {display:inline-block; text-align:center;height:15px;width:31px;background:#EDEADA;cursor:pointer;border:1px solid #000000}
+.paginationTop li:hover{color:#9b4e03;background:#F2EFDF}
+.paginationTop a{text-decoration:none}
+.paginationTop span{color:#5C0D11}
+
+.paginationBottom li {display:inline-block; text-align:center;height:15px;width:31px;background:#EDEADA;cursor:pointer;border:1px solid #000000}
+.paginationBottom li:hover{color:#9b4e03;background:#F2EFDF}
+.paginationBottom a{text-decoration:none}
+.paginationBottom span{color:#5C0D11}
+
+.caption {
+background-color: #EDEADA;
+border:2px outset #5C0D11;
+}
+
+/* Dropit styles using div and span instead of ul and li */
+
+.menu a {
+    text-decoration: none;
+}
+
+.menu div.dropit-submenu {
+    background-color: #EDEADA;
+    border: 2px outset #5C0D11;
+    padding: 6px 0;
+    margin: 3px 0 0 1px;
+}          
+.menu div.dropit-submenu a {
+    display: block;
+    line-height: 25px;
+    color: #5C0D11;
+    padding: 0 18px;
+}
+.menu div.dropit-submenu a:hover {
+    background: #F2EFDF;
+    color: #9b4e03;
+    
+}
+
+

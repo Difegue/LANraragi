@@ -35,7 +35,6 @@ td.tags {max-width: 150px;}
    margin-top: 0px !important;
    margin-left: -25% !important;
    display: none !important;
-   box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
    border-radius: 0px 0px 0px 0px !important;
 }
 
@@ -58,6 +57,34 @@ background-image: url(../img/down.png);
 table .sort.desc {
 background-image: url(../img/up.png);
 }
+
+/*Common rules for dropit aka the CSS selector dropdown*/
+
+.dropit {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 150px;
+    margin-left: auto;
+    margin-right: auto;
+    text-decoration: none;
+}
+.dropit .dropit-trigger { position: relative; }
+.dropit .dropit-submenu {
+    position: absolute;
+    top: 100%;
+    left: 0; /* dropdown left or right */
+    z-index: 1000;
+    display: none;
+    min-width: 150px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.dropit .dropit-open .dropit-submenu { display: block; }
+
+.menu div { display: none; } /* Hide before plugin loads */
+
 
 /*Hide elements within the pages on small screens*/
 @media all and (max-device-width: 1000px) {

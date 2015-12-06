@@ -18,10 +18,11 @@ print $qupload->start_html
 							-src=>'./js/css.js'},			
 	-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],
 	-encoding => "utf-8",
+	-onLoad => "//Set the correct CSS from the user's localStorage.
+						set_style_from_storage();"
 	);
 
 print &printCssDropdown(0);
-print "<script>set_style_from_cookie();</script>";
 
 if ($qupload->param()) {
     # Parameters are defined, therefore something has been submitted...	

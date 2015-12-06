@@ -1,9 +1,3 @@
-//I STOLE THIS AND HAVE NO SHAME WHATSOEVER
-
-var style_cookie_name = "ruto" ;
-var style_cookie_duration = 30 ;
-
-// You do not need to customise anything below this line
 
 function switch_style ( css_title )
 {
@@ -33,40 +27,18 @@ function switch_style ( css_title )
  {
   default_style.disabled = true ; //we disable the default style 
   new_style.disabled = false ; //we enable the new style
-  set_cookie( style_cookie_name, css_title, style_cookie_duration ); //we set a cookie containing the value for the new style
+  localStorage.customCSS = css_title;
+  //set_cookie( style_cookie_name, css_title, style_cookie_duration ); //we set a cookie containing the value for the new style
  }
 
 }
 
-function set_style_from_cookie()
+function set_style_from_storage()
 {
-  var css_title = get_cookie( style_cookie_name );
+  var css_title = localStorage.customCSS;
 
   //if (css_title.length) {
-    if (css_title!=undefined) { 
+    if (css_title) { 
     switch_style( css_title );
   }
-}
-function set_cookie ( cookie_name, cookie_value,
-    lifespan_in_days, valid_domain )
-{
-    // http://www.thesitewizard.com/javascripts/cookies.shtml
-    var domain_string = valid_domain ?
-                       ("; domain=" + valid_domain) : '' ;
-    document.cookie = cookie_name +
-                       "=" + encodeURIComponent( cookie_value ) +
-                       "; max-age=" + 60 * 60 *
-                       24 * lifespan_in_days +
-                       "; path=/" + domain_string ;
-}
-function get_cookie ( cookie_name )
-{
-	//rewritten.
-	var cookie_string = document.cookie ;
-    if (cookie_string.length != 0) {
-        //var cookie_value = cookie_string.match ('(^|;)[\s]*' + cookie_name + '=([^;]*)' );
-        //return decodeURIComponent ( cookie_value[2] ) ;
-		return cookie_string.substr(document.cookie.indexOf(cookie_name)).split("=")[1]
-	}
-    return '' ;
 }

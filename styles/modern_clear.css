@@ -97,6 +97,7 @@ tr.gtr1{background:#34495E}
     margin: 1px;
     outline: 0 none;
     padding: 0 4px 1px;
+    min-width: 150px;
     cursor: pointer;
 }
 .stdbtn:hover{background-color: #ed2553}
@@ -205,3 +206,29 @@ div.idi {
     text-align: center;
 }
 div#toppane{margin:auto;width:99%}
+
+.caption {
+background-color: #34495E;
+box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+}
+
+/* Dropit styles using div and span instead of ul and li */
+
+.menu div.dropit-submenu {
+    background-color: #34495E;
+    /* border: 1px solid #b2b2b2; */
+    padding: 6px 0;
+    margin: 3px 0 0 1px;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+}          
+.menu div.dropit-submenu a {
+    display: block;
+    line-height: 25px;
+    color: #DDDDDD;
+    padding: 0 18px;
+}
+.menu div.dropit-submenu a:hover {
+    background: #ed2553;
+    color: #DDDDDD;
+    text-decoration: none;
+}

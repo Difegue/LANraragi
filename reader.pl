@@ -152,12 +152,12 @@ if ($qedit->param())
 		-onload=> "
 					//dynamic html imagemap magic
 					\$('img[usemap]').rwdImageMaps();
+					set_style_from_storage();
 					",
 		);
 		
 	print &printCssDropdown(0);
 	print '<script src="./js/reader.js"></script>';
-	print '<script>set_style_from_cookie();</script>'; #we have to set the custom CSS as soon as possible.
 	#These are the pretty arrows you use to switch pages.
 	my $arrows = '<div class="sn">
 					<a href="./reader.pl?id='.$id.'&page=1" style="text-decoration:none;"> <i class="fa fa-angle-double-left fa-2x"></i> </a> 

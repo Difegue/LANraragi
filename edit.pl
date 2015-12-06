@@ -24,10 +24,12 @@ my $html = start_html
 							-src=>'./js/ajax.js'}],			
 	-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],
 	-encoding => "utf-8",
+	-onLoad => "//Set the correct CSS from the user's localStorage.
+						set_style_from_storage();"
 	);
 
 $html .= &printCssDropdown(0);
-$html .= "<script>set_style_from_cookie();
+$html .= "<script>
 				function updateTags(a) {
 					document.getElementById('tagText').value=document.getElementById('tagText').value+a;
 				}

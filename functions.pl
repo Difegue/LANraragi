@@ -106,12 +106,15 @@ sub printCssDropdown{
 	}
 	closedir(DIR);
 
-	#dropdown list
-	my $CSSsel = '<div style="position: absolute; right: 20px; margin-top: -30px;" ><form style="float: right;"><select size="1">'; 
-	
-	$CSSsel = $CSSsel.'<option>Select a custom style</option>';
+	#button for deploying dropdown
+	my $CSSsel = '<div class="menu" style="display:inline">
+    				<span>
+        				<a href="#"><input type="button" class="stdbtn" value="Change Library Look"></a>';
 
-	#link tags
+	#the list itself
+	$CSSsel = $CSSsel.'<div>';
+
+	#html that we'll insert before the list to declare all the available styles.
 	my $html;
 
 	#We opened a drop-down list. Now, we'll fill it.
@@ -119,7 +122,10 @@ sub printCssDropdown{
 	{
 		if (@css[$i] ne "lrr.css") #quality work
 		{
-			$CSSsel = $CSSsel.'<option onclick="switch_style(\''.$i.'\');return false;">'.&cssNames(@css[$i]).' </option>';
+			#populate <ul>
+			$CSSsel = $CSSsel.'<span><a href="#" onclick="switch_style(\''.$i.'\');return false;">'.&cssNames(@css[$i]).'</a></span>';
+
+
 			if (@css[$i] eq &get_style) #if this is the default sheet, set it up as so.
 				{$html=$html.'<link rel="stylesheet" type="text/css" title="'.$i.'" href="./styles/'.@css[$i].'"> ';}
 			else
@@ -128,7 +134,10 @@ sub printCssDropdown{
 		}
 	}		
 
-	$CSSsel = $CSSsel.'</select></form></div>';
+	#close up dropdown list
+	$CSSsel = $CSSsel.'</div>
+    				</span>
+				</div>';
 
 	if ($_[0])
 	{return $html.$CSSsel;}
