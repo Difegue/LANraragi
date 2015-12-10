@@ -281,7 +281,7 @@ $table->setColWidth(1,30);
 		#Search field (stdinput class in panda css)
 		$html = $html."<input type='text' id='srch' class='search stdinput' size='90' placeholder='Search Title, Artist, Series, Language or Tags' /> <input class='stdbtn' type='button' onclick=\"window.location.reload();\" value='Clear Filter'/></div>";
 
-		#Random button + CSS dropdown with popr
+		#Random button + CSS dropdown with dropit
 		$html = $html."<p class='ip' style='display:inline'><input class='stdbtn' type='button' onclick=\"window.location='random.pl';\" value='Give me a random archive'/>".$CSSsel."</p>";
 		
 		#Paging and Archive Count

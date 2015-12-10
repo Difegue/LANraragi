@@ -143,6 +143,8 @@ if ($qedit->param())
 				  {-type=>'JAVASCRIPT',
 							-src=>'./js/jquery-2.1.4.min.js'},
 				  {-type=>'JAVASCRIPT',
+							-src=>'./js/dropit.js'},
+				  {-type=>'JAVASCRIPT',
 							-src=>'./js/jquery.rwdImageMaps.min.js'}],				
 		-head=>[Link({-rel=>'icon', -type=>'image/png', -href=>'favicon.ico'}),
 				meta({-name=>'viewport', -content=>'width=device-width'})],		
@@ -153,6 +155,9 @@ if ($qedit->param())
 					//dynamic html imagemap magic
 					\$('img[usemap]').rwdImageMaps();
 					set_style_from_storage();
+
+					//Initialize CSS dropdown with dropit
+					\$('.menu').dropit();
 					",
 		);
 		
@@ -160,14 +165,15 @@ if ($qedit->param())
 	print '<script src="./js/reader.js"></script>';
 	#These are the pretty arrows you use to switch pages.
 	my $arrows = '<div class="sn">
-					<a href="./reader.pl?id='.$id.'&page=1" style="text-decoration:none;"> <i class="fa fa-angle-double-left fa-2x"></i> </a> 
-					<a id="prev" href="./reader.pl?id='.$id.'&page='.($pagenum-1).'" style="text-decoration:none; "> <i class="fa fa-angle-left fa-2x"></i> </a>
+					<a href="./reader.pl?id='.$id.'&page=1"> <i class="fa fa-angle-double-left fa-2x"></i> </a> 
+					<a id="prev" href="./reader.pl?id='.$id.'&page='.($pagenum-1).'"> <i class="fa fa-angle-left fa-2x"></i> </a>
 					<div class="pagecount"><span id ="current">'.$pagenum.'</span> / <span id ="max">'.($#images+1).'</span> </div>
-					<a id="next" href="./reader.pl?id='.$id.'&page='.($pagenum+1).'" style="text-decoration:none; "> <i class="fa fa-angle-right fa-2x"></i> </a>
-					<a href="./reader.pl?id='.$id.'&page='.($#images+1).'" style="text-decoration:none; "> <i class="fa fa-angle-double-right fa-2x"></i> </a></div>';
+					<a id="next" href="./reader.pl?id='.$id.'&page='.($pagenum+1).'"> <i class="fa fa-angle-right fa-2x"></i> </a>
+					<a href="./reader.pl?id='.$id.'&page='.($#images+1).'"> <i class="fa fa-angle-double-right fa-2x"></i> </a></div>';
 					
-					
-	my $pagesel = '<div style="position: absolute; right: 20px;" ><form style="float: right;"><select size="1"  onChange="location = this.options[this.selectedIndex].value;">';
+	#generate the floating div containing the help popup and the page dropdown
+	my $pagesel = '<div style="position: absolute; right: 20px;" >
+				<form style="float: right;"><select size="1"  onChange="location = this.options[this.selectedIndex].value;">';
 
 	#We opened a drop-down list. Now, we'll fill it.
 	for ( my $i = 1; $i < $#images+2; $i++) 
@@ -178,7 +184,27 @@ if ($qedit->param())
 		{$pagesel = $pagesel.'<option value="./reader.pl?id='.$id.'&page='.$i.'">Page '.$i.'</option>';}
 	}		
 
-	$pagesel = $pagesel.'</select></form></div>';
+	#We close the drop-down list and add a help dialog.
+	$pagesel = $pagesel.'</select></form>
+
+						<div class="menu dropit" style="display:inline;font-size:12pt">
+							<span class="dropit-trigger">
+								<a href="#"><i class="fa fa-paperclip fa-2x" style="padding-right: 10px;"></i></a>
+
+								<div style="width: 200px; left: -160px; font-size: 10pt;" class="dropit-submenu">
+								<span>You can navigate between pages in different ways : 
+										<ul style=""> 
+										<li>The arrow icons</li> 
+										<li>The keyboard arrows</li> 
+										<li>Touching the left/right side of the image.</li>
+										</ul>
+								</span>
+
+								</div>
+							</span>
+						</div>
+
+	</div>';
 	
 	
 	#Outputs something like "0001.png :: 1052 x 1500 :: 996.6 KB".

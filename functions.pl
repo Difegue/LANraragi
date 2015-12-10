@@ -122,7 +122,7 @@ sub printCssDropdown{
 	{
 		if (@css[$i] ne "lrr.css") #quality work
 		{
-			#populate <ul>
+			#populate the div with spans
 			$CSSsel = $CSSsel.'<span><a href="#" onclick="switch_style(\''.$i.'\');return false;">'.&cssNames(@css[$i]).'</a></span>';
 
 
