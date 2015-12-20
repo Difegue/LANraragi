@@ -26,12 +26,34 @@ if ($qajax->param())
 			&getThumb($id);
 		}
 
+	if ($call eq "password")
+		{
+			my $pass = $qajax->param('pass');
+
+			unless (&enable_pass)
+			{
+				print "1";
+			}
+			elsif ($pass eq &get_password) 
+					{
+						print "1";
+					}
+					else
+						{
+							print "0";
+						}
+
+		}
+
 	if ($call eq "tags")
 		{
 			my $ishash = $qajax->param('ishash');
 			my $input = $qajax->param('input');
+			my $pass = $qajax->param('pass');
 			my $queryJson;
 
+			if ($pass eq &get_password) 
+			{
 			#This rings up g.e-hentai with the input we obtained.
 			$queryJson = &getGalleryId($input,$ishash); #getGalleryId is in functions.pl.
 
@@ -45,6 +67,11 @@ if ($qajax->param())
 			else
 				{
 					print "NOTAGS";
+				}
+			}
+			else
+				{
+					print "WRONGPASS";
 				}
 		}
 

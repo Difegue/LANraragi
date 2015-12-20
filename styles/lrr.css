@@ -44,18 +44,37 @@ td.tags {max-width: 150px;}
 
 /*Archive list Sorting*/
 table .sort {
-background-image: url(../img/down.png);
-background-repeat: no-repeat;
-background-position: right center;
 padding-right: 14px;
 cursor: pointer;
 cursor: hand;
 }
-table .sort.asc {
-background-image: url(../img/down.png);
+
+table .sort:after {
+border-left: 5px solid rgba(0, 0, 0, 0);
+border-right: 5px solid rgba(0, 0, 0, 0);
+border-top: 5px solid;
+content: "";
+height: 0;
+position: relative;
+right: -5px;
+width: 0;
+top: 10px;
 }
-table .sort.desc {
-background-image: url(../img/up.png);
+
+table .sort.asc:after {
+/*background-image: url(../img/down.png);*/
+border-left: 5px solid rgba(0, 0, 0, 0);
+border-right: 5px solid rgba(0, 0, 0, 0);
+border-top: 5px solid;
+}
+
+table .sort.desc:after {
+/*background-image: url(../img/up.png);*/
+border-top: none;
+border-bottom: 5px solid;
+border-left: 5px solid rgba(0, 0, 0, 0);
+border-right: 5px solid rgba(0, 0, 0, 0);
+top: -10px;
 }
 
 /*Common rules for dropit aka the CSS selector dropdown*/

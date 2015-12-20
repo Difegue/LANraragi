@@ -22,7 +22,8 @@ my $html = start_html
 							-src=>'./js/jquery-2.1.4.min.js'},
 			 {-type=>'JAVASCRIPT',
 							-src=>'./js/ajax.js'}],			
-	-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],
+	-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'}),
+					meta({-name=>'viewport', -content=>'width=device-width'})],
 	-encoding => "utf-8",
 	-onLoad => "//Set the correct CSS from the user's localStorage.
 						set_style_from_storage();"
@@ -149,7 +150,11 @@ sub generateForm
 		{$html .= $_[0]->h1({-class=>'ih', -style=>'text-align:center'},'Editing '.$title);}
 	else
 		{$html .= $_[0]->h1({-class=>'ih', -style=>'text-align:center'},'Editing '.$title.' by '.$artist);}
-	$html .= $_[0]->start_form;
+
+	$html .= $_[0]->start_form(
+					-name		=> 'editArchiveForm',
+					);
+
 	$html .= "<table style='margin:auto'><tbody>";
 	
 	$html .= "<tr><td style='text-align:left; width:100px'>Current File Name:</td><td>";
@@ -159,7 +164,7 @@ sub generateForm
 			-size      => 20,
 			-maxlength => 255,
 			-class => "stdinput",
-			-style => "width:820px",
+			-style => "width:90%",
 			-readonly,
 		);
 	$html .= "</td></tr>";
@@ -172,7 +177,7 @@ sub generateForm
 			-size      => 20,
 			-maxlength => 255,
 			-class => "stdinput",
-			-style => "width:820px",
+			-style => "width:90%",
 			-readonly,
 		);
 	$html .= "</td></tr>";
@@ -185,7 +190,7 @@ sub generateForm
 			-size      => 20,
 			-maxlength => 255,
 			-class => "stdinput",
-			-style => "width:820px",
+			-style => "width:90%",
 		);
 	$html .= "</td></tr>";
 	
@@ -196,7 +201,7 @@ sub generateForm
 			-size      => 20,
 			-maxlength => 255,
 			-class => "stdinput",
-			-style => "width:820px ",
+			-style => "width:90% ",
 		);
 	$html .= "</td></tr>";
 	
@@ -207,7 +212,7 @@ sub generateForm
 			-size      => 20,
 			-maxlength => 255,
 			-class => "stdinput",
-			-style => "width:820px",
+			-style => "width:90%",
 		);
 	$html .= "</td></tr>";
 	
@@ -218,7 +223,7 @@ sub generateForm
 			-size      => 20,
 			-maxlength => 255,
 			-class => "stdinput",
-			-style => "width:820px",
+			-style => "width:90%",
 		);
 	$html .= "</td></tr>";
 	
@@ -229,18 +234,18 @@ sub generateForm
 			-size      => 20,
 			-maxlength => 255,
 			-class => "stdinput",
-			-style => "width:820px",
+			-style => "width:90%",
 		);
 	$html .= "</td></tr>";
 
 	#These buttons here call the ajax functions, which in turn calls the getTags/getTagsSearch subs.
 	$html .= qq(<tr><td style='text-align:left; width:100px; vertical-align:top'>Tags:
 
-			<input type='button' name='tag_import' value='Import E-Hentai&#x00A; Tags&#x00A;(Image Search)' onclick="ajaxTags('$thumbhash',1);" 
-				class='stdbtn' style='margin-top:25px;max-width:100px;height:60px '></input> 
+			<input type='button' name='tag_import' value='Import E-Hentai&#x00A; Tags&#x00A;(Image Search)' onclick="ajaxTags('$thumbhash',1,\$('#pw_field').val());" 
+				class='stdbtn' style='margin-top:25px;min-width:50px; max-width:100px;height:60px '></input> 
 			
-			<input type='button' name='tag_import' value='Import E-Hentai&#x00A; Tags&#x00A;(Text Search)' onclick="ajaxTags('$title',0);" 
-				class='stdbtn' style='margin-top:25px;max-width:100px;height:60px '></input>
+			<input type='button' name='tag_import' value='Import E-Hentai&#x00A; Tags&#x00A;(Text Search)' onclick="ajaxTags('$title',0,\$('#pw_field').val());" 
+				class='stdbtn' style='margin-top:25px;min-width:50px; max-width:100px;height:60px '></input>
 
 			</td><td>);
 			#>
@@ -253,7 +258,7 @@ sub generateForm
 			-size      => 20,
 			-maxlength => 5000,
 			-class => "stdinput",
-			-style => "width:820px; height:300px",
+			-style => "width:90%; height:300px",
 		);
 	$html .= qq(<i class="fa fa-5x fa-cog fa-spin" style="  color:black;
 			    position:absolute;
@@ -267,26 +272,23 @@ sub generateForm
 		$html .= "<tr><td style='text-align:left; width:100px'>Admin Password:</td><td>";
 		$html .= $_[0]->password_field(
 				-name      => 'pass',
+				-id 	   => 'pw_field',
 				-value     => '',
 				-size      => 20,
 				-maxlength => 255,
 				-class => "stdinput",
-				-style => "width:820px",
+				-style => "width:90%",
 			);
 		$html .= "</td></tr>";
 	}
 	
-	$html .= "<tr><td></td><td style='text-align:left'>";
-	$html .= $_[0]->submit(
-			-name     => 'submit_form',
-			-value    => 'Edit Archive',
-			-onsubmit => 'javascript: validate_form()',
-			-class => 'stdbtn', 
-		);
-	$html .= "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/>";
-	
+	$html .= "<tr><td></td>";
 
-	$html .= "</td></tbody></table>";
+	$html .= "<td style='text-align:left'><input class='stdbtn' type='button' onclick=\"validateForm('editArchiveForm');\" value='Edit Archive'/>";
+	$html .= "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/></td></tr>";
+	$html .= "<tr id='wrongpass' style='display:none;font-size:13px'><td></td><td style='text-align:left'> Wrong Password. </td></tr>";
+
+	$html .= "</tbody></table>";
 	$html .= $_[0]->end_form;
 	
 	$html .= "</div>";

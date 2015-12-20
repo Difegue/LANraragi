@@ -27,7 +27,7 @@ my $table = new HTML::Table(-rows=>0,
 $table->addSectionRow ( 'thead', 0, "",'<a class="sort desc" data-sort="title">Title</a>','<a class="sort desc" data-sort="artist">Artist/Group</a>','<a class="sort desc" data-sort="series">Series</a>'," Language"," Tags");
 $table->setSectionRowHead('thead', -1, -1, 1);
 
-#Special parameters for list.js implementation (i want to die)
+#Special parameters for list.js implementation (kill me)
 $table->setSectionCellAttr('thead', 0, 1, 2, 'data-sort="title" id="titleheader"');
 $table->setSectionCellAttr('thead', 0, 1, 3, 'data-sort="artist" id="artistheader"');
 $table->setSectionCellAttr('thead', 0, 1, 4, 'data-sort="series" id="seriesheader"');
@@ -270,7 +270,7 @@ $table->setColWidth(1,30);
 			<a href="./stats.pl">Statistics</a>
 			<span style="margin-left:5px"></span>
 			<i class="fa fa-caret-right"></i>
-			<a href="./tags.pl">Import/Export Tags</a>
+			<a href="./tags.pl">Import Tags</a>
 		</p>';
 			
 		$html = $html."<div class='ido'>
@@ -282,7 +282,7 @@ $table->setColWidth(1,30);
 		$html = $html."<input type='text' id='srch' class='search stdinput' size='90' placeholder='Search Title, Artist, Series, Language or Tags' /> <input class='stdbtn' type='button' onclick=\"window.location.reload();\" value='Clear Filter'/></div>";
 
 		#Random button + CSS dropdown with dropit
-		$html = $html."<p class='ip' style='display:inline'><input class='stdbtn' type='button' onclick=\"window.location='random.pl';\" value='Give me a random archive'/>".$CSSsel."</p>";
+		$html = $html."<p class='ip' style='display:inline'><input class='stdbtn' type='button' onclick=\"var win=window.open('random.pl','_blank'); win.focus();\" value='Give me a random archive'/>".$CSSsel."</p>";
 		
 		#Paging and Archive Count
 		$html = $html."<p class='ip'> Serving a total of ".(scalar @dircontents)." chinese lithographies. </p>";

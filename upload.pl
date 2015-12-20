@@ -15,9 +15,14 @@ print $qupload->start_html
 	(
 	-title=>&get_htmltitle." - Upload Mode",
     -author=>'lanraragi-san',
-    -script=>{-type=>'JAVASCRIPT',
-							-src=>'./js/css.js'},					
-	-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],
+    -script=>[{-type=>'JAVASCRIPT',
+							-src=>'./js/css.js'},
+				{-type=>'JAVASCRIPT',
+							-src=>'./js/ajax.js'},
+				{-type=>'JAVASCRIPT',
+							-src=>'./js/jquery-2.1.4.min.js'}],							
+	-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'}),
+					meta({-name=>'viewport', -content=>'width=device-width'})],
 	-encoding => "utf-8",
 	-onLoad => "//Set the correct CSS from the user's localStorage.
 						set_style_from_storage();"
@@ -81,9 +86,7 @@ if ($qupload->param()) {
 					{
 						print "<div class='ido' style='text-align:center'><h1>Upload Successful!</h1><br/>";
 						print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/>";
-						print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./edit.pl?file=".$name.$suffix."');\" value='Edit Uploaded Archive'/>";
 						print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./upload.pl');\" value='Upload another Archive'/></div>";
-						&rebuild_index; #Delete the cached index so that the uploaded file appears.
 						
 					}
 					else
@@ -106,41 +109,43 @@ else
 	
 	print "<div class='ido' style='text-align:center'>";
 	print $qupload->h1( {-class=>'ih', -style=>'text-align:center'},"Uploading an Archive to the Library");
-	print $qupload->start_form;
+	print $qupload->start_form(
+					-name		=> 'uploadArchiveForm',
+					);
 	print "<table style='margin:auto'><tbody>";
 	
-	print "<tr><td style='text-align:left; width:100px'>Select File:</td><td>";
+	print "<tr><td style='text-align:left; width:10%'>Select File:</td><td>";
 	print $qupload->filefield(
 			-name      => 'file',
 			-size      => 20,
 			-maxlength => 255,
-			-style => "width:820px",
+			-style => "width:80%",
 			-readonly,
+			-required,
 			#-style='',
 		);
 	print "</td></tr>";
 	
 		if (&enable_pass)
 	{
-		print "<tr><td style='text-align:left; width:100px'>Admin Password:</td><td style='text-align:left'>";
+		print "<tr><td style='text-align:left; width:10%'>Admin Password:</td><td style='text-align:left'>";
 		print $qupload->password_field(
 				-name      => 'pass',
 				-value     => '',
 				-size      => 20,
 				-maxlength => 255,
 				-class => "stdinput",
-				-style => "width:820px",
+				-style => "width:80%",
+				-required,
+
 			);
 		print "</td></tr>";
+		print "<tr id='wrongpass' style='display:none;font-size:13px'><td></td><td style='text-align:left'> Wrong Password. </td></tr>";
 	}
 	
 	print "<tr><td></td><td style='text-align:left'>";
-	print $qupload->submit(
-			-name     => 'submit_form',
-			-value    => 'Upload Archive',
-			-onsubmit => 'javascript: validate_form()',
-			-class => 'stdbtn', 
-		);
+
+	print "<input class='stdbtn' type='button' onclick=\"validateForm('uploadArchiveForm');\" value='Upload Archive'/>";
 	print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/>";
 	
 
@@ -148,9 +153,7 @@ else
 	print $qupload->end_form;
 	
 	print "</div>";
-	
-	
-	
+
 }
 
 print $qupload->end_html;

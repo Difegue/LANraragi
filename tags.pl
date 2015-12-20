@@ -12,11 +12,14 @@ my $qupload = new CGI;
 print $qupload->header;
 print $qupload->start_html
 	(
-	-title=>&get_htmltitle." - Tag Importer/Exporter",
+	-title=>&get_htmltitle." - Tag Importer",
     -author=>'lanraragi-san',	
-    -script=>{-type=>'JAVASCRIPT',
-							-src=>'./js/css.js'},			
-	-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],
+    -script=>[{-type=>'JAVASCRIPT',
+							-src=>'./js/css.js'},
+			{-type=>'JAVASCRIPT',
+							-src=>'./js/jquery-2.1.4.min.js'}],			
+	-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'}),
+					meta({-name=>'viewport', -content=>'width=device-width'})],
 	-encoding => "utf-8",
 	-onLoad => "//Set the correct CSS from the user's localStorage.
 						set_style_from_storage();"
@@ -42,6 +45,13 @@ if ($qupload->param()) {
 			}
 		else
 			{ 
+
+			#Let's iterate on all archives. 
+
+			#Check tags field. If it's empty, treat it.
+
+			#Fire 
+
 			#Get hash from Redis, then use EHSearch_Hash.
 
 			#Open up Redis
