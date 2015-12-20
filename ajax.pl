@@ -30,18 +30,14 @@ if ($qajax->param())
 		{
 			my $pass = $qajax->param('pass');
 
-			unless (&enable_pass)
-			{
-				print "1";
-			}
-			elsif ($pass eq &get_password) 
+			if (($pass eq &get_password) || (&enable_pass == 0))  
+				{
+					print "1";
+				}
+				else
 					{
-						print "1";
+						print "0";
 					}
-					else
-						{
-							print "0";
-						}
 
 		}
 
@@ -52,22 +48,23 @@ if ($qajax->param())
 			my $pass = $qajax->param('pass');
 			my $queryJson;
 
-			if ($pass eq &get_password) 
+
+			if (($pass eq &get_password) || (&enable_pass == 0)) 
 			{
-			#This rings up g.e-hentai with the input we obtained.
-			$queryJson = &getGalleryId($input,$ishash); #getGalleryId is in functions.pl.
+				#This rings up g.e-hentai with the input we obtained.
+				$queryJson = &getGalleryId($input,$ishash); #getGalleryId is in functions.pl.
 
-			#Call the actual e-hentai API with the json we created and grab dem tags
-			my $tags = &getTagsFromAPI($queryJson);
+				#Call the actual e-hentai API with the json we created and grab dem tags
+				my $tags = &getTagsFromAPI($queryJson);
 
-			unless ($tags eq(""))
-				{
-					print $tags;
-				}	
-			else
-				{
-					print "NOTAGS";
-				}
+				unless ($tags eq(""))
+					{
+						print $tags;
+					}	
+				else
+					{
+						print "NOTAGS";
+					}
 			}
 			else
 				{
