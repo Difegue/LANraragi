@@ -15,11 +15,11 @@ my $html = start_html
 	(
 	-title=>&get_htmltitle.' - Edit Mode',
     -author=>'lanraragi-san',		
-    -style=>[{'src'=>'//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css'}],
+    -style=>[{'src'=>'./bower_components/font-awesome/css/font-awesome.min.css'}],
     -script=>[{-type=>'JAVASCRIPT',
 							-src=>'./js/css.js'},
 			 {-type=>'JAVASCRIPT',
-							-src=>'./js/jquery-2.1.4.min.js'},
+							-src=>'./bower_components/jquery/dist/jquery.min.js'},
 			 {-type=>'JAVASCRIPT',
 							-src=>'./js/ajax.js'}],			
 	-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'}),

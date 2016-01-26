@@ -184,15 +184,15 @@ $table->setColWidth(1,30);
 			-title=>&get_htmltitle,
 			-author=>'lanraragi-san',
 			-style=>[{'src'=>'./styles/lrr.css'},
-					{'src'=>'//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css'}],
+					{'src'=>'./bower_components/font-awesome/css/font-awesome.min.css'}],
 			-script=>[{-type=>'JAVASCRIPT',
-							-src=>'./js/list.min.js'},
+							-src=>'./bower_components/list.js/dist/list.min.js'},
 						{-type=>'JAVASCRIPT',
-							-src=>'./js/list.pagination.min.js'},	
+							-src=>'./bower_components/list.pagination.js/dist/list.pagination.min.js'},	
 						{-type=>'JAVASCRIPT',
-							-src=>'./js/jquery-2.1.4.min.js'},
+							-src=>'./bower_components/jquery/dist/jquery.min.js'},
 						{-type=>'JAVASCRIPT',
-							-src=>'./js/dropit.js'},
+							-src=>'./bower_components/dropit/dropit.js'},
 						{-type=>'JAVASCRIPT',
 							-src=>'./js/ajax.js'},	
 						{-type=>'JAVASCRIPT',
@@ -248,19 +248,31 @@ $table->setColWidth(1,30);
 									
 						document.getElementById('srch').value = ''; 
 
-						//Set the correct CSS from the user's localStorage.
+						//Set the correct CSS from the user's localStorage again, in case the version in <script> tags didn't load.
+						//(That happens on mobiles for some reason.)
 						set_style_from_storage();
 
-						//Initialize CSS dropdown with dropit
-						\$('.menu').dropit();
+					    //Initialize CSS dropdown with dropit
+						\$('.menu').dropit({
+					       action: 'click', // The open action for the trigger
+					        submenuEl: 'div', // The submenu element
+					        triggerEl: 'a', // The trigger element
+					        triggerParentEl: 'span', // The trigger parent element
+					        afterLoad: function(){}, // Triggers when plugin has loaded
+					        beforeShow: function(){}, // Triggers before submenu is shown
+					        afterShow: function(){}, // Triggers after submenu is shown
+					        beforeHide: function(){}, // Triggers before submenu is hidden
+					        afterHide: function(){} // Triggers before submenu is hidden
+					    });
 
 						"
 			);
-		
 
 		#Dropdown list for changing CSSes on the fly.
 		my $CSSsel = &printCssDropdown(1);
 		
+		
+
 		$html = $html.'<p id="nb">
 
 			<i class="fa fa-caret-right"></i>
@@ -283,6 +295,11 @@ $table->setColWidth(1,30);
 
 		#Random button + CSS dropdown with dropit
 		$html = $html."<p class='ip' style='display:inline'><input class='stdbtn' type='button' onclick=\"var win=window.open('random.pl','_blank'); win.focus();\" value='Give me a random archive'/>".$CSSsel."</p>";
+
+		$html=$html."<script>
+			//Set the correct CSS from the user's localStorage.
+			set_style_from_storage();
+			</script>";
 		
 		#Paging and Archive Count
 		$html = $html."<p class='ip'> Serving a total of ".(scalar @dircontents)." chinese lithographies. </p>";

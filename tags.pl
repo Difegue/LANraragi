@@ -17,7 +17,7 @@ print $qupload->start_html
     -script=>[{-type=>'JAVASCRIPT',
 							-src=>'./js/css.js'},
 			{-type=>'JAVASCRIPT',
-							-src=>'./js/jquery-2.1.4.min.js'}],			
+							-src=>'./bower_components/jquery/dist/jquery.min.js'}],			
 	-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'}),
 					meta({-name=>'viewport', -content=>'width=device-width'})],
 	-encoding => "utf-8",

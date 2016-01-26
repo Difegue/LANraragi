@@ -1,5 +1,5 @@
 #LANraragi Installation Guide  
-This guide is based on a bare-bones **Debian Wheezy** installation.  
+This guide is based on a bare-bones **Debian Jessie** installation.  
 If you use another Linux flavor, you probably know which package manager to use.  
 For Windows users, see below.  
 
@@ -47,13 +47,12 @@ unzip master.zip -d /var/www
 mv /var/www/LANraragi-master/ /var/www/panda
 ```
 
-Get the JS dependencies and add them to the js folder:  
+Use Bower to get the front-end dependencies:  
 ```
-wget https://raw.githubusercontent.com/javve/list.js/v1.1.1/dist/list.min.js
-wget https://raw.githubusercontent.com/javve/list.pagination.js/v0.1.1/dist/list.pagination.min.js
-wget https://raw.githubusercontent.com/stowball/jQuery-rwdImageMaps/master/jquery.rwdImageMaps.min.js
-wget https://code.jquery.com/jquery-2.1.4.min.js
-mv *.js /var/www/panda/js
+apt-get install npm
+npm install -g bower
+cd /var/www/panda
+bower install
 ```
 
 Configure apache so that your LANraragi directory can execute .pl files.  

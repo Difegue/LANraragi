@@ -141,28 +141,40 @@ if ($qedit->param())
 		-script=>[{-type=>'JAVASCRIPT',
 							-src=>'./js/css.js'},
 				  {-type=>'JAVASCRIPT',
-							-src=>'./js/jquery-2.1.4.min.js'},
+							-src=>'./bower_components/jquery/dist/jquery.min.js'},
 				  {-type=>'JAVASCRIPT',
-							-src=>'./js/dropit.js'},
+							-src=>'./bower_components/dropit/dropit.js'},
 				  {-type=>'JAVASCRIPT',
-							-src=>'./js/jquery.rwdImageMaps.min.js'}],				
+							-src=>'./bower_components/jQuery-rwdImageMaps/jquery.rwdImageMaps.min.js'}],				
 		-head=>[Link({-rel=>'icon', -type=>'image/png', -href=>'favicon.ico'}),
 				meta({-name=>'viewport', -content=>'width=device-width'})],		
 		-encoding => "utf-8",
 		-style=>[{'src'=>'./styles/lrr.css'},
-				{'src'=>'//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css'}],
+				{'src'=>'./bower_components/font-awesome/css/font-awesome.min.css'}],
 		-onload=> "
 					//dynamic html imagemap magic
 					\$('img[usemap]').rwdImageMaps();
+
 					set_style_from_storage();
 
-					//Initialize CSS dropdown with dropit
-					\$('.menu').dropit();
+				    //Initialize CSS dropdown with dropit
+					\$('.menu').dropit({
+					       action: 'click', // The open action for the trigger
+					        submenuEl: 'div', // The submenu element
+					        triggerEl: 'a', // The trigger element
+					        triggerParentEl: 'span', // The trigger parent element
+					        afterLoad: function(){}, // Triggers when plugin has loaded
+					        beforeShow: function(){}, // Triggers before submenu is shown
+					        afterShow: function(){}, // Triggers after submenu is shown
+					        beforeHide: function(){}, // Triggers before submenu is hidden
+					        afterHide: function(){} // Triggers before submenu is hidden
+					    });
+
 					",
 		);
 		
 	print &printCssDropdown(0);
-	print '<script src="./js/reader.js"></script>';
+	print '<script src="./js/reader.js"/><script>set_style_from_storage();</script>';
 	#These are the pretty arrows you use to switch pages.
 	my $arrows = '<div class="sn">
 					<a href="./reader.pl?id='.$id.'&page=1"> <i class="fa fa-angle-double-left fa-2x"></i> </a> 

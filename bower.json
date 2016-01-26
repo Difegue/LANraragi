@@ -1,0 +1,27 @@
+{
+  "name": "lanraragi",
+  "description": "Web interface and reader for a server-stored directory of comics.",
+  "main": "",
+  "moduleType": [],
+  "authors": [
+    "dfug"
+  ],
+  "license": "wtfpl",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^2.2.0",
+    "font-awesome": "fontawesome#^4.5.0",
+    "list.js": "listjs#^1.1.1",
+    "dropit": "dropit#^1.1.1",
+    "jQuery-rwdImageMaps": "*",
+    "list.pagination.js": "^0.1.1"
+  }
+}
