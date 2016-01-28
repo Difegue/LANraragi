@@ -66,8 +66,6 @@ foreach $file (@filez)
 	}
 closedir(DIR);
 
-#print("Parsing contents and making thumbnails...(".(time() - $^T)." seconds)\n");
-
 foreach $file (@dircontents)
 {
 	#ID of the archive, used for storing data in Redis.

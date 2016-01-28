@@ -5,7 +5,7 @@ use Switch;
 my $htmltitle = "LANraragi"; 
 
 #Text that appears on top of the page. Empty for no text. (look at me ma i'm versioning)
-my $motd = "Welcome to this Library running LANraragi v.0.1.9!"; 
+my $motd = "Welcome to this Library running LANraragi v.0.1.95!"; 
 
 #Whether or not you load thumbnails when hovering over a title. Requires an imagemagick install. (Just imagemagick, none of these perlmagick thingamabobs)
 my $thumbnails = 1; 
@@ -22,7 +22,7 @@ my $dirname = "./content";
 my $sizethreshold = 900;
 
 #Quality of the converted images if resized.
-my $readerquality = 90; 
+my $readerquality = 50; 
 
 #Number of archives shown on a page. 0 for no pages.
 my $pagesize = 100;

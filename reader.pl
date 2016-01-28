@@ -7,18 +7,18 @@ use File::Path qw(remove_tree);;
 use Image::Info qw(image_info dim);
 use File::Find qw(find);
 use Encode;
+use IPC::Cmd qw[can_run run];
 
 require 'config.pl';
 require 'functions.pl';
 
-#I ripped off some code from edit.pl to begin.
 my $path;
-my $qedit = new CGI;
+my $qreader = new CGI;
 
-if ($qedit->param()) 
+if ($qreader->param()) 
 {
     # We got a file name, let's get crackin'.
-	my $id = $qedit->param('id');
+	my $id = $qreader->param('id');
 	
 	#First, where is our temporary directory? Makes it so that if the same user opens an archive, it doesn't re-extract it all the time.
 	my $tempdir= "";
@@ -34,9 +34,8 @@ if ($qedit->param())
 	
 	$tempdir = &get_dirname."/temp";
 	
-	#Now, has our file been extracted to the temporary directory recently?
-	#If it hasn't, a quick call to unar will solve that.
-	my $force = $qedit->param('force-reload');
+	my $force = $qreader->param('force-reload');
+	my $thumbreload = $qreader->param('reload_thumbnail');
 	
 	#Redis initialization.
 	my $redis = Redis->new(server => &get_redisad, 
@@ -64,15 +63,38 @@ if ($qedit->param())
 		remove_tree($path);
 	}
 
+	#Now, has our file been extracted to the temporary directory recently?
+	#If it hasn't, we call unar to do it.
 	unless(-e $path) #If the file hasn't been extracted, or if force-reload =1
 		{
 
-			unless ( `unar -D -o $path "$zipFile"`) #Extraction using unar without creating extra folders.
-				{  # Make sure archive got read
-				&rebuild_index;
-				print 'Archive parsing error!';
-				exit;
-				}
+		 	my $unarcmd = "unar -D -o $path \"$zipFile\""; #Extraction using unar without creating extra folders.
+
+		 	my( $success, $error_message, $full_buf, $stdout_buf, $stderr_buf ) =
+            run( command => $unarcmd, verbose => 0 );
+
+
+		 	#Has the archive been extracted ?
+				unless (-e $path) {
+					    # $@ contains err message if error occurs
+						print $qreader->header(-type    => 'text/html',
+                   				-charset => 'utf-8');
+						print $qreader->start_html
+							(
+							-title=>"LANraragi - Reader Error",
+							-author=>'lanraragi-san',
+							-style=>{'src'=>'./styles/ex.css'},					
+							-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],			
+							);
+
+						print "<img src='./img/flubbed.gif'/><br/>
+								<h2>I flubbed it while trying to open the archive ".$filename.".</h2>It's likely the archive contains a folder with unicode characters. No real way around that, sorry !<br/>";
+
+						print "<h3>Some more info below :</h3> <br/>";
+						print decode_utf8(join "<br/>", @$full_buf);
+
+						exit;
+					}
 		}
 		
 	#We have to go deeper. Most archives often hide their images a few folders in...	
@@ -90,10 +112,11 @@ if ($qedit->param())
                }
 			  
     my @images = sort { expand($a) cmp expand($b) } @images;
+    
 	
-	if ($qedit->param('page')) #Has a specific page been mentioned? If so, that's the one we'll need to display.
+	if ($qreader->param('page')) #Has a specific page been mentioned? If so, that's the one we'll need to display.
 		{
-		$pagenum = $qedit->param('page');
+		$pagenum = $qreader->param('page');
 		
 		if ($pagenum <= 0)
 			{$pagenum = 1;}
@@ -102,16 +125,31 @@ if ($qedit->param())
 			{$pagenum = $#images+1;}
 		
 		}
+		else #We're on page 1: we can convert it into a thumbnail for the main reader index if it's not been done already(Or if it fucked up for some reason).
+		{
+			my $thumbname = &get_dirname."/thumb/".$id.".jpg";
+
+			unless (-e $thumbname && $thumbreload eq "0")
+			{
+				my $path = @images[$pagenum-1];
+				$redis->hset($id,"thumbhash", encode_utf8(shasum($path)));
+				`convert -strip -thumbnail 200x "$path" $thumbname`;
+
+			}
+
+		}
+
+	my $imgpath = @images[$pagenum-1]; #This is the page we'll display.
 	
 	#convert to a cheaper on bandwidth format if the option is enabled.
 	if (&get_threshold != 0)
 	{
 			#Is the file size higher than the threshold?
 			#print (int((-s @images[$pagenum-1] )/ 1024*10)/10 );
-			if ( (int((-s @images[$pagenum-1] )/ 1024*10)/10 ) > &get_threshold)
+			if ( (int((-s $imgpath )/ 1024*10)/10 ) > &get_threshold)
 			{
 				#print "mogrify -geometry 1064x -quality $quality $i";
-				`mogrify -scale 1064x -quality $quality "@images[$pagenum-1]"`; 
+				`mogrify -scale 1064x -quality $quality "$imgpath"`; 
 			}
 			#since we're operating on the extracted file, the original, tucked away in the .zip, isn't harmed. Downloading the zip grants the highest quality.
 	}
@@ -121,20 +159,20 @@ if ($qedit->param())
 	
 	#Let's get more precise info on the image to display. 
 
-	my $info = image_info(@images[$pagenum-1]);
+	my $info = image_info($imgpath);
 	if (my $error = $info->{error}) 
 		{
 		die "Can't parse image info: $error\n";
 		}	
 		
 	#gonna reuse those variables.
-	($namet,$patht,$suffixt) = fileparse(@images[$pagenum-1], qr/\.[^.]*/);
+	($namet,$patht,$suffixt) = fileparse($imgpath, qr/\.[^.]*/);
 	
-	#HTML printout. Tried to make it as clean as I could!
-	
-	print $qedit->header(-type    => 'text/html',
+
+	#HTML printout.
+	print $qreader->header(-type    => 'text/html',
                    -charset => 'utf-8');
-	print $qedit->start_html
+	print $qreader->start_html
 		(
 		-title=>$arcname,
 		-author=>'lanraragi-san',	
@@ -202,14 +240,14 @@ if ($qedit->param())
 	#We close the drop-down list and add a help dialog.
 	$pagesel = $pagesel.'</select></form>
 
-						<a href="#" onclick="alert(\'You can navigate between pages in different ways : \n* The arrow icons\n* Your keyboard arrows\n* Touching the left/right side of the image\')">
+						<a href="#" onclick="alert(\'You can navigate between pages in different ways : \n* The arrow icons\n* Your keyboard arrows\n* Touching the left/right side of the image.\n\n To return to the archive index, touch the arrow pointing down.\')">
 							<i class="fa fa-3x" style="padding-right: 10px; margin-top: -5px">?</i></a>	
 
 				</div>';
 	
 	
 	#Outputs something like "0001.png :: 1052 x 1500 :: 996.6 KB".
-	my $size = (int((-s (@images[$pagenum-1]) )/ 1024*10)/10 ) ;
+	my $size = (int((-s ($imgpath) )/ 1024*10)/10 ) ;
 	
 	my $imgwidth = $info->{width}; 
 	my $imgheight = $info->{height}; 
@@ -220,10 +258,10 @@ if ($qedit->param())
 	#We need to sanitize the image's path, in case the folder contains illegal characters, but uri_escape would also nuke the / needed for navigation.
 	#Let's solve this with a quick regex search&replace.
 	#First, we sanitize it all...
-	@images[$pagenum-1] = escapeHTML(@images[$pagenum-1]);
+	$imgpath = escapeHTML($imgpath);
 	
 	#Then we bring the slashes back.
-	@images[$pagenum-1] =~ s!%2F!/!g;
+	$imgpath =~ s!%2F!/!g;
 	
 	print '<div id="i1" class="sni" style="max-width: 1200px">
 			<h1>'.$arcname.'</h1>
@@ -233,7 +271,7 @@ if ($qedit->param())
 			<div id ="i3">
 			
 			<a id ="display">
-			<img id="img" style="max-width:100%; height: auto; width: auto; " src="'.@images[$pagenum-1].'" usemap="#Map" />
+			<img id="img" style="max-width:100%; height: auto; width: auto; " src="'.$imgpath.'" usemap="#Map" />
 			<map name="Map" id="Map">
 			    <area alt="" title="" href="./reader.pl?id='.$id.'&page='.($leftpage).'" shape="rect" coords="0,0,'.$imgmapwidth.','.$imgheight.'" />
 			    <area alt="" title="" href="./reader.pl?id='.$id.'&page='.($rightpage).'" shape="rect" coords="'.($imgmapwidth+1).',0,'.$imgwidth.','.$imgheight.'" />
@@ -254,14 +292,14 @@ if ($qedit->param())
 			
 			<div id="i6" class="if">
 			<i class="fa fa-caret-right fa-lg"></i>
-			<a href="./reader.pl?id='.$id.'&page='.$pagenum.'&force-reload=1">Garbled image? (Clean Archive Cache)</a>
+			<a href="./reader.pl?id='.$id.'&page='.$pagenum.'&force-reload=1">Clean Archive Cache</a>
 			<i class="fa fa-caret-right fa-lg"></i>
-			<a href="./">Go back to library </a>
+			<a href="./reader.pl?id='.$id.'&reload_thumbnail=1">Regenerate Archive Thumbnail </a>
 			</div>
 			
 			<div id="i7" class="if">
 			<i class="fa fa-caret-right fa-lg"></i>
-			<a href="'.@images[$pagenum-1].'">View full-size image</a>
+			<a href="'.$imgpath.'">View full-size image</a>
 			</div>
 			
 		</div>';
@@ -269,8 +307,8 @@ if ($qedit->param())
 else 
 {
     # No parameters back the fuck off
-	print $qedit->header;
-	print $qedit->start_html
+	print $qreader->header;
+	print $qreader->start_html
 		(
 		-title=>&get_htmltitle,
 		-author=>'lanraragi-san',
@@ -278,7 +316,7 @@ else
 		-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'})],			
 		);
 	
-    print $qedit->redirect('./');
+    print $qreader->redirect('./');
 }
 
-print $qedit->end_html;
+print $qreader->end_html;
