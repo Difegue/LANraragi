@@ -13,6 +13,7 @@ Supports tags, and runs on a basic installation of Perl with the following packa
 	* LWP::Simple
 	* JSON::Parse
 	* Switch
+	* IPC::Cmd
 	
 You can find a basic installation guide [here](https://github.com/Difegue/LANraragi/blob/master/Install.md).
 	

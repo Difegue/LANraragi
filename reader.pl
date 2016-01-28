@@ -88,7 +88,7 @@ if ($qreader->param())
 							);
 
 						print "<img src='./img/flubbed.gif'/><br/>
-								<h2>I flubbed it while trying to open the archive ".$filename.".</h2>It's likely the archive contains a folder with unicode characters. No real way around that, sorry !<br/>";
+								<h2>I flubbed it while trying to open the archive ".$filename.".</h2>It's likely the archive contains a folder with unicode characters.<br/> No real way around that for now besides modifying your archive, sorry !<br/>";
 
 						print "<h3>Some more info below :</h3> <br/>";
 						print decode_utf8(join "<br/>", @$full_buf);

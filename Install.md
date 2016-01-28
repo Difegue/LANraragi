@@ -19,7 +19,7 @@ apt-get install perl
 ``` 
 apt-get install cpanminus
 apt-get install make
-cpanm -i HTML::Table Capture::Tiny Tie::File Digest::SHA Redis CGI::Ajax URI::Escape Image::Info
+cpanm -i HTML::Table Capture::Tiny Tie::File Digest::SHA Redis CGI::Ajax URI::Escape Image::Info IPC::Cmd
 ```
 Go watch some anime while it downloads all the dependencies.  
 Follow this link if you get locale errors while building the extra packages.
