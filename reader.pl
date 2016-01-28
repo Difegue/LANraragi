@@ -143,8 +143,6 @@ if ($qedit->param())
 				  {-type=>'JAVASCRIPT',
 							-src=>'./bower_components/jquery/dist/jquery.min.js'},
 				  {-type=>'JAVASCRIPT',
-							-src=>'./bower_components/dropit/dropit.js'},
-				  {-type=>'JAVASCRIPT',
 							-src=>'./bower_components/jQuery-rwdImageMaps/jquery.rwdImageMaps.min.js'}],				
 		-head=>[Link({-rel=>'icon', -type=>'image/png', -href=>'favicon.ico'}),
 				meta({-name=>'viewport', -content=>'width=device-width'})],		
@@ -156,31 +154,36 @@ if ($qedit->param())
 					\$('img[usemap]').rwdImageMaps();
 
 					set_style_from_storage();
-
-				    //Initialize CSS dropdown with dropit
-					\$('.menu').dropit({
-					       action: 'click', // The open action for the trigger
-					        submenuEl: 'div', // The submenu element
-					        triggerEl: 'a', // The trigger element
-					        triggerParentEl: 'span', // The trigger parent element
-					        afterLoad: function(){}, // Triggers when plugin has loaded
-					        beforeShow: function(){}, // Triggers before submenu is shown
-					        afterShow: function(){}, // Triggers after submenu is shown
-					        beforeHide: function(){}, // Triggers before submenu is hidden
-					        afterHide: function(){} // Triggers before submenu is hidden
-					    });
-
 					",
 		);
+
+	#The numbers of the pages we direct the reader to for the right/left arrows.
+	#We print a hidden link with the "next" id for the reader JS to properly direct to the next page on spacebar press.
+	my $leftpage=1;
+	my $rightpage=1;
+
+	if (&get_readorder==1)
+		{
+			$leftpage = $pagenum+1;
+			$rightpage = $pagenum-1;
+			print '<a id="next" href="./reader.pl?id='.$id.'&page='.($leftpage).'" style="display:none"></a>';
+		}
+		else
+		{
+			$leftpage = $pagenum-1;
+			$rightpage = $pagenum+1;
+			print '<a id="next" href="./reader.pl?id='.$id.'&page='.($rightpage).'" style="display:none"></a>';
+		}
+
 		
 	print &printCssDropdown(0);
 	print '<script src="./js/reader.js"/><script>set_style_from_storage();</script>';
 	#These are the pretty arrows you use to switch pages.
 	my $arrows = '<div class="sn">
 					<a href="./reader.pl?id='.$id.'&page=1"> <i class="fa fa-angle-double-left fa-2x"></i> </a> 
-					<a id="prev" href="./reader.pl?id='.$id.'&page='.($pagenum-1).'"> <i class="fa fa-angle-left fa-2x"></i> </a>
+					<a id="left" href="./reader.pl?id='.$id.'&page='.($leftpage).'"> <i class="fa fa-angle-left fa-2x"></i> </a>
 					<div class="pagecount"><span id ="current">'.$pagenum.'</span> / <span id ="max">'.($#images+1).'</span> </div>
-					<a id="next" href="./reader.pl?id='.$id.'&page='.($pagenum+1).'"> <i class="fa fa-angle-right fa-2x"></i> </a>
+					<a id="right" href="./reader.pl?id='.$id.'&page='.($rightpage).'"> <i class="fa fa-angle-right fa-2x"></i> </a>
 					<a href="./reader.pl?id='.$id.'&page='.($#images+1).'"> <i class="fa fa-angle-double-right fa-2x"></i> </a></div>';
 					
 	#generate the floating div containing the help popup and the page dropdown
@@ -199,24 +202,10 @@ if ($qedit->param())
 	#We close the drop-down list and add a help dialog.
 	$pagesel = $pagesel.'</select></form>
 
-						<div class="menu dropit" style="display:inline;font-size:12pt">
-							<span class="dropit-trigger">
-								<a href="#"><i class="fa fa-paperclip fa-2x" style="padding-right: 10px;"></i></a>
+						<a href="#" onclick="alert(\'You can navigate between pages in different ways : \n* The arrow icons\n* Your keyboard arrows\n* Touching the left/right side of the image\')">
+							<i class="fa fa-3x" style="padding-right: 10px; margin-top: -5px">?</i></a>	
 
-								<div style="width: 200px; left: -160px; font-size: 10pt;" class="dropit-submenu">
-								<span>You can navigate between pages in different ways : 
-										<ul style=""> 
-										<li>The arrow icons</li> 
-										<li>The keyboard arrows</li> 
-										<li>Touching the left/right side of the image.</li>
-										</ul>
-								</span>
-
-								</div>
-							</span>
-						</div>
-
-	</div>';
+				</div>';
 	
 	
 	#Outputs something like "0001.png :: 1052 x 1500 :: 996.6 KB".
@@ -246,8 +235,8 @@ if ($qedit->param())
 			<a id ="display">
 			<img id="img" style="max-width:100%; height: auto; width: auto; " src="'.@images[$pagenum-1].'" usemap="#Map" />
 			<map name="Map" id="Map">
-			    <area alt="" title="" href="./reader.pl?id='.$id.'&page='.($pagenum-1).'" shape="rect" coords="0,0,'.$imgmapwidth.','.$imgheight.'" />
-			    <area alt="" title="" href="./reader.pl?id='.$id.'&page='.($pagenum+1).'" shape="rect" coords="'.($imgmapwidth+1).',0,'.$imgwidth.','.$imgheight.'" />
+			    <area alt="" title="" href="./reader.pl?id='.$id.'&page='.($leftpage).'" shape="rect" coords="0,0,'.$imgmapwidth.','.$imgheight.'" />
+			    <area alt="" title="" href="./reader.pl?id='.$id.'&page='.($rightpage).'" shape="rect" coords="'.($imgmapwidth+1).',0,'.$imgwidth.','.$imgheight.'" />
 			</map>
 			</a>
 	

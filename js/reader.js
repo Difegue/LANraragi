@@ -5,7 +5,7 @@ function moveSomething(e) {
 switch (e.keyCode) {
 	case 37:
 	// left key pressed
-	window.location.href = document.getElementById("prev").getAttribute("href");
+	window.location.href = document.getElementById("left").getAttribute("href");
 	break;
 	case 32:
 	// spacebar pressed
@@ -13,7 +13,7 @@ switch (e.keyCode) {
 	break;
 	case 39:
 	// right key pressed
-	window.location.href = document.getElementById("next").getAttribute("href");
+	window.location.href = document.getElementById("right").getAttribute("href");
 	break;
 	}	
 }

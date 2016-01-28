@@ -33,8 +33,11 @@ my $redisaddress = "127.0.0.1:6379";
 #Syntax of an archive's filename. Used in editing.
 my $syntax = "(%RELEASE) [%ARTIST] %TITLE (%SERIES) [%LANGUAGE]";
 
-#CSS file to load. Must be in the styles folder.
+#Default CSS file to load. Must be in the styles folder.
 my $css = "modern.css";
+
+#Reading order for reader. Default is 0 for left-to-right. Change to 1 for standard manga right-to-left order.
+my $readorder = 0;
 
 #Assign a name to the css file passed. You can add names by adding cases.
 sub cssNames{
@@ -64,6 +67,7 @@ sub get_pagesize { return $pagesize };
 sub get_thumbpref { return $generateonindex };
 sub get_redisad { return $redisaddress };
 sub get_style { return $css };
+sub get_readorder { return $readorder };
 
 #This sub defines which numbered variables from the regex selection are taken for display. In order:
 # [release, artist, title, series, language]
