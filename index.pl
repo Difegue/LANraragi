@@ -15,24 +15,21 @@ use Digest::SHA qw(sha256_hex);
 require 'config.pl';
 require 'functions.pl';
 
-#print("Setting up main table..\n");
-
-#my $q = CGI->new;  #our html 
-#my $table = new HTML::Table(0,6);
+#Generate Archive table
 my $table = new HTML::Table(-rows=>0,
                             -cols=>6,
                             -class=>'itg'
                             );
 
-$table->addSectionRow ( 'thead', 0, "",'<a class="sort desc" data-sort="title">Title</a>','<a class="sort desc" data-sort="artist">Artist/Group</a>','<a class="sort desc" data-sort="series">Series</a>'," Language"," Tags");
+$table->addSectionRow ( 'thead', 0, "",'<a>Title</a>','<a>Artist/Group</a>','<a>Series</a>',"<a>Language</a>","<a>Tags</a>");
 $table->setSectionRowHead('thead', -1, -1, 1);
 
-#Special parameters for list.js implementation (kill me)
-$table->setSectionCellAttr('thead', 0, 1, 2, 'data-sort="title" id="titleheader"');
-$table->setSectionCellAttr('thead', 0, 1, 3, 'data-sort="artist" id="artistheader"');
-$table->setSectionCellAttr('thead', 0, 1, 4, 'data-sort="series" id="seriesheader"');
-$table->setSectionCellAttr('thead', 0, 1, 5, 'data-sort="language" id="langheader"');
-$table->setSectionCellAttr('thead', 0, 1, 6, 'data-sort="tags" id="tagsheader"');
+#Add IDs to the table headers to hide them with media queries on small screens.
+$table->setSectionCellAttr('thead', 0, 1, 2, 'id="titleheader"');
+$table->setSectionCellAttr('thead', 0, 1, 3, 'id="artistheader"');
+$table->setSectionCellAttr('thead', 0, 1, 4, 'id="seriesheader"');
+$table->setSectionCellAttr('thead', 0, 1, 5, 'id="langheader"');
+$table->setSectionCellAttr('thead', 0, 1, 6, 'id="tagsheader"');
 
 #define variables
 my $file = "";
@@ -177,18 +174,18 @@ $table->setColWidth(1,30);
 
 	# BIG PRINTS		   
 	sub printPage {
+
 		my $html = start_html
 			(
 			-title=>&get_htmltitle,
 			-author=>'lanraragi-san',
 			-style=>[{'src'=>'./styles/lrr.css'},
 					{'src'=>'./bower_components/font-awesome/css/font-awesome.min.css'}],
-			-script=>[{-type=>'JAVASCRIPT',
-							-src=>'./bower_components/list.js/dist/list.min.js'},
-						{-type=>'JAVASCRIPT',
-							-src=>'./bower_components/list.pagination.js/dist/list.pagination.min.js'},	
+			-script=>[
 						{-type=>'JAVASCRIPT',
 							-src=>'./bower_components/jquery/dist/jquery.min.js'},
+						{-type=>'JAVASCRIPT',
+							-src=>'./bower_components/datatables/media/js/jquery.dataTables.min.js'},
 						{-type=>'JAVASCRIPT',
 							-src=>'./bower_components/dropit/dropit.js'},
 						{-type=>'JAVASCRIPT',
@@ -200,55 +197,23 @@ $table->setColWidth(1,30);
 			-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'}),
 					meta({-name=>'viewport', -content=>'width=device-width'})],
 			-encoding => "UTF-8",
-			#on Load, initialize list.js and pages.
-			-onLoad => "var table = document.getElementsByTagName('tbody');   
+			#on Load, initialize datatables and some other shit
+			-onLoad => "var thumbTimeout = null;
+									
+						\$.fn.dataTableExt.oStdClasses.sStripeOdd = 'gtr0';
+						\$.fn.dataTableExt.oStdClasses.sStripeEven = 'gtr1';
 
-									var thumbTimeout = null;
-
-									var rows = table[0].getElementsByTagName('tr');
-									
-									var paginationTopOptions = {
-											name: 'paginationTop',
-											paginationClass: 'paginationTop', 
-											innerWindow:5,
-											outerWindow:2,
-											}
-									var paginationBottomOptions = {
-											name: 'paginationBottom',
-											paginationClass: 'paginationBottom', 
-											innerWindow:5,
-											outerWindow:2,
-											}
-									var options = {
-													valueNames: ['title', 'artist', 'series', 'language', 'tags'], 
-													page:".&get_pagesize.",
-													plugins: [ 
-													ListPagination(paginationTopOptions),
-													ListPagination(paginationBottomOptions) 
-													]
-												};
-									var mangoList = new List('toppane', options);
-									mangoList.sort('title', { order: 'asc' });
-									
-									mangoList.on('updated',function(){
-										for (i = 0; i < rows.length; i++){           
-											if(i % 2 == 0)
-												{rows[i].className = 'gtr0'; } 
-											else {rows[i].className = 'gtr1'; }      
-										}
-										});
-									
-									for (i = 0; i < rows.length; i++){           
-										if(i % 2 == 0)
-											{rows[i].className = 'gtr0'; } 
-										else {rows[i].className = 'gtr1'; }      
-									}
-									
-						document.getElementById('srch').value = ''; 
-
-						//Set the correct CSS from the user's localStorage again, in case the version in <script> tags didn't load.
-						//(That happens on mobiles for some reason.)
-						set_style_from_storage();
+						//datatables configuration
+						var arcTable= \$('.itg').DataTable( { 
+							'lengthChange': false,
+							'pageLength': ".&get_pagesize().",
+							'order': [[ 1, 'asc' ]],
+							'dom': '<\"top\"ip>rt<\"bottom\"p><\"clear\">',
+							'language': {
+									'info':           'Showing _START_ to _END_ of _TOTAL_ ancient chinese lithographies.',
+    								'infoEmpty':      'No archives to show you !',
+    							}
+						});
 
 					    //Initialize CSS dropdown with dropit
 						\$('.menu').dropit({
@@ -263,16 +228,27 @@ $table->setColWidth(1,30);
 					        afterHide: function(){} // Triggers before submenu is hidden
 					    });
 
+						//Set the correct CSS from the user's localStorage again, in case the version in <script> tags didn't load.
+						//(That happens on mobiles for some reason.)
+						set_style_from_storage();
+
+						//add datatable search event to the local searchbox and clear search to the clear filter button
+						\$('#srch').keyup(function(){
+						      arcTable.search(\$(this).val()).draw() ;
+						});
+
+						\$('#clrsrch').click(function(){
+							arcTable.search('').draw(); 
+							\$('#srch').val('');
+							});
+
+						//clear searchbar cache
+						\$('#srch').val('');
+
 						"
 			);
 
-		#Dropdown list for changing CSSes on the fly.
-		my $CSSsel = &printCssDropdown(1);
-		
-		
-
 		$html = $html.'<p id="nb">
-
 			<i class="fa fa-caret-right"></i>
 			<a href="./upload.pl">Upload Archive</a>
 			<span style="margin-left:5px"></span>
@@ -289,23 +265,22 @@ $table->setColWidth(1,30);
 		<div class='idi'>";
 			
 		#Search field (stdinput class in panda css)
-		$html = $html."<input type='text' id='srch' class='search stdinput' size='90' placeholder='Search Title, Artist, Series, Language or Tags' /> <input class='stdbtn' type='button' onclick=\"window.location.reload();\" value='Clear Filter'/></div>";
+		$html = $html."<input type='text' id='srch' class='search stdinput' size='90' placeholder='Search Title, Artist, Series, Language or Tags' /> <input id='clrsrch' class='stdbtn' type='button' value='Clear Filter'/></div>";
 
-		#Random button + CSS dropdown with dropit
-		$html = $html."<p class='ip' style='display:inline'><input class='stdbtn' type='button' onclick=\"var win=window.open('random.pl','_blank'); win.focus();\" value='Give me a random archive'/>".$CSSsel."</p>";
+		#Dropdown list for changing CSSes on the fly.
+		my $CSSsel = &printCssDropdown(1);
+
+		#Random button + CSS dropdown with dropit. These can't be generated in JS, the styles need to be loaded asap.
+		$html = $html."<p id='cssbutton' style='display:inline'><input class='stdbtn' type='button' onclick=\"var win=window.open('random.pl','_blank'); win.focus();\" value='Give me a random archive'/>".$CSSsel."</p>";
 
 		$html=$html."<script>
 			//Set the correct CSS from the user's localStorage.
 			set_style_from_storage();
 			</script>";
-		
-		#Paging and Archive Count
-		$html = $html."<p class='ip'> Serving a total of ".(scalar @dircontents)." chinese lithographies. </p>";
-		$html = $html."<ul class='paginationTop' style=' text-align:center; border-top:0;' ></ul>";
 
 		$html = $html.($table->getTable); #print our finished table
 
-		$html = $html."<ul class='paginationBottom' style=' text-align:center; border-bottom:0;' ></ul></div></div>";
+		$html = $html."</div></div>"; #close errything
 
 		$html = $html.'		<p class="ip">
 					<a href="https://github.com/Difegue/LANraragi">

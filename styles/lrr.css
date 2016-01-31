@@ -43,13 +43,13 @@ td.tags {max-width: 150px;}
 }
 
 /*Archive list Sorting*/
-table .sort {
+table thead a {
 padding-right: 14px;
 cursor: pointer;
 cursor: hand;
 }
 
-table .sort:after {
+table thead th a:after {
 border-left: 5px solid rgba(0, 0, 0, 0);
 border-right: 5px solid rgba(0, 0, 0, 0);
 border-top: 5px solid;
@@ -61,20 +61,28 @@ width: 0;
 top: 10px;
 }
 
-table .sort.asc:after {
+table thead .sorting_asc a:after {
 /*background-image: url(../img/down.png);*/
 border-left: 5px solid rgba(0, 0, 0, 0);
 border-right: 5px solid rgba(0, 0, 0, 0);
 border-top: 5px solid;
 }
 
-table .sort.desc:after {
+table thead .sorting_desc a:after {
 /*background-image: url(../img/up.png);*/
 border-top: none;
 border-bottom: 5px solid;
 border-left: 5px solid rgba(0, 0, 0, 0);
 border-right: 5px solid rgba(0, 0, 0, 0);
 top: -10px;
+}
+
+.paginate_button.previous {
+    display:none;
+}
+
+.paginate_button.next {
+    display:none;
 }
 
 /*Common rules for dropit aka the CSS selector dropdown*/
@@ -108,6 +116,7 @@ top: -10px;
 /*Hide elements within the pages on small screens*/
 @media all and (max-device-width: 1000px) {
     #i2 { display: none; }
+    .page_dropdown {margin-top:50px;}
     #i1 {padding: 2px;}
     #seriesheader {max-width: 50px;}
     #langheader {max-width: 50px;}
@@ -121,6 +130,7 @@ top: -10px;
 
 @media all and (max-width: 1000px) {
     #i2 { display: none; }
+    .page_dropdown {margin-top:50px;}
     #i1 {padding: 2px;}
     #seriesheader {max-width: 50px;}
     #langheader {max-width: 50px;}
@@ -134,6 +144,7 @@ top: -10px;
 
 @media all and (max-device-width: 530px) {
     #i2 { display: none; }
+    .page_dropdown {margin-top:50px;}
     #i1 {padding: 2px;}
     #seriesheader {display:none;}
     #langheader {display:none;}
@@ -147,6 +158,7 @@ top: -10px;
 
 @media all and (max-width: 530px) {
     #i2 { display: none; }
+    .page_dropdown {margin-top:50px;}
     #i1 {padding: 2px;}
     #seriesheader {display:none;}
     #langheader {display:none;}
@@ -157,3 +169,4 @@ top: -10px;
     td.artist {display:none;}
     td.tags {display:none;}
 }
+

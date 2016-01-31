@@ -225,7 +225,7 @@ if ($qreader->param())
 					<a href="./reader.pl?id='.$id.'&page='.($#images+1).'"> <i class="fa fa-angle-double-right fa-2x"></i> </a></div>';
 					
 	#generate the floating div containing the help popup and the page dropdown
-	my $pagesel = '<div style="position: absolute; right: 20px;" >
+	my $pagesel = '<div style="position: absolute; right: 20px;" class="page_dropdown" >
 				<form style="float: right;"><select size="1"  onChange="location = this.options[this.selectedIndex].value;">';
 
 	#We opened a drop-down list. Now, we'll fill it.

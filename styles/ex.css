@@ -46,15 +46,12 @@ td.itu div{width:120px;overflow:hidden}
 td.itdc{text-align:left;padding:0 1px 0 2px;margin:0;border-right:1px solid #40454b}
 
 /* page selector */
-.paginationTop li {display:inline-block; text-align:center;height:15px;width:31px;background:#34353b;cursor:pointer;border:1px solid #000000}
-.paginationTop li:hover{color:#000000;background:#43464e}
-.paginationTop a{text-decoration:none}
-.paginationTop span{color:#C2A8A4}
-
-.paginationBottom li {display:inline-block; text-align:center;height:15px;width:31px;background:#34353b;cursor:pointer;border:1px solid #000000}
-.paginationBottom li:hover{color:#000000;background:#43464e}
-.paginationBottom a{text-decoration:none}
-.paginationBottom span{color:#C2A8A4}
+.paginate_button {display:inline-block; text-align:center;height:15px;width:31px;background:#34353b;cursor:pointer;border:1px solid #000000;margin-top:10px;margin-bottom:10px;}
+.paginate_button:hover{color:#000000;background:#43464e}
+.paginate_button.current{color:#C2A8A4;background:#43464e}
+.ellipsis {
+    display:inline-block; text-align:center;height:15px;width:31px;background:#34353b;cursor:pointer;border:1px solid #000000;margin-top:10px;margin-bottom:10px;
+}
 
 
 /* image pages */

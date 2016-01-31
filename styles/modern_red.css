@@ -172,46 +172,34 @@ td.itdc {
     padding: 0 1px 0 2px;
     text-align: left;
 }
-.paginationTop li {
+
+.paginate_button {
     cursor: pointer;
     display: inline-block;
     font-size: 2em;
     height: 30px;
     text-align: center;
     width: 31px;
+    margin-top:10px;
+    margin-bottom:10px;
 }
-.paginationTop li:hover {
+
+.paginate_button:hover {
     background-color: #BE234B;
     border-radius: 100% 100% 100% 100%;
 }
-.paginationTop a {
-    text-decoration: none;
-}
-.paginationTop .active {
+
+.paginate_button.current {
     background-color: #E9A53A;
     border-radius: 100% 100% 100% 100%;
     font-weight: bold;
 }
-.paginationBottom li {
-    cursor: pointer;
-    display: inline-block;
-    font-size: 2em;
-    height: 30px;
-    text-align: center;
-    width: 31px;
+
+.ellipsis {
+    font-size: 20px;
+    margin-right: 3px;
 }
-.paginationBottom li:hover {
-    background-color: #BE234B;
-    border-radius: 100% 100% 100% 100%;
-}
-.paginationBottom a {
-    text-decoration: none;
-}
-.paginationBottom .active {
-    background-color: #E9A53A;
-    border-radius: 100% 100% 100% 100%;
-    font-weight: bold;
-}
+
 div.sni {
     background-color: #D83B66;
     box-shadow: 0 5px 15px 0 rgba(0, 0, 0, 0.16), 0 2px 15px 0 rgba(0, 0, 0, 0.12);

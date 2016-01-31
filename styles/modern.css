@@ -128,28 +128,21 @@ td.itu div{width:120px;overflow:hidden}
 td.itdc{text-align:left;padding:0 1px 0 2px;margin:0;border-right:1px solid #40454b}
 
 /* page selector */
-.paginationTop li {display:inline-block; text-align:center;height:30px;width:31px;cursor:pointer;font-size: 2em;}
-.paginationTop li:hover{
+.paginate_button {display:inline-block; text-align:center;height:30px;width:31px;cursor:pointer;font-size: 2em;margin-top:10px;margin-bottom:10px;}
+.paginate_button:hover{
 	background-color: #F5F7F7;
     border-radius: 100% 100% 100% 100%;
 }
-.paginationTop a{text-decoration:none}
-.paginationTop .active {
+
+.paginate_button.current {
     font-weight: bold;
     background-color: #363940;
     border-radius: 100% 100% 100% 100%;
 }
 
-.paginationBottom li {display:inline-block; text-align:center;height:30px;width:31px;cursor:pointer;font-size: 2em;}
-.paginationBottom li:hover{
-	background-color: #F5F7F7;
-    border-radius: 100% 100% 100% 100%;
-}
-.paginationBottom a{text-decoration:none}
-.paginationBottom .active {
-    font-weight: bold;
-    background-color: #363940;
-    border-radius: 100% 100% 100% 100%;
+.ellipsis {
+    font-size: 20px;
+    margin-right: 3px;
 }
 
 /* image pages */

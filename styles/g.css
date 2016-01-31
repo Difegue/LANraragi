@@ -205,15 +205,10 @@ div#toppane {
 
 
 /* page selector */
-.paginationTop li {display:inline-block; text-align:center;height:15px;width:31px;background:#EDEADA;cursor:pointer;border:1px solid #000000}
-.paginationTop li:hover{color:#9b4e03;background:#F2EFDF}
-.paginationTop a{text-decoration:none}
-.paginationTop span{color:#5C0D11}
-
-.paginationBottom li {display:inline-block; text-align:center;height:15px;width:31px;background:#EDEADA;cursor:pointer;border:1px solid #000000}
-.paginationBottom li:hover{color:#9b4e03;background:#F2EFDF}
-.paginationBottom a{text-decoration:none}
-.paginationBottom span{color:#5C0D11}
+.paginate_button {display:inline-block; text-align:center;height:15px;width:31px;background:#EDEADA;cursor:pointer;border:1px solid #000000;margin-top:10px;margin-bottom:10px;}
+.paginate_button:hover{color:#9b4e03;background:#F2EFDF}
+.paginate_button.current{color:#5C0D11;background:#F2EFDF;}
+.ellipsis {display:inline-block; text-align:center;height:15px;width:31px;background:#EDEADA;cursor:pointer;border:1px solid #000000;margin-top:10px;margin-bottom:10px;}
 
 .caption {
 background-color: #EDEADA;
