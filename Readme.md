@@ -3,17 +3,7 @@ LANraragi
 
 ![Demo(fuck das lewd)!](http://b.1339.cf/pfilhue.png "")
 Web interface and reader for a server-stored directory of comics (as archives).
-Supports tags, and runs on a basic installation of Perl with the following packages installed:  
-
-	* HTML:Table  
-	* Capture::Tiny  	
-	* Tie::File
-	* Digest::SHA
-	* Redis
-	* LWP::Simple
-	* JSON::Parse
-	* Switch
-	* IPC::Cmd
+Supports tags, and runs on Perl.
 	
 You can find a basic installation guide [here](https://github.com/Difegue/LANraragi/blob/master/Install.md).
 	

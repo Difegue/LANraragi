@@ -1,7 +1,10 @@
-use Digest::SHA qw(sha1 sha1_hex sha1_base64); #habbening
+use Digest::SHA qw(sha256_hex);
 use URI::Escape;
 use Redis;
 use Encode;
+use File::Path qw(make_path remove_tree);
+use File::Basename;
+use HTML::Table;
 use LWP::Simple qw/get/;
 use JSON::Parse 'parse_json';
 
@@ -163,26 +166,6 @@ sub shasum{
   return $digest;
 }
 
-#Removes spaces if present before a non-space character.
-sub removeSpace
-	{
-	until (substr($_[0],0,1)ne" "){
-			$_[0] = substr($_[0],1);}
-	}
-
-#Removes spaces at the end of a file.
-sub removeSpaceR
-	{
-	until (substr($_[0],-1)ne" "){
-			chop $_[0];} #perl is literally too based to exist
-	}
-
-sub removeSpaceF #hue
-	{
-	removeSpace($_[0]);
-	removeSpaceR($_[0]);
-	}
-	
 
 #parseName, with regex. [^([]+ 
 sub parseName
@@ -199,114 +182,147 @@ sub parseName
 	}
 	
 
-#-------------------------------Unused Shit Below----------------------
 
-#Splits a name into fields that are treated. Syntax is (Release) [Artist (Pseudonym) ] TITLE (Series) [Language] misc shit .extension
-#old version with substr and stuff, use if you don't like regexes or something
-sub parseNameOld
+#With a list of files, generate the HTML table that will be shown in the main index.
+sub generateTable
 	{
-		my ($event,$artist,$title,$series,$language,$tags) = (" "," "," "," "," "," ");
-		my @values=(" "," ");
-		my $temp=$_[0];
-		my $id = shasum(&get_dirname.'/'.$_[0]);
-		my $noseries = 0;
-		
-		#Split up the filename
-		#Is the field present? If not, skip it.
-		removeSpace($temp);
-		if (substr($temp, 0, 1)eq'(') 
-			{
-			@values = split('\)', $temp, 2); # (Event)
-			$event = substr($values[0],1);
-			$temp = $values[1];
-			}
-		removeSpace($temp);
-			
-		if (substr($temp, 0, 1)eq"[") 
-			{
-			@values = split(']', $temp, 2); # [Artist (Pseudonym)]
-			$artist = substr($values[0],1);
-			$temp = $values[1];
-			}
-		removeSpace($temp);
-			
-		#Always needs something in title, so it can't be empty
-		
-		@values = split('\(', $temp, 2); #Title. If there's no following (Series), we try again, looking for a [ instead, for language.
-		#we'll know that there was no series if the array resulting from the split has only one element. That'd mean that there was no split.
-		
-		if (@values[1] eq '')
-			{
-			@values = split('\[', $temp, 2);
-			$values[1] = "\[".$values[1]; #ugly as shit fix to make the language parsing work in both cases. Since split removes the [, we gotta...add it back.
-			$noseries = 1;
-			}
-		
-		$title = $values[0];
-		$temp = $values[1];
-		
-		removeSpace($temp);
-		
-		unless ($noseries)
+		my @dircontents = @_;
+		my $file = "";
+		my $path = "";
+		my $suffix = "";
+		my $name = "";
+		my $thumbname = "";
+		my ($event,$artist,$title,$series,$language,$tags,$id) = (" "," "," "," "," "," ");
+		my $fullfile="";
+		my $isnew = "none";
+		my $count;
+		my $dirname = &get_dirname;
+
+		my $redis = Redis->new(server => &get_redisad, 
+							reconnect => 100,
+							every     => 3000);
+
+		#Generate Archive table
+		my $table = new HTML::Table(-rows=>0,
+		                            -cols=>6,
+		                            -class=>'itg'
+		                            );
+
+		$table->addSectionRow ( 'thead', 0, "",'<a>Title</a>','<a>Artist/Group</a>','<a>Series</a>',"<a>Language</a>","<a>Tags</a>");
+		$table->setSectionRowHead('thead', -1, -1, 1);
+
+		#Add IDs to the table headers to hide them with media queries on small screens.
+		$table->setSectionCellAttr('thead', 0, 1, 2, 'id="titleheader"');
+		$table->setSectionCellAttr('thead', 0, 1, 3, 'id="artistheader"');
+		$table->setSectionCellAttr('thead', 0, 1, 4, 'id="seriesheader"');
+		$table->setSectionCellAttr('thead', 0, 1, 5, 'id="langheader"');
+		$table->setSectionCellAttr('thead', 0, 1, 6, 'id="tagsheader"');
+
+		foreach $file (@dircontents)
 		{
-			@values = split('\)', $temp, 2); #Series
-			$series = $values[0];
-			$temp = $values[1];
+			#ID of the archive, used for storing data in Redis.
+			$id = sha256_hex($file);
 
-			removeSpace($temp);
-		}
-		
-		@values = split(']', $temp, 2); #Language
-		$language = substr($values[0],1);
-		$temp = $values[1];
+			#Let's check out the Redis cache first! It might already have the info we need.
+			if ($redis->hexists($id,"title"))
+				{
+					#bingo, no need for expensive file parsing operations.
+					my %hash = $redis->hgetall($id);
 
-		removeSpace($temp);		
+					#It's not a new archive, though. But it might have never been clicked on yet, so we'll grab the value for $isnew stored in redis.
 
-		#Is there a tag file?
-		if (-e &get_dirname.'/tags/'.$id.'.txt')
-		{
-			open (MYFILE, &get_dirname.'/tags/'.$id.'.txt'); 
-			while (<MYFILE>) {
-				$tags = $tags.$_; #copy txt into tags
+					#Hash Slice! I have no idea how this works.
+					($name,$event,$artist,$title,$series,$language,$tags,$isnew) = @hash{qw(name event artist title series language tags isnew)};
+				}
+			else	#can't be helped. Do it the old way, and add the results to redis afterwards.
+				{
+					#This means it's a new archive, though! We can notify the user about that later on, and specify it in the hash.
+					$isnew="block";
+					
+					($name,$path,$suffix) = fileparse($file, qr/\.[^.]*/);
+					
+					#parseName function is up there 
+					($event,$artist,$title,$series,$language,$tags,$id) = &parseName($name.$suffix,$id);
+					
+					#jam this shit in redis
+					#prepare the hash which'll be inserted.
+					my %hash = (
+						name => encode_utf8($name),
+						event => encode_utf8($event),
+						artist => encode_utf8($artist),
+						title => encode_utf8($title),
+						series => encode_utf8($series),
+						language => encode_utf8($language),
+						tags => encode_utf8($tags),
+						file => encode_utf8($file),
+						isnew => encode_utf8($isnew),
+						);
+						
+					#for all keys of the hash, add them to the redis hash $id with the matching keys.
+					$redis->hset($id, $_, $hash{$_}, sub {}) for keys %hash; 
+					$redis->wait_all_responses;
+				}
+				
+			#Parameters have been obtained, let's decode them.
+			($_ = decode_utf8($_)) for ($name, $event, $artist, $title, $series, $language, $tags, $file);
+			
+			my $icons = qq(<div style="font-size:14px"><a href="$dirname/$name$suffix" title="Download this archive."><i class="fa fa-save"></i><a/> 
+							<a href="./edit.pl?id=$id" title="Edit this archive's tags and data."><i class="fa fa-pencil"></i><a/></div>);
+					#<a href="./tags.pl?id=$id" title="E-Hentai Tag Import (Unfinished)."><i class="fa fa-server"></i><a/>
+					
+			#When generating the line that'll be added to the table, user-defined options have to be taken into account.
+			#Truncated tag display. Works with some hella disgusting CSS shit.
+			my $printedtags = $event." ".$tags;
+			if (length $printedtags > 50)
+			{
+				$printedtags = qq(<a class="tags" style="text-overflow:ellipsis;">$printedtags</a><div class="caption" style="position:absolute;">$printedtags</div>); 
 			}
-		close (MYFILE); 
+			
+			#version with hover thumbnails 
+			if (&enable_thumbs)
+			{
+				#ajaxThumbnail makes the thumbnail for that album if it doesn't already exist. 
+				#(If it fails for some reason, it won't return an image path, triggering the "no thumbnail" image on the JS side.)
+				my $thumbname = $dirname."/thumb/".$id.".jpg";
+
+				my $row = qq(<span style="display: none;">$title</span>
+										<a href="./reader.pl?id=$id" );
+
+				if (-e $thumbname)
+				{
+					$row.=qq(onmouseover="thumbTimeout = setTimeout(showtrail, 200,'$thumbname')" );
+				}
+				else
+				{
+					$row.=qq(onmouseover="thumbTimeout = setTimeout(ajaxThumbnail, 200,'$id')" );
+				}
+											
+				$row.=qq(onmouseout="hidetrail(); clearTimeout(thumbTimeout);">
+										$title
+										</a>
+										<img src="img/n.gif" style="float: right; margin-top: -15px; z-index: -1; display: $isnew">); #user is notified here if archive is new (ie if it hasn't been clicked on yet)
+
+				#add row for this archive to table
+				$table->addRow($icons.qq(<input type="text" style="display:none;" id="$id" value="$id"/>),$row,$artist,$series,$language,$printedtags);
+			}
+			else #version without, ezpz
+			{
+				#add row to table
+				$table->addRow($icons,qq(<span style="display: none;">$title</span><a href="./reader.pl?id=$id" title="$title">$title</a>),$artist,$series,$language,$printedtags);
+			}
+				
+			$table->setSectionClass ('tbody', -1, 'list' );
+			
 		}
-		
-		return ($event,$artist,$title,$series,$language,$tags,$id);
+
+
+		$table->setColClass(1,'itdc');
+		$table->setColClass(2,'title itd');
+		$table->setColClass(3,'artist itd');
+		$table->setColClass(4,'series itd');
+		$table->setColClass(5,'language itd');
+		$table->setColClass(6,'tags itu');
+		$table->setColWidth(1,30);
+
+		return $table;
 	}
-
-	
-#Sort an array of parsable filenames by their titles. Unused as of now.
-sub parseSort
-{
-my $file= "";
-my @params;
-
-my ($event,$artist,$title,$series,$language,$tags,$id);
-
-foreach $file (@_)
-	{
-	($event,$artist,$title,$series,$language,$tags,$id) = &parseName($file);
-	push(@params, $title);		
-	}
-	
-#print "@params\n";
-
-#Both @params and the argument array's indexes match. All we have to do now is sort both at the same time, with params as reference.
-#This is perl magic. Took me a while to understand, so I'll try to explain as best as I can.
-
-my @indx = sort {lc $params[$a] cmp lc $params[$b] } (0..$#params); 
-#We have an array of 0 to length(params). That's (0..$#params). 
-#We sort it according to the contents of $params. If 1 matched BTile and 2 matched ATitle, the result in @idk would be [2,1].
-#@idx ends up being our sorted index, which we apply to the original array of file names.
-
-@params = @params[@indx]; 
-@_ = @_[@indx];
-
-#print "@params\n";
-return @_;
-	
-}	
-
-
-

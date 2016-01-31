@@ -3,7 +3,7 @@
 use strict;
 use CGI qw(:standard);
 use File::Basename;
-use File::Path qw(remove_tree);;
+use File::Path qw(remove_tree);
 use Image::Info qw(image_info dim);
 use File::Find qw(find);
 use Encode;
@@ -71,8 +71,7 @@ if ($qreader->param())
 		 	my $unarcmd = "unar -D -o $path \"$zipFile\""; #Extraction using unar without creating extra folders.
 
 		 	my( $success, $error_message, $full_buf, $stdout_buf, $stderr_buf ) =
-            run( command => $unarcmd, verbose => 0 );
-
+	            run( command => $unarcmd, verbose => 0 );
 
 		 	#Has the archive been extracted ?
 				unless (-e $path) {
