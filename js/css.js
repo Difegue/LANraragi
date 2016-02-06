@@ -31,6 +31,11 @@ function switch_style ( css_title )
   //set_cookie( style_cookie_name, css_title, style_cookie_duration ); //we set a cookie containing the value for the new style
  }
 
+ //write theme-color meta tag
+  var color = rgb2hex($(".ido").css("background-color"));
+  $('meta[name=theme-color]').remove();
+  $('head').append('<meta name="theme-color" content="'+color+'">');
+
 }
 
 function set_style_from_storage()
@@ -41,4 +46,17 @@ function set_style_from_storage()
     if (css_title) { 
     switch_style( css_title );
   }
+}
+
+function rgb2hex(rgb) {
+
+    if (rgb==null) return "#FFFFFF";
+
+    if (/^#[0-9A-F]{6}$/i.test(rgb)) return rgb;
+
+    rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+    function hex(x) {
+        return ("0" + parseInt(x).toString(16)).slice(-2);
+    }
+    return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
 }

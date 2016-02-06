@@ -154,7 +154,7 @@ if ($qreader->param())
 	}
 	
 	#At this point, @images contains paths to the images extracted from the archive, in numeric order. 
-	#We also have the page number that needs to be displayed. That's all we need!
+	#We also have the page number that needs to be displayed.
 	
 	#Let's get more precise info on the image to display. 
 
@@ -214,7 +214,7 @@ if ($qreader->param())
 
 		
 	print &printCssDropdown(0);
-	print '<script src="./js/reader.js"/><script>set_style_from_storage();</script>';
+	print '<script src="./js/reader.js"/>    <script>set_style_from_storage();</script>';
 	#These are the pretty arrows you use to switch pages.
 	my $arrows = '<div class="sn">
 					<a href="./reader.pl?id='.$id.'&page=1"> <i class="fa fa-angle-double-left fa-2x"></i> </a> 
