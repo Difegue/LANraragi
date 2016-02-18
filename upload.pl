@@ -5,8 +5,10 @@ use CGI qw(:standard);
 use File::Basename;
 use utf8;
 
+#Require config 
 require 'config.pl';
-require 'functions.pl';
+require 'functions/functions_generic.pl';
+require 'functions/functions_login.pl';
 
 my $qupload = new CGI;
 print $qupload->header(-type    => 'text/html',

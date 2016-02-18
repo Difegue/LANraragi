@@ -6,7 +6,6 @@ use Redis;
 
 #Require config 
 require 'config.pl';
-require 'functions.pl';
 
 my $archive="";
 

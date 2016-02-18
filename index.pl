@@ -8,7 +8,8 @@ use Redis;
 
 #Require config 
 require 'config.pl';
-require 'functions.pl';
+require 'functions/functions_generic.pl';
+require 'functions/functions_index.pl';
 
 
 	my $dirname = &get_dirname;
@@ -25,9 +26,9 @@ require 'functions.pl';
 
 	remove_tree($dirname.'/temp'); #Remove temp dir.
 
+	#From the file tree, generate the HTML table
 	my $table = &generateTable(@filez);
 	$redis->quit();
-
 
 
 	#Actual HTML output
@@ -36,6 +37,7 @@ require 'functions.pl';
 	#We print the html we generated.
 	print $cgi->header(-type    => 'text/html',
                    -charset => 'utf-8');
+
 	print &printPage($table);
 
 
@@ -162,3 +164,5 @@ require 'functions.pl';
 		$html.=end_html; #close html
 		return $html;
 	}
+
+

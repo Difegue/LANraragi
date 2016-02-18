@@ -2,6 +2,7 @@
 
 use strict;
 use CGI qw(:standard);
+use Redis;
 use File::Basename;
 use File::Path qw(remove_tree);
 use Image::Info qw(image_info dim);
@@ -9,8 +10,9 @@ use File::Find qw(find);
 use Encode;
 use IPC::Cmd qw[can_run run];
 
+#Require config 
 require 'config.pl';
-require 'functions.pl';
+require 'functions/functions_generic.pl';
 
 my $path;
 my $qreader = new CGI;
@@ -177,6 +179,8 @@ if ($qreader->param())
 		-author=>'lanraragi-san',	
 		-script=>[{-type=>'JAVASCRIPT',
 							-src=>'./js/css.js'},
+				  {-type=>'JAVASCTIPT',
+							-src=>'./js/reader.js'},
 				  {-type=>'JAVASCRIPT',
 							-src=>'./bower_components/jquery/dist/jquery.min.js'},
 				  {-type=>'JAVASCRIPT',
@@ -214,7 +218,7 @@ if ($qreader->param())
 
 		
 	print &printCssDropdown(0);
-	print '<script src="./js/reader.js"/>    <script>set_style_from_storage();</script>';
+	print '<script>set_style_from_storage();</script>';
 	#These are the pretty arrows you use to switch pages.
 	my $arrows = '<div class="sn">
 					<a href="./reader.pl?id='.$id.'&page=1"> <i class="fa fa-angle-double-left fa-2x"></i> </a> 
@@ -224,7 +228,7 @@ if ($qreader->param())
 					<a href="./reader.pl?id='.$id.'&page='.($#images+1).'"> <i class="fa fa-angle-double-right fa-2x"></i> </a></div>';
 					
 	#generate the floating div containing the help popup and the page dropdown
-	my $pagesel = '<div style="position: absolute; right: 20px;" class="page_dropdown" >
+	my $pagesel = '<div style="position: absolute; right: 20px; z-index:20" class="page_dropdown" >
 				<form style="float: right;"><select size="1"  onChange="location = this.options[this.selectedIndex].value;">';
 
 	#We opened a drop-down list. Now, we'll fill it.

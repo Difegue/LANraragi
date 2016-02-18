@@ -26,21 +26,18 @@ function ajaxThumbnail(archiveId)
 //ajaxTags(titleOrHash,isHash)
 //Calls ajax.pl to get tags for the given title or image hash.
 //Returns "ERROR" on failure.
-function ajaxTags(tagInput,isHash,password)
+function ajaxTags(tagInput,isHash)
 {
 	$('#tag-spinner').css("display","block");
 	$('#tagText').css("opacity","0.5");
 	$('#tagText').prop("disabled", true);
 
-	$.get( "ajax.pl", { function: "tags", ishash: isHash, input: tagInput, pass: password} )
+	$.get( "ajax.pl", { function: "tags", ishash: isHash, input: tagInput} )
 		.done(function( data ) {
 
 			if (data=="NOTAGS")
 				alert("No tags found !");
 			else
-				if (data=="WRONGPASS")
-					alert("Wrong Password.");
-				else
 				$('#tagText').val($('#tagText').val() + " "+ data);
 
 			$('#tag-spinner').css("display","none");

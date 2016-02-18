@@ -8,14 +8,15 @@ use strict;
 use CGI qw(:standard);
 
 require 'config.pl';
-require 'functions.pl';
+require 'functions/functions_tags.pl';
+require 'functions/functions_login.pl';
 
 #set up cgi for receiving ajax calls
 my $qajax = new CGI;
 print $qajax->header('text/plain');
 
 #Is this a call? 
-if ($qajax->param())
+if ($qajax->param() && &isUserLogged($qajax))
 {
 
 	my $call = $qajax->param('function');
@@ -49,34 +50,26 @@ if ($qajax->param())
 			my $queryJson;
 
 
-			if (($pass eq &get_password) || (&enable_pass == 0)) 
-			{
-				#This rings up g.e-hentai with the input we obtained.
-				$queryJson = &getGalleryId($input,$ishash); #getGalleryId is in functions.pl.
+			#This rings up g.e-hentai with the input we obtained.
+			$queryJson = &getGalleryId($input,$ishash); #getGalleryId is in functions.pl.
 
-				#Call the actual e-hentai API with the json we created and grab dem tags
-				my $tags = &getTagsFromAPI($queryJson);
+			#Call the actual e-hentai API with the json we created and grab dem tags
+			my $tags = &getTagsFromAPI($queryJson);
 
-				unless ($tags eq(""))
-					{
-						print $tags;
-					}	
-				else
-					{
-						print "NOTAGS";
-					}
-			}
+			unless ($tags eq(""))
+				{
+					print $tags;
+				}	
 			else
 				{
-					print "WRONGPASS";
+					print "NOTAGS";
 				}
 		}
-
 
 }
 else
 {
-	print "nothing to see here welp"
+	print "Session expired, please login again."
 }
 
 
