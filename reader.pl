@@ -179,8 +179,6 @@ if ($qreader->param())
 		-author=>'lanraragi-san',	
 		-script=>[{-type=>'JAVASCRIPT',
 							-src=>'./js/css.js'},
-				  {-type=>'JAVASCTIPT',
-							-src=>'./js/reader.js'},
 				  {-type=>'JAVASCRIPT',
 							-src=>'./bower_components/jquery/dist/jquery.min.js'},
 				  {-type=>'JAVASCRIPT',
@@ -195,6 +193,7 @@ if ($qreader->param())
 					\$('img[usemap]').rwdImageMaps();
 
 					set_style_from_storage();
+
 					",
 		);
 
@@ -219,6 +218,7 @@ if ($qreader->param())
 		
 	print &printCssDropdown(0);
 	print '<script>set_style_from_storage();</script>';
+	print '<script src="./js/reader.js"></script>';
 	#These are the pretty arrows you use to switch pages.
 	my $arrows = '<div class="sn">
 					<a href="./reader.pl?id='.$id.'&page=1"> <i class="fa fa-angle-double-left fa-2x"></i> </a> 
