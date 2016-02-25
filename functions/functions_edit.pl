@@ -56,9 +56,9 @@ sub generateForm
 
 	my $html = "<div class='ido' style='text-align:center'>";
 	if ($artist eq "")
-		{$html .= $cgi->h1({-class=>'ih', -style=>'text-align:center'},'Editing '.$title);}
+		{$html .= "<h1 class='ih' style='text-align:center'>Editing $title</h1>";}
 	else
-		{$html .= $cgi->h1({-class=>'ih', -style=>'text-align:center'},'Editing '.$title.' by '.$artist);}
+		{$html .= "<h1 class='ih' style='text-align:center'>Editing $title by $artist</h1>";}
 
 	$html .= $cgi->start_form(
 					-name		=> 'editArchiveForm',

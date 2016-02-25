@@ -8,6 +8,7 @@ use strict;
 use CGI qw(:standard);
 
 require 'config.pl';
+require 'functions/functions_generic.pl';
 require 'functions/functions_tags.pl';
 require 'functions/functions_login.pl';
 
@@ -20,50 +21,26 @@ if ($qajax->param() && &isUserLogged($qajax))
 {
 
 	my $call = $qajax->param('function');
+	my $id = $qajax->param('id');
+	my $ishash = $qajax->param('ishash');
+	my $input = $qajax->param('input');
 
+	#Generate thumbnail for archive
 	if ($call eq "thumbnail")
-		{
-			my $id = $qajax->param('id');
-			&getThumb($id);
-		}
+		{ print &getThumb($id); }
 
-	if ($call eq "password")
-		{
-			my $pass = $qajax->param('pass');
+	#tags == When editing an archive, directly return tags. 
+	if ($call eq "tags") 
+		{ print &getTags($input,$ishash); }
 
-			if (($pass eq &get_password) || (&enable_pass == 0))  
-				{
-					print "1";
-				}
-				else
-					{
-						print "0";
-					}
-
-		}
-
-	if ($call eq "tags")
-		{
-			my $ishash = $qajax->param('ishash');
-			my $input = $qajax->param('input');
-			my $pass = $qajax->param('pass');
-			my $queryJson;
-
-
-			#This rings up g.e-hentai with the input we obtained.
-			$queryJson = &getGalleryId($input,$ishash); #getGalleryId is in functions.pl.
-
-			#Call the actual e-hentai API with the json we created and grab dem tags
-			my $tags = &getTagsFromAPI($queryJson);
-
-			unless ($tags eq(""))
-				{
-					print $tags;
-				}	
-			else
-				{
-					print "NOTAGS";
-				}
+	#tagsave = batch tagging, immediately save returned tags to redis.
+	if ($call eq "tagsave")
+		{ 
+			#get the tags with regular getTags
+			my $tags = &getTags($input,$ishash);
+			#add them
+			&addTags($id,$tags); 
+			print $tags;
 		}
 
 }
@@ -72,6 +49,28 @@ else
 	print "Session expired, please login again."
 }
 
+###################
+
+#Get tags for the given input(title or image hash) and method(0 = title, 1= hash)
+sub getTags
+{
+	my $input = $_[0];
+	my $ishash = $_[1];
+	
+	my $queryJson;
+
+	#This rings up g.e-hentai with the input we obtained.
+	$queryJson = &getGalleryId($input,$ishash); #getGalleryId is in functions.pl.
+
+	#Call the actual e-hentai API with the json we created and grab dem tags
+	my $tags = &getTagsFromAPI($queryJson);
+
+	unless ($tags eq(""))
+		{ return $tags; }	
+	else
+		{ return "NOTAGS"; }
+	
+}
 
 #returns the thumbnail path for a filename. Creates the thumbnail if it doesn't exist.
 sub getThumb
@@ -84,7 +83,7 @@ sub getThumb
 		
 	if (-e $thumbname)
 	{
-		print $thumbname;
+		return $thumbname;
 	}
 	else
 	{
@@ -132,12 +131,13 @@ sub getThumb
 			
 		#use ImageMagick to make the thumbnail. I tried using PerlMagick but it's a piece of ass, can't get it to build :s
 		`convert -strip -thumbnail 200x "$path2" $thumbname`;
-					
-		print $thumbname;
-
+			
 		$redis.close();
 		#Delete the previously extracted file.
 		unlink $path2;
+
+		return $thumbname;
+		
 	}
 }
 	

@@ -129,7 +129,7 @@ require 'functions/functions_index.pl';
 			<a href="./stats.pl">Statistics</a>
 			<span style="margin-left:5px"></span>
 			<i class="fa fa-caret-right"></i>
-			<a href="./tags.pl">Import Tags</a>
+			<a href="./tags.pl">Batch Tagging</a>
 		</p>';
 			
 		$html.="<div class='ido'>

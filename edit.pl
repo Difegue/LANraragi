@@ -66,23 +66,18 @@ if (&isUserLogged($qedit))
 					my $tags = $qedit->param('tags');
 					my $id = $qedit->param('id');
 					
-					#clean up the user's inputs.
-					removeSpaceF($event);
-					removeSpaceF($artist);
-					removeSpaceF($title);
-					removeSpaceF($series);
-					removeSpaceF($language);
-					removeSpaceF($tags);
-					
+					#clean up the user's inputs and encode them.
+					(removeSpaceF($_)) for ($event, $artist, $title, $series, $language, $tags);
+
 					#Input new values into redis hash.
 					#prepare the hash which'll be inserted.
 					my %hash = (
-							event => $event,
-							artist => $artist,
-							title => $title,
-							series => $series,
-							language => $language,
-							tags => $tags
+							event => encode_utf8($event),
+							artist => encode_utf8($artist),
+							title => encode_utf8($title),
+							series => encode_utf8($series),
+							language => encode_utf8($language),
+							tags => encode_utf8($tags)
 						);
 						
 					#for all keys of the hash, add them to the redis hash $id with the matching keys.

@@ -4,6 +4,8 @@ use URI::Escape;
 use File::Basename;
 use LWP::Simple qw/get/;
 use JSON::Parse 'parse_json';
+use Redis;
+use Encode;
 
 require 'config.pl';
 
@@ -84,9 +86,32 @@ sub getTagsFromAPI{
 		my $return = join(" ", @$tags);
 		return $return;
 	}	
-	else 
+	else #if an error occurs(no tags available) return an empty string.
+		{ return ""; }
+
+	}
+
+
+#addTags($id,$tags)
+#Adds the given $tags to the Redis storage for $id. Used in batch tagging.
+sub addTags{
+
+	my $id = $_[0];
+	my $tags = $_[1];
+
+	unless ($tags eq "NOTAGS")
 	{
-	return ""; #if an error occurs(no tags available) return an empty string.
+
+		my $redis = Redis->new(server => &get_redisad, 
+									reconnect => 100,
+									every     => 3000);
+
+		my $oldTags = $redis->hget($id,"tags");
+		$oldTags.=" ".$tags;
+
+		$redis->hset($id,"tags",encode_utf8($oldTags));
+
+		$redis->quit();
 	}
 
 	}
