@@ -150,11 +150,15 @@ sub generateForm
 	#These buttons here call the ajax functions, which in turn calls the getTags/getTagsSearch subs.
 	$html .= qq(<tr><td style='text-align:left; width:100px; vertical-align:top'>Tags:
 
-			<input type='button' name='tag_import' value='Import E-Hentai&#x00A; Tags&#x00A;(Image Search)' onclick="ajaxTags('$thumbhash',1);" 
+			<input type='button' name='tag_import' value='Import E-Hentai&#x00A; Tags&#x00A;(Text Search)' onclick="ajaxTags('$id',0);" 
+				class='stdbtn' style='margin-top:25px;min-width:50px; max-width:100px;height:60px '></input>
+
+			<input type='button' name='tag_import' value='Import E-Hentai&#x00A; Tags&#x00A;(Image Search)' onclick="ajaxTags('$id',1);" 
 				class='stdbtn' style='margin-top:25px;min-width:50px; max-width:100px;height:60px '></input> 
 			
-			<input type='button' name='tag_import' value='Import E-Hentai&#x00A; Tags&#x00A;(Text Search)' onclick="ajaxTags('$title',0);" 
+			<input type='button' name='tag_import' value='Import nHentai&#x00A; Tags' onclick="ajaxTags('$id',2);" 
 				class='stdbtn' style='margin-top:25px;min-width:50px; max-width:100px;height:60px '></input>
+			
 
 			</td><td>);
 			#>

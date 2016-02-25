@@ -23,7 +23,6 @@ if ($qajax->param() && &isUserLogged($qajax))
 	my $call = $qajax->param('function');
 	my $id = $qajax->param('id');
 	my $ishash = $qajax->param('ishash');
-	my $input = $qajax->param('input');
 
 	#Generate thumbnail for archive
 	if ($call eq "thumbnail")
@@ -31,13 +30,13 @@ if ($qajax->param() && &isUserLogged($qajax))
 
 	#tags == When editing an archive, directly return tags. 
 	if ($call eq "tags") 
-		{ print &getTags($input,$ishash); }
+		{ print &getTags($id,$ishash); }
 
 	#tagsave = batch tagging, immediately save returned tags to redis.
 	if ($call eq "tagsave")
 		{ 
 			#get the tags with regular getTags
-			my $tags = &getTags($input,$ishash);
+			my $tags = &getTags($id,$ishash);
 			#add them
 			&addTags($id,$tags); 
 			print $tags;
@@ -51,19 +50,25 @@ else
 
 ###################
 
-#Get tags for the given input(title or image hash) and method(0 = title, 1= hash)
+#Get tags for the given input(title or image hash) and method(0 = title, 1= hash, 2=nhentai)
 sub getTags
 {
-	my $input = $_[0];
+	my $id = $_[0];
 	my $ishash = $_[1];
+	my $tags = "";
 	
 	my $queryJson;
 
+	if ($ishash eq "2") #nhentai usecase
+	{ $tags = &nHentaiGetTags($id); }
+	else
+	{
 	#This rings up g.e-hentai with the input we obtained.
-	$queryJson = &getGalleryId($input,$ishash); #getGalleryId is in functions.pl.
+	$queryJson = &getGalleryId($id,$ishash); #getGalleryId is in functions.pl.
 
 	#Call the actual e-hentai API with the json we created and grab dem tags
-	my $tags = &getTagsFromAPI($queryJson);
+	$tags = &getTagsFromAPI($queryJson);
+	}
 
 	unless ($tags eq(""))
 		{ return $tags; }	

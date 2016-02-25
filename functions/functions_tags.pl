@@ -2,7 +2,7 @@ use strict;
 use Digest::SHA qw(sha256_hex);
 use URI::Escape;
 use File::Basename;
-use LWP::Simple qw/get/;
+use LWP::Simple qw($ua get);
 use JSON::Parse 'parse_json';
 use Redis;
 use Encode;
@@ -14,21 +14,29 @@ require 'config.pl';
 #Takes an image hash or basic text, performs a remote search on g.e-hentai, and builds the matching JSON to send to the API for data.
 sub getGalleryId{
 
-	my $hash = $_[0];
+	my $id = $_[0];
 	my $isHash = $_[1];
 	my $URL;
+
+	my $redis = Redis->new(server => &get_redisad, 
+									reconnect => 100,
+									every     => 3000);
+
+	my $title = $redis->hget($id,"title");
+	my $artist = $redis->hget($id,"artist");
+	my $thumbhash = $redis->hget($id,"thumbhash");
 
 	if ($isHash eq "1")
 	{	#search with image SHA hash
 		$URL = "http://g.e-hentai.org/".
 				"?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1".
-				"&f_search=Search+Keywords&f_apply=Apply+Filter&f_shash=".$hash."&fs_similar=1";
+				"&f_search=Search+Keywords&f_apply=Apply+Filter&f_shash=$thumbhash&fs_similar=1";
 	}
 	else
 	{	#search with archive title
 		$URL = "http://g.e-hentai.org/".
 				"?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1".
-				"&f_search=".$hash."&f_apply=Apply+Filter";
+				"&f_search=".uri_escape($title."+".$artist)."&f_apply=Apply+Filter";
 	}
 	my $content = get $URL;
 
@@ -67,17 +75,14 @@ sub getTagsFromAPI{
 	$req->header( 'Content-Type' => 'application/json' );
 	$req->content( $json );
 
-	#Then you can execute the request with LWP:
-
+	#Execute the request with LWP:
 	my $ua = LWP::UserAgent->new; 
 	my $res = $ua->request($req);
 	
 	#$res is a JSON response. 
-	#print $res->decoded_content;
 	my $jsonresponse = $res -> decoded_content;
 	my $hash = parse_json($jsonresponse);
-	
-	#eval {
+
 	unless (exists $hash->{"error"})
 	{
 		my $data = $hash->{"gmetadata"};
@@ -88,6 +93,57 @@ sub getTagsFromAPI{
 	}	
 	else #if an error occurs(no tags available) return an empty string.
 		{ return ""; }
+
+	}
+
+#nHentaiGetTags(id)
+#nhentai version. Uses the website's search engine to find a gallery, then the json page for scraping tags.
+sub nHentaiGetTags{
+
+	my $id = $_[0];
+	my $URL;
+	my $tag = "";
+	my $returned = "";
+
+	my $redis = Redis->new(server => &get_redisad, 
+									reconnect => 100,
+									every     => 3000);
+
+	my $title = $redis->hget($id,"title");
+	my $artist = $redis->hget($id,"artist");
+	
+	$URL = "http://nhentai.net/search/?q=".uri_escape($title."+".$artist);
+
+	#nhentai blocks LWP's useragent for some reason (but not curl ? wtf)
+	$ua->agent('whoa why we blocking lwp/1337.0');
+
+	my $content = get $URL;
+
+	#now for the parsing of the HTML we obtained.
+	#the first occurence of <div class="gallery"> matches the first gallery result. 
+	#If it doesn't exist, what we searched isn't on nhentai.
+	my @benis = split('<div class="gallery"', $content);
+	
+	#the <a> tag inside has an href to the URL we want. Split some more to get to it and find the gallery ID.
+	my $url = (split('/g/',@benis[1]))[1];
+	my @values = (split('/',$url));
+	my $gID = @values[0];
+
+	#Access the json version of the gallery page.
+	$URL = "http://nhentai.net/g/$gID/json";
+	$content= get $URL;
+
+	my $json = parse_json($content);
+	my $tags = $json->{"tags"};
+	
+
+	foreach $tag (@$tags)
+	{
+		if (@$tag[1] eq "tag")
+			{ $returned.=" ".@$tag[2]; }
+	}
+
+	return $returned;
 
 	}
 

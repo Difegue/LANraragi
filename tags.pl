@@ -16,7 +16,6 @@ my $redis = Redis->new(server => &get_redisad,
 						reconnect => 100,
 						every     => 3000);
 my $title = "";
-my $hash = "";
 my $id = "";
 
 #Before anything, check if the user is logged in. If not, redirect him to login.pl?redirect=edit.pl
@@ -57,18 +56,20 @@ if (&isUserLogged($qtags))
 					<tbody>
 
 					<tr>
-					<td style='text-align:center; width:200px; vertical-align:top'>
+					<td style='text-align:center; width:300px; vertical-align:top'>
 
 						<br>
 						You can apply reverse tag research to multiple archives here.<br><br>
 						Reverse tag searching leverages the E-Hentai API to find tags for your archives using their title or the hash of their first image. <br><br>
 						Check the archives for which you want to search, and click on the button with the method you want to use.<br> Archives with no tags have been pre-checked.<br><br>
-						<b>Important</b>: Since this not only leverages the API but also uses g.e-hentai for searches, tagging more than 150 archives at once might get you tempbanned for excessive pageloads.  
+						<b>Important</b>: Since this not only leverages the API but also uses g.e-hentai for searches, tagging more than 150 archives at once might get you tempbanned for excessive pageloads.  <br> <br>nhentai doesn't pull that shit, so just use that instead ! 
 
 
 						<input type='button' style='margin-top:25px;min-width:50px; max-width:150px;height:60px' value='Global Reverse &#x00A;Tag Research &#x00A;(Using Archive Titles)' class='stdbtn' onclick='massTag(0)'>
 
 						<input type='button' style='margin-top:25px;min-width:50px; max-width:150px;height:60px' value='Global Reverse &#x00A;Tag Research &#x00A;(Using Image Hashes)' class='stdbtn' onclick='massTag(1)'>
+
+						<input type='button' style='margin-top:25px;min-width:50px; max-width:150px;height:60px' value='Global Reverse &#x00A;Tag Research &#x00A;(Using nhentai.org)' class='stdbtn' onclick='massTag(2)'>
 
 					</td>
 
@@ -88,13 +89,12 @@ if (&isUserLogged($qtags))
 			if ($redis->hexists($id,"title")) 
 				{
 					$title = $redis->hget($id,"title");
-					$hash = $redis->hget($id,"thumbhash");
 					#If the archive has no tags, pre-check it in the list.
 
 					if ($redis->hget($id,"tags") eq "")
-						{print "<li><input type='checkbox' name='archive' id='$id' hash='$hash' checked><label for='$id'> $title</label></li>"; }
+						{print "<li><input type='checkbox' name='archive' id='$id' checked><label for='$id'> $title</label></li>"; }
 					else
-						{print "<li><input type='checkbox' name='archive' id='$id'hash ='$hash'><label for='$id'> $title</label></li>"; }
+						{print "<li><input type='checkbox' name='archive' id='$id' ><label for='$id'> $title</label></li>"; }
 
 				}
 
@@ -104,6 +104,7 @@ if (&isUserLogged($qtags))
 		$redis->quit();
 
 		print "			</ul>
+						<input type='button' value='Uncheck all' class='stdbtn' onclick='\$(\"input:checkbox\").prop(\"checked\", 0)'>
 					    </td>
 					    </tbody>
 					    </table>

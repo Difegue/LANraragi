@@ -26,13 +26,13 @@ function ajaxThumbnail(archiveId)
 //ajaxTags(titleOrHash,isHash)
 //Calls ajax.pl to get tags for the given title or image hash.
 //Returns "ERROR" on failure.
-function ajaxTags(tagInput,isHash)
+function ajaxTags(arcId,isHash)
 {
 	$('#tag-spinner').css("display","block");
 	$('#tagText').css("opacity","0.5");
 	$('#tagText').prop("disabled", true);
 
-	$.get( "ajax.pl", { function: "tags", ishash: isHash, input: tagInput} )
+	$.get( "ajax.pl", { function: "tags", ishash: isHash, id: arcId} )
 		.done(function(data) {
 
 			if (data=="NOTAGS")
@@ -58,6 +58,7 @@ function ajaxTags(tagInput,isHash)
 //Get the titles who have been checked in the batch tagging list and update their tags with ajax calls.
 //method = 0 => Archive Titles
 //method = 1 => Image Hashes
+//method = 2 => nhentai
 function massTag(method)
 {
 
@@ -93,13 +94,8 @@ function ajaxCall(archive,method,archivesToCheck)
 	//Set title in processing thingo
 	$('#processedArchive').html("Processing "+$('label[for='+archive.id+']').html());
 
-	if (method===0)
-		tagInput=$('label[for='+archive.id+']').html();
-	else
-		tagInput=archive.attributes.hash.value;
-
 	//Ajax call for getting and setting the tags
-	$.get( "ajax.pl", { function: "tagsave", ishash: method, input: tagInput, id: archive.id} )
+	$.get( "ajax.pl", { function: "tagsave", ishash: method, id: archive.id} )
 	.done(function(data) { makeCall(archivesToCheck,method); })  //hurr callback
 	.fail(function(data) { alert("An error occured while getting tags. "+data); });
 
