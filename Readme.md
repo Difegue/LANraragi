@@ -22,7 +22,7 @@ Web interface and reader for a server-stored directory of archives, running on P
 * Responsive, so you can read on your phone/tablet when taking a shit.  
 
 ![](https://a.pomf.cat/czkfyn.png)
-*I tried to run it on a 3DS but the page was too heavy （´・ω・｀）  
+*I tried to run it on a 3DS but the page was too heavy （´・ω・｀）*  
 
 	
 ##Hotdog ! How do I install this ?  
@@ -36,7 +36,8 @@ Download and extract [the Vagrant setup](https://github.com/Difegue/LANraragi/ra
 vagrant plugin install vagrant-vbguest
 vagrant up
 ```
-Once it's deployed(it takes a while to download everything), you'll have a /lanraragi folder, which syncs to an install located at http://localhost:8080/lanraragi . You can use 
+Once it's deployed(it takes a while to download everything), you'll have a /lanraragi folder, which syncs to an install located at [http://localhost:8080/lanraragi](http://localhost:8080/lanraragi) .  
+You can use 
 ```
 vagrant halt
 ```  
