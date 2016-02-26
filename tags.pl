@@ -105,6 +105,7 @@ if (&isUserLogged($qtags))
 
 		print "			</ul>
 						<input type='button' value='Uncheck all' class='stdbtn' onclick='\$(\"input:checkbox\").prop(\"checked\", 0)'>
+						<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/></div>
 					    </td>
 					    </tbody>
 					    </table>

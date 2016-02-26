@@ -82,7 +82,14 @@ table.itg{
 	border: 1px solid #363940;
 	border-radius: 9px 9px 9px 9px;
 }
-table.itg th{font-weight:bold;text-align:left;padding:3px 4px 3px 4px;background:#363940}
+table.itg th{
+    font-weight: bold;
+    text-align:left;
+    padding:3px 4px 3px 4px;
+    background:#363940; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
 /* gallery table */
 tr.gtr{background:#40454b}

@@ -76,7 +76,8 @@ table.itg{
 	border-radius: 9px 9px 9px 9px;
     color: #FCFCFC;
 }
-table.itg th{font-weight:bold;text-align:left;padding:3px 4px 3px 4px;background:#34495E;color:#FCFCFC;}
+table.itg th{font-weight:bold;text-align:left;padding:3px 4px 3px 4px;background:#34495E;color:#FCFCFC; overflow: hidden;
+    text-overflow: ellipsis;}
 table.itg a{color:#FCFCFC;}
 table.itg a:hover{color:#ed2553;}
 

@@ -1,6 +1,0 @@
-Options +ExecCGI
-AddHandler cgi-handler .cgi .pl
-
-<Files config.pl>
-Deny from all
-</Files>

@@ -45,7 +45,6 @@ else
 					my $pass = $qlogin->param('password');
 
 					my $loginCookie = &loginUser($qlogin,$pass);
-					$html.=$loginCookie;
 					
 					unless ($loginCookie eq "0") #We're logged, redirect with cookie
 						{ print &redirectToPage($qlogin,"index.pl",$loginCookie); }
@@ -56,10 +55,6 @@ else
 		}
 
 		#Regular HTML printout
-
-		
-
-
 
 		$html .= &printCssDropdown(0);
 		$html .= "<script>set_style_from_storage();</script>";

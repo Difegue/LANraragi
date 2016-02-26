@@ -5,7 +5,7 @@ use Switch;
 my $htmltitle = "LANraragi"; 
 
 #Text that appears on top of the page. Empty for no text. (look at me ma i'm versioning)
-my $motd = "Welcome to this Library running LANraragi v.0.2!"; 
+my $motd = "Welcome to this Library running LANraragi v.0.2.1!"; 
 
 #Whether or not you load thumbnails when hovering over a title. Requires an imagemagick install. (Just imagemagick, none of these perlmagick thingamabobs)
 my $thumbnails = 1; 
@@ -29,9 +29,6 @@ my $pagesize = 100;
 
 #Adress and port of redis instance.
 my $redisaddress = "127.0.0.1:6379";
-
-#Syntax of an archive's filename. Used in editing.
-my $syntax = "(%RELEASE) [%ARTIST] %TITLE (%SERIES) [%LANGUAGE]";
 
 #Default CSS file to load. Must be in the styles folder.
 my $css = "modern.css";
@@ -61,7 +58,6 @@ sub enable_pass { return $enablepass };
 sub get_password { return $password };
 sub get_dirname  { return $dirname };
 sub get_quality { return $readerquality };
-sub get_syntax { return $syntax };
 sub get_threshold { return $sizethreshold };
 sub get_pagesize { return $pagesize };
 sub get_thumbpref { return $generateonindex };

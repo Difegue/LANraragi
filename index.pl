@@ -10,6 +10,7 @@ use Redis;
 require 'config.pl';
 require 'functions/functions_generic.pl';
 require 'functions/functions_index.pl';
+require 'functions/functions_login.pl';
 
 
 	my $dirname = &get_dirname;
@@ -26,8 +27,12 @@ require 'functions/functions_index.pl';
 
 	remove_tree($dirname.'/temp'); #Remove temp dir.
 
+	my $table;
 	#From the file tree, generate the HTML table
-	my $table = &generateTable(@filez);
+	if (@filez)
+	{ $table = &generateTable(@filez); }
+	else
+	{ $table = "<h1>Looks like you didn't upload any archives yet. Try dragging some into the content folder, or uploading them from <a href='upload.pl'>this page</a> ! </h1>"}
 	$redis->quit();
 
 
@@ -38,7 +43,7 @@ require 'functions/functions_index.pl';
 	print $cgi->header(-type    => 'text/html',
                    -charset => 'utf-8');
 
-	print &printPage($table);
+	print &printPage($table,$cgi);
 
 
 
@@ -48,6 +53,7 @@ require 'functions/functions_index.pl';
 	sub printPage {
 
 		my $table = $_[0];
+		my $cgi = $_[1];
 		my $html = start_html
 			(
 			-title=>&get_htmltitle,
@@ -121,16 +127,24 @@ require 'functions/functions_index.pl';
 						"
 			);
 
-		$html.='<p id="nb">
+		if (&isUserLogged($cgi))
+		{
+			$html.='<p id="nb">
 			<i class="fa fa-caret-right"></i>
 			<a href="./upload.pl">Upload Archive</a>
 			<span style="margin-left:5px"></span>
 			<i class="fa fa-caret-right"></i>
-			<a href="./stats.pl">Statistics</a>
-			<span style="margin-left:5px"></span>
-			<i class="fa fa-caret-right"></i>
 			<a href="./tags.pl">Batch Tagging</a>
-		</p>';
+			</p>';
+		}
+		else
+		{
+			$html.='<p id="nb">
+			<i class="fa fa-caret-right"></i>
+			<a href="./login.pl">Admin Login</a>
+			</p>';	
+		}
+		
 			
 		$html.="<div class='ido'>
 		<div id='toppane'>
@@ -151,7 +165,7 @@ require 'functions/functions_index.pl';
 			set_style_from_storage();
 			</script>";
 
-		$html.=($table->getTable); #print our finished table
+		$html.="$table"; #print our finished table
 
 		$html.="</div></div>"; #close errything
 

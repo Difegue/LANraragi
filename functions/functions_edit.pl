@@ -1,6 +1,5 @@
 use strict;
 use Redis;
-use File::Remove 'remove';
 use IPC::Cmd qw[can_run run];
 
 require 'config.pl';

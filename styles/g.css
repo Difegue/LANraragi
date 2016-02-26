@@ -78,6 +78,8 @@ table.itg th {
     font-weight: bold;
     padding: 3px 4px;
     text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 tr.gtr0 {
     background: none repeat scroll 0 0 #EDEBDF;

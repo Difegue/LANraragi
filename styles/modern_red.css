@@ -107,6 +107,8 @@ table.itg th {
     font-weight: bold;
     padding: 3px 4px;
     text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 tr.gtr {
     background: none repeat scroll 0 0 #40454B;

@@ -19,7 +19,7 @@ apt-get install perl
 ``` 
 apt-get install cpanminus
 apt-get install make
-cpanm -i HTML::Table Digest::SHA Redis Image::Info IPC::Cmd LWP::Simple JSON::Parse
+cpanm -i HTML::Table Redis JSON::Parse File::ShareDir::Install CGI::Session CGI::Session::Driver::redis Image::Info IPC::Cmd LWP::Simple
 ```
 Go watch some anime while it downloads all the dependencies.  
 Follow this link if you get locale errors while building the extra packages.
@@ -42,23 +42,21 @@ apt-get install imagemagick
 
 Download the current build in your directory:  
 ```
-wget https://github.com/Difegue/LANraragi/archive/master.zip
-unzip master.zip -d /var/www
-mv /var/www/LANraragi-master/ /var/www/panda
+git clone https://github.com/Difegue/LANraragi.git /var/www/lanraragi
 ```
 
 Use Bower to get the front-end dependencies:  
 ```
 apt-get install npm
 npm install -g bower
-cd /var/www/panda
+cd /var/www/lanraragi
 bower install
 ```
 
 Configure apache so that your LANraragi directory can execute .pl files.  
 Something like this in **sites-enabled**:  
 ```
-	<Directory /var/www/panda/>
+	<Directory /var/www/lanraragi/>
 		Options +ExecCGI
 		AddHandler cgi-script .cgi .pl
 	</Directory>
@@ -66,8 +64,8 @@ Something like this in **sites-enabled**:
 
 Be sure to set **read-write permissions** for your web server on the LANraragi directory. 
 ```
-chown -R www-data /var/www/panda
-chmod -R 755 /var/www/panda
+chown -R www-data /var/www/lanraragi
+chmod -R 755 /var/www/lanraragi
 ```
 
 Access your directory, and you're good to go! Setup the directories and password in config.pl next. 
@@ -79,5 +77,5 @@ http://www.imagemagick.org/script/binary-releases.php for Imagemagick.
 http://theunarchiver.googlecode.com/files/unar1.8.1_win.zip for unar.  
 https://msopentech.com/opentech-projects/redis/ for Redis.
 
-It hasn't been tested(and I ought to someday), but a LANraragi install should run well on a Windows system if you install these and go through the steps of the Linux installation. 
-**Remember to add unar to your $PATH.**
+Some of the perl packages used probably don't work natively on Windows.  
+I never tried it, but you should ! Consider using the vagrantfile if you want a "just werks" solution, though.
