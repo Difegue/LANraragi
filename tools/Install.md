@@ -19,7 +19,7 @@ apt-get install perl
 ``` 
 apt-get install cpanminus
 apt-get install make
-cpanm -i HTML::Table Redis JSON::Parse File::ShareDir::Install CGI::Session CGI::Session::Driver::redis Image::Info IPC::Cmd LWP::Simple
+cpanm -i HTML::Table Redis JSON::Parse File::ShareDir::Install CGI::Session CGI::Session::Driver::redis Image::Info IPC::Cmd LWP::Simple Digest::SHA
 ```
 Go watch some anime while it downloads all the dependencies.  
 Follow this link if you get locale errors while building the extra packages.
