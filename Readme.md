@@ -31,7 +31,7 @@ You can find a basic installation guide [here](https://github.com/Difegue/LANrar
 ##But I don't run Linux, got anything for me ?  
 Got you covered ! Kind of.  
 I wrote a Vagrantfile you can use with [Vagrant](https://www.vagrantup.com/downloads.html) to deploy a virtual machine on your computer with LANraragi preinstalled.  
-Download and extract [the Vagrant setup](https://github.com/Difegue/LANraragi/blob/master/tools/VagrantSetup.zip) somewhere, and whip out a terminal :
+Download and extract [the Vagrant setup](https://github.com/Difegue/LANraragi/raw/master/tools/VagrantSetup.zip) somewhere, and whip out a terminal :
 ```
 vagrant plugin install vagrant-vbguest
 vagrant up

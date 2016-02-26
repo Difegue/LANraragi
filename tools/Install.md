@@ -53,6 +53,8 @@ cd /var/www/lanraragi
 bower install
 ```
 
+##Configuration:  
+
 Configure apache so that your LANraragi directory can execute .pl files.  
 Something like this in **sites-enabled**:  
 ```
