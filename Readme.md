@@ -52,11 +52,9 @@ After that, just add your archives in the content folder, and it just works™
 
 * Use Gulp for bundling front-end dependencies on top of bower  
 
-* Tag statistics  
+* Tag overhaul with proper prefixes like language:english etc
 
 * Reader overhaul because it's old and kinda bloated  
 
 
-Note that this is a rather simple project and is only meant to be a frontend to an archive, if you're looking for a non-Web, non-Server solution I'd recommend [the Hydrus suite](http://github.com/hydrusnetwork).
-(Which has also the benefit of being way more advanced.)
 
