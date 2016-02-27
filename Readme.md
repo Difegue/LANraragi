@@ -1,7 +1,7 @@
 LANraragi
 ============
 
-Web interface and reader for a server-stored directory of archives, running on Perl/Redis/unar. (Imagemagick optional.)  
+Web interface and reader for storage of comics/manga on NAS, running on Perl/Redis/unar. (Imagemagick optional.)  
 
 ![](https://a.pomf.cat/vpqvmq.png)
 *Comes in various flavors, from flat design apologist to sad panda.*  
