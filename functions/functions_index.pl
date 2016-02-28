@@ -1,4 +1,5 @@
 use strict;
+use utf8;
 use URI::Escape;
 use Redis;
 use Encode;
@@ -8,12 +9,26 @@ use HTML::Table;
 
 require 'config.pl';
 
+#parseName, with regex. [^([]+ 
+sub parseName
+	{
+	my $id = $_[1];
+	
+	#Use the regex.
+	$_[0] =~ &get_regex || next;
+
+	my ($event,$artist,$title,$series,$language) = &regexsel;
+	my $tags ="";
+		
+	return ($event,$artist,$title,$series,$language,$tags,$id);
+	}
 
 #With a list of files, generate the HTML table that will be shown in the main index.
 sub generateTable
 	{
 		my @dircontents = @_;
 		my $file = "";
+		my $filecheck = "";
 		my $path = "";
 		my $suffix = "";
 		my $name = "";
@@ -56,9 +71,20 @@ sub generateTable
 					my %hash = $redis->hgetall($id);
 
 					#It's not a new archive, though. But it might have never been clicked on yet, so we'll grab the value for $isnew stored in redis.
+					($name,$event,$artist,$title,$series,$language,$tags,$filecheck,$isnew) = @hash{qw(name event artist title series language tags file isnew)};
 
-					#Hash Slice! I have no idea how this works.
-					($name,$event,$artist,$title,$series,$language,$tags,$isnew) = @hash{qw(name event artist title series language tags isnew)};
+					#Parameters have been obtained, let's decode them.
+					($_ = decode_utf8($_)) for ($name, $event, $artist, $title, $series, $language, $tags, $filecheck);
+
+					#Update the real file path and title just in case the file got manually renamed or some weird shit
+					unless ($file eq $filecheck)
+					{
+						($name,$path,$suffix) = fileparse($file, qr/\.[^.]*/);
+						$redis->hset($id, "file", encode_utf8($file));
+						$redis->hset($id, "name", encode_utf8($name));
+						$redis->wait_all_responses;
+					}	
+
 				}
 			else	#can't be helped. Do it the old way, and add the results to redis afterwards.
 				{
@@ -88,13 +114,11 @@ sub generateTable
 					$redis->hset($id, $_, $hash{$_}, sub {}) for keys %hash; 
 					$redis->wait_all_responses;
 				}
-				
-			#Parameters have been obtained, let's decode them.
-			($_ = decode_utf8($_)) for ($name, $event, $artist, $title, $series, $language, $tags, $file);
-			
-			my $icons = qq(<div style="font-size:14px"><a href="$dirname/$name$suffix" title="Download this archive."><i class="fa fa-save"></i><a/> 
+
+			my $urlencoded = $dirname."/".uri_escape($name).$suffix; 	
+
+			my $icons = qq(<div style="font-size:14px"><a href="$urlencoded" title="Download this archive."><i class="fa fa-save"></i><a/> 
 							<a href="./edit.pl?id=$id" title="Edit this archive's tags and data."><i class="fa fa-pencil"></i><a/></div>);
-					#<a href="./tags.pl?id=$id" title="E-Hentai Tag Import (Unfinished)."><i class="fa fa-server"></i><a/>
 					
 			#When generating the line that'll be added to the table, user-defined options have to be taken into account.
 			#Truncated tag display. Works with some hella disgusting CSS shit.
@@ -107,8 +131,6 @@ sub generateTable
 			#version with hover thumbnails 
 			if (&enable_thumbs)
 			{
-				#ajaxThumbnail makes the thumbnail for that album if it doesn't already exist. 
-				#(If it fails for some reason, it won't return an image path, triggering the "no thumbnail" image on the JS side.)
 				my $thumbname = $dirname."/thumb/".$id.".jpg";
 
 				my $row = qq(<span style="display: none;">$title</span>

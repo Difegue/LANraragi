@@ -12,7 +12,11 @@ function ajaxThumbnail(archiveId)
 
 	$.get( "ajax.pl", { function: "thumbnail", id: archiveId } )
 		.done(function( data ) {
-			showtrail(data);
+			//alert(data);
+			if (data=="") //shit workaround for occasional empty ajax returns
+				ajaxThumbnail(archiveId);
+			else
+				showtrail(data);
 			return data;
 		})
 		.fail(function() {

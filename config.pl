@@ -19,10 +19,10 @@ my $password = "kamimamita";
 my $dirname = "./content"; 
 
 #Resize images in reader when the original is heavier than this size. (in KBs.) (0 for no resizing)
-my $sizethreshold = 900;
+my $sizethreshold = 10000;
 
 #Quality of the converted images if resized.
-my $readerquality = 50; 
+my $readerquality = 70; 
 
 #Number of archives shown on a page. 0 for no pages.
 my $pagesize = 100;

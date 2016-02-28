@@ -52,9 +52,6 @@ if (&isUserLogged($qedit))
 
 			
 			#Are the submitted arguments POST?
-			my %params = $qedit->Vars;
-
-
 			if ('POST' eq $qedit->request_method ) { 
 					# It's POST, which means parameters for an edit have been passed.
 					 
@@ -102,7 +99,7 @@ if (&isUserLogged($qedit))
 						{
 							my $delStatus = &deleteArchive($id);
 
-							$html .= "<div class='ido' style='text-align:center'><h1>Archive deleted. </h1><br/>";
+							$html .= "<div class='ido' style='text-align:center'><h1>Archive deleted. <br/>($delStatus)</h1><br/>";
 							$html .= "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/></div>";
 						}
 						else

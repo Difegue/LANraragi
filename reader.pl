@@ -70,14 +70,14 @@ if ($qreader->param())
 	unless(-e $path) #If the file hasn't been extracted, or if force-reload =1
 		{
 
-		 	my $unarcmd = "unar -D -o $path \"$zipFile\""; #Extraction using unar without creating extra folders.
+		 	my $unarcmd = "unar -D -o $path \"$zipFile\" "; #Extraction using unar without creating extra folders.
 
 		 	my( $success, $error_message, $full_buf, $stdout_buf, $stderr_buf ) =
-	            run( command => $unarcmd, verbose => 0 );
+	            run( command => $unarcmd, verbose => 0 ); 
 
 		 	#Has the archive been extracted ?
 				unless (-e $path) {
-					    # $@ contains err message if error occurs
+					    # @$full_buf contains err message if error occurs
 						print $qreader->header(-type    => 'text/html',
                    				-charset => 'utf-8');
 						print $qreader->start_html

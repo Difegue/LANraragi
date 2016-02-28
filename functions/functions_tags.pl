@@ -1,5 +1,4 @@
 use strict;
-use Digest::SHA qw(sha256_hex);
 use URI::Escape;
 use File::Basename;
 use LWP::Simple qw($ua get);

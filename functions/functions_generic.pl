@@ -74,21 +74,6 @@ sub shasum{
 	}
 	return $digest;
 	}
-
-
-#parseName, with regex. [^([]+ 
-sub parseName
-	{
-	my $id = $_[1];
-	
-	#Use the regex.
-	$_[0] =~ &get_regex || next;
-
-	my ($event,$artist,$title,$series,$language) = &regexsel;
-	my $tags ="";
-		
-	return ($event,$artist,$title,$series,$language,$tags,$id);
-	}
 	
 
 sub removeSpaceF #Remove spaces before and after a word 

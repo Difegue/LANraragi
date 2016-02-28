@@ -2,7 +2,6 @@
 
 use strict;
 use CGI qw(:standard);
-use utf8;
 use Redis;
 
 #Import config and functions

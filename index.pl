@@ -124,6 +124,10 @@ require 'functions/functions_login.pl';
 						//clear searchbar cache
 						\$('#srch').val('');
 
+						//end init thumbnails
+						hidetrail();
+						document.onmouseover=followmouse;
+
 						"
 			);
 
@@ -163,6 +167,9 @@ require 'functions/functions_login.pl';
 		$html=$html."<script>
 			//Set the correct CSS from the user's localStorage.
 			set_style_from_storage();
+
+			//Init thumbnail hover
+			showtrail('img/noThumb.png');
 			</script>";
 
 		$html.="$table"; #print our finished table

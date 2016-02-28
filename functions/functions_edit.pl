@@ -1,6 +1,6 @@
 use strict;
 use Redis;
-use IPC::Cmd qw[can_run run];
+use Encode;
 
 require 'config.pl';
 
@@ -15,23 +15,25 @@ sub deleteArchive
 						reconnect => 100,
 						every     => 3000);	
 
-	my $filepath = $redis->hget($id, "file");
+	my $filename = $redis->hget($id, "name");
+	my $filename2 = $redis->hget($id, "file");
+	$filename = decode_utf8($filename);
+	$filename2 = decode_utf8($filename2);
 
-	$filepath = decode_utf8($filepath);
+	my $filepath = &get_dirname.'/'.$filename;
 	#print $filepath;
 	$redis->del($id);
 
-	my $delcmd = "rm \"$filepath\"";
 	#print $delcmd;
 	$redis->quit();
 
-	my ( $success, $error_message, $full_buf, $stdout_buf, $stderr_buf ) =
-	            run( command => $delcmd, verbose => 0 );
+	unlink $filename2 or warn "jej";
 
-	if (-e $filepath)
-		{ return 0; }
-	else
-		{ return 1; }
+	return $filename2;
+	#if (-e $filepath)
+	#	{ return 0; }
+	#else
+	#	{ return 1; }
 	
 	}
 

@@ -3,7 +3,8 @@
 use strict;
 use CGI qw(:standard);
 use File::Basename;
-use utf8;
+use IPC::Cmd qw[can_run run];
+use Encode;
 
 #Require config 
 require 'config.pl';
@@ -42,52 +43,49 @@ if (&isUserLogged($qupload))
 	    # Parameters are defined, therefore something has been submitted...	
 		#Start upload.
 		my $filename = $qupload->param('file');
-		my ($name,$path,$suffix) = fileparse("&get_dirname/$filename", qr/\.[^.]*/);
-			
-		my $output_file = &get_dirname.'/'.$filename; #open up a file on our side
-		#if it doesn't already exist, that is.
-					
-		if (-e $output_file)
-			{
-				print "<div class='ido' style='text-align:center'><h1>A file bearing this name already exists in the Library.</h1><br/>";
-				print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/>";
-				print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./upload.pl');\" value='Upload another Archive'/></div>";
-			}
-		else
-			{
-				my ($bytesread, $buffer);
-				my $numbytes = 1024;
+		my $uploadMime = $qupload->uploadInfo($filename)->{'Content-Type'};
 
-				open (OUTFILE, ">", "$output_file") 
-					or die "Couldn't open $output_file for writing: $!";
-				while ($bytesread = read($filename, $buffer, $numbytes)) 
-					{
-					print OUTFILE $buffer; #Write the uploaded contents to that file.
-					}
-				close OUTFILE;
+		my @mimeTypes = ("application/zip","application/x-rar-compressed","application/x-7z-compressed","application/x-tar","application/x-gtar","application/x-lzma","application/x-xz");
+		my %acceptedTypes = map { $_ => 1 } @mimeTypes;
+
+		#Check if the uploaded file's mimetype matches one we accept
+		if(exists($acceptedTypes{$uploadMime})) 
+			{ 
+
+			my ($name,$path,$suffix) = fileparse("&get_dirname/$filename", qr/\.[^.]*/);
+			
+			my $output_file = &get_dirname.'/'.$filename; #open up a file on our side
+			#if it doesn't already exist, that is.
 						
-				#Has the user uploaded an archive? Do the LSAR check. (run lsar on archive, look if # of lines is >1.)
-				my $filez = "lsaroutput";
-				my $count;
-				unlink $filez;
-				`lsar "$output_file" >> $filez`;
-		
-				open(FILE, "< $filez") or die "can't open $filez: $!"; 
-				for ($count=0; <FILE>; $count++) { } #counts line through a for statement. the iterator is our line number.
-		
-				if ($count >1)
+			if (-e $output_file)
 				{
+					print "<div class='ido' style='text-align:center'><h1>A file bearing this name already exists in the Library.</h1><br/>";
+					print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/>";
+					print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./upload.pl');\" value='Upload another Archive'/></div>";
+				}
+			else
+				{
+					my ($bytesread, $buffer);
+					my $numbytes = 1024;
+
+					open (OUTFILE, ">", "$output_file") 
+						or die "Couldn't open $output_file for writing: $!";
+					while ($bytesread = read($filename, $buffer, $numbytes)) 
+						{
+						print OUTFILE $buffer; #Write the uploaded contents to that file.
+						}
+					close OUTFILE;
+					
 					print "<div class='ido' style='text-align:center'><h1>Upload Successful!</h1><br/>";
 					print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/>";
 					print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./upload.pl');\" value='Upload another Archive'/></div>";				
 				}
-				else
-				{
-					print "<div class='ido' style='text-align:center'><h1>Unsupported or damaged archive.</h1><br/>";
-					print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/>";
-					print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./upload.pl');\" value='Upload another Archive'/></div>";
-					unlink $output_file; #shut it down			
-				}
+			}
+		else 
+			{
+			print "<div class='ido' style='text-align:center'><h1>Unsupported file. ($uploadMime)</h1><br/><br/>";
+			print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/>";
+			print "<input class='stdbtn' type='button' onclick=\"window.location.replace('./upload.pl');\" value='Upload another Archive'/></div>";		
 			}	
 	}
 	else
@@ -98,6 +96,7 @@ if (&isUserLogged($qupload))
 		print $qupload->h1( {-class=>'ih', -style=>'text-align:center'},"Uploading an Archive to the Library");
 		print $qupload->start_form(
 						-name		=> 'uploadArchiveForm',
+						-enctype	=> 'multipart/form-data',
 						);
 		print "<table style='margin:auto'><tbody>";
 		

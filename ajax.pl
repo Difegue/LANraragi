@@ -2,7 +2,8 @@
 
 #ajax calls possible:
 #?function=thumbnail&id=xxxxxx
-#?function=tags&ishash=0/1&input=xxxxxx
+#?function=tags&ishash=0/1&id=xxxxxx
+#?function=taghash&ishash=0/1&id=xxxxx
 
 use strict;
 use CGI qw(:standard);
