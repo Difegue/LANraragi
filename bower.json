@@ -21,6 +21,8 @@
     "font-awesome": "fontawesome#^4.5.0",
     "dropit": "dropit#^1.1.1",
     "jQuery-rwdImageMaps": "*",
-    "datatables": "^1.10.10"
+    "datatables": "^1.10.10",
+    "roboto-fontface": "^0.4.5",
+    "open-sans-fontface": "^1.4.2"
   }
 }

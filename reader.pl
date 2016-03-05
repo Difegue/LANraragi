@@ -22,7 +22,7 @@ if ($qreader->param())
     # We got a file name, let's get crackin'.
 	my $id = $qreader->param('id');
 	
-	#First, where is our temporary directory? Makes it so that if the same user opens an archive, it doesn't re-extract it all the time.
+	
 	my $tempdir= "";
 	my $namet = "";
 	my $patht = "";
@@ -34,6 +34,7 @@ if ($qreader->param())
 	my $pagenum = 1;
 	my $quality = &get_quality;
 	
+	#First, where is our temporary directory? 
 	$tempdir = &get_dirname."/temp";
 	
 	my $force = $qreader->param('force-reload');
