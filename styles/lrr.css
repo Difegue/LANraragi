@@ -122,7 +122,7 @@ top: -10px;
     #langheader {max-width: 50px;}
     #artistheader {max-width: 50px;}
     #tagsheader {max-width: 50px;}
-    td.series {max-width: 50px;;}
+    td.series {max-width: 50px;}
     td.language {max-width: 50px;}
     td.artist {max-width: 50px;}
     td.tags {max-width: 50px;}
@@ -136,7 +136,7 @@ top: -10px;
     #langheader {max-width: 50px;}
     #artistheader {max-width: 50px;}
     #tagsheader {max-width: 50px;}
-    td.series {max-width: 50px;;}
+    td.series {max-width: 50px;}
     td.language {max-width: 50px;}
     td.artist {max-width: 50px;}
     td.tags {max-width: 50px;}
@@ -149,11 +149,12 @@ top: -10px;
     #seriesheader {display:none;}
     #langheader {display:none;}
     #artistheader {display:none;}
-    #tagsheader {display:none;;}
+    #tagsheader {display:none;}
     td.series {display:none;}
     td.language {display:none;}
     td.artist {display:none;}
     td.tags {display:none;}
+    div.sni h1 {overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
 }
 
 @media all and (max-width: 530px) {
@@ -163,10 +164,11 @@ top: -10px;
     #seriesheader {display:none;}
     #langheader {display:none;}
     #artistheader {display:none;}
-    #tagsheader {display:none;;}
+    #tagsheader {display:none;}
     td.series {display:none;}
     td.language {display:none;}
     td.artist {display:none;}
     td.tags {display:none;}
+    div.sni h1 {overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
 }
 

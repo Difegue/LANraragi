@@ -30,11 +30,6 @@ sub deleteArchive
 	unlink $filename2 or warn "jej";
 
 	return $filename2;
-	#if (-e $filepath)
-	#	{ return 0; }
-	#else
-	#	{ return 1; }
-	
 	}
 
 

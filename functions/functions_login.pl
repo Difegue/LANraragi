@@ -4,26 +4,12 @@ use CGI::Session;
 
 require 'config.pl';
 
-#redirectToPage($cgi,pageName,cookie)
-sub redirectToPage {
-
-	my ( $cgi, $redirURL, $cookie) = @_;
-
-	#Redirection header
-	unless (defined $cookie)
-	{ return $cgi->redirect(    -URL     => $redirURL); }
-	else
-	{ return $cgi->redirect(    -URL     => $redirURL,
-                				-COOKIE  => $cookie);   }
-
-	}
-
-
 #isUserLogged($cgi)
 #If passwording is enabled, did the user input the password ? 
 #Opens the session object (after clearing expired sessions) and checks is_logged. 
 #If unlogged, redirect to login.pl. 
-sub isUserLogged{
+sub isUserLogged
+ {
 
 	if (&enable_pass)
 	{
@@ -45,12 +31,13 @@ sub isUserLogged{
 	else
 	{ return 1; }
 
-	}
+ }
 
 #loginUser($cgi, password)
 #Handle a login request. Check password, and if it's correct setup a session object with is_logged=1 and return the cookie object to embed in html header.
 #Return 0 and do nothing if incorrect password.
-sub loginUser{
+sub loginUser
+ {
 
 	my $pw = $_[1];
 	my $cgi = $_[0];
@@ -73,4 +60,4 @@ sub loginUser{
 	else
 	{return "0";}
 
-}
+ }

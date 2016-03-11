@@ -11,7 +11,7 @@ require 'config.pl';
 
 #parseName, with regex. [^([]+ 
 sub parseName
-	{
+ {
 	my $id = $_[1];
 	
 	#Use the regex.
@@ -21,11 +21,11 @@ sub parseName
 	my $tags ="";
 		
 	return ($event,$artist,$title,$series,$language,$tags,$id);
-	}
+ }
 
 #With a list of files, generate the HTML table that will be shown in the main index.
 sub generateTable
-	{
+ {
 		my @dircontents = @_;
 		my $file = "";
 		my $filecheck = "";
@@ -173,4 +173,4 @@ sub generateTable
 		$table->setColWidth(1,30);
 
 		return $table;
-	}
+ }

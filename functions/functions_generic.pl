@@ -5,7 +5,8 @@ require 'config.pl';
 
 #Print a dropdown list to select CSS, and adds <link> tags for all the style sheets present in the /style folder.
 #Takes a boolean as argument: if true, return the styles and the dropdown. If false, only return the styles.
-sub printCssDropdown{
+sub printCssDropdown
+ {
 
 	#Getting all the available CSS sheets.
 	my @css;
@@ -55,11 +56,13 @@ sub printCssDropdown{
 	{return $html.$CSSsel;}
 	else
 	{return $html;}
-	}
+	
+ }
 	
 
 #This handy function gives us a SHA-1 hash for the passed file, which is used as an id for some files. 
-sub shasum{
+sub shasum
+ {
 	my $digest = "";
 	eval{
 	  open(FILE, $_[0]) or die "Can't find file $_[0]\n";
@@ -73,14 +76,37 @@ sub shasum{
 	  return "";
 	}
 	return $digest;
-	}
+ }
 	
 
 sub removeSpaceF #Remove spaces before and after a word 
  {
- until (substr($_[0],0,1)ne" "){
- $_[0] = substr($_[0],1);}
+	 until (substr($_[0],0,1)ne" "){
+	 $_[0] = substr($_[0],1);}
 
- until (substr($_[0],-1)ne" "){
- chop $_[0];} 
+	 until (substr($_[0],-1)ne" "){
+	 chop $_[0];} 
+ }
+
+#magical sort function
+sub expand 
+ {
+    my $file=shift; 
+    $file=~s{(\d+)}{sprintf "%04d", $1}eg;
+    return $file;
+ }
+
+#redirectToPage($cgi,pageName,cookie)
+sub redirectToPage 
+ {
+
+	my ( $cgi, $redirURL, $cookie) = @_;
+
+	#Redirection header
+	unless (defined $cookie)
+	{ return $cgi->redirect(    -URL     => $redirURL); }
+	else
+	{ return $cgi->redirect(    -URL     => $redirURL,
+                				-COOKIE  => $cookie);   }
+
  }
