@@ -14,7 +14,7 @@ require 'functions/functions_edit.pl';
 
 my $qedit = new CGI;			   
 
-my $html = start_html
+my $html = $qedit->start_html
 	(
 	-title=>&get_htmltitle.' - Edit Mode',
     -author=>'lanraragi-san',		

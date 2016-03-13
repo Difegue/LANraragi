@@ -26,6 +26,29 @@ function ajaxThumbnail(archiveId)
 
 }
 
+//saveArchiveData(callbackFunction,callbackArguments)
+//Grabs the data in the edit.pl form and presaves it to Redis for tag Searches. Executes a callback when data is correctly saved.
+function saveArchiveData(callback,arg1,arg2)
+{
+	var postData = $("#editArchiveForm").serializeArray()
+	var formURL = $("#editArchiveForm").attr("action")
+
+	$.ajax(
+	{
+		url : formURL,
+		type: "POST",
+		data : postData,
+		success:function(data, textStatus, jqXHR) 
+		{
+			callback(arg1,arg2);
+		},
+		error: function(jqXHR, textStatus, errorThrown) 
+		{
+			alert("Something went wrong while saving archive data : "+errorThrown);		
+		}
+	});
+
+}
 
 //ajaxTags(titleOrHash,isHash)
 //Calls ajax.pl to get tags for the given title or image hash.
