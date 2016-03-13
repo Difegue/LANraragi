@@ -45,7 +45,7 @@ to stop the VM when you're done.
 
 ##I got me a setup, how do I use this ?
 config.pl contains a lot of variables you can define yourself. They're properly explained in the file itself, be sure to check it out.  
-After that, just add your archives in the content folder, and it just works™
+After that, add your archives in the content folder, and it just works™
 
 
 ##Roadmap(jk this is never getting done)  

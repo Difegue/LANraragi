@@ -89,19 +89,19 @@ sub generateForm
 				</td></tr>
 
 				<tr><td style='text-align:left; width:100px; vertical-align:top'>Tags:
-					<input type='button' name='tag_import' value='Import E-Hentai&#x00A; Tags&#x00A;(Text Search)' onclick="saveArchiveData(ajaxTags,'$id',0);" 
+					<input type='button' name='tag_import' value='Import EHentai&#x00A; Tags&#x00A;(Text Search)' onclick="saveArchiveData(ajaxTags,'$id',0);" 
 					class='stdbtn' style='margin-top:25px; min-width:90px; height:60px'></input>
 
-					<input type='button' name='tag_import' value='Import E-Hentai&#x00A; Tags&#x00A;(Image Search)' onclick="saveArchiveData(ajaxTags,'$id',1);" 
+					<input type='button' name='tag_import' value='Import EHentai&#x00A; Tags&#x00A;(Image Search)' onclick="saveArchiveData(ajaxTags,'$id',1);" 
 					class='stdbtn' style='margin-top:25px; min-width:90px; height:60px'></input> 
 				
 					<input type='button' name='tag_import' value='Import nHentai&#x00A; Tags' onclick="ajaxTags('$id',2);" 
-					class='stdbtn' style='margin-top:25px; min-width:98px; height:60px; margin-bottom: 5px'></input>
+					class='stdbtn' style='margin-top:25px; min-width:90px; height:60px; margin-bottom: 5px'></input>
 
 					<i class='fa fa-2x fa-exclamation-circle'></i> Importing Tags will save any modifications to archive data you might have made !
 				</td>
 				<td>
-					<textarea id='tagText' class='stdinput' name='tags' value='$tags' maxlength='5000' style='width:90%; height:300px' size='20'></textarea>
+					<textarea id='tagText' class='stdinput' name='tags' maxlength='5000' style='width:90%; height:350px' size='20'>$tags</textarea>
 					<i class='fa fa-5x fa-cog fa-spin' style=' color:black; position:absolute; top:60%; left:52%; display:none' id='tag-spinner'></i>
 				</td></tr>
 
