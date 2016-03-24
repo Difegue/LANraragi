@@ -44,6 +44,25 @@ div.ido {
     position: relative;
     width: 99%;
 }
+
+/* Tags */
+div.gt {
+    background: none repeat scroll 0 0 #F2EFDF;
+    border: 1px solid #806769;
+    border-radius: 5px 5px 5px 5px;
+    float: left;
+    font-weight: bold;
+    margin: 0 2px 5px;
+    padding: 1px 4px;
+    position: relative;
+    white-space: nowrap;
+    width: default;
+}
+
+div.gt:hover {
+    color: #9b4e03;
+}
+
 h1.ih {
     font-size: 10pt;
     font-weight: bold;

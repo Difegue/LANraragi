@@ -120,13 +120,27 @@ sub generateTable
 			my $icons = qq(<div style="font-size:14px"><a href="$urlencoded" title="Download this archive."><i class="fa fa-save"></i><a/> 
 							<a href="./edit.pl?id=$id" title="Edit this archive's tags and data."><i class="fa fa-pencil"></i><a/></div>);
 					
-			#When generating the line that'll be added to the table, user-defined options have to be taken into account.
-			#Truncated tag display. Works with some hella disgusting CSS shit.
-			my $printedtags = $event." ".$tags;
-			if (length $printedtags > 50)
-			{
-				$printedtags = qq(<a class="tags" style="text-overflow:ellipsis;">$printedtags</a><div class="caption" style="position:absolute;">$printedtags</div>); 
-			}
+
+			#Tag display. Simple list separated by hyphens which expands into a caption div with nicely separated tags on hover.
+			my $printedtags = "";
+
+			unless ($event eq "") 
+				{ $printedtags = $event.", ".$tags; }
+			else
+				{ $printedtags = $tags;}
+
+			$printedtags = qq(<span class="tags" style="text-overflow:ellipsis;">$printedtags</span><div class="caption" style="position:absolute;">);
+
+			#Split the tags, and put them in individual divs for pretty printing.
+			my @tagssplit = split(',\s?',$tags);
+			my $tag = "";
+
+			foreach $tag (@tagssplit)
+				{ $printedtags .= qq(<div class="gt" onclick="\$('#srch').val(\$(this).html()); arcTable.search(\$(this).html()).draw();">$tag</div>); } #The JS allows the user to search a tag by clicking it.
+
+			#Close up the caption.
+			$printedtags.="</div>"; 
+
 			
 			#version with hover thumbnails 
 			if (&enable_thumbs)

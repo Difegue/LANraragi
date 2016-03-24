@@ -88,7 +88,7 @@ sub generateForm
 					<input class='stdinput' type='text' style='width:90%' maxlength='255' size='20' value='$event' name='event'>
 				</td></tr>
 
-				<tr><td style='text-align:left; width:100px; vertical-align:top'>Tags:
+				<tr><td style='text-align:left; width:100px; vertical-align:top'>Tags (separated by hyphens, i.e : tag1, tag2) :
 					<input type='button' name='tag_import' value='Import EHentai&#x00A; Tags&#x00A;(Text Search)' onclick="saveArchiveData(ajaxTags,'$id',0);" 
 					class='stdbtn' style='margin-top:25px; min-width:90px; height:60px'></input>
 
@@ -98,7 +98,7 @@ sub generateForm
 					<input type='button' name='tag_import' value='Import nHentai&#x00A; Tags' onclick="ajaxTags('$id',2);" 
 					class='stdbtn' style='margin-top:25px; min-width:90px; height:60px; margin-bottom: 5px'></input>
 
-					<i class='fa fa-2x fa-exclamation-circle'></i> Importing Tags will save any modifications to archive data you might have made !
+					<i class='fa fa-2x fa-exclamation-circle'></i> Importing Tags will save any modifications to archive metadata you might have made !
 				</td>
 				<td>
 					<textarea id='tagText' class='stdinput' name='tags' maxlength='5000' style='width:90%; height:350px' size='20'>$tags</textarea>

@@ -69,6 +69,25 @@ div.ido {
     position: relative;
     width: 99%;
 }
+
+/* Tags */
+div.gt {
+    background: none repeat scroll 0 0 #D83B66;
+    float: left;
+    font-weight: bold;
+    margin: 0 2px 5px;
+    padding: 1px 4px;
+    position: relative;
+    white-space: nowrap;
+    width: default;
+    color: #EFEAEA;
+}
+
+div.gt:hover {
+    color: #D7D4C5;
+}
+
+
 p#nb {
     margin: 2px auto;
     text-align: center;
@@ -163,10 +182,6 @@ td.itu {
 }
 td.itu a {
     text-decoration: none;
-}
-td.itu div {
-    overflow: hidden;
-    width: 120px;
 }
 td.itdc {
     border-right: 2px dotted #414135;

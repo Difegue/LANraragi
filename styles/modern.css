@@ -69,6 +69,22 @@ div.ido{
     position:relative;
 }
 
+/* Tags */
+div.gt {
+    background: none repeat scroll 0 0 #4F535B;
+    border-radius: 3px 3px 3px 3px;
+    float: left;
+    margin: 0 2px 5px;
+    padding: 1px 4px;
+    position: relative;
+    white-space: nowrap;
+    width: default;
+}
+
+div.gt:hover {
+    color: #3b97ea;
+}
+
 /* navbar */
 p#nb{margin:2px auto;text-align:center}
 p#nb img{border:0;margin-left:10px;width:5px;height:7px}
@@ -131,7 +147,6 @@ td.itd{text-align:left;padding:3px 4px;border-right:1px solid #40454b}
 td.itd a{text-decoration:none}
 td.itu{text-align:left;padding:3px 4px 3px 4px;border-right:1px solid #40454b}
 td.itu a{text-decoration:none}
-td.itu div{width:120px;overflow:hidden}
 td.itdc{text-align:left;padding:0 1px 0 2px;margin:0;border-right:1px solid #40454b}
 
 /* page selector */

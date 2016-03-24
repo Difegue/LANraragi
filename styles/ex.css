@@ -10,6 +10,25 @@ p.ip{margin:-3px auto;text-align:center;padding:0px 5px 5px 5px;clear:both}
 
 img.mr{border:0;margin-left:10px;width:5px;height:7px}
 div.ido{background:#4f535b;border:1px solid #000000;width:99%;max-width:1200px;margin:10px auto 10px auto;padding:5px;position:relative}
+
+/* Tags */
+div.gt {
+    background: none repeat scroll 0 0 #4F535B;
+    border: 1px solid #989898;
+    border-radius: 5px 5px 5px 5px;
+    float: left;
+    font-weight: bold;
+    margin: 0 2px 5px;
+    padding: 1px 4px;
+    position: relative;
+    white-space: nowrap;
+    width: default;
+}
+
+div.gt:hover {
+    color: #3b97ea;
+}
+
 h1.ih{font-size:10pt;font-weight:bold;margin:2px auto;text-align:center;padding-bottom:6px}
 
 
@@ -43,7 +62,6 @@ td.itd{text-align:left;padding:3px 4px;border-right:1px solid #40454b}
 td.itd a{text-decoration:none}
 td.itu{text-align:left;padding:3px 4px 3px 4px;border-right:1px solid #40454b}
 td.itu a{text-decoration:none}
-td.itu div{width:120px;overflow:hidden}
 td.itdc{text-align:left;padding:0 1px 0 2px;margin:0;border-right:1px solid #40454b}
 
 /* page selector */

@@ -87,7 +87,7 @@ sub getTagsFromAPI{
 		my $data = $hash->{"gmetadata"};
 		my $tags = @$data[0]->{"tags"};
 
-		my $return = join(" ", @$tags);
+		my $return = join(", ", @$tags);
 		return $return;
 	}	
 	else #if an error occurs(no tags available) return an empty string.
@@ -125,7 +125,7 @@ sub nHentaiGetTags{
 	
 	#the <a> tag inside has an href to the URL we want. Split some more to get to it and find the gallery ID.
 	my $url = (split('/g/',@benis[1]))[1];
-	my @values = (split('/',$url));
+	my @values = split('/',$url);
 	my $gID = @values[0];
 
 	#Access the json version of the gallery page.
@@ -139,7 +139,7 @@ sub nHentaiGetTags{
 	foreach $tag (@$tags)
 	{
 		if (@$tag[1] eq "tag")
-			{ $returned.=" ".@$tag[2]; }
+			{ $returned.=", ".@$tag[2]; }
 	}
 
 	return $returned;

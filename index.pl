@@ -13,7 +13,7 @@ require 'functions/functions_index.pl';
 require 'functions/functions_login.pl';
 
 
-	my $dirname = &get_dirname;
+		my $dirname = &get_dirname;
 
 	#Get all files in content directory.
 	#This should be enough supported file extensions, right? The old lsar method was hacky and took too long.
@@ -83,7 +83,7 @@ require 'functions/functions_login.pl';
 						\$.fn.dataTableExt.oStdClasses.sStripeEven = 'gtr1';
 
 						//datatables configuration
-						var arcTable= \$('.itg').DataTable( { 
+						arcTable= \$('.itg').DataTable( { 
 							'lengthChange': false,
 							'pageLength': ".&get_pagesize().",
 							'order': [[ 1, 'asc' ]],
@@ -139,6 +139,9 @@ require 'functions/functions_login.pl';
 			<span style="margin-left:5px"></span>
 			<i class="fa fa-caret-right"></i>
 			<a href="./tags.pl">Batch Tagging</a>
+			<span style="margin-left:5px"></span>
+			<i class="fa fa-caret-right"></i>
+			<a href="./backup.pl">Backup/Restore Database</a>
 			</p>';
 		}
 		else
