@@ -1,4 +1,4 @@
-/*Misc CSS trickery applies on pages that need it go here */
+/* Global CSS for the main page. Don't mess !*/
 
 /*tag hover popups.*/
 td
@@ -28,14 +28,13 @@ td.tags {max-width: 150px;}
 .caption {
 
    min-width: 0px !important;
-   width: 50% !important;
    max-width: 50% !important;
    white-space: normal !important;
    padding: 5px !important;
    margin-top: 0px !important;
-   margin-left: -25% !important;
    display: none !important;
    border-radius: 0px 0px 0px 0px !important;
+   z-index: 2;
 }
 
 .tags:hover .caption {
@@ -126,6 +125,7 @@ top: -10px;
     td.language {max-width: 50px;}
     td.artist {max-width: 50px;}
     td.tags {max-width: 50px;}
+    .caption {margin-left: -15% !important;}
 }
 
 @media all and (max-width: 1000px) {
@@ -140,9 +140,10 @@ top: -10px;
     td.language {max-width: 50px;}
     td.artist {max-width: 50px;}
     td.tags {max-width: 50px;}
+    .caption {margin-left: -15% !important;}
 }
 
-@media all and (max-device-width: 530px) {
+@media all and (max-device-width: 540px) {
     #i2 { display: none; }
     .page_dropdown {margin-top:50px;}
     #i1 {padding: 2px;}
@@ -157,7 +158,7 @@ top: -10px;
     div.sni h1 {overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
 }
 
-@media all and (max-width: 530px) {
+@media all and (max-width: 540px) {
     #i2 { display: none; }
     .page_dropdown {margin-top:50px;}
     #i1 {padding: 2px;}

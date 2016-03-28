@@ -5,7 +5,7 @@ use Switch;
 my $htmltitle = "LANraragi"; 
 
 #Text that appears on top of the page. Empty for no text. (look at me ma i'm versioning)
-my $motd = "Welcome to this Library running LANraragi v.0.2.3!"; 
+my $motd = "Welcome to this Library running LANraragi v.0.2.4!"; 
 
 #Whether or not you load thumbnails when hovering over a title. Requires an imagemagick install. (Just imagemagick, none of these perlmagick thingamabobs)
 my $thumbnails = 1; 
@@ -15,6 +15,7 @@ my $enablepass = 1;
 
 #Password for editing and uploading titles. You should probably change this, even though it's not "admin".
 my $password = "kamimamita"; 
+
 #Directory of the zip archives. Make sure your web server can serve what's inside this directory. (Write rights would help too.)
 my $dirname = "./content"; 
 
@@ -27,7 +28,7 @@ my $readerquality = 70;
 #Number of archives shown on a page. 0 for no pages.
 my $pagesize = 100;
 
-#Adress and port of redis instance.
+#Address and port of redis instance.
 my $redisaddress = "127.0.0.1:6379";
 
 #Default CSS file to load. Must be in the styles folder.
@@ -51,6 +52,8 @@ sub cssNames{
 }
 
 #Functions that return the local config variables. Avoids fuckups if you happen to create a $motd variable in your own code, for example.
+#Those functions are named with a different standard to specify the fact they're user-controlled in the code.
+#Totally not because I made them way back when I started the project. Nah.
 sub get_htmltitle { return $htmltitle };
 sub get_motd { return $motd };
 sub enable_thumbs { return $thumbnails };
@@ -65,9 +68,9 @@ sub get_redisad { return $redisaddress };
 sub get_style { return $css };
 sub get_readorder { return $readorder };
 
-#This sub defines which numbered variables from the regex selection are taken for display. In order:
+#This sub defines which numbered variables from the regex selection are taken as metadata. In order:
 # [release, artist, title, series, language]
-sub regexsel { return ($2,$4,$5,$7,$9)};
+sub select_from_regex { return ($2,$4,$5,$7,$9)};
 
 #Regular Expression matching the above syntax. Used in parsing. Stuff that's between unescaped ()s is put in a numbered variable: $1,$2,etc
 	#This regex autoparses the given string according to the exhentai standard convention: (Release) [Artist] TITLE (Series) [Language]

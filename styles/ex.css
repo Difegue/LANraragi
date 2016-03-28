@@ -23,6 +23,7 @@ div.gt {
     position: relative;
     white-space: nowrap;
     width: default;
+    cursor: pointer;
 }
 
 div.gt:hover {
@@ -121,4 +122,10 @@ border:2px outset #000000;
     background: #43464e;
     color: #f1f1f1;
     
+}
+
+/* File upload bar */
+.bar {
+    height: 18px;
+    background: #34353b;
 }

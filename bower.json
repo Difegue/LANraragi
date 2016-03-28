@@ -23,6 +23,7 @@
     "jQuery-rwdImageMaps": "*",
     "datatables": "^1.10.10",
     "roboto-fontface": "^0.4.5",
-    "open-sans-fontface": "^1.4.2"
+    "open-sans-fontface": "^1.4.2",
+    "blueimp-file-upload": "jquery-file-upload#^9.12.1"
   }
 }

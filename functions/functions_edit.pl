@@ -88,7 +88,7 @@ sub generateForm
 					<input class='stdinput' type='text' style='width:90%' maxlength='255' size='20' value='$event' name='event'>
 				</td></tr>
 
-				<tr><td style='text-align:left; width:100px; vertical-align:top'>Tags (separated by hyphens, i.e : tag1, tag2) :
+				<tr><td style='text-align:left; width:100px; vertical-align:top'>Tags <span style="font-size:6pt">(separated by hyphens, i.e : tag1, tag2)</span> :
 					<input type='button' name='tag_import' value='Import EHentai&#x00A; Tags&#x00A;(Text Search)' onclick="saveArchiveData(ajaxTags,'$id',0);" 
 					class='stdbtn' style='margin-top:25px; min-width:90px; height:60px'></input>
 

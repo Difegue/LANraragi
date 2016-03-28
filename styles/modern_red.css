@@ -81,6 +81,7 @@ div.gt {
     white-space: nowrap;
     width: default;
     color: #EFEAEA;
+    cursor: pointer;
 }
 
 div.gt:hover {
@@ -334,4 +335,12 @@ table.itg a:hover {
 }
 p#nb a:hover {
     color: #BE234B;
+}
+
+
+/* File upload bar */
+.bar {
+    height: 18px;
+    background: #D7D4C5;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
 }

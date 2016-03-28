@@ -110,3 +110,51 @@ sub redirectToPage
                 				-COOKIE  => $cookie);   }
 
  }
+
+#parseName(name,id)
+#parses an archive name with the regex specified in the configuration file(get_regex and select_from_regex subs) to find metadata.
+sub parseName
+ {
+	my $id = $_[1];
+	
+	#Use the regex on our file, and pipe it to the regexsel sub.
+	$_[0] =~ &get_regex || next;
+
+	#select_from_regex picks the variables from the regex selection that will be used. 
+	my ($event,$artist,$title,$series,$language) = &select_from_regex;
+	my $tags ="";
+		
+	return ($event,$artist,$title,$series,$language,$tags,$id);
+ }
+
+#addArchiveToRedis($id,$file,$redis)
+#Parses the name of a file for metadata, and matches that metadata to the SHA-1 hash of the file in our Redis database.
+sub addArchiveToRedis
+ {
+ 	my ($id, $file, $redis) = @_;
+					
+	my ($name,$path,$suffix) = fileparse($file, qr/\.[^.]*/);
+					
+	#parseName function is up there 
+	my ($event,$artist,$title,$series,$language,$tags,$id) = &parseName($name.$suffix,$id);
+					
+	#jam this shit in redis
+	#prepare the hash which'll be inserted.
+	my %hash = (
+		name => encode_utf8($name),
+		event => encode_utf8($event),
+		artist => encode_utf8($artist),
+		title => encode_utf8($title),
+		series => encode_utf8($series),
+		language => encode_utf8($language),
+		tags => encode_utf8($tags),
+		file => encode_utf8($file),
+		isnew => encode_utf8("block"), #New file in collection, so this flag is set.
+		);
+						
+	#for all keys of the hash, add them to the redis hash $id with the matching keys.
+	$redis->hset($id, $_, $hash{$_}, sub {}) for keys %hash; 
+	$redis->wait_all_responses;
+
+	return ($name,$event,$artist,$title,$series,$language,$tags,"block");
+ }

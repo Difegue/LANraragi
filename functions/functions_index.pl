@@ -9,19 +9,6 @@ use HTML::Table;
 
 require 'config.pl';
 
-#parseName, with regex. [^([]+ 
-sub parseName
- {
-	my $id = $_[1];
-	
-	#Use the regex.
-	$_[0] =~ &get_regex || next;
-
-	my ($event,$artist,$title,$series,$language) = &regexsel;
-	my $tags ="";
-		
-	return ($event,$artist,$title,$series,$language,$tags,$id);
- }
 
 #With a list of files, generate the HTML table that will be shown in the main index.
 sub generateTable
@@ -49,7 +36,7 @@ sub generateTable
 		                            -class=>'itg'
 		                            );
 
-		$table->addSectionRow ( 'thead', 0, "",'<a>Title</a>','<a>Artist/Group</a>','<a>Series</a>',"<a>Language</a>","<a>Tags</a>");
+		$table->addSectionRow( 'thead', 0, "",'<a>Title</a>','<a>Artist/Group</a>','<a>Series</a>',"<a>Language</a>","<a>Tags</a>");
 		$table->setSectionRowHead('thead', -1, -1, 1);
 
 		#Add IDs to the table headers to hide them with media queries on small screens.
@@ -76,7 +63,7 @@ sub generateTable
 					#Parameters have been obtained, let's decode them.
 					($_ = decode_utf8($_)) for ($name, $event, $artist, $title, $series, $language, $tags, $filecheck);
 
-					#Update the real file path and title just in case the file got manually renamed or some weird shit
+					#Update the real file path and title if they differ from the saved one just in case the file got manually renamed or some weird shit
 					unless ($file eq $filecheck)
 					{
 						($name,$path,$suffix) = fileparse($file, qr/\.[^.]*/);
@@ -86,34 +73,8 @@ sub generateTable
 					}	
 
 				}
-			else	#can't be helped. Do it the old way, and add the results to redis afterwards.
-				{
-					#This means it's a new archive, though! We can notify the user about that later on, and specify it in the hash.
-					$isnew="block";
-					
-					($name,$path,$suffix) = fileparse($file, qr/\.[^.]*/);
-					
-					#parseName function is up there 
-					($event,$artist,$title,$series,$language,$tags,$id) = &parseName($name.$suffix,$id);
-					
-					#jam this shit in redis
-					#prepare the hash which'll be inserted.
-					my %hash = (
-						name => encode_utf8($name),
-						event => encode_utf8($event),
-						artist => encode_utf8($artist),
-						title => encode_utf8($title),
-						series => encode_utf8($series),
-						language => encode_utf8($language),
-						tags => encode_utf8($tags),
-						file => encode_utf8($file),
-						isnew => encode_utf8($isnew),
-						);
-						
-					#for all keys of the hash, add them to the redis hash $id with the matching keys.
-					$redis->hset($id, $_, $hash{$_}, sub {}) for keys %hash; 
-					$redis->wait_all_responses;
-				}
+			else #can't be helped, parse archive and add it to Redis alongside its metadata.
+				{ ($name,$event,$artist,$title,$series,$language,$tags,$isnew) = &addArchiveToRedis($id,$file,$redis); }
 
 			my $urlencoded = $dirname."/".uri_escape($name).$suffix; 	
 
@@ -141,6 +102,10 @@ sub generateTable
 			#Close up the caption.
 			$printedtags.="</div>"; 
 
+			#Make artist/series/language searchable by clicking on them
+			$artist = qq(<a style="cursor:pointer" onclick="\$('#srch').val(\$(this).html()); arcTable.search(\$(this).html()).draw();">$artist</a>);
+			$series = qq(<a style="cursor:pointer" onclick="\$('#srch').val(\$(this).html()); arcTable.search(\$(this).html()).draw();">$series</a>);
+			$language = qq(<a style="cursor:pointer" onclick="\$('#srch').val(\$(this).html()); arcTable.search(\$(this).html()).draw();">$language</a>);
 			
 			#version with hover thumbnails 
 			if (&enable_thumbs)

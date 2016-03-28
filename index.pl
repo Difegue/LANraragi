@@ -13,7 +13,7 @@ require 'functions/functions_index.pl';
 require 'functions/functions_login.pl';
 
 
-		my $dirname = &get_dirname;
+	my $dirname = &get_dirname;
 
 	#Get all files in content directory.
 	#This should be enough supported file extensions, right? The old lsar method was hacky and took too long.

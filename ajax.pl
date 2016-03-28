@@ -13,7 +13,7 @@ require 'functions/functions_generic.pl';
 require 'functions/functions_tags.pl';
 require 'functions/functions_login.pl';
 
-#set up cgi for receiving ajax calls
+#set up cgi for receiving ajax calls and responding with plaintext
 my $qajax = new CGI;
 print $qajax->header('text/plain');
 

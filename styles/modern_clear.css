@@ -47,7 +47,7 @@ h1.ih{font-size:10pt;font-weight:bold;margin:2px auto;text-align:center;padding-
 
 div.ido{
     background-color: #E1E7E9;
-    border-radius: 9px 9px 9px 9px;
+    box-shadow: 0 5px 15px 0 rgba(0, 0, 0, 0.16), 0 2px 15px 0 rgba(0, 0, 0, 0.12);
     clear: both;
     display: block;
     margin-left: auto;
@@ -71,6 +71,7 @@ div.gt {
     white-space: nowrap;
     width: default;
     color: #34495E;
+    cursor: pointer;
 }
 
 div.gt:hover {
@@ -90,7 +91,7 @@ p.ip a:hover{color: #ed2553;}
 table.itg{
 	width:99%;max-width:1175px;border-collapse:collapse;margin:0px auto;padding:3px;font-size:9pt;
 	border: 0 none;
-	border-radius: 9px 9px 9px 9px;
+	box-shadow: 0 5px 15px 0 rgba(0, 0, 0, 0.16), 0 2px 15px 0 rgba(0, 0, 0, 0.12);
     color: #FCFCFC;
 }
 table.itg th{font-weight:bold;text-align:left;padding:3px 4px 3px 4px;background:#34495E;color:#FCFCFC; overflow: hidden;
@@ -238,4 +239,11 @@ box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
     background: #ed2553;
     color: #DDDDDD;
     text-decoration: none;
+}
+
+/* File upload bar */
+.bar {
+    height: 18px;
+    background: #34495E;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
 }

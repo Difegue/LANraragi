@@ -79,6 +79,7 @@ div.gt {
     position: relative;
     white-space: nowrap;
     width: default;
+    cursor: pointer;
 }
 
 div.gt:hover {
@@ -239,4 +240,10 @@ box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
     background: #43464E;
     color: #3b97ea;
     text-decoration: none;
+}
+
+/* File upload bar */
+.bar {
+    height: 18px;
+    background: #34353B;
 }

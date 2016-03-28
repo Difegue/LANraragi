@@ -65,7 +65,10 @@ function ajaxTags(arcId,isHash)
 			if (data=="NOTAGS")
 				alert("No tags found !");
 			else
-				$('#tagText').val($('#tagText').val() + " "+ data);
+				if ($('#tagText').val()=="")
+					$('#tagText').val(data);
+				else
+					$('#tagText').val($('#tagText').val() + ", "+ data);
 
 			$('#tag-spinner').css("display","none");
 			$('#tagText').prop("disabled", false);
