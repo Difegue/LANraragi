@@ -26,4 +26,5 @@ service apache2 restart
 chown -R www-data /var/www/lanraragi
 chmod -R 755 /var/www/lanraragi
 
-
+rm -r /var/www/lanraragi/.git
+rm -r /var/www/lanraragi/tools

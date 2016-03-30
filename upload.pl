@@ -112,7 +112,7 @@ if (&isUserLogged($qupload))
 									],
 			-style=>[{'src'=>'./bower_components/blueimp-file-upload/css/jquery.fileupload.css'},
 					{'src'=>'./bower_components/font-awesome/css/font-awesome.min.css'}],							
-			-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'}),
+			-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'./img/favicon.ico'}),
 							meta({-name=>'viewport', -content=>'width=device-width'})],
 			-encoding => "utf-8",
 			-onLoad => qq(

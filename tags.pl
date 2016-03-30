@@ -36,7 +36,7 @@ if (&isUserLogged($qtags))
 									-src=>'./bower_components/jquery/dist/jquery.min.js'},
 					 {-type=>'JAVASCRIPT',
 									-src=>'./js/ajax.js'}],			
-			-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'}),
+			-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'./img/favicon.ico'}),
 							meta({-name=>'viewport', -content=>'width=device-width'})],
 			-encoding => "utf-8",
 			-onLoad => "//Set the correct CSS from the user's localStorage.

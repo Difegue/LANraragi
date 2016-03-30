@@ -88,7 +88,7 @@ sub getTagsFromAPI{
 		my $tags = @$data[0]->{"tags"};
 
 		my $return = join(", ", @$tags);
-		return $return;
+		return substr $return, 1; #Strip first comma
 	}	
 	else #if an error occurs(no tags available) return an empty string.
 		{ return ""; }
@@ -142,7 +142,7 @@ sub nHentaiGetTags{
 			{ $returned.=", ".@$tag[2]; }
 	}
 
-	return $returned;
+	return substr $returned, 1; #Strip first comma
 
 	}
 

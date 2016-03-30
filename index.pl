@@ -73,7 +73,7 @@ require 'functions/functions_login.pl';
 							-src=>'./js/thumb.js'},
 						{-type=>'JAVASCRIPT',
 							-src=>'./js/css.js'}],	
-			-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'favicon.ico'}),
+			-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'./img/favicon.ico'}),
 					meta({-name=>'viewport', -content=>'width=device-width'})],
 			-encoding => "UTF-8",
 			#on Load, initialize datatables and some other shit
@@ -141,7 +141,7 @@ require 'functions/functions_login.pl';
 			<a href="./tags.pl">Batch Tagging</a>
 			<span style="margin-left:5px"></span>
 			<i class="fa fa-caret-right"></i>
-			<a href="./backup.pl">Backup/Restore Database</a>
+			<a href="./config.pl">Configuration</a>
 			</p>';
 		}
 		else
