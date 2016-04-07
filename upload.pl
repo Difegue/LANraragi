@@ -95,64 +95,40 @@ if (&isUserLogged($qupload))
 		print $qupload->header(-type    => 'text/html',
 	                   -charset => 'utf-8');
 
-		print $qupload->start_html
-			(
-			-title=>&get_htmltitle." - Upload Mode",
-		    -author=>'lanraragi-san',
-		    -script=>[{-type=>'JAVASCRIPT',
-									-src=>'./js/css.js'},
-						{-type=>'JAVASCRIPT',
-									-src=>'./js/ajax.js'},
-						{-type=>'JAVASCRIPT',
-									-src=>'./bower_components/jquery/dist/jquery.min.js'},
-						{-type=>'JAVASCRIPT',
-									-src=>'./bower_components/blueimp-file-upload/js/vendor/jquery.ui.widget.js'},
-						{-type=>'JAVASCRIPT',
-									-src=>'./bower_components/blueimp-file-upload/js/jquery.fileupload.js'},
-									],
-			-style=>[{'src'=>'./bower_components/blueimp-file-upload/css/jquery.fileupload.css'},
-					{'src'=>'./bower_components/font-awesome/css/font-awesome.min.css'}],							
-			-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'./img/favicon.ico'}),
-							meta({-name=>'viewport', -content=>'width=device-width'})],
-			-encoding => "utf-8",
-			-onLoad => qq(
-						//Set the correct CSS from the user's localStorage.
-						set_style_from_storage();
+		my $title = &get_htmltitle;
 
-						//Handler for file uploading.
-						\$('#fileupload').fileupload({
-					        dataType: 'json',
-					        done: function (e, data) {
+		print qq(
+			<html>
+			<head>
+				<title>$title - Upload Mode</title>
 
-					        	if (data.result.success == 0)
-					        		result = "<tr><td>" + data.result.name + 
-					        				"</td><td> <i class='fa fa-warning' style='margin-left:20px; margin-right: 10px; color: red'></i>" + data.result.error + "</td></tr>";
-					        	else
-					        		result = "<tr><td>" + data.result.name + 
-					        				"</td><td> <i class='fa fa-check-square' style='margin-left:20px; margin-right: 10px; color: green'></i> <a href='edit.pl?id=" + data.result.id + "'> Click here to edit metadata. </a></td></tr>";
+				<meta name="viewport" content="width=device-width" />
+				<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
-					        	\$('#progress .bar').css('width','0%');
-					            \$('#files').append(result);
-					        },
+				<link type="image/png" rel="icon" href="./img/favicon.ico" />
+				<link rel="stylesheet" type="text/css" href="./bower_components/blueimp-file-upload/css/jquery.fileupload.css" />
+				<link rel="stylesheet" type="text/css" href="./bower_components/font-awesome/css/font-awesome.min.css" />
 
-					        progressall: function (e, data) {
-						        var progress = parseInt(data.loaded / data.total * 100, 10);
-						        \$('#progress .bar').css('width', progress + '%');
-						    }
+				<script src="./js/css.js" type="text/JAVASCRIPT"></script>
+				<script src="./js/ajax.js" type="text/JAVASCRIPT"></script>
+				<script src="./bower_components/jquery/dist/jquery.min.js" type="text/JAVASCRIPT"></script>
+				<script src="./bower_components/blueimp-file-upload/js/vendor/jquery.ui.widget.js" type="text/JAVASCRIPT"></script>
+				<script src="./bower_components/blueimp-file-upload/js/jquery.fileupload.js" type="text/JAVASCRIPT"></script>
+				
+			</head>
 
-					    });
-						)
-			);
+			<body onload="initUpload()">);
+			
 			
 		print &printCssDropdown(0);
 
-		print "<div class='ido' style='text-align:center'>
+		print "<div class='ido' style='text-align:center; font-size:8pt'>
 					<h1 class='ih' style='text-align:center'>Uploading Archives to the Library</h1>	
 
 					Drag and drop files here, or click the upload button.
 					<br/><br/>
 
-					<table style='margin:auto; font-size:9pt; width: 80% '><tbody id='files'>
+					<table style='margin:auto; font-size:9pt; width: 80%; text-align:center;'><tbody id='files'>
 					<tr><td colspan = 2>
 
 						<span class='stdbtn fileinput-button' >
@@ -168,15 +144,47 @@ if (&isUserLogged($qupload))
 					</div>
 					</td></tr>
 
-
-
 					</tbody></table>
 					<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/>
 
 			  </div>
 			  ";
 
-		print $qupload->end_html;
+		print qq(</body>
+
+				<script>
+				function initUpload(){
+
+					//Set the correct CSS from the user's localStorage.
+					set_style_from_storage();
+
+					//Handler for file uploading.
+					\$('#fileupload').fileupload({
+				        dataType: 'json',
+				        done: function (e, data) {
+
+				        	if (data.result.success == 0)
+				        		result = "<tr><td>" + data.result.name + 
+				        				"</td><td> <i class='fa fa-warning' style='margin-left:20px; margin-right: 10px; color: red'></i>" + data.result.error + "</td></tr>";
+				        	else
+				        		result = "<tr><td>" + data.result.name + 
+				        				"</td><td> <i class='fa fa-check-square' style='margin-left:20px; margin-right: 10px; color: green'></i> <a href='edit.pl?id=" + data.result.id + "'> Click here to edit metadata. </a></td></tr>";
+
+				        	\$('#progress .bar').css('width','0%');
+				            \$('#files').append(result);
+				        },
+
+				        progressall: function (e, data) {
+					        var progress = parseInt(data.loaded / data.total * 100, 10);
+					        \$('#progress .bar').css('width', progress + '%');
+					    }
+
+				    });
+
+				}
+				</script>
+				</html>
+		);
 	}
 }
 else

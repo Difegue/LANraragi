@@ -52,9 +52,7 @@ After that, add your archives in the content folder, and it just works™
 
 * Use Gulp for bundling front-end dependencies on top of bower  
 
-* Tag overhaul with proper prefixes like language:english etc
+* Better configuration page  
 
-* Reader overhaul because it's old and kinda bloated  
-
-
+* Database backup/restoration  
 

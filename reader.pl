@@ -35,27 +35,26 @@ require 'functions/functions_reader.pl';
 		print $qreader->header(-type => 'text/html',
 	                   -charset => 'utf-8');
 
-		print $qreader->start_html
-		(
-		-title=>$arcname,
-		-author=>'lanraragi-san',	
-		-script=>[{-type=>'JAVASCRIPT',
-							-src=>'./js/css.js'},
-				  {-type=>'JAVASCRIPT',
-							-src=>'./bower_components/jquery/dist/jquery.min.js'},
-				  {-type=>'JAVASCRIPT',
-							-src=>'./bower_components/jQuery-rwdImageMaps/jquery.rwdImageMaps.min.js'}],				
-		-head=>[Link({-rel=>'icon', -type=>'image/png', -href=>'favicon.ico'}),
-				meta({-name=>'viewport', -content=>'width=device-width'})],		
-		-encoding => "utf-8",
-		-style=>[{'src'=>'./styles/lrr.css'},
-				{'src'=>'./bower_components/font-awesome/css/font-awesome.min.css'}],
-		-onload=> "
-					//dynamic html imagemap magic
-					\$('img[usemap]').rwdImageMaps();
-					set_style_from_storage();
-					",
-		);
+		print qq(<html>
+				<head>
+					<title>$arcname</title>
+					
+					<meta name="viewport" content="width=device-width" />
+					<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+					<link type="image/png" rel="icon" href="./img/favicon.ico" />
+					<link rel="stylesheet" type="text/css" href="./styles/lrr.css" />
+					<link rel="stylesheet" type="text/css" href="./bower_components/font-awesome/css/font-awesome.min.css" />
+
+					<script src="./js/css.js" type="text/JAVASCRIPT"></script>
+					<script src="./bower_components/jquery/dist/jquery.min.js" type="text/JAVASCRIPT"></script>
+					<script src="./bower_components/jQuery-rwdImageMaps/jquery.rwdImageMaps.min.js" type="text/JAVASCRIPT"></script>
+					
+				</head>
+
+				<body onload=" \$('img[usemap]').rwdImageMaps(); //dynamic html imagemap magic
+								set_style_from_storage();">
+				);
 		
 		my $force = $qreader->param('force-reload');
 		my $thumbreload = $qreader->param('reload_thumbnail');
@@ -80,7 +79,7 @@ require 'functions/functions_reader.pl';
 	    print &redirectToPage($qreader,"index.pl");
 	}
 
-	print $qreader->end_html;
+	print "</body></html>";
 
 
 

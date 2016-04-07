@@ -13,35 +13,36 @@ require 'functions/functions_login.pl';
 require 'functions/functions_edit.pl';
 
 my $qedit = new CGI;			   
+my $pagetitle = &get_htmltitle;
+my $html = qq(
+	<html>
+	<head>
+	<title>$pagetitle - Edit Mode</title>
 
-my $html = $qedit->start_html
-	(
-	-title=>&get_htmltitle.' - Edit Mode',
-    -author=>'lanraragi-san',		
-    -style=>[{'src'=>'./bower_components/font-awesome/css/font-awesome.min.css'}],
-    -script=>[{-type=>'JAVASCRIPT',
-							-src=>'./js/css.js'},
-			 {-type=>'JAVASCRIPT',
-							-src=>'./bower_components/jquery/dist/jquery.min.js'},
-			 {-type=>'JAVASCRIPT',
-							-src=>'./js/ajax.js'}],			
-	-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'./img/favicon.ico'}),
-					meta({-name=>'viewport', -content=>'width=device-width'})],
-	-encoding => "utf-8",
-	-onLoad => "//Set the correct CSS from the user's localStorage.
-						set_style_from_storage();"
+	<meta name="viewport" content="width=device-width" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+	<link type="image/png" rel="icon" href="./img/favicon.ico" />
+	<link rel="stylesheet" type="text/css" href="./bower_components/font-awesome/css/font-awesome.min.css" />
+
+	<script src="./js/css.js" type="text/JAVASCRIPT"></script>
+	<script src="./bower_components/jquery/dist/jquery.min.js" type="text/JAVASCRIPT"></script>
+	<script src="./js/ajax.js" type="text/JAVASCRIPT"></script>
+	
+	</head>
+
+	<body onload="set_style_from_storage();">
+
 	);
 
 $html .= &printCssDropdown(0);
-$html .= "<script>set_style_from_storage();</script>";
+$html .= "<script>set_style_from_storage();</script>
+		<div class='ido' style='text-align:center'>";
 	
 #Before anything, check if the user is logged in. If not, redirect him to login.pl?redirect=edit.pl
 if (&isUserLogged($qedit))
 	{
-		#Regular header
-		print $qedit->header(-type    => 'text/html',
-                   	-charset => 'utf-8');
-
+		
 		if ($qedit->param()) {
 		    # Parameters are defined, therefore something has been submitted...	
 			
@@ -80,10 +81,9 @@ if (&isUserLogged($qedit))
 					#for all keys of the hash, add them to the redis hash $id with the matching keys.
 					$redis->hset($id, $_, $hash{$_}, sub {}) for keys %hash;
 					$redis->wait_all_responses;
-					
-					$html .= "<div class='ido' style='text-align:center'><h1>Edit Successful!</h1><br/>";
-						
-					$html .= "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/></div>";
+
+					$html .= "<h1>Edit Successful!</h1><br/>";
+					$html .= "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/>";
 					
 							
 				} else {
@@ -99,16 +99,16 @@ if (&isUserLogged($qedit))
 						{
 							my $delStatus = &deleteArchive($id);
 
-							$html .= "<div class='ido' style='text-align:center'><h1>Archive deleted. <br/>($delStatus)</h1><br/>";
-							$html .= "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/></div>";
+							$html .= "<h1>Archive deleted. <br/>($delStatus)</h1><br/>";
+							$html .= "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/>";
 						}
 						else
 						{ $html .= &generateForm($qedit); }	#Case 2: Standard edit. Generate the renaming form.
 					}
 					else #Case 3: The archive doesn't exist
 					{
-						$html .= "<div class='ido' style='text-align:center'><h1>File not found. </h1><br/>";
-						$html .= "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/></div>";
+						$html .= "<h1>File not found. </h1><br/>";
+						$html .= "<input class='stdbtn' type='button' onclick=\"window.location.replace('./');\" value='Return to Library'/>";
 					}
 
 					$redis->quit();
@@ -120,7 +120,11 @@ if (&isUserLogged($qedit))
 		   print &redirectToPage($qedit,"index.pl");
 		}
 
-		$html .= end_html;
+		$html .= "</div></body></html>";
+
+		#Regular header
+		print $qedit->header(-type    => 'text/html',
+                   	-charset => 'utf-8');
 
 		#We print the html we generated.
 		print $html;
@@ -132,6 +136,7 @@ if (&isUserLogged($qedit))
 		print &redirectToPage($qedit,"login.pl");
 
 	}
+
 
 
 

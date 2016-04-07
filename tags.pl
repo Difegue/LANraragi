@@ -23,24 +23,26 @@ if (&isUserLogged($qtags))
 
 		print $qtags->header(-type    => 'text/html',
                    -charset => 'utf-8');
-		print $qtags->start_html
-			(
-			-title=>&get_htmltitle.' - Batch Tagging',
-		    -author=>'lanraragi-san',		
-		    -style=>[{'src'=>'./bower_components/font-awesome/css/font-awesome.min.css'}],
-		    -script=>[{-type=>'JAVASCRIPT',
-									-src=>'./js/css.js'},
-					  {-type=>'JAVASCRIPT',
-									-src=>'./js/ajax.js'},
-					 {-type=>'JAVASCRIPT',
-									-src=>'./bower_components/jquery/dist/jquery.min.js'},
-					 {-type=>'JAVASCRIPT',
-									-src=>'./js/ajax.js'}],			
-			-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'./img/favicon.ico'}),
-							meta({-name=>'viewport', -content=>'width=device-width'})],
-			-encoding => "utf-8",
-			-onLoad => "//Set the correct CSS from the user's localStorage.
-								set_style_from_storage();"
+
+		my $htmltitle = &get_htmltitle;
+		print qq(<html>
+			<head>
+				<title>$htmltitle - Batch Tagging</title>
+
+				<meta name="viewport" content="width=device-width" />
+				<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+				<link type="image/png" rel="icon" href="./img/favicon.ico" />
+				<link rel="stylesheet" type="text/css" href="./bower_components/font-awesome/css/font-awesome.min.css" />
+
+				<script src="./js/css.js" type="text/JAVASCRIPT"></script>
+				<script src="./js/ajax.js" type="text/JAVASCRIPT"></script>
+				<script src="./bower_components/jquery/dist/jquery.min.js" type="text/JAVASCRIPT"></script>
+				<script src="./js/ajax.js" type="text/JAVASCRIPT"></script>
+				
+			</head>
+
+			<body onload="set_style_from_storage()">
 			);
 
 		print &printCssDropdown(0);
@@ -51,7 +53,7 @@ if (&isUserLogged($qtags))
 		print "<div class='ido' style='text-align:center'>
 				<h2 class='ih' style='text-align:center'>Batch Tagging</h2>
 				<br><br>
-				<table style='margin-left:auto; margin-right:auto; width:60%'>
+				<table style='margin-left:auto; margin-right:auto; width:60%; font-size:8pt;'>
 					<tbody>
 
 					<tr>
@@ -123,7 +125,10 @@ if (&isUserLogged($qtags))
 					<h3 id='processedArchive'>Processing </h3>
 				</div>
 
-			   </div>";
+			   </div>
+			   </body>
+			   </html>
+			   ";
 
 
 

@@ -22,20 +22,25 @@ if (&isUserLogged($qlogin))
 else
 	{
 
-		my $html = start_html
-			(
-			-title=>&get_htmltitle.' - Login',
-		    -author=>'lanraragi-san',		
-		    -style=>[{'src'=>'./bower_components/font-awesome/css/font-awesome.min.css'}],
-		    -script=>[{-type=>'JAVASCRIPT',
-									-src=>'./js/css.js'},
-					  {-type=>'JAVASCRIPT',
-									-src=>'./bower_components/jquery/dist/jquery.min.js'}],			
-			-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'./img/favicon.ico'}),
-							meta({-name=>'viewport', -content=>'width=device-width'})],
-			-encoding => "utf-8",
-			-onLoad => "//Set the correct CSS from the user's localStorage.
-								set_style_from_storage();"
+		my $htmltitle = &get_htmltitle;
+		my $html = qq(
+
+			<html>
+			<head>
+				<title>$htmltitle - Login</title>
+
+				<meta name="viewport" content="width=device-width" />
+				<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+				<link type="image/png" rel="icon" href="./img/favicon.ico" />
+				<link rel="stylesheet" type="text/css" href="./bower_components/font-awesome/css/font-awesome.min.css" />
+
+				<script src="./js/css.js" type="text/JAVASCRIPT"></script>
+				<script src="./bower_components/jquery/dist/jquery.min.js" type="text/JAVASCRIPT"></script>		
+			</head>
+
+			<body onload="set_style_from_storage()">
+
 			);
 
 		#Handle login requests

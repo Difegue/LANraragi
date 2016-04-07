@@ -51,7 +51,7 @@ sub generateForm
 
 	$redis->quit();
 
-	my $html = "<div class='ido' style='text-align:center'>";
+	my $html = "";
 	if ($artist eq "")
 		{$html .= "<h1 class='ih' style='text-align:center'>Editing $title</h1>";}
 	else
@@ -59,7 +59,7 @@ sub generateForm
 
 	$html .= qq(
 			<form name='editArchiveForm' id='editArchiveForm' enctype='multipart/form-data' method='post'>
-			  <table style='margin:auto'><tbody>
+			  <table style='margin:auto; font-size:8pt;'><tbody>
 				<tr><td style='text-align:left; width:100px'>Current File Name:</td><td>
 				<input class='stdinput' type='text' style='width:90%' readonly='' maxlength='255' size='20' value='$file' name='filename'>
 			  	</td></tr>
@@ -115,7 +115,6 @@ sub generateForm
 				</td></tr>
 				</tbody></table>
 			</form>
-			</div>
 			);
 
 

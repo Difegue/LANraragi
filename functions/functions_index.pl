@@ -5,57 +5,39 @@ use Redis;
 use Encode;
 use File::Path qw(make_path remove_tree);
 use File::Basename;
-use HTML::Table;
 
 require 'config.pl';
 
-
 #With a list of files, generate the HTML table that will be shown in the main index.
-sub generateTable
+sub generateTableJSON
  {
 		my @dircontents = @_;
 		my $file = "";
-		my $filecheck = "";
+		
 		my $path = "";
 		my $suffix = "";
-		my $name = "";
-		my $thumbname = "";
-		my ($event,$artist,$title,$series,$language,$tags,$id) = (" "," "," "," "," "," ");
-		my $fullfile="";
-		my $isnew = "none";
-		my $count;
+		my ($name,$event,$artist,$title,$series,$language,$tags,$id,$isnew) = (" "," "," "," "," "," "," ","none");
+
 		my $dirname = &get_dirname;
 
 		my $redis = Redis->new(server => &get_redisad, 
 							reconnect => 100,
 							every     => 3000);
 
-		#Generate Archive table
-		my $table = new HTML::Table(-rows=>0,
-		                            -cols=>6,
-		                            -class=>'itg'
-		                            );
-
-		$table->addSectionRow( 'thead', 0, "",'<a>Title</a>','<a>Artist/Group</a>','<a>Series</a>',"<a>Language</a>","<a>Tags</a>");
-		$table->setSectionRowHead('thead', -1, -1, 1);
-
-		#Add IDs to the table headers to hide them with media queries on small screens.
-		$table->setSectionCellAttr('thead', 0, 1, 2, 'id="titleheader"');
-		$table->setSectionCellAttr('thead', 0, 1, 3, 'id="artistheader"');
-		$table->setSectionCellAttr('thead', 0, 1, 4, 'id="seriesheader"');
-		$table->setSectionCellAttr('thead', 0, 1, 5, 'id="langheader"');
-		$table->setSectionCellAttr('thead', 0, 1, 6, 'id="tagsheader"');
+		#Start building JSON
+		my $json = "[";
 
 		foreach $file (@dircontents)
 		{
 			#ID of the archive, used for storing data in Redis.
 			$id = sha256_hex($file);
 
-			#Let's check out the Redis cache first! It might already have the info we need.
+			#Let's check out the Redis cache first to see if the archive has already been parsed
 			if ($redis->hexists($id,"title"))
 				{
 					#bingo, no need for expensive file parsing operations.
 					my %hash = $redis->hgetall($id);
+					my $filecheck = "";
 
 					#It's not a new archive, though. But it might have never been clicked on yet, so we'll grab the value for $isnew stored in redis.
 					($name,$event,$artist,$title,$series,$language,$tags,$filecheck,$isnew) = @hash{qw(name event artist title series language tags file isnew)};
@@ -76,12 +58,10 @@ sub generateTable
 			else #can't be helped, parse archive and add it to Redis alongside its metadata.
 				{ ($name,$event,$artist,$title,$series,$language,$tags,$isnew) = &addArchiveToRedis($id,$file,$redis); }
 
-			my $urlencoded = $dirname."/".uri_escape($name).$suffix; 	
+			#Once we have the data, we can build our line.
 
-			my $icons = qq(<div style="font-size:14px"><a href="$urlencoded" title="Download this archive."><i class="fa fa-save"></i><a/> 
-							<a href="./edit.pl?id=$id" title="Edit this archive's tags and data."><i class="fa fa-pencil"></i><a/></div>);
+			my $urlencoded = $dirname."/".uri_escape($name); 	
 					
-
 			#Tag display. Simple list separated by hyphens which expands into a caption div with nicely separated tags on hover.
 			my $printedtags = "";
 
@@ -89,67 +69,31 @@ sub generateTable
 				{ $printedtags = $event.", ".$tags; }
 			else
 				{ $printedtags = $tags;}
-
-			$printedtags = qq(<span class="tags" style="text-overflow:ellipsis;">$printedtags</span><div class="caption" style="position:absolute;">);
-
-			#Split the tags, and put them in individual divs for pretty printing.
-			my @tagssplit = split(',\s?',$tags);
-			my $tag = "";
-
-			foreach $tag (@tagssplit)
-				{ $printedtags .= qq(<div class="gt" onclick="\$('#srch').val(\$(this).html()); arcTable.search(\$(this).html()).draw();">$tag</div>); } #The JS allows the user to search a tag by clicking it.
-
-			#Close up the caption.
-			$printedtags.="</div>"; 
-
-			#Make artist/series/language searchable by clicking on them
-			$artist = qq(<a style="cursor:pointer" onclick="\$('#srch').val(\$(this).html()); arcTable.search(\$(this).html()).draw();">$artist</a>);
-			$series = qq(<a style="cursor:pointer" onclick="\$('#srch').val(\$(this).html()); arcTable.search(\$(this).html()).draw();">$series</a>);
-			$language = qq(<a style="cursor:pointer" onclick="\$('#srch').val(\$(this).html()); arcTable.search(\$(this).html()).draw();">$language</a>);
 			
-			#version with hover thumbnails 
-			if (&enable_thumbs)
-			{
-				my $thumbname = $dirname."/thumb/".$id.".jpg";
 
-				my $row = qq(<span style="display: none;">$title</span>
-										<a href="./reader.pl?id=$id" );
+			my $thumbname = $dirname."/thumb/".$id.".jpg";
 
-				if (-e $thumbname)
+			unless (-e $thumbname && &enable_thumbs eq "1")
+				{ $thumbname = "null"; }
+
+			$json.=qq(
 				{
-					$row.=qq(onmouseover="thumbTimeout = setTimeout(showtrail, 200,'$thumbname')" );
-				}
-				else
-				{
-					$row.=qq(onmouseover="thumbTimeout = setTimeout(ajaxThumbnail, 200,'$id')" );
-				}
-											
-				$row.=qq(onmouseout="hidetrail(); clearTimeout(thumbTimeout);">
-										$title
-										</a>
-										<img src="img/n.gif" style="float: right; margin-top: -15px; z-index: -1; display: $isnew">); #user is notified here if archive is new (ie if it hasn't been clicked on yet)
-
-				#add row for this archive to table
-				$table->addRow($icons.qq(<input type="text" style="display:none;" id="$id" value="$id"/>),$row,$artist,$series,$language,$printedtags);
-			}
-			else #version without, ezpz
-			{
-				#add row to table
-				$table->addRow($icons,qq(<span style="display: none;">$title</span><a href="./reader.pl?id=$id" title="$title">$title</a>),$artist,$series,$language,$printedtags);
-			}
-				
-			$table->setSectionClass ('tbody', -1, 'list' );
+					"arcid": "$id",
+					"url": "$urlencoded",
+					"thumbnail": "$thumbname",
+					"artist": "$artist",
+					"title": "$title",
+					"series": "$series",
+					"language": "$language",
+					"tags": "$tags",
+					"isnew": "$isnew"
+				},
+			);
 			
 		}
 
 
-		$table->setColClass(1,'itdc');
-		$table->setColClass(2,'title itd');
-		$table->setColClass(3,'artist itd');
-		$table->setColClass(4,'series itd');
-		$table->setColClass(5,'language itd');
-		$table->setColClass(6,'tags itu');
-		$table->setColWidth(1,30);
+		$json.="]";
 
-		return $table;
+		return $json;
  }

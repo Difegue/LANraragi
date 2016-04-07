@@ -18,23 +18,23 @@ my $qajax = new CGI;
 print $qajax->header('text/plain');
 
 #Is this a call? 
-if ($qajax->param() && &isUserLogged($qajax))
+if ($qajax->param())
 {
 
 	my $call = $qajax->param('function');
 	my $id = $qajax->param('id');
 	my $ishash = $qajax->param('ishash');
 
-	#Generate thumbnail for archive
+	#Generate thumbnail for archive - no admin login required
 	if ($call eq "thumbnail")
 		{ print &getThumb($id); }
 
 	#tags == When editing an archive, directly return tags. 
-	if ($call eq "tags") 
+	if ($call eq "tags"  && &isUserLogged($qajax)) 
 		{ print &getTags($id,$ishash); }
 
 	#tagsave = batch tagging, immediately save returned tags to redis.
-	if ($call eq "tagsave")
+	if ($call eq "tagsave" && &isUserLogged($qajax))
 		{ 
 			#get the tags with regular getTags
 			my $tags = &getTags($id,$ishash);
@@ -44,10 +44,7 @@ if ($qajax->param() && &isUserLogged($qajax))
 		}
 
 }
-else
-{
-	print "Session expired, please login again."
-}
+
 
 ###################
 

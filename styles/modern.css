@@ -33,7 +33,7 @@ body {
     text-align: center;
     padding:2px;
     margin:0px;
-    font-size: 8pt;
+    font-size: 8pt !important;
 }    
 
 

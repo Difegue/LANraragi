@@ -30,9 +30,9 @@ require 'functions/functions_login.pl';
 	my $table;
 	#From the file tree, generate the HTML table
 	if (@filez)
-	{ $table = &generateTable(@filez); }
+	{ $table = &generateTableJSON(@filez); }
 	else
-	{ $table = "<h1>Looks like you didn't upload any archives yet. Try dragging some into the content folder, or uploading them from <a href='upload.pl'>this page</a> ! </h1>"}
+	{ $table = "[]"}
 	$redis->quit();
 
 
@@ -54,82 +54,31 @@ require 'functions/functions_login.pl';
 
 		my $table = $_[0];
 		my $cgi = $_[1];
-		my $html = start_html
-			(
-			-title=>&get_htmltitle,
-			-author=>'lanraragi-san',
-			-style=>[{'src'=>'./styles/lrr.css'},
-					{'src'=>'./bower_components/font-awesome/css/font-awesome.min.css'}],
-			-script=>[
-						{-type=>'JAVASCRIPT',
-							-src=>'./bower_components/jquery/dist/jquery.min.js'},
-						{-type=>'JAVASCRIPT',
-							-src=>'./bower_components/datatables/media/js/jquery.dataTables.min.js'},
-						{-type=>'JAVASCRIPT',
-							-src=>'./bower_components/dropit/dropit.js'},
-						{-type=>'JAVASCRIPT',
-							-src=>'./js/ajax.js'},	
-						{-type=>'JAVASCRIPT',
-							-src=>'./js/thumb.js'},
-						{-type=>'JAVASCRIPT',
-							-src=>'./js/css.js'}],	
-			-head=>[Link({-rel=>'icon',-type=>'image/png',-href=>'./img/favicon.ico'}),
-					meta({-name=>'viewport', -content=>'width=device-width'})],
-			-encoding => "UTF-8",
-			#on Load, initialize datatables and some other shit
-			-onLoad => "var thumbTimeout = null;
-									
-						\$.fn.dataTableExt.oStdClasses.sStripeOdd = 'gtr0';
-						\$.fn.dataTableExt.oStdClasses.sStripeEven = 'gtr1';
+		my $pagesize = &get_pagesize;
+		my $title = &get_htmltitle;
+		my $html = qq(
+		<html>
+			<head>
+				<title>$title</title>
 
-						//datatables configuration
-						arcTable= \$('.itg').DataTable( { 
-							'lengthChange': false,
-							'pageLength': ".&get_pagesize().",
-							'order': [[ 1, 'asc' ]],
-							'dom': '<\"top\"ip>rt<\"bottom\"p><\"clear\">',
-							'language': {
-									'info':           'Showing _START_ to _END_ of _TOTAL_ ancient chinese lithographies.',
-    								'infoEmpty':      'No archives to show you !',
-    							}
-						});
+				<meta name="viewport" content="width=device-width" />
+				<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+				
+				<link type="image/png" rel="icon" href="./img/favicon.ico" />
+				<link rel="stylesheet" type="text/css" href="./styles/lrr.css" />
+				<link rel="stylesheet" type="text/css" href="./bower_components/font-awesome/css/font-awesome.min.css" />
 
-					    //Initialize CSS dropdown with dropit
-						\$('.menu').dropit({
-					       action: 'click', // The open action for the trigger
-					        submenuEl: 'div', // The submenu element
-					        triggerEl: 'a', // The trigger element
-					        triggerParentEl: 'span', // The trigger parent element
-					        afterLoad: function(){}, // Triggers when plugin has loaded
-					        beforeShow: function(){}, // Triggers before submenu is shown
-					        afterShow: function(){}, // Triggers after submenu is shown
-					        beforeHide: function(){}, // Triggers before submenu is hidden
-					        afterHide: function(){} // Triggers before submenu is hidden
-					    });
+				<script src="./bower_components/jquery/dist/jquery.min.js" type="text/JAVASCRIPT"></script>
+				<script src="./bower_components/datatables/media/js/jquery.dataTables.min.js" type="text/JAVASCRIPT"></script>
+				<script src="./bower_components/dropit/dropit.js" type="text/JAVASCRIPT"></script>
+				<script src="./js/ajax.js" type="text/JAVASCRIPT"></script>
+				<script src="./js/index.js" type="text/JAVASCRIPT"></script>
+				<script src="./js/css.js" type="text/JAVASCRIPT"></script>
+				
+			</head>);
 
-						//Set the correct CSS from the user's localStorage again, in case the version in <script> tags didn't load.
-						//(That happens on mobiles for some reason.)
-						set_style_from_storage();
 
-						//add datatable search event to the local searchbox and clear search to the clear filter button
-						\$('#srch').keyup(function(){
-						      arcTable.search(\$(this).val()).draw() ;
-						});
-
-						\$('#clrsrch').click(function(){
-							arcTable.search('').draw(); 
-							\$('#srch').val('');
-							});
-
-						//clear searchbar cache
-						\$('#srch').val('');
-
-						//end init thumbnails
-						hidetrail();
-						document.onmouseover=followmouse;
-
-						"
-			);
+		$html.=qq(<body onload ="initIndex($pagesize,archiveJSON);">);
 
 		if (&isUserLogged($cgi))
 		{
@@ -167,15 +116,21 @@ require 'functions/functions_login.pl';
 		#Random button + CSS dropdown with dropit. These can't be generated in JS, the styles need to be loaded asap.
 		$html.="<p id='cssbutton' style='display:inline'><input class='stdbtn' type='button' onclick=\"var win=window.open('random.pl','_blank'); win.focus();\" value='Give me a random archive'/>".$CSSsel."</p>";
 
-		$html=$html."<script>
-			//Set the correct CSS from the user's localStorage.
-			set_style_from_storage();
+		#$html.="$table"; #print our finished table
 
-			//Init thumbnail hover
-			showtrail('img/noThumb.png');
-			</script>";
-
-		$html.="$table"; #print our finished table
+		$html.=qq(<table class="itg">
+					<thead>
+					<tr>
+					<th></th>
+						<th id="titleheader"><a>Title</a></th>
+						<th id="artistheader"><a>Artist/Group</a></th>
+						<th id="seriesheader"><a>Series</a></th>
+						<th id="langheader"><a>Language</a></th>
+						<th id="tagsheader"><a>Tags</a></th>
+					</tr>
+					</thead>
+					<tbody class="list">
+					</tbody></table>);
 
 		$html.="</div></div>"; #close errything
 
@@ -185,7 +140,20 @@ require 'functions/functions_login.pl';
 					</a>
 				</p>';
 				
-		$html.=end_html; #close html
+		$html.=qq(
+			<script>
+			//Set the correct CSS from the user's localStorage.
+			set_style_from_storage();
+
+			//Init thumbnail hover
+			showtrail('img/noThumb.png');
+
+			archiveJSON = $table;
+
+			</script>);
+
+
+		$html.="</body></html>"; #close html
 		return $html;
 	}
 
