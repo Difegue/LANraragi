@@ -2,8 +2,6 @@
 
 use strict;
 use CGI qw/:standard/;
-use HTML::Table;
-use File::Path qw(remove_tree);
 use Redis;
 
 #Require config 

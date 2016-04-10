@@ -26,9 +26,33 @@ function ajaxThumbnail(archiveId)
 
 }
 
-//saveArchiveData(callbackFunction,callbackArguments)
+//saveArchiveData()
+//Grabs the data in the edit.pl form and saves it to Redis.
+function saveArchiveData()
+{
+	var postData = $("#editArchiveForm").serializeArray()
+	var formURL = $("#editArchiveForm").attr("action")
+
+	$.ajax(
+	{
+		url : formURL,
+		type: "POST",
+		data : postData,
+		success:function(data, textStatus, jqXHR) 
+		{
+			$("#statusEdit").html("Metadata saved !");
+		},
+		error: function(jqXHR, textStatus, errorThrown) 
+		{
+			$("#statusEdit").html("Something went wrong while saving archive data : "+errorThrown);		
+		}
+	});
+
+}
+
+//saveArchiveCallback(callbackFunction,callbackArguments)
 //Grabs the data in the edit.pl form and presaves it to Redis for tag Searches. Executes a callback when data is correctly saved.
-function saveArchiveData(callback,arg1,arg2)
+function saveArchiveCallback(callback,arg1,arg2)
 {
 	var postData = $("#editArchiveForm").serializeArray()
 	var formURL = $("#editArchiveForm").attr("action")
@@ -44,7 +68,38 @@ function saveArchiveData(callback,arg1,arg2)
 		},
 		error: function(jqXHR, textStatus, errorThrown) 
 		{
-			alert("Something went wrong while saving archive data : "+errorThrown);		
+			$("#statusEdit").html("Something went wrong while saving archive data : "+errorThrown);		
+		}
+	});
+
+}
+
+
+//deleteArchive(id)
+//Sends a DELETE request for that archive ID, deleting the Redis key and attempting to delete the archive file.
+function deleteArchive(arcId)
+{
+	var formURL = $("#editArchiveForm").attr("action")
+	var postData = $("#editArchiveForm").serializeArray()
+
+	$.ajax(
+	{
+		url : formURL,
+		type: "DELETE",
+		data : postData,
+		success:function(data, textStatus, jqXHR) 
+		{
+			if (data.success == "0")
+				alert("Couldn't delete archive file. Archive metadata has been deleted properly. Please delete the file manually.");
+			else
+				alert("Successfully deleted "+data.success+" . Redirecting...");
+
+			window.location.replace('./index.pl');
+		
+		},
+		error: function(jqXHR, textStatus, errorThrown) 
+		{
+			$("#statusEdit").html("Something went wrong while deleting archive : "+textStatus);		
 		}
 	});
 
@@ -63,7 +118,7 @@ function ajaxTags(arcId,isHash)
 		.done(function(data) {
 
 			if (data=="NOTAGS")
-				alert("No tags found !");
+				$("#statusEdit").html("No tags found !");
 			else
 				if ($('#tagText').val()=="")
 					$('#tagText').val(data);
@@ -76,7 +131,7 @@ function ajaxTags(arcId,isHash)
 			return data;
 		})
 		.fail(function(data) {
-			alert("An error occured while getting tags. "+data);
+			$("#statusEdit").html("An error occured while getting tags. "+data);
 			$('#tag-spinner').css("display","none");
 			$('#tagText').prop("disabled", false);
 			$('#tagText').css("opacity","1");
@@ -91,7 +146,7 @@ function ajaxTags(arcId,isHash)
 //method = 2 => nhentai
 function massTag(method)
 {
-
+	$('#buttonstagging').hide();
 	$('#processing').attr("style","");
 	var checkeds = document.querySelectorAll('input[name=archive]:checked');
 
@@ -111,6 +166,7 @@ function makeCall(archivesToCheck,method)
 	{
 		$('#processedArchive').html("All done !");
 		$('#tag-spinner').attr("style","display:none");
+		$('#buttonstagging').show();
 		return;
 	}
 
@@ -127,6 +183,6 @@ function ajaxCall(archive,method,archivesToCheck)
 	//Ajax call for getting and setting the tags
 	$.get( "ajax.pl", { function: "tagsave", ishash: method, id: archive.id} )
 	.done(function(data) { makeCall(archivesToCheck,method); })  //hurr callback
-	.fail(function(data) { alert("An error occured while getting tags. "+data); });
+	.fail(function(data) { $("#statusEdit").html("An error occured while getting tags. "+data); });
 
 }

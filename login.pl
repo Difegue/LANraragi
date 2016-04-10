@@ -21,7 +21,23 @@ if (&isUserLogged($qlogin))
 	}
 else
 	{
+		#Handle login requests
+		if ($qlogin->param()) {
+		    # Parameters are defined, therefore something has been submitted.
+		    if ('POST' eq $qlogin->request_method ) { 
+					my $pass = $qlogin->param('password');
 
+					my $loginCookie = &loginUser($qlogin,$pass);
+					
+					unless ($loginCookie eq "0") #We're logged, redirect with cookie
+						{ print &redirectToPage($qlogin,"index.pl",$loginCookie); }
+					else
+						{ $wrongPass = 1; }
+
+				}
+		}
+
+		#Regular HTML printout
 		my $htmltitle = &get_htmltitle;
 		my $html = qq(
 
@@ -43,24 +59,6 @@ else
 
 			);
 
-		#Handle login requests
-		if ($qlogin->param()) {
-		    # Parameters are defined, therefore something has been submitted.
-		    if ('POST' eq $qlogin->request_method ) { 
-					my $pass = $qlogin->param('password');
-
-					my $loginCookie = &loginUser($qlogin,$pass);
-					
-					unless ($loginCookie eq "0") #We're logged, redirect with cookie
-						{ print &redirectToPage($qlogin,"index.pl",$loginCookie); }
-					else
-						{ $wrongPass = 1; }
-
-				}
-		}
-
-		#Regular HTML printout
-
 		$html .= &printCssDropdown(0);
 		$html .= "<script>set_style_from_storage();</script>";
 
@@ -68,7 +66,7 @@ else
 		$html.= "<div class='ido' style='text-align:center'>
 					<p>This page requires you to log on.</p>
 					<form name='loginForm' method='post'>
-					<table style='margin:auto; text-align:left'>
+					<table style='margin:auto; text-align:left; font-size:8pt;'>
 						<tbody>
 							<tr>
 								<td>Admin Password:</td>

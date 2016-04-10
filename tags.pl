@@ -36,7 +36,6 @@ if (&isUserLogged($qtags))
 				<link rel="stylesheet" type="text/css" href="./bower_components/font-awesome/css/font-awesome.min.css" />
 
 				<script src="./js/css.js" type="text/JAVASCRIPT"></script>
-				<script src="./js/ajax.js" type="text/JAVASCRIPT"></script>
 				<script src="./bower_components/jquery/dist/jquery.min.js" type="text/JAVASCRIPT"></script>
 				<script src="./js/ajax.js" type="text/JAVASCRIPT"></script>
 				
@@ -65,12 +64,13 @@ if (&isUserLogged($qtags))
 						Check the archives for which you want to search, and click on the button with the method you want to use.<br> Archives with no tags have been pre-checked.<br><br>
 						<b>Important</b>: Since this not only leverages the API but also uses g.e-hentai for searches, tagging more than 150 archives at once might get you tempbanned for excessive pageloads.  <br> <br>nhentai doesn't pull that shit, so just use that instead ! 
 
-
+						<span id='buttonstagging'>
 						<input type='button' style='margin-top:25px;min-width:50px; max-width:150px;height:60px' value='Global Reverse &#x00A;Tag Research &#x00A;(Using Archive Titles)' class='stdbtn' onclick='massTag(0)'>
 
 						<input type='button' style='margin-top:25px;min-width:50px; max-width:150px;height:60px' value='Global Reverse &#x00A;Tag Research &#x00A;(Using Image Hashes)' class='stdbtn' onclick='massTag(1)'>
 
 						<input type='button' style='margin-top:25px;min-width:50px; max-width:150px;height:60px' value='Global Reverse &#x00A;Tag Research &#x00A;(Using nhentai.org)' class='stdbtn' onclick='massTag(2)'>
+						</span>
 
 					</td>
 

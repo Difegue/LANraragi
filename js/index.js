@@ -139,7 +139,7 @@ function initIndex(pagesize,dataSet)
 		'dom': '<"top"ip>rt<"bottom"p><"clear">',
 		'language': {
 				'info':           'Showing _START_ to _END_ of _TOTAL_ ancient chinese lithographies.',
-				'infoEmpty':      '<h1>Looks like you didn\'t upload any archives yet. Try dragging some into the content folder, or uploading them from <a href="upload.pl">this page</a> ! </h1>',
+				'infoEmpty':      'No archives to show you ! Try <a href="upload.pl">uploading some</a> ?',
 			},
 		'columns' : [
 			{ className: 'itdc', 
@@ -189,13 +189,18 @@ function initIndex(pagesize,dataSet)
 			  'data': 'tags',
 			  'render': function (data, type, full, meta ) {
 			  			if(type == "display"){
-			  				line = '<span class="tags" style="text-overflow:ellipsis;">'+data+'</span><div class="caption" style="position:absolute;">'
+			  				line = '<span class="tags" style="text-overflow:ellipsis;">'+data+'</span>';
 
-			  				data.split(/,\s?/).forEach(function (item) {
-							    line+='<div class="gt" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+item+'</div>';
-							});
+			  				if (data!="")
+			  					{
+			  						line+='<div class="caption" style="position:absolute;">';
 
-							line+='</div>';
+					  				data.split(/,\s?/).forEach(function (item) {
+									    line+='<div class="gt" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+item+'</div>';
+									});
+
+									line+='</div>';
+								}
 							return line;
 			  			}
 
