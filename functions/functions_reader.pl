@@ -8,7 +8,7 @@ use Encode;
 use Image::Info qw(image_info dim);
 use File::Find qw(find);
 
-require 'config.pl';
+require 'functions/functions_config.pl';
 
 #printReaderErrorPage($filename,$log)
 sub printReaderErrorPage
@@ -113,7 +113,7 @@ sub getImage
 	my $imgpath = @images[$pagenum-1]; #This is the page we'll display.
 	
 	#convert to a cheaper on bandwidth format if the option is enabled.
-	if (&get_threshold != 0)
+	if (&enable_resize)
 	{
 			#Is the file size higher than the threshold?
 			#print (int((-s @images[$pagenum-1] )/ 1024*10)/10 );
@@ -133,84 +133,28 @@ sub getImage
 
 
 
-
-
-
-
-
-
 #printReaderHTML(id,extractedImage,archiveName,archiveTotalPages, pagenum)
-#HTML printout. Pretty dirty, should be replaced by templates one day.
+#Computes all the necessary values to feed to the HTML template for a reader page.
+#Image info, number of pages, page we're actually in, image path.
 sub printReaderHTML
  {
-
-	my $html = "";
 
 	my ( $id, $imgpath, $arcname, $arcpages, $pagenum) = @_;
 
 	unless (defined $pagenum)
-		{$pagenum = 1;}
+		{ $pagenum = 1; }
 
 	if ($pagenum >= $arcpages)
-		{$pagenum = $arcpages;}
+		{ $pagenum = $arcpages; }
+
+	if ($pagenum < 1)
+		{ $pagenum = 1; }
 
 	#Let's get more precise info on the image to display. 
 	my $info = image_info($imgpath);
 		
 	#gonna reuse those variables.
 	my ($namet,$patht,$suffixt) = fileparse($imgpath, qr/\.[^.]*/);
-
-	#The numbers of the pages we direct the reader to for the right/left arrows.
-	#We print a hidden link with the "next" id for the reader JS to properly direct to the next page on spacebar press.
-	my $leftpage=1;
-	my $rightpage=1;
-
-	if (&get_readorder==1)
-		{
-			$leftpage = $pagenum+1;
-			$rightpage = $pagenum-1;
-			$html.='<a id="next" href="./reader.pl?id='.$id.'&page='.($leftpage).'" style="display:none"></a>';
-		}
-		else
-		{
-			$leftpage = $pagenum-1;
-			$rightpage = $pagenum+1;
-			$html.='<a id="next" href="./reader.pl?id='.$id.'&page='.($rightpage).'" style="display:none"></a>';
-		}
-
-		
-	$html.=&printCssDropdown(0);
-	$html.='<script>set_style_from_storage();</script>';
-	$html.='<script src="./js/reader.js"></script>';
-	#These are the pretty arrows you use to switch pages.
-	my $arrows = '<div class="sn">
-					<a href="./reader.pl?id='.$id.'&page=1"> <i class="fa fa-angle-double-left fa-2x"></i> </a> 
-					<a id="left" href="./reader.pl?id='.$id.'&page='.($leftpage).'"> <i class="fa fa-angle-left fa-2x"></i> </a>
-					<div class="pagecount"><span id ="current">'.$pagenum.'</span> / <span id ="max">'.$arcpages.'</span> </div>
-					<a id="right" href="./reader.pl?id='.$id.'&page='.($rightpage).'"> <i class="fa fa-angle-right fa-2x"></i> </a>
-					<a href="./reader.pl?id='.$id.'&page='.$arcpages.'"> <i class="fa fa-angle-double-right fa-2x"></i> </a></div>';
-					
-	#generate the floating div containing the help popup and the page dropdown
-	my $pagesel = '<div style="position: absolute; right: 20px; z-index:20" class="page_dropdown" >
-				<form style="float: right;"><select size="1"  onChange="location = this.options[this.selectedIndex].value;">';
-
-	#We opened a drop-down list. Now, we'll fill it.
-	for ( my $i = 1; $i < $arcpages+1; $i++) 
-	{
-		if ($i eq $pagenum) #If the option we'll print is our current page, we should make it the selected choice.
-		{$pagesel = $pagesel.'<option selected="selected" value="./reader.pl?id='.$id.'&page='.$i.'">Page '.$i.'</option>';}
-		else
-		{$pagesel = $pagesel.'<option value="./reader.pl?id='.$id.'&page='.$i.'">Page '.$i.'</option>';}
-	}		
-
-	#We close the drop-down list and add a help dialog.
-	$pagesel = $pagesel.'</select></form>
-
-						<a href="#" onclick="alert(\'You can navigate between pages in different ways : \n* The arrow icons\n* Your keyboard arrows\n* Touching the left/right side of the image.\n\n To return to the archive index, touch the arrow pointing down.\')">
-							<i class="fa fa-3x" style="padding-right: 10px; margin-top: -5px">?</i></a>	
-
-				</div>';
-	
 	
 	#Outputs something like "0001.png :: 1052 x 1500 :: 996.6 KB".
 	my $size = (int((-s ($imgpath) )/ 1024*10)/10 ) ;
@@ -219,7 +163,7 @@ sub printReaderHTML
 	my $imgheight = $info->{height}; 
 	my $imgmapwidth = int($imgwidth/2 + 0.5);
 
-	my $fileinfo ='<div id = "fileinfo">'. $namet.$suffixt .' :: '. $imgwidth .' x '. $imgheight .' :: '. $size .'KBs</div>';
+	my $filename = $namet.$suffixt;
 	
 	#We need to sanitize the image's path, in case the folder contains illegal characters, but uri_escape would also nuke the / needed for navigation.
 	#Let's solve this with a quick regex search&replace.
@@ -229,48 +173,34 @@ sub printReaderHTML
 	#Then we bring the slashes back.
 	$imgpath =~ s!%2F!/!g;
 	
-	#This is our output.
-	$html.='<div id="i1" class="sni" style="max-width: 1200px">
-			<h1>'.$arcname.'</h1>
-			
-			<div id="i2">'.$pagesel.$arrows.$fileinfo.'</div>
-			
-			<div id ="i3">
-			
-			<a id ="display">
-			<img id="img" style="max-width:100%; height: auto; width: auto; " src="'.$imgpath.'" usemap="#Map" />
-			<map name="Map" id="Map">
-			    <area alt="" title="" href="./reader.pl?id='.$id.'&page='.($leftpage).'" shape="rect" coords="0,0,'.$imgmapwidth.','.$imgheight.'" />
-			    <area alt="" title="" href="./reader.pl?id='.$id.'&page='.($rightpage).'" shape="rect" coords="'.($imgmapwidth+1).',0,'.$imgwidth.','.$imgheight.'" />
-			</map>
-			</a>
-	
-			</div>
-			
-			<div id = "i4">'.$fileinfo.$pagesel.$arrows.'</div>
-			
-			<div id="i5">
-			<div class="sb">
-			<a href="./">
-			<i class="fa fa-angle-down fa-4x"></i>
-			</a>
-			</div>
-			</div>
-			
-			<div id="i6" class="if">
-			<i class="fa fa-caret-right fa-lg"></i>
-			<a href="./reader.pl?id='.$id.'&page='.$pagenum.'&force-reload=1">Clean Archive Cache</a>
-			<i class="fa fa-caret-right fa-lg"></i>
-			<a href="./reader.pl?id='.$id.'&reload_thumbnail=1">Regenerate Archive Thumbnail </a>
-			</div>
-			
-			<div id="i7" class="if">
-			<i class="fa fa-caret-right fa-lg"></i>
-			<a href="'.$imgpath.'">View full-size image</a>
-			</div>
-			
-		</div>';
+	#Time to spit out the template.
+	my $tt  = Template->new({
+        INCLUDE_PATH => "templates",
+        ENCODING => 'utf8' 
+    });
 
-	return $html;
+	my $out;
+
+	$tt->process(
+        "reader.tmpl",
+        {
+        	arcname => $arcname,
+            arcpages => $arcpages,
+            pagenum => $pagenum,
+            id => $id,
+            filename => $filename,
+            width => $imgwidth,
+            height => $imgheight,
+            size => $size,
+            mapwidth => $imgmapwidth,
+            imgpath => $imgpath,
+            readorder => &get_readorder(),
+            cssdrop => &printCssDropdown(0),
+
+        },
+        \$out,
+    ) or die $tt->error;
+
+    print $out;
 
  }

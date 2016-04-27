@@ -5,7 +5,7 @@ use CGI qw/:standard/;
 use Redis;
 
 #Require config 
-require 'config.pl';
+require 'functions/functions_config.pl';
 
 my $archive="";
 

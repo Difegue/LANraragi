@@ -6,7 +6,7 @@ use Encode;
 use File::Path qw(make_path remove_tree);
 use File::Basename;
 
-require 'config.pl';
+require 'functions/functions_config.pl';
 
 #With a list of files, generate the HTML table that will be shown in the main index.
 sub generateTableJSON
@@ -73,8 +73,8 @@ sub generateTableJSON
 
 			my $thumbname = $dirname."/thumb/".$id.".jpg";
 
-			unless (-e $thumbname && &enable_thumbs eq "1")
-				{ $thumbname = "null"; }
+			unless (-e $thumbname)
+				{ $thumbname = "null"; } #force ajax thumbnail if the image doesn't already exist
 
 			$json.=qq(
 				{

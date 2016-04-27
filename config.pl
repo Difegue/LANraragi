@@ -1,90 +1,136 @@
-#Default config variables. Change as you see fit.
-use Switch;
+#!/usr/bin/perl
 
-#Title of the html page.
-my $htmltitle = "LANraragi"; 
+use strict;
+use CGI qw(:standard);
+use File::Basename;
+use Redis;
+use Encode;
+use Template; 
 
-#Text that appears on top of the page. Empty for no text. (look at me ma i'm versioning)
-my $motd = "Welcome to this Library running LANraragi v.0.2.5!"; 
+#Require config 
+require 'functions/functions_config.pl';
+require 'functions/functions_generic.pl';
+require 'functions/functions_login.pl';
 
-#Whether or not you load thumbnails when hovering over a title. Requires an imagemagick install. (Just imagemagick, none of these perlmagick thingamabobs)
-my $thumbnails = 1; 
+my $qconfig = new CGI;	
+my $tt  = Template->new({
+        INCLUDE_PATH => "templates",
+        ENCODING => 'utf8' 
+    });
 
-#Password-protect edit and upload modes. You'd do well to enable this if you're making the library available online.
-my $enablepass = 1;
-
-#Password for editing and uploading titles. You should probably change this, even though it's not "admin".
-my $password = "kamimamita"; 
-
-#Directory of the zip archives. Make sure your web server can serve what's inside this directory. (Write rights would help too.)
-my $dirname = "./content"; 
-
-#Resize images in reader when the original is heavier than this size. (in KBs.) (0 for no resizing)
-my $sizethreshold = 10000;
-
-#Quality of the converted images if resized.
-my $readerquality = 70; 
-
-#Number of archives shown on a page. 0 for no pages.
-my $pagesize = 100;
-
-#Address and port of redis instance.
-my $redisaddress = "127.0.0.1:6379";
-
-#Default CSS file to load. Must be in the styles folder.
-my $css = "modern.css";
-
-#Reading order for reader. Default is 0 for left-to-right. Change to 1 for standard manga right-to-left order.
-my $readorder = 0;
-
-#Assign a name to the css file passed. You can add names by adding cases.
-sub cssNames{
-
-	switch($_[0]){
-		case "g.css" {return "Old School"}
-		case "modern.css" {return "Hachikuji"}
-		case "modern_clear.css" {return "Yotsugi"}
-		case "modern_red.css" {return "Nadeko"}
-		case "ex.css" {return "Sad Panda"}
-		else {return $_[0]}
-	} 
-
-}
-
-#Functions that return the local config variables. Avoids fuckups if you happen to create a $motd variable in your own code, for example.
-#Those functions are named with a different standard to specify the fact they're user-controlled in the code.
-#Totally not because I made them way back when I started the project. Nah.
-sub get_htmltitle { return $htmltitle };
-sub get_motd { return $motd };
-sub enable_thumbs { return $thumbnails };
-sub enable_pass { return $enablepass };
-sub get_password { return $password };
-sub get_dirname  { return $dirname };
-sub get_quality { return $readerquality };
-sub get_threshold { return $sizethreshold };
-sub get_pagesize { return $pagesize };
-sub get_thumbpref { return $generateonindex };
-sub get_redisad { return $redisaddress };
-sub get_style { return $css };
-sub get_readorder { return $readorder };
-
-#This sub defines which numbered variables from the regex selection are taken as metadata. In order:
-# [release, artist, title, series, language]
-sub select_from_regex { return ($2,$4,$5,$7,$9)};
-
-#Regular Expression matching the above syntax. Used in parsing. Stuff that's between unescaped ()s is put in a numbered variable: $1,$2,etc
-	#This regex autoparses the given string according to the exhentai standard convention: (Release) [Artist] TITLE (Series) [Language]
-	#Parsing is only done the first time the file is found. The parsed info is then stored into Redis. 
-	#Change this regex if you wish to use a different parsing for mass-addition of archives.
 	
-	#()? indicates the field is optional.
-	#(\(([^([]+)\))? returns the content of (Release). Optional.
-	#(\[([^]]+)\])? returns the content of [Artist]. Optional.
-	#([^([]+) returns the title. Mandatory.
-	#(\(([^([)]+)\))? returns the content of (Series). Optional.
-	#(\[([^]]+)\])? returns the content of [Language]. Optional.
-	#\s* indicates zero or more whitespaces.
-my $regex = qr/(\(([^([]+)\))?\s*(\[([^]]+)\])?\s*([^([]+)\s*(\(([^([)]+)\))?\s*(\[([^]]+)\])?/;
-sub get_regex { return $regex};
+#Utter ripoff of the edit page because it just werks
+#Before anything, check if the user is logged in. If not, redirect him to login.pl
+if (&isUserLogged($qconfig))
+	{
+			
+		#Redis initialization.
+		my $redis = Redis->new(server => &get_redisad, 
+							reconnect => 100,
+							every     => 3000);
+
+		#If we got a POST, it's for setting new config settings.
+		if ('POST' eq $qconfig->request_method ) { 
+
+			my $success = 1;
+			my $errormess = "";
+
+			# Return type will be JSON.
+			print $qconfig->header(-type    => 'application/json',
+                   					-charset => 'utf-8');
+			
+			my %confhash = (
+				htmltitle => $qconfig->param('htmltitle'),
+				motd => $qconfig->param('motd'),
+				dirname => $qconfig->param('dirname'),
+				pagesize => $qconfig->param('pagesize'),
+				readorder => ($qconfig->param('readorder') ? '1' : '0'), #for checkboxes, we check if the parameter exists in the POST to return either 1 or 0.
+				enablepass => ($qconfig->param('enablepass') ? '1' : '0'), 
+				enableresize => ($qconfig->param('enableresize') ? '1' : '0'),
+				sizethreshold => $qconfig->param('sizethreshold'),
+				readerquality => $qconfig->param('readerquality'),
+			);
+			
+			#only add newpassword field as password if enablepass = 1
+			if ($qconfig->param('enablepass'))
+				{ $confhash{password} = $qconfig->param('newpassword'); }
+
+		
+			#Verifications.
+			if ($qconfig->param('newpassword') ne $qconfig->param('newpassword2')) #Password check
+				{ 
+					$success = 0;
+				 	$errormess = "Mismatched passwords.";
+				}
+
+			if ($confhash{pagesize} =~ /\D+/ || $confhash{sizethreshold} =~ /\D+/ || $confhash{readerquality} =~ /\D+/ ) #Numbers only in fields w. numbers
+				{
+					$success = 0;
+					$errormess = "Invalid characters.";
+				}
+
+			#Did all the checks pass ?
+			if ($success)
+			{
+				#clean up the user's inputs for non-toggle options and encode for redis insertion
+				foreach my $key (keys %confhash) 
+					{ 
+						removeSpaceF($confhash{$key}); 
+						encode_utf8($confhash{$key});
+					}
+
+				#for all keys of the hash, add them to the redis config hash with the matching keys.
+				$redis->hset("LRR_CONFIG", $_, $confhash{$_}, sub {}) for keys %confhash;
+				$redis->wait_all_responses;
+			}
+
+			print qq({
+						"operation":"config",
+						"success":"$success",
+						"message":"$errormess"
+					 });
+							
+		} 
+
+		#GET: Grab current configuration and print config form
+		if ('GET' eq $qconfig->request_method ) 
+			{ 	
+				print $qconfig->header(-type    => 'text/html',
+               						-charset => 'utf-8');
+
+				#Get config values and put them in the template
+				my $out;
+
+				$tt->process(
+			        "config.tmpl",
+			        {
+			            motd => &get_motd,
+			            dirname => &get_dirname,
+			            pagesize => &get_pagesize,
+			            readorder => &get_readorder,
+			            enablepass => &enable_pass,
+			            password => &get_password,
+			            enableresize => &enable_resize,
+			            sizethreshold => &get_threshold,
+			            readerquality => &get_quality,
+			            title => &get_htmltitle,
+			            cssdrop => &printCssDropdown(0),
+
+			        },
+			        \$out,
+			    ) or die $tt->error;
+
+			    print $out;
 
 
+			} 
+
+		$redis->quit();
+
+	}
+else
+	{
+		#Not logged in, redirect
+		print &redirectToPage($qconfig,"login.pl");
+
+	}

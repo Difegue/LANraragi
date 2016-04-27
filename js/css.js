@@ -1,3 +1,17 @@
+function hex(x) {
+  return ("0" + parseInt(x).toString(16)).slice(-2);
+}
+
+function rgb2hex(rgb) {
+
+    if (rgb == null || rgb === "transparent") return "#FFFFFF";
+
+    if (/^#[0-9A-F]{6}$/i.test(rgb)) return rgb;
+
+    rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+    return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
+    
+}
 
 function switch_style ( css_title ) {
 
@@ -31,7 +45,7 @@ function switch_style ( css_title ) {
     var color = "#FFFFFF";
     if ($(".ido").length )
       color = rgb2hex($(".ido").css("background-color"));
-    else
+    else if ($(".sni").length )
       color = rgb2hex($(".sni").css("background-color"));
 
     $('meta[name=theme-color]').remove();
@@ -45,17 +59,4 @@ function set_style_from_storage() {
 
     if (css_title) 
       switch_style( css_title );
-}
-
-function rgb2hex(rgb) {
-
-    if (rgb==null) return "#FFFFFF";
-
-    if (/^#[0-9A-F]{6}$/i.test(rgb)) return rgb;
-
-    rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
-    function hex(x) {
-        return ("0" + parseInt(x).toString(16)).slice(-2);
-    }
-    return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
 }

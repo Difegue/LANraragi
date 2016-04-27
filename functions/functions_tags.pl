@@ -6,7 +6,7 @@ use JSON::Parse 'parse_json';
 use Redis;
 use Encode;
 
-require 'config.pl';
+require 'functions/functions_config.pl';
 
 
 #getGalleryId(hash(or text),isHash)
@@ -88,7 +88,7 @@ sub getTagsFromAPI{
 		my $tags = @$data[0]->{"tags"};
 
 		my $return = join(", ", @$tags);
-		return substr $return, 1; #Strip first comma
+		return $return; #Strip first comma
 	}	
 	else #if an error occurs(no tags available) return an empty string.
 		{ return ""; }

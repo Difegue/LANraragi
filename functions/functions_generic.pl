@@ -1,7 +1,7 @@
 use strict;
 use Digest::SHA qw(sha256_hex);
 
-require 'config.pl';
+require 'functions/functions_config.pl';
 
 #Print a dropdown list to select CSS, and adds <link> tags for all the style sheets present in the /style folder.
 #Takes a boolean as argument: if true, return the styles and the dropdown. If false, only return the styles.

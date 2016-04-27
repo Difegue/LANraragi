@@ -50,6 +50,33 @@ function saveArchiveData()
 
 }
 
+//saveConfigurationData()
+//Grabs the data in the config.pl form and saves it to Redis. Very much a copypaste idgaf it's js wooooow
+function saveConfigurationData()
+{
+	var postData = $("#editConfigForm").serializeArray()
+	var formURL = $("#editConfigForm").attr("action")
+
+	//check for empty fields and passwords matching
+
+	$.ajax(
+	{
+		url : formURL,
+		type: "POST",
+		data : postData,
+		success:function(data, textStatus, jqXHR) 
+		{
+
+			$("#statusConfig").html("Configuration saved !");
+		},
+		error: function(jqXHR, textStatus, errorThrown) 
+		{
+			$("#statusConfig").html("Something went wrong while saving the configuration : "+errorThrown);		
+		}
+	});
+
+}
+
 //saveArchiveCallback(callbackFunction,callbackArguments)
 //Grabs the data in the edit.pl form and presaves it to Redis for tag Searches. Executes a callback when data is correctly saved.
 function saveArchiveCallback(callback,arg1,arg2)
@@ -147,7 +174,8 @@ function ajaxTags(arcId,isHash)
 function massTag(method)
 {
 	$('#buttonstagging').hide();
-	$('#processing').attr("style","");
+	$('#processing').show();
+	$('#tag-spinner').show();
 	var checkeds = document.querySelectorAll('input[name=archive]:checked');
 
 	//convert nodelist to array
@@ -165,7 +193,7 @@ function makeCall(archivesToCheck,method)
 	if (!archivesToCheck.length) 
 	{
 		$('#processedArchive').html("All done !");
-		$('#tag-spinner').attr("style","display:none");
+		$('#tag-spinner').hide();
 		$('#buttonstagging').show();
 		return;
 	}

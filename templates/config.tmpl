@@ -1,0 +1,152 @@
+<html>
+	<head>
+		<title>[% title %] - Configuration</title>
+
+		<meta name="viewport" content="width=device-width" />
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+		<link type="image/png" rel="icon" href="./img/favicon.ico" />
+		<link rel="stylesheet" type="text/css" href="./bower_components/font-awesome/css/font-awesome.min.css" />
+
+		<script src="./js/css.js" type="text/JAVASCRIPT"></script>
+		<script src="./bower_components/jquery/dist/jquery.min.js" type="text/JAVASCRIPT"></script>
+		<script src="./js/ajax.js" type="text/JAVASCRIPT"></script>
+
+	</head>
+
+	<body onload="set_style_from_storage();">
+
+		[% cssdrop %]
+
+		<script>set_style_from_storage();</script>
+
+		<style> /*** custom checkboxes ***/
+
+			input[type=checkbox] { display:none; } /* to hide the checkbox itself */
+			input[type=checkbox] + label:before {
+			  font-family: FontAwesome;
+			  display: inline-block;
+			}
+
+			input[type=checkbox] + label:before { content: "\f204"; font-size: 20pt } /* unchecked icon */
+			input[type=checkbox] + label:before { letter-spacing: 10px; } /* space between checkbox and label */
+
+			input[type=checkbox]:checked + label:before { content: "\f205"; font-size: 20pt } /* checked icon */
+			input[type=checkbox]:checked + label:before { letter-spacing: 5px; } /* allow space for check mark */
+		</style>
+
+
+				<div class="ido" style="text-align:center"><h1 class="ih" style="text-align:center">LANraragi Configuration</h1> <br><br>
+				<form name="editConfigForm" id="editConfigForm" enctype="multipart/form-data" method="post">
+				  <table style="margin:auto; font-size:8pt;"><tbody>
+
+					<tr><td style="text-align:left; width:100px"><h1 class="ih"> Site Title </h1></td><td>
+						<input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% title %]" name="htmltitle" type="text"> 
+						<br>The site title appears on most pages as...their title.
+				  	</td></tr>
+
+				  	<tr><td style="text-align:left; width:100px"><h1 class="ih"> MOTD </h1></td><td>
+						<input id="motd" class="stdinput" style="width:100%" maxlength="255" size="20" value="[% motd %]" name="motd" type="text"> 
+						<br>Slang for Message of the Day. Appears on top of the main Library view.
+				  	</td></tr>
+
+				  	<tr><td style="text-align:left; width:100px"><h1 class="ih"> Archive Directory </h1></td><td>
+						<input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% dirname %]" name="dirname" type="text">
+						<br> Directory where the archives will be located. <br>Make sure your web server can serve what's inside this directory. (Write rights would help too)
+					</td></tr>
+
+				  	<tr><td style="text-align:left; width:100px"><h1 class="ih"> Archives per page </h1></td><td>
+						<input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% pagesize %]" name="pagesize" type="text"> 
+						<br> Number of archives shown on a page in the main list.
+					</td></tr>
+
+	                <tr><td style="text-align:left; width:100px"><h1 class="ih"> Manga Read Order </h1></td><td>
+	                 	[% IF readorder %]
+				  			<input id="readorder" name="readorder" type="checkbox" checked>
+				  		[% ELSE %]
+				  			<input id="readorder" name="readorder" type="checkbox">
+				  		[% END %]
+	                    <label for="readorder"><br>If enabled, pages will be read right-to-left.</label>
+					</td></tr>
+
+				  	<tr><td style="text-align:left; width:100px"><h1 class="ih"> Enable Password </h1></td><td>
+				  		[% IF enablepass %]
+				  			<input id="enablepass" name="enablepass" type="checkbox" checked>
+				  		[% ELSE %]
+				  			<input id="enablepass" name="enablepass" type="checkbox">
+				  		[% END %]
+	                    <label for="enablepass"><br>If enabled, everything that isn't reading will require a password.</label>
+					</td></tr>
+
+					<!--<tr class="passwordfields"><td style="text-align:left; width:100px"><h1 class="ih"> Old Password </h1></td><td>
+						<input class="stdinput" style="width:100%" maxlength="255" size="20" name="oldpassword" type="password">
+					</td></tr>-->
+
+					<tr class="passwordfields"><td style="text-align:left; width:100px"><h1 class="ih"> New Password </h1></td><td>
+						<input class="stdinput" style="width:100%" maxlength="255" size="20" name="newpassword" type="password">
+					</td></tr>
+
+					<tr class="passwordfields"><td style="text-align:left; width:100px"><h1 class="ih"> New Password Confirmation </h1></td><td>
+						<input class="stdinput" style="width:100%" maxlength="255" size="20" name="newpassword2" type="password">
+						<br> Only edit these fields if you want to change your password. 
+					</td></tr>
+
+					<tr><td style="text-align:left; width:100px"><h1 class="ih"> Resize Images in Reader </h1></td><td>
+				  		[% IF enableresize %]
+				  			<input id="enableresize" name="enableresize" type="checkbox" checked>
+				  		[% ELSE %]
+				  			<input id="enableresize" name="enableresize" type="checkbox">
+				  		[% END %]
+	                    <label for="enableresize"><br>If enabled, pages exceeding a certain size will be resized when viewed to save bandwidth.</label>
+					</td></tr>
+
+
+	                <tr class="resizefields"><td style="text-align:left; width:100px"><h1 class="ih"> Image Size Threshold </h1></td><td>
+						<input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% sizethreshold %]" name="sizethreshold" type="text"> 
+						<br>(in KBs.) Maximum size an image can reach before being resized.
+					</td></tr>
+
+	                <tr class="resizefields"><td style="text-align:left; width:100px"><h1 class="ih"> Resize Quality </h1></td><td>
+						<input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% readerquality %]" name="readerquality" type="text"> 
+						<br> Quality of the resized images. Less quality = Smaller image. (0-100)
+					</td></tr>
+
+
+					<tr>
+					<td colspan='2' style='text-align:center'> <br/>
+						<input class='stdbtn' type='button' onclick=" saveConfigurationData();" value='Save Configuration'/>
+						<input class='stdbtn' type='button' onclick="window.location.replace('./');" value='Return to Library'/>
+					<br/></td></tr>
+					<tr><td colspan='2' ><span id='statusConfig' style='font-weight:800; font-size: 12pt; margin: 35%'></span></td>
+				</form>
+				</div>
+	<script>
+
+		$(function() {
+			enable_pass();
+			enable_resize();
+		  $("#enablepass").click(enable_pass);
+		  $("#enableresize").click(enable_resize);
+		});
+
+		function enable_pass() {
+		  if ($("#enablepass").prop("checked")) {
+		    $(".passwordfields").show();
+		  } else {
+		    $(".passwordfields").hide();
+		  }
+		}
+
+		function enable_resize() {
+		  if ($("#enableresize").prop("checked")) {
+		    $(".resizefields").show();
+		  } else {
+		    $(".resizefields").hide();
+		  }
+		}
+
+	</script>
+
+	</body>
+
+</html>

@@ -5,14 +5,21 @@ use CGI qw(:standard);
 use File::Basename;
 use Redis;
 use Encode;
+use Template;
+use utf8;
 
 #Require config 
-require 'config.pl';
+require 'functions/functions_config.pl';
 require 'functions/functions_generic.pl';
 require 'functions/functions_login.pl';
 require 'functions/functions_edit.pl';
 
-my $qedit = new CGI;			   
+my $qedit = new CGI;	
+my $tt  = Template->new({
+        INCLUDE_PATH => "templates",
+        ENCODING => 'utf8' 
+    });
+
 	
 #Before anything, check if the user is logged in. If not, redirect him to login.pl?redirect=edit.pl
 if (&isUserLogged($qedit) && $qedit->param() )
@@ -95,14 +102,44 @@ if (&isUserLogged($qedit) && $qedit->param() )
 			{
 				print $qedit->header(-type    => 'text/html',
                						-charset => 'utf-8');
-				
-				print &generateForm($id); 
+
+				my $redis = Redis->new(server => &get_redisad, 
+						reconnect => 100,
+						every     => 3000);
+						
+				my %hash = $redis->hgetall($id);					
+				my ($name,$event,$artist,$title,$series,$language,$tags,$file,$thumbhash) = @hash{qw(name event artist title series language tags file thumbhash)};
+				($_ = decode_utf8($_)) for ($name, $event, $artist, $title, $series, $language, $tags, $file);
+
+				$redis->quit();
+
+				my $out;
+
+				$tt->process(
+			        "edit.tmpl",
+			        {
+			        	id => $id,
+			            name => $name,
+			            event => $event,
+			            artist => $artist,
+			            arctitle => $title,
+			            series => $series,
+			            language => $language,
+			            tags => $tags,
+			            file => $file,
+			            thumbhash => $thumbhash,
+			            title => &get_htmltitle,
+			            cssdrop => &printCssDropdown(0),
+
+			        },
+			        \$out,
+			    ) or die $tt->error;
+
+			    print $out;
 
 			}
 			else 
-			{
-				print &redirectToPage($qedit,"index.pl");
-			}
+			{ print &redirectToPage($qedit,"index.pl"); }
 
 		} 
 

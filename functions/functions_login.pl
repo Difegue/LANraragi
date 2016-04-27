@@ -2,7 +2,7 @@ use strict;
 use Redis;
 use CGI::Session;
 
-require 'config.pl';
+require 'functions/functions_config.pl';
 
 #isUserLogged($cgi)
 #If passwording is enabled, did the user input the password ? 

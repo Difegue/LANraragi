@@ -8,7 +8,7 @@
 use strict;
 use CGI qw(:standard);
 
-require 'config.pl';
+require 'functions/functions_config.pl';
 require 'functions/functions_generic.pl';
 require 'functions/functions_tags.pl';
 require 'functions/functions_login.pl';

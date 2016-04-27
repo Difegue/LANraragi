@@ -1,0 +1,94 @@
+<html>
+		<head>
+			<title>[% title %]</title>
+
+			<meta name="viewport" content="width=device-width" />
+			<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+			
+			<link type="image/png" rel="icon" href="./img/favicon.ico" />
+			<link rel="stylesheet" type="text/css" href="./styles/lrr.css" />
+			<link rel="stylesheet" type="text/css" href="./bower_components/font-awesome/css/font-awesome.min.css" />
+
+			<script src="./bower_components/jquery/dist/jquery.min.js" type="text/JAVASCRIPT"></script>
+			<script src="./bower_components/datatables/media/js/jquery.dataTables.min.js" type="text/JAVASCRIPT"></script>
+			<script src="./bower_components/dropit/dropit.js" type="text/JAVASCRIPT"></script>
+			<script src="./js/ajax.js" type="text/JAVASCRIPT"></script>
+			<script src="./js/index.js" type="text/JAVASCRIPT"></script>
+			<script src="./js/css.js" type="text/JAVASCRIPT"></script>
+			
+		</head>
+
+
+		<body onload ="initIndex([% pagesize %],archiveJSON);">
+
+		[% IF userlogged %]
+			<p id="nb">
+				<i class="fa fa-caret-right"></i>
+				<a href="./upload.pl">Upload Archive</a>
+				<span style="margin-left:5px"></span>
+				<i class="fa fa-caret-right"></i>
+				<a href="./tags.pl">Batch Tagging</a>
+				<span style="margin-left:5px"></span>
+				<i class="fa fa-caret-right"></i>
+				<a href="./config.pl">Configuration</a>
+			</p>
+		[% ELSE %]
+			<p id="nb">
+				<i class="fa fa-caret-right"></i>
+				<a href="./login.pl">Admin Login</a>
+			</p>
+		[% END %]
+		
+			
+			<div class='ido'>
+				<div id='toppane'>
+				<h1 class='ih'>[% motd %]</h1> 
+				<div class='idi'>
+					
+				<input type='text' id='srch' class='search stdinput' size='90' placeholder='Search Title, Artist, Series, Language or Tags' /> 
+				<input id='clrsrch' class='stdbtn' type='button' value='Clear Filter'/></div>
+
+				<p id='cssbutton' style='display:inline'>
+					<input class='stdbtn' type='button' onclick="var win=window.open('random.pl','_blank'); win.focus();" value='Give me a random archive'/>
+					[% cssdrop %]
+				</p>
+
+				<table class="itg">
+					<thead>
+					<tr>
+					<th></th>
+						<th id="titleheader"><a>Title</a></th>
+						<th id="artistheader"><a>Artist/Group</a></th>
+						<th id="seriesheader"><a>Series</a></th>
+						<th id="langheader"><a>Language</a></th>
+						<th id="tagsheader"><a>Tags</a></th>
+					</tr>
+					</thead>
+					<tbody class="list">
+					</tbody>
+				</table>
+
+				</div>
+			</div>
+
+			<p class="ip">
+						Sorry, I stuttered.
+						<a href="https://github.com/Difegue/LANraragi"> <br>
+							<i class="fa fa-hand-o-right" aria-hidden="true"></i> LANraragi v.0.2.6 <i class="fa fa-hand-o-left" aria-hidden="true"></i> 
+						</a>
+			</p>
+				
+		
+		<script>
+			//Set the correct CSS from the user's localStorage.
+			set_style_from_storage();
+
+			//Init thumbnail hover
+			showtrail('img/noThumb.png');
+
+			archiveJSON = [% tableJSON %]
+
+		</script>
+
+	</body>
+</html>
