@@ -3,6 +3,7 @@
 use Switch;
 use Redis;
 use utf8;
+use Encode;
 
 #FUCKING IMPORTANT : 
 #Address and port of your redis instance.
@@ -36,8 +37,8 @@ sub getConfigParameter{
 #Functions that return the config variables stored in Redis, or default values if they don't exist. Descriptions for each one of these can be found in the web configuration page.
 #Those functions are named with a different standard to specify the fact they're user-controlled in the code.
 #Totally not because I made them way back when I started the project. Nah.
-sub get_htmltitle { return &getConfigParameter("htmltitle", "LANraragi") };
-sub get_motd { return &getConfigParameter("motd", "Welcome to this Library running LANraragi !") };
+sub get_htmltitle { return encode('utf-8',&getConfigParameter("htmltitle", "LANraragi")) }; #enforcing unicode to make sure it doesn't fuck up the templates by appearing in some other encoding
+sub get_motd { return encode('utf-8',&getConfigParameter("motd", "Welcome to this Library running LANraragi !")) };
 sub get_dirname  { return &getConfigParameter("dirname", "./content") };
 sub get_pagesize { return &getConfigParameter("pagesize", "100") };
 sub get_readorder { return &getConfigParameter("readorder", "0") };

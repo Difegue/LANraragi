@@ -4,6 +4,7 @@ use strict;
 use CGI qw/:standard/;
 use Redis;
 use Template;
+use utf8;
 
 #Require config 
 require 'functions/functions_config.pl';
@@ -18,12 +19,6 @@ require 'functions/functions_login.pl';
 	#This should be enough supported file extensions, right? The old lsar method was hacky and took too long.
 	my @filez = glob("$dirname/*.zip $dirname/*.rar $dirname/*.7z $dirname/*.tar $dirname/*.tar.gz $dirname/*.lzma $dirname/*.xz $dirname/*.cbz $dirname/*.cbr");
 
-	#Default redis server location is localhost:6379. 
-	#Auto-reconnect on, one attempt every 100ms up to 2 seconds. Die after that.
-	my $redis = Redis->new(server => &get_redisad, 
-							reconnect => 100,
-							every     => 3000);
-
 	remove_tree($dirname.'/temp'); #Remove temp dir.
 
 	my $table;
@@ -33,8 +28,6 @@ require 'functions/functions_login.pl';
 	{ $table = &generateTableJSON(@filez); }
 	else
 	{ $table = "[]"}
-	$redis->quit();
-
 
 	#Actual HTML output
 	my $cgi = new CGI;

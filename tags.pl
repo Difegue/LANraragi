@@ -4,6 +4,8 @@ use strict;
 use CGI qw(:standard);
 use Redis;
 use Template;
+use Encode;
+use utf8;
 
 #Import config and functions
 require 'functions/functions_config.pl';
@@ -36,6 +38,8 @@ if (&isUserLogged($qtags))
 			if ($redis->hexists($id,"title")) 
 				{
 					$title = $redis->hget($id,"title");
+					$title = decode_utf8($title);
+					
 					#If the archive has no tags, pre-check it in the list.
 
 					if ($redis->hget($id,"tags") eq "")
