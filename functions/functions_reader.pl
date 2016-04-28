@@ -176,7 +176,7 @@ sub printReaderHTML
 	#Time to spit out the template.
 	my $tt  = Template->new({
         INCLUDE_PATH => "templates",
-        ENCODING => 'utf8' 
+        #ENCODING => 'utf8' 
     });
 
 	my $out;

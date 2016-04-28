@@ -15,7 +15,7 @@ require 'functions/functions_login.pl';
 my $qupload = new CGI;
 my $tt  = Template->new({
         INCLUDE_PATH => "templates",
-        ENCODING => 'utf8' 
+        #ENCODING => 'utf8' 
     });
 
 

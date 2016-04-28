@@ -15,7 +15,7 @@ require 'functions/functions_login.pl';
 my $qtags = new CGI;
 my $tt  = Template->new({
         INCLUDE_PATH => "templates",
-        ENCODING => 'utf8' 
+        #ENCODING => 'utf8' 
     });
 
 my $redis = Redis->new(server => &get_redisad, 

@@ -17,7 +17,7 @@ require 'functions/functions_edit.pl';
 my $qedit = new CGI;	
 my $tt  = Template->new({
         INCLUDE_PATH => "templates",
-        ENCODING => 'utf8' 
+        #ENCODING => 'utf8' 
     });
 
 	
