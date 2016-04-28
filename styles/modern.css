@@ -247,3 +247,12 @@ box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
     height: 18px;
     background: #34353B;
 }
+
+/* Toasts */
+.jq-toast-single { 
+    font-family: 'Open Sans',arial,sans-serif !important; 
+}
+
+.jq-toast-single h2 { 
+    font-family: 'Open Sans',arial,sans-serif !important; 
+}

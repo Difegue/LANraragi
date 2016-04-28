@@ -129,3 +129,12 @@ border:2px outset #000000;
     height: 18px;
     background: #34353b;
 }
+
+/* Toasts */
+.jq-toast-single { 
+    font-family: arial,helvetica,sans-serif !important; 
+}
+
+.jq-toast-single h2 { 
+    font-family: arial,helvetica,sans-serif !important; 
+}

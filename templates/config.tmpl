@@ -7,9 +7,11 @@
 
 		<link type="image/png" rel="icon" href="./img/favicon.ico" />
 		<link rel="stylesheet" type="text/css" href="./bower_components/font-awesome/css/font-awesome.min.css" />
+		<link rel="stylesheet" type="text/css" href="./bower_components/jquery-toast-plugin/dist/jquery.toast.min.css" />
 
 		<script src="./js/css.js" type="text/JAVASCRIPT"></script>
 		<script src="./bower_components/jquery/dist/jquery.min.js" type="text/JAVASCRIPT"></script>
+		<script src="./bower_components/jquery-toast-plugin/dist/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
 		<script src="./js/ajax.js" type="text/JAVASCRIPT"></script>
 
 	</head>
@@ -60,7 +62,7 @@
 						<br> Number of archives shown on a page in the main list.
 					</td></tr>
 
-	                <tr><td style="text-align:left; width:100px"><h1 class="ih"> Manga Read Order </h1></td><td>
+	                <tr><td style="text-align:left; width:100px"><h1 class="ih"> Japanese Read Order </h1></td><td>
 	                 	[% IF readorder %]
 				  			<input id="readorder" name="readorder" type="checkbox" checked>
 				  		[% ELSE %]
@@ -117,7 +119,6 @@
 						<input class='stdbtn' type='button' onclick=" saveConfigurationData();" value='Save Configuration'/>
 						<input class='stdbtn' type='button' onclick="window.location.replace('./');" value='Return to Library'/>
 					<br/></td></tr>
-					<tr><td colspan='2' ><span id='statusConfig' style='font-weight:800; font-size: 12pt; margin: 35%'></span></td>
 				</form>
 				</div>
 	<script>

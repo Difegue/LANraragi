@@ -40,15 +40,15 @@ if (&isUserLogged($qconfig))
                    					-charset => 'utf-8');
 			
 			my %confhash = (
-				htmltitle => $qconfig->param('htmltitle'),
-				motd => $qconfig->param('motd'),
-				dirname => $qconfig->param('dirname'),
-				pagesize => $qconfig->param('pagesize'),
-				readorder => ($qconfig->param('readorder') ? '1' : '0'), #for checkboxes, we check if the parameter exists in the POST to return either 1 or 0.
-				enablepass => ($qconfig->param('enablepass') ? '1' : '0'), 
-				enableresize => ($qconfig->param('enableresize') ? '1' : '0'),
-				sizethreshold => $qconfig->param('sizethreshold'),
-				readerquality => $qconfig->param('readerquality'),
+				htmltitle => scalar $qconfig->param('htmltitle'),
+				motd => scalar $qconfig->param('motd'),
+				dirname => scalar $qconfig->param('dirname'),
+				pagesize => scalar $qconfig->param('pagesize'),
+				readorder => (scalar $qconfig->param('readorder') ? '1' : '0'), #for checkboxes, we check if the parameter exists in the POST to return either 1 or 0.
+				enablepass => (scalar $qconfig->param('enablepass') ? '1' : '0'), 
+				enableresize => (scalar $qconfig->param('enableresize') ? '1' : '0'),
+				sizethreshold => scalar $qconfig->param('sizethreshold'),
+				readerquality => scalar $qconfig->param('readerquality'),
 			);
 			
 			#only add newpassword field as password if enablepass = 1

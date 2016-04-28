@@ -40,11 +40,24 @@ function saveArchiveData()
 		data : postData,
 		success:function(data, textStatus, jqXHR) 
 		{
-			$("#statusEdit").html("Metadata saved !");
+			$.toast({
+				showHideTransition: 'slide',
+				position: 'top-left', 
+				loader: false, 
+			    heading: 'Metadata saved!',
+			    icon: 'success'
+			})
 		},
 		error: function(jqXHR, textStatus, errorThrown) 
 		{
-			$("#statusEdit").html("Something went wrong while saving archive data : "+errorThrown);		
+			$.toast({
+				showHideTransition: 'slide',
+				position: 'top-left', 
+				loader: false, 
+			    heading: 'Error while saving archive data :',
+			    text: errorThrown,
+			    icon: 'error'
+			})	
 		}
 	});
 
@@ -58,6 +71,7 @@ function saveConfigurationData()
 	var formURL = $("#editConfigForm").attr("action")
 
 	//check for empty fields and passwords matching
+	
 
 	$.ajax(
 	{
@@ -66,12 +80,24 @@ function saveConfigurationData()
 		data : postData,
 		success:function(data, textStatus, jqXHR) 
 		{
-
-			$("#statusConfig").html("Configuration saved !");
+			$.toast({
+				showHideTransition: 'slide',
+				position: 'top-left', 
+				loader: false, 
+			    heading: 'Configuration saved!',
+			    icon: 'success'
+			})
 		},
 		error: function(jqXHR, textStatus, errorThrown) 
 		{
-			$("#statusConfig").html("Something went wrong while saving the configuration : "+errorThrown);		
+			$.toast({
+				showHideTransition: 'slide',
+				position: 'top-left', 
+				loader: false, 
+			    heading: 'Error while saving configuration :',
+			    text: errorThrown,
+			    icon: 'error'
+			})		
 		}
 	});
 
@@ -95,7 +121,14 @@ function saveArchiveCallback(callback,arg1,arg2)
 		},
 		error: function(jqXHR, textStatus, errorThrown) 
 		{
-			$("#statusEdit").html("Something went wrong while saving archive data : "+errorThrown);		
+			$.toast({
+				showHideTransition: 'slide',
+				position: 'top-left', 
+				loader: false, 
+			    heading: 'Error while saving archive data :',
+			    text: errorThrown,
+			    icon: 'error'
+			});
 		}
 	});
 
@@ -117,16 +150,37 @@ function deleteArchive(arcId)
 		success:function(data, textStatus, jqXHR) 
 		{
 			if (data.success == "0")
-				alert("Couldn't delete archive file. Archive metadata has been deleted properly. Please delete the file manually.");
+				$.toast({
+					showHideTransition: 'slide',
+					position: 'top-left', 
+					loader: false, 
+				    heading: "Couldn't delete archive file.",
+				    text: 'Archive metadata has been deleted properly. Please delete the file manually.',
+				    icon: 'warning'
+				});
 			else
-				alert("Successfully deleted "+data.success+" . Redirecting...");
+				$.toast({
+				showHideTransition: 'slide',
+				position: 'top-left', 
+				loader: false, 
+			    heading: 'Archive successfully deleted. Redirecting you ...',
+			    text: 'File name : '+data.success, 
+			    icon: 'success'
+				});
 
-			window.location.replace('./index.pl');
+			setTimeout("location.href = './index.pl';",1500);
 		
 		},
 		error: function(jqXHR, textStatus, errorThrown) 
 		{
-			$("#statusEdit").html("Something went wrong while deleting archive : "+textStatus);		
+			$.toast({
+				showHideTransition: 'slide',
+				position: 'top-left', 
+				loader: false, 
+			    heading: 'Error while deleting archive :',
+			    text: textStatus,
+			    icon: 'error'
+			});
 		}
 	});
 
@@ -145,12 +199,30 @@ function ajaxTags(arcId,isHash)
 		.done(function(data) {
 
 			if (data=="NOTAGS")
-				$("#statusEdit").html("No tags found !");
+				$.toast({
+					showHideTransition: 'slide',
+					position: 'top-left', 
+					loader: false, 
+				    heading: 'No tags found!',
+				    icon: 'info'
+				});
 			else
+			{
 				if ($('#tagText').val()=="")
 					$('#tagText').val(data);
 				else
 					$('#tagText').val($('#tagText').val() + ", "+ data);
+
+				$.toast({
+					showHideTransition: 'slide',
+					position: 'top-left', 
+					loader: false, 
+				    heading: 'Added the following tags',
+				    text: data,
+				    icon: 'info'
+				});
+
+			}
 
 			$('#tag-spinner').css("display","none");
 			$('#tagText').prop("disabled", false);
@@ -158,7 +230,14 @@ function ajaxTags(arcId,isHash)
 			return data;
 		})
 		.fail(function(data) {
-			$("#statusEdit").html("An error occured while getting tags. "+data);
+			$.toast({
+				showHideTransition: 'slide',
+				position: 'top-left', 
+				loader: false, 
+			    heading: 'Error while getting tags :',
+			    text: data,
+			    icon: 'error'
+			});
 			$('#tag-spinner').css("display","none");
 			$('#tagText').prop("disabled", false);
 			$('#tagText').css("opacity","1");
@@ -211,6 +290,6 @@ function ajaxCall(archive,method,archivesToCheck)
 	//Ajax call for getting and setting the tags
 	$.get( "ajax.pl", { function: "tagsave", ishash: method, id: archive.id} )
 	.done(function(data) { makeCall(archivesToCheck,method); })  //hurr callback
-	.fail(function(data) { $("#statusEdit").html("An error occured while getting tags. "+data); });
+	.fail(function(data) { $("#processedArchive").html("An error occured while getting tags. "+data); });
 
 }

@@ -22,7 +22,9 @@ Web interface and reader for storage of comics/manga on NAS, running on Perl/Red
 * Responsive, so you can read on your phone/tablet when taking a shit.  
 
 ![](https://a.pomf.cat/czkfyn.png)
-*I tried to run it on a 3DS but the page was too heavy （´・ω・｀）*  
+
+*Even works on Windows Mobile 6.5 ! (In a very limited way) （´・ω・｀）*  
+![](https://my.mixtape.moe/qfwnbx.jpg)
 
 	
 ##Hotdog ! How do I install this ?  
@@ -44,8 +46,8 @@ vagrant halt
 to stop the VM when you're done.
 
 ##I got me a setup, how do I use this ?
-config.pl contains a lot of variables you can define yourself. They're properly explained in the file itself, be sure to check it out.  
-After that, add your archives in the content folder, and it just works™
+First, login with the default admin password (kamimamita), and hit the configuration page.
+Afterwards, add your archives in the content folder or through the upload page, and it just works™
 
 
 ##Roadmap(jk this is never getting done)  

@@ -8,10 +8,12 @@
 			<link type="image/png" rel="icon" href="./img/favicon.ico" />
 			<link rel="stylesheet" type="text/css" href="./styles/lrr.css" />
 			<link rel="stylesheet" type="text/css" href="./bower_components/font-awesome/css/font-awesome.min.css" />
+			<link rel="stylesheet" type="text/css" href="./bower_components/jquery-toast-plugin/dist/jquery.toast.min.css" />
 
 			<script src="./js/css.js" type="text/JAVASCRIPT"></script>
 			<script src="./bower_components/jquery/dist/jquery.min.js" type="text/JAVASCRIPT"></script>
 			<script src="./bower_components/jQuery-rwdImageMaps/jquery.rwdImageMaps.min.js" type="text/JAVASCRIPT"></script>
+			<script src="./bower_components/jquery-toast-plugin/dist/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
 			
 		</head>
 
@@ -131,7 +133,7 @@
 			</select>
 		</form>
 
-		<a href="#" onclick="alert('You can navigate between pages in different ways : \n* The arrow icons\n* Your keyboard arrows\n* Touching the left/right side of the image.\n\n To return to the archive index, touch the arrow pointing down.')">
+		<a href="#" onclick="toastHelpReader()">
 			<i class="fa fa-3x" style="padding-right: 10px; margin-top: -5px">?</i>
 		</a>	
 
