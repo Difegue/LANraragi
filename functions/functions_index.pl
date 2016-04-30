@@ -58,8 +58,7 @@ sub generateTableJSON
 			else #can't be helped, parse archive and add it to Redis alongside its metadata.
 				{ ($name,$event,$artist,$title,$series,$language,$tags,$isnew) = &addArchiveToRedis($id,$file,$redis); }
 
-			#Once we have the data, we can build our line.
-
+			#Once we have the data, we can build our json object.
 			my $urlencoded = $dirname."/".uri_escape($name); 	
 					
 			#Tag display. Simple list separated by hyphens which expands into a caption div with nicely separated tags on hover.
@@ -75,6 +74,9 @@ sub generateTableJSON
 
 			unless (-e $thumbname)
 				{ $thumbname = "null"; } #force ajax thumbnail if the image doesn't already exist
+
+			if ($title =~ /^\s*$/) #Workaround if title was incorrectly parsed as blank
+				{ $title = "<i class='fa fa-exclamation-circle'></i> Untitled archive, please edit metadata.";}
 
 			$json.=qq(
 				{

@@ -24,6 +24,9 @@ sub getGalleryId{
 	my $title = $redis->hget($id,"title");
 	my $artist = $redis->hget($id,"artist");
 	my $thumbhash = $redis->hget($id,"thumbhash");
+	$title = decode_utf8($title);
+	$artist = decode_utf8($artist);
+	$thumbhash = decode_utf8($thumbhash);
 
 	if ($isHash eq "1")
 	{	#search with image SHA hash

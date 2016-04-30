@@ -150,15 +150,21 @@ function deleteArchive(arcId)
 		success:function(data, textStatus, jqXHR) 
 		{
 			if (data.success == "0")
+			{
 				$.toast({
 					showHideTransition: 'slide',
 					position: 'top-left', 
 					loader: false, 
-				    heading: "Couldn't delete archive file.",
-				    text: 'Archive metadata has been deleted properly. Please delete the file manually.',
+				    heading: "Couldn't delete archive file. <br> (Maybe it has already been deleted beforehand?)",
+				    text: 'Archive metadata has been deleted properly. <br> Please delete the file manually before returning to Library View.',
+				    hideAfter: false,
 				    icon: 'warning'
 				});
+				$(".stdbtn").hide();
+				$("#goback").show();
+			}
 			else
+			{
 				$.toast({
 				showHideTransition: 'slide',
 				position: 'top-left', 
@@ -167,8 +173,9 @@ function deleteArchive(arcId)
 			    text: 'File name : '+data.success, 
 			    icon: 'success'
 				});
-
-			setTimeout("location.href = './index.pl';",1500);
+				setTimeout("location.href = './index.pl';",1500);
+			}
+			
 		
 		},
 		error: function(jqXHR, textStatus, errorThrown) 

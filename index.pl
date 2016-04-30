@@ -50,7 +50,7 @@ require 'functions/functions_login.pl';
             userlogged => &isUserLogged($cgi),
             motd => &get_motd,
             cssdrop => &printCssDropdown(1),
-            tableJSON => $table,
+            tableJSON => decode_utf8($table),
         },
         \$out,
     ) or die $tt->error;

@@ -2,10 +2,10 @@
 
 use strict;
 use CGI qw(:standard);
-use File::Basename;
 use Encode;
 use Redis;
 use Template;
+use utf8;
 
 #Require config 
 require 'functions/functions_config.pl';
@@ -40,11 +40,9 @@ if (&isUserLogged($qupload))
 
 		#Check if the uploaded file's mimetype matches one we accept
 		if(exists($acceptedTypes{$uploadMime})) 
-			{ 
-
-			my ($name,$path,$suffix) = fileparse("&get_dirname/$filename", qr/\.[^.]*/);
+			{
 			
-			my $output_file = &get_dirname.'/'.$filename; #open up a file on our side
+			my $output_file = &get_dirname.'/'.decode_utf8($filename); #open up a file on our side
 					
 			if (-e $output_file) #if it doesn't already exist, that is.
 				{
@@ -73,9 +71,9 @@ if (&isUserLogged($qupload))
 							reconnect => 100,
 							every     => 3000);
 
-					my $id = sha256_hex($output_file);
+					my $id = sha256_hex(encode_utf8($output_file));
 
-					&addArchiveToRedis($id,$filename,$redis);
+					&addArchiveToRedis($id,$output_file,$redis);
 
 					print qq({
 								"name":"$filename",
