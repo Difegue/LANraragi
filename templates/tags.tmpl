@@ -21,11 +21,11 @@
 		<div class='ido' style='text-align:center'>
 				<h2 class='ih' style='text-align:center'>Batch Tagging</h2>
 				<br><br>
-				<table style='margin-left:auto; margin-right:auto; width:60%; font-size:8pt;'>
+				<table style='margin-left:auto; margin-right:auto; width:70%; font-size:8pt;'>
 					<tbody>
 
 					<tr>
-					<td style='text-align:center; width:300px; vertical-align:top'>
+					<td style='text-align:center; width:400px; vertical-align:top'>
 
 						<br>
 						You can apply reverse tag research to multiple archives here.<br><br>
@@ -39,19 +39,32 @@
 						<input type='button' style='margin-top:25px;min-width:50px; max-width:150px;height:60px' value='Global Reverse &#x00A;Tag Research &#x00A;(Using Image Hashes)' class='stdbtn' onclick='massTag(1)'>
 
 						<input type='button' style='margin-top:25px;min-width:50px; max-width:150px;height:60px' value='Global Reverse &#x00A;Tag Research &#x00A;(Using nhentai.org)' class='stdbtn' onclick='massTag(2)'>
+
+						<br><br><br>
+						<input type='button' value='Uncheck all' class='stdbtn' onclick='$("input:checkbox").prop("checked", 0)'>
+						<input class='stdbtn' type='button' onclick="window.location.replace('./');" value='Return to Library'/>
+
+
 						</span>
 
 					</td>
 
 					<td>
+						
 						<table class='itg' style='box-shadow: none; border:none'>
 						<tbody>
 						<td>
-						<ul class='checklist caption' style='height: 380px; overflow: auto; list-style: none outside none; text-align: left; width: 100%; padding-left: 5px; margin-left: 10px;'>
-							[% arclist %]
-						</ul>
-						<input type='button' value='Uncheck all' class='stdbtn' onclick='$("input:checkbox").prop("checked", 0)'>
-						<input class='stdbtn' type='button' onclick="window.location.replace('./');" value='Return to Library'/></div>
+
+							<ul class='checklist caption' style='height: 380px; overflow: auto; list-style: none outside none; text-align: left; width: 100%; padding-left: 5px; margin-left: 10px;'>
+								[% arclist %]
+							</ul>
+
+							<i class="fa fa-trash-o" style="font-size:1.5em; margin-left:10px" aria-hidden="true"></i>
+							Tag Blacklist 
+							
+							<textarea id="blacklist" style="width: 100%; margin-left:10px">already uploaded, translated, english, russian, chinese, portuguese, french</textarea>
+							<br><br>
+
 					    </td>
 					    </tbody>
 					    </table>				

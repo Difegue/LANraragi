@@ -29,7 +29,12 @@ require 'functions/functions_reader.pl';
 			}
 
 		#Get a computed archive name if the archive exists
-		my $arcname = $redis->hget($id,"title")." by ".$redis->hget($id,"artist");
+		my $artist = $redis->hget($id,"artist");
+		my $arcname = $redis->hget($id,"title");
+
+		unless ($artist =~ /^\s*$/)
+			{$arcname = $arcname." by ".$artist; }
+			
 		$arcname = decode_utf8($arcname);
 	
 		my $force = $qreader->param('force_reload');

@@ -2,8 +2,8 @@
 
 #ajax calls possible:
 #?function=thumbnail&id=xxxxxx
-#?function=tags&ishash=0/1&id=xxxxxx
-#?function=taghash&ishash=0/1&id=xxxxx
+#?function=tags&method=0/1&id=xxxxxx
+#?function=tagsave&method=0/1&id=xxxxx
 
 use strict;
 use CGI qw(:standard);
@@ -23,21 +23,23 @@ if ($qajax->param())
 
 	my $call = $qajax->param('function');
 	my $id = $qajax->param('id');
-	my $ishash = $qajax->param('ishash');
+	my $method = $qajax->param('method');
 
 	#Generate thumbnail for archive - no admin login required
 	if ($call eq "thumbnail")
 		{ print &getThumb($id); }
 
-	#tags == When editing an archive, directly return tags. 
+	#tags == When editing an archive, directly return tags. No blacklist feature.
 	if ($call eq "tags"  && &isUserLogged($qajax)) 
-		{ print &getTags($id,$ishash); }
+		{ print &getTags($id,$method, "");  }
 
 	#tagsave = batch tagging, immediately save returned tags to redis.
-	if ($call eq "tagsave" && &isUserLogged($qajax))
+	if ($call eq "tagsave")
 		{ 
+			my $blacklist = $qajax->param('blacklist');
+
 			#get the tags with regular getTags
-			my $tags = &getTags($id,$ishash);
+			my $tags = &getTags($id,$method,$blacklist);
 			#add them
 			&addTags($id,$tags); 
 			print $tags;
@@ -52,20 +54,28 @@ if ($qajax->param())
 sub getTags
 {
 	my $id = $_[0];
-	my $ishash = $_[1];
+	my $method = $_[1];
+	my $bliststr = $_[2];
 	my $tags = "";
 	
 	my $queryJson;
 
-	if ($ishash eq "2") #nhentai usecase
+	if ($method eq "2") #nhentai usecase
 	{ $tags = &nHentaiGetTags($id); }
 	else
 	{
 	#This rings up g.e-hentai with the input we obtained.
-	$queryJson = &getGalleryId($id,$ishash); #getGalleryId is in functions.pl.
+	$queryJson = &getGalleryId($id,$method); #getGalleryId is in functions.pl.
 
 	#Call the actual e-hentai API with the json we created and grab dem tags
 	$tags = &getTagsFromAPI($queryJson);
+	}
+
+	#We got the tags, let's strip out the ones in the blacklist.
+	my @blacklist = split(/,\s?/, $bliststr);
+
+	foreach my $tag (@blacklist) {
+	  $tags =~ s/\Q$tag\E,//ig; #Remove all occurences of $tag in $tags
 	}
 
 	unless ($tags eq(""))

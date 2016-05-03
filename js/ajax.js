@@ -70,9 +70,7 @@ function saveConfigurationData()
 	var postData = $("#editConfigForm").serializeArray()
 	var formURL = $("#editConfigForm").attr("action")
 
-	//check for empty fields and passwords matching
 	
-
 	$.ajax(
 	{
 		url : formURL,
@@ -80,13 +78,23 @@ function saveConfigurationData()
 		data : postData,
 		success:function(data, textStatus, jqXHR) 
 		{
-			$.toast({
-				showHideTransition: 'slide',
-				position: 'top-left', 
-				loader: false, 
-			    heading: 'Configuration saved!',
-			    icon: 'success'
-			})
+			if (data.success == "0")
+				$.toast({
+					showHideTransition: 'slide',
+					position: 'top-left', 
+					loader: false, 
+				    heading: 'Error while saving configuration',
+				    text: data.message,
+				    icon: 'error'
+				});		
+			else
+				$.toast({
+					showHideTransition: 'slide',
+					position: 'top-left', 
+					loader: false, 
+				    heading: 'Configuration saved!',
+				    icon: 'success'
+				})
 		},
 		error: function(jqXHR, textStatus, errorThrown) 
 		{
@@ -193,16 +201,16 @@ function deleteArchive(arcId)
 
 }
 
-//ajaxTags(titleOrHash,isHash)
+//ajaxTags(titleOrHash,method)
 //Calls ajax.pl to get tags for the given title or image hash.
 //Returns "ERROR" on failure.
-function ajaxTags(arcId,isHash)
+function ajaxTags(arcId,method)
 {
 	$('#tag-spinner').css("display","block");
 	$('#tagText').css("opacity","0.5");
 	$('#tagText').prop("disabled", true);
 
-	$.get( "ajax.pl", { function: "tags", ishash: isHash, id: arcId} )
+	$.get( "ajax.pl", { function: "tags", method: method, id: arcId} )
 		.done(function(data) {
 
 			if (data=="NOTAGS")
@@ -263,6 +271,7 @@ function massTag(method)
 	$('#processing').show();
 	$('#tag-spinner').show();
 	var checkeds = document.querySelectorAll('input[name=archive]:checked');
+	var blacklist = $('#blacklist').val();
 
 	//convert nodelist to array
 	var arr = [];
@@ -270,11 +279,11 @@ function massTag(method)
 	for (var i = 0, ref = arr.length = checkeds.length; i < ref; i++) 
 		{ arr[i] = checkeds[i]; }
 
-	makeCall(arr,method);
+	makeCall(arr,blacklist,method);
 }
 
 //subfunctions for treating the archive queue.
-function makeCall(archivesToCheck,method)
+function makeCall(archivesToCheck,blacklist,method)
 {
 	if (!archivesToCheck.length) 
 	{
@@ -285,18 +294,18 @@ function makeCall(archivesToCheck,method)
 	}
 
 	archive = archivesToCheck.shift();
-	ajaxCall(archive,method,archivesToCheck);
+	ajaxCall(archive,blacklist,method,archivesToCheck);
 
 }
 
-function ajaxCall(archive,method,archivesToCheck)
+function ajaxCall(archive,blacklist,method,archivesToCheck)
 {
 	//Set title in processing thingo
 	$('#processedArchive').html("Processing "+$('label[for='+archive.id+']').html());
 
 	//Ajax call for getting and setting the tags
-	$.get( "ajax.pl", { function: "tagsave", ishash: method, id: archive.id} )
-	.done(function(data) { makeCall(archivesToCheck,method); })  //hurr callback
+	$.get( "ajax.pl", { function: "tagsave", method: method, id: archive.id, blacklist: blacklist} )
+	.done(function(data) { makeCall(archivesToCheck,blacklist,method); })  //hurr callback
 	.fail(function(data) { $("#processedArchive").html("An error occured while getting tags. "+data); });
 
 }

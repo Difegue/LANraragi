@@ -165,7 +165,11 @@ sub addTags{
 									every     => 3000);
 
 		my $oldTags = $redis->hget($id,"tags");
-		$oldTags.=" ".$tags;
+		
+		if ($oldTags eq "")
+			{ $oldTags = $tags; }
+		else
+			{$oldTags.=", ".$tags; }
 
 		$redis->hset($id,"tags",encode_utf8($oldTags));
 
