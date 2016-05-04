@@ -31,7 +31,7 @@
 						You can apply reverse tag research to multiple archives here.<br><br>
 						Reverse tag searching leverages the E-Hentai API to find tags for your archives using their title or the hash of their first image. <br><br>
 						Check the archives for which you want to search, and click on the button with the method you want to use.<br> Archives with no tags have been pre-checked.<br><br>
-						<b>Important</b>: Since this not only leverages the API but also uses g.e-hentai for searches, tagging more than 150 archives at once might get you tempbanned for excessive pageloads.  <br> <br>nhentai doesn't pull that shit, so just use that instead ! 
+						<b>Important</b>: Since this not only leverages the API but also uses g.e-hentai for searches, tagging more than 150 archives at once might get you tempbanned for excessive pageloads.  <br> <br>nhentai doesn't pull that shit, so just use that instead ! <br>
 
 						<span id='buttonstagging'>
 						<input type='button' style='margin-top:25px;min-width:50px; max-width:150px;height:60px' value='Global Reverse &#x00A;Tag Research &#x00A;(Using Archive Titles)' class='stdbtn' onclick='massTag(0)'>
@@ -59,16 +59,20 @@
 								[% arclist %]
 							</ul>
 
-							<i class="fa fa-trash-o" style="font-size:1.5em; margin-left:10px" aria-hidden="true"></i>
-							Tag Blacklist 
 							
-							<textarea id="blacklist" style="width: 100%; margin-left:10px">already uploaded, translated, english, russian, chinese, portuguese, french</textarea>
-							<br><br>
 
 					    </td>
 					    </tbody>
 					    </table>				
 						
+					    <span style="margin-left:15px; font-size: 13px">
+					    <i class="fa fa-trash-o" style="  font-size:1.5em;" aria-hidden="true"></i>
+						Tag Blacklist 
+						</span>
+
+						<textarea id="blacklist" class="stdinput" style="width: 100%; margin-left:15px; min-height: 50px">already uploaded, translated, english, russian, chinese, portuguese, french</textarea>
+						<br><br>
+
 					</td>
 					</tr>
 

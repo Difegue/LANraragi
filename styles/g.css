@@ -116,6 +116,7 @@ tr.gtr1 {
     margin: 4px 1px 0;
     padding: 0 4px 1px;
     min-width: 150px;
+    cursor: pointer;
 }
 .stdbtn:hover {
     background: none repeat scroll 0 0 #F2EFDF;
@@ -275,4 +276,25 @@ border:2px outset #5C0D11;
 
 .jq-toast-single h2 { 
     font-family: arial,helvetica,sans-serif !important; 
+}
+
+/* Tag Cloud */
+div.jqcloud {
+    font-family: arial,helvetica,sans-serif !important;    
+}
+
+div.jqcloud span.w10, div.jqcloud span.w8, div.jqcloud span.w9 {
+    color: #5C0D11 !important;
+}
+
+div.jqcloud span.w7, div.jqcloud span.w6, div.jqcloud span.w5  {
+    color: #861319 !important;
+}
+
+div.jqcloud span.w4, div.jqcloud span.w3, div.jqcloud span.w2 {
+    color: #b31921 !important;
+}
+
+div.jqcloud span.w1 {
+    color: #df2029 !important;
 }

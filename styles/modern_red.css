@@ -353,3 +353,24 @@ p#nb a:hover {
 .jq-toast-single h2 { 
     font-family: 'Roboto',arial,sans-serif !important; 
 }
+
+/* Tag Cloud */
+div.jqcloud {
+    font-family: 'Roboto',arial,sans-serif !important;     
+}
+
+div.jqcloud span.w10, div.jqcloud span.w8, div.jqcloud span.w9 {
+    color: #EFEAEA !important;
+}
+
+div.jqcloud span.w7, div.jqcloud span.w6, div.jqcloud span.w5  {
+    color: #ded3d3 !important;
+}
+
+div.jqcloud span.w4, div.jqcloud span.w3, div.jqcloud span.w2 {
+    color: #c8b6b6 !important;
+}
+
+div.jqcloud span.w1 {
+    color: #b29999 !important;
+}

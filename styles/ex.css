@@ -49,7 +49,7 @@ tr.gtr0{background:#4f535b}
 tr.gtr1{background:#363940}
 
 /* input */
-.stdbtn{font-size:8pt;color:#f1f1f1;background:#34353b;border:2px outset #000000;height:21px;margin:4px 1px 0px 1px;padding:0px 4px 1px 4px; min-width: 150px;}
+.stdbtn{font-size:8pt;color:#f1f1f1;background:#34353b;border:2px outset #000000;height:21px;margin:4px 1px 0px 1px;padding:0px 4px 1px 4px; min-width: 150px; cursor: pointer;}
 .stdbtn:hover{color:#f1f1f1;background:#43464e;border:2px outset #000000}
 .stdbtn:focus{color:#f1f1f1;background:#43464e}
 
@@ -137,4 +137,25 @@ border:2px outset #000000;
 
 .jq-toast-single h2 { 
     font-family: arial,helvetica,sans-serif !important; 
+}
+
+/* Tag Cloud */
+div.jqcloud {
+    font-family: arial,helvetica,sans-serif !important;    
+}
+
+div.jqcloud span.w10, div.jqcloud span.w8, div.jqcloud span.w9 {
+    color: #f2f2f2 !important;
+}
+
+div.jqcloud span.w7, div.jqcloud span.w6, div.jqcloud span.w5  {
+    color: #DDDDDD !important;
+}
+
+div.jqcloud span.w4, div.jqcloud span.w3, div.jqcloud span.w2 {
+    color: #cccccc !important;
+}
+
+div.jqcloud span.w1 {
+    color: #b3b3b3 !important;
 }

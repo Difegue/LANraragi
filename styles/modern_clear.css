@@ -256,3 +256,25 @@ box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
 .jq-toast-single h2 { 
     font-family: 'Roboto',arial,sans-serif !important; 
 }
+
+/* Tag Cloud */
+div.jqcloud {
+    font-family: 'Roboto',arial,sans-serif !important;     
+}
+
+div.jqcloud span.w10, div.jqcloud span.w8, div.jqcloud span.w9 {
+    color: #34495E !important;
+}
+
+div.jqcloud span.w7, div.jqcloud span.w6, div.jqcloud span.w5  {
+    color: #3f5973 !important;
+}
+
+div.jqcloud span.w4, div.jqcloud span.w3, div.jqcloud span.w2 {
+    color: #517394 !important;
+}
+
+div.jqcloud span.w1 {
+    color: #6b8cae !important;
+}
+
