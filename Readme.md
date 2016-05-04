@@ -23,7 +23,7 @@ Web interface and reader for storage of comics/manga on NAS, running on Perl/Red
 
 ![](https://a.pomf.cat/czkfyn.png)
 
-*Even works on Windows Mobile 6.5 ! (In a very limited way) （´・ω・｀）*  
+*Even works on Windows Mobile 6.5 ! (In a very limited way)*  
 ![](https://my.mixtape.moe/qfwnbx.jpg)
 
 	
@@ -46,7 +46,8 @@ vagrant halt
 to stop the VM when you're done.
 
 ##I got me a setup, how do I use this ?
-First, login with the default admin password (kamimamita), and hit the configuration page.
+First, login with the default admin password (kamimamita), and hit the configuration page.  
+There are multiple settings you can change, including but not limited to the content folder, your password or the reading order.
 Afterwards, add your archives in the content folder or through the upload page, and it just works™
 
 
@@ -54,7 +55,7 @@ Afterwards, add your archives in the content folder or through the upload page, 
 
 * Use Gulp for bundling front-end dependencies on top of bower  
 
-* Better configuration page  
-
 * Database backup/restoration  
+
+* Moving away from CGI
 
