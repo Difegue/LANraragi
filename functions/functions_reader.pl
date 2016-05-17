@@ -7,6 +7,7 @@ use File::Path qw(remove_tree);
 use Encode;
 use Image::Info qw(image_info dim);
 use File::Find qw(find);
+use Image::Magick;
 
 require 'functions/functions_config.pl';
 
@@ -34,9 +35,7 @@ sub getImage
  {
 
 	my ($id, $force, $thumbreload, $pagenum) = @_;
-
-	#Variables from config
-	my $quality = &get_quality;
+	my $img = Image::Magick->new; #Used for image resizing
 	my $tempdir = &get_dirname."/temp";
 	
 
@@ -104,7 +103,13 @@ sub getImage
 			{
 				my $path = @images[0];
 				$redis->hset($id,"thumbhash", encode_utf8(shasum($path)));
-				`convert -strip -thumbnail 200x "$path" $thumbname`;
+
+				#use ImageMagick to make the thumbnail. width = 200px
+		        
+		        $img->Read($path);
+		        $img->Thumbnail(geometry => '200x');
+		        $img->Write($thumbname);
+
 				$pagenum = 1; #Default page setting for imgpath below.
 			}
 
@@ -116,13 +121,15 @@ sub getImage
 	if (&enable_resize)
 	{
 			#Is the file size higher than the threshold?
-			#print (int((-s @images[$pagenum-1] )/ 1024*10)/10 );
 			if ( (int((-s $imgpath )/ 1024*10)/10 ) > &get_threshold)
 			{
-				#print "mogrify -geometry 1064x -quality $quality $i";
-				`mogrify -scale 1064x -quality $quality "$imgpath"`; 
+				$img->Read($imgpath);
+				$img->Resize(geometry => '1064x');
+				$img->Set(quality=>&get_quality);
+				$img->Write($imgpath);
+
+				#`mogrify -scale 1064x -quality $quality "$imgpath"`; 
 			}
-			#since we're operating on the extracted file, the original, tucked away in the .zip, isn't harmed. Downloading the zip grants the highest quality.
 	}
 
 	#We return the path to the image and the number of pages the archive contains.

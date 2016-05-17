@@ -7,6 +7,7 @@
 
 use strict;
 use CGI qw(:standard);
+use Image::Magick;
 
 require 'functions/functions_config.pl';
 require 'functions/functions_generic.pl';
@@ -142,8 +143,14 @@ sub getThumb
 			
 		$redis->hset($id,"thumbhash", encode_utf8(shasum($path2)));
 			
-		#use ImageMagick to make the thumbnail. I tried using PerlMagick but it's a piece of ass, can't get it to build :s
-		`convert -strip -thumbnail 200x "$path2" $thumbname`;
+		#use ImageMagick to make the thumbnail. width = 200px
+		my $img = Image::Magick->new;
+        
+        $img->Read($path2);
+        $img->Thumbnail(geometry => '200x');
+        $img->Write($thumbname);
+
+		#`convert -strip -thumbnail 200x "$path2" $thumbname`;
 			
 		$redis.close();
 		#Delete the previously extracted file.

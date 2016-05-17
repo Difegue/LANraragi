@@ -35,9 +35,9 @@ apt-get install unar
 apt-get install redis-server
 ```
 
-* **Imagemagick**. Should be built-in. Otherwise:  
+* **Imagemagick and the Perl bindings**.  
 ```
-apt-get install imagemagick
+apt-get install imagemagick perlmagick
 ```
 
 Download the current build in your directory:  

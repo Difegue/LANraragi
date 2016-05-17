@@ -20,17 +20,21 @@ my $redis = Redis->new(server => &get_redisad,
 #We get a random archive ID. We check for the length to (sort-of) avoid not getting an archive ID.
 #Shit's never been designed to work on a redis database where other keys would be lying around. 
 #I should probably add a namespace or something?	
-until (length($archive)==64 && $archiveexists)
+until ($archiveexists)
 {
 	$archive = $redis->randomkey();
 
 	#We got a key, but does the matching archive still exist on the server? Better check it out.
-	#This usecase only really happens with the random selection here: Regular index only parses the database for archive files it finds by default.
-	my $arclocation = $redis->hget($archive,"file");
-	$arclocation = decode_utf8($arclocation);
+	#This usecase only happens with the random selection : Regular index only parses the database for archive files it finds by default.
 
-	if (-e $arclocation)
-		{ $archiveexists = 1; }
+	if (length($archive)==64 && $redis->type($archive) eq "hash" && $redis->hexists($archive,"file"))
+	{
+		my $arclocation = $redis->hget($archive,"file");
+		$arclocation = decode_utf8($arclocation);
+
+		if (-e $arclocation)
+			{ $archiveexists = 1; }
+	}
 }
 	
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 apt-get update
-apt-get install -y apache2 cpanminus make imagemagick unar redis-server npm git
+apt-get install -y apache2 cpanminus make imagemagick perlmagick unar redis-server npm git
 
 npm install -g bower
 ln -s /usr/bin/nodejs /usr/bin/node
