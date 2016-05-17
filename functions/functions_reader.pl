@@ -10,6 +10,7 @@ use File::Find qw(find);
 use Image::Magick;
 
 require 'functions/functions_config.pl';
+require 'functions/functions_login.pl';
 
 #printReaderErrorPage($filename,$log)
 sub printReaderErrorPage
@@ -140,13 +141,13 @@ sub getImage
 
 
 
-#printReaderHTML(id,extractedImage,archiveName,archiveTotalPages, pagenum)
+#printReaderHTML(id,extractedImage,archiveName,archiveTotalPages, cgi, pagenum)
 #Computes all the necessary values to feed to the HTML template for a reader page.
 #Image info, number of pages, page we're actually in, image path.
 sub printReaderHTML
  {
 
-	my ( $id, $imgpath, $arcname, $arcpages, $pagenum) = @_;
+	my ( $id, $imgpath, $arcname, $arcpages, $cgi, $pagenum) = @_;
 
 	unless (defined $pagenum)
 		{ $pagenum = 1; }
@@ -203,6 +204,7 @@ sub printReaderHTML
             imgpath => $imgpath,
             readorder => &get_readorder(),
             cssdrop => &printCssDropdown(0),
+            userlogged => &isUserLogged($cgi),
 
         },
         \$out,

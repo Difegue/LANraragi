@@ -49,12 +49,13 @@ require 'functions/functions_reader.pl';
 			{ 
 				my $page = $qreader->param('page');
 				($imgpath, $arcpages) = &getImage($id,$force,$thumbreload,$page);
-				&printReaderHTML($id,$imgpath,$arcname,$arcpages,$page);  #$imgpath is the path to the image we want to display, $arcpages is the total number of pages in the archive.
+				&printReaderHTML($id,$imgpath,$arcname,$arcpages,$qreader,$page);  
+				#$imgpath is the path to the image we want to display, $arcpages is the total number of pages in the archive.
 			}
 		else
 		 	{ 
 		 		($imgpath, $arcpages) = &getImage($id,$force,$thumbreload);
-		 		&printReaderHTML($id,$imgpath,$arcname,$arcpages);
+		 		&printReaderHTML($id,$imgpath,$arcname,$arcpages,$qreader);
 		 	}
 		
 	} 

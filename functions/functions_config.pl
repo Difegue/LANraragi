@@ -45,8 +45,8 @@ sub get_readorder { return &getConfigParameter("readorder", "0") };
 sub enable_pass { return &getConfigParameter("enablepass", "1") };
 sub get_password { return &getConfigParameter("password", "kamimamita") };
 sub enable_resize { return &getConfigParameter("enableresize", "0") };
-sub get_threshold { return &getConfigParameter("sizethreshold", "70") };
-sub get_quality { return &getConfigParameter("readerquality", "10000") };
+sub get_threshold { return &getConfigParameter("sizethreshold", "1000") };
+sub get_quality { return &getConfigParameter("readerquality", "50") };
 
 
 ######## Sorta-advanced Configuration Shit - Edit if you can handle it ############
