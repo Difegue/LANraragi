@@ -11,15 +11,14 @@ require 'functions/functions_config.pl';
 
 #getGalleryId(hash(or text),isHash)
 #Takes an image hash or basic text, performs a remote search on g.e-hentai, and builds the matching JSON to send to the API for data.
-sub getGalleryId{
+sub getGalleryId
+ {
 
 	my $id = $_[0];
 	my $isHash = $_[1];
 	my $URL;
 
-	my $redis = Redis->new(server => &get_redisad, 
-									reconnect => 100,
-									every     => 3000);
+	my $redis = &getRedisConnection();
 
 	my $title = $redis->hget($id,"title");
 	my $artist = $redis->hget($id,"artist");
@@ -66,10 +65,11 @@ sub getGalleryId{
 				]
 				});
 	
-	}
+ }
 
 #Executes an API request with the given JSON and returns 
-sub getTagsFromAPI{
+sub getTagsFromAPI
+ {
 	
 	my $uri = 'http://g.e-hentai.org/api.php';
 	my $json = $_[0];
@@ -96,20 +96,18 @@ sub getTagsFromAPI{
 	else #if an error occurs(no tags available) return an empty string.
 		{ return ""; }
 
-	}
+ }
 
 #nHentaiGetTags(id)
 #nhentai version. Uses the website's search engine to find a gallery, then the json page for scraping tags.
-sub nHentaiGetTags{
-
+sub nHentaiGetTags
+ {
 	my $id = $_[0];
 	my $URL;
 	my $tag = "";
 	my $returned = "";
 
-	my $redis = Redis->new(server => &get_redisad, 
-									reconnect => 100,
-									every     => 3000);
+	my $redis = &getRedisConnection();
 
 	my $title = $redis->hget($id,"title");
 	my $artist = $redis->hget($id,"artist");
@@ -147,23 +145,20 @@ sub nHentaiGetTags{
 
 	return substr $returned, 1; #Strip first comma
 
-	}
+ }
 
 
 #addTags($id,$tags)
 #Adds the given $tags to the Redis storage for $id. Used in batch tagging.
-sub addTags{
-
+sub addTags
+ {
 	my $id = $_[0];
 	my $tags = $_[1];
 
 	unless ($tags eq "NOTAGS")
 	{
 
-		my $redis = Redis->new(server => &get_redisad, 
-									reconnect => 100,
-									every     => 3000);
-
+		my $redis = &getRedisConnection();
 		my $oldTags = $redis->hget($id,"tags");
 		
 		if ($oldTags eq "")
@@ -176,4 +171,4 @@ sub addTags{
 		$redis->quit();
 	}
 
-	}
+ }

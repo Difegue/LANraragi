@@ -11,10 +11,33 @@ use Encode;
 my $redisaddress = "127.0.0.1:6379";
 sub get_redisad { return $redisaddress };
 
+#Database that'll be used by LANraragi. Redis databases are numbered, default is 0.
+my $redisdatabase = 0;
+sub get_redisdb { return $redisdatabase };
+
+
+#getRedisConnection
+#Create a redis object with the parameters defined ^ here and return it
+sub getRedisConnection
+ {
+ 	#Default redis server location is localhost:6379. 
+	#Auto-reconnect on, one attempt every 100ms up to 2 seconds. Die after that.
+ 	my $redis = Redis->new(server => &get_redisad, 
+						reconnect => 100,
+						every     => 3000);
+
+ 	#Database switch if it's not 0
+ 	if (&get_redisdb != 0)
+ 		{ $redis -> select(&get_redisdb); }
+
+ 	return $redis;
+ }
+
 
 #getConfigParameter(parameter, default)
 #Gets a parameter from the Redis database. If it doesn't exist, we return the default given as a second parameter.
-sub getConfigParameter{
+sub getConfigParameter
+ {
 	my $param = $_[0]; 
 	my $default = $_[1];
 
@@ -31,7 +54,7 @@ sub getConfigParameter{
 		}
 	
 	return $default; 
-}
+ }
 
 
 #Functions that return the config variables stored in Redis, or default values if they don't exist. Descriptions for each one of these can be found in the web configuration page.
@@ -54,8 +77,8 @@ sub get_quality { return &getConfigParameter("readerquality", "50") };
 #Assign a name to the css file passed. You can add names by adding cases.
 #Note: CSS files added to the /styles folder will ALWAYS be pickable by the users no matter what. (except lrr.css because of quality software engineering)
 #All this sub does is give .css files prettier names in the dropdown. Files without a name here will simply show as their filename to the users.
-sub cssNames{
-
+sub cssNames
+ {
 	switch($_[0]){
 		case "g.css" {return "Old School"}
 		case "modern.css" {return "Hachikuji"}
@@ -65,7 +88,7 @@ sub cssNames{
 		else {return $_[0]}
 	} 
 
-}
+ }
 
 #Default CSS file to load. Must be in the /styles folder.
 my $css = "modern.css";
@@ -89,15 +112,3 @@ sub select_from_regex { return ($2,$4,$5,$7,$9)};
 	#\s* indicates zero or more whitespaces.
 my $regex = qr/(\(([^([]+)\))?\s*(\[([^]]+)\])?\s*([^([]+)\s*(\(([^([)]+)\))?\s*(\[([^]]+)\])?/;
 sub get_regex { return $regex};
-
-
-###### Printing of the Configuration HTML Form. I swear I'll put in templates some day and remove this ######
-
-sub generateConfigForm{
-
-	my $pagetitle = &get_htmltitle;
-
-	return qq();
-
-
-}

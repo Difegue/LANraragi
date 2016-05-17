@@ -41,9 +41,7 @@ sub getImage
 	
 
 	#Redis stuff: Grab archive path and update some things
-	my $redis = Redis->new(server => &get_redisad, 
-				reconnect => 100,
-				every     => 3000);
+	my $redis = &getRedisConnection();
 	
 	#We opened this id in the reader, so we can't mark it as "new" anymore.
 	$redis->hset($id,"isnew","none");

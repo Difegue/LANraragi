@@ -18,9 +18,7 @@ my $tt  = Template->new({
         #ENCODING => 'utf8' 
     });
 
-my $redis = Redis->new(server => &get_redisad, 
-						reconnect => 100,
-						every     => 3000);
+my $redis = &getRedisConnection();
 my $title = "";
 my $id = "";
 my $arclist = "";

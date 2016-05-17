@@ -15,10 +15,7 @@ sub isUserLogged
 	{
 
 		my $cgi = $_[0];
-		my $redis = Redis->new(server => &get_redisad, 
-								reconnect => 100,
-								every     => 3000);
-
+		my $redis = &getRedisConnection();
 
 		my $session = CGI::Session->new( "driver:redis", $cgi, { Redis => $redis,
 	                                                             Expire => 60*60*24 } );
@@ -44,10 +41,7 @@ sub loginUser
 
 	if ($pw eq &get_password)
 	{
-		my $redis = Redis->new(server => &get_redisad, 
-								reconnect => 100,
-								every     => 3000);
-
+		my $redis = &getRedisConnection();
 
 		my $session = CGI::Session->new( "driver:redis", $cgi, { Redis => $redis,
 	                                                             Expire => 60*60*24 } );

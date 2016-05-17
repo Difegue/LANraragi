@@ -26,9 +26,7 @@ if (&isUserLogged($qedit) && $qedit->param() )
 	{
 			
 		#Redis initialization.
-		my $redis = Redis->new(server => &get_redisad, 
-							reconnect => 100,
-							every     => 3000);
+		my $redis = &getRedisConnection();
 
 		#Three cases, depending on the request type:
 		

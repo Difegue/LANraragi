@@ -20,7 +20,7 @@ print $qajax->header('text/plain');
 
 #Is this a call? 
 if ($qajax->param())
-{
+ {
 
 	my $call = $qajax->param('function');
 	my $id = $qajax->param('id');
@@ -46,14 +46,14 @@ if ($qajax->param())
 			print $tags;
 		}
 
-}
+ }
 
 
 ###################
 
 #Get tags for the given input(title or image hash) and method(0 = title, 1= hash, 2=nhentai)
 sub getTags
-{
+ {
 	my $id = $_[0];
 	my $method = $_[1];
 	my $bliststr = $_[2];
@@ -84,11 +84,11 @@ sub getTags
 	else
 		{ return "NOTAGS"; }
 	
-}
+ }
 
 #returns the thumbnail path for a filename. Creates the thumbnail if it doesn't exist.
 sub getThumb
-{
+ {
 	my $dirname = &get_dirname;
 	my $id = $_[0];
 
@@ -101,9 +101,7 @@ sub getThumb
 	}
 	else
 	{
-		my $redis = Redis->new(server => &get_redisad, 
-						reconnect => 100,
-						every     => 2000);
+		my $redis = &getRedisConnection();
 								
 		my $file = $redis->hget($id,"file");
 		$file = decode_utf8($file);
@@ -159,5 +157,5 @@ sub getThumb
 		return $thumbname;
 		
 	}
-}
+ }
 	

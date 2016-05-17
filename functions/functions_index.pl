@@ -20,9 +20,7 @@ sub generateTableJSON
 
 		my $dirname = &get_dirname;
 
-		my $redis = Redis->new(server => &get_redisad, 
-							reconnect => 100,
-							every     => 3000);
+		my $redis = &getRedisConnection();
 
 		#Start building JSON
 		my $json = "[";

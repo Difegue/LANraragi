@@ -25,9 +25,7 @@ if (&isUserLogged($qconfig))
 	{
 			
 		#Redis initialization.
-		my $redis = Redis->new(server => &get_redisad, 
-							reconnect => 100,
-							every     => 3000);
+		my $redis = &getRedisConnection();
 
 		#If we got a POST, it's for setting new config settings.
 		if ('POST' eq $qconfig->request_method ) { 

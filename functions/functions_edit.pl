@@ -12,9 +12,7 @@ sub deleteArchive
 
 	my $id = $_[0];
 
-	my $redis = Redis->new(server => &get_redisad, 
-						reconnect => 100,
-						every     => 3000);	
+	my $redis = &getRedisConnection();
 
 
 	my $filename = $redis->hget($id, "file");

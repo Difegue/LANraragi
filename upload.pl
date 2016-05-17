@@ -67,9 +67,7 @@ if (&isUserLogged($qupload))
 					close OUTFILE;
 
 					#Parse for metadata right now and get the database ID
-					my $redis = Redis->new(server => &get_redisad, 
-							reconnect => 100,
-							every     => 3000);
+					my $redis = &getRedisConnection();
 
 					my $id = sha256_hex(encode_utf8($output_file));
 

@@ -18,9 +18,7 @@ require 'functions/functions_reader.pl';
 		my $id = $qreader->param('id');
 
 		#Quick Redis check to see if the ID exists:
-		my $redis = Redis->new(server => &get_redisad, 
-					reconnect => 100,
-					every     => 3000);
+		my $redis = &getRedisConnection();
 
 		unless ($redis->hexists($id,"title"))
 			{
