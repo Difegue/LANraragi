@@ -2,7 +2,6 @@
 
 use strict;
 use CGI qw(:standard);
-use File::Basename;
 use Redis;
 use Encode;
 use Template;

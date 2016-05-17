@@ -33,7 +33,7 @@ require 'functions/functions_login.pl';
 	my $cgi = new CGI;
 	my $tt  = Template->new({
         INCLUDE_PATH => "templates",
-        #ENCODING => 'utf8' 
+        ENCODING => 'UTF-8' 
     });
 
 	#We print the html we generated.
