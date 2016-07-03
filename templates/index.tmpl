@@ -8,10 +8,12 @@
 			<link type="image/png" rel="icon" href="./img/favicon.ico" />
 			<link rel="stylesheet" type="text/css" href="./styles/lrr.css" />
 			<link rel="stylesheet" type="text/css" href="./bower_components/font-awesome/css/font-awesome.min.css" />
+			<link rel="stylesheet" type="text/css" href="./bower_components/jquery-toast-plugin/dist/jquery.toast.min.css" />
 
 			<script src="./bower_components/jquery/dist/jquery.min.js" type="text/JAVASCRIPT"></script>
 			<script src="./bower_components/datatables/media/js/jquery.dataTables.min.js" type="text/JAVASCRIPT"></script>
 			<script src="./bower_components/dropit/dropit.js" type="text/JAVASCRIPT"></script>
+			<script src="./bower_components/jquery-toast-plugin/dist/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
 			<script src="./js/ajax.js" type="text/JAVASCRIPT"></script>
 			<script src="./js/index.js" type="text/JAVASCRIPT"></script>
 			<script src="./js/css.js" type="text/JAVASCRIPT"></script>
@@ -93,7 +95,19 @@
 			//Init thumbnail hover
 			showtrail('img/noThumb.png');
 
-			archiveJSON = [% tableJSON %]
+			archiveJSON = [% tableJSON %];
+
+			[% IF usingdefpass %]
+
+			//If the json has the "default password" flag, flash a friendly notification inviting the user to change his password
+				$.toast({
+				heading: 'You\'re using the default password and that\'s super baka of you',
+			    text: '<a href="login.pl">Login</a> with password "kamimamita" and change that shit ASAP before the UnderNet gets you.<br/>Why not check the configuration options afterwards, while you\'re at it? ',
+			    hideAfter: false,
+			    position: 'top-left', 
+			    icon: 'error'
+				});
+			[% END %]
 
 		</script>
 

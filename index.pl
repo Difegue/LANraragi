@@ -42,6 +42,9 @@ require 'functions/functions_login.pl';
 
 	my $out;
 
+	#Checking if the user still has the default password enabled
+	my $passcheck = (&get_password eq "kamimamita");
+
 	$tt->process(
         "index.tmpl",
         {
@@ -51,6 +54,7 @@ require 'functions/functions_login.pl';
             motd => &get_motd,
             cssdrop => &printCssDropdown(1),
             tableJSON => decode_utf8($table),
+            usingdefpass => $passcheck,
         },
         \$out,
     ) or die $tt->error;
