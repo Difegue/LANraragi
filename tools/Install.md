@@ -59,7 +59,7 @@ Configure apache so that your LANraragi directory can execute .pl files.
 Something like this in **sites-enabled**:  
 ```
 	<Directory /var/www/lanraragi/>
-		Options +ExecCGI
+		Options ExecCGI
 		AddHandler cgi-script .cgi .pl
 	</Directory>
 ```
@@ -70,14 +70,11 @@ chown -R www-data /var/www/lanraragi
 chmod -R 755 /var/www/lanraragi
 ```
 
-Access your directory, and you're good to go! Setup the directories and password in config.pl next. 
+If your Redis database has a different port or number from the default, edit **functions/functions_config.pl** to change it.  
+That file is also used for other advanced settings, give it a look.  
+
+Access your directory, and you're good to go! Login with the default admin password (kamimamita) next to setup directories and change your password.  
 
 ##For Windows Users: 
-http://httpd.apache.org/docs/2.2/platform/windows.html for Apache.  
-http://learn.perl.org/installing/windows.html for Perl and cpanm.  
-http://www.imagemagick.org/script/binary-releases.php for Imagemagick.  
-http://theunarchiver.googlecode.com/files/unar1.8.1_win.zip for unar.  
-https://msopentech.com/opentech-projects/redis/ for Redis.
-
-Some of the perl packages used probably don't work natively on Windows.  
-I never tried it, but you should ! Consider using the vagrantfile if you want a "just werks" solution, though.
+It's possible to get the Linux build running under the new Windows 10 Linux subsystem by following this guide.  
+Consider using the vagrantfile if you want a "just werks" solution or aren't buying into the hottest new Microsoft shit, though.  

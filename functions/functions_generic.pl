@@ -1,6 +1,5 @@
 use strict;
 use Digest::SHA qw(sha256_hex);
-use Redis;
 
 require 'functions/functions_config.pl';
 
