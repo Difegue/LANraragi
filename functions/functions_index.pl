@@ -56,8 +56,11 @@ sub generateTableJSON
 			else #can't be helped, parse archive and add it to Redis alongside its metadata.
 				{ ($name,$event,$artist,$title,$series,$language,$tags,$isnew) = &addArchiveToRedis($id,$file,$redis); }
 
+			#Grab the suffix to put it in the url for downloads
+			$suffix = (fileparse($file, qr/\.[^.]*/))[2];
+
 			#Once we have the data, we can build our json object.
-			my $urlencoded = $dirname."/".uri_escape($name); 	
+			my $urlencoded = $dirname."/".uri_escape($name).$suffix; 	
 					
 			#Tag display. Simple list separated by hyphens which expands into a caption div with nicely separated tags on hover.
 			my $printedtags = "";
