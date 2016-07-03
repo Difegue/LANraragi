@@ -1,7 +1,8 @@
 LANraragi
 ============
 
-Web interface and reader for storage of comics/manga on NAS, running on Perl/Redis/unar with a dash of Imagemagick and Bower. 
+Web interface and reader for storage of comics/manga on NAS, running on Perl/Redis/unar with a dash of Imagemagick and Bower.  
+You can find a demo [here](http://faglord.party/lanraragi).
 
 ![](https://a.pomf.cat/vpqvmq.png)
 *Comes in various flavors, from flat design apologist to sad panda.*  
@@ -21,10 +22,7 @@ Web interface and reader for storage of comics/manga on NAS, running on Perl/Red
 
 * Responsive, so you can read on your phone/tablet when taking a shit.  
 
-![](https://a.pomf.cat/czkfyn.png)
-
-*Even works on Windows Mobile 6.5 ! (In a very limited way)*  
-![](https://my.mixtape.moe/qfwnbx.jpg)
+![](https://my.mixtape.moe/owobfn.png)
 
 	
 ##Hotdog ! How do I install this ?  
@@ -51,7 +49,7 @@ There are multiple settings you can change, including but not limited to the con
 Afterwards, add your archives in the content folder or through the upload page, and it just works™
 
 
-##Roadmap(jk this is never getting done)  
+##Potential roadmap for when I feel motivated enough to take this up again    
 
 * Use Gulp for bundling front-end dependencies on top of bower  
 

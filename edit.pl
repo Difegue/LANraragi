@@ -21,7 +21,7 @@ my $tt  = Template->new({
     });
 
 	
-#Before anything, check if the user is logged in. If not, redirect him to login.pl?redirect=edit.pl
+#Before anything, check if the user is logged in. If not, redirect him to login.pl
 if (&isUserLogged($qedit) && $qedit->param() )
 	{
 			
