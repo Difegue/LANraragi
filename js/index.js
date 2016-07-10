@@ -122,7 +122,63 @@ function genericColumnDisplay(data,type,full,meta) {
 	return data;
 }
 
-//Executed onload of the archive index to initialize a bunch of shit.
+//Functions executed on DataTables draw callbacks to build the thumbnail view if it's enabled
+function thumbViewInit(settings) {
+	//we only do all this thingamajang if thumbnail view is enabled
+	if (localStorage.indexViewMode === 1)
+	{
+		// create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
+		if ($('#thumbs_container').length < 1) $('.dataTables_scrollbody').append("");
+
+		// clear out the thumbs container
+		$('#thumbs_container').html('');
+	}
+
+}
+
+function buildThumbDiv( row, data, index ) {
+
+	if (localStorage.indexViewMode === 1)
+	{
+
+		//Build a thumb-like div with the data and jam it in thumbs_container
+		thumb_div = '<div style="height:335px" class="id1">
+
+						<div class="id2">
+							<a href="./reader.pl?id='+data.arcid+'">'+data.title+'</a>
+						</div>
+
+						<div style="height:280px" class="id3">
+							<a href="./reader.pl?id='+data.arcid+'">';
+
+		if (data.thumbnail=="null")	//Might improve things and jam an ajax request for the thumbnail in here later		
+			thumb_div += 		'<img style="position:relative; top:-10px" title="'+data.title+'" src="./img/noThumb.png"/>';
+		else
+			thumb_div += 		'<img style="position:relative; top:-10px" title="'+data.title+'" src="'+data.thumbnail+'"/>';
+
+		thumb_div +=		'</a>
+						</div>
+
+						<div class="id4">
+							<div class="id41">'+data.artist+'</div>
+							<div class="id42">'+data.series+'</div>
+							<div class="id43">'+data.language+'</div>
+							<div class="id44">
+								<div style="float:right">
+									<img src="img/n.gif" style="float: right; margin-top: -15px; z-index: -1; display: '+data.isnew+'">
+								</div>
+							</div>
+						</div>
+
+					</div>';
+
+		$('#thumbs_container').append(thumb_div);
+	}
+}
+
+
+//Executed onload of the archive index to initialize a bunch of shit. 
+//This is painful to read.
 function initIndex(pagesize,dataSet)
 {
 	thumbTimeout = null;
@@ -141,6 +197,8 @@ function initIndex(pagesize,dataSet)
 				'info':           'Showing _START_ to _END_ of _TOTAL_ ancient chinese lithographies.',
 				'infoEmpty':      '<h1>No archives to show you ! Try <a href="upload.pl">uploading some</a> ?</h1>',
 			},
+		'preDrawCallback': thumbViewInit, //callbacks for thumbnail view
+		'rowCallback': buildThumbDiv,
 		'columns' : [
 			{ className: 'itdc', 
 			  'width': '20',
@@ -242,7 +300,7 @@ function initIndex(pagesize,dataSet)
 	//clear searchbar cache
 	$('#srch').val('');
 
-	//nuke style of table - datatables seems to assign its table a fixed width for some reason
+	//nuke style of table - datatables seems to assign its table a fixed width for some reason.
 	$('.itg').attr("style","")
 
 	//end init thumbnails

@@ -41,7 +41,9 @@ You can use
 ```
 vagrant halt
 ```  
-to stop the VM when you're done.
+to stop the VM when you're done.  
+
+The Vagrant setup automatically gets the latest revision from the git repo and grabs bower dependencies on its own. If the current development version has issues or the bower dependencies fail, please use the files from one of [the releases](https://github.com/Difegue/LANraragi/releases).
 
 ##I got me a setup, how do I use this ?
 First, login with the default admin password (kamimamita), and hit the configuration page.  
