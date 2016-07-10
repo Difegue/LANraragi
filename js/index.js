@@ -139,7 +139,7 @@ function initIndex(pagesize,dataSet)
 		'dom': '<"top"ip>rt<"bottom"p><"clear">',
 		'language': {
 				'info':           'Showing _START_ to _END_ of _TOTAL_ ancient chinese lithographies.',
-				'infoEmpty':      'No archives to show you ! Try <a href="upload.pl">uploading some</a> ?',
+				'infoEmpty':      '<h1>No archives to show you ! Try <a href="upload.pl">uploading some</a> ?</h1>',
 			},
 		'columns' : [
 			{ className: 'itdc', 
@@ -241,6 +241,9 @@ function initIndex(pagesize,dataSet)
 
 	//clear searchbar cache
 	$('#srch').val('');
+
+	//nuke style of table - datatables seems to assign its table a fixed width for some reason
+	$('.itg').attr("style","")
 
 	//end init thumbnails
 	hidetrail();
