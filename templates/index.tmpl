@@ -61,7 +61,7 @@
 				<p id='cssbutton' style='display:inline'>
 					<input class='stdbtn' type='button' onclick="var win=window.open('random.pl','_blank'); win.focus();" value='Give me a random archive'/>
 					[% cssdrop %]
-					<input class='stdbtn' type='button' onclick="switch_index_view()" value='Switch to Thumbnail View'/>
+					<input id='viewbtn' class='stdbtn' type='button' onclick="switch_index_view()" value='Switch to Thumbnail View'/>
 				</p>
 
 				<table class="itg">
@@ -85,7 +85,7 @@
 			<p class="ip">
 						Sorry, I stuttered. 👌👺<br>
 				<a href="https://github.com/Difegue/LANraragi"> 
-							 LANraragi v.0.3.0
+							 LANraragi v.0.3.1
 						</a>
 			</p>
 				
@@ -112,6 +112,11 @@
 			    icon: 'error'
 				});
 			[% END %]
+
+			if (localStorage.indexViewMode === 1)
+			    $("#viewbtn").val("Switch to Thumbnail View");
+			  else
+			    $("#viewbtn").val("Switch to List View");
 
 		</script>
 

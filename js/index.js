@@ -7,10 +7,16 @@ A WHOLE LOT OF DATATABLES INITIALISATION OH MY GOD
 //1 = Thumbnail view
 function switch_index_view() {
 
-  if (localStorage.indewViewMode === 1)
+  if (localStorage.indexViewMode == 1)
+  {
     localStorage.indexViewMode = 0;
+    $("#viewbtn").val("Switch to Thumbnail View");
+  }
   else
-    localStorage.indewViewMode = 1;
+  {
+    localStorage.indexViewMode = 1;
+    $("#viewbtn").val("Switch to List View");
+  }
 
   //Redraw the table yo
   arcTable.draw();
@@ -29,52 +35,56 @@ function genericColumnDisplay(data,type,full,meta) {
 //Inits the div that contains the thumbnails
 function thumbViewInit(settings) {
 	//we only do all this thingamajang if thumbnail view is enabled
-	if (localStorage.indexViewMode === 1)
+	if (localStorage.indexViewMode == 1)
 	{
 		// create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
-		if ($('#thumbs_container').length < 1) $('.dataTables_scrollbody').append("");
+		if ($('#thumbs_container').length < 1) 
+			$('.top').after("<div id='thumbs_container'></div>");
 
 		// clear out the thumbs container
 		$('#thumbs_container').html('');
+
+		$('.itg').hide();
+	}
+	else
+	{
+		//Destroy the thumb container and make the table visible again
+		$('#thumbs_container').remove();
+		$('.itg').show();
 	}
 
 }
 //Builds a id1 class div to jam in the thumb container for an archive whose JSON data we read
 function buildThumbDiv( row, data, index ) {
 
-	if (localStorage.indexViewMode === 1)
+	if (localStorage.indexViewMode == 1)
 	{
-
 		//Build a thumb-like div with the data and jam it in thumbs_container
-		thumb_div = '<div style="height:335px" class="id1">
-
-						<div class="id2">
-							<a href="./reader.pl?id='+data.arcid+'">'+data.title+'</a>
-						</div>
-
-						<div style="height:280px" class="id3">
-							<a href="./reader.pl?id='+data.arcid+'">';
+		thumb_div = '<div style="height:335px" class="id1">'+
+						'<div class="id2">'+
+							'<a href="./reader.pl?id='+data.arcid+'">'+data.title+'</a>'+
+						'</div>'+
+						'<div style="height:280px" class="id3">'+
+							'<a href="./reader.pl?id='+data.arcid+'">';
 
 		if (data.thumbnail=="null")	//Might improve things and jam an ajax request for the thumbnail in here later		
 			thumb_div += 		'<img style="position:relative; top:-10px" title="'+data.title+'" src="./img/noThumb.png"/>';
 		else
 			thumb_div += 		'<img style="position:relative; top:-10px" title="'+data.title+'" src="'+data.thumbnail+'"/>';
 
-		thumb_div +=		'</a>
-						</div>
-
-						<div class="id4">
-							<div class="id41">'+data.artist+'</div>
-							<div class="id42">'+data.series+'</div>
-							<div class="id43">'+data.language+'</div>
-							<div class="id44">
-								<div style="float:right">
-									<img src="img/n.gif" style="float: right; margin-top: -15px; z-index: -1; display: '+data.isnew+'">
-								</div>
-							</div>
-						</div>
-
-					</div>';
+		thumb_div +=		'</a>'+
+						'</div>'+
+						'<div class="id4">'+
+							'<div class="id41">'+data.artist+'</div>'+
+							'<div class="id42">'+data.series+'</div>'+
+							'<div class="id43">'+data.language+'</div>'+
+							'<div class="id44">'+
+								'<div style="float:right">'+
+									'<img src="img/n.gif" style="float: right; margin-top: -15px; z-index: -1; display: '+data.isnew+'">'+
+								'</div>'+
+							'</div>'+
+						'</div>'+
+					'</div>';
 
 		$('#thumbs_container').append(thumb_div);
 	}

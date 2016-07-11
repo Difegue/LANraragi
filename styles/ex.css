@@ -183,6 +183,11 @@ div.id2 {
     width: 220px;
 }
 
+div.id2 a {
+    font-weight: bold;
+    text-decoration: none;
+}
+
 div.id3 {
     border-radius: 7px 7px 7px 7px;
     margin: auto;
@@ -199,4 +204,37 @@ div.id4 {
     position: relative;
     text-align: center;
     width: 220px;
+}
+
+div.id41 {
+    height: 15px;
+    left: 2px;
+    position: absolute;
+    top: 5px;
+    width: 15px;
+}
+
+div.id42 {
+    height: 15px;
+    left: 16px;
+    position: absolute;
+    text-align: center;
+    top: 7px;
+    width: 55px;
+}
+
+div.id43 {
+    left: 70px;
+    position: absolute;
+    top: 2px;
+}
+
+div.id44 {
+    height: 20px;
+    left: 143px;
+    overflow: hidden;
+    position: absolute;
+    text-align: right;
+    top: 0;
+    width: 78px;
 }

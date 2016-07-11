@@ -4,14 +4,18 @@ function hex(x) {
 
 function rgb2hex(rgb) {
 
-    if (rgb === null || rgb === "transparent") 
+    if (rgb == null || rgb == "transparent") 
       return "#FFFFFF";
 
     if (/^#[0-9A-F]{6}$/i.test(rgb)) 
       return rgb;
 
     rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
-    return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
+
+    if (rgb != null)
+      return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
+
+    return "#FFFFFF";
     
 }
 
