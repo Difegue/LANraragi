@@ -62,21 +62,3 @@ function set_style_from_storage() {
     if (css_title) 
       switch_style( css_title );
 }
-
-//Switch view on index and saves the value in the user's localStorage
-//0 = List view
-//1 = Thumbnail view
-function switch_index_view(value) {
-
-  localStorage.indexViewMode = value;
-
-}
-
-//Get the stored value and call switch_index_view
-function set_view_from_storage() {
-
-    var view_mode = localStorage.indexViewMode;
-
-    
-
-}

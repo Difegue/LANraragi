@@ -51,7 +51,9 @@ apt-get install npm
 npm install -g bower
 cd /var/www/lanraragi
 bower install
-```
+```  
+
+Those last two steps can be replaced by merely downloading one of [the releases](https://github.com/Difegue/LANraragi/releases) and unzipping in /var/www/lanraragi, if you don't feel like being bleeding edge.  
 
 ##Configuration:  
 
