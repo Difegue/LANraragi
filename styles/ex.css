@@ -166,8 +166,7 @@ div.id1 {
     background: none repeat scroll 0 0 #43464E;
     border: 1px solid #34353B;
     border-radius: 9px 9px 9px 9px;
-    display: block;
-    float: left;
+    display: inline-block;
     margin: 3px 2px 2px 3px;
     padding-top: 3px;
     width: 228px;
@@ -188,14 +187,18 @@ div.id2 a {
     text-decoration: none;
 }
 
-div.id3 {
-    border-radius: 7px 7px 7px 7px;
+div.id3 {  
     margin: auto;
     overflow: hidden;
     position: relative;
     text-align: center;
     width: 202px;
     height: 280px;
+}
+
+div.id3 img {
+    border-radius: 7px 7px 7px 7px;
+    max-height: 275px;
 }
 
 div.id4 {
@@ -207,34 +210,26 @@ div.id4 {
 }
 
 div.id41 {
+    float: left;
     height: 15px;
     left: 2px;
-    position: absolute;
-    top: 5px;
-    width: 15px;
+    width: 88px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+    white-space: nowrap;
 }
 
 div.id42 {
     height: 15px;
-    left: 16px;
-    position: absolute;
-    text-align: center;
-    top: 7px;
-    width: 55px;
+    width: 102px;
+    overflow: hidden;
+    float: right;
+    text-overflow: ellipsis;
+    text-align: right;
 }
-
 div.id43 {
     left: 70px;
     position: absolute;
     top: 2px;
-}
-
-div.id44 {
-    height: 20px;
-    left: 143px;
-    overflow: hidden;
-    position: absolute;
-    text-align: right;
-    top: 0;
-    width: 78px;
 }

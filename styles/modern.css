@@ -278,3 +278,76 @@ div.jqcloud span.w4, div.jqcloud span.w3, div.jqcloud span.w2 {
 div.jqcloud span.w1 {
     color: #b3b3b3 !important;
 }
+
+/* Thumbnail View container divs*/
+div.id1 {
+    background: none repeat scroll 0 0 #43464E;
+    border: 1px none;
+    border-radius: 9px 9px 9px 9px;
+    display: inline-block;
+    margin: 3px 2px 2px 3px;
+    padding-top: 3px;
+    width: 228px;
+    height: 335px;
+}
+
+div.id2 {
+    height: 30px;
+    margin: auto;
+    overflow: hidden;
+    text-align: center;
+    vertical-align: middle;
+    width: 220px;
+}
+
+div.id2 a {
+    font-weight: bold;
+    text-decoration: none;
+}
+
+div.id3 {  
+    margin: auto;
+    overflow: hidden;
+    position: relative;
+    text-align: center;
+    width: 202px;
+    height: 280px;
+}
+
+div.id3 img {
+    border-radius: 7px 7px 7px 7px;
+    max-height: 275px;
+}
+
+div.id4 {
+    height: 20px;
+    margin: auto;
+    position: relative;
+    text-align: center;
+    width: 220px;
+}
+
+div.id41 {
+    float: left;
+    height: 15px;
+    left: 2px;
+    width: 88px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+    white-space: nowrap;
+}
+
+div.id42 {
+    height: 15px;
+    width: 102px;
+    overflow: hidden;
+    float: right;
+    text-overflow: ellipsis;
+    text-align: right;
+}
+div.id43 {
+    left: 70px;
+    position: absolute;
+    top: 2px;
+}

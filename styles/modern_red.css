@@ -41,6 +41,7 @@ p.ip {
     margin: -3px auto;
     padding: 10px 5px 5px;
     text-align: center;
+    color: #414135
 }
 img.mr {
     border: 0 none;
@@ -373,4 +374,97 @@ div.jqcloud span.w4, div.jqcloud span.w3, div.jqcloud span.w2 {
 
 div.jqcloud span.w1 {
     color: #b29999 !important;
+}
+
+/* Thumbnail View container divs*/
+div.id1 {
+    background: none repeat scroll 0 0 #DCDDCB;
+    color: #414135;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+    display: inline-block;
+    margin: 3px 5px 5px 3px;
+    padding-top: 3px;
+    width: 228px;
+    height: 335px;
+}
+
+div.id2 {
+    border-bottom: 2px dotted #414135;
+    height: 20px;
+    margin: auto auto 10px;
+    overflow: hidden;
+    text-align: center;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    white-space: nowrap;
+    width: 220px;
+}
+
+div.id2 a {
+    font-weight: bold;
+    text-decoration: none;
+    color: #414135;
+    font-size: 12px;
+}
+
+div.id2 a:hover {
+    color: #BE2348;
+
+}
+
+div.id3 {  
+    margin: auto;
+    overflow: hidden;
+    position: relative;
+    text-align: center;
+    width: 202px;
+    height: 280px;
+}
+
+div.id3 img {
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+    max-height: 275px;
+}
+
+div.id4 {
+    height: 20px;
+    margin: auto;
+    position: relative;
+    text-align: center;
+    width: 220px;
+}
+
+div.id4 a {
+    color: #414135;
+
+}
+
+div.id4 a:hover {
+    color: #BE2348;
+
+}
+
+div.id41 {
+    float: left;
+    height: 15px;
+    left: 2px;
+    width: 88px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+    white-space: nowrap;
+}
+
+div.id42 {
+    height: 15px;
+    width: 102px;
+    overflow: hidden;
+    float: right;
+    text-overflow: ellipsis;
+    text-align: right;
+}
+div.id43 {
+    left: 70px;
+    position: absolute;
+    top: 2px;
 }

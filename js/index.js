@@ -39,7 +39,7 @@ function thumbViewInit(settings) {
 	{
 		// create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
 		if ($('#thumbs_container').length < 1) 
-			$('.top').after("<div id='thumbs_container'></div>");
+			$('.top').after("<div id='thumbs_container' class='clearfix'></div>");
 
 		// clear out the thumbs container
 		$('#thumbs_container').html('');
@@ -62,27 +62,35 @@ function buildThumbDiv( row, data, index ) {
 		//Build a thumb-like div with the data and jam it in thumbs_container
 		thumb_div = '<div style="height:335px" class="id1">'+
 						'<div class="id2">'+
-							'<a href="./reader.pl?id='+data.arcid+'">'+data.title+'</a>'+
+							'<div class="id44">'+
+									'<div style="float:right">'+
+										'<img src="img/n.gif" style="float: right; display: '+data.isnew+'">'+
+									'</div>'+
+							'</div>'+
+							'<a href="./reader.pl?id='+data.arcid+'" title="'+data.title+'">'+data.title+'</a>'+
 						'</div>'+
 						'<div style="height:280px" class="id3">'+
 							'<a href="./reader.pl?id='+data.arcid+'">';
 
 		if (data.thumbnail=="null")	//Might improve things and jam an ajax request for the thumbnail in here later		
-			thumb_div += 		'<img style="position:relative; top:-10px" title="'+data.title+'" src="./img/noThumb.png"/>';
+			thumb_div += 		'<img style="position:relative;" title="'+data.title+'" src="./img/noThumb.png"/>';
 		else
-			thumb_div += 		'<img style="position:relative; top:-10px" title="'+data.title+'" src="'+data.thumbnail+'"/>';
+			thumb_div += 		'<img style="position:relative;" title="'+data.title+'" src="'+data.thumbnail+'"/>';
 
 		thumb_div +=		'</a>'+
 						'</div>'+
 						'<div class="id4">'+
-							'<div class="id41">'+data.artist+'</div>'+
-							'<div class="id42">'+data.series+'</div>'+
-							'<div class="id43">'+data.language+'</div>'+
-							'<div class="id44">'+
-								'<div style="float:right">'+
-									'<img src="img/n.gif" style="float: right; margin-top: -15px; z-index: -1; display: '+data.isnew+'">'+
-								'</div>'+
-							'</div>'+
+							'<div class="id41"><a style="cursor:pointer" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+
+								data.artist+'</a></div>'+
+							'<span style="font-size:16px"><a title="Download this archive." href="'+data.url+'">'+
+								'<i style="margin-right:2px" class="fa fa-save"></i>'+
+							'</a>'+
+							'<a title="Edit this archive\'s tags and data." href="./edit.pl?id='+data.arcid+'">'+
+								'<i class="fa fa-pencil"></i>'+
+							'</a></span>'+
+							'<div class="id42"><a style="cursor:pointer" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+
+								data.series+'</a></div>'+
+							//'<div class="id43">'+data.language+'</div>'+
 						'</div>'+
 					'</div>';
 
@@ -220,6 +228,11 @@ function initIndex(pagesize,dataSet)
 	//end init thumbnails
 	hidetrail();
 	document.onmouseover=followmouse;
+
+	//Init Thumbnail Mode if enabled - we do it twice in order to initialize it at the value the user has stored.
+	//(Yeah it's shitty but it works so w/e)
+	switch_index_view();
+	switch_index_view();
 			
 }
 
