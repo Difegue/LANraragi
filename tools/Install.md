@@ -1,4 +1,55 @@
 #LANraragi Installation Guide  
+You can find below three ways to get a LANraragi installation: Docker, Vagrant, or regular Linux with Apache.
+
+##Docker Installation
+A Docker image exists for deploying LANraragi installs to your machine easily without disrupting your already-existing web server setup.(Or installing on Windows/Mac.)  
+Download [the Docker setup](https://www.docker.com/products/docker) and install it. Once you're done, get the CLI out :  
+```
+docker run --name=lanraragi -p 8080:80 -v [YOUR_ARCHIVE_DIRECTORY]:/var/www/lanraragi/content difegue/lanraragi
+
+```
+Setting in your own archive directory. This directory will contain archives you either upload through the app or directly drop in.  
+
+On OSX, you should use something like :  
+```
+/Users/<path>
+```  
+And on Windows :  
+```
+/c/Users/<path>
+```  
+Once your LANraragi container is loaded, you can access it at [http://localhost:8080/lanraragi](http://localhost:8080/lanraragi) .  
+You can use the following commands to stop/start/remove the container(Removing it won't delete the archive directory you specified) : 
+```
+docker stop lanraragi
+docker start lanraragi
+docker rm lanraragi
+```  
+
+This whole setup gets a working LANraragi container from the Docker Hub, but you can build your own bleeding edge version by downloading [the Docker setup](https://github.com/Difegue/LANraragi/raw/master/tools/DockerSetup) and executing :
+```
+docker build -t whateverthefuckyouwant/lanraragi [PATH_TO_THE_DOCKERFILE]
+```  
+This will get the latest revision from the git repo and grab bower dependencies on its own.  
+
+##Vagrant Installation 
+I wrote a Vagrantfile you can use with [Vagrant](https://www.vagrantup.com/downloads.html) to deploy a virtual machine on your computer with LANraragi preinstalled.  
+Download [the Vagrant setup](https://github.com/Difegue/LANraragi/raw/master/tools/VagrantSetup) somewhere, and whip out a terminal :
+```
+vagrant plugin install vagrant-vbguest
+vagrant up
+```
+Once it's deployed(it takes a while to download everything), you'll have a /lanraragi folder, which syncs to an install located at [http://localhost:8080/lanraragi](http://localhost:8080/lanraragi) .  
+You can use 
+```
+vagrant halt
+```  
+to stop the VM when you're done.  
+
+The Vagrant setup automatically gets the latest revision from the git repo and grabs bower dependencies on its own. If the current development version has issues or the bower dependencies fail, please use the files from one of [the releases](https://github.com/Difegue/LANraragi/releases).
+
+##Manual Linux Installation  
+
 This guide is based on a bare-bones **Debian Jessie** installation.  
 If you use another Linux flavor, you probably know which package manager to use.  
 For Windows users, use the Vagrant or Docker solutions outlined in the Readme.  
