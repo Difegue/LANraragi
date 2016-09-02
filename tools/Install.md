@@ -1,7 +1,9 @@
-#LANraragi Installation Guide  
+LANraragi Installation Guide  
+============
+
 You can find below three ways to get a LANraragi installation: Docker, Vagrant, or regular Linux with Apache.
 
-##Docker Installation
+#Docker Installation
 A Docker image exists for deploying LANraragi installs to your machine easily without disrupting your already-existing web server setup.(Or installing on Windows/Mac.)  
 Download [the Docker setup](https://www.docker.com/products/docker) and install it. Once you're done, get the CLI out :  
 ```
@@ -32,7 +34,7 @@ docker build -t whateverthefuckyouwant/lanraragi [PATH_TO_THE_DOCKERFILE]
 ```  
 This will get the latest revision from the git repo and grab bower dependencies on its own.  
 
-##Vagrant Installation 
+#Vagrant Installation 
 I wrote a Vagrantfile you can use with [Vagrant](https://www.vagrantup.com/downloads.html) to deploy a virtual machine on your computer with LANraragi preinstalled.  
 Download [the Vagrant setup](https://github.com/Difegue/LANraragi/raw/master/tools/VagrantSetup) somewhere, and whip out a terminal :
 ```
@@ -48,7 +50,7 @@ to stop the VM when you're done.
 
 The Vagrant setup automatically gets the latest revision from the git repo and grabs bower dependencies on its own. If the current development version has issues or the bower dependencies fail, please use the files from one of [the releases](https://github.com/Difegue/LANraragi/releases).
 
-##Manual Linux Installation  
+#Manual Linux Installation  
 
 This guide is based on a bare-bones **Debian Jessie** installation.  
 If you use another Linux flavor, you probably know which package manager to use.  
