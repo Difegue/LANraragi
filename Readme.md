@@ -1,6 +1,8 @@
 LANraragi
 ============
 
+![WE DOCKER NOW](http://dockeri.co/image/difegue/lanraragi)
+
 Web interface and reader for storage of comics/manga on NAS, running on Perl/Redis/unar with a dash of Imagemagick and Bower.  
 You can find a demo [here](http://faglord.party/lanraragi).
 
@@ -45,7 +47,7 @@ And on Windows :
 ```
 /c/Users/<path>
 ```  
-Once your LANraragi container is loaded, you can access it at http://localhost:8080/lanraragi](http://localhost:8080/lanraragi) .  
+Once your LANraragi container is loaded, you can access it at [http://localhost:8080/lanraragi](http://localhost:8080/lanraragi) .  
 You can use the following commands to stop/start/remove the container(Removing it won't delete the archive directory you specified) : 
 ```
 docker stop lanraragi
@@ -53,10 +55,11 @@ docker start lanraragi
 docker rm lanraragi
 ```  
 
-This whole setup gets the LANraragi container from the Docker Hub, but you can roll your own by downloading [the Docker setup](https://github.com/Difegue/LANraragi/raw/master/tools/DockerSetup) and executing :
+This whole setup gets a working LANraragi container from the Docker Hub, but you can build your own bleeding edge version by downloading [the Docker setup](https://github.com/Difegue/LANraragi/raw/master/tools/DockerSetup) and executing :
 ```
 docker build -t whateverthefuckyouwant/lanraragi [PATH_TO_THE_DOCKERFILE]
 ```  
+This will get the latest revision from the git repo and grab bower dependencies on its own.  
 
 ##Vagrant Installation 
 I wrote a Vagrantfile you can use with [Vagrant](https://www.vagrantup.com/downloads.html) to deploy a virtual machine on your computer with LANraragi preinstalled.  
