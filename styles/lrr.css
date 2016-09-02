@@ -172,10 +172,3 @@ top: -10px;
     td.tags {display:none;}
     div.sni h1 {overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
 }
-
-/*General trickery for the thumbnail view displaying properly and centered on resizes */
-.clearfix:after { content: "\00A0"; display: block; clear: both; visibility: hidden; line-height: 0; height: 0;}
-.clearfix{ display: inline-block;}
-html[xmlns] .clearfix { display: block;}
-* html .clearfix{ height: 1%;}
-.clearfix {display: block;}

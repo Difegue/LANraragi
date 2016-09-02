@@ -28,8 +28,37 @@ You can find a demo [here](http://faglord.party/lanraragi).
 ##Hotdog ! How do I install this ?  
 You can find a basic installation guide [here](https://github.com/Difegue/LANraragi/blob/master/tools/Install.md) for Linux machines.  
 
-##But I don't run Linux, got anything for me ?  
-Got you covered ! Kind of.  
+##Docker Installation
+A Docker image exists for deploying LANraragi installs to your machine easily without disrupting your already-existing web server setup.(Or installing on Windows/Mac.)  
+Download [the Docker setup](https://www.docker.com/products/docker) and install it. Once you're done, get the CLI out :  
+```
+docker run --name=lanraragi -p 8080:80 -v [YOUR_ARCHIVE_DIRECTORY]:/var/www/lanraragi/content difegue/lanraragi
+
+```
+Setting in your own archive directory. This directory will contain archives you either upload through the app or directly drop in.  
+
+On OSX, you should use something like :  
+```
+/Users/<path>
+```  
+And on Windows :  
+```
+/c/Users/<path>
+```  
+Once your LANraragi container is loaded, you can access it at http://localhost:8080/lanraragi](http://localhost:8080/lanraragi) .  
+You can use the following commands to stop/start/remove the container(Removing it won't delete the archive directory you specified) : 
+```
+docker stop lanraragi
+docker start lanraragi
+docker rm lanraragi
+```  
+
+This whole setup gets the LANraragi container from the Docker Hub, but you can roll your own by downloading [the Docker setup](https://github.com/Difegue/LANraragi/raw/master/tools/DockerSetup) and executing :
+```
+docker build -t whateverthefuckyouwant/lanraragi [PATH_TO_THE_DOCKERFILE]
+```  
+
+##Vagrant Installation 
 I wrote a Vagrantfile you can use with [Vagrant](https://www.vagrantup.com/downloads.html) to deploy a virtual machine on your computer with LANraragi preinstalled.  
 Download [the Vagrant setup](https://github.com/Difegue/LANraragi/raw/master/tools/VagrantSetup) somewhere, and whip out a terminal :
 ```

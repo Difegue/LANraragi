@@ -1,5 +1,6 @@
 use strict;
 use Digest::SHA qw(sha256_hex);
+use File::Basename;
 
 require 'functions/functions_config.pl';
 

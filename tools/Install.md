@@ -1,11 +1,11 @@
 #LANraragi Installation Guide  
 This guide is based on a bare-bones **Debian Jessie** installation.  
 If you use another Linux flavor, you probably know which package manager to use.  
-For Windows users, see below.  
+For Windows users, use the Vagrant or Docker solutions outlined in the Readme.  
 
 ##Install required software:  
 
-* A **web server**. I'll be using apache for this, but there's no reason you shouldn't be able to run it with nginx.  
+* A **web server**. I'll be using apache for this, but there's no reason you shouldn't be able to run it with nginx if you can wrestle through CGI.  
 ```
 apt-get install apache2
 ```
@@ -78,5 +78,5 @@ That file is also used for other advanced settings, give it a look.
 Access your directory, and you're good to go! Login with the default admin password (kamimamita) next to setup directories and change your password.  
 
 ##For Windows Users: 
-It's possible to get the Linux build running under the new Windows 10 Linux subsystem by following this guide.  
-Consider using the vagrantfile if you want a "just werks" solution or aren't buying into the hottest new Microsoft shit, though.  
+It's not possible yet to get the Linux build running under the new Windows 10 Linux subsystem due to sockets fuckery.  
+Consider using the Vagrant or Docker files if you want a "just werks" solution.

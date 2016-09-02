@@ -39,7 +39,7 @@ function thumbViewInit(settings) {
 	{
 		// create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
 		if ($('#thumbs_container').length < 1) 
-			$('.top').after("<div id='thumbs_container' class='clearfix'></div>");
+			$('.top').after("<div id='thumbs_container'></div>");
 
 		// clear out the thumbs container
 		$('#thumbs_container').html('');
