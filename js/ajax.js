@@ -35,7 +35,7 @@ function ajaxThumbnailThumbView(archiveId)
 	$.get( "ajax.pl", { function: "thumbnail", id: archiveId } )
 			.done(function( data ) {
 				//alert(data);
-				if (data=="") //shit workaround for occasional empty ajax returns
+				if (data=="" || data.indexOf("Can't find file") !== -1) //shit workaround for occasional empty or failed ajax returns
 					ajaxThumbnailThumbView(archiveId);
 				else {
 					$('#'+archiveId+'_thumb').attr('src',data); //set image div source to the ajax result
@@ -236,7 +236,7 @@ function ajaxTags(arcId,method)
 	$.get( "ajax.pl", { function: "tags", method: method, id: arcId} )
 		.done(function(data) {
 
-			if (data=="NOTAGS")
+			if (data==="NOTAGS")
 				$.toast({
 					showHideTransition: 'slide',
 					position: 'top-left', 
@@ -244,7 +244,23 @@ function ajaxTags(arcId,method)
 				    heading: 'No tags found!',
 				    icon: 'info'
 				});
-			else
+			
+			if (data==="NOTHUMBNAIL") {
+					$.toast({
+						showHideTransition: 'slide',
+						position: 'top-left', 
+						loader: false, 
+						hideAfter: false,
+					    heading: 'Thumbnail hash for this archive is unavailable. <br/>We\'ll try regenerating it, try again in a little while ! <br/>If this message appears multiple times, your archive might be broken.',
+					    icon: 'error',
+					});
+
+					//fire a wild get to the fastest way to regenerate an archive, the reader with reload_thumbnail=1.
+					$.get("./reader.pl?id="+arcId+"&reload_thumbnail=1");
+
+			}
+			
+			if (data !="NOTAGS" && data !="NOTHUMBNAIL")
 			{
 				if ($('#tagText').val()=="")
 					$('#tagText').val(data);
@@ -265,6 +281,7 @@ function ajaxTags(arcId,method)
 			$('#tag-spinner').css("display","none");
 			$('#tagText').prop("disabled", false);
 			$('#tagText').css("opacity","1");
+			//console.log(data);
 			return data;
 		})
 		.fail(function(data) {

@@ -62,30 +62,36 @@ sub getTags
 	my $queryJson;
 
 	if ($method eq "2") #nhentai usecase
-	{ $tags = &nHentaiGetTags($id); }
+		{ $tags = &nHentaiGetTags($id); }
 	else
 	{
-	#This rings up g.e-hentai with the input we obtained.
-	$queryJson = &getGalleryId($id,$method); #getGalleryId is in functions.pl.
+		#This rings up g.e-hentai with the input we obtained.
+		eval { 
+				$queryJson = &eHentaiGetTags($id,$method); 
+				#Call the actual e-hentai API with the json we created and grab dem tags
+				$tags = &getTagsFromEHAPI($queryJson);
+			 }; 
 
-	#Call the actual e-hentai API with the json we created and grab dem tags
-	$tags = &getTagsFromAPI($queryJson);
+		#If the archive didn't have a thumbnail hash, we return an error code.
+		return "NOTHUMBNAIL" if $@; 
+		
 	}
 
 	#We got the tags, let's strip out the ones in the blacklist.
 	my @blacklist = split(/,\s?/, $bliststr);
 
-	foreach my $tag (@blacklist) {
-	  $tags =~ s/\Q$tag\E,//ig; #Remove all occurences of $tag in $tags
-	}
-
-	unless ($tags eq(""))
+	foreach my $tag (@blacklist) 
+		{ $tags =~ s/\Q$tag\E,//ig; } #Remove all occurences of $tag in $tags
+	
+	unless ($tags eq("") || $tags eq(" "))
 		{ return $tags; }	
 	else
 		{ return "NOTAGS"; }
 	
  }
 
+
+#getThumb(redisID)
 #returns the thumbnail path for a filename. Creates the thumbnail if it doesn't exist.
 sub getThumb
  {
@@ -158,4 +164,3 @@ sub getThumb
 		
 	}
  }
-	
