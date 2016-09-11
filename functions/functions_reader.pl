@@ -19,11 +19,16 @@ sub printReaderErrorPage
 	my $filename = $_[0];
 	my $errorlog = $_[1];
 	
-	print "<img src='./img/flubbed.gif'/><br/>
-			<h2>I flubbed it while trying to open the archive ".$filename.".</h2>It's likely the archive contains a folder with unicode characters.<br/> No real way around that for now besides modifying your archive, sorry !<br/>";
+	print " <body style='background: none repeat scroll 0% 0% brown; color: white; font-family: sans-serif; text-align: center'>
+				<img src='./img/flubbed.gif'/><br/>
+				<h2>I flubbed it while trying to open the archive ".$filename.".</h2>It's likely the archive contains a folder with unicode characters.<br/> 
+				No real way around that for now besides modifying your archive, sorry !<br/>";
+
 
 	print "<h3>Some more info below :</h3> <br/>";
 	print decode_utf8($errorlog);
+
+	print "</body>";
 
  }
 

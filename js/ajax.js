@@ -26,6 +26,29 @@ function ajaxThumbnail(archiveId)
 
 }
 
+//ajaxThumbnailThumbView(ID)
+//Works similarly to ajaxThumbnail, but for Thumbnail View.
+//Doesn't bother with the spinner and/or trail and just sets the image in the <img> DOM element with the ID_thumb id.
+function ajaxThumbnailThumbView(archiveId)
+{
+
+	$.get( "ajax.pl", { function: "thumbnail", id: archiveId } )
+			.done(function( data ) {
+				//alert(data);
+				if (data=="") //shit workaround for occasional empty ajax returns
+					ajaxThumbnailThumbView(archiveId);
+				else {
+					$('#'+archiveId+'_thumb').attr('src',data); //set image div source to the ajax result
+					$('#'+archiveId+'_thumb + i').remove(); //remove the spinner icon
+				}
+			})
+			.fail(function() {
+				$('#'+archiveId+'_thumb').src="./img/noThumb.png"; //set to nothumb :(
+			});
+
+}
+
+
 //saveArchiveData()
 //Grabs the data in the edit.pl form and saves it to Redis.
 function saveArchiveData()

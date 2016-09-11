@@ -72,8 +72,15 @@ function buildThumbDiv( row, data, index ) {
 						'<div style="height:280px" class="id3">'+
 							'<a href="./reader.pl?id='+data.arcid+'">';
 
-		if (data.thumbnail=="null")	//Might improve things and jam an ajax request for the thumbnail in here later		
-			thumb_div += 		'<img style="position:relative;" title="'+data.title+'" src="./img/noThumb.png"/>';
+		if (data.thumbnail=="null")	
+		{
+			//Give a specific ID to this img tag and fire an AJAX request to get its thumbnail.
+			thumb_div += 		'<img style="position:relative;" id ="'+data.arcid+'_thumb" title="'+data.title+'" src="./img/wait_warmly.jpg"/>'+
+								 '<i id="'+data.arcid+'_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>';
+
+			ajaxThumbnailThumbView(data.arcid);
+
+		}
 		else
 			thumb_div += 		'<img style="position:relative;" title="'+data.title+'" src="'+data.thumbnail+'"/>';
 

@@ -12,7 +12,7 @@ require 'functions/functions_generic.pl';
 require 'functions/functions_index.pl';
 require 'functions/functions_login.pl';
 
-
+	my $version = "0.3.2";
 	my $dirname = &get_dirname;
 
 	#Get all files in content directory.
@@ -43,7 +43,7 @@ require 'functions/functions_login.pl';
 	my $out;
 
 	#Checking if the user still has the default password enabled
-	my $passcheck = (&get_password eq "kamimamita");
+	my $passcheck = (&get_password eq "kamimamita" && &enable_pass );
 
 	$tt->process(
         "index.tmpl",
@@ -55,6 +55,7 @@ require 'functions/functions_login.pl';
             cssdrop => &printCssDropdown(1),
             tableJSON => decode_utf8($table),
             usingdefpass => $passcheck,
+            version => $version,
         },
         \$out,
     ) or die $tt->error;
