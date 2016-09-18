@@ -36,6 +36,9 @@
 				<a href="./config.pl">Configuration</a>
 				<span style="margin-left:5px"></span>
 				<i class="fa fa-caret-right"></i>
+				<a href="./backup.pl">Database Backup/Restore</a>
+				<span style="margin-left:5px"></span>
+				<i class="fa fa-caret-right"></i>
 				<a href="./stats.pl">Statistics</a>
 
 			</p>
@@ -106,7 +109,7 @@
 			//If the json has the "default password" flag, flash a friendly notification inviting the user to change his password
 				$.toast({
 				heading: 'You\'re using the default password and that\'s super baka of you',
-			    text: '<a href="login.pl">Login</a> with password "kamimamita" and <a href="config.pl">change that shit</a> on the double.<br/>Why not check the configuration options afterwards, while you\'re at it? ',
+			    text: '<a href="login.pl">Login</a> with password "kamimamita" and <a href="config.pl">change that shit</a> on the double.<br/>...Or just disable it! <br/>Why not check the configuration options afterwards, while you\'re at it? ',
 			    hideAfter: false,
 			    position: 'top-left', 
 			    icon: 'error'

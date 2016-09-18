@@ -1,6 +1,8 @@
 use strict;
 use Redis;
 use CGI::Session;
+use Authen::Passphrase;
+
 
 require 'functions/functions_config.pl';
 
@@ -39,7 +41,10 @@ sub loginUser
 	my $pw = $_[1];
 	my $cgi = $_[0];
 
-	if ($pw eq &get_password)
+	#match password we got with the authen hash stored in redis
+	my $ppr = Authen::Passphrase->from_rfc2307(&get_password);
+
+	if ($ppr->match($pw))
 	{
 		my $redis = &getRedisConnection();
 

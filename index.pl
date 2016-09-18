@@ -5,6 +5,7 @@ use CGI qw/:standard/;
 use Redis;
 use Template;
 use utf8;
+use Authen::Passphrase;
 
 #Require config 
 require 'functions/functions_config.pl';
@@ -12,7 +13,7 @@ require 'functions/functions_generic.pl';
 require 'functions/functions_index.pl';
 require 'functions/functions_login.pl';
 
-	my $version = "0.3.3";
+	my $version = "0.3.4";
 	my $dirname = &get_dirname;
 
 	#Get all files in content directory.
@@ -43,7 +44,8 @@ require 'functions/functions_login.pl';
 	my $out;
 
 	#Checking if the user still has the default password enabled
-	my $passcheck = (&get_password eq "kamimamita" && &enable_pass );
+	my $defaulthash = '{CRYPT}$2a$08$4AcMwwkGXnWtFTOLuw/hduQlRdqWQIBzX3UuKn.M1qTFX5R4CALxy';
+	my $passcheck = (&get_password eq $defaulthash && &enable_pass );
 
 	$tt->process(
         "index.tmpl",

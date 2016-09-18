@@ -6,6 +6,7 @@ use File::Basename;
 use Redis;
 use Encode;
 use Template; 
+use Authen::Passphrase::BlowfishCrypt;
 
 #Require config 
 require 'functions/functions_config.pl';
@@ -51,7 +52,20 @@ if (&isUserLogged($qconfig))
 			
 			#only add newpassword field as password if enablepass = 1
 			if ($qconfig->param('enablepass'))
-				{ $confhash{password} = $qconfig->param('newpassword'); }
+				{ 
+
+					#hash password with authen
+					my $password = $qconfig->param('newpassword');
+					my $ppr = Authen::Passphrase::BlowfishCrypt->new(
+					    cost        => 8,
+					    salt_random => 1,
+					    passphrase  => $password,
+					);
+
+					my $pass_hashed = $ppr->as_rfc2307;
+					$confhash{password} = $pass_hashed; 
+
+				}
 
 		
 			#Verifications.
