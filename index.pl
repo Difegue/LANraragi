@@ -13,7 +13,7 @@ require 'functions/functions_generic.pl';
 require 'functions/functions_index.pl';
 require 'functions/functions_login.pl';
 
-	my $version = "0.3.4";
+	my $version = "0.3.5";
 	my $dirname = &get_dirname;
 
 	#Get all files in content directory.

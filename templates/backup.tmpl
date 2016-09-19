@@ -1,0 +1,92 @@
+<html>
+	<head>
+		<title>[% title %] - Database Backup/Restore</title>
+
+		<meta name="viewport" content="width=device-width" />
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+		<link type="image/png" rel="icon" href="./img/favicon.ico" />
+		<link rel="stylesheet" type="text/css" href="./bower_components/font-awesome/css/font-awesome.min.css" />
+		<link rel="stylesheet" type="text/css" href="./bower_components/blueimp-file-upload/css/jquery.fileupload.css" />
+
+		<script src="./js/css.js" type="text/JAVASCRIPT"></script>
+		<script src="./bower_components/jquery/dist/jquery.min.js" type="text/JAVASCRIPT"></script>
+		<script src="./js/ajax.js" type="text/JAVASCRIPT"></script>
+		<script src="./bower_components/blueimp-file-upload/js/vendor/jquery.ui.widget.js" type="text/JAVASCRIPT"></script>
+		<script src="./bower_components/blueimp-file-upload/js/jquery.fileupload.js" type="text/JAVASCRIPT"></script>
+		
+	</head>
+
+	<body onload="initUpload()">
+		
+		[% cssdrop %]
+
+		<div class='ido' style='text-align:center'>
+				<h2 class='ih' style='text-align:center'>Database Backup/Restore</h2>
+
+					<br>
+					You can backup your existing database here, or restore an existing backup.<br><br>
+					Backuping allows you to download a JSON file containing all your archive IDs, and their matching metadata.<br>
+					Restoring from a backup will restore this metadata, <b>for IDs which already exist in your database.</b><br> 
+
+					<span class="stdbtn" style="height:50px; margin-top:25px; display:inline-block" onclick='window.location.replace("./backup.pl?dobackup=1")'>
+							<i style="padding-top:6px" class="fa fa-download fa-2x"></i><br>
+							<span>Backup Database</span>
+					</span>
+
+					<span class="stdbtn fileinput-button" style="height:50px; margin-top:25px; display:inline-block; margin-bottom: -9px">
+							<i style="padding-top:6px" class="fa fa-upload fa-2x"></i><br>
+							<span>Restore Backup</span>
+							<input type="file" id="fileupload" multiple="" name="file"> 
+					</span>
+
+
+					<table style='margin:auto; font-size:9pt; width: 80%; text-align:center;'><tbody id='files'>
+					<tr><td colspan = 2>
+
+						<div id='progress' style='padding-top:6px; padding-bottom:6px'>
+						    <div class='bar' style='width: 0%;'></div>
+						</div>
+						
+					</div>
+					</td></tr>
+
+					</tbody></table>
+
+
+					<br><br><br>
+					<input class='stdbtn' type='button' onclick="window.location.replace('./');" value='Return to Library'/>
+
+					
+				<br><br>
+
+		</div>
+
+		<script>
+
+		function initUpload(){
+
+			//Set the correct CSS from the user's localStorage.
+			set_style_from_storage();
+
+			//Handler for file uploading.
+			$('#fileupload').fileupload({
+		        dataType: 'json',
+		        done: function (e, data) {
+
+		        	$('#progress .bar').css('width','0%');
+		            $('#files').html(data);
+		        },
+
+		        progressall: function (e, data) {
+			        var progress = parseInt(data.loaded / data.total * 100, 10);
+			        $('#progress .bar').css('width', progress + '%');
+			    }
+
+		    });
+
+		}
+		</script>
+
+	</body>
+</html>
