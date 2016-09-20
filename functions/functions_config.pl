@@ -24,7 +24,7 @@ sub get_redisdb { return $redisdatabase };
 sub cssNames
  {
 	switch($_[0]){
-		case "g.css" {return "Old School"}
+		case "g.css" {return "HentaiVerse"}
 		case "modern.css" {return "Hachikuji"}
 		case "modern_clear.css" {return "Yotsugi"}
 		case "modern_red.css" {return "Nadeko"}

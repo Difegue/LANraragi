@@ -30,6 +30,9 @@ if (&isUserLogged($qbck))
 		    	my $filename = $qbck->param('file');
 				my $uploadMime = $qbck->uploadInfo($filename)->{'Content-Type'};
 
+				print $qbck->header(-type    => 'application/json',
+	                   	-charset => 'utf-8');
+
 				if ($uploadMime eq "application/json") 
 				{
 

@@ -10,12 +10,15 @@ You can find a demo [here](http://faglord.party/lanraragi).
 *Comes in various flavors, from flat design apologist to sad panda.*  
 	
 ##Hotdog ! How do I install this ?  
-You can find the installation guide [here](https://github.com/Difegue/LANraragi/blob/master/tools/Install.md) for Linux/Windows/OSX machines.  
+You can find the installation and update guide [here](https://github.com/Difegue/LANraragi/wiki/LANraragi-Installation-and-Update-Manual) for Linux/Windows/macOS machines.  
 
 ##I got me a setup, how do I use this ?
 First, login with the default admin password (kamimamita), and hit the configuration page.  
 There are multiple settings you can change, including but not limited to the content folder, your password or the reading order.
 Afterwards, add your archives in the content folder or through the upload page, and it just works™  
+
+##How do I update an existing installation ?  
+Check [here](https://github.com/Difegue/LANraragi/wiki/Updating-LANraragi).  
 
 ##Features
 
@@ -36,12 +39,11 @@ Afterwards, add your archives in the content folder or through the upload page, 
 * Responsive, so you can read on your phone/tablet when taking a shit.  
 
 
-
 ##Potential roadmap for when I feel motivated enough to take this up again    
 
 * Use Gulp for bundling front-end dependencies on top of bower  
 
-* Database backup/restoration  
+
 
 
 

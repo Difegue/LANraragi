@@ -29,29 +29,35 @@
 					Backuping allows you to download a JSON file containing all your archive IDs, and their matching metadata.<br>
 					Restoring from a backup will restore this metadata, <b>for IDs which already exist in your database.</b><br> 
 
-					<span class="stdbtn" style="height:50px; margin-top:25px; display:inline-block" onclick='window.location.replace("./backup.pl?dobackup=1")'>
-							<i style="padding-top:6px" class="fa fa-download fa-2x"></i><br>
-							<span>Backup Database</span>
-					</span>
+					<table style='margin:auto; font-size:9pt; margin-top:25px; text-align:center;'><tbody id='files'>
+						<tr>
+							<td>
+								<span class="stdbtn" style="height:50px; display:inline-block" onclick='window.open("./backup.pl?dobackup=1", "_blank")'>
+										<i style="padding-top:6px" class="fa fa-download fa-2x"></i><br>
+										<span>Backup Database</span>
+								</span>
+							</td>
+							<td>
+								<span class="stdbtn fileinput-button" style="height:50px; display:inline-block;">
+										<i style="padding-top:6px" class="fa fa-upload fa-2x"></i><br>
+										<span>Restore Backup</span>
+										<input type="file" id="fileupload" multiple="" name="file"> 
+								</span>
+							</td>
+						</tr>
+					</table>
+					<br/><br/>
 
-					<span class="stdbtn fileinput-button" style="height:50px; margin-top:25px; display:inline-block; margin-bottom: -9px">
-							<i style="padding-top:6px" class="fa fa-upload fa-2x"></i><br>
-							<span>Restore Backup</span>
-							<input type="file" id="fileupload" multiple="" name="file"> 
-					</span>
+					<span style='margin:auto; font-size:9pt; width: 80%; text-align:center;'>
 
-
-					<table style='margin:auto; font-size:9pt; width: 80%; text-align:center;'><tbody id='files'>
-					<tr><td colspan = 2>
-
-						<div id='progress' style='padding-top:6px; padding-bottom:6px'>
-						    <div class='bar' style='width: 0%;'></div>
+						<div id='processing' style='display:none'>
+							<i class='fa fa-3x fa-cog fa-spin' style='margin-top:20px' id='tag-spinner'></i>
+							<h3>Restoring your backup ... </h3>
 						</div>
-						
-					</div>
-					</td></tr>
 
-					</tbody></table>
+						<h3 id='result'></h3>
+						
+					</span>
 
 
 					<br><br><br>
@@ -74,13 +80,22 @@
 		        dataType: 'json',
 		        done: function (e, data) {
 
-		        	$('#progress .bar').css('width','0%');
-		            $('#files').html(data);
+		        	$('#processing').attr("style","display:none");
+
+		        	if (data.result.success == 1)
+		            	$('#result').html("Backup restored !");
+		            else
+		            	$('#result').html(data.result.error);
+		        },
+
+		        fail: function (e,data) {
+		        	$('#processing').attr("style","display:none");
+		        	$('#result').html("An error occured server-side. woops.<br/> Maybe your JSON is badly formatted ?");
 		        },
 
 		        progressall: function (e, data) {
-			        var progress = parseInt(data.loaded / data.total * 100, 10);
-			        $('#progress .bar').css('width', progress + '%');
+		        	$('#result').html("");
+			        $('#processing').attr("style","");
 			    }
 
 		    });

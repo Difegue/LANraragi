@@ -34,10 +34,12 @@ sub buildBackupJSON
 					"series": "$series",
 					"language": "$language",
 					"event": "$event",
-					"tags": "$tags",
-				},
-			);
+					"tags": "$tags"
+				},);
 	}
+
+	#remove last comma for json compliance
+	chop($json);
 
 	$json.="]";
 
@@ -61,7 +63,7 @@ sub restoreFromJSON
 		my $id = $archive->{"arcid"};
 
 		#If the archive exists, restore metadata.
-		if ($redis->hexists($id))
+		if ($redis->hexists($id,"title"))
 		{
 			#jam this shit in redis
 			#prepare the hash which'll be inserted.
