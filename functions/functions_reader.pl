@@ -42,7 +42,7 @@ sub getImage
 
 	my ($id, $force, $thumbreload, $pagenum) = @_;
 	my $img = Image::Magick->new; #Used for image resizing
-	my $tempdir = &get_dirname."/temp";
+	my $tempdir = "./temp";
 	
 
 	#Redis stuff: Grab archive path and update some things

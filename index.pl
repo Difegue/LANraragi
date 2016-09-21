@@ -20,7 +20,7 @@ require 'functions/functions_login.pl';
 	#This should be enough supported file extensions, right? The old lsar method was hacky and took too long.
 	my @filez = glob("$dirname/*.zip $dirname/*.rar $dirname/*.7z $dirname/*.tar $dirname/*.tar.gz $dirname/*.lzma $dirname/*.xz $dirname/*.cbz $dirname/*.cbr");
 
-	remove_tree($dirname.'/temp'); #Remove temp dir.
+	remove_tree('./temp'); #Remove temp dir.
 
 	my $table;
 

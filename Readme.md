@@ -10,7 +10,7 @@ You can find a demo [here](http://faglord.party/lanraragi).
 *Comes in various flavors, from flat design apologist to sad panda.*  
 	
 ##Hotdog ! How do I install this ?  
-You can find the installation and update guide [here](https://github.com/Difegue/LANraragi/wiki/LANraragi-Installation-and-Update-Manual) for Linux/Windows/macOS machines.  
+You can find the installation guide [here](https://github.com/Difegue/LANraragi/wiki) for Linux/Windows/macOS machines.  
 
 ##I got me a setup, how do I use this ?
 First, login with the default admin password (kamimamita), and hit the configuration page.  
