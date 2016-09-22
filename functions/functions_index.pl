@@ -71,7 +71,7 @@ sub generateTableJSON
 				{ $printedtags = $tags;}
 			
 
-			my $thumbname = $dirname."/thumb/".$id.".jpg";
+			my $thumbname = "./img/thumb/".$id.".jpg";
 
 			unless (-e $thumbname)
 				{ $thumbname = "null"; } #force ajax thumbnail if the image doesn't already exist

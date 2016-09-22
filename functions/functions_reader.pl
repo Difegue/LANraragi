@@ -101,7 +101,7 @@ sub getImage
 		}
 		else #We're on page 1: we can convert it into a thumbnail for the main reader index if it's not been done already(Or if it fucked up for some reason).
 		{
-			my $thumbname = &get_dirname."/thumb/".$id.".jpg";
+			my $thumbname = "./img/thumb/".$id.".jpg";
 
 			unless (-e $thumbname && $thumbreload eq "0")
 			{

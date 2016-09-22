@@ -6,6 +6,7 @@ use Redis;
 use Template;
 use utf8;
 use Authen::Passphrase;
+use File::Find qw(find);
 
 #Require config 
 require 'functions/functions_config.pl';
@@ -13,12 +14,20 @@ require 'functions/functions_generic.pl';
 require 'functions/functions_index.pl';
 require 'functions/functions_login.pl';
 
-	my $version = "0.3.5";
+	my $version = "v.0.3.5";
 	my $dirname = &get_dirname;
 
-	#Get all files in content directory.
+	#Get all files in content directory and subdirectories.
 	#This should be enough supported file extensions, right? The old lsar method was hacky and took too long.
-	my @filez = glob("$dirname/*.zip $dirname/*.rar $dirname/*.7z $dirname/*.tar $dirname/*.tar.gz $dirname/*.lzma $dirname/*.xz $dirname/*.cbz $dirname/*.cbr");
+	my @filez;
+	find({ wanted => sub { 
+							if ($_ =~ /^*.+\.(zip|rar|7z|tar|tar.gz|lzma|xz|cbz|cbr)$/ )
+								{push @filez, $_ }
+						 },
+		   no_chdir => 1,
+		   follow_fast => 1 }, 
+		$dirname);
+			  
 
 	remove_tree('./temp'); #Remove temp dir.
 
@@ -44,8 +53,8 @@ require 'functions/functions_login.pl';
 	my $out;
 
 	#Checking if the user still has the default password enabled
-	my $defaulthash = '{CRYPT}$2a$08$4AcMwwkGXnWtFTOLuw/hduQlRdqWQIBzX3UuKn.M1qTFX5R4CALxy';
-	my $passcheck = (&get_password eq $defaulthash && &enable_pass );
+	my $ppr = Authen::Passphrase->from_rfc2307(&get_password);
+	my $passcheck = ($ppr->match("kamimamita") && &enable_pass);
 
 	$tt->process(
         "index.tmpl",

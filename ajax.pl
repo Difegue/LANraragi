@@ -98,7 +98,7 @@ sub getThumb
 	my $dirname = &get_dirname;
 	my $id = $_[0];
 
-	my $thumbname = $dirname."/thumb/".$id.".jpg";
+	my $thumbname = "./img/thumb/".$id.".jpg";
 	#let's create it!
 		
 	if (-e $thumbname)
