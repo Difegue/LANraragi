@@ -14,7 +14,7 @@ require 'functions/functions_generic.pl';
 require 'functions/functions_index.pl';
 require 'functions/functions_login.pl';
 
-	my $version = "v.0.3.5";
+	my $version = "v.0.3.7";
 	my $dirname = &get_dirname;
 
 	#Get all files in content directory and subdirectories.
@@ -31,13 +31,19 @@ require 'functions/functions_login.pl';
 
 	remove_tree('./temp'); #Remove temp dir.
 
-	my $table;
+	my $archivejson;
+	my $newarchivejson;
 
-	#From the file tree, generate the HTML table
+	#From the file tree, generate the archive JSONs
 	if (@filez)
-	{ $table = &generateTableJSON(@filez); }
+	{ 
+		($archivejson, $newarchivejson) = &generateTableJSON(@filez); 
+	}
 	else
-	{ $table = "[]"}
+	{ 
+		$archivejson = "[]";
+		$newarchivejson = "[]";
+	}
 
 	#Actual HTML output
 	my $cgi = new CGI;
@@ -64,7 +70,9 @@ require 'functions/functions_login.pl';
             userlogged => &isUserLogged($cgi),
             motd => &get_motd,
             cssdrop => &printCssDropdown(1),
-            tableJSON => decode_utf8($table),
+            archiveJSON => decode_utf8($archivejson),
+            newarchiveJSON => decode_utf8($newarchivejson),
+            nonewarchives => ($newarchivejson eq "[]"),
             usingdefpass => $passcheck,
             version => $version,
         },

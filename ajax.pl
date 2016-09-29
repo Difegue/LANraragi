@@ -8,6 +8,7 @@
 use strict;
 use CGI qw(:standard);
 use Image::Magick;
+use Redis; 
 
 require 'functions/functions_config.pl';
 require 'functions/functions_generic.pl';
@@ -25,17 +26,22 @@ if ($qajax->param())
 	my $call = $qajax->param('function');
 	my $id = $qajax->param('id');
 	my $method = $qajax->param('method');
+	my $file = $qajax->param('file');
 
 	#Generate thumbnail for archive - no admin login required
 	if ($call eq "thumbnail")
 		{ print &getThumb($id); }
+
+	#Add archive to redis - no login required either
+	if ($call eq "addarchive")
+		{ print &addArchive($id, $file)}
 
 	#tags == When editing an archive, directly return tags. No blacklist feature.
 	if ($call eq "tags"  && &isUserLogged($qajax)) 
 		{ print &getTags($id,$method, "");  }
 
 	#tagsave = batch tagging, immediately save returned tags to redis.
-	if ($call eq "tagsave")
+	if ($call eq "tagsave" && &isUserLogged($qajax))
 		{ 
 			my $blacklist = $qajax->param('blacklist');
 
@@ -45,6 +51,8 @@ if ($qajax->param())
 			&addTags($id,$tags); 
 			print $tags;
 		}
+
+
 
  }
 
@@ -90,6 +98,31 @@ sub getTags
 	
  }
 
+#addArchive(id, file)
+#Adds the given file to Redis under the given ID. 
+sub addArchive 
+ {
+ 	my $id = $_[0];
+ 	my $file = $_[1];
+ 	my $redis = &getRedisConnection();
+
+ 	if ($redis->hexists($id,"title"))
+ 		{ return qq({ "status": "0", "error": "id already exists."}); }
+
+ 	#check if the file is in the content directory first
+ 	if (index($file, &get_dirname) == 0)
+ 	{ 
+ 		#reusing function from functions_generic, woop
+ 		&addArchiveToRedis($id,$file,$redis);
+
+ 		return qq({ "success": "1" });
+ 	}
+ 	else
+ 	{
+ 		return qq({ "success": "0", "error": "file not in the configured content directory."});
+ 	}
+
+ }
 
 #getThumb(redisID)
 #returns the thumbnail path for a filename. Creates the thumbnail if it doesn't exist.

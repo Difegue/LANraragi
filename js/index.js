@@ -243,3 +243,93 @@ function initIndex(pagesize,dataSet)
 			
 }
 
+//Executed on load of the archive index in new archive mode to organize and fire the ajax calls while informing the user.
+//This is slightly less painful to read.
+function initNewArchiveRequests(newArchiveJSON)
+{
+	//end init thumbnails
+	hidetrail();
+	document.onmouseover=followmouse;
+
+	//launch hourglass animation
+	hourglassAnimationCycle();
+
+	archives = newArchiveJSON.length;
+	completedArchives = 0;
+
+	//parse new archive json and fire ajax calls
+	for (var i = 0; i < archives; i++) {
+
+		archiveToAdd = newArchiveJSON[i];
+
+		//Ajax call for getting and setting the tags
+		$.ajax(
+			{
+				url : "ajax.pl",
+				type: "POST",
+				data: { function: "addarchive", id: archiveToAdd.arcid, file: archiveToAdd.file },
+				success:function(data, textStatus, jqXHR) 
+				{
+					jej = JSON.parse(data);
+
+					if (jej.success == "1")
+					{ 
+						completedArchives++;
+
+						$("#status").html("Added "+archiveToAdd.file+ " successfully.");
+						$("#counter").html(completedArchives + " / " + archives);
+
+						if (completedArchives === archives) {
+							location.reload(); 
+						}
+					}
+					else
+					{
+						$.toast({
+						showHideTransition: 'slide',
+						position: 'top-left', 
+						loader: false, 
+						hideAfter: false,
+					    heading: 'Error while adding archive '+archiveToAdd.file+' to the database :',
+					    text: jej.error,
+					    icon: 'error'
+						});
+					}
+					
+
+				},
+				error: function(jqXHR, textStatus, errorThrown) 
+				{
+					$.toast({
+						showHideTransition: 'slide',
+						position: 'top-left', 
+						loader: false, 
+						hideAfter: false,
+					    heading: 'Error while adding archive '+archiveToAdd.file+' to the database :',
+					    text: errorThrown,
+					    icon: 'error'
+					});
+				}
+			});
+	}
+
+}
+
+//Animates the hourglass on the new archive treatment page.
+function hourglassAnimationCycle() 
+{
+	var icon = $('#icon');
+	setTimeout(function(){ 
+		icon.attr("class",'fa fa-4x fa-hourglass-half');
+		setTimeout(function(){ 
+			icon.attr("class",'fa fa-4x fa-hourglass-end');
+			setTimeout(function(){ 
+				icon.attr("class",'fa fa-4x fa-hourglass-end spin');
+				setTimeout(function(){ 
+					icon.attr("class",'fa fa-4x fa-hourglass-start');
+					hourglassAnimationCycle();
+					}, 1500);
+				}, 500);
+			}, 500);
+		}, 500);
+}

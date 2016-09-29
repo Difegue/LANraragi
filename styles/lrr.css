@@ -172,3 +172,9 @@ top: -10px;
     td.tags {display:none;}
     div.sni h1 {overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
 }
+
+/*Hourglass animation for new archive treatment page*/
+.fa.fa-hourglass-end.spin {
+  transform: rotate(180deg);
+  transition: all 0.75s 0.25s;
+}
