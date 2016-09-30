@@ -78,7 +78,7 @@ function buildThumbDiv( row, data, index ) {
 			thumb_div += 		'<img style="position:relative;" id ="'+data.arcid+'_thumb" title="'+data.title+'" src="./img/wait_warmly.jpg"/>'+
 								 '<i id="'+data.arcid+'_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>';
 
-			ajaxThumbnailThumbView(data.arcid);
+			ajaxThumbnailThumbView(data.arcid, true);
 
 		}
 		else

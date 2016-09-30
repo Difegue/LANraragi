@@ -26,24 +26,32 @@ function ajaxThumbnail(archiveId)
 
 }
 
-//ajaxThumbnailThumbView(ID)
+//ajaxThumbnailThumbView(ID, repeat)
 //Works similarly to ajaxThumbnail, but for Thumbnail View.
 //Doesn't bother with the spinner and/or trail and just sets the image in the <img> DOM element with the ID_thumb id.
-function ajaxThumbnailThumbView(archiveId)
+function ajaxThumbnailThumbView(archiveId, repeatOnFailure)
 {
 
 	$.get( "ajax.pl", { function: "thumbnail", id: archiveId } )
 			.done(function( data ) {
 				//alert(data);
-				if (data=="" || data.indexOf("Can't find file") !== -1) //shit workaround for occasional empty or failed ajax returns
-					ajaxThumbnailThumbView(archiveId);
+				if (data=="" || data.indexOf("Can't find file") !== -1) {
+					//shit workaround for occasional empty or failed ajax returns
+					if (repeatOnFailure)
+						ajaxThumbnailThumbView(archiveId, false);
+					else {
+						$('#'+archiveId+'_thumb').attr('src',"./img/noThumb.png"); //set to nothumb :(
+						$('#'+archiveId+'_thumb + i').remove(); //remove the spinner icon
+					}
+				}
 				else {
 					$('#'+archiveId+'_thumb').attr('src',data); //set image div source to the ajax result
 					$('#'+archiveId+'_thumb + i').remove(); //remove the spinner icon
 				}
 			})
 			.fail(function() {
-				$('#'+archiveId+'_thumb').src="./img/noThumb.png"; //set to nothumb :(
+				$('#'+archiveId+'_thumb').attr('src',"./img/noThumb.png"); //set to nothumb :(
+				$('#'+archiveId+'_thumb + i').remove(); //remove the spinner icon
 			});
 
 }
