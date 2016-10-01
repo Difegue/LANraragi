@@ -45,15 +45,11 @@ sub generateTableJSON
 					#New archives are present. We discard the regular archive json and add objects to the new files json instead.
 					$newfiles++;
 
-					#The new files json will be used on the client side to show a dynamic loading screen, using ajax calls to add the archives to redis.
-					my ($name,$path,$suffix) = fileparse($file, qr/\.[^.]*/);
-					my $urlencoded = &get_dirname."/".uri_escape($name).$suffix; 	
-
+					#The new files json will be used on the client side to show a dynamic loading screen, using ajax calls to add the archives to redis.	
 					$newfilesjson.= qq(
 										{
 											"arcid": "$id",
 											"file": "$file",
-											"encodedfile": "$urlencoded"
 										},
 									);
 

@@ -276,7 +276,7 @@ function initNewArchiveRequests(newArchiveJSON)
 					{ 
 						completedArchives++;
 
-						$("#status").html("Added "+archiveToAdd.file+ " successfully.");
+						//$("#status").html("Added "+archiveToAdd.file+ " successfully.");
 						$("#counter").html(completedArchives + " / " + archives);
 
 						if (completedArchives === archives) {

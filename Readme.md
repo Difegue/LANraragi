@@ -26,24 +26,20 @@ Check [here](https://github.com/Difegue/LANraragi/wiki/Updating-LANraragi).
 
 * Read archives directly from your web browser: they're extracted automatically when you want to read them, and deleted when you're done. 
 
-* Paged archive list with thumbnails-on-hover.  
-![](https://a.pomf.cat/jooipu.png)
-
-* ..Or thumbnail view !  
-![](https://my.mixtape.moe/rloatv.png)
+* Two different user interfaces : compact archive list with thumbnails-on-hover, or thumbnail view.
 
 * Choose from 5 preinstalled library styles, or add your own with CSS.      
 
-* Tag support: Add your own or import them from predefined sources when possible. Batch Tagging available !  
+* Tag support: Add your own or import them from predefined sources.  
+
+* Batch Tagging available for tagging multiple archives in one go.
 
 * Responsive, so you can read on your phone/tablet when taking a shit.  
 
+* Backup your database as JSON to carry your tags over to another LANraragi instance.
 
-##Potential roadmap for when I feel motivated enough to take this up again    
+##Screenshots  
 
-* Use Gulp for bundling front-end dependencies on top of bower  
+![](https://a.pomf.cat/jooipu.png)  
 
-
-
-
-
+![](https://my.mixtape.moe/rloatv.png)  
