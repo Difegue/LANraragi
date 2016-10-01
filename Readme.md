@@ -40,8 +40,13 @@ Check [here](https://github.com/Difegue/LANraragi/wiki/Updating-LANraragi).
 
 ##Screenshots  
 
-![](https://my.mixtape.moe/hoilpy.jpg)  
+![](https://my.mixtape.moe/quaycv.jpg)  
 
 ![](https://my.mixtape.moe/pvpzmh.jpg)
 
-![](https://my.mixtape.moe/quaycv.jpg)  
+![](https://my.mixtape.moe/hoilpy.jpg)  
+
+
+
+
+
