@@ -1,13 +1,17 @@
 use strict;
 use URI::Escape;
 use File::Basename;
-use LWP::Simple qw($ua get);
+use LWP::UserAgent ();
 use JSON::Parse 'parse_json';
 use Redis;
 use Encode;
 
 require 'functions/functions_config.pl';
 
+my $useragent="LANraragi Tag Lookup/1337.0";
+
+my $ua = LWP::UserAgent->new;
+$ua->agent($useragent);
 
 #addTags($id,$tags)
 #Adds the given $tags to the Redis storage for $id. Used in batch tagging.
@@ -86,18 +90,18 @@ sub eHentaiGetTags
 sub eHentaiLookup()
  {
  	my $URL = $_[0];
- 	my $content = get $URL;
-
+        my $content = $ua->get($URL)->decoded_content;
+	
 	#now for the parsing of the HTML we obtained.
 	#the first occurence of <tr class="gtr0"> matches the first row of the results. 
 	#If it doesn't exist, what we searched isn't on E-hentai.
 	my @benis = split('<tr class="gtr0">', $content);
-	
+
 	#Inside that <tr>, we look for <div class="it5"> . the <a> tag inside has an href to the URL we want.
 	my @final = split('<div class="it5">',@benis[1]);
 
-	my $url = (split('http://g.e-hentai.org/g/',@final[1]))[1];
-
+	my $url = (split('e-hentai.org/g/',@final[1]))[1];
+	
 	
 	my @values = (split('/',$url));
 
@@ -114,15 +118,13 @@ sub eHentaiLookup()
 sub getTagsFromEHAPI
  {
 	
-	my $uri = 'http://g.e-hentai.org/api.php';
+	my $uri = 'http://e-hentai.org/api.php';
 	my $json = $_[0];
 	my $req = HTTP::Request->new( 'POST', $uri );
 	$req->header( 'Content-Type' => 'application/json' );
 	$req->content( $json );
 
 	#Execute the request with LWP:
-	my $ua = LWP::UserAgent->new; 
-	$ua->agent('LANraragi Tag Lookup/1337.0');
 	my $res = $ua->request($req);
 	
 	#$res is a JSON response. 
@@ -174,9 +176,8 @@ sub nHentaiGetTags
 sub nHentaiLookup
  {
  	my $URL = $_[0];
- 	$ua->agent('LANraragi Tag Lookup/1337.0');
-	my $content = get $URL;
-
+	my $content = $ua->get($URL)->decoded_content;
+	
 	my $json = parse_json($content);
 
 	#get the first gallery of the research
@@ -196,8 +197,7 @@ sub getTagsFromNHAPI
 
  	my $URL = "https://nhentai.net/api/gallery/$gID";
 
- 	$ua->agent('LANraragi Tag Lookup/1337.0');
- 	my $content = get $URL;
+ 	my $content = $ua->get($URL)->decoded_content;
 
 	my $json = parse_json($content);
 	my $tags = $json->{"tags"};

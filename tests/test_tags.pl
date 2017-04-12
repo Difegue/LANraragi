@@ -14,8 +14,8 @@ my $eHentaiExpectedJSON = qq({"method": "gdata","gidlist": [[618395,"0439fa3666"
 my $nHentaiURLTest = "https://nhentai.net/api/galleries/search?query=%22Pieces+1%22+shirow";
 my $nHentaiExpectedID = "52249";
 
-my $eHentaiExpectedTags = "touhou project, handful happiness, nanahara fuyuki, full color, artbook";
-my $nHentaiExpectedTags = "underwater, japanese, masamune shirow, full color, non-h, artbook, manga";
+my $eHentaiExpectedTags = "touhou project, hong meiling, marisa kirisame, reimu hakurei, sanae kochiya, youmu konpaku, handful happiness, nanahara fuyuki, full color, artbook";
+my $nHentaiExpectedTags = "japanese, masamune shirow, full color, non-h, artbook, manga";
 
 
 is( &eHentaiLookup($eHentaiURLTest), $eHentaiExpectedJSON, 'eHentai search test' );
