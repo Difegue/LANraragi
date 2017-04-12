@@ -1,26 +1,23 @@
-<img alt="LANraragi" src="https://raw.githubusercontent.com/Difegue/LANraragi/master/logo.png" width="300">
-============
+# <img alt="LANraragi" src="https://raw.githubusercontent.com/Difegue/LANraragi/master/logo.png" width="300">
+
 
 [<img src="http://dockeri.co/image/difegue/lanraragi">](https://hub.docker.com/r/difegue/lanraragi/)
 
 Web interface and reader for storage of comics/manga on NAS, running on Perl/Redis/unar with a dash of Imagemagick and Bower.  
 You can find a demo [here](http://faglord.party/lanraragi).
-
-![](https://a.pomf.cat/vpqvmq.png)
-*Comes in various flavors, from flat design apologist to sad panda.*  
 	
-##Hotdog ! How do I install this ?  
+## Hotdog ! How do I install this ?   
 You can find the installation guide [here](https://github.com/Difegue/LANraragi/wiki) for Linux/Windows/macOS machines.  
 
-##I got me a setup, how do I use this ?
+## I got me a setup, how do I use this ?  
 First, login with the default admin password (kamimamita), and hit the configuration page.  
 There are multiple settings you can change, including but not limited to the content folder, your password or the reading order.
 Afterwards, add your archives in the content folder or through the upload page, and it just works™  
 
-##How do I update an existing installation ?  
+## How do I update an existing installation ?  
 Check [here](https://github.com/Difegue/LANraragi/wiki/Updating-LANraragi).  
 
-##Features
+## Features  
 
 * Stores your comics in archive format. (zip/rar/targz/lzma/7z/xz/cbz/cbr supported)  
 
@@ -38,14 +35,15 @@ Check [here](https://github.com/Difegue/LANraragi/wiki/Updating-LANraragi).
 
 * Backup your database as JSON to carry your tags over to another LANraragi instance.
 
-##Screenshots  
+## Screenshots  
 
-![](https://my.mixtape.moe/quaycv.jpg)  
+![](https://a.pomf.cat/idppsl.png)  
 
-![](https://my.mixtape.moe/hoilpy.jpg)  
+![](https://a.pomf.cat/fedumh.png)
 
-![](https://my.mixtape.moe/pvpzmh.jpg)
+![](https://my.mixtape.moe/hoilpy.jpg) 
 
+![](https://a.pomf.cat/nsddiy.jpg)
 
 
 
