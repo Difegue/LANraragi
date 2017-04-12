@@ -145,7 +145,7 @@ sub getThumb
 		my $file = $redis->hget($id,"file");
 		$file = decode_utf8($file);
 				
-		my $path = $dirname."/thumb/temp";	
+		my $path = "./img/thumb/temp";	
 		#delete everything in tmp to prevent file mismatch errors.
 		unlink glob $path."/*.*";
 
@@ -186,8 +186,6 @@ sub getThumb
         $img->Read($path2);
         $img->Thumbnail(geometry => '200x');
         $img->Write($thumbname);
-
-		#`convert -strip -thumbnail 200x "$path2" $thumbname`;
 			
 		$redis.close();
 		#Delete the previously extracted file.
