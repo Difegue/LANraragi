@@ -15,7 +15,7 @@ rm -rf /var/www/lanraragi
 git clone https://github.com/Difegue/LANraragi.git /var/www/lanraragi
 cd /var/www/lanraragi
 
-cpanm -i CGI Template Redis JSON::Parse CGI::Session File::ShareDir::Install CGI::Session::Driver::redis Image::Info IPC::Cmd LWP::Simple Digest::SHA URI::Escape Authen::Passphrase
+cpanm CGI Template Redis JSON::Parse CGI::Session File::ShareDir::Install CGI::Session::Driver::redis Image::Info IPC::Cmd LWP::Simple LWP::Protocol::https Digest::SHA URI::Escape Authen::Passphrase Switch
 bower install --allow-root
 
 cp /vagrant/000-default.conf /etc/apache2/sites-enabled/000-default.conf

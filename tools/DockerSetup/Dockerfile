@@ -5,7 +5,7 @@ MAINTAINER  dfug sugoi@cock.li
 RUN apt-get update
 RUN apt-get upgrade -y
 RUN apt-get install -y perl apache2 cpanminus make imagemagick perlmagick unar redis-server npm git
-RUN cpanm CGI Switch Template Redis JSON::Parse CGI::Session File::ShareDir::Install CGI::Session::Driver::redis Image::Info IPC::Cmd LWP::Simple Digest::SHA URI::Escape Authen::Passphrase
+RUN cpanm CGI Template Redis JSON::Parse CGI::Session File::ShareDir::Install CGI::Session::Driver::redis Image::Info IPC::Cmd LWP::Simple LWP::Protocol::https Digest::SHA URI::Escape Authen::Passphrase Switch
 
 RUN npm install -g bower
 RUN ln -s /usr/bin/nodejs /usr/bin/node
