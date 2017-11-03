@@ -67,7 +67,7 @@
 	        		result = "<tr><td>" + data.result.name + 
 	        				"</td><td> <i class='fa fa-warning' style='margin-left:20px; margin-right: 10px; color: red'></i>" + data.result.error + "</td></tr>";
 	        	else
-	        		result = "<tr><td>" + data.result.name + 
+	        		result = "<tr><td> <a href='reader.pl?id=" + data.result.id + "'>" + data.result.name + "</a>" +
 	        				"</td><td> <i class='fa fa-check-square' style='margin-left:20px; margin-right: 10px; color: green'></i> <a href='edit.pl?id=" + data.result.id + "'> Click here to edit metadata. </a></td></tr>";
 
 	        	$('#progress .bar').css('width','0%');
