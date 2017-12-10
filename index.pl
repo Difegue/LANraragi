@@ -14,7 +14,7 @@ require 'functions/functions_generic.pl';
 require 'functions/functions_index.pl';
 require 'functions/functions_login.pl';
 
-	my $version = "v.0.3.8";
+	my $version = "v.0.3.9";
 	my $dirname = &get_dirname;
 
 	#Get all files in content directory and subdirectories.
@@ -70,8 +70,8 @@ require 'functions/functions_login.pl';
             userlogged => &isUserLogged($cgi),
             motd => &get_motd,
             cssdrop => &printCssDropdown(1),
-            archiveJSON => decode_utf8($archivejson),
-            newarchiveJSON => decode_utf8($newarchivejson),
+            archiveJSON => $archivejson,
+            newarchiveJSON => $newarchivejson,
             nonewarchives => ($newarchivejson eq "[]"),
             usingdefpass => $passcheck,
             version => $version,

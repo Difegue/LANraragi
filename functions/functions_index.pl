@@ -79,7 +79,7 @@ sub parseExistingArchive()
 		my ($name,$event,$artist,$title,$series,$language,$tags,$filecheck,$isnew) = @hash{qw(name event artist title series language tags file isnew)};
 
 		#Parameters have been obtained, let's decode them.
-		($_ = decode_utf8($_)) for ($name, $event, $artist, $title, $series, $language, $tags, $filecheck);
+		( eval { $_ = decode_utf8($_) } ) for ($name, $event, $artist, $title, $series, $language, $tags, $filecheck);
 
 		#Update the real file path and title if they differ from the saved one just in case the file got manually renamed or some weird shit
 		unless ($file eq $filecheck)
@@ -113,7 +113,7 @@ sub parseExistingArchive()
 		if ($title =~ /^\s*$/) #Workaround if title was incorrectly parsed as blank
 			{ $title = "<i class='fa fa-exclamation-circle'></i> Untitled archive, please edit metadata.";}
 
-		return qq(
+		my $finaljson = qq(
 			{
 				"arcid": "$id",
 				"url": "$urlencoded",
@@ -126,5 +126,11 @@ sub parseExistingArchive()
 				"isnew": "$isnew"
 			},
 		);
+
+		#Try to UTF8-decode the JSON again, in case it has mangled japanese characters. 
+		#This comes from a misstep somewhere earlier in the code, but the whole unicode situation is such a mess this'll do as a bandaid.
+		eval { $finaljson = decode_utf8($finaljson) };
+
+		return $finaljson;
 
  }
