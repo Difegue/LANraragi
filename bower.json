@@ -17,15 +17,15 @@
     "tests"
   ],
   "dependencies": {
-    "jquery": "^2.2.0",
-    "font-awesome": "fontawesome#^4.5.0",
+    "jquery": "^3.2.1",
+    "font-awesome": "fontawesome#^4.7.0",
     "dropit": "dropit#^1.1.1",
     "jQuery-rwdImageMaps": "*",
-    "datatables": "^1.10.10",
-    "roboto-fontface": "^0.4.5",
+    "datatables": "^1.10.16",
+    "roboto-fontface": "^0.8.0",
     "open-sans-fontface": "^1.4.2",
     "blueimp-file-upload": "jquery-file-upload#^9.12.1",
     "jquery-toast-plugin": "*",
-    "jqcloud2": "^2.0.1"
+    "jqcloud2": "^2.0.3"
   }
 }
