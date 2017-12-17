@@ -1,19 +1,20 @@
 //functions to navigate in reader.pl with the keyboard.
+//also handles the thumbnail archive explorer.
 
 function moveSomething(e) {
 
 switch (e.keyCode) {
 	case 37:
 	// left key pressed
-	window.location.href = document.getElementById("left").getAttribute("href");
+	goLeft();
 	break;
 	case 32:
 	// spacebar pressed
-	window.location.href = document.getElementById("next").getAttribute("href");
+	goToPage(currentPage+1);
 	break;
 	case 39:
 	// right key pressed
-	window.location.href = document.getElementById("right").getAttribute("href");
+	goRight();
 	break;
 	}	
 }
@@ -31,6 +32,70 @@ function toastHelpReader(){
     position: 'top-left', 
     icon: 'info'
 	});
+}
+
+function initArchivePageOverlay(){
+
+
+}
+
+function showArchivePages(){
+
+
+}
+
+function updateMetadata(){
+
+	filename = $("#img").get(0).src.replace(/^.*[\\\/]/, '');
+	w = $("#img").get(0).naturalWidth;
+	h = $("#img").get(0).naturalHeight;
+	size = "UNKNOWN"
+
+	//HEAD request to get filesize
+	xhr = $.ajax({
+		url : pages.pages[currentPage],
+		type : 'HEAD',
+		success : function(){
+		    size = parseInt(xhr.getResponseHeader('Content-Length') / 1024, 10);
+		}
+	}).done(function( data ) {
+
+		metadataString = filename + " :: " + w + " x " + h + " :: " + size + " KB";
+		
+		$('.file-info').each(function(){
+			$(this).html(metadataString);
+		});
+
+	});
+
+}
+
+function goToPage(page){
+
+	if (page < 0)
+		currentPage = 0;
+	else if (page >= pageNumber)
+		currentPage = pageNumber-1;
+	else currentPage = page;
+
+	//update image
+	$("#img").attr("src",pages.pages[currentPage]);
+
+	//update numbers
+	$('.current-page').each(function(){
+		$(this).html(currentPage+1);
+	});
+
+	$('.max-page').each(function(){
+		$(this).html(pageNumber);
+	});
+
+	//update imagemap
+
+	//update full image link
+	$("#imgLink").attr("href",pages.pages[currentPage]);
+
+	//store page number in localStorage
 
 
 }

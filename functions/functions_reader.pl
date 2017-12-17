@@ -35,12 +35,12 @@ sub printReaderErrorPage
 
 
 
-#getImage(id,forceReload,refreshThumbnail,pageNumber)
-#Returns the filepath to the requested page of the archive specified by its ID.
-sub getImage
+#buildReaderData(id,forceReload,refreshThumbnail)
+#Opens the archive specified by its ID and returns a json matching pages to their 
+sub buildReaderData
  {
 
-	my ($id, $force, $thumbreload, $pagenum) = @_;
+	my ($id, $force, $thumbreload) = @_;
 	my $img = Image::Magick->new; #Used for image resizing
 	my $tempdir = "./temp";
 	
@@ -81,113 +81,62 @@ sub getImage
 			}
 		}
 		
-	#Find the extracted images with a full search (subdirectories included)
+	#Find the extracted images with a full search (subdirectories included), treat them and jam them into an array.
 	my @images;
 	find({ wanted => sub { 
 							if ($_ =~ /^*.+\.(png|jpg|gif|bmp|jpeg|PNG|JPG|GIF|BMP)$/ ) #is it an image? readdir tends to read folder names too...
-								{push @images, $_ }
+								{
+									#We need to sanitize the image's path, in case the folder contains illegal characters, but uri_escape would also nuke the / needed for navigation.
+									#Let's solve this with a quick regex search&replace.
+									#First, we sanitize it all...
+									my $imgpath = $_;
+									$imgpath = escapeHTML($imgpath);
+									
+									#Then we bring the slashes back.
+									$imgpath =~ s!%2F!/!g;
+									push @images, $imgpath;
+
+								}
 						} , no_chdir => 1 }, $path); #find () does exactly that. 
 			  
     my @images = sort { &expand($a) cmp &expand($b) } @images;
     
 	
-	if (defined $pagenum) #Has a specific page been mentioned? If so, that's the one we'll need to display.
-		{
-		if ($pagenum <= 0)
-			{$pagenum = 1;}
+	#Convert page 1 into a thumbnail for the main reader index if it's not been done already(Or if it fucked up for some reason).
+	my $thumbname = "./img/thumb/".$id.".jpg";
 
-		if ($pagenum >= $#images+1)
-			{$pagenum = $#images+1;}
-		}
-		else #We're on page 1: we can convert it into a thumbnail for the main reader index if it's not been done already(Or if it fucked up for some reason).
-		{
-			my $thumbname = "./img/thumb/".$id.".jpg";
-
-			unless (-e $thumbname && $thumbreload eq "0")
-			{
-				my $path = @images[0];
-				$redis->hset($id,"thumbhash", encode_utf8(shasum($path)));
-
-				#use ImageMagick to make the thumbnail. width = 200px
-		        
-		        $img->Read($path);
-		        $img->Thumbnail(geometry => '200x');
-		        $img->Write($thumbname);
-
-				$pagenum = 1; #Default page setting for imgpath below.
-			}
-
-		}
-
-	my $imgpath = @images[$pagenum-1]; #This is the page we'll display.
-	
-	#convert to a cheaper on bandwidth format if the option is enabled.
-	if (&enable_resize)
+	unless (-e $thumbname && $thumbreload eq "0")
 	{
-			#Is the file size higher than the threshold?
-			if ( (int((-s $imgpath )/ 1024*10)/10 ) > &get_threshold)
-			{
-				$img->Read($imgpath);
-				$img->Resize(geometry => '1064x');
-				$img->Set(quality=>&get_quality);
-				$img->Write($imgpath);
+		my $path = @images[0];
+		$redis->hset($id,"thumbhash", encode_utf8(shasum($path)));
 
-				#`mogrify -scale 1064x -quality $quality "$imgpath"`; 
-			}
+		#use ImageMagick to make the thumbnail. width = 200px
+	    
+	    $img->Read($path);
+	    $img->Thumbnail(geometry => '200x');
+	    $img->Write($thumbname);
 	}
 
-	#We return the path to the image and the number of pages the archive contains.
-	return ($imgpath, $#images+1);
+	#Build json(actually it's just the images array in a string)
+	my $list = "{\"pages\": [\"".join("\",\"",@images)."\"]}";
+	return $list;
 
  }
 
 
 
 
-#printReaderHTML(id,extractedImage,archiveName,archiveTotalPages, cgi, pagenum)
+#printReaderHTML(id,imagePaths,archiveName,cgi)
 #Computes all the necessary values to feed to the HTML template for a reader page.
 #Image info, number of pages, page we're actually in, image path.
 sub printReaderHTML
  {
 
-	my ( $id, $imgpath, $arcname, $arcpages, $cgi, $pagenum) = @_;
-
-	unless (defined $pagenum)
-		{ $pagenum = 1; }
-
-	if ($pagenum >= $arcpages)
-		{ $pagenum = $arcpages; }
-
-	if ($pagenum < 1)
-		{ $pagenum = 1; }
-
-	#Let's get more precise info on the image to display. 
-	my $info = image_info($imgpath);
-		
-	#gonna reuse those variables.
-	my ($namet,$patht,$suffixt) = fileparse($imgpath, qr/\.[^.]*/);
-	
-	#Outputs something like "0001.png :: 1052 x 1500 :: 996.6 KB".
-	my $size = (int((-s ($imgpath) )/ 1024*10)/10 ) ;
-	
-	my $imgwidth = $info->{width}; 
-	my $imgheight = $info->{height}; 
-	my $imgmapwidth = int($imgwidth/2 + 0.5);
-
-	my $filename = $namet.$suffixt;
-	
-	#We need to sanitize the image's path, in case the folder contains illegal characters, but uri_escape would also nuke the / needed for navigation.
-	#Let's solve this with a quick regex search&replace.
-	#First, we sanitize it all...
-	$imgpath = escapeHTML($imgpath);
-	
-	#Then we bring the slashes back.
-	$imgpath =~ s!%2F!/!g;
+	my ( $id, $imgpaths, $arcname, $arcpages, $cgi) = @_;
 	
 	#Time to spit out the template.
 	my $tt  = Template->new({
         INCLUDE_PATH => "templates",
-        #ENCODING => 'utf8' 
     });
 
 	my $out;
@@ -196,19 +145,11 @@ sub printReaderHTML
         "reader.tmpl",
         {
         	arcname => $arcname,
-            arcpages => $arcpages,
-            pagenum => $pagenum,
             id => $id,
-            filename => $filename,
-            width => $imgwidth,
-            height => $imgheight,
-            size => $size,
-            mapwidth => $imgmapwidth,
-            imgpath => $imgpath,
+            imgpaths => $imgpaths,
             readorder => &get_readorder(),
             cssdrop => &printCssDropdown(0),
             userlogged => &isUserLogged($cgi),
-
         },
         \$out,
     ) or die $tt->error;

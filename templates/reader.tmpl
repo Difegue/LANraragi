@@ -18,18 +18,6 @@
 		</head>
 
 		<body onload=" $('img[usemap]').rwdImageMaps(); set_style_from_storage();">
-
-		<!--Specific links for reader JS; Also define which page is left and which is right based on read order -->
-		[% IF readorder %]
-			[% leftpage = pagenum + 1 %]
-			[% rightpage = pagenum - 1 %]
-			<a id="next" href="./reader.pl?id=[% id %]&page=[% leftpage %]" style="display:none"></a>
-		[% ELSE %]
-			[% leftpage = pagenum - 1 %]
-			[% rightpage = pagenum + 1 %]
-			<a id="next" href="./reader.pl?id=[% id %]&page=[% rightpage %]" style="display:none"></a>
-		[% END %]
-
 			
 		[% cssdrop %]
 		<script>set_style_from_storage();</script>
@@ -47,10 +35,10 @@
 				<div id ="i3">
 				
 					<a id ="display">
-						<img id="img" style="max-width:100%; height: auto; width: auto; " src="[% imgpath %]" usemap="#Map" />
+						<img id="img" onload="updateMetadata()" style="max-width:100%; height: auto; width: auto; " src="[% imgpath %]" usemap="#Map" />
 						<map name="Map" id="Map">
-						    <area alt="" title="" href="./reader.pl?id=[% id %]&page=[% leftpage %]" shape="rect" coords="0,0,[% mapwidth %],[% height %]" />
-						    <area alt="" title="" href="./reader.pl?id=[% id %]&page=[% rightpage %]" shape="rect" coords="[% mapwidth + 1 %],0,[% width %],[%height%]" />
+						    <area id="leftmap" alt="" title="" onclick="goLeft()" shape="rect" coords="0,0,[% mapwidth %],[% height %]" />
+						    <area id="rightmap" alt="" title="" onclick="goRight()" shape="rect" coords="[% mapwidth + 1 %],0,[% width %],[%height%]" />
 						</map>
 					</a>
 		
@@ -73,7 +61,7 @@
 				[% IF userlogged %]
 				<div id="i6" class="if">
 					<i class="fa fa-caret-right fa-lg"></i>
-					<a href="./reader.pl?id=[% id %]&page=[% pagenum %]&force_reload=1">Clean Archive Cache</a>
+					<a href="./reader.pl?id=[% id %]&force_reload=1">Clean Archive Cache</a>
 					<i class="fa fa-caret-right fa-lg"></i>
 					<a href="./reader.pl?id=[% id %]&reload_thumbnail=1">Regenerate Archive Thumbnail </a>
 				</div>
@@ -81,34 +69,76 @@
 				
 				<div id="i7" class="if">
 					<i class="fa fa-caret-right fa-lg"></i>
-					<a href="[% imgpath %]">View full-size image</a>
+					<a id="imgLink" style="cursor:pointer;">View full-size image</a>
 				</div>
 				
 			</div>
 
+		<script>
+
+		pages = [% imgpaths %];
+
+		currentPage = 0;
+		pageNumber = pages.pages.length;
+
+		[% IF readorder %]
+
+		function goLeft(){
+			goToPage(currentPage+1);
+		}
+
+		function goRight(){
+			goToPage(currentPage-1);
+		}
+	
+		[% ELSE %]
+
+		function goLeft(){
+			goToPage(currentPage-1);
+		}
+
+		function goRight(){
+			goToPage(currentPage+1);
+		}
+
+		[% END %]
+
+		//Go straight to page number in localStorage if it exists
+		goToPage(currentPage);
+
+
+
+		</script>
+
 		</body>
 </html>
+
+
+
+
+
+
 
 [% #compute those blocks before getting to the main html %]
 [% BLOCK arrows %]
    <div class="sn">
-		<a href="./reader.pl?id=[% id %]&page=1"> 
+		<a onclick="goToPage(0)" style="cursor:pointer;"> 
 			<i class="fa fa-angle-double-left fa-2x"></i> 
 		</a>
 
-		<a id="left" href="./reader.pl?id=[% id %]&page=[% leftpage %]"> 
+		<a id="left" onclick="goLeft()" style="cursor:pointer;"> 
 			<i class="fa fa-angle-left fa-2x"></i> 
 		</a>
 
 		<div class="pagecount">
-			<span id ="current">[% pagenum %]</span> / <span id ="max">[% arcpages %]</span> 
+			<span class="current-page"></span> / <span class="max-page"></span> 
 		</div>
 
-		<a id="right" href="./reader.pl?id=[% id %]&page=[% rightpage %]"> 
+		<a id="right" onclick="goRight()" style="cursor:pointer;"> 
 			<i class="fa fa-angle-right fa-2x"></i> 
 		</a>
 
-		<a href="./reader.pl?id=[% id %]&page=[% arcpages %]"> 
+		<a onclick="goToPage(pageNumber-1)" style="cursor:pointer;"> 
 			<i class="fa fa-angle-double-right fa-2x"></i> 
 		</a>
 	</div>
@@ -117,33 +147,19 @@
 [% BLOCK pagesel %]
 	<div style="position: absolute; right: 20px; z-index:20" class="page_dropdown" >
 
-		<form style="float: right;">
-			<select size="1"  onChange="location = this.options[this.selectedIndex].value;">
-
-		[% page = 1 %]
-		[% WHILE page < arcpages + 1 %]
-
-			[% IF (page == pagenum) %]
-				<option selected="selected" value="./reader.pl?id=[% id %]&page=[% page %]">Page [% page %]</option>
-			[% ELSE %]
-				<option value="./reader.pl?id=[% id %]&page=[% page %]">Page [% page %]</option>
-			[% END %]
-
-			[% page = page + 1 %]
-		[% END %]
-
-			</select>
-		</form>
+		<a href="#" onclick="showArchivePages()">
+			<i class="fa fa-th fa-2x" style="padding-right: 10px;"></i>
+		</a>
 
 		<a href="#" onclick="toastHelpReader()">
-			<i class="fa fa-3x" style="padding-right: 10px; margin-top: -5px">?</i>
+			<i class="fa fa-info-circle fa-2x" style="padding-right: 10px;"></i>
 		</a>	
 
 	</div>
 [% END %]
 
 [% BLOCK fileinfo %]
-	<div id = "fileinfo">
-	[% filename %] :: [% width %] x [% height %] :: [% size %]KBs
+	<div class = "file-info">
+		
 	</div>
 [% END %]

@@ -37,24 +37,14 @@ require 'functions/functions_reader.pl';
 	
 		my $force = $qreader->param('force_reload');
 		my $thumbreload = $qreader->param('reload_thumbnail');
-		my $imgpath = "";
-		my $arcpages = 0;
+		my $imgpaths = "";
 
 		print $qreader->header(-type    => 'text/html',
                					-charset => 'utf-8');
 
-		if ($qreader->param('page')) 
-			{ 
-				my $page = $qreader->param('page');
-				($imgpath, $arcpages) = &getImage($id,$force,$thumbreload,$page);
-				&printReaderHTML($id,$imgpath,$arcname,$arcpages,$qreader,$page);  
-				#$imgpath is the path to the image we want to display, $arcpages is the total number of pages in the archive.
-			}
-		else
-		 	{ 
-		 		($imgpath, $arcpages) = &getImage($id,$force,$thumbreload);
-		 		&printReaderHTML($id,$imgpath,$arcname,$arcpages,$qreader);
-		 	}
+		#Load a json matching pages to paths
+		$imgpaths = &buildReaderData($id,$force,$thumbreload);
+		&printReaderHTML($id,$imgpaths,$arcname,$qreader);  
 		
 	} 
 	else 
