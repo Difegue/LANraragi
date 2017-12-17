@@ -112,9 +112,6 @@ sub get_pagesize { return &getConfigParameter("pagesize", "100") };
 sub get_readorder { return &getConfigParameter("readorder", "0") };
 sub enable_pass { return &getConfigParameter("enablepass", "1") };
 sub get_password { return &getConfigParameter("password", '{CRYPT}$2a$08$4AcMwwkGXnWtFTOLuw/hduQlRdqWQIBzX3UuKn.M1qTFX5R4CALxy') }; #bcrypt hash for "kamimamita"
-sub enable_resize { return &getConfigParameter("enableresize", "0") };
-sub get_threshold { return &getConfigParameter("sizethreshold", "1000") };
-sub get_quality { return &getConfigParameter("readerquality", "50") };
 
 
 

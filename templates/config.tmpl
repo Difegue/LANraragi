@@ -80,10 +80,6 @@
 	                    <label for="enablepass"><br>If enabled, everything that isn't reading will require a password.</label>
 					</td></tr>
 
-					<!--<tr class="passwordfields"><td style="text-align:left; width:100px"><h1 class="ih"> Old Password </h1></td><td>
-						<input class="stdinput" style="width:100%" maxlength="255" size="20" name="oldpassword" type="password">
-					</td></tr>-->
-
 					<tr class="passwordfields"><td style="text-align:left; width:100px"><h1 class="ih"> New Password </h1></td><td>
 						<input class="stdinput" style="width:100%" maxlength="255" size="20" name="newpassword" type="password">
 					</td></tr>
@@ -92,27 +88,6 @@
 						<input class="stdinput" style="width:100%" maxlength="255" size="20" name="newpassword2" type="password">
 						<br> Only edit these fields if you want to change your password. 
 					</td></tr>
-
-					<tr><td style="text-align:left; width:100px"><h1 class="ih"> Resize Images in Reader </h1></td><td>
-				  		[% IF enableresize %]
-				  			<input id="enableresize" name="enableresize" type="checkbox" checked>
-				  		[% ELSE %]
-				  			<input id="enableresize" name="enableresize" type="checkbox">
-				  		[% END %]
-	                    <label for="enableresize"><br>If enabled, pages exceeding a certain size will be resized when viewed to save bandwidth.</label>
-					</td></tr>
-
-
-	                <tr class="resizefields"><td style="text-align:left; width:100px"><h1 class="ih"> Image Size Threshold </h1></td><td>
-						<input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% sizethreshold %]" name="sizethreshold" type="text"> 
-						<br>(in KBs.) Maximum size an image can reach before being resized.
-					</td></tr>
-
-	                <tr class="resizefields"><td style="text-align:left; width:100px"><h1 class="ih"> Resize Quality </h1></td><td>
-						<input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% readerquality %]" name="readerquality" type="text"> 
-						<br> Quality of the resized images. Less quality = Smaller image. (0-100)
-					</td></tr>
-
 
 					<tr>
 					<td colspan='2' style='text-align:center'> <br/>
@@ -125,9 +100,7 @@
 
 		$(function() {
 			enable_pass();
-			enable_resize();
 		  $("#enablepass").click(enable_pass);
-		  $("#enableresize").click(enable_resize);
 		});
 
 		function enable_pass() {
@@ -135,14 +108,6 @@
 		    $(".passwordfields").show();
 		  } else {
 		    $(".passwordfields").hide();
-		  }
-		}
-
-		function enable_resize() {
-		  if ($("#enableresize").prop("checked")) {
-		    $(".resizefields").show();
-		  } else {
-		    $(".resizefields").hide();
 		  }
 		}
 

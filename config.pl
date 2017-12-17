@@ -44,10 +44,7 @@ if (&isUserLogged($qconfig))
 				dirname => scalar $qconfig->param('dirname'),
 				pagesize => scalar $qconfig->param('pagesize'),
 				readorder => (scalar $qconfig->param('readorder') ? '1' : '0'), #for checkboxes, we check if the parameter exists in the POST to return either 1 or 0.
-				enablepass => (scalar $qconfig->param('enablepass') ? '1' : '0'), 
-				enableresize => (scalar $qconfig->param('enableresize') ? '1' : '0'),
-				sizethreshold => scalar $qconfig->param('sizethreshold'),
-				readerquality => scalar $qconfig->param('readerquality'),
+				enablepass => (scalar $qconfig->param('enablepass') ? '1' : '0'),
 			);
 			
 			#only add newpassword field as password if enablepass = 1
@@ -75,7 +72,7 @@ if (&isUserLogged($qconfig))
 				 	$errormess = "Mismatched passwords.";
 				}
 
-			if ($confhash{pagesize} =~ /\D+/ || $confhash{sizethreshold} =~ /\D+/ || $confhash{readerquality} =~ /\D+/ ) #Numbers only in fields w. numbers
+			if ($confhash{pagesize} =~ /\D+/ ) #Numbers only in fields w. numbers
 				{
 					$success = 0;
 					$errormess = "Invalid characters.";
@@ -122,9 +119,6 @@ if (&isUserLogged($qconfig))
 			            readorder => &get_readorder,
 			            enablepass => &enable_pass,
 			            password => &get_password,
-			            enableresize => &enable_resize,
-			            sizethreshold => &get_threshold,
-			            readerquality => &get_quality,
 			            title => &get_htmltitle,
 			            cssdrop => &printCssDropdown(0),
 
