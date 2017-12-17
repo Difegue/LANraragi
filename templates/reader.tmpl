@@ -76,8 +76,10 @@
 		<script>
 
 		pages = [% imgpaths %];
+		id = "[%id%]";
 
-		currentPage = 0;
+		//Go straight to page number in localStorage if it exists
+		currentPage = localStorage[id+"-reader"] || 0;
 		pageNumber = pages.pages.length;
 
 		[% IF readorder %]
@@ -102,7 +104,6 @@
 
 		[% END %]
 
-		//Go straight to page number in localStorage if it exists
 		goToPage(currentPage);
 
 		//image map update on window resize

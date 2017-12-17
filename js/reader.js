@@ -93,7 +93,7 @@ function goToPage(page){
 
 	//update numbers
 	$('.current-page').each(function(){
-		$(this).html(currentPage+1);
+		$(this).html(parseInt(currentPage)+1);
 	});
 
 	$('.max-page').each(function(){
@@ -104,6 +104,6 @@ function goToPage(page){
 	$("#imgLink").attr("href",pages.pages[currentPage]);
 
 	//store page number in localStorage
-
+	localStorage.setItem(id+"-reader", currentPage);
 
 }
