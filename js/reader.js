@@ -66,8 +66,18 @@ function updateMetadata(){
 			$(this).html(metadataString);
 		});
 
+		updateImageMap();
 	});
 
+}
+
+function updateImageMap(){
+
+	//update imagemap with the w/h parameters we obtained
+	mapWidth = $("#img").get(0).width/2;
+	mapHeight = $("#img").get(0).height;
+	$("#leftmap").attr("coords","0,0,"+mapWidth+","+mapHeight);
+	$("#rightmap").attr("coords",(mapWidth+1)+",0,"+w+","+mapHeight);
 }
 
 function goToPage(page){
@@ -89,8 +99,6 @@ function goToPage(page){
 	$('.max-page').each(function(){
 		$(this).html(pageNumber);
 	});
-
-	//update imagemap
 
 	//update full image link
 	$("#imgLink").attr("href",pages.pages[currentPage]);

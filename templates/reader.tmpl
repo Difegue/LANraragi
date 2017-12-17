@@ -12,7 +12,6 @@
 
 			<script src="./js/css.js" type="text/JAVASCRIPT"></script>
 			<script src="./bower_components/jquery/dist/jquery.min.js" type="text/JAVASCRIPT"></script>
-			<script src="./bower_components/jQuery-rwdImageMaps/jquery.rwdImageMaps.min.js" type="text/JAVASCRIPT"></script>
 			<script src="./bower_components/jquery-toast-plugin/dist/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
 			
 		</head>
@@ -106,7 +105,10 @@
 		//Go straight to page number in localStorage if it exists
 		goToPage(currentPage);
 
-
+		//image map update on window resize
+		$( window ).resize(function() {
+		  updateImageMap();
+		});
 
 		</script>
 
@@ -126,6 +128,7 @@
 		<a onclick="goToPage(pageNumber-1)" style="cursor:pointer;"> 
 		[% ELSE %]
 		<a onclick="goToPage(0)" style="cursor:pointer;"> 
+		[% END %]
 			<i class="fa fa-angle-double-left fa-2x"></i> 
 		</a>
 
@@ -145,6 +148,7 @@
 		<a onclick="goToPage(0)" style="cursor:pointer;"> 
 		[% ELSE %]
 		<a onclick="goToPage(pageNumber-1)" style="cursor:pointer;"> 
+		[% END %]
 			<i class="fa fa-angle-double-right fa-2x"></i> 
 		</a>
 	</div>
