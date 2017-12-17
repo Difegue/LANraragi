@@ -17,7 +17,7 @@
 			
 		</head>
 
-		<body onload=" $('img[usemap]').rwdImageMaps(); set_style_from_storage();">
+		<body onload="set_style_from_storage();">
 			
 		[% cssdrop %]
 		<script>set_style_from_storage();</script>
@@ -37,8 +37,8 @@
 					<a id ="display">
 						<img id="img" onload="updateMetadata()" style="max-width:100%; height: auto; width: auto; " src="[% imgpath %]" usemap="#Map" />
 						<map name="Map" id="Map">
-						    <area id="leftmap" alt="" title="" onclick="goLeft()" shape="rect" coords="0,0,[% mapwidth %],[% height %]" />
-						    <area id="rightmap" alt="" title="" onclick="goRight()" shape="rect" coords="[% mapwidth + 1 %],0,[% width %],[%height%]" />
+						    <area id="leftmap" style="cursor:pointer;" onclick="goLeft()" shape="rect"/>
+						    <area id="rightmap" style="cursor:pointer;" onclick="goRight()" shape="rect"/>
 						</map>
 					</a>
 		
@@ -122,6 +122,9 @@
 [% #compute those blocks before getting to the main html %]
 [% BLOCK arrows %]
    <div class="sn">
+   		[% IF readorder %]
+		<a onclick="goToPage(pageNumber-1)" style="cursor:pointer;"> 
+		[% ELSE %]
 		<a onclick="goToPage(0)" style="cursor:pointer;"> 
 			<i class="fa fa-angle-double-left fa-2x"></i> 
 		</a>
@@ -138,6 +141,9 @@
 			<i class="fa fa-angle-right fa-2x"></i> 
 		</a>
 
+		[% IF readorder %]
+		<a onclick="goToPage(0)" style="cursor:pointer;"> 
+		[% ELSE %]
 		<a onclick="goToPage(pageNumber-1)" style="cursor:pointer;"> 
 			<i class="fa fa-angle-double-right fa-2x"></i> 
 		</a>
