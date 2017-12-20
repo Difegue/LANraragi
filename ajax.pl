@@ -27,6 +27,7 @@ if ($qajax->param())
 	my $id = $qajax->param('id');
 	my $method = $qajax->param('method');
 	my $file = $qajax->param('file');
+	my $blacklist = &get_tagblacklist;
 
 	#Generate thumbnail for archive - no admin login required
 	if ($call eq "thumbnail")
@@ -38,12 +39,11 @@ if ($qajax->param())
 
 	#tags == When editing an archive, directly return tags. No blacklist feature.
 	if ($call eq "tags"  && &isUserLogged($qajax)) 
-		{ print &getTags($id,$method, "");  }
+		{ print &getTags($id,$method, $blacklist);  }
 
 	#tagsave = batch tagging, immediately save returned tags to redis.
 	if ($call eq "tagsave" && &isUserLogged($qajax))
 		{ 
-			my $blacklist = $qajax->param('blacklist');
 
 			#get the tags with regular getTags
 			my $tags = &getTags($id,$method,$blacklist);

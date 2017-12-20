@@ -43,6 +43,7 @@ if (&isUserLogged($qconfig))
 				motd => scalar $qconfig->param('motd'),
 				dirname => scalar $qconfig->param('dirname'),
 				pagesize => scalar $qconfig->param('pagesize'),
+				blacklist => scalar $qconfig->param('blacklist'),
 				readorder => (scalar $qconfig->param('readorder') ? '1' : '0'), #for checkboxes, we check if the parameter exists in the POST to return either 1 or 0.
 				enablepass => (scalar $qconfig->param('enablepass') ? '1' : '0'),
 			);
@@ -119,6 +120,7 @@ if (&isUserLogged($qconfig))
 			            readorder => &get_readorder,
 			            enablepass => &enable_pass,
 			            password => &get_password,
+			            blacklist => &get_tagblacklist,
 			            title => &get_htmltitle,
 			            cssdrop => &printCssDropdown(0),
 

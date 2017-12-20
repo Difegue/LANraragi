@@ -319,7 +319,6 @@ function massTag(method)
 	$('#processing').show();
 	$('#tag-spinner').show();
 	var checkeds = document.querySelectorAll('input[name=archive]:checked');
-	var blacklist = $('#blacklist').val();
 
 	//convert nodelist to array
 	var arr = [];
@@ -327,11 +326,11 @@ function massTag(method)
 	for (var i = 0, ref = arr.length = checkeds.length; i < ref; i++) 
 		{ arr[i] = checkeds[i]; }
 
-	makeCall(arr,blacklist,method);
+	makeCall(arr,method);
 }
 
 //subfunctions for treating the archive queue.
-function makeCall(archivesToCheck,blacklist,method)
+function makeCall(archivesToCheck,method)
 {
 	if (!archivesToCheck.length) 
 	{
@@ -342,18 +341,18 @@ function makeCall(archivesToCheck,blacklist,method)
 	}
 
 	archive = archivesToCheck.shift();
-	ajaxCall(archive,blacklist,method,archivesToCheck);
+	ajaxCall(archive,method,archivesToCheck);
 
 }
 
-function ajaxCall(archive,blacklist,method,archivesToCheck)
+function ajaxCall(archive,method,archivesToCheck)
 {
 	//Set title in processing thingo
 	$('#processedArchive').html("Processing "+$('label[for='+archive.id+']').html());
 
 	//Ajax call for getting and setting the tags
-	$.get( "ajax.pl", { function: "tagsave", method: method, id: archive.id, blacklist: blacklist} )
-	.done(function(data) { makeCall(archivesToCheck,blacklist,method); })  //hurr callback
+	$.get( "ajax.pl", { function: "tagsave", method: method, id: archive.id} )
+	.done(function(data) { makeCall(archivesToCheck,method); })  //hurr callback
 	.fail(function(data) { $("#processedArchive").html("An error occured while getting tags. "+data); });
 
 }

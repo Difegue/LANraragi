@@ -112,6 +112,6 @@ sub get_pagesize { return &getConfigParameter("pagesize", "100") };
 sub get_readorder { return &getConfigParameter("readorder", "0") };
 sub enable_pass { return &getConfigParameter("enablepass", "1") };
 sub get_password { return &getConfigParameter("password", '{CRYPT}$2a$08$4AcMwwkGXnWtFTOLuw/hduQlRdqWQIBzX3UuKn.M1qTFX5R4CALxy') }; #bcrypt hash for "kamimamita"
-
+sub get_tagblacklist { return &getConfigParameter("blacklist", "already uploaded, translated, english, russian, chinese, portuguese, french") };
 
 
