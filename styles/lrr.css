@@ -178,3 +178,30 @@ top: -10px;
   transform: rotate(180deg);
   transition: all 0.75s 0.25s;
 }
+
+/* Overlay for loading pages in reader. */
+.loading-overlay {
+    display: none;
+}
+
+.loading .loading-overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.25);
+    text-align: center;
+    display: block !important;
+}
+
+.loading .loading-spinner {
+    position: absolute;
+    top: 50%;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    font-size: 15em;
+    margin: -3.9375rem auto 0;
+    text-align: center;
+}

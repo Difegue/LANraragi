@@ -36,6 +36,7 @@ function toastHelpReader(){
 
 function initArchivePageOverlay(){
 
+	
 
 }
 
@@ -45,6 +46,10 @@ function showArchivePages(){
 }
 
 function updateMetadata(){
+
+	//remove overlay
+	loaded = true;
+	$("#i3").removeClass("loading");
 
 	filename = $("#img").get(0).src.replace(/^.*[\\\/]/, '');
 	w = $("#img").get(0).naturalWidth;
@@ -99,6 +104,14 @@ function goToPage(page){
 	$('.max-page').each(function(){
 		$(this).html(pageNumber);
 	});
+
+	loaded = false;
+
+	//display overlay if it takes too long to load a page
+	setTimeout(function(){
+		if (!loaded)
+			$("#i3").addClass("loading");
+	},500);
 
 	//update full image link
 	$("#imgLink").attr("href",pages.pages[currentPage]);

@@ -32,9 +32,14 @@
 				</div>
 				
 				<div id ="i3">
-				
+					<div class="loading-overlay">
+					    <p class="loading-spinner">
+					      <i id="spinner" class="fa fa-cog fa-spin"></i>
+					    </p>
+					</div>
+
 					<a id ="display">
-						<img id="img" onload="updateMetadata()" style="max-width:100%; height: auto; width: auto; " src="[% imgpath %]" usemap="#Map" />
+						<img id="img" onload="updateMetadata()" onerror="location.reload()" style="max-width:100%; height: auto; width: auto; " src="[% imgpath %]" usemap="#Map" />
 						<map name="Map" id="Map">
 						    <area id="leftmap" style="cursor:pointer;" onclick="goLeft()" shape="rect"/>
 						    <area id="rightmap" style="cursor:pointer;" onclick="goRight()" shape="rect"/>
