@@ -16,6 +16,10 @@ switch (e.keyCode) {
 	// right key pressed
 	goRight();
 	break;
+	case 38:
+	// Up key pressed
+	openOverlay();
+	break;
 	}	
 }
 
@@ -27,7 +31,7 @@ function toastHelpReader(){
 
 	$.toast({
 	heading: 'Navigation Help',
-    text: 'You can navigate between pages using : <ul><li> The arrow icons</li> <li>Your keyboard arrows</li> <li> Touching the left/right side of the image.</li></ul><br> To return to the archive index, touch the arrow pointing down.',
+    text: 'You can navigate between pages using : <ul><li> The arrow icons</li> <li>Your keyboard arrows(left/right/up)</li> <li> Touching the left/right side of the image.</li></ul><br> To return to the archive index, touch the arrow pointing down.',
     hideAfter: false,
     position: 'top-left', 
     icon: 'info'
@@ -117,6 +121,7 @@ function initArchivePageOverlay(){
 
 		thumbnail = "<div class='id3' style='display: inline-block; cursor: pointer'>"+
 				"<a onclick='goToPage("+index+"); closeOverlay()'>"+
+				"<span class='page-number'>Page "+(index+1)+"</span>"+
 				"<img src='"+pages.pages[index]+"'/></a>"+
 		    "</div>";
 

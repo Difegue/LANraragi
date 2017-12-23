@@ -126,6 +126,8 @@ top: -10px;
     td.artist {max-width: 50px;}
     td.tags {max-width: 50px;}
     .caption {margin-left: -15% !important;}
+    .page-overlay { min-height: 100% !important;}
+    .ie7 .page-overlay { min-height: 100% !important;}
 }
 
 @media all and (max-width: 1000px) {
@@ -141,6 +143,8 @@ top: -10px;
     td.artist {max-width: 50px;}
     td.tags {max-width: 50px;}
     .caption {margin-left: -15% !important;}
+    .page-overlay { min-height: 100% !important;}
+    .ie7 .page-overlay { min-height: 100% !important;}
 }
 
 @media all and (max-device-width: 540px) {
@@ -226,11 +230,22 @@ top: -10px;
     top: 40px;
     left: 5%;
     width: 90% !important;
-    min-height: 50%;
+    min-height: 70%;
     z-index: 10000;
     box-shadow: 0 0 16px #000;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+    overflow-y: scroll;
 } 
 
 .ie7 .page-overlay {
     height: 50%;
 } 
+
+.page-number {
+    font-size: 20px; 
+    position: absolute; 
+    top: 50%; 
+    left: 35%; 
+    z-index: -1;
+}
