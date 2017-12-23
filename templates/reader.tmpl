@@ -16,7 +16,7 @@
 			
 		</head>
 
-		<body onload="set_style_from_storage();">
+		<body onload="set_style_from_storage(); initArchivePageOverlay();">
 			
 		[% cssdrop %]
 		<script>set_style_from_storage();</script>
@@ -84,7 +84,7 @@
 		id = "[%id%]";
 
 		//Go straight to page number in localStorage if it exists
-		currentPage = localStorage[id+"-reader"] || 0;
+		currentPage = parseInt(localStorage[id+"-reader"] || 0);
 		pageNumber = pages.pages.length;
 
 		[% IF readorder %]
@@ -110,6 +110,7 @@
 		[% END %]
 
 		goToPage(currentPage);
+		
 
 		//image map update on window resize
 		$( window ).resize(function() {
@@ -117,6 +118,11 @@
 		});
 
 		</script>
+
+		<div id="overlay-shade" onclick="closeOverlay();" ></div>
+		<div id="archivePagesOverlay" class="id1 page-overlay" style="display:none">
+
+		</div>
 
 		</body>
 </html>
@@ -163,7 +169,7 @@
 [% BLOCK pagesel %]
 	<div style="position: absolute; right: 20px; z-index:20" class="page_dropdown" >
 
-		<a href="#" onclick="showArchivePages()">
+		<a href="#" onclick="openOverlay();">
 			<i class="fa fa-th fa-2x" style="padding-right: 10px;"></i>
 		</a>
 

@@ -34,17 +34,6 @@ function toastHelpReader(){
 	});
 }
 
-function initArchivePageOverlay(){
-
-	
-
-}
-
-function showArchivePages(){
-
-
-}
-
 function updateMetadata(){
 
 	//remove overlay
@@ -119,4 +108,30 @@ function goToPage(page){
 	//store page number in localStorage
 	localStorage.setItem(id+"-reader", currentPage);
 
+}
+
+function initArchivePageOverlay(){
+
+	//For each link in the pages array, craft a div and jam it in the overlay.
+	for (index = 0; index < pages.pages.length; ++index) {
+
+		thumbnail = "<div class='id3' style='display: inline-block; cursor: pointer'>"+
+				"<a onclick='goToPage("+index+"); closeOverlay()'>"+
+				"<img src='"+pages.pages[index]+"'/></a>"+
+		    "</div>";
+
+	  	$("#archivePagesOverlay").append(thumbnail);
+
+	}
+}
+
+function openOverlay() {
+    $('#overlay-shade').fadeTo(150, 0.6, function() {
+        $('.page-overlay').css('display','block');
+    });
+}
+
+function closeOverlay() {
+    $('#overlay-shade').fadeOut(300);
+    $('.page-overlay').css('display','none');
 }
