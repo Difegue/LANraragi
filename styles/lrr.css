@@ -245,7 +245,13 @@ top: -10px;
 .page-number {
     font-size: 20px; 
     position: absolute; 
-    top: 50%; 
-    left: 35%; 
+    top: 40%; 
+    left: 30%; 
     z-index: -1;
+    padding: 5px;
+}
+
+a:hover > .page-number {
+    z-index: 300;
+    background-color: #000000;
 }
