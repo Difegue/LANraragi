@@ -16,8 +16,8 @@ switch (e.keyCode) {
 	// right key pressed
 	goRight();
 	break;
-	case 38:
-	// Up key pressed
+	case 17:
+	// Ctrl key pressed
 	openOverlay();
 	break;
 	}	
@@ -31,7 +31,7 @@ function toastHelpReader(){
 
 	$.toast({
 	heading: 'Navigation Help',
-    text: 'You can navigate between pages using : <ul><li> The arrow icons</li> <li>Your keyboard arrows(left/right/up)</li> <li> Touching the left/right side of the image.</li></ul><br> To return to the archive index, touch the arrow pointing down.',
+    text: 'You can navigate between pages using : <ul><li> The arrow icons</li> <li>Your keyboard arrows</li> <li> Touching the left/right side of the image.</li></ul><br> To return to the archive index, touch the arrow pointing down.<br> Pressing CTRL will bring up the pages overlay.',
     hideAfter: false,
     position: 'top-left', 
     icon: 'info'
@@ -112,6 +112,8 @@ function goToPage(page){
 	//store page number in localStorage
 	localStorage.setItem(id+"-reader", currentPage);
 
+	//scroll to top
+	$('body').scrollTop(0);
 }
 
 function initArchivePageOverlay(){
