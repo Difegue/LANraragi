@@ -79,8 +79,8 @@
 
 			$.getJSON( githubAPI).done(function( data ) {
 					latestVersion = data.tag_name;
-
-					if (latestVersion != currentVersion) {
+					//update nag is disabled if the current version contains the DEV string 
+					if (latestVersion != currentVersion && currentVersion.indexOf("DEV") == -1) {
 
 						$.toast({
 						heading: 'A new version of LANraragi ('+ latestVersion +') is available !',

@@ -241,7 +241,30 @@ function ajaxTags(arcId,method)
 	$('#tagText').css("opacity","0.5");
 	$('#tagText').prop("disabled", true);
 
-	$.get( "ajax.pl", { function: "tags", method: method, id: arcId} )
+	urlOverride = "";
+
+	if (method === 0 || method === 2)
+		urlOverride = prompt("If you wish to use tags from an existing E-Hentai/Nhentai archive you know of, enter its URL here. \n Otherwise, leave blank and we'll try to search for a match.", "");
+
+	if (urlOverride === null) {
+
+		$.toast({
+					showHideTransition: 'slide',
+					position: 'top-left', 
+					loader: false, 
+				    heading: 'Tag lookup aborted.',
+				    icon: 'info'
+				});
+
+		$('#tag-spinner').css("display","none");
+		$('#tagText').prop("disabled", false);
+		$('#tagText').css("opacity","1");
+
+		return "ERROR"; 
+	}
+
+
+	$.get( "ajax.pl", { function: "tags", method: method, id: arcId, url: urlOverride} )
 		.done(function(data) {
 
 			if (data==="NOTAGS")
@@ -289,7 +312,6 @@ function ajaxTags(arcId,method)
 			$('#tag-spinner').css("display","none");
 			$('#tagText').prop("disabled", false);
 			$('#tagText').css("opacity","1");
-			//console.log(data);
 			return data;
 		})
 		.fail(function(data) {

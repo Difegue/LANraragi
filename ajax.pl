@@ -27,6 +27,7 @@ if ($qajax->param())
 	my $id = $qajax->param('id');
 	my $method = $qajax->param('method');
 	my $file = $qajax->param('file');
+	my $urlOverride = $qajax->param('url');
 	my $blacklist = &get_tagblacklist;
 
 	#Generate thumbnail for archive - no admin login required
@@ -39,7 +40,7 @@ if ($qajax->param())
 
 	#tags == When editing an archive, directly return tags. No blacklist feature.
 	if ($call eq "tags"  && &isUserLogged($qajax)) 
-		{ print &getTags($id,$method, $blacklist);  }
+		{ print &getTags($id,$method, $blacklist, $urlOverride);  }
 
 	#tagsave = batch tagging, immediately save returned tags to redis.
 	if ($call eq "tagsave" && &isUserLogged($qajax))
@@ -65,17 +66,35 @@ sub getTags
 	my $id = $_[0];
 	my $method = $_[1];
 	my $bliststr = $_[2];
+	my $url = $_[3];
 	my $tags = "";
 	
 	my $queryJson;
 
 	if ($method eq "2") #nhentai usecase
+	{ 
+		if ($url eq "") 
 		{ $tags = &nHentaiGetTags($id); }
-	else
+		else
+		{
+		  if ($url =~ /.*\/g\/([0-9]*)\/.*/ ) { #Quick regex to get the nhentai id from the url
+		  	$tags = &getTagsFromNHAPI($1); 
+		  }
+		}
+		
+	}
+	else #g.e-hentai usecase
 	{
-		#This rings up g.e-hentai with the input we obtained.
 		eval { 
-				$queryJson = &eHentaiGetTags($id,$method); 
+				if ($url eq "") 
+				{ $queryJson = &eHentaiGetTags($id,$method); }
+				else 
+				{ #Quick regex to get the E-H archive ids from the provided url.
+					if ($url =~ /.*\/g\/([0-9]*)\/([0-z]*)\/*.*/ ) { 
+						$queryJson = qq({"method": "gdata","gidlist": [[$1,"$2"]]});
+					}
+				}
+
 				#Call the actual e-hentai API with the json we created and grab dem tags
 				$tags = &getTagsFromEHAPI($queryJson);
 			 }; 

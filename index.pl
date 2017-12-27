@@ -14,7 +14,7 @@ require 'functions/functions_generic.pl';
 require 'functions/functions_index.pl';
 require 'functions/functions_login.pl';
 
-	my $version = "v.0.3.9";
+	my $version = "v.0.4.0-DEV";
 	my $dirname = &get_dirname;
 
 	#Get all files in content directory and subdirectories.
