@@ -6,7 +6,8 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "perl tests/test_tags.pl"
+    "test": "perl tests/test_tags.pl",
+    "deploy": "npm install && scp -r * "
   },
   "repository": {
     "type": "git",
