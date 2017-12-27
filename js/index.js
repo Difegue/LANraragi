@@ -1,7 +1,3 @@
-/*
-A WHOLE LOT OF DATATABLES INITIALISATION OH MY GOD
-*/
-
 //Switch view on index and saves the value in the user's localStorage. The DataTables callbacks adapt automatically.
 //0 = List view
 //1 = Thumbnail view
