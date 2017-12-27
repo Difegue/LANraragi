@@ -112,6 +112,9 @@ sub addArchive
  	#check if the file is in the content directory first
  	if (index($file, &get_dirname) == 0)
  	{ 
+ 		#utf8 decode the filename
+ 		eval { $file = decode_utf8($file) }
+
  		#reusing function from functions_generic, woop
  		&addArchiveToRedis($id,$file,$redis);
 
