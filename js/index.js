@@ -1,3 +1,7 @@
+/*
+////// REGULAR INDEX PAGE FUNCTIONS
+*/
+
 //Switch view on index and saves the value in the user's localStorage. The DataTables callbacks adapt automatically.
 //0 = List view
 //1 = Thumbnail view
@@ -19,90 +23,7 @@ function switch_index_view() {
 
 }
 
-//For datatable init below, columns with just one data source display that source as a link for instant search.
-function genericColumnDisplay(data,type,full,meta) {
-	if(type == "display")
-		return '<a style="cursor:pointer" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+data+'</a>';
-
-	return data;
-}
-
-//Functions executed on DataTables draw callbacks to build the thumbnail view if it's enabled:
-//Inits the div that contains the thumbnails
-function thumbViewInit(settings) {
-	//we only do all this thingamajang if thumbnail view is enabled
-	if (localStorage.indexViewMode == 1)
-	{
-		// create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
-		if ($('#thumbs_container').length < 1) 
-			$('.top').after("<div id='thumbs_container'></div>");
-
-		// clear out the thumbs container
-		$('#thumbs_container').html('');
-
-		$('.itg').hide();
-	}
-	else
-	{
-		//Destroy the thumb container and make the table visible again
-		$('#thumbs_container').remove();
-		$('.itg').show();
-	}
-
-}
-//Builds a id1 class div to jam in the thumb container for an archive whose JSON data we read
-function buildThumbDiv( row, data, index ) {
-
-	if (localStorage.indexViewMode == 1)
-	{
-		//Build a thumb-like div with the data and jam it in thumbs_container
-		thumb_div = '<div style="height:335px" class="id1">'+
-						'<div class="id2">'+
-							'<div class="id44">'+
-									'<div style="float:right">'+
-										'<img src="img/n.gif" style="float: right; display: '+data.isnew+'">'+
-									'</div>'+
-							'</div>'+
-							'<a href="./reader.pl?id='+data.arcid+'" title="'+data.title+'">'+data.title+'</a>'+
-						'</div>'+
-						'<div style="height:280px" class="id3">'+
-							'<a href="./reader.pl?id='+data.arcid+'">';
-
-		if (data.thumbnail=="null")	
-		{
-			//Give a specific ID to this img tag and fire an AJAX request to get its thumbnail.
-			thumb_div += 		'<img style="position:relative;" id ="'+data.arcid+'_thumb" title="'+data.title+'" src="./img/wait_warmly.jpg"/>'+
-								 '<i id="'+data.arcid+'_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>';
-
-			ajaxThumbnailThumbView(data.arcid, true);
-
-		}
-		else
-			thumb_div += 		'<img style="position:relative;" title="'+data.title+'" src="'+data.thumbnail+'"/>';
-
-		thumb_div +=		'</a>'+
-						'</div>'+
-						'<div class="id4">'+
-							'<div class="id41"><a style="cursor:pointer" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+
-								data.artist+'</a></div>'+
-							'<span style="font-size:16px"><a title="Download this archive." href="'+data.url+'">'+
-								'<i style="margin-right:2px" class="fa fa-save"></i>'+
-							'</a>'+
-							'<a title="Edit this archive\'s tags and data." href="./edit.pl?id='+data.arcid+'">'+
-								'<i class="fa fa-pencil"></i>'+
-							'</a></span>'+
-							'<div class="id42"><a style="cursor:pointer" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+
-								data.series+'</a></div>'+
-							//'<div class="id43">'+data.language+'</div>'+
-						'</div>'+
-					'</div>';
-
-		$('#thumbs_container').append(thumb_div);
-	}
-}
-
-
-//Executed onload of the archive index to initialize a bunch of shit. 
+//Executed onload of the archive index to initialize DataTables and other minor things.
 //This is painful to read.
 function initIndex(pagesize,dataSet)
 {
@@ -172,25 +93,13 @@ function initIndex(pagesize,dataSet)
 			  'data': 'tags',
 			  'render': function (data, type, full, meta ) {
 			  			if(type == "display"){
+
 			  				line = '<span class="tags" style="text-overflow:ellipsis;">'+data+'</span>';
-
-			  				if (data!="")
-			  					{
-			  						line+='<div class="caption" style="position:absolute;">';
-
-					  				data.split(/,\s?/).forEach(function (item) {
-									    line+='<div class="gt" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+item+'</div>';
-									});
-
-									line+='</div>';
-								}
+			  				line+=buildTagsDiv(data);
 							return line;
 			  			}
-
 			  		return data;
 			  		}
-
-
 			}
 		],
 	});
@@ -238,6 +147,109 @@ function initIndex(pagesize,dataSet)
 	switch_index_view();
 			
 }
+
+//For datatable initialization, columns with just one data source display that source as a link for instant search.
+function genericColumnDisplay(data,type,full,meta) {
+	if(type == "display")
+		return '<a style="cursor:pointer" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+data+'</a>';
+
+	return data;
+}
+
+//Functions executed on DataTables draw callbacks to build the thumbnail view if it's enabled:
+//Inits the div that contains the thumbnails
+function thumbViewInit(settings) {
+	//we only do all this thingamajang if thumbnail view is enabled
+	if (localStorage.indexViewMode == 1)
+	{
+		// create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
+		if ($('#thumbs_container').length < 1) 
+			$('.top').after("<div id='thumbs_container'></div>");
+
+		// clear out the thumbs container
+		$('#thumbs_container').html('');
+
+		$('.itg').hide();
+	}
+	else
+	{
+		//Destroy the thumb container and make the table visible again
+		$('#thumbs_container').remove();
+		$('.itg').show();
+	}
+
+}
+
+//Builds a id1 class div to jam in the thumb container for an archive whose JSON data we read
+function buildThumbDiv( row, data, index ) {
+
+	if (localStorage.indexViewMode == 1)
+	{
+		//Build a thumb-like div with the data and jam it in thumbs_container
+		thumb_div = '<div style="height:335px" class="id1">'+
+						'<div class="id2 tags">'+
+							buildTagsDiv(data.tags)+
+							'<div class="id44">'+
+									'<div style="float:right">'+
+										'<img src="img/n.gif" style="float: right; display: '+data.isnew+'">'+
+									'</div>'+
+							'</div>'+
+							'<a href="./reader.pl?id='+data.arcid+'" title="'+data.title+'">'+data.title+'</a>'+
+						'</div>'+
+						'<div style="height:280px" class="id3">'+
+							'<a href="./reader.pl?id='+data.arcid+'">';
+
+		if (data.thumbnail=="null")	
+		{
+			//Give a specific ID to this img tag and fire an AJAX request to get its thumbnail.
+			thumb_div += 		'<img style="position:relative;" id ="'+data.arcid+'_thumb" title="'+data.title+'" src="./img/wait_warmly.jpg"/>'+
+								 '<i id="'+data.arcid+'_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>';
+
+			ajaxThumbnailThumbView(data.arcid, true);
+		}
+		else
+			thumb_div += 		'<img style="position:relative;" title="'+data.title+'" src="'+data.thumbnail+'"/>';
+
+		thumb_div +=		'</a>'+
+						'</div>'+
+						'<div class="id4">'+
+							'<div class="id41"><a style="cursor:pointer" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+
+								data.artist+'</a></div>'+
+							'<span style="font-size:16px"><a title="Download this archive." href="'+data.url+'">'+
+								'<i style="margin-right:2px" class="fa fa-save"></i>'+
+							'</a>'+
+							'<a title="Edit this archive\'s tags and data." href="./edit.pl?id='+data.arcid+'">'+
+								'<i class="fa fa-pencil"></i>'+
+							'</a></span>'+
+							'<div class="id42"><a style="cursor:pointer" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+
+								data.series+'</a></div>'+
+							//'<div class="id43">'+data.language+'</div>'+
+						'</div>'+
+					'</div>';
+
+		$('#thumbs_container').append(thumb_div);
+	}
+}
+
+//Builds a caption div containing clickable tags. Uses a string containing all tags, split by commas.
+function buildTagsDiv(tags)
+{
+	if (tags === "")
+		return "";
+
+	line='<div class="caption" style="position:absolute;">';
+
+	tags.split(/,\s?/).forEach(function (item) {
+	    line+='<div class="gt" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+item+'</div>';
+	});
+
+	line+='</div>';
+	return line;
+}
+
+/*
+////// NEW ARCHIVE PAGE FUNCTIONS
+*/
 
 //Executed on load of the archive index in new archive mode to organize and fire the ajax calls while informing the user.
 //This is slightly less painful to read.

@@ -37,6 +37,11 @@ td.tags {max-width: 150px;}
    z-index: 2;
 }
 
+.id2 .caption {
+    margin-left: 100px !important;
+    width: 228px !important;
+}
+
 .tags:hover .caption {
    display: block !important;
 }
