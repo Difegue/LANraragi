@@ -7,11 +7,10 @@ RUN apt-get upgrade -y
 RUN apt-get install -y perl apache2 cpanminus make imagemagick perlmagick unar redis-server npm git
 RUN cpanm CGI Template Redis JSON::Parse CGI::Session File::ShareDir::Install CGI::Session::Driver::redis Image::Info IPC::Cmd LWP::Simple LWP::Protocol::https Digest::SHA URI::Escape Authen::Passphrase Switch
 
-RUN npm install -g bower
 RUN ln -s /usr/bin/nodejs /usr/bin/node
 
 RUN git clone https://github.com/Difegue/LANraragi.git /var/www/lanraragi
-RUN cd /var/www/lanraragi && bower install --allow-root
+RUN cd /var/www/lanraragi && npm install
 
 RUN a2enmod cgi
 RUN chown -R www-data /var/www/lanraragi

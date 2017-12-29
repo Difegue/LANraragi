@@ -3,7 +3,6 @@
 apt-get update
 apt-get install -y apache2 cpanminus make imagemagick perlmagick unar redis-server npm git
 
-npm install -g bower
 ln -s /usr/bin/nodejs /usr/bin/node
 
 if ! [ -L /var/www ]; then
@@ -16,7 +15,7 @@ git clone https://github.com/Difegue/LANraragi.git /var/www/lanraragi
 cd /var/www/lanraragi
 
 cpanm CGI Template Redis JSON::Parse CGI::Session File::ShareDir::Install CGI::Session::Driver::redis Image::Info IPC::Cmd LWP::Simple LWP::Protocol::https Digest::SHA URI::Escape Authen::Passphrase Switch
-bower install --allow-root
+npm install
 
 cp /vagrant/000-default.conf /etc/apache2/sites-enabled/000-default.conf
 
