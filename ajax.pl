@@ -38,7 +38,7 @@ if ($qajax->param())
 	if ($call eq "addarchive")
 		{ print &addArchive($id, $file)}
 
-	#tags == When editing an archive, directly return tags. No blacklist feature.
+	#tags == When editing an archive, directly return tags.
 	if ($call eq "tags"  && &isUserLogged($qajax)) 
 		{ print &getTags($id,$method, $blacklist, $urlOverride);  }
 

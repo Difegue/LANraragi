@@ -7,7 +7,7 @@
   },
   "scripts": {
     "test": "perl tests/test_tags.pl",
-    "deploy": "npm install && scp -r * "
+    "deploy": "npm install && rsync -e ssh -av * "
   },
   "repository": {
     "type": "git",
