@@ -1,6 +1,6 @@
 <img alt="LANraragi" src="https://raw.githubusercontent.com/Difegue/LANraragi/master/tools/logo.png" width="300">
 
-#### [Documentation](https://github.com/Difegue/LANraragi/wiki) - [Download](https://github.com/Difegue/LANraragi/releases) - [Demo](http://faglord.party/lanraragi)
+#### [Documentation/Install Guide](https://github.com/Difegue/LANraragi/wiki) - [Download](https://github.com/Difegue/LANraragi/releases) - [Demo](http://faglord.party/lanraragi)
 
 [<img src="http://dockeri.co/image/difegue/lanraragi">](https://hub.docker.com/r/difegue/lanraragi/)
 
