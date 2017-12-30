@@ -1,21 +1,10 @@
-# <img alt="LANraragi" src="https://raw.githubusercontent.com/Difegue/LANraragi/master/logo.png" width="300">
+<img alt="LANraragi" src="https://raw.githubusercontent.com/Difegue/LANraragi/master/tools/logo.png" width="300">
 
+#### [Documentation](https://github.com/Difegue/LANraragi/wiki) - [Download](https://github.com/Difegue/LANraragi/releases) - [Demo](http://faglord.party/lanraragi)
 
 [<img src="http://dockeri.co/image/difegue/lanraragi">](https://hub.docker.com/r/difegue/lanraragi/)
 
-Web interface and reader for storage of comics/manga on NAS, running on Perl/Redis/unar with a dash of Imagemagick and Bower.  
-You can find a demo [here](http://faglord.party/lanraragi).
-	
-## Hotdog ! How do I install this ?   
-You can find the installation guide [here](https://github.com/Difegue/LANraragi/wiki) for Linux/Windows/macOS machines.  
-
-## I got me a setup, how do I use this ?  
-First, login with the default admin password (kamimamita), and hit the configuration page.  
-There are multiple settings you can change, including but not limited to the content folder, your password or the reading order.
-Afterwards, add your archives in the content folder or through the upload page, and it just works™  
-
-## How do I update an existing installation ?  
-Check [here](https://github.com/Difegue/LANraragi/wiki/Updating-LANraragi).  
+Web interface and reader for storage of comics/manga on NAS, running on Perl/Redis/unar with a dash of Imagemagick.
 
 ## Features  
 
@@ -25,27 +14,21 @@ Check [here](https://github.com/Difegue/LANraragi/wiki/Updating-LANraragi).
 
 * Two different user interfaces : compact archive list with thumbnails-on-hover, or thumbnail view.
 
-* Choose from 5 preinstalled library styles, or add your own with CSS.      
+* Choose from 5 preinstalled responsive library styles, or add your own with CSS.      
 
 * Tag support: Add your own or import them from predefined sources.  
 
 * Batch Tagging available for tagging multiple archives in one go.
 
-* Responsive, so you can read on your phone/tablet when taking a shit.  
-
 * Backup your database as JSON to carry your tags over to another LANraragi instance.
 
 ## Screenshots  
 
-![](https://a.pomf.cat/idppsl.png)  
 
-![](https://a.pomf.cat/fedumh.png)
-
-![](https://my.mixtape.moe/hoilpy.jpg) 
-
-![](https://a.pomf.cat/nsddiy.jpg)
-
-
-
+[Main Page, Thumbnail View](https://a.pomf.cat/dvquch.png)  
+[Main Page, List View](https://a.pomf.cat/efxoel.png)  
+[Archive Reader](https://a.pomf.cat/meloaj.jpg)  
+[Reader with overlay](https://a.pomf.cat/blndcr.jpg)  
+[Configuration](https://a.pomf.cat/vhzcou.png)
 
 
