@@ -1,0 +1,235 @@
+/* misc */
+body{font-size:8pt;font-family:arial,helvetica,sans-serif;color:#f1f1f1;background:#34353b;padding:2px;margin:0px; text-align: center;}
+p{padding:3px 1px;margin:0}
+img{border:0}
+
+a{color:#DDDDDD; } 
+a:hover{color:#FFFBDB} 
+
+p.ip{margin:-3px auto;text-align:center;padding:0px 5px 5px 5px;clear:both}
+
+img.mr{border:0;margin-left:10px;width:5px;height:7px}
+div.ido{background:#4f535b;border:1px solid #000000;width:99%;max-width:1200px;margin:10px auto 10px auto;padding:5px;position:relative}
+
+/* Tags */
+div.gt {
+    background: none repeat scroll 0 0 #4F535B;
+    border: 1px solid #989898;
+    border-radius: 5px 5px 5px 5px;
+    float: left;
+    font-weight: bold;
+    margin: 0 2px 5px;
+    padding: 1px 4px;
+    position: relative;
+    white-space: nowrap;
+    width: default;
+    cursor: pointer;
+}
+
+div.gt:hover {
+    color: #3b97ea;
+}
+
+h1.ih{font-size:10pt;font-weight:bold;margin:2px auto;text-align:center;padding-bottom:6px}
+
+
+/* navbar */
+p#nb{margin:2px auto;text-align:center}
+p#nb img{border:0;margin-left:10px;width:5px;height:7px}
+p#nb a{font-weight:bold}
+
+/* shared table stuff */
+table.itg{width:99%;max-width:1175px;border-collapse:collapse;margin:0px auto;padding:3px;border:2px ridge #000000;font-size:9pt}
+table.itg th{font-weight:bold;text-align:left;padding:3px 4px 3px 4px;background:#40454b; overflow: hidden;
+    text-overflow: ellipsis;}
+
+/* gallery table */
+tr.gtr{background:#40454b}
+tr.gtr0{background:#4f535b}
+tr.gtr1{background:#363940}
+
+/* input */
+.stdbtn{font-size:8pt;color:#f1f1f1;background:#34353b;border:2px outset #000000;height:21px;margin:4px 1px 0px 1px;padding:0px 4px 1px 4px; min-width: 150px; cursor: pointer;}
+.stdbtn:hover{color:#f1f1f1;background:#43464e;border:2px outset #000000}
+.stdbtn:focus{color:#f1f1f1;background:#43464e}
+
+.stdinput{font-size:8pt;color:#f1f1f1;background:#34353b;border:1px solid #000000;margin:4px 1px 0px 1px;padding:2px 3px 2px 3px; width:80%; max-width: 450px;}
+.stdinput:hover{color:#f1f1f1;background:#43464e}
+.stdinput:focus{color:#f1f1f1;background:#43464e}
+.stdinput:disabled{color:#f1f1f1;background:#34353b}
+
+/* gallery row */
+td.itd{text-align:left;padding:3px 4px;border-right:1px solid #40454b}
+td.itd a{text-decoration:none}
+td.itu{text-align:left;padding:3px 4px 3px 4px;border-right:1px solid #40454b}
+td.itu a{text-decoration:none}
+td.itdc{text-align:left;padding:0 1px 0 2px;margin:0;border-right:1px solid #40454b}
+
+/* page selector */
+.paginate_button {display:inline-block; text-align:center;height:15px;width:31px;background:#34353b;cursor:pointer;border:1px solid #000000;margin-top:10px;margin-bottom:10px;}
+.paginate_button:hover{color:#000000;background:#43464e}
+.paginate_button.current{color:#C2A8A4;background:#43464e}
+.ellipsis {
+    display:inline-block; text-align:center;height:15px;width:31px;background:#34353b;cursor:pointer;border:1px solid #000000;margin-top:10px;margin-bottom:10px;
+}
+
+
+/* image pages */
+div.sni{background:#4f535b;border:1px solid #000000;text-align:center;margin:2px auto 6px;padding:0 10px 5px;position:relative;z-index:1}
+div.sni h1{font-size:12pt;font-weight:bold;text-align:center}
+div.sni img{border:0;vertical-align:middle;margin:1px;clear:both}
+div.if{margin:-5px auto 5px}
+div.sn{margin:1px auto;font-size:10pt;height:32px;z-index:1}
+div.sn div{
+    margin:2px 25px 0px;display:inline;
+    padding-bottom: 8px;
+    vertical-align: middle;
+}
+div.sn span{font-weight:bold}
+div.sn img{width:30px;height:30px;padding:0px 2px}
+div.sb{margin-top:-10px;position:relative;z-index:2}
+div.sb img{border:0}
+
+/* index */
+div.idi{margin:auto;border-collapse:collapse;margin:0px auto 8px auto;padding:5px;border:2px ridge #000000;text-align:center}
+div#toppane{margin:auto;width:99%}
+
+
+.caption {
+background-color: #4f535b;
+border:2px outset #000000;
+}
+
+/* Dropit styles using div and span instead of ul and li */
+
+.menu a {
+	text-decoration: none;
+}
+
+.menu div.dropit-submenu {
+    background-color: #4f535b;
+    border:2px outset #000000;
+    padding: 6px 0;
+    margin: 3px 0 0 1px;
+}          
+.menu div.dropit-submenu a {
+    display: block;
+    line-height: 25px;
+    color: #DDDDDD;
+    padding: 0 18px;
+}
+.menu div.dropit-submenu a:hover {
+    background: #43464e;
+    color: #f1f1f1;
+    
+}
+
+/* File upload bar */
+.bar {
+    height: 18px;
+    background: #34353b;
+}
+
+/* Toasts */
+.jq-toast-single { 
+    font-family: arial,helvetica,sans-serif !important; 
+}
+
+.jq-toast-single h2 { 
+    font-family: arial,helvetica,sans-serif !important; 
+}
+
+/* Tag Cloud */
+div.jqcloud {
+    font-family: arial,helvetica,sans-serif !important;    
+}
+
+div.jqcloud span.w10, div.jqcloud span.w8, div.jqcloud span.w9 {
+    color: #f2f2f2 !important;
+}
+
+div.jqcloud span.w7, div.jqcloud span.w6, div.jqcloud span.w5  {
+    color: #DDDDDD !important;
+}
+
+div.jqcloud span.w4, div.jqcloud span.w3, div.jqcloud span.w2 {
+    color: #cccccc !important;
+}
+
+div.jqcloud span.w1 {
+    color: #b3b3b3 !important;
+}
+
+
+/* Thumbnail View container divs*/
+div.id1 {
+    background: none repeat scroll 0 0 #43464E;
+    border: 1px solid #34353B;
+    border-radius: 9px 9px 9px 9px;
+    display: inline-block;
+    margin: 3px 2px 2px 3px;
+    padding-top: 3px;
+    width: 228px;
+    height: 335px;
+}
+
+div.id2 {
+    height: 30px;
+    margin: auto;
+    overflow: hidden;
+    text-align: center;
+    vertical-align: middle;
+    width: 220px;
+}
+
+div.id2 a {
+    font-weight: bold;
+    text-decoration: none;
+}
+
+div.id3 {  
+    margin: auto;
+    overflow: hidden;
+    position: relative;
+    text-align: center;
+    width: 202px;
+    height: 280px;
+}
+
+div.id3 img {
+    border-radius: 7px 7px 7px 7px;
+    max-height: 275px;
+}
+
+div.id4 {
+    height: 20px;
+    margin: auto;
+    position: relative;
+    text-align: center;
+    width: 220px;
+}
+
+div.id41 {
+    float: left;
+    height: 15px;
+    left: 2px;
+    width: 88px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+    white-space: nowrap;
+}
+
+div.id42 {
+    height: 15px;
+    width: 102px;
+    overflow: hidden;
+    float: right;
+    text-overflow: ellipsis;
+    text-align: right;
+}
+div.id43 {
+    left: 70px;
+    position: absolute;
+    top: 2px;
+}
