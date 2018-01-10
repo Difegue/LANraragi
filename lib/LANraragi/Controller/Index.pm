@@ -9,6 +9,7 @@ use File::Path qw(make_path remove_tree);
 use File::Basename;
 
 use LANraragi::Controller::Config;
+use LANraragi::Model::Utils;
 use LANraragi::Model::Index;
 
 sub random_archive

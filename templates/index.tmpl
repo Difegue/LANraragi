@@ -56,7 +56,7 @@
 			//If the json has the "default password" flag, flash a friendly notification inviting the user to change his password
 				$.toast({
 				heading: 'You\'re using the default password and that\'s super baka of you',
-			    text: '<a href="login.pl">Login</a> with password "kamimamita" and <a href="config.pl">change that shit</a> on the double.<br/>...Or just disable it! <br/>Why not check the configuration options afterwards, while you\'re at it? ',
+			    text: '<a href="login">Login</a> with password "kamimamita" and <a href="config">change that shit</a> on the double.<br/>...Or just disable it! <br/>Why not check the configuration options afterwards, while you\'re at it? ',
 			    hideAfter: false,
 			    position: 'top-left', 
 			    icon: 'error'
@@ -140,28 +140,28 @@
 		[% IF userlogged %]
 			<p id="nb">
 				<i class="fa fa-caret-right"></i>
-				<a href="./upload.pl">Upload Archive</a>
+				<a href="./upload">Upload Archive</a>
 				<span style="margin-left:5px"></span>
 				<i class="fa fa-caret-right"></i>
-				<a href="./tags.pl">Batch Tagging</a>
+				<a href="./tags">Batch Tagging</a>
 				<span style="margin-left:5px"></span>
 				<i class="fa fa-caret-right"></i>
-				<a href="./config.pl">Configuration</a>
+				<a href="./config">Configuration</a>
 				<span style="margin-left:5px"></span>
 				<i class="fa fa-caret-right"></i>
-				<a href="./backup.pl">Database Backup/Restore</a>
+				<a href="./backup">Database Backup/Restore</a>
 				<span style="margin-left:5px"></span>
 				<i class="fa fa-caret-right"></i>
-				<a href="./stats.pl">Statistics</a>
+				<a href="./stats">Statistics</a>
 
 			</p>
 		[% ELSE %]
 			<p id="nb">
 				<i class="fa fa-caret-right"></i>
-				<a href="./login.pl">Admin Login</a>
+				<a href="./login">Admin Login</a>
 				<span style="margin-left:5px"></span>
 				<i class="fa fa-caret-right"></i>
-				<a href="./stats.pl">Statistics</a>
+				<a href="./stats">Statistics</a>
 			</p>
 		[% END %]
 		
@@ -175,7 +175,7 @@
 				<input id='clrsrch' class='stdbtn' type='button' value='Clear Filter'/></div>
 
 				<p id='cssbutton' style='display:inline'>
-					<input class='stdbtn' type='button' onclick="var win=window.open('random.pl','_blank'); win.focus();" value='Give me a random archive'/>
+					<input class='stdbtn' type='button' onclick="var win=window.open('random','_blank'); win.focus();" value='Give me a random archive'/>
 					[% cssdrop %]
 					<input id='viewbtn' class='stdbtn' type='button' onclick="switch_index_view()" value='Switch to Thumbnail View'/>
 				</p>

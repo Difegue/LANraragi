@@ -3,6 +3,7 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use Redis;
 use Authen::Passphrase;
+
 use LANraragi::Controller::Config;
 
 sub check {

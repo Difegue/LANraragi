@@ -30,7 +30,9 @@ sub startup {
 
   $r->get('/reader')->to('reader#render');
 
-  $r->get('/api')->to('api#execute');
+  $r->get('/api/thumbnail')->to('api#generate_thumbnail');
+
+
   $r->get('/stats')->to('stats#render');
 
   #Those routes are only accessible if user is logged in
@@ -39,8 +41,8 @@ sub startup {
   $logged_in->post('/config')->to('config#save_config');
 
   $logged_in->get('/edit')->to('edit#render');
-  $logged_in->post('/edit')->to('config#save_metadata');
-  $logged_in->delete('/edit')->to('config#delete_archive');
+  $logged_in->post('/edit')->to('edit#save_metadata');
+  $logged_in->delete('/edit')->to('edit#delete_archive');
 
   $logged_in->get('/backup')->to('backup#render');
   $logged_in->post('/backup')->to('backup#restore');
@@ -50,6 +52,9 @@ sub startup {
 
   $logged_in->get('/upload')->to('upload#render');
   $logged_in->post('/upload')->to('upload#process_upload');
+
+  $logged_in->get('/api/add_archive')->to('api#add_archive');
+  $logged_in->get('/api/tags')->to('api#fetch_tags');
 
   $r->get('/logout')->to('login#logout');
 
