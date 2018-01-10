@@ -77,7 +77,7 @@ sub get_tagblacklist { return &getRedisParameter("blacklist", "already uploaded,
 
 
 # Render the configuration page
-sub render_config {
+sub render {
 
 	$self->render(template => "templates/config.tmpl",
 		            motd => &get_motd,

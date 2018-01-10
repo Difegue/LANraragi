@@ -1,7 +1,7 @@
 package LANraragi::Model::Utils;
 
 use strict;
-use warnings,
+use warnings;
 use utf8;
 
 use LANraragi::Model::Config;
@@ -146,3 +146,5 @@ sub addArchiveToRedis
 
 	return ($name,$event,$artist,$title,$series,$language,$tags,"block");
  }
+
+ 1;

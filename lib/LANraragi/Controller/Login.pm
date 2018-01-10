@@ -5,11 +5,8 @@ use Redis;
 use Authen::Passphrase;
 use LANraragi::Controller::Config;
 
-my $self = shift;
-
 sub check {
   my $self = shift;
-
 
   my $pw = $self->param('password') || '';
 
@@ -48,11 +45,11 @@ sub logout {
 }
 
 sub render {
-
+  my $self = shift;
   $self->render(template => "templates/login.tmpl",
-				title => &get_htmltitle,
-	            cssdrop => &printCssDropdown(0)
-	            );
+  				      title => &get_htmltitle,
+  	            cssdrop => &printCssDropdown(0)
+  	            );
 }
 
 1;

@@ -22,15 +22,34 @@ sub startup {
   my $r = $self->routes;
 
   # Normal route to controller
-  $r->get('/')->to('example#welcome');
+  $r->get('/')->to('index#render');
+  $r->get('/random')->to('index#random_archive');
 
   $r->get('/login')->to('login#render');
   $r->post('/login')->to('login#check');
 
-  #Config routes, only if user is logged in
+  $r->get('/reader')->to('reader#render');
+
+  $r->get('/api')->to('api#execute');
+  $r->get('/stats')->to('stats#render');
+
+  #Those routes are only accessible if user is logged in
   my $logged_in = $r->under('/config')->to('login#logged_in');
-  $logged_in->get('/config')->to('config#render_config');
+  $logged_in->get('/config')->to('config#render');
   $logged_in->post('/config')->to('config#save_config');
+
+  $logged_in->get('/edit')->to('edit#render');
+  $logged_in->post('/edit')->to('config#save_metadata');
+  $logged_in->delete('/edit')->to('config#delete_archive');
+
+  $logged_in->get('/backup')->to('backup#render');
+  $logged_in->post('/backup')->to('backup#restore');
+
+  $logged_in->get('/tags')->to('tags#render');
+  $logged_in->post('/tags')->to('tags#process_archive');
+
+  $logged_in->get('/upload')->to('upload#render');
+  $logged_in->post('/upload')->to('upload#process_upload');
 
   $r->get('/logout')->to('login#logout');
 

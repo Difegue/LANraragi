@@ -1,7 +1,7 @@
 package LANraragi::Model::Config;
 
 use strict;
-use warnings,
+use warnings;
 use utf8;
 
 
@@ -40,3 +40,5 @@ sub select_from_regex { return ($2,$4,$5,$7,$9)};
 	#\s* indicates zero or more whitespaces.
 my $regex = qr/(\(([^([]+)\))?\s*(\[([^]]+)\])?\s*([^([]+)\s*(\(([^([)]+)\))?\s*(\[([^]]+)\])?/;
 sub get_regex { return $regex};
+
+1;
