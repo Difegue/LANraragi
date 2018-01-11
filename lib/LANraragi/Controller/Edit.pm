@@ -6,8 +6,8 @@ use Redis;
 use Encode;
 use Template;
 
-use LANraragi::Controller::Config;
 use LANraragi::Model::Utils;
+use LANraragi::Model::Config;
 
 #Deletes the archive with the given id from redis, and the matching archive file.
 sub delete_metadata_and_file

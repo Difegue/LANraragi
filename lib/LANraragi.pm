@@ -14,6 +14,9 @@ sub startup {
   # Documentation browser under "/perldoc"
   $self->plugin('PODRenderer') if $config->{perldoc};
 
+  #Config model has access to $app so it can use the Config plugin
+  $app->plugin('Model', {namespaces => ['LANraragi::Model::Config']});
+
   # Set Template::Toolkit as default renderer so we can use the LRR templates
   $self->plugin('TemplateToolkit');
   $self->renderer->default_handler('tt2');

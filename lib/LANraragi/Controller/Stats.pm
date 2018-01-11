@@ -4,8 +4,8 @@ use Mojo::Base 'Mojolicious::Controller';
 use Redis;
 use Encode;
 
-use LANraragi::Controller::Config;
 use LANraragi::Model::Utils;
+use LANraragi::Model::Config;
 
 # This action will render a template
 sub render {

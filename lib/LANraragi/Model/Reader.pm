@@ -2,7 +2,6 @@ package LANraragi::Model::Reader;
 
 use strict;
 use warnings;
-use strict;
 use utf8;
 use Redis;
 use IPC::Cmd qw[can_run run];

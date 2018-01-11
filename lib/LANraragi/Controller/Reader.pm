@@ -1,8 +1,8 @@
 package LANraragi::Controller::Reader;
 use Mojo::Base 'Mojolicious::Controller';
 
-use LANraragi::Controller::Config;
 use LANraragi::Model::Utils;
+use LANraragi::Model::Config;
 use LANraragi::Model::Reader;
 
 # This action will render a template

@@ -4,7 +4,7 @@ use Mojo::Base 'Mojolicious::Controller';
 use Redis;
 use Authen::Passphrase;
 
-use LANraragi::Controller::Config;
+use LANraragi::Model::Config;
 
 sub check {
   my $self = shift;
