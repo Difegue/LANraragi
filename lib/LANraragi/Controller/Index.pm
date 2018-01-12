@@ -14,6 +14,8 @@ use LANraragi::Model::Utils;
 use LANraragi::Model::Config;
 use LANraragi::Model::Index;
 
+sub LRR_CONF { LANraragi::Model::Config:: }
+
 sub random_archive
 {
 	my $archive="";
@@ -52,7 +54,7 @@ sub index {
 	my $self = shift;
 
   	my $version = $self->config->{version};
-  	my $dirname = LANraragi::Model::Config->get_userdir;
+  	my $dirname = LRR_CONF->get_userdir;
 
 	#Get all files in content directory and subdirectories.
 	my @filez;
@@ -72,8 +74,8 @@ sub index {
 	#From the file tree, generate the archive JSONs
 	if (@filez)
 	{ 
-		my $redis = LANraragi::Model::Config->getRedisConnection;
-		($archivejson, $newarchivejson) = &generateTableJSON(@filez, $redis); 
+		my $redis = LRR_CONF->getRedisConnection;
+		($archivejson, $newarchivejson) = LANraragi::Model::Index->generateTableJSON(@filez, $redis); 
 	}
 	else
 	{ 
@@ -82,15 +84,15 @@ sub index {
 	}
 
 	#Checking if the user still has the default password enabled
-	my $ppr = Authen::Passphrase->from_rfc2307(LANraragi::Model::Config->get_password);
-	my $passcheck = ($ppr->match("kamimamita") && LANraragi::Model::Config->enable_pass);
+	my $ppr = Authen::Passphrase->from_rfc2307(LRR_CONF->get_password);
+	my $passcheck = ($ppr->match("kamimamita") && LRR_CONF->enable_pass);
 
 	$self->render(template => "index",
-		            title => LANraragi::Model::Config->get_htmltitle,
-		            pagesize => LANraragi::Model::Config->get_pagesize,
+		            title => LRR_CONF->get_htmltitle,
+		            pagesize => LRR_CONF->get_pagesize,
 		            userlogged => $self->session('is_logged'),
-		            motd => LANraragi::Model::Config->get_motd,
-		            cssdrop => LANraragi::Model::Utils->printCssDropdown(1),
+		            motd => LRR_CONF->get_motd,
+		            cssdrop => LANraragi::Model::Utils::printCssDropdown(1),
 		            archiveJSON => $archivejson,
 		            newarchiveJSON => $newarchivejson,
 		            nonewarchives => ($newarchivejson eq "[]"),

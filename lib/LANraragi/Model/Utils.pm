@@ -41,7 +41,7 @@ sub printCssDropdown
 	for ( my $i = 0; $i < $#css+1; $i++) 
 	{
 		#populate the div with spans
-		my $css_name = LANraragi::Model::Config->cssNames(@css[$i]);
+		my $css_name = LANraragi::Model::Config::cssNames(@css[$i]);
 		$CSSsel = $CSSsel.'<span><a href="#" onclick="switch_style(\''.$i.'\');return false;">'.$css_name.'</a></span>';
 
 

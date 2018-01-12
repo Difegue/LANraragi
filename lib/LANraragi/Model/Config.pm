@@ -52,9 +52,7 @@ sub getRedisParameter
 	my $param = $_[0]; 
 	my $default = $_[1];
 
-	my $redis = Redis->new(server => &get_redisad, 
-							reconnect => 100,
-							every     => 3000);
+	my $redis = &getRedisConnection;
 
 	if ($redis->hexists("LRR_CONFIG",$param)) 
 		{ 
@@ -80,7 +78,7 @@ sub get_tagblacklist { return &getRedisParameter("blacklist", "already uploaded,
 #Assign a name to the css file passed. You can add names by adding cases.
 #Note: CSS files added to the /themes folder will ALWAYS be pickable by the users no matter what.
 #All this sub does is give .css files prettier names in the dropdown. Files without a name here will simply show as their filename to the users.
-#TODO: Move this to Redis and add a page to configure themes
+#TODO - Keep this as default names for provided CSS and add a /theme page to the app to configure user themes
 sub cssNames
  {
 	switch($_[0]){
