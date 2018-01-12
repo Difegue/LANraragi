@@ -69,7 +69,7 @@ sub generateTableJSON
 sub parseExistingArchive()
  {
 		my ($id, $file, $redis) = @_;
-		my $dirname = &get_dirname;
+		my $dirname = &get_userdir;
 
 		my %hash = $redis->hgetall($id);
 		my ($filecheck, $path, $suffix);

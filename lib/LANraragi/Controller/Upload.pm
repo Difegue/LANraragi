@@ -22,7 +22,7 @@ sub process_upload {
 	#Check if the uploaded file's mimetype matches one we accept
 	if(exists($acceptedTypes{$uploadMime})) {
 		
-		my $output_file = &get_dirname.'/'.decode_utf8($filename); #open up a file on our side
+		my $output_file = &get_userdir.'/'.decode_utf8($filename); #open up a file on our side
 				
 		if (-e $output_file) { 
 			#if it doesn't already exist, that is.
@@ -74,7 +74,7 @@ sub process_upload {
 	}	
 }
 
-sub render {
+sub index {
 
 	my $self = shift;
 

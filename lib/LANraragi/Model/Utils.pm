@@ -35,19 +35,20 @@ sub printCssDropdown
 	$CSSsel = $CSSsel.'<div>';
 
 	#html that we'll insert before the list to declare all the available styles.
-	my $html;
+	my $html = "";
 
 	#We opened a drop-down list. Now, we'll fill it.
 	for ( my $i = 0; $i < $#css+1; $i++) 
 	{
 		#populate the div with spans
-		$CSSsel = $CSSsel.'<span><a href="#" onclick="switch_style(\''.$i.'\');return false;">'.&cssNames(@css[$i]).'</a></span>';
+		my $css_name = LANraragi::Model::Config->cssNames(@css[$i]);
+		$CSSsel = $CSSsel.'<span><a href="#" onclick="switch_style(\''.$i.'\');return false;">'.$css_name.'</a></span>';
 
 
-		if (@css[$i] eq &get_style) #if this is the default sheet, set it up as so.
-			{$html=$html.'<link rel="stylesheet" type="text/css" title="'.$i.'" href="./styles/'.@css[$i].'"> ';}
+		if (@css[$i] eq LANraragi::Model::Config->get_style) #if this is the default sheet, set it up as so.
+			{$html=$html.'<link rel="stylesheet" type="text/css" title="'.$i.'" href="./themes/'.@css[$i].'"> ';}
 		else
-			{$html=$html.'<link rel="alternate stylesheet" type="text/css" title="'.$i.'" href="./styles/'.@css[$i].'"> ';}
+			{$html=$html.'<link rel="alternate stylesheet" type="text/css" title="'.$i.'" href="./themes/'.@css[$i].'"> ';}
 	}		
 
 	#close up dropdown list
@@ -106,10 +107,10 @@ sub parseName
 	my $id = $_[1];
 	
 	#Use the regex on our file, and pipe it to the regexsel sub.
-	$_[0] =~ &get_regex || next;
+	$_[0] =~ LANraragi::Model::Config->get_regex || next;
 
 	#select_from_regex picks the variables from the regex selection that will be used. 
-	my ($event,$artist,$title,$series,$language) = &select_from_regex;
+	my ($event,$artist,$title,$series,$language) = LANraragi::Model::Config->select_from_regex;
 	my $tags ="";
 		
 	return ($event,$artist,$title,$series,$language,$tags,$id);

@@ -6,7 +6,7 @@ use LANraragi::Model::Config;
 use LANraragi::Model::Reader;
 
 # This action will render a template
-sub render {
+sub index {
 	my $self = shift;
 
 	if ($self->param()) 

@@ -8,7 +8,7 @@ use LANraragi::Model::Utils;
 use LANraragi::Model::Config;
 
 # This action will render a template
-sub render {
+sub index {
   	my $self = shift;
 
 	my $t; 
@@ -63,7 +63,7 @@ sub render {
 	$tagsjson.="]";
 
 	#Get size of archive folder 
-	my $dirname = &get_dirname;
+	my $dirname = &get_userdir;
 	my $size = 0;
 
 	for my $filename (glob("$dirname/*")) {

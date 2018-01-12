@@ -6,7 +6,7 @@ use LANraragi::Model::Config;
 use LANraragi::Model::Backup;
 
 # This action will render a template
-sub render {
+sub index {
   	my $self = shift;
 
   	#GET with a parameter => do backup
@@ -15,7 +15,7 @@ sub render {
 		my $json = &buildBackupJSON();
 
 		#Write json to file in the ugc directory and serve that file through render_static
-		my $file = &get_ugcdir.'backup.json';
+		my $file = &get_userdir.'backup.json';
 
 		if (-e $file) 
 			{ unlink $file }

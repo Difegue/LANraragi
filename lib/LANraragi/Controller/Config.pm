@@ -7,11 +7,11 @@ use LANraragi::Model::Config;
 use Authen::Passphrase::BlowfishCrypt;
 
 # Render the configuration page
-sub render {
+sub index {
 
 	$self->render(template => "templates/config.tmpl",
 		            motd => &get_motd,
-		            dirname => &get_dirname,
+		            dirname => &get_userdir,
 		            pagesize => &get_pagesize,
 		            readorder => &get_readorder,
 		            enablepass => &enable_pass,

@@ -1,4 +1,4 @@
-package LANraragi::Controller::Example;
+package LANraragi::Controller::Index;
 use Mojo::Base 'Mojolicious::Controller';
 
 use utf8;
@@ -7,6 +7,8 @@ use Redis;
 use Encode;
 use File::Path qw(make_path remove_tree);
 use File::Basename;
+use File::Find;
+use Authen::Passphrase;
 
 use LANraragi::Model::Utils;
 use LANraragi::Model::Config;
@@ -17,7 +19,7 @@ sub random_archive
 	my $archive="";
 	my $archiveexists = 0;
 
-	my $redis = &getRedisConnection();
+	my $redis = LANraragi::Model::Config->getRedisConnection();
 
 	#We get a random archive ID. We check for the length to (sort-of) avoid not getting an archive ID.
 	#Shit's never been designed to work on a redis database where other keys would be lying around. 
@@ -45,14 +47,14 @@ sub random_archive
 }
 
 # Go through the archives in the content directory and build the template at the end.
-sub render {
-  	my $self = shift;
+sub index {
 
-  	my $version = $self->plugin('Config')>{version};
-  	my $dirname = &get_dirname;
+	my $self = shift;
+
+  	my $version = $self->config->{version};
+  	my $dirname = LANraragi::Model::Config->get_userdir;
 
 	#Get all files in content directory and subdirectories.
-	#This should be enough supported file extensions, right? The old lsar method was hacky and took too long.
 	my @filez;
 	find({ wanted => sub { 
 							if ($_ =~ /^*.+\.(zip|rar|7z|tar|tar.gz|lzma|xz|cbz|cbr)$/ )
@@ -70,7 +72,8 @@ sub render {
 	#From the file tree, generate the archive JSONs
 	if (@filez)
 	{ 
-		($archivejson, $newarchivejson) = &generateTableJSON(@filez, &getRedisConnection); 
+		my $redis = LANraragi::Model::Config->getRedisConnection;
+		($archivejson, $newarchivejson) = &generateTableJSON(@filez, $redis); 
 	}
 	else
 	{ 
@@ -79,15 +82,15 @@ sub render {
 	}
 
 	#Checking if the user still has the default password enabled
-	my $ppr = Authen::Passphrase->from_rfc2307(&get_password);
-	my $passcheck = ($ppr->match("kamimamita") && &enable_pass);
+	my $ppr = Authen::Passphrase->from_rfc2307(LANraragi::Model::Config->get_password);
+	my $passcheck = ($ppr->match("kamimamita") && LANraragi::Model::Config->enable_pass);
 
-	$self->render(template => "templates/index.tmpl",
-		            title => &get_htmltitle,
-		            pagesize => &get_pagesize,
-		            userlogged => &isUserLogged($cgi),
-		            motd => &get_motd,
-		            cssdrop => &printCssDropdown(1),
+	$self->render(template => "index",
+		            title => LANraragi::Model::Config->get_htmltitle,
+		            pagesize => LANraragi::Model::Config->get_pagesize,
+		            userlogged => $self->session('is_logged'),
+		            motd => LANraragi::Model::Config->get_motd,
+		            cssdrop => LANraragi::Model::Utils->printCssDropdown(1),
 		            archiveJSON => $archivejson,
 		            newarchiveJSON => $newarchivejson,
 		            nonewarchives => ($newarchivejson eq "[]"),

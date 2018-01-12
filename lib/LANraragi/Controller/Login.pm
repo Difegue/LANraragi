@@ -45,7 +45,7 @@ sub logout {
   $self->redirect_to('index');
 }
 
-sub render {
+sub index {
   my $self = shift;
   $self->render(template => "templates/login.tmpl",
   				      title => &get_htmltitle,

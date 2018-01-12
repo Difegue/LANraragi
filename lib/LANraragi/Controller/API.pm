@@ -13,7 +13,7 @@ sub generate_thumbnail {
 	my $self = shift;
 
 	my $id = $self->param('id');
-	my $dirname = &get_dirname;
+	my $dirname = &get_userdir;
 
 	my $thumbname = "./img/thumb/".$id.".jpg";
 		
@@ -98,7 +98,7 @@ sub add_archive {
 	}
 
  	#check if the file is in the content directory first
- 	if (index($file, &get_dirname) == 0)
+ 	if (index($file, &get_userdir) == 0)
  	{ 
  		#utf8 decode the filename
  		eval { $file = decode_utf8($file) }

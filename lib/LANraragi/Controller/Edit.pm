@@ -86,7 +86,7 @@ sub delete_archive {
 					});
 }
 
-sub render {
+sub index {
 	my $self = shift;
 
 	#Does the passed file exist in the database?

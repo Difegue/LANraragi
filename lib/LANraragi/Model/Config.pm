@@ -7,10 +7,14 @@ use Switch;
 use Redis;
 use Encode;
 
-use Mojo::Base 'MojoX::Model';
+use Mojolicious::Plugin::Config;
+use Mojo::Home;
 
-my $self = shift;
-my $config = $self->app->plugin('Config');
+# Find the project root directory to load the conf file
+my $home = Mojo::Home->new;
+$home->detect;
+
+my $config = Mojolicious::Plugin::Config->register(Mojolicious->new, {file => $home.'/lrr.conf'});
 
 #Address and port of your redis instance.
 sub get_redisad { return $config->{redis_address} };
@@ -26,6 +30,7 @@ sub get_style { return $config->{default_theme} };
 #Create a redis object with the parameters defined at the start of this file and return it
 sub getRedisConnection
  {
+
  	#Default redis server location is localhost:6379. 
 	#Auto-reconnect on, one attempt every 100ms up to 2 seconds. Die after that.
  	my $redis = Redis->new(server => &get_redisad, 
@@ -65,7 +70,7 @@ sub getRedisParameter
 #Functions that return the config variables stored in Redis, or default values if they don't exist. Descriptions for each one of these can be found in the web configuration page.
 sub get_htmltitle { return encode('utf-8',&getRedisParameter("htmltitle", "LANraragi")) }; #enforcing unicode to make sure it doesn't fuck up the templates by appearing in some other encoding
 sub get_motd { return encode('utf-8',&getRedisParameter("motd", "Welcome to this Library running LANraragi !")) };
-sub get_ugcdir  { return &getRedisParameter("dirname", "./content") };
+sub get_userdir  { return &getRedisParameter("dirname", "./content") };
 sub get_pagesize { return &getRedisParameter("pagesize", "100") };
 sub get_readorder { return &getRedisParameter("readorder", "0") };
 sub enable_pass { return &getRedisParameter("enablepass", "1") };
@@ -73,7 +78,7 @@ sub get_password { return &getRedisParameter("password", '{CRYPT}$2a$08$4AcMwwkG
 sub get_tagblacklist { return &getRedisParameter("blacklist", "already uploaded, translated, english, russian, chinese, portuguese, french") };
 
 #Assign a name to the css file passed. You can add names by adding cases.
-#Note: CSS files added to the /themes folder will ALWAYS be pickable by the users no matter what. (except lrr.css because of quality software engineering)
+#Note: CSS files added to the /themes folder will ALWAYS be pickable by the users no matter what.
 #All this sub does is give .css files prettier names in the dropdown. Files without a name here will simply show as their filename to the users.
 #TODO: Move this to Redis and add a page to configure themes
 sub cssNames
