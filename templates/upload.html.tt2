@@ -1,0 +1,87 @@
+<html>
+	<head>
+		<title>[% title %] - Upload Mode</title>
+
+		<meta name="viewport" content="width=device-width" />
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+		<link type="image/png" rel="icon" href="./img/favicon.ico" />
+		<link rel="stylesheet" type="text/css" href="./node_modules/blueimp-file-upload/css/jquery.fileupload.css" />
+		<link rel="stylesheet" type="text/css" href="./node_modules/font-awesome/css/font-awesome.min.css" />
+
+		<script src="./js/css.js" type="text/JAVASCRIPT"></script>
+		<script src="./js/ajax.js" type="text/JAVASCRIPT"></script>
+		<script src="./node_modules/jquery/dist/jquery.min.js" type="text/JAVASCRIPT"></script>
+		<script src="./node_modules/blueimp-file-upload/js/vendor/jquery.ui.widget.js" type="text/JAVASCRIPT"></script>
+		<script src="./node_modules/blueimp-file-upload/js/jquery.fileupload.js" type="text/JAVASCRIPT"></script>
+		
+	</head>
+
+	<body onload="initUpload()">
+			
+			
+		[% cssdrop %]
+
+		<div class='ido' style='text-align:center; font-size:8pt'>
+			<h1 class='ih' style='text-align:center'>Uploading Archives to the Library</h1>	
+
+			Drag and drop files here, or click the upload button.
+			<br/><br/>
+
+			<table style='margin:auto; font-size:9pt; width: 80%; text-align:center;'><tbody id='files'>
+			<tr><td colspan = 2>
+
+				<span class='stdbtn fileinput-button' style="height:50px;">
+					<i class='fa fa-upload fa-2x' style='padding-top:6px'></i><br>
+					<span>Upload files</span>
+					<input type='file' name='file' multiple id='fileupload'> 
+				</span>
+				
+				<div id='progress' style='padding-top:6px; padding-bottom:6px'>
+				    <div class='bar' style='width: 0%;'></div>
+				</div>
+				
+			</div>
+			</td></tr>
+
+			</tbody></table>
+			<input class='stdbtn' type='button' onclick="window.location.replace('./');" value='Return to Library'/>
+
+	  </div>
+			  
+
+	</body>
+
+	<script>
+	function initUpload(){
+
+		//Set the correct CSS from the user's localStorage.
+		set_style_from_storage();
+
+		//Handler for file uploading.
+		$('#fileupload').fileupload({
+	        dataType: 'json',
+	        done: function (e, data) {
+
+	        	if (data.result.success == 0)
+	        		result = "<tr><td>" + data.result.name + 
+	        				"</td><td> <i class='fa fa-warning' style='margin-left:20px; margin-right: 10px; color: red'></i>" + data.result.error + "</td></tr>";
+	        	else
+	        		result = "<tr><td> <a href='reader?id=" + data.result.id + "'>" + data.result.name + "</a>" +
+	        				"</td><td> <i class='fa fa-check-square' style='margin-left:20px; margin-right: 10px; color: green'></i> <a href='edit?id=" + data.result.id + "'> Click here to edit metadata. </a></td></tr>";
+
+	        	$('#progress .bar').css('width','0%');
+	            $('#files').append(result);
+	        },
+
+	        progressall: function (e, data) {
+		        var progress = parseInt(data.loaded / data.total * 100, 10);
+		        $('#progress .bar').css('width', progress + '%');
+		    }
+
+	    });
+
+	}
+	</script>
+
+</html>
