@@ -26,9 +26,9 @@ sub get_redisdb { return $config->{redis_database} };
 sub get_style { return $config->{default_theme} };
 
 
-#getRedisConnection
+#get_redis
 #Create a redis object with the parameters defined at the start of this file and return it
-sub getRedisConnection
+sub get_redis
  {
 
  	#Default redis server location is localhost:6379. 
@@ -52,7 +52,7 @@ sub getRedisParameter
 	my $param = $_[0]; 
 	my $default = $_[1];
 
-	my $redis = &getRedisConnection;
+	my $redis = &get_redis;
 
 	if ($redis->hexists("LRR_CONFIG",$param)) 
 		{ 

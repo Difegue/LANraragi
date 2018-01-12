@@ -13,7 +13,7 @@ use LANraragi::Model::Config;
 #Goes through the Redis archive IDs and builds a JSON string containing their metadata.
 sub buildBackupJSON
  {
- 	my $redis = &getRedisConnection();
+ 	my $redis = &get_redis();
  	my $json = "[ ";
  	my $id;
 
@@ -57,7 +57,7 @@ sub buildBackupJSON
 sub restoreFromJSON
  {
  	my $archive;
-  	my $redis = &getRedisConnection();
+  	my $redis = &get_redis();
 
   	my $json = parse_json($_[0]);
 

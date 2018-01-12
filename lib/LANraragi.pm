@@ -8,6 +8,9 @@ sub startup {
   # Load configuration from hash returned by "lrr.conf"
   my $config = $self->plugin('Config', {file => 'lrr.conf'});
 
+  #Helper so controllers can reach the app's Redis DB quickly (they still need to declare use Model::Config)
+  $self->helper(LRR_CONF => sub { LANraragi::Model::Config:: });
+
   $self->secrets($config->{secrets});
 
   # Documentation browser under "/perldoc"
@@ -22,6 +25,7 @@ sub startup {
 
   # Normal route to controller
   $r->get('/')->to('index#index');
+  $r->get('/index')->to('index#index');
   $r->get('/random')->to('index#random_archive');
 
   $r->get('/login')->to('login#index');

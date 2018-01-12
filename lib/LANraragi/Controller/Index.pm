@@ -14,14 +14,15 @@ use LANraragi::Model::Utils;
 use LANraragi::Model::Config;
 use LANraragi::Model::Index;
 
-sub LRR_CONF { LANraragi::Model::Config:: }
+#sub LRR_CONF { LANraragi::Model::Config:: }
 
 sub random_archive
 {
+	my $self = shift;
 	my $archive="";
 	my $archiveexists = 0;
 
-	my $redis = LANraragi::Model::Config->getRedisConnection();
+	my $redis = $self->LRR_CONF->get_redis();
 
 	#We get a random archive ID. We check for the length to (sort-of) avoid not getting an archive ID.
 	#Shit's never been designed to work on a redis database where other keys would be lying around. 
@@ -40,8 +41,6 @@ sub random_archive
 				{ $archiveexists = 1; }
 		}
 	}
-		
-	my $self = shift;
 
 	#We redirect to the reader, with the key as parameter.
 	$self->redirect_to('reader', id => $archive);
@@ -54,7 +53,7 @@ sub index {
 	my $self = shift;
 
   	my $version = $self->config->{version};
-  	my $dirname = LRR_CONF->get_userdir;
+  	my $dirname = $self->LRR_CONF->get_userdir;
 
 	#Get all files in content directory and subdirectories.
 	my @filez;
@@ -74,7 +73,7 @@ sub index {
 	#From the file tree, generate the archive JSONs
 	if (@filez)
 	{ 
-		my $redis = LRR_CONF->getRedisConnection;
+		my $redis = $self->LRR_CONF->get_redis;
 		($archivejson, $newarchivejson) = LANraragi::Model::Index->generateTableJSON(@filez, $redis); 
 	}
 	else
@@ -84,14 +83,14 @@ sub index {
 	}
 
 	#Checking if the user still has the default password enabled
-	my $ppr = Authen::Passphrase->from_rfc2307(LRR_CONF->get_password);
-	my $passcheck = ($ppr->match("kamimamita") && LRR_CONF->enable_pass);
+	my $ppr = Authen::Passphrase->from_rfc2307($self->LRR_CONF->get_password);
+	my $passcheck = ($ppr->match("kamimamita") && $self->LRR_CONF->enable_pass);
 
 	$self->render(template => "index",
-		            title => LRR_CONF->get_htmltitle,
-		            pagesize => LRR_CONF->get_pagesize,
+		            title => $self->LRR_CONF->get_htmltitle,
+		            pagesize => $self->LRR_CONF->get_pagesize,
 		            userlogged => $self->session('is_logged'),
-		            motd => LRR_CONF->get_motd,
+		            motd => $self->LRR_CONF->get_motd,
 		            cssdrop => LANraragi::Model::Utils::printCssDropdown(1),
 		            archiveJSON => $archivejson,
 		            newarchiveJSON => $newarchivejson,

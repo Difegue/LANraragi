@@ -25,7 +25,7 @@ sub index {
 # Save the given parameters to the Redis config
 sub save_config {
 
-	my $redis = &getRedisConnection();
+	my $redis = &get_redis();
 
 	my $success = 1;
 	my $errormess = "";

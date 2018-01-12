@@ -15,7 +15,7 @@ sub index {
 			my $id = $self->param('id');
 
 			#Quick Redis check to see if the ID exists:
-			my $redis = &getRedisConnection();
+			my $redis = &get_redis();
 
 			unless ($redis->hexists($id,"title"))
 				{ $self->redirect('index'); }

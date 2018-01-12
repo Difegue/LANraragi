@@ -15,7 +15,7 @@ sub delete_metadata_and_file
 
 	my $id = $_[0];
 
-	my $redis = &getRedisConnection();
+	my $redis = &get_redis();
 
 	my $filename = $redis->hget($id, "file");
 	$filename = decode_utf8($filename);

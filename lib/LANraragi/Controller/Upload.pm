@@ -47,7 +47,7 @@ sub process_upload {
 				close OUTFILE;
 
 				#Parse for metadata right now and get the database ID
-				my $redis = &getRedisConnection();
+				my $redis = &get_redis();
 
 				my $id = sha256_hex(encode_utf8($output_file));
 

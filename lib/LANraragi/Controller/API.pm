@@ -19,7 +19,7 @@ sub generate_thumbnail {
 		
 	unless (-e $thumbname)
 	{
-		my $redis = &getRedisConnection();
+		my $redis = &get_redis();
 								
 		my $file = $redis->hget($id,"file");
 		$file = decode_utf8($file);
@@ -86,7 +86,7 @@ sub add_archive {
 
 	my $id = $self->param('id');
 	my $file = $self->param('file');
- 	my $redis = &getRedisConnection();
+ 	my $redis = &get_redis();
 
  	if ($redis->hexists($id,"title"))
  	{ 

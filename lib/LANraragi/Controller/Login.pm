@@ -5,6 +5,7 @@ use Redis;
 use Authen::Passphrase;
 
 use LANraragi::Model::Config;
+use LANraragi::Model::Utils;
 
 sub check {
   my $self = shift;
@@ -12,24 +13,21 @@ sub check {
   my $pw = $self->param('password') || '';
 
   #match password we got with the authen hash stored in redis
-  my $ppr = Authen::Passphrase->from_rfc2307(&get_password);
+  my $ppr = Authen::Passphrase->from_rfc2307($self->LRR_CONF->get_password);
 
   if ($ppr->match($pw))
   {
-	my $redis = &getRedisConnection();
-
-	my $session = CGI::Session->new( "driver:redis", $cgi, { Redis => $redis,
-                                                             Expire => 60*60*24 } );
-
-	$session->param("is_logged",1);
+  	$self->session(is_logged => 1);
+    $self->session(expiration => 60*60*24);
+    $self->redirect_to('index');
   }
   else {
-  	$self->redirect_to('login', wrongpass => 1);
+    $self->render(template => "login",
+                  title => $self->LRR_CONF->get_htmltitle,
+                  cssdrop => LANraragi::Model::Utils::printCssDropdown(0),
+                  wrongpass => 1
+                  );
   }
-
-  $self->session(is_logged => 1);
-  $self->session(expiration => 60*60*24);
-  $self->redirect_to('index');
 }
 
 sub logged_in {
@@ -47,9 +45,9 @@ sub logout {
 
 sub index {
   my $self = shift;
-  $self->render(template => "templates/login.tmpl",
-  				      title => &get_htmltitle,
-  	            cssdrop => &printCssDropdown(0)
+  $self->render(template => "login",
+  				      title => $self->LRR_CONF->get_htmltitle,
+  	            cssdrop => LANraragi::Model::Utils::printCssDropdown(0),
   	            );
 }
 
