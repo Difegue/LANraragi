@@ -22,40 +22,40 @@ sub process_upload {
 	#Check if the uploaded file's mimetype matches one we accept
 	if(exists($acceptedTypes{$uploadMime})) {
 		
-		my $output_file = &get_userdir.'/'.decode_utf8($filename); #open up a file on our side
+		my $output_file = $self->LRR_CONF->get_userdir.'/'.decode_utf8($filename->filename); #open up a file on our side
 				
 		if (-e $output_file) { 
 			#if it doesn't already exist, that is.
 			$self->render(  json => {
 							operation => "upload", 
-							name => $filename,
+							name => $filename->filename,
 							type => $uploadMime,
 							success => 0,
 							error => "A file bearing this name already exists in the Library."
 						  });
 		}
 		else {
-				my ($bytesread, $buffer);
-				my $numbytes = 1024;
+				my $bytes;
 
 				open (OUTFILE, ">", "$output_file") 
 					or die "Couldn't open $output_file for writing: $!";
 
-				while ($bytesread = read($filename, $buffer, $numbytes)) 
-					{ print OUTFILE $buffer; } #Write the uploaded contents to that file.
+				my $bytes = $filename->slurp; 
+				print OUTFILE $bytes; #Write the uploaded contents to that file.
 
 				close OUTFILE;
 
 				#Parse for metadata right now and get the database ID
-				my $redis = &get_redis();
+				my $redis = $self->LRR_CONF->get_redis();
 
-				my $id = sha256_hex(encode_utf8($output_file));
+				my $utf8_file = Encode::encode_utf8($output_file);
+				my $id = LANraragi::Model::Utils::sha256_hex($utf8_file);
 
-				&addArchiveToRedis($id,$output_file,$redis);
+				LANraragi::Model::Utils::addArchiveToRedis($id,$output_file,$redis);
 
 				$self->render(  json => {
 								operation => "upload", 
-								name => $filename,
+								name => $filename->filename,
 								type => $uploadMime,
 								success => 1,
 								id => $id
@@ -66,7 +66,7 @@ sub process_upload {
 
 		$self->render(  json => {
 							operation => "upload", 
-							name => $filename,
+							name => $filename->filename,
 							type => $uploadMime,
 							success => 0,
 							error => "Unsupported Filetype. (".$uploadMime.")"
@@ -78,9 +78,9 @@ sub index {
 
 	my $self = shift;
 
-	$self->render(  template => "templates/upload.tmpl",
-	            	title => &get_htmltitle,
-	            	cssdrop => &printCssDropdown(0)
+	$self->render(  template => "upload",
+	            	title => $self->LRR_CONF->get_htmltitle,
+	            	cssdrop => LANraragi::Model::Utils::printCssDropdown(0)
 	            	);
 }
 

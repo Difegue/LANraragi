@@ -9,12 +9,18 @@ use Encode;
 use File::Path qw(make_path remove_tree);
 use File::Basename;
 
-#generateTableJSON(@list, $redis)
+use LANraragi::Model::Utils;
+use LANraragi::Model::Config;
+
+#generateTableJSON(@list)
 #With a list of files, generates JSONs.
 #One JSON contains all existing archives in the database, alongside their info.
 sub generateTableJSON
  {
- 		my (@dircontents, $redis) = @_;
+ 		my (@dircontents) = @_;
+
+ 		my $redis = LANraragi::Model::Config::get_redis;
+ 		my $dirname = LANraragi::Model::Config::get_userdir;
 
 		my ($file,$id);
 
@@ -29,14 +35,14 @@ sub generateTableJSON
 		foreach $file (@dircontents)
 		{
 			#ID of the archive, used for storing data in Redis.
-			$id = sha256_hex($file);
+			$id = LANraragi::Model::Utils::sha256_hex($file);
 
 			#Let's check out the Redis cache first to see if the archive has already been parsed
 			if ($redis->hexists($id,"title"))
 				{
 					#bingo, no need for expensive file parsing operations.
 					if ( $newfiles == 0) #small optimization to just ignore existing archive parsing if new archives are present 
-						{ $json.=&parseExistingArchive($id, $file, $redis); }
+						{ $json.=&parseExistingArchive($id, $file, $redis, $dirname); }
 
 				}
 			else 
@@ -64,12 +70,11 @@ sub generateTableJSON
  }
 
 
-#parseExistingArchive(id, file, redis)
+#parseExistingArchive(id, file, redis, userdir)
 #Builds a JSON object for an archive already registered in the Redis database and returns it.
 sub parseExistingArchive()
  {
-		my ($id, $file, $redis) = @_;
-		my $dirname = &get_userdir;
+		my ($id, $file, $redis, $dirname) = @_;
 
 		my %hash = $redis->hgetall($id);
 		my ($filecheck, $path, $suffix);
@@ -104,7 +109,7 @@ sub parseExistingArchive()
 			{ $printedtags = $tags;}
 		
 
-		my $thumbname = "./img/thumb/".$id.".jpg";
+		my $thumbname = $dirname."thumb/".$id.".jpg";
 
 		unless (-e $thumbname)
 			{ $thumbname = "null"; } #force ajax thumbnail if the image doesn't already exist

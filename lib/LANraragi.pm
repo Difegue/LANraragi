@@ -39,7 +39,7 @@ sub startup {
   $r->get('/stats')->to('stats#index');
 
   #Those routes are only accessible if user is logged in
-  my $logged_in = $r->under('/config')->to('login#logged_in');
+  my $logged_in = $r->under('/')->to('login#logged_in');
   $logged_in->get('/config')->to('config#index');
   $logged_in->post('/config')->to('config#save_config');
 

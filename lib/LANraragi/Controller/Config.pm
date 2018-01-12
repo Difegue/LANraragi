@@ -1,6 +1,8 @@
 package LANraragi::Controller::Config;
 use Mojo::Base 'Mojolicious::Controller';
 
+use Encode;
+
 use LANraragi::Model::Utils;
 use LANraragi::Model::Config;
 
@@ -9,23 +11,26 @@ use Authen::Passphrase::BlowfishCrypt;
 # Render the configuration page
 sub index {
 
-	$self->render(template => "templates/config.tmpl",
-		            motd => &get_motd,
-		            dirname => &get_userdir,
-		            pagesize => &get_pagesize,
-		            readorder => &get_readorder,
-		            enablepass => &enable_pass,
-		            password => &get_password,
-		            blacklist => &get_tagblacklist,
-		            title => &get_htmltitle,
-		            cssdrop => &printCssDropdown(0)
+	my $self = shift;
+
+	$self->render(template => "config",
+		            motd => $self->LRR_CONF->get_motd,
+		            dirname => $self->LRR_CONF->get_userdir,
+		            pagesize => $self->LRR_CONF->get_pagesize,
+		            readorder => $self->LRR_CONF->get_readorder,
+		            enablepass => $self->LRR_CONF->enable_pass,
+		            password => $self->LRR_CONF->get_password,
+		            blacklist => $self->LRR_CONF->get_tagblacklist,
+		            title => $self->LRR_CONF->get_htmltitle,
+		            cssdrop => LANraragi::Model::Utils::printCssDropdown(0)
 			      );
 }
 
 # Save the given parameters to the Redis config
 sub save_config {
 
-	my $redis = &get_redis();
+	my $self = shift;
+	my $redis = $self->LRR_CONF->get_redis();
 
 	my $success = 1;
 	my $errormess = "";
@@ -77,7 +82,7 @@ sub save_config {
 		#clean up the user's inputs for non-toggle options and encode for redis insertion
 		foreach my $key (keys %confhash) 
 			{ 
-				removeSpaceF($confhash{$key}); 
+				LANraragi::Model::Utils::removeSpaceF($confhash{$key}); 
 				encode_utf8($confhash{$key});
 			}
 
