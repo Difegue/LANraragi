@@ -126,7 +126,6 @@ sub add_archive {
 sub fetch_tags {
 	my $self = shift;
 
-	
 	my $id = $self->param('id');
 	my $method = $self->param('method');
 	my $urlOverride = $self->param('url');
@@ -147,8 +146,8 @@ sub fetch_tags {
 }
 
 #Get tags for the given input(title or image hash) and method(0 = title, 1= hash, 2=nhentai)
-sub getTags
- {
+#TODO - Replace by plugin system
+sub getTags {
 	my $id = $_[0];
 	my $method = $_[1];
 	my $bliststr = $_[2];
@@ -201,6 +200,6 @@ sub getTags
 	else
 		{ return "NOTAGS"; }
 	
- }
+}
 
 1;
