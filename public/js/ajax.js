@@ -9,14 +9,12 @@ function ajaxThumbnail(archiveId)
 
 	showSpinner();
 
-
-	$.get( "ajax.pl", { function: "thumbnail", id: archiveId } )
+	$.get( "api/thumbnail", { id: archiveId } )
 		.done(function( data ) {
-			//alert(data);
 			if (data=="") //shit workaround for occasional empty ajax returns
 				ajaxThumbnail(archiveId);
 			else
-				showtrail(data);
+				showtrail(data.thumbnail);
 			return data;
 		})
 		.fail(function() {
@@ -31,21 +29,15 @@ function ajaxThumbnail(archiveId)
 //Doesn't bother with the spinner and/or trail and just sets the image in the <img> DOM element with the ID_thumb id.
 function ajaxThumbnailThumbView(archiveId, repeatOnFailure)
 {
+	$.get( "api/thumbnail", { id: archiveId } )
+			.done(function(data) {
 
-	$.get( "ajax.pl", { function: "thumbnail", id: archiveId } )
-			.done(function( data ) {
-				//alert(data);
-				if (data=="" || data.indexOf("Can't find file") !== -1) {
-					//shit workaround for occasional empty or failed ajax returns
-					if (repeatOnFailure)
-						ajaxThumbnailThumbView(archiveId, false);
-					else {
+				if (data==="") {
 						$('#'+archiveId+'_thumb').attr('src',"./img/noThumb.png"); //set to nothumb :(
 						$('#'+archiveId+'_thumb + i').remove(); //remove the spinner icon
 					}
-				}
 				else {
-					$('#'+archiveId+'_thumb').attr('src',data); //set image div source to the ajax result
+					$('#'+archiveId+'_thumb').attr('src',data.thumbnail); //set image div source to the ajax result
 					$('#'+archiveId+'_thumb + i').remove(); //remove the spinner icon
 				}
 			})
@@ -233,7 +225,7 @@ function deleteArchive(arcId)
 }
 
 //ajaxTags(titleOrHash,method)
-//Calls ajax.pl to get tags for the given title or image hash.
+//Calls API to get tags for the given title or image hash.
 //Returns "ERROR" on failure.
 function ajaxTags(arcId,method)
 {
@@ -264,7 +256,7 @@ function ajaxTags(arcId,method)
 	}
 
 
-	$.get( "ajax.pl", { function: "tags", method: method, id: arcId, url: urlOverride} )
+	$.get( "api/tags", { method: method, id: arcId, url: urlOverride} )
 		.done(function(data) {
 
 			if (data==="NOTAGS")
@@ -373,7 +365,7 @@ function ajaxCall(archive,method,archivesToCheck)
 	$('#processedArchive').html("Processing "+$('label[for='+archive.id+']').html());
 
 	//Ajax call for getting and setting the tags
-	$.get( "ajax.pl", { function: "tagsave", method: method, id: archive.id} )
+	$.get( "api/tags", { method: method, id: archive.id, instasave: 1} )
 	.done(function(data) { makeCall(archivesToCheck,method); })  //hurr callback
 	.fail(function(data) { $("#processedArchive").html("An error occured while getting tags. "+data); });
 

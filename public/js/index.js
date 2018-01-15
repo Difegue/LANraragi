@@ -273,14 +273,12 @@ function initNewArchiveRequests(newArchiveJSON)
 		//Ajax call for getting and setting the tags
 		$.ajax(
 			{
-				url : "ajax.pl",
+				url : "api/add_archive",
 				type: "POST",
-				data: { function: "addarchive", id: archiveToAdd.arcid, file: archiveToAdd.file },
+				data: { id: archiveToAdd.arcid, arc_path: archiveToAdd.file },
 				success:function(data, textStatus, jqXHR) 
 				{
-					jej = JSON.parse(data);
-
-					if (jej.success == "1")
+					if (data.status === 1)
 					{ 
 						completedArchives++;
 
@@ -299,7 +297,7 @@ function initNewArchiveRequests(newArchiveJSON)
 						loader: false, 
 						hideAfter: false,
 					    heading: 'Error while adding archive '+archiveToAdd.file+' to the database :',
-					    text: jej.error,
+					    text: data.error,
 					    icon: 'error'
 						});
 					}

@@ -33,8 +33,8 @@ sub startup {
 
   $r->get('/reader')->to('reader#index');
 
+  $r->post('/api/add_archive')->to('api#add_archive');
   $r->get('/api/thumbnail')->to('api#generate_thumbnail');
-
 
   $r->get('/stats')->to('stats#index');
 
@@ -56,8 +56,7 @@ sub startup {
   $logged_in->get('/upload')->to('upload#index');
   $logged_in->post('/upload')->to('upload#process_upload');
 
-  $logged_in->get('/api/add_archive')->to('api#add_archive');
-  $logged_in->get('/api/tags')->to('api#fetch_tags');
+  $logged_in->post('/api/tags')->to('api#fetch_tags');
 
   $r->get('/logout')->to('login#logout');
 

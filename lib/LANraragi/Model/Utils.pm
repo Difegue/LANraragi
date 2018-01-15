@@ -8,6 +8,7 @@ use LANraragi::Model::Config;
 
 use Digest::SHA qw(sha256_hex);
 use File::Basename;
+use Encode;
 use Redis;
 
 #Print a dropdown list to select CSS, and adds <link> tags for all the style sheets present in the /style folder.
@@ -113,7 +114,7 @@ sub parseName
 	my ($event,$artist,$title,$series,$language) = LANraragi::Model::Config->select_from_regex;
 	my $tags ="";
 		
-	return ($event,$artist,$title,$series,$language,$tags,$id);
+	return ($event,$artist,$title,$series,$language,$tags);
  }
 
 #addArchiveToRedis($id,$file,$redis)
@@ -125,7 +126,7 @@ sub addArchiveToRedis
 	my ($name,$path,$suffix) = fileparse($file, qr/\.[^.]*/);
 					
 	#parseName function is up there 
-	my ($event,$artist,$title,$series,$language,$tags,$id) = &parseName($name.$suffix,$id);
+	my ($event,$artist,$title,$series,$language,$tags) = &parseName($name.$suffix,$id);
 					
 	#jam this shit in redis
 	#prepare the hash which'll be inserted.

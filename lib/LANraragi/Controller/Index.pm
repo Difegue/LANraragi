@@ -74,7 +74,7 @@ sub index {
 	if (@filez)
 	{ 
 		my $redis = $self->LRR_CONF->get_redis;
-		($archivejson, $newarchivejson) = LANraragi::Model::Index->generateTableJSON(@filez, $redis, $dirname); 
+		($archivejson, $newarchivejson) = LANraragi::Model::Index::generateTableJSON(@filez); 
 	}
 	else
 	{ 
