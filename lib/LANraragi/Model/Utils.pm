@@ -10,11 +10,11 @@ use Digest::SHA qw(sha256_hex);
 use File::Basename;
 use Encode;
 use Redis;
+use Image::Magick;
 
 #Print a dropdown list to select CSS, and adds <link> tags for all the style sheets present in the /style folder.
 #Takes a boolean as argument: if true, return the styles and the dropdown. If false, only return the styles.
-sub printCssDropdown
- {
+sub generate_themes {
 
 	#Getting all the available CSS sheets.
 	my @css;
@@ -42,14 +42,14 @@ sub printCssDropdown
 	for ( my $i = 0; $i < $#css+1; $i++) 
 	{
 		#populate the div with spans
-		my $css_name = LANraragi::Model::Config::cssNames(@css[$i]);
+		my $css_name = LANraragi::Model::Config::css_default_names($css[$i]);
 		$CSSsel = $CSSsel.'<span><a href="#" onclick="switch_style(\''.$i.'\');return false;">'.$css_name.'</a></span>';
 
 
-		if (@css[$i] eq LANraragi::Model::Config->get_style) #if this is the default sheet, set it up as so.
-			{$html=$html.'<link rel="stylesheet" type="text/css" title="'.$i.'" href="./themes/'.@css[$i].'"> ';}
+		if ($css[$i] eq LANraragi::Model::Config->get_style) #if this is the default sheet, set it up as so.
+			{$html=$html.'<link rel="stylesheet" type="text/css" title="'.$i.'" href="./themes/'.$css[$i].'"> ';}
 		else
-			{$html=$html.'<link rel="alternate stylesheet" type="text/css" title="'.$i.'" href="./themes/'.@css[$i].'"> ';}
+			{$html=$html.'<link rel="alternate stylesheet" type="text/css" title="'.$i.'" href="./themes/'.$css[$i].'"> ';}
 	}		
 
 	#close up dropdown list
@@ -62,12 +62,22 @@ sub printCssDropdown
 	else
 	{return $html;}
 	
- }
-	
+}
 
-#This handy function gives us a SHA-1 hash for the passed file, which is used as an id for some files. 
-sub shasum
- {
+#generate_thumbnail(original_image, thumbnail_location)
+#use ImageMagick to make a thumbnail, width = 200px
+sub generate_thumbnail {
+
+	my ($orig_path, $thumb_path, $force) = @_;
+	my $img = Image::Magick->new;
+        
+    $img->Read($orig_path);
+    $img->Thumbnail(geometry => '200x');
+    $img->Write($thumb_path);
+}
+
+#This function gives us a SHA-1 hash for the passed file, which is used as an id for some files. 
+sub shasum {
 	my $digest = "";
 	eval{
 	  open(FILE, $_[0]) or die "Can't find file $_[0]\n";
@@ -81,30 +91,20 @@ sub shasum
 	  return "";
 	}
 	return $digest;
- }
+}
 	
-
-sub removeSpaceF #Remove spaces before and after a word 
- {
+#Remove spaces before and after a word 
+sub remove_spaces {
 	 until (substr($_[0],0,1)ne" "){
 	 $_[0] = substr($_[0],1);}
 
 	 until (substr($_[0],-1)ne" "){
 	 chop $_[0];} 
- }
+}
 
-#magical sort function
-sub expand 
- {
-    my $file=shift; 
-    $file=~s{(\d+)}{sprintf "%04d", $1}eg;
-    return $file;
- }
-
-#parseName(name,id)
+#parse_name(name,id)
 #parses an archive name with the regex specified in the configuration file(get_regex and select_from_regex subs) to find metadata.
-sub parseName
- {
+sub parse_name {
 	my $id = $_[1];
 	
 	#Use the regex on our file, and pipe it to the regexsel sub.
@@ -112,21 +112,20 @@ sub parseName
 
 	#select_from_regex picks the variables from the regex selection that will be used. 
 	my ($event,$artist,$title,$series,$language) = LANraragi::Model::Config->select_from_regex;
-	my $tags ="";
+	my $tags = "";
 		
 	return ($event,$artist,$title,$series,$language,$tags);
- }
+}
 
-#addArchiveToRedis($id,$file,$redis)
+#add_archive_to_redis($id,$file,$redis)
 #Parses the name of a file for metadata, and matches that metadata to the SHA-1 hash of the file in our Redis database.
-sub addArchiveToRedis
- {
+sub add_archive_to_redis {
  	my ($id, $file, $redis) = @_;
 					
 	my ($name,$path,$suffix) = fileparse($file, qr/\.[^.]*/);
 					
-	#parseName function is up there 
-	my ($event,$artist,$title,$series,$language,$tags) = &parseName($name.$suffix,$id);
+	#parse_name function is up there 
+	my ($event,$artist,$title,$series,$language,$tags) = &parse_name($name.$suffix,$id);
 					
 	#jam this shit in redis
 	#prepare the hash which'll be inserted.
@@ -147,6 +146,6 @@ sub addArchiveToRedis
 	$redis->wait_all_responses;
 
 	return ($name,$event,$artist,$title,$series,$language,$tags,"block");
- }
+}
 
  1;

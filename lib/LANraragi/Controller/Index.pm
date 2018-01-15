@@ -74,7 +74,7 @@ sub index {
 	if (@filez)
 	{ 
 		my $redis = $self->LRR_CONF->get_redis;
-		($archivejson, $newarchivejson) = LANraragi::Model::Index::generateTableJSON(@filez); 
+		($archivejson, $newarchivejson) = LANraragi::Model::Index::build_table_JSON(@filez); 
 	}
 	else
 	{ 
@@ -91,7 +91,7 @@ sub index {
 		            pagesize => $self->LRR_CONF->get_pagesize,
 		            userlogged => $self->session('is_logged'),
 		            motd => $self->LRR_CONF->get_motd,
-		            cssdrop => LANraragi::Model::Utils::printCssDropdown(1),
+		            cssdrop => LANraragi::Model::Utils::generate_themes(1),
 		            archiveJSON => $archivejson,
 		            newarchiveJSON => $newarchivejson,
 		            nonewarchives => ($newarchivejson eq "[]"),

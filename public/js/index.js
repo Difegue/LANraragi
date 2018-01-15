@@ -41,7 +41,7 @@ function initIndex(pagesize,dataSet)
 		'dom': '<"top"ip>rt<"bottom"p><"clear">',
 		'language': {
 				'info':           'Showing _START_ to _END_ of _TOTAL_ ancient chinese lithographies.',
-				'infoEmpty':      '<h1>No archives to show you ! Try <a href="upload.pl">uploading some</a> ?</h1>',
+				'infoEmpty':      '<h1>No archives to show you ! Try <a href="upload">uploading some</a> ?</h1>',
 			},
 		'preDrawCallback': thumbViewInit, //callbacks for thumbnail view
 		'rowCallback': buildThumbDiv,
@@ -52,7 +52,7 @@ function initIndex(pagesize,dataSet)
 			  'render': function ( data, type, full, meta ) { 
 			  			if(type == "display"){
 					      return '<div style="font-size:14px"><a href="'+data.url+'" title="Download this archive.">'
-					      		+'<i class="fa fa-save" style="margin-right:2px"></i><a/><a href="./edit.pl?id='+data.arcid+'" title="Edit this archive\'s tags and data."><i class="fa fa-pencil"></i><a/></div>';
+					      		+'<i class="fa fa-save" style="margin-right:2px"></i><a/><a href="./edit?id='+data.arcid+'" title="Edit this archive\'s tags and data."><i class="fa fa-pencil"></i><a/></div>';
 							}
 
 					return data;
@@ -62,7 +62,7 @@ function initIndex(pagesize,dataSet)
 			  'data': null,
 			  'render': function ( data, type, full, meta ) {
 			  			if(type == "display"){
-			  				line = '<span style="display: none;">'+data.title+'</span><a href="./reader.pl?id='+data.arcid+'" onmouseout="hidetrail(); clearTimeout(thumbTimeout);" ';
+			  				line = '<span style="display: none;">'+data.title+'</span><a href="./reader?id='+data.arcid+'" onmouseout="hidetrail(); clearTimeout(thumbTimeout);" ';
 
 			  				if (data.thumbnail=="null")
 			  					line+='onmouseover="thumbTimeout = setTimeout(ajaxThumbnail, 200, \''+data.arcid+'\')" >';
@@ -194,10 +194,10 @@ function buildThumbDiv( row, data, index ) {
 										'<img src="img/n.gif" style="float: right; display: '+data.isnew+'">'+
 									'</div>'+
 							'</div>'+
-							'<a href="./reader.pl?id='+data.arcid+'" title="'+data.title+'">'+data.title+'</a>'+
+							'<a href="./reader?id='+data.arcid+'" title="'+data.title+'">'+data.title+'</a>'+
 						'</div>'+
 						'<div style="height:280px" class="id3">'+
-							'<a href="./reader.pl?id='+data.arcid+'">';
+							'<a href="./reader?id='+data.arcid+'">';
 
 		if (data.thumbnail=="null")	
 		{
@@ -218,7 +218,7 @@ function buildThumbDiv( row, data, index ) {
 							'<span style="font-size:16px"><a title="Download this archive." href="'+data.url+'">'+
 								'<i style="margin-right:2px" class="fa fa-save"></i>'+
 							'</a>'+
-							'<a title="Edit this archive\'s tags and data." href="./edit.pl?id='+data.arcid+'">'+
+							'<a title="Edit this archive\'s tags and data." href="./edit?id='+data.arcid+'">'+
 								'<i class="fa fa-pencil"></i>'+
 							'</a></span>'+
 							'<div class="id42"><a style="cursor:pointer" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+

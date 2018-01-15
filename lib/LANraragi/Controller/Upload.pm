@@ -12,7 +12,7 @@ sub process_upload {
 	my $self = shift;
 
 	#Receive uploaded file.
-	my $filename = $self->param('file');
+	my $filename = $self->req->upload('file');
 
 	my $uploadMime = $filename->headers->content_type;
 
@@ -51,7 +51,7 @@ sub process_upload {
 				my $utf8_file = Encode::encode_utf8($output_file);
 				my $id = LANraragi::Model::Utils::sha256_hex($utf8_file);
 
-				LANraragi::Model::Utils::addArchiveToRedis($id,$output_file,$redis);
+				LANraragi::Model::Utils::add_archive_to_redis($id,$output_file,$redis);
 
 				$self->render(  json => {
 								operation => "upload", 
@@ -80,7 +80,7 @@ sub index {
 
 	$self->render(  template => "upload",
 	            	title => $self->LRR_CONF->get_htmltitle,
-	            	cssdrop => LANraragi::Model::Utils::printCssDropdown(0)
+	            	cssdrop => LANraragi::Model::Utils::generate_themes(0)
 	            	);
 }
 

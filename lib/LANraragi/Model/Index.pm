@@ -12,10 +12,10 @@ use File::Basename;
 use LANraragi::Model::Utils;
 use LANraragi::Model::Config;
 
-#generateTableJSON(@list)
+#build_table_JSON(@list)
 #With a list of files, generates JSONs.
 #One JSON contains all existing archives in the database, alongside their info.
-sub generateTableJSON
+sub build_table_JSON
  {
  		my (@dircontents) = @_;
 
@@ -42,7 +42,7 @@ sub generateTableJSON
 				{
 					#bingo, no need for expensive file parsing operations.
 					if ( $newfiles == 0) #small optimization to just ignore existing archive parsing if new archives are present 
-						{ $json.=&parseExistingArchive($id, $file, $redis, $dirname); }
+						{ $json.=&build_archive_JSON($id, $file, $redis, $dirname); }
 
 				}
 			else 
@@ -70,9 +70,9 @@ sub generateTableJSON
  }
 
 
-#parseExistingArchive(id, file, redis, userdir)
+#build_archive_JSON(id, file, redis, userdir)
 #Builds a JSON object for an archive already registered in the Redis database and returns it.
-sub parseExistingArchive()
+sub build_archive_JSON()
  {
 		my ($id, $file, $redis, $dirname) = @_;
 

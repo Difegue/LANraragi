@@ -22,7 +22,7 @@ sub index {
 		            password => $self->LRR_CONF->get_password,
 		            blacklist => $self->LRR_CONF->get_tagblacklist,
 		            title => $self->LRR_CONF->get_htmltitle,
-		            cssdrop => LANraragi::Model::Utils::printCssDropdown(0)
+		            cssdrop => LANraragi::Model::Utils::generate_themes(0)
 			      );
 }
 
@@ -36,21 +36,21 @@ sub save_config {
 	my $errormess = "";
 	
 	my %confhash = (
-		htmltitle => scalar $self->param('htmltitle'),
-		motd => scalar $self->param('motd'),
-		dirname => scalar $self->param('dirname'),
-		pagesize => scalar $self->param('pagesize'),
-		blacklist => scalar $self->param('blacklist'),
-		readorder => (scalar $self->param('readorder') ? '1' : '0'), #for checkboxes, we check if the parameter exists in the POST to return either 1 or 0.
-		enablepass => (scalar $self->param('enablepass') ? '1' : '0'),
+		htmltitle => scalar $self->req->param('htmltitle'),
+		motd => scalar $self->req->param('motd'),
+		dirname => scalar $self->req->param('dirname'),
+		pagesize => scalar $self->req->param('pagesize'),
+		blacklist => scalar $self->req->param('blacklist'),
+		readorder => (scalar $self->req->param('readorder') ? '1' : '0'), #for checkboxes, we check if the parameter exists in the POST to return either 1 or 0.
+		enablepass => (scalar $self->req->param('enablepass') ? '1' : '0'),
 	);
 	
 	#only add newpassword field as password if enablepass = 1
-	if ($self->param('enablepass'))
+	if ($self->req->param('enablepass'))
 		{ 
 
 			#hash password with authen
-			my $password = $self->param('newpassword');
+			my $password = $self->req->param('newpassword');
 			my $ppr = Authen::Passphrase::BlowfishCrypt->new(
 			    cost        => 8,
 			    salt_random => 1,
@@ -64,7 +64,7 @@ sub save_config {
 
 
 	#Verifications.
-	if ($self->param('newpassword') ne $self->param('newpassword2')) #Password check
+	if ($self->req->param('newpassword') ne $self->req->param('newpassword2')) #Password check
 		{ 
 			$success = 0;
 		 	$errormess = "Mismatched passwords.";
@@ -82,7 +82,7 @@ sub save_config {
 		#clean up the user's inputs for non-toggle options and encode for redis insertion
 		foreach my $key (keys %confhash) 
 			{ 
-				LANraragi::Model::Utils::removeSpaceF($confhash{$key}); 
+				LANraragi::Model::Utils::remove_spaces($confhash{$key}); 
 				encode_utf8($confhash{$key});
 			}
 

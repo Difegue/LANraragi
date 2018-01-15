@@ -39,16 +39,16 @@ sub delete_metadata_and_file
 sub save_metadata {
 	my $self = shift;
 
-	my $id = $self->param('id');
-	my $event = $self->param('event');
-	my $artist = $self->param('artist');
-	my $title = $self->param('title');
-	my $series = $self->param('series');
-	my $language = $self->param('language');
-	my $tags = $self->param('tags');
+	my $id = $self->req->param('id');
+	my $event = $self->req->param('event');
+	my $artist = $self->req->param('artist');
+	my $title = $self->req->param('title');
+	my $series = $self->req->param('series');
+	my $language = $self->req->param('language');
+	my $tags = $self->req->param('tags');
 
 	#clean up the user's inputs and encode them.
-	(removeSpaceF($_)) for ($event, $artist, $title, $series, $language, $tags);
+	(remove_spaces($_)) for ($event, $artist, $title, $series, $language, $tags);
 
 	#Input new values into redis hash.
 	#prepare the hash which'll be inserted.
@@ -75,7 +75,7 @@ sub save_metadata {
 #TODO - move to API ?
 sub delete_archive {
 	my $self = shift;
-	my $id = $self->param('id');
+	my $id = $self->req->param('id');
 
 	my $delStatus = &delete_metadata_and_file($id);
 
@@ -90,7 +90,7 @@ sub index {
 	my $self = shift;
 
 	#Does the passed file exist in the database?
-	my $id = $self->param('id');
+	my $id = $self->req->param('id');
 
 	if ($redis->hexists($id,"title")) 
 	{
@@ -116,7 +116,7 @@ sub index {
 			            file => $file,
 			            thumbhash => $thumbhash,
 			            title => &get_htmltitle,
-			            cssdrop => &printCssDropdown(0)
+			            cssdrop => &generate_themes(0)
 		  	          );
 	}
 	else 

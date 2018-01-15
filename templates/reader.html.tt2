@@ -6,7 +6,7 @@
 			<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
 			<link type="image/png" rel="icon" href="./img/favicon.ico" />
-			<link rel="stylesheet" type="text/css" href="./styles/lrr.css" />
+			<link rel="stylesheet" type="text/css" href="./css/lrr.css" />
 			<link rel="stylesheet" type="text/css" href="./node_modules/font-awesome/css/font-awesome.min.css" />
 			<link rel="stylesheet" type="text/css" href="./node_modules/jquery-toast-plugin/dist/jquery.toast.min.css" />
 

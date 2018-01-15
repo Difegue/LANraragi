@@ -45,9 +45,9 @@ sub get_redis
  }
 
 
-#getRedisParameter(parameter, default)
+#get_redis_conf(parameter, default)
 #Gets a parameter from the Redis database. If it doesn't exist, we return the default given as a second parameter.
-sub getRedisParameter
+sub get_redis_conf
  {
 	my $param = $_[0]; 
 	my $default = $_[1];
@@ -66,20 +66,20 @@ sub getRedisParameter
  }
 
 #Functions that return the config variables stored in Redis, or default values if they don't exist. Descriptions for each one of these can be found in the web configuration page.
-sub get_htmltitle { return encode('utf-8',&getRedisParameter("htmltitle", "LANraragi")) }; #enforcing unicode to make sure it doesn't fuck up the templates by appearing in some other encoding
-sub get_motd { return encode('utf-8',&getRedisParameter("motd", "Welcome to this Library running LANraragi !")) };
-sub get_userdir  { return &getRedisParameter("dirname", "./content") };
-sub get_pagesize { return &getRedisParameter("pagesize", "100") };
-sub get_readorder { return &getRedisParameter("readorder", "0") };
-sub enable_pass { return &getRedisParameter("enablepass", "1") };
-sub get_password { return &getRedisParameter("password", '{CRYPT}$2a$08$4AcMwwkGXnWtFTOLuw/hduQlRdqWQIBzX3UuKn.M1qTFX5R4CALxy') }; #bcrypt hash for "kamimamita"
-sub get_tagblacklist { return &getRedisParameter("blacklist", "already uploaded, translated, english, russian, chinese, portuguese, french") };
+sub get_htmltitle { return encode('utf-8',&get_redis_conf("htmltitle", "LANraragi")) }; #enforcing unicode to make sure it doesn't fuck up the templates by appearing in some other encoding
+sub get_motd { return encode('utf-8',&get_redis_conf("motd", "Welcome to this Library running LANraragi !")) };
+sub get_userdir  { return &get_redis_conf("dirname", "./content") };
+sub get_pagesize { return &get_redis_conf("pagesize", "100") };
+sub get_readorder { return &get_redis_conf("readorder", "0") };
+sub enable_pass { return &get_redis_conf("enablepass", "1") };
+sub get_password { return &get_redis_conf("password", '{CRYPT}$2a$08$4AcMwwkGXnWtFTOLuw/hduQlRdqWQIBzX3UuKn.M1qTFX5R4CALxy') }; #bcrypt hash for "kamimamita"
+sub get_tagblacklist { return &get_redis_conf("blacklist", "already uploaded, translated, english, russian, chinese, portuguese, french") };
 
 #Assign a name to the css file passed. You can add names by adding cases.
 #Note: CSS files added to the /themes folder will ALWAYS be pickable by the users no matter what.
 #All this sub does is give .css files prettier names in the dropdown. Files without a name here will simply show as their filename to the users.
 #TODO - Keep this as default names for provided CSS and add a /theme page to the app to configure user themes
-sub cssNames
+sub css_default_names
  {
 	switch($_[0]){
 		case "g.css" {return "HentaiVerse"}

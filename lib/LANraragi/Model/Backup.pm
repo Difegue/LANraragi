@@ -9,9 +9,9 @@ use JSON::Parse 'parse_json';
 
 use LANraragi::Model::Config;
 
-#buildBackupJSON()
+#build_backup_JSON()
 #Goes through the Redis archive IDs and builds a JSON string containing their metadata.
-sub buildBackupJSON
+sub build_backup_JSON
  {
  	my $redis = &get_redis();
  	my $json = "[ ";
@@ -52,9 +52,9 @@ sub buildBackupJSON
 
  }
 
-#restoreFromJSON(backupJSON)
+#restore_from_JSON(backupJSON)
 #Restores metadata from a JSON to the Redis archive, for existing IDs.
-sub restoreFromJSON
+sub restore_from_JSON
  {
  	my $archive;
   	my $redis = &get_redis();

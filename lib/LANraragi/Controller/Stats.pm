@@ -36,7 +36,7 @@ sub index {
 				foreach my $t (@tags) {
 
 				  #Just in case
-				  &removeSpaceF($t);
+				  &remove_spaces($t);
 
 				  #Increment value of tag if it's already in the result hash, create it otherwise
 				  if (exists($tagcloud{$t}))
@@ -75,7 +75,7 @@ sub index {
 
 	$self->render(template => "templates/stats.tmpl",
 			        title => &get_htmltitle,
-			        cssdrop => &printCssDropdown(0),
+			        cssdrop => &generate_themes(0),
 			        tagcloud => $tagsjson,
 			        tagcount => $tagcount,
 			        archivecount => $archivecount,

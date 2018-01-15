@@ -3,20 +3,19 @@ package LANraragi::Model::Reader;
 use strict;
 use warnings;
 use utf8;
+
 use Redis;
 use IPC::Cmd qw[can_run run];
 use File::Basename;
 use File::Path qw(remove_tree);
 use Encode;
-use Image::Info qw(image_info dim);
 use File::Find qw(find);
-use Image::Magick;
+use HTML::Entities;
 
 use LANraragi::Model::Config;
 
-#printReaderErrorPage($filename,$log)
-sub printReaderErrorPage
- {
+#reader_error_HTML($filename,$log)
+sub reader_error_HTML {
 
 	my $filename = $_[0];
 	my $errorlog = $_[1];
@@ -34,21 +33,22 @@ sub printReaderErrorPage
 
  }
 
+#magical sort function used below
+sub expand {
+    my $file=shift; 
+    $file=~s{(\d+)}{sprintf "%04d", $1}eg;
+    return $file;
+}
 
-
-
-#buildReaderData(id,forceReload,refreshThumbnail)
+#build_reader_JSON(id,forceReload,refreshThumbnail)
 #Opens the archive specified by its ID and returns a json matching pages to their 
-sub buildReaderData
- {
+sub build_reader_JSON {
 
 	my ($id, $force, $thumbreload) = @_;
-	my $img = Image::Magick->new; #Used for image resizing
-	my $tempdir = "./temp";
-	
+	my $tempdir = "./public/temp";
 
 	#Redis stuff: Grab archive path and update some things
-	my $redis = &get_redis();
+	my $redis = LANraragi::Model::Config::get_redis();
 	
 	#We opened this id in the reader, so we can't mark it as "new" anymore.
 	$redis->hset($id,"isnew","none");
@@ -64,7 +64,7 @@ sub buildReaderData
 	my $path = $tempdir."/".$id;
 	
 	if (-e $path && $force eq "1") #If the file has been extracted and force-reload=1, we wipe the extraction directory.
-	{ remove_tree($path); }
+		{ remove_tree($path); }
 
 	#Now, has our file been extracted to the temporary directory recently?
 	#If it hasn't, we call unar to do it.
@@ -78,7 +78,7 @@ sub buildReaderData
 		 	#Has the archive been extracted ? If not, stop here and print an error page.
 			unless (-e $path) {
 				my $errlog = join "<br/>", @$full_buf;
-				&printReaderErrorPage($filename,$errlog);
+				&reader_error_HTML($filename,$errlog);
 				exit;
 			}
 		}
@@ -90,40 +90,38 @@ sub buildReaderData
 								{
 									#We need to sanitize the image's path, in case the folder contains illegal characters, but uri_escape would also nuke the / needed for navigation.
 									#Let's solve this with a quick regex search&replace.
-									#First, we sanitize it all...
+									#First, we encode all HTML characters...
 									my $imgpath = $_;
-									$imgpath = escapeHTML($imgpath);
+									$imgpath = encode_entities($imgpath);
 									
 									#Then we bring the slashes back.
 									$imgpath =~ s!%2F!/!g;
+
+									#We also now need to strip the /public/ part, as it's not visible by clients.
+									$imgpath =~ s!public/!!g;
 									push @images, $imgpath;
 
 								}
 						} , no_chdir => 1 }, $path); #find () does exactly that. 
 			  
-    my @images = sort { &expand($a) cmp &expand($b) } @images;
-    
+    @images = sort { &expand($a) cmp &expand($b) } @images;
 	
 	#Convert page 1 into a thumbnail for the main reader index if it's not been done already(Or if it fucked up for some reason).
-	#TODO - change thumbnail location here to the content folder
-	my $thumbname = "./img/thumb/".$id.".jpg";
+	my $thumbname = "./public/thumb/".$id.".jpg";
 
 	unless (-e $thumbname && $thumbreload eq "0")
 	{
-		my $path = @images[0];
-		$redis->hset($id,"thumbhash", encode_utf8(shasum($path)));
+		my $path = $images[0];
+		my $shasum = LANraragi::Model::Utils::shasum($path);
+		$redis->hset($id,"thumbhash", encode_utf8($shasum));
 
-		#use ImageMagick to make the thumbnail. width = 200px
-	    
-	    $img->Read($path);
-	    $img->Thumbnail(geometry => '200x');
-	    $img->Write($thumbname);
+		LANraragi::Model::Utils::generate_thumbnail($path,$thumbname);
 	}
 
-	#Build json(actually it's just the images array in a string)
+	#Build json (it's just the images array in a string)
 	my $list = "{\"pages\": [\"".join("\",\"",@images)."\"]}";
 	return $list;
 
- }
+}
 
  1;

@@ -10,7 +10,7 @@ use LANraragi::Model::Utils;
 sub check {
   my $self = shift;
 
-  my $pw = $self->param('password') || '';
+  my $pw = $self->req->param('password') || '';
 
   #match password we got with the authen hash stored in redis
   my $ppr = Authen::Passphrase->from_rfc2307($self->LRR_CONF->get_password);
@@ -24,7 +24,7 @@ sub check {
   else {
     $self->render(template => "login",
                   title => $self->LRR_CONF->get_htmltitle,
-                  cssdrop => LANraragi::Model::Utils::printCssDropdown(0),
+                  cssdrop => LANraragi::Model::Utils::generate_themes(0),
                   wrongpass => 1
                   );
   }
@@ -45,9 +45,11 @@ sub logout {
 
 sub index {
   my $self = shift;
+  $self->redirect_to('index') if $self->session('is_logged');
+
   $self->render(template => "login",
   				      title => $self->LRR_CONF->get_htmltitle,
-  	            cssdrop => LANraragi::Model::Utils::printCssDropdown(0),
+  	            cssdrop => LANraragi::Model::Utils::generate_themes(0),
   	            );
 }
 

@@ -2,7 +2,6 @@ package LANraragi::Controller::Api;
 use Mojo::Base 'Mojolicious::Controller';
 
 use CGI qw(:standard);
-use Image::Magick;
 use Redis; 
 use Encode;
 
@@ -16,9 +15,10 @@ sub generate_thumbnail {
 	my $id = $self->req->param('id');
 	my $dirname = $self->LRR_CONF->get_userdir;
 
+	#This thumbnail name is given to the client at the end, so we omit the /public/ directory.
 	my $thumbname = "./thumb/".$id.".jpg";
 		
-	unless (-e "./public/".$thumbname)
+	unless (-e "./public/".$thumbname) #But we have to re-add it here since we're doing server-side IO
 	{
 		my $redis = $self->LRR_CONF->get_redis();
 								
@@ -52,24 +52,22 @@ sub generate_thumbnail {
 		#let's extract now.
 		#print("ZIPFILE-----"+$file+"bb--------");	
 		`unar -D -o $path "$file" "$unarfix"`;
-			
-		my $path2 = $path.'/'.$extracted[0];
+		
+		#Path to the first image of the archive
+		my $arcimg = $path.'/'.$extracted[0];
 					
 		#While we have the image, grab its SHA-1 hash for potential tag research later. 
 		#That way, no need to repeat the costly extraction later.
 		my $shasum = LANraragi::Model::Utils::shasum($path2);
 		$redis->hset($id,"thumbhash", encode_utf8($shasum));
-			
-		#use ImageMagick to make the thumbnail, width = 200px
-		my $img = Image::Magick->new;
-        
-        $img->Read($path2);
-        $img->Thumbnail(geometry => '200x');
-        $img->Write("./public/".$thumbname);
+		
+		#Thumbnail generation
+		LANraragi::Model::Utils::generate_thumbnail($arcimg,"./public/".$thumbname);
 			
 		$redis.close();
+
 		#Delete the previously extracted file.
-		unlink $path2;
+		unlink $arcimg;
 	}
 
 	$self->render(  json => {
@@ -106,7 +104,7 @@ sub add_archive {
  		eval { $file = decode_utf8($file) };
 
  		#Archive adding is in the Utils package
- 		LANraragi::Model::Utils::addArchiveToRedis($id,$file,$redis);
+ 		LANraragi::Model::Utils::add_archive_to_redis($id,$file,$redis);
 
  		$self->render(  json => {
  						operation => "add_archive",
@@ -128,15 +126,15 @@ sub add_archive {
 sub fetch_tags {
 	my $self = shift;
 
-	my $id = $self->param('id');
-	my $method = $self->param('method');
-	my $urlOverride = $self->param('url');
+	my $id = $self->req->param('id');
+	my $method = $self->req->param('method');
+	my $urlOverride = $self->req->param('url');
 	my $blacklist = $self->LRR_CONF->get_tagblacklist;
 
 	my $tags = &getTags($id,$method,$blacklist, $urlOverride);
 
 	#with or without instasave
-	if ($self->param('instasave'))
+	if ($self->req->param('instasave'))
 		{ &addTags($id,$tags); }
 
 	$self->render(  json => {
