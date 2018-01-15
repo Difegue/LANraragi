@@ -10,7 +10,7 @@ use File::Basename;
 use File::Path qw(remove_tree);
 use Encode;
 use File::Find qw(find);
-use HTML::Entities;
+use URI::Escape;
 
 use LANraragi::Model::Config;
 
@@ -92,7 +92,7 @@ sub build_reader_JSON {
 									#Let's solve this with a quick regex search&replace.
 									#First, we encode all HTML characters...
 									my $imgpath = $_;
-									$imgpath = encode_entities($imgpath);
+									$imgpath = uri_escape($imgpath);
 									
 									#Then we bring the slashes back.
 									$imgpath =~ s!%2F!/!g;
