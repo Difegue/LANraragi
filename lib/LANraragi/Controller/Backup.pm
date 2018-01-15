@@ -12,10 +12,10 @@ sub index {
   	#GET with a parameter => do backup
   	if ($self->req->param('dobackup'))
 	{
-		my $json = &build_backup_JSON();
+		my $json = LANraragi::Model::Backup::build_backup_JSON();
 
 		#Write json to file in the ugc directory and serve that file through render_static
-		my $file = &get_userdir.'backup.json';
+		my $file = $self->LRR_CONF->get_userdir.'/backup.json';
 
 		if (-e $file) 
 			{ unlink $file }
@@ -26,14 +26,14 @@ sub index {
 		print { $OUTFILE } $json;
 		close $OUTFILE;
 
-		$self->reply->static($file);
+		$self->render_file(filepath => $file);
 
 	}
 	else 
 	{   #Get with no parameters => Regular HTML printout
-		$self->render(  template => "templates/backup.tmpl",
-		            	title => &get_htmltitle,
-		            	cssdrop => &generate_themes(0)
+		$self->render(  template => "backup",
+		            	title => $self->LRR_CONF->get_htmltitle,
+		            	cssdrop => LANraragi::Model::Utils::generate_themes(0)
 		            	);
 	}
 }
@@ -45,7 +45,7 @@ sub restore {
 	if ($file->headers->content_type eq "application/json") 
 	{
 		my $json = $file->slurp;
-		&restore_from_JSON($json);
+		LANraragi::Model::Backup::restore_from_JSON($json);
 
 		$self->render(  json => {
 						operation => "restore_backup", 
@@ -61,8 +61,5 @@ sub restore {
 					  });
 	}
 }
-
-
-
 
 1;

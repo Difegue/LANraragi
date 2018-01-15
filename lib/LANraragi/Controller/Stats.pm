@@ -16,7 +16,7 @@ sub index {
 	my %tagcloud;
 
 	#Login to Redis and get all hashes
-	my $redis = &get_redis();
+	my $redis = $self->LRR_CONF->get_redis();
 
 	#64-character long keys only => Archive IDs 
 	my @keys = $redis->keys( '????????????????????????????????????????????????????????????????' ); 
@@ -36,7 +36,7 @@ sub index {
 				foreach my $t (@tags) {
 
 				  #Just in case
-				  &remove_spaces($t);
+				  LANraragi::Model::Utils::remove_spaces($t);
 
 				  #Increment value of tag if it's already in the result hash, create it otherwise
 				  if (exists($tagcloud{$t}))
@@ -63,7 +63,7 @@ sub index {
 	$tagsjson.="]";
 
 	#Get size of archive folder 
-	my $dirname = &get_userdir;
+	my $dirname = $self->LRR_CONF->get_userdir;
 	my $size = 0;
 
 	for my $filename (glob("$dirname/*")) {
@@ -73,9 +73,9 @@ sub index {
 
 	$size = int($size/1073741824*100)/100;
 
-	$self->render(template => "templates/stats.tmpl",
-			        title => &get_htmltitle,
-			        cssdrop => &generate_themes(0),
+	$self->render(template => "stats",
+			        title => $self->LRR_CONF->get_htmltitle,
+			        cssdrop => LANraragi::Model::Utils::generate_themes(0),
 			        tagcloud => $tagsjson,
 			        tagcount => $tagcount,
 			        archivecount => $archivecount,

@@ -3,6 +3,7 @@ package LANraragi::Model::Index;
 use strict;
 use warnings;
 use utf8;
+
 use URI::Escape;
 use Redis;
 use Encode;

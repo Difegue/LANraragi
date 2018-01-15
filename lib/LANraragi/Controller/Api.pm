@@ -58,7 +58,7 @@ sub generate_thumbnail {
 					
 		#While we have the image, grab its SHA-1 hash for potential tag research later. 
 		#That way, no need to repeat the costly extraction later.
-		my $shasum = LANraragi::Model::Utils::shasum($path2);
+		my $shasum = LANraragi::Model::Utils::shasum($arcimg);
 		$redis->hset($id,"thumbhash", encode_utf8($shasum));
 		
 		#Thumbnail generation

@@ -2,18 +2,20 @@ package LANraragi::Model::Backup;
 
 use strict;
 use warnings;
+use utf8;
+
 use Redis;
 use Encode;
-use utf8;
-use JSON::Parse 'parse_json';
+use Mojo::JSON qw(decode_json encode_json);
 
+use LANraragi::Model::Utils;
 use LANraragi::Model::Config;
 
 #build_backup_JSON()
 #Goes through the Redis archive IDs and builds a JSON string containing their metadata.
 sub build_backup_JSON
  {
- 	my $redis = &get_redis();
+ 	my $redis = LANraragi::Model::Config::get_redis;
  	my $json = "[ ";
  	my $id;
 
@@ -57,9 +59,9 @@ sub build_backup_JSON
 sub restore_from_JSON
  {
  	my $archive;
-  	my $redis = &get_redis();
+  	my $redis = LANraragi::Model::Config::get_redis;
 
-  	my $json = parse_json($_[0]);
+  	my $json = decode_json($_[0]);
 
 	foreach $archive (@$json)
 	{
@@ -89,3 +91,5 @@ sub restore_from_JSON
 	$redis->quit();
 
  }
+
+ 1;

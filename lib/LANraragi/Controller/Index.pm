@@ -43,7 +43,7 @@ sub random_archive
 	}
 
 	#We redirect to the reader, with the key as parameter.
-	$self->redirect_to('reader', id => $archive);
+	$self->redirect_to('/reader?id='.$archive);
 
 }
 

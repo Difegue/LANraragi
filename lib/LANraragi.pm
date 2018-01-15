@@ -14,7 +14,9 @@ sub startup {
   $self->secrets($config->{secrets});
 
   # Documentation browser under "/perldoc"
-  $self->plugin('PODRenderer') if $config->{perldoc};
+  #$self->plugin('PODRenderer') if $config->{perldoc};
+
+  $self->plugin('RenderFile');
 
   # Set Template::Toolkit as default renderer so we can use the LRR templates
   $self->plugin('TemplateToolkit');

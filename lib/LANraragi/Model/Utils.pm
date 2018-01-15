@@ -4,13 +4,13 @@ use strict;
 use warnings;
 use utf8;
 
-use LANraragi::Model::Config;
-
 use Digest::SHA qw(sha256_hex);
 use File::Basename;
 use Encode;
 use Redis;
 use Image::Magick;
+
+use LANraragi::Model::Config;
 
 #Print a dropdown list to select CSS, and adds <link> tags for all the style sheets present in the /style folder.
 #Takes a boolean as argument: if true, return the styles and the dropdown. If false, only return the styles.

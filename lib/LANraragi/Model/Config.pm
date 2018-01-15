@@ -3,6 +3,7 @@ package LANraragi::Model::Config;
 use strict;
 use warnings;
 use utf8;
+
 use Switch;
 use Redis;
 use Encode;
@@ -25,11 +26,9 @@ sub get_redisdb { return $config->{redis_database} };
 #Default CSS file to load.
 sub get_style { return $config->{default_theme} };
 
-
 #get_redis
 #Create a redis object with the parameters defined at the start of this file and return it
-sub get_redis
- {
+sub get_redis {
 
  	#Default redis server location is localhost:6379. 
 	#Auto-reconnect on, one attempt every 100ms up to 2 seconds. Die after that.
@@ -42,13 +41,12 @@ sub get_redis
  		{ $redis -> select(&get_redisdb); }
 
  	return $redis;
- }
+}
 
 
 #get_redis_conf(parameter, default)
 #Gets a parameter from the Redis database. If it doesn't exist, we return the default given as a second parameter.
-sub get_redis_conf
- {
+sub get_redis_conf {
 	my $param = $_[0]; 
 	my $default = $_[1];
 
@@ -63,7 +61,7 @@ sub get_redis_conf
 		}
 	
 	return $default; 
- }
+}
 
 #Functions that return the config variables stored in Redis, or default values if they don't exist. Descriptions for each one of these can be found in the web configuration page.
 sub get_htmltitle { return encode('utf-8',&get_redis_conf("htmltitle", "LANraragi")) }; #enforcing unicode to make sure it doesn't fuck up the templates by appearing in some other encoding
@@ -79,8 +77,7 @@ sub get_tagblacklist { return &get_redis_conf("blacklist", "already uploaded, tr
 #Note: CSS files added to the /themes folder will ALWAYS be pickable by the users no matter what.
 #All this sub does is give .css files prettier names in the dropdown. Files without a name here will simply show as their filename to the users.
 #TODO - Keep this as default names for provided CSS and add a /theme page to the app to configure user themes
-sub css_default_names
- {
+sub css_default_names {
 	switch($_[0]){
 		case "g.css" {return "HentaiVerse"}
 		case "modern.css" {return "Hachikuji"}
@@ -90,7 +87,7 @@ sub css_default_names
 		else {return $_[0]}
 	} 
 
- }
+}
 
 #This sub defines which numbered variables from the regex selection are taken as metadata. In order:
 # [release, artist, title, series, language]

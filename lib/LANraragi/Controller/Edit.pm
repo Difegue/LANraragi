@@ -12,10 +12,10 @@ use LANraragi::Model::Config;
 #Deletes the archive with the given id from redis, and the matching archive file.
 sub delete_metadata_and_file
 {
+	my $self = shift;
 
 	my $id = $_[0];
-
-	my $redis = &get_redis();
+	my $redis = $self->LRR_CONF->get_redis();
 
 	my $filename = $redis->hget($id, "file");
 	$filename = decode_utf8($filename);
@@ -48,7 +48,8 @@ sub save_metadata {
 	my $tags = $self->req->param('tags');
 
 	#clean up the user's inputs and encode them.
-	(remove_spaces($_)) for ($event, $artist, $title, $series, $language, $tags);
+	(LANraragi::Model::Utils::remove_spaces($_)) 
+		for ($event, $artist, $title, $series, $language, $tags);
 
 	#Input new values into redis hash.
 	#prepare the hash which'll be inserted.
@@ -60,7 +61,9 @@ sub save_metadata {
 			language => encode_utf8($language),
 			tags => encode_utf8($tags)
 		);
-		
+
+	my $redis = $self->LRR_CONF->get_redis();
+
 	#for all keys of the hash, add them to the redis hash $id with the matching keys.
 	$redis->hset($id, $_, $hash{$_}, sub {}) for keys %hash;
 	$redis->wait_all_responses;
@@ -72,7 +75,6 @@ sub save_metadata {
 					});
 }
 
-#TODO - move to API ?
 sub delete_archive {
 	my $self = shift;
 	my $id = $self->req->param('id');
@@ -92,19 +94,17 @@ sub index {
 	#Does the passed file exist in the database?
 	my $id = $self->req->param('id');
 
+	my $redis = $self->LRR_CONF->get_redis();
+
 	if ($redis->hexists($id,"title")) 
 	{
-		my $redis = Redis->new(server => &get_redisad, 
-				reconnect => 100,
-				every     => 3000);
-				
 		my %hash = $redis->hgetall($id);					
 		my ($name,$event,$artist,$title,$series,$language,$tags,$file,$thumbhash) = @hash{qw(name event artist title series language tags file thumbhash)};
 		($_ = decode_utf8($_)) for ($name, $event, $artist, $title, $series, $language, $tags, $file);
 
 		$redis->quit();
 
-		$self->render(  template => "templates/edit.tmpl",
+		$self->render(  template => "edit",
   				      	id => $id,
 			            name => $name,
 			            event => $event,
@@ -115,8 +115,8 @@ sub index {
 			            tags => $tags,
 			            file => $file,
 			            thumbhash => $thumbhash,
-			            title => &get_htmltitle,
-			            cssdrop => &generate_themes(0)
+			            title => $self->LRR_CONF->get_htmltitle,
+			            cssdrop => LANraragi::Model::Utils::generate_themes(0)
 		  	          );
 	}
 	else 
