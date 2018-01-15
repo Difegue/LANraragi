@@ -65,7 +65,8 @@ sub index {
 		   follow_fast => 1 }, 
 		$dirname);
 			  
-	remove_tree('./temp'); #Remove temp dir.
+	#remove_tree('./temp'); #Remove temp dir.
+	#TODO - Implement auto flushing when temp dir is > certain size - See in Config
 
 	my $archivejson;
 	my $newarchivejson;
