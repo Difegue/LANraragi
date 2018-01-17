@@ -4,7 +4,6 @@ use strict;
 use warnings;
 use utf8;
 
-use Switch;
 use Redis;
 use Encode;
 
@@ -78,13 +77,13 @@ sub get_tagblacklist { return &get_redis_conf("blacklist", "already uploaded, tr
 #All this sub does is give .css files prettier names in the dropdown. Files without a name here will simply show as their filename to the users.
 #TODO - Keep this as default names for provided CSS and add a /theme page to the app to configure user themes
 sub css_default_names {
-	switch($_[0]){
-		case "g.css" {return "HentaiVerse"}
-		case "modern.css" {return "Hachikuji"}
-		case "modern_clear.css" {return "Yotsugi"}
-		case "modern_red.css" {return "Nadeko"}
-		case "ex.css" {return "Sad Panda"}
-		else {return $_[0]}
+	given ($_[0]){
+		when ("g.css") { return "HentaiVerse" }
+		when ("modern.css") { return "Hachikuji" }
+		when ("modern_clear.css") { return "Yotsugi" }
+		when ("modern_red.css") { return "Nadeko" }
+		when ("ex.css") { return "Sad Panda" }
+		default {return $_[0]}
 	} 
 
 }
