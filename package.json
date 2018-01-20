@@ -8,8 +8,8 @@
   "scripts": {
     "test": "perl tests/test_tags.pl",
     "deploy": "npm install && rsync -e ssh --exclude content -av * ",
-    "install-dependencies": "npm install && cpanm --installdeps ./tools/.",
-    "install-lanraragi": "tools/install.js",
+    "lanraragi-installer": "perl ./tools/install.pl",
+    "webpack": "",
     "start": "morbo script/lanraragi"
   },
   "repository": {

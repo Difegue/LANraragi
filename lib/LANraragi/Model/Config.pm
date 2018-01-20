@@ -3,6 +3,7 @@ package LANraragi::Model::Config;
 use strict;
 use warnings;
 use utf8;
+use feature "switch";
 
 use Redis;
 use Encode;
@@ -77,7 +78,7 @@ sub get_tagblacklist { return &get_redis_conf("blacklist", "already uploaded, tr
 #All this sub does is give .css files prettier names in the dropdown. Files without a name here will simply show as their filename to the users.
 #TODO - Keep this as default names for provided CSS and add a /theme page to the app to configure user themes
 sub css_default_names {
-	given ($_[0]){
+	given ($_[0]) {
 		when ("g.css") { return "HentaiVerse" }
 		when ("modern.css") { return "Hachikuji" }
 		when ("modern_clear.css") { return "Yotsugi" }

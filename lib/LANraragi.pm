@@ -1,4 +1,6 @@
 package LANraragi;
+
+use local::lib;
 use Mojo::Base 'Mojolicious';
 
 # This method will run once at server start
@@ -10,6 +12,10 @@ sub startup {
 
   #Helper so controllers can reach the app's Redis DB quickly (they still need to declare use Model::Config)
   $self->helper(LRR_CONF => sub { LANraragi::Model::Config:: });
+
+  #TODO : Check if a Redis server is running on the provided address/port and flash a big warning otherwise
+
+
 
   $self->secrets($config->{secrets});
 
