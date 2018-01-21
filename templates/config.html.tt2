@@ -65,7 +65,7 @@
 				  			<input id="readorder" name="readorder" type="checkbox">
 				  		[% END %]
 	                    <label for="readorder">
-							<i id="readcheckbox" class="fa fa-toggle-off" style="font-size: 20pt; letter-spacing: 5px;"></i>
+							<i id="readcheckbox" class="fa fa-toggle-off" style="font-size: 20pt; letter-spacing: 5px; cursor: pointer;"></i>
 	                    	<br>If enabled, pages will be read right-to-left.
 	                    </label>
 					</td></tr>
@@ -77,7 +77,7 @@
 				  			<input id="enablepass" name="enablepass" type="checkbox">
 				  		[% END %]
 	                    <label for="enablepass">
-	                    	<i id="passcheckbox" class="fa fa-toggle-off" style="font-size: 20pt; letter-spacing: 5px;"></i>
+	                    	<i id="passcheckbox" class="fa fa-toggle-off" style="font-size: 20pt; letter-spacing: 5px; cursor: pointer;"></i>
 	                    	<br>If enabled, everything that isn't reading will require a password.
 	                   	</label>
 					</td></tr>
