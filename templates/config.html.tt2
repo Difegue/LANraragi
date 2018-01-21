@@ -25,18 +25,7 @@
 		<script>set_style_from_storage();</script>
 
 		<style> /*** custom checkboxes ***/
-
 			input[type=checkbox] { display:none; } /* to hide the checkbox itself */
-			input[type=checkbox] + label:before {
-			  font-family:Font Awesome\ 5 Free;
-			  display: inline-block;
-			}
-
-			input[type=checkbox] + label:before { content: "\f204"; font-size: 20pt } /* unchecked icon */
-			input[type=checkbox] + label:before { letter-spacing: 10px; } /* space between checkbox and label */
-
-			input[type=checkbox]:checked + label:before { content: "\f205"; font-size: 20pt } /* checked icon */
-			input[type=checkbox]:checked + label:before { letter-spacing: 5px; } /* allow space for check mark */
 		</style>
 
 
@@ -75,7 +64,10 @@
 				  		[% ELSE %]
 				  			<input id="readorder" name="readorder" type="checkbox">
 				  		[% END %]
-	                    <label for="readorder"><br>If enabled, pages will be read right-to-left.</label>
+	                    <label for="readorder">
+							<i id="readcheckbox" class="fa fa-toggle-off" style="font-size: 20pt; letter-spacing: 5px;"></i>
+	                    	<br>If enabled, pages will be read right-to-left.
+	                    </label>
 					</td></tr>
 
 				  	<tr><td style="text-align:left; width:100px"><h1 class="ih"> Enable Password </h1></td><td>
@@ -84,7 +76,10 @@
 				  		[% ELSE %]
 				  			<input id="enablepass" name="enablepass" type="checkbox">
 				  		[% END %]
-	                    <label for="enablepass"><br>If enabled, everything that isn't reading will require a password.</label>
+	                    <label for="enablepass">
+	                    	<i id="passcheckbox" class="fa fa-toggle-off" style="font-size: 20pt; letter-spacing: 5px;"></i>
+	                    	<br>If enabled, everything that isn't reading will require a password.
+	                   	</label>
 					</td></tr>
 
 					<tr class="passwordfields"><td style="text-align:left; width:100px"><h1 class="ih"> New Password </h1></td><td>
@@ -107,17 +102,28 @@
 
 		$(function() {
 			enable_pass();
+			read_order();
 		  $("#enablepass").click(enable_pass);
+		  $("#readorder").click(read_order);
 		});
 
 		function enable_pass() {
 		  if ($("#enablepass").prop("checked")) {
 		    $(".passwordfields").show();
+		    $("#passcheckbox").prop("class", "fa fa-toggle-on");
 		  } else {
 		    $(".passwordfields").hide();
+		    $("#passcheckbox").prop("class", "fa fa-toggle-off");
 		  }
 		}
 
+		function read_order() {
+		  if ($("#readorder").prop("checked")) {
+		    $("#readcheckbox").prop("class", "fa fa-toggle-on");
+		  } else {
+		    $("#readcheckbox").prop("class", "fa fa-toggle-off");
+		  }
+		}
 	</script>
 
 	</body>

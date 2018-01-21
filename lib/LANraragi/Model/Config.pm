@@ -31,7 +31,7 @@ sub get_style { return $config->{default_theme} };
 sub get_redis {
 
  	#Default redis server location is localhost:6379. 
-	#Auto-reconnect on, one attempt every 100ms up to 2 seconds. Die after that.
+	#Auto-reconnect on, one attempt every 2ms up to 3 seconds. Die after that.
  	my $redis = Redis->new( server => &get_redisad, 
 							reconnect => 3
 						  );

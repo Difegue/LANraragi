@@ -59,7 +59,7 @@
 				<div id="i5">
 					<div class="sb">
 						<a href="./">
-							<i class="fa fa-angle-down fa-4x"></i>
+							<i class="fa fa-angle-down fa-3x"></i>
 						</a>
 					</div>
 				</div>
@@ -143,11 +143,11 @@
 		[% ELSE %]
 		<a onclick="goToPage(0)" style="cursor:pointer;"> 
 		[% END %]
-			<i class="fa fa-angle-double-left fa-2x"></i> 
+			<i class="fa fa-angle-double-left" style="font-size: 1.5em;"></i> 
 		</a>
 
 		<a id="left" onclick="goLeft()" style="cursor:pointer;"> 
-			<i class="fa fa-angle-left fa-2x"></i> 
+			<i class="fa fa-angle-left" style="font-size: 1.5em;"></i> 
 		</a>
 
 		<div class="pagecount">
@@ -155,7 +155,7 @@
 		</div>
 
 		<a id="right" onclick="goRight()" style="cursor:pointer;"> 
-			<i class="fa fa-angle-right fa-2x"></i> 
+			<i class="fa fa-angle-right" style="font-size: 1.5em;"></i> 
 		</a>
 
 		[% IF readorder %]
@@ -163,7 +163,7 @@
 		[% ELSE %]
 		<a onclick="goToPage(pageNumber-1)" style="cursor:pointer;"> 
 		[% END %]
-			<i class="fa fa-angle-double-right fa-2x"></i> 
+			<i class="fa fa-angle-double-right" style="font-size: 1.5em;"></i> 
 		</a>
 	</div>
 [% END %]
