@@ -7,20 +7,22 @@
 
 			<link type="image/png" rel="icon" href="./img/favicon.ico" />
 			<link rel="stylesheet" type="text/css" href="./css/lrr.css" />
-			<link rel="stylesheet" type="text/css" href="./node_modules/font-awesome/css/font-awesome.min.css" />
-			<link rel="stylesheet" type="text/css" href="./node_modules/jquery-toast-plugin/dist/jquery.toast.min.css" />
-
-			<script src="./js/css.js" type="text/JAVASCRIPT"></script>
-			<script src="./node_modules/jquery/dist/jquery.min.js" type="text/JAVASCRIPT"></script>
-			<script src="./node_modules/jquery-toast-plugin/dist/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
 			
+			<link rel="stylesheet" type="text/css" href="./css/vendor/fontawesome-all.min.css" />
+			<link rel="stylesheet" type="text/css" href="./css/vendor/jquery.toast.min.css" />
+
+			<script src="./js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
+			<script src="./js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
+
+			<script src="./js/theme.js" type="text/JAVASCRIPT"></script>
+			<script src="./js/reader.js" type="text/JAVASCRIPT"></script>
+
 		</head>
 
 		<body onload="set_style_from_storage(); initArchivePageOverlay();">
 			
 		[% cssdrop %]
 		<script>set_style_from_storage();</script>
-		<script src="./js/reader.js"></script>
 		
 		<div id="i1" class="sni" style="max-width: 1200px">
 				<h1>[% arcname %]</h1>

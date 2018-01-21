@@ -52,7 +52,7 @@ function initIndex(pagesize,dataSet)
 			  'render': function ( data, type, full, meta ) { 
 			  			if(type == "display"){
 					      return '<div style="font-size:14px"><a href="'+data.url+'" title="Download this archive.">'
-					      		+'<i class="fa fa-save" style="margin-right:2px"></i><a/><a href="./edit?id='+data.arcid+'" title="Edit this archive\'s tags and data."><i class="fa fa-pencil"></i><a/></div>';
+					      		+'<i class="fa fa-save" style="margin-right:2px"></i><a/><a href="./edit?id='+data.arcid+'" title="Edit this archive\'s tags and data."><i class="fa fa-pencil-alt"></i><a/></div>';
 							}
 
 					return data;
@@ -219,7 +219,7 @@ function buildThumbDiv( row, data, index ) {
 								'<i style="margin-right:2px" class="fa fa-save"></i>'+
 							'</a>'+
 							'<a title="Edit this archive\'s tags and data." href="./edit?id='+data.arcid+'">'+
-								'<i class="fa fa-pencil"></i>'+
+								'<i class="fa fa-pencil-alt"></i>'+
 							'</a></span>'+
 							'<div class="id42"><a style="cursor:pointer" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+
 								data.series+'</a></div>'+

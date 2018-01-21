@@ -35,8 +35,6 @@ sub process_upload {
 						  });
 		}
 		else {
-				my $bytes;
-
 				open (OUTFILE, ">", "$output_file") 
 					or die "Couldn't open $output_file for writing: $!";
 

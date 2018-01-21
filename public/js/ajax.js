@@ -1,4 +1,4 @@
-//ajax functions using jquery go here
+//Scripting for API calls
 
 //ajaxThumbnail(ID)
 //Takes the ID, calls ajax.pl to generate/get the image for the thumbnail of the matching archive. 
@@ -204,7 +204,7 @@ function deleteArchive(arcId)
 			    text: 'File name : '+data.success, 
 			    icon: 'success'
 				});
-				setTimeout("location.href = './index.pl';",1500);
+				setTimeout("location.href = './';",1500);
 			}
 			
 		

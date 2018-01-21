@@ -12,9 +12,9 @@ use LANraragi::Model::Config;
 #Deletes the archive with the given id from redis, and the matching archive file.
 sub delete_metadata_and_file
 {
-	my $self = shift;
-
-	my $id = $_[0];
+	my $self = $_[0];
+	my $id = $_[1];
+	
 	my $redis = $self->LRR_CONF->get_redis();
 
 	my $filename = $redis->hget($id, "file");
@@ -79,7 +79,7 @@ sub delete_archive {
 	my $self = shift;
 	my $id = $self->req->param('id');
 
-	my $delStatus = &delete_metadata_and_file($id);
+	my $delStatus = &delete_metadata_and_file($self, $id);
 
 	$self->render(json => {
 					id => $id,

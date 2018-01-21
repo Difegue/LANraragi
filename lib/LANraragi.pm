@@ -3,6 +3,8 @@ package LANraragi;
 use local::lib;
 use Mojo::Base 'Mojolicious';
 
+use LANraragi::Model::Config;
+
 # This method will run once at server start
 sub startup {
   my $self = shift;
@@ -13,20 +15,19 @@ sub startup {
   #Helper so controllers can reach the app's Redis DB quickly (they still need to declare use Model::Config)
   $self->helper(LRR_CONF => sub { LANraragi::Model::Config:: });
 
-  #TODO : Check if a Redis server is running on the provided address/port and flash a big warning otherwise
-
-
+  #Check if a Redis server is running on the provided address/port
+  $self->LRR_CONF->get_redis;
 
   $self->secrets($config->{secrets});
-
-  # Documentation browser under "/perldoc"
-  #$self->plugin('PODRenderer') if $config->{perldoc};
 
   $self->plugin('RenderFile');
 
   # Set Template::Toolkit as default renderer so we can use the LRR templates
   $self->plugin('TemplateToolkit');
   $self->renderer->default_handler('tt2');
+
+  #Remove upload limit
+  $self->max_request_size(0);
 
   # Router
   my $r = $self->routes;

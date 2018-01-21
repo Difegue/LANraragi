@@ -17,6 +17,7 @@ my @vendor_css =("/blueimp-file-upload/css/jquery.fileupload.css",
                  "/jquery-toast-plugin/dist/jquery.toast.min.css");
 
 my @vendor_js = ("/blueimp-file-upload/js/jquery.fileupload.js",
+                 "/blueimp-file-upload/js/vendor/jquery.ui.widget.js",
                  "/datatables/media/js/jquery.dataTables.min.js",
                  "/jb-dropit/dropit.js",
                  "/jqcloud2/dist/jqcloud.min.js",
@@ -81,7 +82,7 @@ say("");
 install_package("IPC::Cmd");
 IPC::Cmd->import( 'can_run' );
 
-say ("\r\n Will now check if all LRR software dependencies are met. \r\n");
+say ("\r\nWill now check if all LRR software dependencies are met. \r\n");
 
 #Check for Redis
 print ("Checking for Redis...");
@@ -128,6 +129,7 @@ if ($front || $full) {
   File::Copy->import("copy");
 
   mkdir getcwd."/public/css/vendor";
+  mkdir getcwd."/public/css/webfonts";
   mkdir getcwd."/public/js/vendor";
 
   for my $css (@vendor_css) {
@@ -139,15 +141,18 @@ if ($front || $full) {
   }
 
   for my $woff (@vendor_woff) {
-    cp_node_module($woff, "/public/css/vendor/");
+    cp_node_module($woff, "/public/css/webfonts/");
   }
   
 }
 
 #Done!
 say ("\r\nAll set! You can start LANraragi by typing the command: ");
-say ("npm start");
-
+say ("------------------------");
+say ("|                      |");
+say ("|      npm start       |");
+say ("|                      |");
+say ("------------------------");
 
 sub cp_node_module {
 

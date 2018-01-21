@@ -32,9 +32,9 @@ sub get_redis {
 
  	#Default redis server location is localhost:6379. 
 	#Auto-reconnect on, one attempt every 100ms up to 2 seconds. Die after that.
- 	my $redis = Redis->new(server => &get_redisad, 
-						reconnect => 100,
-						every     => 3000);
+ 	my $redis = Redis->new( server => &get_redisad, 
+							reconnect => 3
+						  );
 
  	#Database switch if it's not 0
  	if (&get_redisdb != 0)
@@ -66,7 +66,16 @@ sub get_redis_conf {
 #Functions that return the config variables stored in Redis, or default values if they don't exist. Descriptions for each one of these can be found in the web configuration page.
 sub get_htmltitle { return encode('utf-8',&get_redis_conf("htmltitle", "LANraragi")) }; #enforcing unicode to make sure it doesn't fuck up the templates by appearing in some other encoding
 sub get_motd { return encode('utf-8',&get_redis_conf("motd", "Welcome to this Library running LANraragi !")) };
-sub get_userdir  { return &get_redis_conf("dirname", "./content") };
+
+sub get_userdir { #Try to create userdir if it doesn't already exist
+	my $dir = &get_redis_conf("dirname", "./content"); 
+
+	unless (-e $dir) {
+		mkdir $dir;
+	}
+	return $dir; 
+	};
+
 sub get_pagesize { return &get_redis_conf("pagesize", "100") };
 sub get_readorder { return &get_redis_conf("readorder", "0") };
 sub enable_pass { return &get_redis_conf("enablepass", "1") };

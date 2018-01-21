@@ -6,14 +6,16 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
 		<link type="image/png" rel="icon" href="./img/favicon.ico" />
-		<link rel="stylesheet" type="text/css" href="./node_modules/blueimp-file-upload/css/jquery.fileupload.css" />
-		<link rel="stylesheet" type="text/css" href="./node_modules/font-awesome/css/font-awesome.min.css" />
+		
+		<link rel="stylesheet" type="text/css" href="./css/vendor/jquery.fileupload.css" />
+		<link rel="stylesheet" type="text/css" href="./css/vendor/fontawesome-all.min.css" />
+	
+		<script src="./js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
+		<script src="./js/vendor/jquery.ui.widget.js" type="text/JAVASCRIPT"></script>
+		<script src="./js/vendor/jquery.fileupload.js" type="text/JAVASCRIPT"></script>
 
-		<script src="./js/css.js" type="text/JAVASCRIPT"></script>
+		<script src="./js/theme.js" type="text/JAVASCRIPT"></script>
 		<script src="./js/ajax.js" type="text/JAVASCRIPT"></script>
-		<script src="./node_modules/jquery/dist/jquery.min.js" type="text/JAVASCRIPT"></script>
-		<script src="./node_modules/blueimp-file-upload/js/vendor/jquery.ui.widget.js" type="text/JAVASCRIPT"></script>
-		<script src="./node_modules/blueimp-file-upload/js/jquery.fileupload.js" type="text/JAVASCRIPT"></script>
 		
 	</head>
 

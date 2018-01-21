@@ -1,9 +1,5 @@
-/*
-Simple Image Trail script- By JavaScriptKit.com
-Visit http://www.javascriptkit.com for this script and more
-This notice must stay intact
-*/ 
-//although it really shouldn't considering how much I modified this
+//Scripting for image popup
+
 var w=1
 var h=1
 var thumbnail
