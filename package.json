@@ -9,7 +9,8 @@
     "test": "perl tests/test_tags.pl",
     "deploy": "npm install && rsync -e ssh --exclude content -av * ",
     "lanraragi-installer": "perl ./tools/install.pl",
-    "start": "morbo script/lanraragi"
+    "start": "./script/lanraragi daemon",
+    "dev-server": "morbo script/lanraragi"
   },
   "repository": {
     "type": "git",
