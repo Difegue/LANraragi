@@ -3,6 +3,7 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use Redis;
 use Encode;
+use File::Find;
 
 use LANraragi::Model::Utils;
 use LANraragi::Model::Config;
@@ -66,10 +67,12 @@ sub index {
 	my $dirname = $self->LRR_CONF->get_userdir;
 	my $size = 0;
 
-	for my $filename (glob("$dirname/*")) {
-	    next unless -f $filename;
-	    $size += -s _;
-	}
+	find(sub { $size += -s if -f }, $dirname);
+
+	#for my $filename (glob("$dirname/*")) {
+	#    next unless -f $filename;
+	#    $size += -s _;
+	#}
 
 	$size = int($size/1073741824*100)/100;
 

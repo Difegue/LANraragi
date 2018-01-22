@@ -7,6 +7,7 @@ use Cwd;
 
 use local::lib;
 use feature qw(say);
+use File::Path qw(make_path);
 
 #Vendor dependencies
 my @vendor_css =("/blueimp-file-upload/css/jquery.fileupload.css",
@@ -128,9 +129,9 @@ if ($front || $full) {
   install_package("File::Copy");
   File::Copy->import("copy");
 
-  mkdir getcwd."/public/css/vendor";
-  mkdir getcwd."/public/css/webfonts";
-  mkdir getcwd."/public/js/vendor";
+  make_path getcwd."/public/css/vendor";
+  make_path getcwd."/public/css/webfonts";
+  make_path getcwd."/public/js/vendor";
 
   for my $css (@vendor_css) {
     cp_node_module($css, "/public/css/vendor/");

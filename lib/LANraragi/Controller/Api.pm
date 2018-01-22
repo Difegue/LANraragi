@@ -1,13 +1,55 @@
 package LANraragi::Controller::Api;
 use Mojo::Base 'Mojolicious::Controller';
 
-use CGI qw(:standard);
 use Redis; 
 use Encode;
+use File::Find;
+use File::Path qw(remove_tree);
 
 use LANraragi::Model::Utils;
 use LANraragi::Model::Config;
 #use LANraragi::Model::Tagging;
+
+#use RenderFile to get the file of the provided id to the client.
+sub serve_file {
+
+	my $self = shift;
+	my $id = $self->req->param('id');
+	my $redis = $self->LRR_CONF->get_redis();
+
+	my $file = $redis->hget($id,"file");
+	$self->render_file(filepath => $file);
+}
+
+#Remove temp dir.
+sub clean_tempfolder {
+
+	my $self = shift;
+	remove_tree('./public/temp', {error => \my $err}); 
+
+	my $cleanmsg = "";
+  	if (@$err) {
+  		for my $diag (@$err) {
+	      my ($file, $message) = %$diag;
+	      if ($file eq '') {
+	          $cleanmsg = "General error: $message\n";
+	      }
+	      else {
+	          $cleanmsg = "Problem unlinking $file: $message\n";
+	      }
+  		}
+  	}
+
+  	my $size = 0;
+	find(sub { $size += -s if -f }, "./public/temp");
+
+  	$self->render(  json => {
+					operation => "cleantemp", 
+					success => $cleanmsg eq "",
+					error => $cleanmsg,
+					newsize => int($size/1048576*100)/100
+				  });
+}
 
 sub generate_thumbnail {
 	my $self = shift;

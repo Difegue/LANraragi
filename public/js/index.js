@@ -51,7 +51,7 @@ function initIndex(pagesize,dataSet)
 			  'data': null,
 			  'render': function ( data, type, full, meta ) { 
 			  			if(type == "display"){
-					      return '<div style="font-size:14px"><a href="'+data.url+'" title="Download this archive.">'
+					      return '<div style="font-size:14px"><a href="./api/servefile?id='+data.arcid+'" title="Download this archive.">'
 					      		+'<i class="fa fa-save" style="margin-right:2px"></i><a/><a href="./edit?id='+data.arcid+'" title="Edit this archive\'s tags and data."><i class="fa fa-pencil-alt"></i><a/></div>';
 							}
 
@@ -215,7 +215,7 @@ function buildThumbDiv( row, data, index ) {
 						'<div class="id4">'+
 							'<div class="id41"><a style="cursor:pointer" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+
 								data.artist+'</a></div>'+
-							'<span style="font-size:16px"><a title="Download this archive." href="'+data.url+'">'+
+							'<span style="font-size:16px"><a title="Download this archive." href="./api/servefile?id='+data.arcid+'">'+
 								'<i style="margin-right:2px" class="fa fa-save"></i>'+
 							'</a>'+
 							'<a title="Edit this archive\'s tags and data." href="./edit?id='+data.arcid+'">'+

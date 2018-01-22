@@ -76,6 +76,7 @@ sub get_userdir { #Try to create userdir if it doesn't already exist
 	return $dir; 
 	};
 
+sub get_tempmaxsize { return &get_redis_conf("tempmaxsize", "500") };
 sub get_pagesize { return &get_redis_conf("pagesize", "100") };
 sub get_readorder { return &get_redis_conf("readorder", "0") };
 sub enable_pass { return &get_redis_conf("enablepass", "1") };

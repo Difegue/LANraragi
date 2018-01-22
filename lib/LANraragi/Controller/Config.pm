@@ -2,6 +2,7 @@ package LANraragi::Controller::Config;
 use Mojo::Base 'Mojolicious::Controller';
 
 use Encode;
+use File::Find;
 
 use LANraragi::Model::Utils;
 use LANraragi::Model::Config;
@@ -12,6 +13,8 @@ use Authen::Passphrase::BlowfishCrypt;
 sub index {
 
 	my $self = shift;
+	my $size = 0;
+	find(sub { $size += -s if -f }, "./public/temp");
 
 	$self->render(template => "config",
 		            motd => $self->LRR_CONF->get_motd,
@@ -22,7 +25,9 @@ sub index {
 		            password => $self->LRR_CONF->get_password,
 		            blacklist => $self->LRR_CONF->get_tagblacklist,
 		            title => $self->LRR_CONF->get_htmltitle,
-		            cssdrop => LANraragi::Model::Utils::generate_themes(0)
+		            tempmaxsize => $self->LRR_CONF->get_tempmaxsize,
+		            cssdrop => LANraragi::Model::Utils::generate_themes(0),
+		            tempsize => int($size/1048576*100)/100
 			      );
 }
 
@@ -43,6 +48,7 @@ sub save_config {
 		blacklist => scalar $self->req->param('blacklist'),
 		readorder => (scalar $self->req->param('readorder') ? '1' : '0'), #for checkboxes, we check if the parameter exists in the POST to return either 1 or 0.
 		enablepass => (scalar $self->req->param('enablepass') ? '1' : '0'),
+		tempmaxsize => scalar $self->req->param('tempmaxsize')
 	);
 	
 	#only add newpassword field as password if enablepass = 1

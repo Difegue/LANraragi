@@ -34,7 +34,7 @@
 			<tr><td colspan = 2>
 
 				<span class='stdbtn fileinput-button' style="height:50px;">
-					<i class='fa fa-upload fa-2x' style='padding-top:6px'></i><br>
+					<i class='fa fa-upload fa-2x' style='padding-top:6px; padding-bottom: 5px'></i><br>
 					<span>Upload files</span>
 					<input type='file' name='file' multiple id='fileupload'> 
 				</span>

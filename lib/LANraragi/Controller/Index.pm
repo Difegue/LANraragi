@@ -5,7 +5,6 @@ use utf8;
 use URI::Escape;
 use Redis;
 use Encode;
-use File::Path qw(make_path remove_tree);
 use File::Basename;
 use File::Find;
 use Authen::Passphrase;
@@ -64,9 +63,6 @@ sub index {
 		   no_chdir => 1,
 		   follow_fast => 1 }, 
 		$dirname);
-			  
-	#remove_tree('./temp'); #Remove temp dir.
-	#TODO - Implement auto flushing when temp dir is > certain size - See in Config
 
 	my $archivejson;
 	my $newarchivejson;

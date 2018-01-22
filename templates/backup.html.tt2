@@ -35,13 +35,13 @@
 						<tr>
 							<td>
 								<span class="stdbtn" style="height:50px; display:inline-block" onclick='window.open("./backup?dobackup=1", "_blank")'>
-										<i style="padding-top:6px" class="fa fa-download fa-2x"></i><br>
+										<i style="padding-top:6px; padding-bottom: 5px" class="fa fa-download fa-2x"></i><br>
 										<span>Backup Database</span>
 								</span>
 							</td>
 							<td>
 								<span class="stdbtn fileinput-button" style="height:50px; display:inline-block;">
-										<i style="padding-top:6px" class="fa fa-upload fa-2x"></i><br>
+										<i style="padding-top:6px; padding-bottom: 5px" class="fa fa-upload fa-2x"></i><br>
 										<span>Restore Backup</span>
 										<input type="file" id="fileupload" multiple="" name="file"> 
 								</span>
