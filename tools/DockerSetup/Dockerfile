@@ -2,10 +2,10 @@
 FROM        debian:stretch
 MAINTAINER  dfug sugoi@cock.li
 
-#Base LRR dependencies and essentials tools for next commands
+#Base LRR dependencies and essential tools for next commands
 RUN apt-get update
 RUN apt-get upgrade -y
-RUN apt-get install -y curl make git gnupg cpanminus redis unar imagemagick libimage-magick-perl 
+RUN apt-get install -y curl make git gnupg cpanminus redis-server unar imagemagick libimage-magick-perl 
 
 #npm
 RUN curl -sL https://deb.nodesource.com/setup_9.x | bash -
