@@ -5,7 +5,6 @@ use warnings;
 use utf8;
 use Cwd;
 
-use local::lib;
 use feature qw(say);
 use File::Path qw(make_path);
 
@@ -86,13 +85,13 @@ IPC::Cmd->import( 'can_run' );
 say ("\r\nWill now check if all LRR software dependencies are met. \r\n");
 
 #Check for Redis
-print ("Checking for Redis...");
-can_run('redis-server') or die 'NOT FOUND! \r\n Please install a Redis server before proceeding.';
+say ("Checking for Redis...");
+can_run('redis-server') or die 'NOT FOUND! Please install a Redis server before proceeding.';
 say ("OK!");
 
 #Check for unar
-print ("Checking for unar...");
-can_run('unar') or die 'NOT FOUND! \r\n Please install unar before proceeding.';
+say ("Checking for unar...");
+can_run('unar') or die 'NOT FOUND! Please install unar before proceeding.';
 say ("OK!");
 
 #Check for PerlMagick
