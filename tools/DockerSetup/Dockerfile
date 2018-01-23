@@ -1,27 +1,33 @@
 # DOCKER-VERSION 0.3.4
-FROM        debian:jessie
+FROM        debian:stretch
 MAINTAINER  dfug sugoi@cock.li
 
+#Base LRR dependencies and essentials tools for next commands
 RUN apt-get update
 RUN apt-get upgrade -y
-RUN apt-get install -y perl apache2 cpanminus make imagemagick perlmagick unar redis-server npm git
-RUN cpanm CGI Template Redis JSON::Parse CGI::Session File::ShareDir::Install CGI::Session::Driver::redis Image::Info IPC::Cmd LWP::Simple LWP::Protocol::https Digest::SHA URI::Escape Authen::Passphrase Switch
+RUN apt-get install -y curl make git gnupg cpanminus redis unar imagemagick libimage-magick-perl 
 
-RUN ln -s /usr/bin/nodejs /usr/bin/node
+#npm
+RUN curl -sL https://deb.nodesource.com/setup_9.x | bash -
+RUN apt-get install -y nodejs
 
-RUN git clone https://github.com/Difegue/LANraragi.git /var/www/lanraragi
-RUN cd /var/www/lanraragi && npm install
+#Clone latest LRR
+RUN git clone https://github.com/Difegue/LANraragi.git /home/koyomi/lanraragi
+RUN cd /home/koyomi/lanraragi && npm run lanraragi-installer install-full
 
-RUN a2enmod cgi
-RUN chown -R www-data /var/www/lanraragi
-RUN chmod -R 755 /var/www/lanraragi
-RUN rm -r /var/www/lanraragi/.git
-RUN rm -r /var/www/lanraragi/tools
+#Setup content directory so it stores everything: database, thumbnails and (of course) archives 
+#This allows the Docker user to have everything in one volume mounted on /content
+RUN mkdir /home/koyomi/lanraragi/content/thumb
+RUN cd /home/koyomi/lanraragi/public && rm -r thumb 
+RUN ln -s /home/koyomi/lanraragi/content/thumb thumb
 
 RUN apt-get install -y supervisor
 
-EXPOSE 80
-COPY 000-default.conf /etc/apache2/sites-enabled/000-default.conf
+#Default mojo daemon port
+EXPOSE 3000
+
+#Special redis conf to write DB in content directory
+COPY redis.conf /etc/redis/redis.conf
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 CMD ["/usr/bin/supervisord"]
