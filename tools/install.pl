@@ -3,6 +3,7 @@
 use strict;
 use warnings;
 use utf8;
+use open ':std', ':encoding(UTF-8)';
 use Cwd;
 
 use feature qw(say);
@@ -30,34 +31,26 @@ my @vendor_woff=("/fontawesome-web/webfonts/fa-solid-900.woff",
                  "/roboto-fontface/fonts/roboto/Roboto-Regular.woff",
                  "/roboto-fontface/fonts/roboto/Roboto-Bold.woff");
 
-
-say("             . .. .     MMMMMMMM........");
-say("             . .. . MMMMMM. ....MM .....");
-say("......            MMMMM.    . .      .  ");
-say("   .           MMMM         ....   . .. ");
-say(" .....        NMMM.MMM      ...    . .. ");
-say("......     MMMM MM  MMMMMM  ...... .... ");
-say("......   MMMM ...MM.....MMMMM...........");
-say(" .      MMMMM .   ....   MMMM.          ");
-say("   .    MMMMMMMM  ...MMMMMMMM           ");
-say("   .    MMMMMMMMMMMMMMM~..MMM           ");
-say(" . .    MMMMMMMMMMMM.. ...MMM. .        ");
-say("   .    MMMMMMMMMMMM    . MMM.          ");
-say("   ..MMMMMMMMMMMMMMM...MMMMMMMMM   .....");
-say(" MMMMMM,    MMMMMMMMMMMMM .   MMMMMM    ");
-say("MMMM          .MMMMMMM  . .      MMMMM  ");
-say("MMMMMZ       ~MMMMMMMMMZ...     MMMMMM  ");
-say("MMMMMMMMM MMMMMM.MMMMMMMMMM.MMMMMM MMM  ");
-say("MMMMMMMMMMMMD .  MMMMMMMMMMMMMD    MMM  ");
-say("MMMMMMMMMMM  ....MMMMMMMMMMMM. .   MMM  ");
-say("MMMMMMMMMMM   .  MMMMMMMMMMMM      MMM  ");
-say("MMMMMMMMMMM   7MMMMMMMMMMMMMM   7MMMM   ");
-say("  .MMMMMMMMMMMMM8 .. MMMMMMMMMMMMMM.    ");
-say("   .  MMMMMMMM.   ....  MMMMMMMM        ");
-say("   .    .M+   .   .... ... MM           ");
-say("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-say("~~~~~~~~~~~LANraragi Installer~~~~~~~~~~");
-say("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+say("⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⣠⣴⣶⣿⠿⠟⠛⠓⠒⠤");
+say("⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⣠⣾⣿⡟⠋");
+say("⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢰⣿⣿⠋");
+say("⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⣿⣿⠇⡀");
+say("⢀⢀⢀⢀⢀⢀⢀⢀⢀⣀⣤⡆⢿⣿⢀⢿⣷⣦⣄⣀");
+say("⢀⢀⢀⢀⢀⢀⢀⣶⣿⠿⠛⠁⠈⢻⡄⢀⠈⠙⠻⢿⣿⣆");
+say("⢀⢀⢀⢀⢀⢀⢸⣿⣿⣶⣤⣀⢀⢀⢀⢀⢀⣀⣤⣶⣿⣿");
+say("⢀⢀⢀⢀⢀⢀⢸⣿⣿⣿⣿⣿⣿⣶⣤⣶⣿⠿⠛⠉⣿⣿");
+say("⢀⢀⢀⢀⢀⢀⢸⣿⣿⣿⣿⣿⣿⣿⣿⠉⢀⢀⢀⢀⣿⣿");
+say("⢀⢀⢀⢀⣀⣤⣾⣿⣿⣿⣿⣿⣿⣿⣿⢀⢀⢀⣠⣴⣿⣿⣦⣄⡀");
+say("⢀⣤⣶⣿⠿⠟⠉⢀⠉⠛⠿⣿⣿⣿⣿⣴⣾⡿⠿⠋⠁⠈⠙⠻⢿⣷⣦⣄");
+say("⣿⣿⣯⣅⢀⢀⢀⢀⢀⢀⢀⣀⣭⣿⣿⣿⣍⡀⢀⢀⢀⢀⢀⢀⢀⣨⣿⣿⡇");
+say("⣿⣿⣿⣿⣿⣶⣤⣀⣤⣶⣿⡿⠟⢹⣿⣿⣿⣿⣷⣦⣄⣠⣴⣾⡿⠿⠋⣿⡇");
+say("⣿⣿⣿⣿⣿⣿⣿⣿⡟⠋⠁⢀⢀⢸⣿⣿⣿⣿⣿⣿⣿⣿⠛⠉⢀⢀⢀⣿⡇");
+say("⣿⣿⣿⣿⣿⣿⣿⣿⡇⢀⢀⢀⢀⣸⣿⣿⣿⣿⣿⣿⣿⣿⢀⢀⢀⢀⢀⣿⡇");
+say("⠙⢿⣿⣿⣿⣿⣿⣿⡇⢀⣠⣴⣿⡿⠿⣿⣿⣿⣿⣿⣿⣿⢀⣀⣤⣾⣿⠟⠃");
+say("⢀⢀⠈⠙⠿⣿⣿⣿⣷⣿⠿⠛⠁⢀⢀⢀⠉⠻⢿⣿⣿⣿⣾⡿⠟⠉");
+say("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+say("~~~~~LANraragi Installer~~~~~");
+say("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
 unless (@ARGV > 0 ) {
   say ("Execution: npm run lanraragi-installer [mode]");
@@ -147,12 +140,14 @@ if ($front || $full) {
 }
 
 #Done!
-say ("\r\nAll set! You can start LANraragi by typing the command: ");
-say ("------------------------");
-say ("|                      |");
-say ("|      npm start       |");
-say ("|                      |");
-say ("------------------------");
+say ("\r\nAll set! You can start LANraragi by typing the command: \r\n");
+say ("   ╭─────────────────────────────────────╮");
+say ("   │                                     │");
+say ("   │              npm start              │");
+say ("   │                                     │");
+say ("   ╰─────────────────────────────────────╯");
+
+
 
 sub cp_node_module {
 
