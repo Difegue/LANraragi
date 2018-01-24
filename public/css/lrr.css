@@ -1,0 +1,262 @@
+/* Global LANraragi CSS. Don't mess !*/
+
+/*tag hover popups.*/
+td
+{
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#seriesheader {max-width: 150px;}
+#langheader {max-width: 100px;}
+#artistheader {max-width: 150px;}
+#tagsheader {max-width: 150px;}
+td.series {max-width: 150px;}
+td.language {max-width: 100px;}
+td.artist {max-width: 150px;}
+td.tags {max-width: 150px;}
+
+.ttspinner{
+  color:black; 
+  position:relative; 
+  top:-162px; 
+  left:-1px; 
+}
+
+.caption {
+
+   min-width: 0px !important;
+   max-width: 50% !important;
+   white-space: normal !important;
+   padding: 5px !important;
+   margin-top: 0px !important;
+   display: none !important;
+   border-radius: 0px 0px 0px 0px !important;
+   z-index: 2;
+}
+
+.id2 .caption {
+    margin-left: 100px !important;
+    width: 228px !important;
+}
+
+.tags:hover .caption {
+   display: block !important;
+}
+
+/*Archive list Sorting*/
+table thead a {
+padding-right: 14px;
+cursor: pointer;
+cursor: hand;
+}
+
+table thead th a:after {
+border-left: 5px solid rgba(0, 0, 0, 0);
+border-right: 5px solid rgba(0, 0, 0, 0);
+border-top: 5px solid;
+content: "";
+height: 0;
+position: relative;
+right: -5px;
+width: 0;
+top: 10px;
+}
+
+table thead .sorting_asc a:after {
+/*background-image: url(../img/down.png);*/
+border-left: 5px solid rgba(0, 0, 0, 0);
+border-right: 5px solid rgba(0, 0, 0, 0);
+border-top: 5px solid;
+}
+
+table thead .sorting_desc a:after {
+/*background-image: url(../img/up.png);*/
+border-top: none;
+border-bottom: 5px solid;
+border-left: 5px solid rgba(0, 0, 0, 0);
+border-right: 5px solid rgba(0, 0, 0, 0);
+top: -10px;
+}
+
+.paginate_button.previous {
+    display:none;
+}
+
+.paginate_button.next {
+    display:none;
+}
+
+/*Common rules for dropit aka the CSS selector dropdown*/
+
+.dropit {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 150px;
+    margin-left: auto;
+    margin-right: auto;
+    text-decoration: none;
+}
+.dropit .dropit-trigger { position: relative; }
+.dropit .dropit-submenu {
+    position: absolute;
+    top: 100%;
+    left: 0; /* dropdown left or right */
+    z-index: 1000;
+    display: none;
+    min-width: 150px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.dropit .dropit-open .dropit-submenu { display: block; }
+
+.menu div { display: none; } /* Hide before plugin loads */
+
+
+/*Hide elements within the pages on small screens*/
+@media all and (max-device-width: 1000px) {
+    #i2 { display: none; }
+    .page_dropdown {margin-top:50px;}
+    #i1 {padding: 2px;}
+    #seriesheader {max-width: 50px;}
+    #langheader {max-width: 50px;}
+    #artistheader {max-width: 50px;}
+    #tagsheader {max-width: 50px;}
+    td.series {max-width: 50px;}
+    td.language {max-width: 50px;}
+    td.artist {max-width: 50px;}
+    td.tags {max-width: 50px;}
+    .caption {margin-left: -15% !important;}
+    .page-overlay { min-height: 100% !important;}
+    .ie7 .page-overlay { min-height: 100% !important;}
+}
+
+@media all and (max-width: 1000px) {
+    #i2 { display: none; }
+    .page_dropdown {margin-top:50px;}
+    #i1 {padding: 2px;}
+    #seriesheader {max-width: 50px;}
+    #langheader {max-width: 50px;}
+    #artistheader {max-width: 50px;}
+    #tagsheader {max-width: 50px;}
+    td.series {max-width: 50px;}
+    td.language {max-width: 50px;}
+    td.artist {max-width: 50px;}
+    td.tags {max-width: 50px;}
+    .caption {margin-left: -15% !important;}
+    .page-overlay { min-height: 100% !important;}
+    .ie7 .page-overlay { min-height: 100% !important;}
+}
+
+@media all and (max-device-width: 540px) {
+    #i2 { display: none; }
+    .page_dropdown {margin-top:50px;}
+    #i1 {padding: 2px;}
+    #seriesheader {display:none;}
+    #langheader {display:none;}
+    #artistheader {display:none;}
+    #tagsheader {display:none;}
+    td.series {display:none;}
+    td.language {display:none;}
+    td.artist {display:none;}
+    td.tags {display:none;}
+    div.sni h1 {overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
+}
+
+@media all and (max-width: 540px) {
+    #i2 { display: none; }
+    .page_dropdown {margin-top:50px;}
+    #i1 {padding: 2px;}
+    #seriesheader {display:none;}
+    #langheader {display:none;}
+    #artistheader {display:none;}
+    #tagsheader {display:none;}
+    td.series {display:none;}
+    td.language {display:none;}
+    td.artist {display:none;}
+    td.tags {display:none;}
+    div.sni h1 {overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
+}
+
+/*Hourglass animation for new archive treatment page*/
+.fa.fa-hourglass-end.spin {
+  transform: rotate(180deg);
+  transition: all 0.75s 0.25s;
+}
+
+/* Reader overlays. */
+.loading-overlay {
+    display: none;
+}
+
+.loading .loading-overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.25);
+    text-align: center;
+    display: block !important;
+}
+
+.loading .loading-spinner {
+    position: absolute;
+    top: 50%;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    font-size: 15em;
+    margin: -3.9375rem auto 0;
+    text-align: center;
+}
+
+.page-overlay,
+#overlay-shade {
+    display: none;
+}
+
+#overlay-shade {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background-color: #000;
+}
+
+.page-overlay {
+    position: absolute;
+    top: 40px;
+    left: 5%;
+    width: 90% !important;
+    min-height: 70%;
+    z-index: 10000;
+    box-shadow: 0 0 16px #000;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+    overflow-y: scroll;
+} 
+
+.ie7 .page-overlay {
+    height: 50%;
+} 
+
+.page-number {
+    font-size: 20px; 
+    position: absolute; 
+    top: 40%; 
+    left: 30%; 
+    z-index: -1;
+    padding: 5px;
+}
+
+a:hover > .page-number {
+    z-index: 300;
+    background-color: #000000;
+}

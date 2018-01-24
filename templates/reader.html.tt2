@@ -1,0 +1,189 @@
+<html>
+		<head>
+			<title>[% arcname %]</title>
+			
+			<meta name="viewport" content="width=device-width" />
+			<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+			<link type="image/png" rel="icon" href="./img/favicon.ico" />
+			<link rel="stylesheet" type="text/css" href="./css/lrr.css" />
+			
+			<link rel="stylesheet" type="text/css" href="./css/vendor/fontawesome-all.min.css" />
+			<link rel="stylesheet" type="text/css" href="./css/vendor/jquery.toast.min.css" />
+
+			<script src="./js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
+			<script src="./js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
+
+			<script src="./js/theme.js" type="text/JAVASCRIPT"></script>
+			<script src="./js/reader.js" type="text/JAVASCRIPT"></script>
+
+		</head>
+
+		<body onload="set_style_from_storage(); initArchivePageOverlay();">
+			
+		[% cssdrop %]
+		<script>set_style_from_storage();</script>
+		
+		<div id="i1" class="sni" style="max-width: 1200px">
+				<h1>[% arcname %]</h1>
+				
+				<div id="i2">
+					[% INCLUDE pagesel %] 
+					[% INCLUDE arrows %] 
+					[% INCLUDE fileinfo %] 
+				</div>
+				
+				<div id ="i3">
+					<div class="loading-overlay">
+					    <p class="loading-spinner">
+					      <i id="spinner" class="fa fa-cog fa-spin"></i>
+					    </p>
+					</div>
+
+					<a id ="display">
+						<img id="img" onload="updateMetadata()" onerror="location.reload()" style="max-width:100%; height: auto; width: auto; " src="[% imgpath %]" usemap="#Map" />
+						<map name="Map" id="Map">
+						    <area id="leftmap" style="cursor:pointer;" onclick="goLeft()" shape="rect"/>
+						    <area id="rightmap" style="cursor:pointer;" onclick="goRight()" shape="rect"/>
+						</map>
+					</a>
+		
+				</div>
+				
+				<div id = "i4">
+					[% INCLUDE fileinfo %] 
+					[% INCLUDE pagesel %] 
+					[% INCLUDE arrows %] 
+				</div>
+				
+				<div id="i5">
+					<div class="sb">
+						<a href="./">
+							<i class="fa fa-angle-down fa-3x"></i>
+						</a>
+					</div>
+				</div>
+
+				[% IF userlogged %]
+				<div id="i6" class="if">
+					<i class="fa fa-caret-right fa-lg"></i>
+					<a href="./reader?id=[% id %]&force_reload=1">Clean Archive Cache</a>
+					<i class="fa fa-caret-right fa-lg"></i>
+					<a href="./reader?id=[% id %]&reload_thumbnail=1">Regenerate Archive Thumbnail </a>
+				</div>
+				[% END %]
+				
+				<div id="i7" class="if">
+					<i class="fa fa-caret-right fa-lg"></i>
+					<a id="imgLink" style="cursor:pointer;">View full-size image</a>
+				</div>
+				
+			</div>
+
+		<script>
+
+		pages = [% imgpaths %];
+		id = "[%id%]";
+
+		//Go straight to page number in localStorage if it exists
+		currentPage = parseInt(localStorage[id+"-reader"] || 0);
+		pageNumber = pages.pages.length;
+
+		[% IF readorder %]
+
+		function goLeft(){
+			goToPage(currentPage+1);
+		}
+
+		function goRight(){
+			goToPage(currentPage-1);
+		}
+	
+		[% ELSE %]
+
+		function goLeft(){
+			goToPage(currentPage-1);
+		}
+
+		function goRight(){
+			goToPage(currentPage+1);
+		}
+
+		[% END %]
+
+		goToPage(currentPage);
+		
+
+		//image map update on window resize
+		$( window ).resize(function() {
+		  updateImageMap();
+		});
+
+		</script>
+
+		<div id="overlay-shade" onclick="closeOverlay();" ></div>
+		<div id="archivePagesOverlay" class="id1 page-overlay" style="display:none">
+
+		</div>
+
+		</body>
+</html>
+
+
+
+
+
+
+
+[% #compute those blocks before getting to the main html %]
+[% BLOCK arrows %]
+   <div class="sn">
+   		[% IF readorder %]
+		<a onclick="goToPage(pageNumber-1)" style="cursor:pointer;"> 
+		[% ELSE %]
+		<a onclick="goToPage(0)" style="cursor:pointer;"> 
+		[% END %]
+			<i class="fa fa-angle-double-left" style="font-size: 1.5em;"></i> 
+		</a>
+
+		<a id="left" onclick="goLeft()" style="cursor:pointer;"> 
+			<i class="fa fa-angle-left" style="font-size: 1.5em;"></i> 
+		</a>
+
+		<div class="pagecount">
+			<span class="current-page"></span> / <span class="max-page"></span> 
+		</div>
+
+		<a id="right" onclick="goRight()" style="cursor:pointer;"> 
+			<i class="fa fa-angle-right" style="font-size: 1.5em;"></i> 
+		</a>
+
+		[% IF readorder %]
+		<a onclick="goToPage(0)" style="cursor:pointer;"> 
+		[% ELSE %]
+		<a onclick="goToPage(pageNumber-1)" style="cursor:pointer;"> 
+		[% END %]
+			<i class="fa fa-angle-double-right" style="font-size: 1.5em;"></i> 
+		</a>
+	</div>
+[% END %]
+
+[% BLOCK pagesel %]
+	<div style="position: absolute; right: 20px; z-index:20" class="page_dropdown" >
+
+		<a href="#" onclick="openOverlay();">
+			<i class="fa fa-th fa-2x" style="padding-right: 10px;"></i>
+		</a>
+
+		<a href="#" onclick="toastHelpReader()">
+			<i class="fa fa-info-circle fa-2x" style="padding-right: 10px;"></i>
+		</a>	
+
+	</div>
+[% END %]
+
+[% BLOCK fileinfo %]
+	<div class = "file-info">
+		
+	</div>
+[% END %]

@@ -1,0 +1,18 @@
+
+requires 'perl', '5.20.2';
+
+requires 'Redis', 1.991;
+requires 'Encode', 2.94;
+
+requires 'IPC::Cmd', 0.98;
+requires 'Digest::SHA', 6.01;
+requires 'URI::Escape', 1.73;
+requires 'Authen::Passphrase', 0.008;
+
+requires 'Mojolicious', 7.61;
+requires 'Mojolicious::Plugin::TemplateToolkit', 0.002;
+requires 'Mojolicious::Plugin::RenderFile', 0.12;
+
+requires 'LWP::Simple', 6.31;
+requires 'Module::Pluggable', 5.2; 
+

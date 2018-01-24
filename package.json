@@ -1,13 +1,16 @@
 {
   "name": "LANraragi",
-  "version": "0.4.0",
+  "version": "0.4.5",
   "description": "holla where the chinese comics at",
   "directories": {
     "test": "tests"
   },
   "scripts": {
     "test": "perl tests/test_tags.pl",
-    "deploy": "npm install && rsync -e ssh --exclude content -av * "
+    "deploy": "npm install && rsync -e ssh --exclude content -av * ",
+    "lanraragi-installer": "perl ./tools/install.pl",
+    "start": "./script/lanraragi daemon",
+    "dev-server": "morbo script/lanraragi"
   },
   "repository": {
     "type": "git",
@@ -22,7 +25,7 @@
   "dependencies": {
     "blueimp-file-upload": "^9.19.2",
     "datatables": "^1.10.13",
-    "font-awesome": "^4.7.0",
+    "fontawesome-web": "^5.0.2",
     "jb-dropit": "^1.1.1",
     "jqcloud2": "^2.0.3",
     "jquery": "^3.2.1",
