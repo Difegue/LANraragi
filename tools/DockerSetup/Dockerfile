@@ -5,7 +5,7 @@ MAINTAINER  dfug sugoi@cock.li
 #Base LRR dependencies and essential tools for next commands
 RUN apt-get update
 RUN apt-get upgrade -y
-RUN apt-get install -y curl make git gnupg cpanminus redis-server unar imagemagick libimage-magick-perl 
+RUN apt-get install -y curl make git gnupg cpanminus redis-server unar imagemagick libimage-magick-perl build-essential
 
 #npm
 RUN curl -sL https://deb.nodesource.com/setup_9.x | bash -
@@ -17,7 +17,8 @@ RUN cd /home/koyomi/lanraragi && npm run lanraragi-installer install-full
 
 #Setup content directory so it stores everything: database, thumbnails and (of course) archives 
 #This allows the Docker user to have everything in one volume mounted on /content
-RUN mkdir /home/koyomi/lanraragi/content/thumb
+
+RUN mkdir -p /home/koyomi/lanraragi/content/thumb
 RUN cd /home/koyomi/lanraragi/public && rm -r thumb 
 RUN ln -s /home/koyomi/lanraragi/content/thumb thumb
 

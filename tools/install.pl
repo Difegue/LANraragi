@@ -88,7 +88,7 @@ can_run('unar') or die 'NOT FOUND! Please install unar before proceeding.';
 say ("OK!");
 
 #Check for PerlMagick
-print ("Checking for ImageMagick/PerlMagick...");
+say ("Checking for ImageMagick/PerlMagick...");
 
 my $imgk = `perl -MImage::Magick -le 'print Image::Magick->QuantumDepth'`;
 
@@ -106,7 +106,9 @@ else {
 if ($back || $full) {
   say ("\r\nInstalling Perl modules... This might take a while.\r\n");
 
-  system("cpanm --installdeps ./tools/.");
+  if (system("cpanm --installdeps ./tools/.") != 0) {
+    die "Something went wrong while installing Perl modules - Bailing out.";
+  }
 }
 
 #Clientside Dependencies with Provisioning
@@ -114,7 +116,9 @@ if ($front || $full) {
 
   say ("\r\nObtaining remote Web dependencies...\r\n");
 
-  system("npm install");
+  if (system("npm install") !=0) {
+    die "Something went wrong while obtaining node modules - Bailing out.";
+  }
 
   say ("\r\nProvisioning...\r\n");
   #Load File::Copy

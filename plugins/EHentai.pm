@@ -1,4 +1,4 @@
-package LANraragi::Plugin::EH
+package LANraragi::Plugin::EHentai
 
 use strict;
 use warnings;
@@ -8,10 +8,10 @@ sub plugin_info {
 
 	return (
 		#Standard metadata
-	    name  => "red",
-	    author => "orange",
+	    name  => "E-Hentai(Text)",
+	    author => "Difegue",
 	    version  => "1.0",
-	    description => "",
+	    description => "Searches for the archive's title and author on E-Hentai, and returns tags if it finds any.",
 	    #If your plugin uses/needs a custom argument, input its name here. 
 	    #This name will be displayed in plugin configuration next to an input box.
 	    custom_arg_name => ""
@@ -29,6 +29,13 @@ sub get_tags {
 
 
     #Return a hash containing the revised metadata - it will be integrated in LRR.
-    return "";
+    return (
+			title  => "",
+		    artist => "",
+		    series => "",
+		    language => "",
+		    event => "",
+		    tags => ""
+			);
 }
 1;
