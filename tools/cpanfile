@@ -14,5 +14,5 @@ requires 'Mojolicious::Plugin::TemplateToolkit', 0.002;
 requires 'Mojolicious::Plugin::RenderFile', 0.12;
 
 requires 'LWP::Simple', 6.31;
-
+requires 'Module::Pluggable', 5.2; 
 

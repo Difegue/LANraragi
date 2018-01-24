@@ -102,10 +102,9 @@ sub remove_spaces {
 	 chop $_[0];} 
 }
 
-#parse_name(name,id)
+#parse_name(name)
 #parses an archive name with the regex specified in the configuration file(get_regex and select_from_regex subs) to find metadata.
 sub parse_name {
-	my $id = $_[1];
 	
 	#Use the regex on our file, and pipe it to the regexsel sub.
 	$_[0] =~ LANraragi::Model::Config->get_regex || next;
@@ -125,7 +124,7 @@ sub add_archive_to_redis {
 	my ($name,$path,$suffix) = fileparse($file, qr/\.[^.]*/);
 					
 	#parse_name function is up there 
-	my ($event,$artist,$title,$series,$language,$tags) = &parse_name($name.$suffix,$id);
+	my ($event,$artist,$title,$series,$language,$tags) = &parse_name($name.$suffix);
 					
 	#jam this shit in redis
 	#prepare the hash which'll be inserted.
