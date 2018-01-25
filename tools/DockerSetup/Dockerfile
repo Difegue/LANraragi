@@ -5,7 +5,7 @@ MAINTAINER  dfug sugoi@cock.li
 #Base LRR dependencies and essential tools for next commands
 RUN apt-get update
 RUN apt-get upgrade -y
-RUN apt-get install -y curl make gnupg cpanminus redis-server unar imagemagick libimage-magick-perl build-essential
+RUN apt-get install -y curl make gnupg cpanminus redis-server unar imagemagick libimage-magick-perl build-essential supervisor
 
 #npm
 RUN curl -sL https://deb.nodesource.com/setup_9.x | bash -
@@ -23,8 +23,6 @@ RUN cd /home/koyomi/lanraragi && npm run lanraragi-installer install-full
 #This allows the Docker user to have everything in one volume mounted on /content
 #Symlink to content folder is done on container start - see supervisord.conf
 RUN cd /home/koyomi/lanraragi/public && rm -r thumb 
-
-RUN apt-get install -y supervisor
 
 #Default mojo server port
 EXPOSE 3000
