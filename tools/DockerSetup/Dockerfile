@@ -13,20 +13,19 @@ RUN apt-get install -y nodejs
 
 #Copy LRR files from context (better than git!)
 COPY / /home/koyomi/lanraragi/
-RUN cd /home/koyomi/lanraragi && ls && npm run lanraragi-installer install-full
+RUN cd /home/koyomi/lanraragi && npm run lanraragi-installer install-full
 
 #Setup content directory so it stores everything: database, thumbnails and (of course) archives 
 #This allows the Docker user to have everything in one volume mounted on /content
-
-RUN mkdir -p /home/koyomi/lanraragi/content/thumb
+#Symlink to content folder is done on container start - see supervisord.conf
 RUN cd /home/koyomi/lanraragi/public && rm -r thumb 
 
 RUN apt-get install -y supervisor
 
-#Default mojo daemon port
+#Default mojo server port
 EXPOSE 3000
 
-#Special redis conf to write DB in content directory
+#Special redis conf to write DB in content directory and disable daemonization
 COPY ./tools/DockerSetup/redis.conf /home/koyomi/redis.conf
 COPY ./tools/DockerSetup/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
