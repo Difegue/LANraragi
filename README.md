@@ -2,7 +2,7 @@
 
 #### [Documentation/Install Guide](https://github.com/Difegue/LANraragi/wiki) - [Download](https://github.com/Difegue/LANraragi/releases) - [Demo](http://faglord.party/lanraragi)
 
-[<img src="http://dockeri.co/image/difegue/lanraragi">](https://hub.docker.com/r/difegue/lanraragi/)
+[<img src="https://img.shields.io/docker/pulls/difegue/lanraragi.svg">](https://hub.docker.com/r/difegue/lanraragi/)
 
 Web interface and reader for storage of comics/manga on NAS, running on Perl/Redis/unar with a dash of Imagemagick.
 
