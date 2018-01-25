@@ -11,6 +11,10 @@ RUN apt-get install -y curl make gnupg cpanminus redis-server unar imagemagick l
 RUN curl -sL https://deb.nodesource.com/setup_9.x | bash -
 RUN apt-get install -y nodejs
 
+#Copy cpanfile before copying the entire context - allows for Docker cache to preserve cpan dependencies
+COPY /tools/cpanfile /home/koyomi/cpanfile
+RUN cpanm --installdeps /home/koyomi/.
+
 #Copy LRR files from context (better than git!)
 COPY / /home/koyomi/lanraragi/
 RUN cd /home/koyomi/lanraragi && npm run lanraragi-installer install-full
