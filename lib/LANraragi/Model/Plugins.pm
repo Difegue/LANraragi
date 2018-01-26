@@ -5,13 +5,14 @@ use warnings;
 use utf8;
 
 #Plugin system ahoy
-use Module::Pluggable search_path => ['LANraragi::Plugin'];
+use Module::Pluggable require =>1, search_path => ['LANraragi::Plugin'];
+ 
 use Redis;
 use Encode;
-use Mojo::JSON qw(decode_json encode_json);
 
 use LANraragi::Model::Utils;
 use LANraragi::Model::Config;
+
 
 sub exec_enabled_plugins_on_file {
 
@@ -20,10 +21,11 @@ sub exec_enabled_plugins_on_file {
 
 	my $redis = LANraragi::Model::Config::get_redis;
 
-	foreach my $plugin ($self->plugins) {
+	foreach my $plugin ($self::plugins) {
 
 		#Check Redis to see if plugin is enabled and get the custom argument
-        my $name = $plugin->plugin_info(){name};
+		my %pluginfo = $plugin->plugin_info();
+        my $name = $pluginfo{namespace};
         my $namerds = "LRR_PLUGIN_".uc($name);
 
         if ($redis->exists($namerds)) {
@@ -64,7 +66,7 @@ sub exec_plugin_on_file {
 			    tags => $tags
 			);
 
-		my $tags = $plugin->get_tags(%metadata_hash, $file, $arg);
+		my %newmetadata = $plugin->get_tags(%metadata_hash, $file, $arg);
 
 	}
 

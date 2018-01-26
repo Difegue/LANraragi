@@ -1,19 +1,37 @@
 package LANraragi;
 
 use local::lib;
+use open ':std', ':encoding(UTF-8)';
 use Mojo::Base 'Mojolicious';
 
 use LANraragi::Model::Config;
+use LANraragi::Model::Plugins;
+
 
 # This method will run once at server start
 sub startup {
   my $self = shift;
+
+  say "";
+  say "";
+  say "ｷﾀ━━━━━━(ﾟ∀ﾟ)━━━━━━!!!!!";
+  say "LANraragi (re-)started.";
+  say "";
 
   # Load configuration from hash returned by "lrr.conf"
   my $config = $self->plugin('Config', {file => 'lrr.conf'});
 
   #Helper so controllers can reach the app's Redis DB quickly (they still need to declare use Model::Config)
   $self->helper(LRR_CONF => sub { LANraragi::Model::Config:: });
+
+  #Plugin listing
+  my @plugins = LANraragi::Model::Plugins::plugins;
+  foreach my $plugin (@plugins) {
+
+    my %pluginfo = $plugin->plugin_info();
+    my $name = $pluginfo{name};
+    say "Plugin Loaded: ".$name;
+  }
 
   #Check if a Redis server is running on the provided address/port
   $self->LRR_CONF->get_redis;
