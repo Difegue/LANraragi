@@ -89,16 +89,21 @@ say ("OK!");
 
 #Check for PerlMagick
 say ("Checking for ImageMagick/PerlMagick...");
+my $imgk;
 
-my $imgk = `perl -MImage::Magick -le 'print Image::Magick->QuantumDepth'`;
+eval {
+    require Image::Magick;
+    $imgk = Image::Magick->QuantumDepth;
+  };
 
-if ($?) {
+if ($@) {
   say ("NOT FOUND");
   say ("Please install ImageMagick with Perl before proceeding.");
-  say ("The ImageMagick detection command returned: $imgk");
+  say ("The ImageMagick detection command returned: $imgk -- $@");
   die;
 }
 else {
+  say ("Returned QuantumDepth: ".$imgk);
   say ("OK!");
 }
 
