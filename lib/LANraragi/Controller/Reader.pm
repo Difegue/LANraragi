@@ -22,8 +22,10 @@ sub index {
 				{ $self->redirect_to('index'); }
 
 			#Get a computed archive name if the archive exists
-			my $artist = $redis->hget($id,"artist");
-			my $arcname = $redis->hget($id,"title");
+			my $artist = "Unknown";
+			my $arcname = "";
+			$artist = $redis->hget($id,"artist");
+			$arcname = $redis->hget($id,"title");
 
 			unless ($artist =~ /^\s*$/)
 				{$arcname = $arcname." by ".$artist; }
@@ -35,7 +37,22 @@ sub index {
 			my $imgpaths = "";
 
 			#Load a json matching pages to paths
-			$imgpaths = LANraragi::Model::Reader::build_reader_JSON($id,$force,$thumbreload);
+			eval {
+				$imgpaths = LANraragi::Model::Reader::build_reader_JSON($self,$id,$force,$thumbreload);
+			};
+			my $err = $@;
+
+			if ($err) {
+
+				$self->render(template => "error",
+							      title => $self->LRR_CONF->get_htmltitle,
+							      filename => $redis->hget($id,"file"),
+							      errorlog => $err
+					  	         );
+				return;
+			}
+			
+
 
 			my $userlogged = 0;
 

@@ -14,25 +14,6 @@ use URI::Escape;
 
 use LANraragi::Model::Config;
 
-#reader_error_HTML($filename,$log)
-sub reader_error_HTML {
-
-	my $filename = $_[0];
-	my $errorlog = $_[1];
-	
-	print " <body style='background: none repeat scroll 0% 0% brown; color: white; font-family: sans-serif; text-align: center'>
-				<img src='./img/flubbed.gif'/><br/>
-				<h2>I flubbed it while trying to open the archive ".$filename.".</h2>It's likely the archive contains a folder with unicode characters.<br/> 
-				No real way around that for now besides modifying your archive, sorry !<br/>";
-
-
-	print "<h3>Some more info below :</h3> <br/>";
-	print decode_utf8($errorlog);
-
-	print "</body>";
-
- }
-
 #magical sort function used below
 sub expand {
     my $file=shift; 
@@ -40,11 +21,11 @@ sub expand {
     return $file;
 }
 
-#build_reader_JSON(id,forceReload,refreshThumbnail)
+#build_reader_JSON(mojo,id,forceReload,refreshThumbnail)
 #Opens the archive specified by its ID and returns a json matching pages to their 
 sub build_reader_JSON {
 
-	my ($id, $force, $thumbreload) = @_;
+	my ($self,$id, $force, $thumbreload) = @_;
 	my $tempdir = "./public/temp";
 
 	#Redis stuff: Grab archive path and update some things
@@ -78,8 +59,8 @@ sub build_reader_JSON {
 		 	#Has the archive been extracted ? If not, stop here and print an error page.
 			unless (-e $path) {
 				my $errlog = join "<br/>", @$full_buf;
-				&reader_error_HTML($filename,$errlog);
-				exit;
+				printf "ERROR while unpacking archive: $errlog";
+				die $errlog;
 			}
 		}
 		
