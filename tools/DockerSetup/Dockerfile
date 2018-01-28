@@ -19,11 +19,6 @@ RUN cpanm --installdeps /home/koyomi/.
 COPY / /home/koyomi/lanraragi/
 RUN cd /home/koyomi/lanraragi && npm run lanraragi-installer install-full
 
-#Setup content directory so it stores everything: database, thumbnails and (of course) archives 
-#This allows the Docker user to have everything in one volume mounted on /content
-#Symlink to content folder is done on container start - see supervisord.conf
-RUN cd /home/koyomi/lanraragi/public && rm -r thumb 
-
 #Default mojo server port
 EXPOSE 3000
 

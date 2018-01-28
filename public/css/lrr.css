@@ -42,6 +42,10 @@ td.tags {max-width: 150px;}
     width: 228px !important;
 }
 
+.caption-container:hover .caption {
+   display: block !important;
+}
+
 .tags:hover .caption {
    display: block !important;
 }
@@ -116,6 +120,9 @@ top: -10px;
 
 .menu div { display: none; } /* Hide before plugin loads */
 
+p#nb {
+    font-size: 13px;
+}
 
 /*Hide elements within the pages on small screens*/
 @media all and (max-device-width: 1000px) {

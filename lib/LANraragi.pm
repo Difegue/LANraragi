@@ -15,7 +15,7 @@ sub startup {
   say "";
   say "";
   say "ｷﾀ━━━━━━(ﾟ∀ﾟ)━━━━━━!!!!!";
-  say "LANraragi (re-)started.";
+  say "LANraragi started.";
   say "";
 
   # Load configuration from hash returned by "lrr.conf"
@@ -61,7 +61,7 @@ sub startup {
   $r->get('/reader')->to('reader#index');
 
   $r->post('/api/add_archive')->to('api#add_archive');
-  $r->get('/api/thumbnail')->to('api#generate_thumbnail');
+  $r->get('/api/thumbnail')->to('api#serve_thumbnail');
   $r->get('/api/servefile')->to('api#serve_file');
 
   $r->get('/stats')->to('stats#index');

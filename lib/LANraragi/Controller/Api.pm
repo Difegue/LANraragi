@@ -51,17 +51,18 @@ sub clean_tempfolder {
 				  });
 }
 
-sub generate_thumbnail {
+sub serve_thumbnail {
 	my $self = shift;
 
 	my $id = $self->req->param('id');
 	my $dirname = $self->LRR_CONF->get_userdir;
 
-	#This thumbnail name is given to the client at the end, so we omit the /public/ directory.
-	my $thumbname = "./thumb/".$id.".jpg";
+	#Thumbnails are stored in the content directory, thumb subfolder.
+	my $thumbname = $dirname."/thumb/".$id.".jpg";
 		
-	unless (-e "./public/".$thumbname) #But we have to re-add it here since we're doing server-side IO
+	unless (-e $thumbname) 
 	{
+		mkdir $dirname."/thumb";
 		my $redis = $self->LRR_CONF->get_redis();
 								
 		my $file = $redis->hget($id,"file");
@@ -104,7 +105,7 @@ sub generate_thumbnail {
 		$redis->hset($id,"thumbhash", encode_utf8($shasum));
 		
 		#Thumbnail generation
-		LANraragi::Model::Utils::generate_thumbnail($arcimg,"./public/".$thumbname);
+		LANraragi::Model::Utils::generate_thumbnail($arcimg,$thumbname);
 			
 		$redis.close();
 
@@ -112,15 +113,11 @@ sub generate_thumbnail {
 		unlink $arcimg;
 	}
 
-	$self->render(  json => {
-					id => $id,
-					operation => "thumbnail", 
-					thumbnail => $thumbname
-				  });
+	#Simply serve the thumbnail.
+	$self->render_file(filepath => $thumbname);
 
 }
 
-#TODO - Fix clientside js to use new json syntax
 sub add_archive {
 	my $self = shift;
 
@@ -164,7 +161,10 @@ sub add_archive {
 
 }
 
-#TODO - Fix clientside js to use new json syntax instead of plaintext
+
+
+#Buncha dead code below
+##########################
 sub fetch_tags {
 	my $self = shift;
 

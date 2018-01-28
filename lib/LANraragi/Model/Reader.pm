@@ -30,6 +30,7 @@ sub build_reader_JSON {
 
 	#Redis stuff: Grab archive path and update some things
 	my $redis = LANraragi::Model::Config::get_redis();
+	my $dirname = LANraragi::Model::Config::get_userdir();
 	
 	#We opened this id in the reader, so we can't mark it as "new" anymore.
 	$redis->hset($id,"isnew","none");
@@ -88,10 +89,11 @@ sub build_reader_JSON {
     @images = sort { &expand($a) cmp &expand($b) } @images;
 	
 	#Convert page 1 into a thumbnail for the main reader index if it's not been done already(Or if it fucked up for some reason).
-	my $thumbname = "./public/thumb/".$id.".jpg";
+	my $thumbname = $dirname."/thumb/".$id.".jpg";
 
 	unless (-e $thumbname && $thumbreload eq "0")
 	{
+		mkdir $dirname."/thumb";
 		my $path = $images[0];
 		my $shasum = LANraragi::Model::Utils::shasum($path);
 		$redis->hset($id,"thumbhash", encode_utf8($shasum));

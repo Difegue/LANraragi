@@ -1,60 +1,11 @@
 //Scripting for API calls
 
-//ajaxThumbnail(ID)
-//Takes the ID, calls ajax.pl to generate/get the image for the thumbnail of the matching archive. 
-//Uses functions from thumb.js.
-//If it fails, returns 0.
-function ajaxThumbnail(archiveId)
-{
-
-	showSpinner();
-
-	$.get( "api/thumbnail", { id: archiveId } )
-		.done(function( data ) {
-			if (data=="") //shit workaround for occasional empty ajax returns
-				ajaxThumbnail(archiveId);
-			else
-				showtrail(data.thumbnail);
-			return data;
-		})
-		.fail(function() {
-			showtrail(undefined);
-			return 0;
-		});
-
-}
-
-//ajaxThumbnailThumbView(ID, repeat)
-//Works similarly to ajaxThumbnail, but for Thumbnail View.
-//Doesn't bother with the spinner and/or trail and just sets the image in the <img> DOM element with the ID_thumb id.
-function ajaxThumbnailThumbView(archiveId, repeatOnFailure)
-{
-	$.get( "api/thumbnail", { id: archiveId } )
-			.done(function(data) {
-
-				if (data==="") {
-						$('#'+archiveId+'_thumb').attr('src',"./img/noThumb.png"); //set to nothumb :(
-						$('#'+archiveId+'_thumb + i').remove(); //remove the spinner icon
-					}
-				else {
-					$('#'+archiveId+'_thumb').attr('src',data.thumbnail); //set image div source to the ajax result
-					$('#'+archiveId+'_thumb + i').remove(); //remove the spinner icon
-				}
-			})
-			.fail(function() {
-				$('#'+archiveId+'_thumb').attr('src',"./img/noThumb.png"); //set to nothumb :(
-				$('#'+archiveId+'_thumb + i').remove(); //remove the spinner icon
-			});
-
-}
-
 //cleanTempFldr
 function cleanTempFldr()
 {
-
 	$.get("api/cleantemp")
 		.done(function( data ) {
-			if (data.success) //shit workaround for occasional empty ajax returns
+			if (data.success) 
 				$.toast({
 					showHideTransition: 'slide',
 					position: 'top-left', 
@@ -305,7 +256,7 @@ function ajaxTags(arcId,method)
 					});
 
 					//fire a wild get to the fastest way to regenerate an archive, the reader with reload_thumbnail=1.
-					$.get("./reader.pl?id="+arcId+"&reload_thumbnail=1");
+					$.get("./reader?id="+arcId+"&reload_thumbnail=1");
 
 			}
 			

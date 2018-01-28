@@ -109,12 +109,6 @@ sub build_archive_JSON()
 		else
 			{ $printedtags = $tags;}
 		
-
-		my $thumbname = $dirname."thumb/".$id.".jpg";
-
-		unless (-e $thumbname)
-			{ $thumbname = "null"; } #force ajax thumbnail if the image doesn't already exist
-
 		if ($title =~ /^\s*$/) #Workaround if title was incorrectly parsed as blank
 			{ $title = "<i class='fa fa-exclamation-circle'></i> Untitled archive, please edit metadata.";}
 
@@ -122,7 +116,6 @@ sub build_archive_JSON()
 			{
 				"arcid": "$id",
 				"url": "$urlencoded",
-				"thumbnail": "$thumbname",
 				"artist": "$artist",
 				"title": "$title",
 				"series": "$series",

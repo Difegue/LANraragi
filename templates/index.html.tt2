@@ -18,7 +18,7 @@
 
 			<script src="./js/ajax.js" type="text/JAVASCRIPT"></script>
 			<script src="./js/index.js" type="text/JAVASCRIPT"></script>
-			<script src="./js/imagetrail.js" type="text/JAVASCRIPT"></script>
+			<script src="./js/index_datatables.js" type="text/JAVASCRIPT"></script>
 			<script src="./js/theme.js" type="text/JAVASCRIPT"></script>
 			
 		</head>
@@ -49,9 +49,6 @@
 			//Set the correct CSS from the user's localStorage.
 			set_style_from_storage();
 
-			//Init thumbnail hover
-			showtrail('img/noThumb.png');
-
 			[% IF usingdefpass %]
 
 			//If the json has the "default password" flag, flash a friendly notification inviting the user to change his password
@@ -72,27 +69,7 @@
 			    $('.itg').hide();
 			  }
 
-			//Check the github API to see if an update was released. If so, flash another friendly notification inviting the user to check it out
-			
-			var githubAPI = "https://api.github.com/repos/difegue/lanraragi/releases/latest";
-			var currentVersion = "[% version %]" ;
-			var latestVersion;
-
-			$.getJSON( githubAPI).done(function( data ) {
-					latestVersion = data.tag_name;
-					//update nag is disabled if the current version contains the DEV string 
-					if (latestVersion != currentVersion && currentVersion.indexOf("DEV") == -1) {
-
-						$.toast({
-						heading: 'A new version of LANraragi ('+ latestVersion +') is available !',
-					    text: '<a href="'+data.html_url+'">Hit it !</a> It\'s probably good. 👌',
-					    hideAfter: false,
-					    position: 'top-left', 
-					    icon: 'info'
-						});
-
-					}
-			});
+			checkVersion("[% version %]");
 
 		</script>
 

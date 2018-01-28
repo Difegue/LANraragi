@@ -57,6 +57,21 @@ sub generate_themes {
     				</span>
 				</div>';
 
+	#Append JS to enable dropdown w.dropit (JS generation on the Perl side is heresy but this is bound to change soon)
+	$CSSsel = $CSSsel." <script>
+				\$('.menu').dropit({
+					action: 'click', // The open action for the trigger
+					submenuEl: 'div', // The submenu element
+					triggerEl: 'a', // The trigger element
+					triggerParentEl: 'span', // The trigger parent element
+					afterLoad: function(){}, // Triggers when plugin has loaded
+					beforeShow: function(){}, // Triggers before submenu is shown
+					afterShow: function(){}, // Triggers after submenu is shown
+					beforeHide: function(){}, // Triggers before submenu is hidden
+					afterHide: function(){} // Triggers before submenu is hidden
+				}); 
+			</script>";
+
 	if ($_[0])
 	{return $html.$CSSsel;}
 	else
