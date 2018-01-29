@@ -27,6 +27,9 @@ sub get_redisdb { return $config->{redis_database} };
 #Default CSS file to load.
 sub get_style { return $config->{default_theme} };
 
+#Interval between executions of the Shinobu Background Worker.
+sub get_interval { return $config->{shinobu_interval} };
+
 #get_redis
 #Create a redis object with the parameters defined at the start of this file and return it
 sub get_redis {

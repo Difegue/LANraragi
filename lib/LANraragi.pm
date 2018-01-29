@@ -4,6 +4,8 @@ use local::lib;
 use open ':std', ':encoding(UTF-8)';
 use Mojo::Base 'Mojolicious';
 
+use Mojo::IOLoop::ProcBackground;
+
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
 
@@ -39,6 +41,18 @@ sub startup {
   $self->secrets($config->{secrets});
 
   $self->plugin('RenderFile');
+
+  #Start Background worker
+  my $proc = $self->stash->{shinobu} = Mojo::IOLoop::ProcBackground->new;
+
+  # When the process terminates, we get this event
+  $proc->on(dead => sub {
+      my ($proc) = @_;
+      my $pid = $proc->proc->pid;
+      say ("Shinobu Background Worker terminated. (PID was $pid)");
+  });
+
+  $proc->run([$^X, "./lib/Shinobu.pm"]);
 
   # Set Template::Toolkit as default renderer so we can use the LRR templates
   $self->plugin('TemplateToolkit');
