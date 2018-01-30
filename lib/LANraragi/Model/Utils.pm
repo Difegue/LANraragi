@@ -171,7 +171,7 @@ sub build_archive_JSON {
 		my %hash = $redis->hgetall($id);
 		my ($path, $suffix);
 
-		#It's not a new archive, though. But it might have never been clicked on yet, so we'll grab the value for $isnew stored in redis.
+		#It's not a new archive, but it might have never been clicked on yet, so we'll grab the value for $isnew stored in redis.
 		my ($name,$event,$artist,$title,$series,$language,$tags,$filecheck,$isnew) = @hash{qw(name event artist title series language tags file isnew)};
 
 		#Parameters have been obtained, let's decode them.

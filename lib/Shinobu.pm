@@ -55,11 +55,11 @@ sub workload {
 	   follow_fast => 1 }, 
 	$dirname);
 	
-	say ("Building JSON cache from Redis...");
-	&build_json_cache(@filez);
-
 	say ("Checking for new archives...");
 	&new_archive_check(@filez);
+
+	say ("Building JSON cache from Redis...");
+	&build_json_cache(@filez);
 
 	say ("Checking Temp Folder Size...");
 	&autoclean_temp_folder;
@@ -105,6 +105,7 @@ sub new_archive_check {
 
 		#Trigger archive addition if title isn't in Redis
 		unless ($redis->hexists($id,"title")) {
+				say ("Adding new file $file");
 				LANraragi::Model::Utils::add_archive_to_redis($id,$file,$redis);
 
 				#TODO: AutoTagging using enabled plugins goes here!
@@ -113,29 +114,30 @@ sub new_archive_check {
 }
 
 sub autoclean_temp_folder {
+
 	my $size = 0;
-		find(sub { $size += -s if -f }, "$FindBin::Bin/../public/temp");
-		$size = int($size/1048576*100)/100;
+	find(sub { $size += -s if -f }, "$FindBin::Bin/../public/temp");
+	$size = int($size/1048576*100)/100;
 
-		my $maxsize = LANraragi::Model::Config::get_tempmaxsize;
-		say ("Current size is $size MBs, Maximum size is $maxsize MBs.");
+	my $maxsize = LANraragi::Model::Config::get_tempmaxsize;
+	say ("Current size is $size MBs, Maximum size is $maxsize MBs.");
 
-		if ($size > $maxsize) {
-			say ("Cleaning.");
-			remove_tree('$FindBin::Bin/../public/temp', {error => \my $err}); 
+	if ($size > $maxsize) {
+		say ("Cleaning.");
+		remove_tree('$FindBin::Bin/../public/temp', {error => \my $err}); 
 
-			if (@$err) {
-		  		for my $diag (@$err) {
-			      my ($file, $message) = %$diag;
-			      if ($file eq '') {
-			          say "General error: $message\n";
-			      }
-			      else {
-			          say "Problem unlinking $file: $message\n";
-			      }
-	  			}
-	  		}
-		}
+		if (@$err) {
+	  		for my $diag (@$err) {
+		      my ($file, $message) = %$diag;
+		      if ($file eq '') {
+		          say "General error: $message\n";
+		      }
+		      else {
+		          say "Problem unlinking $file: $message\n";
+		      }
+  			}
+  		}
+	}
 }
 
 __PACKAGE__->initialize_from_new_process unless caller;
