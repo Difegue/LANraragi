@@ -7,6 +7,7 @@ use utf8;
 use Digest::SHA qw(sha256_hex);
 use File::Basename;
 use Encode;
+use URI::Escape;
 use Redis;
 use Image::Magick;
 
@@ -161,5 +162,64 @@ sub add_archive_to_redis {
 
 	return ($name,$event,$artist,$title,$series,$language,$tags,"block");
 }
+
+#build_archive_JSON(id, file, redis, userdir)
+#Builds a JSON object for an archive already registered in the Redis database and returns it.
+sub build_archive_JSON {
+		my ($id, $file, $redis, $dirname) = @_;
+
+		my %hash = $redis->hgetall($id);
+		my ($path, $suffix);
+
+		#It's not a new archive, though. But it might have never been clicked on yet, so we'll grab the value for $isnew stored in redis.
+		my ($name,$event,$artist,$title,$series,$language,$tags,$filecheck,$isnew) = @hash{qw(name event artist title series language tags file isnew)};
+
+		#Parameters have been obtained, let's decode them.
+		( eval { $_ = decode_utf8($_) } ) for ($name, $event, $artist, $title, $series, $language, $tags, $filecheck);
+
+		#Update the real file path and title if they differ from the saved one just in case the file got manually renamed or some weird shit
+		unless ($file eq $filecheck)
+		{
+			($name,$path,$suffix) = fileparse($file, qr/\.[^.]*/);
+			$redis->hset($id, "file", encode_utf8($file));
+			$redis->hset($id, "name", encode_utf8($name));
+			$redis->wait_all_responses;
+		}	
+
+		#Grab the suffix to put it in the url for downloads
+		$suffix = (fileparse($file, qr/\.[^.]*/))[2];
+
+		#Once we have the data, we can build our json object.
+		my $urlencoded = $dirname."/".uri_escape($name).$suffix; 	
+				
+		#Tag display. Simple list separated by hyphens which expands into a caption div with nicely separated tags on hover.
+		my $printedtags = "";
+
+		unless ($event eq "") 
+			{ $printedtags = $event.", ".$tags; }
+		else
+			{ $printedtags = $tags;}
+		
+		if ($title =~ /^\s*$/) #Workaround if title was incorrectly parsed as blank
+			{ $title = "<i class='fa fa-exclamation-circle'></i> Untitled archive, please edit metadata.";}
+
+		my $finaljson = qq(
+			{
+				"arcid": "$id",
+				"url": "$urlencoded",
+				"artist": "$artist",
+				"title": "$title",
+				"series": "$series",
+				"language": "$language",
+				"tags": "$tags",
+				"isnew": "$isnew"
+			},
+		);
+
+		#Try to UTF8-decode the JSON again, in case it has mangled characters. 
+		eval { $finaljson = decode_utf8($finaljson) };
+
+		return $finaljson;
+ }
 
  1;

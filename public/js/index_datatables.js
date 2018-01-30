@@ -18,7 +18,7 @@ function initIndex(pagesize,dataSet)
 		'dom': '<"top"ip>rt<"bottom"p><"clear">',
 		'language': {
 				'info':           'Showing _START_ to _END_ of _TOTAL_ ancient chinese lithographies.',
-				'infoEmpty':      '<h1>No archives to show you ! Try <a href="upload">uploading some</a> ?</h1>',
+				'infoEmpty':      '<h1>No archives to show you ! Try <a href="upload">uploading some</a> ?</h1><br/>(If you dropped files into the content folder, please wait for the cache to build.)',
 			},
 		'preDrawCallback': thumbViewInit, //callbacks for thumbnail view
 		'rowCallback': buildThumbDiv,

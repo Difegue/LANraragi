@@ -96,8 +96,7 @@
 						 <br>This folder contains recently opened archives, for faster subsequent reading.
 					</td></tr>
 					
-					<!-- Coming soon! -->
-				  	<tr style="display:none"><td style="text-align:left; width:100px"><h1 class="ih"> Maximum Temp Size </h1></td><td>
+				  	<tr><td style="text-align:left; width:100px"><h1 class="ih"> Maximum Temp Size </h1></td><td>
 						<input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% tempmaxsize %]" name="tempmaxsize" type="text"> 
 						 <br>In MBs. The temp folder is automatically emptied when it grows past the size specified here.
 					</td></tr>

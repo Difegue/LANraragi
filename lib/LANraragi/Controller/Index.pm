@@ -11,7 +11,6 @@ use Authen::Passphrase;
 
 use LANraragi::Model::Utils;
 use LANraragi::Model::Config;
-use LANraragi::Model::Index;
 
 #sub LRR_CONF { LANraragi::Model::Config:: }
 
@@ -52,31 +51,13 @@ sub index {
 	my $self = shift;
 
   	my $version = $self->config->{version};
-  	my $dirname = $self->LRR_CONF->get_userdir;
+	my $redis = $self->LRR_CONF->get_redis();
 
-	#Get all files in content directory and subdirectories.
-	my @filez;
-	find({ wanted => sub { 
-							if ($_ =~ /^*.+\.(zip|rar|7z|tar|tar.gz|lzma|xz|cbz|cbr)$/ )
-								{push @filez, $_ }
-						 },
-		   no_chdir => 1,
-		   follow_fast => 1 }, 
-		$dirname);
+	my $archivejson = "[]";
 
-	my $archivejson;
-	my $newarchivejson;
-
-	#From the file tree, generate the archive JSONs
-	if (@filez)
-	{ 
-		my $redis = $self->LRR_CONF->get_redis;
-		($archivejson, $newarchivejson) = LANraragi::Model::Index::build_table_JSON(@filez); 
-	}
-	else
-	{ 
-		$archivejson = "[]";
-		$newarchivejson = "[]";
+	#Get cached JSON from Redis
+	if ($redis->exists("LRR_JSONCACHE")) {
+		$archivejson = decode_utf8($redis->get("LRR_JSONCACHE"));
 	}
 
 	#Checking if the user still has the default password enabled
@@ -90,8 +71,6 @@ sub index {
 		            motd => $self->LRR_CONF->get_motd,
 		            cssdrop => LANraragi::Model::Utils::generate_themes(1),
 		            archiveJSON => $archivejson,
-		            newarchiveJSON => $newarchivejson,
-		            nonewarchives => ($newarchivejson eq "[]"),
 		            usingdefpass => $passcheck,
 		            version => $version
 		        );

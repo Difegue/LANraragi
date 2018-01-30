@@ -23,13 +23,7 @@
 			
 		</head>
 
-
-		[% IF nonewarchives %]
-			[% INCLUDE LRRStockUI %] 
-		[% ELSE %]
-			[% INCLUDE newArchiveUI %] 
-		[% END %]
-
+		[% INCLUDE LRRStockUI %] 
 
 		<p class="ip">
 			Fellas, we gotta stop hoarding all those korean comics.<br>
@@ -44,7 +38,6 @@
 
 			//load archive JSON before anything else
 			archiveJSON = [% archiveJSON %];
-			newArchiveJSON = [% newarchiveJSON %];
 
 			//Set the correct CSS from the user's localStorage.
 			set_style_from_storage();
@@ -76,40 +69,6 @@
 	</body>
 </html>
 
-
-
-[% #one block is used for new archive splashscreen UI, the other is the regular LANraragi UI. %]
-[% BLOCK newArchiveUI %]
-   
-   <body onload ="initNewArchiveRequests(newArchiveJSON);">
-
-   	<span style="display:none">[% cssdrop %]</span>
-
-   	<style>
-		
-	</style>
-
-   	<div class='ido'>
-				<div id='toppane'>
-				<h2 class='ih'>[% title %] - Parsing newly added archives</h2> 
-				<h1 class='ih'>Please wait warmly.</h1>
-
-					<div class='idi'>
-
-						<div style="font-size:20px">
-					    	<i id="icon"  class="fa fa-4x fa-hourglass-start"></i>
-						</div>
-					    <br/>
-
-					    <h2 id="status">Parsed archives / Total new archives : </h2>
-					    <h2 id="counter"> </h2>
-
-
-					</div>
-				</div>
-	</div>		
-
-[% END %]
 
 [% BLOCK LRRStockUI %]
    
