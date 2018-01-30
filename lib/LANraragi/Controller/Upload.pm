@@ -23,7 +23,6 @@ sub process_upload {
 	if(exists($acceptedTypes{$uploadMime})) {
 		
 		my $filename = $file->filename;
-		eval { $filename = decode_utf8($filename) };
 
 		my $output_file = $self->LRR_CONF->get_userdir.'/'.$filename; #open up a file on our side
 				
@@ -31,7 +30,7 @@ sub process_upload {
 			#if it doesn't already exist, that is.
 			$self->render(  json => {
 							operation => "upload", 
-							name => $filename,
+							name => $file->filename,
 							type => $uploadMime,
 							success => 0,
 							error => "A file bearing this name already exists in the Library."
@@ -49,14 +48,13 @@ sub process_upload {
 				#Parse for metadata right now and get the database ID
 				my $redis = $self->LRR_CONF->get_redis();
 
-				#my $utf8_file = Encode::encode_utf8($output_file);
-				my $id = LANraragi::Model::Utils::sha256_hex($output_file);
+				my $id = LANraragi::Model::Utils::shasum($output_file,256);
 
 				LANraragi::Model::Utils::add_archive_to_redis($id,$output_file,$redis);
 
 				$self->render(  json => {
 								operation => "upload", 
-								name => $filename->filename,
+								name => $file->filename,
 								type => $uploadMime,
 								success => 1,
 								id => $id
@@ -67,7 +65,7 @@ sub process_upload {
 
 		$self->render(  json => {
 							operation => "upload", 
-							name => $filename->filename,
+							name => $file->filename,
 							type => $uploadMime,
 							success => 0,
 							error => "Unsupported Filetype. (".$uploadMime.")"

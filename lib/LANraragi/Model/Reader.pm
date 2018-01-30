@@ -37,7 +37,7 @@ sub build_reader_JSON {
 
 	#Get the path from Redis.
 	my $zipfile = $redis->hget($id,"file");
-	$zipfile = decode_utf8($zipfile);
+	$zipfile = LANraragi::Model::Utils::redis_decode($zipfile);
 
 	#Get data from the path 
 	my ($name,$fpath,$suffix) = fileparse($zipfile, qr/\.[^.]*/);
@@ -60,6 +60,7 @@ sub build_reader_JSON {
 		 	#Has the archive been extracted ? If not, stop here and print an error page.
 			unless (-e $path) {
 				my $errlog = join "<br/>", @$full_buf;
+				$errlog = decode_utf8($errlog);
 				printf "ERROR while unpacking archive: $errlog";
 				die $errlog;
 			}
@@ -95,7 +96,7 @@ sub build_reader_JSON {
 	{
 		mkdir $dirname."/thumb";
 		my $path = $images[0];
-		my $shasum = LANraragi::Model::Utils::shasum($path);
+		my $shasum = LANraragi::Model::Utils::shasum($path,1);
 		$redis->hset($id,"thumbhash", encode_utf8($shasum));
 
 		LANraragi::Model::Utils::generate_thumbnail($path,$thumbname);

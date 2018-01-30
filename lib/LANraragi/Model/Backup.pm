@@ -29,7 +29,7 @@ sub build_backup_JSON
 		my %hash = $redis->hgetall($id);
 
 		my ($event,$artist,$title,$series,$language,$tags) = @hash{qw(event artist title series language tags)};
-		($_ = decode_utf8($_)) for ($event, $artist, $title, $series, $language, $tags);
+		($_ = LANraragi::Model::Utils::redis_decode($_)) for ($event, $artist, $title, $series, $language, $tags);
 
 		$json.=qq(
 				{

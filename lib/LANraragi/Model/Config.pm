@@ -5,6 +5,7 @@ use warnings;
 use utf8;
 use feature "switch";
 no warnings 'experimental';
+use Cwd 'abs_path';
 
 use Redis;
 use Encode;
@@ -58,7 +59,7 @@ sub get_redis_conf {
 
 	if ($redis->hexists("LRR_CONFIG",$param)) 
 		{ 
-			my $value = decode_utf8($redis->hget("LRR_CONFIG",$param));
+			my $value = LANraragi::Model::Utils::redis_decode($redis->hget("LRR_CONFIG",$param));
 
 			unless ($value =~ /^\s*$/ ) #failsafe against blank config values
 				{ return $value; }
@@ -77,7 +78,9 @@ sub get_userdir { #Try to create userdir if it doesn't already exist
 	unless (-e $dir) {
 		mkdir $dir;
 	}
-	return $dir; 
+
+	#Return full path if it's relative, using the /lanraragi directory as a base
+	return abs_path($dir); 
 	};
 
 sub get_tempmaxsize { return &get_redis_conf("tempmaxsize", "500") };

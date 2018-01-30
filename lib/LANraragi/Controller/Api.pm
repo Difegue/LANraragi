@@ -66,15 +66,15 @@ sub serve_thumbnail {
 		my $redis = $self->LRR_CONF->get_redis();
 								
 		my $file = $redis->hget($id,"file");
-		$file = decode_utf8($file);
+		$file = LANraragi::Model::Utils::redis_decode($file);
 		
 		my $path = "./public/temp/thumb";	
 		#delete everything in thumb temp to prevent file mismatch errors.
 		unlink glob $path."/*.*";
 
 		#Get lsar's output, jam it in an array, and use it as @extracted.
+		print $file;
 		my $vals = `lsar "$file"`; 
-		#print $vals;
 		my @lsarout = split /\n/, $vals;
 		my @extracted; 
 					
@@ -101,7 +101,7 @@ sub serve_thumbnail {
 					
 		#While we have the image, grab its SHA-1 hash for potential tag research later. 
 		#That way, no need to repeat the costly extraction later.
-		my $shasum = LANraragi::Model::Utils::shasum($arcimg);
+		my $shasum = LANraragi::Model::Utils::shasum($arcimg,1);
 		$redis->hset($id,"thumbhash", encode_utf8($shasum));
 		
 		#Thumbnail generation
@@ -140,7 +140,7 @@ sub add_archive {
  	if (index($file,$userdir) == 0)
  	{ 
  		#utf8 decode the filename
- 		eval { $file = decode_utf8($file) };
+ 		LANraragi::Model::Utils::redis_decode($file);
 
  		#Archive adding is in the Utils package
  		LANraragi::Model::Utils::add_archive_to_redis($id,$file,$redis);

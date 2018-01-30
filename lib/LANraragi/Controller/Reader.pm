@@ -22,15 +22,16 @@ sub index {
 				{ $self->redirect_to('index'); }
 
 			#Get a computed archive name if the archive exists
-			my $artist = "Unknown";
 			my $arcname = "";
-			$artist = $redis->hget($id,"artist");
+			my $tags = $redis->hget($id,"tags");
 			$arcname = $redis->hget($id,"title");
 
-			unless ($artist =~ /^\s*$/)
-				{$arcname = $arcname." by ".$artist; }
+			if ($tags =~ /artist:/) {
+				$tags =~ /.*artist:([^,]*),.*/ ;
+				$arcname = $arcname." by ".$1; 
+			}
 				
-			$arcname = decode_utf8($arcname);
+			$arcname = LANraragi::Model::Utils::redis_decode($arcname);
 		
 			my $force = $self->req->param('force_reload');
 			my $thumbreload = $self->req->param('reload_thumbnail');

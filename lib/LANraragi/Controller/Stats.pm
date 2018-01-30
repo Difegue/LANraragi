@@ -29,7 +29,7 @@ sub index {
 		if ($redis->hexists($id,"tags")) 
 			{
 				$t = $redis->hget($id,"tags");
-				$t = decode_utf8($t);
+				$t = LANraragi::Model::Utils::redis_decode($t);
 				
 				#Split tags by comma
 				@tags = split(/,\s?/, $t);

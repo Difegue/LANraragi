@@ -13,6 +13,7 @@ use strict;
 use warnings;
 use utf8;
 use feature qw(say);
+use Cwd;
 
 use FindBin;
 BEGIN { unshift @INC, "$FindBin::Bin/../lib"; } #As this is a new process, reloading the LRR libs into INC is needed.
@@ -30,6 +31,7 @@ sub initialize_from_new_process {
 	my $interval = LANraragi::Model::Config::get_interval;
 
 	say ("Shinobu Background Worker started -- Running every $interval seconds.");
+	say ("Working dir is ".cwd);
 
 	while (1) {
 	
@@ -77,7 +79,7 @@ sub build_json_cache {
 
 	foreach $file (@dircontents) {
 		#ID of the archive, used for storing data in Redis.
-		$id = LANraragi::Model::Utils::sha256_hex($file);
+		$id = LANraragi::Model::Utils::shasum($file,256);
 
 		#Craft JSON if archive is in Redis
 		if ($redis->hexists($id,"title")) {
@@ -101,11 +103,12 @@ sub new_archive_check {
 
 	foreach $file (@dircontents) {
 		#ID of the archive, used for storing data in Redis.
-		$id = LANraragi::Model::Utils::sha256_hex($file);
+		$id = LANraragi::Model::Utils::shasum($file,256);
 
 		#Trigger archive addition if title isn't in Redis
 		unless ($redis->hexists($id,"title")) {
 				say ("Adding new file $file");
+				say ("ID is $id");
 				LANraragi::Model::Utils::add_archive_to_redis($id,$file,$redis);
 
 				#TODO: AutoTagging using enabled plugins goes here!

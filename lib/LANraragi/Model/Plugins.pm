@@ -32,7 +32,7 @@ sub exec_enabled_plugins_on_file {
 
         	my %plugincfg = $redis->hgetall($namerds);
         	my ($enabled, $arg) = @plugincfg{qw(enabled arg)};
-			($_ = decode_utf8($_)) for ($enabled, $arg);
+			($_ = LANraragi::Model::Utils::redis_decode($_)) for ($enabled, $arg);
 
 			if ($enabled) {
 				&exec_plugin_on_file($plugin, $id, $arg);
@@ -55,7 +55,7 @@ sub exec_plugin_on_file {
 
 		my %hash = $redis->hgetall($id);					
 		my ($name,$event,$artist,$title,$series,$language,$tags,$file,$thumbhash) = @hash{qw(name event artist title series language tags file thumbhash)};
-		($_ = decode_utf8($_)) for ($name, $event, $artist, $title, $series, $language, $tags, $file);
+		($_ = LANraragi::Model::Utils::redis_decode($_)) for ($name, $event, $artist, $title, $series, $language, $tags, $file);
 
 		my %metadata_hash = (
 				title  => $title,

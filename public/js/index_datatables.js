@@ -163,7 +163,7 @@ function buildThumbDiv( row, data, index ) {
 						'<div class="id4">'+
 							'<div class="id41"><a style="cursor:pointer" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+
 								data.artist+'</a></div>'+
-							'<span style="font-size:16px"><a title="Download this archive." href="./api/servefile?id='+data.arcid+'">'+
+							'<span style="font-size:14px"><a title="Download this archive." href="./api/servefile?id='+data.arcid+'">'+
 								'<i style="margin-right:2px" class="fa fa-save"></i>'+
 							'</a>'+
 							'<a title="Edit this archive\'s tags and data." href="./edit?id='+data.arcid+'">'+

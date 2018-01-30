@@ -92,23 +92,25 @@ sub generate_thumbnail {
     $img->Write($thumb_path);
 }
 
-#This function gives us a SHA-1 hash for the passed file, which is used as an id for some files. 
+#This function gives us a SHA hash for the passed file, which is used for thumbnail reverse search on E-H. 
+#First argument is the file, second is the algorithm to use. (1, 224, 256, 384, 512, 512224, or 512256)
 sub shasum {
+
 	my $digest = "";
-	eval{
-	  open(FILE, $_[0]) or die "Can't find file $_[0]\n";
-	  my $ctx = Digest::SHA->new;
-   	$ctx->addfile(*FILE);
-   	$digest = $ctx->hexdigest;
-	  close(FILE);
+	eval {
+		my $ctx = Digest::SHA->new($_[1]);
+	   	$ctx->addfile($_[0]);
+	   	$digest = $ctx->hexdigest;
 	};
+
 	if($@){
 	  print $@;
 	  return "";
 	}
+
 	return $digest;
 }
-	
+
 #Remove spaces before and after a word 
 sub remove_spaces {
 	 until (substr($_[0],0,1)ne" "){
@@ -116,6 +118,18 @@ sub remove_spaces {
 
 	 until (substr($_[0],-1)ne" "){
 	 chop $_[0];} 
+}
+
+#Final Solution to the Unicode glitches -- Eval'd double-decode for data obtained from Redis.
+#This should be a one size fits-all function.
+sub redis_decode {
+
+	my $data = $_[0];
+
+	eval { $data = decode_utf8($data) };
+	eval { $data = decode_utf8($data) };
+
+	return $data;
 }
 
 #parse_name(name)
@@ -128,8 +142,28 @@ sub parse_name {
 	#select_from_regex picks the variables from the regex selection that will be used. 
 	my ($event,$artist,$title,$series,$language) = LANraragi::Model::Config->select_from_regex;
 	my $tags = "";
+
+	unless ($event eq "") { 
+		unless ($tags eq "") { $tags.=", "; } 
+		$tags .= "event:$event"; 
+	}
+
+	unless ($artist eq "") { 
+		unless ($tags eq "") { $tags.=", "; } 
+		$tags .= "artist:$artist "; 
+	}
+
+	unless ($series eq "") { 
+		unless ($tags eq "") { $tags.=", "; } 
+		$tags .= "parody:$series "; 
+	}
+
+	unless ($language eq "") { 
+		unless ($tags eq "") { $tags.=", "; } 
+		$tags .= "language:$language "; 
+	}
 		
-	return ($event,$artist,$title,$series,$language,$tags);
+	return ($title,$tags);
 }
 
 #add_archive_to_redis($id,$file,$redis)
@@ -140,27 +174,18 @@ sub add_archive_to_redis {
 	my ($name,$path,$suffix) = fileparse($file, qr/\.[^.]*/);
 					
 	#parse_name function is up there 
-	my ($event,$artist,$title,$series,$language,$tags) = &parse_name($name.$suffix);
+	my ($title,$tags) = &parse_name($name.$suffix);
 					
 	#jam this shit in redis
-	#prepare the hash which'll be inserted.
-	my %hash = (
-		name => encode_utf8($name),
-		event => encode_utf8($event),
-		artist => encode_utf8($artist),
-		title => encode_utf8($title),
-		series => encode_utf8($series),
-		language => encode_utf8($language),
-		tags => encode_utf8($tags),
-		file => encode_utf8($file),
-		isnew => encode_utf8("block"), #New file in collection, so this flag is set.
-		);
-						
-	#for all keys of the hash, add them to the redis hash $id with the matching keys.
-	$redis->hset($id, $_, $hash{$_}, sub {}) for keys %hash; 
+	$redis->hset($id, "name", encode_utf8($name));
+	$redis->hset($id, "title", encode_utf8($title));
+	$redis->hset($id, "tags", encode_utf8($tags));
+	$redis->hset($id, "file", encode_utf8($file));
+	$redis->hset($id, "isnew", "block"); #New file in collection, so this flag is set.
+
 	$redis->wait_all_responses;
 
-	return ($name,$event,$artist,$title,$series,$language,$tags,"block");
+	return ($name,$title,$tags,"block");
 }
 
 #build_archive_JSON(id, file, redis, userdir)
@@ -172,10 +197,10 @@ sub build_archive_JSON {
 		my ($path, $suffix);
 
 		#It's not a new archive, but it might have never been clicked on yet, so we'll grab the value for $isnew stored in redis.
-		my ($name,$event,$artist,$title,$series,$language,$tags,$filecheck,$isnew) = @hash{qw(name event artist title series language tags file isnew)};
+		my ($name,$title,$tags,$filecheck,$isnew) = @hash{qw(name title tags file isnew)};
 
 		#Parameters have been obtained, let's decode them.
-		( eval { $_ = decode_utf8($_) } ) for ($name, $event, $artist, $title, $series, $language, $tags, $filecheck);
+		( eval { $_ = LANraragi::Model::Utils::redis_decode($_) } ) for ($name, $title, $tags, $filecheck);
 
 		#Update the real file path and title if they differ from the saved one just in case the file got manually renamed or some weird shit
 		unless ($file eq $filecheck)
@@ -185,20 +210,10 @@ sub build_archive_JSON {
 			$redis->hset($id, "name", encode_utf8($name));
 			$redis->wait_all_responses;
 		}	
-
-		#Grab the suffix to put it in the url for downloads
-		$suffix = (fileparse($file, qr/\.[^.]*/))[2];
-
-		#Once we have the data, we can build our json object.
-		my $urlencoded = $dirname."/".uri_escape($name).$suffix; 	
 				
 		#Tag display. Simple list separated by hyphens which expands into a caption div with nicely separated tags on hover.
+		#TODO: Create a JS-side display separating tags by namespaces...
 		my $printedtags = "";
-
-		unless ($event eq "") 
-			{ $printedtags = $event.", ".$tags; }
-		else
-			{ $printedtags = $tags;}
 		
 		if ($title =~ /^\s*$/) #Workaround if title was incorrectly parsed as blank
 			{ $title = "<i class='fa fa-exclamation-circle'></i> Untitled archive, please edit metadata.";}
@@ -206,18 +221,11 @@ sub build_archive_JSON {
 		my $finaljson = qq(
 			{
 				"arcid": "$id",
-				"url": "$urlencoded",
-				"artist": "$artist",
 				"title": "$title",
-				"series": "$series",
-				"language": "$language",
 				"tags": "$tags",
 				"isnew": "$isnew"
 			},
 		);
-
-		#Try to UTF8-decode the JSON again, in case it has mangled characters. 
-		eval { $finaljson = decode_utf8($finaljson) };
 
 		return $finaljson;
  }

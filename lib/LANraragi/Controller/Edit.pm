@@ -18,7 +18,7 @@ sub delete_metadata_and_file
 	my $redis = $self->LRR_CONF->get_redis();
 
 	my $filename = $redis->hget($id, "file");
-	$filename = decode_utf8($filename);
+	$filename = LANraragi::Model::Utils::redis_decode($filename);
 
 	#print $filepath;
 	$redis->del($id);
@@ -96,11 +96,12 @@ sub index {
 
 	my $redis = $self->LRR_CONF->get_redis();
 
+	#TODO: Fix this to use new syntax w.namespaces
 	if ($redis->hexists($id,"title")) 
 	{
 		my %hash = $redis->hgetall($id);					
 		my ($name,$event,$artist,$title,$series,$language,$tags,$file,$thumbhash) = @hash{qw(name event artist title series language tags file thumbhash)};
-		($_ = decode_utf8($_)) for ($name, $event, $artist, $title, $series, $language, $tags, $file);
+		($_ = LANraragi::Model::Utils::redis_decode($_)) for ($name, $event, $artist, $title, $series, $language, $tags, $file);
 
 		$redis->quit();
 

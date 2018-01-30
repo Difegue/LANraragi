@@ -33,7 +33,7 @@ sub random_archive
 		if (length($archive)==64 && $redis->type($archive) eq "hash" && $redis->hexists($archive,"file"))
 		{
 			my $arclocation = $redis->hget($archive,"file");
-			$arclocation = decode_utf8($arclocation);
+			$arclocation = LANraragi::Model::Utils::redis_decode($arclocation);
 
 			if (-e $arclocation)
 				{ $archiveexists = 1; }
