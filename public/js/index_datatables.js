@@ -94,7 +94,7 @@ function actionColumnDisplay(data,type,full,meta) {
 	if(type == "display"){
 	      return '<div style="font-size:16px">'
 	      		+'<a href="./api/servefile?id='+data.arcid+'" title="Download this archive."><i class="fa fa-save" style="margin-right:2px"></i><a/>'
-	      		+'<a href="./edit?id='+data.arcid+'" title="Edit this archive\'s tags and data."><i class="fa fa-pencil-alt"></i><a/></div>';
+	      		+'<a href="./edit?id='+data.arcid+'" title="Edit this archive\'s tags and data."><i class="fa fa-edit"></i><a/></div>';
 			}
 
 	return data;
@@ -104,7 +104,7 @@ function titleColumnDisplay(data,type,full,meta) {
 	if(type == "display"){
 
     return '<span style="display: none;">'+data.title+'</span><a class="caption-container" href="./reader?id='+data.arcid+'">'
-    	 + '<div class="caption" style="position:absolute;"><img src="./api/thumbnail?id='+data.arcid+'"></div>'
+    	 + '<div class="caption" style="position:absolute;"><img src="./api/thumbnail?id='+data.arcid+'" onerror="this.src=\'./img/noThumb.png\'"></div>'
     	 + data.title+'</a><img src="img/n.gif" style="float: right; margin-top: -15px; z-index: -1; display: '+data.isnew+'">';
 	}
 
@@ -156,7 +156,7 @@ function buildThumbDiv( row, data, index ) {
 
 		thumb_div += 		'<img style="position:relative;" id ="'+data.arcid+'_thumb" title="'+data.title+'" src="./img/wait_warmly.jpg"/>'+
 							 '<i id="'+data.arcid+'_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>'+
-							 '<img style="position:absolute; top:0; left:0; width:200px" src="./api/thumbnail?id='+data.arcid+'"/>';
+							 '<img style="position:absolute; top:0; left:0; width:200px" src="./api/thumbnail?id='+data.arcid+'" onerror="this.src=\'./img/noThumb.png\'"/>';
 
 		thumb_div +=		'</a>'+
 						'</div>'+

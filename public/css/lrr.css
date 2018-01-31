@@ -223,11 +223,11 @@ p#nb {
 }
 
 .page-overlay,
-#overlay-shade {
+#overlay-shade, #theme-overlay-shade {
     display: none;
 }
 
-#overlay-shade {
+#overlay-shade, #theme-overlay-shade {
     position: fixed;
     left: 0;
     top: 0;

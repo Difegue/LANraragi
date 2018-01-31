@@ -74,7 +74,6 @@ sub startup {
 
   $r->get('/reader')->to('reader#index');
 
-  $r->post('/api/add_archive')->to('api#add_archive');
   $r->get('/api/thumbnail')->to('api#serve_thumbnail');
   $r->get('/api/servefile')->to('api#serve_file');
 
@@ -100,6 +99,7 @@ sub startup {
 
   $logged_in->post('/api/tags')->to('api#fetch_tags');
   $logged_in->get('/api/cleantemp')->to('api#clean_tempfolder');
+  $logged_in->post('/api/refresh_index')->to('api#rebuild_json_cache');
 
   $r->get('/logout')->to('login#logout');
 

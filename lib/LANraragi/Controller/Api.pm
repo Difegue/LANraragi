@@ -118,47 +118,15 @@ sub serve_thumbnail {
 
 }
 
-sub add_archive {
+sub rebuild_json_cache {
+
 	my $self = shift;
+ 	LANraragi::Model::Utils::refresh_json_cache();
 
-	my $id = $self->req->param('id');
-	my $file = $self->req->param('arc_path');
- 	my $redis = $self->LRR_CONF->get_redis();
-
- 	if ($redis->hexists($id,"title"))
- 	{ 
-		$self->render(  json => {
-						operation => "add_archive",
-						status => 0, 
-						error => "ID already exists."
-					  });
-	}
-
-	my $userdir = $self->LRR_CONF->get_userdir;
-
- 	#check if the file is in the content directory first
- 	if (index($file,$userdir) == 0)
- 	{ 
- 		#utf8 decode the filename
- 		LANraragi::Model::Utils::redis_decode($file);
-
- 		#Archive adding is in the Utils package
- 		LANraragi::Model::Utils::add_archive_to_redis($id,$file,$redis);
-
- 		$self->render(  json => {
- 						operation => "add_archive",
-						status => 1
-					  });
- 	}
- 	else
- 	{
- 		$self->render(  json => {
- 						operation => "add_archive",
-						status => 0,
-						error => "File $file not in the configured content directory $userdir."
-					  });
- 	}
-
+ 	$self->render(  json => {
+					operation => "refresh_cache",
+					status => 1,
+				  });
 }
 
 

@@ -79,6 +79,11 @@
 	        progressall: function (e, data) {
 		        var progress = parseInt(data.loaded / data.total * 100, 10);
 		        $('#progress .bar').css('width', progress + '%');
+
+		        if (data.loaded === data.total) {
+		        	//Ask the API to refresh now that all files have been uploaded
+		        	$.get("./api/refresh_index");
+		        }
 		    }
 
 	    });

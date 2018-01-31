@@ -46,31 +46,12 @@
 					<input id='title' class='stdinput' type='text' style='width:100%' maxlength='255' size='20' value="[% arctitle %]" name='title'>
 			  	</td></tr>
 
-			  	<tr><td style='text-align:left; width:100px'>Artist:</td><td>
-			  		<input class='stdinput' type='text' style='width:100%' maxlength='255' size='20' value="[% artist %]" name='artist'>
-				</td></tr>
-
-				<tr><td style='text-align:left; width:100px'>Series:</td><td>
-					<input class='stdinput' type='text' style='width:100%' maxlength='255' size='20' value="[% series %]" name='series'>
-				</td></tr>
-
-				<tr><td style='text-align:left; width:100px'>Language:</td><td>
-					<input class='stdinput' type='text' style='width:100%' maxlength='255' size='20' value="[% language %]" name='language'>
-				</td></tr>
-
-				<tr><td style='text-align:left; width:100px'>Released at:</td><td>
-					<input class='stdinput' type='text' style='width:100%' maxlength='255' size='20' value="[% event %]" name='event'>
-				</td></tr>
-
 				<tr><td style='text-align:left; width:100px; vertical-align:top'>Tags <span style="font-size:6pt">(separated by hyphens, i.e : tag1, tag2)</span> :
-					<input type='button' name='tag_import' value='Import EHentai&#x00A; Tags&#x00A;(Text Search)' onclick="saveArchiveCallback(ajaxTags,'[% id %]',0);" 
-					class='stdbtn' style='margin-top:25px; min-width:90px; height:60px'></input>
 
-					<input type='button' name='tag_import' value='Import EHentai&#x00A; Tags&#x00A;(Image Search)' onclick="saveArchiveCallback(ajaxTags,'[% id %]',1);" 
-					class='stdbtn' style='margin-top:25px; min-width:90px; height:60px'></input> 
-				
-					<input type='button' name='tag_import' value='Import nHentai&#x00A; Tags' onclick="saveArchiveCallback(ajaxTags,'[% id %]',2);" 
-					class='stdbtn' style='margin-top:25px; min-width:90px; height:60px; margin-bottom: 5px'></input>
+					<input type='button' name='tag_import' value='Metadata&#x00A;Help' onclick="toastHelpEdit();" 
+					class='stdbtn' style='margin-top:25px; min-width:90px; height:50px'></input>
+					<input type='button' name='tag_import' value='Import&#x00A;Metadata' onclick="openPluginPopup();" 
+					class='stdbtn' style='margin-top:25px; min-width:90px; height:50px'></input>
 
 					<i class='fa fa-2x fa-exclamation-circle'></i> Importing Tags will save any modifications to archive metadata you might have made !
 				</td>

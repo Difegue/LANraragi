@@ -39,9 +39,6 @@
 			//load archive JSON before anything else
 			archiveJSON = [% archiveJSON %];
 
-			//Set the correct CSS from the user's localStorage.
-			set_style_from_storage();
-
 			[% IF usingdefpass %]
 
 			//If the json has the "default password" flag, flash a friendly notification inviting the user to change his password
@@ -113,7 +110,7 @@
 
 				<p id='cssbutton' style='display:inline'>
 					<input class='stdbtn' type='button' onclick="var win=window.open('random','_blank'); win.focus();" value='Give me a random archive'/>
-					[% cssdrop %]
+					[% INCLUDE themesdropdown %]
 					<input id='viewbtn' class='stdbtn' type='button' onclick="switch_index_view()" value='Switch to Thumbnail View'/>
 				</p>
 

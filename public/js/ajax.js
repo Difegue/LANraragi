@@ -201,6 +201,9 @@ function deleteArchive(arcId)
 
 }
 
+
+
+
 //ajaxTags(titleOrHash,method)
 //Calls API to get tags for the given title or image hash.
 //Returns "ERROR" on failure.
