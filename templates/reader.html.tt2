@@ -21,7 +21,10 @@
 
 		<body onload="set_style_from_storage(); initArchivePageOverlay();">
 			
-		[% cssdrop %]
+		<p id="nb">
+				[% INCLUDE themesdropdown %]
+		</p>
+
 		<script>set_style_from_storage();</script>
 		
 		<div id="i1" class="sni" style="max-width: 1200px">

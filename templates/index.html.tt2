@@ -87,7 +87,7 @@
 				<span style="margin-left:5px"></span>
 				<i class="fa fa-caret-right"></i>
 				<a href="./stats">Statistics</a>
-
+				[% INCLUDE themesdropdown %]
 			</p>
 		[% ELSE %]
 			<p id="nb">
@@ -96,6 +96,7 @@
 				<span style="margin-left:5px"></span>
 				<i class="fa fa-caret-right"></i>
 				<a href="./stats">Statistics</a>
+				[% INCLUDE themesdropdown %]
 			</p>
 		[% END %]
 		
@@ -110,7 +111,6 @@
 
 				<p id='cssbutton' style='display:inline'>
 					<input class='stdbtn' type='button' onclick="var win=window.open('random','_blank'); win.focus();" value='Give me a random archive'/>
-					[% INCLUDE themesdropdown %]
 					<input id='viewbtn' class='stdbtn' type='button' onclick="switch_index_view()" value='Switch to Thumbnail View'/>
 				</p>
 
