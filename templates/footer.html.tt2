@@ -1,0 +1,69 @@
+<!-- LRR Standard Footer -->
+
+<p class="ip">
+	Fellas, we gotta stop hoarding all those korean comics.<br>
+
+	<a href="https://github.com/Difegue/LANraragi"> LANraragi [% version %] </a> 
+	- <a onclick="openThemeOverlay()" style="cursor:pointer">Change Theme</a>
+</p>
+
+
+<div id="theme-overlay-shade" onclick="closeThemeOverlay();" ></div>
+
+<div id="themeOverlay" class="id1 theme-overlay" style="display:none; max-height:200px; min-height:200px !important">
+
+	<h1><i class="fa fa-paint-brush"></i> Available Themes </h1><br/>
+
+	[% cssdrop %]
+
+	<br/>
+	Click on a name to immediately try out the theme! Your preference is saved automatically.
+
+</div>
+
+<script>
+
+	set_style_from_storage();
+
+	function openThemeOverlay() {
+	    $('#theme-overlay-shade').fadeTo(150, 0.6, function() {
+	        $('.theme-overlay').css('display','block');
+	    });
+	}
+
+	function closeThemeOverlay() {
+	    $('#theme-overlay-shade').fadeOut(300);
+	    $('.theme-overlay').css('display','none');
+	}
+</script>
+
+<style>
+
+.theme-overlay, #theme-overlay-shade {
+    display: none;
+}
+
+#theme-overlay-shade {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background-color: #000;
+}
+
+.theme-overlay {
+    position: fixed;
+    top: 40px;
+    left: 5%;
+    width: 90% !important;
+    min-height: 70%;
+    z-index: 10000;
+    box-shadow: 0 0 16px #000;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+    overflow-y: scroll;
+} 
+
+</style>
