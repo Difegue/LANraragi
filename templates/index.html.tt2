@@ -13,7 +13,6 @@
 
 			<script src="./js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
 			<script src="./js/vendor/jquery.dataTables.min.js" type="text/JAVASCRIPT"></script>
-			<script src="./js/vendor/dropit.js" type="text/JAVASCRIPT"></script>
 			<script src="./js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
 
 			<script src="./js/ajax.js" type="text/JAVASCRIPT"></script>
@@ -23,17 +22,68 @@
 			
 		</head>
 
-		[% INCLUDE LRRStockUI %] 
+		<body onload ="initIndex([% pagesize %],archiveJSON);">	
 
-		<p class="ip">
-			Fellas, we gotta stop hoarding all those korean comics.<br>
-
-			<a href="https://github.com/Difegue/LANraragi"> 
-				LANraragi [% version %]
-			</a>
-		</p>
+		[% IF userlogged %]
+			<p id="nb">
+				<i class="fa fa-caret-right"></i>
+				<a href="./upload">Upload Archive</a>
+				<span style="margin-left:5px"></span>
+				<i class="fa fa-caret-right"></i>
+				<a href="" title="Under reconstruction - Check back next release!">Batch Tagging</a>
+				<span style="margin-left:5px"></span>
+				<i class="fa fa-caret-right"></i>
+				<a href="./config">Configuration</a>
+				<span style="margin-left:5px"></span>
+				<i class="fa fa-caret-right"></i>
+				<a href="./backup">Database Backup/Restore</a>
+				<span style="margin-left:5px"></span>
+				<i class="fa fa-caret-right"></i>
+				<a href="./stats">Statistics</a>	
+			</p>
+		[% ELSE %]
+			<p id="nb">
+				<i class="fa fa-caret-right"></i>
+				<a href="./login">Admin Login</a>
+				<span style="margin-left:5px"></span>
+				<i class="fa fa-caret-right"></i>
+				<a href="./stats">Statistics</a>
+			</p>
+		[% END %]
+			
+		<div class='ido'>
+			<div id='toppane'>
+			<h1 class='ih'>[% motd %]</h1> 
+			<div class='idi'>
 				
-		[% #this script tag doesn't change (even though some things like thumbnail hover aren't used in new archive mode) %]
+			<input type='text' id='srch' class='search stdinput' size='90' placeholder='Search Title, Artist, Series, Language or Tags' /> 
+			<input id='clrsrch' class='stdbtn' type='button' value='Clear Filter'/></div>
+
+			<p id='cssbutton' style='display:inline'>
+				<input class='stdbtn' type='button' onclick="var win=window.open('random','_blank'); win.focus();" value='Give me a random archive'/>
+				<input id='viewbtn' class='stdbtn' type='button' onclick="switch_index_view()" value='Switch to Thumbnail View'/>
+			</p>
+
+			<table class="itg">
+				<thead>
+				<tr>
+				<th></th>
+					<th id="titleheader"><a>Title</a></th>
+					<th id="artistheader"><a>Artist/Group</a></th>
+					<th id="seriesheader"><a>Series</a></th>
+					<th id="langheader"><a>Language</a></th>
+					<th id="tagsheader"><a>Tags</a></th>
+				</tr>
+				</thead>
+				<tbody class="list">
+				</tbody>
+			</table>
+
+			</div>
+		</div>
+
+		[% INCLUDE footer %]
+
 		<script>
 
 			//load archive JSON before anything else
@@ -65,73 +115,3 @@
 
 	</body>
 </html>
-
-
-[% BLOCK LRRStockUI %]
-   
-	<body onload ="initIndex([% pagesize %],archiveJSON);">	
-
-		[% IF userlogged %]
-			<p id="nb">
-				<i class="fa fa-caret-right"></i>
-				<a href="./upload">Upload Archive</a>
-				<span style="margin-left:5px"></span>
-				<i class="fa fa-caret-right"></i>
-				<a href="" title="Under reconstruction - Check back next release!">Batch Tagging</a>
-				<span style="margin-left:5px"></span>
-				<i class="fa fa-caret-right"></i>
-				<a href="./config">Configuration</a>
-				<span style="margin-left:5px"></span>
-				<i class="fa fa-caret-right"></i>
-				<a href="./backup">Database Backup/Restore</a>
-				<span style="margin-left:5px"></span>
-				<i class="fa fa-caret-right"></i>
-				<a href="./stats">Statistics</a>
-				[% INCLUDE themesdropdown %]
-			</p>
-		[% ELSE %]
-			<p id="nb">
-				<i class="fa fa-caret-right"></i>
-				<a href="./login">Admin Login</a>
-				<span style="margin-left:5px"></span>
-				<i class="fa fa-caret-right"></i>
-				<a href="./stats">Statistics</a>
-				[% INCLUDE themesdropdown %]
-			</p>
-		[% END %]
-		
-			
-			<div class='ido'>
-				<div id='toppane'>
-				<h1 class='ih'>[% motd %]</h1> 
-				<div class='idi'>
-					
-				<input type='text' id='srch' class='search stdinput' size='90' placeholder='Search Title, Artist, Series, Language or Tags' /> 
-				<input id='clrsrch' class='stdbtn' type='button' value='Clear Filter'/></div>
-
-				<p id='cssbutton' style='display:inline'>
-					<input class='stdbtn' type='button' onclick="var win=window.open('random','_blank'); win.focus();" value='Give me a random archive'/>
-					<input id='viewbtn' class='stdbtn' type='button' onclick="switch_index_view()" value='Switch to Thumbnail View'/>
-				</p>
-
-				<table class="itg">
-					<thead>
-					<tr>
-					<th></th>
-						<th id="titleheader"><a>Title</a></th>
-						<th id="artistheader"><a>Artist/Group</a></th>
-						<th id="seriesheader"><a>Series</a></th>
-						<th id="langheader"><a>Language</a></th>
-						<th id="tagsheader"><a>Tags</a></th>
-					</tr>
-					</thead>
-					<tbody class="list">
-					</tbody>
-				</table>
-
-				</div>
-			</div>
-
-			
-
-[% END %]

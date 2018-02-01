@@ -19,9 +19,6 @@
 		</head>
 
 		<body onload="set_style_from_storage();">
-			[% cssdrop %]
-
-			<script>set_style_from_storage();</script>
 
 			<div class='ido' style='text-align:center'>
 
@@ -70,5 +67,7 @@
 			</form>
 
 		</div>
+
+		[% INCLUDE footer %]
 		</body>
 </html>

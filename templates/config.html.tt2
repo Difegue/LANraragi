@@ -20,8 +20,6 @@
 
 	<body onload="set_style_from_storage();">
 
-		[% cssdrop %]
-
 		<script>set_style_from_storage();</script>
 
 		<style> /*** custom checkboxes ***/
@@ -137,6 +135,7 @@
 		}
 	</script>
 
+	[% INCLUDE footer %]
 	</body>
 
 </html>

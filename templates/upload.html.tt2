@@ -20,9 +20,6 @@
 	</head>
 
 	<body onload="initUpload()">
-			
-			
-		[% cssdrop %]
 
 		<div class='ido' style='text-align:center; font-size:8pt'>
 			<h1 class='ih' style='text-align:center'>Uploading Archives to the Library</h1>	
@@ -50,15 +47,10 @@
 			<input class='stdbtn' type='button' onclick="window.location.replace('./');" value='Return to Library'/>
 
 	  </div>
-			  
-
-	</body>
+			
 
 	<script>
 	function initUpload(){
-
-		//Set the correct CSS from the user's localStorage.
-		set_style_from_storage();
 
 		//Handler for file uploading.
 		$('#fileupload').fileupload({
@@ -90,5 +82,8 @@
 
 	}
 	</script>
+
+	[% INCLUDE footer %]
+	</body>
 
 </html>

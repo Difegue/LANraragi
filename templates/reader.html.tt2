@@ -20,12 +20,6 @@
 		</head>
 
 		<body onload="set_style_from_storage(); initArchivePageOverlay();">
-			
-		<p id="nb">
-				[% INCLUDE themesdropdown %]
-		</p>
-
-		<script>set_style_from_storage();</script>
 		
 		<div id="i1" class="sni" style="max-width: 1200px">
 				<h1>[% arcname %]</h1>
@@ -129,6 +123,7 @@
 
 		</div>
 
+		[% INCLUDE footer %]
 		</body>
 </html>
 

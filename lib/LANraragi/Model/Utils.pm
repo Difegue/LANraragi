@@ -95,7 +95,7 @@ sub generate_themes {
 	{
 		#populate the div with spans
 		my $css_name = LANraragi::Model::Config::css_default_names($css[$i]);
-		$CSSsel = $CSSsel.'<a href="#" onclick="switch_style(\''.$i.'\');">'.$css_name.'</a>';
+		$CSSsel = $CSSsel.'<input  class="stdbtn" type="button" onclick="switch_style(\''.$i.'\');" value="'.$css_name.'"/>';
 
 		if ($css[$i] eq LANraragi::Model::Config->get_style) #if this is the default sheet, set it up as so.
 			{$html=$html.'<link rel="stylesheet" type="text/css" title="'.$i.'" href="./themes/'.$css[$i].'"> ';}
@@ -104,9 +104,7 @@ sub generate_themes {
 	}		
 
 	#close up dropdown list
-	$CSSsel = $CSSsel.'</div>
-    				</span>
-				</div>';
+	$CSSsel = $CSSsel.'</div>';
 
 	return $html.$CSSsel;
 	
