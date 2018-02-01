@@ -59,8 +59,10 @@ sub exec_plugin_on_file {
 
 		my %newmetadata = $plugin->get_tags($title, $tags, $thumbhash, $file, $arg);
 
+		my @blacklist = LANraragi::Model::Config::get_tagblacklist;
 		#TODO: Insert new metadata in Redis
-
+		#foreach my $tag (@blacklist) 
+		#{ $tags =~ s/\Q$tag\E,//ig; } 
 	}
 
 

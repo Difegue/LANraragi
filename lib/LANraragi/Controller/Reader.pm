@@ -65,7 +65,7 @@ sub index {
 				            id => $id,
 				            imgpaths => $imgpaths,
 				            readorder => $self->LRR_CONF->get_readorder(),
-				            cssdrop => LANraragi::Model::Utils::generate_themes(0),
+				            cssdrop => LANraragi::Model::Utils::generate_themes,
 				            userlogged => $self->session('is_logged')
 			  	            );
 		} 

@@ -33,7 +33,7 @@ sub index {
 	{   #Get with no parameters => Regular HTML printout
 		$self->render(  template => "backup",
 		            	title => $self->LRR_CONF->get_htmltitle,
-		            	cssdrop => LANraragi::Model::Utils::generate_themes(0)
+		            	cssdrop => LANraragi::Model::Utils::generate_themes
 		            	);
 	}
 }

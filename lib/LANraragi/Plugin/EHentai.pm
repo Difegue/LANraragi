@@ -21,7 +21,7 @@ sub plugin_info {
 	    description => "Searches for the archive's title and author on E-Hentai, and returns tags if it finds any.",
 	    #If your plugin uses/needs a custom argument, input its name here. 
 	    #This name will be displayed in plugin configuration next to an input box.
-	    custom_arg_name => "E-H Gallery ID (Will override search)"
+	    custom_arg_name => "E-H Gallery URL (Will override search)"
 	);
 
 }
@@ -33,18 +33,24 @@ sub get_tags {
     my ($title, $tags, $thumbhash, $file, $usrarg) = @_;
 
     #Work your magic here - You can create subs below to organize the code better
+    my $apiJSON;
 
     #Craft URL for Text Search on EH if there's no user argument
     if ($usrarg eq "") {
-    	$usrarg = &lookup_by_title($title);
+    	$apiJSON = &lookup_by_title($title);
+    } else {
+    	#Quick regex to get the E-H archive ids from the provided url.
+    	if ($usrarg =~ /.*\/g\/([0-9]*)\/([0-z]*)\/*.*/ ) { 
+			$apiJSON = qq({"method": "gdata","gidlist": [[$1,"$2"]]});
+		}
     }
 
-    my $newtags = &get_tags_from_EH($usrarg);
+    my $newtags = &get_tags_from_EH($apiJSON);
 
     #Return a hash containing the new metadata - it will be integrated in LRR.
     return (
-			title  => $title,
-		    tags => $tags.", ".$newtags
+			title => $title,
+		    tags => $newtags
 			);
 }
 

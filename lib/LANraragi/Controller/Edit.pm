@@ -112,7 +112,7 @@ sub index {
 			            file => $file,
 			            thumbhash => $thumbhash,
 			            title => $self->LRR_CONF->get_htmltitle,
-			            cssdrop => LANraragi::Model::Utils::generate_themes(0)
+			            cssdrop => LANraragi::Model::Utils::generate_themes
 		  	          );
 	}
 	else 

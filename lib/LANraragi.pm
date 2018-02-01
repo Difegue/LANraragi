@@ -32,7 +32,7 @@ sub startup {
 
     my %pluginfo = $plugin->plugin_info();
     my $name = $pluginfo{name};
-    say "Plugin Loaded: ".$name;
+    say "Plugin Detected: ".$name;
   }
 
   #Check if a Redis server is running on the provided address/port
@@ -91,7 +91,7 @@ sub startup {
   $logged_in->get('/backup')->to('backup#index');
   $logged_in->post('/backup')->to('backup#restore');
 
-  #$logged_in->get('/tags')->to('tags#index');
+  $logged_in->get('/tags')->to('tags#index');
   #$logged_in->post('/tags')->to('tags#process_archive');
 
   $logged_in->get('/upload')->to('upload#index');
