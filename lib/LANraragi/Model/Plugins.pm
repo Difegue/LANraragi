@@ -54,19 +54,12 @@ sub exec_plugin_on_file {
 	if ($plugin->can('get_tags')) {
 
 		my %hash = $redis->hgetall($id);					
-		my ($name,$event,$artist,$title,$series,$language,$tags,$file,$thumbhash) = @hash{qw(name event artist title series language tags file thumbhash)};
-		($_ = LANraragi::Model::Utils::redis_decode($_)) for ($name, $event, $artist, $title, $series, $language, $tags, $file);
+		my ($name,$title,$tags,$file,$thumbhash) = @hash{qw(name event artist title series language tags file thumbhash)};
+		($_ = LANraragi::Model::Utils::redis_decode($_)) for ($name, $title, $tags, $file);
 
-		my %metadata_hash = (
-				title  => $title,
-			    artist => $artist,
-			    series => $series,
-			    language => $language,
-			    event => $event,
-			    tags => $tags
-			);
+		my %newmetadata = $plugin->get_tags($title, $tags, $thumbhash, $file, $arg);
 
-		my %newmetadata = $plugin->get_tags(%metadata_hash, $file, $arg);
+		#TODO: Insert new metadata in Redis
 
 	}
 
