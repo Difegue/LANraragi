@@ -14,14 +14,35 @@ use LANraragi::Model::Plugins;
 sub startup {
   my $self = shift;
 
+  # Load configuration from hash returned by "lrr.conf"
+  my $config = $self->plugin('Config', {file => 'lrr.conf'});
+  my $version = $config->{version};
+
   say "";
   say "";
   say "ｷﾀ━━━━━━(ﾟ∀ﾟ)━━━━━━!!!!!";
-  say "LANraragi started.";
+  say "LANraragi $version started.";
+
+  #Set development mode if the version number contains "DEV"
+  if (index($version, "DEV") != -1) {
+    $self->mode('development');
+    say ("(Development Mode)");
+  } else {
+    $self->mode('production');
+    say ("(Production Mode)");
+  }
+
   say "";
 
-  # Load configuration from hash returned by "lrr.conf"
-  my $config = $self->plugin('Config', {file => 'lrr.conf'});
+  $self->secrets($config->{secrets});
+  $self->plugin('RenderFile');
+
+  # Set Template::Toolkit as default renderer so we can use the LRR templates
+  $self->plugin('TemplateToolkit');
+  $self->renderer->default_handler('tt2');
+
+  #Remove upload limit
+  $self->max_request_size(0);
 
   #Helper so controllers can reach the app's Redis DB quickly (they still need to declare use Model::Config)
   $self->helper(LRR_CONF => sub { LANraragi::Model::Config:: });
@@ -38,10 +59,6 @@ sub startup {
   #Check if a Redis server is running on the provided address/port
   $self->LRR_CONF->get_redis;
 
-  $self->secrets($config->{secrets});
-
-  $self->plugin('RenderFile');
-
   #Start Background worker
   my $proc = $self->stash->{shinobu} = Mojo::IOLoop::ProcBackground->new;
 
@@ -53,13 +70,7 @@ sub startup {
   });
 
   $proc->run([$^X, "./lib/Shinobu.pm"]);
-
-  # Set Template::Toolkit as default renderer so we can use the LRR templates
-  $self->plugin('TemplateToolkit');
-  $self->renderer->default_handler('tt2');
-
-  #Remove upload limit
-  $self->max_request_size(0);
+  
 
   # Router
   my $r = $self->routes;
