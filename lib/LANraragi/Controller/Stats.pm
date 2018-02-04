@@ -2,7 +2,6 @@ package LANraragi::Controller::Stats;
 use Mojo::Base 'Mojolicious::Controller';
 
 use Redis;
-use Encode;
 use File::Find;
 
 use LANraragi::Model::Utils;
@@ -78,7 +77,7 @@ sub index {
 
 	$self->render(template => "stats",
 			        title => $self->LRR_CONF->get_htmltitle,
-			        cssdrop => LANraragi::Model::Utils::generate_themes(0),
+			        cssdrop => LANraragi::Model::Utils::generate_themes,
 			        tagcloud => $tagsjson,
 			        tagcount => $tagcount,
 			        archivecount => $archivecount,

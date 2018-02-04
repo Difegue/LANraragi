@@ -20,8 +20,6 @@
 	</head>
 
 	<body onload="initUpload()">
-		
-		[% cssdrop %]
 
 		<div class='ido' style='text-align:center'>
 				<h2 class='ih' style='text-align:center'>Database Backup/Restore</h2>
@@ -71,11 +69,7 @@
 		</div>
 
 		<script>
-
 		function initUpload(){
-
-			//Set the correct CSS from the user's localStorage.
-			set_style_from_storage();
 
 			//Handler for file uploading.
 			$('#fileupload').fileupload({
@@ -105,5 +99,6 @@
 		}
 		</script>
 
+	[% INCLUDE footer %]
 	</body>
 </html>

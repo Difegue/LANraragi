@@ -17,8 +17,6 @@
 	</head>
 
 	<body onload="set_style_from_storage()">
-		
-		[% cssdrop %]
 
 		<div class='ido' style='text-align:center'>
 				<h2 class='ih' style='text-align:center'>Batch Tagging</h2>
@@ -81,5 +79,7 @@
 				</div>
 
 		</div>
+
+	[% INCLUDE footer %]
 	</body>
 </html>

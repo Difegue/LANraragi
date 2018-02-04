@@ -69,7 +69,7 @@ sub index {
 		            pagesize => $self->LRR_CONF->get_pagesize,
 		            userlogged => $self->session('is_logged'),
 		            motd => $self->LRR_CONF->get_motd,
-		            cssdrop => LANraragi::Model::Utils::generate_themes(1),
+		            cssdrop => LANraragi::Model::Utils::generate_themes,
 		            archiveJSON => $archivejson,
 		            usingdefpass => $passcheck,
 		            version => $version

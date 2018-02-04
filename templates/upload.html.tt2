@@ -20,9 +20,6 @@
 	</head>
 
 	<body onload="initUpload()">
-			
-			
-		[% cssdrop %]
 
 		<div class='ido' style='text-align:center; font-size:8pt'>
 			<h1 class='ih' style='text-align:center'>Uploading Archives to the Library</h1>	
@@ -50,15 +47,10 @@
 			<input class='stdbtn' type='button' onclick="window.location.replace('./');" value='Return to Library'/>
 
 	  </div>
-			  
-
-	</body>
+			
 
 	<script>
 	function initUpload(){
-
-		//Set the correct CSS from the user's localStorage.
-		set_style_from_storage();
 
 		//Handler for file uploading.
 		$('#fileupload').fileupload({
@@ -79,11 +71,19 @@
 	        progressall: function (e, data) {
 		        var progress = parseInt(data.loaded / data.total * 100, 10);
 		        $('#progress .bar').css('width', progress + '%');
+
+		        if (data.loaded === data.total) {
+		        	//Ask the API to refresh now that all files have been uploaded
+		        	$.get("./api/refresh_index");
+		        }
 		    }
 
 	    });
 
 	}
 	</script>
+
+	[% INCLUDE footer %]
+	</body>
 
 </html>

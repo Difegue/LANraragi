@@ -24,9 +24,6 @@
 				});
 					">
 
-		[% cssdrop %]
-		<script>set_style_from_storage();</script>
-
 		<div class='ido' style='text-align:center'>
 			<h2 class="ih" style="text-align:center">Library Statistics</h2>
 			<br>
@@ -63,12 +60,12 @@
 
 		</div>
 
+		<script>
+			var words = [% tagcloud %];
+		</script>
+
+	[% INCLUDE footer %]
 	</body>
 
-	<script>
-
-		var words = [% tagcloud %];
-
-
-	</script>
+	
 </html>

@@ -26,7 +26,7 @@ sub index {
 		            blacklist => $self->LRR_CONF->get_tagblacklist,
 		            title => $self->LRR_CONF->get_htmltitle,
 		            tempmaxsize => $self->LRR_CONF->get_tempmaxsize,
-		            cssdrop => LANraragi::Model::Utils::generate_themes(0),
+		            cssdrop => LANraragi::Model::Utils::generate_themes,
 		            tempsize => int($size/1048576*100)/100
 			      );
 }

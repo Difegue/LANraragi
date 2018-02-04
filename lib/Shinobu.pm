@@ -45,52 +45,17 @@ sub initialize_from_new_process {
 sub workload {
 
 	say ("Parsing Archive Directory...");
-	my $dirname = LANraragi::Model::Config::get_userdir;
-
-	#Get all files in content directory and subdirectories.
-	my @filez;
-	find({ wanted => sub { 
-						if ($_ =~ /^*.+\.(zip|rar|7z|tar|tar.gz|lzma|xz|cbz|cbr)$/ )
-							{push @filez, $_ }
-					 },
-	   no_chdir => 1,
-	   follow_fast => 1 }, 
-	$dirname);
+	
+	my @archives = LANraragi::Model::Utils::get_archive_list;
 	
 	say ("Checking for new archives...");
-	&new_archive_check(@filez);
+	&new_archive_check(@archives);
 
 	say ("Building JSON cache from Redis...");
-	&build_json_cache(@filez);
+	LANraragi::Model::Utils::build_json_cache(@archives);
 
 	say ("Checking Temp Folder Size...");
 	&autoclean_temp_folder;
-
-}
-
-sub build_json_cache {
-
-	my (@dircontents) = @_;
-	my $redis = LANraragi::Model::Config::get_redis;
-	my $dirname = LANraragi::Model::Config::get_userdir;
-
-	my $json = "[";
-	my ($file, $id);
-
-	foreach $file (@dircontents) {
-		#ID of the archive, used for storing data in Redis.
-		$id = LANraragi::Model::Utils::shasum($file,256);
-
-		#Craft JSON if archive is in Redis
-		if ($redis->hexists($id,"title")) {
-				$json.=LANraragi::Model::Utils::build_archive_JSON($id, $file, $redis, $dirname); 
-			}
-	}
-
-	$json.="]";
-
-	#Write JSON to cache
-	$redis->set("LRR_JSONCACHE",encode_utf8($json));
 
 }
 

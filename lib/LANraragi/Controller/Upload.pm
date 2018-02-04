@@ -1,7 +1,6 @@
 package LANraragi::Controller::Upload;
 use Mojo::Base 'Mojolicious::Controller';
 
-use Encode;
 use Redis;
 
 use LANraragi::Model::Utils;
@@ -79,7 +78,7 @@ sub index {
 
 	$self->render(  template => "upload",
 	            	title => $self->LRR_CONF->get_htmltitle,
-	            	cssdrop => LANraragi::Model::Utils::generate_themes(0)
+	            	cssdrop => LANraragi::Model::Utils::generate_themes
 	            	);
 }
 

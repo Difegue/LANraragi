@@ -6,79 +6,13 @@ use utf8;
 
 use Digest::SHA qw(sha256_hex);
 use File::Basename;
+use File::Find;
 use Encode;
 use URI::Escape;
 use Redis;
 use Image::Magick;
 
 use LANraragi::Model::Config;
-
-#Print a dropdown list to select CSS, and adds <link> tags for all the style sheets present in the /style folder.
-#Takes a boolean as argument: if true, return the styles and the dropdown. If false, only return the styles.
-sub generate_themes {
-
-	#Getting all the available CSS sheets.
-	my @css;
-	opendir (DIR, "./public/themes") or die $!;
-	while (my $file = readdir(DIR)) 
-	{
-		if ($file =~ /.+\.css/)
-		{push(@css, $file);}
-
-	}
-	closedir(DIR);
-
-	#button for deploying dropdown
-	my $CSSsel = '<div class="menu" style="display:inline">
-    				<span>
-        				<a href="#"><input type="button" class="stdbtn" value="Change Library Look"></a>';
-
-	#the list itself
-	$CSSsel = $CSSsel.'<div>';
-
-	#html that we'll insert before the list to declare all the available styles.
-	my $html = "";
-
-	#We opened a drop-down list. Now, we'll fill it.
-	for ( my $i = 0; $i < $#css+1; $i++) 
-	{
-		#populate the div with spans
-		my $css_name = LANraragi::Model::Config::css_default_names($css[$i]);
-		$CSSsel = $CSSsel.'<span><a href="#" onclick="switch_style(\''.$i.'\');return false;">'.$css_name.'</a></span>';
-
-
-		if ($css[$i] eq LANraragi::Model::Config->get_style) #if this is the default sheet, set it up as so.
-			{$html=$html.'<link rel="stylesheet" type="text/css" title="'.$i.'" href="./themes/'.$css[$i].'"> ';}
-		else
-			{$html=$html.'<link rel="alternate stylesheet" type="text/css" title="'.$i.'" href="./themes/'.$css[$i].'"> ';}
-	}		
-
-	#close up dropdown list
-	$CSSsel = $CSSsel.'</div>
-    				</span>
-				</div>';
-
-	#Append JS to enable dropdown w.dropit (JS generation on the Perl side is heresy but this is bound to change soon)
-	$CSSsel = $CSSsel." <script>
-				\$('.menu').dropit({
-					action: 'click', // The open action for the trigger
-					submenuEl: 'div', // The submenu element
-					triggerEl: 'a', // The trigger element
-					triggerParentEl: 'span', // The trigger parent element
-					afterLoad: function(){}, // Triggers when plugin has loaded
-					beforeShow: function(){}, // Triggers before submenu is shown
-					afterShow: function(){}, // Triggers after submenu is shown
-					beforeHide: function(){}, // Triggers before submenu is hidden
-					afterHide: function(){} // Triggers before submenu is hidden
-				}); 
-			</script>";
-
-	if ($_[0])
-	{return $html.$CSSsel;}
-	else
-	{return $html;}
-	
-}
 
 #generate_thumbnail(original_image, thumbnail_location)
 #use ImageMagick to make a thumbnail, width = 200px
@@ -130,6 +64,50 @@ sub redis_decode {
 	eval { $data = decode_utf8($data) };
 
 	return $data;
+}
+
+#Refresh the stored JSON cache. This is normally done automatically by the background worker, but there are a few cases where we want it ASAP.
+#After the user uploaded some archives through the webform, for instance.
+sub refresh_json_cache {
+	my @archives = &get_archive_list;
+	&build_json_cache(@archives);
+}
+
+#Print a dropdown list to select CSS, and adds <link> tags for all the style sheets present in the /style folder.
+sub generate_themes {
+
+	#Get all the available CSS sheets.
+	my @css;
+	opendir (DIR, "./public/themes") or die $!;
+	while (my $file = readdir(DIR)) {
+		if ($file =~ /.+\.css/)
+		{push(@css, $file);}
+	}
+	closedir(DIR);
+
+	my $CSSsel = '<div>';
+
+	#html that we'll insert before the list to declare all the available styles.
+	my $html = "";
+
+	#We opened a drop-down list. Now, we'll fill it.
+	for ( my $i = 0; $i < $#css+1; $i++) 
+	{
+		#populate the div with spans
+		my $css_name = LANraragi::Model::Config::css_default_names($css[$i]);
+		$CSSsel = $CSSsel.'<input  class="stdbtn" type="button" onclick="switch_style(\''.$i.'\');" value="'.$css_name.'"/>';
+
+		if ($css[$i] eq LANraragi::Model::Config->get_style) #if this is the default sheet, set it up as so.
+			{$html=$html.'<link rel="stylesheet" type="text/css" title="'.$i.'" href="./themes/'.$css[$i].'"> ';}
+		else
+			{$html=$html.'<link rel="alternate stylesheet" type="text/css" title="'.$i.'" href="./themes/'.$css[$i].'"> ';}
+	}		
+
+	#close up dropdown list
+	$CSSsel = $CSSsel.'</div>';
+
+	return $html.$CSSsel;
+	
 }
 
 #parse_name(name)
@@ -186,6 +164,50 @@ sub add_archive_to_redis {
 	$redis->wait_all_responses;
 
 	return ($name,$title,$tags,"block");
+}
+
+sub get_archive_list {
+
+	my $dirname = LANraragi::Model::Config::get_userdir;
+
+	#Get all files in content directory and subdirectories.
+	my @filez;
+	find({ wanted => sub { 
+						if ($_ =~ /^*.+\.(zip|rar|7z|tar|tar.gz|lzma|xz|cbz|cbr)$/ )
+							{push @filez, $_ }
+					 },
+	   no_chdir => 1,
+	   follow_fast => 1 }, 
+	$dirname);
+
+	return @filez;
+
+}
+
+sub build_json_cache {
+
+	my (@dircontents) = @_;
+	my $redis = LANraragi::Model::Config::get_redis;
+	my $dirname = LANraragi::Model::Config::get_userdir;
+
+	my $json = "[";
+	my ($file, $id);
+
+	foreach $file (@dircontents) {
+		#ID of the archive, used for storing data in Redis.
+		$id = LANraragi::Model::Utils::shasum($file,256);
+
+		#Craft JSON if archive is in Redis
+		if ($redis->hexists($id,"title")) {
+				$json.=LANraragi::Model::Utils::build_archive_JSON($id, $file, $redis, $dirname); 
+			}
+	}
+
+	$json.="]";
+
+	#Write JSON to cache
+	$redis->set("LRR_JSONCACHE",encode_utf8($json));
+
 }
 
 #build_archive_JSON(id, file, redis, userdir)
