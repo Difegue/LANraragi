@@ -6,6 +6,11 @@
 
 Web interface and reader for storage of comics/manga on NAS, running on Perl/Redis/unar with a dash of Imagemagick.
 
+## Please Read
+
+For the upcoming 0.5, we're moving at incredibly hihg speed, resulting in a somewhat unstable master branch at times.  
+If you want to download a somewhat stable version, you can try version [0.4](https://github.com/Difegue/LANraragi/releases/tag/v.0.4.0) with the [matching old documentation](https://github.com/Difegue/LANraragi/blob/oldcgi/tools/LRR_CGI_Documentation.zip), but know that you'll probably have to reinstall everything to update.  
+
 ## Features  
 
 * Stores your comics in archive format. (zip/rar/targz/lzma/7z/xz/cbz/cbr supported)  
