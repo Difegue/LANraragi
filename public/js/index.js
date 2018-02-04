@@ -26,7 +26,6 @@ function switch_index_view() {
 function checkVersion(currentVersion) {
 	//Check the github API to see if an update was released. If so, flash another friendly notification inviting the user to check it out
 	var githubAPI = "https://api.github.com/repos/difegue/lanraragi/releases/latest";
-	var currentVersion = "[% version %]" ;
 	var latestVersion;
 
 	$.getJSON( githubAPI).done(function( data ) {
