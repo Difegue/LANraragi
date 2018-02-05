@@ -64,14 +64,14 @@
 				<input id='viewbtn' class='stdbtn' type='button' onclick="switch_index_view()" value='Switch to Thumbnail View'/>
 			</p>
 
-			<table class="itg">
+			<table class="itg datatables">
 				<thead>
 				<tr>
-				<th></th>
+					<th></th>
 					<th id="titleheader"><a>Title</a></th>
 					<th id="artistheader"><a>Artist/Group</a></th>
 					<th id="seriesheader"><a>Series</a></th>
-					<th id="langheader"><a>Language</a></th>
+					<!--<th id="langheader"><a>Language</a></th>-->
 					<th id="tagsheader"><a>Tags</a></th>
 				</tr>
 				</thead>

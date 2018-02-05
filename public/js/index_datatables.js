@@ -10,7 +10,7 @@ function initIndex(pagesize,dataSet)
 	$.fn.dataTableExt.oStdClasses.sStripeEven = 'gtr1';
 
 	//datatables configuration
-	arcTable= $('.itg').DataTable( {
+	arcTable= $('.datatables').DataTable( {
 		'data': dataSet, 
 		'lengthChange': false,
 		'pageLength': pagesize,
@@ -33,16 +33,12 @@ function initIndex(pagesize,dataSet)
 			  'render': titleColumnDisplay
 			},
 			{ className: 'artist itd',
-			  'data': 'artist',
-			  'render': genericColumnDisplay
+			  'data': 'tags',
+			  'render': artistColumnDisplay
 			},
 			{ className: 'series itd',
-			  'data': 'series',
-			  'render': genericColumnDisplay
-			},
-			{ className: 'language itd',
-			  'data': 'language',
-			  'render': genericColumnDisplay
+			  'data': 'tags',
+			  'render': seriesColumnDisplay
 			},
 			{ className: 'tags itd',
 			  'data': 'tags',
@@ -73,7 +69,7 @@ function initIndex(pagesize,dataSet)
 	$('#srch').val('');
 
 	//nuke style of table - datatables seems to assign its table a fixed width for some reason.
-	$('.itg').attr("style","")
+	$('.datatables').attr("style","")
 
 	//Init Thumbnail Mode if enabled - we do it twice in order to initialize it at the value the user has stored.
 	//(Yeah it's shitty but it works so w/e)
@@ -83,12 +79,41 @@ function initIndex(pagesize,dataSet)
 }
 
 //For datatable initialization, columns with just one data source display that source as a link for instant search.
-function genericColumnDisplay(data,type,full,meta) {
-	if(type == "display")
-		return '<a style="cursor:pointer" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+data+'</a>';
+function artistColumnDisplay(data,type,full,meta) {
+	if(type == "display") {
+
+		if (data === "")
+		return "";
+
+		tagsByNamespace = splitTagsByNamespace(data);
+
+		if ("artist" in tagsByNamespace)
+			return '<a style="cursor:pointer" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+tagsByNamespace["artist"][0]+'</a>';
+		else
+			return "";
+	}
 
 	return data;
 }
+
+//For datatable initialization, columns with just one data source display that source as a link for instant search.
+function seriesColumnDisplay(data,type,full,meta) {
+	if(type == "display") {
+
+		if (data === "")
+		return "";
+
+		tagsByNamespace = splitTagsByNamespace(data);
+
+		if ("parody" in tagsByNamespace)
+			return '<a style="cursor:pointer" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+tagsByNamespace["parody"][0]+'</a>';
+		else
+			return "";
+	}
+
+	return data;
+}
+
 
 function actionColumnDisplay(data,type,full,meta) {
 	if(type == "display"){
@@ -156,7 +181,7 @@ function buildThumbDiv( row, data, index ) {
 
 		thumb_div += 		'<img style="position:relative;" id ="'+data.arcid+'_thumb" title="'+data.title+'" src="./img/wait_warmly.jpg"/>'+
 							 '<i id="'+data.arcid+'_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>'+
-							 '<img style="position:absolute; top:0; left:0; width:200px" src="./api/thumbnail?id='+data.arcid+'" onerror="this.src=\'./img/noThumb.png\'"/>';
+							 '<img style="position:absolute; top:0; left:0; width:200px" src="./api/thumbnail?id='+data.arcid+'" onload="$(\'#'+data.arcid+'_thumb\').remove(); $(\'#'+data.arcid+'_spinner\').remove();" onerror="this.src=\'./img/noThumb.png\'"/>';
 
 		thumb_div +=		'</a>'+
 						'</div>'+
@@ -179,17 +204,53 @@ function buildThumbDiv( row, data, index ) {
 }
 
 //Builds a caption div containing clickable tags. Uses a string containing all tags, split by commas.
+//Namespaces are resolved on the fly.
 function buildTagsDiv(tags)
 {
 	if (tags === "")
 		return "";
 
-	line='<div class="caption" style="position:absolute;">';
+	tagsByNamespace = splitTagsByNamespace(tags);
 
-	tags.split(/,\s?/).forEach(function (item) {
-	    line+='<div class="gt" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+item+'</div>';
+	line='<div class="caption" style="position:absolute;">';
+	line+='<table class="itg" style="box-shadow: 0 0 0 0; border: none; border-radius: 0" ><tbody>';
+    
+	//Go through resolved namespaces and print tag divs
+	Object.keys(tagsByNamespace).forEach(function(key,index) {
+
+		ucKey = key.charAt(0).toUpperCase() + key.slice(1);
+
+		line+="<tr><td style='font-size:10pt'>"+ucKey+":</td><td>";
+
+		tagsByNamespace[key].forEach(function (tag) {
+			line+='<div class="gt" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+tag+'</div>';
+		});
+
+		line +="</td></tr>";
+	});
+	
+	line+='</tbody></table></div>';
+	return line;
+}
+
+function splitTagsByNamespace(tags) {
+
+	var tagsByNamespace = {};
+
+	tags.split(/,\s?/).forEach(function (tag) {
+
+		//Split the tag from its namespace
+		arr = tag.split(/:\s?/);
+		if (arr.length == 2) {
+			nspce = arr[0].trim();
+			val = arr[1].trim();
+
+			if (nspce in tagsByNamespace)
+				tagsByNamespace[nspce].push(val);
+			else
+				tagsByNamespace[nspce] = [val];
+	    }
 	});
 
-	line+='</div>';
-	return line;
+	return tagsByNamespace;
 }
