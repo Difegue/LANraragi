@@ -110,7 +110,7 @@ sub startup {
 
   $logged_in->post('/api/tags')->to('api#fetch_tags');
   $logged_in->get('/api/cleantemp')->to('api#clean_tempfolder');
-  $logged_in->post('/api/refresh_index')->to('api#rebuild_json_cache');
+  $logged_in->get('/api/refresh_index')->to('api#rebuild_json_cache');
 
   $r->get('/logout')->to('login#logout');
 

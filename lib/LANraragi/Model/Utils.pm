@@ -163,6 +163,8 @@ sub add_archive_to_redis {
 
 	$redis->wait_all_responses;
 
+	#TODO: AutoTagging using enabled plugins goes here!
+
 	return ($name,$title,$tags,"block");
 }
 

@@ -75,8 +75,6 @@ sub new_archive_check {
 				say ("Adding new file $file");
 				say ("ID is $id");
 				LANraragi::Model::Utils::add_archive_to_redis($id,$file,$redis);
-
-				#TODO: AutoTagging using enabled plugins goes here!
 			}
 	}
 }

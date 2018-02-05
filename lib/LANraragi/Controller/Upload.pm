@@ -50,6 +50,7 @@ sub process_upload {
 				my $id = LANraragi::Model::Utils::shasum($output_file,256);
 
 				LANraragi::Model::Utils::add_archive_to_redis($id,$output_file,$redis);
+				#LANraragi::Model::Utils::refresh_json_cache();
 
 				$self->render(  json => {
 								operation => "upload", 

@@ -233,6 +233,7 @@ function buildTagsDiv(tags)
 	return line;
 }
 
+//TODO: Figure out how to store this properly so it's not repeated 4 times
 function splitTagsByNamespace(tags) {
 
 	var tagsByNamespace = {};
