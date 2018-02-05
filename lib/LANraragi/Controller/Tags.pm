@@ -14,14 +14,24 @@ sub index {
 	my $self = shift;
 	my $redis = $self->LRR_CONF->get_redis;
 
-	#Build plugin listing in JSON form
+	#Build plugin listing 
 	my @plugins = LANraragi::Model::Plugins::plugins;
+	my $pluginlist = "";
 
 	foreach my $plugin (@plugins) {
 
 	    my %pluginfo = $plugin->plugin_info();
-	    my $name = $pluginfo{name};
-	    say "Plugin Loaded: ".$name;
+
+	    my $namespace = $pluginfo{namespace};
+        my $namerds = "LRR_PLUGIN_".uc($namespace);
+
+        my $checked = "";
+        if ($redis->hget($namerds,"enabled") == 1) {$checked = "checked";}
+
+		$pluginlist .= "<li><input type='checkbox' name='plugin' id='$namerds' $checked>".
+						"<label for='$namerds'> $pluginfo{name} by $pluginfo{author} <br/> $pluginfo{description} </label>".
+					"</li>";
+
 	}
 
 
@@ -51,7 +61,7 @@ sub index {
 
 	$self->render(template => "tags",
 		            title => $self->LRR_CONF->get_htmltitle,
-		            arclist => $arclist,
+		            arclist => $pluginlist,
 		            cssdrop => LANraragi::Model::Utils::generate_themes
 		            );
 

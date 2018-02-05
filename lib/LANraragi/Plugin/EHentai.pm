@@ -19,9 +19,10 @@ sub plugin_info {
 	    author => "Difegue",
 	    version  => "1.0",
 	    description => "Searches for the archive's title and author on E-Hentai, and returns tags if it finds any.",
-	    #If your plugin uses/needs a custom argument, input its name here. 
-	    #This name will be displayed in plugin configuration next to an input box.
-	    custom_arg_name => "E-H Gallery URL (Will override search)"
+	    #If your plugin uses/needs custom arguments, input their name here. 
+	    #This name will be displayed in plugin configuration next to an input box for global arguments, and in archive edition for one-shot arguments.
+	    global_arg => "Exhentai cookie ID (Gives access to more archives)",
+	    oneshot_arg => "E-H Gallery URL (Will override search)"
 	);
 
 }
