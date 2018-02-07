@@ -38,6 +38,10 @@ sub index {
 				  #Just in case
 				  LANraragi::Model::Utils::remove_spaces($t);
 
+				  #Strip namespaces if necessary
+				  if ($t =~ /.*:(.*)/)
+				  	{ $t = $1 }
+
 				  #Increment value of tag if it's already in the result hash, create it otherwise
 				  if (exists($tagcloud{$t}))
 				  	{ $tagcloud{$t}++; }
@@ -56,8 +60,8 @@ sub index {
 	my $tagcount = scalar @tags;
 
 	for my $t (@tags) {
-
-		$tagsjson .= "{text: '$t', weight: ".$tagcloud{$t}."},";
+		my $w = $tagcloud{$t};
+		$tagsjson .= qq({text: "$t", weight: $w },);
 	}
 
 	$tagsjson.="]";

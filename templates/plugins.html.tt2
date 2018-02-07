@@ -1,0 +1,61 @@
+<html>
+	<head>
+		<title>[% title %] - Plugin Configuration</title>
+
+		<meta name="viewport" content="width=device-width" />
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+		<link type="image/png" rel="icon" href="/img/favicon.ico" />
+		
+		<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
+		<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.toast.min.css" />
+
+		<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
+		<script src="/js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
+
+		<script src="/js/theme.js" type="text/JAVASCRIPT"></script>
+		<script src="/js/ajax.js" type="text/JAVASCRIPT"></script>
+
+	</head>
+
+	<body onload="set_style_from_storage();">
+
+		<style> 
+			/*** custom checkboxes ***/
+			input[type='checkbox'] {
+			    -webkit-appearance:none;
+			    -moz-appearance:none;
+			    appearance:none;
+			    font-size:30px;
+			    cursor:pointer;
+			    margin-left: 0px;
+			}
+
+			input[type='checkbox']::before {
+    			content: "\f0c8";
+			}
+
+			input[type='checkbox']:checked::before {
+			    content: "\f14a";
+			}
+		</style>
+
+		<div class="ido" style="text-align:center"><h1 class="ih" style="text-align:center">Plugin Configuration</h1> <br><br>
+		<form name="editConfigForm" id="editConfigForm" enctype="multipart/form-data" method="post">
+
+
+			[% FOREACH plugin IN plugins %]
+		        <li>[% plugin.name %] by [% plugin.author %]</li>
+		    [% END %]
+
+
+				<input class='stdbtn' type='button' onclick="savePluginConfig();" value='Save Plugin Configuration'/>
+				<input class='stdbtn' type='button' onclick="window.location.replace('/config');" value='Go to LRR Configuration'/>
+				<input class='stdbtn' type='button' onclick="window.location.replace('/');" value='Return to Library'/>
+
+		</form>
+		</div>
+
+	[% INCLUDE footer %]
+	</body>
+</html>

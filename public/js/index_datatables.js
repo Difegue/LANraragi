@@ -220,7 +220,7 @@ function buildTagsDiv(tags)
 
 		ucKey = key.charAt(0).toUpperCase() + key.slice(1);
 
-		line+="<tr><td style='font-size:10pt'>"+ucKey+":</td><td>";
+		line+="<tr><td style='font-size:10pt; padding: 0 2px 7px'>"+ucKey+":</td><td>";
 
 		tagsByNamespace[key].forEach(function (tag) {
 			line+='<div class="gt" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+tag+'</div>';

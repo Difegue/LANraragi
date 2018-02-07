@@ -14,15 +14,15 @@ sub plugin_info {
 
 	return (
 		#Standard metadata
-	    name  => "E-Hentai ",
+	    name  => "E-Hentai",
 	    namespace => "ehplugin",
 	    author => "Difegue",
 	    version  => "1.0",
-	    description => "Searches for the archive's title and author on E-Hentai, and returns tags if it finds any.",
+	    description => "Searches g.e-hentai/exhentai for tags matching your archive.",
 	    #If your plugin uses/needs custom arguments, input their name here. 
 	    #This name will be displayed in plugin configuration next to an input box for global arguments, and in archive edition for one-shot arguments.
-	    global_arg => "Exhentai cookie ID (Gives access to more archives)",
-	    oneshot_arg => "E-H Gallery URL (Will override search)"
+	    global_arg => "Exhentai Cookie ID/Pass (Use the following syntax: ipb_member_id/ipb_hash_pass",
+	    oneshot_arg => "E-H Gallery URL (Will attach tags matching this exact gallery to your archive)"
 	);
 
 }
@@ -30,18 +30,20 @@ sub plugin_info {
 #Mandatory function to be implemented by your plugin
 sub get_tags {
 
-	#LRR gives your plugin the recorded title for the file, the current tags, the filesystem path to the file, and the custom argument if available.
-    my ($title, $tags, $thumbhash, $file, $usrarg) = @_;
+	#LRR gives your plugin the recorded title for the file, the current tags, the filesystem path to the file, and the custom arguments if available.
+    my ($title, $tags, $thumbhash, $file, $globalarg, $oneshotarg) = @_;
 
     #Work your magic here - You can create subs below to organize the code better
     my $apiJSON;
 
+    #Setup Cookies if they're set and use exhentai
+
     #Craft URL for Text Search on EH if there's no user argument
-    if ($usrarg eq "") {
+    if ($oneshotarg eq "") {
     	$apiJSON = &lookup_by_title($title);
     } else {
     	#Quick regex to get the E-H archive ids from the provided url.
-    	if ($usrarg =~ /.*\/g\/([0-9]*)\/([0-z]*)\/*.*/ ) { 
+    	if ($oneshotarg =~ /.*\/g\/([0-9]*)\/([0-z]*)\/*.*/ ) { 
 			$apiJSON = qq({"method": "gdata","gidlist": [[$1,"$2"]]});
 		}
     }

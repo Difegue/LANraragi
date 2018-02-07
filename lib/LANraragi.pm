@@ -95,6 +95,9 @@ sub startup {
   $logged_in->get('/config')->to('config#index');
   $logged_in->post('/config')->to('config#save_config');
 
+  $logged_in->get('/config/plugins')->to('plugins#index');
+  $logged_in->post('/config/plugins')->to('plugins#save_config');
+
   $logged_in->get('/edit')->to('edit#index');
   $logged_in->post('/edit')->to('edit#save_metadata');
   $logged_in->delete('/edit')->to('edit#delete_archive');

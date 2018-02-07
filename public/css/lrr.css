@@ -39,7 +39,7 @@ td.tags {max-width: 150px;}
 
 .id2 .caption {
     margin-left: 100px !important;
-    width: 228px !important;
+    min-width: 228px !important;
 }
 
 .caption-container:hover .caption {

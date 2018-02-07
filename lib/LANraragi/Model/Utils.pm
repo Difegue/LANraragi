@@ -98,9 +98,9 @@ sub generate_themes {
 		$CSSsel = $CSSsel.'<input  class="stdbtn" type="button" onclick="switch_style(\''.$i.'\');" value="'.$css_name.'"/>';
 
 		if ($css[$i] eq LANraragi::Model::Config->get_style) #if this is the default sheet, set it up as so.
-			{$html=$html.'<link rel="stylesheet" type="text/css" title="'.$i.'" href="./themes/'.$css[$i].'"> ';}
+			{$html=$html.'<link rel="stylesheet" type="text/css" title="'.$i.'" href="/themes/'.$css[$i].'"> ';}
 		else
-			{$html=$html.'<link rel="alternate stylesheet" type="text/css" title="'.$i.'" href="./themes/'.$css[$i].'"> ';}
+			{$html=$html.'<link rel="alternate stylesheet" type="text/css" title="'.$i.'" href="/themes/'.$css[$i].'"> ';}
 	}		
 
 	#close up dropdown list
@@ -236,7 +236,6 @@ sub build_archive_JSON {
 		}	
 				
 		#Tag display. Simple list separated by hyphens which expands into a caption div with nicely separated tags on hover.
-		#TODO: Create a JS-side display separating tags by namespaces...
 		my $printedtags = "";
 		
 		if ($title =~ /^\s*$/) #Workaround if title was incorrectly parsed as blank
