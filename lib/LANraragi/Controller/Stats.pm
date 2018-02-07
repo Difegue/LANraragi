@@ -38,7 +38,7 @@ sub index {
 				  #Just in case
 				  LANraragi::Model::Utils::remove_spaces($t);
 
-				  #Strip namespaces if necessary
+				  #Strip namespaces if necessary - detect the : symbol and only use what's after it
 				  if ($t =~ /.*:(.*)/)
 				  	{ $t = $1 }
 
@@ -71,11 +71,6 @@ sub index {
 	my $size = 0;
 
 	find(sub { $size += -s if -f }, $dirname);
-
-	#for my $filename (glob("$dirname/*")) {
-	#    next unless -f $filename;
-	#    $size += -s _;
-	#}
 
 	$size = int($size/1073741824*100)/100;
 

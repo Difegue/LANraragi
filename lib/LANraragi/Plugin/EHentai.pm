@@ -21,7 +21,7 @@ sub plugin_info {
 	    description => "Searches g.e-hentai/exhentai for tags matching your archive.",
 	    #If your plugin uses/needs custom arguments, input their name here. 
 	    #This name will be displayed in plugin configuration next to an input box for global arguments, and in archive edition for one-shot arguments.
-	    global_arg => "Exhentai Cookie ID/Pass (Use the following syntax: ipb_member_id/ipb_hash_pass",
+	    global_arg => "Exhentai Cookie ID/Pass (Use the following syntax: ipb_member_id/ipb_hash_pass )",
 	    oneshot_arg => "E-H Gallery URL (Will attach tags matching this exact gallery to your archive)"
 	);
 

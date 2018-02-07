@@ -97,6 +97,7 @@ eval {
 if ($@) {
   say ("NOT FOUND");
   say ("Please install ImageMagick with Perl before proceeding.");
+  say ("Further instructions are available at https://www.imagemagick.org/script/perl-magick.php .");
   say ("The ImageMagick detection command returned: $imgk -- $@");
   die;
 }

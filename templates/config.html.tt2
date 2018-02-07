@@ -56,7 +56,7 @@
 
 		  	<tr><td style="text-align:left; width:100px"><h1 class="ih"> Archive Directory </h1></td><td>
 				<input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% dirname %]" name="dirname" type="text">
-				<br> Directory where the archives will be located. <br>Make sure the user running LANraragi has access to this directory. It will be created when needed if it doesn't exist.
+				<br> Directory where the archives will be located. <br>Make sure the OS user running LANraragi has access to this directory. It will be created when needed if it doesn't exist.
 			</td></tr>
 
 		  	<tr><td style="text-align:left; width:100px"><h1 class="ih"> Archives per page </h1></td><td>
@@ -112,7 +112,7 @@
 
 			<tr>
 			<td colspan='2' style='text-align:center'> <br/>
-				<input class='stdbtn' type='button' onclick="saveConfigurationData();" value='Save LRR Configuration'/>
+				<input class='stdbtn' type='button' onclick="saveFormData('#editConfigForm');" value='Save LRR Configuration'/>
 				<input class='stdbtn' type='button' onclick="window.location.replace('/config/plugins');" value='Go to Plugin Configuration'/>
 				<input class='stdbtn' type='button' onclick="window.location.replace('/');" value='Return to Library'/>
 			<br/></td></tr>

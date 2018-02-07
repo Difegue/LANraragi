@@ -29,6 +29,7 @@ sub delete_metadata_and_file
 		unlink $filename; 
 
 		#Trigger a JSON rebuild.
+		#TODO - Interact with background worker instead of doing this in the http request thread
 		LANraragi::Model::Utils::refresh_json_cache();
 
 		return $filename; 

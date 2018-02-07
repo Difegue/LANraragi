@@ -5,12 +5,12 @@
 		<meta name="viewport" content="width=device-width" />
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
-		<link type="image/png" rel="icon" href="./img/favicon.ico" />
+		<link type="image/png" rel="icon" href="/img/favicon.ico" />
 	</head>
 
 <body style='background: none repeat scroll 0% 0% brown; color: white; font-family: sans-serif; text-align: center'>
 
-		<img src='./img/flubbed.gif'/>
+		<img src='/img/flubbed.gif'/>
 		<br/>
 		<h2>I flubbed it while trying to open the archive [% filename %]</h2>
 		It's likely the archive is corrupt.<br/> 

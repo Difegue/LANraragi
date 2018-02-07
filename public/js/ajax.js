@@ -26,49 +26,14 @@ function cleanTempFldr()
 		});
 }
 
-//saveArchiveData()
-//Grabs the data in the edit.pl form and saves it to Redis.
-function saveArchiveData()
-{
-	var postData = $("#editArchiveForm").serializeArray()
-	var formURL = $("#editArchiveForm").attr("action")
 
-	$.ajax(
-	{
-		url : formURL,
-		type: "POST",
-		data : postData,
-		success:function(data, textStatus, jqXHR) 
-		{
-			$.toast({
-				showHideTransition: 'slide',
-				position: 'top-left', 
-				loader: false, 
-			    heading: 'Metadata saved!',
-			    icon: 'success'
-			})
-		},
-		error: function(jqXHR, textStatus, errorThrown) 
-		{
-			$.toast({
-				showHideTransition: 'slide',
-				position: 'top-left', 
-				loader: false, 
-			    heading: 'Error while saving archive data :',
-			    text: errorThrown,
-			    icon: 'error'
-			})	
-		}
-	});
+//saveFormData()
+//POSTs the data of the specified form to the page.
+//This is used for Edit, Config and Plugins.
+function saveFormData(formSelector) {
 
-}
-
-//saveConfigurationData()
-//Grabs the data in the config.pl form and saves it to Redis. Very much a copypaste idgaf it's js wooooow
-function saveConfigurationData()
-{
-	var postData = $("#editConfigForm").serializeArray()
-	var formURL = $("#editConfigForm").attr("action")
+	var postData = $(formSelector).serializeArray()
+	var formURL = $(formSelector).attr("action")
 
 	
 	$.ajax(
@@ -78,23 +43,24 @@ function saveConfigurationData()
 		data : postData,
 		success:function(data, textStatus, jqXHR) 
 		{
-			if (data.success == "0")
+			if (data.success)
 				$.toast({
 					showHideTransition: 'slide',
 					position: 'top-left', 
 					loader: false, 
-				    heading: 'Error while saving configuration',
-				    text: data.message,
-				    icon: 'error'
-				});		
+				    heading: 'Saved Successfully!',
+				    icon: 'success'
+				})
 			else
 				$.toast({
 					showHideTransition: 'slide',
 					position: 'top-left', 
 					loader: false, 
-				    heading: 'Configuration saved!',
-				    icon: 'success'
-				})
+				    heading: 'Saving unsuccessful :',
+				    text: data.message,
+				    icon: 'error'
+				});		
+				
 		},
 		error: function(jqXHR, textStatus, errorThrown) 
 		{
@@ -102,12 +68,13 @@ function saveConfigurationData()
 				showHideTransition: 'slide',
 				position: 'top-left', 
 				loader: false, 
-			    heading: 'Error while saving configuration :',
+			    heading: 'Error while saving :',
 			    text: errorThrown,
 			    icon: 'error'
 			})		
 		}
 	});
+
 
 }
 
@@ -202,7 +169,7 @@ function deleteArchive(arcId)
 }
 
 
-
+//TODO: Sort out those dead functions when plugins are done
 
 //ajaxTags(titleOrHash,method)
 //Calls API to get tags for the given title or image hash.
