@@ -47,6 +47,7 @@ sub startup {
   #Helper so controllers can reach the app's Redis DB quickly (they still need to declare use Model::Config)
   $self->helper(LRR_CONF => sub { LANraragi::Model::Config:: });
 
+
   #Plugin listing
   my @plugins = LANraragi::Model::Plugins::plugins;
   foreach my $plugin (@plugins) {
@@ -70,7 +71,6 @@ sub startup {
   });
 
   $proc->run([$^X, "./lib/Shinobu.pm"]);
-  
 
   # Router
   my $r = $self->routes;

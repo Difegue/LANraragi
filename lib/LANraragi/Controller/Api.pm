@@ -121,7 +121,7 @@ sub serve_thumbnail {
 sub rebuild_json_cache {
 
 	my $self = shift;
- 	LANraragi::Model::Utils::refresh_json_cache();
+ 	LANraragi::Model::Utils::ask_background_refresh();
 
  	$self->render(  json => {
 					operation => "refresh_cache",

@@ -66,11 +66,10 @@ sub redis_decode {
 	return $data;
 }
 
-#Refresh the stored JSON cache. This is normally done automatically by the background worker, but there are a few cases where we want it ASAP.
-#After the user uploaded some archives through the webform, for instance.
-sub refresh_json_cache {
-	my @archives = &get_archive_list;
-	&build_json_cache(@archives);
+#Force a background refresh. The Background worker will see this value on its next iteration and automatically trigger a refresh.
+sub ask_background_refresh {
+	my $redis = LANraragi::Model::Config::get_redis;
+	$redis->hset("LRR_JSONCACHE","force_refresh", 1);
 }
 
 #Print a dropdown list to select CSS, and adds <link> tags for all the style sheets present in the /style folder.
@@ -95,7 +94,7 @@ sub generate_themes {
 	{
 		#populate the div with spans
 		my $css_name = LANraragi::Model::Config::css_default_names($css[$i]);
-		$CSSsel = $CSSsel.'<input  class="stdbtn" type="button" onclick="switch_style(\''.$i.'\');" value="'.$css_name.'"/>';
+		$CSSsel = $CSSsel.'<input class="stdbtn" type="button" onclick="switch_style(\''.$i.'\');" value="'.$css_name.'"/>';
 
 		if ($css[$i] eq LANraragi::Model::Config->get_style) #if this is the default sheet, set it up as so.
 			{$html=$html.'<link rel="stylesheet" type="text/css" title="'.$i.'" href="/themes/'.$css[$i].'"> ';}
@@ -208,7 +207,13 @@ sub build_json_cache {
 	$json.="]";
 
 	#Write JSON to cache
-	$redis->set("LRR_JSONCACHE",encode_utf8($json));
+	$redis->hset("LRR_JSONCACHE","archive_list",encode_utf8($json));
+
+	#Write the current archive count too
+	$redis->hset("LRR_JSONCACHE","archive_count", scalar @dircontents);
+
+	#Clean force flag
+	$redis->hset("LRR_JSONCACHE","force_refresh", 0);
 
 }
 

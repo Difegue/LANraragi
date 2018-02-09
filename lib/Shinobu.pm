@@ -36,7 +36,7 @@ sub initialize_from_new_process {
 	while (1) {
 	
 		&workload;
-		say ("All Background Tasks done, sleeping $interval seconds.");
+		#say ("All Background Tasks done, sleeping $interval seconds.");
 		sleep($interval);
 	}
 
@@ -44,17 +44,27 @@ sub initialize_from_new_process {
 
 sub workload {
 
-	say ("Parsing Archive Directory...");
-	
+	#say ("Parsing Archive Directory...");
 	my @archives = LANraragi::Model::Utils::get_archive_list;
-	
-	say ("Checking for new archives...");
-	&new_archive_check(@archives);
+	my $redis = LANraragi::Model::Config::get_redis;
 
-	say ("Building JSON cache from Redis...");
-	LANraragi::Model::Utils::build_json_cache(@archives);
+	my $cachecount = $redis->hget("LRR_JSONCACHE","archive_count");
+	my $force = $redis->hget("LRR_JSONCACHE","force_refresh");
 
-	say ("Checking Temp Folder Size...");
+	#say ("Checking for new archives...");
+	if ( scalar @archives != $cachecount ) {
+		&new_archive_check(@archives);
+	}
+
+	#say ("Building JSON cache from Redis...");
+	if ( scalar @archives != $cachecount || $force) {
+		if ($force) { say ("JSON rebuild forced by main app..."); }
+			else { say ("Archive count has changed since last cached value ($cachecount), rebuilding..."); }
+		LANraragi::Model::Utils::build_json_cache(@archives);
+		say ("Done!");
+	}
+
+	#say ("Checking Temp Folder Size...");
 	&autoclean_temp_folder;
 
 }
@@ -86,10 +96,10 @@ sub autoclean_temp_folder {
 	$size = int($size/1048576*100)/100;
 
 	my $maxsize = LANraragi::Model::Config::get_tempmaxsize;
-	say ("Current size is $size MBs, Maximum size is $maxsize MBs.");
 
 	if ($size > $maxsize) {
-		say ("Cleaning.");
+		say ("Current temporary folder size is $size MBs, Maximum size is $maxsize MBs. Cleaning.");
+
 		remove_tree('$FindBin::Bin/../public/temp', {error => \my $err}); 
 
 		if (@$err) {

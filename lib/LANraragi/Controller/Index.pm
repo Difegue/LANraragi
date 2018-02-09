@@ -55,9 +55,9 @@ sub index {
 
 	my $archivejson = "[]";
 
-	#Get cached JSON from Redis
 	if ($redis->exists("LRR_JSONCACHE")) {
-		$archivejson = decode_utf8($redis->get("LRR_JSONCACHE"));
+		#Get cached JSON from Redis
+		$archivejson = decode_utf8($redis->hget("LRR_JSONCACHE","archive_list"));
 	}
 
 	#Checking if the user still has the default password enabled
