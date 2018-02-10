@@ -50,14 +50,14 @@
 
 
 			[% FOREACH plugin IN plugins %]
-			<span style="display:inline-block; text-align: left">
+			<span style="display:inline-block; text-align: left; min-width:80%">
 				[% IF plugin.enabled %]
 			  		<input id="[% plugin.namespace %]" name="[% plugin.namespace %]" class="fa" type="checkbox" checked>
 			  	[% ELSE %]
 			  		<input id="[% plugin.namespace %]" name="[% plugin.namespace %]" class="fa" type="checkbox">
 			  	[% END %]
 
-				<h2 class="ih" style="display:inline"> [% plugin.name %] </h2> <h1 class="ih" style="display:inline"> by [% plugin.author %] </h1> <br/>
+				<h2 class="ih" style="display:inline"> [% plugin.name %] v.[% plugin.version %]</h2> <h1 class="ih" style="display:inline"> by [% plugin.author %] </h1> <br/>
 		        <i >[% plugin.description %]</i> <br/>
 
 		        [% IF plugin.global_arg %]
@@ -65,6 +65,7 @@
 		        [% END %]
 		        <br/>
 		    </span>
+		    <br/> <br/>
 		    [% END %]
 
 		   

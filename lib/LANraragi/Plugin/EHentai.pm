@@ -31,7 +31,7 @@ sub plugin_info {
 sub get_tags {
 
 	#LRR gives your plugin the recorded title for the file, the current tags, the filesystem path to the file, and the custom arguments if available.
-    my ($title, $tags, $thumbhash, $file, $globalarg, $oneshotarg) = @_;
+    my ($title, $tags, $thumbhash, $file, $globalarg, $oneshotarg, $logger) = @_;
 
     #Work your magic here - You can create subs below to organize the code better
     my $apiJSON;
@@ -47,6 +47,9 @@ sub get_tags {
 			$apiJSON = qq({"method": "gdata","gidlist": [[$1,"$2"]]});
 		}
     }
+
+    #Use the logger to output status - they'll be passed to LRR's standard output and a specialized logfile.
+    $logger->info("JSON passed to the EH API is $apiJSON");
 
     my $newtags = &get_tags_from_EH($apiJSON);
 

@@ -10,6 +10,8 @@ use Module::Pluggable require =>1, search_path => ['LANraragi::Plugin'];
 use Redis;
 use Encode;
 
+use Mojo::Log;
+
 use LANraragi::Model::Utils;
 use LANraragi::Model::Config;
 
@@ -35,7 +37,7 @@ sub exec_enabled_plugins_on_file {
 			($_ = LANraragi::Model::Utils::redis_decode($_)) for ($enabled, $arg);
 
 			if ($enabled) {
-				&exec_plugin_on_file($plugin, $id, $arg);
+				&exec_plugin_on_file($plugin, $id, $arg, ""); #No oneshot arguments here
 			}
 
         }
@@ -44,11 +46,27 @@ sub exec_enabled_plugins_on_file {
 
 }
 
-#Execute a specified plugin on a file, described through its Redis ID. The custom argument isn't mandatory.
+#Execute a specified plugin on a file, described through its Redis ID. 
 sub exec_plugin_on_file {
 
-	my ($plugin, $id, $arg) = @_;
+	my ($plugin, $id, $arg, $oneshotarg) = @_;
 	my $redis = LANraragi::Model::Config::get_redis;
+
+	#Customize log file location and minimum log level
+	my $log = Mojo::Log->new(path => 'plugins.log', level => 'info');
+	my %pluginfo = $plugin->plugin_info();
+
+	#Copy logged messages to STDOUT with the plugin name
+	$log->on(message => sub {
+	  my ($time, $level, @lines) = @_;
+	  print join("\n", @lines);
+	});
+
+	$log->format(sub {
+     my ($time, $level, @lines) = @_;
+     my $pgname = $pluginfo{name};
+     return "[$pgname] - $level: " . join("\n", @lines) . "\n";
+ 	});
 
 	#If the plugin has the method "get_tags", catch all the required data and feed it to the plugin
 	if ($plugin->can('get_tags')) {
@@ -57,7 +75,8 @@ sub exec_plugin_on_file {
 		my ($name,$title,$tags,$file,$thumbhash) = @hash{qw(name event artist title series language tags file thumbhash)};
 		($_ = LANraragi::Model::Utils::redis_decode($_)) for ($name, $title, $tags, $file);
 
-		my %newmetadata = $plugin->get_tags($title, $tags, $thumbhash, $file, $arg);
+		#Hand it off to the plugin here.
+		my %newmetadata = $plugin->get_tags($title, $tags, $thumbhash, $file, $arg, $oneshotarg, $log);
 
 		my @blacklist = LANraragi::Model::Config::get_tagblacklist;
 		#TODO: Insert new metadata in Redis

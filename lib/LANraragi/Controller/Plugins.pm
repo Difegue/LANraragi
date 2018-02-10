@@ -71,7 +71,9 @@ sub save_config {
 		    my $arg = $self->req->param($namespace."_CFG");
 
 		    $redis->hset($namerds,"enabled", $enabled);
-	        $redis->hset($namerds,"customarg", $arg); 
+
+		    unless ($arg eq "")
+	        	{ $redis->hset($namerds,"customarg", $arg); }
 
 		}
 	};

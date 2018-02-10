@@ -65,7 +65,8 @@ sub workload {
 	}
 
 	#say ("Checking Temp Folder Size...");
-	&autoclean_temp_folder;
+	if (-e "$FindBin::Bin/../public/temp")
+		{ &autoclean_temp_folder; }
 
 }
 
@@ -100,7 +101,7 @@ sub autoclean_temp_folder {
 	if ($size > $maxsize) {
 		say ("Current temporary folder size is $size MBs, Maximum size is $maxsize MBs. Cleaning.");
 
-		remove_tree('$FindBin::Bin/../public/temp', {error => \my $err}); 
+		remove_tree("$FindBin::Bin/../public/temp", {error => \my $err}); 
 
 		if (@$err) {
 	  		for my $diag (@$err) {

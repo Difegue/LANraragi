@@ -102,6 +102,18 @@ sub index {
 		my ($name,$title,$tags,$file,$thumbhash) = @hash{qw(name title tags file thumbhash)};
 		($_ = LANraragi::Model::Utils::redis_decode($_)) for ($name, $title, $tags, $file);
 
+
+		#Build plugin listing 
+		my @plugins = LANraragi::Model::Plugins::plugins;
+
+		#Plugin list is an array of hashes
+		my @pluginlist = ();
+
+		foreach my $plugin (@plugins) {
+		    my %pluginfo = $plugin->plugin_info();
+			push @pluginlist, \%pluginfo;
+		}	            
+
 		$redis->quit();
 
 		$self->render(  template => "edit",
@@ -111,6 +123,7 @@ sub index {
 			            tags => $tags,
 			            file => $file,
 			            thumbhash => $thumbhash,
+			            plugins => \@pluginlist,
 			            title => $self->LRR_CONF->get_htmltitle,
 			            cssdrop => LANraragi::Model::Utils::generate_themes
 		  	          );
