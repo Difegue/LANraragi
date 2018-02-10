@@ -127,7 +127,14 @@ sub parse_name {
 
 	unless ($artist eq "") { 
 		unless ($tags eq "") { $tags.=", "; } 
-		$tags .= "artist:$artist "; 
+
+		#Special case for circle/artist sets: If the string contains parenthesis, what's inside those is the artist name -- the rest is the circle.
+		if ($artist =~ /(.*) \((.*)\)/ ) {
+			$tags .= "circle:$1, artist:$2";
+		}
+		else {
+			$tags .= "artist:$artist ";
+		}
 	}
 
 	unless ($series eq "") { 

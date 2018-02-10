@@ -192,7 +192,7 @@ function buildThumbDiv( row, data, index ) {
 								'<i style="margin-right:2px" class="fa fa-save"></i>'+
 							'</a>'+
 							'<a title="Edit this archive\'s tags and data." href="./edit?id='+data.arcid+'">'+
-								'<i class="fa fa-pencil-alt"></i>'+
+								'<i class="fa fa-edit"></i>'+
 							'</a></span>'+
 							'<div class="id42"><a style="cursor:pointer" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+
 								data.series+'</a></div>'+
