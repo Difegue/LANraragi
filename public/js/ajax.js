@@ -1,4 +1,4 @@
-//Scripting for API calls
+//Scripting for Generic API calls.
 
 //cleanTempFldr
 function cleanTempFldr()
