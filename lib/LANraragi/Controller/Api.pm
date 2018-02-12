@@ -8,7 +8,7 @@ use File::Path qw(remove_tree);
 
 use LANraragi::Model::Utils;
 use LANraragi::Model::Config;
-#use LANraragi::Model::Tagging;
+use LANraragi::Model::Plugins;
 
 #use RenderFile to get the file of the provided id to the client.
 sub serve_file {
@@ -129,87 +129,48 @@ sub rebuild_json_cache {
 				  });
 }
 
-
-
-#Buncha dead code below
-##########################
-sub fetch_tags {
+#Uses a plugin on the given archive with the given argument.
+#Returns the fetched tags in a JSON response.
+sub use_plugin {
 	my $self = shift;
 
 	my $id = $self->req->param('id');
-	my $method = $self->req->param('method');
-	my $urlOverride = $self->req->param('url');
-	my $blacklist = $self->LRR_CONF->get_tagblacklist;
+	my $plugname = $self->req->param('plugin');
+	my $oneshotarg = $self->req->param('arg');
+	my $redis = $self->LRR_CONF->get_redis();
 
-	my $tags = &getTags($id,$method,$blacklist, $urlOverride);
+	#Go through plugins to find one with a matching namespace
+	my @plugins = LANraragi::Model::Plugins::plugins;
 
-	#with or without instasave
-	if ($self->req->param('instasave'))
-		{ &addTags($id,$tags); }
+	foreach my $plugin (@plugins) {
+
+	    my %pluginfo = $plugin->plugin_info();
+	    my $namespace = $pluginfo{namespace};
+
+	    if ($plugname eq $namespace) {
+
+	    	#Get the matching argument in Redis
+	    	my $namerds = "LRR_PLUGIN_".uc($namespace);
+	    	my $globalarg = $redis->hget($namerds,"customarg");
+	    	$globalarg = LANraragi::Model::Utils::redis_decode($globalarg);
+
+	    	#Finally, execute the plugin 
+	    	my $tags = LANraragi::Model::Plugins::exec_plugin_on_file($plugin, $id, $globalarg, $oneshotarg);
+
+	    	$self->render(  json => {
+							operation => "fetch_tags",
+							status => 1,
+							tags => $tags
+						  });
+	    }
+	}
 
 	$self->render(  json => {
 					operation => "fetch_tags",
-					status => 1,
-					tags => $tags
+					status => 0,
+					error => "Plugin not found on system."
 				  });
 
-}
-
-#Get tags for the given input(title or image hash) and method(0 = title, 1= hash, 2=nhentai)
-#TODO - Replace by plugin system
-sub getTags {
-	my $id = $_[0];
-	my $method = $_[1];
-	my $bliststr = $_[2];
-	my $url = $_[3];
-	my $tags = "";
-	
-	my $queryJson;
-
-	if ($method eq "2") #nhentai usecase
-	{ 
-		if ($url eq "") 
-		{ $tags = &nHentaiGetTags($id); }
-		else
-		{
-		  if ($url =~ /.*\/g\/([0-9]*)\/.*/ ) { #Quick regex to get the nhentai id from the url
-		  	$tags = &getTagsFromNHAPI($1); 
-		  }
-		}
-		
-	}
-	else #g.e-hentai usecase
-	{
-		eval { 
-				if ($url eq "") 
-				{ $queryJson = &eHentaiGetTags($id,$method); }
-				else 
-				{ #Quick regex to get the E-H archive ids from the provided url.
-					if ($url =~ /.*\/g\/([0-9]*)\/([0-z]*)\/*.*/ ) { 
-						$queryJson = qq({"method": "gdata","gidlist": [[$1,"$2"]]});
-					}
-				}
-
-				#Call the actual e-hentai API with the json we created and grab dem tags
-				$tags = &getTagsFromEHAPI($queryJson);
-			 }; 
-
-		#If the archive didn't have a thumbnail hash, we return an error code.
-		return "NOTHUMBNAIL" if $@; 
-		
-	}
-
-	#We got the tags, let's strip out the ones in the blacklist.
-	my @blacklist = split(/,\s?/, $bliststr);
-
-	foreach my $tag (@blacklist) 
-		{ $tags =~ s/\Q$tag\E,//ig; } #Remove all occurences of $tag in $tags
-	
-	unless ($tags eq("") || $tags eq(" "))
-		{ return $tags; }	
-	else
-		{ return "NOTAGS"; }
-	
 }
 
 1;
