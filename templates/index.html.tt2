@@ -69,7 +69,7 @@
 				<tr>
 					<th></th>
 					<th id="titleheader"><a>Title</a></th>
-					<th id="artistheader"><a>Artist/Group</a></th>
+					<th id="artistheader"><a>Artist</a></th>
 					<th id="seriesheader"><a>Series</a></th>
 					<th id="tagsheader"><a>Tags</a></th>
 				</tr>
