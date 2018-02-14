@@ -111,7 +111,7 @@ sub startup {
   $logged_in->get('/upload')->to('upload#index');
   $logged_in->post('/upload')->to('upload#process_upload');
 
-  $logged_in->post('/api/tags')->to('api#fetch_tags');
+  $logged_in->post('/api/use_plugin')->to('api#use_plugin');
   $logged_in->get('/api/cleantemp')->to('api#clean_tempfolder');
   $logged_in->get('/api/refresh_index')->to('api#rebuild_json_cache');
 

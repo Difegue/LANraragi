@@ -5,20 +5,19 @@
 			<meta name="viewport" content="width=device-width" />
 			<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 			
-			<link type="image/png" rel="icon" href="./img/favicon.ico" />
-			<link rel="stylesheet" type="text/css" href="./css/lrr.css" />
+			<link type="image/png" rel="icon" href="/img/favicon.ico" />
+			<link rel="stylesheet" type="text/css" href="/css/lrr.css" />
 			
-			<link rel="stylesheet" type="text/css" href="./css/vendor/fontawesome-all.min.css" />
-			<link rel="stylesheet" type="text/css" href="./css/vendor/jquery.toast.min.css" />
+			<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
+			<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.toast.min.css" />
 
-			<script src="./js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
-			<script src="./js/vendor/jquery.dataTables.min.js" type="text/JAVASCRIPT"></script>
-			<script src="./js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
+			<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
+			<script src="/js/vendor/jquery.dataTables.min.js" type="text/JAVASCRIPT"></script>
+			<script src="/js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
 
-			<script src="./js/ajax.js" type="text/JAVASCRIPT"></script>
-			<script src="./js/index.js" type="text/JAVASCRIPT"></script>
-			<script src="./js/index_datatables.js" type="text/JAVASCRIPT"></script>
-			<script src="./js/theme.js" type="text/JAVASCRIPT"></script>
+			<script src="/js/index.js" type="text/JAVASCRIPT"></script>
+			<script src="/js/index_datatables.js" type="text/JAVASCRIPT"></script>
+			<script src="/js/theme.js" type="text/JAVASCRIPT"></script>
 			
 		</head>
 

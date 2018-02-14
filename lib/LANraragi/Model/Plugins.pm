@@ -81,10 +81,11 @@ sub exec_plugin_on_file {
 		my @blacklist = LANraragi::Model::Config::get_tagblacklist;
 		#TODO: Insert new metadata in Redis
 		#foreach my $tag (@blacklist) 
-		#{ $tags =~ s/\Q$tag\E,//ig; } 
+		#{ $tags =~ s/\Q$tag\E,//ig; } #Remove all occurences of $tag in $tags
+		#We got the tags, let's strip out the ones in the blacklist.
+
+		return ""; 
 	}
-
-
 }
 
 1;

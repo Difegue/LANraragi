@@ -15,10 +15,11 @@
 
 			<script src="/js/theme.js" type="text/JAVASCRIPT"></script>
 			<script src="/js/ajax.js" type="text/JAVASCRIPT"></script>
+			<script src="/js/edit.js" type="text/JAVASCRIPT"></script>
 		
 		</head>
 
-		<body onload="set_style_from_storage();">
+		<body onload="set_style_from_storage(); updateOneShotArg();">
 
 			<div class='ido' style='text-align:center'>
 
@@ -43,17 +44,33 @@
 			  	</td></tr>
 
 				<tr><td style='text-align:left; width:100px; vertical-align:top'>Tags <span style="font-size:6pt">(separated by hyphens, i.e : tag1, tag2)</span> :
-
-					<input type='button' name='tag_import' value='Metadata&#x00A;Help' onclick="toastHelpEdit();" 
-					class='stdbtn' style='margin-top:25px; min-width:90px; height:50px'></input>
-					<input type='button' name='tag_import' value='Import&#x00A;Metadata' onclick="openPluginPopup();" 
-					class='stdbtn' style='margin-top:25px; min-width:90px; height:50px'></input>
-
-					<i class='fa fa-2x fa-exclamation-circle'></i> Importing Tags will save any modifications to archive metadata you might have made !
 				</td>
 				<td>
-					<textarea id='tagText' class='stdinput' name='tags' maxlength='5000' style='width:100%; height:350px' size='20'>[% tags %]</textarea>
+					<textarea id='tagText' class='stdinput' name='tags' maxlength='5000' style='width:100%; height:125px' size='20'>[% tags %]</textarea>
 					<i class='fa fa-5x fa-cog fa-spin' style=' color:black; position:absolute; top:55%; left:52%; display:none' id='tag-spinner'></i>
+				</td></tr>
+
+				<tr><td style='text-align:left; width:100px; vertical-align:top'>Import Tags from Plugin :
+					<input type='button' name='tag_import' value='Plugin&#x00A;Help' onclick="toastHelpEdit();" 
+					class='stdbtn' style='margin-top:25px; min-width:90px; height:50px'></input>
+				</td>
+				<td>
+
+					<select id="plugin" onchange="updateOneShotArg()">
+						[% FOREACH plugin IN plugins %]
+						<option value="[% plugin.namespace %]" arg="[% plugin.oneshot_arg %]">[% plugin.name %]</option>  
+						[% END %]
+					</select>
+
+					<input class='stdbtn' type='button' style="min-width:90px;" onclick="saveArchiveCallback()" value='Go!'/>
+					<br/>
+
+					<span id="arg_label"></span> <br/>
+					<input id='arg' class='stdinput' type='text' style='width:100%' size='20' value="">
+
+					<br/>
+
+					<i class='fa fa-2x fa-exclamation-circle'></i> Using a Plugin will save any modifications to archive metadata you might have made !
 				</td></tr>
 
 				<tr>
