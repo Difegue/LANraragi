@@ -88,7 +88,9 @@ function artistColumnDisplay(data,type,full,meta) {
 		tagsByNamespace = splitTagsByNamespace(data);
 
 		if ("artist" in tagsByNamespace)
-			return '<a style="cursor:pointer" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+tagsByNamespace["artist"][0]+'</a>';
+			return '<a style="cursor:pointer" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+
+					tagsByNamespace["artist"][0].replace(/\b./g, function(m){ return m.toUpperCase(); })+
+					'</a>';
 		else
 			return "";
 	}
@@ -106,7 +108,9 @@ function seriesColumnDisplay(data,type,full,meta) {
 		tagsByNamespace = splitTagsByNamespace(data);
 
 		if ("parody" in tagsByNamespace)
-			return '<a style="cursor:pointer" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+tagsByNamespace["parody"][0]+'</a>';
+			return '<a style="cursor:pointer" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+
+			tagsByNamespace["parody"][0].replace(/\b./g, function(m){ return m.toUpperCase(); })+
+			'</a>';
 		else
 			return "";
 	}
@@ -239,18 +243,24 @@ function splitTagsByNamespace(tags) {
 	var tagsByNamespace = {};
 
 	tags.split(/,\s?/).forEach(function (tag) {
+		nspce = null;
+		val = null;
 
 		//Split the tag from its namespace
 		arr = tag.split(/:\s?/);
 		if (arr.length == 2) {
 			nspce = arr[0].trim();
 			val = arr[1].trim();
+		} else {
+			nspce = "Other";
+			val = arr;
+		}
 
-			if (nspce in tagsByNamespace)
-				tagsByNamespace[nspce].push(val);
-			else
-				tagsByNamespace[nspce] = [val];
-	    }
+		if (nspce in tagsByNamespace)
+			tagsByNamespace[nspce].push(val);
+		else
+			tagsByNamespace[nspce] = [val];
+	    
 	});
 
 	return tagsByNamespace;

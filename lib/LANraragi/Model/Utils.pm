@@ -227,42 +227,42 @@ sub build_json_cache {
 #build_archive_JSON(id, file, redis, userdir)
 #Builds a JSON object for an archive already registered in the Redis database and returns it.
 sub build_archive_JSON {
-		my ($id, $file, $redis, $dirname) = @_;
+	my ($id, $file, $redis, $dirname) = @_;
 
-		my %hash = $redis->hgetall($id);
-		my ($path, $suffix);
+	my %hash = $redis->hgetall($id);
+	my ($path, $suffix);
 
-		#It's not a new archive, but it might have never been clicked on yet, so we'll grab the value for $isnew stored in redis.
-		my ($name,$title,$tags,$filecheck,$isnew) = @hash{qw(name title tags file isnew)};
+	#It's not a new archive, but it might have never been clicked on yet, so we'll grab the value for $isnew stored in redis.
+	my ($name,$title,$tags,$filecheck,$isnew) = @hash{qw(name title tags file isnew)};
 
-		#Parameters have been obtained, let's decode them.
-		( eval { $_ = LANraragi::Model::Utils::redis_decode($_) } ) for ($name, $title, $tags, $filecheck);
+	#Parameters have been obtained, let's decode them.
+	( eval { $_ = LANraragi::Model::Utils::redis_decode($_) } ) for ($name, $title, $tags, $filecheck);
 
-		#Update the real file path and title if they differ from the saved one just in case the file got manually renamed or some weird shit
-		unless ($file eq $filecheck)
+	#Update the real file path and title if they differ from the saved one just in case the file got manually renamed or some weird shit
+	unless ($file eq $filecheck)
+	{
+		($name,$path,$suffix) = fileparse($file, qr/\.[^.]*/);
+		$redis->hset($id, "file", encode_utf8($file));
+		$redis->hset($id, "name", encode_utf8($name));
+		$redis->wait_all_responses;
+	}	
+			
+	#Tag display. Simple list separated by hyphens which expands into a caption div with nicely separated tags on hover.
+	my $printedtags = "";
+	
+	if ($title =~ /^\s*$/) #Workaround if title was incorrectly parsed as blank
+		{ $title = "<i class='fa fa-exclamation-circle'></i> Untitled archive, please edit metadata.";}
+
+	my $finaljson = qq(
 		{
-			($name,$path,$suffix) = fileparse($file, qr/\.[^.]*/);
-			$redis->hset($id, "file", encode_utf8($file));
-			$redis->hset($id, "name", encode_utf8($name));
-			$redis->wait_all_responses;
-		}	
-				
-		#Tag display. Simple list separated by hyphens which expands into a caption div with nicely separated tags on hover.
-		my $printedtags = "";
-		
-		if ($title =~ /^\s*$/) #Workaround if title was incorrectly parsed as blank
-			{ $title = "<i class='fa fa-exclamation-circle'></i> Untitled archive, please edit metadata.";}
+			"arcid": "$id",
+			"title": "$title",
+			"tags": "$tags",
+			"isnew": "$isnew"
+		},
+	);
 
-		my $finaljson = qq(
-			{
-				"arcid": "$id",
-				"title": "$title",
-				"tags": "$tags",
-				"isnew": "$isnew"
-			},
-		);
-
-		return $finaljson;
+	return $finaljson;
  }
 
  1;

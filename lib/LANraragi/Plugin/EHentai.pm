@@ -9,6 +9,9 @@ use URI::Escape;
 use Mojo::JSON qw(decode_json encode_json);
 use Mojo::UserAgent;
 
+#You can also use the LRR Internal API when fitting.
+use LANraragi::Model::Plugins;
+
 #Meta-information about your plugin.
 sub plugin_info {
 
@@ -30,32 +33,36 @@ sub plugin_info {
 #Mandatory function to be implemented by your plugin
 sub get_tags {
 
-	#LRR gives your plugin the recorded title for the file, the current tags, the filesystem path to the file, and the custom arguments if available.
-    my ($title, $tags, $thumbhash, $file, $globalarg, $oneshotarg, $logger) = @_;
+	#LRR gives your plugin the recorded title for the file, the filesystem path to the file, and the custom arguments if available.
+	shift;
+    my ($title, $thumbhash, $file, $globalarg, $oneshotarg) = @_;
+
+    my $logger = LANraragi::Model::Plugins::get_logger("E-Hentai");
 
     #Work your magic here - You can create subs below to organize the code better
-    my $apiJSON;
+    my $gID = "";
+    my $gToken = "";
 
-    #Setup Cookies if they're set and use exhentai
+    #TODO: Setup Cookies if they're set and use exhentai
 
-    #Craft URL for Text Search on EH if there's no user argument
-    if ($oneshotarg eq "") {
-    	$apiJSON = &lookup_by_title($title);
-    } else {
-    	#Quick regex to get the E-H archive ids from the provided url.
-    	if ($oneshotarg =~ /.*\/g\/([0-9]*)\/([0-z]*)\/*.*/ ) { 
-			$apiJSON = qq({"method": "gdata","gidlist": [[$1,"$2"]]});
-		}
-    }
+	#Quick regex to get the E-H archive ids from the provided url.
+	if ($oneshotarg =~ /.*\/g\/([0-9]*)\/([0-z]*)\/*.*/ ) { 
+		$gID = $1;
+		$gToken = $2;
+	} else {
+		#Craft URL for Text Search on EH if there's no user argument
+		($gID, $gToken) = &lookup_by_title($title);
+	}
 
-    #Use the logger to output status - they'll be passed to LRR's standard output and a specialized logfile.
-    $logger->info("JSON passed to the EH API is $apiJSON");
+    #Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
+    $logger->info("EH API Tokens are $gID / $gToken");
 
-    my $newtags = &get_tags_from_EH($apiJSON);
+    #TODO: Error handling for empty tokens here - needs handling for an "error" field on the hash to be passed upstream.
+
+    my $newtags = &get_tags_from_EH($gID, $gToken);
 
     #Return a hash containing the new metadata - it will be integrated in LRR.
     return (
-			title => $title,
 		    tags => $newtags
 			);
 }
@@ -67,16 +74,19 @@ sub get_tags {
 sub lookup_by_title {
 
 	my $title = $_[0];
+	my $logger = LANraragi::Model::Plugins::get_logger("E-Hentai");
 
-	my $URL = "http://g.e-hentai.org/".
+	my $URL = "http://e-hentai.org/".
 			"?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1".
 			"&f_search=".uri_escape($title)."&f_apply=Apply+Filter";
 
 	#TODO: implement thumbhash mode
 	#search with image SHA hash
-	#	$URL = "http://g.e-hentai.org/".
+	#	$URL = "http://e-hentai.org/".
 	#			"?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1".
 	#			"&f_search=Search+Keywords&f_apply=Apply+Filter&f_shash=$thumbhash&fs_similar=1";
+
+	 $logger->info("Using URL $URL (first pass)");
 
 	return &ehentai_parse($URL);
 }
@@ -88,9 +98,8 @@ sub ehentai_parse() {
  	my $URL = $_[0];
 
 	my $ua = Mojo::UserAgent->new;
-
     my $content = $ua->get($URL)->result->body;
-	
+
     #TODO: Improve this with the Mojo built-in DOM parser
 
 	#now for the parsing of the HTML we obtained.
@@ -109,29 +118,32 @@ sub ehentai_parse() {
 	my $gToken = $values[1];
 
 	#Returning shit yo
-	return qq({"method": "gdata","gidlist": [[$gID,"$gToken"]]});
+	return ($gID,$gToken);
 }
 
-#getTagsFromEHAPI(JSON)
+#getTagsFromEHAPI(gID, gToken)
 #Executes an e-hentai API request with the given JSON and returns 
 sub get_tags_from_EH {
 	
 	my $uri = 'http://e-hentai.org/api.php';
-	my $json = $_[0];
+	my $gID = $_[0];
+	my $gToken = $_[1];
 
 	my $ua = Mojo::UserAgent->new;
 
+	my $logger = LANraragi::Model::Plugins::get_logger("E-Hentai");
+
 	#Execute the request
-	my $jsonresponse = $ua->post($uri => json => $json)->result->json;
-	my $hash = decode_json($jsonresponse);
+	my $jsonresponse = $ua->post($uri => json => {method => "gdata", gidlist => [[$gID,$gToken]], namespace => 1})->result->json;
 
-	unless (exists $hash->{"error"}){
+	unless (exists $jsonresponse->{"error"}){
 
-		my $data = $hash->{"gmetadata"};
+		my $data = $jsonresponse->{"gmetadata"};
 		my $tags = @$data[0]->{"tags"};
 
 		my $return = join(", ", @$tags);
-		return $return; #Strip first comma
+		$logger->info("Sending the following tags to LRR: $return");
+		return $return;
 	}	
 	else #if an error occurs(no tags available) return an empty string.
 		{ return ""; }

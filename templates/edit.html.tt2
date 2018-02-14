@@ -54,7 +54,7 @@
 					<input type='button' name='tag_import' value='Plugin&#x00A;Help' onclick="toastHelpEdit();" 
 					class='stdbtn' style='margin-top:25px; min-width:90px; height:50px'></input>
 				</td>
-				<td>
+				<td id="plugin_table">
 
 					<select id="plugin" onchange="updateOneShotArg()">
 						[% FOREACH plugin IN plugins %]
@@ -62,7 +62,7 @@
 						[% END %]
 					</select>
 
-					<input class='stdbtn' type='button' style="min-width:90px;" onclick="saveArchiveCallback()" value='Go!'/>
+					<input class='stdbtn' type='button' style="min-width:90px;" onclick="saveArchiveCallback(getTags)" value='Go!'/>
 					<br/>
 
 					<span id="arg_label"></span> <br/>

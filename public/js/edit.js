@@ -5,7 +5,7 @@ function toastHelpEdit() {
 	
 	$.toast({
 				heading: 'About Plugins',
-			    text: 'aaaaa',
+			    text: 'You can use plugins to automatically fetch metadata for this archive. <br/> Just select a plugin from the dropdown and hit Go! <br/> Some plugins might provide an optional argument for you to specify. If that\'s the case, a textbox will be available to input said argument.',
 			    hideAfter: false,
 			    position: 'top-left', 
 			    icon: 'info'
@@ -15,9 +15,18 @@ function toastHelpEdit() {
 
 function updateOneShotArg(){
 
+	//show input
+	$("#arg_label").show();
+	$("#arg").show();
+
 	var arg = $('#plugin').find(":selected").get(0).getAttribute('arg')+" : ";
 
 	//todo - hide input for plugins without a oneshot argument field
+	if (arg === "") {
+		$("#arg_label").hide();
+		$("#arg").hide();
+	}
+
 	$('#arg_label').html( arg );
 }
 
@@ -57,15 +66,53 @@ function getTags() {
 	$('#tag-spinner').css("display","block");
 	$('#tagText').css("opacity","0.5");
 	$('#tagText').prop("disabled", true);
+	$('#plugin-table').hide();
 
 
-	//$('#tagText').val(data);
+	$.post( "/api/use_plugin", { id: $("#archiveID").val(), plugin: $("select#plugin option:checked").val(), arg: $("#arg").val() })
+	  .done(function( data ) {
 
+	    if (data.success) {
+	    	$('#tagText').val($('#tagText').val() + "," + data.tags);
 
-	$('#tag-spinner').css("display","none");
-	$('#tagText').prop("disabled", false);
-	$('#tagText').css("opacity","1");
+	    	$.toast({
+					showHideTransition: 'slide',
+					position: 'top-left', 
+					loader: false, 
+				    heading: 'Added the following tags :',
+				    text: data.tags,
+				    icon: 'info'
+				});		
+	    } else {
+	    	$.toast({
+					showHideTransition: 'slide',
+					position: 'top-left', 
+					loader: false, 
+				    heading: 'Error :',
+				    text: data.message,
+				    icon: 'error'
+				});		
+	    }
+	    
+	  })
+	  .fail(function(data) {
 
+  		$.toast({
+				showHideTransition: 'slide',
+				position: 'top-left', 
+				loader: false, 
+			    heading: 'Error :',
+			    text: data,
+			    icon: 'error'
+			});	
+
+	  })
+	  .always(function(data) {
+	  	$('#tag-spinner').css("display","none");
+		$('#tagText').prop("disabled", false);
+		$('#tagText').css("opacity","1");
+		$('#plugin-table').show();
+	  });
 
 }
 

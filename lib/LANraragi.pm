@@ -23,10 +23,12 @@ sub startup {
   say "ｷﾀ━━━━━━(ﾟ∀ﾟ)━━━━━━!!!!!";
   say "LANraragi $version started.";
 
+  my $devmode = 0;
   #Set development mode if the version number contains "DEV"
   if (index($version, "DEV") != -1) {
     $self->mode('development');
     say ("(Development Mode)");
+    $devmode = 1;
   } else {
     $self->mode('production');
     say ("(Production Mode)");
@@ -60,17 +62,30 @@ sub startup {
   #Check if a Redis server is running on the provided address/port
   $self->LRR_CONF->get_redis;
 
-  #Start Background worker
-  my $proc = $self->stash->{shinobu} = Mojo::IOLoop::ProcBackground->new;
+  #Start Background worker if there's no lockfile present
+  unless (-e "./shinobu-lock" && $devmode) {
+    my $proc = $self->stash->{shinobu} = Mojo::IOLoop::ProcBackground->new;
 
-  # When the process terminates, we get this event
-  $proc->on(dead => sub {
-      my ($proc) = @_;
-      my $pid = $proc->proc->pid;
-      say ("Shinobu Background Worker terminated. (PID was $pid)");
-  });
+    #Create lockfile to prevent spawn of other background processes
+    open(FILE, ">shinobu-lock") || die("cannot open file: " . $!);
+    close(FILE); 
 
-  $proc->run([$^X, "./lib/Shinobu.pm"]);
+    # When the process terminates, we get this event
+    $proc->on(dead => sub {
+        my ($proc) = @_;
+        my $pid = $proc->proc->pid;
+        say ("Shinobu Background Worker terminated. (PID was $pid)");
+
+        #Delete lockfile
+        unlink("./shinobu-lock");
+    });
+
+    $proc->run([$^X, "./lib/Shinobu.pm"]);
+
+  } else { 
+    say ("Lockfile present in development mode - Background worker not respawned.");
+    say ("!!! -- Delete the shinobu-lock file if you just started LANraragi.");
+  }
 
   # Router
   my $r = $self->routes;

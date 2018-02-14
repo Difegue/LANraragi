@@ -159,16 +159,17 @@ sub use_plugin {
 
 	    	$self->render(  json => {
 							operation => "fetch_tags",
-							status => 1,
+							success => 1,
 							tags => $tags
 						  });
+	    	return;
 	    }
 	}
 
 	$self->render(  json => {
 					operation => "fetch_tags",
-					status => 0,
-					error => "Plugin not found on system."
+					success => 0,
+					message => "Plugin not found on system."
 				  });
 
 }
