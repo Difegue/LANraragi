@@ -155,13 +155,25 @@ sub use_plugin {
 	    	$globalarg = LANraragi::Model::Utils::redis_decode($globalarg);
 
 	    	#Finally, execute the plugin 
-	    	my $tags = LANraragi::Model::Plugins::exec_plugin_on_file($plugin, $id, $globalarg, $oneshotarg);
+	    	my %plugin_result = LANraragi::Model::Plugins::exec_plugin_on_file($plugin, $id, $globalarg, $oneshotarg);
 
-	    	$self->render(  json => {
-							operation => "fetch_tags",
-							success => 1,
-							tags => $tags
-						  });
+	    	if (exists $plugin_result{error}) {
+
+	    		$self->render(  json => {
+								operation => "fetch_tags",
+								success => 0,
+								message => $plugin_result{error}
+							  });
+	    	}
+	    	else {
+
+	    		$self->render(  json => {
+								operation => "fetch_tags",
+								success => 1,
+								tags => $plugin_result{tags}
+							  });
+	    	}
+	    	
 	    	return;
 	    }
 	}

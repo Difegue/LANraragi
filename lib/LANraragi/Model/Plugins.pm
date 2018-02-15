@@ -85,6 +85,12 @@ sub exec_plugin_on_file {
 
 		#Hand it off to the plugin here.
 		my %newmetadata = $plugin->get_tags($title, $thumbhash, $file, $arg, $oneshotarg);
+
+		#Error checking 
+		if (exists $newmetadata{error}) {
+			return %newmetadata #Return the hash as-is -- It already has an "error" key, which will be read by the client. No need for more processing.
+		}
+
 		my @tagarray = split(",",$newmetadata{tags});
 		my $newtags = "";
 
@@ -105,15 +111,15 @@ sub exec_plugin_on_file {
 				}
 
 				if ($good == 1) {
-					#Append tag to $tags
+					#This tag is processed and good to go
 					$newtags .= " $tagtoadd,";
 				}
 			}
 		}
 
-		#Strip last comma
+		#Strip last comma and return processed tags in a hash
 		chop($newtags);
-		return $newtags; 
+		return ( new_tags => $newtags );
 	}
 }
 

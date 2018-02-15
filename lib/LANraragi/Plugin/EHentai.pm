@@ -39,7 +39,7 @@ sub get_tags {
 
     my $logger = LANraragi::Model::Plugins::get_logger("E-Hentai");
 
-    #Work your magic here - You can create subs below to organize the code better
+    #Work your magic here - You can create subroutines below to organize the code better
     my $gID = "";
     my $gToken = "";
 
@@ -51,20 +51,21 @@ sub get_tags {
 		$gToken = $2;
 	} else {
 		#Craft URL for Text Search on EH if there's no user argument
-		($gID, $gToken) = &lookup_by_title($title);
+		($gID, $gToken) = &lookup_by_title($title, $thumbhash);
 	}
 
     #Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
     $logger->info("EH API Tokens are $gID / $gToken");
 
-    #TODO: Error handling for empty tokens here - needs handling for an "error" field on the hash to be passed upstream.
+    #If no tokens were found, return a hash containing an error message. LRR will display that error to the client. 
+    if ($gID eq "" || $gToken eq "") {
+    	return ( error => "No suitable EH Gallery Found!");
+    }
 
     my $newtags = &get_tags_from_EH($gID, $gToken);
 
     #Return a hash containing the new metadata - it will be integrated in LRR.
-    return (
-		    tags => $newtags
-			);
+    return ( tags => $newtags );
 }
 
 ######
@@ -74,21 +75,30 @@ sub get_tags {
 sub lookup_by_title {
 
 	my $title = $_[0];
+	my $thumbhash = $_[1];
 	my $logger = LANraragi::Model::Plugins::get_logger("E-Hentai");
 
 	my $URL = "http://e-hentai.org/".
 			"?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1".
 			"&f_search=".uri_escape($title)."&f_apply=Apply+Filter";
 
-	#TODO: implement thumbhash mode
-	#search with image SHA hash
-	#	$URL = "http://e-hentai.org/".
-	#			"?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1".
-	#			"&f_search=Search+Keywords&f_apply=Apply+Filter&f_shash=$thumbhash&fs_similar=1";
+	$logger->info("Using URL $URL (first pass, archive title)");
 
-	 $logger->info("Using URL $URL (first pass)");
+	my ($gId, $gToken) = &ehentai_parse($URL);
 
-	return &ehentai_parse($URL);
+	if ($gId eq "" || $gToken eq "") {
+
+		#search with image SHA hash
+		$URL = "http://e-hentai.org/".
+				"?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1".
+				"&f_search=Search+Keywords&f_apply=Apply+Filter&f_shash=".$thumbhash."&fs_similar=1";
+
+		$logger->info("Using URL $URL (second pass, archive thumbnail hash)");
+
+		($gId, $gToken) = &ehentai_parse($URL);		
+	}
+
+	return ($gId, $gToken);
 }
 
 #eHentaiLookup(URL)
@@ -99,8 +109,6 @@ sub ehentai_parse() {
 
 	my $ua = Mojo::UserAgent->new;
     my $content = $ua->get($URL)->result->body;
-
-    #TODO: Improve this with the Mojo built-in DOM parser
 
 	#now for the parsing of the HTML we obtained.
 	#the first occurence of <tr class="gtr0"> matches the first row of the results. 
