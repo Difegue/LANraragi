@@ -220,7 +220,7 @@ function buildTagsDiv(tags)
 	line+='<table class="itg" style="box-shadow: 0 0 0 0; border: none; border-radius: 0" ><tbody>';
     
 	//Go through resolved namespaces and print tag divs
-	Object.keys(tagsByNamespace).forEach(function(key,index) {
+	Object.keys(tagsByNamespace).sort().forEach(function(key,index) {
 
 		ucKey = key.charAt(0).toUpperCase() + key.slice(1);
 
