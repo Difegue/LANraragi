@@ -10,7 +10,7 @@
     "deploy": "npm install && rsync -e ssh --exclude content -av * ",
     "lanraragi-installer": "perl ./tools/install.pl",
     "start": "perl ./script/lanraragi daemon",
-    "dev-server": "rm ./shinobu-lock && morbo script/lanraragi",
+    "dev-server": "rm -f ./shinobu-lock && morbo script/lanraragi",
     "docker-build": "docker build -t difegue/lanraragi -f ./tools/DockerSetup/Dockerfile .",
     "critic": "perlcritic --stern ./lib/* ./script/* ./tools/install.pl"
   },

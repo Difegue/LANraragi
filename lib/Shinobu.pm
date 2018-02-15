@@ -20,6 +20,7 @@ BEGIN { unshift @INC, "$FindBin::Bin/../lib"; } #As this is a new process, reloa
 
 use Mojolicious;
 use File::Find;
+use File::stat;
 use File::Path qw(make_path remove_tree);
 use Encode;
 
@@ -68,6 +69,9 @@ sub workload {
 	if (-e "$FindBin::Bin/../public/temp")
 		{ &autoclean_temp_folder; }
 
+	#say ("Treating metadata job queue...")
+
+
 }
 
 sub new_archive_check {
@@ -101,7 +105,36 @@ sub autoclean_temp_folder {
 	if ($size > $maxsize) {
 		say ("Current temporary folder size is $size MBs, Maximum size is $maxsize MBs. Cleaning.");
 
-		remove_tree("$FindBin::Bin/../public/temp", {error => \my $err}); 
+		#Remove all folders in /public/temp except the most recent one
+		#For this, we use Perl's ctime, which uses inode last modified time on Unix and Win32 creation time on Windows.
+		my $dir_name = "$FindBin::Bin/../public/temp";
+
+		#Wipe thumb temp folder first
+		if (-e $dir_name."/thumb") { unlink ($dir_name."/thumb"); }
+		
+		opendir(my $dir_fh, $dir_name);
+
+		my @folder_list;
+		while ( my $file = readdir $dir_fh) {
+
+			next unless -d $dir_name . '/' . $file;
+		    next if $file eq '.' or $file eq '..';
+
+		    push @folder_list, "$dir_name/$file";
+		}
+		closedir $dir_fh;
+
+		@folder_list = sort {
+					        my $a_stat = stat($a);
+					        my $b_stat = stat($b);
+					        $a_stat->ctime <=> $b_stat->ctime;
+				    	}  @folder_list ;
+
+		#Remove all folders in folderlist except the last one
+		my $survivor = pop @folder_list;
+		say "Deleting all folders in /temp except $survivor";
+
+		remove_tree(@folder_list, {error => \my $err}); 
 
 		if (@$err) {
 	  		for my $diag (@$err) {
