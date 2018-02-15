@@ -6,8 +6,10 @@ use warnings;
 #Plugins can freely use all Perl packages already installed on the system 
 #Try however to restrain yourself to the ones already installed for LRR (see tools/cpanfile) to avoid extra installations by the end-user.
 use URI::Escape;
-use Mojo::JSON qw(decode_json encode_json);
 use Mojo::UserAgent;
+
+#You can also use the LRR Internal API when fitting.
+use LANraragi::Model::Plugins;
 
 #Meta-information about your plugin.
 sub plugin_info {
@@ -30,32 +32,35 @@ sub plugin_info {
 #Mandatory function to be implemented by your plugin
 sub get_tags {
 
-	#LRR gives your plugin the recorded title for the file, the current tags, the filesystem path to the file, and the custom arguments if available.
-    my ($title, $tags, $thumbhash, $file, $globalarg, $oneshotarg, $logger) = @_;
+	#LRR gives your plugin the recorded title for the file, the filesystem path to the file, and the custom arguments if available.
+	shift;
+    my ($title, $thumbhash, $file, $globalarg, $oneshotarg) = @_;
+
+    my $logger = LANraragi::Model::Plugins::get_logger("nHentai");
 
     #Work your magic here - You can create subs below to organize the code better
-    my $galleryID;
-
-    #Get Gallery ID by hand if the user didn't specify a URL
-    if ($oneshotarg eq "") {
-    	$galleryID = &get_gallery_id_from_title($title);
-    } else {
-    	#Quick regex to get the nh gallery id from the provided url.
-    	if ($oneshotarg =~ /.*\/g\/([0-9]*)\/.*/  ) { 
-			$galleryID = $1;
-		}
-    }
+    my $galleryID = "";
+   
+	#Quick regex to get the nh gallery id from the provided url.
+	if ($oneshotarg =~ /.*\/g\/([0-9]*)\/.*/  ) { 
+		$galleryID = $1;
+	} else {
+		#Get Gallery ID by hand if the user didn't specify a URL
+		$galleryID = &get_gallery_id_from_title($title);
+	}
 
     #Use the logger to output status - they'll be passed to LRR's standard output and a specialized logfile.
     $logger->info("Detected nhentai gallery id is $galleryID");
 
+    #If no tokens were found, return a hash containing an error message. LRR will display that error to the client. 
+    if ($galleryID eq "") {
+    	return ( error => "No matching nHentai Gallery Found!");
+    }
+
     my $newtags = &get_tags_from_NH($galleryID);
 
     #Return a hash containing the new metadata - it will be integrated in LRR.
-    return (
-			title => $title,
-		    tags => $newtags
-			);
+    return ( tags => $newtags );
 }
 
 
@@ -72,11 +77,12 @@ sub get_gallery_id_from_title {
 
 	my $ua = Mojo::UserAgent->new;
 
-	my $content = $ua->get($URL)->result->json;
-	my $json = decode_json($content);
+	my $res = $ua->get($URL)->result;
 
-	#get the first gallery of the research
-	my $gallery = $json->{"result"};
+	my $content = $res->json;
+
+	#get the first gallery of the search results
+	my $gallery = $content->{"result"};
 	$gallery = @$gallery[0];
 
 	return $gallery->{"id"};
@@ -90,23 +96,35 @@ sub get_tags_from_NH {
 	my $tag = "";
 	my $returned = "";
 
+	my $logger = LANraragi::Model::Plugins::get_logger("nHentai");
+
 	my $URL = "https://nhentai.net/api/gallery/$gID";
 
 	my $ua = Mojo::UserAgent->new;
 
-	my $content = $ua->get($URL)->result->json;
+	my $res = $ua->get($URL)->result;
+	
+	my $textrep = $res->body;
+	$logger->info("nH API returned this JSON: $textrep");
 
-	my $json = decode_json($content);
+	my $json = $res->json;
 	my $tags = $json->{"tags"};
 
 	foreach $tag (@$tags)
 	{
-		#if ($tag->{"type"} eq "tag" )
-			#{ 
-				$returned.=", ".$tag->{"name"}; 
-			#}
+		#Try using the "type" attribute to craft a namespace. 
+		#The basic "tag" type the NH API adds by default will be ignored here.
+		my $namespace = "";
+
+		unless ($tag->{"type"} eq "tag" ) {
+			$namespace = $tag->{"type"}.":";
+		}
+
+		$returned.=", ".$namespace.$tag->{"name"}; 
+		
 	}
 
+	$logger->info("Sending the following tags to LRR: $returned");
 	return substr $returned, 2; #Strip first comma and space
 
 }

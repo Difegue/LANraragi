@@ -59,7 +59,7 @@ sub get_tags {
 
     #If no tokens were found, return a hash containing an error message. LRR will display that error to the client. 
     if ($gID eq "" || $gToken eq "") {
-    	return ( error => "No suitable EH Gallery Found!");
+    	return ( error => "No matching EH Gallery Found!");
     }
 
     my $newtags = &get_tags_from_EH($gID, $gToken);

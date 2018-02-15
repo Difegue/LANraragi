@@ -170,7 +170,7 @@ sub use_plugin {
 	    		$self->render(  json => {
 								operation => "fetch_tags",
 								success => 1,
-								tags => $plugin_result{tags}
+								tags => $plugin_result{new_tags}
 							  });
 	    	}
 	    	
