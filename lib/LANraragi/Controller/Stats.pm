@@ -38,16 +38,18 @@ sub index {
 				  #Just in case
 				  LANraragi::Model::Utils::remove_spaces($t);
 
-				  #Strip namespaces if necessary - detect the : symbol and only use what's after it
-				  if ($t =~ /.*:(.*)/)
-				  	{ $t = $1 }
+				  unless ($t =~ /(artist|parody|language|event|group|circle):.*/i) { #Filter some specific namespaces from appearing in stats
 
-				  #Increment value of tag if it's already in the result hash, create it otherwise
-				  if (exists($tagcloud{$t}))
-				  	{ $tagcloud{$t}++; }
-				  else
-				  	{ $tagcloud{$t} = 1;}
+					  #Strip namespaces if necessary - detect the : symbol and only use what's after it
+					  if ($t =~ /.*:(.*)/)
+					  	{ $t = $1 }
 
+					  #Increment value of tag if it's already in the result hash, create it otherwise
+					  if (exists($tagcloud{$t}))
+					  	{ $tagcloud{$t}++; }
+					  else
+					  	{ $tagcloud{$t} = 1;}
+				 }
 				}
 
 			}
