@@ -38,6 +38,7 @@ sub shasum {
 	};
 
 	if($@){
+	  print "Error building hash for ".$_[0]." -- ";
 	  print $@;
 	  return "";
 	}

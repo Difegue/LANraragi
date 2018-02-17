@@ -21,10 +21,10 @@ sub plugin_info {
 	    namespace => "ehplugin",
 	    author => "Difegue",
 	    version  => "1.0",
-	    description => "Searches g.e-hentai/exhentai for tags matching your archive.",
+	    description => "Searches g.e-hentai for tags matching your archive.",
 	    #If your plugin uses/needs custom arguments, input their name here. 
 	    #This name will be displayed in plugin configuration next to an input box for global arguments, and in archive edition for one-shot arguments.
-	    global_arg => "Exhentai Cookie ID/Pass (Use the following syntax: ipb_member_id/ipb_hash_pass )",
+	    #global_arg => "Exhentai Cookie ID/Pass (Use the following syntax: ipb_member_id/ipb_hash_pass )",
 	    oneshot_arg => "E-H Gallery URL (Will attach tags matching this exact gallery to your archive)"
 	);
 
@@ -43,15 +43,13 @@ sub get_tags {
     my $gID = "";
     my $gToken = "";
 
-    #TODO: Setup Cookies if they're set and use exhentai
-
 	#Quick regex to get the E-H archive ids from the provided url.
 	if ($oneshotarg =~ /.*\/g\/([0-9]*)\/([0-z]*)\/*.*/ ) { 
 		$gID = $1;
 		$gToken = $2;
 	} else {
 		#Craft URL for Text Search on EH if there's no user argument
-		($gID, $gToken) = &lookup_by_title($title, $thumbhash);
+		($gID, $gToken) = &lookup_by_title($title, $thumbhash, $globalarg);
 	}
 
     #Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
@@ -76,26 +74,40 @@ sub lookup_by_title {
 
 	my $title = $_[0];
 	my $thumbhash = $_[1];
+	my $exh_cookies = $_[2];
 	my $logger = LANraragi::Model::Plugins::get_logger("E-Hentai");
 
-	my $URL = "http://e-hentai.org/".
+	my $domain = "http://e-hentai.org/";
+
+	#Use exhentai URLs if cookies are set.
+	my $exh_id = "";
+	my $exh_pass = "";
+
+	#if ($exh_cookies =~ /(.*)\/(.*)/) {
+	#	$exh_id = $1;
+	#	$exh_pass = $2;
+	#	$domain = "https://exhentai.org/";
+	#	$logger->info("Cookies detected in plugin storage, switching to exhentai.");
+	#}
+
+	my $URL = $domain.
 			"?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1".
-			"&f_search=".uri_escape($title)."&f_apply=Apply+Filter";
+			"&f_search=".uri_escape_utf8($title)."&f_apply=Apply+Filter";
 
 	$logger->info("Using URL $URL (first pass, archive title)");
 
-	my ($gId, $gToken) = &ehentai_parse($URL);
+	my ($gId, $gToken) = &ehentai_parse($URL, $exh_id, $exh_pass);
 
-	if ($gId eq "" || $gToken eq "") {
+	if (($gId eq "" || $gToken eq "") && $thumbhash ne "" ) {
 
 		#search with image SHA hash
-		$URL = "http://e-hentai.org/".
+		$URL = $domain.
 				"?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1".
 				"&f_search=Search+Keywords&f_apply=Apply+Filter&f_shash=".$thumbhash."&fs_similar=1";
 
 		$logger->info("Using URL $URL (second pass, archive thumbnail hash)");
 
-		($gId, $gToken) = &ehentai_parse($URL);		
+		($gId, $gToken) = &ehentai_parse($URL, $exh_id, $exh_pass);		
 	}
 
 	return ($gId, $gToken);
@@ -106,8 +118,39 @@ sub lookup_by_title {
 sub ehentai_parse() {
 
  	my $URL = $_[0];
+ 	my $exh_id = $_[1];
+ 	my $exh_pass = $_[2];
 
 	my $ua = Mojo::UserAgent->new;
+
+	# Setup Cookies
+	#$ua->cookie_jar->add(
+	#   Mojo::Cookie::Response->new(
+	#    name   => 'ipb_member_id',
+	#    value  => $exh_id,
+	#    domain => ".e-hentai.org",
+    #    path => "/",
+	#  )
+	#);
+
+	#$ua->cookie_jar->add(
+	#  Mojo::Cookie::Response->new(
+	#    name   => 'ipb_pass_hash',
+	#    value  => $exh_pass,
+	#    domain => ".e-hentai.org",
+    #    path => "/",
+	#  )
+	#);
+
+	#my $logger = LANraragi::Model::Plugins::get_logger("E-Hentai");
+	#$logger->info("ipb_member_id = $exh_id, ipb_pass_hash = $exh_pass.");
+	#$logger->info( $_->name ) for @{ $ua->cookie_jar->all};
+
+	#log into eH before going to ex in order to obtain a "lv" and a "ipb_session_id" cookie
+	#$ua->get('https://e-hentai.org/' => {"User-Agent" => 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0'});
+
+	#$logger->info( $_->name ) for @{ $ua->cookie_jar->all};
+
     my $content = $ua->get($URL)->result->body;
 
 	#now for the parsing of the HTML we obtained.
@@ -118,7 +161,12 @@ sub ehentai_parse() {
 	#Inside that <tr>, we look for <div class="it5"> . the <a> tag inside has an href to the URL we want.
 	my @final = split('<div class="it5">',$benis[1]);
 
-	my $url = (split('e-hentai.org/g/',$final[1]))[1];
+	my $url = "";
+	#if ($exh_id eq "") { 
+		$url = (split('e-hentai.org/g/',$final[1]))[1];
+	#} else {
+	#	$url = (split('exhentai.org/g/',$final[1]))[1];
+	#}
 	
 	my @values = (split('/',$url));
 

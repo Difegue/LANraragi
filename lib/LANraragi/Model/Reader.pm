@@ -95,7 +95,7 @@ sub build_reader_JSON {
 	unless (-e $thumbname && $thumbreload eq "0")
 	{
 		mkdir $dirname."/thumb";
-		my $path = $images[0];
+		my $path = "./public/".$images[0]; #Add the /public/ part back here since we're accessing the path from the server 
 		my $shasum = LANraragi::Model::Utils::shasum($path,1);
 		$redis->hset($id,"thumbhash", encode_utf8($shasum));
 
