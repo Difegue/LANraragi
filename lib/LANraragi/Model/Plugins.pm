@@ -42,12 +42,12 @@ sub get_logger {
 
 sub exec_enabled_plugins_on_file {
 
-	my $self = shift;
 	my $id = shift;
 
+	say ("[Auto-Tagger] Executing enabled plugins on archive with id $id.");
 	my $redis = LANraragi::Model::Config::get_redis;
 
-	foreach my $plugin ($self::plugins) {
+	foreach my $plugin (LANraragi::Model::Plugins::plugins) {
 
 		#Check Redis to see if plugin is enabled and get the custom argument
 		my %pluginfo = $plugin->plugin_info();
@@ -61,7 +61,21 @@ sub exec_enabled_plugins_on_file {
 			($_ = LANraragi::Model::Utils::redis_decode($_)) for ($enabled, $arg);
 
 			if ($enabled) {
-				&exec_plugin_on_file($plugin, $id, $arg, ""); #No oneshot arguments here
+				my %plugin_result = &exec_plugin_on_file($plugin, $id, $arg, ""); #No oneshot arguments here
+
+				unless (exists $plugin_result{error}) { #If the plugin exec returned metadata, add it
+
+					my $oldtags = $redis->hget($id, "tags");
+					$oldtags = LANraragi::Model::Utils::redis_decode($oldtags);
+
+					my $newtags = $plugin_result{new_tags};
+					say ("[Auto-Tagger] Adding $newtags.");
+
+					$redis->hset($id, "tags", $oldtags.",".$newtags);
+
+				}
+
+
 			}
 
         }
@@ -94,7 +108,7 @@ sub exec_plugin_on_file {
 		my @tagarray = split(",",$newmetadata{tags});
 		my $newtags = "";
 
-		#nsert new metadata in Redis, stripping out blacklisted tags and tags that we already have
+		#Process new metadata, stripping out blacklisted tags and tags that we already have in Redis
 		my @blacklist = LANraragi::Model::Config::get_tagblacklist;
 
 		foreach my $tagtoadd (@tagarray) {

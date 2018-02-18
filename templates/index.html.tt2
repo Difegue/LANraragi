@@ -29,7 +29,7 @@
 				<a href="./upload">Upload Archive</a>
 				<span style="margin-left:5px"></span>
 				<i class="fa fa-caret-right"></i>
-				<a href="./tags">Batch Tagging</a>
+				<a href="./config/plugins">Plugins</a>
 				<span style="margin-left:5px"></span>
 				<i class="fa fa-caret-right"></i>
 				<a href="./config">Configuration</a>

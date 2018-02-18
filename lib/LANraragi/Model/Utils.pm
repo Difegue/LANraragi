@@ -13,6 +13,7 @@ use Redis;
 use Image::Magick;
 
 use LANraragi::Model::Config;
+use LANraragi::Model::Plugins;
 
 #generate_thumbnail(original_image, thumbnail_location)
 #use ImageMagick to make a thumbnail, width = 200px
@@ -170,7 +171,10 @@ sub add_archive_to_redis {
 
 	$redis->wait_all_responses;
 
-	#TODO: AutoTagging using enabled plugins goes here!
+	#AutoTagging using enabled plugins goes here!
+	if (LANraragi::Model::Config::get_autotag) {
+		LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
+	}
 
 	return ($name,$title,$tags,"block");
 }

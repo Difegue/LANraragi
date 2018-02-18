@@ -80,6 +80,17 @@
                 </label>
 			</td></tr>
 
+			<tr><td style="text-align:left; width:100px"><h1 class="ih"> Auto-Tag New Archives </h1></td><td>
+             	[% IF autotag %]
+		  			<input id="autotag" name="autotag" class="fa" type="checkbox" checked>
+		  		[% ELSE %]
+		  			<input id="autotag" name="autotag" class="fa" type="checkbox">
+		  		[% END %]
+                <label for="autotag">
+                	<br>Enabled plugins will be automatically executed on newly uploaded archives if this option is on.
+                </label>
+			</td></tr>
+
 		  	<tr><td style="text-align:left; width:100px"><h1 class="ih"> Enable Password </h1></td><td>
 		  		[% IF enablepass %]
 		  			<input id="enablepass" name="enablepass" class="fa" type="checkbox" checked>

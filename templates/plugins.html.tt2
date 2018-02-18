@@ -43,7 +43,7 @@
 		<div class="ido" style="text-align:center;"><h1 class="ih" style="text-align:center">Plugin Configuration</h1> <br>
 
 			Enable/Disable metadata plugins by ticking the matching checkboxes. If they have configuration variables, you can set them here as well.<br/>
-			Enabled plugins will be automatically used in Batch Tagging and when new archives are added. <br/>
+			Enabled plugins will be automatically used when new archives are added if the matching option is enabled in LRR Config. <br/>
 			<br/>
 
 		<form name="editPluginForm" id="editPluginForm" enctype="multipart/form-data" method="post">

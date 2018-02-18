@@ -26,6 +26,7 @@ sub index {
 		            blacklist => $self->LRR_CONF->get_tagblacklist,
 		            title => $self->LRR_CONF->get_htmltitle,
 		            tempmaxsize => $self->LRR_CONF->get_tempmaxsize,
+		            autotag => $self->LRR_CONF->get_autotag,
 		            cssdrop => LANraragi::Model::Utils::generate_themes,
 		            tempsize => int($size/1048576*100)/100
 			      );
@@ -48,6 +49,7 @@ sub save_config {
 		blacklist => scalar $self->req->param('blacklist'),
 		readorder => (scalar $self->req->param('readorder') ? '1' : '0'), #for checkboxes, we check if the parameter exists in the POST to return either 1 or 0.
 		enablepass => (scalar $self->req->param('enablepass') ? '1' : '0'),
+		autotag => (scalar $self->req->param('autotag') ? '1' : '0'),
 		tempmaxsize => scalar $self->req->param('tempmaxsize')
 	);
 	

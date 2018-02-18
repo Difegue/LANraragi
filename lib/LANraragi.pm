@@ -120,9 +120,6 @@ sub startup {
   $logged_in->get('/backup')->to('backup#index');
   $logged_in->post('/backup')->to('backup#restore');
 
-  $logged_in->get('/tags')->to('tags#index');
-  #$logged_in->post('/tags')->to('tags#process_archive');
-
   $logged_in->get('/upload')->to('upload#index');
   $logged_in->post('/upload')->to('upload#process_upload');
 
