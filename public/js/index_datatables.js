@@ -22,6 +22,7 @@ function initIndex(pagesize,dataSet)
 			},
 		'preDrawCallback': thumbViewInit, //callbacks for thumbnail view
 		'rowCallback': buildThumbDiv,
+		'drawCallback': buildTooltips,
 		'columns' : [
 			{ className: 'itdc', 
 			  'width': '20',
@@ -45,7 +46,7 @@ function initIndex(pagesize,dataSet)
 			  'render': function (data, type, full, meta ) {
 			  			if(type == "display"){
 
-			  				line = '<span class="tags" style="text-overflow:ellipsis;">'+data+'</span>';
+			  				line = '<span class="tags tag-tooltip" style="text-overflow:ellipsis;">'+data+'</span>';
 			  				line+=buildTagsDiv(data);
 							return line;
 			  			}
@@ -132,9 +133,9 @@ function actionColumnDisplay(data,type,full,meta) {
 function titleColumnDisplay(data,type,full,meta) {
 	if(type == "display"){
 
-    return '<span style="display: none;">'+data.title+'</span><a class="caption-container" href="./reader?id='+data.arcid+'">'
-    	 + '<div class="caption" style="position:absolute;"><img src="./api/thumbnail?id='+data.arcid+'" onerror="this.src=\'./img/noThumb.png\'"></div>'
-    	 + data.title+'</a><img src="img/n.gif" style="float: right; margin-top: -15px; z-index: -1; display: '+data.isnew+'">';
+    return '<span style="display: none;">'+data.title+'</span><a class="image-tooltip" href="./reader?id='+data.arcid+'">'
+    	 + data.title+'</a><div class="caption" style="display: none;"><img src="./api/thumbnail?id='+data.arcid+'" onerror="this.src=\'./img/noThumb.png\'"></div>'
+    	 + '<img src="img/n.gif" style="float: right; margin-top: -15px; z-index: -1; display: '+data.isnew+'">';
 	}
 
 	return data.title;			
@@ -171,8 +172,7 @@ function buildThumbDiv( row, data, index ) {
 	{
 		//Build a thumb-like div with the data and jam it in thumbs_container
 		thumb_div = '<div style="height:335px" class="id1">'+
-						'<div class="id2 caption-container">'+
-							buildTagsDiv(data.tags)+
+						'<div class="id2">'+
 							'<div class="id44">'+
 									'<div style="float:right">'+
 										'<img src="img/n.gif" style="float: right; display: '+data.isnew+'">'+
@@ -190,21 +190,74 @@ function buildThumbDiv( row, data, index ) {
 		thumb_div +=		'</a>'+
 						'</div>'+
 						'<div class="id4">'+
-							'<div class="id41"><a style="cursor:pointer" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+
-								data.artist+'</a></div>'+
-							'<span style="font-size:14px"><a title="Download this archive." href="./api/servefile?id='+data.arcid+'">'+
+							'<div class="id41" style="font-size:16px; margin-left:10px"><a title="Download this archive." href="./api/servefile?id='+data.arcid+'">'+
 								'<i style="margin-right:2px" class="fa fa-save"></i>'+
 							'</a>'+
 							'<a title="Edit this archive\'s tags and data." href="./edit?id='+data.arcid+'">'+
 								'<i class="fa fa-edit"></i>'+
-							'</a></span>'+
-							'<div class="id42"><a style="cursor:pointer" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+
-								data.series+'</a></div>'+
+							'</a></div>'+
+							'<div class="id42 tag-tooltip"><a style="cursor:pointer">Hover me for tags!</a></div>'+
+							buildTagsDiv(data.tags)+
 						'</div>'+
 					'</div>';
 
 		$('#thumbs_container').append(thumb_div);
 	}
+}
+
+//Build tooltips for archive thumbnails and tags.
+function buildTooltips() {
+
+	//Image tooltips are anchored to the mouse
+	$('.image-tooltip').each(function() {
+	    $(this).qtip({
+	        content: {
+	            text: $(this).next('div').clone() // We use clone() to always keep the original div around - copies are destroyed by qtip.
+	        },
+	        position: {
+		        target: 'mouse',
+		        adjust: {
+		            mouse: true,
+		            x: 5
+		        }
+		    },
+		    show: {
+            	solo: true
+         	},
+		    style: {
+		        classes: 'caption'
+		    },
+		    show: {
+		    	delay:45
+		    }
+	    });
+	});
+
+	//Tag tooltips are at a fixed position
+	$('.tag-tooltip').each(function() { 
+	    $(this).qtip({
+	        content: {
+	            text: $(this).next('div').clone()
+	        },
+	        position: {
+	        	my: 'middle right',
+		        at: 'top left',
+		        target: false,
+	        },
+	        show: {
+            	solo: true,
+            	delay: 45
+         	},
+	        hide: {
+		        fixed: true,
+		        delay: 300
+		    },
+		    style: {
+		        classes: 'caption'
+		    }
+	    });
+	});
+
 }
 
 //Builds a caption div containing clickable tags. Uses a string containing all tags, split by commas.
@@ -216,7 +269,7 @@ function buildTagsDiv(tags)
 
 	tagsByNamespace = splitTagsByNamespace(tags);
 
-	line='<div class="caption" style="position:absolute;">';
+	line='<div style="display: none;" >';
 	line+='<table class="itg" style="box-shadow: 0 0 0 0; border: none; border-radius: 0" ><tbody>';
     
 	//Go through resolved namespaces and print tag divs

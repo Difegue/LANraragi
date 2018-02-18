@@ -25,31 +25,6 @@ td.tags {max-width: 150px;}
   left:-1px; 
 }
 
-.caption {
-
-   min-width: 0px !important;
-   max-width: 50% !important;
-   white-space: normal !important;
-   padding: 5px !important;
-   margin-top: 0px !important;
-   display: none !important;
-   border-radius: 0px 0px 0px 0px !important;
-   z-index: 2;
-}
-
-.id2 .caption {
-    margin-left: 100px !important;
-    min-width: 228px !important;
-}
-
-.caption-container:hover .caption {
-   display: block !important;
-}
-
-.tags:hover .caption {
-   display: block !important;
-}
-
 /*Archive list Sorting*/
 table thead a {
 padding-right: 14px;
@@ -238,4 +213,8 @@ p#nb {
 a:hover > .page-number {
     z-index: 300;
     background-color: #000000;
+}
+
+.caption {
+    border: none !important;
 }
