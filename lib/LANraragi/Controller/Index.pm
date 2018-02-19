@@ -23,7 +23,6 @@ sub random_archive
 	my $redis = $self->LRR_CONF->get_redis();
 
 	#We get a random archive ID. We check for the length to (sort-of) avoid not getting an archive ID.
-	#Shit's never been designed to work on a redis database where other keys would be lying around. 
 	until ($archiveexists)
 	{
 		$archive = $redis->randomkey();
@@ -54,11 +53,23 @@ sub index {
 	my $redis = $self->LRR_CONF->get_redis();
 
 	my $archivejson = "[]";
+	my $force = 1;
 
 	if ($redis->exists("LRR_JSONCACHE")) {
+		$force = $redis->hget("LRR_JSONCACHE","force_refresh"); #Force flag, usually set when metadata has been modified by the user.
+	}
+
+	if ($force) {
+		#Cache invalidated, build a new json right now instead of showing the user outdated info
+		my @archives = LANraragi::Model::Utils::get_archive_list;
+		LANraragi::Model::Utils::build_json_cache(@archives);
+
+		$archivejson = decode_utf8($redis->hget("LRR_JSONCACHE","archive_list"));
+	} else {
 		#Get cached JSON from Redis
 		$archivejson = decode_utf8($redis->hget("LRR_JSONCACHE","archive_list"));
 	}
+	
 
 	#Checking if the user still has the default password enabled
 	my $ppr = Authen::Passphrase->from_rfc2307($self->LRR_CONF->get_password);

@@ -29,7 +29,7 @@ sub delete_metadata_and_file
 		unlink $filename; 
 
 		#Trigger a JSON rebuild.
-		LANraragi::Model::Utils::ask_background_refresh();
+		LANraragi::Model::Utils::invalidate_cache();
 
 		return $filename; 
 	}
@@ -63,7 +63,7 @@ sub save_metadata {
 	$redis->wait_all_responses;
 	
 	#Trigger a JSON rebuild.
-	LANraragi::Model::Utils::ask_background_refresh();
+	LANraragi::Model::Utils::invalidate_cache();
 
 	$self->render(json => {
 					id => $id,
@@ -79,7 +79,7 @@ sub delete_archive {
 	my $delStatus = &delete_metadata_and_file($self, $id);
 
 	#Trigger a JSON rebuild.
-	LANraragi::Model::Utils::ask_background_refresh();
+	LANraragi::Model::Utils::invalidate_cache();
 
 	$self->render(json => {
 					id => $id,

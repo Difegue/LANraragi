@@ -50,7 +50,6 @@ sub workload {
 	my $redis = LANraragi::Model::Config::get_redis;
 
 	my $cachecount = $redis->hget("LRR_JSONCACHE","archive_count");
-	my $force = $redis->hget("LRR_JSONCACHE","force_refresh");
 
 	#say ("Checking for new archives...");
 	if ( scalar @archives != $cachecount ) {
@@ -58,9 +57,8 @@ sub workload {
 	}
 
 	#say ("Building JSON cache from Redis...");
-	if ( scalar @archives != $cachecount || $force) {
-		if ($force) { say ("JSON rebuild forced by main app..."); }
-			else { say ("Archive count has changed since last cached value ($cachecount), rebuilding..."); }
+	if ( scalar @archives != $cachecount) {
+		say ("Archive count has changed since last cached value ($cachecount), rebuilding...");
 		LANraragi::Model::Utils::build_json_cache(@archives);
 		say ("Done!");
 	}
@@ -90,6 +88,11 @@ sub new_archive_check {
 				say ("Adding new file $file");
 				say ("ID is $id");
 				LANraragi::Model::Utils::add_archive_to_redis($id,$file,$redis);
+
+				#AutoTagging using enabled plugins goes here!
+				if (LANraragi::Model::Config::get_autotag) {
+					LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
+				}
 			}
 	}
 }

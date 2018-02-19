@@ -68,8 +68,8 @@ sub redis_decode {
 	return $data;
 }
 
-#Force a background refresh. The Background worker will see this value on its next iteration and automatically trigger a refresh.
-sub ask_background_refresh {
+#Set the force_refresh flag. This will invalidate the currently cached JSON.
+sub invalidate_cache {
 	my $redis = LANraragi::Model::Config::get_redis;
 	$redis->hset("LRR_JSONCACHE","force_refresh", 1);
 }
@@ -171,11 +171,6 @@ sub add_archive_to_redis {
 
 	$redis->wait_all_responses;
 
-	#AutoTagging using enabled plugins goes here!
-	if (LANraragi::Model::Config::get_autotag) {
-		LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
-	}
-
 	return ($name,$title,$tags,"block");
 }
 
@@ -186,7 +181,7 @@ sub get_archive_list {
 	#Get all files in content directory and subdirectories.
 	my @filez;
 	find({ wanted => sub { 
-						if ($_ =~ /^*.+\.(zip|rar|7z|tar|tar.gz|lzma|xz|cbz|cbr)$/ )
+						if ($_ =~ /^.+\.(zip|rar|7z|tar|tar.gz|lzma|xz|cbz|cbr)$/ )
 							{push @filez, $_ }
 					 },
 	   no_chdir => 1,

@@ -27,7 +27,7 @@ sub startup {
   #Set development mode if the version number contains "DEV"
   if (index($version, "DEV") != -1) {
     $self->mode('development');
-    say ("(Development Mode)");
+    say ("(Developer Mode)");
     $devmode = 1;
   } else {
     $self->mode('production');
@@ -83,7 +83,7 @@ sub startup {
     $proc->run([$^X, "./lib/Shinobu.pm"]);
 
   } else { 
-    say ("Lockfile present in development mode - Background worker not respawned.");
+    say ("Lockfile present in dev mode - Background worker not respawned.");
     say ("!!! -- Delete the shinobu-lock file if you just started LANraragi.");
   }
 
@@ -124,8 +124,9 @@ sub startup {
   $logged_in->post('/upload')->to('upload#process_upload');
 
   $logged_in->post('/api/use_plugin')->to('api#use_plugin');
+  $logged_in->post('/api/use_all_plugins')->to('api#use_enabled_plugins');
   $logged_in->get('/api/cleantemp')->to('api#clean_tempfolder');
-  $logged_in->get('/api/refresh_index')->to('api#rebuild_json_cache');
+  $logged_in->get('/api/discard_cache')->to('api#force_refresh');
 
   $r->get('/logout')->to('login#logout');
 

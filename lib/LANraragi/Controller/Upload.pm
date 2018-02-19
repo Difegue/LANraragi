@@ -78,6 +78,7 @@ sub index {
 
 	$self->render(  template => "upload",
 	            	title => $self->LRR_CONF->get_htmltitle,
+	            	autotag => $self->LRR_CONF->get_autotag,
 	            	cssdrop => LANraragi::Model::Utils::generate_themes
 	            	);
 }

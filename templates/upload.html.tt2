@@ -62,20 +62,36 @@
 	        				"</td><td> <i class='fa fa-warning' style='margin-left:20px; margin-right: 10px; color: red'></i>" + data.result.error + "</td></tr>";
 	        	else
 	        		result = "<tr><td> <a href='reader?id=" + data.result.id + "'>" + data.result.name + "</a>" +
-	        				"</td><td> <i class='fa fa-check-square' style='margin-left:20px; margin-right: 10px; color: green'></i> <a href='edit?id=" + data.result.id + "'> Click here to edit metadata. </a></td></tr>";
+	        				"</td><td> <i class='fa fa-check-square' style='margin-left:20px; margin-right: 10px; color: green'></i> <a href='edit?id=" + data.result.id + "' id='"+data.result.id+"'> Click here to edit metadata. </a></td></tr>";
 
 	        	$('#progress .bar').css('width','0%');
 	            $('#files').append(result);
+
+	            //if autotagging is enabled, call the API to trigger all enabled plugins on the newly uploaded archive.
+	            autotagEnabled = [% autotag %];
+
+	            if (autotagEnabled) {
+
+	            	$("#"+data.result.id).html("Auto-Tagging this archive...");
+	            	$("#"+data.result.id).val("href","");
+
+	            	$.post( "/api/use_all_plugins", { id: data.result.id }, function( data ) {
+					  if (data.success) {
+					  	$("#"+data.id).val("href", "edit?id="+data.id);
+					  	$("#"+data.result.id).html("Click here to edit metadata.("+data.message+")");
+					  }
+					}, "json");
+
+	            }
+	            
+
+	            //Invalidate cache 
+		        $.get("./api/discard_cache");
 	        },
 
 	        progressall: function (e, data) {
 		        var progress = parseInt(data.loaded / data.total * 100, 10);
 		        $('#progress .bar').css('width', progress + '%');
-
-		        if (data.loaded === data.total) {
-		        	//Ask the API to refresh now that all files have been uploaded
-		        	$.get("./api/refresh_index");
-		        }
 		    }
 
 	    });

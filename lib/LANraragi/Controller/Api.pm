@@ -118,15 +118,46 @@ sub serve_thumbnail {
 
 }
 
-sub rebuild_json_cache {
+sub force_refresh {
 
 	my $self = shift;
- 	LANraragi::Model::Utils::ask_background_refresh();
+ 	LANraragi::Model::Utils::invalidate_cache();
 
  	$self->render(  json => {
 					operation => "refresh_cache",
 					status => 1,
+					message => "JSON cache invalidated."
 				  });
+}
+
+#Use all enabled plugins on an archive ID. Tags are automatically saved in the background.
+#Returns number of successes and failures.
+sub use_enabled_plugins {
+
+	my $self = shift;
+
+	my $id = $self->req->param('id');
+	my $redis = $self->LRR_CONF->get_redis();
+
+	if ($redis->hexists($id,"title") && LANraragi::Model::Config::get_autotag) {
+
+		my ($succ, $fail) = LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
+
+		$self->render(  json => {
+						operation => "autotag",
+						id => $id,
+						success => 1,
+						message => "$succ Plugins used successfully, $fail Plugins failed."
+					  });
+	} else {
+
+		$self->render(  json => {
+						operation => "autotag",
+						id => $id,
+						success => 0,
+						message => "ID not found in database or AutoTagging disabled by admin."
+					  });
+	}
 }
 
 #Uses a plugin on the given archive with the given argument.

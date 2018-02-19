@@ -47,6 +47,9 @@ sub exec_enabled_plugins_on_file {
 	say ("[Auto-Tagger] Executing enabled plugins on archive with id $id.");
 	my $redis = LANraragi::Model::Config::get_redis;
 
+	my $successes = 0;
+	my $failures = 0;
+
 	foreach my $plugin (LANraragi::Model::Plugins::plugins) {
 
 		#Check Redis to see if plugin is enabled and get the custom argument
@@ -78,10 +81,17 @@ sub exec_enabled_plugins_on_file {
 				}
 			};
 
+			if ($@) {
+				$failures++;
+			} else {
+				$successes++;
+			}
+
         }
 
     }
 
+    return ($successes, $failures);
 }
 
 #Execute a specified plugin on a file, described through its Redis ID. 
