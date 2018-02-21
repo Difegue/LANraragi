@@ -63,8 +63,10 @@ sub exec_enabled_plugins_on_file {
         	my ($enabled, $arg) = @plugincfg{qw(enabled arg)};
 			($_ = LANraragi::Model::Utils::redis_decode($_)) for ($enabled, $arg);
 
-			eval { #Every plugin execution is eval'd separately 
-				if ($enabled) {
+			if ($enabled) {
+
+				eval { #Every plugin execution is eval'd separately 
+				
 					my %plugin_result = &exec_plugin_on_file($plugin, $id, $arg, ""); #No oneshot arguments here
 
 					unless (exists $plugin_result{error}) { #If the plugin exec returned metadata, add it
@@ -73,18 +75,19 @@ sub exec_enabled_plugins_on_file {
 						$oldtags = LANraragi::Model::Utils::redis_decode($oldtags);
 
 						my $newtags = $plugin_result{new_tags};
-						say ("[Auto-Tagger] Adding $newtags.");
+						say ("[Auto-Tagger] Adding $newtags to $oldtags.");
 
-						$redis->hset($id, "tags", $oldtags.",".$newtags);
-
+						$redis->hset($id, "tags", encode_utf8($oldtags.",".$newtags));
 					}
-				}
-			};
+				};
 
-			if ($@) {
-				$failures++;
-			} else {
-				$successes++;
+				if ($@) {
+					$failures++;
+					say ("[Auto-Tagger] ERROR: $@");
+				} else {
+					$successes++;
+				}
+
 			}
 
         }

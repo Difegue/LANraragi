@@ -73,7 +73,7 @@ sub get_tags {
 sub get_gallery_id_from_title {
 
 	my $title = $_[0];
-	my $URL = "https://nhentai.net/api/galleries/search?query=\"".uri_escape($title);
+	my $URL = "https://nhentai.net/api/galleries/search?query=\"".uri_escape_utf8($title);
 
 	my $ua = Mojo::UserAgent->new;
 

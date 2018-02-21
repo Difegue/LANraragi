@@ -189,6 +189,8 @@ sub build_json_cache {
 		if ($redis->hexists($id,"title")) {
 				$json.=&build_archive_JSON($id, $file, $redis, $dirname); 
 			}
+
+		#TODO: Override to shutdown cache building?
 	}
 
 	$json.="]";

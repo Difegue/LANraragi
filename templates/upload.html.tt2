@@ -78,7 +78,7 @@
 	            	$.post( "/api/use_all_plugins", { id: data.result.id }, function( data ) {
 					  if (data.success) {
 					  	$("#"+data.id).val("href", "edit?id="+data.id);
-					  	$("#"+data.result.id).html("Click here to edit metadata.("+data.message+")");
+					  	$("#"+data.id).html("Click here to edit metadata.("+data.message+")");
 					  }
 					}, "json");
 
