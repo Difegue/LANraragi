@@ -5,6 +5,7 @@ use warnings;
 use utf8;
 
 use Digest::SHA qw(sha256_hex);
+use File::Basename;
 use File::Find;
 use Encode;
 use URI::Escape;

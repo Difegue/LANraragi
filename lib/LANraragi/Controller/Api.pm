@@ -73,7 +73,7 @@ sub serve_thumbnail {
 		unlink glob $path."/*.*";
 
 		#Get lsar's output, jam it in an array, and use it as @extracted.
-		print $file;
+		#print $file;
 		my $vals = `lsar "$file"`; 
 		my @lsarout = split /\n/, $vals;
 		my @extracted; 
