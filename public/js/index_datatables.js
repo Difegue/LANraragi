@@ -22,7 +22,7 @@ function initIndex(pagesize,dataSet)
 			},
 		'preDrawCallback': thumbViewInit, //callbacks for thumbnail view
 		'rowCallback': buildThumbDiv,
-		'drawCallback': buildTooltips,
+		//'drawCallback': buildTooltips,
 		'columns' : [
 			{ className: 'itdc', 
 			  'width': '20',
@@ -46,7 +46,7 @@ function initIndex(pagesize,dataSet)
 			  'render': function (data, type, full, meta ) {
 			  			if(type == "display"){
 
-			  				line = '<span class="tags tag-tooltip" style="text-overflow:ellipsis;">'+data+'</span>';
+			  				line = '<span class="tags tag-tooltip" onmouseover="buildTagTooltip($(this))" style="text-overflow:ellipsis;">'+data+'</span>';
 			  				line+=buildTagsDiv(data);
 							return line;
 			  			}
@@ -133,7 +133,7 @@ function actionColumnDisplay(data,type,full,meta) {
 function titleColumnDisplay(data,type,full,meta) {
 	if(type == "display"){
 
-    return '<span style="display: none;">'+data.title+'</span><a class="image-tooltip" href="./reader?id='+data.arcid+'">'
+    return '<span style="display: none;">'+data.title+'</span><a class="image-tooltip" onmouseover="buildImageTooltip($(this))" href="./reader?id='+data.arcid+'">'
     	 + data.title+'</a><div class="caption" style="display: none;"><img src="./api/thumbnail?id='+data.arcid+'" onerror="this.src=\'./img/noThumb.png\'"></div>'
     	 + '<img src="img/n.gif" style="float: right; margin-top: -15px; z-index: -1; display: '+data.isnew+'">';
 	}
@@ -196,8 +196,8 @@ function buildThumbDiv( row, data, index ) {
 							'<a title="Edit this archive\'s tags and data." href="./edit?id='+data.arcid+'">'+
 								'<i class="fa fa-edit"></i>'+
 							'</a></div>'+
-							'<div class="id42 tag-tooltip"><a style="cursor:pointer">Hover me for tags!</a></div>'+
-							buildTagsDiv(data.tags)+
+							'<div class="id42 tag-tooltip"><a style="cursor:pointer" onmouseover="buildTagTooltip($(this))">Hover me for tags!</a>'+
+							buildTagsDiv(data.tags)+'</div>'+
 						'</div>'+
 					'</div>';
 
@@ -205,14 +205,11 @@ function buildThumbDiv( row, data, index ) {
 	}
 }
 
-//Build tooltips for archive thumbnails and tags.
-function buildTooltips() {
-
-	//Image tooltips are anchored to the mouse
-	$('.image-tooltip').each(function() {
-	    $(this).qtip({
+//Build a tooltip when hovering over an archive title, then display it. The tooltip is saved in DOM for further uses.
+function buildImageTooltip(target) {
+	target.qtip({
 	        content: {
-	            text: $(this).next('div').clone() // We use clone() to always keep the original div around - copies are destroyed by qtip.
+	            text: target.next('div')
 	        },
 	        position: {
 		        target: 'mouse',
@@ -231,13 +228,16 @@ function buildTooltips() {
 		    	delay:45
 		    }
 	    });
-	});
 
-	//Tag tooltips are at a fixed position
-	$('.tag-tooltip').each(function() { 
-	    $(this).qtip({
+	target.attr('onmouseover',''); //Don't trigger this function again for this element
+	target.mouseover(); //Call the mouseover event again so the tooltip shows now
+}
+
+//Ditto for tag tooltips
+function buildTagTooltip(target) {
+	target.qtip({
 	        content: {
-	            text: $(this).next('div').clone()
+	            text: target.next('div')
 	        },
 	        position: {
 	        	my: 'middle right',
@@ -256,8 +256,9 @@ function buildTooltips() {
 		        classes: 'caption'
 		    }
 	    });
-	});
 
+	target.attr('onmouseover','');
+	target.mouseover();
 }
 
 //Builds a caption div containing clickable tags. Uses a string containing all tags, split by commas.
@@ -277,7 +278,7 @@ function buildTagsDiv(tags)
 
 		ucKey = key.charAt(0).toUpperCase() + key.slice(1);
 
-		line+="<tr><td style='font-size:10pt; padding: 0 2px 7px'>"+ucKey+":</td><td>";
+		line+="<tr><td style='font-size:10pt; padding: 0 2px 7px; vertical-align:top'>"+ucKey+":</td><td>";
 
 		tagsByNamespace[key].forEach(function (tag) {
 			line+='<div class="gt" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+tag+'</div>';

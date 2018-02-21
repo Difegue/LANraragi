@@ -218,3 +218,7 @@ a:hover > .page-number {
 .caption {
     border: none !important;
 }
+
+.qtip {
+    max-width: 1000px !important;
+}

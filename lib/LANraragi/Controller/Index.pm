@@ -53,23 +53,14 @@ sub index {
 	my $redis = $self->LRR_CONF->get_redis();
 
 	my $archivejson = "[]";
-	my $force = 1;
+	my $force = 0;
 
 	if ($redis->exists("LRR_JSONCACHE")) {
-		$force = $redis->hget("LRR_JSONCACHE","force_refresh"); #Force flag, usually set when metadata has been modified by the user.
-	}
+		$force = $redis->hget("LRR_JSONCACHE","force_refresh"); #IF this flag is set, the DB cache is currently building => flash a notification
 
-	if ($force) {
-		#Cache invalidated, build a new json right now instead of showing the user outdated info
-		my @archives = LANraragi::Model::Utils::get_archive_list;
-		LANraragi::Model::Utils::build_json_cache(@archives);
-
-		$archivejson = decode_utf8($redis->hget("LRR_JSONCACHE","archive_list"));
-	} else {
 		#Get cached JSON from Redis
 		$archivejson = decode_utf8($redis->hget("LRR_JSONCACHE","archive_list"));
 	}
-	
 
 	#Checking if the user still has the default password enabled
 	my $ppr = Authen::Passphrase->from_rfc2307($self->LRR_CONF->get_password);
@@ -83,6 +74,7 @@ sub index {
 		            cssdrop => LANraragi::Model::Utils::generate_themes,
 		            archiveJSON => $archivejson,
 		            usingdefpass => $passcheck,
+		            buildingDBcache => $force,
 		            version => $version
 		        );
 }
