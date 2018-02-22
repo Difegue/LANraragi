@@ -61,7 +61,7 @@ sub build_reader_JSON {
 			unless (-e $path) {
 				my $errlog = join "<br/>", @$full_buf;
 				$errlog = decode_utf8($errlog);
-				printf "ERROR while unpacking archive: $errlog";
+				$self->LRR_LOGGER->error("ERROR while unpacking archive: $errlog");
 				die $errlog;
 			}
 		}

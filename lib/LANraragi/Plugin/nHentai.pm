@@ -36,7 +36,7 @@ sub get_tags {
 	shift;
     my ($title, $thumbhash, $file, $globalarg, $oneshotarg) = @_;
 
-    my $logger = LANraragi::Model::Plugins::get_logger("nHentai");
+    my $logger = LANraragi::Model::Utils::get_logger("nHentai","plugins");
 
     #Work your magic here - You can create subs below to organize the code better
     my $galleryID = "";
@@ -96,7 +96,7 @@ sub get_tags_from_NH {
 	my $tag = "";
 	my $returned = "";
 
-	my $logger = LANraragi::Model::Plugins::get_logger("nHentai");
+	my $logger = LANraragi::Model::Utils::get_logger("nHentai","plugins");
 
 	my $URL = "https://nhentai.net/api/gallery/$gID";
 
@@ -109,6 +109,9 @@ sub get_tags_from_NH {
 
 	my $json = $res->json;
 	my $tags = $json->{"tags"};
+
+	#TODO: support for NH's "pretty" names? (romaji titles without extraneous data we already have like (Event)[Artist], etc)
+	# $json->{"title"}->{"pretty"} 
 
 	foreach $tag (@$tags)
 	{

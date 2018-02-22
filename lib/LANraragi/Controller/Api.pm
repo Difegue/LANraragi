@@ -106,8 +106,6 @@ sub serve_thumbnail {
 		
 		#Thumbnail generation
 		LANraragi::Model::Utils::generate_thumbnail($arcimg,$thumbname);
-			
-		$redis.close();
 
 		#Delete the previously extracted file.
 		unlink $arcimg;

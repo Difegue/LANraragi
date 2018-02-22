@@ -37,7 +37,7 @@ sub get_tags {
 	shift;
     my ($title, $thumbhash, $file, $globalarg, $oneshotarg) = @_;
 
-    my $logger = LANraragi::Model::Plugins::get_logger("E-Hentai");
+    my $logger = LANraragi::Model::Utils::get_logger("E-Hentai","plugins");
 
     #Work your magic here - You can create subroutines below to organize the code better
     my $gID = "";
@@ -75,7 +75,7 @@ sub lookup_by_title {
 	my $title = $_[0];
 	my $thumbhash = $_[1];
 	my $exh_cookies = $_[2];
-	my $logger = LANraragi::Model::Plugins::get_logger("E-Hentai");
+	my $logger = LANraragi::Model::Utils::get_logger("E-Hentai","plugins");
 
 	my $domain = "http://e-hentai.org/";
 
@@ -187,7 +187,7 @@ sub get_tags_from_EH {
 
 	my $ua = Mojo::UserAgent->new;
 
-	my $logger = LANraragi::Model::Plugins::get_logger("E-Hentai");
+	my $logger = LANraragi::Model::Utils::get_logger("E-Hentai","plugins");
 
 	#Execute the request
 	my $jsonresponse = $ua->post($uri => json => {method => "gdata", gidlist => [[$gID,$gToken]], namespace => 1})->result->json;

@@ -1,0 +1,73 @@
+<html>
+	<head>
+		<title>[% title %] - Logs</title>
+
+		<meta name="viewport" content="width=device-width" />
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+		<link type="image/png" rel="icon" href="./img/favicon.ico" />
+		
+		<link rel="stylesheet" type="text/css" href="./css/vendor/fontawesome-all.min.css" />
+
+		<script src="./js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
+
+		<script src="./js/theme.js" type="text/JAVASCRIPT"></script>
+		
+	</head>
+
+	<body onload="set_style_from_storage()">
+
+		<div class='ido' style='text-align:center'>
+				<h2 class='ih' style='text-align:center'>Application Logs</h2>
+
+				<br>
+				You can check LANraragi logs here for debugging purposes.<br>
+				By default, this view only shows the last 100 lines of each logfile, newest lines first.  <br><br>
+				General Logs pertain to the main application. Plugin Logs are reserved for metadata plugins only, and Mojolicious logs dig a little deeper than general.
+				<br><br>
+
+				<h1 class='ih' style='text-align:center'>Currently Viewing: <span id="indicator">general</span></h1>
+
+				<table class="itg">
+					<tbody>
+
+					<tr class="gtr1"><td>
+						<pre id="log-container" style="height:300px; max-width:100%; overflow: auto; white-space: pre-wrap; "></pre>
+					</td></tr>
+
+					</tbody>
+				</table>
+
+				<br><br>
+				<span id='buttonstagging'>
+						<input type='button' value='View LANraragi Logs' class='stdbtn' onclick='showLog("general")'>
+
+						<input type='button' value='View Plugin Logs' class='stdbtn' onclick='showLog("plugins")'>
+
+						<input type='button' value='View Mojolicious Logs' class='stdbtn' onclick='showLog("mojo")'>
+
+						<br><br>
+						<input class='stdbtn' type='button' onclick="window.location.replace('/');" value='Return to Library'/>
+
+				</span>
+
+		</div>
+
+		<script>
+
+		function showLog(type) {
+
+			$.get( "/logs/"+type, function( data ) {
+			  $( "#log-container" ).html( data );
+			  $("#indicator").html(type);
+			});
+
+		}
+
+		showLog("general");
+
+		</script>
+
+	[% INCLUDE footer %]
+	</body>
+</html>

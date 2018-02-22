@@ -3,7 +3,6 @@ package LANraragi::Model::Plugins;
 use strict;
 use warnings;
 use utf8;
-use feature 'say';
 use feature 'fc';
 
 #Plugin system ahoy
@@ -12,39 +11,15 @@ use Module::Pluggable require =>1, search_path => ['LANraragi::Plugin'];
 use Redis;
 use Encode;
 
-use Mojo::Log;
-
 use LANraragi::Model::Utils;
 use LANraragi::Model::Config;
-
-#Returns a Logger object, taking plugin info as argument to obtain the plugin name.
-sub get_logger {
-
-	#Customize log file location and minimum log level
-	my $log = Mojo::Log->new(path => './plugins.log', level => 'info');
-	my $pgname = $_[0];
-
-	#Copy logged messages to STDOUT with the plugin name
-	$log->on(message => sub {
-	  my ($time, $level, @lines) = @_;
-	  print "[$pgname] ";
-	  say $lines[0];
-	});
-
-	$log->format(sub {
-     my ($time, $level, @lines) = @_;
-     return "[$pgname] - $level: " . join("\n", @lines) . "\n";
- 	});
-
- 	return $log;
-
-}
 
 sub exec_enabled_plugins_on_file {
 
 	my $id = shift;
+	my $logger = LANraragi::Model::Utils::get_logger("Auto-Tagger","lanraragi");
 
-	say ("[Auto-Tagger] Executing enabled plugins on archive with id $id.");
+	$logger->info("Executing enabled plugins on archive with id $id.");
 	my $redis = LANraragi::Model::Config::get_redis;
 
 	my $successes = 0;
@@ -75,7 +50,7 @@ sub exec_enabled_plugins_on_file {
 						$oldtags = LANraragi::Model::Utils::redis_decode($oldtags);
 
 						my $newtags = $plugin_result{new_tags};
-						say ("[Auto-Tagger] Adding $newtags to $oldtags.");
+						$logger->info("Adding $newtags to $oldtags.");
 
 						$redis->hset($id, "tags", encode_utf8($oldtags.",".$newtags));
 					}
@@ -83,7 +58,7 @@ sub exec_enabled_plugins_on_file {
 
 				if ($@) {
 					$failures++;
-					say ("[Auto-Tagger] ERROR: $@");
+					$logger->error("$@");
 				} else {
 					$successes++;
 				}
@@ -131,7 +106,6 @@ sub exec_plugin_on_file {
 				my $good = 1;
 
 				foreach my $black (@blacklist) { 
-
 					if (index($tagtoadd, $black) != -1) {
 						$good = 0;
 					}

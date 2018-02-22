@@ -41,6 +41,8 @@
 				<span style="margin-left:5px"></span>
 				<i class="fa fa-caret-right"></i>
 				<a href="./stats">Statistics</a>	
+				<i class="fa fa-caret-right"></i>
+				<a href="./logs">Logs</a>
 			</p>
 		[% ELSE %]
 			<p id="nb">

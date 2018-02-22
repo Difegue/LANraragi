@@ -31,9 +31,10 @@ use LANraragi::Model::Utils;
 sub initialize_from_new_process {
 
 	my $interval = LANraragi::Model::Config::get_interval;
+	my $logger = LANraragi::Model::Utils::get_logger("Shinobu","shinobu");
 
-	say ("Shinobu Background Worker started -- Running every $interval seconds.");
-	say ("Working dir is ".cwd);
+	$logger->info("Shinobu Background Worker started -- Running every $interval seconds.");
+	$logger->info("Working dir is ".cwd);
 
 	while (1) {
 	
@@ -46,8 +47,10 @@ sub initialize_from_new_process {
 
 sub workload {
 
+	my $logger = LANraragi::Model::Utils::get_logger("Shinobu","shinobu");
+
 	#say ("Parsing Archive Directory...");
-	my @archives = LANraragi::Model::Utils::get_archive_list;
+	my @archives = &get_archive_list;
 	my $redis = LANraragi::Model::Config::get_redis;
 
 	my $cachecount = 0;
@@ -64,9 +67,9 @@ sub workload {
 
 	#say ("Building JSON cache from Redis...");
 	if ( scalar @archives != $cachecount || $force ) {
-		say ("Archive count has changed since last cached value ($cachecount) OR rebuild has been forced (flag value = $force), rebuilding...");
+		$logger->info("Archive count has changed since last cached value ($cachecount) OR rebuild has been forced (flag value = $force), rebuilding...");
 		&build_json_cache(@archives);
-		say ("Done!");
+		$logger->info("Done!");
 	}
 
 	#say ("Checking Temp Folder Size...");
@@ -76,10 +79,29 @@ sub workload {
 
 }
 
+sub get_archive_list {
+
+	my $dirname = LANraragi::Model::Config::get_userdir;
+
+	#Get all files in content directory and subdirectories.
+	my @filez;
+	find({ wanted => sub { 
+						if ($_ =~ /^.+\.(zip|rar|7z|tar|tar.gz|lzma|xz|cbz|cbr)$/ )
+							{push @filez, $_ }
+					 },
+	   no_chdir => 1,
+	   follow_fast => 1 }, 
+	$dirname);
+
+	return @filez;
+
+}
+
 sub new_archive_check {
 
 	my (@dircontents) = @_;
 	my $redis = LANraragi::Model::Config::get_redis;
+	my $logger = LANraragi::Model::Utils::get_logger("Shinobu","shinobu");
 
 	my ($file, $id);
 
@@ -100,8 +122,8 @@ sub new_archive_check {
 
 		#Trigger archive addition if title isn't in Redis
 		unless ($redis->hexists($id,"title")) {
-				say ("Adding new file $file");
-				say ("ID is $id");
+				$logger->info("Adding new file $file");
+				$logger->info("ID is $id");
 				LANraragi::Model::Utils::add_archive_to_redis($id,$file,$redis);
 
 				#AutoTagging using enabled plugins goes here!
@@ -115,6 +137,8 @@ sub new_archive_check {
 
 sub autoclean_temp_folder {
 
+	my $logger = LANraragi::Model::Utils::get_logger("Shinobu","shinobu");
+	
 	my $size = 0;
 	find(sub { $size += -s if -f }, "$FindBin::Bin/../public/temp");
 	$size = int($size/1048576*100)/100;
@@ -122,7 +146,7 @@ sub autoclean_temp_folder {
 	my $maxsize = LANraragi::Model::Config::get_tempmaxsize;
 
 	if ($size > $maxsize) {
-		say ("Current temporary folder size is $size MBs, Maximum size is $maxsize MBs. Cleaning.");
+		$logger->info("Current temporary folder size is $size MBs, Maximum size is $maxsize MBs. Cleaning.");
 
 		#Remove all folders in /public/temp except the most recent one
 		#For this, we use Perl's ctime, which uses inode last modified time on Unix and Win32 creation time on Windows.
@@ -151,7 +175,7 @@ sub autoclean_temp_folder {
 
 		#Remove all folders in folderlist except the last one
 		my $survivor = pop @folder_list;
-		say "Deleting all folders in /temp except $survivor";
+		$logger->info("Deleting all folders in /temp except $survivor");
 
 		remove_tree(@folder_list, {error => \my $err}); 
 
@@ -159,10 +183,10 @@ sub autoclean_temp_folder {
 	  		for my $diag (@$err) {
 		      my ($file, $message) = %$diag;
 		      if ($file eq '') {
-		          say "General error: $message\n";
+		          $logger->info("General error: $message\n");
 		      }
 		      else {
-		          say "Problem unlinking $file: $message\n";
+		          $logger->info("Problem unlinking $file: $message\n");
 		      }
   			}
   		}
@@ -179,15 +203,14 @@ sub build_json_cache {
 	$redis->hset("LRR_JSONCACHE","force_refresh", 1);
 
 	my $json = "[";
-	my ($file, $id);
 
-	foreach $file (@dircontents) {
+	foreach my $file (@dircontents) {
 		#ID of the archive, used for storing data in Redis.
-		$id = LANraragi::Model::Utils::shasum($file,256);
+		my $id = LANraragi::Model::Utils::shasum($file,256);
 
 		#Craft JSON if archive is in Redis
 		if ($redis->hexists($id,"title")) {
-				$json.=&build_archive_JSON($id, $file, $redis, $dirname); 
+				$json.=&build_archive_JSON($id, $file); 
 			}
 
 		#TODO: Override to shutdown cache building?
@@ -209,7 +232,10 @@ sub build_json_cache {
 #build_archive_JSON(id, file, redis, userdir)
 #Builds a JSON object for an archive already registered in the Redis database and returns it.
 sub build_archive_JSON {
-	my ($id, $file, $redis, $dirname) = @_;
+	my ($id, $file) = @_;
+
+	my $redis = LANraragi::Model::Config::get_redis;
+	my $dirname = LANraragi::Model::Config::get_userdir;
 
 	my %hash = $redis->hgetall($id);
 	my ($path, $suffix);
@@ -218,7 +244,7 @@ sub build_archive_JSON {
 	my ($name,$title,$tags,$filecheck,$isnew) = @hash{qw(name title tags file isnew)};
 
 	#Parameters have been obtained, let's decode them.
-	( eval { $_ = LANraragi::Model::Utils::redis_decode($_) } ) for ($name, $title, $tags, $filecheck);
+	( $_ = LANraragi::Model::Utils::redis_decode($_) ) for ($name, $title, $tags, $filecheck);
 
 	#Update the real file path and title if they differ from the saved one just in case the file got manually renamed or some weird shit
 	unless ($file eq $filecheck)

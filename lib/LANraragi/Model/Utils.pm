@@ -3,7 +3,9 @@ package LANraragi::Model::Utils;
 use strict;
 use warnings;
 use utf8;
+use feature 'say';
 
+use POSIX;
 use Digest::SHA qw(sha256_hex);
 use File::Basename;
 use File::Find;
@@ -11,6 +13,7 @@ use Encode;
 use URI::Escape;
 use Redis;
 use Image::Magick;
+use Mojo::Log;
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
@@ -25,6 +28,32 @@ sub generate_thumbnail {
     $img->Read($orig_path);
     $img->Thumbnail(geometry => '200x');
     $img->Write($thumb_path);
+}
+
+#Returns a Logger object, taking plugin info as argument to obtain the plugin name and a filename for the log file.
+sub get_logger {
+
+	#Customize log file location and minimum log level
+	my $pgname = $_[0];
+	my $logfile = $_[1];
+
+	my $log = Mojo::Log->new(path => './log/'.$logfile.'.log', level => 'info');
+
+	#Copy logged messages to STDOUT with the plugin name
+	$log->on(message => sub {
+	  my ($time, $level, @lines) = @_;
+	  print "[$pgname] ";
+	  say $lines[0];
+	});
+
+	$log->format(sub {
+     my ($time, $level, @lines) = @_;
+     my $time2 = strftime ("%Y-%m-%d %H:%M:%S", localtime($time));
+     return "[$time2] [$pgname] [$level] " . join("\n", @lines) . "\n";
+ 	});
+
+ 	return $log;
+
 }
 
 #This function gives us a SHA hash for the passed file, which is used for thumbnail reverse search on E-H. 
@@ -175,24 +204,6 @@ sub add_archive_to_redis {
 	$redis->wait_all_responses;
 
 	return ($name,$title,$tags,"block");
-}
-
-sub get_archive_list {
-
-	my $dirname = LANraragi::Model::Config::get_userdir;
-
-	#Get all files in content directory and subdirectories.
-	my @filez;
-	find({ wanted => sub { 
-						if ($_ =~ /^.+\.(zip|rar|7z|tar|tar.gz|lzma|xz|cbz|cbr)$/ )
-							{push @filez, $_ }
-					 },
-	   no_chdir => 1,
-	   follow_fast => 1 }, 
-	$dirname);
-
-	return @filez;
-
 }
 
 1;
