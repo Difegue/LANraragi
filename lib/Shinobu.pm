@@ -31,7 +31,7 @@ use LANraragi::Model::Utils;
 sub initialize_from_new_process {
 
 	my $interval = LANraragi::Model::Config::get_interval;
-	my $logger = LANraragi::Model::Utils::get_logger("Shinobu","shinobu");
+	my $logger = LANraragi::Model::Utils::get_logger("Shinobu","lanraragi");
 
 	$logger->info("Shinobu Background Worker started -- Running every $interval seconds.");
 	$logger->info("Working dir is ".cwd);
@@ -47,7 +47,7 @@ sub initialize_from_new_process {
 
 sub workload {
 
-	my $logger = LANraragi::Model::Utils::get_logger("Shinobu","shinobu");
+	my $logger = LANraragi::Model::Utils::get_logger("Shinobu","lanraragi");
 
 	#say ("Parsing Archive Directory...");
 	my @archives = &get_archive_list;
@@ -101,7 +101,7 @@ sub new_archive_check {
 
 	my (@dircontents) = @_;
 	my $redis = LANraragi::Model::Config::get_redis;
-	my $logger = LANraragi::Model::Utils::get_logger("Shinobu","shinobu");
+	my $logger = LANraragi::Model::Utils::get_logger("Shinobu","lanraragi");
 
 	my ($file, $id);
 
@@ -137,7 +137,7 @@ sub new_archive_check {
 
 sub autoclean_temp_folder {
 
-	my $logger = LANraragi::Model::Utils::get_logger("Shinobu","shinobu");
+	my $logger = LANraragi::Model::Utils::get_logger("Shinobu","lanraragi");
 	
 	my $size = 0;
 	find(sub { $size += -s if -f }, "$FindBin::Bin/../public/temp");

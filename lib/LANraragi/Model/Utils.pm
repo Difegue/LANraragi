@@ -30,6 +30,24 @@ sub generate_thumbnail {
     $img->Write($thumb_path);
 }
 
+#resize_image(image,quality, size_threshold)
+#convert an image to a cheaper on bandwidth format through ImageMagick.
+sub resize_image {
+	
+	my ($imgpath, $quality, $threshold) = @_;
+	my $img = Image::Magick->new;
+
+	#Is the file size higher than the threshold?
+	if ( (int((-s $imgpath )/ 1024*10)/10 ) > $threshold){
+		$img->Read($imgpath);
+		$img->Resize(geometry => '1064x');
+		$img->Set(quality=>$quality);
+		$img->Write($imgpath);
+
+		#`mogrify -scale 1064x -quality $quality "$imgpath"`; 
+	}
+}
+
 #Returns a Logger object, taking plugin info as argument to obtain the plugin name and a filename for the log file.
 sub get_logger {
 
