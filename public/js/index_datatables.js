@@ -22,7 +22,6 @@ function initIndex(pagesize,dataSet)
 			},
 		'preDrawCallback': thumbViewInit, //callbacks for thumbnail view
 		'rowCallback': buildThumbDiv,
-		//'drawCallback': buildTooltips,
 		'columns' : [
 			{ className: 'itdc', 
 			  'width': '20',
@@ -47,7 +46,7 @@ function initIndex(pagesize,dataSet)
 			  			if(type == "display"){
 
 			  				line = '<span class="tags tag-tooltip" onmouseover="buildTagTooltip($(this))" style="text-overflow:ellipsis;">'+data+'</span>';
-			  				line+=buildTagsDiv(data);
+			  				if (localStorage.indexViewMode == 0) line+=buildTagsDiv(data); //Don't build this div if we're in thumbnail mode as it'll be unused
 							return line;
 			  			}
 			  		return data;
@@ -86,14 +85,15 @@ function artistColumnDisplay(data,type,full,meta) {
 		if (data === "")
 		return "";
 
-		tagsByNamespace = splitTagsByNamespace(data);
+		regex = /.*artist:\s?([^,]*),.*/gi; //Catch last artist:xxx value in tags
+		match = regex.exec(data);
 
-		if ("artist" in tagsByNamespace)
+		if (match != null) {
 			return '<a style="cursor:pointer" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+
-					tagsByNamespace["artist"][0].replace(/\b./g, function(m){ return m.toUpperCase(); })+
+					match[1].replace(/\b./g, function(m){ return m.toUpperCase(); })+
 					'</a>';
-		else
-			return "";
+		} else return "";
+			
 	}
 
 	return data;
@@ -106,14 +106,15 @@ function seriesColumnDisplay(data,type,full,meta) {
 		if (data === "")
 		return "";
 
-		tagsByNamespace = splitTagsByNamespace(data);
+		regex = /.*parody:\s?([^,]*),.*/gi
+		match = regex.exec(data);
 
-		if ("parody" in tagsByNamespace)
+		if (match != null) {
 			return '<a style="cursor:pointer" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">'+
-			tagsByNamespace["parody"][0].replace(/\b./g, function(m){ return m.toUpperCase(); })+
+			match[1].replace(/\b./g, function(m){ return m.toUpperCase(); })+
 			'</a>';
-		else
-			return "";
+		} else return "";
+
 	}
 
 	return data;
@@ -233,7 +234,7 @@ function buildImageTooltip(target) {
 	target.mouseover(); //Call the mouseover event again so the tooltip shows now
 }
 
-//Ditto for tag tooltips
+//Ditto for tag tooltips, with different options.
 function buildTagTooltip(target) {
 	target.qtip({
 	        content: {
@@ -291,7 +292,6 @@ function buildTagsDiv(tags)
 	return line;
 }
 
-//TODO: Figure out how to store this properly so it's not repeated 4 times
 function splitTagsByNamespace(tags) {
 
 	var tagsByNamespace = {};

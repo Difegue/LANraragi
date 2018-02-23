@@ -21,7 +21,7 @@ function updateOneShotArg(){
 
 	var arg = $('#plugin').find(":selected").get(0).getAttribute('arg')+" : ";
 
-	//todo - hide input for plugins without a oneshot argument field
+	//hide input for plugins without a oneshot argument field
 	if (arg === "") {
 		$("#arg_label").hide();
 		$("#arg").hide();

@@ -64,17 +64,21 @@ sub get_lines_from_file {
 	my $file = $_[1];
 
 	#Load the last X lines of file
-	my $bw = File::ReadBackwards->new($file);
-	my $res = "";
-	for (my $i = 0; $i <= $lines; $i++) {
-		my $line = $bw->readline();
-		if ($line) {
-			$res= $res.$line;
+	if (-e $file) {
+		my $bw = File::ReadBackwards->new($file);
+		my $res = "";
+		for (my $i = 0; $i <= $lines; $i++) {
+			my $line = $bw->readline();
+			if ($line) {
+				$res= $res.$line;
+			}
+			
 		}
-		
+
+		return $res;
 	}
 
-	return $res;
+	return "No logs to be found here!";
 
 }
 
