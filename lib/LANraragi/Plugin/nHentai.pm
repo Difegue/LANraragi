@@ -50,10 +50,11 @@ sub get_tags {
 	}
 
     #Use the logger to output status - they'll be passed to LRR's standard output and a specialized logfile.
-    $logger->info("Detected nhentai gallery id is $galleryID");
+    $logger->debug("Detected nHentai gallery id is $galleryID");
 
     #If no tokens were found, return a hash containing an error message. LRR will display that error to the client. 
     if ($galleryID eq "") {
+    	$logger->info("No matching nHentai Gallery Found!");
     	return ( error => "No matching nHentai Gallery Found!");
     }
 
@@ -105,7 +106,7 @@ sub get_tags_from_NH {
 	my $res = $ua->get($URL)->result;
 	
 	my $textrep = $res->body;
-	$logger->info("nH API returned this JSON: $textrep");
+	$logger->debug("nH API returned this JSON: $textrep");
 
 	my $json = $res->json;
 	my $tags = $json->{"tags"};

@@ -2,6 +2,7 @@ package LANraragi::Plugin::EHentai;
 
 use strict;
 use warnings;
+no warnings 'uninitialized';
 
 #Plugins can freely use all Perl packages already installed on the system 
 #Try however to restrain yourself to the ones already installed for LRR (see tools/cpanfile) to avoid extra installations by the end-user.
@@ -37,6 +38,7 @@ sub get_tags {
 	shift;
     my ($title, $thumbhash, $file, $globalarg, $oneshotarg) = @_;
 
+ 	#Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
     my $logger = LANraragi::Model::Utils::get_logger("E-Hentai","plugins");
 
     #Work your magic here - You can create subroutines below to organize the code better
@@ -52,13 +54,11 @@ sub get_tags {
 		($gID, $gToken) = &lookup_by_title($title, $thumbhash, $globalarg);
 	}
 
-    #Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
-    $logger->info("EH API Tokens are $gID / $gToken");
-
     #If no tokens were found, return a hash containing an error message. LRR will display that error to the client. 
     if ($gID eq "" || $gToken eq "") {
+    	$logger->info("No matching EH Gallery Found!");
     	return ( error => "No matching EH Gallery Found!");
-    }
+    } else { $logger->debug("EH API Tokens are $gID / $gToken"); }
 
     my $newtags = &get_tags_from_EH($gID, $gToken);
 
@@ -94,18 +94,18 @@ sub lookup_by_title {
 			"?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1".
 			"&f_search=".uri_escape_utf8($title)."&f_apply=Apply+Filter";
 
-	$logger->info("Using URL $URL (first pass, archive title)");
+	$logger->debug("Using URL $URL (first pass, archive title)");
 
 	my ($gId, $gToken) = &ehentai_parse($URL, $exh_id, $exh_pass);
 
-	if (($gId eq "" || $gToken eq "") && $thumbhash ne "" ) {
+	if (($gId eq "" || $gToken eq "") && $thumbhash ne "") {
 
 		#search with image SHA hash
 		$URL = $domain.
 				"?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1".
 				"&f_search=Search+Keywords&f_apply=Apply+Filter&f_shash=".$thumbhash."&fs_similar=1";
 
-		$logger->info("Using URL $URL (second pass, archive thumbnail hash)");
+		$logger->debug("Using URL $URL (second pass, archive thumbnail hash)");
 
 		($gId, $gToken) = &ehentai_parse($URL, $exh_id, $exh_pass);		
 	}
@@ -152,6 +152,8 @@ sub ehentai_parse() {
 	#$logger->info( $_->name ) for @{ $ua->cookie_jar->all};
 
     my $content = $ua->get($URL)->result->body;
+    my $gID = "";
+    my $gToken = "";
 
 	#now for the parsing of the HTML we obtained.
 	#the first occurence of <tr class="gtr0"> matches the first row of the results. 
@@ -170,8 +172,8 @@ sub ehentai_parse() {
 	
 	my @values = (split('/',$url));
 
-	my $gID = $values[0];
-	my $gToken = $values[1];
+	$gID = $values[0];
+	$gToken = $values[1];
 
 	#Returning shit yo
 	return ($gID,$gToken);
@@ -190,7 +192,11 @@ sub get_tags_from_EH {
 	my $logger = LANraragi::Model::Utils::get_logger("E-Hentai","plugins");
 
 	#Execute the request
-	my $jsonresponse = $ua->post($uri => json => {method => "gdata", gidlist => [[$gID,$gToken]], namespace => 1})->result->json;
+	my $rep = $ua->post($uri => json => {method => "gdata", gidlist => [[$gID,$gToken]], namespace => 1})->result;
+
+	my $jsonresponse = $rep->json;
+	my $textrep = $rep->body;
+	$logger->debug("E-H API returned this JSON: $textrep");
 
 	unless (exists $jsonresponse->{"error"}){
 

@@ -49,12 +49,15 @@ sub workload {
 
 	my $logger = LANraragi::Model::Utils::get_logger("Shinobu","lanraragi");
 
-	#say ("Parsing Archive Directory...");
+	$logger->debug("Parsing Archive Directory...");
+
 	my @archives = &get_archive_list;
 	my $redis = LANraragi::Model::Config::get_redis;
 
 	my $cachecount = 0;
 	my $newcount = scalar @archives;
+
+	$logger->debug("Done - Found $newcount files.");
 
 	my $force = 0;
 	if ($redis->hexists("LRR_JSONCACHE", "force_refresh")) {
@@ -65,7 +68,8 @@ sub workload {
 		$cachecount = $redis->hget("LRR_JSONCACHE","archive_count");
 	}
 
-	#say ("Checking for new archives...");
+	$logger->debug("Checking for new archives...");
+
 	if ( $newcount != $cachecount ) {
 		&new_archive_check(@archives);
 	}
@@ -91,13 +95,14 @@ sub get_archive_list {
 	#Get all files in content directory and subdirectories.
 	my @filez;
 	find({ wanted => sub { 
-						if ($_ =~ /^.+\.(zip|rar|7z|tar|tar.gz|lzma|xz|cbz|cbr)$/ )
+						#say $_;
+						return if -d $_; #Directories are excluded on the spot
+						if ($_ =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr)$/ )
 							{push @filez, $_ }
 					 },
 	   no_chdir => 1,
 	   follow_fast => 1 }, 
 	$dirname);
-
 	return @filez;
 
 }
@@ -119,17 +124,16 @@ sub new_archive_check {
 
 	foreach $file (@dircontents) {
 		#ID of the archive, used for storing data in Redis.
-		$id = LANraragi::Model::Utils::shasum($file,256);
+		$id = LANraragi::Model::Utils::compute_id($file);
 
 		if ($processed_archives >= $maximum_archives_per_iteration) {
-			$logger->info("Processed $maximum_archives_per_iteration Archives, bailing out to build JSON.");
+			$logger->debug("Processed $maximum_archives_per_iteration Archives, bailing out to build JSON.");
 			return;
 		}
 
 		#Trigger archive addition if title isn't in Redis
 		unless ($redis->hexists($id,"title")) {
-				$logger->info("Adding new file $file");
-				$logger->info("ID is $id");
+				$logger->info("Adding new file $file with ID $id");
 				LANraragi::Model::Utils::add_archive_to_redis($id,$file,$redis);
 
 				#AutoTagging using enabled plugins goes here!
@@ -181,7 +185,7 @@ sub autoclean_temp_folder {
 
 		#Remove all folders in folderlist except the last one
 		my $survivor = pop @folder_list;
-		$logger->info("Deleting all folders in /temp except $survivor");
+		$logger->debug("Deleting all folders in /temp except $survivor");
 
 		remove_tree(@folder_list, {error => \my $err}); 
 
@@ -189,10 +193,10 @@ sub autoclean_temp_folder {
 	  		for my $diag (@$err) {
 		      my ($file, $message) = %$diag;
 		      if ($file eq '') {
-		          $logger->info("General error: $message\n");
+		          $logger->error("General error: $message\n");
 		      }
 		      else {
-		          $logger->info("Problem unlinking $file: $message\n");
+		          $logger->error("Problem unlinking $file: $message\n");
 		      }
   			}
   		}
@@ -212,7 +216,7 @@ sub build_json_cache {
 
 	my $json = "[";
 
-	my @keys = $redis->keys( '????????????????????????????????????????????????????????????????' ); 
+	my @keys = $redis->keys( '????????????????????????????????????????' ); #SHA-1 IDs are 40 characters long.
 	my $archivecount = scalar @keys;
 	my $treated = 0;
 
@@ -228,7 +232,7 @@ sub build_json_cache {
 		}
 
 		$treated++;
- 		$logger->info("Treated $treated archives out of $archivecount .");
+ 		$logger->debug("Treated $treated archives out of $archivecount .");
 
 	}
 

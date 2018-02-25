@@ -50,7 +50,7 @@ sub exec_enabled_plugins_on_file {
 						$oldtags = LANraragi::Model::Utils::redis_decode($oldtags);
 
 						my $newtags = $plugin_result{new_tags};
-						$logger->info("Adding $newtags to $oldtags.");
+						$logger->debug("Adding $newtags to $oldtags.");
 
 						$redis->hset($id, "tags", encode_utf8($oldtags.",".$newtags));
 					}

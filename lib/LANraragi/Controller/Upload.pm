@@ -47,7 +47,7 @@ sub process_upload {
 				#Parse for metadata right now and get the database ID
 				my $redis = $self->LRR_CONF->get_redis();
 
-				my $id = LANraragi::Model::Utils::shasum($output_file,256);
+				my $id = LANraragi::Model::Utils::compute_id($output_file);
 
 				LANraragi::Model::Utils::add_archive_to_redis($id,$output_file,$redis);
 

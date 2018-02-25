@@ -76,6 +76,7 @@ sub get_logger {
 
 #This function gives us a SHA hash for the passed file, which is used for thumbnail reverse search on E-H. 
 #First argument is the file, second is the algorithm to use. (1, 224, 256, 384, 512, 512224, or 512256)
+#E-H only uses SHA-1 hashes.
 sub shasum {
 
 	my $digest = "";
@@ -92,6 +93,27 @@ sub shasum {
 	}
 
 	return $digest;
+}
+
+#This function is used for all ID computation in LRR.
+#Takes the path to the file as an argument.
+sub compute_id {
+
+	my $file = $_[0];
+
+	#Read the first 500 KBs only (allows for faster disk speeds )
+	open(FILE, $file) or die $!;
+	my $data;
+	my $len = read FILE, $data, 512000;
+	close FILE; 
+
+	#Compute a SHA-1 hash of this data
+	my $ctx = Digest::SHA->new(1);
+   	$ctx->add($data);
+   	my $digest = $ctx->hexdigest;
+
+   	return $digest;
+
 }
 
 #Remove spaces before and after a word 
