@@ -13,7 +13,7 @@ Vagrant.configure(2) do |config|
   config.vm.provision "docker" do |d|
     d.pull_images "difegue/lanraragi"
     d.run "difegue/lanraragi",
-      args: "-p 3000:3000 --mount type=bind,source=/vagrant,target=/home/koyomi/lanraragi/content"
+      args: "--restart=always -p 3000:3000 --mount type=bind,source=/vagrant,target=/home/koyomi/lanraragi/content"
   end
 
 end

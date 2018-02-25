@@ -54,21 +54,26 @@ sub workload {
 	my $redis = LANraragi::Model::Config::get_redis;
 
 	my $cachecount = 0;
+	my $newcount = scalar @archives;
+
 	my $force = 0;
-	if ($redis->exists("LRR_JSONCACHE")) {
-		$cachecount = $redis->hget("LRR_JSONCACHE","archive_count");
+	if ($redis->hexists("LRR_JSONCACHE", "force_refresh")) {
 		$force = $redis->hget("LRR_JSONCACHE","force_refresh"); #Force flag, usually set when metadata has been modified by the user.
 	}
 
+	if ($redis->hexists("LRR_JSONCACHE", "archive_count")) {
+		$cachecount = $redis->hget("LRR_JSONCACHE","archive_count");
+	}
+
 	#say ("Checking for new archives...");
-	if ( scalar @archives != $cachecount ) {
+	if ( $newcount != $cachecount ) {
 		&new_archive_check(@archives);
 	}
 
 	#say ("Building JSON cache from Redis...");
-	if ( scalar @archives != $cachecount || $force ) {
-		$logger->info("Archive count has changed since last cached value ($cachecount) OR rebuild has been forced (flag value = $force), rebuilding...");
-		&build_json_cache(@archives);
+	if ( $newcount != $cachecount || $force ) {
+		$logger->info("Archive count ($newcount) has changed since last cached value ($cachecount) OR rebuild has been forced (flag value = $force), rebuilding...");
+		&build_json_cache();
 		$logger->info("Done!");
 	}
 
@@ -117,6 +122,7 @@ sub new_archive_check {
 		$id = LANraragi::Model::Utils::shasum($file,256);
 
 		if ($processed_archives >= $maximum_archives_per_iteration) {
+			$logger->info("Processed $maximum_archives_per_iteration Archives, bailing out to build JSON.");
 			return;
 		}
 
@@ -190,30 +196,40 @@ sub autoclean_temp_folder {
 		      }
   			}
   		}
+
+  		$logger->info("Done!");
 	}
 }
 
 sub build_json_cache {
 
-	my (@dircontents) = @_;
 	my $redis = LANraragi::Model::Config::get_redis;
 	my $dirname = LANraragi::Model::Config::get_userdir;
+	my $logger = LANraragi::Model::Utils::get_logger("Shinobu","lanraragi");
 
 	#Enable force flag to indicate other parts of the system that we're rebuilding the DB cache
 	$redis->hset("LRR_JSONCACHE","force_refresh", 1);
 
 	my $json = "[";
 
-	foreach my $file (@dircontents) {
-		#ID of the archive, used for storing data in Redis.
-		my $id = LANraragi::Model::Utils::shasum($file,256);
+	my @keys = $redis->keys( '????????????????????????????????????????????????????????????????' ); 
+	my $archivecount = scalar @keys;
+	my $treated = 0;
 
-		#Craft JSON if archive is in Redis
-		if ($redis->hexists($id,"title")) {
-				$json.=&build_archive_JSON($id, $file); 
-			}
+	#Iterate on hashes to get their tags
+	foreach my $id (@keys) {
+		my $path = $redis->hget($id,"file");
+		$path = LANraragi::Model::Utils::redis_decode($path);
 
-		#TODO: Override to shutdown cache building?
+		if (-e $path) {
+			$json.=&build_archive_JSON($id, $path); 
+		} else {
+			$redis->del($id); #We actually do delete IDs now
+		}
+
+		$treated++;
+ 		$logger->info("Treated $treated archives out of $archivecount .");
+
 	}
 
 	$json.="]";
@@ -222,7 +238,7 @@ sub build_json_cache {
 	$redis->hset("LRR_JSONCACHE","archive_list",encode_utf8($json));
 
 	#Write the current archive count too
-	$redis->hset("LRR_JSONCACHE","archive_count", scalar @dircontents);
+	$redis->hset("LRR_JSONCACHE","archive_count", $treated);
 
 	#Clean force flag
 	$redis->hset("LRR_JSONCACHE","force_refresh", 0);

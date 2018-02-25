@@ -55,9 +55,11 @@ sub index {
 	my $archivejson = "[]";
 	my $force = 0;
 
-	if ($redis->exists("LRR_JSONCACHE")) {
+	if ($redis->hexists("LRR_JSONCACHE", "force_refresh")) {
 		$force = $redis->hget("LRR_JSONCACHE","force_refresh"); #IF this flag is set, the DB cache is currently building => flash a notification
-
+	}
+	
+	if ($redis->hexists("LRR_JSONCACHE", "archive_list")) {
 		#Get cached JSON from Redis
 		$archivejson = decode_utf8($redis->hget("LRR_JSONCACHE","archive_list"));
 	}
