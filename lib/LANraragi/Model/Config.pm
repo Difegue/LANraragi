@@ -86,10 +86,11 @@ sub get_userdir { #Try to create userdir if it doesn't already exist
 sub get_tempmaxsize { return &get_redis_conf("tempmaxsize", "500") };
 sub get_pagesize { return &get_redis_conf("pagesize", "100") };
 sub get_readorder { return &get_redis_conf("readorder", "0") };
-sub get_autotag { return &get_redis_conf("autotag", "1") };
 sub enable_pass { return &get_redis_conf("enablepass", "1") };
 sub get_password { return &get_redis_conf("password", '{CRYPT}$2a$08$4AcMwwkGXnWtFTOLuw/hduQlRdqWQIBzX3UuKn.M1qTFX5R4CALxy') }; #bcrypt hash for "kamimamita"
 sub get_tagblacklist { return &get_redis_conf("blacklist", "already uploaded, translated, english, russian, chinese, portuguese, french") };
+sub enable_autotag { return &get_redis_conf("autotag", "1") };
+sub enable_devmode { return &get_redis_conf("devmode", "0") };
 
 #Assign a name to the css file passed. You can add names by adding cases.
 #Note: CSS files added to the /themes folder will ALWAYS be pickable by the users no matter what.

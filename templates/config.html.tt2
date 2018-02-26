@@ -69,6 +69,18 @@
 				<br> When tagging archives using external APIs, these tags will be automatically omitted. <br>Split tags with commas.
 			</td></tr>
 
+			<tr><td style="text-align:left; width:100px"><h1 class="ih"> Auto-Tag New Archives </h1></td><td>
+             	[% IF autotag %]
+		  			<input id="autotag" name="autotag" class="fa" type="checkbox" checked>
+		  		[% ELSE %]
+		  			<input id="autotag" name="autotag" class="fa" type="checkbox">
+		  		[% END %]
+                <label for="autotag">
+                	<br>Enabled plugins will be automatically executed on newly uploaded archives if this option is on. <br/>
+                	See Plugin Configuration to enable/disable plugins.
+                </label>
+			</td></tr>
+
             <tr><td style="text-align:left; width:100px"><h1 class="ih"> Japanese Read Order </h1></td><td>
              	[% IF readorder %]
 		  			<input id="readorder" name="readorder" class="fa" type="checkbox" checked>
@@ -78,18 +90,7 @@
                 <label for="readorder">
                 	<br>If enabled, pages will be read right-to-left.
                 </label>
-			</td></tr>
-
-			<tr><td style="text-align:left; width:100px"><h1 class="ih"> Auto-Tag New Archives </h1></td><td>
-             	[% IF autotag %]
-		  			<input id="autotag" name="autotag" class="fa" type="checkbox" checked>
-		  		[% ELSE %]
-		  			<input id="autotag" name="autotag" class="fa" type="checkbox">
-		  		[% END %]
-                <label for="autotag">
-                	<br>Enabled plugins will be automatically executed on newly uploaded archives if this option is on.
-                </label>
-			</td></tr>
+			</td></tr>	
 
 		  	<tr><td style="text-align:left; width:100px"><h1 class="ih"> Enable Password </h1></td><td>
 		  		[% IF enablepass %]
@@ -119,6 +120,18 @@
 		  	<tr><td style="text-align:left; width:100px"><h1 class="ih"> Maximum Temp Size </h1></td><td>
 				<input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% tempmaxsize %]" name="tempmaxsize" type="text"> 
 				 <br>In MBs. The temp folder is automatically emptied when it grows past the size specified here.
+			</td></tr>
+
+			<tr><td style="text-align:left; width:100px"><h1 class="ih"> Debug Mode </h1></td><td>
+             	[% IF devmode %]
+		  			<input id="devmode" name="devmode" class="fa" type="checkbox" checked>
+		  		[% ELSE %]
+		  			<input id="devmode" name="devmode" class="fa" type="checkbox">
+		  		[% END %]
+                <label for="devmode">
+                	<br>Enabling Debug Mode will show more logs and disable update nagging. Fully effective after restarting LANraragi. <br/>
+                	<i class="fas fa-exclamation-triangle"></i> Leaving this enabled can cause the app to malfunction! Only enable it for debugging or development purposes!
+                </label>
 			</td></tr>
 
 			<tr>

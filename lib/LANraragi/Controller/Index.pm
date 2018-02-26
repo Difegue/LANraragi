@@ -77,7 +77,8 @@ sub index {
 		            archiveJSON => $archivejson,
 		            usingdefpass => $passcheck,
 		            buildingDBcache => $force,
-		            version => $version
+		            version => $version,
+		            debugmode => $self->app->mode eq "development"
 		        );
 }
 

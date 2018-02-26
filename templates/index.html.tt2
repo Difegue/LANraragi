@@ -86,6 +86,10 @@
 
 		[% INCLUDE footer %]
 
+		[% IF debugmode %]
+			<i class="fas fa-bug"/> You're running in Debug Mode! <i class="fas fa-bug"/>
+		[% END %]
+
 		<script>
 
 			//load archive JSON before anything else
@@ -123,7 +127,7 @@
 			    $('.itg').hide();
 			  }
 
-			checkVersion("[% version %]");
+			checkVersion("[% version %], [% debugmode %]");
 
 		</script>
 

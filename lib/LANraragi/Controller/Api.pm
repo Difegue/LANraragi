@@ -137,7 +137,7 @@ sub use_enabled_plugins {
 	my $id = $self->req->param('id');
 	my $redis = $self->LRR_CONF->get_redis();
 
-	if ($redis->hexists($id,"title") && LANraragi::Model::Config::get_autotag) {
+	if ($redis->hexists($id,"title") && LANraragi::Model::Config::enable_autotag) {
 
 		my ($succ, $fail) = LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
 
