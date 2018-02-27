@@ -32,7 +32,7 @@ sub check {
 
 sub logged_in {
   my $self = shift;
-  return 1 if $self->session('is_logged');
+  return 1 if $self->session('is_logged') || $self->LRR_CONF->enable_pass == 0;
   $self->redirect_to('login');
   return undef;
 }

@@ -68,10 +68,12 @@ sub index {
 	my $ppr = Authen::Passphrase->from_rfc2307($self->LRR_CONF->get_password);
 	my $passcheck = ($ppr->match("kamimamita") && $self->LRR_CONF->enable_pass);
 
+	my $userlogged = $self->LRR_CONF->enable_pass == 0 || $self->session('is_logged');
+
 	$self->render(template => "index",
 		            title => $self->LRR_CONF->get_htmltitle,
 		            pagesize => $self->LRR_CONF->get_pagesize,
-		            userlogged => $self->session('is_logged'),
+		            userlogged => $userlogged,
 		            motd => $self->LRR_CONF->get_motd,
 		            cssdrop => LANraragi::Model::Utils::generate_themes,
 		            archiveJSON => $archivejson,

@@ -61,15 +61,17 @@ sub save_config {
 
 			#hash password with authen
 			my $password = $self->req->param('newpassword');
-			my $ppr = Authen::Passphrase::BlowfishCrypt->new(
-			    cost        => 8,
-			    salt_random => 1,
-			    passphrase  => $password,
-			);
 
-			my $pass_hashed = $ppr->as_rfc2307;
-			$confhash{password} = $pass_hashed; 
+			if ($password ne "") {
+				my $ppr = Authen::Passphrase::BlowfishCrypt->new(
+				    cost        => 8,
+				    salt_random => 1,
+				    passphrase  => $password,
+				);
 
+				my $pass_hashed = $ppr->as_rfc2307;
+				$confhash{password} = $pass_hashed; 
+			}
 		}
 
 

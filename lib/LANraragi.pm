@@ -42,6 +42,17 @@ sub startup {
   if ($devmode) {
     $self->mode('development');
     $self->LRR_LOGGER->info("LANraragi $version (re-)started. (Debug Mode)");
+
+    #Tell the mojo logger to print to stdout as well
+
+    $self->log->on(message => sub {
+      my ($time, $level, @lines) = @_;
+
+      print "[Mojolicious] "; 
+      print $lines[0];
+      print "\n";
+    });
+
   } else {
     $self->mode('production');
     $self->LRR_LOGGER->info("LANraragi $version started. (Production Mode)");
