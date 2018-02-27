@@ -57,11 +57,16 @@ sub get_logger {
 
 	my $log = Mojo::Log->new(path => './log/'.$logfile.'.log', level => 'info');
 
+	my $devmode = LANraragi::Model::Config::enable_devmode;
+
 	#Copy logged messages to STDOUT with the plugin name
 	$log->on(message => sub {
 	  my ($time, $level, @lines) = @_;
-	  print "[$pgname] ";
-	  say $lines[0];
+
+	  unless ($devmode == 0 && $level eq 'debug') { #Debug logs are only printed in debug mode (duh)
+		print "[$pgname] "; 
+	  	say $lines[0];
+	  }
 	});
 
 	$log->format(sub {

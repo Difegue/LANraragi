@@ -23,7 +23,7 @@ function switch_index_view() {
 
 }
 
-function checkVersion(currentVersion) {
+function checkVersion(currentVersion,debugMode) {
 	//Check the github API to see if an update was released. If so, flash another friendly notification inviting the user to check it out
 	var githubAPI = "https://api.github.com/repos/difegue/lanraragi/releases/latest";
 	var latestVersion;
@@ -31,7 +31,7 @@ function checkVersion(currentVersion) {
 	$.getJSON( githubAPI).done(function( data ) {
 			latestVersion = data.tag_name;
 			//update nag is disabled if the current version contains the DEV string 
-			if (latestVersion != currentVersion && currentVersion.indexOf("DEV") == -1) {
+			if (latestVersion != currentVersion && debugMode === 0) {
 
 				$.toast({
 				heading: 'A new version of LANraragi ('+ latestVersion +') is available !',

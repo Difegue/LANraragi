@@ -37,20 +37,15 @@ sub startup {
   #Second helper to build logger objects quickly
   $self->helper(LRR_LOGGER => sub {return LANraragi::Model::Utils::get_logger("LANraragi","lanraragi")} );
 
+  my $devmode =  $self->LRR_CONF->enable_devmode;
 
-  
-
-  my $devmode = 0;
-  #Set development mode if the version number contains "DEV"
-  if (index($version, "DEV") != -1) {
+  if ($devmode) {
     $self->mode('development');
-    $self->LRR_LOGGER->info("LANraragi $version (re-)started. (Developer Mode)");
-    $devmode = 1;
+    $self->LRR_LOGGER->info("LANraragi $version (re-)started. (Debug Mode)");
   } else {
     $self->mode('production');
     $self->LRR_LOGGER->info("LANraragi $version started. (Production Mode)");
   }
-
 
   #Plugin listing
   my @plugins = LANraragi::Model::Plugins::plugins;
@@ -63,6 +58,11 @@ sub startup {
 
   #Check if a Redis server is running on the provided address/port
   $self->LRR_CONF->get_redis;
+
+  #Delete the lockfile if we're not in devmode
+  if (-e "./shinobu-lock" && $devmode == 0) {
+    unlink("./shinobu-lock");
+  }
 
   #Start Background worker if there's no lockfile present
   unless (-e "./shinobu-lock" && $devmode) {
@@ -85,7 +85,7 @@ sub startup {
     $proc->run([$^X, "./lib/Shinobu.pm"]);
 
   } else { 
-    $self->LRR_LOGGER->info("Lockfile present in dev mode - Background worker not respawned.");
+    $self->LRR_LOGGER->info("Lockfile present in debug mode - Background worker not respawned.");
     $self->LRR_LOGGER->warn("Delete the shinobu-lock file if you just started LANraragi.");
   }
 
