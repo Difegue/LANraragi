@@ -131,17 +131,30 @@ sub new_archive_check {
 			return;
 		}
 
+		#TODO: Duplicate file detector -- Needs to be redone in a cleaner fashion.
+		#if ($redis->hexists($id,"title")) {
+		#	my $cachefile = $redis->hget($id,"file");
+		#	my $filet = LANraragi::Model::Utils::redis_decode($file);
+		#	$cachefile = LANraragi::Model::Utils::redis_decode($cachefile);
+		#	if ($cachefile ne $filet) {
+		#		$logger->warn("This ID exists in the Redis Database but doesn't have the same file! You might be having duplicate files!");
+		#		$logger->warn("Our file: $filet");
+		#		$logger->warn("Cached file: $cachefile");
+		#	}
+		#}
+
 		#Trigger archive addition if title isn't in Redis
 		unless ($redis->hexists($id,"title")) {
-				$logger->info("Adding new file $file with ID $id");
-				LANraragi::Model::Utils::add_archive_to_redis($id,$file,$redis);
 
-				#AutoTagging using enabled plugins goes here!
-				if (LANraragi::Model::Config::get_autotag) {
-					LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
-				}
-				$processed_archives++;
+			$logger->info("Adding new file $file with ID $id");
+			LANraragi::Model::Utils::add_archive_to_redis($id,$file,$redis);
+
+			#AutoTagging using enabled plugins goes here!
+			if (LANraragi::Model::Config::get_autotag) {
+				LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
 			}
+			$processed_archives++;
+		}
 	}
 }
 
