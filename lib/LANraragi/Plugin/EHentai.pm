@@ -25,7 +25,7 @@ sub plugin_info {
 	    description => "Searches g.e-hentai for tags matching your archive.",
 	    #If your plugin uses/needs custom arguments, input their name here. 
 	    #This name will be displayed in plugin configuration next to an input box for global arguments, and in archive edition for one-shot arguments.
-	    #global_arg => "Exhentai Cookie ID/Pass (Use the following syntax: ipb_member_id/ipb_hash_pass )",
+	    global_arg => "Enable reverse image search? This might bring more false positives. (Type anything to enable)",
 	    oneshot_arg => "E-H Gallery URL (Will attach tags matching this exact gallery to your archive)"
 	);
 
@@ -74,7 +74,8 @@ sub lookup_by_title {
 
 	my $title = $_[0];
 	my $thumbhash = $_[1];
-	my $exh_cookies = $_[2];
+	my $enable_imagesearch = $_[2];
+
 	my $logger = LANraragi::Model::Utils::get_logger("E-Hentai","plugins");
 
 	my $domain = "http://e-hentai.org/";
@@ -98,7 +99,9 @@ sub lookup_by_title {
 
 	my ($gId, $gToken) = &ehentai_parse($URL, $exh_id, $exh_pass);
 
-	if (($gId eq "" || $gToken eq "") && $thumbhash ne "") {
+	if (($gId eq "" || $gToken eq "") && $thumbhash ne "" && $enable_imagesearch) {
+
+		$logger->info("Reverse Image Search Enabled, trying...");
 
 		#search with image SHA hash
 		$URL = $domain.
