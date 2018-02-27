@@ -5,7 +5,7 @@ MAINTAINER  dfug sugoi@cock.li
 #Base LRR dependencies and essential tools for next commands
 RUN apt-get update
 RUN apt-get upgrade -y
-RUN apt-get install -y curl make gnupg cpanminus redis-server unar imagemagick libimage-magick-perl build-essential supervisor
+RUN apt-get install -y curl make gnupg cpanminus redis-server unar imagemagick libimage-magick-perl build-essential supervisor locales locales-all
 
 #npm
 RUN curl -sL https://deb.nodesource.com/setup_9.x | bash -
@@ -25,5 +25,10 @@ EXPOSE 3000
 #Special redis conf to write DB in content directory and disable daemonization
 COPY ./tools/DockerSetup/redis.conf /home/koyomi/redis.conf
 COPY ./tools/DockerSetup/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+#Enable UTF-8
+ENV LC_ALL en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US.UTF-8
 
 CMD ["/usr/bin/supervisord"]

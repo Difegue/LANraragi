@@ -17,5 +17,6 @@ Vagrant.configure(2) do |config|
     d.run "difegue/lanraragi",
       args: "--name=lanraragi -p 3000:3000 --restart=always --mount type=bind,source=/vagrant,target=/home/koyomi/lanraragi/content "
   end
+  config.vm.post_up_message = "LANraragi Vagrant Machine Started, App should be available at http://localhost:3000."
 
 end
