@@ -86,7 +86,7 @@ sub exec_plugin_on_file {
 		($_ = LANraragi::Model::Utils::redis_decode($_)) for ($name, $title, $tags, $file);
 
 		#Hand it off to the plugin here.
-		my %newmetadata = $plugin->get_tags($title, $thumbhash, $file, $arg, $oneshotarg);
+		my %newmetadata = $plugin->get_tags($title, $tags, $thumbhash, $file, $arg, $oneshotarg);
 
 		#Error checking 
 		if (exists $newmetadata{error}) {

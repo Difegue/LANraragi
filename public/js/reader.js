@@ -124,7 +124,7 @@ function initArchivePageOverlay(){
 		thumbnail = "<div class='id3' style='display: inline-block; cursor: pointer'>"+
 				"<a onclick='goToPage("+index+"); closeOverlay()'>"+
 				"<span class='page-number'>Page "+(index+1)+"</span>"+
-				"<img src='"+pages.pages[index]+"'/></a>"+
+				"<img src='"+pages.pages[index]+"' /></a>"+
 		    "</div>";
 
 	  	$("#archivePagesOverlay").append(thumbnail);

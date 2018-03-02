@@ -14,5 +14,6 @@ requires 'Mojolicious', 7.61;
 requires 'Mojolicious::Plugin::TemplateToolkit', 0.002;
 requires 'Mojolicious::Plugin::RenderFile', 0.12;
 requires 'Mojo::IOLoop::ProcBackground', 0.06;
+requires 'IO::Socket::SSL', 2.056;
 
 requires 'Module::Pluggable', 5.2; 

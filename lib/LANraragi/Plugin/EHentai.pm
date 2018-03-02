@@ -25,7 +25,7 @@ sub plugin_info {
 	    description => "Searches g.e-hentai for tags matching your archive.",
 	    #If your plugin uses/needs custom arguments, input their name here. 
 	    #This name will be displayed in plugin configuration next to an input box for global arguments, and in archive edition for one-shot arguments.
-	    global_arg => "Enable reverse image search? This might bring more false positives. (Type anything to enable)",
+	    global_arg => "Enable reverse image search? This might bring more false positives. (Type 'yes' to enable)",
 	    oneshot_arg => "E-H Gallery URL (Will attach tags matching this exact gallery to your archive)"
 	);
 
@@ -34,9 +34,9 @@ sub plugin_info {
 #Mandatory function to be implemented by your plugin
 sub get_tags {
 
-	#LRR gives your plugin the recorded title for the file, the filesystem path to the file, and the custom arguments if available.
+	#LRR gives your plugin the recorded title/tags/thumbnail hash for the file, the filesystem path, and the custom arguments if available.
 	shift;
-    my ($title, $thumbhash, $file, $globalarg, $oneshotarg) = @_;
+    my ($title, $tags, $thumbhash, $file, $globalarg, $oneshotarg) = @_;
 
  	#Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
     my $logger = LANraragi::Model::Utils::get_logger("E-Hentai","plugins");
@@ -51,7 +51,7 @@ sub get_tags {
 		$gToken = $2;
 	} else {
 		#Craft URL for Text Search on EH if there's no user argument
-		($gID, $gToken) = &lookup_by_title($title, $thumbhash, $globalarg);
+		($gID, $gToken) = &lookup_by_title($title, $thumbhash, $globalarg, $tags);
 	}
 
     #If no tokens were found, return a hash containing an error message. LRR will display that error to the client. 
@@ -74,30 +74,25 @@ sub lookup_by_title {
 
 	my $title = $_[0];
 	my $thumbhash = $_[1];
-	my $enable_imagesearch = $_[2];
+	my $enable_imagesearch = $_[2] eq "yes";
+	my $tags = $_[3];
 
 	my $logger = LANraragi::Model::Utils::get_logger("E-Hentai","plugins");
 
 	my $domain = "http://e-hentai.org/";
 
-	#Use exhentai URLs if cookies are set.
-	my $exh_id = "";
-	my $exh_pass = "";
-
-	#if ($exh_cookies =~ /(.*)\/(.*)/) {
-	#	$exh_id = $1;
-	#	$exh_pass = $2;
-	#	$domain = "https://exhentai.org/";
-	#	$logger->info("Cookies detected in plugin storage, switching to exhentai.");
-	#}
-
 	my $URL = $domain.
 			"?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1".
-			"&f_search=".uri_escape_utf8($title)."&f_apply=Apply+Filter";
+			"&f_search=".uri_escape_utf8($title);
+
+	#Get the language tag, if it exists.
+	if ($tags =~ /.*language:\s?([^,]*),*.*/gi ) {
+		$URL = $URL."+language:$1";
+	}
 
 	$logger->debug("Using URL $URL (first pass, archive title)");
 
-	my ($gId, $gToken) = &ehentai_parse($URL, $exh_id, $exh_pass);
+	my ($gId, $gToken) = &ehentai_parse($URL);
 
 	if (($gId eq "" || $gToken eq "") && $thumbhash ne "" && $enable_imagesearch) {
 
@@ -106,11 +101,11 @@ sub lookup_by_title {
 		#search with image SHA hash
 		$URL = $domain.
 				"?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1".
-				"&f_search=Search+Keywords&f_apply=Apply+Filter&f_shash=".$thumbhash."&fs_similar=1";
+				"&f_shash=".$thumbhash."&fs_similar=1";
 
 		$logger->debug("Using URL $URL (second pass, archive thumbnail hash)");
 
-		($gId, $gToken) = &ehentai_parse($URL, $exh_id, $exh_pass);		
+		($gId, $gToken) = &ehentai_parse($URL);		
 	}
 
 	return ($gId, $gToken);
@@ -121,38 +116,7 @@ sub lookup_by_title {
 sub ehentai_parse() {
 
  	my $URL = $_[0];
- 	my $exh_id = $_[1];
- 	my $exh_pass = $_[2];
-
 	my $ua = Mojo::UserAgent->new;
-
-	# Setup Cookies
-	#$ua->cookie_jar->add(
-	#   Mojo::Cookie::Response->new(
-	#    name   => 'ipb_member_id',
-	#    value  => $exh_id,
-	#    domain => ".e-hentai.org",
-    #    path => "/",
-	#  )
-	#);
-
-	#$ua->cookie_jar->add(
-	#  Mojo::Cookie::Response->new(
-	#    name   => 'ipb_pass_hash',
-	#    value  => $exh_pass,
-	#    domain => ".e-hentai.org",
-    #    path => "/",
-	#  )
-	#);
-
-	#my $logger = LANraragi::Model::Plugins::get_logger("E-Hentai");
-	#$logger->info("ipb_member_id = $exh_id, ipb_pass_hash = $exh_pass.");
-	#$logger->info( $_->name ) for @{ $ua->cookie_jar->all};
-
-	#log into eH before going to ex in order to obtain a "lv" and a "ipb_session_id" cookie
-	#$ua->get('https://e-hentai.org/' => {"User-Agent" => 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0'});
-
-	#$logger->info( $_->name ) for @{ $ua->cookie_jar->all};
 
     my $content = $ua->get($URL)->result->body;
     my $gID = "";

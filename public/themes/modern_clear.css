@@ -8,13 +8,13 @@ img{border:0}
     font-family: "Roboto";
     font-style: normal;
     font-weight: 400;
-    src: local("Roboto"), local("Roboto-Regular"), url(../webfonts/Roboto-Regular.woff) format("woff");
+    src: local("Roboto"), local("Roboto-Regular"), url(../css/webfonts/Roboto-Regular.woff) format("woff");
 }
 @font-face {
     font-family: "Roboto";
     font-style: normal;
     font-weight: 700;
-    src: local("Roboto Bold"), local("Roboto-Bold"), url(../webfonts/Roboto-Bold.woff) format("woff");
+    src: local("Roboto Bold"), local("Roboto-Bold"), url(../css/webfonts/Roboto-Bold.woff) format("woff");
 }
 
 body {

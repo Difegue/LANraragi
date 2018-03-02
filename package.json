@@ -7,7 +7,6 @@
   },
   "scripts": {
     "test": "",
-    "deploy": "npm install && rsync -e ssh --exclude content -av * ",
     "lanraragi-installer": "perl ./tools/install.pl",
     "start": "perl ./script/lanraragi daemon",
     "dev-server": "rm -f ./shinobu-lock && morbo script/lanraragi",

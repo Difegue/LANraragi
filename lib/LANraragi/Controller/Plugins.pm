@@ -72,8 +72,7 @@ sub save_config {
 
 		    $redis->hset($namerds,"enabled", $enabled);
 
-		    unless ($arg eq "")
-	        	{ $redis->hset($namerds,"customarg", $arg); }
+		    $redis->hset($namerds,"customarg", $arg);
 
 		}
 	};

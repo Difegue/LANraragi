@@ -193,7 +193,8 @@ sub parse_name {
 	$_[0] =~ LANraragi::Model::Config->get_regex || next;
 
 	#select_from_regex picks the variables from the regex selection that will be used. 
-	my ($event,$artist,$title,$series,$language) = LANraragi::Model::Config->select_from_regex;
+	my ($event,$artist,$title,$series,$language) = "";
+	($event,$artist,$title,$series,$language) = LANraragi::Model::Config->select_from_regex;
 	my $tags = "";
 
 	#Replace underscores in title with spaces

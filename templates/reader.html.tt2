@@ -38,7 +38,7 @@
 					</div>
 
 					<a id ="display">
-						<img id="img" onload="updateMetadata()" onerror="location.reload()" style="max-width:100%; height: auto; width: auto; " src="[% imgpath %]" usemap="#Map" />
+						<img id="img" onload="updateMetadata()" onerror="this.src='./img/noThumb.png'" style="max-width:100%; height: auto; width: auto; min-height:300px" src="[% imgpath %]" usemap="#Map" />
 						<map name="Map" id="Map">
 						    <area id="leftmap" style="cursor:pointer;" onclick="goLeft()" shape="rect"/>
 						    <area id="rightmap" style="cursor:pointer;" onclick="goRight()" shape="rect"/>
@@ -64,9 +64,9 @@
 				[% IF userlogged %]
 				<div id="i6" class="if">
 					<i class="fa fa-caret-right fa-lg"></i>
-					<a href="./reader?id=[% id %]&force_reload=1">Clean Archive Cache</a>
-					<i class="fa fa-caret-right fa-lg"></i>
 					<a href="./reader?id=[% id %]&reload_thumbnail=1">Regenerate Archive Thumbnail </a>
+					<i class="fa fa-caret-right fa-lg"></i>
+					<a href="./reader?id=[% id %]&force_reload=1">Clean Archive Cache</a>
 				</div>
 				[% END %]
 				

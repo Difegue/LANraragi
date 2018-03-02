@@ -32,9 +32,9 @@ sub plugin_info {
 #Mandatory function to be implemented by your plugin
 sub get_tags {
 
-	#LRR gives your plugin the recorded title for the file, the filesystem path to the file, and the custom arguments if available.
+	#LRR gives your plugin the recorded title/tags/thumbnail hash for the file, the filesystem path, and the custom arguments if available.
 	shift;
-    my ($title, $thumbhash, $file, $globalarg, $oneshotarg) = @_;
+    my ($title, $tags, $thumbhash, $file, $globalarg, $oneshotarg) = @_;
 
     my $logger = LANraragi::Model::Utils::get_logger("nHentai","plugins");
 

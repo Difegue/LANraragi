@@ -112,7 +112,7 @@ else {
 if ($back || $full) {
   say ("\r\nInstalling Perl modules... This might take a while.\r\n");
 
-  if (system("cpanm --installdeps ./tools/.") != 0) {
+  if (system("cpanm --installdeps ./tools/. --force") != 0) {
     die "Something went wrong while installing Perl modules - Bailing out.";
   }
 }

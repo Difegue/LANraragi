@@ -8,14 +8,14 @@ img{border:0}
 	font-family: 'Open Sans';
 	font-style: normal;
 	font-weight: 400;
-	src: local('Open Sans'), local('OpenSans'), url(../webfonts/OpenSans-Regular.woff) format('woff');
+	src: local('Open Sans'), local('OpenSans'), url(../css/webfonts/OpenSans-Regular.woff) format('woff');
 }
 
 @font-face {
 	font-family: 'Open Sans';
 	font-style: normal;
 	font-weight: 700;
-	src: local('Open Sans Bold'), local('OpenSans-Bold'), url(../webfonts/OpenSans-Bold.woff) format('woff');
+	src: local('Open Sans Bold'), local('OpenSans-Bold'), url(../css/webfonts/OpenSans-Bold.woff) format('woff');
 } 
 
 body {

@@ -85,7 +85,7 @@ function artistColumnDisplay(data,type,full,meta) {
 		if (data === "")
 		return "";
 
-		regex = /.*artist:\s?([^,]*),.*/gi; //Catch last artist:xxx value in tags
+		regex = /.*artist:\s?([^,]*),*.*/gi; //Catch last artist:xxx value in tags
 		match = regex.exec(data);
 
 		if (match != null) {
@@ -106,7 +106,7 @@ function seriesColumnDisplay(data,type,full,meta) {
 		if (data === "")
 		return "";
 
-		regex = /.*parody:\s?([^,]*),.*/gi
+		regex = /.*parody:\s?([^,]*),*.*/gi
 		match = regex.exec(data);
 
 		if (match != null) {
