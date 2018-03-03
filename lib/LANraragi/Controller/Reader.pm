@@ -9,70 +9,73 @@ use LANraragi::Model::Reader;
 
 # This action will render a template
 sub index {
-	my $self = shift;
+    my $self = shift;
 
-	if ($self->req->param('id')) {
-		    # We got a file name, let's get crackin'.
-			my $id = $self->req->param('id');
+    if ( $self->req->param('id') ) {
 
-			#Quick Redis check to see if the ID exists:
-			my $redis = $self->LRR_CONF->get_redis();
+        # We got a file name, let's get crackin'.
+        my $id = $self->req->param('id');
 
-			unless ($redis->hexists($id,"title"))
-				{ $self->redirect_to('index'); }
+        #Quick Redis check to see if the ID exists:
+        my $redis = $self->LRR_CONF->get_redis();
 
-			#Get a computed archive name if the archive exists
-			my $arcname = "";
-			my $tags = $redis->hget($id,"tags");
-			$arcname = $redis->hget($id,"title");
+        unless ( $redis->hexists( $id, "title" ) ) {
+            $self->redirect_to('index');
+        }
 
-			if ($tags =~ /artist:/) {
-				$tags =~ /.*artist:([^,]*),.*/ ;
-				$arcname = $arcname." by ".$1; 
-			}
-				
-			$arcname = LANraragi::Model::Utils::redis_decode($arcname);
-		
-			my $force = $self->req->param('force_reload');
-			my $thumbreload = $self->req->param('reload_thumbnail');
-			my $imgpaths = "";
+        #Get a computed archive name if the archive exists
+        my $arcname = "";
+        my $tags = $redis->hget( $id, "tags" );
+        $arcname = $redis->hget( $id, "title" );
 
-			#Load a json matching pages to paths
-			eval {
-				$imgpaths = LANraragi::Model::Reader::build_reader_JSON($self,$id,$force,$thumbreload);
-			};
-			my $err = $@;
+        if ( $tags =~ /artist:/ ) {
+            $tags =~ /.*artist:([^,]*),.*/;
+            $arcname = $arcname . " by " . $1;
+        }
 
-			if ($err) {
+        $arcname = LANraragi::Model::Utils::redis_decode($arcname);
 
-				$self->render(template => "error",
-							      title => $self->LRR_CONF->get_htmltitle,
-							      filename => $redis->hget($id,"file"),
-							      errorlog => $err
-					  	         );
-				return;
-			}
-			
+        my $force       = $self->req->param('force_reload');
+        my $thumbreload = $self->req->param('reload_thumbnail');
+        my $imgpaths    = "";
 
+        #Load a json matching pages to paths
+        eval {
+            $imgpaths =
+              LANraragi::Model::Reader::build_reader_JSON( $self, $id, $force,
+                $thumbreload );
+        };
+        my $err = $@;
 
-			my $userlogged = 0;
+        if ($err) {
 
-			if ($self->session('is_logged')) 
-				{ $userlogged = 1;}
+            $self->render(
+                template => "error",
+                title    => $self->LRR_CONF->get_htmltitle,
+                filename => $redis->hget( $id, "file" ),
+                errorlog => $err
+            );
+            return;
+        }
 
-			$self->render(template => "reader",
-	  				      	arcname => $arcname,
-				            id => $id,
-				            imgpaths => $imgpaths,
-				            readorder => $self->LRR_CONF->get_readorder(),
-				            cssdrop => LANraragi::Model::Utils::generate_themes,
-				            userlogged => $self->session('is_logged')
-			  	            );
-		} 
-		else {
-		    # No parameters back the fuck off
-			$self->redirect_to('index');
-		}
+        my $userlogged = 0;
+
+        if ( $self->session('is_logged') ) { $userlogged = 1; }
+
+        $self->render(
+            template   => "reader",
+            arcname    => $arcname,
+            id         => $id,
+            imgpaths   => $imgpaths,
+            readorder  => $self->LRR_CONF->get_readorder(),
+            cssdrop    => LANraragi::Model::Utils::generate_themes,
+            userlogged => $self->session('is_logged')
+        );
+    }
+    else {
+        # No parameters back the fuck off
+        $self->redirect_to('index');
+    }
 }
 
 1;

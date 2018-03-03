@@ -21,234 +21,260 @@ use LANraragi::Model::Plugins;
 #use ImageMagick to make a thumbnail, width = 200px
 sub generate_thumbnail {
 
-	my ($orig_path, $thumb_path, $force) = @_;
-	my $img = Image::Magick->new;
-        
+    my ( $orig_path, $thumb_path, $force ) = @_;
+    my $img = Image::Magick->new;
+
     $img->Read($orig_path);
-    $img->Thumbnail(geometry => '200x');
+    $img->Thumbnail( geometry => '200x' );
     $img->Write($thumb_path);
 }
 
 #resize_image(image,quality, size_threshold)
-#convert an image to a cheaper on bandwidth format through ImageMagick.
+#convert an image to a cheaper on bandwidth format through ImageMagick. 
 sub resize_image {
-	
-	my ($imgpath, $quality, $threshold) = @_;
-	my $img = Image::Magick->new;
 
-	#Is the file size higher than the threshold?
-	if ( (int((-s $imgpath )/ 1024*10)/10 ) > $threshold){
-		$img->Read($imgpath);
-		$img->Resize(geometry => '1064x');
-		$img->Set(quality=>$quality);
-		$img->Write($imgpath);
+    my ( $imgpath, $quality, $threshold ) = @_;
+    my $img = Image::Magick->new;
 
-		#`mogrify -scale 1064x -quality $quality "$imgpath"`; 
-	}
+    #Is the file size higher than the threshold?
+    if ( ( int( ( -s $imgpath ) / 1024 * 10 ) / 10 ) > $threshold ) {
+        $img->Read($imgpath);
+        $img->Resize( geometry => '1064x' );
+        $img->Set( quality => $quality );
+        $img->Write($imgpath);
+    }
 }
 
 #Returns a Logger object, taking plugin info as argument to obtain the plugin name and a filename for the log file.
 sub get_logger {
 
-	#Customize log file location and minimum log level
-	my $pgname = $_[0];
-	my $logfile = $_[1];
+    #Customize log file location and minimum log level
+    my $pgname  = $_[0];
+    my $logfile = $_[1];
 
-	my $log = Mojo::Log->new(path => './log/'.$logfile.'.log', level => 'info');
+    my $log =
+      Mojo::Log->new( path => './log/' . $logfile . '.log', level => 'info' );
 
-	my $devmode = LANraragi::Model::Config::enable_devmode;
+    my $devmode = LANraragi::Model::Config::enable_devmode;
 
-	#Copy logged messages to STDOUT with the plugin name
-	$log->on(message => sub {
-	  my ($time, $level, @lines) = @_;
+    #Copy logged messages to STDOUT with the plugin name
+    $log->on(
+        message => sub {
+            my ( $time, $level, @lines ) = @_;
 
-	  unless ($devmode == 0 && $level eq 'debug') { #Debug logs are only printed in debug mode (duh)
-		print "[$pgname] "; 
-	  	say $lines[0];
-	  }
-	});
+            unless ( $devmode == 0 && $level eq 'debug' )
+            {   #Debug logs are only printed in debug mode (duh)
+                print "[$pgname] ";
+                say $lines[0];
+            }
+        }
+    );
 
-	$log->format(sub {
-     my ($time, $level, @lines) = @_;
-     my $time2 = strftime ("%Y-%m-%d %H:%M:%S", localtime($time));
-     return "[$time2] [$pgname] [$level] " . join("\n", @lines) . "\n";
- 	});
+    $log->format(
+        sub {
+            my ( $time, $level, @lines ) = @_;
+            my $time2 = strftime( "%Y-%m-%d %H:%M:%S", localtime($time) );
+            return "[$time2] [$pgname] [$level] " . join( "\n", @lines ) . "\n";
+        }
+    );
 
- 	return $log;
+    return $log;
 
 }
 
-#This function gives us a SHA hash for the passed file, which is used for thumbnail reverse search on E-H. 
+#This function gives us a SHA hash for the passed file, which is used for thumbnail reverse search on E-H.
 #First argument is the file, second is the algorithm to use. (1, 224, 256, 384, 512, 512224, or 512256)
 #E-H only uses SHA-1 hashes.
 sub shasum {
 
-	my $digest = "";
-	eval {
-		my $ctx = Digest::SHA->new($_[1]);
-	   	$ctx->addfile($_[0]);
-	   	$digest = $ctx->hexdigest;
-	};
+    my $digest = "";
+    eval {
+        my $ctx = Digest::SHA->new( $_[1] );
+        $ctx->addfile( $_[0] );
+        $digest = $ctx->hexdigest;
+    };
 
-	if($@){
-	  print "Error building hash for ".$_[0]." -- ";
-	  print $@;
-	  return "";
-	}
+    if ($@) {
+        print "Error building hash for " . $_[0] . " -- ";
+        print $@;
+        return "";
+    }
 
-	return $digest;
+    return $digest;
 }
 
 #This function is used for all ID computation in LRR.
 #Takes the path to the file as an argument.
 sub compute_id {
 
-	my $file = $_[0];
+    my $file = $_[0];
 
-	#Read the first 500 KBs only (allows for faster disk speeds )
-	open(FILE, $file) or die $!;
-	my $data;
-	my $len = read FILE, $data, 512000;
-	close FILE; 
+    #Read the first 500 KBs only (allows for faster disk speeds )
+    open( my $handle, '<', $file ) or die $!;
+    my $data;
+    my $len = read $handle, $data, 512000;
+    close $handle;
 
-	#Compute a SHA-1 hash of this data
-	my $ctx = Digest::SHA->new(1);
-   	$ctx->add($data);
-   	my $digest = $ctx->hexdigest;
+    #Compute a SHA-1 hash of this data
+    my $ctx = Digest::SHA->new(1);
+    $ctx->add($data);
+    my $digest = $ctx->hexdigest;
 
-   	return $digest;
+    return $digest;
 
 }
 
-#Remove spaces before and after a word 
+#Remove spaces before and after a word
 sub remove_spaces {
-	 until (substr($_[0],0,1)ne" "){
-	 $_[0] = substr($_[0],1);}
+    until ( substr( $_[0], 0, 1 ) ne " " ) {
+        $_[0] = substr( $_[0], 1 );
+    }
 
-	 until (substr($_[0],-1)ne" "){
-	 chop $_[0];} 
+    until ( substr( $_[0], -1 ) ne " " ) {
+        chop $_[0];
+    }
 }
 
 #Final Solution to the Unicode glitches -- Eval'd double-decode for data obtained from Redis.
 #This should be a one size fits-all function.
 sub redis_decode {
 
-	my $data = $_[0];
+    my $data = $_[0];
 
-	eval { $data = decode_utf8($data) };
-	eval { $data = decode_utf8($data) };
+    eval { $data = decode_utf8($data) };
+    eval { $data = decode_utf8($data) };
 
-	return $data;
+    return $data;
 }
 
 #Set the force_refresh flag. This will invalidate the currently cached JSON.
 sub invalidate_cache {
-	my $redis = LANraragi::Model::Config::get_redis;
-	$redis->hset("LRR_JSONCACHE","force_refresh", 1);
+    my $redis = LANraragi::Model::Config::get_redis;
+    $redis->hset( "LRR_JSONCACHE", "force_refresh", 1 );
 }
 
 #Print a dropdown list to select CSS, and adds <link> tags for all the style sheets present in the /style folder.
 sub generate_themes {
 
-	#Get all the available CSS sheets.
-	my @css;
-	opendir (DIR, "./public/themes") or die $!;
-	while (my $file = readdir(DIR)) {
-		if ($file =~ /.+\.css/)
-		{push(@css, $file);}
-	}
-	closedir(DIR);
+    #Get all the available CSS sheets.
+    my @css;
+    opendir( DIR, "./public/themes" ) or die $!;
+    while ( my $file = readdir(DIR) ) {
+        if ( $file =~ /.+\.css/ ) { push( @css, $file ); }
+    }
+    closedir(DIR);
 
-	my $CSSsel = '<div>';
+    my $CSSsel = '<div>';
 
-	#html that we'll insert before the list to declare all the available styles.
-	my $html = "";
+    #html that we'll insert before the list to declare all the available styles.
+    my $html = "";
 
-	#We opened a drop-down list. Now, we'll fill it.
-	for ( my $i = 0; $i < $#css+1; $i++) 
-	{
-		#populate the div with spans
-		my $css_name = LANraragi::Model::Config::css_default_names($css[$i]);
-		$CSSsel = $CSSsel.'<input class="stdbtn" type="button" onclick="switch_style(\''.$i.'\');" value="'.$css_name.'"/>';
+    #We opened a drop-down list. Now, we'll fill it.
+    for ( my $i = 0 ; $i < $#css + 1 ; $i++ ) {
 
-		if ($css[$i] eq LANraragi::Model::Config->get_style) #if this is the default sheet, set it up as so.
-			{$html=$html.'<link rel="stylesheet" type="text/css" title="'.$i.'" href="/themes/'.$css[$i].'"> ';}
-		else
-			{$html=$html.'<link rel="alternate stylesheet" type="text/css" title="'.$i.'" href="/themes/'.$css[$i].'"> ';}
-	}		
+        #populate the div with spans
+        my $css_name = LANraragi::Model::Config::css_default_names( $css[$i] );
+        $CSSsel =
+            $CSSsel
+          . '<input class="stdbtn" type="button" onclick="switch_style(\''
+          . $i
+          . '\');" value="'
+          . $css_name . '"/>';
 
-	#close up dropdown list
-	$CSSsel = $CSSsel.'</div>';
+        #if this is the default sheet, set it up as so.
+        if ( $css[$i] eq LANraragi::Model::Config->get_style ) {
 
-	return $html.$CSSsel;
-	
+            $html =
+                $html
+              . '<link rel="stylesheet" type="text/css" title="'
+              . $i
+              . '" href="/themes/'
+              . $css[$i] . '"> ';
+        } else {
+
+            $html =
+                $html
+              . '<link rel="alternate stylesheet" type="text/css" title="'
+              . $i
+              . '" href="/themes/'
+              . $css[$i] . '"> ';
+        }
+    }
+
+    #close up dropdown list
+    $CSSsel = $CSSsel . '</div>';
+
+    return $html . $CSSsel;
+
 }
 
 #parse_name(name)
 #parses an archive name with the regex specified in the configuration file(get_regex and select_from_regex subs) to find metadata.
 sub parse_name {
-	
-	#Use the regex on our file, and pipe it to the regexsel sub.
-	$_[0] =~ LANraragi::Model::Config->get_regex || next;
 
-	#select_from_regex picks the variables from the regex selection that will be used. 
-	my ($event,$artist,$title,$series,$language) = "";
-	($event,$artist,$title,$series,$language) = LANraragi::Model::Config->select_from_regex;
-	my $tags = "";
+    #Use the regex on our file, and pipe it to the regexsel sub.
+    $_[0] =~ LANraragi::Model::Config->get_regex || next;
 
-	#Replace underscores in title with spaces
-	$title =~ s/_/ /g;
+    #select_from_regex picks the variables from the regex selection that will be used.
+    my ( $event, $artist, $title, $series, $language, $tags ) = "";
 
-	unless ($event eq "") { 
-		unless ($tags eq "") { $tags.=", "; } 
-		$tags .= "event:$event"; 
-	}
+    ( $event, $artist, $title, $series, $language ) =
+      LANraragi::Model::Config->select_from_regex;
 
-	unless ($artist eq "") { 
-		unless ($tags eq "") { $tags.=", "; } 
+    #Replace underscores in title with spaces
+    $title =~ s/_/ /g;
 
-		#Special case for circle/artist sets: If the string contains parenthesis, what's inside those is the artist name -- the rest is the circle.
-		if ($artist =~ /(.*) \((.*)\)/ ) {
-			$tags .= "group:$1, artist:$2";
-		}
-		else {
-			$tags .= "artist:$artist ";
-		}
-	}
+    unless ( $event eq "" ) {
+        unless ( $tags eq "" ) { $tags .= ", "; }
+        $tags .= "event:$event";
+    }
 
-	unless ($series eq "") { 
-		unless ($tags eq "") { $tags.=", "; } 
-		$tags .= "parody:$series "; 
-	}
+    unless ( $artist eq "" ) {
+        unless ( $tags eq "" ) { $tags .= ", "; }
 
-	unless ($language eq "") { 
-		unless ($tags eq "") { $tags.=", "; } 
-		$tags .= "language:$language "; 
-	}
-		
-	return ($title,$tags);
+        #Special case for circle/artist sets: If the string contains parenthesis, what's inside those is the artist name -- the rest is the circle.
+        if ( $artist =~ /(.*) \((.*)\)/ ) {
+            $tags .= "group:$1, artist:$2";
+        }
+        else {
+            $tags .= "artist:$artist ";
+        }
+    }
+
+    unless ( $series eq "" ) {
+        unless ( $tags eq "" ) { $tags .= ", "; }
+        $tags .= "parody:$series ";
+    }
+
+    unless ( $language eq "" ) {
+        unless ( $tags eq "" ) { $tags .= ", "; }
+        $tags .= "language:$language ";
+    }
+
+    return ( $title, $tags );
 }
 
 #add_archive_to_redis($id,$file,$redis)
 #Parses the name of a file for metadata, and matches that metadata to the SHA-1 hash of the file in our Redis database.
 sub add_archive_to_redis {
- 	my ($id, $file, $redis) = @_;
-					
-	my ($name,$path,$suffix) = fileparse($file, qr/\.[^.]*/);
-					
-	#parse_name function is up there 
-	my ($title,$tags) = &parse_name($name.$suffix);
-					
-	#jam this shit in redis
-	$redis->hset($id, "name", encode_utf8($name));
-	$redis->hset($id, "title", encode_utf8($title));
-	$redis->hset($id, "tags", encode_utf8($tags));
-	$redis->hset($id, "file", encode_utf8($file));
-	$redis->hset($id, "isnew", "block"); #New file in collection, so this flag is set.
+    my ( $id, $file, $redis ) = @_;
 
-	$redis->wait_all_responses;
+    my ( $name, $path, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
 
-	return ($name,$title,$tags,"block");
+    #parse_name function is up there
+    my ( $title, $tags ) = &parse_name( $name . $suffix );
+
+    #jam this shit in redis
+    $redis->hset( $id, "name",  encode_utf8($name) );
+    $redis->hset( $id, "title", encode_utf8($title) );
+    $redis->hset( $id, "tags",  encode_utf8($tags) );
+    $redis->hset( $id, "file",  encode_utf8($file) );
+    $redis->hset( $id, "isnew", "block" );    
+    #New file in collection, so this flag is set.
+
+    $redis->wait_all_responses;
+
+    return ( $name, $title, $tags, "block" );
 }
 
 1;

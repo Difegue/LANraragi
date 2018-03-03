@@ -46,7 +46,7 @@ function initIndex(pagesize,dataSet)
 			  			if(type == "display"){
 
 			  				line = '<span class="tags tag-tooltip" onmouseover="buildTagTooltip($(this))" style="text-overflow:ellipsis;">'+data+'</span>';
-			  				if (localStorage.indexViewMode == 0) line+=buildTagsDiv(data); //Don't build this div if we're in thumbnail mode as it'll be unused
+			  				line+=buildTagsDiv(data);
 							return line;
 			  			}
 			  		return data;
