@@ -3,7 +3,7 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use Redis; 
 use Encode;
-use File::Find;
+use File::Find::utf8;
 use File::Path qw(remove_tree);
 
 use LANraragi::Model::Utils;

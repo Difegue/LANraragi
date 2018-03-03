@@ -6,7 +6,6 @@ use URI::Escape;
 use Redis;
 use Encode;
 use File::Basename;
-use File::Find;
 use Authen::Passphrase;
 
 use LANraragi::Model::Utils;

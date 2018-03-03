@@ -19,7 +19,7 @@ use FindBin;
 BEGIN { unshift @INC, "$FindBin::Bin/../lib"; } #As this is a new process, reloading the LRR libs into INC is needed.
 
 use Mojolicious;
-use File::Find;
+use File::Find::utf8;
 use File::Basename;
 use File::stat;
 use File::Path qw(make_path remove_tree);

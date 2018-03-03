@@ -2,7 +2,6 @@ package LANraragi::Controller::Config;
 use Mojo::Base 'Mojolicious::Controller';
 
 use Encode;
-use File::Find;
 
 use LANraragi::Model::Utils;
 use LANraragi::Model::Config;

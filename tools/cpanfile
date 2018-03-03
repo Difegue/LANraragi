@@ -9,6 +9,7 @@ requires 'Digest::SHA', 6.01;
 requires 'URI::Escape', 1.73;
 requires 'Authen::Passphrase', 0.008;
 requires 'File::ReadBackwards', 1.05;
+requires 'File::Find::utf8', 0.013;
 
 requires 'Mojolicious', 7.61;
 requires 'Mojolicious::Plugin::TemplateToolkit', 0.002;

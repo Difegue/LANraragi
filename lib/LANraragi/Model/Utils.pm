@@ -8,7 +8,6 @@ use feature 'say';
 use POSIX;
 use Digest::SHA qw(sha256_hex);
 use File::Basename;
-use File::Find;
 use Encode;
 use URI::Escape;
 use Redis;

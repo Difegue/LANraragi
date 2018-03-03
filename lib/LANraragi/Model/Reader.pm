@@ -9,7 +9,7 @@ use IPC::Cmd qw[can_run run];
 use File::Basename;
 use File::Path qw(remove_tree);
 use Encode;
-use File::Find qw(find);
+use File::Find::utf8 qw(find);
 use URI::Escape;
 
 use LANraragi::Model::Config;
@@ -65,17 +65,20 @@ sub build_reader_JSON {
 				die $errlog;
 			}
 		}
-		
+	
+	$self->LRR_LOGGER->debug("Extracted archive successfully to $path");
 	#Find the extracted images with a full search (subdirectories included), treat them and jam them into an array.
 	my @images;
-	find({ wanted => sub { 
+	find({ wanted => sub { 	
+							#$_ = LANraragi::Model::Utils::redis_decode($_);
+							$self->LRR_LOGGER->debug("Found $_ in extracted archive");
 							if ($_ =~ /^*.+\.(png|jpg|gif|bmp|jpeg|PNG|JPG|GIF|BMP)$/ ) #is it an image? readdir tends to read folder names too...
 								{
 									#We need to sanitize the image's path, in case the folder contains illegal characters, but uri_escape would also nuke the / needed for navigation.
 									#Let's solve this with a quick regex search&replace.
 									#First, we encode all HTML characters...
 									my $imgpath = $_;
-									$imgpath = uri_escape($imgpath);
+									$imgpath = uri_escape_utf8($imgpath);
 									
 									#Then we bring the slashes back.
 									$imgpath =~ s!%2F!/!g;
@@ -85,7 +88,7 @@ sub build_reader_JSON {
 									push @images, $imgpath;
 
 								}
-						} , no_chdir => 1 }, $path); #find () does exactly that. 
+						} , no_chdir => 1, follow_fast => 1 }, $path); #find () does exactly that. 
 			  
     @images = sort { &expand($a) cmp &expand($b) } @images;
 	
