@@ -64,7 +64,7 @@
 				[% IF userlogged %]
 				<div id="i6" class="if">
 					<i class="fa fa-caret-right fa-lg"></i>
-					<a href="./reader?id=[% id %]&reload_thumbnail=1">Regenerate Archive Thumbnail </a>
+					<a style="cursor:pointer" onclick="confirmThumbnailReset('[% id %]')">Regenerate Archive Thumbnail </a>
 					<i class="fa fa-caret-right fa-lg"></i>
 					<a href="./reader?id=[% id %]&force_reload=1">Clean Archive Cache</a>
 				</div>

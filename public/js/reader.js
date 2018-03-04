@@ -142,3 +142,19 @@ function closeOverlay() {
     $('#overlay-shade').fadeOut(300);
     $('.page-overlay').css('display','none');
 }
+
+function confirmThumbnailReset(id) {
+
+	if (confirm("Are you sure you want to regenerate the thumbnail for this archive?")) {
+
+		$.get( "./reader?id="+id+"&reload_thumbnail=1").done(function() {
+		    $.toast({
+						showHideTransition: 'slide',
+						position: 'top-left', 
+						loader: false, 
+					    heading: 'Thumbnail Regenerated.',
+					    icon: 'success'
+					});
+		  });
+	}
+}
