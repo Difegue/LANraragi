@@ -35,8 +35,8 @@ sub index {
 
         $arcname = LANraragi::Model::Utils::redis_decode($arcname);
 
-        my $force       = $self->req->param('force_reload');
-        my $thumbreload = $self->req->param('reload_thumbnail');
+        my $force       = $self->req->param('force_reload') || "0";
+        my $thumbreload = $self->req->param('reload_thumbnail') || "0";
         my $imgpaths    = "";
 
         #Load a json matching pages to paths

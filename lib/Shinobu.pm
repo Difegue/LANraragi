@@ -53,7 +53,7 @@ sub workload {
 
     my $logger = LANraragi::Model::Utils::get_logger( "Shinobu", "lanraragi" );
 
-    $logger->debug("Parsing Archive Directory...");
+    #$logger->debug("Parsing Archive Directory...");
 
     my @archives = &get_archive_list;
     my $redis    = LANraragi::Model::Config::get_redis;
@@ -61,7 +61,7 @@ sub workload {
     my $cachecount = 0;
     my $newcount   = scalar @archives;
 
-    $logger->debug("Done - Found $newcount files.");
+    #$logger->debug("Done - Found $newcount files.");
 
     my $force = 0;
     if ( $redis->hexists( "LRR_JSONCACHE", "force_refresh" ) ) {
@@ -74,7 +74,7 @@ sub workload {
         $cachecount = $redis->hget( "LRR_JSONCACHE", "archive_count" );
     }
 
-    $logger->debug("Checking for new archives...");
+    #$logger->debug("Checking for new archives...");
 
     if ( $newcount != $cachecount ) {
         &new_archive_check(@archives);

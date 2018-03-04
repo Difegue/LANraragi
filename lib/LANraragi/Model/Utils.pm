@@ -21,7 +21,7 @@ use LANraragi::Model::Plugins;
 #use ImageMagick to make a thumbnail, width = 200px
 sub generate_thumbnail {
 
-    my ( $orig_path, $thumb_path, $force ) = @_;
+    my ( $orig_path, $thumb_path ) = @_;
     my $img = Image::Magick->new;
 
     $img->Read($orig_path);

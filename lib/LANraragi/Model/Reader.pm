@@ -83,20 +83,7 @@ sub build_reader_JSON {
 
                 #is it an image? readdir tends to read folder names too...
                 if ( $_ =~ /^*.+\.(png|jpg|gif|bmp|jpeg|PNG|JPG|GIF|BMP)$/) {
-                
-                    #We need to sanitize the image's path, in case the folder contains illegal characters, 
-                    #but uri_escape would also nuke the / needed for navigation. Let's solve this with a quick regex search&replace.
-                    #First, we encode all HTML characters...
-                    my $imgpath = $_;
-                    $imgpath = uri_escape_utf8($imgpath);
-
-                    #Then we bring the slashes back.
-                    $imgpath =~ s!%2F!/!g;
-
-                    #We also now need to strip the /public/ part, 
-                    #as it's not visible by clients.
-                    $imgpath =~ s!public/!!g;
-                    push @images, $imgpath;
+                    push @images, $_;
 
                 }
             },
@@ -114,18 +101,38 @@ sub build_reader_JSON {
 
     unless ( -e $thumbname && $thumbreload eq "0" ) {
 
+        $self->LRR_LOGGER->debug("Thumbnail not found at $thumbname ! (force-thumb flag = $thumbreload)");
+        $self->LRR_LOGGER->debug("Regenerating from " . $images[0]);
         mkdir $dirname . "/thumb";
 
-        #Add the /public/ part back here since we're accessing the path from the server
-        my $path = "./public/" . $images[0];
-        my $shasum = LANraragi::Model::Utils::shasum( $path, 1 );
+        my $shasum = LANraragi::Model::Utils::shasum( $images[0], 1 );
         $redis->hset( $id, "thumbhash", encode_utf8($shasum) );
 
-        LANraragi::Model::Utils::generate_thumbnail( $path, $thumbname );
+        LANraragi::Model::Utils::generate_thumbnail( $images[0], $thumbname );
     }
 
+    #Build a browser-compliant filepath array from @images 
+    my @images_browser;
+
+    foreach my $imgpath (@images) {
+        #We need to sanitize the image's path, in case the folder contains illegal characters, 
+        #but uri_escape would also nuke the / needed for navigation. Let's solve this with a quick regex search&replace.
+        #First, we encode all HTML characters...
+        $imgpath = uri_escape_utf8($imgpath);
+
+        #Then we bring the slashes back.
+        $imgpath =~ s!%2F!/!g;
+
+        #We also now need to strip the /public/ part, 
+        #as it's not visible by clients.
+        $imgpath =~ s!public/!!g;
+
+        push @images_browser, $imgpath;
+    }
+                    
+
     #Build json (it's just the images array in a string)
-    my $list = "{\"pages\": [\"" . join( "\",\"", @images ) . "\"]}";
+    my $list = "{\"pages\": [\"" . join( "\",\"", @images_browser ) . "\"]}";
     return $list;
 
 }
