@@ -26,21 +26,20 @@ sub build_backup_JSON {
 
         my %hash = $redis->hgetall($id);
 
-        my ( $event, $artist, $title, $series, $language, $tags ) =
-          @hash{qw(event artist title series language tags)};
+        my ( $name, $title, $tags, $file, $thumbhash ) =
+          @hash{qw(name title tags file thumbhash)};
 
         ( $_ = LANraragi::Model::Utils::redis_decode($_) )
-          for ( $event, $artist, $title, $series, $language, $tags );
+          for ( $name, $title, $tags, $file );
 
+        #Backup all user-generated metadata, alongside the unique ID and the filesystem path.
+        #Filesystem path is normally unused but can serve as a fallback if the ID can't be used.
         $json .= qq(
 				{
 					"arcid": "$id",
-					"artist": "$artist",
 					"title": "$title",
-					"series": "$series",
-					"language": "$language",
-					"event": "$event",
-					"tags": "$tags"
+					"tags": "$tags",
+                    "filename": "$name"
 				},);
     }
 
@@ -68,14 +67,9 @@ sub restore_from_JSON {
         #If the archive exists, restore metadata.
         if ( $redis->hexists( $id, "title" ) ) {
 
-            #jam this shit in redis
             #prepare the hash which'll be inserted.
             my %hash = (
-                event    => encode_utf8( $archive->{"event"} ),
-                artist   => encode_utf8( $archive->{"artist"} ),
                 title    => encode_utf8( $archive->{"title"} ),
-                series   => encode_utf8( $archive->{"series"} ),
-                language => encode_utf8( $archive->{"language"} ),
                 tags     => encode_utf8( $archive->{"tags"} ),
             );
 
