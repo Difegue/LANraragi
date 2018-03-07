@@ -35,12 +35,12 @@ sub build_backup_JSON {
         #Backup all user-generated metadata, alongside the unique ID and the filesystem path.
         #Filesystem path is normally unused but can serve as a fallback if the ID can't be used.
         $json .= qq(
-				{
-					"arcid": "$id",
-					"title": "$title",
-					"tags": "$tags",
+                {
+                    "arcid": "$id",
+                    "title": "$title",
+                    "tags": "$tags",
                     "filename": "$name"
-				},);
+                },);
     }
 
     #remove last comma for json compliance
