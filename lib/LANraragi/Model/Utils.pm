@@ -224,31 +224,27 @@ sub parse_name {
     #Replace underscores in title with spaces
     $title =~ s/_/ /g;
 
-    unless ( $event eq "" ) {
-        unless ( $tags eq "" ) { $tags .= ", "; }
-        $tags .= "event:$event";
+    if ($event ne "") {
+        $tags .= "event:$event, ";
     }
 
-    unless ( $artist eq "" ) {
-        unless ( $tags eq "" ) { $tags .= ", "; }
+    if ($artist ne "") {
 
         #Special case for circle/artist sets: If the string contains parenthesis, what's inside those is the artist name -- the rest is the circle.
         if ( $artist =~ /(.*) \((.*)\)/ ) {
-            $tags .= "group:$1, artist:$2";
+            $tags .= "group:$1, artist:$2, ";
         }
         else {
-            $tags .= "artist:$artist ";
+            $tags .= "artist:$artist, ";
         }
     }
 
-    unless ( $series eq "" ) {
-        unless ( $tags eq "" ) { $tags .= ", "; }
-        $tags .= "parody:$series ";
+    if ($series ne "") {
+        $tags .= "parody:$series, ";
     }
 
-    unless ( $language eq "" ) {
-        unless ( $tags eq "" ) { $tags .= ", "; }
-        $tags .= "language:$language ";
+    if ($language ne "") {
+        $tags .= "language:$language, ";
     }
 
     return ( $title, $tags );
