@@ -88,7 +88,7 @@ sub get_logger {
 sub shasum {
 
     my $digest = "";
-    my $logger = get_logger("Thumbnails","lanraragi");
+    my $logger = get_logger("Hash Computation","lanraragi");
 
     eval {
         my $ctx = Digest::SHA->new( $_[1] );

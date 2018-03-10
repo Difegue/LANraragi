@@ -67,16 +67,11 @@ sub restore_from_JSON {
         #If the archive exists, restore metadata.
         if ( $redis->hexists( $id, "title" ) ) {
 
-            #prepare the hash which'll be inserted.
-            my %hash = (
-                title    => encode_utf8( $archive->{"title"} ),
-                tags     => encode_utf8( $archive->{"tags"} ),
-            );
+            my $title = encode_utf8( $archive->{"title"} );
+            my $tags = encode_utf8( $archive->{"tags"} );
 
-            #for all keys of the hash, 
-            #add them to the redis hash $id with the matching keys.
-            $redis->hset( $id, $_, $hash{$_}, sub { } ) for keys %hash;
-            $redis->wait_all_responses;
+            $redis->hset($id, "title", $title);
+            $redis->hset($id, "tags", $tags);
 
         }
     }
