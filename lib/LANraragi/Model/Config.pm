@@ -128,8 +128,9 @@ sub css_default_names {
 
 }
 
-#Regular Expression matching the above syntax. Used in parsing. Stuff that's between unescaped ()s is put in a numbered variable: $1,$2,etc
-#This regex autoparses the given string according to the exhentai standard convention: (Release) [Artist] TITLE (Series) [Language]
+#Regular Expression matching the E-Hentai standard: (Release) [Artist] TITLE (Series) [Language] 
+#Used in parsing. 
+#Stuff that's between unescaped ()s is put in a numbered variable: $1,$2,etc
 #Parsing is only done the first time the file is found. The parsed info is then stored into Redis.
 #Change this regex if you wish to use a different parsing for mass-addition of archives.
 

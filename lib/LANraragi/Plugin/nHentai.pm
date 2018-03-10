@@ -53,7 +53,9 @@ sub get_tags {
     }
 
 #Use the logger to output status - they'll be passed to LRR's standard output and a specialized logfile.
-    $logger->debug("Detected nHentai gallery id is $galleryID");
+    if (defined $galleryID) {
+        $logger->debug("Detected nHentai gallery id is $galleryID");
+    }
 
 #If no tokens were found, return a hash containing an error message. LRR will display that error to the client.
     if ( $galleryID eq "" ) {
@@ -126,12 +128,16 @@ sub get_tags_from_NH {
             $namespace = $tag->{"type"} . ":";
         }
 
-        $returned .= ", " . $namespace . $tag->{"name"};
+        $returned .= $namespace . $tag->{"name"} . ", ";
 
     }
 
     $logger->info("Sending the following tags to LRR: $returned");
-    return substr $returned, 2;    #Strip first comma and space
+    #Strip last comma and space
+    chop($returned);
+    chop($returned);
+
+    return $returned;
 
 }
 

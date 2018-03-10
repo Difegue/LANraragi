@@ -32,9 +32,11 @@ sub clean_tempfolder {
         for my $diag (@$err) {
             my ( $file, $message ) = %$diag;
             if ( $file eq '' ) {
+                $self->LRR_LOGGER->error( "General error: " . $message );
                 $cleanmsg = "General error: $message\n";
             }
             else {
+                $self->LRR_LOGGER->error( "Problem unlinking $file: $message" );
                 $cleanmsg = "Problem unlinking $file: $message\n";
             }
         }
@@ -95,7 +97,11 @@ sub serve_thumbnail {
         $unarfix =~ s/[^\/]+\//*\//g;
 
         #let's extract now.
-        `unar -D -o $path "$file" "$unarfix"`;
+        my $res = `unar -D -o $path "$file" "$unarfix"`;
+
+        if ($?) {
+            $self->LRR_LOGGER->error( "Error extracting thumbnail: $res" );
+        }
 
         #Path to the first image of the archive
         my $arcimg = $path . '/' . $extracted[0];
@@ -112,8 +118,13 @@ sub serve_thumbnail {
         unlink $arcimg;
     }
 
-    #Simply serve the thumbnail.
-    $self->render_file( filepath => $thumbname );
+    #Simply serve the thumbnail. If it doesn't exist, serve an error placeholder instead.
+    if (-e $thumbname) {
+        $self->render_file( filepath => $thumbname );
+    }
+    else {
+        $self->render_file( filepath => "./public/img/noThumb.png" );
+    }
 
 }
 
