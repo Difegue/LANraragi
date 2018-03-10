@@ -88,6 +88,8 @@ sub get_logger {
 sub shasum {
 
     my $digest = "";
+    my $logger = get_logger("ID Calculation","lanraragi");
+
     eval {
         my $ctx = Digest::SHA->new( $_[1] );
         $ctx->addfile( $_[0] );
@@ -95,8 +97,8 @@ sub shasum {
     };
 
     if ($@) {
-        print "Error building hash for " . $_[0] . " -- ";
-        print $@;
+        $logger->error("Error building hash for " . $_[0] . " -- " . $@);
+
         return "";
     }
 
@@ -212,14 +214,18 @@ sub generate_themes {
 #parses an archive name with the regex specified in the configuration file(get_regex and select_from_regex subs) to find metadata.
 sub parse_name {
 
+    my ( $event, $artist, $title, $series, $language, $tags );
+    $event = $artist = $title = $series = $language = $tags = "";
+
     #Use the regex on our file, and pipe it to the regexsel sub.
-    $_[0] =~ LANraragi::Model::Config->get_regex || next;
+    $_[0] =~ LANraragi::Model::Config->get_regex ;
 
-    #select_from_regex picks the variables from the regex selection that will be used.
-    my ( $event, $artist, $title, $series, $language, $tags ) = "";
-
-    ( $event, $artist, $title, $series, $language ) =
-      LANraragi::Model::Config->select_from_regex;
+    #Take variables from the regex selection
+    if (defined $2) { $event = $2; }
+    if (defined $4) { $artist = $4; }
+    if (defined $5) { $title = $5; }
+    if (defined $7) { $series = $7; }
+    if (defined $9) { $language = $9; }
 
     #Replace underscores in title with spaces
     $title =~ s/_/ /g;
@@ -254,21 +260,20 @@ sub parse_name {
 #Parses the name of a file for metadata, and matches that metadata to the SHA-1 hash of the file in our Redis database.
 sub add_archive_to_redis {
     my ( $id, $file, $redis ) = @_;
-
+    my $logger = get_logger("Archive","lanraragi");
     my ( $name, $path, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
 
     #parse_name function is up there
     my ( $title, $tags ) = &parse_name( $name . $suffix );
 
     #jam this shit in redis
+    $logger->debug("Pushing to redis: $name - $title - $tags - $file");
     $redis->hset( $id, "name",  encode_utf8($name) );
     $redis->hset( $id, "title", encode_utf8($title) );
     $redis->hset( $id, "tags",  encode_utf8($tags) );
     $redis->hset( $id, "file",  encode_utf8($file) );
     $redis->hset( $id, "isnew", "block" );    
     #New file in collection, so this flag is set.
-
-    $redis->wait_all_responses;
 
     return ( $name, $title, $tags, "block" );
 }

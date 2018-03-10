@@ -128,10 +128,6 @@ sub css_default_names {
 
 }
 
-#This sub defines which numbered variables from the regex selection are taken as metadata. In order:
-# [release, artist, title, series, language]
-sub select_from_regex { return ( $2, $4, $5, $7, $9 ) }
-
 #Regular Expression matching the above syntax. Used in parsing. Stuff that's between unescaped ()s is put in a numbered variable: $1,$2,etc
 #This regex autoparses the given string according to the exhentai standard convention: (Release) [Artist] TITLE (Series) [Language]
 #Parsing is only done the first time the file is found. The parsed info is then stored into Redis.

@@ -69,7 +69,7 @@ sub save_config {
             my $namerds   = "LRR_PLUGIN_" . uc($namespace);
 
             my $enabled = ( scalar $self->req->param($namespace) ? '1' : '0' );
-            my $arg = $self->req->param( $namespace . "_CFG" );
+            my $arg = $self->req->param( $namespace . "_CFG" ) || "";
 
             $redis->hset( $namerds, "enabled", $enabled );
 
