@@ -34,7 +34,7 @@ sub plugin_info {
 #Mandatory function to be implemented by your plugin
 sub get_tags {
 
-#LRR gives your plugin the recorded title/tags/thumbnail hash for the file, the filesystem path, and the custom arguments if available.
+    #LRR gives your plugin the recorded title/tags/thumbnail hash for the file, the filesystem path, and the custom arguments if available.
     shift;
     my ( $title, $tags, $thumbhash, $file, $globalarg, $oneshotarg ) = @_;
 
@@ -52,12 +52,16 @@ sub get_tags {
         $galleryID = &get_gallery_id_from_title($title);
     }
 
-#Use the logger to output status - they'll be passed to LRR's standard output and a specialized logfile.
+    #Use the logger to output status - they'll be passed to LRR's standard output and a specialized logfile.
     if (defined $galleryID) {
         $logger->debug("Detected nHentai gallery id is $galleryID");
+    } else {
+        $logger->info("No matching nHentai Gallery Found!");
+        return ( error => "No matching nHentai Gallery Found!" );
     }
 
-#If no tokens were found, return a hash containing an error message. LRR will display that error to the client.
+    #If no tokens were found, return a hash containing an error message. 
+    #LRR will display that error to the client.
     if ( $galleryID eq "" ) {
         $logger->info("No matching nHentai Gallery Found!");
         return ( error => "No matching nHentai Gallery Found!" );

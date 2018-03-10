@@ -81,7 +81,7 @@ foreach my $id (@keys) {
                 $newtags .= "group:$1, artist:$2, ";
             }
             else {
-                $newtags .= "artist:$artist ";
+                $newtags .= "artist:$artist, ";
             }
 
         }

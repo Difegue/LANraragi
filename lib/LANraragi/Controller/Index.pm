@@ -22,9 +22,10 @@ sub random_archive {
     until ($archiveexists) {
         $archive = $redis->randomkey();
 
+        $self->LRR_LOGGER->debug("Found key $archive");
         #We got a key, but does the matching archive still exist on the server? Better check it out.
         #This usecase only happens with the random selection : Regular index only parses the database for archive files it finds by default.
-        if (   length($archive) == 64
+        if (   length($archive) == 40
             && $redis->type($archive) eq "hash"
             && $redis->hexists( $archive, "file" ) )
         {

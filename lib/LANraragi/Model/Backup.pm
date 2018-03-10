@@ -81,6 +81,8 @@ sub restore_from_JSON {
         }
     }
 
+    #Force a refresh 
+    LANraragi::Model::Utils::invalidate_cache();
     $redis->quit();
 
 }

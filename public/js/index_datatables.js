@@ -12,6 +12,7 @@ function initIndex(pagesize,dataSet)
 	//datatables configuration
 	arcTable= $('.datatables').DataTable( {
 		'data': dataSet, 
+		'deferRender': true
 		'lengthChange': false,
 		'pageLength': pagesize,
 		'order': [[ 1, 'asc' ]],
