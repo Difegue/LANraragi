@@ -131,6 +131,12 @@ sub ehentai_parse() {
     my $ua  = Mojo::UserAgent->new;
 
     my $content = $ua->get($URL)->result->body;
+
+    if (index($content, "Your IP address has been") != -1) {
+        my $logger = LANraragi::Model::Utils::get_logger( "E-Hentai", "plugins" );
+        $logger->error("Banned from EH for excessive pageloads.");
+    }
+
     my $gID     = "";
     my $gToken  = "";
 

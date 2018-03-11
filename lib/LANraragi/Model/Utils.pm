@@ -217,6 +217,9 @@ sub parse_name {
     my ( $event, $artist, $title, $series, $language, $tags );
     $event = $artist = $title = $series = $language = $tags = "";
 
+    #Replace underscores with spaces
+    $_[0] =~ s/_/ /g;
+
     #Use the regex on our file, and pipe it to the regexsel sub.
     $_[0] =~ LANraragi::Model::Config->get_regex ;
 
@@ -226,9 +229,6 @@ sub parse_name {
     if (defined $5) { $title = $5; }
     if (defined $7) { $series = $7; }
     if (defined $9) { $language = $9; }
-
-    #Replace underscores in title with spaces
-    $title =~ s/_/ /g;
 
     if ($event ne "") {
         $tags .= "event:$event, ";
