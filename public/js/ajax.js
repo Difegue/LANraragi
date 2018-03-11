@@ -1,8 +1,8 @@
 //Scripting for Generic API calls.
 
 //cleanTempFldr
-function cleanTempFldr()
-{
+function cleanTempFldr(){
+
 	$.get("api/cleantemp")
 		.done(function( data ) {
 			if (data.success) 
@@ -26,6 +26,29 @@ function cleanTempFldr()
 		});
 }
 
+
+//invalidateCache
+function invalidateCache() {
+	$.get("api/discard_cache")
+		.done(function( data ) {
+			if (data.status) 
+				$.toast({
+					showHideTransition: 'slide',
+					position: 'top-left', 
+					loader: false, 
+				    heading: 'JSON Cache Deleted.',
+				    icon: 'success'
+				});
+			else
+				$.toast({
+					showHideTransition: 'slide',
+					position: 'top-left', 
+					loader: false, 
+				    heading: 'Error while deleting cache! Check Logs.',
+				    icon: 'error'
+				});	
+		});
+}
 
 //saveFormData()
 //POSTs the data of the specified form to the page.

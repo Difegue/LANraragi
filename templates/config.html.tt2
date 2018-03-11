@@ -66,7 +66,7 @@
 
 			<tr><td style="text-align:left; width:100px"><h1 class="ih"> Tag Blacklist </h1></td><td>
 				<input class="stdinput" style="width:100%" size="20" value="[% blacklist %]" name="blacklist" type="text">
-				<br> When tagging archives using external APIs, these tags will be automatically omitted. <br>Split tags with commas.
+				<br> When tagging archives using Plugins, these tags will be automatically omitted. <br>Split tags with commas.
 			</td></tr>
 
 			<tr><td style="text-align:left; width:100px"><h1 class="ih"> Auto-Tag New Archives </h1></td><td>
@@ -77,7 +77,8 @@
 		  		[% END %]
                 <label for="autotag">
                 	<br>Enabled plugins will be automatically executed on newly uploaded archives if this option is on. <br/>
-                	See Plugin Configuration to enable/disable plugins.
+                	See <a style="cursor:pointer; text-decoration:underline" onclick="window.location.replace('/config/plugins');">
+                		Plugin Configuration</a> to enable/disable plugins.
                 </label>
 			</td></tr>
 
@@ -137,7 +138,7 @@
 			<tr>
 			<td colspan='2' style='text-align:center'> <br/>
 				<input class='stdbtn' type='button' onclick="saveFormData('#editConfigForm');" value='Save LRR Configuration'/>
-				<input class='stdbtn' type='button' onclick="window.location.replace('/config/plugins');" value='Go to Plugin Configuration'/>
+				<input class='stdbtn' type='button' onclick="invalidateCache();" value='Invalidate JSON Cache'/>
 				<input class='stdbtn' type='button' onclick="window.location.replace('/');" value='Return to Library'/>
 			<br/></td></tr>
 

@@ -21,6 +21,22 @@ sub expand {
     return $file;
 }
 
+#resize_image(image,quality, size_threshold)
+#convert an image to a cheaper on bandwidth format through ImageMagick. 
+sub resize_image {
+
+    my ( $imgpath, $quality, $threshold ) = @_;
+    my $img = Image::Magick->new;
+
+    #Is the file size higher than the threshold?
+    if ( ( int( ( -s $imgpath ) / 1024 * 10 ) / 10 ) > $threshold ) {
+        $img->Read($imgpath);
+        $img->Resize( geometry => '1064x' );
+        $img->Set( quality => $quality );
+        $img->Write($imgpath);
+    }
+}
+
 #build_reader_JSON(mojo,id,forceReload,refreshThumbnail)
 #Opens the archive specified by its ID and returns a json matching pages to their
 sub build_reader_JSON {
