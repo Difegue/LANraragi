@@ -43,7 +43,13 @@ sub initialize_from_new_process {
 
     while (1) {
 
-        &workload;
+        eval {
+            &workload;
+        };
+        if ($@) {
+            $logger->error($@);
+        }
+
         sleep($interval);
     }
 
@@ -262,6 +268,7 @@ sub build_json_cache {
         }
         else {
             #Delete leftover IDs
+            $logger->warn("Deleting ID $id - File $path cannot be found.");
             $redis->del($id);    
         }
 

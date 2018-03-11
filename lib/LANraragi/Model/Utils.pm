@@ -143,8 +143,10 @@ sub redis_decode {
 
     my $data = $_[0];
 
-    eval { $data = decode_utf8($data) };
-    eval { $data = decode_utf8($data) };
+    #Setting FB_CROAK tells encode to die instantly if it encounters any errors.
+    #Without this setting, it typically tries to replace characters... which might already be valid UTF8!
+    eval { $data = decode_utf8($data, Encode::FB_CROAK) }; 
+    eval { $data = decode_utf8($data, Encode::FB_CROAK) };
 
     return $data;
 }
@@ -264,17 +266,22 @@ sub add_archive_to_redis {
     my ( $name, $path, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
 
     #parse_name function is up there
-    my ( $title, $tags ) = &parse_name( $name . $suffix );
+    my ( $title, $tags ) = parse_name( $name . $suffix );
 
     #jam this shit in redis
-    $logger->debug("Pushing to redis: $name - $title - $tags - $file");
+    $logger->debug("Pushing to redis on ID $id:");
+    $logger->debug("File Name: $name");
+    $logger->debug("Parsed Title: $title");
+    $logger->debug("Parsed Tags: $tags");
+    $logger->debug("Filesystem Path: $file");
+
     $redis->hset( $id, "name",  encode_utf8($name) );
     $redis->hset( $id, "title", encode_utf8($title) );
     $redis->hset( $id, "tags",  encode_utf8($tags) );
     $redis->hset( $id, "file",  encode_utf8($file) );
     $redis->hset( $id, "isnew", "block" );    
-    #New file in collection, so this flag is set.
 
+    #New file in collection, so this flag is set.
     return ( $name, $title, $tags, "block" );
 }
 
