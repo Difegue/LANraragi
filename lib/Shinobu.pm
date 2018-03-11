@@ -83,6 +83,8 @@ sub workload {
     #$logger->debug("Checking for new archives...");
 
     if ( $newcount != $cachecount ) {
+        #Enable force flag to indicate other parts of the system that we're rebuilding the DB cache
+        $redis->hset( "LRR_JSONCACHE", "force_refresh", 1 );
         &new_archive_check(@archives);
     }
 
@@ -322,6 +324,12 @@ sub build_archive_JSON {
     #Workaround if title was incorrectly parsed as blank
     if ( $title =~ /^\s*$/ ) {
         $title = "<i class='fa fa-exclamation-circle'></i> Untitled archive, please edit metadata.";
+    }
+
+    #Clean up trailing commas in tags
+    chomp $tags;
+    if (substr $tags, -1 eq ",") {
+        chop $tags;
     }
 
     my $finaljson = qq(
