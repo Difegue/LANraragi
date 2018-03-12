@@ -5,7 +5,6 @@ use Encode;
 
 use LANraragi::Model::Utils;
 use LANraragi::Model::Config;
-use LANraragi::Controller::Login;
 use LANraragi::Model::Reader;
 
 # This action will render a template
@@ -66,7 +65,7 @@ sub index {
             imgpaths   => $imgpaths,
             readorder  => $self->LRR_CONF->get_readorder(),
             cssdrop    => LANraragi::Model::Utils::generate_themes,
-            userlogged => LANraragi::Controller::Login::logged_in($self)
+            userlogged => $self->LRR_CONF->enable_pass == 0 || $self->session('is_logged');
         );
     }
     else {
