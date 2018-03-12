@@ -138,7 +138,7 @@ sub get_tags_from_NH {
 
     $logger->info("Sending the following tags to LRR: $returned");
     #Strip last comma and space
-    chop($returned);
+    chomp($returned);
     chop($returned);
 
     return $returned;

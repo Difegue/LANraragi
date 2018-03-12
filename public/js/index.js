@@ -35,7 +35,7 @@ function checkVersion(currentVersion,debugMode) {
 
 				$.toast({
 				heading: 'A new version of LANraragi ('+ latestVersion +') is available !',
-			    text: '<a href="'+data.html_url+'">Hit it !</a> It\'s probably good. 👌',
+			    text: '<a href="'+data.html_url+'">Click here to check it out.</a>',
 			    hideAfter: false,
 			    position: 'top-left', 
 			    icon: 'info'
