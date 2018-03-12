@@ -65,7 +65,7 @@ sub index {
             imgpaths   => $imgpaths,
             readorder  => $self->LRR_CONF->get_readorder(),
             cssdrop    => LANraragi::Model::Utils::generate_themes,
-            userlogged => $self->LRR_CONF->enable_pass == 0 || $self->session('is_logged');
+            userlogged => $self->LRR_CONF->enable_pass == 0 || $self->session('is_logged')
         );
     }
     else {

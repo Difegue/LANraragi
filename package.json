@@ -1,10 +1,7 @@
 {
   "name": "LANraragi",
-  "version": "0.4.5",
+  "version": "0.5.0",
   "description": "holla where the chinese comics at",
-  "directories": {
-    "test": "tests"
-  },
   "scripts": {
     "test": "",
     "lanraragi-installer": "perl ./tools/install.pl",
