@@ -8,8 +8,8 @@
   "scripts": {
     "test": "",
     "lanraragi-installer": "perl ./tools/install.pl",
-    "start": "perl ./script/lanraragi daemon",
-    "dev-server": "rm -f ./shinobu-lock && morbo script/lanraragi",
+    "start": "perl ./script/lanraragi daemon -l",
+    "dev-server": "rm -f ./shinobu-lock && morbo script/lanraragi -l",
     "docker-build": "docker build -t difegue/lanraragi -f ./tools/DockerSetup/Dockerfile .",
     "critic": "perlcritic ./lib/* ./script/* ./tools/install.pl"
   },
