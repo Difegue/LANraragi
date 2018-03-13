@@ -3,7 +3,7 @@
   "version": "0.5.0",
   "description": "holla where the chinese comics at",
   "scripts": {
-    "test": "",
+    "test": "perl ./script/lanraragi test tests/*.t",
     "lanraragi-installer": "perl ./tools/install.pl",
     "start": "perl ./script/lanraragi daemon -l",
     "dev-server": "rm -f ./shinobu-lock && morbo script/lanraragi -l",
