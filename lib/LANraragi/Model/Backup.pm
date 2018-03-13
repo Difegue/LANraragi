@@ -59,6 +59,9 @@ sub build_backup_JSON {
 sub restore_from_JSON {
     my $redis = LANraragi::Model::Config::get_redis;
 
+    my $logger =
+      LANraragi::Model::Utils::get_logger( "Backup/Restore", "lanraragi" );
+
     my $json = decode_json( $_[0] );
 
     foreach my $archive (@$json) {
@@ -67,6 +70,7 @@ sub restore_from_JSON {
         #If the archive exists, restore metadata.
         if ( $redis->hexists( $id, "title" ) ) {
 
+            $logger->info("Restoring metadata for Archive $id...");
             my $title = encode_utf8( $archive->{"title"} );
             my $tags = encode_utf8( $archive->{"tags"} );
 
