@@ -11,21 +11,12 @@ sub process_upload {
 
     #Receive uploaded file.
     my $file = $self->req->upload('file');
+    my $filename = $file->filename;
 
     my $uploadMime = $file->headers->content_type;
 
-    my @mimeTypes = (
-        "application/zip",              "application/x-zip-compressed",
-        "application/x-rar-compressed", "application/x-7z-compressed",
-        "application/x-tar",            "application/x-gtar",
-        "application/x-lzma",           "application/x-xz"
-    );
-    my %acceptedTypes = map { $_ => 1 } @mimeTypes;
-
-    #Check if the uploaded file's mimetype matches one we accept
-    if ( exists( $acceptedTypes{$uploadMime} ) ) {
-
-        my $filename = $file->filename;
+    #Check if the uploaded file's extension matches one we accept
+    if ( $filename =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr)$/ ) {
 
         my $output_file = $self->LRR_CONF->get_userdir . '/'
           . $filename;    #open up a file on our side
@@ -80,7 +71,7 @@ sub process_upload {
                 name      => $file->filename,
                 type      => $uploadMime,
                 success   => 0,
-                error     => "Unsupported Filetype. (" . $uploadMime . ")"
+                error     => "Unsupported File Extension. (" . $uploadMime . ")"
             }
         );
     }
