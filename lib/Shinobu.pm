@@ -326,11 +326,8 @@ sub build_archive_JSON {
         $title = "<i class='fa fa-exclamation-circle'></i> Untitled archive, please edit metadata.";
     }
 
-    #Clean up trailing commas in tags
+    #Clean up spaces in tags
     chomp $tags;
-    if (substr $tags, -1 eq ",") {
-        chop $tags;
-    }
 
     my $finaljson = qq(
 		{

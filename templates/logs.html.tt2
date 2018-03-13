@@ -23,7 +23,7 @@
 				<br>
 				You can check LANraragi logs here for debugging purposes.<br>
 				By default, this view only shows the last 100 lines of each logfile, newest lines first.  <br><br>
-				General Logs pertain to the main application. Plugin Logs are reserved for metadata plugins only, and Mojolicious logs dig a little deeper than general.
+				General Logs pertain to the main application. Plugin Logs are reserved for metadata plugins only. Mojolicious logs won't tell much unless you're running Debug Mode.
 				<br><br>
 
 				<h1 class='ih' style='text-align:center'>Currently Viewing: <span id="indicator">general</span></h1>

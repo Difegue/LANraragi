@@ -124,6 +124,8 @@ sub get_tags_from_NH {
 
     foreach my $tag (@$tags) {
 
+        $returned .= ", " unless $returned eq "";
+
         #Try using the "type" attribute to craft a namespace.
         #The basic "tag" type the NH API adds by default will be ignored here.
         my $namespace = "";
@@ -132,15 +134,11 @@ sub get_tags_from_NH {
             $namespace = $tag->{"type"} . ":";
         }
 
-        $returned .= $namespace . $tag->{"name"} . ", ";
+        $returned .= $namespace . $tag->{"name"};
 
     }
 
     $logger->info("Sending the following tags to LRR: $returned");
-
-    #Strip last comma and space
-    chop($returned);
-    chop($returned);
 
     return $returned;
 
