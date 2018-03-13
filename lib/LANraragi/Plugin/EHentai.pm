@@ -57,12 +57,27 @@ sub get_tags {
           &lookup_by_title( $title, $thumbhash, $globalarg, $tags );
     }
 
-    #If no tokens were found, return a hash containing an error message. LRR will display that error to the client.
-    if ( $gID eq "" || $gToken eq "" ) {
+    #If an error occured, return a hash containing an error message. 
+    #LRR will display that error to the client.
+    #Using the GToken to store error codes - not the cleanest but it's convenient
+    if ($gID eq "") {
+
+        if ($gToken eq "Banned") {
+            $logger->error("Banned from EH for excessive pageloads.");
+            return ( error => "Banned from EH for excessive pageloads." );
+        }
+
+        if ($gToken eq "NoThumb") {
+            $logger->error("No Thumbnail hash saved! Open the archive in the LRR reader to generate one.");
+            return ( error => "No Thumbnail hash saved! <br/> Open the archive in the LRR reader to generate one." );
+        }
+
         $logger->info("No matching EH Gallery Found!");
         return ( error => "No matching EH Gallery Found!" );
+
+    } else { 
+        $logger->debug("EH API Tokens are $gID / $gToken"); 
     }
-    else { $logger->debug("EH API Tokens are $gID / $gToken"); }
 
     my $newtags = &get_tags_from_EH( $gID, $gToken );
 
@@ -100,12 +115,15 @@ sub lookup_by_title {
 
     my ( $gId, $gToken ) = &ehentai_parse($URL);
 
-    if (   ( $gId eq "" || $gToken eq "" )
-        && $thumbhash ne ""
+    if (( $gId eq "" || $gToken eq "" )
         && $enable_imagesearch )
     {
 
         $logger->info("Reverse Image Search Enabled, trying...");
+
+        if ( $thumbhash eq "") {
+            return ("", "NoThumb");
+        }
 
         #search with image SHA hash
         $URL =
@@ -133,8 +151,7 @@ sub ehentai_parse() {
     my $content = $ua->get($URL)->result->body;
 
     if (index($content, "Your IP address has been") != -1) {
-        my $logger = LANraragi::Model::Utils::get_logger( "E-Hentai", "plugins" );
-        $logger->error("Banned from EH for excessive pageloads.");
+        return ("","Banned")
     }
 
     my $gID     = "";

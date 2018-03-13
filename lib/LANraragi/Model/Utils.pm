@@ -48,7 +48,7 @@ sub get_logger {
 
             unless ( $devmode == 0 && $level eq 'debug' )
             {   #Debug logs are only printed in debug mode (duh)
-                print "[$pgname] ";
+                print "[$pgname] [$level] ";
                 say $lines[0];
             }
         }

@@ -111,18 +111,17 @@ sub build_reader_JSON {
 
     @images = sort { &expand($a) cmp &expand($b) } @images;
 
+    my $shasum = LANraragi::Model::Utils::shasum( $images[0], 1 );
+    $redis->hset( $id, "thumbhash", encode_utf8($shasum) );   
+
     #Convert page 1 into a thumbnail for the main reader index if it's not been done already
     #(Or if it fucked up for some reason).
     my $thumbname = $dirname . "/thumb/" . $id . ".jpg";
-
     unless ( -e $thumbname && $thumbreload eq "0" ) {
 
         $self->LRR_LOGGER->debug("Thumbnail not found at $thumbname ! (force-thumb flag = $thumbreload)");
         $self->LRR_LOGGER->debug("Regenerating from " . $images[0]);
         mkdir $dirname . "/thumb";
-
-        my $shasum = LANraragi::Model::Utils::shasum( $images[0], 1 );
-        $redis->hset( $id, "thumbhash", encode_utf8($shasum) );
 
         LANraragi::Model::Utils::generate_thumbnail( $images[0], $thumbname );
     }

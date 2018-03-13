@@ -73,7 +73,10 @@ function getTags() {
 	  .done(function( data ) {
 
 	    if (data.success) {
-	    	$('#tagText').val($('#tagText').val() + "," + data.tags);
+	    	if ($('#tagText').val() === "") 
+	    		$('#tagText').val(data.tags);
+	    	else 
+	    		$('#tagText').val($('#tagText').val() + "," + data.tags);
 
 	    	$.toast({
 					showHideTransition: 'slide',

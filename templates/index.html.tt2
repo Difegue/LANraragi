@@ -86,7 +86,7 @@
 
 		[% INCLUDE footer %]
 
-		[% IF debugmode %]
+		[% IF nodebugmode %] [% ELSE %]
 			<i class="fas fa-bug"/> You're running in Debug Mode! <i class="fas fa-bug"/>
 		[% END %]
 
