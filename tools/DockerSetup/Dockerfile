@@ -19,6 +19,9 @@ RUN cpanm --installdeps /home/koyomi/.
 COPY / /home/koyomi/lanraragi/
 RUN cd /home/koyomi/lanraragi && npm run lanraragi-installer install-full
 
+#Run test suite
+RUN cd /home/koyomi/lanraragi && npm test
+
 #Default mojo server port
 EXPOSE 3000
 
