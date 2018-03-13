@@ -200,8 +200,8 @@ sub generate_themes {
 #parses an archive name with the regex specified in the configuration file(get_regex and select_from_regex subs) to find metadata.
 sub parse_name {
 
-    my ( $event, $artist, $title, $series, $language, $tags );
-    $event = $artist = $title = $series = $language = $tags = "";
+    my ( $event, $artist, $title, $series, $language);
+    $event = $artist = $title = $series = $language = "";
 
     #Replace underscores with spaces
     $_[0] =~ s/_/ /g;
@@ -216,30 +216,35 @@ sub parse_name {
     if (defined $7) { $series = $7; }
     if (defined $9) { $language = $9; }
 
+    my @tags = (); 
+
     if ($event ne "") {
-        $tags .= "event:$event, ";
+        push @tags, "event:$event";
     }
 
     if ($artist ne "") {
 
         #Special case for circle/artist sets: If the string contains parenthesis, what's inside those is the artist name -- the rest is the circle.
         if ( $artist =~ /(.*) \((.*)\)/ ) {
-            $tags .= "group:$1, artist:$2, ";
+            push @tags, "group:$1";
+            push @tags, "artist:$2";
         }
         else {
-            $tags .= "artist:$artist, ";
+            push @tags, "artist:$artist";
         }
     }
 
     if ($series ne "") {
-        $tags .= "parody:$series, ";
+        push @tags, "parody:$series";
     }
 
     if ($language ne "") {
-        $tags .= "language:$language, ";
+        push @tags, "language:$language";
     }
 
-    return ( $title, $tags );
+    my $tagstring = join( ", ", @tags );
+
+    return ( $title, $tagstring );
 }
 
 #add_archive_to_redis($id,$file,$redis)
