@@ -51,7 +51,6 @@ sub startup {
             "LANraragi $version (re-)started. (Debug Mode)");
 
         #Tell the mojo logger to print to stdout as well
-
         $self->log->on(
             message => sub {
                 my ( $time, $level, @lines ) = @_;
@@ -81,44 +80,49 @@ sub startup {
     #Check if a Redis server is running on the provided address/port
     $self->LRR_CONF->get_redis;
 
-    #Delete the lockfile if we're not in devmode
-    if ( -e "./shinobu-lock" && $devmode == 0 ) {
-        unlink("./shinobu-lock");
-    }
+    #Start Background worker 
+    if ( -e "./shinobu-pid" ) {
 
-    #Start Background worker if there's no lockfile present
-    unless ( -e "./shinobu-lock" && $devmode ) {
-        my $proc = $self->stash->{shinobu} = Mojo::IOLoop::ProcBackground->new;
+        #Read PID from file
+        open( my $pidfile, '<', "shinobu-pid" ) || die( "cannot open file: " . $! );
+        my $pid = <$pidfile>;
+        close( $pidfile );
 
-        #Create lockfile to prevent spawn of other background processes
-        open( my $lockfile, '>', "shinobu-lock" ) || die( "cannot open file: " . $! );
-        close( $lockfile );
+        $self->LRR_LOGGER->info("Terminating previous Shinobu Worker... (PID is $pid)");
 
-        # When the process terminates, we get this event
-        $proc->on(
-            dead => sub {
-                my ($proc) = @_;
-                my $pid = $proc->proc->pid;
-                $self->LRR_LOGGER->info(
-                    "Shinobu Background Worker terminated. (PID was $pid)");
-
-                #Delete lockfile
-                unlink("./shinobu-lock");
-            }
-        );
-
-        $proc->run( [ $^X, "./lib/Shinobu.pm" ] );
+        #This is the only cross-platform check in the entire app so we're pretty good I think
+        if ($^O eq "MSWin32") { 
+            `TASKKILL /F /T /PID $pid`;
+        } else {
+            `kill -9 $pid`;
+        }
 
     }
-    else {
-        $self->LRR_LOGGER->info(
-            "Lockfile present in debug mode - Background worker not respawned."
-        );
-        $self->LRR_LOGGER->warn(
-            "Delete the shinobu-lock file if you just started LANraragi.");
-    }
 
-    
+    my $proc = $self->stash->{shinobu} = Mojo::IOLoop::ProcBackground->new;
+
+    # When the process terminates, we get this event
+    $proc->on(
+        dead => sub {
+            my ($proc) = @_;
+            my $pid = $proc->proc->pid;
+            $self->LRR_LOGGER->info(
+                "Shinobu Background Worker terminated. (PID was $pid)");
+
+            #Delete pidfile
+            unlink("./shinobu-pid");
+        }
+    );
+
+    $proc->run( [ $^X, "./lib/Shinobu.pm" ] );
+
+    #Create file to store the process' PID 
+    open( my $pidfile, '>', "shinobu-pid" ) || die( "cannot open file: " . $! );
+    my $newpid = $proc->proc->pid;
+    print $pidfile $newpid;
+    close( $pidfile );
+
+    $self->LRR_LOGGER->debug("Shinobu Worker PID is $newpid");
 
     # Router
     my $r = $self->routes;

@@ -6,7 +6,7 @@
     "test": "perl ./script/lanraragi test tests/*.t",
     "lanraragi-installer": "perl ./tools/install.pl",
     "start": "perl ./script/lanraragi daemon -l",
-    "dev-server": "rm -f ./shinobu-lock && morbo script/lanraragi -l",
+    "dev-server": "morbo script/lanraragi -l",
     "docker-build": "docker build -t difegue/lanraragi -f ./tools/DockerSetup/Dockerfile .",
     "critic": "perlcritic ./lib/* ./script/* ./tools/install.pl"
   },

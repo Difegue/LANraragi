@@ -5,7 +5,7 @@
 		<meta name="viewport" content="width=device-width" />
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
-		<link type="image/png" rel="icon" href="/img/favicon.ico" />
+		<link type="image/png" rel="icon" href="favicon.ico" />
 		
 		<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
 		<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.fileupload.css" />
