@@ -37,20 +37,27 @@ sub initialize_from_new_process {
     my $logger = LANraragi::Model::Utils::get_logger( "Shinobu", "lanraragi" );
 
     $logger->info(
-        "Shinobu Background Worker started -- Running every $interval seconds."
+        "Shinobu Background Worker started -- Content folder will be scanned every $interval seconds."
     );
     $logger->info( "Working dir is " . cwd );
+
+    my $count = $interval - 1;
 
     while (1) {
 
         eval {
-            &workload;
+            $count++;
+            workload($count eq $interval);
+
+            if ($count eq $interval) {
+                $count = 0;
+            }
         };
         if ($@) {
             $logger->error($@);
         }
 
-        sleep($interval);
+        sleep(1);
     }
 
 }
@@ -58,46 +65,48 @@ sub initialize_from_new_process {
 sub workload {
 
     my $logger = LANraragi::Model::Utils::get_logger( "Shinobu", "lanraragi" );
+    my $redis  = LANraragi::Model::Config::get_redis;
 
-    #$logger->debug("Parsing Archive Directory...");
-
-    my @archives = &get_archive_list;
-    my $redis    = LANraragi::Model::Config::get_redis;
-
-    my $cachecount = 0;
-    my $newcount   = scalar @archives;
-
-    #$logger->debug("Done - Found $newcount files.");
-
-    my $force = 0;
-    if ( $redis->hexists( "LRR_JSONCACHE", "force_refresh" ) ) {
+    my $force = $_[0]; 
+    my $redis_force = 0;
+    
+    if ($redis->hexists( "LRR_JSONCACHE", "force_refresh" ) ) {
 
         #Force flag, usually set when metadata has been modified by the user.
-        $force = $redis->hget( "LRR_JSONCACHE", "force_refresh" );
+        $redis_force = $redis->hget( "LRR_JSONCACHE", "force_refresh" );
     }
 
-    if ( $redis->hexists( "LRR_JSONCACHE", "archive_count" ) ) {
-        $cachecount = $redis->hget( "LRR_JSONCACHE", "archive_count" );
-    }
+    #Content folder is parsed if we reached interval or if the force flag is set to 1 in Redis
+    if ($force || $redis_force) { 
 
-    #$logger->debug("Checking for new archives...");
-
-    if ( $newcount != $cachecount ) {
-        #Enable force flag to indicate other parts of the system that we're rebuilding the DB cache
         $redis->hset( "LRR_JSONCACHE", "force_refresh", 1 );
-        &new_archive_check(@archives);
+
+        my @archives   = &get_archive_list;
+        my $cachecount = 0;
+        my $newcount   = scalar @archives;
+
+        if ( $redis->hexists( "LRR_JSONCACHE", "archive_count" ) ) {
+            $cachecount = $redis->hget( "LRR_JSONCACHE", "archive_count" );
+        }
+
+        if ( $newcount != $cachecount ) {
+            &new_archive_check(@archives);
+        }
+
+        if ($redis_force || $newcount != $cachecount) {
+
+            $logger->info( "Archive count ($newcount) has changed since last cached value ($cachecount)" . 
+                " OR rebuild has been forced (flag value = $redis_force), rebuilding...");
+
+            &build_json_cache();
+            $logger->info("Done!");
+        }
+
+        #Clean force flag
+        $redis->hset( "LRR_JSONCACHE", "force_refresh", 0 );
+
     }
 
-    #say ("Building JSON cache from Redis...");
-    if ( $newcount != $cachecount || $force ) {
-        $logger->info( "Archive count ($newcount) has changed since last cached value ($cachecount)" . 
-            " OR rebuild has been forced (flag value = $force), rebuilding..."
-        );
-        &build_json_cache();
-        $logger->info("Done!");
-    }
-
-    #say ("Checking Temp Folder Size...");
     if ( -e "$FindBin::Bin/../public/temp" ) { &autoclean_temp_folder; }
 
 }
@@ -133,29 +142,23 @@ sub new_archive_check {
     my $redis = LANraragi::Model::Config::get_redis;
     my $logger = LANraragi::Model::Utils::get_logger( "Shinobu", "lanraragi" );
 
-    my $id;
-
-    #As the workload loops, we need to inform the user about the state of the archive importation -- 
-    #which means generating a JSON every now and then.
-
-    #While this isn't important for small uploads, when processing 1000+ files, 
-    #the user is left in front of an empty index page for quite a while.
-
-    #Even more so with autotagging enabled.
-    #Limiting new archive addition to 20 files per loop allows for the index page to progressively fill up.
     my $processed_archives             = 0;
     my $maximum_archives_per_iteration = 20;
 
     foreach my $file (@dircontents) {
 
         #ID of the archive, used for storing data in Redis.
-        $id = LANraragi::Model::Utils::compute_id($file);
+        my $id = LANraragi::Model::Utils::compute_id($file);
 
+        #As the workload loops, we need to inform the user about the state of the archive importation -- 
+        #which means generating a JSON every now and then.
         if ( $processed_archives >= $maximum_archives_per_iteration ) {
             $logger->debug( "Processed $maximum_archives_per_iteration Archives, " . 
-                "bailing out to build JSON."
+                "building JSON."
             );
-            return;
+            
+            $processed_archives = 0;
+            &build_json_cache();
         }
 
         #Duplicate file detector
@@ -250,9 +253,6 @@ sub build_json_cache {
     my $dirname = LANraragi::Model::Config::get_userdir;
     my $logger  = LANraragi::Model::Utils::get_logger( "Shinobu", "lanraragi" );
 
-    #Enable force flag to indicate other parts of the system that we're rebuilding the DB cache
-    $redis->hset( "LRR_JSONCACHE", "force_refresh", 1 );
-
     my $json = "[";
 
     #SHA-1 IDs are 40 characters long.
@@ -286,9 +286,6 @@ sub build_json_cache {
 
     #Write the current archive count too
     $redis->hset( "LRR_JSONCACHE", "archive_count", $treated );
-
-    #Clean force flag
-    $redis->hset( "LRR_JSONCACHE", "force_refresh", 0 );
 
 }
 
