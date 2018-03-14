@@ -59,8 +59,12 @@ sub exec_enabled_plugins_on_file {
                         my $newtags = $plugin_result{new_tags};
                         $logger->debug("Adding $newtags to $oldtags.");
 
+                        if ($oldtags ne "") {
+                            $newtags = $oldtags . "," . $newtags;
+                        }
+
                         $redis->hset( $id, "tags",
-                            encode_utf8( $oldtags . "," . $newtags ) );
+                            encode_utf8( $newtags ) );
                     }
                 };
 
@@ -117,13 +121,15 @@ sub exec_plugin_on_file {
 
         foreach my $tagtoadd (@tagarray) {
 
-            unless ( index( fc($tags), fc($tagtoadd) ) != -1 )
+            LANraragi::Model::Utils::remove_spaces($tagtoadd);
+
+            unless ( index( uc($tags), uc($tagtoadd) ) != -1 )
             {   #Only proceed if the tag isnt already in redis
 
                 my $good = 1;
 
                 foreach my $black (@blacklist) {
-                    if ( index( $tagtoadd, $black ) != -1 ) {
+                    if ( index( uc($tagtoadd), uc($black) ) != -1 ) {
                         $good = 0;
                     }
                 }

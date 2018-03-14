@@ -323,9 +323,6 @@ sub build_archive_JSON {
         $title = "<i class='fa fa-exclamation-circle'></i> Untitled archive, please edit metadata.";
     }
 
-    #Clean up spaces in tags
-    chomp $tags;
-
     my $finaljson = qq(
 		{
 			"arcid": "$id",

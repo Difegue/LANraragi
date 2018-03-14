@@ -107,7 +107,7 @@ sub get_password {
 
 sub get_tagblacklist {
     return &get_redis_conf( "blacklist",
-"already uploaded, translated, english, russian, chinese, portuguese, french"
+"already uploaded, translated, russian, chinese, portuguese, french, spanish"
     );
 }
 sub enable_autotag { return &get_redis_conf( "autotag", "1" ) }

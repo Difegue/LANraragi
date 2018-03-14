@@ -75,17 +75,28 @@ function getTags() {
 	    if (data.success) {
 	    	if ($('#tagText').val() === "") 
 	    		$('#tagText').val(data.tags);
-	    	else 
+	    	else if ( data.tags != "" ) {
 	    		$('#tagText').val($('#tagText').val() + "," + data.tags);
 
-	    	$.toast({
-					showHideTransition: 'slide',
-					position: 'top-left', 
-					loader: false, 
-				    heading: 'Added the following tags :',
-				    text: data.tags,
-				    icon: 'info'
-				});		
+		    	$.toast({
+						showHideTransition: 'slide',
+						position: 'top-left', 
+						loader: false, 
+					    heading: 'Added the following tags :',
+					    text: data.tags,
+					    icon: 'info'
+					});		
+		    } else {
+
+		    	$.toast({
+						showHideTransition: 'slide',
+						position: 'top-left', 
+						loader: false, 
+					    heading: 'No new tags added!',
+					    text: data.tags,
+					    icon: 'info'
+					});	
+		    }
 	    } else {
 	    	$.toast({
 					showHideTransition: 'slide',
