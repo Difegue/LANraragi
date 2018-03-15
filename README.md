@@ -2,14 +2,11 @@
 
 #### [Documentation/Install Guide](https://github.com/Difegue/LANraragi/wiki) - [Download](https://github.com/Difegue/LANraragi/releases) - [Demo](https://dj.faglord.party/)
 
-[<img src="https://img.shields.io/docker/pulls/difegue/lanraragi.svg">](https://hub.docker.com/r/difegue/lanraragi/)
+[<img src="https://img.shields.io/docker/pulls/difegue/lanraragi.svg">](https://hub.docker.com/r/difegue/lanraragi/) ![GitHub release](https://img.shields.io/github/release/difegue/lanraragi.svg) 
 
-Web interface and reader for storage of comics/manga on NAS, running on Perl/Redis/unar with a dash of Imagemagick.
+Web interface and reader for archival of comics/manga, running on Mojolicious + Redis.
 
-## Please Read
-
-For the upcoming 0.5, we're moving at incredibly hihg speed, resulting in a somewhat unstable master branch at times.  
-If you want to download a somewhat stable version, you can try version [0.4](https://github.com/Difegue/LANraragi/releases/tag/v.0.4.0) with the [matching old documentation](https://github.com/Difegue/LANraragi/blob/oldcgi/tools/LRR_CGI_Documentation.zip), but know that you'll probably have to reinstall everything to update.  
+![](https://a.pomf.cat/vihuaz.PNG)  
 
 ## Features  
 
@@ -21,9 +18,9 @@ If you want to download a somewhat stable version, you can try version [0.4](htt
 
 * Choose from 5 preinstalled responsive library styles, or add your own with CSS.      
 
-* Tag support: Add your own or import them from predefined sources.  
+* Full Tag support with Namespaces: Add your own or import them from other sources using Plugins.  
 
-* Batch Tagging available for tagging multiple archives in one go.
+* Auto-Tagging: Import metadata using Plugins automatically when archives are added to LANraragi.
 
 * Backup your database as JSON to carry your tags over to another LANraragi instance.
 
