@@ -39,6 +39,7 @@ sub build_backup_JSON {
                     "arcid": "$id",
                     "title": "$title",
                     "tags": "$tags",
+                    "thumbhash": "$thumbhash",
                     "filename": "$name"
                 },);
     }
@@ -73,9 +74,14 @@ sub restore_from_JSON {
             $logger->info("Restoring metadata for Archive $id...");
             my $title = encode_utf8( $archive->{"title"} );
             my $tags = encode_utf8( $archive->{"tags"} );
+            my $thumbhash = encode_utf8( $archive->{"thumbhash"} );
 
             $redis->hset($id, "title", $title);
             $redis->hset($id, "tags", $tags);
+
+            if ($redis->hexists($id, "thumbhash") && $redis->hget($id, "thumbhash") eq "") {
+                $redis->hset($id, "thumbhash", $thumbhash);
+            }
 
         }
     }
