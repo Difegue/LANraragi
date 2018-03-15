@@ -100,7 +100,31 @@ sub lookup_by_title {
 
     my $domain = "http://e-hentai.org/";
 
-    my $URL =
+    my $URL = "";
+
+    if ($enable_imagesearch && $thumbhash ne "") {
+
+        $logger->info("Reverse Image Search Enabled, trying first.");
+
+        #search with image SHA hash
+        $URL =
+            $domain
+          . "?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1"
+          . "&f_shash="
+          . $thumbhash
+          . "&fs_similar=1";
+
+        $logger->debug("Using URL $URL (archive thumbnail hash)");
+
+        my ( $gId, $gToken ) = &ehentai_parse($URL);
+
+        if ($gId ne "" && $gToken ne "") {
+            return ( $gId, $gToken );
+        }
+
+    }
+
+    $URL =
         $domain
       . "?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1"
       . "&f_search="
@@ -111,34 +135,14 @@ sub lookup_by_title {
         $URL = $URL . "+language:$1";
     }
 
-    $logger->debug("Using URL $URL (first pass, archive title)");
-
-    my ( $gId, $gToken ) = &ehentai_parse($URL);
-
-    if (( $gId eq "" || $gToken eq "" )
-        && $enable_imagesearch )
-    {
-
-        $logger->info("Reverse Image Search Enabled, trying...");
-
-        if ( $thumbhash eq "") {
-            return ("", "NoThumb");
-        }
-
-        #search with image SHA hash
-        $URL =
-            $domain
-          . "?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1"
-          . "&f_shash="
-          . $thumbhash
-          . "&fs_similar=1";
-
-        $logger->debug("Using URL $URL (second pass, archive thumbnail hash)");
-
-        ( $gId, $gToken ) = &ehentai_parse($URL);
+    #Same for artist tag
+    if ( $tags =~ /.*artist:\s?([^,]*),*.*/gi ) {
+        $URL = $URL . "+artist:$1";
     }
 
-    return ( $gId, $gToken );
+    $logger->debug("Using URL $URL (archive title)");
+
+    return &ehentai_parse($URL);
 }
 
 #eHentaiLookup(URL)

@@ -91,6 +91,9 @@ sub exec_plugin_on_file {
     my ( $plugin, $id, $arg, $oneshotarg ) = @_;
     my $redis = LANraragi::Model::Config::get_redis;
 
+    my $logger =
+      LANraragi::Model::Utils::get_logger( "Auto-Tagger", "lanraragi" );
+
     #If the plugin has the method "get_tags", 
     #catch all the required data and feed it to the plugin
     if ( $plugin->can('get_tags') ) {
@@ -117,7 +120,8 @@ sub exec_plugin_on_file {
 
         #Process new metadata, 
         #stripping out blacklisted tags and tags that we already have in Redis
-        my @blacklist = LANraragi::Model::Config::get_tagblacklist;
+        my $blist = LANraragi::Model::Config::get_tagblacklist;
+        my @blacklist = split(',', $blist); # array-ize the blacklist string
 
         foreach my $tagtoadd (@tagarray) {
 
@@ -129,13 +133,16 @@ sub exec_plugin_on_file {
                 my $good = 1;
 
                 foreach my $black (@blacklist) {
+                    LANraragi::Model::Utils::remove_spaces($black);
+
+                    $logger->debug("Blacklist tag $black");
                     if ( index( uc($tagtoadd), uc($black) ) != -1 ) {
+                        $logger->info("Tag $tagtoadd is blacklisted, not adding.");
                         $good = 0;
                     }
                 }
 
-                if ( $good == 1 ) {
-
+                if ( $good ) {
                     #This tag is processed and good to go
                     $newtags .= " $tagtoadd,";
                 }
