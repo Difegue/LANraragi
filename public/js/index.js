@@ -30,7 +30,7 @@ function checkVersion(currentVersion) {
 
 	$.getJSON( githubAPI).done(function( data ) {
 			latestVersion = data.tag_name;
-			if (latestVersion != currentVersion) {
+			if (latestVersion != "v."+currentVersion) {
 
 				$.toast({
 				heading: 'A new version of LANraragi ('+ latestVersion +') is available !',
