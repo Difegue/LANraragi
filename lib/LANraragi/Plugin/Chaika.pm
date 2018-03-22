@@ -25,7 +25,7 @@ sub plugin_info {
 #If your plugin uses/needs custom arguments, input their name here.
 #This name will be displayed in plugin configuration next to an input box for global arguments, and in archive edition for one-shot arguments.
         global_arg  => "",
-        oneshot_arg => "Chaika Gallery URL (Will attach tags matching this exact gallery to your archive)"
+        oneshot_arg => "Chaika Gallery or Archive URL (Will attach matching tags to your archive)"
     );
 
 }
@@ -39,9 +39,86 @@ sub get_tags {
 
     my $logger = LANraragi::Model::Utils::get_logger( "Chaika", "plugins" );
 
+    #Chaika has two possible types - Gallery or Archive. 
+    #We perform searching in archives by default, but the user can use gallery URLs.
+    my $type = "archive";
+    my $ID   = "";
+
+    #parse the given link to see if we can extract type and ID
+    if ( $oneshotarg =~ /.*\/(.*)\/([0-9]*).*/ ) {
+        $type = $1;
+        $ID   = $2;
+    }
+    else {
+        #Get Gallery ID by hand if the user didn't specify a URL
+        $ID = search_for_archive($title, $tags);
+    }
+
+    if ($ID eq "") {
+        $logger->info("No matching Chaika Archive Found!");
+        return ( error => "No matching Chaika Archive Found!" );
+    }
+
+    my $tags = tags_from_chaika($type,$ID);
 
     #Return a hash containing the new metadata - it will be integrated in LRR.
-    return ( tags => "" );
+    return ( tags => $tags );
+}
+
+######
+## Chaika Specific Methods
+######
+
+# search_for_archive
+# Uses chaika's elasticsearch to find a matching archive ID
+sub search_for_archive {
+
+    my $title = $_[0];
+    my $tags = $_[1];
+
+    #chaika.moe/es-index/?q=
+
+    return "27240";
+
+}
+
+# tags_from_chaika(type,ID)
+# Parses the JSON obtained from the Chaika API to get the tags.
+sub tags_from_chaika {
+
+    my $type     = $_[0];
+    my $ID       = $_[1];
+    my $returned = "";
+
+    my $logger = LANraragi::Model::Utils::get_logger( "Chaika", "plugins" );
+    my $URL    = "https://panda.chaika.moe/jsearch/?".$type."=".$ID;
+    my $ua     = Mojo::UserAgent->new;
+    my $res    = $ua->get($URL)->result;
+
+    my $textrep = $res->body;
+    $logger->debug("Chaika API returned this JSON: $textrep");
+
+    my $json = $res->json;
+    my $tags = $json->{"tags"};
+
+    #TODO (maybe): 
+    #Chaika has support for english and japanese titles through its "title" and "title_jpn" fields.
+
+    foreach my $tag (@$tags) {
+
+        $returned .= ", " unless $returned eq "";
+
+        #Replace underscores with spaces
+        $tag =~ s/_/ /g;
+
+        $returned .= $tag;
+
+    }
+
+    $logger->info("Sending the following tags to LRR: $returned");
+
+    return $returned;
+
 }
 
 1;

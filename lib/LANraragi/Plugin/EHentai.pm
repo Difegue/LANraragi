@@ -67,11 +67,6 @@ sub get_tags {
             return ( error => "Temporarily banned from EH for excessive pageloads." );
         }
 
-        if ($gToken eq "NoThumb") {
-            $logger->error("No Thumbnail hash saved! Open the archive in the LRR reader to generate one.");
-            return ( error => "No Thumbnail hash saved! <br/> Open the archive in the LRR reader to generate one." );
-        }
-
         $logger->info("No matching EH Gallery Found!");
         return ( error => "No matching EH Gallery Found!" );
 
