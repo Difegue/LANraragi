@@ -7,7 +7,7 @@
 # you're doing.
 Vagrant.configure(2) do |config|
 
-  config.vm.box = "debian/jessie64"
+  config.vm.box = "debian/stretch64"
   config.vm.network :forwarded_port, guest: 3000, host: 3000
   config.vm.synced_folder ".", "/vagrant", type: "virtualbox"
   config.vm.provision "shell",
