@@ -131,7 +131,9 @@ sub lookup_by_title {
     if ( $tags =~ /.*language:\s?([^,]*),*.*/gi ) {
         $URL = $URL . "+" . uri_escape_utf8("language:$1");
     } else {
-        $URL = $URL . "+" . uri_escape_utf8("language:$defaultlanguage");
+        if ($defaultlanguage ne "") {
+            $URL = $URL . "+" . uri_escape_utf8("language:$defaultlanguage");
+        }
     }
 
     #Same for artist tag

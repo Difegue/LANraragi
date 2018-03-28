@@ -78,7 +78,7 @@ sub search_for_archive {
     my $tags = $_[1];
 
     my $URL = "https://panda.chaika.moe/search/?title=".uri_escape_utf8($title)."&tags=";
-    #https://panda.chaika.moe/search/?title=&tags=female%3Abreast_expansion&sort=title
+
     #Append language:english tag, if it exists. 
     #Chaika only has english or japanese so I aint gonna bother more than this
     if ( $tags =~ /.*language:\s?english,*.*/gi ) {
