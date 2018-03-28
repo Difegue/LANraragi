@@ -35,7 +35,8 @@ sub index {
 
             foreach my $t (@tags) {
 
-                LANraragi::Model::Utils::remove_spaces($t);
+                LANraragi::Model::Utils::remove_spaces  ($t);
+                LANraragi::Model::Utils::remove_newlines($t);
 
                 unless (
                     $t =~ /(artist|parody|language|event|group|circle):.*/i )

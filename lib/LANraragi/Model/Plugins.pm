@@ -126,6 +126,7 @@ sub exec_plugin_on_file {
         foreach my $tagtoadd (@tagarray) {
 
             LANraragi::Model::Utils::remove_spaces($tagtoadd);
+            LANraragi::Model::Utils::remove_newlines($tagtoadd);
 
             unless ( index( uc($tags), uc($tagtoadd) ) != -1 )
             {   #Only proceed if the tag isnt already in redis

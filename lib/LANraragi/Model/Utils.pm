@@ -121,6 +121,11 @@ sub remove_spaces {
     }
 }
 
+#Remove all newlines in a string
+sub remove_newlines {
+    $_[0] =~ s/\R//g;
+}
+
 #Final Solution to the Unicode glitches -- Eval'd double-decode for data obtained from Redis.
 #This should be a one size fits-all function.
 sub redis_decode {

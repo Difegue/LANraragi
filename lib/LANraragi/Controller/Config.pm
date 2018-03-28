@@ -91,7 +91,8 @@ sub save_config {
 
         #clean up the user's inputs for non-toggle options and encode for redis insertion
         foreach my $key ( keys %confhash ) {
-            LANraragi::Model::Utils::remove_spaces( $confhash{$key} );
+            LANraragi::Model::Utils::remove_spaces  ( $confhash{$key} );
+            LANraragi::Model::Utils::remove_newlines( $confhash{$key} );
             encode_utf8( $confhash{$key} );
         }
 
