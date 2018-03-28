@@ -129,14 +129,14 @@ sub lookup_by_title {
 
     #Get the language tag, if it exists.
     if ( $tags =~ /.*language:\s?([^,]*),*.*/gi ) {
-        $URL = $URL . "+language:$1";
+        $URL = $URL . "+" . uri_escape_utf8("language:$1");
     } else {
-        $URL = $URL . "+language:$defaultlanguage";
+        $URL = $URL . "+" . uri_escape_utf8("language:$defaultlanguage");
     }
 
     #Same for artist tag
     if ( $tags =~ /.*artist:\s?([^,]*),*.*/gi ) {
-        $URL = $URL . "+artist:$1";
+        $URL = $URL . "+". uri_escape_utf8("artist:$1");
     }
 
     $logger->debug("Using URL $URL (archive title)");

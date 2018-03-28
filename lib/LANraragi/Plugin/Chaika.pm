@@ -7,6 +7,7 @@ use warnings;
 #Try however to restrain yourself to the ones already installed for LRR (see tools/cpanfile) to avoid extra installations by the end-user.
 use URI::Escape;
 use Mojo::UserAgent;
+use Mojo::DOM;
 
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
@@ -45,7 +46,7 @@ sub get_tags {
     my $ID   = "";
 
     #parse the given link to see if we can extract type and ID
-    if ( $oneshotarg =~ /.*\/(.*)\/([0-9]*).*/ ) {
+    if ( $oneshotarg =~ /https?:\/\/panda\.chaika\.moe\/(gallery|archive)\/([0-9]*)\/?.*/ ) {
         $type = $1;
         $ID   = $2;
     }
@@ -59,10 +60,10 @@ sub get_tags {
         return ( error => "No matching Chaika Archive Found!" );
     }
 
-    my $tags = tags_from_chaika($type,$ID);
+    my $newtags = tags_from_chaika($type,$ID);
 
     #Return a hash containing the new metadata - it will be integrated in LRR.
-    return ( tags => $tags );
+    return ( tags => $newtags );
 }
 
 ######
@@ -76,10 +77,50 @@ sub search_for_archive {
     my $title = $_[0];
     my $tags = $_[1];
 
-    #chaika.moe/es-index/?q=
+    my $URL = "https://panda.chaika.moe/search/?title=".uri_escape_utf8($title)."&tags=";
+    #https://panda.chaika.moe/search/?title=&tags=female%3Abreast_expansion&sort=title
+    #Append language:english tag, if it exists. 
+    #Chaika only has english or japanese so I aint gonna bother more than this
+    if ( $tags =~ /.*language:\s?english,*.*/gi ) {
+        $URL = $URL . uri_escape_utf8("language:english") . "+";
+    } 
 
-    return "27240";
+    #Same for artist tag
+    if ( $tags =~ /.*artist:\s?([^,]*),*.*/gi ) {
+        $URL = $URL . uri_escape_utf8("artist:$1");
+    }
 
+    return chaika_parsesearch($URL);    
+
+}
+
+sub chaika_parsesearch {
+
+    my $logger = LANraragi::Model::Utils::get_logger( "Chaika", "plugins" );
+
+    my $URL = $_[0];
+    $logger->debug("Calling $URL");
+
+    my $ua  = Mojo::UserAgent->new;
+
+    my $content = $ua->get($URL)->result->body;
+
+    #Use Mojo's DOM parser to get the first link
+    my $dom = Mojo::DOM->new($content);
+    my $href = "";
+
+    #Find first <tr class="result-list"> node
+    #In this node, first href is an archive ID
+    eval {
+        $href = $dom->at(".result-list")->at("a")->attr("href");
+        $logger->debug("DOM parser found ".$href);
+    };
+    
+    if ( $href =~ /\/archive\/([0-9]*)\/?.*/ ) {
+        return $1; 
+    } else {
+        return "";
+    }
 }
 
 # tags_from_chaika(type,ID)
