@@ -183,9 +183,9 @@ function buildThumbDiv( row, data, index ) {
 							'<a href="./reader?id='+data.arcid+'" title="'+data.title+'">'+data.title+'</a>'+
 						'</div>'+
 						'<div style="height:280px" class="id3">'+
-							'<a href="./reader?id='+data.arcid+'">';
+							'<a href="./reader?id='+data.arcid+'" title="'+data.title+'">';
 
-		thumb_div += 		'<img style="position:relative;" id ="'+data.arcid+'_thumb" title="'+data.title+'" src="./img/wait_warmly.jpg"/>'+
+		thumb_div += 		'<img style="position:relative;" id ="'+data.arcid+'_thumb" src="./img/wait_warmly.jpg"/>'+
 							 '<i id="'+data.arcid+'_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>'+
 							 '<img style="position:absolute; top:0; left:0; width:200px" src="./api/thumbnail?id='+data.arcid+'" onload="$(\'#'+data.arcid+'_thumb\').remove(); $(\'#'+data.arcid+'_spinner\').remove();" onerror="this.src=\'./img/noThumb.png\'"/>';
 

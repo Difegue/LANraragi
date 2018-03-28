@@ -126,16 +126,16 @@ sub exec_plugin_on_file {
         foreach my $tagtoadd (@tagarray) {
 
             LANraragi::Model::Utils::remove_spaces($tagtoadd);
+            LANraragi::Model::Utils::remove_newlines($tagtoadd);
 
             unless ( index( uc($tags), uc($tagtoadd) ) != -1 )
-            {   #Only proceed if the tag isnt already in redis
-
+            {   
+                #Only proceed if the tag isnt already in redis
                 my $good = 1;
 
                 foreach my $black (@blacklist) {
                     LANraragi::Model::Utils::remove_spaces($black);
 
-                    $logger->debug("Blacklist tag $black");
                     if ( index( uc($tagtoadd), uc($black) ) != -1 ) {
                         $logger->info("Tag $tagtoadd is blacklisted, not adding.");
                         $good = 0;

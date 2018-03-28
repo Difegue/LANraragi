@@ -44,7 +44,8 @@ sub save_metadata {
     my $tags  = $self->req->param('tags');
 
     #clean up the user's inputs and encode them.
-    ( LANraragi::Model::Utils::remove_spaces($_) ) for ( $title, $tags );
+    ( LANraragi::Model::Utils::remove_spaces  ($_) ) for ( $title, $tags );
+    ( LANraragi::Model::Utils::remove_newlines($_) ) for ( $title, $tags );
 
     #Input new values into redis hash.
     #prepare the hash which'll be inserted.

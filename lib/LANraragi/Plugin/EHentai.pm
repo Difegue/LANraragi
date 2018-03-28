@@ -21,12 +21,12 @@ sub plugin_info {
         name        => "E-Hentai",
         namespace   => "ehplugin",
         author      => "Difegue",
-        version     => "1.0",
+        version     => "1.1",
         description => "Searches g.e-hentai for tags matching your archive.",
 
         #If your plugin uses/needs custom arguments, input their name here.
         #This name will be displayed in plugin configuration next to an input box for global arguments, and in archive edition for one-shot arguments.
-        global_arg  => "Enable reverse image search? This might bring more false positives. (Type 'yes' to enable)",
+        global_arg  => "Default language to use in searches (This will be overwritten if your archive has a language tag set)",
         oneshot_arg => "E-H Gallery URL (Will attach tags matching this exact gallery to your archive)"
     );
 
@@ -63,13 +63,8 @@ sub get_tags {
     if ($gID eq "") {
 
         if ($gToken eq "Banned") {
-            $logger->error("Banned from EH for excessive pageloads.");
-            return ( error => "Banned from EH for excessive pageloads." );
-        }
-
-        if ($gToken eq "NoThumb") {
-            $logger->error("No Thumbnail hash saved! Open the archive in the LRR reader to generate one.");
-            return ( error => "No Thumbnail hash saved! <br/> Open the archive in the LRR reader to generate one." );
+            $logger->error("Temporarily banned from EH for excessive pageloads.");
+            return ( error => "Temporarily banned from EH for excessive pageloads." );
         }
 
         $logger->info("No matching EH Gallery Found!");
@@ -93,7 +88,7 @@ sub lookup_by_title {
 
     my $title              = $_[0];
     my $thumbhash          = $_[1];
-    my $enable_imagesearch = $_[2] eq "yes";
+    my $defaultlanguage    = $_[2];
     my $tags               = $_[3];
 
     my $logger = LANraragi::Model::Utils::get_logger( "E-Hentai", "plugins" );
@@ -102,7 +97,8 @@ sub lookup_by_title {
 
     my $URL = "";
 
-    if ($enable_imagesearch && $thumbhash ne "") {
+    #Thumbnail reverse image search 
+    if ($thumbhash ne "") {
 
         $logger->info("Reverse Image Search Enabled, trying first.");
 
@@ -124,6 +120,7 @@ sub lookup_by_title {
 
     }
 
+    #Regular text search
     $URL =
         $domain
       . "?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1"
@@ -132,12 +129,16 @@ sub lookup_by_title {
 
     #Get the language tag, if it exists.
     if ( $tags =~ /.*language:\s?([^,]*),*.*/gi ) {
-        $URL = $URL . "+language:$1";
+        $URL = $URL . "+" . uri_escape_utf8("language:$1");
+    } else {
+        if ($defaultlanguage ne "") {
+            $URL = $URL . "+" . uri_escape_utf8("language:$defaultlanguage");
+        }
     }
 
     #Same for artist tag
     if ( $tags =~ /.*artist:\s?([^,]*),*.*/gi ) {
-        $URL = $URL . "+artist:$1";
+        $URL = $URL . "+". uri_escape_utf8("artist:$1");
     }
 
     $logger->debug("Using URL $URL (archive title)");

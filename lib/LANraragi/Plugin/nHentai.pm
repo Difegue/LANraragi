@@ -40,7 +40,7 @@ sub get_tags {
 
     my $logger = LANraragi::Model::Utils::get_logger( "nHentai", "plugins" );
 
-   #Work your magic here - You can create subs below to organize the code better
+    #Work your magic here - You can create subs below to organize the code better
     my $galleryID = "";
 
     #Quick regex to get the nh gallery id from the provided url.

@@ -32,6 +32,9 @@ sub build_backup_JSON {
         ( $_ = LANraragi::Model::Utils::redis_decode($_) )
           for ( $name, $title, $tags, $file );
 
+        ( LANraragi::Model::Utils::remove_newlines($_) )
+        for ( $name, $title, $tags, $file );
+
         #Backup all user-generated metadata, alongside the unique ID and the filesystem path.
         #Filesystem path is normally unused but can serve as a fallback if the ID can't be used.
         $json .= qq(

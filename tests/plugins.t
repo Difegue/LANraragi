@@ -1,10 +1,11 @@
 use Mojo::Base 'Mojolicious';
 
-use Test::More tests => 5;
+use Test::More tests => 7;
 use Test::Mojo;
 
 use LANraragi::Plugin::EHentai;
 use LANraragi::Plugin::nHentai;
+use LANraragi::Plugin::Chaika;
 
 #EHentai Tests
 my $eH_gID = "618395";
@@ -30,5 +31,16 @@ my $nH_tags = "language:japanese, artist:masamune shirow, full color, non-h, art
 my $test_nH_tags = LANraragi::Plugin::nHentai::get_tags_from_NH($nH_gID);
 
 is( $test_nH_tags, $nH_tags, 'nHentai API Tag retrieval test' );
+
+#Chaika Tests
+my $mwee_ID = "27240";
+my $test_mwee_ID = LANraragi::Plugin::Chaika::search_for_archive("Zettai Seikou Keikaku", "artist:kemuri haku");
+
+is ($test_mwee_ID, $mwee_ID, 'chaika.moe search test');
+
+my $mwee_tags = "language:english, language:translated, female:big breasts, female:nakadashi, female:defloration, male:shotacon, full censorship, artist:kemuri haku, male:sole male, female:sole female";
+my $test_mwee_tags = LANraragi::Plugin::Chaika::tags_from_chaika("archive",$mwee_ID);
+
+is ($test_mwee_tags, $mwee_tags, 'chaika.moe API Tag retrieval test' );
 
 done_testing();
