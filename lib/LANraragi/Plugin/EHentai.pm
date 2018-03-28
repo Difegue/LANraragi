@@ -21,7 +21,7 @@ sub plugin_info {
         name        => "E-Hentai",
         namespace   => "ehplugin",
         author      => "Difegue",
-        version     => "1.0",
+        version     => "1.1",
         description => "Searches g.e-hentai for tags matching your archive.",
 
         #If your plugin uses/needs custom arguments, input their name here.
