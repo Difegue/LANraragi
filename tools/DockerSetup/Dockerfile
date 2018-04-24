@@ -3,8 +3,6 @@ FROM        node:stretch
 MAINTAINER  dfug sugoi@cock.li
 
 #Base LRR dependencies and essential tools for next commands
-RUN apt-get update
-RUN apt-get upgrade -y
 RUN apt-get install -y curl make gnupg cpanminus redis-server unar imagemagick libimage-magick-perl build-essential supervisor locales locales-all libssl-dev zlib1g-dev
 
 #Copy cpanfile before copying the entire context - allows for Docker cache to preserve cpan dependencies
