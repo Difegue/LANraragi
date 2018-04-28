@@ -5,8 +5,7 @@ use warnings;
 
 #Plugins can freely use all Perl packages already installed on the system
 #Try however to restrain yourself to the ones already installed for LRR (see tools/cpanfile) to avoid extra installations by the end-user.
-use URI::Escape;
-use Mojo::UserAgent;
+use Mojo::JSON qw(decode_json encode_json);
 
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
@@ -20,12 +19,7 @@ sub plugin_info {
         namespace   => "ezeplugin",
         author      => "Difegue",
         version     => "1.0",
-        description => "Collects metadata embedded into your archives by the eze userscript.",
-
-#If your plugin uses/needs custom arguments, input their name here.
-#This name will be displayed in plugin configuration next to an input box for global arguments, and in archive edition for one-shot arguments.
-        global_arg  => "",
-        oneshot_arg => ""
+        description => "Collects metadata embedded into your archives by the eze userscript. (info.json files)",
     );
 
 }
@@ -39,9 +33,70 @@ sub get_tags {
 
     my $logger = LANraragi::Model::Utils::get_logger( "eze", "plugins" );
 
+    if (LANraragi::Model::Utils::is_file_in_archive($file,"info.json")) {
 
-    #Return a hash containing the new metadata - it will be integrated in LRR.
-    return ( tags => "" );
+        #Extract info.json
+        LANraragi::Model::Utils::extract_file_from_archive($file, "info.json");
+
+        #Open it 
+        my $filepath = "./public/temp/plugin/info.json";
+        my $stringjson = "";
+
+        open(my $fh, '<:encoding(UTF-8)', $filepath)
+          or return ( error => "Could not open $filepath!" );
+         
+        while (my $row = <$fh>) {
+          chomp $row;
+          $stringjson .= $row;
+        }
+
+        #Use Mojo::JSON to decode the string into a hash
+        my $hashjson = decode_json $stringjson;
+
+        $logger->debug("Found and loaded the following JSON: $stringjson");
+
+        #Parse it
+        $tags = tags_from_eze_json($hashjson);
+
+        #Delete it
+        unlink $filepath;
+
+        #Return tags
+        $logger->info("Sending the following tags to LRR: $tags");
+        return ( tags => $tags );
+
+    } else {
+
+        return ( error => "No eze info.json file found in this archive!" );
+    }
+    
+}
+
+#tags_from_eze_json(decodedjson)
+#Goes through the JSON hash obtained from an info.json file and return the contained tags.
+sub tags_from_eze_json {
+
+    my $hash      = $_[0];
+    my $return    = "";
+
+    #Tags are in gallery_info -> tags -> one array per namespace
+    my $tags = $hash->{"gallery_info"}->{"tags"};
+
+    foreach my $namespace (keys(%$tags)) {
+
+        # Get the array for this namespace and iterate on it
+        my $members = $tags->{$namespace};
+        foreach my $tag (@$members) {
+
+            $return .= ", " unless $return eq "";
+            $return .= $namespace.":".$tag;
+
+        }
+    }
+
+    #Done-o
+    return $return;
+
 }
 
 1;
