@@ -25,7 +25,7 @@ perl .\tools\install.pl install-back
 
 echo All dependencies up to date! Starting...
 cd ..
-start cmd /c .\redis\redis-server.exe 
+start cmd /c .\redis\redis-server.exe .\redis\redis.windows-lrr.conf
 cd .\lanraragi 
 perl .\script\lanraragi daemon 
 exit 0
