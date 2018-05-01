@@ -128,22 +128,32 @@ sub startup {
     my $r = $self->routes;
 
     # Normal route to controller
-    $r->get('/')->to('index#index');
-    $r->get('/index')->to('index#index');
-    $r->get('/random')->to('index#random_archive');
-
     $r->get('/login')->to('login#index');
     $r->post('/login')->to('login#check');
 
-    $r->get('/reader')->to('reader#index');
+    my $logged_in = $r->under('/')->to('login#logged_in');
 
-    $r->get('/api/thumbnail')->to('api#serve_thumbnail');
-    $r->get('/api/servefile')->to('api#serve_file');
-
-    $r->get('/stats')->to('stats#index');
+    #No-Fun Mode locks the base routes behind login as well
+    if ($self->LRR_CONF->enable_nofun) {
+        $logged_in->get('/')->to('index#index');
+        $logged_in->get('/index')->to('index#index');
+        $logged_in->get('/random')->to('index#random_archive');
+        $logged_in->get('/reader')->to('reader#index');
+        $logged_in->get('/api/thumbnail')->to('api#serve_thumbnail');
+        $logged_in->get('/api/servefile')->to('api#serve_file');
+        $logged_in->get('/stats')->to('stats#index');
+    } else {
+        #Standard behaviour is to leave those routes loginless for all clients
+        $r->get('/')->to('index#index');
+        $r->get('/index')->to('index#index');
+        $r->get('/random')->to('index#random_archive');
+        $r->get('/reader')->to('reader#index');
+        $r->get('/api/thumbnail')->to('api#serve_thumbnail');
+        $r->get('/api/servefile')->to('api#serve_file');
+        $r->get('/stats')->to('stats#index');
+    }   
 
     #Those routes are only accessible if user is logged in
-    my $logged_in = $r->under('/')->to('login#logged_in');
     $logged_in->get('/config')->to('config#index');
     $logged_in->post('/config')->to('config#save_config');
 

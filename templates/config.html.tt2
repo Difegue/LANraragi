@@ -113,6 +113,17 @@
 				<br> Only edit these fields if you want to change your password. 
 			</td></tr>
 
+			<tr class="passwordfields"><td style="text-align:left; width:100px"><h1 class="ih"> No-Fun Mode </h1></td><td>
+             	[% IF nofunmode %]
+		  			<input id="nofunmode" name="nofunmode" class="fa" type="checkbox" checked>
+		  		[% ELSE %]
+		  			<input id="nofunmode" name="nofunmode" class="fa" type="checkbox">
+		  		[% END %]
+                <label for="nofunmode">
+                	<br>Enabling No-Fun Mode will lock reading archives behind the password as well. Fully effective after restarting LANraragi.
+                </label>
+			</td></tr>
+
 			<tr><td style="text-align:left; width:100px"><h1 class="ih"> Temporary Folder </h1></td><td>
 				Current Size: <span id="tempsize"> [%tempsize%] </span> MBs <a style="cursor: pointer" onclick="cleanTempFldr();"> (Clean?)</a>
 				 <br>This folder contains recently opened archives, for faster subsequent reading.
