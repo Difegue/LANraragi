@@ -36,13 +36,7 @@ sub process_upload {
             );
         }
         else {
-            open( my $OUTFILE, ">", "$output_file" )
-              or die "Couldn't open $output_file for writing: $!";
-
-            my $bytes = $file->slurp;
-            print $OUTFILE $bytes;    #Write the uploaded contents to that file.
-
-            close $OUTFILE;
+            $file->move_to($output_file);
 
             #Parse for metadata right now and get the database ID
             my $redis = $self->LRR_CONF->get_redis();

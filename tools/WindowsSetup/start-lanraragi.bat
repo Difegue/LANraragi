@@ -17,12 +17,14 @@ IF EXIST C:\berrybrew\5.26.0_64 (
 
 rem add perl/unar/lsar to path and start redis-server + LRR with daemon
 :exec
-SET PATH=%PATH%;%~dp0unar
+SET PATH=%PATH%;%~dp0unar;%~dp0redis
 set PATH=C:\berrybrew\5.26.0_64\perl\site\bin;C:\berrybrew\5.26.0_64\perl\bin;C:\berrybrew\5.26.0_64\c\bin;%PATH%
-echo Perl OK. Checking and installing LRR dependencies.
-call cpanm --installdeps ./lanraragi/tools/. --force 
+echo Perl OK. Running LANraragi Installer...
+cd .\lanraragi
+perl .\tools\install.pl install-back
 
 echo All dependencies up to date! Starting...
+cd ..
 start cmd /c .\redis\redis-server.exe 
 cd .\lanraragi 
 perl .\script\lanraragi daemon 
