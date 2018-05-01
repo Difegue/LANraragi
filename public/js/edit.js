@@ -22,7 +22,7 @@ function updateOneShotArg(){
 	var arg = $('#plugin').find(":selected").get(0).getAttribute('arg')+" : ";
 
 	//hide input for plugins without a oneshot argument field
-	if (arg === "") {
+	if (arg === " : ") {
 		$("#arg_label").hide();
 		$("#arg").hide();
 	}

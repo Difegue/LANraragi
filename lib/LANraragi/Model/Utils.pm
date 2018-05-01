@@ -279,4 +279,38 @@ sub add_archive_to_redis {
     return ( $name, $title, $tags, "block" );
 }
 
+#is_file_in_archive($archive, $file)
+#Uses lsar to figure out if $archive contains $file. 
+#Returns 1 if it does exist, 0 otherwise.
+sub is_file_in_archive {
+
+    my ( $archive, $filename ) = @_;
+
+    #Get lsar's output, jam it in an array, and use it as @extracted.
+    my $vals = `lsar "$archive"`;
+    my @lsarout = split /\n/, $vals;
+    my @extracted;
+
+    #Sort on the lsar output to find the file
+    foreach my $lsarfile (@lsarout) {
+        if ( $lsarfile eq $filename) {
+            return 1;
+        }
+    }
+
+    #Found nothing
+    return 0;
+}
+
+#extract_file_from_archvie($archive, $file)
+#Extract $file from $archive. Extracted files go to /temp/plugin.
+sub extract_file_from_archive {
+
+    my ( $archive, $filename ) = @_;
+    my $path = "./public/temp/plugin";
+
+    `unar -D -o $path "$archive" "$filename"`;
+
+}
+
 1;

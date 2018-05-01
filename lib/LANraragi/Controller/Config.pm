@@ -29,6 +29,7 @@ sub index {
         tempmaxsize => $self->LRR_CONF->get_tempmaxsize,
         autotag     => $self->LRR_CONF->enable_autotag,
         devmode     => $self->LRR_CONF->enable_devmode,
+        nofunmode   => $self->LRR_CONF->enable_nofun,
         cssdrop     => LANraragi::Model::Utils::generate_themes,
         tempsize    => int( $size / 1048576 * 100 ) / 100
     );
@@ -54,6 +55,7 @@ sub save_config {
         enablepass => ( scalar $self->req->param('enablepass') ? '1' : '0' ),
         autotag    => ( scalar $self->req->param('autotag')    ? '1' : '0' ),
         devmode    => ( scalar $self->req->param('devmode')    ? '1' : '0' ),
+        nofunmode    => ( scalar $self->req->param('nofunmode')    ? '1' : '0' ),
         tempmaxsize => scalar $self->req->param('tempmaxsize')
     );
 
