@@ -96,7 +96,8 @@ sub startup {
 
         $self->LRR_LOGGER->info("Terminating previous Shinobu Worker... (PID is $pid)");
 
-        #This is the only cross-platform check in the entire app so we're pretty good I think
+        #TASKKILL seems superflous on Windows as sub-PIDs are always cleanly killed when the main process dies 
+        #But you can never be safe enough
         if ($^O eq "MSWin32") { 
             `TASKKILL /F /T /PID $pid`;
         } else {
