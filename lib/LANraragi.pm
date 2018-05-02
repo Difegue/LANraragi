@@ -1,7 +1,13 @@
 package LANraragi;
 
 use local::lib;
-use open ':std', ':encoding(UTF-8)';
+
+if ($^O eq "MSWin32") { 
+    use open ':std', ':encoding(cp65001)'; 
+} else {
+    use open ':std', ':encoding(UTF-8)';
+}
+
 use Mojo::Base 'Mojolicious';
 
 use Mojo::IOLoop::ProcBackground;
