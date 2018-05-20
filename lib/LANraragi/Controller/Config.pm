@@ -45,18 +45,18 @@ sub save_config {
     my $errormess = "";
 
     my %confhash = (
-        htmltitle => scalar $self->req->param('htmltitle'),
-        motd      => scalar $self->req->param('motd'),
-        dirname   => scalar $self->req->param('dirname'),
-        pagesize  => scalar $self->req->param('pagesize'),
-        blacklist => scalar $self->req->param('blacklist'),
-        readorder => ( scalar $self->req->param('readorder') ? '1' : '0' )
-        , #for checkboxes, we check if the parameter exists in the POST to return either 1 or 0.
+        htmltitle   => scalar $self->req->param('htmltitle'),
+        motd        => scalar $self->req->param('motd'),
+        dirname     => scalar $self->req->param('dirname'),
+        pagesize    => scalar $self->req->param('pagesize'),
+        blacklist   => scalar $self->req->param('blacklist'),
+        tempmaxsize => scalar $self->req->param('tempmaxsize'),
+        #for checkboxes, we check if the parameter exists in the POST to return either 1 or 0.
+        readorder  => ( scalar $self->req->param('readorder')  ? '1' : '0' ), 
         enablepass => ( scalar $self->req->param('enablepass') ? '1' : '0' ),
         autotag    => ( scalar $self->req->param('autotag')    ? '1' : '0' ),
         devmode    => ( scalar $self->req->param('devmode')    ? '1' : '0' ),
-        nofunmode    => ( scalar $self->req->param('nofunmode')    ? '1' : '0' ),
-        tempmaxsize => scalar $self->req->param('tempmaxsize')
+        nofunmode  => ( scalar $self->req->param('nofunmode')  ? '1' : '0' )
     );
 
     #only add newpassword field as password if enablepass = 1

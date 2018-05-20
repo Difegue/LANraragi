@@ -12,7 +12,7 @@ Web interface and reader for archival of comics/manga, running on Mojolicious + 
 
 * Stores your comics in archive format. (zip/rar/targz/lzma/7z/xz/cbz/cbr supported)  
 
-* Read archives directly from your web browser: they're extracted automatically when you want to read them, and deleted when you're done. 
+* Read archives directly from your web browser: the server reads from within compressed files using temporary folders.
 
 * Two different user interfaces : compact archive list with thumbnails-on-hover, or thumbnail view.
 
