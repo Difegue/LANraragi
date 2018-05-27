@@ -25,9 +25,9 @@ Web interface and reader for archival of comics/manga, running on Mojolicious + 
 ## Screenshots  
 
  
-[Main Page, Thumbnail View](https://raw.githubusercontent.com/Difegue/LANraragi/master/tools/_screenshots/archive_thumb.jpg)
-[Main Page, List View](https://raw.githubusercontent.com/Difegue/LANraragi/master/tools/_screenshots/archive_list.png)
-[Archive Reader](https://raw.githubusercontent.com/Difegue/LANraragi/master/tools/_screenshots/reader.jpg)  
-[Reader with overlay](https://raw.githubusercontent.com/Difegue/LANraragi/master/tools/_screenshots/reader_overlay.jpg)  
-[Configuration](https://raw.githubusercontent.com/Difegue/LANraragi/master/tools/_screenshots/cfg.png)
-[Plugin Configuration](https://raw.githubusercontent.com/Difegue/LANraragi/master/tools/_screenshots/cfg_plugin.png)
+[Main Page, Thumbnail View](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/archive_thumb.jpg)  
+[Main Page, List View](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/archive_list.png)  
+[Archive Reader](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/reader.jpg)  
+[Reader with overlay](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/reader_overlay.jpg)  
+[Configuration](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/cfg.png)  
+[Plugin Configuration](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/cfg_plugin.png)  
