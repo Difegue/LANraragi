@@ -33,7 +33,7 @@ sub startup {
     #Remove upload limit
     $self->max_request_size(0);
 
-    #Helper so controllers can reach the app's Redis DB quickly 
+    #Helper so controllers can reach the app's Redis DB quickly
     #(they still need to declare use Model::Config)
     $self->helper( LRR_CONF => sub { LANraragi::Model::Config:: } );
 
@@ -82,21 +82,24 @@ sub startup {
     #Check if a Redis server is running on the provided address/port
     $self->LRR_CONF->get_redis;
 
-    #Start Background worker 
+    #Start Background worker
     if ( -e "./shinobu-pid" ) {
 
         #Read PID from file
-        open( my $pidfile, '<', "shinobu-pid" ) || die( "cannot open file: " . $! );
+        open( my $pidfile, '<', "shinobu-pid" )
+          || die( "cannot open file: " . $! );
         my $pid = <$pidfile>;
-        close( $pidfile );
+        close($pidfile);
 
-        $self->LRR_LOGGER->info("Terminating previous Shinobu Worker... (PID is $pid)");
+        $self->LRR_LOGGER->info(
+            "Terminating previous Shinobu Worker... (PID is $pid)");
 
-        #TASKKILL seems superflous on Windows as sub-PIDs are always cleanly killed when the main process dies 
-        #But you can never be safe enough
-        if ($^O eq "MSWin32") { 
+#TASKKILL seems superflous on Windows as sub-PIDs are always cleanly killed when the main process dies
+#But you can never be safe enough
+        if ( $^O eq "MSWin32" ) {
             `TASKKILL /F /T /PID $pid`;
-        } else {
+        }
+        else {
             `kill -9 $pid`;
         }
 
@@ -119,11 +122,11 @@ sub startup {
 
     $proc->run( [ $^X, "./lib/Shinobu.pm" ] );
 
-    #Create file to store the process' PID 
+    #Create file to store the process' PID
     open( my $pidfile, '>', "shinobu-pid" ) || die( "cannot open file: " . $! );
     my $newpid = $proc->proc->pid;
     print $pidfile $newpid;
-    close( $pidfile );
+    close($pidfile);
 
     $self->LRR_LOGGER->debug("Shinobu Worker PID is $newpid");
 
@@ -137,7 +140,7 @@ sub startup {
     my $logged_in = $r->under('/')->to('login#logged_in');
 
     #No-Fun Mode locks the base routes behind login as well
-    if ($self->LRR_CONF->enable_nofun) {
+    if ( $self->LRR_CONF->enable_nofun ) {
         $logged_in->get('/')->to('index#index');
         $logged_in->get('/index')->to('index#index');
         $logged_in->get('/random')->to('index#random_archive');
@@ -145,7 +148,8 @@ sub startup {
         $logged_in->get('/api/thumbnail')->to('api#serve_thumbnail');
         $logged_in->get('/api/servefile')->to('api#serve_file');
         $logged_in->get('/stats')->to('stats#index');
-    } else {
+    }
+    else {
         #Standard behaviour is to leave those routes loginless for all clients
         $r->get('/')->to('index#index');
         $r->get('/index')->to('index#index');
@@ -154,7 +158,7 @@ sub startup {
         $r->get('/api/thumbnail')->to('api#serve_thumbnail');
         $r->get('/api/servefile')->to('api#serve_file');
         $r->get('/stats')->to('stats#index');
-    }   
+    }
 
     #Those routes are only accessible if user is logged in
     $logged_in->get('/config')->to('config#index');

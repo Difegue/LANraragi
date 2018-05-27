@@ -1,12 +1,10 @@
 <img alt="LANraragi" src="https://raw.githubusercontent.com/Difegue/LANraragi/master/tools/logo.png" width="300">
 
-#### [Documentation/Install Guide](https://github.com/Difegue/LANraragi/wiki) - [Download](https://github.com/Difegue/LANraragi/releases) - [Demo](https://dj.faglord.party/)
+#### [Documentation/Install Guide](https://github.com/Difegue/LANraragi/wiki) - [Download](https://github.com/Difegue/LANraragi/releases) - [Demo](https://lrr.tvc-16.science/)
 
 [<img src="https://img.shields.io/docker/pulls/difegue/lanraragi.svg">](https://hub.docker.com/r/difegue/lanraragi/) ![GitHub release](https://img.shields.io/github/release/difegue/lanraragi.svg) 
 
 Web interface and reader for archival of comics/manga, running on Mojolicious + Redis.
-
-![](https://a.pomf.cat/vihuaz.PNG)  
 
 ## Features  
 
@@ -26,10 +24,10 @@ Web interface and reader for archival of comics/manga, running on Mojolicious + 
 
 ## Screenshots  
 
-
-[Main Page, Thumbnail View](https://a.pomf.cat/dvquch.png)  
-[Main Page, List View](https://a.pomf.cat/efxoel.png)  
-[Archive Reader](https://a.pomf.cat/meloaj.jpg)  
-[Reader with overlay](https://a.pomf.cat/blndcr.jpg)  
-[Configuration](https://a.pomf.cat/vhzcou.png)
-
+ 
+[Main Page, Thumbnail View](https://raw.githubusercontent.com/Difegue/LANraragi/master/tools/_screenshots/archive_thumb.jpg)
+[Main Page, List View](https://raw.githubusercontent.com/Difegue/LANraragi/master/tools/_screenshots/archive_list.png)
+[Archive Reader](https://raw.githubusercontent.com/Difegue/LANraragi/master/tools/_screenshots/reader.jpg)  
+[Reader with overlay](https://raw.githubusercontent.com/Difegue/LANraragi/master/tools/_screenshots/reader_overlay.jpg)  
+[Configuration](https://raw.githubusercontent.com/Difegue/LANraragi/master/tools/_screenshots/cfg.png)
+[Plugin Configuration](https://raw.githubusercontent.com/Difegue/LANraragi/master/tools/_screenshots/cfg_plugin.png)
