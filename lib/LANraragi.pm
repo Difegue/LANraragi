@@ -40,7 +40,7 @@ sub startup {
     #Second helper to build logger objects quickly
     $self->helper(
         LRR_LOGGER => sub {
-            return LANraragi::Model::Utils::get_logger( "LANraragi",
+            return LANraragi::Utils::Generic::get_logger( "LANraragi",
                 "lanraragi" );
         }
     );

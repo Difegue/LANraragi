@@ -38,7 +38,7 @@ sub get_tags {
     shift;
     my ( $title, $tags, $thumbhash, $file, $globalarg, $oneshotarg ) = @_;
 
-    my $logger = LANraragi::Model::Utils::get_logger( "Chaika", "plugins" );
+    my $logger = LANraragi::Utils::Generic::get_logger( "Chaika", "plugins" );
 
     #Chaika has two possible types - Gallery or Archive. 
     #We perform searching in archives by default, but the user can use gallery URLs.
@@ -96,7 +96,7 @@ sub search_for_archive {
 
 sub chaika_parsesearch {
 
-    my $logger = LANraragi::Model::Utils::get_logger( "Chaika", "plugins" );
+    my $logger = LANraragi::Utils::Generic::get_logger( "Chaika", "plugins" );
 
     my $URL = $_[0];
     $logger->debug("Calling $URL");
@@ -131,7 +131,7 @@ sub tags_from_chaika {
     my $ID       = $_[1];
     my $returned = "";
 
-    my $logger = LANraragi::Model::Utils::get_logger( "Chaika", "plugins" );
+    my $logger = LANraragi::Utils::Generic::get_logger( "Chaika", "plugins" );
     my $URL    = "https://panda.chaika.moe/jsearch/?".$type."=".$ID;
     my $ua     = Mojo::UserAgent->new;
     my $res    = $ua->get($URL)->result;

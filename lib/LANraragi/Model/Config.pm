@@ -58,7 +58,7 @@ sub get_redis_conf {
     my $redis = &get_redis;
 
     if ( $redis->hexists( "LRR_CONFIG", $param ) ) {
-        my $value = LANraragi::Model::Utils::redis_decode(
+        my $value = LANraragi::Utils::Database::redis_decode(
             $redis->hget( "LRR_CONFIG", $param ) );
 
         #failsafe against blank config values

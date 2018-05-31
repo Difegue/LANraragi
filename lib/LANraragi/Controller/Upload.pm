@@ -3,14 +3,17 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use Redis;
 
-use LANraragi::Model::Utils;
+use LANraragi::Utils::Generic;
+use LANraragi::Utils::Archive;
+use LANraragi::Utils::Database;
+
 use LANraragi::Model::Config;
 
 sub process_upload {
     my $self = shift;
 
     #Receive uploaded file.
-    my $file = $self->req->upload('file');
+    my $file     = $self->req->upload('file');
     my $filename = $file->filename;
 
     my $uploadMime = $file->headers->content_type;
@@ -41,9 +44,9 @@ sub process_upload {
             #Parse for metadata right now and get the database ID
             my $redis = $self->LRR_CONF->get_redis();
 
-            my $id = LANraragi::Model::Utils::compute_id($output_file);
+            my $id = LANraragi::Utils::Database::compute_id($output_file);
 
-            LANraragi::Model::Utils::add_archive_to_redis( $id, $output_file,
+            LANraragi::Utils::Database::add_archive_to_redis( $id, $output_file,
                 $redis );
 
             $self->render(
@@ -79,7 +82,7 @@ sub index {
         template => "upload",
         title    => $self->LRR_CONF->get_htmltitle,
         autotag  => $self->LRR_CONF->enable_autotag,
-        cssdrop  => LANraragi::Model::Utils::generate_themes
+        cssdrop  => LANraragi::Utils::Generic::generate_themes
     );
 }
 

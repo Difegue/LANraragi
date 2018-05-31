@@ -28,13 +28,17 @@ use File::stat;
 use File::Path qw(make_path remove_tree);
 use Encode;
 
+use LANraragi::Utils::Generic;
+use LANraragi::Utils::Archive;
+use LANraragi::Utils::Database;
+
 use LANraragi::Model::Config;
-use LANraragi::Model::Utils;
 
 sub initialize_from_new_process {
 
     my $interval = LANraragi::Model::Config::get_interval;
-    my $logger = LANraragi::Model::Utils::get_logger( "Shinobu", "lanraragi" );
+    my $logger =
+      LANraragi::Utils::Generic::get_logger( "Shinobu", "lanraragi" );
 
     $logger->info(
 "Shinobu Background Worker started -- Content folder will be scanned every $interval seconds."
@@ -64,7 +68,8 @@ sub initialize_from_new_process {
 
 sub workload {
 
-    my $logger = LANraragi::Model::Utils::get_logger( "Shinobu", "lanraragi" );
+    my $logger =
+      LANraragi::Utils::Generic::get_logger( "Shinobu", "lanraragi" );
     my $redis = LANraragi::Model::Config::get_redis;
 
     my $force       = $_[0];
@@ -142,7 +147,8 @@ sub new_archive_check {
 
     my (@dircontents) = @_;
     my $redis = LANraragi::Model::Config::get_redis;
-    my $logger = LANraragi::Model::Utils::get_logger( "Shinobu", "lanraragi" );
+    my $logger =
+      LANraragi::Utils::Generic::get_logger( "Shinobu", "lanraragi" );
 
     my $processed_archives             = 0;
     my $maximum_archives_per_iteration = 20;
@@ -150,7 +156,7 @@ sub new_archive_check {
     foreach my $file (@dircontents) {
 
         #ID of the archive, used for storing data in Redis.
-        my $id = LANraragi::Model::Utils::compute_id($file);
+        my $id = LANraragi::Utils::Database::compute_id($file);
 
 #As the workload loops, we need to inform the user about the state of the archive importation --
 #which means generating a JSON every now and then.
@@ -166,8 +172,8 @@ sub new_archive_check {
         #Duplicate file detector
         if ( $redis->hexists( $id, "title" ) ) {
             my $cachefile = $redis->hget( $id, "file" );
-            my $filet = LANraragi::Model::Utils::redis_decode($file);
-            $cachefile = LANraragi::Model::Utils::redis_decode($cachefile);
+            my $filet = LANraragi::Utils::Database::redis_decode($file);
+            $cachefile = LANraragi::Utils::Database::redis_decode($cachefile);
             if ( $cachefile ne $filet ) {
                 $logger->warn( "This ID exists in the Redis Database but "
                       . "doesn't have the same file! You might be having duplicate files!"
@@ -179,7 +185,8 @@ sub new_archive_check {
         else {
             #Trigger archive addition if title isn't in Redis
             $logger->info("Adding new file $file with ID $id");
-            LANraragi::Model::Utils::add_archive_to_redis( $id, $file, $redis );
+            LANraragi::Utils::Database::add_archive_to_redis( $id, $file,
+                $redis );
 
             #AutoTagging using enabled plugins goes here!
             if (LANraragi::Model::Config::enable_autotag) {
@@ -192,7 +199,8 @@ sub new_archive_check {
 
 sub autoclean_temp_folder {
 
-    my $logger = LANraragi::Model::Utils::get_logger( "Shinobu", "lanraragi" );
+    my $logger =
+      LANraragi::Utils::Generic::get_logger( "Shinobu", "lanraragi" );
 
     my $size = 0;
     find( sub { $size += -s if -f }, "$FindBin::Bin/../public/temp" );
@@ -255,7 +263,8 @@ sub build_json_cache {
 
     my $redis   = LANraragi::Model::Config::get_redis;
     my $dirname = LANraragi::Model::Config::get_userdir;
-    my $logger  = LANraragi::Model::Utils::get_logger( "Shinobu", "lanraragi" );
+    my $logger =
+      LANraragi::Utils::Generic::get_logger( "Shinobu", "lanraragi" );
 
     my $json = "[";
 
@@ -267,7 +276,7 @@ sub build_json_cache {
     #Iterate on hashes to get their tags
     foreach my $id (@keys) {
         my $path = $redis->hget( $id, "file" );
-        $path = LANraragi::Model::Utils::redis_decode($path);
+        $path = LANraragi::Utils::Database::redis_decode($path);
 
         if ( -e $path ) {
             $json .= &build_archive_JSON( $id, $path );
@@ -310,7 +319,7 @@ sub build_archive_JSON {
       @hash{qw(name title tags file isnew)};
 
     #Parameters have been obtained, let's decode them.
-    ( $_ = LANraragi::Model::Utils::redis_decode($_) )
+    ( $_ = LANraragi::Utils::Database::redis_decode($_) )
       for ( $name, $title, $tags, $filecheck );
 
     #Update the real file path and title if they differ from the saved one

@@ -1,7 +1,10 @@
 package LANraragi::Controller::Backup;
 use Mojo::Base 'Mojolicious::Controller';
 
-use LANraragi::Model::Utils;
+use LANraragi::Utils::Generic;
+use LANraragi::Utils::Archive;
+use LANraragi::Utils::Database;
+
 use LANraragi::Model::Config;
 use LANraragi::Model::Backup;
 
@@ -13,7 +16,7 @@ sub index {
     if ( $self->req->param('dobackup') ) {
         my $json = LANraragi::Model::Backup::build_backup_JSON();
 
-        #Write json to file in the user directory and serve that file through render_static
+#Write json to file in the user directory and serve that file through render_static
         my $file = $self->LRR_CONF->get_userdir . '/backup.json';
 
         if ( -e $file ) { unlink $file }
@@ -31,7 +34,7 @@ sub index {
         $self->render(
             template => "backup",
             title    => $self->LRR_CONF->get_htmltitle,
-            cssdrop  => LANraragi::Model::Utils::generate_themes
+            cssdrop  => LANraragi::Utils::Generic::generate_themes
         );
     }
 }
@@ -41,7 +44,7 @@ sub restore {
     my $file = $self->req->upload('file');
 
     if ( $file->headers->content_type eq "application/json" ) {
-    	
+
         my $json = $file->slurp;
         LANraragi::Model::Backup::restore_from_JSON($json);
 

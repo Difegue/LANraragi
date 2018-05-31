@@ -40,7 +40,7 @@ sub get_tags {
     my ( $title, $tags, $thumbhash, $file, $globalarg, $oneshotarg ) = @_;
 
     #Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
-    my $logger = LANraragi::Model::Utils::get_logger( "E-Hentai", "plugins" );
+    my $logger = LANraragi::Utils::Generic::get_logger( "E-Hentai", "plugins" );
 
     #Work your magic here - You can create subroutines below to organize the code better
     my $gID    = "";
@@ -91,7 +91,7 @@ sub lookup_by_title {
     my $defaultlanguage    = $_[2];
     my $tags               = $_[3];
 
-    my $logger = LANraragi::Model::Utils::get_logger( "E-Hentai", "plugins" );
+    my $logger = LANraragi::Utils::Generic::get_logger( "E-Hentai", "plugins" );
 
     my $domain = "http://e-hentai.org/";
 
@@ -191,7 +191,7 @@ sub get_tags_from_EH {
 
     my $ua = Mojo::UserAgent->new;
 
-    my $logger = LANraragi::Model::Utils::get_logger( "E-Hentai", "plugins" );
+    my $logger = LANraragi::Utils::Generic::get_logger( "E-Hentai", "plugins" );
 
     #Execute the request
     my $rep = $ua->post(

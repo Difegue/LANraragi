@@ -11,14 +11,17 @@ use Module::Pluggable require => 1, search_path => ['LANraragi::Plugin'];
 use Redis;
 use Encode;
 
-use LANraragi::Model::Utils;
+use LANraragi::Utils::Generic;
+use LANraragi::Utils::Archive;
+use LANraragi::Utils::Database;
+
 use LANraragi::Model::Config;
 
 sub exec_enabled_plugins_on_file {
 
     my $id = shift;
     my $logger =
-      LANraragi::Model::Utils::get_logger( "Auto-Tagger", "lanraragi" );
+      LANraragi::Utils::Generic::get_logger( "Auto-Tagger", "lanraragi" );
 
     $logger->info("Executing enabled plugins on archive with id $id.");
     my $redis = LANraragi::Model::Config::get_redis;
@@ -37,34 +40,34 @@ sub exec_enabled_plugins_on_file {
 
             my %plugincfg = $redis->hgetall($namerds);
             my ( $enabled, $arg ) = @plugincfg{qw(enabled arg)};
-            
-            ( $_ = LANraragi::Model::Utils::redis_decode($_) )
+
+            ( $_ = LANraragi::Utils::Database::redis_decode($_) )
               for ( $enabled, $arg );
 
             if ($enabled) {
 
-                eval { #Every plugin execution is eval'd separately
+                #Every plugin execution is eval'd separately
+                eval {
 
+                    #No oneshot arguments on batch execution
                     my %plugin_result =
-                      &exec_plugin_on_file( $plugin, $id, $arg, "" )
-                      ;    #No oneshot arguments on batch execution
+                      &exec_plugin_on_file( $plugin, $id, $arg, "" );
 
                     unless ( exists $plugin_result{error} )
-                    {   #If the plugin exec returned metadata, add it
+                    {    #If the plugin exec returned metadata, add it
 
                         my $oldtags = $redis->hget( $id, "tags" );
                         $oldtags =
-                          LANraragi::Model::Utils::redis_decode($oldtags);
+                          LANraragi::Utils::Database::redis_decode($oldtags);
 
                         my $newtags = $plugin_result{new_tags};
                         $logger->debug("Adding $newtags to $oldtags.");
 
-                        if ($oldtags ne "") {
+                        if ( $oldtags ne "" ) {
                             $newtags = $oldtags . "," . $newtags;
                         }
 
-                        $redis->hset( $id, "tags",
-                            encode_utf8( $newtags ) );
+                        $redis->hset( $id, "tags", encode_utf8($newtags) );
                     }
                 };
 
@@ -92,17 +95,27 @@ sub exec_plugin_on_file {
     my $redis = LANraragi::Model::Config::get_redis;
 
     my $logger =
-      LANraragi::Model::Utils::get_logger( "Auto-Tagger", "lanraragi" );
+      LANraragi::Utils::Generic::get_logger( "Auto-Tagger", "lanraragi" );
 
-    #If the plugin has the method "get_tags", 
+    #If the plugin has the method "get_tags",
     #catch all the required data and feed it to the plugin
     if ( $plugin->can('get_tags') ) {
 
         my %hash = $redis->hgetall($id);
         my ( $name, $title, $tags, $file, $thumbhash ) =
           @hash{qw(name title tags file thumbhash)};
-        ( $_ = LANraragi::Model::Utils::redis_decode($_) )
+
+        ( $_ = LANraragi::Utils::Database::redis_decode($_) )
           for ( $name, $title, $tags, $file );
+
+        # If the thumbnail hash is empty, we'll generate it here.
+        if ( $thumbhash eq "" ) {
+            $logger->info("Thumbnail hash invalid, regenerating.");
+            my $dirname = LANraragi::Model::Config::get_userdir;
+            LANraragi::Utils::Archive::extract_thumbnail( $dirname, $id );
+            $thumbhash = $redis->hget( $id, "thumbhash" );
+            $thumbhash = LANraragi::Utils::Database::redis_decode($thumbhash);
+        }
 
         #Hand it off to the plugin here.
         my %newmetadata =
@@ -111,38 +124,43 @@ sub exec_plugin_on_file {
 
         #Error checking
         if ( exists $newmetadata{error} ) {
-            return %newmetadata; 
-            #Return the hash as-is -- It already has an "error" key, which will be read by the client. No need for more processing.
+
+            #Return the hash as-is.
+            #It already has an "error" key, which will be read by the client.
+            #No need for more processing.
+            return %newmetadata;
         }
 
         my @tagarray = split( ",", $newmetadata{tags} );
         my $newtags = "";
 
-        #Process new metadata, 
+        #Process new metadata,
         #stripping out blacklisted tags and tags that we already have in Redis
         my $blist = LANraragi::Model::Config::get_tagblacklist;
-        my @blacklist = split(',', $blist); # array-ize the blacklist string
+        my @blacklist = split( ',', $blist );   # array-ize the blacklist string
 
         foreach my $tagtoadd (@tagarray) {
 
-            LANraragi::Model::Utils::remove_spaces($tagtoadd);
-            LANraragi::Model::Utils::remove_newlines($tagtoadd);
+            LANraragi::Utils::Generic::remove_spaces($tagtoadd);
+            LANraragi::Utils::Generic::remove_newlines($tagtoadd);
 
-            unless ( index( uc($tags), uc($tagtoadd) ) != -1 )
-            {   
+            unless ( index( uc($tags), uc($tagtoadd) ) != -1 ) {
+
                 #Only proceed if the tag isnt already in redis
                 my $good = 1;
 
                 foreach my $black (@blacklist) {
-                    LANraragi::Model::Utils::remove_spaces($black);
+                    LANraragi::Utils::Generic::remove_spaces($black);
 
                     if ( index( uc($tagtoadd), uc($black) ) != -1 ) {
-                        $logger->info("Tag $tagtoadd is blacklisted, not adding.");
+                        $logger->info(
+                            "Tag $tagtoadd is blacklisted, not adding.");
                         $good = 0;
                     }
                 }
 
-                if ( $good ) {
+                if ($good) {
+
                     #This tag is processed and good to go
                     $newtags .= " $tagtoadd,";
                 }

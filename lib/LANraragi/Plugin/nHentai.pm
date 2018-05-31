@@ -38,7 +38,7 @@ sub get_tags {
     shift;
     my ( $title, $tags, $thumbhash, $file, $globalarg, $oneshotarg ) = @_;
 
-    my $logger = LANraragi::Model::Utils::get_logger( "nHentai", "plugins" );
+    my $logger = LANraragi::Utils::Generic::get_logger( "nHentai", "plugins" );
 
     #Work your magic here - You can create subs below to organize the code better
     my $galleryID = "";
@@ -105,7 +105,7 @@ sub get_tags_from_NH {
     my $gID      = $_[0];
     my $returned = "";
 
-    my $logger = LANraragi::Model::Utils::get_logger( "nHentai", "plugins" );
+    my $logger = LANraragi::Utils::Generic::get_logger( "nHentai", "plugins" );
 
     my $URL = "https://nhentai.net/api/gallery/$gID";
 

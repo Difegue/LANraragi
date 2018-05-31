@@ -4,7 +4,10 @@ use Mojo::Base 'Mojolicious::Controller';
 use Redis;
 use Encode;
 
-use LANraragi::Model::Utils;
+use LANraragi::Utils::Generic;
+use LANraragi::Utils::Archive;
+use LANraragi::Utils::Database;
+
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
 
@@ -43,7 +46,7 @@ sub index {
         template => "plugins",
         title    => $self->LRR_CONF->get_htmltitle,
         plugins  => \@pluginlist,
-        cssdrop  => LANraragi::Model::Utils::generate_themes
+        cssdrop  => LANraragi::Utils::Generic::generate_themes
     );
 
 }
@@ -53,7 +56,7 @@ sub save_config {
     my $self  = shift;
     my $redis = $self->LRR_CONF->get_redis;
 
-    #For every existing plugin, check if we received a matching parameter, and update its settings.
+#For every existing plugin, check if we received a matching parameter, and update its settings.
     my @plugins = LANraragi::Model::Plugins::plugins;
 
     #Plugin list is an array of hashes
