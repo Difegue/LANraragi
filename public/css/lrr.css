@@ -144,7 +144,7 @@ p#nb {
 }
 
 /* Reader overlays. */
-.loading-overlay {
+.loading-overlay, .page-overlay, #overlay-shade  {
     display: none;
 }
 
@@ -170,10 +170,6 @@ p#nb {
     text-align: center;
 }
 
-.page-overlay, #overlay-shade {
-    display: none;
-}
-
 #overlay-shade {
     position: fixed;
     left: 0;
@@ -184,17 +180,25 @@ p#nb {
     background-color: #000;
 }
 
-.page-overlay {
+.base-overlay {
     position: fixed;
     top: 40px;
-    left: 5%;
-    width: 90% !important;
     min-height: 70%;
     z-index: 10000;
     box-shadow: 0 0 16px #000;
     padding-top: 10px !important;
     padding-bottom: 10px !important;
+}
+
+.page-overlay {
+    left: 5%;
+    width: 90% !important;
     overflow-y: scroll;
+} 
+
+.small-overlay {
+    left: 35%;
+    width: 30% !important;
 } 
 
 .ie7 .page-overlay {
