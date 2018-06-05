@@ -108,7 +108,6 @@ sub get_tagblacklist {
 
 sub get_tempmaxsize { return &get_redis_conf( "tempmaxsize", "500" ) }
 sub get_pagesize    { return &get_redis_conf( "pagesize",    "100" ) }
-sub get_readorder   { return &get_redis_conf( "readorder",   "0" ) }
 sub enable_pass     { return &get_redis_conf( "enablepass",  "1" ) }
 sub enable_nofun    { return &get_redis_conf( "nofunmode",   "0" ) }
 sub enable_autotag  { return &get_redis_conf( "autotag",     "1" ) }

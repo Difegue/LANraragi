@@ -24,7 +24,6 @@ sub index {
         motd        => $self->LRR_CONF->get_motd,
         dirname     => $self->LRR_CONF->get_userdir,
         pagesize    => $self->LRR_CONF->get_pagesize,
-        readorder   => $self->LRR_CONF->get_readorder,
         enablepass  => $self->LRR_CONF->enable_pass,
         password    => $self->LRR_CONF->get_password,
         blacklist   => $self->LRR_CONF->get_tagblacklist,
@@ -55,8 +54,8 @@ sub save_config {
         blacklist   => scalar $self->req->param('blacklist'),
         tempmaxsize => scalar $self->req->param('tempmaxsize'),
 
-#for checkboxes, we check if the parameter exists in the POST to return either 1 or 0.
-        readorder  => ( scalar $self->req->param('readorder')  ? '1' : '0' ),
+        #for checkboxes,
+        #we check if the parameter exists in the POST to return either 1 or 0.
         enablepass => ( scalar $self->req->param('enablepass') ? '1' : '0' ),
         autotag    => ( scalar $self->req->param('autotag')    ? '1' : '0' ),
         devmode    => ( scalar $self->req->param('devmode')    ? '1' : '0' ),

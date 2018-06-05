@@ -8,6 +8,7 @@
 
 	<link type="image/png" rel="icon" href="favicon.ico" />
 	<link rel="stylesheet" type="text/css" href="./css/lrr.css" />
+	<link rel="stylesheet" type="text/css" href="/css/config.css" />
 
 	<link rel="stylesheet" type="text/css" href="./css/vendor/fontawesome-all.min.css" />
 	<link rel="stylesheet" type="text/css" href="./css/vendor/jquery.toast.min.css" />
@@ -84,28 +85,6 @@
 		currentPage = parseInt(localStorage[id + "-reader"] || 0);
 		pageNumber = pages.pages.length;
 
-		[% IF readorder %]
-
-		function goLeft() {
-			goToPage(currentPage + 1);
-		}
-
-		function goRight() {
-			goToPage(currentPage - 1);
-		}
-
-		[% ELSE %]
-
-		function goLeft() {
-			goToPage(currentPage - 1);
-		}
-
-		function goRight() {
-			goToPage(currentPage + 1);
-		}
-
-		[% END %]
-
 		goToPage(currentPage);
 
 
@@ -121,29 +100,8 @@
 		<h2 class="ih" style="text-align:center">Archive Overview</h2>
 	</div>
 	<div id="settingsOverlay" class="id1 base-overlay small-overlay" style="display:none">
-		<h2 class="ih" style="text-align:center">Reader Options</h2>
-		<table style="margin:auto; font-size:8pt;">
-			<tbody>
-				<tr>
-					<td style="text-align:left; width:100px">
-						<h1 class="ih"> Japanese Read Order </h1>
-					</td>
-					<td style="width:500px">
-
-						<input id="readorder" name="readorder" class="fa" type="checkbox">
-
-						<label for="readorder">
-							<br>If enabled, pages will be read right-to-left.
-						</label>
-					</td>
-				</tr>
-
-			</tbody>
-		</table>
-
-		<input value="Save and Close" onclick="" class="stdbtn" id="goback" type="button">
+		[% INCLUDE config %]
 	</div>
-
 
 	[% INCLUDE footer %]
 </body>
@@ -152,42 +110,65 @@
 
 
 
+[% #compute those blocks before getting to the main html %]
 
+<!-- -->
+[% BLOCK config %]
 
+<h2 class="ih" style="text-align:center">Reader Options</h2>
+<div style="margin:auto; font-size:8pt;">
 
+	<div class="config-panel">
+		<h1 class="ih" style="display:inline"> Japanese Read Order </h1>
+		<input id="readorder" name="readorder" class="fa" type="checkbox" style="float:left">
+		<br/> If enabled, pages will be read right-to-left.
+	</div>
 
-[% #compute those blocks before getting to the main html %] [% BLOCK arrows %]
-<div class="sn">
-	[% IF readorder %]
-	<a onclick="goToPage(pageNumber-1)" style="cursor:pointer;">
-		[% ELSE %]
-		<a onclick="goToPage(0)" style="cursor:pointer;">
-			[% END %]
-			<i class="fa fa-angle-double-left" style="font-size: 1.5em;"></i>
-		</a>
+	<div class="config-panel">
+		<h1 class="ih" style="display:inline"> Double Page View </h1>
+		<input id="readorder" name="readorder" class="fa" type="checkbox" style="float:left">
+		<br/> If enabled, two pages will be displayed at once. (This excludes widespreads)
+	</div>
 
-		<a id="left" onclick="goLeft()" style="cursor:pointer;">
-			<i class="fa fa-angle-left" style="font-size: 1.5em;"></i>
-		</a>
-
-		<div class="pagecount">
-			<span class="current-page"></span> /
-			<span class="max-page"></span>
-		</div>
-
-		<a id="right" onclick="goRight()" style="cursor:pointer;">
-			<i class="fa fa-angle-right" style="font-size: 1.5em;"></i>
-		</a>
-
-		[% IF readorder %]
-		<a onclick="goToPage(0)" style="cursor:pointer;">
-			[% ELSE %]
-			<a onclick="goToPage(pageNumber-1)" style="cursor:pointer;">
-				[% END %]
-				<i class="fa fa-angle-double-right" style="font-size: 1.5em;"></i>
-			</a>
+	<div class="config-panel">
+		<h1 class="ih" style="display:inline"> Scale to View</h1>
+		<input id="readorder" name="readorder" class="fa" type="checkbox" style="float:left">
+		<br/> If enabled, pages will be scaled to the screen's size.
+	</div>
 </div>
-[% END %] [% BLOCK pagesel %]
+
+<br/>
+<br/>
+<input value="Save and Close" onclick="saveSettings()" class="stdbtn" id="goback" type="button">
+<br/> [% END %]
+<!-- -->
+[% BLOCK arrows %]
+<div class="sn">
+
+	<a onclick="goFirst()" style="cursor:pointer;">
+		<i class="fa fa-angle-double-left" style="font-size: 1.5em;"></i>
+	</a>
+
+	<a id="left" onclick="goLeft()" style="cursor:pointer;">
+		<i class="fa fa-angle-left" style="font-size: 1.5em;"></i>
+	</a>
+
+	<div class="pagecount">
+		<span class="current-page"></span> /
+		<span class="max-page"></span>
+	</div>
+
+	<a id="right" onclick="goRight()" style="cursor:pointer;">
+		<i class="fa fa-angle-right" style="font-size: 1.5em;"></i>
+	</a>
+
+	<a onclick="goLast()" style="cursor:pointer;">
+		<i class="fa fa-angle-double-right" style="font-size: 1.5em;"></i>
+	</a>
+</div>
+[% END %]
+<!-- -->
+[% BLOCK pagesel %]
 <div style="position: absolute; right: 20px; z-index:20" class="page_dropdown">
 
 	<a href="#" onclick="openSettings();" title="Reader Settings">
@@ -203,7 +184,9 @@
 	</a>
 
 </div>
-[% END %] [% BLOCK fileinfo %]
+[% END %]
+<!-- -->
+[% BLOCK fileinfo %]
 <div class="file-info">
 
 </div>

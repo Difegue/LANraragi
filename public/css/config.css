@@ -1,0 +1,25 @@
+/*** custom checkboxes ***/
+input[type='checkbox'] {
+    -webkit-appearance:none;
+    -moz-appearance:none;
+    appearance:none;
+    font-size:20px;
+    cursor:pointer;
+    margin-left: 0px;
+}
+
+input[type='checkbox']::before {
+    content: "\f0c8";
+}
+
+input[type='checkbox']:checked::before {
+    content: "\f14a";
+}
+
+.config-panel {
+    float:left; 
+    margin-left: 20%; 
+    text-align: left; 
+    width:100%;
+    margin-bottom: 10px;
+}

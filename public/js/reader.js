@@ -116,6 +116,22 @@ function goToPage(page) {
 	$('body').scrollTop(0);
 }
 
+function goLeft() {
+	goToPage(currentPage + 1);
+}
+
+function goRight() {
+	goToPage(currentPage - 1);
+}
+
+function goFirst() {
+	goToPage(currentPage + 1);
+}
+
+function goLast() {
+	goToPage(currentPage - 1);
+}
+
 function initArchivePageOverlay() {
 
 	//For each link in the pages array, craft a div and jam it in the overlay.
@@ -136,6 +152,10 @@ function initSettingsOverlay() {
 
 	//For each option in the settings json, craft a <tr> and add it in the overlay's table.
 	//TODO...
+}
+
+function saveSettings() {
+
 }
 
 function openOverlay() {

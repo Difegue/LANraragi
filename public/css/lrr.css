@@ -45,14 +45,12 @@ top: 10px;
 }
 
 table thead .sorting_asc a:after {
-/*background-image: url(../img/down.png);*/
 border-left: 5px solid rgba(0, 0, 0, 0);
 border-right: 5px solid rgba(0, 0, 0, 0);
 border-top: 5px solid;
 }
 
 table thead .sorting_desc a:after {
-/*background-image: url(../img/up.png);*/
 border-top: none;
 border-bottom: 5px solid;
 border-left: 5px solid rgba(0, 0, 0, 0);
@@ -137,11 +135,7 @@ p#nb {
     div.sni h1 {overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
 }
 
-/*Hourglass animation for new archive treatment page*/
-.fa.fa-hourglass-end.spin {
-  transform: rotate(180deg);
-  transition: all 0.75s 0.25s;
-}
+
 
 /* Reader overlays. */
 .loading-overlay, .page-overlay, #overlay-shade  {

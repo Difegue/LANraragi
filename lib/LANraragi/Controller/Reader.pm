@@ -66,7 +66,6 @@ sub index {
             arcname    => $arcname,
             id         => $id,
             imgpaths   => $imgpaths,
-            readorder  => $self->LRR_CONF->get_readorder(),
             cssdrop    => LANraragi::Utils::Generic::generate_themes,
             userlogged => $self->LRR_CONF->enable_pass == 0
               || $self->session('is_logged')
