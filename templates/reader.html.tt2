@@ -38,8 +38,8 @@
 			</div>
 
 			<a id="display">
-				<img id="img" onload="updateMetadata()" onerror="this.src='./img/noThumb.png'" style="max-width:100%; height: auto; width: auto; min-height:300px"
-				 src="[% imgpath %]" usemap="#Map" />
+				<img id="img" class="reader-image" onload="updateMetadata()" onerror="this.src='./img/noThumb.png'" src="[% imgpath %]" usemap="#Map"
+				/>
 				<map name="Map" id="Map">
 					<area id="leftmap" style="cursor:pointer;" onclick="goLeft()" shape="rect" />
 					<area id="rightmap" style="cursor:pointer;" onclick="goRight()" shape="rect" />
@@ -49,7 +49,7 @@
 		</div>
 
 		<div id="i4">
-			[% INCLUDE fileinfo %] [% INCLUDE pagesel %] [% INCLUDE arrows %]
+			[% INCLUDE fileinfo %] [% INCLUDE arrows %]
 		</div>
 
 		<div id="i5">
@@ -126,13 +126,13 @@
 
 	<div class="config-panel">
 		<h1 class="ih" style="display:inline"> Double Page View </h1>
-		<input id="readorder" name="readorder" class="fa" type="checkbox" style="float:left">
+		<input id="doublepage" name="readorder" class="fa" type="checkbox" style="float:left">
 		<br/> If enabled, two pages will be displayed at once. (This excludes widespreads)
 	</div>
 
 	<div class="config-panel">
 		<h1 class="ih" style="display:inline"> Scale to View</h1>
-		<input id="readorder" name="readorder" class="fa" type="checkbox" style="float:left">
+		<input id="scaletoview" name="readorder" class="fa" type="checkbox" style="float:left">
 		<br/> If enabled, pages will be scaled to the screen's size.
 	</div>
 </div>

@@ -89,6 +89,12 @@ function goToPage(page) {
 	//update image
 	$("#img").attr("src", pages.pages[currentPage]);
 
+	//scale to view simply forces image height at 90vh (90% of viewport height)
+	if (localStorage.scaletoview === 'true')
+		$("#img").attr("style", "height: 90vh;");
+	else
+		$("#img").attr("style", "");
+
 	//update numbers
 	$('.current-page').each(function () {
 		$(this).html(parseInt(currentPage) + 1);
@@ -117,19 +123,31 @@ function goToPage(page) {
 }
 
 function goLeft() {
-	goToPage(currentPage + 1);
+	if (localStorage.readorder === 'true')
+		goToPage(currentPage + 1);
+	else
+		goToPage(currentPage - 1);
 }
 
 function goRight() {
-	goToPage(currentPage - 1);
+	if (localStorage.readorder === 'true')
+		goToPage(currentPage - 1);
+	else
+		goToPage(currentPage + 1);
 }
 
 function goFirst() {
-	goToPage(currentPage + 1);
+	if (localStorage.readorder === 'true')
+		goToPage(pageNumber - 1);
+	else
+		goToPage(0);
 }
 
 function goLast() {
-	goToPage(currentPage - 1);
+	if (localStorage.readorder === 'true')
+		goToPage(0);
+	else
+		goToPage(pageNumber - 1);
 }
 
 function initArchivePageOverlay() {
@@ -150,12 +168,24 @@ function initArchivePageOverlay() {
 
 function initSettingsOverlay() {
 
-	//For each option in the settings json, craft a <tr> and add it in the overlay's table.
-	//TODO...
+	if (localStorage.readorder === 'true')
+		$("#readorder").prop("checked", true);
+
+	if (localStorage.doublepage === 'true')
+		$("#doublepage").prop("checked", true);
+
+	if (localStorage.scaletoview === 'true')
+		$("#scaletoview").prop("checked", true);
+
 }
 
 function saveSettings() {
+	localStorage.readorder = $("#readorder").prop("checked");
+	localStorage.doublepage = $("#doublepage").prop("checked");
+	localStorage.scaletoview = $("#scaletoview").prop("checked");
 
+	closeOverlay();
+	goToPage(currentPage);
 }
 
 function openOverlay() {

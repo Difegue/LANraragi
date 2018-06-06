@@ -220,3 +220,10 @@ a:hover > .page-number {
 .qtip {
     max-width: 1000px !important;
 }
+
+.reader-image {
+    max-width:100%; 
+    height: auto; 
+    width: auto; 
+    min-height:300px;
+}
