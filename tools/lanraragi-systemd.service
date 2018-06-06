@@ -1,0 +1,16 @@
+# This systemd service file is provided as an example and might not work out-of-the-box with recent versions of LRR.
+# It assumes you already have a standard redis installation on your Linux OS.
+# (Provided by jmhickman, thanks!)
+
+[Unit]
+Description=LANraragi web application
+After=network.target,redis.service # not sure if just redis.service would work or not
+
+[Service]
+Type=simple
+WorkingDirectory=your_install_path
+ExecStart=/usr/bin/npm start
+#Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

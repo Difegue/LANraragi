@@ -49,7 +49,7 @@
 		</div>
 
 		<div id="i4">
-			[% INCLUDE fileinfo %] [% INCLUDE arrows %]
+			[% INCLUDE fileinfo %] [% INCLUDE pagesel %] [% INCLUDE arrows %]
 		</div>
 
 		<div id="i5">
@@ -171,12 +171,12 @@
 [% BLOCK pagesel %]
 <div style="position: absolute; right: 20px; z-index:20" class="page_dropdown">
 
-	<a href="#" onclick="openSettings();" title="Reader Settings">
-		<i class="fa fa-cog fa-2x" style="padding-right: 10px;"></i>
-	</a>
-
 	<a href="#" onclick="openOverlay();" title="Archive Overview">
 		<i class="fa fa-th fa-2x" style="padding-right: 10px;"></i>
+	</a>
+
+	<a href="#" onclick="openSettings();" title="Reader Settings">
+		<i class="fa fa-cog fa-2x" style="padding-right: 10px;"></i>
 	</a>
 
 	<a href="#" onclick="toastHelpReader()" title="Help">
