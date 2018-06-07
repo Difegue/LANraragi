@@ -80,14 +80,22 @@ function updateImageMap() {
 
 function goToPage(page) {
 
+	oldPage = currentPage;
+
 	if (page < 0)
 		currentPage = 0;
 	else if (page >= pageNumber)
 		currentPage = pageNumber - 1;
 	else currentPage = page;
 
-	//update image
-	$("#img").attr("src", pages.pages[currentPage]);
+	//if double-page view is enabled(and the current page isn't the first or the last)
+	if (localStorage.doublepage === 'true' && currentPage > 0 && currentPage < pageNumber - 1) {
+		//composite an image and use that as the source
+		img1 = loadImage(pages.pages[currentPage], canvasCallback);
+		img2 = loadImage(pages.pages[currentPage + 1], canvasCallback);
+	}
+	else //in single view, just use the source URLs as is
+		$("#img").attr("src", pages.pages[currentPage]);
 
 	//scale to view simply forces image height at 90vh (90% of viewport height)
 	if (localStorage.scaletoview === 'true')
@@ -120,34 +128,6 @@ function goToPage(page) {
 
 	//scroll to top
 	$('body').scrollTop(0);
-}
-
-function goLeft() {
-	if (localStorage.readorder === 'true')
-		goToPage(currentPage + 1);
-	else
-		goToPage(currentPage - 1);
-}
-
-function goRight() {
-	if (localStorage.readorder === 'true')
-		goToPage(currentPage - 1);
-	else
-		goToPage(currentPage + 1);
-}
-
-function goFirst() {
-	if (localStorage.readorder === 'true')
-		goToPage(pageNumber - 1);
-	else
-		goToPage(0);
-}
-
-function goLast() {
-	if (localStorage.readorder === 'true')
-		goToPage(0);
-	else
-		goToPage(pageNumber - 1);
 }
 
 function initArchivePageOverlay() {
@@ -219,4 +199,79 @@ function confirmThumbnailReset(id) {
 			});
 		});
 	}
+}
+
+function canvasCallback() {
+	imagesLoaded += 1;
+
+	if (imagesLoaded == 2) {
+
+		//If w > h on one of the images, set canvasdata to the first image only
+		if (img1.naturalWidth > img1.naturalHeight || img2.naturalWidth > img2.naturalHeight) {
+			$("#img").attr("src", img1.src);
+			imagesLoaded = 0;
+			return;
+		}
+
+		//Create an adequately-sized canvas
+		var canvas = $("#dpcanvas")[0];
+		canvas.width = img1.naturalWidth + img2.naturalWidth;
+		canvas.height = Math.max(img1.naturalHeight, img2.naturalHeight);
+
+		//Draw both images on it
+		ctx = canvas.getContext("2d");
+		if (localStorage.readorder === 'true') {
+			ctx.drawImage(img2, 0, 0);
+			ctx.drawImage(img1, img2.naturalWidth + 1, 0);
+		} else {
+			ctx.drawImage(img1, 0, 0);
+			ctx.drawImage(img2, img1.naturalWidth + 1, 0);
+		}
+
+		imagesLoaded = 0;
+		$("#img").attr("src", canvas.toDataURL('image/jpeg'));
+
+		//We successfully showed 2 pages, increment/decrement currentPage to show this
+		if (oldPage > currentPage)
+			currentPage--;
+		else
+			currentPage++;
+	}
+}
+
+function loadImage(src, onload) {
+	var img = new Image();
+
+	img.onload = onload;
+	img.src = src;
+
+	return img;
+}
+
+function goLeft() {
+	if (localStorage.readorder === 'true')
+		goToPage(currentPage + 1);
+	else
+		goToPage(currentPage - 1);
+}
+
+function goRight() {
+	if (localStorage.readorder === 'true')
+		goToPage(currentPage - 1);
+	else
+		goToPage(currentPage + 1);
+}
+
+function goFirst() {
+	if (localStorage.readorder === 'true')
+		goToPage(pageNumber - 1);
+	else
+		goToPage(0);
+}
+
+function goLast() {
+	if (localStorage.readorder === 'true')
+		goToPage(0);
+	else
+		goToPage(pageNumber - 1);
 }
