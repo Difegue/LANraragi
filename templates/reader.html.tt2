@@ -41,8 +41,8 @@
 				<img id="img" class="reader-image" onload="updateMetadata()" onerror="this.src='./img/noThumb.png'" src="[% imgpath %]" usemap="#Map"
 				/>
 				<map name="Map" id="Map">
-					<area id="leftmap" style="cursor:pointer;" onclick="goLeft()" shape="rect" />
-					<area id="rightmap" style="cursor:pointer;" onclick="goRight()" shape="rect" />
+					<area id="leftmap" style="cursor:pointer;" onclick="advancePage(-1)" shape="rect" />
+					<area id="rightmap" style="cursor:pointer;" onclick="advancePage(1)" shape="rect" />
 				</map>
 			</a>
 
@@ -82,7 +82,6 @@
 		id = "[%id%]";
 
 		//Go straight to page number in localStorage if it exists
-		oldPage = 0;
 		currentPage = parseInt(localStorage[id + "-reader"] || 0);
 		pageNumber = pages.pages.length;
 
@@ -90,6 +89,7 @@
 		imagesLoaded = 0;
 		img1 = "";
 		img2 = "";
+		showingSinglePage = false;
 
 		goToPage(currentPage);
 
@@ -157,7 +157,7 @@
 		<i class="fa fa-angle-double-left" style="font-size: 1.5em;"></i>
 	</a>
 
-	<a id="left" onclick="goLeft()" style="cursor:pointer;">
+	<a id="left" onclick="advancePage(-1)" style="cursor:pointer;">
 		<i class="fa fa-angle-left" style="font-size: 1.5em;"></i>
 	</a>
 
@@ -166,7 +166,7 @@
 		<span class="max-page"></span>
 	</div>
 
-	<a id="right" onclick="goRight()" style="cursor:pointer;">
+	<a id="right" onclick="advancePage(1)" style="cursor:pointer;">
 		<i class="fa fa-angle-right" style="font-size: 1.5em;"></i>
 	</a>
 

@@ -6,15 +6,15 @@ function moveSomething(e) {
 	switch (e.keyCode) {
 		case 37:
 			// left key pressed
-			goLeft();
+			advancePage(-1);
 			break;
 		case 32:
 			// spacebar pressed
-			goToPage(currentPage + 1);
+			advancePage(1);
 			break;
 		case 39:
 			// right key pressed
-			goRight();
+			advancePage(1);
 			break;
 		case 17:
 			// Ctrl key pressed
@@ -49,23 +49,37 @@ function updateMetadata() {
 	h = $("#img").get(0).naturalHeight;
 	size = "UNKNOWN"
 
-	//HEAD request to get filesize
-	xhr = $.ajax({
-		url: pages.pages[currentPage],
-		type: 'HEAD',
-		success: function () {
-			size = parseInt(xhr.getResponseHeader('Content-Length') / 1024, 10);
-		}
-	}).done(function (data) {
+	if (showingSinglePage) {
 
-		metadataString = filename + " :: " + w + " x " + h + " :: " + size + " KB";
+		//HEAD request to get filesize
+		xhr = $.ajax({
+			url: pages.pages[currentPage],
+			type: 'HEAD',
+			success: function () {
+				size = parseInt(xhr.getResponseHeader('Content-Length') / 1024, 10);
+			}
+		}).done(function (data) {
+
+			metadataString = filename + " :: " + w + " x " + h + " :: " + size + " KB";
+
+			$('.file-info').each(function () {
+				$(this).html(metadataString);
+			});
+
+			updateImageMap();
+		});
+
+	} else {
+
+		metadataString = "Double-Page View :: " + w + " x " + h;
 
 		$('.file-info').each(function () {
 			$(this).html(metadataString);
 		});
 
 		updateImageMap();
-	});
+
+	}
 
 }
 
@@ -80,8 +94,6 @@ function updateImageMap() {
 
 function goToPage(page) {
 
-	oldPage = currentPage;
-
 	if (page < 0)
 		currentPage = 0;
 	else if (page >= pageNumber)
@@ -94,8 +106,11 @@ function goToPage(page) {
 		img1 = loadImage(pages.pages[currentPage], canvasCallback);
 		img2 = loadImage(pages.pages[currentPage + 1], canvasCallback);
 	}
-	else //in single view, just use the source URLs as is
+	else {
+		//in single view, just use the source URLs as is
 		$("#img").attr("src", pages.pages[currentPage]);
+		showingSinglePage = true;
+	}
 
 	//scale to view simply forces image height at 90vh (90% of viewport height)
 	if (localStorage.scaletoview === 'true')
@@ -209,9 +224,13 @@ function canvasCallback() {
 		//If w > h on one of the images, set canvasdata to the first image only
 		if (img1.naturalWidth > img1.naturalHeight || img2.naturalWidth > img2.naturalHeight) {
 			$("#img").attr("src", img1.src);
+			showingSinglePage = true;
 			imagesLoaded = 0;
 			return;
 		}
+
+		//Double page confirmed
+		showingSinglePage = false;
 
 		//Create an adequately-sized canvas
 		var canvas = $("#dpcanvas")[0];
@@ -231,11 +250,6 @@ function canvasCallback() {
 		imagesLoaded = 0;
 		$("#img").attr("src", canvas.toDataURL('image/jpeg'));
 
-		//We successfully showed 2 pages, increment/decrement currentPage to show this
-		if (oldPage > currentPage)
-			currentPage--;
-		else
-			currentPage++;
 	}
 }
 
@@ -248,18 +262,16 @@ function loadImage(src, onload) {
 	return img;
 }
 
-function goLeft() {
-	if (localStorage.readorder === 'true')
-		goToPage(currentPage + 1);
-	else
-		goToPage(currentPage - 1);
-}
+// Go forward or backward in pages. Pass -1 for left, +1 for right.
+function advancePage(pageModifier) {
 
-function goRight() {
+	if (localStorage.doublepage === 'true' && showingSinglePage == false)
+		pageModifier = pageModifier * 2;
+
 	if (localStorage.readorder === 'true')
-		goToPage(currentPage - 1);
-	else
-		goToPage(currentPage + 1);
+		pageModifier = -pageModifier;
+
+	goToPage(currentPage + pageModifier);
 }
 
 function goFirst() {
