@@ -94,6 +94,8 @@ function updateImageMap() {
 
 function goToPage(page) {
 
+	previousPage = currentPage;
+	
 	if (page < 0)
 		currentPage = 0;
 	else if (page >= pageNumber)
@@ -223,7 +225,13 @@ function canvasCallback() {
 
 		//If w > h on one of the images, set canvasdata to the first image only
 		if (img1.naturalWidth > img1.naturalHeight || img2.naturalWidth > img2.naturalHeight) {
-			$("#img").attr("src", img1.src);
+			
+			//Depending on whether we were going forward or backward, display img1 or img2
+			if (previousPage > currentPage)
+				$("#img").attr("src", img2.src);
+			else
+				$("#img").attr("src", img1.src);
+			
 			showingSinglePage = true;
 			imagesLoaded = 0;
 			return;

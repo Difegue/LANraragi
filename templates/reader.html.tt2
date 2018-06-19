@@ -86,6 +86,7 @@
 		pageNumber = pages.pages.length;
 
 		//canvas variables
+		previousPage = -1;
 		imagesLoaded = 0;
 		img1 = "";
 		img2 = "";
