@@ -5,7 +5,7 @@ use warnings;
 use utf8;
 use feature 'fc';
 
-#Plugin system ahoy
+#Plugin system ahoy - this makes the LANraragi::Model::Plugins::plugins method available
 use Module::Pluggable require => 1, search_path => ['LANraragi::Plugin'];
 
 use Redis;
