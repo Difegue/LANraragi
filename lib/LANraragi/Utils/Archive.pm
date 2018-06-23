@@ -5,6 +5,7 @@ use warnings;
 use utf8;
 
 use File::Basename;
+use File::Path qw(remove_tree);
 use Encode;
 use Redis;
 use Image::Magick;
@@ -42,7 +43,7 @@ sub extract_thumbnail {
     my $path = "./public/temp/thumb";
 
     #Clean thumb temp to prevent file mismatch errors.
-    unlink glob $path . "/*.*";
+    remove_tree( $path, { error => \my $err } );
 
     #Get lsar's output, jam it in an array, and use it as @extracted.
     my $vals = `lsar "$file"`;
