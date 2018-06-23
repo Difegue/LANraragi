@@ -3,7 +3,6 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use Redis;
 use Encode;
-use Module::Load;
 no warnings 'experimental';
 use Cwd;
 
@@ -121,15 +120,13 @@ sub process_upload {
 
         $file->move_to($output_file);
 
-     #TODO - refresh @INC so it takes into account the new version of the plugin
-
         #Load the plugin dynamically.
         my $pluginclass = "LANraragi::Plugin::" . substr( $filename, 0, -3 );
 
         #Per Module::Pluggable rules, the plugin class matches the filename
-        #Module::Load's autoload method is used here.
         eval {
-            autoload $pluginclass;
+            #@INC is not refreshed mid-execution, so we use the full filepath
+            require $output_file;
             $pluginclass->plugin_info();
         };
 
@@ -154,14 +151,6 @@ sub process_upload {
 
         #We can now try to query it for metadata.
         my %pluginfo = $pluginclass->plugin_info();
-
-        my $redis = $self->LRR_CONF->get_redis();
-
-        my $namespace = $pluginfo{namespace};
-        my $namerds   = "LRR_PLUGIN_" . uc($namespace);
-
-        #Set the UGC flag to indicate this plugin is not core and can be deleted
-        $redis->hset( $namerds, "ugc", "1" );
 
         $self->render(
             json => {
