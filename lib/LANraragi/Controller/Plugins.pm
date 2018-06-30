@@ -135,6 +135,8 @@ sub process_upload {
                 "Could not instantiate plugin at namespace $pluginclass!");
             $logger->error($@);
 
+            unlink($output_file);
+
             $self->render(
                 json => {
                     operation => "upload_plugin",

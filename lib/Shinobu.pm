@@ -16,6 +16,7 @@ use feature qw(say);
 use Cwd;
 
 use FindBin;
+use Mojo::JSON qw(to_json);
 
 BEGIN {
     unshift @INC, "$FindBin::Bin/../lib";
@@ -280,6 +281,7 @@ sub build_json_cache {
 
         if ( -e $path ) {
             $json .= &build_archive_JSON( $id, $path );
+            $json .= ",";
         }
         else {
             #Delete leftover IDs
@@ -292,6 +294,8 @@ sub build_json_cache {
 
     }
 
+    #Remove trailing comma
+    chop $json;
     $json .= "]";
 
     #Write JSON to cache
@@ -338,16 +342,16 @@ sub build_archive_JSON {
           . "Untitled archive, please edit metadata.";
     }
 
-    my $finaljson = qq(
-		{
-			"arcid": "$id",
-			"title": "$title",
-			"tags": "$tags",
-			"isnew": "$isnew"
-		},
-	);
+    my $arcdata = {
+        arcid => $id,
+        title => $title,
+        tags  => $tags,
+        isnew => $isnew
+    };
 
-    return $finaljson;
+    #to_json automatically escapes JSON-critical characters.
+    return to_json($arcdata);
+
 }
 
 __PACKAGE__->initialize_from_new_process unless caller;

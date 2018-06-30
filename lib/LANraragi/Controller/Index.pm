@@ -68,6 +68,9 @@ sub index {
         #Get cached JSON from Redis
         $archivejson =
           decode_utf8( $redis->hget( "LRR_JSONCACHE", "archive_list" ) );
+
+        #Big quote escape in order to jam this into a JS variable
+        $archivejson =~ s/"/\\"/g;
     }
 
     #Checking if the user still has the default password enabled

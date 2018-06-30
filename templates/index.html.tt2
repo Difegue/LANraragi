@@ -1,137 +1,157 @@
 <html>
-		<head>
-			<title>[% title %]</title>
 
-			<meta name="viewport" content="width=device-width" />
-			<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-			
-			<link type="image/png" rel="icon" href="favicon.ico" />
-			<link rel="stylesheet" type="text/css" href="/css/lrr.css" />
-			
-			<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
-			<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.toast.min.css" />
-			<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.qtip.min.css" />
+<head>
+	<title>[% title %]</title>
 
-			<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
-			<script src="/js/vendor/jquery.dataTables.min.js" type="text/JAVASCRIPT"></script>
-			<script src="/js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
-			<script src="/js/vendor/jquery.qtip.min.js" type="text/JAVASCRIPT"></script>
+	<meta name="viewport" content="width=device-width" />
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
-			<script src="/js/index.js" type="text/JAVASCRIPT"></script>
-			<script src="/js/index_datatables.js" type="text/JAVASCRIPT"></script>
-			<script src="/js/theme.js" type="text/JAVASCRIPT"></script>
-			
-		</head>
+	<link type="image/png" rel="icon" href="favicon.ico" />
+	<link rel="stylesheet" type="text/css" href="/css/lrr.css" />
 
-		<body onload ="initIndex([% pagesize %],archiveJSON);">	
+	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
+	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.toast.min.css" />
+	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.qtip.min.css" />
 
-		[% IF userlogged %]
-			<p id="nb">
-				<i class="fa fa-caret-right"></i>
-				<a href="./upload">Upload Archive</a>
-				<span style="margin-left:5px"></span>
-				<i class="fa fa-caret-right"></i>
-				<a href="./config/plugins">Plugins</a>
-				<span style="margin-left:5px"></span>
-				<i class="fa fa-caret-right"></i>
-				<a href="./config">Configuration</a>
-				<span style="margin-left:5px"></span>
-				<i class="fa fa-caret-right"></i>
-				<a href="./backup">Database Backup/Restore</a>
-				<span style="margin-left:5px"></span>
-				<i class="fa fa-caret-right"></i>
-				<a href="./stats">Statistics</a>	
-				<i class="fa fa-caret-right"></i>
-				<a href="./logs">Logs</a>
-			</p>
-		[% ELSE %]
-			<p id="nb">
-				<i class="fa fa-caret-right"></i>
-				<a href="./login">Admin Login</a>
-				<span style="margin-left:5px"></span>
-				<i class="fa fa-caret-right"></i>
-				<a href="./stats">Statistics</a>
-			</p>
-		[% END %]
-			
-		<div class='ido'>
-			<div id='toppane'>
-			<h1 class='ih'>[% motd %]</h1> 
+	<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/jquery.dataTables.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/jquery.qtip.min.js" type="text/JAVASCRIPT"></script>
+
+	<script src="/js/index.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/index_datatables.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/theme.js" type="text/JAVASCRIPT"></script>
+
+</head>
+
+<body onload="initIndex([% pagesize %],archiveJSON);">
+
+	[% IF userlogged %]
+	<p id="nb">
+		<i class="fa fa-caret-right"></i>
+		<a href="./upload">Upload Archive</a>
+		<span style="margin-left:5px"></span>
+		<i class="fa fa-caret-right"></i>
+		<a href="./config/plugins">Plugins</a>
+		<span style="margin-left:5px"></span>
+		<i class="fa fa-caret-right"></i>
+		<a href="./config">Configuration</a>
+		<span style="margin-left:5px"></span>
+		<i class="fa fa-caret-right"></i>
+		<a href="./backup">Database Backup/Restore</a>
+		<span style="margin-left:5px"></span>
+		<i class="fa fa-caret-right"></i>
+		<a href="./stats">Statistics</a>
+		<i class="fa fa-caret-right"></i>
+		<a href="./logs">Logs</a>
+	</p>
+	[% ELSE %]
+	<p id="nb">
+		<i class="fa fa-caret-right"></i>
+		<a href="./login">Admin Login</a>
+		<span style="margin-left:5px"></span>
+		<i class="fa fa-caret-right"></i>
+		<a href="./stats">Statistics</a>
+	</p>
+	[% END %]
+
+	<div class='ido'>
+		<div id='toppane'>
+			<h1 class='ih'>[% motd %]</h1>
 			<div class='idi'>
-				
-			<input type='text' id='srch' class='search stdinput' size='90' placeholder='Search Title, Artist, Series, Language or Tags' /> 
-			<input id='clrsrch' class='stdbtn' type='button' value='Clear Filter'/></div>
+
+				<input type='text' id='srch' class='search stdinput' size='90' placeholder='Search Title, Artist, Series, Language or Tags'
+				/>
+				<input id='clrsrch' class='stdbtn' type='button' value='Clear Filter' />
+			</div>
 
 			<p id='cssbutton' style='display:inline'>
-				<input class='stdbtn' type='button' onclick="var win=window.open('random','_blank'); win.focus();" value='Give me a random archive'/>
-				<input id='viewbtn' class='stdbtn' type='button' onclick="switch_index_view()" value='Switch to Thumbnail View'/>
+				<input class='stdbtn' type='button' onclick="var win=window.open('random','_blank'); win.focus();" value='Give me a random archive'
+				/>
+				<input id='viewbtn' class='stdbtn' type='button' onclick="switch_index_view()" value='Switch to Thumbnail View' />
 			</p>
 
 			<table class="itg datatables">
 				<thead>
-				<tr>
-					<th></th>
-					<th id="titleheader"><a>Title</a></th>
-					<th id="artistheader"><a>Artist</a></th>
-					<th id="seriesheader"><a>Series</a></th>
-					<th id="tagsheader"><a>Tags</a></th>
-				</tr>
+					<tr>
+						<th></th>
+						<th id="titleheader">
+							<a>Title</a>
+						</th>
+						<th id="artistheader">
+							<a>Artist</a>
+						</th>
+						<th id="seriesheader">
+							<a>Series</a>
+						</th>
+						<th id="tagsheader">
+							<a>Tags</a>
+						</th>
+					</tr>
 				</thead>
 				<tbody class="list">
 				</tbody>
 			</table>
 
+			<div id="json-error" style="display:none">
+				<h1 style="color: red">
+					<i class="fas fa-bomb"></i> I don't know everything, but I sure as hell know this database's busted lads
+					<i class="fas fa-bomb"></i>
+				</h1>
+				<h2>The JSON cache is corrupt, and as such LANraragi is unable to display your archive list.
+					<br> You can try refreshing the cache manually by clicking
+					<a href="/api/discard_cache">here</a> to see if that fixes anything. </h2>
 			</div>
+
 		</div>
+	</div>
 
-		[% INCLUDE footer %]
+	[% INCLUDE footer %] [% IF nodebugmode %] [% ELSE %]
+	<i class="fas fa-bug" /> You're running in Debug Mode!
+	<i class="fas fa-bug" /> [% END %]
 
-		[% IF nodebugmode %] [% ELSE %]
-			<i class="fas fa-bug"/> You're running in Debug Mode! <i class="fas fa-bug"/>
+	<script>
+
+		//load archive JSON before anything else
+		archiveJSON = tryParseJSON("[% archiveJSON %]");
+
+		[% IF usingdefpass %]
+
+		//If the json has the "default password" flag, flash a friendly notification inviting the user to change his password
+		$.toast({
+			heading: 'You\'re using the default password and that\'s super baka of you',
+			text: '<a href="login">Login</a> with password "kamimamita" and <a href="config">change that shit</a> on the double.<br/>...Or just disable it! <br/>Why not check the configuration options afterwards, while you\'re at it? ',
+			hideAfter: false,
+			position: 'top-left',
+			icon: 'error'
+		});
 		[% END %]
 
-		<script>
+		[% IF buildingDBcache %]
 
-			//load archive JSON before anything else
-			archiveJSON = [% archiveJSON %];
+		//This notification flashes when the JSON cache for the archive DB is rebuilding - usually due to a new archive or metadata being updated.
+		$.toast({
+			heading: 'The database cache is currently building',
+			text: 'All your archives might not appear in this list yet, but they will! Eventually. <br/>Try refreshing the page a bit later. You can also check the current state of the build through the <a href="logs">logs</a>.',
+			hideAfter: false,
+			position: 'top-left',
+			icon: 'warning'
+		});
+		[% END %]
 
-			[% IF usingdefpass %]
+		if (localStorage.indexViewMode === 1)
+			$("#viewbtn").val("Switch to Thumbnail View");
+		else {
+			$("#viewbtn").val("Switch to List View");
+			$('.itg').hide();
+		}
 
-			//If the json has the "default password" flag, flash a friendly notification inviting the user to change his password
-				$.toast({
-				heading: 'You\'re using the default password and that\'s super baka of you',
-			    text: '<a href="login">Login</a> with password "kamimamita" and <a href="config">change that shit</a> on the double.<br/>...Or just disable it! <br/>Why not check the configuration options afterwards, while you\'re at it? ',
-			    hideAfter: false,
-			    position: 'top-left', 
-			    icon: 'error'
-				});
-			[% END %]
+		[% IF nodebugmode %]
+		checkVersion("[% version %]");
+		[% END %]
 
-			[% IF buildingDBcache %]
+	</script>
 
-			//This notification flashes when the JSON cache for the archive DB is rebuilding - usually due to a new archive or metadata being updated.
-				$.toast({
-				heading: 'The database cache is currently building',
-			    text: 'All your archives might not appear in this list yet, but they will! Eventually. <br/>Try refreshing the page a bit later. You can also check the current state of the build through the <a href="logs">logs</a>.',
-			    hideAfter: false,
-			    position: 'top-left', 
-			    icon: 'warning'
-				});
-			[% END %]
+</body>
 
-			if (localStorage.indexViewMode === 1)
-			    $("#viewbtn").val("Switch to Thumbnail View");
-			  else
-			  {
-			    $("#viewbtn").val("Switch to List View");
-			    $('.itg').hide();
-			  }
-
-			[% IF nodebugmode %]
-			checkVersion("[% version %]");
-			[% END %]
-			
-		</script>
-
-	</body>
 </html>
