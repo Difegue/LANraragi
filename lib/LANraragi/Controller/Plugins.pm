@@ -101,7 +101,7 @@ sub process_upload {
     my $self = shift;
 
     #Plugin upload is only allowed in Debug Mode.
-    if ($self->app->mode eq "development" {
+    if ($self->app->mode ne "development") {
         $self->render(
                 json => {
                     operation => "upload_plugin",
@@ -111,7 +111,7 @@ sub process_upload {
             );
 
             return;
-    })
+    }
 
     #Receive uploaded file.
     my $file     = $self->req->upload('file');
