@@ -2,17 +2,17 @@
 requires 'perl', '5.20.2';
 
 requires 'Redis', 1.991;
-requires 'Encode', 2.94;
+requires 'Encode', 2.98;
 
-requires 'IPC::Cmd', 0.98;
-requires 'Digest::SHA', 6.01;
-requires 'URI::Escape', 1.73;
+requires 'IPC::Cmd', 1.02;
+requires 'Digest::SHA', 6.02;
+requires 'URI::Escape', 1.74;
 requires 'Authen::Passphrase', 0.008;
 requires 'File::ReadBackwards', 1.05;
 requires 'File::Find::utf8', 0.013;
 
-requires 'Mojolicious', 7.61;
-requires 'Mojolicious::Plugin::TemplateToolkit', 0.002;
+requires 'Mojolicious', 7.85;
+requires 'Mojolicious::Plugin::TemplateToolkit', 0.003;
 requires 'Mojolicious::Plugin::RenderFile', 0.12;
 requires 'Mojo::IOLoop::ProcBackground', 0.06;
 requires 'IO::Socket::SSL', 2.056;
