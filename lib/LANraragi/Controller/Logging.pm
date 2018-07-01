@@ -5,7 +5,9 @@ use Redis;
 use Encode;
 use File::ReadBackwards;
 
-use LANraragi::Model::Utils;
+use LANraragi::Utils::Generic;
+use LANraragi::Utils::Archive;
+use LANraragi::Utils::Database;
 
 # This action will render a template
 sub index {
@@ -15,7 +17,7 @@ sub index {
     $self->render(
         template => "logs",
         title    => $self->LRR_CONF->get_htmltitle,
-        cssdrop  => LANraragi::Model::Utils::generate_themes
+        cssdrop  => LANraragi::Utils::Generic::generate_themes
     );
 }
 

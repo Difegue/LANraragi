@@ -4,7 +4,10 @@ use Mojo::Base 'Mojolicious::Controller';
 use Encode;
 use File::Find::utf8;
 
-use LANraragi::Model::Utils;
+use LANraragi::Utils::Generic;
+use LANraragi::Utils::Archive;
+use LANraragi::Utils::Database;
+
 use LANraragi::Model::Config;
 
 use Authen::Passphrase::BlowfishCrypt;
@@ -21,7 +24,6 @@ sub index {
         motd        => $self->LRR_CONF->get_motd,
         dirname     => $self->LRR_CONF->get_userdir,
         pagesize    => $self->LRR_CONF->get_pagesize,
-        readorder   => $self->LRR_CONF->get_readorder,
         enablepass  => $self->LRR_CONF->enable_pass,
         password    => $self->LRR_CONF->get_password,
         blacklist   => $self->LRR_CONF->get_tagblacklist,
@@ -30,7 +32,7 @@ sub index {
         autotag     => $self->LRR_CONF->enable_autotag,
         devmode     => $self->LRR_CONF->enable_devmode,
         nofunmode   => $self->LRR_CONF->enable_nofun,
-        cssdrop     => LANraragi::Model::Utils::generate_themes,
+        cssdrop     => LANraragi::Utils::Generic::generate_themes,
         tempsize    => int( $size / 1048576 * 100 ) / 100
     );
 }
@@ -45,18 +47,19 @@ sub save_config {
     my $errormess = "";
 
     my %confhash = (
-        htmltitle => scalar $self->req->param('htmltitle'),
-        motd      => scalar $self->req->param('motd'),
-        dirname   => scalar $self->req->param('dirname'),
-        pagesize  => scalar $self->req->param('pagesize'),
-        blacklist => scalar $self->req->param('blacklist'),
-        readorder => ( scalar $self->req->param('readorder') ? '1' : '0' )
-        , #for checkboxes, we check if the parameter exists in the POST to return either 1 or 0.
+        htmltitle   => scalar $self->req->param('htmltitle'),
+        motd        => scalar $self->req->param('motd'),
+        dirname     => scalar $self->req->param('dirname'),
+        pagesize    => scalar $self->req->param('pagesize'),
+        blacklist   => scalar $self->req->param('blacklist'),
+        tempmaxsize => scalar $self->req->param('tempmaxsize'),
+
+        #for checkboxes,
+        #we check if the parameter exists in the POST to return either 1 or 0.
         enablepass => ( scalar $self->req->param('enablepass') ? '1' : '0' ),
         autotag    => ( scalar $self->req->param('autotag')    ? '1' : '0' ),
         devmode    => ( scalar $self->req->param('devmode')    ? '1' : '0' ),
-        nofunmode    => ( scalar $self->req->param('nofunmode')    ? '1' : '0' ),
-        tempmaxsize => scalar $self->req->param('tempmaxsize')
+        nofunmode  => ( scalar $self->req->param('nofunmode')  ? '1' : '0' )
     );
 
     #only add newpassword field as password if enablepass = 1
@@ -78,12 +81,13 @@ sub save_config {
     }
 
     #Verifications.
-    if ( $self->req->param('newpassword') ne $self->req->param('newpassword2')) { #Password check
+    if ( $self->req->param('newpassword') ne $self->req->param('newpassword2') )
+    {    #Password check
         $success   = 0;
         $errormess = "Mismatched passwords.";
     }
 
-    if ( $confhash{pagesize} =~ /\D+/ ) {   #Numbers only in fields w. numbers
+    if ( $confhash{pagesize} =~ /\D+/ ) {    #Numbers only in fields w. numbers
         $success   = 0;
         $errormess = "Invalid characters.";
     }
@@ -91,14 +95,14 @@ sub save_config {
     #Did all the checks pass ?
     if ($success) {
 
-        #clean up the user's inputs for non-toggle options and encode for redis insertion
+#clean up the user's inputs for non-toggle options and encode for redis insertion
         foreach my $key ( keys %confhash ) {
-            LANraragi::Model::Utils::remove_spaces  ( $confhash{$key} );
-            LANraragi::Model::Utils::remove_newlines( $confhash{$key} );
+            LANraragi::Utils::Generic::remove_spaces( $confhash{$key} );
+            LANraragi::Utils::Generic::remove_newlines( $confhash{$key} );
             encode_utf8( $confhash{$key} );
         }
 
-        #for all keys of the hash, add them to the redis config hash with the matching keys.
+#for all keys of the hash, add them to the redis config hash with the matching keys.
         $redis->hset( "LRR_CONFIG", $_, $confhash{$_}, sub { } )
           for keys %confhash;
         $redis->wait_all_responses;

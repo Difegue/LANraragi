@@ -1,50 +1,57 @@
 <html>
-	<head>
-		<title>[% title %] - Plugin Configuration</title>
 
-		<meta name="viewport" content="width=device-width" />
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<head>
+	<title>[% title %] - Plugin Configuration</title>
 
-		<link type="image/png" rel="icon" href="favicon.ico" />
-		
-		<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
-		<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.toast.min.css" />
+	<meta name="viewport" content="width=device-width" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
-		<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
-		<script src="/js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
+	<link type="image/png" rel="icon" href="favicon.ico" />
 
-		<script src="/js/theme.js" type="text/JAVASCRIPT"></script>
-		<script src="/js/ajax.js" type="text/JAVASCRIPT"></script>
+	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
+	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.fileupload.css" />
+	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.toast.min.css" />
 
-	</head>
+	<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/jquery.ui.widget.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/jquery.fileupload.js" type="text/JAVASCRIPT"></script>
 
-	<body onload="set_style_from_storage();">
+	<script src="/js/theme.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/ajax.js" type="text/JAVASCRIPT"></script>
 
-		<style> 
-			/*** custom checkboxes ***/
-			input[type='checkbox'] {
-			    -webkit-appearance:none;
-			    -moz-appearance:none;
-			    appearance:none;
-			    font-size:30px;
-			    cursor:pointer;
-			    margin-left: 0px;
-			}
+</head>
 
-			input[type='checkbox']::before {
-    			content: "\f0c8";
-			}
+<body onload="set_style_from_storage(); initUpload();">
 
-			input[type='checkbox']:checked::before {
-			    content: "\f14a";
-			}
-		</style>
+	<style>
+		/*** custom checkboxes ***/
 
-		<div class="ido" style="text-align:center;"><h1 class="ih" style="text-align:center">Plugin Configuration</h1> <br>
+		input[type='checkbox'] {
+			-webkit-appearance: none;
+			-moz-appearance: none;
+			appearance: none;
+			font-size: 30px;
+			cursor: pointer;
+			margin-left: 0px;
+		}
 
-			Enable/Disable metadata plugins by ticking the matching checkboxes. If they have configuration variables, you can set them here as well.<br/>
-			Enabled plugins will be automatically used when new archives are added if the matching option is enabled in LRR Config. <br/>
-			<br/>
+		input[type='checkbox']::before {
+			content: "\f0c8";
+		}
+
+		input[type='checkbox']:checked::before {
+			content: "\f14a";
+		}
+	</style>
+
+	<div class="ido" style="text-align:center;">
+		<h1 class="ih" style="text-align:center">Plugin Configuration</h1>
+		<br> Enable/Disable metadata plugins by ticking the matching checkboxes. If they have configuration variables, you can set
+		them here as well.
+		<br/> Enabled plugins will be automatically used when new archives are added if the matching option is enabled in LRR Config.
+		<br/>
+		<br/>
 
 		<form name="editPluginForm" id="editPluginForm" enctype="multipart/form-data" method="post">
 
@@ -52,32 +59,66 @@
 			[% FOREACH plugin IN plugins %]
 			<span style="display:inline-block; text-align: left; min-width:80%">
 				[% IF plugin.enabled %]
-			  		<input id="[% plugin.namespace %]" name="[% plugin.namespace %]" class="fa" type="checkbox" checked>
-			  	[% ELSE %]
-			  		<input id="[% plugin.namespace %]" name="[% plugin.namespace %]" class="fa" type="checkbox">
-			  	[% END %]
+				<input id="[% plugin.namespace %]" name="[% plugin.namespace %]" class="fa" type="checkbox" checked> [% ELSE %]
+				<input id="[% plugin.namespace %]" name="[% plugin.namespace %]" class="fa" type="checkbox"> [% END %]
 
-				<h2 class="ih" style="display:inline"> [% plugin.name %] v.[% plugin.version %]</h2> <h1 class="ih" style="display:inline"> by [% plugin.author %] </h1> <br/>
-		        <i >[% plugin.description %]</i> <br/>
+				<h2 class="ih" style="display:inline"> [% plugin.name %] v.[% plugin.version %]</h2>
+				<h1 class="ih" style="display:inline"> by [% plugin.author %] </h1>
+				<br/>
+				<i>[% plugin.description %]</i>
+				<br/> [% IF plugin.global_arg %]
+				<b> [% plugin.global_arg %] : </b>
+				<input class="stdinput" style="max-width:200px" size="20" value="[% plugin.customarg %]" name="[% plugin.namespace %]_CFG"
+				 type="text"> [% END %]
+				<br/>
+			</span>
+			<br/>
+			<br/> [% END %]
 
-		        [% IF plugin.global_arg %]
-		        	<b> [% plugin.global_arg %] : </b> <input class="stdinput" style="max-width:200px" size="20" value="[% plugin.customarg %]" name="[% plugin.namespace %]_CFG" type="text">
-		        [% END %]
-		        <br/>
-		    </span>
-		    <br/> <br/>
-		    [% END %]
 
-		   
-		    	<br/>
-		    	<h1 style="text-align:center">
-					<input class='stdbtn' type='button' onclick="saveFormData('#editPluginForm');" value='Save Plugin Configuration'/>
-					<input class='stdbtn' type='button' onclick="window.location.replace('/config');" value='Go to LRR Configuration'/>
-					<input class='stdbtn' type='button' onclick="window.location.replace('/');" value='Return to Library'/>
-				</h1>
+			<br/>
+			<h1 style="text-align:center">
+				<input class='stdbtn' type='button' onclick="saveFormData('#editPluginForm');" value='Save Plugin Configuration' />
+				<span id="plugin-upload" class='stdbtn fileinput-button' style="margin-bottom: -10px; font-weight:normal">
+					<span style="position:absolute; top:5px; left:25%">Upload Plugin</span>
+					<input type='file' name='file' multiple id='fileupload'>
+				</span>
+				<input class='stdbtn' type='button' onclick="window.location.replace('/');" value='Return to Library' />
+			</h1>
 		</form>
-		</div>
+	</div>
 
-	[% INCLUDE footer %]
-	</body>
+	<script>
+		function initUpload() {
+
+			//Handler for file uploading.
+			$('#fileupload').fileupload({
+				url: '/config/plugins/upload',
+				dataType: 'json',
+				done: function (e, data) {
+
+					if (data.result.success)
+						$.toast({
+							heading: 'Plugin successfully uploaded!',
+							text: 'The plugin "' + data.result.name + '" has been successfully added. Refresh the page to see it.',
+							hideAfter: false,
+							position: 'top-left',
+							icon: 'info'
+						});
+					else
+						$.toast({
+							heading: 'Error uploading plugin',
+							text: data.result.error,
+							hideAfter: false,
+							position: 'top-left',
+							icon: 'error'
+						});
+				}
+
+			});
+
+		}
+	</script> [% INCLUDE footer %]
+</body>
+
 </html>

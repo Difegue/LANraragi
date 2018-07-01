@@ -16,6 +16,7 @@ use feature qw(say);
 use Cwd;
 
 use FindBin;
+use Mojo::JSON qw(to_json);
 
 BEGIN {
     unshift @INC, "$FindBin::Bin/../lib";
@@ -28,16 +29,20 @@ use File::stat;
 use File::Path qw(make_path remove_tree);
 use Encode;
 
+use LANraragi::Utils::Generic;
+use LANraragi::Utils::Archive;
+use LANraragi::Utils::Database;
+
 use LANraragi::Model::Config;
-use LANraragi::Model::Utils;
 
 sub initialize_from_new_process {
 
     my $interval = LANraragi::Model::Config::get_interval;
-    my $logger = LANraragi::Model::Utils::get_logger( "Shinobu", "lanraragi" );
+    my $logger =
+      LANraragi::Utils::Generic::get_logger( "Shinobu", "lanraragi" );
 
     $logger->info(
-        "Shinobu Background Worker started -- Content folder will be scanned every $interval seconds."
+"Shinobu Background Worker started -- Content folder will be scanned every $interval seconds."
     );
     $logger->info( "Working dir is " . cwd );
 
@@ -47,9 +52,9 @@ sub initialize_from_new_process {
 
         eval {
             $count++;
-            workload($count eq $interval);
+            workload( $count eq $interval );
 
-            if ($count eq $interval) {
+            if ( $count eq $interval ) {
                 $count = 0;
             }
         };
@@ -64,20 +69,21 @@ sub initialize_from_new_process {
 
 sub workload {
 
-    my $logger = LANraragi::Model::Utils::get_logger( "Shinobu", "lanraragi" );
-    my $redis  = LANraragi::Model::Config::get_redis;
+    my $logger =
+      LANraragi::Utils::Generic::get_logger( "Shinobu", "lanraragi" );
+    my $redis = LANraragi::Model::Config::get_redis;
 
-    my $force = $_[0]; 
+    my $force       = $_[0];
     my $redis_force = 0;
-    
-    if ($redis->hexists( "LRR_JSONCACHE", "force_refresh" ) ) {
+
+    if ( $redis->hexists( "LRR_JSONCACHE", "force_refresh" ) ) {
 
         #Force flag, usually set when metadata has been modified by the user.
         $redis_force = $redis->hget( "LRR_JSONCACHE", "force_refresh" );
     }
 
-    #Content folder is parsed if we reached interval or if the force flag is set to 1 in Redis
-    if ($force || $redis_force) { 
+#Content folder is parsed if we reached interval or if the force flag is set to 1 in Redis
+    if ( $force || $redis_force ) {
 
         $redis->hset( "LRR_JSONCACHE", "force_refresh", 1 );
 
@@ -93,10 +99,12 @@ sub workload {
             &new_archive_check(@archives);
         }
 
-        if ($redis_force || $newcount != $cachecount) {
+        if ( $redis_force || $newcount != $cachecount ) {
 
-            $logger->info( "Archive count ($newcount) has changed since last cached value ($cachecount)" . 
-                " OR rebuild has been forced (flag value = $redis_force), rebuilding...");
+            $logger->info( "Archive count ($newcount) has changed "
+                  . "since last cached value ($cachecount) "
+                  . "OR rebuild has been forced (flag value = $redis_force), rebuilding..."
+            );
 
             &build_json_cache();
             $logger->info("Done!");
@@ -140,7 +148,8 @@ sub new_archive_check {
 
     my (@dircontents) = @_;
     my $redis = LANraragi::Model::Config::get_redis;
-    my $logger = LANraragi::Model::Utils::get_logger( "Shinobu", "lanraragi" );
+    my $logger =
+      LANraragi::Utils::Generic::get_logger( "Shinobu", "lanraragi" );
 
     my $processed_archives             = 0;
     my $maximum_archives_per_iteration = 20;
@@ -148,33 +157,37 @@ sub new_archive_check {
     foreach my $file (@dircontents) {
 
         #ID of the archive, used for storing data in Redis.
-        my $id = LANraragi::Model::Utils::compute_id($file);
+        my $id = LANraragi::Utils::Database::compute_id($file);
 
-        #As the workload loops, we need to inform the user about the state of the archive importation -- 
-        #which means generating a JSON every now and then.
+#As the workload loops, we need to inform the user about the state of the archive importation --
+#which means generating a JSON every now and then.
         if ( $processed_archives >= $maximum_archives_per_iteration ) {
-            $logger->debug( "Processed $maximum_archives_per_iteration Archives, " . 
-                "building JSON."
-            );
-            
+            $logger->debug(
+                    "Processed $maximum_archives_per_iteration Archives, "
+                  . "building JSON." );
+
             $processed_archives = 0;
             &build_json_cache();
         }
 
         #Duplicate file detector
-        if ($redis->hexists($id,"title")) {
-        	my $cachefile = $redis->hget($id,"file");
-        	my $filet = LANraragi::Model::Utils::redis_decode($file);
-        	$cachefile = LANraragi::Model::Utils::redis_decode($cachefile);
-        	if ($cachefile ne $filet) {
-        		$logger->warn("This ID exists in the Redis Database but doesn't have the same file! You might be having duplicate files!");
-        		$logger->warn("Our file: $filet");
-        		$logger->warn("Cached file: $cachefile");
-        	}
-        } else {
+        if ( $redis->hexists( $id, "title" ) ) {
+            my $cachefile = $redis->hget( $id, "file" );
+            my $filet = LANraragi::Utils::Database::redis_decode($file);
+            $cachefile = LANraragi::Utils::Database::redis_decode($cachefile);
+            if ( $cachefile ne $filet ) {
+                $logger->warn( "This ID exists in the Redis Database but "
+                      . "doesn't have the same file! You might be having duplicate files!"
+                );
+                $logger->warn("Our file: $filet");
+                $logger->warn("Cached file: $cachefile");
+            }
+        }
+        else {
             #Trigger archive addition if title isn't in Redis
             $logger->info("Adding new file $file with ID $id");
-            LANraragi::Model::Utils::add_archive_to_redis( $id, $file, $redis );
+            LANraragi::Utils::Database::add_archive_to_redis( $id, $file,
+                $redis );
 
             #AutoTagging using enabled plugins goes here!
             if (LANraragi::Model::Config::enable_autotag) {
@@ -187,7 +200,8 @@ sub new_archive_check {
 
 sub autoclean_temp_folder {
 
-    my $logger = LANraragi::Model::Utils::get_logger( "Shinobu", "lanraragi" );
+    my $logger =
+      LANraragi::Utils::Generic::get_logger( "Shinobu", "lanraragi" );
 
     my $size = 0;
     find( sub { $size += -s if -f }, "$FindBin::Bin/../public/temp" );
@@ -196,12 +210,11 @@ sub autoclean_temp_folder {
     my $maxsize = LANraragi::Model::Config::get_tempmaxsize;
 
     if ( $size > $maxsize ) {
-        $logger->info( "Current temporary folder size is $size MBs, " . 
-            "Maximum size is $maxsize MBs. Cleaning."
-        );
+        $logger->info( "Current temporary folder size is $size MBs, "
+              . "Maximum size is $maxsize MBs. Cleaning." );
 
-        #Remove all folders in /public/temp except the most recent one
-        #For this, we use Perl's ctime, which uses inode last modified time on Unix and Win32 creation time on Windows.
+#Remove all folders in /public/temp except the most recent one
+#For this, we use Perl's ctime, which uses inode last modified time on Unix and Win32 creation time on Windows.
         my $dir_name = "$FindBin::Bin/../public/temp";
 
         #Wipe thumb temp folder first
@@ -251,27 +264,29 @@ sub build_json_cache {
 
     my $redis   = LANraragi::Model::Config::get_redis;
     my $dirname = LANraragi::Model::Config::get_userdir;
-    my $logger  = LANraragi::Model::Utils::get_logger( "Shinobu", "lanraragi" );
+    my $logger =
+      LANraragi::Utils::Generic::get_logger( "Shinobu", "lanraragi" );
 
     my $json = "[";
 
     #SHA-1 IDs are 40 characters long.
-    my @keys = $redis->keys('????????????????????????????????????????');    
+    my @keys         = $redis->keys('????????????????????????????????????????');
     my $archivecount = scalar @keys;
     my $treated      = 0;
 
     #Iterate on hashes to get their tags
     foreach my $id (@keys) {
         my $path = $redis->hget( $id, "file" );
-        $path = LANraragi::Model::Utils::redis_decode($path);
+        $path = LANraragi::Utils::Database::redis_decode($path);
 
         if ( -e $path ) {
             $json .= &build_archive_JSON( $id, $path );
+            $json .= ",";
         }
         else {
             #Delete leftover IDs
             $logger->warn("Deleting ID $id - File $path cannot be found.");
-            $redis->del($id);    
+            $redis->del($id);
         }
 
         $treated++;
@@ -279,6 +294,8 @@ sub build_json_cache {
 
     }
 
+    #Remove trailing comma
+    chop $json;
     $json .= "]";
 
     #Write JSON to cache
@@ -300,16 +317,16 @@ sub build_archive_JSON {
     my %hash = $redis->hgetall($id);
     my ( $path, $suffix );
 
-    #It's not a new archive, but it might have never been clicked on yet, 
+    #It's not a new archive, but it might have never been clicked on yet,
     #so we'll grab the value for $isnew stored in redis.
     my ( $name, $title, $tags, $filecheck, $isnew ) =
       @hash{qw(name title tags file isnew)};
 
     #Parameters have been obtained, let's decode them.
-    ( $_ = LANraragi::Model::Utils::redis_decode($_) )
+    ( $_ = LANraragi::Utils::Database::redis_decode($_) )
       for ( $name, $title, $tags, $filecheck );
 
-    #Update the real file path and title if they differ from the saved one 
+    #Update the real file path and title if they differ from the saved one
     #...just in case the file got manually renamed or some weird shit
     unless ( $file eq $filecheck ) {
         ( $name, $path, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
@@ -320,19 +337,21 @@ sub build_archive_JSON {
 
     #Workaround if title was incorrectly parsed as blank
     if ( $title =~ /^\s*$/ ) {
-        $title = "<i class='fa fa-exclamation-circle'></i> Untitled archive, please edit metadata.";
+        $title =
+            "<i class='fa fa-exclamation-circle'></i> "
+          . "Untitled archive, please edit metadata.";
     }
 
-    my $finaljson = qq(
-		{
-			"arcid": "$id",
-			"title": "$title",
-			"tags": "$tags",
-			"isnew": "$isnew"
-		},
-	);
+    my $arcdata = {
+        arcid => $id,
+        title => $title,
+        tags  => $tags,
+        isnew => $isnew
+    };
 
-    return $finaljson;
+    #to_json automatically escapes JSON-critical characters.
+    return to_json($arcdata);
+
 }
 
 __PACKAGE__->initialize_from_new_process unless caller;

@@ -8,7 +8,10 @@ use Redis;
 use Encode;
 use Mojo::JSON qw(decode_json encode_json);
 
-use LANraragi::Model::Utils;
+use LANraragi::Utils::Generic;
+use LANraragi::Utils::Archive;
+use LANraragi::Utils::Database;
+
 use LANraragi::Model::Config;
 
 #build_backup_JSON()
@@ -19,6 +22,7 @@ sub build_backup_JSON {
 
     #Fill the list with archives by looking up in redis
     my @keys = $redis->keys('????????????????????????????????????????');
+
     #40-character long keys only => Archive IDs
 
     #Parse the archive list and add them to JSON.
@@ -29,14 +33,14 @@ sub build_backup_JSON {
         my ( $name, $title, $tags, $file, $thumbhash ) =
           @hash{qw(name title tags file thumbhash)};
 
-        ( $_ = LANraragi::Model::Utils::redis_decode($_) )
+        ( $_ = LANraragi::Utils::Database::redis_decode($_) )
           for ( $name, $title, $tags, $file );
 
-        ( LANraragi::Model::Utils::remove_newlines($_) )
-        for ( $name, $title, $tags, $file );
+        ( LANraragi::Utils::Generic::remove_newlines($_) )
+          for ( $name, $title, $tags, $file );
 
-        #Backup all user-generated metadata, alongside the unique ID and the filesystem path.
-        #Filesystem path is normally unused but can serve as a fallback if the ID can't be used.
+#Backup all user-generated metadata, alongside the unique ID and the filesystem path.
+#Filesystem path is normally unused but can serve as a fallback if the ID can't be used.
         $json .= qq(
                 {
                     "arcid": "$id",
@@ -64,7 +68,7 @@ sub restore_from_JSON {
     my $redis = LANraragi::Model::Config::get_redis;
 
     my $logger =
-      LANraragi::Model::Utils::get_logger( "Backup/Restore", "lanraragi" );
+      LANraragi::Utils::Generic::get_logger( "Backup/Restore", "lanraragi" );
 
     my $json = decode_json( $_[0] );
 
@@ -75,22 +79,24 @@ sub restore_from_JSON {
         if ( $redis->hexists( $id, "title" ) ) {
 
             $logger->info("Restoring metadata for Archive $id...");
-            my $title = encode_utf8( $archive->{"title"} );
-            my $tags = encode_utf8( $archive->{"tags"} );
+            my $title     = encode_utf8( $archive->{"title"} );
+            my $tags      = encode_utf8( $archive->{"tags"} );
             my $thumbhash = encode_utf8( $archive->{"thumbhash"} );
 
-            $redis->hset($id, "title", $title);
-            $redis->hset($id, "tags", $tags);
+            $redis->hset( $id, "title", $title );
+            $redis->hset( $id, "tags",  $tags );
 
-            if ($redis->hexists($id, "thumbhash") && $redis->hget($id, "thumbhash") eq "") {
-                $redis->hset($id, "thumbhash", $thumbhash);
+            if (   $redis->hexists( $id, "thumbhash" )
+                && $redis->hget( $id, "thumbhash" ) eq "" )
+            {
+                $redis->hset( $id, "thumbhash", $thumbhash );
             }
 
         }
     }
 
-    #Force a refresh 
-    LANraragi::Model::Utils::invalidate_cache();
+    #Force a refresh
+    LANraragi::Utils::Database::invalidate_cache();
     $redis->quit();
 
 }

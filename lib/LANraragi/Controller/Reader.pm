@@ -3,7 +3,10 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use Encode;
 
-use LANraragi::Model::Utils;
+use LANraragi::Utils::Generic;
+use LANraragi::Utils::Archive;
+use LANraragi::Utils::Database;
+
 use LANraragi::Model::Config;
 use LANraragi::Model::Reader;
 
@@ -33,9 +36,9 @@ sub index {
             $arcname = $arcname . " by " . $1;
         }
 
-        $arcname = LANraragi::Model::Utils::redis_decode($arcname);
+        $arcname = LANraragi::Utils::Database::redis_decode($arcname);
 
-        my $force       = $self->req->param('force_reload') || "0";
+        my $force       = $self->req->param('force_reload')     || "0";
         my $thumbreload = $self->req->param('reload_thumbnail') || "0";
         my $imgpaths    = "";
 
@@ -63,9 +66,9 @@ sub index {
             arcname    => $arcname,
             id         => $id,
             imgpaths   => $imgpaths,
-            readorder  => $self->LRR_CONF->get_readorder(),
-            cssdrop    => LANraragi::Model::Utils::generate_themes,
-            userlogged => $self->LRR_CONF->enable_pass == 0 || $self->session('is_logged')
+            cssdrop    => LANraragi::Utils::Generic::generate_themes,
+            userlogged => $self->LRR_CONF->enable_pass == 0
+              || $self->session('is_logged')
         );
     }
     else {

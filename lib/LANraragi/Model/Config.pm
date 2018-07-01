@@ -58,7 +58,7 @@ sub get_redis_conf {
     my $redis = &get_redis;
 
     if ( $redis->hexists( "LRR_CONFIG", $param ) ) {
-        my $value = LANraragi::Model::Utils::redis_decode(
+        my $value = LANraragi::Utils::Database::redis_decode(
             $redis->hget( "LRR_CONFIG", $param ) );
 
         #failsafe against blank config values
@@ -108,11 +108,10 @@ sub get_tagblacklist {
 
 sub get_tempmaxsize { return &get_redis_conf( "tempmaxsize", "500" ) }
 sub get_pagesize    { return &get_redis_conf( "pagesize",    "100" ) }
-sub get_readorder   { return &get_redis_conf( "readorder",   "0"   ) }
-sub enable_pass     { return &get_redis_conf( "enablepass",  "1"   ) }
-sub enable_nofun    { return &get_redis_conf( "nofunmode",   "0"   ) }
-sub enable_autotag  { return &get_redis_conf( "autotag",     "1"   ) }
-sub enable_devmode  { return &get_redis_conf( "devmode",     "0"   ) }
+sub enable_pass     { return &get_redis_conf( "enablepass",  "1" ) }
+sub enable_nofun    { return &get_redis_conf( "nofunmode",   "0" ) }
+sub enable_autotag  { return &get_redis_conf( "autotag",     "1" ) }
+sub enable_devmode  { return &get_redis_conf( "devmode",     "0" ) }
 
 #Assign a name to the css file passed. You can add names by adding cases.
 #Note: CSS files added to the /themes folder will ALWAYS be pickable by the users no matter what.
@@ -129,8 +128,8 @@ sub css_default_names {
 
 }
 
-#Regular Expression matching the E-Hentai standard: (Release) [Artist] TITLE (Series) [Language] 
-#Used in parsing. 
+#Regular Expression matching the E-Hentai standard: (Release) [Artist] TITLE (Series) [Language]
+#Used in parsing.
 #Stuff that's between unescaped ()s is put in a numbered variable: $1,$2,etc
 #Parsing is only done the first time the file is found. The parsed info is then stored into Redis.
 #Change this regex if you wish to use a different parsing for mass-addition of archives.

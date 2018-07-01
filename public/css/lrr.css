@@ -45,14 +45,12 @@ top: 10px;
 }
 
 table thead .sorting_asc a:after {
-/*background-image: url(../img/down.png);*/
 border-left: 5px solid rgba(0, 0, 0, 0);
 border-right: 5px solid rgba(0, 0, 0, 0);
 border-top: 5px solid;
 }
 
 table thead .sorting_desc a:after {
-/*background-image: url(../img/up.png);*/
 border-top: none;
 border-bottom: 5px solid;
 border-left: 5px solid rgba(0, 0, 0, 0);
@@ -137,14 +135,10 @@ p#nb {
     div.sni h1 {overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
 }
 
-/*Hourglass animation for new archive treatment page*/
-.fa.fa-hourglass-end.spin {
-  transform: rotate(180deg);
-  transition: all 0.75s 0.25s;
-}
+
 
 /* Reader overlays. */
-.loading-overlay {
+.loading-overlay, .page-overlay, #overlay-shade  {
     display: none;
 }
 
@@ -170,10 +164,6 @@ p#nb {
     text-align: center;
 }
 
-.page-overlay, #overlay-shade {
-    display: none;
-}
-
 #overlay-shade {
     position: fixed;
     left: 0;
@@ -184,17 +174,25 @@ p#nb {
     background-color: #000;
 }
 
-.page-overlay {
+.base-overlay {
     position: fixed;
     top: 40px;
-    left: 5%;
-    width: 90% !important;
     min-height: 70%;
     z-index: 10000;
     box-shadow: 0 0 16px #000;
     padding-top: 10px !important;
     padding-bottom: 10px !important;
+}
+
+.page-overlay {
+    left: 5%;
+    width: 90% !important;
     overflow-y: scroll;
+} 
+
+.small-overlay {
+    left: 35%;
+    width: 30% !important;
 } 
 
 .ie7 .page-overlay {
@@ -221,4 +219,11 @@ a:hover > .page-number {
 
 .qtip {
     max-width: 1000px !important;
+}
+
+.reader-image {
+    max-width:100%; 
+    height: auto; 
+    width: auto; 
+    min-height:300px;
 }

@@ -4,7 +4,10 @@ use Mojo::Base 'Mojolicious::Controller';
 use Redis;
 use File::Find::utf8;
 
-use LANraragi::Model::Utils;
+use LANraragi::Utils::Generic;
+use LANraragi::Utils::Archive;
+use LANraragi::Utils::Database;
+
 use LANraragi::Model::Config;
 
 # This action will render a template
@@ -28,24 +31,24 @@ sub index {
         if ( $redis->hexists( $id, "tags" ) ) {
 
             $t = $redis->hget( $id, "tags" );
-            $t = LANraragi::Model::Utils::redis_decode($t);
+            $t = LANraragi::Utils::Database::redis_decode($t);
 
             #Split tags by comma
             @tags = split( /,\s?/, $t );
 
             foreach my $t (@tags) {
 
-                LANraragi::Model::Utils::remove_spaces  ($t);
-                LANraragi::Model::Utils::remove_newlines($t);
+                LANraragi::Utils::Generic::remove_spaces($t);
+                LANraragi::Utils::Generic::remove_newlines($t);
 
                 unless (
                     $t =~ /(artist|parody|language|event|group|circle):.*/i )
                 {    #Filter some specific namespaces from appearing in stats
 
-                    #Strip namespaces if necessary - detect the : symbol and only use what's after it
+#Strip namespaces if necessary - detect the : symbol and only use what's after it
                     if ( $t =~ /.*:(.*)/ ) { $t = $1 }
 
-                    #Increment value of tag if it's already in the result hash, create it otherwise
+ #Increment value of tag if it's already in the result hash, create it otherwise
                     if   ( exists( $tagcloud{$t} ) ) { $tagcloud{$t}++; }
                     else                             { $tagcloud{$t} = 1; }
                 }
@@ -54,7 +57,7 @@ sub index {
         }
     }
 
-    #When we're done going through tags, go through the tagCloud hash and build a JSON
+#When we're done going through tags, go through the tagCloud hash and build a JSON
     my $tagsjson = "[";
 
     @tags = keys %tagcloud;
@@ -78,7 +81,7 @@ sub index {
     $self->render(
         template     => "stats",
         title        => $self->LRR_CONF->get_htmltitle,
-        cssdrop      => LANraragi::Model::Utils::generate_themes,
+        cssdrop      => LANraragi::Utils::Generic::generate_themes,
         tagcloud     => $tagsjson,
         tagcount     => $tagcount,
         archivecount => $archivecount,
