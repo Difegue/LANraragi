@@ -106,9 +106,12 @@
 		</div>
 	</div>
 
-	[% INCLUDE footer %] [% IF nodebugmode %] [% ELSE %]
+	[% INCLUDE footer %] 
+	
+	[% IF debugmode %] 
 	<i class="fas fa-bug" /> You're running in Debug Mode!
-	<i class="fas fa-bug" /> [% END %]
+	<i class="fas fa-bug" /> 
+	[% END %]
 
 	<script>
 
@@ -146,7 +149,7 @@
 			$('.itg').hide();
 		}
 
-		[% IF nodebugmode %]
+		[% IF debugmode %] [% ELSE %]
 		checkVersion("[% version %]");
 		[% END %]
 

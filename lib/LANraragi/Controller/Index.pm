@@ -92,7 +92,7 @@ sub index {
         usingdefpass    => $passcheck,
         buildingDBcache => $force,
         version         => $version,
-        nodebugmode     => $self->app->mode ne "development"
+        debugmode     => $self->app->mode eq "development"
     );
 }
 
