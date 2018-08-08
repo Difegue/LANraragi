@@ -59,8 +59,9 @@
 		function showLog(type) {
 
 			$.get( "/logs/"+type, function( data ) {
-			  $( "#log-container" ).html( data );
+			  $("#log-container").html( data );
 			  $("#indicator").html(type);
+    		  $("#log-container").scrollTop($("#log-container").prop("scrollHeight"));
 			});
 
 		}
