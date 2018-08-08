@@ -37,19 +37,3 @@
         $('#themeOverlay').css('display', 'none');
     }
 </script>
-
-<style>
-    #theme-overlay-shade {
-        display: none;
-    }
-
-    #theme-overlay-shade {
-        position: fixed;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 9999;
-        background-color: #000;
-    }
-</style>

@@ -199,6 +199,17 @@ p#nb {
     height: 50%;
 } 
 
+#theme-overlay-shade {
+    position: fixed;
+    display: none;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background-color: #000;
+}
+
 .page-number {
     font-size: 20px; 
     position: absolute; 

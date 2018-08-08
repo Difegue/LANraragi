@@ -23,3 +23,8 @@ input[type='checkbox']:checked::before {
     width:100%;
     margin-bottom: 10px;
 }
+
+/* lrr.css override */
+td {
+    max-width: 2000px !important;
+}

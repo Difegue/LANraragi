@@ -2,3 +2,5 @@ node_modules
 content
 shinobu-pid
 npm-debug.log
+dump.rdb
+package-lock.json

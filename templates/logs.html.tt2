@@ -6,6 +6,7 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
 		<link type="image/png" rel="icon" href="favicon.ico" />
+		<link rel="stylesheet" type="text/css" href="/css/lrr.css" />
 		
 		<link rel="stylesheet" type="text/css" href="./css/vendor/fontawesome-all.min.css" />
 
@@ -22,7 +23,7 @@
 
 				<br>
 				You can check LANraragi logs here for debugging purposes.<br>
-				By default, this view only shows the last 100 lines of each logfile, newest lines first.  <br><br>
+				By default, this view only shows the last 100 lines of each logfile, newest lines last.  <br><br>
 				General Logs pertain to the main application. Plugin Logs are reserved for metadata plugins only. Mojolicious logs won't tell much unless you're running Debug Mode.
 				<br><br>
 

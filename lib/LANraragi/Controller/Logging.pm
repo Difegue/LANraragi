@@ -75,7 +75,7 @@ sub get_lines_from_file {
         for ( my $i = 0 ; $i <= $lines ; $i++ ) {
             my $line = $bw->readline();
             if ($line) {
-                $res = $res . $line;
+                $res = $line . $res;
             }
 
         }
