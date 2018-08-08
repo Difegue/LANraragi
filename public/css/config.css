@@ -18,9 +18,9 @@ input[type='checkbox']:checked::before {
 
 .config-panel {
     float:left; 
-    margin-left: 20%; 
+    margin-left: 5%; 
     text-align: left; 
-    width:100%;
+    width:90%;
     margin-bottom: 10px;
 }
 
