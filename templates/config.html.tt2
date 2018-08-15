@@ -12,9 +12,11 @@
 
 	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.toast.min.css" />
+	<link rel="stylesheet" type="text/css" href="/css/vendor/allcollapsible.min.css" />
 
 	<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/allcollapsible.min.js" type="text/JAVASCRIPT"></script>
 
 	<script src="/js/theme.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/ajax.js" type="text/JAVASCRIPT"></script>
@@ -23,181 +25,51 @@
 
 <body onload="set_style_from_storage();">
 
-	<div class="ido" style="text-align:center">
+	<div class="ido" >
 		<h1 class="ih" style="text-align:center">LANraragi Configuration</h1>
 		<br>
 		<br>
 		<form name="editConfigForm" id="editConfigForm" enctype="multipart/form-data" method="post">
-			<table style="margin:auto; font-size:8pt;">
-				<tbody>
 
-					<tr>
-						<td style="text-align:left; width:100px">
-							<h1 class="ih"> Site Title </h1>
-						</td>
-						<td>
-							<input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% title %]" name="htmltitle" type="text">
-							<br>The site title appears on most pages as...their title.
-						</td>
-					</tr>
-
-					<tr>
-						<td style="text-align:left; width:100px">
-							<h1 class="ih"> MOTD </h1>
-						</td>
-						<td>
-							<input id="motd" class="stdinput" style="width:100%" maxlength="255" size="20" value="[% motd %]" name="motd" type="text">
-							<br>Slang for Message of the Day. Appears on top of the main Library view.
-						</td>
-					</tr>
-
-					<tr>
-						<td style="text-align:left; width:100px">
-							<h1 class="ih"> Archive Directory </h1>
-						</td>
-						<td>
-							<input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% dirname %]" name="dirname" type="text">
-							<br> Directory where the archives will be located.
-							<br>Make sure the OS user running LANraragi has access to this directory. It will be created when needed if it doesn't
-							exist.
-						</td>
-					</tr>
-
-					<tr>
-						<td style="text-align:left; width:100px">
-							<h1 class="ih"> Archives per page </h1>
-						</td>
-						<td>
-							<input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% pagesize %]" name="pagesize" type="text">
-							<br> Number of archives shown on a page in the main list.
-						</td>
-					</tr>
-
-					<tr>
-						<td style="text-align:left; width:100px">
-							<h1 class="ih"> Tag Blacklist </h1>
-						</td>
-						<td>
-							<input class="stdinput" style="width:100%" size="20" value="[% blacklist %]" name="blacklist" type="text">
-							<br> When tagging archives using Plugins, these tags will be automatically omitted.
-							<br>Split tags with commas.
-						</td>
-					</tr>
-
-					<tr>
-						<td style="text-align:left; width:100px">
-							<h1 class="ih"> Auto-Tag New Archives </h1>
-						</td>
-						<td>
-							[% IF autotag %]
-							<input id="autotag" name="autotag" class="fa" type="checkbox" checked> [% ELSE %]
-							<input id="autotag" name="autotag" class="fa" type="checkbox"> [% END %]
-							<label for="autotag">
-								<br>Enabled plugins will be automatically executed on newly uploaded archives if this option is on.
-								<br/> See
-								<a style="cursor:pointer; text-decoration:underline" onclick="window.location.replace('/config/plugins');">
-									Plugin Configuration</a> to enable/disable plugins.
-							</label>
-						</td>
-					</tr>
-
-					<tr>
-						<td style="text-align:left; width:100px">
-							<h1 class="ih"> Enable Password </h1>
-						</td>
-						<td>
-							[% IF enablepass %]
-							<input id="enablepass" name="enablepass" class="fa" type="checkbox" checked> [% ELSE %]
-							<input id="enablepass" name="enablepass" class="fa" type="checkbox"> [% END %]
-							<label for="enablepass">
-								<br>If enabled, everything that isn't reading will require a password.
-							</label>
-						</td>
-					</tr>
-
-					<tr class="passwordfields">
-						<td style="text-align:left; width:100px">
-							<h1 class="ih"> New Password </h1>
-						</td>
-						<td>
-							<input class="stdinput" style="width:100%" maxlength="255" size="20" name="newpassword" type="password">
-						</td>
-					</tr>
-
-					<tr class="passwordfields">
-						<td style="text-align:left; width:100px">
-							<h1 class="ih"> New Password Confirmation </h1>
-						</td>
-						<td>
-							<input class="stdinput" style="width:100%" maxlength="255" size="20" name="newpassword2" type="password">
-							<br> Only edit these fields if you want to change your password.
-						</td>
-					</tr>
-
-					<tr class="passwordfields">
-						<td style="text-align:left; width:100px">
-							<h1 class="ih"> No-Fun Mode </h1>
-						</td>
-						<td>
-							[% IF nofunmode %]
-							<input id="nofunmode" name="nofunmode" class="fa" type="checkbox" checked> [% ELSE %]
-							<input id="nofunmode" name="nofunmode" class="fa" type="checkbox"> [% END %]
-							<label for="nofunmode">
-								<br>Enabling No-Fun Mode will lock reading archives behind the password as well. Fully effective after restarting LANraragi.
-							</label>
-						</td>
-					</tr>
-
-					<tr>
-						<td style="text-align:left; width:100px">
-							<h1 class="ih"> Temporary Folder </h1>
-						</td>
-						<td>
-							Current Size:
-							<span id="tempsize"> [%tempsize%] </span> MBs
-							<a style="cursor: pointer" onclick="cleanTempFldr();"> (Clean?)</a>
-							<br>This folder contains recently opened archives, for faster subsequent reading.
-						</td>
-					</tr>
-
-					<tr>
-						<td style="text-align:left; width:100px">
-							<h1 class="ih"> Maximum Temp Size </h1>
-						</td>
-						<td>
-							<input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% tempmaxsize %]" name="tempmaxsize" type="text">
-							<br>In MBs. The temp folder is automatically emptied when it grows past the size specified here.
-						</td>
-					</tr>
-
-					<tr>
-						<td style="text-align:left; width:100px">
-							<h1 class="ih"> Debug Mode </h1>
-						</td>
-						<td>
-							[% IF devmode %]
-							<input id="devmode" name="devmode" class="fa" type="checkbox" checked> [% ELSE %]
-							<input id="devmode" name="devmode" class="fa" type="checkbox"> [% END %]
-							<label for="devmode">
-								<br>Enabling Debug Mode will show more logs and disable update nagging. Fully effective after restarting LANraragi.
-								<br/>
-								<i class="fas fa-exclamation-triangle"></i> Leaving this enabled can cause the app to malfunction! Only enable it for debugging or development purposes!
-							</label>
-						</td>
-					</tr>
+			<ul class="collapsible extensible with-right-caret option-flyout">
+				<li>
+					<div class="collapsible-title caret-right">
+						<i class="fa fa-book" aria-hidden="true"></i> Global Settings</div>
+					<div class="collapsible-body">
+						<table style="margin:auto; font-size:8pt;" ><tbody>
+						[% INCLUDE templates_config/config_global %]
+						</tbody></table>
+					</div>
+				</li>
+				<li>
+					<div class="collapsible-title caret-right">
+							<i class="fa fa-file-archive" aria-hidden="true"></i> Archive Files</div>
+					<div class="collapsible-body">
+						<table style="margin:auto; font-size:8pt;" ><tbody>
+						[% INCLUDE templates_config/config_files %]
+						</tbody></table>
+					</div>
+				</li>
+				<li>
+					<div class="collapsible-title caret-right">
+							<i class="fa fa-tags" aria-hidden="true"></i> Tags and Plugins</div>
+					<div class="collapsible-body">
+						<table style="margin:auto; font-size:8pt;" ><tbody>
+						[% INCLUDE templates_config/config_tags %]
+						</tbody></table>
+					</div>
+				</li>
+			</ul>
 
 					<tr>
 						<td colspan='2' style='text-align:center'>
 							<br/>
 							<input class='stdbtn' type='button' onclick="saveFormData('#editConfigForm');" value='Save LRR Configuration' />
-							<input class='stdbtn' type='button' onclick="invalidateCache();" value='Invalidate JSON Cache' />
 							<input class='stdbtn' type='button' onclick="window.location.replace('/');" value='Return to Library' />
 							<br/>
 						</td>
 					</tr>
 
-				</tbody>
-			</table>
 		</form>
 	</div>
 

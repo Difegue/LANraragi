@@ -1,0 +1,27 @@
+<tr>
+    <td style="text-align:left; width:100px">
+        <h1 class="ih"> Tag Blacklist </h1>
+    </td>
+    <td>
+        <textarea class="stdinput" size="20" style='width:100%; height:125px' name="blacklist" maxlength='5000'>[% blacklist %]</textarea>
+        <br> When tagging archives using Plugins, these tags will be automatically omitted.
+        <br>Split tags with commas.
+    </td>
+</tr>
+
+<tr>
+    <td style="text-align:left; width:100px">
+        <h1 class="ih"> Auto-Tag New Archives </h1>
+    </td>
+    <td>
+        [% IF autotag %]
+        <input id="autotag" name="autotag" class="fa" type="checkbox" checked> [% ELSE %]
+        <input id="autotag" name="autotag" class="fa" type="checkbox"> [% END %]
+        <label for="autotag">
+            <br>Enabled plugins will be automatically executed on newly uploaded archives if this option is on.
+            <br/> See
+            <a style="cursor:pointer; text-decoration:underline" href="/config/plugins">
+                Plugin Configuration</a> to enable/disable plugins.
+        </label>
+    </td>
+</tr>

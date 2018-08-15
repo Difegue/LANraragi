@@ -12,8 +12,8 @@
    viewBox="0 0 7491.3706 2271.5203"
    id="svg4136"
    version="1.1"
-   inkscape:version="0.91 r13725"
-   sodipodi:docname="cubes.svg"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   sodipodi:docname="LRRlogo.svg"
    inkscape:export-filename="C:\Users\Patchouli\Desktop\text4167.png"
    inkscape:export-xdpi="8.4099998"
    inkscape:export-ydpi="8.4099998">
@@ -25,7 +25,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -40,12 +40,12 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1920"
-     inkscape:window-height="1057"
+     inkscape:window-width="1600"
+     inkscape:window-height="877"
      id="namedview4140"
      showgrid="false"
      inkscape:zoom="0.043799583"
-     inkscape:cx="5640.726"
+     inkscape:cx="1930.645"
      inkscape:cy="-1108.0248"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
@@ -58,7 +58,7 @@
   <flowRoot
      xml:space="preserve"
      id="flowRoot4159"
-     style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="font-style:normal;font-weight:normal;line-height:0.01%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      transform="translate(256,479.52038)"><flowRegion
        id="flowRegion4161"><rect
          id="rect4163"
@@ -66,13 +66,12 @@
          height="1415.5386"
          x="2203.2173"
          y="193.81126" /></flowRegion><flowPara
-       id="flowPara4165"></flowPara></flowRoot>  <text
+       id="flowPara4165"> </flowPara></flowRoot>  <text
      xml:space="preserve"
-     style="font-style:normal;font-weight:normal;font-size:1092.69555664px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      x="2383.7988"
      y="1962.8818"
-     id="text4167"
-     sodipodi:linespacing="125%"><tspan
+     id="text4167"><tspan
        sodipodi:role="line"
        id="tspan4169"
        x="2383.7988"

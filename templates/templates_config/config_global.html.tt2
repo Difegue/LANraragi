@@ -1,0 +1,92 @@
+<tr>
+    <td style="text-align:left; width:100px">
+        <h1 class="ih"> Site Title </h1>
+    </td>
+    <td>
+        <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% title %]" name="htmltitle" type="text">
+        <br>The site title appears on most pages as...their title.
+    </td>
+</tr>
+
+<tr>
+    <td style="text-align:left; width:100px">
+        <h1 class="ih"> MOTD </h1>
+    </td>
+    <td>
+        <input id="motd" class="stdinput" style="width:100%" maxlength="255" size="20" value="[% motd %]" name="motd" type="text">
+        <br>Slang for Message of the Day. Appears on top of the main Library view.
+    </td>
+</tr>
+
+<tr>
+    <td style="text-align:left; width:100px">
+        <h1 class="ih"> Archives per page </h1>
+    </td>
+    <td>
+        <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% pagesize %]" name="pagesize" type="text">
+        <br> Number of archives shown on a page in the main list.
+    </td>
+</tr>
+
+<tr>
+    <td style="text-align:left; width:100px">
+        <h1 class="ih"> Enable Password </h1>
+    </td>
+    <td>
+        [% IF enablepass %]
+        <input id="enablepass" name="enablepass" class="fa" type="checkbox" checked> [% ELSE %]
+        <input id="enablepass" name="enablepass" class="fa" type="checkbox"> [% END %]
+        <label for="enablepass">
+            <br>If enabled, everything that isn't reading will require a password.
+        </label>
+    </td>
+</tr>
+
+<tr class="passwordfields">
+    <td style="text-align:left; width:100px">
+        <h1 class="ih"> New Password </h1>
+    </td>
+    <td>
+        <input class="stdinput" style="width:100%" maxlength="255" size="20" name="newpassword" type="password">
+    </td>
+</tr>
+
+<tr class="passwordfields">
+    <td style="text-align:left; width:100px">
+        <h1 class="ih"> New Password Confirmation </h1>
+    </td>
+    <td>
+        <input class="stdinput" style="width:100%" maxlength="255" size="20" name="newpassword2" type="password">
+        <br> Only edit these fields if you want to change your password.
+    </td>
+</tr>
+
+<tr class="passwordfields">
+    <td style="text-align:left; width:100px">
+        <h1 class="ih"> No-Fun Mode </h1>
+    </td>
+    <td>
+        [% IF nofunmode %]
+        <input id="nofunmode" name="nofunmode" class="fa" type="checkbox" checked> [% ELSE %]
+        <input id="nofunmode" name="nofunmode" class="fa" type="checkbox"> [% END %]
+        <label for="nofunmode">
+            <br>Enabling No-Fun Mode will lock reading archives behind the password as well. Fully effective after restarting LANraragi.
+        </label>
+    </td>
+</tr>
+
+<tr>
+    <td style="text-align:left; width:100px">
+        <h1 class="ih"> Debug Mode </h1>
+    </td>
+    <td>
+        [% IF devmode %]
+        <input id="devmode" name="devmode" class="fa" type="checkbox" checked> [% ELSE %]
+        <input id="devmode" name="devmode" class="fa" type="checkbox"> [% END %]
+        <label for="devmode">
+            <br>Enabling Debug Mode will show more logs and disable update nagging. Fully effective after restarting LANraragi.
+            <br/>
+            <i class="fas fa-exclamation-triangle"></i> Leaving this enabled can cause the app to malfunction! Only enable it for debugging or development purposes!
+        </label>
+    </td>
+</tr>

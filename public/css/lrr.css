@@ -238,3 +238,18 @@ a:hover > .page-number {
     width: auto; 
     min-height:300px;
 }
+
+.collapsible {
+    box-shadow: none !important;
+}
+
+.collapsible-title {
+    border: none !important;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.collapsible-body {
+    padding: 10px !important;
+    border: none !important;
+}
