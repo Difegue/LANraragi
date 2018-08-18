@@ -4,9 +4,8 @@
     </td>
     <td>
         <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% dirname %]" name="dirname" type="text">
-        <br> Directory where the archives will be located.
-        <br>Make sure the OS user running LANraragi has access to this directory. <br>It will be created when needed if it doesn't
-        exist.
+        <br> Directory where the archives will be located. It will be created if it doesn't exist.
+        <br>Make sure the OS user running LANraragi has access to this directory. <br>
     </td>
 </tr>
 
@@ -16,9 +15,9 @@
     </td>
     <td>
         Current Size:
-        <span id="tempsize"> [%tempsize%] </span> MBs
-        <a style="cursor: pointer" onclick="cleanTempFldr();"> (Clean?)</a>
-        <br>This folder contains recently opened archives, for faster subsequent reading.
+        <h2 style="display:inline"><span id="tempsize"> [%tempsize%] </span> MBs </h2>
+        <br>This folder contains recently opened archives, for faster subsequent reading. <br>
+        You can clean it by clicking <a style="cursor: pointer" onclick="cleanTempFldr();"> >>here<<.</a>
     </td>
 </tr>
 
@@ -32,4 +31,12 @@
     </td>
 </tr>
 
-<input class='stdbtn' type='button' onclick="invalidateCache();" value='Invalidate JSON Cache' />
+<tr>
+    <td class="option-td">
+        <h2 class="ih"> JSON Index Cache </h2>
+    </td>
+    <td>
+        The JSON Index Cache tracks all your archive files in order to make the app's archive index load faster. <br>
+        If something went wrong with it, you can reset it by clicking <a style="cursor: pointer" onclick="invalidateCache();">>>here.<<</a>
+    </td>
+</tr>

@@ -35,7 +35,7 @@
 			<ul class="collapsible extensible with-right-caret">
 				<li class="option-flyout">
 					<div class="collapsible-title caret-right">
-						<i class="fa fa-book" aria-hidden="true"></i> Global Settings</div>
+						<i class="fa fa-cubes" aria-hidden="true"></i> Global Settings</div>
 					<div class="collapsible-body">
 						<table style="margin:auto; font-size:9pt;" ><tbody>
 						[% INCLUDE templates_config/config_global %]
