@@ -1,6 +1,6 @@
 <tr>
-    <td style="text-align:left; width:100px">
-        <h1 class="ih"> Site Title </h1>
+    <td class="option-td">
+        <h2 class="ih"> Site Title </h2>
     </td>
     <td>
         <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% title %]" name="htmltitle" type="text">
@@ -9,8 +9,8 @@
 </tr>
 
 <tr>
-    <td style="text-align:left; width:100px">
-        <h1 class="ih"> MOTD </h1>
+    <td class="option-td">
+        <h2 class="ih"> MOTD </h2>
     </td>
     <td>
         <input id="motd" class="stdinput" style="width:100%" maxlength="255" size="20" value="[% motd %]" name="motd" type="text">
@@ -19,8 +19,8 @@
 </tr>
 
 <tr>
-    <td style="text-align:left; width:100px">
-        <h1 class="ih"> Archives per page </h1>
+    <td class="option-td">
+        <h2 class="ih"> Archives per page </h2>
     </td>
     <td>
         <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% pagesize %]" name="pagesize" type="text">
@@ -29,8 +29,8 @@
 </tr>
 
 <tr>
-    <td style="text-align:left; width:100px">
-        <h1 class="ih"> Enable Password </h1>
+    <td class="option-td">
+        <h2 class="ih"> Enable Password </h2>
     </td>
     <td>
         [% IF enablepass %]
@@ -43,8 +43,8 @@
 </tr>
 
 <tr class="passwordfields">
-    <td style="text-align:left; width:100px">
-        <h1 class="ih"> New Password </h1>
+    <td class="option-td">
+        <h2 class="ih"> New Password </h2>
     </td>
     <td>
         <input class="stdinput" style="width:100%" maxlength="255" size="20" name="newpassword" type="password">
@@ -52,8 +52,8 @@
 </tr>
 
 <tr class="passwordfields">
-    <td style="text-align:left; width:100px">
-        <h1 class="ih"> New Password Confirmation </h1>
+    <td class="option-td">
+        <h2 class="ih"> New Password Confirmation </h2>
     </td>
     <td>
         <input class="stdinput" style="width:100%" maxlength="255" size="20" name="newpassword2" type="password">
@@ -62,31 +62,31 @@
 </tr>
 
 <tr class="passwordfields">
-    <td style="text-align:left; width:100px">
-        <h1 class="ih"> No-Fun Mode </h1>
+    <td class="option-td">
+        <h2 class="ih"> No-Fun Mode </h2>
     </td>
     <td>
         [% IF nofunmode %]
         <input id="nofunmode" name="nofunmode" class="fa" type="checkbox" checked> [% ELSE %]
         <input id="nofunmode" name="nofunmode" class="fa" type="checkbox"> [% END %]
         <label for="nofunmode">
-            <br>Enabling No-Fun Mode will lock reading archives behind the password as well. Fully effective after restarting LANraragi.
+            <br>Enabling No-Fun Mode will lock reading archives behind the password as well. <br/>Fully effective after restarting LANraragi.
         </label>
     </td>
 </tr>
 
 <tr>
-    <td style="text-align:left; width:100px">
-        <h1 class="ih"> Debug Mode </h1>
+    <td class="option-td">
+        <h2 class="ih"> Debug Mode </h2>
     </td>
     <td>
         [% IF devmode %]
         <input id="devmode" name="devmode" class="fa" type="checkbox" checked> [% ELSE %]
         <input id="devmode" name="devmode" class="fa" type="checkbox"> [% END %]
         <label for="devmode">
-            <br>Enabling Debug Mode will show more logs and disable update nagging. Fully effective after restarting LANraragi.
-            <br/>
-            <i class="fas fa-exclamation-triangle"></i> Leaving this enabled can cause the app to malfunction! Only enable it for debugging or development purposes!
+            <br>Enabling Debug Mode will show more logs and disable update nagging. <br/>Fully effective after restarting LANraragi.
+            <br/><br/>
+            <i class="fas fa-exclamation-triangle"></i> Leaving this enabled can cause the app to malfunction! <br/>Only enable it for debugging or development purposes!
         </label>
     </td>
 </tr>

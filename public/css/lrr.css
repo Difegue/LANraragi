@@ -243,6 +243,13 @@ a:hover > .page-number {
     box-shadow: none !important;
 }
 
+.option-td { 
+    padding-right: 20px;
+    padding-bottom: 40px;
+    vertical-align: top !important;
+    width: 200px;
+}
+
 .collapsible-title {
     border: none !important;
     font-size: 18px;

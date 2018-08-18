@@ -27,4 +27,5 @@ input[type='checkbox']:checked::before {
 /* lrr.css override */
 td {
     max-width: 2000px !important;
+    vertical-align: top;
 }

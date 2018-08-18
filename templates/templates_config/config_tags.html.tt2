@@ -1,6 +1,6 @@
 <tr>
-    <td style="text-align:left; width:100px">
-        <h1 class="ih"> Tag Blacklist </h1>
+    <td class="option-td">
+        <h2 class="ih"> Tag Blacklist </h2>
     </td>
     <td>
         <textarea class="stdinput" size="20" style='width:100%; height:125px' name="blacklist" maxlength='5000'>[% blacklist %]</textarea>
@@ -10,8 +10,8 @@
 </tr>
 
 <tr>
-    <td style="text-align:left; width:100px">
-        <h1 class="ih"> Auto-Tag New Archives </h1>
+    <td class="option-td">
+        <h2 class="ih"> Auto-Tag New Archives </h2>
     </td>
     <td>
         [% IF autotag %]

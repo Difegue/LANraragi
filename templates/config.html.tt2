@@ -26,35 +26,36 @@
 <body onload="set_style_from_storage();">
 
 	<div class="ido" >
-		<h1 class="ih" style="text-align:center">LANraragi Configuration</h1>
+		<h2 class="ih" style="text-align:center">LANraragi Configuration</h2>
 		<br>
+		Select a category to show the matching settings.
 		<br>
 		<form name="editConfigForm" id="editConfigForm" enctype="multipart/form-data" method="post">
 
-			<ul class="collapsible extensible with-right-caret option-flyout">
-				<li>
+			<ul class="collapsible extensible with-right-caret">
+				<li class="option-flyout">
 					<div class="collapsible-title caret-right">
 						<i class="fa fa-book" aria-hidden="true"></i> Global Settings</div>
 					<div class="collapsible-body">
-						<table style="margin:auto; font-size:8pt;" ><tbody>
+						<table style="margin:auto; font-size:9pt;" ><tbody>
 						[% INCLUDE templates_config/config_global %]
 						</tbody></table>
 					</div>
 				</li>
-				<li>
+				<li class="option-flyout">
 					<div class="collapsible-title caret-right">
 							<i class="fa fa-file-archive" aria-hidden="true"></i> Archive Files</div>
 					<div class="collapsible-body">
-						<table style="margin:auto; font-size:8pt;" ><tbody>
+						<table style="margin:auto; font-size:9pt;" ><tbody>
 						[% INCLUDE templates_config/config_files %]
 						</tbody></table>
 					</div>
 				</li>
-				<li>
+				<li class="option-flyout">
 					<div class="collapsible-title caret-right">
 							<i class="fa fa-tags" aria-hidden="true"></i> Tags and Plugins</div>
 					<div class="collapsible-body">
-						<table style="margin:auto; font-size:8pt;" ><tbody>
+						<table style="margin:auto; font-size:9pt;" ><tbody>
 						[% INCLUDE templates_config/config_tags %]
 						</tbody></table>
 					</div>

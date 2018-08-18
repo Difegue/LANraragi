@@ -108,7 +108,10 @@ table.itg th{
     background:#363940;
     padding:3px 4px 3px 4px;
     margin: 10px;
-    max-width: 600px;
+}
+
+.caret-right::after {
+    color: #DDDDDD !important;
 }
 
 /* gallery table */

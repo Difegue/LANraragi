@@ -26,9 +26,9 @@
 			<div class='ido' style='text-align:center'>
 
 			[% IF artist %]
-				<h1 class='ih' style='text-align:center'>Editing [% arctitle %] by [% artist %] </h1>
+				<h2 class='ih' style='text-align:center'>Editing [% arctitle %] by [% artist %] </h2>
 			[% ELSE %]
-				<h1 class='ih' style='text-align:center'>Editing [% arctitle %]</h1>
+				<h2 class='ih' style='text-align:center'>Editing [% arctitle %]</h2>
 			[% END %]
 
 			<form name='editArchiveForm' id='editArchiveForm' enctype='multipart/form-data' method='post'>
