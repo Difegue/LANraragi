@@ -101,6 +101,18 @@ table.itg th {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+/* options flyout menus */
+.option-flyout {
+    border: 1px solid #363940;
+    background:#E0DED3;
+    padding:3px 4px 3px 4px;
+    margin: 10px;
+}
+
+.caret-right::after {
+    color: #5C0D11 !important;
+}
 tr.gtr0 {
     background: none repeat scroll 0 0 #EDEBDF;
 }

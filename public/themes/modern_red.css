@@ -131,6 +131,21 @@ table.itg th {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+/* options flyout menus */
+.option-flyout {
+    background:#D7D4C5;
+    color: #414135;
+    padding:3px 4px 3px 4px;
+    margin: 10px;
+    border-bottom: 2px solid #414135;
+}
+
+.collapsible-body > table{
+    border-top: 2px dashed #414135;
+    color: #414135;
+}
+
 tr.gtr {
     background: none repeat scroll 0 0 #40454B;
 }

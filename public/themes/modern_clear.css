@@ -94,8 +94,32 @@ table.itg{
 	box-shadow: 0 5px 15px 0 rgba(0, 0, 0, 0.16), 0 2px 15px 0 rgba(0, 0, 0, 0.12);
     color: #FCFCFC;
 }
-table.itg th{font-weight:bold;text-align:left;padding:3px 4px 3px 4px;background:#34495E;color:#FCFCFC; overflow: hidden;
+table.itg th{font-weight:bold;
+    text-align:left;
+    padding:3px 4px 3px 4px;
+    background:#34495E;
+    color:#FCFCFC; 
+    overflow: hidden;
     text-overflow: ellipsis;}
+
+/* options flyout menus */
+.option-flyout {
+    border: 1px solid #FCFCFC;
+    border-radius: 9px 9px 9px 9px;
+    background:#34495E;
+    padding:3px 4px 3px 4px;
+    margin: 10px;
+    color: #FCFCFC;
+}
+
+.collapsible-body > table{
+    color: #FCFCFC
+}
+
+.caret-right::after {
+    color: #FCFCFC !important;
+}
+
 table.itg a{color:#FCFCFC;}
 table.itg a:hover{color:#ed2553;}
 
@@ -119,6 +143,11 @@ tr.gtr1{background:#34495E}
     min-width: 150px;
     cursor: pointer;
 }
+
+.id1 > * > .stdbtn, .collapsible-body > table > * > .stdbtn {
+    background-color: #5f65af !important;
+}
+
 .stdbtn:hover{background-color: #ed2553}
 .stdinput{
     background: none repeat scroll 0 0 #fcfcfc;

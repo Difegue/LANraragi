@@ -19,9 +19,7 @@
         <input id="autotag" name="autotag" class="fa" type="checkbox"> [% END %]
         <label for="autotag">
             <br>Enabled plugins will be automatically executed on newly uploaded archives if this option is on.
-            <br/> See
-            <a style="cursor:pointer; text-decoration:underline" href="/config/plugins">
-                Plugin Configuration</a> to enable/disable plugins.
+            <br/> See Plugin Configuration to enable/disable plugins.
         </label>
     </td>
 </tr>

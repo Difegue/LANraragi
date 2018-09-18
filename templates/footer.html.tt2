@@ -12,7 +12,7 @@
 
 <div id="theme-overlay-shade" class="overlay-sh" onclick="closeThemeOverlay();"></div>
 
-<div id="themeOverlay" class="id1 base-overlay small-overlay" style="display:none; max-height:200px; min-height:200px !important">
+<div id="themeOverlay" class="id1 base-overlay small-overlay" style="display:none; max-height:300px; min-height:300px !important">
 
     <h1>
         <i class="fa fa-paint-brush"></i> Available Themes </h1>

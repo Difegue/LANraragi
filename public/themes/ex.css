@@ -43,6 +43,18 @@ table.itg{width:99%;max-width:1175px;border-collapse:collapse;margin:0px auto;pa
 table.itg th{font-weight:bold;text-align:left;padding:3px 4px 3px 4px;background:#40454b; overflow: hidden;
     text-overflow: ellipsis;}
 
+    /* options flyout menus */
+.option-flyout {
+    border: 1px solid #363940;
+    background:#40454b;
+    padding:3px 4px 3px 4px;
+    margin: 10px;
+}
+
+.caret-right::after {
+    color: #DDDDDD !important;
+}
+
 /* gallery table */
 tr.gtr{background:#40454b}
 tr.gtr0{background:#4f535b}

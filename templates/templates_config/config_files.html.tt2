@@ -17,7 +17,8 @@
         Current Size:
         <h2 style="display:inline"><span id="tempsize"> [%tempsize%] </span> MBs </h2>
         <br>This folder contains recently opened archives, for faster subsequent reading. <br>
-        You can clean it by clicking <a style="cursor: pointer" onclick="cleanTempFldr();"> >>here<<.</a>
+        <input class='stdbtn' type='button' onclick="cleanTempFldr();" value='Clean Temporary Folder' />
+        <br>
     </td>
 </tr>
 
@@ -37,6 +38,7 @@
     </td>
     <td>
         The JSON Index Cache tracks all your archive files in order to make the app's archive index load faster. <br>
-        If something went wrong with it, you can reset it by clicking <a style="cursor: pointer" onclick="invalidateCache();">>>here.<<</a>
+        If something went wrong with it, you can reset it by clicking below: <br> 
+        <input class='stdbtn' type='button' onclick="invalidateCache();" value='Reset JSON Cache' /> <br>
     </td>
 </tr>
