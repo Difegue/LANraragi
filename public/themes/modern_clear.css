@@ -144,11 +144,16 @@ tr.gtr1{background:#34495E}
     cursor: pointer;
 }
 
-.id1 > * > .stdbtn, .collapsible-body > table > * > .stdbtn {
-    background-color: #5f65af !important;
+.id1 > * > .stdbtn, .collapsible-body > table > * > tr > td > .stdbtn {
+    background-color: #e1e7e9;
+    color: #34495e;
 }
 
-.stdbtn:hover{background-color: #ed2553}
+.stdbtn:hover, .collapsible-body > table > * > tr > td > .stdbtn:hover {
+    background-color: #ed2553; 
+    color: #f1f1f1
+}
+
 .stdinput{
     background: none repeat scroll 0 0 #fcfcfc;
     font-family: 'Roboto',arial,sans-serif;
