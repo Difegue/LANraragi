@@ -1,5 +1,20 @@
 <tr>
     <td class="option-td">
+        <h2 class="ih"> Favorite Tags </h2>
+    </td>
+    <td>
+        Add your favorite tags (or tag combinations) here. <br>They'll become available as shortcuts in the Archive Index.
+        <br>Favorite Tag 1: <input class="stdinput" style="width:50%" maxlength="255" size="20" value="[% fav1 %]" name="fav1" type="text">
+        <br>Favorite Tag 2: <input class="stdinput" style="width:50%" maxlength="255" size="20" value="[% fav2 %]" name="fav2" type="text">
+        <br>Favorite Tag 3: <input class="stdinput" style="width:50%" maxlength="255" size="20" value="[% fav3 %]" name="fav3" type="text">
+        <br>Favorite Tag 4: <input class="stdinput" style="width:50%" maxlength="255" size="20" value="[% fav4 %]" name="fav4" type="text">
+        <br>Favorite Tag 5: <input class="stdinput" style="width:50%" maxlength="255" size="20" value="[% fav5 %]" name="fav5" type="text">
+    </td>
+</tr>
+
+
+<tr>
+    <td class="option-td">
         <h2 class="ih"> Tag Blacklist </h2>
     </td>
     <td>
