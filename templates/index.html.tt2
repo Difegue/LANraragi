@@ -60,6 +60,21 @@
 			<h1 class='ih'>[% motd %]</h1>
 			<div class='idi'>
 
+				[% IF favtags && favtags.size %]
+				<table class="itc">
+					<tbody>
+						<tr>
+						[% FOREACH tag IN favtags %]
+							<td>
+								<input type="checkbox" class="favtag" id="[% tag %]" onclick="favTagSearch()"/>
+							[% tag %]
+							</td>
+						[% END %]
+						</tr>
+					</tbody>
+				</table>
+				[% END %]
+
 				<input type='text' id='srch' class='search stdinput' size='90' placeholder='Search Title, Artist, Series, Language or Tags'
 				/>
 				<input id='clrsrch' class='stdbtn' type='button' value='Clear Filter' />

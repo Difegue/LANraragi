@@ -21,6 +21,30 @@ function tryParseJSON(jsonString) {
 	return false;
 };
 
+// Triggered when a favTag checkbox is modified, 
+// looks at all checked favTags and builds an OR regex to jam in DataTables
+function favTagSearch() {
+	
+	favTags = $(".favtag");
+	searchQuery="("
+
+	for (var i = 0; i < favTags.length; i++) {
+		tagCheckbox = favTags[i];
+		if (tagCheckbox.checked) 
+			searchQuery += tagCheckbox.id+"|";
+	} 
+
+	searchQuery +=")";
+	//Perform search in datatables field
+	if (searchQuery !== "()") {
+		$('#srch').val(searchQuery); 
+		arcTable.search(searchQuery).draw();
+	}
+
+
+}
+
+
 //Switch view on index and saves the value in the user's localStorage. The DataTables callbacks adapt automatically.
 //0 = List view
 //1 = Thumbnail view

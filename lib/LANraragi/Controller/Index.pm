@@ -28,7 +28,7 @@ sub random_archive {
         $self->LRR_LOGGER->debug("Found key $archive");
 
 #We got a key, but does the matching archive still exist on the server? Better check it out.
-#This usecase only happens with the random selection : Regular index only parses the database for archive files it finds by default.
+#This usecase only happens with the random selection : Regular index is based on the JSON cache.
         if (   length($archive) == 40
             && $redis->type($archive) eq "hash"
             && $redis->hexists( $archive, "file" ) )
@@ -81,6 +81,17 @@ sub index {
     my $userlogged =
       $self->LRR_CONF->enable_pass == 0 || $self->session('is_logged');
 
+    #Read favtags if there are any and craft an array to use in templating
+    my @validFavs;
+
+    for (my $i=1; $i<6; $i++) {
+        my $favTag = $self->LRR_CONF->get_favtag($i);
+
+        if ($favTag ne "") {
+            push @validFavs, $favTag;
+        }
+    }
+
     $self->render(
         template        => "index",
         title           => $self->LRR_CONF->get_htmltitle,
@@ -89,10 +100,11 @@ sub index {
         motd            => $self->LRR_CONF->get_motd,
         cssdrop         => LANraragi::Utils::Generic::generate_themes,
         archiveJSON     => $archivejson,
+        favtags         => \@validFavs,
         usingdefpass    => $passcheck,
         buildingDBcache => $force,
         version         => $version,
-        debugmode     => $self->app->mode eq "development"
+        debugmode       => $self->app->mode eq "development"
     );
 }
 
