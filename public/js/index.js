@@ -24,23 +24,23 @@ function tryParseJSON(jsonString) {
 // Triggered when a favTag checkbox is modified, 
 // looks at all checked favTags and builds an OR regex to jam in DataTables
 function favTagSearch() {
-	
+
 	favTags = $(".favtag");
-	searchQuery="("
+	searchQuery = "("
 
 	for (var i = 0; i < favTags.length; i++) {
 		tagCheckbox = favTags[i];
-		if (tagCheckbox.checked) 
-			searchQuery += tagCheckbox.id+"|";
-	} 
-
-	searchQuery +=")";
-	//Perform search in datatables field
-	if (searchQuery !== "()") {
-		$('#srch').val(searchQuery); 
-		arcTable.search(searchQuery).draw();
+		if (tagCheckbox.checked)
+			searchQuery += tagCheckbox.id + "|";
 	}
 
+	searchQuery = searchQuery.slice(0, -1);
+	searchQuery += ")";
+
+	//Perform search in datatables field with our own regexes enabled and smart search off
+	if (searchQuery !== "") {
+		arcTable.search(searchQuery, true, false).draw();
+	}
 
 }
 
