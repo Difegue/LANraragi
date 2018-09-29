@@ -39,11 +39,48 @@ p#nb img{border:0;margin-left:10px;width:5px;height:7px}
 p#nb a{font-weight:bold}
 
 /* shared table stuff */
-table.itg{width:99%;max-width:1175px;border-collapse:collapse;margin:0px auto;padding:3px;border:2px ridge #000000;font-size:9pt}
-table.itg th{font-weight:bold;text-align:left;padding:3px 4px 3px 4px;background:#40454b; overflow: hidden;
-    text-overflow: ellipsis;}
+table.itg {
+    width:99%;
+    max-width:1175px;
+    border-collapse:collapse;
+    margin:0px auto;
+    padding:3px;
+    border:2px ridge #000000;
+    font-size:9pt
+}
 
-    /* options flyout menus */
+table.itg th{
+    font-weight:bold;
+    text-align:left;
+    padding:3px 4px 3px 4px;
+    background:#40454b; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* favtags */
+table.itc {
+    margin: auto;
+}
+
+.favtag-btn {
+    font-size: 10pt;
+    min-width: 50px;
+    height: 25px;
+    border-radius: 3px;
+    color:#f1f1f1;
+    background:#3b3435;
+    border:2px outset #000000;
+    margin:4px 1px 0px 1px;
+    padding:0px 4px 1px 4px; 
+    cursor: pointer;
+}
+
+.toggled {
+    background:#4f5052 !important;
+}
+
+/* options flyout menus */
 .option-flyout {
     border: 1px solid #363940;
     background:#40454b;

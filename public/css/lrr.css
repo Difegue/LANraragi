@@ -1,8 +1,7 @@
 /* Global LANraragi CSS. Don't mess !*/
 
 /*tag hover popups.*/
-td
-{
+td {
     max-width: 250px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -18,7 +17,7 @@ td.language {max-width: 100px;}
 td.artist {max-width: 150px;}
 td.tags {max-width: 150px;}
 
-.ttspinner{
+.ttspinner {
   color:black; 
   position:relative; 
   top:-162px; 
@@ -222,10 +221,6 @@ p#nb {
 a:hover > .page-number {
     z-index: 300;
     background-color: #000000;
-}
-
-.caption {
-    border: none !important;
 }
 
 .qtip {

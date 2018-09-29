@@ -64,25 +64,23 @@
 				<table class="itc">
 					<tbody>
 						<tr>
-						[% FOREACH tag IN favtags %]
+							[% FOREACH tag IN favtags %]
 							<td>
-								<input type="checkbox" class="favtag" id="[% tag %]" onclick="favTagSearch()"/>
-							[% tag %]
+								<input class='favtag' id='[% tag %]' type='hidden' />
+								<input class='favtag-btn' type='button' value='[% tag %]' onclick='toggleFav(this)' />
 							</td>
-						[% END %]
+							[% END %]
 						</tr>
 					</tbody>
 				</table>
 				[% END %]
 
-				<input type='text' id='srch' class='search stdinput' size='90' placeholder='Search Title, Artist, Series, Language or Tags'
-				/>
+				<input type='text' id='srch' class='search stdinput' size='90' placeholder='Search Title, Artist, Series, Language or Tags' />
 				<input id='clrsrch' class='stdbtn' type='button' value='Clear Filter' />
 			</div>
 
 			<p id='cssbutton' style='display:inline'>
-				<input class='stdbtn' type='button' onclick="var win=window.open('random','_blank'); win.focus();" value='Give me a random archive'
-				/>
+				<input class='stdbtn' type='button' onclick="var win=window.open('random','_blank'); win.focus();" value='Give me a random archive' />
 				<input id='viewbtn' class='stdbtn' type='button' onclick="switch_index_view()" value='Switch to Thumbnail View' />
 			</p>
 
@@ -121,11 +119,11 @@
 		</div>
 	</div>
 
-	[% INCLUDE footer %] 
-	
-	[% IF debugmode %] 
+	[% INCLUDE footer %]
+
+	[% IF debugmode %]
 	<i class="fas fa-bug" /> You're running in Debug Mode!
-	<i class="fas fa-bug" /> 
+	<i class="fas fa-bug" />
 	[% END %]
 
 	<script>
@@ -164,7 +162,7 @@
 			$('.itg').hide();
 		}
 
-		[% IF debugmode %] [% ELSE %]
+		[% IF debugmode %][% ELSE %]
 		checkVersion("[% version %]");
 		[% END %]
 

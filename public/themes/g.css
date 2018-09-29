@@ -102,6 +102,31 @@ table.itg th {
     text-overflow: ellipsis;
 }
 
+/* favtags */
+table.itc {
+    margin: auto;
+}
+
+.favtag-btn {
+    font-size: 10pt;
+    min-width: 50px;
+    height: 25px;
+    border-radius: 3px;
+    background: none repeat scroll 0 0 #EDEADA;
+    border: 2px outset #5C0D11;
+    color: #5C0D11;
+    margin:4px 1px 0px 1px;
+    padding:0px 4px 1px 4px; 
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.toggled {
+    background: #5f0d1f !important;
+    border: 2px outset #5C0D11 !important;
+    color: #F2EFDF !important;
+}
+
 /* options flyout menus */
 .option-flyout {
     border: 1px solid #363940;
@@ -252,27 +277,10 @@ border:2px outset #5C0D11;
 
 /* Dropit styles using div and span instead of ul and li */
 
-.menu a {
-    text-decoration: none;
+.qtip{
+    border: 2px outset #5C0D11;
 }
 
-.menu div.dropit-submenu {
-    background-color: #EDEADA;
-    border: 2px outset #5C0D11;
-    padding: 6px 0;
-    margin: 3px 0 0 1px;
-}          
-.menu div.dropit-submenu a {
-    display: block;
-    line-height: 25px;
-    color: #5C0D11;
-    padding: 0 18px;
-}
-.menu div.dropit-submenu a:hover {
-    background: #F2EFDF;
-    color: #9b4e03;
-    
-}
 
 
 /* File upload bar */

@@ -222,7 +222,7 @@ function buildThumbDiv(row, data, index) {
 function buildImageTooltip(target) {
 	target.qtip({
 		content: {
-			text: target.next('div')
+			text: target.next('div').removeClass("caption")
 		},
 		position: {
 			target: 'mouse',

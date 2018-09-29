@@ -21,6 +21,26 @@ function tryParseJSON(jsonString) {
 	return false;
 };
 
+//Toggles a favtag. Modifies the matching input DOM object and changes the button's class.
+function toggleFav(button) {
+
+	favTag = button.value;
+	input = $("[id='" + favTag + "']");
+
+	//invert input's checked value
+	tagState = !(input.prop("checked"));
+	input.prop("checked", tagState);
+
+	//Add/remove class to button dependinig on the state
+	if (tagState)
+		button.classList.add("toggled");
+	else
+		button.classList.remove("toggled");
+
+	//Trigger search
+	favTagSearch();
+}
+
 // Triggered when a favTag checkbox is modified, 
 // looks at all checked favTags and builds an OR regex to jam in DataTables
 function favTagSearch() {
@@ -34,12 +54,16 @@ function favTagSearch() {
 			searchQuery += tagCheckbox.id + "|";
 	}
 
+	//chop last | character
 	searchQuery = searchQuery.slice(0, -1);
 	searchQuery += ")";
 
 	//Perform search in datatables field with our own regexes enabled and smart search off
-	if (searchQuery !== "") {
+	if (searchQuery !== ")") {
 		arcTable.search(searchQuery, true, false).draw();
+	} else {
+		//clear
+		arcTable.search("", false, true).draw();
 	}
 
 }
