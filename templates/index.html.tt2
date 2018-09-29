@@ -67,7 +67,7 @@
 							[% FOREACH tag IN favtags %]
 							<td>
 								<input class='favtag' id='[% tag %]' type='hidden' />
-								<input class='favtag-btn' type='button' value='[% tag %]' onclick='toggleFav(this)' />
+								<input class='favtag-btn' type='button' value='[% tag %]' onclick='toggleFav(this)' title='Click here to instantly search for this tag!' />
 							</td>
 							[% END %]
 						</tr>

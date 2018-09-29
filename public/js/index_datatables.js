@@ -222,7 +222,8 @@ function buildThumbDiv(row, data, index) {
 function buildImageTooltip(target) {
 	target.qtip({
 		content: {
-			text: target.next('div').removeClass("caption")
+			//make a clone of the existing image div and rip off the caption class to avoid display glitches
+			text: target.next('div').clone().removeClass("caption")
 		},
 		position: {
 			target: 'mouse',

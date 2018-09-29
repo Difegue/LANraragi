@@ -101,6 +101,34 @@ table.itg th{
     text-overflow: ellipsis;
 }
 
+.qtip {
+    border: 1px solid #363940;
+    border-radius: 3px;
+}
+
+/* favtags */
+table.itc {
+    margin: auto;
+}
+
+.favtag-btn {
+    font-size: 10pt;
+    min-width: 50px;
+    height: 25px;
+    background-color: #4F535B;
+    border: 1px solid #34353B;
+    border-radius: 3px 3px 3px 3px;
+    color: #FFFFFF;
+    margin:4px 1px 5px 1px;
+    padding:0px 4px 1px 4px; 
+    cursor: pointer;
+
+}
+
+.toggled {
+    background:#34353B !important;
+}
+
 /* options flyout menus */
 .option-flyout {
     border: 1px solid #363940;

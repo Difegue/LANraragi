@@ -275,14 +275,6 @@ background-color: #EDEADA;
 border:2px outset #5C0D11;
 }
 
-/* Dropit styles using div and span instead of ul and li */
-
-.qtip{
-    border: 2px outset #5C0D11;
-}
-
-
-
 /* File upload bar */
 .bar {
     height: 18px;
