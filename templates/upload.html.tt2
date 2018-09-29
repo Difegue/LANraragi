@@ -1,106 +1,111 @@
-<html>
-	<head>
-		<title>[% title %] - Upload Mode</title>
+<!DOCTYPE html>
 
-		<meta name="viewport" content="width=device-width" />
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<head>
+	<title>[% title %] - Upload Mode</title>
 
-		<link type="image/png" rel="icon" href="favicon.ico" />
-		<link rel="stylesheet" type="text/css" href="/css/lrr.css" />
-		
-		<link rel="stylesheet" type="text/css" href="./css/vendor/jquery.fileupload.css" />
-		<link rel="stylesheet" type="text/css" href="./css/vendor/fontawesome-all.min.css" />
-	
-		<script src="./js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
-		<script src="./js/vendor/jquery.ui.widget.js" type="text/JAVASCRIPT"></script>
-		<script src="./js/vendor/jquery.fileupload.js" type="text/JAVASCRIPT"></script>
+	<meta name="viewport" content="width=device-width" />
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
-		<script src="./js/theme.js" type="text/JAVASCRIPT"></script>
-		<script src="./js/ajax.js" type="text/JAVASCRIPT"></script>
-		
-	</head>
+	<link type="image/png" rel="icon" href="favicon.ico" />
+	<link rel="stylesheet" type="text/css" href="/css/lrr.css" />
 
-	<body onload="initUpload()">
+	<link rel="stylesheet" type="text/css" href="./css/vendor/jquery.fileupload.css" />
+	<link rel="stylesheet" type="text/css" href="./css/vendor/fontawesome-all.min.css" />
 
-		<div class='ido' style='text-align:center; font-size:8pt'>
-			<h1 class='ih' style='text-align:center'>Uploading Archives to the Library</h1>	
+	<script src="./js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
+	<script src="./js/vendor/jquery.ui.widget.js" type="text/JAVASCRIPT"></script>
+	<script src="./js/vendor/jquery.fileupload.js" type="text/JAVASCRIPT"></script>
 
-			Drag and drop files here, or click the upload button.
-			<br/><br/>
+	<script src="./js/theme.js" type="text/JAVASCRIPT"></script>
+	<script src="./js/ajax.js" type="text/JAVASCRIPT"></script>
 
-			<table style='margin:auto; font-size:9pt; width: 80%; text-align:center;'><tbody id='files'>
-			<tr><td colspan = 2>
+</head>
 
-				<span class='stdbtn fileinput-button' style="height:50px;">
-					<i class='fa fa-upload fa-2x' style='padding-top:6px; padding-bottom: 5px'></i><br>
-					<span>Upload files</span>
-					<input type='file' name='file' multiple id='fileupload'> 
-				</span>
-				
-				<div id='progress' style='padding-top:6px; padding-bottom:6px'>
-				    <div class='bar' style='width: 0%;'></div>
-				</div>
-				
-			</div>
-			</td></tr>
+<body onload="initUpload()">
 
-			</tbody></table>
-			<input class='stdbtn' type='button' onclick="window.location.replace('./');" value='Return to Library'/>
+	<div class='ido' style='text-align:center; font-size:8pt'>
+		<h1 class='ih' style='text-align:center'>Uploading Archives to the Library</h1>
 
-	  </div>
-			
+		Drag and drop files here, or click the upload button.
+		<br /><br />
+
+		<table style='margin:auto; font-size:9pt; width: 80%; text-align:center;'>
+			<tbody id='files'>
+				<tr>
+					<td colspan=2>
+
+						<span class='stdbtn fileinput-button' style="height:50px;">
+							<i class='fa fa-upload fa-2x' style='padding-top:6px; padding-bottom: 5px'></i><br>
+							<span>Upload files</span>
+							<input type='file' name='file' multiple id='fileupload'>
+						</span>
+
+						<div id='progress' style='padding-top:6px; padding-bottom:6px'>
+							<div class='bar' style='width: 0%;'></div>
+						</div>
+
+	</div>
+	</td>
+	</tr>
+
+	</tbody>
+	</table>
+	<input class='stdbtn' type='button' onclick="window.location.replace('./');" value='Return to Library' />
+
+	</div>
+
 
 	<script>
-	function initUpload(){
+		function initUpload() {
 
-		//Handler for file uploading.
-		$('#fileupload').fileupload({
-	        dataType: 'json',
-	        done: function (e, data) {
+			//Handler for file uploading.
+			$('#fileupload').fileupload({
+				dataType: 'json',
+				done: function (e, data) {
 
-	        	if (data.result.success == 0)
-	        		result = "<tr><td>" + data.result.name + 
-	        				"</td><td> <i class='fa fa-warning' style='margin-left:20px; margin-right: 10px; color: red'></i>" + data.result.error + "</td></tr>";
-	        	else
-	        		result = "<tr><td> <a href='reader?id=" + data.result.id + "'>" + data.result.name + "</a>" +
-	        				"</td><td> <i class='fa fa-check-square' style='margin-left:20px; margin-right: 10px; color: green'></i> <a href='edit?id=" + data.result.id + "' id='"+data.result.id+"'> Click here to edit metadata. </a></td></tr>";
+					if (data.result.success == 0)
+						result = "<tr><td>" + data.result.name +
+							"</td><td> <i class='fa fa-warning' style='margin-left:20px; margin-right: 10px; color: red'></i>" + data.result.error + "</td></tr>";
+					else
+						result = "<tr><td> <a href='reader?id=" + data.result.id + "'>" + data.result.name + "</a>" +
+							"</td><td> <i class='fa fa-check-square' style='margin-left:20px; margin-right: 10px; color: green'></i> <a href='edit?id=" + data.result.id + "' id='" + data.result.id + "'> Click here to edit metadata. </a></td></tr>";
 
-	        	$('#progress .bar').css('width','0%');
-	            $('#files').append(result);
+					$('#progress .bar').css('width', '0%');
+					$('#files').append(result);
 
-	            //if autotagging is enabled, call the API to trigger all enabled plugins on the newly uploaded archive.
-	            autotagEnabled = [% autotag %];
+					//if autotagging is enabled, call the API to trigger all enabled plugins on the newly uploaded archive.
+					autotagEnabled = [% autotag %];
 
-	            if (autotagEnabled) {
+					if (autotagEnabled) {
 
-	            	$("#"+data.result.id).html("Auto-Tagging this archive...");
-	            	$("#"+data.result.id).val("href","");
+						$("#" + data.result.id).html("Auto-Tagging this archive...");
+						$("#" + data.result.id).val("href", "");
 
-	            	$.post( "/api/use_all_plugins", { id: data.result.id }, function( data ) {
-					  if (data.success) {
-					  	$("#"+data.id).val("href", "edit?id="+data.id);
-					  	$("#"+data.id).html("Click here to edit metadata.("+data.message+")");
-					  }
-					}, "json");
+						$.post("/api/use_all_plugins", { id: data.result.id }, function (data) {
+							if (data.success) {
+								$("#" + data.id).val("href", "edit?id=" + data.id);
+								$("#" + data.id).html("Click here to edit metadata.(" + data.message + ")");
+							}
+						}, "json");
 
-	            }
-	            
+					}
 
-	            //Invalidate cache 
-		        $.get("./api/discard_cache");
-	        },
 
-	        progressall: function (e, data) {
-		        var progress = parseInt(data.loaded / data.total * 100, 10);
-		        $('#progress .bar').css('width', progress + '%');
-		    }
+					//Invalidate cache 
+					$.get("./api/discard_cache");
+				},
 
-	    });
+				progressall: function (e, data) {
+					var progress = parseInt(data.loaded / data.total * 100, 10);
+					$('#progress .bar').css('width', progress + '%');
+				}
 
-	}
+			});
+
+		}
 	</script>
 
 	[% INCLUDE footer %]
-	</body>
+</body>
 
 </html>

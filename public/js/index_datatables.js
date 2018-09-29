@@ -76,6 +76,12 @@ function initIndex(pagesize, dataSet) {
 	});
 
 	$('#clrsrch').click(function () {
+		//clear all favtags
+		for (var i = 0; i < $(".favtag").length; i++) {
+			$(".favtag")[i].checked = false;
+			$(".favtag-btn")[i].classList.remove("toggled");
+		}
+
 		arcTable.search('').draw();
 		$('#srch').val('');
 	});

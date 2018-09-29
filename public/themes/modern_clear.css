@@ -72,6 +72,7 @@ div.gt {
     width: default;
     color: #E1E7E9;
     cursor: pointer;
+    line-height: 17px;
 }
 
 div.gt:hover {
@@ -401,7 +402,6 @@ div.id4 a:hover {
 
 div.id41 {
     float: left;
-    height: 15px;
     left: 2px;
     width: 88px;
     overflow: hidden;

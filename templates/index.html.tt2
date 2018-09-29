@@ -1,4 +1,4 @@
-<html>
+<!DOCTYPE html>
 
 <head>
 	<title>[% title %]</title>
@@ -56,8 +56,8 @@
 	[% END %]
 
 	<div class='ido'>
+		<h1 class='ih'>[% motd %]</h1>
 		<div id='toppane'>
-			<h1 class='ih'>[% motd %]</h1>
 			<div class='idi'>
 
 				[% IF favtags && favtags.size %]
@@ -122,8 +122,8 @@
 	[% INCLUDE footer %]
 
 	[% IF debugmode %]
-	<i class="fas fa-bug" /> You're running in Debug Mode!
-	<i class="fas fa-bug" />
+	<i class="fas fa-bug"></i> You're running in Debug Mode!
+	<i class="fas fa-bug"></i>
 	[% END %]
 
 	<script>

@@ -24,6 +24,7 @@ div.gt {
     white-space: nowrap;
     width: default;
     cursor: pointer;
+    line-height: 17px;
 }
 
 div.gt:hover {
@@ -32,6 +33,9 @@ div.gt:hover {
 
 h1.ih{font-size:10pt;font-weight:bold;margin:2px auto;text-align:center;padding-bottom:6px}
 
+.qtip > * > * > table.itg {
+    color: #dddddd !important;
+}
 
 /* navbar */
 p#nb{margin:2px auto;text-align:center}
@@ -260,7 +264,6 @@ div.id4 {
 
 div.id41 {
     float: left;
-    height: 15px;
     left: 2px;
     width: 88px;
     overflow: hidden;

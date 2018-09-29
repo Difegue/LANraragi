@@ -1,4 +1,4 @@
-<html>
+<!DOCTYPE html>
 
 <head>
 	<title>[% title %] - Configuration</title>
@@ -25,7 +25,7 @@
 
 <body onload="set_style_from_storage();">
 
-	<div class="ido" >
+	<div class="ido">
 		<h2 class="ih" style="text-align:center">LANraragi Configuration</h2>
 		<br>
 		Select a category to show the matching settings.
@@ -37,39 +37,45 @@
 					<div class="collapsible-title caret-right">
 						<i class="fa fa-cubes" aria-hidden="true"></i> Global Settings</div>
 					<div class="collapsible-body">
-						<table style="margin:auto; font-size:9pt;" ><tbody>
-						[% INCLUDE templates_config/config_global %]
-						</tbody></table>
+						<table style="margin:auto; font-size:9pt;">
+							<tbody>
+								[% INCLUDE templates_config/config_global %]
+							</tbody>
+						</table>
 					</div>
 				</li>
 				<li class="option-flyout">
 					<div class="collapsible-title caret-right">
-							<i class="fa fa-file-archive" aria-hidden="true"></i> Archive Files</div>
+						<i class="fa fa-file-archive" aria-hidden="true"></i> Archive Files</div>
 					<div class="collapsible-body">
-						<table style="margin:auto; font-size:9pt;" ><tbody>
-						[% INCLUDE templates_config/config_files %]
-						</tbody></table>
+						<table style="margin:auto; font-size:9pt;">
+							<tbody>
+								[% INCLUDE templates_config/config_files %]
+							</tbody>
+						</table>
 					</div>
 				</li>
 				<li class="option-flyout">
 					<div class="collapsible-title caret-right">
-							<i class="fa fa-tags" aria-hidden="true"></i> Tags and Plugins</div>
+						<i class="fa fa-tags" aria-hidden="true"></i> Tags and Plugins</div>
 					<div class="collapsible-body">
-						<table style="margin:auto; font-size:9pt;" ><tbody>
-						[% INCLUDE templates_config/config_tags %]
-						</tbody></table>
+						<table style="margin:auto; font-size:9pt;">
+							<tbody>
+								[% INCLUDE templates_config/config_tags %]
+							</tbody>
+						</table>
 					</div>
 				</li>
 			</ul>
 
-					<tr>
-						<td colspan='2' style='text-align:center'>
-							<br/>
-							<input class='stdbtn' type='button' onclick="saveFormData('#editConfigForm');" value='Save LRR Configuration' />
-							<input class='stdbtn' type='button' onclick="window.location.replace('/');" value='Return to Library' />
-							<br/>
-						</td>
-					</tr>
+			<tr>
+				<td colspan='2' style='text-align:center'>
+					<br />
+					<input class='stdbtn' type='button' onclick="saveFormData('#editConfigForm');" value='Save LRR Configuration' />
+					<input class='stdbtn' type='button' onclick="window.location.replace('/');" value='Return to Library' />
+					<br />
+				</td>
+			</tr>
 
 		</form>
 	</div>

@@ -1,75 +1,80 @@
-<html>
-	<head>
-		<title>[% title %] - Logs</title>
+<!DOCTYPE html>
 
-		<meta name="viewport" content="width=device-width" />
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<head>
+	<title>[% title %] - Logs</title>
 
-		<link type="image/png" rel="icon" href="favicon.ico" />
-		<link rel="stylesheet" type="text/css" href="/css/lrr.css" />
-		
-		<link rel="stylesheet" type="text/css" href="./css/vendor/fontawesome-all.min.css" />
+	<meta name="viewport" content="width=device-width" />
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
-		<script src="./js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
+	<link type="image/png" rel="icon" href="favicon.ico" />
+	<link rel="stylesheet" type="text/css" href="/css/lrr.css" />
 
-		<script src="./js/theme.js" type="text/JAVASCRIPT"></script>
-		
-	</head>
+	<link rel="stylesheet" type="text/css" href="./css/vendor/fontawesome-all.min.css" />
 
-	<body onload="set_style_from_storage()">
+	<script src="./js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
 
-		<div class='ido' style='text-align:center'>
-				<h2 class='ih' style='text-align:center'>Application Logs</h2>
+	<script src="./js/theme.js" type="text/JAVASCRIPT"></script>
 
-				<br>
-				You can check LANraragi logs here for debugging purposes.<br>
-				By default, this view only shows the last 100 lines of each logfile, newest lines last.  <br><br>
-				General Logs pertain to the main application. Plugin Logs are reserved for metadata plugins only. Mojolicious logs won't tell much unless you're running Debug Mode.
-				<br><br>
+</head>
 
-				<h1 class='ih' style='text-align:center'>Currently Viewing: <span id="indicator">general</span></h1>
+<body onload="set_style_from_storage()">
 
-				<table class="itg">
-					<tbody>
+	<div class='ido' style='text-align:center'>
+		<h2 class='ih' style='text-align:center'>Application Logs</h2>
 
-					<tr class="gtr1"><td>
+		<br>
+		You can check LANraragi logs here for debugging purposes.<br>
+		By default, this view only shows the last 100 lines of each logfile, newest lines last. <br><br>
+		General Logs pertain to the main application. Plugin Logs are reserved for metadata plugins only. Mojolicious logs
+		won't tell much unless you're running Debug Mode.
+		<br><br>
+
+		<h1 class='ih' style='text-align:center'>Currently Viewing: <span id="indicator">general</span></h1>
+
+		<table class="itg">
+			<tbody>
+
+				<tr class="gtr1">
+					<td>
 						<pre id="log-container" style="height:300px; max-width:100%; overflow: auto; white-space: pre-wrap; "></pre>
-					</td></tr>
+					</td>
+				</tr>
 
-					</tbody>
-				</table>
+			</tbody>
+		</table>
 
-				<br><br>
-				<span id='buttonstagging'>
-						<input type='button' value='View LANraragi Logs' class='stdbtn' onclick='showLog("general")'>
+		<br><br>
+		<span id='buttonstagging'>
+			<input type='button' value='View LANraragi Logs' class='stdbtn' onclick='showLog("general")'>
 
-						<input type='button' value='View Plugin Logs' class='stdbtn' onclick='showLog("plugins")'>
+			<input type='button' value='View Plugin Logs' class='stdbtn' onclick='showLog("plugins")'>
 
-						<input type='button' value='View Mojolicious Logs' class='stdbtn' onclick='showLog("mojo")'>
+			<input type='button' value='View Mojolicious Logs' class='stdbtn' onclick='showLog("mojo")'>
 
-						<br><br>
-						<input class='stdbtn' type='button' onclick="window.location.replace('/');" value='Return to Library'/>
+			<br><br>
+			<input class='stdbtn' type='button' onclick="window.location.replace('/');" value='Return to Library' />
 
-				</span>
+		</span>
 
-		</div>
+	</div>
 
-		<script>
+	<script>
 
 		function showLog(type) {
 
-			$.get( "/logs/"+type, function( data ) {
-			  $("#log-container").html( data );
-			  $("#indicator").html(type);
-    		  $("#log-container").scrollTop($("#log-container").prop("scrollHeight"));
+			$.get("/logs/" + type, function (data) {
+				$("#log-container").html(data);
+				$("#indicator").html(type);
+				$("#log-container").scrollTop($("#log-container").prop("scrollHeight"));
 			});
 
 		}
 
 		showLog("general");
 
-		</script>
+	</script>
 
 	[% INCLUDE footer %]
-	</body>
+</body>
+
 </html>

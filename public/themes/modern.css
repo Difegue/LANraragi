@@ -73,6 +73,7 @@ div.gt {
     white-space: nowrap;
     width: default;
     cursor: pointer;
+    line-height: 17px;
 }
 
 div.gt:hover {
@@ -105,6 +106,11 @@ table.itg th{
     border: 1px solid #363940;
     border-radius: 3px;
 }
+
+.qtip > * > * > table.itg {
+    color: #dddddd !important;
+}
+
 
 /* favtags */
 table.itc {
@@ -343,7 +349,6 @@ div.id4 {
 
 div.id41 {
     float: left;
-    height: 15px;
     left: 2px;
     width: 88px;
     overflow: hidden;

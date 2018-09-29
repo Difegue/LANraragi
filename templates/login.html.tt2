@@ -1,50 +1,54 @@
-<html>
-	<head>
-		<title>[% title %] - Login</title>
+<!DOCTYPE html>
 
-		<meta name="viewport" content="width=device-width" />
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<head>
+	<title>[% title %] - Login</title>
 
-		<link type="image/png" rel="icon" href="favicon.ico" />
-		<link rel="stylesheet" type="text/css" href="/css/lrr.css" />
-		
-		<link rel="stylesheet" type="text/css" href="./css/vendor/fontawesome-all.min.css" />
+	<meta name="viewport" content="width=device-width" />
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
-		<script src="./js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
+	<link type="image/png" rel="icon" href="favicon.ico" />
+	<link rel="stylesheet" type="text/css" href="/css/lrr.css" />
 
-		<script src="./js/theme.js" type="text/JAVASCRIPT"></script>
-	</head>
+	<link rel="stylesheet" type="text/css" href="./css/vendor/fontawesome-all.min.css" />
 
-	<body onload="set_style_from_storage()">
+	<script src="./js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
 
-		<div class='ido' style='text-align:center'>
-			<p>This page requires you to log on.</p>
+	<script src="./js/theme.js" type="text/JAVASCRIPT"></script>
+</head>
 
-			<form name='loginForm' method='post'>
-				<table style='margin:auto; text-align:left; font-size:8pt;'>
-					<tbody>
+<body onload="set_style_from_storage()">
 
-						<tr>
-							<td>Admin Password:</td>
-							<td>
+	<div class='ido' style='text-align:center'>
+		<p>This page requires you to log on.</p>
+
+		<form name='loginForm' method='post'>
+			<table style='margin:auto; text-align:left; font-size:8pt;'>
+				<tbody>
+
+					<tr>
+						<td>Admin Password:</td>
+						<td>
 							<input id='pw_field' class='stdinput' type='password' style='width:90%' value='' maxlength='255' size='20' name='password'>
-							</td>
-						</tr>
-						<tr>
-							<td style='padding-top:5px; text-align:center; vertical-align:middle' colspan='2'>
+						</td>
+					</tr>
+					<tr>
+						<td style='padding-top:5px; text-align:center; vertical-align:middle' colspan='2'>
 							<input class='stdbtn' type='submit' value='Login' style='width:60px'>
-							</td>
-						</tr>
+						</td>
+					</tr>
 
 					[% IF wrongpass %]
-						<tr style='font-size:23px'><td colspan='2' style='padding-top:5px; text-align:center; vertical-align:middle '>Wrong Password. </td></tr>
+					<tr style='font-size:23px'>
+						<td colspan='2' style='padding-top:5px; text-align:center; vertical-align:middle '>Wrong Password. </td>
+					</tr>
 					[% END %]
-					</tbody>
-				</table>
-			</form>
+				</tbody>
+			</table>
+		</form>
 
-		</div>
+	</div>
 
 	[% INCLUDE footer %]
-	</body>
+</body>
+
 </html>
