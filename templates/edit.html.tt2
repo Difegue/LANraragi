@@ -1,89 +1,113 @@
-<html>
-		<head>
-			<title>[% title %] - Edit Mode</title>
+<!DOCTYPE html>
 
-			<meta name="viewport" content="width=device-width" />
-			<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<head>
+	<title>[% title %] - Edit Mode</title>
 
-			<link type="image/png" rel="icon" href="favicon.ico" />
-			
-			<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
-			<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.toast.min.css" />
+	<meta name="viewport" content="width=device-width" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
-			<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
-			<script src="/js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
+	<link type="image/png" rel="icon" href="favicon.ico" />
+	<link rel="stylesheet" type="text/css" href="/css/lrr.css" />
+	<link rel="stylesheet" type="text/css" href="/css/config.css" />
 
-			<script src="/js/theme.js" type="text/JAVASCRIPT"></script>
-			<script src="/js/ajax.js" type="text/JAVASCRIPT"></script>
-			<script src="/js/edit.js" type="text/JAVASCRIPT"></script>
-		
-		</head>
+	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
+	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.toast.min.css" />
 
-		<body onload="set_style_from_storage(); updateOneShotArg();">
+	<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
 
-			<div class='ido' style='text-align:center'>
+	<script src="/js/theme.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/ajax.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/edit.js" type="text/JAVASCRIPT"></script>
 
-			[% IF artist %]
-				<h1 class='ih' style='text-align:center'>Editing [% arctitle %] by [% artist %] </h1>
-			[% ELSE %]
-				<h1 class='ih' style='text-align:center'>Editing [% arctitle %]</h1>
-			[% END %]
+</head>
 
-			<form name='editArchiveForm' id='editArchiveForm' enctype='multipart/form-data' method='post'>
-			  <table style='margin:auto; font-size:8pt;'><tbody>
-				<tr><td style='text-align:left; width:100px'>Current File Name:</td><td>
-				<input class='stdinput' type='text' style='width:100%' readonly='' size='20' value="[% file %]" name='filename'>
-			  	</td></tr>
+<body onload="set_style_from_storage(); updateOneShotArg();">
 
-			  	<tr><td style='text-align:left; width:100px'>ID:</td><td>
-					<input id='archiveID' class='stdinput' type='text' style='width:100%' readonly='' maxlength='255' size='20' value="[% id %]" name='id'>
-			  	</td></tr>
+	<div class='ido' style='text-align:center'>
 
-			  	<tr><td style='text-align:left; width:100px'>Title:</td><td>
-					<input id='title' class='stdinput' type='text' style='width:100%' maxlength='255' size='20' value="[% arctitle %]" name='title'>
-			  	</td></tr>
+		[% IF artist %]
+		<h2 class='ih' style='text-align:center'>Editing [% arctitle %] by [% artist %] </h2>
+		[% ELSE %]
+		<h2 class='ih' style='text-align:center'>Editing [% arctitle %]</h2>
+		[% END %]
 
-				<tr><td style='text-align:left; width:100px; vertical-align:top'>Tags <span style="font-size:6pt">(separated by hyphens, i.e : tag1, tag2)</span> :
-				</td>
-				<td>
-					<textarea id='tagText' class='stdinput' name='tags' maxlength='5000' style='width:100%; height:125px' size='20'>[% tags %]</textarea>
-					<i class='fa fa-5x fa-cog fa-spin' style=' color:black; position:absolute; top:55%; left:52%; display:none' id='tag-spinner'></i>
-				</td></tr>
+		<form name='editArchiveForm' id='editArchiveForm' enctype='multipart/form-data' method='post'>
+			<table style='margin:auto; font-size:8pt;'>
+				<tbody>
+					<tr>
+						<td style='text-align:left; width:100px'>Current File Name:</td>
+						<td>
+							<input class='stdinput' type='text' style='width:100%' readonly='' size='20' value="[% file %]" name='filename'>
+						</td>
+					</tr>
 
-				<tr><td style='text-align:left; width:100px; vertical-align:top'>Import Tags from Plugin :
-					<input type='button' name='tag_import' value='Plugin&#x00A;Help' onclick="toastHelpEdit();" 
-					class='stdbtn' style='margin-top:25px; min-width:90px; height:50px'></input>
-				</td>
-				<td id="plugin_table">
+					<tr>
+						<td style='text-align:left; width:100px'>ID:</td>
+						<td>
+							<input id='archiveID' class='stdinput' type='text' style='width:100%' readonly='' maxlength='255' size='20'
+							 value="[% id %]" name='id'>
+						</td>
+					</tr>
 
-					<select id="plugin" onchange="updateOneShotArg()">
-						[% FOREACH plugin IN plugins %]
-						<option value="[% plugin.namespace %]" arg="[% plugin.oneshot_arg %]">[% plugin.name %]</option>  
-						[% END %]
-					</select>
+					<tr>
+						<td style='text-align:left; width:100px'>Title:</td>
+						<td>
+							<input id='title' class='stdinput' type='text' style='width:100%' maxlength='255' size='20' value="[% arctitle %]"
+							 name='title'>
+						</td>
+					</tr>
 
-					<input class='stdbtn' type='button' style="min-width:90px;" onclick="saveArchiveCallback(getTags)" value='Go!'/>
-					<br/>
+					<tr>
+						<td style='text-align:left; width:100px; vertical-align:top'>Tags <span style="font-size:6pt">(separated by
+								hyphens, i.e : tag1, tag2)</span> :
+						</td>
+						<td>
+							<textarea id='tagText' class='stdinput' name='tags' maxlength='5000' style='width:100%; height:125px' size='20'>[% tags %]</textarea>
+							<i class='fa fa-5x fa-cog fa-spin' style=' color:black; position:absolute; top:55%; left:52%; display:none' id='tag-spinner'></i>
+						</td>
+					</tr>
 
-					<span id="arg_label"></span> <br/>
-					<input id='arg' class='stdinput' type='text' style='width:100%' size='20' value="">
+					<tr>
+						<td style='text-align:left; width:100px; vertical-align:top'>Import Tags from Plugin :
+							<input type='button' name='tag_import' value='Plugin&#x00A;Help' onclick="toastHelpEdit();" class='stdbtn' style='margin-top:25px; min-width:90px; height:50px'></input>
+						</td>
+						<td id="plugin_table">
 
-					<br/>
+							<select id="plugin" onchange="updateOneShotArg()">
+								[% FOREACH plugin IN plugins %]
+								<option value="[% plugin.namespace %]" arg="[% plugin.oneshot_arg %]">[% plugin.name %]</option>
+								[% END %]
+							</select>
 
-					<i class='fa fa-2x fa-exclamation-circle'></i> Using a Plugin will save any modifications to archive metadata you might have made !
-				</td></tr>
+							<input class='stdbtn' type='button' style="min-width:90px;" onclick="saveArchiveCallback(getTags)" value='Go!' />
+							<br />
 
-				<tr>
-				<td colspan='2' style='text-align:left'> <br/>
-					<input class='stdbtn' type='button' onclick=" saveFormData('#editArchiveForm');" value='Save Metadata'/>
-					<input class='stdbtn' type='button' onclick=" if (confirm('Are you sure you want to delete this archive?')) deleteArchive('$id');" value='Delete Archive'/>
-					<input id='goback' class='stdbtn' type='button' onclick="window.location.replace('./');" value='Return to Library'/>
-				<br/></td></tr>
-				</tbody></table>
-			</form>
+							<span id="arg_label"></span> <br />
+							<input id='arg' class='stdinput' type='text' style='width:100%' size='20' value="">
 
-		</div>
+							<br />
 
-		[% INCLUDE footer %]
-		</body>
+							<i class='fa fa-2x fa-exclamation-circle'></i> Using a Plugin will save any modifications to archive metadata
+							you might have made !
+						</td>
+					</tr>
+
+					<tr>
+						<td colspan='2' style='text-align:left'> <br />
+							<input class='stdbtn' type='button' onclick=" saveFormData('#editArchiveForm');" value='Save Metadata' />
+							<input class='stdbtn' type='button' onclick=" if (confirm('Are you sure you want to delete this archive?')) deleteArchive('$id');"
+							 value='Delete Archive' />
+							<input id='goback' class='stdbtn' type='button' onclick="window.location.replace('./');" value='Return to Library' />
+							<br /></td>
+					</tr>
+				</tbody>
+			</table>
+		</form>
+
+	</div>
+
+	[% INCLUDE footer %]
+</body>
+
 </html>

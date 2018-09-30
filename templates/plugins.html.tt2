@@ -1,4 +1,4 @@
-<html>
+<!DOCTYPE html>
 
 <head>
 	<title>[% title %] - Plugin Configuration</title>
@@ -7,6 +7,8 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
 	<link type="image/png" rel="icon" href="favicon.ico" />
+	<link rel="stylesheet" type="text/css" href="/css/lrr.css" />
+	<link rel="stylesheet" type="text/css" href="/css/config.css" />
 
 	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.fileupload.css" />
@@ -47,11 +49,13 @@
 
 	<div class="ido" style="text-align:center;">
 		<h1 class="ih" style="text-align:center">Plugin Configuration</h1>
-		<br> Enable/Disable metadata plugins by ticking the matching checkboxes. If they have configuration variables, you can set
+		<br> Enable/Disable metadata plugins by ticking the matching checkboxes. If they have configuration variables, you
+		can set
 		them here as well.
-		<br/> Enabled plugins will be automatically used when new archives are added if the matching option is enabled in LRR Config.
-		<br/>
-		<br/>
+		<br /> Enabled plugins will be automatically used when new archives are added if the matching option is enabled in
+		LRR Config.
+		<br />
+		<br />
 
 		<form name="editPluginForm" id="editPluginForm" enctype="multipart/form-data" method="post">
 
@@ -64,19 +68,19 @@
 
 				<h2 class="ih" style="display:inline"> [% plugin.name %] v.[% plugin.version %]</h2>
 				<h1 class="ih" style="display:inline"> by [% plugin.author %] </h1>
-				<br/>
+				<br />
 				<i>[% plugin.description %]</i>
-				<br/> [% IF plugin.global_arg %]
+				<br /> [% IF plugin.global_arg %]
 				<b> [% plugin.global_arg %] : </b>
 				<input class="stdinput" style="max-width:200px" size="20" value="[% plugin.customarg %]" name="[% plugin.namespace %]_CFG"
 				 type="text"> [% END %]
-				<br/>
+				<br />
 			</span>
-			<br/>
-			<br/> [% END %]
+			<br />
+			<br /> [% END %]
 
 
-			<br/>
+			<br />
 			<h1 style="text-align:center">
 				<input class='stdbtn' type='button' onclick="saveFormData('#editPluginForm');" value='Save Plugin Configuration' />
 				<span id="plugin-upload" class='stdbtn fileinput-button' style="margin-bottom: -10px; font-weight:normal">

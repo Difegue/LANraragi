@@ -1,104 +1,108 @@
-<html>
-	<head>
-		<title>[% title %] - Database Backup/Restore</title>
+<!DOCTYPE html>
 
-		<meta name="viewport" content="width=device-width" />
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<head>
+	<title>[% title %] - Database Backup/Restore</title>
 
-		<link type="image/png" rel="icon" href="favicon.ico" />
-		
-		<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
-		<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.fileupload.css" />
+	<meta name="viewport" content="width=device-width" />
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
-		<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
-		<script src="/js/vendor/jquery.ui.widget.js" type="text/JAVASCRIPT"></script>
-		<script src="/js/vendor/jquery.fileupload.js" type="text/JAVASCRIPT"></script>
+	<link type="image/png" rel="icon" href="favicon.ico" />
+	<link rel="stylesheet" type="text/css" href="/css/lrr.css" />
 
-		<script src="/js/theme.js" type="text/JAVASCRIPT"></script>
-		<script src="/js/ajax.js" type="text/JAVASCRIPT"></script>
-		
-	</head>
+	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
+	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.fileupload.css" />
 
-	<body onload="initUpload()">
+	<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/jquery.ui.widget.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/jquery.fileupload.js" type="text/JAVASCRIPT"></script>
 
-		<div class='ido' style='text-align:center'>
-				<h2 class='ih' style='text-align:center'>Database Backup/Restore</h2>
+	<script src="/js/theme.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/ajax.js" type="text/JAVASCRIPT"></script>
 
-					<br>
-					You can backup your existing database here, or restore an existing backup.<br><br>
-					Backuping allows you to download a JSON file containing all your archive IDs, and their matching metadata.<br>
-					Restoring from a backup will restore this metadata, <b>for IDs which already exist in your database.</b><br> 
+</head>
 
-					<table style='margin:auto; font-size:9pt; margin-top:25px; text-align:center;'><tbody id='files'>
-						<tr>
-							<td>
-								<span class="stdbtn" style="height:50px; display:inline-block" onclick='window.open("./backup?dobackup=1", "_blank")'>
-										<i style="padding-top:6px; padding-bottom: 5px" class="fa fa-download fa-2x"></i><br>
-										<span>Backup Database</span>
-								</span>
-							</td>
-							<td>
-								<span class="stdbtn fileinput-button" style="height:50px; display:inline-block;">
-										<i style="padding-top:6px; padding-bottom: 5px" class="fa fa-upload fa-2x"></i><br>
-										<span>Restore Backup</span>
-										<input type="file" id="fileupload" multiple="" name="file"> 
-								</span>
-							</td>
-						</tr>
-					</table>
-					<br/><br/>
+<body onload="initUpload()">
 
-					<span style='margin:auto; font-size:9pt; width: 80%; text-align:center;'>
+	<div class='ido' style='text-align:center'>
+		<h2 class='ih' style='text-align:center'>Database Backup/Restore</h2>
 
-						<div id='processing' style='display:none'>
-							<i class='fa fa-3x fa-cog fa-spin' style='margin-top:20px' id='tag-spinner'></i>
-							<h3>Restoring your backup ... </h3>
-						</div>
+		<br>
+		You can backup your existing database here, or restore an existing backup.<br><br>
+		Backuping allows you to download a JSON file containing all your archive IDs, and their matching metadata.<br>
+		Restoring from a backup will restore this metadata, <b>for IDs which already exist in your database.</b><br>
 
-						<h3 id='result'></h3>
-						
-					</span>
+		<table style='margin:auto; font-size:9pt; margin-top:25px; text-align:center;'>
+			<tbody id='files'>
+				<tr>
+					<td>
+						<span class="stdbtn" style="height:50px; display:inline-block" onclick='window.open("./backup?dobackup=1", "_blank")'>
+							<i style="padding-top:6px; padding-bottom: 5px" class="fa fa-download fa-2x"></i><br>
+							<span>Backup Database</span>
+						</span>
+					</td>
+					<td>
+						<span class="stdbtn fileinput-button" style="height:50px; display:inline-block;">
+							<i style="padding-top:6px; padding-bottom: 5px" class="fa fa-upload fa-2x"></i><br>
+							<span>Restore Backup</span>
+							<input type="file" id="fileupload" multiple="" name="file">
+						</span>
+					</td>
+				</tr>
+		</table>
+		<br /><br />
+
+		<span style='margin:auto; font-size:9pt; width: 80%; text-align:center;'>
+
+			<div id='processing' style='display:none'>
+				<i class='fa fa-3x fa-cog fa-spin' style='margin-top:20px' id='tag-spinner'></i>
+				<h3>Restoring your backup ... </h3>
+			</div>
+
+			<h3 id='result'></h3>
+
+		</span>
 
 
-					<br><br><br>
-					<input class='stdbtn' type='button' onclick="window.location.replace('./');" value='Return to Library'/>
+		<br><br><br>
+		<input class='stdbtn' type='button' onclick="window.location.replace('./');" value='Return to Library' />
 
-					
-				<br><br>
 
-		</div>
+		<br><br>
 
-		<script>
-		function initUpload(){
+	</div>
+
+	<script>
+		function initUpload() {
 
 			//Handler for file uploading.
 			$('#fileupload').fileupload({
-		        dataType: 'json',
-		        done: function (e, data) {
+				dataType: 'json',
+				done: function (e, data) {
 
-		        	$('#processing').attr("style","display:none");
+					$('#processing').attr("style", "display:none");
 
-		        	if (data.result.success == 1)
-		            	$('#result').html("Backup restored !");
-		            else
-		            	$('#result').html(data.result.error);
-		        },
+					if (data.result.success == 1)
+						$('#result').html("Backup restored !");
+					else
+						$('#result').html(data.result.error);
+				},
 
-		        fail: function (e,data) {
-		        	$('#processing').attr("style","display:none");
-		        	$('#result').html("An error occured server-side. woops.<br/> Maybe your JSON is badly formatted ?");
-		        },
+				fail: function (e, data) {
+					$('#processing').attr("style", "display:none");
+					$('#result').html("An error occured server-side. woops.<br/> Maybe your JSON is badly formatted ?");
+				},
 
-		        progressall: function (e, data) {
-		        	$('#result').html("");
-			        $('#processing').attr("style","");
-			    }
+				progressall: function (e, data) {
+					$('#result').html("");
+					$('#processing').attr("style", "");
+				}
 
-		    });
+			});
 
 		}
-		</script>
+	</script>
 
 	[% INCLUDE footer %]
-	</body>
+</body>
+
 </html>

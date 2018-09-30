@@ -131,6 +131,58 @@ table.itg th {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+.qtip {
+    border: 2px dotted #414135;
+}
+
+.qtip-tip {
+    display:none !important;
+}
+
+/* favtags */
+table.itc {
+    margin: auto;
+}
+
+.favtag-btn {
+    font-size: 10pt;
+    min-width: 50px;
+    height: 25px;
+    background-color: #BE234B;
+    border: 0 none;
+    border-radius: 3px 3px 3px 3px;
+    color: #F1F1F1;
+    font-family: 'Roboto',arial,sans-serif;
+    margin: 1px;
+    outline: 0 none;
+    padding: 0 4px 1px; 
+    cursor: pointer;
+
+}
+
+.favtag-btn:hover {
+    background: E9A53A;
+}
+
+.toggled {
+    background:#E9A53A !important;
+}
+
+/* options flyout menus */
+.option-flyout {
+    background:#D7D4C5;
+    color: #414135;
+    padding:3px 4px 3px 4px;
+    margin: 10px;
+    border-bottom: 2px solid #414135;
+}
+
+.collapsible-body > table{
+    border-top: 2px dashed #414135;
+    color: #414135;
+}
+
 tr.gtr {
     background: none repeat scroll 0 0 #40454B;
 }
@@ -446,7 +498,6 @@ div.id4 a:hover {
 
 div.id41 {
     float: left;
-    height: 15px;
     left: 2px;
     width: 88px;
     overflow: hidden;

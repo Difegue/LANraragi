@@ -10,8 +10,9 @@ requires 'URI::Escape', 1.74;
 requires 'Authen::Passphrase', 0.008;
 requires 'File::ReadBackwards', 1.05;
 requires 'File::Find::utf8', 0.013;
+requires 'Cpanel::JSON::XS', 4.06;
 
-requires 'Mojolicious', 7.85;
+requires 'Mojolicious', 8.0;
 requires 'Mojolicious::Plugin::TemplateToolkit', 0.003;
 requires 'Mojolicious::Plugin::RenderFile', 0.12;
 requires 'Mojo::IOLoop::ProcBackground', 0.06;

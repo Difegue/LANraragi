@@ -76,6 +76,12 @@ function initIndex(pagesize, dataSet) {
 	});
 
 	$('#clrsrch').click(function () {
+		//clear all favtags
+		for (var i = 0; i < $(".favtag").length; i++) {
+			$(".favtag")[i].checked = false;
+			$(".favtag-btn")[i].classList.remove("toggled");
+		}
+
 		arcTable.search('').draw();
 		$('#srch').val('');
 	});
@@ -222,7 +228,8 @@ function buildThumbDiv(row, data, index) {
 function buildImageTooltip(target) {
 	target.qtip({
 		content: {
-			text: target.next('div')
+			//make a clone of the existing image div and rip off the caption class to avoid display glitches
+			text: target.next('div').clone().removeClass("caption")
 		},
 		position: {
 			target: 'mouse',

@@ -294,8 +294,11 @@ sub build_json_cache {
 
     }
 
-    #Remove trailing comma
-    chop $json;
+    #Remove trailing comma if there's one
+    if (length $json > 1) {
+        chop $json;
+    }
+    
     $json .= "]";
 
     #Write JSON to cache

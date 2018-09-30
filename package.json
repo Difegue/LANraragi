@@ -1,6 +1,6 @@
 {
   "name": "lanraragi",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "holla where the chinese comics at",
   "scripts": {
     "test": "perl ./script/lanraragi test tests/*.t",
@@ -21,7 +21,8 @@
   },
   "homepage": "https://github.com/Difegue/LANraragi#readme",
   "dependencies": {
-    "blueimp-file-upload": "^9.19.2",
+    "allcollapsible": "^1.1.0",
+    "blueimp-file-upload": "^9.22.0",
     "datatables": "^1.10.13",
     "fontawesome-web": "^5.0.2",
     "jqcloud2": "^2.0.3",

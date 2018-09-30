@@ -84,7 +84,8 @@ sub get_motd {
     );
 }
 
-sub get_userdir {    #Try to create userdir if it doesn't already exist
+sub get_userdir {    
+    #Try to create userdir if it doesn't already exist
     my $dir = &get_redis_conf( "dirname", "./content" );
 
     unless ( -e $dir ) {
@@ -112,6 +113,8 @@ sub enable_pass     { return &get_redis_conf( "enablepass",  "1" ) }
 sub enable_nofun    { return &get_redis_conf( "nofunmode",   "0" ) }
 sub enable_autotag  { return &get_redis_conf( "autotag",     "1" ) }
 sub enable_devmode  { return &get_redis_conf( "devmode",     "0" ) }
+#Use the number of the favtag you want to get as a parameter to this sub.
+sub get_favtag      { return &get_redis_conf( "fav".$_[1],   ""  ) }
 
 #Assign a name to the css file passed. You can add names by adding cases.
 #Note: CSS files added to the /themes folder will ALWAYS be pickable by the users no matter what.

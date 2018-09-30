@@ -1,4 +1,4 @@
-<html>
+<!DOCTYPE html>
 
 <head>
 	<title>[% title %]</title>
@@ -56,18 +56,31 @@
 	[% END %]
 
 	<div class='ido'>
+		<h1 class='ih'>[% motd %]</h1>
 		<div id='toppane'>
-			<h1 class='ih'>[% motd %]</h1>
 			<div class='idi'>
 
-				<input type='text' id='srch' class='search stdinput' size='90' placeholder='Search Title, Artist, Series, Language or Tags'
-				/>
+				[% IF favtags && favtags.size %]
+				<table class="itc">
+					<tbody>
+						<tr>
+							[% FOREACH tag IN favtags %]
+							<td>
+								<input class='favtag' id='[% tag %]' type='hidden' />
+								<input class='favtag-btn' type='button' value='[% tag %]' onclick='toggleFav(this)' title='Click here to instantly search for this tag!' />
+							</td>
+							[% END %]
+						</tr>
+					</tbody>
+				</table>
+				[% END %]
+
+				<input type='text' id='srch' class='search stdinput' size='90' placeholder='Search Title, Artist, Series, Language or Tags' />
 				<input id='clrsrch' class='stdbtn' type='button' value='Clear Filter' />
 			</div>
 
 			<p id='cssbutton' style='display:inline'>
-				<input class='stdbtn' type='button' onclick="var win=window.open('random','_blank'); win.focus();" value='Give me a random archive'
-				/>
+				<input class='stdbtn' type='button' onclick="var win=window.open('random','_blank'); win.focus();" value='Give me a random archive' />
 				<input id='viewbtn' class='stdbtn' type='button' onclick="switch_index_view()" value='Switch to Thumbnail View' />
 			</p>
 
@@ -106,11 +119,11 @@
 		</div>
 	</div>
 
-	[% INCLUDE footer %] 
-	
-	[% IF debugmode %] 
-	<i class="fas fa-bug" /> You're running in Debug Mode!
-	<i class="fas fa-bug" /> 
+	[% INCLUDE footer %]
+
+	[% IF debugmode %]
+	<i class="fas fa-bug"></i> You're running in Debug Mode!
+	<i class="fas fa-bug"></i>
 	[% END %]
 
 	<script>
@@ -149,7 +162,7 @@
 			$('.itg').hide();
 		}
 
-		[% IF debugmode %] [% ELSE %]
+		[% IF debugmode %][% ELSE %]
 		checkVersion("[% version %]");
 		[% END %]
 

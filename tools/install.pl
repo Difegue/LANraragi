@@ -16,7 +16,8 @@ my @vendor_css = (
     "/fontawesome-web/css/fontawesome-all.min.css",
     "/jqcloud2/dist/jqcloud.min.css",
     "/jquery-toast-plugin/dist/jquery.toast.min.css",
-    "/qtip2/dist/jquery.qtip.min.css"
+    "/qtip2/dist/jquery.qtip.min.css",
+    "/allcollapsible/dist/css/allcollapsible.min.css"
 );
 
 my @vendor_js = (
@@ -26,7 +27,8 @@ my @vendor_js = (
     "/jqcloud2/dist/jqcloud.min.js",
     "/jquery/dist/jquery.min.js",
     "/jquery-toast-plugin/dist/jquery.toast.min.js",
-    "/qtip2/dist/jquery.qtip.min.js"
+    "/qtip2/dist/jquery.qtip.min.js",
+    "/allcollapsible/dist/js/allcollapsible.min.js"
 );
 
 my @vendor_woff = (
@@ -66,7 +68,7 @@ unless ( @ARGV > 0 ) {
     say("* install-back: Install/Update Perl dependencies.");
     say("* install-full: Install/Update all dependencies.");
     say("");
-    say("If using a prepackaged release, you probably only need install-back.");
+    say("If installing from source, please use install-full.");
     exit;
 }
 

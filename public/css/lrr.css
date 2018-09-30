@@ -1,8 +1,7 @@
 /* Global LANraragi CSS. Don't mess !*/
 
 /*tag hover popups.*/
-td
-{
+td {
     max-width: 250px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -18,7 +17,7 @@ td.language {max-width: 100px;}
 td.artist {max-width: 150px;}
 td.tags {max-width: 150px;}
 
-.ttspinner{
+.ttspinner {
   color:black; 
   position:relative; 
   top:-162px; 
@@ -192,12 +191,23 @@ p#nb {
 
 .small-overlay {
     left: 35%;
-    width: 30% !important;
+    width: 35% !important;
 } 
 
 .ie7 .page-overlay {
     height: 50%;
 } 
+
+#theme-overlay-shade {
+    position: fixed;
+    display: none;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background-color: #000;
+}
 
 .page-number {
     font-size: 20px; 
@@ -213,10 +223,6 @@ a:hover > .page-number {
     background-color: #000000;
 }
 
-.caption {
-    border: none !important;
-}
-
 .qtip {
     max-width: 1000px !important;
 }
@@ -226,4 +232,26 @@ a:hover > .page-number {
     height: auto; 
     width: auto; 
     min-height:300px;
+}
+
+.collapsible {
+    box-shadow: none !important;
+}
+
+.option-td { 
+    padding-right: 20px;
+    padding-bottom: 40px;
+    vertical-align: top !important;
+    width: 200px;
+}
+
+.collapsible-title {
+    border: none !important;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.collapsible-body {
+    padding: 10px !important;
+    border: none !important;
 }

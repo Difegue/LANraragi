@@ -32,6 +32,11 @@ sub index {
         autotag     => $self->LRR_CONF->enable_autotag,
         devmode     => $self->LRR_CONF->enable_devmode,
         nofunmode   => $self->LRR_CONF->enable_nofun,
+        fav1        => $self->LRR_CONF->get_favtag(1),
+        fav2        => $self->LRR_CONF->get_favtag(2),
+        fav3        => $self->LRR_CONF->get_favtag(3),
+        fav4        => $self->LRR_CONF->get_favtag(4),
+        fav5        => $self->LRR_CONF->get_favtag(5),
         cssdrop     => LANraragi::Utils::Generic::generate_themes,
         tempsize    => int( $size / 1048576 * 100 ) / 100
     );
@@ -53,6 +58,11 @@ sub save_config {
         pagesize    => scalar $self->req->param('pagesize'),
         blacklist   => scalar $self->req->param('blacklist'),
         tempmaxsize => scalar $self->req->param('tempmaxsize'),
+        fav1 => scalar $self->req->param('fav1'), 
+        fav2 => scalar $self->req->param('fav2'),
+        fav3 => scalar $self->req->param('fav3'),
+        fav4 => scalar $self->req->param('fav4'),
+        fav5 => scalar $self->req->param('fav5'),
 
         #for checkboxes,
         #we check if the parameter exists in the POST to return either 1 or 0.
@@ -101,6 +111,7 @@ sub save_config {
             LANraragi::Utils::Generic::remove_newlines( $confhash{$key} );
             encode_utf8( $confhash{$key} );
         }
+        
 
 #for all keys of the hash, add them to the redis config hash with the matching keys.
         $redis->hset( "LRR_CONFIG", $_, $confhash{$_}, sub { } )
