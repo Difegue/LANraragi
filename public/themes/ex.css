@@ -73,15 +73,19 @@ table.itc {
     height: 25px;
     border-radius: 3px;
     color:#f1f1f1;
-    background:#3b3435;
+    background:#4f5052;
     border:2px outset #000000;
     margin:4px 1px 0px 1px;
     padding:0px 4px 1px 4px; 
     cursor: pointer;
 }
 
+.favtag-btn:hover {
+    background:#3b3435;
+}
+
 .toggled {
-    background:#4f5052 !important;
+    background:#3b3435 !important;
 }
 
 /* options flyout menus */

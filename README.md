@@ -14,9 +14,11 @@ Web interface and reader for archival of comics/manga, running on Mojolicious + 
 
 * Two different user interfaces : compact archive list with thumbnails-on-hover, or thumbnail view.
 
-* Choose from 5 preinstalled responsive library styles, or add your own with CSS.      
+* Choose from 5 preinstalled responsive library styles, or add your own with CSS.  
 
 * Full Tag support with Namespaces: Add your own or import them from other sources using Plugins.  
+
+* Set Favorite Tags to be able to quickly find archives containing them in your collection
 
 * Auto-Tagging: Import metadata using Plugins automatically when archives are added to LANraragi.
 
@@ -25,7 +27,7 @@ Web interface and reader for archival of comics/manga, running on Mojolicious + 
 ## Screenshots  
 
  
-[Main Page, Thumbnail View](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/archive_thumb.jpg)  
+[Main Page, Thumbnail View](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/archive_thumb.png)  
 [Main Page, List View](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/archive_list.png)  
 [Archive Reader](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/reader.jpg)  
 [Reader with overlay](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/reader_overlay.jpg)  

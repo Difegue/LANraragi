@@ -162,11 +162,15 @@ table.itc {
 }
 
 .favtag-btn:hover {
-    background: E9A53A;
+    color: #E9A53A !important;
 }
 
 .toggled {
     background:#E9A53A !important;
+}
+
+.toggled:hover {
+    color: #BE234B !important;
 }
 
 /* options flyout menus */
