@@ -28,4 +28,5 @@ input[type='checkbox']:checked::before {
 td {
     max-width: 2000px !important;
     vertical-align: top;
+    text-align: left;
 }
