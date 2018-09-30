@@ -121,6 +121,12 @@ table.itc {
     font-weight: bold;
 }
 
+.favtag-btn:hover {
+    background: #5f0d1f !important;
+    border: 2px outset #5C0D11 !important;
+    color: #F2EFDF !important;
+}
+
 .toggled {
     background: #5f0d1f !important;
     border: 2px outset #5C0D11 !important;
