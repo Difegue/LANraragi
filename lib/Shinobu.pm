@@ -34,6 +34,7 @@ use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database;
 
 use LANraragi::Model::Config;
+use LANraragi::Model::Plugins;
 
 sub initialize_from_new_process {
 
