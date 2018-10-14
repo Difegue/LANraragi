@@ -127,12 +127,12 @@ function seriesColumnDisplay(data, type, full, meta) {
 		if (data === "")
 			return "";
 
-		regex = /.*parody:\s?([^,]*),*.*/gi
+		regex = /.*(parody|series):\s?([^,]*),*.*/gi
 		match = regex.exec(data);
 
 		if (match != null) {
 			return '<a style="cursor:pointer" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">' +
-				match[1].replace(/\b./g, function (m) { return m.toUpperCase(); }) +
+				match[2].replace(/\b./g, function (m) { return m.toUpperCase(); }) +
 				'</a>';
 		} else return "";
 
