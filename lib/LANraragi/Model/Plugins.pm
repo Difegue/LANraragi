@@ -10,6 +10,7 @@ use Module::Pluggable require => 1, search_path => ['LANraragi::Plugin'];
 
 use Redis;
 use Encode;
+use Mojo::JSON;
 
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Archive;
@@ -39,19 +40,20 @@ sub exec_enabled_plugins_on_file {
         if ( $redis->exists($namerds) ) {
 
             my %plugincfg = $redis->hgetall($namerds);
-            my ( $enabled, $arg ) = @plugincfg{qw(enabled arg)};
+            my ( $enabled, $args ) = @plugincfg{qw(enabled args)};
 
             ( $_ = LANraragi::Utils::Database::redis_decode($_) )
-              for ( $enabled, $arg );
+              for ( $enabled, $args );
+
+            my @args = decode_json ($args);
 
             if ($enabled) {
 
                 #Every plugin execution is eval'd separately
                 eval {
 
-                    #No oneshot arguments on batch execution
                     my %plugin_result =
-                      &exec_plugin_on_file( $plugin, $id, $arg, "" );
+                      &exec_plugin_on_file( $plugin, $id, @args, "" );
 
                     unless ( exists $plugin_result{error} )
                     {    #If the plugin exec returned metadata, add it
@@ -91,7 +93,7 @@ sub exec_enabled_plugins_on_file {
 #Execute a specified plugin on a file, described through its Redis ID.
 sub exec_plugin_on_file {
 
-    my ( $plugin, $id, $arg, $oneshotarg ) = @_;
+    my ( $plugin, $id, @args, $oneshotarg ) = @_;
     my $redis = LANraragi::Model::Config::get_redis;
 
     my $logger =
@@ -119,7 +121,7 @@ sub exec_plugin_on_file {
 
         #Hand it off to the plugin here.
         my %newmetadata =
-          $plugin->get_tags( $title, $tags, $thumbhash, $file, $arg,
+          $plugin->get_tags( $title, $tags, $thumbhash, $file, @args,
             $oneshotarg );
 
         #Error checking

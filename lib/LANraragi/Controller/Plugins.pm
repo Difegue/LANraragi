@@ -3,6 +3,7 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use Redis;
 use Encode;
+use Mojo::JSON;
 no warnings 'experimental';
 use Cwd;
 
@@ -32,11 +33,33 @@ sub index {
         my $namespace = $pluginfo{namespace};
         my $namerds   = "LRR_PLUGIN_" . uc($namespace);
 
-        my $checked = $redis->hget( $namerds, "enabled" );
-        my $arg     = $redis->hget( $namerds, "customarg" );
+        my $checked = 0;
+        my @globalargnames = $pluginfo{global_args};
 
+        if ($redis->hexists($namerds)) {
+            $checked     = $redis->hget( $namerds, "enabled" );
+            my $argsjson = $redis->hget( $namerds, "customargs" );
+
+            ( $_ = LANraragi::Utils::Database::redis_decode($_) )
+              for ( $checked, $argsjson );
+
+            my @globalargvalues = decode_json ($argsjson);
+        }
+        
+        #Build array of pairs with the global arg names and values
+        my @globalargs = [];
+
+        for(my $i = 0, $i < scalar @globalargnames, $i++) {
+            my %arghash = (
+                name  => @globalargnames[$i],
+                value => @globalargvalues[$i]
+            );
+            push @globalargs, \%arghash;
+        }
+
+ 
         $pluginfo{enabled}   = $checked;
-        $pluginfo{customarg} = $arg;
+        $pluginfo{custom_args} = \@globalargs;
 
         push @pluginlist, \%pluginfo;
 
@@ -74,11 +97,19 @@ sub save_config {
             my $namerds   = "LRR_PLUGIN_" . uc($namespace);
 
             my $enabled = ( scalar $self->req->param($namespace) ? '1' : '0' );
-            my $arg = $self->req->param( $namespace . "_CFG" ) || "";
+            
+            #Get expected number of custom arguments from the plugin itself
+            my $argnumbers = scalar $pluginfo{custom_args}
+            my @customargs = [];
+            #Loop through the namespaced request parameters
+            for (my $i = 0, $i < scalar ) {
+                push @customargs, ($self->req->param( $namespace . "_CFG_" . $i ) || "");
+            }
+
+            my $encodedargs = encode_json(@customargs);
 
             $redis->hset( $namerds, "enabled", $enabled );
-
-            $redis->hset( $namerds, "customarg", $arg );
+            $redis->hset( $namerds, "customarg", $encodedargs );
 
         }
     };

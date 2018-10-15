@@ -30,7 +30,7 @@ sub get_tags {
 
 #LRR gives your plugin the recorded title/tags/thumbnail hash for the file, the filesystem path, and the custom arguments if available.
     shift;
-    my ( $title, $tags, $thumbhash, $file, $globalarg, $oneshotarg ) = @_;
+    my ( $title, $tags, $thumbhash, $file, @args, $oneshotarg ) = @_;
 
     my $logger = LANraragi::Utils::Generic::get_logger( "eze", "plugins" );
 

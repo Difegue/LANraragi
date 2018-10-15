@@ -21,12 +21,14 @@ sub plugin_info {
         name        => "E-Hentai",
         namespace   => "ehplugin",
         author      => "Difegue",
-        version     => "1.1",
+        version     => "1.5",
         description => "Searches g.e-hentai for tags matching your archive.",
 
         #If your plugin uses/needs custom arguments, input their name here.
         #This name will be displayed in plugin configuration next to an input box for global arguments, and in archive edition for one-shot arguments.
-        global_arg  => "Default language to use in searches (This will be overwritten if your archive has a language tag set)",
+        global_args  => ["Default language to use in searches (This will be overwritten if your archive has a language tag set)",
+                        "E-Hentai Username (used for exhentai access)",
+                        "E-Hentai Password (used for exhentai access)"],
         oneshot_arg => "E-H Gallery URL (Will attach tags matching this exact gallery to your archive)"
     );
 
@@ -37,7 +39,7 @@ sub get_tags {
 
     #LRR gives your plugin the recorded title/tags/thumbnail hash for the file, the filesystem path, and the custom arguments if available.
     shift;
-    my ( $title, $tags, $thumbhash, $file, $globalarg, $oneshotarg ) = @_;
+    my ( $title, $tags, $thumbhash, $file, @args, $oneshotarg ) = @_;
 
     #Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
     my $logger = LANraragi::Utils::Generic::get_logger( "E-Hentai", "plugins" );

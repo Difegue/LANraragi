@@ -3,6 +3,7 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use Redis;
 use Encode;
+use Mojo::JSON;
 use File::Find::utf8;
 use File::Path qw(remove_tree);
 
@@ -160,13 +161,14 @@ sub use_plugin {
 
             #Get the matching argument in Redis
             my $namerds = "LRR_PLUGIN_" . uc($namespace);
-            my $globalarg = $redis->hget( $namerds, "customarg" );
+            my $globalargs = $redis->hget( $namerds, "customargs" );
             $globalarg = LANraragi::Utils::Database::redis_decode($globalarg);
+            my @args = decode_json ($globalarg);
 
             #Finally, execute the plugin
             my %plugin_result =
               LANraragi::Model::Plugins::exec_plugin_on_file( $plugin, $id,
-                $globalarg, $oneshotarg );
+                @args, $oneshotarg );
 
             if ( exists $plugin_result{error} ) {
 

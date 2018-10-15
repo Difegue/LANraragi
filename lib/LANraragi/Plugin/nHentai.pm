@@ -19,12 +19,12 @@ sub plugin_info {
         name        => "nHentai",
         namespace   => "nhplugin",
         author      => "Difegue",
-        version     => "1.0",
+        version     => "1.1",
         description => "Searches nHentai for tags matching your archive.",
 
 #If your plugin uses/needs custom arguments, input their name here.
 #This name will be displayed in plugin configuration next to an input box for global arguments, and in archive edition for one-shot arguments.
-        global_arg => "",
+        global_args => [],
         oneshot_arg =>
 "nHentai Gallery URL (Will attach tags matching this exact gallery to your archive)"
     );
@@ -36,7 +36,7 @@ sub get_tags {
 
     #LRR gives your plugin the recorded title/tags/thumbnail hash for the file, the filesystem path, and the custom arguments if available.
     shift;
-    my ( $title, $tags, $thumbhash, $file, $globalarg, $oneshotarg ) = @_;
+    my ( $title, $tags, $thumbhash, $file, @args, $oneshotarg ) = @_;
 
     my $logger = LANraragi::Utils::Generic::get_logger( "nHentai", "plugins" );
 
