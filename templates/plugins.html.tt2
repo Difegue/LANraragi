@@ -73,12 +73,12 @@
 				<br/>
 				<i>[% plugin.description %]</i>
 				<br/> 
-				[% IF plugin.global_args && plugin.global_args.size %]
-					[% FOREACH customarg IN plugin.global_args %]
+				[% IF plugin.custom_args && plugin.custom_args.size %]
+					[% FOREACH customarg IN plugin.custom_args %]
 
 						<b> [% customarg.name %] : </b>
 						<input class="stdinput" style="max-width:200px" size="20" value="[% customarg.value %]" 
-						name="[% plugin.namespace %]_CFG_[% loop.count %]" type="text"> 
+						name="[% plugin.namespace %]_CFG_[% loop.count %]" type="text"> <br/>
 					[% END %]
 				[% END %]	 
 				<br />

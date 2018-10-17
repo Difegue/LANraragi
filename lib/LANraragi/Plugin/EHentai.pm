@@ -56,7 +56,7 @@ sub get_tags {
     else {
         #Craft URL for Text Search on EH if there's no user argument
         ( $gID, $gToken ) =
-          &lookup_by_title( $title, $thumbhash, $globalarg, $tags );
+          &lookup_by_title( $title, $thumbhash, $args[0], $tags );
     }
 
     #If an error occured, return a hash containing an error message. 

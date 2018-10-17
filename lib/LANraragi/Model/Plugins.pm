@@ -10,7 +10,7 @@ use Module::Pluggable require => 1, search_path => ['LANraragi::Plugin'];
 
 use Redis;
 use Encode;
-use Mojo::JSON;
+use Mojo::JSON qw(decode_json encode_json);
 
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Archive;
