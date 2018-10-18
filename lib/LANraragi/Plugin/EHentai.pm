@@ -22,7 +22,8 @@ sub plugin_info {
         namespace   => "ehplugin",
         author      => "Difegue",
         version     => "1.5",
-        description => "Searches g.e-hentai for tags matching your archive.",
+        description => "Searches g.e-hentai for tags matching your archive. <br/>".
+        "If you have an account that can access exhentai.org, adding the credentials here will make more archives available for parsing.",
 
         #If your plugin uses/needs custom arguments, input their name here.
         #This name will be displayed in plugin configuration next to an input box for global arguments, and in archive edition for one-shot arguments.
@@ -56,7 +57,7 @@ sub get_tags {
     else {
         #Craft URL for Text Search on EH if there's no user argument
         ( $gID, $gToken ) =
-          &lookup_by_title( $title, $thumbhash, $args[0], $tags );
+          &lookup_by_title( $title, $thumbhash, @args, $tags );
     }
 
     #If an error occured, return a hash containing an error message. 
@@ -90,12 +91,25 @@ sub lookup_by_title {
 
     my $title              = $_[0];
     my $thumbhash          = $_[1];
-    my $defaultlanguage    = $_[2];
+    my @args               = $_[2];
     my $tags               = $_[3];
+
+    my $defaultlanguage    = $args[0];
+	my $exh_username       = $args[1];
+	my $exh_pass           = $args[2];
+
+    my $domain = "http://e-hentai.org/";
+    my $ua     = Mojo::UserAgent->new;
 
     my $logger = LANraragi::Utils::Generic::get_logger( "E-Hentai", "plugins" );
 
-    my $domain = "http://e-hentai.org/";
+    if ($exh_username ne "" && $exh_pass ne "") {
+
+        #Attempt a login through the e-hentai forums. If the account is legit, we should obtain EX access.
+        $logger->info("E-Hentai credentials present, trying to login as user ". $exh_username);    
+        $domain = &exhentai_login($ua, $exh_username, $exh_pass);
+
+    }
 
     my $URL = "";
 
@@ -114,12 +128,11 @@ sub lookup_by_title {
 
         $logger->debug("Using URL $URL (archive thumbnail hash)");
 
-        my ( $gId, $gToken ) = &ehentai_parse($URL);
+        my ( $gId, $gToken ) = &ehentai_parse($URL, $ua);
 
         if ($gId ne "" && $gToken ne "") {
             return ( $gId, $gToken );
         }
-
     }
 
     #Regular text search
@@ -145,7 +158,50 @@ sub lookup_by_title {
 
     $logger->debug("Using URL $URL (archive title)");
 
-    return &ehentai_parse($URL);
+    return &ehentai_parse($URL, $ua);
+}
+
+#exhentai_login(userAgent, login, password)
+#Attempt a login to the E-Hentai forums with the given credentials.
+#If successful, the domain used by the plugin is changed to exhentai.
+sub exhentai_login {
+
+    my $ua           = $_[0];
+    my $exh_username = $_[1];
+    my $exh_pass     = $_[2];
+    my $domain       = "http://e-hentai.org";
+    my $logger = LANraragi::Utils::Generic::get_logger( "ExHentai", "plugins" );
+
+    my $loginresult = $ua->post('https://forums.e-hentai.org/index.php?act=Login&CODE=01' 
+                            => {Referer => 'https://e-hentai.org/bounce_login.php?b=d&bt=1-1'} 
+                            => form => {CookieDate => "1",
+                                        b => "d",
+                                        bt => "1-1",
+                                        UserName => $exh_username,
+                                        PassWord => $exh_pass,
+                                        ipb_login_submit => "Login!" 
+                                        })->result->body;
+
+        $logger->debug("E-Hentai login response is " . $loginresult);
+
+        if (index ($loginresult, "You are now logged in as:") != -1) {
+
+            $logger->info("Login successful! Trying to access ExHentai...");
+
+            #Check for the dreaded sadpanda
+            my $contentdisp = $ua->get("https://exhentai.org")
+                                 ->headers->header('Content-Disposition');
+
+            if ( index $contentdisp, "sadpanda.jpg" != -1 ) {
+                #oh no
+                $logger->info("Got a Sad Panda! ExHentai will not be used for this request."); 
+            } else {
+                $logger->info("ExHentai status OK! Moving on.");
+                $domain = "http://exhentai.org";
+            }
+        }
+    
+    return $domain;
 }
 
 #eHentaiLookup(URL)
@@ -153,7 +209,7 @@ sub lookup_by_title {
 sub ehentai_parse() {
 
     my $URL = $_[0];
-    my $ua  = Mojo::UserAgent->new;
+    my $ua  = $_[1];
 
     my $content = $ua->get($URL)->result->body;
 
