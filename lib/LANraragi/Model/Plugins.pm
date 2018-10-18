@@ -9,6 +9,7 @@ use feature 'fc';
 use Module::Pluggable require => 1, search_path => ['LANraragi::Plugin'];
 
 use Redis;
+use Data::Dumper;
 use Encode;
 use Mojo::JSON qw(decode_json encode_json);
 
@@ -32,20 +33,25 @@ sub exec_enabled_plugins_on_file {
 
     foreach my $plugin (LANraragi::Model::Plugins::plugins) {
 
-        #Check Redis to see if plugin is enabled and get the custom argument
+        #Check Redis to see if plugin is enabled and get the custom arguments
         my %pluginfo = $plugin->plugin_info();
         my $name     = $pluginfo{namespace};
         my $namerds  = "LRR_PLUGIN_" . uc($name);
 
         if ( $redis->exists($namerds) ) {
 
-            my %plugincfg = $redis->hgetall($namerds);
-            my ( $enabled, $args ) = @plugincfg{qw(enabled args)};
+            my @args     = ();
+            my $enabled  = $redis->hget( $namerds, "enabled" );
+            my $argsjson = $redis->hget( $namerds, "customargs" );
 
             ( $_ = LANraragi::Utils::Database::redis_decode($_) )
-              for ( $enabled, $args );
+              for ( $enabled, $argsjson );
 
-            my @args = decode_json ($args);
+            #Mojo::JSON works with array references by default,
+            #so we need to dereference here as well
+            if ($argsjson) {
+                @args = @{ decode_json($argsjson) };
+            }
 
             if ($enabled) {
 
@@ -53,7 +59,7 @@ sub exec_enabled_plugins_on_file {
                 eval {
 
                     my %plugin_result =
-                      &exec_plugin_on_file( $plugin, $id, @args, "" );
+                      &exec_plugin_on_file( $plugin, $id, "", @args );
 
                     unless ( exists $plugin_result{error} )
                     {    #If the plugin exec returned metadata, add it
@@ -93,7 +99,7 @@ sub exec_enabled_plugins_on_file {
 #Execute a specified plugin on a file, described through its Redis ID.
 sub exec_plugin_on_file {
 
-    my ( $plugin, $id, @args, $oneshotarg ) = @_;
+    my ( $plugin, $id, $oneshotarg, @args ) = @_;
     my $redis = LANraragi::Model::Config::get_redis;
 
     my $logger =
@@ -121,8 +127,7 @@ sub exec_plugin_on_file {
 
         #Hand it off to the plugin here.
         my %newmetadata =
-          $plugin->get_tags( $title, $tags, $thumbhash, $file, @args,
-            $oneshotarg );
+          $plugin->get_tags( $title, $tags, $thumbhash, $file, $oneshotarg, @args );
 
         #Error checking
         if ( exists $newmetadata{error} ) {

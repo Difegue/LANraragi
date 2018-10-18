@@ -27,10 +27,11 @@ sub plugin_info {
 
         #If your plugin uses/needs custom arguments, input their name here.
         #This name will be displayed in plugin configuration next to an input box for global arguments, and in archive edition for one-shot arguments.
-        global_args  => ["Default language to use in searches (This will be overwritten if your archive has a language tag set)",
-                        "E-Hentai Username (used for exhentai access)",
-                        "E-Hentai Password (used for exhentai access)"],
-        oneshot_arg => "E-H Gallery URL (Will attach tags matching this exact gallery to your archive)"
+        oneshot_arg => "E-H Gallery URL (Will attach tags matching this exact gallery to your archive)",
+        global_args => ("Default language to use in searches (This will be overwritten if your archive has a language tag set)",
+                        "E-Hentai Username (used for ExHentai access)",
+                        "E-Hentai Password (used for ExHentai access)")
+        
     );
 
 }
@@ -38,9 +39,10 @@ sub plugin_info {
 #Mandatory function to be implemented by your plugin
 sub get_tags {
 
-    #LRR gives your plugin the recorded title/tags/thumbnail hash for the file, the filesystem path, and the custom arguments if available.
+    #LRR gives your plugin the recorded title/tags/thumbnail hash for the file, 
+    #the filesystem path, and the custom arguments at the end if available.
     shift;
-    my ( $title, $tags, $thumbhash, $file, @args, $oneshotarg ) = @_;
+    my ( $title, $tags, $thumbhash, $file, $oneshotarg, @args ) = @_;
 
     #Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
     my $logger = LANraragi::Utils::Generic::get_logger( "E-Hentai", "plugins" );
@@ -57,7 +59,7 @@ sub get_tags {
     else {
         #Craft URL for Text Search on EH if there's no user argument
         ( $gID, $gToken ) =
-          &lookup_by_title( $title, $thumbhash, @args, $tags );
+          &lookup_by_title( $title, $tags, $thumbhash, @args );
     }
 
     #If an error occured, return a hash containing an error message. 
@@ -89,14 +91,11 @@ sub get_tags {
 
 sub lookup_by_title {
 
-    my $title              = $_[0];
-    my $thumbhash          = $_[1];
-    my @args               = $_[2];
-    my $tags               = $_[3];
+    my ( $title, $tags, $thumbhash, @args ) = @_;
 
-    my $defaultlanguage    = $args[0];
-	my $exh_username       = $args[1];
-	my $exh_pass           = $args[2];
+    my $defaultlanguage = $args[0];
+    my $exh_username    = $args[1];
+    my $exh_pass        = $args[2];
 
     my $domain = "http://e-hentai.org/";
     my $ua     = Mojo::UserAgent->new;
@@ -107,7 +106,7 @@ sub lookup_by_title {
 
         #Attempt a login through the e-hentai forums. If the account is legit, we should obtain EX access.
         $logger->info("E-Hentai credentials present, trying to login as user ". $exh_username);    
-        $domain = &exhentai_login($ua, $exh_username, $exh_pass);
+        ($ua, $domain) = &exhentai_login($ua, $exh_username, $exh_pass);
 
     }
 
@@ -188,20 +187,32 @@ sub exhentai_login {
 
             $logger->info("Login successful! Trying to access ExHentai...");
 
-            #Check for the dreaded sadpanda
-            my $contentdisp = $ua->get("https://exhentai.org")
-                                 ->headers->header('Content-Disposition');
+            # Pre-emptively ignore the "yay" cookie if it gets added for some reason 
+            # fucking shit panda I hate this
+            $ua->cookie_jar->ignore(sub {
+                my $cookie = shift;
+                return undef unless my $name = $cookie->name;
+                return $name eq 'yay';
+            });
 
-            if ( index $contentdisp, "sadpanda.jpg" != -1 ) {
+            #The initial exhentai load will redirect a few times, tell mojo to follow them
+            my $headers = $ua->max_redirects(5)->get("https://exhentai.org")->result->headers->to_string;
+            $logger->debug("Exhentai headers: ".$headers);
+
+            if ( index ($headers, "sadpanda.jpg") != -1 ) {
                 #oh no
                 $logger->info("Got a Sad Panda! ExHentai will not be used for this request."); 
             } else {
                 $logger->info("ExHentai status OK! Moving on.");
                 $domain = "http://exhentai.org";
             }
+
+        } else {
+            $logger->info("Couldn't login! ExHentai will not be used for this request.");
         }
     
-    return $domain;
+    #Return the updated UserAgent and the domain the rest of the plugin'll use
+    return ($ua, $domain);
 }
 
 #eHentaiLookup(URL)
@@ -211,7 +222,8 @@ sub ehentai_parse() {
     my $URL = $_[0];
     my $ua  = $_[1];
 
-    my $content = $ua->get($URL)->result->body;
+    my $response = $ua->max_redirects(5)->get($URL)->result;
+    my $content  = $response->body;
 
     if (index($content, "Your IP address has been") != -1) {
         return ("","Banned")
@@ -228,7 +240,7 @@ sub ehentai_parse() {
     #Inside that <tr>, we look for <div class="it5"> . the <a> tag inside has an href to the URL we want.
     my @final = split( '<div class="it5">', $benis[1] );
 
-    my $url = ( split( 'e-hentai.org/g/', $final[1] ) )[1];
+    my $url = ( split( 'hentai.org/g/', $final[1] ) )[1];
 
     my @values = ( split( '/', $url ) );
 

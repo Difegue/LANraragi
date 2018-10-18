@@ -24,9 +24,9 @@ sub plugin_info {
 
 #If your plugin uses/needs custom arguments, input their name here.
 #This name will be displayed in plugin configuration next to an input box for global arguments, and in archive edition for one-shot arguments.
-        global_args => [],
         oneshot_arg =>
-"nHentai Gallery URL (Will attach tags matching this exact gallery to your archive)"
+"nHentai Gallery URL (Will attach tags matching this exact gallery to your archive)",
+        global_args => ()
     );
 
 }
@@ -34,13 +34,13 @@ sub plugin_info {
 #Mandatory function to be implemented by your plugin
 sub get_tags {
 
-    #LRR gives your plugin the recorded title/tags/thumbnail hash for the file, the filesystem path, and the custom arguments if available.
+#LRR gives your plugin the recorded title/tags/thumbnail hash for the file, the filesystem path, and the custom arguments if available.
     shift;
-    my ( $title, $tags, $thumbhash, $file, @args, $oneshotarg ) = @_;
+    my ( $title, $tags, $thumbhash, $file, $oneshotarg, @args ) = @_;
 
     my $logger = LANraragi::Utils::Generic::get_logger( "nHentai", "plugins" );
 
-    #Work your magic here - You can create subs below to organize the code better
+   #Work your magic here - You can create subs below to organize the code better
     my $galleryID = "";
 
     #Quick regex to get the nh gallery id from the provided url.
@@ -52,15 +52,16 @@ sub get_tags {
         $galleryID = &get_gallery_id_from_title($title);
     }
 
-    #Use the logger to output status - they'll be passed to LRR's standard output and a specialized logfile.
-    if (defined $galleryID) {
+#Use the logger to output status - they'll be passed to LRR's standard output and a specialized logfile.
+    if ( defined $galleryID ) {
         $logger->debug("Detected nHentai gallery id is $galleryID");
-    } else {
+    }
+    else {
         $logger->info("No matching nHentai Gallery Found!");
         return ( error => "No matching nHentai Gallery Found!" );
     }
 
-    #If no tokens were found, return a hash containing an error message. 
+    #If no tokens were found, return a hash containing an error message.
     #LRR will display that error to the client.
     if ( $galleryID eq "" ) {
         $logger->info("No matching nHentai Gallery Found!");
