@@ -28,9 +28,9 @@ sub plugin_info {
         #If your plugin uses/needs custom arguments, input their name here.
         #This name will be displayed in plugin configuration next to an input box for global arguments, and in archive edition for one-shot arguments.
         oneshot_arg => "E-H Gallery URL (Will attach tags matching this exact gallery to your archive)",
-        global_args => ("Default language to use in searches (This will be overwritten if your archive has a language tag set)",
+        global_args => ["Default language to use in searches (This will be overwritten if your archive has a language tag set)",
                         "E-Hentai Username (used for ExHentai access)",
-                        "E-Hentai Password (used for ExHentai access)")
+                        "E-Hentai Password (used for ExHentai access)"]
         
     );
 

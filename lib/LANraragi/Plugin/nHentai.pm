@@ -26,7 +26,7 @@ sub plugin_info {
 #This name will be displayed in plugin configuration next to an input box for global arguments, and in archive edition for one-shot arguments.
         oneshot_arg =>
 "nHentai Gallery URL (Will attach tags matching this exact gallery to your archive)",
-        global_args => ()
+        global_args => []
     );
 
 }

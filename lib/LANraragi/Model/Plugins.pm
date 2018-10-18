@@ -9,7 +9,6 @@ use feature 'fc';
 use Module::Pluggable require => 1, search_path => ['LANraragi::Plugin'];
 
 use Redis;
-use Data::Dumper;
 use Encode;
 use Mojo::JSON qw(decode_json encode_json);
 
@@ -127,7 +126,8 @@ sub exec_plugin_on_file {
 
         #Hand it off to the plugin here.
         my %newmetadata =
-          $plugin->get_tags( $title, $tags, $thumbhash, $file, $oneshotarg, @args );
+          $plugin->get_tags( $title, $tags, $thumbhash, $file, $oneshotarg,
+            @args );
 
         #Error checking
         if ( exists $newmetadata{error} ) {

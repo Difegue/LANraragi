@@ -3,7 +3,6 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use Redis;
 use Encode;
-use Data::Dumper;
 use Mojo::JSON qw(decode_json encode_json);
 no warnings 'experimental';
 use Cwd;

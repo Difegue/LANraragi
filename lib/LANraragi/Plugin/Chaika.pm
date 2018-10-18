@@ -25,8 +25,9 @@ sub plugin_info {
 
 #If your plugin uses/needs custom arguments, input their name here.
 #This name will be displayed in plugin configuration next to an input box for global arguments, and in archive edition for one-shot arguments.
-        oneshot_arg => "Chaika Gallery or Archive URL (Will attach matching tags to your archive)",
-        global_args => ()
+        oneshot_arg =>
+"Chaika Gallery or Archive URL (Will attach matching tags to your archive)",
+        global_args => []
     );
 
 }
