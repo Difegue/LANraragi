@@ -10,7 +10,10 @@ function moveSomething(e) {
 			break;
 		case 32:
 			// spacebar pressed
-			advancePage(1);
+			if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+				window.scrollTo(0, 0);
+				advancePage(1);
+			}
 			break;
 		case 39:
 			// right key pressed
@@ -31,7 +34,7 @@ function toastHelpReader() {
 
 	$.toast({
 		heading: 'Navigation Help',
-		text: 'You can navigate between pages using : <ul><li> The arrow icons</li> <li>Your keyboard arrows</li> <li> Touching the left/right side of the image.</li></ul><br> To return to the archive index, touch the arrow pointing down.<br> Pressing CTRL will bring up the pages overlay.',
+		text: 'You can navigate between pages using : <ul><li> The arrow icons</li> <li>Your keyboard arrows (and the spacebar)</li> <li> Touching the left/right side of the image.</li></ul><br> To return to the archive index, touch the arrow pointing down.<br> Pressing CTRL will bring up the pages overlay.',
 		hideAfter: false,
 		position: 'top-left',
 		icon: 'info'
@@ -95,7 +98,7 @@ function updateImageMap() {
 function goToPage(page) {
 
 	previousPage = currentPage;
-	
+
 	if (page < 0)
 		currentPage = 0;
 	else if (page >= pageNumber)
@@ -225,13 +228,13 @@ function canvasCallback() {
 
 		//If w > h on one of the images, set canvasdata to the first image only
 		if (img1.naturalWidth > img1.naturalHeight || img2.naturalWidth > img2.naturalHeight) {
-			
+
 			//Depending on whether we were going forward or backward, display img1 or img2
 			if (previousPage > currentPage)
 				$("#img").attr("src", img2.src);
 			else
 				$("#img").attr("src", img1.src);
-			
+
 			showingSinglePage = true;
 			imagesLoaded = 0;
 			return;
