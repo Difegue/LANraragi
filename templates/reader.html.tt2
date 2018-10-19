@@ -70,6 +70,10 @@
 		[% END %]
 
 		<div id="i7" class="if">
+			[% IF userlogged %]
+			<i class="fa fa-caret-right fa-lg"></i>
+			<a target="_blank" href="./edit?id=[% id %]">Edit this Archive's Metadata</a>
+			[% END %]
 			<i class="fa fa-caret-right fa-lg"></i>
 			<a id="imgLink" style="cursor:pointer;">View full-size image</a>
 		</div>
