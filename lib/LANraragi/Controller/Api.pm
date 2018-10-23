@@ -3,7 +3,7 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use Redis;
 use Encode;
-use Mojo::JSON qw(decode_json encode_json);
+use Mojo::JSON qw(decode_json encode_json from_json);
 use File::Find::utf8;
 use File::Path qw(remove_tree);
 
@@ -27,7 +27,7 @@ sub serve_archivelist {
           decode_utf8( $redis->hget( "LRR_JSONCACHE", "archive_list" ) );
 
         #Decode the json back to an array so we can use the built-in mojo json render
-        $self->render( json => decode_json ($archivejson) );
+        $self->render( json => from_json ($archivejson) );
     } else {
         $self->render( json => () );
     }
