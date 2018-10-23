@@ -13,6 +13,7 @@ use LANraragi::Utils::Database;
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
+use LANraragi::Model::Reader;
 
 sub serve_archivelist {
 
@@ -29,6 +30,38 @@ sub serve_archivelist {
         $self->render( json => decode_json ($archivejson) );
     } else {
         $self->render( json => () );
+    }
+}
+
+sub extract_archive {
+
+    my $self  = shift;
+    my $id    = $self->req->param('id') || "0";
+    my $force = $self->req->param('force') || "0";
+    my $thumb = $self->req->param('thumb_regen') || "0";
+
+    if ($id eq "0") {
+        #High-level API documentation!
+        $self->render( text => "<pre>API usage: extract?id=YOUR_ID(&force=1&thumb_regen=1)</pre>");
+        return;
+    }
+
+    #Basically just API glue to the existing reader method.
+    my $readerjson;
+    
+    eval { 
+        $readerjson = LANraragi::Model::Reader::build_reader_JSON($self,$id,$force,$thumb);
+    };
+    my $err = $@;
+
+    if ($err) {
+        $self->render(json => {
+            pages => (),
+            error => $err
+            }
+        );
+    } else {
+        $self->render( json => decode_json ($readerjson) );
     }
 }
 

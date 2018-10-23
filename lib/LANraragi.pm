@@ -148,6 +148,7 @@ sub startup {
         $logged_in->get('/api/thumbnail')->to('api#serve_thumbnail');
         $logged_in->get('/api/servefile')->to('api#serve_file');
         $logged_in->get('/api/archivelist')->to('api#serve_archivelist');
+        $logged_in->get('/api/extract')->to('api#extract_archive');
         $logged_in->get('/stats')->to('stats#index');
     }
     else {
@@ -159,6 +160,7 @@ sub startup {
         $r->get('/api/thumbnail')->to('api#serve_thumbnail');
         $r->get('/api/servefile')->to('api#serve_file');
         $r->get('/api/archivelist')->to('api#serve_archivelist');
+        $r->get('/api/extract')->to('api#extract_archive');
         $r->get('/stats')->to('stats#index');
     }
 
