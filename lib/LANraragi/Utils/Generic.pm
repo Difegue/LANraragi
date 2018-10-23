@@ -52,7 +52,7 @@ sub shasum {
     return $digest;
 }
 
-#Returns a Logger object, taking plugin info as argument to obtain the plugin name and a filename for the log file.
+#Returns a Logger object with a custom name and a filename for the log file.
 sub get_logger {
 
     #Customize log file location and minimum log level
@@ -64,13 +64,18 @@ sub get_logger {
 
     my $devmode = LANraragi::Model::Config::enable_devmode;
 
-    #Copy logged messages to STDOUT with the plugin name
+    #Tell logger to store debug logs as well in debug mode
+    if ($devmode) {
+        $log->level('debug');
+    }
+
+    #Copy logged messages to STDOUT with the matching name
     $log->on(
         message => sub {
             my ( $time, $level, @lines ) = @_;
 
             unless ( $devmode == 0 && $level eq 'debug' )
-            {    #Debug logs are only printed in debug mode (duh)
+            {    #Like for the logging to file, debug logs are only printed in debug mode
                 print "[$pgname] [$level] ";
                 say $lines[0];
             }
