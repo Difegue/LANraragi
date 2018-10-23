@@ -8,16 +8,6 @@ function initIndex(pagesize, dataSet) {
 	$.fn.dataTableExt.oStdClasses.sStripeOdd = 'gtr0';
 	$.fn.dataTableExt.oStdClasses.sStripeEven = 'gtr1';
 
-	if (dataSet === false) {
-
-		//Catastrophic cache fuckup, inform the user
-		$(".datatables").hide();
-		$("#json-error").show();
-
-		//abort DataTables initialization here
-		return;
-	}
-
 	//datatables configuration
 	arcTable = $('.datatables').DataTable({
 		'data': dataSet,

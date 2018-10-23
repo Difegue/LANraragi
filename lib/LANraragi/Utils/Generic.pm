@@ -75,7 +75,7 @@ sub get_logger {
             my ( $time, $level, @lines ) = @_;
 
             unless ( $devmode == 0 && $level eq 'debug' )
-            {    #Like for the logging to file, debug logs are only printed in debug mode
+            {    #Like with logging to file, debug logs are only printed in debug mode
                 print "[$pgname] [$level] ";
                 say $lines[0];
             }

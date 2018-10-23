@@ -92,7 +92,7 @@ sub startup {
         close($pidfile);
 
         $self->LRR_LOGGER->info(
-            "Terminating previous Shinobu Worker... (PID is $pid)");
+            "Terminating previous Shinobu Worker if it exists... (PID is $pid)");
 
 #TASKKILL seems superflous on Windows as sub-PIDs are always cleanly killed when the main process dies
 #But you can never be safe enough
@@ -128,7 +128,7 @@ sub startup {
     print $pidfile $newpid;
     close($pidfile);
 
-    $self->LRR_LOGGER->debug("Shinobu Worker PID is $newpid");
+    $self->LRR_LOGGER->debug("Shinobu Worker new PID is $newpid");
 
     # Router
     my $r = $self->routes;
@@ -147,6 +147,7 @@ sub startup {
         $logged_in->get('/reader')->to('reader#index');
         $logged_in->get('/api/thumbnail')->to('api#serve_thumbnail');
         $logged_in->get('/api/servefile')->to('api#serve_file');
+        $logged_in->get('/api/archivelist')->to('api#serve_archivelist');
         $logged_in->get('/stats')->to('stats#index');
     }
     else {
@@ -157,6 +158,7 @@ sub startup {
         $r->get('/reader')->to('reader#index');
         $r->get('/api/thumbnail')->to('api#serve_thumbnail');
         $r->get('/api/servefile')->to('api#serve_file');
+        $r->get('/api/archivelist')->to('api#serve_archivelist');
         $r->get('/stats')->to('stats#index');
     }
 

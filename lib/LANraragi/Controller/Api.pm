@@ -14,6 +14,24 @@ use LANraragi::Utils::Database;
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
 
+sub serve_archivelist {
+
+    my $self  = shift;
+    my $redis = $self->LRR_CONF->get_redis();
+
+    if ( $redis->hexists( "LRR_JSONCACHE", "archive_list" ) ) {
+
+        #Get cached JSON from Redis
+        my $archivejson =
+          decode_utf8( $redis->hget( "LRR_JSONCACHE", "archive_list" ) );
+
+        #Decode the json back to an array so we can use the built-in mojo json render
+        $self->render( json => decode_json ($archivejson) );
+    } else {
+        $self->render( json => () );
+    }
+}
+
 #use RenderFile to get the file of the provided id to the client.
 sub serve_file {
 
