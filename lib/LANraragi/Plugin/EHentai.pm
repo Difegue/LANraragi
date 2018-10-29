@@ -34,8 +34,9 @@ sub plugin_info {
 "Default language to use in searches <br/>(This will be overwritten if your archive has a language tag set)",
             "E-Hentai Username (used for ExHentai access)",
             "E-Hentai Password (used for ExHentai access)",
-            "ADVANCED: ipb_member_id cookie <br/>(will override username/password access method)",
-            "ADVANCED: ipb_pass_hash cookie <br/>(will override username/password access method)"
+            "ADVANCED: You can use the cookie values below instead of a username/password.<br/>".
+                "ipb_member_id cookie",
+            "ipb_pass_hash cookie",
           ]
 
     );
@@ -191,16 +192,17 @@ sub lookup_by_title {
 #If successful, the domain used by the plugin is changed to exhentai.
 sub exhentai_cookie {
 
-    my ($ua, $ipb_member_id, $ipb_pass_hash) = @_;
+    my ($ua, $ipb_member_id, $ipb_pass_hash, $igneous) = @_;
     my $domain = "http://e-hentai.org";
     my $logger = LANraragi::Utils::Generic::get_logger( "ExHentai", "plugins" );
     
     #Setup the needed cookies with the e-hentai domain
+    #They should translate to exhentai cookies with the igneous value generated
     $ua->cookie_jar->add(
         Mojo::Cookie::Response->new(
             name   => 'ipb_member_id',
             value  => $ipb_member_id,
-            domain => '.e-hentai.org',
+            domain => 'e-hentai.org',
             path   => '/'
         )
     );
@@ -209,7 +211,16 @@ sub exhentai_cookie {
         Mojo::Cookie::Response->new(
             name   => 'ipb_pass_hash',
             value  => $ipb_pass_hash,
-            domain => '.e-hentai.org',
+            domain => 'e-hentai.org',
+            path   => '/'
+        )
+    );
+
+    $ua->cookie_jar->add(
+        Mojo::Cookie::Response->new(
+            name   => 'ipb_coppa',
+            value  => '0',
+            domain => 'forums.e-hentai.org',
             path   => '/'
         )
     );
@@ -248,7 +259,7 @@ sub exhentai_login {
           }
     )->result->body;
 
-    $logger->debug( "E-Hentai login response is " . $loginresult );
+    #$logger->debug( "E-Hentai login response is " . $loginresult );
 
     if ( index( $loginresult, "You are now logged in as:" ) != -1 ) {
 
@@ -283,10 +294,10 @@ sub check_panda() {
     my $headers = $res->headers->to_string;
     $logger->debug( "Exhentai headers: " . $headers );
 
-    #Since we ignore the yay cookie, we might only get an endless loop of yay-cookie setting responses.
-    #We can also just get the panda if we have a fucked igneous cookie.
-    if ( index( $headers, "sadpanda.jpg" ) != -1 || 
-         index ($headers, "Set-Cookie: yay=louder;") != -1) {
+    #Since we ignore the yay cookie, we might only get an endless loop of yay-cookie setting responses instead of the panda.
+    #We can also get a fucked igneous cookie if the account is banned.
+    if ( index ($headers, "Set-Cookie: yay=louder;") != -1 ||
+         index ($headers, "igneous=mystery") != -1) {
         #oh no
         $logger->info(
             "Got a Sad Panda! ExHentai will not be used for this request.");
