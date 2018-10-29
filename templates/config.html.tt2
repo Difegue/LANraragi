@@ -46,6 +46,17 @@
 				</li>
 				<li class="option-flyout">
 					<div class="collapsible-title caret-right">
+						<i class="fa fa-shield-alt" aria-hidden="true"></i> Security</div>
+					<div class="collapsible-body">
+						<table style="margin:auto; font-size:9pt;">
+							<tbody>
+								[% INCLUDE templates_config/config_security %]
+							</tbody>
+						</table>
+					</div>
+				</li>
+				<li class="option-flyout">
+					<div class="collapsible-title caret-right">
 						<i class="fa fa-file-archive" aria-hidden="true"></i> Archive Files</div>
 					<div class="collapsible-body">
 						<table style="margin:auto; font-size:9pt;">
