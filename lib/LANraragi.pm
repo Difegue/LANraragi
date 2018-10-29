@@ -138,6 +138,7 @@ sub startup {
     $r->post('/login')->to('login#check');
 
     my $logged_in = $r->under('/')->to('login#logged_in');
+    my $logged_in_api = $r->under('/')->to('login#logged_in_api');
 
     #No-Fun Mode locks the base routes behind login as well
     if ( $self->LRR_CONF->enable_nofun ) {
@@ -145,10 +146,10 @@ sub startup {
         $logged_in->get('/index')->to('index#index');
         $logged_in->get('/random')->to('index#random_archive');
         $logged_in->get('/reader')->to('reader#index');
-        $logged_in->get('/api/thumbnail')->to('api#serve_thumbnail');
-        $logged_in->get('/api/servefile')->to('api#serve_file');
-        $logged_in->get('/api/archivelist')->to('api#serve_archivelist');
-        $logged_in->get('/api/extract')->to('api#extract_archive');
+        $logged_in_api->get('/api/thumbnail')->to('api#serve_thumbnail');
+        $logged_in_api->get('/api/servefile')->to('api#serve_file');
+        $logged_in_api->get('/api/archivelist')->to('api#serve_archivelist');
+        $logged_in_api->get('/api/extract')->to('api#extract_archive');
         $logged_in->get('/stats')->to('stats#index');
     }
     else {

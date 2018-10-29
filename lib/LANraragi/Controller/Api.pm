@@ -42,7 +42,9 @@ sub extract_archive {
 
     if ($id eq "0") {
         #High-level API documentation!
-        $self->render( text => "<pre>API usage: extract?id=YOUR_ID(&force=1&thumb_regen=1)</pre>");
+        $self->render(json => {
+            error => "API usage: extract?id=YOUR_ID(&force=1&thumb_regen=1)"
+            });
         return;
     }
 

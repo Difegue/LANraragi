@@ -124,7 +124,6 @@ sub lookup_by_title {
     );
 
     if ($ipb_member_id ne "" && $ipb_pass_hash ne "") {
-
         #Try opening exhentai with the provided cookies.
         #An igneous cookie should automatically generate.
         $logger->info( "Exhentai cookies provided! Trying direct access.");
@@ -196,12 +195,12 @@ sub exhentai_cookie {
     my $domain = "http://e-hentai.org";
     my $logger = LANraragi::Utils::Generic::get_logger( "ExHentai", "plugins" );
     
-    #Setup the needed cookies
+    #Setup the needed cookies with the e-hentai domain
     $ua->cookie_jar->add(
         Mojo::Cookie::Response->new(
             name   => 'ipb_member_id',
             value  => $ipb_member_id,
-            domain => '.exhentai.org',
+            domain => '.e-hentai.org',
             path   => '/'
         )
     );
@@ -210,7 +209,7 @@ sub exhentai_cookie {
         Mojo::Cookie::Response->new(
             name   => 'ipb_pass_hash',
             value  => $ipb_pass_hash,
-            domain => '.exhentai.org',
+            domain => '.e-hentai.org',
             path   => '/'
         )
     );
