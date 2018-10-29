@@ -192,7 +192,7 @@ sub lookup_by_title {
 #If successful, the domain used by the plugin is changed to exhentai.
 sub exhentai_cookie {
 
-    my ($ua, $ipb_member_id, $ipb_pass_hash, $igneous) = @_;
+    my ($ua, $ipb_member_id, $ipb_pass_hash) = @_;
     my $domain = "http://e-hentai.org";
     my $logger = LANraragi::Utils::Generic::get_logger( "ExHentai", "plugins" );
     
