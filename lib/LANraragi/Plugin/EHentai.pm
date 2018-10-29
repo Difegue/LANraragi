@@ -33,7 +33,9 @@ sub plugin_info {
         global_args => [
 "Default language to use in searches (This will be overwritten if your archive has a language tag set)",
             "E-Hentai Username (used for ExHentai access)",
-            "E-Hentai Password (used for ExHentai access)"
+            "E-Hentai Password (used for ExHentai access)",
+            "ADVANCED: ipb_member_id cookie (will override username/password access method)",
+            "ADVANCED: ipb_pass_hash cookie (will override username/password access method)"
           ]
 
     );
@@ -103,19 +105,37 @@ sub lookup_by_title {
     my $defaultlanguage = $args[0];
     my $exh_username    = $args[1];
     my $exh_pass        = $args[2];
-
+    my $ipb_member_id   = $args[3];
+    my $ipb_pass_hash   = $args[4];
+ 
     my $domain = "http://e-hentai.org/";
     my $ua     = Mojo::UserAgent->new;
 
     my $logger = LANraragi::Utils::Generic::get_logger( "E-Hentai", "plugins" );
 
-    if ( $exh_username ne "" && $exh_pass ne "" ) {
+    # Pre-emptively ignore the "yay" cookie if it gets added for some reason
+    # fucking shit panda I hate this
+    $ua->cookie_jar->ignore(
+        sub {
+            my $cookie = shift;
+            return undef unless my $name = $cookie->name;
+            return $name eq 'yay';
+        }
+    );
 
-#Attempt a login through the e-hentai forums. If the account is legit, we should obtain EX access.
+    if ($ipb_member_id ne "" && $ipb_pass_hash ne "") {
+
+        #Try opening exhentai with the provided cookies.
+        #An igneous cookie should automatically generate.
+        $logger->info( "Exhentai cookies provided! Trying direct access.");
+        ( $ua, $domain ) = &exhentai_cookie ($ua, $ipb_member_id, $ipb_pass_hash);
+
+    } elsif ( $exh_username ne "" && $exh_pass ne "" ) {
+        #Attempt a login through the e-hentai forums. 
+        #If the account is legit, we should obtain EX access.
         $logger->info( "E-Hentai credentials present, trying to login as user "
               . $exh_username );
         ( $ua, $domain ) = &exhentai_login( $ua, $exh_username, $exh_pass );
-
     }
 
     my $URL = "";
@@ -153,10 +173,8 @@ sub lookup_by_title {
     if ( $tags =~ /.*language:\s?([^,]*),*.*/gi ) {
         $URL = $URL . "+" . uri_escape_utf8("language:$1");
     }
-    else {
-        if ( $defaultlanguage ne "" ) {
+    elsif ( $defaultlanguage ne "" ) {
             $URL = $URL . "+" . uri_escape_utf8("language:$defaultlanguage");
-        }
     }
 
     #Same for artist tag
@@ -169,6 +187,41 @@ sub lookup_by_title {
     return &ehentai_parse( $URL, $ua );
 }
 
+#exhentai_cookie(userAgent, idCookie, passCookie)
+#Try accessing exhentai directly with the provided cookie values.
+#If successful, the domain used by the plugin is changed to exhentai.
+sub exhentai_cookie {
+
+    my ($ua, $ipb_member_id, $ipb_pass_hash) = @_;
+    my $domain = "http://e-hentai.org";
+    my $logger = LANraragi::Utils::Generic::get_logger( "ExHentai", "plugins" );
+    
+    #Setup the needed cookies
+    $ua->cookie_jar->add(
+        Mojo::Cookie::Response->new(
+            name   => 'ipb_member_id',
+            value  => $ipb_member_id,
+            domain => '.exhentai.org',
+            path   => '/'
+        )
+    );
+
+    $ua->cookie_jar->add(
+        Mojo::Cookie::Response->new(
+            name   => 'ipb_pass_hash',
+            value  => $ipb_pass_hash,
+            domain => '.exhentai.org',
+            path   => '/'
+        )
+    );
+
+    $logger->info("Trying to access ExHentai with provided cookies...");
+    $domain = "http://exhentai.org" unless &check_panda($ua) == 0;
+
+    #Return the updated UserAgent and the domain the rest of the plugin'll use
+    return ( $ua, $domain );
+}
+
 #exhentai_login(userAgent, login, password)
 #Attempt a login to the E-Hentai forums with the given credentials.
 #If successful, the domain used by the plugin is changed to exhentai.
@@ -177,7 +230,7 @@ sub exhentai_login {
     my $ua           = $_[0];
     my $exh_username = $_[1];
     my $exh_pass     = $_[2];
-    my $domain       = "http://e-hentai.org";
+    my $domain = "http://e-hentai.org";
     my $logger = LANraragi::Utils::Generic::get_logger( "ExHentai", "plugins" );
 
     $logger->debug(
@@ -201,33 +254,7 @@ sub exhentai_login {
     if ( index( $loginresult, "You are now logged in as:" ) != -1 ) {
 
         $logger->info("Login successful! Trying to access ExHentai...");
-
-        # Pre-emptively ignore the "yay" cookie if it gets added for some reason
-        # fucking shit panda I hate this
-        $ua->cookie_jar->ignore(
-            sub {
-                my $cookie = shift;
-                return undef unless my $name = $cookie->name;
-                return $name eq 'yay';
-            }
-        );
-
-  #The initial exhentai load will redirect a few times, tell mojo to follow them
-        my $headers = $ua->max_redirects(5)->get("https://exhentai.org")
-          ->result->headers->to_string;
-        $logger->debug( "Exhentai headers: " . $headers );
-
-        if ( index( $headers, "sadpanda.jpg" ) != -1 ) {
-
-            #oh no
-            $logger->info(
-                "Got a Sad Panda! ExHentai will not be used for this request.");
-        }
-        else {
-            $logger->info("ExHentai status OK! Moving on.");
-            $domain = "http://exhentai.org";
-        }
-
+        $domain = "http://exhentai.org" unless &check_panda($ua) == 0;
     }
     else {
 
@@ -235,7 +262,6 @@ sub exhentai_login {
             $logger->info("Automatic login was blocked by a CAPTCHA request!".
                 " Try logging in manually with this computer or another computer on the same network.");
         }
-
         $logger->info(
             "Couldn't login! ExHentai will not be used for this request.");
     }
@@ -244,8 +270,36 @@ sub exhentai_login {
     return ( $ua, $domain );
 }
 
+#check_panda(useragent)
+#Try to access exhentai with the given useragent.
+#Returns true (1) if access was successful.
+sub check_panda() {
+
+    my $ua = $_[0];
+    my $logger = LANraragi::Utils::Generic::get_logger( "Panda Check", "plugins" );
+
+    #The initial exhentai load will redirect a few times, tell mojo to follow them
+    my $res = $ua->max_redirects(5)->get("https://exhentai.org")
+        ->result;
+    my $headers = $res->headers->to_string;
+    $logger->debug( "Exhentai headers: " . $headers );
+
+    #Since we ignore the yay cookie, we might only get an endless loop of yay-cookie setting responses.
+    #We can also just get the panda if we have a fucked igneous cookie.
+    if ( index( $headers, "sadpanda.jpg" ) != -1 || 
+         index ($headers, "Set-Cookie: yay=louder;") != -1) {
+        #oh no
+        $logger->info(
+            "Got a Sad Panda! ExHentai will not be used for this request.");
+        return 0;    
+    } else {
+        $logger->info("ExHentai status OK! Moving on.");
+        return 1;
+    }
+}
+
 #eHentaiLookup(URL)
-#Performs a remote search on g.e-hentai, and builds the matching JSON to send to the API for data.
+#Performs a remote search on e- or exhentai, and builds the matching JSON to send to the API for data.
 sub ehentai_parse() {
 
     my $URL = $_[0];
