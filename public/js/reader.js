@@ -119,7 +119,7 @@ function goToPage(page) {
 
 	//scale to view simply forces image height at 90vh (90% of viewport height)
 	if (localStorage.scaletoview === 'true')
-		$("#img").attr("style", "height: 90vh;");
+		$("#img").attr("style", "max-height: 90vh;");
 	else
 		$("#img").attr("style", "");
 
