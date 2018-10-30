@@ -255,3 +255,7 @@ a:hover > .page-number {
     padding: 10px !important;
     border: none !important;
 }
+
+.if a {
+    margin-right: 10px;
+  }

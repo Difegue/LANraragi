@@ -66,14 +66,12 @@
 			<a style="cursor:pointer" onclick="confirmThumbnailReset('[% id %]')">Regenerate Archive Thumbnail </a>
 			<i class="fa fa-caret-right fa-lg"></i>
 			<a href="./reader?id=[% id %]&force_reload=1">Clean Archive Cache</a>
+			<i class="fa fa-caret-right fa-lg"></i>
+			<a target="_blank" href="./edit?id=[% id %]">Edit this Archive's Metadata</a>
 		</div>
 		[% END %]
 
 		<div id="i7" class="if">
-			[% IF userlogged %]
-			<i class="fa fa-caret-right fa-lg"></i>
-			<a target="_blank" href="./edit?id=[% id %]">Edit this Archive's Metadata</a>
-			[% END %]
 			<i class="fa fa-caret-right fa-lg"></i>
 			<a id="imgLink" style="cursor:pointer;">View full-size image</a>
 		</div>
@@ -147,6 +145,12 @@
 		<h1 class="ih" style="display:inline"> Scale to View</h1>
 		<input id="scaletoview" name="readorder" class="fa" type="checkbox" style="float:left">
 		<br /> If enabled, pages will be scaled to the screen's size.
+	</div>
+
+	<div class="config-panel">
+		<h1 class="ih" style="display:inline"> Hide Top-level Navigation</h1>
+		<input id="hidetop" name="hidetop" class="fa" type="checkbox" style="float:left">
+		<br /> If enabled, every element that comes before images at the top will be hidden.
 	</div>
 </div>
 

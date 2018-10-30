@@ -11,7 +11,6 @@ function moveSomething(e) {
 		case 32:
 			// spacebar pressed
 			if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
-				window.scrollTo(0, 0);
 				advancePage(1);
 			}
 			break;
@@ -97,6 +96,16 @@ function updateImageMap() {
 
 function goToPage(page) {
 
+	//hide/show toplevel nav depending on the pref
+	if (localStorage.hidetop === 'true') {
+		$("#i2").attr("style", "display:none");
+		$("div.sni h1").attr("style", "display:none");
+	}
+	else {
+		$("#i2").attr("style", "");
+		$("div.sni h1").attr("style", "");
+	}
+
 	previousPage = currentPage;
 
 	if (page < 0)
@@ -147,7 +156,7 @@ function goToPage(page) {
 	localStorage.setItem(id + "-reader", currentPage);
 
 	//scroll to top
-	$('body').scrollTop(0);
+	window.scrollTo(0, 0);
 }
 
 function initArchivePageOverlay() {
@@ -177,12 +186,16 @@ function initSettingsOverlay() {
 	if (localStorage.scaletoview === 'true')
 		$("#scaletoview").prop("checked", true);
 
+	if (localStorage.hidetop === 'true')
+		$("#hidetop").prop("checked", true);
+
 }
 
 function saveSettings() {
 	localStorage.readorder = $("#readorder").prop("checked");
 	localStorage.doublepage = $("#doublepage").prop("checked");
 	localStorage.scaletoview = $("#scaletoview").prop("checked");
+	localStorage.hidetop = $("#hidetop").prop("checked");
 
 	closeOverlay();
 	goToPage(currentPage);
