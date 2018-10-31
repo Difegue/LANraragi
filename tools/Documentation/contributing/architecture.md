@@ -1,22 +1,3 @@
-- [Environment Setup and Debug Mode](#environment-setup-and-debug-mode)
-- [Codebase Architecture and Style](#codebase-architecture-and-style)
-  * [Coding Style](#coding-style)
-  * [Main App Architecture](#main-app-architecture)
-  * [Background Worker](#background-worker)
-  * [Installation Script](#installation-script)
-- [Database Architecture](#database-architecture)
-
-## Environment Setup and Debug Mode
-
-Once you've got a running LANraragi instance, you can basically dive right into the files to modify stuff to your needs. As you need raw access to the files, a native OS install is needed!  
-I recommend a Linux or WSL install, as the _morbo_ development server only works on Linux.  
-
-Said development server can be ran with the `npm run dev-server` command.  
-The major difference is that this server will automatically reload when you modify any file within LANraragi. Background worker included! 
-
-You'll also probably want to enable **Debug Mode** in the LRR Options, as that will allow you to view debug-tier logs, alongside the raw Mojolicious logs.
-
-
 ## Codebase Architecture and Style
 
 LRR is written in Perl on the server-side with the help of the [Mojolicious](http://mojolicious.org/) framework, with basic JQuery on the clientside.   

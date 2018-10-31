@@ -1,14 +1,3 @@
-- [How To Write a Plugin for LRR](#how-to-write-a-plugin-for-lrr)
-  * [Available Language and Modules](#available-language-and-modules)
-  * [Plugin Metadata](#plugin-metadata)
-  * [Expected Input](#expected-input)
-  * [Global and One-Shot Arguments](#global-and-one-shot-arguments)
-  * [Expected Output](#expected-output)
-  * [Installing and Testing your Plugin](#installing-and-testing-your-plugin)
-- [Boilerplate and Frequently used API functions](#boilerplate-and-frequently-used-api-functions)
-  * [Plugin Template](#plugin-template)
-  * [API Functions](#api-functions)
-
 ## How To Write a Plugin for LRR
 
 LANraragi supports a Plugin system for importing metadata from various sources: External Web APIs, embedded text files, etc.  
@@ -33,7 +22,7 @@ Still, as said in the User Documentation, be careful of what you do with Plugins
 ### Plugin Metadata  
 
 Metadata follows a simple format, being all present in a hash returned by the `plugin_info` subroutine:  
-<pre>
+```
 #Meta-information about your plugin.
 sub plugin_info {
 
@@ -50,7 +39,7 @@ sub plugin_info {
     );
 
 }
-</pre>
+```
 There are no restrictions on what you can write in those fields, except for the namespace, which should preferrably be **a single word.**  
 It's used as a unique ID for your Plugin in various parts of the app.  
 The `global_args` array can contain as many arguments as you need.
@@ -59,13 +48,13 @@ The `global_args` array can contain as many arguments as you need.
 The following section deals with writing the `get_tags` subroutine.  
 When executing your Plugin, LRR will call this subroutine and pass it the following variables:  
 
-<pre>
+```
 sub get_tags {
 
     #First lines you should have in the subroutine
     shift;
     my ($title, $tags, $thumbhash, $file, $oneshotarg, @args) = @_;
-</pre>
+```
 
 - _$title_: The title of the archive, as entered by the User. 
 - _$tags_: The tags that are already in LRR for this archive, if there are any.
@@ -92,12 +81,12 @@ If you want the user to be able to enter those arguments, the `global_args` and 
 Once you're done and obtained your tags, all that's needed for LRR to handle them is to return a hash containg said tags.  
 Tags are expected to be separated by commas, like this: 
 
-<pre>return ( tags => "my:new, tags:here, look ma no namespace" );</pre>  
+```return ( tags => "my:new, tags:here, look ma no namespace" );```  
 
 
 If you couldn't obtain tags for some reason, you can tell LRR that an error occurred by returning a hash containing an "error" field:
 
-<pre>return ( error => "my error :(" );</pre> 
+```return ( error => "my error :(" );``` 
 
 If you do this, no tags will be added for this archive, and the error will be logged/displayed to the user.
 
@@ -114,7 +103,7 @@ If LANraragi is running in Debug Mode, debug messages from your plugin will be l
 ### Plugin Template
 
 Examples speak better than words: The code below is a fully-working plugin stub. 
-<pre>package LANraragi::Plugin::MyNewPlugin;
+```package LANraragi::Plugin::MyNewPlugin;
 
 use strict;
 use warnings;
@@ -174,7 +163,7 @@ sub get_tags_from_somewhere {
     return "my:new, tags:here, look ma no namespace"; 
 }
 
-1;</pre>
+1;```
 
 ### API Functions 
 
@@ -182,7 +171,7 @@ This section contains a few bits of code for things you might want to do with Pl
 
 * **Write messages to the Plugin Log**
 
-<pre>
+```
 #Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
 my $logger = LANraragi::Generic::Utils::get_logger("MyPluginName","plugins");
 
@@ -190,13 +179,13 @@ $plugin->debug("This message will only show if LRR is in Debug Mode")
 $plugin->info("You know me the fighting freak Knuckles and we're at Pumpkin Hill");
 $plugin->warn("You ready?");
 $plugin->error("Oh no");
-</pre>
+```
 
 The logger is a preconfigured [Mojo::Log](http://mojolicious.org/perldoc/Mojo/Log) object.
 * **Make requests to a remote WebService**
 
 [Mojo::UserAgent](http://mojolicious.org/perldoc/Mojo/UserAgent) is a full-featured HTTP client coming with LRR you can use.  
-<pre>
+```
 use Mojo::UserAgent;
 
 my $ua = Mojo::UserAgent->new;
@@ -219,24 +208,24 @@ my $jsonresponse = $rep->json;
 #JSON decoded to a string
 my $textrep      = $rep->body;
 
-</pre>
+```
 
 * **Read values in the LRR Database**
 
-<pre>
+```
 use LANraragi::Model::Config;
 
 my $redis = LANraragi::Model::Config::get_redis;
 
 my $value = $redis->get("key");
-</pre>
+```
 
 This uses the excellent [Perl binding library](http://search.cpan.org/~dams/Redis-1.991/lib/Redis.pm) for Redis.
 * **Extract files from the archive being examined**
 
 If you're running 0.5.2 or later:
 
-<pre>
+```
 #Check if info.json is in the archive located at $file
 if (LANraragi::Utils::Archive::is_file_in_archive($file,"info.json")) {
 
@@ -248,4 +237,4 @@ if (LANraragi::Utils::Archive::is_file_in_archive($file,"info.json")) {
 
         #Do whatever you need
 }
-</pre>
+```
