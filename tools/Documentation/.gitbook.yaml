@@ -1,5 +1,5 @@
 root: ./tools/Documentation
-​
+
 structure:
   readme: README.md
   summary: SUMMARY.md
