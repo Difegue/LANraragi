@@ -5,22 +5,23 @@ p{padding:3px 1px;margin:0}
 img{border:0}
 
 @font-face {
-    font-family: "Roboto";
-    font-style: normal;
-    font-weight: 400;
-    src: local("Roboto"), local("Roboto-Regular"), url(../css/webfonts/Roboto-Regular.woff) format("woff");
+	font-family: 'Inter UI';
+	font-style: normal;
+	font-weight: 400;
+	src: local('Inter UI'), local('Inter-UI'), url(../css/webfonts/Inter-UI-Regular.woff) format('woff');
 }
+
 @font-face {
-    font-family: "Roboto";
-    font-style: normal;
-    font-weight: 700;
-    src: local("Roboto Bold"), local("Roboto-Bold"), url(../css/webfonts/Roboto-Bold.woff) format("woff");
-}
+	font-family: 'Inter UI';
+	font-style: normal;
+	font-weight: 700;
+	src: local('Inter UI'), local('Inter-UI-Bold'), url(../css/webfonts/Inter-UI-Bold.woff) format('woff');
+} 
 
 body {
     background-color: #FCFCFC;
     color: #34495E;
-    font-family: 'Roboto',arial,sans-serif;
+    font-family: 'Inter UI',arial,sans-serif;
     height: 100%;
     text-align: center;
     padding:2px;
@@ -128,7 +129,7 @@ table.itc {
     border: 0 none;
     border-radius: 3px 3px 3px 3px;
     color: #f1f1f1;
-    font-family: 'Roboto',arial,sans-serif;
+    font-family: 'Inter UI',arial,sans-serif;
     margin: 1px;
     outline: 0 none;
     padding: 0 4px 1px; 
@@ -180,7 +181,7 @@ tr.gtr1{background:#34495E}
     border: 0 none;
     border-radius: 3px 3px 3px 3px;
     color: #f1f1f1;
-    font-family: 'Roboto',arial,sans-serif;
+    font-family: 'Inter UI',arial,sans-serif;
     font-size: 9pt;
     height: 28px;
     margin: 1px;
@@ -202,7 +203,7 @@ tr.gtr1{background:#34495E}
 
 .stdinput{
     background: none repeat scroll 0 0 #fcfcfc;
-    font-family: 'Roboto',arial,sans-serif;
+    font-family: 'Inter UI',arial,sans-serif;
     border: medium none;
     color: #34495E;
     font-size: 9pt;
@@ -310,16 +311,16 @@ box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
 
 /* Toasts */
 .jq-toast-single { 
-    font-family: 'Roboto',arial,sans-serif !important; 
+    font-family: 'Inter UI',arial,sans-serif !important; 
 }
 
 .jq-toast-single h2 { 
-    font-family: 'Roboto',arial,sans-serif !important; 
+    font-family: 'Inter UI',arial,sans-serif !important; 
 }
 
 /* Tag Cloud */
 div.jqcloud {
-    font-family: 'Roboto',arial,sans-serif !important;     
+    font-family: 'Inter UI',arial,sans-serif !important;     
 }
 
 div.jqcloud span.w10, div.jqcloud span.w8, div.jqcloud span.w9 {
