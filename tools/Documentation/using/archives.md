@@ -1,4 +1,8 @@
-## Adding and Reading Archives
+# Adding and Reading Archives
+
+
+
+## Content Folder
 
 One of LRR's core concepts is the **content folder.**  
 This folder contains all the user-generated data:  

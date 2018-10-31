@@ -1,8 +1,8 @@
-## Native Linux Installation
+# Install from source on Linux
 
 The following instructions are based on **Debian Stretch.**
 
-### A small FYI about Vendor Perl
+## A small FYI about Vendor Perl
 
 As you might have noticed, LANraragi entirely depends on the Perl programming language.  
 A version of Perl usually ships already compiled on most Linux distributions. It's usually called "Vendor Perl".  
@@ -15,7 +15,7 @@ And this is just fine! However, I'll consider we're using Vendor Perl here, for 
 * The [PerlMagick](http://search.cpan.org/~jcristy/PerlMagick-6.89-1/Magick.pm) package, required by LRR, needs the ImageMagick source headers to be built.  
 As such, it's not automatically installed by our installer scripts. Vendor Perl users can just install the prebuilt version from Apt. Perlbrew/Plenv users will have to download said headers and build it on their own.
 
-### Needed dependencies
+## Needed dependencies
 
 ```  
 apt-get update
@@ -33,7 +33,7 @@ apt-get install -y nodejs
 ```  
 _Node.js and NPM._
 
-### Installing LRR 
+## Installing LRR 
 
 All you need to do is clone the git repo somewhere (or download one of [the releases](https://github.com/Difegue/LANraragi/releases)) and run the installer.  
 I recommend doing this with a brand new Linux user account. (I'm using "koyomi" here):  

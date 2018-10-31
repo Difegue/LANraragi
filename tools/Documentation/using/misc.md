@@ -1,6 +1,6 @@
-## Other Options
+# Other Options
 
-### Themes
+## Themes
 
 The front-end interface of LANraragi is customizable out of the box through CSS.  
 A few themes are built-in already. Theme Preference is saved on a per-user basis.  
@@ -10,7 +10,7 @@ To change Theme, click the matching button on the footer of every page:
 
 You can write your own themes by modifying the existing ones - Dropping them in the _/public/themes_ folder will make them selectable by anyone. (For Docker/Vagrant Users who don't have access to the LRR folder - We're working on something.)
 
-### Database Backup/Restore
+## Database Backup/Restore
 
 Right as it says on the tin. This page allows you to backup the entire database to a JSON file.  
 This includes, for every file:  
@@ -20,19 +20,19 @@ This includes, for every file:
 
 This JSON can then be restored in another LRR instance, if it has archives with matching unique IDs.
 
-### Statistics
+## Statistics
 
 This page shows basic stats about your content folder, as well as your most used tags.  
 ![](https://a.pomf.cat/weotok.PNG)  
 
-### Logs
+## Logs
 
 This page allows you to quickly see logs from the app, in case something went wrong.  
 If you enable _Debug Mode_ in Configuration, more logs will be displayed.  
 
 **Hot Tip** : If you enable Debug Mode for troubleshooting purposes, make sure to disable it once you're done!
 
-### Favorite Tags
+## Favorite Tags
 
 In Configuration, you can set five tags as your **favorites**.  
 They'll appear in the archive index as shortcut buttons, which you can toggle to instantly perform a search for said tag.  

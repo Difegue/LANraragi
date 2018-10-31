@@ -1,4 +1,8 @@
-## Vagrant Installation (Recommended for Dockerless machines)
+# Install using Vagrant
+
+For computers that are unable to easily use Docker (Windows 7 for instance), Vagrant is an excellent alternative to get started quickly. 
+
+## Using the Vagrantfile setup
 
 You can use the available Vagrantfile with [Vagrant](https://www.vagrantup.com/downloads.html) to deploy a virtual machine on your computer with LANraragi preinstalled.  
 Download [the Vagrantfile setup](https://github.com/Difegue/LANraragi/raw/master/tools/VagrantSetup) and put it in your future LANraragi folder, and enter the following commands in a terminal pointed to that folder:

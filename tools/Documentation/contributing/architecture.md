@@ -1,9 +1,8 @@
-## Codebase Architecture and Style
+# Architecture & Style
 
-LRR is written in Perl on the server-side with the help of the [Mojolicious](http://mojolicious.org/) framework, with basic JQuery on the clientside.   
-**npm** is used for JavaScript dependency management and basic shortcuts, while **cpanm** is used for Perl dependency management.
+Read up on all the badly hacked nitty gritty that makes LRR tick here.
 
-### Coding Style  
+## Coding Style  
 
 While Perl's mantra is "There's more than one way to do it", I try to make LRR follow the PBP, aka Perl Best Practices.  
 This is done by the use of the [Perl::Critic](https://metacpan.org/pod/Perl::Critic) module, which reports PBP violations.  
@@ -11,7 +10,7 @@ If installed, you can run the critic on the entire LRR source tree through the `
 
 I also run [perltidy](https://en.wikipedia.org/wiki/PerlTidy) on the source tree every now and then for consistency.
 
-### Main App Architecture
+## Main App Architecture
 
 ```
 root/
@@ -65,7 +64,7 @@ root/
 
 ```
 
-### Background Worker  
+## Background Worker  
 
 The Shinobu Background Worker runs in parallel of the LRR Mojolicious Server and handles various tasks repeatedly:  
 
@@ -88,7 +87,7 @@ This allows it to always stay responsive/quick even with hundreds of archives in
 In Debug Mode, the Mojolicious server auto-restarts on every file modification.  
 You also get access to the Mojolicious logs in LRR's built-in Log View.
 
-### Installation Script 
+## Installation Script 
 
 The _install.pl_ script is essentially a sequence of commands executed to install the backend and frontend dependencies needed to run LRR, as well as basic environment checks.
 

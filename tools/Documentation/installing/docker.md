@@ -1,9 +1,9 @@
-## Docker Installation (Recommended)
+# Install using Docker
 
 A Docker image exists for deploying LANraragi installs to your machine easily without disrupting your already-existing web server setup.  
 It also allows for easy installation on Windows/Mac !  
 
-### Cloning the base LRR image
+## Cloning the base LRR image
 
 Download [the Docker setup](https://www.docker.com/products/docker) and install it. Once you're done, execute:  
 ``
@@ -38,7 +38,7 @@ docker run [zoinks] difegue/lanraragi:nightly
 ``
 
 
-### Building your own
+## Building your own
 
 The previous setup gets a working LANraragi container from the Docker Hub, but you can build your own bleeding edge version by executing ``npm run docker-build``  from a cloned Git repo.  
 

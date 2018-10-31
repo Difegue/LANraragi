@@ -1,9 +1,9 @@
-## How To Write a Plugin for LRR
+# How To Write a Plugin for LRR
 
 LANraragi supports a Plugin system for importing metadata from various sources: External Web APIs, embedded text files, etc.  
-This part of the documentation aims at giving pointers to would-be Plugin developers. 
+This part of the documentation aims at giving pointers to would-be Plugin developers.  
 
-### Available Language and Modules
+## Available Language and Modules
 
 Plugins are expected to be [Perl Modules](http://www.perlmonks.org/?node_id=102347).  
 Only one subroutine needs to be implemented for the module to be recognized: `get_tags`, which contains your working code.  You're free to implement other subroutines for cleaner code, of course.  
@@ -19,7 +19,7 @@ None of this is obviously an issue if the application is installed in a proper f
 
 Still, as said in the User Documentation, be careful of what you do with Plugins.
 
-### Plugin Metadata  
+## Plugin Metadata  
 
 Metadata follows a simple format, being all present in a hash returned by the `plugin_info` subroutine:  
 ```
@@ -43,7 +43,7 @@ sub plugin_info {
 There are no restrictions on what you can write in those fields, except for the namespace, which should preferrably be **a single word.**  
 It's used as a unique ID for your Plugin in various parts of the app.  
 The `global_args` array can contain as many arguments as you need.
-### Expected Input 
+## Expected Input 
 
 The following section deals with writing the `get_tags` subroutine.  
 When executing your Plugin, LRR will call this subroutine and pass it the following variables:  
@@ -63,7 +63,7 @@ sub get_tags {
 - _$oneshotarg_: Value of your one-shot argument, if it's been set by the User.
 - _@args_: Array containing all your Global Arguments, if their values have been set by the User.
 
-### Global and One-Shot Arguments
+## Global and One-Shot Arguments
 
 Besides information about the archive, LRR can also transmit to your plugin multiple kinds of arguments: Global arguments and a One-Shot Argument. 
 
@@ -76,7 +76,7 @@ For example, in E-Hentai and nHentai plugins, it can be used to set a specific G
 
 If you want the user to be able to enter those arguments, the `global_args` and `oneshot_arg` fields must be present in `plugin_info`, and contain brief descriptions of what your arguments are for. Those descriptions will be shown to the user. For `global_args`, the field **MUST** contain an array, even if it only has one argument inside!
 
-### Expected Output
+## Expected Output
 
 Once you're done and obtained your tags, all that's needed for LRR to handle them is to return a hash containg said tags.  
 Tags are expected to be separated by commas, like this: 
@@ -90,7 +90,7 @@ If you couldn't obtain tags for some reason, you can tell LRR that an error occu
 
 If you do this, no tags will be added for this archive, and the error will be logged/displayed to the user.
 
-### Installing and Testing your Plugin
+## Installing and Testing your Plugin
 
 Installing a Plugin is as simple as dropping the .pm file in LANraragi's Plugin directory.  
 Restart the app, and your Plugin's name should appear on the initial listing.  
@@ -98,12 +98,13 @@ Restart the app, and your Plugin's name should appear on the initial listing.
 Once this is done, you can test your plugin by simply using it, either by enabling it for Auto-Tagging or on individual archives.  
 If LANraragi is running in Debug Mode, debug messages from your plugin will be logged. 
 
-## Boilerplate and Frequently used API functions
+# Boilerplate and Frequently used API functions
 
-### Plugin Template
+## Plugin Template
 
-Examples speak better than words: The code below is a fully-working plugin stub. 
-```package LANraragi::Plugin::MyNewPlugin;
+Examples speak better than words: The code below is a fully-working plugin stub.  
+```
+package LANraragi::Plugin::MyNewPlugin;
 
 use strict;
 use warnings;
@@ -163,9 +164,10 @@ sub get_tags_from_somewhere {
     return "my:new, tags:here, look ma no namespace"; 
 }
 
-1;```
+1;
+```
 
-### API Functions 
+### API Functions  
 
 This section contains a few bits of code for things you might want to do with Plugins.
 
