@@ -1,8 +1,10 @@
+---
+description: Read up on all the badly hacked nitty gritty that makes LRR tick here.
+---
+
 # Architecture & Style
 
-Read up on all the badly hacked nitty gritty that makes LRR tick here.
-
-## Coding Style  
+## Coding Style
 
 While Perl's mantra is "There's more than one way to do it", I try to make LRR follow the PBP, aka Perl Best Practices.  
 This is done by the use of the [Perl::Critic](https://metacpan.org/pod/Perl::Critic) module, which reports PBP violations.  
@@ -12,7 +14,7 @@ I also run [perltidy](https://en.wikipedia.org/wiki/PerlTidy) on the source tree
 
 ## Main App Architecture
 
-```
+```text
 root/
 |- content <- Default content folder 
 |
@@ -61,23 +63,22 @@ root/
 |
 |- lrr.conf <- Mojolicious configuration file
 +- package.json <- NPM file, contains front-end dependency listing and shortcuts
-
 ```
 
-## Background Worker  
+## Background Worker
 
-The Shinobu Background Worker runs in parallel of the LRR Mojolicious Server and handles various tasks repeatedly:  
+The Shinobu Background Worker runs in parallel of the LRR Mojolicious Server and handles various tasks repeatedly:
 
-- Scanning the content folder for new archives
-- Adding new archives and executing Plugins on them if enabled
-- Regenerates the JSON cache when metadata or archive count changes
+* Scanning the content folder for new archives
+* Adding new archives and executing Plugins on them if enabled
+* Regenerates the JSON cache when metadata or archive count changes
 
-It's a second process spawned through the Proc::Background Perl Module.  
+It's a second process spawned through the Proc::Background Perl Module.
 
-**About the JSON Cache** 
+**About the JSON Cache**
 
 The JSON cache represents all the current archives in the content folder, alongside their metadata.  
-This cache is then loaded by the main page of LRR.  
+This cache is then loaded by the main page of LRR.
 
 LANraragi by itself does not modify this cache in any way: It only consumes it.  
 This allows it to always stay responsive/quick even with hundreds of archives in the database -- All the indexing work is left to the Shinobu worker.
@@ -87,14 +88,15 @@ This allows it to always stay responsive/quick even with hundreds of archives in
 In Debug Mode, the Mojolicious server auto-restarts on every file modification.  
 You also get access to the Mojolicious logs in LRR's built-in Log View.
 
-## Installation Script 
+## Installation Script
 
 The _install.pl_ script is essentially a sequence of commands executed to install the backend and frontend dependencies needed to run LRR, as well as basic environment checks.
 
 ## Database Architecture
 
-You can look inside the LRR Redis database at any moment through the `redis-cli` tool. The base architecture is as follows:  
-```
+You can look inside the LRR Redis database at any moment through the `redis-cli` tool. The base architecture is as follows:
+
+```text
 -Redis Database
 |- **************************************** <- 40-character long ID for every logged archive
 |  |- tags <- Saved tags
@@ -120,6 +122,5 @@ You can look inside the LRR Redis database at any moment through the `redis-cli`
    |- force_refresh <- If set to 1, Shinobu will rebuild the cache on its next iteration.
    |- archive_list <- JSON
    +- archive_count <- Number of archives in content folder. If the actual number differs from this saved value, a rebuild will be triggered.
-
-
 ```
+
