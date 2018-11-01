@@ -69,7 +69,7 @@ sub extract_archive {
 sub serve_file {
 
     my $self  = shift;
-    my $id    = $self->req->param('id');
+    my $id    = $self->req->param('id')  || "0";
     my $redis = $self->LRR_CONF->get_redis();
 
     if ($id eq "0") {
@@ -121,7 +121,7 @@ sub clean_tempfolder {
 sub serve_thumbnail {
     my $self = shift;
 
-    my $id      = $self->req->param('id');
+    my $id      = $self->req->param('id') || "0";
     my $dirname = $self->LRR_CONF->get_userdir;
 
     if ($id eq "0") {

@@ -214,6 +214,7 @@ div.sni {
     padding: 0 10px 5px;
     position: relative;
     text-align: center;
+    max-width: 1200px;
     z-index: 1;
 }
 div.sni h1 {

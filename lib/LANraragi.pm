@@ -92,7 +92,8 @@ sub startup {
         close($pidfile);
 
         $self->LRR_LOGGER->info(
-            "Terminating previous Shinobu Worker if it exists... (PID is $pid)");
+            "Terminating previous Shinobu Worker if it exists... (PID is $pid)"
+        );
 
 #TASKKILL seems superflous on Windows as sub-PIDs are always cleanly killed when the main process dies
 #But you can never be safe enough
@@ -137,7 +138,7 @@ sub startup {
     $r->get('/login')->to('login#index');
     $r->post('/login')->to('login#check');
 
-    my $logged_in = $r->under('/')->to('login#logged_in');
+    my $logged_in     = $r->under('/')->to('login#logged_in');
     my $logged_in_api = $r->under('/')->to('login#logged_in_api');
 
     #No-Fun Mode locks the base routes behind login as well
@@ -146,11 +147,13 @@ sub startup {
         $logged_in->get('/index')->to('index#index');
         $logged_in->get('/random')->to('index#random_archive');
         $logged_in->get('/reader')->to('reader#index');
+        $logged_in->get('/stats')->to('stats#index');
+
+        #API Key needed for those endpoints in No-Fun Mode
         $logged_in_api->get('/api/thumbnail')->to('api#serve_thumbnail');
         $logged_in_api->get('/api/servefile')->to('api#serve_file');
         $logged_in_api->get('/api/archivelist')->to('api#serve_archivelist');
         $logged_in_api->get('/api/extract')->to('api#extract_archive');
-        $logged_in->get('/stats')->to('stats#index');
     }
     else {
         #Standard behaviour is to leave those routes loginless for all clients
@@ -183,6 +186,8 @@ sub startup {
     $logged_in->get('/upload')->to('upload#index');
     $logged_in->post('/upload')->to('upload#process_upload');
 
+    #Those API methods are not usable even with the API Key:
+    #Logged in Admin only.
     $logged_in->post('/api/use_plugin')->to('api#use_plugin');
     $logged_in->post('/api/use_all_plugins')->to('api#use_enabled_plugins');
     $logged_in->get('/api/cleantemp')->to('api#clean_tempfolder');
