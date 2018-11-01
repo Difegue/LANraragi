@@ -37,13 +37,11 @@ sub extract_archive {
 
     my $self  = shift;
     my $id    = $self->req->param('id') || "0";
-    my $force = $self->req->param('force') || "0";
-    my $thumb = $self->req->param('thumb_regen') || "0";
 
     if ($id eq "0") {
         #High-level API documentation!
         $self->render(json => {
-            error => "API usage: extract?id=YOUR_ID(&force=1&thumb_regen=1)"
+            error => "API usage: extract?id=YOUR_ID"
             });
         return;
     }
@@ -52,7 +50,7 @@ sub extract_archive {
     my $readerjson;
     
     eval { 
-        $readerjson = LANraragi::Model::Reader::build_reader_JSON($self,$id,$force,$thumb);
+        $readerjson = LANraragi::Model::Reader::build_reader_JSON($self,$id,"0","0");
     };
     my $err = $@;
 
@@ -73,6 +71,14 @@ sub serve_file {
     my $self  = shift;
     my $id    = $self->req->param('id');
     my $redis = $self->LRR_CONF->get_redis();
+
+    if ($id eq "0") {
+        #High-level API documentation!
+        $self->render(json => {
+            error => "API usage: servefile?id=YOUR_ID"
+            });
+        return;
+    }
 
     my $file = $redis->hget( $id, "file" );
     $self->render_file( filepath => $file );
@@ -117,6 +123,14 @@ sub serve_thumbnail {
 
     my $id      = $self->req->param('id');
     my $dirname = $self->LRR_CONF->get_userdir;
+
+    if ($id eq "0") {
+        #High-level API documentation!
+        $self->render(json => {
+            error => "API usage: thumbnail?id=YOUR_ID"
+            });
+        return;
+    }
 
     #Thumbnails are stored in the content directory, thumb subfolder.
     my $thumbname = $dirname . "/thumb/" . $id . ".jpg";
