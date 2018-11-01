@@ -4,6 +4,10 @@ description: Read up on all the badly hacked nitty gritty that makes LRR tick he
 
 # Architecture & Style
 
+## Installation Script
+
+The _install.pl_ script is essentially a sequence of commands executed to install the backend and frontend dependencies needed to run LRR, as well as basic environment checks.
+
 ## Coding Style
 
 While Perl's mantra is "There's more than one way to do it", I try to make LRR follow the PBP, aka Perl Best Practices.  
@@ -65,7 +69,7 @@ root/
 +- package.json <- NPM file, contains front-end dependency listing and shortcuts
 ```
 
-## Background Worker
+## Background Worker Architecture
 
 The Shinobu Background Worker runs in parallel of the LRR Mojolicious Server and handles various tasks repeatedly:
 
@@ -88,13 +92,11 @@ This allows it to always stay responsive/quick even with hundreds of archives in
 In Debug Mode, the Mojolicious server auto-restarts on every file modification.  
 You also get access to the Mojolicious logs in LRR's built-in Log View.
 
-## Installation Script
-
-The _install.pl_ script is essentially a sequence of commands executed to install the backend and frontend dependencies needed to run LRR, as well as basic environment checks.
-
 ## Database Architecture
 
-You can look inside the LRR Redis database at any moment through the `redis-cli` tool. The base architecture is as follows:
+You can look inside the LRR Redis database at any moment through the `redis-cli` tool. 
+
+The base architecture is as follows:
 
 ```text
 -Redis Database
