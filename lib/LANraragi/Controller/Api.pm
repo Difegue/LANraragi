@@ -142,7 +142,8 @@ sub serve_thumbnail {
 
     }
 
-#Simply serve the thumbnail. If it doesn't exist, serve an error placeholder instead.
+    #Simply serve the thumbnail. 
+    #If it doesn't exist, serve an error placeholder instead.
     if ( -e $thumbname ) {
         $self->render_file( filepath => $thumbname );
     }
