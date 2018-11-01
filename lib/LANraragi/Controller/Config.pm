@@ -38,7 +38,8 @@ sub index {
         fav3        => $self->LRR_CONF->get_favtag(3),
         fav4        => $self->LRR_CONF->get_favtag(4),
         fav5        => $self->LRR_CONF->get_favtag(5),
-        cssdrop     => LANraragi::Utils::Generic::generate_themes,
+        cssdrop     => LANraragi::Utils::Generic::generate_themes_selector,
+        csshead     => LANraragi::Utils::Generic::generate_themes_header,
         tempsize    => int( $size / 1048576 * 100 ) / 100
     );
 }

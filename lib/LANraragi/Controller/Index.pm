@@ -54,9 +54,10 @@ sub index {
     my $version = $self->config->{version};
     my $redis   = $self->LRR_CONF->get_redis();
 
-    my $force       = 0;
+    my $force = 0;
 
     if ( $redis->hexists( "LRR_JSONCACHE", "force_refresh" ) ) {
+
         #If this flag is set, the DB cache is currently building
         #flash a notification
         $force = $redis->hget( "LRR_JSONCACHE", "force_refresh" );
@@ -73,10 +74,10 @@ sub index {
     #Read favtags if there are any and craft an array to use in templating
     my @validFavs;
 
-    for (my $i=1; $i<6; $i++) {
+    for ( my $i = 1 ; $i < 6 ; $i++ ) {
         my $favTag = $self->LRR_CONF->get_favtag($i);
 
-        if ($favTag ne "") {
+        if ( $favTag ne "" ) {
             push @validFavs, $favTag;
         }
     }
@@ -87,7 +88,8 @@ sub index {
         pagesize        => $self->LRR_CONF->get_pagesize,
         userlogged      => $userlogged,
         motd            => $self->LRR_CONF->get_motd,
-        cssdrop         => LANraragi::Utils::Generic::generate_themes,
+        cssdrop         => LANraragi::Utils::Generic::generate_themes_selector,
+        csshead         => LANraragi::Utils::Generic::generate_themes_header,
         favtags         => \@validFavs,
         usingdefpass    => $passcheck,
         buildingDBcache => $force,

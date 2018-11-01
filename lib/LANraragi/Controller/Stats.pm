@@ -81,7 +81,8 @@ sub index {
     $self->render(
         template     => "stats",
         title        => $self->LRR_CONF->get_htmltitle,
-        cssdrop      => LANraragi::Utils::Generic::generate_themes,
+        cssdrop      => LANraragi::Utils::Generic::generate_themes_selector,
+        csshead      => LANraragi::Utils::Generic::generate_themes_header,
         tagcloud     => $tagsjson,
         tagcount     => $tagcount,
         archivecount => $archivecount,

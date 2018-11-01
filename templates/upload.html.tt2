@@ -8,6 +8,7 @@
 
 	<link type="image/png" rel="icon" href="favicon.ico" />
 	<link rel="stylesheet" type="text/css" href="/css/lrr.css" />
+	[% csshead %]
 
 	<link rel="stylesheet" type="text/css" href="./css/vendor/jquery.fileupload.css" />
 	<link rel="stylesheet" type="text/css" href="./css/vendor/fontawesome-all.min.css" />

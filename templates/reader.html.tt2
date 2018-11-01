@@ -9,6 +9,7 @@
 	<link type="image/png" rel="icon" href="favicon.ico" />
 	<link rel="stylesheet" type="text/css" href="./css/lrr.css" />
 	<link rel="stylesheet" type="text/css" href="/css/config.css" />
+	[% csshead %]
 
 	<link rel="stylesheet" type="text/css" href="./css/vendor/fontawesome-all.min.css" />
 	<link rel="stylesheet" type="text/css" href="./css/vendor/jquery.toast.min.css" />

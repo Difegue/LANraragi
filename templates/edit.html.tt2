@@ -9,6 +9,7 @@
 	<link type="image/png" rel="icon" href="favicon.ico" />
 	<link rel="stylesheet" type="text/css" href="/css/lrr.css" />
 	<link rel="stylesheet" type="text/css" href="/css/config.css" />
+	[% csshead %]
 
 	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.toast.min.css" />
@@ -69,7 +70,7 @@
 					</tr>
 
 					<tr>
-						<td style='text-align:left; width:100px; vertical-align:top'>Import Tags from Plugin : <br/>
+						<td style='text-align:left; width:100px; vertical-align:top'>Import Tags from Plugin : <br />
 							<input type='button' name='tag_import' value='Help' onclick="toastHelpEdit();" class='stdbtn' style='min-width:90px;'></input>
 						</td>
 						<td id="plugin_table">

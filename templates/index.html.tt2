@@ -8,6 +8,7 @@
 
 	<link type="image/png" rel="icon" href="favicon.ico" />
 	<link rel="stylesheet" type="text/css" href="/css/lrr.css" />
+	[% csshead %]
 
 	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.toast.min.css" />
@@ -129,40 +130,36 @@
 	<script>
 
 		//load archive JSON before anything else
-		$.getJSON( "api/archivelist", function( data ) {
+		$.getJSON("api/archivelist", function (data) {
 			initIndex([% pagesize %], data);
-		}).fail(function(d) {
+		}).fail(function (d) {
 			//Catastrophic cache fuckup, inform the user
 			$(".datatables").hide();
 			$("#json-error").show();
 		});
-			
-		
 
-		archiveJSON = tryParseJSON("[% archiveJSON %]");
-		//onload="initIndex([% pagesize %],archiveJSON);"
 
 		[% IF usingdefpass %]
-			//If the json has the "default password" flag, flash a friendly notification inviting the user to change his password
-			$.toast({
-				heading: 'You\'re using the default password and that\'s super baka of you',
-				text: '<a href="login">Login</a> with password "kamimamita" and <a href="config">change that shit</a> on the double.<br/>...Or just disable it! <br/>Why not check the configuration options afterwards, while you\'re at it? ',
-				hideAfter: false,
-				position: 'top-left',
-				icon: 'error'
-			});
+		//If the json has the "default password" flag, flash a friendly notification inviting the user to change his password
+		$.toast({
+			heading: 'You\'re using the default password and that\'s super baka of you',
+			text: '<a href="login">Login</a> with password "kamimamita" and <a href="config">change that shit</a> on the double.<br/>...Or just disable it! <br/>Why not check the configuration options afterwards, while you\'re at it? ',
+			hideAfter: false,
+			position: 'top-left',
+			icon: 'error'
+		});
 		[% END %]
 
 		[% IF buildingDBcache %]
-			//This notification flashes when the JSON cache for the archive DB is rebuilding - 
-			//usually due to a new archive or metadata being updated.
-			$.toast({
-				heading: 'The database cache is currently building',
-				text: 'All your archives might not appear in this list yet, but they will! Eventually. <br/>Try refreshing the page a bit later. You can also check the current state of the build through the <a href="logs">logs</a>.',
-				hideAfter: false,
-				position: 'top-left',
-				icon: 'warning'
-			});
+		//This notification flashes when the JSON cache for the archive DB is rebuilding - 
+		//usually due to a new archive or metadata being updated.
+		$.toast({
+			heading: 'The database cache is currently building',
+			text: 'All your archives might not appear in this list yet, but they will! Eventually. <br/>Try refreshing the page a bit later. You can also check the current state of the build through the <a href="logs">logs</a>.',
+			hideAfter: false,
+			position: 'top-left',
+			icon: 'warning'
+		});
 		[% END %]
 
 		if (localStorage.indexViewMode === 1)
@@ -173,7 +170,7 @@
 		}
 
 		[% IF debugmode %][% ELSE %]
-			checkVersion("[% version %]");
+		checkVersion("[% version %]");
 		[% END %]
 
 	</script>

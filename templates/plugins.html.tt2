@@ -9,6 +9,7 @@
 	<link type="image/png" rel="icon" href="favicon.ico" />
 	<link rel="stylesheet" type="text/css" href="/css/lrr.css" />
 	<link rel="stylesheet" type="text/css" href="/css/config.css" />
+	[% csshead %]
 
 	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.fileupload.css" />
@@ -63,32 +64,33 @@
 			[% FOREACH plugin IN plugins %]
 			<span style="display:inline-block; text-align: left; min-width:80%">
 				[% IF plugin.enabled %]
-					<input id="[% plugin.namespace %]" name="[% plugin.namespace %]" class="fa" type="checkbox" checked> 
+				<input id="[% plugin.namespace %]" name="[% plugin.namespace %]" class="fa" type="checkbox" checked>
 				[% ELSE %]
-					<input id="[% plugin.namespace %]" name="[% plugin.namespace %]" class="fa" type="checkbox"> 
+				<input id="[% plugin.namespace %]" name="[% plugin.namespace %]" class="fa" type="checkbox">
 				[% END %]
 
 				<h2 class="ih" style="display:inline"> [% plugin.name %] v.[% plugin.version %]</h2>
 				<h1 class="ih" style="display:inline"> by [% plugin.author %] </h1>
-				<br/>
+				<br />
 				<i>[% plugin.description %]</i>
-				<br/> 
+				<br />
 				[% IF plugin.custom_args && plugin.custom_args.size %]
 				<table>
 					<tbody>
-					[% FOREACH customarg IN plugin.custom_args %]
-					<tr>
-						<td class="option-td">
-							<b> [% customarg.name %] : </b>
-						</td>
-						<td>
-							<input class="stdinput" style="max-width:200px" size="20" value="[% customarg.value %]" 
-							name="[% plugin.namespace %]_CFG_[% loop.count %]" type="text"> <br/>
-						</td>
-					</tr>	
-					[% END %]
-					</tbody></table>
-				[% END %]	 
+						[% FOREACH customarg IN plugin.custom_args %]
+						<tr>
+							<td class="option-td">
+								<b> [% customarg.name %] : </b>
+							</td>
+							<td>
+								<input class="stdinput" style="max-width:200px" size="20" value="[% customarg.value %]" name="[% plugin.namespace %]_CFG_[% loop.count %]"
+								 type="text"> <br />
+							</td>
+						</tr>
+						[% END %]
+					</tbody>
+				</table>
+				[% END %]
 				<br />
 			</span>
 			<br />
