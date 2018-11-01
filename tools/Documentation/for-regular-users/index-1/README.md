@@ -8,7 +8,7 @@ To get started, I recommend checking and editing your Settings before uploading 
 
 After populating the app with a few archives, you should get something that looks like this.
 
-![Annotated screenshot of the index page of a regular LRR install](../../.gitbook/assets/image.png)
+![Annotated screenshot of the index page of a regular LRR install](../../.gitbook/assets/image%20%284%29.png)
 
 You can then get right to reading your stuff:
 
@@ -16,7 +16,7 @@ You can then get right to reading your stuff:
 
 As well as import metadata using Plugins:
 
-{% page-ref page="./" %}
+{% page-ref page="metadata.md" %}
 
   
 
