@@ -21,8 +21,8 @@ sub add_archive_to_redis {
       LANraragi::Utils::Generic::get_logger( "Archive", "lanraragi" );
     my ( $name, $path, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
 
-    #parse_name function is up there
-    my ( $title, $tags ) = parse_name( $name . $suffix );
+    #Use the mythical regex to get title and tags
+    my ( $title, $tags ) = parse_name( $name );
 
     #jam this shit in redis
     $logger->debug("Pushing to redis on ID $id:");
