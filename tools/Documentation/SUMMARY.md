@@ -12,7 +12,7 @@
   * [From source \(Linux\)](for-regular-users/index/source-linux.md)
 * [Updating LANraragi](for-regular-users/updating.md)
 * [Getting Started](for-regular-users/index-1/README.md)
-  * [Main Page and First Steps](for-regular-users/index-1/first-steps.md)
+  * [Post-Installation Setup](for-regular-users/index-1/first-steps.md)
   * [Dealing with Archives](for-regular-users/index-1/archives.md)
   * [Adding Metadata](for-regular-users/index-1/metadata.md)
   * [Other Options](for-regular-users/index-1/misc.md)

@@ -31,6 +31,8 @@ You can also simply click the right or left side of the image.
 When reading an archive, the three button icons on the rightside of the page offer various options.  
 
 
+![Annotated Reader View](../../.gitbook/assets/image%20%282%29.png)
+
 ![](https://a.pomf.cat/tdqtur.JPG)
 
 You can click the information icon on the right-side of the Reader to get a quick refresher about its controls.  
