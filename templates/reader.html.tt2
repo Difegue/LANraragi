@@ -23,7 +23,7 @@
 
 <body onload="set_style_from_storage(); initArchivePageOverlay(); initSettingsOverlay();">
 
-	<div id="i1" class="sni" style="max-width: 1200px">
+	<div id="i1" class="sni">
 		<h1>[% arcname %]</h1>
 
 		<div id="i2">

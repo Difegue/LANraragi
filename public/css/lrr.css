@@ -1,6 +1,5 @@
 /* Global LANraragi CSS. Don't mess !*/
 
-/*tag hover popups.*/
 td {
     max-width: 250px;
     overflow: hidden;
@@ -14,8 +13,8 @@ td {
 #tagsheader {max-width: 150px;}
 td.series {max-width: 150px;}
 td.language {max-width: 100px;}
-td.artist {max-width: 150px;}
-td.tags {max-width: 150px;}
+td.artist {max-width: 100px;}
+td.tags {max-width: 250px;}
 
 .ttspinner {
   color:black; 
@@ -133,8 +132,6 @@ p#nb {
     td.tags {display:none;}
     div.sni h1 {overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
 }
-
-
 
 /* Reader overlays. */
 .loading-overlay, .page-overlay, #overlay-shade  {

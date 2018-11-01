@@ -96,16 +96,6 @@ function updateImageMap() {
 
 function goToPage(page) {
 
-	//hide/show toplevel nav depending on the pref
-	if (localStorage.hidetop === 'true') {
-		$("#i2").attr("style", "display:none");
-		$("div.sni h1").attr("style", "display:none");
-	}
-	else {
-		$("#i2").attr("style", "");
-		$("div.sni h1").attr("style", "");
-	}
-
 	previousPage = currentPage;
 
 	if (page < 0)
@@ -119,11 +109,14 @@ function goToPage(page) {
 		//composite an image and use that as the source
 		img1 = loadImage(pages.pages[currentPage], canvasCallback);
 		img2 = loadImage(pages.pages[currentPage + 1], canvasCallback);
+		//We can also free the maxwidth since we usually have twice the pages
+		$(".sni").attr("style", "max-width: 90%");
 	}
 	else {
 		//in single view, just use the source URLs as is
 		$("#img").attr("src", pages.pages[currentPage]);
 		showingSinglePage = true;
+		$(".sni").attr("style", "");
 	}
 
 	//scale to view simply forces image height at 90vh (90% of viewport height)
@@ -131,6 +124,20 @@ function goToPage(page) {
 		$("#img").attr("style", "max-height: 90vh;");
 	else
 		$("#img").attr("style", "");
+
+	//hide/show toplevel nav depending on the pref
+	if (localStorage.hidetop === 'true') {
+		$("#i2").attr("style", "display:none");
+		$("div.sni h1").attr("style", "display:none");
+
+		//Since the topnav is gone, we can afford to make the image a bit bigger.
+		if (localStorage.scaletoview === 'true')
+			$("#img").attr("style", "max-height: 98vh;");
+	}
+	else {
+		$("#i2").attr("style", "");
+		$("div.sni h1").attr("style", "");
+	}
 
 	//update numbers
 	$('.current-page').each(function () {

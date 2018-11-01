@@ -120,7 +120,7 @@ td.itd{text-align:left;padding:3px 4px;border-right:1px solid #40454b}
 td.itd a{text-decoration:none}
 td.itu{text-align:left;padding:3px 4px 3px 4px;border-right:1px solid #40454b}
 td.itu a{text-decoration:none}
-td.itdc{text-align:left;padding:0 1px 0 2px;margin:0;border-right:1px solid #40454b}
+td.itdc{text-align:center;padding:0 1px 0 2px;margin:0;border-right:1px solid #40454b}
 
 /* page selector */
 .paginate_button {display:inline-block; text-align:center;height:15px;width:31px;background:#34353b;cursor:pointer;border:1px solid #000000;margin-top:10px;margin-bottom:10px;}

@@ -57,7 +57,7 @@ div.ido{
     padding-top: 10px;
     padding-bottom: 10px;
     width:99%;
-    max-width:1300px;
+    max-width:90%;
     position:relative;
 }
 
@@ -91,7 +91,12 @@ p.ip a:hover{color: #ed2553;}
 
 /* shared table stuff */
 table.itg{
-	width:99%;max-width:1175px;border-collapse:collapse;margin:0px auto;padding:3px;font-size:9pt;
+    width:99%;
+    max-width:90%;
+    border-collapse:collapse;
+    margin:0px auto;
+    padding:3px;
+    font-size:9pt;
 	border: 0 none;
 	box-shadow: 0 5px 15px 0 rgba(0, 0, 0, 0.16), 0 2px 15px 0 rgba(0, 0, 0, 0.12);
     color: #FCFCFC;
@@ -219,7 +224,7 @@ td.itd{text-align:left;padding:3px 4px;border-right:1px solid #566D75}
 td.itd a{text-decoration:none}
 td.itu{text-align:left;padding:3px 4px 3px 4px;border-right:1px solid #566D75}
 td.itu a{text-decoration:none}
-td.itdc{text-align:left;padding:0 1px 0 2px;margin:0;border-right:1px solid #566D75}
+td.itdc{text-align:center;padding:0 1px 0 2px;margin:0;border-right:1px solid #566D75}
 
 /* page selector */
 .paginate_button {display:inline-block; text-align:center;height:30px;width:31px;cursor:pointer;font-size: 2em;margin-top:10px;margin-bottom:10px;}
