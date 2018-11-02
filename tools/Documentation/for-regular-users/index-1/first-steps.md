@@ -1,7 +1,3 @@
----
-description: Start here before adding all your manga!
----
-
 # Post-Installation Setup
 
 ## Quick To-Do List for newcomers

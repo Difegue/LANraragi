@@ -1,7 +1,3 @@
----
-description: Install LANraragi using Docker.
----
-
 # Docker
 
 A Docker image exists for deploying LANraragi installs to your machine easily without disrupting your already-existing web server setup.  
