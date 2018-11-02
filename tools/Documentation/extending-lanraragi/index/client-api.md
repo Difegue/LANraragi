@@ -1,7 +1,8 @@
 ---
 description: >-
-  The Client API allows other applications to consume content from a running
-  LANraragi Server.              Feel free to try it on the Demo website!
+  The Client API allows you to communicate with a running LANraragi instance
+  from another client, for instance. All those endpoints can be tested on the
+  demo!
 ---
 
 # Client API

@@ -4,7 +4,7 @@
 
 This page shows basic stats about your content folder, as well as your most used tags.
 
-![](../../.gitbook/assets/weotok.PNG)
+![](../../.gitbook/assets/weotok%20%281%29.PNG)
 
 ## Logs
 
