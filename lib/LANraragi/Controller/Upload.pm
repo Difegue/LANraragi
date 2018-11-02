@@ -82,7 +82,8 @@ sub index {
         template => "upload",
         title    => $self->LRR_CONF->get_htmltitle,
         autotag  => $self->LRR_CONF->enable_autotag,
-        cssdrop  => LANraragi::Utils::Generic::generate_themes
+        cssdrop  => LANraragi::Utils::Generic::generate_themes_selector,
+        csshead  => LANraragi::Utils::Generic::generate_themes_header
     );
 }
 

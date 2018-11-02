@@ -3,6 +3,7 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use Redis;
 use Encode;
+use Mojo::JSON qw(decode_json encode_json);
 no warnings 'experimental';
 use Cwd;
 
@@ -32,11 +33,47 @@ sub index {
         my $namespace = $pluginfo{namespace};
         my $namerds   = "LRR_PLUGIN_" . uc($namespace);
 
-        my $checked = $redis->hget( $namerds, "enabled" );
-        my $arg     = $redis->hget( $namerds, "customarg" );
+        my $checked        = 0;
+        my @globalargnames = ();
 
-        $pluginfo{enabled}   = $checked;
-        $pluginfo{customarg} = $arg;
+        #Check if the plugin does have global args before trying to get them
+        if ( length $pluginfo{global_args} ) {
+
+            #The global_args array is inside the pluginfo hash, dereference it
+            @globalargnames = @{ $pluginfo{global_args} };
+        }
+
+        my @globalargvalues = ();
+        my @globalargs      = ();
+
+        if ( $redis->hexists( $namerds, "enabled" ) ) {
+            $checked = $redis->hget( $namerds, "enabled" );
+            my $argsjson = $redis->hget( $namerds, "customargs" );
+
+            ( $_ = LANraragi::Utils::Database::redis_decode($_) )
+              for ( $checked, $argsjson );
+
+            #Mojo::JSON works with array references by default,
+            #so we need to dereference here as well
+            if ($argsjson) {
+                @globalargvalues = @{ decode_json($argsjson) };
+            }
+        }
+
+        #Build array of pairs with the global arg names and values
+        for ( my $i = 0 ; $i < scalar @globalargnames ; $i++ ) {
+            my %arghash = (
+                name  => $globalargnames[$i],
+                value => $globalargvalues[$i] || ""
+            );
+            push @globalargs, \%arghash;
+        }
+
+        $pluginfo{enabled} = $checked;
+
+        #We add our array of pairs to the plugin info for the template to parse
+        #global_args containing the arg names is still there as a reference.
+        $pluginfo{custom_args} = \@globalargs;
 
         push @pluginlist, \%pluginfo;
 
@@ -48,7 +85,8 @@ sub index {
         template => "plugins",
         title    => $self->LRR_CONF->get_htmltitle,
         plugins  => \@pluginlist,
-        cssdrop  => LANraragi::Utils::Generic::generate_themes
+        cssdrop   => LANraragi::Utils::Generic::generate_themes_selector,
+        csshead   => LANraragi::Utils::Generic::generate_themes_header
     );
 
 }
@@ -74,11 +112,26 @@ sub save_config {
             my $namerds   = "LRR_PLUGIN_" . uc($namespace);
 
             my $enabled = ( scalar $self->req->param($namespace) ? '1' : '0' );
-            my $arg = $self->req->param( $namespace . "_CFG" ) || "";
 
-            $redis->hset( $namerds, "enabled", $enabled );
+            #Get expected number of custom arguments from the plugin itself
+            my $argcount = 0;
+            if ( length $pluginfo{global_args} ) {
+                $argcount = scalar @{ $pluginfo{global_args} };
+            }
 
-            $redis->hset( $namerds, "customarg", $arg );
+            my @customargs = ();
+
+            #Loop through the namespaced request parameters
+            #Start at 1 because that's where TT2's loop.count starts
+            for ( my $i = 1 ; $i <= $argcount ; $i++ ) {
+                push @customargs,
+                  ( $self->req->param( $namespace . "_CFG_" . $i ) );
+            }
+
+            my $encodedargs = encode_json( \@customargs );
+
+            $redis->hset( $namerds, "enabled",    $enabled );
+            $redis->hset( $namerds, "customargs", $encodedargs );
 
         }
     };
@@ -101,16 +154,16 @@ sub process_upload {
     my $self = shift;
 
     #Plugin upload is only allowed in Debug Mode.
-    if ($self->app->mode ne "development") {
+    if ( $self->app->mode ne "development" ) {
         $self->render(
-                json => {
-                    operation => "upload_plugin",
-                    success   => 0,
-                    error     => "Plugin upload is only allowed in Debug Mode."
-                }
-            );
+            json => {
+                operation => "upload_plugin",
+                success   => 0,
+                error     => "Plugin upload is only allowed in Debug Mode."
+            }
+        );
 
-            return;
+        return;
     }
 
     #Receive uploaded file.

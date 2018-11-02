@@ -113,6 +113,7 @@ sub enable_pass     { return &get_redis_conf( "enablepass",  "1" ) }
 sub enable_nofun    { return &get_redis_conf( "nofunmode",   "0" ) }
 sub enable_autotag  { return &get_redis_conf( "autotag",     "1" ) }
 sub enable_devmode  { return &get_redis_conf( "devmode",     "0" ) }
+sub get_apikey      { return &get_redis_conf( "apikey",      ""  ) }
 #Use the number of the favtag you want to get as a parameter to this sub.
 sub get_favtag      { return &get_redis_conf( "fav".$_[1],   ""  ) }
 

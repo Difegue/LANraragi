@@ -12,6 +12,7 @@
 
 	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.toast.min.css" />
+	[% csshead %]
 
 	<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
@@ -69,8 +70,8 @@
 					</tr>
 
 					<tr>
-						<td style='text-align:left; width:100px; vertical-align:top'>Import Tags from Plugin :
-							<input type='button' name='tag_import' value='Plugin&#x00A;Help' onclick="toastHelpEdit();" class='stdbtn' style='margin-top:25px; min-width:90px; height:50px'></input>
+						<td style='text-align:left; width:100px; vertical-align:top'>Import Tags from Plugin : <br />
+							<input type='button' name='tag_import' value='Help' onclick="toastHelpEdit();" class='stdbtn' style='min-width:90px;'></input>
 						</td>
 						<td id="plugin_table">
 
@@ -94,7 +95,7 @@
 					</tr>
 
 					<tr>
-						<td colspan='2' style='text-align:left'> <br />
+						<td colspan='2' style='text-align:center'> <br />
 							<input class='stdbtn' type='button' onclick=" saveFormData('#editArchiveForm');" value='Save Metadata' />
 							<input class='stdbtn' type='button' onclick=" if (confirm('Are you sure you want to delete this archive?')) deleteArchive('$id');"
 							 value='Delete Archive' />

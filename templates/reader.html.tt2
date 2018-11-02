@@ -12,6 +12,7 @@
 
 	<link rel="stylesheet" type="text/css" href="./css/vendor/fontawesome-all.min.css" />
 	<link rel="stylesheet" type="text/css" href="./css/vendor/jquery.toast.min.css" />
+	[% csshead %]
 
 	<script src="./js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
 	<script src="./js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
@@ -23,7 +24,7 @@
 
 <body onload="set_style_from_storage(); initArchivePageOverlay(); initSettingsOverlay();">
 
-	<div id="i1" class="sni" style="max-width: 1200px">
+	<div id="i1" class="sni">
 		<h1>[% arcname %]</h1>
 
 		<div id="i2">
@@ -66,6 +67,8 @@
 			<a style="cursor:pointer" onclick="confirmThumbnailReset('[% id %]')">Regenerate Archive Thumbnail </a>
 			<i class="fa fa-caret-right fa-lg"></i>
 			<a href="./reader?id=[% id %]&force_reload=1">Clean Archive Cache</a>
+			<i class="fa fa-caret-right fa-lg"></i>
+			<a target="_blank" href="./edit?id=[% id %]">Edit this Archive's Metadata</a>
 		</div>
 		[% END %]
 
@@ -143,6 +146,12 @@
 		<h1 class="ih" style="display:inline"> Scale to View</h1>
 		<input id="scaletoview" name="readorder" class="fa" type="checkbox" style="float:left">
 		<br /> If enabled, pages will be scaled to the screen's size.
+	</div>
+
+	<div class="config-panel">
+		<h1 class="ih" style="display:inline"> Hide Top-level Navigation</h1>
+		<input id="hidetop" name="hidetop" class="fa" type="checkbox" style="float:left">
+		<br /> If enabled, every element that comes before images at the top will be hidden.
 	</div>
 </div>
 

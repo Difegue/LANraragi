@@ -13,6 +13,7 @@
 	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.toast.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/allcollapsible.min.css" />
+	[% csshead %]
 
 	<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
@@ -40,6 +41,17 @@
 						<table style="margin:auto; font-size:9pt;">
 							<tbody>
 								[% INCLUDE templates_config/config_global %]
+							</tbody>
+						</table>
+					</div>
+				</li>
+				<li class="option-flyout">
+					<div class="collapsible-title caret-right">
+						<i class="fa fa-shield-alt" aria-hidden="true"></i> Security</div>
+					<div class="collapsible-body">
+						<table style="margin:auto; font-size:9pt;">
+							<tbody>
+								[% INCLUDE templates_config/config_security %]
 							</tbody>
 						</table>
 					</div>

@@ -54,23 +54,13 @@ sub index {
     my $version = $self->config->{version};
     my $redis   = $self->LRR_CONF->get_redis();
 
-    my $archivejson = "[]";
-    my $force       = 0;
+    my $force = 0;
 
     if ( $redis->hexists( "LRR_JSONCACHE", "force_refresh" ) ) {
 
-#IF this flag is set, the DB cache is currently building => flash a notification
+        #If this flag is set, the DB cache is currently building
+        #flash a notification
         $force = $redis->hget( "LRR_JSONCACHE", "force_refresh" );
-    }
-
-    if ( $redis->hexists( "LRR_JSONCACHE", "archive_list" ) ) {
-
-        #Get cached JSON from Redis
-        $archivejson =
-          decode_utf8( $redis->hget( "LRR_JSONCACHE", "archive_list" ) );
-
-        #Big quote escape in order to jam this into a JS variable
-        $archivejson =~ s/"/\\"/g;
     }
 
     #Checking if the user still has the default password enabled
@@ -84,10 +74,10 @@ sub index {
     #Read favtags if there are any and craft an array to use in templating
     my @validFavs;
 
-    for (my $i=1; $i<6; $i++) {
+    for ( my $i = 1 ; $i < 6 ; $i++ ) {
         my $favTag = $self->LRR_CONF->get_favtag($i);
 
-        if ($favTag ne "") {
+        if ( $favTag ne "" ) {
             push @validFavs, $favTag;
         }
     }
@@ -98,8 +88,8 @@ sub index {
         pagesize        => $self->LRR_CONF->get_pagesize,
         userlogged      => $userlogged,
         motd            => $self->LRR_CONF->get_motd,
-        cssdrop         => LANraragi::Utils::Generic::generate_themes,
-        archiveJSON     => $archivejson,
+        cssdrop         => LANraragi::Utils::Generic::generate_themes_selector,
+        csshead         => LANraragi::Utils::Generic::generate_themes_header,
         favtags         => \@validFavs,
         usingdefpass    => $passcheck,
         buildingDBcache => $force,

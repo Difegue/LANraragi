@@ -12,6 +12,7 @@
 	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.toast.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.qtip.min.css" />
+	[% csshead %]
 
 	<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.dataTables.min.js" type="text/JAVASCRIPT"></script>
@@ -24,7 +25,7 @@
 
 </head>
 
-<body onload="initIndex([% pagesize %],archiveJSON);">
+<body>
 
 	[% IF userlogged %]
 	<p id="nb">
@@ -129,10 +130,16 @@
 	<script>
 
 		//load archive JSON before anything else
-		archiveJSON = tryParseJSON("[% archiveJSON %]");
+		$.getJSON("api/archivelist", function (data) {
+			initIndex([% pagesize %], data);
+		}).fail(function (d) {
+			//Catastrophic cache fuckup, inform the user
+			$(".datatables").hide();
+			$("#json-error").show();
+		});
+
 
 		[% IF usingdefpass %]
-
 		//If the json has the "default password" flag, flash a friendly notification inviting the user to change his password
 		$.toast({
 			heading: 'You\'re using the default password and that\'s super baka of you',
@@ -144,8 +151,8 @@
 		[% END %]
 
 		[% IF buildingDBcache %]
-
-		//This notification flashes when the JSON cache for the archive DB is rebuilding - usually due to a new archive or metadata being updated.
+		//This notification flashes when the JSON cache for the archive DB is rebuilding - 
+		//usually due to a new archive or metadata being updated.
 		$.toast({
 			heading: 'The database cache is currently building',
 			text: 'All your archives might not appear in this list yet, but they will! Eventually. <br/>Try refreshing the page a bit later. You can also check the current state of the build through the <a href="logs">logs</a>.',

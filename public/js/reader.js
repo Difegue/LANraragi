@@ -10,7 +10,9 @@ function moveSomething(e) {
 			break;
 		case 32:
 			// spacebar pressed
-			advancePage(1);
+			if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+				advancePage(1);
+			}
 			break;
 		case 39:
 			// right key pressed
@@ -31,7 +33,7 @@ function toastHelpReader() {
 
 	$.toast({
 		heading: 'Navigation Help',
-		text: 'You can navigate between pages using : <ul><li> The arrow icons</li> <li>Your keyboard arrows</li> <li> Touching the left/right side of the image.</li></ul><br> To return to the archive index, touch the arrow pointing down.<br> Pressing CTRL will bring up the pages overlay.',
+		text: 'You can navigate between pages using : <ul><li> The arrow icons</li> <li>Your keyboard arrows (and the spacebar)</li> <li> Touching the left/right side of the image.</li></ul><br> To return to the archive index, touch the arrow pointing down.<br> Pressing CTRL will bring up the pages overlay.',
 		hideAfter: false,
 		position: 'top-left',
 		icon: 'info'
@@ -95,7 +97,7 @@ function updateImageMap() {
 function goToPage(page) {
 
 	previousPage = currentPage;
-	
+
 	if (page < 0)
 		currentPage = 0;
 	else if (page >= pageNumber)
@@ -107,18 +109,35 @@ function goToPage(page) {
 		//composite an image and use that as the source
 		img1 = loadImage(pages.pages[currentPage], canvasCallback);
 		img2 = loadImage(pages.pages[currentPage + 1], canvasCallback);
+		//We can also free the maxwidth since we usually have twice the pages
+		$(".sni").attr("style", "max-width: 90%");
 	}
 	else {
 		//in single view, just use the source URLs as is
 		$("#img").attr("src", pages.pages[currentPage]);
 		showingSinglePage = true;
+		$(".sni").attr("style", "");
 	}
 
 	//scale to view simply forces image height at 90vh (90% of viewport height)
 	if (localStorage.scaletoview === 'true')
-		$("#img").attr("style", "height: 90vh;");
+		$("#img").attr("style", "max-height: 90vh;");
 	else
 		$("#img").attr("style", "");
+
+	//hide/show toplevel nav depending on the pref
+	if (localStorage.hidetop === 'true') {
+		$("#i2").attr("style", "display:none");
+		$("div.sni h1").attr("style", "display:none");
+
+		//Since the topnav is gone, we can afford to make the image a bit bigger.
+		if (localStorage.scaletoview === 'true')
+			$("#img").attr("style", "max-height: 98vh;");
+	}
+	else {
+		$("#i2").attr("style", "");
+		$("div.sni h1").attr("style", "");
+	}
 
 	//update numbers
 	$('.current-page').each(function () {
@@ -144,7 +163,7 @@ function goToPage(page) {
 	localStorage.setItem(id + "-reader", currentPage);
 
 	//scroll to top
-	$('body').scrollTop(0);
+	window.scrollTo(0, 0);
 }
 
 function initArchivePageOverlay() {
@@ -174,12 +193,16 @@ function initSettingsOverlay() {
 	if (localStorage.scaletoview === 'true')
 		$("#scaletoview").prop("checked", true);
 
+	if (localStorage.hidetop === 'true')
+		$("#hidetop").prop("checked", true);
+
 }
 
 function saveSettings() {
 	localStorage.readorder = $("#readorder").prop("checked");
 	localStorage.doublepage = $("#doublepage").prop("checked");
 	localStorage.scaletoview = $("#scaletoview").prop("checked");
+	localStorage.hidetop = $("#hidetop").prop("checked");
 
 	closeOverlay();
 	goToPage(currentPage);
@@ -225,13 +248,13 @@ function canvasCallback() {
 
 		//If w > h on one of the images, set canvasdata to the first image only
 		if (img1.naturalWidth > img1.naturalHeight || img2.naturalWidth > img2.naturalHeight) {
-			
+
 			//Depending on whether we were going forward or backward, display img1 or img2
 			if (previousPage > currentPage)
 				$("#img").attr("src", img2.src);
 			else
 				$("#img").attr("src", img1.src);
-			
+
 			showingSinglePage = true;
 			imagesLoaded = 0;
 			return;

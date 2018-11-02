@@ -3,6 +3,7 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use Redis;
 use Encode;
+use Mojo::JSON qw(decode_json encode_json from_json);
 use File::Find::utf8;
 use File::Path qw(remove_tree);
 
@@ -12,13 +13,72 @@ use LANraragi::Utils::Database;
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
+use LANraragi::Model::Reader;
+
+sub serve_archivelist {
+
+    my $self  = shift;
+    my $redis = $self->LRR_CONF->get_redis();
+
+    if ( $redis->hexists( "LRR_JSONCACHE", "archive_list" ) ) {
+
+        #Get cached JSON from Redis
+        my $archivejson =
+          decode_utf8( $redis->hget( "LRR_JSONCACHE", "archive_list" ) );
+
+        #Decode the json back to an array so we can use the built-in mojo json render
+        $self->render( json => from_json ($archivejson) );
+    } else {
+        $self->render( json => () );
+    }
+}
+
+sub extract_archive {
+
+    my $self  = shift;
+    my $id    = $self->req->param('id') || "0";
+
+    if ($id eq "0") {
+        #High-level API documentation!
+        $self->render(json => {
+            error => "API usage: extract?id=YOUR_ID"
+            });
+        return;
+    }
+
+    #Basically just API glue to the existing reader method.
+    my $readerjson;
+    
+    eval { 
+        $readerjson = LANraragi::Model::Reader::build_reader_JSON($self,$id,"0","0");
+    };
+    my $err = $@;
+
+    if ($err) {
+        $self->render(json => {
+            pages => (),
+            error => $err
+            }
+        );
+    } else {
+        $self->render( json => decode_json ($readerjson) );
+    }
+}
 
 #use RenderFile to get the file of the provided id to the client.
 sub serve_file {
 
     my $self  = shift;
-    my $id    = $self->req->param('id');
+    my $id    = $self->req->param('id')  || "0";
     my $redis = $self->LRR_CONF->get_redis();
+
+    if ($id eq "0") {
+        #High-level API documentation!
+        $self->render(json => {
+            error => "API usage: servefile?id=YOUR_ID"
+            });
+        return;
+    }
 
     my $file = $redis->hget( $id, "file" );
     $self->render_file( filepath => $file );
@@ -61,8 +121,16 @@ sub clean_tempfolder {
 sub serve_thumbnail {
     my $self = shift;
 
-    my $id      = $self->req->param('id');
+    my $id      = $self->req->param('id') || "0";
     my $dirname = $self->LRR_CONF->get_userdir;
+
+    if ($id eq "0") {
+        #High-level API documentation!
+        $self->render(json => {
+            error => "API usage: thumbnail?id=YOUR_ID"
+            });
+        return;
+    }
 
     #Thumbnails are stored in the content directory, thumb subfolder.
     my $thumbname = $dirname . "/thumb/" . $id . ".jpg";
@@ -74,7 +142,8 @@ sub serve_thumbnail {
 
     }
 
-#Simply serve the thumbnail. If it doesn't exist, serve an error placeholder instead.
+    #Simply serve the thumbnail. 
+    #If it doesn't exist, serve an error placeholder instead.
     if ( -e $thumbname ) {
         $self->render_file( filepath => $thumbname );
     }
@@ -158,15 +227,24 @@ sub use_plugin {
 
         if ( $plugname eq $namespace ) {
 
-            #Get the matching argument in Redis
+            #Get the matching argument JSON in Redis
             my $namerds = "LRR_PLUGIN_" . uc($namespace);
-            my $globalarg = $redis->hget( $namerds, "customarg" );
-            $globalarg = LANraragi::Utils::Database::redis_decode($globalarg);
+            my @args    = ();
 
-            #Finally, execute the plugin
+            if ( $redis->hexists( $namerds, "enabled" ) ) {
+                my $argsjson = $redis->hget( $namerds, "customargs" );
+                $argsjson = LANraragi::Utils::Database::redis_decode($argsjson);
+
+                #Decode it to an array for proper use
+                if ($argsjson) {
+                    @args = @{ decode_json($argsjson) };
+                }
+            }
+
+            #Finally, execute the plugin, appending the custom args at the end
             my %plugin_result =
               LANraragi::Model::Plugins::exec_plugin_on_file( $plugin, $id,
-                $globalarg, $oneshotarg );
+                $oneshotarg, @args );
 
             if ( exists $plugin_result{error} ) {
 

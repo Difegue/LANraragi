@@ -52,7 +52,7 @@ sub shasum {
     return $digest;
 }
 
-#Returns a Logger object, taking plugin info as argument to obtain the plugin name and a filename for the log file.
+#Returns a Logger object with a custom name and a filename for the log file.
 sub get_logger {
 
     #Customize log file location and minimum log level
@@ -64,13 +64,18 @@ sub get_logger {
 
     my $devmode = LANraragi::Model::Config::enable_devmode;
 
-    #Copy logged messages to STDOUT with the plugin name
+    #Tell logger to store debug logs as well in debug mode
+    if ($devmode) {
+        $log->level('debug');
+    }
+
+    #Copy logged messages to STDOUT with the matching name
     $log->on(
         message => sub {
             my ( $time, $level, @lines ) = @_;
 
             unless ( $devmode == 0 && $level eq 'debug' )
-            {    #Debug logs are only printed in debug mode (duh)
+            { #Like with logging to file, debug logs are only printed in debug mode
                 print "[$pgname] [$level] ";
                 say $lines[0];
             }
@@ -89,8 +94,7 @@ sub get_logger {
 
 }
 
-#Print a dropdown list to select CSS, and adds <link> tags for all the style sheets present in the /style folder.
-sub generate_themes {
+sub get_css_list {
 
     #Get all the available CSS sheets.
     my @css;
@@ -100,22 +104,21 @@ sub generate_themes {
     }
     closedir(DIR);
 
-    my $CSSsel = '<div>';
+    return @css;
+}
 
-    #html that we'll insert before the list to declare all the available styles.
+#Print a dropdown list to select CSS, and adds <link> tags for all the style sheets present in the /style folder.
+sub generate_themes_header {
+
+    my @css = get_css_list;
+
+    #html that we'll insert in the header to declare all the available styles.
     my $html = "";
 
-    #We opened a drop-down list. Now, we'll fill it.
+    #Go through the css files
     for ( my $i = 0 ; $i < $#css + 1 ; $i++ ) {
 
-        #populate the div with spans
         my $css_name = LANraragi::Model::Config::css_default_names( $css[$i] );
-        $CSSsel =
-            $CSSsel
-          . '<input class="stdbtn" type="button" onclick="switch_style(\''
-          . $i
-          . '\');" value="'
-          . $css_name . '"/>';
 
         #if this is the default sheet, set it up as so.
         if ( $css[$i] eq LANraragi::Model::Config->get_style ) {
@@ -123,7 +126,7 @@ sub generate_themes {
             $html =
                 $html
               . '<link rel="stylesheet" type="text/css" title="'
-              . $i
+              . $css_name
               . '" href="/themes/'
               . $css[$i] . '"> ';
         }
@@ -132,17 +135,39 @@ sub generate_themes {
             $html =
                 $html
               . '<link rel="alternate stylesheet" type="text/css" title="'
-              . $i
+              . $css_name
               . '" href="/themes/'
               . $css[$i] . '"> ';
         }
     }
 
-    #close up dropdown list
+    return $html;
+
+}
+
+sub generate_themes_selector {
+
+    my @css = get_css_list;
+
+    my $CSSsel = '<div>';
+
+    #Go through the css files
+    for ( my $i = 0 ; $i < $#css + 1 ; $i++ ) {
+
+        #populate the div with buttons
+        my $css_name = LANraragi::Model::Config::css_default_names( $css[$i] );
+        $CSSsel =
+            $CSSsel
+          . '<input class="stdbtn" type="button" onclick="switch_style(\''
+          . $css_name
+          . '\');" value="'
+          . $css_name . '"/>';
+    }
+
+    #close up div
     $CSSsel = $CSSsel . '</div>';
 
-    return $html . $CSSsel;
-
+    return $CSSsel;
 }
 
 1;

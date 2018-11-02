@@ -205,7 +205,7 @@ td.itdc {
     border-right: 1px solid #D9D7CC;
     margin: 0;
     padding: 0 1px 0 2px;
-    text-align: left;
+    text-align: center;
 }
 div.sni {
     background: none repeat scroll 0 0 #EDEBDF;
@@ -214,6 +214,7 @@ div.sni {
     padding: 0 10px 5px;
     position: relative;
     text-align: center;
+    max-width: 1200px;
     z-index: 1;
 }
 div.sni h1 {

@@ -57,8 +57,7 @@ div.ido{
     padding-top: 10px;
     padding-bottom: 10px;
     width:99%;
-    /*min-width:950px;*/
-    max-width:1300px;
+    max-width:90%;
     position:relative;
 }
 
@@ -88,8 +87,11 @@ p#nb a{font-weight:bold}
 /* shared table stuff */
 table.itg{
 	width:99%;
-    /*min-width:925px;*/
-    max-width:1175px;border-collapse:collapse;margin:0px auto;padding:3px;font-size:9pt;
+    max-width:90%;
+    border-collapse:collapse;
+    margin:0px auto;
+    padding:3px;
+    font-size:9pt;
 	border: 1px solid #363940;
 	border-radius: 9px 9px 9px 9px;
 }
@@ -191,7 +193,7 @@ td.itd{text-align:left;padding:3px 4px;border-right:1px solid #40454b}
 td.itd a{text-decoration:none}
 td.itu{text-align:left;padding:3px 4px 3px 4px;border-right:1px solid #40454b}
 td.itu a{text-decoration:none}
-td.itdc{text-align:left;padding:0 1px 0 2px;margin:0;border-right:1px solid #40454b}
+td.itdc{text-align:center;padding:0 1px 0 2px;margin:0;border-right:1px solid #40454b}
 
 /* page selector */
 .paginate_button {display:inline-block; text-align:center;height:30px;width:31px;cursor:pointer;font-size: 2em;margin-top:10px;margin-bottom:10px;}

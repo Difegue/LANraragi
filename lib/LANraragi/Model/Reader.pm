@@ -70,9 +70,8 @@ sub build_reader_JSON {
 
     #Now, has our file been extracted to the temporary directory recently?
     #If it hasn't, we call unar to do it.
-    unless (
-        -e $path )    #If the file hasn't been extracted, or if force-reload =1
-    {
+    #If the file hasn't been extracted, or if force-reload =1
+    unless (-e $path ) {
         my $unarcmd = "unar -D -o $path \"$zipfile\" ";
 
         #Extraction using unar without creating extra folders.
@@ -80,7 +79,8 @@ sub build_reader_JSON {
         my ( $success, $error_message, $full_buf, $stdout_buf, $stderr_buf ) =
           run( command => $unarcmd, verbose => 0 );
 
-    #Has the archive been extracted ? If not, stop here and print an error page.
+        #Has the archive been extracted ? 
+        #If not, stop here and print an error page.
         unless ( -e $path ) {
             my $errlog = join "<br/>", @$full_buf;
             $errlog = decode_utf8($errlog);

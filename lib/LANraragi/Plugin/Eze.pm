@@ -5,7 +5,7 @@ use warnings;
 
 #Plugins can freely use all Perl packages already installed on the system
 #Try however to restrain yourself to the ones already installed for LRR (see tools/cpanfile) to avoid extra installations by the end-user.
-use Mojo::JSON qw(decode_json encode_json);
+use Mojo::JSON qw(from_json);
 
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
@@ -30,7 +30,7 @@ sub get_tags {
 
 #LRR gives your plugin the recorded title/tags/thumbnail hash for the file, the filesystem path, and the custom arguments if available.
     shift;
-    my ( $title, $tags, $thumbhash, $file, $globalarg, $oneshotarg ) = @_;
+    my ( $title, $tags, $thumbhash, $file, $oneshotarg, @args ) = @_;
 
     my $logger = LANraragi::Utils::Generic::get_logger( "eze", "plugins" );
 
@@ -53,7 +53,7 @@ sub get_tags {
         }
 
         #Use Mojo::JSON to decode the string into a hash
-        my $hashjson = decode_json $stringjson;
+        my $hashjson = from_json $stringjson;
 
         $logger->debug("Found and loaded the following JSON: $stringjson");
 

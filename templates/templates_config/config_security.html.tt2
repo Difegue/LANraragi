@@ -1,0 +1,60 @@
+<tr>
+    <td class="option-td">
+        <h2 class="ih"> Enable Password </h2>
+    </td>
+    <td>
+        [% IF enablepass %]
+        <input id="enablepass" name="enablepass" class="fa" type="checkbox" checked> [% ELSE %]
+        <input id="enablepass" name="enablepass" class="fa" type="checkbox"> [% END %]
+        <label for="enablepass">
+            <br>If enabled, everything that isn't reading will require a password.
+        </label>
+    </td>
+</tr>
+
+<tr class="passwordfields">
+    <td class="option-td">
+        <h2 class="ih"> New Password </h2>
+    </td>
+    <td>
+        <input class="stdinput" style="width:100%" maxlength="255" size="20" name="newpassword" type="password">
+    </td>
+</tr>
+
+<tr class="passwordfields">
+    <td class="option-td">
+        <h2 class="ih"> New Password Confirmation </h2>
+    </td>
+    <td>
+        <input class="stdinput" style="width:100%" maxlength="255" size="20" name="newpassword2" type="password">
+        <br> Only edit these fields if you want to change your password. <br/>
+        The one already stored will be used otherwise.
+    </td>
+</tr>
+
+<tr class="passwordfields">
+    <td class="option-td">
+        <h2 class="ih"> No-Fun Mode </h2>
+    </td>
+    <td>
+        [% IF nofunmode %]
+        <input id="nofunmode" name="nofunmode" class="fa" type="checkbox" checked> [% ELSE %]
+        <input id="nofunmode" name="nofunmode" class="fa" type="checkbox"> [% END %]
+        <label for="nofunmode">
+            <br>Enabling No-Fun Mode will lock reading archives behind the password as well. <br/>
+            Fully effective after restarting LANraragi.
+        </label>
+    </td>
+</tr>
+
+<tr class="passwordfields">
+    <td class="option-td">
+        <h2 class="ih"> API Key </h2>
+    </td>
+    <td>
+        <input id="apikey" class="stdinput" style="width:100%" maxlength="255" size="20" value="[% apikey %]" name="apikey" type="text">
+        <br>If you wish to use the APIs in No-Fun Mode, you'll have to set a key here.<br/>
+        Empty keys will <b>not</b> work!<br/>
+        This key will need to be provided in every protected API call as the <i>key</i> parameter.
+    </td>
+</tr>
