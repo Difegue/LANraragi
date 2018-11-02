@@ -8,10 +8,10 @@
 
 	<link type="image/png" rel="icon" href="favicon.ico" />
 	<link rel="stylesheet" type="text/css" href="/css/lrr.css" />
-	[% csshead %]
 
 	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.fileupload.css" />
+	[% csshead %]
 
 	<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.ui.widget.js" type="text/JAVASCRIPT"></script>

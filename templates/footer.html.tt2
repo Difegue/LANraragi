@@ -16,15 +16,13 @@
 
     <h1>
         <i class="fa fa-paint-brush"></i> Available Themes </h1>
-    <br/> [% cssdrop %]
+    <br /> [% cssdrop %]
 
-    <br/> Click on a name to immediately try out the theme! Your preference is saved automatically.
+    <br /> Click on a name to immediately try out the theme! Your preference is saved automatically.
 
 </div>
 
 <script>
-
-    set_style_from_storage();
 
     function openThemeOverlay() {
         $('#theme-overlay-shade').fadeTo(150, 0.6, function () {

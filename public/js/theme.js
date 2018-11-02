@@ -66,3 +66,6 @@ function set_style_from_storage() {
   if (css_title)
     switch_style(css_title);
 }
+
+//Immediatly calling the function here will apply custom CSS instantly.
+set_style_from_storage();
