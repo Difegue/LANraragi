@@ -1,5 +1,5 @@
 ---
-description: Also known as .msi hell.
+description: Also known as MSI hell! The horror!
 ---
 
 # From source \(Windows\)

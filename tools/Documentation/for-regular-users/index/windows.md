@@ -15,7 +15,7 @@ In a similar way of thinking, I don't test the Windows version thoroughly to ens
 For prolonged use and easy updates, I very much recommend using one of the containerized installation methods insteads - Docker or Vagrant. Those methods use a tested Linux environment which I guarantee is functional \(at least until I botch a release again\).
 
 {% hint style="danger" %}
-If you're using Windows with a non-unicode codepage \(for example, CP-932 which is the old Shift-JIS codepage used by Japanese locales\), archive names might get mangled on uploads.
+Windows with a non-unicode codepage \(for example, CP-932 which is the old Shift-JIS codepage used by Japanese locales\) is known to work super badly with this! 
 {% endhint %}
 
 ## Downloading and running the QuickStarter

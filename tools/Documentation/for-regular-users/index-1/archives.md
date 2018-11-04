@@ -9,7 +9,7 @@ The main page will show all the Archives loaded into the application.
 When reading an archive, it is automatically extracted to a temporary folder.  
 This folder is then simply loaded into the built-in Web Reader.
 
-![Archive Index in Thumbnail mode](../../.gitbook/assets/archive_thumb.png)
+![Archive Index in Thumbnail mode](../../.gitbook/assets/archive_thumb%20%281%29.png)
 
 ## Web Reader Options
 

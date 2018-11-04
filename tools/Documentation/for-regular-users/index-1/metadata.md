@@ -20,7 +20,7 @@ Said Plugins can be used in two different ways:
 
 To use plugins automatically, you need to enable the option in Configuration first.
 
-![](../../.gitbook/assets/wvarmm.PNG)
+![](../../.gitbook/assets/wvarmm%20%281%29.PNG)
 
   
 Once this is done, you can use the **Plugin Configuration** page to choose which plugins will be automatically executed, and set their options if they need any.
