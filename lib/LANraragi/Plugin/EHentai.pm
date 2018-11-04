@@ -151,7 +151,7 @@ sub lookup_by_title {
           . "?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1"
           . "&f_shash="
           . $thumbhash
-          . "&fs_similar=1";
+          . "&fs_covers=on";
 
         $logger->debug("Using URL $URL (archive thumbnail hash)");
 
@@ -270,7 +270,8 @@ sub exhentai_login {
 
         if ( index( $loginresult, "The captcha was not" ) != -1 ){
             $logger->info("Automatic login was blocked by a CAPTCHA request!".
-                " Try logging in manually with this computer or another computer on the same network.");
+                " Try logging in manually with this computer or another computer on the same network.".
+                " If that fails, you can try configuring the plugin with ipb_* cookies instead.");
         }
         $logger->info(
             "Couldn't login! ExHentai will not be used for this request.");
