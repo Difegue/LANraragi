@@ -176,6 +176,8 @@ sub startup {
     $logged_in->post('/config/plugins')->to('plugins#save_config');
     $logged_in->post('/config/plugins/upload')->to('plugins#process_upload');
 
+    $logged_in->get('/batch')->to('batch#index');
+
     $logged_in->get('/edit')->to('edit#index');
     $logged_in->post('/edit')->to('edit#save_metadata');
     $logged_in->delete('/edit')->to('edit#delete_archive');

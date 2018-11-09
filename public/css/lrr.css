@@ -255,4 +255,13 @@ a:hover > .page-number {
 
 .if a {
     margin-right: 10px;
-  }
+}
+
+.checklist {
+    height: 380px;
+    overflow: auto;
+    list-style: none outside none;
+    text-align: left;
+    margin-left: -15px;
+    font-size: 9pt;
+}

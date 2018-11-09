@@ -84,7 +84,8 @@
 				<td colspan='2' style='text-align:center'>
 					<br />
 					<input class='stdbtn' type='button' onclick="saveFormData('#editConfigForm');" value='Save LRR Configuration' />
-					<input class='stdbtn' type='button' onclick="window.location.replace('/');" value='Return to Library' />
+					<input class='stdbtn' type='button' onclick="window.location.href = '/config/plugins';" value='Plugin Configuration' />
+					<input class='stdbtn' type='button' onclick="window.location.href = '/';" value='Return to Library' />
 					<br />
 				</td>
 			</tr>
