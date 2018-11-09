@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use utf8;
 
+use Time::HiRes qw(gettimeofday);
 use File::Basename;
 use File::Path qw(remove_tree);
 use Encode;
@@ -115,15 +116,18 @@ sub is_file_in_archive {
     return 0;
 }
 
-#extract_file_from_archvie($archive, $file)
-#Extract $file from $archive. Extracted files go to /temp/plugin.
+#extract_file_from_archive($archive, $file)
+#Extract $file from $archive and returns the filesystem path it's extracted to.
 sub extract_file_from_archive {
 
     my ( $archive, $filename ) = @_;
-    my $path = "./public/temp/plugin";
+    #Timestamp extractions in microseconds
+    my ($seconds, $microseconds) = gettimeofday;
+    my $stamp = "$seconds-$microseconds";
+    my $path = "./public/temp/plugin/$stamp";
 
     `unar -D -o $path "$archive" "$filename"`;
-
+    return $path."/".$filename;
 }
 
 1;
