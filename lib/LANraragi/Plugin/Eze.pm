@@ -37,11 +37,10 @@ sub get_tags {
     if ( LANraragi::Utils::Archive::is_file_in_archive( $file, "info.json" ) ) {
 
         #Extract info.json
-        LANraragi::Utils::Archive::extract_file_from_archive( $file,
+        my $filepath = LANraragi::Utils::Archive::extract_file_from_archive( $file,
             "info.json" );
 
         #Open it
-        my $filepath   = "./public/temp/plugin/info.json";
         my $stringjson = "";
 
         open( my $fh, '<:encoding(UTF-8)', $filepath )
