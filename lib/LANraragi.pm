@@ -202,6 +202,8 @@ sub startup {
 
     $r->get('/logout')->to('login#logout');
 
+    $self->LRR_LOGGER->debug("Routing done! Ready to receive requests.");
+
 }
 
 1;
