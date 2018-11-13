@@ -10,6 +10,7 @@ use File::Basename;
 use Redis;
 
 use LANraragi::Model::Config;
+use LANraragi::Model::Plugins;
 
 # Functions for interacting with the DB Model.
 
@@ -134,5 +135,27 @@ sub invalidate_cache {
     my $redis = LANraragi::Model::Config::get_redis;
     $redis->hset( "LRR_JSONCACHE", "force_refresh", 1 );
 }
+
+#Look for a plugin by namespace.
+sub plugin_lookup {
+
+    my $plugname = $_[0];
+
+    #Go through plugins to find one with a matching namespace
+    my @plugins = LANraragi::Model::Plugins::plugins;
+
+    foreach my $plugin (@plugins) {
+
+        my %pluginfo  = $plugin->plugin_info();
+        my $namespace = $pluginfo{namespace};
+
+        if ( $plugname eq $namespace ) {
+            return $plugin;
+        }
+    }
+
+    return undef;
+}
+
 
 1;

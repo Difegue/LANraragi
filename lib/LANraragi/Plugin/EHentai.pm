@@ -36,7 +36,7 @@ sub plugin_info {
             "E-Hentai Password (used for ExHentai access)",
             "ADVANCED: You can use the cookie values below instead of a username/password.<br/>".
                 "ipb_member_id cookie",
-            "ipb_pass_hash cookie",
+            "ipb_pass_hash cookie"
           ]
 
     );
