@@ -265,3 +265,13 @@ a:hover > .page-number {
     margin-left: -15px;
     font-size: 9pt;
 }
+
+.isnew {
+    float: right; 
+    margin-top: -2px; 
+    z-index: -1;
+}
+
+.isnew::after {
+    content: "🆕";
+}
