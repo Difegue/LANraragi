@@ -85,10 +85,12 @@ function initIndex(pagesize, dataSet) {
 	/* Custom filtering function which will only show new archives if the inbox button is toggled. */
 	$.fn.dataTable.ext.search.push(
 		function( settings, data, dataIndex ) {
-			//var min = parseInt( $('#min').val(), 10 );
-			//var max = parseInt( $('#max').val(), 10 );
-			//var age = parseFloat( data[3] ) || 0; // use data for the age column
-			console.log(data);
+			
+			input = $("#inboxbtn");
+		
+			if (!input.prop("checked"))
+				return true;
+
 			//See mild trickery above
 			if (data[0] === "block") {
 				return true;
