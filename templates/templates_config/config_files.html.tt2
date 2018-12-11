@@ -11,34 +11,48 @@
 
 <tr>
     <td class="option-td">
-        <h2 class="ih"> Temporary Folder </h2>
+        <h2 class="ih"> Maximum <br>Temporary Folder Size </h2>
+    </td>
+    <td>
+        <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% tempmaxsize %]" name="tempmaxsize" type="text">
+        <br>In MBs. The temporary folder contains recently opened archives, for faster subsequent reading. <br>
+        It is automatically emptied when it grows past this specified size.
+    </td>
+</tr>
+
+<tr>
+    <td class="option-td">
+        <input class='stdbtn' type='button' onclick="cleanTempFldr();" value='Clean Temporary Folder' />
     </td>
     <td>
         Current Size:
         <h2 style="display:inline"><span id="tempsize"> [%tempsize%] </span> MBs </h2>
-        <br>This folder contains recently opened archives, for faster subsequent reading. <br>
-        <input class='stdbtn' type='button' onclick="cleanTempFldr();" value='Clean Temporary Folder' />
+        <br>Empty the temporary folder manually by clicking this button.
+    </td>
+</tr>
+
+<tr></tr>
+
+<tr>
+    <td class="option-td">
+        <input class='stdbtn' type='button' onclick="invalidateCache();" value='Reset JSON Cache' />
+    </td>
+    <td>
+        The JSON Index Cache tracks all your archive files in order to make the app's archive index load faster. <br>
+        If something went wrong with it, you can reset it by clicking this button. <br> 
         <br>
     </td>
 </tr>
 
-<tr>
-    <td class="option-td">
-        <h2 class="ih"> Maximum Temp Size </h2>
-    </td>
-    <td>
-        <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% tempmaxsize %]" name="tempmaxsize" type="text">
-        <br>In MBs. The temp folder is automatically emptied when it grows past this size.
-    </td>
-</tr>
+<tr></tr>
 
 <tr>
     <td class="option-td">
-        <h2 class="ih"> JSON Index Cache </h2>
+        <input class='stdbtn' type='button' onclick="clearNew();" value='Clear NEW flags' />
     </td>
     <td>
-        The JSON Index Cache tracks all your archive files in order to make the app's archive index load faster. <br>
-        If something went wrong with it, you can reset it by clicking below: <br> 
-        <input class='stdbtn' type='button' onclick="invalidateCache();" value='Reset JSON Cache' /> <br>
+        Newly uploaded archives are marked as "new" in the index until you've opened them.  <br>
+        If you want to clear those flags, click this button. <br>
+        <br>
     </td>
 </tr>

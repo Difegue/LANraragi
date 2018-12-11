@@ -161,10 +161,35 @@ sub force_refresh {
     $self->render(
         json => {
             operation => "refresh_cache",
-            status    => 1,
-            message   => "JSON cache invalidated."
+            status    => 1
         }
     );
+}
+
+#Clear new flag in all archives.
+sub clear_new {
+
+    my $self = shift;
+
+    #Get all archives thru redis
+    my $redis = $self->LRR_CONF->get_redis();
+    my @keys  = $redis->keys( '????????????????????????????????????????' ); 
+    #40-character long keys only => Archive IDs 
+
+    foreach my $id (@keys) {
+        $redis->hset( $id, "isnew", "none" );
+    }
+
+    #Trigger a JSON cache refresh
+    LANraragi::Utils::Database::invalidate_cache();
+
+    $self->render(
+        json => {
+            operation => "clear_new",
+            status    => 1
+        }
+    );
+
 }
 
 #Use all enabled plugins on an archive ID. Tags are automatically saved in the background.

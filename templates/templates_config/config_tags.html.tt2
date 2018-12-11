@@ -18,6 +18,7 @@
     </td>
 </tr>
 
+<tr></tr>
 
 <tr>
     <td class="option-td">
@@ -29,6 +30,8 @@
         <br>Split tags with commas.
     </td>
 </tr>
+
+<tr></tr>
 
 <tr>
     <td class="option-td">

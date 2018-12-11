@@ -3,7 +3,7 @@
 //cleanTempFldr
 function cleanTempFldr(){
 
-	$.get("api/cleantemp")
+	$.get("api/clean_temp")
 		.done(function( data ) {
 			if (data.success) 
 				$.toast({
@@ -45,6 +45,29 @@ function invalidateCache() {
 					position: 'top-left', 
 					loader: false, 
 				    heading: 'Error while deleting cache! Check Logs.',
+				    icon: 'error'
+				});	
+		});
+}
+
+//invalidateCache
+function clearNew() {
+	$.get("api/clear_new")
+		.done(function( data ) {
+			if (data.status) 
+				$.toast({
+					showHideTransition: 'slide',
+					position: 'top-left', 
+					loader: false, 
+				    heading: 'All archives are no longer new!',
+				    icon: 'success'
+				});
+			else
+				$.toast({
+					showHideTransition: 'slide',
+					position: 'top-left', 
+					loader: false, 
+				    heading: 'Error while clearing flags! Check Logs.',
 				    icon: 'error'
 				});	
 		});
