@@ -22,23 +22,30 @@ sub add_archive_to_redis {
       LANraragi::Utils::Generic::get_logger( "Archive", "lanraragi" );
     my ( $name, $path, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
 
-    #Use the mythical regex to get title and tags
-    my ( $title, $tags ) = parse_name( $name );
-
     #jam this shit in redis
     $logger->debug("Pushing to redis on ID $id:");
     $logger->debug("File Name: $name");
-    $logger->debug("Parsed Title: $title");
-    $logger->debug("Parsed Tags: $tags");
     $logger->debug("Filesystem Path: $file");
 
+    my $title = $name;
+    my $tags = "";
+
     $redis->hset( $id, "name",  encode_utf8($name) );
+    $redis->hset( $id, "file",  encode_utf8($file) );
+    #New file in collection, so this flag is set.
+    $redis->hset( $id, "isnew", "block" );
+    
+    #Use the mythical regex to get title and tags
+    #Except if the matching pref is off
+    if (LANraragi::Model::Config->get_tagregex eq "1") {
+        ( $title, $tags ) = parse_name( $name );
+        $logger->debug("Parsed Title: $title");
+        $logger->debug("Parsed Tags: $tags");
+    } 
+           
     $redis->hset( $id, "title", encode_utf8($title) );
     $redis->hset( $id, "tags",  encode_utf8($tags) );
-    $redis->hset( $id, "file",  encode_utf8($file) );
-    $redis->hset( $id, "isnew", "block" );
 
-    #New file in collection, so this flag is set.
     return ( $name, $title, $tags, "block" );
 }
 
