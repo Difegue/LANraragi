@@ -162,6 +162,10 @@ function goToPage(page) {
 	//store page number in localStorage
 	localStorage.setItem(id + "-reader", currentPage);
 
+	//if we made it to the last page, reset the page number
+	if (currentPage === pageNumber-1)
+		localStorage.setItem(id + "-reader", 0);
+
 	//scroll to top
 	window.scrollTo(0, 0);
 }
@@ -196,6 +200,9 @@ function initSettingsOverlay() {
 	if (localStorage.hidetop === 'true')
 		$("#hidetop").prop("checked", true);
 
+	if (localStorage.nobookmark === 'true')
+		$("#nobookmark").prop("checked", true);	
+
 }
 
 function saveSettings() {
@@ -203,6 +210,7 @@ function saveSettings() {
 	localStorage.doublepage = $("#doublepage").prop("checked");
 	localStorage.scaletoview = $("#scaletoview").prop("checked");
 	localStorage.hidetop = $("#hidetop").prop("checked");
+	localStorage.nobookmark = $("#nobookmark").prop("checked");
 
 	closeOverlay();
 	goToPage(currentPage);

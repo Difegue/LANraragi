@@ -85,7 +85,11 @@
 		id = "[%id%]";
 
 		//Go straight to page number in localStorage if it exists
-		currentPage = parseInt(localStorage[id + "-reader"] || 0);
+		if (localStorage.nobookmark === 'true')
+			currentPage = 0;
+		else	
+			currentPage = parseInt(localStorage[id + "-reader"] || 0);
+		
 		pageNumber = pages.pages.length;
 
 		//canvas variables
@@ -152,6 +156,12 @@
 		<h1 class="ih" style="display:inline"> Hide Top-level Navigation</h1>
 		<input id="hidetop" name="hidetop" class="fa" type="checkbox" style="float:left">
 		<br /> If enabled, every element that comes before images at the top will be hidden.
+	</div>
+
+	<div class="config-panel">
+			<h1 class="ih" style="display:inline"> Disable Automatic Bookmarking</h1>
+			<input id="nobookmark" name="nobookmark" class="fa" type="checkbox" style="float:left">
+			<br /> Check this to start over from the first page every time you open the reader.
 	</div>
 </div>
 
