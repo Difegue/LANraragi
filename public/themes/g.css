@@ -141,7 +141,7 @@ table.itc {
     margin: 10px;
 }
 
-.caret-right::after {
+.caret-right::after, .caret::before {
     color: #5C0D11 !important;
 }
 tr.gtr0 {

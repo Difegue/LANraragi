@@ -1,6 +1,6 @@
 /* Global LANraragi CSS. Don't mess !*/
 
-td {
+td.itd {
     max-width: 250px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -244,13 +244,19 @@ a:hover > .page-number {
 
 .collapsible-title {
     border: none !important;
+}
+
+.collapsible-body {
+    border: none !important;
+}
+
+.option-flyout > .collapsible-title {
     font-size: 18px;
     font-weight: bold;
 }
 
-.collapsible-body {
+.option-flyout > .collapsible-body {
     padding: 10px !important;
-    border: none !important;
 }
 
 .if a {

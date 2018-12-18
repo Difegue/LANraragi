@@ -182,9 +182,13 @@ table.itc {
     border-bottom: 2px solid #414135;
 }
 
-.collapsible-body > table{
+.option-flyout > .collapsible-body > table {
     border-top: 2px dashed #414135;
     color: #414135;
+}
+
+.caret::before {
+    color: #D7D4C5 !important;
 }
 
 tr.gtr {

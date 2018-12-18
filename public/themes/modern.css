@@ -149,7 +149,7 @@ table.itc {
     margin: 10px;
 }
 
-.caret-right::after {
+.caret-right::after, .caret::before {
     color: #DDDDDD !important;
 }
 
