@@ -232,29 +232,6 @@ sub use_enabled_plugins {
     }
 }
 
-#Uses a plugin, while overriding the global argument set in redis.
-sub use_plugin_override {
-
-    my $self = shift;
-    my ($id, $plugname, $oneshotarg, $redis) = &get_plugin_params($self);
-    my $globalargjson = $self->req->param('globalarg');
-
-    my $plugin = LANraragi::Utils::Database::plugin_lookup($plugname);
-    my @args   = ();
-
-    if ($plugin) {
-
-        @args = @{ decode_json($globalargjson) };
-
-        #Execute the plugin, appending the custom args at the end
-        &use_plugin_generic($self, $plugin, $id, $oneshotarg, @args);
-        return;
-    }
-
-    &print_plugin_not_found($self);
-
-}
-
 #Uses a plugin with the standard global argument.
 sub use_plugin {
 
@@ -266,51 +243,28 @@ sub use_plugin {
 
     if ($plugin) {
 
-        #Get the matching argument JSON in Redis
-        my %pluginfo  = $plugin->plugin_info();
-        my $namespace = $pluginfo{namespace};
-        my $namerds = "LRR_PLUGIN_" . uc($namespace);
-
-        if ( $redis->hexists( $namerds, "enabled" ) ) {
-            my $argsjson = $redis->hget( $namerds, "customargs" );
-            $argsjson = LANraragi::Utils::Database::redis_decode($argsjson);
-
-            #Decode it to an array for proper use
-            if ($argsjson) {
-                @args = @{ decode_json($argsjson) };
-            }
-        }
+        #Get the matching globalargs in Redis
+        @args = LANraragi::Utils::Database::get_plugin_globalargs($plugname);
 
         #Execute the plugin, appending the custom args at the end
-        &use_plugin_generic($self, $plugin, $id, $oneshotarg, @args);
+        my %plugin_result =
+        LANraragi::Model::Plugins::exec_plugin_on_file( $plugin, $id,
+        $oneshotarg, @args );
+
+        #Returns the fetched tags in a JSON response.
+        $self->render(
+            json => {
+                operation => "fetch_tags",
+                success   => (exists $plugin_result{error} ? 0:1),
+                message   => $plugin_result{error},
+                tags      => $plugin_result{new_tags}
+            }
+        );
         return;
     }
 
     &print_plugin_not_found($self);
 
-}
-
-
-#Uses a plugin on the given archive with the given argument.
-#Returns the fetched tags in a JSON response.
-sub use_plugin_generic {
-    
-    my ( $self, $plugin, $id, $oneshotarg, @args ) = @_;
-
-    my %plugin_result =
-        LANraragi::Model::Plugins::exec_plugin_on_file( $plugin, $id,
-        $oneshotarg, @args );
-
-    $self->render(
-        json => {
-            operation => "fetch_tags",
-            success   => (exists $plugin_result{error} ? 0:1),
-            message   => $plugin_result{error},
-            tags      => $plugin_result{new_tags}
-        }
-    );
-
-    return;
 }
 
 sub get_plugin_params {

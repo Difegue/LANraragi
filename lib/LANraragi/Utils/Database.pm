@@ -5,6 +5,7 @@ use warnings;
 use utf8;
 
 use Digest::SHA qw(sha256_hex);
+use Mojo::JSON qw(decode_json);
 use Encode;
 use File::Basename;
 use Redis;
@@ -162,6 +163,35 @@ sub plugin_lookup {
     }
 
     return undef;
+}
+
+#Get the global arguments input by the user for thespecified plugin.
+sub get_plugin_globalargs {
+
+    my $plugname = $_[0];
+    my $plugin   = &plugin_lookup($plugname);
+    my $redis    = LANraragi::Model::Config::get_redis;
+    my @args     = ();
+
+    if ($plugin) {
+
+        #Get the matching argument JSON in Redis
+        my %pluginfo  = $plugin->plugin_info();
+        my $namespace = $pluginfo{namespace};
+        my $namerds = "LRR_PLUGIN_" . uc($namespace);
+
+        if ( $redis->hexists( $namerds, "enabled" ) ) {
+            my $argsjson = $redis->hget( $namerds, "customargs" );
+            $argsjson = LANraragi::Utils::Database::redis_decode($argsjson);
+
+            #Decode it to an array for proper use
+            if ($argsjson) {
+                @args = @{ decode_json($argsjson) };
+            }
+        }
+    }
+
+    return @args;
 }
 
 

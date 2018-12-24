@@ -37,12 +37,12 @@
                         <i class="fas fa-exclamation-triangle"></i> Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times! <br/></br>
                         Make sure to set a suitable <b>timeout</b> between archives using the picker below if the plugin you want to use is concerned. <br/><br/>
 
-						<table><tbody>
+						<table class="tag-options" id=""><tbody>
 							<tr>
 								<td>Use plugin :</td><td>
-								<select id="plugin" onchange="updateGlobalArg()">
+								<select id="plugin" onchange="updatePluginArg()">
 									[% FOREACH plugin IN plugins %]
-									<option value="[% plugin.namespace %]" arg="[% plugin.global_args %]">[% plugin.name %]</option>
+									<option value="[% plugin.namespace %]" arg="[% plugin.oneshot_arg %]">[% plugin.name %]</option>
 									[% END %]
 								</select> </td>
 							</tr>
@@ -50,21 +50,26 @@
 								<td>Timeout :</td><td>						
 								<input type="number" id="timeout" min="0" value="0"> seconds </td>
 							</tr>	
-							<tr>
+							<!--
+								Either do this later or replace with one-shot args idk it's a pain 
+								<tr>
 								<td><input type="checkbox" id="override" onchange="showOverride()"></td>
 								<td>Override Plugin Global Arguments </td>
-							</tr>
+								</tr>
+							-->
 						</tbody></table>
-
-						<div id="globalargs"></div>
 
 						<br/><br/><br/>
 
-						<div id='buttonstagging' style="text-align:center">
+						<div class="tag-options" style="text-align:center">
 
-							<input type='button' value='Check/Uncheck all' class='stdbtn' onclick='$("input:checkbox").prop("checked", 0)'>
+							<input type='button' value='Check/Uncheck all' class='stdbtn' checked ='false' onclick='checkAll(this)'>
 							<input type='button' value='Start Tagging' class='stdbtn' onclick='startBatch()'>				
 
+						</div>
+
+						<div class="job-status" style="display:none">
+							Running...
 						</div>
 
                     </div>

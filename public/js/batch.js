@@ -1,45 +1,95 @@
-//Get the titles who have been checked in the batch tagging list and update their tags with ajax calls.
-//method = 0 => Archive Titles
-//method = 1 => Image Hashes
-//method = 2 => nhentai
-function massTag(method) {
+function checkAll(btn) {
+    $("input:checkbox").prop("checked", btn.checked);
+    btn.checked = !btn.checked;
+}
 
-    $('#buttonstagging').hide();
-    $('#processing').show();
-    $('#tag-spinner').show();
+function updatePluginArg() {
+
+}
+
+//Get the titles who have been checked in the batch tagging list and update their tags.
+//This crafts a JSON list to send to the batch tagging websocket service.
+function startBatch() {
+
+    $('.tag-options').hide();
+    $('.job-status').show();
     var checkeds = document.querySelectorAll('input[name=archive]:checked');
 
-    //convert nodelist to array
+    //convert nodelist to json
     var arr = [];
-    for (var i = 0, ref = arr.length = checkeds.length; i < ref; i++) { arr[i] = checkeds[i]; }
-    makeCall(arr, method);
+    for (var i = 0, ref = arr.length = checkeds.length; i < ref; i++) { arr[i] = checkeds[i].id; }
+
+    //give JSON to websocket and start listening
+    var command = {
+        plugin: $('#plugin').val(),
+        args: "",
+        timeout: $('#timeout').val(),
+        archives: arr
+    };
+
+    var batchSocket = new WebSocket("ws://"+window.location.host+"/batch/socket");
+
+    batchSocket.onopen = function (event) {
+        batchSocket.send(JSON.stringify(command)); 
+      };
+
+    batchSocket.onmessage = updateBatchStatus;
+    batchSocket.onerror = batchError;
+    batchSocket.onclose = endBatch;
 
 }
 
-//subfunctions for treating the archive queue.
-function makeCall(archivesToCheck, method) {
+//On websocket message, update the UI to show the archive currently being treated
+function updateBatchStatus(event) {
+    console.log(msg);
+    var msg = JSON.parse(event.data);
 
-    if (!archivesToCheck.length) {
-        $('#processedArchive').html("All done !");
-        $('#tag-spinner').hide();
-        $('#buttonstagging').show();
-        return;
+    $('#job-status').html('Processed '+msg.id + '(Added tags: '+ msg.tags +')');
+
+    if (msg.success === 0) {
+        $.toast({
+            showHideTransition: 'slide',
+            position: 'top-left', 
+            loader: false, 
+            hideAfter: false,
+            heading: 'Plugin error while processing ID '+msg.id,
+            text: msg.message,
+            icon: 'warning'
+        });
     }
 
-    archive = archivesToCheck.shift();
-    ajaxCall(archive, method, archivesToCheck);
-
 }
 
-
-
-function ajaxCall(archive, method, archivesToCheck) {
-
-    //Set title in processing thingo
-    $('#processedArchive').html("Processing " + $('label[for=' + archive.id + ']').html());
-
-    //Ajax call for getting and setting the tags
-    $.get("ajax.pl", { function: "tagsave", method: method, id: archive.id })
-        .done(function (data) { makeCall(archivesToCheck, method); })  //hurr callback
-        .fail(function (data) { $("#processedArchive").html("An error occured while getting tags. " + data); });
+function batchError(event) {
+    $.toast({
+        showHideTransition: 'slide',
+        position: 'top-left', 
+        loader: false, 
+        hideAfter: false,
+        heading: 'An error occured during batch tagging!',
+        text: 'Please check application logs.',
+        icon: 'error'
+    });
 }
+
+function endBatch(event) {
+
+    var status = 'info';
+
+    if (event.code === 1001)
+        status = 'warning'; 
+
+    $.toast({
+        showHideTransition: 'slide',
+        position: 'top-left', 
+        loader: false, 
+        hideAfter: false,
+        heading: event.reason,
+        text: 'Batch Tagging completed. (code ' + event.code + ')',
+        icon: status
+    });
+
+    $('.tag-options').show();
+    $('.job-status').hide();
+}
+
