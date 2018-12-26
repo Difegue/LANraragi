@@ -98,15 +98,7 @@ sub startup {
             "Terminating previous Shinobu Worker if it exists... (PID is $pid)"
         );
 
-#TASKKILL seems superflous on Windows as sub-PIDs are always cleanly killed when the main process dies
-#But you can never be safe enough
-        if ( $^O eq "MSWin32" ) {
-            `TASKKILL /F /T /PID $pid`;
-        }
-        else {
-            `kill -9 $pid`;
-        }
-
+        LANraragi::Utils::Generic::kill_pid($pid);
     }
 
     my $proc = $self->stash->{shinobu} = Mojo::IOLoop::ProcBackground->new;

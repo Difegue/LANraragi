@@ -29,6 +29,21 @@ sub remove_newlines {
     $_[0] =~ s/\R//g;
 }
 
+#TASKKILL seems superflous on Windows as sub-PIDs are always cleanly killed when the main process dies
+#But you can never be safe enough
+sub kill_pid {
+
+    my $pid = shift;
+
+    if ( $^O eq "MSWin32" ) {
+        `TASKKILL /F /T /PID $pid`;
+    }
+    else {
+        `kill -9 $pid`;
+    }
+    
+}
+
 #This function gives us a SHA hash for the passed file, which is used for thumbnail reverse search on E-H.
 #First argument is the file, second is the algorithm to use. (1, 224, 256, 384, 512, 512224, or 512256)
 #E-H only uses SHA-1 hashes.

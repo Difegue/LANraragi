@@ -37,7 +37,10 @@ function startBatch() {
     batchSocket.onerror = batchError;
     batchSocket.onclose = endBatch;
 
-    $('#cancel-job').onclick = function (batchSocket) { batchSocket.close() }
+    $('#cancel-job').on("click", function () {
+        $("#log-container").append('Cancelling...\n');
+        batchSocket.close();
+    });
 }
 
 //On websocket message, update the UI to show the archive currently being treated
