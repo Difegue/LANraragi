@@ -45,9 +45,9 @@
 						<tr>
 							<td>Use plugin :</td>
 							<td>
-								<select id="plugin" onchange="updatePluginArg()">
-									[% FOREACH plugin IN plugins %]
-									<option value="[% plugin.namespace %]" arg="[% plugin.oneshot_arg %]">[% plugin.name %]</option>
+								<select id="plugin" onchange="showOverride()">
+									[% FOREACH plugins %]
+									<option value="[% namespace %]">[% name %]</option>
 									[% END %]
 								</select> </td>
 						</tr>
@@ -58,9 +58,23 @@
 						</tr>
 
 						<tr>
-							<td><input type="checkbox" id="override" onchange="showOverride()"></td>
+							<td><input type="checkbox" id="override" onclick="showOverride()"></td>
 							<td>Override Plugin Global Arguments </td>
 						</tr>
+					</tbody>
+				</table>
+
+				<table class="tag-options">
+					<tbody>
+						[% FOREACH plugin IN plugins %][% IF plugin.global_args && plugin.global_args.size %]
+						[% FOREACH arg IN plugin.global_args %]
+						<tr class="arg-override [% plugin.namespace %]-arg" style="display:none">
+							<td style="max-width:250px">[% arg %] :</td>
+							<td>
+								<input class="stdinput [% plugin.namespace %]-argvalue" type="text">
+							</td>
+						</tr>
+						[% END %][% END %][% END %]
 
 					</tbody>
 				</table>

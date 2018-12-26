@@ -1,8 +1,3 @@
-
-function updatePluginArg() {
-
-}
-
 //Get the titles who have been checked in the batch tagging list and update their tags.
 //This crafts a JSON list to send to the batch tagging websocket service.
 function startBatch() {
@@ -13,18 +8,27 @@ function startBatch() {
     $('#cancel-job').show();
     $('#restart-job').hide();
     $('.job-status').show();
+
     var checkeds = document.querySelectorAll('input[name=archive]:checked');
+    var arginputs = $('.' + $('#plugin').val() + '-argvalue');
 
     //convert nodelist to json
-    var arr = [];
-    for (var i = 0, ref = arr.length = checkeds.length; i < ref; i++) { arr[i] = checkeds[i].id; }
+    var arcs = [];
+    var args = [];
 
+    for (var i = 0, ref = arcs.length = checkeds.length; i < ref; i++) { arcs[i] = checkeds[i].id; }
+
+    //Only add values into the override argument array if the checkbox is on
+    if ($("#override")[0].checked) {
+        for (var j = 0, ref = args.length = arginputs.length; j < ref; j++) { args[j] = arginputs[j].value; }
+    }
+    console.log(args);
     //give JSON to websocket and start listening
     var command = {
         plugin: $('#plugin').val(),
-        args: "",
+        args: args,
         timeout: $('#timeout').val(),
-        archives: arr
+        archives: arcs
     };
 
     var batchSocket = new WebSocket("ws://" + window.location.host + "/batch/socket");
@@ -99,6 +103,15 @@ function endBatch(event) {
 function checkAll(btn) {
     $(".checklist > * > input:checkbox").prop("checked", btn.checked);
     btn.checked = !btn.checked;
+}
+
+function showOverride() {
+    currentPlugin = $('#plugin').val();
+
+    $(".arg-override").hide();
+
+    if ($("#override")[0].checked)
+        $("." + currentPlugin + "-arg").show();
 }
 
 function scrollLogs() {

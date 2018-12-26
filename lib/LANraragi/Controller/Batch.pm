@@ -3,7 +3,6 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use Redis;
 use Encode;
-use Data::Dumper;
 use Mojo::IOLoop::Subprocess;
 use Mojo::JSON qw(decode_json encode_json from_json);
 
@@ -34,11 +33,13 @@ sub index {
             #If the archive has no tags, pre-check it in the list.
             if ( $redis->hget( $id, "tags" ) eq "" ) {
                 $arclist .=
-"<li><input type='checkbox' name='archive' id='$id' checked><label for='$id'> $title</label></li>";
+                  "<li><input type='checkbox' name='archive' id='$id' checked>"
+                  . "<label for='$id'> $title</label></li>";
             }
             else {
                 $arclist .=
-"<li><input type='checkbox' name='archive' id='$id' ><label for='$id'> $title</label></li>";
+                    "<li><input type='checkbox' name='archive' id='$id' >"
+                  . "<label for='$id'> $title</label></li>";
             }
         }
     }
@@ -84,26 +85,36 @@ sub socket {
             my ( $self, $msg ) = @_;
 
             #JSON-decode message and grab the plugin
-            my $command = decode_json($msg);
+            my $command    = decode_json($msg);
+            my $pluginname = $command->{"plugin"};
 
-            my $plugin =
-              LANraragi::Utils::Database::plugin_lookup( $command->{"plugin"} );
-            my @args = LANraragi::Utils::Database::get_plugin_globalargs(
-                $command->{"plugin"} );
+            my $plugin = LANraragi::Utils::Database::plugin_lookup($pluginname);
+
+            #Global arguments can come from the database or the user override
+            my @args     = @{ $command->{"args"} };
             my @archives = @{ $command->{"archives"} };
-            my $timeout = $command->{"timeout"} || 0;
+            my $timeout  = $command->{"timeout"} || 0;
 
-       #Start iterating on list and sending a message for each completed archive
             if ($plugin) {
+
+                #If the array is empty(no overrides)
+                if ( !@args ) {
+                    $logger->debug("No user overrides given.");
+                    #Try getting the app defaults
+                    @args = LANraragi::Utils::Database::get_plugin_globalargs(
+                        $pluginname);
+                }
 
                 # Start the job in a subprocess
                 my $subprocess = Mojo::IOLoop::Subprocess->new;
+
+                #Send a message for each completed archive
                 $subprocess->on(
                     progress => sub {
-                        $logger->debug(
-"Subprocess reported progress, iscancelled = $cancelled"
-                        );
                         my ( $subprocess, @data ) = @_;
+
+                        $logger->debug("Subprocess reported progress");
+                        $logger->debug("iscancelled = $cancelled");
 
                         if ( $cancelled eq 1 ) {
                             $client->finish( 1001 =>
@@ -125,14 +136,15 @@ sub socket {
                                 }
                             }
                         );
-
                     }
                 );
 
+                #Main subprocess method
                 $subprocess->run(
                     sub {
                         my $subprocess = shift;
 
+                        #Start iterating on given archive list
                         foreach my $id (@archives) {
                             $logger->debug("Processing $id");
 
@@ -140,14 +152,18 @@ sub socket {
                               LANraragi::Model::Plugins::exec_plugin_on_file(
                                 $plugin, $id, "", @args );
 
-                            my @progress = (
+                            #If the plugin exec returned tags, add them
+                            unless ( exists $plugin_result{error} ) {    
+                                LANraragi::Utils::Database::add_tags($id, $plugin_result{new_tags});
+                            }
+
+                            $subprocess->progress(
                                 $id,
                                 ( exists $plugin_result{error} ? 0 : 1 ),
                                 $plugin_result{error},
                                 $plugin_result{new_tags}
                             );
 
-                            $subprocess->progress(@progress);
                             $logger->debug("Waiting $timeout seconds.");
                             sleep $timeout;
                         }
@@ -155,9 +171,8 @@ sub socket {
                     },
                     sub {
                         my ( $subprocess, $err, @results ) = @_;
-                        $logger->debug(
-"Subprocess complete, error log (should be empty): $err"
-                        );
+                        $logger->debug("Subprocess completed.");
+                        $logger->debug("Error log (should be empty): $err");
                         $client->finish( 1000 => 'All operations completed!' );
                     }
                 );

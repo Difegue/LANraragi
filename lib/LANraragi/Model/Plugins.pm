@@ -56,25 +56,12 @@ sub exec_enabled_plugins_on_file {
 
                 #Every plugin execution is eval'd separately
                 eval {
-
                     my %plugin_result =
                       &exec_plugin_on_file( $plugin, $id, "", @args );
 
-                    unless ( exists $plugin_result{error} )
-                    {    #If the plugin exec returned metadata, add it
-
-                        my $oldtags = $redis->hget( $id, "tags" );
-                        $oldtags =
-                          LANraragi::Utils::Database::redis_decode($oldtags);
-
-                        my $newtags = $plugin_result{new_tags};
-                        $logger->debug("Adding $newtags to $oldtags.");
-
-                        if ( $oldtags ne "" ) {
-                            $newtags = $oldtags . "," . $newtags;
-                        }
-
-                        $redis->hset( $id, "tags", encode_utf8($newtags) );
+                    #If the plugin exec returned metadata, add it
+                    unless ( exists $plugin_result{error} ){    
+                        LANraragi::Utils::Database::add_tags($id, $plugin_result{new_tags});
                     }
                 };
 

@@ -50,6 +50,25 @@ sub add_archive_to_redis {
     return ( $name, $title, $tags, "block" );
 }
 
+#add_tags($id, $tags)
+#add the $tags to the archive with id $id.
+sub add_tags {
+
+    my ($id, $newtags) = @_;
+
+    my $redis = LANraragi::Model::Config::get_redis;
+    my $oldtags = $redis->hget( $id, "tags" );
+    $oldtags =
+    LANraragi::Utils::Database::redis_decode($oldtags);
+
+    if ( $oldtags ne "" ) {
+        $newtags = $oldtags . "," . $newtags;
+    }
+
+    $redis->hset( $id, "tags", encode_utf8($newtags) );
+
+}
+
 #parse_name(name)
 #parses an archive name with the regex specified in the configuration file(get_regex and select_from_regex subs) to find metadata.
 sub parse_name {
