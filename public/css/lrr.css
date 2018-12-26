@@ -264,11 +264,12 @@ a:hover > .page-number {
 }
 
 .checklist {
-    height: 380px;
+    height: 480px;
     overflow: auto;
     list-style: none outside none;
     text-align: left;
-    margin-left: -15px;
+    margin-left: -20px;
+    margin-right: 5px;
     font-size: 9pt;
 }
 
@@ -280,4 +281,16 @@ a:hover > .page-number {
 
 .isnew::after {
     content: "🆕";
+}
+
+.log-panel {
+    margin-top: 5px;
+    margin-left: 5px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    height:300px; 
+    max-width:100%; 
+    overflow: auto; 
+    text-align: left; 
+    white-space: pre-wrap; 
 }

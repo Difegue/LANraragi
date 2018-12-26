@@ -37,7 +37,7 @@
 
 				<tr class="gtr1">
 					<td>
-						<pre id="log-container" style="height:300px; max-width:100%; overflow: auto; text-align: left; white-space: pre-wrap; "></pre>
+						<pre id="log-container" class="log-panel"></pre>
 					</td>
 				</tr>
 
