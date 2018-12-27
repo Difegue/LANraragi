@@ -18,6 +18,7 @@
     </td>
 </tr>
 
+<tr></tr>
 
 <tr>
     <td class="option-td">
@@ -30,9 +31,26 @@
     </td>
 </tr>
 
+<tr></tr>
+
 <tr>
     <td class="option-td">
-        <h2 class="ih"> Auto-Tag New Archives </h2>
+        <h2 class="ih"> Auto-Tag </h2>
+    </td>
+    <td>
+        [% IF tagregex %]
+        <input id="tagregex" name="tagregex" class="fa" type="checkbox" checked> [% ELSE %]
+        <input id="tagregex" name="tagregex" class="fa" type="checkbox"> [% END %]
+        <label for="tagregex">
+            <br>If this option is on, we'll try to derive tags from the filename of uploaded archives.
+            <br>Consider disabling it if you often upload archives that don't follow the doujinshi naming standard.
+        </label>
+    </td>
+</tr>
+
+<tr>
+    <td class="option-td">
+        <h2 class="ih"> Auto-Plugin </h2>
     </td>
     <td>
         [% IF autotag %]

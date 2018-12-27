@@ -126,3 +126,9 @@ The base architecture is as follows:
    +- archive_count <- Number of archives in content folder. If the actual number differs from this saved value, a rebuild will be triggered.
 ```
 
+{% hint style="info" %}
+The archive IDs computed by LRR are created by taking the first 500KBs of the file, and computing a SHA-1 hash from this data. 
+
+You can find the code used for the calculation in _LANraragi::Utils::Database_.
+{% endhint %}
+

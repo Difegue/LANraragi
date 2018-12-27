@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+	<title>[% title %] - Auto-Tagging</title>
+
+	<meta name="viewport" content="width=device-width" />
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+	<link type="image/png" rel="icon" href="favicon.ico" />
+	<link rel="stylesheet" type="text/css" href="/css/lrr.css" />
+	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
+	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.toast.min.css" />
+	[% csshead %]
+
+	<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
+
+	<script src="/js/theme.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/ajax.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/batch.js" type="text/JAVASCRIPT"></script>
+
+</head>
+
+<body onload="set_style_from_storage()">
+
+	<div class='ido' style='text-align:center'>
+		<h2 class='ih' style='text-align:center'>Batch Tagging</h2>
+		<br><br>
+		<div style='margin-left:auto; margin-right:auto;'>
+			<div style='text-align:left; width:400px; display:inline-block; vertical-align:top'>
+
+				<br>
+				You can use a plugin on multiple archives in one operation here.<br><br>
+				Select your plugin, check archives you want to use it on, and get rolling! <br>
+				Archives with no tags have been pre-checked.<br><br>
+				<i class="fas fa-exclamation-triangle"></i> Some external services may temporarily ban your machine for excessive
+				loads if you call a plugin too many times! <br /></br>
+				Make sure to set a suitable <b>timeout</b> between archives using the picker below if the plugin you want to use is
+				concerned. <br /><br />
+
+				<table class="tag-options">
+					<tbody>
+						<tr>
+							<td>Use plugin :</td>
+							<td>
+								<select id="plugin" onchange="showOverride()">
+									[% FOREACH plugins %]
+									<option value="[% namespace %]">[% name %]</option>
+									[% END %]
+								</select> </td>
+						</tr>
+						<tr>
+							<td>Timeout :</td>
+							<td>
+								<input type="number" id="timeout" min="0" value="0"> seconds </td>
+						</tr>
+
+						<tr>
+							<td><input type="checkbox" id="override" onclick="showOverride()"></td>
+							<td>Override Plugin Global Arguments </td>
+						</tr>
+					</tbody>
+				</table>
+
+				<table class="tag-options">
+					<tbody>
+						[% FOREACH plugin IN plugins %][% IF plugin.global_args && plugin.global_args.size %]
+						[% FOREACH arg IN plugin.global_args %]
+						<tr class="arg-override [% plugin.namespace %]-arg" style="display:none">
+							<td style="max-width:250px">[% arg %] :</td>
+							<td>
+								<input class="stdinput [% plugin.namespace %]-argvalue" type="text">
+							</td>
+						</tr>
+						[% END %][% END %][% END %]
+
+					</tbody>
+				</table>
+
+
+
+				<div class="tag-options" style="text-align:center">
+					<br /><br />
+					<input type='button' value='Check/Uncheck all' class='stdbtn' checked='false' onclick='checkAll(this)'>
+					<input type='button' value='Start Tagging' class='stdbtn' onclick='startBatch()'>
+
+				</div>
+
+				<div class="job-status" style="display:none; text-align:center">
+					<input id="cancel-job" type='button' value='Cancel' class='stdbtn'>
+					<input id="restart-job" type='button' value='Start another job' class='stdbtn' onclick='restartBatchUI()'>
+					<div class="id1" style="width:400px; height:314px">
+						<pre id="log-container" class="log-panel" />
+						</div>
+				</div>
+
+			</div>
+
+			<div class="id1" style='text-align:center; min-width:400px; width: 50%; height:500px; display:inline-block; vertical-align:top'>
+				<ul class='checklist'>
+					[% arclist %]
+				</ul>
+			</div>
+			<br><br>
+		</div>
+
+		<input class='stdbtn' type='button' onclick="window.location.href = './config/plugins';" value='Plugin Configuration' />
+		<input class='stdbtn' type='button' onclick="window.location.href = './';" value='Return to Library' />
+
+	</div>
+	[% INCLUDE footer %]
+</body>
+
+</html>

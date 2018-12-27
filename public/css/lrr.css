@@ -1,6 +1,6 @@
 /* Global LANraragi CSS. Don't mess !*/
 
-td {
+td.itd {
     max-width: 250px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -244,15 +244,53 @@ a:hover > .page-number {
 
 .collapsible-title {
     border: none !important;
+}
+
+.collapsible-body {
+    border: none !important;
+}
+
+.option-flyout > .collapsible-title {
     font-size: 18px;
     font-weight: bold;
 }
 
-.collapsible-body {
+.option-flyout > .collapsible-body {
     padding: 10px !important;
-    border: none !important;
 }
 
 .if a {
     margin-right: 10px;
-  }
+}
+
+.checklist {
+    height: 480px;
+    overflow: auto;
+    list-style: none outside none;
+    text-align: left;
+    margin-left: -20px;
+    margin-right: 5px;
+    font-size: 9pt;
+}
+
+.isnew {
+    float: right; 
+    margin-top: -2px; 
+    z-index: -1;
+}
+
+.isnew::after {
+    content: "🆕";
+}
+
+.log-panel {
+    margin-top: 5px;
+    margin-left: 5px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    height:300px; 
+    max-width:100%; 
+    overflow: auto; 
+    text-align: left; 
+    white-space: pre-wrap; 
+}

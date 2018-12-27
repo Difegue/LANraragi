@@ -102,7 +102,8 @@ function getTags() {
 					showHideTransition: 'slide',
 					position: 'top-left', 
 					loader: false, 
-				    heading: 'Error :',
+					heading: 'Error :',
+					hideAfter: false,
 				    text: data.message,
 				    icon: 'error'
 				});		
@@ -115,7 +116,8 @@ function getTags() {
 				showHideTransition: 'slide',
 				position: 'top-left', 
 				loader: false, 
-			    heading: 'Error :',
+				heading: 'Error :',
+				hideAfter: false,
 			    text: data,
 			    icon: 'error'
 			});	

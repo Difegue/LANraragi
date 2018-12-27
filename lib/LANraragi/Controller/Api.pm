@@ -161,10 +161,35 @@ sub force_refresh {
     $self->render(
         json => {
             operation => "refresh_cache",
-            status    => 1,
-            message   => "JSON cache invalidated."
+            status    => 1
         }
     );
+}
+
+#Clear new flag in all archives.
+sub clear_new {
+
+    my $self = shift;
+
+    #Get all archives thru redis
+    my $redis = $self->LRR_CONF->get_redis();
+    my @keys  = $redis->keys( '????????????????????????????????????????' ); 
+    #40-character long keys only => Archive IDs 
+
+    foreach my $id (@keys) {
+        $redis->hset( $id, "isnew", "none" );
+    }
+
+    #Trigger a JSON cache refresh
+    LANraragi::Utils::Database::invalidate_cache();
+
+    $self->render(
+        json => {
+            operation => "clear_new",
+            status    => 1
+        }
+    );
+
 }
 
 #Use all enabled plugins on an archive ID. Tags are automatically saved in the background.
@@ -207,78 +232,59 @@ sub use_enabled_plugins {
     }
 }
 
-#Uses a plugin on the given archive with the given argument.
-#Returns the fetched tags in a JSON response.
+#Uses a plugin with the standard global argument.
 sub use_plugin {
+
     my $self = shift;
+    my ($id, $plugname, $oneshotarg, $redis) = &get_plugin_params($self);
 
-    my $id         = $self->req->param('id');
-    my $plugname   = $self->req->param('plugin');
-    my $oneshotarg = $self->req->param('arg');
-    my $redis      = $self->LRR_CONF->get_redis();
+    my $plugin = LANraragi::Utils::Database::plugin_lookup($plugname);
+    my @args   = ();
 
-    #Go through plugins to find one with a matching namespace
-    my @plugins = LANraragi::Model::Plugins::plugins;
+    if ($plugin) {
 
-    foreach my $plugin (@plugins) {
+        #Get the matching globalargs in Redis
+        @args = LANraragi::Utils::Database::get_plugin_globalargs($plugname);
 
-        my %pluginfo  = $plugin->plugin_info();
-        my $namespace = $pluginfo{namespace};
+        #Execute the plugin, appending the custom args at the end
+        my %plugin_result =
+        LANraragi::Model::Plugins::exec_plugin_on_file( $plugin, $id,
+        $oneshotarg, @args );
 
-        if ( $plugname eq $namespace ) {
-
-            #Get the matching argument JSON in Redis
-            my $namerds = "LRR_PLUGIN_" . uc($namespace);
-            my @args    = ();
-
-            if ( $redis->hexists( $namerds, "enabled" ) ) {
-                my $argsjson = $redis->hget( $namerds, "customargs" );
-                $argsjson = LANraragi::Utils::Database::redis_decode($argsjson);
-
-                #Decode it to an array for proper use
-                if ($argsjson) {
-                    @args = @{ decode_json($argsjson) };
-                }
+        #Returns the fetched tags in a JSON response.
+        $self->render(
+            json => {
+                operation => "fetch_tags",
+                success   => (exists $plugin_result{error} ? 0:1),
+                message   => $plugin_result{error},
+                tags      => $plugin_result{new_tags}
             }
-
-            #Finally, execute the plugin, appending the custom args at the end
-            my %plugin_result =
-              LANraragi::Model::Plugins::exec_plugin_on_file( $plugin, $id,
-                $oneshotarg, @args );
-
-            if ( exists $plugin_result{error} ) {
-
-                $self->render(
-                    json => {
-                        operation => "fetch_tags",
-                        success   => 0,
-                        message   => $plugin_result{error}
-                    }
-                );
-            }
-            else {
-
-                $self->render(
-                    json => {
-                        operation => "fetch_tags",
-                        success   => 1,
-                        tags      => $plugin_result{new_tags}
-                    }
-                );
-            }
-
-            return;
-        }
+        );
+        return;
     }
 
-    $self->render(
+    &print_plugin_not_found($self);
+
+}
+
+sub get_plugin_params {
+    my $self = shift;
+
+    return (
+        $self->req->param('id'),
+        $self->req->param('plugin'),
+        $self->req->param('arg'),
+        $self->LRR_CONF->get_redis());
+}
+
+sub print_plugin_not_found {
+    shift->render(
         json => {
             operation => "fetch_tags",
             success   => 0,
             message   => "Plugin not found on system."
         }
     );
-
 }
 
 1;

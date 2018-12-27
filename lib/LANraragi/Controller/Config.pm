@@ -33,6 +33,7 @@ sub index {
         devmode     => $self->LRR_CONF->enable_devmode,
         nofunmode   => $self->LRR_CONF->enable_nofun,
         apikey      => $self->LRR_CONF->get_apikey,
+        tagregex    => $self->LRR_CONF->get_tagregex,
         fav1        => $self->LRR_CONF->get_favtag(1),
         fav2        => $self->LRR_CONF->get_favtag(2),
         fav3        => $self->LRR_CONF->get_favtag(3),
@@ -72,7 +73,8 @@ sub save_config {
         enablepass => ( scalar $self->req->param('enablepass') ? '1' : '0' ),
         autotag    => ( scalar $self->req->param('autotag')    ? '1' : '0' ),
         devmode    => ( scalar $self->req->param('devmode')    ? '1' : '0' ),
-        nofunmode  => ( scalar $self->req->param('nofunmode')  ? '1' : '0' )
+        nofunmode  => ( scalar $self->req->param('nofunmode')  ? '1' : '0' ),
+        tagregex   => ( scalar $self->req->param('tagregex')   ? '1' : '0' )
     );
 
     #only add newpassword field as password if enablepass = 1

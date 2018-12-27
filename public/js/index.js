@@ -22,6 +22,24 @@ function toggleFav(button) {
 	favTagSearch();
 }
 
+function toggleInbox(button) {
+
+	input = $("#inboxbtn");
+
+	//invert input's checked value
+	inboxState = !(input.prop("checked"));
+	input.prop("checked", inboxState);
+
+	if (inboxState) {
+		$("#inboxbtn").val("Show all archives");
+	} else {
+		$("#inboxbtn").val("Show new archives only");
+	}
+
+	//Redraw the table 
+	$('#clrsrch').click();
+}
+
 // Triggered when a favTag checkbox is modified, 
 // looks at all checked favTags and builds an OR regex to jam in DataTables
 function favTagSearch() {

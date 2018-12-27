@@ -13,6 +13,7 @@ use File::Find::utf8 qw(find);
 use URI::Escape;
 
 use LANraragi::Model::Config;
+use LANraragi::Utils::Database;
 
 #magical sort function used below
 sub expand {
@@ -49,8 +50,12 @@ sub build_reader_JSON {
     my $dirname = LANraragi::Model::Config::get_userdir();
 
     #We opened this id in the reader, so we can't mark it as "new" anymore.
-    $redis->hset( $id, "isnew", "none" );
-
+    if ($redis->hget($id, "isnew") eq "block") {
+        $redis->hset( $id, "isnew", "none" );
+        #Trigger a JSON cache refresh
+        LANraragi::Utils::Database::invalidate_cache();
+    }
+    
     #Get the path from Redis.
     my $zipfile = $redis->hget( $id, "file" );
     $zipfile = LANraragi::Utils::Database::redis_decode($zipfile);

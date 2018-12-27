@@ -164,12 +164,16 @@ table.itc {
     color: #FCFCFC;
 }
 
-.collapsible-body > table{
+.option-flyout > .collapsible-body > table {
     color: #FCFCFC
 }
 
 .caret-right::after {
     color: #FCFCFC !important;
+}
+
+.caret::before {
+    color: #34495E !important;
 }
 
 table.itg a{color:#FCFCFC;}
@@ -196,12 +200,12 @@ tr.gtr1{background:#34495E}
     cursor: pointer;
 }
 
-.id1 > * > .stdbtn, .id1 > .stdbtn, .collapsible-body > table > * > tr > td > .stdbtn {
+.id1 > * > .stdbtn, .id1 > .stdbtn, .option-flyout > .collapsible-body > table > * > tr > td > .stdbtn {
     background-color: #e1e7e9;
     color: #34495e;
 }
 
-.stdbtn:hover, .collapsible-body > table > * > tr > td > .stdbtn:hover {
+.stdbtn:hover, .option-flyout > .collapsible-body > table > * > tr > td > .stdbtn:hover {
     background-color: #ed2553; 
     color: #f1f1f1
 }

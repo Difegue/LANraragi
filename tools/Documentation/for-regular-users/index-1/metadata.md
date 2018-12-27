@@ -4,7 +4,7 @@
 
 To use a plugin on a single archive, you need to access its **editing** page by clicking the pencil icon on the main view. From here, you can modify all metadata manually. Don't forget to save!
 
-![Editing an Archive&apos;s Metadata](../../.gitbook/assets/wuspdt%20%282%29.PNG)
+![Editing an Archive&apos;s Metadata](../../.gitbook/assets/edit.PNG)
 
 {% hint style="danger" %}
 The "Delete Archive" button will permanently wipe the Archive from your filesystem!
@@ -13,14 +13,19 @@ The "Delete Archive" button will permanently wipe the Archive from your filesyst
 ## Using Plugins
 
 LANraragi supports the use of **Plugins** to fetch tags for your archives.  
-Said Plugins can be used in two different ways:
+Said Plugins can be used in three different ways:
 
 * On a per-archive basis through the standard Edit dialog
 * Automatically on every newly added archive.  
+* During a Batch Tagging session.
+
+For more info on Batch Tagging, check the following article:
+
+{% page-ref page="../advanced-usage/batch-tagging.md" %}
 
 To use plugins automatically, you need to enable the option in Configuration first.
 
-![](../../.gitbook/assets/wvarmm-1.PNG)
+![](../../.gitbook/assets/autotag.PNG)
 
 Once this is done, you can use the **Plugin Configuration** page to choose which plugins will be automatically executed, and set their options if they need any.
 

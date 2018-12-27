@@ -26,7 +26,7 @@ function initIndex(pagesize, dataSet) {
 			{
 				className: 'itdc',
 				'width': '20',
-				'data': null,
+				'data': 'isnew', //mild trickery to keep the isnew value stored in the table
 				'render': actionColumnDisplay
 			},
 			{
@@ -82,6 +82,23 @@ function initIndex(pagesize, dataSet) {
 	//nuke style of table - datatables seems to assign its table a fixed width for some reason.
 	$('.datatables').attr("style", "")
 
+	/* Custom filtering function which will only show new archives if the inbox button is toggled. */
+	$.fn.dataTable.ext.search.push(
+		function( settings, data, dataIndex ) {
+			
+			input = $("#inboxbtn");
+		
+			if (!input.prop("checked"))
+				return true;
+
+			//See mild trickery above
+			if (data[0] === "block") {
+				return true;
+			}
+			return false;
+		}
+	);
+
 	//Init Thumbnail Mode if enabled - we do it twice in order to initialize it at the value the user has stored.
 	//(Yeah it's shitty but it works so w/e)
 	switch_index_view();
@@ -135,8 +152,8 @@ function seriesColumnDisplay(data, type, full, meta) {
 function actionColumnDisplay(data, type, full, meta) {
 	if (type == "display") {
 		return '<div style="font-size:16px">'
-			+ '<a href="./api/servefile?id=' + data.arcid + '" title="Download this archive."><i class="fa fa-save" style="margin-right:2px"></i><a/>'
-			+ '<a href="./edit?id=' + data.arcid + '" title="Edit this archive\'s tags and data."><i class="fa fa-edit"></i><a/></div>';
+			+ '<a href="./api/servefile?id=' + full.arcid + '" title="Download this archive."><i class="fa fa-save" style="margin-right:2px"></i><a/>'
+			+ '<a href="./edit?id=' + full.arcid + '" title="Edit this archive\'s tags and data."><i class="fa fa-edit"></i><a/></div>';
 	}
 
 	return data;
@@ -145,9 +162,14 @@ function actionColumnDisplay(data, type, full, meta) {
 function titleColumnDisplay(data, type, full, meta) {
 	if (type == "display") {
 
-		return '<span style="display: none;">' + data.title + '</span><a class="image-tooltip" onmouseover="buildImageTooltip($(this))" href="./reader?id=' + data.arcid + '">'
-			+ data.title + '</a><div class="caption" style="display: none;"><img src="./api/thumbnail?id=' + data.arcid + '" onerror="this.src=\'./img/noThumb.png\'"></div>'
-			+ '<img src="img/n.gif" style="float: right; margin-top: -15px; z-index: -1; display: ' + data.isnew + '">';
+		titleHtml = "";
+		if (data.isnew === "block") {
+			titleHtml = '<span class="isnew"></span>'
+		}
+
+		return titleHtml + '<a class="image-tooltip" onmouseover="buildImageTooltip($(this))" href="./reader?id=' + data.arcid + '">'
+			+ data.title + '</a><div class="caption" style="display: none;"><img src="./api/thumbnail?id=' 
+			+ data.arcid + '" onerror="this.src=\'./img/noThumb.png\'"></div>';
 	}
 
 	return data.title;
@@ -183,8 +205,7 @@ function buildThumbDiv(row, data, index) {
 		thumb_div = '<div style="height:335px" class="id1">' +
 			'<div class="id2">' +
 			'<div class="id44">' +
-			'<div style="float:right">' +
-			'<img src="img/n.gif" style="float: right; display: ' + data.isnew + '">' +
+			'<div class="isnew" style=" display: ' + data.isnew + '">' +
 			'</div>' +
 			'</div>' +
 			'<a href="./reader?id=' + data.arcid + '" title="' + data.title + '">' + data.title + '</a>' +

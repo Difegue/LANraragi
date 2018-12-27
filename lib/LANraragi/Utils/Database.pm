@@ -5,11 +5,13 @@ use warnings;
 use utf8;
 
 use Digest::SHA qw(sha256_hex);
+use Mojo::JSON qw(decode_json);
 use Encode;
 use File::Basename;
 use Redis;
 
 use LANraragi::Model::Config;
+use LANraragi::Model::Plugins;
 
 # Functions for interacting with the DB Model.
 
@@ -21,24 +23,50 @@ sub add_archive_to_redis {
       LANraragi::Utils::Generic::get_logger( "Archive", "lanraragi" );
     my ( $name, $path, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
 
-    #Use the mythical regex to get title and tags
-    my ( $title, $tags ) = parse_name( $name );
-
     #jam this shit in redis
     $logger->debug("Pushing to redis on ID $id:");
     $logger->debug("File Name: $name");
-    $logger->debug("Parsed Title: $title");
-    $logger->debug("Parsed Tags: $tags");
     $logger->debug("Filesystem Path: $file");
 
+    my $title = $name;
+    my $tags = "";
+
     $redis->hset( $id, "name",  encode_utf8($name) );
+    $redis->hset( $id, "file",  encode_utf8($file) );
+    #New file in collection, so this flag is set.
+    $redis->hset( $id, "isnew", "block" );
+    
+    #Use the mythical regex to get title and tags
+    #Except if the matching pref is off
+    if (LANraragi::Model::Config->get_tagregex eq "1") {
+        ( $title, $tags ) = parse_name( $name );
+        $logger->debug("Parsed Title: $title");
+        $logger->debug("Parsed Tags: $tags");
+    } 
+           
     $redis->hset( $id, "title", encode_utf8($title) );
     $redis->hset( $id, "tags",  encode_utf8($tags) );
-    $redis->hset( $id, "file",  encode_utf8($file) );
-    $redis->hset( $id, "isnew", "block" );
 
-    #New file in collection, so this flag is set.
     return ( $name, $title, $tags, "block" );
+}
+
+#add_tags($id, $tags)
+#add the $tags to the archive with id $id.
+sub add_tags {
+
+    my ($id, $newtags) = @_;
+
+    my $redis = LANraragi::Model::Config::get_redis;
+    my $oldtags = $redis->hget( $id, "tags" );
+    $oldtags =
+    LANraragi::Utils::Database::redis_decode($oldtags);
+
+    if ( $oldtags ne "" ) {
+        $newtags = $oldtags . "," . $newtags;
+    }
+
+    $redis->hset( $id, "tags", encode_utf8($newtags) );
+
 }
 
 #parse_name(name)
@@ -134,5 +162,56 @@ sub invalidate_cache {
     my $redis = LANraragi::Model::Config::get_redis;
     $redis->hset( "LRR_JSONCACHE", "force_refresh", 1 );
 }
+
+#Look for a plugin by namespace.
+sub plugin_lookup {
+
+    my $plugname = $_[0];
+
+    #Go through plugins to find one with a matching namespace
+    my @plugins = LANraragi::Model::Plugins::plugins;
+
+    foreach my $plugin (@plugins) {
+
+        my %pluginfo  = $plugin->plugin_info();
+        my $namespace = $pluginfo{namespace};
+
+        if ( $plugname eq $namespace ) {
+            return $plugin;
+        }
+    }
+
+    return undef;
+}
+
+#Get the global arguments input by the user for thespecified plugin.
+sub get_plugin_globalargs {
+
+    my $plugname = $_[0];
+    my $plugin   = &plugin_lookup($plugname);
+    my $redis    = LANraragi::Model::Config::get_redis;
+    my @args     = ();
+
+    if ($plugin) {
+
+        #Get the matching argument JSON in Redis
+        my %pluginfo  = $plugin->plugin_info();
+        my $namespace = $pluginfo{namespace};
+        my $namerds = "LRR_PLUGIN_" . uc($namespace);
+
+        if ( $redis->hexists( $namerds, "enabled" ) ) {
+            my $argsjson = $redis->hget( $namerds, "customargs" );
+            $argsjson = LANraragi::Utils::Database::redis_decode($argsjson);
+
+            #Decode it to an array for proper use
+            if ($argsjson) {
+                @args = @{ decode_json($argsjson) };
+            }
+        }
+    }
+
+    return @args;
+}
+
 
 1;
