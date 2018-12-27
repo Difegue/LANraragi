@@ -20,6 +20,7 @@
   * [Themes](for-regular-users/advanced-usage/themes.md)
   * [Backup and Restore](for-regular-users/advanced-usage/backup-and-restore.md)
   * [Statistics and Logs](for-regular-users/advanced-usage/misc.md)
+  * [Batch Tagging](for-regular-users/advanced-usage/batch-tagging.md)
 
 ## Extending LANraragi
 

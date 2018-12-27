@@ -4,7 +4,7 @@
 
 The main page will show all the Archives loaded into the application. 
 
-![Annotated Archive Index](../../.gitbook/assets/image%20%284%29.png)
+![Annotated Archive Index](../../.gitbook/assets/image%20%287%29.png)
 
 When reading an archive, it is automatically extracted to a temporary folder.  
 This folder is then simply loaded into the built-in Web Reader.
@@ -18,7 +18,7 @@ You can also simply click the right or left side of the image.
 When reading an archive, the three button icons on the rightside of the page offer various options.  
 
 
-![Annotated Reader View](../../.gitbook/assets/image.png)
+![Annotated Reader View](../../.gitbook/assets/image%20%281%29.png)
 
 You can click the information icon on the right-side of the Reader to get a quick refresher about its controls.  
 The Reader Options button shows the various options you can toggle to change the reading experience. \(Double page, Japanese read order, etc.\)

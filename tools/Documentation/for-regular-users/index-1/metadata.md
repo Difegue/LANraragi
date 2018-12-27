@@ -13,10 +13,15 @@ The "Delete Archive" button will permanently wipe the Archive from your filesyst
 ## Using Plugins
 
 LANraragi supports the use of **Plugins** to fetch tags for your archives.  
-Said Plugins can be used in two different ways:
+Said Plugins can be used in three different ways:
 
 * On a per-archive basis through the standard Edit dialog
 * Automatically on every newly added archive.  
+* During a Batch Tagging session.
+
+For more info on Batch Tagging, check the following article:
+
+{% page-ref page="../advanced-usage/batch-tagging.md" %}
 
 To use plugins automatically, you need to enable the option in Configuration first.
 
@@ -25,7 +30,7 @@ To use plugins automatically, you need to enable the option in Configuration fir
   
 Once this is done, you can use the **Plugin Configuration** page to choose which plugins will be automatically executed, and set their options if they need any.
 
-![Plugin Configuration \(on this screenshot, eze and nHentai will be executed automatically.\)](../../.gitbook/assets/cfg_plugin.png)
+![Plugin Configuration \(on this screenshot, eze and nHentai will be executed automatically.\)](../../.gitbook/assets/cfg_plugin%20%281%29.png)
 
 LRR ships with a few plugins out of the box, in the _/lib/LANraragi/Plugins_ folder.  
 To install other Plugins \(in .pm format\), drag them to this folder and they'll appear in Plugin Configuration.
