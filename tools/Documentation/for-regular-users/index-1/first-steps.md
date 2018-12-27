@@ -2,7 +2,7 @@
 
 ## Quick To-Do List for newcomers
 
-![The default password for a new LRR install is &quot;kamimamita&quot;.](../../.gitbook/assets/image%20%284%29.png)
+![The default password for a new LRR install is &quot;kamimamita&quot;.](../../.gitbook/assets/login.png)
 
 * [ ] Change Security Settings
 * [ ] Change default Content folder location
