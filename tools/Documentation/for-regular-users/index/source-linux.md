@@ -15,7 +15,7 @@ As such, you might want to install LANraragi with your own compiled Perl, using 
 And this is just fine! However, I'll consider we're using Vendor Perl here, for the following reasons:
 
 * The Debian Vendor Perl works flawlessly with LANraragi, and due to Debian being one of the most used Linux distros, it's likely users can just use it as-is and avoid losing an hour building their own Perl.  
-* The [PerlMagick](http://search.cpan.org/~jcristy/PerlMagick-6.89-1/Magick.pm) package, required by LRR, needs the ImageMagick source headers to be built.  
+* The [PerlMagick](http://search.cpan.org/~jcristy/PerlMagick-6.89-1/Magick.pm) package, required by LRR, needs the ImageMagick source headers to be built.
 
   As such, it's not automatically installed by our installer scripts. Vendor Perl users can just install the prebuilt version from Apt. Perlbrew/Plenv users will have to download said headers and build it on their own.
 
@@ -53,8 +53,6 @@ Once this is done, you can get started by running `npm start` and opening [http:
 {% hint style="info" %}
 By default, LRR listens on all IPv4 Interfaces on port 3000. You can change this by setting your wished listen location as a parameter of `npm start`:
 
-
-
 ```bash
 npm start http://127.0.0.1:8000
 
@@ -69,6 +67,4 @@ npm start http://127.0.0.1:8000
 
 All listen locations [supported by "listen" in Mojo::Server::Daemon](http://www.mojolicious.org/perldoc/Mojo/Server/Daemon#listen) are valid.
 {% endhint %}
-
-
 

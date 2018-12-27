@@ -50,5 +50,3 @@ To be on the safe side, make sure to rerun the installer once this is done:
 npm run lanraragi-installer install-full
 ```
 
-
-

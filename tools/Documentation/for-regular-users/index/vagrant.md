@@ -6,7 +6,7 @@ description: >-
 
 # Vagrant
 
-## Using the Vagrantfile 
+## Using the Vagrantfile
 
 You can use the available Vagrantfile with [Vagrant](https://www.vagrantup.com/downloads.html) to deploy a virtual machine on your computer with LANraragi preinstalled.  
 Download [the Vagrantfile setup](https://github.com/Difegue/LANraragi/raw/master/tools/VagrantSetup) and put it in your future LANraragi folder, and enter the following commands in a terminal pointed to that folder:
