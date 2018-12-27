@@ -1,12 +1,12 @@
 # DOCKER-VERSION 0.3.4
 FROM        debian:stretch
-MAINTAINER  dfug sugoi@cock.li
+LABEL       git="https://github.com/Difegue/LANraragi" 
 
 #Base LRR dependencies and essential tools for next commands
 RUN apt-get update && \
-apt-get install -y --no-install-recommends curl make gnupg cpanminus redis-server unar imagemagick libimage-magick-perl build-essential supervisor locales locales-all libssl-dev zlib1g-dev && \
-curl -sL https://deb.nodesource.com/setup_9.x | bash - && \ 
-apt-get install -y --no-install-recommends nodejs && rm -rf /var/lib/apt/lists/*
+    apt-get install -y --no-install-recommends curl make gnupg cpanminus redis-server unar imagemagick libimage-magick-perl build-essential supervisor locales locales-all libssl-dev zlib1g-dev && \
+    curl -sL https://deb.nodesource.com/setup_9.x | bash - && \ 
+    apt-get install -y --no-install-recommends nodejs && rm -rf /var/lib/apt/lists/*
 
 #Copy cpanfile before copying the entire context - allows for Docker cache to preserve cpan dependencies
 COPY /tools/cpanfile /home/koyomi/cpanfile
