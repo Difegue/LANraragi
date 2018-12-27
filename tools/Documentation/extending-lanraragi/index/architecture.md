@@ -94,7 +94,7 @@ You also get access to the Mojolicious logs in LRR's built-in Log View.
 
 ## Database Architecture
 
-You can look inside the LRR Redis database at any moment through the `redis-cli` tool. 
+You can look inside the LRR Redis database at any moment through the `redis-cli` tool.
 
 The base architecture is as follows:
 

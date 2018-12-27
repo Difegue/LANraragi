@@ -49,7 +49,7 @@ The previous setup gets a working LANraragi container from the Docker Hub, but y
 This will use your cloned Git repo to build the image, modifications you might have made included.
 
 Of course, this requires a Docker installation.  
-If you're running WSL\(which can't run Docker natively\), you can directly use the Docker for Windows executable with a simple symlink: 
+If you're running WSL\(which can't run Docker natively\), you can directly use the Docker for Windows executable with a simple symlink:
 
 ```bash
 sudo ln -s '/mnt/c/Program Files/Docker/Docker/resources/bin/docker.exe' \

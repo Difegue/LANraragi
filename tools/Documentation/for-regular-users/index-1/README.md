@@ -1,6 +1,6 @@
 # Getting Started
 
-If you're opening this, you're probably in front of a freshly unboxed LRR instance. 
+If you're opening this, you're probably in front of a freshly unboxed LRR instance.
 
 To get started, I recommend checking and editing your Settings before uploading any files.
 
@@ -17,7 +17,4 @@ You can then get right to reading your stuff:
 As well as import metadata using Plugins:
 
 {% page-ref page="metadata.md" %}
-
-  
-
 

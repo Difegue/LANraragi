@@ -15,5 +15,3 @@ If you enable _Debug Mode_ in Configuration, more logs will be displayed.
 If you enable Debug Mode for troubleshooting purposes, make sure to disable it once you're done!
 {% endhint %}
 
-
-

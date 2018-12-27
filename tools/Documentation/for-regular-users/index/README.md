@@ -34,5 +34,5 @@ _**I'm a super hacker, can I just install from source?**_
 
 {% page-ref page="source-linux.md" %}
 
-Installing from **source** is a more involved procedure, but it does put you in full control and able to hack up the app's files as you wish. 
+Installing from **source** is a more involved procedure, but it does put you in full control and able to hack up the app's files as you wish.
 

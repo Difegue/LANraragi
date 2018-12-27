@@ -28,8 +28,7 @@ There are three basic levels of security you can enable:
 | Password Enabled \(default\) | ✅ | ✅ | ❌ | ❌ |
 | No-Fun Mode | ❌ | ❌ | ❌ | ❌ |
 
-  
-If you're running the app on a server that's potentially accessible by others, I recommend leaving password protection enabled and changing the default password. 
+If you're running the app on a server that's potentially accessible by others, I recommend leaving password protection enabled and changing the default password.
 
 If you don't want any page of the app to be accessible to outsiders, you should enable No-Fun Mode **and restart the application** to make sure it is enabled.
 
@@ -49,14 +48,14 @@ This folder contains all the user-generated data:
 By default, this folder is placed at the root of the LRR installation, but you can configure it to use any folder on your machine instead.
 
 {% hint style="info" %}
-If you plan on setting your content folder to a folder that already contains archives, you might want to enable **Plugin AutoTagging** beforehand, so that metadata will be fetched for your files as they're added. See the below section and the Metadata documentation for more info. 
+If you plan on setting your content folder to a folder that already contains archives, you might want to enable **Plugin AutoTagging** beforehand, so that metadata will be fetched for your files as they're added. See the below section and the Metadata documentation for more info.
 
 You can still do it afterwards on a per-archive basis.
 {% endhint %}
 
 ## Plugin Configuration and AutoTagging
 
-**Plugins** are used by LANraragi to fetch Metadata for your Archives using various online services. 
+**Plugins** are used by LANraragi to fetch Metadata for your Archives using various online services.
 
 Currently supported out of the box are:
 

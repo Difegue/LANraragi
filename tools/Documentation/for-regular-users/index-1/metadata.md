@@ -27,7 +27,6 @@ To use plugins automatically, you need to enable the option in Configuration fir
 
 ![](../../.gitbook/assets/autotag.PNG)
 
-  
 Once this is done, you can use the **Plugin Configuration** page to choose which plugins will be automatically executed, and set their options if they need any.
 
 ![Plugin Configuration \(on this screenshot, eze and nHentai will be executed automatically.\)](../../.gitbook/assets/cfg_plugin.png)
@@ -39,7 +38,7 @@ You can also install Plugins through the "Install Plugin" button in Plugin Confi
 This feature requires Debug Mode to be enabled for security purposes. Debug Mode can be disabled once you're done installing Plugins.
 
 {% hint style="warning" %}
-Plugins have as much control over your system as the main LANraragi application does! 
+Plugins have as much control over your system as the main LANraragi application does!
 
 When installing Plugins from unknown sources, do a little research first.
 {% endhint %}
