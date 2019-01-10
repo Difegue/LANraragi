@@ -321,7 +321,9 @@ div.id2 {
     margin: auto;
     overflow: hidden;
     text-align: center;
+    text-overflow: ellipsis;
     vertical-align: middle;
+    white-space: nowrap;
     width: 220px;
 }
 

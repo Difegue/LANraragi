@@ -362,7 +362,11 @@ div.id1 {
 
 div.id2 {
     height: 20px;
-    margin: auto auto 10px;
+    overflow: hidden;
+    text-align: center;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    white-space: nowrap;
     width: 220px;
 }
 
