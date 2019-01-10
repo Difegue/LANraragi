@@ -257,7 +257,8 @@ sub use_plugin {
                 operation => "fetch_tags",
                 success   => (exists $plugin_result{error} ? 0:1),
                 message   => $plugin_result{error},
-                tags      => $plugin_result{new_tags}
+                tags      => $plugin_result{new_tags},
+                title     => (exists $plugin_result{title} ? $plugin_result{title}:"")
             }
         );
         return;

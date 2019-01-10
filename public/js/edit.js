@@ -73,6 +73,22 @@ function getTags() {
 	  .done(function( data ) {
 
 	    if (data.success) {
+
+			if ( data.title != "" ) {
+
+				$('#title').val(data.title);
+
+				$.toast({
+					showHideTransition: 'slide',
+					position: 'top-left', 
+					loader: false, 
+					heading: 'Archive title changed to :',
+					text: data.title,
+					icon: 'info'
+				});		
+
+			}
+
 	    	if ($('#tagText').val() === "") 
 	    		$('#tagText').val(data.tags);
 	    	else if ( data.tags != "" ) {

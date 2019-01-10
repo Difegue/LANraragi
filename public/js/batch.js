@@ -55,6 +55,10 @@ function updateBatchStatus(event) {
         $("#log-container").append('Plugin error while processing ID ' + msg.id + '(' + msg.message + ')\n');
     } else {
         $("#log-container").append('Processed ' + msg.id + '(Added tags: ' + msg.tags + ')\n');
+
+        if ( msg.title != "" ) {
+            $("#log-container").append('Changed title to: ' + msg.title + '\n');
+        }
     }
 
     scrollLogs();

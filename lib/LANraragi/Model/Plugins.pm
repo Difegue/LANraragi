@@ -54,16 +54,23 @@ sub exec_enabled_plugins_on_file {
 
             if ($enabled) {
 
+                my %plugin_result;
+
                 #Every plugin execution is eval'd separately
                 eval {
-                    my %plugin_result =
+                    %plugin_result =
                       &exec_plugin_on_file( $plugin, $id, "", @args );
-
-                    #If the plugin exec returned metadata, add it
-                    unless ( exists $plugin_result{error} ){    
-                        LANraragi::Utils::Database::add_tags($id, $plugin_result{new_tags});
-                    }
                 };
+
+                #If the plugin exec returned metadata, add it
+                unless ( exists $plugin_result{error} ){    
+                    LANraragi::Utils::Database::add_tags($id, $plugin_result{new_tags});
+
+                    if (exists $plugin_result{title}) {
+                        LANraragi::Utils::Database::set_title($id, $plugin_result{title});
+                    }
+
+                }
 
                 if ($@) {
                     $failures++;
@@ -163,7 +170,18 @@ sub exec_plugin_on_file {
 
         #Strip last comma and return processed tags in a hash
         chop($newtags);
-        return ( new_tags => $newtags );
+        my %returnhash = ( new_tags => $newtags );
+
+        
+        #Indicate a title change, if the plugin reports one
+        if ( exists $newmetadata{title} ) {
+
+            my $newtitle = $newmetadata{title};
+            LANraragi::Utils::Generic::remove_spaces($newtitle);
+            $returnhash{title} = $newtitle;
+        }
+
+        return %returnhash;
     }
 }
 

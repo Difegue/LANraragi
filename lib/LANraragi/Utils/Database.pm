@@ -69,6 +69,18 @@ sub add_tags {
 
 }
 
+sub set_title {
+    
+    my ($id, $newtitle) = @_;
+
+    my $redis = LANraragi::Model::Config::get_redis;
+
+    if ($newtitle ne "") {
+        $redis->hset( $id, "title", encode_utf8($newtitle) );
+    }
+
+}
+
 #parse_name(name)
 #parses an archive name with the regex specified in the configuration file(get_regex and select_from_regex subs) to find metadata.
 sub parse_name {
