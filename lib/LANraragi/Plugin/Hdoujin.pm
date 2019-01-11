@@ -63,7 +63,8 @@ sub get_tags {
 
         #Return tags
         $logger->info("Sending the following tags to LRR: $tags");
-        return ( tags => $tags );
+        return ( tags => $tags,
+                 title => $hashjson->{"manga_info"}->{"title"} );
 
     }
     else {
