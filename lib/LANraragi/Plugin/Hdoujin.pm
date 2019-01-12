@@ -79,7 +79,9 @@ sub tags_from_Hdoujin_json {
 
     my $hash   = $_[0];
     my $return = "";
-
+    
+#HDoujin jsons are composed of a main manga_info object, containing fields for every metadata.
+#Those fields can contain either a single tag or an array of tags.
     
     my $tags = $hash->{"manga_info"};
 
