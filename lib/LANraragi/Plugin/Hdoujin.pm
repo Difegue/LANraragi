@@ -20,7 +20,7 @@ sub plugin_info {
         author    => "Pao",
         version   => "0.1",
         description =>
-"Collects metadata embedded into your archives by the Hdoujin .json files",
+"Collects metadata embedded into your archives ONLY by the Hdoujin .json files, does not support other format.",
     );
 
 }
