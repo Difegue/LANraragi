@@ -68,6 +68,10 @@ p#nb {
     font-size: 13px;
 }
 
+.caption-tags {
+    max-width: 250px !important;
+}
+
 /*Hide elements within the pages on small screens*/
 @media all and (max-device-width: 1000px) {
     #i2 { display: none; }
@@ -81,7 +85,7 @@ p#nb {
     td.language {max-width: 50px;}
     td.artist {max-width: 50px;}
     td.tags {max-width: 50px;}
-    .caption {margin-left: -15% !important;}
+    .caption-image {margin-left: -15% !important;}
     .page-overlay { min-height: 100% !important;}
     .ie7 .page-overlay { min-height: 100% !important;}
 }
@@ -98,7 +102,7 @@ p#nb {
     td.language {max-width: 50px;}
     td.artist {max-width: 50px;}
     td.tags {max-width: 50px;}
-    .caption {margin-left: -15% !important;}
+    .caption-image {margin-left: -15% !important;}
     .page-overlay { min-height: 100% !important;}
     .ie7 .page-overlay { min-height: 100% !important;}
 }
@@ -218,10 +222,6 @@ p#nb {
 a:hover > .page-number {
     z-index: 300;
     background-color: #000000;
-}
-
-.qtip {
-    max-width: 1000px !important;
 }
 
 .reader-image {

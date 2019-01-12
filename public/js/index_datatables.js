@@ -253,7 +253,7 @@ function buildImageTooltip(target) {
 			solo: true
 		},
 		style: {
-			classes: 'caption'
+			classes: 'caption caption-image'
 		},
 		show: {
 			delay: 45
@@ -284,7 +284,7 @@ function buildTagTooltip(target) {
 			delay: 300
 		},
 		style: {
-			classes: 'caption'
+			classes: 'caption caption-tags'
 		}
 	});
 

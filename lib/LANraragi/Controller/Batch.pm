@@ -132,7 +132,8 @@ sub socket {
                                     id      => $data[0],
                                     success => $data[1],
                                     message => $data[2],
-                                    tags    => $data[3]
+                                    tags    => $data[3],
+                                    title   => $data[4]
                                 }
                             }
                         );
@@ -155,13 +156,18 @@ sub socket {
                             #If the plugin exec returned tags, add them
                             unless ( exists $plugin_result{error} ) {    
                                 LANraragi::Utils::Database::add_tags($id, $plugin_result{new_tags});
+
+                                if (exists $plugin_result{title}) {
+                                    LANraragi::Utils::Database::set_title($id, $plugin_result{title});
+                                }
                             }
 
                             $subprocess->progress(
                                 $id,
                                 ( exists $plugin_result{error} ? 0 : 1 ),
                                 $plugin_result{error},
-                                $plugin_result{new_tags}
+                                $plugin_result{new_tags},
+                                (exists $plugin_result{title} ? $plugin_result{title}:"")
                             );
 
                             $logger->debug("Waiting $timeout seconds.");
