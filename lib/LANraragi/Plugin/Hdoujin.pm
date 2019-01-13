@@ -18,7 +18,7 @@ sub plugin_info {
         name      => "Hdoujin",
         namespace => "Hdoujinplugin",
         author    => "Pao",
-        version   => "0.1",
+        version   => "0.2",
         description =>
 "Collects metadata embedded into your archives ONLY by the Hdoujin .json files, does not support other format.",
     );
@@ -77,21 +77,34 @@ sub get_tags {
 #Goes through the JSON hash obtained from an info.json file and return the contained tags.
 sub tags_from_Hdoujin_json {
 
-    my $hash   = $_[0];
-    my $return = "";
-    
+    	my $hash = $_[0];
+	my $hashcontrol = $_[0];
+    	my $return = "";
+	my $tagwRespect = $_[0];
+	my $tagnoRespect = $_[0];
+	my $choosehash = "0";
+	
+	
+	my $tagscontrol = $hashcontrol->{"manga_info"}->{"tags"};
+	
+		if (ref($tagscontrol) eq 'HASH'){
+		$choosehash = "1";
+		}
+	
 #HDoujin jsons are composed of a main manga_info object, containing fields for every metadata.
 #Those fields can contain either a single tag or an array of tags.
-    
-    my $tags = $hash->{"manga_info"};
+	
+    	my $tags = $hash->{"manga_info"};
 
-    foreach my $namespace ( keys(%$tags) ) {
+    	#Take every key in the manga_info hash, except for title which we're already processing
+	
+	my @filtered_keys = grep { $_ ne "tags" and $_ ne "title" } keys(%$tags);
 
+	foreach my $namespace ( @filtered_keys ) {
 
-
-       my $members = $tags->{$namespace} unless $namespace eq "title";
+        my $members = $tags->{$namespace};
 	   
-	   if(ref($members) eq 'ARRAY'){
+	    if(ref($members) eq 'ARRAY'){
     
 
 			foreach my $tag (@$members){
@@ -101,14 +114,77 @@ sub tags_from_Hdoujin_json {
 			
 			} 
 			
-		}else{
+		}
+		else {
 		
 				$return .= ", " unless $return eq "";
 				$return .= $namespace . ":" . $members unless $members eq "";
+				
 		}
 	
 	}
     
+		if( $choosehash == "1"){
+	
+				return $return . "," . tags_from_wRespect($tagwRespect);
+		
+		}
+		else {
+		
+				return $return . "," . tags_from_noRespect($tagnoRespect);
+				
+		}
+
+}
+
+sub tags_from_wRespect {
+
+    my $hash   = $_[0];
+    my $return = "";
+    my $tags = $hash->{"manga_info"}->{"tags"};
+
+    foreach my $namespace ( keys(%$tags) ) {
+
+        my $members = $tags->{$namespace};
+        foreach my $tag (@$members) {
+
+	    $namespace = "Tags";
+            $return .= ", " unless $return eq "";
+            $return .= $namespace . ":" . $tag;
+
+        }
+    }
+
+    return $return;
+
+}
+
+sub tags_from_noRespect {
+
+    my $hash   = $_[0];
+    my $return = "";
+    my $tags = $hash->{"manga_info"};
+	
+	my @filtered_keys = grep  {  /^tags/ } keys(%$tags);
+	
+	foreach my $namespace ( @filtered_keys ) {
+
+		my $members = $tags->{$namespace};
+	  
+				if(ref($members) eq 'ARRAY'){
+    
+
+					foreach my $tag (@$members){
+
+						$return .= ", " unless $return eq "";
+						$return .= $namespace . ":" . $tag;
+			  
+					}
+					
+				}
+	
+	}
+
     return $return;
 
 }
