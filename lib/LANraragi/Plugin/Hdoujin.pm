@@ -78,19 +78,8 @@ sub get_tags {
 sub tags_from_Hdoujin_json {
 
     	my $hash = $_[0];
-	my $hashcontrol = $_[0];
     	my $return = "";
-	my $tagwRespect = $_[0];
-	my $tagnoRespect = $_[0];
-	my $choosehash = "0";
-	
-	
-	my $tagscontrol = $hashcontrol->{"manga_info"}->{"tags"};
-	
-		if (ref($tagscontrol) eq 'HASH'){
-		$choosehash = "1";
-		}
-	
+
 #HDoujin jsons are composed of a main manga_info object, containing fields for every metadata.
 #Those fields can contain either a single tag or an array of tags.
 	
@@ -124,14 +113,16 @@ sub tags_from_Hdoujin_json {
 	
 	}
     
-		if( $choosehash == "1"){
+    	my $tagsobj = $hash->{"manga_info"}->{"tags"};
+    
+		if (ref($tagsobj) eq 'HASH'){
 	
-				return $return . "," . tags_from_wRespect($tagwRespect);
+				return $return . "," . tags_from_wRespect($hash);
 		
 		}
 		else {
 		
-				return $return . "," . tags_from_noRespect($tagnoRespect);
+				return $return . "," . tags_from_noRespect($hash);
 				
 		}
 
@@ -148,7 +139,7 @@ sub tags_from_wRespect {
         my $members = $tags->{$namespace};
         foreach my $tag (@$members) {
 
-	    $namespace = "Tags";
+	    
             $return .= ", " unless $return eq "";
             $return .= $namespace . ":" . $tag;
 
