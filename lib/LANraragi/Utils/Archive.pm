@@ -10,6 +10,7 @@ use File::Path qw(remove_tree);
 use Encode;
 use Redis;
 use Image::Scale;
+use IPC::Cmd qw[can_run run];
 
 use LANraragi::Model::Config;
 
@@ -17,7 +18,7 @@ use LANraragi::Model::Config;
 #Relies a lot on unar/lsar.
 
 #generate_thumbnail(original_image, thumbnail_location)
-#use ImageMagick to make a thumbnail, width = 200px
+#use Image::Scale to make a thumbnail, width = 200px
 sub generate_thumbnail {
 
     my ( $orig_path, $thumb_path ) = @_;
@@ -26,6 +27,27 @@ sub generate_thumbnail {
     $img->resize_gd( { width => 200 } );
     $img->save_jpeg($thumb_path);
 
+}
+
+#extract_archive(path, archive_to_extract)
+#Extract the given archive to the given path.
+sub extract_archive {
+
+    my ($path, $zipfile) = @_;
+
+    #Extraction using unar without creating extra folders.
+    my $unarcmd = "unar -D -o $path \"$zipfile\" ";
+
+    my ( $success, $error_message, $full_buf, $stdout_buf, $stderr_buf ) =
+        run( command => $unarcmd, verbose => 0 );
+
+    #Has the archive been extracted ? 
+    #If not, stop here and print an error page.
+    unless ( -e $path ) {
+        my $errlog = join "<br/>", @$full_buf;
+        $errlog = decode_utf8($errlog);
+        die $errlog;
+    }
 }
 
 #extract_thumbnail(dirname, id)
