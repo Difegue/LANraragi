@@ -9,7 +9,7 @@ use File::Basename;
 use File::Path qw(remove_tree);
 use Encode;
 use Redis;
-use Image::Magick;
+use Image::Scale;
 
 use LANraragi::Model::Config;
 
@@ -21,11 +21,11 @@ use LANraragi::Model::Config;
 sub generate_thumbnail {
 
     my ( $orig_path, $thumb_path ) = @_;
-    my $img = Image::Magick->new;
 
-    $img->Read($orig_path);
-    $img->Thumbnail( geometry => '200x' );
-    $img->Write($thumb_path);
+    my $img = Image::Scale->new($orig_path) || die "Invalid image file";
+    $img->resize_gd( { width => 200 } );
+    $img->save_jpeg($thumb_path);
+
 }
 
 #extract_thumbnail(dirname, id)

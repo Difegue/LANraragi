@@ -4,7 +4,7 @@ LABEL       git="https://github.com/Difegue/LANraragi"
 
 #Base LRR dependencies and essential tools for next commands
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl make gnupg cpanminus redis-server unar imagemagick libimage-magick-perl build-essential supervisor locales locales-all libssl-dev zlib1g-dev && \
+    apt-get install -y --no-install-recommends curl make gnupg cpanminus redis-server unar libpng-dev libjpeg-dev build-essential supervisor locales locales-all libssl-dev zlib1g-dev && \
     curl -sL https://deb.nodesource.com/setup_9.x | bash - && \ 
     apt-get install -y --no-install-recommends nodejs && rm -rf /var/lib/apt/lists/*
 
