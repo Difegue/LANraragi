@@ -10,9 +10,9 @@ ENV EV_EXTRA_DEFS -DEV_NO_ATFORK
 
 #Just do everything
 RUN apk update && \
-    apk add perl perl-io-socket-ssl perl-dbd-pg perl-dev g++ make gnupg wget curl nodejs nodejs-npm imagemagick redis libarchive libjpeg libpng openssl-dev zlib-dev supervisor && \
+    apk add perl perl-io-socket-ssl perl-dbd-pg perl-dev g++ make gnupg wget curl nodejs nodejs-npm redis libarchive libjpeg libpng openssl-dev zlib-dev supervisor && \
     curl -L https://cpanmin.us | perl - App::cpanminus && \
-    cpanm --installdeps . -M https://cpan.metacpan.org && \
+    cpanm --notest --installdeps . -M https://cpan.metacpan.org && \
     npm run lanraragi-installer install-full && \
     apk del perl-dev g++ make gnupg wget curl nodejs nodejs-npm openssl-dev zlib-dev && \
     rm -rf /root/.cpanm/* /usr/local/share/man/*
@@ -29,7 +29,7 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 
 #Special redis conf to write DB in content directory and disable daemonization
-COPY ./tools/DockerSetup/redis.conf /home/koyomi/redis.conf
-COPY ./tools/DockerSetup/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY /tools/DockerSetup/redis.conf /home/koyomi/redis.conf
+COPY /tools/DockerSetup/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 CMD ["/usr/bin/supervisord"]

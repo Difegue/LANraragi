@@ -3,10 +3,16 @@ requires 'perl', '5.20.2';
 
 requires 'Redis', 1.991;
 requires 'Encode', 2.98;
+requires 'Image::Scale', 0.14;
 
 requires 'IPC::Cmd', 1.02;
 requires 'Digest::SHA', 6.02;
 requires 'URI::Escape', 1.74;
+
+#Use a patched version of Rijndael for musl support until a proper CPAN release is done
+#See https://framagit.org/fiat-tux/hat-softwares/lufi/issues/137
+requires 'Crypt::Rijndael', url => 'https://gitlab.com/thedudeabides/crypt-rijndael/-/archive/musl-libc/crypt-rijndael-musl-libc.tar.gz';
+
 requires 'Authen::Passphrase', 0.008;
 requires 'File::ReadBackwards', 1.05;
 requires 'File::Find::utf8', 0.013;
