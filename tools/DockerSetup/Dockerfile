@@ -16,7 +16,7 @@ RUN apk update && \
     curl -L https://cpanmin.us | perl - App::cpanminus && \
     cpanm https://gitlab.com/thedudeabides/crypt-rijndael/-/archive/musl-libc/crypt-rijndael-musl-libc.tar.gz && \
     cpanm --notest --installdeps . -M https://cpan.metacpan.org && \
-    npm run lanraragi-installer install-full && \
+    npm run lanraragi-installer install-front && \
     apk del perl-dev g++ make gnupg wget curl nodejs nodejs-npm openssl-dev zlib-dev && \
     rm -rf /root/.cpanm/* /usr/local/share/man/*
 
