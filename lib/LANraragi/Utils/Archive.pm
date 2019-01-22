@@ -9,13 +9,16 @@ use File::Basename;
 use File::Path qw(remove_tree);
 use Encode;
 use Redis;
+use Cwd;
+
 use Image::Scale;
-use IPC::Cmd qw[can_run run];
+use Archive::Peek::Libarchive;
+use Archive::Extract::Libarchive;
 
 use LANraragi::Model::Config;
 
 #Utilitary functions for handling Archives.
-#Relies a lot on unar/lsar.
+#Relies on Libarchive.
 
 #generate_thumbnail(original_image, thumbnail_location)
 #use Image::Scale to make a thumbnail, width = 200px
@@ -33,21 +36,19 @@ sub generate_thumbnail {
 #Extract the given archive to the given path.
 sub extract_archive {
 
-    my ($path, $zipfile) = @_;
+    my ( $path, $zipfile ) = @_;
 
-    #Extraction using unar without creating extra folders.
-    my $unarcmd = "unar -D -o $path \"$zipfile\" ";
+    # build an Archive::Extract object
+    my $ae = Archive::Extract::Libarchive->new( archive => $zipfile );
 
-    my ( $success, $error_message, $full_buf, $stdout_buf, $stderr_buf ) =
-        run( command => $unarcmd, verbose => 0 );
+    #Extract to $path.
+    my $ok = $ae->extract( to => $path );
 
-    #Has the archive been extracted ? 
-    #If not, stop here and print an error page.
+    #If extraction failed, stop here and print an error page.
     unless ( -e $path ) {
-        my $errlog = join "<br/>", @$full_buf;
-        $errlog = decode_utf8($errlog);
-        die $errlog;
+        die $ae->error;
     }
+
 }
 
 #extract_thumbnail(dirname, id)
@@ -63,44 +64,35 @@ sub extract_thumbnail {
     my $file = $redis->hget( $id, "file" );
     $file = LANraragi::Utils::Database::redis_decode($file);
 
-    my $path = "./public/temp/thumb";
+    my $temppath = getcwd() . "/public/temp/thumb";
 
     #Clean thumb temp to prevent file mismatch errors.
-    remove_tree( $path, { error => \my $err } );
+    remove_tree( $temppath, { error => \my $err } );
+    mkdir $temppath;
 
-    #Get lsar's output, jam it in an array, and use it as @extracted.
-    my $vals = `lsar "$file"`;
-    my @lsarout = split /\n/, $vals;
+    #Get all the files of the archive
+    my $peek = Archive::Peek::Libarchive->new( filename => $file );
+    my @files = $peek->files();
     my @extracted;
 
-    #The -i 0 option on unar doesn't always return the first image.
-    #We use the lsar output to find the first image.
-    foreach my $lsarfile (@lsarout) {
+    #Filter out non-images
+    foreach my $file (@files) {
 
-        #is it an image? lsar can give us folder names.
-        if (
-            $lsarfile =~ /^(.*\/)*.+\.(png|jpg|gif|bmp|jpeg|PNG|JPG|GIF|BMP)$/ )
-        {
-            push @extracted, $lsarfile;
+        if ( $file =~ /^(.*\/)*.+\.(png|jpg|gif|bmp|jpeg|PNG|JPG|GIF|BMP)$/ ) {
+            push @extracted, $file;
         }
     }
 
     @extracted = sort { lc($a) cmp lc($b) } @extracted;
 
-    #unar sometimes crashes on certain folder names inside archives.
-    #To solve that, we replace folder names with the wildcard * through regex.
-    my $unarfix = $extracted[0];
-    $unarfix =~ s/[^\/]+\//*\//g;
+    #Get the first file of the list and spit it out into a file
+    my $contents = $peek->file( $extracted[0] );
+    my $arcimg   = $temppath . '/' . $extracted[0];
 
-    #let's extract now.
-    my $res = `unar -D -o $path "$file" "$unarfix"`;
-
-    if ($?) {
-        return "Error extracting thumbnail: $res";
-    }
-
-    #Path to the first image of the archive
-    my $arcimg = $path . '/' . $extracted[0];
+    open( my $fh, '>', $arcimg )
+      or die "Could not open file '$arcimg' $!";
+    print $fh $contents;
+    close $fh;
 
     #While we have the image, grab its SHA-1 hash for tag research.
     #That way, no need to repeat the costly extraction later.
@@ -120,22 +112,22 @@ sub extract_thumbnail {
 #Returns 1 if it does exist, 0 otherwise.
 sub is_file_in_archive {
 
-    my ( $archive, $filename ) = @_;
+    my ( $archive, $wantedname ) = @_;
 
-    #Get lsar's output, jam it in an array, and use it as @extracted.
-    my $vals = `lsar "$archive"`;
-    my @lsarout = split /\n/, $vals;
-    my @extracted;
+    my $peek = Archive::Peek::Libarchive->new( filename => $archive );
 
-    #Sort on the lsar output to find the file
-    foreach my $lsarfile (@lsarout) {
-        if ( $lsarfile eq $filename ) {
-            return 1;
+    $peek->iterate(
+        sub {
+
+            if ( $_[0] eq $wantedname ) {
+                return 1;
+            }
         }
-    }
+    );
 
     #Found nothing
     return 0;
+
 }
 
 #extract_file_from_archive($archive, $file)
@@ -143,13 +135,23 @@ sub is_file_in_archive {
 sub extract_file_from_archive {
 
     my ( $archive, $filename ) = @_;
-    #Timestamp extractions in microseconds
-    my ($seconds, $microseconds) = gettimeofday;
-    my $stamp = "$seconds-$microseconds";
-    my $path = "./public/temp/plugin/$stamp";
 
-    `unar -D -o $path "$archive" "$filename"`;
-    return $path."/".$filename;
+    #Timestamp extractions in microseconds
+    my ( $seconds, $microseconds ) = gettimeofday;
+    my $stamp = "$seconds-$microseconds";
+    my $path  = "/public/temp/plugin/$stamp";
+
+    my $peek = Archive::Peek::Libarchive->new( filename => $archive );
+    my $contents = $peek->file($filename);
+
+    my $outfile = $path . "/" . $filename;
+
+    open( my $fh, '>', getcwd() . $outfile )
+      or die "Could not open file '$outfile' $!";
+    print $fh $contents;
+    close $fh;
+
+    return $outfile;
 }
 
 1;

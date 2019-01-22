@@ -3,7 +3,8 @@ requires 'perl', '5.20.2';
 
 requires 'Redis', 1.991;
 requires 'Encode', 2.98;
-requires 'Archive::Libarchive::XS', 0.0902; 
+requires 'Archive::Extract::Libarchive', 0.38;
+requires 'Archive::Peek::Libarchive', 0.38;
 requires 'Image::Scale', 0.14;
 
 requires 'IPC::Cmd', 1.02;
