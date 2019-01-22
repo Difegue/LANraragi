@@ -9,9 +9,12 @@ COPY /package.json /package.json
 ENV EV_EXTRA_DEFS -DEV_NO_ATFORK
 
 #Just do everything
+#Use a patched version of Rijndael for musl support until a proper CPAN release is done
+#See https://framagit.org/fiat-tux/hat-softwares/lufi/issues/137
 RUN apk update && \
     apk add perl perl-io-socket-ssl perl-dbd-pg perl-dev g++ make gnupg wget curl nodejs nodejs-npm redis libarchive libjpeg-turbo-dev libpng-dev openssl-dev zlib-dev supervisor && \
     curl -L https://cpanmin.us | perl - App::cpanminus && \
+    cpanm https://gitlab.com/thedudeabides/crypt-rijndael/-/archive/musl-libc/crypt-rijndael-musl-libc.tar.gz && \
     cpanm --notest --installdeps . -M https://cpan.metacpan.org && \
     npm run lanraragi-installer install-full && \
     apk del perl-dev g++ make gnupg wget curl nodejs nodejs-npm openssl-dev zlib-dev && \
