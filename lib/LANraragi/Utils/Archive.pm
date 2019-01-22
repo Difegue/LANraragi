@@ -49,6 +49,7 @@ sub extract_archive {
         die $ae->error;
     }
 
+    return $ae->error;
 }
 
 #extract_thumbnail(dirname, id)

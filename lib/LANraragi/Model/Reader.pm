@@ -50,12 +50,13 @@ sub build_reader_JSON {
     my $dirname = LANraragi::Model::Config::get_userdir();
 
     #We opened this id in the reader, so we can't mark it as "new" anymore.
-    if ($redis->hget($id, "isnew") eq "block") {
+    if ( $redis->hget( $id, "isnew" ) eq "block" ) {
         $redis->hset( $id, "isnew", "none" );
+
         #Trigger a JSON cache refresh
         LANraragi::Utils::Database::invalidate_cache();
     }
-    
+
     #Get the path from Redis.
     my $zipfile = $redis->hget( $id, "file" );
     $zipfile = LANraragi::Utils::Database::redis_decode($zipfile);
@@ -76,11 +77,13 @@ sub build_reader_JSON {
     #Now, has our file been extracted to the temporary directory recently?
     #If it hasn't, we call unar to do it.
     #If the file hasn't been extracted, or if force-reload =1
-    unless (-e $path ) {
-        LANraragi::Utils::Archive::extract_archive($path, $zipfile) or 
-            $self->LRR_LOGGER->error("ERROR while unpacking archive: $@");
+    unless ( -e $path ) {
+        my $log = LANraragi::Utils::Archive::extract_archive( $path, $zipfile );
 
         $self->LRR_LOGGER->debug("Extraction of archive to $path done");
+        if ($log) {
+            $self->LRR_LOGGER->debug("Error log from libarchive : $log");
+        }
     }
 
     #Find the extracted images with a full search (subdirectories included),
@@ -109,7 +112,7 @@ sub build_reader_JSON {
     my $shasum = LANraragi::Utils::Generic::shasum( $images[0], 1 );
     $redis->hset( $id, "thumbhash", encode_utf8($shasum) );
 
-    #Convert page 1 into a thumbnail for the main reader index 
+    #Convert page 1 into a thumbnail for the main reader index
     my $thumbname = $dirname . "/thumb/" . $id . ".jpg";
     unless ( -e $thumbname && $thumbreload eq "0" ) {
 
