@@ -10,7 +10,7 @@ ENV EV_EXTRA_DEFS -DEV_NO_ATFORK
 
 #Just do everything
 RUN apk update && \
-    apk add perl perl-io-socket-ssl perl-dbd-pg perl-dev g++ make gnupg wget curl nodejs nodejs-npm redis libarchive libjpeg libpng openssl-dev zlib-dev supervisor && \
+    apk add perl perl-io-socket-ssl perl-dbd-pg perl-dev g++ make gnupg wget curl nodejs nodejs-npm redis libarchive libjpeg-turbo-dev libpng-dev openssl-dev zlib-dev supervisor && \
     curl -L https://cpanmin.us | perl - App::cpanminus && \
     cpanm --notest --installdeps . -M https://cpan.metacpan.org && \
     npm run lanraragi-installer install-full && \
