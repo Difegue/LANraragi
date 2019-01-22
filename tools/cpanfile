@@ -24,4 +24,5 @@ requires 'Mojolicious::Plugin::RenderFile', 0.12;
 requires 'Mojo::IOLoop::ProcBackground', 0.06;
 requires 'IO::Socket::SSL', 2.056;
 
-requires 'Module::Pluggable', 5.2; 
+requires 'Module::Pluggable', 5.2;
+requires 'Image::Scale', 0.14; 

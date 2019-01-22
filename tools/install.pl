@@ -99,28 +99,8 @@ can_run('unar')
   or die 'NOT FOUND! Please install unar before proceeding.';
 say("OK!");
 
-#Check for PerlMagick
-say("Checking for ImageMagick/PerlMagick...");
-my $imgk;
+#TODO: Add check for libpng/libjpeg
 
-eval {
-    require Image::Magick;
-    $imgk = Image::Magick->QuantumDepth;
-};
-
-if ($@) {
-    say("NOT FOUND");
-    say("Please install ImageMagick with Perl before proceeding.");
-    say(
-"Further instructions are available at https://www.imagemagick.org/script/perl-magick.php ."
-    );
-    say("The ImageMagick detection command returned: $imgk -- $@");
-    die;
-}
-else {
-    say( "Returned QuantumDepth: " . $imgk );
-    say("OK!");
-}
 
 #Build & Install CPAN Dependencies
 if ( $back || $full ) {
