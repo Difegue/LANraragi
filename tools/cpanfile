@@ -11,7 +11,7 @@ requires 'URI::Escape', 1.74;
 
 #Use a patched version of Rijndael for musl support until a proper CPAN release is done
 #See https://framagit.org/fiat-tux/hat-softwares/lufi/issues/137
-requires 'Crypt::Rijndael', url => 'https://gitlab.com/thedudeabides/crypt-rijndael/-/archive/musl-libc/crypt-rijndael-musl-libc.tar.gz';
+requires 'Crypt::Rijndael', 1.13, url => 'https://gitlab.com/thedudeabides/crypt-rijndael/-/archive/musl-libc/crypt-rijndael-musl-libc.tar.gz';
 
 requires 'Authen::Passphrase', 0.008;
 requires 'File::ReadBackwards', 1.05;
