@@ -87,7 +87,10 @@ sub extract_thumbnail {
 
     #Get the first file of the list and spit it out into a file
     my $contents = $peek->file( $extracted[0] );
-    my $arcimg   = $temppath . '/' . $extracted[0];
+
+#The name sometimes comes with the folder as a bonus, so we use basename to filter it out.
+    my ( $filename, $dirs, $suffix ) = fileparse( $extracted[0] );
+    my $arcimg = $temppath . '/' . $filename . $suffix;
 
     open( my $fh, '>', $arcimg )
       or die "Could not open file '$arcimg' $!";
