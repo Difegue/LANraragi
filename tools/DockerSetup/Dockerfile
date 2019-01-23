@@ -33,6 +33,6 @@ ENV LANGUAGE en_US.UTF-8
 
 #Special redis conf to write DB in content directory and disable daemonization
 COPY /tools/DockerSetup/redis.conf /home/koyomi/redis.conf
-COPY /tools/DockerSetup/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY /tools/DockerSetup/supervisord.conf /home/koyomi/supervisord.conf
 
-CMD ["/usr/bin/supervisord"]
+ENTRYPOINT ["supervisord", "--nodaemon", "--configuration", "/home/koyomi/supervisord.conf"]
