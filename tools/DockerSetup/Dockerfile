@@ -21,7 +21,7 @@ RUN apk update && \
     rm -rf /root/.cpanm/* /usr/local/share/man/*
 
 #Copy remaining LRR files from context
-COPY / /
+COPY / /home/koyomi/lanraragi
 
 #Default mojo server port
 EXPOSE 3000
