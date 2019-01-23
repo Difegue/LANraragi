@@ -1,31 +1,40 @@
 # DOCKER-VERSION 0.3.4
-FROM        debian:stretch
+FROM        alpine:latest
 LABEL       git="https://github.com/Difegue/LANraragi" 
 
-#Base LRR dependencies and essential tools for next commands
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl make gnupg cpanminus redis-server unar libpng-dev libjpeg-dev build-essential supervisor locales locales-all libssl-dev zlib1g-dev && \
-    curl -sL https://deb.nodesource.com/setup_9.x | bash - && \ 
-    apt-get install -y --no-install-recommends nodejs && rm -rf /var/lib/apt/lists/*
-
+WORKDIR /home/koyomi/lanraragi
 #Copy cpanfile before copying the entire context - allows for Docker cache to preserve cpan dependencies
-COPY /tools/cpanfile /home/koyomi/cpanfile
-RUN cpanm --installdeps /home/koyomi/.
+COPY /tools/cpanfile cpanfile
+COPY /tools/install.pl tools/install.pl
+COPY /package.json package.json
+ENV EV_EXTRA_DEFS -DEV_NO_ATFORK
 
-#Copy LRR files from context (better than git!)
-COPY / /home/koyomi/lanraragi/
-RUN cd /home/koyomi/lanraragi && npm run lanraragi-installer install-full
+#Just do everything
+#Use a patched version of Rijndael for musl support until a proper CPAN release is done
+#See https://framagit.org/fiat-tux/hat-softwares/lufi/issues/137
+RUN apk update && \
+    apk add perl perl-io-socket-ssl perl-dev g++ make pkgconf gnupg wget curl nodejs nodejs-npm redis libarchive-dev libbz2 libjpeg-turbo-dev libpng-dev openssl-dev zlib-dev supervisor && \
+    curl -L https://cpanmin.us | perl - App::cpanminus && \
+    cpanm https://gitlab.com/thedudeabides/crypt-rijndael/-/archive/musl-libc/crypt-rijndael-musl-libc.tar.gz && \
+    cpanm --notest --installdeps . -M https://cpan.metacpan.org && \
+    npm run lanraragi-installer install-front && \
+    apk del perl-dev g++ make pkgconf gnupg wget curl nodejs nodejs-npm openssl-dev zlib-dev && \
+    rm -rf /root/.cpanm/* /usr/local/share/man/* node_modules
+
+#Copy remaining LRR files from context
+COPY / /home/koyomi/lanraragi
 
 #Default mojo server port
 EXPOSE 3000
-
-#Special redis conf to write DB in content directory and disable daemonization
-COPY ./tools/DockerSetup/redis.conf /home/koyomi/redis.conf
-COPY ./tools/DockerSetup/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 #Enable UTF-8
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 
-CMD ["/usr/bin/supervisord"]
+#Special redis conf to write DB in content directory and disable daemonization
+COPY /tools/DockerSetup/redis.conf /home/koyomi/redis.conf
+COPY /tools/DockerSetup/supervisord.conf /home/koyomi/supervisord.conf
+
+
+ENTRYPOINT ["supervisord", "--nodaemon", "--configuration", "/home/koyomi/supervisord.conf"]
