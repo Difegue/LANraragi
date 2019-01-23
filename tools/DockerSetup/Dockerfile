@@ -35,6 +35,5 @@ ENV LANGUAGE en_US.UTF-8
 COPY /tools/DockerSetup/redis.conf /home/koyomi/redis.conf
 COPY /tools/DockerSetup/supervisord.conf /home/koyomi/supervisord.conf
 
-WORKDIR /home/koyomi/lanraragi
 
 ENTRYPOINT ["supervisord", "--nodaemon", "--configuration", "/home/koyomi/supervisord.conf"]
