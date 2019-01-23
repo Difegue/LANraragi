@@ -1,5 +1,6 @@
 
 requires 'perl', '5.20.2';
+requires 'local::lib', 2.000024;
 
 requires 'Redis', 1.991;
 requires 'Encode', 2.98;
