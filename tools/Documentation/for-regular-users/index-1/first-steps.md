@@ -63,6 +63,7 @@ Currently supported out of the box are:
 * nHentai
 * Chaika.moe
 * .json files embedded into your Archives from the eze userscript
+* .jsob files embedded into your Archives from HDoujin Downloader
 
 See the Adding Metadata section for more information.
 

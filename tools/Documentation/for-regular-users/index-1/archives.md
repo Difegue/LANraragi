@@ -35,5 +35,7 @@ Non-Web Readers are not officially supported, but you can build your own through
 
 {% page-ref page="../../extending-lanraragi/index/client-api.md" %}
 
-Some existing clients will be shown here if they ever get made.
+Here are some existing clients:
+
+* [Ichaival(Android)](https://github.com/Utazukin/Ichaival)  
 

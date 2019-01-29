@@ -13,14 +13,14 @@ Download/Install the following MSIs.
 * [Perl](https://strawberryperl.com/download/5.26.1.1/strawberry-perl-5.26.1.1-64bit.msi)
 * [Redis](https://github.com/MicrosoftArchive/redis/releases/download/win-3.2.100/Redis-x64-3.2.100.msi)
 * [Node and NPM](https://nodejs.org/dist/v9.4.0/node-v9.4.0-x64.msi)
-* [unar and lsar](https://theunarchiver.com/downloads/unarWindows.zip)
 
-Once Perl is installed, you'll want to run the following command to install PerlMagick: `ppm install Image-Magick`
+You'll also need to download Windows ports of the used libraries:
+* [libarchive, libpng and libjpeg](todo yooo)
 
 ### Installing LRR
 
 Clone/Download the Git repository somewhere\(or download one of [the releases](https://github.com/Difegue/LANraragi/releases)\).  
-Chock the unar/lsar executables in it, and run `npm run lanraragi-installer install-full`. You're done!
+Chock the libs in it, and run `npm run lanraragi-installer install-full`. You're done!
 
 You can start LRR by running `npm start` and opening [http://localhost:3000](http://localhost:3000).
 
