@@ -111,7 +111,9 @@ can_run('redis-server')
   or die 'NOT FOUND! Please install a Redis server before proceeding.';
 say("OK!");
 
-say("Ensure you have libarchive, libjpeg and libpng installed or the following step will fail!);
+say(
+"Ensure you have libarchive, libjpeg and libpng installed or the following step will fail!"
+);
 
 #Build & Install CPAN Dependencies
 if ( $back || $full ) {
