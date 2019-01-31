@@ -92,9 +92,9 @@ Tags are expected to be separated by commas, like this:
 
 `return ( tags => "my:new, tags:here, look ma no namespace" );`
 
-From 0.5.6-EX onwards, plugins can also modify the title of the archive:   
+From 0.5.6-EX onwards, plugins can also modify the title of the archive:  
 `return ( tags => "some:tags", title=>"My new epic archive title" );`  
-This parameter is completely optional. (The tags one isn't however, but it can very well be empty.)  
+This parameter is completely optional. \(The tags one isn't however, but it can very well be empty.\)
 
 If you couldn't obtain tags for some reason, you can tell LRR that an error occurred by returning a hash containing an "error" field:
 

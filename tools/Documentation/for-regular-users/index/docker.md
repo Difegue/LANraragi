@@ -45,9 +45,9 @@ If you're feeling **extra dangerous**, you can run the last files directly from 
 ## Changing the port
 
 Since Docker allows for port mapping, you can most of times map the default port of 3000 to another port on your host quickly.  
-If you need something a bit more involved (like adding SSL), please check the Network Interfaces section.
+If you need something a bit more involved \(like adding SSL\), please check the Network Interfaces section.
 
-{% page-ref page="network-interfaces.md" %}
+{% page-ref page="../advanced-usage/network-interfaces.md" %}
 
 ## Building your own
 
