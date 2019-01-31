@@ -42,13 +42,6 @@ If you're feeling **extra dangerous**, you can run the last files directly from 
 `docker run [zoinks] difegue/lanraragi:nightly`
 {% endhint %}
 
-## Changing the port
-
-Since Docker allows for port mapping, you can most of times map the default port of 3000 to another port on your host quickly.  
-If you need something a bit more involved (like adding SSL), please check the Network Interfaces section.
-
-{% page-ref page="network-interfaces.md" %}
-
 ## Building your own
 
 The previous setup gets a working LANraragi container from the Docker Hub, but you can build your own bleeding edge version by executing `npm run docker-build` from a cloned Git repo.

@@ -6,7 +6,7 @@ description: >-
 
 # Batch Tagging
 
-It's a pretty common occurence: You imported archives without enabling automatic tagging, or you suddenly want to add tags to a lot of archives at once. 
+It's a pretty common occurence: You imported archives without enabling automatic tagging, or you suddenly want to add tags to a lot of archives at once.
 
 Editing tags manually for each file ain't gonna cut it...
 
@@ -14,12 +14,12 @@ Enter **Batch Tagging**, allowing for laser-focus, one-time operations over larg
 
 ![Batch Tagging interface as of 0.5.6](../../.gitbook/assets/batch.png)
 
-All your archives are shown in the checklist on the right, with archives with no tags pre-checked for ease of access. 
+All your archives are shown in the checklist on the right, with archives with no tags pre-checked for ease of access.
 
 Past that, it's just a matter of selecting a plugin, optionally plugging in special arguments for the run, and going ham on tagging! The arguments available for overriding will depend on the plugin.
 
 {% hint style="info" %}
-As shown in the screenshot, you can only override **Global Arguments** in Batch Tagging. 
+As shown in the screenshot, you can only override **Global Arguments** in Batch Tagging.
 
 One-shot arguments, such as specifying a E-Hentai URL, are only available when editing a single archive through the classic Edit menu.
 {% endhint %}

@@ -32,6 +32,14 @@ vagrant provision
 
 Those two commands will update the wrapped Docker image to the latest one\(basically automatically doing the commands written up there on the Docker section\). No other operations are needed.
 
+## Update a Windows QuickStarter Install
+
+Simply overwrite your previous QuickStarter folder with the new one.
+
+{% hint style="danger" %}
+Do **not** delete the database \(dump.rdb\) or the content folder!
+{% endhint %}
+
 ## Update a source install
 
 Getting all the files from the latest release and pasting them in the directory of the application should give you a painless update 95% of the time.

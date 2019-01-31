@@ -16,7 +16,6 @@
   * [Reading Archives](for-regular-users/index-1/archives.md)
   * [Adding Metadata](for-regular-users/index-1/metadata.md)
 * [Advanced Usage](for-regular-users/advanced-usage/README.md)
-  * [Changing the Network Interface](for-regular-users/advanced-usage/network-interface.md)
   * [Favorite Tags](for-regular-users/advanced-usage/favorite-tags.md)
   * [Themes](for-regular-users/advanced-usage/themes.md)
   * [Backup and Restore](for-regular-users/advanced-usage/backup-and-restore.md)
