@@ -36,5 +36,6 @@ ENV LANGUAGE en_US.UTF-8
 COPY /tools/DockerSetup/redis.conf /home/koyomi/redis.conf
 COPY /tools/DockerSetup/supervisord.conf /home/koyomi/supervisord.conf
 
-
+#Environment variable overridable by the user on container deployment
+ENV LRR_NETWORK=http://*:3000
 ENTRYPOINT ["supervisord", "--nodaemon", "--configuration", "/home/koyomi/supervisord.conf"]

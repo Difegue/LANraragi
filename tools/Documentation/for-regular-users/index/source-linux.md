@@ -46,20 +46,10 @@ cd /home/koyomi/lanraragi && sudo npm run lanraragi-installer install-full
 Once this is done, you can get started by running `npm start` and opening [http://localhost:3000](http://localhost:3000).
 
 {% hint style="info" %}
-By default, LRR listens on all IPv4 Interfaces on port 3000. You can change this by setting your wished listen location as a parameter of `npm start`:
+By default, LRR listens on all IPv4 Interfaces on port 3000. 
+To change this and/or add SSL support, please see the matching page:
 
-```bash
-npm start http://127.0.0.1:8000
+{% page-ref page="network-interfaces.md" %}
 
-> LANraragi@0.5.0 start /mnt/c/Users/Tamamo/Desktop/lanraragi
-> perl ./script/lanraragi daemon -l "http://127.0.0.1:8000"
-
-ｷﾀ━━━━━━(ﾟ∀ﾟ)━━━━━━!!!!!
-[LANraragi] LANraragi 0.5.0 (re-)started. (Production Mode)
-[...]
-[Mojolicious] Listening at "http://127.0.0.1:8000"
-```
-
-All listen locations [supported by "listen" in Mojo::Server::Daemon](http://www.mojolicious.org/perldoc/Mojo/Server/Daemon#listen) are valid.
 {% endhint %}
 
