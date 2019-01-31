@@ -24,7 +24,7 @@ Installing from **source** is a more involved procedure, but it does put you in 
 
 ### Windows: 🙇‍ _please understand_ 🙇‍
 
-I used to provide a one-click Windows source port version, but have encountered increasing issues with it as I introduced modern features and dependencies.   
+I used to provide a one-click Windows source port version, but have encountered increasing issues with it as I introduced modern features and dependencies.  
 If you just want to try the software, you can still use the old one-click Quickstarter for [v.0.5.6.](https://github.com/Difegue/LANraragi/releases/download/v.0.5.6/LRR_0.5.6_QuickStarter_Windows.zip)
 
 It's _technically_ still possible to run the software on a Strawberry Perl release if you compile all the dependencies needed. The page below is outdated but can serve as a good place to start:
@@ -46,6 +46,4 @@ However, it is deceptively simple:
 In this hybrid setup, LRR interacts with the Windows Redis server seamlessly. Magic!
 
 Redis can be installed on the Linux side as well, but one would have to start it by hand alongside LRR on every OS boot.
-
-
 

@@ -10,7 +10,7 @@ As you might have noticed, LANraragi entirely depends on the Perl programming la
 A version of Perl usually ships already compiled on most Linux distributions. It's usually called "Vendor Perl".
 
 Using vendor Perl is [generally discouraged](http://www.modernperlbooks.com/mt/2012/01/avoiding-the-vendor-perl-fad-diet.html) due to possible fuck-ups by the Linux distribution creator.  
-As such, you might want to install LANraragi with your own compiled Perl, using a tool such as [Perlbrew](https://perlbrew.pl/).  
+As such, you might want to install LANraragi with your own compiled Perl, using a tool such as [Perlbrew](https://perlbrew.pl/).
 
 For information, my personal tests are done using Debian's vendor Perl.
 
@@ -24,7 +24,6 @@ cpanminus redis-server libarchive-dev libjpeg-dev libpng-dev libssl-dev zlib1g-d
 ```
 
 _Base software dependencies._
-
 
 ```text
 curl -sL https://deb.nodesource.com/setup_9.x | bash -
@@ -45,11 +44,11 @@ cd /home/koyomi/lanraragi && sudo npm run lanraragi-installer install-full
 
 Once this is done, you can get started by running `npm start` and opening [http://localhost:3000](http://localhost:3000).
 
+To change the default port or add SSL support, see this page:
+
+{% page-ref page="../advanced-usage/network-interfaces.md" %}
+
 {% hint style="info" %}
-By default, LRR listens on all IPv4 Interfaces on port 3000. 
-To change this and/or add SSL support, please see the matching page:
-
-{% page-ref page="network-interfaces.md" %}
-
+By default, LRR listens on all IPv4 Interfaces on port 3000, unsecured HTTP. 
 {% endhint %}
 
