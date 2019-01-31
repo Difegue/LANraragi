@@ -41,7 +41,9 @@ my @vendor_woff = (
     "/inter-ui/Inter UI (web)/Inter-UI-Bold.woff"
 );
 
-say("⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⣠⣴⣶⣿⠿⠟⠛⠓⠒⠤");
+say(
+"⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⣠⣴⣶⣿⠿⠟⠛⠓⠒⠤"
+);
 say("⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⣠⣾⣿⡟⠋");
 say("⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢰⣿⣿⠋");
 say("⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⣿⣿⠇⡀");
@@ -50,14 +52,30 @@ say("⢀⢀⢀⢀⢀⢀⢀⣶⣿⠿⠛⠁⠈⢻⡄⢀⠈⠙⠻⢿⣿⣆");
 say("⢀⢀⢀⢀⢀⢀⢸⣿⣿⣶⣤⣀⢀⢀⢀⢀⢀⣀⣤⣶⣿⣿");
 say("⢀⢀⢀⢀⢀⢀⢸⣿⣿⣿⣿⣿⣿⣶⣤⣶⣿⠿⠛⠉⣿⣿");
 say("⢀⢀⢀⢀⢀⢀⢸⣿⣿⣿⣿⣿⣿⣿⣿⠉⢀⢀⢀⢀⣿⣿");
-say("⢀⢀⢀⢀⣀⣤⣾⣿⣿⣿⣿⣿⣿⣿⣿⢀⢀⢀⣠⣴⣿⣿⣦⣄⡀");
-say("⢀⣤⣶⣿⠿⠟⠉⢀⠉⠛⠿⣿⣿⣿⣿⣴⣾⡿⠿⠋⠁⠈⠙⠻⢿⣷⣦⣄");
-say("⣿⣿⣯⣅⢀⢀⢀⢀⢀⢀⢀⣀⣭⣿⣿⣿⣍⡀⢀⢀⢀⢀⢀⢀⢀⣨⣿⣿⡇");
-say("⣿⣿⣿⣿⣿⣶⣤⣀⣤⣶⣿⡿⠟⢹⣿⣿⣿⣿⣷⣦⣄⣠⣴⣾⡿⠿⠋⣿⡇");
-say("⣿⣿⣿⣿⣿⣿⣿⣿⡟⠋⠁⢀⢀⢸⣿⣿⣿⣿⣿⣿⣿⣿⠛⠉⢀⢀⢀⣿⡇");
-say("⣿⣿⣿⣿⣿⣿⣿⣿⡇⢀⢀⢀⢀⣸⣿⣿⣿⣿⣿⣿⣿⣿⢀⢀⢀⢀⢀⣿⡇");
-say("⠙⢿⣿⣿⣿⣿⣿⣿⡇⢀⣠⣴⣿⡿⠿⣿⣿⣿⣿⣿⣿⣿⢀⣀⣤⣾⣿⠟⠃");
-say("⢀⢀⠈⠙⠿⣿⣿⣿⣷⣿⠿⠛⠁⢀⢀⢀⠉⠻⢿⣿⣿⣿⣾⡿⠟⠉");
+say(
+"⢀⢀⢀⢀⣀⣤⣾⣿⣿⣿⣿⣿⣿⣿⣿⢀⢀⢀⣠⣴⣿⣿⣦⣄⡀"
+);
+say(
+"⢀⣤⣶⣿⠿⠟⠉⢀⠉⠛⠿⣿⣿⣿⣿⣴⣾⡿⠿⠋⠁⠈⠙⠻⢿⣷⣦⣄"
+);
+say(
+"⣿⣿⣯⣅⢀⢀⢀⢀⢀⢀⢀⣀⣭⣿⣿⣿⣍⡀⢀⢀⢀⢀⢀⢀⢀⣨⣿⣿⡇"
+);
+say(
+"⣿⣿⣿⣿⣿⣶⣤⣀⣤⣶⣿⡿⠟⢹⣿⣿⣿⣿⣷⣦⣄⣠⣴⣾⡿⠿⠋⣿⡇"
+);
+say(
+"⣿⣿⣿⣿⣿⣿⣿⣿⡟⠋⠁⢀⢀⢸⣿⣿⣿⣿⣿⣿⣿⣿⠛⠉⢀⢀⢀⣿⡇"
+);
+say(
+"⣿⣿⣿⣿⣿⣿⣿⣿⡇⢀⢀⢀⢀⣸⣿⣿⣿⣿⣿⣿⣿⣿⢀⢀⢀⢀⢀⣿⡇"
+);
+say(
+"⠙⢿⣿⣿⣿⣿⣿⣿⡇⢀⣠⣴⣿⡿⠿⣿⣿⣿⣿⣿⣿⣿⢀⣀⣤⣾⣿⠟⠃"
+);
+say(
+"⢀⢀⠈⠙⠿⣿⣿⣿⣷⣿⠿⠛⠁⢀⢀⢀⠉⠻⢿⣿⣿⣿⣾⡿⠟⠉"
+);
 say("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 say("~~~~~LANraragi Installer~~~~~");
 say("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
@@ -93,34 +111,9 @@ can_run('redis-server')
   or die 'NOT FOUND! Please install a Redis server before proceeding.';
 say("OK!");
 
-#Check for unar
-say("Checking for unar...");
-can_run('unar') 
-  or die 'NOT FOUND! Please install unar before proceeding.';
-say("OK!");
-
-#Check for PerlMagick
-say("Checking for ImageMagick/PerlMagick...");
-my $imgk;
-
-eval {
-    require Image::Magick;
-    $imgk = Image::Magick->QuantumDepth;
-};
-
-if ($@) {
-    say("NOT FOUND");
-    say("Please install ImageMagick with Perl before proceeding.");
-    say(
-"Further instructions are available at https://www.imagemagick.org/script/perl-magick.php ."
-    );
-    say("The ImageMagick detection command returned: $imgk -- $@");
-    die;
-}
-else {
-    say( "Returned QuantumDepth: " . $imgk );
-    say("OK!");
-}
+say(
+"Ensure you have libarchive, libjpeg and libpng installed or the following step will fail!"
+);
 
 #Build & Install CPAN Dependencies
 if ( $back || $full ) {
@@ -166,11 +159,15 @@ if ( $front || $full ) {
 
 #Done!
 say("\r\nAll set! You can start LANraragi by typing the command: \r\n");
-say("   ╭─────────────────────────────────────╮");
+say(
+"   ╭─────────────────────────────────────╮"
+);
 say("   │                                     │");
 say("   │              npm start              │");
 say("   │                                     │");
-say("   ╰─────────────────────────────────────╯");
+say(
+"   ╰─────────────────────────────────────╯"
+);
 
 sub cp_node_module {
 
@@ -190,7 +187,7 @@ sub install_package {
     my $package = $_[0];
 
     eval "require $package";
-    
+
     if ($@) {
         say("$package not installed! Trying to install now using cpanm.");
         system("cpanm $package");

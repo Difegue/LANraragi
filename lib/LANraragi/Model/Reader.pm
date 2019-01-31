@@ -5,7 +5,6 @@ use warnings;
 use utf8;
 
 use Redis;
-use IPC::Cmd qw[can_run run];
 use File::Basename;
 use File::Path qw(remove_tree);
 use Encode;
@@ -13,6 +12,7 @@ use File::Find::utf8 qw(find);
 use URI::Escape;
 
 use LANraragi::Model::Config;
+use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database;
 
 #magical sort function used below
@@ -50,12 +50,13 @@ sub build_reader_JSON {
     my $dirname = LANraragi::Model::Config::get_userdir();
 
     #We opened this id in the reader, so we can't mark it as "new" anymore.
-    if ($redis->hget($id, "isnew") eq "block") {
+    if ( $redis->hget( $id, "isnew" ) eq "block" ) {
         $redis->hset( $id, "isnew", "none" );
+
         #Trigger a JSON cache refresh
         LANraragi::Utils::Database::invalidate_cache();
     }
-    
+
     #Get the path from Redis.
     my $zipfile = $redis->hget( $id, "file" );
     $zipfile = LANraragi::Utils::Database::redis_decode($zipfile);
@@ -76,25 +77,14 @@ sub build_reader_JSON {
     #Now, has our file been extracted to the temporary directory recently?
     #If it hasn't, we call unar to do it.
     #If the file hasn't been extracted, or if force-reload =1
-    unless (-e $path ) {
-        my $unarcmd = "unar -D -o $path \"$zipfile\" ";
+    unless ( -e $path ) {
+        my $log = LANraragi::Utils::Archive::extract_archive( $path, $zipfile );
 
-        #Extraction using unar without creating extra folders.
-
-        my ( $success, $error_message, $full_buf, $stdout_buf, $stderr_buf ) =
-          run( command => $unarcmd, verbose => 0 );
-
-        #Has the archive been extracted ? 
-        #If not, stop here and print an error page.
-        unless ( -e $path ) {
-            my $errlog = join "<br/>", @$full_buf;
-            $errlog = decode_utf8($errlog);
-            $self->LRR_LOGGER->error("ERROR while unpacking archive: $errlog");
-            die $errlog;
+        $self->LRR_LOGGER->debug("Extraction of archive to $path done");
+        if ($log) {
+            $self->LRR_LOGGER->debug("Error log from libarchive : $log");
         }
     }
-
-    $self->LRR_LOGGER->debug("Extracted archive successfully to $path");
 
     #Find the extracted images with a full search (subdirectories included),
     #treat them and jam them into an array.
@@ -122,8 +112,7 @@ sub build_reader_JSON {
     my $shasum = LANraragi::Utils::Generic::shasum( $images[0], 1 );
     $redis->hset( $id, "thumbhash", encode_utf8($shasum) );
 
-#Convert page 1 into a thumbnail for the main reader index if it's not been done already
-#(Or if it fucked up for some reason).
+    #Convert page 1 into a thumbnail for the main reader index
     my $thumbname = $dirname . "/thumb/" . $id . ".jpg";
     unless ( -e $thumbname && $thumbreload eq "0" ) {
 

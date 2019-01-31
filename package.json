@@ -1,6 +1,6 @@
 {
   "name": "lanraragi",
-  "version": "0.5.6-EX",
+  "version": "0.5.7",
   "description": "holla where the chinese comics at",
   "scripts": {
     "test": "perl ./script/lanraragi test tests/*.t",

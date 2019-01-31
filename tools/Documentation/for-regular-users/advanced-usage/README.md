@@ -6,6 +6,8 @@ description: >-
 
 # Advanced Usage
 
+{% page-ref page="network-interfaces.md" %}
+
 {% page-ref page="favorite-tags.md" %}
 
 {% page-ref page="themes.md" %}
