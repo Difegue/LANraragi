@@ -19,7 +19,7 @@ For information, my personal tests are done using Debian's vendor Perl.
 ```text
 apt-get update
 apt-get upgrade -y
-apt-get install build-essential make gnupg \
+apt-get install build-essential make gnupg pkg-config\
 cpanminus redis-server libarchive-dev libjpeg-dev libpng-dev libssl-dev zlib1g-dev
 ```
 
