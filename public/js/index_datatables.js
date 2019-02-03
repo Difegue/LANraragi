@@ -84,10 +84,10 @@ function initIndex(pagesize, dataSet) {
 
 	/* Custom filtering function which will only show new archives if the inbox button is toggled. */
 	$.fn.dataTable.ext.search.push(
-		function( settings, data, dataIndex ) {
-			
+		function (settings, data, dataIndex) {
+
 			input = $("#inboxbtn");
-		
+
 			if (!input.prop("checked"))
 				return true;
 
@@ -168,7 +168,7 @@ function titleColumnDisplay(data, type, full, meta) {
 		}
 
 		return titleHtml + '<a class="image-tooltip" onmouseover="buildImageTooltip($(this))" href="./reader?id=' + data.arcid + '">'
-			+ data.title + '</a><div class="caption" style="display: none;"><img src="./api/thumbnail?id=' 
+			+ data.title + '</a><div class="caption" style="display: none;"><img src="./api/thumbnail?id='
 			+ data.arcid + '" onerror="this.src=\'./img/noThumb.png\'"></div>';
 	}
 
@@ -274,6 +274,7 @@ function buildTagTooltip(target) {
 			my: 'middle right',
 			at: 'top left',
 			target: false,
+			viewport: $(window)
 		},
 		show: {
 			solo: true,

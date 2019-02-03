@@ -26,6 +26,7 @@ my @vendor_js = (
     "/datatables/media/js/jquery.dataTables.min.js",
     "/jqcloud2/dist/jqcloud.min.js",
     "/jquery/dist/jquery.min.js",
+    "/jquery-migrate/dist/jquery-migrate.min.js",
     "/jquery-toast-plugin/dist/jquery.toast.min.js",
     "/qtip2/dist/jquery.qtip.min.js",
     "/allcollapsible/dist/js/allcollapsible.min.js"
@@ -111,12 +112,10 @@ can_run('redis-server')
   or die 'NOT FOUND! Please install a Redis server before proceeding.';
 say("OK!");
 
-say(
-"Ensure you have libarchive, libjpeg and libpng installed or the following step will fail!"
-);
-
 #Build & Install CPAN Dependencies
 if ( $back || $full ) {
+    say("Ensure you have libarchive/libjpeg/libpng installed or this will fail!"
+    );
     say("\r\nInstalling Perl modules... This might take a while.\r\n");
 
     if ( system("cpanm --installdeps ./tools/. --notest") != 0 ) {

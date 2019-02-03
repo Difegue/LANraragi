@@ -15,6 +15,7 @@
 	[% csshead %]
 
 	<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/jquery-migrate.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.dataTables.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.qtip.min.js" type="text/JAVASCRIPT"></script>
