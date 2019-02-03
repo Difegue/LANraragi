@@ -182,6 +182,9 @@ sub new_archive_check {
                 );
                 $logger->warn("Our file: $filet");
                 $logger->warn("Cached file: $cachefile");
+
+                #Increment the processed count to account for the dupe file for the time being
+                $processed_archives++;
             }
         }
         else {
