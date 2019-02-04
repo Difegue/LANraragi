@@ -20,11 +20,11 @@ RUN apk update && \
     cpanm --notest --installdeps . -M https://cpan.metacpan.org && \
     npm run lanraragi-installer install-front && \
     apk add git cmake musl-dev gcc gettext-dev libintl && \
-    mkdir locales && cd locales && git clone https://gitlab.com/rilian-la-te/musl-locales.git && \
+    git clone https://gitlab.com/rilian-la-te/musl-locales.git && cd musl-locales &&\
     cmake . && make && make install && cd .. && \
     apk del perl-dev g++ make pkgconf gnupg wget ca-certificates curl nodejs nodejs-npm openssl-dev zlib-dev && \
     apk del git cmake musl-dev gcc gettext-dev libintl && \
-    rm -rf /root/.cpanm/* /usr/local/share/man/* node_modules locales
+    rm -rf /root/.cpanm/* /usr/local/share/man/* node_modules musl-locales
 
 #Copy remaining LRR files from context
 COPY / /home/koyomi/lanraragi
