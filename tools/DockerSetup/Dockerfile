@@ -23,7 +23,7 @@ RUN apk update && \
     mkdir locales && cd locales && git clone https://gitlab.com/rilian-la-te/musl-locales.git && \
     cmake . && make && make install && cd .. && \
     apk del perl-dev g++ make pkgconf gnupg wget ca-certificates curl nodejs nodejs-npm openssl-dev zlib-dev && \
-    apk del git cmake musl-dev gcc gettext-dev libintl
+    apk del git cmake musl-dev gcc gettext-dev libintl && \
     rm -rf /root/.cpanm/* /usr/local/share/man/* node_modules locales
 
 #Copy remaining LRR files from context
