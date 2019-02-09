@@ -15,14 +15,14 @@ ENV EV_EXTRA_DEFS -DEV_NO_ATFORK
 #Also build musl-locales to generate the en_US.UTF8 locale 
 RUN apk update && \
     apk add perl perl-io-socket-ssl perl-dev g++ make pkgconf gnupg wget curl nodejs nodejs-npm redis libarchive-dev libbz2 libjpeg-turbo-dev libpng-dev openssl-dev zlib-dev supervisor && \
+    apk add git cmake musl-dev gcc gettext-dev libintl && \
+    git clone https://gitlab.com/rilian-la-te/musl-locales.git && cd musl-locales &&\
+    cmake . && make && make install && cd .. && \
     curl -L https://cpanmin.us | perl - App::cpanminus && \
     cpanm https://gitlab.com/thedudeabides/crypt-rijndael/-/archive/musl-libc/crypt-rijndael-musl-libc.tar.gz && \
     cpanm --notest --installdeps . -M https://cpan.metacpan.org && \
     npm run lanraragi-installer install-front && \
-    apk add git cmake musl-dev gcc gettext-dev libintl && \
-    git clone https://gitlab.com/rilian-la-te/musl-locales.git && cd musl-locales &&\
-    cmake . && make && make install && cd .. && \
-    apk del perl-dev g++ make gnupg wget curl nodejs nodejs-npm openssl-dev  && \
+    apk del perl-dev g++ make gnupg wget curl nodejs nodejs-npm openssl-dev && \
     apk del git cmake ca-certificates musl-dev gcc gettext-dev libintl && \
     rm -rf /root/.cpanm/* /usr/local/share/man/* node_modules musl-locales
 
