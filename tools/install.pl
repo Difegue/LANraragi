@@ -38,8 +38,8 @@ my @vendor_woff = (
     "/open-sans-fontface/fonts/Bold/OpenSans-Bold.woff",
     "/roboto-fontface/fonts/roboto/Roboto-Regular.woff",
     "/roboto-fontface/fonts/roboto/Roboto-Bold.woff",
-    "/inter-ui/Inter UI (web)/Inter-UI-Regular.woff",
-    "/inter-ui/Inter UI (web)/Inter-UI-Bold.woff"
+    "/inter-ui/Inter (web)/Inter-Regular.woff",
+    "/inter-ui/Inter (web)/Inter-Bold.woff"
 );
 
 say(
