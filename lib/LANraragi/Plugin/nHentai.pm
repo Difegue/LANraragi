@@ -6,6 +6,7 @@ use warnings;
 #Plugins can freely use all Perl packages already installed on the system
 #Try however to restrain yourself to the ones already installed for LRR (see tools/cpanfile) to avoid extra installations by the end-user.
 use URI::Escape;
+use Mojo::JSON qw(decode_json);
 use Mojo::UserAgent;
 
 #You can also use the LRR Internal API when fitting.
@@ -19,7 +20,7 @@ sub plugin_info {
         name        => "nHentai",
         namespace   => "nhplugin",
         author      => "Difegue",
-        version     => "1.1",
+        version     => "1.2",
         description => "Searches nHentai for tags matching your archive.",
 
 #If your plugin uses/needs custom arguments, input their name here.
@@ -108,16 +109,24 @@ sub get_tags_from_NH {
 
     my $logger = LANraragi::Utils::Generic::get_logger( "nHentai", "plugins" );
 
-    my $URL = "https://nhentai.net/api/gallery/$gID";
+    my $URL = "https://nhentai.net/g/$gID/";
 
     my $ua = Mojo::UserAgent->new;
 
     my $res = $ua->get($URL)->result;
 
     my $textrep = $res->body;
-    $logger->debug("nH API returned this JSON: $textrep");
+    $logger->debug("nH gallery HTML is: \n $textrep");
 
-    my $json = $res->json;
+    #Find the metadata JSON in the HTML and turn it into an object
+    #It's located under a N.gallery JS object.
+    my $jsonstring = "{}";
+    if ($textrep =~ /.*N\.gallery\((.*)\);\n.*/gmi ) {
+        $jsonstring = $1;
+    }
+
+    my $json = decode_json $jsonstring;
+
     my $tags = $json->{"tags"};
 
 #TODO: support for NH's "pretty" names? (romaji titles without extraneous data we already have like (Event)[Artist], etc)
