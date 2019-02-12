@@ -9,6 +9,6 @@ LABEL "com.github.actions.description"="Runs perlcritic on the codebase."
 LABEL "com.github.actions.icon"="eye"
 LABEL "com.github.actions.color"="orange"
 
-COPY . .
+COPY ../.. .
 ENTRYPOINT ["perlcritic"]
 CMD ["./lib/* ./script/* ./tools/install.pl"]
