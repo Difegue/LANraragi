@@ -13,5 +13,5 @@ LABEL "com.github.actions.color"="purple"
 #Fully copy the repo and run tests
 COPY . .
 ENTRYPOINT ["perl"]
-CMD ["script/lanraragi test tests/*.t"]
+CMD ["./script/lanraragi test tests/*.t"]
 
