@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Just run the perl tests on the repo
-echo "\n🎌 Running LRR Test Suite 🎌\n"
-echo ls -l
-perl ./script/lanraragi test tests/*.t
+echo "🎌 Running LRR Test Suite 🎌"
+
+# Start a redis server instance and run the perl tests on the repo
+/usr/bin/redis-server /home/koyomi/redis.conf & perl ./script/lanraragi test tests/*.t
 

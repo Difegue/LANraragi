@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# Return neutral error code if critic fails as it isn't a showstopper for now
+violations = $(perlcritic ./lib/* ./script/* ./tools/install.pl)
+success = $?
+echo $violations
+
+if [ $success -ne 0 ]; then
+    #Report the critic violations in a comment on the commit
+
+    COMMENT = "#### Perl Critic Notes:
+    <details>
+        <summary><code>'$violatios'</code></summary>
+    </details>
+    "
+    PAYLOAD=$(echo '{}' | jq --arg body "$COMMENT" '.body = $body')
+    COMMIT_URL=$(cat /github/workflow/event.json | jq -r .repository.comments_url)
+    curl -s -S -H "Authorization: token $GITHUB_TOKEN" --header "Content-Type: application/json" --data "$PAYLOAD" "$COMMIT_URL" > /dev/null
+
+    exit 78
+fi
+exit $success
