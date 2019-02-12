@@ -10,9 +10,8 @@ LABEL "com.github.actions.description"="Runs the LRR tests."
 LABEL "com.github.actions.icon"="check"
 LABEL "com.github.actions.color"="purple"
 
-#Fully copy the repo from this commit and run tests
-WORKDIR /home/koyomi/lanraragi
-COPY ../.. .
-ENTRYPOINT ["perl"]
-CMD ["./script/lanraragi test tests/*.t"]
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
 
