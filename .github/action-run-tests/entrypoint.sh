@@ -6,5 +6,5 @@ echo "🎌 Running LRR Test Suite 🎌"
 /usr/bin/redis-server --daemonize yes
 
 # Run the perl tests on the repo
-perl ./script/lanraragi test tests/*.t
+prove -l tests/*.t
 
