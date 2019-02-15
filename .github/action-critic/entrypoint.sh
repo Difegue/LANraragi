@@ -14,7 +14,8 @@ if [ $success -ne 0 ]; then
     </details>
     "
     PAYLOAD=$(echo '{}' | jq --arg body "$COMMENT" '.body = $body')
-    COMMIT_URL=$(cat /github/workflow/event.json | jq -r .repository.comments_url)
+    COMMIT_URL=$(cat /github/workflow/event.json | jq -r .repository.commits_url)/comments
+    echo "Pushing payload to $COMMIT_URL"
     curl -s -S -H "Authorization: token $GITHUB_TOKEN" --header "Content-Type: application/json" --data "$PAYLOAD" "$COMMIT_URL" > /dev/null
 
     exit 78
