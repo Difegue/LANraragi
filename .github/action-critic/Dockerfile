@@ -9,7 +9,7 @@ LABEL "com.github.actions.description"="Runs perlcritic on the codebase."
 LABEL "com.github.actions.icon"="eye"
 LABEL "com.github.actions.color"="orange"
 
-RUN apk add --no-cache bash ca-certificates ccoreutils curl jq perl perl-io-socket-ssl perl-dev && \
+RUN apk add --no-cache bash ca-certificates coreutils curl jq perl perl-io-socket-ssl perl-dev && \
     curl -L https://cpanmin.us | perl - App::cpanminus && \
     cpanm Perl::Critic
 
