@@ -25,8 +25,8 @@ RUN apk update && \
     cpanm https://gitlab.com/thedudeabides/crypt-rijndael/-/archive/musl-libc/crypt-rijndael-musl-libc.tar.gz && \
     cpanm --notest --installdeps . -M https://cpan.metacpan.org && \
     npm run lanraragi-installer install-front && \
-    apk del perl-dev g++ make gnupg wget curl nodejs nodejs-npm openssl-dev ca-certificates && \
-    rm -rf /root/.cpanm/* /usr/local/share/man/* *.apk node_modules musl-locales
+    apk del perl-dev g++ make gnupg wget curl nodejs nodejs-npm openssl-dev && \
+    rm -rf /root/.cpanm/* /usr/local/share/man/* *.apk node_modules 
 
 #Copy remaining LRR files from context
 COPY / /home/koyomi/lanraragi

@@ -185,7 +185,10 @@ sub install_package {
 
     my $package = $_[0];
 
-    eval { require $package };
+    ## no critic
+    eval "require $package"
+      ; #Run-time evals are needed here to check if the package has been properly installed.
+    ## use critic
 
     if ($@) {
         say("$package not installed! Trying to install now using cpanm.");
