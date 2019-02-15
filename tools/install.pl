@@ -185,7 +185,7 @@ sub install_package {
 
     my $package = $_[0];
 
-    eval "require $package";
+    eval { require $package };
 
     if ($@) {
         say("$package not installed! Trying to install now using cpanm.");
