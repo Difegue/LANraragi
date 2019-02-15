@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Return neutral error code if critic fails as it isn't a showstopper for now
 violations = $(perlcritic ./lib/* ./script/* ./tools/install.pl)
@@ -10,7 +10,7 @@ if [ $success -ne 0 ]; then
 
     COMMENT = "#### Perl Critic Notes:
     <details>
-        <summary><code>'$violatios'</code></summary>
+        <summary><code>'$violations'</code></summary>
     </details>
     "
     PAYLOAD=$(echo '{}' | jq --arg body "$COMMENT" '.body = $body')
