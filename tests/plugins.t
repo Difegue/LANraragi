@@ -46,8 +46,7 @@ my $test_mwee_ID =
 is( $test_mwee_ID, $mwee_ID, 'chaika.moe search test' );
 
 my $mwee_tags =
-"female:sole female, male:sole male, artist:kemuri haku, full censorship, male:shotacon, female:defloration, female:nakadashi, female:big breasts, language:translated, language:english
-";
+"female:sole female, male:sole male, artist:kemuri haku, full censorship, male:shotacon, female:defloration, female:nakadashi, female:big breasts, language:translated, language:english";
 my $test_mwee_tags =
   LANraragi::Plugin::Chaika::tags_from_chaika( "archive", $mwee_ID );
 
