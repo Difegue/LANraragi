@@ -1,6 +1,6 @@
 workflow "Continuous Integration 👌👀" {
   on = "push"
-  resolves = ["Run Tests", "Style Check"]
+  resolves = ["Style Check"]
 }
 
 action "Run Tests" {
@@ -9,4 +9,6 @@ action "Run Tests" {
 
 action "Style Check" {
   uses = "./.github/action-critic"
+  needs = ["Run Tests"]
+  secrets = ["GITHUB_TOKEN"]
 }
