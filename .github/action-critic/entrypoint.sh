@@ -1,14 +1,14 @@
 #!/bin/bash
 
 # Return neutral error code if critic fails as it isn't a showstopper for now
-violations = $(perlcritic ./lib/* ./script/* ./tools/install.pl)
-success = $?
-echo $violations
+violations=$(perlcritic ./lib/* ./script/* ./tools/install.pl)
+success=$?
+echo "$violations"
 
 if [ $success -ne 0 ]; then
     #Report the critic violations in a comment on the commit
 
-    COMMENT = "#### Perl Critic Notes:
+    COMMENT="#### Perl Critic Notes:
     <details>
         <summary><code>'$violations'</code></summary>
     </details>
