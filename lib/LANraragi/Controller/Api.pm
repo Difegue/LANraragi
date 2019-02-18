@@ -10,6 +10,7 @@ use File::Path qw(remove_tree);
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database;
+use LANraragi::Utils::TempFolder;
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
@@ -26,42 +27,49 @@ sub serve_archivelist {
         my $archivejson =
           decode_utf8( $redis->hget( "LRR_JSONCACHE", "archive_list" ) );
 
-        #Decode the json back to an array so we can use the built-in mojo json render
-        $self->render( json => from_json ($archivejson) );
-    } else {
+   #Decode the json back to an array so we can use the built-in mojo json render
+        $self->render( json => from_json($archivejson) );
+    }
+    else {
         $self->render( json => () );
     }
 }
 
 sub extract_archive {
 
-    my $self  = shift;
-    my $id    = $self->req->param('id') || "0";
+    my $self = shift;
+    my $id = $self->req->param('id') || "0";
 
-    if ($id eq "0") {
+    if ( $id eq "0" ) {
+
         #High-level API documentation!
-        $self->render(json => {
-            error => "API usage: extract?id=YOUR_ID"
-            });
+        $self->render(
+            json => {
+                error => "API usage: extract?id=YOUR_ID"
+            }
+        );
         return;
     }
 
     #Basically just API glue to the existing reader method.
     my $readerjson;
-    
-    eval { 
-        $readerjson = LANraragi::Model::Reader::build_reader_JSON($self,$id,"0","0");
+
+    eval {
+        $readerjson =
+          LANraragi::Model::Reader::build_reader_JSON( $self, $id, "0", "0" );
     };
     my $err = $@;
 
     if ($err) {
-        $self->render(json => {
-            pages => (),
-            error => $err
+        $self->render(
+            json => {
+                pages => (),
+                error => $err
             }
         );
-    } else {
-        $self->render( json => decode_json ($readerjson) );
+    }
+    else {
+        $self->render( json => decode_json($readerjson) );
     }
 }
 
@@ -69,14 +77,17 @@ sub extract_archive {
 sub serve_file {
 
     my $self  = shift;
-    my $id    = $self->req->param('id')  || "0";
+    my $id    = $self->req->param('id') || "0";
     my $redis = $self->LRR_CONF->get_redis();
 
-    if ($id eq "0") {
+    if ( $id eq "0" ) {
+
         #High-level API documentation!
-        $self->render(json => {
-            error => "API usage: servefile?id=YOUR_ID"
-            });
+        $self->render(
+            json => {
+                error => "API usage: servefile?id=YOUR_ID"
+            }
+        );
         return;
     }
 
@@ -88,32 +99,16 @@ sub serve_file {
 sub clean_tempfolder {
 
     my $self = shift;
-    remove_tree( './public/temp', { error => \my $err } );
 
-    my $cleanmsg = "";
-    if (@$err) {
-        for my $diag (@$err) {
-            my ( $file, $message ) = %$diag;
-            if ( $file eq '' ) {
-                $self->LRR_LOGGER->error( "General error: " . $message );
-                $cleanmsg = "General error: $message\n";
-            }
-            else {
-                $self->LRR_LOGGER->error("Problem unlinking $file: $message");
-                $cleanmsg = "Problem unlinking $file: $message\n";
-            }
-        }
-    }
-
-    my $size = 0;
-    find( sub { $size += -s if -f }, "./public/temp" );
+    #Run a full clean, errors are dumped into $@ if they occur
+    eval { LANraragi::Utils::TempFolder::clean_temp_full };
 
     $self->render(
         json => {
             operation => "cleantemp",
-            success   => $cleanmsg eq "",
-            error     => $cleanmsg,
-            newsize   => int( $size / 1048576 * 100 ) / 100
+            success   => $@ eq "",
+            error     => $@,
+            newsize   => LANraragi::Utils::TempFolder::get_tempsize
         }
     );
 }
@@ -121,14 +116,17 @@ sub clean_tempfolder {
 sub serve_thumbnail {
     my $self = shift;
 
-    my $id      = $self->req->param('id') || "0";
+    my $id = $self->req->param('id') || "0";
     my $dirname = $self->LRR_CONF->get_userdir;
 
-    if ($id eq "0") {
+    if ( $id eq "0" ) {
+
         #High-level API documentation!
-        $self->render(json => {
-            error => "API usage: thumbnail?id=YOUR_ID"
-            });
+        $self->render(
+            json => {
+                error => "API usage: thumbnail?id=YOUR_ID"
+            }
+        );
         return;
     }
 
@@ -142,7 +140,7 @@ sub serve_thumbnail {
 
     }
 
-    #Simply serve the thumbnail. 
+    #Simply serve the thumbnail.
     #If it doesn't exist, serve an error placeholder instead.
     if ( -e $thumbname ) {
         $self->render_file( filepath => $thumbname );
@@ -173,8 +171,9 @@ sub clear_new {
 
     #Get all archives thru redis
     my $redis = $self->LRR_CONF->get_redis();
-    my @keys  = $redis->keys( '????????????????????????????????????????' ); 
-    #40-character long keys only => Archive IDs 
+    my @keys  = $redis->keys('????????????????????????????????????????');
+
+    #40-character long keys only => Archive IDs
 
     foreach my $id (@keys) {
         $redis->hset( $id, "isnew", "none" );
@@ -236,7 +235,7 @@ sub use_enabled_plugins {
 sub use_plugin {
 
     my $self = shift;
-    my ($id, $plugname, $oneshotarg, $redis) = &get_plugin_params($self);
+    my ( $id, $plugname, $oneshotarg, $redis ) = &get_plugin_params($self);
 
     my $plugin = LANraragi::Utils::Database::plugin_lookup($plugname);
     my @args   = ();
@@ -248,17 +247,18 @@ sub use_plugin {
 
         #Execute the plugin, appending the custom args at the end
         my %plugin_result =
-        LANraragi::Model::Plugins::exec_plugin_on_file( $plugin, $id,
-        $oneshotarg, @args );
+          LANraragi::Model::Plugins::exec_plugin_on_file( $plugin, $id,
+            $oneshotarg, @args );
 
         #Returns the fetched tags in a JSON response.
         $self->render(
             json => {
                 operation => "fetch_tags",
-                success   => (exists $plugin_result{error} ? 0:1),
+                success   => ( exists $plugin_result{error} ? 0 : 1 ),
                 message   => $plugin_result{error},
                 tags      => $plugin_result{new_tags},
-                title     => (exists $plugin_result{title} ? $plugin_result{title}:"")
+                title =>
+                  ( exists $plugin_result{title} ? $plugin_result{title} : "" )
             }
         );
         return;
@@ -272,10 +272,9 @@ sub get_plugin_params {
     my $self = shift;
 
     return (
-        $self->req->param('id'),
-        $self->req->param('plugin'),
-        $self->req->param('arg'),
-        $self->LRR_CONF->get_redis());
+        $self->req->param('id'),  $self->req->param('plugin'),
+        $self->req->param('arg'), $self->LRR_CONF->get_redis()
+    );
 }
 
 sub print_plugin_not_found {

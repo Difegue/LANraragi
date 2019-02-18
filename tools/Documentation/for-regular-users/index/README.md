@@ -31,7 +31,7 @@ It's _technically_ still possible to run the software on a Strawberry Perl relea
 
 {% page-ref page="source-windows.md" %}
 
-Keep in mind that Batch Tagging will not work at all under Windows due to its reliance on [Mojolicious subprocesses.](https://metacpan.org/pod/distribution/Mojolicious/lib/Mojolicious/Guides/FAQ.pod#How-well-is-Windows-supported-by-Mojolicious?)
+Keep in mind that Batch Tagging will not work at all under Windows due to its reliance on [Mojolicious subprocesses.](https://metacpan.org/pod/distribution/Mojolicious/lib/Mojolicious/Guides/FAQ.pod#How-well-is-Windows-supported-by-Mojolicious?) In a similar fashion, many features will probably stop working as releases progress and I use more Linux-specific features out of convenience.
 
 ### Bonus: Windows Subsystem for Linux Installation
 
@@ -47,3 +47,30 @@ In this hybrid setup, LRR interacts with the Windows Redis server seamlessly. Ma
 
 Redis can be installed on the Linux side as well, but one would have to start it by hand alongside LRR on every OS boot.
 
+### Bonus 2: A memo about reverse proxies
+
+A common post-install setup is to make requests to the app transit through a gateway server such as Apache or nginx.  
+If you do so, please note that archive uploads through LRR will likely **not work out of the box** due to maximum sizes on uploads those servers can enforce. The example below is for nginx:  
+
+```
+server {
+    listen 80;
+
+    server_name lanraragi.[REDACTED].net;
+
+    return 301 https://$host$request_uri;
+}
+server {
+    listen 443 ssl;
+    index index.php index.html index.htm;
+    server_name lanraragi.[REDACTED].net;
+
+    client_max_body_size 0;   <----------------------- This line here
+
+    # Cert Stuff Omitted
+
+    location / {
+        proxy_pass http://0.0.0.0:3000;
+    }
+}
+```

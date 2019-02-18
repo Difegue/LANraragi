@@ -29,9 +29,6 @@ sub get_redisdb { return $config->{redis_database} }
 #Default CSS file to load.
 sub get_style { return $config->{default_theme} }
 
-#Interval between executions of the Shinobu Background Worker.
-sub get_interval { return $config->{shinobu_interval} }
-
 #get_redis
 #Create a redis object with the parameters defined at the start of this file and return it
 sub get_redis {
@@ -84,7 +81,8 @@ sub get_motd {
     );
 }
 
-sub get_userdir {    
+sub get_userdir {
+
     #Try to create userdir if it doesn't already exist
     my $dir = &get_redis_conf( "dirname", "./content" );
 
@@ -113,10 +111,11 @@ sub enable_pass     { return &get_redis_conf( "enablepass",  "1" ) }
 sub enable_nofun    { return &get_redis_conf( "nofunmode",   "0" ) }
 sub enable_autotag  { return &get_redis_conf( "autotag",     "1" ) }
 sub enable_devmode  { return &get_redis_conf( "devmode",     "0" ) }
-sub get_apikey      { return &get_redis_conf( "apikey",      ""  ) }
-sub get_tagregex    { return &get_redis_conf( "tagregex",    "1"  ) }
+sub get_apikey      { return &get_redis_conf( "apikey",      "" ) }
+sub get_tagregex    { return &get_redis_conf( "tagregex",    "1" ) }
+
 #Use the number of the favtag you want to get as a parameter to this sub.
-sub get_favtag      { return &get_redis_conf( "fav".$_[1],   ""  ) }
+sub get_favtag { return &get_redis_conf( "fav" . $_[1], "" ) }
 
 #Assign a name to the css file passed. You can add names by adding cases.
 #Note: CSS files added to the /themes folder will ALWAYS be pickable by the users no matter what.

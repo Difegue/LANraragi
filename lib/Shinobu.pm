@@ -23,48 +23,59 @@ BEGIN {
 }    #As this is a new process, reloading the LRR libs into INC is needed.
 
 use Mojolicious;
+use Linux::Inotify2;
 use File::Find::utf8;
 use File::Basename;
-use File::stat;
 use File::Path qw(make_path remove_tree);
 use Encode;
 
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database;
+use LANraragi::Utils::TempFolder;
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
 
 sub initialize_from_new_process {
 
-    my $interval = LANraragi::Model::Config::get_interval;
     my $logger =
       LANraragi::Utils::Generic::get_logger( "Shinobu", "lanraragi" );
 
-    $logger->info(
-"Shinobu Background Worker started -- Content folder will be scanned every $interval seconds."
-    );
+    my $userdir = LANraragi::Model::Config::get_userdir;
+
+    $logger->info("Shinobu Background Worker started.");
     $logger->info( "Working dir is " . cwd );
+    $logger->info("Adding inotify watches to content folder $userdir");
 
-    my $count = $interval - 1;
+    # create a new object
+    my $inotify = new Linux::Inotify2
+      or die "unable to create new inotify object: $!";
 
-    while (1) {
+    # add watches to content directory and all subdirectories
+    $inotify->watch(
+        $userdir,
+        IN_CREATE | IN_MOVED_TO,
+        sub {
+            my $e    = shift;
+            my $name = $e->fullname;
+            print "$name was accessed\n"              if $e->IN_ACCESS;
+            print "$name is no longer mounted\n"      if $e->IN_UNMOUNT;
+            print "$name is gone\n"                   if $e->IN_IGNORED;
+            print "events for $name have been lost\n" if $e->IN_Q_OVERFLOW;
 
-        eval {
-            $count++;
-            workload( $count eq $interval );
-
-            if ( $count eq $interval ) {
-                $count = 0;
-            }
-        };
-        if ($@) {
-            $logger->error($@);
+            # cancel this watcher: remove no further events
+            $e->w->cancel;
         }
+    );
 
-        sleep(1);
-    }
+    # except the "thumb" subdirectory
+
+    # add a watch to the temp folder
+    # this performs LANraragi::Utils::TempFolder::clean_temp_partial
+
+    # manual event loop
+    $inotify->poll while 1;
 
 }
 
@@ -116,7 +127,7 @@ sub workload {
 
     }
 
-    if ( -e "$FindBin::Bin/../public/temp" ) { &autoclean_temp_folder; }
+    if ( -e LANraragi::Utils::TempFolder::get_temp ) { &autoclean_temp_folder; }
 
 }
 
@@ -183,7 +194,7 @@ sub new_archive_check {
                 $logger->warn("Our file: $filet");
                 $logger->warn("Cached file: $cachefile");
 
-                #Increment the processed count to account for the dupe file for the time being
+  #Increment the processed count to account for the dupe file for the time being
                 $processed_archives++;
             }
         }
@@ -199,68 +210,6 @@ sub new_archive_check {
             }
             $processed_archives++;
         }
-    }
-}
-
-sub autoclean_temp_folder {
-
-    my $logger =
-      LANraragi::Utils::Generic::get_logger( "Shinobu", "lanraragi" );
-
-    my $size = 0;
-    find( sub { $size += -s if -f }, "$FindBin::Bin/../public/temp" );
-    $size = int( $size / 1048576 * 100 ) / 100;
-
-    my $maxsize = LANraragi::Model::Config::get_tempmaxsize;
-
-    if ( $size > $maxsize ) {
-        $logger->info( "Current temporary folder size is $size MBs, "
-              . "Maximum size is $maxsize MBs. Cleaning." );
-
-#Remove all folders in /public/temp except the most recent one
-#For this, we use Perl's ctime, which uses inode last modified time on Unix and Win32 creation time on Windows.
-        my $dir_name = "$FindBin::Bin/../public/temp";
-
-        #Wipe thumb temp folder first
-        if ( -e $dir_name . "/thumb" ) { unlink( $dir_name . "/thumb" ); }
-
-        opendir( my $dir_fh, $dir_name );
-
-        my @folder_list;
-        while ( my $file = readdir $dir_fh ) {
-
-            next unless -d $dir_name . '/' . $file;
-            next if $file eq '.' or $file eq '..';
-
-            push @folder_list, "$dir_name/$file";
-        }
-        closedir $dir_fh;
-
-        @folder_list = sort {
-            my $a_stat = stat($a);
-            my $b_stat = stat($b);
-            $a_stat->ctime <=> $b_stat->ctime;
-        } @folder_list;
-
-        #Remove all folders in folderlist except the last one
-        my $survivor = pop @folder_list;
-        $logger->debug("Deleting all folders in /temp except $survivor");
-
-        remove_tree( @folder_list, { error => \my $err } );
-
-        if (@$err) {
-            for my $diag (@$err) {
-                my ( $file, $message ) = %$diag;
-                if ( $file eq '' ) {
-                    $logger->error("General error: $message\n");
-                }
-                else {
-                    $logger->error("Problem unlinking $file: $message\n");
-                }
-            }
-        }
-
-        $logger->info("Done!");
     }
 }
 
@@ -299,10 +248,10 @@ sub build_json_cache {
     }
 
     #Remove trailing comma if there's one
-    if (length $json > 1) {
+    if ( length $json > 1 ) {
         chop $json;
     }
-    
+
     $json .= "]";
 
     #Write JSON to cache

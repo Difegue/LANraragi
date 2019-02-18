@@ -14,6 +14,7 @@ use URI::Escape;
 use LANraragi::Model::Config;
 use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database;
+use LANraragi::Utils::TempFolder;
 
 #magical sort function used below
 sub expand {
@@ -43,7 +44,7 @@ sub resize_image {
 sub build_reader_JSON {
 
     my ( $self, $id, $force, $thumbreload ) = @_;
-    my $tempdir = "./public/temp";
+    my $tempdir = LANraragi::Utils::TempFolder::get_temp;
 
     #Redis stuff: Grab archive path and update some things
     my $redis   = LANraragi::Model::Config::get_redis();
