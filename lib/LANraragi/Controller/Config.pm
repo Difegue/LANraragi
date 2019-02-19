@@ -19,6 +19,8 @@ sub index {
 
     $self->render(
         template    => "config",
+        version     => $self->LRR_VERSION,
+        vername     => $self->LRR_VERNAME,
         motd        => $self->LRR_CONF->get_motd,
         dirname     => $self->LRR_CONF->get_userdir,
         pagesize    => $self->LRR_CONF->get_pagesize,

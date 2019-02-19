@@ -51,7 +51,6 @@ sub index {
 
     my $self = shift;
 
-    my $version = $self->config->{version};
     my $redis   = $self->LRR_CONF->get_redis();
 
     my $force = 0;
@@ -93,7 +92,6 @@ sub index {
         favtags         => \@validFavs,
         usingdefpass    => $passcheck,
         buildingDBcache => $force,
-        version         => $version,
         debugmode       => $self->app->mode eq "development"
     );
 }

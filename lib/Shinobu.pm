@@ -71,8 +71,10 @@ sub initialize_from_new_process {
 
     # except the "thumb" subdirectory
 
-    # add a watch to the temp folder
-    # this performs LANraragi::Utils::TempFolder::clean_temp_partial
+    # add a watch to the temp folder on created folders
+    # Check the current folder size and clean it if necessary
+    $inotify->watch( LANraragi::Utils::TempFolder::get_temp,
+        IN_CREATE, LANraragi::Utils::TempFolder::clean_temp_partial );
 
     # manual event loop
     $inotify->poll while 1;

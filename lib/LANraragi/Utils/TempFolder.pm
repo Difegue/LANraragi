@@ -41,11 +41,9 @@ sub clean_temp_full {
         for my $diag (@$err) {
             my ( $file, $message ) = %$diag;
             if ( $file eq '' ) {
-                $self->LRR_LOGGER->error( "General error: " . $message );
                 die "General error: $message\n";
             }
             else {
-                $self->LRR_LOGGER->error("Problem unlinking $file: $message");
                 die "Problem unlinking $file: $message\n";
             }
         }

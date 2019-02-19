@@ -3,6 +3,10 @@ body{font-size:8pt;font-family:arial,helvetica,sans-serif;color:#f1f1f1;backgrou
 p{padding:3px 1px;margin:0}
 img{border:0}
 
+.logo {
+    fill: #DDDDDD !important;
+}
+
 a{color:#DDDDDD; } 
 a:hover{color:#FFFBDB} 
 

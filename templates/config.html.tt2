@@ -29,9 +29,23 @@
 	<div class="ido">
 		<h2 class="ih" style="text-align:center">LANraragi Configuration</h2>
 		<br>
-		Select a category to show the matching settings.
-		<br>
-		<form name="editConfigForm" id="editConfigForm" enctype="multipart/form-data" method="post">
+		<div class="left-column">
+
+			<img id="logo" class="svg logo-container" src="./img/logo.svg">
+			<br>
+			Version [% version %] - "[% vername %]"
+			<br>
+			<h2>Select a category to show the matching settings.</h2>
+			<br />
+			<input class='stdbtn' type='button' onclick="saveFormData('#editConfigForm');"
+				value='Save LRR Configuration' />
+			<input class='stdbtn' type='button' onclick="window.location.href = '/config/plugins';"
+				value='Plugin Configuration' />
+			<input class='stdbtn' type='button' onclick="window.location.href = '/';" value='Return to Library' />
+
+		</div>
+		<form class="right-column" name="editConfigForm" id="editConfigForm" enctype="multipart/form-data"
+			method="post">
 
 			<ul class="collapsible extensible with-right-caret">
 				<li class="option-flyout">
@@ -79,17 +93,6 @@
 					</div>
 				</li>
 			</ul>
-
-			<tr>
-				<td colspan='2' style='text-align:center'>
-					<br />
-					<input class='stdbtn' type='button' onclick="saveFormData('#editConfigForm');" value='Save LRR Configuration' />
-					<input class='stdbtn' type='button' onclick="window.location.href = '/config/plugins';" value='Plugin Configuration' />
-					<input class='stdbtn' type='button' onclick="window.location.href = '/';" value='Return to Library' />
-					<br />
-				</td>
-			</tr>
-
 		</form>
 	</div>
 
@@ -105,6 +108,35 @@
 			else
 				$(".passwordfields").hide();
 		}
+
+		jQuery('img.svg').each(function () {
+			var $img = jQuery(this);
+			var imgID = $img.attr('id');
+			var imgClass = $img.attr('class');
+			var imgURL = $img.attr('src');
+
+			jQuery.get(imgURL, function (data) {
+				// Get the SVG tag, ignore the rest
+				var $svg = jQuery(data).find('svg');
+
+				// Add replaced image's ID to the new SVG
+				if (typeof imgID !== 'undefined') {
+					$svg = $svg.attr('id', imgID);
+				}
+				// Add replaced image's classes to the new SVG
+				if (typeof imgClass !== 'undefined') {
+					$svg = $svg.attr('class', imgClass + ' replaced-svg');
+				}
+
+				// Remove any invalid XML tags as per http://validator.w3.org
+				$svg = $svg.removeAttr('xmlns:a');
+
+				// Replace image with new SVG
+				$img.replaceWith($svg);
+
+			}, 'xml');
+
+		});
 
 	</script> [% INCLUDE footer %]
 </body>

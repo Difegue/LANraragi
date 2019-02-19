@@ -29,15 +29,17 @@
 		<h2 class='ih' style='text-align:center'>Batch Tagging</h2>
 		<br><br>
 		<div style='margin-left:auto; margin-right:auto;'>
-			<div style='text-align:left; width:400px; display:inline-block; vertical-align:top'>
+			<div style='text-align:left; width:400px !important' class='left-column'>
 
 				<br>
 				You can use a plugin on multiple archives in one operation here.<br><br>
 				Select your plugin, check archives you want to use it on, and get rolling! <br>
 				Archives with no tags have been pre-checked.<br><br>
-				<i class="fas fa-exclamation-triangle"></i> Some external services may temporarily ban your machine for excessive
+				<i class="fas fa-exclamation-triangle"></i> Some external services may temporarily ban your machine for
+				excessive
 				loads if you call a plugin too many times! <br /></br>
-				Make sure to set a suitable <b>timeout</b> between archives using the picker below if the plugin you want to use is
+				Make sure to set a suitable <b>timeout</b> between archives using the picker below if the plugin you
+				want to use is
 				concerned. <br /><br />
 
 				<table class="tag-options">
@@ -83,14 +85,16 @@
 
 				<div class="tag-options" style="text-align:center">
 					<br /><br />
-					<input type='button' value='Check/Uncheck all' class='stdbtn' checked='false' onclick='checkAll(this)'>
+					<input type='button' value='Check/Uncheck all' class='stdbtn' checked='false'
+						onclick='checkAll(this)'>
 					<input type='button' value='Start Tagging' class='stdbtn' onclick='startBatch()'>
 
 				</div>
 
 				<div class="job-status" style="display:none; text-align:center">
 					<input id="cancel-job" type='button' value='Cancel' class='stdbtn'>
-					<input id="restart-job" type='button' value='Start another job' class='stdbtn' onclick='restartBatchUI()'>
+					<input id="restart-job" type='button' value='Start another job' class='stdbtn'
+						onclick='restartBatchUI()'>
 					<div class="id1" style="width:400px; height:314px">
 						<pre id="log-container" class="log-panel" />
 						</div>
@@ -98,7 +102,7 @@
 
 			</div>
 
-			<div class="id1" style='text-align:center; min-width:400px; width: 50%; height:500px; display:inline-block; vertical-align:top'>
+			<div class="id1 right-column" style='text-align:center; min-width:400px; width: 60% !important; height:500px;'>
 				<ul class='checklist'>
 					[% arclist %]
 				</ul>

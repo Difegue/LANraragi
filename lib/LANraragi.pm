@@ -19,8 +19,9 @@ sub startup {
     my $self = shift;
 
     # Load configuration from hash returned by "lrr.conf"
-    my $config = $self->plugin( 'Config', { file => 'lrr.conf' } );
+    my $config  = $self->plugin( 'Config', { file => 'lrr.conf' } );
     my $version = $config->{version};
+    my $vername = $config->{version_name};
 
     say "";
     say "";
@@ -38,9 +39,11 @@ sub startup {
 
     #Helper so controllers can reach the app's Redis DB quickly
     #(they still need to declare use Model::Config)
-    $self->helper( LRR_CONF => sub { LANraragi::Model::Config:: } );
+    $self->helper( LRR_CONF    => sub { LANraragi::Model::Config:: } );
+    $self->helper( LRR_VERSION => sub { return $version; } );
+    $self->helper( LRR_VERNAME => sub { return $vername; } );
 
-    #Second helper to build logger objects quickly
+    #Helper to build logger objects quickly
     $self->helper(
         LRR_LOGGER => sub {
             return LANraragi::Utils::Generic::get_logger( "LANraragi",
