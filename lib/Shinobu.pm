@@ -1,12 +1,12 @@
 package Shinobu;
 
 #LANraragi Background Worker.
-#  While the Webapp is active, executes a workload every X seconds.
-#  This workload currently is:
+#  Uses inotify watches to keep track of filesystem happenings.
+#  My main tasks are:
 #
-#    Automatic detection/indexing of new archives without visiting the main page
-#    Automatic tagging of new archives using enabled plugins
-#    Automatic cleaning of the temporary folder when it reaches a certain size
+#    Tracking all files in the content folder and making sure they're synched with the database
+#    Building the JSON cache used to display the Archive Index
+#    Automatically cleaning the temporary folder when it reaches a certain size
 #
 
 use strict;
@@ -48,6 +48,23 @@ my $redis = LANraragi::Model::Config::get_redis;
 my $inotify = new Linux::Inotify2
   or die "unable to create inotify object: $!";
 
+#Subroutine for new and deleted files that takes inotify events
+my $inotifysub = sub {
+    my $e    = shift;
+    my $name = $e->fullname;
+    my $mask = $e->mask;
+    $logger->debug("Received inotify event $mask on $name");
+
+    if ( $e->IN_MOVED_TO || $e->IN_CREATE ) {
+        new_file_callback( $e->fullname );
+    }
+
+    if ( $e->IN_DELETE ) {
+        deleted_file_callback($name);
+    }
+
+};
+
 sub initialize_from_new_process {
 
     my $userdir = LANraragi::Model::Config::get_userdir;
@@ -55,28 +72,13 @@ sub initialize_from_new_process {
     $logger->info("Shinobu Background Worker started.");
     $logger->info( "Working dir is " . cwd );
 
-    $logger->info("Building filemap...This might take some time.");
-    &build_filemap();
-
-    $logger->info("Building JSON cache...This might take some time.");
-    &build_json_cache();
+    build_filemap();
+    build_json_cache();
 
     $logger->info("Adding inotify watches to content folder $userdir");
 
-    #Create subroutines for new and deleted files that take inotify events
-    my $newsub = sub {
-        my $e = shift;
-        &new_file_callback( $e->fullname );
-    };
-
-    my $delsub = sub {
-        my $e = shift;
-        &deleted_file_callback( $e->fullname );
-    };
-
     # add watches to content directory
-    $inotify->watch( $userdir, IN_CREATE | IN_MOVED_TO, $newsub );
-    $inotify->watch( $userdir, IN_DELETE, $delsub );
+    $inotify->watch( $userdir, IN_ALL_EVENTS, $inotifysub );
 
     # add watches to all subdirectories
     find(
@@ -87,9 +89,8 @@ sub initialize_from_new_process {
                   if $_ eq "thumb"
                   || $_ eq ".";         #excluded subdirs
                 $logger->debug("Adding inotify watches to subdirectory $_");
-                $inotify->watch( $File::Find::name, IN_CREATE | IN_MOVED_TO,
-                    $newsub );
-                $inotify->watch( $File::Find::name, IN_DELETE, $delsub );
+                $inotify->watch( $File::Find::name, IN_ALL_EVENTS,
+                    $inotifysub );
             },
             follow_fast => 1
         },
@@ -103,12 +104,12 @@ sub initialize_from_new_process {
 
     # Create a .shinobu-nudge file and add a watch to it
     my $nudge = cwd . "/.shinobu-nudge";
-    open my $fileHandle, ">>", $nudge or die "Can't open $nudge \n";
+    open my $fileHandle, ">", $nudge or die "Can't open $nudge \n";
     print $fileHandle "donut";
     close $fileHandle;
 
     # This file can then be touched to trigger a JSON cache refresh.
-    $inotify->watch( $nudge, IN_MODIFY, &build_json_cache() );
+    $inotify->watch( $nudge, IN_ATTRIB, sub { build_json_cache() } );
 
     # manual event loop
     $logger->info("All done! Now dutifully watching your files. ");
@@ -120,6 +121,8 @@ sub initialize_from_new_process {
 #This computes IDs for all archives and henceforth is rather expensive !
 sub build_filemap {
 
+    $logger->info("Building filemap...This might take some time.");
+
     #Clear hash
     %filemap = ();
     my $dirname = LANraragi::Model::Config::get_userdir;
@@ -129,7 +132,7 @@ sub build_filemap {
         {
             wanted => sub {
                 return if -d $_;    #Directories are excluded on the spot
-                &add_to_filemap($_);
+                add_to_filemap($_);
             },
             no_chdir    => 1,
             follow_fast => 1
@@ -166,9 +169,8 @@ sub add_to_filemap {
 #Files that aren't in the database are added to it.
 sub build_json_cache {
 
+    $logger->info("Building JSON cache...This might take some time.");
     my $dirname = LANraragi::Model::Config::get_userdir;
-    my $logger =
-      LANraragi::Utils::Generic::get_logger( "Shinobu", "lanraragi" );
 
     my $json = "[";
 
@@ -179,10 +181,10 @@ sub build_json_cache {
 
         #Trigger archive addition if title isn't in Redis
         unless ( $redis->exists($id) ) {
-            &add_new_file( $id, $file );
+            add_new_file( $id, $file );
         }
 
-        $json .= &build_archive_JSON( $id, $file );
+        $json .= build_archive_JSON( $id, $file );
         $json .= ",";
 
     }
@@ -206,19 +208,35 @@ sub new_file_callback {
     $logger->info("$name was added to the content folder!");
 
     unless ( -d $name ) {
-        &add_to_filemap($name);
+        add_to_filemap($name);
     }
-    else { #Oh bother
+    else {    #Oh bother
 
         #Add watches to this subdirectory first
+        $inotify->watch( $name, IN_ALL_EVENTS, $inotifysub );
 
         #Just do a big find call to add watches in potential subdirs
-        #Or just call add_to_filemap on files
+        find(
+            {
+                wanted => sub {
+                    if ( -d $_ ) {
+                        $logger->debug(
+                            "Adding inotify watches to subdirectory $_");
+                        $inotify->watch( $File::Find::name,
+                            IN_ALL_EVENTS, $inotifysub );
+                        return;
+                    }
 
-
+                    #Just call add_to_filemap on files
+                    add_to_filemap($File::Find::name);
+                },
+                follow_fast => 1
+            },
+            $name
+        );
     }
 
-    &build_json_cache();
+    build_json_cache();
 }
 
 #Deleted files are simply dropped from the filemap.
@@ -235,10 +253,10 @@ sub deleted_file_callback {
           foreach grep { $filemap{$_} eq $name } keys %filemap;
     }
     else {
-        &build_filemap();
+        build_filemap();
     }
 
-    &build_json_cache();
+    build_json_cache();
 }
 
 sub add_new_file {
