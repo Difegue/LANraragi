@@ -109,6 +109,8 @@
 				$(".passwordfields").hide();
 		}
 
+		// Replace logo svg by the actual svg xml 
+		// This allows use of its internal "logo" classes to change the fill color
 		jQuery('img.svg').each(function () {
 			var $img = jQuery(this);
 			var imgID = $img.attr('id');

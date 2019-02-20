@@ -89,10 +89,10 @@ sub startup {
     $self->LRR_CONF->get_redis;
 
     #Start Background worker
-    if ( -e "./shinobu-pid" ) {
+    if ( -e "./.shinobu-pid" ) {
 
         #Read PID from file
-        open( my $pidfile, '<', "shinobu-pid" )
+        open( my $pidfile, '<', ".shinobu-pid" )
           || die( "cannot open file: " . $! );
         my $pid = <$pidfile>;
         close($pidfile);
@@ -115,14 +115,15 @@ sub startup {
                 "Shinobu Background Worker terminated. (PID was $pid)");
 
             #Delete pidfile
-            unlink("./shinobu-pid");
+            unlink("./.shinobu-pid");
         }
     );
 
     $proc->run( [ $^X, "./lib/Shinobu.pm" ] );
 
     #Create file to store the process' PID
-    open( my $pidfile, '>', "shinobu-pid" ) || die( "cannot open file: " . $! );
+    open( my $pidfile, '>', ".shinobu-pid" )
+      || die( "cannot open file: " . $! );
     my $newpid = $proc->proc->pid;
     print $pidfile $newpid;
     close($pidfile);
