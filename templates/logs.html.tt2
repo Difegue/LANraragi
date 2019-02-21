@@ -26,11 +26,22 @@
 		<br>
 		You can check LANraragi logs here for debugging purposes.<br>
 		By default, this view only shows the last 100 lines of each logfile, newest lines last. <br><br>
-		General Logs pertain to the main application. Plugin Logs are reserved for metadata plugins only. Mojolicious logs
+		General Logs pertain to the main application. Plugin Logs are reserved for metadata plugins only. Mojolicious
+		logs
 		won't tell much unless you're running Debug Mode.
 		<br><br>
 
-		<h1 class='ih' style='text-align:center'>Currently Viewing: <span id="indicator">general</span></h1>
+		<h1 class='ih' style='float:left; margin-left: 5%;'>Currently Viewing: <span id="indicator">general</span></h1>
+
+		<div style="margin-right: 5%;float: right;">
+
+			<a href="#" onclick="refreshLog()" title="Refresh">
+				<i style="padding-right: 10px;" class="fa fa-sync-alt fa-2x"></i>
+			</a>
+
+			Lines: <input type="number" min="0" value="100" id="loglines" onchange="refreshLog()" style="width: 60px;">
+
+		</div>
 
 		<table class="itg">
 			<tbody>
@@ -61,14 +72,22 @@
 
 	<script>
 
+		lastType = "";
+
 		function showLog(type) {
 
-			$.get("/logs/" + type, function (data) {
+			$.get("/logs/" + type + "?lines=" + $("#loglines").val(), function (data) {
 				$("#log-container").html(data);
 				$("#indicator").html(type);
 				$("#log-container").scrollTop($("#log-container").prop("scrollHeight"));
 			});
 
+			lastType = type;
+
+		}
+
+		function refreshLog() {
+			showLog(lastType);
 		}
 
 		showLog("general");

@@ -26,7 +26,6 @@ use Mojolicious;
 use Linux::Inotify2;
 use File::Find::utf8;
 use File::Basename;
-use File::Path qw(make_path remove_tree);
 use Encode;
 
 use LANraragi::Utils::Generic;

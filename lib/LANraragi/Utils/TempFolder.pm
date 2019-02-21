@@ -7,6 +7,7 @@ use utf8;
 use FindBin;
 use File::stat;
 use File::Find::utf8;
+use File::Path qw(remove_tree);
 
 use LANraragi::Utils::Generic;
 

@@ -83,6 +83,7 @@ sub index {
 
     $self->render(
         template        => "index",
+        version         => $self->LRR_VERSION,
         title           => $self->LRR_CONF->get_htmltitle,
         pagesize        => $self->LRR_CONF->get_pagesize,
         userlogged      => $userlogged,

@@ -277,6 +277,7 @@ a:hover > .page-number {
     overflow: auto; 
     text-align: left; 
     white-space: pre-wrap; 
+    resize: vertical;
 }
 
 .logo-container {
