@@ -12,21 +12,19 @@ ENV EV_EXTRA_DEFS -DEV_NO_ATFORK
 #Just do everything in one RUN command
 #Use a patched version of Rijndael for musl support until a proper CPAN release is done
 #See https://framagit.org/fiat-tux/hat-softwares/lufi/issues/137
-#Also use alpine-glibc for decent locale support
+#Also build musl-locales to generate the en_US.UTF8 locale 
 RUN apk update && \
     apk add perl perl-io-socket-ssl perl-dev g++ make pkgconf gnupg wget curl nodejs nodejs-npm redis libarchive-dev libbz2 libjpeg-turbo-dev libpng-dev openssl-dev zlib-dev supervisor && \
-    wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub && \
-    wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.25-r0/glibc-2.25-r0.apk && \
-    wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.25-r0/glibc-bin-2.25-r0.apk && \
-    wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.25-r0/glibc-i18n-2.25-r0.apk && \
-    apk add glibc-bin-2.25-r0.apk glibc-i18n-2.25-r0.apk glibc-2.25-r0.apk && \
-    /usr/glibc-compat/bin/localedef -i en_US -f UTF-8 en_US.UTF-8 && \
+    apk add git cmake musl-dev gcc gettext-dev libintl && \
+    git clone https://gitlab.com/rilian-la-te/musl-locales.git && cd musl-locales &&\
+    cmake . && make && make install && cd .. && \
     curl -L https://cpanmin.us | perl - App::cpanminus && \
     cpanm https://gitlab.com/thedudeabides/crypt-rijndael/-/archive/musl-libc/crypt-rijndael-musl-libc.tar.gz && \
     cpanm --notest --installdeps . -M https://cpan.metacpan.org && \
     npm run lanraragi-installer install-front && \
     apk del perl-dev g++ make gnupg wget curl nodejs nodejs-npm openssl-dev && \
-    rm -rf /root/.cpanm/* /usr/local/share/man/* *.apk node_modules 
+    apk del git cmake ca-certificates musl-dev gcc gettext-dev libintl && \
+    rm -rf /root/.cpanm/* /usr/local/share/man/* node_modules musl-locales
 
 #Copy remaining LRR files from context
 COPY / /home/koyomi/lanraragi
@@ -35,6 +33,7 @@ COPY / /home/koyomi/lanraragi
 EXPOSE 3000
 
 #Enable UTF-8
+ENV MUSL_LOCPATH /usr/local/share/i18n/locales/musl
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
