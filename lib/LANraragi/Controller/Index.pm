@@ -51,15 +51,15 @@ sub index {
 
     my $self = shift;
 
-    my $redis   = $self->LRR_CONF->get_redis();
+    my $redis = $self->LRR_CONF->get_redis();
 
     my $force = 0;
 
-    if ( $redis->hexists( "LRR_JSONCACHE", "force_refresh" ) ) {
+    if ( $redis->hexists( "LRR_JSONCACHE", "refreshing" ) ) {
 
         #If this flag is set, the DB cache is currently building
         #flash a notification
-        $force = $redis->hget( "LRR_JSONCACHE", "force_refresh" );
+        $force = $redis->hget( "LRR_JSONCACHE", "refreshing" );
     }
 
     #Checking if the user still has the default password enabled

@@ -189,6 +189,8 @@ sub add_to_filemap {
 sub build_json_cache {
 
     $logger->info("Building JSON cache...This might take some time.");
+    $redis->hset( "LRR_JSONCACHE", "refreshing", "1" );
+
     my $dirname = LANraragi::Model::Config::get_userdir;
 
     my $json = "[";
@@ -215,8 +217,9 @@ sub build_json_cache {
 
     $json .= "]";
 
-    #Write JSON to cache
+    #Write JSON to cache and remove refreshing flag
     $redis->hset( "LRR_JSONCACHE", "archive_list", encode_utf8($json) );
+    $redis->hset( "LRR_JSONCACHE", "refreshing",   "0" );
 
 }
 

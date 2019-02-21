@@ -9,6 +9,7 @@ use Mojo::JSON qw(decode_json);
 use Encode;
 use File::Basename;
 use Redis;
+use Cwd;
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
@@ -169,10 +170,10 @@ sub redis_decode {
     return $data;
 }
 
-#Set the force_refresh flag. This will invalidate the currently cached JSON.
+#Touch the Shinobu nudge file. This will invalidate the currently cached JSON.
 sub invalidate_cache {
-    my $redis = LANraragi::Model::Config::get_redis;
-    $redis->hset( "LRR_JSONCACHE", "force_refresh", 1 );
+    utime( undef, undef, cwd . "/.shinobu-nudge" )
+      or warn "Couldn't touch .shinobu-nudge: $!";
 }
 
 #Look for a plugin by namespace.
