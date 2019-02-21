@@ -139,9 +139,9 @@ sub build_reader_JSON {
         #Then we bring the slashes back.
         $imgpath =~ s!%2F!/!g;
 
-        #We also now need to strip the /public/ part,
+        #We also now need to strip everything before the /public/ part,
         #as it's not visible by clients.
-        $imgpath =~ s!public/!!g;
+        $imgpath =~ s!.*/public/!!g;
 
         push @images_browser, $imgpath;
     }

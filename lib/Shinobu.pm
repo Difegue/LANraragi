@@ -104,7 +104,9 @@ sub initialize_from_new_process {
 
     # Create a .shinobu-nudge file and add a watch to it
     my $nudge = cwd . "/.shinobu-nudge";
-    open my $fileHandle, ">", $nudge or die "Can't open $nudge \n";
+    open my $fileHandle, ">", $nudge
+      or $logger->warn( "The nudge file couldn't be created! "
+          . "You might not be able to manually refresh the JSON cache." );
     print $fileHandle "donut";
     close $fileHandle;
 
@@ -145,10 +147,27 @@ sub add_to_filemap {
 
     my ($file) = shift;
 
-    if ( $_ =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr)$/ ) {
+    if ( $file =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr)$/ ) {
+
+        $logger->debug("Adding $file to Shinobu filemap.");
+
+        #Freshly created files might not be complete yet.
+        #We have to wait before doing any form of calculation.
+        while (1) {
+            last if open( my $handle, '<', $file );
+            $logger->debug("Waiting for file to be openable");
+            sleep(1);
+        }
 
         #Compute the ID of the archive and add it to the hash
-        my $id = LANraragi::Utils::Database::compute_id($file);
+        my $id = "";
+        eval { $id = LANraragi::Utils::Database::compute_id($file); };
+
+        if ($@) {
+            $logger->error("Couldn't open $file for ID computation: $@");
+            $logger->error("Giving up on adding it to the filemap.");
+            return;
+        }
 
         #If the hash already exists, throw a warning about duplicates
         if ( exists( $filemap{$id} ) ) {
@@ -274,8 +293,8 @@ sub add_new_file {
         }
     };
 
-    if ($_) {
-        $logger->error("Error while adding file: $_");
+    if ($@) {
+        $logger->error("Error while adding file: $@");
     }
 }
 
