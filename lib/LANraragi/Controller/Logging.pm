@@ -81,7 +81,7 @@ sub get_lines_from_file {
 
         }
 
-        return $res;
+        return decode_utf8($res);
     }
 
     return "No logs to be found here!";
