@@ -168,6 +168,8 @@ sub add_to_filemap {
             return;
         }
 
+        $logger->debug("Computed ID is $id.");
+
         #If the hash already exists, throw a warning about duplicates
         if ( exists( $filemap{$id} ) ) {
             $logger->warn( "$file is a duplicate of the existing file "
@@ -198,6 +200,7 @@ sub build_json_cache {
     for my $id ( keys %filemap ) {
 
         my $file = $filemap{$id};
+        $logger->debug("JSONing $id -> $file");
 
         #Trigger archive addition if title isn't in Redis
         unless ( $redis->exists($id) ) {
