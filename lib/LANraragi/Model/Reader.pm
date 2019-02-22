@@ -80,14 +80,23 @@ sub build_reader_JSON {
     #If the file hasn't been extracted, or if force-reload =1
     unless ( -e $path ) {
 
-        eval { LANraragi::Utils::Archive::extract_archive( $path, $zipfile ) };
+        my $outpath = "";
+        eval {
+            $outpath =
+              LANraragi::Utils::Archive::extract_archive( $path, $zipfile );
+        };
 
         if ($@) {
-            $self->LRR_LOGGER->debug("Error log from libarchive : $@");
-            die $@;
+            my $log = $@;
+            $self->LRR_LOGGER->error("Error extracting archive : $log");
+            die $log;
         }
         else {
             $self->LRR_LOGGER->debug("Extraction of archive to $path done");
+            $self->LRR_LOGGER->debug(
+                "Outpath reported by libarchive: $outpath");
+
+            $path = $outpath;
         }
 
     }

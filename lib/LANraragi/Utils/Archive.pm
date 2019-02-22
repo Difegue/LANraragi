@@ -42,13 +42,11 @@ sub extract_archive {
     # build an Archive::Extract object
     my $ae = Archive::Extract::Libarchive->new( archive => $zipfile );
 
-    #Extract to $path.
-    my $ok = $ae->extract( to => $path );
+    #Extract to $path. Report if it fails.
+    my $ok = $ae->extract( to => $path ) or die $ae->error;
 
-    #If extraction failed, stop here and print an error page.
-    unless ( -e $path ) {
-        die $ae->error;
-    }
+    # dir that was extracted to
+    return $ae->extract_path;
 
 }
 
