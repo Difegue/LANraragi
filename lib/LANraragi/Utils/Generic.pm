@@ -29,6 +29,37 @@ sub remove_newlines {
     $_[0] =~ s/\R//g;
 }
 
+#Start Shinobu and return its Proc::Background object.
+sub start_shinobu {
+    my $proc = Mojo::IOLoop::ProcBackground->new;
+    my $logger = get_logger( "Shinobu Boot", "lanraragi" );
+
+    # When the process terminates, we get this event
+    $proc->on(
+        dead => sub {
+            my ($proc) = @_;
+            my $pid = $proc->proc->pid;
+            $logger->info(
+                "Shinobu Background Worker terminated. (PID was $pid)");
+
+            #Delete pidfile
+            unlink("./.shinobu-pid");
+        }
+    );
+
+    $proc->run( [ $^X, "./lib/Shinobu.pm" ] );
+
+    #Create file to store the process' PID
+    open( my $pidfile, '>', ".shinobu-pid" )
+      or $logger->warn( "Couldn't store PID for Background Worker: " . $! );
+    my $newpid = $proc->proc->pid;
+    print $pidfile $newpid;
+    close($pidfile);
+
+    return $proc->proc;
+
+}
+
 #TASKKILL seems superflous on Windows as sub-PIDs are always cleanly killed when the main process dies
 #But you can never be safe enough
 sub kill_pid {
@@ -41,7 +72,7 @@ sub kill_pid {
     else {
         `kill -9 $pid`;
     }
-    
+
 }
 
 #This function gives us a SHA hash for the passed file, which is used for thumbnail reverse search on E-H.

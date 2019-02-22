@@ -104,31 +104,11 @@ sub startup {
         LANraragi::Utils::Generic::kill_pid($pid);
     }
 
-    my $proc = $self->stash->{shinobu} = Mojo::IOLoop::ProcBackground->new;
+    my $proc = LANraragi::Utils::Generic::start_shinobu();
+    $self->helper( SHINOBU => sub { return $proc; } );
 
-    # When the process terminates, we get this event
-    $proc->on(
-        dead => sub {
-            my ($proc) = @_;
-            my $pid = $proc->proc->pid;
-            $self->LRR_LOGGER->info(
-                "Shinobu Background Worker terminated. (PID was $pid)");
-
-            #Delete pidfile
-            unlink("./.shinobu-pid");
-        }
-    );
-
-    $proc->run( [ $^X, "./lib/Shinobu.pm" ] );
-
-    #Create file to store the process' PID
-    open( my $pidfile, '>', ".shinobu-pid" )
-      || die( "cannot open file: " . $! );
-    my $newpid = $proc->proc->pid;
-    print $pidfile $newpid;
-    close($pidfile);
-
-    $self->LRR_LOGGER->debug("Shinobu Worker new PID is $newpid");
+    $self->LRR_LOGGER->debug(
+        "Shinobu Worker new PID is " . $self->SHINOBU->pid );
 
     LANraragi::Utils::Routing::apply_routes($self);
 

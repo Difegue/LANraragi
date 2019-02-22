@@ -1,16 +1,15 @@
 //Scripting for Generic API calls.
 
-//cleanTempFldr
-function cleanTempFldr() {
-
-	$.get("api/clean_temp")
+//Call that shows a popup to the user on success/failure.
+function genericAPICall(endpoint, successMessage, errorMessage, callback) {
+	$.get(endpoint)
 		.done(function (data) {
 			if (data.success)
 				$.toast({
 					showHideTransition: 'slide',
 					position: 'top-left',
 					loader: false,
-					heading: 'Temporary Folder Cleaned!',
+					heading: successMessage,
 					icon: 'success'
 				});
 			else
@@ -18,58 +17,55 @@ function cleanTempFldr() {
 					showHideTransition: 'slide',
 					position: 'top-left',
 					loader: false,
-					heading: 'Error while cleaning Temporary Folder :',
+					heading: errorMessage,
 					text: data.error,
 					icon: 'error'
 				});
+
+			if (callback !== null)
+				callback(data);
+		});
+}
+
+function cleanTempFldr() {
+
+	genericAPICall("api/clean_temp", "Temporary Folder Cleaned!", "Error while cleaning Temporary Folder :",
+		function (data) {
 			$("#tempsize").html(data.newsize);
 		});
 }
 
-
-//invalidateCache
 function invalidateCache() {
-	$.get("api/discard_cache")
-		.done(function (data) {
-			if (data.status)
-				$.toast({
-					showHideTransition: 'slide',
-					position: 'top-left',
-					loader: false,
-					heading: 'Started JSON Cache rebuild.',
-					icon: 'success'
-				});
-			else
-				$.toast({
-					showHideTransition: 'slide',
-					position: 'top-left',
-					loader: false,
-					heading: 'Error while deleting cache! Check Logs.',
-					icon: 'error'
-				});
-		});
+	genericAPICall("api/discard_cache", "Started JSON Cache rebuild.", "Error while deleting cache! Check Logs.", null);
 }
 
-//invalidateCache
 function clearNew() {
-	$.get("api/clear_new")
+	genericAPICall("api/clear_new", "All archives are no longer new!", "Error while clearing flags! Check Logs.", null);
+}
+
+function rebootShinobu() {
+	$("#restart-button").prop("disabled", true);
+	genericAPICall("api/restart_shinobu", "Background Worker restarted!", "Error while restarting Worker:",
+		function (data) {
+			$("#restart-button").prop("disabled", false);
+			shinobuStatus();
+		});
+
+}
+
+//Update the status of the background worker.
+function shinobuStatus() {
+	$.get("api/shinobu_status")
 		.done(function (data) {
-			if (data.status)
-				$.toast({
-					showHideTransition: 'slide',
-					position: 'top-left',
-					loader: false,
-					heading: 'All archives are no longer new!',
-					icon: 'success'
-				});
-			else
-				$.toast({
-					showHideTransition: 'slide',
-					position: 'top-left',
-					loader: false,
-					heading: 'Error while clearing flags! Check Logs.',
-					icon: 'error'
-				});
+			if (data.is_alive) {
+				$("#shinobu-ok").show();
+				$("#shinobu-ko").hide();
+			} else {
+				$("#shinobu-ko").show();
+				$("#shinobu-ok").hide();
+			}
+			$("#pid").html(data.pid);
+
 		});
 }
 

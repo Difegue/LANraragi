@@ -159,7 +159,7 @@ sub force_refresh {
     $self->render(
         json => {
             operation => "refresh_cache",
-            status    => 1
+            success   => 1
         }
     );
 }
@@ -185,7 +185,7 @@ sub clear_new {
     $self->render(
         json => {
             operation => "clear_new",
-            status    => 1
+            success   => 1
         }
     );
 
@@ -283,6 +283,39 @@ sub print_plugin_not_found {
             operation => "fetch_tags",
             success   => 0,
             message   => "Plugin not found on system."
+        }
+    );
+}
+
+sub shinobu_status {
+
+    my $self = shift;
+    my $shinobu = $self->SHINOBU;
+
+    $self->render(
+        json => {
+            operation => "shinobu_status",
+            is_alive  => $self->SHINOBU->alive,
+            pid       => $self->SHINOBU->pid
+        }
+    );
+}
+
+sub restart_shinobu {
+    my $self = shift;
+
+    #commit sudoku
+    $self->SHINOBU->die;
+
+    #Create a new ProcBackground object and stuff it in the helper
+    my $proc = LANraragi::Utils::Generic::start_shinobu();
+    $self->app->helper( SHINOBU => sub { return $proc; } );
+
+    $self->render(
+        json => {
+            operation => "shinobu_restart",
+            success   => $self->SHINOBU->alive,
+            new_pid   => $self->SHINOBU->pid
         }
     );
 }
