@@ -112,6 +112,7 @@
 			enable_pass();
 			replace_img_svg();
 			shinobuStatus();
+			setInterval(shinobuStatus, 5000);
 			$("#enablepass").click(enable_pass);
 		});
 
