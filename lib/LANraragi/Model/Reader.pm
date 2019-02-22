@@ -79,12 +79,17 @@ sub build_reader_JSON {
     #If it hasn't, we call unar to do it.
     #If the file hasn't been extracted, or if force-reload =1
     unless ( -e $path ) {
-        my $log = LANraragi::Utils::Archive::extract_archive( $path, $zipfile );
 
-        $self->LRR_LOGGER->debug("Extraction of archive to $path done");
-        if ($log) {
-            $self->LRR_LOGGER->debug("Error log from libarchive : $log");
+        eval { LANraragi::Utils::Archive::extract_archive( $path, $zipfile ) };
+
+        if ($@) {
+            $self->LRR_LOGGER->debug("Error log from libarchive : $@");
+            die $@;
         }
+        else {
+            $self->LRR_LOGGER->debug("Extraction of archive to $path done");
+        }
+
     }
 
     #Find the extracted images with a full search (subdirectories included),

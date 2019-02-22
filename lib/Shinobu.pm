@@ -330,6 +330,9 @@ sub build_archive_JSON {
     #Update the real file path and title if they differ from the saved one
     #...just in case the file got manually renamed or some weird shit
     unless ( $file eq $filecheck ) {
+        $logger->debug("File name discrepancy detected between DB and filesystem!");
+        $logger->debug("Filesystem: $file");
+        $logger->debug("Database: $filecheck");
         ( $name, $path, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
         $redis->hset( $id, "file", encode_utf8($file) );
         $redis->hset( $id, "name", encode_utf8($name) );
