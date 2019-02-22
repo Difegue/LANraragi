@@ -158,7 +158,7 @@ sub compute_id {
 
 }
 
-#Final Solution to the Unicode glitches -- Eval'd triple-decode for data obtained from Redis.
+#Final Solution to the Unicode glitches -- Eval'd double-decode for data obtained from Redis.
 #This should be a one size fits-all function.
 sub redis_decode {
 
@@ -167,10 +167,6 @@ sub redis_decode {
 #Setting FB_CROAK tells encode to die instantly if it encounters any errors.
 #Without this setting, it typically tries to replace characters... which might already be valid UTF8!
     eval { $data = decode_utf8( $data, Encode::FB_CROAK ) };
-
-#Filenames can sometimes have ISO-8859 characters that have different codes in UTF-8
-#("é" is a good example) We try a quick 8859 decode here to unmangle those.
-    eval { $data = decode( "iso-8859-1", $data, Encode::FB_CROAK ) };
 
     #Do another UTF-8 decode just in case the data was double-encoded
     eval { $data = decode_utf8( $data, Encode::FB_CROAK ) };
