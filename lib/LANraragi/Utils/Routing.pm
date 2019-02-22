@@ -78,6 +78,7 @@ sub apply_routes {
 
     $logged_in->get('/logs')->to('logging#index');
     $logged_in->get('/logs/general')->to('logging#print_general');
+    $logged_in->get('/logs/shinobu')->to('logging#print_shinobu');
     $logged_in->get('/logs/plugins')->to('logging#print_plugins');
     $logged_in->get('/logs/mojo')->to('logging#print_mojo');
 

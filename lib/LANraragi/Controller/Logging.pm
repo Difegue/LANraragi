@@ -35,6 +35,19 @@ sub print_general {
         text => &get_lines_from_file( $lines, "./log/lanraragi.log" ) );
 }
 
+sub print_shinobu {
+
+    my $self  = shift;
+    my $lines = 100;     #Number of lines to read
+
+    if ( $self->req->param('lines') ) {
+        $lines = $self->req->param('lines');
+    }
+
+    $self->render(
+        text => &get_lines_from_file( $lines, "./log/shinobu.log" ) );
+}
+
 sub print_plugins {
 
     my $self  = shift;

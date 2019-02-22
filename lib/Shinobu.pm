@@ -40,7 +40,7 @@ use LANraragi::Model::Plugins;
 my %filemap;
 
 # Logger and Database objects
-my $logger = LANraragi::Utils::Generic::get_logger( "Shinobu", "lanraragi" );
+my $logger = LANraragi::Utils::Generic::get_logger( "Shinobu", "shinobu" );
 my $redis = LANraragi::Model::Config::get_redis;
 
 # Almightly inotify interface

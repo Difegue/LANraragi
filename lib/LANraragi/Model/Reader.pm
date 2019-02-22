@@ -93,10 +93,6 @@ sub build_reader_JSON {
         }
         else {
             $self->LRR_LOGGER->debug("Extraction of archive to $path done");
-            $self->LRR_LOGGER->debug(
-                "Outpath reported by libarchive: $outpath");
-
-            $path = $outpath;
         }
 
     }

@@ -26,9 +26,12 @@
 		<br>
 		You can check LANraragi logs here for debugging purposes.<br>
 		By default, this view only shows the last 100 lines of each logfile, newest lines last. <br><br>
-		General Logs pertain to the main application. Plugin Logs are reserved for metadata plugins only. Mojolicious
-		logs
-		won't tell much unless you're running Debug Mode.
+		<ul>
+			<li>General Logs pertain to the main application. </li>
+			<li>Shinobu Logs correspond to the Background Worker.</li>
+			<li>Plugin Logs are reserved for metadata plugins only. </li>
+			<li>Mojolicious logs won't tell much unless you're running Debug Mode.
+		</ul>
 		<br><br>
 
 		<h1 class='ih' style='float:left; margin-left: 5%;'>Currently Viewing: <span id="indicator">general</span></h1>
@@ -58,6 +61,8 @@
 		<br><br>
 		<span id='buttonstagging'>
 			<input type='button' value='View LANraragi Logs' class='stdbtn' onclick='showLog("general")'>
+
+			<input type='button' value='View Shinobu Logs' class='stdbtn' onclick='showLog("shinobu")'>
 
 			<input type='button' value='View Plugin Logs' class='stdbtn' onclick='showLog("plugins")'>
 
