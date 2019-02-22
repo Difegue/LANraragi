@@ -226,12 +226,13 @@ sub build_json_cache {
 #And if there are subdirectories in there we gotta add a watch
 sub new_file_callback {
     my $name = shift;
-    $logger->info("$name was added to the content folder!");
 
     unless ( -d $name ) {
         add_to_filemap($name);
     }
     else {    #Oh bother
+
+        $logger->info("Subdirectory $name was added to the content folder!");
 
         #Add watches to this subdirectory first
         $inotify->watch( $name, IN_ALL_EVENTS, $inotifysub );

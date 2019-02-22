@@ -13,7 +13,7 @@ use File::Path qw(make_path);
 my @vendor_css = (
     "/blueimp-file-upload/css/jquery.fileupload.css",
     "/datatables/media/css/jquery.dataTables.min.css",
-    "/fontawesome-web/css/fontawesome-all.min.css",
+    "/\@fortawesome/fontawesome-free/css/all.min.css",
     "/jqcloud2/dist/jqcloud.min.css",
     "/jquery-toast-plugin/dist/jquery.toast.min.css",
     "/qtip2/dist/jquery.qtip.min.css",
@@ -33,7 +33,7 @@ my @vendor_js = (
 );
 
 my @vendor_woff = (
-    "/fontawesome-web/webfonts/fa-solid-900.woff",
+    "/\@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff",
     "/open-sans-fontface/fonts/Regular/OpenSans-Regular.woff",
     "/open-sans-fontface/fonts/Bold/OpenSans-Bold.woff",
     "/roboto-fontface/fonts/roboto/Roboto-Regular.woff",
@@ -145,6 +145,12 @@ if ( $front || $full ) {
     for my $css (@vendor_css) {
         cp_node_module( $css, "/public/css/vendor/" );
     }
+
+    #Rename the fontawesome css to something a bit more explanatory
+    copy(
+        getcwd . "/public/css/vendor/all.min.css",
+        getcwd . "/public/css/vendor/fontawesome-all.min.css"
+    );
 
     for my $js (@vendor_js) {
         cp_node_module( $js, "/public/js/vendor/" );
