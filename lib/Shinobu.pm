@@ -24,7 +24,7 @@ BEGIN {
 
 use Mojolicious;
 use Linux::Inotify2;
-use File::Find::utf8;
+use File::Find;
 use File::Basename;
 use Encode;
 
@@ -325,16 +325,16 @@ sub build_archive_JSON {
 
     #Parameters have been obtained, let's decode them.
     ( $_ = LANraragi::Utils::Database::redis_decode($_) )
-      for ( $name, $title, $tags, $filecheck );
+      for ( $name, $title, $tags );
 
     #Update the real file path and title if they differ from the saved one
-    #...just in case the file got manually renamed or some weird shit
+    #This is meant to always track the current filename for the OS.
     unless ( $file eq $filecheck ) {
         $logger->debug("File name discrepancy detected between DB and filesystem!");
         $logger->debug("Filesystem: $file");
         $logger->debug("Database: $filecheck");
         ( $name, $path, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
-        $redis->hset( $id, "file", encode_utf8($file) );
+        $redis->hset( $id, "file", $file );
         $redis->hset( $id, "name", encode_utf8($name) );
         $redis->wait_all_responses;
     }

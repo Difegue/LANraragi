@@ -58,9 +58,8 @@ sub build_reader_JSON {
         LANraragi::Utils::Database::invalidate_cache();
     }
 
-    #Get the path from Redis.
+#Get the path from Redis. Filenames are stored as they are on the OS, so no decoding!
     my $zipfile = $redis->hget( $id, "file" );
-    $zipfile = LANraragi::Utils::Database::redis_decode($zipfile);
 
     #Get data from the path
     my ( $name, $fpath, $suffix ) = fileparse( $zipfile, qr/\.[^.]*/ );
