@@ -16,7 +16,7 @@ ENV EV_EXTRA_DEFS -DEV_NO_ATFORK
 RUN apk update && \
     apk add perl perl-io-socket-ssl perl-dev g++ make pkgconf gnupg wget curl nodejs nodejs-npm redis libarchive-dev libbz2 libjpeg-turbo-dev libpng-dev openssl-dev zlib-dev supervisor && \
     apk add git cmake musl-dev gcc gettext-dev libintl && \
-    git clone https://gitlab.com/rilian-la-te/musl-locales.git && cd musl-locales &&\
+    git clone https://gitlab.com/rilian-la-te/musl-locales.git && cd musl-locales && git reset --hard 682c6353a7d24063be78787d45e63bfcaca78582 && \
     cmake . && make && make install && cd .. && \
     curl -L https://cpanmin.us | perl - App::cpanminus && \
     cpanm https://gitlab.com/thedudeabides/crypt-rijndael/-/archive/musl-libc/crypt-rijndael-musl-libc.tar.gz && \
