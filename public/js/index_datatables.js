@@ -247,7 +247,8 @@ function buildImageTooltip(target) {
 			adjust: {
 				mouse: true,
 				x: 5
-			}
+			},
+			viewport: $(window)
 		},
 		show: {
 			solo: true
