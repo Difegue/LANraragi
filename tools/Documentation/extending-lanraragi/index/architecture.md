@@ -12,7 +12,8 @@ The _install.pl_ script is essentially a sequence of commands executed to instal
 
 While Perl's mantra is "There's more than one way to do it", I try to make LRR follow the PBP, aka Perl Best Practices.  
 This is done by the use of the [Perl::Critic](https://metacpan.org/pod/Perl::Critic) module, which reports PBP violations.  
-If installed, you can run the critic on the entire LRR source tree through the `npm run critic` shortcut command.
+If installed, you can run the critic on the entire LRR source tree through the `npm run critic` shortcut command.  
+Critic is automatically run on evert commit made to LRR at the level 5 thanks to [Github Actions](https://github.com/Difegue/LANraragi/blob/dev/.github/main.workflow).  
 
 I also run [perltidy](https://en.wikipedia.org/wiki/PerlTidy) on the source tree every now and then for consistency.
 
@@ -59,13 +60,17 @@ root/
 |  +- *.html.tt2 
 |
 |- tools <- Contains scripts for building and installing LRR.
+|  |- Documentation <- What you're reading right now
 |  |- DockerSetup <- Dockerfile and configuration files for LRR Docker Container
 |  |- VagrantSetup <- Vagrantfile for LRR Vagrant Machine
 |  |- cpanfile <- Perl dependencies description
 |  |- install.pl <- LANraragi Installer
-|  |- logo.png/svg <- Self-explanatory
+|  |- lanraragi-systemd.service <- Example SystemD service
+|  +- logo.png <- Self-explanatory
 |
 |- lrr.conf <- Mojolicious configuration file
+|- .shinobu-nudge <- Triggers a JSON cache rebuild if modified during app lifetime
+|- .shinobu-pid <- Last known PID of the Background Worker
 +- package.json <- NPM file, contains front-end dependency listing and shortcuts
 ```
 
@@ -73,7 +78,7 @@ root/
 
 The Shinobu Background Worker runs in parallel of the LRR Mojolicious Server and handles various tasks repeatedly:
 
-* Scanning the content folder for new archives
+* Scanning the content folder for new archives using inotify watches
 * Adding new archives and executing Plugins on them if enabled
 * Regenerates the JSON cache when metadata or archive count changes
 
@@ -91,6 +96,7 @@ This allows it to always stay responsive/quick even with hundreds of archives in
 
 In Debug Mode, the Mojolicious server auto-restarts on every file modification.  
 You also get access to the Mojolicious logs in LRR's built-in Log View.
+More logs are also published when in Debug mode.
 
 ## Database Architecture
 
@@ -121,7 +127,7 @@ The base architecture is as follows:
 |  +- enablepass <- Enable/Disable Password Authentication. 
 |
 +- LRR_JSONCACHE <- JSON Cache Storage
-   |- force_refresh <- If set to 1, Shinobu will rebuild the cache on its next iteration.
+   |- refreshing <- If set to 1, Shinobu is currently rebuilding the cache.
    |- archive_list <- JSON
    +- archive_count <- Number of archives in content folder. If the actual number differs from this saved value, a rebuild will be triggered.
 ```
