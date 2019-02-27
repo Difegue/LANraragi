@@ -9,17 +9,22 @@ COPY /tools/install.pl tools/install.pl
 COPY /package.json package.json
 ENV EV_EXTRA_DEFS -DEV_NO_ATFORK
 
-#Just do everything
+#Just do everything in one RUN command
 #Use a patched version of Rijndael for musl support until a proper CPAN release is done
 #See https://framagit.org/fiat-tux/hat-softwares/lufi/issues/137
+#Also build musl-locales to generate the en_US.UTF8 locale 
 RUN apk update && \
     apk add perl perl-io-socket-ssl perl-dev g++ make pkgconf gnupg wget curl nodejs nodejs-npm redis libarchive-dev libbz2 libjpeg-turbo-dev libpng-dev openssl-dev zlib-dev supervisor && \
+    apk add git cmake musl-dev gcc gettext-dev libintl && \
+    git clone https://gitlab.com/rilian-la-te/musl-locales.git && cd musl-locales && git reset --hard 682c6353a7d24063be78787d45e63bfcaca78582 && \
+    cmake . && make && make install && cd .. && \
     curl -L https://cpanmin.us | perl - App::cpanminus && \
     cpanm https://gitlab.com/thedudeabides/crypt-rijndael/-/archive/musl-libc/crypt-rijndael-musl-libc.tar.gz && \
     cpanm --notest --installdeps . -M https://cpan.metacpan.org && \
     npm run lanraragi-installer install-front && \
-    apk del perl-dev g++ make pkgconf gnupg wget curl nodejs nodejs-npm openssl-dev zlib-dev && \
-    rm -rf /root/.cpanm/* /usr/local/share/man/* node_modules
+    apk del perl-dev g++ make gnupg wget curl nodejs nodejs-npm openssl-dev && \
+    apk del git cmake ca-certificates musl-dev gcc gettext-dev libintl && \
+    rm -rf /root/.cpanm/* /usr/local/share/man/* node_modules musl-locales
 
 #Copy remaining LRR files from context
 COPY / /home/koyomi/lanraragi
@@ -28,6 +33,7 @@ COPY / /home/koyomi/lanraragi
 EXPOSE 3000
 
 #Enable UTF-8
+ENV MUSL_LOCPATH /usr/local/share/i18n/locales/musl
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8

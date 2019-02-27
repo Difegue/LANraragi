@@ -1,0 +1,28 @@
+<tr>
+    <td class="option-td">
+        <h2 class="ih"> Worker Status </h2>
+    </td>
+    <td>
+        <span id="shinobu-ok">The Shinobu Background Worker is currently <h2 class="ih"
+                style="display:inline; color:rgb(26, 165, 26)">👍
+                OK!</h2> </span>
+        <span id="shinobu-ko">The Shinobu Background Worker is currently <h2 class="ih"
+                style="display:inline; color:rgb(207, 37, 37)">👹
+                Kaput! </h2></span>
+        (PID: <span id="pid"></span>)
+        <br>This Worker is responsible for monitoring your content directory and automatically handling new archives as
+        they come. <br>
+    </td>
+</tr>
+
+<tr>
+    <td class="option-td">
+        <input id="restart-button" class='stdbtn' type='button' onclick="rebootShinobu();"
+            value='Restart Background Worker' />
+    </td>
+    <td><br>
+        If the Worker is dead or unresponsive, you can reboot it by clicking this button.
+    </td>
+</tr>
+
+<tr></tr>

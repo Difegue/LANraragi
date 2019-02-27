@@ -13,7 +13,7 @@ use File::Path qw(make_path);
 my @vendor_css = (
     "/blueimp-file-upload/css/jquery.fileupload.css",
     "/datatables/media/css/jquery.dataTables.min.css",
-    "/fontawesome-web/css/fontawesome-all.min.css",
+    "/\@fortawesome/fontawesome-free/css/all.min.css",
     "/jqcloud2/dist/jqcloud.min.css",
     "/jquery-toast-plugin/dist/jquery.toast.min.css",
     "/qtip2/dist/jquery.qtip.min.css",
@@ -26,19 +26,20 @@ my @vendor_js = (
     "/datatables/media/js/jquery.dataTables.min.js",
     "/jqcloud2/dist/jqcloud.min.js",
     "/jquery/dist/jquery.min.js",
+    "/jquery-migrate/dist/jquery-migrate.min.js",
     "/jquery-toast-plugin/dist/jquery.toast.min.js",
     "/qtip2/dist/jquery.qtip.min.js",
     "/allcollapsible/dist/js/allcollapsible.min.js"
 );
 
 my @vendor_woff = (
-    "/fontawesome-web/webfonts/fa-solid-900.woff",
+    "/\@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff",
     "/open-sans-fontface/fonts/Regular/OpenSans-Regular.woff",
     "/open-sans-fontface/fonts/Bold/OpenSans-Bold.woff",
     "/roboto-fontface/fonts/roboto/Roboto-Regular.woff",
     "/roboto-fontface/fonts/roboto/Roboto-Bold.woff",
-    "/inter-ui/Inter UI (web)/Inter-UI-Regular.woff",
-    "/inter-ui/Inter UI (web)/Inter-UI-Bold.woff"
+    "/inter-ui/Inter (web)/Inter-Regular.woff",
+    "/inter-ui/Inter (web)/Inter-Bold.woff"
 );
 
 say(
@@ -111,12 +112,10 @@ can_run('redis-server')
   or die 'NOT FOUND! Please install a Redis server before proceeding.';
 say("OK!");
 
-say(
-"Ensure you have libarchive, libjpeg and libpng installed or the following step will fail!"
-);
-
 #Build & Install CPAN Dependencies
 if ( $back || $full ) {
+    say("Ensure you have libarchive/libjpeg/libpng installed or this will fail!"
+    );
     say("\r\nInstalling Perl modules... This might take a while.\r\n");
 
     if ( system("cpanm --installdeps ./tools/. --notest") != 0 ) {
@@ -146,6 +145,12 @@ if ( $front || $full ) {
     for my $css (@vendor_css) {
         cp_node_module( $css, "/public/css/vendor/" );
     }
+
+    #Rename the fontawesome css to something a bit more explanatory
+    copy(
+        getcwd . "/public/css/vendor/all.min.css",
+        getcwd . "/public/css/vendor/fontawesome-all.min.css"
+    );
 
     for my $js (@vendor_js) {
         cp_node_module( $js, "/public/js/vendor/" );
@@ -186,7 +191,10 @@ sub install_package {
 
     my $package = $_[0];
 
-    eval "require $package";
+    ## no critic
+    eval "require $package"
+      ; #Run-time evals are needed here to check if the package has been properly installed.
+    ## use critic
 
     if ($@) {
         say("$package not installed! Trying to install now using cpanm.");

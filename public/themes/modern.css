@@ -29,6 +29,10 @@ body {
     font-size: 8pt !important;
 }    
 
+.logo {
+    fill: #DDDDDD !important;
+}
+
 
 a {
     color: #DDDDDD;

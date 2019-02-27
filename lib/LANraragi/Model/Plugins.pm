@@ -63,11 +63,13 @@ sub exec_enabled_plugins_on_file {
                 };
 
                 #If the plugin exec returned metadata, add it
-                unless ( exists $plugin_result{error} ){    
-                    LANraragi::Utils::Database::add_tags($id, $plugin_result{new_tags});
+                unless ( exists $plugin_result{error} ) {
+                    LANraragi::Utils::Database::add_tags( $id,
+                        $plugin_result{new_tags} );
 
-                    if (exists $plugin_result{title}) {
-                        LANraragi::Utils::Database::set_title($id, $plugin_result{title});
+                    if ( exists $plugin_result{title} ) {
+                        LANraragi::Utils::Database::set_title( $id,
+                            $plugin_result{title} );
                     }
 
                 }
@@ -109,8 +111,8 @@ sub exec_plugin_on_file {
         ( $_ = LANraragi::Utils::Database::redis_decode($_) )
           for ( $name, $title, $tags, $file );
 
-        # If the thumbnail hash is empty, we'll generate it here.
-        if ( $thumbhash eq "" ) {
+        # If the thumbnail hash is empty or undefined, we'll generate it here.
+        unless ( length $thumbhash ) {
             $logger->info("Thumbnail hash invalid, regenerating.");
             my $dirname = LANraragi::Model::Config::get_userdir;
             LANraragi::Utils::Archive::extract_thumbnail( $dirname, $id );
@@ -172,7 +174,6 @@ sub exec_plugin_on_file {
         chop($newtags);
         my %returnhash = ( new_tags => $newtags );
 
-        
         #Indicate a title change, if the plugin reports one
         if ( exists $newmetadata{title} ) {
 

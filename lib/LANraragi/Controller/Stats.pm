@@ -2,7 +2,7 @@ package LANraragi::Controller::Stats;
 use Mojo::Base 'Mojolicious::Controller';
 
 use Redis;
-use File::Find::utf8;
+use File::Find;
 
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Archive;

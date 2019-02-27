@@ -29,9 +29,23 @@
 	<div class="ido">
 		<h2 class="ih" style="text-align:center">LANraragi Configuration</h2>
 		<br>
-		Select a category to show the matching settings.
-		<br>
-		<form name="editConfigForm" id="editConfigForm" enctype="multipart/form-data" method="post">
+		<div class="left-column">
+
+			<img id="logo" class="svg logo-container" src="./img/logo.svg">
+			<br>
+			Version [% version %] - "[% vername %]"
+			<br>
+			<h2>Select a category to show the matching settings.</h2>
+			<br />
+			<input class='stdbtn' type='button' onclick="saveFormData('#editConfigForm');"
+				value='Save LRR Configuration' />
+			<input class='stdbtn' type='button' onclick="window.location.href = '/config/plugins';"
+				value='Plugin Configuration' />
+			<input class='stdbtn' type='button' onclick="window.location.href = '/';" value='Return to Library' />
+
+		</div>
+		<form class="right-column" name="editConfigForm" id="editConfigForm" enctype="multipart/form-data"
+			method="post">
 
 			<ul class="collapsible extensible with-right-caret">
 				<li class="option-flyout">
@@ -78,24 +92,27 @@
 						</table>
 					</div>
 				</li>
+				<li class="option-flyout">
+					<div class="collapsible-title caret-right">
+						<i class="fa fa-satellite" aria-hidden="true"></i> Background Worker</div>
+					<div class="collapsible-body">
+						<table style="margin:auto; font-size:9pt;">
+							<tbody>
+								[% INCLUDE templates_config/config_shinobu %]
+							</tbody>
+						</table>
+					</div>
+				</li>
 			</ul>
-
-			<tr>
-				<td colspan='2' style='text-align:center'>
-					<br />
-					<input class='stdbtn' type='button' onclick="saveFormData('#editConfigForm');" value='Save LRR Configuration' />
-					<input class='stdbtn' type='button' onclick="window.location.href = '/config/plugins';" value='Plugin Configuration' />
-					<input class='stdbtn' type='button' onclick="window.location.href = '/';" value='Return to Library' />
-					<br />
-				</td>
-			</tr>
-
 		</form>
 	</div>
 
 	<script>
 		$(function () {
 			enable_pass();
+			replace_img_svg();
+			shinobuStatus();
+			setInterval(shinobuStatus, 5000);
 			$("#enablepass").click(enable_pass);
 		});
 

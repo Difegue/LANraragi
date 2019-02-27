@@ -73,9 +73,12 @@ sub apply_routes {
     $logged_in->get('/api/clean_temp')->to('api#clean_tempfolder');
     $logged_in->get('/api/discard_cache')->to('api#force_refresh');
     $logged_in->get('/api/clear_new')->to('api#clear_new');
+    $logged_in->get('/api/shinobu_status')->to('api#shinobu_status');
+    $logged_in->get('/api/restart_shinobu')->to('api#restart_shinobu');
 
     $logged_in->get('/logs')->to('logging#index');
     $logged_in->get('/logs/general')->to('logging#print_general');
+    $logged_in->get('/logs/shinobu')->to('logging#print_shinobu');
     $logged_in->get('/logs/plugins')->to('logging#print_plugins');
     $logged_in->get('/logs/mojo')->to('logging#print_mojo');
 

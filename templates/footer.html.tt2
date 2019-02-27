@@ -4,7 +4,7 @@
     It's not the side effects of the fapping! I'm thinking that it must be love!
     <br>
 
-    <a href="https://github.com/Difegue/LANraragi"> LANraragi [% version %] </a>
+    <a href="https://github.com/Difegue/LANraragi"> LANraragi</a>
     -
     <a onclick="openThemeOverlay()" style="cursor:pointer">Change Theme</a>
 </p>
@@ -12,7 +12,8 @@
 
 <div id="theme-overlay-shade" class="overlay-sh" onclick="closeThemeOverlay();"></div>
 
-<div id="themeOverlay" class="id1 base-overlay small-overlay" style="display:none; max-height:300px; min-height:300px !important">
+<div id="themeOverlay" class="id1 base-overlay small-overlay"
+    style="display:none; max-height:300px; min-height:300px !important">
 
     <h1>
         <i class="fa fa-paint-brush"></i> Available Themes </h1>

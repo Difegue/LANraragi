@@ -119,7 +119,7 @@ sub lookup_by_title {
     $ua->cookie_jar->ignore(
         sub {
             my $cookie = shift;
-            return undef unless my $name = $cookie->name;
+            return 0 unless my $name = $cookie->name;
             return $name eq 'yay';
         }
     );

@@ -4,6 +4,7 @@ requires 'local::lib', 2.000024;
 
 requires 'Redis', 1.991;
 requires 'Encode', 2.98;
+requires 'Linux::Inotify2', 2.1;
 requires 'Archive::Extract::Libarchive', 0.38;
 requires 'Archive::Peek::Libarchive', 0.38;
 requires 'Image::Scale', 0.14;
@@ -17,6 +18,7 @@ requires 'File::ReadBackwards', 1.05;
 requires 'File::Find::utf8', 0.013;
 requires 'Cpanel::JSON::XS', 4.06;
 
+requires 'Test::Harness', 3.42;
 requires 'Mojolicious', 8.10;
 requires 'Mojolicious::Plugin::TemplateToolkit', 0.003;
 requires 'Mojolicious::Plugin::RenderFile', 0.12;
@@ -24,4 +26,3 @@ requires 'Mojo::IOLoop::ProcBackground', 0.06;
 requires 'IO::Socket::SSL', 2.056;
 
 requires 'Module::Pluggable', 5.2;
-requires 'Image::Scale', 0.14; 

@@ -9,6 +9,7 @@ use Mojo::JSON qw(decode_json);
 use Encode;
 use File::Basename;
 use Redis;
+use Cwd;
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
@@ -29,21 +30,24 @@ sub add_archive_to_redis {
     $logger->debug("Filesystem Path: $file");
 
     my $title = $name;
-    my $tags = "";
+    my $tags  = "";
 
-    $redis->hset( $id, "name",  encode_utf8($name) );
-    $redis->hset( $id, "file",  encode_utf8($file) );
+    $redis->hset( $id, "name", encode_utf8($name) );
+
+    #Don't encode filenames.
+    $redis->hset( $id, "file", $file );
+
     #New file in collection, so this flag is set.
     $redis->hset( $id, "isnew", "block" );
-    
+
     #Use the mythical regex to get title and tags
     #Except if the matching pref is off
-    if (LANraragi::Model::Config->get_tagregex eq "1") {
-        ( $title, $tags ) = parse_name( $name );
+    if ( LANraragi::Model::Config->get_tagregex eq "1" ) {
+        ( $title, $tags ) = parse_name($name);
         $logger->debug("Parsed Title: $title");
         $logger->debug("Parsed Tags: $tags");
-    } 
-           
+    }
+
     $redis->hset( $id, "title", encode_utf8($title) );
     $redis->hset( $id, "tags",  encode_utf8($tags) );
 
@@ -54,28 +58,29 @@ sub add_archive_to_redis {
 #add the $tags to the archive with id $id.
 sub add_tags {
 
-    my ($id, $newtags) = @_;
+    my ( $id, $newtags ) = @_;
 
     my $redis = LANraragi::Model::Config::get_redis;
     my $oldtags = $redis->hget( $id, "tags" );
-    $oldtags =
-    LANraragi::Utils::Database::redis_decode($oldtags);
+    $oldtags = LANraragi::Utils::Database::redis_decode($oldtags);
 
-    if ( $oldtags ne "" ) {
-        $newtags = $oldtags . "," . $newtags;
+    if ( length $newtags ) {
+
+        if ( $oldtags ne "" ) {
+            $newtags = $oldtags . "," . $newtags;
+        }
+
+        $redis->hset( $id, "tags", encode_utf8($newtags) );
     }
-
-    $redis->hset( $id, "tags", encode_utf8($newtags) );
-
 }
 
 sub set_title {
-    
-    my ($id, $newtitle) = @_;
+
+    my ( $id, $newtitle ) = @_;
 
     my $redis = LANraragi::Model::Config::get_redis;
 
-    if ($newtitle ne "") {
+    if ( $newtitle ne "" ) {
         $redis->hset( $id, "title", encode_utf8($newtitle) );
     }
 
@@ -164,15 +169,17 @@ sub redis_decode {
 #Setting FB_CROAK tells encode to die instantly if it encounters any errors.
 #Without this setting, it typically tries to replace characters... which might already be valid UTF8!
     eval { $data = decode_utf8( $data, Encode::FB_CROAK ) };
+
+    #Do another UTF-8 decode just in case the data was double-encoded
     eval { $data = decode_utf8( $data, Encode::FB_CROAK ) };
 
     return $data;
 }
 
-#Set the force_refresh flag. This will invalidate the currently cached JSON.
+#Touch the Shinobu nudge file. This will invalidate the currently cached JSON.
 sub invalidate_cache {
-    my $redis = LANraragi::Model::Config::get_redis;
-    $redis->hset( "LRR_JSONCACHE", "force_refresh", 1 );
+    utime( undef, undef, cwd . "/.shinobu-nudge" )
+      or warn "Couldn't touch .shinobu-nudge: $!";
 }
 
 #Look for a plugin by namespace.
@@ -193,7 +200,7 @@ sub plugin_lookup {
         }
     }
 
-    return undef;
+    return 0;
 }
 
 #Get the global arguments input by the user for thespecified plugin.
@@ -209,7 +216,7 @@ sub get_plugin_globalargs {
         #Get the matching argument JSON in Redis
         my %pluginfo  = $plugin->plugin_info();
         my $namespace = $pluginfo{namespace};
-        my $namerds = "LRR_PLUGIN_" . uc($namespace);
+        my $namerds   = "LRR_PLUGIN_" . uc($namespace);
 
         if ( $redis->hexists( $namerds, "enabled" ) ) {
             my $argsjson = $redis->hget( $namerds, "customargs" );
@@ -224,6 +231,5 @@ sub get_plugin_globalargs {
 
     return @args;
 }
-
 
 1;

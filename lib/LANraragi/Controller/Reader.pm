@@ -22,21 +22,20 @@ sub index {
         #Quick Redis check to see if the ID exists:
         my $redis = $self->LRR_CONF->get_redis();
 
-        unless ( $redis->hexists( $id, "title" ) ) {
+        unless ( $redis->exists($id) ) {
             $self->redirect_to('index');
         }
 
         #Get a computed archive name if the archive exists
-        my $arcname = "";
-        my $tags = $redis->hget( $id, "tags" );
-        $arcname = $redis->hget( $id, "title" );
+        my $arcname = $redis->hget( $id, "title" );
+        my $tags    = $redis->hget( $id, "tags" );
+        $arcname = LANraragi::Utils::Database::redis_decode($arcname);
+        $tags    = LANraragi::Utils::Database::redis_decode($tags);
 
         if ( $tags =~ /artist:/ ) {
             $tags =~ /.*artist:([^,]*),.*/;
             $arcname = $arcname . " by " . $1;
         }
-
-        $arcname = LANraragi::Utils::Database::redis_decode($arcname);
 
         my $force       = $self->req->param('force_reload')     || "0";
         my $thumbreload = $self->req->param('reload_thumbnail') || "0";
@@ -48,14 +47,17 @@ sub index {
               LANraragi::Model::Reader::build_reader_JSON( $self, $id, $force,
                 $thumbreload );
         };
-        my $err = $@;
 
-        if ($err) {
+        if ($@) {
+
+            my $err      = $@;
+            my $filename = LANraragi::Utils::Database::redis_decode(
+                $redis->hget( $id, "file" ) );
 
             $self->render(
                 template => "error",
                 title    => $self->LRR_CONF->get_htmltitle,
-                filename => $redis->hget( $id, "file" ),
+                filename => $filename,
                 errorlog => $err
             );
             return;

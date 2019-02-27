@@ -69,26 +69,10 @@ p#nb {
 }
 
 .caption-tags {
-    max-width: 250px !important;
+    max-width: 350px !important;
 }
 
 /*Hide elements within the pages on small screens*/
-@media all and (max-device-width: 1000px) {
-    #i2 { display: none; }
-    .page_dropdown {margin-top:50px;}
-    #i1 {padding: 2px;}
-    #seriesheader {max-width: 50px;}
-    #langheader {max-width: 50px;}
-    #artistheader {max-width: 50px;}
-    #tagsheader {max-width: 50px;}
-    td.series {max-width: 50px;}
-    td.language {max-width: 50px;}
-    td.artist {max-width: 50px;}
-    td.tags {max-width: 50px;}
-    .caption-image {margin-left: -15% !important;}
-    .page-overlay { min-height: 100% !important;}
-    .ie7 .page-overlay { min-height: 100% !important;}
-}
 
 @media all and (max-width: 1000px) {
     #i2 { display: none; }
@@ -105,21 +89,8 @@ p#nb {
     .caption-image {margin-left: -15% !important;}
     .page-overlay { min-height: 100% !important;}
     .ie7 .page-overlay { min-height: 100% !important;}
-}
-
-@media all and (max-device-width: 540px) {
-    #i2 { display: none; }
-    .page_dropdown {margin-top:50px;}
-    #i1 {padding: 2px;}
-    #seriesheader {display:none;}
-    #langheader {display:none;}
-    #artistheader {display:none;}
-    #tagsheader {display:none;}
-    td.series {display:none;}
-    td.language {display:none;}
-    td.artist {display:none;}
-    td.tags {display:none;}
-    div.sni h1 {overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
+    .left-column {width: 100% !important;}
+    .right-column {width: 100% !important;}
 }
 
 @media all and (max-width: 540px) {
@@ -135,6 +106,7 @@ p#nb {
     td.artist {display:none;}
     td.tags {display:none;}
     div.sni h1 {overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
+    .option-td { width: 150px !important;}
 }
 
 /* Reader overlays. */
@@ -231,6 +203,7 @@ a:hover > .page-number {
     min-height:300px;
 }
 
+/* Option menu. */
 .collapsible {
     box-shadow: none !important;
 }
@@ -257,6 +230,17 @@ a:hover > .page-number {
 
 .option-flyout > .collapsible-body {
     padding: 10px !important;
+}
+
+.left-column {
+    display:inline-block; 
+    width: 400px;
+    vertical-align: top;
+}
+
+.right-column {
+    display:inline-block; 
+    width:60%;
 }
 
 .if a {
@@ -293,4 +277,10 @@ a:hover > .page-number {
     overflow: auto; 
     text-align: left; 
     white-space: pre-wrap; 
+    resize: vertical;
+}
+
+.logo-container {
+    width: 300px;
+    height:100px;
 }

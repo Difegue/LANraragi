@@ -28,6 +28,11 @@ body {
     padding: 2px;
     text-align: center;
 }
+
+.logo {
+    fill: #EFEAEA !important;
+}
+
 a {
     color: #EFEAEA;
     text-decoration: none;

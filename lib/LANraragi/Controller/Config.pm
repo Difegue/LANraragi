@@ -2,11 +2,11 @@ package LANraragi::Controller::Config;
 use Mojo::Base 'Mojolicious::Controller';
 
 use Encode;
-use File::Find::utf8;
 
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database;
+use LANraragi::Utils::TempFolder;
 
 use LANraragi::Model::Config;
 
@@ -16,11 +16,11 @@ use Authen::Passphrase::BlowfishCrypt;
 sub index {
 
     my $self = shift;
-    my $size = 0;
-    find( sub { $size += -s if -f }, "./public/temp" );
 
     $self->render(
         template    => "config",
+        version     => $self->LRR_VERSION,
+        vername     => $self->LRR_VERNAME,
         motd        => $self->LRR_CONF->get_motd,
         dirname     => $self->LRR_CONF->get_userdir,
         pagesize    => $self->LRR_CONF->get_pagesize,
@@ -41,7 +41,7 @@ sub index {
         fav5        => $self->LRR_CONF->get_favtag(5),
         cssdrop     => LANraragi::Utils::Generic::generate_themes_selector,
         csshead     => LANraragi::Utils::Generic::generate_themes_header,
-        tempsize    => int( $size / 1048576 * 100 ) / 100
+        tempsize    => LANraragi::Utils::TempFolder::get_tempsize
     );
 }
 
@@ -62,7 +62,7 @@ sub save_config {
         blacklist   => scalar $self->req->param('blacklist'),
         tempmaxsize => scalar $self->req->param('tempmaxsize'),
         apikey      => scalar $self->req->param('apikey'),
-        fav1        => scalar $self->req->param('fav1'), 
+        fav1        => scalar $self->req->param('fav1'),
         fav2        => scalar $self->req->param('fav2'),
         fav3        => scalar $self->req->param('fav3'),
         fav4        => scalar $self->req->param('fav4'),
@@ -116,7 +116,6 @@ sub save_config {
             LANraragi::Utils::Generic::remove_newlines( $confhash{$key} );
             encode_utf8( $confhash{$key} );
         }
-        
 
 #for all keys of the hash, add them to the redis config hash with the matching keys.
         $redis->hset( "LRR_CONFIG", $_, $confhash{$_}, sub { } )

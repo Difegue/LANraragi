@@ -1,12 +1,12 @@
 package Shinobu;
 
 #LANraragi Background Worker.
-#  While the Webapp is active, executes a workload every X seconds.
-#  This workload currently is:
+#  Uses inotify watches to keep track of filesystem happenings.
+#  My main tasks are:
 #
-#    Automatic detection/indexing of new archives without visiting the main page
-#    Automatic tagging of new archives using enabled plugins
-#    Automatic cleaning of the temporary folder when it reaches a certain size
+#    Tracking all files in the content folder and making sure they're synched with the database
+#    Building the JSON cache used to display the Archive Index
+#    Automatically cleaning the temporary folder when it reaches a certain size
 #
 
 use strict;
@@ -23,300 +23,297 @@ BEGIN {
 }    #As this is a new process, reloading the LRR libs into INC is needed.
 
 use Mojolicious;
-use File::Find::utf8;
+use Linux::Inotify2;
+use File::Find;
 use File::Basename;
-use File::stat;
-use File::Path qw(make_path remove_tree);
 use Encode;
 
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database;
+use LANraragi::Utils::TempFolder;
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
 
+# Filemap hash, global to all subs
+my %filemap;
+
+# Logger and Database objects
+my $logger = LANraragi::Utils::Generic::get_logger( "Shinobu", "shinobu" );
+my $redis = LANraragi::Model::Config::get_redis;
+
+# Almightly inotify interface
+my $inotify = new Linux::Inotify2
+  or die "unable to create inotify object: $!";
+
+#Subroutine for new and deleted files that takes inotify events
+my $inotifysub = sub {
+    my $e    = shift;
+    my $name = $e->fullname;
+    my $mask = $e->mask;
+    $logger->debug("Received inotify event $mask on $name");
+
+    if ( $e->IN_MOVED_TO || $e->IN_CREATE ) {
+        new_file_callback( $e->fullname );
+    }
+
+    if ( $e->IN_DELETE ) {
+        deleted_file_callback($name);
+    }
+
+};
+
 sub initialize_from_new_process {
 
-    my $interval = LANraragi::Model::Config::get_interval;
-    my $logger =
-      LANraragi::Utils::Generic::get_logger( "Shinobu", "lanraragi" );
+    my $userdir = LANraragi::Model::Config::get_userdir;
 
-    $logger->info(
-"Shinobu Background Worker started -- Content folder will be scanned every $interval seconds."
-    );
+    $logger->info("Shinobu Background Worker started.");
     $logger->info( "Working dir is " . cwd );
 
-    my $count = $interval - 1;
+    build_filemap();
+    build_json_cache();
 
-    while (1) {
+    $logger->info("Adding inotify watches to content folder $userdir");
 
-        eval {
-            $count++;
-            workload( $count eq $interval );
+    # add watches to content directory
+    $inotify->watch( $userdir, IN_ALL_EVENTS, $inotifysub );
 
-            if ( $count eq $interval ) {
-                $count = 0;
-            }
-        };
-        if ($@) {
-            $logger->error($@);
-        }
-
-        sleep(1);
-    }
-
-}
-
-sub workload {
-
-    my $logger =
-      LANraragi::Utils::Generic::get_logger( "Shinobu", "lanraragi" );
-    my $redis = LANraragi::Model::Config::get_redis;
-
-    my $force       = $_[0];
-    my $redis_force = 0;
-
-    if ( $redis->hexists( "LRR_JSONCACHE", "force_refresh" ) ) {
-
-        #Force flag, usually set when metadata has been modified by the user.
-        $redis_force = $redis->hget( "LRR_JSONCACHE", "force_refresh" );
-    }
-
-#Content folder is parsed if we reached interval or if the force flag is set to 1 in Redis
-    if ( $force || $redis_force ) {
-
-        $redis->hset( "LRR_JSONCACHE", "force_refresh", 1 );
-
-        my @archives   = &get_archive_list;
-        my $cachecount = 0;
-        my $newcount   = scalar @archives;
-
-        if ( $redis->hexists( "LRR_JSONCACHE", "archive_count" ) ) {
-            $cachecount = $redis->hget( "LRR_JSONCACHE", "archive_count" );
-        }
-
-        if ( $newcount != $cachecount ) {
-            &new_archive_check(@archives);
-        }
-
-        if ( $redis_force || $newcount != $cachecount ) {
-
-            $logger->info( "Archive count ($newcount) has changed "
-                  . "since last cached value ($cachecount) "
-                  . "OR rebuild has been forced (flag value = $redis_force), rebuilding..."
-            );
-
-            &build_json_cache();
-            $logger->info("Done!");
-        }
-
-        #Clean force flag
-        $redis->hset( "LRR_JSONCACHE", "force_refresh", 0 );
-
-    }
-
-    if ( -e "$FindBin::Bin/../public/temp" ) { &autoclean_temp_folder; }
-
-}
-
-sub get_archive_list {
-
-    my $dirname = LANraragi::Model::Config::get_userdir;
-
-    #Get all files in content directory and subdirectories.
-    my @filez;
+    # add watches to all subdirectories
     find(
         {
             wanted => sub {
+                return unless -d $_;    #Directories only
+                return
+                  if $_ eq "thumb"
+                  || $_ eq ".";         #excluded subdirs
+                $logger->debug("Adding inotify watches to subdirectory $_");
+                $inotify->watch( $File::Find::name, IN_ALL_EVENTS,
+                    $inotifysub );
+            },
+            follow_fast => 1
+        },
+        $userdir
+    );
 
+    # add a watch to the temp folder on created folders
+    # Check the current folder size and clean it if necessary
+    $inotify->watch( LANraragi::Utils::TempFolder::get_temp,
+        IN_CREATE, LANraragi::Utils::TempFolder::clean_temp_partial );
+
+    # Create a .shinobu-nudge file and add a watch to it
+    my $nudge = cwd . "/.shinobu-nudge";
+    open my $fileHandle, ">", $nudge
+      or $logger->warn( "The nudge file couldn't be created! "
+          . "You might not be able to manually refresh the JSON cache." );
+    print $fileHandle "donut";
+    close $fileHandle;
+
+    # This file can then be touched to trigger a JSON cache refresh.
+    $inotify->watch( $nudge, IN_ATTRIB, sub { build_json_cache() } );
+
+    # manual event loop
+    $logger->info("All done! Now dutifully watching your files. ");
+    $inotify->poll while 1;
+
+}
+
+#Build the filemap hash from scratch. This acts as a masterlist of what's in the content directory.
+#This computes IDs for all archives and henceforth is rather expensive !
+sub build_filemap {
+
+    $logger->info("Building filemap...This might take some time.");
+
+    #Clear hash
+    %filemap = ();
+    my $dirname = LANraragi::Model::Config::get_userdir;
+
+    #Get all files in content directory and subdirectories.
+    find(
+        {
+            wanted => sub {
                 return if -d $_;    #Directories are excluded on the spot
-                if ( $_ =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr)$/ )
-                {
-                    push @filez, $_;
-                }
+                add_to_filemap($_);
             },
             no_chdir    => 1,
             follow_fast => 1
         },
         $dirname
     );
-    return @filez;
-
 }
 
-sub new_archive_check {
+sub add_to_filemap {
 
-    my (@dircontents) = @_;
-    my $redis = LANraragi::Model::Config::get_redis;
-    my $logger =
-      LANraragi::Utils::Generic::get_logger( "Shinobu", "lanraragi" );
+    my ($file) = shift;
 
-    my $processed_archives             = 0;
-    my $maximum_archives_per_iteration = 20;
+    if ( $file =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr)$/ ) {
 
-    foreach my $file (@dircontents) {
+        $logger->debug("Adding $file to Shinobu filemap.");
 
-        #ID of the archive, used for storing data in Redis.
-        my $id = LANraragi::Utils::Database::compute_id($file);
-
-#As the workload loops, we need to inform the user about the state of the archive importation --
-#which means generating a JSON every now and then.
-        if ( $processed_archives >= $maximum_archives_per_iteration ) {
-            $logger->debug(
-                    "Processed $maximum_archives_per_iteration Archives, "
-                  . "building JSON." );
-
-            $processed_archives = 0;
-            &build_json_cache();
+        #Freshly created files might not be complete yet.
+        #We have to wait before doing any form of calculation.
+        while (1) {
+            last if open( my $handle, '<', $file );
+            $logger->debug("Waiting for file to be openable");
+            sleep(1);
         }
 
-        #Duplicate file detector
-        if ( $redis->hexists( $id, "title" ) ) {
-            my $cachefile = $redis->hget( $id, "file" );
-            my $filet = LANraragi::Utils::Database::redis_decode($file);
-            $cachefile = LANraragi::Utils::Database::redis_decode($cachefile);
-            if ( $cachefile ne $filet ) {
-                $logger->warn( "This ID exists in the Redis Database but "
-                      . "doesn't have the same file! You might be having duplicate files!"
-                );
-                $logger->warn("Our file: $filet");
-                $logger->warn("Cached file: $cachefile");
-            }
+        #Compute the ID of the archive and add it to the hash
+        my $id = "";
+        eval { $id = LANraragi::Utils::Database::compute_id($file); };
+
+        if ($@) {
+            $logger->error("Couldn't open $file for ID computation: $@");
+            $logger->error("Giving up on adding it to the filemap.");
+            return;
+        }
+
+        $logger->debug("Computed ID is $id.");
+
+        #If the hash already exists, throw a warning about duplicates
+        if ( exists( $filemap{$id} ) ) {
+            $logger->warn( "$file is a duplicate of the existing file "
+                  . $filemap{$id}
+                  . ". You should delete it." );
         }
         else {
-            #Trigger archive addition if title isn't in Redis
-            $logger->info("Adding new file $file with ID $id");
-            LANraragi::Utils::Database::add_archive_to_redis( $id, $file,
-                $redis );
-
-            #AutoTagging using enabled plugins goes here!
-            if (LANraragi::Model::Config::enable_autotag) {
-                LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
-            }
-            $processed_archives++;
+            $filemap{$id} = $file;
         }
     }
+
 }
 
-sub autoclean_temp_folder {
-
-    my $logger =
-      LANraragi::Utils::Generic::get_logger( "Shinobu", "lanraragi" );
-
-    my $size = 0;
-    find( sub { $size += -s if -f }, "$FindBin::Bin/../public/temp" );
-    $size = int( $size / 1048576 * 100 ) / 100;
-
-    my $maxsize = LANraragi::Model::Config::get_tempmaxsize;
-
-    if ( $size > $maxsize ) {
-        $logger->info( "Current temporary folder size is $size MBs, "
-              . "Maximum size is $maxsize MBs. Cleaning." );
-
-#Remove all folders in /public/temp except the most recent one
-#For this, we use Perl's ctime, which uses inode last modified time on Unix and Win32 creation time on Windows.
-        my $dir_name = "$FindBin::Bin/../public/temp";
-
-        #Wipe thumb temp folder first
-        if ( -e $dir_name . "/thumb" ) { unlink( $dir_name . "/thumb" ); }
-
-        opendir( my $dir_fh, $dir_name );
-
-        my @folder_list;
-        while ( my $file = readdir $dir_fh ) {
-
-            next unless -d $dir_name . '/' . $file;
-            next if $file eq '.' or $file eq '..';
-
-            push @folder_list, "$dir_name/$file";
-        }
-        closedir $dir_fh;
-
-        @folder_list = sort {
-            my $a_stat = stat($a);
-            my $b_stat = stat($b);
-            $a_stat->ctime <=> $b_stat->ctime;
-        } @folder_list;
-
-        #Remove all folders in folderlist except the last one
-        my $survivor = pop @folder_list;
-        $logger->debug("Deleting all folders in /temp except $survivor");
-
-        remove_tree( @folder_list, { error => \my $err } );
-
-        if (@$err) {
-            for my $diag (@$err) {
-                my ( $file, $message ) = %$diag;
-                if ( $file eq '' ) {
-                    $logger->error("General error: $message\n");
-                }
-                else {
-                    $logger->error("Problem unlinking $file: $message\n");
-                }
-            }
-        }
-
-        $logger->info("Done!");
-    }
-}
-
+#Build the JSON cache that is later spat by the API.
+#This cross-checks the filemap with the Redis database.
+#Files that aren't in the filemap are ignored (potentially deleted archives)
+#Files that aren't in the database are added to it.
 sub build_json_cache {
 
-    my $redis   = LANraragi::Model::Config::get_redis;
+    $logger->info("Building JSON cache...This might take some time.");
+    $redis->hset( "LRR_JSONCACHE", "refreshing", "1" );
+
     my $dirname = LANraragi::Model::Config::get_userdir;
-    my $logger =
-      LANraragi::Utils::Generic::get_logger( "Shinobu", "lanraragi" );
 
     my $json = "[";
 
-    #SHA-1 IDs are 40 characters long.
-    my @keys         = $redis->keys('????????????????????????????????????????');
-    my $archivecount = scalar @keys;
-    my $treated      = 0;
+    #Iterate on the filemap's keys
+    for my $id ( keys %filemap ) {
 
-    #Iterate on hashes to get their tags
-    foreach my $id (@keys) {
-        my $path = $redis->hget( $id, "file" );
-        $path = LANraragi::Utils::Database::redis_decode($path);
+        my $file = $filemap{$id};
+        $logger->debug("JSONing $id -> $file");
 
-        if ( -e $path ) {
-            $json .= &build_archive_JSON( $id, $path );
-            $json .= ",";
-        }
-        else {
-            #Delete leftover IDs
-            $logger->warn("Deleting ID $id - File $path cannot be found.");
-            $redis->del($id);
+        #Trigger archive addition if title isn't in Redis
+        unless ( $redis->exists($id) ) {
+            add_new_file( $id, $file );
         }
 
-        $treated++;
-        $logger->debug("Treated $treated archives out of $archivecount .");
+        $json .= build_archive_JSON( $id, $file );
+        $json .= ",";
 
     }
 
     #Remove trailing comma if there's one
-    if (length $json > 1) {
+    if ( length $json > 1 ) {
         chop $json;
     }
-    
+
     $json .= "]";
 
-    #Write JSON to cache
+    #Write JSON to cache and remove refreshing flag
     $redis->hset( "LRR_JSONCACHE", "archive_list", encode_utf8($json) );
-
-    #Write the current archive count too
-    $redis->hset( "LRR_JSONCACHE", "archive_count", $treated );
+    $redis->hset( "LRR_JSONCACHE", "refreshing",   "0" );
 
 }
 
-#build_archive_JSON(id, file, redis, userdir)
+#When a new subdirectory is added, we add all its files.
+#And if there are subdirectories in there we gotta add a watch
+sub new_file_callback {
+    my $name = shift;
+
+    unless ( -d $name ) {
+        add_to_filemap($name);
+    }
+    else {    #Oh bother
+
+        $logger->info("Subdirectory $name was added to the content folder!");
+
+        #Add watches to this subdirectory first
+        $inotify->watch( $name, IN_ALL_EVENTS, $inotifysub );
+
+        #Just do a big find call to add watches in potential subdirs
+        find(
+            {
+                wanted => sub {
+                    if ( -d $_ ) {
+                        $logger->debug(
+                            "Adding inotify watches to subdirectory $_");
+                        $inotify->watch( $File::Find::name,
+                            IN_ALL_EVENTS, $inotifysub );
+                        return;
+                    }
+
+                    #Just call add_to_filemap on files
+                    add_to_filemap($File::Find::name);
+                },
+                follow_fast => 1
+            },
+            $name
+        );
+    }
+
+    build_json_cache();
+}
+
+#Deleted files are simply dropped from the filemap.
+#Deleted subdirectories just trigger a filemap rebuild (most hopeless case)
+sub deleted_file_callback {
+    my $name = shift;
+    $logger->info("$name was deleted from the content folder!");
+
+    unless ( -d $name ) {
+
+        #Lookup the file in the filemap and prune it
+        #As it's a lookup by value it looks kinda ugly...
+        delete( $filemap{$_} )
+          foreach grep { $filemap{$_} eq $name } keys %filemap;
+    }
+    else {
+        build_filemap();
+    }
+
+    build_json_cache();
+}
+
+sub add_new_file {
+
+    my ( $id, $file ) = @_;
+
+    $logger->info("Adding new file $file with ID $id");
+
+    eval {
+        LANraragi::Utils::Database::add_archive_to_redis( $id, $file, $redis );
+
+        #AutoTagging using enabled plugins goes here!
+        if (LANraragi::Model::Config::enable_autotag) {
+            LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
+        }
+    };
+
+    if ($@) {
+        $logger->error("Error while adding file: $@");
+    }
+}
+
+#build_archive_JSON(id, file)
 #Builds a JSON object for an archive already registered in the Redis database and returns it.
 sub build_archive_JSON {
     my ( $id, $file ) = @_;
 
     my $redis   = LANraragi::Model::Config::get_redis;
     my $dirname = LANraragi::Model::Config::get_userdir;
+
+    #Extra check in case we've been given a bogus ID
+    return "" unless $redis->exists($id);
 
     my %hash = $redis->hgetall($id);
     my ( $path, $suffix );
@@ -328,13 +325,16 @@ sub build_archive_JSON {
 
     #Parameters have been obtained, let's decode them.
     ( $_ = LANraragi::Utils::Database::redis_decode($_) )
-      for ( $name, $title, $tags, $filecheck );
+      for ( $name, $title, $tags );
 
     #Update the real file path and title if they differ from the saved one
-    #...just in case the file got manually renamed or some weird shit
+    #This is meant to always track the current filename for the OS.
     unless ( $file eq $filecheck ) {
+        $logger->debug("File name discrepancy detected between DB and filesystem!");
+        $logger->debug("Filesystem: $file");
+        $logger->debug("Database: $filecheck");
         ( $name, $path, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
-        $redis->hset( $id, "file", encode_utf8($file) );
+        $redis->hset( $id, "file", $file );
         $redis->hset( $id, "name", encode_utf8($name) );
         $redis->wait_all_responses;
     }

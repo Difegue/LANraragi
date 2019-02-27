@@ -16,6 +16,7 @@ use Archive::Peek::Libarchive;
 use Archive::Extract::Libarchive;
 
 use LANraragi::Model::Config;
+use LANraragi::Utils::TempFolder;
 
 #Utilitary functions for handling Archives.
 #Relies on Libarchive.
@@ -41,15 +42,12 @@ sub extract_archive {
     # build an Archive::Extract object
     my $ae = Archive::Extract::Libarchive->new( archive => $zipfile );
 
-    #Extract to $path.
-    my $ok = $ae->extract( to => $path );
+    #Extract to $path. Report if it fails.
+    my $ok = $ae->extract( to => $path ) or die $ae->error;
 
-    #If extraction failed, stop here and print an error page.
-    unless ( -e $path ) {
-        die $ae->error;
-    }
+    # dir that was extracted to
+    return $ae->extract_path;
 
-    return $ae->error;
 }
 
 #extract_thumbnail(dirname, id)
@@ -65,7 +63,7 @@ sub extract_thumbnail {
     my $file = $redis->hget( $id, "file" );
     $file = LANraragi::Utils::Database::redis_decode($file);
 
-    my $temppath = getcwd() . "/public/temp/thumb";
+    my $temppath = LANraragi::Utils::TempFolder::get_temp . "/thumb";
 
     #Clean thumb temp to prevent file mismatch errors.
     remove_tree( $temppath, { error => \my $err } );
@@ -143,7 +141,7 @@ sub extract_file_from_archive {
     #Timestamp extractions in microseconds
     my ( $seconds, $microseconds ) = gettimeofday;
     my $stamp = "$seconds-$microseconds";
-    my $path  = "/public/temp/plugin/$stamp";
+    my $path  = LANraragi::Utils::TempFolder::get_temp . "/plugin/$stamp";
 
     my $peek = Archive::Peek::Libarchive->new( filename => $archive );
     my $contents = $peek->file($filename);

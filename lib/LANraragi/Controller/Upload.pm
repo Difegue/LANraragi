@@ -2,6 +2,8 @@ package LANraragi::Controller::Upload;
 use Mojo::Base 'Mojolicious::Controller';
 
 use Redis;
+use File::Temp;
+use Digest::SHA;
 
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Archive;
@@ -22,9 +24,19 @@ sub process_upload {
     if ( $filename =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr)$/ ) {
 
         my $output_file = $self->LRR_CONF->get_userdir . '/'
-          . $filename;    #open up a file on our side
+          . $filename;    #future home of the file
 
-        if ( -e $output_file ) {
+        #Compute an ID by hand here, using the mojo::upload methods
+        my $data = $file->asset->get_chunk(0, 512000);
+        my $ctx = Digest::SHA->new(1);
+        $ctx->add($data);
+        my $id = $ctx->hexdigest;
+        $self->LRR_LOGGER->debug("ID of uploaded file is $id");
+
+        my $redis = $self->LRR_CONF->get_redis();
+        my $isdupe = $redis->hexists( $id, "title" );
+
+        if ( -e $output_file || $isdupe ) {
 
             #if it doesn't already exist, that is.
             $self->render(
@@ -33,19 +45,15 @@ sub process_upload {
                     name      => $file->filename,
                     type      => $uploadMime,
                     success   => 0,
-                    error =>
-                      "A file bearing this name already exists in the Library."
+                    error     => $isdupe ? "This file already exists in the Library." :
+                    "A file with the same name is present in the Library."
                 }
             );
         }
         else {
             $file->move_to($output_file);
 
-            #Parse for metadata right now and get the database ID
-            my $redis = $self->LRR_CONF->get_redis();
-
-            my $id = LANraragi::Utils::Database::compute_id($output_file);
-
+            #Parse for metadata right now
             LANraragi::Utils::Database::add_archive_to_redis( $id, $output_file,
                 $redis );
 

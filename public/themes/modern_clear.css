@@ -8,14 +8,14 @@ img{border:0}
 	font-family: 'Inter UI';
 	font-style: normal;
 	font-weight: 400;
-	src: local('Inter UI'), local('Inter-UI'), url(../css/webfonts/Inter-UI-Regular.woff) format('woff');
+	src: local('Inter'), local('Inter'), url(../css/webfonts/Inter-Regular.woff) format('woff');
 }
 
 @font-face {
 	font-family: 'Inter UI';
 	font-style: normal;
 	font-weight: 700;
-	src: local('Inter UI'), local('Inter-UI-Bold'), url(../css/webfonts/Inter-UI-Bold.woff) format('woff');
+	src: local('Inter'), local('Inter-Bold'), url(../css/webfonts/Inter-Bold.woff) format('woff');
 } 
 
 body {
@@ -29,6 +29,9 @@ body {
     font-size: 8pt;
 }    
 
+.logo {
+    fill: #34495E !important;
+}
 
 a {
     color: #34495E;

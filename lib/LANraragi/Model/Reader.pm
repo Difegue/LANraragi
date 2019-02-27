@@ -14,6 +14,7 @@ use URI::Escape;
 use LANraragi::Model::Config;
 use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database;
+use LANraragi::Utils::TempFolder;
 
 #magical sort function used below
 sub expand {
@@ -43,7 +44,7 @@ sub resize_image {
 sub build_reader_JSON {
 
     my ( $self, $id, $force, $thumbreload ) = @_;
-    my $tempdir = "./public/temp";
+    my $tempdir = LANraragi::Utils::TempFolder::get_temp;
 
     #Redis stuff: Grab archive path and update some things
     my $redis   = LANraragi::Model::Config::get_redis();
@@ -57,9 +58,8 @@ sub build_reader_JSON {
         LANraragi::Utils::Database::invalidate_cache();
     }
 
-    #Get the path from Redis.
+#Get the path from Redis. Filenames are stored as they are on the OS, so no decoding!
     my $zipfile = $redis->hget( $id, "file" );
-    $zipfile = LANraragi::Utils::Database::redis_decode($zipfile);
 
     #Get data from the path
     my ( $name, $fpath, $suffix ) = fileparse( $zipfile, qr/\.[^.]*/ );
@@ -78,12 +78,22 @@ sub build_reader_JSON {
     #If it hasn't, we call unar to do it.
     #If the file hasn't been extracted, or if force-reload =1
     unless ( -e $path ) {
-        my $log = LANraragi::Utils::Archive::extract_archive( $path, $zipfile );
 
-        $self->LRR_LOGGER->debug("Extraction of archive to $path done");
-        if ($log) {
-            $self->LRR_LOGGER->debug("Error log from libarchive : $log");
+        my $outpath = "";
+        eval {
+            $outpath =
+              LANraragi::Utils::Archive::extract_archive( $path, $zipfile );
+        };
+
+        if ($@) {
+            my $log = $@;
+            $self->LRR_LOGGER->error("Error extracting archive : $log");
+            die $log;
         }
+        else {
+            $self->LRR_LOGGER->debug("Extraction of archive to $path done");
+        }
+
     }
 
     #Find the extracted images with a full search (subdirectories included),
@@ -138,9 +148,9 @@ sub build_reader_JSON {
         #Then we bring the slashes back.
         $imgpath =~ s!%2F!/!g;
 
-        #We also now need to strip the /public/ part,
+        #We also now need to strip everything before the /public/ part,
         #as it's not visible by clients.
-        $imgpath =~ s!public/!!g;
+        $imgpath =~ s!.*/public/!!g;
 
         push @images_browser, $imgpath;
     }

@@ -15,6 +15,7 @@
 	[% csshead %]
 
 	<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/jquery-migrate.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.dataTables.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.qtip.min.js" type="text/JAVASCRIPT"></script>
@@ -68,7 +69,8 @@
 							[% FOREACH tag IN favtags %]
 							<td>
 								<input class='favtag' id='[% tag %]' type='hidden' />
-								<input class='favtag-btn' type='button' value='[% tag %]' onclick='toggleFav(this)' title='Click here to instantly search for this tag!' />
+								<input class='favtag-btn' type='button' value='[% tag %]' onclick='toggleFav(this)'
+									title='Click here to instantly search for this tag!' />
 							</td>
 							[% END %]
 						</tr>
@@ -76,14 +78,18 @@
 				</table>
 				[% END %]
 
-				<input type='text' id='srch' class='search stdinput' size='90' placeholder='Search Title, Artist, Series, Language or Tags' />
+				<input type='text' id='srch' class='search stdinput' size='90'
+					placeholder='Search Title, Artist, Series, Language or Tags' />
 				<input id='clrsrch' class='stdbtn' type='button' value='Clear Filter' />
 			</div>
 
 			<p id='cssbutton' style='display:inline'>
-				<input id='inboxbtn' class='stdbtn' type='button' onclick='toggleInbox(this)' value='Show new archives only' />
-				<input class='stdbtn' type='button' onclick="var win=window.open('random','_blank'); win.focus();" value='Give me a random archive' />
-				<input id='viewbtn' class='stdbtn' type='button' onclick="switch_index_view()" value='Switch to Thumbnail View' />
+				<input id='inboxbtn' class='stdbtn' type='button' onclick='toggleInbox(this)'
+					value='Show new archives only' />
+				<input class='stdbtn' type='button' onclick="var win=window.open('random','_blank'); win.focus();"
+					value='Give me a random archive' />
+				<input id='viewbtn' class='stdbtn' type='button' onclick="switch_index_view()"
+					value='Switch to Thumbnail View' />
 			</p>
 
 			<table class="itg datatables">
@@ -110,7 +116,8 @@
 
 			<div id="json-error" style="display:none">
 				<h1 style="color: red">
-					<i class="fas fa-bomb"></i> I don't know everything, but I sure as hell know this database's busted lads
+					<i class="fas fa-bomb"></i> I don't know everything, but I sure as hell know this database's busted
+					lads
 					<i class="fas fa-bomb"></i>
 				</h1>
 				<h2>The JSON cache is corrupt, and as such LANraragi is unable to display your archive list.

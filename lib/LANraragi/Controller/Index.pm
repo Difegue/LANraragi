@@ -51,16 +51,15 @@ sub index {
 
     my $self = shift;
 
-    my $version = $self->config->{version};
-    my $redis   = $self->LRR_CONF->get_redis();
+    my $redis = $self->LRR_CONF->get_redis();
 
     my $force = 0;
 
-    if ( $redis->hexists( "LRR_JSONCACHE", "force_refresh" ) ) {
+    if ( $redis->hexists( "LRR_JSONCACHE", "refreshing" ) ) {
 
         #If this flag is set, the DB cache is currently building
         #flash a notification
-        $force = $redis->hget( "LRR_JSONCACHE", "force_refresh" );
+        $force = $redis->hget( "LRR_JSONCACHE", "refreshing" );
     }
 
     #Checking if the user still has the default password enabled
@@ -84,6 +83,7 @@ sub index {
 
     $self->render(
         template        => "index",
+        version         => $self->LRR_VERSION,
         title           => $self->LRR_CONF->get_htmltitle,
         pagesize        => $self->LRR_CONF->get_pagesize,
         userlogged      => $userlogged,
@@ -93,7 +93,6 @@ sub index {
         favtags         => \@validFavs,
         usingdefpass    => $passcheck,
         buildingDBcache => $force,
-        version         => $version,
         debugmode       => $self->app->mode eq "development"
     );
 }

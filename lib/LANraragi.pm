@@ -19,8 +19,9 @@ sub startup {
     my $self = shift;
 
     # Load configuration from hash returned by "lrr.conf"
-    my $config = $self->plugin( 'Config', { file => 'lrr.conf' } );
+    my $config  = $self->plugin( 'Config', { file => 'lrr.conf' } );
     my $version = $config->{version};
+    my $vername = $config->{version_name};
 
     say "";
     say "";
@@ -38,9 +39,11 @@ sub startup {
 
     #Helper so controllers can reach the app's Redis DB quickly
     #(they still need to declare use Model::Config)
-    $self->helper( LRR_CONF => sub { LANraragi::Model::Config:: } );
+    $self->helper( LRR_CONF    => sub { LANraragi::Model::Config:: } );
+    $self->helper( LRR_VERSION => sub { return $version; } );
+    $self->helper( LRR_VERNAME => sub { return $vername; } );
 
-    #Second helper to build logger objects quickly
+    #Helper to build logger objects quickly
     $self->helper(
         LRR_LOGGER => sub {
             return LANraragi::Utils::Generic::get_logger( "LANraragi",
@@ -86,10 +89,10 @@ sub startup {
     $self->LRR_CONF->get_redis;
 
     #Start Background worker
-    if ( -e "./shinobu-pid" ) {
+    if ( -e "./.shinobu-pid" ) {
 
         #Read PID from file
-        open( my $pidfile, '<', "shinobu-pid" )
+        open( my $pidfile, '<', ".shinobu-pid" )
           || die( "cannot open file: " . $! );
         my $pid = <$pidfile>;
         close($pidfile);
@@ -101,30 +104,11 @@ sub startup {
         LANraragi::Utils::Generic::kill_pid($pid);
     }
 
-    my $proc = $self->stash->{shinobu} = Mojo::IOLoop::ProcBackground->new;
+    my $proc = LANraragi::Utils::Generic::start_shinobu();
+    $self->helper( SHINOBU => sub { return $proc; } );
 
-    # When the process terminates, we get this event
-    $proc->on(
-        dead => sub {
-            my ($proc) = @_;
-            my $pid = $proc->proc->pid;
-            $self->LRR_LOGGER->info(
-                "Shinobu Background Worker terminated. (PID was $pid)");
-
-            #Delete pidfile
-            unlink("./shinobu-pid");
-        }
-    );
-
-    $proc->run( [ $^X, "./lib/Shinobu.pm" ] );
-
-    #Create file to store the process' PID
-    open( my $pidfile, '>', "shinobu-pid" ) || die( "cannot open file: " . $! );
-    my $newpid = $proc->proc->pid;
-    print $pidfile $newpid;
-    close($pidfile);
-
-    $self->LRR_LOGGER->debug("Shinobu Worker new PID is $newpid");
+    $self->LRR_LOGGER->debug(
+        "Shinobu Worker new PID is " . $self->SHINOBU->pid );
 
     LANraragi::Utils::Routing::apply_routes($self);
 

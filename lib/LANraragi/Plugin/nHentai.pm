@@ -6,7 +6,9 @@ use warnings;
 #Plugins can freely use all Perl packages already installed on the system
 #Try however to restrain yourself to the ones already installed for LRR (see tools/cpanfile) to avoid extra installations by the end-user.
 use URI::Escape;
+use Mojo::JSON qw(decode_json);
 use Mojo::UserAgent;
+use Mojo::DOM;
 
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
@@ -19,7 +21,7 @@ sub plugin_info {
         name        => "nHentai",
         namespace   => "nhplugin",
         author      => "Difegue",
-        version     => "1.1",
+        version     => "1.3",
         description => "Searches nHentai for tags matching your archive.",
 
 #If your plugin uses/needs custom arguments, input their name here.
@@ -79,28 +81,33 @@ sub get_tags {
 ######
 
 #get_gallery_id_from_title(title)
-#Uses the website's search API to find a gallery and returns its gallery ID.
+#Uses the website's search to find a gallery and returns its gallery ID.
 sub get_gallery_id_from_title {
 
     my $title = $_[0];
-    my $URL   = "https://nhentai.net/api/galleries/search?query=\""
-      . uri_escape_utf8($title);
+    my $URL =
+      "https://nhentai.net/search/?q=\"" . uri_escape_utf8($title) . "\"";
 
     my $ua = Mojo::UserAgent->new;
 
     my $res = $ua->get($URL)->result;
 
-    my $content = $res->json;
+    # Parse
+    my $dom = Mojo::DOM->new( $res->body );
 
-    #get the first gallery of the search results
-    my $gallery = $content->{"result"};
-    $gallery = @$gallery[0];
+    # Get the first gallery url of the search results
+    my $gURL = $dom->at('.cover')->attr('href');
 
-    return $gallery->{"id"};
+    my $gallery = "";
+    if ( $gURL =~ /\/g\/(\d*)\//gm ) {
+        $gallery = $1;
+    }
+
+    return $gallery;
 }
 
 # get_tags_from_NH(galleryID)
-# Parses the JSON obtained from the nhentai API to get the tags.
+# Parses the JSON obtained from a nhentai allery page to get the tags.
 sub get_tags_from_NH {
 
     my $gID      = $_[0];
@@ -108,16 +115,20 @@ sub get_tags_from_NH {
 
     my $logger = LANraragi::Utils::Generic::get_logger( "nHentai", "plugins" );
 
-    my $URL = "https://nhentai.net/api/gallery/$gID";
+    my $URL = "https://nhentai.net/g/$gID/";
+    my $ua  = Mojo::UserAgent->new;
 
-    my $ua = Mojo::UserAgent->new;
+    my $textrep = $ua->get($URL)->result->body;
 
-    my $res = $ua->get($URL)->result;
+    #Find the metadata JSON in the HTML and turn it into an object
+    #It's located under a N.gallery JS object.
+    my $jsonstring = "{}";
+    if ( $textrep =~ /.*N\.gallery\((.*)\);\n.*/gmi ) {
+        $jsonstring = $1;
+    }
 
-    my $textrep = $res->body;
-    $logger->debug("nH API returned this JSON: $textrep");
+    my $json = decode_json $jsonstring;
 
-    my $json = $res->json;
     my $tags = $json->{"tags"};
 
 #TODO: support for NH's "pretty" names? (romaji titles without extraneous data we already have like (Event)[Artist], etc)
