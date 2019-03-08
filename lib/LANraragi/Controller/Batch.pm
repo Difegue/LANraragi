@@ -19,19 +19,32 @@ sub index {
     #Fill the list with archives by looking up in redis
     my $arclist = "";
     my $redis   = $self->LRR_CONF->get_redis();
-    my @keys    = $redis->keys('????????????????????????????????????????');
 
     #40-character long keys only => Archive IDs
-
+    my @keys    = $redis->keys('????????????????????????????????????????');
+    
     #Parse the archive list and add <li> elements accordingly.
     foreach my $id (@keys) {
-
         if ( $redis->hexists( $id, "title" ) ) {
             my $title = $redis->hget( $id, "title" );
             $title = LANraragi::Utils::Database::redis_decode($title);
 
-            #If the archive has no tags, pre-check it in the list.
-            if ( $redis->hget( $id, "tags" ) eq "" ) {
+            my $tagstr = $redis->hget($id, "tags");
+            $tagstr = LANraragi::Utils::Database::redis_decode($tagstr);
+            my @tags = split(/,\s?/, $tagstr);
+            my $nondefaulttags = 0;
+            
+            foreach my $t (@tags) {
+                LANraragi::Utils::Generic::remove_spaces($t);
+                LANraragi::Utils::Generic::remove_newlines($t);
+                
+                # the following are the only namespaces that LANraragi::Utils::Database::parse_name adds
+                $nondefaulttags += 1 unless $t ~= /(artist|parody|language|event|group):.*/
+            }
+            
+            #If the archive has no tags, or the tags namespaces are only from
+            #filename parsing (probably), pre-check it in the list.
+            if (!@tags || $nondefaulttags == 0) {
                 $arclist .=
                   "<li><input type='checkbox' name='archive' id='$id' checked>"
                   . "<label for='$id'> $title</label></li>";
