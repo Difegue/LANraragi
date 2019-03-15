@@ -18,9 +18,9 @@ sub plugin_info {
         namespace => "DateAddedPlugin",
         author => "Utazukin",
         version  => "0.1",
-        description => "Adds the date the archive was added as a tag.",
-        oneshot_arg => "Use file modified time.",
-		global_args => ["Use file modified time"]
+        description => "Adds the unix time stamp of the date the archive was added as a tag under the \"date_added\" namespace.",
+        oneshot_arg => "Use file modified time (yes/true), or use current time (no/false). Leaving blank uses the global setting",
+        global_args => ["Use file modified time.\n\"Yes\" or \"True\" means use the modified time.  Anything else means use the current time"]
     );
 
 }
@@ -39,7 +39,11 @@ sub get_tags {
 
     $logger->debug("Processing file: " . $file);
     my $newtags = "";
-    if ($oneshotarg ne "no" && $oneshotarg ne "false" && ($args[0] eq "yes" || $args[0] eq "true" || $oneshotarg eq "yes" || $oneshotarg eq "true")) {
+    my $global_use_file_time = $args[0] =~ /^(yes|true)$/i;
+    my $oneshot_use_file_time = $oneshotarg =~ /^(yes|true)$/i;
+    my $oneshot_use_current_time = $oneshotarg =~ /^(no|false)$/i;
+
+    if ($oneshot_use_file_time || ($global_use_file_time && !$oneshot_use_current_time)) {
 		$logger->info("Using file date");
 		$newtags = "date_added:" . (stat($file))[9]; #9 is the unix time stamp for date modified.
     } else {
