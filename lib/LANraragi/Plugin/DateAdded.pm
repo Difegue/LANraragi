@@ -19,8 +19,9 @@ sub plugin_info {
         author => "Utazukin",
         version  => "0.1",
         description => "Adds the unix time stamp of the date the archive was added as a tag under the \"date_added\" namespace.",
-        oneshot_arg => "Use file modified time (yes/true), or use current time (no/false). Leaving blank uses the global setting",
-        global_args => ["Use file modified time.\n\"Yes\" or \"True\" means use the modified time.  Anything else means use the current time"]
+        oneshot_arg => "Use file modified time (yes/true), or use current time (no/false). Leaving blank uses the global setting (default: current time)",
+        global_args => ["Use file modified time instead of current time.<br/>".
+                        "\"Yes\" or \"True\" means use the modified time.  Anything else means use the current time"]
     );
 
 }
