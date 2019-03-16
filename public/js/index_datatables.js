@@ -327,6 +327,10 @@ function splitTagsByNamespace(tags) {
 
 	var tagsByNamespace = {};
 
+	if (tags === null) {
+		return tagsByNamespace;
+	}
+
 	tags.split(/,\s?/).forEach(function (tag) {
 		nspce = null;
 		val = null;
