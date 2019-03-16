@@ -85,6 +85,10 @@ sub get_tags {
 sub get_gallery_id_from_title {
 
     my $title = $_[0];
+
+    #Strip away hyphens and apostrophes as they apparently break search
+    $title =~ s/-|'/ /g;
+
     my $URL =
       "https://nhentai.net/search/?q=\"" . uri_escape_utf8($title) . "\"";
 
