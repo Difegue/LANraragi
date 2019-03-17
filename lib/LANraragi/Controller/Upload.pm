@@ -27,14 +27,14 @@ sub process_upload {
           . $filename;    #future home of the file
 
         #Compute an ID by hand here, using the mojo::upload methods
-        my $data = $file->asset->get_chunk(0, 512000);
+        my $data = $file->asset->get_chunk( 0, 512000 );
         my $ctx = Digest::SHA->new(1);
         $ctx->add($data);
         my $id = $ctx->hexdigest;
         $self->LRR_LOGGER->debug("ID of uploaded file is $id");
 
-        my $redis = $self->LRR_CONF->get_redis();
-        my $isdupe = $redis->hexists( $id, "title" );
+        my $redis  = $self->LRR_CONF->get_redis();
+        my $isdupe = $redis->exists($id);
 
         if ( -e $output_file || $isdupe ) {
 
@@ -45,8 +45,9 @@ sub process_upload {
                     name      => $file->filename,
                     type      => $uploadMime,
                     success   => 0,
-                    error     => $isdupe ? "This file already exists in the Library." :
-                    "A file with the same name is present in the Library."
+                    error     => $isdupe
+                    ? "This file already exists in the Library."
+                    : "A file with the same name is present in the Library."
                 }
             );
         }

@@ -199,7 +199,7 @@ sub use_enabled_plugins {
     my $id    = $self->req->param('id');
     my $redis = $self->LRR_CONF->get_redis();
 
-    if ( $redis->hexists( $id, "title" )
+    if ( $redis->exists($id)
         && LANraragi::Model::Config::enable_autotag )
     {
 

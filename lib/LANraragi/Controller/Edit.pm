@@ -101,7 +101,7 @@ sub index {
 
     my $redis = $self->LRR_CONF->get_redis();
 
-    if ( $redis->hexists( $id, "title" ) ) {
+    if ( $redis->exists($id) ) {
         my %hash = $redis->hgetall($id);
 
         my ( $name, $title, $tags, $file, $thumbhash ) =
