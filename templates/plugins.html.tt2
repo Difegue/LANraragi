@@ -6,7 +6,7 @@
 	<meta name="viewport" content="width=device-width" />
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
-	<link type="image/png" rel="icon" href="favicon.ico" />
+	<link type="image/png" rel="icon" href="/favicon.ico" />
 	<link rel="stylesheet" type="text/css" href="/css/lrr.css" />
 	<link rel="stylesheet" type="text/css" href="/css/config.css" />
 
@@ -52,10 +52,12 @@
 
 	<div class="ido" style="text-align:center;">
 		<h1 class="ih" style="text-align:center">Plugin Configuration</h1>
-		<br> Enable/Disable metadata plugins by ticking the matching checkboxes. If they have configuration variables, you
+		<br> Enable/Disable metadata plugins by ticking the matching checkboxes. If they have configuration variables,
+		you
 		can set
 		them here as well.
-		<br /> Enabled plugins will be automatically used when new archives are added if the matching option is enabled in
+		<br /> Enabled plugins will be automatically used when new archives are added if the matching option is enabled
+		in
 		LRR Config.
 		<br />
 		<br />
@@ -77,25 +79,26 @@
 				<i>[% plugin.description %]</i>
 				<br />
 				[% IF plugin.custom_args && plugin.custom_args.size %]
-					<div class="collapsible-title caret" style = "padding: 5px 0 0 5px">
-						<b>Settings</b></div>
-					<div class="collapsible-body" style = "padding:5px 0 0 0">
-						<table>
-							<tbody>
-								[% FOREACH customarg IN plugin.custom_args %]
-								<tr>
-									<td style="vertical-align:middle">
-										<b> [% customarg.name %] : </b>
-									</td>
-									<td>
-										<input class="stdinput" style="max-width:200px" size="20" value="[% customarg.value %]" name="[% plugin.namespace %]_CFG_[% loop.count %]"
-										 type="text"> <br />
-									</td>
-								</tr>
-								[% END %]
-							</tbody>
-						</table>
-					</div>
+				<div class="collapsible-title caret" style="padding: 5px 0 0 5px">
+					<b>Settings</b></div>
+				<div class="collapsible-body" style="padding:5px 0 0 0">
+					<table>
+						<tbody>
+							[% FOREACH customarg IN plugin.custom_args %]
+							<tr>
+								<td style="vertical-align:middle">
+									<b> [% customarg.name %] : </b>
+								</td>
+								<td>
+									<input class="stdinput" style="max-width:200px" size="20"
+										value="[% customarg.value %]" name="[% plugin.namespace %]_CFG_[% loop.count %]"
+										type="text"> <br />
+								</td>
+							</tr>
+							[% END %]
+						</tbody>
+					</table>
+				</div>
 				[% END %]
 				<br />
 			</span>
@@ -105,8 +108,10 @@
 
 			<br />
 			<h1 style="text-align:center">
-				<input class='stdbtn' type='button' onclick="saveFormData('#editPluginForm');" value='Save Plugin Configuration' />
-				<span id="plugin-upload" class='stdbtn fileinput-button' style="margin-bottom: -10px; font-weight:normal">
+				<input class='stdbtn' type='button' onclick="saveFormData('#editPluginForm');"
+					value='Save Plugin Configuration' />
+				<span id="plugin-upload" class='stdbtn fileinput-button'
+					style="margin-bottom: -10px; font-weight:normal">
 					<span style="position:absolute; top:5px; left:25%">Upload Plugin</span>
 					<input type='file' name='file' multiple id='fileupload'>
 				</span>
