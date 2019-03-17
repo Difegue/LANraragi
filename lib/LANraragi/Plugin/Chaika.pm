@@ -20,7 +20,7 @@ sub plugin_info {
         name        => "Chaika.moe",
         namespace   => "trabant",
         author      => "Difegue",
-        version     => "1.1",
+        version     => "1.2",
         description => "Searches chaika.moe for tags matching your archive.",
 
 #If your plugin uses/needs custom arguments, input their name here.

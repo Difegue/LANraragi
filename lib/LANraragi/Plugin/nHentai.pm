@@ -21,7 +21,7 @@ sub plugin_info {
         name        => "nHentai",
         namespace   => "nhplugin",
         author      => "Difegue",
-        version     => "1.3",
+        version     => "1.4",
         description => "Searches nHentai for tags matching your archive.",
 
 #If your plugin uses/needs custom arguments, input their name here.
