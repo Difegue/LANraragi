@@ -20,7 +20,7 @@ sub plugin_info {
         name        => "Chaika.moe",
         namespace   => "trabant",
         author      => "Difegue",
-        version     => "1.1",
+        version     => "1.2",
         description => "Searches chaika.moe for tags matching your archive.",
 
 #If your plugin uses/needs custom arguments, input their name here.
@@ -54,8 +54,14 @@ sub get_tags {
         $ID   = $2;
     }
     else {
-        #Get Gallery ID by hand if the user didn't specify a URL
-        $ID = search_for_archive( $title, $tags );
+
+        #Try SHA-1 reverse search first
+        $ID = search_by_thumbnail($thumbhash);
+
+        if ($ID eq "") {
+            #Get Gallery ID by hand if nothing else worked
+            $ID = search_for_archive( $title, $tags );
+        }
     }
 
     if ( $ID eq "" ) {
@@ -73,12 +79,30 @@ sub get_tags {
 ## Chaika Specific Methods
 ######
 
+# search_by_thumbnail
+# Uses chaika's SHA-1 search with the first page hash we have.
+sub search_by_thumbnail {
+
+    my $hash = $_[0];
+
+    my $URL =
+        "https://panda.chaika.moe/search/?sha1=" . $hash;
+
+    return chaika_parsesearch($URL);
+}
+
 # search_for_archive
 # Uses chaika's elasticsearch to find a matching archive ID
 sub search_for_archive {
 
     my $title = $_[0];
     my $tags  = $_[1];
+
+    #Auto-lowercase the title for better results
+    $title = lc($title);
+
+    #Strip away hyphens and apostrophes as they apparently break search
+    $title =~ s/-|'/ /g;
 
     my $URL =
         "https://panda.chaika.moe/search/?title="
@@ -89,11 +113,6 @@ sub search_for_archive {
     #Chaika only has english or japanese so I aint gonna bother more than this
     if ( $tags =~ /.*language:\s?english,*.*/gi ) {
         $URL = $URL . uri_escape_utf8("language:english") . "+";
-    }
-
-    #Same for artist tag
-    if ( $tags =~ /.*artist:\s?([^,]*),*.*/gi ) {
-        $URL = $URL . uri_escape_utf8("artist:$1");
     }
 
     return chaika_parsesearch($URL);

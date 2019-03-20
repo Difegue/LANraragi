@@ -76,7 +76,7 @@ sub restore_from_JSON {
         my $id = $archive->{"arcid"};
 
         #If the archive exists, restore metadata.
-        if ( $redis->hexists( $id, "title" ) ) {
+        if ( $redis->exists($id) ) {
 
             $logger->info("Restoring metadata for Archive $id...");
             my $title     = encode_utf8( $archive->{"title"} );
