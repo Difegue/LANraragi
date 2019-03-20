@@ -21,7 +21,7 @@ sub plugin_info {
         name      => "E-Hentai",
         namespace => "ehplugin",
         author    => "Difegue",
-        version   => "1.5",
+        version   => "1.6",
         description =>
           "Searches g.e-hentai for tags matching your archive. <br/>"
           . "If you have an account that can access exhentai.org, adding the credentials here will make more archives available for parsing.",
@@ -148,10 +148,9 @@ sub lookup_by_title {
         #search with image SHA hash
         $URL =
             $domain
-          . "?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1"
-          . "&f_shash="
+          . "?f_shash="
           . $thumbhash
-          . "&fs_covers=on";
+          . "&fs_covers=1&fs_similar=1";
 
         $logger->debug("Using URL $URL (archive thumbnail hash)");
 
@@ -165,7 +164,7 @@ sub lookup_by_title {
     #Regular text search
     $URL =
         $domain
-      . "?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1"
+      . "?advsearch=1&f_sname=on&f_stags=on&f_spf=&f_spt=&f_sft=on"
       . "&f_search="
       . uri_escape_utf8($title);
 
@@ -326,16 +325,14 @@ sub ehentai_parse() {
     my $gID    = "";
     my $gToken = "";
 
- #now for the parsing of the HTML we obtained.
- #the first occurence of <tr class="gtr0"> matches the first row of the results.
- #If it doesn't exist, what we searched isn't on E-hentai.
-    my @benis = split( '<tr class="gtr0">', $content );
+    my $dom = Mojo::DOM->new( $content );
 
-#Inside that <tr>, we look for <div class="it5"> . the <a> tag inside has an href to the URL we want.
-    my @final = split( '<div class="it5">', $benis[1] );
+    # Get the first row of the search results
+    # The JS in its onclick event contains a link to the gallery.
+    my $firstgal = $dom->at('.gl3c')->attr('onclick');
 
-    my $url = ( split( 'hentai.org/g/', $final[1] ) )[1];
-
+    # A EH link looks like xhentai.org/g/{gallery id}/{gallery token}
+    my $url = ( split( 'hentai.org/g/', $firstgal ) )[1];
     my @values = ( split( '/', $url ) );
 
     $gID    = $values[0];
