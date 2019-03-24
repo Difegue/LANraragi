@@ -7,7 +7,6 @@
 * [Installing LANraragi](for-regular-users/index/README.md)
   * [Docker](for-regular-users/index/docker.md)
   * [Vagrant](for-regular-users/index/vagrant.md)
-  * [From source \(Windows\)](for-regular-users/index/source-windows.md)
   * [From source \(Linux\)](for-regular-users/index/source-linux.md)
 * [Updating LANraragi](for-regular-users/updating.md)
 * [Getting Started](for-regular-users/index-1/README.md)
