@@ -9,15 +9,19 @@ Download [the Docker setup](https://www.docker.com/products/docker) and install 
 
 ```bash
 docker run --name=lanraragi -p 3000:3000 \
---mount type=bind,source=[YOUR_CONTENT_DIRECTORY], \
+--mount type=bind,source=[YOUR_CONTENT_DIRECTORY],\
 target=/home/koyomi/lanraragi/content difegue/lanraragi
 ```
 
 {% hint style="info" %}
-You can tell Docker to auto-restart the LRR container by adding the `--restart always` flag to this command.
+You can tell Docker to auto-restart the LRR container on boot by adding the `--restart always` flag to this command.
 {% endhint %}
 
-The content directory you have to specify in the command above will contain archives you either upload through the software or directly drop in, alongside generated thumbnails. \(Standard behavior\)
+{% hint style="info" %}
+If you're running on Windows, please check the syntax for mapping your content directory [here](https://docs.docker.com/docker-for-windows/#shared-drives).
+{% endhint %}
+
+The content directory you have to specify in the command above will contain archives you either upload through the software or directly drop in, alongside generated thumbnails. Subdirectories are supported. \(Standard behavior\)
 
 It will also house the LANraragi database\(As database.rdb\). This is **exclusive** to the Docker installation, as it allows the user to hotswap containers without losing any data.
 
@@ -31,6 +35,10 @@ docker stop lanraragi
 docker start lanraragi
 docker rm lanraragi
 ```
+
+{% hint style="warning" %}
+Windows 7/8 users running the Legacy Docker toolbox will have to explicitly forward port 127.0.0.1:3000 from the host to the vm in order to be able to access the app. (told ya to use vagrant)
+{% endhint %}
 
 The previous command doesn't specify a version, so Docker will by default pull the _latest_ tag, which matches the latest stable release.
 

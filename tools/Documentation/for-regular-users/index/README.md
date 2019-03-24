@@ -10,11 +10,17 @@ description: What's the best way to install this autism enabler? Here's the Quic
 
 As LRR is a server app first and foremost, its setup is a bit more complex than your usual Desktop application.  
 Therefore, for unexperienced users, I recommend using a **container/VM** install like Docker or Vagrant.  
-They're clean, easy to update, and automatically built/tested.
+They're clean, easy to update, and automatically built/tested.  
+
+**Vagrant** is easier to install and start up, if you're only looking to use the app on your local machine.
+
+{% page-ref page="vagrant.md" %}
+
+**Docker** works out of the box in Windows 10, macOS and Linux.  
+If you're running an older version of Windows, you can manage using the [Legacy Docker Toolbox](https://docs.docker.com/toolbox/toolbox_install_windows/), but I recommend you use Vagrant instead.
 
 {% page-ref page="docker.md" %}
 
-{% page-ref page="vagrant.md" %}
 
 ### Installing from source on Unix systems
 
@@ -22,18 +28,7 @@ They're clean, easy to update, and automatically built/tested.
 
 Installing from **source** is a more involved procedure, but it does put you in full control and able to hack up the app's files as you wish.
 
-### Windows: 🙇‍ _please understand_ 🙇‍
-
-I used to provide a one-click Windows source port version, but have encountered increasing issues with it as I introduced modern features and dependencies.  
-If you just want to try the software, you can still use the old one-click Quickstarter for [v.0.5.6.](https://github.com/Difegue/LANraragi/releases/download/v.0.5.6/LRR_0.5.6_QuickStarter_Windows.zip)
-
-It's _technically_ still possible to run the software on a Strawberry Perl release if you compile all the dependencies needed. The page below is outdated but can serve as a good place to start:
-
-{% page-ref page="source-windows.md" %}
-
-Keep in mind that Batch Tagging will not work at all under Windows due to its reliance on [Mojolicious subprocesses.](https://metacpan.org/pod/distribution/Mojolicious/lib/Mojolicious/Guides/FAQ.pod#How-well-is-Windows-supported-by-Mojolicious?) In a similar fashion, many features will probably stop working as releases progress and I use more Linux-specific features out of convenience.
-
-### Bonus: Windows Subsystem for Linux Installation
+### Windows: Windows Subsystem for Linux Installation
 
 Due to this setup demanding a subsystem usually meant for developers, I wouldn't recommend it for standard users.  
 However, it is deceptively simple:
@@ -47,7 +42,13 @@ In this hybrid setup, LRR interacts with the Windows Redis server seamlessly. Ma
 
 Redis can be installed on the Linux side as well, but one would have to start it by hand alongside LRR on every OS boot.
 
-### Bonus 2: A memo about reverse proxies
+{% hint style="info" %}
+I used to provide a one-click Windows source port version, but have encountered increasing issues with it as I introduced modern features and dependencies.  
+If you just want to try the software, you can still use the old one-click Quickstarter for [v.0.5.6.](https://github.com/Difegue/LANraragi/releases/download/v.0.5.6/LRR_0.5.6_QuickStarter_Windows.zip)
+{% endhint %}
+
+
+### Bonus: A memo about reverse proxies
 
 A common post-install setup is to make requests to the app transit through a gateway server such as Apache or nginx.  
 If you do so, please note that archive uploads through LRR will likely **not work out of the box** due to maximum sizes on uploads those servers can enforce. The example below is for nginx:  
