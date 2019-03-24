@@ -124,6 +124,8 @@ The base architecture is as follows:
 |  |- pagesize  
 |  |- dirname  
 |  |- htmltitle 
+|  |- apikey
+|  |- fav1/5 <- Favorite tags, if set by the user.
 |  +- enablepass <- Enable/Disable Password Authentication. 
 |
 +- LRR_JSONCACHE <- JSON Cache Storage
