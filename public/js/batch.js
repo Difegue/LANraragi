@@ -49,6 +49,7 @@ function startBatch() {
 
 //On websocket message, update the UI to show the archive currently being treated
 function updateBatchStatus(event) {
+
     var msg = JSON.parse(event.data);
 
     if (msg.success === 0) {
@@ -58,6 +59,10 @@ function updateBatchStatus(event) {
 
         if ( msg.title != "" ) {
             $("#log-container").append('Changed title to: ' + msg.title + '\n');
+        }
+
+        if ( msg.timeout != 0 ) {
+            $("#log-container").append('Sleeping for ' + msg.timeout + ' seconds.\n');
         }
     }
 

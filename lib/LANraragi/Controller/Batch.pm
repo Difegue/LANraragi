@@ -93,6 +93,9 @@ sub socket {
 
     $logger->info('Client connected to Batch Tagging service');
 
+    # Increase inactivity timeout for connection a bit
+    $self->inactivity_timeout(300);
+
     $self->on(
         message => sub {
             my ( $self, $msg ) = @_;
@@ -146,7 +149,8 @@ sub socket {
                                     success => $data[1],
                                     message => $data[2],
                                     tags    => $data[3],
-                                    title   => $data[4]
+                                    title   => $data[4],
+                                    timeout => $timeout
                                 }
                             }
                         );
