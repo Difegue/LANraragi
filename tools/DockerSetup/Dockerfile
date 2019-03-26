@@ -2,7 +2,12 @@
 FROM        alpine:latest
 LABEL       git="https://github.com/Difegue/LANraragi" 
 
-WORKDIR /home/koyomi/lanraragi
+#Environment variables overridable by the user on container deployment
+ENV LRR_NETWORK http://*:3000
+ENV LRR_USER koyomi
+RUN adduser -D -g '' ${LRR_USER}
+WORKDIR /home/${LRR_USER}/lanraragi
+
 #Copy cpanfile before copying the entire context - allows for Docker cache to preserve cpan dependencies
 COPY /tools/cpanfile cpanfile
 COPY /tools/install.pl tools/install.pl
@@ -27,7 +32,7 @@ RUN apk update && \
     rm -rf /root/.cpanm/* /usr/local/share/man/* node_modules musl-locales
 
 #Copy remaining LRR files from context
-COPY / /home/koyomi/lanraragi
+COPY / /home/${LRR_USER}/lanraragi
 
 #Default mojo server port
 EXPOSE 3000
@@ -39,9 +44,7 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 
 #Special redis conf to write DB in content directory and disable daemonization
-COPY /tools/DockerSetup/redis.conf /home/koyomi/redis.conf
-COPY /tools/DockerSetup/supervisord.conf /home/koyomi/supervisord.conf
+COPY /tools/DockerSetup/redis.conf /home/${LRR_USER}/redis.conf
+COPY /tools/DockerSetup/supervisord.conf /home/${LRR_USER}/supervisord.conf
 
-#Environment variable overridable by the user on container deployment
-ENV LRR_NETWORK http://*:3000
-ENTRYPOINT ["supervisord", "--nodaemon", "--configuration", "/home/koyomi/supervisord.conf"]
+ENTRYPOINT ["supervisord", "--nodaemon", "--configuration", "/home/$LRR_USER/supervisord.conf"]
