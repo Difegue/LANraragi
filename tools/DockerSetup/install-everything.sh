@@ -2,9 +2,7 @@
 
 #Just do everything 
 apk update 
-apk add perl perl-io-socket-ssl perl-dev g++ make pkgconf gnupg wget curl nodejs && \
-        nodejs-npm redis libarchive-dev libbz2 libjpeg-turbo-dev libpng-dev openssl-dev zlib-dev supervisor && \
-        git cmake musl-dev gcc gettext-dev libintl
+apk add perl perl-io-socket-ssl perl-dev g++ make pkgconf gnupg wget curl nodejs nodejs-npm redis libarchive-dev libbz2 libjpeg-turbo-dev libpng-dev openssl-dev zlib-dev supervisor git cmake musl-dev gcc gettext-dev libintl
 
 #Build musl-locales to generate the en_US.UTF8 locale (Is this even necessary?)
 git clone https://gitlab.com/rilian-la-te/musl-locales.git && cd musl-locales && git reset --hard 682c6353a7d24063be78787d45e63bfcaca78582 
@@ -22,10 +20,9 @@ cd tools && cpanm --notest --installdeps . -M https://cpan.metacpan.org && cd ..
 npm run lanraragi-installer install-front 
 
 #Cleanup to lighten the image
-apk del perl-dev g++ make gnupg wget curl nodejs nodejs-npm openssl-dev && \
-        git cmake ca-certificates musl-dev gcc gettext-dev libintl sudo
+apk del perl-dev g++ make gnupg wget curl nodejs nodejs-npm openssl-dev git cmake ca-certificates musl-dev gcc gettext-dev libintl 
 rm -rf /root/.cpanm/* /usr/local/share/man/* node_modules musl-locales
 
 #Add the koyomi user, using the specified uid. 
 #This solves permission problems on the content folder if the Docker user sets the same uid as the owner of the folder.
-RUN adduser -D -u $LRR_UID -g '' koyomi 
+adduser -D -u $LRR_UID -g '' koyomi 
