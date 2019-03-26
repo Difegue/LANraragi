@@ -25,3 +25,7 @@ npm run lanraragi-installer install-front
 apk del perl-dev g++ make gnupg wget curl nodejs nodejs-npm openssl-dev && \
         git cmake ca-certificates musl-dev gcc gettext-dev libintl sudo
 rm -rf /root/.cpanm/* /usr/local/share/man/* node_modules musl-locales
+
+#Add the koyomi user, using the specified uid. 
+#This solves permission problems on the content folder if the Docker user sets the same uid as the owner of the folder.
+RUN adduser -D -u $LRR_UID -g '' koyomi 

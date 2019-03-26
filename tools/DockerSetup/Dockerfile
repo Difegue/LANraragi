@@ -6,11 +6,7 @@ LABEL       git="https://github.com/Difegue/LANraragi"
 ENV LRR_NETWORK http://*:3000
 ENV LRR_UID 1337
 
-RUN adduser -D -u ${LRR_UID} -g '' koyomi && apk add sudo
-
-#Switch to our newly created user, using the 1337 UID or one given by the base system
-USER koyomi
-WORKDIR ${HOME}/lanraragi
+WORKDIR /home/koyomi/lanraragi
 
 #Copy cpanfile and install script before copying the entire context
 #This allows for Docker cache to preserve cpan dependencies
@@ -19,10 +15,13 @@ COPY /package.json package.json
 
 ENV EV_EXTRA_DEFS -DEV_NO_ATFORK
 #Run the install script as root
-RUN sudo chmod 755 ./tools/DockerSetup/install-everything.sh && sudo root ./tools/DockerSetup/install-everything.sh
+RUN chmod 755 ./tools/DockerSetup/install-everything.sh && ./tools/DockerSetup/install-everything.sh
+
+#Switch to our newly created user, using the 1337 UID or one given by the base system
+USER koyomi
 
 #Copy remaining LRR files from context
-COPY / ${HOME}/lanraragi
+COPY / /home/koyomi/lanraragi
 
 #Default mojo server port
 EXPOSE 3000
@@ -35,4 +34,4 @@ ENV LANGUAGE en_US.UTF-8
 
 #Start supervisor with the Docker configuration
 #This also loads the redis config to write DB in content directory and disable daemonization
-ENTRYPOINT ["supervisord", "--nodaemon", "--configuration", "~/tools/DockerSetup/supervisord.conf"]
+ENTRYPOINT ["supervisord", "--nodaemon", "--configuration", "/home/koyomi/lanraragi/tools/DockerSetup/supervisord.conf"]
