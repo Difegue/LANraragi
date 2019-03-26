@@ -26,8 +26,7 @@ COPY / /home/koyomi/lanraragi
 #Default mojo server port
 EXPOSE 3000
 
-#Enable UTF-8
-ENV MUSL_LOCPATH /usr/local/share/i18n/locales/musl
+#Enable UTF-8 (might not do anything extra on alpine tho)
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
