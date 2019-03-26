@@ -34,4 +34,4 @@ ENV LANGUAGE en_US.UTF-8
 
 #Start supervisor with the Docker configuration
 #This also loads the redis config to write DB in content directory and disable daemonization
-ENTRYPOINT ["supervisord", "--nodaemon", "--configuration", "/home/koyomi/lanraragi/tools/DockerSetup/supervisord.conf"]
+ENTRYPOINT ["supervisord", "--nodaemon", "--configuration", "./tools/DockerSetup/supervisord.conf"]
