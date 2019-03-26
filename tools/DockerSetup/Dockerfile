@@ -13,7 +13,7 @@ COPY /tools tools
 COPY /package.json package.json
 
 ENV EV_EXTRA_DEFS -DEV_NO_ATFORK
-RUN sudo chmod 755 ./tools/DockerSetup/install-everything.sh && sudo ./tools/DockerSetup/install-everything.sh
+RUN su-exec root chmod 755 ./tools/DockerSetup/install-everything.sh && su-exec root ./tools/DockerSetup/install-everything.sh
 
 #Copy remaining LRR files from context
 COPY / ${HOME}/lanraragi
