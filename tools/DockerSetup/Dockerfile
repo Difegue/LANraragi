@@ -2,11 +2,7 @@
 FROM        alpine:latest
 LABEL       git="https://github.com/Difegue/LANraragi" 
 
-#Environment variables overridable by the user on container deployment
-ENV LRR_NETWORK http://*:3000
-ENV LRR_USER koyomi
-RUN adduser -D -g '' ${LRR_USER}
-WORKDIR /home/${LRR_USER}/lanraragi
+WORKDIR /home/koyomi/lanraragi
 
 #Copy cpanfile before copying the entire context - allows for Docker cache to preserve cpan dependencies
 COPY /tools/cpanfile cpanfile
@@ -18,7 +14,7 @@ ENV EV_EXTRA_DEFS -DEV_NO_ATFORK
 #Use a patched version of Rijndael for musl support until a proper CPAN release is done
 #See https://framagit.org/fiat-tux/hat-softwares/lufi/issues/137
 #Also build musl-locales to generate the en_US.UTF8 locale 
-RUN apk update && \
+RUN adduser -D -g '' koyomi && apk update && \
     apk add perl perl-io-socket-ssl perl-dev g++ make pkgconf gnupg wget curl nodejs nodejs-npm redis libarchive-dev libbz2 libjpeg-turbo-dev libpng-dev openssl-dev zlib-dev supervisor && \
     apk add git cmake musl-dev gcc gettext-dev libintl && \
     git clone https://gitlab.com/rilian-la-te/musl-locales.git && cd musl-locales && git reset --hard 682c6353a7d24063be78787d45e63bfcaca78582 && \
@@ -32,7 +28,7 @@ RUN apk update && \
     rm -rf /root/.cpanm/* /usr/local/share/man/* node_modules musl-locales
 
 #Copy remaining LRR files from context
-COPY / /home/${LRR_USER}/lanraragi
+COPY / /home/koyomi/lanraragi
 
 #Default mojo server port
 EXPOSE 3000
@@ -43,8 +39,12 @@ ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 
-#Special redis conf to write DB in content directory and disable daemonization
-COPY /tools/DockerSetup/redis.conf /home/${LRR_USER}/redis.conf
-COPY /tools/DockerSetup/supervisord.conf /home/${LRR_USER}/supervisord.conf
+#Environment variables overridable by the user on container deployment
+ENV LRR_NETWORK http://*:3000
+ENV LRR_USER koyomi
 
-ENTRYPOINT ["supervisord", "--nodaemon", "--configuration", "/home/$LRR_USER/supervisord.conf"]
+#Special redis conf to write DB in content directory and disable daemonization
+COPY /tools/DockerSetup/redis.conf /home/koyomi/redis.conf
+COPY /tools/DockerSetup/supervisord.conf /home/koyomi/supervisord.conf
+
+ENTRYPOINT ["supervisord", "--nodaemon", "--configuration", "/home/koyomi/supervisord.conf"]

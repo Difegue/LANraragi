@@ -57,6 +57,15 @@ If you need something a bit more involved \(like adding SSL\), please check the 
 
 {% page-ref page="../advanced-usage/network-interfaces.md" %}
 
+## Changing the user
+
+The container runs the software by default under the _koyomi_ user, which can be modified by the LRR_USER environment variable.
+`docker run [wassup] -e lrr_user=karen difegue/lanraragi`
+
+{% hint style="warning" %}
+The user will be changed using `setuid` only. This does not start a login shell and does not change environment variables like USER or HOME.
+{% endhint %}
+
 ## Building your own
 
 The previous setup gets a working LANraragi container from the Docker Hub, but you can build your own bleeding edge version by executing `npm run docker-build` from a cloned Git repo.
