@@ -2,8 +2,12 @@
 FROM        alpine:latest
 LABEL       git="https://github.com/Difegue/LANraragi" 
 
-RUN adduser -D -g '' koyomi
-#This user command is overridden if you specify a user id of your system in the docker run command with the --user flag.
+#Environment variables overridable by the user on container deployment
+ENV LRR_NETWORK http://*:3000
+ENV LRR_UID 1337
+
+RUN adduser -D -u ${LRR_UID} -g '' koyomi
+RUN apk add su-exec
 USER koyomi
 WORKDIR ${HOME}/lanraragi
 
@@ -13,6 +17,7 @@ COPY /tools tools
 COPY /package.json package.json
 
 ENV EV_EXTRA_DEFS -DEV_NO_ATFORK
+#Run the install script as root
 RUN su-exec root chmod 755 ./tools/DockerSetup/install-everything.sh && su-exec root ./tools/DockerSetup/install-everything.sh
 
 #Copy remaining LRR files from context
@@ -26,9 +31,6 @@ ENV MUSL_LOCPATH /usr/local/share/i18n/locales/musl
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
-
-#Environment variable overridable by the user on container deployment
-ENV LRR_NETWORK http://*:3000
 
 #Start supervisor with the Docker configuration
 #This also loads the redis config to write DB in content directory and disable daemonization
