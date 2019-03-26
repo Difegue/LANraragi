@@ -6,8 +6,9 @@ LABEL       git="https://github.com/Difegue/LANraragi"
 ENV LRR_NETWORK http://*:3000
 ENV LRR_UID 1337
 
-RUN adduser -D -u ${LRR_UID} -g '' koyomi
-RUN apk add su-exec
+RUN adduser -D -u ${LRR_UID} -g '' koyomi && apk add sudo
+
+#Switch to our newly created user, using the 1337 UID or one given by the base system
 USER koyomi
 WORKDIR ${HOME}/lanraragi
 
@@ -18,7 +19,7 @@ COPY /package.json package.json
 
 ENV EV_EXTRA_DEFS -DEV_NO_ATFORK
 #Run the install script as root
-RUN su-exec root chmod 755 ./tools/DockerSetup/install-everything.sh && su-exec root ./tools/DockerSetup/install-everything.sh
+RUN sudo chmod 755 ./tools/DockerSetup/install-everything.sh && sudo root ./tools/DockerSetup/install-everything.sh
 
 #Copy remaining LRR files from context
 COPY / ${HOME}/lanraragi
