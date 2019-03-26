@@ -4,7 +4,7 @@
 apk update 
 apk add perl perl-io-socket-ssl perl-dev g++ make pkgconf gnupg wget curl nodejs && \
         nodejs-npm redis libarchive-dev libbz2 libjpeg-turbo-dev libpng-dev openssl-dev zlib-dev supervisor && \
-        git cmake musl-dev gcc gettext-dev libintl 
+        git cmake musl-dev gcc gettext-dev libintl sudo
 
 #Build musl-locales to generate the en_US.UTF8 locale (Is this even necessary?)
 git clone https://gitlab.com/rilian-la-te/musl-locales.git && cd musl-locales && git reset --hard 682c6353a7d24063be78787d45e63bfcaca78582 
@@ -23,5 +23,5 @@ npm run lanraragi-installer install-front
 
 #Cleanup to lighten the image
 apk del perl-dev g++ make gnupg wget curl nodejs nodejs-npm openssl-dev && \
-        git cmake ca-certificates musl-dev gcc gettext-dev libintl 
+        git cmake ca-certificates musl-dev gcc gettext-dev libintl sudo
 rm -rf /root/.cpanm/* /usr/local/share/man/* node_modules musl-locales
