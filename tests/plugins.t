@@ -1,6 +1,6 @@
 use Mojo::Base 'Mojolicious';
 
-use Test::More tests => 7;
+use Test::More tests => 8;
 use Test::Mojo;
 
 use LANraragi::Plugin::EHentai;
