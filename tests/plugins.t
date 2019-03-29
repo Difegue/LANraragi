@@ -48,8 +48,16 @@ is( $test_mwee_ID, $mwee_ID, 'chaika.moe search test' );
 my $mwee_tags =
 "female:sole female, male:sole male, artist:kemuri haku, full censorship, male:shotacon, female:defloration, female:nakadashi, female:big breasts, language:translated, language:english";
 my $test_mwee_tags =
-  LANraragi::Plugin::Chaika::tags_from_chaika( "archive", $mwee_ID );
+  LANraragi::Plugin::Chaika::tags_from_chaika_id( "archive", $mwee_ID );
 
 is( $test_mwee_tags, $mwee_tags, 'chaika.moe API Tag retrieval test' );
+
+my $mwee_tags_sha1 =
+"magazine:comic shitsurakuten 2016-04, publisher:fakku, blowjob, creampie, eyebrows, subscription, muscles, swimsuit, tanlines, ahegao, oppai, hentai, artist:ao banana, uncensored, language:english";
+my $test_mwee_tags_sha1 = LANraragi::Plugin::Chaika::tags_from_sha1(
+    "276601a0e5dae9427940ed17ac470c9945b47073");
+
+is( $test_mwee_tags_sha1, $mwee_tags_sha1,
+    'chaika.moe SHA-1 reverse search test' );
 
 done_testing();
