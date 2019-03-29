@@ -20,7 +20,7 @@ sub plugin_info {
         name        => "Chaika.moe",
         namespace   => "trabant",
         author      => "Difegue",
-        version     => "1.2",
+        version     => "1.3",
         description => "Searches chaika.moe for tags matching your archive.",
 
 #If your plugin uses/needs custom arguments, input their name here.
@@ -56,9 +56,11 @@ sub get_tags {
     else {
 
         #Try SHA-1 reverse search first
-        $ID = search_by_thumbnail($thumbhash);
+        #This doesn't work for now
+        #$ID = search_by_thumbnail($thumbhash);
 
-        if ($ID eq "") {
+        if ( $ID eq "" ) {
+
             #Get Gallery ID by hand if nothing else worked
             $ID = search_for_archive( $title, $tags );
         }
@@ -85,8 +87,7 @@ sub search_by_thumbnail {
 
     my $hash = $_[0];
 
-    my $URL =
-        "https://panda.chaika.moe/search/?sha1=" . $hash;
+    my $URL = "https://panda.chaika.moe/search/?sha1=" . $hash;
 
     return chaika_parsesearch($URL);
 }
