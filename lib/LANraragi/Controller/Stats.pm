@@ -1,92 +1,21 @@
 package LANraragi::Controller::Stats;
 use Mojo::Base 'Mojolicious::Controller';
 
-use Redis;
-use File::Find;
-
-use LANraragi::Utils::Generic;
-use LANraragi::Utils::Archive;
-use LANraragi::Utils::Database;
-
-use LANraragi::Model::Config;
+use LANraragi::Model::Stats;
 
 # This action will render a template
 sub index {
     my $self = shift;
 
-    my $t;
-    my @tags;
-    my %tagcloud;
-
-    #Login to Redis and get all hashes
-    my $redis = $self->LRR_CONF->get_redis();
-
-    #40-character long keys only => Archive IDs
-    my @keys         = $redis->keys('????????????????????????????????????????');
-    my $archivecount = scalar @keys;
-
-    #Iterate on hashes to get their tags
-    foreach my $id (@keys) {
-
-        if ( $redis->hexists( $id, "tags" ) ) {
-
-            $t = $redis->hget( $id, "tags" );
-            $t = LANraragi::Utils::Database::redis_decode($t);
-
-            #Split tags by comma
-            @tags = split( /,\s?/, $t );
-
-            foreach my $t (@tags) {
-
-                LANraragi::Utils::Generic::remove_spaces($t);
-                LANraragi::Utils::Generic::remove_newlines($t);
-
-                unless (
-                    $t =~ /(artist|parody|language|event|group|circle):.*/i )
-                {    #Filter some specific namespaces from appearing in stats
-
-#Strip namespaces if necessary - detect the : symbol and only use what's after it
-                    if ( $t =~ /.*:(.*)/ ) { $t = $1 }
-
- #Increment value of tag if it's already in the result hash, create it otherwise
-                    if   ( exists( $tagcloud{$t} ) ) { $tagcloud{$t}++; }
-                    else                             { $tagcloud{$t} = 1; }
-                }
-            }
-
-        }
-    }
-
-#When we're done going through tags, go through the tagCloud hash and build a JSON
-    my $tagsjson = "[";
-
-    @tags = keys %tagcloud;
-    my $tagcount = scalar @tags;
-
-    for my $t (@tags) {
-        my $w = $tagcloud{$t};
-        $tagsjson .= qq({text: "$t", weight: $w },);
-    }
-
-    $tagsjson .= "]";
-
-    #Get size of archive folder
-    my $dirname = $self->LRR_CONF->get_userdir;
-    my $size    = 0;
-
-    find( sub { $size += -s if -f }, $dirname );
-
-    $size = int( $size / 1073741824 * 100 ) / 100;
 
     $self->render(
         template     => "stats",
         title        => $self->LRR_CONF->get_htmltitle,
         cssdrop      => LANraragi::Utils::Generic::generate_themes_selector,
         csshead      => LANraragi::Utils::Generic::generate_themes_header,
-        tagcloud     => $tagsjson,
-        tagcount     => $tagcount,
-        archivecount => $archivecount,
-        arcsize      => $size
+        tagcloud     => LANraragi::Model::Stats::build_tag_json,
+        archivecount => LANraragi::Model::Stats::get_archive_count,
+        arcsize      => LANraragi::Model::Stats::compute_content_size
     );
 }
 
