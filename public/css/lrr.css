@@ -1,11 +1,12 @@
 /* Global LANraragi CSS. Don't mess !*/
 
 td.itd {
-    max-width: 250px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+.itdc {min-width: 35px;}
 
 #seriesheader {max-width: 150px;}
 #langheader {max-width: 100px;}
