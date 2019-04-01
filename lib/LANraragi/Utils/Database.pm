@@ -126,7 +126,7 @@ sub parse_name {
     }
 
     if ( $series ne "" ) {
-        push @tags, "parody:$series";
+        push @tags, "series:$series";
     }
 
     if ( $language ne "" ) {
