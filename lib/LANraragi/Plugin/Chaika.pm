@@ -22,7 +22,7 @@ sub plugin_info {
         name        => "Chaika.moe",
         namespace   => "trabant",
         author      => "Difegue",
-        version     => "1.5",
+        version     => "1.55",
         description => "Searches chaika.moe for tags matching your archive.",
 
 #If your plugin uses/needs custom arguments, input their name here.
@@ -53,7 +53,7 @@ sub get_tags {
     else {
 
         #Try SHA-1 reverse search first
-        $newtags = search_by_sha1($thumbhash);
+        $newtags = tags_from_sha1($thumbhash);
 
         if ( $newtags eq "" ) {
 
