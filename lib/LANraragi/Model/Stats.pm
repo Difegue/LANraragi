@@ -84,7 +84,7 @@ sub build_tag_json {
 
     for(keys %tagcloud) {
         my $w = $tagcloud{$_};
-        $tagsjson .= qq({text: "$_", weight: $w },);
+        if ($_ ne "") { $tagsjson .= qq({"text": "$_", "weight": $w },); }
     }
 
     chop $tagsjson;
