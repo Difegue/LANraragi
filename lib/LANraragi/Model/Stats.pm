@@ -1,5 +1,9 @@
 package LANraragi::Model::Stats;
 
+use strict;
+use warnings;
+use utf8;
+
 use Redis;
 use File::Find;
 
