@@ -20,12 +20,14 @@
 
 </head>
 
-<body onload="set_style_from_storage(); 
+<body onload="  set_style_from_storage(); 
 	
 				$('#tagCloud').jQCloud(words, {
 					autoResize: true
 				});
-					">
+
+				$('#tagcount').html(words.length);
+				">
 
 	<div class='ido' style='text-align:center'>
 		<h2 class="ih" style="text-align:center">Library Statistics</h2>
@@ -38,7 +40,7 @@
 				<i class="fa fa-book fa-2x" aria-hidden="true"></i> <span style="font-size: 20px"> [% archivecount %] </span>
 				Archives on record
 				<br><br>
-				<i class="fa fa-tags fa-2x" aria-hidden="true"></i> <span style="font-size: 20px"> [% tagcount %] </span> Different
+				<i class="fa fa-tags fa-2x" aria-hidden="true"></i> <span style="font-size: 20px" id="tagcount"> </span> Different
 				tags existing
 				<br><br>
 				<i class="fa fa-folder-open fa-2x" aria-hidden="true"></i> <span style="font-size: 20px"> [% arcsize %] GB </span>
