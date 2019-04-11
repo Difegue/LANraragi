@@ -14,7 +14,7 @@ If your LRR installation is running under **No-Fun Mode**, those API methods wil
 Otherwise, the API can be used as-is.
 
 {% hint style="warning" %}
-Empty API Keys will **not** work, even if there's no key set in Configuration. key
+Empty API Keys will **not** work, even if there's no key set in Configuration. 
 {% endhint %}
 
 {% api-method method="get" host="http://lrr.tvc-16.science" path="/api/archivelist" %}
@@ -111,7 +111,7 @@ ID of the Archive to process.
 {% api-method-response %}
 {% api-method-response-example httpCode=200 %}
 {% api-method-response-example-description %}
-You get the image diirectly.
+You get the image directly.
 {% endapi-method-response-example-description %}
 
 {% code-tabs %}
@@ -306,3 +306,104 @@ You didn't include the key parameter.
 {% endapi-method-spec %}
 {% endapi-method %}
 
+{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/tagstats" %}
+{% api-method-summary %}
+Get Tag statistics
+{% endapi-method-summary %}
+
+{% api-method-description %}
+Get tags from in the database, in order of importance.
+{% endapi-method-description %}
+
+{% api-method-spec %}
+{% api-method-request %}
+{% api-method-path-parameters %}
+{% api-method-parameter name="key" type="string" required=false %}
+API Key, if needed.
+{% endapi-method-parameter %}
+{% endapi-method-path-parameters %}
+{% endapi-method-request %}
+
+{% api-method-response %}
+{% api-method-response-example httpCode=200 %}
+{% api-method-response-example-description %}
+JSON Array of {tag; weight} objects. Higher weight = Tag is more prevalent in the DB.
+{% endapi-method-response-example-description %}
+
+```javascript
+[
+    {"text":"rohan kishibe","weight":1},
+    {"text":"full color","weight":1},
+    {"text":"ponytail","weight":1},
+    {"text":"sailor saturn","weight":5},
+    {"text":"reimi sugimoto","weight":1},
+    {"text":"swimsuit","weight":3},
+    {"text":"artbook","weight":1},
+    {"text":"glasses","weight":4},
+    {"text":"sole male","weight":2}
+]
+```
+{% endapi-method-response-example %}
+
+{% api-method-response-example httpCode=401 %}
+{% api-method-response-example-description %}
+You didn't include the key parameter.
+{% endapi-method-response-example-description %}
+
+```javascript
+{
+    "error":"This API is protected and requires login or an API Key."
+}
+```
+{% endapi-method-response-example %}
+{% endapi-method-response %}
+{% endapi-method-spec %}
+{% endapi-method %}
+
+{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/untagged" %}
+{% api-method-summary %}
+Get Untagged archives
+{% endapi-method-summary %}
+
+{% api-method-description %}
+Get archives that don't have any tags recorded. This follows the same rules as the Batch tagging filter and will include archives that have parody:, series: or artist: tags.
+{% endapi-method-description %}
+
+{% api-method-spec %}
+{% api-method-request %}
+{% api-method-path-parameters %}
+{% api-method-parameter name="key" type="string" required=false %}
+API Key, if needed.
+{% endapi-method-parameter %}
+{% endapi-method-path-parameters %}
+{% endapi-method-request %}
+
+{% api-method-response %}
+{% api-method-response-example httpCode=200 %}
+{% api-method-response-example-description %}
+JSON Array of Archive IDs.
+{% endapi-method-response-example-description %}
+
+```javascript
+[
+    "d1858d5dc36925aa66be072a97817650d39de166",
+    "c3458d5dc36925da93be072a97817650d39de166",
+    "28697b96f0ac5858be2614ed10ca47742c9522fd",
+]
+```
+{% endapi-method-response-example %}
+
+{% api-method-response-example httpCode=401 %}
+{% api-method-response-example-description %}
+You didn't include the key parameter.
+{% endapi-method-response-example-description %}
+
+```javascript
+{
+    "error":"This API is protected and requires login or an API Key."
+}
+```
+{% endapi-method-response-example %}
+{% endapi-method-response %}
+{% endapi-method-spec %}
+{% endapi-method %}
