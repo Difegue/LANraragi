@@ -21,7 +21,7 @@ sub plugin_info {
         name      => "E-Hentai",
         namespace => "ehplugin",
         author    => "Difegue",
-        version   => "1.6",
+        version   => "1.666",
         description =>
           "Searches g.e-hentai for tags matching your archive. <br/>"
           . "If you have an account that can access exhentai.org, adding the credentials here will make more archives available for parsing.",
@@ -328,8 +328,9 @@ sub ehentai_parse() {
     my $dom = Mojo::DOM->new( $content );
 
     # Get the first row of the search results
-    # The JS in its onclick event contains a link to the gallery.
-    my $firstgal = $dom->at('.gl3c')->attr('onclick');
+    # The "glink" class is parented by a <a> tag containing the gallery link in href.
+    # This works in Minimal, Minimal+ and Compact modes, which should be enough.
+    my $firstgal = $dom->at(".glink")->parent->attr('href');
 
     # A EH link looks like xhentai.org/g/{gallery id}/{gallery token}
     my $url = ( split( 'hentai.org/g/', $firstgal ) )[1];

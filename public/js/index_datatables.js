@@ -134,7 +134,7 @@ function seriesColumnDisplay(data, type, full, meta) {
 		if (data === "")
 			return "";
 
-		regex = /.*(parody|series):\s?([^,]*),*.*/gi
+		regex = /.*(parody|series|magazine):\s?([^,]*),*.*/gi
 		match = regex.exec(data);
 
 		if (match != null) {
