@@ -24,6 +24,15 @@ function genericAPICall(endpoint, successMessage, errorMessage, callback) {
 
 			if (callback !== null)
 				callback(data);
+		})
+		.fail(function () {
+			$.toast({
+				showHideTransition: 'slide',
+				position: 'top-left',
+				loader: false,
+				heading: errorMessage,
+				icon: 'error'
+			});
 		});
 }
 

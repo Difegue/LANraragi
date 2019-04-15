@@ -1,3 +1,25 @@
+// Check untagged archives, using the matching API endpoint.
+function checkUntagged() {
+
+    $.get("api/untagged")
+		.done(function (data) {
+
+            // Check untagged archives
+			data.forEach(id => {
+                $('#'+id)[0].checked = true;
+            });
+		})
+		.fail(function () {
+			$.toast({
+				showHideTransition: 'slide',
+				position: 'top-left',
+				loader: false,
+				heading: "Error getting untagged archives!",
+				icon: 'error'
+			});
+		});
+}
+
 //Get the titles who have been checked in the batch tagging list and update their tags.
 //This crafts a JSON list to send to the batch tagging websocket service.
 function startBatch() {
@@ -22,7 +44,7 @@ function startBatch() {
     if ($("#override")[0].checked) {
         for (var j = 0, ref = args.length = arginputs.length; j < ref; j++) { args[j] = arginputs[j].value; }
     }
-    console.log(args);
+
     //give JSON to websocket and start listening
     var command = {
         plugin: $('#plugin').val(),
@@ -56,6 +78,9 @@ function updateBatchStatus(event) {
         $("#log-container").append('Plugin error while processing ID ' + msg.id + '(' + msg.message + ')\n');
     } else {
         $("#log-container").append('Processed ' + msg.id + '(Added tags: ' + msg.tags + ')\n');
+
+        //Uncheck ID in list
+        $('#'+msg.id)[0].checked = false;
 
         if ( msg.title != "" ) {
             $("#log-container").append('Changed title to: ' + msg.title + '\n');

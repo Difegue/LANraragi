@@ -23,7 +23,7 @@
 
 </head>
 
-<body onload="set_style_from_storage()">
+<body onload="set_style_from_storage(); checkUntagged()">
 
 	<div class='ido' style='text-align:center'>
 		<h2 class='ih' style='text-align:center'>Batch Tagging</h2>

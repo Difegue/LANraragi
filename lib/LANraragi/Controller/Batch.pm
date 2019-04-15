@@ -17,37 +17,23 @@ sub index {
     my $self = shift;
     my $redis   = $self->LRR_CONF->get_redis();
 
-    #Fill a hash with the untagged archives
-    #The hash matches IDs to true(no tags) or false(has tags)
-    my %untagged = map { $_ => 1 } LANraragi::Utils::Database::find_untagged_archives;
-
     #Then complete it with the rest from the database.
     #40-character long keys only => Archive IDs
     my @keys = $redis->keys('????????????????????????????????????????');
 
-    foreach my $id (@keys) {
-        unless ( exists $untagged{$id} ) {
-            my $zipfile = $redis->hget( $id, "file" );
-            if (-e $zipfile) {$untagged{$id} = 0;}
-        }
-    }
-
-    #Parse the archive list and add <li> elements accordingly.
+    #Parse the archive list and build <li> elements accordingly.
     my $arclist = "";
-    for(keys %untagged) {
-        my $title = $redis->hget( $_, "title" );
+
+    #Only show IDs that still have their files present.
+    foreach my $id (@keys) {
+        my $zipfile = $redis->hget( $id, "file" );
+        my $title = $redis->hget( $id, "title" );
         $title = LANraragi::Utils::Database::redis_decode($title);
-        
-        #Untagged archives are pre-checked in the list.
-        if ($untagged{$_}) {
+
+        if (-e $zipfile) {
             $arclist .=
-                "<li><input type='checkbox' name='archive' id='$_' checked>"
-                . "<label for='$_'> $title</label></li>";
-        }
-        else {
-            $arclist .=
-                "<li><input type='checkbox' name='archive' id='$_' >"
-                . "<label for='$_'> $title</label></li>";
+                "<li><input type='checkbox' name='archive' id='$id' class='archive' >"
+                . "<label for='$id'> $title</label></li>";
         }
     }
 
