@@ -43,7 +43,6 @@ sub random_archive {
 
     #We redirect to the reader, with the key as parameter.
     $self->redirect_to( '/reader?id=' . $archive );
-
 }
 
 # Go through the archives in the content directory and build the template at the end.

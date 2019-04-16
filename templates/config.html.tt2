@@ -27,7 +27,7 @@
 <body onload="set_style_from_storage();">
 
 	<div class="ido">
-		<h2 class="ih" style="text-align:center">LANraragi Configuration</h2>
+		<h2 class="ih" style="text-align:center">Admin Settings</h2>
 		<br>
 		<div class="left-column">
 

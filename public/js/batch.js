@@ -39,6 +39,9 @@ function startBatch() {
     var args = [];
 
     for (var i = 0, ref = arcs.length = checkeds.length; i < ref; i++) { arcs[i] = checkeds[i].id; }
+    $("#arcs").html(0);
+    $("#totalarcs").html(arcs.length);
+    $(".bar").attr("style", "width: 0%;");
 
     //Only add values into the override argument array if the checkbox is on
     if ($("#override")[0].checked) {
@@ -91,6 +94,13 @@ function updateBatchStatus(event) {
         }
     }
 
+    //Update counts
+    var count = $("#arcs").html();
+    var total = $("#totalarcs").html();
+    count++;
+    $(".bar").attr("style", "width: "+count/total*100+"%;");
+    $("#arcs").html(count);
+    
     scrollLogs();
 }
 
