@@ -115,9 +115,15 @@ sub exec_plugin_on_file {
         unless ( length $thumbhash ) {
             $logger->info("Thumbnail hash invalid, regenerating.");
             my $dirname = LANraragi::Model::Config::get_userdir;
-            LANraragi::Utils::Archive::extract_thumbnail( $dirname, $id );
-            $thumbhash = $redis->hget( $id, "thumbhash" );
-            $thumbhash = LANraragi::Utils::Database::redis_decode($thumbhash);
+            #eval the thumbnail extraction as it can error out and die
+            eval { LANraragi::Utils::Archive::extract_thumbnail( $dirname, $id ) };
+            if ($@) { 
+                $logger->warn("Error building thumbnail: $@");
+                $thumbhash = "";
+            } else {
+                $thumbhash = $redis->hget( $id, "thumbhash" );
+                $thumbhash = LANraragi::Utils::Database::redis_decode($thumbhash);
+            }
         }
 
         #Hand it off to the plugin here.
