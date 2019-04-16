@@ -57,6 +57,7 @@ sub extract_thumbnail {
     my ( $dirname, $id ) = @_;
     my $thumbname = $dirname . "/thumb/" . $id . ".jpg";
 
+    mkdir $dirname;
     mkdir $dirname . "/thumb";
     my $redis = LANraragi::Model::Config::get_redis();
 
