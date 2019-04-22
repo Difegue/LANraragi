@@ -33,8 +33,10 @@ sub process_upload {
         my $id = $ctx->hexdigest;
         $self->LRR_LOGGER->debug("ID of uploaded file is $id");
 
+        #Check if the ID is already in the database, and
+        #that the file it references still exists on the filesystem
         my $redis  = $self->LRR_CONF->get_redis();
-        my $isdupe = $redis->exists($id);
+        my $isdupe = $redis->exists($id) && -e $redis->hget($id, "file");
 
         if ( -e $output_file || $isdupe ) {
 
