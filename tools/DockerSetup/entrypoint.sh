@@ -19,7 +19,7 @@ export HOME=/home/koyomi
 
 #Start supervisor with the Docker configuration
 #This also loads the redis config to write DB in content directory and disable daemonization
-exec gosu koyomi "supervisord --nodaemon --configuration ./tools/DockerSetup/supervisord.conf"
+exec su-exec koyomi "supervisord --nodaemon --configuration ./tools/DockerSetup/supervisord.conf"
 
 
 

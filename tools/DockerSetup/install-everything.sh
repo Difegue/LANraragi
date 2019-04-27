@@ -2,7 +2,7 @@
 
 #Just do everything 
 apk update 
-apk add perl perl-io-socket-ssl perl-dev g++ make pkgconf gnupg wget curl nodejs nodejs-npm redis libarchive-dev libbz2 libjpeg-turbo-dev libpng-dev openssl-dev zlib-dev supervisor gosu
+apk add perl perl-io-socket-ssl perl-dev g++ make pkgconf gnupg wget curl nodejs nodejs-npm redis libarchive-dev libbz2 libjpeg-turbo-dev libpng-dev openssl-dev zlib-dev supervisor su-exec
 
 #Hey it's cpanm
 curl -L https://cpanmin.us | perl - App::cpanminus 
