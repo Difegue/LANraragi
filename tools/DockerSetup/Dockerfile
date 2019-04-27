@@ -15,10 +15,7 @@ COPY /package.json package.json
 
 ENV EV_EXTRA_DEFS -DEV_NO_ATFORK
 #Run the install script as root
-RUN chmod 755 ./tools/DockerSetup/install-everything.sh && ./tools/DockerSetup/install-everything.sh
-
-#Switch to our newly created user, using the 1337 UID or one given by the base system
-USER koyomi
+RUN chmod +x ./tools/DockerSetup/install-everything.sh && ./tools/DockerSetup/install-everything.sh
 
 #Copy remaining LRR files from context
 COPY / /home/koyomi/lanraragi
@@ -31,6 +28,4 @@ ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 
-#Start supervisor with the Docker configuration
-#This also loads the redis config to write DB in content directory and disable daemonization
-ENTRYPOINT ["supervisord", "--nodaemon", "--configuration", "./tools/DockerSetup/supervisord.conf"]
+ENTRYPOINT ["/home/koyomi/lanraragi/tools/DockerSetup/entrypoint.sh"]

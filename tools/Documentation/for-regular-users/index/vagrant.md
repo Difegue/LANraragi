@@ -18,7 +18,6 @@ Download [the Vagrantfile setup](https://github.com/Difegue/LANraragi/raw/master
 
 ```text
 vagrant plugin install vagrant-vbguest
-vagrant init
 vagrant up
 ```
 
@@ -29,5 +28,5 @@ The Vagrant machine is a simple Docker wrapper, so the database will also be sto
 
 You can use `vagrant halt` to stop the VM when you're done. To start it up again, use `vagrant up`.
 
-Keep in mind that the Vagrant setup, just like Docker, will always use the latest release from Git \(not the nightly that'd be utter madness\).
+Keep in mind that the Vagrant setup, just like Docker, will always use the latest release.
 

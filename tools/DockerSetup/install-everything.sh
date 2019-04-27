@@ -2,7 +2,7 @@
 
 #Just do everything 
 apk update 
-apk add perl perl-io-socket-ssl perl-dev g++ make pkgconf gnupg wget curl nodejs nodejs-npm redis libarchive-dev libbz2 libjpeg-turbo-dev libpng-dev openssl-dev zlib-dev supervisor
+apk add perl perl-io-socket-ssl perl-dev g++ make pkgconf gnupg wget curl nodejs nodejs-npm redis libarchive-dev libbz2 libjpeg-turbo-dev libpng-dev openssl-dev zlib-dev supervisor gosu
 
 #Hey it's cpanm
 curl -L https://cpanmin.us | perl - App::cpanminus 
@@ -19,7 +19,5 @@ npm run lanraragi-installer install-front
 apk del perl-dev g++ make gnupg wget curl nodejs nodejs-npm openssl-dev ca-certificates
 rm -rf /root/.cpanm/* /usr/local/share/man/* node_modules 
 
-#Add the koyomi user, using the specified uid. 
-#This solves permission problems on the content folder if the Docker user sets the same uid as the owner of the folder.
-adduser -D -u $LRR_UID -g '' koyomi 
-chown -R koyomi /home/koyomi/lanraragi
+#Make entrypoint executable
+chmod +x ./tools/DockerSetup/entrypoint.sh

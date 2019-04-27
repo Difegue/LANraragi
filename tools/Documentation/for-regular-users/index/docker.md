@@ -9,6 +9,7 @@ Download [the Docker setup](https://www.docker.com/products/docker) and install 
 
 ```bash
 docker run --name=lanraragi -p 3000:3000 \
+-e LRR_UID=`id -u $USER` \
 --mount type=bind,source=[YOUR_CONTENT_DIRECTORY],\
 target=/home/koyomi/lanraragi/content difegue/lanraragi
 ```
