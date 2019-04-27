@@ -2,8 +2,8 @@ package LANraragi::Controller::Upload;
 use Mojo::Base 'Mojolicious::Controller';
 
 use Redis;
-use File::Temp;
-use Digest::SHA;
+use File::Temp qw/ tempfile tempdir /;
+use File::Copy;
 
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Archive;
@@ -26,11 +26,12 @@ sub process_upload {
         my $output_file = $self->LRR_CONF->get_userdir . '/'
           . $filename;    #future home of the file
 
-        #Compute an ID by hand here, using the mojo::upload methods
-        my $data = $file->asset->get_chunk( 0, 512000 );
-        my $ctx = Digest::SHA->new(1);
-        $ctx->add($data);
-        my $id = $ctx->hexdigest;
+        # Move file to a temp folder (not the default LRR one)
+        my $tempfile = tempdir() . '/' . $filename;
+        $file->move_to($tempfile);
+
+        #Compute an ID here
+        my $id = LANraragi::Utils::Database::compute_id($tempfile);
         $self->LRR_LOGGER->debug("ID of uploaded file is $id");
 
         #Check if the ID is already in the database, and
@@ -54,7 +55,7 @@ sub process_upload {
             );
         }
         else {
-            $file->move_to($output_file);
+            move($tempfile,$output_file);
 
             #Parse for metadata right now
             LANraragi::Utils::Database::add_archive_to_redis( $id, $output_file,
