@@ -4,7 +4,6 @@ LABEL       git="https://github.com/Difegue/LANraragi"
 
 #Environment variables overridable by the user on container deployment
 ENV LRR_NETWORK http://*:3000
-ENV LRR_UID 1337
 
 WORKDIR /home/koyomi/lanraragi
 
