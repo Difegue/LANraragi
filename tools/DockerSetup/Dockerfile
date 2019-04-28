@@ -14,7 +14,7 @@ COPY /package.json package.json
 
 ENV EV_EXTRA_DEFS -DEV_NO_ATFORK
 #Run the install script as root
-RUN chmod +x ./tools/DockerSetup/install-everything.sh && ./tools/DockerSetup/install-everything.sh
+RUN chmod +x ./tools/DockerSetup/install-everything.sh && sh ./tools/DockerSetup/install-everything.sh
 
 #Copy remaining LRR files from context
 COPY / /home/koyomi/lanraragi
@@ -27,4 +27,6 @@ ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 
+#Make entrypoint executable
+RUN chmod +x ./tools/DockerSetup/entrypoint.sh
 ENTRYPOINT ["/home/koyomi/lanraragi/tools/DockerSetup/entrypoint.sh"]

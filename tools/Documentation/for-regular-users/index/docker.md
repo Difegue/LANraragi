@@ -1,3 +1,8 @@
+---
+description: >-
+  Docker is the best way to install the software on remote servers. I don't recommand it for Desktop machines and casual users due to it being a bit complex to wield.
+---
+
 # Docker
 
 A Docker image exists for deploying LANraragi installs to your machine easily without disrupting your already-existing web server setup.  
@@ -9,7 +14,6 @@ Download [the Docker setup](https://www.docker.com/products/docker) and install 
 
 ```bash
 docker run --name=lanraragi -p 3000:3000 \
--e LRR_UID=`id -u $USER` \
 --mount type=bind,source=[YOUR_CONTENT_DIRECTORY],\
 target=/home/koyomi/lanraragi/content difegue/lanraragi
 ```
@@ -38,10 +42,8 @@ docker rm lanraragi
 ```
 
 {% hint style="warning" %}
-Windows 7/8 users running the Legacy Docker toolbox will have to explicitly forward port 127.0.0.1:3000 from the host to the vm in order to be able to access the app. (told ya to use vagrant)
+Windows 7/8 users running the Legacy Docker toolbox will have to explicitly forward port 127.0.0.1:3000 from the host to the vm in order to be able to access the app.
 {% endhint %}
-
-The previous command doesn't specify a version, so Docker will by default pull the _latest_ tag, which matches the latest stable release.
 
 [Tags](https://hub.docker.com/r/difegue/lanraragi/tags/) exist for major releases, so you can use those if you want to run another version:  
 `docker run [yadda yadda] difegue/lanraragi:0.4.0`
@@ -58,14 +60,15 @@ If you need something a bit more involved \(like adding SSL\), please check the 
 
 {% page-ref page="../advanced-usage/network-interfaces.md" %}
 
-## Changing the user
+## Changing the user ID in case of permission issues
 
-The container runs the software by default under the _koyomi_ user, which can be modified by the LRR_USER environment variable.
-`docker run [wassup] -e lrr_user=karen difegue/lanraragi`
+The container runs the software by default using the uid provided by the LRR_UID variable.  
+If you don't specify the LRR_UID variable, the container will run under uid 9001.  
 
-{% hint style="warning" %}
-The user will be changed using `setuid` only. This does not start a login shell and does not change environment variables like USER or HOME.
-{% endhint %}
+This is good enough for most scenarios, but in case you need to run it as the current user, you can do the following: 
+`docker run [wassup] -e LRR_UID=``id -u $USER`` difegue/lanraragi`  
+
+This uses `id -u $USER` to automatically fetch your userid. 
 
 ## Building your own
 

@@ -2,7 +2,9 @@
 
 #Just do everything 
 apk update 
-apk add perl perl-io-socket-ssl perl-dev g++ make pkgconf gnupg wget curl nodejs nodejs-npm redis libarchive-dev libbz2 libjpeg-turbo-dev libpng-dev openssl-dev zlib-dev supervisor su-exec
+apk add perl perl-io-socket-ssl perl-dev redis libarchive-dev libbz2 libjpeg-turbo-dev libpng-dev openssl-dev zlib-dev
+apk add g++ make pkgconf gnupg wget curl nodejs nodejs-npm
+apk add supervisor su-exec
 
 #Hey it's cpanm
 curl -L https://cpanmin.us | perl - App::cpanminus 
@@ -18,6 +20,3 @@ npm run lanraragi-installer install-front
 #Cleanup to lighten the image
 apk del perl-dev g++ make gnupg wget curl nodejs nodejs-npm openssl-dev ca-certificates
 rm -rf /root/.cpanm/* /usr/local/share/man/* node_modules 
-
-#Make entrypoint executable
-chmod +x ./tools/DockerSetup/entrypoint.sh
