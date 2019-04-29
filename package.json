@@ -1,6 +1,6 @@
 {
   "name": "lanraragi",
-  "version": "0.5.7",
+  "version": "0.6.0",
   "description": "holla where the chinese comics at",
   "scripts": {
     "test": "prove -l -v tests/*.t",

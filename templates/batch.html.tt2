@@ -23,7 +23,7 @@
 
 </head>
 
-<body onload="set_style_from_storage()">
+<body onload="set_style_from_storage(); checkUntagged()">
 
 	<div class='ido' style='text-align:center'>
 		<h2 class='ih' style='text-align:center'>Batch Tagging</h2>
@@ -95,9 +95,13 @@
 					<input id="cancel-job" type='button' value='Cancel' class='stdbtn'>
 					<input id="restart-job" type='button' value='Start another job' class='stdbtn'
 						onclick='restartBatchUI()'>
+					<div id="progress" style="padding-top:6px; padding-bottom:6px">
+							<div class="bar"></div>
+							Processed <span id="arcs"></span> out of <span id="totalarcs"></span>
+					</div>
 					<div class="id1" style="width:400px; height:314px">
 						<pre id="log-container" class="log-panel" />
-						</div>
+					</div>
 				</div>
 
 			</div>

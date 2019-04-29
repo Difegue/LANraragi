@@ -77,7 +77,6 @@ sub add_tags {
 sub set_title {
 
     my ( $id, $newtitle ) = @_;
-
     my $redis = LANraragi::Model::Config::get_redis;
 
     if ( $newtitle ne "" ) {
@@ -127,7 +126,7 @@ sub parse_name {
     }
 
     if ( $series ne "" ) {
-        push @tags, "parody:$series";
+        push @tags, "series:$series";
     }
 
     if ( $language ne "" ) {
@@ -230,6 +229,45 @@ sub get_plugin_globalargs {
     }
 
     return @args;
+}
+
+# Return a list of archive IDs that have no tags.
+# Tags added automatically by the autotagger are ignored.
+sub find_untagged_archives {
+
+    my $redis   = LANraragi::Model::Config::get_redis;
+    my @keys    = $redis->keys('????????????????????????????????????????');
+    my @untagged;
+
+    #Parse the archive list.
+    foreach my $id (@keys) {
+        my $zipfile = $redis->hget( $id, "file" );
+        if ( -e $zipfile ) {
+
+            my $title = $redis->hget( $id, "title" );
+            $title = LANraragi::Utils::Database::redis_decode($title);
+
+            my $tagstr = $redis->hget($id, "tags");
+            $tagstr = LANraragi::Utils::Database::redis_decode($tagstr);
+            my @tags = split(/,\s?/, $tagstr);
+            my $nondefaulttags = 0;
+            
+            foreach my $t (@tags) {
+                LANraragi::Utils::Generic::remove_spaces($t);
+                LANraragi::Utils::Generic::remove_newlines($t);
+                
+                # the following are the only namespaces that LANraragi::Utils::Database::parse_name adds
+                $nondefaulttags += 1 unless $t =~ /(artist|parody|language|event|group):.*/
+            }
+            
+            #If the archive has no tags, or the tags namespaces are only from
+            #filename parsing (probably), add it to the list.
+            if (!@tags || $nondefaulttags == 0) {
+                push @untagged, $id;
+            }
+        }
+    }
+    return @untagged;
 }
 
 1;

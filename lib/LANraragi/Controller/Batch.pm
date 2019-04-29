@@ -15,45 +15,25 @@ use LANraragi::Model::Plugins;
 # This action will render a template
 sub index {
     my $self = shift;
-
-    #Fill the list with archives by looking up in redis
-    my $arclist = "";
     my $redis   = $self->LRR_CONF->get_redis();
 
+    #Then complete it with the rest from the database.
     #40-character long keys only => Archive IDs
-    my @keys    = $redis->keys('????????????????????????????????????????');
-    
-    #Parse the archive list and add <li> elements accordingly.
-    foreach my $id (@keys) {
-        if ( $redis->hexists( $id, "title" ) ) {
-            my $title = $redis->hget( $id, "title" );
-            $title = LANraragi::Utils::Database::redis_decode($title);
+    my @keys = $redis->keys('????????????????????????????????????????');
 
-            my $tagstr = $redis->hget($id, "tags");
-            $tagstr = LANraragi::Utils::Database::redis_decode($tagstr);
-            my @tags = split(/,\s?/, $tagstr);
-            my $nondefaulttags = 0;
-            
-            foreach my $t (@tags) {
-                LANraragi::Utils::Generic::remove_spaces($t);
-                LANraragi::Utils::Generic::remove_newlines($t);
-                
-                # the following are the only namespaces that LANraragi::Utils::Database::parse_name adds
-                $nondefaulttags += 1 unless $t =~ /(artist|parody|language|event|group):.*/
-            }
-            
-            #If the archive has no tags, or the tags namespaces are only from
-            #filename parsing (probably), pre-check it in the list.
-            if (!@tags || $nondefaulttags == 0) {
-                $arclist .=
-                  "<li><input type='checkbox' name='archive' id='$id' checked>"
-                  . "<label for='$id'> $title</label></li>";
-            }
-            else {
-                $arclist .=
-                    "<li><input type='checkbox' name='archive' id='$id' >"
-                  . "<label for='$id'> $title</label></li>";
-            }
+    #Parse the archive list and build <li> elements accordingly.
+    my $arclist = "";
+
+    #Only show IDs that still have their files present.
+    foreach my $id (@keys) {
+        my $zipfile = $redis->hget( $id, "file" );
+        my $title = $redis->hget( $id, "title" );
+        $title = LANraragi::Utils::Database::redis_decode($title);
+
+        if (-e $zipfile) {
+            $arclist .=
+                "<li><input type='checkbox' name='archive' id='$id' class='archive' >"
+                . "<label for='$id'> $title</label></li>";
         }
     }
 
@@ -92,6 +72,9 @@ sub socket {
       LANraragi::Utils::Generic::get_logger( "Batch Tagging", "lanraragi" );
 
     $logger->info('Client connected to Batch Tagging service');
+
+    # Increase inactivity timeout for connection a bit
+    $self->inactivity_timeout(300);
 
     $self->on(
         message => sub {
@@ -146,7 +129,8 @@ sub socket {
                                     success => $data[1],
                                     message => $data[2],
                                     tags    => $data[3],
-                                    title   => $data[4]
+                                    title   => $data[4],
+                                    timeout => $timeout
                                 }
                             }
                         );

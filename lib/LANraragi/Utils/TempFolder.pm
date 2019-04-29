@@ -16,6 +16,7 @@ use LANraragi::Utils::Generic;
 #Get the current tempfolder.
 #This can be called from any process safely as it uses FindBin.
 sub get_temp {
+    mkdir "$FindBin::Bin/../public/temp";
     return "$FindBin::Bin/../public/temp";
 }
 

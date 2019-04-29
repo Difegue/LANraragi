@@ -38,7 +38,7 @@ We look for the parameter `lrr_network`.
 
 ```bash
 docker run --name=lanraragi -p 8000:8000 \
---mount type=bind,source=[YOUR_CONTENT_DIRECTORY], \
+--mount type=bind,source=[YOUR_CONTENT_DIRECTORY],\
 target=/home/koyomi/lanraragi/content \
 -e lrr_network=http://*:8000 difegue/lanraragi
 ```

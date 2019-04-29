@@ -327,18 +327,20 @@ sub ehentai_parse() {
 
     my $dom = Mojo::DOM->new( $content );
 
-    # Get the first row of the search results
-    # The "glink" class is parented by a <a> tag containing the gallery link in href.
-    # This works in Minimal, Minimal+ and Compact modes, which should be enough.
-    my $firstgal = $dom->at(".glink")->parent->attr('href');
+    eval {
+        # Get the first row of the search results
+        # The "glink" class is parented by a <a> tag containing the gallery link in href.
+        # This works in Minimal, Minimal+ and Compact modes, which should be enough.
+        my $firstgal = $dom->at(".glink")->parent->attr('href');
 
-    # A EH link looks like xhentai.org/g/{gallery id}/{gallery token}
-    my $url = ( split( 'hentai.org/g/', $firstgal ) )[1];
-    my @values = ( split( '/', $url ) );
+        # A EH link looks like xhentai.org/g/{gallery id}/{gallery token}
+        my $url = ( split( 'hentai.org/g/', $firstgal ) )[1];
+        my @values = ( split( '/', $url ) );
 
-    $gID    = $values[0];
-    $gToken = $values[1];
-
+        $gID    = $values[0];
+        $gToken = $values[1];
+    };
+    
     #Returning shit yo
     return ( $gID, $gToken );
 }

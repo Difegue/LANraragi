@@ -37,7 +37,7 @@
 		<a href="./batch">Batch Tagging</a>
 		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
-		<a href="./config">Configuration</a>
+		<a href="./config">Settings</a>
 		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
 		<a href="./backup">Database Backup/Restore</a>

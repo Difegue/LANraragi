@@ -14,6 +14,7 @@ use LANraragi::Utils::TempFolder;
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
 use LANraragi::Model::Reader;
+use LANraragi::Model::Stats;
 
 sub serve_archivelist {
 
@@ -32,6 +33,17 @@ sub serve_archivelist {
     else {
         $self->render( json => () );
     }
+}
+
+sub serve_untagged_archivelist {
+    my $self = shift;
+    my @idlist = LANraragi::Utils::Database::find_untagged_archives;
+    $self->render( json => \@idlist );
+}
+
+sub serve_tag_stats {
+    my $self = shift;
+    $self->render( json => from_json(LANraragi::Model::Stats::build_tag_json));
 }
 
 sub extract_archive {

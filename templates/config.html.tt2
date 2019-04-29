@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <head>
-	<title>[% title %] - Configuration</title>
+	<title>[% title %] - Settings</title>
 
 	<meta name="viewport" content="width=device-width" />
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -27,7 +27,7 @@
 <body onload="set_style_from_storage();">
 
 	<div class="ido">
-		<h2 class="ih" style="text-align:center">LANraragi Configuration</h2>
+		<h2 class="ih" style="text-align:center">Admin Settings</h2>
 		<br>
 		<div class="left-column">
 
@@ -38,7 +38,7 @@
 			<h2>Select a category to show the matching settings.</h2>
 			<br />
 			<input class='stdbtn' type='button' onclick="saveFormData('#editConfigForm');"
-				value='Save LRR Configuration' />
+				value='Save Settings' />
 			<input class='stdbtn' type='button' onclick="window.location.href = '/config/plugins';"
 				value='Plugin Configuration' />
 			<input class='stdbtn' type='button' onclick="window.location.href = '/';" value='Return to Library' />

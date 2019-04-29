@@ -1,3 +1,25 @@
+// Check untagged archives, using the matching API endpoint.
+function checkUntagged() {
+
+    $.get("api/untagged")
+		.done(function (data) {
+
+            // Check untagged archives
+			data.forEach(id => {
+                $('#'+id)[0].checked = true;
+            });
+		})
+		.fail(function () {
+			$.toast({
+				showHideTransition: 'slide',
+				position: 'top-left',
+				loader: false,
+				heading: "Error getting untagged archives!",
+				icon: 'error'
+			});
+		});
+}
+
 //Get the titles who have been checked in the batch tagging list and update their tags.
 //This crafts a JSON list to send to the batch tagging websocket service.
 function startBatch() {
@@ -17,12 +39,15 @@ function startBatch() {
     var args = [];
 
     for (var i = 0, ref = arcs.length = checkeds.length; i < ref; i++) { arcs[i] = checkeds[i].id; }
+    $("#arcs").html(0);
+    $("#totalarcs").html(arcs.length);
+    $(".bar").attr("style", "width: 0%;");
 
     //Only add values into the override argument array if the checkbox is on
     if ($("#override")[0].checked) {
         for (var j = 0, ref = args.length = arginputs.length; j < ref; j++) { args[j] = arginputs[j].value; }
     }
-    console.log(args);
+
     //give JSON to websocket and start listening
     var command = {
         plugin: $('#plugin').val(),
@@ -49,6 +74,7 @@ function startBatch() {
 
 //On websocket message, update the UI to show the archive currently being treated
 function updateBatchStatus(event) {
+
     var msg = JSON.parse(event.data);
 
     if (msg.success === 0) {
@@ -56,11 +82,25 @@ function updateBatchStatus(event) {
     } else {
         $("#log-container").append('Processed ' + msg.id + '(Added tags: ' + msg.tags + ')\n');
 
+        //Uncheck ID in list
+        $('#'+msg.id)[0].checked = false;
+
         if ( msg.title != "" ) {
             $("#log-container").append('Changed title to: ' + msg.title + '\n');
         }
+
+        if ( msg.timeout != 0 ) {
+            $("#log-container").append('Sleeping for ' + msg.timeout + ' seconds.\n');
+        }
     }
 
+    //Update counts
+    var count = $("#arcs").html();
+    var total = $("#totalarcs").html();
+    count++;
+    $(".bar").attr("style", "width: "+count/total*100+"%;");
+    $("#arcs").html(count);
+    
     scrollLogs();
 }
 

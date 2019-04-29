@@ -1,3 +1,8 @@
+---
+description: >-
+  Docker is the best way to install the software on remote servers. I don't recommand it for Desktop machines and casual users due to it being a bit complex to wield.
+---
+
 # Docker
 
 A Docker image exists for deploying LANraragi installs to your machine easily without disrupting your already-existing web server setup.  
@@ -37,10 +42,8 @@ docker rm lanraragi
 ```
 
 {% hint style="warning" %}
-Windows 7/8 users running the Legacy Docker toolbox will have to explicitly forward port 127.0.0.1:3000 from the host to the vm in order to be able to access the app. (told ya to use vagrant)
+Windows 7/8 users running the Legacy Docker toolbox will have to explicitly forward port 127.0.0.1:3000 from the host to the vm in order to be able to access the app.
 {% endhint %}
-
-The previous command doesn't specify a version, so Docker will by default pull the _latest_ tag, which matches the latest stable release.
 
 [Tags](https://hub.docker.com/r/difegue/lanraragi/tags/) exist for major releases, so you can use those if you want to run another version:  
 `docker run [yadda yadda] difegue/lanraragi:0.4.0`
@@ -56,6 +59,16 @@ Since Docker allows for port mapping, you can most of times map the default port
 If you need something a bit more involved \(like adding SSL\), please check the Network Interfaces section.
 
 {% page-ref page="../advanced-usage/network-interfaces.md" %}
+
+## Changing the user ID in case of permission issues
+
+The container runs the software by default using the uid provided by the LRR_UID variable.  
+If you don't specify the LRR_UID variable, the container will run under uid 9001.  
+
+This is good enough for most scenarios, but in case you need to run it as the current user, you can do the following: 
+`docker run [wassup] -e LRR_UID=``id -u $USER`` difegue/lanraragi`  
+
+This uses `id -u $USER` to automatically fetch your userid. 
 
 ## Building your own
 
