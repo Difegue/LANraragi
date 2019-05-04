@@ -7,11 +7,12 @@ td.itd {
 }
 
 .itdc {min-width: 35px;}
-
+#titleheader {max-width: 400px;}
 #seriesheader {max-width: 150px;}
 #langheader {max-width: 100px;}
 #artistheader {max-width: 150px;}
 #tagsheader {max-width: 150px;}
+td.title {max-width: 400px;}
 td.series {max-width: 150px;}
 td.language {max-width: 100px;}
 td.artist {max-width: 100px;}
@@ -87,6 +88,8 @@ p#nb {
     td.language {max-width: 50px;}
     td.artist {max-width: 50px;}
     td.tags {max-width: 50px;}
+    #titleheader {max-width: 250px;}
+    td.title {max-width: 250px;}
     .caption-image {margin-left: -15% !important;}
     .page-overlay { min-height: 100% !important;}
     .ie7 .page-overlay { min-height: 100% !important;}
@@ -106,6 +109,8 @@ p#nb {
     td.language {display:none;}
     td.artist {display:none;}
     td.tags {display:none;}
+    #titleheader {max-width: 180px;}
+    td.title {max-width: 180px;}
     div.sni h1 {overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
     .option-td { width: 150px !important;}
 }
@@ -284,4 +289,16 @@ a:hover > .page-number {
 .logo-container {
     width: 300px;
     height:100px;
+}
+
+.artist-tag{
+    color: #22a7f0;
+}
+
+.series-tag, .parody-tag {
+    color:#d2527f;
+}
+
+.circle-tag, .group-tag {
+    color:#36d7b7;
 }
