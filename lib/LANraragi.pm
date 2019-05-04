@@ -68,7 +68,6 @@ sub startup {
                 print "\n";
             }
         );
-
     }
     else {
         $self->mode('production');

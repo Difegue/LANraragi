@@ -11,6 +11,7 @@ use Encode;
 use Redis;
 use Cwd;
 
+use Data::Dumper;
 use Image::Scale;
 use Archive::Peek::Libarchive;
 use Archive::Extract::Libarchive;
@@ -111,25 +112,30 @@ sub extract_thumbnail {
 }
 
 #is_file_in_archive($archive, $file)
-#Uses lsar to figure out if $archive contains $file.
+#Uses libarchive::peek to figure out if $archive contains $file.
 #Returns 1 if it does exist, 0 otherwise.
 sub is_file_in_archive {
 
     my ( $archive, $wantedname ) = @_;
 
-    my $peek = Archive::Peek::Libarchive->new( filename => $archive );
+    my $logger = LANraragi::Utils::Generic::get_logger( "Archive", "lanraragi" );
+    $logger->debug("Iterating files of archive $archive, looking for '$wantedname'");
+    $Data::Dumper::Useqq = 1;
 
+    my $peek = Archive::Peek::Libarchive->new( filename => $archive );
+    my $found = 0;
     $peek->iterate(
         sub {
+            my $name = $_[0];
+            $logger->debug("Found file " . Dumper($name));
 
-            if ( $_[0] eq $wantedname ) {
-                return 1;
+            if ( $name eq $wantedname ) {
+                $found = 1;
             }
         }
     );
 
-    #Found nothing
-    return 0;
+    return $found;
 
 }
 
@@ -139,17 +145,19 @@ sub extract_file_from_archive {
 
     my ( $archive, $filename ) = @_;
 
-    #Timestamp extractions in microseconds
+    #Timestamp extractions in microseconds 
     my ( $seconds, $microseconds ) = gettimeofday;
     my $stamp = "$seconds-$microseconds";
     my $path  = LANraragi::Utils::TempFolder::get_temp . "/plugin/$stamp";
+    mkdir LANraragi::Utils::TempFolder::get_temp . "/plugin";
+    mkdir $path;
 
     my $peek = Archive::Peek::Libarchive->new( filename => $archive );
     my $contents = $peek->file($filename);
 
     my $outfile = $path . "/" . $filename;
 
-    open( my $fh, '>', getcwd() . $outfile )
+    open( my $fh, '>', $outfile )
       or die "Could not open file '$outfile' $!";
     print $fh $contents;
     close $fh;
