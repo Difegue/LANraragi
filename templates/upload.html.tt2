@@ -74,27 +74,14 @@
 					$('#progress .bar').css('width', '0%');
 					$('#files').append(result);
 
-					//if autotagging is enabled, call the API to trigger all enabled plugins on the newly uploaded archive.
-					autotagEnabled = [% autotag %];
-
-					if (autotagEnabled) {
-
-						$("#" + data.result.id).html("Auto-Tagging this archive...");
-						$("#" + data.result.id).val("href", "");
-
-						$.post("/api/use_all_plugins", { id: data.result.id }, function (data) {
-							if (data.success) {
-								$("#" + data.id).val("href", "edit?id=" + data.id);
-								$("#" + data.id).html("Click here to edit metadata.(" + data.message + ")");
-							}
-						}, "json");
-
-					}
-
-
-					//Invalidate cache 
-					$.get("./api/discard_cache");
 				},
+
+				fail: function (e, data) {
+					result = "<tr><td>" + data.result.name +
+							"</td><td> <i class='fa fa-warning' style='margin-left:20px; margin-right: 10px; color: red'></i>" + data.errorThrown + "</td></tr>";
+					$('#progress .bar').css('width', '0%');
+					$('#files').append(result);
+				}
 
 				progressall: function (e, data) {
 					var progress = parseInt(data.loaded / data.total * 100, 10);

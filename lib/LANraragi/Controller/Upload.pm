@@ -55,11 +55,8 @@ sub process_upload {
             );
         }
         else {
+            #Move the file to the content folder and let Shinobu handle it
             move($tempfile,$output_file);
-
-            #Parse for metadata right now
-            LANraragi::Utils::Database::add_archive_to_redis( $id, $output_file,
-                $redis );
 
             $self->render(
                 json => {
@@ -93,7 +90,6 @@ sub index {
     $self->render(
         template => "upload",
         title    => $self->LRR_CONF->get_htmltitle,
-        autotag  => $self->LRR_CONF->enable_autotag,
         cssdrop  => LANraragi::Utils::Generic::generate_themes_selector,
         csshead  => LANraragi::Utils::Generic::generate_themes_header
     );
