@@ -81,7 +81,7 @@
 							"</td><td> <i class='fa fa-warning' style='margin-left:20px; margin-right: 10px; color: red'></i>" + data.errorThrown + "</td></tr>";
 					$('#progress .bar').css('width', '0%');
 					$('#files').append(result);
-				}
+				},
 
 				progressall: function (e, data) {
 					var progress = parseInt(data.loaded / data.total * 100, 10);
