@@ -5,7 +5,6 @@ use local::lib;
 use open ':std', ':encoding(UTF-8)';
 
 use Mojo::Base 'Mojolicious';
-
 use Mojo::IOLoop::ProcBackground;
 
 use LANraragi::Utils::Generic;

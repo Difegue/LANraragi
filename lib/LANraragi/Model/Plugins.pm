@@ -62,6 +62,14 @@ sub exec_enabled_plugins_on_file {
                       &exec_plugin_on_file( $plugin, $id, "", @args );
                 };
 
+                if ($@) {
+                    $failures++;
+                    $logger->error("$@");
+                }
+                else {
+                    $successes++;
+                }
+
                 #If the plugin exec returned metadata, add it
                 unless ( exists $plugin_result{error} ) {
                     LANraragi::Utils::Database::add_tags( $id,
@@ -72,14 +80,6 @@ sub exec_enabled_plugins_on_file {
                             $plugin_result{title} );
                     }
 
-                }
-
-                if ($@) {
-                    $failures++;
-                    $logger->error("$@");
-                }
-                else {
-                    $successes++;
                 }
 
             }
@@ -115,6 +115,7 @@ sub exec_plugin_on_file {
         unless ( length $thumbhash ) {
             $logger->info("Thumbnail hash invalid, regenerating.");
             my $dirname = LANraragi::Model::Config::get_userdir;
+
             #eval the thumbnail extraction as it can error out and die
             eval { LANraragi::Utils::Archive::extract_thumbnail( $dirname, $id ) };
             if ($@) { 
@@ -127,9 +128,8 @@ sub exec_plugin_on_file {
         }
 
         #Hand it off to the plugin here.
-        my %newmetadata =
-          $plugin->get_tags( $title, $tags, $thumbhash, $file, $oneshotarg,
-            @args );
+        my %newmetadata = $plugin->get_tags( $title, $tags, $thumbhash, $file, $oneshotarg,
+                @args );
 
         #Error checking
         if ( exists $newmetadata{error} ) {

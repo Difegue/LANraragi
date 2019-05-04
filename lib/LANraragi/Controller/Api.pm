@@ -257,9 +257,15 @@ sub use_plugin {
         @args = LANraragi::Utils::Database::get_plugin_globalargs($plugname);
 
         #Execute the plugin, appending the custom args at the end
-        my %plugin_result =
-          LANraragi::Model::Plugins::exec_plugin_on_file( $plugin, $id,
+        my %plugin_result;
+        eval {
+            %plugin_result = LANraragi::Model::Plugins::exec_plugin_on_file( $plugin, $id,
             $oneshotarg, @args );
+        };
+
+        if ($@) {
+            $plugin_result{error} = $@;
+        }
 
         #Returns the fetched tags in a JSON response.
         $self->render(
