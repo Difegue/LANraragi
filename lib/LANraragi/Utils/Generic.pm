@@ -29,6 +29,11 @@ sub remove_newlines {
     $_[0] =~ s/\R//g;
 }
 
+#Checks if the provided file is an image.
+sub is_image {
+    return $_[0] =~ /^*.+\.(png|jpg|gif|bmp|jpeg|webp|PNG|JPG|GIF|BMP|JPEG|WEBP)$/;
+}
+
 #Start Shinobu and return its Proc::Background object.
 sub start_shinobu {
     my $proc = Mojo::IOLoop::ProcBackground->new;

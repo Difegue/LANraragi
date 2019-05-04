@@ -7,10 +7,11 @@ use utf8;
 use Time::HiRes qw(gettimeofday);
 use File::Basename;
 use File::Path qw(remove_tree);
+use File::Find qw(finddepth);
+use File::Copy qw(move);
 use Encode;
 use Redis;
 use Cwd;
-
 use Data::Dumper;
 use Image::Scale;
 use Archive::Peek::Libarchive;
@@ -45,6 +46,11 @@ sub extract_archive {
 
     #Extract to $path. Report if it fails.
     my $ok = $ae->extract( to => $path ) or die $ae->error;
+    
+    #Rename files and folders to an encoded version
+    finddepth(sub {
+                move($_, encode("ascii", $_, sub{ sprintf "U+%04X", shift }));
+            }, $ae->extract_path);
 
     # dir that was extracted to
     return $ae->extract_path;

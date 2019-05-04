@@ -7,8 +7,10 @@ use utf8;
 use Redis;
 use File::Basename;
 use File::Path qw(remove_tree);
+use File::Find qw(find);
+use File::Copy qw(move);
 use Encode;
-use File::Find::utf8 qw(find);
+use Data::Dumper;
 use URI::Escape;
 
 use LANraragi::Model::Config;
@@ -75,7 +77,7 @@ sub build_reader_JSON {
     }
 
     #Now, has our file been extracted to the temporary directory recently?
-    #If it hasn't, we call unar to do it.
+    #If it hasn't, we call libarchive to do it.
     #If the file hasn't been extracted, or if force-reload =1
     unless ( -e $path ) {
 
@@ -91,7 +93,8 @@ sub build_reader_JSON {
             die $log;
         }
         else {
-            $self->LRR_LOGGER->debug("Extraction of archive to $path done");
+            $self->LRR_LOGGER->debug("Extraction of archive to $outpath done");
+            $path = $outpath;
         }
 
     }
@@ -99,37 +102,28 @@ sub build_reader_JSON {
     #Find the extracted images with a full search (subdirectories included),
     #treat them and jam them into an array.
     my @images;
-    find(
-        {
-            wanted => sub {
-
-                $self->LRR_LOGGER->debug("Found $_ in extracted archive");
-
-                #is it an image? readdir tends to read folder names too...
-                if ( $_ =~ /^*.+\.(png|jpg|gif|bmp|jpeg|PNG|JPG|GIF|BMP)$/ ) {
-                    push @images, $_;
-
+    eval { 
+        find(sub {
+                # Is it an image? 
+                if ( LANraragi::Utils::Generic::is_image($_) ) {
+                    push @images, $File::Find::name;
                 }
-            },
-            no_chdir    => 1,
-            follow_fast => 1
-        },
-        $path
-    );
+            }, $path);
+    };
 
     @images = sort { &expand($a) cmp &expand($b) } @images;
 
-    my $shasum = LANraragi::Utils::Generic::shasum( $images[0], 1 );
-    $redis->hset( $id, "thumbhash", encode_utf8($shasum) );
+    $self->LRR_LOGGER->debug("Files found in archive: \n " . Dumper @images);
 
     #Convert page 1 into a thumbnail for the main reader index
     my $thumbname = $dirname . "/thumb/" . $id . ".jpg";
     unless ( -e $thumbname && $thumbreload eq "0" ) {
 
-        $self->LRR_LOGGER->debug(
-"Thumbnail not found at $thumbname ! (force-thumb flag = $thumbreload)"
-        );
-        $self->LRR_LOGGER->debug( "Regenerating from " . $images[0] );
+        my $shasum = LANraragi::Utils::Generic::shasum( $images[0], 1 );
+        $redis->hset( $id, "thumbhash", encode_utf8($shasum) );
+
+        $self->LRR_LOGGER->debug("Thumbnail not found at $thumbname ! (force-thumb flag = $thumbreload)");
+        $self->LRR_LOGGER->debug("Regenerating from " . $images[0]);
         mkdir $dirname . "/thumb";
 
         LANraragi::Utils::Archive::generate_thumbnail( $images[0], $thumbname );
