@@ -73,7 +73,7 @@ sub apply_routes {
     #Those API methods are not usable even with the API Key:
     #Logged in Admin only.
     $logged_in->post('/api/use_plugin')->to('api#use_plugin');
-    $logged_in->post('/api/use_all_plugins')->to('api#use_enabled_plugins');
+    $logged_in->post('/api/autoplugin')->to('api#use_enabled_plugins');
     $logged_in->get('/api/clean_temp')->to('api#clean_tempfolder');
     $logged_in->get('/api/discard_cache')->to('api#force_refresh');
     $logged_in->get('/api/clear_new')->to('api#clear_new');

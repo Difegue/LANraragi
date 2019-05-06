@@ -220,7 +220,7 @@ sub use_enabled_plugins {
 
         $self->render(
             json => {
-                operation => "autotag",
+                operation => "autoplugin",
                 id        => $id,
                 success   => 1,
                 message =>
@@ -232,11 +232,11 @@ sub use_enabled_plugins {
 
         $self->render(
             json => {
-                operation => "autotag",
+                operation => "autoplugin",
                 id        => $id,
                 success   => 0,
                 message =>
-                  "ID not found in database or AutoTagging disabled by admin."
+                  "ID not found in database or AutoPlugin disabled by admin."
             }
         );
     }

@@ -74,6 +74,23 @@
 					$('#progress .bar').css('width', '0%');
 					$('#files').append(result);
 
+					//if autoplugin is enabled, call the API to trigger all enabled plugins on the newly uploaded archive.
+					autoplugEnabled = [% autoplugin %];
+
+					if (autoplugEnabled) {
+
+						$("#" + data.result.id).html("Running AutoPlugin on this archive...");
+						$("#" + data.result.id).val("href", "");
+
+						$.post("/api/autoplugin", { id: data.result.id }, function (data) {
+							if (data.success) {
+								$("#" + data.id).html("Click here to edit metadata.(" + data.message + ")");
+							} else {
+								$("#" + data.id).html("Click here to edit metadata.(Autoplugin failed! -- " + data.message + ")");
+							}
+						}, "json");
+					}
+
 				},
 
 				fail: function (e, data) {

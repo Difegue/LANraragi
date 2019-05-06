@@ -18,6 +18,7 @@ use LANraragi::Model::Plugins;
 
 #add_archive_to_redis($id,$file,$redis)
 #Parses the name of a file for metadata, and matches that metadata to the SHA-1 hash of the file in our Redis database.
+#This function doesn't actually require the file to exist at its given location.
 sub add_archive_to_redis {
     my ( $id, $file, $redis ) = @_;
     my $logger =
