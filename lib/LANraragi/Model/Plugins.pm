@@ -22,7 +22,7 @@ sub exec_enabled_plugins_on_file {
 
     my $id = shift;
     my $logger =
-      LANraragi::Utils::Generic::get_logger( "Auto-Tagger", "lanraragi" );
+      LANraragi::Utils::Generic::get_logger( "Auto-Plugin", "lanraragi" );
 
     $logger->info("Executing enabled plugins on archive with id $id.");
     my $redis = LANraragi::Model::Config::get_redis;
