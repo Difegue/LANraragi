@@ -12,33 +12,27 @@ use Mojo::UserAgent;
 
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
+use LANraragi::Plugin::ExHentai;
 
 #Meta-information about your plugin.
 sub plugin_info {
 
     return (
         #Standard metadata
-        name      => "E-Hentai",
-        namespace => "ehplugin",
-        author    => "Difegue",
-        version   => "1.666",
-        description =>
-          "Searches g.e-hentai for tags matching your archive. <br/>"
-          . "If you have an account that can access exhentai.org, adding the credentials here will make more archives available for parsing.",
-
-#If your plugin uses/needs custom arguments, input their name here.
-#This name will be displayed in plugin configuration next to an input box for global arguments, and in archive edition for one-shot arguments.
-        oneshot_arg =>
-"E-H Gallery URL (Will attach tags matching this exact gallery to your archive)",
-        global_args => [
-"Default language to use in searches <br/>(This will be overwritten if your archive has a language tag set)",
-            "E-Hentai Username (used for ExHentai access)",
-            "E-Hentai Password (used for ExHentai access)",
-            "ADVANCED: You can use the cookie values below instead of a username/password.<br/>".
-                "ipb_member_id cookie",
-            "ipb_pass_hash cookie"
-          ]
-
+        name        => "E-Hentai",
+        type        => "metadata",
+        namespace   => "ehplugin",
+        author      => "Difegue",
+        version     => "2.0",
+        description => "Searches g.e-hentai for tags matching your archive. <br/>If you have an account that can access exhentai.org, adding the credentials here will make more archives available for parsing.",
+        parameters  => (
+            "Default language to use in searches <br/>(This will be overwritten if your archive has a language tag set)" => "string",
+            "E-Hentai Username (used for ExHentai access)" => "string",
+            "E-Hentai Password (used for ExHentai access)" => "string",
+            "ADVANCED: You can use the cookie values below instead of a username/password. <br/>ipb_member_id cookie" => "string",
+            "ipb_pass_hash cookie" => "string"
+        ),
+        oneshot_arg => "E-H Gallery URL (Will attach tags matching this exact gallery to your archive)"
     );
 
 }
@@ -46,44 +40,41 @@ sub plugin_info {
 #Mandatory function to be implemented by your plugin
 sub get_tags {
 
-    #LRR gives your plugin the recorded title/tags/thumbnail hash for the file,
-    #the filesystem path, and the custom arguments at the end if available.
+    # LRR gives your plugin the recorded title/tags/thumbnail hash for the file,
+    # the filesystem path, and the custom arguments at the end if available.
     shift;
     my ( $title, $tags, $thumbhash, $file, $oneshotarg, @args ) = @_;
 
-#Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
+    # Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
     my $logger = LANraragi::Utils::Generic::get_logger( "E-Hentai", "plugins" );
 
-#Work your magic here - You can create subroutines below to organize the code better
+    # Work your magic here - You can create subroutines below to organize the code better
     my $gID    = "";
     my $gToken = "";
 
-    #Quick regex to get the E-H archive ids from the provided url.
+    # Quick regex to get the E-H archive ids from the provided url.
     if ( $oneshotarg =~ /.*\/g\/([0-9]*)\/([0-z]*)\/*.*/ ) {
         $gID    = $1;
         $gToken = $2;
     }
     else {
-        #Craft URL for Text Search on EH if there's no user argument
+        # Craft URL for Text Search on EH if there's no user argument
         ( $gID, $gToken ) =
           &lookup_by_title( $title, $tags, $thumbhash, @args );
     }
 
-   #If an error occured, return a hash containing an error message.
-   #LRR will display that error to the client.
-   #Using the GToken to store error codes - not the cleanest but it's convenient
+   # If an error occured, return a hash containing an error message.
+   # LRR will display that error to the client.
+   # Using the GToken to store error codes - not the cleanest but it's convenient
     if ( $gID eq "" ) {
 
-        if ( $gToken eq "Banned" ) {
-            $logger->error(
-                "Temporarily banned from EH for excessive pageloads.");
-            return ( error =>
-                  "Temporarily banned from EH for excessive pageloads." );
+        if ( $gToken ne "" ) {
+            $logger->error($gToken);
+            return ( error => $gToken );
         }
 
         $logger->info("No matching EH Gallery Found!");
         return ( error => "No matching EH Gallery Found!" );
-
     }
     else {
         $logger->debug("EH API Tokens are $gID / $gToken");
@@ -108,48 +99,20 @@ sub lookup_by_title {
     my $exh_pass        = $args[2];
     my $ipb_member_id   = $args[3];
     my $ipb_pass_hash   = $args[4];
- 
-    my $domain = "http://e-hentai.org/";
-    my $ua     = Mojo::UserAgent->new;
+    my $logger          = LANraragi::Utils::Generic::get_logger( "E-Hentai", "plugins" );
+    my $URL             = "";
 
-    my $logger = LANraragi::Utils::Generic::get_logger( "E-Hentai", "plugins" );
-
-    # Pre-emptively ignore the "yay" cookie if it gets added for some reason
-    # fucking shit panda I hate this
-    $ua->cookie_jar->ignore(
-        sub {
-            my $cookie = shift;
-            return 0 unless my $name = $cookie->name;
-            return $name eq 'yay';
-        }
-    );
-
-    if ($ipb_member_id ne "" && $ipb_pass_hash ne "") {
-        #Try opening exhentai with the provided cookies.
-        #An igneous cookie should automatically generate.
-        $logger->info( "Exhentai cookies provided! Trying direct access.");
-        ( $ua, $domain ) = &exhentai_cookie ($ua, $ipb_member_id, $ipb_pass_hash);
-
-    } elsif ( $exh_username ne "" && $exh_pass ne "" ) {
-        #Attempt a login through the e-hentai forums. 
-        #If the account is legit, we should obtain EX access.
-        $logger->info( "E-Hentai credentials present, trying to login as user "
-              . $exh_username );
-        ( $ua, $domain ) = &exhentai_login( $ua, $exh_username, $exh_pass );
-    }
-
-    my $URL = "";
-
+    # Try logging in to exhentai, fallback naturally to e-h if we can't
+    my ( $ua, $domain ) = LANraragi::Plugin::ExHentai::get_user_agent($ipb_member_id, $ipb_pass_hash, $exh_username, $exh_pass);
+    
     #Thumbnail reverse image search
     if ( $thumbhash ne "" ) {
 
         $logger->info("Reverse Image Search Enabled, trying first.");
 
         #search with image SHA hash
-        $URL =
-            $domain
-          . "?f_shash="
-          . $thumbhash
+        $URL = $domain
+          . "?f_shash=". $thumbhash
           . "&fs_covers=1&fs_similar=1";
 
         $logger->debug("Using URL $URL (archive thumbnail hash)");
@@ -186,130 +149,8 @@ sub lookup_by_title {
     return &ehentai_parse( $URL, $ua );
 }
 
-#exhentai_cookie(userAgent, idCookie, passCookie)
-#Try accessing exhentai directly with the provided cookie values.
-#If successful, the domain used by the plugin is changed to exhentai.
-sub exhentai_cookie {
-
-    my ($ua, $ipb_member_id, $ipb_pass_hash) = @_;
-    my $domain = "http://e-hentai.org";
-    my $logger = LANraragi::Utils::Generic::get_logger( "ExHentai", "plugins" );
-    
-    #Setup the needed cookies with the e-hentai domain
-    #They should translate to exhentai cookies with the igneous value generated
-    $ua->cookie_jar->add(
-        Mojo::Cookie::Response->new(
-            name   => 'ipb_member_id',
-            value  => $ipb_member_id,
-            domain => 'e-hentai.org',
-            path   => '/'
-        )
-    );
-
-    $ua->cookie_jar->add(
-        Mojo::Cookie::Response->new(
-            name   => 'ipb_pass_hash',
-            value  => $ipb_pass_hash,
-            domain => 'e-hentai.org',
-            path   => '/'
-        )
-    );
-
-    $ua->cookie_jar->add(
-        Mojo::Cookie::Response->new(
-            name   => 'ipb_coppa',
-            value  => '0',
-            domain => 'forums.e-hentai.org',
-            path   => '/'
-        )
-    );
-
-    $logger->info("Trying to access ExHentai with provided cookies...");
-    $domain = "http://exhentai.org" unless &check_panda($ua) == 0;
-
-    #Return the updated UserAgent and the domain the rest of the plugin'll use
-    return ( $ua, $domain );
-}
-
-#exhentai_login(userAgent, login, password)
-#Attempt a login to the E-Hentai forums with the given credentials.
-#If successful, the domain used by the plugin is changed to exhentai.
-sub exhentai_login {
-
-    my $ua           = $_[0];
-    my $exh_username = $_[1];
-    my $exh_pass     = $_[2];
-    my $domain = "http://e-hentai.org";
-    my $logger = LANraragi::Utils::Generic::get_logger( "ExHentai", "plugins" );
-
-    $logger->debug(
-        "Logging in with credentials: " . $exh_username . "/" . $exh_pass );
-
-    my $loginresult = $ua->max_redirects(5)->post(
-        'https://forums.e-hentai.org/index.php?act=Login&CODE=01' =>
-          { Referer => 'https://e-hentai.org/bounce_login.php?b=d&bt=1-1' } =>
-          form => {
-            CookieDate       => "1",
-            b                => "d",
-            bt               => "1-1",
-            UserName         => $exh_username,
-            PassWord         => $exh_pass,
-            ipb_login_submit => "Login!"
-          }
-    )->result->body;
-
-    #$logger->debug( "E-Hentai login response is " . $loginresult );
-
-    if ( index( $loginresult, "You are now logged in as:" ) != -1 ) {
-
-        $logger->info("Login successful! Trying to access ExHentai...");
-        $domain = "http://exhentai.org" unless &check_panda($ua) == 0;
-    }
-    else {
-
-        if ( index( $loginresult, "The captcha was not" ) != -1 ){
-            $logger->info("Automatic login was blocked by a CAPTCHA request!".
-                " Try logging in manually with this computer or another computer on the same network.".
-                " If that fails, you can try configuring the plugin with ipb_* cookies instead.");
-        }
-        $logger->info(
-            "Couldn't login! ExHentai will not be used for this request.");
-    }
-
-    #Return the updated UserAgent and the domain the rest of the plugin'll use
-    return ( $ua, $domain );
-}
-
-#check_panda(useragent)
-#Try to access exhentai with the given useragent.
-#Returns true (1) if access was successful.
-sub check_panda() {
-
-    my $ua = $_[0];
-    my $logger = LANraragi::Utils::Generic::get_logger( "Panda Check", "plugins" );
-
-    #The initial exhentai load will redirect a few times, tell mojo to follow them
-    my $res = $ua->max_redirects(5)->get("https://exhentai.org")
-        ->result;
-    my $headers = $res->headers->to_string;
-    $logger->debug( "Exhentai headers: " . $headers );
-
-    #Since we ignore the yay cookie, we might only get an endless loop of yay-cookie setting responses instead of the panda.
-    #We can also get a fucked igneous cookie if the account is banned.
-    if ( index ($headers, "Set-Cookie: yay=louder;") != -1 ||
-         index ($headers, "igneous=mystery") != -1) {
-        #oh no
-        $logger->info(
-            "Got a Sad Panda! ExHentai will not be used for this request.");
-        return 0;    
-    } else {
-        $logger->info("ExHentai status OK! Moving on.");
-        return 1;
-    }
-}
-
-#eHentaiLookup(URL)
-#Performs a remote search on e- or exhentai, and builds the matching JSON to send to the API for data.
+# ehentai_parse(URL, UA)
+# Performs a remote search on e- or exhentai, and builds the matching JSON to send to the API for data.
 sub ehentai_parse() {
 
     my $URL = $_[0];
@@ -319,7 +160,7 @@ sub ehentai_parse() {
     my $content  = $response->body;
 
     if ( index( $content, "Your IP address has been" ) != -1 ) {
-        return ( "", "Banned" );
+        return ( "", "Temporarily banned from EH for excessive pageloads." );
     }
 
     my $gID    = "";
@@ -345,8 +186,8 @@ sub ehentai_parse() {
     return ( $gID, $gToken );
 }
 
-#getTagsFromEHAPI(gID, gToken)
-#Executes an e-hentai API request with the given JSON and returns
+# get_tags_from_EH(gID, gToken)
+# Executes an e-hentai API request with the given JSON and returns
 sub get_tags_from_EH {
 
     my $uri    = 'http://e-hentai.org/api.php';

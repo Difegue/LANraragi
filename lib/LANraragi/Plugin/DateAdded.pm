@@ -14,14 +14,14 @@ sub plugin_info {
 
     return (
         #Standard metadata
-        name  => "Date Added",
-        namespace => "DateAddedPlugin",
-        author => "Utazukin",
-        version  => "0.1",
+        name        => "Date Added",
+        type        => "metadata",
+        namespace   => "DateAddedPlugin",
+        author      => "Utazukin",
+        version     => "0.2",
         description => "Adds the unix time stamp of the date the archive was added as a tag under the \"date_added\" namespace.",
-        oneshot_arg => "Use file modified time (yes/true), or use current time (no/false). Leaving blank uses the global setting (default: current time)",
-        global_args => ["Use file modified time instead of current time.<br/>".
-                        "\"Yes\" or \"True\" means use the modified time.  Anything else means use the current time"]
+        parameters  => ("Use file modified time instead of current time." => "bool"),
+        oneshot_arg => "Use file modified time (yes/true), or use current time (no/false). Leaving blank uses the global setting (default: current time)"
     );
 
 }

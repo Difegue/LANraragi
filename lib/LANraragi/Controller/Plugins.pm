@@ -153,19 +153,6 @@ sub save_config {
 sub process_upload {
     my $self = shift;
 
-    #Plugin upload is only allowed in Debug Mode.
-    if ( $self->app->mode ne "development" ) {
-        $self->render(
-            json => {
-                operation => "upload_plugin",
-                success   => 0,
-                error     => "Plugin upload is only allowed in Debug Mode."
-            }
-        );
-
-        return;
-    }
-
     #Receive uploaded file.
     my $file     = $self->req->upload('file');
     my $filename = $file->filename;

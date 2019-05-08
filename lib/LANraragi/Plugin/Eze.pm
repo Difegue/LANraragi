@@ -15,12 +15,13 @@ sub plugin_info {
 
     return (
         #Standard metadata
-        name      => "eze",
-        namespace => "ezeplugin",
-        author    => "Difegue",
-        version   => "1.0",
-        description =>
-"Collects metadata embedded into your archives by the eze userscript. (info.json files)",
+        name        => "eze",
+        type        => "metadata",
+        namespace   => "ezeplugin",
+        author      => "Difegue",
+        version     => "2.0",
+        description => "Collects metadata embedded into your archives by the eze userscript. (info.json files)",
+        parameters  => ()
     );
 
 }

@@ -50,7 +50,7 @@ function initIndex(pagesize, dataSet) {
 				'render': function (data, type, full, meta) {
 					if (type == "display") {
 
-						line = '<span class="tags tag-tooltip" onmouseover="buildTagTooltip($(this))" style="text-overflow:ellipsis;">' + data + '</span>';
+						line = '<span class="tags tag-tooltip" onmouseover="buildTagTooltip($(this))" style="text-overflow:ellipsis;">' + colorCodeTags(data) + '</span>';
 						line += buildTagsDiv(data);
 						return line;
 					}
@@ -323,6 +323,21 @@ function buildTagsDiv(tags) {
 	return line;
 }
 
+// Remove namespace from tags and color-code them. Meant for inline display.
+function colorCodeTags(tags) {
+	line = "";
+	if (tags === "")
+		return line;
+
+	tagsByNamespace = splitTagsByNamespace(tags);
+	Object.keys(tagsByNamespace).sort().forEach(function (key, index) {
+		tagsByNamespace[key].forEach(function (tag) {
+			line+="<span class='"+key+"-tag'>"+tag+"</span>, ";
+		});
+	});	
+	return line;
+}
+
 function splitTagsByNamespace(tags) {
 
 	var tagsByNamespace = {};
@@ -341,7 +356,7 @@ function splitTagsByNamespace(tags) {
 			nspce = arr[0].trim();
 			val = arr[1].trim();
 		} else {
-			nspce = "Other";
+			nspce = "other";
 			val = arr;
 		}
 
