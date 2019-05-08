@@ -19,16 +19,13 @@ sub plugin_info {
     return (
         #Standard metadata
         name        => "nHentai",
+        type        => "metadata",
         namespace   => "nhplugin",
         author      => "Difegue",
         version     => "1.4",
         description => "Searches nHentai for tags matching your archive.",
-
-#If your plugin uses/needs custom arguments, input their name here.
-#This name will be displayed in plugin configuration next to an input box for global arguments, and in archive edition for one-shot arguments.
-        oneshot_arg =>
-"nHentai Gallery URL (Will attach tags matching this exact gallery to your archive)",
-        global_args => []
+        parameters  => (),
+        oneshot_arg => "nHentai Gallery URL (Will attach tags matching this exact gallery to your archive)"
     );
 
 }

@@ -20,16 +20,13 @@ sub plugin_info {
     return (
         #Standard metadata
         name        => "Chaika.moe",
+        type        => "metadata",
         namespace   => "trabant",
         author      => "Difegue",
-        version     => "1.55",
+        version     => "2.0",
         description => "Searches chaika.moe for tags matching your archive.",
-
-#If your plugin uses/needs custom arguments, input their name here.
-#This name will be displayed in plugin configuration next to an input box for global arguments, and in archive edition for one-shot arguments.
-        oneshot_arg =>
-"Chaika Gallery or Archive URL (Will attach matching tags to your archive)",
-        global_args => []
+        parameters  => (),
+        oneshot_arg => "Chaika Gallery or Archive URL (Will attach matching tags to your archive)"
     );
 
 }

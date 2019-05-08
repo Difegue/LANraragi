@@ -15,12 +15,13 @@ sub plugin_info {
 
     return (
         #Standard metadata
-        name      => "Hdoujin",
-        namespace => "Hdoujinplugin",
-        author    => "Pao",
-        version   => "0.2",
-        description =>
-"Collects metadata embedded into your archives ONLY by the Hdoujin .json files, does not support other format.",
+        name        => "Hdoujin",
+        type        => "metadata",
+        namespace   => "Hdoujinplugin",
+        author      => "Pao",
+        version     => "0.3",
+        description => "Collects metadata embedded into your archives ONLY by the Hdoujin .json files, does not support other format.",
+        parameters  => ()
     );
 
 }

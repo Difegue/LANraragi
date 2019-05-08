@@ -10,13 +10,13 @@ sub plugin_info {
 
     return (
         #Standard metadata
-        name      => "Tag Copier",
-        namespace => "copytags",
-        author    => "Difegue",
-        version   => "1.0",
-        description =>
-"This plugin just copies the tags it has in its configuration to any archive it's applied to.",
-        global_args => ["Tags to copy"]
+        name        => "Tag Modifier",
+        type        => "metadata",
+        namespace   => "copytags",
+        author      => "Difegue",
+        version     => "2.0",
+        description => "Apply custom tag modifications. (Add/Delete)",
+        parameters  => ("Tags, separated by commas. Add '-' in front of a tag to remove it." => "string")
     );
 
 }
