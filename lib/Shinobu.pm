@@ -341,9 +341,7 @@ sub build_archive_JSON {
 
     #Workaround if title was incorrectly parsed as blank
     if ( !defined($title) || $title =~ /^\s*$/ ) {
-        $title =
-            "<i class='fa fa-exclamation-circle'></i> "
-          . "Untitled archive, please edit metadata.";
+        $title = $name;
     }
 
     my $arcdata = {
