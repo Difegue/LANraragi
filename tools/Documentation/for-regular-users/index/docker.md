@@ -62,13 +62,13 @@ If you need something a bit more involved \(like adding SSL\), please check the 
 
 ## Changing the user ID in case of permission issues
 
-The container runs the software by default using the uid provided by the LRR_UID variable.  
-If you don't specify the LRR_UID variable, the container will run under uid 9001.  
+The container runs the software by default using the uid/gid provided by the LRR_UID/LRR_GID variables.  
+If you don't specify said variables, the container will run under uid/gid 9001/9001.  
 
 This is good enough for most scenarios, but in case you need to run it as the current user, you can do the following: 
-`docker run [wassup] -e LRR_UID=``id -u $USER`` difegue/lanraragi`  
+`docker run [wassup] -e LRR_UID=``id -u $USER`` -e LRR_GID=``id -g $USER`` difegue/lanraragi`  
 
-This uses `id -u $USER` to automatically fetch your userid. 
+This uses `id` to automatically fetch your userid/groupid. 
 
 ## Building your own
 
