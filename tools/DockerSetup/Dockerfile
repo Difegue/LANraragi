@@ -4,6 +4,11 @@ LABEL       git="https://github.com/Difegue/LANraragi"
 
 ENTRYPOINT ["/home/koyomi/lanraragi/tools/DockerSetup/entrypoint.sh"]
 
+# Check application health
+HEALTHCHECK --interval=1m --timeout=10s --retries=3 \
+  CMD wget --quiet --tries=1 --no-check-certificate --spider \
+  http://localhost:3000 || exit 1
+
 #Environment variables overridable by the user on container deployment
 ENV LRR_NETWORK http://*:3000
 
@@ -14,8 +19,7 @@ EXPOSE 3000
 ENV LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 LANGUAGE=en_US.UTF-8
 
 #Add rootless user
-ENV LRR_UID 9001
-ENV LRR_GID 9001
+ENV LRR_UID=9001 LRR_GID=9001
 
 RUN \
   if [ $(getent group ${LRR_GID}) ]; then \
@@ -38,3 +42,6 @@ RUN chmod +x ./tools/DockerSetup/install-everything.sh ./tools/DockerSetup/entry
 
 #Copy remaining LRR files from context
 COPY --chown=koyomi:koyomi / /home/koyomi/lanraragi
+
+# Make scripts executable
+RUN chmod +x ./tools/DockerSetup/entrypoint.sh
