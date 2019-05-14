@@ -101,7 +101,7 @@ sub get_password {
 
 sub get_tagblacklist {
     return &get_redis_conf( "blacklist",
-"already uploaded, forbidden content, translated, russian, chinese, portuguese, french, spanish, italian, vietnamese, german, indonesian"
+"already uploaded, forbidden content, incomplete, ongoing, complete, various, digital, decensored, translated, russian, chinese, portuguese, french, spanish, italian, vietnamese, german, indonesian"
     );
 }
 
