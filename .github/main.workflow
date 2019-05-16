@@ -10,10 +10,11 @@ action "Style Check" {
 
 workflow "Build basically everything" {
   resolves = [
-    "Package Windows Installer",
     "Perl Critic",
     "Tag as latest",
     "Push to Docker Hub",
+    "Upload Installer to MEGA",
+    "Build WSL Distro image",
   ]
   on = "push"
 }
@@ -32,11 +33,6 @@ action "Login to Docker Hub" {
   uses = "actions/docker/login@8cdf801b322af5f369e00d85e9cf3a7122f49108"
   secrets = ["DOCKER_USERNAME", "DOCKER_PASSWORD"]
   needs = ["Build LANraragi Docker image"]
-}
-
-action "Package Windows Installer" {
-  uses = "Ilshidur/action-slack@2a8ddb6db23f71a413f9958ae75bbc32bbaa6385"
-  needs = ["Build WSL Distro image"]
 }
 
 action "LANraragi Test Suite" {
@@ -78,4 +74,11 @@ action "Push to Docker Hub" {
   uses = "actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108"
   needs = ["Tag as latest", "Tag as nightly"]
   args = "push"
+}
+
+action "Upload Installer to MEGA" {
+  uses = "difegue/action-megacmd@master"
+  needs = ["Build WSL Distro image"]
+  args = "put README.md ej"
+  secrets = ["USERNAME", "PASSWORD"]
 }
