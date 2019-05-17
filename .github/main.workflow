@@ -1,49 +1,35 @@
-action "Run Tests" {
-  uses = "./.github/action-run-tests"
-}
-
-action "Style Check" {
-  uses = "./.github/action-critic"
-  needs = ["Run Tests"]
-  secrets = ["GITHUB_TOKEN"]
-}
-
-workflow "Build basically everything" {
+workflow "Build nightly Docker image" {
   resolves = [
-    "Perl Critic",
-    "Tag as latest",
-    "Push to Docker Hub",
+    "Push nightly to Docker Hub",
+  ]
+  on = "push"
+}
+
+workflow "Build latest Docker image" {
+  resolves = [
+    "Push latest to Docker Hub",
+  ]
+  on = "push"
+}
+
+workflow "Build WSL distro" {
+  resolves = [
     "Upload Installer to MEGA",
     "Build WSL Distro image",
   ]
   on = "push"
 }
 
-action "Build LANraragi Docker image" {
-  uses = "actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108"
-  args = "build -t difegue/lanraragi -f ./tools/DockerSetup/Dockerfile ."
-}
-
-action "Build WSL Distro image" {
-  uses = "actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108"
-  needs = ["Build LANraragi Docker image"]
+workflow "Continuous Integration 👌👀" {
+  resolves = [
+    "Perl Critic",
+  ]
+  on = "push"
 }
 
 action "Login to Docker Hub" {
   uses = "actions/docker/login@8cdf801b322af5f369e00d85e9cf3a7122f49108"
   secrets = ["DOCKER_USERNAME", "DOCKER_PASSWORD"]
-  needs = ["Build LANraragi Docker image"]
-}
-
-action "LANraragi Test Suite" {
-  uses = "./.github/action-run-tests"
-  needs = ["Build LANraragi Docker image"]
-}
-
-action "Perl Critic" {
-  uses = "./.github/action-critic"
-  needs = ["LANraragi Test Suite"]
-  secrets = ["GITHUB_TOKEN"]
 }
 
 action "If dev branch" {
@@ -58,22 +44,49 @@ action "If master branch" {
   args = "branch master"
 }
 
-action "Tag as nightly" {
+action "Build Nightly Docker image" {
   uses = "actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108"
   needs = ["If dev branch"]
-  args = "tag lanraragi difegue/lanraragi:nightly"
+  args = "build -t difegue/lanraragi:nightly -f ./tools/DockerSetup/Dockerfile ."
 }
 
-action "Tag as latest" {
+action "Build Latest Docker image" {
   uses = "actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108"
   needs = ["If master branch"]
-  args = "tag lanraragi difegue/lanraragi:latest"
+  args = "build -t difegue/lanraragi:latest -f ./tools/DockerSetup/Dockerfile ."
 }
 
-action "Push to Docker Hub" {
+action "Push nightly to Docker Hub" {
   uses = "actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108"
-  needs = ["Tag as latest", "Tag as nightly"]
+  needs = ["Build Nightly Docker image"]
   args = "push"
+}
+
+action "Push latest to Docker Hub" {
+  uses = "actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108"
+  needs = ["Build Latest Docker image"]
+  args = "push"
+}
+
+action "Untagged Docker Build" {
+  uses = "actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108"
+  args = "build -t difegue/lanraragi -f ./tools/DockerSetup/Dockerfile ."
+}
+
+action "LANraragi Test Suite" {
+  uses = "./.github/action-run-tests"
+  needs = ["Untagged Docker Build"]
+}
+
+action "Perl Critic" {
+  uses = "./.github/action-critic"
+  needs = ["LANraragi Test Suite"]
+  secrets = ["GITHUB_TOKEN"]
+}
+
+action "Build WSL Distro image" {
+  uses = "actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108"
+  needs = ["Untagged Docker Build"]
 }
 
 action "Upload Installer to MEGA" {
