@@ -14,8 +14,7 @@ workflow "Build latest Docker image" {
 
 workflow "Build WSL distro" {
   resolves = [
-    "Upload Installer to MEGA",
-    "Build WSL Distro image",
+    "Upload Installer to MEGA"
   ]
   on = "push"
 }
@@ -92,7 +91,12 @@ action "Build WSL Distro image" {
 
 action "Upload Installer to MEGA" {
   uses = "difegue/action-megacmd@master"
-  needs = ["Build WSL Distro image"]
-  args = "put README.md ej"
+  needs = ["Build WSL zip"]
+  args = "put win_package.zip Windows_Nightlies"
   secrets = ["USERNAME", "PASSWORD"]
+}
+
+action "Build WSL zip" {
+  uses = "./.github/action-wslbuild"
+  needs = ["Build WSL Distro image"]
 }
