@@ -69,7 +69,7 @@ action "Push latest to Docker Hub" {
 
 action "Untagged Docker Build" {
   uses = "actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108"
-  args = "build -t difegue/lanraragi -f ./tools/DockerSetup/Dockerfile ."
+  args = "build --squash -t difegue/lanraragi -f ./tools/DockerSetup/Dockerfile ."
 }
 
 action "LANraragi Test Suite" {
@@ -83,16 +83,10 @@ action "Perl Critic" {
   secrets = ["GITHUB_TOKEN"]
 }
 
-action "Create container for WSL" {
-  uses = "actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108"
-  needs = ["Untagged Docker Build"]
-  args = "create --name distro difegue/lanraragi"
-}
-
 action "Export WSL Distro rootfs" {
   uses = "actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108"
-  needs = ["Create container for WSL"]
-  args = "export --output package.tar distro"
+  args = "save --output package.tar difegue/lanraragi"
+  needs = ["Untagged Docker Build"]
 }
 
 action "Build WSL zip" {
