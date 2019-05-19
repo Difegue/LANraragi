@@ -97,7 +97,7 @@ action "Export WSL Distro rootfs" {
 
 action "Build WSL zip" {
   uses = "./.github/action-wslbuild"
-  needs = ["Build WSL Distro image"]
+  needs = ["Export WSL Distro rootfs"]
 }
 
 action "Upload Installer to MEGA" {
