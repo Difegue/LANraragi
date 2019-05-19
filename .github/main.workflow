@@ -86,7 +86,12 @@ action "Perl Critic" {
 action "Build WSL Distro image" {
   uses = "actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108"
   needs = ["Untagged Docker Build"]
-  secrets = ["GITHUB_TOKEN"]
+  args = "export --output=package.tar difegue/lanraragi"
+}
+
+action "Build WSL zip" {
+  uses = "./.github/action-wslbuild"
+  needs = ["Build WSL Distro image"]
 }
 
 action "Upload Installer to MEGA" {
@@ -96,7 +101,4 @@ action "Upload Installer to MEGA" {
   secrets = ["USERNAME", "PASSWORD"]
 }
 
-action "Build WSL zip" {
-  uses = "./.github/action-wslbuild"
-  needs = ["Build WSL Distro image"]
-}
+
