@@ -83,10 +83,16 @@ action "Perl Critic" {
   secrets = ["GITHUB_TOKEN"]
 }
 
-action "Build WSL Distro image" {
+action "Create container for WSL" {
   uses = "actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108"
   needs = ["Untagged Docker Build"]
-  args = "save --output package.tar difegue/lanraragi"
+  args = "create --name distro difegue/lanraragi"
+}
+
+action "Export WSL Distro rootfs" {
+  uses = "actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108"
+  needs = ["Create container for WSL"]
+  args = "export --output package.tar distro"
 }
 
 action "Build WSL zip" {
