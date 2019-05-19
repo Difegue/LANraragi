@@ -14,7 +14,7 @@ workflow "Build latest Docker image" {
 
 workflow "Build WSL distro" {
   resolves = [
-    "Upload Installer to MEGA"
+    "Upload Installer to MEGA",
   ]
   on = "push"
 }
@@ -86,7 +86,7 @@ action "Perl Critic" {
 action "Build WSL Distro image" {
   uses = "actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108"
   needs = ["Untagged Docker Build"]
-  args = "export --output=package.tar difegue/lanraragi"
+  args = "save --output package.tar difegue/lanraragi"
 }
 
 action "Build WSL zip" {
@@ -100,5 +100,3 @@ action "Upload Installer to MEGA" {
   args = "put win_package.zip Windows_Nightlies"
   secrets = ["USERNAME", "PASSWORD"]
 }
-
-
