@@ -14,7 +14,7 @@ workflow "Build latest Docker image" {
 
 workflow "Build WSL distro" {
   resolves = [
-    "Upload Installer to MEGA"
+    "Upload Installer to MEGA",
   ]
   on = "push"
 }
@@ -83,10 +83,8 @@ action "Perl Critic" {
   secrets = ["GITHUB_TOKEN"]
 }
 
-action "Build WSL Distro image" {
-  uses = "actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108"
-  needs = ["Untagged Docker Build"]
-  secrets = ["GITHUB_TOKEN"]
+action "Build WSL zip" {
+  uses = "./.github/action-wslbuild"
 }
 
 action "Upload Installer to MEGA" {
@@ -94,9 +92,4 @@ action "Upload Installer to MEGA" {
   needs = ["Build WSL zip"]
   args = "put win_package.zip Windows_Nightlies"
   secrets = ["USERNAME", "PASSWORD"]
-}
-
-action "Build WSL zip" {
-  uses = "./.github/action-wslbuild"
-  needs = ["Build WSL Distro image"]
 }
