@@ -11,7 +11,7 @@ LABEL "com.github.actions.icon"="truck"
 LABEL "com.github.actions.color"="blue"
 
 # Set Docker to experimental so we can use squash
-RUN echo $'{\n    "experimental": true\n}' > /etc/docker/daemon.json;
+RUN mkdir /etc/docker && echo $'{\n    "experimental": true\n}' > /etc/docker/daemon.json;
 
 RUN apt-get update && apt-get install zip unzip wget -y
 
