@@ -13,7 +13,7 @@ LABEL "com.github.actions.color"="blue"
 # Set Docker to experimental so we can use squash
 RUN mkdir /etc/docker && echo $'{\n    "experimental": true\n}' > /etc/docker/daemon.json;
 
-RUN apt-get update && apt-get install zip unzip wget -y
+RUN apk add zip unzip wget
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
