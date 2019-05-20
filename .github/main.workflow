@@ -85,6 +85,7 @@ action "Perl Critic" {
 
 action "Build WSL zip" {
   uses = "./.github/action-wslbuild"
+  needs = ["Untagged Docker Build"]
 }
 
 action "Upload Installer to MEGA" {
