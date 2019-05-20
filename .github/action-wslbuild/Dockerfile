@@ -10,7 +10,8 @@ LABEL "com.github.actions.description"="Export built docker image and bundle wit
 LABEL "com.github.actions.icon"="truck"
 LABEL "com.github.actions.color"="blue"
 
-RUN apk add zip unzip wget tar
+# sudo is required as docker-squash has hard calls to it (good lord)
+RUN apk add zip unzip wget tar sudo
 
 # Install docker-squash as we can't easily install experimental features here
 # Docker export is also off the table due to Github Actions restrictions.

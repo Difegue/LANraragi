@@ -4,7 +4,6 @@ echo "🎌 Building up LRR Windows Package 🎌"
 
 mkdir win_package
 
-docker build -t difegue/lanraragi -f ./tools/DockerSetup/Dockerfile .
 # Export and squash image
 docker save --output save.tar difegue/lanraragi
 docker-squash -verbose -i save.tar -o package.tar
@@ -24,4 +23,4 @@ unzip -d win_package/Bootloader Karen-v1.zip
 mv win_package/Bootloader/Karen-Installer.ps1 win_package/install.ps1
 
 # Zip installer folder and we're done
- zip -r win_package.zip win_package
+zip -r win_package.zip win_package
