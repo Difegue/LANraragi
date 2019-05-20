@@ -10,10 +10,11 @@ LABEL "com.github.actions.description"="Export built docker image and bundle wit
 LABEL "com.github.actions.icon"="truck"
 LABEL "com.github.actions.color"="blue"
 
-# Set Docker to experimental so we can use squash
-RUN mkdir /etc/docker && echo $'{\n    "experimental": true\n}' > /etc/docker/daemon.json;
+RUN apk add zip unzip wget tar
 
-RUN apk add zip unzip wget
+# Install docker-squash as we can't easily install experimental features here
+# Docker export is also off the table due to Github Actions restrictions.
+RUN wget https://github.com/jwilder/docker-squash/releases/download/v0.2.0/docker-squash-linux-amd64-v0.2.0.tar.gz && tar -C /usr/local/bin -xzvf docker-squash-linux-amd64-v0.2.0.tar.gz
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh

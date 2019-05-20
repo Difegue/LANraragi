@@ -4,10 +4,10 @@ echo "🎌 Building up LRR Windows Package 🎌"
 
 mkdir win_package
 
-# Build squashed image so we only have one layer and export it 
-# Docker export can't be used due to Github Actions limitations.
-docker build --squash -t difegue/lanraragi -f ./tools/DockerSetup/Dockerfile .
-docker save --output package.tar difegue/lanraragi
+docker build -t difegue/lanraragi -f ./tools/DockerSetup/Dockerfile .
+# Export and squash image
+docker save --output save.tar difegue/lanraragi
+docker-squash -verbose -i save.tar -o package.tar
 
 # Move package.tar to folder 
 mv package.tar win_package
