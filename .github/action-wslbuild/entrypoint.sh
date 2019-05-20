@@ -6,7 +6,7 @@ mkdir win_package
 
 # Export and squash image
 docker save --output save.tar difegue/lanraragi
-docker-squash -verbose -i save.tar -o package.tar
+docker-squash -verbose -from root -i save.tar -o package.tar
 
 # Move package.tar to folder 
 mv package.tar win_package
