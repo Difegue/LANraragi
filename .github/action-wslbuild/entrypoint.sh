@@ -5,8 +5,8 @@ echo "🎌 Building up LRR Windows Package 🎌"
 mkdir win_package
 
 # Export and squash image
-docker save --output save.tar difegue/lanraragi
-docker-squash -verbose -from root -i save.tar -o package.tar
+docker-squash difegue/lanraragi
+docker save --output package.tar difegue/lanraragi 
 
 # Move package.tar to folder 
 mv package.tar win_package
