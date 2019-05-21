@@ -11,11 +11,11 @@ LABEL "com.github.actions.icon"="truck"
 LABEL "com.github.actions.color"="blue"
 
 # install python and entrypoint reqs
-RUN apk add zip unzip wget tar python py-pip python-dev
+RUN apk add zip unzip wget tar sudo
 
 # Install docker-squash as we can't easily install experimental features here
 # Docker export is also off the table due to Github Actions restrictions.
-RUN pip install docker-squash
+RUN wget https://github.com/jwilder/docker-squash/releases/download/v0.2.0/docker-squash-linux-amd64-v0.2.0.tar.gz && tar -C /usr/local/bin -xzvf docker-squash-linux-amd64-v0.2.0.tar.gz
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
