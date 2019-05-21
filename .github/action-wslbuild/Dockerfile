@@ -10,12 +10,12 @@ LABEL "com.github.actions.description"="Export built docker image and bundle wit
 LABEL "com.github.actions.icon"="truck"
 LABEL "com.github.actions.color"="blue"
 
-# sudo is required as docker-squash has hard calls to it (good lord)
-RUN apk add zip unzip wget tar sudo
+# install python and entrypoint reqs
+RUN apk add zip unzip wget tar python py-pip python-dev
 
 # Install docker-squash as we can't easily install experimental features here
 # Docker export is also off the table due to Github Actions restrictions.
-RUN wget https://github.com/jwilder/docker-squash/releases/download/v0.2.0/docker-squash-linux-amd64-v0.2.0.tar.gz && tar -C /usr/local/bin -xzvf docker-squash-linux-amd64-v0.2.0.tar.gz
+RUN pip install docker-squash
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
