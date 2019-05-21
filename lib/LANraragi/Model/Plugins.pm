@@ -109,7 +109,7 @@ sub exec_plugin_on_file {
           @hash{qw(name title tags file thumbhash)};
 
         ( $_ = LANraragi::Utils::Database::redis_decode($_) )
-          for ( $name, $title, $tags, $file );
+          for ( $name, $title, $tags);
 
         # If the thumbnail hash is empty or undefined, we'll generate it here.
         unless ( length $thumbhash ) {

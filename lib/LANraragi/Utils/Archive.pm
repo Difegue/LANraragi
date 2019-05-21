@@ -69,8 +69,6 @@ sub extract_thumbnail {
     my $redis = LANraragi::Model::Config::get_redis();
 
     my $file = $redis->hget( $id, "file" );
-    $file = LANraragi::Utils::Database::redis_decode($file);
-
     my $temppath = LANraragi::Utils::TempFolder::get_temp . "/thumb";
 
     #Clean thumb temp to prevent file mismatch errors.

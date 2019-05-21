@@ -20,7 +20,6 @@ sub delete_metadata_and_file {
     my $redis = $self->LRR_CONF->get_redis();
 
     my $filename = $redis->hget( $id, "file" );
-    $filename = LANraragi::Utils::Database::redis_decode($filename);
 
     $redis->del($id);
 
@@ -108,7 +107,7 @@ sub index {
           @hash{qw(name title tags file thumbhash)};
 
         ( $_ = LANraragi::Utils::Database::redis_decode($_) )
-          for ( $name, $title, $tags, $file );
+          for ( $name, $title, $tags );
 
         #Build plugin listing
         my @plugins = LANraragi::Model::Plugins::plugins;
