@@ -5,8 +5,12 @@ echo "🎌 Building up LRR Windows Package 🎌"
 mkdir win_package
 
 # Export and squash image
+# I'd like to use docker export here instead of squashing tars by hand, but Github Actions doesn't allow it. eeeh...
 docker save --output save.tar difegue/lanraragi
-docker-squash -verbose -from root -i save.tar -o package.tar
+tar -xf save.tar --wildcards "*.tar"
+mkdir squashed
+find . -mindepth 2 -type f -iname "*.tar" -print0 -exec tar -xvf {} -C squashed \; 
+find squashed -printf "%P\n" -type f -o -type l -o -type d | tar -cf package.tar --no-recursion -C squashed -T -
 
 # Move package.tar to folder 
 mv package.tar win_package
