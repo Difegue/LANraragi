@@ -89,6 +89,6 @@ action "Build WSL zip" {
 action "Upload Installer to MEGA" {
   uses = "difegue/action-megacmd@master"
   needs = ["Build WSL zip"]
-  args = "put win_package.zip Windows_Nightlies/${GITHUB_SHA}/win_installer.zip"
+  args = "put -c win_package.zip Windows_Nightlies/${GITHUB_SHA}/win_installer.zip"
   secrets = ["USERNAME", "PASSWORD"]
 }
