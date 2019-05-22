@@ -11,7 +11,7 @@ LABEL "com.github.actions.icon"="truck"
 LABEL "com.github.actions.color"="blue"
 
 # Add needed utilities to create the WSL tarball and download tools
-RUN apk add zip unzip wget tar 
+RUN apk add zip unzip wget tar findutils
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
