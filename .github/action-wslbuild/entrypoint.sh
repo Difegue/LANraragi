@@ -21,7 +21,7 @@ wget https://github.com/Difegue/Karen/releases/latest/download/Karen.zip
 
 # Unzip them to installer folder under the desired names
 unzip -d win_package/LxRunOffline LxRunOffline-v3.3.3.zip 
-unzip -d win_package/Bootloader Karen-v1.zip 
+unzip -d win_package/Bootloader Karen.zip 
 
 # Copy installer script to root 
 mv win_package/Bootloader/Karen-Installer.ps1 win_package/install.ps1
