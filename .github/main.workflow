@@ -3,7 +3,7 @@ workflow "Build nightly Docker image" {
     "Push nightly to Docker Hub",
   ]
   on = "push"
-}
+} 
 
 workflow "Build latest Docker image" {
   resolves = [
