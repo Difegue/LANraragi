@@ -9,7 +9,7 @@ mkdir win_package
 docker save --output save.tar difegue/lanraragi
 tar -xf save.tar --wildcards "*.tar"
 mkdir squashed
-find . -mindepth 2 -type f -iname "*.tar" -print0 -exec tar -xvf {} -C squashed \; 
+find . -mindepth 2 -type f -iname "*.tar" -print0 -exec tar -xf {} -C squashed \; 
 find squashed -printf "%P\n" -type f -o -type l -o -type d | tar -cf package.tar --no-recursion -C squashed -T -
 
 # Move package.tar to folder 
