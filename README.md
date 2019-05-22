@@ -1,11 +1,12 @@
 <img alt="LANraragi" src="https://raw.githubusercontent.com/Difegue/LANraragi/master/tools/logo.png" width="300">
 
-#### [Documentation/Install Guide](https://sugoi.gitbook.io/lanraragi/) - [Download](https://github.com/Difegue/LANraragi/releases) - [Demo](https://lrr.tvc-16.science)
+#### [Documentation/Install Guide](https://sugoi.gitbook.io/lanraragi/) - [Download](https://github.com/Difegue/LANraragi/releases) - [Demo](https://lrr.tvc-16.science) - [Windows Nightlies](https://mega.nz/#F!rHZynKpZ!ZXlwMam4t8VtYjOiHPONsQ)
 
 [<img src="https://img.shields.io/docker/pulls/difegue/lanraragi.svg">](https://hub.docker.com/r/difegue/lanraragi/) 
 [<img src="https://img.shields.io/github/downloads/difegue/lanraragi/total.svg">](https://github.com/Difegue/LANraragi/releases) 
 [<img src="https://img.shields.io/github/release/difegue/lanraragi.svg?label=latest%20release">](https://github.com/Difegue/LANraragi/releases) 
 [<img src="https://img.shields.io/website/https/lrr.tvc-16.science.svg?label=demo%20website&up_message=online">](https://lrr.tvc-16.science/)
+[<img src="https://action-badges.now.sh/Difegue/lanraragi"](https://github.com/Difegue/LANraragi/actions)
 
 <a href='https://ko-fi.com/T6T2UP5N' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://az743702.vo.msecnd.net/cdn/kofi4.png?v=2' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 
