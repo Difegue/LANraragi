@@ -56,13 +56,13 @@ action "Build Latest Docker image" {
 action "Push nightly to Docker Hub" {
   uses = "actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108"
   needs = ["Build Nightly Docker image"]
-  args = "push"
+  args = "push difegue/lanraragi:nightly"
 }
 
 action "Push latest to Docker Hub" {
   uses = "actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108"
   needs = ["Build Latest Docker image"]
-  args = "push"
+  args = "push difegue/lanraragi:latest"
 }
 
 action "Untagged Docker Build" {
