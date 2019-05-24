@@ -56,13 +56,8 @@ sub get_tags {
         $newtags = tags_from_sha1($thumbhash);
 
         if ( $newtags eq "" ) {
-
-            #Get Gallery ID by hand if nothing else worked
-            my $ID = search_for_archive( $title, $tags );
-
-            #Chaika has two possible types - Gallery or Archive.
-            #We perform searching in archives by default here.
-            $newtags = tags_from_chaika_id( "archive", $ID );
+            #Get Gallery ID by search
+            $newtags = search_for_archive( $title, $tags );
         }
     }
 
@@ -95,7 +90,7 @@ sub search_for_archive {
     #Strip away hyphens and apostrophes as they apparently break search
     $title =~ s/-|'/ /g;
 
-    my $URL = "$chaika_url/search/?title=" . uri_escape_utf8($title) . "&tags=";
+    my $URL = "$chaika_url/jsearch/?gsp&title=" . uri_escape_utf8($title) . "&tags=";
 
     #Append language:english tag, if it exists.
     #Chaika only has english or japanese so I aint gonna bother more than this
@@ -105,25 +100,14 @@ sub search_for_archive {
 
     $logger->debug("Calling $URL");
     my $ua      = Mojo::UserAgent->new;
-    my $content = $ua->get($URL)->result->body;
+    my $res = $ua->get($URL)->result;
 
-    #Use Mojo's DOM parser to get the first link
-    my $dom  = Mojo::DOM->new($content);
-    my $href = "";
+    my $textrep = $res->body;
+    $logger->debug("Chaika API returned this JSON: $textrep");
 
-    #Find first <tr class="result-list"> node
-    #In this node, first href is an archive ID
-    eval {
-        $href = $dom->at(".result-list")->at("a")->attr("href");
-        $logger->debug( "DOM parser found " . $href );
-    };
-
-    if ( $href =~ /\/archive\/([0-9]*)\/?.*/ ) {
-        return $1;
-    }
-    else {
-        return "";
-    }
+    my $returned = parse_chaika_json( $res->json );
+    $logger->info("Sending the following tags to LRR: $returned");
+    return $returned;
 }
 
 # Uses the jsearch API to get the best json for a file.
