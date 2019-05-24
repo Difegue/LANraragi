@@ -166,7 +166,7 @@ sub lookup_by_title {
         $domain
       . "?advsearch=1&f_sname=on&f_stags=on&f_spf=&f_spt=&f_sft=on"
       . "&f_search="
-      . uri_escape_utf8($title);
+      . uri_escape_utf8(qw(").$title.qw("));
 
     #Get the language tag, if it exists.
     if ( $tags =~ /.*language:\s?([^,]*),*.*/gi ) {
