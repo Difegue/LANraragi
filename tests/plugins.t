@@ -39,25 +39,16 @@ is( $test_nH_tags, $nH_tags, 'nHentai API Tag retrieval test' );
 
 #Chaika Tests
 my $mwee_ID = "27240";
-my $test_mwee_ID =
-  LANraragi::Plugin::Chaika::search_for_archive( "Zettai Seikou Keikaku",
-    "artist:kemuri haku" );
+my $mwee_tags = "female:sole female, male:sole male, artist:kemuri haku, full censorship, male:shotacon, female:defloration, female:nakadashi, female:big breasts, language:translated, language:english";
 
-is( $test_mwee_ID, $mwee_ID, 'chaika.moe search test' );
+my $test_jsearch_text = LANraragi::Plugin::Chaika::search_for_archive( "Zettai Seikou Keikaku", "artist:kemuri haku" );
+is( $test_jsearch_text, $mwee_tags, 'chaika.moe search test' );
 
-my $mwee_tags =
-"female:sole female, male:sole male, artist:kemuri haku, full censorship, male:shotacon, female:defloration, female:nakadashi, female:big breasts, language:translated, language:english";
-my $test_mwee_tags =
-  LANraragi::Plugin::Chaika::tags_from_chaika_id( "archive", $mwee_ID );
+my $test_jsearch_id = LANraragi::Plugin::Chaika::tags_from_chaika_id( "archive", $mwee_ID );
+is( $test_jsearch_id, $mwee_tags, 'chaika.moe API Tag retrieval test' );
 
-is( $test_mwee_tags, $mwee_tags, 'chaika.moe API Tag retrieval test' );
-
-my $mwee_tags_sha1 =
-"magazine:comic shitsurakuten 2016-04, publisher:fakku, blowjob, creampie, eyebrows, subscription, muscles, swimsuit, tanlines, ahegao, oppai, hentai, artist:ao banana, uncensored, language:english";
-my $test_mwee_tags_sha1 = LANraragi::Plugin::Chaika::tags_from_sha1(
-    "276601a0e5dae9427940ed17ac470c9945b47073");
-
-is( $test_mwee_tags_sha1, $mwee_tags_sha1,
-    'chaika.moe SHA-1 reverse search test' );
+my $mwee_tags_sha1 = "magazine:comic shitsurakuten 2016-04, publisher:fakku, blowjob, creampie, eyebrows, subscription, muscles, swimsuit, tanlines, ahegao, oppai, hentai, artist:ao banana, uncensored, language:english";
+my $test_jsearch_sha1 = LANraragi::Plugin::Chaika::tags_from_sha1("276601a0e5dae9427940ed17ac470c9945b47073");
+is( $test_jsearch_sha1, $mwee_tags_sha1, 'chaika.moe SHA-1 reverse search test' );
 
 done_testing();

@@ -105,7 +105,7 @@ sub search_for_archive {
     my $textrep = $res->body;
     $logger->debug("Chaika API returned this JSON: $textrep");
 
-    my $returned = parse_chaika_json( $res->json );
+    my $returned = parse_chaika_json( $res->json->{"galleries"}->[0] );
     $logger->info("Sending the following tags to LRR: $returned");
     return $returned;
 }
