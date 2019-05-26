@@ -133,7 +133,7 @@ sub is_file_in_archive {
             my $name = $_[0];
             $logger->debug("Found file " . Dumper($name));
 
-            if ( $name eq $wantedname ) {
+            if ( $name =~ /$wantedname$/ ) {
                 $found = 1;
             }
         }
@@ -145,6 +145,7 @@ sub is_file_in_archive {
 
 #extract_file_from_archive($archive, $file)
 #Extract $file from $archive and returns the filesystem path it's extracted to.
+#If the file doesn't exist in the archive, this will still create a file, but empty.
 sub extract_file_from_archive {
 
     my ( $archive, $filename ) = @_;
@@ -157,7 +158,16 @@ sub extract_file_from_archive {
     mkdir $path;
 
     my $peek = Archive::Peek::Libarchive->new( filename => $archive );
-    my $contents = $peek->file($filename);
+    my $contents = "";
+    $peek->iterate(
+        sub {
+            my ( $file, $data ) = @_;
+
+            if ( $file =~ /$filename$/ ) {
+                $contents = $data;
+            }
+        }
+    );
 
     my $outfile = $path . "/" . $filename;
 
