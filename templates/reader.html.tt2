@@ -75,6 +75,8 @@
 		<div id="i7" class="if">
 			<i class="fa fa-caret-right fa-lg"></i>
 			<a id="imgLink" style="cursor:pointer;">View full-size image</a>
+			<i class="fa fa-caret-right fa-lg"></i>
+			<a href="./random">Switch to another random archive</a>
 		</div>
 
 	</div>
