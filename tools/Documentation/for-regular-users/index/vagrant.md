@@ -29,8 +29,8 @@ The Vagrant machine is a simple Docker wrapper, so the database will also be sto
 You can use `vagrant halt` to stop the VM when you're done.  
 To start it up again, use the following commands:
 ```text
-vagrant provision
 vagrant up
+vagrant provision
 ```
 
 Keep in mind that the Vagrant setup, just like Docker, will always use the latest release.
