@@ -1,8 +1,8 @@
-# Post-Installation Setup
+# Getting Started
 
 ## Quick To-Do List for newcomers
 
-![The default password for a new LRR install is &quot;kamimamita&quot;.](../../.gitbook/assets/login.png)
+![The default password for a new LRR install is &quot;kamimamita&quot;.](../.gitbook/assets/login.png)
 
 * [ ] Change Security Settings
 * [ ] Change default Content folder location
@@ -43,9 +43,9 @@ This folder contains all the user-generated data:
 
 * Archives \(in zip/rar/targz/lzma/7z/xz/cbz/cbr format\)  
 * Thumbnails for said archives
-* The Redis database \(_Docker/Vagrant only_\)  
+* The Redis database \(Unless you're running from source\)  
 
-By default, this folder is placed at the root of the LRR installation, but you can configure it to use any folder on your machine instead. The content folder is subdirectory-aware, so you can easily drop-in an already sorted collection.  
+By default, this folder is placed at the root of the LRR installation, but you can configure it to use any folder on your machine instead. The content folder is subdirectory-aware, so you can easily drop-in an already sorted collection.
 
 {% hint style="info" %}
 If you plan on setting your content folder to a folder that already contains archives, you might want to enable **Plugin AutoTagging** beforehand, so that metadata will be fetched for your files as they're added. See the below section and the Metadata documentation for more info.

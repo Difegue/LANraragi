@@ -1,17 +1,16 @@
 # Network Interface Setup
 
-By default, LRR listens on all IPv4 Interfaces on port 3000. 
-To change this, you have to specify a different network location when starting the app.
+By default, LRR listens on all IPv4 Interfaces on port 3000. To change this, you have to specify a different network location when starting the app.
 
 ## Building your network location string
 
 The network location format accepted by LRR looks like this:  
-`http(s)://*:(port)`  
+`http(s)://*:(port)`
 
-All listen locations [supported by "listen" in Mojo::Server::Daemon](http://www.mojolicious.org/perldoc/Mojo/Server/Daemon#listen) are valid.  
+All listen locations [supported by "listen" in Mojo::Server::Daemon](http://www.mojolicious.org/perldoc/Mojo/Server/Daemon#listen) are valid.
 
 For example, if you want to listen on port 5555 with SSL only, the string would look like:  
-`https://*:5555?cert=/path/to/server.crt&key=/path/to/server.key` 
+`https://*:5555?cert=/path/to/server.crt&key=/path/to/server.key`
 
 Once you have your string ready, the way to give it to the app depends on the install:
 
@@ -31,7 +30,7 @@ npm start http://127.0.0.1:8000
 [Mojolicious] Listening at "http://127.0.0.1:8000"
 ```
 
-## Docker  
+## Docker
 
 You can set the interface string as a Docker environment variable when building your container off the image.  
 We look for the parameter `lrr_network`.
@@ -42,3 +41,4 @@ docker run --name=lanraragi -p 8000:8000 \
 target=/home/koyomi/lanraragi/content \
 -e lrr_network=http://*:8000 difegue/lanraragi
 ```
+

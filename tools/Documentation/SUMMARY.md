@@ -2,29 +2,33 @@
 
 * [LANraragi Documentation](README.md)
 
-## For Regular Users
+## Installing LANraragi
 
-* [Installing LANraragi](for-regular-users/index/README.md)
-  * [Docker](for-regular-users/index/docker.md)
-  * [Vagrant](for-regular-users/index/vagrant.md)
-  * [From source \(Linux\)](for-regular-users/index/source-linux.md)
-* [Updating LANraragi](for-regular-users/updating.md)
-* [Getting Started](for-regular-users/index-1/README.md)
-  * [Post-Installation Setup](for-regular-users/index-1/first-steps.md)
-  * [Reading Archives](for-regular-users/index-1/archives.md)
-  * [Adding Metadata](for-regular-users/index-1/metadata.md)
-* [Advanced Usage](for-regular-users/advanced-usage/README.md)
-  * [Network Interface Setup](for-regular-users/advanced-usage/network-interfaces.md)
-  * [Favorite Tags](for-regular-users/advanced-usage/favorite-tags.md)
-  * [Themes](for-regular-users/advanced-usage/themes.md)
-  * [Backup and Restore](for-regular-users/advanced-usage/backup-and-restore.md)
-  * [Statistics and Logs](for-regular-users/advanced-usage/misc.md)
-  * [Batch Tagging](for-regular-users/advanced-usage/batch-tagging.md)
+* [Which installation method is best for me?](installing-lanraragi/methods.md)
+* [LRR for Windows \(Win10\)](installing-lanraragi/windows.md)
+* [Docker \(All platforms\)](installing-lanraragi/docker.md)
+* [Source Code \(Linux/macOS\)](installing-lanraragi/source.md)
+* [Vagrant \(Deprecated\)](installing-lanraragi/vagrant.md)
+
+## Basic Operations
+
+* [Getting Started](basic-operations/first-steps.md)
+* [Reading Archives](basic-operations/archives.md)
+* [Adding Metadata](basic-operations/metadata.md)
+* [Statistics and Logs](basic-operations/stats.md)
+* [Themes](basic-operations/themes.md)
+
+## Advanced Usage
+
+* [Batch Tagging](advanced-usage/batch-tagging.md)
+* [Favorite Tags](advanced-usage/favorite-tags.md)
+* [Backup and Restore](advanced-usage/backup-and-restore.md)
+* [Network Interface Setup](advanced-usage/network-interfaces.md)
 
 ## Extending LANraragi
 
-* [Hacking & Contributing](extending-lanraragi/index/README.md)
-  * [Architecture & Style](extending-lanraragi/index/architecture.md)
-  * [Plug-ins](extending-lanraragi/index/plugins.md)
-  * [Client API](extending-lanraragi/index/client-api.md)
+* [Setup a Development Environment](extending-lanraragi/index.md)
+* [Architecture & Style](extending-lanraragi/architecture.md)
+* [Plug-ins](extending-lanraragi/plugins.md)
+* [Client API](extending-lanraragi/client-api.md)
 
