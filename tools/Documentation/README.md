@@ -8,9 +8,7 @@ Thank you for showing interest in this networked chinese comic reading software.
 
 Just getting started? Check out how to install the software:
 
-{% page-ref page="for-regular-users/index/" %}
+{% page-ref page="installing-lanraragi/methods.md" %}
 
 Or how to use your freshly installed instance:
-
-{% page-ref page="for-regular-users/index-1/" %}
 

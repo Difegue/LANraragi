@@ -1,4 +1,4 @@
-# Hacking & Contributing
+# Setup a Development Environment
 
 _Whaddaya mean nobody's contributing? That doesn't matter at all!_
 

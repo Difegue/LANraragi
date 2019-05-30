@@ -2,7 +2,7 @@
 description: The following instructions are based on Debian Stretch.
 ---
 
-# From source \(Linux\)
+# Source Code \(Linux/macOS\)
 
 ## A small FYI about Vendor Perl
 
@@ -51,4 +51,14 @@ To change the default port or add SSL support, see this page:
 {% hint style="info" %}
 By default, LRR listens on all IPv4 Interfaces on port 3000, unsecured HTTP.
 {% endhint %}
+
+### Updating
+
+Getting all the files from the latest release and pasting them in the directory of the application should give you a painless update 95% of the time.
+
+To be on the safe side, make sure to rerun the installer once this is done:
+
+```bash
+npm run lanraragi-installer install-full
+```
 
