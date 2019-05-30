@@ -22,7 +22,7 @@ Installing from **source** is a more involved procedure, but it does put you in 
 This method works on **64-bit** editions of Windows 10 only.                                                  Versions under v1803 \(April 2018 Update\) will probably not work properly.
 {% endhint %}
 
-![](../.gitbook/assets/image%20%283%29.png)
+![](../.gitbook/assets/karen.jpg)
 
 I provide a dedicated installer for Windows machines as of 0.6.0, complete with a GUI and autostart.
 
@@ -30,7 +30,7 @@ I provide a dedicated installer for Windows machines as of 0.6.0, complete with 
 
 ## Older Windows: _Legacy Docker Toolbox or Vagrant_
 
-![I really hope you guys don&apos;t do this](../.gitbook/assets/160ae8fee3a69e49ebfea7f27892f5d6cc327e9707badc34305610910e2bcb2c.png)
+![I really hope you guys don&apos;t do this](../.gitbook/assets/shiggy.png)
 
 At this point the only solutions I have to give you are basically glorified VMs. 
 

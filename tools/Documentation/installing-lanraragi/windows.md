@@ -10,7 +10,7 @@ Windows Nightlies are available [here](https://mega.nz/#F!rHZynKpZ!ZXlwMam4t8VtY
 
 After extracting the zip, you should have something like this:
 
-![](../.gitbook/assets/image%20%284%29.png)
+![](../.gitbook/assets/karen-install.png)
 
 ### Installation
 
@@ -18,7 +18,7 @@ Right-click the install.ps1 script, and select **Run with PowerShell.** You shou
 
 Once the install completes properly, you'll be able to launch the GUI from the shortcut in your Start Menu:
 
-![](../.gitbook/assets/image%20%282%29.png)
+![](../.gitbook/assets/karen-startmenu.png)
 
 You can delete the extracted zip if you want to from here onwards.
 
@@ -44,7 +44,7 @@ Simply download the latest zip and re-run the installer script.
 
 Browse to the folder containing the GUI \(`%appdata%\LANraragi\Bootloader`\)and run the uninstallation script:
 
-![](../.gitbook/assets/image.png)
+![](../.gitbook/assets/karen-uninstall.png)
 
 Presto! Your database is not deleted in case you ever fancy coming back.
 
@@ -54,7 +54,7 @@ If the installer script fails, it's likely because it can't enable the Windows S
 
 If WSL is installed properly but the tray GUI reports LANraragi as not being installed, try using the `wslconfig.exe /l` command and make sure the "lanraragi" distribution is present.
 
-![](../.gitbook/assets/image%20%281%29.png)
+![](../.gitbook/assets/karen-distro.png)
 
 The tray GUI will show the error message it encountered instead of the LRR Version number if it fails to detect the distro - This might help you troubleshoot further.
 

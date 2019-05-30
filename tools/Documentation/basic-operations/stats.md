@@ -4,6 +4,8 @@
 
 This page shows basic stats about your content folder, as well as your most used tags.
 
+![](../../.gitbook/assets/cloud.PNG)
+
 ## Logs
 
 This page allows you to quickly see logs from the app, in case something went wrong.  

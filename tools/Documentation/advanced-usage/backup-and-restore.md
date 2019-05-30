@@ -11,3 +11,4 @@ This includes, for every file:
 
 This JSON can then be restored in another LRR instance, if it has archives with matching unique IDs.
 
+![Average backup.json](../../.gitbook/assets/backup.png)
