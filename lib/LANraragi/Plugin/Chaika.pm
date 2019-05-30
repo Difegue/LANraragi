@@ -160,12 +160,20 @@ sub parse_chaika_json {
     if ( $json->{"gallery"} ) {
 
         my $gID = $json->{"gallery"};
-        $logger->debug("Gallery ID detected($gID), switching to it.");
+        $logger->debug("Gallery ID detected($gID), trying to switch to it.");
 
         my $URL = "$chaika_url/jsearch/?gallery=$gID";
         my $ua  = Mojo::UserAgent->new;
         my $res = $ua->get($URL)->result;
-        $json = $res->json;
+
+        # Switch to gallery tags if there are any.
+        # Occasionally archives won't have a matching gallery despite the ID being there. (huh)
+        if ($res->json->{"tags"}) {
+            $json = $res->json;
+        } else {
+            $logger->debug("Gallery doesn't actually have tags! Switching back to Archive.")
+        }
+            
     }
 
     my $tags = $json->{"tags"};
