@@ -13,7 +13,7 @@ The _install.pl_ script is essentially a sequence of commands executed to instal
 While Perl's mantra is "There's more than one way to do it", I try to make LRR follow the PBP, aka Perl Best Practices.  
 This is done by the use of the [Perl::Critic](https://metacpan.org/pod/Perl::Critic) module, which reports PBP violations.  
 If installed, you can run the critic on the entire LRR source tree through the `npm run critic` shortcut command.  
-Critic is automatically run on evert commit made to LRR at the level 5 thanks to [Github Actions](https://github.com/Difegue/LANraragi/blob/dev/.github/main.workflow).  
+Critic is automatically run on evert commit made to LRR at the level 5 thanks to [Github Actions](https://github.com/Difegue/LANraragi/blob/dev/.github/main.workflow).
 
 I also run [perltidy](https://en.wikipedia.org/wiki/PerlTidy) on the source tree every now and then for consistency.
 
@@ -95,8 +95,7 @@ This allows it to always stay responsive/quick even with hundreds of archives in
 **Behaviour in Debug Mode**
 
 In Debug Mode, the Mojolicious server auto-restarts on every file modification.  
-You also get access to the Mojolicious logs in LRR's built-in Log View.
-More logs are also published when in Debug mode.
+You also get access to the Mojolicious logs in LRR's built-in Log View. More logs are also published when in Debug mode.
 
 ## Database Architecture
 

@@ -8,8 +8,6 @@ To get started, I recommend checking and editing your Settings before uploading 
 
 After populating the app with a few archives, you should get something that looks like this.
 
-![Annotated screenshot of the index page of a regular LRR install](../../.gitbook/assets/index.png)
-
 You can then get right to reading your stuff:
 
 {% page-ref page="archives.md" %}

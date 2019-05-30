@@ -1,6 +1,8 @@
 ---
 description: >-
-  Docker is the best way to install the software on remote servers. I don't recommand it for Desktop machines and casual users due to it being a bit complex to wield.
+  Docker is the best way to install the software on remote servers. I don't
+  recommand it for Desktop machines and casual users due to it being a bit
+  complex to wield.
 ---
 
 # Docker
@@ -62,13 +64,12 @@ If you need something a bit more involved \(like adding SSL\), please check the 
 
 ## Changing the user ID in case of permission issues
 
-The container runs the software by default using the uid provided by the LRR_UID variable.  
-If you don't specify the LRR_UID variable, the container will run under uid 9001.  
+The container runs the software by default using the uid provided by the LRR\_UID variable.  
+If you don't specify the LRR\_UID variable, the container will run under uid 9001.
 
-This is good enough for most scenarios, but in case you need to run it as the current user, you can do the following: 
-`docker run [wassup] -e LRR_UID=``id -u $USER`` difegue/lanraragi`  
+This is good enough for most scenarios, but in case you need to run it as the current user, you can do the following: ```docker run [wassup] -e LRR_UID=``id -u $USER`` difegue/lanraragi```
 
-This uses `id -u $USER` to automatically fetch your userid. 
+This uses `id -u $USER` to automatically fetch your userid.
 
 ## Building your own
 

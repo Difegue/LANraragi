@@ -14,7 +14,7 @@ If your LRR installation is running under **No-Fun Mode**, those API methods wil
 Otherwise, the API can be used as-is.
 
 {% hint style="warning" %}
-Empty API Keys will **not** work, even if there's no key set in Configuration. 
+Empty API Keys will **not** work, even if there's no key set in Configuration.
 {% endhint %}
 
 {% api-method method="get" host="http://lrr.tvc-16.science" path="/api/archivelist" %}
@@ -407,3 +407,4 @@ You didn't include the key parameter.
 {% endapi-method-response %}
 {% endapi-method-spec %}
 {% endapi-method %}
+

@@ -49,6 +49,6 @@ To change the default port or add SSL support, see this page:
 {% page-ref page="../advanced-usage/network-interfaces.md" %}
 
 {% hint style="info" %}
-By default, LRR listens on all IPv4 Interfaces on port 3000, unsecured HTTP. 
+By default, LRR listens on all IPv4 Interfaces on port 3000, unsecured HTTP.
 {% endhint %}
 

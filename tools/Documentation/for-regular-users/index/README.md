@@ -10,7 +10,7 @@ description: What's the best way to install this autism enabler? Here's the Quic
 
 As LRR is a server app first and foremost, its setup is a bit more complex than your usual Desktop application.  
 Therefore, for unexperienced users, I recommend using a **container/VM** install like Docker or Vagrant.  
-They're clean, easy to update, and automatically built/tested.  
+They're clean, easy to update, and automatically built/tested.
 
 **Vagrant** is easier to install and start up, if you're only looking to use the app on your local machine.
 
@@ -20,7 +20,6 @@ They're clean, easy to update, and automatically built/tested.
 If you're running an older version of Windows, you can manage using the [Legacy Docker Toolbox](https://docs.docker.com/toolbox/toolbox_install_windows/), but I recommend you use Vagrant instead.
 
 {% page-ref page="docker.md" %}
-
 
 ### Installing from source on Unix systems
 
@@ -47,13 +46,12 @@ I used to provide a one-click Windows source port version, but have encountered 
 If you just want to try the software, you can still use the old one-click Quickstarter for [v.0.5.6.](https://github.com/Difegue/LANraragi/releases/download/v.0.5.6/LRR_0.5.6_QuickStarter_Windows.zip)
 {% endhint %}
 
-
 ### Bonus: A memo about reverse proxies
 
 A common post-install setup is to make requests to the app transit through a gateway server such as Apache or nginx.  
-If you do so, please note that archive uploads through LRR will likely **not work out of the box** due to maximum sizes on uploads those servers can enforce. The example below is for nginx:  
+If you do so, please note that archive uploads through LRR will likely **not work out of the box** due to maximum sizes on uploads those servers can enforce. The example below is for nginx:
 
-```
+```text
 server {
     listen 80;
 
@@ -75,3 +73,4 @@ server {
     }
 }
 ```
+
