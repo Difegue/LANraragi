@@ -18,7 +18,7 @@ You can use the available Vagrantfile with [Vagrant](https://www.vagrantup.com/d
 This method requires [VirtualBox](https://www.virtualbox.org/) to be installed on your machine! I recommend version [6.0.4](https://download.virtualbox.org/virtualbox/6.0.4/).
 {% endhint %}
 
-Download [the Vagrantfile setup](https://github.com/Difegue/LANraragi/raw/master/tools/VagrantSetup) and put it in your future LANraragi folder, and enter the following commands in a terminal pointed to that folder:
+Download the vagrantfile that's relevant to the version of LANraragi that you wan't to install. For the main builds grab [this Vagrantfile setup](https://github.com/Difegue/LANraragi/tree/dev/tools/VagrantSetup) if you grab the nightly be sure to remove `_nightly` from the end of the filename. Once you've done that, put it in your future LANraragi folder, and open a terminal in that folder and enter the following commands:
 
 ```text
 vagrant plugin install vagrant-vbguest
