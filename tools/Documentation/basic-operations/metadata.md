@@ -4,7 +4,7 @@
 
 To use a plugin on a single archive, you need to access its **editing** page by clicking the pencil icon on the main view. From here, you can modify all metadata manually. Don't forget to save!
 
-![Editing an Archive&apos;s Metadata](../../.gitbook/assets/edit.PNG)
+![Editing an Archive&apos;s Metadata](../.gitbook/assets/edit.PNG)
 
 {% hint style="danger" %}
 The "Delete Archive" button will permanently wipe the Archive from your filesystem!
@@ -25,7 +25,7 @@ For more info on Batch Tagging, check the following article:
 
 To use plugins automatically, you need to enable the option in Configuration first.
 
-![](../../.gitbook/assets/autotag.PNG)
+![](../.gitbook/assets/autotag.PNG)
 
 Once this is done, you can use the **Plugin Configuration** page to choose which plugins will be automatically executed, and set their options if they need any.
 
