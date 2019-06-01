@@ -15,10 +15,10 @@ Vagrant installs are **deprecated** as of 0.6.0. They'll work, but come with eno
 You can use the available Vagrantfile with [Vagrant](https://www.vagrantup.com/downloads.html) to deploy a virtual machine on your computer with LANraragi preinstalled.
 
 {% hint style="info" %}
-This method requires [VirtualBox](https://www.virtualbox.org/) to be installed on your machine! I recommend version [6.0.4](https://download.virtualbox.org/virtualbox/6.0.4/).
+This method requires [VirtualBox](https://www.virtualbox.org/) to be installed on your machine!
 {% endhint %}
 
-Download [the Vagrantfile setup](https://github.com/Difegue/LANraragi/raw/master/tools/VagrantSetup) and put it in your future LANraragi folder, and enter the following commands in a terminal pointed to that folder:
+Download the [Vagrantfile](https://github.com/Difegue/LANraragi/tree/dev/tools/VagrantSetup) that's relevant to the version of LANraragi that you want to install, then move it to your future LANraragi folder. If you downloaded the nightly Vagrantfile, be sure to remove `_nightly` from the end of the filename. Once you've done that, open a terminal in that folder and enter the following commands:
 
 ```text
 vagrant plugin install vagrant-vbguest
@@ -39,10 +39,6 @@ vagrant provision
 ```
 
 Keep in mind that the Vagrant setup, just like Docker, will always use the latest release.
-
-{% hint style="info" %}
-You can switch to nightlies by downloading the Vagrantfile available [here](https://github.com/Difegue/LANraragi/raw/master/tools/VagrantSetup_nightly) and replacing your vanilla Vagrantfile with it.
-{% endhint %}
 
 ### Updating
 

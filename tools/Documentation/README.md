@@ -12,3 +12,4 @@ Just getting started? Check out how to install the software:
 
 Or how to use your freshly installed instance:
 
+{% page-ref page="basic-operations/first-steps.md" %}

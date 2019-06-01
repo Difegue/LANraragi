@@ -13,7 +13,7 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell",
     inline: "docker stop lanraragi || true && docker rm lanraragi || true"
   config.vm.provision "docker" do |d|
-    d.pull_images "difegue/lanraragi:nightly"
+    d.pull_images "difegue/lanraragi"
     d.run "difegue/lanraragi:nightly",
       args: "--name=lanraragi -e LRR_UID=1000 -p 3000:3000 --restart=always --mount type=bind,source=/vagrant,target=/home/koyomi/lanraragi/content "
   end
