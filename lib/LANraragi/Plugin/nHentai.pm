@@ -24,7 +24,7 @@ sub plugin_info {
         author      => "Difegue",
         version     => "1.4",
         description => "Searches nHentai for tags matching your archive.",
-        parameters  => (),
+        parameters  => {},
         oneshot_arg => "nHentai Gallery URL (Will attach tags matching this exact gallery to your archive)"
     );
 

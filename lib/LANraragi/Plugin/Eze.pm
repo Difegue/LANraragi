@@ -21,7 +21,7 @@ sub plugin_info {
         author      => "Difegue",
         version     => "2.0",
         description => "Collects metadata embedded into your archives by the eze userscript. (info.json files)",
-        parameters  => ()
+        parameters  => {}
     );
 
 }

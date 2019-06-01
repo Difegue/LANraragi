@@ -25,13 +25,13 @@ sub plugin_info {
         author      => "Difegue",
         version     => "2.0",
         description => "Searches g.e-hentai for tags matching your archive. <br/>If you have an account that can access exhentai.org, adding the credentials here will make more archives available for parsing.",
-        parameters  => (
+        parameters  => {
             "Default language to use in searches <br/>(This will be overwritten if your archive has a language tag set)" => "string",
             "E-Hentai Username (used for ExHentai access)" => "string",
             "E-Hentai Password (used for ExHentai access)" => "string",
             "ADVANCED: You can use the cookie values below instead of a username/password. <br/>ipb_member_id cookie" => "string",
             "ipb_pass_hash cookie" => "string"
-        ),
+        },
         oneshot_arg => "E-H Gallery URL (Will attach tags matching this exact gallery to your archive)"
     );
 

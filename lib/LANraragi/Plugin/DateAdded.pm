@@ -20,7 +20,7 @@ sub plugin_info {
         author      => "Utazukin",
         version     => "0.2",
         description => "Adds the unix time stamp of the date the archive was added as a tag under the \"date_added\" namespace.",
-        parameters  => ("Use file modified time instead of current time." => "bool"),
+        parameters  => {"Use file modified time instead of current time." => "bool"},
         oneshot_arg => "Use file modified time (yes/true), or use current time (no/false). Leaving blank uses the global setting (default: current time)"
     );
 

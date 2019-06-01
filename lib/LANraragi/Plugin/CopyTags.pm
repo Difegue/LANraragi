@@ -16,7 +16,7 @@ sub plugin_info {
         author      => "Difegue",
         version     => "2.0",
         description => "Apply custom tag modifications. (Add/Delete)",
-        parameters  => ("Tags, separated by commas. Add '-' in front of a tag to remove it." => "string")
+        parameters  => {"Tags, separated by commas." => "string"}
     );
 
 }

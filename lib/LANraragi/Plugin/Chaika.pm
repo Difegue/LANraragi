@@ -25,7 +25,7 @@ sub plugin_info {
         author      => "Difegue",
         version     => "2.0",
         description => "Searches chaika.moe for tags matching your archive.",
-        parameters  => (),
+        parameters  =>  {},
         oneshot_arg => "Chaika Gallery or Archive URL (Will attach matching tags to your archive)"
     );
 

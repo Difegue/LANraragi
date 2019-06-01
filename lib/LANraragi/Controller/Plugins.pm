@@ -10,9 +10,9 @@ use Cwd;
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database;
+use LANraragi::Utils::Plugins;
 
 use LANraragi::Model::Config;
-use LANraragi::Model::Plugins;
 
 # This action will render a template
 sub index {
@@ -20,63 +20,23 @@ sub index {
     my $self  = shift;
     my $redis = $self->LRR_CONF->get_redis;
 
-    #Build plugin listing
-    my @plugins = LANraragi::Model::Plugins::plugins;
-
     #Plugin list is an array of hashes
     my @pluginlist = ();
 
-    foreach my $plugin (@plugins) {
+    #Build plugin listing
+    my @plugins = LANraragi::Utils::Plugins::get_plugins("metadata");
+    foreach my $pluginfo (@plugins) {
+        my $namespace = $pluginfo->{namespace};
+        my @params    = LANraragi::Utils::Plugins::get_plugin_parameters($namespace);
 
-        my %pluginfo = $plugin->plugin_info();
+        # Add whether the plugin is enabled to the hash directly
+        $pluginfo{enabled} = LANraragi::Utils::Plugins::is_plugin_enabled($namespace);
 
-        my $namespace = $pluginfo{namespace};
-        my $namerds   = "LRR_PLUGIN_" . uc($namespace);
-
-        my $checked        = 0;
-        my @globalargnames = ();
-
-        #Check if the plugin does have global args before trying to get them
-        if ( length $pluginfo{global_args} ) {
-
-            #The global_args array is inside the pluginfo hash, dereference it
-            @globalargnames = @{ $pluginfo{global_args} };
-        }
-
-        my @globalargvalues = ();
-        my @globalargs      = ();
-
-        if ( $redis->hexists( $namerds, "enabled" ) ) {
-            $checked = $redis->hget( $namerds, "enabled" );
-            my $argsjson = $redis->hget( $namerds, "customargs" );
-
-            ( $_ = LANraragi::Utils::Database::redis_decode($_) )
-              for ( $checked, $argsjson );
-
-            #Mojo::JSON works with array references by default,
-            #so we need to dereference here as well
-            if ($argsjson) {
-                @globalargvalues = @{ decode_json($argsjson) };
-            }
-        }
-
-        #Build array of pairs with the global arg names and values
-        for ( my $i = 0 ; $i < scalar @globalargnames ; $i++ ) {
-            my %arghash = (
-                name  => $globalargnames[$i],
-                value => $globalargvalues[$i] || ""
-            );
-            push @globalargs, \%arghash;
-        }
-
-        $pluginfo{enabled} = $checked;
-
-        #We add our array of pairs to the plugin info for the template to parse
-        #global_args containing the arg names is still there as a reference.
-        $pluginfo{custom_args} = \@globalargs;
+        #Add the parameter values to the plugin info for the template to parse
+        #The "parameters" key containing the arg names and types is still there as a reference.
+        $pluginfo{param_values} = \@params;
 
         push @pluginlist, \%pluginfo;
-
     }
 
     $redis->quit();
@@ -96,7 +56,7 @@ sub save_config {
     my $self  = shift;
     my $redis = $self->LRR_CONF->get_redis;
 
-#For every existing plugin, check if we received a matching parameter, and update its settings.
+    # Update settings for every plugin.
     my @plugins = LANraragi::Model::Plugins::plugins;
 
     #Plugin list is an array of hashes
@@ -115,8 +75,8 @@ sub save_config {
 
             #Get expected number of custom arguments from the plugin itself
             my $argcount = 0;
-            if ( length $pluginfo{global_args} ) {
-                $argcount = scalar @{ $pluginfo{global_args} };
+            if ( length $pluginfo{parameters} ) {
+                $argcount = scalar @{ $pluginfo{parameters} };
             }
 
             my @customargs = ();

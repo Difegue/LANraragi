@@ -9,6 +9,7 @@ use Template;
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database;
+use LANraragi::Utils::Plugins;
 
 use LANraragi::Model::Config;
 
@@ -110,15 +111,7 @@ sub index {
           for ( $name, $title, $tags );
 
         #Build plugin listing
-        my @plugins = LANraragi::Model::Plugins::plugins;
-
-        #Plugin list is an array of hashes
-        my @pluginlist = ();
-
-        foreach my $plugin (@plugins) {
-            my %pluginfo = $plugin->plugin_info();
-            push @pluginlist, \%pluginfo;
-        }
+        my @pluginlist = LANraragi::Utils::Plugins::get_plugins("metadata");
 
         $redis->quit();
 

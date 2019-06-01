@@ -169,3 +169,5 @@ sub check_panda() {
         return 1;
     }
 }
+
+1;
