@@ -23,7 +23,7 @@ When logged in as Admin in LRR, you have access to the full functionalities of t
 There are three basic levels of security you can enable:
 
 | Security Level | Reading Archives | Public API | Editing Metadata | Change Settings |
-| :--- | :--- | :--- | :--- | :--- |
+| :---: | :---: | :---: | :---: | :---: |
 | Password Disabled | ✅ | ✅ | ✅ | ✅ |
 | Password Enabled \(default\) | ✅ | ✅ | ❌ | ❌ |
 | No-Fun Mode | ❌ | ❌ | ❌ | ❌ |
