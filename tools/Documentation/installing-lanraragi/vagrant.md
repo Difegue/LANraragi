@@ -40,10 +40,6 @@ vagrant provision
 
 Keep in mind that the Vagrant setup, just like Docker, will always use the latest release.
 
-{% hint style="info" %}
-You can switch to nightlies by downloading the Vagrantfile available [here](https://github.com/Difegue/LANraragi/raw/master/tools/VagrantSetup_nightly) and replacing your vanilla Vagrantfile with it.
-{% endhint %}
-
 ### Updating
 
 From the directory where the Vagrantfile is located:
