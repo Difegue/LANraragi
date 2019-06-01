@@ -45,7 +45,15 @@ function startBatch() {
 
     //Only add values into the override argument array if the checkbox is on
     if ($("#override")[0].checked) {
-        for (var j = 0, ref = args.length = arginputs.length; j < ref; j++) { args[j] = arginputs[j].value; }
+        for (var j = 0, ref = args.length = arginputs.length; j < ref; j++) { 
+
+            // Checkbox inputs are handled by looking at the checked prop instead of the value.
+            if (arginputs[j].type != "checkbox")
+                args[j] = arginputs[j].value; 
+            else 
+                args[j] = arginputs[j].checked ? 1:0; 
+            
+        }
     }
 
     //give JSON to websocket and start listening
@@ -55,6 +63,8 @@ function startBatch() {
         timeout: $('#timeout').val(),
         archives: arcs
     };
+
+    console.log(command);
 
     var batchSocket = new WebSocket("ws://" + window.location.host + "/batch/socket");
 

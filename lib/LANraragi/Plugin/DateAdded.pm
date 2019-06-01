@@ -21,7 +21,7 @@ sub plugin_info {
         version     => "0.2",
         description => "Adds the unix time stamp of the date the archive was added as a tag under the \"date_added\" namespace.",
         parameters  => {"Use file modified time instead of current time." => "bool"},
-        oneshot_arg => "Use file modified time (yes/true), or use current time (no/false). Leaving blank uses the global setting (default: current time)"
+        oneshot_arg => "Use file modified time (yes/true), or use current time (no/false). <br/>Leaving blank uses the global setting (default: current time)"
     );
 
 }
@@ -31,7 +31,7 @@ sub get_tags {
 
     #LRR gives your plugin the recorded title for the file, the filesystem path to the file, and the custom arguments if available.
     shift;
-    my ($title, $tags, $thumbhash, $file, $oneshotarg, @args) = @_;
+    my ($title, $tags, $thumbhash, $file, $oneshotarg, $use_filetime) = @_;
 
     #Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
     my $logger = LANraragi::Utils::Generic::get_logger("Date Added Plugin","plugins");
@@ -40,11 +40,10 @@ sub get_tags {
 
     $logger->debug("Processing file: " . $file);
     my $newtags = "";
-    my $global_use_file_time = $args[0] =~ /^(yes|true)$/i;
-    my $oneshot_use_file_time = $oneshotarg =~ /^(yes|true)$/i;
-    my $oneshot_use_current_time = $oneshotarg =~ /^(no|false)$/i;
+    my $oneshot_file_time = $oneshotarg =~ /^(yes|true)$/i;
+    my $oneshot_current_time = $oneshotarg =~ /^(no|false)$/i;
 
-    if ($oneshot_use_file_time || ($global_use_file_time && !$oneshot_use_current_time)) {
+    if ($oneshot_file_time || ($use_filetime && !$oneshot_current_time)) {
 		$logger->info("Using file date");
 		$newtags = "date_added:" . (stat($file))[9]; #9 is the unix time stamp for date modified.
     } else {

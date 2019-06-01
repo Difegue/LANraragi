@@ -30,69 +30,62 @@
 <body onload="set_style_from_storage(); initUpload();">
 
 	<style>
-		/*** custom checkboxes ***/
-
 		input[type='checkbox'] {
-			-webkit-appearance: none;
-			-moz-appearance: none;
-			appearance: none;
 			font-size: 30px;
-			cursor: pointer;
-			margin-left: 0px;
-		}
-
-		input[type='checkbox']::before {
-			content: "\f0c8";
-		}
-
-		input[type='checkbox']:checked::before {
-			content: "\f14a";
 		}
 	</style>
 
 	<div class="ido" style="text-align:center;">
 		<h1 class="ih" style="text-align:center">Plugin Configuration</h1>
-		<br> Enable/Disable metadata plugins by ticking the matching checkboxes. If they have configuration variables,
-		you
-		can set
-		them here as well.
-		<br /> Enabled plugins will be automatically used when new archives are added if the matching option is enabled
-		in
-		LRR Config.
-		<br />
-		<br />
+		<br/> Enable/Disable metadata plugins by ticking the matching checkboxes. 
+		If they have configuration variables, you can set them here as well.
+		<br/> Enabled plugins will be automatically used when new archives are added if 
+		the matching option is enabled in your Settings.
+		<br/>
+		<br/>
 
 		<form name="editPluginForm" id="editPluginForm" enctype="multipart/form-data" method="post">
 
 
 			[% FOREACH plugin IN plugins %]
 			<span style="display:inline-block; text-align: left; min-width:80%">
+				<input id="[% plugin.namespace %]" name="[% plugin.namespace %]" class="fa" type="checkbox" 
 				[% IF plugin.enabled %]
-				<input id="[% plugin.namespace %]" name="[% plugin.namespace %]" class="fa" type="checkbox" checked>
-				[% ELSE %]
-				<input id="[% plugin.namespace %]" name="[% plugin.namespace %]" class="fa" type="checkbox">
-				[% END %]
+				 checked
+				[% END %] >
 
 				<h2 class="ih" style="display:inline"> [% plugin.name %] v.[% plugin.version %]</h2>
 				<h1 class="ih" style="display:inline"> by [% plugin.author %] </h1>
 				<br />
 				<i>[% plugin.description %]</i>
 				<br />
-				[% IF plugin.custom_args && plugin.custom_args.size %]
+				[% IF plugin.parameters && plugin.parameters.size %]
 				<div class="collapsible-title caret" style="padding: 5px 0 0 5px">
 					<b>Settings</b></div>
 				<div class="collapsible-body" style="padding:5px 0 0 0">
 					<table>
 						<tbody>
-							[% FOREACH customarg IN plugin.custom_args %]
+							[% FOREACH param IN plugin.param_values %]
 							<tr>
 								<td style="vertical-align:middle">
-									<b> [% customarg.name %] : </b>
+									<b> [% param.name %] : </b>
 								</td>
 								<td>
-									<input class="stdinput" style="max-width:200px" size="20"
-										value="[% customarg.value %]" name="[% plugin.namespace %]_CFG_[% loop.count %]"
-										type="text"> <br />
+									<input style="max-width:200px" size="20" 
+										name="[% plugin.namespace %]_CFG_[% loop.count %]"
+										type =
+									[% SWITCH param.type %] # time for some real-ass typage
+										[% CASE 'string' %]
+											"text" value="[% param.value %]" class="stdinput" 
+										[% CASE 'bool' %]  
+											"checkbox" value="1" class="fa" [% IF param.value %] checked [% END %]
+										[% CASE 'int' %] 
+											"number" value="[% param.value %]" class="stdinput"
+										[% CASE %]  # default (ayy lmao)
+											"color"
+									[% END %]
+									>
+									 <br/>
 								</td>
 							</tr>
 							[% END %]

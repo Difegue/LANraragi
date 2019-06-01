@@ -3,10 +3,10 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use Redis;
 use Encode;
-use Mojo::JSON qw(decode_json encode_json);
+use Mojo::JSON qw(encode_json);
 no warnings 'experimental';
 use Cwd;
-
+use Data::Dumper;
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database;
@@ -30,13 +30,26 @@ sub index {
         my @params    = LANraragi::Utils::Plugins::get_plugin_parameters($namespace);
 
         # Add whether the plugin is enabled to the hash directly
-        $pluginfo{enabled} = LANraragi::Utils::Plugins::is_plugin_enabled($namespace);
+        $pluginfo->{enabled} = LANraragi::Utils::Plugins::is_plugin_enabled($namespace);
 
-        #Add the parameter values to the plugin info for the template to parse
-        #The "parameters" key containing the arg names and types is still there as a reference.
-        $pluginfo{param_values} = \@params;
+        #Build a hash for each parameter, containing name/type/value saved in DB
+        my @paramvalues = ();
+        my $counter = 0;
+        foreach my $param (keys %{$pluginfo->{parameters}} ) {
+            my %arghash = (
+                name  => $param,
+                type  => $pluginfo->{parameters}->{$param},
+                value => $params[$counter]
+            );
+            push @paramvalues, \%arghash;
+            print Dumper %arghash;
+            $counter++;
+        }
 
-        push @pluginlist, \%pluginfo;
+        #Add the parameter hashes to the plugin info for the template to parse
+        $pluginfo->{param_values} = \@paramvalues;
+
+        push @pluginlist, $pluginfo;
     }
 
     $redis->quit();
@@ -57,7 +70,7 @@ sub save_config {
     my $redis = $self->LRR_CONF->get_redis;
 
     # Update settings for every plugin.
-    my @plugins = LANraragi::Model::Plugins::plugins;
+    my @plugins = LANraragi::Utils::Plugins::get_plugins("metadata");
 
     #Plugin list is an array of hashes
     my @pluginlist = ();
@@ -65,18 +78,18 @@ sub save_config {
     my $errormess  = "";
 
     eval {
-        foreach my $plugin (@plugins) {
+        foreach my $pluginfo (@plugins) {
 
-            my %pluginfo  = $plugin->plugin_info();
-            my $namespace = $pluginfo{namespace};
+            my $namespace = $pluginfo->{namespace};
             my $namerds   = "LRR_PLUGIN_" . uc($namespace);
 
+            # Get whether the plugin is enabled for auto-plugin or not
             my $enabled = ( scalar $self->req->param($namespace) ? '1' : '0' );
 
             #Get expected number of custom arguments from the plugin itself
             my $argcount = 0;
-            if ( length $pluginfo{parameters} ) {
-                $argcount = scalar @{ $pluginfo{parameters} };
+            if ( length $pluginfo->{parameters} ) {
+                $argcount = keys %{ $pluginfo->{parameters} };
             }
 
             my @customargs = ();
@@ -84,8 +97,18 @@ sub save_config {
             #Loop through the namespaced request parameters
             #Start at 1 because that's where TT2's loop.count starts
             for ( my $i = 1 ; $i <= $argcount ; $i++ ) {
-                push @customargs,
-                  ( $self->req->param( $namespace . "_CFG_" . $i ) );
+                my $param = $namespace . "_CFG_" . $i;
+                
+                my $value = $self->req->param($param);
+
+                # Check if the parameter exists in the request
+                if ( $value ) {
+                    push (@customargs, $value );
+                } else {
+                    # Checkboxes don't exist in the parameter list if they're not checked.
+                    push (@customargs, ""); 
+                }
+                
             }
 
             my $encodedargs = encode_json( \@customargs );

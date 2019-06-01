@@ -68,12 +68,23 @@
 
 				<table class="tag-options">
 					<tbody>
-						[% FOREACH plugin IN plugins %][% IF plugin.global_args && plugin.global_args.size %]
-						[% FOREACH arg IN plugin.global_args %]
+						[% FOREACH plugin IN plugins %][% IF plugin.parameters && plugin.parameters.size %]
+						[% FOREACH arg IN plugin.parameters.keys %]
 						<tr class="arg-override [% plugin.namespace %]-arg" style="display:none">
 							<td style="max-width:250px">[% arg %] :</td>
 							<td>
-								<input class="stdinput [% plugin.namespace %]-argvalue" type="text">
+								<input class="stdinput [% plugin.namespace %]-argvalue" type=
+								[% SWITCH plugin.parameters.item(arg) %]
+									[% CASE 'string' %]
+										"text" 
+									[% CASE 'bool' %]  
+										"checkbox" value="1"
+									[% CASE 'int' %] 
+										"number" 
+									[% CASE %] 
+										"color"
+								[% END %]
+								>
 							</td>
 						</tr>
 						[% END %][% END %][% END %]

@@ -10,13 +10,13 @@ sub plugin_info {
 
     return (
         #Standard metadata
-        name        => "Tag Modifier",
+        name        => "Tag Copier",
         type        => "metadata",
         namespace   => "copytags",
         author      => "Difegue",
         version     => "2.0",
-        description => "Apply custom tag modifications. (Add/Delete)",
-        parameters  => {"Tags, separated by commas." => "string"}
+        description => "Apply custom tag modifications.",
+        parameters  => {"Tags to copy, separated by commas." => "string"}
     );
 
 }

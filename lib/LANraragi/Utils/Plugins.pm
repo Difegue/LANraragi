@@ -4,6 +4,9 @@ use strict;
 use warnings;
 use utf8;
 use feature qw(signatures);
+no warnings 'experimental';
+
+use Mojo::JSON qw(decode_json);
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
@@ -45,14 +48,15 @@ sub get_plugin($name) {
     my @plugins = LANraragi::Model::Plugins::plugins;
 
     foreach my $plugin (@plugins) {
+        my $namespace = "";
         eval {
             my %pluginfo  = $plugin->plugin_info();
-            my $namespace = $pluginfo{namespace};
-
-            if ( $name eq $namespace ) {
-                return $plugin;
-            }
+            $namespace = $pluginfo{namespace};
         };
+
+        if ( $name eq $namespace ) {
+            return $plugin;
+        }
     }
 
     return 0;
@@ -85,8 +89,12 @@ sub is_plugin_enabled($namespace) {
     my $redis    = LANraragi::Model::Config::get_redis;
     my $namerds  = "LRR_PLUGIN_" . uc($namespace);
 
-    return ( $redis->hexists( $namerds, "enabled" ) );
+    if ( $redis->hexists( $namerds, "enabled" ) ) {
+        return ( $redis->hget( $namerds, "enabled" ) );
+    }
+
     $redis->quit();
+    return 0;
 }
 
 1;

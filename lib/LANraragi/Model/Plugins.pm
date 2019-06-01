@@ -12,6 +12,7 @@ use Module::Pluggable require => 1, search_path => ['LANraragi::Plugin'];
 use Redis;
 use Encode;
 use Mojo::JSON qw(decode_json encode_json);
+use Data::Dumper;
 
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Archive;
@@ -168,6 +169,7 @@ sub exec_plugin_on_file {
 
         return %returnhash;
     }
+    return ( error => "Plugin doesn't implement get_tags" );
 }
 
 1;
