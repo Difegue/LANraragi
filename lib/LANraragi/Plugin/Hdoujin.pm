@@ -21,7 +21,7 @@ sub plugin_info {
         author      => "Pao",
         version     => "0.3",
         description => "Collects metadata embedded into your archives ONLY by the Hdoujin .json files, does not support other format.",
-        parameters  => {}
+        parameters  => []
     );
 
 }

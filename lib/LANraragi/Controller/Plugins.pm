@@ -6,7 +6,7 @@ use Encode;
 use Mojo::JSON qw(encode_json);
 no warnings 'experimental';
 use Cwd;
-use Data::Dumper;
+
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database;
@@ -26,28 +26,23 @@ sub index {
     #Build plugin listing
     my @plugins = LANraragi::Utils::Plugins::get_plugins("metadata");
     foreach my $pluginfo (@plugins) {
-        my $namespace = $pluginfo->{namespace};
-        my @params    = LANraragi::Utils::Plugins::get_plugin_parameters($namespace);
+        my $namespace   = $pluginfo->{namespace};
+        my @redisparams = LANraragi::Utils::Plugins::get_plugin_parameters($namespace);
 
         # Add whether the plugin is enabled to the hash directly
         $pluginfo->{enabled} = LANraragi::Utils::Plugins::is_plugin_enabled($namespace);
 
-        #Build a hash for each parameter, containing name/type/value saved in DB
-        my @paramvalues = ();
+        # Add redis values to the members of the parameters array
+        my @paramhashes = ();
         my $counter = 0;
-        foreach my $param (keys %{$pluginfo->{parameters}} ) {
-            my %arghash = (
-                name  => $param,
-                type  => $pluginfo->{parameters}->{$param},
-                value => $params[$counter]
-            );
-            push @paramvalues, \%arghash;
-            print Dumper %arghash;
+        foreach my $param (@{$pluginfo->{parameters}}) {
+            $param->{value} = $redisparams[$counter];
+            push @paramhashes, $param;
             $counter++;
         }
 
         #Add the parameter hashes to the plugin info for the template to parse
-        $pluginfo->{param_values} = \@paramvalues;
+        $pluginfo->{parameters} = \@paramhashes;
 
         push @pluginlist, $pluginfo;
     }
@@ -89,7 +84,7 @@ sub save_config {
             #Get expected number of custom arguments from the plugin itself
             my $argcount = 0;
             if ( length $pluginfo->{parameters} ) {
-                $argcount = keys %{ $pluginfo->{parameters} };
+                $argcount = scalar @{ $pluginfo->{parameters} };
             }
 
             my @customargs = ();

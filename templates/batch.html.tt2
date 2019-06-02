@@ -69,12 +69,12 @@
 				<table class="tag-options">
 					<tbody>
 						[% FOREACH plugin IN plugins %][% IF plugin.parameters && plugin.parameters.size %]
-						[% FOREACH arg IN plugin.parameters.keys %]
+						[% FOREACH arg IN plugin.parameters %]
 						<tr class="arg-override [% plugin.namespace %]-arg" style="display:none">
-							<td style="max-width:250px">[% arg %] :</td>
+							<td style="max-width:250px">[% arg.desc %] :</td>
 							<td>
 								<input class="stdinput [% plugin.namespace %]-argvalue" type=
-								[% SWITCH plugin.parameters.item(arg) %]
+								[% SWITCH arg.type %]
 									[% CASE 'string' %]
 										"text" 
 									[% CASE 'bool' %]  
