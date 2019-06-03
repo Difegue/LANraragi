@@ -43,14 +43,16 @@ sub get_tags {
     # LRR gives your plugin the recorded title/tags/thumbnail hash for the file,
     # the filesystem path, and the custom arguments at the end if available.
     shift;
-    my ( $title, $tags, $thumbhash, $file, $oneshotarg, @args ) = @_;
+    my ( $title, $tags, $thumbhash, $file, $oneshotarg, 
+         $ipb_member_id, $ipb_pass_hash, $lang, $savetitle ) = @_;
 
     # Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
     my $logger = LANraragi::Utils::Generic::get_logger( "E-Hentai", "plugins" );
-
+    
     # Work your magic here - You can create subroutines below to organize the code better
     my $gID    = "";
     my $gToken = "";
+    my ( $ua, $domain ) = LANraragi::Plugin::ExHentai::get_user_agent($ipb_member_id, $ipb_pass_hash);
 
     # Quick regex to get the E-H archive ids from the provided url.
     if ( $oneshotarg =~ /.*\/g\/([0-9]*)\/([0-z]*)\/*.*/ ) {
@@ -60,7 +62,7 @@ sub get_tags {
     else {
         # Craft URL for Text Search on EH if there's no user argument
         ( $gID, $gToken ) =
-          &lookup_by_title( $title, $tags, $thumbhash, @args );
+          &lookup_gallery( $title, $tags, $thumbhash, $lang, $ipb_member_id, $ipb_pass_hash );
     }
 
    # If an error occured, return a hash containing an error message.
@@ -80,30 +82,32 @@ sub get_tags {
         $logger->debug("EH API Tokens are $gID / $gToken");
     }
 
-    my $newtags = &get_tags_from_EH( $gID, $gToken );
+    my ( $ehtags, $ehtitle) = &get_tags_from_EH( $gID, $gToken );
+    my %hashdata = ( tags => $ehtags );
+
+    # Add source URL and title if possible
+    if ($hashdata{tags} ne "") {
+
+        $hashdata{tags} .= ", source:". (split( '://', $domain))[1] . "/g/$gID/$gToken";
+        if ($savetitle) { $hashdata{title} = $ehtitle; }
+    }
 
     #Return a hash containing the new metadata - it will be integrated in LRR.
-    return ( tags => $newtags );
+    return %hashdata;
 }
 
 ######
 ## EH Specific Methods
 ######
 
-sub lookup_by_title {
+sub lookup_gallery {
 
-    my ( $title, $tags, $thumbhash, @args ) = @_;
-
-    my $defaultlanguage = $args[0];
-    my $exh_username    = $args[1];
-    my $exh_pass        = $args[2];
-    my $ipb_member_id   = $args[3];
-    my $ipb_pass_hash   = $args[4];
-    my $logger          = LANraragi::Utils::Generic::get_logger( "E-Hentai", "plugins" );
-    my $URL             = "";
+    my ( $title, $tags, $thumbhash, $defaultlanguage, $ipb_member_id, $ipb_pass_hash ) = @_;
+    my $logger = LANraragi::Utils::Generic::get_logger( "E-Hentai", "plugins" );
+    my $URL    = "";
 
     # Try logging in to exhentai, fallback naturally to e-h if we can't
-    my ( $ua, $domain ) = LANraragi::Plugin::ExHentai::get_user_agent($ipb_member_id, $ipb_pass_hash, $exh_username, $exh_pass);
+    my ( $ua, $domain ) = LANraragi::Plugin::ExHentai::get_user_agent($ipb_member_id, $ipb_pass_hash);
     
     #Thumbnail reverse image search
     if ( $thumbhash ne "" ) {
@@ -128,29 +132,24 @@ sub lookup_by_title {
     $URL =
         $domain
       . "?advsearch=1&f_sname=on&f_stags=on&f_spf=&f_spt=&f_sft=on"
-      . "&f_search="
-      . uri_escape_utf8(qw(").$title.qw("));
+      . "&f_search=" . uri_escape_utf8(qw(").$title.qw("));
 
-    #Get the language tag, if it exists.
-    if ( $tags =~ /.*language:\s?([^,]*),*.*/gi ) {
-        $URL = $URL . "+" . uri_escape_utf8("language:$1");
-    }
-    elsif ( $defaultlanguage ne "" ) {
+    #Add the language override, if it's defined.
+    if ( $defaultlanguage ne "" ) {
             $URL = $URL . "+" . uri_escape_utf8("language:$defaultlanguage");
     }
 
-    #Same for artist tag
+    #Add artist tag from the OG tags if it exists
     if ( $tags =~ /.*artist:\s?([^,]*),*.*/gi ) {
         $URL = $URL . "+" . uri_escape_utf8("artist:$1");
     }
 
     $logger->debug("Using URL $URL (archive title)");
-
     return &ehentai_parse( $URL, $ua );
 }
 
 # ehentai_parse(URL, UA)
-# Performs a remote search on e- or exhentai, and builds the matching JSON to send to the API for data.
+# Performs a remote search on e- or exhentai, and returns the ID/token matching the found gallery.
 sub ehentai_parse() {
 
     my $URL = $_[0];
@@ -187,7 +186,7 @@ sub ehentai_parse() {
 }
 
 # get_tags_from_EH(gID, gToken)
-# Executes an e-hentai API request with the given JSON and returns
+# Executes an e-hentai API request with the given JSON and returns tags and title.
 sub get_tags_from_EH {
 
     my $uri    = 'http://e-hentai.org/api.php';
@@ -213,16 +212,17 @@ sub get_tags_from_EH {
 
     unless ( exists $jsonresponse->{"error"} ) {
 
-        my $data = $jsonresponse->{"gmetadata"};
-        my $tags = @$data[0]->{"tags"};
+        my $data    = $jsonresponse->{"gmetadata"};
+        my $tags    = @$data[0]->{"tags"};
+        my $ehtitle = @$data[0]->{"title"};
 
-        my $return = join( ", ", @$tags );
-        $logger->info("Sending the following tags to LRR: $return");
-        return $return;
+        my $ehtags = join( ", ", @$tags );
+        $logger->info("Sending the following tags to LRR: $ehtags");
+        return ($ehtags, $ehtitle);
     }
     else {
-        #if an error occurs(no tags available) return an empty string.
-        return "";
+        #if an error occurs(no tags available) return empty strings.
+        return ("","");
     }
 }
 
