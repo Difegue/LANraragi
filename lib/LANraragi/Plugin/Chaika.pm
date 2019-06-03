@@ -39,25 +39,26 @@ sub get_tags {
 
 #LRR gives your plugin the recorded title/tags/thumbnail hash for the file, the filesystem path, and the custom arguments if available.
     shift;
-    my ( $title, $tags, $thumbhash, $file, $oneshotarg, @args ) = @_;
+    my ( $title, $tags, $thumbhash, $file, $oneshotarg, $savetitle ) = @_;
 
     my $logger = LANraragi::Utils::Generic::get_logger( "Chaika", "plugins" );
     my $newtags = "";
+    my $newtitle = "";
 
     #parse the given link to see if we can extract type and ID
     if ( $oneshotarg =~
         /https?:\/\/panda\.chaika\.moe\/(gallery|archive)\/([0-9]*)\/?.*/ )
     {
-        $newtags = tags_from_chaika_id( $1, $2 );
+        ($newtags, $newtitle) = tags_from_chaika_id( $1, $2 );
     }
     else {
 
-        #Try SHA-1 reverse search first
-        $newtags = tags_from_sha1($thumbhash);
+        # Try SHA-1 reverse search first
+        ($newtags, $newtitle) = tags_from_sha1($thumbhash);
 
+        # Try search if it fails
         if ( $newtags eq "" ) {
-            #Get Gallery ID by search
-            $newtags = search_for_archive( $title, $tags );
+            ($newtags, $newtitle) = search_for_archive( $title, $tags );
         }
     }
 
@@ -67,7 +68,9 @@ sub get_tags {
     }
     else {
         #Return a hash containing the new metadata
-        return ( tags => $newtags );
+        if ($savetitle && $newtags ne "") 
+             { return ( tags => $newtags, title => $newtitle ); }
+        else { return ( tags => $newtags ); }
     }
 
 }
@@ -105,9 +108,9 @@ sub search_for_archive {
     my $textrep = $res->body;
     $logger->debug("Chaika API returned this JSON: $textrep");
 
-    my $returned = parse_chaika_json( $res->json->{"galleries"}->[0] );
-    $logger->info("Sending the following tags to LRR: $returned");
-    return $returned;
+    my ($chaitags, $chaititle) = parse_chaika_json( $res->json->{"galleries"}->[0] );
+    $logger->info("Sending the following tags to LRR: $chaitags");
+    return ($chaitags, $chaititle);
 }
 
 # Uses the jsearch API to get the best json for a file.
@@ -124,10 +127,10 @@ sub tags_from_chaika_id {
     my $textrep = $res->body;
     $logger->debug("Chaika API returned this JSON: $textrep");
 
-    my $returned = parse_chaika_json( $res->json );
-    $logger->info("Sending the following tags to LRR: $returned");
+    my ($chaitags, $chaititle) = parse_chaika_json( $res->json );
+    $logger->info("Sending the following tags to LRR: $chaitags");
 
-    return $returned;
+    return ($chaitags, $chaititle);
 
 }
 
@@ -144,10 +147,10 @@ sub tags_from_sha1 {
     # We just take the first one.
     my $ua       = Mojo::UserAgent->new;
     my $res      = $ua->get($URL)->result;
-    my $returned = parse_chaika_json( $res->json->[0] );
+    my ($chaitags, $chaititle) = parse_chaika_json( $res->json->[0] );
 
-    $logger->info("SHA-1 reverse search found the following tags: $returned");
-    return $returned;
+    $logger->info("SHA-1 reverse search found the following tags: $chaitags");
+    return ($chaitags, $chaititle);
 }
 
 # Parses the JSON obtained from the Chaika API to get the tags.
@@ -187,7 +190,7 @@ sub parse_chaika_json {
         $res .= $tag;
     }
 
-    return $res;
+    return ($res, $json->{"title"});
 
 }
 

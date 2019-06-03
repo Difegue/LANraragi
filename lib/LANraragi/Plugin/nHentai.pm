@@ -38,7 +38,7 @@ sub get_tags {
 
 #LRR gives your plugin the recorded title/tags/thumbnail hash for the file, the filesystem path, and the custom arguments if available.
     shift;
-    my ( $title, $tags, $thumbhash, $file, $oneshotarg, @args ) = @_;
+    my ( $title, $tags, $thumbhash, $file, $oneshotarg, $savetitle ) = @_;
 
     my $logger = LANraragi::Utils::Generic::get_logger( "nHentai", "plugins" );
 
@@ -54,7 +54,7 @@ sub get_tags {
         $galleryID = &get_gallery_id_from_title($title);
     }
 
-#Use the logger to output status - they'll be passed to LRR's standard output and a specialized logfile.
+    # Did we detect a nHentai gallery?
     if ( defined $galleryID ) {
         $logger->debug("Detected nHentai gallery id is $galleryID");
     }
@@ -70,10 +70,12 @@ sub get_tags {
         return ( error => "No matching nHentai Gallery Found!" );
     }
 
-    my $newtags = &get_tags_from_NH($galleryID);
+    my ($newtags, $newtitle) = &get_tags_from_NH($galleryID);
 
     #Return a hash containing the new metadata - it will be integrated in LRR.
-    return ( tags => $newtags );
+    if ($savetitle && $newtags ne "") 
+         { return ( tags => $newtags, title => $newtitle ); }
+    else { return ( tags => $newtags ); }
 }
 
 ######
@@ -100,7 +102,7 @@ sub get_gallery_id_from_title {
     my $dom = Mojo::DOM->new( $res->body );
 
     # Get the first gallery url of the search results
-    my $gURL = $dom->at('.cover')->attr('href');
+    my $gURL = ($dom->at('.cover')) ? $dom->at('.cover')->attr('href'): "";
 
     my $gallery = "";
     if ( $gURL =~ /\/g\/(\d*)\//gm ) {
@@ -135,9 +137,6 @@ sub get_tags_from_NH {
 
     my $tags = $json->{"tags"};
 
-#TODO: support for NH's "pretty" names? (romaji titles without extraneous data we already have like (Event)[Artist], etc)
-# $json->{"title"}->{"pretty"}
-
     foreach my $tag (@$tags) {
 
         $returned .= ", " unless $returned eq "";
@@ -156,7 +155,8 @@ sub get_tags_from_NH {
 
     $logger->info("Sending the following tags to LRR: $returned");
 
-    return $returned;
+    # Use NH's "pretty" names (romaji titles without extraneous data we already have like (Event)[Artist], etc)
+    return ($returned, $json->{"title"}->{"pretty"});
 
 }
 
