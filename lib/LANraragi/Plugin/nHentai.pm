@@ -19,16 +19,16 @@ sub plugin_info {
     return (
         #Standard metadata
         name        => "nHentai",
+        type        => "metadata",
         namespace   => "nhplugin",
         author      => "Difegue",
         version     => "1.4",
         description => "Searches nHentai for tags matching your archive.",
-
-#If your plugin uses/needs custom arguments, input their name here.
-#This name will be displayed in plugin configuration next to an input box for global arguments, and in archive edition for one-shot arguments.
-        oneshot_arg =>
-"nHentai Gallery URL (Will attach tags matching this exact gallery to your archive)",
-        global_args => []
+        icon        => "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAIAAAAC64paAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA\nB3RJTUUH4wYCFA8s1yKFJwAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUH\nAAACL0lEQVQ4y6XTz0tUURQH8O+59773nLFcaGWTk4UUVCBFiJs27VxEQRH0AyRo4x8Q/Qtt2rhr\nU6soaCG0KYKSwIhMa9Ah+yEhZM/5oZMG88N59717T4sxM8eZCM/ycD6Xwznn0pWhG34mh/+PA8mk\n8jO5heziP0sFYwfgMDFQJg4IUjmquSFGG+OIlb1G9li5kykgTgvzSoUCaIYlo8/Igcjpj5wOkARp\n8AupP0uzJLijCY4zzoXOxdBLshAgABr8VOp7bpAXDEI7IBrhdksnjNr3WzI4LaIRV9fk2iAaYV/y\nA1dPiYjBAALgpQxnhV2XzTCAGWGeq7ACBvCdzKQyTH+voAm2hGlpcmQt2Bc2K+ymAhWPxTzPDQLt\nOKo1FiNBQaArq9WNRQwEgKl7XQ1duzSRSn/88vX0qf7DPQddx1nI5UfHxt+m0sLYPiP3shRAG8MD\nok1XEEXR/EI2ly94nrNYWG6Nx0/2Hp2b94dv34mlZge1e4hVCJ4jc6tl9ZP803n3/i4lpdyzq2N0\n7M3DkSeF5ZVYS8v1qxcGz5+5eey4nPDbmGdE9FpGeWErVNe2tTabX3r0+Nk3PwOgXFkdfz99+exA\nMtFZITEt9F23mpLG0hYTVQCKpfKPlZ/rqWKpYoAPcTmpginW76QBbb0OBaBaDdjaDbNlJmQE3/d0\nMYoaybU9126oPkrEhpr+U2wjtoVVGBowkslEsVSupRKdu0Mduq7q7kqExjSS3V2dvwDLavx0eczM\neAAAAABJRU5ErkJggg==",
+        parameters  => [
+            {type => "bool", desc => "Save archive title"}
+        ],
+        oneshot_arg => "nHentai Gallery URL (Will attach tags matching this exact gallery to your archive)"
     );
 
 }
@@ -38,7 +38,7 @@ sub get_tags {
 
 #LRR gives your plugin the recorded title/tags/thumbnail hash for the file, the filesystem path, and the custom arguments if available.
     shift;
-    my ( $title, $tags, $thumbhash, $file, $oneshotarg, @args ) = @_;
+    my ( $title, $tags, $thumbhash, $file, $oneshotarg, $savetitle ) = @_;
 
     my $logger = LANraragi::Utils::Generic::get_logger( "nHentai", "plugins" );
 
@@ -54,7 +54,7 @@ sub get_tags {
         $galleryID = &get_gallery_id_from_title($title);
     }
 
-#Use the logger to output status - they'll be passed to LRR's standard output and a specialized logfile.
+    # Did we detect a nHentai gallery?
     if ( defined $galleryID ) {
         $logger->debug("Detected nHentai gallery id is $galleryID");
     }
@@ -70,10 +70,12 @@ sub get_tags {
         return ( error => "No matching nHentai Gallery Found!" );
     }
 
-    my $newtags = &get_tags_from_NH($galleryID);
+    my ($newtags, $newtitle) = &get_tags_from_NH($galleryID);
 
     #Return a hash containing the new metadata - it will be integrated in LRR.
-    return ( tags => $newtags );
+    if ($savetitle && $newtags ne "") 
+         { return ( tags => $newtags, title => $newtitle ); }
+    else { return ( tags => $newtags ); }
 }
 
 ######
@@ -100,7 +102,7 @@ sub get_gallery_id_from_title {
     my $dom = Mojo::DOM->new( $res->body );
 
     # Get the first gallery url of the search results
-    my $gURL = $dom->at('.cover')->attr('href');
+    my $gURL = ($dom->at('.cover')) ? $dom->at('.cover')->attr('href'): "";
 
     my $gallery = "";
     if ( $gURL =~ /\/g\/(\d*)\//gm ) {
@@ -135,9 +137,6 @@ sub get_tags_from_NH {
 
     my $tags = $json->{"tags"};
 
-#TODO: support for NH's "pretty" names? (romaji titles without extraneous data we already have like (Event)[Artist], etc)
-# $json->{"title"}->{"pretty"}
-
     foreach my $tag (@$tags) {
 
         $returned .= ", " unless $returned eq "";
@@ -156,7 +155,8 @@ sub get_tags_from_NH {
 
     $logger->info("Sending the following tags to LRR: $returned");
 
-    return $returned;
+    # Use NH's "pretty" names (romaji titles without extraneous data we already have like (Event)[Artist], etc)
+    return ($returned, $json->{"title"}->{"pretty"});
 
 }
 

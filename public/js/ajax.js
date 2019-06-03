@@ -86,7 +86,6 @@ function saveFormData(formSelector) {
 	var postData = $(formSelector).serializeArray()
 	var formURL = $(formSelector).attr("action")
 
-
 	$.ajax(
 		{
 			url: formURL,

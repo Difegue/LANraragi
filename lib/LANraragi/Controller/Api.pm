@@ -248,13 +248,13 @@ sub use_plugin {
     my $self = shift;
     my ( $id, $plugname, $oneshotarg, $redis ) = &get_plugin_params($self);
 
-    my $plugin = LANraragi::Utils::Database::plugin_lookup($plugname);
+    my $plugin = LANraragi::Utils::Plugins::get_plugin($plugname);
     my @args   = ();
 
     if ($plugin) {
 
         #Get the matching globalargs in Redis
-        @args = LANraragi::Utils::Database::get_plugin_globalargs($plugname);
+        @args = LANraragi::Utils::Plugins::get_plugin_parameters($plugname);
 
         #Execute the plugin, appending the custom args at the end
         my %plugin_result;

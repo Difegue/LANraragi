@@ -200,7 +200,7 @@ sub build_json_cache {
     for my $id ( keys %filemap ) {
 
         my $file = $filemap{$id};
-        $logger->debug("JSONing $id -> $file");
+        #$logger->debug("JSONing $id -> $file");
 
         #Trigger archive addition if title isn't in Redis
         unless ( $redis->exists($id) ) {

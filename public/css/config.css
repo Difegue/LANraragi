@@ -9,11 +9,27 @@ input[type='checkbox'] {
 }
 
 input[type='checkbox']::before {
-    content: "\f0c8";
+    content: "\f204";
+}
+
+input[type='checkbox']::after {
+    font-size: 15px;
+    margin-left: 5px;
+    font-weight: bold;
+    font-family: sans-serif;
+    content: "OFF";
 }
 
 input[type='checkbox']:checked::before {
-    content: "\f14a";
+    content: "\f205";
+}
+
+input[type='checkbox']:checked::after {
+    font-size: 15px;
+    margin-left: 5px;
+    font-weight: bold;
+    font-family: sans-serif;
+    content: "ON";
 }
 
 .config-panel {
