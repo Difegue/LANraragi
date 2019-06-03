@@ -3,8 +3,6 @@ package LANraragi::Utils::Plugins;
 use strict;
 use warnings;
 use utf8;
-use feature qw(signatures);
-no warnings 'experimental';
 
 use Mojo::JSON qw(decode_json);
 
@@ -12,8 +10,9 @@ use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
 
 # Get metadata of all plugins with the defined type. Returns an array of hashes.
-sub get_plugins($type) {
+sub get_plugins {
 
+    my $type    = shift;
     my @plugins = LANraragi::Model::Plugins::plugins;
     my @validplugins;
     foreach my $plugin (@plugins) {
@@ -27,8 +26,9 @@ sub get_plugins($type) {
     return @validplugins;
 }
 
-sub get_enabled_plugins($type) {
+sub get_enabled_plugins {
 
+    my $type    = shift;
     my @plugins = get_plugins($type);
     my @enabled;
     
@@ -42,8 +42,9 @@ sub get_enabled_plugins($type) {
 }
 
 #Look for a plugin by namespace.
-sub get_plugin($name) {
+sub get_plugin {
 
+    my $name = shift;
     #Go through plugins to find one with a matching namespace
     my @plugins = LANraragi::Model::Plugins::plugins;
 
@@ -64,12 +65,13 @@ sub get_plugin($name) {
 
 # Get the parameters input by the user for thespecified plugin.
 # Returns an array of values.
-sub get_plugin_parameters($namespace) {
+sub get_plugin_parameters {
 
+    my $namespace = shift;
     #Get the matching argument JSON in Redis
-    my $redis    = LANraragi::Model::Config::get_redis;
-    my $namerds  = "LRR_PLUGIN_" . uc($namespace);
-    my @args     = ();
+    my $redis     = LANraragi::Model::Config::get_redis;
+    my $namerds   = "LRR_PLUGIN_" . uc($namespace);
+    my @args      = ();
 
     if ( $redis->hexists( $namerds, "enabled" ) ) {
         my $argsjson = $redis->hget( $namerds, "customargs" );
@@ -84,10 +86,11 @@ sub get_plugin_parameters($namespace) {
     return @args;
 }
 
-sub is_plugin_enabled($namespace) {
+sub is_plugin_enabled {
 
-    my $redis    = LANraragi::Model::Config::get_redis;
-    my $namerds  = "LRR_PLUGIN_" . uc($namespace);
+    my $namespace = shift;
+    my $redis     = LANraragi::Model::Config::get_redis;
+    my $namerds   = "LRR_PLUGIN_" . uc($namespace);
 
     if ( $redis->hexists( $namerds, "enabled" ) ) {
         return ( $redis->hget( $namerds, "enabled" ) );
