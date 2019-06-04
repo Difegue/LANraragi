@@ -12,9 +12,14 @@ workflow "Build latest Docker image" {
   on = "push"
 }
 
-workflow "Build WSL distro" {
+workflow "Build nightly WSL distro" {
   on = "push"
   resolves = ["Upload Installer to MEGA"]
+}
+
+workflow "Add WSL distro package to release" {
+  on = "release"
+  resolves = ["Upload to release"]
 }
 
 workflow "Continuous Integration 👌👀" {
@@ -91,4 +96,11 @@ action "Upload Installer to MEGA" {
   needs = ["Build WSL zip"]
   args = "put -c win_package.zip Windows_Nightlies/${GITHUB_SHA}/win_installer.zip"
   secrets = ["USERNAME", "PASSWORD"]
+}
+
+action "Upload Installer to release" {
+  uses = "JasonEtco/upload-to-release@master"
+  args = "win_package.zip"
+  secrets = ["GITHUB_TOKEN"]
+  needs = ["Build WSL zip"]
 }
