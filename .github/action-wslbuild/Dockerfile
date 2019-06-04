@@ -1,5 +1,5 @@
 FROM docker:stable
-# Use the base LRR container to have a prepared test environment
+# Use a docker image as we'll do a docker save later on
 
 LABEL "name"="lrr-wslbuild"
 LABEL "maintainer"="Difegue <sugoi@cock.li>"
