@@ -19,7 +19,7 @@ workflow "Build nightly WSL distro" {
 
 workflow "Add WSL distro package to release" {
   on = "release"
-  resolves = ["Upload to release"]
+  resolves = ["Upload Installer to release"]
 }
 
 workflow "Continuous Integration 👌👀" {
