@@ -27,4 +27,4 @@ unzip -d win_package/Bootloader Karen.zip
 mv win_package/Bootloader/Karen-Installer.ps1 win_package/install.ps1
 
 # Zip installer folder and we're done
-zip -r win_package.zip win_package
+zip -r LANraragi_Windows_Installer.zip win_package
