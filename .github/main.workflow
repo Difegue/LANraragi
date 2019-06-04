@@ -88,13 +88,13 @@ action "Build WSL zip" {
 action "Upload Installer to MEGA" {
   uses = "difegue/action-megacmd@master"
   needs = ["Build WSL zip"]
-  args = "put -c win_package.zip Windows_Nightlies/${GITHUB_SHA}/win_installer.zip"
+  args = "put -c LANraragi_Windows_Installer.zip Windows_Nightlies/${GITHUB_SHA}/LRR_Nightly_Windows.zip"
   secrets = ["USERNAME", "PASSWORD"]
 }
 
 action "Upload Installer to release" {
   uses = "JasonEtco/upload-to-release@master"
-  args = "win_package.zip application/zip"
+  args = "LANraragi_Windows_Installer.zip application/zip"
   secrets = ["GITHUB_TOKEN"]
   needs = ["Build WSL zip"]
 }
