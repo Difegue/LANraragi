@@ -9,7 +9,7 @@ workflow "Build latest Docker image" {
   resolves = [
     "Push latest to Docker Hub",
   ]
-  on = "push"
+  on = "release"
 }
 
 workflow "Build nightly WSL distro" {
@@ -40,12 +40,6 @@ action "If dev branch" {
   args = "branch dev"
 }
 
-action "If master branch" {
-  uses = "actions/bin/filter@3c0b4f0e63ea54ea5df2914b4fabf383368cd0da"
-  needs = ["Login to Docker Hub"]
-  args = "branch master"
-}
-
 action "Build Nightly Docker image" {
   uses = "actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108"
   needs = ["If dev branch"]
@@ -54,7 +48,7 @@ action "Build Nightly Docker image" {
 
 action "Build Latest Docker image" {
   uses = "actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108"
-  needs = ["If master branch"]
+  needs = ["Login to Docker Hub"]
   args = "build -t difegue/lanraragi:latest -f ./tools/DockerSetup/Dockerfile ."
 }
 
@@ -100,7 +94,7 @@ action "Upload Installer to MEGA" {
 
 action "Upload Installer to release" {
   uses = "JasonEtco/upload-to-release@master"
-  args = "win_package.zip"
+  args = "win_package.zip application/zip"
   secrets = ["GITHUB_TOKEN"]
   needs = ["Build WSL zip"]
 }
