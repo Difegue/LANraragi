@@ -7,10 +7,12 @@ use utf8;
 use Time::HiRes qw(gettimeofday);
 use File::Basename;
 use File::Path qw(remove_tree);
+use File::Find qw(finddepth);
+use File::Copy qw(move);
 use Encode;
 use Redis;
 use Cwd;
-
+use Data::Dumper;
 use Image::Scale;
 use Archive::Peek::Libarchive;
 use Archive::Extract::Libarchive;
@@ -44,6 +46,11 @@ sub extract_archive {
 
     #Extract to $path. Report if it fails.
     my $ok = $ae->extract( to => $path ) or die $ae->error;
+    
+    #Rename files and folders to an encoded version
+    finddepth(sub {
+                move($_, encode("ascii", $_, sub{ sprintf "U+%04X", shift }));
+            }, $ae->extract_path);
 
     # dir that was extracted to
     return $ae->extract_path;
@@ -62,8 +69,6 @@ sub extract_thumbnail {
     my $redis = LANraragi::Model::Config::get_redis();
 
     my $file = $redis->hget( $id, "file" );
-    $file = LANraragi::Utils::Database::redis_decode($file);
-
     my $temppath = LANraragi::Utils::TempFolder::get_temp . "/thumb";
 
     #Clean thumb temp to prevent file mismatch errors.
@@ -111,45 +116,62 @@ sub extract_thumbnail {
 }
 
 #is_file_in_archive($archive, $file)
-#Uses lsar to figure out if $archive contains $file.
+#Uses libarchive::peek to figure out if $archive contains $file.
 #Returns 1 if it does exist, 0 otherwise.
 sub is_file_in_archive {
 
     my ( $archive, $wantedname ) = @_;
 
-    my $peek = Archive::Peek::Libarchive->new( filename => $archive );
+    my $logger = LANraragi::Utils::Generic::get_logger( "Archive", "lanraragi" );
+    $logger->debug("Iterating files of archive $archive, looking for '$wantedname'");
+    $Data::Dumper::Useqq = 1;
 
+    my $peek = Archive::Peek::Libarchive->new( filename => $archive );
+    my $found = 0;
     $peek->iterate(
         sub {
+            my $name = $_[0];
+            $logger->debug("Found file " . Dumper($name));
 
-            if ( $_[0] eq $wantedname ) {
-                return 1;
+            if ( $name =~ /$wantedname$/ ) {
+                $found = 1;
             }
         }
     );
 
-    #Found nothing
-    return 0;
+    return $found;
 
 }
 
 #extract_file_from_archive($archive, $file)
 #Extract $file from $archive and returns the filesystem path it's extracted to.
+#If the file doesn't exist in the archive, this will still create a file, but empty.
 sub extract_file_from_archive {
 
     my ( $archive, $filename ) = @_;
 
-    #Timestamp extractions in microseconds
+    #Timestamp extractions in microseconds 
     my ( $seconds, $microseconds ) = gettimeofday;
     my $stamp = "$seconds-$microseconds";
     my $path  = LANraragi::Utils::TempFolder::get_temp . "/plugin/$stamp";
+    mkdir LANraragi::Utils::TempFolder::get_temp . "/plugin";
+    mkdir $path;
 
     my $peek = Archive::Peek::Libarchive->new( filename => $archive );
-    my $contents = $peek->file($filename);
+    my $contents = "";
+    $peek->iterate(
+        sub {
+            my ( $file, $data ) = @_;
+
+            if ( $file =~ /$filename$/ ) {
+                $contents = $data;
+            }
+        }
+    );
 
     my $outfile = $path . "/" . $filename;
 
-    open( my $fh, '>', getcwd() . $outfile )
+    open( my $fh, '>', $outfile )
       or die "Could not open file '$outfile' $!";
     print $fh $contents;
     close $fh;

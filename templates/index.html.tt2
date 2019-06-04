@@ -63,19 +63,15 @@
 			<div class='idi'>
 
 				[% IF favtags && favtags.size %]
-				<table class="itc">
-					<tbody>
-						<tr>
-							[% FOREACH tag IN favtags %]
-							<td>
-								<input class='favtag' id='[% tag %]' type='hidden' />
-								<input class='favtag-btn' type='button' value='[% tag %]' onclick='toggleFav(this)'
-									title='Click here to instantly search for this tag!' />
-							</td>
-							[% END %]
-						</tr>
-					</tbody>
-				</table>
+				<div>
+					[% FOREACH tag IN favtags %]
+					<div style="display:inline-block">
+						<input class='favtag' id='[% tag %]' type='hidden' />
+						<input class='favtag-btn' type='button' value='[% tag %]' onclick='toggleFav(this)'
+							title='Click here to instantly search for this tag!' />
+					</div>
+					[% END %]
+				</div>
 				[% END %]
 
 				<input type='text' id='srch' class='search stdinput' size='90'

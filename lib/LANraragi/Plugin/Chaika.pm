@@ -20,16 +20,16 @@ sub plugin_info {
     return (
         #Standard metadata
         name        => "Chaika.moe",
+        type        => "metadata",
         namespace   => "trabant",
         author      => "Difegue",
-        version     => "1.55",
+        version     => "2.0",
         description => "Searches chaika.moe for tags matching your archive.",
-
-#If your plugin uses/needs custom arguments, input their name here.
-#This name will be displayed in plugin configuration next to an input box for global arguments, and in archive edition for one-shot arguments.
-        oneshot_arg =>
-"Chaika Gallery or Archive URL (Will attach matching tags to your archive)",
-        global_args => []
+        icon        => "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA\nB3RJTUUH4wYCFQocjU4r+QAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUH\nAAAEZElEQVQ4y42T3WtTdxzGn/M7J+fk5SRpTk7TxMZkXU84tTbVNrUT3YxO7HA4pdtQZDe7cgx2\ns8vBRvEPsOwFYTDYGJUpbDI2wV04cGXCGFLonIu1L2ptmtrmxeb1JDkvv121ZKVze66f74eH7/f5\nMmjRwMCAwrt4/9KDpflMJpPHvyiR2DPcJklJ3TRDDa0xk36cvrm8vDwHAAwAqKrqjjwXecPG205w\nHBuqa9rk77/d/qJYLD7cCht5deQIIczbgiAEKLVAKXWUiqVV06Tf35q8dYVJJBJem2A7Kwi2nQzD\nZig1CG93+PO5/KN6tf5NKpVqbsBUVVVFUUxwHJc1TXNBoxojS7IbhrnLMMx9pVJlBqFQKBKPxwcB\nkJYgjKIo3QCE1nSKoghbfJuKRqN2RVXexMaQzWaLezyeEUEQDjscjk78PxFFUYRkMsltJgGA3t7e\nyMLCwie6rr8iCILVbDbvMgwzYRjGxe0o4XC4s1AoHPP5fMP5/NNOyzLKAO6Ew+HrDADBbre/Ryk9\nnzx81FXJNlEpVpF+OqtpWu2MpmnXWmH9/f2umZmZi4cOHXnLbILLzOchhz1YerJAs9m1GwRAg2GY\nh7GYah488BJYzYW+2BD61AFBlmX/1nSNRqN9//792ujoaIPVRMjOKHoie3DytVGmp2fXCAEAjuMm\nu7u7Umosho6gjL/u/QHeEgvJZHJ2K/D+/fuL4+PjXyvPd5ldkShy1UXcmb4DnjgQj/fd5gDA6/XS\nYCAwTwh9oT3QzrS1+VDVi+vd3Tsy26yQVoFF3dAXJVmK96p9EJ0iLNOwKKU3CQCk0+lSOpP5WLDz\nF9Q9kZqyO0SloOs6gMfbHSU5NLRiUOuax2/HyZPHEOsLw2SbP83eu/fLxrkNp9P554XxCzVa16MC\n7+BPnTk9cfmH74KJE8nmga7Xy5JkZ8VKifGIHpoBb1VX8hNTd3/t/7lQ3OeXfFPvf/jBRw8ezD/a\n7M/aWq91cGgnJaZ2VcgSdnV1XRNNd3vAoBVVYusmnEQS65hfgSG6c+zy3Kre7nF/KrukcMW0Zg8O\nD08DoJutDxxOEb5IPUymwrq8ft1gLKfkFojkkRxemERCAQUACPFWRazYLJcrFGwQhyufbQQ7rFpy\nLMkCwGZC34qPIuwp+XPOjBFwazQ/txrdFS2GGS/Xuj+pUKLGk1Kjvlded3s72lyGW+PLbGVcmrAA\ngN0wTk1NWYODg9XOKltGtpazi5GigzroUnHN5nUHG1ylRsG7rDXHmnEpu4CeEtEKkqNc6QqlLc/M\n8uT5lLH5eq0aGxsju1O7GQB498a5s/0x9dRALPaQEDZnYwnhWJtMCCNrjeb0UP34Z6e/PW22zjPP\n+vwXBwfPvbw38XnXjk7GsiwKAIQQhjAMMrlsam45d+zLH6/8o6vkWcBcrXbVKQhf6bpucCwLjmUB\nSmmhXC419eblrbD/TAgAkUjE987xE0c7ZDmk66ajUCnq+cL63fErl25s5/8baQPaWLhx6goAAAAA\nSUVORK5CYII=",
+        parameters  =>  [
+            {type => "bool", desc => "Save archive title"}
+        ],
+        oneshot_arg => "Chaika Gallery or Archive URL (Will attach matching tags to your archive)"
     );
 
 }
@@ -39,30 +39,26 @@ sub get_tags {
 
 #LRR gives your plugin the recorded title/tags/thumbnail hash for the file, the filesystem path, and the custom arguments if available.
     shift;
-    my ( $title, $tags, $thumbhash, $file, $oneshotarg, @args ) = @_;
+    my ( $title, $tags, $thumbhash, $file, $oneshotarg, $savetitle ) = @_;
 
     my $logger = LANraragi::Utils::Generic::get_logger( "Chaika", "plugins" );
     my $newtags = "";
+    my $newtitle = "";
 
     #parse the given link to see if we can extract type and ID
     if ( $oneshotarg =~
         /https?:\/\/panda\.chaika\.moe\/(gallery|archive)\/([0-9]*)\/?.*/ )
     {
-        $newtags = tags_from_chaika_id( $1, $2 );
+        ($newtags, $newtitle) = tags_from_chaika_id( $1, $2 );
     }
     else {
 
-        #Try SHA-1 reverse search first
-        $newtags = tags_from_sha1($thumbhash);
+        # Try SHA-1 reverse search first
+        ($newtags, $newtitle) = tags_from_sha1($thumbhash);
 
+        # Try search if it fails
         if ( $newtags eq "" ) {
-
-            #Get Gallery ID by hand if nothing else worked
-            my $ID = search_for_archive( $title, $tags );
-
-            #Chaika has two possible types - Gallery or Archive.
-            #We perform searching in archives by default here.
-            $newtags = tags_from_chaika_id( "archive", $ID );
+            ($newtags, $newtitle) = search_for_archive( $title, $tags );
         }
     }
 
@@ -72,7 +68,9 @@ sub get_tags {
     }
     else {
         #Return a hash containing the new metadata
-        return ( tags => $newtags );
+        if ($savetitle && $newtags ne "") 
+             { return ( tags => $newtags, title => $newtitle ); }
+        else { return ( tags => $newtags ); }
     }
 
 }
@@ -95,7 +93,7 @@ sub search_for_archive {
     #Strip away hyphens and apostrophes as they apparently break search
     $title =~ s/-|'/ /g;
 
-    my $URL = "$chaika_url/search/?title=" . uri_escape_utf8($title) . "&tags=";
+    my $URL = "$chaika_url/jsearch/?gsp&title=" . uri_escape_utf8($title) . "&tags=";
 
     #Append language:english tag, if it exists.
     #Chaika only has english or japanese so I aint gonna bother more than this
@@ -105,25 +103,14 @@ sub search_for_archive {
 
     $logger->debug("Calling $URL");
     my $ua      = Mojo::UserAgent->new;
-    my $content = $ua->get($URL)->result->body;
+    my $res = $ua->get($URL)->result;
 
-    #Use Mojo's DOM parser to get the first link
-    my $dom  = Mojo::DOM->new($content);
-    my $href = "";
+    my $textrep = $res->body;
+    $logger->debug("Chaika API returned this JSON: $textrep");
 
-    #Find first <tr class="result-list"> node
-    #In this node, first href is an archive ID
-    eval {
-        $href = $dom->at(".result-list")->at("a")->attr("href");
-        $logger->debug( "DOM parser found " . $href );
-    };
-
-    if ( $href =~ /\/archive\/([0-9]*)\/?.*/ ) {
-        return $1;
-    }
-    else {
-        return "";
-    }
+    my ($chaitags, $chaititle) = parse_chaika_json( $res->json->{"galleries"}->[0] );
+    $logger->info("Sending the following tags to LRR: $chaitags");
+    return ($chaitags, $chaititle);
 }
 
 # Uses the jsearch API to get the best json for a file.
@@ -140,10 +127,10 @@ sub tags_from_chaika_id {
     my $textrep = $res->body;
     $logger->debug("Chaika API returned this JSON: $textrep");
 
-    my $returned = parse_chaika_json( $res->json );
-    $logger->info("Sending the following tags to LRR: $returned");
+    my ($chaitags, $chaititle) = parse_chaika_json( $res->json );
+    $logger->info("Sending the following tags to LRR: $chaitags");
 
-    return $returned;
+    return ($chaitags, $chaititle);
 
 }
 
@@ -160,10 +147,10 @@ sub tags_from_sha1 {
     # We just take the first one.
     my $ua       = Mojo::UserAgent->new;
     my $res      = $ua->get($URL)->result;
-    my $returned = parse_chaika_json( $res->json->[0] );
+    my ($chaitags, $chaititle) = parse_chaika_json( $res->json->[0] );
 
-    $logger->info("SHA-1 reverse search found the following tags: $returned");
-    return $returned;
+    $logger->info("SHA-1 reverse search found the following tags: $chaitags");
+    return ($chaitags, $chaititle);
 }
 
 # Parses the JSON obtained from the Chaika API to get the tags.
@@ -176,12 +163,20 @@ sub parse_chaika_json {
     if ( $json->{"gallery"} ) {
 
         my $gID = $json->{"gallery"};
-        $logger->debug("Gallery ID detected($gID), switching to it.");
+        $logger->debug("Gallery ID detected($gID), trying to switch to it.");
 
         my $URL = "$chaika_url/jsearch/?gallery=$gID";
         my $ua  = Mojo::UserAgent->new;
         my $res = $ua->get($URL)->result;
-        $json = $res->json;
+
+        # Switch to gallery tags if there are any.
+        # Occasionally archives won't have a matching gallery despite the ID being there. (huh)
+        if ($res->json->{"tags"}) {
+            $json = $res->json;
+        } else {
+            $logger->debug("Gallery doesn't actually have tags! Switching back to Archive.")
+        }
+            
     }
 
     my $tags = $json->{"tags"};
@@ -195,7 +190,7 @@ sub parse_chaika_json {
         $res .= $tag;
     }
 
-    return $res;
+    return ($res, $json->{"title"});
 
 }
 

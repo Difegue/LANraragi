@@ -3,16 +3,16 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use Redis;
 use Encode;
-use Mojo::JSON qw(decode_json encode_json);
+use Mojo::JSON qw(encode_json);
 no warnings 'experimental';
 use Cwd;
 
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database;
+use LANraragi::Utils::Plugins;
 
 use LANraragi::Model::Config;
-use LANraragi::Model::Plugins;
 
 # This action will render a template
 sub index {
@@ -20,63 +20,31 @@ sub index {
     my $self  = shift;
     my $redis = $self->LRR_CONF->get_redis;
 
-    #Build plugin listing
-    my @plugins = LANraragi::Model::Plugins::plugins;
-
     #Plugin list is an array of hashes
     my @pluginlist = ();
 
-    foreach my $plugin (@plugins) {
+    #Build plugin listing
+    my @plugins = LANraragi::Utils::Plugins::get_plugins("metadata");
+    foreach my $pluginfo (@plugins) {
+        my $namespace   = $pluginfo->{namespace};
+        my @redisparams = LANraragi::Utils::Plugins::get_plugin_parameters($namespace);
 
-        my %pluginfo = $plugin->plugin_info();
+        # Add whether the plugin is enabled to the hash directly
+        $pluginfo->{enabled} = LANraragi::Utils::Plugins::is_plugin_enabled($namespace);
 
-        my $namespace = $pluginfo{namespace};
-        my $namerds   = "LRR_PLUGIN_" . uc($namespace);
-
-        my $checked        = 0;
-        my @globalargnames = ();
-
-        #Check if the plugin does have global args before trying to get them
-        if ( length $pluginfo{global_args} ) {
-
-            #The global_args array is inside the pluginfo hash, dereference it
-            @globalargnames = @{ $pluginfo{global_args} };
+        # Add redis values to the members of the parameters array
+        my @paramhashes = ();
+        my $counter = 0;
+        foreach my $param (@{$pluginfo->{parameters}}) {
+            $param->{value} = $redisparams[$counter];
+            push @paramhashes, $param;
+            $counter++;
         }
 
-        my @globalargvalues = ();
-        my @globalargs      = ();
+        #Add the parameter hashes to the plugin info for the template to parse
+        $pluginfo->{parameters} = \@paramhashes;
 
-        if ( $redis->hexists( $namerds, "enabled" ) ) {
-            $checked = $redis->hget( $namerds, "enabled" );
-            my $argsjson = $redis->hget( $namerds, "customargs" );
-
-            ( $_ = LANraragi::Utils::Database::redis_decode($_) )
-              for ( $checked, $argsjson );
-
-            #Mojo::JSON works with array references by default,
-            #so we need to dereference here as well
-            if ($argsjson) {
-                @globalargvalues = @{ decode_json($argsjson) };
-            }
-        }
-
-        #Build array of pairs with the global arg names and values
-        for ( my $i = 0 ; $i < scalar @globalargnames ; $i++ ) {
-            my %arghash = (
-                name  => $globalargnames[$i],
-                value => $globalargvalues[$i] || ""
-            );
-            push @globalargs, \%arghash;
-        }
-
-        $pluginfo{enabled} = $checked;
-
-        #We add our array of pairs to the plugin info for the template to parse
-        #global_args containing the arg names is still there as a reference.
-        $pluginfo{custom_args} = \@globalargs;
-
-        push @pluginlist, \%pluginfo;
-
+        push @pluginlist, $pluginfo;
     }
 
     $redis->quit();
@@ -96,8 +64,8 @@ sub save_config {
     my $self  = shift;
     my $redis = $self->LRR_CONF->get_redis;
 
-#For every existing plugin, check if we received a matching parameter, and update its settings.
-    my @plugins = LANraragi::Model::Plugins::plugins;
+    # Update settings for every plugin.
+    my @plugins = LANraragi::Utils::Plugins::get_plugins("metadata");
 
     #Plugin list is an array of hashes
     my @pluginlist = ();
@@ -105,18 +73,18 @@ sub save_config {
     my $errormess  = "";
 
     eval {
-        foreach my $plugin (@plugins) {
+        foreach my $pluginfo (@plugins) {
 
-            my %pluginfo  = $plugin->plugin_info();
-            my $namespace = $pluginfo{namespace};
+            my $namespace = $pluginfo->{namespace};
             my $namerds   = "LRR_PLUGIN_" . uc($namespace);
 
+            # Get whether the plugin is enabled for auto-plugin or not
             my $enabled = ( scalar $self->req->param($namespace) ? '1' : '0' );
 
             #Get expected number of custom arguments from the plugin itself
             my $argcount = 0;
-            if ( length $pluginfo{global_args} ) {
-                $argcount = scalar @{ $pluginfo{global_args} };
+            if ( length $pluginfo->{parameters} ) {
+                $argcount = scalar @{ $pluginfo->{parameters} };
             }
 
             my @customargs = ();
@@ -124,8 +92,18 @@ sub save_config {
             #Loop through the namespaced request parameters
             #Start at 1 because that's where TT2's loop.count starts
             for ( my $i = 1 ; $i <= $argcount ; $i++ ) {
-                push @customargs,
-                  ( $self->req->param( $namespace . "_CFG_" . $i ) );
+                my $param = $namespace . "_CFG_" . $i;
+                
+                my $value = $self->req->param($param);
+
+                # Check if the parameter exists in the request
+                if ( $value ) {
+                    push (@customargs, $value );
+                } else {
+                    # Checkboxes don't exist in the parameter list if they're not checked.
+                    push (@customargs, ""); 
+                }
+                
             }
 
             my $encodedargs = encode_json( \@customargs );
@@ -152,19 +130,6 @@ sub save_config {
 
 sub process_upload {
     my $self = shift;
-
-    #Plugin upload is only allowed in Debug Mode.
-    if ( $self->app->mode ne "development" ) {
-        $self->render(
-            json => {
-                operation => "upload_plugin",
-                success   => 0,
-                error     => "Plugin upload is only allowed in Debug Mode."
-            }
-        );
-
-        return;
-    }
 
     #Receive uploaded file.
     my $file     = $self->req->upload('file');

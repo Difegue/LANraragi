@@ -5,14 +5,13 @@ use local::lib;
 use open ':std', ':encoding(UTF-8)';
 
 use Mojo::Base 'Mojolicious';
-
 use Mojo::IOLoop::ProcBackground;
 
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Routing;
 
 use LANraragi::Model::Config;
-use LANraragi::Model::Plugins;
+use LANraragi::Utils::Plugins;
 
 # This method will run once at server start
 sub startup {
@@ -68,7 +67,6 @@ sub startup {
                 print "\n";
             }
         );
-
     }
     else {
         $self->mode('production');
@@ -77,11 +75,9 @@ sub startup {
     }
 
     #Plugin listing
-    my @plugins = LANraragi::Model::Plugins::plugins;
-    foreach my $plugin (@plugins) {
-
-        my %pluginfo = $plugin->plugin_info();
-        my $name     = $pluginfo{name};
+    my @plugins = LANraragi::Utils::Plugins::get_plugins("metadata");
+    foreach my $pluginfo (@plugins) {
+        my $name = $pluginfo->{name};
         $self->LRR_LOGGER->info( "Plugin Detected: " . $name );
     }
 

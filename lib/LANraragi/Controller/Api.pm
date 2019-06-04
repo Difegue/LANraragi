@@ -220,7 +220,7 @@ sub use_enabled_plugins {
 
         $self->render(
             json => {
-                operation => "autotag",
+                operation => "autoplugin",
                 id        => $id,
                 success   => 1,
                 message =>
@@ -232,11 +232,11 @@ sub use_enabled_plugins {
 
         $self->render(
             json => {
-                operation => "autotag",
+                operation => "autoplugin",
                 id        => $id,
                 success   => 0,
                 message =>
-                  "ID not found in database or AutoTagging disabled by admin."
+                  "ID not found in database or AutoPlugin disabled by admin."
             }
         );
     }
@@ -248,18 +248,24 @@ sub use_plugin {
     my $self = shift;
     my ( $id, $plugname, $oneshotarg, $redis ) = &get_plugin_params($self);
 
-    my $plugin = LANraragi::Utils::Database::plugin_lookup($plugname);
+    my $plugin = LANraragi::Utils::Plugins::get_plugin($plugname);
     my @args   = ();
 
     if ($plugin) {
 
         #Get the matching globalargs in Redis
-        @args = LANraragi::Utils::Database::get_plugin_globalargs($plugname);
+        @args = LANraragi::Utils::Plugins::get_plugin_parameters($plugname);
 
         #Execute the plugin, appending the custom args at the end
-        my %plugin_result =
-          LANraragi::Model::Plugins::exec_plugin_on_file( $plugin, $id,
+        my %plugin_result;
+        eval {
+            %plugin_result = LANraragi::Model::Plugins::exec_plugin_on_file( $plugin, $id,
             $oneshotarg, @args );
+        };
+
+        if ($@) {
+            $plugin_result{error} = $@;
+        }
 
         #Returns the fetched tags in a JSON response.
         $self->render(

@@ -9,6 +9,7 @@ use Template;
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database;
+use LANraragi::Utils::Plugins;
 
 use LANraragi::Model::Config;
 
@@ -20,7 +21,6 @@ sub delete_metadata_and_file {
     my $redis = $self->LRR_CONF->get_redis();
 
     my $filename = $redis->hget( $id, "file" );
-    $filename = LANraragi::Utils::Database::redis_decode($filename);
 
     $redis->del($id);
 
@@ -108,18 +108,10 @@ sub index {
           @hash{qw(name title tags file thumbhash)};
 
         ( $_ = LANraragi::Utils::Database::redis_decode($_) )
-          for ( $name, $title, $tags, $file );
+          for ( $name, $title, $tags );
 
         #Build plugin listing
-        my @plugins = LANraragi::Model::Plugins::plugins;
-
-        #Plugin list is an array of hashes
-        my @pluginlist = ();
-
-        foreach my $plugin (@plugins) {
-            my %pluginfo = $plugin->plugin_info();
-            push @pluginlist, \%pluginfo;
-        }
+        my @pluginlist = LANraragi::Utils::Plugins::get_plugins("metadata");
 
         $redis->quit();
 

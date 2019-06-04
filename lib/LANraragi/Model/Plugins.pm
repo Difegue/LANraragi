@@ -5,16 +5,19 @@ use warnings;
 use utf8;
 use feature 'fc';
 
-#Plugin system ahoy - this makes the LANraragi::Model::Plugins::plugins method available
+# Plugin system ahoy - this makes the LANraragi::Model::Plugins::plugins method available
+# Don't call this method directly - Rely on LANraragi::Utils::Plugins::get_plugins instead
 use Module::Pluggable require => 1, search_path => ['LANraragi::Plugin'];
 
 use Redis;
 use Encode;
 use Mojo::JSON qw(decode_json encode_json);
+use Data::Dumper;
 
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database;
+use LANraragi::Utils::Plugins;
 
 use LANraragi::Model::Config;
 
@@ -22,7 +25,7 @@ sub exec_enabled_plugins_on_file {
 
     my $id = shift;
     my $logger =
-      LANraragi::Utils::Generic::get_logger( "Auto-Tagger", "lanraragi" );
+      LANraragi::Utils::Generic::get_logger( "Auto-Plugin", "lanraragi" );
 
     $logger->info("Executing enabled plugins on archive with id $id.");
     my $redis = LANraragi::Model::Config::get_redis;
@@ -30,62 +33,38 @@ sub exec_enabled_plugins_on_file {
     my $successes = 0;
     my $failures  = 0;
 
-    foreach my $plugin (LANraragi::Model::Plugins::plugins) {
+    my @plugins = LANraragi::Utils::Plugins::get_enabled_plugins("metadata");
 
-        #Check Redis to see if plugin is enabled and get the custom arguments
-        my %pluginfo = $plugin->plugin_info();
-        my $name     = $pluginfo{namespace};
-        my $namerds  = "LRR_PLUGIN_" . uc($name);
+    foreach my $pluginfo (@plugins) {
+        my $name   = $pluginfo->{namespace};
+        my @args   = LANraragi::Utils::Plugins::get_plugin_parameters($name);
+        my $plugin = LANraragi::Utils::Plugins::get_plugin($name);
+        my %plugin_result;
 
-        if ( $redis->exists($namerds) ) {
+        #Every plugin execution is eval'd separately
+        eval {
+            %plugin_result =
+                &exec_plugin_on_file( $plugin, $id, "", @args );
+        };
 
-            my @args     = ();
-            my $enabled  = $redis->hget( $namerds, "enabled" );
-            my $argsjson = $redis->hget( $namerds, "customargs" );
-
-            ( $_ = LANraragi::Utils::Database::redis_decode($_) )
-              for ( $enabled, $argsjson );
-
-            #Mojo::JSON works with array references by default,
-            #so we need to dereference here as well
-            if ($argsjson) {
-                @args = @{ decode_json($argsjson) };
-            }
-
-            if ($enabled) {
-
-                my %plugin_result;
-
-                #Every plugin execution is eval'd separately
-                eval {
-                    %plugin_result =
-                      &exec_plugin_on_file( $plugin, $id, "", @args );
-                };
-
-                #If the plugin exec returned metadata, add it
-                unless ( exists $plugin_result{error} ) {
-                    LANraragi::Utils::Database::add_tags( $id,
-                        $plugin_result{new_tags} );
-
-                    if ( exists $plugin_result{title} ) {
-                        LANraragi::Utils::Database::set_title( $id,
-                            $plugin_result{title} );
-                    }
-
-                }
-
-                if ($@) {
-                    $failures++;
-                    $logger->error("$@");
-                }
-                else {
-                    $successes++;
-                }
-
-            }
-
+        if ($@) {
+            $failures++;
+            $logger->error("$@");
+        }
+        else {
+            $successes++;
         }
 
+        #If the plugin exec returned metadata, add it
+        unless ( exists $plugin_result{error} ) {
+            LANraragi::Utils::Database::add_tags( $id,
+                $plugin_result{new_tags} );
+
+            if ( exists $plugin_result{title} ) {
+                LANraragi::Utils::Database::set_title( $id,
+                    $plugin_result{title} );
+            }
+        }
     }
 
     return ( $successes, $failures );
@@ -109,12 +88,13 @@ sub exec_plugin_on_file {
           @hash{qw(name title tags file thumbhash)};
 
         ( $_ = LANraragi::Utils::Database::redis_decode($_) )
-          for ( $name, $title, $tags, $file );
+          for ( $name, $title, $tags);
 
         # If the thumbnail hash is empty or undefined, we'll generate it here.
         unless ( length $thumbhash ) {
             $logger->info("Thumbnail hash invalid, regenerating.");
             my $dirname = LANraragi::Model::Config::get_userdir;
+
             #eval the thumbnail extraction as it can error out and die
             eval { LANraragi::Utils::Archive::extract_thumbnail( $dirname, $id ) };
             if ($@) { 
@@ -127,9 +107,8 @@ sub exec_plugin_on_file {
         }
 
         #Hand it off to the plugin here.
-        my %newmetadata =
-          $plugin->get_tags( $title, $tags, $thumbhash, $file, $oneshotarg,
-            @args );
+        my %newmetadata = $plugin->get_tags( $title, $tags, $thumbhash, $file, $oneshotarg,
+                @args );
 
         #Error checking
         if ( exists $newmetadata{error} ) {
@@ -190,6 +169,7 @@ sub exec_plugin_on_file {
 
         return %returnhash;
     }
+    return ( error => "Plugin doesn't implement get_tags" );
 }
 
 1;

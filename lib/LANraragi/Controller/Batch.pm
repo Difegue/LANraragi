@@ -8,9 +8,9 @@ use Mojo::JSON qw(decode_json encode_json from_json);
 
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Database;
+use LANraragi::Utils::Plugins;
 
 use LANraragi::Model::Config;
-use LANraragi::Model::Plugins;
 
 # This action will render a template
 sub index {
@@ -40,15 +40,7 @@ sub index {
     $redis->quit();
 
     #Build plugin listing
-    my @plugins = LANraragi::Model::Plugins::plugins;
-
-    #Plugin list is an array of hashes
-    my @pluginlist = ();
-
-    foreach my $plugin (@plugins) {
-        my %pluginfo = $plugin->plugin_info();
-        push @pluginlist, \%pluginfo;
-    }
+    my @pluginlist = LANraragi::Utils::Plugins::get_plugins("metadata");
 
     $self->render(
         template => "batch",
@@ -84,7 +76,7 @@ sub socket {
             my $command    = decode_json($msg);
             my $pluginname = $command->{"plugin"};
 
-            my $plugin = LANraragi::Utils::Database::plugin_lookup($pluginname);
+            my $plugin = LANraragi::Utils::Plugins::get_plugin($pluginname);
 
             #Global arguments can come from the database or the user override
             my @args     = @{ $command->{"args"} };
@@ -96,8 +88,8 @@ sub socket {
                 #If the array is empty(no overrides)
                 if ( !@args ) {
                     $logger->debug("No user overrides given.");
-                    #Try getting the app defaults
-                    @args = LANraragi::Utils::Database::get_plugin_globalargs(
+                    #Try getting the saved defaults
+                    @args = LANraragi::Utils::Plugins::get_plugin_parameters(
                         $pluginname);
                 }
 

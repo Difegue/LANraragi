@@ -99,7 +99,7 @@ sub initialize_from_new_process {
     # add a watch to the temp folder on created folders
     # Check the current folder size and clean it if necessary
     $inotify->watch( LANraragi::Utils::TempFolder::get_temp,
-        IN_CREATE, LANraragi::Utils::TempFolder::clean_temp_partial );
+        IN_ALL_EVENTS, sub { LANraragi::Utils::TempFolder::clean_temp_partial; } );
 
     # Create a .shinobu-nudge file and add a watch to it
     my $nudge = cwd . "/.shinobu-nudge";
@@ -200,7 +200,7 @@ sub build_json_cache {
     for my $id ( keys %filemap ) {
 
         my $file = $filemap{$id};
-        $logger->debug("JSONing $id -> $file");
+        #$logger->debug("JSONing $id -> $file");
 
         #Trigger archive addition if title isn't in Redis
         unless ( $redis->exists($id) ) {
@@ -341,9 +341,7 @@ sub build_archive_JSON {
 
     #Workaround if title was incorrectly parsed as blank
     if ( !defined($title) || $title =~ /^\s*$/ ) {
-        $title =
-            "<i class='fa fa-exclamation-circle'></i> "
-          . "Untitled archive, please edit metadata.";
+        $title = $name;
     }
 
     my $arcdata = {

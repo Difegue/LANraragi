@@ -33,16 +33,19 @@ sub plugin_info {
 
     return (
         #Standard metadata
-        name  => "My Plugin",
-        namespace => "dummyplug",
-        author => "Hackerman",
-        version  => "0.001",
+        name        => "My Plugin",
+        type        => "metadata",
+        namespace   => "dummyplug",
+        author      => "Hackerman",
+        version     => "0.001",
         description => "This is the description of my Plugin",
+        icon        => "This is a base64 20x20 image that will be displayed as an icon in the plugin list. Optional!"
         oneshot_arg => "This is the description for a one-shot argument that can be entered by the user when executing this plugin on a file",
-        global_args => ["This is the description for the first global argument that will be used on all executions of this plugin",
-                        "second global argument", 
-                        "third global argument"]
-
+        parameters  => [
+            {type => "bool", desc => "Boolean parameter"},
+            {type => "string", desc => "String parameter"},
+            {type => "int", desc => "Integer parameter"}
+            ]
     );
 
 }
@@ -50,7 +53,7 @@ sub plugin_info {
 
 There are no restrictions on what you can write in those fields, except for the namespace, which should preferrably be **a single word.**  
 It's used as a unique ID for your Plugin in various parts of the app.  
-The `global_args` array can contain as many arguments as you need.
+The `parameters` array can contain as many arguments as you need. The `type` field should stay as "metadata" for the time being.
 
 ### Expected Input
 
@@ -70,7 +73,7 @@ sub get_tags {
 * _$thumbhash_: A SHA-1 hash of the first image of the archive.
 * _$file_: The filesystem path to the archive.
 * _$oneshotarg_: Value of your one-shot argument, if it's been set by the User.
-* _@args_: Array containing all your Global Arguments, if their values have been set by the User.
+* _@args_: Array containing all your other arguments, if their values have been set by the User.
 
 ### Global and One-Shot Arguments
 
@@ -83,7 +86,10 @@ The **One-Shot Argument** can be set by the user every time he uses your Plugin 
 It's more meant for special overrides you'd want to use for this specific file:  
 For example, in E-Hentai and nHentai plugins, it can be used to set a specific Gallery URL you want to pull tags from.
 
-If you want the user to be able to enter those arguments, the `global_args` and `oneshot_arg` fields must be present in `plugin_info`, and contain brief descriptions of what your arguments are for. Those descriptions will be shown to the user. For `global_args`, the field **MUST** contain an array, even if it only has one argument inside!
+If you want the user to be able to enter those arguments, the `parameters` and `oneshot_arg` fields must be present in `plugin_info`, and contain brief descriptions of what your arguments are for.  
+
+One-Shot Arguments can only be strings, but other parameters can be either a boolean, an integer or a string, depending on your needs.  
+Descriptions will be shown to the user. For `parameters`, the field **MUST** contain an array, even if it only has one argument inside!
 
 ### Expected Output
 
@@ -134,14 +140,19 @@ sub plugin_info {
     return (
         #Standard metadata
         name  => "Plugin Boilerplate",
+        type  => "metadata",
         namespace => "dummyplug",
         author => "Hackerman",
         version  => "0.001",
         description => "This is base boilerplate for writing LRR plugins.",
+        icon => "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAABmJLR0QAAAAAAAD5Q7t/AAAACXBI\nWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4wYDFCYzptBwXAAAAB1pVFh0Q29tbWVudAAAAAAAQ3Jl\nYXRlZCB3aXRoIEdJTVBkLmUHAAAAjUlEQVQ4y82UwQ7AIAhDqeH/f7k7kRgmiozDPKppyisAkpTG\nM6T5vAQBCIAeQQBCUkiWRTV68KJZ1FuG5vY/oazYGdcWh7diy1Bml5We1yiMW4dmQr+W65mPjFjU\n5PMg2P9jKKvUdxWMU8neqYUW4cBpffnxi8TsXk/Qs8GkGGaWhmes1ZmNmr8kuMPwAJzzZSoHwxbF\nAAAAAElFTkSuQmCC",
         #If your plugin uses/needs custom arguments, input their name here. 
         #This name will be displayed in plugin configuration next to an input box for global arguments, and in archive edition for one-shot arguments.
         oneshot_arg => "This is a one-shot argument that can be entered by the user when executing this plugin on a file",
-global_args => ["This is a global argument that will be used on all executions of this plugin", "second argument"]
+        parameters  => [
+            {type => "bool", desc => "Enable the DOOMSDAY DEVICE"},
+            {type => "int",  desc => "Number of iterations"}
+        ]
     );
 
 }
@@ -151,14 +162,19 @@ sub get_tags {
 
     #LRR gives your plugin the recorded title for the file, the filesystem path to the file, and the custom arguments if available.
     shift;
-    my ($title, $tags, $thumbhash, $file, $oneshotarg, @args) = @_;
+    # Here, I replace @args by two variables directly matching my global arguments -- Feel free to use this variant if you prefer it.
+    my ($title, $tags, $thumbhash, $file, $oneshotarg, $doomsday, $iterations) = @_;
 
     #Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
     my $logger = LANraragi::Utils::Generic::get_logger("My Cool Plugin","plugins");
 
+    if ($doomsday) {
+        return ( error => "You fools! You've messed with the natural order!");
+    }
+
     #Work your magic here - You can create subroutines below to organize the code better
     $logger->info("Gettin' tags");
-    my $newtags = &get_tags_from_somewhere #To be implemented
+    my $newtags = get_tags_from_somewhere($iterations); #To be implemented
     my $error = 0;
 
     #Something went wrong? Return an error.
@@ -172,6 +188,11 @@ sub get_tags {
 }
 
 sub get_tags_from_somewhere {
+
+    my $iterations = shift;
+    my $logger = LANraragi::Utils::Generic::get_logger("My Cool Plugin","plugins");
+
+    $logger->info("I'm supposed to be iterating $iterations times but I don't give a damn my man");
 
     #Tags are expected to be submitted as a single string, containing tags split up by commas. Namespaces are optional.
     return "my:new, tags:here, look ma no namespace"; 

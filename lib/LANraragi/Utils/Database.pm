@@ -18,6 +18,7 @@ use LANraragi::Model::Plugins;
 
 #add_archive_to_redis($id,$file,$redis)
 #Parses the name of a file for metadata, and matches that metadata to the SHA-1 hash of the file in our Redis database.
+#This function doesn't actually require the file to exist at its given location.
 sub add_archive_to_redis {
     my ( $id, $file, $redis ) = @_;
     my $logger =
@@ -181,56 +182,6 @@ sub invalidate_cache {
       or warn "Couldn't touch .shinobu-nudge: $!";
 }
 
-#Look for a plugin by namespace.
-sub plugin_lookup {
-
-    my $plugname = $_[0];
-
-    #Go through plugins to find one with a matching namespace
-    my @plugins = LANraragi::Model::Plugins::plugins;
-
-    foreach my $plugin (@plugins) {
-
-        my %pluginfo  = $plugin->plugin_info();
-        my $namespace = $pluginfo{namespace};
-
-        if ( $plugname eq $namespace ) {
-            return $plugin;
-        }
-    }
-
-    return 0;
-}
-
-#Get the global arguments input by the user for thespecified plugin.
-sub get_plugin_globalargs {
-
-    my $plugname = $_[0];
-    my $plugin   = &plugin_lookup($plugname);
-    my $redis    = LANraragi::Model::Config::get_redis;
-    my @args     = ();
-
-    if ($plugin) {
-
-        #Get the matching argument JSON in Redis
-        my %pluginfo  = $plugin->plugin_info();
-        my $namespace = $pluginfo{namespace};
-        my $namerds   = "LRR_PLUGIN_" . uc($namespace);
-
-        if ( $redis->hexists( $namerds, "enabled" ) ) {
-            my $argsjson = $redis->hget( $namerds, "customargs" );
-            $argsjson = LANraragi::Utils::Database::redis_decode($argsjson);
-
-            #Decode it to an array for proper use
-            if ($argsjson) {
-                @args = @{ decode_json($argsjson) };
-            }
-        }
-    }
-
-    return @args;
-}
-
 # Return a list of archive IDs that have no tags.
 # Tags added automatically by the autotagger are ignored.
 sub find_untagged_archives {
@@ -257,7 +208,7 @@ sub find_untagged_archives {
                 LANraragi::Utils::Generic::remove_newlines($t);
                 
                 # the following are the only namespaces that LANraragi::Utils::Database::parse_name adds
-                $nondefaulttags += 1 unless $t =~ /(artist|parody|language|event|group):.*/
+                $nondefaulttags += 1 unless $t =~ /(artist|parody|series|language|event|group):.*/
             }
             
             #If the archive has no tags, or the tags namespaces are only from
