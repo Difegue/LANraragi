@@ -13,8 +13,22 @@ groupmod -g $GROUP_ID koyomi
 #Ensure LRR folder is writable
 chown koyomi /home/koyomi/lanraragi
 chmod 744 /home/koyomi/lanraragi
+
+#Ensure database is writable
+chown koyomi /home/koyomi/lanraragi/content/database.rdb
+
+#Ensure thumbnail folder is writable
+chown -R koyomi /home/koyomi/lanraragi/content/thumb 
+chmod 744 /home/koyomi/lanraragi/content/thumb
+
 export HOME=/home/koyomi
 
 #Start supervisor with the Docker configuration
 #This also loads the redis config to write DB in content directory and disable daemonization
-exec su-exec koyomi supervisord --nodaemon --configuration ./tools/DockerSetup/supervisord.conf
+if [ $USER_ID -eq 0 ] && [ $GROUP_ID -eq 0 ] 
+then
+    echo UID and GID set to 0, running as root. You\'ve been warned!
+    exec supervisord --nodaemon --configuration ./tools/DockerSetup/supervisord.conf
+else   
+    exec su-exec koyomi supervisord --nodaemon --configuration ./tools/DockerSetup/supervisord.conf
+fi

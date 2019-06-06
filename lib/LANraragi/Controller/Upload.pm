@@ -80,7 +80,8 @@ sub process_upload {
             # TODO: Should a lock be implemented here to ensure proper ID re-calculation? 
             move($tempfile,$output_file);
 
-            $self->render(
+            if ( -e $output_file ) {
+                $self->render(
                 json => {
                     operation => "upload",
                     name      => $file->filename,
@@ -88,7 +89,19 @@ sub process_upload {
                     success   => 1,
                     id        => $id
                 }
-            );
+                );
+            } else {
+                $self->render(
+                json => {
+                    operation => "upload",
+                    name      => $file->filename,
+                    type      => $uploadMime,
+                    success   => 0,
+                    error     => "The file couldn't be moved to your content folder!"
+                }
+                );
+            }
+            
         }
     }
     else {
