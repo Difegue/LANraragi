@@ -50,6 +50,15 @@ sub startup {
         }
     );
 
+    #Check if a Redis server is running on the provided address/port
+    eval { $self->LRR_CONF->get_redis->ping(); };
+    if ($@) {
+        say "(╯・_>・）╯︵ ┻━┻";
+        say "It appears your Redis database is currently not running.";
+        say "The program will cease functioning now.";
+        exit;
+    }
+
     my $devmode = $self->LRR_CONF->enable_devmode;
 
     if ($devmode) {
@@ -80,9 +89,6 @@ sub startup {
         my $name = $pluginfo->{name};
         $self->LRR_LOGGER->info( "Plugin Detected: " . $name );
     }
-
-    #Check if a Redis server is running on the provided address/port
-    $self->LRR_CONF->get_redis;
 
     #Start Background worker
     if ( -e "./.shinobu-pid" ) {

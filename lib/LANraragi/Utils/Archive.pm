@@ -49,7 +49,9 @@ sub extract_archive {
     
     #Rename files and folders to an encoded version
     finddepth(sub {
-                move($_, encode("ascii", $_, sub{ sprintf "U+%04X", shift }));
+                unless ($_ eq '.') {
+                    move($_, encode("ascii", $_, sub{ sprintf "U+%04X", shift }));
+                }
             }, $ae->extract_path);
 
     # dir that was extracted to
