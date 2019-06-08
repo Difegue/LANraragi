@@ -30,24 +30,26 @@ sub build_backup_JSON {
 
         my %hash = $redis->hgetall($id);
 
-        my ( $name, $title, $tags, $file, $thumbhash ) =
-          @hash{qw(name title tags file thumbhash)};
+        my ( $name, $title, $tags, $thumbhash ) =
+          @hash{qw(name title tags thumbhash)};
 
         ( $_ = LANraragi::Utils::Database::redis_decode($_) )
           for ( $name, $title, $tags );
 
         ( LANraragi::Utils::Generic::remove_newlines($_) )
-          for ( $name, $title, $tags, $file );
+          for ( $name, $title, $tags );
 
-#Backup all user-generated metadata, alongside the unique ID and the filesystem path.
-#Filesystem path is normally unused but can serve as a fallback if the ID can't be used.
+        ( $_ = encode_json($_))
+          for ( $name, $title, $tags );
+
+        #Backup all user-generated metadata, alongside the unique ID.
         $json .= qq(
                 {
                     "arcid": "$id",
-                    "title": "$title",
-                    "tags": "$tags",
+                    "title": $title,
+                    "tags": $tags,
                     "thumbhash": "$thumbhash",
-                    "filename": "$name"
+                    "filename": $name
                 },);
     }
 
