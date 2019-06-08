@@ -40,7 +40,7 @@ ENV EV_EXTRA_DEFS -DEV_NO_ATFORK
 # Make scripts executable + Run the install script as root
 RUN chmod +x ./tools/DockerSetup/install-everything.sh ./tools/DockerSetup/entrypoint.sh && sh ./tools/DockerSetup/install-everything.sh
 
-#Copy remaining LRR files from context
+#Copy remaining LRR files from context 
 COPY --chown=koyomi:koyomi / /home/koyomi/lanraragi
 
 # Make scripts executable

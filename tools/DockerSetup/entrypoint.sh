@@ -16,6 +16,7 @@ chmod 744 /home/koyomi/lanraragi
 
 #Ensure database is writable
 chown koyomi /home/koyomi/lanraragi/content/database.rdb
+chmod +rw /home/koyomi/lanraragi/content/database.rdb
 
 #Ensure thumbnail folder is writable
 chown -R koyomi /home/koyomi/lanraragi/content/thumb 

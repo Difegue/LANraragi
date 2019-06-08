@@ -34,7 +34,7 @@ sub index {
 
         if ( $tags =~ /artist:/ ) {
             $tags =~ /.*artist:([^,]*),.*/;
-            $arcname = $arcname . " by " . $1;
+            if ($1) { $arcname = $arcname . " by " . $1; }
         }
 
         my $force       = $self->req->param('force_reload')     || "0";

@@ -31,7 +31,7 @@ sub remove_newlines {
 
 #Checks if the provided file is an image.
 sub is_image {
-    return $_[0] =~ /^*.+\.(png|jpg|gif|bmp|jpeg|webp|PNG|JPG|GIF|BMP|JPEG|WEBP)$/;
+    return $_[0] =~ /^.+\.(png|jpg|gif|bmp|jpeg|jfif|webp|PNG|JPG|GIF|BMP|JPEG|JFIF|WEBP)$/;
 }
 
 #Start Shinobu and return its Proc::Background object.
