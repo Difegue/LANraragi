@@ -1,8 +1,11 @@
 //Functions for DataTable initialization.
 
+var jsonCache = {};
+
 //Executed onload of the archive index to initialize DataTables and other minor things.
 //This is painful to read.
 function initIndex(pagesize, dataSet) {
+	jsonCache = dataSet;
 	thumbTimeout = null;
 
 	$.fn.dataTableExt.oStdClasses.sStripeOdd = 'gtr0';
@@ -14,7 +17,7 @@ function initIndex(pagesize, dataSet) {
 		'deferRender': true,
 		'lengthChange': false,
 		'pageLength': pagesize,
-		'order': [[1, 'asc']],
+		'order': [[0, 'asc']],
 		'dom': '<"top"ip>rt<"bottom"p><"clear">',
 		'language': {
 			'info': 'Showing _START_ to _END_ of _TOTAL_ ancient chinese lithographies.',
@@ -23,12 +26,6 @@ function initIndex(pagesize, dataSet) {
 		'preDrawCallback': thumbViewInit, //callbacks for thumbnail view
 		'rowCallback': buildThumbDiv,
 		'columns': [
-			{
-				className: 'itdc',
-				'width': '20',
-				'data': 'isnew', //mild trickery to keep the isnew value stored in the table
-				'render': actionColumnDisplay
-			},
 			{
 				className: 'title itd',
 				'data': null,
@@ -50,7 +47,7 @@ function initIndex(pagesize, dataSet) {
 				'render': function (data, type, full, meta) {
 					if (type == "display") {
 
-						line = '<span class="tags tag-tooltip" onmouseover="buildTagTooltip($(this))" style="text-overflow:ellipsis;">' + colorCodeTags(data) + '</span>';
+						line = '<span class="tag-tooltip" onmouseover="buildTagTooltip($(this))" style="text-overflow:ellipsis;">' + colorCodeTags(data) + '</span>';
 						line += buildTagsDiv(data);
 						return line;
 					}
@@ -91,7 +88,8 @@ function initIndex(pagesize, dataSet) {
 			if (!input.prop("checked"))
 				return true;
 
-			//See mild trickery above
+			//See mild trickery above 
+		    //TODO find a new cool trick
 			if (data[0] === "block") {
 				return true;
 			}
@@ -107,13 +105,13 @@ function initIndex(pagesize, dataSet) {
 }
 
 //For datatable initialization, columns with just one data source display that source as a link for instant search.
-function artistColumnDisplay(data, type, full, meta) {
+function createNamespaceColumn(namespace, type, data) {
 	if (type == "display") {
 
 		if (data === "")
 			return "";
 
-		regex = /.*artist:\s?([^,]*),*.*/gi; //Catch last artist:xxx value in tags
+		regex = new RegExp(".*"+namespace+":\\s?([^,]*),*.*","gi"); // Catch last namespace:xxx value in tags
 		match = regex.exec(data);
 
 		if (match != null) {
@@ -127,36 +125,12 @@ function artistColumnDisplay(data, type, full, meta) {
 	return data;
 }
 
-//For datatable initialization, columns with just one data source display that source as a link for instant search.
-function seriesColumnDisplay(data, type, full, meta) {
-	if (type == "display") {
-
-		if (data === "")
-			return "";
-
-		regex = /.*(parody|series|magazine):\s?([^,]*),*.*/gi
-		match = regex.exec(data);
-
-		if (match != null) {
-			return '<a style="cursor:pointer" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">' +
-				match[2].replace(/\b./g, function (m) { return m.toUpperCase(); }) +
-				'</a>';
-		} else return "";
-
-	}
-
-	return data;
+function artistColumnDisplay(data, type, full, meta) {
+	return createNamespaceColumn("artist", type, data);
 }
 
-
-function actionColumnDisplay(data, type, full, meta) {
-	if (type == "display") {
-		return '<div style="font-size:16px">'
-			+ '<a href="./api/servefile?id=' + full.arcid + '" title="Download this archive."><i class="fa fa-save" style="margin-right:2px"></i><a/>'
-			+ '<a href="./edit?id=' + full.arcid + '" title="Edit this archive\'s tags and data."><i class="fa fa-edit"></i><a/></div>';
-	}
-
-	return data;
+function seriesColumnDisplay(data, type, full, meta) {
+	return createNamespaceColumn("(parody|series|magazine)", type, data);
 }
 
 function titleColumnDisplay(data, type, full, meta) {
@@ -201,34 +175,22 @@ function thumbViewInit(settings) {
 function buildThumbDiv(row, data, index) {
 
 	if (localStorage.indexViewMode == 1) {
-		//Build a thumb-like div with the data and jam it in thumbs_container
-		thumb_div = '<div style="height:335px" class="id1">' +
+		//Build a thumb-like div with the data 
+		thumb_div = '<div style="height:335px" class="id1" >' +
 			'<div class="id2">' +
-			'<div class="id44">' +
-			'<div class="isnew" style=" display: ' + data.isnew + '">' +
+				'<div class="isnew" style=" display: ' + data.isnew + '"/>' +
+				'<a href="./reader?id=' + data.arcid + '" title="' + data.title + '">' + data.title + '</a>' +
 			'</div>' +
-			'</div>' +
-			'<a href="./reader?id=' + data.arcid + '" title="' + data.title + '">' + data.title + '</a>' +
-			'</div>' +
-			'<div style="height:280px" class="id3">' +
-			'<a href="./reader?id=' + data.arcid + '" title="' + data.title + '">';
-
-		thumb_div += '<img style="position:relative;" id ="' + data.arcid + '_thumb" src="./img/wait_warmly.jpg"/>' +
-			'<i id="' + data.arcid + '_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>' +
-			'<img style="position:absolute; top:0; left:0; width:200px" src="./api/thumbnail?id=' + data.arcid + '" onload="$(\'#' + data.arcid + '_thumb\').remove(); $(\'#' + data.arcid + '_spinner\').remove();" onerror="this.src=\'./img/noThumb.png\'"/>';
-
-		thumb_div += '</a>' +
+			'<div style="height:280px" class="id3" >' +
+				'<a href="./reader?id=' + data.arcid + '" title="' + data.title + '">' +
+					'<img style="position:relative;" id ="' + data.arcid + '_thumb" src="./img/wait_warmly.jpg"/>' +
+					'<i id="' + data.arcid + '_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>' +
+					'<img style="position:absolute; top:0; left:0; width:200px" src="./api/thumbnail?id=' + data.arcid + '" onload="$(\'#' + data.arcid + '_thumb\').remove(); $(\'#' + data.arcid + '_spinner\').remove();" onerror="this.src=\'./img/noThumb.png\'"/>' +
+				'</a>' +
 			'</div>' +
 			'<div class="id4">' +
-			'<div class="id41" style="font-size:16px; margin-left:10px"><a title="Download this archive." href="./api/servefile?id=' + data.arcid + '">' +
-			'<i style="margin-right:2px" class="fa fa-save"></i>' +
-			'</a>' +
-			'<a title="Edit this archive\'s tags and data." href="./edit?id=' + data.arcid + '">' +
-			'<i class="fa fa-edit"></i>' +
-			'</a></div>' +
-			'<div class="id42 tag-tooltip"><a style="cursor:pointer" onmouseover="buildTagTooltip($(this))">Hover me for tags!</a>' +
-			buildTagsDiv(data.tags) + '</div>' +
-			'</div>' +
+				'<span class="tags tag-tooltip" onmouseover="buildTagTooltip($(this))">'+colorCodeTags(data.tags)+'</span>' +
+				buildTagsDiv(data.tags) +
 			'</div>';
 
 		$('#thumbs_container').append(thumb_div);
@@ -309,7 +271,6 @@ function buildTagsDiv(tags) {
 	Object.keys(tagsByNamespace).sort().forEach(function (key, index) {
 
 		ucKey = key.charAt(0).toUpperCase() + key.slice(1);
-
 		line += "<tr><td style='font-size:10pt; padding: 0 2px 7px; vertical-align:top'>" + ucKey + ":</td><td>";
 
 		tagsByNamespace[key].forEach(function (tag) {
@@ -335,7 +296,8 @@ function colorCodeTags(tags) {
 			line+="<span class='"+key.toLowerCase()+"-tag'>"+tag+"</span>, ";
 		});
 	});	
-	return line;
+	// Remove last comma
+	return line.slice(0, -1);
 }
 
 function splitTagsByNamespace(tags) {

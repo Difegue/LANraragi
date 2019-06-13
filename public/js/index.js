@@ -12,7 +12,7 @@ function toggleFav(button) {
 	tagState = !(input.prop("checked"));
 	input.prop("checked", tagState);
 
-	//Add/remove class to button dependinig on the state
+	//Add/remove class to button depending on the state
 	if (tagState)
 		button.classList.add("toggled");
 	else
@@ -126,4 +126,12 @@ function checkVersion(currentVersionConf) {
 
 		}
 	});
+}
+
+function downloadArchive(id) {
+	window.open("./api/servefile?id="+id);
+}
+
+function editArchive(id) {
+	window.open("./edit?id="+id);
 }

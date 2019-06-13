@@ -12,6 +12,7 @@
 	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.toast.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.qtip.min.css" />
+	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.contextMenu.min.css" />
 	[% csshead %]
 
 	<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
@@ -19,6 +20,8 @@
 	<script src="/js/vendor/jquery.dataTables.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.qtip.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/jquery.ui.position.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/jquery.contextMenu.min.js" type="text/JAVASCRIPT"></script>
 
 	<script src="/js/index.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/index_datatables.js" type="text/JAVASCRIPT"></script>
@@ -91,7 +94,6 @@
 			<table class="itg datatables">
 				<thead>
 					<tr>
-						<th></th>
 						<th id="titleheader">
 							<a>Title</a>
 						</th>
@@ -116,7 +118,7 @@
 					lads
 					<i class="fas fa-bomb"></i>
 				</h1>
-				<h2>The JSON cache is corrupt, and as such LANraragi is unable to display your archive list.
+				<h2>The database cache is corrupt, and as such LANraragi is unable to display your archive list.
 					<br> You can try refreshing the cache manually by clicking
 					<a href="/api/discard_cache">here</a> to see if that fixes anything. </h2>
 			</div>
@@ -176,6 +178,23 @@
 		[% IF debugmode %][% ELSE %]
 		checkVersion("[% version %]");
 		[% END %]
+
+		// Initialize context menu
+		$.contextMenu({
+			selector: '.id1', 
+			callback: function(key, options) {
+				alert("Clicked on " + key + " on element " + options.$trigger.id);
+			},
+			items: {
+				[% IF userlogged %]
+				"edit": {name: "Edit Metadata", icon: "fas fa-pencil-alt"},
+				"delete": {name: "Delete", icon: "fas fa-trash-alt"},		
+				"sep1": "---------",		
+				[% END %]
+				"read": {name: "Read", icon: "fas fa-book-open"},
+				"download": {name: "Download", icon: "fas fa-save"}
+			}
+		});
 
 	</script>
 
