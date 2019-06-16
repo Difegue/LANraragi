@@ -30,7 +30,7 @@ If you're running on Windows, please check the syntax for mapping your content d
 Windows 7/8 users running the Legacy Docker toolbox will have to explicitly forward port 127.0.0.1:3000 from the host to the container in order to be able to access the app.
 {% endhint %}
 
-The content directory you have to specify in the command above will contain archives you either upload through the software or directly drop in, alongside generated thumbnails. 
+The content directory you have to specify in the command above will contain archives you either upload through the software or directly drop in, alongside generated thumbnails.  
 
 This directory also houses the LANraragi database\(As database.rdb\), allowing you to hotswap containers without losing any data.
 
