@@ -142,7 +142,7 @@ function titleColumnDisplay(data, type, full, meta) {
 		}
 
 		return titleHtml + '<a class="image-tooltip" onmouseover="buildImageTooltip($(this))" href="./reader?id=' + data.arcid + '">'
-			+ data.title + '</a><div class="caption" style="display: none;"><img src="./api/thumbnail?id='
+			+ data.title + '</a><div class="caption" style="display: none;"><img style="height:200px" src="./api/thumbnail?id='
 			+ data.arcid + '" onerror="this.src=\'./img/noThumb.png\'"></div>';
 	}
 
@@ -185,7 +185,7 @@ function buildThumbDiv(row, data, index) {
 				'<a href="./reader?id=' + data.arcid + '" title="' + data.title + '">' +
 					'<img style="position:relative;" id ="' + data.arcid + '_thumb" src="./img/wait_warmly.jpg"/>' +
 					'<i id="' + data.arcid + '_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>' +
-					'<img style="position:absolute; top:0; left:0; width:200px" src="./api/thumbnail?id=' + data.arcid + '" onload="$(\'#' + data.arcid + '_thumb\').remove(); $(\'#' + data.arcid + '_spinner\').remove();" onerror="this.src=\'./img/noThumb.png\'"/>' +
+					'<img style="position:absolute; top:0; left:0" src="./api/thumbnail?id=' + data.arcid + '" onload="$(\'#' + data.arcid + '_thumb\').remove(); $(\'#' + data.arcid + '_spinner\').remove();" onerror="this.src=\'./img/noThumb.png\'"/>' +
 				'</a>' +
 			'</div>' +
 			'<div class="id4">' +
