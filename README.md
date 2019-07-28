@@ -12,10 +12,9 @@
 
 Web interface and reader for archival of comics/manga, running on Mojolicious + Redis.
 
-## User survey ongoing!
+## User survey results coming soon
 
-I'm currently running a small survey to gather some info from all users as to what they'd like to see in future releases.  
-I don't put metrics/telemetry of any kind in the software itself, so if you have 2 minutes to spare, [it'd be much appreciated](https://forms.office.com/Pages/ResponsePage.aspx?id=DQSIkWdsW0yxEjajBLZtrQAAAAAAAAAAAAN__osxt25UQk44UFo0RTNKUFlLUkhCMzJDUUZZTVIxVC4u)! 
+Thanks to everyone who filled in the survey! -- I'll publish the results in a blog post soon.  
 
 ## Features  
 
