@@ -19,7 +19,7 @@ Installing from **source** is a more involved procedure, but it does put you in 
 ## Windows 10: _LRR for Windows_
 
 {% hint style="warning" %}
-This method works on **64-bit** editions of Windows 10 only.                                                  Versions under v1803 \(April 2018 Update\) will probably not work properly.
+This method works on **64-bit** editions of Windows 10 only. Versions under v1809 \(October 2018 Update\) will probably not work properly. v1803 _might_ work, but you're wading uncharted waters.
 {% endhint %}
 
 ![](../.gitbook/assets/karen.jpg)
