@@ -12,7 +12,6 @@ use Mojo::UserAgent;
 
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
-use LANraragi::Plugin::ExHentai;
 
 #Meta-information about your plugin.
 sub plugin_info {
@@ -23,17 +22,77 @@ sub plugin_info {
         type        => "metadata",
         namespace   => "ehplugin",
         author      => "Difegue",
-        version     => "2.0",
-        description => "Searches g.e-hentai for tags matching your archive. <br/>If you have an account that can access exhentai.org, adding the credentials here will make more archives available for parsing.",
+        version     => "2.2",
+        description => "Searches g.e-hentai for tags matching your archive. 
+If you have an account that can access fjorded content, adding the credentials here will make more archives available for parsing.",
         icon        => "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAABmJLR0QA/wD/AP+gvaeTAAAACXBI\nWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4wYBFg0JvyFIYgAAAB1pVFh0Q29tbWVudAAAAAAAQ3Jl\nYXRlZCB3aXRoIEdJTVBkLmUHAAAEo0lEQVQ4y02UPWhT7RvGf8/5yMkxMU2NKaYIFtKAHxWloYNU\ncRDeQTsUFPwAFwUHByu4ODq4Oghdiri8UIrooCC0Lx01ONSKfYOioi1WpWmaxtTm5PTkfNzv0H/D\n/9oeePjdPNd13Y8aHR2VR48eEUURpmmiaRqmaXbOAK7r4vs+IsLk5CSTk5P4vo9hGIgIsViMra0t\nCoUCRi6XY8+ePVSrVTRN61yybZuXL1/y7t078vk8mUyGvXv3cuLECWZnZ1lbW6PdbpNIJHAcB8uy\nePr0KYZlWTSbTRKJBLquo5TCMAwmJia4f/8+Sini8Ti1Wo0oikin09i2TbPZJJPJUK/XefDgAefO\nnWNlZQVD0zSUUvi+TxAE6LqOrut8/fqVTCaDbdvkcjk0TSOdTrOysoLrujiOw+bmJmEYMjAwQLVa\nJZVKYXR1ddFut/F9H9M0MU0T3/dZXV3FdV36+/vp7u7m6NGj7Nq1i0qlwuLiIqVSib6+Pubn5wGw\nbZtYLIaxMymVSuH7PpZlEUURSina7TZBEOD7Pp8/fyYMQ3zfZ25ujv3795NOp3n48CE9PT3ouk4Q\nBBi/fv3Ctm0cx6Grq4utrS26u7sREQzDIIoifv78SU9PD5VKhTAMGRoaYnV1leHhYa5evUoQBIRh\niIigiQhRFKHrOs1mE9u2iaKIkydPYhgGAKZp8v79e+LxOPl8Htd1uXbtGrdv3yYMQ3ZyAODFixeb\nrVZLvn//Lq7rSqVSkfX1dREROXz4sBw/flyUUjI6OipXrlyRQ4cOSbPZlCiKxHVdCcNQHMcRz/PE\ndV0BGL53756sra1JrVaT9fV1cRxHRESGhoakr69PUqmUvHr1SsrlsuzI931ptVriuq78+fNHPM+T\nVqslhoikjh075p09e9ba6aKu6/T39zM4OMjS0hIzMzM0Gg12794N0LEIwPd9YrEYrusShiEK4Nmz\nZ41yudyVy+XI5/MMDAyQzWap1+tks1lEhIWFBQqFArZto5QiCAJc1+14t7m5STweRwOo1WoSBAEj\nIyMUi0WSySQiQiqV6lRoYWGhY3673e7sfRAEiAjZbBbHcbaBb9++5cCBA2SzWZLJJLZt43kesViM\nHX379g1d1wnDsNNVEQEgCAIajQZ3797dBi4tLWGaJq7rYpompVKJmZkZ2u12B3j58mWUUmiahoiw\nsbFBEASdD2VsbIwnT55gACil+PHjB7Ozs0xPT/P7929u3ryJZVmEYUgYhhQKBZRSiAie52EYBkop\nLMvi8ePHTE1NUSwWt0OZn5/3hoeHzRs3bqhcLseXL1+YmJjowGzbRtO07RT/F8jO09+8ecP58+dJ\nJBKcPn0abW5uThWLRevOnTv/Li4u8vr1a3p7e9E0jXg8zsePHymVSnz69Kmzr7quY9s2U1NTXLp0\nCc/zOHLkCPv27UPxf6rX63+NjIz8IyKMj48zPT3NwYMHGRwcpLe3FwARodVqcf36dS5evMj4+DhB\nEHDmzBkymQz6DqxSqZDNZr8tLy//DYzdunWL5eVlqtUqHz58IJVKkUwmaTQalMtlLly4gIjw/Plz\nTp06RT6fZ2Njg/8AqMV7tO07rnsAAAAASUVORK5CYII=",
         parameters  => [
-            {type => "int",    desc =>  "ipb_member_id cookie (used for ExHentai access)"},
-            {type => "string", desc =>  "ipb_pass_hash cookie (used for ExHentai access)"},
+            {type => "int",    desc =>  "ipb_member_id cookie"},
+            {type => "string", desc =>  "ipb_pass_hash cookie"},
+            {type => "string", desc =>  "star cookie"},
             {type => "string", desc =>  "Default language to use in searches"},
-            {type => "bool",   desc =>  "Save archive title"}
+            {type => "bool",   desc =>  "Save archive title"},
+            {type => "bool",   desc =>  "Fetch using thumbnail first"}
         ],
         oneshot_arg => "E-H Gallery URL (Will attach tags matching this exact gallery to your archive)"
     );
+
+}
+
+# get_user_agent(ipb cookies)
+# Try crafting a Mojo::UserAgent object that can access E-Hentai.
+# Returns the UA object created, alongside the domainname it can access. (e-h)
+sub get_user_agent {
+
+    my ($ipb_member_id, $ipb_pass_hash, $star) = @_;
+
+    my $logger = LANraragi::Utils::Generic::get_logger( "E-Hentai", "plugins" );
+    my $domain = "https://e-hentai.org";
+    my $ua = Mojo::UserAgent->new;
+
+    if ($ipb_member_id ne "" && $ipb_pass_hash ne "") {
+        $logger->info( "Cookies provided ($ipb_member_id $ipb_pass_hash $star)!");
+
+        #Setup the needed cookies with the e-hentai domain
+        #They should translate to exhentai cookies with the igneous value generated
+        $ua->cookie_jar->add(
+            Mojo::Cookie::Response->new(
+                name   => 'ipb_member_id',
+                value  => $ipb_member_id,
+                domain => 'e-hentai.org',
+                path   => '/'
+            )
+        );
+
+        $ua->cookie_jar->add(
+            Mojo::Cookie::Response->new(
+                name   => 'ipb_pass_hash',
+                value  => $ipb_pass_hash,
+                domain => 'e-hentai.org',
+                path   => '/'
+            )
+        );
+
+        $ua->cookie_jar->add(
+            Mojo::Cookie::Response->new(
+                name   => 'star',
+                value  => $star,
+                domain => 'e-hentai.org',
+                path   => '/'
+            )
+        );
+
+        $ua->cookie_jar->add(
+            Mojo::Cookie::Response->new(
+                name   => 'ipb_coppa',
+                value  => '0',
+                domain => 'forums.e-hentai.org',
+                path   => '/'
+            )
+        );
+    }
+
+    return ($ua, $domain);
 
 }
 
@@ -43,16 +102,16 @@ sub get_tags {
     # LRR gives your plugin the recorded title/tags/thumbnail hash for the file,
     # the filesystem path, and the custom arguments at the end if available.
     shift;
-    my ( $title, $tags, $thumbhash, $file, $oneshotarg, 
-         $ipb_member_id, $ipb_pass_hash, $lang, $savetitle ) = @_;
+    my ( $title, $tags, $thumbhash, $file, $oneshotarg,
+         $ipb_member_id, $ipb_pass_hash, $star, $lang, $savetitle, $usethumbs) = @_;
 
     # Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
     my $logger = LANraragi::Utils::Generic::get_logger( "E-Hentai", "plugins" );
-    
+
     # Work your magic here - You can create subroutines below to organize the code better
     my $gID    = "";
     my $gToken = "";
-    my ( $ua, $domain ) = LANraragi::Plugin::ExHentai::get_user_agent($ipb_member_id, $ipb_pass_hash);
+    my ( $ua, $domain ) = get_user_agent($ipb_member_id, $ipb_pass_hash, $star);
 
     # Quick regex to get the E-H archive ids from the provided url.
     if ( $oneshotarg =~ /.*\/g\/([0-9]*)\/([0-z]*)\/*.*/ ) {
@@ -62,7 +121,7 @@ sub get_tags {
     else {
         # Craft URL for Text Search on EH if there's no user argument
         ( $gID, $gToken ) =
-          &lookup_gallery( $title, $tags, $thumbhash, $lang, $ipb_member_id, $ipb_pass_hash );
+          &lookup_gallery( $title, $tags, $thumbhash, $lang, $ua, $domain, $usethumbs);
     }
 
    # If an error occured, return a hash containing an error message.
@@ -102,22 +161,24 @@ sub get_tags {
 
 sub lookup_gallery {
 
-    my ( $title, $tags, $thumbhash, $defaultlanguage, $ipb_member_id, $ipb_pass_hash ) = @_;
+    my ( $title, $tags, $thumbhash, $defaultlanguage, $ua, $domain, $usethumbs) = @_;
     my $logger = LANraragi::Utils::Generic::get_logger( "E-Hentai", "plugins" );
     my $URL    = "";
 
-    # Try logging in to exhentai, fallback naturally to e-h if we can't
-    my ( $ua, $domain ) = LANraragi::Plugin::ExHentai::get_user_agent($ipb_member_id, $ipb_pass_hash);
-    
     #Thumbnail reverse image search
-    if ( $thumbhash ne "" ) {
+    if ( $thumbhash ne "" && $usethumbs) {
 
         $logger->info("Reverse Image Search Enabled, trying first.");
 
         #search with image SHA hash
         $URL = $domain
-          . "?f_shash=". $thumbhash
-          . "&fs_covers=1&fs_similar=1";
+          . "?advsearch=1&f_sname=on&f_stags=on&f_sdt2=on&f_sh=on&f_spf=&f_spt=&f_sfu=on&f_sft=on&f_sfl=on&f_shash=". $thumbhash
+          . "&fs_covers=1&fs_similar=1&fs_exp=1&f_search=";
+
+        #Add the language override, if it's defined.
+        if ( $defaultlanguage ne "" ) {
+            $URL = $URL . uri_escape_utf8("language:$defaultlanguage");
+        }  
 
         $logger->debug("Using URL $URL (archive thumbnail hash)");
 
@@ -131,7 +192,7 @@ sub lookup_gallery {
     #Regular text search
     $URL =
         $domain
-      . "?advsearch=1&f_sname=on&f_stags=on&f_spf=&f_spt=&f_sft=on"
+      . "?advsearch=1&f_sname=on&f_stags=on&f_sdt2=on&f_sh=on&f_spf=&f_spt=&f_sfu=on&f_sft=on&f_sfl=on"
       . "&f_search=" . uri_escape_utf8(qw(").$title.qw("));
 
     #Add the language override, if it's defined.
@@ -180,7 +241,7 @@ sub ehentai_parse() {
         $gID    = $values[0];
         $gToken = $values[1];
     };
-    
+
     #Returning shit yo
     return ( $gID, $gToken );
 }
@@ -189,7 +250,7 @@ sub ehentai_parse() {
 # Executes an e-hentai API request with the given JSON and returns tags and title.
 sub get_tags_from_EH {
 
-    my $uri    = 'http://e-hentai.org/api.php';
+    my $uri    = 'https://e-hentai.org/api.php';
     my $gID    = $_[0];
     my $gToken = $_[1];
 
