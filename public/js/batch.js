@@ -66,7 +66,9 @@ function startBatch() {
 
     console.log(command);
 
-    var batchSocket = new WebSocket("ws://" + window.location.host + "/batch/socket");
+    var wsProto = "ws://";
+    if (location.protocol == 'https:') wsProto = "wss://";
+    var batchSocket = new WebSocket(wsProto + window.location.host + "/batch/socket");
 
     batchSocket.onopen = function (event) {
         batchSocket.send(JSON.stringify(command));
