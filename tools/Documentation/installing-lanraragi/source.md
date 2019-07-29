@@ -20,17 +20,11 @@ For information, my personal tests are done using Debian's vendor Perl.
 apt-get update
 apt-get upgrade -y
 apt-get install build-essential make gnupg pkg-config\
-cpanminus redis-server libarchive-dev libjpeg-dev libpng-dev libssl-dev zlib1g-dev
+cpanminus redis-server libarchive-dev libjpeg-dev libpng-dev libssl-dev zlib1g-dev\
+nodejs npm
 ```
 
 _Base software dependencies._
-
-```text
-curl -sL https://deb.nodesource.com/setup_9.x | bash -
-apt-get install -y nodejs
-```
-
-_Node.js and NPM._
 
 ## Installing LRR
 

@@ -57,6 +57,7 @@ server {
 
     return 301 https://$host$request_uri;
 }
+
 server {
     listen 443 ssl;
     index index.php index.html index.htm;
@@ -68,6 +69,10 @@ server {
 
     location / {
         proxy_pass http://0.0.0.0:3000;
+        proxy_http_version 1.1;
+        <----- The two following lines are needed for batch tagger support with SSL ----->
+        proxy_set_header Upgrade $http_upgrade; 
+        proxy_set_header Connection $connection_upgrade;
     }
 }
 ```
