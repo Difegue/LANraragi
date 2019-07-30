@@ -242,6 +242,12 @@ sub ehentai_parse() {
         $gToken = $values[1];
     };
 
+    if ( index( $content, "You are opening" ) != -1 ) {
+        my $rand = 15 + int(rand(51 - 15));
+        $logger->info("Sleeping for $rand seconds due to EH excessive requests warning" );
+        sleep($rand);
+    }
+
     #Returning shit yo
     return ( $gID, $gToken );
 }
