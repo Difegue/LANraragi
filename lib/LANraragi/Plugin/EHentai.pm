@@ -215,6 +215,7 @@ sub ehentai_parse() {
 
     my $URL = $_[0];
     my $ua  = $_[1];
+    my $logger = LANraragi::Utils::Generic::get_logger( "E-Hentai", "plugins" );
 
     my $response = $ua->max_redirects(5)->get($URL)->result;
     my $content  = $response->body;

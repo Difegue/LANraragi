@@ -8,11 +8,12 @@ use LANraragi::Plugin::nHentai;
 use LANraragi::Plugin::Chaika;
 
 #EHentai Tests
+my ( $ua, $domain ) = LANraragi::Plugin::EHentai::get_user_agent("","","");
 my $eH_gID    = "618395";
 my $eH_gToken = "0439fa3666";
 
 my ( $test_eH_gID, $test_eH_gToken ) =
-  LANraragi::Plugin::EHentai::lookup_gallery( "TOUHOU GUNMANIA", "", "", "", "", "" );
+  LANraragi::Plugin::EHentai::lookup_gallery( "TOUHOU GUNMANIA", "", "", "", $ua, $domain, 0 );
 
 is( $test_eH_gID,    $eH_gID,    'eHentai search test 1/2' );
 is( $test_eH_gToken, $eH_gToken, 'eHentai search test 2/2' );
