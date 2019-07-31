@@ -50,7 +50,10 @@ sub extract_archive {
     #Rename files and folders to an encoded version
     finddepth(sub {
                 unless ($_ eq '.') {
-                    move($_, encode("ascii", $_, sub{ sprintf "U+%04X", shift }));
+                    # Use Encode's coderef feature to map non-ascii characters to their Unicode codepoint equivalent.
+                    # This makes it so that only pure ascii ends up put in the filesystem by LRR.
+                    move($_, encode("ascii", $_, 
+                                sub{ sprintf "U+%04X", shift })) || die "Failed to move file: $!";
                 }
             }, $ae->extract_path);
 
