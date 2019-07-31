@@ -96,10 +96,10 @@ sub initialize_from_new_process {
         $userdir
     );
 
-    # add a watch to the temp folder on created folders
-    # Check the current folder size and clean it if necessary
+    # Check the current temp folder size and clean it if necessary
     $inotify->watch( LANraragi::Utils::TempFolder::get_temp,
-        IN_ALL_EVENTS, sub { LANraragi::Utils::TempFolder::clean_temp_partial; } );
+                    (IN_MOVED_TO | IN_DELETE | IN_CREATE), 
+                    sub { LANraragi::Utils::TempFolder::clean_temp_partial; } );
 
     # Create a .shinobu-nudge file and add a watch to it
     my $nudge = cwd . "/.shinobu-nudge";
