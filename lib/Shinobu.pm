@@ -77,7 +77,7 @@ sub initialize_from_new_process {
     $logger->info("Adding inotify watches to content folder $userdir");
 
     # add watches to content directory
-    $inotify->watch( $userdir, IN_ALL_EVENTS, $inotifysub );
+    $inotify->watch( $userdir, (IN_MOVED_TO | IN_DELETE | IN_CREATE), $inotifysub );
 
     # add watches to all subdirectories
     find(
@@ -88,7 +88,7 @@ sub initialize_from_new_process {
                   if $_ eq "thumb"
                   || $_ eq ".";         #excluded subdirs
                 $logger->debug("Adding inotify watches to subdirectory $_");
-                $inotify->watch( $File::Find::name, IN_ALL_EVENTS,
+                $inotify->watch( $File::Find::name, (IN_MOVED_TO | IN_DELETE | IN_CREATE),
                     $inotifysub );
             },
             follow_fast => 1
@@ -238,7 +238,7 @@ sub new_file_callback {
         $logger->info("Subdirectory $name was added to the content folder!");
 
         #Add watches to this subdirectory first
-        $inotify->watch( $name, IN_ALL_EVENTS, $inotifysub );
+        $inotify->watch( $name, (IN_MOVED_TO | IN_DELETE | IN_CREATE), $inotifysub );
 
         #Just do a big find call to add watches in potential subdirs
         find(
@@ -248,7 +248,7 @@ sub new_file_callback {
                         $logger->debug(
                             "Adding inotify watches to subdirectory $_");
                         $inotify->watch( $File::Find::name,
-                            IN_ALL_EVENTS, $inotifysub );
+                            (IN_MOVED_TO | IN_DELETE | IN_CREATE), $inotifysub );
                         return;
                     }
 
