@@ -4,6 +4,7 @@ use Mojo::Base 'Mojolicious::Controller';
 use File::Basename;
 use Redis;
 use Encode;
+use Encode::Guess qw/euc-jp shiftjis 7bit-jis/;
 use Template;
 
 use LANraragi::Utils::Generic;
@@ -121,7 +122,7 @@ sub index {
             name      => $name,
             arctitle  => $title,
             tags      => $tags,
-            file      => $file,
+            file      => decode("Guess", $file),
             thumbhash => $thumbhash,
             plugins   => \@pluginlist,
             title     => $self->LRR_CONF->get_htmltitle,
