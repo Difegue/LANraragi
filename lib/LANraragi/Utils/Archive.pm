@@ -10,6 +10,7 @@ use File::Path qw(remove_tree);
 use File::Find qw(finddepth);
 use File::Copy qw(move);
 use Encode;
+use Encode::Guess qw/euc-jp shiftjis 7bit-jis/;
 use Redis;
 use Cwd;
 use Data::Dumper;
@@ -52,8 +53,9 @@ sub extract_archive {
                 unless ($_ eq '.') {
                     # Use Encode's coderef feature to map non-ascii characters to their Unicode codepoint equivalent.
                     # This makes it so that only pure ascii ends up put in the filesystem by LRR.
-                    move($_, encode("ascii", $_, 
-                                sub{ sprintf "U+%04X", shift })) || die "Failed to move file: $!";
+                    # Decoding from the filesystem's original name is done using Encode::Guess 
+                    move($_, encode("ascii", decode ("Guess", $_), 
+                                sub{ sprintf "U+%04X", shift }));
                 }
             }, $ae->extract_path);
 
