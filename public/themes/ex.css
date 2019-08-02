@@ -241,6 +241,7 @@ div.id2 {
     text-align: center;
     vertical-align: middle;
     width: 220px;
+    line-height: 15px;
 }
 
 div.id2 a {
