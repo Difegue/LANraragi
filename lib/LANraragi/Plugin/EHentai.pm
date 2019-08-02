@@ -115,12 +115,16 @@ sub get_tags {
     my $gToken = "";
     my ( $ua, $domain ) = get_user_agent($ipb_member_id, $ipb_pass_hash, $star, $enablepanda);
 
-    # Quick regex to get the E-H archive ids from the provided url.
+    # Quick regex to get the E-H archive ids from the provided url or source tag
     if ( $oneshotarg =~ /.*\/g\/([0-9]*)\/([0-z]*)\/*.*/ ) {
         $gID    = $1;
         $gToken = $2;
-    }
-    else {
+        $logger->debug("Skipping search and using gallery $gID / $gToken from oneshot args");
+    } elsif ( $tags =~ /.*source:e(?:x|-)hentai\.org\/g\/([0-9]*)\/([0-z]*)\/*.*/gi ) {
+        $gID    = $1;
+        $gToken = $2;
+        $logger->debug("Skipping search and using gallery $gID / $gToken from source tag");
+    } else {
         # Craft URL for Text Search on EH if there's no user argument
         ( $gID, $gToken ) =
           &lookup_gallery( $title, $tags, $thumbhash, $lang, $ua, $domain, $usethumbs);
@@ -285,8 +289,11 @@ sub get_tags_from_EH {
         my $data    = $jsonresponse->{"gmetadata"};
         my $tags    = @$data[0]->{"tags"};
         my $ehtitle = @$data[0]->{"title"};
+        my $ehcat   = lc @$data[0]->{"category"};
 
         my $ehtags = join( ", ", @$tags );
+        $ehtags = $ehtags . ", category:" . $ehcat;
+
         $logger->info("Sending the following tags to LRR: $ehtags");
         return ($ehtags, $ehtitle);
     }
