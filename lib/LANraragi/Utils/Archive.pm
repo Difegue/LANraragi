@@ -10,7 +10,7 @@ use File::Path qw(remove_tree);
 use File::Find qw(finddepth);
 use File::Copy qw(move);
 use Encode;
-use Encode::Guess qw/euc-jp shiftjis 7bit-jis/;
+use Encode::Guess qw/ascii euc-jp shiftjis 7bit-jis/;
 use Redis;
 use Cwd;
 use Data::Dumper;
@@ -49,19 +49,36 @@ sub extract_archive {
     my $ok = $ae->extract( to => $path ) or die $ae->error;
     
     #Rename files and folders to an encoded version
+    my $cwd = getcwd();
+
     finddepth(sub {
-                unless ($_ eq '.') {
-                    # Use Encode's coderef feature to map non-ascii characters to their Unicode codepoint equivalent.
-                    # This makes it so that only pure ascii ends up put in the filesystem by LRR.
-                    # Decoding from the filesystem's original name is done using Encode::Guess 
-                    move($_, encode("ascii", decode ("Guess", $_), 
-                                sub{ sprintf "U+%04X", shift }));
-                }
-            }, $ae->extract_path);
+        unless ($_ eq '.') {
+
+            my $filename = $_;
+            eval {
+                # Try a guess to regular japanese encodings first
+                $filename = decode ("Guess", $filename);
+            };
+            # Fallback to utf8
+            $filename = decode_utf8($filename) if $@;
+
+            # Re-encode the result to ASCII and move the file to said result name. 
+            # Use Encode's coderef feature to map non-ascii characters to their Unicode codepoint equivalent.
+            $filename = encode("ascii", $filename, sub{ sprintf "%04X", shift });
+            
+            if (length $filename > 254) {
+                $filename = substr( $filename, 0, 254 );
+            }
+
+            move($_, $filename);
+        }
+    }, $ae->extract_path);
+    
+    # chdir back to the base cwd in case finddepth died midway
+    chdir $cwd;
 
     # dir that was extracted to
     return $ae->extract_path;
-
 }
 
 #extract_thumbnail(dirname, id)
