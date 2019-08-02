@@ -12,9 +12,11 @@
 
 Web interface and reader for archival of comics/manga, running on Mojolicious + Redis.
 
-## User survey results coming soon
+## User survey results are in!
 
-Thanks to everyone who filled in the survey! -- I'll publish the results in a blog post soon.  
+Thanks to everyone who filled in the survey!  
+
+You can read the results [here](https://tvc-16.science/lrr-survey.html).
 
 ## Features  
 
