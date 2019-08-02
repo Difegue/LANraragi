@@ -19,7 +19,7 @@ is( $test_eH_gID,    $eH_gID,    'eHentai search test 1/2' );
 is( $test_eH_gToken, $eH_gToken, 'eHentai search test 2/2' );
 
 my $eH_tags =
-"parody:touhou project, character:hong meiling, character:marisa kirisame, character:reimu hakurei, character:sanae kochiya, character:youmu konpaku, group:handful happiness, artist:nanahara fuyuki, artbook, full color";
+"parody:touhou project, character:hong meiling, character:marisa kirisame, character:reimu hakurei, character:sanae kochiya, character:youmu konpaku, group:handful happiness, artist:nanahara fuyuki, artbook, full color, category:non-h";
 my ($test_eH_tags, $test_eH_title) =
   LANraragi::Plugin::EHentai::get_tags_from_EH( $eH_gID, $eH_gToken );
 

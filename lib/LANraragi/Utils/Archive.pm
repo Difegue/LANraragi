@@ -10,7 +10,7 @@ use File::Path qw(remove_tree);
 use File::Find qw(finddepth);
 use File::Copy qw(move);
 use Encode;
-use Encode::Guess qw/ascii euc-jp shiftjis 7bit-jis/;
+use Encode::Guess qw/euc-jp shiftjis 7bit-jis/;
 use Redis;
 use Cwd;
 use Data::Dumper;
