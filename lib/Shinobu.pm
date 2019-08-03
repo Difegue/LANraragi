@@ -109,8 +109,8 @@ sub initialize_from_new_process {
     print $fileHandle "donut";
     close $fileHandle;
 
-    # This file can then be touched to trigger a filemap rebuild + JSON refresh.
-    $inotify->watch( $nudge, IN_ATTRIB, sub {build_filemap(); build_json_cache(); } );
+    # This file can then be touched to trigger a JSON refresh.
+    $inotify->watch( $nudge, IN_ATTRIB, sub { build_json_cache(); } );
 
     # manual event loop
     $logger->info("All done! Now dutifully watching your files. ");

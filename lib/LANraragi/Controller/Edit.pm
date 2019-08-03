@@ -29,10 +29,12 @@ sub delete_metadata_and_file {
     if ( -e $filename ) {
         unlink $filename;
 
-        #Trigger a JSON rebuild.
-        LANraragi::Utils::Database::invalidate_cache();
-
+        # JSON rebuild is handled by Shinobu here, no need for invalidation
         return $filename;
+    } else {
+        # If the file was already gone, do a manual JSON rebuild.  
+        # This supposedly shouldn't happen but better be safe
+        LANraragi::Utils::Database::invalidate_cache();
     }
 
     return "0";
@@ -80,9 +82,6 @@ sub delete_archive {
     my $id   = $self->req->param('id');
 
     my $delStatus = &delete_metadata_and_file( $self, $id );
-
-    #Trigger a JSON rebuild.
-    LANraragi::Utils::Database::invalidate_cache();
 
     $self->render(
         json => {
