@@ -50,6 +50,10 @@ A common post-install setup is to make requests to the app transit through a gat
 If you do so, please note that archive uploads through LRR will likely **not work out of the box** due to maximum sizes on uploads those servers can enforce. The example below is for nginx:
 
 ```text
+http {
+    client_max_body_size 0;   <----------------------- This line here
+}
+
 server {
     listen 80;
 
@@ -63,7 +67,7 @@ server {
     index index.php index.html index.htm;
     server_name lanraragi.[REDACTED].net;
 
-    client_max_body_size 0;   <----------------------- This line here
+    client_max_body_size 0;   <----------------------- And this line here
 
     # Cert Stuff Omitted
 
