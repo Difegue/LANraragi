@@ -6,6 +6,7 @@
     "test": "prove -l -v tests/*.t",
     "lanraragi-installer": "perl ./tools/install.pl",
     "start": "perl ./script/lanraragi daemon -l",
+    "backup-db": "perl ./script/backup",
     "dev-server": "morbo script/lanraragi -l",
     "docker-build": "docker build -t difegue/lanraragi -f ./tools/DockerSetup/Dockerfile .",
     "critic": "perlcritic ./lib/* ./script/* ./tools/install.pl"

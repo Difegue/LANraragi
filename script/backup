@@ -1,0 +1,11 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use FindBin;
+BEGIN { unshift @INC, "$FindBin::Bin/../lib"; }
+use Mojolicious;
+use LANraragi::Model::Backup;
+
+print LANraragi::Model::Backup::build_backup_JSON();
