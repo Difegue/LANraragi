@@ -57,7 +57,8 @@ sub extract_archive {
         $self->render(
             json => {
                 error => "API usage: extract?id=YOUR_ID"
-            }
+            },
+			status => 400
         );
         return;
     }
@@ -97,7 +98,8 @@ sub serve_file {
         $self->render(
             json => {
                 error => "API usage: servefile?id=YOUR_ID"
-            }
+            },
+			status => 400
         );
         return;
     }
@@ -136,7 +138,8 @@ sub serve_thumbnail {
         $self->render(
             json => {
                 error => "API usage: thumbnail?id=YOUR_ID"
-            }
+            },
+			status => 400
         );
         return;
     }
