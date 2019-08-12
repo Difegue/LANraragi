@@ -11,19 +11,15 @@ jobs:
       env:
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-    - name: If dev branch
-      uses: actions/bin/filter@3c0b4f0e63ea54ea5df2914b4fabf383368cd0da
-      with:
-        args: branch dev
-    - name: Build Nightly Docker image
-      uses: actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108
-      with:
-        args: build -t difegue/lanraragi:nightly -f ./tools/DockerSetup/Dockerfile
-          .
+    - name: Build Nightly Docker images
+      run: |
+        docker build -t difegue/lanraragi:nightly -f ./tools/DockerSetup/Dockerfile .
+        docker run --rm --privileged multiarch/qemu-user-static:register --reset
+        docker build -t difegue/lanraragi:nightly-arm -f ./tools/DockerSetup/Dockerfile.arm .
     - name: Push nightly to Docker Hub
-      uses: actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108
-      with:
-        args: push difegue/lanraragi:nightly
+      run: |
+        docker push difegue/lanraragi:nightly
+        docker push difegue/lanraragi:nightly-arm
   pushNightlyWSL:
     name: Build Nightly Windows Package
     runs-on: ubuntu-latest
