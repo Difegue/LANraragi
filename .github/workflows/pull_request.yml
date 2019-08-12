@@ -1,0 +1,18 @@
+on: pull_request
+name: PR Test Suite
+jobs:
+  untaggedDockerBuild:
+    name: Untagged Docker Build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Untagged Docker Build
+      uses: actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108
+      with:
+        args: build -t difegue/lanraragi -f ./tools/DockerSetup/Dockerfile .
+    - name: LANraragi Test Suite
+      uses: ./.github/action-run-tests
+    - name: Perl Critic
+      uses: ./.github/action-critic
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

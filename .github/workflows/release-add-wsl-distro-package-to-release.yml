@@ -1,0 +1,20 @@
+on: release
+name: Add WSL distro package to release
+jobs:
+  untaggedDockerBuild:
+    name: Untagged Docker Build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Untagged Docker Build
+      uses: actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108
+      with:
+        args: build -t difegue/lanraragi -f ./tools/DockerSetup/Dockerfile .
+    - name: Build WSL zip
+      uses: ./.github/action-wslbuild
+    - name: Upload Installer to release
+      uses: JasonEtco/upload-to-release@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        args: LANraragi_Windows_Installer.zip application/zip

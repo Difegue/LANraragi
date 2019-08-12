@@ -1,0 +1,26 @@
+on: push
+name: Build nightly Docker image
+jobs:
+  loginToDockerHub:
+    name: Login to Docker Hub
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Login to Docker Hub
+      uses: actions/docker/login@8cdf801b322af5f369e00d85e9cf3a7122f49108
+      env:
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+    - name: If dev branch
+      uses: actions/bin/filter@3c0b4f0e63ea54ea5df2914b4fabf383368cd0da
+      with:
+        args: branch dev
+    - name: Build Nightly Docker image
+      uses: actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108
+      with:
+        args: build -t difegue/lanraragi:nightly -f ./tools/DockerSetup/Dockerfile
+          .
+    - name: Push nightly to Docker Hub
+      uses: actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108
+      with:
+        args: push difegue/lanraragi:nightly

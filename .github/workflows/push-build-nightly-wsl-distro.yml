@@ -1,0 +1,21 @@
+on: push
+name: Build nightly WSL distro
+jobs:
+  untaggedDockerBuild:
+    name: Untagged Docker Build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Untagged Docker Build
+      uses: actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108
+      with:
+        args: build -t difegue/lanraragi -f ./tools/DockerSetup/Dockerfile .
+    - name: Build WSL zip
+      uses: ./.github/action-wslbuild
+    - name: Upload Installer to MEGA
+      uses: difegue/action-megacmd@master
+      env:
+        PASSWORD: ${{ secrets.PASSWORD }}
+        USERNAME: ${{ secrets.USERNAME }}
+      with:
+        args: put -c LANraragi_Windows_Installer.zip Windows_Nightlies/${GITHUB_SHA}/LRR_Nightly_Windows.zip
