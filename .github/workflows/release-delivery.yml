@@ -1,0 +1,47 @@
+on: release
+name: New Version Release
+jobs:
+  uploadWSLRelease:
+    name: Add WSL distro package to release
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Untagged Docker Build
+      uses: actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108
+      with:
+        args: build -t difegue/lanraragi -f ./tools/DockerSetup/Dockerfile .
+    - name: Build WSL zip
+      uses: ./.github/action-wslbuild
+    - name: Upload Installer to release
+      uses: JasonEtco/upload-to-release@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        args: LANraragi_Windows_Installer.zip application/zip
+  pushLatestDocker:
+    name: Build and Push Latest Docker image
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Login to Docker Hub
+      uses: actions/docker/login@8cdf801b322af5f369e00d85e9cf3a7122f49108
+      env:
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+    - name: Build Latest Docker image
+      uses: actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108
+      with:
+        args: build -t difegue/lanraragi:latest -f ./tools/DockerSetup/Dockerfile
+          .
+    - name: Tag Docker image with Release tag
+      uses: actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108
+      with:
+        args: tag difegue/lanraragi:latest difegue/lanraragi:${{ GITHUB_REF }}
+    - name: Push latest to Docker Hub
+      uses: actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108
+      with:
+        args: push difegue/lanraragi:latest
+    - name: Push tag to Docker Hub
+      uses: actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108
+      with:
+        args: push difegue/lanraragi:${{ GITHUB_REF }}

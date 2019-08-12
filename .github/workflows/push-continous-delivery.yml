@@ -1,8 +1,8 @@
 on: push
-name: Build nightly Docker image
+name: Continuous Delivery 
 jobs:
-  loginToDockerHub:
-    name: Login to Docker Hub
+  pushNightlyDocker:
+    name: Build Nightly Docker Image
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
@@ -24,3 +24,21 @@ jobs:
       uses: actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108
       with:
         args: push difegue/lanraragi:nightly
+  pushNightlyWSL:
+    name: Build Nightly Windows Package
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Untagged Docker Build
+      uses: actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108
+      with:
+        args: build -t difegue/lanraragi -f ./tools/DockerSetup/Dockerfile .
+    - name: Build WSL zip
+      uses: ./.github/action-wslbuild
+    - name: Upload Installer to MEGA
+      uses: difegue/action-megacmd@master
+      env:
+        PASSWORD: ${{ secrets.PASSWORD }}
+        USERNAME: ${{ secrets.USERNAME }}
+      with:
+        args: put -c LANraragi_Windows_Installer.zip Windows_Nightlies/${GITHUB_SHA}/LRR_Nightly_Windows.zip
