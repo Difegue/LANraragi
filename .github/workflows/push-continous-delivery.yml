@@ -1,26 +1,26 @@
 on: push
 name: Continuous Delivery 
 jobs:
-  pushNightlyDocker:
-    name: Build Nightly Docker Image
+  buildNightlyDocker:
+    name: Build x86 + ARM Nightly Docker Images
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - name: Login to Docker Hub
-      uses: actions/docker/login@8cdf801b322af5f369e00d85e9cf3a7122f49108
-      env:
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
     - name: Build Nightly Docker images
       run: |
-        docker build -t difegue/lanraragi:nightly -f ./tools/DockerSetup/Dockerfile .
+        docker build -t difegue/lanraragi:nightly-x86 -f ./tools/DockerSetup/Dockerfile .
         docker run --rm --privileged multiarch/qemu-user-static:register --reset
-        docker build -t difegue/lanraragi:nightly-arm -f ./tools/DockerSetup/Dockerfile.arm .
-    - name: Push nightly to Docker Hub
+        docker build -t difegue/lanraragi:nightly-armhf -f ./tools/DockerSetup/Dockerfile.arm .
+    - name: Login and Push to Docker Hub
       run: |
-        docker push difegue/lanraragi:nightly
-        docker push difegue/lanraragi:nightly-arm
-  pushNightlyWSL:
+        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+        docker push difegue/lanraragi:nightly-x86
+        docker push difegue/lanraragi:nightly-armhf
+        docker manifest create difegue/lanraragi:nightly difegue/lanraragi:nightly-x86 \
+          difegue/lanraragi:nightly-armhf
+        docker manifest annotate difegue/lanraragi:nightly difegue/lanrarai:nightly-armhf --os linux --arch arm
+        docker manifest push difegue/lanraragi:nightly
+  buildNightlyWSL:
     name: Build Nightly Windows Package
     runs-on: ubuntu-latest
     steps:
