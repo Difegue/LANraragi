@@ -207,6 +207,7 @@ a:hover > .page-number {
     height: auto; 
     width: auto; 
     min-height:300px;
+    user-select: none;
 }
 
 /* Option menu. */
