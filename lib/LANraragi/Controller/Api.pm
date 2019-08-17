@@ -11,6 +11,7 @@ use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database;
 use LANraragi::Utils::TempFolder;
 
+use LANraragi::Model::Backup;
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
 use LANraragi::Model::Reader;
@@ -46,8 +47,12 @@ sub serve_tag_stats {
     $self->render( json => from_json(LANraragi::Model::Stats::build_tag_json));
 }
 
-sub extract_archive {
+sub serve_backup {
+    my $self = shift;
+    $self->render( json => from_json(LANraragi::Model::Backup::build_backup_JSON));
+}
 
+sub extract_archive {
     my $self = shift;
     my $id = $self->req->param('id') || "0";
 

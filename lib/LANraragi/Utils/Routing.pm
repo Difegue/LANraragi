@@ -70,15 +70,15 @@ sub apply_routes {
     $logged_in->get('/upload')->to('upload#index');
     $logged_in->post('/upload')->to('upload#process_upload');
 
-    #Those API methods are not usable even with the API Key:
-    #Logged in Admin only.
-    $logged_in->post('/api/use_plugin')->to('api#use_plugin');
-    $logged_in->post('/api/autoplugin')->to('api#use_enabled_plugins');
-    $logged_in->get('/api/clean_temp')->to('api#clean_tempfolder');
-    $logged_in->get('/api/discard_cache')->to('api#force_refresh');
-    $logged_in->get('/api/clear_new')->to('api#clear_new');
-    $logged_in->get('/api/shinobu_status')->to('api#shinobu_status');
-    $logged_in->get('/api/restart_shinobu')->to('api#restart_shinobu');
+    # These API endpoints will always require the API Key or to be logged in 
+    $logged_in_api->post('/api/use_plugin')->to('api#use_plugin');
+    $logged_in_api->post('/api/autoplugin')->to('api#use_enabled_plugins');
+    $logged_in_api->get('/api/clean_temp')->to('api#clean_tempfolder');
+    $logged_in_api->get('/api/discard_cache')->to('api#force_refresh');
+    $logged_in_api->get('/api/clear_new')->to('api#clear_new');
+    $logged_in_api->get('/api/shinobu_status')->to('api#shinobu_status');
+    $logged_in_api->get('/api/restart_shinobu')->to('api#restart_shinobu');
+    $logged_in_api->get('/api/backup')->to('api#serve_backup');
 
     $logged_in->get('/logs')->to('logging#index');
     $logged_in->get('/logs/general')->to('logging#print_general');
