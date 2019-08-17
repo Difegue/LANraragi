@@ -332,7 +332,7 @@ function colorCodeTags(tags) {
 	tagsByNamespace = splitTagsByNamespace(tags);
 	Object.keys(tagsByNamespace).sort().forEach(function (key, index) {
 		tagsByNamespace[key].forEach(function (tag) {
-			line+="<span class='"+key+"-tag'>"+tag+"</span>, ";
+			line+="<span class='"+key.toLowerCase()+"-tag'>"+tag+"</span>, ";
 		});
 	});	
 	return line;
