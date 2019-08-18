@@ -25,6 +25,7 @@ jobs:
     - uses: actions/checkout@master
     - name: Build Latest Docker image and tag with Release number
       run: |
+        chmod +x ./tools/Docker-multiarch/*.sh
         npm run docker-build-multiarch latest
         npm run docker-build-multiarch ${{ GITHUB_REF }}
     - name: Push to Docker Hub

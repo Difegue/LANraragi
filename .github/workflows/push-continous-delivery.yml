@@ -8,6 +8,7 @@ jobs:
     - uses: actions/checkout@master
     - name: Build Nightly Docker images
       run: |
+        chmod +x ./tools/Docker-multiarch/*.sh
         npm run docker-build-multiarch nightly
     - name: Login and Push to Docker Hub
       env:
