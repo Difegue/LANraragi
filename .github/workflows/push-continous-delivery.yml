@@ -8,18 +8,14 @@ jobs:
     - uses: actions/checkout@master
     - name: Build Nightly Docker images
       run: |
-        docker build -t difegue/lanraragi:nightly-x86 -f ./tools/DockerSetup/Dockerfile .
-        docker run --rm --privileged multiarch/qemu-user-static:register --reset
-        docker build -t difegue/lanraragi:nightly-armhf -f ./tools/DockerSetup/Dockerfile.arm .
+        npm run docker-build-multiarch nightly
     - name: Login and Push to Docker Hub
+      env:
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       run: |
-        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-        docker push difegue/lanraragi:nightly-x86
-        docker push difegue/lanraragi:nightly-armhf
-        docker manifest create difegue/lanraragi:nightly difegue/lanraragi:nightly-x86 \
-          difegue/lanraragi:nightly-armhf
-        docker manifest annotate difegue/lanraragi:nightly difegue/lanrarai:nightly-armhf --os linux --arch arm
-        docker manifest push difegue/lanraragi:nightly
+        docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+        npm run docker-push-multiarch nightly
   buildNightlyWSL:
     name: Build Nightly Windows Package
     runs-on: ubuntu-latest
@@ -34,7 +30,7 @@ jobs:
     - name: Upload Installer to MEGA
       uses: difegue/action-megacmd@master
       env:
-        PASSWORD: ${{ secrets.PASSWORD }}
-        USERNAME: ${{ secrets.USERNAME }}
+        PASSWORD: ${{ secrets.MEGA_PASSWORD }}
+        USERNAME: ${{ secrets.MEGA_USERNAME }}
       with:
         args: put -c LANraragi_Windows_Installer.zip Windows_Nightlies/${GITHUB_SHA}/LRR_Nightly_Windows.zip

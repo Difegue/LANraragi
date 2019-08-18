@@ -1,5 +1,5 @@
-# DOCKER-VERSION 0.3.4
-FROM        hypriot/rpi-alpine
+# __BASEIMAGE_ARCH__ must be replaced by your desired architecture, like amd64, arm32v6, arm64v8, etc.
+FROM        __BASEIMAGE_ARCH__/alpine:latest
 LABEL       git="https://github.com/Difegue/LANraragi" 
 
 ENTRYPOINT ["/home/koyomi/lanraragi/tools/DockerSetup/entrypoint.sh"]
@@ -8,6 +8,10 @@ ENTRYPOINT ["/home/koyomi/lanraragi/tools/DockerSetup/entrypoint.sh"]
 HEALTHCHECK --interval=1m --timeout=10s --retries=3 \
   CMD wget --quiet --tries=1 --no-check-certificate --spider \
   http://localhost:3000 || exit 1
+
+# Copy the correct QEMU binary for the target architecture
+# Filled in with sed fuckery later to get something like COPY qemu-arm-static /usr/bin/
+__CROSS_COPY qemu-__QEMU_ARCH__-static /usr/bin/
 
 #Environment variables overridable by the user on container deployment
 ENV LRR_NETWORK http://*:3000
