@@ -1,6 +1,6 @@
 <img alt="LANraragi" src="https://raw.githubusercontent.com/Difegue/LANraragi/master/tools/logo.png" width="300">
 
-#### [Documentation/Install Guide](https://sugoi.gitbook.io/lanraragi/) - [Download](https://github.com/Difegue/LANraragi/releases) - [Demo](https://lrr.tvc-16.science) - [Windows Nightlies](https://mega.nz/#F!rHZynKpZ!ZXlwMam4t8VtYjOiHPONsQ)
+#### [Documentation/Install Guide](https://sugoi.gitbook.io/lanraragi/) - [Download](https://github.com/Difegue/LANraragi/releases) - [Demo](https://lrr.tvc-16.science) - [Windows Nightlies](https://mega.nz/#F!rHZynKpZ!ZXlwMam4t8VtYjOiHPONsQ) - [Chat](https://discord.gg/aRQxtbg)
 
 [<img src="https://img.shields.io/docker/pulls/difegue/lanraragi.svg">](https://hub.docker.com/r/difegue/lanraragi/) 
 [<img src="https://img.shields.io/github/downloads/difegue/lanraragi/total.svg">](https://github.com/Difegue/LANraragi/releases) 
