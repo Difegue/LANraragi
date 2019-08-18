@@ -10,7 +10,7 @@ LABEL "com.github.actions.icon"="eye"
 LABEL "com.github.actions.color"="orange"
 
 RUN apk add --no-cache bash ca-certificates coreutils jq && \
-    cpanm Perl::Critic
+    cpanm Perl::Critic --notest
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
