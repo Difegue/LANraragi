@@ -12,7 +12,7 @@ jobs:
     - name: Build Nightly Docker images
       run: |
         chmod +x ./tools/Docker-multiarch/*.sh
-        npm run docker-build-multiarch $ nightly
+        npm run docker-build-multiarch $arch nightly
   pushNightlyDocker:
     name: Push Docker Images
     runs-on: ubuntu-latest

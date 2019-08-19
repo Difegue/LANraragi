@@ -29,7 +29,7 @@ jobs:
     - name: Build Latest Docker image and tag with Release number
       run: |
         chmod +x ./tools/Docker-multiarch/*.sh
-        npm run docker-build-multiarch $ ${GITHUB_REF}
+        npm run docker-build-multiarch $arch ${GITHUB_REF}
   pushLatestDocker:
     name: Push Latest Docker images
     runs-on: ubuntu-latest
