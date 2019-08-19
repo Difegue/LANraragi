@@ -2,20 +2,29 @@ on: push
 name: Continuous Delivery 
 jobs:
   buildNightlyDocker:
-    name: Build x86 + ARM Nightly Docker Images
+    name: Build Docker Images
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [amd64, arm32v6, arm64v8]
     steps:
     - uses: actions/checkout@master
     - name: Build Nightly Docker images
       run: |
         chmod +x ./tools/Docker-multiarch/*.sh
-        npm run docker-build-multiarch nightly
+        npm run docker-build-multiarch $ nightly
+  pushNightlyDocker:
+    name: Push Docker Images
+    runs-on: ubuntu-latest
+    needs: buildNightlyDocker
+    steps:
+    -uses: actions/checkout@master
     - name: Login and Push to Docker Hub
       env:
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       run: |
-        echo '$DOCKER_PASSWORD' | docker login -u $DOCKER_USERNAME --password-stdin
+        echo "${DOCKER_PASSWORD}" | docker login -u ${DOCKER_USERNAME} --password-stdin
         npm run docker-push-multiarch nightly
   buildNightlyWSL:
     name: Build Nightly Windows Package

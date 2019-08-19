@@ -18,21 +18,29 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         args: LANraragi_Windows_Installer.zip application/zip
-  pushLatestDocker:
-    name: Build and Push Latest Docker image
+  buildLatestDocker:
+    name: Build Latest Docker images
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [amd64, arm32v6, arm64v8]
     steps:
     - uses: actions/checkout@master
     - name: Build Latest Docker image and tag with Release number
       run: |
         chmod +x ./tools/Docker-multiarch/*.sh
-        npm run docker-build-multiarch latest
-        npm run docker-build-multiarch ${{ GITHUB_REF }}
+        npm run docker-build-multiarch $ ${GITHUB_REF}
+  pushLatestDocker:
+    name: Push Latest Docker images
+    runs-on: ubuntu-latest
+    needs: buildLatestDocker
+    steps:
+    - uses: actions/checkout@master
     - name: Push to Docker Hub
       env:
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       run: |
-        echo '$DOCKER_PASSWORD' | docker login -u $DOCKER_USERNAME --password-stdin
+        echo "${DOCKER_PASSWORD}" | docker login -u ${DOCKER_USERNAME} --password-stdin
         npm run docker-push-multiarch latest
-        npm run docker-push-multiarch ${{ GITHUB_REF }}
+        npm run docker-push-multiarch ${GITHUB_REF}
