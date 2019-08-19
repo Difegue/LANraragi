@@ -1,5 +1,5 @@
 #!/bin/sh
-# Script for building multi-arch LRR images using QEMU when necessary. 
+# Script for building multi-arch LRR images using QEMU when necessary. Will try pushing to Docker Hub.
 # Shamelessly lifted off https://lobradov.github.io/Building-docker-multiarch-images
 # example: ./build-docker.sh x86_64 nightly
 
@@ -29,3 +29,5 @@ else
 fi
 
 docker build -f Dockerfile.$1 -t difegue/lanraragi:$2-$1 .
+echo "Image built, trying a push"
+docker push difegue/lanraragi:$2-$1

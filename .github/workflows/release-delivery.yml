@@ -26,14 +26,18 @@ jobs:
         arch: [amd64, arm32v6, arm64v8]
     steps:
     - uses: actions/checkout@master
-    - name: Build Latest Docker image and tag with Release number
+    - name: Build/Push Latest Docker image and tag with Release number
       env:
         ARCH: ${{ matrix.arch }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       run: |
+        echo "${DOCKER_PASSWORD}" | docker login -u ${DOCKER_USERNAME} --password-stdin
         chmod +x ./tools/Docker-multiarch/build-docker.sh
+        npm run docker-build-multiarch ${ARCH} latest
         npm run docker-build-multiarch ${ARCH} ${GITHUB_REF}
   pushLatestDocker:
-    name: Push Latest Docker images
+    name: Push Multiarch Manifest
     runs-on: ubuntu-latest
     needs: buildLatestDocker
     steps:
