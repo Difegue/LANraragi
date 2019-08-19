@@ -4,8 +4,8 @@
 # Run as root!
 
 echo "Enabling experimental Docker"
-echo '{ "experimental": true }' | tee /etc/docker/daemon.json
-service docker restart
+echo '{ "experimental": true }' | sudo tee /etc/docker/daemon.json
+sudo service docker restart
 
 echo "Pushing previously built images"
 for docker_arch in amd64 arm32v6 arm64v8; do
