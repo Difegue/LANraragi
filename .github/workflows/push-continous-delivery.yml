@@ -9,7 +9,7 @@ jobs:
         arch: [amd64, arm32v6, arm64v8]
     steps:
     - uses: actions/checkout@master
-    - name: Build/Push Nightly Docker images
+    - name: Build/Push Nightly Docker image
       env:
         ARCH: ${{ matrix.arch }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
@@ -28,6 +28,7 @@ jobs:
       env:
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_CLI_EXPERIMENTAL: enabled
       run: |
         echo "${DOCKER_PASSWORD}" | docker login -u ${DOCKER_USERNAME} --password-stdin
         chmod +x ./tools/Docker-multiarch/push-docker.sh
