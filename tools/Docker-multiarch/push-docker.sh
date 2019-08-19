@@ -4,7 +4,7 @@
 
 echo "Starting experimental Docker"
 sudo service docker stop
-sudo dockerd --experimental 
+sudo dockerd --experimental &
 
 echo "Pushing multi-arch manifest"
 docker manifest create difegue/lanraragi:$1 difegue/lanraragi:$1-amd64 difegue/lanraragi:$1-arm32v6 difegue/lanraragi:$1-arm64v8 
