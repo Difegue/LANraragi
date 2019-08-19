@@ -27,9 +27,11 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Build Latest Docker image and tag with Release number
+      env:
+        ARCH: ${{ matrix.arch }}
       run: |
         chmod +x ./tools/Docker-multiarch/*.sh
-        npm run docker-build-multiarch ${{arch}} ${GITHUB_REF}
+        npm run docker-build-multiarch ${ARCH} ${GITHUB_REF}
   pushLatestDocker:
     name: Push Latest Docker images
     runs-on: ubuntu-latest

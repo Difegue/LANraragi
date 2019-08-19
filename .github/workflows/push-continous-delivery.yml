@@ -10,9 +10,11 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Build Nightly Docker images
+      env:
+        ARCH: ${{ matrix.arch }}
       run: |
         chmod +x ./tools/Docker-multiarch/*.sh
-        npm run docker-build-multiarch ${{arch}} nightly
+        npm run docker-build-multiarch ${ARCH} nightly
   pushNightlyDocker:
     name: Push Docker Images
     runs-on: ubuntu-latest
