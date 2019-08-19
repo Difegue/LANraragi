@@ -30,7 +30,7 @@ jobs:
       env:
         ARCH: ${{ matrix.arch }}
       run: |
-        chmod +x ./tools/Docker-multiarch/*.sh
+        chmod +x ./tools/Docker-multiarch/build-docker.sh
         npm run docker-build-multiarch ${ARCH} ${GITHUB_REF}
   pushLatestDocker:
     name: Push Latest Docker images
@@ -44,5 +44,6 @@ jobs:
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       run: |
         echo "${DOCKER_PASSWORD}" | docker login -u ${DOCKER_USERNAME} --password-stdin
+        chmod +x ./tools/Docker-multiarch/build-docker.sh
         npm run docker-push-multiarch latest
         npm run docker-push-multiarch ${GITHUB_REF}

@@ -1,6 +1,11 @@
 #!/bin/sh
 # Use in conjunction with build-docker.sh
-# If not logged to a Docker repo this will obviously fail.
+# If not logged to a Docker repo this will obviously fail."
+# Run as root!
+
+echo "Enabling experimental Docker"
+echo '{ "experimental": true }' | sudo tee /etc/docker/daemon.json
+sudo service docker restart
 
 echo "Pushing previously built images"
 for docker_arch in amd64 arm32v6 arm64v8; do

@@ -13,7 +13,7 @@ jobs:
       env:
         ARCH: ${{ matrix.arch }}
       run: |
-        chmod +x ./tools/Docker-multiarch/*.sh
+        chmod +x ./tools/Docker-multiarch/build-docker.sh
         npm run docker-build-multiarch ${ARCH} nightly
   pushNightlyDocker:
     name: Push Docker Images
@@ -27,6 +27,7 @@ jobs:
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       run: |
         echo "${DOCKER_PASSWORD}" | docker login -u ${DOCKER_USERNAME} --password-stdin
+        chmod +x ./tools/Docker-multiarch/push-docker.sh
         npm run docker-push-multiarch nightly
   buildNightlyWSL:
     name: Build Nightly Windows Package
