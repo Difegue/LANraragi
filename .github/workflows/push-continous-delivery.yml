@@ -2,7 +2,7 @@ on: push
 name: Continuous Delivery 
 jobs:
   buildNightlyDocker:
-    name: Build Docker Images
+    name: Build Docker Image
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - name: Untagged Docker Build
+    - name: Build Base Docker Image
       uses: actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108
       with:
         args: build -t difegue/lanraragi -f ./tools/DockerSetup/Dockerfile .

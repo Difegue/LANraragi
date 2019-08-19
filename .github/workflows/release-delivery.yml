@@ -19,7 +19,7 @@ jobs:
       with:
         args: LANraragi_Windows_Installer.zip application/zip
   buildLatestDocker:
-    name: Build Latest Docker images
+    name: Build Latest Docker image
     runs-on: ubuntu-latest
     strategy:
       matrix:
