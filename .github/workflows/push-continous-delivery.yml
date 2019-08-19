@@ -1,4 +1,7 @@
-on: push
+on: 
+  push:
+    branches:
+    - dev
 name: Continuous Delivery 
 jobs:
   buildNightlyDocker:
