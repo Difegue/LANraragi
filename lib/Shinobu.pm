@@ -55,7 +55,7 @@ my $inotifysub = sub {
     $logger->debug("Received inotify event $mask on $name");
 
     if ( $e->IN_MOVED_TO || $e->IN_CREATE ) {
-        new_file_callback( $e->fullname );
+        new_file_callback( $name );
     }
 
     if ( $e->IN_DELETE ) {
@@ -156,6 +156,15 @@ sub add_to_filemap {
             last if open( my $handle, '<', $file );
             $logger->debug("Waiting for file to be openable");
             sleep(1);
+        }
+
+        # Wait for file to be more than 512 KBs or bailout after 5s and assume that file is smaller
+        my $cnt = 0;
+        while (1) {
+            last if (((-s $file) >= 512000) || $cnt >= 5); 
+            $logger->debug("Waiting for file to be fully written");
+            sleep(1);
+            $cnt++;
         }
 
         #Compute the ID of the archive and add it to the hash

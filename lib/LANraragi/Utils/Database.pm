@@ -156,6 +156,10 @@ sub compute_id {
     $ctx->add($data);
     my $digest = $ctx->hexdigest;
 
+    if( $digest eq "da39a3ee5e6b4b0d3255bfef95601890afd80709" ) {
+        die "Computed ID is for a null value, invalid source file.";
+    }
+
     return $digest;
 
 }
