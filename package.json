@@ -1,6 +1,7 @@
 {
   "name": "lanraragi",
-  "version": "0.6.0",
+  "version": "0.6.0-BETA.3",
+  "version_name": "Neuköln",
   "description": "holla where the chinese comics at",
   "scripts": {
     "test": "prove -l -v tests/*.t",

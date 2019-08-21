@@ -5,6 +5,8 @@ use local::lib;
 use open ':std', ':encoding(UTF-8)';
 
 use Mojo::Base 'Mojolicious';
+use Mojo::File;
+use Mojo::JSON qw(decode_json encode_json);
 use Mojo::IOLoop::ProcBackground;
 
 use LANraragi::Utils::Generic;
@@ -17,14 +19,18 @@ use LANraragi::Utils::Plugins;
 sub startup {
     my $self = shift;
 
-    # Load configuration from hash returned by "lrr.conf"
-    my $config  = $self->plugin( 'Config', { file => 'lrr.conf' } );
-    my $version = $config->{version};
-    my $vername = $config->{version_name};
-
     say "";
     say "";
     say "ｷﾀ━━━━━━(ﾟ∀ﾟ)━━━━━━!!!!!";
+
+    # Load configuration from hash returned by "lrr.conf"
+    my $config = $self->plugin( 'Config', { file => 'lrr.conf' } );
+
+    # Load package.json to get version/vername
+    my $packagejson = decode_json(Mojo::File->new('package.json')->slurp);
+    
+    my $version = $packagejson->{version};
+    my $vername = $packagejson->{version_name};
 
     $self->secrets( $config->{secrets} );
     $self->plugin('RenderFile');
