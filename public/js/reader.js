@@ -182,8 +182,8 @@ function initArchivePageOverlay() {
 			"</div>";
 
 		$("#archivePagesOverlay").append(thumbnail);
-
 	}
+	$("#archivePagesOverlay").attr("loaded", "true");
 }
 
 function initSettingsOverlay() {
@@ -217,6 +217,9 @@ function saveSettings() {
 }
 
 function openOverlay() {
+	if ($("#archivePagesOverlay").attr("loaded") === "false")
+		initArchivePageOverlay();
+
 	$('#overlay-shade').fadeTo(150, 0.6, function () {
 		$('#archivePagesOverlay').css('display', 'block');
 	});
