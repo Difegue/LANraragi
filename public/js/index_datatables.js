@@ -141,7 +141,7 @@ function titleColumnDisplay(data, type, full, meta) {
 			titleHtml = '<span class="isnew"></span>'
 		}
 
-		return titleHtml + '<a class="image-tooltip" onmouseover="buildImageTooltip($(this))" href="./reader?id=' + data.arcid + '">'
+		return titleHtml + '<a class="image-tooltip" id="'+ data.arcid +'" onmouseover="buildImageTooltip($(this))" href="./reader?id=' + data.arcid + '">'
 			+ data.title + '</a><div class="caption" style="display: none;"><img style="height:200px" src="./api/thumbnail?id='
 			+ data.arcid + '" onerror="this.src=\'./img/noThumb.png\'"></div>';
 	}
@@ -176,7 +176,7 @@ function buildThumbDiv(row, data, index) {
 
 	if (localStorage.indexViewMode == 1) {
 		//Build a thumb-like div with the data 
-		thumb_div = '<div style="height:335px" class="id1" >' +
+		thumb_div = '<div style="height:335px" class="id1" id="'+data.arcid+'">' +
 			'<div class="id2">' +
 				'<div class="isnew" style=" display: ' + data.isnew + '"/>' +
 				'<a href="./reader?id=' + data.arcid + '" title="' + data.title + '">' + data.title + '</a>' +
@@ -297,7 +297,7 @@ function colorCodeTags(tags) {
 		});
 	});	
 	// Remove last comma
-	return line.slice(0, -1);
+	return line.slice(0, -2);
 }
 
 function splitTagsByNamespace(tags) {

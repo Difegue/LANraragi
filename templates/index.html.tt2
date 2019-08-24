@@ -24,6 +24,7 @@
 	<script src="/js/vendor/jquery.contextMenu.min.js" type="text/JAVASCRIPT"></script>
 
 	<script src="/js/index.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/ajax.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/index_datatables.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/theme.js" type="text/JAVASCRIPT"></script>
 
@@ -181,9 +182,9 @@
 
 		// Initialize context menu
 		$.contextMenu({
-			selector: '.id1', 
+			selector: '.id1,.image-tooltip', 
 			callback: function(key, options) {
-				alert("Clicked on " + key + " on element " + options.$trigger.id);
+				handleContextMenu(key, $(this).attr("id"));
 			},
 			items: {
 				[% IF userlogged %]
@@ -191,7 +192,7 @@
 				"delete": {name: "Delete", icon: "fas fa-trash-alt"},		
 				"sep1": "---------",		
 				[% END %]
-				"read": {name: "Read", icon: "fas fa-book-open"},
+				"read": {name: "Read", icon: "fas fa-book"},
 				"download": {name: "Download", icon: "fas fa-save"}
 			}
 		});
