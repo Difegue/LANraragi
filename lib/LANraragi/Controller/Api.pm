@@ -326,6 +326,20 @@ sub shinobu_status {
     );
 }
 
+sub stop_shinobu {
+    my $self = shift;
+
+    #commit sudoku
+    $self->SHINOBU->die;
+
+    $self->render(
+        json => {
+            operation => "shinobu_stop",
+            success   => 1
+        }
+    );
+}
+
 sub restart_shinobu {
     my $self = shift;
 

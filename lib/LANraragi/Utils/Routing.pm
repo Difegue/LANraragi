@@ -77,6 +77,7 @@ sub apply_routes {
     $logged_in_api->get('/api/discard_cache')->to('api#force_refresh');
     $logged_in_api->get('/api/clear_new')->to('api#clear_new');
     $logged_in_api->get('/api/shinobu_status')->to('api#shinobu_status');
+    $logged_in_api->get('/api/stop_shinobu')->to('api#stop_shinobu');
     $logged_in_api->get('/api/restart_shinobu')->to('api#restart_shinobu');
     $logged_in_api->get('/api/backup')->to('api#serve_backup');
 
