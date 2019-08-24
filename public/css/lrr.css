@@ -294,6 +294,15 @@ a:hover > .page-number {
     height:100px;
 }
 
+.context-menu-list {
+    border: none !important;
+    border-radius: 0 !important;
+}
+
+.context-menu-item {
+    background-color: transparent !important;
+}
+
 .artist-tag{
     color: #22a7f0;
 }
