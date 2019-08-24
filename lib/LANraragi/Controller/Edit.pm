@@ -13,34 +13,6 @@ use LANraragi::Utils::Plugins;
 
 use LANraragi::Model::Config;
 
-#Deletes the archive with the given id from redis, and the matching archive file.
-sub delete_metadata_and_file {
-    my $self = $_[0];
-    my $id   = $_[1];
-
-    my $redis = $self->LRR_CONF->get_redis();
-
-    my $filename = $redis->hget( $id, "file" );
-
-    $redis->del($id);
-
-    $redis->quit();
-
-    if ( -e $filename ) {
-        unlink $filename;
-
-        # JSON rebuild is handled by Shinobu here, no need for invalidation
-        return $filename;
-    } else {
-        # If the file was already gone, do a manual JSON rebuild.  
-        # This supposedly shouldn't happen but better be safe
-        LANraragi::Utils::Database::invalidate_cache();
-    }
-
-    return "0";
-
-}
-
 sub save_metadata {
     my $self = shift;
 
@@ -81,7 +53,7 @@ sub delete_archive {
     my $self = shift;
     my $id   = $self->req->param('id');
 
-    my $delStatus = &delete_metadata_and_file( $self, $id );
+    my $delStatus = LANraragi::Utils::Database::delete_archive($id);
 
     $self->render(
         json => {

@@ -176,7 +176,6 @@ sub generate_themes_header {
 sub generate_themes_selector {
 
     my @css = get_css_list;
-
     my $CSSsel = '<div>';
 
     #Go through the css files
