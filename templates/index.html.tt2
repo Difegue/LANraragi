@@ -107,6 +107,9 @@
 						<th id="tagsheader">
 							<a>Tags</a>
 						</th>
+						<th id="titleheader">
+							<a>IsNew</a>
+						</th>
 					</tr>
 				</thead>
 				<tbody class="list">

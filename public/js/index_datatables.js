@@ -1,12 +1,14 @@
 //Functions for DataTable initialization.
-
 var jsonCache = {};
+
+var column1 = "artist";
+var column2 = "series";
+var column3 = "";
 
 //Executed onload of the archive index to initialize DataTables and other minor things.
 //This is painful to read.
 function initIndex(pagesize, dataSet) {
 	jsonCache = dataSet;
-	thumbTimeout = null;
 
 	$.fn.dataTableExt.oStdClasses.sStripeOdd = 'gtr0';
 	$.fn.dataTableExt.oStdClasses.sStripeEven = 'gtr1';
@@ -25,36 +27,31 @@ function initIndex(pagesize, dataSet) {
 		},
 		'preDrawCallback': thumbViewInit, //callbacks for thumbnail view
 		'rowCallback': buildThumbDiv,
-		'columns': [
-			{
+		'columns': [{
 				className: 'title itd',
 				'data': null,
 				'render': titleColumnDisplay
-			},
-			{
-				className: 'artist itd',
-				'data': 'tags',
-				'render': artistColumnDisplay
-			},
-			{
-				className: 'series itd',
-				'data': 'tags',
-				'render': seriesColumnDisplay
-			},
-			{
-				className: 'tags itd',
+			},{
+				className: column1 + ' itd',
 				'data': 'tags',
 				'render': function (data, type, full, meta) {
-					if (type == "display") {
-
-						line = '<span class="tag-tooltip" onmouseover="buildTagTooltip($(this))" style="text-overflow:ellipsis;">' + colorCodeTags(data) + '</span>';
-						line += buildTagsDiv(data);
-						return line;
-					}
-					return data;
+					return createNamespaceColumn(column1, type, data);
 				}
-			}
-		],
+			},{
+				className: column2 + ' itd',
+				'data': 'tags',
+				'render': function (data, type, full, meta) {
+					return createNamespaceColumn(column2, type, data);
+				}
+			},{
+				className: 'tags itd',
+				'data': 'tags',
+				'render': tagsColumnDisplay
+			},{
+				className: 'isnew itd',
+				visible: false,
+				'data': 'isnew'
+			}],
 	});
 
 	//add datatable search event to the local searchbox and clear search to the clear filter button
@@ -88,9 +85,8 @@ function initIndex(pagesize, dataSet) {
 			if (!input.prop("checked"))
 				return true;
 
-			//See mild trickery above 
-		    //TODO find a new cool trick
-			if (data[0] === "block") {
+			// Use hidden isnew column
+			if (data[4] === "block") {
 				return true;
 			}
 			return false;
@@ -101,7 +97,6 @@ function initIndex(pagesize, dataSet) {
 	//(Yeah it's shitty but it works so w/e)
 	switch_index_view();
 	switch_index_view();
-
 }
 
 //For datatable initialization, columns with just one data source display that source as a link for instant search.
@@ -121,16 +116,7 @@ function createNamespaceColumn(namespace, type, data) {
 		} else return "";
 
 	}
-
 	return data;
-}
-
-function artistColumnDisplay(data, type, full, meta) {
-	return createNamespaceColumn("artist", type, data);
-}
-
-function seriesColumnDisplay(data, type, full, meta) {
-	return createNamespaceColumn("(parody|series|magazine)", type, data);
 }
 
 function titleColumnDisplay(data, type, full, meta) {
@@ -147,6 +133,16 @@ function titleColumnDisplay(data, type, full, meta) {
 	}
 
 	return data.title;
+}
+
+function tagsColumnDisplay(data, type, full, meta) {
+	if (type == "display") {
+
+		line = '<span class="tag-tooltip" onmouseover="buildTagTooltip($(this))" style="text-overflow:ellipsis;">' + colorCodeTags(data) + '</span>';
+		line += buildTagsDiv(data);
+		return line;
+	}
+	return data;
 }
 
 //Functions executed on DataTables draw callbacks to build the thumbnail view if it's enabled:
@@ -168,7 +164,6 @@ function thumbViewInit(settings) {
 		$('#thumbs_container').remove();
 		$('.itg').show();
 	}
-
 }
 
 //Builds a id1 class div to jam in the thumb container for an archive whose JSON data we read
