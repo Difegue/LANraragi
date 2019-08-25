@@ -25,13 +25,13 @@ use LANraragi::Utils::TempFolder;
 #Relies on Libarchive.
 
 #generate_thumbnail(original_image, thumbnail_location)
-#use Image::Scale to make a thumbnail, width = 200px
+#use Image::Scale to make a thumbnail, height = 500px (view in index is 280px tall)
 sub generate_thumbnail {
 
     my ( $orig_path, $thumb_path ) = @_;
 
     my $img = Image::Scale->new($orig_path) || die "Invalid image file";
-    $img->resize_gd( { width => 200 } );
+    $img->resize_gd( { height => 500 } );
     $img->save_jpeg($thumb_path);
 
 }

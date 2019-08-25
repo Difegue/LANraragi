@@ -309,9 +309,32 @@ div.idi {
 }
 div#toppane{margin:auto;width:99%}
 
-.caption {
+.caption, .context-menu-list {
 background-color: #E1E7E9;
 box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+}
+
+.context-menu-item {
+    color: #34495E;
+    padding: .6em 3em;
+    text-align: left;
+    font-weight: bold;
+}
+
+.context-menu-separator {
+    padding: 0 !important;
+    margin: .35em 0;
+    border-bottom: 2px solid #34495E;
+}
+
+.context-menu-item.context-menu-hover, .context-menu-icon.context-menu-icon--fa5.context-menu-hover > i {
+    background-color: #34495E !important;
+    color: #ed2553;
+}
+
+.context-menu-icon.context-menu-icon--fa5 i {
+    font-size: 1.5em;
+    color: inherit;
 }
 
 /* File upload bar */

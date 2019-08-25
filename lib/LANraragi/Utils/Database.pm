@@ -55,6 +55,31 @@ sub add_archive_to_redis {
     return ( $name, $title, $tags, "block" );
 }
 
+#Deletes the archive with the given id from redis, and the matching archive file.
+sub delete_archive {
+
+    my $id   = $_[0];
+    my $redis = LANraragi::Model::Config::get_redis;
+    my $filename = $redis->hget( $id, "file" );
+
+    $redis->del($id);
+
+    $redis->quit();
+
+    if ( -e $filename ) {
+        unlink $filename;
+
+        # JSON rebuild is handled by Shinobu here, no need for invalidation
+        return $filename;
+    } else {
+        # If the file was already gone, do a manual JSON rebuild.  
+        # This supposedly shouldn't happen but better be safe
+        LANraragi::Utils::Database::invalidate_cache();
+    }
+
+    return "0";
+}
+
 #add_tags($id, $tags)
 #add the $tags to the archive with id $id.
 sub add_tags {

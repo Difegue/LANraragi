@@ -108,15 +108,14 @@ table.itg th{
     text-overflow: ellipsis;
 }
 
-.qtip {
-    border: 1px solid #363940;
-    border-radius: 3px;
+.qtip, .context-menu-list {
+    border: 1px solid #363940 !important;
+    border-radius: 3px !important;
 }
 
 .qtip > * > * > table.itg {
     color: #dddddd !important;
 }
-
 
 /* favtags */
 table.itc {
@@ -266,9 +265,31 @@ div.idi {
 }
 div#toppane{margin:auto;width:99%}
 
-.caption {
+.caption, .context-menu-list {
 background-color: #34353B;
 box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+}
+
+.context-menu-item {
+    color: #FFFFFF;
+    padding: .6em 3em;
+    text-align: left;
+}
+
+.context-menu-separator {
+    padding: 0 !important;
+    margin: .35em 0;
+    border-bottom: 2px solid #43464E;
+}
+
+.context-menu-item.context-menu-hover, .context-menu-icon.context-menu-icon--fa5.context-menu-hover > i {
+    background-color: #43464E !important;
+    color: #3b97ea;
+}
+
+.context-menu-icon.context-menu-icon--fa5 i {
+    font-size: 1.5em;
+    color: inherit;
 }
 
 /* File upload bar */

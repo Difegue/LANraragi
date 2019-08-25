@@ -12,7 +12,7 @@ function toggleFav(button) {
 	tagState = !(input.prop("checked"));
 	input.prop("checked", tagState);
 
-	//Add/remove class to button dependinig on the state
+	//Add/remove class to button depending on the state
 	if (tagState)
 		button.classList.add("toggled");
 	else
@@ -126,4 +126,25 @@ function checkVersion(currentVersionConf) {
 
 		}
 	});
+}
+
+function handleContextMenu(option, id) {
+
+	switch (option) {
+		case "edit":
+			window.open("./edit?id="+id);
+			break;
+		case "delete":
+			if (confirm('Are you sure you want to delete this archive?')) 
+				deleteArchive(id);
+			break;
+		case "read":
+			window.open("./reader?id="+id);
+			break;
+		case "download":
+			window.open("./api/servefile?id="+id);
+			break;
+		default:
+			break;
+	}
 }

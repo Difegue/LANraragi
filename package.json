@@ -6,13 +6,13 @@
   "scripts": {
     "test": "prove -l -v tests/*.t",
     "lanraragi-installer": "perl ./tools/install.pl",
-    "start": "perl ./script/lanraragi daemon -l",
-    "backup-db": "perl ./script/backup",
-    "dev-server": "morbo script/lanraragi -l",
+    "start": "perl ./script/launcher.pl -f ./script/lanraragi",
+    "dev-server": "perl ./script/launcher.pl -m -v ./script/lanraragi ",
     "docker-build": "docker build -t difegue/lanraragi -f ./tools/DockerSetup/Dockerfile .",
     "docker-build-multiarch": "./tools/Docker-multiarch/build-docker.sh",
     "docker-push-multiarch": "./tools/Docker-multiarch/push-docker.sh",
-    "critic": "perlcritic ./lib/* ./script/* ./tools/install.pl"
+    "critic": "perlcritic ./lib/* ./script/* ./tools/install.pl",
+    "backup-db": "perl ./script/backup"
   },
   "repository": {
     "type": "git",
@@ -32,6 +32,7 @@
     "inter-ui": "^3.3.2",
     "jqcloud2": "^2.0.3",
     "jquery": "^3.2.1",
+    "jquery-contextmenu": "^2.8.0",
     "jquery-migrate": "^3.0.1",
     "jquery-toast-plugin": "^1.3.2",
     "open-sans-fontface": "^1.4.0",
