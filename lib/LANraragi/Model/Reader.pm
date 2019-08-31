@@ -53,8 +53,8 @@ sub build_reader_JSON {
     my $dirname = LANraragi::Model::Config::get_userdir();
 
     #We opened this id in the reader, so we can't mark it as "new" anymore.
-    if ( $redis->hget( $id, "isnew" ) eq "block" ) {
-        $redis->hset( $id, "isnew", "none" );
+    if ( $redis->hget( $id, "isnew" ) ne "false" ) {
+        $redis->hset( $id, "isnew", "false" );
 
         #Trigger a JSON cache refresh
         LANraragi::Utils::Database::invalidate_cache();

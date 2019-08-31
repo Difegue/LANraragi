@@ -187,15 +187,21 @@ sub force_refresh {
 sub clear_new {
 
     my $self = shift;
+    my $id = $self->req->param('id') || "0";
 
-    #Get all archives thru redis
     my $redis = $self->LRR_CONF->get_redis();
-    my @keys  = $redis->keys('????????????????????????????????????????');
 
-    #40-character long keys only => Archive IDs
+    if ($id eq "0") {
+        # Get all archives thru redis
+        # 40-character long keys only => Archive IDs
+        my @keys  = $redis->keys('????????????????????????????????????????');
 
-    foreach my $id (@keys) {
-        $redis->hset( $id, "isnew", "none" );
+        foreach my $idall (@keys) {
+            $redis->hset( $idall, "isnew", "false" );
+        }
+    } else {
+        # Just set isnew to false for the provided ID.
+        $redis->hset( $id, "isnew", "false" );
     }
 
     #Trigger a JSON cache refresh
@@ -204,6 +210,7 @@ sub clear_new {
     $self->render(
         json => {
             operation => "clear_new",
+            id        => $id eq "0" ? "all_archives" : $id,
             success   => 1
         }
     );

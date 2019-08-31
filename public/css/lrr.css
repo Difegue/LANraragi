@@ -268,12 +268,7 @@ a:hover > .page-number {
 
 .isnew {
     float: right; 
-    margin-top: -2px; 
     z-index: -1;
-}
-
-.isnew::after {
-    content: "🆕";
 }
 
 .log-panel {

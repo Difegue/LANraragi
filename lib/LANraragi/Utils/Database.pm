@@ -39,7 +39,7 @@ sub add_archive_to_redis {
     $redis->hset( $id, "file", $file );
 
     #New file in collection, so this flag is set.
-    $redis->hset( $id, "isnew", "block" );
+    $redis->hset( $id, "isnew", "true" );
 
     #Use the mythical regex to get title and tags
     #Except if the matching pref is off

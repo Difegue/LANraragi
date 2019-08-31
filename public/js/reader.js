@@ -159,8 +159,9 @@ function goToPage(page) {
 	//update full image link
 	$("#imgLink").attr("href", pages.pages[currentPage]);
 
-	//store page number in localStorage
+	//store page number and total pages in localStorage
 	localStorage.setItem(id + "-reader", currentPage);
+	localStorage.setItem(id + "-totalPages", pageNumber);
 
 	//if we made it to the last page, reset the page number
 	if (currentPage === pageNumber-1)

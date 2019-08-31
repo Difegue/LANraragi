@@ -123,9 +123,7 @@ function titleColumnDisplay(data, type, full, meta) {
 	if (type == "display") {
 
 		titleHtml = "";
-		if (data.isnew === "block") {
-			titleHtml = '<span class="isnew"></span>'
-		}
+		titleHtml += buildProgressDiv(data.arcid, data.isnew);
 
 		return titleHtml + '<a class="image-tooltip" id="'+ data.arcid +'" onmouseover="buildImageTooltip($(this))" href="./reader?id=' + data.arcid + '">'
 			+ data.title + '</a><div class="caption" style="display: none;"><img style="height:200px" src="./api/thumbnail?id='
@@ -173,14 +171,14 @@ function buildThumbDiv(row, data, index) {
 		//Build a thumb-like div with the data 
 		thumb_div = '<div style="height:335px" class="id1" id="'+data.arcid+'">' +
 			'<div class="id2">' +
-				'<div class="isnew" style=" display: ' + data.isnew + '"/>' +
+				buildProgressDiv(data.arcid, data.isnew) +
 				'<a href="./reader?id=' + data.arcid + '" title="' + data.title + '">' + data.title + '</a>' +
 			'</div>' +
 			'<div style="height:280px" class="id3" >' +
 				'<a href="./reader?id=' + data.arcid + '" title="' + data.title + '">' +
 					'<img style="position:relative;" id ="' + data.arcid + '_thumb" src="./img/wait_warmly.jpg"/>' +
 					'<i id="' + data.arcid + '_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>' +
-					'<img style="position:absolute; top:0; left:0" src="./api/thumbnail?id=' + data.arcid + '" onload="$(\'#' + data.arcid + '_thumb\').remove(); $(\'#' + data.arcid + '_spinner\').remove();" onerror="this.src=\'./img/noThumb.png\'"/>' +
+					'<img src="./api/thumbnail?id=' + data.arcid + '" onload="$(\'#' + data.arcid + '_thumb\').remove(); $(\'#' + data.arcid + '_spinner\').remove();" onerror="this.src=\'./img/noThumb.png\'"/>' +
 				'</a>' +
 			'</div>' +
 			'<div class="id4">' +
@@ -192,8 +190,30 @@ function buildThumbDiv(row, data, index) {
 	}
 }
 
+function buildProgressDiv(id, isnew) {
+
+	if (isnew === "block" || isnew === "true") {
+		return '<div class="isnew">🆕</div>';
+	} 
+
+	if (localStorage.getItem(id + "-totalPages") !== null) {
+		// Progress recorded, display an indicator
+		currentPage = Number(localStorage.getItem(id + "-reader")) + 1;
+		totalPages = localStorage.getItem(id + "-totalPages");
+
+		if (currentPage !== totalPages)
+			return "<div class='isnew'><sup>"+currentPage+"/"+totalPages+"</sup></div>";
+	}
+
+	return "";
+}
+
 //Build a tooltip when hovering over an archive title, then display it. The tooltip is saved in DOM for further uses.
 function buildImageTooltip(target) {
+
+	if (target.innerHTML === "")
+		return;
+
 	target.qtip({
 		content: {
 			//make a clone of the existing image div and rip off the caption class to avoid display glitches
