@@ -214,7 +214,6 @@ sub clear_new {
             success   => 1
         }
     );
-
 }
 
 #Use all enabled plugins on an archive ID. Tags are automatically saved in the background.

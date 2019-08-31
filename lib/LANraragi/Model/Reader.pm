@@ -52,15 +52,8 @@ sub build_reader_JSON {
     my $redis   = LANraragi::Model::Config::get_redis();
     my $dirname = LANraragi::Model::Config::get_userdir();
 
-    #We opened this id in the reader, so we can't mark it as "new" anymore.
-    if ( $redis->hget( $id, "isnew" ) ne "false" ) {
-        $redis->hset( $id, "isnew", "false" );
-
-        #Trigger a JSON cache refresh
-        LANraragi::Utils::Database::invalidate_cache();
-    }
-
-#Get the path from Redis. Filenames are stored as they are on the OS, so no decoding!
+    # Get the path from Redis. 
+    # Filenames are stored as they are on the OS, so no decoding!
     my $zipfile = $redis->hget( $id, "file" );
 
     #Get data from the path
