@@ -9,7 +9,7 @@ LABEL "com.github.actions.description"="Runs perlcritic on the codebase."
 LABEL "com.github.actions.icon"="eye"
 LABEL "com.github.actions.color"="orange"
 
-RUN yum install bash ca-certificates coreutils jq 
+RUN yum -y install bash ca-certificates coreutils jq 
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
