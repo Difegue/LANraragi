@@ -163,10 +163,6 @@ function goToPage(page) {
 	localStorage.setItem(id + "-reader", currentPage);
 	localStorage.setItem(id + "-totalPages", pageNumber);
 
-	//if we made it to the last page, reset the page number
-	if (currentPage === pageNumber-1)
-		localStorage.setItem(id + "-reader", 0);
-
 	//scroll to top
 	window.scrollTo(0, 0);
 }

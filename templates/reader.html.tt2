@@ -101,6 +101,10 @@
 		img2 = "";
 		showingSinglePage = false;
 
+		//if we made it to the last page in a previous read, reset the page number
+		if (currentPage === pageNumber-1)
+			currentPage = 0;
+			
 		goToPage(currentPage);
 
 

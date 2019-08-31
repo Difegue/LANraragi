@@ -199,9 +199,9 @@ function buildProgressDiv(id, isnew) {
 	if (localStorage.getItem(id + "-totalPages") !== null) {
 		// Progress recorded, display an indicator
 		currentPage = Number(localStorage.getItem(id + "-reader")) + 1;
-		totalPages = localStorage.getItem(id + "-totalPages");
+		totalPages = Number(localStorage.getItem(id + "-totalPages"));
 
-		if (currentPage === 1) 
+		if (currentPage === totalPages) 
 			return "<div class='isnew'>👑</div>";
 		else
 			return "<div class='isnew'><sup>"+currentPage+"/"+totalPages+"</sup></div>";
