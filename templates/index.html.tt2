@@ -204,6 +204,19 @@
 			}
 		});
 
+		// Tell user about the context menu
+		if (localStorage.getItem("sawContextMenuToast") === null) {
+			localStorage.sawContextMenuToast = true;
+
+			$.toast({
+			heading: 'Welcome to LANraragi [% version %]!',
+			text: "If you're unlucky this is like your third toast in a row! If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!",
+			hideAfter: false,
+			position: 'top-left',
+			icon: 'info'
+			});
+		}
+
 	</script>
 
 </body>

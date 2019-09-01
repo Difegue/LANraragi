@@ -43,27 +43,27 @@ Archive List successfully retrieved. You can use the arcid parameters with the o
 ```javascript
 [{
     "arcid": "ec9b83b6a835771b0f9862d0326add2f8373989a",
-    "isnew": "none",
+    "isnew": "true",
     "tags": "",
     "title": "Ghost in the Shell 01.5 - Human-Error Processor v01c01"
 }, {
     "arcid": "28697b96f0ac5858be2614ed10ca47742c9522fd",
-    "isnew": "none",
+    "isnew": "false",
     "tags": "parody:fate grand order,  group:wadamemo,  artist:wada rco,  artbook,  full color",
     "title": "Fate GO MEMO"
 }, {
     "arcid": "2810d5e0a8d027ecefebca6237031a0fa7b91eb3",
-    "isnew": "none",
+    "isnew": "false",
     "tags": "parody:fate grand order,  character:abigail williams,  character:artoria pendragon alter,  character:asterios,  character:ereshkigal,  character:gilgamesh,  character:hans christian andersen,  character:hassan of serenity,  character:hector,  character:helena blavatsky,  character:irisviel von einzbern,  character:jeanne alter,  character:jeanne darc,  character:kiara sessyoin,  character:kiyohime,  character:lancer,  character:martha,  character:minamoto no raikou,  character:mochizuki chiyome,  character:mordred pendragon,  character:nitocris,  character:oda nobunaga,  character:osakabehime,  character:penthesilea,  character:queen of sheba,  character:rin tosaka,  character:saber,  character:sakata kintoki,  character:scheherazade,  character:sherlock holmes,  character:suzuka gozen,  character:tamamo no mae,  character:ushiwakamaru,  character:waver velvet,  character:xuanzang,  character:zhuge liang,  group:wadamemo,  artist:wada rco,  artbook,  full color",
     "title": "Fate GO MEMO 2"
 }, {
     "arcid": "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf",
-    "isnew": "none",
+    "isnew": "false",
     "tags": "character:segata sanshiro",
     "title": "Saturn Backup Cartridge - Japanese Manual"
 }, {
     "arcid": "e4c422fd10943dc169e3489a38cdbf57101a5f7e",
-    "isnew": "none",
+    "isnew": "false",
     "tags": "parody: jojo's bizarre adventure",
     "title": "Rohan Kishibe goes to Gucci"
 }]
@@ -409,7 +409,7 @@ You didn't include the key parameter.
 
 {% api-method method="get" host="http://lrr.tvc-16.science" path="/api/backup" %}
 {% api-method-summary %}
-Print a backup JSON.
+Print a backup JSON
 {% endapi-method-summary %}
 
 {% api-method-description %}
@@ -480,3 +480,101 @@ You didn't specify an API Key.
 {% endapi-method-response %}
 {% endapi-method-spec %}
 {% endapi-method %}
+
+{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/clear_new" %}
+{% api-method-summary %}
+Clear New flag  
+{% endapi-method-summary %}
+
+{% api-method-description %}
+Clears the "New!" flag on an archive if an ID is provided. Otherwise, clears the flag on all archives.
+{% endapi-method-description %}
+
+{% api-method-spec %}
+{% api-method-request %}
+{% api-method-path-parameters %}
+{% api-method-parameter name="key" type="string" required=true %}
+API Key, mandatory for this method.
+{% endapi-method-parameter %}
+{% api-method-parameter name="id" type="string" required=false %}
+ID of the Archive to process, if you want to do a single clear.
+{% endapi-method-parameter %}
+{% endapi-method-path-parameters %}
+{% endapi-method-request %}
+
+{% api-method-response %}
+{% api-method-response-example httpCode=200 %}
+{% api-method-response-example-description %}
+New flag is successfully removed
+{% endapi-method-response-example-description %}
+
+```javascript
+{
+    "id":"f3fc480a97f1afcd81c8e3392a3bcc66fe6c0809",
+    "operation":"clear_new",
+    "success":1
+}
+```
+{% endapi-method-response-example %}
+
+{% api-method-response-example httpCode=401 %}
+{% api-method-response-example-description %}
+You didn't specify an API Key.
+{% endapi-method-response-example-description %}
+
+```javascript
+{
+    "error":"This API is protected and requires login or an API Key."
+}
+```
+{% endapi-method-response-example %}
+{% endapi-method-response %}
+{% endapi-method-spec %}
+{% endapi-method %}
+
+{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/stop_shinobu" %}
+{% api-method-summary %}
+Stop Background Worker  
+{% endapi-method-summary %}
+
+{% api-method-description %}
+Stops the Shinobu Background Worker. If you want to restart it, use the `/api/restart_shinobu` endpoint instead.
+{% endapi-method-description %}
+
+{% api-method-spec %}
+{% api-method-request %}
+{% api-method-path-parameters %}
+{% api-method-parameter name="key" type="string" required=true %}
+API Key, mandatory for this method.
+{% endapi-method-parameter %}
+{% endapi-method-path-parameters %}
+{% endapi-method-request %}
+
+{% api-method-response %}
+{% api-method-response-example httpCode=200 %}
+{% api-method-response-example-description %}
+Shinobu is successfully stopped.
+{% endapi-method-response-example-description %}
+
+```javascript
+{
+    "operation":"shinobu_stop",
+    "success":1
+}
+```
+{% endapi-method-response-example %}
+
+{% api-method-response-example httpCode=401 %}
+{% api-method-response-example-description %}
+You didn't specify an API Key.
+{% endapi-method-response-example-description %}
+
+```javascript
+{
+    "error":"This API is protected and requires login or an API Key."
+}
+```
+{% endapi-method-response-example %}
+{% endapi-method-response %}
+{% endapi-method-spec %}
+{% endapi-method %}  

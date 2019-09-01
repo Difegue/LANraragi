@@ -14,6 +14,11 @@ For example, if you want to listen on port 5555 with SSL only, the string would 
 
 Once you have your string ready, you can assign it to the environment variable `LRR_NETWORK`. It'll be picked up automagically.
 
+{% hint style="info" %}
+If you're using Docker, remember to mount your cert and keys to a path reachable by the container:  
+The arguments above will resolve within the container's filesystem!
+{% endhint %}
+
 ## Source Installs
 
 ```bash

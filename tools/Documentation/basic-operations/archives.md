@@ -10,6 +10,10 @@ When reading an archive, it is automatically extracted to a temporary folder.
 This folder is then simply loaded into the built-in Web Reader.  
 The temporary folder will clean up on its own when it reaches a large enough size, so there's no need to worry about your disk filling up over time.
 
+{% hint style="info" %}
+Don't forget you can **right-click** archives to show a context menu, allowing you to edit/download/delete them.  
+{% endhint %}
+
 ![Archive Index in Thumbnail mode](../.gitbook/assets/archive_thumb.jpg)
 
 ## Web Reader Options

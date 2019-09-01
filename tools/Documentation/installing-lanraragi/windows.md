@@ -14,7 +14,7 @@ After extracting the zip, you should have something like this:
 
 ### Installation
 
-Right-click the install.ps1 script, and select **Run with PowerShell.** You should get a few security prompts from Windows as the script isn't signed; These are perfectly normal.
+Right-click the install.ps1 script, and select **Run with PowerShell.** You should get a few security prompts from Windows as the script isn't signed; These are perfectly normal.  
 
 Once the install completes properly, you'll be able to launch the GUI from the shortcut in your Start Menu:
 
