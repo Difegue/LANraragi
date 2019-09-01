@@ -56,9 +56,8 @@ sub serve_backup {
 sub check_id_parameter {
     my ( $mojo, $endpoint ) = @_;
 
-    my $id = $mojo->req->param('id') || "0";
-
-    if ( $id eq "0" ) {
+    my $id = $mojo->req->param('id') || 0;
+    unless ( $id ) {
 
         #High-level API documentation!
         $mojo->render(
@@ -67,7 +66,6 @@ sub check_id_parameter {
             },
 			status => 400
         );
-        return undef;
     }
     return $id;
 }
