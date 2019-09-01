@@ -484,7 +484,7 @@ New flags are successfully removed
 
 ```javascript
 {
-    "operation":"clear_new",
+    "operation":"clear_new_all",
     "success":1
 }
 ```
