@@ -19,7 +19,7 @@ requires 'File::Find::utf8', 0.013;
 requires 'Cpanel::JSON::XS', 4.06;
 
 requires 'Test::Harness', 3.42;
-requires 'Mojolicious', 8.10;
+requires 'Mojolicious', 8.22;
 requires 'Mojolicious::Plugin::TemplateToolkit', 0.003;
 requires 'Mojolicious::Plugin::RenderFile', 0.12;
 requires 'Mojo::IOLoop::ProcBackground', 0.06;

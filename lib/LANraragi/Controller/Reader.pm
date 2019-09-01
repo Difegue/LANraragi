@@ -34,7 +34,7 @@ sub index {
 
         if ( $tags =~ /artist:/ ) {
             $tags =~ /.*artist:([^,]*),.*/;
-            $arcname = $arcname . " by " . $1;
+            if ($1) { $arcname = $arcname . " by " . $1; }
         }
 
         my $force       = $self->req->param('force_reload')     || "0";
@@ -49,7 +49,6 @@ sub index {
         };
 
         if ($@) {
-
             my $err      = $@;
             my $filename = LANraragi::Utils::Database::redis_decode(
                 $redis->hget( $id, "file" ) );
@@ -61,6 +60,14 @@ sub index {
                 errorlog => $err
             );
             return;
+        }
+
+        # Remove "new" flag since we're opening this in the Web Reader
+        if ( $redis->hget( $id, "isnew" ) ne "false" ) {
+            $redis->hset( $id, "isnew", "false" );
+
+            #Trigger a JSON cache refresh
+            LANraragi::Utils::Database::invalidate_cache();
         }
 
         $self->render(

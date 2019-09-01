@@ -17,6 +17,8 @@ td.series {max-width: 150px;}
 td.language {max-width: 100px;}
 td.artist {max-width: 100px;}
 td.tags {max-width: 250px;}
+span.tags {display: block; overflow:hidden; text-overflow:ellipsis; min-height:20px}
+div.id4 { white-space: nowrap; }
 
 .ttspinner {
   color:black; 
@@ -207,6 +209,7 @@ a:hover > .page-number {
     height: auto; 
     width: auto; 
     min-height:300px;
+    user-select: none;
 }
 
 /* Option menu. */
@@ -265,12 +268,7 @@ a:hover > .page-number {
 
 .isnew {
     float: right; 
-    margin-top: -2px; 
     z-index: -1;
-}
-
-.isnew::after {
-    content: "🆕";
 }
 
 .log-panel {
@@ -289,6 +287,15 @@ a:hover > .page-number {
 .logo-container {
     width: 300px;
     height:100px;
+}
+
+.context-menu-list {
+    border: none !important;
+    border-radius: 0 !important;
+}
+
+.context-menu-item {
+    background-color: transparent !important;
 }
 
 .artist-tag{

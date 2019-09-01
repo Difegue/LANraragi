@@ -11,6 +11,7 @@ use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database;
 use LANraragi::Utils::TempFolder;
 
+use LANraragi::Model::Backup;
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
 use LANraragi::Model::Reader;
@@ -46,8 +47,12 @@ sub serve_tag_stats {
     $self->render( json => from_json(LANraragi::Model::Stats::build_tag_json));
 }
 
-sub extract_archive {
+sub serve_backup {
+    my $self = shift;
+    $self->render( json => from_json(LANraragi::Model::Backup::build_backup_JSON));
+}
 
+sub extract_archive {
     my $self = shift;
     my $id = $self->req->param('id') || "0";
 
@@ -57,7 +62,8 @@ sub extract_archive {
         $self->render(
             json => {
                 error => "API usage: extract?id=YOUR_ID"
-            }
+            },
+			status => 400
         );
         return;
     }
@@ -97,7 +103,8 @@ sub serve_file {
         $self->render(
             json => {
                 error => "API usage: servefile?id=YOUR_ID"
-            }
+            },
+			status => 400
         );
         return;
     }
@@ -136,7 +143,8 @@ sub serve_thumbnail {
         $self->render(
             json => {
                 error => "API usage: thumbnail?id=YOUR_ID"
-            }
+            },
+			status => 400
         );
         return;
     }
@@ -179,15 +187,21 @@ sub force_refresh {
 sub clear_new {
 
     my $self = shift;
+    my $id = $self->req->param('id') || "0";
 
-    #Get all archives thru redis
     my $redis = $self->LRR_CONF->get_redis();
-    my @keys  = $redis->keys('????????????????????????????????????????');
 
-    #40-character long keys only => Archive IDs
+    if ($id eq "0") {
+        # Get all archives thru redis
+        # 40-character long keys only => Archive IDs
+        my @keys  = $redis->keys('????????????????????????????????????????');
 
-    foreach my $id (@keys) {
-        $redis->hset( $id, "isnew", "none" );
+        foreach my $idall (@keys) {
+            $redis->hset( $idall, "isnew", "false" );
+        }
+    } else {
+        # Just set isnew to false for the provided ID.
+        $redis->hset( $id, "isnew", "false" );
     }
 
     #Trigger a JSON cache refresh
@@ -196,10 +210,10 @@ sub clear_new {
     $self->render(
         json => {
             operation => "clear_new",
+            id        => $id eq "0" ? "all_archives" : $id,
             success   => 1
         }
     );
-
 }
 
 #Use all enabled plugins on an archive ID. Tags are automatically saved in the background.
@@ -314,6 +328,20 @@ sub shinobu_status {
             operation => "shinobu_status",
             is_alive  => $self->SHINOBU->alive,
             pid       => $self->SHINOBU->pid
+        }
+    );
+}
+
+sub stop_shinobu {
+    my $self = shift;
+
+    #commit sudoku
+    $self->SHINOBU->die;
+
+    $self->render(
+        json => {
+            operation => "shinobu_stop",
+            success   => 1
         }
     );
 }

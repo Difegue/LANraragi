@@ -7,7 +7,7 @@
 * [Which installation method is best for me?](installing-lanraragi/methods.md)
 * [LRR for Windows \(Win10\)](installing-lanraragi/windows.md)
 * [Docker \(All platforms\)](installing-lanraragi/docker.md)
-* [Source Code \(Linux/macOS\)](installing-lanraragi/source.md)
+* [Source Code \(Linux\)](installing-lanraragi/source.md)
 * [Vagrant \(Deprecated\)](installing-lanraragi/vagrant.md)
 
 ## Basic Operations

@@ -73,5 +73,4 @@ See the Adding Metadata section for more information.
 
 You can add archives to the application by either copying them to the content folder, or using the built-in uploader tool.  
 They'll be automatically indexed and added to the database.  
-Plugins will also be ran automatically to try and fetch metadata for them, if you enabled Auto-Tagging previously.
-
+Plugins will also be ran automatically to try and fetch metadata for them, if you enabled Auto-Tagging previously.  

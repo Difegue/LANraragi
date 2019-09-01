@@ -1,8 +1,8 @@
 # Setup a Development Environment
 
-_Whaddaya mean nobody's contributing? That doesn't matter at all!_
+_I'd like to interject for a moment_
 
-## How do you do, fellow hackers?
+## Quick rundown  
 
 LRR is written in Perl on the server-side with the help of the [Mojolicious](http://mojolicious.org/) framework, with basic JQuery on the clientside.  
 **npm** is used for JavaScript dependency management and basic shortcuts, while **cpanm** is used for Perl dependency management.

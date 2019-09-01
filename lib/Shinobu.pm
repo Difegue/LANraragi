@@ -55,7 +55,7 @@ my $inotifysub = sub {
     $logger->debug("Received inotify event $mask on $name");
 
     if ( $e->IN_MOVED_TO || $e->IN_CREATE ) {
-        new_file_callback( $e->fullname );
+        new_file_callback( $name );
     }
 
     if ( $e->IN_DELETE ) {
@@ -77,7 +77,7 @@ sub initialize_from_new_process {
     $logger->info("Adding inotify watches to content folder $userdir");
 
     # add watches to content directory
-    $inotify->watch( $userdir, IN_ALL_EVENTS, $inotifysub );
+    $inotify->watch( $userdir, (IN_MOVED_TO | IN_DELETE | IN_CREATE), $inotifysub );
 
     # add watches to all subdirectories
     find(
@@ -88,7 +88,7 @@ sub initialize_from_new_process {
                   if $_ eq "thumb"
                   || $_ eq ".";         #excluded subdirs
                 $logger->debug("Adding inotify watches to subdirectory $_");
-                $inotify->watch( $File::Find::name, IN_ALL_EVENTS,
+                $inotify->watch( $File::Find::name, (IN_MOVED_TO | IN_DELETE | IN_CREATE),
                     $inotifysub );
             },
             follow_fast => 1
@@ -96,10 +96,10 @@ sub initialize_from_new_process {
         $userdir
     );
 
-    # add a watch to the temp folder on created folders
-    # Check the current folder size and clean it if necessary
+    # Check the current temp folder size and clean it if necessary
     $inotify->watch( LANraragi::Utils::TempFolder::get_temp,
-        IN_ALL_EVENTS, sub { LANraragi::Utils::TempFolder::clean_temp_partial; } );
+                    (IN_MOVED_TO | IN_DELETE | IN_CREATE), 
+                    sub { LANraragi::Utils::TempFolder::clean_temp_partial; } );
 
     # Create a .shinobu-nudge file and add a watch to it
     my $nudge = cwd . "/.shinobu-nudge";
@@ -109,8 +109,8 @@ sub initialize_from_new_process {
     print $fileHandle "donut";
     close $fileHandle;
 
-    # This file can then be touched to trigger a filemap rebuild + JSON refresh.
-    $inotify->watch( $nudge, IN_ATTRIB, sub {build_filemap(); build_json_cache(); } );
+    # This file can then be touched to trigger a JSON refresh.
+    $inotify->watch( $nudge, IN_ATTRIB, sub { build_json_cache(); } );
 
     # manual event loop
     $logger->info("All done! Now dutifully watching your files. ");
@@ -156,6 +156,15 @@ sub add_to_filemap {
             last if open( my $handle, '<', $file );
             $logger->debug("Waiting for file to be openable");
             sleep(1);
+        }
+
+        # Wait for file to be more than 512 KBs or bailout after 5s and assume that file is smaller
+        my $cnt = 0;
+        while (1) {
+            last if (((-s $file) >= 512000) || $cnt >= 5); 
+            $logger->debug("Waiting for file to be fully written");
+            sleep(1);
+            $cnt++;
         }
 
         #Compute the ID of the archive and add it to the hash
@@ -238,7 +247,7 @@ sub new_file_callback {
         $logger->info("Subdirectory $name was added to the content folder!");
 
         #Add watches to this subdirectory first
-        $inotify->watch( $name, IN_ALL_EVENTS, $inotifysub );
+        $inotify->watch( $name, (IN_MOVED_TO | IN_DELETE | IN_CREATE), $inotifysub );
 
         #Just do a big find call to add watches in potential subdirs
         find(
@@ -248,7 +257,7 @@ sub new_file_callback {
                         $logger->debug(
                             "Adding inotify watches to subdirectory $_");
                         $inotify->watch( $File::Find::name,
-                            IN_ALL_EVENTS, $inotifysub );
+                            (IN_MOVED_TO | IN_DELETE | IN_CREATE), $inotifysub );
                         return;
                     }
 

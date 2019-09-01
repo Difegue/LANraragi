@@ -156,32 +156,23 @@ div.idi{margin:auto;border-collapse:collapse;margin:0px auto 8px auto;padding:5p
 div#toppane{margin:auto;width:99%}
 
 
-.caption {
+.caption, .context-menu-list {
 background-color: #4f535b;
-border:2px outset #000000;
+border:2px outset #000000 !important;
 }
 
-/* Dropit styles using div and span instead of ul and li */
-
-.menu a {
-	text-decoration: none;
-}
-
-.menu div.dropit-submenu {
-    background-color: #4f535b;
-    border:2px outset #000000;
+.context-menu-list {
     padding: 6px 0;
-    margin: 3px 0 0 1px;
-}          
-.menu div.dropit-submenu a {
-    display: block;
-    line-height: 25px;
+    box-shadow: none;
+}     
+
+.context-menu-item, .context-menu-icon.context-menu-icon--fa5 i {
     color: #DDDDDD;
-    padding: 0 18px;
 }
-.menu div.dropit-submenu a:hover {
-    background: #43464e;
-    color: #f1f1f1;
+
+.context-menu-item.context-menu-hover, .context-menu-icon.context-menu-icon--fa5.context-menu-hover > i {
+    background: #3b97ea !important;
+    color: #f1f1f1 !important;
     
 }
 
@@ -241,6 +232,7 @@ div.id2 {
     text-align: center;
     vertical-align: middle;
     width: 220px;
+    line-height: 15px;
 }
 
 div.id2 a {

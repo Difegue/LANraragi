@@ -282,10 +282,34 @@ div#toppane {
 .paginate_button.current{color:#5C0D11;background:#F2EFDF;}
 .ellipsis {display:inline-block; text-align:center;height:15px;width:31px;background:#EDEADA;cursor:pointer;border:1px solid #000000;margin-top:10px;margin-bottom:10px;}
 
-.caption {
+.caption, .context-menu-list {
 background-color: #EDEADA;
-border:2px outset #5C0D11;
+border:2px outset #5C0D11 !important;
 }
+
+.context-menu-separator {
+    padding: 0 !important;
+    margin: .35em 0;
+    border-bottom: 2px solid #5C0D11;
+}
+
+.context-menu-list {
+    padding: 6px 0;
+    box-shadow: none;
+}     
+
+.context-menu-item, .context-menu-icon.context-menu-icon--fa5 i {
+    color: #5C0D11;
+    font-size: 8pt;
+}
+
+.context-menu-item.context-menu-hover, .context-menu-icon.context-menu-icon--fa5.context-menu-hover > i {
+    font-weight: bold;
+    background: #F2EFDF !important;
+    color: #5C0D11 !important;
+    
+}
+
 
 /* File upload bar */
 .bar {
@@ -342,6 +366,7 @@ div.id2 {
     text-align: center;
     vertical-align: middle;
     width: 220px;
+    line-height: 15px;
 }
 
 div.id2 a {

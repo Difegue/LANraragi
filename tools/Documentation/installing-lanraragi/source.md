@@ -2,7 +2,11 @@
 description: The following instructions are based on Debian Stretch.
 ---
 
-# Source Code \(Linux/macOS\)
+# Source Code \(Linux\)
+
+## About macOS
+
+LRR relies on inotify, which is a Linux-only feature not available on macOS. See [https://github.com/Difegue/LANraragi/issues/158](this issue) for details.
 
 ## A small FYI about Vendor Perl
 
@@ -20,17 +24,10 @@ For information, my personal tests are done using Debian's vendor Perl.
 apt-get update
 apt-get upgrade -y
 apt-get install build-essential make gnupg pkg-config\
-cpanminus redis-server libarchive-dev libjpeg-dev libpng-dev libssl-dev zlib1g-dev
+cpanminus redis-server libarchive-dev libjpeg-dev libpng-dev libssl-dev zlib1g-dev npm
 ```
 
 _Base software dependencies._
-
-```text
-curl -sL https://deb.nodesource.com/setup_9.x | bash -
-apt-get install -y nodejs
-```
-
-_Node.js and NPM._
 
 ## Installing LRR
 

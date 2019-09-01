@@ -12,6 +12,7 @@
 	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.toast.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.qtip.min.css" />
+	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.contextMenu.min.css" />
 	[% csshead %]
 
 	<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
@@ -19,8 +20,11 @@
 	<script src="/js/vendor/jquery.dataTables.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.qtip.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/jquery.ui.position.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/jquery.contextMenu.min.js" type="text/JAVASCRIPT"></script>
 
 	<script src="/js/index.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/ajax.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/index_datatables.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/theme.js" type="text/JAVASCRIPT"></script>
 
@@ -91,7 +95,6 @@
 			<table class="itg datatables">
 				<thead>
 					<tr>
-						<th></th>
 						<th id="titleheader">
 							<a>Title</a>
 						</th>
@@ -103,6 +106,9 @@
 						</th>
 						<th id="tagsheader">
 							<a>Tags</a>
+						</th>
+						<th id="titleheader">
+							<a>IsNew</a>
 						</th>
 					</tr>
 				</thead>
@@ -116,7 +122,7 @@
 					lads
 					<i class="fas fa-bomb"></i>
 				</h1>
-				<h2>The JSON cache is corrupt, and as such LANraragi is unable to display your archive list.
+				<h2>The database cache is corrupt, and as such LANraragi is unable to display your archive list.
 					<br> You can try refreshing the cache manually by clicking
 					<a href="/api/discard_cache">here</a> to see if that fixes anything. </h2>
 			</div>
@@ -133,6 +139,11 @@
 
 	<script>
 
+		// Default to thumbnail mode
+		if (localStorage.getItem("indexViewMode") === null) {
+			localStorage.indexViewMode = 1;
+		}
+
 		//load archive JSON before anything else
 		$.getJSON("api/archivelist", function (data) {
 			initIndex([% pagesize %], data);
@@ -141,7 +152,6 @@
 			$(".datatables").hide();
 			$("#json-error").show();
 		});
-
 
 		[% IF usingdefpass %]
 		//If the json has the "default password" flag, flash a friendly notification inviting the user to change his password
@@ -176,6 +186,36 @@
 		[% IF debugmode %][% ELSE %]
 		checkVersion("[% version %]");
 		[% END %]
+
+		// Initialize context menu
+		$.contextMenu({
+			selector: '.id1,.image-tooltip', 
+			callback: function(key, options) {
+				handleContextMenu(key, $(this).attr("id"));
+			},
+			items: {
+				[% IF userlogged %]
+				"edit": {name: "Edit Metadata", icon: "fas fa-pencil-alt"},
+				"delete": {name: "Delete", icon: "fas fa-trash-alt"},		
+				"sep1": "---------",		
+				[% END %]
+				"read": {name: "Read", icon: "fas fa-book"},
+				"download": {name: "Download", icon: "fas fa-save"}
+			}
+		});
+
+		// Tell user about the context menu
+		if (localStorage.getItem("sawContextMenuToast") === null) {
+			localStorage.sawContextMenuToast = true;
+
+			$.toast({
+			heading: 'Welcome to LANraragi [% version %]!',
+			text: "If you're unlucky this is like your third toast in a row! If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!",
+			hideAfter: false,
+			position: 'top-left',
+			icon: 'info'
+			});
+		}
 
 	</script>
 

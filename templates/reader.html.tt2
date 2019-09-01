@@ -22,7 +22,7 @@
 
 </head>
 
-<body onload="set_style_from_storage(); initArchivePageOverlay(); initSettingsOverlay();">
+<body onload="set_style_from_storage(); initSettingsOverlay();">
 
 	<div id="i1" class="sni">
 		<h1>[% arcname %]</h1>
@@ -101,6 +101,10 @@
 		img2 = "";
 		showingSinglePage = false;
 
+		//if we made it to the last page in a previous read, reset the page number
+		if (currentPage === pageNumber-1)
+			currentPage = 0;
+			
 		goToPage(currentPage);
 
 
@@ -112,7 +116,7 @@
 	</script>
 
 	<div id="overlay-shade" onclick="closeOverlay();"></div>
-	<div id="archivePagesOverlay" class="id1 base-overlay page-overlay" style="display:none">
+	<div id="archivePagesOverlay" class="id1 base-overlay page-overlay" style="display:none" loaded="false">
 		<h2 class="ih" style="text-align:center">Archive Overview</h2>
 	</div>
 	<div id="settingsOverlay" class="id1 base-overlay small-overlay" style="display:none">

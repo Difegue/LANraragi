@@ -12,7 +12,7 @@ function toggleFav(button) {
 	tagState = !(input.prop("checked"));
 	input.prop("checked", tagState);
 
-	//Add/remove class to button dependinig on the state
+	//Add/remove class to button depending on the state
 	if (tagState)
 		button.classList.add("toggled");
 	else
@@ -87,17 +87,37 @@ function switch_index_view() {
 
 }
 
-function checkVersion(currentVersion) {
+function checkVersion(currentVersionConf) {
 	//Check the github API to see if an update was released. If so, flash another friendly notification inviting the user to check it out
 	var githubAPI = "https://api.github.com/repos/difegue/lanraragi/releases/latest";
 	var latestVersion;
 
 	$.getJSON(githubAPI).done(function (data) {
-		latestVersion = data.tag_name;
-		if (latestVersion != "v." + currentVersion) {
+		var expr = /(\d+)/g;
+		var latestVersionArr = Array.from(data.tag_name.match(expr));
+		var latestVersion = '';
+		var currentVersionArr = Array.from(currentVersionConf.match(expr));
+		var currentVersion = '';
+
+		latestVersionArr.forEach(function(element, index) {
+			if(index+1 < latestVersionArr.length) {
+				latestVersion = latestVersion + '' + element;
+			} else {
+				latestVersion = latestVersion + '.' + element;
+			}
+		});
+		currentVersionArr.forEach(function(element, index) {
+			if(index+1 < currentVersionArr.length) {
+				currentVersion = currentVersion + '' + element;
+			} else {
+				currentVersion = currentVersion + '.' + element;
+			}
+		});
+
+		if (latestVersion > currentVersion) {
 
 			$.toast({
-				heading: 'A new version of LANraragi (' + latestVersion + ') is available !',
+				heading: 'A new version of LANraragi (' + data.tag_name + ') is available !',
 				text: '<a href="' + data.html_url + '">Click here to check it out.</a>',
 				hideAfter: false,
 				position: 'top-left',
@@ -106,4 +126,25 @@ function checkVersion(currentVersion) {
 
 		}
 	});
+}
+
+function handleContextMenu(option, id) {
+
+	switch (option) {
+		case "edit":
+			window.open("./edit?id="+id);
+			break;
+		case "delete":
+			if (confirm('Are you sure you want to delete this archive?')) 
+				deleteArchive(id);
+			break;
+		case "read":
+			window.open("./reader?id="+id);
+			break;
+		case "download":
+			window.open("./api/servefile?id="+id);
+			break;
+		default:
+			break;
+	}
 }

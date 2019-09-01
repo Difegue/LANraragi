@@ -5,6 +5,8 @@ use local::lib;
 use open ':std', ':encoding(UTF-8)';
 
 use Mojo::Base 'Mojolicious';
+use Mojo::File;
+use Mojo::JSON qw(decode_json encode_json);
 use Mojo::IOLoop::ProcBackground;
 
 use LANraragi::Utils::Generic;
@@ -17,14 +19,18 @@ use LANraragi::Utils::Plugins;
 sub startup {
     my $self = shift;
 
-    # Load configuration from hash returned by "lrr.conf"
-    my $config  = $self->plugin( 'Config', { file => 'lrr.conf' } );
-    my $version = $config->{version};
-    my $vername = $config->{version_name};
-
     say "";
     say "";
     say "ｷﾀ━━━━━━(ﾟ∀ﾟ)━━━━━━!!!!!";
+
+    # Load configuration from hash returned by "lrr.conf"
+    my $config = $self->plugin( 'Config', { file => 'lrr.conf' } );
+
+    # Load package.json to get version/vername
+    my $packagejson = decode_json(Mojo::File->new('package.json')->slurp);
+    
+    my $version = $packagejson->{version};
+    my $vername = $packagejson->{version_name};
 
     $self->secrets( $config->{secrets} );
     $self->plugin('RenderFile');
@@ -49,6 +55,15 @@ sub startup {
                 "lanraragi" );
         }
     );
+
+    #Check if a Redis server is running on the provided address/port
+    eval { $self->LRR_CONF->get_redis->ping(); };
+    if ($@) {
+        say "(╯・_>・）╯︵ ┻━┻";
+        say "It appears your Redis database is currently not running.";
+        say "The program will cease functioning now.";
+        exit;
+    }
 
     my $devmode = $self->LRR_CONF->enable_devmode;
 
@@ -80,9 +95,6 @@ sub startup {
         my $name = $pluginfo->{name};
         $self->LRR_LOGGER->info( "Plugin Detected: " . $name );
     }
-
-    #Check if a Redis server is running on the provided address/port
-    $self->LRR_CONF->get_redis;
 
     #Start Background worker
     if ( -e "./.shinobu-pid" ) {

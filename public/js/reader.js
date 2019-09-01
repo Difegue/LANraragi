@@ -159,12 +159,9 @@ function goToPage(page) {
 	//update full image link
 	$("#imgLink").attr("href", pages.pages[currentPage]);
 
-	//store page number in localStorage
+	//store page number and total pages in localStorage
 	localStorage.setItem(id + "-reader", currentPage);
-
-	//if we made it to the last page, reset the page number
-	if (currentPage === pageNumber-1)
-		localStorage.setItem(id + "-reader", 0);
+	localStorage.setItem(id + "-totalPages", pageNumber);
 
 	//scroll to top
 	window.scrollTo(0, 0);
@@ -182,8 +179,8 @@ function initArchivePageOverlay() {
 			"</div>";
 
 		$("#archivePagesOverlay").append(thumbnail);
-
 	}
+	$("#archivePagesOverlay").attr("loaded", "true");
 }
 
 function initSettingsOverlay() {
@@ -217,6 +214,9 @@ function saveSettings() {
 }
 
 function openOverlay() {
+	if ($("#archivePagesOverlay").attr("loaded") === "false")
+		initArchivePageOverlay();
+
 	$('#overlay-shade').fadeTo(150, 0.6, function () {
 		$('#archivePagesOverlay').css('display', 'block');
 	});

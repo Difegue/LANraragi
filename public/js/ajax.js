@@ -37,7 +37,6 @@ function genericAPICall(endpoint, successMessage, errorMessage, callback) {
 }
 
 function cleanTempFldr() {
-
 	genericAPICall("api/clean_temp", "Temporary Folder Cleaned!", "Error while cleaning Temporary Folder :",
 		function (data) {
 			$("#tempsize").html(data.newsize);
@@ -59,7 +58,6 @@ function rebootShinobu() {
 			$("#restart-button").prop("disabled", false);
 			shinobuStatus();
 		});
-
 }
 
 //Update the status of the background worker.
@@ -122,6 +120,58 @@ function saveFormData(formSelector) {
 				})
 			}
 		});
+}
 
+//deleteArchive(id)
+//Sends a DELETE request for that archive ID, deleting the Redis key and attempting to delete the archive file.
+function deleteArchive(arcId){
+
+	$.ajax(
+	{
+		url : "edit?id="+arcId,
+		type: "DELETE",
+		success:function(data, textStatus, jqXHR) 
+		{
+			if (data.success == "0")
+			{
+				$.toast({
+					showHideTransition: 'slide',
+					position: 'top-left', 
+					loader: false, 
+				    heading: "Couldn't delete archive file. <br> (Maybe it has already been deleted beforehand?)",
+				    text: 'Archive metadata has been deleted properly. <br> Please delete the file manually before returning to Library View.',
+				    hideAfter: false,
+				    icon: 'warning'
+				});
+				$(".stdbtn").hide();
+				$("#goback").show();
+			}
+			else
+			{
+				$.toast({
+				showHideTransition: 'slide',
+				position: 'top-left', 
+				loader: false, 
+			    heading: 'Archive successfully deleted. Redirecting you ...',
+			    text: 'File name : '+data.success, 
+			    icon: 'success'
+				});
+				setTimeout("location.href = './';",1500);
+			}
+			
+		
+		},
+		error: function(jqXHR, textStatus, errorThrown) 
+		{
+			$.toast({
+				showHideTransition: 'slide',
+				position: 'top-left', 
+				loader: false, 
+			    heading: 'Error while deleting archive :',
+			    text: textStatus,
+			    icon: 'error'
+			});
+		}
+	});
 
 }

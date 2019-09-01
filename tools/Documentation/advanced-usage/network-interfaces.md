@@ -12,28 +12,30 @@ All listen locations [supported by "listen" in Mojo::Server::Daemon](http://www.
 For example, if you want to listen on port 5555 with SSL only, the string would look like:  
 `https://*:5555?cert=/path/to/server.crt&key=/path/to/server.key`
 
-Once you have your string ready, the way to give it to the app depends on the install:
+Once you have your string ready, you can assign it to the environment variable `LRR_NETWORK`. It'll be picked up automagically.
+
+{% hint style="info" %}
+If you're using Docker, remember to mount your cert and keys to a path reachable by the container:  
+The arguments above will resolve within the container's filesystem!
+{% endhint %}
 
 ## Source Installs
 
-You can change the location by setting it as a parameter of `npm start`:
-
 ```bash
-npm start http://127.0.0.1:8000
+export LRR_NETWORK=http://127.0.0.1:8000
+npm start
 
-> LANraragi@0.5.0 start /mnt/c/Users/Tamamo/Desktop/lanraragi
-> perl ./script/lanraragi daemon -l "http://127.0.0.1:8000"
+> lanraragi@0.6.0 start /mnt/c/Users/tiki/Desktop/lrr
+> perl ./script/launcher.pl -f ./script/lanraragi
 
 ｷﾀ━━━━━━(ﾟ∀ﾟ)━━━━━━!!!!!
-[LANraragi] LANraragi 0.5.0 (re-)started. (Production Mode)
+[LANraragi] [info] LANraragi 0.6.0-BETA.2 (re-)started. (Debug Mode)
 [...]
 [Mojolicious] Listening at "http://127.0.0.1:8000"
+Server available at http://127.0.0.1:8000
 ```
 
 ## Docker
-
-You can set the interface string as a Docker environment variable when building your container off the image.  
-We look for the parameter `lrr_network`.
 
 ```bash
 docker run --name=lanraragi -p 8000:8000 \
@@ -41,4 +43,3 @@ docker run --name=lanraragi -p 8000:8000 \
 target=/home/koyomi/lanraragi/content \
 -e lrr_network=http://*:8000 difegue/lanraragi
 ```
-

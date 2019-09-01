@@ -7,15 +7,17 @@
 [<img src="https://img.shields.io/github/release/difegue/lanraragi.svg?label=latest%20release">](https://github.com/Difegue/LANraragi/releases) 
 [<img src="https://img.shields.io/website/https/lrr.tvc-16.science.svg?label=demo%20website&up_message=online">](https://lrr.tvc-16.science/)
 [<img src="https://action-badges.now.sh/Difegue/lanraragi">](https://github.com/Difegue/LANraragi/actions)
+[<img src="https://img.shields.io/discord/612709831744290847">](https://discord.gg/aRQxtbg)
 
 <a href='https://ko-fi.com/T6T2UP5N' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://az743702.vo.msecnd.net/cdn/kofi4.png?v=2' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 
 Web interface and reader for archival of comics/manga, running on Mojolicious + Redis.
 
-## User survey ongoing!
+## User survey results are in!
 
-I'm currently running a small survey to gather some info from all users as to what they'd like to see in future releases.  
-I don't put metrics/telemetry of any kind in the software itself, so if you have 2 minutes to spare, [it'd be much appreciated](https://forms.office.com/Pages/ResponsePage.aspx?id=DQSIkWdsW0yxEjajBLZtrQAAAAAAAAAAAAN__osxt25UQk44UFo0RTNKUFlLUkhCMzJDUUZZTVIxVC4u)! 
+Thanks to everyone who filled in the survey!  
+
+You can read the results [here](https://tvc-16.science/lrr-survey.html).
 
 ## Features  
 

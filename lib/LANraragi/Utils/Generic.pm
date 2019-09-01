@@ -31,26 +31,13 @@ sub remove_newlines {
 
 #Checks if the provided file is an image.
 sub is_image {
-    return $_[0] =~ /^*.+\.(png|jpg|gif|bmp|jpeg|webp|PNG|JPG|GIF|BMP|JPEG|WEBP)$/;
+    return $_[0] =~ /^.+\.(png|jpg|gif|bmp|jpeg|jfif|webp|PNG|JPG|GIF|BMP|JPEG|JFIF|WEBP)$/;
 }
 
 #Start Shinobu and return its Proc::Background object.
 sub start_shinobu {
     my $proc = Mojo::IOLoop::ProcBackground->new;
     my $logger = get_logger( "Shinobu Boot", "lanraragi" );
-
-    # When the process terminates, we get this event
-    $proc->on(
-        dead => sub {
-            my ($proc) = @_;
-            my $pid = $proc->proc->pid;
-            $logger->info(
-                "Shinobu Background Worker terminated. (PID was $pid)");
-
-            #Delete pidfile
-            unlink("./.shinobu-pid");
-        }
-    );
 
     $proc->run( [ $^X, "./lib/Shinobu.pm" ] );
 
@@ -62,22 +49,12 @@ sub start_shinobu {
     close($pidfile);
 
     return $proc->proc;
-
 }
 
-#TASKKILL seems superflous on Windows as sub-PIDs are always cleanly killed when the main process dies
-#But you can never be safe enough
+# Kill process with the given PID.
 sub kill_pid {
-
     my $pid = shift;
-
-    if ( $^O eq "MSWin32" ) {
-        `TASKKILL /F /T /PID $pid`;
-    }
-    else {
-        `kill -9 $pid`;
-    }
-
+    `kill -9 $pid`;
 }
 
 #This function gives us a SHA hash for the passed file, which is used for thumbnail reverse search on E-H.
@@ -199,7 +176,6 @@ sub generate_themes_header {
 sub generate_themes_selector {
 
     my @css = get_css_list;
-
     my $CSSsel = '<div>';
 
     #Go through the css files

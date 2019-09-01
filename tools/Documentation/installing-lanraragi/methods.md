@@ -19,7 +19,7 @@ Installing from **source** is a more involved procedure, but it does put you in 
 ## Windows 10: _LRR for Windows_
 
 {% hint style="warning" %}
-This method works on **64-bit** editions of Windows 10 only.                                                  Versions under v1803 \(April 2018 Update\) will probably not work properly.
+This method works on **64-bit** editions of Windows 10 only. Versions under v1809 \(October 2018 Update\) will probably not work properly. v1803 _might_ work, but you're wading uncharted waters.
 {% endhint %}
 
 ![](../.gitbook/assets/karen.jpg)
@@ -50,6 +50,10 @@ A common post-install setup is to make requests to the app transit through a gat
 If you do so, please note that archive uploads through LRR will likely **not work out of the box** due to maximum sizes on uploads those servers can enforce. The example below is for nginx:
 
 ```text
+http {
+    client_max_body_size 0;   <----------------------- This line here
+}
+
 server {
     listen 80;
 
@@ -57,17 +61,22 @@ server {
 
     return 301 https://$host$request_uri;
 }
+
 server {
     listen 443 ssl;
     index index.php index.html index.htm;
     server_name lanraragi.[REDACTED].net;
 
-    client_max_body_size 0;   <----------------------- This line here
+    client_max_body_size 0;   <----------------------- And this line here
 
     # Cert Stuff Omitted
 
     location / {
         proxy_pass http://0.0.0.0:3000;
+        proxy_http_version 1.1;
+        <----- The two following lines are needed for batch tagger support with SSL ----->
+        proxy_set_header Upgrade $http_upgrade; 
+        proxy_set_header Connection $connection_upgrade;
     }
 }
 ```

@@ -39,7 +39,7 @@ sub add_archive_to_redis {
     $redis->hset( $id, "file", $file );
 
     #New file in collection, so this flag is set.
-    $redis->hset( $id, "isnew", "block" );
+    $redis->hset( $id, "isnew", "true" );
 
     #Use the mythical regex to get title and tags
     #Except if the matching pref is off
@@ -53,6 +53,31 @@ sub add_archive_to_redis {
     $redis->hset( $id, "tags",  encode_utf8($tags) );
 
     return ( $name, $title, $tags, "block" );
+}
+
+#Deletes the archive with the given id from redis, and the matching archive file.
+sub delete_archive {
+
+    my $id   = $_[0];
+    my $redis = LANraragi::Model::Config::get_redis;
+    my $filename = $redis->hget( $id, "file" );
+
+    $redis->del($id);
+
+    $redis->quit();
+
+    if ( -e $filename ) {
+        unlink $filename;
+
+        # JSON rebuild is handled by Shinobu here, no need for invalidation
+        return $filename;
+    } else {
+        # If the file was already gone, do a manual JSON rebuild.  
+        # This supposedly shouldn't happen but better be safe
+        LANraragi::Utils::Database::invalidate_cache();
+    }
+
+    return "0";
 }
 
 #add_tags($id, $tags)
@@ -155,6 +180,10 @@ sub compute_id {
     my $ctx = Digest::SHA->new(1);
     $ctx->add($data);
     my $digest = $ctx->hexdigest;
+
+    if( $digest eq "da39a3ee5e6b4b0d3255bfef95601890afd80709" ) {
+        die "Computed ID is for a null value, invalid source file.";
+    }
 
     return $digest;
 

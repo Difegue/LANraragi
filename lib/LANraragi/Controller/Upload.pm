@@ -77,10 +77,13 @@ sub process_upload {
                 $redis );
 
             # Move the file to the content folder and let Shinobu handle the index JSON.
-            # TODO: Should a lock be implemented here to ensure proper ID re-calculation? 
-            move($tempfile,$output_file);
+            # Move to a .tmp first in case copy to the content folder takes a while...
+            move($tempfile,$output_file.".upload");
+            # Then rename inside the content folder itself to proc Shinobu.
+            move($output_file.".upload", $output_file);
 
-            $self->render(
+            if ( -e $output_file ) {
+                $self->render(
                 json => {
                     operation => "upload",
                     name      => $file->filename,
@@ -88,7 +91,19 @@ sub process_upload {
                     success   => 1,
                     id        => $id
                 }
-            );
+                );
+            } else {
+                $self->render(
+                json => {
+                    operation => "upload",
+                    name      => $file->filename,
+                    type      => $uploadMime,
+                    success   => 0,
+                    error     => "The file couldn't be moved to your content folder!"
+                }
+                );
+            }
+            
         }
     }
     else {

@@ -21,6 +21,7 @@ use LANraragi::Utils::Plugins;
 
 use LANraragi::Model::Config;
 
+# Sub used by Auto-Plugin.
 sub exec_enabled_plugins_on_file {
 
     my $id = shift;
@@ -50,8 +51,10 @@ sub exec_enabled_plugins_on_file {
         if ($@) {
             $failures++;
             $logger->error("$@");
-        }
-        else {
+        } elsif ( exists $plugin_result{error}) {
+            $failures++;
+            $logger->error($plugin_result{error});
+        } else {
             $successes++;
         }
 

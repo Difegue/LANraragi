@@ -54,9 +54,12 @@ sub logged_in_api {
       if $key ne "" && $key eq $self->LRR_CONF->get_apikey ||
          $self->session('is_logged') || 
          $self->LRR_CONF->enable_pass == 0;
-    $self->render(json => {
-            error => "This API is protected and requires login or an API Key."
-            });
+    $self->render(
+		json => {
+			error => "This API is protected and requires login or an API Key."
+        },
+		status => 401
+	);
     return 0;
 }
 
