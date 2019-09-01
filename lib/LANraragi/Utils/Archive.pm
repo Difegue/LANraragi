@@ -95,16 +95,15 @@ sub extract_thumbnail {
     my $file = $redis->hget( $id, "file" );
     my $temppath = LANraragi::Utils::TempFolder::get_temp . "/thumb";
 
-    #Clean thumb temp to prevent file mismatch errors.
-    remove_tree( $temppath, { error => \my $err } );
+    # Make sure the thumb temp dir exists
     mkdir $temppath;
 
-    #Get all the files of the archive
+    # Get all the files of the archive
     my $peek = Archive::Peek::Libarchive->new( filename => $file );
     my @files = $peek->files();
     my @extracted;
 
-    #Filter out non-images
+    # Filter out non-images
     foreach my $file (@files) {
 
         if ( $file =~ /^(.*\/)*.+\.(png|jpg|gif|bmp|jpeg|PNG|JPG|GIF|BMP)$/ ) {
@@ -114,13 +113,13 @@ sub extract_thumbnail {
 
     @extracted = sort { lc($a) cmp lc($b) } @extracted;
 
-    #Get the first file of the list and spit it out into a file
+    # Get the first file of the list and spit it out into a file
     my $contents = $peek->file( $extracted[0] );
 
-    #The name sometimes comes with the folder as a bonus, so we use basename to filter it out.
+    # The name sometimes comes with the folder as a bonus, so we use basename to filter it out.
     my ( $filename, $dirs, $suffix ) = fileparse( $extracted[0] );
 
-    # Move the extracted file to a safe folder to avoid conccurent overwrites
+    # Move the extracted file to a safe folder to avoid concurrent overwrites
     mkdir $temppath . "/$id";
     my $arcimg = $temppath . "/$id/" . $filename . $suffix;
 
@@ -139,7 +138,8 @@ sub extract_thumbnail {
 
     #Delete the previously extracted file.
     unlink $arcimg;
-    unlink $temppath . "/$id";
+    # Clean up safe foder
+    remove_tree( $temppath . "/$id");
     return $thumbname;
 }
 
