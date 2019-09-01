@@ -29,11 +29,11 @@ If you have an account that can access fjorded content or exhentai, adding the c
         parameters  => [
             {type => "int",    desc =>  "ipb_member_id cookie"},
             {type => "string", desc =>  "ipb_pass_hash cookie"},
-            {type => "string", desc =>  "star cookie (required to view fjorded content without exhentai)"},
-            {type => "string", desc =>  "Default language to use in searches"},
+            {type => "string", desc =>  "star cookie (optional, if present you can view fjorded content without exhentai)"},
+            {type => "string", desc =>  "Forced language to use in searches"},
             {type => "bool",   desc =>  "Save archive title"},
             {type => "bool",   desc =>  "Fetch using thumbnail first"},
-            {type => "bool",   desc =>  "Use ExHentai (enable if you can't view fjorded content on main site - only certain users can)"}
+            {type => "bool",   desc =>  "Use ExHentai (enable to search for fjorded content without star cookie)"}
         ],
         oneshot_arg => "E-H Gallery URL (Will attach tags matching this exact gallery to your archive)"
     );
