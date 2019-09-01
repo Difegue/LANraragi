@@ -409,7 +409,7 @@ You didn't include the key parameter.
 
 {% api-method method="get" host="http://lrr.tvc-16.science" path="/api/clear_new" %}
 {% api-method-summary %}
-Clear New flag  
+Clear New flag on archive
 {% endapi-method-summary %}
 
 {% api-method-description %}
@@ -419,11 +419,11 @@ Clears the "New!" flag on an archive if an ID is provided. Otherwise, clears the
 {% api-method-spec %}
 {% api-method-request %}
 {% api-method-path-parameters %}
-{% api-method-parameter name="key" type="string" required=true %}
-API Key, mandatory for this method.
+{% api-method-parameter name="key" type="string" required=false %}
+API Key, if needed.
 {% endapi-method-parameter %}
-{% api-method-parameter name="id" type="string" required=false %}
-ID of the Archive to process, if you want to do a single clear.
+{% api-method-parameter name="id" type="string" required=true %}
+ID of the Archive to process
 {% endapi-method-parameter %}
 {% endapi-method-path-parameters %}
 {% endapi-method-request %}
@@ -437,6 +437,53 @@ New flag is successfully removed
 ```javascript
 {
     "id":"f3fc480a97f1afcd81c8e3392a3bcc66fe6c0809",
+    "operation":"clear_new",
+    "success":1
+}
+```
+{% endapi-method-response-example %}
+
+{% api-method-response-example httpCode=401 %}
+{% api-method-response-example-description %}
+You didn't specify an API Key.
+{% endapi-method-response-example-description %}
+
+```javascript
+{
+    "error":"This API is protected and requires login or an API Key."
+}
+```
+{% endapi-method-response-example %}
+{% endapi-method-response %}
+{% endapi-method-spec %}
+{% endapi-method %}
+
+{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/clear_new_all" %}
+{% api-method-summary %}
+Clear all New flags
+{% endapi-method-summary %}
+
+{% api-method-description %}
+Clears the "New!" flag on all archives.
+{% endapi-method-description %}
+
+{% api-method-spec %}
+{% api-method-request %}
+{% api-method-path-parameters %}
+{% api-method-parameter name="key" type="string" required=true %}
+API Key, mandatory for this method.
+{% endapi-method-parameter %}
+{% endapi-method-path-parameters %}
+{% endapi-method-request %}
+
+{% api-method-response %}
+{% api-method-response-example httpCode=200 %}
+{% api-method-response-example-description %}
+New flags are successfully removed
+{% endapi-method-response-example-description %}
+
+```javascript
+{
     "operation":"clear_new",
     "success":1
 }

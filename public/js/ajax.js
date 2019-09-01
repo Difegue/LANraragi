@@ -4,7 +4,7 @@
 function genericAPICall(endpoint, successMessage, errorMessage, callback) {
 	$.get(endpoint)
 		.done(function (data) {
-			if (data.success)
+			if (data.success && successMessage !== null)
 				$.toast({
 					showHideTransition: 'slide',
 					position: 'top-left',
@@ -12,7 +12,7 @@ function genericAPICall(endpoint, successMessage, errorMessage, callback) {
 					heading: successMessage,
 					icon: 'success'
 				});
-			else
+			else if (!data.success)
 				$.toast({
 					showHideTransition: 'slide',
 					position: 'top-left',
@@ -47,8 +47,12 @@ function invalidateCache() {
 	genericAPICall("api/discard_cache", "Started JSON Cache rebuild.", "Error while deleting cache! Check Logs.", null);
 }
 
-function clearNew() {
-	genericAPICall("api/clear_new", "All archives are no longer new!", "Error while clearing flags! Check Logs.", null);
+function clearNew(id) {
+	genericAPICall("api/clear_new?id="+id, null, "Error clearing new flag! Check Logs.", null);
+}
+
+function clearAllNew() {
+	genericAPICall("api/clear_new_all", "All archives are no longer new!", "Error while clearing flags! Check Logs.", null);
 }
 
 function rebootShinobu() {

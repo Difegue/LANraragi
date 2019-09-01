@@ -33,6 +33,7 @@ sub apply_routes {
         $logged_in_api->get('/api/untagged')->to('api#serve_untagged_archivelist');
         $logged_in_api->get('/api/tagstats')->to('api#serve_tag_stats');
         $logged_in_api->get('/api/extract')->to('api#extract_archive');
+        $logged_in_api->get('/api/clear_new')->to('api#clear_new');
     }
     else {
         #Standard behaviour is to leave those routes loginless for all clients
@@ -40,13 +41,15 @@ sub apply_routes {
         $r->get('/index')->to('index#index');
         $r->get('/random')->to('index#random_archive');
         $r->get('/reader')->to('reader#index');
+        $r->get('/stats')->to('stats#index');
+
         $r->get('/api/thumbnail')->to('api#serve_thumbnail');
         $r->get('/api/servefile')->to('api#serve_file');
         $r->get('/api/archivelist')->to('api#serve_archivelist');
         $r->get('/api/untagged')->to('api#serve_untagged_archivelist');
-        $r->get('/api/extract')->to('api#extract_archive');
         $r->get('/api/tagstats')->to('api#serve_tag_stats');
-        $r->get('/stats')->to('stats#index');
+        $r->get('/api/extract')->to('api#extract_archive');
+        $r->get('/api/clear_new')->to('api#clear_new');
     }
 
     #Those routes are only accessible if user is logged in
@@ -75,11 +78,11 @@ sub apply_routes {
     $logged_in_api->post('/api/autoplugin')->to('api#use_enabled_plugins');
     $logged_in_api->get('/api/clean_temp')->to('api#clean_tempfolder');
     $logged_in_api->get('/api/discard_cache')->to('api#force_refresh');
-    $logged_in_api->get('/api/clear_new')->to('api#clear_new');
     $logged_in_api->get('/api/shinobu_status')->to('api#shinobu_status');
     $logged_in_api->get('/api/stop_shinobu')->to('api#stop_shinobu');
     $logged_in_api->get('/api/restart_shinobu')->to('api#restart_shinobu');
     $logged_in_api->get('/api/backup')->to('api#serve_backup');
+    $logged_in_api->get('/api/clear_new_all')->to('api#clear_new_all');
 
     $logged_in->get('/logs')->to('logging#index');
     $logged_in->get('/logs/general')->to('logging#print_general');
