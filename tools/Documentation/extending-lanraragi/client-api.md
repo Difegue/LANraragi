@@ -407,80 +407,6 @@ You didn't include the key parameter.
 {% endapi-method-spec %}
 {% endapi-method %}
 
-{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/backup" %}
-{% api-method-summary %}
-Print a backup JSON
-{% endapi-method-summary %}
-
-{% api-method-description %}
-Scans the entire database and returns a backup in JSON form. This backup can be reimported manually through the Backup and Restore feature.  
-{% page-ref page="advanced-usage/backup-and-restore.md" %}
-{% endapi-method-description %}
-
-{% api-method-spec %}
-{% api-method-request %}
-{% api-method-path-parameters %}
-{% api-method-parameter name="key" type="string" required=true %}
-API Key, mandatory for this method.
-{% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
-{% endapi-method-request %}
-
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-Prints a backup JSON.
-{% endapi-method-response-example-description %}
-
-```javascript
-[
-    {
-        "arcid": "e4c422fd10943dc169e3489a38cdbf57101a5f7e",
-        "title": "rohan",
-        "tags": "language:english, parody:jojos bizarre adventure, character:rohan kishibe, date_added:1541778455",
-        "thumbhash": "f0a335a3562da03b61d69242b9562592eade06b9",
-        "filename": "rohan"
-    },
-    {
-        "arcid": "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf",
-        "title": "saturn",
-        "tags": " language:english, parody:sailor moon, character:sailor saturn, date_added:1553537268",
-        "thumbhash": "631fb75a5aed97ee977783472e7d6b093c6df87d",
-        "filename": "saturn"
-    },
-    {
-        "arcid": "d1858d5dc36925aa66be072a97817650d39de166",
-        "title": "test title",
-        "tags": "",
-        "thumbhash": "9846bb6d62949b56545c42e88d8010446b65702e",
-        "filename": "[Memes]9B789D38B0784C5FBC9D59A9F24D20F2"
-    },
-    {
-        "arcid": "28697b96f0ac5858be2614ed10ca47742c9522fd",
-        "title": "Fate GO MEMO",
-        "tags": "parody:fate grand order, group:wadamemo, artist:wada rco, artbook, full color, super:test, date_added:1553537258",
-        "thumbhash": "ec2a0ca3a3da67a9390889f0910fe494241faa9a",
-        "filename": "FateGOMEMO"
-    }
-]
-```
-{% endapi-method-response-example %}
-
-{% api-method-response-example httpCode=401 %}
-{% api-method-response-example-description %}
-You didn't specify an API Key.
-{% endapi-method-response-example-description %}
-
-```javascript
-{
-    "error":"This API is protected and requires login or an API Key."
-}
-```
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
-
 {% api-method method="get" host="http://lrr.tvc-16.science" path="/api/clear_new" %}
 {% api-method-summary %}
 Clear New flag  
@@ -578,3 +504,79 @@ You didn't specify an API Key.
 {% endapi-method-response %}
 {% endapi-method-spec %}
 {% endapi-method %}  
+
+{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/backup" %}
+{% api-method-summary %}
+Print a backup JSON
+{% endapi-method-summary %}
+
+{% api-method-description %}
+Scans the entire database and returns a backup in JSON form. This backup can be reimported manually through the Backup and Restore feature.  
+{% page-ref page="advanced-usage/backup-and-restore.md" %}
+{% endapi-method-description %}
+
+{% api-method-spec %}
+{% api-method-request %}
+{% api-method-path-parameters %}
+{% api-method-parameter name="key" type="string" required=true %}
+API Key, mandatory for this method.
+{% endapi-method-parameter %}
+{% endapi-method-path-parameters %}
+{% endapi-method-request %}
+
+{% api-method-response %}
+{% api-method-response-example httpCode=200 %}
+{% api-method-response-example-description %}
+Prints a backup JSON.
+{% endapi-method-response-example-description %}
+
+```javascript
+[
+    {
+        "arcid": "e4c422fd10943dc169e3489a38cdbf57101a5f7e",
+        "title": "rohan",
+        "tags": "language:english, parody:jojos bizarre adventure, character:rohan kishibe, date_added:1541778455",
+        "thumbhash": "f0a335a3562da03b61d69242b9562592eade06b9",
+        "filename": "rohan"
+    },
+    {
+        "arcid": "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf",
+        "title": "saturn",
+        "tags": " language:english, parody:sailor moon, character:sailor saturn, date_added:1553537268",
+        "thumbhash": "631fb75a5aed97ee977783472e7d6b093c6df87d",
+        "filename": "saturn"
+    },
+    {
+        "arcid": "d1858d5dc36925aa66be072a97817650d39de166",
+        "title": "test title",
+        "tags": "",
+        "thumbhash": "9846bb6d62949b56545c42e88d8010446b65702e",
+        "filename": "[Memes]9B789D38B0784C5FBC9D59A9F24D20F2"
+    },
+    {
+        "arcid": "28697b96f0ac5858be2614ed10ca47742c9522fd",
+        "title": "Fate GO MEMO",
+        "tags": "parody:fate grand order, group:wadamemo, artist:wada rco, artbook, full color, super:test, date_added:1553537258",
+        "thumbhash": "ec2a0ca3a3da67a9390889f0910fe494241faa9a",
+        "filename": "FateGOMEMO"
+    }
+]
+```
+{% endapi-method-response-example %}
+
+{% api-method-response-example httpCode=401 %}
+{% api-method-response-example-description %}
+You didn't specify an API Key.
+{% endapi-method-response-example-description %}
+
+```javascript
+{
+    "error":"This API is protected and requires login or an API Key."
+}
+```
+{% endapi-method-response-example %}
+{% endapi-method-response %}
+{% endapi-method-spec %}
+{% endapi-method %}
+
+

@@ -42,5 +42,5 @@ Non-Web Readers are not officially supported, but you can build your own through
 Here are some existing clients:
 
 * [Ichaival \(Android\)](https://github.com/Utazukin/Ichaival)  
-* Tsukihi \(Windows/macOS\)
+* [LRReader \(Windows 10\)](https://github.com/Guerra24/LRReader)
 
