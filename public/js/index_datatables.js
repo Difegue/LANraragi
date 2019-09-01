@@ -196,7 +196,7 @@ function buildProgressDiv(id, isnew) {
 		return '<div class="isnew">🆕</div>';
 	} 
 
-	if (localStorage.getItem(id + "-totalPages") !== null) {
+	if (localStorage.getItem(id + "-totalPages") !== null && localStorage.nobookmark !== 'true') {
 		// Progress recorded, display an indicator
 		currentPage = Number(localStorage.getItem(id + "-reader")) + 1;
 		totalPages = Number(localStorage.getItem(id + "-totalPages"));
