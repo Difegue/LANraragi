@@ -35,7 +35,8 @@ jobs:
         echo "${DOCKER_PASSWORD}" | docker login -u ${DOCKER_USERNAME} --password-stdin
         chmod +x ./tools/Docker-multiarch/build-docker.sh
         npm run docker-build-multiarch ${ARCH} latest
-        npm run docker-build-multiarch ${ARCH} ${GITHUB_REF}
+        TAG=${GITHUB_REF:10:10}
+        npm run docker-build-multiarch ${ARCH} $TAG
   pushLatestDocker:
     name: Push Multiarch Manifest
     runs-on: ubuntu-latest
@@ -51,4 +52,5 @@ jobs:
         echo "${DOCKER_PASSWORD}" | docker login -u ${DOCKER_USERNAME} --password-stdin
         chmod +x ./tools/Docker-multiarch/build-docker.sh
         npm run docker-push-multiarch latest
-        npm run docker-push-multiarch ${GITHUB_REF}
+        TAG=${GITHUB_REF:10:10}
+        npm run docker-push-multiarch $TAG
