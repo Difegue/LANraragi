@@ -117,9 +117,12 @@ sub extract_thumbnail {
     #Get the first file of the list and spit it out into a file
     my $contents = $peek->file( $extracted[0] );
 
-#The name sometimes comes with the folder as a bonus, so we use basename to filter it out.
+    #The name sometimes comes with the folder as a bonus, so we use basename to filter it out.
     my ( $filename, $dirs, $suffix ) = fileparse( $extracted[0] );
-    my $arcimg = $temppath . '/' . $filename . $suffix;
+
+    # Move the extracted file to a safe folder to avoid conccurent overwrites
+    mkdir $temppath . "/$id";
+    my $arcimg = $temppath . "/$id/" . $filename . $suffix;
 
     open( my $fh, '>', $arcimg )
       or die "Could not open file '$arcimg' $!";
@@ -136,6 +139,7 @@ sub extract_thumbnail {
 
     #Delete the previously extracted file.
     unlink $arcimg;
+    unlink $temppath . "/$id";
     return $thumbname;
 }
 
