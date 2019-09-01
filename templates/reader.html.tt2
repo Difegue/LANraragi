@@ -19,6 +19,7 @@
 
 	<script src="./js/theme.js" type="text/JAVASCRIPT"></script>
 	<script src="./js/reader.js" type="text/JAVASCRIPT"></script>
+	<script src="./js/ajax.js" type="text/JAVASCRIPT"></script>
 
 </head>
 
@@ -107,6 +108,8 @@
 			
 		goToPage(currentPage);
 
+		// Remove new flag with an API call
+		clearNew(id);
 
 		//image map update on window resize
 		$(window).resize(function () {

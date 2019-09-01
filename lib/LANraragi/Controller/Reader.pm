@@ -62,14 +62,6 @@ sub index {
             return;
         }
 
-        # Remove "new" flag since we're opening this in the Web Reader
-        if ( $redis->hget( $id, "isnew" ) ne "false" ) {
-            $redis->hset( $id, "isnew", "false" );
-
-            #Trigger a JSON cache refresh
-            LANraragi::Utils::Database::invalidate_cache();
-        }
-
         $self->render(
             template   => "reader",
             arcname    => $arcname,

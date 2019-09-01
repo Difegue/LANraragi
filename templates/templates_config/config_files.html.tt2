@@ -48,7 +48,7 @@
 
 <tr>
     <td class="option-td">
-        <input class='stdbtn' type='button' onclick="clearNew();" value='Clear NEW flags' />
+        <input class='stdbtn' type='button' onclick="clearAllNew();" value='Clear NEW flags' />
     </td>
     <td>
         Newly uploaded archives are marked as "new" in the index until you've opened them.  <br>

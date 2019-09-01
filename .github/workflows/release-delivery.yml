@@ -50,7 +50,7 @@ jobs:
         DOCKER_CLI_EXPERIMENTAL: enabled
       run: |
         echo "${DOCKER_PASSWORD}" | docker login -u ${DOCKER_USERNAME} --password-stdin
-        chmod +x ./tools/Docker-multiarch/build-docker.sh
+        chmod +x ./tools/Docker-multiarch/push-docker.sh
         npm run docker-push-multiarch latest
         TAG=${GITHUB_REF:10:10}
         npm run docker-push-multiarch $TAG

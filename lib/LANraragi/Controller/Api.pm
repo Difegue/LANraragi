@@ -52,21 +52,27 @@ sub serve_backup {
     $self->render( json => from_json(LANraragi::Model::Backup::build_backup_JSON));
 }
 
-sub extract_archive {
-    my $self = shift;
-    my $id = $self->req->param('id') || "0";
+# Handle missing ID parameter for a whole lot of api methods down below.
+sub check_id_parameter {
+    my ( $mojo, $endpoint ) = @_;
 
-    if ( $id eq "0" ) {
+    my $id = $mojo->req->param('id') || 0;
+    unless ( $id ) {
 
         #High-level API documentation!
-        $self->render(
+        $mojo->render(
             json => {
-                error => "API usage: extract?id=YOUR_ID"
+                error => "API usage: $endpoint?id=YOUR_ID"
             },
 			status => 400
         );
-        return;
     }
+    return $id;
+}
+
+sub extract_archive {
+    my $self = shift;
+    my $id = check_id_parameter($self, "extract") || return;
 
     #Basically just API glue to the existing reader method.
     my $readerjson;
@@ -94,20 +100,8 @@ sub extract_archive {
 sub serve_file {
 
     my $self  = shift;
-    my $id    = $self->req->param('id') || "0";
+    my $id    = check_id_parameter($self, "servefile") || return;
     my $redis = $self->LRR_CONF->get_redis();
-
-    if ( $id eq "0" ) {
-
-        #High-level API documentation!
-        $self->render(
-            json => {
-                error => "API usage: servefile?id=YOUR_ID"
-            },
-			status => 400
-        );
-        return;
-    }
 
     my $file = $redis->hget( $id, "file" );
     $self->render_file( filepath => $file );
@@ -134,29 +128,15 @@ sub clean_tempfolder {
 sub serve_thumbnail {
     my $self = shift;
 
-    my $id = $self->req->param('id') || "0";
+    my $id = check_id_parameter($self, "thumbnail") || return;
     my $dirname = $self->LRR_CONF->get_userdir;
-
-    if ( $id eq "0" ) {
-
-        #High-level API documentation!
-        $self->render(
-            json => {
-                error => "API usage: thumbnail?id=YOUR_ID"
-            },
-			status => 400
-        );
-        return;
-    }
 
     #Thumbnails are stored in the content directory, thumb subfolder.
     my $thumbname = $dirname . "/thumb/" . $id . ".jpg";
 
     unless ( -e $thumbname ) {
-
         $thumbname =
           LANraragi::Utils::Archive::extract_thumbnail( $dirname, $id );
-
     }
 
     #Simply serve the thumbnail.
@@ -183,34 +163,46 @@ sub force_refresh {
     );
 }
 
-#Clear new flag in all archives.
 sub clear_new {
-
     my $self = shift;
-    my $id = $self->req->param('id') || "0";
+    my $id = check_id_parameter($self, "clear_new") || return;
 
     my $redis = $self->LRR_CONF->get_redis();
 
-    if ($id eq "0") {
-        # Get all archives thru redis
-        # 40-character long keys only => Archive IDs
-        my @keys  = $redis->keys('????????????????????????????????????????');
-
-        foreach my $idall (@keys) {
-            $redis->hset( $idall, "isnew", "false" );
-        }
-    } else {
-        # Just set isnew to false for the provided ID.
+    # Just set isnew to false for the provided ID.
+    if ($redis->hget( $id, "isnew") ne "false") {
         $redis->hset( $id, "isnew", "false" );
-    }
 
-    #Trigger a JSON cache refresh
-    LANraragi::Utils::Database::invalidate_cache();
+        #Trigger a JSON cache refresh
+        LANraragi::Utils::Database::invalidate_cache();
+    }
 
     $self->render(
         json => {
             operation => "clear_new",
-            id        => $id eq "0" ? "all_archives" : $id,
+            id        => $id,
+            success   => 1
+        }
+    );
+}
+
+#Clear new flag in all archives.
+sub clear_new_all {
+
+    my $self = shift;
+    my $redis = $self->LRR_CONF->get_redis();
+
+    # Get all archives thru redis
+    # 40-character long keys only => Archive IDs
+    my @keys  = $redis->keys('????????????????????????????????????????');
+
+    foreach my $idall (@keys) {
+        $redis->hset( $idall, "isnew", "false" );
+    }
+    
+    $self->render(
+        json => {
+            operation => "clear_new_all",
             success   => 1
         }
     );
