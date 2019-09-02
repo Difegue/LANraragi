@@ -33,6 +33,7 @@ sub exec_enabled_plugins_on_file {
 
     my $successes = 0;
     my $failures  = 0;
+    my $addedtags = 0;
 
     my @plugins = LANraragi::Utils::Plugins::get_enabled_plugins("metadata");
 
@@ -63,14 +64,24 @@ sub exec_enabled_plugins_on_file {
             LANraragi::Utils::Database::add_tags( $id,
                 $plugin_result{new_tags} );
 
+            # Sum up all the added tags for later reporting.
+            # This doesn't take into account tags that are added twice
+            # (e.g by different plugins), but since this is more meant to show 
+            # if the plugins added any data at all it's fine.
+            my @added_tags = split(',', $plugin_result{new_tags});
+            $addedtags .= @added_tags;
+
             if ( exists $plugin_result{title} ) {
                 LANraragi::Utils::Database::set_title( $id,
                     $plugin_result{title} );
+
+                # Increment added_tags if the title changed as well
+                $addedtags .=1;
             }
         }
     }
 
-    return ( $successes, $failures );
+    return ( $successes, $failures, $addedtags );
 }
 
 #Execute a specified plugin on a file, described through its Redis ID.

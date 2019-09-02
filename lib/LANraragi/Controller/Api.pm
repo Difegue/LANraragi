@@ -221,7 +221,7 @@ sub use_enabled_plugins {
         && LANraragi::Model::Config::enable_autotag )
     {
 
-        my ( $succ, $fail ) =
+        my ( $succ, $fail, $addedtags ) =
           LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
 
         $self->render(
@@ -230,7 +230,7 @@ sub use_enabled_plugins {
                 id        => $id,
                 success   => 1,
                 message =>
-                  "$succ Plugins used successfully, $fail Plugins failed."
+                  "$succ Plugins used successfully, $fail Plugins failed, $addedtags tags added."
             }
         );
     }
