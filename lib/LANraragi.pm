@@ -7,7 +7,6 @@ use open ':std', ':encoding(UTF-8)';
 use Mojo::Base 'Mojolicious';
 use Mojo::File;
 use Mojo::JSON qw(decode_json encode_json);
-use Mojo::IOLoop::ProcBackground;
 
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Routing;

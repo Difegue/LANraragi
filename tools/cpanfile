@@ -8,6 +8,7 @@ requires 'Linux::Inotify2', 2.1;
 requires 'Archive::Extract::Libarchive', 0.38;
 requires 'Archive::Peek::Libarchive', 0.38;
 requires 'Image::Scale', 0.14;
+requires 'Proc::Simple', 1.32;
 
 requires 'IPC::Cmd', 1.02;
 requires 'Digest::SHA', 6.02;
@@ -22,7 +23,6 @@ requires 'Test::Harness', 3.42;
 requires 'Mojolicious', 8.22;
 requires 'Mojolicious::Plugin::TemplateToolkit', 0.003;
 requires 'Mojolicious::Plugin::RenderFile', 0.12;
-requires 'Mojo::IOLoop::ProcBackground', 0.06;
 requires 'IO::Socket::SSL', 2.056;
 
 requires 'Module::Pluggable', 5.2;

@@ -8,6 +8,7 @@ use feature 'say';
 use POSIX;
 use Digest::SHA qw(sha256_hex);
 use Mojo::Log;
+use Proc::Simple;
 
 use LANraragi::Model::Config;
 
@@ -36,19 +37,19 @@ sub is_image {
 
 #Start Shinobu and return its Proc::Background object.
 sub start_shinobu {
-    my $proc = Mojo::IOLoop::ProcBackground->new;
     my $logger = get_logger( "Shinobu Boot", "lanraragi" );
 
-    $proc->run( [ $^X, "./lib/Shinobu.pm" ] );
+    my $proc = Proc::Simple->new(); 
+    $proc->start($^X, "./lib/Shinobu.pm");
 
     #Create file to store the process' PID
     open( my $pidfile, '>', ".shinobu-pid" )
       or $logger->warn( "Couldn't store PID for Background Worker: " . $! );
-    my $newpid = $proc->proc->pid;
+    my $newpid = $proc->pid;
     print $pidfile $newpid;
     close($pidfile);
 
-    return $proc->proc;
+    return $proc;
 }
 
 # Kill process with the given PID.

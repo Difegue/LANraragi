@@ -318,7 +318,7 @@ sub shinobu_status {
     $self->render(
         json => {
             operation => "shinobu_status",
-            is_alive  => $self->SHINOBU->alive,
+            is_alive  => $self->SHINOBU->poll(),
             pid       => $self->SHINOBU->pid
         }
     );
@@ -328,7 +328,7 @@ sub stop_shinobu {
     my $self = shift;
 
     #commit sudoku
-    $self->SHINOBU->die;
+    $self->SHINOBU->kill();
 
     $self->render(
         json => {
@@ -342,7 +342,7 @@ sub restart_shinobu {
     my $self = shift;
 
     #commit sudoku
-    $self->SHINOBU->die;
+    $self->SHINOBU->kill();
 
     #Create a new ProcBackground object and stuff it in the helper
     my $proc = LANraragi::Utils::Generic::start_shinobu();
@@ -351,7 +351,7 @@ sub restart_shinobu {
     $self->render(
         json => {
             operation => "shinobu_restart",
-            success   => $self->SHINOBU->alive,
+            success   => $self->SHINOBU->poll(),
             new_pid   => $self->SHINOBU->pid
         }
     );
