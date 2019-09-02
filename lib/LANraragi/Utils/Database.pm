@@ -52,7 +52,7 @@ sub add_archive_to_redis {
     $redis->hset( $id, "title", encode_utf8($title) );
     $redis->hset( $id, "tags",  encode_utf8($tags) );
 
-    return ( $name, $title, $tags, "block" );
+    return ( $name, $title, $tags, "true" );
 }
 
 #Deletes the archive with the given id from redis, and the matching archive file.
