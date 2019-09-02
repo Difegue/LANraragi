@@ -155,18 +155,18 @@ sub generate_themes_header {
             $html =
                 $html
               . '<link rel="stylesheet" type="text/css" title="'
-              . $css_name . '?' . $self->LRR_VERSION 
+              . $css_name 
               . '" href="/themes/'
-              . $css[$i] . '"> ';
+              . $css[$i] . '?' . $self->LRR_VERSION . '"> ';
         }
         else {
 
             $html =
                 $html
               . '<link rel="alternate stylesheet" type="text/css" title="'
-              . $css_name . '?' . $self->LRR_VERSION 
+              . $css_name 
               . '" href="/themes/'
-              . $css[$i] . '"> ';
+              . $css[$i] . '?' . $self->LRR_VERSION . '"> ';
         }
     }
 
