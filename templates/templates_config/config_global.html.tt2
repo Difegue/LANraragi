@@ -43,3 +43,14 @@
         </label>
     </td>
 </tr>
+
+<tr>
+    <td class="option-td">
+        <input class='stdbtn' type='button' onclick="dropDatabase();" value='Reset LANraragi Database' />
+    </td>
+    <td>
+        <span color="red"><i class="fas fa-exclamation-triangle"></i> Danger zone!</span>  <br>
+        Clicking this button will reset the entire database and delete all settings and metadata. <br>
+        <br>
+    </td>
+</tr>

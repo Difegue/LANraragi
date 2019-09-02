@@ -357,4 +357,17 @@ sub restart_shinobu {
     );
 }
 
+sub drop_database {
+
+    my $self = shift;
+    LANraragi::Utils::Database::drop_database();
+
+    $self->render(
+        json => {
+            operation => "drop_database",
+            success   => 1
+        }
+    );
+}
+
 1;

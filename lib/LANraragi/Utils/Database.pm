@@ -51,6 +51,7 @@ sub add_archive_to_redis {
 
     $redis->hset( $id, "title", encode_utf8($title) );
     $redis->hset( $id, "tags",  encode_utf8($tags) );
+    $redis->quit;
 
     return ( $name, $title, $tags, "true" );
 }
@@ -80,6 +81,15 @@ sub delete_archive {
     return "0";
 }
 
+# drop_database()
+# Drops the entire database. Hella dangerous
+sub drop_database {
+    my $redis = LANraragi::Model::Config::get_redis;
+
+    $redis->flushall();
+    $redis->quit;
+}
+
 #add_tags($id, $tags)
 #add the $tags to the archive with id $id.
 sub add_tags {
@@ -98,6 +108,7 @@ sub add_tags {
 
         $redis->hset( $id, "tags", encode_utf8($newtags) );
     }
+    $redis->quit;
 }
 
 sub set_title {
@@ -108,7 +119,7 @@ sub set_title {
     if ( $newtitle ne "" ) {
         $redis->hset( $id, "title", encode_utf8($newtitle) );
     }
-
+    $redis->quit;
 }
 
 #parse_name(name)
@@ -247,6 +258,7 @@ sub find_untagged_archives {
             }
         }
     }
+    $redis->quit;
     return @untagged;
 }
 
