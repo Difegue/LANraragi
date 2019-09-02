@@ -138,6 +138,7 @@ sub get_css_list {
 #Print a dropdown list to select CSS, and adds <link> tags for all the style sheets present in the /style folder.
 sub generate_themes_header {
 
+    my $self = shift;
     my @css = get_css_list;
 
     #html that we'll insert in the header to declare all the available styles.
@@ -154,7 +155,7 @@ sub generate_themes_header {
             $html =
                 $html
               . '<link rel="stylesheet" type="text/css" title="'
-              . $css_name
+              . $css_name . '?' . $self->LRR_VERSION 
               . '" href="/themes/'
               . $css[$i] . '"> ';
         }
@@ -163,7 +164,7 @@ sub generate_themes_header {
             $html =
                 $html
               . '<link rel="alternate stylesheet" type="text/css" title="'
-              . $css_name
+              . $css_name . '?' . $self->LRR_VERSION 
               . '" href="/themes/'
               . $css[$i] . '"> ';
         }

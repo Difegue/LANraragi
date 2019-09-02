@@ -40,7 +40,7 @@ sub index {
         fav4        => $self->LRR_CONF->get_favtag(4),
         fav5        => $self->LRR_CONF->get_favtag(5),
         cssdrop     => LANraragi::Utils::Generic::generate_themes_selector,
-        csshead     => LANraragi::Utils::Generic::generate_themes_header,
+        csshead     => LANraragi::Utils::Generic::generate_themes_header($self),
         tempsize    => LANraragi::Utils::TempFolder::get_tempsize
     );
 }

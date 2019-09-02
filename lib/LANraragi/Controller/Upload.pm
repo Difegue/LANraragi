@@ -129,7 +129,7 @@ sub index {
         title       => $self->LRR_CONF->get_htmltitle,
         autoplugin  => $self->LRR_CONF->enable_autotag,
         cssdrop     => LANraragi::Utils::Generic::generate_themes_selector,
-        csshead     => LANraragi::Utils::Generic::generate_themes_header
+        csshead     => LANraragi::Utils::Generic::generate_themes_header($self)
     );
 }
 

@@ -88,7 +88,7 @@ sub index {
         userlogged      => $userlogged,
         motd            => $self->LRR_CONF->get_motd,
         cssdrop         => LANraragi::Utils::Generic::generate_themes_selector,
-        csshead         => LANraragi::Utils::Generic::generate_themes_header,
+        csshead         => LANraragi::Utils::Generic::generate_themes_header($self),
         favtags         => \@validFavs,
         usingdefpass    => $passcheck,
         buildingDBcache => $force,
