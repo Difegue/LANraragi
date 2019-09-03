@@ -15,7 +15,8 @@ sub index {
         csshead      => LANraragi::Utils::Generic::generate_themes_header($self),
         tagcloud     => LANraragi::Model::Stats::build_tag_json,
         archivecount => LANraragi::Model::Stats::get_archive_count,
-        arcsize      => LANraragi::Model::Stats::compute_content_size
+        arcsize      => LANraragi::Model::Stats::compute_content_size,
+        version      => $self->LRR_VERSION
     );
 }
 

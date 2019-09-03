@@ -53,8 +53,9 @@ sub index {
         template => "plugins",
         title    => $self->LRR_CONF->get_htmltitle,
         plugins  => \@pluginlist,
-        cssdrop   => LANraragi::Utils::Generic::generate_themes_selector,
-        csshead   => LANraragi::Utils::Generic::generate_themes_header($self)
+        cssdrop  => LANraragi::Utils::Generic::generate_themes_selector,
+        csshead  => LANraragi::Utils::Generic::generate_themes_header($self),
+        version  => $self->LRR_VERSION
     );
 
 }

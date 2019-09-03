@@ -69,6 +69,7 @@ sub index {
             imgpaths   => $imgpaths,
             cssdrop    => LANraragi::Utils::Generic::generate_themes_selector,
             csshead    => LANraragi::Utils::Generic::generate_themes_header($self),
+            version    => $self->LRR_VERSION,
             userlogged => $self->LRR_CONF->enable_pass == 0
               || $self->session('is_logged')
         );
