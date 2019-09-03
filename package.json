@@ -27,6 +27,7 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.7.2",
     "allcollapsible": "^1.1.0",
+    "awesomplete": "^1.1.5",
     "blueimp-file-upload": "^9.28.0",
     "datatables": "^1.10.13",
     "inter-ui": "^3.3.2",

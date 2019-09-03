@@ -67,7 +67,6 @@ function favTagSearch() {
 
 }
 
-
 //Switch view on index and saves the value in the user's localStorage. The DataTables callbacks adapt automatically.
 //0 = List view
 //1 = Thumbnail view
@@ -147,4 +146,29 @@ function handleContextMenu(option, id) {
 		default:
 			break;
 	}
+}
+
+function loadTagSuggestions() {
+
+	genericAPICall("api/tagstats", null, "Error obtaining most used tags! Check Logs.", 
+		function (data) {
+			new Awesomplete('#srch', {
+
+				list: data.map(function(i) { return i.text; }),
+
+				filter: function(text, input) {
+					return Awesomplete.FILTER_CONTAINS(text, input.match(/[^,]*$/)[0]);
+				},
+			
+				item: function(text, input) {
+					return Awesomplete.ITEM(text, input.match(/[^,]*$/)[0]);
+				},
+			
+				replace: function(text) {
+					var before = this.input.value.match(/^.+,\s*|/)[0];
+					this.input.value = before + text + " ";
+				}
+			});
+		});
+
 }

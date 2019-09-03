@@ -18,7 +18,8 @@ my @vendor_css = (
     "/jquery-toast-plugin/dist/jquery.toast.min.css",
     "/jquery-contextmenu/dist/jquery.contextMenu.min.css",
     "/qtip2/dist/jquery.qtip.min.css",
-    "/allcollapsible/dist/css/allcollapsible.min.css"
+    "/allcollapsible/dist/css/allcollapsible.min.css",
+    "/awesomplete/awesomplete.css"
 );
 
 my @vendor_js = (
@@ -32,7 +33,8 @@ my @vendor_js = (
     "/jquery-contextmenu/dist/jquery.ui.position.min.js",
     "/jquery-contextmenu/dist/jquery.contextMenu.min.js",
     "/qtip2/dist/jquery.qtip.min.js",
-    "/allcollapsible/dist/js/allcollapsible.min.js"
+    "/allcollapsible/dist/js/allcollapsible.min.js",
+    "/awesomplete/awesomplete.min.js"
 );
 
 my @vendor_woff = (
