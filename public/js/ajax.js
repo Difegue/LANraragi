@@ -25,12 +25,13 @@ function genericAPICall(endpoint, successMessage, errorMessage, callback) {
 			if (callback !== null)
 				callback(data);
 		})
-		.fail(function () {
+		.fail(function (data) {
 			$.toast({
 				showHideTransition: 'slide',
 				position: 'top-left',
 				loader: false,
 				heading: errorMessage,
+				text: data.error,
 				icon: 'error'
 			});
 		});

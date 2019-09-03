@@ -150,25 +150,42 @@ function handleContextMenu(option, id) {
 
 function loadTagSuggestions() {
 
-	genericAPICall("api/tagstats", null, "Error obtaining most used tags! Check Logs.", 
-		function (data) {
+	
+	$.get("api/tagstats")
+		.done(function (data) {
+			// Only use tags with weight >1 
+			taglist = data.reduce(function(res, tag) {
+				if (tag.weight > 1) {
+					if (tag.namespace === "")
+						res.push(tag.text);
+					else
+						res.push(tag.namespace+":"+tag.text);
+				}
+				return res;
+			}, []);
+
 			new Awesomplete('#srch', {
 
-				list: data.map(function(i) { return i.text; }),
-
+				list: taglist,
 				filter: function(text, input) {
 					return Awesomplete.FILTER_CONTAINS(text, input.match(/[^,]*$/)[0]);
 				},
-			
 				item: function(text, input) {
 					return Awesomplete.ITEM(text, input.match(/[^,]*$/)[0]);
 				},
-			
 				replace: function(text) {
 					var before = this.input.value.match(/^.+,\s*|/)[0];
-					this.input.value = before + text + " ";
+					this.input.value = before + text + ", ";
 				}
 			});
+		}).fail(function (data) {
+			$.toast({
+				showHideTransition: 'slide',
+				position: 'top-left',
+				loader: false,
+				heading: errorMessage,
+				text: data.error,
+				icon: 'error'
+			});
 		});
-
 }

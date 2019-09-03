@@ -29,7 +29,7 @@ sub check {
             title     => $self->LRR_CONF->get_htmltitle,
             cssdrop   => LANraragi::Utils::Generic::generate_themes_selector,
             csshead   => LANraragi::Utils::Generic::generate_themes_header($self),
-            version   => $self->LRR_VERSION
+            version   => $self->LRR_VERSION,
             wrongpass => 1
         );
     }

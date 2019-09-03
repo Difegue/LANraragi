@@ -69,14 +69,14 @@ sub exec_enabled_plugins_on_file {
             # (e.g by different plugins), but since this is more meant to show 
             # if the plugins added any data at all it's fine.
             my @added_tags = split(',', $plugin_result{new_tags});
-            $addedtags .= @added_tags;
+            $addedtags += @added_tags;
 
             if ( exists $plugin_result{title} ) {
                 LANraragi::Utils::Database::set_title( $id,
                     $plugin_result{title} );
 
                 # Increment added_tags if the title changed as well
-                $addedtags .=1;
+                $addedtags++;
             }
         }
     }

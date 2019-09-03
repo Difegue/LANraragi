@@ -93,6 +93,7 @@ sub get_logger {
 
     if (-s $logpath > 1048576) {
         # Rotate log if it's > 1MB
+        say "Rotating logfile $logfile";
         new Logfile::Rotate(File => $logpath, Gzip  => 'lib')->rotate();
     }
 
