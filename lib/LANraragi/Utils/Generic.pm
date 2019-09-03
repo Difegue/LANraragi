@@ -8,6 +8,7 @@ use feature 'say';
 use POSIX;
 use Digest::SHA qw(sha256_hex);
 use Mojo::Log;
+use Logfile::Rotate;
 use Proc::Simple;
 
 use LANraragi::Model::Config;
@@ -88,8 +89,15 @@ sub get_logger {
     my $pgname  = $_[0];
     my $logfile = $_[1];
 
-    my $log =
-      Mojo::Log->new( path => './log/' . $logfile . '.log', level => 'info' );
+    my $logpath = './log/' . $logfile . '.log';
+
+    if (-s $logpath > 1048576) {
+        # Rotate log if it's > 1MB
+        new Logfile::Rotate(File => $logpath, Gzip  => 'lib')->rotate();
+    }
+
+    my $log = Mojo::Log->new( path => $logpath, 
+                              level => 'info' );
 
     my $devmode = LANraragi::Model::Config::enable_devmode;
 
@@ -120,7 +128,6 @@ sub get_logger {
     );
 
     return $log;
-
 }
 
 sub get_css_list {
