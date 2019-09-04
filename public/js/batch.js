@@ -56,25 +56,44 @@ function startBatch() {
         }
     }
 
-    //give JSON to websocket and start listening
-    var command = {
+    // Initialize websocket connection
+    timeout = timeout: $('#timeout').val();
+    var commandBase = {
         plugin: $('#plugin').val(),
         args: args,
-        timeout: $('#timeout').val(),
-        archives: arcs
     };
 
-    console.log(command);
+    console.log(commandBase);
 
     var wsProto = "ws://";
     if (location.protocol == 'https:') wsProto = "wss://";
     var batchSocket = new WebSocket(wsProto + window.location.host + "/batch/socket");
 
     batchSocket.onopen = function (event) {
+        var command = commandBase;
+        command.archive = arcs.splice();
         batchSocket.send(JSON.stringify(command));
     };
 
-    batchSocket.onmessage = updateBatchStatus;
+    batchSocket.onmessage = function(event) {
+
+        // Update log
+        updateBatchStatus(event);
+
+        // If there are no archives left, end session
+        if (arcs.length === 0) {
+            batchSocket.close(1000);
+            return;
+        }
+
+        // Wait timeout and pass next archive
+        setTimeout(function(){ 
+            var command = commandBase;
+            command.archive = arcs.splice();
+            batchSocket.send(JSON.stringify(command));
+        }, timeout*1000);       
+    };
+
     batchSocket.onerror = batchError;
     batchSocket.onclose = endBatch;
 
