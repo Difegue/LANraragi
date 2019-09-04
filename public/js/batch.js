@@ -35,7 +35,7 @@ function startBatch() {
     var arginputs = $('.' + $('#plugin').val() + '-argvalue');
 
     //convert nodelist to json
-    var arcs = [];
+    arcs = [];
     var args = [];
 
     for (var i = 0, ref = arcs.length = checkeds.length; i < ref; i++) { arcs[i] = checkeds[i].id; }
@@ -57,13 +57,11 @@ function startBatch() {
     }
 
     // Initialize websocket connection
-    timeout = timeout: $('#timeout').val();
-    var commandBase = {
+    timeout = $('#timeout').val();
+    commandBase = {
         plugin: $('#plugin').val(),
         args: args,
     };
-
-    console.log(commandBase);
 
     var wsProto = "ws://";
     if (location.protocol == 'https:') wsProto = "wss://";
@@ -71,7 +69,8 @@ function startBatch() {
 
     batchSocket.onopen = function (event) {
         var command = commandBase;
-        command.archive = arcs.splice();
+        command.archive = arcs.splice(0,1)[0];
+        console.log(command);
         batchSocket.send(JSON.stringify(command));
     };
 
@@ -86,10 +85,12 @@ function startBatch() {
             return;
         }
 
+        $("#log-container").append('Sleeping for ' + timeout + ' seconds.\n');
         // Wait timeout and pass next archive
         setTimeout(function(){ 
             var command = commandBase;
-            command.archive = arcs.splice();
+            command.archive = arcs.splice(0,1)[0];
+            console.log(command);
             batchSocket.send(JSON.stringify(command));
         }, timeout*1000);       
     };
@@ -118,10 +119,6 @@ function updateBatchStatus(event) {
 
         if ( msg.title != "" ) {
             $("#log-container").append('Changed title to: ' + msg.title + '\n');
-        }
-
-        if ( msg.timeout != 0 ) {
-            $("#log-container").append('Sleeping for ' + msg.timeout + ' seconds.\n');
         }
     }
 

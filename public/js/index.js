@@ -149,8 +149,7 @@ function handleContextMenu(option, id) {
 }
 
 function loadTagSuggestions() {
-
-	
+	// Query the tag cloud API to get the most used tags.
 	$.get("api/tagstats")
 		.done(function (data) {
 			// Only use tags with weight >1 
@@ -165,7 +164,6 @@ function loadTagSuggestions() {
 			}, []);
 
 			new Awesomplete('#srch', {
-
 				list: taglist,
 				filter: function(text, input) {
 					return Awesomplete.FILTER_CONTAINS(text, input.match(/[^,]*$/)[0]);
