@@ -65,16 +65,11 @@ sub build_tag_json {
                 LANraragi::Utils::Generic::remove_spaces($t);
                 LANraragi::Utils::Generic::remove_newlines($t);
 
-                unless (
-                    $t =~ /(parody|language|event|group|circle|date_added|magazine|series|source):.*/i )
-                {    #Filter some specific namespaces from appearing in stats
-
-                    #Increment value of tag or create it
-                    if ( exists( $tagcloud{$t} ) ) 
-                        { $tagcloud{$t}++; }
-                    else                             
-                        { $tagcloud{$t} = 1; }
-                }
+                #Increment value of tag or create it
+                if ( exists( $tagcloud{$t} ) ) 
+                    { $tagcloud{$t}++; }
+                else                             
+                    { $tagcloud{$t} = 1; }
             }
 
         }
