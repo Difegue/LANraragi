@@ -389,7 +389,7 @@ div#toppane {
 .context-menu-separator {
     padding: 0 !important;
     margin: .35em 0;
-    border-bottom: 2px dotted #414135;
+    border-bottom: 2px dashed #414135;
 }
 
 .context-menu-item.context-menu-hover, .context-menu-icon.context-menu-icon--fa5.context-menu-hover > i {
@@ -545,19 +545,21 @@ div.id43 {
 /* awesomplete */
 .awesomplete > ul {
     color: #414135;
-    background: #E9BBC5;
-    border: 1px solid #000000;
+    background: #DCDDCB;
+    border: 2px dotted #414135;
 }
 .awesomplete > ul:before {
     display: none;
 }
-.awesomplete > ul > li:hover {
+.awesomplete > ul > li:hover, .awesomplete > ul > li[aria-selected="true"] {
     color: #EFEAEA;
     background: #D83B66;
 }
 .awesomplete mark {
-    background: hsl(39, 74%, 60%);
+    background: #E9A53A;
+    color: #F1F1F1;
 }
-.awesomplete li:hover mark {
-    background: hsl(39, 74%, 60%);
+.awesomplete li:hover mark, .awesomplete li[aria-selected="true"] mark {
+    background: #E9A53A;
+    color: #F1F1F1;
 }

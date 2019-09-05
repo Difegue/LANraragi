@@ -148,23 +148,31 @@ function handleContextMenu(option, id) {
 	}
 }
 
+// Format tag objects from the API into a format awesomplete likes.
+function fullTag(tag) {
+	label = tag.text;
+	if (tag.namespace !== "")
+		label = tag.namespace+":"+tag.text;
+	
+	return { label: label, value: tag.weight };
+}
+
 function loadTagSuggestions() {
 	// Query the tag cloud API to get the most used tags.
 	$.get("api/tagstats")
 		.done(function (data) {
 			// Only use tags with weight >1 
 			taglist = data.reduce(function(res, tag) {
-				if (tag.weight > 1) {
-					if (tag.namespace === "")
-						res.push(tag.text);
-					else
-						res.push(tag.namespace+":"+tag.text);
-				}
-				return res;
+					if (tag.weight > 1) 
+						res.push(tag);
+					return res;
 			}, []);
-
+			
 			new Awesomplete('#srch', {
 				list: taglist,
+				data: fullTag,
+				// Sort by weight
+				sort: function(a, b) { console.log(a); return b.value - a.value; },
 				filter: function(text, input) {
 					return Awesomplete.FILTER_CONTAINS(text, input.match(/[^,]*$/)[0]);
 				},
@@ -176,6 +184,12 @@ function loadTagSuggestions() {
 					this.input.value = before + text + ", ";
 				}
 			});
+
+			// Perform a search when a tag is selected
+			Awesomplete.$('#srch').addEventListener("awesomplete-selectcomplete", function() {
+				arcTable.search($('#srch').val()).draw();
+			});
+
 		}).fail(function (data) {
 			$.toast({
 				showHideTransition: 'slide',

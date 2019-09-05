@@ -422,19 +422,22 @@ div.id43 {
 
 /* awesomplete */
 .awesomplete > ul {
-    background: rgb(237, 235, 223);
-    border: 1px solid #000000;
+    background: #EDEADA;
+    border-radius: 0px;
+    border:1px outset #5C0D11;
+    box-shadow: none;
 }
 .awesomplete > ul:before {
-    display: none;
+    background: #EDEADA;
 }
-.awesomplete > ul > li:hover {
+.awesomplete > ul > li:hover, .awesomplete > ul > li[aria-selected="true"] {
     color: inherit;
     background: #E0DED3;
 }
 .awesomplete mark {
     background: hsl(39, 74%, 60%);
 }
-.awesomplete li:hover mark {
+.awesomplete li:hover mark, .awesomplete li[aria-selected="true"] mark{
     background: hsl(39, 74%, 60%);
 }
+
