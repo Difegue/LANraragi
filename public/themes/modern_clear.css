@@ -463,3 +463,22 @@ div.id43 {
     position: absolute;
     top: 2px;
 }
+
+/* awesomplete */
+.awesomplete > ul {
+    background: #E1E7E9;
+    border: 1px solid #000000;
+}
+.awesomplete > ul:before {
+    display: none;
+}
+.awesomplete > ul > li:hover {
+    color: #FCFCFC;
+    background: #34495E;
+}
+.awesomplete mark {
+    background: hsl(39, 74%, 60%);
+}
+.awesomplete li:hover mark {
+    background: hsl(39, 74%, 60%);
+}
