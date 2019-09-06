@@ -58,11 +58,24 @@ function clearAllNew() {
 
 function dropDatabase() {
 	if (confirm('Danger! Are you *sure* you want to do this?')) {
-		genericAPICall("api/drop_db", "Sayonara! Redirecting you...", "Error while clearing the database? Check Logs.", 
+		genericAPICall("api/drop_db", "Sayonara! Redirecting you...", "Error while resetting the database? Check Logs.", 
 		function (data) {
 			setTimeout("location.href = './';",1500);
 		});
 	} 
+}
+
+function cleanDatabase() {
+	genericAPICall("api/clean_database", null, "Error while cleaning the database! Check Logs.", 
+		function (data) {
+			$.toast({
+				showHideTransition: 'slide',
+				position: 'top-left',
+				loader: false,
+				heading: "Successfully cleaned the database and removed "+ data.total +" entries!",
+				icon: 'success'
+			});
+		});
 }
 
 function rebootShinobu() {

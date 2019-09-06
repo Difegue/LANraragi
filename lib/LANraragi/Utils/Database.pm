@@ -90,6 +90,30 @@ sub drop_database {
     $redis->quit;
 }
 
+# clean_database()
+# Remove entries from the database that don't have a matching archive on the filesystem.
+# Returns the number of entries deleted.
+sub clean_database {
+    my $redis = LANraragi::Model::Config::get_redis;
+
+    #40-character long keys only => Archive IDs
+    my @keys = $redis->keys('????????????????????????????????????????');
+
+    my $deleted_arcs = 0;
+
+    foreach my $id (@keys) {
+        my $file = $redis->hget($id, "file");
+
+        unless (-e $file) {
+            $redis->del($id);
+            $deleted_arcs++;
+        }
+    }
+
+    $redis->quit;
+    reurn $deleted_arcs;
+}
+
 #add_tags($id, $tags)
 #add the $tags to the archive with id $id.
 sub add_tags {

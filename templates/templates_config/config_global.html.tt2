@@ -42,9 +42,20 @@
     </td>
 </tr>
 
+
 <tr>
     <td class="option-td">
-        <input class='stdbtn' type='button' onclick="dropDatabase();" value='Reset LANraragi Database' />
+        <input class='stdbtn' type='button' onclick="cleanDatabase();" value='Clean Database' />
+    </td>
+    <td>
+        Cleaning the database will remove entries that aren't on your filesystem.  
+        <br>
+    </td>
+</tr>
+
+<tr>
+    <td class="option-td">
+        <input class='stdbtn' type='button' onclick="dropDatabase();" value='Reset Database' />
     </td>
     <td>
         <span style="color:red"><i class="fas fa-exclamation-triangle"></i> Danger zone!</span>  <br>

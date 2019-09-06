@@ -370,4 +370,18 @@ sub drop_database {
     );
 }
 
+sub clean_database {
+
+    my $self = shift;
+    my $num = LANraragi::Utils::Database::clean_database();
+
+    $self->render(
+        json => {
+            operation => "clean_database",
+            total     => $num,
+            success   => 1
+        }
+    );
+}
+
 1;
