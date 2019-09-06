@@ -7,7 +7,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
 	<link type="image/png" rel="icon" href="favicon.ico" />
-	<link rel="stylesheet" type="text/css" href="/css/lrr.css" />
+	<link rel="stylesheet" type="text/css" href="/css/lrr.css?[% version%]" />
 
 	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.fileupload.css" />
@@ -17,8 +17,8 @@
 	<script src="/js/vendor/jquery.ui.widget.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.fileupload.js" type="text/JAVASCRIPT"></script>
 
-	<script src="/js/theme.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/ajax.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/theme.js?[% version%]" type="text/JAVASCRIPT"></script>
+	<script src="/js/ajax.js?[% version%]" type="text/JAVASCRIPT"></script>
 
 </head>
 

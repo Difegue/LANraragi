@@ -51,8 +51,9 @@ sub add_archive_to_redis {
 
     $redis->hset( $id, "title", encode_utf8($title) );
     $redis->hset( $id, "tags",  encode_utf8($tags) );
+    $redis->quit;
 
-    return ( $name, $title, $tags, "block" );
+    return ( $name, $title, $tags, "true" );
 }
 
 #Deletes the archive with the given id from redis, and the matching archive file.
@@ -80,6 +81,39 @@ sub delete_archive {
     return "0";
 }
 
+# drop_database()
+# Drops the entire database. Hella dangerous
+sub drop_database {
+    my $redis = LANraragi::Model::Config::get_redis;
+
+    $redis->flushall();
+    $redis->quit;
+}
+
+# clean_database()
+# Remove entries from the database that don't have a matching archive on the filesystem.
+# Returns the number of entries deleted.
+sub clean_database {
+    my $redis = LANraragi::Model::Config::get_redis;
+
+    #40-character long keys only => Archive IDs
+    my @keys = $redis->keys('????????????????????????????????????????');
+
+    my $deleted_arcs = 0;
+
+    foreach my $id (@keys) {
+        my $file = $redis->hget($id, "file");
+
+        unless (-e $file) {
+            $redis->del($id);
+            $deleted_arcs++;
+        }
+    }
+
+    $redis->quit;
+    return $deleted_arcs;
+}
+
 #add_tags($id, $tags)
 #add the $tags to the archive with id $id.
 sub add_tags {
@@ -98,6 +132,7 @@ sub add_tags {
 
         $redis->hset( $id, "tags", encode_utf8($newtags) );
     }
+    $redis->quit;
 }
 
 sub set_title {
@@ -108,7 +143,7 @@ sub set_title {
     if ( $newtitle ne "" ) {
         $redis->hset( $id, "title", encode_utf8($newtitle) );
     }
-
+    $redis->quit;
 }
 
 #parse_name(name)
@@ -247,6 +282,7 @@ sub find_untagged_archives {
             }
         }
     }
+    $redis->quit;
     return @untagged;
 }
 

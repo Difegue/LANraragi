@@ -45,9 +45,10 @@ sub build_tag_json {
 
     #Login to Redis and get all hashes
     my $redis = LANraragi::Model::Config::get_redis();
+    my $logger = LANraragi::Utils::Generic::get_logger( "Tag Stats", "lanraragi" );
 
     #40-character long keys only => Archive IDs
-    my @keys         = $redis->keys('????????????????????????????????????????');
+    my @keys = $redis->keys('????????????????????????????????????????');
 
     #Iterate on hashes to get their tags
     foreach my $id (@keys) {
@@ -64,20 +65,11 @@ sub build_tag_json {
                 LANraragi::Utils::Generic::remove_spaces($t);
                 LANraragi::Utils::Generic::remove_newlines($t);
 
-                unless (
-                    $t =~ /(artist|parody|language|event|group|circle|date_added|magazine|series):.*/i )
-                {    #Filter some specific namespaces from appearing in stats
-
-                    #Strip namespaces if necessary 
-                    #detect the : symbol and only use what's after it
-                    if ( $t =~ /.*:(.*)/ ) { $t = $1 }
-
-                    #Increment value of tag or create it
-                    if ( exists( $tagcloud{$t} ) ) 
-                        { $tagcloud{$t}++; }
-                    else                             
-                        { $tagcloud{$t} = 1; }
-                }
+                #Increment value of tag or create it
+                if ( exists( $tagcloud{$t} ) ) 
+                    { $tagcloud{$t}++; }
+                else                             
+                    { $tagcloud{$t} = 1; }
             }
 
         }
@@ -88,11 +80,18 @@ sub build_tag_json {
 
     for(keys %tagcloud) {
         my $w = $tagcloud{$_};
-        if ($_ ne "") { $tagsjson .= qq({"text": "$_", "weight": $w },); }
+        # Split namespace
+        # detect the : symbol and only use what's after it
+        my $ns = "";
+        my $t = $_;
+        if ( $t =~ /(.*):(.*)/ ) { $ns = $1; $t = $2; }
+
+        if ($_ ne "") { $tagsjson .= qq({"text": "$t", "namespace": "$ns", "weight": $w },); }
     }
 
-    chop $tagsjson;
+    chop $tagsjson if $tagsjson ne "[";
     $tagsjson .= "]";
+    $logger->debug("Tag stats JSON is $tagsjson");
     return $tagsjson;
 }
 

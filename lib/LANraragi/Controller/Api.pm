@@ -221,7 +221,7 @@ sub use_enabled_plugins {
         && LANraragi::Model::Config::enable_autotag )
     {
 
-        my ( $succ, $fail ) =
+        my ( $succ, $fail, $addedtags ) =
           LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
 
         $self->render(
@@ -230,7 +230,7 @@ sub use_enabled_plugins {
                 id        => $id,
                 success   => 1,
                 message =>
-                  "$succ Plugins used successfully, $fail Plugins failed."
+                  "$succ Plugins used successfully, $fail Plugins failed, $addedtags tags added."
             }
         );
     }
@@ -318,7 +318,7 @@ sub shinobu_status {
     $self->render(
         json => {
             operation => "shinobu_status",
-            is_alive  => $self->SHINOBU->alive,
+            is_alive  => $self->SHINOBU->poll(),
             pid       => $self->SHINOBU->pid
         }
     );
@@ -328,7 +328,7 @@ sub stop_shinobu {
     my $self = shift;
 
     #commit sudoku
-    $self->SHINOBU->die;
+    $self->SHINOBU->kill();
 
     $self->render(
         json => {
@@ -342,7 +342,7 @@ sub restart_shinobu {
     my $self = shift;
 
     #commit sudoku
-    $self->SHINOBU->die;
+    $self->SHINOBU->kill();
 
     #Create a new ProcBackground object and stuff it in the helper
     my $proc = LANraragi::Utils::Generic::start_shinobu();
@@ -351,8 +351,35 @@ sub restart_shinobu {
     $self->render(
         json => {
             operation => "shinobu_restart",
-            success   => $self->SHINOBU->alive,
+            success   => $self->SHINOBU->poll(),
             new_pid   => $self->SHINOBU->pid
+        }
+    );
+}
+
+sub drop_database {
+
+    my $self = shift;
+    LANraragi::Utils::Database::drop_database();
+
+    $self->render(
+        json => {
+            operation => "drop_database",
+            success   => 1
+        }
+    );
+}
+
+sub clean_database {
+
+    my $self = shift;
+    my $num = LANraragi::Utils::Database::clean_database();
+
+    $self->render(
+        json => {
+            operation => "clean_database",
+            total     => $num,
+            success   => 1
         }
     );
 }

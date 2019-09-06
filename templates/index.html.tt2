@@ -7,12 +7,13 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
 	<link type="image/png" rel="icon" href="favicon.ico" />
-	<link rel="stylesheet" type="text/css" href="/css/lrr.css" />
+	<link rel="stylesheet" type="text/css" href="/css/lrr.css?[% version%]" />
 
 	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.toast.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.qtip.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.contextMenu.min.css" />
+	<link rel="stylesheet" type="text/css" href="/css/vendor/awesomplete.css" />
 	[% csshead %]
 
 	<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
@@ -22,11 +23,12 @@
 	<script src="/js/vendor/jquery.qtip.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.ui.position.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.contextMenu.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/awesomplete.min.js" type="text/JAVASCRIPT"></script>
 
-	<script src="/js/index.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/ajax.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/index_datatables.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/theme.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/index.js?[% version%]" type="text/JAVASCRIPT"></script>
+	<script src="/js/ajax.js?[% version%]" type="text/JAVASCRIPT"></script>
+	<script src="/js/index_datatables.js?[% version%]" type="text/JAVASCRIPT"></script>
+	<script src="/js/theme.js?[% version%]" type="text/JAVASCRIPT"></script>
 
 </head>
 
@@ -78,7 +80,7 @@
 				</div>
 				[% END %]
 
-				<input type='text' id='srch' class='search stdinput' size='90'
+				<input type='text' id='srch' class='search stdinput' size='90' style='width:100%' 
 					placeholder='Search Title, Artist, Series, Language or Tags' />
 				<input id='clrsrch' class='stdbtn' type='button' value='Clear Filter' />
 			</div>
@@ -216,6 +218,9 @@
 			icon: 'info'
 			});
 		}
+
+		// Initialize tag suggestions
+		loadTagSuggestions();
 
 	</script>
 

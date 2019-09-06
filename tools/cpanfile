@@ -8,21 +8,23 @@ requires 'Linux::Inotify2', 2.1;
 requires 'Archive::Extract::Libarchive', 0.38;
 requires 'Archive::Peek::Libarchive', 0.38;
 requires 'Image::Scale', 0.14;
+requires 'Proc::Simple', 1.32;
 
 requires 'IPC::Cmd', 1.02;
 requires 'Digest::SHA', 6.02;
 requires 'URI::Escape', 1.74;
+requires 'Compress::Zlib', 2.087;
 
 requires 'Authen::Passphrase', 0.008;
 requires 'File::ReadBackwards', 1.05;
 requires 'File::Find::utf8', 0.013;
 requires 'Cpanel::JSON::XS', 4.06;
+requires 'Logfile::Rotate', 1.04;
 
 requires 'Test::Harness', 3.42;
 requires 'Mojolicious', 8.22;
 requires 'Mojolicious::Plugin::TemplateToolkit', 0.003;
 requires 'Mojolicious::Plugin::RenderFile', 0.12;
-requires 'Mojo::IOLoop::ProcBackground', 0.06;
 requires 'IO::Socket::SSL', 2.056;
 
 requires 'Module::Pluggable', 5.2;

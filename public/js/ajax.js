@@ -25,12 +25,13 @@ function genericAPICall(endpoint, successMessage, errorMessage, callback) {
 			if (callback !== null)
 				callback(data);
 		})
-		.fail(function () {
+		.fail(function (data) {
 			$.toast({
 				showHideTransition: 'slide',
 				position: 'top-left',
 				loader: false,
 				heading: errorMessage,
+				text: data.error,
 				icon: 'error'
 			});
 		});
@@ -53,6 +54,28 @@ function clearNew(id) {
 
 function clearAllNew() {
 	genericAPICall("api/clear_new_all", "All archives are no longer new!", "Error while clearing flags! Check Logs.", null);
+}
+
+function dropDatabase() {
+	if (confirm('Danger! Are you *sure* you want to do this?')) {
+		genericAPICall("api/drop_db", "Sayonara! Redirecting you...", "Error while resetting the database? Check Logs.", 
+		function (data) {
+			setTimeout("location.href = './';",1500);
+		});
+	} 
+}
+
+function cleanDatabase() {
+	genericAPICall("api/clean_database", null, "Error while cleaning the database! Check Logs.", 
+		function (data) {
+			$.toast({
+				showHideTransition: 'slide',
+				position: 'top-left',
+				loader: false,
+				heading: "Successfully cleaned the database and removed "+ data.total +" entries!",
+				icon: 'success'
+			});
+		});
 }
 
 function rebootShinobu() {

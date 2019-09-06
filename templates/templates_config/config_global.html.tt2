@@ -38,8 +38,28 @@
         <input id="devmode" name="devmode" class="fa" type="checkbox"> [% END %]
         <label for="devmode">
             <br>Enabling Debug Mode will show more logs and disable update nagging. <br/>Fully effective after restarting LANraragi.
-            <br/><br/>
-            <i class="fas fa-exclamation-triangle"></i> Leaving this enabled can cause the app to malfunction! <br/>Only enable it for debugging or development purposes!
         </label>
+    </td>
+</tr>
+
+
+<tr>
+    <td class="option-td">
+        <input class='stdbtn' type='button' onclick="cleanDatabase();" value='Clean Database' />
+    </td>
+    <td>
+        Cleaning the database will remove entries that aren't on your filesystem.  
+        <br>
+    </td>
+</tr>
+
+<tr>
+    <td class="option-td">
+        <input class='stdbtn' type='button' onclick="dropDatabase();" value='Reset Database' />
+    </td>
+    <td>
+        <span style="color:red"><i class="fas fa-exclamation-triangle"></i> Danger zone!</span>  <br>
+        Clicking this button will reset the entire database and delete all settings and metadata. <br>
+        <br>
     </td>
 </tr>

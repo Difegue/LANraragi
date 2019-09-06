@@ -78,7 +78,7 @@ table.itc {
     border-radius: 3px;
     color:#f1f1f1;
     background:#4f5052;
-    border:2px outset #000000;
+    border:2px solid #000000;
     margin:4px 1px 0px 1px;
     padding:0px 4px 1px 4px; 
     cursor: pointer;
@@ -110,8 +110,8 @@ tr.gtr0{background:#4f535b}
 tr.gtr1{background:#363940}
 
 /* input */
-.stdbtn{font-size:8pt;color:#f1f1f1;background:#34353b;border:2px outset #000000;height:21px;margin:4px 1px 0px 1px;padding:0px 4px 1px 4px; min-width: 150px; cursor: pointer;}
-.stdbtn:hover{color:#f1f1f1;background:#43464e;border:2px outset #000000}
+.stdbtn{font-size:8pt;color:#f1f1f1;background:#34353b;border:2px solid #000000;height:21px;margin:4px 1px 0px 1px;padding:0px 4px 1px 4px; min-width: 150px; cursor: pointer;}
+.stdbtn:hover{color:#f1f1f1;background:#43464e;border:2px solid #000000}
 .stdbtn:focus{color:#f1f1f1;background:#43464e}
 
 .stdinput{font-size:8pt;color:#f1f1f1;background:#34353b;border:1px solid #000000;margin:4px 1px 0px 1px;padding:2px 3px 2px 3px; width:80%; max-width: 450px;}
@@ -158,7 +158,7 @@ div#toppane{margin:auto;width:99%}
 
 .caption, .context-menu-list {
 background-color: #4f535b;
-border:2px outset #000000 !important;
+border:2px solid #000000 !important;
 }
 
 .context-menu-list {
@@ -284,4 +284,25 @@ div.id43 {
     left: 70px;
     position: absolute;
     top: 2px;
+}
+
+/* awesomplete */
+.awesomplete > ul {
+    background: #34353b;
+    border-radius: 0px;
+    border: 1px solid #000000;
+    box-shadow: none;
+}
+.awesomplete > ul:before {
+    background: #34353b;
+}
+.awesomplete > ul > li:hover {
+    color: inherit;
+    background: #4f535b;
+}
+.awesomplete mark {
+    background: #3b97ea;
+}
+.awesomplete li:hover mark {
+    background: #3b97ea;
 }

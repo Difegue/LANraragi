@@ -17,9 +17,9 @@
 	<script src="./js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
 	<script src="./js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
 
-	<script src="./js/theme.js" type="text/JAVASCRIPT"></script>
-	<script src="./js/reader.js" type="text/JAVASCRIPT"></script>
-	<script src="./js/ajax.js" type="text/JAVASCRIPT"></script>
+	<script src="./js/theme.js?[% version%]" type="text/JAVASCRIPT"></script>
+	<script src="./js/reader.js?[% version%]" type="text/JAVASCRIPT"></script>
+	<script src="./js/ajax.js?[% version%]" type="text/JAVASCRIPT"></script>
 
 </head>
 

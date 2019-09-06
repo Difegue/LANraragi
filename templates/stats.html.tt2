@@ -7,7 +7,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
 	<link type="image/png" rel="icon" href="favicon.ico" />
-	<link rel="stylesheet" type="text/css" href="/css/lrr.css" />
+	<link rel="stylesheet" type="text/css" href="/css/lrr.css?[% version%]" />
 
 	<link rel="stylesheet" type="text/css" href="./css/vendor/fontawesome-all.min.css" />
 	<link rel="stylesheet" type="text/css" href="./css/vendor/jqcloud.min.css">
@@ -16,12 +16,19 @@
 	<script src="./js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
 	<script src="./js/vendor/jqcloud.min.js"></script>
 
-	<script src="./js/theme.js" type="text/JAVASCRIPT"></script>
+	<script src="./js/theme.js?[% version%]" type="text/JAVASCRIPT"></script>
 
 </head>
 
 <body onload="  set_style_from_storage(); 
 	
+				// Filter out tags with a weight of 1
+				words = words.reduce(function(res, tag) {
+					if (tag.weight > 1) 
+							res.push(tag);
+					return res;
+				}, []);
+
 				$('#tagCloud').jQCloud(words, {
 					autoResize: true
 				});

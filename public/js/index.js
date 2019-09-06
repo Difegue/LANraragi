@@ -67,7 +67,6 @@ function favTagSearch() {
 
 }
 
-
 //Switch view on index and saves the value in the user's localStorage. The DataTables callbacks adapt automatically.
 //0 = List view
 //1 = Thumbnail view
@@ -147,4 +146,58 @@ function handleContextMenu(option, id) {
 		default:
 			break;
 	}
+}
+
+// Format tag objects from the API into a format awesomplete likes.
+function fullTag(tag) {
+	label = tag.text;
+	if (tag.namespace !== "")
+		label = tag.namespace+":"+tag.text;
+	
+	return { label: label, value: tag.weight };
+}
+
+function loadTagSuggestions() {
+	// Query the tag cloud API to get the most used tags.
+	$.get("api/tagstats")
+		.done(function (data) {
+			// Only use tags with weight >1 
+			taglist = data.reduce(function(res, tag) {
+					if (tag.weight > 1) 
+						res.push(tag);
+					return res;
+			}, []);
+			
+			new Awesomplete('#srch', {
+				list: taglist,
+				data: fullTag,
+				// Sort by weight
+				sort: function(a, b) { console.log(a); return b.value - a.value; },
+				filter: function(text, input) {
+					return Awesomplete.FILTER_CONTAINS(text, input.match(/[^,]*$/)[0]);
+				},
+				item: function(text, input) {
+					return Awesomplete.ITEM(text, input.match(/[^,]*$/)[0]);
+				},
+				replace: function(text) {
+					var before = this.input.value.match(/^.+,\s*|/)[0];
+					this.input.value = before + text + ", ";
+				}
+			});
+
+			// Perform a search when a tag is selected
+			Awesomplete.$('#srch').addEventListener("awesomplete-selectcomplete", function() {
+				arcTable.search($('#srch').val()).draw();
+			});
+
+		}).fail(function (data) {
+			$.toast({
+				showHideTransition: 'slide',
+				position: 'top-left',
+				loader: false,
+				heading: errorMessage,
+				text: data.error,
+				icon: 'error'
+			});
+		});
 }

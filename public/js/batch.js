@@ -35,7 +35,7 @@ function startBatch() {
     var arginputs = $('.' + $('#plugin').val() + '-argvalue');
 
     //convert nodelist to json
-    var arcs = [];
+    arcs = [];
     var args = [];
 
     for (var i = 0, ref = arcs.length = checkeds.length; i < ref; i++) { arcs[i] = checkeds[i].id; }
@@ -56,25 +56,45 @@ function startBatch() {
         }
     }
 
-    //give JSON to websocket and start listening
-    var command = {
+    // Initialize websocket connection
+    timeout = $('#timeout').val();
+    commandBase = {
         plugin: $('#plugin').val(),
         args: args,
-        timeout: $('#timeout').val(),
-        archives: arcs
     };
-
-    console.log(command);
 
     var wsProto = "ws://";
     if (location.protocol == 'https:') wsProto = "wss://";
     var batchSocket = new WebSocket(wsProto + window.location.host + "/batch/socket");
 
     batchSocket.onopen = function (event) {
+        var command = commandBase;
+        command.archive = arcs.splice(0,1)[0];
+        console.log(command);
         batchSocket.send(JSON.stringify(command));
     };
 
-    batchSocket.onmessage = updateBatchStatus;
+    batchSocket.onmessage = function(event) {
+
+        // Update log
+        updateBatchStatus(event);
+
+        // If there are no archives left, end session
+        if (arcs.length === 0) {
+            batchSocket.close(1000);
+            return;
+        }
+
+        $("#log-container").append('Sleeping for ' + timeout + ' seconds.\n');
+        // Wait timeout and pass next archive
+        setTimeout(function(){ 
+            var command = commandBase;
+            command.archive = arcs.splice(0,1)[0];
+            console.log(command);
+            batchSocket.send(JSON.stringify(command));
+        }, timeout*1000);       
+    };
+
     batchSocket.onerror = batchError;
     batchSocket.onclose = endBatch;
 
@@ -99,10 +119,6 @@ function updateBatchStatus(event) {
 
         if ( msg.title != "" ) {
             $("#log-container").append('Changed title to: ' + msg.title + '\n');
-        }
-
-        if ( msg.timeout != 0 ) {
-            $("#log-container").append('Sleeping for ' + msg.timeout + ' seconds.\n');
         }
     }
 

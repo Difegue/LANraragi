@@ -419,3 +419,25 @@ div.id43 {
     position: absolute;
     top: 2px;
 }
+
+/* awesomplete */
+.awesomplete > ul {
+    background: #EDEADA;
+    border-radius: 0px;
+    border:1px outset #5C0D11;
+    box-shadow: none;
+}
+.awesomplete > ul:before {
+    background: #EDEADA;
+}
+.awesomplete > ul > li:hover, .awesomplete > ul > li[aria-selected="true"] {
+    color: inherit;
+    background: #E0DED3;
+}
+.awesomplete mark {
+    background: hsl(39, 74%, 60%);
+}
+.awesomplete li:hover mark, .awesomplete li[aria-selected="true"] mark{
+    background: hsl(39, 74%, 60%);
+}
+

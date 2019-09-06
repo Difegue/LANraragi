@@ -48,7 +48,8 @@ sub index {
         plugins  => \@pluginlist,
         title    => $self->LRR_CONF->get_htmltitle,
         cssdrop  => LANraragi::Utils::Generic::generate_themes_selector,
-        csshead  => LANraragi::Utils::Generic::generate_themes_header
+        csshead  => LANraragi::Utils::Generic::generate_themes_header($self),
+        version  => $self->LRR_VERSION
     );
 }
 
@@ -65,9 +66,6 @@ sub socket {
 
     $logger->info('Client connected to Batch Tagging service');
 
-    # Increase inactivity timeout for connection a bit
-    $self->inactivity_timeout(300);
-
     $self->on(
         message => sub {
             my ( $self, $msg ) = @_;
@@ -80,7 +78,6 @@ sub socket {
 
             #Global arguments can come from the database or the user override
             my @args     = @{ $command->{"args"} };
-            my @archives = @{ $command->{"archives"} };
             my $timeout  = $command->{"timeout"} || 0;
 
             if ($plugin) {
@@ -93,82 +90,32 @@ sub socket {
                         $pluginname);
                 }
 
-                # Start the job in a subprocess
-                my $subprocess = Mojo::IOLoop::Subprocess->new;
+                # Run plugin with args on id
+                my $id = $command->{"archive"};
+                $logger->debug("Processing $id");
 
-                #Send a message for each completed archive
-                $subprocess->on(
-                    progress => sub {
-                        my ( $subprocess, @data ) = @_;
+                my %plugin_result = LANraragi::Model::Plugins::exec_plugin_on_file(
+                    $plugin, $id, "", @args );
 
-                        $logger->debug("Subprocess reported progress");
-                        $logger->debug("iscancelled = $cancelled");
+                #If the plugin exec returned tags, add them
+                unless ( exists $plugin_result{error} ) {    
+                    LANraragi::Utils::Database::add_tags($id, $plugin_result{new_tags});
 
-                        if ( $cancelled eq 1 ) {
-                            $client->finish( 1001 =>
-                                  'The client has left or cancelled the job.' );
-
-                            #kill subprocess
-                            LANraragi::Utils::Generic::kill_pid(
-                                $subprocess->pid );
-                            return;
-                        }
-
-                        $client->send(
-                            {
-                                json => {
-                                    id      => $data[0],
-                                    success => $data[1],
-                                    message => $data[2],
-                                    tags    => $data[3],
-                                    title   => $data[4],
-                                    timeout => $timeout
-                                }
-                            }
-                        );
+                    if (exists $plugin_result{title}) {
+                        LANraragi::Utils::Database::set_title($id, $plugin_result{title});
                     }
-                );
+                }
 
-                #Main subprocess method
-                $subprocess->run(
-                    sub {
-                        my $subprocess = shift;
-
-                        #Start iterating on given archive list
-                        foreach my $id (@archives) {
-                            $logger->debug("Processing $id");
-
-                            my %plugin_result =
-                              LANraragi::Model::Plugins::exec_plugin_on_file(
-                                $plugin, $id, "", @args );
-
-                            #If the plugin exec returned tags, add them
-                            unless ( exists $plugin_result{error} ) {    
-                                LANraragi::Utils::Database::add_tags($id, $plugin_result{new_tags});
-
-                                if (exists $plugin_result{title}) {
-                                    LANraragi::Utils::Database::set_title($id, $plugin_result{title});
-                                }
-                            }
-
-                            $subprocess->progress(
-                                $id,
-                                ( exists $plugin_result{error} ? 0 : 1 ),
-                                $plugin_result{error},
-                                $plugin_result{new_tags},
-                                (exists $plugin_result{title} ? $plugin_result{title}:"")
-                            );
-
-                            $logger->debug("Waiting $timeout seconds.");
-                            sleep $timeout;
+                # Send reply message for completed archive
+                $client->send(
+                    {
+                        json => {
+                            id      => $id,
+                            success => exists $plugin_result{error} ? 0 : 1,
+                            message => $plugin_result{error},
+                            tags    => $plugin_result{new_tags},
+                            title   => exists $plugin_result{title} ? $plugin_result{title}:""
                         }
-
-                    },
-                    sub {
-                        my ( $subprocess, $err, @results ) = @_;
-                        $logger->debug("Subprocess completed.");
-                        $logger->debug("Error log (should be empty): $err");
-                        $client->finish( 1000 => 'All operations completed!' );
                     }
                 );
             }

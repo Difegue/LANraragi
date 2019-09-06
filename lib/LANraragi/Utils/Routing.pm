@@ -83,6 +83,8 @@ sub apply_routes {
     $logged_in_api->get('/api/restart_shinobu')->to('api#restart_shinobu');
     $logged_in_api->get('/api/backup')->to('api#serve_backup');
     $logged_in_api->get('/api/clear_new_all')->to('api#clear_new_all');
+    $logged_in_api->get('/api/drop_database')->to('api#drop_database');
+    $logged_in_api->get('/api/clean_database')->to('api#clean_database');
 
     $logged_in->get('/logs')->to('logging#index');
     $logged_in->get('/logs/general')->to('logging#print_general');

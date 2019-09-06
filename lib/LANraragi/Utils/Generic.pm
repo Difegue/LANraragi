@@ -8,6 +8,8 @@ use feature 'say';
 use POSIX;
 use Digest::SHA qw(sha256_hex);
 use Mojo::Log;
+use Logfile::Rotate;
+use Proc::Simple;
 
 use LANraragi::Model::Config;
 
@@ -36,19 +38,19 @@ sub is_image {
 
 #Start Shinobu and return its Proc::Background object.
 sub start_shinobu {
-    my $proc = Mojo::IOLoop::ProcBackground->new;
     my $logger = get_logger( "Shinobu Boot", "lanraragi" );
 
-    $proc->run( [ $^X, "./lib/Shinobu.pm" ] );
+    my $proc = Proc::Simple->new(); 
+    $proc->start($^X, "./lib/Shinobu.pm");
 
     #Create file to store the process' PID
     open( my $pidfile, '>', ".shinobu-pid" )
       or $logger->warn( "Couldn't store PID for Background Worker: " . $! );
-    my $newpid = $proc->proc->pid;
+    my $newpid = $proc->pid;
     print $pidfile $newpid;
     close($pidfile);
 
-    return $proc->proc;
+    return $proc;
 }
 
 # Kill process with the given PID.
@@ -87,8 +89,16 @@ sub get_logger {
     my $pgname  = $_[0];
     my $logfile = $_[1];
 
-    my $log =
-      Mojo::Log->new( path => './log/' . $logfile . '.log', level => 'info' );
+    my $logpath = './log/' . $logfile . '.log';
+
+    if (-s $logpath > 1048576) {
+        # Rotate log if it's > 1MB
+        say "Rotating logfile $logfile";
+        new Logfile::Rotate(File => $logpath, Gzip  => 'lib')->rotate();
+    }
+
+    my $log = Mojo::Log->new( path => $logpath, 
+                              level => 'info' );
 
     my $devmode = LANraragi::Model::Config::enable_devmode;
 
@@ -119,7 +129,6 @@ sub get_logger {
     );
 
     return $log;
-
 }
 
 sub get_css_list {
@@ -138,6 +147,7 @@ sub get_css_list {
 #Print a dropdown list to select CSS, and adds <link> tags for all the style sheets present in the /style folder.
 sub generate_themes_header {
 
+    my $self = shift;
     my @css = get_css_list;
 
     #html that we'll insert in the header to declare all the available styles.
@@ -154,18 +164,18 @@ sub generate_themes_header {
             $html =
                 $html
               . '<link rel="stylesheet" type="text/css" title="'
-              . $css_name
+              . $css_name 
               . '" href="/themes/'
-              . $css[$i] . '"> ';
+              . $css[$i] . '?' . $self->LRR_VERSION . '"> ';
         }
         else {
 
             $html =
                 $html
               . '<link rel="alternate stylesheet" type="text/css" title="'
-              . $css_name
+              . $css_name 
               . '" href="/themes/'
-              . $css[$i] . '"> ';
+              . $css[$i] . '?' . $self->LRR_VERSION . '"> ';
         }
     }
 

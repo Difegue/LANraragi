@@ -402,3 +402,24 @@ div.id43 {
     position: absolute;
     top: 2px;
 }
+
+/* awesomplete */
+.awesomplete > ul {
+    background: #363940;
+    border-radius: 3px;
+    border: none;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+}
+.awesomplete > ul:before {
+    background: #363940;
+}
+.awesomplete > ul > li:hover {
+    color: inherit;
+    background: #4F535B;
+}
+.awesomplete mark {
+    background: #3b97ea;
+}
+.awesomplete li:hover mark {
+    background: #3b97ea;
+}

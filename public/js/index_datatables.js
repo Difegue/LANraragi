@@ -86,7 +86,7 @@ function initIndex(pagesize, dataSet) {
 				return true;
 
 			// Use hidden isnew column
-			if (data[4] === "block") {
+			if (data[4] === "block" || data[4] === "true") {
 				return true;
 			}
 			return false;
