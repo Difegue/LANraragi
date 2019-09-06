@@ -111,7 +111,7 @@ sub clean_database {
     }
 
     $redis->quit;
-    reurn $deleted_arcs;
+    return $deleted_arcs;
 }
 
 #add_tags($id, $tags)
