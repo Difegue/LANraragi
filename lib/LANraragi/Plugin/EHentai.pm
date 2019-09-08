@@ -179,7 +179,7 @@ sub lookup_gallery {
         #search with image SHA hash
         $URL = $domain
           . "?advsearch=1&f_sname=on&f_stags=on&f_sdt2=on&f_sh=on&f_spf=&f_spt=&f_sfu=on&f_sft=on&f_sfl=on&f_shash=". $thumbhash
-          . "&fs_covers=1&fs_similar=1&fs_exp=1&f_search=";
+          . "&fs_covers=1&fs_similar=1&f_search=";
 
         #Add the language override, if it's defined.
         if ( $defaultlanguage ne "" ) {
