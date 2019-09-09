@@ -178,7 +178,7 @@ sub lookup_gallery {
 
         #search with image SHA hash
         $URL = $domain
-          . "?advsearch=1&f_sname=on&f_stags=on&f_sdt2=on&f_sh=on&f_spf=&f_spt=&f_sfu=on&f_sft=on&f_sfl=on&f_shash=". $thumbhash
+          . "?advsearch=1&f_sname=on&f_stags=on&f_sdt2=on&f_spf=&f_spt=&f_sfu=on&f_sft=on&f_sfl=on&f_shash=". $thumbhash
           . "&fs_covers=1&fs_similar=1&f_search=";
 
         #Add the language override, if it's defined.
@@ -198,7 +198,7 @@ sub lookup_gallery {
     #Regular text search
     $URL =
         $domain
-      . "?advsearch=1&f_sname=on&f_stags=on&f_sdt2=on&f_sh=on&f_spf=&f_spt=&f_sfu=on&f_sft=on&f_sfl=on"
+      . "?advsearch=1&f_sname=on&f_stags=on&f_sdt2=on&f_spf=&f_spt=&f_sfu=on&f_sft=on&f_sfl=on"
       . "&f_search=" . uri_escape_utf8(qw(").$title.qw("));
 
     #Add the language override, if it's defined.
