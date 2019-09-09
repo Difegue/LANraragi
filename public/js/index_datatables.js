@@ -56,7 +56,7 @@ function initIndex(pagesize, dataSet) {
 
 	//add datatable search event to the local searchbox and clear search to the clear filter button
 	$('#srch').keyup(function () {
-		favTagSearch();
+		performSearch();
 	});
 
 	$('#clrsrch').click(function () {
@@ -67,7 +67,7 @@ function initIndex(pagesize, dataSet) {
 		}
 		$('#srch').val('');
 
-		favTagSearch();
+		performSearch();
 	});
 
 	//clear searchbar cache
