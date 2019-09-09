@@ -106,6 +106,7 @@ function createNamespaceColumn(namespace, type, data) {
 		if (data === "")
 			return "";
 
+		if(namespace == "series") namespace = "(?:series|parody)";
 		regex = new RegExp(".*"+namespace+":\\s?([^,]*),*.*","gi"); // Catch last namespace:xxx value in tags
 		match = regex.exec(data);
 
