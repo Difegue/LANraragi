@@ -56,7 +56,7 @@ function initIndex(pagesize, dataSet) {
 
 	//add datatable search event to the local searchbox and clear search to the clear filter button
 	$('#srch').keyup(function () {
-		arcTable.search($(this).val()).draw();
+		arcTable.search($(this).val().replace(",", "")).draw();
 	});
 
 	$('#clrsrch').click(function () {

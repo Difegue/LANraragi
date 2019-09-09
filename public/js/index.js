@@ -187,7 +187,7 @@ function loadTagSuggestions() {
 
 			// Perform a search when a tag is selected
 			Awesomplete.$('#srch').addEventListener("awesomplete-selectcomplete", function() {
-				arcTable.search($('#srch').val()).draw();
+				arcTable.search($('#srch').val().replace(",", "")).draw();
 			});
 
 		}).fail(function (data) {
