@@ -59,10 +59,13 @@ function favTagSearch() {
 
 	//Perform search in datatables field with our own regexes enabled and smart search off
 	if (searchQuery !== ")") {
-		arcTable.search(searchQuery, true, false).draw();
+		arcTable.column('.tags.itd').search(searchQuery, true, false);
+		arcTable.search($('#srch').val().replace(",", ""), false, true);
+		arcTable.draw();
 	} else {
-		//clear
-		arcTable.search("", false, true).draw();
+		// no fav filters
+		arcTable.column('.tags.itd').search("", false, true);
+		arcTable.search($('#srch').val().replace(",", ""), false, true).draw();
 	}
 
 }
@@ -187,7 +190,7 @@ function loadTagSuggestions() {
 
 			// Perform a search when a tag is selected
 			Awesomplete.$('#srch').addEventListener("awesomplete-selectcomplete", function() {
-				arcTable.search($('#srch').val().replace(",", "")).draw();
+				favTagSearch();
 			});
 
 		}).fail(function (data) {
