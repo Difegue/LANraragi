@@ -67,7 +67,7 @@ sub socket {
     $logger->info('Client connected to Batch Tagging service');
 
     # Increase inactivity timeout for connection a bit to account for clientside timeouts
-    $self->inactivity_timeout(30);
+    $self->inactivity_timeout(80);
 
     $self->on(
         message => sub {
