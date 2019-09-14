@@ -54,9 +54,9 @@
 								</select> </td>
 						</tr>
 						<tr>
-							<td>Timeout :</td>
+							<td>Timeout (max 20s):</td>
 							<td>
-								<input type="number" id="timeout" min="0" value="0"> seconds </td>
+								<input type="number" id="timeout" min="0" max="20" value="0"> seconds </td>
 						</tr>
 
 						<tr>
