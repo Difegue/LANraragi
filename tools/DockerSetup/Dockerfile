@@ -41,3 +41,6 @@ RUN chmod +x ./tools/DockerSetup/install-everything.sh ./tools/DockerSetup/entry
 
 #Copy remaining LRR files from context 
 COPY --chown=koyomi:koyomi / /home/koyomi/lanraragi
+
+# Persistent volumes
+VOLUME [ "/home/koyomi/lanraragi/content" ]
