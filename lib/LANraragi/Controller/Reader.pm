@@ -27,10 +27,12 @@ sub index {
         }
 
         #Get a computed archive name if the archive exists
-        my $arcname = $redis->hget( $id, "title" );
-        my $tags    = $redis->hget( $id, "tags" );
-        $arcname = LANraragi::Utils::Database::redis_decode($arcname);
-        $tags    = LANraragi::Utils::Database::redis_decode($tags);
+        my $arcname  = $redis->hget( $id, "title" );
+        my $tags     = $redis->hget( $id, "tags"  );
+        my $filename = $redis->hget( $id, "file"  );
+        $arcname  = LANraragi::Utils::Database::redis_decode($arcname);
+        $tags     = LANraragi::Utils::Database::redis_decode($tags);
+        $filename = LANraragi::Utils::Database::redis_decode($filename);
 
         if ( $tags =~ /artist:/ ) {
             $tags =~ /.*artist:([^,]*),.*/;
@@ -49,9 +51,7 @@ sub index {
         };
 
         if ($@) {
-            my $err      = $@;
-            my $filename = LANraragi::Utils::Database::redis_decode(
-                $redis->hget( $id, "file" ) );
+            my $err = $@;
 
             $self->render(
                 template => "error",
@@ -67,6 +67,7 @@ sub index {
             arcname    => $arcname,
             id         => $id,
             imgpaths   => $imgpaths,
+            filename   => $filename,
             cssdrop    => LANraragi::Utils::Generic::generate_themes_selector,
             csshead    => LANraragi::Utils::Generic::generate_themes_header($self),
             version    => $self->LRR_VERSION,
