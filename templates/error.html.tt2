@@ -17,8 +17,7 @@
 	It's likely the archive is corrupt.<br />
 
 	<h3>Some more info below if available:</h3>
-	<br />
-	[% errorlog %]
+	<pre>[% errorlog %]</pre>
 
 </body>
 

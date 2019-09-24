@@ -53,6 +53,11 @@ sub index {
         if ($@) {
             my $err = $@;
 
+            # Add some more info for RAR5
+            if ($filename =~ /^.+\.rar$/ && $err =~ /Unrecognized archive format.*$/) {
+                $err.= "\n RAR5 archives are not supported.";
+            }
+
             $self->render(
                 template => "error",
                 title    => $self->LRR_CONF->get_htmltitle,
