@@ -22,6 +22,8 @@ sub apply_routes {
     if ( $self->LRR_CONF->enable_nofun ) {
         $logged_in->get('/')->to('index#index');
         $logged_in->get('/index')->to('index#index');
+        $logged_in->get('/search_dt')->to('search#handle_datatables');
+        
         $logged_in->get('/random')->to('index#random_archive');
         $logged_in->get('/reader')->to('reader#index');
         $logged_in->get('/stats')->to('stats#index');
@@ -34,6 +36,7 @@ sub apply_routes {
         $logged_in_api->get('/api/tagstats')->to('api#serve_tag_stats');
         $logged_in_api->get('/api/extract')->to('api#extract_archive');
         $logged_in_api->get('/api/clear_new')->to('api#clear_new');
+        $logged_in_api->get('/search')->to('search#handle_api');
     }
     else {
         #Standard behaviour is to leave those routes loginless for all clients
@@ -42,6 +45,8 @@ sub apply_routes {
         $r->get('/random')->to('index#random_archive');
         $r->get('/reader')->to('reader#index');
         $r->get('/stats')->to('stats#index');
+        $r->get('/search_dt')->to('search#handle_datatables');
+        $r->get('/search')->to('search#handle_api');
 
         $r->get('/api/thumbnail')->to('api#serve_thumbnail');
         $r->get('/api/servefile')->to('api#serve_file');

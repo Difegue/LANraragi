@@ -1,4 +1,4 @@
-package LANraragi::Model::Index;
+package LANraragi::Model::Search;
 
 use strict;
 use warnings;
@@ -19,7 +19,7 @@ use LANraragi::Model::Config;
 # Performs a search on the database.
 sub do_search {
 
-    my ( $filter, $page, $sortkey, $sortorder) = @_;
+    my ( $filter, $start, $sortkey, $sortorder) = @_;
 
     my $redis = LANraragi::Model::Config::get_redis;
 
@@ -65,8 +65,7 @@ sub do_search {
     my $keysperpage = LANraragi::Model::Config::get_pagesize;
 
     # Return total keys and the filtered ones
-    my $start = $page*$keysperpage;
-    my $end   = min($keysperpage,$#filtered);
+    my $end = min($keysperpage,$#filtered);
     return ( $#keys, @filtered[$start..$end] );
 }
 
@@ -141,10 +140,42 @@ sub matches_search_filter {
     return true;
 }
 
-# create_json($keys)
-# Creates a Datatables-compatible json from the given data.
-sub create_json {
+# build_archive_JSON(id)
+# Builds a JSON object for an archive already registered in the Redis database and returns it.
+sub build_archive_JSON {
+    my ( $id ) = @_;
 
+    my $redis   = LANraragi::Model::Config::get_redis;
+    my $dirname = LANraragi::Model::Config::get_userdir;
+
+    #Extra check in case we've been given a bogus ID
+    return "" unless $redis->exists($id);
+
+    my %hash = $redis->hgetall($id);
+    my ( $path, $suffix );
+
+    #It's not a new archive, but it might have never been clicked on yet,
+    #so we'll grab the value for $isnew stored in redis.
+    my ( $name, $title, $tags, $filecheck, $isnew ) =
+      @hash{qw(name title tags file isnew)};
+
+    #Parameters have been obtained, let's decode them.
+    ( $_ = LANraragi::Utils::Database::redis_decode($_) )
+      for ( $name, $title, $tags );
+
+    #Workaround if title was incorrectly parsed as blank
+    if ( !defined($title) || $title =~ /^\s*$/ ) {
+        $title = $name;
+    }
+
+    my $arcdata = {
+        arcid => $id,
+        title => $title,
+        tags  => $tags,
+        isnew => $isnew
+    };
+
+    return $arcdata;
 }
 
 1;
