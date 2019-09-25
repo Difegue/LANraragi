@@ -14,6 +14,7 @@ use LANraragi::Utils::TempFolder;
 use LANraragi::Model::Search;
 use LANraragi::Model::Config;
 
+# Undocumented API matching the Datatables spec.
 sub handle_datatables {
 
     my $self = shift;
@@ -36,8 +37,23 @@ sub handle_datatables {
 
 }
 
+# Public search API with saner parameters.
 sub handle_api {
-    
+
+    my $self = shift;
+    my $req  = $self->req->json;
+
+    my $filter    = $req->{filter};
+    my $start     = $req->{start};
+    my $sortkey   = $req->{sortby};
+    my $sortorder = $req->{order};
+
+    my ($total, @ids) = LANraragi::Model::Search::do_search($filter, $start, $sortkey, $sortorder);
+
+    $self->render(
+        json => create_json(0, $total, @ids);
+    );
+
 }
 
 # create_json($draw, $total, @keys)

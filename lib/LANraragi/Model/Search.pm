@@ -46,9 +46,9 @@ sub do_search {
         # Sort by the required metadata, asc or desc
         @filtered = sort { 
   
-            my $meta1 = $redis->hget($a, $sortkey)
+            my $meta1 = $redis->hget($a, $sortkey);
             $meta1 = LANraragi::Utils::Database::redis_decode($meta1);
-            my $meta2 = $redis->hget($b, $sortkey)
+            my $meta2 = $redis->hget($b, $sortkey);
             $meta2 = LANraragi::Utils::Database::redis_decode($meta2);
 
             if ($sortorder) { 
