@@ -43,6 +43,11 @@ sub do_search {
     }
 
     if ($#filtered > 0) {
+
+        if (!$sortkey) {
+            $sortkey = "title";
+        }
+
         # Sort by the required metadata, asc or desc
         @filtered = sort { 
   
@@ -52,14 +57,14 @@ sub do_search {
             $meta2 = LANraragi::Utils::Database::redis_decode($meta2);
 
             if ($sortorder) { 
-                lc($meta1) cmp lc($meta2)
-            } else {
                 lc($meta2) cmp lc($meta1)
+            } else {
+                lc($meta1) cmp lc($meta2)
             }
 
         } @filtered;
     }
-    
+
     # Only get the first X keys
     # TODO: cache @filtered
     my $keysperpage = LANraragi::Model::Config::get_pagesize;
@@ -74,6 +79,7 @@ sub do_search {
 sub matches_search_filter {
 
     my ( $filter, $tags ) = @_;
+    if (!$filter) {$filter = "";}
 
     # Special characters: 
     # "" for exact search (or $ but is that one really useful)
@@ -82,8 +88,8 @@ sub matches_search_filter {
     # - to exclude the next tag
 
     $b = reverse($filter); 
-    do {
-    
+    while ($b ne "") {
+
         my $char = chop $b;
         my $isneg = 0;
 
@@ -98,13 +104,13 @@ sub matches_search_filter {
             $delimiter = '"';
         }
 
-        my $tag;
+        my $tag = "";
         my $isexact = 0;
-        do {
+        TAGBUILD: while (1) {
+            if ($char eq $delimiter || $char eq "") { last TAGBUILD; }
+            $tag = $tag . $char; # Add characters in reverse order since we used reverse earlier on 
             $char = chop $b;
-            if ($char eq $delimiter || $char eq "") { last; }
-            $tag = $char . $tag; # Add characters in reverse order since we used reverse earlier on 
-        } while 1;
+        }; 
 
         #If last char is $, enable isexact
         $char = chop $tag;
@@ -125,16 +131,16 @@ sub matches_search_filter {
 
         # Got the tag, check if it's present
         my $tagpresent = 0;
-        if ($isexact) { # The tag must necessarily be terminated if isexact = 1
-            $tagpresent = $tags =~ m/.*$tag\,.*/;
+        if ($isexact) { # The tag must necessarily be complete if isexact = 1
+            $tagpresent = $tags =~ m/(.* |^)$tag(\,.*|$)/i; # Check for space before and comma after the tag, or start/end of string to account for the first/last tag.
         } else {
-            $tagpresent = $tags =~ m/.*$tag.*/;
+            $tagpresent = $tags =~ m/.*$tag.*/i;
         }
 
         #present true & isneg true => false, present false & isneg false => false
         return 0 if ($tagpresent == $isneg); 
 
-    } while ($b ne "");
+    };
 
     # All filters passed!
     return 1;
@@ -142,6 +148,7 @@ sub matches_search_filter {
 
 # build_archive_JSON(id)
 # Builds a JSON object for an archive already registered in the Redis database and returns it.
+# TODO: adapted from Shinobu code, remember to purge a bunch of code in Shinobu once this is merged
 sub build_archive_JSON {
     my ( $id ) = @_;
 
@@ -175,6 +182,7 @@ sub build_archive_JSON {
         isnew => $isnew
     };
 
+    $redis->quit;
     return $arcdata;
 }
 

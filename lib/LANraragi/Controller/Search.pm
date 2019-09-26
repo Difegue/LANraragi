@@ -29,6 +29,9 @@ sub handle_datatables {
     my $sortorder = $req->{order}[0]{dir};
     my $sortkey   = $req->{columns}[$sortindex]{name};
 
+    if ($sortorder && $sortorder eq 'desc') { $sortorder = 1; }
+        else { $sortorder = 0; }
+
     my ($total, @ids) = LANraragi::Model::Search::do_search($filter, $start, $sortkey, $sortorder);
 
     $self->render(
@@ -41,12 +44,15 @@ sub handle_datatables {
 sub handle_api {
 
     my $self = shift;
-    my $req  = $self->req->json;
+    my $req  = $self->req;
 
-    my $filter    = $req->{filter};
-    my $start     = $req->{start};
-    my $sortkey   = $req->{sortby};
-    my $sortorder = $req->{order};
+    my $filter    = $req->param('filter');
+    my $start     = $req->param('start');
+    my $sortkey   = $req->param('sortby');
+    my $sortorder = $req->param('order');
+
+    if ($sortorder && $sortorder eq 'desc') { $sortorder = 1; }
+        else { $sortorder = 0; }
 
     my ($total, @ids) = LANraragi::Model::Search::do_search($filter, $start, $sortkey, $sortorder);
 
@@ -63,20 +69,18 @@ sub get_datatables_object {
     my ( $draw, $total, @keys ) = @_;
 
     # Get archive data from id keys 
-    my @data;
+    my @data = ();
     foreach my $id (@keys) {
         push @data, LANraragi::Model::Search::build_archive_JSON($id);
     }
 
     # Create json object matching the datatables structure
-    my $response = {
+    return {
         draw => $draw,
         recordsTotal => $total,
-        recordsFiltered => $#keys,
-        data => @data
+        recordsFiltered => $#data,
+        data => \@data
     };
-
-    return $response;
 }
 
 1;
