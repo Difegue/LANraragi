@@ -22,9 +22,8 @@ sub do_search {
     my ( $filter, $start, $sortkey, $sortorder) = @_;
 
     my $redis = LANraragi::Model::Config::get_redis;
-
     my $logger =
-      LANraragi::Utils::Generic::get_logger( "Search Engine", "lanraragi" );
+        LANraragi::Utils::Generic::get_logger( "Search Engine", "lanraragi" );
 
     # Get all archives from redis
     my @keys = $redis->keys('????????????????????????????????????????');
@@ -33,8 +32,9 @@ sub do_search {
     # Go through tags and apply search filter
     # TODO: subprocess this by chunks for s p e e d
     foreach my $id (@keys) {
-        my $metadata = $redis->hget($id, "tags");
-        $metadata = LANraragi::Utils::Database::redis_decode($metadata);
+        my $tags  = $redis->hget($id, "tags");
+        my $title = $redis->hget($id, "title");
+        $metadata = LANraragi::Utils::Database::redis_decode($title . " " . $tags);
 
         if (matches_search_filter($filter, $metadata)) {
             # Push id to array
@@ -51,6 +51,7 @@ sub do_search {
         # Sort by the required metadata, asc or desc
         @filtered = sort { 
   
+            #TODO: add namespace finding capabilities here instead of just using redis columns
             my $meta1 = $redis->hget($a, $sortkey);
             $meta1 = LANraragi::Utils::Database::redis_decode($meta1);
             my $meta2 = $redis->hget($b, $sortkey);
@@ -127,7 +128,7 @@ sub matches_search_filter {
         # * % => .*
         $tag =~ s/\*|\%/\.\*/g;
         # + ( ) ^ | \ => escaped with an extra \
-        $tag =~ s/(\+|\(|\)|\^\||\\)/\\$1/g;
+        $tag =~ s/(\+|\(|\)|\^|\||\\)/\\$1/g;
 
         # Got the tag, check if it's present
         my $tagpresent = 0;
