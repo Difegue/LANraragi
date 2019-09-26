@@ -32,7 +32,7 @@ sub handle_datatables {
     my ($total, @ids) = LANraragi::Model::Search::do_search($filter, $start, $sortkey, $sortorder);
 
     $self->render(
-        json => create_json($draw, $total, @ids);
+        json => get_datatables_object($draw, $total, @ids)
     );
 
 }
@@ -51,14 +51,14 @@ sub handle_api {
     my ($total, @ids) = LANraragi::Model::Search::do_search($filter, $start, $sortkey, $sortorder);
 
     $self->render(
-        json => create_json(0, $total, @ids);
+        json => get_datatables_object(0, $total, @ids)
     );
 
 }
 
-# create_json($draw, $total, @keys)
+# get_datatables_object($draw, $total, @keys)
 # Creates a Datatables-compatible json from the given data.
-sub create_json {
+sub get_datatables_object {
 
     my ( $draw, $total, @keys ) = @_;
 
@@ -76,7 +76,7 @@ sub create_json {
         data => @data
     };
 
-    return encode_json($response);
+    return $response;
 }
 
 1;

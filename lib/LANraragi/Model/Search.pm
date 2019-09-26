@@ -42,7 +42,7 @@ sub do_search {
         }
     }
 
-    if ($filtered > 0) {
+    if ($#filtered > 0) {
         # Sort by the required metadata, asc or desc
         @filtered = sort { 
   
@@ -132,12 +132,12 @@ sub matches_search_filter {
         }
 
         #present true & isneg true => false, present false & isneg false => false
-        return false if ($tagpresent == $isneg); 
+        return 0 if ($tagpresent == $isneg); 
 
     } while ($b ne "");
 
     # All filters passed!
-    return true;
+    return 1;
 }
 
 # build_archive_JSON(id)
