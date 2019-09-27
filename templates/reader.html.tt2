@@ -87,6 +87,18 @@
 		pages = [% imgpaths %];
 		id = "[%id%]";
 
+		filename = "[% filename %]";
+		if (filename.endsWith(".rar") || filename.endsWith(".cbr"))
+			$.toast({
+					showHideTransition: 'slide',
+					position: 'top-left', 
+					loader: false, 
+				    heading: "This archive seems to be in RAR format!",
+				    text: 'RAR archives might not work properly in LANraragi depending on how they were made. If you encounter errors while reading, consider converting your archive to zip.',
+				    hideAfter: false,
+				    icon: 'warning'
+				});
+
 		//Go straight to page number in localStorage if it exists
 		if (localStorage.nobookmark === 'true')
 			currentPage = 0;

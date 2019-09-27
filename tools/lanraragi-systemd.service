@@ -4,10 +4,11 @@
 
 [Unit]
 Description=LANraragi web application
-After=network.target,redis.service # not sure if just redis.service would work or not
+After=network.target,redis.service
 
 [Service]
 Type=simple
+Environment=LRR_NETWORK=http://*:80
 WorkingDirectory=your_install_path
 ExecStart=/usr/bin/npm start
 #Restart=on-failure

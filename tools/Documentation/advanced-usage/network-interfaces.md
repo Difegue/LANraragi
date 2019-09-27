@@ -35,11 +35,24 @@ npm start
 Server available at http://127.0.0.1:8000
 ```
 
-## Docker
+## Docker 
 
 ```bash
 docker run --name=lanraragi -p 8000:8000 \
 --mount type=bind,source=[YOUR_CONTENT_DIRECTORY],\
 target=/home/koyomi/lanraragi/content \
--e lrr_network=http://*:8000 difegue/lanraragi
+-e LRR_NETWORK=http://*:8000 difegue/lanraragi
 ```
+
+## Docker with SSL
+
+```bash
+docker run --name=lanraragi-ssl -p 3333:3333 \
+--mount type=bind,source=[YOUR_CONTENT_DIRECTORY],\
+target=/home/koyomi/lanraragi/content \
+--mount type=bind,source=[DIRECTORY_CONTAINING_SSL_CERT],target=/ssl \
+-e LRR_NETWORK="https://*:3333?cert=/ssl/crt.crt&key=/ssl/crt.key" difegue/lanraragi
+```
+
+Notice that the certificate and key must come from your host filesystem and henceforth might need a second --mount command.
+
