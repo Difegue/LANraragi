@@ -20,6 +20,21 @@ docker run --name=lanraragi -p 3000:3000 \
 target=/home/koyomi/lanraragi/content difegue/lanraragi
 ```
 
+{% hint style="warning" %}
+If your Docker version is _[below 17.06](https://docs.docker.com/storage/bind-mounts/)_ and you use the --mount option as listed above, you will get the following error:
+
+```bash
+unknown flag: --mount 
+See 'docker run --help'.
+```
+
+You can bypass this issue by using the --volume option for bind-mounting like so:
+```bash
+docker run --name=lanraragi -p 3000:3000 \
+--volume [YOUR_CONTENT_DIRECTORY]:/home/koyomi/lanraragi/content difegue/lanraragi
+```
+{% endhint %}
+
 {% hint style="info" %}
 You can tell Docker to auto-restart the LRR container on boot by adding the `--restart always` flag to this command.
 {% endhint %}
