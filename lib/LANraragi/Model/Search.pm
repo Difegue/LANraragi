@@ -30,15 +30,15 @@ sub do_search {
     my @filtered;
 
     # Go through tags and apply search filter
-    # TODO: subprocess this by chunks for s p e e d
     foreach my $id (@keys) {
         my $tags  = $redis->hget($id, "tags");
         my $title = $redis->hget($id, "title");
-        $metadata = LANraragi::Utils::Database::redis_decode($title . " " . $tags);
+        $title = LANraragi::Utils::Database::redis_decode($title);
+        $tags  = LANraragi::Utils::Database::redis_decode($tags);
 
-        if (matches_search_filter($filter, $metadata)) {
+        if (matches_search_filter($filter, $title . " " . $tags)) {
             # Push id to array
-            push @filtered, $id;          
+            push @filtered, { id => $id, title => $title, tags => $tags };
         }
     }
 
@@ -51,11 +51,24 @@ sub do_search {
         # Sort by the required metadata, asc or desc
         @filtered = sort { 
   
-            #TODO: add namespace finding capabilities here instead of just using redis columns
-            my $meta1 = $redis->hget($a, $sortkey);
-            $meta1 = LANraragi::Utils::Database::redis_decode($meta1);
-            my $meta2 = $redis->hget($b, $sortkey);
-            $meta2 = LANraragi::Utils::Database::redis_decode($meta2);
+            #Use either tags or title depending on the sortkey
+            my $meta1 = $a->{title};
+            my $meta2 = $b->{title};
+
+            if ($sortkey ne "title") {
+                my $re = qr/$sortkey/;
+                if ($a->{tags} =~ m/.*${re}:(.*)(\,.*|$)/) {
+                    $meta1 = $1;
+                } else {
+                    $meta1 = "zzzz"; # Not a very good way to make items end at the bottom...
+                }
+                    
+                if ($b->{tags} =~ m/.*${re}:(.*)(\,.*|$)/)  {
+                    $meta2 = $1;
+                } else {
+                    $meta2 = "zzzz";
+                }
+            }
 
             if ($sortorder) { 
                 lc($meta2) cmp lc($meta1)
@@ -149,7 +162,7 @@ sub matches_search_filter {
 
 # build_archive_JSON(id)
 # Builds a JSON object for an archive already registered in the Redis database and returns it.
-# TODO: adapted from Shinobu code, remember to purge a bunch of code in Shinobu once this is merged
+# TODO: adapted from Shinobu code, remember to purge a bunch of code in Shinobu once this is finished
 sub build_archive_JSON {
     my ( $id ) = @_;
 

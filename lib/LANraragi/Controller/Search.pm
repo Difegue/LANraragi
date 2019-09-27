@@ -68,10 +68,10 @@ sub get_datatables_object {
 
     my ( $draw, $total, @keys ) = @_;
 
-    # Get archive data from id keys 
+    # Get archive data from keys 
     my @data = ();
-    foreach my $id (@keys) {
-        push @data, LANraragi::Model::Search::build_archive_JSON($id);
+    foreach my $key (@keys) {
+        push @data, LANraragi::Model::Search::build_archive_JSON($key->{id});
     }
 
     # Create json object matching the datatables structure
