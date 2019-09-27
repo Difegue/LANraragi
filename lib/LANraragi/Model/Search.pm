@@ -6,11 +6,8 @@ use utf8;
 
 use List::Util qw(min);
 use Redis;
-use Encode;
-use Mojo::JSON qw(decode_json encode_json);
 
 use LANraragi::Utils::Generic;
-use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database;
 
 use LANraragi::Model::Config;

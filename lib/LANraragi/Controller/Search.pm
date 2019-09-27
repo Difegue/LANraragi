@@ -1,18 +1,7 @@
 package LANraragi::Controller::Search;
 use Mojo::Base 'Mojolicious::Controller';
 
-use Redis;
-use Encode;
-use Mojo::JSON qw(decode_json encode_json from_json);
-use File::Path qw(remove_tree);
-
-use LANraragi::Utils::Generic;
-use LANraragi::Utils::Archive;
-use LANraragi::Utils::Database;
-use LANraragi::Utils::TempFolder;
-
 use LANraragi::Model::Search;
-use LANraragi::Model::Config;
 
 # Undocumented API matching the Datatables spec.
 sub handle_datatables {
