@@ -102,23 +102,12 @@ API Key if needed.
 {% endapi-method-parameter %}
 
 {% api-method-parameter name="filter" type="string" required=false %}
-Search query. You can use the following special characters in it:  
-
-**Quotation Marks ("...")**  
-Exact string search. Allows a search term to include spaces. Everything placed inside a pair of quotation marks is treated as a singular term. Wildcard characters are still interpreted as wildcards.  
-
-**Question Mark (?), Underscore (_)**  
-Wildcard. Can match any single character.  
-
-**Asterisk (*), Percentage Sign (%)**  
-Wildcard. Can match any sequence of characters (including none).  
-
-**Subtraction Sign (-)**  
-Exclusion. When placed before a term, prevents search results from including that term.
-
-**Dollar Sign ($)**  
-Add at the end of a tag to perform an exact tag search rather than displaying all elements that start with the term. Only matches tags regardless of search parameters and can be used as an exclusion to ignore misc tags in the search query.  
-
+Search query. You can use the following special characters in it:**Quotation Marks \("..."\)**  
+Exact string search. Allows a search term to include spaces. Everything placed inside a pair of quotation marks is treated as a singular term. Wildcard characters are still interpreted as wildcards.**Question Mark \(?\), Underscore \(\_\)**  
+Wildcard. Can match any single character.**Asterisk \(\*\), Percentage Sign \(%\)**  
+Wildcard. Can match any sequence of characters \(including none\).**Subtraction Sign \(-\)**  
+Exclusion. When placed before a term, prevents search results from including that term.**Dollar Sign \($\)**  
+Add at the end of a tag to perform an exact tag search rather than displaying all elements that start with the term. Only matches tags regardless of search parameters and can be used as an exclusion to ignore misc tags in the search query.
 {% endapi-method-parameter %}
 
 {% api-method-parameter name="start" type="string" required=false %}
@@ -126,20 +115,19 @@ From which archive in the total result count this enumeration should start. The 
 {% endapi-method-parameter %}
 
 {% api-method-parameter name="sortby" type="string" required=false %}
-Namespace by which you want to sort the results, or _title_ if you want to sort by title. (Default value is title.)
+Namespace by which you want to sort the results, or _title_ if you want to sort by title. \(Default value is title.\)
 {% endapi-method-parameter %}
 
 {% api-method-parameter name="order" type="string" required=true %}
 Order of the sort, either `asc` or `desc`.
 {% endapi-method-parameter %}
-
 {% endapi-method-path-parameters %}
 {% endapi-method-request %}
 
 {% api-method-response %}
 {% api-method-response-example httpCode=200 %}
 {% api-method-response-example-description %}
-Search is performed. 
+Search is performed.
 {% endapi-method-response-example-description %}
 
 ```javascript
@@ -484,7 +472,7 @@ You didn't include the key parameter.
 {% endapi-method-spec %}
 {% endapi-method %}
 
-{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/clear_new" %}
+{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/clear\_new" %}
 {% api-method-summary %}
 Clear New flag on archive
 {% endapi-method-summary %}
@@ -499,6 +487,7 @@ Clears the "New!" flag on an archive if an ID is provided. Otherwise, clears the
 {% api-method-parameter name="key" type="string" required=false %}
 API Key, if needed.
 {% endapi-method-parameter %}
+
 {% api-method-parameter name="id" type="string" required=true %}
 ID of the Archive to process
 {% endapi-method-parameter %}
@@ -535,7 +524,7 @@ You didn't specify an API Key.
 {% endapi-method-spec %}
 {% endapi-method %}
 
-{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/clear_new_all" %}
+{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/clear\_new\_all" %}
 {% api-method-summary %}
 Clear all New flags
 {% endapi-method-summary %}
@@ -582,9 +571,9 @@ You didn't specify an API Key.
 {% endapi-method-spec %}
 {% endapi-method %}
 
-{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/stop_shinobu" %}
+{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/stop\_shinobu" %}
 {% api-method-summary %}
-Stop Background Worker  
+Stop Background Worker
 {% endapi-method-summary %}
 
 {% api-method-description %}
@@ -627,7 +616,7 @@ You didn't specify an API Key.
 {% endapi-method-response-example %}
 {% endapi-method-response %}
 {% endapi-method-spec %}
-{% endapi-method %}  
+{% endapi-method %}
 
 {% api-method method="get" host="http://lrr.tvc-16.science" path="/api/backup" %}
 {% api-method-summary %}
@@ -635,8 +624,7 @@ Print a backup JSON
 {% endapi-method-summary %}
 
 {% api-method-description %}
-Scans the entire database and returns a backup in JSON form. This backup can be reimported manually through the Backup and Restore feature.  
-{% page-ref page="advanced-usage/backup-and-restore.md" %}
+Scans the entire database and returns a backup in JSON form. This backup can be reimported manually through the Backup and Restore feature.
 {% endapi-method-description %}
 
 {% api-method-spec %}
@@ -702,5 +690,4 @@ You didn't specify an API Key.
 {% endapi-method-response %}
 {% endapi-method-spec %}
 {% endapi-method %}
-
 

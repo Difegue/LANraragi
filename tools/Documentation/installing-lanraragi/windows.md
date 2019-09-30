@@ -1,6 +1,6 @@
 # LRR for Windows \(Win10\)
 
-### Download a Release
+## Download a Release
 
 You can download the latest Windows zip release on the [Release Page](https://github.com/Difegue/LANraragi/releases), starting from 0.6.0.
 
@@ -12,9 +12,9 @@ After extracting the zip, you should have something like this:
 
 ![](../.gitbook/assets/karen-install.png)
 
-### Installation
+## Installation
 
-Right-click the install.ps1 script, and select **Run with PowerShell.** You should get a few security prompts from Windows as the script isn't signed; These are perfectly normal.  
+Right-click the install.ps1 script, and select **Run with PowerShell.** You should get a few security prompts from Windows as the script isn't signed; These are perfectly normal.
 
 Once the install completes properly, you'll be able to launch the GUI from the shortcut in your Start Menu:
 
@@ -22,7 +22,7 @@ Once the install completes properly, you'll be able to launch the GUI from the s
 
 You can delete the extracted zip if you want to from here onwards.
 
-### Configuration
+## Configuration
 
 Starting the GUI for the first time will prompt you to setup your content folder and the port you want the server to listen on. The main GUI is always available from your Taskbar.
 
@@ -31,20 +31,20 @@ Starting the GUI for the first time will prompt you to setup your content folder
 You can also decide whether to start the GUI alongside Windows, or start LRR alongside the GUI. Combining the two makes it so that LANraragi starts alongside Windows. 🔥🔥🔥
 
 {% hint style="warning" %}
-On Windows, VeraCrypt encrypted drives are known to not work properly as the content folder. See https://github.com/Difegue/LANraragi/issues/182 for details.
+On Windows, VeraCrypt encrypted drives are known to not work properly as the content folder. See [https://github.com/Difegue/LANraragi/issues/182](https://github.com/Difegue/LANraragi/issues/182) for details.
 {% endhint %}
 
-### Usage
+## Usage
 
 ![Tray GUI and Log Console. Check that Dark Theme tho &#x1F431;&#x200D;&#x1F453;](../.gitbook/assets/karen-dark.jpg)
 
 Once the program is running, you can open the Web Client through the shortcut button on the user interface. You can also toggle the Log Console on/off to see what's going on behind the scenes.
 
-### Updating
+## Updating
 
 Simply download the latest zip and re-run the installer script.
 
-### Uninstallation
+## Uninstallation
 
 Browse to the folder containing the GUI \(`%appdata%\LANraragi\Bootloader`\)and run the uninstallation script:
 
@@ -52,7 +52,7 @@ Browse to the folder containing the GUI \(`%appdata%\LANraragi\Bootloader`\)and 
 
 Presto! Your database is not deleted in case you ever fancy coming back.
 
-### Troubleshooting
+## Troubleshooting
 
 If the installer script fails, it's likely because it can't enable the Windows Subsystem for Linux \(WSL\) on your machine. Try running through the official Microsoft installation guide depicted[ here](https://docs.microsoft.com/en-us/windows/wsl/install-win10).
 

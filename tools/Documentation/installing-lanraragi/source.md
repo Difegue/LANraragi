@@ -6,7 +6,7 @@ description: The following instructions are based on Debian Stretch.
 
 ## About macOS
 
-LRR relies on inotify, which is a Linux-only feature not available on macOS. See [https://github.com/Difegue/LANraragi/issues/158](this issue) for details.
+LRR relies on inotify, which is a Linux-only feature not available on macOS. See [https://github.com/Difegue/LANraragi/issues/158](https://github.com/Difegue/LANraragi/tree/3d8058a1479bef26aecee6fcb5da79c73d1f097d/tools/Documentation/installing-lanraragi/this%20issue/README.md) for details.
 
 ## A small FYI about Vendor Perl
 

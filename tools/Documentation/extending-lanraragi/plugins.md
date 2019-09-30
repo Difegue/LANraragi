@@ -86,7 +86,7 @@ The **One-Shot Argument** can be set by the user every time he uses your Plugin 
 It's more meant for special overrides you'd want to use for this specific file:  
 For example, in E-Hentai and nHentai plugins, it can be used to set a specific Gallery URL you want to pull tags from.
 
-If you want the user to be able to enter those arguments, the `parameters` and `oneshot_arg` fields must be present in `plugin_info`, and contain brief descriptions of what your arguments are for.  
+If you want the user to be able to enter those arguments, the `parameters` and `oneshot_arg` fields must be present in `plugin_info`, and contain brief descriptions of what your arguments are for.
 
 One-Shot Arguments can only be strings, but other parameters can be either a boolean, an integer or a string, depending on your needs.  
 Descriptions will be shown to the user. For `parameters`, the field **MUST** contain an array, even if it only has one argument inside!

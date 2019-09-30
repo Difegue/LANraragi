@@ -35,7 +35,7 @@ npm start
 Server available at http://127.0.0.1:8000
 ```
 
-## Docker 
+## Docker
 
 ```bash
 docker run --name=lanraragi -p 8000:8000 \

@@ -16,3 +16,4 @@ You can also make backup JSONs with the `npm run backup-db` command or through t
 {% endhint %}
 
 ![Average backup.json](../.gitbook/assets/backup.png)
+

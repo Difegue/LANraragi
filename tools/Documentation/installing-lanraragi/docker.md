@@ -21,7 +21,7 @@ target=/home/koyomi/lanraragi/content difegue/lanraragi
 ```
 
 {% hint style="warning" %}
-If your Docker version is _[below 17.06](https://docs.docker.com/storage/bind-mounts/)_ and you use the --mount option as listed above, you will get the following error:
+If your Docker version is [_below 17.06_](https://docs.docker.com/storage/bind-mounts/) and you use the --mount option as listed above, you will get the following error:
 
 ```bash
 unknown flag: --mount 
@@ -29,6 +29,7 @@ See 'docker run --help'.
 ```
 
 You can bypass this issue by using the --volume option for bind-mounting like so:
+
 ```bash
 docker run --name=lanraragi -p 3000:3000 \
 --volume [YOUR_CONTENT_DIRECTORY]:/home/koyomi/lanraragi/content difegue/lanraragi
@@ -45,7 +46,7 @@ If you're running on Windows, please check the syntax for mapping your content d
 Windows 7/8 users running the Legacy Docker toolbox will have to explicitly forward port 127.0.0.1:3000 from the host to the container in order to be able to access the app.
 {% endhint %}
 
-The content directory you have to specify in the command above will contain archives you either upload through the software or directly drop in, alongside generated thumbnails.  
+The content directory you have to specify in the command above will contain archives you either upload through the software or directly drop in, alongside generated thumbnails.
 
 This directory also houses the LANraragi database\(As database.rdb\), allowing you to hotswap containers without losing any data.
 

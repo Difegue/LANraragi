@@ -7,10 +7,10 @@ description: >-
 # Vagrant \(Deprecated\)
 
 {% hint style="danger" %}
-Vagrant installs are **deprecated** as of 0.6.0. They'll work, but come with enough potential issues and slowdowns that I don't recommend you use them at all! 
+Vagrant installs are **deprecated** as of 0.6.0. They'll work, but come with enough potential issues and slowdowns that I don't recommend you use them at all!
 {% endhint %}
 
-### Using the Vagrantfile
+## Using the Vagrantfile
 
 You can use the available Vagrantfile with [Vagrant](https://www.vagrantup.com/downloads.html) to deploy a virtual machine on your computer with LANraragi preinstalled.
 
@@ -40,7 +40,7 @@ vagrant provision
 
 Keep in mind that the Vagrant setup, just like Docker, will always use the latest release.
 
-### Updating
+## Updating
 
 From the directory where the Vagrantfile is located:
 
