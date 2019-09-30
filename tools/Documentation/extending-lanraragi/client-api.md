@@ -405,15 +405,12 @@ JSON Array of {tag; weight} objects. Higher weight = Tag is more prevalent in th
 
 ```javascript
 [
-    {"text":"rohan kishibe","weight":1},
-    {"text":"full color","weight":1},
-    {"text":"ponytail","weight":1},
-    {"text":"sailor saturn","weight":5},
-    {"text":"reimi sugimoto","weight":1},
-    {"text":"swimsuit","weight":3},
-    {"text":"artbook","weight":1},
-    {"text":"glasses","weight":4},
-    {"text":"sole male","weight":2}
+    {"namespace":"character","text":"jeanne alter","weight":2},
+    {"namespace":"character","text":"xuanzang","weight":1},
+    {"namespace":"artist","text":"wada rco","weight":2},
+    {"namespace":"parody","text":"fate grand order","weight":3},
+    {"namespace":"group","text":"wadamemo","weight":2},
+    {"namespace":"","text":"artbook","weight":2},
 ]
 ```
 {% endapi-method-response-example %}
