@@ -1,7 +1,7 @@
 {
   "name": "lanraragi",
-  "version": "0.6.4",
-  "version_name": "Speed of Life",
+  "version": "0.6.5",
+  "version_name": "Art Decade",
   "description": "holla where the chinese comics at",
   "scripts": {
     "test": "prove -l -v tests/*.t",

@@ -19,7 +19,7 @@ function toggleFav(button) {
 		button.classList.remove("toggled");
 
 	//Trigger search
-	favTagSearch();
+	performSearch();
 }
 
 function toggleInbox(button) {
@@ -40,9 +40,9 @@ function toggleInbox(button) {
 	$('#clrsrch').click();
 }
 
-// Triggered when a favTag checkbox is modified, 
 // looks at all checked favTags and builds an OR regex to jam in DataTables
-function favTagSearch() {
+// and then ANDs result with standard smart DataTables search
+function performSearch() {
 
 	favTags = $(".favtag");
 	searchQuery = "("
@@ -59,10 +59,13 @@ function favTagSearch() {
 
 	//Perform search in datatables field with our own regexes enabled and smart search off
 	if (searchQuery !== ")") {
-		arcTable.search(searchQuery, true, false).draw();
+		arcTable.column('.tags.itd').search(searchQuery, true, false);
+		arcTable.search($('#srch').val().replace(",", ""), false, true);
+		arcTable.draw();
 	} else {
-		//clear
-		arcTable.search("", false, true).draw();
+		// no fav filters
+		arcTable.column('.tags.itd').search("", false, true);
+		arcTable.search($('#srch').val().replace(",", ""), false, true).draw();
 	}
 
 }
@@ -187,7 +190,7 @@ function loadTagSuggestions() {
 
 			// Perform a search when a tag is selected
 			Awesomplete.$('#srch').addEventListener("awesomplete-selectcomplete", function() {
-				arcTable.search($('#srch').val()).draw();
+				performSearch();
 			});
 
 		}).fail(function (data) {

@@ -30,6 +30,10 @@ Starting the GUI for the first time will prompt you to setup your content folder
 
 You can also decide whether to start the GUI alongside Windows, or start LRR alongside the GUI. Combining the two makes it so that LANraragi starts alongside Windows. 🔥🔥🔥
 
+{% hint style="warning" %}
+On Windows, VeraCrypt encrypted drives are known to not work properly as the content folder. See https://github.com/Difegue/LANraragi/issues/182 for details.
+{% endhint %}
+
 ### Usage
 
 ![Tray GUI and Log Console. Check that Dark Theme tho &#x1F431;&#x200D;&#x1F453;](../.gitbook/assets/karen-dark.jpg)

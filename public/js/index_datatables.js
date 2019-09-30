@@ -56,7 +56,7 @@ function initIndex(pagesize, dataSet) {
 
 	//add datatable search event to the local searchbox and clear search to the clear filter button
 	$('#srch').keyup(function () {
-		arcTable.search($(this).val()).draw();
+		performSearch();
 	});
 
 	$('#clrsrch').click(function () {
@@ -65,9 +65,9 @@ function initIndex(pagesize, dataSet) {
 			$(".favtag")[i].checked = false;
 			$(".favtag-btn")[i].classList.remove("toggled");
 		}
-
-		arcTable.search('').draw();
 		$('#srch').val('');
+
+		performSearch();
 	});
 
 	//clear searchbar cache
@@ -106,6 +106,7 @@ function createNamespaceColumn(namespace, type, data) {
 		if (data === "")
 			return "";
 
+		if(namespace == "series") namespace = "(?:series|parody)";
 		regex = new RegExp(".*"+namespace+":\\s?([^,]*),*.*","gi"); // Catch last namespace:xxx value in tags
 		match = regex.exec(data);
 
@@ -288,7 +289,7 @@ function buildTagsDiv(tags) {
 	Object.keys(tagsByNamespace).sort().forEach(function (key, index) {
 
 		ucKey = key.charAt(0).toUpperCase() + key.slice(1);
-		line += "<tr><td style='font-size:10pt; padding: 0 2px 7px; vertical-align:top'>" + ucKey + ":</td><td>";
+		line += "<tr><td style='font-size:10pt; padding: 3px 2px 7px; vertical-align:top'>" + ucKey + ":</td><td>";
 
 		tagsByNamespace[key].forEach(function (tag) {
 			line += '<div class="gt" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">' + tag + '</div>';
