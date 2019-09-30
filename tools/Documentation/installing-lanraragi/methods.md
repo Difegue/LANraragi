@@ -32,14 +32,14 @@ I provide a dedicated installer for Windows machines as of 0.6.0, complete with 
 
 ![I really hope you guys don&apos;t do this](../.gitbook/assets/shiggy.png)
 
-At this point the only solutions I have to give you are basically glorified VMs. 
+At this point the only solutions I have to give you are basically glorified VMs.
 
 You can either download the [Legacy Docker Toolbox](https://docs.docker.com/toolbox/toolbox_install_windows/) and follow the Docker tutorial linked above, or try Vagrant. I provide **no support** for either of these methods.
 
 {% page-ref page="vagrant.md" %}
 
 {% hint style="info" %}
-I used to provide a Windows source port, but have encountered increasing issues with it as I introduced modern features and dependencies. 
+I used to provide a Windows source port, but have encountered increasing issues with it as I introduced modern features and dependencies.
 
 If you just want to try the software on old Windows machines, you can still use the old one-click Quickstarter for [v.0.5.6.](https://github.com/Difegue/LANraragi/releases/download/v.0.5.6/LRR_0.5.6_QuickStarter_Windows.zip) Run the .bat file and it should kinda just work.
 {% endhint %}
