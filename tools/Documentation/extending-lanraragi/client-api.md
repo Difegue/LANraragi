@@ -634,6 +634,7 @@ Print a backup JSON
 
 {% api-method-description %}
 Scans the entire database and returns a backup in JSON form. This backup can be reimported manually through the Backup and Restore feature.
+{% page-ref page="advanced-usage/backup-and-restore.md" %}
 {% endapi-method-description %}
 
 {% api-method-spec %}
