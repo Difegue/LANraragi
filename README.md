@@ -40,7 +40,7 @@ You can read the results [here](https://tvc-16.science/lrr-survey.html).
 ## Screenshots  
 
  
-[Main Page, Thumbnail View](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/archive_thumb.png)  
+[Main Page, Thumbnail View](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/archive_thumb.jpg)  
 [Main Page, List View](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/archive_list.png)  
 [Archive Reader](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/reader.jpg)  
 [Reader with overlay](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/reader_overlay.jpg)  
