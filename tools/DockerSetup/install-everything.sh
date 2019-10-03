@@ -19,4 +19,4 @@ npm run lanraragi-installer install-front
 
 #Cleanup to lighten the image
 apk del perl-dev g++ make gnupg wget curl nodejs nodejs-npm openssl-dev
-rm -rf /root/.cpanm/* /usr/local/share/man/* node_modules 
+rm -rf /root/.cpanm/* /usr/local/share/man/* node_modules tools/_screenshots tools/Documentation
