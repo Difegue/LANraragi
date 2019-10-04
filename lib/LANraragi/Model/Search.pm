@@ -82,7 +82,7 @@ sub do_search {
 
     # Return total keys and the filtered ones
     my $end = min($keysperpage,$#filtered);
-    return ( $#keys, @filtered[$start..$end] );
+    return ( $#keys, $#filtered, @filtered[$start..$end] );
 }
 
 # matches_search_filter($filter, $tags)

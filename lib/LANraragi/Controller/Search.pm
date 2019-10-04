@@ -22,10 +22,10 @@ sub handle_datatables {
     if ($sortorder && $sortorder eq 'desc') { $sortorder = 1; }
         else { $sortorder = 0; }
 
-    my ($total, @ids) = LANraragi::Model::Search::do_search($filter, $start, $sortkey, $sortorder);
+    my ($total, $filtered, @ids) = LANraragi::Model::Search::do_search($filter, $start, $sortkey, $sortorder);
 
     $self->render(
-        json => get_datatables_object($draw, $total, @ids)
+        json => get_datatables_object($draw, $total, $filtered, @ids)
     );
 
 }
@@ -44,19 +44,19 @@ sub handle_api {
     if ($sortorder && $sortorder eq 'desc') { $sortorder = 1; }
         else { $sortorder = 0; }
 
-    my ($total, @ids) = LANraragi::Model::Search::do_search($filter, $start, $sortkey, $sortorder);
+    my ($total, $filtered, @ids) = LANraragi::Model::Search::do_search($filter, $start, $sortkey, $sortorder);
 
     $self->render(
-        json => get_datatables_object(0, $total, @ids)
+        json => get_datatables_object(0, $total, $filtered, @ids)
     );
 
 }
 
-# get_datatables_object($draw, $total, @keys)
+# get_datatables_object($draw, $total, $totalsearched, @pagedkeys)
 # Creates a Datatables-compatible json from the given data.
 sub get_datatables_object {
 
-    my ( $draw, $total, @keys ) = @_;
+    my ( $draw, $total, $filtered, @keys ) = @_;
 
     # Get archive data from keys 
     my @data = ();
@@ -68,7 +68,7 @@ sub get_datatables_object {
     return {
         draw => $draw,
         recordsTotal => $total,
-        recordsFiltered => $#data,
+        recordsFiltered => $filtered,
         data => \@data
     };
 }

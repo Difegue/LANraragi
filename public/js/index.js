@@ -175,7 +175,7 @@ function loadTagSuggestions() {
 				list: taglist,
 				data: fullTag,
 				// Sort by weight
-				sort: function(a, b) { console.log(a); return b.value - a.value; },
+				sort: function(a, b) { return b.value - a.value; },
 				filter: function(text, input) {
 					return Awesomplete.FILTER_CONTAINS(text, input.match(/[^,]*$/)[0]);
 				},
