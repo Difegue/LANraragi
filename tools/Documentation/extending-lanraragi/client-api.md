@@ -102,11 +102,20 @@ API Key if needed.
 {% endapi-method-parameter %}
 
 {% api-method-parameter name="filter" type="string" required=false %}
-Search query. You can use the following special characters in it:**Quotation Marks \("..."\)**  
-Exact string search. Allows a search term to include spaces. Everything placed inside a pair of quotation marks is treated as a singular term. Wildcard characters are still interpreted as wildcards.**Question Mark \(?\), Underscore \(\_\)**  
-Wildcard. Can match any single character.**Asterisk \(\*\), Percentage Sign \(%\)**  
-Wildcard. Can match any sequence of characters \(including none\).**Subtraction Sign \(-\)**  
-Exclusion. When placed before a term, prevents search results from including that term.**Dollar Sign \($\)**  
+Search query. You can use the following special characters in it:  
+**Quotation Marks \("..."\)**  
+Exact string search. Allows a search term to include spaces. Everything placed inside a pair of quotation marks is treated as a singular term. Wildcard characters are still interpreted as wildcards.  
+  
+**Question Mark \(?\), Underscore \(\_\)**  
+Wildcard. Can match any single character.  
+  
+**Asterisk \(\*\), Percentage Sign \(%\)**  
+Wildcard. Can match any sequence of characters \(including none\).  
+  
+**Subtraction Sign \(-\)**  
+Exclusion. When placed before a term, prevents search results from including that term.  
+  
+**Dollar Sign \($\)**  
 Add at the end of a tag to perform an exact tag search rather than displaying all elements that start with the term. Only matches tags regardless of search parameters and can be used as an exclusion to ignore misc tags in the search query.
 {% endapi-method-parameter %}
 
@@ -118,7 +127,7 @@ From which archive in the total result count this enumeration should start. The 
 Namespace by which you want to sort the results, or _title_ if you want to sort by title. \(Default value is title.\)
 {% endapi-method-parameter %}
 
-{% api-method-parameter name="order" type="string" required=true %}
+{% api-method-parameter name="order" type="string" required=false %}
 Order of the sort, either `asc` or `desc`.
 {% endapi-method-parameter %}
 {% endapi-method-path-parameters %}
@@ -396,15 +405,12 @@ JSON Array of {tag; weight} objects. Higher weight = Tag is more prevalent in th
 
 ```javascript
 [
-    {"text":"rohan kishibe","weight":1},
-    {"text":"full color","weight":1},
-    {"text":"ponytail","weight":1},
-    {"text":"sailor saturn","weight":5},
-    {"text":"reimi sugimoto","weight":1},
-    {"text":"swimsuit","weight":3},
-    {"text":"artbook","weight":1},
-    {"text":"glasses","weight":4},
-    {"text":"sole male","weight":2}
+    {"namespace":"character","text":"jeanne alter","weight":2},
+    {"namespace":"character","text":"xuanzang","weight":1},
+    {"namespace":"artist","text":"wada rco","weight":2},
+    {"namespace":"parody","text":"fate grand order","weight":3},
+    {"namespace":"group","text":"wadamemo","weight":2},
+    {"namespace":"","text":"artbook","weight":2},
 ]
 ```
 {% endapi-method-response-example %}
@@ -625,6 +631,7 @@ Print a backup JSON
 
 {% api-method-description %}
 Scans the entire database and returns a backup in JSON form. This backup can be reimported manually through the Backup and Restore feature.
+{% page-ref page="advanced-usage/backup-and-restore.md" %}
 {% endapi-method-description %}
 
 {% api-method-spec %}
