@@ -146,14 +146,7 @@
 			localStorage.indexViewMode = 1;
 		}
 
-		//load archive JSON before anything else
-		$.getJSON("api/archivelist", function (data) {
-			initIndex([% pagesize %], data);
-		}).fail(function (d) {
-			//Catastrophic cache fuckup, inform the user
-			$(".datatables").hide();
-			$("#json-error").show();
-		});
+		initIndex([% pagesize %]);
 
 		[% IF usingdefpass %]
 		//If the json has the "default password" flag, flash a friendly notification inviting the user to change his password

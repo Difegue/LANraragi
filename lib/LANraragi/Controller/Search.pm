@@ -7,16 +7,17 @@ use LANraragi::Model::Search;
 sub handle_datatables {
 
     my $self = shift;
-    my $req  = $self->req->json;
+    my $req  = $self->req;
 
-    my $draw    = $req->{draw};
-    my $start   = $req->{start};
-    my $length  = $req->{length};
+    my $draw    = $req->param('draw');
+    my $start   = $req->param('start');
+    my $length  = $req->param('length');
 
-    my $filter    = $req->{search}{value};
-    my $sortindex = $req->{order}[0]{column};
-    my $sortorder = $req->{order}[0]{dir};
-    my $sortkey   = $req->{columns}[$sortindex]{name};
+    # Jesus christ what the fuck datatables
+    my $filter    = $req->param('search[value]');
+    my $sortindex = $req->param('order[0][column]');
+    my $sortorder = $req->param('order[0][dir]');
+    my $sortkey   = $req->param("columns[$sortindex][name]");
 
     if ($sortorder && $sortorder eq 'desc') { $sortorder = 1; }
         else { $sortorder = 0; }

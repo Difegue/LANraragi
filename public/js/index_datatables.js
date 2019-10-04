@@ -1,5 +1,4 @@
 //Functions for DataTable initialization.
-var jsonCache = {};
 
 var column1 = "artist";
 var column2 = "series";
@@ -7,15 +6,15 @@ var column3 = "";
 
 //Executed onload of the archive index to initialize DataTables and other minor things.
 //This is painful to read.
-function initIndex(pagesize, dataSet) {
-	jsonCache = dataSet;
+function initIndex(pagesize) {
 
 	$.fn.dataTableExt.oStdClasses.sStripeOdd = 'gtr0';
 	$.fn.dataTableExt.oStdClasses.sStripeEven = 'gtr1';
 
 	//datatables configuration
 	arcTable = $('.datatables').DataTable({
-		'data': dataSet,
+		"serverSide": true,
+  		"ajax": "search",
 		'deferRender': true,
 		'lengthChange': false,
 		'pageLength': pagesize,
@@ -30,22 +29,26 @@ function initIndex(pagesize, dataSet) {
 		'columns': [{
 				className: 'title itd',
 				'data': null,
+				'name': 'title',
 				'render': titleColumnDisplay
 			},{
 				className: column1 + ' itd',
 				'data': 'tags',
+				'name': column1,
 				'render': function (data, type, full, meta) {
 					return createNamespaceColumn(column1, type, data);
 				}
 			},{
 				className: column2 + ' itd',
 				'data': 'tags',
+				'name': column2,
 				'render': function (data, type, full, meta) {
 					return createNamespaceColumn(column2, type, data);
 				}
 			},{
 				className: 'tags itd',
 				'data': 'tags',
+				'orderable': false,
 				'render': tagsColumnDisplay
 			},{
 				className: 'isnew itd',
