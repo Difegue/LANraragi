@@ -81,8 +81,8 @@ sub do_search {
     my $keysperpage = LANraragi::Model::Config::get_pagesize;
 
     # Return total keys and the filtered ones
-    my $end = min($keysperpage,$#filtered);
-    return ( $#keys, $#filtered, @filtered[$start..$end] );
+    my $end = min($start+$keysperpage-1,$#filtered);
+    return ( $#keys+1, $#filtered+1, @filtered[$start..$end] );
 }
 
 # matches_search_filter($filter, $tags)
