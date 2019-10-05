@@ -150,19 +150,6 @@ sub serve_thumbnail {
 
 }
 
-sub force_refresh {
-
-    my $self = shift;
-    LANraragi::Utils::Database::invalidate_cache();
-
-    $self->render(
-        json => {
-            operation => "refresh_cache",
-            success   => 1
-        }
-    );
-}
-
 sub clear_new {
     my $self = shift;
     my $id = check_id_parameter($self, "clear_new") || return;
@@ -172,9 +159,6 @@ sub clear_new {
     # Just set isnew to false for the provided ID.
     if ($redis->hget( $id, "isnew") ne "false") {
         $redis->hset( $id, "isnew", "false" );
-
-        #Trigger a JSON cache refresh
-        LANraragi::Utils::Database::invalidate_cache();
     }
 
     $self->render(
@@ -379,6 +363,19 @@ sub clean_database {
         json => {
             operation => "clean_database",
             total     => $num,
+            success   => 1
+        }
+    );
+}
+
+sub clear_cache {
+
+    my $self = shift;
+    LANraragi::Utils::Database::invalidate_cache();
+
+    $self->render(
+        json => {
+            operation => "clear_cache",
             success   => 1
         }
     );

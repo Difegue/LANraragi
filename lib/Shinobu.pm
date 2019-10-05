@@ -4,8 +4,7 @@ package Shinobu;
 #  Uses inotify watches to keep track of filesystem happenings.
 #  My main tasks are:
 #
-#    Tracking all files in the content folder and making sure they're synched with the database
-#    Building the JSON cache used to display the Archive Index
+#    Tracking all files in the content folder and making sure they're sync'ed with the database
 #    Automatically cleaning the temporary folder when it reaches a certain size
 #
 
@@ -72,8 +71,6 @@ sub initialize_from_new_process {
     $logger->info( "Working dir is " . cwd );
 
     build_filemap();
-    build_json_cache();
-
     $logger->info("Adding inotify watches to content folder $userdir");
 
     # add watches to content directory
@@ -100,17 +97,6 @@ sub initialize_from_new_process {
     $inotify->watch( LANraragi::Utils::TempFolder::get_temp,
                     (IN_MOVED_TO | IN_DELETE | IN_CREATE), 
                     sub { LANraragi::Utils::TempFolder::clean_temp_partial; } );
-
-    # Create a .shinobu-nudge file and add a watch to it
-    my $nudge = cwd . "/.shinobu-nudge";
-    open my $fileHandle, ">", $nudge
-      or $logger->warn( "The nudge file couldn't be created! "
-          . "You might not be able to manually refresh the JSON cache." );
-    print $fileHandle "donut";
-    close $fileHandle;
-
-    # This file can then be touched to trigger a JSON refresh.
-    $inotify->watch( $nudge, IN_ATTRIB, sub { build_json_cache(); } );
 
     # manual event loop
     $logger->info("All done! Now dutifully watching your files. ");
@@ -184,54 +170,32 @@ sub add_to_filemap {
             $logger->warn( "$file is a duplicate of the existing file "
                   . $filemap{$id}
                   . ". You should delete it." );
+            return;
         }
         else {
             $filemap{$id} = $file;
         }
-    }
 
-}
+        # Filename sanity check
+        if ( $redis->exists($id) ) {
 
-#Build the JSON cache that is later spat by the API.
-#This cross-checks the filemap with the Redis database.
-#Files that aren't in the filemap are ignored (potentially deleted archives)
-#Files that aren't in the database are added to it.
-sub build_json_cache {
-
-    $logger->info("Building JSON cache...This might take some time.");
-    $redis->hset( "LRR_JSONCACHE", "refreshing", "1" );
-
-    my $dirname = LANraragi::Model::Config::get_userdir;
-
-    my $json = "[";
-
-    #Iterate on the filemap's keys
-    for my $id ( keys %filemap ) {
-
-        my $file = $filemap{$id};
-        #$logger->debug("JSONing $id -> $file");
-
-        #Trigger archive addition if title isn't in Redis
-        unless ( $redis->exists($id) ) {
+            my $filecheck = $redis->hget($id, "file");
+            #Update the real file path and title if they differ from the saved one
+            #This is meant to always track the current filename for the OS.
+            unless ( $file eq $filecheck ) {
+                $logger->debug("File name discrepancy detected between DB and filesystem!");
+                $logger->debug("Filesystem: $file");
+                $logger->debug("Database: $filecheck");
+                ( $name, $path, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
+                $redis->hset( $id, "file", $file );
+                $redis->hset( $id, "name", encode_utf8($name) );
+                $redis->wait_all_responses;
+            }
+        } else {
+            # Add to Redis if not present beforehand
             add_new_file( $id, $file );
         }
-
-        $json .= build_archive_JSON( $id, $file );
-        $json .= ",";
-
     }
-
-    #Remove trailing comma if there's one
-    if ( length $json > 1 ) {
-        chop $json;
-    }
-
-    $json .= "]";
-
-    #Write JSON to cache and remove refreshing flag
-    $redis->hset( "LRR_JSONCACHE", "archive_list", encode_utf8($json) );
-    $redis->hset( "LRR_JSONCACHE", "refreshing",   "0" );
-
 }
 
 #When a new subdirectory is added, we add all its files.
@@ -269,8 +233,6 @@ sub new_file_callback {
             $name
         );
     }
-
-    build_json_cache();
 }
 
 #Deleted files are simply dropped from the filemap.
@@ -289,14 +251,11 @@ sub deleted_file_callback {
     else {
         build_filemap();
     }
-
-    build_json_cache();
 }
 
 sub add_new_file {
 
     my ( $id, $file ) = @_;
-
     $logger->info("Adding new file $file with ID $id");
 
     eval {
@@ -311,58 +270,6 @@ sub add_new_file {
     if ($@) {
         $logger->error("Error while adding file: $@");
     }
-}
-
-#build_archive_JSON(id, file)
-#Builds a JSON object for an archive already registered in the Redis database and returns it.
-sub build_archive_JSON {
-    my ( $id, $file ) = @_;
-
-    my $redis   = LANraragi::Model::Config::get_redis;
-    my $dirname = LANraragi::Model::Config::get_userdir;
-
-    #Extra check in case we've been given a bogus ID
-    return "" unless $redis->exists($id);
-
-    my %hash = $redis->hgetall($id);
-    my ( $path, $suffix );
-
-    #It's not a new archive, but it might have never been clicked on yet,
-    #so we'll grab the value for $isnew stored in redis.
-    my ( $name, $title, $tags, $filecheck, $isnew ) =
-      @hash{qw(name title tags file isnew)};
-
-    #Parameters have been obtained, let's decode them.
-    ( $_ = LANraragi::Utils::Database::redis_decode($_) )
-      for ( $name, $title, $tags );
-
-    #Update the real file path and title if they differ from the saved one
-    #This is meant to always track the current filename for the OS.
-    unless ( $file eq $filecheck ) {
-        $logger->debug("File name discrepancy detected between DB and filesystem!");
-        $logger->debug("Filesystem: $file");
-        $logger->debug("Database: $filecheck");
-        ( $name, $path, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
-        $redis->hset( $id, "file", $file );
-        $redis->hset( $id, "name", encode_utf8($name) );
-        $redis->wait_all_responses;
-    }
-
-    #Workaround if title was incorrectly parsed as blank
-    if ( !defined($title) || $title =~ /^\s*$/ ) {
-        $title = $name;
-    }
-
-    my $arcdata = {
-        arcid => $id,
-        title => $title,
-        tags  => $tags,
-        isnew => $isnew
-    };
-
-    #to_json automatically escapes JSON-critical characters.
-    return to_json($arcdata);
-
 }
 
 __PACKAGE__->initialize_from_new_process unless caller;

@@ -35,11 +35,11 @@
 
 <tr>
     <td class="option-td">
-        <input class='stdbtn' type='button' onclick="invalidateCache();" value='Reset JSON Cache' />
+        <input class='stdbtn' type='button' onclick="invalidateCache();" value='Reset Search Cache' />
     </td>
     <td>
-        The JSON Index Cache tracks all your archive files in order to make the app's archive index load faster. <br>
-        If something went wrong with it, you can reset it by clicking this button. <br> 
+        The last searches done in the archive index are cached for faster loads. <br>
+        If something went wrong with said cache, you can reset it by clicking this button. <br> 
         <br>
     </td>
 </tr>

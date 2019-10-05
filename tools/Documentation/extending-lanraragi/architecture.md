@@ -21,57 +21,73 @@ I also run [perltidy](https://en.wikipedia.org/wiki/PerlTidy) on the source tree
 
 ```text
 root/
-|- content <- Default content folder 
+|- .github       <- Github-specific files
+|  |- action-*      <- Github Actions, running as Docker containers
+|     |- critic        <- Run Perl Critic on the codebase
+|     |- run-tests     <- Run the LRR Test Suite
+|     +- wslbuild      <- Build the WSL Distro for the Windows 10 Package
+|  |- ISSUE_TEMPLATE<- Template for bug reports
+|  |- workflows     <- Github Actions workflows
+|     |- CD            <- Continuous Delivery, Nightly builds
+|     |- CI            <- Tests
+|     +- Release       <- Build latest and upload .zip to release post on GH
+|  +- FUNDING.yml   <- Github Sponsors file
 |
-|- lib <- Core application code
-|  |- LANraragi.pm <- Entrypoint for the app, contains basic startup code and routing to Controllers
-|  |- Shinobu.pm <- Background Worker (see below)
+|- content       <- Default content folder
+|
+|- lib           <- Core application code
+|  |- LANraragi.pm  <- Entrypoint for the app, contains basic startup code and routing to Controllers
+|  |- Shinobu.pm    <- Background Worker (see below)
 |  +- LANraragi
 |     |- Controller <- One Controller per page
-|        +- *.pm <- Index, Config, Reader, Api, etc.
-|     |- Model <- Application code that doesn't rely on Mojolicious
-|        |- Backup.pm <- Encodes/Decodes Backup JSONs
-|        |- Config.pm <- Communicates with the Redis DB to store/retrieve Configuration
+|        +- *.pm       <- Index, Config, Reader, Api, etc.
+|     |- Model      <- Application code that doesn't rely on Mojolicious
+|        |- Backup.pm  <- Encodes/Decodes Backup JSONs
+|        |- Config.pm  <- Communicates with the Redis DB to store/retrieve Configuration
 |        |- Plugins.pm <- Executes Plugins on archives
-|        |- Reader.pm <- Archive Extraction 
-|        +- Utils.pm <- Generic Functions 
-|     +- Plugin <- LRR Plugins are stored here
+|        |- Reader.pm  <- Archive Extraction
+|        |- Search.pm  <- Search Engine
+|        +- Stats.pm   <- Tag Cloud and Statistics
+|     +- Plugin     <- LRR Plugins are stored here
 |        +- *.pm
+|     +- Utils      <- Generic Functions
 |
-|- log <- Application Logs end up here
+|- log           <- Application Logs end up here
 |
-|- public <- Files available to Web Clients
-|  |- css <- Global CSS sheets
+|- public        <- Files available to Web Clients
+|  |- css           <- Global CSS sheets
 |     |- lrr.css
-|     +- vendor <- Third-party CSS sheets obtained through NPM
-|  |- img <- Image resources
-|  |- js <- JavaScript functions
+|     +- vendor        <- Third-party CSS sheets obtained through NPM
+|  |- img           <- Image resources
+|  |- js            <- JavaScript functions
 |     |- *.js
-|     +- vendor <- Third-party JS obtained through NPM
-|  |- temp <- Archives are extracted in this folder to be served to clients. Also used for thumbnail creation.
-|  +- themes <- Contains CSS sheets for Themes.
+|     +- vendor        <- Third-party JS obtained through NPM
+|  |- temp          <- Archives are extracted in this folder to be served to clients. Also used for thumbnail creation.
+|  +- themes        <- Contains CSS sheets for Themes.
 |
 |- script
-|  +- lanraragi <- Bootstrap script, starts LANraragi.pm
+|  |- backup        <- Standalone script for running database backups.
+|  |- launcher.pl   <- Launcher, uses either Morbo or Hypnotoad to run the bootstrap script
+|  +- lanraragi     <- Bootstrap script, starts LANraragi.pm
 |
-|- tests <- Tests go here
+|- tests         <- Tests go here
 |
-|- templates <- Templates for Web pages
-|  +- *.html.tt2 
+|- templates     <- Templates for Web pages
+|  +- *.html.tt2
 |
-|- tools <- Contains scripts for building and installing LRR.
+|- tools         <- Contains scripts for building and installing LRR.
 |  |- Documentation <- What you're reading right now
-|  |- DockerSetup <- Dockerfile and configuration files for LRR Docker Container
-|  |- VagrantSetup <- Vagrantfile for LRR Vagrant Machine
-|  |- cpanfile <- Perl dependencies description
-|  |- install.pl <- LANraragi Installer
+|  |- DockerSetup   <- Dockerfile and configuration files for LRR Docker Container
+|  |- Docker-multiarch <- Modified Dockerfile for Multi-Arch Container builds (see .github)
+|  |- VagrantSetup  <- Vagrantfile for LRR Vagrant Machine
+|  |- cpanfile      <- Perl dependencies description
+|  |- install.pl    <- LANraragi Installer
 |  |- lanraragi-systemd.service <- Example SystemD service
-|  +- logo.png <- Self-explanatory
+|  +- logo.png      <- Self-explanatory
 |
-|- lrr.conf <- Mojolicious configuration file
-|- .shinobu-nudge <- Triggers a JSON cache rebuild if modified during app lifetime
-|- .shinobu-pid <- Last known PID of the Background Worker
-+- package.json <- NPM file, contains front-end dependency listing and shortcuts
+|- lrr.conf      <- Mojolicious configuration file
+|- .shinobu-pid  <- Last known PID of the Background Worker
++- package.json  <- NPM file, contains front-end dependency listing and shortcuts
 ```
 
 ## Background Worker Architecture
@@ -108,7 +124,7 @@ The base architecture is as follows:
 |- **************************************** <- 40-character long ID for every logged archive
 |  |- tags <- Saved tags
 |  |- name <- Name of the archive file, kept for filesystem checks
-|  |- title <- Title of the archive, as set by the User 
+|  |- title <- Title of the archive, as set by the User
 |  |- file <- Filesystem path to archive
 |  |- isnew <- Whether the archive has been opened in LRR once or not
 |  +- thumbhash <- SHA-1 hash of the first image of the archive
@@ -119,13 +135,13 @@ The base architecture is as follows:
 |  |- blacklist  
 |  |- devmode  
 |  |- readorder  
-|  |- motd 
+|  |- motd
 |  |- pagesize  
 |  |- dirname  
-|  |- htmltitle 
+|  |- htmltitle
 |  |- apikey
 |  |- fav1/5 <- Favorite tags, if set by the user.
-|  +- enablepass <- Enable/Disable Password Authentication. 
+|  +- enablepass <- Enable/Disable Password Authentication.
 |
 +- LRR_JSONCACHE <- JSON Cache Storage
    |- refreshing <- If set to 1, Shinobu is currently rebuilding the cache.

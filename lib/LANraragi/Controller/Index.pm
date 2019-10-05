@@ -27,11 +27,10 @@ sub random_archive {
 
         $self->LRR_LOGGER->debug("Found key $archive");
 
-#We got a key, but does the matching archive still exist on the server? Better check it out.
-#This usecase only happens with the random selection : Regular index is based on the JSON cache.
-        if (   length($archive) == 40
-            && $redis->type($archive) eq "hash"
-            && $redis->hexists( $archive, "file" ) )
+        #We got a key, but does the matching archive still exist on the server?
+        if ( length($archive) == 40
+          && $redis->type($archive) eq "hash"
+          && $redis->hexists( $archive, "file" ) )
         {
             my $arclocation = $redis->hget( $archive, "file" );
             $arclocation =
@@ -53,13 +52,6 @@ sub index {
     my $redis = $self->LRR_CONF->get_redis();
 
     my $force = 0;
-
-    if ( $redis->hexists( "LRR_JSONCACHE", "refreshing" ) ) {
-
-        #If this flag is set, the DB cache is currently building
-        #flash a notification
-        $force = $redis->hget( "LRR_JSONCACHE", "refreshing" );
-    }
 
     #Checking if the user still has the default password enabled
     my $ppr = Authen::Passphrase->from_rfc2307( $self->LRR_CONF->get_password );
@@ -91,7 +83,6 @@ sub index {
         csshead         => LANraragi::Utils::Generic::generate_themes_header($self),
         favtags         => \@validFavs,
         usingdefpass    => $passcheck,
-        buildingDBcache => $force,
         debugmode       => $self->app->mode eq "development"
     );
 }

@@ -82,7 +82,7 @@ sub apply_routes {
     $logged_in_api->post('/api/use_plugin')->to('api#use_plugin');
     $logged_in_api->post('/api/autoplugin')->to('api#use_enabled_plugins');
     $logged_in_api->get('/api/clean_temp')->to('api#clean_tempfolder');
-    $logged_in_api->get('/api/discard_cache')->to('api#force_refresh');
+    $logged_in_api->get('/api/discard_cache')->to('api#clear_cache');
     $logged_in_api->get('/api/shinobu_status')->to('api#shinobu_status');
     $logged_in_api->get('/api/stop_shinobu')->to('api#stop_shinobu');
     $logged_in_api->get('/api/restart_shinobu')->to('api#restart_shinobu');

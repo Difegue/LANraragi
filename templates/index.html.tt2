@@ -159,18 +159,6 @@
 		});
 		[% END %]
 
-		[% IF buildingDBcache %]
-		//This notification flashes when the JSON cache for the archive DB is rebuilding - 
-		//usually due to a new archive or metadata being updated.
-		$.toast({
-			heading: 'The database cache is currently building',
-			text: 'All your archives might not appear in this list yet, but they will! Eventually. <br/>Try refreshing the page a bit later. You can also check the current state of the build through the <a href="logs">logs</a>.',
-			hideAfter: false,
-			position: 'top-left',
-			icon: 'warning'
-		});
-		[% END %]
-
 		if (localStorage.indexViewMode === 1)
 			$("#viewbtn").val("Switch to Thumbnail View");
 		else {

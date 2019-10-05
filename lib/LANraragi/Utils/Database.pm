@@ -64,20 +64,13 @@ sub delete_archive {
     my $filename = $redis->hget( $id, "file" );
 
     $redis->del($id);
-
     $redis->quit();
 
     if ( -e $filename ) {
         unlink $filename;
-
-        # JSON rebuild is handled by Shinobu here, no need for invalidation
         return $filename;
-    } else {
-        # If the file was already gone, do a manual JSON rebuild.  
-        # This supposedly shouldn't happen but better be safe
-        LANraragi::Utils::Database::invalidate_cache();
     }
-
+    
     return "0";
 }
 
@@ -240,7 +233,7 @@ sub redis_decode {
     return $data;
 }
 
-#Touch the Shinobu nudge file. This will invalidate the currently cached JSON.
+# Bust the current search cache in Cache::FastMmap.
 sub invalidate_cache {
     utime( undef, undef, cwd . "/.shinobu-nudge" )
       or warn "Couldn't touch .shinobu-nudge: $!";
