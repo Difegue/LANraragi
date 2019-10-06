@@ -199,7 +199,7 @@ tr.gtr1{background:#34495E}
     margin: 1px;
     outline: 0 none;
     padding: 0 4px 1px;
-    min-width: 150px;
+    min-width: 100px;
     cursor: pointer;
 }
 

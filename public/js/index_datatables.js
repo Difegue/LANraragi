@@ -60,7 +60,7 @@ function initIndex(pagesize) {
 	});
 
 	//add datatable search event to the local searchbox and clear search to the clear filter button
-	$('#srch').keyup(function () {
+	$('#subsrch').click(function () {
 		performSearch();
 	});
 

@@ -163,7 +163,7 @@ tr.gtr1 {
     height: 21px;
     margin: 4px 1px 0;
     padding: 0 4px 1px;
-    min-width: 150px;
+    min-width: 100px;
     cursor: pointer;
 }
 .stdbtn:hover {
