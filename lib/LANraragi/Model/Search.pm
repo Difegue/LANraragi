@@ -30,10 +30,11 @@ sub do_search {
     foreach my $id (@keys) {
         my $tags  = $redis->hget($id, "tags");
         my $title = $redis->hget($id, "title");
+        my $file  = $redis->hget($id, "file");
         $title = LANraragi::Utils::Database::redis_decode($title);
         $tags  = LANraragi::Utils::Database::redis_decode($tags);
 
-        if (matches_search_filter($filter, $title . " " . $tags)) {
+        if (-e $file && matches_search_filter($filter, $title . " " . $tags)) {
             # Push id to array
             push @filtered, { id => $id, title => $title, tags => $tags };
         }
@@ -157,44 +158,6 @@ sub matches_search_filter {
     return 1;
 }
 
-# build_archive_JSON(id)
-# Builds a JSON object for an archive already registered in the Redis database and returns it.
-# TODO: adapted from Shinobu code, remember to purge a bunch of code in Shinobu once this is finished
-sub build_archive_JSON {
-    my ( $id ) = @_;
 
-    my $redis   = LANraragi::Model::Config::get_redis;
-    my $dirname = LANraragi::Model::Config::get_userdir;
-
-    #Extra check in case we've been given a bogus ID
-    return "" unless $redis->exists($id);
-
-    my %hash = $redis->hgetall($id);
-    my ( $path, $suffix );
-
-    #It's not a new archive, but it might have never been clicked on yet,
-    #so we'll grab the value for $isnew stored in redis.
-    my ( $name, $title, $tags, $filecheck, $isnew ) =
-      @hash{qw(name title tags file isnew)};
-
-    #Parameters have been obtained, let's decode them.
-    ( $_ = LANraragi::Utils::Database::redis_decode($_) )
-      for ( $name, $title, $tags );
-
-    #Workaround if title was incorrectly parsed as blank
-    if ( !defined($title) || $title =~ /^\s*$/ ) {
-        $title = $name;
-    }
-
-    my $arcdata = {
-        arcid => $id,
-        title => $title,
-        tags  => $tags,
-        isnew => $isnew
-    };
-
-    $redis->quit;
-    return $arcdata;
-}
 
 1;

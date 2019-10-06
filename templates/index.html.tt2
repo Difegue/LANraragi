@@ -124,9 +124,7 @@
 					lads
 					<i class="fas fa-bomb"></i>
 				</h1>
-				<h2>The database cache is corrupt, and as such LANraragi is unable to display your archive list.
-					<br> You can try refreshing the cache manually by clicking
-					<a href="/api/discard_cache">here</a> to see if that fixes anything. </h2>
+				<h2>The database cache is corrupt, and as such LANraragi is unable to display your archive list.</h2>
 			</div>
 
 		</div>

@@ -11,46 +11,15 @@ use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database;
 use LANraragi::Utils::TempFolder;
 
+use LANraragi::Model::Api;
 use LANraragi::Model::Backup;
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
 use LANraragi::Model::Reader;
 use LANraragi::Model::Stats;
 
-sub serve_archivelist {
-
-    my $self  = shift;
-    my $redis = $self->LRR_CONF->get_redis();
-
-    if ( $redis->hexists( "LRR_JSONCACHE", "archive_list" ) ) {
-
-        #Get cached JSON from Redis
-        my $archivejson =
-          decode_utf8( $redis->hget( "LRR_JSONCACHE", "archive_list" ) );
-
-   #Decode the json back to an array so we can use the built-in mojo json render
-        $self->render( json => from_json($archivejson) );
-    }
-    else {
-        $self->render( json => () );
-    }
-}
-
-sub serve_untagged_archivelist {
-    my $self = shift;
-    my @idlist = LANraragi::Utils::Database::find_untagged_archives;
-    $self->render( json => \@idlist );
-}
-
-sub serve_tag_stats {
-    my $self = shift;
-    $self->render( json => from_json(LANraragi::Model::Stats::build_tag_json));
-}
-
-sub serve_backup {
-    my $self = shift;
-    $self->render( json => from_json(LANraragi::Model::Backup::build_backup_JSON));
-}
+# The API. Those methods are all glue to existing methods in the codebase.
+# Dedicated API-only stuff goes in Model::Api.
 
 # Handle missing ID parameter for a whole lot of api methods down below.
 sub check_id_parameter {
@@ -70,33 +39,76 @@ sub check_id_parameter {
     return $id;
 }
 
-sub extract_archive {
-    my $self = shift;
-    my $id = check_id_parameter($self, "extract") || return;
+# Renders the basic success API JSON template.
+sub success {
+    my ($mojo, $operation) = @_;
 
-    #Basically just API glue to the existing reader method.
-    my $readerjson;
-
-    eval {
-        $readerjson =
-          LANraragi::Model::Reader::build_reader_JSON( $self, $id, "0", "0" );
-    };
-    my $err = $@;
-
-    if ($err) {
-        $self->render(
+    $mojo->render(
             json => {
-                pages => (),
-                error => $err
+                operation => $operation,
+                success   => 1
             }
         );
-    }
-    else {
-        $self->render( json => decode_json($readerjson) );
-    }
 }
 
-#use RenderFile to get the file of the provided id to the client.
+sub serve_archivelist {
+    my $self  = shift;
+    my @idlist = LANraragi::Model::Api::generate_archive_list;
+    $self->render( json => \@idlist );
+}
+
+sub serve_untagged_archivelist {
+    my $self = shift;
+    my @idlist = LANraragi::Model::Api::find_untagged_archives;
+    $self->render( json => \@idlist );
+}
+
+sub serve_tag_stats {
+    my $self = shift;
+    $self->render( json => from_json(LANraragi::Model::Stats::build_tag_json));
+}
+
+sub serve_backup {
+    my $self = shift;
+    $self->render( json => from_json(LANraragi::Model::Backup::build_backup_JSON));
+}
+
+sub drop_database {
+    LANraragi::Utils::Database::drop_database();
+    success(shift, "drop_database");
+}
+
+sub clean_database {
+    my $num = LANraragi::Utils::Database::clean_database();
+
+    shift->render(
+        json => {
+            operation => "clean_database",
+            total     => $num,
+            success   => 1
+        }
+    );
+}
+
+sub clear_cache {
+    LANraragi::Utils::Database::invalidate_cache();
+    success(shift, "clear_cache");
+}
+
+#Uses a plugin on an archive with the standard global argument.
+sub use_plugin {
+    my $self = shift;
+    my $id   = check_id_parameter($self, "fetch_tags") || return;
+    LANraragi::Model::Api::use_plugin($self, $id);
+}
+
+sub serve_thumbnail {
+    my $self = shift;
+    my $id   = check_id_parameter($self, "thumbnail") || return;
+    LANraragi::Model::Api::serve_thumbnail($self, $id);
+}
+
+# Use RenderFile to get the file of the provided id to the client.
 sub serve_file {
 
     my $self  = shift;
@@ -107,9 +119,30 @@ sub serve_file {
     $self->render_file( filepath => $file );
 }
 
+sub extract_archive {
+    my $self = shift;
+    my $id   = check_id_parameter($self, "extract") || return;
+    my $readerjson;
+
+    eval {
+        $readerjson =
+          LANraragi::Model::Reader::build_reader_JSON( $self, $id, "0", "0" );
+    };
+    my $err = $@;
+
+    if ($err) {
+        $self->render( json => {
+                pages => (),
+                error => $err
+            });
+    }
+    else {
+        $self->render( json => decode_json($readerjson) );
+    }
+}
+
 #Remove temp dir.
 sub clean_tempfolder {
-
     my $self = shift;
 
     #Run a full clean, errors are dumped into $@ if they occur
@@ -123,31 +156,6 @@ sub clean_tempfolder {
             newsize   => LANraragi::Utils::TempFolder::get_tempsize
         }
     );
-}
-
-sub serve_thumbnail {
-    my $self = shift;
-
-    my $id = check_id_parameter($self, "thumbnail") || return;
-    my $dirname = $self->LRR_CONF->get_userdir;
-
-    #Thumbnails are stored in the content directory, thumb subfolder.
-    my $thumbname = $dirname . "/thumb/" . $id . ".jpg";
-
-    unless ( -e $thumbname ) {
-        $thumbname =
-          LANraragi::Utils::Archive::extract_thumbnail( $dirname, $id );
-    }
-
-    #Simply serve the thumbnail.
-    #If it doesn't exist, serve an error placeholder instead.
-    if ( -e $thumbname ) {
-        $self->render_file( filepath => $thumbname );
-    }
-    else {
-        $self->render_file( filepath => "./public/img/noThumb.png" );
-    }
-
 }
 
 sub clear_new {
@@ -184,26 +192,18 @@ sub clear_new_all {
         $redis->hset( $idall, "isnew", "false" );
     }
     
-    $self->render(
-        json => {
-            operation => "clear_new_all",
-            success   => 1
-        }
-    );
+    success($self, "clear_new_all");
 }
 
 #Use all enabled plugins on an archive ID. Tags are automatically saved in the background.
 #Returns number of successes and failures.
 sub use_enabled_plugins {
 
-    my $self = shift;
-
-    my $id    = $self->req->param('id');
+    my $self  = shift;
+    my $id    = check_id_parameter($self, "autoplugin") || return;
     my $redis = $self->LRR_CONF->get_redis();
 
-    if ( $redis->exists($id)
-        && LANraragi::Model::Config::enable_autotag )
-    {
+    if ( $redis->exists($id) && LANraragi::Model::Config::enable_autotag ) {
 
         my ( $succ, $fail, $addedtags ) =
           LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
@@ -213,89 +213,22 @@ sub use_enabled_plugins {
                 operation => "autoplugin",
                 id        => $id,
                 success   => 1,
-                message =>
-                  "$succ Plugins used successfully, $fail Plugins failed, $addedtags tags added."
+                message   => "$succ Plugins used successfully, $fail Plugins failed, $addedtags tags added."
             }
         );
-    }
-    else {
-
+    } else {
         $self->render(
             json => {
                 operation => "autoplugin",
                 id        => $id,
                 success   => 0,
-                message =>
-                  "ID not found in database or AutoPlugin disabled by admin."
+                message   => "ID not found in database or AutoPlugin disabled by admin."
             }
         );
     }
-}
-
-#Uses a plugin with the standard global argument.
-sub use_plugin {
-
-    my $self = shift;
-    my ( $id, $plugname, $oneshotarg, $redis ) = &get_plugin_params($self);
-
-    my $plugin = LANraragi::Utils::Plugins::get_plugin($plugname);
-    my @args   = ();
-
-    if ($plugin) {
-
-        #Get the matching globalargs in Redis
-        @args = LANraragi::Utils::Plugins::get_plugin_parameters($plugname);
-
-        #Execute the plugin, appending the custom args at the end
-        my %plugin_result;
-        eval {
-            %plugin_result = LANraragi::Model::Plugins::exec_plugin_on_file( $plugin, $id,
-            $oneshotarg, @args );
-        };
-
-        if ($@) {
-            $plugin_result{error} = $@;
-        }
-
-        #Returns the fetched tags in a JSON response.
-        $self->render(
-            json => {
-                operation => "fetch_tags",
-                success   => ( exists $plugin_result{error} ? 0 : 1 ),
-                message   => $plugin_result{error},
-                tags      => $plugin_result{new_tags},
-                title =>
-                  ( exists $plugin_result{title} ? $plugin_result{title} : "" )
-            }
-        );
-        return;
-    }
-
-    &print_plugin_not_found($self);
-
-}
-
-sub get_plugin_params {
-    my $self = shift;
-
-    return (
-        $self->req->param('id'),  $self->req->param('plugin'),
-        $self->req->param('arg'), $self->LRR_CONF->get_redis()
-    );
-}
-
-sub print_plugin_not_found {
-    shift->render(
-        json => {
-            operation => "fetch_tags",
-            success   => 0,
-            message   => "Plugin not found on system."
-        }
-    );
 }
 
 sub shinobu_status {
-
     my $self = shift;
     my $shinobu = $self->SHINOBU;
 
@@ -313,13 +246,7 @@ sub stop_shinobu {
 
     #commit sudoku
     $self->SHINOBU->kill();
-
-    $self->render(
-        json => {
-            operation => "shinobu_stop",
-            success   => 1
-        }
-    );
+    success($self, "shinobu_stop");
 }
 
 sub restart_shinobu {
@@ -337,46 +264,6 @@ sub restart_shinobu {
             operation => "shinobu_restart",
             success   => $self->SHINOBU->poll(),
             new_pid   => $self->SHINOBU->pid
-        }
-    );
-}
-
-sub drop_database {
-
-    my $self = shift;
-    LANraragi::Utils::Database::drop_database();
-
-    $self->render(
-        json => {
-            operation => "drop_database",
-            success   => 1
-        }
-    );
-}
-
-sub clean_database {
-
-    my $self = shift;
-    my $num = LANraragi::Utils::Database::clean_database();
-
-    $self->render(
-        json => {
-            operation => "clean_database",
-            total     => $num,
-            success   => 1
-        }
-    );
-}
-
-sub clear_cache {
-
-    my $self = shift;
-    LANraragi::Utils::Database::invalidate_cache();
-
-    $self->render(
-        json => {
-            operation => "clear_cache",
-            success   => 1
         }
     );
 }
