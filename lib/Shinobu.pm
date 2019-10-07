@@ -186,7 +186,7 @@ sub add_to_filemap {
                 $logger->debug("File name discrepancy detected between DB and filesystem!");
                 $logger->debug("Filesystem: $file");
                 $logger->debug("Database: $filecheck");
-                ( $name, $path, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
+                my ( $name, $path, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
                 $redis->hset( $id, "file", $file );
                 $redis->hset( $id, "name", encode_utf8($name) );
                 $redis->wait_all_responses;
