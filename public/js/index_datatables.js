@@ -63,7 +63,7 @@ function initIndex(pagesize) {
 	$('#subsrch').click(function () {
 		performSearch();
 	});
-	$('#subsrch').keyup(function (e) {
+	$('#srch').keyup(function (e) {
 		if(e.defaultPrevented) {
 			return;
 		} else if(e.key == "Enter") {
