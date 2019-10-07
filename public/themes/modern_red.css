@@ -215,7 +215,7 @@ tr.gtr1 {
     font-size: 9pt;
     height: 28px;
     margin: 1px;
-    min-width: 100px;
+    min-width: 150px;
     outline: 0 none;
     padding: 0 4px 1px;
 }
@@ -233,6 +233,9 @@ tr.gtr1 {
     max-width: 450px;
     padding: 2px 3px;
     width: 80%;
+}
+.searchbtn {
+    min-width: 100px !important;
 }
 td.itd {
     border-right: 2px dotted #414135;

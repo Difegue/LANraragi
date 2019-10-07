@@ -199,7 +199,7 @@ tr.gtr1{background:#34495E}
     margin: 1px;
     outline: 0 none;
     padding: 0 4px 1px;
-    min-width: 100px;
+    min-width: 150px;
     cursor: pointer;
 }
 
@@ -224,6 +224,10 @@ tr.gtr1{background:#34495E}
     padding: 2px 3px;
     max-width: 450px;
     width:80%;
+}
+
+.searchbtn {
+    min-width: 100px !important;
 }
 
 /* gallery row */

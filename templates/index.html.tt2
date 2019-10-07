@@ -82,8 +82,8 @@
 
 				<input type='text' id='srch' class='search stdinput' size='90' style='width:100%' 
 					placeholder='Search Title, Artist, Series, Language or Tags' />
-        <input id='subsrch' class='stdbtn' type='button' value='Apply Filter' />
-				<input id='clrsrch' class='stdbtn' type='button' value='Clear Filter' />
+        <input id='subsrch' class='searchbtn stdbtn' type='button' value='Apply Filter' />
+				<input id='clrsrch' class='searchbtn stdbtn' type='button' value='Clear Filter' />
 			</div>
 
 			<p id='cssbutton' style='display:inline'>

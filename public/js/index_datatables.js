@@ -63,6 +63,14 @@ function initIndex(pagesize) {
 	$('#subsrch').click(function () {
 		performSearch();
 	});
+	$('#subsrch').keyup(function (e) {
+		if(e.defaultPrevented) {
+			return;
+		} else if(e.key == "Enter") {
+			performSearch();
+		}
+		e.preventDefault();
+	});
 
 	$('#clrsrch').click(function () {
 		//clear all favtags

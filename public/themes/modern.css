@@ -173,7 +173,7 @@ tr.gtr1{background:#363940}
     margin: 1px;
     outline: 0 none;
     padding: 0 4px 1px;
-    min-width: 100px;
+    min-width: 150px;
     cursor: pointer;
 }
 .stdbtn:hover{background-color: #43464E}
@@ -189,6 +189,9 @@ tr.gtr1{background:#363940}
     max-width: 450px;
 
     width: 80%;
+}
+.searchbtn {
+    min-width: 100px !important;
 }
 
 /* gallery row */
