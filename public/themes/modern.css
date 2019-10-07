@@ -190,6 +190,9 @@ tr.gtr1{background:#363940}
 
     width: 80%;
 }
+.searchbtn {
+    min-width: 100px !important;
+}
 
 /* gallery row */
 td.itd{text-align:left;padding:3px 4px;border-right:1px solid #40454b}

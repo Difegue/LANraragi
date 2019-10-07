@@ -60,8 +60,16 @@ function initIndex(pagesize) {
 	});
 
 	//add datatable search event to the local searchbox and clear search to the clear filter button
-	$('#srch').keyup(function () {
+	$('#subsrch').click(function () {
 		performSearch();
+	});
+	$('#subsrch').keyup(function (e) {
+		if(e.defaultPrevented) {
+			return;
+		} else if(e.key == "Enter") {
+			performSearch();
+		}
+		e.preventDefault();
 	});
 
 	$('#clrsrch').click(function () {

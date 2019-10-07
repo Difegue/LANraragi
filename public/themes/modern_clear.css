@@ -226,6 +226,10 @@ tr.gtr1{background:#34495E}
     width:80%;
 }
 
+.searchbtn {
+    min-width: 100px !important;
+}
+
 /* gallery row */
 td.itd{text-align:left;padding:3px 4px;border-right:1px solid #566D75}
 td.itd a{text-decoration:none}
