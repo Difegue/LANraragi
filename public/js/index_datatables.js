@@ -13,8 +13,9 @@ function initIndex(pagesize) {
 
 	//datatables configuration
 	arcTable = $('.datatables').DataTable({
-		"serverSide": true,
-  		"ajax": "search",
+		'serverSide': true,
+		'processing': true,
+  		'ajax': "search",
 		'deferRender': true,
 		'lengthChange': false,
 		'pageLength': pagesize,
@@ -48,6 +49,7 @@ function initIndex(pagesize) {
 			},{
 				className: 'tags itd',
 				'data': 'tags',
+				'name': 'tags',
 				'orderable': false,
 				'render': tagsColumnDisplay
 			},{

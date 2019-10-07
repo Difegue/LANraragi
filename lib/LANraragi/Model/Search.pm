@@ -114,6 +114,7 @@ sub matches_search_filter {
         my $delimiter = ' ';
         if ($char eq '"') {
             $delimiter = '"';
+            $char = chop $b;
         }
 
         my $tag = "";
