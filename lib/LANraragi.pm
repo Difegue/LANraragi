@@ -101,16 +101,17 @@ sub startup {
 
         #Read PID from file
         open( my $pidfile, '<', ".shinobu-pid" )
-          || die( "cannot open file: " . $! );
-        my $pid = <$pidfile>;
+          || warn( "Can't open Shinobu Worker PID file: " . $! );
+        my $pid  = <$pidfile>;
+        chomp (my $procname = `ps -p $pid -o comm=`);
         close($pidfile);
 
         $self->LRR_LOGGER->info(
-            "Terminating previous Shinobu Worker if it exists... (PID is $pid)"
+            "Terminating previous Shinobu Worker if it exists... (PID is $pid, matching process is $procname)"
         );
 
         # Only kill the PID if it's a perl process
-        if (`ps -p $pid -o comm=` eq "perl") {
+        if ($procname eq "perl") {
             LANraragi::Utils::Generic::kill_pid($pid);
         }
         

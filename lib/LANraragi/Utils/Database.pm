@@ -274,7 +274,7 @@ sub redis_decode {
 sub invalidate_cache {
     my $redis = LANraragi::Model::Config::get_redis;
     $redis->del("LRR_JSONCACHE");
-    $redis->del("LRR_SEARCHCACHE") or warn "No search cache key.";
+    $redis->del("LRR_SEARCHCACHE");
 }
 
 1;
