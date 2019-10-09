@@ -6,13 +6,15 @@ use utf8;
 
 use List::Util qw(min);
 use Redis;
+use Encode;
+use Storable qw/ nfreeze thaw /;
 
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Database;
 
 use LANraragi::Model::Config;
 
-# do_search (filter, page, key, order)
+# do_search (filter, filter2, page, key, order)
 # Performs a search on the database.
 sub do_search {
 
@@ -22,66 +24,81 @@ sub do_search {
     my $logger =
         LANraragi::Utils::Generic::get_logger( "Search Engine", "lanraragi" );
 
+    # Search filter results
+    my @filtered;
     # Get all archives from redis
     my @keys = $redis->keys('????????????????????????????????????????');
-    my @filtered;
 
-    # Go through tags and apply search filter
-    foreach my $id (@keys) {
-        my $tags  = $redis->hget($id, "tags");
-        my $title = $redis->hget($id, "title");
-        my $file  = $redis->hget($id, "file");
-        $title = LANraragi::Utils::Database::redis_decode($title);
-        $tags  = LANraragi::Utils::Database::redis_decode($tags);
+    # Look in searchcache first
+    my $cachekey = encode_utf8("$columnfilter-$filter-$sortkey-$sortorder");
+    if ($redis->exists("LRR_SEARCHCACHE") && $redis->hexists("LRR_SEARCHCACHE", $cachekey)) {
 
-        # Check columnfilter and base search filter
-        if (-e $file 
-            && matches_search_filter($columnfilter, $title . " " . $tags)
-            && matches_search_filter($filter, $title . " " . $tags)) {
-            # Push id to array
-            push @filtered, { id => $id, title => $title, tags => $tags };
+        $logger->debug("Using cache for this query.");
+        @filtered = thaw $redis->hget("LRR_SEARCHCACHE", $cachekey);
+
+    } else {
+
+        $logger->debug("No cache available, doing a full DB parse.");
+
+        # Go through tags and apply search filter
+        foreach my $id (@keys) {
+            my $tags  = $redis->hget($id, "tags");
+            my $title = $redis->hget($id, "title");
+            my $file  = $redis->hget($id, "file");
+            $title = LANraragi::Utils::Database::redis_decode($title);
+            $tags  = LANraragi::Utils::Database::redis_decode($tags);
+
+            # Check columnfilter and base search filter
+            if (-e $file 
+                && matches_search_filter($columnfilter, $title . " " . $tags)
+                && matches_search_filter($filter, $title . " " . $tags)) {
+                # Push id to array
+                push @filtered, { id => $id, title => $title, tags => $tags };
+            }
         }
-    }
 
-    if ($#filtered > 0) {
+        if ($#filtered > 0) {
 
-        if (!$sortkey) {
-            $sortkey = "title";
-        }
-
-        # Sort by the required metadata, asc or desc
-        @filtered = sort { 
-  
-            #Use either tags or title depending on the sortkey
-            my $meta1 = $a->{title};
-            my $meta2 = $b->{title};
-
-            if ($sortkey ne "title") {
-                my $re = qr/$sortkey/;
-                if ($a->{tags} =~ m/.*${re}:(.*)(\,.*|$)/) {
-                    $meta1 = $1;
-                } else {
-                    $meta1 = "zzzz"; # Not a very good way to make items end at the bottom...
-                }
-                    
-                if ($b->{tags} =~ m/.*${re}:(.*)(\,.*|$)/)  {
-                    $meta2 = $1;
-                } else {
-                    $meta2 = "zzzz";
-                }
+            if (!$sortkey) {
+                $sortkey = "title";
             }
 
-            if ($sortorder) { 
-                lc($meta2) cmp lc($meta1)
-            } else {
-                lc($meta1) cmp lc($meta2)
-            }
+            # Sort by the required metadata, asc or desc
+            @filtered = sort { 
+    
+                #Use either tags or title depending on the sortkey
+                my $meta1 = $a->{title};
+                my $meta2 = $b->{title};
 
-        } @filtered;
+                if ($sortkey ne "title") {
+                    my $re = qr/$sortkey/;
+                    if ($a->{tags} =~ m/.*${re}:(.*)(\,.*|$)/) {
+                        $meta1 = $1;
+                    } else {
+                        $meta1 = "zzzz"; # Not a very good way to make items end at the bottom...
+                    }
+                        
+                    if ($b->{tags} =~ m/.*${re}:(.*)(\,.*|$)/)  {
+                        $meta2 = $1;
+                    } else {
+                        $meta2 = "zzzz";
+                    }
+                }
+
+                if ($sortorder) { 
+                    lc($meta2) cmp lc($meta1)
+                } else {
+                    lc($meta1) cmp lc($meta2)
+                }
+
+            } @filtered;
+        }
+
+        # Cache this query in Redis
+        $redis->hset("LRR_SEARCHCACHE", $cachekey, nfreeze \@filtered);
     }
 
     # Only get the first X keys
-    # TODO: cache @filtered
     my $keysperpage = LANraragi::Model::Config::get_pagesize;
 
     # Return total keys and the filtered ones

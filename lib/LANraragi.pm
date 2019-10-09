@@ -10,9 +10,10 @@ use Mojo::JSON qw(decode_json encode_json);
 
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Routing;
+use LANraragi::Utils::Plugins;
 
 use LANraragi::Model::Config;
-use LANraragi::Utils::Plugins;
+use LANraragi::Model::Search;
 
 # This method will run once at server start
 sub startup {
@@ -118,9 +119,12 @@ sub startup {
         "Shinobu Worker new PID is " . $self->SHINOBU->pid );
 
     LANraragi::Utils::Routing::apply_routes($self);
+    $self->LRR_LOGGER->info("Routing done! Ready to receive requests.");
 
-    $self->LRR_LOGGER->debug("Routing done! Ready to receive requests.");
-
+    # Warm search cache
+    $self->LRR_LOGGER->info("Warming up search cache...");
+    LANraragi::Model::Search::do_search("","",0,"title","asc");
+    $self->LRR_LOGGER->info("Done!");
 }
 
 1;
