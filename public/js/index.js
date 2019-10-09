@@ -188,11 +188,6 @@ function loadTagSuggestions() {
 				}
 			});
 
-			// Perform a search when a tag is selected
-			Awesomplete.$('#srch').addEventListener("awesomplete-selectcomplete", function() {
-				performSearch();
-			});
-
 		}).fail(function (data) {
 			$.toast({
 				showHideTransition: 'slide',

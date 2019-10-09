@@ -234,6 +234,9 @@ tr.gtr1 {
     padding: 2px 3px;
     width: 80%;
 }
+.searchbtn {
+    min-width: 100px !important;
+}
 td.itd {
     border-right: 2px dotted #414135;
     padding: 3px 4px;

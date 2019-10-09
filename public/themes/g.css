@@ -193,6 +193,9 @@ tr.gtr1 {
     background: none repeat scroll 0 0 #F2EFDF;
     color: #9B4E03;
 }
+.searchbtn {
+    min-width: 100px !important;
+}
 td.itd {
     border-right: 1px solid #D9D7CC;
     padding: 3px 4px;

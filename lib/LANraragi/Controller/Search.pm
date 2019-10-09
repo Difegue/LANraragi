@@ -2,6 +2,7 @@ package LANraragi::Controller::Search;
 use Mojo::Base 'Mojolicious::Controller';
 
 use LANraragi::Model::Search;
+use LANraragi::Utils::Database;
 
 # Undocumented API matching the Datatables spec.
 sub handle_datatables {
@@ -74,7 +75,7 @@ sub get_datatables_object {
     # Get archive data from keys 
     my @data = ();
     foreach my $key (@keys) {
-        push @data, LANraragi::Model::Search::build_archive_JSON($redis, $key->{id});
+        push @data, LANraragi::Utils::Database::build_archive_JSON($redis, $key->{id});
     }
 
     # Create json object matching the datatables structure

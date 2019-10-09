@@ -28,7 +28,7 @@ sub generate_archive_list {
 
         if (-e $redis->hget($id, "file")) {
             my $arcdata = LANraragi::Utils::Database::build_archive_JSON( $redis, $id );
-            push @list $arcdata;
+            push @list, $arcdata;
         }
     }
 
