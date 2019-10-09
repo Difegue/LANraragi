@@ -16,7 +16,7 @@ use LANraragi::Model::Config;
 # Performs a search on the database.
 sub do_search {
 
-    my ( $filter, $start, $sortkey, $sortorder) = @_;
+    my ( $filter, $columnfilter, $start, $sortkey, $sortorder) = @_;
 
     my $redis = LANraragi::Model::Config::get_redis;
     my $logger =
@@ -34,7 +34,10 @@ sub do_search {
         $title = LANraragi::Utils::Database::redis_decode($title);
         $tags  = LANraragi::Utils::Database::redis_decode($tags);
 
-        if (-e $file && matches_search_filter($filter, $title . " " . $tags)) {
+        # Check columnfilter and base search filter
+        if (-e $file 
+            && matches_search_filter($columnfilter, $title . " " . $tags)
+            && matches_search_filter($filter, $title . " " . $tags)) {
             # Push id to array
             push @filtered, { id => $id, title => $title, tags => $tags };
         }

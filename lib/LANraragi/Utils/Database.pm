@@ -270,10 +270,11 @@ sub redis_decode {
     return $data;
 }
 
-# Bust the current search cache in Cache::FastMmap.
+# Bust the current search cache key in Redis.
 sub invalidate_cache {
-    utime( undef, undef, cwd . "/.shinobu-nudge" )
-      or warn "Couldn't touch .shinobu-nudge: $!";
+    my $redis = LANraragi::Model::Config::get_redis;
+    $redis->del("LRR_JSONCACHE");
+    $redis->del("LRR_SEARCHCACHE") or warn "No search cache key.";
 }
 
 1;

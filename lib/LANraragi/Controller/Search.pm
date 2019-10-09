@@ -20,10 +20,21 @@ sub handle_datatables {
     my $sortorder = $req->param('order[0][dir]');
     my $sortkey   = $req->param("columns[$sortindex][name]");
 
+    # See if a column search on tags was made
+    my $i = 0;
+    my $columnfilter = "";
+    while ($req->param("columns[$i][name]") || $columnfilter ne "") {
+        if ($req->param("columns[$i][name]") eq "tags") {
+            $columnfilter = $req->param("columns[$i][search][value]");
+        } else {
+            $i++;
+        }
+    }
+
     if ($sortorder && $sortorder eq 'desc') { $sortorder = 1; }
         else { $sortorder = 0; }
 
-    my ($total, $filtered, @ids) = LANraragi::Model::Search::do_search($filter, $start, $sortkey, $sortorder);
+    my ($total, $filtered, @ids) = LANraragi::Model::Search::do_search($filter, $columnfilter, $start, $sortkey, $sortorder);
 
     $self->render(
         json => get_datatables_object($draw, $redis, $total, $filtered, @ids)
@@ -46,7 +57,7 @@ sub handle_api {
     if ($sortorder && $sortorder eq 'desc') { $sortorder = 1; }
         else { $sortorder = 0; }
 
-    my ($total, $filtered, @ids) = LANraragi::Model::Search::do_search($filter, $start, $sortkey, $sortorder);
+    my ($total, $filtered, @ids) = LANraragi::Model::Search::do_search($filter, "", $start, $sortkey, $sortorder);
 
     $self->render(
         json => get_datatables_object(0, $redis, $total, $filtered, @ids)
