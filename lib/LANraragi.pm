@@ -103,7 +103,7 @@ sub startup {
         open( my $pidfile, '<', ".shinobu-pid" )
           || warn( "Can't open Shinobu Worker PID file: " . $! );
         my $pid  = <$pidfile>;
-        chomp (my $procname = `ps -p $pid -o comm=`);
+        chomp (my $procname = `cat /proc/$pid/comm`);
         close($pidfile);
 
         $self->LRR_LOGGER->info(
