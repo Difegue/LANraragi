@@ -7,9 +7,8 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Test Docker Build
-      uses: actions/docker/cli@8cdf801b322af5f369e00d85e9cf3a7122f49108
-      with:
-        args: build -t difegue/lanraragi -f ./tools/DockerSetup/Dockerfile .
+      run: |
+        docker build -t difegue/lanraragi -f ./tools/DockerSetup/Dockerfile .
     - name: LANraragi Test Suite
       uses: ./.github/action-run-tests
     - name: Perl Critic
