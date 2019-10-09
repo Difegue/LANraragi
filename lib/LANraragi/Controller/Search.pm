@@ -24,12 +24,11 @@ sub handle_datatables {
     # See if a column search on tags was made
     my $i = 0;
     my $columnfilter = "";
-    while ($req->param("columns[$i][name]") || $columnfilter ne "") {
+    while ($req->param("columns[$i][name]")) {
         if ($req->param("columns[$i][name]") eq "tags") {
             $columnfilter = $req->param("columns[$i][search][value]");
-        } else {
-            $i++;
-        }
+        } 
+        $i++;
     }
 
     if ($sortorder && $sortorder eq 'desc') { $sortorder = 1; }

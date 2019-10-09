@@ -31,11 +31,12 @@ sub do_search {
 
     # Look in searchcache first
     my $cachekey = encode_utf8("$columnfilter-$filter-$sortkey-$sortorder");
+    $logger->debug("Search request: $cachekey");
+
     if ($redis->exists("LRR_SEARCHCACHE") && $redis->hexists("LRR_SEARCHCACHE", $cachekey)) {
 
         $logger->debug("Using cache for this query.");
-        @filtered = thaw $redis->hget("LRR_SEARCHCACHE", $cachekey);
-
+        @filtered = @{ thaw $redis->hget("LRR_SEARCHCACHE", $cachekey)};
     } else {
 
         $logger->debug("No cache available, doing a full DB parse.");
