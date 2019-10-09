@@ -132,7 +132,8 @@ sub tags_from_koromo_json {
         
     }
 
-    $return .= (", category:" . $type) unless !$type;
+    $return .= ", " unless $return eq "";
+    $return .= ("category:" . $type) unless !$type;
 
     #Done-o
     return $return;
