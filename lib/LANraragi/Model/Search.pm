@@ -96,7 +96,7 @@ sub do_search {
         }
 
         # Cache this query in Redis
-        $redis->hset("LRR_SEARCHCACHE", $cachekey, nfreeze \@filtered);
+        eval { $redis->hset("LRR_SEARCHCACHE", $cachekey, nfreeze \@filtered); };
     }
 
     # Only get the first X keys
