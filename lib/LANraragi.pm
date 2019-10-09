@@ -109,7 +109,11 @@ sub startup {
             "Terminating previous Shinobu Worker if it exists... (PID is $pid)"
         );
 
-        LANraragi::Utils::Generic::kill_pid($pid);
+        # Only kill the PID if it's a perl process
+        if (`ps -p $pid -o comm=` eq "perl") {
+            LANraragi::Utils::Generic::kill_pid($pid);
+        }
+        
     }
 
     my $proc = LANraragi::Utils::Generic::start_shinobu();
