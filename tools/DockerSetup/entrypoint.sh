@@ -30,6 +30,14 @@ chmod 744 /home/koyomi/lanraragi/content/thumb
 
 export HOME=/home/koyomi
 
+# https://redis.io/topics/faq#background-saving-fails-with-a-fork-error-under-linux-even-if-i-have-a-lot-of-free-ram
+OVERCOMMIT=$(cat /proc/sys/vm/overcommit_memory)
+if [ $OVERCOMMIT -eq 0 ]
+then
+    echo "WARNING: overcommit_memory is set to 0! This might lead to background saving errors if your database is too large."
+    echo "Please check https://redis.io/topics/faq#background-saving-fails-with-a-fork-error-under-linux-even-if-i-have-a-lot-of-free-ram for details."
+fi
+
 #Start supervisor with the Docker configuration
 #This also loads the redis config to write DB in content directory and disable daemonization
 if [ $USER_ID -eq 0 ] && [ $GROUP_ID -eq 0 ] 

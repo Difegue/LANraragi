@@ -190,13 +190,13 @@ sub add_to_filemap {
                 $redis->hset( $id, "file", $file );
                 $redis->hset( $id, "name", encode_utf8($name) );
                 $redis->wait_all_responses;
+                LANraragi::Utils::Database::invalidate_cache();
             }
         } else {
             # Add to Redis if not present beforehand
             add_new_file( $id, $file );
+            LANraragi::Utils::Database::invalidate_cache();
         }
-
-        LANraragi::Utils::Database::invalidate_cache();
     }
 }
 
