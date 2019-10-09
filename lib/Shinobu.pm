@@ -195,6 +195,8 @@ sub add_to_filemap {
             # Add to Redis if not present beforehand
             add_new_file( $id, $file );
         }
+
+        LANraragi::Utils::Database::invalidate_cache();
     }
 }
 
@@ -247,6 +249,8 @@ sub deleted_file_callback {
         #As it's a lookup by value it looks kinda ugly...
         delete( $filemap{$_} )
           foreach grep { $filemap{$_} eq $name } keys %filemap;
+        
+        LANraragi::Utils::Database::invalidate_cache();
     }
     else {
         build_filemap();
