@@ -275,6 +275,7 @@ sub invalidate_cache {
     my $redis = LANraragi::Model::Config::get_redis;
     $redis->del("LRR_JSONCACHE");
     $redis->del("LRR_SEARCHCACHE");
+    $redis->quit();
 }
 
 1;

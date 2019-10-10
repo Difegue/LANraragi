@@ -21,7 +21,9 @@ sub random_archive {
 
     my $redis = $self->LRR_CONF->get_redis();
 
-#We get a random archive ID. We check for the length to (sort-of) avoid not getting an archive ID.
+    # We get a random archive ID. 
+    # We check for the length to (sort-of) avoid not getting an archive ID.
+    # TODO: This will loop infinitely if there are zero archives in store.
     until ($archiveexists) {
         $archive = $redis->randomkey();
 
@@ -33,12 +35,11 @@ sub random_archive {
           && $redis->hexists( $archive, "file" ) )
         {
             my $arclocation = $redis->hget( $archive, "file" );
-            $arclocation =
-              LANraragi::Utils::Database::redis_decode($arclocation);
-
             if ( -e $arclocation ) { $archiveexists = 1; }
         }
     }
+
+    $redis->quit();
 
     #We redirect to the reader, with the key as parameter.
     $self->redirect_to( '/reader?id=' . $archive );
@@ -47,10 +48,8 @@ sub random_archive {
 # Go through the archives in the content directory and build the template at the end.
 sub index {
 
-    my $self = shift;
-
+    my $self  = shift;
     my $redis = $self->LRR_CONF->get_redis();
-
     my $force = 0;
 
     #Checking if the user still has the default password enabled
@@ -71,6 +70,8 @@ sub index {
             push @validFavs, $favTag;
         }
     }
+
+    $redis->quit();
 
     $self->render(
         template        => "index",

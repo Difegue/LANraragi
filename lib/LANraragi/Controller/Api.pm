@@ -116,6 +116,7 @@ sub serve_file {
     my $redis = $self->LRR_CONF->get_redis();
 
     my $file = $redis->hget( $id, "file" );
+    $redis->quit();
     $self->render_file( filepath => $file );
 }
 
@@ -169,6 +170,8 @@ sub clear_new {
         $redis->hset( $id, "isnew", "false" );
     }
 
+    $redis->quit();
+
     $self->render(
         json => {
             operation => "clear_new",
@@ -192,6 +195,7 @@ sub clear_new_all {
         $redis->hset( $idall, "isnew", "false" );
     }
     
+    $redis->quit();
     success($self, "clear_new_all");
 }
 
@@ -226,6 +230,7 @@ sub use_enabled_plugins {
             }
         );
     }
+    $redis->quit();
 }
 
 sub shinobu_status {

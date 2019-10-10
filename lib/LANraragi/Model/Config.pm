@@ -63,7 +63,7 @@ sub get_redis_conf {
             return $value;
         }
     }
-
+    $redis->quit();
     return $default;
 }
 

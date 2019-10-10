@@ -39,6 +39,7 @@ sub handle_datatables {
     $self->render(
         json => get_datatables_object($draw, $redis, $total, $filtered, @ids)
     );
+    $redis->quit();
 
 }
 
@@ -62,6 +63,7 @@ sub handle_api {
     $self->render(
         json => get_datatables_object(0, $redis, $total, $filtered, @ids)
     );
+    $redis->quit();
 
 }
 

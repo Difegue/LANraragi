@@ -98,6 +98,7 @@ sub do_search {
         # Cache this query in Redis
         eval { $redis->hset("LRR_SEARCHCACHE", $cachekey, nfreeze \@filtered); };
     }
+    $redis->quit();
 
     # Only get the first X keys
     my $keysperpage = LANraragi::Model::Config::get_pagesize;

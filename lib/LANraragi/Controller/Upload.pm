@@ -105,6 +105,7 @@ sub process_upload {
             }
             
         }
+        $redis->quit();
     }
     else {
 

@@ -48,7 +48,6 @@ sub index {
     }
 
     $redis->quit();
-
     $self->render(
         template => "plugins",
         title    => $self->LRR_CONF->get_htmltitle,
@@ -120,6 +119,7 @@ sub save_config {
         $errormess = $@;
     }
 
+    $redis->quit();
     $self->render(
         json => {
             operation => "plugins",

@@ -104,7 +104,6 @@ sub use_plugin {
     my ($self, $id) = @_;
     my $plugname    = $self->req->param('plugin');
     my $oneshotarg  = $self->req->param('arg');
-    my $redis       = $self->LRR_CONF->get_redis();
     
     my $plugin = LANraragi::Utils::Plugins::get_plugin($plugname);
     my @args   = ();

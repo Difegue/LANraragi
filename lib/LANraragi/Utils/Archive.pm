@@ -132,6 +132,7 @@ sub extract_thumbnail {
     #That way, no need to repeat the costly extraction later.
     my $shasum = LANraragi::Utils::Generic::shasum( $arcimg, 1 );
     $redis->hset( $id, "thumbhash", encode_utf8($shasum) );
+    $redis->quit();
 
     #Thumbnail generation
     generate_thumbnail( $arcimg, $thumbname );

@@ -74,6 +74,7 @@ sub build_tag_json {
 
         }
     }
+    $redis->quit();
 
     #Go through the tagCloud hash and build a JSON
     my $tagsjson = "[";
