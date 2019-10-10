@@ -71,7 +71,7 @@ sub get_tags {
     }
     else {
 
-        return ( error => "No eze info.json file found in this archive!" );
+        return ( error => "No koromo info.json file found in this archive!" );
     }
 
 }
