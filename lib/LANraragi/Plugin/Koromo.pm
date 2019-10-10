@@ -111,13 +111,6 @@ sub tags_from_koromo_json {
         
     }
 
-    foreach my $tag ( @$series ) {
-
-        $return .= ", " unless $return eq "";
-        $return .= "series:" . $tag;
-        
-    }
-
     foreach my $tag ( @$groups ) {
 
         $return .= ", " unless $return eq "";
