@@ -28,6 +28,9 @@ chmod +rw /home/koyomi/lanraragi/content/database.rdb
 chown -R koyomi /home/koyomi/lanraragi/content/thumb 
 chmod 744 /home/koyomi/lanraragi/content/thumb
 
+#Remove hypnotoad pid file
+rm /home/koyomi/lanraragi/script/hypnotoad.pid
+
 export HOME=/home/koyomi
 
 # https://redis.io/topics/faq#background-saving-fails-with-a-fork-error-under-linux-even-if-i-have-a-lot-of-free-ram
