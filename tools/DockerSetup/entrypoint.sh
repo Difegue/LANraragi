@@ -28,8 +28,9 @@ chmod +rw /home/koyomi/lanraragi/content/database.rdb
 chown -R koyomi /home/koyomi/lanraragi/content/thumb 
 chmod 744 /home/koyomi/lanraragi/content/thumb
 
-#Remove hypnotoad pid file
+#Remove hypnotoad and shinobu pid files
 rm /home/koyomi/lanraragi/script/hypnotoad.pid
+rm /home/koyomi/lanraragi/.shinobu-pid
 
 export HOME=/home/koyomi
 

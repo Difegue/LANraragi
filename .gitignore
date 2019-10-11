@@ -1,7 +1,6 @@
 node_modules
 content
 .shinobu-pid
-.shinobu-nudge
 npm-debug.log
 dump.rdb
 package-lock.json
