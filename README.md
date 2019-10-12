@@ -13,11 +13,10 @@
 
 Web interface and reader for archival of comics/manga, running on Mojolicious + Redis.
 
-## User survey results are in!
+## Hacktoberfest Underway!
 
-Thanks to everyone who filled in the survey!  
-
-You can read the results [here](https://tvc-16.science/lrr-survey.html).
+Make a PR and get a sticker set to show off your manga archiver allegiance.  
+Details [here](https://tvc-16.science/hacktoberfest-lrr.html)!
 
 ## Features  
 
