@@ -96,6 +96,7 @@ sub apply_routes {
     $logged_in->get('/logs/shinobu')->to('logging#print_shinobu');
     $logged_in->get('/logs/plugins')->to('logging#print_plugins');
     $logged_in->get('/logs/mojo')->to('logging#print_mojo');
+    $logged_in->get('/logs/redis')->to('logging#print_redis');
 
     $r->get('/logout')->to('login#logout');
 
