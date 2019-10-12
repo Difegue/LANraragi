@@ -1,8 +1,7 @@
 # These are supported funding model platforms
 
-#github: difegue
+github: difegue
 patreon: # Replace with a single Patreon username
 open_collective: # Replace with a single Open Collective username
 ko_fi: lanraragi
 tidelift: # Replace with a single Tidelift platform-name/package-name e.g., npm/babel
-custom: https://github.com/users/Difegue/sponsorship
