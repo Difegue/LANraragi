@@ -4,7 +4,7 @@ use utf8;
 
 use Mojo::Base 'Mojolicious';
 
-use Test::More tests => 2;
+use Test::More tests => 14;
 use Test::Mojo;
 use Test::MockObject;
 use Mojo::JSON qw (decode_json);
@@ -13,16 +13,23 @@ use LANraragi::Model::Config;
 use LANraragi::Model::Search;
 
 # DataModel for searches
+# Switch devmode to 1 for debug output in test
 my %datamodel = %{decode_json qq(
     {
     "LRR_CONFIG": {
-        "pagesize": "100"
-
+        "pagesize": "100",
+        "devmode": "0"
     },
     "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf": {
         "isnew": "none",
         "tags": "character:segata sanshiro",
         "title": "Saturn Backup Cartridge - Japanese Manual",
+        "file": "README.md"
+    },
+    "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg": {
+        "isnew": "none",
+        "tags": "character:segata",
+        "title": "Saturn Backup Cartridge - American Manual",
         "file": "README.md"
     },
     "e4c422fd10943dc169e3489a38cdbf57101a5f7e": {
@@ -75,10 +82,66 @@ $redis->fake_module(
 is( $redis->hget("28697b96f0ac5858be2614ed10ca47742c9522fd","title"), "Fate GO MEMO", 'Redis mock test' );
 
 # Search queries
-my ($total, $filtered, @ids) = LANraragi::Model::Search::do_search("Saturn", "", 0, 0, 0);
-is(%{@ids[0]}{title}, "Saturn Backup Cartridge - Japanese Manual", "Search for 'Saturn'");
+my $search = qq(Ghost in the Shell);
+my ($total, $filtered, @ids); 
 
+sub do_test_search {
+    ($total, $filtered, @ids) = LANraragi::Model::Search::do_search($search, "", 0, 0, 0);
+}
 
+do_test_search();
+is(%{$ids[0]}{title}, "Ghost in the Shell 1.5 - Human-Error Processor vol01ch01", qq(Basic search ($search)));
 
+$search = qq("Fate GO MEMO");
+do_test_search();
+is($filtered, 2, qq(Non-exact quoted search ($search)));
+
+$search = qq("Fate GO MEMO ?");
+do_test_search();
+is($filtered, 1, qq(Wildcard search ($search)));
+
+$search = qq("Fate GO MEMO _");
+do_test_search();
+is($filtered, 1, qq(Wildcard search ($search)));
+
+$search = qq("Saturn*Cartridge*Japanese");
+do_test_search();
+is(%{$ids[0]}{title}, "Saturn Backup Cartridge - Japanese Manual", qq(Multiple wildcard search ($search)));
+
+$search = qq("Saturn\%American");
+do_test_search();
+is(%{$ids[0]}{title}, "Saturn Backup Cartridge - American Manual", qq(Multiple wildcard search ($search)));
+
+$search = qq("artist:wada rco" character:ereshkigal);
+do_test_search();
+ok( $filtered eq 1 && %{$ids[0]}{title} eq "Fate GO MEMO 2", 
+    qq(Tag inclusion search ($search)));
+
+$search = qq("artist:wada rco" -character:ereshkigal);
+do_test_search();
+ok( $filtered eq 1 && %{$ids[0]}{title} eq "Fate GO MEMO", 
+    qq(Tag exclusion search ($search)));
+
+$search = qq("artist:wada rco" -"character:waver velvet");
+do_test_search();
+ok( $filtered eq 1 && %{$ids[0]}{title} eq "Fate GO MEMO", 
+    qq(Tag exclusion with quotes ($search)));
+
+$search = qq("artist:wada rco" "-character:waver velvet");
+do_test_search();
+is($filtered, 0, qq(Incorrect tag exclusion ($search)));
+
+$search = qq(character:segata\$);
+do_test_search();
+ok( $filtered eq 1 && %{$ids[0]}{title} eq "Saturn Backup Cartridge - American Manual", 
+    qq(Exact search without quotes ($search)));
+
+$search = qq("Fate GO MEMO"\$);
+do_test_search();
+is($filtered, 1, qq(Exact search with quotes ($search)));
+
+$search = qq("Saturn Backup Cartridge - *"\$);
+do_test_search();
+is($filtered, 2, qq(Exact search with quotes and wildcard ($search)));
 
 done_testing();

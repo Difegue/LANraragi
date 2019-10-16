@@ -38,7 +38,6 @@ sub do_search {
         $logger->debug("Using cache for this query.");
         @filtered = @{ thaw $redis->hget("LRR_SEARCHCACHE", $cachekey)};
     } else {
-
         $logger->debug("No cache available, doing a full DB parse.");
 
         # Go through tags and apply search filter
@@ -50,9 +49,9 @@ sub do_search {
             $tags  = LANraragi::Utils::Database::redis_decode($tags);
 
             # Check columnfilter and base search filter
-            if (-e $file 
-                && matches_search_filter($columnfilter, $title . " " . $tags)
-                && matches_search_filter($filter, $title . " " . $tags)) {
+            if ($file && -e $file 
+                && matches_search_filter($columnfilter, $title . "," . $tags)
+                && matches_search_filter($filter, $title . "," . $tags)) {
                 # Push id to array
                 push @filtered, { id => $id, title => $title, tags => $tags };
             }
@@ -148,11 +147,20 @@ sub matches_search_filter {
         }; 
 
         #If last char is $, enable isexact
-        $char = chop $tag;
-        if ($char eq "\$") {
-            $isexact = 1;
+        if ($delimiter eq '"') {
+            $char = chop $b;
+            if ($char eq "\$") {
+                $isexact = 1;
+            } else {
+                $b = $b . $char;
+            }
         } else {
-            $tag = $tag . $char;
+            $char = chop $tag;
+            if ($char eq "\$") {
+                $isexact = 1;
+            } else {
+                $tag = $tag . $char;
+            }
         }
 
         # Replace placeholders with regex-friendly variants,
@@ -167,12 +175,13 @@ sub matches_search_filter {
         # Got the tag, check if it's present
         my $tagpresent = 0;
         if ($isexact) { # The tag must necessarily be complete if isexact = 1
-            $tagpresent = $tags =~ m/(.* |^)$tag(\,.*|$)/i; # Check for space before and comma after the tag, or start/end of string to account for the first/last tag.
+            $tagpresent = $tags =~ m/(.*\,\s*|^)$tag(\,.*|$)/i; # Check for comma + potential space before and comma after the tag, or start/end of string to account for the first/last tag.
         } else {
             $tagpresent = $tags =~ m/.*$tag.*/i;
         }
 
-        #present true & isneg true => false, present false & isneg false => false
+        #present=true & isneg=true => false
+        #present=false & isneg=false => false
         return 0 if ($tagpresent == $isneg); 
 
     };
