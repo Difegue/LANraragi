@@ -2,6 +2,8 @@
 
 echo "🎌 Running LRR Test Suite 🎌"
 
+cpanm Test::MockObject
+
 # Start a redis server instance
 /usr/bin/redis-server --daemonize yes
 
