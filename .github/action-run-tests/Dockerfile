@@ -12,7 +12,7 @@ LABEL "com.github.actions.color"="purple"
 
 USER root
 
-RUN apk add perl-utils
+RUN apk add perl-utils perl-dev wget
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
