@@ -45,27 +45,25 @@ function toggleInbox(button) {
 function performSearch() {
 
 	favTags = $(".favtag");
-	searchQuery = "("
+	searchQuery = "";
 
 	for (var i = 0; i < favTags.length; i++) {
 		tagCheckbox = favTags[i];
 		if (tagCheckbox.checked)
-			searchQuery += tagCheckbox.id + "|";
+			searchQuery += tagCheckbox.id + " ";
 	}
 
-	//chop last | character
-	searchQuery = searchQuery.slice(0, -1);
-	searchQuery += ")";
-
-	//Perform search in datatables field with our own regexes enabled and smart search off
-	if (searchQuery !== ")") {
-		arcTable.column('.tags.itd').search(searchQuery, true, false);
-		arcTable.search($('#srch').val().replace(",", ""), false, true);
+	// Add the favtag query to the tags column so it's picked up by the search engine 
+	// This allows for the regular search bar to be used in conjunction with favtags.
+	if (searchQuery !== "") {
+		arcTable.column('.tags.itd').search(searchQuery);
+		arcTable.search($('#srch').val().replace(",", ""));
 		arcTable.draw();
 	} else {
 		// no fav filters
-		arcTable.column('.tags.itd').search("", false, true);
-		arcTable.search($('#srch').val().replace(",", ""), false, true).draw();
+		arcTable.column('.tags.itd').search("");
+		arcTable.search($('#srch').val().replace(",", ""));
+		arcTable.draw();
 	}
 
 }

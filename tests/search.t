@@ -4,7 +4,7 @@ use utf8;
 
 use Mojo::Base 'Mojolicious';
 
-use Test::More tests => 14;
+use Test::More tests => 15;
 use Test::Mojo;
 use Test::MockObject;
 use Mojo::JSON qw (decode_json);
@@ -143,5 +143,9 @@ is($filtered, 1, qq(Exact search with quotes ($search)));
 $search = qq("Saturn Backup Cartridge - *"\$);
 do_test_search();
 is($filtered, 2, qq(Exact search with quotes and wildcard ($search)));
+
+$search = qq("character:segata");
+($total, $filtered, @ids) = LANraragi::Model::Search::do_search($search, qq("American"), 0, 0, 0);
+is($filtered, 1, qq(Search with favorite tag applied ($search) + ("American")));
 
 done_testing();
