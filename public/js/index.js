@@ -50,7 +50,7 @@ function performSearch() {
 	for (var i = 0; i < favTags.length; i++) {
 		tagCheckbox = favTags[i];
 		if (tagCheckbox.checked)
-			favTagQuery += tagCheckbox.id + "\" ";
+			favTagQuery += tagCheckbox.id + "\" \"";
 	}
 
 	// Add the favtag query to the tags column so it's picked up by the search engine 

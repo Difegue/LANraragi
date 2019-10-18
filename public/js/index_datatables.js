@@ -24,6 +24,7 @@ function initIndex(pagesize) {
 		'language': {
 			'info': 'Showing _START_ to _END_ of _TOTAL_ ancient chinese lithographies.',
 			'infoEmpty': '<h1>No archives to show you ! Try <a href="upload">uploading some</a> ?</h1><br/>',
+			'processing': '<div id="progress" class="indeterminate""><div class="bar-container"><div class="bar" style=" width: 80%; "></div></div></div>'
 		},
 		'preDrawCallback': thumbViewInit, //callbacks for thumbnail view
 		'rowCallback': buildThumbDiv,

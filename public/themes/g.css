@@ -313,11 +313,15 @@ border:2px outset #5C0D11 !important;
     
 }
 
-
 /* File upload bar */
 .bar {
     height: 18px;
     background: #5C0D11;
+}
+
+.indeterminate {
+    width:99%;
+    max-width:1175px;
 }
 
 /* Toasts */

@@ -184,6 +184,11 @@ border:2px solid #000000 !important;
     background: #34353b;
 }
 
+.indeterminate {
+    width:99%;
+    max-width:1175px;
+}
+
 /* Toasts */
 .jq-toast-single { 
     font-family: arial,helvetica,sans-serif !important; 
