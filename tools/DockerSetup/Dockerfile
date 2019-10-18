@@ -39,8 +39,14 @@ COPY --chown=koyomi:koyomi /package.json package.json
 # Make scripts executable + Run the install script as root
 RUN chmod +x ./tools/DockerSetup/install-everything.sh ./tools/DockerSetup/entrypoint.sh && sh ./tools/DockerSetup/install-everything.sh
 
-#Copy remaining LRR files from context 
-COPY --chown=koyomi:koyomi / /home/koyomi/lanraragi
+#Copy remaining LRR files from context  
+COPY --chown=koyomi:koyomi /lib lib
+COPY --chown=koyomi:koyomi /public public
+COPY --chown=koyomi:koyomi /script script
+COPY --chown=koyomi:koyomi /templates templates
+COPY --chown=koyomi:koyomi /tests tests
+COPY --chown=koyomi:koyomi /lrr.conf lrr.conf
+COPY --chown=koyomi:koyomi /COPYING COPYING
 
 # Persistent volumes
 VOLUME [ "/home/koyomi/lanraragi/content" ]
