@@ -14,11 +14,11 @@ use LANraragi::Utils::Database;
 
 use LANraragi::Model::Config;
 
-# do_search (filter, filter2, page, key, order)
+# do_search (filter, filter2, page, key, order, newonly)
 # Performs a search on the database.
 sub do_search {
 
-    my ( $filter, $columnfilter, $start, $sortkey, $sortorder) = @_;
+    my ( $filter, $columnfilter, $start, $sortkey, $sortorder, $newonly) = @_;
 
     my $redis = LANraragi::Model::Config::get_redis;
     my $logger =
@@ -30,7 +30,7 @@ sub do_search {
     my @keys = $redis->keys('????????????????????????????????????????');
 
     # Look in searchcache first
-    my $cachekey = encode_utf8("$columnfilter-$filter-$sortkey-$sortorder");
+    my $cachekey = encode_utf8("$columnfilter-$filter-$sortkey-$sortorder-$newonly");
     $logger->debug("Search request: $cachekey");
 
     if ($redis->exists("LRR_SEARCHCACHE") && $redis->hexists("LRR_SEARCHCACHE", $cachekey)) {
@@ -45,8 +45,14 @@ sub do_search {
             my $tags  = $redis->hget($id, "tags");
             my $title = $redis->hget($id, "title");
             my $file  = $redis->hget($id, "file");
+            my $isnew = $redis->hget($id, "isnew");
             $title = LANraragi::Utils::Database::redis_decode($title);
             $tags  = LANraragi::Utils::Database::redis_decode($tags);
+
+            # Check new filter first
+            if ($newonly && $isnew && $isnew ne "true" && $isnew ne "block") {
+                next;
+            }
 
             # Check columnfilter and base search filter
             if ($file && -e $file 

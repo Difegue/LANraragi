@@ -128,7 +128,7 @@ sub startup {
 
     # Warm search cache
     $self->LRR_LOGGER->info("Warming up search cache...");
-    LANraragi::Model::Search::do_search("","",0,"title","asc");
+    LANraragi::Model::Search::do_search("","",0,"title","asc", 0);
     $self->LRR_LOGGER->info("Done!");
 }
 

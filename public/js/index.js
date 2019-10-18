@@ -45,27 +45,35 @@ function toggleInbox(button) {
 function performSearch() {
 
 	favTags = $(".favtag");
-	searchQuery = "";
+	favTagQuery = "\"";
 
 	for (var i = 0; i < favTags.length; i++) {
 		tagCheckbox = favTags[i];
 		if (tagCheckbox.checked)
-			searchQuery += tagCheckbox.id + " ";
+			favTagQuery += tagCheckbox.id + "\" ";
 	}
 
 	// Add the favtag query to the tags column so it's picked up by the search engine 
 	// This allows for the regular search bar to be used in conjunction with favtags.
-	if (searchQuery !== "") {
-		arcTable.column('.tags.itd').search(searchQuery);
-		arcTable.search($('#srch').val().replace(",", ""));
-		arcTable.draw();
+	if (favTagQuery !== "\" ") {
+		arcTable.column('.tags.itd').search(favTagQuery);
 	} else {
 		// no fav filters
 		arcTable.column('.tags.itd').search("");
-		arcTable.search($('#srch').val().replace(",", ""));
-		arcTable.draw();
 	}
 
+	// Add the isnew filter if asked
+	input = $("#inboxbtn");
+
+	if (input.prop("checked")) {
+		arcTable.column('.isnew').search("true");
+	} else {
+		// no fav filters
+		arcTable.column('.isnew').search("");
+	}
+
+	arcTable.search($('#srch').val().replace(",", ""));
+	arcTable.draw();
 }
 
 //Switch view on index and saves the value in the user's localStorage. The DataTables callbacks adapt automatically.

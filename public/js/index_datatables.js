@@ -55,7 +55,8 @@ function initIndex(pagesize) {
 			},{
 				className: 'isnew itd',
 				visible: false,
-				'data': 'isnew'
+				'data': 'isnew',
+				'name': 'isnew'
 			}],
 	});
 
@@ -88,23 +89,6 @@ function initIndex(pagesize) {
 
 	//nuke style of table - datatables seems to assign its table a fixed width for some reason.
 	$('.datatables').attr("style", "")
-
-	/* Custom filtering function which will only show new archives if the inbox button is toggled. */
-	$.fn.dataTable.ext.search.push(
-		function (settings, data, dataIndex) {
-
-			input = $("#inboxbtn");
-
-			if (!input.prop("checked"))
-				return true;
-
-			// Use hidden isnew column
-			if (data[4] === "block" || data[4] === "true") {
-				return true;
-			}
-			return false;
-		}
-	);
 
 	//Init Thumbnail Mode if enabled - we do it twice in order to initialize it at the value the user has stored.
 	//(Yeah it's shitty but it works so w/e)

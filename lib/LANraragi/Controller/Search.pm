@@ -21,12 +21,20 @@ sub handle_datatables {
     my $sortorder = $req->param('order[0][dir]');
     my $sortkey   = $req->param("columns[$sortindex][name]");
 
-    # See if a column search on tags was made
+    # See if specific column searches were made
     my $i = 0;
     my $columnfilter = "";
+    my $newfilter    = 0;
     while ($req->param("columns[$i][name]")) {
+
+        # Favtags (tags column)
         if ($req->param("columns[$i][name]") eq "tags") {
             $columnfilter = $req->param("columns[$i][search][value]");
+        } 
+        
+        # New filter (isnew column)
+        if ($req->param("columns[$i][name]") eq "isnew") {
+            $newfilter = $req->param("columns[$i][search][value]") eq "true";
         } 
         $i++;
     }
@@ -34,7 +42,8 @@ sub handle_datatables {
     if ($sortorder && $sortorder eq 'desc') { $sortorder = 1; }
         else { $sortorder = 0; }
 
-    my ($total, $filtered, @ids) = LANraragi::Model::Search::do_search($filter, $columnfilter, $start, $sortkey, $sortorder);
+    my ($total, $filtered, @ids) = 
+        LANraragi::Model::Search::do_search($filter, $columnfilter, $start, $sortkey, $sortorder, $newfilter);
 
     $self->render(
         json => get_datatables_object($draw, $redis, $total, $filtered, @ids)
@@ -54,11 +63,12 @@ sub handle_api {
     my $start     = $req->param('start');
     my $sortkey   = $req->param('sortby');
     my $sortorder = $req->param('order');
+    my $newfilter = $req->param('newonly');
 
     if ($sortorder && $sortorder eq 'desc') { $sortorder = 1; }
         else { $sortorder = 0; }
 
-    my ($total, $filtered, @ids) = LANraragi::Model::Search::do_search($filter, "", $start, $sortkey, $sortorder);
+    my ($total, $filtered, @ids) = LANraragi::Model::Search::do_search($filter, "", $start, $sortkey, $sortorder, $newfilter eq "true");
 
     $self->render(
         json => get_datatables_object(0, $redis, $total, $filtered, @ids)

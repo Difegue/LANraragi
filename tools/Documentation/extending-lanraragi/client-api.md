@@ -130,6 +130,11 @@ Namespace by which you want to sort the results, or _title_ if you want to sort 
 {% api-method-parameter name="order" type="string" required=false %}
 Order of the sort, either `asc` or `desc`.
 {% endapi-method-parameter %}
+
+{% api-method-parameter name="newonly" type="boolean" required=false %}
+Set to `true` to only show new archives.
+{% endapi-method-parameter %}
+
 {% endapi-method-path-parameters %}
 {% endapi-method-request %}
 

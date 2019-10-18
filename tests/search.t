@@ -4,7 +4,7 @@ use utf8;
 
 use Mojo::Base 'Mojolicious';
 
-use Test::More tests => 15;
+use Test::More tests => 16;
 use Test::Mojo;
 use Test::MockObject;
 use Mojo::JSON qw (decode_json);
@@ -33,7 +33,7 @@ my %datamodel = %{decode_json qq(
         "file": "README.md"
     },
     "e4c422fd10943dc169e3489a38cdbf57101a5f7e": {
-        "isnew": "none",
+        "isnew": "true",
         "tags": "parody: jojo's bizarre adventure",
         "title": "Rohan Kishibe goes to Gucci",
         "file": "README.md"
@@ -86,7 +86,7 @@ my $search = qq(Ghost in the Shell);
 my ($total, $filtered, @ids); 
 
 sub do_test_search {
-    ($total, $filtered, @ids) = LANraragi::Model::Search::do_search($search, "", 0, 0, 0);
+    ($total, $filtered, @ids) = LANraragi::Model::Search::do_search($search, "", 0, 0, 0, 0);
 }
 
 do_test_search();
@@ -145,7 +145,11 @@ do_test_search();
 is($filtered, 2, qq(Exact search with quotes and wildcard ($search)));
 
 $search = qq("character:segata");
-($total, $filtered, @ids) = LANraragi::Model::Search::do_search($search, qq("American"), 0, 0, 0);
+($total, $filtered, @ids) = LANraragi::Model::Search::do_search($search, qq("American"), 0, 0, 0, 0);
 is($filtered, 1, qq(Search with favorite tag applied ($search) + ("American")));
+
+($total, $filtered, @ids) = LANraragi::Model::Search::do_search("", "", 0, 0, 0, 1);
+ok( $filtered eq 1 && %{$ids[0]}{title} eq "Rohan Kishibe goes to Gucci", 
+    qq(Search with new filter applied));
 
 done_testing();
