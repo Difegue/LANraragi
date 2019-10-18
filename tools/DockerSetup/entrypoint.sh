@@ -11,6 +11,7 @@ usermod -u $USER_ID koyomi
 groupmod -g $GROUP_ID koyomi
 
 #Ensure LRR folder is writable
+mkdir /home/koyomi/lanraragi/log
 chown koyomi /home/koyomi/lanraragi
 chmod 744 /home/koyomi/lanraragi
 
