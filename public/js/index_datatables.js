@@ -104,12 +104,13 @@ function createNamespaceColumn(namespace, type, data) {
 		if (data === "")
 			return "";
 
-		if(namespace == "series") namespace = "(?:series|parody)";
-		regex = new RegExp(".*"+namespace+":\\s?([^,]*),*.*","gi"); // Catch last namespace:xxx value in tags
+    var namespaceRegEx = namespace;
+		if(namespace == "series") namespaceRegEx = "(?:series|parody)";
+		regex = new RegExp(".*"+namespaceRegEx+":\\s?([^,]*),*.*","gi"); // Catch last namespace:xxx value in tags
 		match = regex.exec(data);
 
 		if (match != null) {
-			return '<a style="cursor:pointer" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">' +
+			return '<a style="cursor:pointer" arc-namespace="' + namespace + '" onclick="$(\'#srch\').val($(this).attr(\'arc-namespace\') + \':\' + $(this).html()); arcTable.search($(this).attr(\'arc-namespace\') + \':\' + $(this).html()).draw();">' +
 				match[1].replace(/\b./g, function (m) { return m.toUpperCase(); }) +
 				'</a>';
 		} else return "";
@@ -290,7 +291,7 @@ function buildTagsDiv(tags) {
 		line += "<tr><td style='font-size:10pt; padding: 3px 2px 7px; vertical-align:top'>" + ucKey + ":</td><td>";
 
 		tagsByNamespace[key].forEach(function (tag) {
-			line += '<div class="gt" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">' + tag + '</div>';
+			line += '<div class="gt" arc-namespace="' + key + '" onclick="$(\'#srch\').val($(this).attr(\'arc-namespace\') + \':\' + $(this).html()); arcTable.search($(this).attr(\'arc-namespace\') + \':\' + $(this).html()).draw();">' + tag + '</div>';
 		});
 
 		line += "</td></tr>";
