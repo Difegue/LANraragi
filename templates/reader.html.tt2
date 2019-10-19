@@ -88,7 +88,8 @@
 		id = "[%id%]";
 
 		filename = "[% filename %]";
-		if (filename.endsWith(".rar") || filename.endsWith(".cbr"))
+		if ((filename.endsWith(".rar") || filename.endsWith(".cbr")) && !localStorage.rarWarningShown) {
+			localStorage.rarWarningShown = true;
 			$.toast({
 					showHideTransition: 'slide',
 					position: 'top-left', 
@@ -98,6 +99,8 @@
 				    hideAfter: false,
 				    icon: 'warning'
 				});
+		}
+			
 
 		//Go straight to page number in localStorage if it exists
 		if (localStorage.nobookmark === 'true')

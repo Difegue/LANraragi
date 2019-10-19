@@ -11,7 +11,6 @@ usermod -u $USER_ID koyomi
 groupmod -g $GROUP_ID koyomi
 
 #Ensure LRR folder is writable
-mkdir /home/koyomi/lanraragi/log
 chown koyomi /home/koyomi/lanraragi
 chmod 744 /home/koyomi/lanraragi
 
@@ -28,6 +27,11 @@ chmod +rw /home/koyomi/lanraragi/content/database.rdb
 #Ensure thumbnail folder is writable
 chown -R koyomi /home/koyomi/lanraragi/content/thumb 
 chmod 744 /home/koyomi/lanraragi/content/thumb
+
+#Ensure log folder is writable
+mkdir /home/koyomi/lanraragi/log
+chown -R koyomi /home/koyomi/lanraragi/log
+chmod 744 /home/koyomi/lanraragi/log
 
 #Remove hypnotoad and shinobu pid files
 rm /home/koyomi/lanraragi/script/hypnotoad.pid
