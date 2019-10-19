@@ -261,9 +261,16 @@ a:hover > .page-number {
     overflow: auto;
     list-style: none outside none;
     text-align: left;
-    margin-left: -20px;
+    margin-left: -30px;
     margin-right: 5px;
     font-size: 9pt;
+}
+
+.checklist > li {
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .isnew {
