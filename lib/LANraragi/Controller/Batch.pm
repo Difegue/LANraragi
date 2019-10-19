@@ -33,7 +33,7 @@ sub index {
         if (-e $zipfile) {
             $arclist .=
                 "<li><input type='checkbox' name='archive' id='$id' class='archive' >"
-                . "<label for='$id'> $title</label></li>";
+                . "<label for='$id'> <a href='./edit?id=$id' style='text-decoration: none;'>$title</a></label></li>";
         }
     }
 
