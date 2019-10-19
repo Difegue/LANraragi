@@ -104,12 +104,13 @@ function createNamespaceColumn(namespace, type, data) {
 		if (data === "")
 			return "";
 
-		if(namespace == "series") namespace = "(?:series|parody)";
-		regex = new RegExp(".*"+namespace+":\\s?([^,]*),*.*","gi"); // Catch last namespace:xxx value in tags
+    var namespaceRegEx = namespace;
+		if(namespace == "series") namespaceRegEx = "(?:series|parody)";
+		regex = new RegExp(".*"+namespaceRegEx+":\\s?([^,]*),*.*","gi"); // Catch last namespace:xxx value in tags
 		match = regex.exec(data);
 
 		if (match != null) {
-			return '<a style="cursor:pointer" arc-namespace="' + key + '" onclick="$(\'#srch\').val($(this).attr(\'arc-namespace\') + \':\' + $(this).html()); arcTable.search($(this).attr(\'arc-namespace\') + \':\' + $(this).html()).draw();">' +
+			return '<a style="cursor:pointer" arc-namespace="' + namespace + '" onclick="$(\'#srch\').val($(this).attr(\'arc-namespace\') + \':\' + $(this).html()); arcTable.search($(this).attr(\'arc-namespace\') + \':\' + $(this).html()).draw();">' +
 				match[1].replace(/\b./g, function (m) { return m.toUpperCase(); }) +
 				'</a>';
 		} else return "";
