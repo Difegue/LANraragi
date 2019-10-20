@@ -22,7 +22,7 @@ BEGIN {
 }    #As this is a new process, reloading the LRR libs into INC is needed.
 
 use Mojolicious;
-use Linux::Inotify2;
+use File::ChangeNotify;
 use File::Find;
 use File::Basename;
 use Encode;
@@ -42,22 +42,18 @@ my %filemap;
 my $logger = LANraragi::Utils::Generic::get_logger( "Shinobu", "shinobu" );
 my $redis = LANraragi::Model::Config::get_redis;
 
-# Almightly inotify interface
-my $inotify = new Linux::Inotify2
-  or die "unable to create inotify object: $!";
-
 #Subroutine for new and deleted files that takes inotify events
 my $inotifysub = sub {
     my $e    = shift;
-    my $name = $e->fullname;
-    my $mask = $e->mask;
-    $logger->debug("Received inotify event $mask on $name");
+    my $name = $e->path;
+    my $type = $e->type;
+    $logger->debug("Received inotify event $type on $name");
 
-    if ( $e->IN_MOVED_TO || $e->IN_CREATE ) {
+    if ( $type eq "create" || $type eq "modify" ) {
         new_file_callback( $name );
     }
 
-    if ( $e->IN_DELETE ) {
+    if ( $type eq "delete" ) {
         deleted_file_callback($name);
     }
 
@@ -71,37 +67,39 @@ sub initialize_from_new_process {
     $logger->info( "Working dir is " . cwd );
 
     build_filemap();
-    $logger->info("Adding inotify watches to content folder $userdir");
+    $logger->info("Adding watcher to content folder $userdir");
 
-    # add watches to content directory
-    $inotify->watch( $userdir, (IN_MOVED_TO | IN_DELETE | IN_CREATE), $inotifysub );
+    # Add watcher to content directory
+    my $contentwatcher =
+    File::ChangeNotify->instantiate_watcher
+        ( directories     => [ $userdir ],
+          filter          => qr/\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr)$/,
+          follow_symlinks => 1,
+          exclude         => [ 'thumb', '.' ], #excluded subdirs
+        );
 
-    # add watches to all subdirectories
-    find(
-        {
-            wanted => sub {
-                return unless -d $_;    #Directories only
-                return
-                  if $_ eq "thumb"
-                  || $_ eq ".";         #excluded subdirs
-                $logger->debug("Adding inotify watches to subdirectory $_");
-                $inotify->watch( $File::Find::name, (IN_MOVED_TO | IN_DELETE | IN_CREATE),
-                    $inotifysub );
-            },
-            follow_fast => 1
-        },
-        $userdir
-    );
-
-    # Check the current temp folder size and clean it if necessary
-    $inotify->watch( LANraragi::Utils::TempFolder::get_temp,
-                    (IN_MOVED_TO | IN_DELETE | IN_CREATE), 
-                    sub { LANraragi::Utils::TempFolder::clean_temp_partial; } );
+    # Add watcher to tempfolder
+    my $tempwatcher =
+    File::ChangeNotify->instantiate_watcher
+        ( directories => [ LANraragi::Utils::TempFolder::get_temp ] );
 
     # manual event loop
     $logger->info("All done! Now dutifully watching your files. ");
-    $inotify->poll while 1;
 
+    while (1) {
+
+        # Check events on files
+        for my $event ( $contentwatcher->new_events ) {
+            $inotifysub->($event);
+        }
+
+        # Check the current temp folder size and clean it if necessary
+        for my $event ( $tempwatcher->new_events ) {
+            LANraragi::Utils::TempFolder::clean_temp_partial;
+        }
+
+        sleep 2;
+    }
 }
 
 #Build the filemap hash from scratch. This acts as a masterlist of what's in the content directory.
@@ -200,8 +198,8 @@ sub add_to_filemap {
     }
 }
 
-#When a new subdirectory is added, we add all its files.
-#And if there are subdirectories in there we gotta add a watch
+# Only handle new files. As per the ChangeNotify doc, it
+# "handles the addition of new subdirectories by adding them to the watch list"
 sub new_file_callback {
     my $name = shift;
 
@@ -212,18 +210,11 @@ sub new_file_callback {
 
         $logger->info("Subdirectory $name was added to the content folder!");
 
-        #Add watches to this subdirectory first
-        $inotify->watch( $name, (IN_MOVED_TO | IN_DELETE | IN_CREATE), $inotifysub );
-
-        #Just do a big find call to add watches in potential subdirs
+        #Just do a big find call to add potential files
         find(
             {
                 wanted => sub {
                     if ( -d $_ ) {
-                        $logger->debug(
-                            "Adding inotify watches to subdirectory $_");
-                        $inotify->watch( $File::Find::name,
-                            (IN_MOVED_TO | IN_DELETE | IN_CREATE), $inotifysub );
                         return;
                     }
 
