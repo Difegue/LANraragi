@@ -96,7 +96,7 @@ $search = qq("Fate GO MEMO");
 do_test_search();
 is($filtered, 2, qq(Non-exact quoted search ($search)));
 
-$search = qq("Fate GO MEMO?");
+$search = qq("Fate GO MEMO ?");
 do_test_search();
 is($filtered, 1, qq(Wildcard search ($search)));
 
