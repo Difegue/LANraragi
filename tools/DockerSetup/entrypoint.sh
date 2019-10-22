@@ -35,7 +35,7 @@ chmod 744 /home/koyomi/lanraragi/log
 
 #Ensure temp folder is writable
 mkdir /home/koyomi/lanraragi/public/temp
-chown -R /home/koyomi/lanraragi/public/temp
+chown -R koyomi /home/koyomi/lanraragi/public/temp
 chmod 744 /home/koyomi/lanraragi/public/temp
 
 #Remove hypnotoad and shinobu pid files
