@@ -76,7 +76,7 @@ sub get_motd {
     return encode(
         'utf-8',
         &get_redis_conf(
-            "motd", "Welcome to this Library running LANraragi !"
+            "motd", "Welcome to this Library running LANraragi!"
         )
     );
 }
