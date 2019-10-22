@@ -1,0 +1,4 @@
+#!/usr/bin/bash
+
+trap "kill 0" SIGINT
+redis-server & npm start
