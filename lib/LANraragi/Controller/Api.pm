@@ -132,10 +132,11 @@ sub extract_archive {
     my $err = $@;
 
     if ($err) {
-        $self->render( json => {
-                pages => (),
+        $self->render( 
+            json => {
                 error => $err
-            });
+            },
+            status => 500);
     }
     else {
         $self->render( json => decode_json($readerjson) );
