@@ -4,8 +4,7 @@ requires 'local::lib', 2.000024;
 
 requires 'Redis', 1.991;
 requires 'Encode', 2.98;
-requires 'File::ChangeNotify', 3.01;
-requires 'Linux::Inotify2', 2.1;
+requires 'File::ChangeNotify', 0.31;
 requires 'Archive::Extract::Libarchive', 0.38;
 requires 'Archive::Peek::Libarchive', 0.38;
 requires 'Image::Scale', 0.14;

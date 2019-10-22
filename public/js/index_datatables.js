@@ -23,7 +23,7 @@ function initIndex(pagesize) {
 		'dom': '<"top"ip>rt<"bottom"p><"clear">',
 		'language': {
 			'info': 'Showing _START_ to _END_ of _TOTAL_ ancient chinese lithographies.',
-			'infoEmpty': '<h1>No archives to show you ! Try <a href="upload">uploading some</a> ?</h1><br/>',
+			'infoEmpty': '<h1>No archives to show you! Try <a href="upload">uploading some</a>?</h1><br/>',
 			'processing': '<div id="progress" class="indeterminate""><div class="bar-container"><div class="bar" style=" width: 80%; "></div></div></div>'
 		},
 		'preDrawCallback': thumbViewInit, //callbacks for thumbnail view
@@ -168,7 +168,7 @@ function thumbViewInit(settings) {
 function buildThumbDiv(row, data, index) {
 
 	if (localStorage.indexViewMode == 1) {
-		//Build a thumb-like div with the data 
+		//Build a thumb-like div with the data
 		thumb_div = '<div style="height:335px" class="id1" id="'+data.arcid+'">' +
 			'<div class="id2">' +
 				buildProgressDiv(data.arcid, data.isnew) +
@@ -194,14 +194,14 @@ function buildProgressDiv(id, isnew) {
 
 	if (isnew === "block" || isnew === "true") {
 		return '<div class="isnew">🆕</div>';
-	} 
+	}
 
 	if (localStorage.getItem(id + "-totalPages") !== null && localStorage.nobookmark !== 'true') {
 		// Progress recorded, display an indicator
 		currentPage = Number(localStorage.getItem(id + "-reader")) + 1;
 		totalPages = Number(localStorage.getItem(id + "-totalPages"));
 
-		if (currentPage === totalPages) 
+		if (currentPage === totalPages)
 			return "<div class='isnew'>👑</div>";
 		else
 			return "<div class='isnew'><sup>"+currentPage+"/"+totalPages+"</sup></div>";
@@ -312,7 +312,7 @@ function colorCodeTags(tags) {
 		tagsByNamespace[key].forEach(function (tag) {
 			line+="<span class='"+key.toLowerCase()+"-tag'>"+tag+"</span>, ";
 		});
-	});	
+	});
 	// Remove last comma
 	return line.slice(0, -2);
 }

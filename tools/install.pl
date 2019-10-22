@@ -5,6 +5,7 @@ use warnings;
 use utf8;
 use open ':std', ':encoding(UTF-8)';
 use Cwd;
+use Config;
 
 use feature qw(say);
 use File::Path qw(make_path);
@@ -123,7 +124,15 @@ if ( $back || $full ) {
     );
     say("\r\nInstalling Perl modules... This might take a while.\r\n");
 
-    if ( system("cpanm --installdeps ./tools/. --notest") != 0 ) {
+    # libarchive is not provided by default on macOS, so we set the correct env vars
+    # to successfully compile Archive::Extract::Libarchive and Archive::Peek::Libarchive
+    my $pre = "";
+    if ($Config{"osname"} eq "darwin") {
+        say("Setting Environmental Flags for macOS");
+        $pre = "export CFLAGS=\"-I/usr/local/opt/libarchive/include\" && \\
+          export PKG_CONFIG_PATH=\"/usr/local/opt/libarchive/lib/pkgconfig\" && ";
+    }
+    if ( system($pre . "cpanm --installdeps ./tools/. --notest") != 0 ) {
         die "Something went wrong while installing Perl modules - Bailing out.";
     }
 }
