@@ -7,7 +7,7 @@ use utf8;
 use FindBin;
 use File::stat;
 use File::Find;
-use File::Path qw(remove_tree);
+use File::Path qw(make_path remove_tree);
 
 use LANraragi::Utils::Generic;
 
@@ -16,8 +16,12 @@ use LANraragi::Utils::Generic;
 #Get the current tempfolder.
 #This can be called from any process safely as it uses FindBin.
 sub get_temp {
-    mkdir "$FindBin::Bin/../public/temp";
-    return "$FindBin::Bin/../public/temp";
+    my $temp_folder = "$FindBin::Bin/../public/temp";
+    if ($ENV{BREWMODE}) {
+        $temp_folder = $ENV{HOME} . "/Library/Application Support/LANraragi/temp";
+    }
+    make_path($temp_folder);
+    return $temp_folder;
 }
 
 #Get the current size of the tempfolder, in Megabytes.

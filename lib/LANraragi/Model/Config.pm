@@ -12,6 +12,7 @@ use Encode;
 
 use Mojolicious::Plugin::Config;
 use Mojo::Home;
+use File::Path qw(make_path);
 
 # Find the project root directory to load the conf file
 my $home = Mojo::Home->new;
@@ -82,12 +83,16 @@ sub get_motd {
 }
 
 sub get_userdir {
+    my $default_dir = "./content"
+    if ($ENV{BREWMODE}) {
+        $default_dir = $ENV{HOME} . "/Library/Application Support/LANraragi/content"
+    }
+
+    my $dir = &get_redis_conf( "dirname", $default_dir );
 
     #Try to create userdir if it doesn't already exist
-    my $dir = &get_redis_conf( "dirname", "./content" );
-
     unless ( -e $dir ) {
-        mkdir $dir;
+        make_path($dir);
     }
 
     #Return full path if it's relative, using the /lanraragi directory as a base

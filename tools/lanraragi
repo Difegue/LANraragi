@@ -1,4 +1,5 @@
 #!/bin/bash
 
 trap "kill 0" SIGINT
+export BREWMODE=1
 redis-server & npm start --prefix $(dirname $0)/$(dirname $(readlink $0))/..
