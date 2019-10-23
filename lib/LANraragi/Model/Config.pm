@@ -33,9 +33,9 @@ sub get_style { return $config->{default_theme} }
 #Create a redis object with the parameters defined at the start of this file and return it
 sub get_redis {
 
-    my $dir = "./"
+    my $dir = "./";
     if ($ENV{BREWMODE}) {
-      $dir = $ENV{HOME} . "/Library/Application Support/LANraragi/"
+      $dir = $ENV{HOME} . "/Library/Application Support/LANraragi/";
     }
 
     #Default redis server location is localhost:6379.
