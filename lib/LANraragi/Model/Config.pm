@@ -33,18 +33,16 @@ sub get_style { return $config->{default_theme} }
 #Create a redis object with the parameters defined at the start of this file and return it
 sub get_redis {
 
-    my $dir = "./";
-    if ($ENV{BREWMODE}) {
-      $dir = $ENV{HOME} . "/Library/Application Support/LANraragi/";
-    }
-
     #Default redis server location is localhost:6379.
     #Auto-reconnect on, one attempt every 2ms up to 3 seconds. Die after that.
     my $redis = Redis->new(
         server    => &get_redisad,
-        reconnect => 3,
-        dir       => $dir
+        reconnect => 3
     );
+
+    if ($ENV{BREWMODE}) {
+        $redis->config_set("dir", $ENV{HOME} . "/Library/Application Support/LANraragi/");
+    }
 
     #Database switch if it's not 0
     if ( &get_redisdb != 0 ) { $redis->select(&get_redisdb); }
