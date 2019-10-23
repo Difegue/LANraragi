@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 trap "kill 0" SIGINT
-redis-server & npm start
+redis-server & npm start --prefix $(dirname $0)/$(dirname $(readlink $0))/..
