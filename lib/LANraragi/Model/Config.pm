@@ -83,9 +83,9 @@ sub get_motd {
 }
 
 sub get_userdir {
-    my $default_dir = "./content"
+    my $default_dir = "./content";
     if ($ENV{BREWMODE}) {
-        $default_dir = $ENV{HOME} . "/Library/Application Support/LANraragi/content"
+        $default_dir = $ENV{HOME} . "/Library/Application Support/LANraragi/content";
     }
 
     my $dir = &get_redis_conf( "dirname", $default_dir );
