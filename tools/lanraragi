@@ -2,4 +2,5 @@
 
 trap "kill 0" SIGINT
 export BREWMODE=1
-redis-server & npm start --prefix $(dirname $0)/$(dirname $(readlink $0))/..
+workdir=$(dirname $0)/$(dirname $(readlink $0))/..
+redis-server & npm start --prefix "${workdir}"
