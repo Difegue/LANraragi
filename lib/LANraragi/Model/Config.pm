@@ -12,7 +12,6 @@ use Encode;
 
 use Mojolicious::Plugin::Config;
 use Mojo::Home;
-use File::Path qw(make_path);
 
 # Find the project root directory to load the conf file
 my $home = Mojo::Home->new;
@@ -34,11 +33,17 @@ sub get_style { return $config->{default_theme} }
 #Create a redis object with the parameters defined at the start of this file and return it
 sub get_redis {
 
+    my $dir = "./"
+    if ($ENV{BREWMODE}) {
+      $dir = $ENV{HOME} . "/Library/Application Support/LANraragi/"
+    }
+
     #Default redis server location is localhost:6379.
     #Auto-reconnect on, one attempt every 2ms up to 3 seconds. Die after that.
     my $redis = Redis->new(
         server    => &get_redisad,
-        reconnect => 3
+        reconnect => 3,
+        dir       => $dir
     );
 
     #Database switch if it's not 0
@@ -92,7 +97,7 @@ sub get_userdir {
 
     #Try to create userdir if it doesn't already exist
     unless ( -e $dir ) {
-        make_path($dir);
+        mkdir $dir;
     }
 
     #Return full path if it's relative, using the /lanraragi directory as a base
