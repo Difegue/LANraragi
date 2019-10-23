@@ -42,6 +42,7 @@ sub start_shinobu {
 
     my $proc = Proc::Simple->new(); 
     $proc->start($^X, "./lib/Shinobu.pm");
+    $proc->kill_on_destroy(1);
 
     #Create file to store the process' PID
     open( my $pidfile, '>', ".shinobu-pid" )
