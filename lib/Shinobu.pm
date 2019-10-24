@@ -66,6 +66,10 @@ sub initialize_from_new_process {
     $logger->info("Shinobu Background Worker started.");
     $logger->info( "Working dir is " . cwd );
 
+    if( File::ChangeNotify->usable_classes) {
+        $logger->debug("Inotify or KQueue available, using for file watching. ");
+    }
+    
     build_filemap();
     $logger->info("Adding watcher to content folder $userdir");
 
@@ -206,30 +210,10 @@ sub new_file_callback {
     unless ( -d $name ) {
         add_to_filemap($name);
     }
-    else {    #Oh bother
-
-        $logger->info("Subdirectory $name was added to the content folder!");
-
-        #Just do a big find call to add potential files
-        find(
-            {
-                wanted => sub {
-                    if ( -d $_ ) {
-                        return;
-                    }
-
-                    #Just call add_to_filemap on files
-                    add_to_filemap($File::Find::name);
-                },
-                follow_fast => 1
-            },
-            $name
-        );
-    }
 }
 
 #Deleted files are simply dropped from the filemap.
-#Deleted subdirectories just trigger a filemap rebuild (most hopeless case)
+#Deleted subdirectories trigger deleted events for every file deleted.
 sub deleted_file_callback {
     my $name = shift;
     $logger->info("$name was deleted from the content folder!");
@@ -242,9 +226,6 @@ sub deleted_file_callback {
           foreach grep { $filemap{$_} eq $name } keys %filemap;
         
         LANraragi::Utils::Database::invalidate_cache();
-    }
-    else {
-        build_filemap();
     }
 }
 
