@@ -16,8 +16,8 @@ getopt
   'h|help'       => \my $help,
   'v|verbose'    => \$ENV{MORBO_VERBOSE};
 
-if ($ENV{LANDIR}) {
-    make_path($ENV{LANDIR});
+if ($ENV{LANDATADIR}) {
+    make_path($ENV{LANDATADIR});
 }
 
 die extract_usage if $help || !(my $app = shift || $ENV{HYPNOTOAD_APP});

@@ -40,8 +40,8 @@ sub get_redis {
         reconnect => 3
     );
 
-    if ($ENV{LANDIR}) {
-        $redis->config_set("dir", $ENV{LANDIR});
+    if ($ENV{LANDATADIR}) {
+        $redis->config_set("dir", $ENV{LANDATADIR});
     }
 
     #Database switch if it's not 0
@@ -87,9 +87,9 @@ sub get_motd {
 
 sub get_userdir {
     my $default_dir = "./content";
-    # save user generated files to $LANDIR
-    if ($ENV{LANDIR}) {
-        $default_dir = $ENV{LANDIR} . "/content";
+    # save user generated files to LANDATADIR
+    if ($ENV{LANDATADIR}) {
+        $default_dir = $ENV{LANDATADIR} . "/content";
     }
 
     my $dir = &get_redis_conf( "dirname", $default_dir );

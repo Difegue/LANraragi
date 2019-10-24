@@ -17,9 +17,9 @@ use LANraragi::Utils::Generic;
 #This can be called from any process safely as it uses FindBin.
 sub get_temp {
     my $temp_folder = "$FindBin::Bin/../public/temp";
-    # save user generated files to $LANDIR
-    if ($ENV{LANDIR}) {
-        $temp_folder = $ENV{LANDIR} . "/temp";
+    # save user generated files to LANDATADIR
+    if ($ENV{LANDATADIR}) {
+        $temp_folder = $ENV{LANDATADIR} . "/temp";
     }
     mkdir $temp_folder;
     return $temp_folder;

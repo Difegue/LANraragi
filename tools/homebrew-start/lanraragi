@@ -1,6 +1,6 @@
 #!/bin/bash
 
 trap "kill 0" SIGINT
-export LANDIR="<landir>"
+export LANDATADIR="<LANDATADIR>"
 workdir=$(dirname $0)/$(dirname $(readlink $0))/..
 redis-server "${workdir}/redis.conf" & npm start --prefix "${workdir}"
