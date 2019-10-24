@@ -40,8 +40,8 @@ sub get_redis {
         reconnect => 3
     );
 
-    if ($ENV{BREWMODE}) {
-        $redis->config_set("dir", $ENV{HOME} . "/Library/Application Support/LANraragi/");
+    if ($ENV{LANDIR}) {
+        $redis->config_set("dir", $ENV{LANDIR});
     }
 
     #Database switch if it's not 0
@@ -87,8 +87,9 @@ sub get_motd {
 
 sub get_userdir {
     my $default_dir = "./content";
-    if ($ENV{BREWMODE}) {
-        $default_dir = $ENV{HOME} . "/Library/Application Support/LANraragi/content";
+    # save user generated files to $LANDIR
+    if ($ENV{LANDIR}) {
+        $default_dir = $ENV{LANDIR} . "/content";
     }
 
     my $dir = &get_redis_conf( "dirname", $default_dir );

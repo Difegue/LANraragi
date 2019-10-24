@@ -16,8 +16,8 @@ getopt
   'h|help'       => \my $help,
   'v|verbose'    => \$ENV{MORBO_VERBOSE};
 
-if ($ENV{BREWMODE}) {
-    make_path($ENV{HOME} . "/Library/Application Support/LANraragi");
+if ($ENV{LANDIR}) {
+    make_path($ENV{LANDIR});
 }
 
 die extract_usage if $help || !(my $app = shift || $ENV{HYPNOTOAD_APP});
