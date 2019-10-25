@@ -65,17 +65,13 @@ sub initialize_from_new_process {
 
     $logger->info("Shinobu Background Worker started.");
     $logger->info( "Working dir is " . cwd );
-
-    if( File::ChangeNotify->usable_classes) {
-        $logger->debug("Inotify or KQueue available, using for file watching. ");
-    }
     
     build_filemap();
     $logger->info("Adding watcher to content folder $userdir");
 
     # Add watcher to content directory
     my $contentwatcher =
-    File::ChangeNotify->instantiate_watcher
+    File::ChangeNotify::Watcher::Default->new
         ( directories     => [ $userdir ],
           filter          => qr/\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr)$/,
           follow_symlinks => 1,
