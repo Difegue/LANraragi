@@ -16,10 +16,10 @@ getopt
   'h|help'       => \my $help,
   'v|verbose'    => \$ENV{MORBO_VERBOSE};
 
-if ($ENV{LRR_DATADIR}) {
-    make_path($ENV{LRR_DATADIR});
+if ($ENV{LRR_DATA_DIRECTORY}) {
+    make_path($ENV{LRR_DATA_DIRECTORY});
 } else {
-    $ENV{LRR_DATADIR} = "."
+    $ENV{LRR_DATA_DIRECTORY} = "."
 }
 
 die extract_usage if $help || !(my $app = shift || $ENV{HYPNOTOAD_APP});
