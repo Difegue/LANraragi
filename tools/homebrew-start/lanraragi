@@ -1,6 +1,17 @@
 #!/bin/bash
 
 trap "kill 0" SIGINT
-export LANDATADIR="<LANDATADIR>"
+
+# prefix/place where lrr is installed
 workdir=$(dirname $0)/$(dirname $(readlink $0))/..
+
+if [[ ${OSTYPE} == "darwin"* ]]; then
+  _LANDATADIR="${HOME}/Library/Application Support/LANraragi"
+else
+  _LANDATADIR="${HOME}/LANraragi"
+fi
+# modify redis config
+sed -i "s/<LANDATADIR>/${_LANDATADIR}/g" ${workdir}/redis.conf
+
+export LANDATADIR="${_LANDATADIR}"
 redis-server "${workdir}/redis.conf" & npm start --prefix "${workdir}"
