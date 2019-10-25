@@ -18,8 +18,8 @@ use LANraragi::Utils::Generic;
 sub get_temp {
     my $temp_folder = "$FindBin::Bin/../public/temp";
     # save user generated files to LANDATADIR
-    if ($ENV{LANDATADIR}) {
-        $temp_folder = $ENV{LANDATADIR} . "/temp";
+    if ($ENV{LRR_DATADIR} != ".") {
+        $temp_folder = $ENV{LRR_DATADIR} . "/temp";
     }
     mkdir $temp_folder;
     return $temp_folder;

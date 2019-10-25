@@ -40,10 +40,6 @@ sub get_redis {
         reconnect => 3
     );
 
-    if ($ENV{LANDATADIR}) {
-        $redis->config_set("dir", $ENV{LANDATADIR});
-    }
-
     #Database switch if it's not 0
     if ( &get_redisdb != 0 ) { $redis->select(&get_redisdb); }
 
@@ -86,13 +82,7 @@ sub get_motd {
 }
 
 sub get_userdir {
-    my $default_dir = "./content";
-    # save user generated files to LANDATADIR
-    if ($ENV{LANDATADIR}) {
-        $default_dir = $ENV{LANDATADIR} . "/content";
-    }
-
-    my $dir = &get_redis_conf( "dirname", $default_dir );
+    my $dir = &get_redis_conf( "dirname", $ENV{LRR_DATADIR} . "/content" );
 
     #Try to create userdir if it doesn't already exist
     unless ( -e $dir ) {

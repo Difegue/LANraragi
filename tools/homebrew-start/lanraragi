@@ -6,12 +6,12 @@ trap "kill 0" SIGINT
 workdir=$(dirname $0)/$(dirname $(readlink $0))/..
 
 if [[ ${OSTYPE} == "darwin"* ]]; then
-  _LANDATADIR="${HOME}/Library/Application Support/LANraragi"
+  _LRR_DATADIR="${HOME}/Library/Application Support/LANraragi"
 else
-  _LANDATADIR="${HOME}/LANraragi"
+  _LRR_DATADIR="${HOME}/LANraragi"
 fi
 # modify redis config
-sed -i "s/<LANDATADIR>/${_LANDATADIR}/g" ${workdir}/redis.conf
+sed -i "s/<LRR_DATADIR>/${_LRR_DATADIR}/g" ${workdir}/redis.conf
 
-export LANDATADIR="${_LANDATADIR}"
+export LRR_DATADIR="${_LRR_DATADIR}"
 redis-server "${workdir}/redis.conf" & npm start --prefix "${workdir}"
