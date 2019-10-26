@@ -15,7 +15,7 @@ fi
 echo "Data Directory is set to '${_LRR_DATA_DIRECTORY}'"
 
 # create path if it does not exist yet
-mkdir -p ${_LRR_DATA_DIRECTORY}/log
+mkdir -p "${_LRR_DATA_DIRECTORY}/log"
 
 export LRR_DATA_DIRECTORY="${_LRR_DATA_DIRECTORY}"
 export PERL5LIB="${workdir}/libexec/lib/perl5"
