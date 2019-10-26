@@ -2,18 +2,17 @@
 
 trap "kill 0" SIGINT
 
-# prefix/place where lrr is installed
+# prefix/place where lrr is installed & modify redis config
 workdir=$(dirname $0)/$(dirname $(readlink $0))/..
 
 if [[ ${OSTYPE} == "darwin"* ]]; then
   _LRR_DATA_DIRECTORY="${HOME}/Library/Application Support/LANraragi"
+  sed -i "" "s~<LRR_DATA_DIRECTORY>~${_LRR_DATA_DIRECTORY}~g" ${workdir}/redis.conf
 else
   _LRR_DATA_DIRECTORY="${HOME}/LANraragi"
+  sed -i"" "s~<LRR_DATA_DIRECTORY>~${_LRR_DATA_DIRECTORY}~g" ${workdir}/redis.conf
 fi
 echo "Data Directory is set to '${_LRR_DATA_DIRECTORY}'"
-
-# modify redis config
-sed -i"" "s~<LRR_DATA_DIRECTORY>~${_LRR_DATA_DIRECTORY}~g" ${workdir}/redis.conf
 
 # create path if it does not exist yet
 mkdir -p ${_LRR_DATA_DIRECTORY}/log
