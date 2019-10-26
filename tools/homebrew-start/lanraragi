@@ -11,7 +11,8 @@ else
   _LRR_DATA_DIRECTORY="${HOME}/LANraragi"
 fi
 # modify redis config
-sed -i "" "s/<LRR_DATA_DIRECTORY>/${_LRR_DATA_DIRECTORY}/g" ${workdir}/redis.conf
+echo "Data Directory set to ${_LRR_DATA_DIRECTORY}"
+sed -i "" "s~<LRR_DATA_DIRECTORY>~${_LRR_DATA_DIRECTORY}~g" ${workdir}/redis.conf
 
 export LRR_DATA_DIRECTORY="${_LRR_DATA_DIRECTORY}"
 redis-server "${workdir}/redis.conf" & npm start --prefix "${workdir}"
