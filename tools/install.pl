@@ -127,12 +127,14 @@ if ( $back || $full ) {
     # libarchive is not provided by default on macOS, so we set the correct env vars
     # to successfully compile Archive::Extract::Libarchive and Archive::Peek::Libarchive
     my $pre = "";
+    my $suff = "";
     if ($Config{"osname"} eq "darwin") {
         say("Setting Environmental Flags for macOS");
         $pre = "export CFLAGS=\"-I/usr/local/opt/libarchive/include\" && \\
           export PKG_CONFIG_PATH=\"/usr/local/opt/libarchive/lib/pkgconfig\" && ";
+        $suff = " -l " . $ENV{HOMEBREW_FORMULA_PREFIX} . "/libexec";
     }
-    if ( system($pre . "cpanm --installdeps ./tools/. --notest") != 0 ) {
+    if ( system($pre . "cpanm --installdeps ./tools/. --notest" . $suff) != 0 ) {
         die "Something went wrong while installing Perl modules - Bailing out.";
     }
 }
