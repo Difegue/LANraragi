@@ -82,10 +82,9 @@ sub get_motd {
 }
 
 sub get_userdir {
+    my $dir = &get_redis_conf( "dirname", $ENV{LRR_DATA_DIRECTORY} . "/content" );
 
     #Try to create userdir if it doesn't already exist
-    my $dir = &get_redis_conf( "dirname", "./content" );
-
     unless ( -e $dir ) {
         mkdir $dir;
     }
