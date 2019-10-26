@@ -13,7 +13,7 @@ fi
 echo "Data Directory set to ${_LRR_DATA_DIRECTORY}"
 
 # modify redis config
-sed -i "" "s~<LRR_DATA_DIRECTORY>~$(printf %q "${_LRR_DATA_DIRECTORY}")~g" ${workdir}/redis.conf
+sed -i "" "s~<LRR_DATA_DIRECTORY>~$(printf %q "$(printf %q "${_LRR_DATA_DIRECTORY}")")~g" ${workdir}/redis.conf
 
 # create path if it does not exist yet
 mkdir -p ${_LRR_DATA_DIRECTORY}/log
