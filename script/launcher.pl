@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 use strict;
 use warnings;
@@ -8,12 +8,19 @@ use Mojo::Base -strict;
 use Mojo::Server::Morbo;
 use Mojo::Server::Hypnotoad;
 use Mojo::Util qw(extract_usage getopt);
+use File::Path qw(make_path);
 
 getopt
   'm|morbo'      => \my $morbo,
   'f|foreground' => \$ENV{HYPNOTOAD_FOREGROUND},
   'h|help'       => \my $help,
   'v|verbose'    => \$ENV{MORBO_VERBOSE};
+
+if ($ENV{LRR_DATA_DIRECTORY}) {
+    make_path($ENV{LRR_DATA_DIRECTORY});
+} else {
+    $ENV{LRR_DATA_DIRECTORY} = "."
+}
 
 die extract_usage if $help || !(my $app = shift || $ENV{HYPNOTOAD_APP});
 

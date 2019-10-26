@@ -58,7 +58,7 @@ my %datamodel = %{decode_json qq(
     }
 })};
 
-# Mock Redis object which uses the datamodel 
+# Mock Redis object which uses the datamodel
 my $redis = Test::MockObject->new();
 $redis->mock( 'keys',    sub { return keys %datamodel; } );
 $redis->mock( 'exists',  sub { 0 } );
@@ -67,7 +67,7 @@ $redis->mock( 'hset',    sub { 1 } );
 $redis->mock( 'quit',    sub { 1 } );
 
 $redis->mock( 'hget', # $redis->hget => get key in datamodel
-    sub { 
+    sub {
         my $self = shift;
         my ($key, $hashkey) = @_;
 
@@ -83,7 +83,7 @@ is( $redis->hget("28697b96f0ac5858be2614ed10ca47742c9522fd","title"), "Fate GO M
 
 # Search queries
 my $search = qq(Ghost in the Shell);
-my ($total, $filtered, @ids); 
+my ($total, $filtered, @ids);
 
 sub do_test_search {
     ($total, $filtered, @ids) = LANraragi::Model::Search::do_search($search, "", 0, 0, 0, 0);
@@ -114,17 +114,17 @@ is(%{$ids[0]}{title}, "Saturn Backup Cartridge - American Manual", qq(Multiple w
 
 $search = qq("artist:wada rco" character:ereshkigal);
 do_test_search();
-ok( $filtered eq 1 && %{$ids[0]}{title} eq "Fate GO MEMO 2", 
+ok( $filtered eq 1 && %{$ids[0]}{title} eq "Fate GO MEMO 2",
     qq(Tag inclusion search ($search)));
 
 $search = qq("artist:wada rco" -character:ereshkigal);
 do_test_search();
-ok( $filtered eq 1 && %{$ids[0]}{title} eq "Fate GO MEMO", 
+ok( $filtered eq 1 && %{$ids[0]}{title} eq "Fate GO MEMO",
     qq(Tag exclusion search ($search)));
 
 $search = qq("artist:wada rco" -"character:waver velvet");
 do_test_search();
-ok( $filtered eq 1 && %{$ids[0]}{title} eq "Fate GO MEMO", 
+ok( $filtered eq 1 && %{$ids[0]}{title} eq "Fate GO MEMO",
     qq(Tag exclusion with quotes ($search)));
 
 $search = qq("artist:wada rco" "-character:waver velvet");
@@ -133,7 +133,7 @@ is($filtered, 0, qq(Incorrect tag exclusion ($search)));
 
 $search = qq(character:segata\$);
 do_test_search();
-ok( $filtered eq 1 && %{$ids[0]}{title} eq "Saturn Backup Cartridge - American Manual", 
+ok( $filtered eq 1 && %{$ids[0]}{title} eq "Saturn Backup Cartridge - American Manual",
     qq(Exact search without quotes ($search)));
 
 $search = qq("Fate GO MEMO"\$);
@@ -149,7 +149,7 @@ $search = qq("character:segata");
 is($filtered, 1, qq(Search with favorite tag applied ($search) + ("American")));
 
 ($total, $filtered, @ids) = LANraragi::Model::Search::do_search("", "", 0, 0, 0, 1);
-ok( $filtered eq 1 && %{$ids[0]}{title} eq "Rohan Kishibe goes to Gucci", 
+ok( $filtered eq 1 && %{$ids[0]}{title} eq "Rohan Kishibe goes to Gucci",
     qq(Search with new filter applied));
 
 done_testing();

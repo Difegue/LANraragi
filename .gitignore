@@ -8,3 +8,4 @@ package-lock.json
 *qemu-*-static*
 Dockerfile.*
 script/hypnotoad.pid
+.DS_Store

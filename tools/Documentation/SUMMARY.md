@@ -6,6 +6,7 @@
 
 * [Which installation method is best for me?](installing-lanraragi/methods.md)
 * [LRR for Windows \(Win10\)](installing-lanraragi/windows.md)
+* [LRR for macOS](installing-lanraragi/macos.md)
 * [Docker \(All platforms\)](installing-lanraragi/docker.md)
 * [Source Code \(Linux\)](installing-lanraragi/source.md)
 * [Vagrant \(Deprecated\)](installing-lanraragi/vagrant.md)
@@ -31,4 +32,3 @@
 * [Architecture & Style](extending-lanraragi/architecture.md)
 * [Plug-ins](extending-lanraragi/plugins.md)
 * [Client API](extending-lanraragi/client-api.md)
-
