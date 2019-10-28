@@ -1,4 +1,4 @@
-# LRR for macOS
+# Homebrew \(macOS/Linux\)
 
 ## Installing LRR (with Homebrew)
 
@@ -26,7 +26,3 @@ To change the default port or add SSL support, see this page:
 By default, LRR listens on all IPv4 Interfaces on port 3000, unsecured HTTP.
 {% endhint %}
 
-
-## Installing LRR (manually)
-
-Please refer to [Source Code \(Linux\)](installing-lanraragi/source.md).

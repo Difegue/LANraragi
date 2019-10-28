@@ -4,7 +4,7 @@ description: This is a by-OS breakdown of how you can install the software on yo
 
 # Which installation method is best for me?
 
-## Linux/macOS: _Docker or Source_
+## Linux/macOS/Windows 10: _Docker_
 
 As LRR is a server app first and foremost, its setup is a bit more complex than your usual Desktop application.  
 Therefore, for unexperienced users, I recommend using a **container** install with Docker.  
@@ -12,9 +12,13 @@ They're clean, easy to update, and automatically built/tested.
 
 {% page-ref page="docker.md" %}
 
-Installing from **source** is a more involved procedure, but it does put you in full control and able to hack up the app's files as you wish.
+## macOS/Linux: _Homebrew_
 
-{% page-ref page="source.md" %}
+[Homebrew](https://brew.sh/) allows you to quickly setup LRR on Unix systems without relying on containers or modifying your preinstalled system libaries.  
+
+![brew](../.gitbook/assets/brew.jpg)
+
+{% page-ref page="macos.md" %}
 
 ## Windows 10: _LRR for Windows_
 
@@ -22,11 +26,17 @@ Installing from **source** is a more involved procedure, but it does put you in 
 This method works on **64-bit** editions of Windows 10 only. Versions under v1809 \(October 2018 Update\) will probably not work properly. v1803 _might_ work, but you're wading uncharted waters.
 {% endhint %}
 
-![](../.gitbook/assets/karen.jpg)
+![win10](../.gitbook/assets/karen.jpg)
 
 I provide a dedicated installer for Windows machines as of 0.6.0, complete with a GUI and autostart.
 
 {% page-ref page="windows.md" %}
+
+## Linux/macOS: _Installing from Source_  
+
+Installing from **source** is a more involved procedure, but it does put you in full control and able to hack up the app's files as you wish.
+
+{% page-ref page="source.md" %}
 
 ## Older Windows: _Legacy Docker Toolbox or Vagrant_
 
