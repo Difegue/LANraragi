@@ -3,6 +3,7 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use Redis;
 use Encode;
+use Storable;
 use Mojo::JSON qw(decode_json encode_json from_json);
 use File::Path qw(remove_tree);
 
@@ -235,41 +236,42 @@ sub use_enabled_plugins {
 }
 
 sub shinobu_status {
-    my $self = shift;
-    my $shinobu = $self->SHINOBU;
+    my $self    = shift;
+    my $shinobu = ${retrieve("./.shinobu-pid")};
 
     $self->render(
         json => {
             operation => "shinobu_status",
-            is_alive  => $self->SHINOBU->poll(),
-            pid       => $self->SHINOBU->pid
+            is_alive  => $shinobu->poll(),
+            pid       => $shinobu->pid
         }
     );
 }
 
 sub stop_shinobu {
-    my $self = shift;
+    my $self    = shift;
+    my $shinobu = ${retrieve("./.shinobu-pid")};
 
     #commit sudoku
-    $self->SHINOBU->kill();
+    $shinobu->kill();
     success($self, "shinobu_stop");
 }
 
 sub restart_shinobu {
-    my $self = shift;
+    my $self    = shift;
+    my $shinobu = ${retrieve("./.shinobu-pid")};
 
     #commit sudoku
-    $self->SHINOBU->kill();
+    $shinobu->kill();
 
-    #Create a new ProcBackground object and stuff it in the helper
+    # Create a new Process, automatically stored in .shinobu-pid
     my $proc = LANraragi::Utils::Generic::start_shinobu();
-    $self->app->helper( SHINOBU => sub { return $proc; } );
 
     $self->render(
         json => {
             operation => "shinobu_restart",
-            success   => $self->SHINOBU->poll(),
-            new_pid   => $self->SHINOBU->pid
+            success   => $proc->poll(),
+            new_pid   => $proc->pid
         }
     );
 }

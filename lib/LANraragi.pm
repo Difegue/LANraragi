@@ -7,6 +7,7 @@ use open ':std', ':encoding(UTF-8)';
 use Mojo::Base 'Mojolicious';
 use Mojo::File;
 use Mojo::JSON qw(decode_json encode_json);
+use Storable;
 
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Routing;
@@ -97,31 +98,21 @@ sub startup {
     }
 
     #Start Background worker
-    if ( -e "./.shinobu-pid" ) {
+    if ( -e "./.shinobu-pid" && eval { retrieve("./.shinobu-pid"); }) {
 
-        #Read PID from file
-        open( my $pidfile, '<', ".shinobu-pid" )
-          || warn( "Can't open Shinobu Worker PID file: " . $! );
-        my $pid  = <$pidfile>;
-        chomp (my $procname = `cat /proc/$pid/comm`);
-        close($pidfile);
+        # Deserialize process
+        my $proc = ${retrieve("./.shinobu-pid")};
+        my $pid  = $proc->pid;
 
         $self->LRR_LOGGER->info(
-            "Terminating previous Shinobu Worker if it exists... (PID is $pid, matching process is $procname)"
+            "Terminating previous Shinobu Worker if it exists... (PID is $pid)"
         );
-
-        # Only kill the PID if it's a perl process
-        if ($procname eq "perl") {
-            LANraragi::Utils::Generic::kill_pid($pid);
-        }
-        
+        $proc->kill();  
     }
 
     my $proc = LANraragi::Utils::Generic::start_shinobu();
-    $self->helper( SHINOBU => sub { return $proc; } );
-
     $self->LRR_LOGGER->debug(
-        "Shinobu Worker new PID is " . $self->SHINOBU->pid );
+        "Shinobu Worker new PID is " . $proc->pid );
 
     LANraragi::Utils::Routing::apply_routes($self);
     $self->LRR_LOGGER->info("Routing done! Ready to receive requests.");

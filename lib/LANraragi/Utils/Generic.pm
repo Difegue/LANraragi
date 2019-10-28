@@ -6,6 +6,7 @@ use utf8;
 
 use feature 'say';
 use POSIX;
+use Storable;
 use Digest::SHA qw(sha256_hex);
 use Mojo::Log;
 use Logfile::Rotate;
@@ -42,22 +43,11 @@ sub start_shinobu {
 
     my $proc = Proc::Simple->new(); 
     $proc->start($^X, "./lib/Shinobu.pm");
-    $proc->kill_on_destroy(1);
+    $proc->kill_on_destroy(0);
 
-    #Create file to store the process' PID
-    open( my $pidfile, '>', ".shinobu-pid" )
-      or $logger->warn( "Couldn't store PID for Background Worker: " . $! );
-    my $newpid = $proc->pid;
-    print $pidfile $newpid;
-    close($pidfile);
-
+    # Freeze the process object in the PID file
+    store \$proc, '.shinobu-pid';
     return $proc;
-}
-
-# Kill process with the given PID.
-sub kill_pid {
-    my $pid = shift;
-    `kill -9 $pid`;
 }
 
 #This function gives us a SHA hash for the passed file, which is used for thumbnail reverse search on E-H.
