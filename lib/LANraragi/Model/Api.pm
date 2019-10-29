@@ -23,9 +23,7 @@ sub generate_archive_list {
     my @keys  = $redis->keys('????????????????????????????????????????');
     my @list  = ();
 
-    # Go through tags and apply search filter
     foreach my $id (@keys) {
-
         if (-e $redis->hget($id, "file")) {
             my $arcdata = LANraragi::Utils::Database::build_archive_JSON( $redis, $id );
             push @list, $arcdata;
@@ -34,6 +32,31 @@ sub generate_archive_list {
 
     $redis->quit;
     return @list;
+}
+
+sub generate_opds_catalog {
+
+    my $mojo  = shift;
+    my $redis = LANraragi::Model::Config::get_redis;
+    my @keys  = $redis->keys('????????????????????????????????????????');
+    my @list  = ();
+
+    foreach my $id (@keys) {
+        if (-e $redis->hget($id, "file")) {
+            my $arcdata = LANraragi::Utils::Database::build_OPDS_entry( $redis, $id );
+            push @list, $arcdata;
+        }
+    }
+
+    $redis->quit;
+
+    $mojo->render(
+        template => "opds",
+        arclist  => \@list,
+        title    => $self->LRR_CONF->get_htmltitle,
+        motd     => $self->LRR_CONF->get_motd,
+        version  => $self->LRR_VERSION
+    );
 }
 
 # Return a list of archive IDs that have no tags.

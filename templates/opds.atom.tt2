@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"
+      xmlns:dc="http://purl.org/dc/terms/"
+      xmlns:opds="http://opds-spec.org/2010/catalog">
+
+  <link rel="self"    
+        href="/api/opds"
+        type="application/atom+xml;profile=opds-catalog;kind=acquisition"/>
+
+  <title>[% title %]</title>
+  <subtitle>[% motd %]</subtitle>
+  <author>
+    <name>[% version %]</name>
+    <uri>http://opds-spec.org</uri>
+  </author>
+
+  [% FOREACH arc IN arclist %]
+    <entry>
+      <title>[% arc.title %]</title>
+      <id>urn:lrr:[% arc.arcid %]</id>
+      <updated>[% arc.dateadded %]</updated>
+      <author>
+        <name>[% arc.author %]</name>
+      </author>
+      <dc:language>[% arc.language %]</dc:language>
+      <dc:publisher>[% arc.circle %]</dc:publisher>
+      <dc:issued>[% arc.event %]</dc:issued>
+      [% IF arc.isnew %]
+      
+      [% END %]
+      <category scheme="http://www.bisg.org"
+                term="CGN004020"
+                label="COMICS & GRAPHIC NOVELS / Erotica"/>
+      <summary>[% arc.tags %]</summary>
+      <link rel="http://opds-spec.org/image"    
+            href="/api/thumbnail?id=[% arc.id %]"
+            type="image/jpeg"/>
+      <link rel="http://opds-spec.org/image/thumbnail"
+            href="/api/thumbnail?id=[% arc.id %]"
+            type="image/jpeg"/>
+      <link rel="http://opds-spec.org/acquisition"
+            href="/api/servefile?id=[% arc.id %]"
+            type="[% arc.mimetype %]"/>
+    </entry>
+  [% END %]
+
+</feed>

@@ -93,6 +93,19 @@ sub build_archive_JSON {
     return $arcdata;
 }
 
+sub build_OPDS_entry {
+
+    my ( $redis, $id ) = @_;
+
+    # Recycle the above method to handle all the base data
+    my $arcdata = build_archive_JSON($redis, $id);
+
+    # Infer a few OPDS-related fields from the tags
+    
+
+    return $arcdata;
+}
+
 #Deletes the archive with the given id from redis, and the matching archive file.
 sub delete_archive {
 

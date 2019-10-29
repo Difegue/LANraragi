@@ -53,13 +53,18 @@ sub success {
 }
 
 sub serve_archivelist {
-    my $self  = shift;
+    my $self   = shift;
     my @idlist = LANraragi::Model::Api::generate_archive_list;
     $self->render( json => \@idlist );
 }
 
+sub serve_opds {
+    my $self   = shift;
+    LANraragi::Model::Api::generate_opds_catalog($self);
+}
+
 sub serve_untagged_archivelist {
-    my $self = shift;
+    my $self   = shift;
     my @idlist = LANraragi::Model::Api::find_untagged_archives;
     $self->render( json => \@idlist );
 }
