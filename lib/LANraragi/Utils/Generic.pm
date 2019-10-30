@@ -37,6 +37,22 @@ sub is_image {
     return $_[0] =~ /^.+\.(png|jpg|gif|bmp|jpeg|jfif|webp|PNG|JPG|GIF|BMP|JPEG|JFIF|WEBP)$/;
 }
 
+# Find the first tag matching the given namespace, or return the default value.
+sub get_tag_with_namespace {
+    my ($namespace, $tags, $default) = @_;
+    my @values = split(',', $tags);
+
+    foreach my $tag (@values) {
+        my ($namespacecheck, $value) = split(':', $tag);
+
+        if (remove_spaces($namespacecheck) eq $namespace) {
+            return remove_spaces($value);
+        }
+    }
+
+    return $default;
+}
+
 #Start Shinobu and return its Proc::Background object.
 sub start_shinobu {
     my $logger = get_logger( "Shinobu Boot", "lanraragi" );

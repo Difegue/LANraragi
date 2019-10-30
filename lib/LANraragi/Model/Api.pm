@@ -50,7 +50,7 @@ sub generate_opds_catalog {
 
     $redis->quit;
 
-    $mojo->render(
+    return $mojo->render_to_string(
         template => "opds",
         arclist  => \@list,
         title    => $mojo->LRR_CONF->get_htmltitle,

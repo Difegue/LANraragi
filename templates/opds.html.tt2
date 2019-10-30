@@ -11,7 +11,7 @@
   <subtitle>[% motd %]</subtitle>
   <author>
     <name>[% version %]</name>
-    <uri>http://opds-spec.org</uri>
+    <uri>http://github.org/Difegue/LANraragi</uri>
   </author>
 
   [% FOREACH arc IN arclist %]
@@ -22,24 +22,22 @@
       <author>
         <name>[% arc.author %]</name>
       </author>
+      <rights>[% arc.series %]</rights>
       <dc:language>[% arc.language %]</dc:language>
       <dc:publisher>[% arc.circle %]</dc:publisher>
       <dc:issued>[% arc.event %]</dc:issued>
-      [% IF arc.isnew %]
-      
-      [% END %]
       <category scheme="http://www.bisg.org"
                 term="CGN004020"
-                label="COMICS & GRAPHIC NOVELS / Erotica"/>
+                label="COMICS &amp; GRAPHIC NOVELS / Erotica"/>
       <summary>[% arc.tags %]</summary>
       <link rel="http://opds-spec.org/image"    
-            href="/api/thumbnail?id=[% arc.id %]"
+            href="/api/thumbnail?id=[% arc.arcid %]"
             type="image/jpeg"/>
       <link rel="http://opds-spec.org/image/thumbnail"
-            href="/api/thumbnail?id=[% arc.id %]"
+            href="/api/thumbnail?id=[% arc.arcid %]"
             type="image/jpeg"/>
       <link rel="http://opds-spec.org/acquisition"
-            href="/api/servefile?id=[% arc.id %]"
+            href="/api/servefile?id=[% arc.arcid %]"
             type="[% arc.mimetype %]"/>
     </entry>
   [% END %]

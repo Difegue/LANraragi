@@ -33,6 +33,7 @@ sub apply_routes {
         $logged_in_api->get('/api/servefile')->to('api#serve_file');
         $logged_in_api->get('/api/archivelist')->to('api#serve_archivelist');
         $logged_in_api->get('/api/untagged')->to('api#serve_untagged_archivelist');
+        $logged_in_api->get('/api/opds')->to('api#serve_opds');
         $logged_in_api->get('/api/tagstats')->to('api#serve_tag_stats');
         $logged_in_api->get('/api/extract')->to('api#extract_archive');
         $logged_in_api->get('/api/clear_new')->to('api#clear_new');
@@ -52,6 +53,7 @@ sub apply_routes {
         $r->get('/api/servefile')->to('api#serve_file');
         $r->get('/api/archivelist')->to('api#serve_archivelist');
         $r->get('/api/untagged')->to('api#serve_untagged_archivelist');
+        $r->get('/api/opds')->to('api#serve_opds');
         $r->get('/api/tagstats')->to('api#serve_tag_stats');
         $r->get('/api/extract')->to('api#extract_archive');
         $r->get('/api/clear_new')->to('api#clear_new');
