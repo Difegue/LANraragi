@@ -71,7 +71,7 @@ sub initialize_from_new_process {
 
     # Add watcher to content directory
     my $contentwatcher =
-    File::ChangeNotify::Watcher::Default->new
+    File::ChangeNotify->instantiate_watcher
         ( directories     => [ $userdir ],
           filter          => qr/\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr)$/,
           follow_symlinks => 1,

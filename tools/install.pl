@@ -131,6 +131,9 @@ if ( $back || $full ) {
         say("Setting Environmental Flags for macOS");
         $pre = "export CFLAGS=\"-I/usr/local/opt/libarchive/include\" && \\
           export PKG_CONFIG_PATH=\"/usr/local/opt/libarchive/lib/pkgconfig\" && ";
+    } else {
+        say("Installing Linux::Inotify2 for non-macOS systems...");
+        install_package("Linux::Inotify2");
     }
     # provide cpanm with the correct module installation dir when using Homebrew
     my $suff = "";
