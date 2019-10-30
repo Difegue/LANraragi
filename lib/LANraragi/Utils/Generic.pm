@@ -16,19 +16,28 @@ use LANraragi::Model::Config;
 
 # Generic Utility Functions.
 
-#Remove spaces before and after a word
+# Remove spaces before and after a word
 sub remove_spaces {
     $_[0] =~ s/^\s+|\s+$//g;
 }
 
-#Remove all newlines in a string
+# Remove all newlines in a string
 sub remove_newlines {
     $_[0] =~ s/\R//g;
 }
 
-#Checks if the provided file is an image.
+# Checks if the provided file is an image.
+# WARNING: This modifies the given filename variable!
 sub is_image {
     return $_[0] =~ /^.+\.(png|jpg|gif|bmp|jpeg|jfif|webp|PNG|JPG|GIF|BMP|JPEG|JFIF|WEBP)$/;
+}
+
+# Escape XML control characters.
+sub escape_xml {
+    $_[0] =~ s/&/&amp;/sg;
+    $_[0] =~ s/</&lt;/sg;
+    $_[0] =~ s/>/&gt;/sg;
+    $_[0] =~ s/"/&quot;/sg;
 }
 
 # Find the first tag matching the given namespace, or return the default value.

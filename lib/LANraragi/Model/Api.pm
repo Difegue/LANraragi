@@ -57,6 +57,9 @@ sub generate_opds_catalog {
             # TODO: Use file to get mimetype
             $arcdata->{mimetype} = $file; 
 
+            for (values %{$arcdata}) 
+                { LANraragi::Utils::Generic::escape_xml($_); }
+
             push @list, $arcdata;
         }
     }
