@@ -26,7 +26,7 @@ cpanminus redis-server libarchive-dev libjpeg-dev libpng-dev libssl-dev zlib1g-d
 _Base software dependencies._
 
 {% hint style="info" %}
-For macOS, 
+For macOS, you should be able to install the dependencies using Homebrew.
 {% endhint %}
 
 ## Installing LRR
