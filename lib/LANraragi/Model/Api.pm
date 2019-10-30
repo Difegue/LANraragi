@@ -42,8 +42,21 @@ sub generate_opds_catalog {
     my @list  = ();
 
     foreach my $id (@keys) {
-        if (-e $redis->hget($id, "file")) {
-            my $arcdata = LANraragi::Utils::Database::build_OPDS_entry( $redis, $id );
+        my $file = $redis->hget($id, "file");
+        if (-e $file) {
+            my $arcdata = LANraragi::Utils::Database::build_archive_JSON($redis, $id);
+            my $tags    = $arcdata->{tags};
+
+            # Infer a few OPDS-related fields from the tags
+            $arcdata->{dateadded} = LANraragi::Utils::Generic::get_tag_with_namespace("dateadded", $tags, "2010-01-10T10:01:11Z");
+            $arcdata->{author}    = LANraragi::Utils::Generic::get_tag_with_namespace("artist", $tags, "");
+            $arcdata->{language}  = LANraragi::Utils::Generic::get_tag_with_namespace("language", $tags, "");
+            $arcdata->{circle}    = LANraragi::Utils::Generic::get_tag_with_namespace("group", $tags, "");
+            $arcdata->{event}     = LANraragi::Utils::Generic::get_tag_with_namespace("event", $tags, "");
+
+            # TODO: Use file to get mimetype
+            $arcdata->{mimetype} = $file; 
+
             push @list, $arcdata;
         }
     }

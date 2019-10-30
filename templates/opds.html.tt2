@@ -3,11 +3,18 @@
       xmlns:dc="http://purl.org/dc/terms/"
       xmlns:opds="http://opds-spec.org/2010/catalog">
 
+  <id>urn:lrr:0</id>
+
   <link rel="self"    
         href="/api/opds"
         type="application/atom+xml;profile=opds-catalog;kind=acquisition"/>
 
+  <link rel="start"    
+        href="/api/opds"
+        type="application/atom+xml;profile=opds-catalog;kind=acquisition"/>
+
   <title>[% title %]</title>
+  <updated>2010-01-10T10:03:10Z</updated>
   <subtitle>[% motd %]</subtitle>
   <author>
     <name>[% version %]</name>
@@ -38,7 +45,7 @@
             type="image/jpeg"/>
       <link rel="http://opds-spec.org/acquisition"
             href="/api/servefile?id=[% arc.arcid %]"
-            type="[% arc.mimetype %]"/>
+            type="application/zip"/>
     </entry>
   [% END %]
 

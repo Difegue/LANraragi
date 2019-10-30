@@ -93,24 +93,6 @@ sub build_archive_JSON {
     return $arcdata;
 }
 
-sub build_OPDS_entry {
-
-    my ( $redis, $id ) = @_;
-
-    # Recycle the above method to handle all the base data
-    my $arcdata = build_archive_JSON($redis, $id);
-    my $tags    = $arcdata->{tags};
-
-    # Infer a few OPDS-related fields from the tags
-    $arcdata->{dateadded} = LANraragi::Utils::Generic::get_tag_with_namespace("dateadded", $tags, "00");
-    $arcdata->{author}    = LANraragi::Utils::Generic::get_tag_with_namespace("artist", $tags, "");
-    $arcdata->{language}  = LANraragi::Utils::Generic::get_tag_with_namespace("language", $tags, "");
-    $arcdata->{circle}    = LANraragi::Utils::Generic::get_tag_with_namespace("group", $tags, "");
-    $arcdata->{event}     = LANraragi::Utils::Generic::get_tag_with_namespace("event", $tags, "");
-
-    return $arcdata;
-}
-
 #Deletes the archive with the given id from redis, and the matching archive file.
 sub delete_archive {
 

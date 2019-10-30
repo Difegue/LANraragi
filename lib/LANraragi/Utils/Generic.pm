@@ -18,13 +18,7 @@ use LANraragi::Model::Config;
 
 #Remove spaces before and after a word
 sub remove_spaces {
-    until ( substr( $_[0], 0, 1 ) ne " " ) {
-        $_[0] = substr( $_[0], 1 );
-    }
-
-    until ( substr( $_[0], -1 ) ne " " ) {
-        chop $_[0];
-    }
+    $_[0] =~ s/^\s+|\s+$//g;
 }
 
 #Remove all newlines in a string
@@ -41,12 +35,15 @@ sub is_image {
 sub get_tag_with_namespace {
     my ($namespace, $tags, $default) = @_;
     my @values = split(',', $tags);
+    print "Looking for $namespace\n";
 
     foreach my $tag (@values) {
-        my ($namespacecheck, $value) = split(':', $tag);
+        my ($namecheck, $value) = split(':', $tag);
+        remove_spaces($namecheck);
+        remove_spaces($value);
 
-        if (remove_spaces($namespacecheck) eq $namespace) {
-            return remove_spaces($value);
+        if ($namecheck eq $namespace) {
+            return $value;
         }
     }
 

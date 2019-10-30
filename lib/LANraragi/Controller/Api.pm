@@ -60,7 +60,7 @@ sub serve_archivelist {
 
 sub serve_opds {
     my $self   = shift;
-   $self->render( data => LANraragi::Model::Api::generate_opds_catalog($self), format => 'xml'); 
+    $self->render( text => LANraragi::Model::Api::generate_opds_catalog($self), format => 'xml'); 
 }
 
 sub serve_untagged_archivelist {
