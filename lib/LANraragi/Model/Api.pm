@@ -53,9 +53,9 @@ sub generate_opds_catalog {
     $mojo->render(
         template => "opds",
         arclist  => \@list,
-        title    => $self->LRR_CONF->get_htmltitle,
-        motd     => $self->LRR_CONF->get_motd,
-        version  => $self->LRR_VERSION
+        title    => $mojo->LRR_CONF->get_htmltitle,
+        motd     => $mojo->LRR_CONF->get_motd,
+        version  => $mojo->LRR_VERSION
     );
 }
 
