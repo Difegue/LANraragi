@@ -38,7 +38,15 @@ sub generate_opds_catalog {
 
     my $mojo  = shift;
     my $redis = LANraragi::Model::Config::get_redis;
-    my @keys  = $redis->keys('????????????????????????????????????????');
+    my @keys  = ();
+    
+    # Detailed pages just return a single entry instead of all the archives.
+    if ($mojo->req->param('id')) {
+        @keys = ($mojo->req->param('id'));
+    } else {
+        @keys = $redis->keys('????????????????????????????????????????');
+    }
+
     my @list  = ();
 
     foreach my $id (@keys) {
@@ -54,8 +62,14 @@ sub generate_opds_catalog {
             $arcdata->{circle}    = LANraragi::Utils::Generic::get_tag_with_namespace("group", $tags, "");
             $arcdata->{event}     = LANraragi::Utils::Generic::get_tag_with_namespace("event", $tags, "");
 
-            # TODO: Use file to get mimetype
-            $arcdata->{mimetype} = $file; 
+            # Application/zip is universally hated by all readers so it's better to use x-cbz and x-cbr here.
+            if ( $file =~ /^(.*\/)*.+\.(rar|cbr)$/ ) {
+                $arcdata->{mimetype} = "application/x-cbr"; 
+                $arcdata->{mimetype2} = "application/cbr"; # X- less variant for some clients (cough librera)
+            } else {
+                $arcdata->{mimetype} = "application/x-cbz"; 
+                $arcdata->{mimetype2} = "application/cbz"; 
+            }
 
             for (values %{$arcdata}) 
                 { LANraragi::Utils::Generic::escape_xml($_); }
@@ -66,9 +80,16 @@ sub generate_opds_catalog {
 
     $redis->quit;
 
+    if ($mojo->req->param('id')) {
+        @keys = ($mojo->req->param('id'));
+    } else {
+        @keys = $redis->keys('????????????????????????????????????????');
+    }
+
     return $mojo->render_to_string(
-        template => "opds",
+        template => $mojo->req->param('id') ? "opds_entry" : "opds",
         arclist  => \@list,
+        arc      => $mojo->req->param('id') ? @list[0] : "",
         title    => $mojo->LRR_CONF->get_htmltitle,
         motd     => $mojo->LRR_CONF->get_motd,
         version  => $mojo->LRR_VERSION

@@ -44,7 +44,6 @@ sub escape_xml {
 sub get_tag_with_namespace {
     my ($namespace, $tags, $default) = @_;
     my @values = split(',', $tags);
-    print "Looking for $namespace\n";
 
     foreach my $tag (@values) {
         my ($namecheck, $value) = split(':', $tag);
