@@ -8,6 +8,14 @@ description: Read up on all the badly hacked nitty gritty that makes LRR tick he
 
 The _install.pl_ script is essentially a sequence of commands executed to install the backend and frontend dependencies needed to run LRR, as well as basic environment checks.
 
+## Specific environment variables you can apply to change LRR behavior
+
+Those variables were introduced for the Homebrew package, but they can be declared at anytime on any type of install; LRR will try to use them.  
+
+* `LRR_DATA_DIRECTORY` - Data directory override. If this variable is set to a path, said path will house the `temp` and `content` variables. If the user modifies the location of the content folder in his settings, the override has no effect on the content folder.  
+* `LRR_LOG_DIRECTORY` - Log directory override. Changes the location of the `log` folder. (LANraragi v.0.6.7+ only)  
+* `LRR_NETWORK` - Network Interface. See the dedicated page in Advanced Operations.  
+
 ## Coding Style
 
 While Perl's mantra is "There's more than one way to do it", I try to make LRR follow the PBP, aka Perl Best Practices.  
@@ -79,6 +87,7 @@ root/
 |  |- Documentation <- What you're reading right now
 |  |- DockerSetup   <- Dockerfile and configuration files for LRR Docker Container
 |  |- Docker-multiarch <- Modified Dockerfile for Multi-Arch Container builds (see .github)
+|  |- homebrew-start <- Script and configuration files for the LRR Homebrew cask
 |  |- VagrantSetup  <- Vagrantfile for LRR Vagrant Machine
 |  |- cpanfile      <- Perl dependencies description
 |  |- install.pl    <- LANraragi Installer
@@ -100,15 +109,12 @@ The Shinobu Background Worker runs in parallel of the LRR Mojolicious Server and
 
 It's a second process spawned through the Proc::Background Perl Module.
 
-**About the JSON Cache**
+## About the Search Cache
 
-The JSON cache represents all the current archives in the content folder, alongside their metadata.  
-This cache is then loaded by the main page of LRR.
+When you perform a search in LRR, that search is saved to a cache in order to be served faster the next time it's queried.  
+This cache is busted as soon as the archive index is modified in any way.(be it editing metadata or adding/removing archives)
 
-LANraragi by itself does not modify this cache in any way: It only consumes it.  
-This allows it to always stay responsive/quick even with hundreds of archives in the database -- All the indexing work is left to the Shinobu worker.
-
-**Behaviour in Debug Mode**
+## Behaviour in Debug Mode
 
 In Debug Mode, the Mojolicious server auto-restarts on every file modification.  
 You also get access to the Mojolicious logs in LRR's built-in Log View. More logs are also published when in Debug mode.
@@ -143,10 +149,9 @@ The base architecture is as follows:
 |  |- fav1/5 <- Favorite tags, if set by the user.
 |  +- enablepass <- Enable/Disable Password Authentication.
 |
-+- LRR_JSONCACHE <- JSON Cache Storage
-   |- refreshing <- If set to 1, Shinobu is currently rebuilding the cache.
-   |- archive_list <- JSON
-   +- archive_count <- Number of archives in content folder. If the actual number differs from this saved value, a rebuild will be triggered.
++- LRR_SEARCHCACHE <- Search Cache
+   |- $columnfilter-$filter-$sortkey-$sortorder-$newonly <- Unique ID for a search. The search result is serialized and saved as the value for this ID.
+   +- --title-asc-0 <- Example ID for a search made on titles with no filters.
 ```
 
 {% hint style="info" %}

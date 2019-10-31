@@ -15,10 +15,11 @@ They're clean, easy to update, and automatically built/tested.
 ## macOS/Linux: _Homebrew_
 
 [Homebrew](https://brew.sh/) allows you to quickly setup LRR on Unix systems without relying on containers or modifying your preinstalled system libaries.  
+The package manager is mostly designed for macOS, but it can also be used to install the server on Linux machines. 🐧
 
-![brew](../.gitbook/assets/brew.jpg)
+![brew](../.gitbook/assets/brew.jpg)  
 
-{% page-ref page="macos.md" %}
+{% page-ref page="macos.md" %}  
 
 ## Windows 10: _LRR for Windows_
 

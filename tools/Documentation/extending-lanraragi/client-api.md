@@ -85,6 +85,54 @@ You didn't specify an API Key whereas it was needed.
 {% endapi-method-spec %}
 {% endapi-method %}
 
+{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/opds" %}
+{% api-method-summary %}
+Get the Archive Index (OPDS Edition)
+{% endapi-method-summary %}
+
+{% api-method-description %}
+Get the Archive Index as an [OPDS 1.2](https://specs.opds.io/opds-1.2) Catalog.
+{% endapi-method-description %}
+
+{% api-method-spec %}
+{% api-method-request %}
+{% api-method-path-parameters %}
+{% api-method-parameter name="id" type="string" required=false %}
+ID of an archive. Passing this will show only one \<entry\> for the given ID in the result, instead of all the archives.
+{% endapi-method-parameter %}
+{% api-method-parameter name="key" type="string" required=false %}
+API Key if needed.
+{% endapi-method-parameter %}
+{% endapi-method-path-parameters %}
+{% endapi-method-request %}
+
+{% api-method-response %}
+{% api-method-response-example httpCode=200 %}
+{% api-method-response-example-description %}
+The OPDS Catalog is generated. This API is mostly meant to be used as-is by external software implementing the spec.
+{% endapi-method-response-example-description %}
+
+```xml
+
+```
+{% endapi-method-response-example %}
+
+{% api-method-response-example httpCode=401 %}
+{% api-method-response-example-description %}
+You didn't specify an API Key whereas it was needed.
+{% endapi-method-response-example-description %}
+
+```javascript
+{
+    "error":"This API is protected and requires login or an API Key."
+}
+```
+{% endapi-method-response-example %}
+{% endapi-method-response %}
+{% endapi-method-spec %}
+{% endapi-method %}
+
+
 {% api-method method="get" host="http://lrr.tvc-16.science" path="/api/search" %}
 {% api-method-summary %}
 Search the Archive Index

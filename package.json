@@ -1,7 +1,7 @@
 {
   "name": "lanraragi",
-  "version": "0.6.5",
-  "version_name": "Art Decade",
+  "version": "0.6.6",
+  "version_name": "Scary Monsters",
   "description": "holla where the chinese comics at",
   "scripts": {
     "test": "prove -l -v tests/*.t",

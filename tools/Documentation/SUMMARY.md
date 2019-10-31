@@ -6,9 +6,9 @@
 
 * [Which installation method is best for me?](installing-lanraragi/methods.md)
 * [LRR for Windows \(Win10\)](installing-lanraragi/windows.md)
-* [LRR for macOS](installing-lanraragi/macos.md)
+* [Homebrew \(Linux/macOS\)](installing-lanraragi/macos.md)
 * [Docker \(All platforms\)](installing-lanraragi/docker.md)
-* [Source Code \(Linux\)](installing-lanraragi/source.md)
+* [Source Code \(Linux/macOS\)](installing-lanraragi/source.md)
 * [Vagrant \(Deprecated\)](installing-lanraragi/vagrant.md)
 
 ## Basic Operations
@@ -24,6 +24,7 @@
 * [Batch Tagging](advanced-usage/batch-tagging.md)
 * [Favorite Tags](advanced-usage/favorite-tags.md)
 * [Backup and Restore](advanced-usage/backup-and-restore.md)
+* [Using External Readers](advanced-usage/external-readers.md)
 * [Network Interface Setup](advanced-usage/network-interfaces.md)
 
 ## Extending LANraragi

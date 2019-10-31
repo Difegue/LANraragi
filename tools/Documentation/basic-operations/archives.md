@@ -35,12 +35,6 @@ Automatic bookmarking is also present: When reopening the archive, it'll show yo
 
 ## Non-Web Reader \(Third-Party applications\)
 
-Non-Web Readers are not officially supported, but you can build your own through the Client API.
+If you want to use a third-party application to read your archives, you can use the software listed in the following page:  
 
-{% page-ref page="../extending-lanraragi/client-api.md" %}
-
-Here are some existing clients:
-
-* [Ichaival \(Android\)](https://github.com/Utazukin/Ichaival)  
-* [LRReader \(Windows 10\)](https://github.com/Guerra24/LRReader)
-
+{% page-ref page="../advanced-usage/external-readers.md" %}  
