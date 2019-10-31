@@ -16,6 +16,7 @@
 * [Getting Started](basic-operations/first-steps.md)
 * [Reading Archives](basic-operations/archives.md)
 * [Adding Metadata](basic-operations/metadata.md)
+* [Searching the Archive Index](basic-operations/searching.md)
 * [Statistics and Logs](basic-operations/stats.md)
 * [Themes](basic-operations/themes.md)
 

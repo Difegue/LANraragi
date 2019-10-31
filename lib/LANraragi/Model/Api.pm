@@ -89,7 +89,7 @@ sub generate_opds_catalog {
     return $mojo->render_to_string(
         template => $mojo->req->param('id') ? "opds_entry" : "opds",
         arclist  => \@list,
-        arc      => $mojo->req->param('id') ? @list[0] : "",
+        arc      => $mojo->req->param('id') ? $list[0] : "",
         title    => $mojo->LRR_CONF->get_htmltitle,
         motd     => $mojo->LRR_CONF->get_motd,
         version  => $mojo->LRR_VERSION
