@@ -10,6 +10,12 @@ docker save --output save.tar difegue/lanraragi
 tar -xf save.tar --wildcards "*.tar"
 mkdir squashed
 find . -mindepth 2 -type f -iname "*.tar" -print0 -exec tar -xf {} -C squashed \; 
+
+# Create missing directories - This is usually handled by the Docker entrypoint but we don't use it here.
+mkdir squashed/home/koyomi/lanraragi/log
+mkdir squashed/home/koyomi/lanraragi/public/temp
+
+# Tar it all back up
 find squashed -printf "%P\n" -type f -o -type l -o -type d | tar -cf package.tar --no-recursion -C squashed -T -
 
 # Move package.tar to folder 
