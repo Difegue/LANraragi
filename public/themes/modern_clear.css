@@ -226,6 +226,10 @@ tr.gtr1{background:#34495E}
     width:80%;
 }
 
+.searchbtn {
+    min-width: 100px !important;
+}
+
 /* gallery row */
 td.itd{text-align:left;padding:3px 4px;border-right:1px solid #566D75}
 td.itd a{text-decoration:none}
@@ -342,6 +346,10 @@ box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
     height: 18px;
     background: #34495E;
     box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+}
+
+.indeterminate {
+    width: 90%;
 }
 
 /* Toasts */

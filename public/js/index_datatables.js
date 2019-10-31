@@ -1,5 +1,4 @@
 //Functions for DataTable initialization.
-var jsonCache = {};
 
 var column1 = "artist";
 var column2 = "series";
@@ -7,15 +6,16 @@ var column3 = "";
 
 //Executed onload of the archive index to initialize DataTables and other minor things.
 //This is painful to read.
-function initIndex(pagesize, dataSet) {
-	jsonCache = dataSet;
+function initIndex(pagesize) {
 
 	$.fn.dataTableExt.oStdClasses.sStripeOdd = 'gtr0';
 	$.fn.dataTableExt.oStdClasses.sStripeEven = 'gtr1';
 
 	//datatables configuration
 	arcTable = $('.datatables').DataTable({
-		'data': dataSet,
+		'serverSide': true,
+		'processing': true,
+  		'ajax': "search",
 		'deferRender': true,
 		'lengthChange': false,
 		'pageLength': pagesize,
@@ -23,40 +23,55 @@ function initIndex(pagesize, dataSet) {
 		'dom': '<"top"ip>rt<"bottom"p><"clear">',
 		'language': {
 			'info': 'Showing _START_ to _END_ of _TOTAL_ ancient chinese lithographies.',
-			'infoEmpty': '<h1>No archives to show you ! Try <a href="upload">uploading some</a> ?</h1><br/>(If you dropped files into the content folder, please wait for the cache to build.)',
+			'infoEmpty': '<h1>No archives to show you! Try <a href="upload">uploading some</a>?</h1><br/>',
+			'processing': '<div id="progress" class="indeterminate""><div class="bar-container"><div class="bar" style=" width: 80%; "></div></div></div>'
 		},
 		'preDrawCallback': thumbViewInit, //callbacks for thumbnail view
 		'rowCallback': buildThumbDiv,
 		'columns': [{
 				className: 'title itd',
 				'data': null,
+				'name': 'title',
 				'render': titleColumnDisplay
 			},{
 				className: column1 + ' itd',
 				'data': 'tags',
+				'name': column1,
 				'render': function (data, type, full, meta) {
 					return createNamespaceColumn(column1, type, data);
 				}
 			},{
 				className: column2 + ' itd',
 				'data': 'tags',
+				'name': column2,
 				'render': function (data, type, full, meta) {
 					return createNamespaceColumn(column2, type, data);
 				}
 			},{
 				className: 'tags itd',
 				'data': 'tags',
+				'name': 'tags',
+				'orderable': false,
 				'render': tagsColumnDisplay
 			},{
 				className: 'isnew itd',
 				visible: false,
-				'data': 'isnew'
+				'data': 'isnew',
+				'name': 'isnew'
 			}],
 	});
 
 	//add datatable search event to the local searchbox and clear search to the clear filter button
-	$('#srch').keyup(function () {
+	$('#subsrch').click(function () {
 		performSearch();
+	});
+	$('#srch').keyup(function (e) {
+		if(e.defaultPrevented) {
+			return;
+		} else if(e.key == "Enter") {
+			performSearch();
+		}
+		e.preventDefault();
 	});
 
 	$('#clrsrch').click(function () {
@@ -76,23 +91,6 @@ function initIndex(pagesize, dataSet) {
 	//nuke style of table - datatables seems to assign its table a fixed width for some reason.
 	$('.datatables').attr("style", "")
 
-	/* Custom filtering function which will only show new archives if the inbox button is toggled. */
-	$.fn.dataTable.ext.search.push(
-		function (settings, data, dataIndex) {
-
-			input = $("#inboxbtn");
-
-			if (!input.prop("checked"))
-				return true;
-
-			// Use hidden isnew column
-			if (data[4] === "block" || data[4] === "true") {
-				return true;
-			}
-			return false;
-		}
-	);
-
 	//Init Thumbnail Mode if enabled - we do it twice in order to initialize it at the value the user has stored.
 	//(Yeah it's shitty but it works so w/e)
 	switch_index_view();
@@ -106,12 +104,13 @@ function createNamespaceColumn(namespace, type, data) {
 		if (data === "")
 			return "";
 
-		if(namespace == "series") namespace = "(?:series|parody)";
-		regex = new RegExp(".*"+namespace+":\\s?([^,]*),*.*","gi"); // Catch last namespace:xxx value in tags
+    var namespaceRegEx = namespace;
+		if(namespace == "series") namespaceRegEx = "(?:series|parody)";
+		regex = new RegExp(".*"+namespaceRegEx+":\\s?([^,]*),*.*","gi"); // Catch last namespace:xxx value in tags
 		match = regex.exec(data);
 
 		if (match != null) {
-			return '<a style="cursor:pointer" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">' +
+			return '<a style="cursor:pointer" arc-namespace="' + namespace + '" onclick="$(\'#srch\').val($(this).attr(\'arc-namespace\') + \':\' + $(this).html()); arcTable.search($(this).attr(\'arc-namespace\') + \':\' + $(this).html()).draw();">' +
 				match[1].replace(/\b./g, function (m) { return m.toUpperCase(); }) +
 				'</a>';
 		} else return "";
@@ -169,7 +168,7 @@ function thumbViewInit(settings) {
 function buildThumbDiv(row, data, index) {
 
 	if (localStorage.indexViewMode == 1) {
-		//Build a thumb-like div with the data 
+		//Build a thumb-like div with the data
 		thumb_div = '<div style="height:335px" class="id1" id="'+data.arcid+'">' +
 			'<div class="id2">' +
 				buildProgressDiv(data.arcid, data.isnew) +
@@ -195,14 +194,14 @@ function buildProgressDiv(id, isnew) {
 
 	if (isnew === "block" || isnew === "true") {
 		return '<div class="isnew">🆕</div>';
-	} 
+	}
 
 	if (localStorage.getItem(id + "-totalPages") !== null && localStorage.nobookmark !== 'true') {
 		// Progress recorded, display an indicator
 		currentPage = Number(localStorage.getItem(id + "-reader")) + 1;
 		totalPages = Number(localStorage.getItem(id + "-totalPages"));
 
-		if (currentPage === totalPages) 
+		if (currentPage === totalPages)
 			return "<div class='isnew'>👑</div>";
 		else
 			return "<div class='isnew'><sup>"+currentPage+"/"+totalPages+"</sup></div>";
@@ -292,7 +291,7 @@ function buildTagsDiv(tags) {
 		line += "<tr><td style='font-size:10pt; padding: 3px 2px 7px; vertical-align:top'>" + ucKey + ":</td><td>";
 
 		tagsByNamespace[key].forEach(function (tag) {
-			line += '<div class="gt" onclick="$(\'#srch\').val($(this).html()); arcTable.search($(this).html()).draw();">' + tag + '</div>';
+			line += '<div class="gt" arc-namespace="' + key + '" onclick="$(\'#srch\').val($(this).attr(\'arc-namespace\') + \':\' + $(this).html()); arcTable.search($(this).attr(\'arc-namespace\') + \':\' + $(this).html()).draw();">' + tag + '</div>';
 		});
 
 		line += "</td></tr>";
@@ -313,7 +312,7 @@ function colorCodeTags(tags) {
 		tagsByNamespace[key].forEach(function (tag) {
 			line+="<span class='"+key.toLowerCase()+"-tag'>"+tag+"</span>, ";
 		});
-	});	
+	});
 	// Remove last comma
 	return line.slice(0, -2);
 }

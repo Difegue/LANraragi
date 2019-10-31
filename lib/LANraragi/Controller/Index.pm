@@ -21,25 +21,25 @@ sub random_archive {
 
     my $redis = $self->LRR_CONF->get_redis();
 
-#We get a random archive ID. We check for the length to (sort-of) avoid not getting an archive ID.
+    # We get a random archive ID. 
+    # We check for the length to (sort-of) avoid not getting an archive ID.
+    # TODO: This will loop infinitely if there are zero archives in store.
     until ($archiveexists) {
         $archive = $redis->randomkey();
 
         $self->LRR_LOGGER->debug("Found key $archive");
 
-#We got a key, but does the matching archive still exist on the server? Better check it out.
-#This usecase only happens with the random selection : Regular index is based on the JSON cache.
-        if (   length($archive) == 40
-            && $redis->type($archive) eq "hash"
-            && $redis->hexists( $archive, "file" ) )
+        #We got a key, but does the matching archive still exist on the server?
+        if ( length($archive) == 40
+          && $redis->type($archive) eq "hash"
+          && $redis->hexists( $archive, "file" ) )
         {
             my $arclocation = $redis->hget( $archive, "file" );
-            $arclocation =
-              LANraragi::Utils::Database::redis_decode($arclocation);
-
             if ( -e $arclocation ) { $archiveexists = 1; }
         }
     }
+
+    $redis->quit();
 
     #We redirect to the reader, with the key as parameter.
     $self->redirect_to( '/reader?id=' . $archive );
@@ -48,18 +48,9 @@ sub random_archive {
 # Go through the archives in the content directory and build the template at the end.
 sub index {
 
-    my $self = shift;
-
+    my $self  = shift;
     my $redis = $self->LRR_CONF->get_redis();
-
     my $force = 0;
-
-    if ( $redis->hexists( "LRR_JSONCACHE", "refreshing" ) ) {
-
-        #If this flag is set, the DB cache is currently building
-        #flash a notification
-        $force = $redis->hget( "LRR_JSONCACHE", "refreshing" );
-    }
 
     #Checking if the user still has the default password enabled
     my $ppr = Authen::Passphrase->from_rfc2307( $self->LRR_CONF->get_password );
@@ -80,6 +71,8 @@ sub index {
         }
     }
 
+    $redis->quit();
+
     $self->render(
         template        => "index",
         version         => $self->LRR_VERSION,
@@ -91,7 +84,6 @@ sub index {
         csshead         => LANraragi::Utils::Generic::generate_themes_header($self),
         favtags         => \@validFavs,
         usingdefpass    => $passcheck,
-        buildingDBcache => $force,
         debugmode       => $self->app->mode eq "development"
     );
 }

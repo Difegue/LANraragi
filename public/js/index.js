@@ -45,29 +45,35 @@ function toggleInbox(button) {
 function performSearch() {
 
 	favTags = $(".favtag");
-	searchQuery = "("
+	favTagQuery = "\"";
 
 	for (var i = 0; i < favTags.length; i++) {
 		tagCheckbox = favTags[i];
 		if (tagCheckbox.checked)
-			searchQuery += tagCheckbox.id + "|";
+			favTagQuery += tagCheckbox.id + "\" \"";
 	}
 
-	//chop last | character
-	searchQuery = searchQuery.slice(0, -1);
-	searchQuery += ")";
-
-	//Perform search in datatables field with our own regexes enabled and smart search off
-	if (searchQuery !== ")") {
-		arcTable.column('.tags.itd').search(searchQuery, true, false);
-		arcTable.search($('#srch').val().replace(",", ""), false, true);
-		arcTable.draw();
+	// Add the favtag query to the tags column so it's picked up by the search engine 
+	// This allows for the regular search bar to be used in conjunction with favtags.
+	if (favTagQuery !== "\" ") {
+		arcTable.column('.tags.itd').search(favTagQuery);
 	} else {
 		// no fav filters
-		arcTable.column('.tags.itd').search("", false, true);
-		arcTable.search($('#srch').val().replace(",", ""), false, true).draw();
+		arcTable.column('.tags.itd').search("");
 	}
 
+	// Add the isnew filter if asked
+	input = $("#inboxbtn");
+
+	if (input.prop("checked")) {
+		arcTable.column('.isnew').search("true");
+	} else {
+		// no fav filters
+		arcTable.column('.isnew').search("");
+	}
+
+	arcTable.search($('#srch').val().replace(",", ""));
+	arcTable.draw();
 }
 
 //Switch view on index and saves the value in the user's localStorage. The DataTables callbacks adapt automatically.
@@ -175,7 +181,7 @@ function loadTagSuggestions() {
 				list: taglist,
 				data: fullTag,
 				// Sort by weight
-				sort: function(a, b) { console.log(a); return b.value - a.value; },
+				sort: function(a, b) { return b.value - a.value; },
 				filter: function(text, input) {
 					return Awesomplete.FILTER_CONTAINS(text, input.match(/[^,]*$/)[0]);
 				},
@@ -186,11 +192,6 @@ function loadTagSuggestions() {
 					var before = this.input.value.match(/^.+,\s*|/)[0];
 					this.input.value = before + text + ", ";
 				}
-			});
-
-			// Perform a search when a tag is selected
-			Awesomplete.$('#srch').addEventListener("awesomplete-selectcomplete", function() {
-				performSearch();
 			});
 
 		}).fail(function (data) {

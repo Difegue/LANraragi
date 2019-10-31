@@ -12,7 +12,8 @@ LABEL "com.github.actions.color"="purple"
 
 USER root
 
-RUN apk add perl-utils
+# Re-add devtools
+RUN apk add perl-utils perl-dev wget g++ make
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh

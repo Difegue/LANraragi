@@ -56,6 +56,43 @@ sub add_archive_to_redis {
     return ( $name, $title, $tags, "true" );
 }
 
+# build_archive_JSON(redis, id)
+# Builds a JSON object for an archive registered in the database and returns it.
+# This function is usually called many times in a row, so provide your own Redis object.
+sub build_archive_JSON {
+    my ( $redis, $id ) = @_;
+    my $dirname = LANraragi::Model::Config::get_userdir;
+
+    #Extra check in case we've been given a bogus ID
+    return "" unless $redis->exists($id);
+
+    my %hash = $redis->hgetall($id);
+    my ( $path, $suffix );
+
+    #It's not a new archive, but it might have never been clicked on yet,
+    #so we'll grab the value for $isnew stored in redis.
+    my ( $name, $title, $tags, $file, $isnew ) =
+      @hash{qw(name title tags file isnew)};
+
+    #Parameters have been obtained, let's decode them.
+    ( $_ = LANraragi::Utils::Database::redis_decode($_) )
+      for ( $name, $title, $tags );
+
+    #Workaround if title was incorrectly parsed as blank
+    if ( !defined($title) || $title =~ /^\s*$/ ) {
+        $title = $name;
+    }
+
+    my $arcdata = {
+        arcid  => $id,
+        title  => $title,
+        tags   => $tags,
+        isnew  => $isnew
+    };
+
+    return $arcdata;
+}
+
 #Deletes the archive with the given id from redis, and the matching archive file.
 sub delete_archive {
 
@@ -64,18 +101,11 @@ sub delete_archive {
     my $filename = $redis->hget( $id, "file" );
 
     $redis->del($id);
-
     $redis->quit();
 
     if ( -e $filename ) {
         unlink $filename;
-
-        # JSON rebuild is handled by Shinobu here, no need for invalidation
         return $filename;
-    } else {
-        # If the file was already gone, do a manual JSON rebuild.  
-        # This supposedly shouldn't happen but better be safe
-        LANraragi::Utils::Database::invalidate_cache();
     }
 
     return "0";
@@ -240,50 +270,12 @@ sub redis_decode {
     return $data;
 }
 
-#Touch the Shinobu nudge file. This will invalidate the currently cached JSON.
+# Bust the current search cache key in Redis.
 sub invalidate_cache {
-    utime( undef, undef, cwd . "/.shinobu-nudge" )
-      or warn "Couldn't touch .shinobu-nudge: $!";
-}
-
-# Return a list of archive IDs that have no tags.
-# Tags added automatically by the autotagger are ignored.
-sub find_untagged_archives {
-
-    my $redis   = LANraragi::Model::Config::get_redis;
-    my @keys    = $redis->keys('????????????????????????????????????????');
-    my @untagged;
-
-    #Parse the archive list.
-    foreach my $id (@keys) {
-        my $zipfile = $redis->hget( $id, "file" );
-        if ( -e $zipfile ) {
-
-            my $title = $redis->hget( $id, "title" );
-            $title = LANraragi::Utils::Database::redis_decode($title);
-
-            my $tagstr = $redis->hget($id, "tags");
-            $tagstr = LANraragi::Utils::Database::redis_decode($tagstr);
-            my @tags = split(/,\s?/, $tagstr);
-            my $nondefaulttags = 0;
-            
-            foreach my $t (@tags) {
-                LANraragi::Utils::Generic::remove_spaces($t);
-                LANraragi::Utils::Generic::remove_newlines($t);
-                
-                # the following are the only namespaces that LANraragi::Utils::Database::parse_name adds
-                $nondefaulttags += 1 unless $t =~ /(artist|parody|series|language|event|group):.*/
-            }
-            
-            #If the archive has no tags, or the tags namespaces are only from
-            #filename parsing (probably), add it to the list.
-            if (!@tags || $nondefaulttags == 0) {
-                push @untagged, $id;
-            }
-        }
-    }
-    $redis->quit;
-    return @untagged;
+    my $redis = LANraragi::Model::Config::get_redis;
+    $redis->del("LRR_JSONCACHE");
+    $redis->del("LRR_SEARCHCACHE");
+    $redis->quit();
 }
 
 1;

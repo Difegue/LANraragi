@@ -29,7 +29,6 @@ sub exec_enabled_plugins_on_file {
       LANraragi::Utils::Generic::get_logger( "Auto-Plugin", "lanraragi" );
 
     $logger->info("Executing enabled plugins on archive with id $id.");
-    my $redis = LANraragi::Model::Config::get_redis;
 
     my $successes = 0;
     my $failures  = 0;
@@ -88,8 +87,6 @@ sub exec_enabled_plugins_on_file {
 sub exec_plugin_on_file {
 
     my ( $plugin, $id, $oneshotarg, @args ) = @_;
-    my $redis = LANraragi::Model::Config::get_redis;
-
     my $logger =
       LANraragi::Utils::Generic::get_logger( "Auto-Tagger", "lanraragi" );
 
@@ -97,7 +94,9 @@ sub exec_plugin_on_file {
     #catch all the required data and feed it to the plugin
     if ( $plugin->can('get_tags') ) {
 
-        my %hash = $redis->hgetall($id);
+        my $redis = LANraragi::Model::Config::get_redis;
+        my %hash  = $redis->hgetall($id);
+
         my ( $name, $title, $tags, $file, $thumbhash ) =
           @hash{qw(name title tags file thumbhash)};
 
@@ -118,7 +117,8 @@ sub exec_plugin_on_file {
                 $thumbhash = $redis->hget( $id, "thumbhash" );
                 $thumbhash = LANraragi::Utils::Database::redis_decode($thumbhash);
             }
-        }
+        }          
+        $redis->quit();
 
         #Hand it off to the plugin here.
         my %newmetadata = $plugin->get_tags( $title, $tags, $thumbhash, $file, $oneshotarg,
@@ -180,7 +180,6 @@ sub exec_plugin_on_file {
             LANraragi::Utils::Generic::remove_spaces($newtitle);
             $returnhash{title} = $newtitle;
         }
-
         return %returnhash;
     }
     return ( error => "Plugin doesn't implement get_tags" );

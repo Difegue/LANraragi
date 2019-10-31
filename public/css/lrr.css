@@ -261,9 +261,16 @@ a:hover > .page-number {
     overflow: auto;
     list-style: none outside none;
     text-align: left;
-    margin-left: -20px;
+    margin-left: -30px;
     margin-right: 5px;
     font-size: 9pt;
+}
+
+.checklist > li {
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .isnew {
@@ -308,4 +315,49 @@ a:hover > .page-number {
 
 .circle-tag, .group-tag {
     color:#36d7b7;
+}
+
+/* Indeterminate progress bar */
+.indeterminate {
+    height: 15px;	
+    overflow: hidden;
+    position: relative;
+    margin: auto;
+    padding-bottom: 6px;
+}
+.indeterminate .bar-container {
+    position: absolute;
+    margin: 0;
+    min-width: 100%;
+    width: 100%;
+    /* Starting position */
+    -moz-transform:translateX(100%);
+    -webkit-transform:translateX(100%);	
+    transform:translateX(100%);
+    /* Apply animation to this element */	
+    -moz-animation: scroll-left 2s ease-in-out infinite;
+    -webkit-animation: scroll-left 2s ease-in-out infinite;
+    animation: scroll-left 2s ease-in-out infinite;
+}
+
+/* Move it (define the animation) */
+@-moz-keyframes scroll-left {
+    0%   { -moz-transform: translateX(100%); }
+    100% { -moz-transform: translateX(-100%); }
+}
+@-webkit-keyframes scroll-left {
+    0%   { -webkit-transform: translateX(100%); }
+    100% { -webkit-transform: translateX(-100%); }
+}
+@keyframes scroll-left {
+    0%   { 
+    -moz-transform: translateX(100%); /* Browser bug fix */
+    -webkit-transform: translateX(100%); /* Browser bug fix */
+    transform: translateX(100%); 		
+    }
+    100% { 
+    -moz-transform: translateX(-100%); /* Browser bug fix */
+    -webkit-transform: translateX(-100%); /* Browser bug fix */
+    transform: translateX(-100%); 
+    }
 }

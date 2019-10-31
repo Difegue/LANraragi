@@ -2,16 +2,12 @@
 description: The following instructions are based on Debian Stretch.
 ---
 
-# Source Code \(Linux\)
-
-## About macOS
-
-LRR relies on inotify, which is a Linux-only feature not available on macOS. See [https://github.com/Difegue/LANraragi/issues/158](this issue) for details.
+# Source Code \(Linux/macOS\)
 
 ## A small FYI about Vendor Perl
 
 As you might have noticed, LANraragi entirely depends on the Perl programming language.  
-A version of Perl usually ships already compiled on most Linux distributions. It's usually called "Vendor Perl".
+A version of Perl ships already compiled on most Linux distributions(and macOS). It's usually called "Vendor Perl".
 
 Using vendor Perl is [generally discouraged](http://www.modernperlbooks.com/mt/2012/01/avoiding-the-vendor-perl-fad-diet.html) due to possible fuck-ups by the Linux distribution creator.  
 As such, you might want to install LANraragi with your own compiled Perl, using a tool such as [Perlbrew](https://perlbrew.pl/).
@@ -28,6 +24,10 @@ cpanminus redis-server libarchive-dev libjpeg-dev libpng-dev libssl-dev zlib1g-d
 ```
 
 _Base software dependencies._
+
+{% hint style="info" %}
+For macOS, you should be able to install the dependencies using Homebrew.
+{% endhint %}
 
 ## Installing LRR
 

@@ -234,6 +234,9 @@ tr.gtr1 {
     padding: 2px 3px;
     width: 80%;
 }
+.searchbtn {
+    min-width: 100px !important;
+}
 td.itd {
     border-right: 2px dotted #414135;
     padding: 3px 4px;
@@ -418,6 +421,10 @@ p#nb a:hover {
     height: 18px;
     background: #D7D4C5;
     box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+}
+
+.indeterminate {
+    width: 90%;
 }
 
 /* Toasts */

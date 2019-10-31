@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"
+      xmlns:dcterms="http://purl.org/dc/terms/"
+      xmlns:opds="http://opds-spec.org/2010/catalog">
+
+  <id>urn:lrr:0</id>
+
+  <link rel="self"    
+        href="/api/opds"
+        type="application/atom+xml;profile=opds-catalog;kind=acquisition"/>
+
+  <link rel="start"    
+        href="/api/opds"
+        type="application/atom+xml;profile=opds-catalog;kind=acquisition"/>
+
+  <title>[% title %]</title>
+  <updated>2010-01-10T10:03:10Z</updated>
+  <subtitle>[% motd %]</subtitle>
+  <icon>/favicon.ico</icon>
+  <author>
+    <name>[% version %]</name>
+    <uri>http://github.org/Difegue/LANraragi</uri>
+  </author>
+
+  [% FOREACH arc IN arclist %]
+  <entry>
+      <title>[% arc.title %]</title>
+      <id>urn:lrr:[% arc.arcid %]</id>
+      <updated>[% arc.dateadded %]</updated>
+      <published>[% arc.dateadded %]</published>
+      <author>
+          <name>[% arc.author %]</name>
+      </author>
+      <rights>[% arc.series %]</rights>
+      <dcterms:language>[% arc.language %]</dcterms:language>
+      <dcterms:publisher>[% arc.circle %]</dcterms:publisher>
+      <dcterms:issued>[% arc.event %]</dcterms:issued>
+      [% IF arc.isnew %]
+      <category term="Archive"/>
+      [% ELSE %]
+      <category term="New Archive"/>
+      [% END %]
+      <summary>[% arc.tags %]</summary>
+      
+      <link rel="alternate"
+          href="/api/opds?id=[% arc.arcid %]"
+          type="application/atom+xml;type=entry;profile=opds-catalog" />
+  
+      <link rel="http://opds-spec.org/image" href="/api/thumbnail?id=[% arc.arcid %]" type="image/jpeg"/>
+      <link rel="http://opds-spec.org/image/thumbnail" href="/api/thumbnail?id=[% arc.arcid %]" type="image/jpeg"/>
+      <link rel="http://opds-spec.org/acquisition" href="/api/servefile?id=[% arc.arcid %]" type="[% arc.mimetype %]"/>
+      <link rel="http://opds-spec.org/acquisition" href="/api/servefile?id=[% arc.arcid %]" title="Read" type="[% arc.mimetype2 %]"/>
+      <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=[% arc.arcid %]"/>
+  </entry>
+  [% END %]
+
+</feed>

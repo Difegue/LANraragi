@@ -83,7 +83,7 @@
 					$('#processing').attr("style", "display:none");
 
 					if (data.result.success == 1)
-						$('#result').html("Backup restored !");
+						$('#result').html("Backup restored!");
 					else
 						$('#result').html(data.result.error);
 				},

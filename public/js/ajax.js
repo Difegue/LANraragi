@@ -45,7 +45,7 @@ function cleanTempFldr() {
 }
 
 function invalidateCache() {
-	genericAPICall("api/discard_cache", "Started JSON Cache rebuild.", "Error while deleting cache! Check Logs.", null);
+	genericAPICall("api/discard_cache", "Threw away the Search Cache!", "Error while deleting cache! Check Logs.", null);
 }
 
 function clearNew(id) {

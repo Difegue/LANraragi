@@ -33,6 +33,7 @@ sub apply_routes {
         $logged_in_api->get('/api/servefile')->to('api#serve_file');
         $logged_in_api->get('/api/archivelist')->to('api#serve_archivelist');
         $logged_in_api->get('/api/untagged')->to('api#serve_untagged_archivelist');
+        $logged_in_api->get('/api/opds')->to('api#serve_opds');
         $logged_in_api->get('/api/tagstats')->to('api#serve_tag_stats');
         $logged_in_api->get('/api/extract')->to('api#extract_archive');
         $logged_in_api->get('/api/clear_new')->to('api#clear_new');
@@ -52,6 +53,7 @@ sub apply_routes {
         $r->get('/api/servefile')->to('api#serve_file');
         $r->get('/api/archivelist')->to('api#serve_archivelist');
         $r->get('/api/untagged')->to('api#serve_untagged_archivelist');
+        $r->get('/api/opds')->to('api#serve_opds');
         $r->get('/api/tagstats')->to('api#serve_tag_stats');
         $r->get('/api/extract')->to('api#extract_archive');
         $r->get('/api/clear_new')->to('api#clear_new');
@@ -82,7 +84,7 @@ sub apply_routes {
     $logged_in_api->post('/api/use_plugin')->to('api#use_plugin');
     $logged_in_api->post('/api/autoplugin')->to('api#use_enabled_plugins');
     $logged_in_api->get('/api/clean_temp')->to('api#clean_tempfolder');
-    $logged_in_api->get('/api/discard_cache')->to('api#force_refresh');
+    $logged_in_api->get('/api/discard_cache')->to('api#clear_cache');
     $logged_in_api->get('/api/shinobu_status')->to('api#shinobu_status');
     $logged_in_api->get('/api/stop_shinobu')->to('api#stop_shinobu');
     $logged_in_api->get('/api/restart_shinobu')->to('api#restart_shinobu');
@@ -96,6 +98,7 @@ sub apply_routes {
     $logged_in->get('/logs/shinobu')->to('logging#print_shinobu');
     $logged_in->get('/logs/plugins')->to('logging#print_plugins');
     $logged_in->get('/logs/mojo')->to('logging#print_mojo');
+    $logged_in->get('/logs/redis')->to('logging#print_redis');
 
     $r->get('/logout')->to('login#logout');
 

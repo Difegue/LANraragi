@@ -1,7 +1,6 @@
 node_modules
 content
 .shinobu-pid
-.shinobu-nudge
 npm-debug.log
 dump.rdb
 package-lock.json
@@ -9,3 +8,4 @@ package-lock.json
 *qemu-*-static*
 Dockerfile.*
 script/hypnotoad.pid
+.DS_Store

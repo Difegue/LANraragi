@@ -6,6 +6,7 @@ use utf8;
 
 use feature 'say';
 use POSIX;
+use Storable;
 use Digest::SHA qw(sha256_hex);
 use Mojo::Log;
 use Logfile::Rotate;
@@ -15,25 +16,46 @@ use LANraragi::Model::Config;
 
 # Generic Utility Functions.
 
-#Remove spaces before and after a word
+# Remove spaces before and after a word
 sub remove_spaces {
-    until ( substr( $_[0], 0, 1 ) ne " " ) {
-        $_[0] = substr( $_[0], 1 );
-    }
-
-    until ( substr( $_[0], -1 ) ne " " ) {
-        chop $_[0];
-    }
+    $_[0] =~ s/^\s+|\s+$//g;
 }
 
-#Remove all newlines in a string
+# Remove all newlines in a string
 sub remove_newlines {
     $_[0] =~ s/\R//g;
 }
 
-#Checks if the provided file is an image.
+# Checks if the provided file is an image.
+# WARNING: This modifies the given filename variable!
 sub is_image {
     return $_[0] =~ /^.+\.(png|jpg|gif|bmp|jpeg|jfif|webp|PNG|JPG|GIF|BMP|JPEG|JFIF|WEBP)$/;
+}
+
+# Escape XML control characters.
+sub escape_xml {
+    $_[0] =~ s/&/&amp;/sg;
+    $_[0] =~ s/</&lt;/sg;
+    $_[0] =~ s/>/&gt;/sg;
+    $_[0] =~ s/"/&quot;/sg;
+}
+
+# Find the first tag matching the given namespace, or return the default value.
+sub get_tag_with_namespace {
+    my ($namespace, $tags, $default) = @_;
+    my @values = split(',', $tags);
+
+    foreach my $tag (@values) {
+        my ($namecheck, $value) = split(':', $tag);
+        remove_spaces($namecheck);
+        remove_spaces($value);
+
+        if ($namecheck eq $namespace) {
+            return $value;
+        }
+    }
+
+    return $default;
 }
 
 #Start Shinobu and return its Proc::Background object.
@@ -42,21 +64,11 @@ sub start_shinobu {
 
     my $proc = Proc::Simple->new(); 
     $proc->start($^X, "./lib/Shinobu.pm");
+    $proc->kill_on_destroy(0);
 
-    #Create file to store the process' PID
-    open( my $pidfile, '>', ".shinobu-pid" )
-      or $logger->warn( "Couldn't store PID for Background Worker: " . $! );
-    my $newpid = $proc->pid;
-    print $pidfile $newpid;
-    close($pidfile);
-
+    # Freeze the process object in the PID file
+    store \$proc, '.shinobu-pid';
     return $proc;
-}
-
-# Kill process with the given PID.
-sub kill_pid {
-    my $pid = shift;
-    `kill -9 $pid`;
 }
 
 #This function gives us a SHA hash for the passed file, which is used for thumbnail reverse search on E-H.

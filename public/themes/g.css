@@ -193,6 +193,9 @@ tr.gtr1 {
     background: none repeat scroll 0 0 #F2EFDF;
     color: #9B4E03;
 }
+.searchbtn {
+    min-width: 100px !important;
+}
 td.itd {
     border-right: 1px solid #D9D7CC;
     padding: 3px 4px;
@@ -310,11 +313,15 @@ border:2px outset #5C0D11 !important;
     
 }
 
-
 /* File upload bar */
 .bar {
     height: 18px;
     background: #5C0D11;
+}
+
+.indeterminate {
+    width:99%;
+    max-width:1175px;
 }
 
 /* Toasts */

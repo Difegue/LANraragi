@@ -123,6 +123,7 @@ sub save_config {
         $redis->wait_all_responses;
     }
 
+    $redis->quit();
     $self->render(
         json => {
             operation => "config",

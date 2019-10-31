@@ -59,7 +59,6 @@ sub build_backup_JSON {
     $json .= "]";
 
     $redis->quit();
-
     return $json;
 
 }

@@ -16,8 +16,13 @@ use LANraragi::Utils::Generic;
 #Get the current tempfolder.
 #This can be called from any process safely as it uses FindBin.
 sub get_temp {
-    mkdir "$FindBin::Bin/../public/temp";
-    return "$FindBin::Bin/../public/temp";
+    my $temp_folder = "$FindBin::Bin/../public/temp";
+    # save user generated files to LANDATADIR
+    if ($ENV{LRR_DATA_DIRECTORY} ne ".") {
+        $temp_folder = $ENV{LRR_DATA_DIRECTORY} . "/temp";
+    }
+    mkdir $temp_folder;
+    return $temp_folder;
 }
 
 #Get the current size of the tempfolder, in Megabytes.

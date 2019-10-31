@@ -82,7 +82,8 @@
 
 				<input type='text' id='srch' class='search stdinput' size='90' style='width:100%' 
 					placeholder='Search Title, Artist, Series, Language or Tags' />
-				<input id='clrsrch' class='stdbtn' type='button' value='Clear Filter' />
+        <input id='subsrch' class='searchbtn stdbtn' type='button' value='Apply Filter' />
+				<input id='clrsrch' class='searchbtn stdbtn' type='button' value='Clear Filter' />
 			</div>
 
 			<p id='cssbutton' style='display:inline'>
@@ -124,9 +125,7 @@
 					lads
 					<i class="fas fa-bomb"></i>
 				</h1>
-				<h2>The database cache is corrupt, and as such LANraragi is unable to display your archive list.
-					<br> You can try refreshing the cache manually by clicking
-					<a href="/api/discard_cache">here</a> to see if that fixes anything. </h2>
+				<h2>The database cache is corrupt, and as such LANraragi is unable to display your archive list.</h2>
 			</div>
 
 		</div>
@@ -146,14 +145,7 @@
 			localStorage.indexViewMode = 1;
 		}
 
-		//load archive JSON before anything else
-		$.getJSON("api/archivelist", function (data) {
-			initIndex([% pagesize %], data);
-		}).fail(function (d) {
-			//Catastrophic cache fuckup, inform the user
-			$(".datatables").hide();
-			$("#json-error").show();
-		});
+		initIndex([% pagesize %]);
 
 		[% IF usingdefpass %]
 		//If the json has the "default password" flag, flash a friendly notification inviting the user to change his password
@@ -163,18 +155,6 @@
 			hideAfter: false,
 			position: 'top-left',
 			icon: 'error'
-		});
-		[% END %]
-
-		[% IF buildingDBcache %]
-		//This notification flashes when the JSON cache for the archive DB is rebuilding - 
-		//usually due to a new archive or metadata being updated.
-		$.toast({
-			heading: 'The database cache is currently building',
-			text: 'All your archives might not appear in this list yet, but they will! Eventually. <br/>Try refreshing the page a bit later. You can also check the current state of the build through the <a href="logs">logs</a>.',
-			hideAfter: false,
-			position: 'top-left',
-			icon: 'warning'
 		});
 		[% END %]
 

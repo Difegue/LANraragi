@@ -119,6 +119,8 @@ tr.gtr1{background:#363940}
 .stdinput:focus{color:#f1f1f1;background:#43464e}
 .stdinput:disabled{color:#f1f1f1;background:#34353b}
 
+.searchbtn{min-width: 100px !important;}
+
 /* gallery row */
 td.itd{text-align:left;padding:3px 4px;border-right:1px solid #40454b}
 td.itd a{text-decoration:none}
@@ -180,6 +182,11 @@ border:2px solid #000000 !important;
 .bar {
     height: 18px;
     background: #34353b;
+}
+
+.indeterminate {
+    width:99%;
+    max-width:1175px;
 }
 
 /* Toasts */

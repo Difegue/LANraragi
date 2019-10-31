@@ -62,6 +62,19 @@ sub print_plugins {
         text => &get_lines_from_file( $lines, "./log/plugins.log" ) );
 }
 
+sub print_redis {
+
+    my $self  = shift;
+    my $lines = 100;     #Number of lines to read
+
+    if ( $self->req->param('lines') ) {
+        $lines = $self->req->param('lines');
+    }
+
+    $self->render(
+        text => &get_lines_from_file( $lines, "./log/redis.log" ) );
+}
+
 sub print_mojo {
 
     my $self = shift;

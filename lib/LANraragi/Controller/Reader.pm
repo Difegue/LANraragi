@@ -67,6 +67,7 @@ sub index {
             return;
         }
 
+        $redis->quit();
         $self->render(
             template   => "reader",
             arcname    => $arcname,

@@ -28,7 +28,29 @@ chmod +rw /home/koyomi/lanraragi/content/database.rdb
 chown -R koyomi /home/koyomi/lanraragi/content/thumb 
 chmod 744 /home/koyomi/lanraragi/content/thumb
 
+#Ensure log folder is writable
+mkdir /home/koyomi/lanraragi/log
+chown -R koyomi /home/koyomi/lanraragi/log
+chmod 744 /home/koyomi/lanraragi/log
+
+#Ensure temp folder is writable
+mkdir /home/koyomi/lanraragi/public/temp
+chown -R koyomi /home/koyomi/lanraragi/public/temp
+chmod 744 /home/koyomi/lanraragi/public/temp
+
+#Remove hypnotoad and shinobu pid files
+rm /home/koyomi/lanraragi/script/hypnotoad.pid
+rm /home/koyomi/lanraragi/.shinobu-pid
+
 export HOME=/home/koyomi
+
+# https://redis.io/topics/faq#background-saving-fails-with-a-fork-error-under-linux-even-if-i-have-a-lot-of-free-ram
+OVERCOMMIT=$(cat /proc/sys/vm/overcommit_memory)
+if [ $OVERCOMMIT -eq 0 ]
+then
+    echo "WARNING: overcommit_memory is set to 0! This might lead to background saving errors if your database is too large."
+    echo "Please check https://redis.io/topics/faq#background-saving-fails-with-a-fork-error-under-linux-even-if-i-have-a-lot-of-free-ram for details."
+fi
 
 #Start supervisor with the Docker configuration
 #This also loads the redis config to write DB in content directory and disable daemonization

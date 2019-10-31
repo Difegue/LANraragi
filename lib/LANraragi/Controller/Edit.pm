@@ -33,9 +33,10 @@ sub save_metadata {
 
     my $redis = $self->LRR_CONF->get_redis();
 
-#for all keys of the hash, add them to the redis hash $id with the matching keys.
+    # For all keys of the hash, add them to the redis hash $id with the matching keys.
     $redis->hset( $id, $_, $hash{$_}, sub { } ) for keys %hash;
     $redis->wait_all_responses;
+    $redis->quit();
 
     #Trigger a JSON rebuild.
     LANraragi::Utils::Database::invalidate_cache();

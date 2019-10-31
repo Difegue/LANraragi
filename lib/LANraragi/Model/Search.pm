@@ -6,83 +6,111 @@ use utf8;
 
 use List::Util qw(min);
 use Redis;
+use Encode;
+use Storable qw/ nfreeze thaw /;
 
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Database;
 
 use LANraragi::Model::Config;
 
-# do_search (filter, page, key, order)
+# do_search (filter, filter2, page, key, order, newonly)
 # Performs a search on the database.
 sub do_search {
 
-    my ( $filter, $start, $sortkey, $sortorder) = @_;
+    my ( $filter, $columnfilter, $start, $sortkey, $sortorder, $newonly) = @_;
 
     my $redis = LANraragi::Model::Config::get_redis;
     my $logger =
         LANraragi::Utils::Generic::get_logger( "Search Engine", "lanraragi" );
 
+    # Search filter results
+    my @filtered;
     # Get all archives from redis
     my @keys = $redis->keys('????????????????????????????????????????');
-    my @filtered;
 
-    # Go through tags and apply search filter
-    foreach my $id (@keys) {
-        my $tags  = $redis->hget($id, "tags");
-        my $title = $redis->hget($id, "title");
-        $title = LANraragi::Utils::Database::redis_decode($title);
-        $tags  = LANraragi::Utils::Database::redis_decode($tags);
+    # Look in searchcache first
+    my $cachekey = encode_utf8("$columnfilter-$filter-$sortkey-$sortorder-$newonly");
+    $logger->debug("Search request: $cachekey");
 
-        if (matches_search_filter($filter, $title . " " . $tags)) {
-            # Push id to array
-            push @filtered, { id => $id, title => $title, tags => $tags };
-        }
-    }
+    if ($redis->exists("LRR_SEARCHCACHE") && $redis->hexists("LRR_SEARCHCACHE", $cachekey)) {
 
-    if ($#filtered > 0) {
+        $logger->debug("Using cache for this query.");
+        @filtered = @{ thaw $redis->hget("LRR_SEARCHCACHE", $cachekey)};
+    } else {
+        $logger->debug("No cache available, doing a full DB parse.");
 
-        if (!$sortkey) {
-            $sortkey = "title";
-        }
+        # Go through tags and apply search filter
+        foreach my $id (@keys) {
+            my $tags  = $redis->hget($id, "tags");
+            my $title = $redis->hget($id, "title");
+            my $file  = $redis->hget($id, "file");
+            my $isnew = $redis->hget($id, "isnew");
+            $title = LANraragi::Utils::Database::redis_decode($title);
+            $tags  = LANraragi::Utils::Database::redis_decode($tags);
 
-        # Sort by the required metadata, asc or desc
-        @filtered = sort { 
-  
-            #Use either tags or title depending on the sortkey
-            my $meta1 = $a->{title};
-            my $meta2 = $b->{title};
-
-            if ($sortkey ne "title") {
-                my $re = qr/$sortkey/;
-                if ($a->{tags} =~ m/.*${re}:(.*)(\,.*|$)/) {
-                    $meta1 = $1;
-                } else {
-                    $meta1 = "zzzz"; # Not a very good way to make items end at the bottom...
-                }
-                    
-                if ($b->{tags} =~ m/.*${re}:(.*)(\,.*|$)/)  {
-                    $meta2 = $1;
-                } else {
-                    $meta2 = "zzzz";
-                }
+            # Check new filter first
+            if ($newonly && $isnew && $isnew ne "true" && $isnew ne "block") {
+                next;
             }
 
-            if ($sortorder) { 
-                lc($meta2) cmp lc($meta1)
-            } else {
-                lc($meta1) cmp lc($meta2)
+            # Check columnfilter and base search filter
+            if ($file && -e $file 
+                && matches_search_filter($columnfilter, $title . "," . $tags)
+                && matches_search_filter($filter, $title . "," . $tags)) {
+                # Push id to array
+                push @filtered, { id => $id, title => $title, tags => $tags };
+            }
+        }
+
+        if ($#filtered > 0) {
+
+            if (!$sortkey) {
+                $sortkey = "title";
             }
 
-        } @filtered;
+            # Sort by the required metadata, asc or desc
+            @filtered = sort { 
+    
+                #Use either tags or title depending on the sortkey
+                my $meta1 = $a->{title};
+                my $meta2 = $b->{title};
+
+                if ($sortkey ne "title") {
+                    my $re = qr/$sortkey/;
+                    if ($a->{tags} =~ m/.*${re}:(.*)(\,.*|$)/) {
+                        $meta1 = $1;
+                    } else {
+                        $meta1 = "zzzz"; # Not a very good way to make items end at the bottom...
+                    }
+                        
+                    if ($b->{tags} =~ m/.*${re}:(.*)(\,.*|$)/)  {
+                        $meta2 = $1;
+                    } else {
+                        $meta2 = "zzzz";
+                    }
+                }
+
+                if ($sortorder) { 
+                    lc($meta2) cmp lc($meta1)
+                } else {
+                    lc($meta1) cmp lc($meta2)
+                }
+
+            } @filtered;
+        }
+
+        # Cache this query in Redis
+        eval { $redis->hset("LRR_SEARCHCACHE", $cachekey, nfreeze \@filtered); };
     }
+    $redis->quit();
 
     # Only get the first X keys
-    # TODO: cache @filtered
     my $keysperpage = LANraragi::Model::Config::get_pagesize;
 
     # Return total keys and the filtered ones
-    my $end = min($keysperpage,$#filtered);
-    return ( $#keys, @filtered[$start..$end] );
+    my $end = min($start+$keysperpage-1,$#filtered);
+    return ( $#keys+1, $#filtered+1, @filtered[$start..$end] );
 }
 
 # matches_search_filter($filter, $tags)
@@ -113,6 +141,7 @@ sub matches_search_filter {
         my $delimiter = ' ';
         if ($char eq '"') {
             $delimiter = '"';
+            $char = chop $b;
         }
 
         my $tag = "";
@@ -124,11 +153,20 @@ sub matches_search_filter {
         }; 
 
         #If last char is $, enable isexact
-        $char = chop $tag;
-        if ($char eq "\$") {
-            $isexact = 1;
+        if ($delimiter eq '"') {
+            $char = chop $b;
+            if ($char eq "\$") {
+                $isexact = 1;
+            } else {
+                $b = $b . $char;
+            }
         } else {
-            $tag = $tag . $char;
+            $char = chop $tag;
+            if ($char eq "\$") {
+                $isexact = 1;
+            } else {
+                $tag = $tag . $char;
+            }
         }
 
         # Replace placeholders with regex-friendly variants,
@@ -143,12 +181,13 @@ sub matches_search_filter {
         # Got the tag, check if it's present
         my $tagpresent = 0;
         if ($isexact) { # The tag must necessarily be complete if isexact = 1
-            $tagpresent = $tags =~ m/(.* |^)$tag(\,.*|$)/i; # Check for space before and comma after the tag, or start/end of string to account for the first/last tag.
+            $tagpresent = $tags =~ m/(.*\,\s*|^)$tag(\,.*|$)/i; # Check for comma + potential space before and comma after the tag, or start/end of string to account for the first/last tag.
         } else {
             $tagpresent = $tags =~ m/.*$tag.*/i;
         }
 
-        #present true & isneg true => false, present false & isneg false => false
+        #present=true & isneg=true => false
+        #present=false & isneg=false => false
         return 0 if ($tagpresent == $isneg); 
 
     };
@@ -157,44 +196,6 @@ sub matches_search_filter {
     return 1;
 }
 
-# build_archive_JSON(id)
-# Builds a JSON object for an archive already registered in the Redis database and returns it.
-# TODO: adapted from Shinobu code, remember to purge a bunch of code in Shinobu once this is finished
-sub build_archive_JSON {
-    my ( $id ) = @_;
 
-    my $redis   = LANraragi::Model::Config::get_redis;
-    my $dirname = LANraragi::Model::Config::get_userdir;
-
-    #Extra check in case we've been given a bogus ID
-    return "" unless $redis->exists($id);
-
-    my %hash = $redis->hgetall($id);
-    my ( $path, $suffix );
-
-    #It's not a new archive, but it might have never been clicked on yet,
-    #so we'll grab the value for $isnew stored in redis.
-    my ( $name, $title, $tags, $filecheck, $isnew ) =
-      @hash{qw(name title tags file isnew)};
-
-    #Parameters have been obtained, let's decode them.
-    ( $_ = LANraragi::Utils::Database::redis_decode($_) )
-      for ( $name, $title, $tags );
-
-    #Workaround if title was incorrectly parsed as blank
-    if ( !defined($title) || $title =~ /^\s*$/ ) {
-        $title = $name;
-    }
-
-    my $arcdata = {
-        arcid => $id,
-        title => $title,
-        tags  => $tags,
-        isnew => $isnew
-    };
-
-    $redis->quit;
-    return $arcdata;
-}
 
 1;

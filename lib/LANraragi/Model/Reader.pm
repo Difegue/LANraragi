@@ -52,9 +52,10 @@ sub build_reader_JSON {
     my $redis   = LANraragi::Model::Config::get_redis();
     my $dirname = LANraragi::Model::Config::get_userdir();
 
-    # Get the path from Redis. 
+    # Get the path from Redis.
     # Filenames are stored as they are on the OS, so no decoding!
     my $zipfile = $redis->hget( $id, "file" );
+    $redis->quit();
 
     #Get data from the path
     my ( $name, $fpath, $suffix ) = fileparse( $zipfile, qr/\.[^.]*/ );
@@ -95,9 +96,9 @@ sub build_reader_JSON {
     #Find the extracted images with a full search (subdirectories included),
     #treat them and jam them into an array.
     my @images;
-    eval { 
+    eval {
         find(sub {
-                # Is it an image? 
+                # Is it an image?
                 if ( LANraragi::Utils::Generic::is_image($_) ) {
                     push @images, $File::Find::name;
                 }
@@ -115,7 +116,7 @@ sub build_reader_JSON {
         my $shasum = LANraragi::Utils::Generic::shasum( $images[0], 1 );
         $redis->hset( $id, "thumbhash", encode_utf8($shasum) );
 
-        $self->LRR_LOGGER->debug("Thumbnail not found at $thumbname ! (force-thumb flag = $thumbreload)");
+        $self->LRR_LOGGER->debug("Thumbnail not found at $thumbname! (force-thumb flag = $thumbreload)");
         $self->LRR_LOGGER->debug("Regenerating from " . $images[0]);
         mkdir $dirname . "/thumb";
 
@@ -145,7 +146,6 @@ sub build_reader_JSON {
     #Build json (it's just the images array in a string)
     my $list = "{\"pages\": [\"" . join( "\",\"", @images_browser ) . "\"]}";
     return $list;
-
 }
 
 1;

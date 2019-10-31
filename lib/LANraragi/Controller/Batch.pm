@@ -14,8 +14,8 @@ use LANraragi::Model::Config;
 
 # This action will render a template
 sub index {
-    my $self = shift;
-    my $redis   = $self->LRR_CONF->get_redis();
+    my $self  = shift;
+    my $redis = $self->LRR_CONF->get_redis();
 
     #Then complete it with the rest from the database.
     #40-character long keys only => Archive IDs
@@ -134,6 +134,7 @@ sub socket {
         finish => sub {
             $logger->info('Client disconnected, halting remaining operations');
             $cancelled = 1;
+            $redis->quit();
         }
     );
 
