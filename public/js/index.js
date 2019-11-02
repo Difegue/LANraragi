@@ -31,9 +31,9 @@ function toggleInbox(button) {
 	input.prop("checked", inboxState);
 
 	if (inboxState) {
-		$("#inboxbtn").val("Show all archives");
+		$("#inboxbtn").val("显示所有作品");
 	} else {
-		$("#inboxbtn").val("Show new archives only");
+		$("#inboxbtn").val("显示最新作品");
 	}
 
 	//Redraw the table 
@@ -45,35 +45,29 @@ function toggleInbox(button) {
 function performSearch() {
 
 	favTags = $(".favtag");
-	favTagQuery = "\"";
+	searchQuery = "("
 
 	for (var i = 0; i < favTags.length; i++) {
 		tagCheckbox = favTags[i];
 		if (tagCheckbox.checked)
-			favTagQuery += tagCheckbox.id + "\" \"";
+			searchQuery += tagCheckbox.id + "|";
 	}
 
-	// Add the favtag query to the tags column so it's picked up by the search engine 
-	// This allows for the regular search bar to be used in conjunction with favtags.
-	if (favTagQuery !== "\" ") {
-		arcTable.column('.tags.itd').search(favTagQuery);
+	//chop last | character
+	searchQuery = searchQuery.slice(0, -1);
+	searchQuery += ")";
+
+	//Perform search in datatables field with our own regexes enabled and smart search off
+	if (searchQuery !== ")") {
+		arcTable.column('.tags.itd').search(searchQuery, true, false);
+		arcTable.search($('#srch').val().replace(",", ""), false, true);
+		arcTable.draw();
 	} else {
 		// no fav filters
-		arcTable.column('.tags.itd').search("");
+		arcTable.column('.tags.itd').search("", false, true);
+		arcTable.search($('#srch').val().replace(",", ""), false, true).draw();
 	}
 
-	// Add the isnew filter if asked
-	input = $("#inboxbtn");
-
-	if (input.prop("checked")) {
-		arcTable.column('.isnew').search("true");
-	} else {
-		// no fav filters
-		arcTable.column('.isnew').search("");
-	}
-
-	arcTable.search($('#srch').val().replace(",", ""));
-	arcTable.draw();
 }
 
 //Switch view on index and saves the value in the user's localStorage. The DataTables callbacks adapt automatically.
@@ -83,11 +77,11 @@ function switch_index_view() {
 
 	if (localStorage.indexViewMode == 1) {
 		localStorage.indexViewMode = 0;
-		$("#viewbtn").val("Switch to Thumbnail View");
+		$("#viewbtn").val("以相册模式显示");
 	}
 	else {
 		localStorage.indexViewMode = 1;
-		$("#viewbtn").val("Switch to List View");
+		$("#viewbtn").val("以列表模式显示");
 	}
 
 	//Redraw the table yo
@@ -143,7 +137,7 @@ function handleContextMenu(option, id) {
 			window.open("./edit?id="+id);
 			break;
 		case "delete":
-			if (confirm('Are you sure you want to delete this archive?')) 
+			if (confirm('你确定要删掉这个作品吗?')) 
 				deleteArchive(id);
 			break;
 		case "read":
@@ -181,7 +175,7 @@ function loadTagSuggestions() {
 				list: taglist,
 				data: fullTag,
 				// Sort by weight
-				sort: function(a, b) { return b.value - a.value; },
+				sort: function(a, b) { console.log(a); return b.value - a.value; },
 				filter: function(text, input) {
 					return Awesomplete.FILTER_CONTAINS(text, input.match(/[^,]*$/)[0]);
 				},
@@ -192,6 +186,11 @@ function loadTagSuggestions() {
 					var before = this.input.value.match(/^.+,\s*|/)[0];
 					this.input.value = before + text + ", ";
 				}
+			});
+
+			// Perform a search when a tag is selected
+			Awesomplete.$('#srch').addEventListener("awesomplete-selectcomplete", function() {
+				performSearch();
 			});
 
 		}).fail(function (data) {

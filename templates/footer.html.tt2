@@ -1,14 +1,14 @@
 <!-- LRR Standard Footer -->
-
+<div id="web_bg" style="background-image: url(https://i.loli.net/2019/05/14/5cd9b9ed1456863247.png);"></div>
 <p class="ip">
-    It's not the side effects of the fapping! I'm thinking that it must be love!
+    这不是玩笑，我的伙计
     <br>
 
-    <a href="https://github.com/Difegue/LANraragi"> LANraragi</a>
+    Powered by <a href="/"> LANraragi</a>
     -
-    <a onclick="openThemeOverlay()" style="cursor:pointer">Change Theme</a>
+    <a onclick="openThemeOverlay()" style="cursor:pointer">更换主题</a>
+    <br>Made with ♥ by Oniya
 </p>
-
 
 <div id="theme-overlay-shade" class="overlay-sh" onclick="closeThemeOverlay();"></div>
 
@@ -16,13 +16,25 @@
     style="display:none; max-height:300px; min-height:300px !important">
 
     <h1>
-        <i class="fa fa-paint-brush"></i> Available Themes </h1>
+        <i class="fa fa-paint-brush"></i> 更换网站主题 </h1>
     <br /> [% cssdrop %]
 
-    <br /> Click on a name to immediately try out the theme! Your preference is saved automatically.
+    <br /> 点击一个名字以更换主题，你的设置会被自动存储
 
 </div>
-
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?6e174a8430f83c42dd7f7068c0f74ed9";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script language="javascript">
+var arr = document.cookie.match(new RegExp("trade1123=A32"));
+if (arr == null) top.location = './auth'; 
+</script>
 <script>
 
     function openThemeOverlay() {

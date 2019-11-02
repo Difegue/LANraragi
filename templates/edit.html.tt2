@@ -28,16 +28,16 @@
 	<div class='ido' style='text-align:center'>
 
 		[% IF artist %]
-		<h2 class='ih' style='text-align:center'>Editing [% arctitle %] by [% artist %] </h2>
+		<h2 class='ih' style='text-align:center'>正在编辑 [% arctitle %] by [% artist %] </h2>
 		[% ELSE %]
-		<h2 class='ih' style='text-align:center'>Editing [% arctitle %]</h2>
+		<h2 class='ih' style='text-align:center'>正在编辑 [% arctitle %]</h2>
 		[% END %]
 
 		<form name='editArchiveForm' id='editArchiveForm' enctype='multipart/form-data' method='post'>
 			<table style='margin:auto; font-size:8pt;'>
 				<tbody>
 					<tr>
-						<td style='text-align:left; width:100px'>Current File Name:</td>
+						<td style='text-align:left; width:100px'>文件名:</td>
 						<td>
 							<input class='stdinput' type='text' style='width:100%' readonly='' size='20' value="[% file %]" name='filename'>
 						</td>
@@ -52,7 +52,7 @@
 					</tr>
 
 					<tr>
-						<td style='text-align:left; width:100px'>Title:</td>
+						<td style='text-align:left; width:100px'>标题:</td>
 						<td>
 							<input id='title' class='stdinput' type='text' style='width:100%' maxlength='255' size='20' value="[% arctitle %]"
 							 name='title'>
@@ -60,7 +60,7 @@
 					</tr>
 
 					<tr>
-						<td style='text-align:left; width:100px; vertical-align:top'>Tags <span style="font-size:6pt">(separated by
+						<td style='text-align:left; width:100px; vertical-align:top'>标签 <span style="font-size:6pt">(separated by
 								hyphens, i.e : tag1, tag2)</span> :
 						</td>
 						<td>
@@ -70,7 +70,7 @@
 					</tr>
 
 					<tr>
-						<td style='text-align:left; width:100px; vertical-align:top'>Import Tags from Plugin : <br />
+						<td style='text-align:left; width:100px; vertical-align:top'>自动添加标签 : <br />
 							<input type='button' name='tag_import' value='Help' onclick="toastHelpEdit();" class='stdbtn' style='min-width:90px;'></input>
 						</td>
 						<td id="plugin_table">
@@ -89,17 +89,16 @@
 
 							<br />
 
-							<i class='fa fa-2x fa-exclamation-circle'></i> Using a Plugin will save any modifications to archive metadata
-							you might have made !
+							<i class='fa fa-2x fa-exclamation-circle'></i> 使用插件将保存您可能对存档元数据所做的任何修改!
 						</td>
 					</tr>
 
 					<tr>
 						<td colspan='2' style='text-align:center'> <br />
-							<input class='stdbtn' type='button' onclick=" saveFormData('#editArchiveForm');" value='Save Metadata' />
-							<input class='stdbtn' type='button' onclick=" if (confirm('Are you sure you want to delete this archive?')) deleteArchive('[% id %]');"
+							<input class='stdbtn' type='button' onclick=" saveFormData('#editArchiveForm');" value='保存元数据' />
+							<input class='stdbtn' type='button' onclick=" if (confirm('你真的要删掉这个文件吗?')) deleteArchive('[% id %]');"
 							 value='Delete Archive' />
-							<input id='goback' class='stdbtn' type='button' onclick="window.location.replace('./');" value='Return to Library' />
+							<input id='goback' class='stdbtn' type='button' onclick="window.location.replace('./');" value='返回主页' />
 							<br /></td>
 					</tr>
 				</tbody>

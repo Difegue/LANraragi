@@ -45,7 +45,7 @@ function cleanTempFldr() {
 }
 
 function invalidateCache() {
-	genericAPICall("api/discard_cache", "Threw away the Search Cache!", "Error while deleting cache! Check Logs.", null);
+	genericAPICall("api/discard_cache", "Started JSON Cache rebuild.", "Error while deleting cache! Check Logs.", null);
 }
 
 function clearNew(id) {
@@ -122,7 +122,7 @@ function saveFormData(formSelector) {
 						showHideTransition: 'slide',
 						position: 'top-left',
 						loader: false,
-						heading: 'Saved Successfully!',
+						heading: '保存成功!',
 						icon: 'success'
 					})
 				else
@@ -130,7 +130,7 @@ function saveFormData(formSelector) {
 						showHideTransition: 'slide',
 						position: 'top-left',
 						loader: false,
-						heading: 'Saving unsuccessful :',
+						heading: '保存失败 :',
 						text: data.message,
 						icon: 'error'
 					});
@@ -141,7 +141,7 @@ function saveFormData(formSelector) {
 					showHideTransition: 'slide',
 					position: 'top-left',
 					loader: false,
-					heading: 'Error while saving :',
+					heading: '在保存时发生错误 :',
 					text: errorThrown,
 					icon: 'error'
 				})
@@ -179,7 +179,7 @@ function deleteArchive(arcId){
 				showHideTransition: 'slide',
 				position: 'top-left', 
 				loader: false, 
-			    heading: 'Archive successfully deleted. Redirecting you ...',
+			    heading: '成功删除！正在跳转到主页...',
 			    text: 'File name : '+data.success, 
 			    icon: 'success'
 				});
@@ -194,7 +194,7 @@ function deleteArchive(arcId){
 				showHideTransition: 'slide',
 				position: 'top-left', 
 				loader: false, 
-			    heading: 'Error while deleting archive :',
+			    heading: '在删除时发生错误 :',
 			    text: textStatus,
 			    icon: 'error'
 			});

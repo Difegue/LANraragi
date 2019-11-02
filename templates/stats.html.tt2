@@ -37,7 +37,7 @@
 				">
 
 	<div class='ido' style='text-align:center'>
-		<h2 class="ih" style="text-align:center">Library Statistics</h2>
+		<h2 class="ih" style="text-align:center">站点统计</h2>
 		<br>
 		<br>
 
@@ -45,17 +45,16 @@
 
 			<h1 class="ih">
 				<i class="fa fa-book fa-2x" aria-hidden="true"></i> <span style="font-size: 20px"> [% archivecount %] </span>
-				Archives on record
+				本作品被上传
 				<br><br>
-				<i class="fa fa-tags fa-2x" aria-hidden="true"></i> <span style="font-size: 20px" id="tagcount"> </span> Different
-				tags existing
+				<i class="fa fa-tags fa-2x" aria-hidden="true"></i> <span style="font-size: 20px" id="tagcount"> </span> 个不同的标签被记录
 				<br><br>
 				<i class="fa fa-folder-open fa-2x" aria-hidden="true"></i> <span style="font-size: 20px"> [% arcsize %] GB </span>
-				in content folder
+				资源存储在服务器
 
 				<br><br><br>
 
-				Tag Cloud <br>
+				标签云 <br>
 			</h1>
 
 
@@ -69,7 +68,7 @@
 
 		<br>
 		<br>
-		<input type="button" value="Return to Library" onclick="window.location.replace('./');" class="stdbtn" id="goback">
+		<input type="button" value="返回主页" onclick="window.location.replace('./');" class="stdbtn" id="goback">
 
 
 

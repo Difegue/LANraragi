@@ -20,6 +20,27 @@
 	<script src="./js/theme.js?[% version%]" type="text/JAVASCRIPT"></script>
 	<script src="./js/reader.js?[% version%]" type="text/JAVASCRIPT"></script>
 	<script src="./js/ajax.js?[% version%]" type="text/JAVASCRIPT"></script>
+	<script>
+    var VUUKLE_CONFIG = {
+    apiKey: 'ab0de137-f62c-4c79-a61f-b497212b6090',
+    articleId: '[% id %]',
+    comments: {
+    hideRecommendedArticles: true,
+    hideMoreNews: true,
+    },
+    theme: {
+            color: "#adadad",
+            darkMode: true,
+    },
+    };
+    // ⛔️ DON'T EDIT BELOW THIS LINE
+    (function() {
+    var d = document,
+      s = d.createElement('script');
+    s.src = 'https://cdn.vuukle.com/platform.js';
+    (d.head || d.body).appendChild(s);
+    })();
+    </script>
 
 </head>
 
@@ -56,7 +77,7 @@
 
 		<div id="i5">
 			<div class="sb">
-				<a href="./" title="Done reading? Go back to Archive Index">
+				<a href="./" title="看完了？点我返回主页">
 					<i class="fa fa-angle-down fa-3x"></i>
 				</a>
 			</div>
@@ -65,20 +86,21 @@
 		[% IF userlogged %]
 		<div id="i6" class="if">
 			<i class="fa fa-caret-right fa-lg"></i>
-			<a style="cursor:pointer" onclick="confirmThumbnailReset('[% id %]')">Regenerate Archive Thumbnail </a>
+			<a style="cursor:pointer" onclick="confirmThumbnailReset('[% id %]')">重新生成缩略图 </a>
 			<i class="fa fa-caret-right fa-lg"></i>
-			<a href="./reader?id=[% id %]&force_reload=1">Clean Archive Cache</a>
+			<a href="./reader?id=[% id %]&force_reload=1">清除缓存</a>
 			<i class="fa fa-caret-right fa-lg"></i>
-			<a target="_blank" href="./edit?id=[% id %]">Edit this Archive's Metadata</a>
+			<a target="_blank" href="./edit?id=[% id %]">编辑资料</a>
 		</div>
 		[% END %]
 
 		<div id="i7" class="if">
 			<i class="fa fa-caret-right fa-lg"></i>
-			<a id="imgLink" style="cursor:pointer;">View full-size image</a>
+			<a id="imgLink" style="cursor:pointer;">查看原图</a>
 			<i class="fa fa-caret-right fa-lg"></i>
-			<a href="./random">Switch to another random archive</a>
+			<a href="./random">给👴随便来一个</a>
 		</div>
+		<div id='vuukle-comments'></div>
 
 	</div>
 
@@ -88,8 +110,7 @@
 		id = "[%id%]";
 
 		filename = "[% filename %]";
-		if ((filename.endsWith(".rar") || filename.endsWith(".cbr")) && !localStorage.rarWarningShown) {
-			localStorage.rarWarningShown = true;
+		if (filename.endsWith(".rar") || filename.endsWith(".cbr"))
 			$.toast({
 					showHideTransition: 'slide',
 					position: 'top-left', 
@@ -99,8 +120,6 @@
 				    hideAfter: false,
 				    icon: 'warning'
 				});
-		}
-			
 
 		//Go straight to page number in localStorage if it exists
 		if (localStorage.nobookmark === 'true')
@@ -135,7 +154,7 @@
 
 	<div id="overlay-shade" onclick="closeOverlay();"></div>
 	<div id="archivePagesOverlay" class="id1 base-overlay page-overlay" style="display:none" loaded="false">
-		<h2 class="ih" style="text-align:center">Archive Overview</h2>
+		<h2 class="ih" style="text-align:center">画册总览</h2>
 	</div>
 	<div id="settingsOverlay" class="id1 base-overlay small-overlay" style="display:none">
 		[% INCLUDE config %]
@@ -155,43 +174,43 @@
 <!-- -->
 [% BLOCK config %]
 
-<h2 class="ih" style="text-align:center">Reader Options</h2>
+<h2 class="ih" style="text-align:center">阅读器设置</h2>
 <div style="margin:auto; font-size:8pt;">
 
 	<div class="config-panel">
-		<h1 class="ih" style="display:inline"> Japanese Read Order </h1>
+		<h1 class="ih" style="display:inline"> 日本阅读习惯 </h1>
 		<input id="readorder" name="readorder" class="fa" type="checkbox" style="float:left">
-		<br /> If enabled, pages will be read right-to-left.
+		<br /> 如果启用，将会从右到左加载图像
 	</div>
 
 	<div class="config-panel">
-		<h1 class="ih" style="display:inline"> Double Page View </h1>
+		<h1 class="ih" style="display:inline"> 双页面视图 </h1>
 		<input id="doublepage" name="readorder" class="fa" type="checkbox" style="float:left">
-		<br /> If enabled, two pages will be displayed at once. (This excludes widespreads)
+		<br /> 如果启用，一次会显示两页（双倍快乐）
 	</div>
 
 	<div class="config-panel">
-		<h1 class="ih" style="display:inline"> Scale to View</h1>
+		<h1 class="ih" style="display:inline"> 自适应屏幕</h1>
 		<input id="scaletoview" name="readorder" class="fa" type="checkbox" style="float:left">
-		<br /> If enabled, pages will be scaled to the screen's size.
+		<br /> 如果启用，将会自动缩放图像大小到屏幕尺寸（建议启用）
 	</div>
 
 	<div class="config-panel">
-		<h1 class="ih" style="display:inline"> Hide Top-level Navigation</h1>
+		<h1 class="ih" style="display:inline"> 隐藏顶部导航栏</h1>
 		<input id="hidetop" name="hidetop" class="fa" type="checkbox" style="float:left">
-		<br /> If enabled, every element that comes before images at the top will be hidden.
+		<br /> 如果启用，图像上面的导航栏将被隐藏（建议启用）
 	</div>
 
 	<div class="config-panel">
-			<h1 class="ih" style="display:inline"> Disable Automatic Bookmarking</h1>
+			<h1 class="ih" style="display:inline"> 禁用自动书签</h1>
 			<input id="nobookmark" name="nobookmark" class="fa" type="checkbox" style="float:left">
-			<br /> Check this to start over from the first page every time you open the reader.
+			<br /> 如果启用，将不再记录你每次阅读的进度，这意味着你每次打开画册都会从第一页开始阅读
 	</div>
 </div>
 
 <br />
 <br />
-<input value="Save and Close" onclick="saveSettings()" class="stdbtn" id="goback" type="button">
+<input value="保存并关闭" onclick="saveSettings()" class="stdbtn" id="goback" type="button">
 <br /> [% END %]
 <!-- -->
 [% BLOCK arrows %]
@@ -223,15 +242,15 @@
 [% BLOCK pagesel %]
 <div style="position: absolute; right: 20px; z-index:20" class="page_dropdown">
 
-	<a href="#" onclick="openOverlay();" title="Archive Overview">
+	<a href="#" onclick="openOverlay();" title="画册总览">
 		<i class="fa fa-th fa-2x" style="padding-right: 10px;"></i>
 	</a>
 
-	<a href="#" onclick="openSettings();" title="Reader Settings">
+	<a href="#" onclick="openSettings();" title="阅读设置">
 		<i class="fa fa-cog fa-2x" style="padding-right: 10px;"></i>
 	</a>
 
-	<a href="#" onclick="toastHelpReader()" title="Help">
+	<a href="#" onclick="toastHelpReader()" title="帮助">
 		<i class="fa fa-info-circle fa-2x" style="padding-right: 10px;"></i>
 	</a>
 

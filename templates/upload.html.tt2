@@ -25,9 +25,9 @@
 <body onload="initUpload()">
 
 	<div class='ido' style='text-align:center; font-size:8pt'>
-		<h1 class='ih' style='text-align:center'>Uploading Archives to the Library</h1>
+		<h1 class='ih' style='text-align:center'>上传作品到这里</h1>
 
-		Drag and drop files here, or click the upload button.
+		拖拽一个zip压缩文件到这里以上传，或点击上传按钮
 		<br /><br />
 
 		<table style='margin:auto; font-size:9pt; width: 80%; text-align:center;'>
@@ -51,7 +51,7 @@
 
 	</tbody>
 	</table>
-	<input class='stdbtn' type='button' onclick="window.location.replace('./');" value='Return to Library' />
+	<input class='stdbtn' type='button' onclick="window.location.replace('./');" value='返回主页' />
 
 	</div>
 

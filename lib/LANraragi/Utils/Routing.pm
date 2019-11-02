@@ -47,6 +47,10 @@ sub apply_routes {
         $r->get('/reader')->to('reader#index');
         $r->get('/stats')->to('stats#index');
         $r->get('/search')->to('search#handle_datatables');
+        $r->get('/auth')->to('auth');
+        $r->get('/upload')->to('upload#index');
+        $r->post('/upload')->to('upload#process_upload');
+        $r->get('/logs')->to('logging#index');
 
         $r->get('/api/search')->to('search#handle_api');
         $r->get('/api/thumbnail')->to('api#serve_thumbnail');
@@ -77,9 +81,6 @@ sub apply_routes {
     $logged_in->get('/backup')->to('backup#index');
     $logged_in->post('/backup')->to('backup#restore');
 
-    $logged_in->get('/upload')->to('upload#index');
-    $logged_in->post('/upload')->to('upload#process_upload');
-
     # These API endpoints will always require the API Key or to be logged in 
     $logged_in_api->post('/api/use_plugin')->to('api#use_plugin');
     $logged_in_api->post('/api/autoplugin')->to('api#use_enabled_plugins');
@@ -93,7 +94,6 @@ sub apply_routes {
     $logged_in_api->get('/api/drop_database')->to('api#drop_database');
     $logged_in_api->get('/api/clean_database')->to('api#clean_database');
 
-    $logged_in->get('/logs')->to('logging#index');
     $logged_in->get('/logs/general')->to('logging#print_general');
     $logged_in->get('/logs/shinobu')->to('logging#print_shinobu');
     $logged_in->get('/logs/plugins')->to('logging#print_plugins');

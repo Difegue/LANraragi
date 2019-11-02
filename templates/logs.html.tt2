@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <head>
-	<title>[% title %] - Logs</title>
+	<title>[% title %] - About</title>
 
 	<meta name="viewport" content="width=device-width" />
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -21,86 +21,22 @@
 <body onload="set_style_from_storage()">
 
 	<div class='ido' style='text-align:center'>
-		<h2 class='ih' style='text-align:center'>Application Logs</h2>
+		<h2 class='ih' style='text-align:center'>关于这里</h2>
 
 		<br>
-		You can check LANraragi logs here for debugging purposes.<br>
-		By default, this view only shows the last 100 lines of each logfile, newest lines last. <br><br>
-		<ul>
-			<li>General Logs pertain to the main application. </li>
-			<li>Shinobu Logs correspond to the Background Worker.</li>
-			<li>Plugin Logs are reserved for metadata plugins only. </li>
-			<li>Mojolicious logs won't tell much unless you're running Debug Mode. </li>
-			<li>Redis logs are only available for Docker/WSL users. </li>
-		</ul>
-		<br><br>
-
-		<h1 class='ih' style='float:left; margin-left: 5%;'>Currently Viewing: <span id="indicator">general</span></h1>
-
-		<div style="margin-right: 5%;float: right;">
-
-			<a href="#" onclick="refreshLog()" title="Refresh">
-				<i style="padding-right: 10px;" class="fa fa-sync-alt fa-2x"></i>
-			</a>
-
-			Lines: <input type="number" min="0" value="100" id="loglines" onchange="refreshLog()" style="width: 60px;">
-
-		</div>
-
-		<table class="itg">
-			<tbody>
-
-				<tr class="gtr1">
-					<td>
-						<pre id="log-container" class="log-panel"></pre>
-					</td>
-				</tr>
-
-			</tbody>
-		</table>
-
+		<p>这是正在进行测试中的本子站</p>
+		<p>你可以自由上传资源，但请不要编辑或删除其他资源</p>
+		<p>在上传页面，直接拖拽进一个打包的本子即可（推荐ZIP格式）</p>
+		<p>如有侵权行为，请发送邮件到 <a href="mailto:oniya@gaygay.me" rel="nofollow">Oniya@gaygay.me</a></p>
+		<b>使用本站是本站给予您的特权而不是您的权力，请珍惜这里</b>
+		<p>最后祝您，身体健康</p>
+		
 		<br><br>
 		<span id='buttonstagging'>
-			<input type='button' value='View LANraragi Logs' class='stdbtn' onclick='showLog("general")'>
-
-			<input type='button' value='View Shinobu Logs' class='stdbtn' onclick='showLog("shinobu")'>
-
-			<input type='button' value='View Plugin Logs' class='stdbtn' onclick='showLog("plugins")'>
-
-			<input type='button' value='View Mojolicious Logs' class='stdbtn' onclick='showLog("mojo")'>
-
-			<input type='button' value='View Redis Logs' class='stdbtn' onclick='showLog("redis")'>
-
-			<br><br>
-			<input class='stdbtn' type='button' onclick="window.location.replace('/');" value='Return to Library' />
-
+			<input class='stdbtn' type='button' onclick="window.location.replace('/');" value='返回主页' />
 		</span>
 
 	</div>
-
-	<script>
-
-		lastType = ""; 
-
-		function showLog(type) {
-
-			$.get("/logs/" + type + "?lines=" + $("#loglines").val(), function (data) {
-				$("#log-container").html(data);
-				$("#indicator").html(type);
-				$("#log-container").scrollTop($("#log-container").prop("scrollHeight"));
-			});
-
-			lastType = type;
-
-		}
-
-		function refreshLog() {
-			showLog(lastType);
-		}
-
-		showLog("general");
-
-	</script>
 
 	[% INCLUDE footer %]
 </body>

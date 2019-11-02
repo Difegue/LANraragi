@@ -37,29 +37,39 @@
 	[% IF userlogged %]
 	<p id="nb">
 		<i class="fa fa-caret-right"></i>
-		<a href="./upload">Upload Archive</a>
+		<a href="./upload">上传文件</a>
 		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
-		<a href="./batch">Batch Tagging</a>
+		<a href="./stats">统计</a>
 		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
-		<a href="./config">Settings</a>
+		<a href="./logs">关于</a>
 		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
-		<a href="./backup">Database Backup/Restore</a>
+		<a href="./config">后台</a>
 		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
-		<a href="./stats">Statistics</a>
+		<a href="./logout">登出</a>
+		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
-		<a href="./logs">Logs</a>
+		<a href="https://wdnmd.network" target="_blank">白给</a>
 	</p>
 	[% ELSE %]
 	<p id="nb">
 		<i class="fa fa-caret-right"></i>
-		<a href="./login">Admin Login</a>
+		<a href="./upload">上传文件</a>
 		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
-		<a href="./stats">Statistics</a>
+		<a href="./stats">统计</a>
+		<span style="margin-left:5px"></span>
+		<i class="fa fa-caret-right"></i>
+		<a href="./logs">关于</a>
+		<span style="margin-left:5px"></span>
+		<i class="fa fa-caret-right"></i>
+		<a href="https://wdnmd.network" target="_blank">白给</a>
+		<span style="margin-left:5px"></span>
+		<i class="fa fa-caret-right"></i>
+		<a href="./login">管理员登录</a>
 	</p>
 	[% END %]
 
@@ -74,44 +84,43 @@
 					<div style="display:inline-block">
 						<input class='favtag' id='[% tag %]' type='hidden' />
 						<input class='favtag-btn' type='button' value='[% tag %]' onclick='toggleFav(this)'
-							title='Click here to instantly search for this tag!' />
+							title='点击搜索此标签' />
 					</div>
 					[% END %]
 				</div>
 				[% END %]
 
 				<input type='text' id='srch' class='search stdinput' size='90' style='width:100%' 
-					placeholder='Search Title, Artist, Series, Language or Tags' />
-        <input id='subsrch' class='searchbtn stdbtn' type='button' value='Apply Filter' />
-				<input id='clrsrch' class='searchbtn stdbtn' type='button' value='Clear Filter' />
+					placeholder='在这里搜索作品，作者，系列，语言或标签' />
+				<input id='clrsrch' class='stdbtn' type='button' value='清除过滤器' />
 			</div>
 
 			<p id='cssbutton' style='display:inline'>
 				<input id='inboxbtn' class='stdbtn' type='button' onclick='toggleInbox(this)'
-					value='Show new archives only' />
+					value='只显示最新上传的作品' />
 				<input class='stdbtn' type='button' onclick="var win=window.open('random','_blank'); win.focus();"
-					value='Give me a random archive' />
+					value='给👴随便来一个' />
 				<input id='viewbtn' class='stdbtn' type='button' onclick="switch_index_view()"
-					value='Switch to Thumbnail View' />
+					value='切换为列表模式' />
 			</p>
 
 			<table class="itg datatables">
 				<thead>
 					<tr>
 						<th id="titleheader">
-							<a>Title</a>
+							<a>作品</a>
 						</th>
 						<th id="artistheader">
-							<a>Artist</a>
+							<a>作家</a>
 						</th>
 						<th id="seriesheader">
-							<a>Series</a>
+							<a>系列</a>
 						</th>
 						<th id="tagsheader">
-							<a>Tags</a>
+							<a>标签</a>
 						</th>
 						<th id="titleheader">
-							<a>IsNew</a>
+							<a>是否最新上传</a>
 						</th>
 					</tr>
 				</thead>
@@ -121,11 +130,11 @@
 
 			<div id="json-error" style="display:none">
 				<h1 style="color: red">
-					<i class="fas fa-bomb"></i> I don't know everything, but I sure as hell know this database's busted
-					lads
+					<i class="fas fa-bomb"></i>虽然我不知道发生了什么，但是数据库坏了，我的朋友
 					<i class="fas fa-bomb"></i>
 				</h1>
-				<h2>The database cache is corrupt, and as such LANraragi is unable to display your archive list.</h2>
+				<h2>数据库缓存已损坏，因此我们无法显示你的存档列表
+					<br> 你可以<a href="/api/discard_cache">here</a> 点我 </h2> 试试修复
 			</div>
 
 		</div>
@@ -145,7 +154,14 @@
 			localStorage.indexViewMode = 1;
 		}
 
-		initIndex([% pagesize %]);
+		//load archive JSON before anything else
+		$.getJSON("api/archivelist", function (data) {
+			initIndex([% pagesize %], data);
+		}).fail(function (d) {
+			//Catastrophic cache fuckup, inform the user
+			$(".datatables").hide();
+			$("#json-error").show();
+		});
 
 		[% IF usingdefpass %]
 		//If the json has the "default password" flag, flash a friendly notification inviting the user to change his password
@@ -158,10 +174,22 @@
 		});
 		[% END %]
 
+		[% IF buildingDBcache %]
+		//This notification flashes when the JSON cache for the archive DB is rebuilding - 
+		//usually due to a new archive or metadata being updated.
+		$.toast({
+			heading: 'The database cache is currently building',
+			text: 'All your archives might not appear in this list yet, but they will! Eventually. <br/>Try refreshing the page a bit later. You can also check the current state of the build through the <a href="logs">logs</a>.',
+			hideAfter: false,
+			position: 'top-left',
+			icon: 'warning'
+		});
+		[% END %]
+
 		if (localStorage.indexViewMode === 1)
-			$("#viewbtn").val("Switch to Thumbnail View");
+			$("#viewbtn").val("切换为相册模式");
 		else {
-			$("#viewbtn").val("Switch to List View");
+			$("#viewbtn").val("切换为列表模式");
 			$('.itg').hide();
 		}
 
@@ -191,8 +219,8 @@
 			localStorage.sawContextMenuToast = true;
 
 			$.toast({
-			heading: 'Welcome to LANraragi [% version %]!',
-			text: "If you're unlucky this is like your third toast in a row! If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!",
+			heading: '欢迎来到我的宝库，朋友!',
+			text: "阅读时使用设置菜单来激活推荐选项以带来更好的社保体验，一路平安！",
 			hideAfter: false,
 			position: 'top-left',
 			icon: 'info'

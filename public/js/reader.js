@@ -32,8 +32,8 @@ function toastHelpReader() {
 	$.toast().reset('all');
 
 	$.toast({
-		heading: 'Navigation Help',
-		text: 'You can navigate between pages using : <ul><li> The arrow icons</li> <li>Your keyboard arrows (and the spacebar)</li> <li> Touching the left/right side of the image.</li></ul><br> To return to the archive index, touch the arrow pointing down.<br> Pressing CTRL will bring up the pages overlay.',
+		heading: '阅读器帮助',
+		text: '你可以使用 : <ul><li> 箭头图标</li> <li>键盘上的方向键（和空格键）</li> <li> 触摸屏幕的左右两侧</li></ul>来进行翻页, 点击"向下箭头"图标来返回主页<br> 按下"CTRL"显示画册缩略图',
 		hideAfter: false,
 		position: 'top-left',
 		icon: 'info'

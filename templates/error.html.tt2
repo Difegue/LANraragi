@@ -13,10 +13,9 @@
 
 	<img src='/img/flubbed.gif' />
 	<br />
-	<h2>I flubbed it while trying to open the archive [% filename %]</h2>
-	It's likely the archive is corrupt.<br />
+	<h2>打开[% filename %]的时候出现了错误，这看起来像是这个文档的问题耶...</h2>
 
-	<h3>Some more info below if available:</h3>
+	<h3>更多错误信息：</h3>
 	<pre>[% errorlog %]</pre>
 
 </body>
