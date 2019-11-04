@@ -169,14 +169,14 @@ sub matches_search_filter {
             }
         }
 
-        # Replace placeholders with regex-friendly variants,
-        # And escape already present regex characters
+        # Escape already present regex characters
+        $tag = quotemeta($tag);
+
+        # Replace placeholders(with an extra backslash in em thanks to quotemeta) with regex-friendly variants,
         # ? _ => .
-        $tag =~ s/\?|\_/\./g;
+        $tag =~ s/\\\?|\_/\./g;
         # * % => .*
-        $tag =~ s/\*|\%/\.\*/g;
-        # + ( ) ^ | \ => escaped with an extra \
-        $tag =~ s/(\+|\(|\)|\^|\||\\)/\\$1/g;
+        $tag =~ s/\\\*|\\\%/\.\*/g;
 
         # Got the tag, check if it's present
         my $tagpresent = 0;
