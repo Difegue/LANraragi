@@ -4,7 +4,7 @@
 
 To use all your existing files within a brewed LRR, you can issue the following commands:
 
-```
+```sh
 lrr="${HOME}/Library/Application Support/LANraragi/"
 # if you’re on Linux, use the next line instead:
 #lrr="${HOME}/LANraragi/"
@@ -31,13 +31,9 @@ The next step is to tap a private tap to then install LRR.
 
 ```text
 brew tap bl4cc4t/other
-brew install lanraragi --HEAD
+brew install lanraragi
 ```
 
-{% hint style="warning" %}
-Currently, doing a homebrew install will use the latest commit from the `dev` branch -- Aka a nightly.  
-This step will change soon with the release of v.0.6.6.  
-{% endhint %}  
 
 ## Configuration
 
