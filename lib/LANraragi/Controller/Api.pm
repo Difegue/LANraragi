@@ -175,8 +175,10 @@ sub clear_new {
     # Just set isnew to false for the provided ID.
     if ($redis->hget( $id, "isnew") ne "false") {
         $redis->hset( $id, "isnew", "false" );
-    }
 
+        # Bust search cache
+        LANraragi::Utils::Database::invalidate_cache();
+    }
     $redis->quit();
 
     $self->render(
@@ -201,7 +203,9 @@ sub clear_new_all {
     foreach my $idall (@keys) {
         $redis->hset( $idall, "isnew", "false" );
     }
-    
+
+    # Bust search cache
+    LANraragi::Utils::Database::invalidate_cache();
     $redis->quit();
     success($self, "clear_new_all");
 }
