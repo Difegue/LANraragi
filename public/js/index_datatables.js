@@ -91,10 +91,9 @@ function initIndex(pagesize) {
 	//nuke style of table - datatables seems to assign its table a fixed width for some reason.
 	$('.datatables').attr("style", "")
 
-	//Init Thumbnail Mode if enabled - we do it twice in order to initialize it at the value the user has stored.
-	//(Yeah it's shitty but it works so w/e)
-	switch_index_view();
-	switch_index_view();
+	//Change button label if list mode is enabled.
+	if (localStorage.getItem("indexViewMode") === 0)
+		$("#viewbtn").val("Switch to Thumbnail View");
 }
 
 //For datatable initialization, columns with just one data source display that source as a link for instant search.

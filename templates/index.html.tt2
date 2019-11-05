@@ -92,7 +92,7 @@
 				<input class='stdbtn' type='button' onclick="var win=window.open('random','_blank'); win.focus();"
 					value='Give me a random archive' />
 				<input id='viewbtn' class='stdbtn' type='button' onclick="switch_index_view()"
-					value='Switch to Thumbnail View' />
+					value='Switch to List View' />
 			</p>
 
 			<table class="itg datatables">
