@@ -1,5 +1,28 @@
 # Homebrew \(macOS/Linux\)
 
+## Migration
+
+To use all your existing files within a brewed LRR, you can issue the following commands:
+
+```sh
+lrr="${HOME}/Library/Application Support/LANraragi/"
+# if you’re on Linux, use the next line instead:
+#lrr="${HOME}/LANraragi/"
+cd <LRR folder>
+mkdir -p "${lrr}"
+mv content "${lrr}/content"
+mv log "${lrr}/log"
+mv public/temp "${lrr}/temp"
+mv database.rdb "${lrr}/database.rdb"
+```
+
+{% hint style="info" %}
+This simply moves all your files to the default location where LRR looks for them when installed with Homebrew. You can do that manually too, if you chose so.
+{% endhint %}
+
+If you succeeded in moving, you can proceed to the next step!
+
+
 ## Installation
 
 If you do not have Homebrew installed yet, simply use the command on [their page](https://brew.sh/).
@@ -8,13 +31,9 @@ The next step is to tap a private tap to then install LRR.
 
 ```text
 brew tap bl4cc4t/other
-brew install lanraragi --HEAD
+brew install lanraragi
 ```
 
-{% hint style="warning" %}
-Currently, doing a homebrew install will use the latest commit from the `dev` branch -- Aka a nightly.  
-This step will change soon with the release of v.0.6.6.  
-{% endhint %}  
 
 ## Configuration
 
