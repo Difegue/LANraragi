@@ -10,6 +10,7 @@ use File::Find;
 use File::Path qw(remove_tree);
 
 use LANraragi::Utils::Generic;
+use LANraragi::Utils::Logging;
 
 #Contains all functions related to the temporary folder.
 
@@ -17,8 +18,9 @@ use LANraragi::Utils::Generic;
 #This can be called from any process safely as it uses FindBin.
 sub get_temp {
     my $temp_folder = "$FindBin::Bin/../public/temp";
-    # save user generated files to LANDATADIR
-    if ($ENV{LRR_DATA_DIRECTORY} ne ".") {
+    
+    # Folder location can be overriden by LRR_DATA_DIRECTORY
+    if ($ENV{LRR_DATA_DIRECTORY} && $ENV{LRR_DATA_DIRECTORY} ne ".") {
         $temp_folder = $ENV{LRR_DATA_DIRECTORY} . "/temp";
     }
     mkdir $temp_folder;
@@ -63,7 +65,7 @@ sub clean_temp_full {
 sub clean_temp_partial {
 
     my $logger =
-      LANraragi::Utils::Generic::get_logger( "Temporary Folder", "lanraragi" );
+      LANraragi::Utils::Logging::get_logger( "Temporary Folder", "lanraragi" );
 
     my $tempdir = &get_temp;
 

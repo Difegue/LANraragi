@@ -11,6 +11,7 @@ use Mojo::JSON qw(decode_json encode_json);
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database;
+use LANraragi::Utils::Logging;
 
 use LANraragi::Model::Config;
 
@@ -69,7 +70,7 @@ sub restore_from_JSON {
     my $redis = LANraragi::Model::Config::get_redis;
 
     my $logger =
-      LANraragi::Utils::Generic::get_logger( "Backup/Restore", "lanraragi" );
+      LANraragi::Utils::Logging::get_logger( "Backup/Restore", "lanraragi" );
 
     my $json = decode_json( $_[0] );
 

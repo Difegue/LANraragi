@@ -18,6 +18,7 @@ use LANraragi::Utils::Generic;
 use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database;
 use LANraragi::Utils::Plugins;
+use LANraragi::Utils::Logging;
 
 use LANraragi::Model::Config;
 
@@ -26,7 +27,7 @@ sub exec_enabled_plugins_on_file {
 
     my $id = shift;
     my $logger =
-      LANraragi::Utils::Generic::get_logger( "Auto-Plugin", "lanraragi" );
+      LANraragi::Utils::Logging::get_logger( "Auto-Plugin", "lanraragi" );
 
     $logger->info("Executing enabled plugins on archive with id $id.");
 
@@ -88,7 +89,7 @@ sub exec_plugin_on_file {
 
     my ( $plugin, $id, $oneshotarg, @args ) = @_;
     my $logger =
-      LANraragi::Utils::Generic::get_logger( "Auto-Tagger", "lanraragi" );
+      LANraragi::Utils::Logging::get_logger( "Auto-Tagger", "lanraragi" );
 
     #If the plugin has the method "get_tags",
     #catch all the required data and feed it to the plugin

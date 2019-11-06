@@ -10,6 +10,7 @@ use File::Find;
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database;
+use LANraragi::Utils::Logging;
 
 use LANraragi::Model::Config;
 
@@ -44,8 +45,8 @@ sub build_tag_json {
     my %tagcloud;
 
     #Login to Redis and get all hashes
-    my $redis = LANraragi::Model::Config::get_redis();
-    my $logger = LANraragi::Utils::Generic::get_logger( "Tag Stats", "lanraragi" );
+    my $redis  = LANraragi::Model::Config::get_redis();
+    my $logger = LANraragi::Utils::Logging::get_logger( "Tag Stats", "lanraragi" );
 
     #40-character long keys only => Archive IDs
     my @keys = $redis->keys('????????????????????????????????????????');
