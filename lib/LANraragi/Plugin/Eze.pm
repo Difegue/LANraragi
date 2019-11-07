@@ -34,7 +34,7 @@ sub get_tags {
     shift;
     my ( $title, $tags, $thumbhash, $file, $oneshotarg, @args ) = @_;
 
-    my $logger = LANraragi::Utils::Generic::get_logger( "eze", "plugins" );
+    my $logger = LANraragi::Utils::Logging::get_logger( "eze", "plugins" );
 
     if ( LANraragi::Utils::Archive::is_file_in_archive( $file, "info.json" ) ) {
 

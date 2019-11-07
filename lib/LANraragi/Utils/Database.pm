@@ -22,7 +22,7 @@ use LANraragi::Model::Plugins;
 sub add_archive_to_redis {
     my ( $id, $file, $redis ) = @_;
     my $logger =
-      LANraragi::Utils::Generic::get_logger( "Archive", "lanraragi" );
+      LANraragi::Utils::Logging::get_logger( "Archive", "lanraragi" );
     my ( $name, $path, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
 
     #jam this shit in redis

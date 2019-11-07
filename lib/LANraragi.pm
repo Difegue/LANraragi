@@ -12,6 +12,7 @@ use Storable;
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Routing;
 use LANraragi::Utils::Plugins;
+use LANraragi::Utils::Logging;
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Search;
@@ -52,7 +53,7 @@ sub startup {
     #Helper to build logger objects quickly
     $self->helper(
         LRR_LOGGER => sub {
-            return LANraragi::Utils::Generic::get_logger( "LANraragi",
+            return LANraragi::Utils::Logging::get_logger( "LANraragi",
                 "lanraragi" );
         }
     );

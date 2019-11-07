@@ -62,7 +62,7 @@ sub socket {
     my $redis     = $self->LRR_CONF->get_redis();
 
     my $logger =
-      LANraragi::Utils::Generic::get_logger( "Batch Tagging", "lanraragi" );
+      LANraragi::Utils::Logging::get_logger( "Batch Tagging", "lanraragi" );
 
     $logger->info('Client connected to Batch Tagging service');
 

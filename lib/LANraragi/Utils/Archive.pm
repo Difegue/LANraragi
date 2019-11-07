@@ -20,6 +20,7 @@ use Archive::Extract::Libarchive;
 
 use LANraragi::Model::Config;
 use LANraragi::Utils::TempFolder;
+use LANraragi::Utils::Logging;
 
 #Utilitary functions for handling Archives.
 #Relies on Libarchive.
@@ -151,7 +152,7 @@ sub is_file_in_archive {
 
     my ( $archive, $wantedname ) = @_;
 
-    my $logger = LANraragi::Utils::Generic::get_logger( "Archive", "lanraragi" );
+    my $logger = LANraragi::Utils::Logging::get_logger( "Archive", "lanraragi" );
     $logger->debug("Iterating files of archive $archive, looking for '$wantedname'");
     $Data::Dumper::Useqq = 1;
 

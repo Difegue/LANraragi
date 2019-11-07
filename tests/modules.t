@@ -3,7 +3,7 @@ use warnings;
 use utf8;
 
 use Mojo::Base 'Mojolicious';
-use Test::More tests => 36;
+use Test::More tests => 37;
 use Test::Mojo;
 
 sub test_module {
@@ -26,6 +26,7 @@ my @modules = ("Shinobu",
             "LANraragi::Utils::Plugins",
             "LANraragi::Utils::Routing",
             "LANraragi::Utils::TempFolder",
+            "LANraragi::Utils::Logging",
             "LANraragi::Controller::Api",
             "LANraragi::Controller::Backup",
             "LANraragi::Controller::Batch",

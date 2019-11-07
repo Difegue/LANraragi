@@ -39,8 +39,8 @@ use LANraragi::Model::Plugins;
 my %filemap;
 
 # Logger and Database objects
-my $logger = LANraragi::Utils::Generic::get_logger( "Shinobu", "shinobu" );
-my $redis = LANraragi::Model::Config::get_redis;
+my $logger = LANraragi::Utils::Logging::get_logger( "Shinobu", "shinobu" );
+my $redis  = LANraragi::Model::Config::get_redis;
 
 #Subroutine for new and deleted files that takes inotify events
 my $inotifysub = sub {

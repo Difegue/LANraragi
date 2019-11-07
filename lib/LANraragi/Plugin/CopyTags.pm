@@ -30,7 +30,7 @@ sub get_tags {
     shift;
     my ( $title, $tags, $thumbhash, $file, $oneshotarg, @args ) = @_;
 
-    my $logger = LANraragi::Utils::Generic::get_logger( "Tag Copy", "plugins" );
+    my $logger = LANraragi::Utils::Logging::get_logger( "Tag Copy", "plugins" );
 
     #Tags to copy is the first global argument
     $logger->debug("Sending the following tags to LRR: " . $args[0] );

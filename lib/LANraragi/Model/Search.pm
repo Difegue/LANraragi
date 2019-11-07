@@ -11,6 +11,7 @@ use Storable qw/ nfreeze thaw /;
 
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Database;
+use LANraragi::Utils::Logging;
 
 use LANraragi::Model::Config;
 
@@ -22,7 +23,7 @@ sub do_search {
 
     my $redis = LANraragi::Model::Config::get_redis;
     my $logger =
-        LANraragi::Utils::Generic::get_logger( "Search Engine", "lanraragi" );
+        LANraragi::Utils::Logging::get_logger( "Search Engine", "lanraragi" );
 
     # Search filter results
     my @filtered;

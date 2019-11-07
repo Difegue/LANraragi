@@ -41,7 +41,7 @@ sub get_tags {
     shift;
     my ( $title, $tags, $thumbhash, $file, $oneshotarg, $savetitle ) = @_;
 
-    my $logger = LANraragi::Utils::Generic::get_logger( "Chaika", "plugins" );
+    my $logger = LANraragi::Utils::Logging::get_logger( "Chaika", "plugins" );
     my $newtags = "";
     my $newtitle = "";
 
@@ -83,7 +83,7 @@ sub get_tags {
 # Uses chaika's html search to find a matching archive ID
 sub search_for_archive {
 
-    my $logger = LANraragi::Utils::Generic::get_logger( "Chaika", "plugins" );
+    my $logger = LANraragi::Utils::Logging::get_logger( "Chaika", "plugins" );
     my $title  = $_[0];
     my $tags   = $_[1];
 
@@ -119,7 +119,7 @@ sub tags_from_chaika_id {
     my $type = $_[0];
     my $ID   = $_[1];
 
-    my $logger = LANraragi::Utils::Generic::get_logger( "Chaika", "plugins" );
+    my $logger = LANraragi::Utils::Logging::get_logger( "Chaika", "plugins" );
     my $URL    = "$chaika_url/jsearch/?$type=$ID";
     my $ua     = Mojo::UserAgent->new;
     my $res    = $ua->get($URL)->result;
@@ -139,7 +139,7 @@ sub tags_from_chaika_id {
 sub tags_from_sha1 {
 
     my $hash   = $_[0];
-    my $logger = LANraragi::Utils::Generic::get_logger( "Chaika", "plugins" );
+    my $logger = LANraragi::Utils::Logging::get_logger( "Chaika", "plugins" );
     my $URL    = "$chaika_url/jsearch/?sha1=$hash";
 
     # The jsearch API immediately returns a JSON.
@@ -155,7 +155,7 @@ sub tags_from_sha1 {
 
 # Parses the JSON obtained from the Chaika API to get the tags.
 sub parse_chaika_json {
-    my $logger = LANraragi::Utils::Generic::get_logger( "Chaika", "plugins" );
+    my $logger = LANraragi::Utils::Logging::get_logger( "Chaika", "plugins" );
     my $json = $_[0];
 
     # If the json contains a gallery id, we switch to it.

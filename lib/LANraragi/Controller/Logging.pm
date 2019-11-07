@@ -3,11 +3,11 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use Redis;
 use Encode;
-use File::ReadBackwards;
 
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database;
+use LANraragi::Utils::Logging;
 
 # This action will render a template
 sub index {
@@ -23,56 +23,38 @@ sub index {
     );
 }
 
-sub print_general {
+sub print_lines_from_file {
 
-    my $self  = shift;
-    my $lines = 100;     #Number of lines to read
+    my ($mojo, $file) = @_;
 
-    if ( $self->req->param('lines') ) {
-        $lines = $self->req->param('lines');
+    # Number of lines to read
+    my $lines  = 100;     
+    my $logdir = LANraragi::Utils::Logging::get_logdir;
+
+    if ( $mojo->req->param('lines') ) {
+        $lines = $mojo->req->param('lines');
     }
 
-    $self->render(
-        text => &get_lines_from_file( $lines, "./log/lanraragi.log" ) );
+    $mojo->render(
+        text => LANraragi::Utils::Logging::get_lines_from_file( $lines, $logdir."/$file.log" ) 
+    );
+
+}
+
+sub print_general {
+    print_lines_from_file(shift, "lanraragi");
 }
 
 sub print_shinobu {
-
-    my $self  = shift;
-    my $lines = 100;     #Number of lines to read
-
-    if ( $self->req->param('lines') ) {
-        $lines = $self->req->param('lines');
-    }
-
-    $self->render(
-        text => &get_lines_from_file( $lines, "./log/shinobu.log" ) );
+    print_lines_from_file(shift, "shinobu");
 }
 
 sub print_plugins {
-
-    my $self  = shift;
-    my $lines = 100;     #Number of lines to read
-
-    if ( $self->req->param('lines') ) {
-        $lines = $self->req->param('lines');
-    }
-
-    $self->render(
-        text => &get_lines_from_file( $lines, "./log/plugins.log" ) );
+    print_lines_from_file(shift, "plugins");
 }
 
 sub print_redis {
-
-    my $self  = shift;
-    my $lines = 100;     #Number of lines to read
-
-    if ( $self->req->param('lines') ) {
-        $lines = $self->req->param('lines');
-    }
-
-    $self->render(
-        text => &get_lines_from_file( $lines, "./log/redis.log" ) );
+    print_lines_from_file(shift, "redis");
 }
 
 sub print_mojo {
@@ -81,38 +63,7 @@ sub print_mojo {
 
     #Depending on the mode, look for development or production.log
     my $mode = $self->app->mode;
-
-    my $lines = 100;    #Number of lines to read
-
-    if ( $self->req->param('lines') ) {
-        $lines = $self->req->param('lines');
-    }
-
-    $self->render( text => &get_lines_from_file( $lines, "./log/$mode.log" ) );
-}
-
-sub get_lines_from_file {
-
-    my $lines = $_[0];
-    my $file  = $_[1];
-
-    #Load the last X lines of file
-    if ( -e $file ) {
-        my $bw  = File::ReadBackwards->new($file);
-        my $res = "";
-        for ( my $i = 0 ; $i <= $lines ; $i++ ) {
-            my $line = $bw->readline();
-            if ($line) {
-                $res = $line . $res;
-            }
-
-        }
-
-        return decode_utf8($res);
-    }
-
-    return "No logs to be found here!";
-
+    print_lines_from_file($self, $mode);
 }
 
 1;

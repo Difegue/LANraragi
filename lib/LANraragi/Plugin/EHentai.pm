@@ -47,7 +47,7 @@ sub get_user_agent {
 
     my ($ipb_member_id, $ipb_pass_hash, $star, $enablepanda) = @_;
 
-    my $logger = LANraragi::Utils::Generic::get_logger( "E-Hentai", "plugins" );
+    my $logger = LANraragi::Utils::Logging::get_logger( "E-Hentai", "plugins" );
     my $domain = "https://e-hentai.org";
     $domain = "https://exhentai.org" if $enablepanda;
     my $ua = Mojo::UserAgent->new;
@@ -108,7 +108,7 @@ sub get_tags {
          $ipb_member_id, $ipb_pass_hash, $star, $lang, $savetitle, $usethumbs, $enablepanda) = @_;
 
     # Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
-    my $logger = LANraragi::Utils::Generic::get_logger( "E-Hentai", "plugins" );
+    my $logger = LANraragi::Utils::Logging::get_logger( "E-Hentai", "plugins" );
 
     # Work your magic here - You can create subroutines below to organize the code better
     my $gID    = "";
@@ -168,7 +168,7 @@ sub get_tags {
 sub lookup_gallery {
 
     my ( $title, $tags, $thumbhash, $defaultlanguage, $ua, $domain, $usethumbs) = @_;
-    my $logger = LANraragi::Utils::Generic::get_logger( "E-Hentai", "plugins" );
+    my $logger = LANraragi::Utils::Logging::get_logger( "E-Hentai", "plugins" );
     my $URL    = "";
 
     #Thumbnail reverse image search
@@ -221,7 +221,7 @@ sub ehentai_parse() {
 
     my $URL = $_[0];
     my $ua  = $_[1];
-    my $logger = LANraragi::Utils::Generic::get_logger( "E-Hentai", "plugins" );
+    my $logger = LANraragi::Utils::Logging::get_logger( "E-Hentai", "plugins" );
 
     my $response = $ua->max_redirects(5)->get($URL)->result;
     my $content  = $response->body;
@@ -269,7 +269,7 @@ sub get_tags_from_EH {
 
     my $ua = Mojo::UserAgent->new;
 
-    my $logger = LANraragi::Utils::Generic::get_logger( "E-Hentai", "plugins" );
+    my $logger = LANraragi::Utils::Logging::get_logger( "E-Hentai", "plugins" );
 
     #Execute the request
     my $rep = $ua->post(

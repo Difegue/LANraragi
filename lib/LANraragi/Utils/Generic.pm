@@ -4,8 +4,6 @@ use strict;
 use warnings;
 use utf8;
 
-use feature 'say';
-use POSIX;
 use Storable;
 use Digest::SHA qw(sha256_hex);
 use Mojo::Log;
@@ -13,6 +11,7 @@ use Logfile::Rotate;
 use Proc::Simple;
 
 use LANraragi::Model::Config;
+use LANraragi::Utils::Logging;
 
 # Generic Utility Functions.
 
@@ -60,7 +59,7 @@ sub get_tag_with_namespace {
 
 #Start Shinobu and return its Proc::Background object.
 sub start_shinobu {
-    my $logger = get_logger( "Shinobu Boot", "lanraragi" );
+    my $logger = LANraragi::Utils::Logging::get_logger( "Shinobu Boot", "lanraragi" );
 
     my $proc = Proc::Simple->new(); 
     $proc->start($^X, "./lib/Shinobu.pm");
@@ -77,7 +76,7 @@ sub start_shinobu {
 sub shasum {
 
     my $digest = "";
-    my $logger = get_logger( "Hash Computation", "lanraragi" );
+    my $logger = LANraragi::Utils::Logging::get_logger( "Hash Computation", "lanraragi" );
 
     eval {
         my $ctx = Digest::SHA->new( $_[1] );
@@ -92,55 +91,6 @@ sub shasum {
     }
 
     return $digest;
-}
-
-#Returns a Logger object with a custom name and a filename for the log file.
-sub get_logger {
-
-    #Customize log file location and minimum log level
-    my $pgname  = $_[0];
-    my $logfile = $_[1];
-
-    my $logpath = './log/' . $logfile . '.log';
-
-    if (-e $logpath && -s $logpath > 1048576) {
-        # Rotate log if it's > 1MB
-        say "Rotating logfile $logfile";
-        new Logfile::Rotate(File => $logpath, Gzip  => 'lib')->rotate();
-    }
-
-    my $log = Mojo::Log->new( path => $logpath, 
-                              level => 'info' );
-
-    my $devmode = LANraragi::Model::Config::enable_devmode;
-
-    #Tell logger to store debug logs as well in debug mode
-    if ($devmode) {
-        $log->level('debug');
-    }
-
-    #Copy logged messages to STDOUT with the matching name
-    $log->on(
-        message => sub {
-            my ( $time, $level, @lines ) = @_;
-
-            unless ( $devmode == 0 && $level eq 'debug' )
-            { #Like with logging to file, debug logs are only printed in debug mode
-                print "[$pgname] [$level] ";
-                say $lines[0];
-            }
-        }
-    );
-
-    $log->format(
-        sub {
-            my ( $time, $level, @lines ) = @_;
-            my $time2 = strftime( "%Y-%m-%d %H:%M:%S", localtime($time) );
-            return "[$time2] [$pgname] [$level] " . join( "\n", @lines ) . "\n";
-        }
-    );
-
-    return $log;
 }
 
 sub get_css_list {
