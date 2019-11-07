@@ -1,31 +1,33 @@
 #!/bin/bash
 
-trap "kill 0" SIGINT
-
 # prefix/place where lrr is installed
 workdir=$(dirname $0)/$(dirname $(readlink $0))/..
 
-# initialize LRR_DATA_DIRECTORY with defaults if not set
+# initialize LRR_DATA_DIRECTORY if not set
 if [[ ${LRR_DATA_DIRECTORY} == "" ]]; then
   if [[ ${OSTYPE} == "darwin"* ]]; then
     _LRR_DATA_DIRECTORY="${HOME}/Library/Application Support/LANraragi"
   else
     _LRR_DATA_DIRECTORY="${HOME}/LANraragi"
   fi
+  export LRR_DATA_DIRECTORY="${_LRR_DATA_DIRECTORY}"
 fi
+echo "Data Directory is set to '${LRR_DATA_DIRECTORY}'"
 
 # change values in redis.conf
 if [[ ${OSTYPE} == "darwin"* ]]; then
-  sed -i "" "s~<LRR_DATA_DIRECTORY>~${_LRR_DATA_DIRECTORY}~g" ${workdir}/redis.conf
+  sed -i "" "s~<LRR_DATA_DIRECTORY>~${LRR_DATA_DIRECTORY}~g" ${workdir}/redis.conf
 else
-  sed -i"" "s~<LRR_DATA_DIRECTORY>~${_LRR_DATA_DIRECTORY}~g" ${workdir}/redis.conf
+  sed -i"" "s~<LRR_DATA_DIRECTORY>~${LRR_DATA_DIRECTORY}~g" ${workdir}/redis.conf
 fi
 
-# create path if it does not exist yet
-mkdir -p "${_LRR_DATA_DIRECTORY}/log"
+# initialize LRR_LOG_DIRECTORY if not set
+if [[ ${LRR_LOG_DIRECTORY} == "" ]]; then
+  export LRR_LOG_DIRECTORY="${LRR_DATA_DIRECTORY}/log"
+fi
+echo "Log Directory is set to '${LRR_LOG_DIRECTORY}'"
 
-echo "Data Directory is set to '${_LRR_DATA_DIRECTORY}'"
-export LRR_DATA_DIRECTORY="${_LRR_DATA_DIRECTORY}"
+# @INC export
 export PERL5LIB="${workdir}/libexec/lib/perl5"
 
 # launch command
