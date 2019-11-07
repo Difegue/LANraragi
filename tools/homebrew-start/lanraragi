@@ -19,4 +19,7 @@ mkdir -p "${_LRR_DATA_DIRECTORY}/log"
 
 export LRR_DATA_DIRECTORY="${_LRR_DATA_DIRECTORY}"
 export PERL5LIB="${workdir}/libexec/lib/perl5"
-redis-server "${workdir}/redis.conf" & npm start --prefix "${workdir}"
+
+# launch command
+redis-server "${workdir}/redis.conf" --daemonize yes
+npm start --prefix "${workdir}" && redis-cli shutdown
