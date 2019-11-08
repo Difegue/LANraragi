@@ -37,7 +37,7 @@ function toggleInbox(button) {
 	}
 
 	//Redraw the table 
-	$('#clrsrch').click();
+	performSearch();
 }
 
 // looks at all checked favTags and builds an OR regex to jam in DataTables
