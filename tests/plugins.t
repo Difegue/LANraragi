@@ -1,13 +1,24 @@
+use strict;
+use warnings;
+use utf8;
+use Cwd;
+
 use Mojo::Base 'Mojolicious';
 
 use Test::More tests => 13;
 use Test::Mojo;
+use Test::MockObject;
 
 use LANraragi::Plugin::EHentai;
 use LANraragi::Plugin::nHentai;
 use LANraragi::Plugin::Chaika;
 
-#EHentai Tests
+# Mock Redis
+my $cwd = getcwd;
+require $cwd."/tests/mocks.pl";
+setup_redis_mock();
+
+# E-Hentai Tests
 my ( $ua, $domain ) = LANraragi::Plugin::EHentai::get_user_agent("","","");
 my $eH_gID    = "618395";
 my $eH_gToken = "0439fa3666";
@@ -26,7 +37,7 @@ my ($test_eH_tags, $test_eH_title) =
 is( $test_eH_tags, $eH_tags, 'eHentai API Tag retrieval test' );
 is( $test_eH_title, "(Kouroumu 8) [Handful☆Happiness! (Fuyuki Nanahara)] TOUHOU GUNMANIA A2 (Touhou Project)", "eHentai title test");
 
-#NHentai Tests
+# nHentai Tests
 my $nH_gID = "52249";
 my $test_nH_gID =
   LANraragi::Plugin::nHentai::get_gallery_id_from_title("\"Pieces 1\" shirow");
@@ -40,7 +51,7 @@ my ($test_nH_tags, $test_nH_title) = LANraragi::Plugin::nHentai::get_tags_from_N
 is( $test_nH_tags, $nH_tags, 'nHentai API Tag retrieval test' );
 is( $test_nH_title, "Pieces 1", 'nHentai title test');
 
-#Chaika Tests
+# Chaika Tests
 my $mwee_ID = "27240";
 my $mwee_title = '[Kemuri Haku] Zettai Seikou Keikaku | Absolute Intercourse Plan (COMIC Shitsurakuten 2016-03) [English] [Redlantern]';
 my $mwee_tags = "language:english, language:translated, female:big breasts, female:nakadashi, female:defloration, male:shotacon, full censorship, artist:kemuri haku, male:sole male, female:sole female";
