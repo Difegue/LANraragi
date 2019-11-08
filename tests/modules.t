@@ -1,10 +1,12 @@
 use strict;
 use warnings;
 use utf8;
+use Cwd;
 
 use Mojo::Base 'Mojolicious';
 use Test::More tests => 37;
 use Test::Mojo;
+use Test::MockObject;
 
 sub test_module {
     my $module_name = shift;
@@ -17,6 +19,11 @@ sub test_module {
 
     return 1;
 }
+
+# Mock Redis
+my $cwd = getcwd;
+require $cwd."/tests/mocks.pl";
+setup_redis_mock();
 
 my @modules = ("Shinobu", 
             "LANraragi",
