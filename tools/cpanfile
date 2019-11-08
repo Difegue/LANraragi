@@ -22,6 +22,7 @@ requires 'Cpanel::JSON::XS', 4.06;
 requires 'Logfile::Rotate', 1.04;
 
 requires 'Test::Harness', 3.42;
+requires 'Test::MockObject', 1.20191002;
 requires 'Mojolicious', 8.22;
 requires 'Mojolicious::Plugin::TemplateToolkit', 0.003;
 requires 'Mojolicious::Plugin::RenderFile', 0.12;
