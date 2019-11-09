@@ -1,22 +1,40 @@
 #!/bin/bash
 
-trap "kill 0" SIGINT
-
-# prefix/place where lrr is installed & modify redis config
+# prefix/place where lrr is installed
 workdir=$(dirname $0)/$(dirname $(readlink $0))/..
 
+# default locations
 if [[ ${OSTYPE} == "darwin"* ]]; then
   _LRR_DATA_DIRECTORY="${HOME}/Library/Application Support/LANraragi"
-  sed -i "" "s~<LRR_DATA_DIRECTORY>~${_LRR_DATA_DIRECTORY}~g" ${workdir}/redis.conf
+  _LRR_LOG_DIRECTORY="${HOME}/Library/Logs/LANraragi"
 else
   _LRR_DATA_DIRECTORY="${HOME}/LANraragi"
-  sed -i"" "s~<LRR_DATA_DIRECTORY>~${_LRR_DATA_DIRECTORY}~g" ${workdir}/redis.conf
+  _LRR_LOG_DIRECTORY="${HOME}/LANraragi/log"
 fi
-echo "Data Directory is set to '${_LRR_DATA_DIRECTORY}'"
 
-# create path if it does not exist yet
-mkdir -p "${_LRR_DATA_DIRECTORY}/log"
+# initialize if not set
+if [[ ${LRR_DATA_DIRECTORY} == "" ]]; then
+  export LRR_DATA_DIRECTORY="${_LRR_DATA_DIRECTORY}"
+fi
+if [[ ${LRR_LOG_DIRECTORY} == "" ]]; then
+  export LRR_LOG_DIRECTORY="${_LRR_LOG_DIRECTORY}"
+fi
 
-export LRR_DATA_DIRECTORY="${_LRR_DATA_DIRECTORY}"
+# change values in redis.conf
+perl -pi -e "s~<LRR_DATA_DIRECTORY>~${LRR_DATA_DIRECTORY}~g" ${workdir}/redis.conf
+perl -pi -e "s~<LRR_LOG_DIRECTORY>~${LRR_LOG_DIRECTORY}~g" ${workdir}/redis.conf
+
+# output
+echo "Data Directory is set to '${LRR_DATA_DIRECTORY}'"
+echo "Log Directory is set to '${LRR_LOG_DIRECTORY}'"
+
+# @INC export
 export PERL5LIB="${workdir}/libexec/lib/perl5"
-redis-server "${workdir}/redis.conf" & npm start --prefix "${workdir}"
+
+# create dirs
+mkdir -p ${LRR_DATA_DIRECTORY}
+mkdir -p ${LRR_LOG_DIRECTORY}
+
+# launch command
+redis-server "${workdir}/redis.conf" --daemonize yes
+npm start --prefix "${workdir}" && redis-cli shutdown
