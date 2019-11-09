@@ -48,6 +48,7 @@ sub apply_routes {
         $r->get('/stats')->to('stats#index');
         $r->get('/search')->to('search#handle_datatables');
         $r->get('/auth')->to('auth');
+        $r->get('/redirect')->to('redirect');
         $r->get('/upload')->to('upload#index');
         $r->post('/upload')->to('upload#process_upload');
         $r->get('/logs')->to('logging#index');

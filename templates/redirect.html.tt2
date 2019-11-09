@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+
+<head>
+	<title>重定向中...</title>
+	<script src="./js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
+	<script src="./js/theme.js?0.6.6" type="text/JAVASCRIPT"></script>
+	<script src="./js/totp.min.js"></script>
+</head>
+
+<body>
+<script>
+function setCookie(name,value,Days){
+if(Days==undefined) document.cookie = name + "="+ escape (value) + ";path=/";
+else{
+var exp = new Date();
+exp.setTime(exp.getTime() + Day*24*60*60*30);
+document.cookie = name + "="+ escape (value) + ";expires=" + exp.toGMTString()+";path=/";}
+}
+
+function getCookie(cname)
+{
+var name = cname + "=";
+var ca = document.cookie.split(';');
+for(var i=0;i<ca.length; i++)
+{
+var c = ca[i].trim();
+if (c.indexOf(name)==0) return c.substring(name.length,c.length);
+}
+return "";
+}
+
+function delCookie(name)
+{
+var exp = new Date();
+exp.setTime(exp.getTime() - 1);
+var cval=getCookie(name);
+if(cval!=null)
+document.cookie= name + "="+cval+";expires="+exp.toGMTString();
+}
+</script>
+<script>
+var $url=location.href.split("//");
+function gomain(){location.href=$url[0]+"//"+location.hostname;}
+var ref=unescape(getCookie("referrer"));
+var nref=document.referrer;
+if(nref==location.href){gomain()}
+else{
+if(nref=="")gomain();
+if(ref){
+delCookie('referrer');
+location.href=ref;
+}
+else{gomain()}}
+</script>
+</body>
+</html>

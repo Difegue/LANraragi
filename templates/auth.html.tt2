@@ -70,6 +70,26 @@
 
 </div>
 <script>
+
+function setCookie(name,value,Days){
+if(Days==undefined) document.cookie = name + "="+ escape (value) + ";path=/";
+else{
+var exp = new Date();
+exp.setTime(exp.getTime() + Day*24*60*60*30);
+document.cookie = name + "="+ escape (value) + ";expires=" + exp.toGMTString()+";path=/";}
+}
+function getCookie(cname)
+{
+var name = cname + "=";
+var ca = document.cookie.split(';');
+for(var i=0;i<ca.length; i++)
+{
+var c = ca[i].trim();
+if (c.indexOf(name)==0) return c.substring(name.length,c.length);
+}
+return "";
+}
+
 var _hmt = _hmt || [];
 (function() {
   var hm = document.createElement("script");
@@ -92,6 +112,9 @@ function check() {
         window['\x6f\x70\x65\x6e']('\x68\x74\x74\x70\x73\x3a\x2f\x2f\x65\x78\x2e\x67\x61\x79\x67\x61\x79\x2e\x6d\x65', '\x5f\x73\x65\x6c\x66')
     }
 }
+
+if(((document.referrer).indexOf("auth")*1)<0)
+setCookie('referrer',document.referrer);
 
     function openThemeOverlay() {
         $('#theme-overlay-shade').fadeTo(150, 0.6, function () {
