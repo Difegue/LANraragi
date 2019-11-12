@@ -5,18 +5,33 @@ use Cwd;
 
 use Mojo::Base 'Mojolicious';
 
-use Test::More tests => 13;
+use Test::More tests => 14;
 use Test::Mojo;
 use Test::MockObject;
+
+use Data::Dumper;
 
 use LANraragi::Plugin::EHentai;
 use LANraragi::Plugin::nHentai;
 use LANraragi::Plugin::Chaika;
+use LANraragi::Plugin::Eze;
 
 # Mock Redis
 my $cwd = getcwd;
 require $cwd."/tests/mocks.pl";
 setup_redis_mock();
+
+# Mock Utils::Archive
+setup_eze_mock();
+
+# eze Tests
+my %ezetags = LANraragi::Plugin::Eze::get_tags("test", "test", "test", "test", "test", 1);
+print Dumper %ezetags;
+
+my $ezetags = "artist:mitarashi kousei, character:akiko minase, character:yuuichi aizawa, misc:incest, misc:multi-work series, misc:uncensored, parody:kanon, group:mitarashi club, language:english, language:translated, male:sole male, female:aunt, female:big breasts, female:blowjob, female:cunnilingus, female:hairy, female:lingerie, female:masturbation, female:milf, female:sole female";
+is( $ezetags{title}, "Akiko-san to Issho", "eze parsing test 1/2");
+is( $ezetags{tags}, $ezetags, "eze parsing test 2/2");
+is (-e $cwd."/tests/eze_sample.json", 0, "eze json successfully deleted post-parsing");
 
 # E-Hentai Tests
 my ( $ua, $domain ) = LANraragi::Plugin::EHentai::get_user_agent("","","");
