@@ -5,7 +5,7 @@ use Cwd;
 
 use Mojo::Base 'Mojolicious';
 
-use Test::More tests => 14;
+use Test::More tests => 15;
 use Test::Mojo;
 use Test::MockObject;
 
