@@ -33,10 +33,10 @@ sub plugin_info {
 #Mandatory function to be implemented by your plugin
 sub get_tags {
 
-#LRR gives your plugin the recorded title/tags/thumbnail hash for the file, the filesystem path, and the custom arguments if available.
+    # LRR gives your plugin the recorded title/tags/thumbnail hash for the file, 
+    # the filesystem path, and the custom arguments if available.
     shift;
     my ( $title, $tags, $thumbhash, $file, $oneshotarg, $savetitle ) = @_;
-
     my $logger = LANraragi::Utils::Logging::get_logger( "eze", "plugins" );
 
     if ( LANraragi::Utils::Archive::is_file_in_archive( $file, "info.json" ) ) {
@@ -69,7 +69,6 @@ sub get_tags {
 
         #Return tags
         $logger->info("Sending the following tags to LRR: $tags");
-        
 
         if ($savetitle) { 
             $logger->info("Parsed title is $title");
@@ -100,8 +99,9 @@ sub tags_from_eze_json {
     my $ogtitle = $hash->{"gallery_info"}->{"title"};
 
     my ($title, $autotags) = LANraragi::Utils::Database::parse_name($ogtitle);
+    LANraragi::Utils::Generic::remove_spaces($title);
 
-    foreach my $namespace ( keys(%$tags) ) {
+    foreach my $namespace ( sort keys %$tags ) {
 
         # Get the array for this namespace and iterate on it
         my $members = $tags->{$namespace};
@@ -111,6 +111,16 @@ sub tags_from_eze_json {
             $return .= $namespace . ":" . $tag;
 
         }
+    }
+
+    # Add source tag if possible
+
+    my $site = $hash->{"gallery_info"}->{"source"}->{"site"};
+    my $gid = $hash->{"gallery_info"}->{"source"}->{"gid"};
+    my $gtoken = $hash->{"gallery_info"}->{"source"}->{"token"};
+
+    if ($site && $gid && $gtoken) {
+        $return .= ", source: $site.org/g/$gid/$gtoken";
     }
 
     #Done-o
