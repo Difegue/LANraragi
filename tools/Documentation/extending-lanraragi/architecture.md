@@ -12,7 +12,8 @@ The _install.pl_ script is essentially a sequence of commands executed to instal
 
 Those variables were introduced for the Homebrew package, but they can be declared at anytime on any type of install; LRR will try to use them.  
 
-* `LRR_DATA_DIRECTORY` - Data directory override. If this variable is set to a path, said path will house the `temp` and `content` variables. If the user modifies the location of the content folder in his settings, the override has no effect on the content folder.  
+* `LRR_DATA_DIRECTORY` - Data directory override. If this variable is set to a path, said path will house the content folder. If the user modifies the location of the content folder in his settings, the override has no effect on the content folder.  
+* `LRR_TEMP_DIRECTORY` - Temporary directory override. If this variable is set to a path, the temporary folder will be there instead of `/public/temp`.
 * `LRR_LOG_DIRECTORY` - Log directory override. Changes the location of the `log` folder.  
 * `LRR_NETWORK` - Network Interface. See the dedicated page in Advanced Operations.  
 

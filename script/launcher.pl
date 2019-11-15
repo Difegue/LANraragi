@@ -18,9 +18,11 @@ getopt
 
 if ($ENV{LRR_DATA_DIRECTORY}) {
     make_path($ENV{LRR_DATA_DIRECTORY});
-} else {
-    $ENV{LRR_DATA_DIRECTORY} = "."
-}
+} 
+
+if ($ENV{LRR_TEMP_DIRECTORY}) {
+    make_path($ENV{LRR_TEMP_DIRECTORY});
+} 
 
 die extract_usage if $help || !(my $app = shift || $ENV{HYPNOTOAD_APP});
 
