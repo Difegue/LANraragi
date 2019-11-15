@@ -26,8 +26,7 @@
 
     <link rel="http://opds-spec.org/image" href="/api/thumbnail?id=[% arc.arcid %]" type="image/jpeg"/>
     <link rel="http://opds-spec.org/image/thumbnail" href="/api/thumbnail?id=[% arc.arcid %]" type="image/jpeg"/>
-    <link rel="http://opds-spec.org/acquisition" href="/api/servefile?id=[% arc.arcid %]" type="[% arc.mimetype %]"/>
-    <link rel="http://opds-spec.org/acquisition" href="/api/servefile?id=[% arc.arcid %]" title="Read" type="[% arc.mimetype2 %]"/>
+    <link rel="http://opds-spec.org/acquisition" href="/api/servefile?id=[% arc.arcid %]" title="Read" type="[% arc.mimetype %]"/>
     <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=[% arc.arcid %]"/>
 
 </entry>
