@@ -100,6 +100,15 @@ sub get_userdir {
     return abs_path($dir);
 }
 
+sub enable_devmode  {
+
+    if ($ENV{LRR_FORCE_DEBUG}) {
+        return 1;
+    }
+
+    return &get_redis_conf( "devmode", "0" );
+}
+
 sub get_password {
     return &get_redis_conf( "password",
         '{CRYPT}$2a$08$4AcMwwkGXnWtFTOLuw/hduQlRdqWQIBzX3UuKn.M1qTFX5R4CALxy' );
@@ -116,7 +125,6 @@ sub get_pagesize    { return &get_redis_conf( "pagesize",    "100" ) }
 sub enable_pass     { return &get_redis_conf( "enablepass",  "1" ) }
 sub enable_nofun    { return &get_redis_conf( "nofunmode",   "0" ) }
 sub enable_autotag  { return &get_redis_conf( "autotag",     "1" ) }
-sub enable_devmode  { return &get_redis_conf( "devmode",     "0" ) }
 sub get_apikey      { return &get_redis_conf( "apikey",      "" ) }
 sub get_tagregex    { return &get_redis_conf( "tagregex",    "1" ) }
 
