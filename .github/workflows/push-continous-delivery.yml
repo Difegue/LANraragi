@@ -19,7 +19,7 @@ jobs:
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       run: |
         echo "${DOCKER_PASSWORD}" | docker login -u ${DOCKER_USERNAME} --password-stdin
-        chmod +x ./tools/Docker-multiarch/build-docker.sh
+        chmod +x ./tools/build/docker-multiarch/build-docker.sh
         npm run docker-build-multiarch ${ARCH} nightly
   pushNightlyDocker:
     name: Push Multi-Arch manifest
@@ -34,22 +34,24 @@ jobs:
         DOCKER_CLI_EXPERIMENTAL: enabled
       run: |
         echo "${DOCKER_PASSWORD}" | docker login -u ${DOCKER_USERNAME} --password-stdin
-        chmod +x ./tools/Docker-multiarch/push-docker.sh
+        chmod +x ./tools/build/docker-multiarch/push-docker.sh
         npm run docker-push-multiarch nightly
   buildNightlyWSL:
     name: Build Nightly Windows Package
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
     - uses: actions/checkout@master
     - name: Build Base Docker Image
       run: |
-        docker build -t difegue/lanraragi -f ./tools/DockerSetup/Dockerfile .
+        docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile .
     - name: Build WSL zip
-      uses: ./.github/action-wslbuild
+      run: |
+        choco install nuget
+        ./tools/build/windows/build.ps1
     - name: Upload Installer to MEGA
       uses: difegue/action-megacmd@master
       env:
         PASSWORD: ${{ secrets.MEGA_PASSWORD }}
         USERNAME: ${{ secrets.MEGA_USERNAME }}
       with:
-        args: put -c LANraragi_Windows_Installer.zip Windows_Nightlies/${GITHUB_SHA}/LRR_Nightly_Windows.zip
+        args: put -c LANraragi.msi Windows_Nightlies/LRR_${GITHUB_SHA}.msi
