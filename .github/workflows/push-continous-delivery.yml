@@ -42,11 +42,14 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@master
-    - name: Build a Docker image
+    - name: Enable LCOW and build a Docker image
       run: |
-        get-command docker | echo
-        & $Env:ProgramFiles\Docker\DockerCli.exe -SwitchDaemon .
-        docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile . 
+        Uninstall-Package -Name docker -ProviderName DockerMSFTProvider
+        Install-Module DockerProvider
+        Install-Package Docker -ProviderName DockerProvider -RequiredVersion preview
+        [Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", "1", "Machine")
+        Restart-Service docker
+        docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile . --platform linux
     - name: Build WSL zip
       run: |
         choco install nuget
