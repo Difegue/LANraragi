@@ -44,8 +44,14 @@ jobs:
     - uses: actions/checkout@master
     - name: Enable LCOW and build a Docker image
       run: |
-        Install-Module DockerProvider
-        Install-Package Docker -ProviderName DockerProvider -RequiredVersion preview
+        $configfile =@"
+        {
+            "experimental":true
+        }
+        "@
+        $configfile|Out-File -FilePath c:\Programdata\docker\config\daemon.json -Encoding ascii -Force
+        Invoke-WebRequest -Uri "https://github.com/linuxkit/lcow/releases/download/v4.14.35-v0.3.9/release.zip" -UseBasicParsing -OutFile release.zip
+        Expand-Archive release.zip -DestinationPath "$Env:ProgramFiles\Linux Containers\."
         [Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", "1", "Machine")
         Restart-Service docker
         docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile . --platform linux
