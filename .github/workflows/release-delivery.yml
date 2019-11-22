@@ -5,14 +5,16 @@ name: New Version Release
 jobs:
   uploadWSLRelease:
     name: Add WSL distro package to release
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
     - uses: actions/checkout@master
-    - name: Untagged Docker Build
+    - name: Build Base Docker Image
       run: |
-        docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile .
+        docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile . --platform linux
     - name: Build WSL zip
-      uses: ./.github/action-wslbuild
+      run: |
+        choco install nuget
+        ./tools/build/windows/build.ps1
     - name: Upload Installer to release
       uses: JasonEtco/upload-to-release@master
       env:
