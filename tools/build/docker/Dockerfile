@@ -2,7 +2,7 @@
 FROM        alpine:latest
 LABEL       git="https://github.com/Difegue/LANraragi" 
 
-ENTRYPOINT ["sh", "/home/koyomi/lanraragi/tools/DockerSetup/entrypoint.sh"]
+ENTRYPOINT ["sh", "/home/koyomi/lanraragi/tools/build/docker/entrypoint.sh"]
 
 # Check application health
 HEALTHCHECK --interval=1m --timeout=10s --retries=3 \
@@ -37,7 +37,7 @@ COPY --chown=koyomi:koyomi /tools tools
 COPY --chown=koyomi:koyomi /package.json package.json
 
 # Make scripts executable + Run the install script as root
-RUN chmod +x ./tools/DockerSetup/install-everything.sh ./tools/DockerSetup/entrypoint.sh && sh ./tools/DockerSetup/install-everything.sh
+RUN chmod +x ./tools/build/docker/install-everything.sh ./tools/build/docker/entrypoint.sh && sh ./tools/build/docker/install-everything.sh
 
 #Copy remaining LRR files from context  
 COPY --chown=koyomi:koyomi /lib lib
