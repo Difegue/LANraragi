@@ -42,7 +42,7 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@master
-    - name: Build Base Docker Image
+    - name: Enable LCOW and build a Docker image
       run: |
         $configfile =@"
         {
@@ -50,6 +50,8 @@ jobs:
         }
         "@
         $configfile|Out-File -FilePath c:\Programdata\docker\config\daemon.json -Encoding ascii -Force
+        Invoke-WebRequest -Uri "https://github.com/linuxkit/lcow/releases/download/v4.14.35-v0.3.9/release.zip" -UseBasicParsing -OutFile release.zip
+        Expand-Archive release.zip -DestinationPath "$Env:ProgramFiles\Linux Containers\."
         restart-Service docker
         docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile . --platform linux
     - name: Build WSL zip
