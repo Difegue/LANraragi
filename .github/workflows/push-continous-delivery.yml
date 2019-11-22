@@ -44,10 +44,14 @@ jobs:
     - uses: actions/checkout@master
     - name: Build Base Docker Image
       run: |
-        Install-Module -Name DockerMsftProvider -Force
-        Install-Package -Name docker -ProviderName DockerMsftProvider -Force
-        & $Env:ProgramFiles\Docker\Docker\DockerCli.exe -SwitchLinuxEngine
-        docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile . 
+        $configfile =@"
+        {
+            "experimental":true
+        }
+        "@
+        $configfile|Out-File -FilePath c:\Programdata\docker\config\daemon.json -Encoding ascii -Force
+        restart-Service docker
+        docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile . --platform linux
     - name: Build WSL zip
       run: |
         choco install nuget
