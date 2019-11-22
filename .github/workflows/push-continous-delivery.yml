@@ -44,6 +44,7 @@ jobs:
     - uses: actions/checkout@master
     - name: Build a Docker image
       run: |
+        get-command docker | echo
         & $Env:ProgramFiles\Docker\Docker\DockerCli.exe -SwitchDaemon .
         docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile . 
     - name: Build WSL zip
