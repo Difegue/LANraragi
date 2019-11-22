@@ -18,7 +18,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        args: LANraragi_Windows_Installer.zip application/zip
+        args: LANraragi.msi application/octet-stream
   buildLatestDocker:
     name: Build Latest Docker image
     runs-on: ubuntu-latest
