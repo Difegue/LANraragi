@@ -44,6 +44,7 @@ jobs:
     - uses: actions/checkout@master
     - name: Enable LCOW and build a Docker image
       run: |
+        Install-WindowsFeature -Name Hyper-V,Containers -IncludeAllSubFeature -IncludeManagementTools
         $configfile =@"
         {
             "experimental":true
