@@ -44,7 +44,7 @@ jobs:
     - uses: actions/checkout@master
     - name: Build Base Docker Image
       run: |
-        \& $Env:ProgramFiles\Docker\Docker\DockerCli.exe -SwitchLinuxEngine
+        & $Env:ProgramFiles\Docker\Docker\DockerCli.exe -SwitchLinuxEngine
         docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile . 
     - name: Build WSL zip
       run: |
