@@ -52,7 +52,7 @@ jobs:
     - name: Upload rootfs
       uses: actions/upload-artifact@v1
       with:
-        name: package
+        name: package.tar
         path: package.tar 
 
   buildNightlyWSL:
@@ -64,7 +64,7 @@ jobs:
     - name: Download package
       uses: actions/download-artifact@v1
       with:
-        name: package
+        name: package.tar
     - name: Build WSL zip
       run: |
         choco install nuget.commandline
