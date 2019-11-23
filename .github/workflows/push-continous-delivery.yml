@@ -79,7 +79,7 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: installer
-        path: LANraragi.msi
+        path: ./tools/build/windows/Karen/Setup/bin/LANraragi.msi
   
   uploadInstaller:
     name: Upload Installer to MEGA
