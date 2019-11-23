@@ -10,12 +10,12 @@ function Unzip
 
 echo "🎌 Building up LRR Windows Package 🎌"
 
-# Use Karen master
-cd Karen
-nuget restore
-
 # Use Docker image
-mv ../package.tar External/package.tar 
+mv package.tar tools/build/windows/Karen/External/package.tar 
+
+# Use Karen master
+cd tools/build/windows/Karen
+nuget restore
 
 # Download LxRunOffline
 wget https://github.com/DDoSolitary/LxRunOffline/releases/download/v3.4.0/LxRunOffline-v3.4.0.zip -outfile lxro.zip

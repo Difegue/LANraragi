@@ -67,7 +67,7 @@ jobs:
         name: package
     - name: Build WSL zip
       run: |
-        choco install nuget
+        choco install nuget.commandline
         ./tools/build/windows/build.ps1
     - name: Upload Installer to MEGA
       uses: difegue/action-megacmd@master
