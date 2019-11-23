@@ -52,7 +52,7 @@ jobs:
     - name: Upload rootfs
       uses: actions/upload-artifact@v1
       with:
-        name: package.tar
+        name: package
         path: package.tar 
 
   buildNightlyWSL:
@@ -64,9 +64,10 @@ jobs:
     - name: Download package
       uses: actions/download-artifact@v1
       with:
-        name: package.tar
+        name: package
     - name: Build WSL zip
       run: |
+        git submodule update
         choco install nuget.commandline
         ./tools/build/windows/build.ps1
     - name: Upload Installer to MEGA
