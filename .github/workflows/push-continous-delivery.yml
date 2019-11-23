@@ -78,22 +78,22 @@ jobs:
     - name: Upload Installer
       uses: actions/upload-artifact@v1
       with:
-        name: installer
+        name: wsl
         path: ./tools/build/windows/Karen/Setup/bin/LANraragi.msi
   
   uploadInstaller:
     name: Upload Installer to MEGA
     needs: buildNightlyWSL
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
     - name: Download package
       uses: actions/download-artifact@v1
       with:
-        name: installer
+        name: wsl
     - name: Upload Installer to MEGA
       uses: difegue/action-megacmd@master
       env:
         PASSWORD: ${{ secrets.MEGA_PASSWORD }}
         USERNAME: ${{ secrets.MEGA_USERNAME }}
       with:
-        args: put -c installer/LANraragi.msi Windows_Nightlies/LRR_${GITHUB_SHA}.msi
+        args: put -c wsl/LANraragi.msi Windows_Nightlies/LRR_${GITHUB_SHA}.msi

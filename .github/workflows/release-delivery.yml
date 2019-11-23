@@ -3,24 +3,63 @@ on:
     types: [published]
 name: New Version Release
 jobs:
-  uploadWSLRelease:
-    name: Add WSL distro package to release
+
+  exportDockerRootFS:
+    name: Build and export Docker rootfs for Windows build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Docker Build and export
+      run: |
+        docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile .
+        docker create --name rootfs difegue/lanraragi 
+        docker export --output=package.tar rootfs
+    - name: Upload rootfs
+      uses: actions/upload-artifact@v1
+      with:
+        name: package
+        path: package.tar 
+  buildReleaseWSL:
+    name: Build Windows Installer
+    needs: exportDockerRootFS
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@master
-    - name: Build Base Docker Image
+    - name: Download package
+      uses: actions/download-artifact@v1
+      with:
+        name: package
+    - name: Build MSI Installer
+      shell: powershell
       run: |
-        docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile . --platform linux
-    - name: Build WSL zip
-      run: |
-        choco install nuget
+        Import-Module "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"; 
+        Enter-VsDevShell -VsInstallPath "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise" -SkipAutomaticLocation
+        $ErrorActionPreference = 'Continue'
+        git submodule init
+        git submodule update
+        choco install nuget.commandline
         ./tools/build/windows/build.ps1
+    - name: Upload Installer
+      uses: actions/upload-artifact@v1
+      with:
+        name: wsl
+        path: ./tools/build/windows/Karen/Setup/bin/LANraragi.msi
+  uploadWSLRelease:
+    name: Add Windows Installer to release
+    needs: buildReleaseWSL
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download package
+      uses: actions/download-artifact@v1
+      with:
+        name: wsl
     - name: Upload Installer to release
       uses: JasonEtco/upload-to-release@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        args: LANraragi.msi application/octet-stream
+        args: wsl/LANraragi.msi application/octet-stream
+
   buildLatestDocker:
     name: Build Latest Docker image
     runs-on: ubuntu-latest
@@ -57,3 +96,14 @@ jobs:
         npm run docker-push-multiarch latest
         TAG=${GITHUB_REF:10:10}
         npm run docker-push-multiarch $TAG
+
+  discordNotifications:
+    name: Send out some notifications
+    runs-on: ubuntu-latest
+    env:
+      DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+    steps:
+    - uses: Ilshidur/action-discord@master
+      with:
+        args: 'LANraragi v.${GITHUB_REF:10:10} is now available! @everyone'
+    - uses: Ilshidur/action-discord@master
