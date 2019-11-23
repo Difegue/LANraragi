@@ -67,6 +67,7 @@ jobs:
         name: package
     - name: Build WSL zip
       run: |
+        git submodule init
         git submodule update
         choco install nuget.commandline
         ./tools/build/windows/build.ps1
