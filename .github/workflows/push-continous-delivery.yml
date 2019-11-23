@@ -22,6 +22,7 @@ jobs:
         echo "${DOCKER_PASSWORD}" | docker login -u ${DOCKER_USERNAME} --password-stdin
         chmod +x ./tools/build/docker-multiarch/build-docker.sh
         npm run docker-build-multiarch ${ARCH} nightly
+        
   pushNightlyDocker:
     name: Push Multi-Arch manifest
     runs-on: ubuntu-latest
@@ -37,24 +38,32 @@ jobs:
         echo "${DOCKER_PASSWORD}" | docker login -u ${DOCKER_USERNAME} --password-stdin
         chmod +x ./tools/build/docker-multiarch/push-docker.sh
         npm run docker-push-multiarch nightly
+
+  exportDockerRootFS:
+    name: Build and export Docker rootfs for Windows build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Docker Build and export
+      run: |
+        docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile .
+        docker export --output=package.tar difegue/lanraragi
+    - name: Upload rootfs
+      uses: actions/upload-artifact@v1
+      with:
+        name: package
+        path: package.tar 
+
   buildNightlyWSL:
     name: Build Nightly Windows Package
+    needs: exportDockerRootFS
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@master
-    - name: Enable LCOW and build a Docker image
-      run: |
-        $configfile =@"
-        {
-            "experimental":true
-        }
-        "@
-        $configfile|Out-File -FilePath c:\Programdata\docker\config\daemon.json -Encoding ascii -Force
-        Invoke-WebRequest -Uri "https://github.com/linuxkit/lcow/releases/download/v4.14.35-v0.3.9/release.zip" -UseBasicParsing -OutFile release.zip
-        Expand-Archive release.zip -DestinationPath "$Env:ProgramFiles\Linux Containers\."
-        [Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", "1", "Machine")
-        Restart-Service docker
-        docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile . --platform linux
+    - name: Download package
+      uses: actions/download-artifact@v1
+      with:
+        name: package
     - name: Build WSL zip
       run: |
         choco install nuget

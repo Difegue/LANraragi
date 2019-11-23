@@ -14,8 +14,8 @@ echo "🎌 Building up LRR Windows Package 🎌"
 cd Karen
 nuget restore
 
-# Export Docker image 
-docker export --output=External/package.tar difegue/lanraragi
+# Use Docker image
+mv ../package.tar External/package.tar 
 
 # Download LxRunOffline
 wget https://github.com/DDoSolitary/LxRunOffline/releases/download/v3.4.0/LxRunOffline-v3.4.0.zip -outfile lxro.zip
