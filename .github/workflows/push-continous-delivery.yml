@@ -65,16 +65,31 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: package
-    - name: Build WSL zip
+    - name: Build MSI Installer
       run: |
         git submodule init
         git submodule update
         choco install nuget.commandline
         ./tools/build/windows/build.ps1
+    - name: Upload Installer
+      uses: actions/upload-artifact@v1
+      with:
+        name: installer
+        path: LANraragi.msi
+  
+  uploadInstaller:
+    name: Upload Installer to MEGA
+    needs: buildNightlyWSL
+    runs-on: windows-latest
+    steps:
+    - name: Download package
+      uses: actions/download-artifact@v1
+      with:
+        name: installer
     - name: Upload Installer to MEGA
       uses: difegue/action-megacmd@master
       env:
         PASSWORD: ${{ secrets.MEGA_PASSWORD }}
         USERNAME: ${{ secrets.MEGA_USERNAME }}
       with:
-        args: put -c LANraragi.msi Windows_Nightlies/LRR_${GITHUB_SHA}.msi
+        args: put -c installer/LANraragi.msi Windows_Nightlies/LRR_${GITHUB_SHA}.msi
