@@ -15,11 +15,14 @@ mv .\package\package.tar .\tools\build\windows\Karen\External\package.tar
 
 # Use Karen master
 cd .\tools\build\windows\Karen
+echo (Resolve-Path .\).Path
 nuget restore
+echo (Resolve-Path .\).Path
 
 # Download LxRunOffline
-Invoke-WebRequest https://github.com/DDoSolitary/LxRunOffline/releases/download/v3.4.0/LxRunOffline-v3.4.0.zip -outfile .\lxro.zip
+Invoke-WebRequest https://github.com/DDoSolitary/LxRunOffline/releases/download/v3.4.0/LxRunOffline-v3.4.0.zip -outfile .\lxro.zip -verbose
 Unzip .\lxro.zip .\External\LxRunOffline
+echo (dir)
 
 # Build Karen and Setup C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\bin
 msbuild /p:Configuration=Release /p:Platform=x64
