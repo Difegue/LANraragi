@@ -66,9 +66,10 @@ jobs:
       with:
         name: package
     - name: Build MSI Installer
+      shell: powershell
       run: |
         Import-Module "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"; 
-        Enter-VsDevShell -VsInstallPath "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise"
+        Enter-VsDevShell -VsInstallPath "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise" -SkipAutomaticLocation
         git submodule init
         git submodule update
         choco install nuget.commandline

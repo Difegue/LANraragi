@@ -23,7 +23,6 @@ Invoke-WebRequest https://github.com/DDoSolitary/LxRunOffline/releases/download/
 echo (dir)
 Unzip .\tools\build\windows\Karen\lxro.zip .\tools\build\windows\Karen\External\LxRunOffline
 
-echo (Resolve-Path .\).Path
 # Build Karen and Setup 
 msbuild /p:Configuration=Release /p:Platform=x64
 
