@@ -24,7 +24,7 @@ echo (dir)
 Unzip .\tools\build\windows\Karen\lxro.zip .\tools\build\windows\Karen\External\LxRunOffline
 
 echo (Resolve-Path .\).Path
-# Build Karen and Setup C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\bin
+# Build Karen and Setup 
 msbuild /p:Configuration=Release /p:Platform=x64
 
 # Move the result .msi
