@@ -19,7 +19,7 @@ nuget restore
 
 # Download LxRunOffline
 Invoke-WebRequest https://github.com/DDoSolitary/LxRunOffline/releases/download/v3.4.0/LxRunOffline-v3.4.0.zip -outfile lxro.zip
-Unzip lxro.zip External/LxRunOffline
+Unzip .\lxro.zip .\External\LxRunOffline
 
 # Build Karen and Setup C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\bin
 msbuild /p:Configuration=Release /p:Platform=x64
