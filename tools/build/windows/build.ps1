@@ -11,10 +11,10 @@ function Unzip
 echo "🎌 Building up LRR Windows Package 🎌"
 
 # Use Docker image
-mv package/package.tar tools/build/windows/Karen/External/package.tar 
+mv .\package\package.tar .\tools\build\windows\Karen\External\package.tar 
 
 # Use Karen master
-cd tools/build/windows/Karen
+cd .\tools\build\windows\Karen
 nuget restore
 
 # Download LxRunOffline
