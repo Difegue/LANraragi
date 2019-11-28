@@ -57,7 +57,7 @@ fi
 if [ $USER_ID -eq 0 ] && [ $GROUP_ID -eq 0 ] 
 then
     echo "UID and GID set to 0, running as root. You've been warned!"
-    exec supervisord --nodaemon --configuration ./tools/DockerSetup/supervisord.conf
+    exec supervisord --nodaemon --configuration ./tools/build/docker/supervisord.conf
 else   
-    exec su-exec koyomi supervisord --nodaemon --configuration ./tools/DockerSetup/supervisord.conf
+    exec su-exec koyomi supervisord --nodaemon --configuration ./tools/build/docker/supervisord.conf
 fi

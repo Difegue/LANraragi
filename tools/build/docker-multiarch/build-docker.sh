@@ -20,16 +20,16 @@ case $1 in
   arm64v8 ) qemu_arch="aarch64" ;;    
 esac
 
-cp ./tools/Docker-multiarch/Dockerfile ./tools/Docker-multiarch/Dockerfile.$1
-sed -i "s|__BASEIMAGE_ARCH__|$1|g" ./tools/Docker-multiarch/Dockerfile.$1
-sed -i "s|__QEMU_ARCH__|${qemu_arch}|g" ./tools/Docker-multiarch/Dockerfile.$1
+cp ./tools/build/docker-multiarch/Dockerfile ./tools/build/docker-multiarch/Dockerfile.$1
+sed -i "s|__BASEIMAGE_ARCH__|$1|g" ./tools/build/docker-multiarch/Dockerfile.$1
+sed -i "s|__QEMU_ARCH__|${qemu_arch}|g" ./tools/build/docker-multiarch/Dockerfile.$1
 if [ $1 = 'amd64' ]; then
-  sed -i "/__CROSS_/d" ./tools/Docker-multiarch/Dockerfile.$1
+  sed -i "/__CROSS_/d" ./tools/build/docker-multiarch/Dockerfile.$1
 else
-  sed -i "s/__CROSS_//g" ./tools/Docker-multiarch/Dockerfile.$1
+  sed -i "s/__CROSS_//g" ./tools/build/docker-multiarch/Dockerfile.$1
   cp /tmp/qemu-${qemu_arch}-static ./qemu-${qemu_arch}-static
 fi
 
-docker build -f ./tools/Docker-multiarch/Dockerfile.$1 -t difegue/lanraragi:$2-$1 .
+docker build -f ./tools/build/docker-multiarch/Dockerfile.$1 -t difegue/lanraragi:$2-$1 .
 echo "Image built, trying a push"
 docker push difegue/lanraragi:$2-$1

@@ -87,10 +87,12 @@ root/
 |
 |- tools         <- Contains scripts for building and installing LRR.
 |  |- Documentation <- What you're reading right now
-|  |- DockerSetup   <- Dockerfile and configuration files for LRR Docker Container
-|  |- Docker-multiarch <- Modified Dockerfile for Multi-Arch Container builds (see .github)
-|  |- homebrew-start <- Script and configuration files for the LRR Homebrew cask
-|  |- VagrantSetup  <- Vagrantfile for LRR Vagrant Machine
+|  |- build         <- Build tools and scrpits
+|     |- windows          <- Windows build script and submodule link to the Karen WPF Bootstrapper
+|     |- docker           <- Dockerfile and configuration files for LRR Docker Container
+|     |- docker-multiarch <- Modified Dockerfile for Multi-Arch Container builds (see .github)
+|     |- homebrew         <- Script and configuration files for the LRR Homebrew cask
+|     |- vagrant          <- Vagrantfile for LRR Vagrant Machine
 |  |- cpanfile      <- Perl dependencies description
 |  |- install.pl    <- LANraragi Installer
 |  |- lanraragi-systemd.service <- Example SystemD service
