@@ -31,6 +31,8 @@ jobs:
         name: package
     - name: Build MSI Installer
       shell: powershell
+      env:
+        LRR_VERSION_NUM: ${GITHUB_REF:10:10}
       run: |
         Import-Module "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"; 
         Enter-VsDevShell -VsInstallPath "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise" -SkipAutomaticLocation
@@ -105,5 +107,5 @@ jobs:
     steps:
     - uses: Ilshidur/action-discord@master
       with:
-        args: 'LANraragi v.${GITHUB_REF:10:10} is now available! @everyone'
+        args: 'LANraragi ${GITHUB_REF:10:10} is now available! @everyone'
     - uses: Ilshidur/action-discord@master
