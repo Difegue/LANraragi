@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use utf8;
 
+use Cwd 'abs_path';
 use FindBin;
 use File::stat;
 use File::Find;
@@ -25,7 +26,7 @@ sub get_temp {
     }
 
     mkdir $temp_folder;
-    return $temp_folder;
+    return abs_path($temp_folder);
 }
 
 #Get the current size of the tempfolder, in Megabytes.

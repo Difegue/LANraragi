@@ -51,6 +51,7 @@ sub apply_routes {
         $r->get('/api/search')->to('search#handle_api');
         $r->get('/api/thumbnail')->to('api#serve_thumbnail');
         $r->get('/api/servefile')->to('api#serve_file');
+        $r->get('/api/page')->to('api#serve_page');
         $r->get('/api/archivelist')->to('api#serve_archivelist');
         $r->get('/api/untagged')->to('api#serve_untagged_archivelist');
         $r->get('/api/opds')->to('api#serve_opds');
