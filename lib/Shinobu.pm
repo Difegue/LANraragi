@@ -137,6 +137,7 @@ sub add_to_filemap {
         #Freshly created files might not be complete yet.
         #We have to wait before doing any form of calculation.
         while (1) {
+            last unless -e $file; # Sanity check to avoid sticking in this loop if the file disappears
             last if open( my $handle, '<', $file );
             $logger->debug("Waiting for file to be openable");
             sleep(1);

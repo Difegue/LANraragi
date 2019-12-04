@@ -260,11 +260,11 @@ sub redis_decode {
 
     my $data = $_[0];
 
-#Setting FB_CROAK tells encode to die instantly if it encounters any errors.
-#Without this setting, it typically tries to replace characters... which might already be valid UTF8!
+    # Setting FB_CROAK tells encode to die instantly if it encounters any errors.
+    # Without this setting, it typically tries to replace characters... which might already be valid UTF8!
     eval { $data = decode_utf8( $data, Encode::FB_CROAK ) };
 
-    #Do another UTF-8 decode just in case the data was double-encoded
+    # Do another UTF-8 decode just in case the data was double-encoded
     eval { $data = decode_utf8( $data, Encode::FB_CROAK ) };
 
     return $data;
