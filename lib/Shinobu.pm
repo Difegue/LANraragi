@@ -15,6 +15,7 @@ use feature qw(say);
 use Cwd;
 
 use FindBin;
+use Storable qw(lock_store);
 use Mojo::JSON qw(to_json);
 
 BEGIN {
@@ -35,7 +36,7 @@ use LANraragi::Utils::TempFolder;
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
 
-# Filemap hash, global to all subs
+# Filemap hash, global to all subs and exposed to the server through IPC
 my %filemap;
 
 # Logger and Database objects
@@ -173,6 +174,9 @@ sub add_to_filemap {
         }
         else {
             $filemap{$id} = $file;
+
+            # Serialize filemap for main process to consume 
+            lock_store \%filemap, '.shinobu-filemap';
         }
 
         # Filename sanity check
@@ -222,6 +226,8 @@ sub deleted_file_callback {
         delete( $filemap{$_} )
           foreach grep { $filemap{$_} eq $name } keys %filemap;
         
+        # Serialize filemap for main process to consume
+        lock_store \%filemap, '.shinobu-filemap';
         LANraragi::Utils::Database::invalidate_cache();
     }
 }

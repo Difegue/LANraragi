@@ -55,6 +55,14 @@ sub do_search {
                 next;
             }
 
+            # Get the filemap from Shinobu to verify the id matches a file currently present
+            my %filemap = LANraragi::Utils::Generic::get_shinobu_filemap();
+
+            unless (%filemap == 0 || exists $filemap{$id}) {
+                $logger->warn("ID $id no longer exists on filesystem, removing file reference in its database entry.");
+                $redis->hset($id, "file", "");
+            }    
+
             # Check columnfilter and base search filter
             if ($file && -e $file 
                 && matches_search_filter($columnfilter, $title . "," . $tags)
