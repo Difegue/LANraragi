@@ -72,7 +72,11 @@ sub start_shinobu {
 
 # Retrieve the Shinobu filemap, serialized to a file.
 sub get_shinobu_filemap {
-    return %{lock_retrieve("./.shinobu-filemap")};
+    if (-e "./.shinobu-filemap") {
+        return %{lock_retrieve("./.shinobu-filemap")};
+    } else {
+        return;
+    }
 }
 
 #This function gives us a SHA hash for the passed file, which is used for thumbnail reverse search on E-H.
