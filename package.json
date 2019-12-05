@@ -1,7 +1,7 @@
 {
   "name": "lanraragi",
-  "version": "0.6.6",
-  "version_name": "Scary Monsters",
+  "version": "0.6.7",
+  "version_name": "It's No Game",
   "description": "holla where the chinese comics at",
   "scripts": {
     "test": "prove -l -v tests/*.t",

@@ -31,7 +31,7 @@
 			<li>Shinobu Logs correspond to the Background Worker.</li>
 			<li>Plugin Logs are reserved for metadata plugins only. </li>
 			<li>Mojolicious logs won't tell much unless you're running Debug Mode. </li>
-			<li>Redis logs are only available for Docker/WSL users. </li>
+			<li>Redis logs are only available for Docker/Windows/Homebrew users. </li>
 		</ul>
 		<br><br>
 
