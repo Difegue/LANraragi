@@ -138,10 +138,10 @@ sub build_reader_JSON {
 
         # Strip everything before the temporary folder/id folder as to only keep the relative path to it
         # i.e "/c/bla/lrr/temp/id/file.jpg" becomes "file.jpg"
-        $imgpath =~ s!$path!!g;
+        $imgpath =~ s!$path/!!g;
 
         # Bundle this path into an API call which will be used by the browser
-        push @images_browser, "/api/page?id=$id&path=$imgpath";
+        push @images_browser, "./api/page?id=$id&path=$imgpath";
     }
 
     #Build json (it's just the images array in a string)
