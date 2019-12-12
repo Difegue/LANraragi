@@ -158,13 +158,6 @@
 		});
 		[% END %]
 
-		if (localStorage.indexViewMode === 1)
-			$("#viewbtn").val("Switch to Thumbnail View");
-		else {
-			$("#viewbtn").val("Switch to List View");
-			$('.itg').hide();
-		}
-
 		[% IF debugmode %][% ELSE %]
 		checkVersion("[% version %]");
 		[% END %]
@@ -192,7 +185,7 @@
 
 			$.toast({
 			heading: 'Welcome to LANraragi [% version %]!',
-			text: "If you're unlucky this is like your third toast in a row! If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!",
+			text: "If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!",
 			hideAfter: false,
 			position: 'top-left',
 			icon: 'info'

@@ -1,7 +1,7 @@
 {
   "name": "lanraragi",
   "version": "0.6.7",
-  "version_name": "It's No Game",
+  "version_name": "Crystal Japan",
   "description": "holla where the chinese comics at",
   "scripts": {
     "test": "prove -l -v tests/*.t",
