@@ -104,8 +104,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+      LRR_VERSION_NUM: ${GITHUB_REF:10:10}
     steps:
     - uses: Ilshidur/action-discord@master
       with:
-        args: 'LANraragi ${GITHUB_REF:10:10} is now available! @everyone'
+        args: 'LANraragi {{ LRR_VERSION_NUM }} is now available! @everyone'
     - uses: Ilshidur/action-discord@master

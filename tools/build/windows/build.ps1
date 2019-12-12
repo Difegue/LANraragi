@@ -9,6 +9,7 @@ function Unzip
 }
 
 echo "🎌 Building up LRR Windows Package 🎌"
+echo $env:LRR_VERSION_NUM
 
 # Use Docker image
 mv .\package\package.tar .\tools\build\windows\Karen\External\package.tar 
