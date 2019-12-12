@@ -31,6 +31,7 @@ sub apply_routes {
         #API Key needed for those endpoints in No-Fun Mode
         $logged_in_api->get('/api/thumbnail')->to('api#serve_thumbnail');
         $logged_in_api->get('/api/servefile')->to('api#serve_file');
+        $logged_in_api->get('/api/page')->to('api#serve_page');
         $logged_in_api->get('/api/archivelist')->to('api#serve_archivelist');
         $logged_in_api->get('/api/untagged')->to('api#serve_untagged_archivelist');
         $logged_in_api->get('/api/opds')->to('api#serve_opds');

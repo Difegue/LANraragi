@@ -9,7 +9,12 @@ function Unzip
 }
 
 echo "🎌 Building up LRR Windows Package 🎌"
-echo $env:LRR_VERSION_NUM
+echo "Inferring version from package.json..."
+
+$json = (Get-Content "package.json" -Raw) | ConvertFrom-Json
+$version = $json.version
+echo "Version is $version"
+$env:LRR_VERSION_NUM=$version
 
 # Use Docker image
 mv .\package\package.tar .\tools\build\windows\Karen\External\package.tar 
