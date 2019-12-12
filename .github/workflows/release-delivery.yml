@@ -102,9 +102,12 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-      LRR_VERSION_NUM: ${GITHUB_REF:10:10}
     steps:
+    - name: Extract version number from GITHUB_REF
+      run: echo ::set-env name=RELEASE_VERSION::$(echo ${GITHUB_REF:10})
     - uses: Ilshidur/action-discord@master
       with:
-        args: 'LANraragi {{ LRR_VERSION_NUM }} is now available! @everyone'
+        args: 'LANraragi {{ RELEASE_VERSION }} is now available! @everyone'
     - uses: Ilshidur/action-discord@master
+      with:
+        args: 'http://'
