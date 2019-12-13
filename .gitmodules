@@ -1,0 +1,3 @@
+[submodule "tools/build/windows/Karen"]
+	path = tools/build/windows/Karen
+	url = https://github.com/Difegue/Karen.git

@@ -1,9 +1,28 @@
 use strict;
 use warnings;
 use utf8;
+use Cwd;
+use File::Temp qw/ tempfile tempdir /;
+use File::Copy "cp";
 
 use Test::MockObject;
 use Mojo::JSON qw (decode_json);
+
+sub setup_eze_mock {
+
+    # Copy the eze sample json to a temporary directory as it's deleted once parsed
+    my $cwd = getcwd;
+    my ($fh, $filename) = tempfile();
+    cp( $cwd."/tests/eze_sample.json", $fh);
+
+    # Mock LANraragi::Utils::Archive to return the temporary sample JSON 
+    my $archiveutils = Test::MockObject->new();
+
+    $archiveutils->fake_module(
+        "LANraragi::Utils::Archive",
+        extract_file_from_archive => sub {$filename},
+        is_file_in_archive => sub {1});
+}
 
 sub setup_redis_mock {
 

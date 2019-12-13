@@ -15,6 +15,11 @@ sub apply_routes {
     $r->get('/login')->to('login#index');
     $r->post('/login')->to('login#check');
 
+    # /api/page is always available even in No-Fun-Mode.
+    # This technically means that people *can* get pages off an uploaded archive if it's been extracted before.
+    # (And if they can guess the ID and path to the files)
+    $r->get('/api/page')->to('api#serve_page');
+
     my $logged_in     = $r->under('/')->to('login#logged_in');
     my $logged_in_api = $r->under('/')->to('login#logged_in_api');
 

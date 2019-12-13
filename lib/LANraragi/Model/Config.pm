@@ -82,15 +82,31 @@ sub get_motd {
 }
 
 sub get_userdir {
-    my $dir = &get_redis_conf( "dirname", $ENV{LRR_DATA_DIRECTORY} . "/content" );
 
-    #Try to create userdir if it doesn't already exist
+    # Content path can be overriden by LRR_DATA_DIRECTORY
+    my $default = "./content";
+    if ($ENV{LRR_DATA_DIRECTORY}) {
+        $default = $ENV{LRR_DATA_DIRECTORY};
+    }
+
+    my $dir = &get_redis_conf( "dirname", $default );
+
+    # Try to create userdir if it doesn't already exist
     unless ( -e $dir ) {
         mkdir $dir;
     }
 
     #Return full path if it's relative, using the /lanraragi directory as a base
     return abs_path($dir);
+}
+
+sub enable_devmode  {
+
+    if ($ENV{LRR_FORCE_DEBUG}) {
+        return 1;
+    }
+
+    return &get_redis_conf( "devmode", "0" );
 }
 
 sub get_password {
@@ -109,7 +125,6 @@ sub get_pagesize    { return &get_redis_conf( "pagesize",    "100" ) }
 sub enable_pass     { return &get_redis_conf( "enablepass",  "1" ) }
 sub enable_nofun    { return &get_redis_conf( "nofunmode",   "0" ) }
 sub enable_autotag  { return &get_redis_conf( "autotag",     "1" ) }
-sub enable_devmode  { return &get_redis_conf( "devmode",     "0" ) }
 sub get_apikey      { return &get_redis_conf( "apikey",      "" ) }
 sub get_tagregex    { return &get_redis_conf( "tagregex",    "1" ) }
 

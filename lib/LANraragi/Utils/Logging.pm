@@ -21,7 +21,7 @@ sub get_logdir {
     my $log_folder = "$FindBin::Bin/../log";
 
     # Folder location can be overriden by LRR_LOG_DIRECTORY
-    if ($ENV{LRR_LOG_DIRECTORY} && $ENV{LRR_LOG_DIRECTORY} ne ".") {
+    if ($ENV{LRR_LOG_DIRECTORY}) {
         $log_folder = $ENV{LRR_LOG_DIRECTORY};
     }
     mkdir $log_folder;

@@ -5,18 +5,31 @@ use Cwd;
 
 use Mojo::Base 'Mojolicious';
 
-use Test::More tests => 13;
+use Test::More tests => 15;
 use Test::Mojo;
 use Test::MockObject;
+
+use Data::Dumper;
 
 use LANraragi::Plugin::EHentai;
 use LANraragi::Plugin::nHentai;
 use LANraragi::Plugin::Chaika;
+use LANraragi::Plugin::Eze;
 
 # Mock Redis
 my $cwd = getcwd;
 require $cwd."/tests/mocks.pl";
 setup_redis_mock();
+
+# Mock Utils::Archive
+setup_eze_mock();
+
+# eze Tests
+my %ezetags = LANraragi::Plugin::Eze::get_tags("test", "test", "test", "test", "test", "test", 1);
+
+my $ezetags = "artist:mitarashi kousei, character:akiko minase, character:yuuichi aizawa, female:aunt, female:lingerie, female:sole female, group:mitarashi club, language:english, language:translated, male:sole male, misc:multi-work series, parody:kanon, source: website.org/g/1179590/7c5815c77b";
+is( $ezetags{title}, "Akiko-san to Issho", "eze parsing test 1/2");
+is( $ezetags{tags}, $ezetags, "eze parsing test 2/2");
 
 # E-Hentai Tests
 my ( $ua, $domain ) = LANraragi::Plugin::EHentai::get_user_agent("","","");

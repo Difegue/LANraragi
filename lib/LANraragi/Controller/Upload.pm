@@ -76,7 +76,10 @@ sub process_upload {
             LANraragi::Utils::Database::add_archive_to_redis( $id, $output_file,
                 $redis );
 
-            # Move the file to the content folder and let Shinobu handle the index JSON.
+            # Invalidate search cache ourselves, Shinobu won't do it since the file is already in the database
+            LANraragi::Utils::Database::invalidate_cache();
+
+            # Move the file to the content folder.
             # Move to a .tmp first in case copy to the content folder takes a while...
             move($tempfile,$output_file.".upload");
             # Then rename inside the content folder itself to proc Shinobu.

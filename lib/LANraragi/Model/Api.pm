@@ -64,11 +64,9 @@ sub generate_opds_catalog {
 
             # Application/zip is universally hated by all readers so it's better to use x-cbz and x-cbr here.
             if ( $file =~ /^(.*\/)*.+\.(rar|cbr)$/ ) {
-                $arcdata->{mimetype} = "application/x-cbr"; 
-                $arcdata->{mimetype2} = "application/cbr"; # X- less variant for some clients (cough librera)
+                $arcdata->{mimetype} = "application/x-cbr";
             } else {
-                $arcdata->{mimetype} = "application/x-cbz"; 
-                $arcdata->{mimetype2} = "application/cbz"; 
+                $arcdata->{mimetype} = "application/x-cbz";
             }
 
             for (values %{$arcdata}) 

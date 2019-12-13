@@ -92,7 +92,7 @@ function initIndex(pagesize) {
 	$('.datatables').attr("style", "")
 
 	//Change button label if list mode is enabled.
-	if (localStorage.getItem("indexViewMode") === 0)
+	if (localStorage.indexViewMode == 0)
 		$("#viewbtn").val("Switch to Thumbnail View");
 }
 

@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use utf8;
 
-use Storable;
+use Storable qw(store lock_retrieve);
 use Digest::SHA qw(sha256_hex);
 use Mojo::Log;
 use Logfile::Rotate;
@@ -68,6 +68,15 @@ sub start_shinobu {
     # Freeze the process object in the PID file
     store \$proc, '.shinobu-pid';
     return $proc;
+}
+
+# Retrieve the Shinobu filemap, serialized to a file.
+sub get_shinobu_filemap {
+    if (-e "./.shinobu-filemap") {
+        return %{lock_retrieve("./.shinobu-filemap")};
+    } else {
+        return;
+    }
 }
 
 #This function gives us a SHA hash for the passed file, which is used for thumbnail reverse search on E-H.

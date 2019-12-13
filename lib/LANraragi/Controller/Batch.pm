@@ -95,6 +95,10 @@ sub socket {
 
                 # Run plugin with args on id
                 my $id = $command->{"archive"};
+                unless ($id) {
+                    $client->finish( 1001 => 'No archives provided.' );
+                    return;
+                }
                 $logger->debug("Processing $id");
 
                 my %plugin_result = LANraragi::Model::Plugins::exec_plugin_on_file(

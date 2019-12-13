@@ -2,6 +2,7 @@ on:
   push:
     branches:
     - dev
+    - test-builds
 name: Continuous Delivery 
 jobs:
   buildNightlyDocker:
@@ -19,8 +20,9 @@ jobs:
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       run: |
         echo "${DOCKER_PASSWORD}" | docker login -u ${DOCKER_USERNAME} --password-stdin
-        chmod +x ./tools/Docker-multiarch/build-docker.sh
+        chmod +x ./tools/build/docker-multiarch/build-docker.sh
         npm run docker-build-multiarch ${ARCH} nightly
+        
   pushNightlyDocker:
     name: Push Multi-Arch manifest
     runs-on: ubuntu-latest
@@ -34,22 +36,64 @@ jobs:
         DOCKER_CLI_EXPERIMENTAL: enabled
       run: |
         echo "${DOCKER_PASSWORD}" | docker login -u ${DOCKER_USERNAME} --password-stdin
-        chmod +x ./tools/Docker-multiarch/push-docker.sh
+        chmod +x ./tools/build/docker-multiarch/push-docker.sh
         npm run docker-push-multiarch nightly
-  buildNightlyWSL:
-    name: Build Nightly Windows Package
+
+  exportDockerRootFS:
+    name: Build and export Docker rootfs for Windows build
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - name: Build Base Docker Image
+    - name: Docker Build and export
       run: |
-        docker build -t difegue/lanraragi -f ./tools/DockerSetup/Dockerfile .
-    - name: Build WSL zip
-      uses: ./.github/action-wslbuild
+        docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile .
+        docker create --name rootfs difegue/lanraragi 
+        docker export --output=package.tar rootfs
+    - name: Upload rootfs
+      uses: actions/upload-artifact@v1
+      with:
+        name: package
+        path: package.tar 
+
+  buildNightlyWSL:
+    name: Build Nightly Windows Package
+    needs: exportDockerRootFS
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Download package
+      uses: actions/download-artifact@v1
+      with:
+        name: package
+    - name: Build MSI Installer
+      shell: powershell
+      run: |
+        Import-Module "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"; 
+        Enter-VsDevShell -VsInstallPath "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise" -SkipAutomaticLocation
+        $ErrorActionPreference = 'Continue'
+        git submodule init
+        git submodule update
+        choco install nuget.commandline
+        ./tools/build/windows/build.ps1
+    - name: Upload Installer
+      uses: actions/upload-artifact@v1
+      with:
+        name: wsl
+        path: ./tools/build/windows/Karen/Setup/bin/LANraragi.msi
+  
+  uploadInstaller:
+    name: Upload Installer to MEGA
+    needs: buildNightlyWSL
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download package
+      uses: actions/download-artifact@v1
+      with:
+        name: wsl
     - name: Upload Installer to MEGA
       uses: difegue/action-megacmd@master
       env:
         PASSWORD: ${{ secrets.MEGA_PASSWORD }}
         USERNAME: ${{ secrets.MEGA_USERNAME }}
       with:
-        args: put -c LANraragi_Windows_Installer.zip Windows_Nightlies/${GITHUB_SHA}/LRR_Nightly_Windows.zip
+        args: put -c wsl/LANraragi.msi Windows_Nightlies/LRR_${GITHUB_SHA}.msi

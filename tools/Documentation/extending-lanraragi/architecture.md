@@ -12,8 +12,10 @@ The _install.pl_ script is essentially a sequence of commands executed to instal
 
 Those variables were introduced for the Homebrew package, but they can be declared at anytime on any type of install; LRR will try to use them.  
 
-* `LRR_DATA_DIRECTORY` - Data directory override. If this variable is set to a path, said path will house the `temp` and `content` variables. If the user modifies the location of the content folder in his settings, the override has no effect on the content folder.  
+* `LRR_DATA_DIRECTORY` - Data directory override. If this variable is set to a path, said path will house the content folder. If the user modifies the location of the content folder in his settings, the override has no effect on the content folder.  
+* `LRR_TEMP_DIRECTORY` - Temporary directory override. If this variable is set to a path, the temporary folder will be there instead of `/public/temp`.
 * `LRR_LOG_DIRECTORY` - Log directory override. Changes the location of the `log` folder.  
+* `LRR_FORCE_DEBUG` - Debug Mode override. This will force Debug Mode to be enabled regardless of the user setting.
 * `LRR_NETWORK` - Network Interface. See the dedicated page in Advanced Operations.  
 
 ## Coding Style
@@ -85,10 +87,12 @@ root/
 |
 |- tools         <- Contains scripts for building and installing LRR.
 |  |- Documentation <- What you're reading right now
-|  |- DockerSetup   <- Dockerfile and configuration files for LRR Docker Container
-|  |- Docker-multiarch <- Modified Dockerfile for Multi-Arch Container builds (see .github)
-|  |- homebrew-start <- Script and configuration files for the LRR Homebrew cask
-|  |- VagrantSetup  <- Vagrantfile for LRR Vagrant Machine
+|  |- build         <- Build tools and scrpits
+|     |- windows          <- Windows build script and submodule link to the Karen WPF Bootstrapper
+|     |- docker           <- Dockerfile and configuration files for LRR Docker Container
+|     |- docker-multiarch <- Modified Dockerfile for Multi-Arch Container builds (see .github)
+|     |- homebrew         <- Script and configuration files for the LRR Homebrew cask
+|     |- vagrant          <- Vagrantfile for LRR Vagrant Machine
 |  |- cpanfile      <- Perl dependencies description
 |  |- install.pl    <- LANraragi Installer
 |  |- lanraragi-systemd.service <- Example SystemD service

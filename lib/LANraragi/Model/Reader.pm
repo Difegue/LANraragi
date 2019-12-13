@@ -128,19 +128,20 @@ sub build_reader_JSON {
 
     foreach my $imgpath (@images) {
 
-#We need to sanitize the image's path, in case the folder contains illegal characters,
-#but uri_escape would also nuke the / needed for navigation. Let's solve this with a quick regex search&replace.
-#First, we encode all HTML characters...
+        # We need to sanitize the image's path, in case the folder contains illegal characters,
+        # but uri_escape would also nuke the / needed for navigation. Let's solve this with a quick regex search&replace.
+        # First, we encode all HTML characters...
         $imgpath = uri_escape_utf8($imgpath);
 
-        #Then we bring the slashes back.
+        # Then we bring the slashes back.
         $imgpath =~ s!%2F!/!g;
 
-        #We also now need to strip everything before the /public/ part,
-        #as it's not visible by clients.
-        $imgpath =~ s!.*/public/!!g;
+        # Strip everything before the temporary folder/id folder as to only keep the relative path to it
+        # i.e "/c/bla/lrr/temp/id/file.jpg" becomes "file.jpg"
+        $imgpath =~ s!$path/!!g;
 
-        push @images_browser, $imgpath;
+        # Bundle this path into an API call which will be used by the browser
+        push @images_browser, "./api/page?id=$id&path=$imgpath";
     }
 
     #Build json (it's just the images array in a string)

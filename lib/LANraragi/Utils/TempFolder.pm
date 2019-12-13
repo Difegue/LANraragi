@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use utf8;
 
+use Cwd 'abs_path';
 use FindBin;
 use File::stat;
 use File::Find;
@@ -19,12 +20,13 @@ use LANraragi::Utils::Logging;
 sub get_temp {
     my $temp_folder = "$FindBin::Bin/../public/temp";
     
-    # Folder location can be overriden by LRR_DATA_DIRECTORY
-    if ($ENV{LRR_DATA_DIRECTORY} && $ENV{LRR_DATA_DIRECTORY} ne ".") {
-        $temp_folder = $ENV{LRR_DATA_DIRECTORY} . "/temp";
+    # Folder location can be overriden by LRR_TEMP_DIRECTORY
+    if ($ENV{LRR_TEMP_DIRECTORY}) {
+        $temp_folder = $ENV{LRR_TEMP_DIRECTORY};
     }
+
     mkdir $temp_folder;
-    return $temp_folder;
+    return abs_path($temp_folder);
 }
 
 #Get the current size of the tempfolder, in Megabytes.
