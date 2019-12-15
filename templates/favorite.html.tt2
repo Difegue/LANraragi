@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <head>
-	<title>[% title %]</title>
+	<title>[% title %] - 收藏</title>
 
 	<meta name="viewport" content="width=device-width" />
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -37,6 +37,9 @@
 	[% IF userlogged %]
 	<p id="nb">
 		<i class="fa fa-caret-right"></i>
+		<a href="./index">主页</a>
+		<span style="margin-left:5px"></span>
+		<i class="fa fa-caret-right"></i>
 		<a href="./upload">上传文件</a>
 		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
@@ -50,12 +53,12 @@
 		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
 		<a href="./logout">登出</a>
-		<span style="margin-left:5px"></span>
-		<i class="fa fa-caret-right"></i>
-		<a href="https://wdnmd.network" target="_blank">白给</a>
 	</p>
 	[% ELSE %]
 	<p id="nb">
+		<i class="fa fa-caret-right"></i>
+		<a href="./index">主页</a>
+		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
 		<a href="./upload">上传文件</a>
 		<span style="margin-left:5px"></span>
@@ -64,9 +67,6 @@
 		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
 		<a href="./logs">关于</a>
-		<span style="margin-left:5px"></span>
-		<i class="fa fa-caret-right"></i>
-		<a href="./login">管理员登录</a>
 	</p>
 	[% END %]
 
@@ -93,10 +93,6 @@
 			</div>
 
 			<p id='cssbutton' style='display:inline'>
-				<input id='inboxbtn' class='stdbtn' type='button' onclick='toggleInbox(this)'
-					value='只显示最新上传的作品' />
-				<input class='stdbtn' type='button' onclick="var win=window.open('random','_blank'); win.focus();"
-					value='给👴随便来一个' />
 				<input id='viewbtn' class='stdbtn' type='button' onclick="switch_index_view()"
 					value='切换为列表模式' />
 			</p>
@@ -152,8 +148,22 @@
 		}
 
 		//load archive JSON before anything else
+        str = localStorage.getItem('fav');
+        var strs= new Array();
+        strs=str.split("---");
+        for (i=0; i < strs.length-1; i++ )
+        {
+	    eval('fav' + i + '=' + strs[i]);
+        };
+        var sum1 = [];
+        for (i=0; i < strs.length-1; i++ )
+        {
+	    sum1.push(eval('fav' + i))
+        }
+        favalue = JSON.stringify(sum1);
+        var value = JSON.parse(favalue);
 		$.getJSON("api/archivelist", function (data) {
-			initIndex([% pagesize %], data);
+			initIndex([% pagesize %], value);
 		}).fail(function (d) {
 			//Catastrophic cache fuckup, inform the user
 			$(".datatables").hide();
@@ -202,27 +212,14 @@
 			},
 			items: {
 				[% IF userlogged %]
-				"edit": {name: "Edit Metadata", icon: "fas fa-pencil-alt"},
+				"edit": {name: "编辑元数据", icon: "fas fa-pencil-alt"},
 				"delete": {name: "Delete", icon: "fas fa-trash-alt"},		
 				"sep1": "---------",		
 				[% END %]
-				"read": {name: "Read", icon: "fas fa-book"},
-				"download": {name: "Download", icon: "fas fa-save"}
+				"read": {name: "阅读", icon: "fas fa-book"},
+				"download": {name: "下载", icon: "fas fa-save"}
 			}
 		});
-
-		// Tell user about the context menu
-		if (localStorage.getItem("sawContextMenuToast") === null) {
-			localStorage.sawContextMenuToast = true;
-
-			$.toast({
-			heading: '欢迎来到我的宝库，朋友!',
-			text: "阅读时使用设置菜单来激活推荐选项以带来更好的社保体验，一路平安！",
-			hideAfter: false,
-			position: 'top-left',
-			icon: 'info'
-			});
-		}
 
 		// Initialize tag suggestions
 		loadTagSuggestions();

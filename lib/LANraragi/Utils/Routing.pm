@@ -52,6 +52,9 @@ sub apply_routes {
         $r->get('/upload')->to('upload#index');
         $r->post('/upload')->to('upload#process_upload');
         $r->get('/logs')->to('logging#index');
+        $r->get('/edit')->to('edit#index');
+        $r->get('/favorite')->to('favorite#index');
+        $r->post('/edit')->to('edit#save_metadata');
 
         $r->get('/api/search')->to('search#handle_api');
         $r->get('/api/thumbnail')->to('api#serve_thumbnail');
@@ -62,6 +65,7 @@ sub apply_routes {
         $r->get('/api/tagstats')->to('api#serve_tag_stats');
         $r->get('/api/extract')->to('api#extract_archive');
         $r->get('/api/clear_new')->to('api#clear_new');
+        $r->post('/api/autoplugin')->to('api#use_enabled_plugins');
     }
 
     #Those routes are only accessible if user is logged in
@@ -75,16 +79,11 @@ sub apply_routes {
     $logged_in->get('/batch')->to('batch#index');
     $logged_in->websocket('/batch/socket')->to('batch#socket');
 
-    $logged_in->get('/edit')->to('edit#index');
-    $logged_in->post('/edit')->to('edit#save_metadata');
-    $logged_in->delete('/edit')->to('edit#delete_archive');
-
     $logged_in->get('/backup')->to('backup#index');
     $logged_in->post('/backup')->to('backup#restore');
+    $logged_in->delete('/edit')->to('edit#delete_archive');
 
     # These API endpoints will always require the API Key or to be logged in 
-    $logged_in_api->post('/api/use_plugin')->to('api#use_plugin');
-    $logged_in_api->post('/api/autoplugin')->to('api#use_enabled_plugins');
     $logged_in_api->get('/api/clean_temp')->to('api#clean_tempfolder');
     $logged_in_api->get('/api/discard_cache')->to('api#clear_cache');
     $logged_in_api->get('/api/shinobu_status')->to('api#shinobu_status');
@@ -94,6 +93,7 @@ sub apply_routes {
     $logged_in_api->get('/api/clear_new_all')->to('api#clear_new_all');
     $logged_in_api->get('/api/drop_database')->to('api#drop_database');
     $logged_in_api->get('/api/clean_database')->to('api#clean_database');
+    $logged_in_api->post('/api/use_plugin')->to('api#use_plugin');
 
     $logged_in->get('/logs/general')->to('logging#print_general');
     $logged_in->get('/logs/shinobu')->to('logging#print_shinobu');
