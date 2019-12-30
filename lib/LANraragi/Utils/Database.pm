@@ -142,7 +142,10 @@ sub clean_database {
         unless (-e $file) {
             $redis->del($id);
             $deleted_arcs++;
-        } else unless ($file eq "" || %filemap == 0 || exists $filemap{$id}) {
+            next;
+        } 
+        
+        unless ($file eq "" || %filemap == 0 || exists $filemap{$id}) {
             $logger->warn("File exists but its ID is no longer $id -- Removing file reference in its database entry.");
             $redis->hset($id, "file", "");
         }  
