@@ -29,8 +29,6 @@ sub do_search {
     my @filtered;
     # Get all archives from redis
     my @keys = $redis->keys('????????????????????????????????????????');
-    # Get the filemap from Shinobu for ID checks later down the line
-    my %filemap = LANraragi::Utils::Generic::get_shinobu_filemap();
 
     # Look in searchcache first
     my $cachekey = encode_utf8("$columnfilter-$filter-$sortkey-$sortorder-$newonly");
@@ -56,11 +54,6 @@ sub do_search {
             if ($newonly && $isnew && $isnew ne "true" && $isnew ne "block") {
                 next;
             }
-
-            unless ($file eq "" || %filemap == 0 || exists $filemap{$id}) {
-                $logger->warn("ID $id no longer exists on filesystem, removing file reference in its database entry.");
-                $redis->hset($id, "file", "");
-            }    
 
             # Check columnfilter and base search filter
             if ($file && -e $file 
