@@ -34,6 +34,11 @@ echo "Data Directory is set to '${LRR_DATA_DIRECTORY}'"
 echo "Temporary Folder is set to '${LRR_TEMP_DIRECTORY}'"
 echo "Log Directory is set to '${LRR_LOG_DIRECTORY}'"
 
+# create dirs
+mkdir -p ${LRR_DATA_DIRECTORY}
+mkdir -p ${LRR_TEMP_DIRECTORY}
+mkdir -p ${LRR_LOG_DIRECTORY}
+
 # @INC export
 export PERL5LIB="${workdir}/libexec/lib/perl5"
 
