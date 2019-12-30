@@ -11,9 +11,9 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Set up Docker Buildx
-        uses: crazy-max/ghaction-docker-buildx@v1
-        with:
-          version: latest
+      uses: crazy-max/ghaction-docker-buildx@v1
+      with:
+        version: latest
     - name: Build/Push Nightly Docker image
       env:
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
@@ -23,9 +23,9 @@ jobs:
         docker buildx build \
           --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
           --output "type=image,push=true" \
-          --tag difegue/lanraragi:nightly
+          --tag difegue/lanraragi:nightly \
           --file ./tools/build/docker/Dockerfile .
-          
+
   exportDockerRootFS:
     name: Build and export Docker rootfs for Windows build
     runs-on: ubuntu-latest
