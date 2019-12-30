@@ -9,8 +9,6 @@
     "start": "perl ./script/launcher.pl -f ./script/lanraragi",
     "dev-server": "perl ./script/launcher.pl -m -v ./script/lanraragi ",
     "docker-build": "docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile .",
-    "docker-build-multiarch": "./tools/build/docker-multiarch/build-docker.sh",
-    "docker-push-multiarch": "./tools/build/docker-multiarch/push-docker.sh",
     "critic": "perlcritic ./lib/* ./script/* ./tools/install.pl",
     "backup-db": "perl ./script/backup"
   },
