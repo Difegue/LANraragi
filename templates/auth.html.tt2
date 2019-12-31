@@ -16,30 +16,18 @@
 
 	<script src="./js/theme.js?0.6.6" type="text/JAVASCRIPT"></script>
 	<script src="./js/totp.min.js"></script>
+	<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+	<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
 </head>
 
-<body onload="set_style_from_storage()">
+<body onload="set_style_from_storage();check()">
 
 	<div class='ido' style='text-align:center'>
 		<p>你需要登录后才能继续操作</p>
 
 			<table style='margin:auto; text-align:left; font-size:8pt;'>
 				<tbody>
-
-					<tr>
-						<td>请输入密码</td>
-						<td>
-							<input id='pw' class='stdinput' type='password' style='width:90%' value='' maxlength='255' size='20' name='password'>
-						</td>
-					</tr>
-					<tr>
-						<td style='padding-top:5px; text-align:center; vertical-align:middle' colspan='2'>
-							<input class='stdbtn' type='submit' onclick="check()" value='登录' style='width:60px'>
-						</td>
-					</tr>
-
-					
-				    <p>没有密码？ <a href="https://jq.qq.com/?_wv=1027&k=5dOYwSa" target="_blank">点我加群</a> 或搜索群号604945007，发送“ex密码”即可获取登录密码</p>
+				    <b><p>如何登录？ <a href="https://jq.qq.com/?_wv=1027&k=5CvSIq5" target="_blank">点我加群</a> 或搜索群号538308109，发送“ex登录”即可获取登录链接</p></b>
 				</tbody>
 			</table>
 
@@ -55,6 +43,7 @@
     -
     <a onclick="openThemeOverlay()" style="cursor:pointer">更换主题</a>
     <br>Made with ♥ by Oniya
+    <br><a href="https://gal123.com" target="_blank"><img src="https://i.loli.net/2019/11/09/yWZcnQNwaH2FAI8.png" ></a>
 </p>
 
 <div id="theme-overlay-shade" class="overlay-sh" onclick="closeThemeOverlay();"></div>
@@ -75,7 +64,7 @@ function setCookie(name,value,Days){
 if(Days==undefined) document.cookie = name + "="+ escape (value) + ";path=/";
 else{
 var exp = new Date();
-exp.setTime(exp.getTime() + Day*24*60*60*30);
+exp.setTime(exp.getTime() + Days*24*60*60*30);
 document.cookie = name + "="+ escape (value) + ";expires=" + exp.toGMTString()+";path=/";}
 }
 function getCookie(cname)
@@ -98,23 +87,36 @@ var _hmt = _hmt || [];
   s.parentNode.insertBefore(hm, s);
 })();
 
-function check() {
-    var _NnjGTowu1 = TOTP['\x72\x61\x6e\x64\x6f\x6d\x4b\x65\x79']();
-    var OJ2 = new TOTP('\x47\x41\x58\x47\x47\x34\x5a\x57\x4e\x52\x57\x48\x47\x36\x44\x4c');
-    var vmmIhuafF3 = OJ2['\x67\x65\x6e\x4f\x54\x50']();
-    var OSY_be4 = window["\x64\x6f\x63\x75\x6d\x65\x6e\x74"]['\x67\x65\x74\x45\x6c\x65\x6d\x65\x6e\x74\x42\x79\x49\x64']('\x70\x77')['\x76\x61\x6c\x75\x65'];
-    if (vmmIhuafF3 != OSY_be4) {
-        window["\x61\x6c\x65\x72\x74"]("\u5bc6\u7801\u9519\u8bef\u6216\u5931\u6548\u5566\uff01")
-    } else {
-        var TWl5$BbYczCT3 = new window["\x44\x61\x74\x65"]();
-        TWl5$BbYczCT3["\x73\x65\x74\x54\x69\x6d\x65"](TWl5$BbYczCT3["\x67\x65\x74\x54\x69\x6d\x65"]() + 14400 * 60 * 1000);
-        window["\x64\x6f\x63\x75\x6d\x65\x6e\x74"]["\x63\x6f\x6f\x6b\x69\x65"] = "\x74\x72\x61\x64\x65\x31\x31\x32\x33\x3d\x41\x33\x32\x3b \x70\x61\x74\x68\x3d\x2f\x3b \x65\x78\x70\x69\x72\x65\x73\x3d" + TWl5$BbYczCT3["\x74\x6f\x47\x4d\x54\x53\x74\x72\x69\x6e\x67"]();
-        window['\x6f\x70\x65\x6e']('\x68\x74\x74\x70\x73\x3a\x2f\x2f\x65\x78\x2e\x67\x61\x79\x67\x61\x79\x2e\x6d\x65', '\x5f\x73\x65\x6c\x66')
-    }
+function getQueryVariable(variable)
+{
+       var query = window.location.search.substring(1);
+       var vars = query.split("&");
+       for (var i=0;i<vars.length;i++) {
+               var pair = vars[i].split("=");
+               if(pair[0] == variable){return pair[1];}
+       }
+       return(false);
 }
 
-if(((document.referrer).indexOf("auth")*1)<0)
-setCookie('referrer',document.referrer);
+function check() {
+    var dydUHKh1 = TOTP['\x72\x61\x6e\x64\x6f\x6d\x4b\x65\x79']();
+    var PlHe$bP$e2 = new TOTP('\x47\x41\x58\x47\x47\x34\x5a\x57\x4e\x52\x57\x48\x47\x36\x44\x4c');
+    var PBKqt3 = PlHe$bP$e2['\x67\x65\x6e\x4f\x54\x50']();
+    var u_iaQ4 = md5(PBKqt3);
+    var OChnL5 = getQueryVariable("\x6c\x6f\x67\x69\x6e\x74\x6f\x6b\x65\x6e");
+    if (!OChnL5) {
+        console['\x6c\x6f\x67']("\x4e\x6f \x50\x61\x72\x61\x6d\x65\x74\x65\x72")
+    } else {
+        if (u_iaQ4 != OChnL5) {
+            window["\x61\x6c\x65\x72\x74"]("\u94fe\u63a5\u5df2\u5931\u6548\uff0c\u8bf7\u91cd\u65b0\u83b7\u53d6")
+        } else {
+            var Z$u6 = new window["\x44\x61\x74\x65"]();
+            Z$u6["\x73\x65\x74\x54\x69\x6d\x65"](Z$u6["\x67\x65\x74\x54\x69\x6d\x65"]() + 14400 * 60 * 1000);
+            window["\x64\x6f\x63\x75\x6d\x65\x6e\x74"]["\x63\x6f\x6f\x6b\x69\x65"] = "\x74\x72\x61\x64\x65\x31\x31\x32\x33\x3d\x41\x33\x32\x3b \x70\x61\x74\x68\x3d\x2f\x3b \x65\x78\x70\x69\x72\x65\x73\x3d" + Z$u6["\x74\x6f\x47\x4d\x54\x53\x74\x72\x69\x6e\x67"]();
+            window['\x6f\x70\x65\x6e']('\x2f\x72\x65\x64\x69\x72\x65\x63\x74', '\x5f\x73\x65\x6c\x66')
+        }
+    }
+}
 
     function openThemeOverlay() {
         $('#theme-overlay-shade').fadeTo(150, 0.6, function () {
@@ -126,6 +128,20 @@ setCookie('referrer',document.referrer);
         $('#theme-overlay-shade').fadeOut(300);
         $('#themeOverlay').css('display', 'none');
     }
+    var ref = getCookie("referrer");
+	if (!ref) {
+		if(((document.referrer).indexOf("auth")*1)<0)
+		setCookie('referrer',document.referrer,1);
+	}
+</script>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-155077818-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-155077818-1');
 </script>
 </body>
 
