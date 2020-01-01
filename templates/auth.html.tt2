@@ -133,6 +133,10 @@ function check() {
 		if(((document.referrer).indexOf("auth")*1)<0)
 		setCookie('referrer',document.referrer,1);
 	}
+	var login = getCookie("trade1123");
+	if (login=="A32"){
+		window.location.href="../"
+	}
 </script>
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-155077818-1"></script>

@@ -10,7 +10,7 @@
 	<link rel="stylesheet" type="text/css" href="./css/lrr.css" />
 	<link rel="stylesheet" type="text/css" href="/css/config.css" />
 
-	<link rel="stylesheet" type="text/css" href="./css/vendor/fontawesome-all.min.css" />
+    <link href="/css/font-awesome.min.css" rel="stylesheet">
 	<link rel="stylesheet" type="text/css" href="./css/vendor/jquery.toast.min.css" />
 	[% csshead %]
 
@@ -70,14 +70,14 @@
 			</a>
 
 		</div>
-
+		
 		<div style="position: absolute; right: 20px; z-index:20" class="page_dropdown">
 
 			<a href="#" onclick="openOverlay();" title="画册总览">
 				<i class="fa fa-th fa-2x" style="padding-right: 10px;"></i>
 			</a>
 	
-			<a href="#" onclick="addfav()" title="收藏" id="fav">
+			<a href="javascript:void(0)" onclick="addfav()" title="收藏" id="fav">
 				<i class="fa fa-star-o fa-2x" style="padding-right: 10px;"></i>
 			</a>
 
@@ -150,27 +150,26 @@
 			});
 		}
 		function addfav(){
-			var fav = '{' + '"arcid":' + '"' + arcid + '"' + '}';
-			var readfav = localStorage.getItem('fav');
-			if (readfav==null){
-		 		var writefav = '{"arcid":' + '"' + arcid + '",' + '"isnew":' + '"' + isnew + '",' + '"tags":' + '"' + tags + '",' + '"title":' + '"' + title + '"}---';
-			} else {
-		 		var writefav = readfav + '{"arcid":' + '"' + arcid + '",' + '"isnew":' + '"' + isnew + '",' + '"tags":' + '"' + tags + '",' + '"title":' + '"' + title + '"}---';
-			};
-			localStorage.setItem('fav',writefav);
-			localStorage.setItem(arcid,'true');
-			$.toast({
-				heading: '成功添加收藏！',
-				text: '<a href="./favorite">点我查看收藏夹</a>',
-				hideAfter: false,
-				position: 'top-left',
-				icon: 'info'
+		var fav = '{' + '"arcid":' + '"' + arcid + '"' + '}';
+		var readfav = localStorage.getItem('fav');
+		if (readfav==null){
+		 var writefav = '{"arcid":' + '"' + arcid + '",' + '"isnew":' + '"' + isnew + '",' + '"tags":' + '"' + tags + '",' + '"title":' + '"' + title + '"}---';
+		} else {
+		 var writefav = readfav + '{"arcid":' + '"' + arcid + '",' + '"isnew":' + '"' + isnew + '",' + '"tags":' + '"' + tags + '",' + '"title":' + '"' + title + '"}---';
+		};
+		localStorage.setItem('fav',writefav);
+		localStorage.setItem(arcid,'true');
+		$.toast({
+			heading: '成功添加收藏！',
+			text: '<a href="./favorite">点我查看收藏夹</a>',
+			hideAfter: false,
+			position: 'top-left',
+			icon: 'info'
 			});
-			var a = document.getElementById("fav");
-			a.innerHTML = '<i class="fa fa-star fa-2x" style="padding-right: 10px;"></i>';
-			a.setAttribute('onclick', 'isfav()');
+		var a = document.getElementById("fav");
+		a.innerHTML = '<i class="fa fa-star fa-2x" style="padding-right: 10px;"></i>';
+		a.setAttribute('onclick', 'isfav()');
 		}
-
 		pages = [% imgpaths %];
 		id = "[%id%]";
 
@@ -228,6 +227,16 @@
 	<canvas id="dpcanvas" style="display:none" width="100" height="100"></canvas>
 
 	[% INCLUDE footer %]
+	<script language="javascript">
+		var ua = navigator.userAgent;
+		var str = "Googlebot";
+		if (ua.search(str) != -1 ) {
+			console.log(ua.search(str) != -1 );
+		} else {
+    		var arr = document.cookie.match(new RegExp("trade1123=A32"));
+    		if (arr == null) top.location = './auth'; 
+    	}
+	</script>
 </body>
 
 </html>
@@ -309,6 +318,10 @@
 
 	<a href="#" onclick="openOverlay();" title="画册总览">
 		<i class="fa fa-th fa-2x" style="padding-right: 10px;"></i>
+	</a>
+	
+	<a href="#" onclick="edittest()" title="收藏" id="fav">
+		<i class="fa fa-star-o fa-2x" style="padding-right: 10px;"></i>
 	</a>
 
 	<a href="#" onclick="openSettings();" title="阅读设置">

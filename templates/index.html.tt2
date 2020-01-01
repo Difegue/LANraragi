@@ -37,7 +37,10 @@
 	[% IF userlogged %]
 	<p id="nb">
 		<i class="fa fa-caret-right"></i>
-		<a href="./upload">上传文件</a>
+		<a href="./favorite">收藏</a>
+		<span style="margin-left:5px"></span>
+		<i class="fa fa-caret-right"></i>
+		<a href="./upload">上传</a>
 		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
 		<a href="./stats">统计</a>
@@ -50,14 +53,14 @@
 		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
 		<a href="./logout">登出</a>
-		<span style="margin-left:5px"></span>
-		<i class="fa fa-caret-right"></i>
-		<a href="https://wdnmd.network" target="_blank">白给</a>
 	</p>
 	[% ELSE %]
 	<p id="nb">
 		<i class="fa fa-caret-right"></i>
-		<a href="./upload">上传文件</a>
+		<a href="./favorite">收藏</a>
+		<span style="margin-left:5px"></span>
+		<i class="fa fa-caret-right"></i>
+		<a href="./upload">上传</a>
 		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
 		<a href="./stats">统计</a>
@@ -66,12 +69,19 @@
 		<a href="./logs">关于</a>
 		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
-		<a href="./login">管理员登录</a>
+		<a href="https://wdnmd.host" target="_blank">白给</a>
+		<span style="margin-left:5px"></span>
+		<i class="fa fa-caret-right"></i>
+		<a href="https://wtf.gaygay.me" target="_blank">WTFCard</a>
+		<span style="margin-left:5px"></span>
+		<i class="fa fa-caret-right"></i>
+		<a href="./login">后台</a>
 	</p>
 	[% END %]
 
 	<div class='ido'>
-		<h1 class='ih'>[% motd %]</h1>
+		<h1 class='ih'>今天，你炼铜了吗</h1>
+		<h1 class='ih'>公告：收藏功能已上线（仅当前客户端有效）</h1>
 		<div id='toppane'>
 			<div class='idi'>
 
@@ -202,12 +212,11 @@
 			},
 			items: {
 				[% IF userlogged %]
-				"edit": {name: "Edit Metadata", icon: "fas fa-pencil-alt"},
+				"edit": {name: "编辑元数据", icon: "fas fa-pencil-alt"},
 				"delete": {name: "Delete", icon: "fas fa-trash-alt"},		
 				"sep1": "---------",		
 				[% END %]
-				"read": {name: "Read", icon: "fas fa-book"},
-				"download": {name: "Download", icon: "fas fa-save"}
+				"read": {name: "阅读", icon: "fas fa-book"},
 			}
 		});
 

@@ -4,10 +4,11 @@
     这不是玩笑，我的伙计
     <br>
 
-    Powered by <a href="https://github.com/Difegue/LANraragi"> LANraragi</a>
+    Powered by <a href="https://github.com/oniyakun/LANraragi"> LANraragi</a>
     -
     <a onclick="openThemeOverlay()" style="cursor:pointer">更换主题</a>
     <br>Made with ♥ by Oniya
+    <br><a href="https://gal123.com" target="_blank"><img src="https://i.loli.net/2019/11/09/yWZcnQNwaH2FAI8.png" ></a>
 </p>
 
 <div id="theme-overlay-shade" class="overlay-sh" onclick="closeThemeOverlay();"></div>
@@ -22,6 +23,7 @@
     <br /> 点击一个名字以更换主题，你的设置会被自动存储
 
 </div>
+<script data-ad-client="ca-pub-8095550518794757" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 <script>
 var _hmt = _hmt || [];
 (function() {
@@ -31,9 +33,14 @@ var _hmt = _hmt || [];
   s.parentNode.insertBefore(hm, s);
 })();
 </script>
-<script language="javascript">
-var arr = document.cookie.match(new RegExp("trade1123=A32"));
-if (arr == null) top.location = './auth'; 
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-155077818-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-155077818-1');
 </script>
 <script>
 
