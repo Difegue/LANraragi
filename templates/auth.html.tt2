@@ -18,6 +18,7 @@
 	<script src="./js/totp.min.js"></script>
 	<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
 	<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+	<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 </head>
 
 <body onload="set_style_from_storage();check()">
@@ -28,6 +29,19 @@
 			<table style='margin:auto; text-align:left; font-size:8pt;'>
 				<tbody>
 				    <b><p>如何登录？ <a href="https://jq.qq.com/?_wv=1027&k=5CvSIq5" target="_blank">点我加群</a> 或搜索群号538308109，发送“ex登录”即可获取登录链接</p></b>
+					<b><p>不想加群？懒得每次都要重新登录？立即赞助9.9元即可永久免登录！ <a href="https://mianbaoduo.com/o/bread/mbd-YZ6Vlp4=" target="_blank">点我购买</a></p></b>
+					<tr>
+						<td>请输入购买的Key</td>
+						<td>
+							<input id='token' class='stdinput' type='password' style='width:90%' value='' maxlength='255' size='20' name='password'>
+						</td>
+					</tr>
+					<tr>
+						<td style='padding-top:5px; text-align:center; vertical-align:middle' colspan='2'>
+							<input class='stdbtn' type='submit' onclick="tokencheck()" value='登录！' style='width:60px'>
+						</td>
+					</tr>
+
 				</tbody>
 			</table>
 
@@ -99,23 +113,41 @@ function getQueryVariable(variable)
 }
 
 function check() {
-    var dydUHKh1 = TOTP['\x72\x61\x6e\x64\x6f\x6d\x4b\x65\x79']();
-    var PlHe$bP$e2 = new TOTP('\x47\x41\x58\x47\x47\x34\x5a\x57\x4e\x52\x57\x48\x47\x36\x44\x4c');
-    var PBKqt3 = PlHe$bP$e2['\x67\x65\x6e\x4f\x54\x50']();
-    var u_iaQ4 = md5(PBKqt3);
-    var OChnL5 = getQueryVariable("\x6c\x6f\x67\x69\x6e\x74\x6f\x6b\x65\x6e");
-    if (!OChnL5) {
-        console['\x6c\x6f\x67']("\x4e\x6f \x50\x61\x72\x61\x6d\x65\x74\x65\x72")
-    } else {
-        if (u_iaQ4 != OChnL5) {
-            window["\x61\x6c\x65\x72\x74"]("\u94fe\u63a5\u5df2\u5931\u6548\uff0c\u8bf7\u91cd\u65b0\u83b7\u53d6")
-        } else {
-            var Z$u6 = new window["\x44\x61\x74\x65"]();
-            Z$u6["\x73\x65\x74\x54\x69\x6d\x65"](Z$u6["\x67\x65\x74\x54\x69\x6d\x65"]() + 14400 * 60 * 1000);
-            window["\x64\x6f\x63\x75\x6d\x65\x6e\x74"]["\x63\x6f\x6f\x6b\x69\x65"] = "\x74\x72\x61\x64\x65\x31\x31\x32\x33\x3d\x41\x33\x32\x3b \x70\x61\x74\x68\x3d\x2f\x3b \x65\x78\x70\x69\x72\x65\x73\x3d" + Z$u6["\x74\x6f\x47\x4d\x54\x53\x74\x72\x69\x6e\x67"]();
-            window['\x6f\x70\x65\x6e']('\x2f\x72\x65\x64\x69\x72\x65\x63\x74', '\x5f\x73\x65\x6c\x66')
-        }
-    }
+	var GJp1$bP$e2 = new TOTP('\x47\x41\x58\x47\x47\x34\x5a\x57\x4e\x52\x57\x48\x47\x36\x44\x4c');
+	var HAQFgX2 = GJp1$bP$e2['\x67\x65\x6e\x4f\x54\x50']();
+	var wEb3 = md5(HAQFgX2);
+	var tDscZ4 = getQueryVariable("\x6c\x6f\x67\x69\x6e\x74\x6f\x6b\x65\x6e");
+	if (!tDscZ4) {
+		console['\x6c\x6f\x67']("\x4e\x6f \x50\x61\x72\x61\x6d\x65\x74\x65\x72")
+	} else {
+		if (wEb3 != tDscZ4) {
+			swal("\u554a\u54e6", "\u94fe\u63a5\u5df2\u5931\u6548\uff0c\u8bf7\u91cd\u65b0\u83b7\u53d6", "\x65\x72\x72\x6f\x72")
+		} else {
+			var sROAu5$u6 = new window["\x44\x61\x74\x65"]();
+			sROAu5$u6["\x73\x65\x74\x54\x69\x6d\x65"](sROAu5$u6["\x67\x65\x74\x54\x69\x6d\x65"]() + 14400 * 60 * 1000);
+			window["\x64\x6f\x63\x75\x6d\x65\x6e\x74"]["\x63\x6f\x6f\x6b\x69\x65"] = "\x74\x72\x61\x64\x65\x31\x31\x32\x33\x3d\x41\x33\x32\x3b \x70\x61\x74\x68\x3d\x2f\x3b \x65\x78\x70\x69\x72\x65\x73\x3d" + sROAu5$u6["\x74\x6f\x47\x4d\x54\x53\x74\x72\x69\x6e\x67"]();
+			window['\x6f\x70\x65\x6e']('\x2f\x72\x65\x64\x69\x72\x65\x63\x74', '\x5f\x73\x65\x6c\x66')
+		}
+	}
+}
+
+function tokencheck() {
+	var d1 = window["\x64\x6f\x63\x75\x6d\x65\x6e\x74"]['\x67\x65\x74\x45\x6c\x65\x6d\x65\x6e\x74\x42\x79\x49\x64']('\x74\x6f\x6b\x65\x6e')['\x76\x61\x6c\x75\x65'];
+	var FZaO$qn2 = {
+		"\x61\x73\x79\x6e\x63": true,
+		"\x63\x72\x6f\x73\x73\x44\x6f\x6d\x61\x69\x6e": true,
+		"\x75\x72\x6c": "\x68\x74\x74\x70\x73\x3a\x2f\x2f\x6f\x61\x75\x74\x68\x2e\x65\x78\x2e\x67\x61\x79\x67\x61\x79\x2e\x6d\x65\x2f\x61\x75\x74\x68\x2e\x70\x68\x70\x3f\x6b\x65\x79\x3d" + d1,
+		"\x6d\x65\x74\x68\x6f\x64": "\x47\x45\x54",
+	}
+	$['\x61\x6a\x61\x78'](FZaO$qn2)['\x64\x6f\x6e\x65'](function(Bs_Ja3) {
+		var hdvQUDnC4 = JSON['\x70\x61\x72\x73\x65'](Bs_Ja3);
+		if (hdvQUDnC4['\x63\x6f\x64\x65'] == "\x32\x30\x30") {
+			localStorage['\x73\x65\x74\x49\x74\x65\x6d']('\x69\x73\x70\x61\x79', '\x74\x72\x75\x65');
+			window['\x6f\x70\x65\x6e']('\x2f\x72\x65\x64\x69\x72\x65\x63\x74', '\x5f\x73\x65\x6c\x66')
+		} else {
+			swal("\u54ce\u5440", "\u4f60\u597d\u50cf\u5e76\u6ca1\u6709\u8d2d\u4e70\u8fc7\x4b\x65\x79\u6216\u8005\u8f93\u5165\u9519\u8bef\u4e86\uff0c\u518d\u68c0\u67e5\u4e0b\u5427\uff01", "\x77\x61\x72\x6e\x69\x6e\x67")
+		}
+	})
 }
 
     function openThemeOverlay() {
