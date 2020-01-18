@@ -169,6 +169,9 @@ function tokencheck() {
 	if (login=="A32"){
 		window.location.href="../"
 	}
+	if (localStorage.getItem("ispay")=="true"){
+		window.location.href="../"
+	}
 </script>
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-155077818-1"></script>
