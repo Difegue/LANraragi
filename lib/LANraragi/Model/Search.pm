@@ -43,7 +43,7 @@ sub do_search {
         $logger->debug("No cache available, doing a full DB parse.");
 
         # If the untagged filter is enabled, call the untagged files API 
-        my %untagged = {};
+        my %untagged = ();
         if ($untaggedonly) {
             %untagged = map { $_ => 1 } LANraragi::Model::Api::find_untagged_archives();
         }
