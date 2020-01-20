@@ -14,12 +14,13 @@ use LANraragi::Utils::Database;
 use LANraragi::Utils::Logging;
 
 use LANraragi::Model::Config;
+use LANraragi::Model::Api;
 
-# do_search (filter, filter2, page, key, order, newonly)
+# do_search (filter, filter2, page, key, order, newonly, untaggedonly)
 # Performs a search on the database.
 sub do_search {
 
-    my ( $filter, $columnfilter, $start, $sortkey, $sortorder, $newonly) = @_;
+    my ( $filter, $columnfilter, $start, $sortkey, $sortorder, $newonly, $untaggedonly) = @_;
 
     my $redis = LANraragi::Model::Config::get_redis;
     my $logger =
@@ -31,7 +32,7 @@ sub do_search {
     my @keys = $redis->keys('????????????????????????????????????????');
 
     # Look in searchcache first
-    my $cachekey = encode_utf8("$columnfilter-$filter-$sortkey-$sortorder-$newonly");
+    my $cachekey = encode_utf8("$columnfilter-$filter-$sortkey-$sortorder-$newonly-$untaggedonly");
     $logger->debug("Search request: $cachekey");
 
     if ($redis->exists("LRR_SEARCHCACHE") && $redis->hexists("LRR_SEARCHCACHE", $cachekey)) {
@@ -40,6 +41,12 @@ sub do_search {
         @filtered = @{ thaw $redis->hget("LRR_SEARCHCACHE", $cachekey)};
     } else {
         $logger->debug("No cache available, doing a full DB parse.");
+
+        # If the untagged filter is enabled, call the untagged files API 
+        my %untagged = {};
+        if ($untaggedonly) {
+            %untagged = map { $_ => 1 } LANraragi::Model::Api::find_untagged_archives();
+        }
 
         # Go through tags and apply search filter
         foreach my $id (@keys) {
@@ -52,6 +59,11 @@ sub do_search {
 
             # Check new filter first
             if ($newonly && $isnew && $isnew ne "true" && $isnew ne "block") {
+                next;
+            }
+
+            # Check untagged filter second
+            unless (exists($untagged{$id}) || !$untaggedonly) {
                 next;
             }
 

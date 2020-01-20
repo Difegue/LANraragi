@@ -22,18 +22,16 @@ function toggleFav(button) {
 	performSearch();
 }
 
-function toggleInbox(button) {
-
-	input = $("#inboxbtn");
+function toggleFilter(button) {
 
 	//invert input's checked value
-	inboxState = !(input.prop("checked"));
-	input.prop("checked", inboxState);
+	inboxState = !(button.prop("checked"));
+	button.prop("checked", inboxState);
 
 	if (inboxState) {
-		$("#inboxbtn").val("Show all archives");
-	} else {
-		$("#inboxbtn").val("Show new archives only");
+		button.val("Show all archives");
+	} else { // Reset string to ogvalue
+		button.val(button.prop("ogvalue"));
 	}
 
 	//Redraw the table 
@@ -70,6 +68,16 @@ function performSearch() {
 	} else {
 		// no fav filters
 		arcTable.column('.isnew').search("");
+	}
+
+	// Add the untagged filter if asked
+	input = $("#untaggedbtn");
+
+	if (input.prop("checked")) {
+		arcTable.column('.untagged').search("true");
+	} else {
+		// no fav filters
+		arcTable.column('.untagged').search("");
 	}
 
 	arcTable.search($('#srch').val().replace(",", ""));

@@ -53,11 +53,16 @@ function initIndex(pagesize) {
 				'name': 'tags',
 				'orderable': false,
 				'render': tagsColumnDisplay
-			},{
+			},{ // The columns below are invisible and only meant to add extra parameters to a search.
 				className: 'isnew itd',
 				visible: false,
 				'data': 'isnew',
 				'name': 'isnew'
+			},{ 
+				className: 'untagged itd',
+				visible: false,
+				'data': 'untagged',
+				'name': 'untagged'
 			}],
 	});
 

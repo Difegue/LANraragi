@@ -87,8 +87,10 @@
 			</div>
 
 			<p id='cssbutton' style='display:inline'>
-				<input id='inboxbtn' class='stdbtn' type='button' onclick='toggleInbox(this)'
-					value='Show new archives only' />
+				<input id='untaggedbtn' class='stdbtn' type='button' onclick='toggleFilter(this)'
+					value='Show untagged archives only' ogvalue='Show untagged archives only'/>
+				<input id='inboxbtn' class='stdbtn' type='button' onclick='toggleFilter(this)'
+					value='Show new archives only' ogvalue='Show new archives only'/>
 				<input class='stdbtn' type='button' onclick="var win=window.open('random','_blank'); win.focus();"
 					value='Give me a random archive' />
 				<input id='viewbtn' class='stdbtn' type='button' onclick="switch_index_view()"
