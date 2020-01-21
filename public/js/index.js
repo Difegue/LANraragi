@@ -191,13 +191,13 @@ function loadTagSuggestions() {
 				// Sort by weight
 				sort: function(a, b) { return b.value - a.value; },
 				filter: function(text, input) {
-					return Awesomplete.FILTER_CONTAINS(text, input.match(/[^,]*$/)[0]);
+					return Awesomplete.FILTER_CONTAINS(text, input.match(/[^, -]*$/)[0]);
 				},
 				item: function(text, input) {
-					return Awesomplete.ITEM(text, input.match(/[^,]*$/)[0]);
+					return Awesomplete.ITEM(text, input.match(/[^, -]*$/)[0]);
 				},
 				replace: function(text) {
-					var before = this.input.value.match(/^.+,\s*|/)[0];
+					var before = this.input.value.match(/^.*(,|-)\s*-*|/)[0];
 					this.input.value = before + text + ", ";
 				}
 			});
