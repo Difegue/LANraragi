@@ -8,18 +8,20 @@ use List::Util qw(min);
 use Redis;
 use Encode;
 use Storable qw/ nfreeze thaw /;
+use Sort::Naturally;
 
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Database;
 use LANraragi::Utils::Logging;
 
 use LANraragi::Model::Config;
+use LANraragi::Model::Api;
 
-# do_search (filter, filter2, page, key, order, newonly)
+# do_search (filter, filter2, page, key, order, newonly, untaggedonly)
 # Performs a search on the database.
 sub do_search {
 
-    my ( $filter, $columnfilter, $start, $sortkey, $sortorder, $newonly) = @_;
+    my ( $filter, $columnfilter, $start, $sortkey, $sortorder, $newonly, $untaggedonly) = @_;
 
     my $redis = LANraragi::Model::Config::get_redis;
     my $logger =
@@ -29,11 +31,9 @@ sub do_search {
     my @filtered;
     # Get all archives from redis
     my @keys = $redis->keys('????????????????????????????????????????');
-    # Get the filemap from Shinobu for ID checks later down the line
-    my %filemap = LANraragi::Utils::Generic::get_shinobu_filemap();
 
     # Look in searchcache first
-    my $cachekey = encode_utf8("$columnfilter-$filter-$sortkey-$sortorder-$newonly");
+    my $cachekey = encode_utf8("$columnfilter-$filter-$sortkey-$sortorder-$newonly-$untaggedonly");
     $logger->debug("Search request: $cachekey");
 
     if ($redis->exists("LRR_SEARCHCACHE") && $redis->hexists("LRR_SEARCHCACHE", $cachekey)) {
@@ -42,6 +42,12 @@ sub do_search {
         @filtered = @{ thaw $redis->hget("LRR_SEARCHCACHE", $cachekey)};
     } else {
         $logger->debug("No cache available, doing a full DB parse.");
+
+        # If the untagged filter is enabled, call the untagged files API 
+        my %untagged = ();
+        if ($untaggedonly) {
+            %untagged = map { $_ => 1 } LANraragi::Model::Api::find_untagged_archives();
+        }
 
         # Go through tags and apply search filter
         foreach my $id (@keys) {
@@ -57,10 +63,10 @@ sub do_search {
                 next;
             }
 
-            unless ($file eq "" || %filemap == 0 || exists $filemap{$id}) {
-                $logger->warn("ID $id no longer exists on filesystem, removing file reference in its database entry.");
-                $redis->hset($id, "file", "");
-            }    
+            # Check untagged filter second
+            unless (exists($untagged{$id}) || !$untaggedonly) {
+                next;
+            }
 
             # Check columnfilter and base search filter
             if ($file && -e $file 
@@ -100,9 +106,9 @@ sub do_search {
                 }
 
                 if ($sortorder) { 
-                    lc($meta2) cmp lc($meta1)
+                    ncmp( lc($meta2), lc($meta1) )
                 } else {
-                    lc($meta1) cmp lc($meta2)
+                    ncmp( lc($meta1), lc($meta2) )
                 }
 
             } @filtered;

@@ -9,6 +9,7 @@ requires 'Archive::Extract::Libarchive', 0.38;
 requires 'Archive::Peek::Libarchive', 0.38;
 requires 'Image::Scale', 0.14;
 requires 'Proc::Simple', 1.32;
+requires 'Sort::Naturally', 1.03;
 
 requires 'IPC::Cmd', 1.02;
 requires 'Digest::SHA', 6.02;

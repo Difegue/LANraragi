@@ -12,6 +12,7 @@ use File::Copy qw(move);
 use Encode;
 use Data::Dumper;
 use URI::Escape;
+use Sort::Naturally;
 
 use LANraragi::Model::Config;
 use LANraragi::Utils::Archive;
@@ -105,7 +106,7 @@ sub build_reader_JSON {
             }, $path);
     };
 
-    @images = sort { &expand($a) cmp &expand($b) } @images;
+    @images = nsort(@images);
 
     $self->LRR_LOGGER->debug("Files found in archive: \n " . Dumper @images);
 

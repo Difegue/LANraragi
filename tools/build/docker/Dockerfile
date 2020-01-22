@@ -50,3 +50,4 @@ COPY --chown=koyomi:koyomi /COPYING COPYING
 
 # Persistent volumes
 VOLUME [ "/home/koyomi/lanraragi/content" ]
+VOLUME [ "/home/koyomi/lanraragi/database"]

@@ -63,39 +63,26 @@ jobs:
   buildLatestDocker:
     name: Build Latest Docker image
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        arch: [amd64, arm32v6, arm64v8]
     steps:
     - uses: actions/checkout@master
+    - name: Set up Docker Buildx
+      uses: crazy-max/ghaction-docker-buildx@v1
+      with:
+        version: latest
     - name: Build/Push Latest Docker image and tag with Release number
       env:
-        ARCH: ${{ matrix.arch }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       run: |
-        echo "${DOCKER_PASSWORD}" | docker login -u ${DOCKER_USERNAME} --password-stdin
-        chmod +x ./tools/build/docker-multiarch/build-docker.sh
-        npm run docker-build-multiarch ${ARCH} latest
         TAG=${GITHUB_REF:10:10}
-        npm run docker-build-multiarch ${ARCH} $TAG
-  pushLatestDocker:
-    name: Push Multiarch Manifest
-    runs-on: ubuntu-latest
-    needs: buildLatestDocker
-    steps:
-    - uses: actions/checkout@master
-    - name: Push to Docker Hub
-      env:
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        DOCKER_CLI_EXPERIMENTAL: enabled
-      run: |
         echo "${DOCKER_PASSWORD}" | docker login -u ${DOCKER_USERNAME} --password-stdin
-        chmod +x ./tools/build/docker-multiarch/push-docker.sh
-        npm run docker-push-multiarch latest
-        TAG=${GITHUB_REF:10:10}
-        npm run docker-push-multiarch $TAG
+        docker buildx build \
+          --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
+          --output "type=image,push=true" \
+          --cache-from difegue/lanraragi:latest \
+          --tag difegue/lanraragi:latest \
+          --tag difegue/lanraragi:$TAG \
+          --file ./tools/build/docker/Dockerfile .
 
   discordNotifications:
     name: Send out some notifications

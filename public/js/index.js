@@ -22,18 +22,19 @@ function toggleFav(button) {
 	performSearch();
 }
 
-function toggleInbox(button) {
+function toggleFilter(button) {
 
-	input = $("#inboxbtn");
+	// jquerify
+	button = $(button);
 
 	//invert input's checked value
-	inboxState = !(input.prop("checked"));
-	input.prop("checked", inboxState);
+	inboxState = !(button.prop("checked"));
+	button.prop("checked", inboxState);
 
 	if (inboxState) {
-		$("#inboxbtn").val("Show all archives");
-	} else {
-		$("#inboxbtn").val("Show new archives only");
+		button.addClass("toggled");
+	} else { 
+		button.removeClass("toggled");
 	}
 
 	//Redraw the table 
@@ -70,6 +71,16 @@ function performSearch() {
 	} else {
 		// no fav filters
 		arcTable.column('.isnew').search("");
+	}
+
+	// Add the untagged filter if asked
+	input = $("#untaggedbtn");
+
+	if (input.prop("checked")) {
+		arcTable.column('.untagged').search("true");
+	} else {
+		// no fav filters
+		arcTable.column('.untagged').search("");
 	}
 
 	arcTable.search($('#srch').val().replace(",", ""));
@@ -183,13 +194,13 @@ function loadTagSuggestions() {
 				// Sort by weight
 				sort: function(a, b) { return b.value - a.value; },
 				filter: function(text, input) {
-					return Awesomplete.FILTER_CONTAINS(text, input.match(/[^,]*$/)[0]);
+					return Awesomplete.FILTER_CONTAINS(text, input.match(/[^, -]*$/)[0]);
 				},
 				item: function(text, input) {
-					return Awesomplete.ITEM(text, input.match(/[^,]*$/)[0]);
+					return Awesomplete.ITEM(text, input.match(/[^, -]*$/)[0]);
 				},
 				replace: function(text) {
-					var before = this.input.value.match(/^.+,\s*|/)[0];
+					var before = this.input.value.match(/^.*(,|-)\s*-*|/)[0];
 					this.input.value = before + text + ", ";
 				}
 			});
