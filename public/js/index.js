@@ -24,14 +24,17 @@ function toggleFav(button) {
 
 function toggleFilter(button) {
 
+	// jquerify
+	button = $(button);
+
 	//invert input's checked value
 	inboxState = !(button.prop("checked"));
 	button.prop("checked", inboxState);
 
 	if (inboxState) {
-		button.val("Show all archives");
-	} else { // Reset string to ogvalue
-		button.val(button.prop("ogvalue"));
+		button.addClass("toggled");
+	} else { 
+		button.removeClass("toggled");
 	}
 
 	//Redraw the table 
