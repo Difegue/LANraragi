@@ -8,6 +8,7 @@ use List::Util qw(min);
 use Redis;
 use Encode;
 use Storable qw/ nfreeze thaw /;
+use Sort::Naturally;
 
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Database;
@@ -105,9 +106,9 @@ sub do_search {
                 }
 
                 if ($sortorder) { 
-                    lc($meta2) cmp lc($meta1)
+                    ncmp( lc($meta2), lc($meta1) )
                 } else {
-                    lc($meta1) cmp lc($meta2)
+                    ncmp( lc($meta1), lc($meta2) )
                 }
 
             } @filtered;
