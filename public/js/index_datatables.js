@@ -56,12 +56,12 @@ function initIndex(pagesize) {
 			},{ // The columns below are invisible and only meant to add extra parameters to a search.
 				className: 'isnew itd',
 				visible: false,
-				'data': null,
+				'data': 'isnew',
 				'name': 'isnew'
 			},{ 
 				className: 'untagged itd',
 				visible: false,
-				'data': 'isnew',
+				'data': null,
 				'name': 'untagged'
 			}],
 	});
