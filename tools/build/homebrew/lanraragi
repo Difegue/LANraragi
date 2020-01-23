@@ -20,6 +20,9 @@ fi
 if [[ ${LRR_DATA_DIRECTORY} == "" ]]; then
   export LRR_DATA_DIRECTORY="${_LRR_DATA_DIRECTORY}"
 fi
+if [[ ${LRR_DATABASE_DIRECTORY} == "" ]]; then
+  export LRR_DATABASE_DIRECTORY="${_LRR_DATABASE_DIRECTORY}"
+fi
 if [[ ${LRR_TEMP_DIRECTORY} == "" ]]; then
   export LRR_TEMP_DIRECTORY="${_LRR_TEMP_DIRECTORY}"
 fi
@@ -39,6 +42,7 @@ echo "Log Directory is set to '${LRR_LOG_DIRECTORY}'"
 
 # create dirs
 mkdir -p ${LRR_DATA_DIRECTORY}
+mkdir -p ${LRR_DATABASE_DIRECTORY}
 mkdir -p ${LRR_TEMP_DIRECTORY}
 mkdir -p ${LRR_LOG_DIRECTORY}
 
@@ -46,5 +50,5 @@ mkdir -p ${LRR_LOG_DIRECTORY}
 export PERL5LIB="${workdir}/libexec/lib/perl5"
 
 # launch command
-redis-server "${workdir}/redis.conf" --daemonize yes
+redis-server "${workdir}/redis.conf"
 npm start --prefix "${workdir}" && redis-cli shutdown
