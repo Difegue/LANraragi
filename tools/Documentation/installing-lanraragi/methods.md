@@ -4,13 +4,8 @@ description: This is a by-OS breakdown of how you can install the software on yo
 
 # Which installation method is best for me?
 
-## Linux/macOS/Windows 10: _Docker_
-
 As LRR is a server app first and foremost, its setup is a bit more complex than your usual Desktop application.  
-Therefore, for unexperienced users, I recommend using a **container** install with Docker.  
-They're clean, easy to update, and automatically built/tested.
-
-{% page-ref page="docker.md" %}
+However, a lot of work as been done behind the scenes to make it easy! Look at the methods below for something that fits your OS and usage.
 
 ## macOS/Linux: _Homebrew_
 
@@ -31,7 +26,14 @@ This method works on **64-bit** editions of Windows 10 only. Versions under v180
 
 I provide a dedicated installer for Windows machines as of 0.6.0, complete with a GUI and autostart.
 
-{% page-ref page="windows.md" %}
+{% page-ref page="windows.md" %}  
+
+## Linux/macOS/Windows 10: _Docker_
+ 
+Taking a page from sysadmin books, you can easily install LRR as a **container** with Docker.  
+They're lightweight, easy to update, and automatically built/tested. I recommend this for NAS setups!  
+
+{% page-ref page="docker.md" %}
 
 ## Linux/macOS: _Installing from Source_  
 

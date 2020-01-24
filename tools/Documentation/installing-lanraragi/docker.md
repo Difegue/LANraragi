@@ -16,8 +16,9 @@ Download [the Docker setup](https://www.docker.com/products/docker) and install 
 
 ```bash
 docker run --name=lanraragi -p 3000:3000 \
---mount type=bind,source=[YOUR_CONTENT_DIRECTORY],\
-target=/home/koyomi/lanraragi/content difegue/lanraragi
+--mount type=bind,source=[YOUR_CONTENT_DIRECTORY],target=/home/koyomi/lanraragi/content \
+--mount type=bind,source=[YOUR_DATABASE_DIRECTORY],target=/home/koyomi/lanraragi/database \
+difegue/lanraragi
 ```
 
 {% hint style="warning" %}
@@ -32,7 +33,9 @@ You can bypass this issue by using the --volume option for bind-mounting like so
 
 ```bash
 docker run --name=lanraragi -p 3000:3000 \
---volume [YOUR_CONTENT_DIRECTORY]:/home/koyomi/lanraragi/content difegue/lanraragi
+--volume [YOUR_CONTENT_DIRECTORY]:/home/koyomi/lanraragi/content \
+--volume [YOUR_CONTENT_DIRECTORY]:/home/koyomi/lanraragi/database \
+difegue/lanraragi
 ```
 {% endhint %}
 
@@ -46,9 +49,20 @@ If you're running on Windows, please check the syntax for mapping your content d
 Windows 7/8 users running the Legacy Docker toolbox will have to explicitly forward port 127.0.0.1:3000 from the host to the container in order to be able to access the app.
 {% endhint %}
 
-The content directory you have to specify in the command above will contain archives you either upload through the software or directly drop in, alongside generated thumbnails.
+The content directory you have to specify in the command above will contain archives you either upload through the software or directly drop in, alongside generated thumbnails.  
+The database directory houses the LANraragi database\(As database.rdb\), allowing you to hotswap containers without losing any data.  
 
-This directory also houses the LANraragi database\(As database.rdb\), allowing you to hotswap containers without losing any data.
+{% hint style="info" %}
+If you don't care too much about being able to backup your database file, you can mount the database directory to a dedicated Docker volume:  
+```bash
+docker volume create lrr-database
+docker run --name=lanraragi -p 3000:3000 \
+--mount type=bind,source=[YOUR_CONTENT_DIRECTORY],target=/home/koyomi/lanraragi/content \
+--mount source=lrr-database,target=/home/koyomi/lanraragi/database \
+difegue/lanraragi
+```  
+The volume can be reused when updating, so your database will still follow along even if the container is destroyed.  
+{% endhint %}
 
 Once your LANraragi container is loaded, you can access it at [http://localhost:3000](http://localhost:3000) .  
 You can use the following commands to stop/start/remove the container\(Removing it won't delete the archive directory you specified\) :

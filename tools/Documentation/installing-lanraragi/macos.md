@@ -13,7 +13,7 @@ mkdir -p "${lrr}"
 mv content "${lrr}/content"
 mv log "${lrr}/log"
 mv public/temp "${lrr}/temp"
-mv database.rdb "${lrr}/database.rdb"
+mv database.rdb "${lrr}/database/database.rdb"
 ```
 
 {% hint style="info" %}
@@ -37,7 +37,8 @@ brew install lanraragi
 
 ## Configuration
 
-The Redis database and your content folder are stored by default in `${HOME}/Library/Application Support/LANraragi`.  
+Your content folder is stored by default in `${HOME}/Library/Application Support/LANraragi`.  
+The Redis database is stored in `${HOME}/Library/Application Support/LANraragi/database`.
 The content folder can be moved to any folder you want through the in-app settings page.  
 
 ## Usage

@@ -31,12 +31,12 @@ if [[ ${LRR_LOG_DIRECTORY} == "" ]]; then
 fi
 
 # change values in redis.conf
-perl -pi -e "s~<LRR_DATABASE_DIRECTORY>~${_LRR_DATABASE_DIRECTORY}~g" ${workdir}/redis.conf
+perl -pi -e "s~<LRR_DATABASE_DIRECTORY>~${LRR_DATABASE_DIRECTORY}~g" ${workdir}/redis.conf
 perl -pi -e "s~<LRR_LOG_DIRECTORY>~${LRR_LOG_DIRECTORY}~g" ${workdir}/redis.conf
 
 # output -- Directories are created by LRR's launcher.pl if they don't exist
 echo "Data Directory is set to '${LRR_DATA_DIRECTORY}'"
-echo "Database Directory is set to '${_LRR_DATABASE_DIRECTORY}'"
+echo "Database Directory is set to '${LRR_DATABASE_DIRECTORY}'"
 echo "Temporary Folder is set to '${LRR_TEMP_DIRECTORY}'"
 echo "Log Directory is set to '${LRR_LOG_DIRECTORY}'"
 
