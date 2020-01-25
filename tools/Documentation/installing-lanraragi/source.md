@@ -39,6 +39,8 @@ git clone -b master http://github.com/Difegue/LANraragi /home/koyomi/lanraragi
 cd /home/koyomi/lanraragi && sudo npm run lanraragi-installer install-full
 ```
 
+Note: Do not use `sudo` in the above command if you are using `perlbrew`.
+
 Once this is done, you can get started by running `npm start` and opening [http://localhost:3000](http://localhost:3000).
 
 To change the default port or add SSL support, see this page:

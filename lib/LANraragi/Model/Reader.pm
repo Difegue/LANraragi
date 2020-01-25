@@ -105,6 +105,8 @@ sub build_reader_JSON {
             }, $path);
     };
 
+    # TODO: @images = nsort(@images); would theorically be better, but Sort::Naturally's nsort puts letters before numbers, which isn't what we want at all for pages in an archive.
+    # To investigate further, perhaps with custom sorting algorithms?
     @images = sort { &expand($a) cmp &expand($b) } @images;
 
     $self->LRR_LOGGER->debug("Files found in archive: \n " . Dumper @images);

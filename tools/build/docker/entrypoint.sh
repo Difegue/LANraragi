@@ -21,8 +21,8 @@ if [ ! -d "/home/koyomi/lanraragi/content" ]; then
 fi
 
 #Ensure database is writable
-chown koyomi /home/koyomi/lanraragi/content/database.rdb
-chmod +rw /home/koyomi/lanraragi/content/database.rdb
+chown -R koyomi /home/koyomi/lanraragi/database
+chmod -R 777 /home/koyomi/lanraragi/database
 
 #Ensure thumbnail folder is writable
 chown -R koyomi /home/koyomi/lanraragi/content/thumb 

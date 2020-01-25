@@ -79,16 +79,18 @@
 					[% END %]
 				</div>
 				[% END %]
-
+				<input id='untaggedbtn' class='favtag-btn' type='button' onclick='toggleFilter(this)'
+					value='Untagged archives only'/>
+				<input id='inboxbtn' class='favtag-btn' type='button' onclick='toggleFilter(this)'
+					value='New archives only'/>
+				<br/>
 				<input type='text' id='srch' class='search stdinput' size='90' style='width:100%' 
 					placeholder='Search Title, Artist, Series, Language or Tags' />
-        <input id='subsrch' class='searchbtn stdbtn' type='button' value='Apply Filter' />
+       			<input id='subsrch' class='searchbtn stdbtn' type='button' value='Apply Filter' />
 				<input id='clrsrch' class='searchbtn stdbtn' type='button' value='Clear Filter' />
 			</div>
 
 			<p id='cssbutton' style='display:inline'>
-				<input id='inboxbtn' class='stdbtn' type='button' onclick='toggleInbox(this)'
-					value='Show new archives only' />
 				<input class='stdbtn' type='button' onclick="var win=window.open('random','_blank'); win.focus();"
 					value='Give me a random archive' />
 				<input id='viewbtn' class='stdbtn' type='button' onclick="switch_index_view()"
@@ -109,9 +111,6 @@
 						</th>
 						<th id="tagsheader">
 							<a>Tags</a>
-						</th>
-						<th id="titleheader">
-							<a>IsNew</a>
 						</th>
 					</tr>
 				</thead>

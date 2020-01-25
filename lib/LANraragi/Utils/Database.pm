@@ -125,6 +125,11 @@ sub drop_database {
 # Returns the number of entries deleted.
 sub clean_database {
     my $redis = LANraragi::Model::Config::get_redis;
+    my $logger =
+      LANraragi::Utils::Logging::get_logger( "Archive", "lanraragi" );
+      
+    # Get the filemap from Shinobu for ID checks later down the line
+    my %filemap = LANraragi::Utils::Generic::get_shinobu_filemap();
 
     #40-character long keys only => Archive IDs
     my @keys = $redis->keys('????????????????????????????????????????');
@@ -137,7 +142,13 @@ sub clean_database {
         unless (-e $file) {
             $redis->del($id);
             $deleted_arcs++;
-        }
+            next;
+        } 
+        
+        unless ($file eq "" || %filemap == 0 || exists $filemap{$id}) {
+            $logger->warn("File exists but its ID is no longer $id -- Removing file reference in its database entry.");
+            $redis->hset($id, "file", "");
+        }  
     }
 
     $redis->quit;
