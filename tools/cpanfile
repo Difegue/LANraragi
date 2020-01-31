@@ -7,7 +7,7 @@ requires 'Encode', 2.98;
 requires 'File::ChangeNotify', 0.31;
 requires 'Archive::Extract::Libarchive', 0.38;
 requires 'Archive::Peek::Libarchive', 0.38;
-requires 'Image::Scale', 0.14;
+requires 'Image::Magick', 6.89;
 requires 'Proc::Simple', 1.32;
 requires 'Sort::Naturally', 1.03;
 
