@@ -20,7 +20,7 @@ For information, my personal tests are done using Debian's vendor Perl.
 apt-get update
 apt-get upgrade -y
 apt-get install build-essential make gnupg pkg-config\
-cpanminus redis-server libarchive-dev imagemagick libmagickcore-dev libssl-dev zlib1g-dev npm
+cpanminus redis-server libarchive-dev imagemagick libimage-magick-perl libssl-dev zlib1g-dev npm
 ```
 
 _Base software dependencies._
