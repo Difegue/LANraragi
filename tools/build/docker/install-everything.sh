@@ -3,7 +3,7 @@
 #Just do everything 
 apk update 
 apk add perl perl-io-socket-ssl perl-dev redis libarchive-dev libbz2 openssl-dev zlib-dev 
-apk add imagemagick imagemagick-perlmagick
+apk add imagemagick imagemagick-perlmagick libwebp-tools
 apk add g++ make pkgconf gnupg wget curl nodejs nodejs-npm
 apk add supervisor su-exec shadow
 
