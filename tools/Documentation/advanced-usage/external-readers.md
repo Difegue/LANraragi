@@ -46,6 +46,11 @@ Here are some existing clients:
 * Download database.
 * Fullscreen.
 
+### Tachiyomi reader 
+
+The open-source [Tachiyomi](https://tachiyomi.org/) Android reader has a readymade plugin to consume the LANraragi API.  
+You can download it [here.](https://github.com/inorichi/tachiyomi-extensions/blob/repo/apk/tachiyomi-all.lanraragi-v1.2.1.apk)
+
 ## Generic OPDS readers  
 
 ![Example OPDS reader](../.gitbook/assets/opds.jpg)
