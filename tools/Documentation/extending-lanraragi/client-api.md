@@ -349,6 +349,10 @@ Order of the sort, either `asc` or `desc`.
 Set to `true` to only show new archives.
 {% endapi-method-parameter %}
 
+{% api-method-parameter name="untaggedonly" type="boolean" required=false %}
+Set to `true` to only show untagged archives.
+{% endapi-method-parameter %}
+
 {% endapi-method-path-parameters %}
 {% endapi-method-request %}
 

@@ -14,27 +14,28 @@ use Encode::Guess qw/euc-jp shiftjis 7bit-jis/;
 use Redis;
 use Cwd;
 use Data::Dumper;
-use Image::Scale;
+use Image::Magick;
 use Archive::Peek::Libarchive;
 use Archive::Extract::Libarchive;
 
 use LANraragi::Model::Config;
 use LANraragi::Utils::TempFolder;
 use LANraragi::Utils::Logging;
+use LANraragi::Utils::Generic;
 
-#Utilitary functions for handling Archives.
-#Relies on Libarchive.
+# Utilitary functions for handling Archives.
+# Relies on Libarchive and ImageMagick.
 
-#generate_thumbnail(original_image, thumbnail_location)
-#use Image::Scale to make a thumbnail, height = 500px (view in index is 280px tall)
+# generate_thumbnail(original_image, thumbnail_location)
+# use ImageMagick to make a thumbnail, height = 500px (view in index is 280px tall)
 sub generate_thumbnail {
 
     my ( $orig_path, $thumb_path ) = @_;
+    my $img = Image::Magick->new;
 
-    my $img = Image::Scale->new($orig_path) || die "Invalid image file";
-    $img->resize_gd( { height => 500 } );
-    $img->save_jpeg($thumb_path);
-
+    $img->Read($orig_path);
+    $img->Thumbnail( geometry => '500y' );
+    $img->Write($thumb_path);
 }
 
 #extract_archive(path, archive_to_extract)
@@ -107,7 +108,8 @@ sub extract_thumbnail {
     # Filter out non-images
     foreach my $file (@files) {
 
-        if ( $file =~ /^(.*\/)*.+\.(png|jpg|gif|bmp|jpeg|PNG|JPG|GIF|BMP)$/ ) {
+        my $file2 = $file;
+        if ( LANraragi::Utils::Generic::is_image($file2) ) {
             push @extracted, $file;
         }
     }

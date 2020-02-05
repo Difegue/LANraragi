@@ -2,7 +2,8 @@
 
 #Just do everything 
 apk update 
-apk add perl perl-io-socket-ssl perl-dev redis libarchive-dev libbz2 libjpeg-turbo-dev libpng-dev openssl-dev zlib-dev
+apk add perl perl-io-socket-ssl perl-dev redis libarchive-dev libbz2 openssl-dev zlib-dev 
+apk add imagemagick imagemagick-perlmagick libwebp-tools
 apk add g++ make pkgconf gnupg wget curl nodejs nodejs-npm
 apk add supervisor su-exec shadow
 
@@ -21,5 +22,5 @@ cd tools && cpanm --notest --installdeps . -M https://cpan.metacpan.org && cd ..
 npm run lanraragi-installer install-front 
 
 #Cleanup to lighten the image
-apk del perl-dev g++ make gnupg wget curl nodejs nodejs-npm openssl-dev
+apk del perl-dev g++ make gnupg wget curl nodejs nodejs-npm openssl-dev 
 rm -rf /root/.cpanm/* /usr/local/share/man/* node_modules tools/_screenshots tools/Documentation
