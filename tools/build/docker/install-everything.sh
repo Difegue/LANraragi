@@ -13,6 +13,9 @@ curl -L https://cpanmin.us | perl - App::cpanminus
 #See https://framagit.org/fiat-tux/hat-softwares/lufi/issues/137
 cpanm https://gitlab.com/thedudeabides/crypt-rijndael/-/archive/musl-libc/crypt-rijndael-musl-libc.tar.gz 
 
+#Install Linux::Inotify2 manually since it's not in the base cpanfile (doesn't build on macOS)
+cpanm Linux::Inotify2
+
 #Install the LRR dependencies proper
 cd tools && cpanm --notest --installdeps . -M https://cpan.metacpan.org && cd ..
 npm run lanraragi-installer install-front 

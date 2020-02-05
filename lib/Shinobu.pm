@@ -79,6 +79,9 @@ sub initialize_from_new_process {
           exclude         => [ 'thumb', '.' ], #excluded subdirs
         );
 
+    my $class = ref($contentwatcher);
+    $logger->debug("Watcher class is $class");
+
     # Add watcher to tempfolder
     my $tempwatcher =
     File::ChangeNotify->instantiate_watcher
