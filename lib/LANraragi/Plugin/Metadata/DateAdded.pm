@@ -1,4 +1,4 @@
-package LANraragi::Plugin::DateAdded;
+package LANraragi::Plugin::Metadata::DateAdded;
 
 use strict;
 use warnings;

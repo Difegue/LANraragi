@@ -1,4 +1,4 @@
-package LANraragi::Plugin::Koromo;
+package LANraragi::Plugin::Metadata::Koromo;
 
 use strict;
 use warnings;

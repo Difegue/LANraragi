@@ -174,7 +174,7 @@ sub use_plugin {
         #Execute the plugin, appending the custom args at the end
         my %plugin_result;
         eval {
-            %plugin_result = LANraragi::Model::Plugins::exec_plugin_on_file( $plugin, $id,
+            %plugin_result = LANraragi::Model::Plugins::exec_metadata_plugin( $plugin, $id,
             $oneshotarg, @args );
         };
 

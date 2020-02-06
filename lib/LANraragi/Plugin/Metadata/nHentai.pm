@@ -1,4 +1,4 @@
-package LANraragi::Plugin::nHentai;
+package LANraragi::Plugin::Metadata::nHentai;
 
 use strict;
 use warnings;

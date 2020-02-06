@@ -12,6 +12,7 @@ use Module::Pluggable require => 1, search_path => ['LANraragi::Plugin'];
 use Redis;
 use Encode;
 use Mojo::JSON qw(decode_json encode_json);
+use Mojo::UserAgent;
 use Data::Dumper;
 
 use LANraragi::Utils::Generic;
@@ -45,8 +46,7 @@ sub exec_enabled_plugins_on_file {
 
         #Every plugin execution is eval'd separately
         eval {
-            %plugin_result =
-                &exec_plugin_on_file( $plugin, $id, "", @args );
+            %plugin_result = exec_metadata_plugin( $plugin, $id, "", @args );
         };
 
         if ($@) {
@@ -84,12 +84,41 @@ sub exec_enabled_plugins_on_file {
     return ( $successes, $failures, $addedtags );
 }
 
-#Execute a specified plugin on a file, described through its Redis ID.
-sub exec_plugin_on_file {
+sub exec_login_plugin {
+    my $logplugname = shift;
+    my $ua = Mojo::UserAgent->new;
+    my $logger =
+      LANraragi::Utils::Logging::get_logger( "Plugin System", "lanraragi" );
+
+    if ($logplugname) {
+        $logger->info("Calling matching login plugin $loginplugin.");
+        my $loginplugin = LANraragi::Utils::Plugins::get_plugin($logplugname);
+        my @loginargs   = LANraragi::Utils::Plugins::get_plugin_parameters($logplugname);
+
+        if ($loginplugin->can('do_login')) {
+            my $loggedinua = $loginplugin->do_login(@loginargs);
+
+            if (ref($loggedinua) eq "Mojo::UserAgent") {
+                return $loggedinua;
+            } else {
+                $logger->error("Plugin did not return a Mojo::UserAgent object!");
+            }
+        } else {
+            $logger->error("Plugin doesn't implement do_login!");
+        }
+    } else {
+        $logger->info("No login plugin specified, returning empty UserAgent.");
+    }
+
+    return $ua;
+}
+
+# Execute a specified plugin on a file, described through its Redis ID.
+sub exec_metadata_plugin {
 
     my ( $plugin, $id, $oneshotarg, @args ) = @_;
     my $logger =
-      LANraragi::Utils::Logging::get_logger( "Auto-Tagger", "lanraragi" );
+      LANraragi::Utils::Logging::get_logger( "Plugin System", "lanraragi" );
 
     #If the plugin has the method "get_tags",
     #catch all the required data and feed it to the plugin
@@ -122,8 +151,10 @@ sub exec_plugin_on_file {
         $redis->quit();
 
         #Hand it off to the plugin here.
-        my %newmetadata = $plugin->get_tags( $title, $tags, $thumbhash, $file, $oneshotarg,
-                @args );
+        # If the plugin requires a login, execute that first to get a UserAgent
+        my %pluginfo = $plugin->plugin_info();
+        my $ua = exec_login_plugin($pluginfo{login_from});
+        my %newmetadata = $plugin->get_tags( $title, $tags, $thumbhash, $file, $ua, $oneshotarg, @args );
 
         #Error checking
         if ( exists $newmetadata{error} ) {
@@ -163,7 +194,6 @@ sub exec_plugin_on_file {
                 }
 
                 if ($good) {
-
                     #This tag is processed and good to go
                     $newtags .= " $tagtoadd,";
                 }

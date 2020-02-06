@@ -1,4 +1,4 @@
-package LANraragi::Plugin::CopyTags;
+package LANraragi::Plugin::Metadata::CopyTags;
 
 use strict;
 use warnings;

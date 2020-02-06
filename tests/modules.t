@@ -54,14 +54,15 @@ my @modules = ("Shinobu",
             "LANraragi::Model::Reader",
             "LANraragi::Model::Search",
             "LANraragi::Model::Stats",
-            "LANraragi::Plugin::Chaika",
-            "LANraragi::Plugin::CopyTags",
-            "LANraragi::Plugin::DateAdded",
-            "LANraragi::Plugin::EHentai",
-            "LANraragi::Plugin::Eze",
-            "LANraragi::Plugin::Hdoujin",
-            "LANraragi::Plugin::Koromo",
-            "LANraragi::Plugin::nHentai"
+            "LANraragi::Plugin::Metadata::Chaika",
+            "LANraragi::Plugin::Metadata::CopyTags",
+            "LANraragi::Plugin::Metadata::DateAdded",
+            "LANraragi::Plugin::Metadata::EHentai",
+            "LANraragi::Plugin::Metadata::Eze",
+            "LANraragi::Plugin::Metadata::Hdoujin",
+            "LANraragi::Plugin::Metadata::Koromo",
+            "LANraragi::Plugin::Metadata::nHentai",
+            "LANraragi::Plugin::Login::EHentai"
             );
 
 # Test all modules load properly
