@@ -9,7 +9,7 @@ jobs:
     - name: Test Docker Build and run Test Suite on it
       run: |
         docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile .
-        docker run -it -d difegue/lanraragi cd /home/koyomi/lanraragi && prove -l tests/*.t
+        docker run -it -d difegue/lanraragi "cd /home/koyomi/lanraragi && prove -l tests/*.t"
     - name: Perl Critic
       uses: ./.github/action-critic
       env:
