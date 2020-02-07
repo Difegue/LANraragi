@@ -13,6 +13,9 @@ use File::ReadBackwards;
 
 use LANraragi::Model::Config;
 
+use Exporter 'import'; # gives you Exporter's import() method directly
+our @EXPORT_OK = qw(get_logger get_logdir get_lines_from_file);  # symbols to export on request
+
 # Contains all functions related to logging.
 
 # Get the Log folder.

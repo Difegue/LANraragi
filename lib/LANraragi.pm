@@ -10,9 +10,8 @@ use Mojo::JSON qw(decode_json encode_json);
 use Storable;
 
 use LANraragi::Utils::Generic;
-use LANraragi::Utils::Routing;
 use LANraragi::Utils::Plugins;
-use LANraragi::Utils::Logging;
+use LANraragi::Utils::Logging qw(get_logger);
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Search;
@@ -53,8 +52,7 @@ sub startup {
     #Helper to build logger objects quickly
     $self->helper(
         LRR_LOGGER => sub {
-            return LANraragi::Utils::Logging::get_logger( "LANraragi",
-                "lanraragi" );
+            return get_logger( "LANraragi", "lanraragi" );
         }
     );
 

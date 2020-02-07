@@ -10,6 +10,7 @@ use Mojo::JSON qw(from_json);
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
 use LANraragi::Utils::Database;
+use LANraragi::Utils::Logging qw(get_logger);
 
 #Meta-information about your plugin.
 sub plugin_info {
@@ -37,7 +38,7 @@ sub get_tags {
     # the filesystem path, and the custom arguments if available.
     shift;
     my ( $title, $tags, $thumbhash, $file, $oneshotarg, $savetitle ) = @_;
-    my $logger = LANraragi::Utils::Logging::get_logger( "eze", "plugins" );
+    my $logger = get_logger( "eze", "plugins" );
 
     if ( LANraragi::Utils::Archive::is_file_in_archive( $file, "info.json" ) ) {
 

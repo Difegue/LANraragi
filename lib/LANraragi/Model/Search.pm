@@ -12,7 +12,7 @@ use Sort::Naturally;
 
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Database;
-use LANraragi::Utils::Logging;
+use LANraragi::Utils::Logging qw(get_logger);
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Api;
@@ -24,8 +24,7 @@ sub do_search {
     my ( $filter, $columnfilter, $start, $sortkey, $sortorder, $newonly, $untaggedonly) = @_;
 
     my $redis = LANraragi::Model::Config::get_redis;
-    my $logger =
-        LANraragi::Utils::Logging::get_logger( "Search Engine", "lanraragi" );
+    my $logger = get_logger( "Search Engine", "lanraragi" );
 
     # Search filter results
     my @filtered;

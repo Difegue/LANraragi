@@ -8,6 +8,7 @@ use warnings;
 use Mojo::UserAgent;
 
 use LANraragi::Model::Plugins;
+use LANraragi::Utils::Logging qw(get_logger);
 
 #Meta-information about your plugin.
 sub plugin_info {
@@ -37,7 +38,7 @@ sub get_tags {
     my ($title, $tags, $thumbhash, $file, $oneshotarg, $use_filetime) = @_;
 
     #Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
-    my $logger = LANraragi::Utils::Logging::get_logger("Date Added Plugin","plugins");
+    my $logger = get_logger("Date Added Plugin","plugins");
 
     #Work your magic here - You can create subroutines below to organize the code better
 

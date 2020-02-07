@@ -32,6 +32,7 @@ use LANraragi::Utils::Generic;
 use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database;
 use LANraragi::Utils::TempFolder;
+use LANraragi::Utils::Logging qw(get_logger);
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
@@ -40,7 +41,7 @@ use LANraragi::Model::Plugins;
 my %filemap;
 
 # Logger and Database objects
-my $logger = LANraragi::Utils::Logging::get_logger( "Shinobu", "shinobu" );
+my $logger = get_logger( "Shinobu", "shinobu" );
 my $redis  = LANraragi::Model::Config::get_redis;
 
 #Subroutine for new and deleted files that takes inotify events

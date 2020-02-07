@@ -13,6 +13,7 @@ use Cwd;
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
+use LANraragi::Utils::Logging qw(get_logger);
 
 # Functions for interacting with the DB Model.
 
@@ -21,8 +22,7 @@ use LANraragi::Model::Plugins;
 #This function doesn't actually require the file to exist at its given location.
 sub add_archive_to_redis {
     my ( $id, $file, $redis ) = @_;
-    my $logger =
-      LANraragi::Utils::Logging::get_logger( "Archive", "lanraragi" );
+    my $logger = get_logger( "Archive", "lanraragi" );
     my ( $name, $path, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
 
     #jam this shit in redis
@@ -125,8 +125,7 @@ sub drop_database {
 # Returns the number of entries deleted.
 sub clean_database {
     my $redis = LANraragi::Model::Config::get_redis;
-    my $logger =
-      LANraragi::Utils::Logging::get_logger( "Archive", "lanraragi" );
+    my $logger = get_logger( "Archive", "lanraragi" );
       
     # Get the filemap from Shinobu for ID checks later down the line
     my %filemap = LANraragi::Utils::Generic::get_shinobu_filemap();

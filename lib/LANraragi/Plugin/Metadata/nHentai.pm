@@ -12,6 +12,7 @@ use Mojo::DOM;
 
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
+use LANraragi::Utils::Logging qw(get_logger);
 
 #Meta-information about your plugin.
 sub plugin_info {
@@ -40,7 +41,7 @@ sub get_tags {
     shift;
     my ( $title, $tags, $thumbhash, $file, $oneshotarg, $savetitle ) = @_;
 
-    my $logger = LANraragi::Utils::Logging::get_logger( "nHentai", "plugins" );
+    my $logger = get_logger( "nHentai", "plugins" );
 
    #Work your magic here - You can create subs below to organize the code better
     my $galleryID = "";
@@ -87,7 +88,7 @@ sub get_tags {
 sub get_gallery_id_from_title {
 
     my $title = $_[0];
-    my $logger = LANraragi::Utils::Logging::get_logger( "nHentai", "plugins" );
+    my $logger = get_logger( "nHentai", "plugins" );
 
     #Strip away hyphens and apostrophes as they apparently break search
     $title =~ s/-|'/ /g;
@@ -121,7 +122,7 @@ sub get_tags_from_NH {
     my $gID      = $_[0];
     my $returned = "";
 
-    my $logger = LANraragi::Utils::Logging::get_logger( "nHentai", "plugins" );
+    my $logger = get_logger( "nHentai", "plugins" );
 
     my $URL = "https://nhentai.net/g/$gID/";
     my $ua  = Mojo::UserAgent->new;

@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use LANraragi::Model::Plugins;
+use LANraragi::Utils::Logging qw(get_logger);
 
 #Meta-information about your plugin.
 sub plugin_info {
@@ -30,7 +31,7 @@ sub get_tags {
     shift;
     my ( $title, $tags, $thumbhash, $file, $oneshotarg, @args ) = @_;
 
-    my $logger = LANraragi::Utils::Logging::get_logger( "Tag Copy", "plugins" );
+    my $logger = get_logger( "Tag Copy", "plugins" );
 
     #Tags to copy is the first global argument
     $logger->debug("Sending the following tags to LRR: " . $args[0] );

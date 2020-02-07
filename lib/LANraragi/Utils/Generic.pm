@@ -11,7 +11,7 @@ use Logfile::Rotate;
 use Proc::Simple;
 
 use LANraragi::Model::Config;
-use LANraragi::Utils::Logging;
+use LANraragi::Utils::Logging qw(get_logger);
 
 # Generic Utility Functions.
 
@@ -59,7 +59,7 @@ sub get_tag_with_namespace {
 
 #Start Shinobu and return its Proc::Background object.
 sub start_shinobu {
-    my $logger = LANraragi::Utils::Logging::get_logger( "Shinobu Boot", "lanraragi" );
+    my $logger = get_logger( "Shinobu Boot", "lanraragi" );
 
     my $proc = Proc::Simple->new(); 
     $proc->start($^X, "./lib/Shinobu.pm");
@@ -85,7 +85,7 @@ sub get_shinobu_filemap {
 sub shasum {
 
     my $digest = "";
-    my $logger = LANraragi::Utils::Logging::get_logger( "Hash Computation", "lanraragi" );
+    my $logger = get_logger( "Hash Computation", "lanraragi" );
 
     eval {
         my $ctx = Digest::SHA->new( $_[1] );

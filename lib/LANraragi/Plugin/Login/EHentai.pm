@@ -10,6 +10,7 @@ use Mojo::UserAgent;
 
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
+use LANraragi::Utils::Logging qw(get_logger);
 
 #Meta-information about your plugin.
 sub plugin_info {
@@ -49,13 +50,11 @@ sub get_user_agent {
 
     my ($ipb_member_id, $ipb_pass_hash, $star) = @_;
 
-    my $logger = LANraragi::Utils::Logging::get_logger( "E-Hentai Login", "plugins" );
-    my $domain = "https://e-hentai.org";
-    $domain = "https://exhentai.org" if $enablepanda;
+    my $logger = get_logger( "E-Hentai Login", "plugins" );
     my $ua = Mojo::UserAgent->new;
 
     if ($ipb_member_id ne "" && $ipb_pass_hash ne "") {
-        $logger->info( "Cookies provided [$domain] ($ipb_member_id $ipb_pass_hash $star)!");
+        $logger->info( "Cookies provided ($ipb_member_id $ipb_pass_hash $star)!");
 
         #Setup the needed cookies with both domains
         #They should translate to exhentai cookies with the igneous value generated

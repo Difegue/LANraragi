@@ -19,7 +19,7 @@ use LANraragi::Utils::Generic;
 use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database;
 use LANraragi::Utils::Plugins;
-use LANraragi::Utils::Logging;
+use LANraragi::Utils::Logging qw(get_logger);
 
 use LANraragi::Model::Config;
 
@@ -27,8 +27,7 @@ use LANraragi::Model::Config;
 sub exec_enabled_plugins_on_file {
 
     my $id = shift;
-    my $logger =
-      LANraragi::Utils::Logging::get_logger( "Auto-Plugin", "lanraragi" );
+    my $logger = get_logger( "Auto-Plugin", "lanraragi" );
 
     $logger->info("Executing enabled plugins on archive with id $id.");
 
@@ -87,11 +86,10 @@ sub exec_enabled_plugins_on_file {
 sub exec_login_plugin {
     my $logplugname = shift;
     my $ua = Mojo::UserAgent->new;
-    my $logger =
-      LANraragi::Utils::Logging::get_logger( "Plugin System", "lanraragi" );
+    my $logger = get_logger( "Plugin System", "lanraragi" );
 
     if ($logplugname) {
-        $logger->info("Calling matching login plugin $loginplugin.");
+        $logger->info("Calling matching login plugin $logplugname.");
         my $loginplugin = LANraragi::Utils::Plugins::get_plugin($logplugname);
         my @loginargs   = LANraragi::Utils::Plugins::get_plugin_parameters($logplugname);
 
@@ -117,8 +115,7 @@ sub exec_login_plugin {
 sub exec_metadata_plugin {
 
     my ( $plugin, $id, $oneshotarg, @args ) = @_;
-    my $logger =
-      LANraragi::Utils::Logging::get_logger( "Plugin System", "lanraragi" );
+    my $logger = get_logger( "Plugin System", "lanraragi" );
 
     #If the plugin has the method "get_tags",
     #catch all the required data and feed it to the plugin

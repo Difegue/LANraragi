@@ -9,6 +9,7 @@ use Mojo::JSON qw(from_json);
 
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
+use LANraragi::Utils::Logging qw(get_logger);
 
 #Meta-information about your plugin.
 sub plugin_info {
@@ -33,7 +34,7 @@ sub get_tags {
     shift;
     my ( $title, $tags, $thumbhash, $file, $oneshotarg, @args ) = @_;
 
-    my $logger = LANraragi::Utils::Logging::get_logger( "Hdoujin", "plugins" );
+    my $logger = get_logger( "Hdoujin", "plugins" );
 
     if ( LANraragi::Utils::Archive::is_file_in_archive( $file, "info.json" ) ) {
 

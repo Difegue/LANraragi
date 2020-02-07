@@ -133,6 +133,7 @@ use warnings;
 use Mojo::UserAgent;
 
 use LANraragi::Model::Plugins;
+use LANraragi::Utils::Logging qw(get_logger);
 
 #Meta-information about your plugin.
 sub plugin_info {
@@ -166,7 +167,7 @@ sub get_tags {
     my ($title, $tags, $thumbhash, $file, $oneshotarg, $doomsday, $iterations) = @_;
 
     #Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
-    my $logger = LANraragi::Utils::Logging::get_logger("My Cool Plugin","plugins");
+    my $logger = get_logger("My Cool Plugin","plugins");
 
     if ($doomsday) {
         return ( error => "You fools! You've messed with the natural order!");
@@ -190,7 +191,7 @@ sub get_tags {
 sub get_tags_from_somewhere {
 
     my $iterations = shift;
-    my $logger = LANraragi::Utils::Logging::get_logger("My Cool Plugin","plugins");
+    my $logger = get_logger("My Cool Plugin","plugins");
 
     $logger->info("I'm supposed to be iterating $iterations times but I don't give a damn my man");
 
@@ -208,8 +209,10 @@ This section contains a few bits of code for things you might want to do with Pl
 #### **Write messages to the Plugin Log**
 
 ```perl
-#Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
-my $logger = LANraragi::Utils::Logging::get_logger("MyPluginName","plugins");
+# Import the LRR logging module
+use LANraragi::Utils::Logging qw(get_logger);
+# Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
+my $logger = get_logger("MyPluginName","plugins");
 
 $plugin->debug("This message will only show if LRR is in Debug Mode")
 $plugin->info("You know me the fighting freak Knuckles and we're at Pumpkin Hill");

@@ -7,7 +7,7 @@ use Encode;
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database;
-use LANraragi::Utils::Logging;
+use LANraragi::Utils::Logging qw(get_logdir get_lines_from_file);
 
 # This action will render a template
 sub index {
@@ -29,14 +29,14 @@ sub print_lines_from_file {
 
     # Number of lines to read
     my $lines  = 100;     
-    my $logdir = LANraragi::Utils::Logging::get_logdir;
+    my $logdir = get_logdir;
 
     if ( $mojo->req->param('lines') ) {
         $lines = $mojo->req->param('lines');
     }
 
     $mojo->render(
-        text => LANraragi::Utils::Logging::get_lines_from_file( $lines, $logdir."/$file.log" ) 
+        text => get_lines_from_file( $lines, $logdir."/$file.log" ) 
     );
 
 }

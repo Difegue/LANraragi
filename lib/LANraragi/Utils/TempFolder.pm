@@ -11,7 +11,7 @@ use File::Find;
 use File::Path qw(remove_tree);
 
 use LANraragi::Utils::Generic;
-use LANraragi::Utils::Logging;
+use LANraragi::Utils::Logging qw(get_logger);
 
 #Contains all functions related to the temporary folder.
 
@@ -66,8 +66,7 @@ sub clean_temp_full {
 #For this, we use Perl's ctime, which uses inode last modified time.
 sub clean_temp_partial {
 
-    my $logger =
-      LANraragi::Utils::Logging::get_logger( "Temporary Folder", "lanraragi" );
+    my $logger = get_logger( "Temporary Folder", "lanraragi" );
 
     my $tempdir = &get_temp;
 

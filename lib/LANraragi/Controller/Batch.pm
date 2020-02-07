@@ -9,6 +9,7 @@ use Mojo::JSON qw(decode_json encode_json from_json);
 use LANraragi::Utils::Generic;
 use LANraragi::Utils::Database;
 use LANraragi::Utils::Plugins;
+use LANraragi::Utils::Logging qw(get_logger);
 
 use LANraragi::Model::Config;
 
@@ -61,8 +62,7 @@ sub socket {
     my $client    = $self->tx;
     my $redis     = $self->LRR_CONF->get_redis();
 
-    my $logger =
-      LANraragi::Utils::Logging::get_logger( "Batch Tagging", "lanraragi" );
+    my $logger = get_logger( "Batch Tagging", "lanraragi" );
 
     $logger->info('Client connected to Batch Tagging service');
 

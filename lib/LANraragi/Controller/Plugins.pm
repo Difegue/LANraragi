@@ -11,7 +11,7 @@ use LANraragi::Utils::Generic;
 use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database;
 use LANraragi::Utils::Plugins;
-use LANraragi::Utils::Logging;
+use LANraragi::Utils::Logging qw(get_logger);
 
 use LANraragi::Model::Config;
 
@@ -137,8 +137,7 @@ sub process_upload {
     my $file     = $self->req->upload('file');
     my $filename = $file->filename;
 
-    my $logger =
-      LANraragi::Utils::Logging::get_logger( "Plugin Upload", "lanraragi" );
+    my $logger = get_logger( "Plugin Upload", "lanraragi" );
 
     #Check if this is a Perl package ("xx.pm")
     if ( $filename =~ /^.+\.(?:pm)$/ ) {
