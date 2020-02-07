@@ -11,11 +11,12 @@ use File::Basename;
 use Redis;
 use Cwd;
 
-use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
 use LANraragi::Utils::Logging qw(get_logger);
 
 # Functions for interacting with the DB Model.
+use Exporter 'import'; 
+our @EXPORT_OK = qw(redis_decode invalidate_cache); 
 
 #add_archive_to_redis($id,$file,$redis)
 #Parses the name of a file for metadata, and matches that metadata to the SHA-1 hash of the file in our Redis database.
@@ -61,7 +62,7 @@ sub add_archive_to_redis {
 # This function is usually called many times in a row, so provide your own Redis object.
 sub build_archive_JSON {
     my ( $redis, $id ) = @_;
-    my $dirname = LANraragi::Model::Config::get_userdir;
+    my $dirname = LANraragi::Model::Config->get_userdir;
 
     #Extra check in case we've been given a bogus ID
     return "" unless $redis->exists($id);
@@ -75,8 +76,7 @@ sub build_archive_JSON {
       @hash{qw(name title tags file isnew)};
 
     #Parameters have been obtained, let's decode them.
-    ( $_ = LANraragi::Utils::Database::redis_decode($_) )
-      for ( $name, $title, $tags );
+    ( $_ = redis_decode($_) ) for ( $name, $title, $tags );
 
     #Workaround if title was incorrectly parsed as blank
     if ( !defined($title) || $title =~ /^\s*$/ ) {
@@ -97,7 +97,7 @@ sub build_archive_JSON {
 sub delete_archive {
 
     my $id   = $_[0];
-    my $redis = LANraragi::Model::Config::get_redis;
+    my $redis = LANraragi::Model::Config->get_redis;
     my $filename = $redis->hget( $id, "file" );
 
     $redis->del($id);
@@ -114,7 +114,7 @@ sub delete_archive {
 # drop_database()
 # Drops the entire database. Hella dangerous
 sub drop_database {
-    my $redis = LANraragi::Model::Config::get_redis;
+    my $redis = LANraragi::Model::Config->get_redis;
 
     $redis->flushall();
     $redis->quit;
@@ -124,7 +124,7 @@ sub drop_database {
 # Remove entries from the database that don't have a matching archive on the filesystem.
 # Returns the number of entries deleted.
 sub clean_database {
-    my $redis = LANraragi::Model::Config::get_redis;
+    my $redis = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Archive", "lanraragi" );
       
     # Get the filemap from Shinobu for ID checks later down the line
@@ -160,9 +160,9 @@ sub add_tags {
 
     my ( $id, $newtags ) = @_;
 
-    my $redis = LANraragi::Model::Config::get_redis;
+    my $redis = LANraragi::Model::Config->get_redis;
     my $oldtags = $redis->hget( $id, "tags" );
-    $oldtags = LANraragi::Utils::Database::redis_decode($oldtags);
+    $oldtags = redis_decode($oldtags);
 
     if ( length $newtags ) {
 
@@ -178,7 +178,7 @@ sub add_tags {
 sub set_title {
 
     my ( $id, $newtitle ) = @_;
-    my $redis = LANraragi::Model::Config::get_redis;
+    my $redis = LANraragi::Model::Config->get_redis;
 
     if ( $newtitle ne "" ) {
         $redis->hset( $id, "title", encode_utf8($newtitle) );
@@ -282,7 +282,7 @@ sub redis_decode {
 
 # Bust the current search cache key in Redis.
 sub invalidate_cache {
-    my $redis = LANraragi::Model::Config::get_redis;
+    my $redis = LANraragi::Model::Config->get_redis;
     $redis->del("LRR_JSONCACHE");
     $redis->del("LRR_SEARCHCACHE");
     $redis->quit();

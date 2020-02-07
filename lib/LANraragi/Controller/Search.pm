@@ -2,7 +2,6 @@ package LANraragi::Controller::Search;
 use Mojo::Base 'Mojolicious::Controller';
 
 use LANraragi::Model::Search;
-use LANraragi::Utils::Database;
 
 # Undocumented API matching the Datatables spec.
 sub handle_datatables {

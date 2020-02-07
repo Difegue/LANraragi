@@ -5,8 +5,8 @@ use warnings;
 use utf8;
 
 use Mojo::JSON qw(decode_json);
+use LANraragi::Utils::Database qw(redis_decode);
 
-use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
 
 # Get metadata of all plugins with the defined type. Returns an array of hashes.
@@ -69,13 +69,13 @@ sub get_plugin_parameters {
 
     my $namespace = shift;
     #Get the matching argument JSON in Redis
-    my $redis     = LANraragi::Model::Config::get_redis;
+    my $redis     = LANraragi::Model::Config->get_redis;
     my $namerds   = "LRR_PLUGIN_" . uc($namespace);
     my @args      = ();
 
     if ( $redis->hexists( $namerds, "enabled" ) ) {
         my $argsjson = $redis->hget( $namerds, "customargs" );
-        $argsjson = LANraragi::Utils::Database::redis_decode($argsjson);
+        $argsjson = redis_decode($argsjson);
 
         #Decode it to an array for proper use
         if ($argsjson) {
@@ -89,7 +89,7 @@ sub get_plugin_parameters {
 sub is_plugin_enabled {
 
     my $namespace = shift;
-    my $redis     = LANraragi::Model::Config::get_redis;
+    my $redis     = LANraragi::Model::Config->get_redis;
     my $namerds   = "LRR_PLUGIN_" . uc($namespace);
 
     if ( $redis->hexists( $namerds, "enabled" ) ) {

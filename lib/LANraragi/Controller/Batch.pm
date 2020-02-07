@@ -6,12 +6,10 @@ use Encode;
 use Mojo::IOLoop::Subprocess;
 use Mojo::JSON qw(decode_json encode_json from_json);
 
-use LANraragi::Utils::Generic;
-use LANraragi::Utils::Database;
+use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header);
+use LANraragi::Utils::Database qw(redis_decode);
 use LANraragi::Utils::Plugins;
 use LANraragi::Utils::Logging qw(get_logger);
-
-use LANraragi::Model::Config;
 
 # This action will render a template
 sub index {
@@ -29,7 +27,7 @@ sub index {
     foreach my $id (@keys) {
         my $zipfile = $redis->hget( $id, "file" );
         my $title = $redis->hget( $id, "title" );
-        $title = LANraragi::Utils::Database::redis_decode($title);
+        $title = redis_decode($title);
 
         if (-e $zipfile) {
             $arclist .=
@@ -48,8 +46,8 @@ sub index {
         arclist  => $arclist,
         plugins  => \@pluginlist,
         title    => $self->LRR_CONF->get_htmltitle,
-        cssdrop  => LANraragi::Utils::Generic::generate_themes_selector,
-        csshead  => LANraragi::Utils::Generic::generate_themes_header($self),
+        cssdrop  => generate_themes_selector,
+        csshead  => generate_themes_header($self),
         version  => $self->LRR_VERSION
     );
 }

@@ -3,12 +3,9 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use Encode;
 
-use LANraragi::Utils::Generic;
+use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header remove_spaces remove_newlines);
 use LANraragi::Utils::Archive;
-use LANraragi::Utils::Database;
 use LANraragi::Utils::TempFolder;
-
-use LANraragi::Model::Config;
 
 use Authen::Passphrase::BlowfishCrypt;
 
@@ -39,8 +36,8 @@ sub index {
         fav3        => $self->LRR_CONF->get_favtag(3),
         fav4        => $self->LRR_CONF->get_favtag(4),
         fav5        => $self->LRR_CONF->get_favtag(5),
-        cssdrop     => LANraragi::Utils::Generic::generate_themes_selector,
-        csshead     => LANraragi::Utils::Generic::generate_themes_header($self),
+        cssdrop     => generate_themes_selector,
+        csshead     => generate_themes_header($self),
         tempsize    => LANraragi::Utils::TempFolder::get_tempsize
     );
 }
@@ -112,9 +109,9 @@ sub save_config {
 
 #clean up the user's inputs for non-toggle options and encode for redis insertion
         foreach my $key ( keys %confhash ) {
-            LANraragi::Utils::Generic::remove_spaces( $confhash{$key} );
-            LANraragi::Utils::Generic::remove_newlines( $confhash{$key} );
-            encode_utf8( $confhash{$key} );
+            remove_spaces  ( $confhash{$key} );
+            remove_newlines( $confhash{$key} );
+            encode_utf8    ( $confhash{$key} );
         }
 
 #for all keys of the hash, add them to the redis config hash with the matching keys.

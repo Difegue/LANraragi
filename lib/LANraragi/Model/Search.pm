@@ -10,11 +10,9 @@ use Encode;
 use Storable qw/ nfreeze thaw /;
 use Sort::Naturally;
 
-use LANraragi::Utils::Generic;
-use LANraragi::Utils::Database;
+use LANraragi::Utils::Database qw(redis_decode);
 use LANraragi::Utils::Logging qw(get_logger);
 
-use LANraragi::Model::Config;
 use LANraragi::Model::Api;
 
 # do_search (filter, filter2, page, key, order, newonly, untaggedonly)
@@ -23,7 +21,7 @@ sub do_search {
 
     my ( $filter, $columnfilter, $start, $sortkey, $sortorder, $newonly, $untaggedonly) = @_;
 
-    my $redis = LANraragi::Model::Config::get_redis;
+    my $redis = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Search Engine", "lanraragi" );
 
     # Search filter results
@@ -54,8 +52,8 @@ sub do_search {
             my $title = $redis->hget($id, "title");
             my $file  = $redis->hget($id, "file");
             my $isnew = $redis->hget($id, "isnew");
-            $title = LANraragi::Utils::Database::redis_decode($title);
-            $tags  = LANraragi::Utils::Database::redis_decode($tags);
+            $title = redis_decode($title);
+            $tags  = redis_decode($tags);
 
             # Check new filter first
             if ($newonly && $isnew && $isnew ne "true" && $isnew ne "block") {
@@ -119,7 +117,7 @@ sub do_search {
     $redis->quit();
 
     # Only get the first X keys
-    my $keysperpage = LANraragi::Model::Config::get_pagesize;
+    my $keysperpage = LANraragi::Model::Config->get_pagesize;
 
     # Return total keys and the filtered ones
     my $end = min($start+$keysperpage-1,$#filtered);

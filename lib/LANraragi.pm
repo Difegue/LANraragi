@@ -9,12 +9,13 @@ use Mojo::File;
 use Mojo::JSON qw(decode_json encode_json);
 use Storable;
 
-use LANraragi::Utils::Generic;
-use LANraragi::Utils::Plugins;
+use LANraragi::Utils::Generic qw(start_shinobu);
 use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Plugins;
+use LANraragi::Utils::Routing;
 
-use LANraragi::Model::Config;
 use LANraragi::Model::Search;
+use LANraragi::Model::Config;
 
 # This method will run once at server start
 sub startup {
@@ -109,7 +110,7 @@ sub startup {
         $proc->kill();  
     }
 
-    my $proc = LANraragi::Utils::Generic::start_shinobu();
+    my $proc = start_shinobu();
     $self->LRR_LOGGER->debug(
         "Shinobu Worker new PID is " . $proc->pid );
 

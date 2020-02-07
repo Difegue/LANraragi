@@ -15,13 +15,11 @@ use Mojo::JSON qw(decode_json encode_json);
 use Mojo::UserAgent;
 use Data::Dumper;
 
-use LANraragi::Utils::Generic;
+use LANraragi::Utils::Generic qw(remove_spaces remove_newlines);
 use LANraragi::Utils::Archive;
-use LANraragi::Utils::Database;
+use LANraragi::Utils::Database qw(redis_decode);
 use LANraragi::Utils::Plugins;
 use LANraragi::Utils::Logging qw(get_logger);
-
-use LANraragi::Model::Config;
 
 # Sub used by Auto-Plugin.
 sub exec_enabled_plugins_on_file {
@@ -121,19 +119,18 @@ sub exec_metadata_plugin {
     #catch all the required data and feed it to the plugin
     if ( $plugin->can('get_tags') ) {
 
-        my $redis = LANraragi::Model::Config::get_redis;
+        my $redis = LANraragi::Model::Config->get_redis;
         my %hash  = $redis->hgetall($id);
 
         my ( $name, $title, $tags, $file, $thumbhash ) =
           @hash{qw(name title tags file thumbhash)};
 
-        ( $_ = LANraragi::Utils::Database::redis_decode($_) )
-          for ( $name, $title, $tags);
+        ( $_ = LANraragi::Utils::Database::redis_decode($_) ) for ( $name, $title, $tags);
 
         # If the thumbnail hash is empty or undefined, we'll generate it here.
         unless ( length $thumbhash ) {
             $logger->info("Thumbnail hash invalid, regenerating.");
-            my $dirname = LANraragi::Model::Config::get_userdir;
+            my $dirname = LANraragi::Model::Config->get_userdir;
 
             #eval the thumbnail extraction as it can error out and die
             eval { LANraragi::Utils::Archive::extract_thumbnail( $dirname, $id ) };
@@ -142,7 +139,7 @@ sub exec_metadata_plugin {
                 $thumbhash = "";
             } else {
                 $thumbhash = $redis->hget( $id, "thumbhash" );
-                $thumbhash = LANraragi::Utils::Database::redis_decode($thumbhash);
+                $thumbhash = redis_decode($thumbhash);
             }
         }          
         $redis->quit();
@@ -167,13 +164,13 @@ sub exec_metadata_plugin {
 
         #Process new metadata,
         #stripping out blacklisted tags and tags that we already have in Redis
-        my $blist = LANraragi::Model::Config::get_tagblacklist;
+        my $blist = LANraragi::Model::Config->get_tagblacklist;
         my @blacklist = split( ',', $blist );   # array-ize the blacklist string
 
         foreach my $tagtoadd (@tagarray) {
 
-            LANraragi::Utils::Generic::remove_spaces($tagtoadd);
-            LANraragi::Utils::Generic::remove_newlines($tagtoadd);
+            remove_spaces($tagtoadd);
+            remove_newlines($tagtoadd);
 
             unless ( index( uc($tags), uc($tagtoadd) ) != -1 ) {
 
@@ -181,7 +178,7 @@ sub exec_metadata_plugin {
                 my $good = 1;
 
                 foreach my $black (@blacklist) {
-                    LANraragi::Utils::Generic::remove_spaces($black);
+                    remove_spaces($black);
 
                     if ( index( uc($tagtoadd), uc($black) ) != -1 ) {
                         $logger->info(
@@ -205,7 +202,7 @@ sub exec_metadata_plugin {
         if ( exists $newmetadata{title} ) {
 
             my $newtitle = $newmetadata{title};
-            LANraragi::Utils::Generic::remove_spaces($newtitle);
+            remove_spaces($newtitle);
             $returnhash{title} = $newtitle;
         }
         return %returnhash;

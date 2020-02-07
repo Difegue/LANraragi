@@ -11,6 +11,7 @@ use Mojo::JSON qw(from_json);
 use LANraragi::Model::Plugins;
 use LANraragi::Utils::Database;
 use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Generic qw(remove_spaces);
 
 #Meta-information about your plugin.
 sub plugin_info {
@@ -100,7 +101,7 @@ sub tags_from_eze_json {
     my $ogtitle = $hash->{"gallery_info"}->{"title"};
 
     my ($title, $autotags) = LANraragi::Utils::Database::parse_name($ogtitle);
-    LANraragi::Utils::Generic::remove_spaces($title);
+    remove_spaces($title);
 
     foreach my $namespace ( sort keys %$tags ) {
 

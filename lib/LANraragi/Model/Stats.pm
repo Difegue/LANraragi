@@ -7,18 +7,16 @@ use utf8;
 use Redis;
 use File::Find;
 
-use LANraragi::Utils::Generic;
+use LANraragi::Utils::Generic qw(remove_spaces remove_newlines);
 use LANraragi::Utils::Archive;
-use LANraragi::Utils::Database;
+use LANraragi::Utils::Database qw(redis_decode);
 use LANraragi::Utils::Logging qw(get_logger);
-
-use LANraragi::Model::Config;
 
 sub get_archive_count {
 
     #We can't trust the DB to contain the exact amount of files,
     #As deleted files are still kept in store.
-    my $dirname = LANraragi::Model::Config::get_userdir;
+    my $dirname = LANraragi::Model::Config->get_userdir;
     my $count   = 0;
 
     #Count files the old-fashioned way instead
@@ -45,7 +43,7 @@ sub build_tag_json {
     my %tagcloud;
 
     #Login to Redis and get all hashes
-    my $redis  = LANraragi::Model::Config::get_redis();
+    my $redis  = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Tag Stats", "lanraragi" );
 
     #40-character long keys only => Archive IDs
@@ -56,15 +54,15 @@ sub build_tag_json {
         if ( $redis->hexists( $id, "tags" ) ) {
 
             $t = $redis->hget( $id, "tags" );
-            $t = LANraragi::Utils::Database::redis_decode($t);
+            $t = redis_decode($t);
 
             #Split tags by comma
             @tags = split( /,\s?/, $t );
 
             foreach my $t (@tags) {
 
-                LANraragi::Utils::Generic::remove_spaces($t);
-                LANraragi::Utils::Generic::remove_newlines($t);
+                remove_spaces($t);
+                remove_newlines($t);
 
                 #Increment value of tag or create it
                 if ( exists( $tagcloud{$t} ) ) 
@@ -99,7 +97,7 @@ sub build_tag_json {
 
 sub compute_content_size {
     #Get size of archive folder
-    my $dirname = LANraragi::Model::Config::get_userdir;
+    my $dirname = LANraragi::Model::Config->get_userdir;
     my $size    = 0;
 
     find( sub { $size += -s if -f }, $dirname );

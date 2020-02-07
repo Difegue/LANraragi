@@ -128,10 +128,13 @@ package LANraragi::Plugin::MyNewPlugin;
 use strict;
 use warnings;
 
-#Plugins can freely use all Perl packages already installed on the system 
-#Try however to restrain yourself to the ones already installed for LRR (see tools/cpanfile) to avoid extra installations by the end-user.
+# Plugins can freely use all Perl packages already installed on the system 
+# Try however to restrain yourself to the ones already installed for LRR (see tools/cpanfile) to avoid extra installations by the end-user.
 use Mojo::UserAgent;
 
+# You can also use LRR packages when fitting.
+# All packages are fair game, but only functions explicitly exported by the Utils packages are supported between versions.
+# Everything else is considered internal API and can be broken/renamed between versions.
 use LANraragi::Model::Plugins;
 use LANraragi::Utils::Logging qw(get_logger);
 
@@ -253,9 +256,7 @@ my $textrep      = $rep->body;
 #### **Read values in the LRR Database**
 
 ```perl
-use LANraragi::Model::Config;
-
-my $redis = LANraragi::Model::Config::get_redis;
+my $redis = LANraragi::Model::Config->get_redis;
 
 my $value = $redis->get("key");
 ```

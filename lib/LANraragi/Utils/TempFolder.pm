@@ -73,8 +73,8 @@ sub clean_temp_partial {
     #Abort if the temp dir doesn't exist yet
     return unless ( -e $tempdir );
 
-    my $size    = LANraragi::Utils::TempFolder::get_tempsize;
-    my $maxsize = LANraragi::Model::Config::get_tempmaxsize;
+    my $size    = LANraragi::Utils::TempFolder->get_tempsize;
+    my $maxsize = LANraragi::Model::Config->get_tempmaxsize;
 
     if ( $size > $maxsize ) {
         $logger->info( "Current temporary folder size is $size MBs, "

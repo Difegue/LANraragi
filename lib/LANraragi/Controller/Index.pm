@@ -8,11 +8,8 @@ use Encode;
 use File::Basename;
 use Authen::Passphrase;
 
-use LANraragi::Utils::Generic;
+use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header);
 use LANraragi::Utils::Archive;
-use LANraragi::Utils::Database;
-
-use LANraragi::Model::Config;
 
 sub random_archive {
     my $self          = shift;
@@ -80,8 +77,8 @@ sub index {
         pagesize        => $self->LRR_CONF->get_pagesize,
         userlogged      => $userlogged,
         motd            => $self->LRR_CONF->get_motd,
-        cssdrop         => LANraragi::Utils::Generic::generate_themes_selector,
-        csshead         => LANraragi::Utils::Generic::generate_themes_header($self),
+        cssdrop         => generate_themes_selector,
+        csshead         => generate_themes_header($self),
         favtags         => \@validFavs,
         usingdefpass    => $passcheck,
         debugmode       => $self->app->mode eq "development"

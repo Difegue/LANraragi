@@ -3,14 +3,9 @@ package LANraragi::Plugin::Metadata::Chaika;
 use strict;
 use warnings;
 
-#Plugins can freely use all Perl packages already installed on the system
-#Try however to restrain yourself to the ones already installed for LRR (see tools/cpanfile) to avoid extra installations by the end-user.
 use URI::Escape;
 use Mojo::UserAgent;
 use Mojo::DOM;
-
-#You can also use the LRR Internal API when fitting.
-use LANraragi::Model::Plugins;
 use LANraragi::Utils::Logging qw(get_logger);
 
 my $chaika_url = "https://panda.chaika.moe";

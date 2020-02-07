@@ -18,10 +18,9 @@ use Image::Magick;
 use Archive::Peek::Libarchive;
 use Archive::Extract::Libarchive;
 
-use LANraragi::Model::Config;
 use LANraragi::Utils::TempFolder;
 use LANraragi::Utils::Logging qw(get_logger);
-use LANraragi::Utils::Generic;
+use LANraragi::Utils::Generic qw(is_image shasum);
 
 # Utilitary functions for handling Archives.
 # Relies on Libarchive and ImageMagick.
@@ -92,7 +91,7 @@ sub extract_thumbnail {
 
     mkdir $dirname;
     mkdir $dirname . "/thumb";
-    my $redis = LANraragi::Model::Config::get_redis();
+    my $redis = LANraragi::Model::Config->get_redis;
 
     my $file = $redis->hget( $id, "file" );
     my $temppath = LANraragi::Utils::TempFolder::get_temp . "/thumb";
@@ -109,7 +108,7 @@ sub extract_thumbnail {
     foreach my $file (@files) {
 
         my $file2 = $file;
-        if ( LANraragi::Utils::Generic::is_image($file2) ) {
+        if ( is_image($file2) ) {
             push @extracted, $file;
         }
     }
@@ -133,7 +132,7 @@ sub extract_thumbnail {
 
     #While we have the image, grab its SHA-1 hash for tag research.
     #That way, no need to repeat the costly extraction later.
-    my $shasum = LANraragi::Utils::Generic::shasum( $arcimg, 1 );
+    my $shasum = shasum( $arcimg, 1 );
     $redis->hset( $id, "thumbhash", encode_utf8($shasum) );
     $redis->quit();
 

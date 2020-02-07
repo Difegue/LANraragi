@@ -7,19 +7,16 @@ use Mojo::JSON qw(encode_json);
 no warnings 'experimental';
 use Cwd;
 
-use LANraragi::Utils::Generic;
+use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header);
 use LANraragi::Utils::Archive;
-use LANraragi::Utils::Database;
 use LANraragi::Utils::Plugins;
 use LANraragi::Utils::Logging qw(get_logger);
-
-use LANraragi::Model::Config;
 
 # This action will render a template
 sub index {
 
     my $self  = shift;
-    my $redis = $self->LRR_CONF->get_redis;
+    my $redis = $self->LRR_CONF->get_redis();
 
     #Plugin list is an array of hashes
     my @pluginlist = ();
@@ -53,8 +50,8 @@ sub index {
         template => "plugins",
         title    => $self->LRR_CONF->get_htmltitle,
         plugins  => \@pluginlist,
-        cssdrop  => LANraragi::Utils::Generic::generate_themes_selector,
-        csshead  => LANraragi::Utils::Generic::generate_themes_header($self),
+        cssdrop  => generate_themes_selector,
+        csshead  => generate_themes_header($self),
         version  => $self->LRR_VERSION
     );
 
@@ -63,7 +60,7 @@ sub index {
 sub save_config {
 
     my $self  = shift;
-    my $redis = $self->LRR_CONF->get_redis;
+    my $redis = $self->LRR_CONF->get_redis();
 
     # Update settings for every plugin.
     my @plugins = LANraragi::Utils::Plugins::get_plugins("metadata");

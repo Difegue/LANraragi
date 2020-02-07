@@ -13,9 +13,8 @@ use Encode;
 use Data::Dumper;
 use URI::Escape;
 
-use LANraragi::Model::Config;
+use LANraragi::Utils::Generic qw(is_image shasum);
 use LANraragi::Utils::Archive;
-use LANraragi::Utils::Database;
 use LANraragi::Utils::TempFolder;
 
 #magical sort function used below
@@ -49,8 +48,8 @@ sub build_reader_JSON {
     my $tempdir = LANraragi::Utils::TempFolder::get_temp;
 
     #Redis stuff: Grab archive path and update some things
-    my $redis   = LANraragi::Model::Config::get_redis();
-    my $dirname = LANraragi::Model::Config::get_userdir();
+    my $redis   = LANraragi::Model::Config->get_redis;
+    my $dirname = LANraragi::Model::Config->get_userdir;
 
     # Get the path from Redis.
     # Filenames are stored as they are on the OS, so no decoding!
@@ -99,7 +98,7 @@ sub build_reader_JSON {
     eval {
         find(sub {
                 # Is it an image?
-                if ( LANraragi::Utils::Generic::is_image($_) ) {
+                if ( is_image($_) ) {
                     push @images, $File::Find::name;
                 }
             }, $path);
@@ -115,7 +114,7 @@ sub build_reader_JSON {
     my $thumbname = $dirname . "/thumb/" . $id . ".jpg";
     unless ( -e $thumbname && $thumbreload eq "0" ) {
 
-        my $shasum = LANraragi::Utils::Generic::shasum( $images[0], 1 );
+        my $shasum = shasum( $images[0], 1 );
         $redis->hset( $id, "thumbhash", encode_utf8($shasum) );
 
         $self->LRR_LOGGER->debug("Thumbnail not found at $thumbname! (force-thumb flag = $thumbreload)");

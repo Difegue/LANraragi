@@ -6,12 +6,10 @@ use Redis;
 use Encode;
 use Template;
 
-use LANraragi::Utils::Generic;
+use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header remove_spaces remove_newlines);
 use LANraragi::Utils::Archive;
-use LANraragi::Utils::Database;
+use LANraragi::Utils::Database qw(redis_decode invalidate_cache);
 use LANraragi::Utils::Plugins;
-
-use LANraragi::Model::Config;
 
 sub save_metadata {
     my $self = shift;
@@ -21,8 +19,8 @@ sub save_metadata {
     my $tags  = $self->req->param('tags');
 
     #clean up the user's inputs and encode them.
-    ( LANraragi::Utils::Generic::remove_spaces($_) )   for ( $title, $tags );
-    ( LANraragi::Utils::Generic::remove_newlines($_) ) for ( $title, $tags );
+    ( remove_spaces($_) )   for ( $title, $tags );
+    ( remove_newlines($_) ) for ( $title, $tags );
 
     #Input new values into redis hash.
     #prepare the hash which'll be inserted.
@@ -39,7 +37,7 @@ sub save_metadata {
     $redis->quit();
 
     #Trigger a JSON rebuild.
-    LANraragi::Utils::Database::invalidate_cache();
+    invalidate_cache();
 
     $self->render(
         json => {
@@ -79,7 +77,7 @@ sub index {
         my ( $name, $title, $tags, $file, $thumbhash ) =
           @hash{qw(name title tags file thumbhash)};
 
-        ( $_ = LANraragi::Utils::Database::redis_decode($_) )
+        ( $_ = redis_decode($_) )
           for ( $name, $title, $tags );
 
         #Build plugin listing
@@ -97,8 +95,8 @@ sub index {
             thumbhash => $thumbhash,
             plugins   => \@pluginlist,
             title     => $self->LRR_CONF->get_htmltitle,
-            cssdrop   => LANraragi::Utils::Generic::generate_themes_selector,
-            csshead   => LANraragi::Utils::Generic::generate_themes_header($self),
+            cssdrop   => generate_themes_selector,
+            csshead   => generate_themes_header($self),
             version   => $self->LRR_VERSION
         );
     }
