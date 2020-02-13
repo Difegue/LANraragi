@@ -11,6 +11,8 @@ use FindBin;
 use Encode;
 use File::ReadBackwards;
 
+use LANraragi::Model::Config;
+
 # Contains all functions related to logging.
 use Exporter 'import'; 
 our @EXPORT_OK = qw(get_logger get_logdir get_lines_from_file); 

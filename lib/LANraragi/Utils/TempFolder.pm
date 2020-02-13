@@ -11,6 +11,7 @@ use File::Find;
 use File::Path qw(remove_tree);
 
 use LANraragi::Utils::Generic;
+use LANraragi::Model::Config;
 use LANraragi::Utils::Logging qw(get_logger);
 
 #Contains all functions related to the temporary folder.

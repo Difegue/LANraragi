@@ -6,7 +6,7 @@ use utf8;
 
 use Mojo::JSON qw(decode_json);
 use LANraragi::Utils::Database qw(redis_decode);
-
+use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
 
 # Get metadata of all plugins with the defined type. Returns an array of hashes.

@@ -19,6 +19,7 @@ use LANraragi::Utils::Generic qw(remove_spaces remove_newlines);
 use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database qw(redis_decode);
 use LANraragi::Utils::Plugins;
+use LANraragi::Model::Config;
 use LANraragi::Utils::Logging qw(get_logger);
 
 # Sub used by Auto-Plugin.

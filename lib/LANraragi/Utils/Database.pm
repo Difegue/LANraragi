@@ -12,6 +12,7 @@ use Redis;
 use Cwd;
 
 use LANraragi::Model::Plugins;
+use LANraragi::Model::Config;
 use LANraragi::Utils::Logging qw(get_logger);
 
 # Functions for interacting with the DB Model.
