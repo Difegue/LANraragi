@@ -9,8 +9,6 @@ use Encode;
 use Mojolicious::Plugin::Config;
 use Mojo::Home;
 
-use LANraragi::Utils::Database qw(redis_decode);
-
 # Find the project root directory to load the conf file
 my $home = Mojo::Home->new;
 $home->detect;
@@ -53,7 +51,8 @@ sub get_redis_conf {
     my $redis = get_redis();
 
     if ( $redis->hexists( "LRR_CONFIG", $param ) ) {
-        my $value = redis_decode($redis->hget( "LRR_CONFIG", $param ) );
+        # Call Utils::Database directly as importing it with use; would cause circular dependencies...
+        my $value = LANraragi::Utils::Database::redis_decode($redis->hget( "LRR_CONFIG", $param ) );
 
         #failsafe against blank config values
         unless ( $value =~ /^\s*$/ ) {
