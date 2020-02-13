@@ -18,7 +18,6 @@ use Image::Magick;
 use Archive::Peek::Libarchive;
 use Archive::Extract::Libarchive;
 
-use LANraragi::Model::Config;
 use LANraragi::Utils::TempFolder;
 use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Utils::Generic qw(is_image shasum);

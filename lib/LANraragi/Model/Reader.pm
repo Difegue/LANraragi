@@ -15,7 +15,6 @@ use URI::Escape;
 
 use LANraragi::Utils::Generic qw(is_image shasum);
 use LANraragi::Utils::Archive;
-use LANraragi::Model::Config;
 use LANraragi::Utils::TempFolder;
 
 #magical sort function used below

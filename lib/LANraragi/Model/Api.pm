@@ -10,7 +10,6 @@ use Mojo::JSON qw(decode_json encode_json);
 
 use LANraragi::Utils::Generic qw(get_tag_with_namespace remove_spaces remove_newlines);
 use LANraragi::Utils::Archive;
-use LANraragi::Model::Config;
 use LANraragi::Utils::Database qw(redis_decode);
 
 # Functions used by the API.

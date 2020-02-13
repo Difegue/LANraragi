@@ -12,7 +12,7 @@ use Sort::Naturally;
 
 use LANraragi::Utils::Database qw(redis_decode);
 use LANraragi::Utils::Logging qw(get_logger);
-use LANraragi::Model::Config;
+
 use LANraragi::Model::Api;
 
 # do_search (filter, filter2, page, key, order, newonly, untaggedonly)

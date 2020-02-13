@@ -10,7 +10,6 @@ use Mojo::JSON qw(decode_json encode_json);
 
 use LANraragi::Utils::Generic qw(remove_newlines);
 use LANraragi::Utils::Archive;
-use LANraragi::Model::Config;
 use LANraragi::Utils::Database qw(redis_decode invalidate_cache);
 use LANraragi::Utils::Logging qw(get_logger);
 

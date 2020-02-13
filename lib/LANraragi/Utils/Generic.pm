@@ -12,7 +12,6 @@ use Mojo::Log;
 use Logfile::Rotate;
 use Proc::Simple;
 
-use LANraragi::Model::Config;
 use LANraragi::Utils::Logging qw(get_logger);
 
 # Generic Utility Functions.
