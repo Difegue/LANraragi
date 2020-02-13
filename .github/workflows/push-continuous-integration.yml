@@ -6,10 +6,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - name: Test Docker Build and run Test Suite on it
+    - name: Test Docker Build
       run: |
         docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile .
-        docker run -t --entrypoint /bin/sh difegue/lanraragi -c "cd /home/koyomi/lanraragi && apk add perl-utils perl-dev wget g++ make && prove -l -v tests/*.t"
+    - name: LANraragi Test Suite
+      uses: ./.github/action-run-tests
     - name: Perl Critic
       uses: ./.github/action-critic
       env:
