@@ -12,6 +12,7 @@ use Mojo::JSON qw (decode_json);
 use Data::Dumper;
 
 use LANraragi::Model::Search;
+use LANraragi::Model::Config;
 
 # Mock Redis
 my $cwd = getcwd;

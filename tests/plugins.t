@@ -11,6 +11,7 @@ use Test::MockObject;
 
 use Data::Dumper;
 
+use LANraragi::Model::Config;
 use LANraragi::Plugin::Metadata::EHentai;
 use LANraragi::Plugin::Metadata::nHentai;
 use LANraragi::Plugin::Metadata::Chaika;
