@@ -12,6 +12,7 @@ use Test::MockObject;
 use Data::Dumper;
 
 use LANraragi::Model::Config;
+use LANraragi::Plugin::Login::EHentai;
 use LANraragi::Plugin::Metadata::EHentai;
 use LANraragi::Plugin::Metadata::nHentai;
 use LANraragi::Plugin::Metadata::Chaika;
@@ -33,7 +34,7 @@ is( $ezetags{title}, "Akiko-san to Issho", "eze parsing test 1/2");
 is( $ezetags{tags}, $ezetags, "eze parsing test 2/2");
 
 # E-Hentai Tests
-my ( $ua, $domain ) = LANraragi::Plugin::Metadata::EHentai::get_user_agent("","","");
+my ( $ua, $domain ) = LANraragi::Plugin::Login::EHentai::do_login("","","");
 my $eH_gID    = "618395";
 my $eH_gToken = "0439fa3666";
 
