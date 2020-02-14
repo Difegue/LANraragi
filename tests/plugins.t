@@ -34,7 +34,8 @@ is( $ezetags{title}, "Akiko-san to Issho", "eze parsing test 1/2");
 is( $ezetags{tags}, $ezetags, "eze parsing test 2/2");
 
 # E-Hentai Tests
-my ( $ua, $domain ) = LANraragi::Plugin::Login::EHentai::do_login("","","");
+my $ua = LANraragi::Plugin::Login::EHentai::do_login("","","");
+my $domain = "e-hentai.org";
 my $eH_gID    = "618395";
 my $eH_gToken = "0439fa3666";
 
