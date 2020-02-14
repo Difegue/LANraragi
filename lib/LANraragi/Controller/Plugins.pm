@@ -18,12 +18,27 @@ sub index {
     my $self  = shift;
     my $redis = $self->LRR_CONF->get_redis();
 
-    #Plugin list is an array of hashes
-    my @pluginlist = ();
+    #Build plugin lists, array of hashes
+    my @metaplugins = LANraragi::Utils::Plugins::get_plugins("metadata");
+    my @loginplugins = LANraragi::Utils::Plugins::get_plugins("login");
 
-    #Build plugin listing
-    my @plugins = LANraragi::Utils::Plugins::get_plugins("metadata");
-    foreach my $pluginfo (@plugins) {
+    $redis->quit();
+    $self->render(
+        template => "plugins",
+        title    => $self->LRR_CONF->get_htmltitle,
+        metadata => craft_plugin_array(@metaplugins),
+        logins   => craft_plugin_array(@loginplugins),
+        cssdrop  => generate_themes_selector,
+        csshead  => generate_themes_header($self),
+        version  => $self->LRR_VERSION
+    );
+
+}
+
+sub craft_plugin_array {
+
+    my @pluginarray = ();
+    foreach my $pluginfo (@_) {
         my $namespace   = $pluginfo->{namespace};
         my @redisparams = LANraragi::Utils::Plugins::get_plugin_parameters($namespace);
 
@@ -42,19 +57,10 @@ sub index {
         #Add the parameter hashes to the plugin info for the template to parse
         $pluginfo->{parameters} = \@paramhashes;
 
-        push @pluginlist, $pluginfo;
+        push @pluginarray, $pluginfo;
     }
 
-    $redis->quit();
-    $self->render(
-        template => "plugins",
-        title    => $self->LRR_CONF->get_htmltitle,
-        plugins  => \@pluginlist,
-        cssdrop  => generate_themes_selector,
-        csshead  => generate_themes_header($self),
-        version  => $self->LRR_VERSION
-    );
-
+    return \@pluginarray;
 }
 
 sub save_config {
