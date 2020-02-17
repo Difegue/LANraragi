@@ -26,7 +26,7 @@ Here are some existing clients:
 ### [LRReader \(Windows 10\)](https://github.com/Guerra24/LRReader)  
 
 [Download it here.](https://github.com/Guerra24/LRReader)  
-![lrreader](https://raw.githubusercontent.com/Guerra24/LRReader/master/.github/screenshots/01.png)
+![lrreader](https://s3.guerra24.net/projects/lrr/screenshots/01.png)
 
 **Features:**
 
