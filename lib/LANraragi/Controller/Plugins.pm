@@ -42,8 +42,10 @@ sub craft_plugin_array {
         my $namespace   = $pluginfo->{namespace};
         my @redisparams = LANraragi::Utils::Plugins::get_plugin_parameters($namespace);
 
-        # Add whether the plugin is enabled to the hash directly
-        $pluginfo->{enabled} = LANraragi::Utils::Plugins::is_plugin_enabled($namespace);
+        if ($pluginfo->{type} ne "login") {
+            # Add whether the plugin is enabled to the hash directly
+            $pluginfo->{enabled} = LANraragi::Utils::Plugins::is_plugin_enabled($namespace);
+        }
 
         # Add redis values to the members of the parameters array
         my @paramhashes = ();

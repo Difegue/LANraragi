@@ -53,6 +53,13 @@
 						[% INCLUDE pluginlist plugins = logins %]
 					</div>
 				</li>
+				<li class="option-flyout">
+					<div class="collapsible-title caret-right">
+						<i class="fa fa-scroll" aria-hidden="true"></i> Scripts</div>
+					<div class="collapsible-body">
+						
+					</div>
+				</li>
 			</ul>
 
 			<br />
@@ -117,12 +124,14 @@
 	<h2 class="ih" style="display:inline"> [% plugin.name %] v.[% plugin.version %]</h2>
 	<h1 class="ih" style="display:inline"> by [% plugin.author %] </h1>
 	<br/>
-	<h1 class="ih" style="display:inline"> Auto-Plugin: </h1>
-	<input id="[% plugin.namespace %]" name="[% plugin.namespace %]" class="fa" type="checkbox" 
-	[% IF plugin.enabled %]
-		checked
-	[% END %] >
-	<br/>
+	[% IF plugin.type != "login" %]
+		<h1 class="ih" style="display:inline"> Auto-Plugin: </h1>
+		<input id="[% plugin.namespace %]" name="[% plugin.namespace %]" class="fa" type="checkbox" 
+		[% IF plugin.enabled %]
+			checked
+		[% END %] >
+		<br/>
+	[% END %]
 	<i>[% plugin.description %]</i>
 	<br/>
 	[% IF plugin.parameters && plugin.parameters.size %]
