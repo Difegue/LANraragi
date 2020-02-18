@@ -16,7 +16,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 sub index {
 
     my $self  = shift;
-    my $redis = $self->LRR_CONF->get_redis();
+    my $redis = $self->LRR_CONF->get_redis;
 
     #Build plugin lists, array of hashes
     my @metaplugins = LANraragi::Utils::Plugins::get_plugins("metadata");
@@ -68,7 +68,7 @@ sub craft_plugin_array {
 sub save_config {
 
     my $self  = shift;
-    my $redis = $self->LRR_CONF->get_redis();
+    my $redis = $self->LRR_CONF->get_redis;
 
     # Update settings for every plugin.
     my @plugins = LANraragi::Utils::Plugins::get_plugins("metadata");

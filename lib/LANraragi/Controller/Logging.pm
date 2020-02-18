@@ -28,7 +28,7 @@ sub print_lines_from_file {
 
     # Number of lines to read
     my $lines  = 100;     
-    my $logdir = get_logdir;
+    my $logdir = get_logdir();
 
     if ( $mojo->req->param('lines') ) {
         $lines = $mojo->req->param('lines');
