@@ -55,6 +55,15 @@ There are no restrictions on what you can write in those fields, except for the 
 It's used as a unique ID for your Plugin in various parts of the app.  
 The `parameters` array can contain as many arguments as you need. The `type` field should stay as "metadata" for the time being.
 
+### Login Plugins
+
+
+### Metadata Plugins
+
+
+### Scripts
+
+
 ### Expected Input
 
 The following section deals with writing the `get_tags` subroutine.  
@@ -65,15 +74,19 @@ sub get_tags {
 
     #First lines you should have in the subroutine
     shift;
-    my ($title, $tags, $thumbhash, $file, $oneshotarg, @args) = @_;
+    my %lrr_info = shift; # Global info hash
+    my ($lang, $savetitle, $usethumbs, $enablepanda) = @_; # Plugin parameters
+
 ```
 
-* _$title_: The title of the archive, as entered by the User. 
-* _$tags_: The tags that are already in LRR for this archive, if there are any.
-* _$thumbhash_: A SHA-1 hash of the first image of the archive.
-* _$file_: The filesystem path to the archive.
-* _$oneshotarg_: Value of your one-shot argument, if it's been set by the User.
-* _@args_: Array containing all your other arguments, if their values have been set by the User.
+The `%lrr_info` hash contains various variables you can use in your plugin: 
+
+* _$lrr_info{archive_title}_: The title of the archive, as entered by the User. 
+* _$lrr_info{existing_tags}_: The tags that are already in LRR for this archive, if there are any.
+* _$lrr_info{thumbnail_hash}_: A SHA-1 hash of the first image of the archive.
+* _$lrr_info{file_path}_: The filesystem path to the archive.
+* _$lrr_info{oneshot_param}_: Value of your one-shot argument, if it's been set by the User.
+* _$lrr_info{user_agent}_: [Mojo::UserAgent](https://mojolicious.org/perldoc/Mojo/UserAgent) object you can use for web requests. If this plugin depends on a Login plugin, this UserAgent will be pre-configured with the cookies from the Login.
 
 ### Global and One-Shot Arguments
 
@@ -120,7 +133,7 @@ If LANraragi is running in Debug Mode, debug messages from your plugin will be l
 
 ### Plugin Template
 
-Examples speak better than words: The code below is a fully-working plugin stub.
+Examples speak better than words: The code below is a fully-working metadata plugin stub.
 
 ```perl
 package LANraragi::Plugin::MyNewPlugin;
@@ -164,10 +177,13 @@ sub plugin_info {
 #Mandatory function to be implemented by your plugin
 sub get_tags {
 
-    #LRR gives your plugin the recorded title for the file, the filesystem path to the file, and the custom arguments if available.
     shift;
-    # Here, I replace @args by two variables directly matching my global arguments -- Feel free to use this variant if you prefer it.
-    my ($title, $tags, $thumbhash, $file, $oneshotarg, $doomsday, $iterations) = @_;
+    my %lrr_info = shift; # Global info hash, contains various metadata provided by LRR
+    my ($doomsday, $iterations) = @_; # Plugin parameters
+
+    if ($lrr_info{oneshot_param}) {
+        return ( error => "Yaaaaaaaaa gomen gomen the oneshot argument isn't implemented -- You entered ".$lrr_info{oneshot_param}.", right ?");
+    }
 
     #Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
     my $logger = get_logger("My Cool Plugin","plugins");
@@ -232,7 +248,7 @@ The logger is a preconfigured [Mojo::Log](http://mojolicious.org/perldoc/Mojo/Lo
 ```perl
 use Mojo::UserAgent;
 
-my $ua = Mojo::UserAgent->new;
+my $ua = $lrr_info{user_agent};
 
 #Get HTML from a simple GET request
 $ua->get("http://example.com")->result->body;
@@ -268,11 +284,13 @@ This uses the excellent [Perl binding library](http://search.cpan.org/~dams/Redi
 If you're running 0.5.2 or later:
 
 ```perl
+use LANraragi::Utils::Archive qw(is_file_in_archive extract_file_from_archive);
+
 #Check if info.json is in the archive located at $file
-if (LANraragi::Utils::Archive::is_file_in_archive($file,"info.json")) {
+if (is_file_in_archive($file,"info.json")) {
 
         #Extract info.json
-        LANraragi::Utils::Archive::extract_file_from_archive($file, "info.json");
+        extract_file_from_archive($file, "info.json");
 
         #Extracted files go to public/temp/plugin
         my $filepath = "./public/temp/plugin/info.json";

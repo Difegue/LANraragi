@@ -144,11 +144,22 @@ sub exec_metadata_plugin {
         }          
         $redis->quit();
 
-        #Hand it off to the plugin here.
+        # Hand it off to the plugin here.
         # If the plugin requires a login, execute that first to get a UserAgent
         my %pluginfo = $plugin->plugin_info();
         my $ua = exec_login_plugin($pluginfo{login_from});
-        my %newmetadata = $plugin->get_tags( $title, $tags, $thumbhash, $file, $ua, $oneshotarg, @args );
+
+        # Bundle all the potentially interesting info in a hash
+        my %infohash = (
+            "archive_title"   => $title,
+            "existing_tags"   => $tags,
+            "thumbnail_hash"  => $thumbhash,
+            "file_path"       => $file,
+            "user_agent"      => $ua,
+            "oneshot_param"   => $oneshotarg
+        );
+
+        my %newmetadata = $plugin->get_tags( %infohash, @args );
 
         #Error checking
         if ( exists $newmetadata{error} ) {

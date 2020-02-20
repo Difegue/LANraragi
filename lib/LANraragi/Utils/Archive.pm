@@ -24,6 +24,8 @@ use LANraragi::Utils::Generic qw(is_image shasum);
 
 # Utilitary functions for handling Archives.
 # Relies on Libarchive and ImageMagick.
+use Exporter 'import'; 
+our @EXPORT_OK = qw(is_file_in_archive extract_file_from_archive); 
 
 # generate_thumbnail(original_image, thumbnail_location)
 # use ImageMagick to make a thumbnail, height = 500px (view in index is 280px tall)
