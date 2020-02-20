@@ -9,7 +9,6 @@ use File::Basename;
 use Authen::Passphrase;
 
 use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header);
-use LANraragi::Utils::Archive;
 
 sub random_archive {
     my $self          = shift;

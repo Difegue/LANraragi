@@ -7,7 +7,6 @@ use Encode;
 use Template;
 
 use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header remove_spaces remove_newlines);
-use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database qw(redis_decode invalidate_cache);
 use LANraragi::Utils::Plugins;
 

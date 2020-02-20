@@ -9,7 +9,6 @@ use Mojo::JSON qw(decode_json encode_json from_json);
 use File::Path qw(remove_tree);
 
 use LANraragi::Utils::Generic qw(start_shinobu);
-use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database qw(invalidate_cache);
 use LANraragi::Utils::TempFolder;
 

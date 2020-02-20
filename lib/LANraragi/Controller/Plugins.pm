@@ -8,7 +8,6 @@ no warnings 'experimental';
 use Cwd;
 
 use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header);
-use LANraragi::Utils::Archive;
 use LANraragi::Utils::Plugins;
 use LANraragi::Utils::Logging qw(get_logger);
 

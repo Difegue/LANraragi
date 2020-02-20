@@ -14,7 +14,7 @@ use Data::Dumper;
 use URI::Escape;
 
 use LANraragi::Utils::Generic qw(is_image shasum);
-use LANraragi::Utils::Archive;
+use LANraragi::Utils::Archive qw(extract_archive generate_thumbnail);
 use LANraragi::Utils::TempFolder;
 
 #magical sort function used below
@@ -76,8 +76,7 @@ sub build_reader_JSON {
 
         my $outpath = "";
         eval {
-            $outpath =
-              LANraragi::Utils::Archive::extract_archive( $path, $zipfile );
+            $outpath = extract_archive( $path, $zipfile );
         };
 
         if ($@) {
@@ -121,7 +120,7 @@ sub build_reader_JSON {
         $self->LRR_LOGGER->debug("Regenerating from " . $images[0]);
         mkdir $dirname . "/thumb";
 
-        LANraragi::Utils::Archive::generate_thumbnail( $images[0], $thumbname );
+        generate_thumbnail( $images[0], $thumbname );
     }
 
     #Build a browser-compliant filepath array from @images

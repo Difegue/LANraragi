@@ -4,7 +4,6 @@ use Mojo::Base 'Mojolicious::Controller';
 use Encode;
 
 use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header);
-use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database qw(redis_decode);
 
 use LANraragi::Model::Reader;

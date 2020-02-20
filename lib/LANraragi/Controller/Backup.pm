@@ -2,8 +2,6 @@ package LANraragi::Controller::Backup;
 use Mojo::Base 'Mojolicious::Controller';
 
 use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header);
-use LANraragi::Utils::Archive;
-
 use LANraragi::Model::Backup;
 
 # This action will render a template

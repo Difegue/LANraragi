@@ -5,7 +5,6 @@ use Redis;
 use Authen::Passphrase;
 
 use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header);
-use LANraragi::Utils::Archive;
 
 sub check {
     my $self = shift;

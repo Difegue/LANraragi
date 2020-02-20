@@ -28,7 +28,6 @@ use File::Find;
 use File::Basename;
 use Encode;
 
-use LANraragi::Utils::Archive;
 use LANraragi::Utils::Database qw(invalidate_cache);
 use LANraragi::Utils::TempFolder;
 use LANraragi::Utils::Logging qw(get_logger);

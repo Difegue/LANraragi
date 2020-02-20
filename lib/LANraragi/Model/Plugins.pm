@@ -16,7 +16,7 @@ use Mojo::UserAgent;
 use Data::Dumper;
 
 use LANraragi::Utils::Generic qw(remove_spaces remove_newlines);
-use LANraragi::Utils::Archive;
+use LANraragi::Utils::Archive qw(extract_thumbnail);
 use LANraragi::Utils::Database qw(redis_decode);
 use LANraragi::Utils::Plugins;
 use LANraragi::Utils::Logging qw(get_logger);
@@ -133,7 +133,7 @@ sub exec_metadata_plugin {
             my $dirname = LANraragi::Model::Config->get_userdir;
 
             #eval the thumbnail extraction as it can error out and die
-            eval { LANraragi::Utils::Archive::extract_thumbnail( $dirname, $id ) };
+            eval { extract_thumbnail( $dirname, $id ) };
             if ($@) { 
                 $logger->warn("Error building thumbnail: $@");
                 $thumbhash = "";

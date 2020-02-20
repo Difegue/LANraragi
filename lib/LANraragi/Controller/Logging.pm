@@ -5,7 +5,6 @@ use Redis;
 use Encode;
 
 use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header);
-use LANraragi::Utils::Archive;
 use LANraragi::Utils::Logging qw(get_logdir get_lines_from_file);
 
 # This action will render a template

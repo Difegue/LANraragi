@@ -9,7 +9,7 @@ use Encode;
 use Mojo::JSON qw(decode_json encode_json);
 
 use LANraragi::Utils::Generic qw(get_tag_with_namespace remove_spaces remove_newlines);
-use LANraragi::Utils::Archive;
+use LANraragi::Utils::Archive qw(extract_thumbnail);
 use LANraragi::Utils::Database qw(redis_decode);
 
 # Functions used by the API.
@@ -149,8 +149,7 @@ sub serve_thumbnail {
     my $thumbname = $dirname . "/thumb/" . $id . ".jpg";
 
     unless ( -e $thumbname ) {
-        $thumbname =
-          LANraragi::Utils::Archive::extract_thumbnail( $dirname, $id );
+        $thumbname = extract_thumbnail( $dirname, $id );
     }
 
     #Simply serve the thumbnail.

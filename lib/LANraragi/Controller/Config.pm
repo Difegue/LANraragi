@@ -4,7 +4,6 @@ use Mojo::Base 'Mojolicious::Controller';
 use Encode;
 
 use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header remove_spaces remove_newlines);
-use LANraragi::Utils::Archive;
 use LANraragi::Utils::TempFolder;
 
 use Authen::Passphrase::BlowfishCrypt;
