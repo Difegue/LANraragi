@@ -9,6 +9,8 @@ use Redis;
 use Encode;
 use Storable qw/ nfreeze thaw /;
 use Sort::Naturally;
+use Parallel::Loops;
+use Sys::CpuAffinity;
 
 use LANraragi::Utils::Database qw(redis_decode);
 use LANraragi::Utils::Logging qw(get_logger);
@@ -46,8 +48,16 @@ sub do_search {
             %untagged = map { $_ => 1 } LANraragi::Model::Api::find_untagged_archives();
         }
 
+        # Parallelize search - The speed bottleneck is only on Redis here, so I suspect this scales quite well.
+        my $numCpus = Sys::CpuAffinity::getNumCpus();
+        my $pl = Parallel::Loops->new($numCpus);
+        $pl->share( \@filtered );
+
         # Go through tags and apply search filter
-        foreach my $id (@keys) {
+        $pl->foreach( \@keys, sub {
+            my $id    = $_;
+            my $redis = LANraragi::Model::Config->get_redis;
+
             my $tags  = $redis->hget($id, "tags");
             my $title = $redis->hget($id, "title");
             my $file  = $redis->hget($id, "file");
@@ -57,12 +67,14 @@ sub do_search {
 
             # Check new filter first
             if ($newonly && $isnew && $isnew ne "true" && $isnew ne "block") {
-                next;
+                $redis->quit();
+                return;
             }
 
             # Check untagged filter second
             unless (exists($untagged{$id}) || !$untaggedonly) {
-                next;
+                $redis->quit();
+                return;
             }
 
             # Check columnfilter and base search filter
@@ -72,7 +84,8 @@ sub do_search {
                 # Push id to array
                 push @filtered, { id => $id, title => $title, tags => $tags };
             }
-        }
+            $redis->quit();
+        });
 
         if ($#filtered > 0) {
 
