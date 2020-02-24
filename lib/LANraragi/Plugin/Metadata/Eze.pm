@@ -37,14 +37,16 @@ sub plugin_info {
 sub get_tags {
 
     shift;
-    my %lrr_info = shift; # Global info hash 
+    my $lrr_info = shift; # Global info hash 
     my ($savetitle) = @_; # Plugin parameters
+use Data::Dumper;
+print Dumper $lrr_info->{file_path};
 
     my $logger = get_logger( "eze", "plugins" );
-    if ( is_file_in_archive( $lrr_info{file_path}, "info.json" ) ) {
+    if ( is_file_in_archive( $lrr_info->{file_path}, "info.json" ) ) {
 
         #Extract info.json
-        my $filepath = extract_file_from_archive( $lrr_info{file_path}, "info.json" );
+        my $filepath = extract_file_from_archive( $lrr_info->{file_path}, "info.json" );
 
         #Open it
         my $stringjson = "";

@@ -74,19 +74,19 @@ sub get_tags {
 
     #First lines you should have in the subroutine
     shift;
-    my %lrr_info = shift; # Global info hash
+    my $lrr_info = shift; # Global info hash
     my ($lang, $savetitle, $usethumbs, $enablepanda) = @_; # Plugin parameters
 
 ```
 
-The `%lrr_info` hash contains various variables you can use in your plugin: 
+The `$lrr_info` hash contains various variables you can use in your plugin: 
 
-* _$lrr_info{archive_title}_: The title of the archive, as entered by the User. 
-* _$lrr_info{existing_tags}_: The tags that are already in LRR for this archive, if there are any.
-* _$lrr_info{thumbnail_hash}_: A SHA-1 hash of the first image of the archive.
-* _$lrr_info{file_path}_: The filesystem path to the archive.
-* _$lrr_info{oneshot_param}_: Value of your one-shot argument, if it's been set by the User.
-* _$lrr_info{user_agent}_: [Mojo::UserAgent](https://mojolicious.org/perldoc/Mojo/UserAgent) object you can use for web requests. If this plugin depends on a Login plugin, this UserAgent will be pre-configured with the cookies from the Login.
+* _$lrr_info->{archive_title}_: The title of the archive, as entered by the User. 
+* _$lrr_info->{existing_tags}_: The tags that are already in LRR for this archive, if there are any.
+* _$lrr_info->{thumbnail_hash}_: A SHA-1 hash of the first image of the archive.
+* _$lrr_info->{file_path}_: The filesystem path to the archive.
+* _$lrr_info->{oneshot_param}_: Value of your one-shot argument, if it's been set by the User.
+* _$lrr_info->{user_agent}_: [Mojo::UserAgent](https://mojolicious.org/perldoc/Mojo/UserAgent) object you can use for web requests. If this plugin depends on a Login plugin, this UserAgent will be pre-configured with the cookies from the Login.
 
 ### Global and One-Shot Arguments
 
@@ -178,11 +178,11 @@ sub plugin_info {
 sub get_tags {
 
     shift;
-    my %lrr_info = shift; # Global info hash, contains various metadata provided by LRR
+    my $lrr_info = shift; # Global info hash, contains various metadata provided by LRR
     my ($doomsday, $iterations) = @_; # Plugin parameters
 
-    if ($lrr_info{oneshot_param}) {
-        return ( error => "Yaaaaaaaaa gomen gomen the oneshot argument isn't implemented -- You entered ".$lrr_info{oneshot_param}.", right ?");
+    if ($lrr_info->{oneshot_param}) {
+        return ( error => "Yaaaaaaaaa gomen gomen the oneshot argument isn't implemented -- You entered ".$lrr_info->{oneshot_param}.", right ?");
     }
 
     #Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
@@ -248,7 +248,7 @@ The logger is a preconfigured [Mojo::Log](http://mojolicious.org/perldoc/Mojo/Lo
 ```perl
 use Mojo::UserAgent;
 
-my $ua = $lrr_info{user_agent};
+my $ua = $lrr_info->{user_agent};
 
 #Get HTML from a simple GET request
 $ua->get("http://example.com")->result->body;

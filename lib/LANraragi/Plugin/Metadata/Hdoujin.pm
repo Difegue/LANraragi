@@ -32,10 +32,10 @@ sub plugin_info {
 sub get_tags {
 
     shift;
-    my %lrr_info = shift; # Global info hash 
+    my $lrr_info = shift; # Global info hash 
 
     my $logger = get_logger( "Hdoujin", "plugins" );
-    my $file   = $lrr_info{file_path};
+    my $file   = $lrr_info->{file_path};
 
     if ( is_file_in_archive( $file, "info.json" ) ) {
 

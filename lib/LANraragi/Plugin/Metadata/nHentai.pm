@@ -38,7 +38,7 @@ sub plugin_info {
 sub get_tags {
 
     shift;
-    my %lrr_info = shift; # Global info hash
+    my $lrr_info = shift; # Global info hash
     my ($savetitle) = @_; # Plugin parameters
 
     my $logger = get_logger( "nHentai", "plugins" );
@@ -47,12 +47,12 @@ sub get_tags {
     my $galleryID = "";
 
     # Quick regex to get the nh gallery id from the provided url.
-    if ( $lrr_info{oneshot_param} =~ /.*\/g\/([0-9]*)\/.*/ ) {
+    if ( $lrr_info->{oneshot_param} =~ /.*\/g\/([0-9]*)\/.*/ ) {
         $galleryID = $1;
     }
     else {
         #Get Gallery ID by hand if the user didn't specify a URL
-        $galleryID = get_gallery_id_from_title($lrr_info{archive_title});
+        $galleryID = get_gallery_id_from_title($lrr_info->{archive_title});
     }
 
     # Did we detect a nHentai gallery?

@@ -27,7 +27,9 @@ setup_redis_mock();
 setup_eze_mock();
 
 # eze Tests
-my %ezetags = LANraragi::Plugin::Metadata::Eze::get_tags("test", "test", "test", "test", "test", "test", 1);
+my %dummyhash = ( something => 22, file_path => "test" );
+# Since this is calling the sub directly and not in an object context, we pass a dummy string as first parameter to replace the object.
+my %ezetags = LANraragi::Plugin::Metadata::Eze::get_tags("",\%dummyhash, 1); 
 
 my $ezetags = "artist:mitarashi kousei, character:akiko minase, character:yuuichi aizawa, female:aunt, female:lingerie, female:sole female, group:mitarashi club, language:english, language:translated, male:sole male, misc:multi-work series, parody:kanon, source: website.org/g/1179590/7c5815c77b";
 is( $ezetags{title}, "Akiko-san to Issho", "eze parsing test 1/2");

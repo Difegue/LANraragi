@@ -34,7 +34,7 @@ sub plugin_info {
 sub get_tags {
 
     shift;
-    my %lrr_info = shift; # Global info hash 
+    my $lrr_info = shift; # Global info hash 
     my ($use_filetime) = @_; # Plugin parameters
 
     #Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
@@ -42,15 +42,15 @@ sub get_tags {
 
     #Work your magic here - You can create subroutines below to organize the code better
 
-    $logger->debug("Processing file: " . $lrr_info{file_path});
+    $logger->debug("Processing file: " . $lrr_info->{file_path});
     my $newtags = "";
-    my $oneshotarg = $lrr_info{oneshot_param};
+    my $oneshotarg = $lrr_info->{oneshot_param};
     my $oneshot_file_time = $oneshotarg =~ /^(yes|true)$/i;
     my $oneshot_current_time = $oneshotarg =~ /^(no|false)$/i;
 
     if ($oneshot_file_time || ($use_filetime && !$oneshot_current_time)) {
 		$logger->info("Using file date");
-		$newtags = "date_added:" . (stat($lrr_info{file_path}))[9]; #9 is the unix time stamp for date modified.
+		$newtags = "date_added:" . (stat($lrr_info->{file_path}))[9]; #9 is the unix time stamp for date modified.
     } else {
 		$logger->info("Using current date");
 		$newtags = "date_added:" . time();

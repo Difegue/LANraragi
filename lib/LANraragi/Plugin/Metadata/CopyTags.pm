@@ -29,7 +29,7 @@ sub plugin_info {
 sub get_tags {
 
     shift; 
-    my %lrr_info = shift; # Global info hash 
+    my $lrr_info = shift; # Global info hash 
     my ($tagstocopy) = @_; # Plugin parameters
 
     my $logger = get_logger( "Tag Copy", "plugins" );

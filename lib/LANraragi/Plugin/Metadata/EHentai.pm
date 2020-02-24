@@ -42,7 +42,7 @@ sub plugin_info {
 sub get_tags {
 
     shift;
-    my %lrr_info = shift; # Global info hash 
+    my $lrr_info = shift; # Global info hash 
     my ($lang, $savetitle, $usethumbs, $enablepanda) = @_; # Plugin parameters
 
     # Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
@@ -54,19 +54,19 @@ sub get_tags {
     my $domain = ($enablepanda ? 'exhentai.org' : 'e-hentai.org');
 
     # Quick regex to get the E-H archive ids from the provided url or source tag
-    if ( $lrr_info{oneshot_param} =~ /.*\/g\/([0-9]*)\/([0-z]*)\/*.*/ ) {
+    if ( $lrr_info->{oneshot_param} =~ /.*\/g\/([0-9]*)\/([0-z]*)\/*.*/ ) {
         $gID    = $1;
         $gToken = $2;
         $logger->debug("Skipping search and using gallery $gID / $gToken from oneshot args");
-    } elsif ( $lrr_info{existing_tags} =~ /.*source:e(?:x|-)hentai\.org\/g\/([0-9]*)\/([0-z]*)\/*.*/gi ) {
+    } elsif ( $lrr_info->{existing_tags} =~ /.*source:e(?:x|-)hentai\.org\/g\/([0-9]*)\/([0-z]*)\/*.*/gi ) {
         $gID    = $1;
         $gToken = $2;
         $logger->debug("Skipping search and using gallery $gID / $gToken from source tag");
     } else {
         # Craft URL for Text Search on EH if there's no user argument
         ( $gID, $gToken ) =
-          &lookup_gallery( $lrr_info{archive_title}, $lrr_info{existing_tags}, 
-                           $lrr_info{thumbnail_hash}, $lang, $lrr_info{user_agent}, $domain, $usethumbs);
+          &lookup_gallery( $lrr_info->{archive_title}, $lrr_info->{existing_tags}, 
+                           $lrr_info->{thumbnail_hash}, $lang, $lrr_info->{user_agent}, $domain, $usethumbs);
     }
 
    # If an error occured, return a hash containing an error message.

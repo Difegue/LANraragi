@@ -151,15 +151,15 @@ sub exec_metadata_plugin {
 
         # Bundle all the potentially interesting info in a hash
         my %infohash = (
-            "archive_title"   => $title,
-            "existing_tags"   => $tags,
-            "thumbnail_hash"  => $thumbhash,
-            "file_path"       => $file,
-            "user_agent"      => $ua,
-            "oneshot_param"   => $oneshotarg
+            archive_title   => $title,
+            existing_tags   => $tags,
+            thumbnail_hash  => $thumbhash,
+            file_path       => $file,
+            user_agent      => $ua,
+            oneshot_param   => $oneshotarg
         );
 
-        my %newmetadata = $plugin->get_tags( %infohash, @args );
+        my %newmetadata = $plugin->get_tags( \%infohash, @args );
 
         #Error checking
         if ( exists $newmetadata{error} ) {

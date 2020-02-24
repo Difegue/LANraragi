@@ -34,7 +34,7 @@ sub plugin_info {
 sub get_tags {
 
     shift;
-    my %lrr_info = shift; # Global info hash 
+    my $lrr_info = shift; # Global info hash 
     my ($savetitle) = @_; # Plugin parameters
 
     my $logger = get_logger( "Chaika", "plugins" );
@@ -42,7 +42,7 @@ sub get_tags {
     my $newtitle = "";
 
     # Parse the given link to see if we can extract type and ID
-    my $oneshotarg = $lrr_info{oneshot_param};
+    my $oneshotarg = $lrr_info->{oneshot_param};
     if ( $oneshotarg =~
         /https?:\/\/panda\.chaika\.moe\/(gallery|archive)\/([0-9]*)\/?.*/ )
     {
@@ -51,11 +51,11 @@ sub get_tags {
     else {
 
         # Try SHA-1 reverse search first
-        ($newtags, $newtitle) = tags_from_sha1($lrr_info{thumbnail_hash});
+        ($newtags, $newtitle) = tags_from_sha1($lrr_info->{thumbnail_hash});
 
         # Try search if it fails
         if ( $newtags eq "" ) {
-            ($newtags, $newtitle) = search_for_archive( $lrr_info{archive_title}, $lrr_info{existing_tags} );
+            ($newtags, $newtitle) = search_for_archive( $lrr_info->{archive_title}, $lrr_info->{existing_tags} );
         }
     }
 
