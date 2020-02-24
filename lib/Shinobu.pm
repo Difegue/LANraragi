@@ -15,6 +15,8 @@ use feature qw(say);
 use Cwd;
 
 use FindBin;
+use Parallel::Loops;
+use Sys::CpuAffinity;
 use Storable qw(lock_store);
 use Mojo::JSON qw(to_json);
 
@@ -111,22 +113,36 @@ sub build_filemap {
 
     $logger->info("Building filemap...This might take some time.");
 
-    #Clear hash
+    # Clear hash
     %filemap = ();
     my $dirname = LANraragi::Model::Config->get_userdir;
+    my @files;
 
-    #Get all files in content directory and subdirectories.
+    # Get all files in content directory and subdirectories.
     find(
         {
             wanted => sub {
-                return if -d $_;    #Directories are excluded on the spot
-                add_to_filemap($_);
+                return if -d $_; #Directories are excluded on the spot
+                push @files, $_; #Push files to array
             },
             no_chdir    => 1,
             follow_fast => 1
         },
         $dirname
     );
+
+    # Now that we have all files, process them...with multithreading!
+    my $numCpus = Sys::CpuAffinity::getNumCpus();
+    my $pl = Parallel::Loops->new($numCpus);
+    $pl->share( \%filemap );
+    $pl->foreach( \@files, sub {
+        # This sub "magically" executed in parallel forked child
+        # processes
+        add_to_filemap($_);
+    });
+
+    # Done, serialize filemap for main process to consume 
+    lock_store \%filemap, '.shinobu-filemap';
 }
 
 sub add_to_filemap {
@@ -176,9 +192,6 @@ sub add_to_filemap {
         }
         else {
             $filemap{$id} = $file;
-
-            # Serialize filemap for main process to consume 
-            lock_store \%filemap, '.shinobu-filemap';
         }
 
         # Filename sanity check

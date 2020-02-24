@@ -18,6 +18,7 @@ requires 'URI::Escape', 1.74;
 # Background Worker
 requires 'Proc::Simple', 1.32;
 requires 'Parallel::Loops', 0.10;
+requires 'Sys::CpuAffinity', 1.12;
 requires 'File::ChangeNotify', 0.31;
 
 # Used by Installer
