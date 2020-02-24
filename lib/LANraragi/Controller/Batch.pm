@@ -6,11 +6,10 @@ use Encode;
 use Mojo::IOLoop::Subprocess;
 use Mojo::JSON qw(decode_json encode_json from_json);
 
-use LANraragi::Utils::Generic;
-use LANraragi::Utils::Database;
-use LANraragi::Utils::Plugins;
-
-use LANraragi::Model::Config;
+use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header);
+use LANraragi::Utils::Database qw(redis_decode);
+use LANraragi::Utils::Plugins qw(get_plugins get_plugin get_plugin_parameters);
+use LANraragi::Utils::Logging qw(get_logger);
 
 # This action will render a template
 sub index {
@@ -28,7 +27,7 @@ sub index {
     foreach my $id (@keys) {
         my $zipfile = $redis->hget( $id, "file" );
         my $title = $redis->hget( $id, "title" );
-        $title = LANraragi::Utils::Database::redis_decode($title);
+        $title = redis_decode($title);
 
         if (-e $zipfile) {
             $arclist .=
@@ -40,15 +39,15 @@ sub index {
     $redis->quit();
 
     #Build plugin listing
-    my @pluginlist = LANraragi::Utils::Plugins::get_plugins("metadata");
+    my @pluginlist = get_plugins("metadata");
 
     $self->render(
         template => "batch",
         arclist  => $arclist,
         plugins  => \@pluginlist,
         title    => $self->LRR_CONF->get_htmltitle,
-        cssdrop  => LANraragi::Utils::Generic::generate_themes_selector,
-        csshead  => LANraragi::Utils::Generic::generate_themes_header($self),
+        cssdrop  => generate_themes_selector,
+        csshead  => generate_themes_header($self),
         version  => $self->LRR_VERSION
     );
 }
@@ -61,8 +60,7 @@ sub socket {
     my $client    = $self->tx;
     my $redis     = $self->LRR_CONF->get_redis();
 
-    my $logger =
-      LANraragi::Utils::Logging::get_logger( "Batch Tagging", "lanraragi" );
+    my $logger = get_logger( "Batch Tagging", "lanraragi" );
 
     $logger->info('Client connected to Batch Tagging service');
 
@@ -77,7 +75,7 @@ sub socket {
             my $command    = decode_json($msg);
             my $pluginname = $command->{"plugin"};
 
-            my $plugin = LANraragi::Utils::Plugins::get_plugin($pluginname);
+            my $plugin = get_plugin($pluginname);
 
             #Global arguments can come from the database or the user override
             my @args     = @{ $command->{"args"} };
@@ -88,9 +86,8 @@ sub socket {
                 #If the array is empty(no overrides)
                 if ( !@args ) {
                     $logger->debug("No user overrides given.");
-                    #Try getting the saved defaults
-                    @args = LANraragi::Utils::Plugins::get_plugin_parameters(
-                        $pluginname);
+                    # Try getting the saved defaults
+                    @args = get_plugin_parameters($pluginname);
                 }
 
                 # Run plugin with args on id
@@ -101,7 +98,7 @@ sub socket {
                 }
                 $logger->debug("Processing $id");
 
-                my %plugin_result = LANraragi::Model::Plugins::exec_plugin_on_file(
+                my %plugin_result = LANraragi::Model::Plugins::exec_metadata_plugin(
                     $plugin, $id, "", @args );
 
                 #If the plugin exec returned tags, add them

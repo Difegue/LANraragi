@@ -3,11 +3,9 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use Encode;
 
-use LANraragi::Utils::Generic;
-use LANraragi::Utils::Archive;
-use LANraragi::Utils::Database;
+use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header);
+use LANraragi::Utils::Database qw(redis_decode);
 
-use LANraragi::Model::Config;
 use LANraragi::Model::Reader;
 
 # This action will render a template
@@ -30,9 +28,9 @@ sub index {
         my $arcname  = $redis->hget( $id, "title" );
         my $tags     = $redis->hget( $id, "tags"  );
         my $filename = $redis->hget( $id, "file"  );
-        $arcname  = LANraragi::Utils::Database::redis_decode($arcname);
-        $tags     = LANraragi::Utils::Database::redis_decode($tags);
-        $filename = LANraragi::Utils::Database::redis_decode($filename);
+        $arcname  = redis_decode($arcname);
+        $tags     = redis_decode($tags);
+        $filename = redis_decode($filename);
 
         if ( $tags =~ /artist:/ ) {
             $tags =~ /.*artist:([^,]*),.*/;
@@ -74,8 +72,8 @@ sub index {
             id         => $id,
             imgpaths   => $imgpaths,
             filename   => $filename,
-            cssdrop    => LANraragi::Utils::Generic::generate_themes_selector,
-            csshead    => LANraragi::Utils::Generic::generate_themes_header($self),
+            cssdrop    => generate_themes_selector,
+            csshead    => generate_themes_header($self),
             version    => $self->LRR_VERSION,
             userlogged => $self->LRR_CONF->enable_pass == 0
               || $self->session('is_logged')

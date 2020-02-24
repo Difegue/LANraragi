@@ -28,20 +28,19 @@ use File::Find;
 use File::Basename;
 use Encode;
 
-use LANraragi::Utils::Generic;
-use LANraragi::Utils::Archive;
-use LANraragi::Utils::Database;
-use LANraragi::Utils::TempFolder;
+use LANraragi::Utils::Database qw(invalidate_cache);
+use LANraragi::Utils::TempFolder qw(get_temp clean_temp_partial);
+use LANraragi::Utils::Logging qw(get_logger);
 
-use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
+use LANraragi::Model::Config; # Needed here since Shinobu doesn't inherit from the main LRR package
 
 # Filemap hash, global to all subs and exposed to the server through IPC
 my %filemap;
 
 # Logger and Database objects
-my $logger = LANraragi::Utils::Logging::get_logger( "Shinobu", "shinobu" );
-my $redis  = LANraragi::Model::Config::get_redis;
+my $logger = get_logger( "Shinobu", "shinobu" );
+my $redis  = LANraragi::Model::Config->get_redis;
 
 #Subroutine for new and deleted files that takes inotify events
 my $inotifysub = sub {
@@ -62,7 +61,7 @@ my $inotifysub = sub {
 
 sub initialize_from_new_process {
 
-    my $userdir = LANraragi::Model::Config::get_userdir;
+    my $userdir = LANraragi::Model::Config->get_userdir;
 
     $logger->info("Shinobu Background Worker started.");
     $logger->info( "Working dir is " . cwd );
@@ -85,7 +84,7 @@ sub initialize_from_new_process {
     # Add watcher to tempfolder
     my $tempwatcher =
     File::ChangeNotify->instantiate_watcher
-        ( directories => [ LANraragi::Utils::TempFolder::get_temp ] );
+        ( directories => [ get_temp() ] );
 
     # manual event loop
     $logger->info("All done! Now dutifully watching your files. ");
@@ -99,7 +98,7 @@ sub initialize_from_new_process {
 
         # Check the current temp folder size and clean it if necessary
         for my $event ( $tempwatcher->new_events ) {
-            LANraragi::Utils::TempFolder::clean_temp_partial;
+            clean_temp_partial();
         }
 
         sleep 2;
@@ -114,7 +113,7 @@ sub build_filemap {
 
     #Clear hash
     %filemap = ();
-    my $dirname = LANraragi::Model::Config::get_userdir;
+    my $dirname = LANraragi::Model::Config->get_userdir;
 
     #Get all files in content directory and subdirectories.
     find(
@@ -196,12 +195,12 @@ sub add_to_filemap {
                 $redis->hset( $id, "file", $file );
                 $redis->hset( $id, "name", encode_utf8($name) );
                 $redis->wait_all_responses;
-                LANraragi::Utils::Database::invalidate_cache();
+                invalidate_cache();
             }
         } else {
             # Add to Redis if not present beforehand
             add_new_file( $id, $file );
-            LANraragi::Utils::Database::invalidate_cache();
+            invalidate_cache();
         }
     }
 }
@@ -231,7 +230,7 @@ sub deleted_file_callback {
         
         # Serialize filemap for main process to consume
         lock_store \%filemap, '.shinobu-filemap';
-        LANraragi::Utils::Database::invalidate_cache();
+        invalidate_cache();
     }
 }
 
@@ -244,7 +243,7 @@ sub add_new_file {
         LANraragi::Utils::Database::add_archive_to_redis( $id, $file, $redis );
 
         #AutoTagging using enabled plugins goes here!
-        if (LANraragi::Model::Config::enable_autotag) {
+        if (LANraragi::Model::Config->enable_autotag) {
             LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
         }
     };

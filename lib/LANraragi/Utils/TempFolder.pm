@@ -11,9 +11,11 @@ use File::Find;
 use File::Path qw(remove_tree);
 
 use LANraragi::Utils::Generic;
-use LANraragi::Utils::Logging;
+use LANraragi::Utils::Logging qw(get_logger);
 
 #Contains all functions related to the temporary folder.
+use Exporter 'import'; 
+our @EXPORT_OK = qw(get_temp get_tempsize clean_temp_full clean_temp_partial); 
 
 #Get the current tempfolder.
 #This can be called from any process safely as it uses FindBin.
@@ -66,16 +68,15 @@ sub clean_temp_full {
 #For this, we use Perl's ctime, which uses inode last modified time.
 sub clean_temp_partial {
 
-    my $logger =
-      LANraragi::Utils::Logging::get_logger( "Temporary Folder", "lanraragi" );
+    my $logger = get_logger( "Temporary Folder", "lanraragi" );
 
     my $tempdir = &get_temp;
 
     #Abort if the temp dir doesn't exist yet
     return unless ( -e $tempdir );
 
-    my $size    = LANraragi::Utils::TempFolder::get_tempsize;
-    my $maxsize = LANraragi::Model::Config::get_tempmaxsize;
+    my $size    = get_tempsize;
+    my $maxsize = LANraragi::Model::Config->get_tempmaxsize;
 
     if ( $size > $maxsize ) {
         $logger->info( "Current temporary folder size is $size MBs, "

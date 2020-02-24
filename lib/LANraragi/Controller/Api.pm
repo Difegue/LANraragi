@@ -8,10 +8,9 @@ use Storable;
 use Mojo::JSON qw(decode_json encode_json from_json);
 use File::Path qw(remove_tree);
 
-use LANraragi::Utils::Generic;
-use LANraragi::Utils::Archive;
-use LANraragi::Utils::Database;
-use LANraragi::Utils::TempFolder;
+use LANraragi::Utils::Generic qw(start_shinobu);
+use LANraragi::Utils::Database qw(invalidate_cache);
+use LANraragi::Utils::TempFolder qw(get_temp get_tempsize clean_temp_full);
 
 use LANraragi::Model::Api;
 use LANraragi::Model::Backup;
@@ -98,7 +97,7 @@ sub clean_database {
 }
 
 sub clear_cache {
-    LANraragi::Utils::Database::invalidate_cache();
+    invalidate_cache();
     success(shift, "clear_cache");
 }
 
@@ -134,7 +133,7 @@ sub serve_page {
     my $id    = check_id_parameter($self, "servefile") || return;
     my $path  = $self->req->param('path') || "404.xyz";
 
-    my $tempfldr = LANraragi::Utils::TempFolder::get_temp;
+    my $tempfldr = get_temp();
     my $file     = $tempfldr . "/$id/$path";
     my $abspath  = abs_path($file); # abs_path returns null if the path is invalid.
 
@@ -188,14 +187,14 @@ sub clean_tempfolder {
     my $self = shift;
 
     #Run a full clean, errors are dumped into $@ if they occur
-    eval { LANraragi::Utils::TempFolder::clean_temp_full };
+    eval { clean_temp_full() };
 
     $self->render(
         json => {
             operation => "cleantemp",
             success   => $@ eq "",
             error     => $@,
-            newsize   => LANraragi::Utils::TempFolder::get_tempsize
+            newsize   => get_tempsize()
         }
     );
 }
@@ -211,7 +210,7 @@ sub clear_new {
         $redis->hset( $id, "isnew", "false" );
 
         # Bust search cache
-        LANraragi::Utils::Database::invalidate_cache();
+        invalidate_cache();
     }
     $redis->quit();
 
@@ -239,7 +238,7 @@ sub clear_new_all {
     }
 
     # Bust search cache
-    LANraragi::Utils::Database::invalidate_cache();
+    invalidate_cache();
     $redis->quit();
     success($self, "clear_new_all");
 }
@@ -252,7 +251,7 @@ sub use_enabled_plugins {
     my $id    = check_id_parameter($self, "autoplugin") || return;
     my $redis = $self->LRR_CONF->get_redis();
 
-    if ( $redis->exists($id) && LANraragi::Model::Config::enable_autotag ) {
+    if ( $redis->exists($id) && LANraragi::Model::Config->enable_autotag ) {
 
         my ( $succ, $fail, $addedtags ) =
           LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
@@ -308,7 +307,7 @@ sub restart_shinobu {
     $shinobu->kill();
 
     # Create a new Process, automatically stored in .shinobu-pid
-    my $proc = LANraragi::Utils::Generic::start_shinobu();
+    my $proc = start_shinobu();
 
     $self->render(
         json => {

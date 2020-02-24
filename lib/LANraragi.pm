@@ -9,13 +9,13 @@ use Mojo::File;
 use Mojo::JSON qw(decode_json encode_json);
 use Storable;
 
-use LANraragi::Utils::Generic;
+use LANraragi::Utils::Generic qw(start_shinobu);
+use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Plugins qw(get_plugins);
 use LANraragi::Utils::Routing;
-use LANraragi::Utils::Plugins;
-use LANraragi::Utils::Logging;
 
-use LANraragi::Model::Config;
 use LANraragi::Model::Search;
+use LANraragi::Model::Config;
 
 # This method will run once at server start
 sub startup {
@@ -53,8 +53,7 @@ sub startup {
     #Helper to build logger objects quickly
     $self->helper(
         LRR_LOGGER => sub {
-            return LANraragi::Utils::Logging::get_logger( "LANraragi",
-                "lanraragi" );
+            return get_logger( "LANraragi", "lanraragi" );
         }
     );
 
@@ -92,7 +91,7 @@ sub startup {
     }
 
     #Plugin listing
-    my @plugins = LANraragi::Utils::Plugins::get_plugins("metadata");
+    my @plugins = get_plugins("metadata");
     foreach my $pluginfo (@plugins) {
         my $name = $pluginfo->{name};
         $self->LRR_LOGGER->info( "Plugin Detected: " . $name );
@@ -111,7 +110,7 @@ sub startup {
         $proc->kill();  
     }
 
-    my $proc = LANraragi::Utils::Generic::start_shinobu();
+    my $proc = start_shinobu();
     $self->LRR_LOGGER->debug(
         "Shinobu Worker new PID is " . $proc->pid );
 

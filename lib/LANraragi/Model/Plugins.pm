@@ -12,22 +12,20 @@ use Module::Pluggable require => 1, search_path => ['LANraragi::Plugin'];
 use Redis;
 use Encode;
 use Mojo::JSON qw(decode_json encode_json);
+use Mojo::UserAgent;
 use Data::Dumper;
 
-use LANraragi::Utils::Generic;
-use LANraragi::Utils::Archive;
-use LANraragi::Utils::Database;
-use LANraragi::Utils::Plugins;
-use LANraragi::Utils::Logging;
-
-use LANraragi::Model::Config;
+use LANraragi::Utils::Generic qw(remove_spaces remove_newlines);
+use LANraragi::Utils::Archive qw(extract_thumbnail);
+use LANraragi::Utils::Database qw(redis_decode);
+use LANraragi::Utils::Plugins qw(get_plugin get_enabled_plugins get_plugin_parameters);
+use LANraragi::Utils::Logging qw(get_logger);
 
 # Sub used by Auto-Plugin.
 sub exec_enabled_plugins_on_file {
 
     my $id = shift;
-    my $logger =
-      LANraragi::Utils::Logging::get_logger( "Auto-Plugin", "lanraragi" );
+    my $logger = get_logger( "Auto-Plugin", "lanraragi" );
 
     $logger->info("Executing enabled plugins on archive with id $id.");
 
@@ -35,18 +33,17 @@ sub exec_enabled_plugins_on_file {
     my $failures  = 0;
     my $addedtags = 0;
 
-    my @plugins = LANraragi::Utils::Plugins::get_enabled_plugins("metadata");
+    my @plugins = get_enabled_plugins("metadata");
 
     foreach my $pluginfo (@plugins) {
         my $name   = $pluginfo->{namespace};
-        my @args   = LANraragi::Utils::Plugins::get_plugin_parameters($name);
-        my $plugin = LANraragi::Utils::Plugins::get_plugin($name);
+        my @args   = get_plugin_parameters($name);
+        my $plugin = get_plugin($name);
         my %plugin_result;
 
         #Every plugin execution is eval'd separately
         eval {
-            %plugin_result =
-                &exec_plugin_on_file( $plugin, $id, "", @args );
+            %plugin_result = exec_metadata_plugin( $plugin, $id, "", @args );
         };
 
         if ($@) {
@@ -84,46 +81,85 @@ sub exec_enabled_plugins_on_file {
     return ( $successes, $failures, $addedtags );
 }
 
-#Execute a specified plugin on a file, described through its Redis ID.
-sub exec_plugin_on_file {
+sub exec_login_plugin {
+    my $logplugname = shift;
+    my $ua = Mojo::UserAgent->new;
+    my $logger = get_logger( "Plugin System", "lanraragi" );
+
+    if ($logplugname) {
+        $logger->info("Calling matching login plugin $logplugname.");
+        my $loginplugin = get_plugin($logplugname);
+        my @loginargs   = get_plugin_parameters($logplugname);
+
+        if ($loginplugin->can('do_login')) {
+            my $loggedinua = $loginplugin->do_login(@loginargs);
+
+            if (ref($loggedinua) eq "Mojo::UserAgent") {
+                return $loggedinua;
+            } else {
+                $logger->error("Plugin did not return a Mojo::UserAgent object!");
+            }
+        } else {
+            $logger->error("Plugin doesn't implement do_login!");
+        }
+    } else {
+        $logger->info("No login plugin specified, returning empty UserAgent.");
+    }
+
+    return $ua;
+}
+
+# Execute a specified plugin on a file, described through its Redis ID.
+sub exec_metadata_plugin {
 
     my ( $plugin, $id, $oneshotarg, @args ) = @_;
-    my $logger =
-      LANraragi::Utils::Logging::get_logger( "Auto-Tagger", "lanraragi" );
+    my $logger = get_logger( "Plugin System", "lanraragi" );
 
     #If the plugin has the method "get_tags",
     #catch all the required data and feed it to the plugin
     if ( $plugin->can('get_tags') ) {
 
-        my $redis = LANraragi::Model::Config::get_redis;
+        my $redis = LANraragi::Model::Config->get_redis;
         my %hash  = $redis->hgetall($id);
 
         my ( $name, $title, $tags, $file, $thumbhash ) =
           @hash{qw(name title tags file thumbhash)};
 
-        ( $_ = LANraragi::Utils::Database::redis_decode($_) )
-          for ( $name, $title, $tags);
+        ( $_ = LANraragi::Utils::Database::redis_decode($_) ) for ( $name, $title, $tags);
 
         # If the thumbnail hash is empty or undefined, we'll generate it here.
         unless ( length $thumbhash ) {
             $logger->info("Thumbnail hash invalid, regenerating.");
-            my $dirname = LANraragi::Model::Config::get_userdir;
+            my $dirname = LANraragi::Model::Config->get_userdir;
 
             #eval the thumbnail extraction as it can error out and die
-            eval { LANraragi::Utils::Archive::extract_thumbnail( $dirname, $id ) };
+            eval { extract_thumbnail( $dirname, $id ) };
             if ($@) { 
                 $logger->warn("Error building thumbnail: $@");
                 $thumbhash = "";
             } else {
                 $thumbhash = $redis->hget( $id, "thumbhash" );
-                $thumbhash = LANraragi::Utils::Database::redis_decode($thumbhash);
+                $thumbhash = redis_decode($thumbhash);
             }
         }          
         $redis->quit();
 
-        #Hand it off to the plugin here.
-        my %newmetadata = $plugin->get_tags( $title, $tags, $thumbhash, $file, $oneshotarg,
-                @args );
+        # Hand it off to the plugin here.
+        # If the plugin requires a login, execute that first to get a UserAgent
+        my %pluginfo = $plugin->plugin_info();
+        my $ua = exec_login_plugin($pluginfo{login_from});
+
+        # Bundle all the potentially interesting info in a hash
+        my %infohash = (
+            archive_title   => $title,
+            existing_tags   => $tags,
+            thumbnail_hash  => $thumbhash,
+            file_path       => $file,
+            user_agent      => $ua,
+            oneshot_param   => $oneshotarg
+        );
+
+        my %newmetadata = $plugin->get_tags( \%infohash, @args );
 
         #Error checking
         if ( exists $newmetadata{error} ) {
@@ -139,13 +175,13 @@ sub exec_plugin_on_file {
 
         #Process new metadata,
         #stripping out blacklisted tags and tags that we already have in Redis
-        my $blist = LANraragi::Model::Config::get_tagblacklist;
+        my $blist = LANraragi::Model::Config->get_tagblacklist;
         my @blacklist = split( ',', $blist );   # array-ize the blacklist string
 
         foreach my $tagtoadd (@tagarray) {
 
-            LANraragi::Utils::Generic::remove_spaces($tagtoadd);
-            LANraragi::Utils::Generic::remove_newlines($tagtoadd);
+            remove_spaces($tagtoadd);
+            remove_newlines($tagtoadd);
 
             unless ( index( uc($tags), uc($tagtoadd) ) != -1 ) {
 
@@ -153,7 +189,7 @@ sub exec_plugin_on_file {
                 my $good = 1;
 
                 foreach my $black (@blacklist) {
-                    LANraragi::Utils::Generic::remove_spaces($black);
+                    remove_spaces($black);
 
                     if ( index( uc($tagtoadd), uc($black) ) != -1 ) {
                         $logger->info(
@@ -163,7 +199,6 @@ sub exec_plugin_on_file {
                 }
 
                 if ($good) {
-
                     #This tag is processed and good to go
                     $newtags .= " $tagtoadd,";
                 }
@@ -178,7 +213,7 @@ sub exec_plugin_on_file {
         if ( exists $newmetadata{title} ) {
 
             my $newtitle = $newmetadata{title};
-            LANraragi::Utils::Generic::remove_spaces($newtitle);
+            remove_spaces($newtitle);
             $returnhash{title} = $newtitle;
         }
         return %returnhash;

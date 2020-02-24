@@ -18,13 +18,14 @@ use Image::Magick;
 use Archive::Peek::Libarchive;
 use Archive::Extract::Libarchive;
 
-use LANraragi::Model::Config;
-use LANraragi::Utils::TempFolder;
-use LANraragi::Utils::Logging;
-use LANraragi::Utils::Generic;
+use LANraragi::Utils::TempFolder qw(get_temp);
+use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Generic qw(is_image shasum);
 
 # Utilitary functions for handling Archives.
 # Relies on Libarchive and ImageMagick.
+use Exporter 'import'; 
+our @EXPORT_OK = qw(is_file_in_archive extract_file_from_archive extract_archive extract_thumbnail generate_thumbnail); 
 
 # generate_thumbnail(original_image, thumbnail_location)
 # use ImageMagick to make a thumbnail, height = 500px (view in index is 280px tall)
@@ -92,10 +93,10 @@ sub extract_thumbnail {
 
     mkdir $dirname;
     mkdir $dirname . "/thumb";
-    my $redis = LANraragi::Model::Config::get_redis();
+    my $redis = LANraragi::Model::Config->get_redis;
 
     my $file = $redis->hget( $id, "file" );
-    my $temppath = LANraragi::Utils::TempFolder::get_temp . "/thumb";
+    my $temppath = get_temp . "/thumb";
 
     # Make sure the thumb temp dir exists
     mkdir $temppath;
@@ -109,7 +110,7 @@ sub extract_thumbnail {
     foreach my $file (@files) {
 
         my $file2 = $file;
-        if ( LANraragi::Utils::Generic::is_image($file2) ) {
+        if ( is_image($file2) ) {
             push @extracted, $file;
         }
     }
@@ -133,7 +134,7 @@ sub extract_thumbnail {
 
     #While we have the image, grab its SHA-1 hash for tag research.
     #That way, no need to repeat the costly extraction later.
-    my $shasum = LANraragi::Utils::Generic::shasum( $arcimg, 1 );
+    my $shasum = shasum( $arcimg, 1 );
     $redis->hset( $id, "thumbhash", encode_utf8($shasum) );
     $redis->quit();
 
@@ -154,7 +155,7 @@ sub is_file_in_archive {
 
     my ( $archive, $wantedname ) = @_;
 
-    my $logger = LANraragi::Utils::Logging::get_logger( "Archive", "lanraragi" );
+    my $logger = get_logger( "Archive", "lanraragi" );
     $logger->debug("Iterating files of archive $archive, looking for '$wantedname'");
     $Data::Dumper::Useqq = 1;
 
@@ -185,8 +186,8 @@ sub extract_file_from_archive {
     #Timestamp extractions in microseconds 
     my ( $seconds, $microseconds ) = gettimeofday;
     my $stamp = "$seconds-$microseconds";
-    my $path  = LANraragi::Utils::TempFolder::get_temp . "/plugin/$stamp";
-    mkdir LANraragi::Utils::TempFolder::get_temp . "/plugin";
+    my $path  = get_temp . "/plugin/$stamp";
+    mkdir get_temp . "/plugin";
     mkdir $path;
 
     my $peek = Archive::Peek::Libarchive->new( filename => $archive );

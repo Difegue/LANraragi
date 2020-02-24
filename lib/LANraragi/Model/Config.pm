@@ -3,13 +3,9 @@ package LANraragi::Model::Config;
 use strict;
 use warnings;
 use utf8;
-use feature "switch";
-no warnings 'experimental';
 use Cwd 'abs_path';
-
 use Redis;
 use Encode;
-
 use Mojolicious::Plugin::Config;
 use Mojo::Home;
 
@@ -52,11 +48,11 @@ sub get_redis_conf {
     my $param   = $_[0];
     my $default = $_[1];
 
-    my $redis = &get_redis;
+    my $redis = get_redis();
 
     if ( $redis->hexists( "LRR_CONFIG", $param ) ) {
-        my $value = LANraragi::Utils::Database::redis_decode(
-            $redis->hget( "LRR_CONFIG", $param ) );
+        # Call Utils::Database directly as importing it with use; would cause circular dependencies...
+        my $value = LANraragi::Utils::Database::redis_decode($redis->hget( "LRR_CONFIG", $param ) );
 
         #failsafe against blank config values
         unless ( $value =~ /^\s*$/ ) {
@@ -100,7 +96,7 @@ sub get_userdir {
     return abs_path($dir);
 }
 
-sub enable_devmode  {
+sub enable_devmode {
 
     if ($ENV{LRR_FORCE_DEBUG}) {
         return 1;
@@ -130,21 +126,6 @@ sub get_tagregex    { return &get_redis_conf( "tagregex",    "1" ) }
 
 #Use the number of the favtag you want to get as a parameter to this sub.
 sub get_favtag { return &get_redis_conf( "fav" . $_[1], "" ) }
-
-#Assign a name to the css file passed. You can add names by adding cases.
-#Note: CSS files added to the /themes folder will ALWAYS be pickable by the users no matter what.
-#All this sub does is give .css files prettier names in the dropdown. Files without a name here will simply show as their filename to the users.
-sub css_default_names {
-    given ( $_[0] ) {
-        when ("g.css")            { return "HentaiVerse" }
-        when ("modern.css")       { return "Hachikuji" }
-        when ("modern_clear.css") { return "Yotsugi" }
-        when ("modern_red.css")   { return "Nadeko" }
-        when ("ex.css")           { return "Sad Panda" }
-        default                   { return $_[0] }
-    }
-
-}
 
 #Regular Expression matching the E-Hentai standard: (Release) [Artist] TITLE (Series) [Language]
 #Used in parsing.

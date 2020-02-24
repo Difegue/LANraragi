@@ -13,10 +13,9 @@ use Encode;
 use Data::Dumper;
 use URI::Escape;
 
-use LANraragi::Model::Config;
-use LANraragi::Utils::Archive;
-use LANraragi::Utils::Database;
-use LANraragi::Utils::TempFolder;
+use LANraragi::Utils::Generic qw(is_image shasum);
+use LANraragi::Utils::Archive qw(extract_archive generate_thumbnail);
+use LANraragi::Utils::TempFolder qw(get_temp);
 
 #magical sort function used below
 sub expand {
@@ -46,11 +45,11 @@ sub resize_image {
 sub build_reader_JSON {
 
     my ( $self, $id, $force, $thumbreload ) = @_;
-    my $tempdir = LANraragi::Utils::TempFolder::get_temp;
+    my $tempdir = get_temp();
 
     #Redis stuff: Grab archive path and update some things
-    my $redis   = LANraragi::Model::Config::get_redis();
-    my $dirname = LANraragi::Model::Config::get_userdir();
+    my $redis   = LANraragi::Model::Config->get_redis;
+    my $dirname = LANraragi::Model::Config->get_userdir;
 
     # Get the path from Redis.
     # Filenames are stored as they are on the OS, so no decoding!
@@ -77,8 +76,7 @@ sub build_reader_JSON {
 
         my $outpath = "";
         eval {
-            $outpath =
-              LANraragi::Utils::Archive::extract_archive( $path, $zipfile );
+            $outpath = extract_archive( $path, $zipfile );
         };
 
         if ($@) {
@@ -99,7 +97,7 @@ sub build_reader_JSON {
     eval {
         find(sub {
                 # Is it an image?
-                if ( LANraragi::Utils::Generic::is_image($_) ) {
+                if ( is_image($_) ) {
                     push @images, $File::Find::name;
                 }
             }, $path);
@@ -115,14 +113,14 @@ sub build_reader_JSON {
     my $thumbname = $dirname . "/thumb/" . $id . ".jpg";
     unless ( -e $thumbname && $thumbreload eq "0" ) {
 
-        my $shasum = LANraragi::Utils::Generic::shasum( $images[0], 1 );
+        my $shasum = shasum( $images[0], 1 );
         $redis->hset( $id, "thumbhash", encode_utf8($shasum) );
 
         $self->LRR_LOGGER->debug("Thumbnail not found at $thumbname! (force-thumb flag = $thumbreload)");
         $self->LRR_LOGGER->debug("Regenerating from " . $images[0]);
         mkdir $dirname . "/thumb";
 
-        LANraragi::Utils::Archive::generate_thumbnail( $images[0], $thumbname );
+        generate_thumbnail( $images[0], $thumbname );
     }
 
     #Build a browser-compliant filepath array from @images

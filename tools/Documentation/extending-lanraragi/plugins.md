@@ -55,6 +55,15 @@ There are no restrictions on what you can write in those fields, except for the 
 It's used as a unique ID for your Plugin in various parts of the app.  
 The `parameters` array can contain as many arguments as you need. The `type` field should stay as "metadata" for the time being.
 
+### Login Plugins
+
+
+### Metadata Plugins
+
+
+### Scripts
+
+
 ### Expected Input
 
 The following section deals with writing the `get_tags` subroutine.  
@@ -65,15 +74,19 @@ sub get_tags {
 
     #First lines you should have in the subroutine
     shift;
-    my ($title, $tags, $thumbhash, $file, $oneshotarg, @args) = @_;
+    my $lrr_info = shift; # Global info hash
+    my ($lang, $savetitle, $usethumbs, $enablepanda) = @_; # Plugin parameters
+
 ```
 
-* _$title_: The title of the archive, as entered by the User. 
-* _$tags_: The tags that are already in LRR for this archive, if there are any.
-* _$thumbhash_: A SHA-1 hash of the first image of the archive.
-* _$file_: The filesystem path to the archive.
-* _$oneshotarg_: Value of your one-shot argument, if it's been set by the User.
-* _@args_: Array containing all your other arguments, if their values have been set by the User.
+The `$lrr_info` hash contains various variables you can use in your plugin: 
+
+* _$lrr_info->{archive_title}_: The title of the archive, as entered by the User. 
+* _$lrr_info->{existing_tags}_: The tags that are already in LRR for this archive, if there are any.
+* _$lrr_info->{thumbnail_hash}_: A SHA-1 hash of the first image of the archive.
+* _$lrr_info->{file_path}_: The filesystem path to the archive.
+* _$lrr_info->{oneshot_param}_: Value of your one-shot argument, if it's been set by the User.
+* _$lrr_info->{user_agent}_: [Mojo::UserAgent](https://mojolicious.org/perldoc/Mojo/UserAgent) object you can use for web requests. If this plugin depends on a Login plugin, this UserAgent will be pre-configured with the cookies from the Login.
 
 ### Global and One-Shot Arguments
 
@@ -120,7 +133,7 @@ If LANraragi is running in Debug Mode, debug messages from your plugin will be l
 
 ### Plugin Template
 
-Examples speak better than words: The code below is a fully-working plugin stub.
+Examples speak better than words: The code below is a fully-working metadata plugin stub.
 
 ```perl
 package LANraragi::Plugin::MyNewPlugin;
@@ -128,11 +141,15 @@ package LANraragi::Plugin::MyNewPlugin;
 use strict;
 use warnings;
 
-#Plugins can freely use all Perl packages already installed on the system 
-#Try however to restrain yourself to the ones already installed for LRR (see tools/cpanfile) to avoid extra installations by the end-user.
+# Plugins can freely use all Perl packages already installed on the system 
+# Try however to restrain yourself to the ones already installed for LRR (see tools/cpanfile) to avoid extra installations by the end-user.
 use Mojo::UserAgent;
 
+# You can also use LRR packages when fitting.
+# All packages are fair game, but only functions explicitly exported by the Utils packages are supported between versions.
+# Everything else is considered internal API and can be broken/renamed between versions.
 use LANraragi::Model::Plugins;
+use LANraragi::Utils::Logging qw(get_logger);
 
 #Meta-information about your plugin.
 sub plugin_info {
@@ -160,13 +177,16 @@ sub plugin_info {
 #Mandatory function to be implemented by your plugin
 sub get_tags {
 
-    #LRR gives your plugin the recorded title for the file, the filesystem path to the file, and the custom arguments if available.
     shift;
-    # Here, I replace @args by two variables directly matching my global arguments -- Feel free to use this variant if you prefer it.
-    my ($title, $tags, $thumbhash, $file, $oneshotarg, $doomsday, $iterations) = @_;
+    my $lrr_info = shift; # Global info hash, contains various metadata provided by LRR
+    my ($doomsday, $iterations) = @_; # Plugin parameters
+
+    if ($lrr_info->{oneshot_param}) {
+        return ( error => "Yaaaaaaaaa gomen gomen the oneshot argument isn't implemented -- You entered ".$lrr_info->{oneshot_param}.", right ?");
+    }
 
     #Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
-    my $logger = LANraragi::Utils::Logging::get_logger("My Cool Plugin","plugins");
+    my $logger = get_logger("My Cool Plugin","plugins");
 
     if ($doomsday) {
         return ( error => "You fools! You've messed with the natural order!");
@@ -190,7 +210,7 @@ sub get_tags {
 sub get_tags_from_somewhere {
 
     my $iterations = shift;
-    my $logger = LANraragi::Utils::Logging::get_logger("My Cool Plugin","plugins");
+    my $logger = get_logger("My Cool Plugin","plugins");
 
     $logger->info("I'm supposed to be iterating $iterations times but I don't give a damn my man");
 
@@ -208,8 +228,10 @@ This section contains a few bits of code for things you might want to do with Pl
 #### **Write messages to the Plugin Log**
 
 ```perl
-#Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
-my $logger = LANraragi::Utils::Logging::get_logger("MyPluginName","plugins");
+# Import the LRR logging module
+use LANraragi::Utils::Logging qw(get_logger);
+# Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
+my $logger = get_logger("MyPluginName","plugins");
 
 $plugin->debug("This message will only show if LRR is in Debug Mode")
 $plugin->info("You know me the fighting freak Knuckles and we're at Pumpkin Hill");
@@ -226,7 +248,7 @@ The logger is a preconfigured [Mojo::Log](http://mojolicious.org/perldoc/Mojo/Lo
 ```perl
 use Mojo::UserAgent;
 
-my $ua = Mojo::UserAgent->new;
+my $ua = $lrr_info->{user_agent};
 
 #Get HTML from a simple GET request
 $ua->get("http://example.com")->result->body;
@@ -250,9 +272,7 @@ my $textrep      = $rep->body;
 #### **Read values in the LRR Database**
 
 ```perl
-use LANraragi::Model::Config;
-
-my $redis = LANraragi::Model::Config::get_redis;
+my $redis = LANraragi::Model::Config->get_redis;
 
 my $value = $redis->get("key");
 ```
@@ -264,11 +284,13 @@ This uses the excellent [Perl binding library](http://search.cpan.org/~dams/Redi
 If you're running 0.5.2 or later:
 
 ```perl
+use LANraragi::Utils::Archive qw(is_file_in_archive extract_file_from_archive);
+
 #Check if info.json is in the archive located at $file
-if (LANraragi::Utils::Archive::is_file_in_archive($file,"info.json")) {
+if (is_file_in_archive($file,"info.json")) {
 
         #Extract info.json
-        LANraragi::Utils::Archive::extract_file_from_archive($file, "info.json");
+        extract_file_from_archive($file, "info.json");
 
         #Extracted files go to public/temp/plugin
         my $filepath = "./public/temp/plugin/info.json";

@@ -38,63 +38,29 @@
 
 		<form name="editPluginForm" id="editPluginForm" enctype="multipart/form-data" method="post">
 
-			[% FOREACH plugin IN plugins %]
-			<span style="display:inline-block; text-align: left; min-width:80%; border-bottom-width: 1px;border-bottom-style: solid">
-				[% IF plugin.icon %]
-				<img height=20 width=20 src="[% plugin.icon %]"/>
-				[% ELSE %]
-				<i class="fa fa-puzzle-piece" style="font-size:20px"></i>
-				[% END %]
-				<h2 class="ih" style="display:inline"> [% plugin.name %] v.[% plugin.version %]</h2>
-				<h1 class="ih" style="display:inline"> by [% plugin.author %] </h1>
-				<br/>
-				<h1 class="ih" style="display:inline"> Auto-Plugin: </h1>
-				<input id="[% plugin.namespace %]" name="[% plugin.namespace %]" class="fa" type="checkbox" 
-				[% IF plugin.enabled %]
-				 checked
-				[% END %] >
-				<br/>
-				<i>[% plugin.description %]</i>
-				<br/>
-				[% IF plugin.parameters && plugin.parameters.size %]
-				<div class="collapsible-title caret" style="padding: 5px 0 0 5px">
-					<b>Settings</b></div>
-				<div class="collapsible-body" style="padding:5px 0 0 0">
-					<table>
-						<tbody>
-							[% FOREACH param IN plugin.parameters %]
-							<tr>
-								<td style="vertical-align:middle">
-									<b> [% param.desc %] : </b>
-								</td>
-								<td>
-									<input style="max-width:200px" size="20" 
-										name="[% plugin.namespace %]_CFG_[% loop.count %]"
-										type =
-									[% SWITCH param.type %] # time for some real-ass typage
-										[% CASE 'string' %]
-											"text" value="[% param.value %]" class="stdinput" 
-										[% CASE 'bool' %]  
-											"checkbox" value="1" class="fa" [% IF param.value %] checked [% END %]
-										[% CASE 'int' %] 
-											"number" value="[% param.value %]" class="stdinput"
-										[% CASE %]  # default (ayy lmao)
-											"color"
-									[% END %]
-									>
-									 <br/>
-								</td>
-							</tr>
-							[% END %]
-						</tbody>
-					</table>
-				</div>
-				[% END %]
-				<br />
-			</span>
-			<br />
-			<br /> [% END %]
-
+			<ul class="collapsible extensible with-right-caret">
+				<li class="option-flyout">
+					<div class="collapsible-title caret-right">
+						<i class="fa fa-digital-tachograph" aria-hidden="true"></i> Metadata Plugins</div>
+					<div class="collapsible-body">		
+						[% INCLUDE pluginlist plugins = metadata %]
+					</div>
+				</li>
+				<li class="option-flyout">
+					<div class="collapsible-title caret-right">
+						<i class="fa fa-plug" aria-hidden="true"></i> Login Plugins</div>
+					<div class="collapsible-body">
+						[% INCLUDE pluginlist plugins = logins %]
+					</div>
+				</li>
+				<li class="option-flyout">
+					<div class="collapsible-title caret-right">
+						<i class="fa fa-scroll" aria-hidden="true"></i> Scripts</div>
+					<div class="collapsible-body">
+						
+					</div>
+				</li>
+			</ul>
 
 			<br />
 			<h1 style="text-align:center">
@@ -144,3 +110,68 @@
 </body>
 
 </html>
+
+
+[% BLOCK pluginlist %]
+
+[% FOREACH plugin IN plugins %]
+<span style="display:inline-block; text-align: left; width:80%; border-bottom-width: 1px;border-bottom-style: solid">
+	[% IF plugin.icon %]
+	<img height=20 width=20 src="[% plugin.icon %]"/>
+	[% ELSE %]
+	<i class="fa fa-puzzle-piece" style="font-size:20px"></i>
+	[% END %]
+	<h2 class="ih" style="display:inline"> [% plugin.name %] v.[% plugin.version %]</h2>
+	<h1 class="ih" style="display:inline"> by [% plugin.author %] </h1>
+	<br/>
+	[% IF plugin.type != "login" %]
+		<h1 class="ih" style="display:inline"> Auto-Plugin: </h1>
+		<input id="[% plugin.namespace %]" name="[% plugin.namespace %]" class="fa" type="checkbox" 
+		[% IF plugin.enabled %]
+			checked
+		[% END %] >
+		<br/>
+	[% END %]
+	<i>[% plugin.description %]</i>
+	<br/>
+	[% IF plugin.parameters && plugin.parameters.size %]
+	<div class="collapsible-title " style="padding: 5px 0 0 5px">
+		<i class="fa fa-cogs" aria-hidden="true"></i><b> Settings</b></div>
+	<div class="collapsible-body" style="padding:5px 0 0 0">
+		<table>
+			<tbody>
+				[% FOREACH param IN plugin.parameters %]
+				<tr>
+					<td style="vertical-align:middle">
+						<b> [% param.desc %] : </b>
+					</td>
+					<td>
+						<input style="max-width:200px" size="20" 
+							name="[% plugin.namespace %]_CFG_[% loop.count %]"
+							type =
+						[% SWITCH param.type %] # time for some real-ass typage
+							[% CASE 'string' %]
+								"text" value="[% param.value %]" class="stdinput" 
+							[% CASE 'bool' %]  
+								"checkbox" value="1" class="fa" [% IF param.value %] checked [% END %]
+							[% CASE 'int' %] 
+								"number" value="[% param.value %]" class="stdinput"
+							[% CASE %]  # default (ayy lmao)
+								"color"
+						[% END %]
+						>
+							<br/>
+					</td>
+				</tr>
+				[% END %]
+			</tbody>
+		</table>
+	</div>
+	[% END %]
+	<br />
+</span>
+<br />
+<br /> 
+[% END %]
+
+[% END %]

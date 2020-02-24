@@ -7,11 +7,8 @@ use File::Copy;
 use File::Find;
 use File::Basename;
 
-use LANraragi::Utils::Generic;
-use LANraragi::Utils::Archive;
-use LANraragi::Utils::Database;
-
-use LANraragi::Model::Config;
+use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header);
+use LANraragi::Utils::Database qw(invalidate_cache);
 
 sub process_upload {
     my $self = shift;
@@ -77,7 +74,7 @@ sub process_upload {
                 $redis );
 
             # Invalidate search cache ourselves, Shinobu won't do it since the file is already in the database
-            LANraragi::Utils::Database::invalidate_cache();
+            invalidate_cache();
 
             # Move the file to the content folder.
             # Move to a .tmp first in case copy to the content folder takes a while...
@@ -132,8 +129,8 @@ sub index {
         template    => "upload",
         title       => $self->LRR_CONF->get_htmltitle,
         autoplugin  => $self->LRR_CONF->enable_autotag,
-        cssdrop     => LANraragi::Utils::Generic::generate_themes_selector,
-        csshead     => LANraragi::Utils::Generic::generate_themes_header($self),
+        cssdrop     => generate_themes_selector,
+        csshead     => generate_themes_header($self),
         version     => $self->LRR_VERSION
     );
 }
