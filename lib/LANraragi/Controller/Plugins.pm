@@ -8,7 +8,7 @@ no warnings 'experimental';
 use Cwd;
 
 use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header);
-use LANraragi::Utils::Plugins;
+use LANraragi::Utils::Plugins qw(get_plugins get_plugin_parameters is_plugin_enabled);
 use LANraragi::Utils::Logging qw(get_logger);
 
 # This action will render a template
@@ -18,8 +18,8 @@ sub index {
     my $redis = $self->LRR_CONF->get_redis;
 
     #Build plugin lists, array of hashes
-    my @metaplugins = LANraragi::Utils::Plugins::get_plugins("metadata");
-    my @loginplugins = LANraragi::Utils::Plugins::get_plugins("login");
+    my @metaplugins = get_plugins("metadata");
+    my @loginplugins = get_plugins("login");
 
     $redis->quit();
     $self->render(
@@ -39,11 +39,11 @@ sub craft_plugin_array {
     my @pluginarray = ();
     foreach my $pluginfo (@_) {
         my $namespace   = $pluginfo->{namespace};
-        my @redisparams = LANraragi::Utils::Plugins::get_plugin_parameters($namespace);
+        my @redisparams = get_plugin_parameters($namespace);
 
         if ($pluginfo->{type} ne "login") {
             # Add whether the plugin is enabled to the hash directly
-            $pluginfo->{enabled} = LANraragi::Utils::Plugins::is_plugin_enabled($namespace);
+            $pluginfo->{enabled} = is_plugin_enabled($namespace);
         }
 
         # Add redis values to the members of the parameters array
@@ -70,7 +70,7 @@ sub save_config {
     my $redis = $self->LRR_CONF->get_redis;
 
     # Update settings for every plugin.
-    my @plugins = LANraragi::Utils::Plugins::get_plugins("metadata");
+    my @plugins = get_plugins("metadata");
 
     #Plugin list is an array of hashes
     my @pluginlist = ();

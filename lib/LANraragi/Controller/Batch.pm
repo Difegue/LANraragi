@@ -8,7 +8,7 @@ use Mojo::JSON qw(decode_json encode_json from_json);
 
 use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header);
 use LANraragi::Utils::Database qw(redis_decode);
-use LANraragi::Utils::Plugins;
+use LANraragi::Utils::Plugins qw(get_plugins get_plugin get_plugin_parameters);
 use LANraragi::Utils::Logging qw(get_logger);
 
 # This action will render a template
@@ -39,7 +39,7 @@ sub index {
     $redis->quit();
 
     #Build plugin listing
-    my @pluginlist = LANraragi::Utils::Plugins::get_plugins("metadata");
+    my @pluginlist = get_plugins("metadata");
 
     $self->render(
         template => "batch",
@@ -75,7 +75,7 @@ sub socket {
             my $command    = decode_json($msg);
             my $pluginname = $command->{"plugin"};
 
-            my $plugin = LANraragi::Utils::Plugins::get_plugin($pluginname);
+            my $plugin = get_plugin($pluginname);
 
             #Global arguments can come from the database or the user override
             my @args     = @{ $command->{"args"} };
@@ -86,9 +86,8 @@ sub socket {
                 #If the array is empty(no overrides)
                 if ( !@args ) {
                     $logger->debug("No user overrides given.");
-                    #Try getting the saved defaults
-                    @args = LANraragi::Utils::Plugins::get_plugin_parameters(
-                        $pluginname);
+                    # Try getting the saved defaults
+                    @args = get_plugin_parameters($pluginname);
                 }
 
                 # Run plugin with args on id

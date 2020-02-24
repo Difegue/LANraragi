@@ -29,7 +29,7 @@ use File::Basename;
 use Encode;
 
 use LANraragi::Utils::Database qw(invalidate_cache);
-use LANraragi::Utils::TempFolder;
+use LANraragi::Utils::TempFolder qw(get_temp clean_temp_partial);
 use LANraragi::Utils::Logging qw(get_logger);
 
 use LANraragi::Model::Plugins;
@@ -84,7 +84,7 @@ sub initialize_from_new_process {
     # Add watcher to tempfolder
     my $tempwatcher =
     File::ChangeNotify->instantiate_watcher
-        ( directories => [ LANraragi::Utils::TempFolder::get_temp ] );
+        ( directories => [ get_temp() ] );
 
     # manual event loop
     $logger->info("All done! Now dutifully watching your files. ");
@@ -98,7 +98,7 @@ sub initialize_from_new_process {
 
         # Check the current temp folder size and clean it if necessary
         for my $event ( $tempwatcher->new_events ) {
-            LANraragi::Utils::TempFolder::clean_temp_partial;
+            clean_temp_partial();
         }
 
         sleep 2;

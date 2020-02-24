@@ -18,7 +18,7 @@ use Data::Dumper;
 use LANraragi::Utils::Generic qw(remove_spaces remove_newlines);
 use LANraragi::Utils::Archive qw(extract_thumbnail);
 use LANraragi::Utils::Database qw(redis_decode);
-use LANraragi::Utils::Plugins;
+use LANraragi::Utils::Plugins qw(get_plugin get_enabled_plugins get_plugin_parameters);
 use LANraragi::Utils::Logging qw(get_logger);
 
 # Sub used by Auto-Plugin.
@@ -33,12 +33,12 @@ sub exec_enabled_plugins_on_file {
     my $failures  = 0;
     my $addedtags = 0;
 
-    my @plugins = LANraragi::Utils::Plugins::get_enabled_plugins("metadata");
+    my @plugins = get_enabled_plugins("metadata");
 
     foreach my $pluginfo (@plugins) {
         my $name   = $pluginfo->{namespace};
-        my @args   = LANraragi::Utils::Plugins::get_plugin_parameters($name);
-        my $plugin = LANraragi::Utils::Plugins::get_plugin($name);
+        my @args   = get_plugin_parameters($name);
+        my $plugin = get_plugin($name);
         my %plugin_result;
 
         #Every plugin execution is eval'd separately
@@ -88,8 +88,8 @@ sub exec_login_plugin {
 
     if ($logplugname) {
         $logger->info("Calling matching login plugin $logplugname.");
-        my $loginplugin = LANraragi::Utils::Plugins::get_plugin($logplugname);
-        my @loginargs   = LANraragi::Utils::Plugins::get_plugin_parameters($logplugname);
+        my $loginplugin = get_plugin($logplugname);
+        my @loginargs   = get_plugin_parameters($logplugname);
 
         if ($loginplugin->can('do_login')) {
             my $loggedinua = $loginplugin->do_login(@loginargs);

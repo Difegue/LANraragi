@@ -39,8 +39,6 @@ sub get_tags {
     shift;
     my $lrr_info = shift; # Global info hash 
     my ($savetitle) = @_; # Plugin parameters
-use Data::Dumper;
-print Dumper $lrr_info->{file_path};
 
     my $logger = get_logger( "eze", "plugins" );
     if ( is_file_in_archive( $lrr_info->{file_path}, "info.json" ) ) {

@@ -8,7 +8,7 @@ use Template;
 
 use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header remove_spaces remove_newlines);
 use LANraragi::Utils::Database qw(redis_decode invalidate_cache);
-use LANraragi::Utils::Plugins;
+use LANraragi::Utils::Plugins qw(get_plugins);
 
 sub save_metadata {
     my $self = shift;
@@ -80,7 +80,7 @@ sub index {
           for ( $name, $title, $tags );
 
         #Build plugin listing
-        my @pluginlist = LANraragi::Utils::Plugins::get_plugins("metadata");
+        my @pluginlist = get_plugins("metadata");
 
         $redis->quit();
 

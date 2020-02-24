@@ -15,7 +15,7 @@ use URI::Escape;
 
 use LANraragi::Utils::Generic qw(is_image shasum);
 use LANraragi::Utils::Archive qw(extract_archive generate_thumbnail);
-use LANraragi::Utils::TempFolder;
+use LANraragi::Utils::TempFolder qw(get_temp);
 
 #magical sort function used below
 sub expand {
@@ -45,7 +45,7 @@ sub resize_image {
 sub build_reader_JSON {
 
     my ( $self, $id, $force, $thumbreload ) = @_;
-    my $tempdir = LANraragi::Utils::TempFolder::get_temp;
+    my $tempdir = get_temp();
 
     #Redis stuff: Grab archive path and update some things
     my $redis   = LANraragi::Model::Config->get_redis;

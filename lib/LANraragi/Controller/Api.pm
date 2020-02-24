@@ -10,7 +10,7 @@ use File::Path qw(remove_tree);
 
 use LANraragi::Utils::Generic qw(start_shinobu);
 use LANraragi::Utils::Database qw(invalidate_cache);
-use LANraragi::Utils::TempFolder;
+use LANraragi::Utils::TempFolder qw(get_temp get_tempsize clean_temp_full);
 
 use LANraragi::Model::Api;
 use LANraragi::Model::Backup;
@@ -133,7 +133,7 @@ sub serve_page {
     my $id    = check_id_parameter($self, "servefile") || return;
     my $path  = $self->req->param('path') || "404.xyz";
 
-    my $tempfldr = LANraragi::Utils::TempFolder::get_temp;
+    my $tempfldr = get_temp();
     my $file     = $tempfldr . "/$id/$path";
     my $abspath  = abs_path($file); # abs_path returns null if the path is invalid.
 
@@ -187,14 +187,14 @@ sub clean_tempfolder {
     my $self = shift;
 
     #Run a full clean, errors are dumped into $@ if they occur
-    eval { LANraragi::Utils::TempFolder::clean_temp_full };
+    eval { clean_temp_full() };
 
     $self->render(
         json => {
             operation => "cleantemp",
             success   => $@ eq "",
             error     => $@,
-            newsize   => LANraragi::Utils::TempFolder::get_tempsize
+            newsize   => get_tempsize()
         }
     );
 }

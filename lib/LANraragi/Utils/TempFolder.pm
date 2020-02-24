@@ -14,6 +14,8 @@ use LANraragi::Utils::Generic;
 use LANraragi::Utils::Logging qw(get_logger);
 
 #Contains all functions related to the temporary folder.
+use Exporter 'import'; 
+our @EXPORT_OK = qw(get_temp get_tempsize clean_temp_full clean_temp_partial); 
 
 #Get the current tempfolder.
 #This can be called from any process safely as it uses FindBin.
@@ -73,7 +75,7 @@ sub clean_temp_partial {
     #Abort if the temp dir doesn't exist yet
     return unless ( -e $tempdir );
 
-    my $size    = LANraragi::Utils::TempFolder->get_tempsize;
+    my $size    = get_tempsize;
     my $maxsize = LANraragi::Model::Config->get_tempmaxsize;
 
     if ( $size > $maxsize ) {

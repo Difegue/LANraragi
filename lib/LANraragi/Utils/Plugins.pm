@@ -9,6 +9,11 @@ use LANraragi::Utils::Database qw(redis_decode);
 
 use LANraragi::Model::Plugins;
 
+# Functions related to the Plugin system.
+# This mostly contains the glue for parameters w/ Redis, the meat of Plugin execution is in Model::Plugins.
+use Exporter 'import'; 
+our @EXPORT_OK = qw(get_plugins get_plugin get_enabled_plugins get_plugin_parameters is_plugin_enabled); 
+
 # Get metadata of all plugins with the defined type. Returns an array of hashes.
 sub get_plugins {
 

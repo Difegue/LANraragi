@@ -11,7 +11,7 @@ use Storable;
 
 use LANraragi::Utils::Generic qw(start_shinobu);
 use LANraragi::Utils::Logging qw(get_logger);
-use LANraragi::Utils::Plugins;
+use LANraragi::Utils::Plugins qw(get_plugins);
 use LANraragi::Utils::Routing;
 
 use LANraragi::Model::Search;
@@ -91,7 +91,7 @@ sub startup {
     }
 
     #Plugin listing
-    my @plugins = LANraragi::Utils::Plugins::get_plugins("metadata");
+    my @plugins = get_plugins("metadata");
     foreach my $pluginfo (@plugins) {
         my $name = $pluginfo->{name};
         $self->LRR_LOGGER->info( "Plugin Detected: " . $name );

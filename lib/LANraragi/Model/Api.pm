@@ -10,6 +10,7 @@ use Mojo::JSON qw(decode_json encode_json);
 
 use LANraragi::Utils::Generic qw(get_tag_with_namespace remove_spaces remove_newlines);
 use LANraragi::Utils::Archive qw(extract_thumbnail);
+use LANraragi::Utils::Plugins qw(get_plugin get_plugin_parameters);
 use LANraragi::Utils::Database qw(redis_decode);
 
 # Functions used by the API.
@@ -168,13 +169,13 @@ sub use_plugin {
     my $plugname    = $self->req->param('plugin');
     my $oneshotarg  = $self->req->param('arg');
     
-    my $plugin = LANraragi::Utils::Plugins::get_plugin($plugname);
+    my $plugin = get_plugin($plugname);
     my @args   = ();
 
     if ($plugin) {
 
         #Get the matching globalargs in Redis
-        @args = LANraragi::Utils::Plugins::get_plugin_parameters($plugname);
+        @args = get_plugin_parameters($plugname);
 
         #Execute the plugin, appending the custom args at the end
         my %plugin_result;

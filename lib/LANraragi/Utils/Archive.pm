@@ -18,7 +18,7 @@ use Image::Magick;
 use Archive::Peek::Libarchive;
 use Archive::Extract::Libarchive;
 
-use LANraragi::Utils::TempFolder;
+use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Utils::Generic qw(is_image shasum);
 
@@ -96,7 +96,7 @@ sub extract_thumbnail {
     my $redis = LANraragi::Model::Config->get_redis;
 
     my $file = $redis->hget( $id, "file" );
-    my $temppath = LANraragi::Utils::TempFolder::get_temp . "/thumb";
+    my $temppath = get_temp . "/thumb";
 
     # Make sure the thumb temp dir exists
     mkdir $temppath;
@@ -186,8 +186,8 @@ sub extract_file_from_archive {
     #Timestamp extractions in microseconds 
     my ( $seconds, $microseconds ) = gettimeofday;
     my $stamp = "$seconds-$microseconds";
-    my $path  = LANraragi::Utils::TempFolder::get_temp . "/plugin/$stamp";
-    mkdir LANraragi::Utils::TempFolder::get_temp . "/plugin";
+    my $path  = get_temp . "/plugin/$stamp";
+    mkdir get_temp . "/plugin";
     mkdir $path;
 
     my $peek = Archive::Peek::Libarchive->new( filename => $archive );

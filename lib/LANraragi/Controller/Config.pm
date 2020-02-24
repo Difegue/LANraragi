@@ -4,7 +4,7 @@ use Mojo::Base 'Mojolicious::Controller';
 use Encode;
 
 use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header remove_spaces remove_newlines);
-use LANraragi::Utils::TempFolder;
+use LANraragi::Utils::TempFolder qw(get_tempsize);
 
 use Authen::Passphrase::BlowfishCrypt;
 
@@ -37,7 +37,7 @@ sub index {
         fav5        => $self->LRR_CONF->get_favtag(5),
         cssdrop     => generate_themes_selector,
         csshead     => generate_themes_header($self),
-        tempsize    => LANraragi::Utils::TempFolder::get_tempsize
+        tempsize    => get_tempsize
     );
 }
 
