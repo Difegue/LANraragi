@@ -2,30 +2,41 @@
 requires 'perl', '5.20.2';
 requires 'local::lib', 2.000024;
 
-requires 'Redis', 1.991;
-requires 'Encode', 2.98;
-requires 'File::ChangeNotify', 0.31;
+# LRR Core
+requires 'Redis', 1.995;
+requires 'Encode', 3.02;
 requires 'Archive::Extract::Libarchive', 0.38;
 requires 'Archive::Peek::Libarchive', 0.38;
-requires 'Proc::Simple', 1.32;
-requires 'Sort::Naturally', 1.03;
-
-requires 'IPC::Cmd', 1.02;
 requires 'Digest::SHA', 6.02;
-requires 'URI::Escape', 1.74;
-requires 'Compress::Zlib', 2.087;
 
+# Web UI
+requires 'Sort::Naturally', 1.03;
 requires 'Authen::Passphrase', 0.008;
 requires 'File::ReadBackwards', 1.05;
-requires 'File::Find::utf8', 0.013;
-requires 'Cpanel::JSON::XS', 4.06;
+requires 'URI::Escape', 1.74;
+
+# Background Worker
+requires 'Proc::Simple', 1.32;
+requires 'Parallel::Loops', 0.10;
+requires 'File::ChangeNotify', 0.31;
+
+# Used by Installer
+requires 'IPC::Cmd', 1.02;
+
+# Logfile rotation and compression
 requires 'Logfile::Rotate', 1.04;
+requires 'Compress::Zlib', 2.087;
 
+# Test Utils
 requires 'Test::Harness', 3.42;
-requires 'Test::MockObject', 1.20191002;
-requires 'Mojolicious', 8.22;
-requires 'Mojolicious::Plugin::TemplateToolkit', 0.003;
-requires 'Mojolicious::Plugin::RenderFile', 0.12;
-requires 'IO::Socket::SSL', 2.056;
+requires 'Test::MockObject', 1.20200122;
 
+# Mojo stuff
+requires 'Mojolicious', 8.33;
+requires 'Mojolicious::Plugin::TemplateToolkit', 0.005;
+requires 'Mojolicious::Plugin::RenderFile', 0.12;
+requires 'IO::Socket::SSL', 2.067;
+requires 'Cpanel::JSON::XS', 4.06;
+
+# Plugin system
 requires 'Module::Pluggable', 5.2;
