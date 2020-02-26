@@ -106,11 +106,12 @@ sub save_config {
     #Did all the checks pass ?
     if ($success) {
 
-#clean up the user's inputs for non-toggle options and encode for redis insertion
+    # Clean up the user's inputs for non-toggle options and encode for redis insertion
         foreach my $key ( keys %confhash ) {
             remove_spaces  ( $confhash{$key} );
             remove_newlines( $confhash{$key} );
-            encode_utf8    ( $confhash{$key} );
+            $confhash{$key} = encode_utf8 ( $confhash{$key} ); 
+            $self->LRR_LOGGER->debug("Saving $key with value ".$confhash{$key});
         }
 
 #for all keys of the hash, add them to the redis config hash with the matching keys.
