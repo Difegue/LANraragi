@@ -1,7 +1,6 @@
 package LANraragi::Controller::Api;
 use Mojo::Base 'Mojolicious::Controller';
 
-use Cwd 'abs_path';
 use Redis;
 use Encode;
 use Storable;
@@ -10,7 +9,7 @@ use File::Path qw(remove_tree);
 
 use LANraragi::Utils::Generic qw(start_shinobu);
 use LANraragi::Utils::Database qw(invalidate_cache);
-use LANraragi::Utils::TempFolder qw(get_temp get_tempsize clean_temp_full);
+use LANraragi::Utils::TempFolder qw(get_tempsize clean_temp_full);
 
 use LANraragi::Model::Api;
 use LANraragi::Model::Backup;
@@ -128,35 +127,9 @@ sub serve_file {
 
 # Serve an archive page from the temporary folder, using RenderFile.
 sub serve_page {
-
     my $self  = shift;
     my $id    = check_id_parameter($self, "servefile") || return;
-    my $path  = $self->req->param('path') || "404.xyz";
-
-    my $tempfldr = get_temp();
-    my $file     = $tempfldr . "/$id/$path";
-    my $abspath  = abs_path($file); # abs_path returns null if the path is invalid.
-
-    if (!$abspath) {
-        $self->render( 
-            json => {
-                error => "Invalid path.",
-                path => $file
-            },
-            status => 500);
-    }
-
-    # This API can only serve files from the temp folder
-    if (index($abspath, $tempfldr) != -1) {
-        $self->render_file( filepath => $file );
-    } else {
-        $self->render( 
-            json => {
-                error => "This API cannot render files outside of the temporary folder.",
-                path => $abspath
-            },
-            status => 500);
-    }
+    LANraragi::Model::Api::serve_page($self, $id);
 }
 
 sub extract_archive {

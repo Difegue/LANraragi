@@ -123,6 +123,9 @@ sub enable_nofun    { return &get_redis_conf( "nofunmode",   "0" ) }
 sub enable_autotag  { return &get_redis_conf( "autotag",     "1" ) }
 sub get_apikey      { return &get_redis_conf( "apikey",      "" ) }
 sub get_tagregex    { return &get_redis_conf( "tagregex",    "1" ) }
+sub enable_resize   { return &get_redis_conf( "enableresize", "0") };
+sub get_threshold   { return &get_redis_conf( "sizethreshold", "1000") };
+sub get_readquality { return &get_redis_conf( "readerquality", "50") };
 
 #Use the number of the favtag you want to get as a parameter to this sub.
 sub get_favtag { return &get_redis_conf( "fav" . $_[1], "" ) }

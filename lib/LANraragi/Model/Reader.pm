@@ -12,6 +12,7 @@ use File::Copy qw(move);
 use Encode;
 use Data::Dumper;
 use URI::Escape;
+use Image::Magick;
 
 use LANraragi::Utils::Generic qw(is_image shasum);
 use LANraragi::Utils::Archive qw(extract_archive generate_thumbnail);
@@ -34,8 +35,14 @@ sub resize_image {
     #Is the file size higher than the threshold?
     if ( ( int( ( -s $imgpath ) / 1024 * 10 ) / 10 ) > $threshold ) {
         $img->Read($imgpath);
-        $img->Resize( geometry => '1064x' );
-        $img->Set( quality => $quality );
+
+        my ($origw, $origh) = $img->Get('width', 'height');
+        if ($origw > 1064) {
+            $img->Resize( geometry => '1064x' );
+        }
+
+        # Set format to jpeg and quality
+        $img->Set( quality => $quality, magick => "jpg");
         $img->Write($imgpath);
     }
 }

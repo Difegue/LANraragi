@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use utf8;
 use Cwd;
-use File::Temp qw/ tempfile tempdir /;
+use File::Temp qw(tempfile);
 use File::Copy "cp";
 
 use Test::MockObject;
