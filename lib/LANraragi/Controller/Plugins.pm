@@ -18,8 +18,9 @@ sub index {
     my $redis = $self->LRR_CONF->get_redis;
 
     #Build plugin lists, array of hashes
-    my @metaplugins = get_plugins("metadata");
-    my @loginplugins = get_plugins("login");
+    my @metaplugins   = get_plugins("metadata");
+    my @loginplugins  = get_plugins("login");
+    my @scriptplugins = get_plugins("script");
 
     $redis->quit();
     $self->render(
@@ -27,6 +28,7 @@ sub index {
         title    => $self->LRR_CONF->get_htmltitle,
         metadata => craft_plugin_array(@metaplugins),
         logins   => craft_plugin_array(@loginplugins),
+        scripts  => craft_plugin_array(@scriptplugins),
         cssdrop  => generate_themes_selector,
         csshead  => generate_themes_header($self),
         version  => $self->LRR_VERSION

@@ -57,7 +57,7 @@
 					<div class="collapsible-title caret-right">
 						<i class="fa fa-scroll" aria-hidden="true"></i> Scripts</div>
 					<div class="collapsible-body">
-						
+						[% INCLUDE pluginlist plugins = scripts %]
 					</div>
 				</li>
 			</ul>
@@ -124,7 +124,7 @@
 	<h2 class="ih" style="display:inline"> [% plugin.name %] v.[% plugin.version %]</h2>
 	<h1 class="ih" style="display:inline"> by [% plugin.author %] </h1>
 	<br/>
-	[% IF plugin.type != "login" %]
+	[% IF plugin.type == "metadata" %]
 		<h1 class="ih" style="display:inline"> Auto-Plugin: </h1>
 		<input id="[% plugin.namespace %]" name="[% plugin.namespace %]" class="fa" type="checkbox" 
 		[% IF plugin.enabled %]
