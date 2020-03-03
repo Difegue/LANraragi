@@ -97,6 +97,12 @@ sub startup {
         $self->LRR_LOGGER->info( "Plugin Detected: " . $name );
     }
 
+    @plugins = get_plugins("script");
+    foreach my $pluginfo (@plugins) {
+        my $name = $pluginfo->{name};
+        $self->LRR_LOGGER->info( "Script Detected: " . $name );
+    }
+
     #Start Background worker
     if ( -e "./.shinobu-pid" && eval { retrieve("./.shinobu-pid"); }) {
 

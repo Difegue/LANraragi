@@ -97,9 +97,16 @@ sub socket {
                     return;
                 }
                 $logger->debug("Processing $id");
-
-                my %plugin_result = LANraragi::Model::Plugins::exec_metadata_plugin(
+                
+                my %plugin_result;
+                eval {
+                    %plugin_result = LANraragi::Model::Plugins::exec_metadata_plugin(
                     $plugin, $id, "", @args );
+                };
+
+                if ($@) {
+                    $plugin_result{error} = $@;
+                }
 
                 #If the plugin exec returned tags, add them
                 unless ( exists $plugin_result{error} ) {    

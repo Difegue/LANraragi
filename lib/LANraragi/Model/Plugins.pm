@@ -27,7 +27,7 @@ sub exec_enabled_plugins_on_file {
     my $id = shift;
     my $logger = get_logger( "Auto-Plugin", "lanraragi" );
 
-    $logger->info("Executing enabled plugins on archive with id $id.");
+    $logger->info("Executing enabled metadata plugins on archive with id $id.");
 
     my $successes = 0;
     my $failures  = 0;
@@ -81,15 +81,17 @@ sub exec_enabled_plugins_on_file {
     return ( $successes, $failures, $addedtags );
 }
 
+# Unlike the two other methods, exec_login_plugin takes a plugin name and does the Redis lookup itself.
+# Might be worth consolidating this later.
 sub exec_login_plugin {
-    my $logplugname = shift;
+    my $plugname = shift;
     my $ua = Mojo::UserAgent->new;
     my $logger = get_logger( "Plugin System", "lanraragi" );
 
-    if ($logplugname) {
-        $logger->info("Calling matching login plugin $logplugname.");
-        my $loginplugin = get_plugin($logplugname);
-        my @loginargs   = get_plugin_parameters($logplugname);
+    if ($plugname) {
+        $logger->info("Calling matching login plugin $plugname.");
+        my $loginplugin = get_plugin($plugname);
+        my @loginargs   = get_plugin_parameters($plugname);
 
         if ($loginplugin->can('do_login')) {
             my $loggedinua = $loginplugin->do_login(@loginargs);
@@ -109,11 +111,32 @@ sub exec_login_plugin {
     return $ua;
 }
 
+sub exec_script_plugin {
+
+    my ( $plugin, $input, @settings ) = @_;
+    my $logger = get_logger( "Plugin System", "lanraragi" );
+
+    #If the plugin has the method "get_tags",
+    #catch all the required data and feed it to the plugin
+    if ( $plugin->can('run_script') ) {
+
+        # Scripts don't have any predefined metadata in their spec so they're just ran as-is.
+        # They can return whatever the heck they want in their hash as well, they'll just be shown as-is in the API output.
+        my %result = $plugin->run_script( @settings );
+        return %result;
+    }
+    return ( error => "Plugin doesn't implement run_script despite having a 'script' type." );
+}
+
 # Execute a specified plugin on a file, described through its Redis ID.
 sub exec_metadata_plugin {
 
     my ( $plugin, $id, $oneshotarg, @args ) = @_;
     my $logger = get_logger( "Plugin System", "lanraragi" );
+
+    if ($id eq 0) {
+        return ( error => "Tried to call a metadata plugin without providing an id." );
+    }
 
     #If the plugin has the method "get_tags",
     #catch all the required data and feed it to the plugin
@@ -218,7 +241,7 @@ sub exec_metadata_plugin {
         }
         return %returnhash;
     }
-    return ( error => "Plugin doesn't implement get_tags" );
+    return ( error => "Plugin doesn't implement get_tags despite having a 'metadata' type." );
 }
 
 1;

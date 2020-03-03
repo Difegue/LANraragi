@@ -100,11 +100,10 @@ sub clear_cache {
     success(shift, "clear_cache");
 }
 
-#Uses a plugin on an archive with the standard global argument.
+# Uses a plugin, with the standard global arguments and a provided oneshot argument.
 sub use_plugin {
     my $self = shift;
-    my $id   = check_id_parameter($self, "fetch_tags") || return;
-    LANraragi::Model::Api::use_plugin($self, $id);
+    LANraragi::Model::Api::use_plugin($self);
 }
 
 sub serve_thumbnail {

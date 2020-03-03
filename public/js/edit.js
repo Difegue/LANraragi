@@ -70,36 +70,36 @@ function getTags() {
 
 
 	$.post( "/api/use_plugin", { id: $("#archiveID").val(), plugin: $("select#plugin option:checked").val(), arg: $("#arg").val() })
-	  .done(function( data ) {
+	  .done(function( result ) {
 
-	    if (data.success) {
+	    if (result.success) {
 
-			if ( data.title != "" ) {
+			if ( result.data.title && result.data.title != "" ) {
 
-				$('#title').val(data.title);
+				$('#title').val(result.data.title);
 
 				$.toast({
 					showHideTransition: 'slide',
 					position: 'top-left', 
 					loader: false, 
 					heading: 'Archive title changed to :',
-					text: data.title,
+					text: result.data.title,
 					icon: 'info'
 				});		
 
 			}
 
 	    	if ($('#tagText').val() === "") 
-	    		$('#tagText').val(data.tags);
-	    	else if ( data.tags != "" ) {
-	    		$('#tagText').val($('#tagText').val() + "," + data.tags);
+	    		$('#tagText').val(result.data.new_tags);
+	    	else if ( result.data.new_tags != "" ) {
+	    		$('#tagText').val($('#tagText').val() + "," + result.data.new_tags);
 
 		    	$.toast({
 						showHideTransition: 'slide',
 						position: 'top-left', 
 						loader: false, 
 					    heading: 'Added the following tags :',
-					    text: data.tags,
+					    text: result.data.new_tags,
 					    icon: 'info'
 					});		
 		    } else {
@@ -109,7 +109,7 @@ function getTags() {
 						position: 'top-left', 
 						loader: false, 
 					    heading: 'No new tags added!',
-					    text: data.tags,
+					    text: result.data.new_tags,
 					    icon: 'info'
 					});	
 		    }
@@ -120,13 +120,13 @@ function getTags() {
 					loader: false, 
 					heading: 'Error :',
 					hideAfter: false,
-				    text: data.message,
+				    text: result.data.error,
 				    icon: 'error'
 				});		
 	    }
 	    
 	  })
-	  .fail(function(data) {
+	  .fail(function(result) {
 
   		$.toast({
 				showHideTransition: 'slide',
@@ -134,12 +134,12 @@ function getTags() {
 				loader: false, 
 				heading: 'Error :',
 				hideAfter: false,
-			    text: data,
+			    text: result,
 			    icon: 'error'
 			});	
 
 	  })
-	  .always(function(data) {
+	  .always(function() {
 	  	$('#tag-spinner').css("display","none");
 		$('#tagText').prop("disabled", false);
 		$('#tagText').css("opacity","1");

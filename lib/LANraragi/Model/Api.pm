@@ -217,50 +217,61 @@ sub serve_page {
 
 sub use_plugin {
 
-    my ($self, $id) = @_;
-    my $plugname    = $self->req->param('plugin');
-    my $oneshotarg  = $self->req->param('arg');
+    my ($self) = @_;
+    my $id       = $self->req->param('id') || 0;
+    my $plugname = $self->req->param('plugin');
+    my $input    = $self->req->param('arg');
     
     my $plugin = get_plugin($plugname);
-    my @args   = ();
 
-    if ($plugin) {
-
-        #Get the matching globalargs in Redis
-        @args = get_plugin_parameters($plugname);
-
-        #Execute the plugin, appending the custom args at the end
-        my %plugin_result;
-        eval {
-            %plugin_result = LANraragi::Model::Plugins::exec_metadata_plugin( $plugin, $id,
-            $oneshotarg, @args );
-        };
-
-        if ($@) {
-            $plugin_result{error} = $@;
-        }
-
-        #Returns the fetched tags in a JSON response.
+    if (!$plugin) {
         $self->render(
             json => {
-                operation => "fetch_tags",
-                success   => ( exists $plugin_result{error} ? 0 : 1 ),
-                message   => $plugin_result{error},
-                tags      => $plugin_result{new_tags},
-                title =>
-                  ( exists $plugin_result{title} ? $plugin_result{title} : "" )
+                operation => "use_plugin",
+                success   => 0,
+                message   => "Plugin not found on system.",
+			    status => 400
             }
         );
         return;
     }
 
+    my %pluginfo = $plugin->plugin_info();
+
+    #Get the plugin settings in Redis
+    my @settings = get_plugin_parameters($plugname);
+
+    #Execute the plugin, appending the custom args at the end
+    my %plugin_result;
+
+    if ($pluginfo{type} eq "script") {
+        eval {
+            %plugin_result = LANraragi::Model::Plugins::exec_script_plugin( $plugin, $input, @settings );
+        };
+    }
+
+    if ($pluginfo{type} eq "metadata") {
+        eval {
+            %plugin_result = LANraragi::Model::Plugins::exec_metadata_plugin( $plugin, $id,
+            $input, @settings );
+        };
+    }
+
+    if ($@) {
+            $plugin_result{error} = $@;
+    }
+
+    #Returns the fetched tags in a JSON response.
     $self->render(
         json => {
-            operation => "fetch_tags",
-            success   => 0,
-            message   => "Plugin not found on system."
+            operation => "use_plugin",
+            type      => $pluginfo{type},
+            success   => ( exists $plugin_result{error} ? 0 : 1 ),
+            data      => \%plugin_result
         }
     );
+    return;
+
 }
 
 1;
