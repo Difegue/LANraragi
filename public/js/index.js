@@ -212,6 +212,7 @@ function loadTagSuggestions() {
 				loader: false,
 				heading: errorMessage,
 				text: data.error,
+				hideAfter: false,
 				icon: 'error'
 			});
 		});

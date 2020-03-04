@@ -134,6 +134,32 @@
 	[% END %]
 	<i>[% plugin.description %]</i>
 	<br/>
+
+	[% IF plugin.type == "script" %]
+	<table><tbody>
+	<tr>
+		[% IF plugin.oneshot_arg %]
+		<td style="vertical-align:middle">
+			<b> [% plugin.oneshot_arg %] : </b>
+		</td>
+		<td>
+			<input style="max-width:200px" size="20" 
+				id="[% plugin.namespace %]_ARG" />
+				<br/>
+		</td>
+		[% END %]
+
+		<td>
+			
+			<a onclick="triggerScript('[% plugin.namespace %]');" title = "bang bang bang pull my devil Trigger"
+			   style="cursor: pointer;">
+				<i class="fa fa-play" aria-hidden="true"></i> Trigger Script 
+			</a>
+		</td>
+	</tr>
+	</tbody></table>
+	[% END %]
+
 	[% IF plugin.parameters && plugin.parameters.size %]
 	<div class="collapsible-title " style="padding: 5px 0 0 5px">
 		<i class="fa fa-cogs" aria-hidden="true"></i><b> Settings</b></div>
@@ -159,7 +185,7 @@
 							[% CASE %]  # default (ayy lmao)
 								"color"
 						[% END %]
-						>
+						 />
 							<br/>
 					</td>
 				</tr>
@@ -168,6 +194,7 @@
 		</table>
 	</div>
 	[% END %]
+
 	<br />
 </span>
 <br />

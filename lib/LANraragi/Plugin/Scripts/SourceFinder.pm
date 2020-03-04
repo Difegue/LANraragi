@@ -46,7 +46,7 @@ sub run_script {
         if ( -e $arcfile ) {
 
             my $tags = $redis->hget($id, "tags");
-            $tags = redis_decode($tagstr);
+            $tags = redis_decode($tags);
 
             if ( $tags =~ /source:/ ) {
                 $tags =~ /.*source:([^,]*),.*/;
@@ -58,9 +58,8 @@ sub run_script {
         }
     }
 
+    $redis->quit;
     return ( error => "URL not found in database.", output => 0 );  
-}
-
 }
 
 1;

@@ -223,42 +223,34 @@ sub use_plugin {
     my $input    = $self->req->param('arg');
     
     my $plugin = get_plugin($plugname);
+    my %plugin_result;
+    my %pluginfo;
 
     if (!$plugin) {
-        $self->render(
-            json => {
-                operation => "use_plugin",
-                success   => 0,
-                message   => "Plugin not found on system.",
-			    status => 400
-            }
-        );
-        return;
-    }
+        $plugin_result{error} = "Plugin not found on system.";
+    } else {
+        %pluginfo = $plugin->plugin_info();
 
-    my %pluginfo = $plugin->plugin_info();
+        #Get the plugin settings in Redis
+        my @settings = get_plugin_parameters($plugname);
 
-    #Get the plugin settings in Redis
-    my @settings = get_plugin_parameters($plugname);
+        #Execute the plugin, appending the custom args at the end
+        if ($pluginfo{type} eq "script") {
+            eval {
+                %plugin_result = LANraragi::Model::Plugins::exec_script_plugin( $plugin, $input, @settings );
+            };
+        }
 
-    #Execute the plugin, appending the custom args at the end
-    my %plugin_result;
+        if ($pluginfo{type} eq "metadata") {
+            eval {
+                %plugin_result = LANraragi::Model::Plugins::exec_metadata_plugin( $plugin, $id,
+                $input, @settings );
+            };
+        }
 
-    if ($pluginfo{type} eq "script") {
-        eval {
-            %plugin_result = LANraragi::Model::Plugins::exec_script_plugin( $plugin, $input, @settings );
-        };
-    }
-
-    if ($pluginfo{type} eq "metadata") {
-        eval {
-            %plugin_result = LANraragi::Model::Plugins::exec_metadata_plugin( $plugin, $id,
-            $input, @settings );
-        };
-    }
-
-    if ($@) {
+        if ($@) {
             $plugin_result{error} = $@;
+        }
     }
 
     #Returns the fetched tags in a JSON response.
@@ -267,6 +259,7 @@ sub use_plugin {
             operation => "use_plugin",
             type      => $pluginfo{type},
             success   => ( exists $plugin_result{error} ? 0 : 1 ),
+            error     => $plugin_result{error},
             data      => \%plugin_result
         }
     );

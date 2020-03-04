@@ -55,7 +55,6 @@ div.id4 {
 table thead a {
   padding-right: 14px;
   cursor: pointer;
-  cursor: hand;
 }
 
 table thead th a:after {
