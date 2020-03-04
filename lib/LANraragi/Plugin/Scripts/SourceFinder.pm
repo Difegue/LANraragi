@@ -6,7 +6,7 @@ no warnings 'uninitialized';
 
 use Mojo::UserAgent;
 use LANraragi::Utils::Logging qw(get_logger);
-use LANraragi::Utils::Database qw(redis_decode);
+use LANraragi::Model::Search;
 
 #Meta-information about your plugin.
 sub plugin_info {
@@ -19,7 +19,7 @@ sub plugin_info {
         author      => "Difegue",
         version     => "1.0",
         description => "Looks in the database if an archive has a 'source:' tag matching the given URL.",
-        #icon        => "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAIAAAAC64paAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA\nB3RJTUUH4wYCFA8s1yKFJwAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUH\nAAACL0lEQVQ4y6XTz0tUURQH8O+59773nLFcaGWTk4UUVCBFiJs27VxEQRH0AyRo4x8Q/Qtt2rhr\nU6soaCG0KYKSwIhMa9Ah+yEhZM/5oZMG88N59717T4sxM8eZCM/ycD6Xwznn0pWhG34mh/+PA8mk\n8jO5heziP0sFYwfgMDFQJg4IUjmquSFGG+OIlb1G9li5kykgTgvzSoUCaIYlo8/Igcjpj5wOkARp\n8AupP0uzJLijCY4zzoXOxdBLshAgABr8VOp7bpAXDEI7IBrhdksnjNr3WzI4LaIRV9fk2iAaYV/y\nA1dPiYjBAALgpQxnhV2XzTCAGWGeq7ACBvCdzKQyTH+voAm2hGlpcmQt2Bc2K+ymAhWPxTzPDQLt\nOKo1FiNBQaArq9WNRQwEgKl7XQ1duzSRSn/88vX0qf7DPQddx1nI5UfHxt+m0sLYPiP3shRAG8MD\nok1XEEXR/EI2ly94nrNYWG6Nx0/2Hp2b94dv34mlZge1e4hVCJ4jc6tl9ZP803n3/i4lpdyzq2N0\n7M3DkSeF5ZVYS8v1qxcGz5+5eey4nPDbmGdE9FpGeWErVNe2tTabX3r0+Nk3PwOgXFkdfz99+exA\nMtFZITEt9F23mpLG0hYTVQCKpfKPlZ/rqWKpYoAPcTmpginW76QBbb0OBaBaDdjaDbNlJmQE3/d0\nMYoaybU9126oPkrEhpr+U2wjtoVVGBowkslEsVSupRKdu0Mduq7q7kqExjSS3V2dvwDLavx0eczM\neAAAAABJRU5ErkJggg==",
+        icon        => "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAIAAAAC64paAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABZSURBVDhPzY5JCgAhDATzSl+e/2irOUjQSFzQog5hhqIl3uBEHPxIXK7oFXwVE+Hj5IYX4lYVtN6MUW4tGw5jNdjdt5bLkwX1q2rFU0/EIJ9OUEm8xquYOQFEhr9vvu2U8gAAAABJRU5ErkJggg==",
         oneshot_arg => "URL to search."
     );
 
@@ -28,38 +28,31 @@ sub plugin_info {
 # Mandatory function to be implemented by your script
 sub run_script {
     shift;
-    my $lrr_info = shift; # Global info hash 
+    my $input = shift; # Script parameter
 
     my $logger = get_logger( "Source Finder", "plugins" );
 
     # Only info we need is the URL to search
-    my $url = $lrr_info->{oneshot_param};
+    $logger->debug("Looking for URL " . $input );
 
-    # Go through the database and search for source: tags
-    my $redis = LANraragi::Model::Config->get_redis;
-
-    my @keys  = $redis->keys('????????????????????????????????????????');
-    my @list  = ();
-
-    foreach my $id (@keys) {
-        my $arcfile = $redis->hget( $id, "file" );
-        if ( -e $arcfile ) {
-
-            my $tags = $redis->hget($id, "tags");
-            $tags = redis_decode($tags);
-
-            if ( $tags =~ /source:/ ) {
-                $tags =~ /.*source:([^,]*),.*/;
-
-                if ($1 eq $url) { 
-                    return ( output => $id);  
-                }
-            }
-        }
+    if ($input eq "") {
+        return ( error => "No URL specified!", total => 0 ); 
     }
 
-    $redis->quit;
-    return ( error => "URL not found in database.", output => 0 );  
+    # Use the search engine to find archives with the source: tag.
+    my ($total, $filtered, @ids) =
+        LANraragi::Model::Search::do_search("source:".$input, "", 0, "title", "asc",0,0);
+
+    if ($filtered == 0) {
+        return ( error => "URL not found in database.", total => 0 );  
+    }
+
+    # Since this script is rather dumb, it'll just return the total found IDs that have this source.
+    return (
+        total => $filtered,
+        partial_ids => \@ids
+    );
+    
 }
 
 1;

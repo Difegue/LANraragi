@@ -49,9 +49,9 @@ function triggerScript(namespace) {
 				position: 'top-left',
 				loader: false,
 				heading: "Script result",
-				text: JSON.stringify(r.data),
+				text: "<pre>"+JSON.stringify(r.data, null, 4)+"</pre>",
 				hideAfter: false,
-				icon: 'error'
+				icon: 'info'
 			});
 		});
 

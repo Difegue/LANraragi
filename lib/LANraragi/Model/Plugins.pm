@@ -122,7 +122,7 @@ sub exec_script_plugin {
 
         # Scripts don't have any predefined metadata in their spec so they're just ran as-is.
         # They can return whatever the heck they want in their hash as well, they'll just be shown as-is in the API output.
-        my %result = $plugin->run_script( @settings );
+        my %result = $plugin->run_script( $input, @settings );
         return %result;
     }
     return ( error => "Plugin doesn't implement run_script despite having a 'script' type." );
