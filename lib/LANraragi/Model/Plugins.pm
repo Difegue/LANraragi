@@ -120,9 +120,18 @@ sub exec_script_plugin {
     #catch all the required data and feed it to the plugin
     if ( $plugin->can('run_script') ) {
 
+        my %pluginfo = $plugin->plugin_info();
+        my $ua = exec_login_plugin($pluginfo{login_from});
+
+        # Bundle all the potentially interesting info in a hash
+        my %infohash = (
+            user_agent      => $ua,
+            oneshot_param   => $input
+        );
+
         # Scripts don't have any predefined metadata in their spec so they're just ran as-is.
         # They can return whatever the heck they want in their hash as well, they'll just be shown as-is in the API output.
-        my %result = $plugin->run_script( $input, @settings );
+        my %result = $plugin->run_script( \%infohash, @settings );
         return %result;
     }
     return ( error => "Plugin doesn't implement run_script despite having a 'script' type." );

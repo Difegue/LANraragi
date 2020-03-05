@@ -28,20 +28,21 @@ sub plugin_info {
 # Mandatory function to be implemented by your script
 sub run_script {
     shift;
-    my $input = shift; # Script parameter
+    my $lrr_info = shift; # Global info hash 
 
     my $logger = get_logger( "Source Finder", "plugins" );
 
     # Only info we need is the URL to search
-    $logger->debug("Looking for URL " . $input );
+    my $url = $lrr_info->{oneshot_param};
+    $logger->debug("Looking for URL " . $url );
 
-    if ($input eq "") {
+    if ($url eq "") {
         return ( error => "No URL specified!", total => 0 ); 
     }
 
     # Use the search engine to find archives with the source: tag.
     my ($total, $filtered, @ids) =
-        LANraragi::Model::Search::do_search("source:".$input, "", 0, "title", "asc",0,0);
+        LANraragi::Model::Search::do_search("source:".$url, "", 0, "title", "asc",0,0);
 
     if ($filtered == 0) {
         return ( error => "URL not found in database.", total => 0 );  
