@@ -123,6 +123,11 @@
 	[% END %]
 	<h2 class="ih" style="display:inline"> [% plugin.name %] v.[% plugin.version %]</h2>
 	<h1 class="ih" style="display:inline"> by [% plugin.author %] </h1>
+
+	[% IF plugin.login_from %] <i style="float:right">
+			<i class="fa fa-plug" aria-hidden="true"></i> This plugin depends on the login plugin "[% plugin.login_from %]".
+		</i>
+	[% END %]
 	<br/>
 	[% IF plugin.type == "metadata" %]
 		<h1 class="ih" style="display:inline"> Auto-Plugin: </h1>
