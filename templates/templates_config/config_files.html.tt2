@@ -3,7 +3,8 @@
         <h2 class="ih"> Archive Directory </h2>
     </td>
     <td>
-        <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% dirname %]" name="dirname" type="text">
+        <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% dirname %]" name="dirname" type="text"
+            [% IF forceddirname %] disabled title="This option is enforced by an environment variable."[% END %]>
         <br> Directory where the archives will be located. It will be created if it doesn't exist.
         <br>Make sure the OS user running LANraragi has access to this directory. <br>
     </td>

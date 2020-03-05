@@ -19,6 +19,7 @@ sub index {
         vername       => $self->LRR_VERNAME,
         motd          => $self->LRR_CONF->get_motd,
         dirname       => $self->LRR_CONF->get_userdir,
+        forceddirname => ( defined $ENV{LRR_DATA_DIRECTORY} ? 1 : 0 ),
         pagesize      => $self->LRR_CONF->get_pagesize,
         enablepass    => $self->LRR_CONF->enable_pass,
         password      => $self->LRR_CONF->get_password,

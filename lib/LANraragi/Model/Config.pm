@@ -80,12 +80,11 @@ sub get_motd {
 sub get_userdir {
 
     # Content path can be overriden by LRR_DATA_DIRECTORY
-    my $default = "./content";
-    if ($ENV{LRR_DATA_DIRECTORY}) {
-        $default = $ENV{LRR_DATA_DIRECTORY};
-    }
+    my $dir = &get_redis_conf( "dirname", "./content" );
 
-    my $dir = &get_redis_conf( "dirname", $default );
+    if ($ENV{LRR_DATA_DIRECTORY}) {
+        $dir = $ENV{LRR_DATA_DIRECTORY};
+    }
 
     # Try to create userdir if it doesn't already exist
     unless ( -e $dir ) {
