@@ -143,7 +143,7 @@ else {
 
 #Build & Install CPAN Dependencies
 if ( $back || $full ) {
-    say("Ensure you have libarchive/libjpeg/libpng installed or this will fail!"
+    say("Ensure you have libarchive installed or this will fail!"
     );
     say("\r\nInstalling Perl modules... This might take a while.\r\n");
 
