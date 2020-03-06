@@ -951,15 +951,14 @@ You didn't specify an API Key.
 {% endapi-method-spec %}
 {% endapi-method %}
 
-{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/use_plugin" %}
+{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/use\_plugin" %}
 {% api-method-summary %}
 Use a Plugin.
 {% endapi-method-summary %}
 
 {% api-method-description %}
 Uses a Plugin and returns the result. If using a metadata plugin, the matching archive will **not** be modified in the database.  
-See more info on Plugins here:  
-{% page-ref page="plugin-docs/index.md" %}
+See more info on Plugins [here](../plugin-docs/index.md).  
 {% endapi-method-description %}
 
 {% api-method-spec %}
@@ -983,7 +982,7 @@ Optional One-Shot argument to use when executing this Plugin.
 {% api-method-response %}
 {% api-method-response-example httpCode=200 %}
 {% api-method-response-example-description %}
-Prints a backup JSON.
+Executes the Plugin and returns the result.
 {% endapi-method-response-example-description %}
 
 ```javascript

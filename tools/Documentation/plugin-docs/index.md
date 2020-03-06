@@ -62,9 +62,9 @@ It's used as a unique ID for your Plugin in various parts of the app.
 The `login_from` parameter can be used to execute a login plugin before your plugin runs.  
 The `type` field can be either: 
 
-* `login` for [Login Plugins](plugin-docs/login.md)
-* `metadata` for [Metadata Plugins](plugin-docs/metadata.md)
-* `script` for [Script Plugins](plugin-docs/scripts.md)  
+* `login` for [Login Plugins](./login.md)
+* `metadata` for [Metadata Plugins](./metadata.md)
+* `script` for [Script Plugins](./scripts.md)  
 
 The `parameters` array can contain as many arguments as you need. They can be set by the user in Plugin Configuration, and are transmitted every time.  
 Typical uses for it include login credentials for a remote website, configuration options, etc. Basic stuff.  
@@ -86,7 +86,7 @@ Once this is done, you can test your plugin by simply using it:
 * Login plugins can't be tested directly for now.  
 
 {% hint style="info" %}
-It is also possible to execute plugins through the [Client API](extending-lanraragi/client-api.md).
+It is also possible to execute plugins through the [Client API](../extending-lanraragi/client-api.md).
 {% endhint %}
 
 If LANraragi is running in Debug Mode, debug messages from your plugin will be logged.

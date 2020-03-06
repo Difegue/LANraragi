@@ -13,7 +13,7 @@ The following section deals with writing the `run_script` subroutine.
 When executing your Plugin, LRR will call this subroutine and pass it the following variables:
 
 ```perl
-sub get_tags {
+sub run_script {
 
     #First lines you should have in the subroutine
     shift;
