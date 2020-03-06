@@ -48,6 +48,8 @@ Here are some existing clients:
 
 ### Tachiyomi reader 
 
+![Tachiyomi](../.gitbook/assets/tachiyomi.jpg)
+
 The open-source [Tachiyomi](https://tachiyomi.org/) Android reader has a readymade plugin to consume the LANraragi API.  
 You can download it [here.](https://github.com/inorichi/tachiyomi-extensions/blob/repo/apk/tachiyomi-all.lanraragi-v1.2.1.apk)
 
