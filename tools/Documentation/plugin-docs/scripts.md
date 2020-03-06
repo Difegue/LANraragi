@@ -100,7 +100,7 @@ sub run_script {
     my $id = $lrr_info->{oneshot_param};
 
     my $url = "";
-
+    $logger->debug("useposts =  " . $useposts );
     if ($useposts) {
         $url = "https://jsonplaceholder.typicode.com/posts/$id";
     } else {
@@ -119,7 +119,8 @@ sub run_script {
     my $res = $ua->get($url)->result;
 
     if ($res->is_success)  {
-         return $res->json; 
+        # Return the response JSON directly.
+         return %{$res->json}; 
     }
     elsif ($res->is_error) { 
         return ( error => $res->message );  

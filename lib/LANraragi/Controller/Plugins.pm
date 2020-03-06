@@ -72,7 +72,7 @@ sub save_config {
     my $redis = $self->LRR_CONF->get_redis;
 
     # Update settings for every plugin.
-    my @plugins = get_plugins("metadata");
+    my @plugins = get_plugins("all");
 
     #Plugin list is an array of hashes
     my @pluginlist = ();

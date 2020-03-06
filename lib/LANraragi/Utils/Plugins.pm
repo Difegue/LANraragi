@@ -24,7 +24,7 @@ sub get_plugins {
         # Check that the metadata sub is there before invoking it
         if ($plugin->can('plugin_info')) {
             my %pluginfo = $plugin->plugin_info();
-            if ($pluginfo{type} eq $type) { push (@validplugins, \%pluginfo);}
+            if ($pluginfo{type} eq $type || $type eq "all") { push (@validplugins, \%pluginfo);}
         };
     }
 

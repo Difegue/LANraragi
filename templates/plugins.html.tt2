@@ -34,8 +34,9 @@
 		<br/> Enable/Disable Auto-Plugin on metadata plugins by checking the toggles. 
 		<br/> Plugins will be automatically used on new archives if they're toggled here and Auto-Plugin is enabled in Settings.
 		<br/> If they have configuration variables, you can set them here as well.
+		<br/> You can also trigger Scripts here. If you modify their parameters before execution, make sure to click save or they won't be used!
 		<br/>
-
+		
 		<form name="editPluginForm" id="editPluginForm" enctype="multipart/form-data" method="post">
 
 			<ul class="collapsible extensible with-right-caret">
