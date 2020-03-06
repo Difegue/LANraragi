@@ -957,7 +957,7 @@ Use a Plugin.
 
 {% api-method-description %}
 Uses a Plugin and returns the result. If using a metadata plugin, the matching archive will **not** be modified in the database.  
-See more info on Plugins [here](../plugin-docs/index.md).  
+See more info on Plugins in the matching section of the Docs. 
 {% endapi-method-description %}
 
 {% api-method-spec %}
