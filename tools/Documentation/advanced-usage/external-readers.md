@@ -31,20 +31,11 @@ Here are some existing clients:
 **Features:**
 
 * Archives list.
-* Search by name and/or tag.
-* Show new archives only.
-* Download archives.
-* Archive overview (with tags) & reader.
-* Configurable reader's base zoom and zoomed factor.
-* Right-to-Left mode.
-* Two pages mode.
+* Search.
+* Archive overview and reader.
 * Bookmarks.
-* Optional image caching.
-* Multiple servers.
-* Restart server's background worker.
-* Clear "All New" flags.
-* Download database.
-* Fullscreen.
+* Multiple servers/profiles.
+* Manage your server from within the app.
 
 ### Tachiyomi reader 
 
