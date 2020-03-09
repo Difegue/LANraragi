@@ -38,6 +38,7 @@
         <input id="enableresize" name="enableresize" class="fa" type="checkbox"> [% END %]
         <label for="enableresize">
             <br> If enabled, pages exceeding a certain size will be resized when viewed to save bandwidth.
+            <br> <i class="fas fa-exclamation-triangle" style="color:red"></i> This option can potentially consume a lot of RAM if enabled and used on large images! Use with caution.
         </label>
     </td>
 </tr>
