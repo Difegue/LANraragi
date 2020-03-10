@@ -9,9 +9,6 @@ use Redis;
 use Encode;
 use Storable qw/ nfreeze thaw /;
 use Sort::Naturally;
-use Parallel::Loops;
-use Sys::CpuAffinity;
-use List::NSect;
 
 use LANraragi::Utils::Database qw(redis_decode);
 use LANraragi::Utils::Logging qw(get_logger);
@@ -49,46 +46,33 @@ sub do_search {
             %untagged = map { $_ => 1 } LANraragi::Model::Api::find_untagged_archives();
         }
 
-        # Parallelize search - The speed bottleneck is only on Redis here, so I suspect this scales quite well.
-        my $numCpus = Sys::CpuAffinity::getNumCpus();
-        my $pl = Parallel::Loops->new($numCpus);
-        $pl->share( \@filtered );
-
-        my @sections = nsect($numCpus => @keys);
         # Go through tags and apply search filter
-        $pl->foreach( \@sections, sub {
-            foreach my $id (@$_) {
-                my $redis = LANraragi::Model::Config->get_redis;
+        foreach my $id (@keys) {
+            my $tags  = $redis->hget($id, "tags");
+            my $title = $redis->hget($id, "title");
+            my $file  = $redis->hget($id, "file");
+            my $isnew = $redis->hget($id, "isnew");
+            $title = redis_decode($title);
+            $tags  = redis_decode($tags);
 
-                my $tags  = $redis->hget($id, "tags");
-                my $title = $redis->hget($id, "title");
-                my $file  = $redis->hget($id, "file");
-                my $isnew = $redis->hget($id, "isnew");
-                $title = redis_decode($title);
-                $tags  = redis_decode($tags);
-
-                # Check new filter first
-                if ($newonly && $isnew && $isnew ne "true" && $isnew ne "block") {
-                    $redis->quit();
-                    return;
-                }
-
-                # Check untagged filter second
-                unless (exists($untagged{$id}) || !$untaggedonly) {
-                    $redis->quit();
-                    return;
-                }
-
-                # Check columnfilter and base search filter
-                if ($file && -e $file 
-                    && matches_search_filter($columnfilter, $title . "," . $tags)
-                    && matches_search_filter($filter, $title . "," . $tags)) {
-                    # Push id to array
-                    push @filtered, { id => $id, title => $title, tags => $tags };
-                }
-                $redis->quit();
+            # Check new filter first
+            if ($newonly && $isnew && $isnew ne "true" && $isnew ne "block") {
+                next;
             }
-        });
+
+            # Check untagged filter second
+            unless (exists($untagged{$id}) || !$untaggedonly) {
+                next;
+            }
+
+            # Check columnfilter and base search filter
+            if ($file && -e $file 
+                && matches_search_filter($columnfilter, $title . "," . $tags)
+                && matches_search_filter($filter, $title . "," . $tags)) {
+                # Push id to array
+                push @filtered, { id => $id, title => $title, tags => $tags };
+            }
+        }
 
         if ($#filtered > 0) {
 
