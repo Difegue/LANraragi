@@ -20,7 +20,7 @@ requires 'Proc::Simple', 1.32;
 requires 'Parallel::Loops', 0.10;
 requires 'Sys::CpuAffinity', 1.12;
 requires 'File::ChangeNotify', 0.31;
-requires 'List::NSect"', 0.06;
+requires 'List::NSect', 0.06;
 
 # Used by Installer
 requires 'IPC::Cmd', 1.02;
