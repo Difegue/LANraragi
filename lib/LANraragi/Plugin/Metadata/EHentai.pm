@@ -51,7 +51,7 @@ sub get_tags {
     # Work your magic here - You can create subroutines below to organize the code better
     my $gID    = "";
     my $gToken = "";
-    my $domain = ($enablepanda ? 'exhentai.org' : 'e-hentai.org');
+    my $domain = ($enablepanda ? 'https://exhentai.org' : 'https://e-hentai.org');
 
     # Quick regex to get the E-H archive ids from the provided url or source tag
     if ( $lrr_info->{oneshot_param} =~ /.*\/g\/([0-9]*)\/([0-z]*)\/*.*/ ) {
