@@ -71,7 +71,7 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Set up Docker Buildx
-      uses: crazy-max/ghaction-docker-buildx@v1
+      uses: crazy-max/ghaction-docker-buildx@v1.0.5
       with:
         version: latest
     - name: Build/Push Latest Docker image and tag with Release number
