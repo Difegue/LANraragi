@@ -17,7 +17,6 @@ use Cwd;
 use FindBin;
 use Parallel::Loops;
 use Sys::CpuAffinity;
-use List::NSect;
 use Storable qw(lock_store);
 use Mojo::JSON qw(to_json);
 
@@ -140,9 +139,17 @@ sub build_filemap {
     $pl->share( \%filemap );
 
     $logger->debug("Number of available cores for processing: $numCpus");
-    # Split the workload equally between all CPUs w. nsect
-    my @sections = nsect($numCpus => @files);
 
+    # Split the workload equally between all CPUs with an array of arrays
+    my @sections;
+    while (@files) {
+        foreach (0..$numCpus-1){
+            if (@files) {
+                push @{$sections[$_]}, shift @files;
+            }
+        }
+    }
+    
     $pl->foreach( \@sections, sub {
         # This sub "magically" executed in parallel forked child
         # processes
