@@ -12,6 +12,8 @@ jobs:
     - name: LANraragi Test Suite
       uses: ./.github/action-run-tests
     - name: Perl Critic
-      uses: ./.github/action-critic
+      uses: Difegue/action-perlcritic@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+          args: ./lib/* ./script/* ./tools/install.pl

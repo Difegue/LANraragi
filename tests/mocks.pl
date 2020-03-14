@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use utf8;
 use Cwd;
-use File::Temp qw/ tempfile tempdir /;
+use File::Temp qw(tempfile);
 use File::Copy "cp";
 
 use Test::MockObject;
@@ -15,13 +15,10 @@ sub setup_eze_mock {
     my ($fh, $filename) = tempfile();
     cp( $cwd."/tests/eze_sample.json", $fh);
 
-    # Mock LANraragi::Utils::Archive to return the temporary sample JSON 
-    my $archiveutils = Test::MockObject->new();
-
-    $archiveutils->fake_module(
-        "LANraragi::Utils::Archive",
-        extract_file_from_archive => sub {$filename},
-        is_file_in_archive => sub {1});
+    # Mock LANraragi::Utils::Archive's subs to return the temporary sample JSON 
+    # Since we're using exports, the methods are under the plugin's namespace.
+    *LANraragi::Plugin::Metadata::Eze::extract_file_from_archive = sub {$filename};
+    *LANraragi::Plugin::Metadata::Eze::is_file_in_archive = sub {1};
 }
 
 sub setup_redis_mock {

@@ -86,7 +86,7 @@ sub apply_routes {
     $logged_in->post('/upload')->to('upload#process_upload');
 
     # These API endpoints will always require the API Key or to be logged in 
-    $logged_in_api->post('/api/use_plugin')->to('api#use_plugin');
+    $logged_in_api->get('/api/use_plugin')->to('api#use_plugin');
     $logged_in_api->post('/api/autoplugin')->to('api#use_enabled_plugins');
     $logged_in_api->get('/api/clean_temp')->to('api#clean_tempfolder');
     $logged_in_api->get('/api/discard_cache')->to('api#clear_cache');

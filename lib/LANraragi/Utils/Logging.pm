@@ -11,9 +11,9 @@ use FindBin;
 use Encode;
 use File::ReadBackwards;
 
-use LANraragi::Model::Config;
-
 # Contains all functions related to logging.
+use Exporter 'import'; 
+our @EXPORT_OK = qw(get_logger get_logdir get_lines_from_file); 
 
 # Get the Log folder.
 sub get_logdir {
@@ -46,7 +46,7 @@ sub get_logger {
     my $log = Mojo::Log->new( path => $logpath, 
                               level => 'info' );
 
-    my $devmode = LANraragi::Model::Config::enable_devmode;
+    my $devmode = LANraragi::Model::Config->enable_devmode;
 
     #Tell logger to store debug logs as well in debug mode
     if ($devmode) {

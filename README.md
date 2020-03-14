@@ -1,10 +1,3 @@
-<img alt="LANraragi" src="https://raw.githubusercontent.com/Difegue/LANraragi/master/tools/logo.png" width="300">
-
-#### [Documentation/Install Guide](https://sugoi.gitbook.io/lanraragi/)
-#### [Download](https://github.com/Difegue/LANraragi/releases/latest)
-#### [Demo](https://lrr.tvc-16.science)
-#### [Windows Nightlies](https://mega.nz/#F!rHZynKpZ!ZXlwMam4t8VtYjOiHPONsQ)
-
 [<img src="https://img.shields.io/docker/pulls/difegue/lanraragi.svg">](https://hub.docker.com/r/difegue/lanraragi/)
 [<img src="https://img.shields.io/github/downloads/difegue/lanraragi/total.svg">](https://github.com/Difegue/LANraragi/releases)
 [<img src="https://img.shields.io/github/release/difegue/lanraragi.svg?label=latest%20release">](https://github.com/Difegue/LANraragi/releases/latest)
@@ -12,17 +5,28 @@
 [<img src="https://action-badges.now.sh/Difegue/lanraragi">](https://github.com/Difegue/LANraragi/actions)
 [<img src="https://img.shields.io/discord/612709831744290847">](https://discord.gg/aRQxtbg)
 
-<a href='https://ko-fi.com/T6T2UP5N' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://az743702.vo.msecnd.net/cdn/kofi4.png?v=2' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a> (or use the "Sponsors" button up)
+# <img alt="LANraragi" src="https://raw.githubusercontent.com/Difegue/LANraragi/master/tools/logo.png" width="300">
 
-Web interface and reader for archival of comics/manga, running on Mojolicious + Redis.
+Open source server for archival of comics/manga, running on Mojolicious + Redis.
 
-## Talk with other fellow LANraragi Users
+#### [💬 Talk with other fellow LANraragi Users](https://discord.gg/aRQxtbg)
 
-A chatroom is available [here](https://discord.gg/aRQxtbg) for any questions you might have about the software.  
+####  [📄 Documentation](https://sugoi.gitbook.io/lanraragi/) | [⏬ Download](https://github.com/Difegue/LANraragi/releases/latest) | [🎞 Demo](https://lrr.tvc-16.science) | [🐱‍👓 Windows Nightlies](https://mega.nz/#F!rHZynKpZ!ZXlwMam4t8VtYjOiHPONsQ) | [💵 Sponsor Development](https://ko-fi.com/T6T2UP5N)  
 
-## Make a PR, get stickers™  
+## Screenshots  
+ 
+|Main Page, Thumbnail View | Main Page, List View |
+|---|---|
+| [![archive_thumb](./tools/_screenshots/archive_thumb.jpg)](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/archive_thumb.jpg) | [![archive_list](./tools/_screenshots/archive_list.png)](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/archive_list.png) |
 
-Merged PRs to this repo(or $5+ donations) are eligible to get a dumb sticker pack [shipped on the house.](https://forms.office.com/Pages/ResponsePage.aspx?id=DQSIkWdsW0yxEjajBLZtrQAAAAAAAAAAAAN__osxt25URTdTUTVBVFRCTjlYWFJLMlEzRTJPUEhEVy4u)  
+|Archive Reader | Reader with overlay |
+|---|---|
+| [![reader](./tools/_screenshots/reader.jpg)](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/reader.jpg) | [![reader_overlay](./tools/_screenshots/reader_overlay.jpg)](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/reader_overlay.jpg) |
+
+
+|Configuration | Plugin Configuration |
+|---|---|
+| [![cfg](./tools/_screenshots/cfg.png)](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/cfg.png) | [![cfg_plugin](./tools/_screenshots/cfg_plugin.png)](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/cfg_plugin.png) |
 
 ## Features  
 
@@ -46,12 +50,6 @@ Merged PRs to this repo(or $5+ donations) are eligible to get a dumb sticker pac
 
 * Backup your database as JSON to carry your tags over to another LANraragi instance.
 
-## Screenshots  
+## Make a PR, get stickers™  
 
- 
-[Main Page, Thumbnail View](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/archive_thumb.jpg)  
-[Main Page, List View](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/archive_list.png)  
-[Archive Reader](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/reader.jpg)  
-[Reader with overlay](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/reader_overlay.jpg)  
-[Configuration](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/cfg.png)  
-[Plugin Configuration](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/cfg_plugin.png)  
+Merged PRs to this repo(or $5+ donations) are eligible to get a dumb sticker pack [shipped on the house.](https://forms.office.com/Pages/ResponsePage.aspx?id=DQSIkWdsW0yxEjajBLZtrQAAAAAAAAAAAAN__osxt25URTdTUTVBVFRCTjlYWFJLMlEzRTJPUEhEVy4u)  

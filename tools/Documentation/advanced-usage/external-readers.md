@@ -26,25 +26,23 @@ Here are some existing clients:
 ### [LRReader \(Windows 10\)](https://github.com/Guerra24/LRReader)  
 
 [Download it here.](https://github.com/Guerra24/LRReader)  
-![lrreader](https://raw.githubusercontent.com/Guerra24/LRReader/master/.github/screenshots/01.png)
+![lrreader](https://s3.guerra24.net/projects/lrr/screenshots/01.png)
 
 **Features:**
 
 * Archives list.
-* Search by name and/or tag.
-* Show new archives only.
-* Download archives.
-* Archive overview (with tags) & reader.
-* Configurable reader's base zoom and zoomed factor.
-* Right-to-Left mode.
-* Two pages mode.
+* Search.
+* Archive overview and reader.
 * Bookmarks.
-* Optional image caching.
-* Multiple servers.
-* Restart server's background worker.
-* Clear "All New" flags.
-* Download database.
-* Fullscreen.
+* Multiple servers/profiles.
+* Manage your server from within the app.
+
+### Tachiyomi reader 
+
+![Tachiyomi](../.gitbook/assets/tachiyomi.jpg)
+
+The open-source [Tachiyomi](https://tachiyomi.org/) Android reader has a readymade plugin to consume the LANraragi API.  
+You can download it [here.](https://github.com/inorichi/tachiyomi-extensions/blob/repo/apk/tachiyomi-all.lanraragi-v1.2.1.apk)
 
 ## Generic OPDS readers  
 

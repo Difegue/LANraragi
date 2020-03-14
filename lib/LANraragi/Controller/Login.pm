@@ -4,11 +4,7 @@ use Mojo::Base 'Mojolicious::Controller';
 use Redis;
 use Authen::Passphrase;
 
-use LANraragi::Utils::Generic;
-use LANraragi::Utils::Archive;
-use LANraragi::Utils::Database;
-
-use LANraragi::Model::Config;
+use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header);
 
 sub check {
     my $self = shift;
@@ -27,8 +23,8 @@ sub check {
         $self->render(
             template  => "login",
             title     => $self->LRR_CONF->get_htmltitle,
-            cssdrop   => LANraragi::Utils::Generic::generate_themes_selector,
-            csshead   => LANraragi::Utils::Generic::generate_themes_header($self),
+            cssdrop   => generate_themes_selector,
+            csshead   => generate_themes_header($self),
             version   => $self->LRR_VERSION,
             wrongpass => 1
         );
@@ -77,8 +73,8 @@ sub index {
     $self->render(
         template => "login",
         title    => $self->LRR_CONF->get_htmltitle,
-        cssdrop   => LANraragi::Utils::Generic::generate_themes_selector,
-        csshead   => LANraragi::Utils::Generic::generate_themes_header($self),
+        cssdrop   => generate_themes_selector,
+        csshead   => generate_themes_header($self),
         version   => $self->LRR_VERSION
     );
 }

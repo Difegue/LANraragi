@@ -59,6 +59,11 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         args: wsl/LANraragi.msi application/octet-stream
+    - uses: Ilshidur/action-discord@master
+      env:
+        DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+      with:
+        args: 'Windows Installer built and available on the Release page! 🐱‍🐉'
 
   buildLatestDocker:
     name: Build Latest Docker image
@@ -66,7 +71,7 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Set up Docker Buildx
-      uses: crazy-max/ghaction-docker-buildx@v1
+      uses: crazy-max/ghaction-docker-buildx@v1.0.5
       with:
         version: latest
     - name: Build/Push Latest Docker image and tag with Release number
@@ -83,6 +88,11 @@ jobs:
           --tag difegue/lanraragi:latest \
           --tag difegue/lanraragi:$TAG \
           --file ./tools/build/docker/Dockerfile .
+    - uses: Ilshidur/action-discord@master
+      env:
+        DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+      with:
+        args: 'Docker image built and available on Docker Hub! 🐳'
 
   discordNotifications:
     name: Send out some notifications
@@ -96,5 +106,6 @@ jobs:
       with:
         args: 'LANraragi {{ RELEASE_VERSION }} is now available! @everyone'
     - uses: Ilshidur/action-discord@master
+    - uses: Ilshidur/action-discord@master
       with:
-        args: 'http://'
+        args: 'Docker image and Windows installer are building... Please wait warmly. ☕'

@@ -349,6 +349,10 @@ Order of the sort, either `asc` or `desc`.
 Set to `true` to only show new archives.
 {% endapi-method-parameter %}
 
+{% api-method-parameter name="untaggedonly" type="boolean" required=false %}
+Set to `true` to only show untagged archives.
+{% endapi-method-parameter %}
+
 {% endapi-method-path-parameters %}
 {% endapi-method-request %}
 
@@ -879,8 +883,7 @@ Print a backup JSON
 {% endapi-method-summary %}
 
 {% api-method-description %}
-Scans the entire database and returns a backup in JSON form. This backup can be reimported manually through the Backup and Restore feature.
-{% page-ref page="advanced-usage/backup-and-restore.md" %}
+Scans the entire database and returns a backup in JSON form. This backup can be reimported manually through the [Backup and Restore](../advanced-usage/backup-and-restore.md) feature.  
 {% endapi-method-description %}
 
 {% api-method-spec %}
@@ -929,6 +932,67 @@ Prints a backup JSON.
         "filename": "FateGOMEMO"
     }
 ]
+```
+{% endapi-method-response-example %}
+
+{% api-method-response-example httpCode=401 %}
+{% api-method-response-example-description %}
+You didn't specify an API Key.
+{% endapi-method-response-example-description %}
+
+```javascript
+{
+    "error":"This API is protected and requires login or an API Key."
+}
+```
+{% endapi-method-response-example %}
+{% endapi-method-response %}
+{% endapi-method-spec %}
+{% endapi-method %}
+
+{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/use\_plugin" %}
+{% api-method-summary %}
+Use a Plugin.
+{% endapi-method-summary %}
+
+{% api-method-description %}
+Uses a Plugin and returns the result. If using a metadata plugin, the matching archive will **not** be modified in the database.  
+See more info on Plugins in the matching section of the Docs. 
+{% endapi-method-description %}
+
+{% api-method-spec %}
+{% api-method-request %}
+{% api-method-path-parameters %}
+{% api-method-parameter name="key" type="string" required=true %}
+API Key, mandatory for this method.
+{% endapi-method-parameter %}
+{% api-method-parameter name="plugin" type="string" required=true %}
+Namespace of the plugin to use.  
+{% endapi-method-parameter %}
+{% api-method-parameter name="id" type="string" required=false %}
+ID of the archive to use the Plugin on. This is only mandatory for metadata plugins.
+{% endapi-method-parameter %}
+{% api-method-parameter name="arg" type="string" required=false %}
+Optional One-Shot argument to use when executing this Plugin.
+{% endapi-method-parameter %}
+{% endapi-method-path-parameters %}
+{% endapi-method-request %}
+
+{% api-method-response %}
+{% api-method-response-example httpCode=200 %}
+{% api-method-response-example-description %}
+Executes the Plugin and returns the result.
+{% endapi-method-response-example-description %}
+
+```javascript
+{
+    "data":{
+        "new_tags":" zawarudo"
+        },
+    "operation":"use_plugin",
+    "success":1,
+    "type":"metadata"
+}
 ```
 {% endapi-method-response-example %}
 

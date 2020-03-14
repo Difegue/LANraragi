@@ -11,7 +11,7 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Set up Docker Buildx
-      uses: crazy-max/ghaction-docker-buildx@v1
+      uses: crazy-max/ghaction-docker-buildx@v1.0.5
       with:
         version: latest
     - name: Build/Push Nightly Docker image
@@ -20,10 +20,10 @@ jobs:
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       run: |
         echo "${DOCKER_PASSWORD}" | docker login -u ${DOCKER_USERNAME} --password-stdin
-        docker buildx build \
+        docker buildx build --pull \
           --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
           --output "type=image,push=true" \
-          --cache-from difegue/lanraragi:latest \
+          --cache-from difegue/lanraragi:nightly \
           --tag difegue/lanraragi:nightly \
           --file ./tools/build/docker/Dockerfile .
 

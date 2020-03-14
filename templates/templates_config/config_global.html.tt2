@@ -23,8 +23,45 @@
         <h2 class="ih"> Archives per page </h2>
     </td>
     <td>
-        <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% pagesize %]" name="pagesize" type="text">
+        <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% pagesize %]" name="pagesize" type="number">
         <br> Number of archives shown on a page in the main list.
+    </td>
+</tr>
+
+<tr>
+    <td class="option-td">
+        <h2 class="ih"> Resize Images in Reader </h2>
+    </td>
+    <td>
+        [% IF enableresize %]
+        <input id="enableresize" name="enableresize" class="fa" type="checkbox" checked> [% ELSE %]
+        <input id="enableresize" name="enableresize" class="fa" type="checkbox"> [% END %]
+        <label for="enableresize">
+            <br> If enabled, pages exceeding a certain size will be resized when viewed to save bandwidth.
+            <br> <i class="fas fa-exclamation-triangle" style="color:red"></i> This option can potentially consume a lot of RAM if enabled and used on large images! Use with caution.
+        </label>
+    </td>
+</tr>
+
+<tr class="resizefields">
+    <td class="option-td">
+        <h2 class="ih"> Image Size Threshold </h2>
+    </td>
+    <td>
+        <input id="sizethreshold" class="stdinput" type="number" style="width:100%" 
+               maxlength="255" size="20" value="[% sizethreshold %]" name="sizethreshold">
+        <br>(in KBs.) Maximum size an image can reach before being resized.
+    </td>
+</tr>
+
+<tr class="resizefields">
+    <td class="option-td">
+        <h2 class="ih"> Resize Quality </h2>
+    </td>
+    <td>
+        <input id="readerquality" class="stdinput" type="number" min="0" max="100" style="width:100%" 
+               maxlength="255" size="20" value="[% readerquality %]" name="readerquality">
+        <br> Quality of the resized images. Less quality = Smaller image. (0-100)
     </td>
 </tr>
 

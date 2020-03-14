@@ -3,8 +3,8 @@
 //Call that shows a popup to the user on success/failure.
 function genericAPICall(endpoint, successMessage, errorMessage, callback) {
 	$.get(endpoint)
-		.done(function (data) {
-			if (data.success && successMessage !== null)
+		.done(function (r) {
+			if (r.success && successMessage !== null)
 				$.toast({
 					showHideTransition: 'slide',
 					position: 'top-left',
@@ -12,29 +12,49 @@ function genericAPICall(endpoint, successMessage, errorMessage, callback) {
 					heading: successMessage,
 					icon: 'success'
 				});
-			else if (!data.success)
+			else if (!r.success)
 				$.toast({
 					showHideTransition: 'slide',
 					position: 'top-left',
 					loader: false,
 					heading: errorMessage,
-					text: data.error,
+					text: r.error,
 					icon: 'error'
 				});
 
 			if (callback !== null)
-				callback(data);
+				callback(r);
 		})
-		.fail(function (data) {
+		.fail(function (r) {
 			$.toast({
 				showHideTransition: 'slide',
 				position: 'top-left',
 				loader: false,
 				heading: errorMessage,
-				text: data.error,
+				text: r.responseText,
+				hideAfter: false,
 				icon: 'error'
 			});
 		});
+}
+
+function triggerScript(namespace) {
+
+	var arg = $("#"+namespace+"_ARG").val();
+	
+	genericAPICall("../api/use_plugin?plugin="+namespace+"&arg="+arg, null, "Error while executing Script :",
+		function (r) {
+			$.toast({
+				showHideTransition: 'slide',
+				position: 'top-left',
+				loader: false,
+				heading: "Script result",
+				text: "<pre>"+JSON.stringify(r.data, null, 4)+"</pre>",
+				hideAfter: false,
+				icon: 'info'
+			});
+		});
+
 }
 
 function cleanTempFldr() {

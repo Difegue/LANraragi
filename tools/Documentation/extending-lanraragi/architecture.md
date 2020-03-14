@@ -23,9 +23,15 @@ Those variables were introduced for the Homebrew package, but they can be declar
 While Perl's mantra is "There's more than one way to do it", I try to make LRR follow the PBP, aka Perl Best Practices.  
 This is done by the use of the [Perl::Critic](https://metacpan.org/pod/Perl::Critic) module, which reports PBP violations.  
 If installed, you can run the critic on the entire LRR source tree through the `npm run critic` shortcut command.  
-Critic is automatically run on evert commit made to LRR at the level 5 thanks to [Github Actions](https://github.com/Difegue/LANraragi/blob/dev/.github/main.workflow).
+Critic is automatically run on every commit made to LRR at the level 5 thanks to [Github Actions](https://github.com/Difegue/LANraragi/blob/dev/.github/main.workflow).
 
-I also run [perltidy](https://en.wikipedia.org/wiki/PerlTidy) on the source tree every now and then for consistency.
+I also run [perltidy](https://en.wikipedia.org/wiki/PerlTidy) on the source tree every now and then for consistency.  
+
+A small practice I try to keep on my own for LRR's packages is to use methods (arrow notation, `Class::Name->do_thing`) to call subroutines that take no arguments, and functions (namespace notation, `Class::Name::do_thing($param)`) to call subs with arguments. It doesn't really matter much, but it looks cleaner to me!  
+Also makes it easier if one day I take the OOP pill for this project, as methods always get the current object (or class name) as the first parameter of their call.
+
+Packages in the `Utils` folder export most of their functions, as those are used by Plugins as well.  
+I recommend trying to only use exported functions in your code, and consider the rest as internal API suspect to change/breakage.
 
 ## Main App Architecture
 

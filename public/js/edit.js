@@ -68,82 +68,56 @@ function getTags() {
 	$('#tagText').prop("disabled", true);
 	$('#plugin-table').hide();
 
+	genericAPICall("../api/use_plugin?plugin="+$("select#plugin option:checked").val()+
+					"&id="+$("#archiveID").val()+"&arg="+$("#arg").val(), 
+					null, "Error while fetching tags :",
+		function (result) {
 
-	$.post( "/api/use_plugin", { id: $("#archiveID").val(), plugin: $("select#plugin option:checked").val(), arg: $("#arg").val() })
-	  .done(function( data ) {
+			if (result.success) {
 
-	    if (data.success) {
-
-			if ( data.title != "" ) {
-
-				$('#title').val(data.title);
-
-				$.toast({
-					showHideTransition: 'slide',
-					position: 'top-left', 
-					loader: false, 
-					heading: 'Archive title changed to :',
-					text: data.title,
-					icon: 'info'
-				});		
-
+				if ( result.data.title && result.data.title != "" ) {
+	
+					$('#title').val(result.data.title);
+					$.toast({
+						showHideTransition: 'slide',
+						position: 'top-left', 
+						loader: false, 
+						heading: 'Archive title changed to :',
+						text: result.data.title,
+						icon: 'info'
+					});		
+				}
+	
+				if ($('#tagText').val() === "") 
+					$('#tagText').val(result.data.new_tags);
+				else if ( result.data.new_tags != "" ) {
+					$('#tagText').val($('#tagText').val() + "," + result.data.new_tags);
+	
+					$.toast({
+							showHideTransition: 'slide',
+							position: 'top-left', 
+							loader: false, 
+							heading: 'Added the following tags :',
+							text: result.data.new_tags,
+							icon: 'info'
+						});		
+				} else {
+					$.toast({
+							showHideTransition: 'slide',
+							position: 'top-left', 
+							loader: false, 
+							heading: 'No new tags added!',
+							text: result.data.new_tags,
+							icon: 'info'
+						});	
+				}
 			}
 
-	    	if ($('#tagText').val() === "") 
-	    		$('#tagText').val(data.tags);
-	    	else if ( data.tags != "" ) {
-	    		$('#tagText').val($('#tagText').val() + "," + data.tags);
+			$('#tag-spinner').css("display","none");
+			$('#tagText').prop("disabled", false);
+			$('#tagText').css("opacity","1");
+			$('#plugin-table').show();
 
-		    	$.toast({
-						showHideTransition: 'slide',
-						position: 'top-left', 
-						loader: false, 
-					    heading: 'Added the following tags :',
-					    text: data.tags,
-					    icon: 'info'
-					});		
-		    } else {
-
-		    	$.toast({
-						showHideTransition: 'slide',
-						position: 'top-left', 
-						loader: false, 
-					    heading: 'No new tags added!',
-					    text: data.tags,
-					    icon: 'info'
-					});	
-		    }
-	    } else {
-	    	$.toast({
-					showHideTransition: 'slide',
-					position: 'top-left', 
-					loader: false, 
-					heading: 'Error :',
-					hideAfter: false,
-				    text: data.message,
-				    icon: 'error'
-				});		
-	    }
-	    
-	  })
-	  .fail(function(data) {
-
-  		$.toast({
-				showHideTransition: 'slide',
-				position: 'top-left', 
-				loader: false, 
-				heading: 'Error :',
-				hideAfter: false,
-			    text: data,
-			    icon: 'error'
-			});	
-
-	  })
-	  .always(function(data) {
-	  	$('#tag-spinner').css("display","none");
-		$('#tagText').prop("disabled", false);
-		$('#tagText').css("opacity","1");
-		$('#plugin-table').show();
-	  });
+		});
 
 }

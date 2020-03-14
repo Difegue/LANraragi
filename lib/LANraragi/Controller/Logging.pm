@@ -4,10 +4,8 @@ use Mojo::Base 'Mojolicious::Controller';
 use Redis;
 use Encode;
 
-use LANraragi::Utils::Generic;
-use LANraragi::Utils::Archive;
-use LANraragi::Utils::Database;
-use LANraragi::Utils::Logging;
+use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header);
+use LANraragi::Utils::Logging qw(get_logdir get_lines_from_file);
 
 # This action will render a template
 sub index {
@@ -17,8 +15,8 @@ sub index {
     $self->render(
         template => "logs",
         title    => $self->LRR_CONF->get_htmltitle,
-        cssdrop  => LANraragi::Utils::Generic::generate_themes_selector,
-        csshead  => LANraragi::Utils::Generic::generate_themes_header($self),
+        cssdrop  => generate_themes_selector,
+        csshead  => generate_themes_header($self),
         version  => $self->LRR_VERSION
     );
 }
@@ -29,14 +27,14 @@ sub print_lines_from_file {
 
     # Number of lines to read
     my $lines  = 100;     
-    my $logdir = LANraragi::Utils::Logging::get_logdir;
+    my $logdir = get_logdir();
 
     if ( $mojo->req->param('lines') ) {
         $lines = $mojo->req->param('lines');
     }
 
     $mojo->render(
-        text => LANraragi::Utils::Logging::get_lines_from_file( $lines, $logdir."/$file.log" ) 
+        text => get_lines_from_file( $lines, $logdir."/$file.log" ) 
     );
 
 }

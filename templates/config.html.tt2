@@ -110,10 +110,12 @@
 	<script>
 		$(function () {
 			enable_pass();
+			enable_resize();
 			replace_img_svg();
 			shinobuStatus();
 			setInterval(shinobuStatus, 5000);
 			$("#enablepass").click(enable_pass);
+			$("#enableresize").click(enable_resize);
 		});
 
 		function enable_pass() {
@@ -121,6 +123,13 @@
 				$(".passwordfields").show();
 			else
 				$(".passwordfields").hide();
+		}
+
+		function enable_resize() {
+			if ($("#enableresize").prop("checked"))
+				$(".resizefields").show();
+			else
+				$(".resizefields").hide();
 		}
 
 	</script> [% INCLUDE footer %]

@@ -28,9 +28,16 @@
 * [Using External Readers](advanced-usage/external-readers.md)
 * [Network Interface Setup](advanced-usage/network-interfaces.md)
 
-## Extending LANraragi
+## Developer Guide
 
 * [Setup a Development Environment](extending-lanraragi/index.md)
 * [Architecture & Style](extending-lanraragi/architecture.md)
-* [Plug-ins](extending-lanraragi/plugins.md)
 * [Client API](extending-lanraragi/client-api.md)
+
+## Writing Plugins
+
+* [Getting started](plugin-docs/index.md)
+* [Login Plugins](plugin-docs/login.md)
+* [Metadata Plugins](plugin-docs/metadata.md)
+* [Generic Plugins ("Scripts")](plugin-docs/scripts.md)
+* [Code Examples](plugin-docs/code-examples.md)

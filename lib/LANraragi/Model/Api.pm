@@ -4,22 +4,25 @@ use strict;
 use warnings;
 use utf8;
 
+use Cwd 'abs_path';
 use Redis;
 use Encode;
+use File::Temp qw(tempfile);
+use File::Copy "cp";
 use Mojo::JSON qw(decode_json encode_json);
 
-use LANraragi::Utils::Generic;
-use LANraragi::Utils::Archive;
-use LANraragi::Utils::Database;
-
-use LANraragi::Model::Config;
+use LANraragi::Utils::Generic    qw(get_tag_with_namespace remove_spaces remove_newlines);
+use LANraragi::Utils::Archive    qw(extract_thumbnail);
+use LANraragi::Utils::Plugins    qw(get_plugin get_plugin_parameters);
+use LANraragi::Utils::TempFolder qw(get_temp);
+use LANraragi::Utils::Database   qw(redis_decode);
 
 # Functions used by the API.
 
 # Generates an array of all the archive JSONs in the database that have existing files.
 sub generate_archive_list {
 
-    my $redis = LANraragi::Model::Config::get_redis;
+    my $redis = LANraragi::Model::Config->get_redis;
     my @keys  = $redis->keys('????????????????????????????????????????');
     my @list  = ();
 
@@ -37,7 +40,7 @@ sub generate_archive_list {
 sub generate_opds_catalog {
 
     my $mojo  = shift;
-    my $redis = LANraragi::Model::Config::get_redis;
+    my $redis = $mojo->LRR_CONF->get_redis;
     my @keys  = ();
     
     # Detailed pages just return a single entry instead of all the archives.
@@ -56,11 +59,11 @@ sub generate_opds_catalog {
             my $tags    = $arcdata->{tags};
 
             # Infer a few OPDS-related fields from the tags
-            $arcdata->{dateadded} = LANraragi::Utils::Generic::get_tag_with_namespace("dateadded", $tags, "2010-01-10T10:01:11Z");
-            $arcdata->{author}    = LANraragi::Utils::Generic::get_tag_with_namespace("artist", $tags, "");
-            $arcdata->{language}  = LANraragi::Utils::Generic::get_tag_with_namespace("language", $tags, "");
-            $arcdata->{circle}    = LANraragi::Utils::Generic::get_tag_with_namespace("group", $tags, "");
-            $arcdata->{event}     = LANraragi::Utils::Generic::get_tag_with_namespace("event", $tags, "");
+            $arcdata->{dateadded} = get_tag_with_namespace("dateadded", $tags, "2010-01-10T10:01:11Z");
+            $arcdata->{author}    = get_tag_with_namespace("artist", $tags, "");
+            $arcdata->{language}  = get_tag_with_namespace("language", $tags, "");
+            $arcdata->{circle}    = get_tag_with_namespace("group", $tags, "");
+            $arcdata->{event}     = get_tag_with_namespace("event", $tags, "");
 
             # Application/zip is universally hated by all readers so it's better to use x-cbz and x-cbr here.
             if ( $file =~ /^(.*\/)*.+\.(rar|cbr)$/ ) {
@@ -70,7 +73,7 @@ sub generate_opds_catalog {
             }
 
             for (values %{$arcdata}) 
-                { LANraragi::Utils::Generic::escape_xml($_); }
+                { escape_xml($_); }
 
             push @list, $arcdata;
         }
@@ -94,11 +97,19 @@ sub generate_opds_catalog {
     );
 }
 
+# Escape XML control characters.
+sub escape_xml {
+    $_[0] =~ s/&/&amp;/sg;
+    $_[0] =~ s/</&lt;/sg;
+    $_[0] =~ s/>/&gt;/sg;
+    $_[0] =~ s/"/&quot;/sg;
+}
+
 # Return a list of archive IDs that have no tags.
 # Tags added automatically by the autotagger are ignored.
 sub find_untagged_archives {
 
-    my $redis   = LANraragi::Model::Config::get_redis;
+    my $redis   = LANraragi::Model::Config->get_redis;
     my @keys    = $redis->keys('????????????????????????????????????????');
     my @untagged;
 
@@ -108,16 +119,16 @@ sub find_untagged_archives {
         if ( -e $zipfile ) {
 
             my $title = $redis->hget( $id, "title" );
-            $title = LANraragi::Utils::Database::redis_decode($title);
+            $title = redis_decode($title);
 
             my $tagstr = $redis->hget($id, "tags");
-            $tagstr = LANraragi::Utils::Database::redis_decode($tagstr);
+            $tagstr = redis_decode($tagstr);
             my @tags = split(/,\s?/, $tagstr);
             my $nondefaulttags = 0;
             
             foreach my $t (@tags) {
-                LANraragi::Utils::Generic::remove_spaces($t);
-                LANraragi::Utils::Generic::remove_newlines($t);
+                remove_spaces($t);
+                remove_newlines($t);
                 
                 # the following are the only namespaces that LANraragi::Utils::Database::parse_name adds
                 $nondefaulttags += 1 unless $t =~ /(artist|parody|series|language|event|group):.*/
@@ -137,14 +148,13 @@ sub find_untagged_archives {
 sub serve_thumbnail {
 
     my ($self, $id) = @_;
-    my $dirname     = LANraragi::Model::Config::get_userdir;
+    my $dirname     = LANraragi::Model::Config->get_userdir;
 
     #Thumbnails are stored in the content directory, thumb subfolder.
     my $thumbname = $dirname . "/thumb/" . $id . ".jpg";
 
     unless ( -e $thumbname ) {
-        $thumbname =
-          LANraragi::Utils::Archive::extract_thumbnail( $dirname, $id );
+        $thumbname = extract_thumbnail( $dirname, $id );
     }
 
     #Simply serve the thumbnail.
@@ -157,52 +167,104 @@ sub serve_thumbnail {
     }
 }
 
+sub serve_page {
+    my ($self, $id) = @_;
+    my $path  = $self->req->param('path') || "404.xyz";
+
+    my $tempfldr = get_temp();
+    my $file     = $tempfldr . "/$id/$path";
+    my $abspath  = abs_path($file); # abs_path returns null if the path is invalid.
+
+    if (!$abspath) {
+        $self->render( 
+            json => {
+                error => "Invalid path.",
+                path => $file
+            },
+            status => 500);
+    }
+
+    # This API can only serve files from the temp folder
+    if (index($abspath, $tempfldr) != -1) {
+
+        # Apply resizing transformation if set in Settings
+        if (LANraragi::Model::Config->enable_resize) {
+
+            # Use File::Temp to copy the extracted file and resize it
+            my ($fh, $filename) = tempfile();
+            cp( $file, $fh);
+
+            my $threshold = LANraragi::Model::Config->get_threshold;
+            my $quality = LANraragi::Model::Config->get_readquality;
+            LANraragi::Model::Reader::resize_image($filename, $quality, $threshold);
+
+            $self->render_file( filepath => $filename );
+            
+        } else {
+            # Serve extracted file directly 
+            $self->render_file( filepath => $file );
+        }
+
+    } else {
+        $self->render( 
+            json => {
+                error => "This API cannot render files outside of the temporary folder.",
+                path => $abspath
+            },
+            status => 500);
+    }
+}
+
 sub use_plugin {
 
-    my ($self, $id) = @_;
-    my $plugname    = $self->req->param('plugin');
-    my $oneshotarg  = $self->req->param('arg');
+    my ($self) = @_;
+    my $id       = $self->req->param('id') || 0;
+    my $plugname = $self->req->param('plugin');
+    my $input    = $self->req->param('arg');
     
-    my $plugin = LANraragi::Utils::Plugins::get_plugin($plugname);
-    my @args   = ();
+    my $plugin = get_plugin($plugname);
+    my %plugin_result;
+    my %pluginfo;
 
-    if ($plugin) {
+    if (!$plugin) {
+        $plugin_result{error} = "Plugin not found on system.";
+    } else {
+        %pluginfo = $plugin->plugin_info();
 
-        #Get the matching globalargs in Redis
-        @args = LANraragi::Utils::Plugins::get_plugin_parameters($plugname);
+        #Get the plugin settings in Redis
+        my @settings = get_plugin_parameters($plugname);
 
         #Execute the plugin, appending the custom args at the end
-        my %plugin_result;
-        eval {
-            %plugin_result = LANraragi::Model::Plugins::exec_plugin_on_file( $plugin, $id,
-            $oneshotarg, @args );
-        };
+        if ($pluginfo{type} eq "script") {
+            eval {
+                %plugin_result = LANraragi::Model::Plugins::exec_script_plugin( $plugin, $input, @settings );
+            };
+        }
+
+        if ($pluginfo{type} eq "metadata") {
+            eval {
+                %plugin_result = LANraragi::Model::Plugins::exec_metadata_plugin( $plugin, $id,
+                $input, @settings );
+            };
+        }
 
         if ($@) {
             $plugin_result{error} = $@;
         }
-
-        #Returns the fetched tags in a JSON response.
-        $self->render(
-            json => {
-                operation => "fetch_tags",
-                success   => ( exists $plugin_result{error} ? 0 : 1 ),
-                message   => $plugin_result{error},
-                tags      => $plugin_result{new_tags},
-                title =>
-                  ( exists $plugin_result{title} ? $plugin_result{title} : "" )
-            }
-        );
-        return;
     }
 
+    #Returns the fetched tags in a JSON response.
     $self->render(
         json => {
-            operation => "fetch_tags",
-            success   => 0,
-            message   => "Plugin not found on system."
+            operation => "use_plugin",
+            type      => $pluginfo{type},
+            success   => ( exists $plugin_result{error} ? 0 : 1 ),
+            error     => $plugin_result{error},
+            data      => \%plugin_result
         }
     );
+    return;
+
 }
 
 1;

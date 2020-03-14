@@ -7,13 +7,9 @@ use Mojo::JSON qw(encode_json);
 no warnings 'experimental';
 use Cwd;
 
-use LANraragi::Utils::Generic;
-use LANraragi::Utils::Archive;
-use LANraragi::Utils::Database;
-use LANraragi::Utils::Plugins;
-use LANraragi::Utils::Logging;
-
-use LANraragi::Model::Config;
+use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header);
+use LANraragi::Utils::Plugins qw(get_plugins get_plugin_parameters is_plugin_enabled);
+use LANraragi::Utils::Logging qw(get_logger);
 
 # This action will render a template
 sub index {
@@ -21,17 +17,36 @@ sub index {
     my $self  = shift;
     my $redis = $self->LRR_CONF->get_redis;
 
-    #Plugin list is an array of hashes
-    my @pluginlist = ();
+    #Build plugin lists, array of hashes
+    my @metaplugins   = get_plugins("metadata");
+    my @loginplugins  = get_plugins("login");
+    my @scriptplugins = get_plugins("script");
 
-    #Build plugin listing
-    my @plugins = LANraragi::Utils::Plugins::get_plugins("metadata");
-    foreach my $pluginfo (@plugins) {
+    $redis->quit();
+    $self->render(
+        template => "plugins",
+        title    => $self->LRR_CONF->get_htmltitle,
+        metadata => craft_plugin_array(@metaplugins),
+        logins   => craft_plugin_array(@loginplugins),
+        scripts  => craft_plugin_array(@scriptplugins),
+        cssdrop  => generate_themes_selector,
+        csshead  => generate_themes_header($self),
+        version  => $self->LRR_VERSION
+    );
+
+}
+
+sub craft_plugin_array {
+
+    my @pluginarray = ();
+    foreach my $pluginfo (@_) {
         my $namespace   = $pluginfo->{namespace};
-        my @redisparams = LANraragi::Utils::Plugins::get_plugin_parameters($namespace);
+        my @redisparams = get_plugin_parameters($namespace);
 
-        # Add whether the plugin is enabled to the hash directly
-        $pluginfo->{enabled} = LANraragi::Utils::Plugins::is_plugin_enabled($namespace);
+        if ($pluginfo->{type} ne "login") {
+            # Add whether the plugin is enabled to the hash directly
+            $pluginfo->{enabled} = is_plugin_enabled($namespace);
+        }
 
         # Add redis values to the members of the parameters array
         my @paramhashes = ();
@@ -45,19 +60,10 @@ sub index {
         #Add the parameter hashes to the plugin info for the template to parse
         $pluginfo->{parameters} = \@paramhashes;
 
-        push @pluginlist, $pluginfo;
+        push @pluginarray, $pluginfo;
     }
 
-    $redis->quit();
-    $self->render(
-        template => "plugins",
-        title    => $self->LRR_CONF->get_htmltitle,
-        plugins  => \@pluginlist,
-        cssdrop  => LANraragi::Utils::Generic::generate_themes_selector,
-        csshead  => LANraragi::Utils::Generic::generate_themes_header($self),
-        version  => $self->LRR_VERSION
-    );
-
+    return \@pluginarray;
 }
 
 sub save_config {
@@ -66,7 +72,7 @@ sub save_config {
     my $redis = $self->LRR_CONF->get_redis;
 
     # Update settings for every plugin.
-    my @plugins = LANraragi::Utils::Plugins::get_plugins("metadata");
+    my @plugins = get_plugins("all");
 
     #Plugin list is an array of hashes
     my @pluginlist = ();
@@ -137,8 +143,7 @@ sub process_upload {
     my $file     = $self->req->upload('file');
     my $filename = $file->filename;
 
-    my $logger =
-      LANraragi::Utils::Logging::get_logger( "Plugin Upload", "lanraragi" );
+    my $logger = get_logger( "Plugin Upload", "lanraragi" );
 
     #Check if this is a Perl package ("xx.pm")
     if ( $filename =~ /^.+\.(?:pm)$/ ) {

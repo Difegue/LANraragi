@@ -111,12 +111,19 @@ function goToPage(page) {
 		img2 = loadImage(pages.pages[currentPage + 1], canvasCallback);
 		//We can also free the maxwidth since we usually have twice the pages
 		$(".sni").attr("style", "max-width: 90%");
+		
+		// Preload next two images
+		loadImage(pages.pages[currentPage + 2], null);
+		loadImage(pages.pages[currentPage + 3], null);
 	}
 	else {
-		//in single view, just use the source URLs as is
+		// In single view, just use the source URLs as is
 		$("#img").attr("src", pages.pages[currentPage]);
 		showingSinglePage = true;
 		$(".sni").attr("style", "");
+		
+		// Preload next image
+		loadImage(pages.pages[currentPage + 1], null);
 	}
 
 	//scale to view simply forces image height at 90vh (90% of viewport height)

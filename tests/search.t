@@ -11,15 +11,15 @@ use Test::MockObject;
 use Mojo::JSON qw (decode_json);
 use Data::Dumper;
 
-use LANraragi::Model::Config;
 use LANraragi::Model::Search;
+use LANraragi::Model::Config;
 
 # Mock Redis
 my $cwd = getcwd;
 require $cwd."/tests/mocks.pl";
 setup_redis_mock();
 
-my $redis = LANraragi::Model::Config::get_redis();
+my $redis = LANraragi::Model::Config->get_redis;
 
 is( $redis->hget("28697b96f0ac5858be2614ed10ca47742c9522fd","title"), "Fate GO MEMO", 'Redis mock test' );
 

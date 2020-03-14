@@ -1,4 +1,4 @@
-package LANraragi::Plugin::nHentai;
+package LANraragi::Plugin::Metadata::nHentai;
 
 use strict;
 use warnings;
@@ -12,6 +12,7 @@ use Mojo::DOM;
 
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
+use LANraragi::Utils::Logging qw(get_logger);
 
 #Meta-information about your plugin.
 sub plugin_info {
@@ -22,7 +23,7 @@ sub plugin_info {
         type        => "metadata",
         namespace   => "nhplugin",
         author      => "Difegue",
-        version     => "1.5",
+        version     => "1.6",
         description => "Searches nHentai for tags matching your archive.",
         icon        => "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAIAAAAC64paAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA\nB3RJTUUH4wYCFA8s1yKFJwAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUH\nAAACL0lEQVQ4y6XTz0tUURQH8O+59773nLFcaGWTk4UUVCBFiJs27VxEQRH0AyRo4x8Q/Qtt2rhr\nU6soaCG0KYKSwIhMa9Ah+yEhZM/5oZMG88N59717T4sxM8eZCM/ycD6Xwznn0pWhG34mh/+PA8mk\n8jO5heziP0sFYwfgMDFQJg4IUjmquSFGG+OIlb1G9li5kykgTgvzSoUCaIYlo8/Igcjpj5wOkARp\n8AupP0uzJLijCY4zzoXOxdBLshAgABr8VOp7bpAXDEI7IBrhdksnjNr3WzI4LaIRV9fk2iAaYV/y\nA1dPiYjBAALgpQxnhV2XzTCAGWGeq7ACBvCdzKQyTH+voAm2hGlpcmQt2Bc2K+ymAhWPxTzPDQLt\nOKo1FiNBQaArq9WNRQwEgKl7XQ1duzSRSn/88vX0qf7DPQddx1nI5UfHxt+m0sLYPiP3shRAG8MD\nok1XEEXR/EI2ly94nrNYWG6Nx0/2Hp2b94dv34mlZge1e4hVCJ4jc6tl9ZP803n3/i4lpdyzq2N0\n7M3DkSeF5ZVYS8v1qxcGz5+5eey4nPDbmGdE9FpGeWErVNe2tTabX3r0+Nk3PwOgXFkdfz99+exA\nMtFZITEt9F23mpLG0hYTVQCKpfKPlZ/rqWKpYoAPcTmpginW76QBbb0OBaBaDdjaDbNlJmQE3/d0\nMYoaybU9126oPkrEhpr+U2wjtoVVGBowkslEsVSupRKdu0Mduq7q7kqExjSS3V2dvwDLavx0eczM\neAAAAABJRU5ErkJggg==",
         parameters  => [
@@ -36,22 +37,22 @@ sub plugin_info {
 #Mandatory function to be implemented by your plugin
 sub get_tags {
 
-#LRR gives your plugin the recorded title/tags/thumbnail hash for the file, the filesystem path, and the custom arguments if available.
     shift;
-    my ( $title, $tags, $thumbhash, $file, $oneshotarg, $savetitle ) = @_;
+    my $lrr_info = shift; # Global info hash
+    my ($savetitle) = @_; # Plugin parameters
 
-    my $logger = LANraragi::Utils::Logging::get_logger( "nHentai", "plugins" );
+    my $logger = get_logger( "nHentai", "plugins" );
 
-   #Work your magic here - You can create subs below to organize the code better
+    # Work your magic here - You can create subs below to organize the code better
     my $galleryID = "";
 
-    #Quick regex to get the nh gallery id from the provided url.
-    if ( $oneshotarg =~ /.*\/g\/([0-9]*)\/.*/ ) {
+    # Quick regex to get the nh gallery id from the provided url.
+    if ( $lrr_info->{oneshot_param} =~ /.*\/g\/([0-9]*)\/.*/ ) {
         $galleryID = $1;
     }
     else {
         #Get Gallery ID by hand if the user didn't specify a URL
-        $galleryID = &get_gallery_id_from_title($title);
+        $galleryID = get_gallery_id_from_title($lrr_info->{archive_title});
     }
 
     # Did we detect a nHentai gallery?
@@ -87,7 +88,7 @@ sub get_tags {
 sub get_gallery_id_from_title {
 
     my $title = $_[0];
-    my $logger = LANraragi::Utils::Logging::get_logger( "nHentai", "plugins" );
+    my $logger = get_logger( "nHentai", "plugins" );
 
     #Strip away hyphens and apostrophes as they apparently break search
     $title =~ s/-|'/ /g;
@@ -121,7 +122,7 @@ sub get_tags_from_NH {
     my $gID      = $_[0];
     my $returned = "";
 
-    my $logger = LANraragi::Utils::Logging::get_logger( "nHentai", "plugins" );
+    my $logger = get_logger( "nHentai", "plugins" );
 
     my $URL = "https://nhentai.net/g/$gID/";
     my $ua  = Mojo::UserAgent->new;
