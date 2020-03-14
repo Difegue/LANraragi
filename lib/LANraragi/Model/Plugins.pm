@@ -13,7 +13,6 @@ use Data::Dumper;
 
 use LANraragi::Utils::Generic qw(remove_spaces remove_newlines);
 use LANraragi::Utils::Archive qw(extract_thumbnail);
-use LANraragi::Utils::Database qw(redis_decode);
 use LANraragi::Utils::Logging qw(get_logger);
 
 # Sub used by Auto-Plugin.
@@ -166,7 +165,7 @@ sub exec_metadata_plugin {
                 $thumbhash = "";
             } else {
                 $thumbhash = $redis->hget( $id, "thumbhash" );
-                $thumbhash = redis_decode($thumbhash);
+                $thumbhash = LANraragi::Utils::Database::redis_decode($thumbhash);
             }
         }          
         $redis->quit();

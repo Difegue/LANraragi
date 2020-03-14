@@ -34,9 +34,8 @@ use LANraragi::Utils::Database qw(invalidate_cache);
 use LANraragi::Utils::TempFolder qw(get_temp clean_temp_partial);
 use LANraragi::Utils::Logging qw(get_logger);
 
-
-use LANraragi::Model::Plugins;
 use LANraragi::Model::Config; 
+use LANraragi::Model::Plugins;
 use LANraragi::Utils::Plugins; # Needed here since Shinobu doesn't inherit from the main LRR package
 
 # Filemap hash, global to all subs and exposed to the server through IPC
