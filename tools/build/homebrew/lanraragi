@@ -47,7 +47,7 @@ mkdir -p "${LRR_LOG_DIRECTORY}"
 mkdir -p "${LRR_TEMP_DIRECTORY}"
 
 # @INC export
-export PERL5LIB="${workdir}/libexec/lib/perl5"
+export PERL5LIB="${workdir}/lib/perl5"
 
 # launch command
 redis-server "${workdir}/redis.conf"
