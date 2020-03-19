@@ -82,7 +82,7 @@ my ($tags_id, $title_id) = LANraragi::Plugin::Metadata::Chaika::tags_from_chaika
 is( $tags_id, $mwee_tags, 'chaika.moe API Tag retrieval test' );
 is( $title_id, $mwee_title, 'chaika.moe ID title test ');
 
-my $mwee_tags_sha1 = "magazine:comic shitsurakuten 2016-04, publisher:fakku, blowjob, creampie, eyebrows, subscription, muscles, swimsuit, tanlines, ahegao, oppai, hentai, artist:ao banana, uncensored, language:english";
+my $mwee_tags_sha1 = "busty, unlimited, parody:original work, heart pupils, magazine:comic shitsurakuten 2016-04, publisher:fakku, blowjob, creampie, eyebrows, muscles, swimsuit, tanlines, dark skin, ahegao, x-ray, hentai, artist:ao banana, uncensored, language:english";
 my $mwee_title_sha1 = "Naughty Bath Matsuri-chan";
 my ($tags_sha1, $title_sha1) = LANraragi::Plugin::Metadata::Chaika::tags_from_sha1("276601a0e5dae9427940ed17ac470c9945b47073");
 is( $tags_sha1, $mwee_tags_sha1, 'chaika.moe SHA-1 reverse search test' );
