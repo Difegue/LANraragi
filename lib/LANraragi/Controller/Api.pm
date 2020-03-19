@@ -180,9 +180,6 @@ sub clear_new {
     # Just set isnew to false for the provided ID.
     if ($redis->hget( $id, "isnew") ne "false") {
         $redis->hset( $id, "isnew", "false" );
-
-        # Bust search cache
-        invalidate_cache();
     }
     $redis->quit();
 

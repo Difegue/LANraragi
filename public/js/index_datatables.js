@@ -196,10 +196,8 @@ function buildThumbDiv(row, data, index) {
 
 function buildProgressDiv(id, isnew) {
 
-	if (isnew === "block" || isnew === "true") {
-		return '<div class="isnew">🆕</div>';
-	}
-
+	// localStorage'd reader progress takes priority over the server-provided new flag
+	// (which might not always be up to date due to cache n shit)
 	if (localStorage.getItem(id + "-totalPages") !== null && localStorage.nobookmark !== 'true') {
 		// Progress recorded, display an indicator
 		currentPage = Number(localStorage.getItem(id + "-reader")) + 1;
@@ -209,6 +207,10 @@ function buildProgressDiv(id, isnew) {
 			return "<div class='isnew'>👑</div>";
 		else
 			return "<div class='isnew'><sup>"+currentPage+"/"+totalPages+"</sup></div>";
+	}
+
+	if (isnew === "block" || isnew === "true") {
+		return '<div class="isnew">🆕</div>';
 	}
 
 	return "";
