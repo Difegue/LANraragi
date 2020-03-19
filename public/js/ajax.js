@@ -78,7 +78,7 @@ function clearAllNew() {
 
 function dropDatabase() {
 	if (confirm('Danger! Are you *sure* you want to do this?')) {
-		genericAPICall("api/drop_db", "Sayonara! Redirecting you...", "Error while resetting the database? Check Logs.", 
+		genericAPICall("api/drop_database", "Sayonara! Redirecting you...", "Error while resetting the database? Check Logs.", 
 		function (data) {
 			setTimeout("location.href = './';",1500);
 		});
