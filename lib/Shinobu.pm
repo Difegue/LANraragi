@@ -158,7 +158,10 @@ sub build_filemap {
     });
 
     # Done, serialize filemap for main process to consume 
-    lock_store \%filemap, '.shinobu-filemap';
+    # The filemap hash has been modified into an object by Parallel::Loops... 
+    # It's better to make a clean hash copy and serialize that instead.
+    my $copy = {%filemap};
+    lock_store $copy, '.shinobu-filemap';
 }
 
 sub add_to_filemap {
@@ -258,7 +261,8 @@ sub deleted_file_callback {
           foreach grep { $filemap{$_} eq $name } keys %filemap;
         
         # Serialize filemap for main process to consume
-        lock_store \%filemap, '.shinobu-filemap';
+        my $copy = {%filemap};
+        lock_store $copy, '.shinobu-filemap';
         invalidate_cache();
     }
 }
