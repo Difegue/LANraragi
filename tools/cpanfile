@@ -4,7 +4,7 @@ requires 'local::lib', 2.000024;
 
 # LRR Core
 requires 'Redis', 1.995;
-requires 'Encode', 3.02;
+requires 'Encode', 3.01;
 requires 'Archive::Extract::Libarchive', 0.38;
 requires 'Archive::Peek::Libarchive', 0.38;
 requires 'Digest::SHA', 6.02;
