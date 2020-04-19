@@ -14,6 +14,12 @@ jobs:
       uses: crazy-max/ghaction-docker-buildx@v1.0.5
       with:
         version: latest
+    - name: Use Cache 
+      uses: actions/cache@v1
+      with: 
+        path: ~/.docker
+        key: ${{ runner.os }}-docker-buildx
+        restore-keys:
     - name: Build/Push Nightly Docker image
       env:
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
@@ -23,8 +29,9 @@ jobs:
         docker buildx build --pull \
           --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
           --output "type=image,push=true" \
-          --cache-from difegue/lanraragi:nightly \
           --tag difegue/lanraragi:nightly \
+          --cache-from=type=local,src=~/.docker \
+          --cache-to=type=local,dest=~/.docker \
           --file ./tools/build/docker/Dockerfile .
 
   exportDockerRootFS:
