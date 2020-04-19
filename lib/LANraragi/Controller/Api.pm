@@ -183,6 +183,9 @@ sub clear_new {
     }
     $redis->quit();
 
+    # Bust search cache...partially!
+    LANraragi::Utils::Database::invalidate_isnew_cache();
+
     $self->render(
         json => {
             operation => "clear_new",
@@ -206,7 +209,7 @@ sub clear_new_all {
         $redis->hset( $idall, "isnew", "false" );
     }
 
-    # Bust search cache
+    # Bust search cache completely, this is a big change
     invalidate_cache();
     $redis->quit();
     success($self, "clear_new_all");

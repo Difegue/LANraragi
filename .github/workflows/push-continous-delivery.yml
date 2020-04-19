@@ -15,9 +15,12 @@ jobs:
       with:
         version: latest
     - uses: actions/cache@v1
+      id: cache
       with: 
         path: /tmp/buildxcache
-        key: ${{ runner.os }}-docker-buildx
+        key: ${{ runner.os }}-docker-buildx-${{ hashFiles('**') }}
+        restore-keys: |
+          ${{ runner.os }}-docker-buildx
     - name: Docker Login
       env:
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
