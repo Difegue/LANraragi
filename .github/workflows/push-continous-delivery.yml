@@ -17,7 +17,7 @@ jobs:
     - name: Use Cache 
       uses: actions/cache@v1
       with: 
-        path: ~/.docker
+        path: ~/buildxcache
         key: ${{ runner.os }}-docker-buildx
         restore-keys:
     - name: Build/Push Nightly Docker image
@@ -30,8 +30,8 @@ jobs:
           --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
           --output "type=image,push=true" \
           --tag difegue/lanraragi:nightly \
-          --cache-from=type=local,src=~/.docker \
-          --cache-to=type=local,dest=~/.docker \
+          --cache-from=type=local,src=~/buildxcache \
+          --cache-to=type=local,dest=~/buildxcache \
           --file ./tools/build/docker/Dockerfile .
 
   exportDockerRootFS:
