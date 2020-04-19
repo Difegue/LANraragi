@@ -15,7 +15,6 @@ jobs:
       with:
         version: latest
     - uses: actions/cache@v1
-      id: cache
       with: 
         path: /tmp/buildxcache
         key: ${{ runner.os }}-docker-buildx-${{ hashFiles('**') }}
@@ -28,26 +27,24 @@ jobs:
       run: |
         echo "${DOCKER_PASSWORD}" | docker login -u ${DOCKER_USERNAME} --password-stdin
 
-    - name: Build/Push Nightly Docker (no cache)
-      if: steps.cache.outputs.cache-hit != 'true'
+    - name: Build/Push Nightly Docker
       run: |
-        docker buildx build --pull \
-          --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
-          --output "type=image,push=true" \
-          --tag difegue/lanraragi:nightly \
-          --cache-to=type=local,dest=/tmp/buildxcache \
-          --file ./tools/build/docker/Dockerfile .
-
-    - name: Build/Push Nightly Docker image (cache)
-      if: steps.cache.outputs.cache-hit == 'true'
-      run: |
-        docker buildx build --pull \
-          --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
-          --output "type=image,push=true" \
-          --tag difegue/lanraragi:nightly \
-          --cache-from=type=local,src=/tmp/buildxcache \
-          --cache-to=type=local,dest=/tmp/buildxcache \
-          --file ./tools/build/docker/Dockerfile .
+        if [ -f /tmp/buildxcache/index.json ]; then
+          docker buildx build --pull \
+            --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
+            --output "type=image,push=true" \
+            --tag difegue/lanraragi:nightly \
+            --cache-from=type=local,src=/tmp/buildxcache \
+            --cache-to=type=local,dest=/tmp/buildxcache \
+            --file ./tools/build/docker/Dockerfile .
+        else
+          docker buildx build --pull \
+            --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
+            --output "type=image,push=true" \
+            --tag difegue/lanraragi:nightly \
+            --cache-to=type=local,dest=/tmp/buildxcache \
+            --file ./tools/build/docker/Dockerfile .
+        fi
 
   exportDockerRootFS:
     name: Build and export Docker rootfs for Windows build
