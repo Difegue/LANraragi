@@ -19,7 +19,7 @@ jobs:
         path: /tmp/buildxcache
         key: ${{ runner.os }}-docker-buildx-${{ hashFiles('**') }}
         restore-keys: |
-          ${{ runner.os }}-docker-buildx
+          ${{ runner.os }}-docker-buildx-
     - name: Docker Login
       env:
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
