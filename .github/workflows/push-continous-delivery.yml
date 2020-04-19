@@ -11,13 +11,13 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Set up Docker Buildx
-      uses: crazy-max/ghaction-docker-buildx@v1.0.5
+      uses: crazy-max/ghaction-docker-buildx@v1.4.0
       with:
         version: latest
     - name: Use Cache 
       uses: actions/cache@v1
       with: 
-        path: ~/buildxcache
+        path: /tmp/buildxcache
         key: ${{ runner.os }}-docker-buildx
         restore-keys:
     - name: Build/Push Nightly Docker image
@@ -28,10 +28,15 @@ jobs:
         echo "${DOCKER_PASSWORD}" | docker login -u ${DOCKER_USERNAME} --password-stdin
         docker buildx build --pull \
           --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
+          --output "type=image,push=false" \
+          --tag difegue/lanraragi:nightly \
+          --cache-to=type=local,dest=/tmp/buildxcache \
+          --file ./tools/build/docker/Dockerfile .
+        docker buildx build --pull \
+          --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
           --output "type=image,push=true" \
           --tag difegue/lanraragi:nightly \
-          --cache-from=type=local,src=~/buildxcache \
-          --cache-to=type=local,dest=~/buildxcache \
+          --cache-from=type=local,src=/tmp/buildxcache \
           --file ./tools/build/docker/Dockerfile .
 
   exportDockerRootFS:
