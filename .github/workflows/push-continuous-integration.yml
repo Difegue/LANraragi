@@ -17,3 +17,15 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
           args: ./lib/* ./script/* ./tools/install.pl
+  testBrew:
+    name: Test Homebrew version
+    runs-on: macos-latest
+    steps:
+    - name: Run formula with latest tarball from dev
+      run: |
+        wget https://gist.githubusercontent.com/Difegue/e0d291f0274b32ec0834fcad795a1f89/raw/b56e63670850d1912b703f58887b50ffc1c37534/Lanraragi.rb
+        brew unlink node@12
+        brew install --verbose --build-bottle Lanraragi.rb
+        brew postinstall Lanraragi.rb
+        brew test --verbose Lanraragi.rb 
+        brew audit --verbose Lanraragi.rb
