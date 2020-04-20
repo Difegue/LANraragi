@@ -116,7 +116,7 @@ sub find_untagged_archives {
     #Parse the archive list.
     foreach my $id (@keys) {
         my $zipfile = $redis->hget( $id, "file" );
-        if ( -e $zipfile ) {
+        if ($zipfile && -e $zipfile ) {
 
             my $title = $redis->hget( $id, "title" );
             $title = redis_decode($title);

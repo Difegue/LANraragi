@@ -204,9 +204,15 @@ sub add_to_filemap {
 
         #If the hash already exists, throw a warning about duplicates
         if ( exists( $filemap{$id} ) ) {
-            $logger->warn( "$file is a duplicate of the existing file "
+
+            if ($file eq $filemap{$id}) {
+                $logger->debug("$file was logged again but is already in the filemap, duplicate inotify events? Cleaning cache just to make sure");
+                invalidate_cache();
+            } else {
+                $logger->warn( "$file is a duplicate of the existing file "
                   . $filemap{$id}
                   . ". You should delete it." );
+            }
             return;
         }
         else {

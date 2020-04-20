@@ -67,7 +67,7 @@ sub do_search {
 
             my $fileok = $file && -e $file;
 
-            unless ($fileok) {
+            if ($file && $title && !$fileok) {
                 $logger->debug("File $file for title $title does not exist and will not be in search results.");
             }
 
