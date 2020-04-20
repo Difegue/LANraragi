@@ -15,6 +15,13 @@ Windows Nightlies are available [here](https://mega.nz/#F!rHZynKpZ!ZXlwMam4t8VtY
 Simply execute the installer package. You should get a few security prompts from Windows as the installer isn't signed; These are perfectly normal.  
 (If you're wondering why I don't sign installers, [this](https://gaby.dev/posts/code-signing) article is a good read.)  
 
+{% hint style="warning" %}
+The installer will tell you about this anyways, but LRR for Windows **requires** the Windows Subsystem for Linux to function properly.  
+Read the tutorial [here](https://code.visualstudio.com/remote-tutorials/wsl/enable-wsl) to see how to enable WSL on your Windows 10 machine.  
+
+You don't need to install a distribution through the Windows Store, as that is handled by the LRR installer package.
+{% endhint %}
+
 Once the install completes properly, you'll be able to launch the GUI from the shortcut in your Start Menu:
 
 ![](../.gitbook/assets/karen-startmenu.png)

@@ -158,7 +158,10 @@ sub build_filemap {
     });
 
     # Done, serialize filemap for main process to consume 
-    lock_store \%filemap, '.shinobu-filemap';
+    # The filemap hash has been modified into an object by Parallel::Loops... 
+    # It's better to make a clean hash copy and serialize that instead.
+    my $copy = {%filemap};
+    lock_store $copy, '.shinobu-filemap';
 }
 
 sub add_to_filemap {
@@ -201,9 +204,15 @@ sub add_to_filemap {
 
         #If the hash already exists, throw a warning about duplicates
         if ( exists( $filemap{$id} ) ) {
-            $logger->warn( "$file is a duplicate of the existing file "
+
+            if ($file eq $filemap{$id}) {
+                $logger->debug("$file was logged again but is already in the filemap, duplicate inotify events? Cleaning cache just to make sure");
+                invalidate_cache();
+            } else {
+                $logger->warn( "$file is a duplicate of the existing file "
                   . $filemap{$id}
                   . ". You should delete it." );
+            }
             return;
         }
         else {
@@ -258,7 +267,8 @@ sub deleted_file_callback {
           foreach grep { $filemap{$_} eq $name } keys %filemap;
         
         # Serialize filemap for main process to consume
-        lock_store \%filemap, '.shinobu-filemap';
+        my $copy = {%filemap};
+        lock_store $copy, '.shinobu-filemap';
         invalidate_cache();
     }
 }

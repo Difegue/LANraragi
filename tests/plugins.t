@@ -52,7 +52,7 @@ my $eH_tags =
 my ($test_eH_tags, $test_eH_title) =
   LANraragi::Plugin::Metadata::EHentai::get_tags_from_EH( $eH_gID, $eH_gToken );
 
-is( $test_eH_tags, $eH_tags, 'eHentai API Tag retrieval test' );
+is( split(", ", $test_eH_tags), split(", ", $eH_tags), 'eHentai API Tag retrieval test' );
 is( $test_eH_title, "(Kouroumu 8) [Handful☆Happiness! (Fuyuki Nanahara)] TOUHOU GUNMANIA A2 (Touhou Project)", "eHentai title test");
 
 # nHentai Tests
@@ -66,7 +66,7 @@ my $nH_tags =
 "language:japanese, artist:masamune shirow, full color, non-h, artbook, category:manga";
 my ($test_nH_tags, $test_nH_title) = LANraragi::Plugin::Metadata::nHentai::get_tags_from_NH($nH_gID);
 
-is( $test_nH_tags, $nH_tags, 'nHentai API Tag retrieval test' );
+is( split(", ", $test_nH_tags), split(", ", $nH_tags), 'nHentai API Tag retrieval test' );
 is( $test_nH_title, "Pieces 1", 'nHentai title test');
 
 # Chaika Tests
@@ -75,17 +75,17 @@ my $mwee_title = '[Kemuri Haku] Zettai Seikou Keikaku | Absolute Intercourse Pla
 my $mwee_tags = "female:sole female, male:sole male, artist:kemuri haku, full censorship, male:shotacon, female:defloration, female:nakadashi, female:big breasts, language:translated, language:english";
 
 my ($tags_jsearch, $title_jsearch) = LANraragi::Plugin::Metadata::Chaika::search_for_archive( "Zettai Seikou Keikaku", "artist:kemuri haku" );
-is( $tags_jsearch, $mwee_tags, 'chaika.moe search test' );
+is( split(", ", $tags_jsearch), split(", ", $mwee_tags), 'chaika.moe search test' );
 is( $title_jsearch, $mwee_title, 'chaika.moe title test' );
 
 my ($tags_id, $title_id) = LANraragi::Plugin::Metadata::Chaika::tags_from_chaika_id( "archive", $mwee_ID );
 is( $tags_id, $mwee_tags, 'chaika.moe API Tag retrieval test' );
 is( $title_id, $mwee_title, 'chaika.moe ID title test ');
 
-my $mwee_tags_sha1 = "magazine:comic shitsurakuten 2016-04, publisher:fakku, blowjob, creampie, eyebrows, subscription, muscles, swimsuit, tanlines, ahegao, oppai, hentai, artist:ao banana, uncensored, language:english";
+my $mwee_tags_sha1 = "busty, parody:original work, unlimited, heart pupils, magazine:comic shitsurakuten 2016-04, publisher:fakku, blowjob, creampie, eyebrows, muscles, swimsuit, tanlines, dark skin, ahegao, x-ray, hentai, artist:ao banana, uncensored, language:english";
 my $mwee_title_sha1 = "Naughty Bath Matsuri-chan";
 my ($tags_sha1, $title_sha1) = LANraragi::Plugin::Metadata::Chaika::tags_from_sha1("276601a0e5dae9427940ed17ac470c9945b47073");
-is( $tags_sha1, $mwee_tags_sha1, 'chaika.moe SHA-1 reverse search test' );
+is( split(", ", $tags_sha1), split(", ", $mwee_tags_sha1), 'chaika.moe SHA-1 reverse search test' );
 is( $title_sha1, $mwee_title_sha1, 'chaika.moe SHA-1 title test' );
 
 done_testing();

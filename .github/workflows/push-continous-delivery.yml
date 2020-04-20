@@ -11,21 +11,41 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Set up Docker Buildx
-      uses: crazy-max/ghaction-docker-buildx@v1.0.5
+      uses: crazy-max/ghaction-docker-buildx@v1.4.0
       with:
         version: latest
-    - name: Build/Push Nightly Docker image
+    - uses: actions/cache@v1
+      with: 
+        path: /tmp/buildxcache
+        key: ${{ runner.os }}-docker-buildx-${{ hashFiles('**') }}
+        restore-keys: |
+          ${{ runner.os }}-docker-buildx-
+    - name: Docker Login
       env:
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       run: |
         echo "${DOCKER_PASSWORD}" | docker login -u ${DOCKER_USERNAME} --password-stdin
-        docker buildx build --pull \
-          --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
-          --output "type=image,push=true" \
-          --cache-from difegue/lanraragi:nightly \
-          --tag difegue/lanraragi:nightly \
-          --file ./tools/build/docker/Dockerfile .
+
+    - name: Build/Push Nightly Docker
+      run: |
+        if [ -f /tmp/buildxcache/index.json ]; then
+          echo "Using buildx cache!"
+          docker buildx build --pull \
+            --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
+            --output "type=image,push=true" \
+            --tag difegue/lanraragi:nightly \
+            --cache-from=type=local,src=/tmp/buildxcache \
+            --cache-to=type=local,dest=/tmp/buildxcache \
+            --file ./tools/build/docker/Dockerfile .
+        else
+          docker buildx build --pull \
+            --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
+            --output "type=image,push=true" \
+            --tag difegue/lanraragi:nightly \
+            --cache-to=type=local,dest=/tmp/buildxcache \
+            --file ./tools/build/docker/Dockerfile .
+        fi
 
   exportDockerRootFS:
     name: Build and export Docker rootfs for Windows build

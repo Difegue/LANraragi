@@ -283,8 +283,24 @@ sub redis_decode {
 # Bust the current search cache key in Redis.
 sub invalidate_cache {
     my $redis = LANraragi::Model::Config->get_redis;
-    $redis->del("LRR_JSONCACHE");
     $redis->del("LRR_SEARCHCACHE");
+    $redis->quit();
+}
+
+# Go through the search cache and only invalidate keys that rely on isNew.
+sub invalidate_isnew_cache {
+
+    my $redis = LANraragi::Model::Config->get_redis;
+    my %cache = $redis->hgetall("LRR_SEARCHCACHE");
+
+    foreach my $cachekey (keys( %cache )) {
+        
+        # A cached search uses isNew if the second to last number is equal to 1
+        # i.e, "--title-asc-1-0" has to be pruned 
+        if ($cachekey =~ /.*-.*-.*-.*-1-\d?/) {
+            $redis->hdel("LRR_SEARCHCACHE", $cachekey);
+        }
+    }
     $redis->quit();
 }
 

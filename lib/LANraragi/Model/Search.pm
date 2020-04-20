@@ -65,8 +65,14 @@ sub do_search {
                 next;
             }
 
+            my $fileok = $file && -e $file;
+
+            if ($file && $title && !$fileok) {
+                $logger->debug("File $file for title $title does not exist and will not be in search results.");
+            }
+
             # Check columnfilter and base search filter
-            if ($file && -e $file 
+            if ($fileok 
                 && matches_search_filter($columnfilter, $title . "," . $tags)
                 && matches_search_filter($filter, $title . "," . $tags)) {
                 # Push id to array
