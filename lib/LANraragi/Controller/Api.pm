@@ -179,12 +179,12 @@ sub clear_new {
 
     # Just set isnew to false for the provided ID.
     if ($redis->hget( $id, "isnew") ne "false") {
+        # Bust search cache...partially!
+        LANraragi::Utils::Database::invalidate_isnew_cache();
+
         $redis->hset( $id, "isnew", "false" );
     }
     $redis->quit();
-
-    # Bust search cache...partially!
-    LANraragi::Utils::Database::invalidate_isnew_cache();
 
     $self->render(
         json => {

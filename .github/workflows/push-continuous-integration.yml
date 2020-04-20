@@ -25,7 +25,6 @@ jobs:
       run: |
         wget https://gist.githubusercontent.com/Difegue/e0d291f0274b32ec0834fcad795a1f89/raw/b56e63670850d1912b703f58887b50ffc1c37534/Lanraragi.rb
         brew unlink node@12
-        brew install --verbose --build-bottle Lanraragi.rb
-        brew postinstall Lanraragi.rb
+        brew install --verbose --build-from-source Lanraragi.rb
         brew test --verbose Lanraragi.rb 
-        brew audit --verbose Lanraragi.rb
+        brew audit --verbose --new-formula Lanraragi.rb
