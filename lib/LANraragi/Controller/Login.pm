@@ -48,7 +48,7 @@ sub logged_in_api {
     my $self = shift;
     my $key = $self->req->param('key') || '';
     return 1
-      if $key ne "" && $key eq $self->LRR_CONF->get_apikey ||
+      if ($key ne "" && $key eq $self->LRR_CONF->get_apikey) ||
          $self->session('is_logged') || 
          $self->LRR_CONF->enable_pass == 0;
     $self->render(

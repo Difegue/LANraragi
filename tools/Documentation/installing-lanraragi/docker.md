@@ -84,9 +84,15 @@ If you're feeling **extra dangerous**, you can run the last files directly from 
 ## Changing the port
 
 Since Docker allows for port mapping, you can most of times map the default port of 3000 to another port on your host quickly.  
-If you need something a bit more involved \(like adding SSL\), please check the Network Interfaces section.
+If you need something a bit more involved \(like adding SSL\), please check the Network Interfaces section for how to use thhe `LRR_NETWORK` environment variable.
 
 {% page-ref page="../advanced-usage/network-interfaces.md" %}
+
+{% hint style="info" %}
+The default healthchecks of the Docker container base themselves on port 3000.  
+If you use the LRR_NETWORK variable to change the outgoing port instead of Docker's port mapping, said healthchecks will fail.  
+If you have to use the variable for SSL or the like, I recommend leaving the port in it to 3000 and doing your port mapping on the Docker side. 
+{% endhint %}
 
 ## Changing the user ID in case of permission issues
 
