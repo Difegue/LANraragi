@@ -23,6 +23,7 @@ sub index {
         pagesize      => $self->LRR_CONF->get_pagesize,
         enablepass    => $self->LRR_CONF->enable_pass,
         password      => $self->LRR_CONF->get_password,
+        blackliston   => $self->LRR_CONF->enable_blacklst,
         blacklist     => $self->LRR_CONF->get_tagblacklist,
         title         => $self->LRR_CONF->get_htmltitle,
         tempmaxsize   => $self->LRR_CONF->get_tempmaxsize,
@@ -76,6 +77,7 @@ sub save_config {
         autotag       => ( scalar $self->req->param('autotag')      ? '1' : '0' ),
         devmode       => ( scalar $self->req->param('devmode')      ? '1' : '0' ),
         enableresize  => ( scalar $self->req->param('enableresize') ? '1' : '0' ),
+        blackliston   => ( scalar $self->req->param('blackliston')  ? '1' : '0' ),
         nofunmode     => ( scalar $self->req->param('nofunmode')    ? '1' : '0' ),
         tagregex      => ( scalar $self->req->param('tagregex')     ? '1' : '0' )
     );

@@ -202,6 +202,7 @@ sub exec_metadata_plugin {
         #Process new metadata,
         #stripping out blacklisted tags and tags that we already have in Redis
         my $blist = LANraragi::Model::Config->get_tagblacklist;
+        my $blistenable = LANraragi::Model::Config->enable_blacklst;
         my @blacklist = split( ',', $blist );   # array-ize the blacklist string
 
         foreach my $tagtoadd (@tagarray) {
@@ -214,13 +215,15 @@ sub exec_metadata_plugin {
                 #Only proceed if the tag isnt already in redis
                 my $good = 1;
 
-                foreach my $black (@blacklist) {
-                    remove_spaces($black);
+                if ($blistenable) {
+                    foreach my $black (@blacklist) {
+                        remove_spaces($black);
 
-                    if ( index( uc($tagtoadd), uc($black) ) != -1 ) {
-                        $logger->info(
-                            "Tag $tagtoadd is blacklisted, not adding.");
-                        $good = 0;
+                        if ( index( uc($tagtoadd), uc($black) ) != -1 ) {
+                            $logger->info(
+                                "Tag $tagtoadd is blacklisted, not adding.");
+                            $good = 0;
+                        }
                     }
                 }
 
