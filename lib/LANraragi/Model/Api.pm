@@ -131,7 +131,8 @@ sub find_untagged_archives {
                 remove_newlines($t);
                 
                 # the following are the only namespaces that LANraragi::Utils::Database::parse_name adds
-                $nondefaulttags += 1 unless $t =~ /(artist|parody|series|language|event|group):.*/
+                # date_added added for convenience as running the matching plugin doesn't really count as tagging
+                $nondefaulttags += 1 unless $t =~ /(artist|parody|series|language|event|group|date_added):.*/
             }
             
             #If the archive has no tags, or the tags namespaces are only from

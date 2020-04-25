@@ -83,7 +83,7 @@ sub exec_login_plugin {
     my $logger = get_logger( "Plugin System", "lanraragi" );
 
     if ($plugname) {
-        $logger->info("Calling matching login plugin $plugname.");
+        $logger->debug("Calling matching login plugin $plugname.");
         my $loginplugin = LANraragi::Utils::Plugins::get_plugin($plugname);
         my @loginargs   = LANraragi::Utils::Plugins::get_plugin_parameters($plugname);
 
