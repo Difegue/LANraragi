@@ -148,7 +148,30 @@ sub process_upload {
     #Check if this is a Perl package ("xx.pm")
     if ( $filename =~ /^.+\.(?:pm)$/ ) {
 
-        my $dir = getcwd() . ("/lib/LANraragi/Plugin/");
+        #Check plugin type
+        my $filetext   = $file->slurp;
+        my $plugintype = "";
+
+        if ($filetext =~ /package LANraragi::Plugin::(Login|Metadata|Scripts)::/) {
+            $plugintype = $1;
+        } else {
+            $logger->error("Could not find a valid plugin package type in the plugin "
+              . "\"$filename\"!");
+
+            $self->render(
+                json => {
+                    operation => "upload_plugin",
+                    name      => $file->filename,
+                    success   => 0,
+                    error     => "Could not find a valid plugin package type in the "
+                      . "plugin \"$filename\"!"
+                }
+            );
+
+            return;
+        }
+
+        my $dir = getcwd() . ("/lib/LANraragi/Plugin/$plugintype/");
         my $output_file = $dir . $filename;
 
         $logger->info("Uploading new plugin $filename to $output_file ...");
@@ -159,7 +182,7 @@ sub process_upload {
         $file->move_to($output_file);
 
         #Load the plugin dynamically.
-        my $pluginclass = "LANraragi::Plugin::" . substr( $filename, 0, -3 );
+        my $pluginclass = "LANraragi::Plugin::${plugintype}::" . substr( $filename, 0, -3 );
 
         #Per Module::Pluggable rules, the plugin class matches the filename
         eval {
