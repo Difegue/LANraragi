@@ -155,16 +155,15 @@ sub process_upload {
         if ($filetext =~ /package LANraragi::Plugin::(Login|Metadata|Scripts)::/) {
             $plugintype = $1;
         } else {
-            $logger->error("Could not find a valid plugin package type in the plugin "
-              . "\"$filename\"!");
+            my $errormess= "Could not find a valid plugin package type in the plugin \"$filename\"!";
+            $logger->error($errormess);
 
             $self->render(
                 json => {
                     operation => "upload_plugin",
                     name      => $file->filename,
                     success   => 0,
-                    error     => "Could not find a valid plugin package type in the "
-                      . "plugin \"$filename\"!"
+                    error     => $errormess
                 }
             );
 
