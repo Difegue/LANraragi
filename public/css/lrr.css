@@ -307,6 +307,10 @@ a:hover > .page-number {
   width: 60%;
 }
 
+.tag-options .stdinput {
+  width: auto !important;
+}
+
 .if a {
   margin-right: 10px;
 }
