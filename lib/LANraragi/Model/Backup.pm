@@ -28,12 +28,11 @@ sub build_backup_JSON {
 
         my %hash = $redis->hgetall($id);
 
-        my ( $name, $title, $tags, $thumbhash ) =
-          @hash{qw(name title tags thumbhash)};
+        my ( $name, $title, $tags, $thumbhash ) = @hash{qw(name title tags thumbhash)};
 
         ( $_ = redis_decode($_) ) for ( $name, $title, $tags );
         ( remove_newlines($_) )   for ( $name, $title, $tags );
-        ( $_ = encode_json($_))   for ( $name, $title, $tags );
+        ( $_ = encode_json($_) )  for ( $name, $title, $tags );
 
         #Backup all user-generated metadata, alongside the unique ID.
         $json .= qq(
@@ -80,8 +79,7 @@ sub restore_from_JSON {
             $redis->hset( $id, "tags",  $tags );
 
             if (   $redis->hexists( $id, "thumbhash" )
-                && $redis->hget( $id, "thumbhash" ) eq "" )
-            {
+                && $redis->hget( $id, "thumbhash" ) eq "" ) {
                 $redis->hset( $id, "thumbhash", $thumbhash );
             }
 

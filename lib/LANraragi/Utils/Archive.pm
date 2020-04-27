@@ -24,8 +24,8 @@ use LANraragi::Utils::Generic qw(is_image shasum);
 
 # Utilitary functions for handling Archives.
 # Relies on Libarchive and ImageMagick.
-use Exporter 'import'; 
-our @EXPORT_OK = qw(is_file_in_archive extract_file_from_archive extract_archive extract_thumbnail generate_thumbnail); 
+use Exporter 'import';
+our @EXPORT_OK = qw(is_file_in_archive extract_file_from_archive extract_archive extract_thumbnail generate_thumbnail);
 
 # generate_thumbnail(original_image, thumbnail_location)
 # use ImageMagick to make a thumbnail, height = 500px (view in index is 280px tall)
@@ -50,33 +50,37 @@ sub extract_archive {
 
     #Extract to $path. Report if it fails.
     my $ok = $ae->extract( to => $path ) or die $ae->error;
-    
+
     #Rename files and folders to an encoded version
     my $cwd = getcwd();
 
-    finddepth(sub {
-        unless ($_ eq '.') {
+    finddepth(
+        sub {
+            unless ( $_ eq '.' ) {
 
-            my $filename = $_;
-            eval {
-                # Try a guess to regular japanese encodings first
-                $filename = decode ("Guess", $filename);
-            };
-            # Fallback to utf8
-            $filename = decode_utf8($filename) if $@;
+                my $filename = $_;
+                eval {
+                    # Try a guess to regular japanese encodings first
+                    $filename = decode( "Guess", $filename );
+                };
 
-            # Re-encode the result to ASCII and move the file to said result name. 
-            # Use Encode's coderef feature to map non-ascii characters to their Unicode codepoint equivalent.
-            $filename = encode("ascii", $filename, sub{ sprintf "%04X", shift });
-            
-            if (length $filename > 254) {
-                $filename = substr( $filename, 0, 254 );
+                # Fallback to utf8
+                $filename = decode_utf8($filename) if $@;
+
+                # Re-encode the result to ASCII and move the file to said result name.
+                # Use Encode's coderef feature to map non-ascii characters to their Unicode codepoint equivalent.
+                $filename = encode( "ascii", $filename, sub { sprintf "%04X", shift } );
+
+                if ( length $filename > 254 ) {
+                    $filename = substr( $filename, 0, 254 );
+                }
+
+                move( $_, $filename );
             }
+        },
+        $ae->extract_path
+    );
 
-            move($_, $filename);
-        }
-    }, $ae->extract_path);
-    
     # chdir back to the base cwd in case finddepth died midway
     chdir $cwd;
 
@@ -95,14 +99,14 @@ sub extract_thumbnail {
     mkdir $dirname . "/thumb";
     my $redis = LANraragi::Model::Config->get_redis;
 
-    my $file = $redis->hget( $id, "file" );
+    my $file     = $redis->hget( $id, "file" );
     my $temppath = get_temp . "/thumb";
 
     # Make sure the thumb temp dir exists
     mkdir $temppath;
 
     # Get all the files of the archive
-    my $peek = Archive::Peek::Libarchive->new( filename => $file );
+    my $peek  = Archive::Peek::Libarchive->new( filename => $file );
     my @files = $peek->files();
     my @extracted;
 
@@ -143,8 +147,9 @@ sub extract_thumbnail {
 
     #Delete the previously extracted file.
     unlink $arcimg;
+
     # Clean up safe foder
-    remove_tree( $temppath . "/$id");
+    remove_tree( $temppath . "/$id" );
     return $thumbname;
 }
 
@@ -159,12 +164,12 @@ sub is_file_in_archive {
     $logger->debug("Iterating files of archive $archive, looking for '$wantedname'");
     $Data::Dumper::Useqq = 1;
 
-    my $peek = Archive::Peek::Libarchive->new( filename => $archive );
+    my $peek  = Archive::Peek::Libarchive->new( filename => $archive );
     my $found = 0;
     $peek->iterate(
         sub {
             my $name = $_[0];
-            $logger->debug("Found file " . Dumper($name));
+            $logger->debug( "Found file " . Dumper($name) );
 
             if ( $name =~ /$wantedname$/ ) {
                 $found = 1;
@@ -183,14 +188,14 @@ sub extract_file_from_archive {
 
     my ( $archive, $filename ) = @_;
 
-    #Timestamp extractions in microseconds 
+    #Timestamp extractions in microseconds
     my ( $seconds, $microseconds ) = gettimeofday;
     my $stamp = "$seconds-$microseconds";
     my $path  = get_temp . "/plugin/$stamp";
     mkdir get_temp . "/plugin";
     mkdir $path;
 
-    my $peek = Archive::Peek::Libarchive->new( filename => $archive );
+    my $peek     = Archive::Peek::Libarchive->new( filename => $archive );
     my $contents = "";
     $peek->iterate(
         sub {

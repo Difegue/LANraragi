@@ -13,8 +13,7 @@ use Mojo::Home;
 my $home = Mojo::Home->new;
 $home->detect;
 
-my $config = Mojolicious::Plugin::Config->register( Mojolicious->new,
-    { file => $home . '/lrr.conf' } );
+my $config = Mojolicious::Plugin::Config->register( Mojolicious->new, { file => $home . '/lrr.conf' } );
 
 #Address and port of your redis instance.
 sub get_redisad { return $config->{redis_address} }
@@ -51,8 +50,9 @@ sub get_redis_conf {
     my $redis = get_redis();
 
     if ( $redis->hexists( "LRR_CONFIG", $param ) ) {
+
         # Call Utils::Database directly as importing it with use; would cause circular dependencies...
-        my $value = LANraragi::Utils::Database::redis_decode($redis->hget( "LRR_CONFIG", $param ) );
+        my $value = LANraragi::Utils::Database::redis_decode( $redis->hget( "LRR_CONFIG", $param ) );
 
         #failsafe against blank config values
         unless ( $value =~ /^\s*$/ ) {
@@ -65,16 +65,13 @@ sub get_redis_conf {
 
 #Functions that return the config variables stored in Redis, or default values if they don't exist. Descriptions for each one of these can be found in the web configuration page.
 sub get_htmltitle {
+
+    #enforcing unicode to make sure it doesn't fuck up the templates by appearing in some other encoding
     return encode( 'utf-8', &get_redis_conf( "htmltitle", "LANraragi" ) );
-}; #enforcing unicode to make sure it doesn't fuck up the templates by appearing in some other encoding
+}
 
 sub get_motd {
-    return encode(
-        'utf-8',
-        &get_redis_conf(
-            "motd", "Welcome to this Library running LANraragi!"
-        )
-    );
+    return encode( 'utf-8', &get_redis_conf( "motd", "Welcome to this Library running LANraragi!" ) );
 }
 
 sub get_userdir {
@@ -82,7 +79,7 @@ sub get_userdir {
     # Content path can be overriden by LRR_DATA_DIRECTORY
     my $dir = &get_redis_conf( "dirname", "./content" );
 
-    if ($ENV{LRR_DATA_DIRECTORY}) {
+    if ( $ENV{LRR_DATA_DIRECTORY} ) {
         $dir = $ENV{LRR_DATA_DIRECTORY};
     }
 
@@ -97,7 +94,7 @@ sub get_userdir {
 
 sub enable_devmode {
 
-    if ($ENV{LRR_FORCE_DEBUG}) {
+    if ( $ENV{LRR_FORCE_DEBUG} ) {
         return 1;
     }
 
@@ -105,27 +102,28 @@ sub enable_devmode {
 }
 
 sub get_password {
-    return &get_redis_conf( "password",
-        '{CRYPT}$2a$08$4AcMwwkGXnWtFTOLuw/hduQlRdqWQIBzX3UuKn.M1qTFX5R4CALxy' );
-};    #bcrypt hash for "kamimamita"
+
+    #bcrypt hash for "kamimamita"
+    return &get_redis_conf( "password", '{CRYPT}$2a$08$4AcMwwkGXnWtFTOLuw/hduQlRdqWQIBzX3UuKn.M1qTFX5R4CALxy' );
+}
 
 sub get_tagblacklist {
     return &get_redis_conf( "blacklist",
-"already uploaded, forbidden content, incomplete, ongoing, complete, various, digital, translated, russian, chinese, portuguese, french, spanish, italian, vietnamese, german, indonesian"
+        "already uploaded, forbidden content, incomplete, ongoing, complete, various, digital, translated, russian, chinese, portuguese, french, spanish, italian, vietnamese, german, indonesian"
     );
 }
 
-sub get_tempmaxsize { return &get_redis_conf( "tempmaxsize", "500" ) }
-sub get_pagesize    { return &get_redis_conf( "pagesize",    "100" ) }
-sub enable_pass     { return &get_redis_conf( "enablepass",  "1" ) }
-sub enable_nofun    { return &get_redis_conf( "nofunmode",   "0" ) }
-sub enable_autotag  { return &get_redis_conf( "autotag",     "1" ) }
-sub get_apikey      { return &get_redis_conf( "apikey",      "" ) }
-sub get_tagregex    { return &get_redis_conf( "tagregex",    "1" ) }
-sub enable_blacklst { return &get_redis_conf( "blackliston", "1") };
-sub enable_resize   { return &get_redis_conf( "enableresize", "0") };
-sub get_threshold   { return &get_redis_conf( "sizethreshold", "1000") };
-sub get_readquality { return &get_redis_conf( "readerquality", "50") };
+sub get_tempmaxsize { return &get_redis_conf( "tempmaxsize",   "500" ) }
+sub get_pagesize    { return &get_redis_conf( "pagesize",      "100" ) }
+sub enable_pass     { return &get_redis_conf( "enablepass",    "1" ) }
+sub enable_nofun    { return &get_redis_conf( "nofunmode",     "0" ) }
+sub enable_autotag  { return &get_redis_conf( "autotag",       "1" ) }
+sub get_apikey      { return &get_redis_conf( "apikey",        "" ) }
+sub get_tagregex    { return &get_redis_conf( "tagregex",      "1" ) }
+sub enable_blacklst { return &get_redis_conf( "blackliston",   "1" ) }
+sub enable_resize   { return &get_redis_conf( "enableresize",  "0" ) }
+sub get_threshold   { return &get_redis_conf( "sizethreshold", "1000" ) }
+sub get_readquality { return &get_redis_conf( "readerquality", "50" ) }
 
 #Use the number of the favtag you want to get as a parameter to this sub.
 sub get_favtag { return &get_redis_conf( "fav" . $_[1], "" ) }
@@ -143,8 +141,7 @@ sub get_favtag { return &get_redis_conf( "fav" . $_[1], "" ) }
 #(\(([^([)]+)\))? returns the content of (Series). Optional.
 #(\[([^]]+)\])? returns the content of [Language]. Optional.
 #\s* indicates zero or more whitespaces.
-my $regex =
-qr/(\(([^([]+)\))?\s*(\[([^]]+)\])?\s*([^([]+)\s*(\(([^([)]+)\))?\s*(\[([^]]+)\])?/;
+my $regex = qr/(\(([^([]+)\))?\s*(\[([^]]+)\])?\s*([^([]+)\s*(\(([^([)]+)\))?\s*(\[([^]]+)\])?/;
 sub get_regex { return $regex }
 
 1;

@@ -15,8 +15,8 @@ use LANraragi::Model::Plugins;
 use LANraragi::Utils::Logging qw(get_logger);
 
 # Functions for interacting with the DB Model.
-use Exporter 'import'; 
-our @EXPORT_OK = qw(redis_decode invalidate_cache); 
+use Exporter 'import';
+our @EXPORT_OK = qw(redis_decode invalidate_cache);
 
 #add_archive_to_redis($id,$file,$redis)
 #Parses the name of a file for metadata, and matches that metadata to the SHA-1 hash of the file in our Redis database.
@@ -72,8 +72,7 @@ sub build_archive_JSON {
 
     #It's not a new archive, but it might have never been clicked on yet,
     #so we'll grab the value for $isnew stored in redis.
-    my ( $name, $title, $tags, $file, $isnew ) =
-      @hash{qw(name title tags file isnew)};
+    my ( $name, $title, $tags, $file, $isnew ) = @hash{qw(name title tags file isnew)};
 
     #Parameters have been obtained, let's decode them.
     ( $_ = redis_decode($_) ) for ( $name, $title, $tags );
@@ -84,10 +83,10 @@ sub build_archive_JSON {
     }
 
     my $arcdata = {
-        arcid  => $id,
-        title  => $title,
-        tags   => $tags,
-        isnew  => $isnew
+        arcid => $id,
+        title => $title,
+        tags  => $tags,
+        isnew => $isnew
     };
 
     return $arcdata;
@@ -96,8 +95,8 @@ sub build_archive_JSON {
 #Deletes the archive with the given id from redis, and the matching archive file.
 sub delete_archive {
 
-    my $id   = $_[0];
-    my $redis = LANraragi::Model::Config->get_redis;
+    my $id       = $_[0];
+    my $redis    = LANraragi::Model::Config->get_redis;
     my $filename = $redis->hget( $id, "file" );
 
     $redis->del($id);
@@ -124,9 +123,9 @@ sub drop_database {
 # Remove entries from the database that don't have a matching archive on the filesystem.
 # Returns the number of entries deleted.
 sub clean_database {
-    my $redis = LANraragi::Model::Config->get_redis;
+    my $redis  = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Archive", "lanraragi" );
-      
+
     # Get the filemap from Shinobu for ID checks later down the line
     my %filemap = LANraragi::Utils::Generic::get_shinobu_filemap();
 
@@ -136,18 +135,18 @@ sub clean_database {
     my $deleted_arcs = 0;
 
     foreach my $id (@keys) {
-        my $file = $redis->hget($id, "file");
+        my $file = $redis->hget( $id, "file" );
 
-        unless (-e $file) {
+        unless ( -e $file ) {
             $redis->del($id);
             $deleted_arcs++;
             next;
-        } 
-        
-        unless ($file eq "" || %filemap == 0 || exists $filemap{$id}) {
+        }
+
+        unless ( $file eq "" || %filemap == 0 || exists $filemap{$id} ) {
             $logger->warn("File exists but its ID is no longer $id -- Removing file reference in its database entry.");
-            $redis->hset($id, "file", "");
-        }  
+            $redis->hset( $id, "file", "" );
+        }
     }
 
     $redis->quit;
@@ -160,7 +159,7 @@ sub add_tags {
 
     my ( $id, $newtags ) = @_;
 
-    my $redis = LANraragi::Model::Config->get_redis;
+    my $redis   = LANraragi::Model::Config->get_redis;
     my $oldtags = $redis->hget( $id, "tags" );
     $oldtags = redis_decode($oldtags);
 
@@ -214,14 +213,13 @@ sub parse_name {
 
     if ( $artist ne "" ) {
 
-     #Special case for circle/artist sets:
-     #If the string contains parenthesis, what's inside those is the artist name
-     #the rest is the circle.
+        #Special case for circle/artist sets:
+        #If the string contains parenthesis, what's inside those is the artist name
+        #the rest is the circle.
         if ( $artist =~ /(.*) \((.*)\)/ ) {
             push @tags, "group:$1";
             push @tags, "artist:$2";
-        }
-        else {
+        } else {
             push @tags, "artist:$artist";
         }
     }
@@ -256,7 +254,7 @@ sub compute_id {
     $ctx->add($data);
     my $digest = $ctx->hexdigest;
 
-    if( $digest eq "da39a3ee5e6b4b0d3255bfef95601890afd80709" ) {
+    if ( $digest eq "da39a3ee5e6b4b0d3255bfef95601890afd80709" ) {
         die "Computed ID is for a null value, invalid source file.";
     }
 
@@ -293,12 +291,12 @@ sub invalidate_isnew_cache {
     my $redis = LANraragi::Model::Config->get_redis;
     my %cache = $redis->hgetall("LRR_SEARCHCACHE");
 
-    foreach my $cachekey (keys( %cache )) {
-        
+    foreach my $cachekey ( keys(%cache) ) {
+
         # A cached search uses isNew if the second to last number is equal to 1
-        # i.e, "--title-asc-1-0" has to be pruned 
-        if ($cachekey =~ /.*-.*-.*-.*-1-\d?/) {
-            $redis->hdel("LRR_SEARCHCACHE", $cachekey);
+        # i.e, "--title-asc-1-0" has to be pruned
+        if ( $cachekey =~ /.*-.*-.*-.*-1-\d?/ ) {
+            $redis->hdel( "LRR_SEARCHCACHE", $cachekey );
         }
     }
     $redis->quit();

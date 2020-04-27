@@ -28,7 +28,7 @@ sub apply_routes {
         $logged_in->get('/')->to('index#index');
         $logged_in->get('/index')->to('index#index');
         $logged_in->get('/search')->to('search#handle_datatables');
-        
+
         $logged_in->get('/random')->to('index#random_archive');
         $logged_in->get('/reader')->to('reader#index');
         $logged_in->get('/stats')->to('stats#index');
@@ -43,8 +43,8 @@ sub apply_routes {
         $logged_in_api->get('/api/extract')->to('api#extract_archive');
         $logged_in_api->get('/api/clear_new')->to('api#clear_new');
         $logged_in_api->get('/api/search')->to('search#handle_api');
-    }
-    else {
+    } else {
+
         #Standard behaviour is to leave those routes loginless for all clients
         $r->get('/')->to('index#index');
         $r->get('/index')->to('index#index');
@@ -85,7 +85,7 @@ sub apply_routes {
     $logged_in->get('/upload')->to('upload#index');
     $logged_in->post('/upload')->to('upload#process_upload');
 
-    # These API endpoints will always require the API Key or to be logged in 
+    # These API endpoints will always require the API Key or to be logged in
     $logged_in_api->get('/api/use_plugin')->to('api#use_plugin');
     $logged_in_api->post('/api/autoplugin')->to('api#use_enabled_plugins');
     $logged_in_api->get('/api/clean_temp')->to('api#clean_tempfolder');

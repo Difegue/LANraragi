@@ -15,9 +15,9 @@ use Proc::Simple;
 use LANraragi::Utils::Logging qw(get_logger);
 
 # Generic Utility Functions.
-use Exporter 'import'; 
-our @EXPORT_OK = qw(remove_spaces remove_newlines is_image get_tag_with_namespace shasum start_shinobu 
-                    get_css_list generate_themes_header generate_themes_selector); 
+use Exporter 'import';
+our @EXPORT_OK = qw(remove_spaces remove_newlines is_image get_tag_with_namespace shasum start_shinobu
+  get_css_list generate_themes_header generate_themes_selector);
 
 # Remove spaces before and after a word
 sub remove_spaces {
@@ -37,15 +37,15 @@ sub is_image {
 
 # Find the first tag matching the given namespace, or return the default value.
 sub get_tag_with_namespace {
-    my ($namespace, $tags, $default) = @_;
-    my @values = split(',', $tags);
+    my ( $namespace, $tags, $default ) = @_;
+    my @values = split( ',', $tags );
 
     foreach my $tag (@values) {
-        my ($namecheck, $value) = split(':', $tag);
+        my ( $namecheck, $value ) = split( ':', $tag );
         remove_spaces($namecheck);
         remove_spaces($value);
 
-        if ($namecheck eq $namespace) {
+        if ( $namecheck eq $namespace ) {
             return $value;
         }
     }
@@ -57,8 +57,8 @@ sub get_tag_with_namespace {
 sub start_shinobu {
     my $logger = get_logger( "Shinobu Boot", "lanraragi" );
 
-    my $proc = Proc::Simple->new(); 
-    $proc->start($^X, "./lib/Shinobu.pm");
+    my $proc = Proc::Simple->new();
+    $proc->start( $^X, "./lib/Shinobu.pm" );
     $proc->kill_on_destroy(0);
 
     # Freeze the process object in the PID file
@@ -68,8 +68,8 @@ sub start_shinobu {
 
 # Retrieve the Shinobu filemap, serialized to a file.
 sub get_shinobu_filemap {
-    if (-e "./.shinobu-filemap") {
-        return %{lock_retrieve("./.shinobu-filemap")};
+    if ( -e "./.shinobu-filemap" ) {
+        return %{ lock_retrieve("./.shinobu-filemap") };
     } else {
         return;
     }
@@ -115,13 +115,13 @@ sub get_css_list {
 sub generate_themes_header {
 
     my $self = shift;
-    my @css = get_css_list;
+    my @css  = get_css_list;
 
     #html that we'll insert in the header to declare all the available styles.
     my $html = "";
 
     #Go through the css files
-    for ( my $i = 0 ; $i < $#css + 1 ; $i++ ) {
+    for ( my $i = 0; $i < $#css + 1; $i++ ) {
 
         my $css_name = css_default_names( $css[$i] );
 
@@ -131,18 +131,19 @@ sub generate_themes_header {
             $html =
                 $html
               . '<link rel="stylesheet" type="text/css" title="'
-              . $css_name 
+              . $css_name
               . '" href="/themes/'
-              . $css[$i] . '?' . $self->LRR_VERSION . '"> ';
-        }
-        else {
+              . $css[$i] . '?'
+              . $self->LRR_VERSION . '"> ';
+        } else {
 
             $html =
                 $html
               . '<link rel="alternate stylesheet" type="text/css" title="'
-              . $css_name 
+              . $css_name
               . '" href="/themes/'
-              . $css[$i] . '?' . $self->LRR_VERSION . '"> ';
+              . $css[$i] . '?'
+              . $self->LRR_VERSION . '"> ';
         }
     }
 
@@ -152,11 +153,11 @@ sub generate_themes_header {
 
 sub generate_themes_selector {
 
-    my @css = get_css_list;
+    my @css    = get_css_list;
     my $CSSsel = '<div>';
 
     #Go through the css files
-    for ( my $i = 0 ; $i < $#css + 1 ; $i++ ) {
+    for ( my $i = 0; $i < $#css + 1; $i++ ) {
 
         #populate the div with buttons
         my $css_name = css_default_names( $css[$i] );

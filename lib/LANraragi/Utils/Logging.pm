@@ -12,8 +12,8 @@ use Encode;
 use File::ReadBackwards;
 
 # Contains all functions related to logging.
-use Exporter 'import'; 
-our @EXPORT_OK = qw(get_logger get_logdir get_lines_from_file); 
+use Exporter 'import';
+our @EXPORT_OK = qw(get_logger get_logdir get_lines_from_file);
 
 # Get the Log folder.
 sub get_logdir {
@@ -21,7 +21,7 @@ sub get_logdir {
     my $log_folder = "$FindBin::Bin/../log";
 
     # Folder location can be overriden by LRR_LOG_DIRECTORY
-    if ($ENV{LRR_LOG_DIRECTORY}) {
+    if ( $ENV{LRR_LOG_DIRECTORY} ) {
         $log_folder = $ENV{LRR_LOG_DIRECTORY};
     }
     mkdir $log_folder;
@@ -37,14 +37,17 @@ sub get_logger {
 
     my $logpath = get_logdir . "/$logfile.log";
 
-    if (-e $logpath && -s $logpath > 1048576) {
+    if ( -e $logpath && -s $logpath > 1048576 ) {
+
         # Rotate log if it's > 1MB
         say "Rotating logfile $logfile";
-        new Logfile::Rotate(File => $logpath, Gzip  => 'lib')->rotate();
+        new Logfile::Rotate( File => $logpath, Gzip => 'lib' )->rotate();
     }
 
-    my $log = Mojo::Log->new( path => $logpath, 
-                              level => 'info' );
+    my $log = Mojo::Log->new(
+        path  => $logpath,
+        level => 'info'
+    );
 
     my $devmode = LANraragi::Model::Config->enable_devmode;
 
@@ -58,8 +61,8 @@ sub get_logger {
         message => sub {
             my ( $time, $level, @lines ) = @_;
 
-            unless ( $devmode == 0 && $level eq 'debug' )
-            { #Like with logging to file, debug logs are only printed in debug mode
+            #Like with logging to file, debug logs are only printed in debug mode
+            unless ( $devmode == 0 && $level eq 'debug' ) {
                 print "[$pgname] [$level] ";
                 say $lines[0];
             }
@@ -86,7 +89,7 @@ sub get_lines_from_file {
     if ( -e $file ) {
         my $bw  = File::ReadBackwards->new($file);
         my $res = "";
-        for ( my $i = 0 ; $i <= $lines ; $i++ ) {
+        for ( my $i = 0; $i <= $lines; $i++ ) {
             my $line = $bw->readline();
             if ($line) {
                 $res = $line . $res;

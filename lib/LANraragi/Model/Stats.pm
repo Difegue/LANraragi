@@ -20,8 +20,7 @@ sub get_archive_count {
 
     #Count files the old-fashioned way instead
     find(
-        {
-            wanted => sub {
+        {   wanted => sub {
                 return if -d $_;    #Directories are excluded on the spot
                 if ( $_ =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr)$/ ) {
                     $count++;
@@ -64,10 +63,8 @@ sub build_tag_json {
                 remove_newlines($t);
 
                 #Increment value of tag or create it
-                if ( exists( $tagcloud{$t} ) ) 
-                    { $tagcloud{$t}++; }
-                else                             
-                    { $tagcloud{$t} = 1; }
+                if   ( exists( $tagcloud{$t} ) ) { $tagcloud{$t}++; }
+                else                             { $tagcloud{$t} = 1; }
             }
 
         }
@@ -77,15 +74,18 @@ sub build_tag_json {
     #Go through the tagCloud hash and build a JSON
     my $tagsjson = "[";
 
-    for(keys %tagcloud) {
+    for ( keys %tagcloud ) {
         my $w = $tagcloud{$_};
+
         # Split namespace
         # detect the : symbol and only use what's after it
         my $ns = "";
-        my $t = $_;
+        my $t  = $_;
         if ( $t =~ /(.*):(.*)/ ) { $ns = $1; $t = $2; }
 
-        if ($_ ne "") { $tagsjson .= qq({"text": "$t", "namespace": "$ns", "weight": $w },); }
+        if ( $_ ne "" ) {
+            $tagsjson .= qq({"text": "$t", "namespace": "$ns", "weight": $w },);
+        }
     }
 
     chop $tagsjson if $tagsjson ne "[";
@@ -95,6 +95,7 @@ sub build_tag_json {
 }
 
 sub compute_content_size {
+
     #Get size of archive folder
     my $dirname = LANraragi::Model::Config->get_userdir;
     my $size    = 0;

@@ -26,8 +26,8 @@ sub index {
 
         #Get a computed archive name if the archive exists
         my $arcname  = $redis->hget( $id, "title" );
-        my $tags     = $redis->hget( $id, "tags"  );
-        my $filename = $redis->hget( $id, "file"  );
+        my $tags     = $redis->hget( $id, "tags" );
+        my $filename = $redis->hget( $id, "file" );
         $arcname  = redis_decode($arcname);
         $tags     = redis_decode($tags);
         $filename = redis_decode($filename);
@@ -42,18 +42,14 @@ sub index {
         my $imgpaths    = "";
 
         #Load a json matching pages to paths
-        eval {
-            $imgpaths =
-              LANraragi::Model::Reader::build_reader_JSON( $self, $id, $force,
-                $thumbreload );
-        };
+        eval { $imgpaths = LANraragi::Model::Reader::build_reader_JSON( $self, $id, $force, $thumbreload ); };
 
         if ($@) {
             my $err = $@;
 
             # Add some more info for RAR5
-            if ($filename =~ /^.+\.rar$/ && $err =~ /Unrecognized archive format.*$/) {
-                $err.= "\n RAR5 archives are not supported.";
+            if ( $filename =~ /^.+\.rar$/ && $err =~ /Unrecognized archive format.*$/ ) {
+                $err .= "\n RAR5 archives are not supported.";
             }
 
             $self->render(
@@ -75,11 +71,10 @@ sub index {
             cssdrop    => generate_themes_selector,
             csshead    => generate_themes_header($self),
             version    => $self->LRR_VERSION,
-            userlogged => $self->LRR_CONF->enable_pass == 0
-              || $self->session('is_logged')
+            userlogged => $self->LRR_CONF->enable_pass == 0 || $self->session('is_logged')
         );
-    }
-    else {
+    } else {
+
         # No parameters back the fuck off
         $self->redirect_to('index');
     }

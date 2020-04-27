@@ -43,15 +43,16 @@ sub craft_plugin_array {
         my $namespace   = $pluginfo->{namespace};
         my @redisparams = get_plugin_parameters($namespace);
 
-        if ($pluginfo->{type} ne "login") {
+        if ( $pluginfo->{type} ne "login" ) {
+
             # Add whether the plugin is enabled to the hash directly
             $pluginfo->{enabled} = is_plugin_enabled($namespace);
         }
 
         # Add redis values to the members of the parameters array
         my @paramhashes = ();
-        my $counter = 0;
-        foreach my $param (@{$pluginfo->{parameters}}) {
+        my $counter     = 0;
+        foreach my $param ( @{ $pluginfo->{parameters} } ) {
             $param->{value} = $redisparams[$counter];
             push @paramhashes, $param;
             $counter++;
@@ -98,19 +99,20 @@ sub save_config {
 
             #Loop through the namespaced request parameters
             #Start at 1 because that's where TT2's loop.count starts
-            for ( my $i = 1 ; $i <= $argcount ; $i++ ) {
+            for ( my $i = 1; $i <= $argcount; $i++ ) {
                 my $param = $namespace . "_CFG_" . $i;
-                
+
                 my $value = $self->req->param($param);
 
                 # Check if the parameter exists in the request
-                if ( $value ) {
-                    push (@customargs, $value );
+                if ($value) {
+                    push( @customargs, $value );
                 } else {
+
                     # Checkboxes don't exist in the parameter list if they're not checked.
-                    push (@customargs, ""); 
+                    push( @customargs, "" );
                 }
-                
+
             }
 
             my $encodedargs = encode_json( \@customargs );
@@ -152,10 +154,10 @@ sub process_upload {
         my $filetext   = $file->slurp;
         my $plugintype = "";
 
-        if ($filetext =~ /package LANraragi::Plugin::(Login|Metadata|Scripts)::/) {
+        if ( $filetext =~ /package LANraragi::Plugin::(Login|Metadata|Scripts)::/ ) {
             $plugintype = $1;
         } else {
-            my $errormess= "Could not find a valid plugin package type in the plugin \"$filename\"!";
+            my $errormess = "Could not find a valid plugin package type in the plugin \"$filename\"!";
             $logger->error($errormess);
 
             $self->render(
@@ -170,7 +172,7 @@ sub process_upload {
             return;
         }
 
-        my $dir = getcwd() . ("/lib/LANraragi/Plugin/$plugintype/");
+        my $dir         = getcwd() . ("/lib/LANraragi/Plugin/$plugintype/");
         my $output_file = $dir . $filename;
 
         $logger->info("Uploading new plugin $filename to $output_file ...");
@@ -191,8 +193,7 @@ sub process_upload {
         };
 
         if ($@) {
-            $logger->error(
-                "Could not instantiate plugin at namespace $pluginclass!");
+            $logger->error("Could not instantiate plugin at namespace $pluginclass!");
             $logger->error($@);
 
             unlink($output_file);
@@ -222,16 +223,14 @@ sub process_upload {
             }
         );
 
-    }
-    else {
+    } else {
 
         $self->render(
             json => {
                 operation => "upload_plugin",
                 name      => $file->filename,
                 success   => 0,
-                error     => "This file isn't a plugin - "
-                  . "Please upload a Perl Module (.pm) file."
+                error     => "This file isn't a plugin - " . "Please upload a Perl Module (.pm) file."
             }
         );
     }

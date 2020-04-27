@@ -36,13 +36,13 @@ sub resize_image {
     if ( ( int( ( -s $imgpath ) / 1024 * 10 ) / 10 ) > $threshold ) {
         $img->Read($imgpath);
 
-        my ($origw, $origh) = $img->Get('width', 'height');
-        if ($origw > 1064) {
+        my ( $origw, $origh ) = $img->Get( 'width', 'height' );
+        if ( $origw > 1064 ) {
             $img->Resize( geometry => '1064x' );
         }
 
         # Set format to jpeg and quality
-        $img->Set( quality => $quality, magick => "jpg");
+        $img->Set( quality => $quality, magick => "jpg" );
         $img->Write($imgpath);
     }
 }
@@ -82,16 +82,13 @@ sub build_reader_JSON {
     unless ( -e $path ) {
 
         my $outpath = "";
-        eval {
-            $outpath = extract_archive( $path, $zipfile );
-        };
+        eval { $outpath = extract_archive( $path, $zipfile ); };
 
         if ($@) {
             my $log = $@;
             $self->LRR_LOGGER->error("Error extracting archive : $log");
             die $log;
-        }
-        else {
+        } else {
             $self->LRR_LOGGER->debug("Extraction of archive to $outpath done");
             $path = $outpath;
         }
@@ -102,19 +99,23 @@ sub build_reader_JSON {
     #treat them and jam them into an array.
     my @images;
     eval {
-        find(sub {
+        find(
+            sub {
                 # Is it an image?
                 if ( is_image($_) ) {
                     push @images, $File::Find::name;
                 }
-            }, $path);
+            },
+            $path
+        );
     };
 
-    # TODO: @images = nsort(@images); would theorically be better, but Sort::Naturally's nsort puts letters before numbers, which isn't what we want at all for pages in an archive.
+    # TODO: @images = nsort(@images); would theorically be better, but Sort::Naturally's nsort puts letters before numbers,
+    # which isn't what we want at all for pages in an archive.
     # To investigate further, perhaps with custom sorting algorithms?
     @images = sort { &expand($a) cmp &expand($b) } @images;
 
-    $self->LRR_LOGGER->debug("Files found in archive: \n " . Dumper @images);
+    $self->LRR_LOGGER->debug( "Files found in archive: \n " . Dumper @images );
 
     #Convert page 1 into a thumbnail for the main reader index
     my $thumbname = $dirname . "/thumb/" . $id . ".jpg";
@@ -124,7 +125,7 @@ sub build_reader_JSON {
         $redis->hset( $id, "thumbhash", encode_utf8($shasum) );
 
         $self->LRR_LOGGER->debug("Thumbnail not found at $thumbname! (force-thumb flag = $thumbreload)");
-        $self->LRR_LOGGER->debug("Regenerating from " . $images[0]);
+        $self->LRR_LOGGER->debug( "Regenerating from " . $images[0] );
         mkdir $dirname . "/thumb";
 
         generate_thumbnail( $images[0], $thumbname );

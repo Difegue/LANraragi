@@ -26,13 +26,12 @@ sub index {
     #Only show IDs that still have their files present.
     foreach my $id (@keys) {
         my $zipfile = $redis->hget( $id, "file" );
-        my $title = $redis->hget( $id, "title" );
+        my $title   = $redis->hget( $id, "title" );
         $title = redis_decode($title);
 
-        if (-e $zipfile) {
-            $arclist .=
-                "<li><input type='checkbox' name='archive' id='$id' class='archive' >"
-                . "<label for='$id'> $title</label></li>";
+        if ( -e $zipfile ) {
+            $arclist .= "<li><input type='checkbox' name='archive' id='$id' class='archive' >";
+            $arclist .= "<label for='$id'> $title</label></li>";
         }
     }
 
@@ -78,14 +77,15 @@ sub socket {
             my $plugin = get_plugin($pluginname);
 
             #Global arguments can come from the database or the user override
-            my @args     = @{ $command->{"args"} };
-            my $timeout  = $command->{"timeout"} || 0;
+            my @args    = @{ $command->{"args"} };
+            my $timeout = $command->{"timeout"} || 0;
 
             if ($plugin) {
 
                 #If the array is empty(no overrides)
                 if ( !@args ) {
                     $logger->debug("No user overrides given.");
+
                     # Try getting the saved defaults
                     @args = get_plugin_parameters($pluginname);
                 }
@@ -97,40 +97,35 @@ sub socket {
                     return;
                 }
                 $logger->debug("Processing $id");
-                
+
                 my %plugin_result;
-                eval {
-                    %plugin_result = LANraragi::Model::Plugins::exec_metadata_plugin(
-                    $plugin, $id, "", @args );
-                };
+                eval { %plugin_result = LANraragi::Model::Plugins::exec_metadata_plugin( $plugin, $id, "", @args ); };
 
                 if ($@) {
                     $plugin_result{error} = $@;
                 }
 
                 #If the plugin exec returned tags, add them
-                unless ( exists $plugin_result{error} ) {    
-                    LANraragi::Utils::Database::add_tags($id, $plugin_result{new_tags});
+                unless ( exists $plugin_result{error} ) {
+                    LANraragi::Utils::Database::add_tags( $id, $plugin_result{new_tags} );
 
-                    if (exists $plugin_result{title}) {
-                        LANraragi::Utils::Database::set_title($id, $plugin_result{title});
+                    if ( exists $plugin_result{title} ) {
+                        LANraragi::Utils::Database::set_title( $id, $plugin_result{title} );
                     }
                 }
 
                 # Send reply message for completed archive
                 $client->send(
-                    {
-                        json => {
+                    {   json => {
                             id      => $id,
                             success => exists $plugin_result{error} ? 0 : 1,
                             message => $plugin_result{error},
                             tags    => $plugin_result{new_tags},
-                            title   => exists $plugin_result{title} ? $plugin_result{title}:""
+                            title   => exists $plugin_result{title} ? $plugin_result{title} : ""
                         }
                     }
                 );
-            }
-            else {
+            } else {
                 $client->finish( 1001 => 'This plugin does not exist' );
             }
         }

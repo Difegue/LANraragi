@@ -16,19 +16,19 @@ getopt
   'h|help'       => \my $help,
   'v|verbose'    => \$ENV{MORBO_VERBOSE};
 
-if ($ENV{LRR_DATA_DIRECTORY}) {
-    make_path($ENV{LRR_DATA_DIRECTORY});
-} 
+if ( $ENV{LRR_DATA_DIRECTORY} ) {
+    make_path( $ENV{LRR_DATA_DIRECTORY} );
+}
 
-if ($ENV{LRR_TEMP_DIRECTORY}) {
-    make_path($ENV{LRR_TEMP_DIRECTORY});
-} 
+if ( $ENV{LRR_TEMP_DIRECTORY} ) {
+    make_path( $ENV{LRR_TEMP_DIRECTORY} );
+}
 
-die extract_usage if $help || !(my $app = shift || $ENV{HYPNOTOAD_APP});
+die extract_usage if $help || !( my $app = shift || $ENV{HYPNOTOAD_APP} );
 
 my @listen;
-if ($ENV{LRR_NETWORK}) {
-    @listen = [$ENV{LRR_NETWORK}];
+if ( $ENV{LRR_NETWORK} ) {
+    @listen = [ $ENV{LRR_NETWORK} ];
 } else {
     @listen = ["http://*:3000"];
 }

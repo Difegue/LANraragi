@@ -12,13 +12,13 @@ sub setup_eze_mock {
 
     # Copy the eze sample json to a temporary directory as it's deleted once parsed
     my $cwd = getcwd;
-    my ($fh, $filename) = tempfile();
-    cp( $cwd."/tests/eze_sample.json", $fh);
+    my ( $fh, $filename ) = tempfile();
+    cp( $cwd . "/tests/eze_sample.json", $fh );
 
-    # Mock LANraragi::Utils::Archive's subs to return the temporary sample JSON 
+    # Mock LANraragi::Utils::Archive's subs to return the temporary sample JSON
     # Since we're using exports, the methods are under the plugin's namespace.
-    *LANraragi::Plugin::Metadata::Eze::extract_file_from_archive = sub {$filename};
-    *LANraragi::Plugin::Metadata::Eze::is_file_in_archive = sub {1};
+    *LANraragi::Plugin::Metadata::Eze::extract_file_from_archive = sub { $filename };
+    *LANraragi::Plugin::Metadata::Eze::is_file_in_archive        = sub { 1 };
 }
 
 sub setup_redis_mock {
@@ -26,7 +26,7 @@ sub setup_redis_mock {
     # DataModel for searches
     # files are set to package.json since the search engine checks for file existence and I ain't about to mock perl's -e call
     # Switch devmode to 1 for debug output in test
-    my %datamodel = %{decode_json qq(
+    my %datamodel = %{ decode_json qq(
         {
         "LRR_CONFIG": {
             "pagesize": "100",
@@ -68,7 +68,8 @@ sub setup_redis_mock {
             "title": "Fate GO MEMO",
             "file": "package.json"
         }
-    })};
+    })
+    };
 
     # Mock Redis object which uses the datamodel
     my $redis = Test::MockObject->new();
@@ -77,20 +78,20 @@ sub setup_redis_mock {
     $redis->mock( 'hexists', sub { 1 } );
     $redis->mock( 'hset',    sub { 1 } );
     $redis->mock( 'quit',    sub { 1 } );
-    $redis->mock( 'select',    sub { 1 } );
+    $redis->mock( 'select',  sub { 1 } );
 
-    $redis->mock( 'hget', # $redis->hget => get key in datamodel
+    $redis->mock(
+        'hget',    # $redis->hget => get key in datamodel
         sub {
             my $self = shift;
-            my ($key, $hashkey) = @_;
+            my ( $key, $hashkey ) = @_;
 
             my $value = $datamodel{$key}{$hashkey};
             return $value;
-        } );
+        }
+    );
 
-    $redis->fake_module(
-        "Redis",
-        new => sub {$redis});
+    $redis->fake_module( "Redis", new => sub { $redis } );
 }
 
 1;

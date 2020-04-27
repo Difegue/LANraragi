@@ -73,11 +73,9 @@ sub index {
     if ( $redis->exists($id) ) {
         my %hash = $redis->hgetall($id);
 
-        my ( $name, $title, $tags, $file, $thumbhash ) =
-          @hash{qw(name title tags file thumbhash)};
+        my ( $name, $title, $tags, $file, $thumbhash ) = @hash{qw(name title tags file thumbhash)};
 
-        ( $_ = redis_decode($_) )
-          for ( $name, $title, $tags );
+        ( $_ = redis_decode($_) ) for ( $name, $title, $tags );
 
         #Build plugin listing
         my @pluginlist = get_plugins("metadata");
@@ -98,8 +96,9 @@ sub index {
             csshead   => generate_themes_header($self),
             version   => $self->LRR_VERSION
         );
+    } else {
+        $self->redirect_to('index');
     }
-    else { $self->redirect_to('index') }
 }
 
 1;

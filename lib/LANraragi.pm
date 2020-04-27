@@ -29,8 +29,8 @@ sub startup {
     my $config = $self->plugin( 'Config', { file => 'lrr.conf' } );
 
     # Load package.json to get version/vername
-    my $packagejson = decode_json(Mojo::File->new('package.json')->slurp);
-    
+    my $packagejson = decode_json( Mojo::File->new('package.json')->slurp );
+
     my $version = $packagejson->{version};
     my $vername = $packagejson->{version_name};
 
@@ -70,8 +70,7 @@ sub startup {
 
     if ($devmode) {
         $self->mode('development');
-        $self->LRR_LOGGER->info(
-            "LANraragi $version (re-)started. (Debug Mode)");
+        $self->LRR_LOGGER->info("LANraragi $version (re-)started. (Debug Mode)");
 
         #Tell the mojo logger to print to stdout as well
         $self->log->on(
@@ -83,11 +82,9 @@ sub startup {
                 print "\n";
             }
         );
-    }
-    else {
+    } else {
         $self->mode('production');
-        $self->LRR_LOGGER->info(
-            "LANraragi $version started. (Production Mode)");
+        $self->LRR_LOGGER->info("LANraragi $version started. (Production Mode)");
     }
 
     #Plugin listing
@@ -104,28 +101,25 @@ sub startup {
     }
 
     #Start Background worker
-    if ( -e "./.shinobu-pid" && eval { retrieve("./.shinobu-pid"); }) {
+    if ( -e "./.shinobu-pid" && eval { retrieve("./.shinobu-pid"); } ) {
 
         # Deserialize process
-        my $proc = ${retrieve("./.shinobu-pid")};
+        my $proc = ${ retrieve("./.shinobu-pid") };
         my $pid  = $proc->pid;
 
-        $self->LRR_LOGGER->info(
-            "Terminating previous Shinobu Worker if it exists... (PID is $pid)"
-        );
-        $proc->kill();  
+        $self->LRR_LOGGER->info("Terminating previous Shinobu Worker if it exists... (PID is $pid)");
+        $proc->kill();
     }
 
     my $proc = start_shinobu();
-    $self->LRR_LOGGER->debug(
-        "Shinobu Worker new PID is " . $proc->pid );
+    $self->LRR_LOGGER->debug( "Shinobu Worker new PID is " . $proc->pid );
 
     LANraragi::Utils::Routing::apply_routes($self);
     $self->LRR_LOGGER->info("Routing done! Ready to receive requests.");
 
     # Warm search cache
     $self->LRR_LOGGER->info("Warming up search cache...");
-    LANraragi::Model::Search::do_search("","",0,"title","asc", 0, 0);
+    LANraragi::Model::Search::do_search( "", "", 0, "title", "asc", 0, 0 );
     $self->LRR_LOGGER->info("Done!");
 }
 

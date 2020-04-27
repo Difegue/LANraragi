@@ -8,7 +8,6 @@ use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header
 sub index {
     my $self = shift;
 
-
     $self->render(
         template     => "stats",
         title        => $self->LRR_CONF->get_htmltitle,

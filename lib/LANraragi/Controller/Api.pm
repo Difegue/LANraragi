@@ -26,14 +26,12 @@ sub check_id_parameter {
     my ( $mojo, $endpoint ) = @_;
 
     my $id = $mojo->req->param('id') || 0;
-    unless ( $id ) {
+    unless ($id) {
 
         #High-level API documentation!
         $mojo->render(
-            json => {
-                error => "API usage: $endpoint?id=YOUR_ID"
-            },
-			status => 400
+            json   => { error => "API usage: $endpoint?id=YOUR_ID" },
+            status => 400
         );
     }
     return $id;
@@ -41,14 +39,14 @@ sub check_id_parameter {
 
 # Renders the basic success API JSON template.
 sub success {
-    my ($mojo, $operation) = @_;
+    my ( $mojo, $operation ) = @_;
 
     $mojo->render(
-            json => {
-                operation => $operation,
-                success   => 1
-            }
-        );
+        json => {
+            operation => $operation,
+            success   => 1
+        }
+    );
 }
 
 sub serve_archivelist {
@@ -58,8 +56,8 @@ sub serve_archivelist {
 }
 
 sub serve_opds {
-    my $self   = shift;
-    $self->render( text => LANraragi::Model::Api::generate_opds_catalog($self), format => 'xml'); 
+    my $self = shift;
+    $self->render( text => LANraragi::Model::Api::generate_opds_catalog($self), format => 'xml' );
 }
 
 sub serve_untagged_archivelist {
@@ -70,17 +68,17 @@ sub serve_untagged_archivelist {
 
 sub serve_tag_stats {
     my $self = shift;
-    $self->render( json => from_json(LANraragi::Model::Stats::build_tag_json));
+    $self->render( json => from_json(LANraragi::Model::Stats::build_tag_json) );
 }
 
 sub serve_backup {
     my $self = shift;
-    $self->render( json => from_json(LANraragi::Model::Backup::build_backup_JSON));
+    $self->render( json => from_json(LANraragi::Model::Backup::build_backup_JSON) );
 }
 
 sub drop_database {
     LANraragi::Utils::Database::drop_database();
-    success(shift, "drop_database");
+    success( shift, "drop_database" );
 }
 
 sub clean_database {
@@ -97,7 +95,7 @@ sub clean_database {
 
 sub clear_cache {
     invalidate_cache();
-    success(shift, "clear_cache");
+    success( shift, "clear_cache" );
 }
 
 # Uses a plugin, with the standard global arguments and a provided oneshot argument.
@@ -108,15 +106,15 @@ sub use_plugin {
 
 sub serve_thumbnail {
     my $self = shift;
-    my $id   = check_id_parameter($self, "thumbnail") || return;
-    LANraragi::Model::Api::serve_thumbnail($self, $id);
+    my $id   = check_id_parameter( $self, "thumbnail" ) || return;
+    LANraragi::Model::Api::serve_thumbnail( $self, $id );
 }
 
 # Use RenderFile to get the file of the provided id to the client.
 sub serve_file {
 
     my $self  = shift;
-    my $id    = check_id_parameter($self, "servefile") || return;
+    my $id    = check_id_parameter( $self, "servefile" ) || return;
     my $redis = $self->LRR_CONF->get_redis();
 
     my $file = $redis->hget( $id, "file" );
@@ -126,30 +124,25 @@ sub serve_file {
 
 # Serve an archive page from the temporary folder, using RenderFile.
 sub serve_page {
-    my $self  = shift;
-    my $id    = check_id_parameter($self, "servefile") || return;
-    LANraragi::Model::Api::serve_page($self, $id);
+    my $self = shift;
+    my $id   = check_id_parameter( $self, "servefile" ) || return;
+    LANraragi::Model::Api::serve_page( $self, $id );
 }
 
 sub extract_archive {
     my $self = shift;
-    my $id   = check_id_parameter($self, "extract") || return;
+    my $id   = check_id_parameter( $self, "extract" ) || return;
     my $readerjson;
 
-    eval {
-        $readerjson =
-          LANraragi::Model::Reader::build_reader_JSON( $self, $id, "0", "0" );
-    };
+    eval { $readerjson = LANraragi::Model::Reader::build_reader_JSON( $self, $id, "0", "0" ); };
     my $err = $@;
 
     if ($err) {
-        $self->render( 
-            json => {
-                error => $err
-            },
-            status => 500);
-    }
-    else {
+        $self->render(
+            json   => { error => $err },
+            status => 500
+        );
+    } else {
         $self->render( json => decode_json($readerjson) );
     }
 }
@@ -173,12 +166,13 @@ sub clean_tempfolder {
 
 sub clear_new {
     my $self = shift;
-    my $id = check_id_parameter($self, "clear_new") || return;
+    my $id   = check_id_parameter( $self, "clear_new" ) || return;
 
     my $redis = $self->LRR_CONF->get_redis();
 
     # Just set isnew to false for the provided ID.
-    if ($redis->hget( $id, "isnew") ne "false") {
+    if ( $redis->hget( $id, "isnew" ) ne "false" ) {
+
         # Bust search cache...partially!
         LANraragi::Utils::Database::invalidate_isnew_cache();
 
@@ -198,12 +192,12 @@ sub clear_new {
 #Clear new flag in all archives.
 sub clear_new_all {
 
-    my $self = shift;
+    my $self  = shift;
     my $redis = $self->LRR_CONF->get_redis();
 
     # Get all archives thru redis
     # 40-character long keys only => Archive IDs
-    my @keys  = $redis->keys('????????????????????????????????????????');
+    my @keys = $redis->keys('????????????????????????????????????????');
 
     foreach my $idall (@keys) {
         $redis->hset( $idall, "isnew", "false" );
@@ -212,7 +206,7 @@ sub clear_new_all {
     # Bust search cache completely, this is a big change
     invalidate_cache();
     $redis->quit();
-    success($self, "clear_new_all");
+    success( $self, "clear_new_all" );
 }
 
 #Use all enabled plugins on an archive ID. Tags are automatically saved in the background.
@@ -220,13 +214,12 @@ sub clear_new_all {
 sub use_enabled_plugins {
 
     my $self  = shift;
-    my $id    = check_id_parameter($self, "autoplugin") || return;
+    my $id    = check_id_parameter( $self, "autoplugin" ) || return;
     my $redis = $self->LRR_CONF->get_redis();
 
     if ( $redis->exists($id) && LANraragi::Model::Config->enable_autotag ) {
 
-        my ( $succ, $fail, $addedtags ) =
-          LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
+        my ( $succ, $fail, $addedtags ) = LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
 
         $self->render(
             json => {
@@ -251,7 +244,7 @@ sub use_enabled_plugins {
 
 sub shinobu_status {
     my $self    = shift;
-    my $shinobu = ${retrieve("./.shinobu-pid")};
+    my $shinobu = ${ retrieve("./.shinobu-pid") };
 
     $self->render(
         json => {
@@ -264,16 +257,16 @@ sub shinobu_status {
 
 sub stop_shinobu {
     my $self    = shift;
-    my $shinobu = ${retrieve("./.shinobu-pid")};
+    my $shinobu = ${ retrieve("./.shinobu-pid") };
 
     #commit sudoku
     $shinobu->kill();
-    success($self, "shinobu_stop");
+    success( $self, "shinobu_stop" );
 }
 
 sub restart_shinobu {
     my $self    = shift;
-    my $shinobu = ${retrieve("./.shinobu-pid")};
+    my $shinobu = ${ retrieve("./.shinobu-pid") };
 
     #commit sudoku
     $shinobu->kill();
