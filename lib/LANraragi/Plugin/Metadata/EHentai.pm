@@ -31,7 +31,11 @@ sub plugin_info {
         parameters => [
             { type => "string", desc => "Forced language to use in searches" },
             { type => "bool",   desc => "Save archive title" },
-            { type => "bool",   desc => "Fetch using thumbnail first" },
+            { type => "bool",   desc => "Save the original Japanese title when available instead of the English or "
+              . "romanised title" },
+            { type => "bool",   desc => "Fetch additional timestamp (time posted) and uploader metadata" },
+            { type => "bool",   desc => "Fetch using cover thumbnail instead of archive title" },
+            { type => "bool",   desc => "Search expunged galleries as well" },
             { type => "bool",   desc => "Use ExHentai (enable to search for fjorded content without star cookie)" }
         ],
         oneshot_arg => "E-H Gallery URL (Will attach tags matching this exact gallery to your archive)"
@@ -44,7 +48,7 @@ sub get_tags {
 
     shift;
     my $lrr_info = shift;    # Global info hash
-    my ( $lang, $savetitle, $usethumbs, $enablepanda ) = @_;    # Plugin parameters
+    my ( $lang, $savetitle, $jpntitle, $additionaltags, $usethumbs, $expunged, $enablepanda ) = @_;    # Plugin parameters
 
     # Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
     my $logger = get_logger( "E-Hentai", "plugins" );
@@ -70,8 +74,8 @@ sub get_tags {
             $lrr_info->{archive_title},
             $lrr_info->{existing_tags},
             $lrr_info->{thumbnail_hash},
-            $lang, $lrr_info->{user_agent},
-            $domain, $usethumbs
+            $lrr_info->{user_agent},
+            $domain, $lang, $usethumbs, $expunged
         );
     }
 
@@ -91,7 +95,7 @@ sub get_tags {
         $logger->debug("EH API Tokens are $gID / $gToken");
     }
 
-    my ( $ehtags, $ehtitle ) = &get_tags_from_EH( $gID, $gToken );
+    my ( $ehtags, $ehtitle ) = &get_tags_from_EH( $gID, $gToken, $jpntitle, $additionaltags );
     my %hashdata = ( tags => $ehtags );
 
     # Add source URL and title if possible
@@ -111,25 +115,30 @@ sub get_tags {
 
 sub lookup_gallery {
 
-    my ( $title, $tags, $thumbhash, $defaultlanguage, $ua, $domain, $usethumbs ) = @_;
+    my ( $title, $tags, $thumbhash, $ua, $domain, $defaultlanguage, $usethumbs, $expunged ) = @_;
     my $logger = get_logger( "E-Hentai", "plugins" );
     my $URL    = "";
 
     #Thumbnail reverse image search
     if ( $thumbhash ne "" && $usethumbs ) {
 
-        $logger->info("Reverse Image Search Enabled, trying first.");
+        $logger->info("Reverse Image Search Enabled, trying now.");
 
         #search with image SHA hash
         $URL =
             $domain
           . "?advsearch=1&f_sname=on&f_stags=on&f_sdt2=on&f_spf=&f_spt=&f_sfu=on&f_sft=on&f_sfl=on&f_shash="
           . $thumbhash
-          . "&fs_covers=1&fs_similar=1&f_search=";
+          . "&fs_covers=1&fs_similar=1";
+
+        #Include expunged galleries in the search if the option is enabled.
+        if ( $expunged ) {
+            $URL = $URL . "&fs_exp=1";
+        }
 
         #Add the language override, if it's defined.
         if ( $defaultlanguage ne "" ) {
-            $URL = $URL . uri_escape_utf8("language:$defaultlanguage");
+            $URL = $URL . "&f_search=" . uri_escape_utf8("language:$defaultlanguage");
         }
 
         $logger->debug("Using URL $URL (archive thumbnail hash)");
@@ -147,6 +156,11 @@ sub lookup_gallery {
       . "?advsearch=1&f_sname=on&f_stags=on&f_sdt2=on&f_spf=&f_spt=&f_sfu=on&f_sft=on&f_sfl=on"
       . "&f_search="
       . uri_escape_utf8( qw(") . $title . qw(") );
+
+    #Include expunged galleries in the search if the option is enabled.
+    if ( $expunged ) {
+        $URL = $URL . "&f_sh=on";
+    }
 
     #Add the language override, if it's defined.
     if ( $defaultlanguage ne "" ) {
@@ -206,13 +220,12 @@ sub ehentai_parse() {
     return ( $gID, $gToken );
 }
 
-# get_tags_from_EH(gID, gToken)
+# get_tags_from_EH(gID, gToken, jpntitle, additionaltags)
 # Executes an e-hentai API request with the given JSON and returns tags and title.
 sub get_tags_from_EH {
 
-    my $uri    = 'https://e-hentai.org/api.php';
-    my $gID    = $_[0];
-    my $gToken = $_[1];
+    my ( $gID, $gToken, $jpntitle, $additionaltags ) = @_;
+    my $uri = 'https://e-hentai.org/api.php';
 
     my $ua = Mojo::UserAgent->new;
 
@@ -235,11 +248,19 @@ sub get_tags_from_EH {
 
         my $data    = $jsonresponse->{"gmetadata"};
         my $tags    = @$data[0]->{"tags"};
-        my $ehtitle = @$data[0]->{"title"};
+        my $ehtitle = @$data[0]->{($jpntitle ? "title_jpn" : "title")};
+        if ( $ehtitle eq "" && $jpntitle ) {
+            $ehtitle = @$data[0]->{"title"};
+        }
         my $ehcat   = lc @$data[0]->{"category"};
 
         my $ehtags = join( ", ", @$tags );
         $ehtags = $ehtags . ", category:" . $ehcat;
+        if ( $additionaltags ) {
+            my $ehuploader = @$data[0]->{"uploader"};
+            my $ehtimestamp = @$data[0]->{"posted"};
+            $ehtags = $ehtags . ", uploader:" . $ehuploader . ", timestamp:" . $ehtimestamp;
+        }
 
         $logger->info("Sending the following tags to LRR: $ehtags");
         return ( $ehtags, $ehtitle );
