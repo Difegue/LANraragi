@@ -26,6 +26,14 @@ If installed, you can run the critic on the entire LRR source tree through the `
 Critic is automatically run on every commit made to LRR at the level 5 thanks to [Github Actions](https://github.com/Difegue/LANraragi/blob/dev/.github/main.workflow).
 
 I also run [perltidy](https://en.wikipedia.org/wiki/PerlTidy) on the source tree every now and then for consistency.  
+The rules used in perltidy passes are stored in the .perltidyrc file at the source root.  
+
+Some extras:  
+
+* Code width limit is stupid for long strings and comments (ie the base64 pngs in plugin metadata), which is perltidy's default behavior.
+* The visual indentation when setting a bunch of variables at once is made by perltidy but I actually really like it, so I leave it in and try to repro it whenever it makes sense.
+* The codebase does have issues with variable naming -- perl packages usually go for snakecase buuut short variables are ok in flatcase (as per [perlstyle](https://perldoc.perl.org/perlstyle.html) )
+* `'`'s should only be used for escaping `"` easily and vice-versa but I don't really care about that one. 😐
 
 A small practice I try to keep on my own for LRR's packages is to use methods (arrow notation, `Class::Name->do_thing`) to call subroutines that take no arguments, and functions (namespace notation, `Class::Name::do_thing($param)`) to call subs with arguments. It doesn't really matter much, but it looks cleaner to me!  
 Also makes it easier if one day I take the OOP pill for this project, as methods always get the current object (or class name) as the first parameter of their call.
@@ -38,16 +46,13 @@ I recommend trying to only use exported functions in your code, and consider the
 ```text
 root/
 |- .github       <- Github-specific files
-|  |- action-*      <- Github Actions, running as Docker containers
-|     |- critic        <- Run Perl Critic on the codebase
-|     |- run-tests     <- Run the LRR Test Suite
-|     +- wslbuild      <- Build the WSL Distro for the Windows 10 Package
-|  |- ISSUE_TEMPLATE<- Template for bug reports
-|  |- workflows     <- Github Actions workflows
-|     |- CD            <- Continuous Delivery, Nightly builds
-|     |- CI            <- Tests
-|     +- Release       <- Build latest and upload .zip to release post on GH
-|  +- FUNDING.yml   <- Github Sponsors file
+|  |- action-run-tests <- Run the LRR Test Suite
+|  |- ISSUE_TEMPLATE   <- Template for bug reports
+|  |- workflows        <- Github Actions workflows
+|     |- CD               <- Continuous Delivery, Nightly builds
+|     |- CI               <- Tests
+|     +- Release          <- Build latest and upload .zip to release post on GH
+|  +- FUNDING.yml      <- Github Sponsors file
 |
 |- content       <- Default content folder
 |
@@ -58,6 +63,7 @@ root/
 |     |- Controller <- One Controller per page
 |        +- *.pm       <- Index, Config, Reader, Api, etc.
 |     |- Model      <- Application code that doesn't rely on Mojolicious
+|        |- Api.pm     <- Api business implementation
 |        |- Backup.pm  <- Encodes/Decodes Backup JSONs
 |        |- Config.pm  <- Communicates with the Redis DB to store/retrieve Configuration
 |        |- Plugins.pm <- Executes Plugins on archives
@@ -65,7 +71,9 @@ root/
 |        |- Search.pm  <- Search Engine
 |        +- Stats.pm   <- Tag Cloud and Statistics
 |     +- Plugin     <- LRR Plugins are stored here
-|        +- *.pm
+|        |- Login
+|        |- Metadata
+|        +- Scripts
 |     +- Utils      <- Generic Functions
 |
 |- log           <- Application Logs end up here
@@ -96,7 +104,6 @@ root/
 |  |- build         <- Build tools and scrpits
 |     |- windows          <- Windows build script and submodule link to the Karen WPF Bootstrapper
 |     |- docker           <- Dockerfile and configuration files for LRR Docker Container
-|     |- docker-multiarch <- Modified Dockerfile for Multi-Arch Container builds (see .github)
 |     |- homebrew         <- Script and configuration files for the LRR Homebrew cask
 |     |- vagrant          <- Vagrantfile for LRR Vagrant Machine
 |  |- cpanfile      <- Perl dependencies description
@@ -106,6 +113,7 @@ root/
 |
 |- lrr.conf      <- Mojolicious configuration file
 |- .shinobu-pid  <- Last known PID of the Background Worker
+|- .perltidy.rc  <- PerlTidy config file to match the coding style
 +- package.json  <- NPM file, contains front-end dependency listing and shortcuts
 ```
 
