@@ -10,10 +10,6 @@ apk add supervisor su-exec shadow
 #Hey it's cpanm
 curl -L https://cpanmin.us | perl - App::cpanminus 
 
-#Use a patched version of Rijndael for musl support until a proper CPAN release is done
-#See https://framagit.org/fiat-tux/hat-softwares/lufi/issues/137
-cpanm https://gitlab.com/thedudeabides/crypt-rijndael/-/archive/musl-libc/crypt-rijndael-musl-libc.tar.gz 
-
 #Install Linux::Inotify2 manually since it's not in the base cpanfile (doesn't build on macOS)
 cpanm Linux::Inotify2
 
