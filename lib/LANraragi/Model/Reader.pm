@@ -136,6 +136,10 @@ sub build_reader_JSON {
 
     foreach my $imgpath (@images) {
 
+        # Strip everything before the temporary folder/id folder as to only keep the relative path to it
+        # i.e "/c/bla/lrr/temp/id/file.jpg" becomes "file.jpg"
+        $imgpath =~ s!$path/!!g;
+
         # We need to sanitize the image's path, in case the folder contains illegal characters,
         # but uri_escape would also nuke the / needed for navigation. Let's solve this with a quick regex search&replace.
         # First, we encode all HTML characters...
@@ -143,10 +147,6 @@ sub build_reader_JSON {
 
         # Then we bring the slashes back.
         $imgpath =~ s!%2F!/!g;
-
-        # Strip everything before the temporary folder/id folder as to only keep the relative path to it
-        # i.e "/c/bla/lrr/temp/id/file.jpg" becomes "file.jpg"
-        $imgpath =~ s!$path/!!g;
 
         # Bundle this path into an API call which will be used by the browser
         push @images_browser, "./api/page?id=$id&path=$imgpath";
