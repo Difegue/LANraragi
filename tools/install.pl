@@ -147,24 +147,18 @@ if ( $back || $full ) {
     );
     say("\r\nInstalling Perl modules... This might take a while.\r\n");
 
-    # libarchive is not provided by default on macOS, so we have to set the correct env vars
-    # to successfully compile Archive::Extract::Libarchive and Archive::Peek::Libarchive
-    my $pre = "";
-    if ($Config{"osname"} eq "darwin") {
-        say("Setting Environmental Flags for macOS");
-        $pre = "export CFLAGS=\"-I/usr/local/opt/libarchive/include\" && \\
-          export PKG_CONFIG_PATH=\"/usr/local/opt/libarchive/lib/pkgconfig\" && ";
-    } else {
+    if ( $Config{"osname"} ne "darwin" ) {
         say("Installing Linux::Inotify2 for non-macOS systems...");
         install_package("Linux::Inotify2");
     }
-    # provide cpanm with the correct module installation dir when using Homebrew
+
+    # Provide cpanm with the correct module installation dir when using Homebrew
     my $suff = "";
     if ($ENV{HOMEBREW_FORMULA_PREFIX}) {
       $suff = " -l " . $ENV{HOMEBREW_FORMULA_PREFIX} . "/libexec";
     }
 
-    if ( system($pre . "cpanm --installdeps ./tools/. --notest" . $suff) != 0 ) {
+    if ( system("cpanm --installdeps ./tools/. --notest" . $suff) != 0 ) {
         die "Something went wrong while installing Perl modules - Bailing out.";
     }
 }
