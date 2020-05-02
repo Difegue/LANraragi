@@ -178,7 +178,12 @@ sub process_upload {
         $logger->info("Uploading new plugin $filename to $output_file ...");
 
         #Delete module if it already exists
-        unlink($output_file);
+        if ( -e $output_file ) {
+            unlink($output_file);
+
+            # Remove the existing file from @INC to avoid the require call below croaking
+            delete( $INC{$output_file} );
+        }
 
         $file->move_to($output_file);
 
@@ -196,7 +201,9 @@ sub process_upload {
             $logger->error("Could not instantiate plugin at namespace $pluginclass!");
             $logger->error($@);
 
+            # Cleanup this shameful attempt
             unlink($output_file);
+            delete( $INC{$output_file} );
 
             $self->render(
                 json => {
@@ -205,7 +212,7 @@ sub process_upload {
                     success   => 0,
                     error     => "Could not load namespace $pluginclass! "
                       . "Your Plugin might not be compiling properly. <br/>"
-                      . "Here's an error log: $@"
+                      . "Here's an error log: <pre>$@</pre>"
                 }
             );
 
