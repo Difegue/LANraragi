@@ -52,7 +52,7 @@ If you do this, the error will be logged/displayed to the user.
 ## Plugin Template
 
 ```perl
-package LANraragi::Plugin::Script::MyNewPlugin;
+package LANraragi::Plugin::Scripts::MyNewPlugin;
 
 use strict;
 use warnings;
