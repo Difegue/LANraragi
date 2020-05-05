@@ -13,7 +13,7 @@ Here are some existing clients:
 ### [Ichaival \(Android\)](https://github.com/Utazukin/Ichaival)  
 
 [Download it here.](https://github.com/Utazukin/Ichaival)  
-![ichaival](https://user-images.githubusercontent.com/45130999/52095736-cb1e0400-2589-11e9-9da1-086c27ac6fe0.png)
+![ichaival](../.gitboook/assets/ichaival.png)
 
 **Features:**  
 
@@ -37,7 +37,7 @@ Here are some existing clients:
 * Multiple servers/profiles.
 * Manage your server from within the app.
 
-### Tachiyomi reader 
+### Tachiyomi reader  
 
 ![Tachiyomi](../.gitbook/assets/tachiyomi.jpg)
 

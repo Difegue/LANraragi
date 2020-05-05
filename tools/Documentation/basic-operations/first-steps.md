@@ -43,14 +43,14 @@ This folder contains all the user-generated data:
 
 * Archives \(in zip/rar/targz/lzma/7z/xz/cbz/cbr/pdf format\)  
 * Thumbnails for said archives
-* The Redis database \(Unless you're running from source\)  
+* The Redis database \(Windows only\)  
 
 By default, this folder is placed at the root of the LRR installation, but you can configure it to use any folder on your machine instead. The content folder is subdirectory-aware, so you can easily drop-in an already sorted collection.
 
 {% hint style="info" %}
 If you plan on setting your content folder to a folder that already contains archives, you might want to enable **Plugin AutoTagging** beforehand, so that metadata will be fetched for your files as they're added. See the below section and the Metadata documentation for more info.
 
-You can still do it afterwards on a per-archive basis.
+The content folder can be write-only if you so desire, but the caveat is that the thumbnail subfolder needs write rights to function properly for the time being.  
 {% endhint %}
 
 ## Plugin Configuration and AutoTagging

@@ -22,7 +22,7 @@ In the reader, you can use the keyboard arrows or the built-in arrow icons to mo
 You can also simply click the right or left side of the image.  
 When reading an archive, the three button icons on the rightside of the page offer various options.
 
-![Annotated Reader View](../.gitbook/assets/reader.png)
+![Annotated Reader View](../.gitbook/assets/reader.jpg)
 
 You can click the information icon on the right-side of the Reader to get a quick refresher about its controls.  
 The Reader Options button shows the various options you can toggle to change the reading experience. \(Double page, Japanese read order, etc.\)
