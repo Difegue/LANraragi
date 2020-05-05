@@ -108,7 +108,9 @@ say("");
 
 #Load IPC::Cmd
 install_package("IPC::Cmd");
+install_package("Config::AutoConf");
 IPC::Cmd->import('can_run');
+import Config::AutoConf;
 
 say("\r\nWill now check if all LRR software dependencies are met. \r\n");
 
@@ -116,6 +118,18 @@ say("\r\nWill now check if all LRR software dependencies are met. \r\n");
 say("Checking for Redis...");
 can_run('redis-server')
   or die 'NOT FOUND! Please install a Redis server before proceeding.';
+say("OK!");
+
+#Check for GhostScript
+say("Checking for GhostScript...");
+can_run('gs')
+  or warn 'NOT FOUND! PDF support will not work properly. Please install the "gs" tool.';
+say("OK!");
+
+#Check for libarchive
+say("Checking for libarchive...");
+Config::AutoConf->new()->check_header("archive.h") 
+  or die 'NOT FOUND! Please install libarchive and ensure its headers are present.';
 say("OK!");
 
 #Check for PerlMagick
@@ -143,8 +157,6 @@ else {
 
 #Build & Install CPAN Dependencies
 if ( $back || $full ) {
-    say("Ensure you have libarchive installed or this will fail!"
-    );
     say("\r\nInstalling Perl modules... This might take a while.\r\n");
 
     if ( $Config{"osname"} ne "darwin" ) {

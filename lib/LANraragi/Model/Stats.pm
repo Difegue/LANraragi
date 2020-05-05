@@ -22,7 +22,7 @@ sub get_archive_count {
     find(
         {   wanted => sub {
                 return if -d $_;    #Directories are excluded on the spot
-                if ( $_ =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr)$/ ) {
+                if ( $_ =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|pdf|)$/ ) {
                     $count++;
                 }
             },

@@ -45,6 +45,7 @@ sub resize_image {
         $img->Set( quality => $quality, magick => "jpg" );
         $img->Write($imgpath);
     }
+    undef $img;
 }
 
 #build_reader_JSON(mojo,id,forceReload,refreshThumbnail)

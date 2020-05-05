@@ -6,7 +6,7 @@ use utf8;
 
 use Time::HiRes qw(gettimeofday);
 use File::Basename;
-use File::Path qw(remove_tree);
+use File::Path qw(remove_tree make_path);
 use File::Find qw(finddepth);
 use File::Copy qw(move);
 use Encode;
@@ -27,6 +27,11 @@ use LANraragi::Utils::Generic qw(is_image shasum);
 use Exporter 'import';
 our @EXPORT_OK = qw(is_file_in_archive extract_file_from_archive extract_archive extract_thumbnail generate_thumbnail);
 
+sub is_pdf {
+    my ( $filename, $dirs, $suffix ) = fileparse( $_[0], qr/\.[^.]*/ );
+    return ( $suffix eq ".pdf" );
+}
+
 # generate_thumbnail(original_image, thumbnail_location)
 # use ImageMagick to make a thumbnail, height = 500px (view in index is 280px tall)
 sub generate_thumbnail {
@@ -37,19 +42,25 @@ sub generate_thumbnail {
     $img->Read($orig_path);
     $img->Thumbnail( geometry => '500y' );
     $img->Write($thumb_path);
+    undef $img;
 }
 
 #extract_archive(path, archive_to_extract)
 #Extract the given archive to the given path.
 sub extract_archive {
 
-    my ( $path, $zipfile ) = @_;
+    my ( $destination, $to_extract ) = @_;
+
+    # PDFs are handled by Ghostscript (alas)
+    if ( is_pdf($to_extract) ) {
+        return extract_pdf( $destination, $to_extract );
+    }
 
     # build an Archive::Extract object
-    my $ae = Archive::Extract::Libarchive->new( archive => $zipfile );
+    my $ae = Archive::Extract::Libarchive->new( archive => $to_extract );
 
-    #Extract to $path. Report if it fails.
-    my $ok = $ae->extract( to => $path ) or die $ae->error;
+    #Extract to $destination. Report if it fails.
+    my $ok = $ae->extract( to => $destination ) or die $ae->error;
 
     #Rename files and folders to an encoded version
     my $cwd = getcwd();
@@ -88,6 +99,21 @@ sub extract_archive {
     return $ae->extract_path;
 }
 
+sub extract_pdf {
+    my ( $destination, $to_extract ) = @_;
+
+    make_path($destination);
+    my $logger = get_logger( "Archive", "lanraragi" );
+
+    my $gscmd = "gs -dNOPAUSE -sDEVICE=jpeg -r200 -o '$destination/\%d.jpg' '$to_extract'";
+    $logger->debug("Sending PDF $to_extract to GhostScript...");
+    $logger->debug($gscmd);
+
+    `$gscmd`;
+
+    return $destination;
+}
+
 #extract_thumbnail(dirname, id)
 #Finds the first image for the specified archive ID and makes it the thumbnail.
 sub extract_thumbnail {
@@ -95,15 +121,59 @@ sub extract_thumbnail {
     my ( $dirname, $id ) = @_;
     my $thumbname = $dirname . "/thumb/" . $id . ".jpg";
 
-    mkdir $dirname;
-    mkdir $dirname . "/thumb";
+    make_path( $dirname . "/thumb" );
     my $redis = LANraragi::Model::Config->get_redis;
 
     my $file     = $redis->hget( $id, "file" );
-    my $temppath = get_temp . "/thumb";
+    my $temppath = get_temp . "/thumb/$id/";
 
     # Make sure the thumb temp dir exists
+    make_path($temppath);
+
+    my $arcimg = "";
+    if ( is_pdf($file) ) {
+        $arcimg = extract_page_pdf( $file, $temppath );
+    } else {
+        $arcimg = extract_page_libarchive( $file, $temppath );
+    }
+
+    #While we have the image, grab its SHA-1 hash for tag research.
+    #That way, no need to repeat the costly extraction later.
+    my $shasum = shasum( $arcimg, 1 );
+    $redis->hset( $id, "thumbhash", encode_utf8($shasum) );
+    $redis->quit();
+
+    #Thumbnail generation
+    generate_thumbnail( $arcimg, $thumbname );
+
+    #Delete the previously extracted file.
+    unlink $arcimg;
+
+    # Clean up safe folder
+    remove_tree($temppath);
+    return $thumbname;
+}
+
+sub extract_page_pdf {
+
+    my ( $file, $temppath ) = @_;
     mkdir $temppath;
+    my $output = $temppath . "pdf_first_page.jpg";
+
+    my $logger = get_logger( "Archive", "lanraragi" );
+
+    my $gscmd = "gs -dNOPAUSE -dLastPage=1 -sDEVICE=jpeg -r72 -o '$output' '$file'";
+    $logger->debug("Sending PDF $file to GhostScript...");
+    $logger->debug($gscmd);
+
+    `$gscmd`;
+
+    return $output;
+}
+
+sub extract_page_libarchive {
+
+    my ( $file, $temppath ) = @_;
 
     # Get all the files of the archive
     my $peek  = Archive::Peek::Libarchive->new( filename => $file );
@@ -125,32 +195,17 @@ sub extract_thumbnail {
     my $contents = $peek->file( $extracted[0] );
 
     # The name sometimes comes with the folder as a bonus, so we use basename to filter it out.
-    my ( $filename, $dirs, $suffix ) = fileparse( $extracted[0] );
+    my ( $filename, $dirs, $suffix ) = fileparse( $extracted[0], qr/\.[^.]*/ );
 
     # Move the extracted file to a safe folder to avoid concurrent overwrites
-    mkdir $temppath . "/$id";
-    my $arcimg = $temppath . "/$id/" . $filename . $suffix;
+    my $arcimg = $temppath . $filename . $suffix;
 
     open( my $fh, '>', $arcimg )
       or die "Could not open file '$arcimg' $!";
     print $fh $contents;
     close $fh;
 
-    #While we have the image, grab its SHA-1 hash for tag research.
-    #That way, no need to repeat the costly extraction later.
-    my $shasum = shasum( $arcimg, 1 );
-    $redis->hset( $id, "thumbhash", encode_utf8($shasum) );
-    $redis->quit();
-
-    #Thumbnail generation
-    generate_thumbnail( $arcimg, $thumbname );
-
-    #Delete the previously extracted file.
-    unlink $arcimg;
-
-    # Clean up safe foder
-    remove_tree( $temppath . "/$id" );
-    return $thumbname;
+    return $arcimg;
 }
 
 #is_file_in_archive($archive, $file)
@@ -161,6 +216,12 @@ sub is_file_in_archive {
     my ( $archive, $wantedname ) = @_;
 
     my $logger = get_logger( "Archive", "lanraragi" );
+
+    if ( is_pdf($archive) ) {
+        $logger->debug("$archive is a pdf, no sense looking for specific files");
+        return 0;
+    }
+
     $logger->debug("Iterating files of archive $archive, looking for '$wantedname'");
     $Data::Dumper::Useqq = 1;
 
@@ -178,7 +239,6 @@ sub is_file_in_archive {
     );
 
     return $found;
-
 }
 
 #extract_file_from_archive($archive, $file)
@@ -194,18 +254,20 @@ sub extract_file_from_archive {
     my $path  = get_temp . "/plugin/$stamp";
     mkdir get_temp . "/plugin";
     mkdir $path;
-
-    my $peek     = Archive::Peek::Libarchive->new( filename => $archive );
     my $contents = "";
-    $peek->iterate(
-        sub {
-            my ( $file, $data ) = @_;
 
-            if ( $file =~ /$filename$/ ) {
-                $contents = $data;
+    unless ( is_pdf($archive) ) {
+        my $peek = Archive::Peek::Libarchive->new( filename => $archive );
+        $peek->iterate(
+            sub {
+                my ( $file, $data ) = @_;
+
+                if ( $file =~ /$filename$/ ) {
+                    $contents = $data;
+                }
             }
-        }
-    );
+        );
+    }
 
     my $outfile = $path . "/" . $filename;
 

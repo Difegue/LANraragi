@@ -30,7 +30,7 @@ Open source server for archival of comics/manga, running on Mojolicious + Redis.
 
 ## Features  
 
-* Stores your comics in archive format. (zip/rar/targz/lzma/7z/xz/cbz/cbr supported)  
+* Stores your comics in archive format. (zip/rar/targz/lzma/7z/xz/cbz/cbr/pdf supported)  
 
 * Read archives directly from your web browser: the server reads from within compressed files using temporary folders.
 
