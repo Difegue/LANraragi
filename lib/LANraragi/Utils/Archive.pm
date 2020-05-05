@@ -104,17 +104,13 @@ sub extract_pdf {
 
     make_path($destination);
     my $logger = get_logger( "Archive", "lanraragi" );
-    my $pdf    = Image::Magick->new;
-    $logger->debug("Parsing PDF $to_extract...");
-    $pdf->Set( density => '150x' );
-    $pdf->Read($to_extract);
 
-    for ( my $i = 0; $pdf->[$i]; $i++ ) {
-        $logger->debug("Extracting PDF page $i...");
-        $pdf->[$i]->Write("$destination/$i.jpg");
-    }
+    my $gscmd = "gs -dNOPAUSE -sDEVICE=jpeg -r200 -o '$destination/\%d.jpg' '$to_extract'";
+    $logger->debug("Sending PDF $to_extract to GhostScript...");
+    $logger->debug($gscmd);
 
-    undef $pdf;
+    `$gscmd`;
+
     return $destination;
 }
 
@@ -165,15 +161,13 @@ sub extract_page_pdf {
     my $output = $temppath . "pdf_first_page.jpg";
 
     my $logger = get_logger( "Archive", "lanraragi" );
-    my $pdf    = Image::Magick->new;
-    $logger->debug("Parsing PDF $file...");
 
-    # Adding [0] to the filename makes magick only read the first page.
-    # (haha what)
-    $pdf->Read( $file . "[0]" );
-    $pdf->Write($output);
+    my $gscmd = "gs -dNOPAUSE -dLastPage=1 -sDEVICE=jpeg -r72 -o '$output' '$file'";
+    $logger->debug("Sending PDF $file to GhostScript...");
+    $logger->debug($gscmd);
 
-    undef $pdf;
+    `$gscmd`;
+
     return $output;
 }
 
