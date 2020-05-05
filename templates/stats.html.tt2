@@ -22,6 +22,16 @@
 
 <body onload="  set_style_from_storage(); 
 	
+				// Merge unnamespaced/namespaced tags and lower case it all
+				words = words.reduce(function(res, tag) {
+					var sametag = res.find(x => x.text.toLowerCase() === tag.text.toLowerCase());
+					if (sametag !== undefined) {
+						sametag.weight += tag.weight;
+					} else 
+						res.push(tag);
+					return res;
+				}, []);	
+
 				// Filter out tags with a weight of 1
 				words = words.reduce(function(res, tag) {
 					if (tag.weight > 1) 
