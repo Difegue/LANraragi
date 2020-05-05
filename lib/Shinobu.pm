@@ -75,9 +75,9 @@ sub initialize_from_new_process {
     # Add watcher to content directory
     my $contentwatcher = File::ChangeNotify->instantiate_watcher(
         directories     => [$userdir],
-        filter          => qr/\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr)$/,
+        filter          => qr/\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|pdf|)$/,
         follow_symlinks => 1,
-        exclude         => [ 'thumb', '.' ],                                    #excluded subdirs
+        exclude         => [ 'thumb', '.' ],                                         #excluded subdirs
     );
 
     my $class = ref($contentwatcher);
@@ -167,7 +167,7 @@ sub add_to_filemap {
 
     my ($file) = shift;
 
-    if ( $file =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr)$/ ) {
+    if ( $file =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|pdf)$/ ) {
 
         $logger->debug("Adding $file to Shinobu filemap.");
 

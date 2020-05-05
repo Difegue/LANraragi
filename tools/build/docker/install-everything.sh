@@ -23,8 +23,3 @@ npm run lanraragi-installer install-front
 #Cleanup to lighten the image
 apk del perl-dev g++ make gnupg wget curl nodejs nodejs-npm openssl-dev 
 rm -rf /root/.cpanm/* /usr/local/share/man/* node_modules tools/_screenshots tools/Documentation tools/windows tools/homebrew tools/vagrant
-
-#Remove part of ghostscript by hand as it bloats up the image by 40MBs and is only needed for PDF support(which we don't have rn)
-rm -r /usr/share/ghostscript/
-rm /usr/bin/gs
-rm /usr/lib/libgs.so.9*

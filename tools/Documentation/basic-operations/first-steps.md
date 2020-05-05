@@ -41,7 +41,7 @@ If you enable No-Fun Mode, you'll have to set an **API Key** to be able to use t
 One of LRR's core concepts is the **content folder.**  
 This folder contains all the user-generated data:
 
-* Archives \(in zip/rar/targz/lzma/7z/xz/cbz/cbr format\)  
+* Archives \(in zip/rar/targz/lzma/7z/xz/cbz/cbr/pdf format\)  
 * Thumbnails for said archives
 * The Redis database \(Unless you're running from source\)  
 
