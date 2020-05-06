@@ -1,0 +1,104 @@
+{
+  "commands":
+  [
+   {
+     "method": "POST",
+     "protocol": "http",
+     "resource": "/login",
+     "body": "password=kamimamita"
+   },
+   {
+     "protocol": "http",
+     "resource": "/random"
+   },
+   {
+     "protocol": "http",
+     "resource": "/"
+   },
+   {
+     "protocol": "http",
+     "resource": "/stats"
+   },
+   {
+     "protocol": "http",
+     "resource": "/search"
+   },
+   {
+     "protocol": "http",
+     "resource": "/reader?id=__ARCHIVE_HASH__"
+   },
+   {
+     "protocol": "http",
+     "resource": "/api/thumbnail?id=__ARCHIVE_HASH__"
+   },
+   {
+     "protocol": "http",
+     "resource": "/api/page?id=__ARCHIVE_HASH__&path=testzip/1.jpg"
+   },
+   {
+     "protocol": "http",
+     "resource": "/api/page?id=__ARCHIVE_HASH__&path=testzip/2.png"
+   },
+   {
+     "protocol": "http",
+     "resource": "/api/page?id=__ARCHIVE_HASH__&path=testzip/3.gif"
+   },
+   {
+     "protocol": "http",
+     "resource": "/api/page?id=__ARCHIVE_HASH__&path=testzip/4.webp"
+   },
+   {
+     "protocol": "http",
+     "resource": "/api/clear_new?id=__ARCHIVE_HASH__"
+   },
+   {
+     "protocol": "http",
+     "resource": "/api/archivelist"
+   },
+   {
+     "protocol": "http",
+     "resource": "/api/untagged"
+   },
+   {
+     "protocol": "http",
+     "resource": "/api/opds"
+   },
+   {
+     "protocol": "http",
+     "resource": "/config"
+   },
+   {
+     "method": "POST",
+     "protocol": "http",
+     "resource": "/config",
+     "body": "newpassword=1&newpassword2=1"
+   },
+   {
+     "protocol": "http",
+     "resource": "/config/plugins"
+   },
+   {
+     "method": "POST",
+     "protocol": "http",
+     "resource": "/config/plugins",
+     "body": "trabant=on&copytags=on&DateAddedPlugin=on&ehplugin=on&ezeplugin=on&Hdoujinplugin=on&koromoplugin=on&nhplugin=on"
+   },
+   {
+     "protocol": "http",
+     "resource": "/batch"
+   },
+   {
+     "method": "POST",
+     "protocol": "http",
+     "resource": "/api/autoplugin?id=__ARCHIVE_HASH__"
+   },
+   {
+     "protocol": "http",
+     "resource": "/api/clean_database"
+   },
+   {
+     "protocol": "http",
+     "resource": "/logs/general"
+   }
+  ]
+}

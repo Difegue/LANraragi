@@ -1,9 +1,9 @@
-on: 
+on:
   push:
     branches:
     - dev
     - test-builds
-name: Continuous Delivery 
+name: Continuous Delivery
 jobs:
   buildNightlyDocker:
     name: Build and Push Docker Image
@@ -16,7 +16,7 @@ jobs:
         buildx-version: v0.3.1
         qemu-version: latest
     - uses: actions/cache@v1
-      with: 
+      with:
         path: /tmp/buildxcache
         key: ${{ runner.os }}-docker-buildx-${{ hashFiles('**') }}
         restore-keys: |
@@ -47,6 +47,22 @@ jobs:
             --cache-to=type=local,dest=/tmp/buildxcache \
             --file ./tools/build/docker/Dockerfile .
         fi
+    - name: Run docker-slim on Docker image
+      run: |
+        wget https://downloads.dockerslim.com/releases/1.29.0/dist_linux.tar.gz
+        tar xf dist_linux.tar.gz
+        mv ./dist_linux/docker-slim{,-sensor} /usr/local/bin/
+        sed -i "s@__ARCHIVE_HASH__@$(sha1sum sample_content/testzip.zip | cut -d" " -f1)@" probeCmds.json
+        docker-slim build --show-clogs --show-blogs \
+        --mount $(pwd)/tools/build/docker/sample_content/:/home/koyomi/lanraragi/content
+        --http-probe-cmd-file ./tools/build/docker/probeCmds.json \
+        --include-path /usr/local/share/perl5/ \
+        --include-path /home/koyomi/ \
+        --include-path /usr/local/lib/perl5/ \
+        --continue-after 30 \
+        --entrypoint 'sh -c "apk add perl-utils && prove -l /home/koyomi/lanraragi/tests/*.t; /home/koyomi/lanraragi/tools/build/docker/entrypoint.sh"' \
+        --tag difegue/lanraragi:nightly.slim \
+        difegue/lanraragi:nightly
 
   exportDockerRootFS:
     name: Build and export Docker rootfs for Windows build
@@ -56,13 +72,13 @@ jobs:
     - name: Docker Build and export
       run: |
         docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile .
-        docker create --name rootfs difegue/lanraragi 
+        docker create --name rootfs difegue/lanraragi
         docker export --output=package.tar rootfs
     - name: Upload rootfs
       uses: actions/upload-artifact@v1
       with:
         name: package
-        path: package.tar 
+        path: package.tar
 
   buildNightlyWSL:
     name: Build Nightly Windows Package
@@ -77,7 +93,7 @@ jobs:
     - name: Build MSI Installer
       shell: powershell
       run: |
-        Import-Module "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"; 
+        Import-Module "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\Microsoft.VisualStudio.DevShell.dll";
         Enter-VsDevShell -VsInstallPath "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise" -SkipAutomaticLocation
         $ErrorActionPreference = 'Continue'
         git submodule init
@@ -89,7 +105,7 @@ jobs:
       with:
         name: wsl
         path: ./tools/build/windows/Karen/Setup/bin/LANraragi.msi
-  
+
   uploadInstaller:
     name: Upload Installer to MEGA
     needs: buildNightlyWSL
