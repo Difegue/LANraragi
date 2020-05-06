@@ -36,7 +36,7 @@ COPY /tools/build/windows/wsl.conf /etc/wsl.conf
 
 #Copy cpanfile and install script before copying the entire context
 #This allows for Docker cache to preserve cpan dependencies
-COPY --chown=koyomi:koyomi /tools/cpanfile /tools/build/docker/* tools
+COPY --chown=koyomi:koyomi /tools/cpanfile /tools/install.pl /tools/build/docker/* tools/
 COPY --chown=koyomi:koyomi /package.json package.json
 
 # Make scripts executable + Run the install script as root

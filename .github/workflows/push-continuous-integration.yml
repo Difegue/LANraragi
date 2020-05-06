@@ -21,9 +21,13 @@ jobs:
     name: Test Homebrew version
     runs-on: macos-latest
     steps:
-    - name: Run formula with latest tarball from dev
+    - uses: actions/checkout@master
+    - name: Build and test bundled homebrew formula
       run: |
-        wget https://gist.githubusercontent.com/Difegue/e0d291f0274b32ec0834fcad795a1f89/raw/7b1198b080148948594a5d8b5eefc35cd21e8bd0/Lanraragi.rb
+        tar -cvzf /tmp/lanraragi.tar.gz .
+        cd tools/build/homebrew
+        mv /tmp/lanraragi.tar.gz $(brew --cache -s Lanraragi.rb)
+        brew update
         brew unlink node@12
         brew install --verbose --build-from-source Lanraragi.rb
         brew test --verbose Lanraragi.rb 
