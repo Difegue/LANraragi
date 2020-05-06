@@ -2,7 +2,7 @@
 FROM        alpine:latest
 LABEL       git="https://github.com/Difegue/LANraragi" 
 
-ENTRYPOINT ["sh", "/home/koyomi/lanraragi/tools/build/docker/entrypoint.sh"]
+ENTRYPOINT ["sh", "/home/koyomi/lanraragi/tools/entrypoint.sh"]
 
 # Check application health
 HEALTHCHECK --interval=1m --timeout=10s --retries=3 \
@@ -31,13 +31,16 @@ fi
 
 WORKDIR /home/koyomi/lanraragi
 
+#Copy wsl.conf to /etc for extra WSL compatibility 
+COPY /tools/build/windows/wsl.conf /etc/wsl.conf
+
 #Copy cpanfile and install script before copying the entire context
 #This allows for Docker cache to preserve cpan dependencies
-COPY --chown=koyomi:koyomi /tools tools
+COPY --chown=koyomi:koyomi /tools/cpanfile /tools/build/docker/* tools
 COPY --chown=koyomi:koyomi /package.json package.json
 
 # Make scripts executable + Run the install script as root
-RUN chmod +x ./tools/build/docker/install-everything.sh ./tools/build/docker/entrypoint.sh && sh ./tools/build/docker/install-everything.sh
+RUN chmod +x ./tools/install-everything.sh ./tools/entrypoint.sh && sh ./tools/install-everything.sh
 
 #Copy remaining LRR files from context  
 COPY --chown=koyomi:koyomi /lib lib
@@ -46,7 +49,6 @@ COPY --chown=koyomi:koyomi /script script
 COPY --chown=koyomi:koyomi /templates templates
 COPY --chown=koyomi:koyomi /tests tests
 COPY --chown=koyomi:koyomi /lrr.conf lrr.conf
-COPY --chown=koyomi:koyomi /COPYING COPYING
 
 # Persistent volumes
 VOLUME [ "/home/koyomi/lanraragi/content" ]
