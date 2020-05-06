@@ -52,7 +52,7 @@ jobs:
         wget https://downloads.dockerslim.com/releases/1.29.0/dist_linux.tar.gz
         tar xf dist_linux.tar.gz
         mv ./dist_linux/docker-slim{,-sensor} /usr/local/bin/
-        sed -i "s@__ARCHIVE_HASH__@$(sha1sum sample_content/testzip.zip | cut -d" " -f1)@" probeCmds.json
+        sed -i "s@__ARCHIVE_HASH__@$(sha1sum ./tools/build/docker/sample_content/testzip.zip | cut -d" " -f1)@" probeCmds.json
         docker-slim build --show-clogs --show-blogs \
         --mount $(pwd)/tools/build/docker/sample_content/:/home/koyomi/lanraragi/content
         --http-probe-cmd-file ./tools/build/docker/probeCmds.json \
