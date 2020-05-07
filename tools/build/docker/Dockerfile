@@ -58,7 +58,6 @@ imagemagick imagemagick-perlmagick libwebp-tools \
 g++ make pkgconf gnupg wget curl nodejs nodejs-npm \
 shadow s6 s6-portable-utils && \
 curl -L https://cpanmin.us | perl - App::cpanminus && \
-cpanm Linux::Inotify2 && \
 cd tools && cpanm --notest --installdeps . -M https://cpan.metacpan.org && cd .. && \
 npm run lanraragi-installer install-front && \
 apk del perl-dev g++ make gnupg wget curl nodejs nodejs-npm openssl-dev && \
