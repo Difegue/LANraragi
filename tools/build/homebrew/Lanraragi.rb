@@ -42,7 +42,7 @@ class Lanraragi < Formula
 
     resource("Image::Magick").stage do
       inreplace "Makefile.PL" do |s|
-        s.gsub! "include/ImageMagick-6", "opt/imagemagick@6/include/ImageMagick-6"
+        s.gsub! "/usr/local/include/ImageMagick-6", "#{HOMEBREW_PREFIX}/opt/imagemagick@6/include/ImageMagick-6"
       end
 
       system "perl", "Makefile.PL", "INSTALL_BASE=#{libexec}"
