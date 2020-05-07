@@ -1,4 +1,4 @@
 #!/usr/bin/execlineb -P
-s6-setuidgid koyomi
+s6-envuidgid -B koyomi:koyomi
 cd /home/koyomi/lanraragi/
 perl /home/koyomi/lanraragi/script/launcher.pl -f /home/koyomi/lanraragi/script/lanraragi
