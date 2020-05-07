@@ -1,8 +1,15 @@
 # DOCKER-VERSION 0.3.4
 FROM        alpine:latest
 LABEL       git="https://github.com/Difegue/LANraragi"
+
 ENV S6_OVERLAY_RELEASE v1.21.8.0
 ENV S6_KEEP_ENV 1
+
+# terminate if we can't run stage2 (fix-attrs/cont-init)
+ENV S6_BEHAVIOUR_IF_STAGE2_FAILS 2
+
+# wait 10s before KILLing
+ENV S6_KILL_GRACETIME 10000
 
 ENTRYPOINT ["/init"] # s6
 
