@@ -25,9 +25,11 @@ class Lanraragi < Formula
   end
 
   # libarchive headers from macOS 10.15 source
-  resource "libarchive-headers-10.15" do
-    url "https://opensource.apple.com/tarballs/libarchive/libarchive-72.11.2.tar.gz"
-    sha256 "655b9270db794ba0b27052fd37b1750514b06769213656ab81e30727322e401f"
+  if OS.mac?
+    resource "libarchive-headers-10.15" do
+      url "https://opensource.apple.com/tarballs/libarchive/libarchive-72.11.2.tar.gz"
+      sha256 "655b9270db794ba0b27052fd37b1750514b06769213656ab81e30727322e401f"
+    end
   end
 
   resource "Archive::Peek::Libarchive" do
@@ -50,9 +52,11 @@ class Lanraragi < Formula
       system "make", "install"
     end
 
-    resource("libarchive-headers-10.15").stage do
-      (libexec/"include").install "libarchive/libarchive/archive.h"
-      (libexec/"include").install "libarchive/libarchive/archive_entry.h"
+    if OS.mac?
+      resource("libarchive-headers-10.15").stage do
+        (libexec/"include").install "libarchive/libarchive/archive.h"
+        (libexec/"include").install "libarchive/libarchive/archive_entry.h"
+      end
     end
 
     resource("Archive::Peek::Libarchive").stage do
