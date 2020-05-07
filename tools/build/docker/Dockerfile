@@ -65,7 +65,7 @@ COPY --chown=koyomi:koyomi /templates templates
 COPY --chown=koyomi:koyomi /tests tests
 COPY --chown=koyomi:koyomi /lrr.conf lrr.conf
 COPY /tools/build/docker/redis.conf /etc/redis.conf
-COPY /tools/build/windows/wsl.conf /etc/wsl.conf
+COPY /tools/build/docker/wsl.conf /etc/wsl.conf
 COPY /tools/build/docker/s6/cont-init.d/ /etc/cont-init.d/
 COPY /tools/build/docker/s6/services.d/ /etc/services.d/
 # keep this out for now and do it in cont-init.d instead
