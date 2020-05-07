@@ -2,6 +2,7 @@
 FROM        alpine:latest
 LABEL       git="https://github.com/Difegue/LANraragi"
 ENV S6_OVERLAY_RELEASE v1.21.8.0
+ENV S6_KEEP_ENV 1
 
 ENTRYPOINT ["/init"] # s6
 
