@@ -5,7 +5,7 @@ GROUP_ID=${LRR_GID}
 
 echo "Starting LANraragi with UID/GID : $USER_ID/$GROUP_ID"
 
-#Update the koyomi user, using the specified uid/gid. 
+#Update the koyomi user, using the specified uid/gid.
 #This solves permission problems on the content folder if the Docker user sets the same uid as the owner of the folder.
 usermod -u $USER_ID koyomi
 groupmod -g $GROUP_ID koyomi
@@ -25,7 +25,7 @@ chown -R koyomi /home/koyomi/lanraragi/database
 chmod -R 777 /home/koyomi/lanraragi/database
 
 #Ensure thumbnail folder is writable
-chown -R koyomi /home/koyomi/lanraragi/content/thumb 
+chown -R koyomi /home/koyomi/lanraragi/content/thumb
 chmod 744 /home/koyomi/lanraragi/content/thumb
 
 #Ensure log folder is writable
@@ -50,14 +50,4 @@ if [ $OVERCOMMIT -eq 0 ]
 then
     echo "WARNING: overcommit_memory is set to 0! This might lead to background saving errors if your database is too large."
     echo "Please check https://redis.io/topics/faq#background-saving-fails-with-a-fork-error-under-linux-even-if-i-have-a-lot-of-free-ram for details."
-fi
-
-#Start supervisor with the Docker configuration
-#This also loads the redis config to write DB in database directory and disable daemonization
-if [ $USER_ID -eq 0 ] && [ $GROUP_ID -eq 0 ] 
-then
-    echo "UID and GID set to 0, running as root. You've been warned!"
-    exec supervisord --nodaemon --configuration ./tools/supervisord.conf
-else   
-    exec su-exec koyomi supervisord --nodaemon --configuration ./tools/supervisord.conf
 fi

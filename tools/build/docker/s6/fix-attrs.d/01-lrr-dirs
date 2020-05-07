@@ -1,0 +1,7 @@
+# second field in user is fallback uid
+# path                               recurse user             fperm dperm
+/home/koyomi/lanraragi               false   koyomi,9001:9001 0644  0744
+/home/koyomi/lanraragi/database      true    koyomi,9001:9001 0777  0777
+/home/koyomi/lanraragi/content/thumb false   koyomi,9001:9001 0644  0744
+/home/koyomi/lanraragi/log           false   koyomi,9001:9001 0644  0744
+/home/koyomi/lanraragi/public/temp   false   koyomi,9001:9001 0644  0744
