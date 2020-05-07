@@ -208,7 +208,13 @@ sub install_package {
 
     if ($@) {
         say("$package not installed! Trying to install now using cpanm.");
-        system("cpanm $package");
+
+        my $suff = "";
+        if ( $ENV{HOMEBREW_FORMULA_PREFIX} ) {
+            $suff = " -l " . $ENV{HOMEBREW_FORMULA_PREFIX} . "/libexec";
+        }
+
+        system("cpanm $package $suff");
         require $package;
     } else {
         say("$package package installed, proceeding...");
