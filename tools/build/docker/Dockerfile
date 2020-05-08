@@ -53,15 +53,7 @@ COPY --chown=koyomi:koyomi /tools/cpanfile /tools/install.pl tools/
 COPY --chown=koyomi:koyomi /package.json package.json
 
 # Install deps (we install Linux::Inotify2 manually since it's not in the base cpanfile as it doesn't build on macOS)
-RUN apk add --update perl perl-io-socket-ssl perl-dev redis libarchive-dev libbz2 openssl-dev zlib-dev \
-imagemagick imagemagick-perlmagick libwebp-tools \
-g++ make pkgconf gnupg wget curl nodejs nodejs-npm \
-shadow s6 s6-portable-utils && \
-curl -L https://cpanmin.us | perl - App::cpanminus && \
-cd tools && cpanm --notest --installdeps . -M https://cpan.metacpan.org && cd .. && \
-npm run lanraragi-installer install-front && \
-apk del perl-dev g++ make gnupg wget curl nodejs nodejs-npm openssl-dev && \
-rm -rf /root/.cpanm/* /root/.npm/ /usr/local/share/man/* node_modules /var/cache/apk/*
+RUN chmod +x ./tools/install-everything.sh ./tools/entrypoint.sh && sh ./tools/install-everything.sh
 
 #Copy remaining LRR files from context
 # consider chowning in s6 setup scripts instead
