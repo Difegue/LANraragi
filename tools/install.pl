@@ -76,8 +76,8 @@ say( "Working Directory: " . getcwd );
 say("");
 
 #Load IPC::Cmd
-install_package("IPC::Cmd");
-install_package("Config::AutoConf");
+install_package( "IPC::Cmd",         "" );
+install_package( "Config::AutoConf", "" );
 IPC::Cmd->import('can_run');
 import Config::AutoConf;
 
@@ -125,18 +125,18 @@ if ($@) {
 if ( $back || $full ) {
     say("\r\nInstalling Perl modules... This might take a while.\r\n");
 
+    # Provide cpanm with the correct module installation dir when using Homebrew
+    my $cpanopt = "";
+    if ( $ENV{HOMEBREW_FORMULA_PREFIX} ) {
+        $cpanopt = " -l " . $ENV{HOMEBREW_FORMULA_PREFIX} . "/libexec";
+    }
+
     if ( $Config{"osname"} ne "darwin" ) {
         say("Installing Linux::Inotify2 for non-macOS systems...");
-        install_package("Linux::Inotify2");
+        install_package( "Linux::Inotify2", $cpanopt );
     }
 
-    # Provide cpanm with the correct module installation dir when using Homebrew
-    my $suff = "";
-    if ( $ENV{HOMEBREW_FORMULA_PREFIX} ) {
-        $suff = " -l " . $ENV{HOMEBREW_FORMULA_PREFIX} . "/libexec";
-    }
-
-    if ( system( "cpanm --installdeps ./tools/. --notest" . $suff ) != 0 ) {
+    if ( system( "cpanm --installdeps ./tools/. --notest" . $cpanopt ) != 0 ) {
         die "Something went wrong while installing Perl modules - Bailing out.";
     }
 }
@@ -201,20 +201,15 @@ sub cp_node_module {
 sub install_package {
 
     my $package = $_[0];
+    my $cpanopt = $_[1];
 
     ## no critic
     eval "require $package";    #Run-time evals are needed here to check if the package has been properly installed.
     ## use critic
 
     if ($@) {
-        say("$package not installed! Trying to install now using cpanm.");
-
-        my $suff = "";
-        if ( $ENV{HOMEBREW_FORMULA_PREFIX} ) {
-            $suff = " -l " . $ENV{HOMEBREW_FORMULA_PREFIX} . "/libexec";
-        }
-
-        system("cpanm $package $suff");
+        say("$package not installed! Trying to install now using cpanm $cpanopt .");
+        system("cpanm $package $cpanopt");
         require $package;
     } else {
         say("$package package installed, proceeding...");
