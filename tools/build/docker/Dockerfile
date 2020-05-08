@@ -53,7 +53,7 @@ COPY --chown=koyomi:koyomi /tools/cpanfile /tools/install.pl tools/
 COPY --chown=koyomi:koyomi /package.json package.json
 
 # Install deps (we install Linux::Inotify2 manually since it's not in the base cpanfile as it doesn't build on macOS)
-RUN chmod +x ./tools/install-everything.sh ./tools/entrypoint.sh && sh ./tools/install-everything.sh
+RUN sh ./tools/install-everything.sh
 
 #Copy remaining LRR files from context
 # consider chowning in s6 setup scripts instead
