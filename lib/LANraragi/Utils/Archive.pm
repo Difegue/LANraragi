@@ -40,7 +40,8 @@ sub generate_thumbnail {
     my $img = Image::Magick->new;
 
     $img->Read($orig_path);
-    $img->Thumbnail( geometry => '500y' );
+    $img->Thumbnail( geometry => '500x1000' );
+    $img->Set( quality => "50", magick => "jpg" );
     $img->Write($thumb_path);
     undef $img;
 }
