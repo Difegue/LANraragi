@@ -40,7 +40,8 @@ sub random_archive {
     $self->redirect_to( '/reader?id=' . $archive );
 }
 
-# Go through the archives in the content directory and build the template at the end.
+# Render the index template with a few prefilled arguments.
+# Most of the work is done in JS these days..
 sub index {
 
     my $self  = shift;

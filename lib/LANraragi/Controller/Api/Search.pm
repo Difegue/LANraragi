@@ -1,7 +1,8 @@
-package LANraragi::Controller::Search;
+package LANraragi::Controller::Api::Search;
 use Mojo::Base 'Mojolicious::Controller';
 
 use LANraragi::Model::Search;
+use LANraragi::Utils::Generic qw(success);
 
 # Undocumented API matching the Datatables spec.
 sub handle_datatables {
@@ -77,6 +78,11 @@ sub handle_api {
     $self->render( json => get_datatables_object( 0, $redis, $total, $filtered, @ids ) );
     $redis->quit();
 
+}
+
+sub clear_cache {
+    invalidate_cache();
+    success( shift, "clear_cache" );
 }
 
 # get_datatables_object($draw, $total, $totalsearched, @pagedkeys)

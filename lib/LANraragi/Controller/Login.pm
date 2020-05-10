@@ -1,5 +1,6 @@
 package LANraragi::Controller::Login;
 use Mojo::Base 'Mojolicious::Controller';
+use MIME::Base64;
 
 use Redis;
 use Authen::Passphrase;
@@ -45,9 +46,15 @@ sub logged_in {
 #For APIs, the request can also be authentified with a valid API Key.
 sub logged_in_api {
     my $self = shift;
-    my $key  = $self->req->param('key') || '';
+
+    # The API key can be either a key parameter, or in the Authentication header.
+    # The parameter variant is deprecated and will be removed in a future release.
+    my $key = $self->req->param('key') || '';
+    my $auth_header = decode_base64( $self->req->headers->authorization || "" );
+
     return 1
       if ( $key ne "" && $key eq $self->LRR_CONF->get_apikey )
+      || ( $key ne "" && $auth_header eq $self->LRR_CONF->get_apikey )
       || $self->session('is_logged')
       || $self->LRR_CONF->enable_pass == 0;
     $self->render(
