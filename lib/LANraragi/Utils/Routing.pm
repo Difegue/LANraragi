@@ -15,62 +15,35 @@ sub apply_routes {
     $r->get('/login')->to('login#index');
     $r->post('/login')->to('login#check');
 
-    # /api/page is always available even in No-Fun-Mode.
-    # This technically means that people *can* get pages off an uploaded archive if it's been extracted before.
-    # (And if they can guess the ID and path to the files)
-    $r->get('/api/page')->to('api#serve_page');
+    my $logged_in = $r->under('/')->to('login#logged_in');
 
-    my $logged_in     = $r->under('/')->to('login#logged_in');
+    # These API endpoints will always require the API Key or to be logged in
     my $logged_in_api = $r->under('/')->to('login#logged_in_api');
+
+    # Router used for all loginless routes
+    my $public_routes = $r;
 
     #No-Fun Mode locks the base routes behind login as well
     if ( $self->LRR_CONF->enable_nofun ) {
-        $logged_in->get('/')->to('index#index');
-        $logged_in->get('/index')->to('index#index');
-        $logged_in->get('/search')->to('search#handle_datatables');
-
-        $logged_in->get('/random')->to('index#random_archive');
-        $logged_in->get('/reader')->to('reader#index');
-        $logged_in->get('/stats')->to('stats#index');
-
-        #API Key needed for those endpoints in No-Fun Mode
-        $logged_in_api->get('/api/thumbnail')->to('api#serve_thumbnail');
-        $logged_in_api->get('/api/servefile')->to('api#serve_file');
-        $logged_in_api->get('/api/archivelist')->to('api#serve_archivelist');
-        $logged_in_api->get('/api/untagged')->to('api#serve_untagged_archivelist');
-        $logged_in_api->get('/api/opds')->to('api#serve_opds');
-        $logged_in_api->get('/api/tagstats')->to('api#serve_tag_stats');
-        $logged_in_api->get('/api/extract')->to('api#extract_archive');
-        $logged_in_api->get('/api/clear_new')->to('api#clear_new');
-        $logged_in_api->get('/api/search')->to('search#handle_api');
-    } else {
-
-        #Standard behaviour is to leave those routes loginless for all clients
-        $r->get('/')->to('index#index');
-        $r->get('/index')->to('index#index');
-        $r->get('/random')->to('index#random_archive');
-        $r->get('/reader')->to('reader#index');
-        $r->get('/stats')->to('stats#index');
-        $r->get('/search')->to('search#handle_datatables');
-
-        $r->get('/api/search')->to('search#handle_api');
-        $r->get('/api/thumbnail')->to('api#serve_thumbnail');
-        $r->get('/api/servefile')->to('api#serve_file');
-        $r->get('/api/archivelist')->to('api#serve_archivelist');
-        $r->get('/api/untagged')->to('api#serve_untagged_archivelist');
-        $r->get('/api/opds')->to('api#serve_opds');
-        $r->get('/api/tagstats')->to('api#serve_tag_stats');
-        $r->get('/api/extract')->to('api#extract_archive');
-        $r->get('/api/clear_new')->to('api#clear_new');
+        $public_routes = $logged_in_api;
     }
 
-    #Those routes are only accessible if user is logged in
+    $public_routes->get('/')->to('index#index');
+    $public_routes->get('/index')->to('index#index');
+    $public_routes->get('/random')->to('index#random_archive');
+    $public_routes->get('/reader')->to('reader#index');
+    $public_routes->get('/stats')->to('stats#index');
+
+    # Those routes are only accessible if user is logged in
     $logged_in->get('/config')->to('config#index');
     $logged_in->post('/config')->to('config#save_config');
 
     $logged_in->get('/config/plugins')->to('plugins#index');
     $logged_in->post('/config/plugins')->to('plugins#save_config');
     $logged_in->post('/config/plugins/upload')->to('plugins#process_upload');
+
+    $logged_in->get('/config/categories')->to('category#index');
+    $logged_in->post('/config/categories')->to('category#save_config');    # TODO - Useful ?
 
     $logged_in->get('/batch')->to('batch#index');
     $logged_in->websocket('/batch/socket')->to('batch#socket');
@@ -85,25 +58,70 @@ sub apply_routes {
     $logged_in->get('/upload')->to('upload#index');
     $logged_in->post('/upload')->to('upload#process_upload');
 
-    # These API endpoints will always require the API Key or to be logged in
-    $logged_in_api->get('/api/use_plugin')->to('api#use_plugin');
-    $logged_in_api->post('/api/autoplugin')->to('api#use_enabled_plugins');
-    $logged_in_api->get('/api/clean_temp')->to('api#clean_tempfolder');
-    $logged_in_api->get('/api/discard_cache')->to('api#clear_cache');
-    $logged_in_api->get('/api/shinobu_status')->to('api#shinobu_status');
-    $logged_in_api->get('/api/stop_shinobu')->to('api#stop_shinobu');
-    $logged_in_api->get('/api/restart_shinobu')->to('api#restart_shinobu');
-    $logged_in_api->get('/api/backup')->to('api#serve_backup');
-    $logged_in_api->get('/api/clear_new_all')->to('api#clear_new_all');
-    $logged_in_api->get('/api/drop_database')->to('api#drop_database');
-    $logged_in_api->get('/api/clean_database')->to('api#clean_database');
-
     $logged_in->get('/logs')->to('logging#index');
     $logged_in->get('/logs/general')->to('logging#print_general');
     $logged_in->get('/logs/shinobu')->to('logging#print_shinobu');
     $logged_in->get('/logs/plugins')->to('logging#print_plugins');
     $logged_in->get('/logs/mojo')->to('logging#print_mojo');
     $logged_in->get('/logs/redis')->to('logging#print_redis');
+
+    # Miscellaneous API
+    $public_routes->get('/api/opds')->to('api#serve_opds');
+    $public_routes->get('/api/tagstats')->to('api#serve_tag_stats');    #old
+    $public_routes->get('/api/stats')->to('api#serve_tag_stats');       #old
+    $logged_in_api->get('/api/use_plugin')->to('api#use_plugin');
+    $logged_in_api->get('/api/clean_temp')->to('api#clean_tempfolder');    #old
+    $logged_in_api->delete('/api/tempfolder')->to('api#clean_tempfolder');
+
+    # Archive API (TODO)
+    $public_routes->get('/api/thumbnail')->to('api#serve_thumbnail');
+    $public_routes->get('/api/servefile')->to('api#serve_file');
+    $public_routes->get('/api/archivelist')->to('api#serve_archivelist');
+    $public_routes->get('/api/untagged')->to('api#serve_untagged_archivelist');
+    $public_routes->get('/api/extract')->to('api#extract_archive');
+    $public_routes->get('/api/clear_new')->to('api#clear_new');
+    $logged_in_api->post('/api/autoplugin')->to('api#use_enabled_plugins');
+
+    # /api/page is always available even in No-Fun-Mode.
+    # This technically means that people *can* get pages off an uploaded archive if it's been extracted before.
+    # (And if they can guess the ID and path to the files)
+    # TODO: Remove as the api key moves to an auth header, removing the need for this compat workaround.
+    $r->get('/api/page')->to('api#serve_page');
+
+    # Search API
+    $public_routes->get('/search')->to('search#handle_datatables');
+    $public_routes->get('/api/search')->to('search#handle_api');
+    $logged_in_api->get('/api/discard_cache')->to('api#clear_cache');    #old
+    $logged_in_api->delete('/api/search/cache')->to('api#clear_cache');
+
+    # Database API - old endpoints
+    $logged_in_api->get('/api/backup')->to('api-database#serve_backup');
+    $logged_in_api->get('/api/clear_new_all')->to('api-database#clear_new_all');
+    $logged_in_api->get('/api/drop_database')->to('api-database#drop_database');
+    $logged_in_api->get('/api/clean_database')->to('api-database#clean_database');
+
+    # Database API - new endpoints
+    $logged_in_api->get('/api/database/backup')->to('api-database#serve_backup');
+    $logged_in_api->delete('/api/database/isnew')->to('api-database#clear_new_all');
+    $logged_in_api->post('/api/database/drop')->to('api-database#drop_database');
+    $logged_in_api->post('/api/database/clean')->to('api-database#clean_database');
+
+    # Shinobu API - old endpoints
+    $logged_in_api->get('/api/shinobu_status')->to('api-shinobu#shinobu_status');
+    $logged_in_api->get('/api/stop_shinobu')->to('api-shinobu#stop_shinobu');
+    $logged_in_api->get('/api/restart_shinobu')->to('api-shinobu#restart_shinobu');
+
+    # Shinobu API - new endpoints
+    $logged_in_api->get('/api/shinobu')->to('api-shinobu#shinobu_status');
+    $logged_in_api->post('/api/shinobu/stop')->to('api-shinobu#stop_shinobu');
+    $logged_in_api->post('/api/shinobu/restart')->to('api-shinobu#restart_shinobu');
+
+    # Category API
+    $public_routes->get('/api/categories')->to('api-category#get_category_list');
+    $logged_in_api->put('/api/categories')->to('api-category#create_category');
+    $logged_in_api->delete('/api/categories')->to('api-category#delete_category');
+    $logged_in_api->put('/api/categories/:id')->to('api-category#add_to_category');
+    $logged_in_api->delete('/api/categories/:id')->to('api-category#remove_from_category');
 
     $r->get('/logout')->to('login#logout');
 
