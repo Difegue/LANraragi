@@ -89,10 +89,10 @@ sub apply_routes {
     $r->get('/api/page')->to('api#serve_page');
 
     # Search API
-    $public_routes->get('/search')->to('search#handle_datatables');
-    $public_routes->get('/api/search')->to('search#handle_api');
-    $logged_in_api->get('/api/discard_cache')->to('api#clear_cache');    #old
-    $logged_in_api->delete('/api/search/cache')->to('api#clear_cache');
+    $public_routes->get('/search')->to('api-search#handle_datatables');
+    $public_routes->get('/api/search')->to('api-search#handle_api');
+    $logged_in_api->get('/api/discard_cache')->to('api-search#clear_cache');    #old
+    $logged_in_api->delete('/api/search/cache')->to('api-search#clear_cache');
 
     # Database API - old endpoints
     $logged_in_api->get('/api/backup')->to('api-database#serve_backup');
@@ -119,9 +119,10 @@ sub apply_routes {
     # Category API
     $public_routes->get('/api/categories')->to('api-category#get_category_list');
     $logged_in_api->put('/api/categories')->to('api-category#create_category');
-    $logged_in_api->delete('/api/categories')->to('api-category#delete_category');
-    $logged_in_api->put('/api/categories/:id')->to('api-category#add_to_category');
-    $logged_in_api->delete('/api/categories/:id')->to('api-category#remove_from_category');
+    $logged_in_api->put('/api/categories/:id')->to('api-category#update_category');
+    $logged_in_api->delete('/api/categories/:id')->to('api-category#delete_category');
+    $logged_in_api->put('/api/categories/:id/:archive')->to('api-category#add_to_category');
+    $logged_in_api->delete('/api/categories/:id/:archive')->to('api-category#remove_from_category');
 
     $r->get('/logout')->to('login#logout');
 

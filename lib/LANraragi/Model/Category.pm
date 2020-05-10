@@ -8,7 +8,6 @@ use Redis;
 use Encode;
 use Mojo::JSON qw(decode_json encode_json);
 
-use LANraragi::Utils::Generic qw(remove_newlines);
 use LANraragi::Utils::Database qw(redis_decode invalidate_cache);
 use LANraragi::Utils::Logging qw(get_logger);
 
@@ -28,13 +27,17 @@ sub get_category_list {
 
         # redis-decode the name, and the search terms if they exist
         ( $_ = redis_decode($_) ) for ( $data{name}, $data{search} );
+
+        # Add the key as well
+        $data{id} = $key;
+
         push( @result, \%data );
     }
 
     return @result;
 }
 
-# create_category(name, favtag, existing_id)
+# create_category(name, favtag, pinned, existing_id)
 #   Create a Category.
 #   If the "favtag" argument is supplied, the category will be a Favorite Search.
 #   Otherwise, it'll be an Archive Set.
@@ -42,19 +45,23 @@ sub get_category_list {
 #   Returns the ID of the created/updated Category.
 sub create_category {
 
-    my ( $name, $favtag, $cat_id ) = @_;
+    my ( $name, $favtag, $pinned, $cat_id ) = @_;
     my $redis = LANraragi::Model::Config->get_redis;
 
+    # Set all fields of the category object
     unless ( length($cat_id) ) {
         $cat_id = "SET_" . time();
+
+        # Default values for new category
+        $redis->hset( $cat_id, "archives",  "[]" );
+        $redis->hset( $cat_id, "last_used", time() );
     }
 
-    # Set all fields of the category object
-    $redis->hset( $cat_id, "name",      encode_utf8($name) );
-    $redis->hset( $cat_id, "search",    encode_utf8($favtag) );
-    $redis->hset( $cat_id, "archives",  "[]" );
-    $redis->hset( $cat_id, "last_used", time() );
-    $redis->hset( $cat_id, "pinned",    "0" );
+    # Set/update name, pin status and favtag
+    $redis->hset( $cat_id, "name",   encode_utf8($name) );
+    $redis->hset( $cat_id, "search", encode_utf8($favtag) );
+    $redis->hset( $cat_id, "pinned", $pinned );
+
     $redis->quit;
 
     return $cat_id;
@@ -106,7 +113,13 @@ sub add_to_category {
             return 0;
         }
 
-        my @cat_archives = decode_json( $redis->hget( $cat_id, "archives" ) );
+        unless ( $redis->exists($arc_id) ) {
+            $logger->error("$arc_id does not exist in the database.");
+            $redis->quit;
+            return 0;
+        }
+
+        my @cat_archives = @{ decode_json( $redis->hget( $cat_id, "archives" ) ) };
 
         if ( "@cat_archives" =~ m/$arc_id/ ) {
             $logger->warn("$arc_id already present in category $cat_id, doing nothing.");
@@ -115,7 +128,10 @@ sub add_to_category {
         }
 
         push @cat_archives, $arc_id;
-        $redis->hset( $cat_id, encode_json(@cat_archives) );
+        $redis->hset( $cat_id, "archives", encode_json( \@cat_archives ) );
+
+        #TODO: Add category id to archive hash ?
+
         invalidate_cache();
         $redis->quit;
         return 1;
@@ -144,9 +160,14 @@ sub remove_from_category {
         }
 
         # Remove occurences of $cat_id in @cat_archives w. grep and array reassignment
-        my @cat_archives = decode_json( $redis->hget( $cat_id, "archives" ) );
-        @cat_archives = grep { !/$cat_id/ } @cat_archives;
-        $redis->hset( $cat_id, encode_json(@cat_archives) );
+        my @cat_archives = @{ decode_json( $redis->hget( $cat_id, "archives" ) ) };
+        my $index        = 0;
+        $index++ until $cat_archives[$index] eq $arc_id || $index == scalar @cat_archives;
+        splice( @cat_archives, $index, 1 );
+
+        $redis->hset( $cat_id, "archives", encode_json( \@cat_archives ) );
+
+        #TODO: Remove category id from archive hash ?
 
         invalidate_cache();
         $redis->quit;
