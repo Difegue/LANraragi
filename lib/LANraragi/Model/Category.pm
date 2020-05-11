@@ -48,7 +48,7 @@ sub get_category {
 
     unless ( length($cat_id) == 14 && $redis->exists($cat_id) ) {
         $logger->warn("$cat_id doesn't exist in the database!");
-        return undef;
+        return ();
     }
 
     my %category = $redis->hgetall($cat_id);

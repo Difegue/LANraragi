@@ -221,7 +221,6 @@ function loadCategories() {
 					"		   onclick='toggleCategory(this)' title='Click here to display the archives contained in this category.' />" +
 					"</div>"
 
-				console.log(div);
 				// Pinned categories ignore LastUsed sorting and are shown at the beginning
 				if (category.pinned === 1)
 					html = div + html;

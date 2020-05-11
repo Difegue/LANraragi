@@ -6,8 +6,8 @@
         [% IF blackliston %]
         <input id="blackliston" name="blackliston" class="fa" type="checkbox" checked> [% ELSE %]
         <input id="blackliston" name="blackliston" class="fa" type="checkbox"> [% END %]
-
-        <textarea class="stdinput" size="20" style='width:100%; height:125px' name="blacklist"
+        <br>
+        <textarea class="stdinput" size="20" style='width:100%; height:75px' name="blacklist"
             maxlength='5000'>[% blacklist %]</textarea>
         <br> When tagging archives using Plugins, these tags will be automatically omitted.
         <br>Split tags with commas.

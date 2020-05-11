@@ -29,14 +29,17 @@
 
 		<br>
 		You can backup your existing database here, or restore an existing backup.<br><br>
-		Backuping allows you to download a JSON file containing all your archive IDs, and their matching metadata.<br>
+		Backuping allows you to download a JSON file containing all your categories and archive IDs, and their matching
+		metadata.<br>
 		Restoring from a backup will restore this metadata, <b>for IDs which already exist in your database.</b><br>
+		(Categories will always be restored)</br>
 
 		<table style='margin:auto; font-size:9pt; margin-top:25px; text-align:center;'>
 			<tbody id='files'>
 				<tr>
 					<td>
-						<span class="stdbtn" style="height:50px; display:inline-block" onclick='window.open("./backup?dobackup=1", "_blank")'>
+						<span class="stdbtn" style="height:50px; display:inline-block"
+							onclick='window.open("./backup?dobackup=1", "_blank")'>
 							<i style="padding-top:6px; padding-bottom: 5px" class="fa fa-download fa-2x"></i><br>
 							<span>Backup Database</span>
 						</span>
