@@ -23,15 +23,15 @@ sub handle_datatables {
 
     # See if specific column searches were made
     my $i              = 0;
-    my $columnfilter   = "";
+    my $categoryfilter = "";
     my $newfilter      = 0;
     my $untaggedfilter = 0;
 
     while ( $req->param("columns[$i][name]") ) {
 
-        # Favtags (tags column)
+        # Collection (tags column)
         if ( $req->param("columns[$i][name]") eq "tags" ) {
-            $columnfilter = $req->param("columns[$i][search][value]");
+            $categoryfilter = $req->param("columns[$i][search][value]");
         }
 
         # New filter (isnew column)
@@ -49,7 +49,7 @@ sub handle_datatables {
     $sortorder = ( $sortorder && $sortorder eq 'desc' ) ? 1 : 0;
 
     my ( $total, $filtered, @ids ) =
-      LANraragi::Model::Search::do_search( $filter, $columnfilter, $start, $sortkey, $sortorder, $newfilter, $untaggedfilter );
+      LANraragi::Model::Search::do_search( $filter, $categoryfilter, $start, $sortkey, $sortorder, $newfilter, $untaggedfilter );
 
     $self->render( json => get_datatables_object( $draw, $redis, $total, $filtered, @ids ) );
     $redis->quit();
@@ -64,6 +64,7 @@ sub handle_api {
     my $req   = $self->req;
 
     my $filter    = $req->param('filter');
+    my $category  = $req->param('category') || "";
     my $start     = $req->param('start');
     my $sortkey   = $req->param('sortby');
     my $sortorder = $req->param('order');
@@ -72,8 +73,11 @@ sub handle_api {
 
     $sortorder = ( $sortorder && $sortorder eq 'desc' ) ? 1 : 0;
 
-    my ( $total, $filtered, @ids ) =
-      LANraragi::Model::Search::do_search( $filter, "", $start, $sortkey, $sortorder, $newfilter eq "true", $untaggedf eq "true" );
+    my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search(
+        $filter, $category, $start, $sortkey, $sortorder,
+        $newfilter eq "true",
+        $untaggedf eq "true"
+    );
 
     $self->render( json => get_datatables_object( 0, $redis, $total, $filtered, @ids ) );
     $redis->quit();

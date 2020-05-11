@@ -9,17 +9,19 @@ use Redis;
 use Encode;
 use Storable qw/ nfreeze thaw /;
 use Sort::Naturally;
+use Mojo::JSON qw(decode_json);
 
 use LANraragi::Utils::Database qw(redis_decode);
 use LANraragi::Utils::Logging qw(get_logger);
 
 use LANraragi::Model::Api;
+use LANraragi::Model::Category;
 
 # do_search (filter, filter2, page, key, order, newonly, untaggedonly)
 # Performs a search on the database.
 sub do_search {
 
-    my ( $filter, $columnfilter, $start, $sortkey, $sortorder, $newonly, $untaggedonly ) = @_;
+    my ( $filter, $categoryfilter, $start, $sortkey, $sortorder, $newonly, $untaggedonly ) = @_;
 
     my $redis  = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Search Engine", "lanraragi" );
@@ -31,7 +33,7 @@ sub do_search {
     my @keys = $redis->keys('????????????????????????????????????????');
 
     # Look in searchcache first
-    my $cachekey = encode_utf8("$columnfilter-$filter-$sortkey-$sortorder-$newonly-$untaggedonly");
+    my $cachekey = encode_utf8("$categoryfilter-$filter-$sortkey-$sortorder-$newonly-$untaggedonly");
     $logger->debug("Search request: $cachekey");
 
     if ( $redis->exists("LRR_SEARCHCACHE") && $redis->hexists( "LRR_SEARCHCACHE", $cachekey ) ) {
@@ -44,7 +46,30 @@ sub do_search {
         # If the untagged filter is enabled, call the untagged files API
         my %untagged = ();
         if ($untaggedonly) {
+
+            # Map the array to a hash to easily check if it contains our id
             %untagged = map { $_ => 1 } LANraragi::Model::Api::find_untagged_archives();
+        }
+
+        # If the category filter is enabled, fetch the matching category
+        my %category     = ();
+        my %cat_archives = ();
+        my $cat_search   = "";
+        if ( $categoryfilter ne "" ) {
+            %category = LANraragi::Model::Category::get_category($categoryfilter);
+
+            if (%category) {
+
+                # We're using a category! Update its lastused value.
+                $redis->hset( $categoryfilter, "last_used", time() );
+
+                $cat_search = $category{search};    # category search, if it's a favsearch
+
+                if ( $cat_search eq "" ) {
+                    %cat_archives =
+                      map { $_ => 1 } @{ decode_json( $category{archives} ) };    # category archives, if it's a standard category
+                }
+            }
         }
 
         # Go through tags and apply search filter
@@ -61,7 +86,12 @@ sub do_search {
                 next;
             }
 
-            # Check untagged filter second
+            # Check category filter second -- if the category isn't a search
+            unless ( exists( $cat_archives{$id} ) || $cat_search ne "" || !%category ) {
+                next;
+            }
+
+            # Check untagged filter third
             unless ( exists( $untagged{$id} ) || !$untaggedonly ) {
                 next;
             }
@@ -72,10 +102,10 @@ sub do_search {
                 $logger->debug("File $file for title $title does not exist and will not be in search results.");
             }
 
-            # Check columnfilter and base search filter
+            # Check category search and base search filter
             if (   $fileok
-                && matches_search_filter( $columnfilter, $title . "," . $tags )
-                && matches_search_filter( $filter,       $title . "," . $tags ) ) {
+                && matches_search_filter( $cat_search, $title . "," . $tags )
+                && matches_search_filter( $filter,     $title . "," . $tags ) ) {
 
                 # Push id to array
                 push @filtered, { id => $id, title => $title, tags => $tags };
