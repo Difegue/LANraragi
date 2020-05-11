@@ -37,6 +37,25 @@ sub get_category_list {
     return @result;
 }
 
+# get_category(id)
+#   Returns the category matching the given id.
+#   Returns undef if the id doesn't exist.
+sub get_category {
+
+    my $cat_id = $_[0];
+    my $logger = get_logger( "Categories", "lanraragi" );
+    my $redis  = LANraragi::Model::Config->get_redis;
+
+    unless ( length($cat_id) == 14 && $redis->exists($cat_id) ) {
+        $logger->warn("$cat_id doesn't exist in the database!");
+        return undef;
+    }
+
+    my %category = $redis->hgetall($cat_id);
+    $redis->quit;
+    return %category;
+}
+
 # create_category(name, favtag, pinned, existing_id)
 #   Create a Category.
 #   If the "favtag" argument is supplied, the category will be a Favorite Search.
