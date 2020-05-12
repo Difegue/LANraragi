@@ -71,6 +71,17 @@ sub create_category {
     unless ( length($cat_id) ) {
         $cat_id = "SET_" . time();
 
+        my $isnewkey = 0;
+        until ($isnewkey) {
+
+            # Check if the category ID exists, move timestamp further if it does
+            if ( $redis->exists($cat_id) ) {
+                $cat_id = "SET_" . ( time() + 1 );
+            } else {
+                $isnewkey = 1;
+            }
+        }
+
         # Default values for new category
         $redis->hset( $cat_id, "archives",  "[]" );
         $redis->hset( $cat_id, "last_used", time() );
