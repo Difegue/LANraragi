@@ -9,6 +9,7 @@ use Encode;
 use Mojo::JSON qw(decode_json encode_json);
 
 use LANraragi::Model::Category;
+use LANraragi::Utils::Database;
 use LANraragi::Utils::Generic qw(remove_newlines);
 use LANraragi::Utils::Database qw(redis_decode invalidate_cache);
 use LANraragi::Utils::Logging qw(get_logger);
@@ -90,6 +91,9 @@ sub restore_from_JSON {
     my $redis  = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Backup/Restore", "lanraragi" );
     my $json   = decode_json( $_[0] );
+
+    # Clean the database before restoring from JSON
+    LANraragi::Utils::Database::clean_database();
 
     foreach my $category ( @{ $json->{categories} } ) {
 
