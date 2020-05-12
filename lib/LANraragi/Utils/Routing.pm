@@ -43,7 +43,6 @@ sub apply_routes {
     $logged_in->post('/config/plugins/upload')->to('plugins#process_upload');
 
     $logged_in->get('/config/categories')->to('category#index');
-    $logged_in->post('/config/categories')->to('category#save_config');    # TODO - Useful ?
 
     $logged_in->get('/batch')->to('batch#index');
     $logged_in->websocket('/batch/socket')->to('batch#socket');

@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/Difegue/LANraragi#readme",
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.7.2",
+    "@fortawesome/fontawesome-free": "^5.13.0",
     "allcollapsible": "^1.1.0",
     "awesomplete": "^1.1.5",
     "blueimp-file-upload": "^9.28.0",

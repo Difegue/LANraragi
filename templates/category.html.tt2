@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>[% title %] - Categories </title>
+
+    <meta name="viewport" content="width=device-width" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+    <link type="image/png" rel="icon" href="favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="/css/lrr.css?[% version%]" />
+    <link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
+    <link rel="stylesheet" type="text/css" href="/css/vendor/jquery.toast.min.css" />
+    [% csshead %]
+
+    <script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
+    <script src="/js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
+
+    <script src="/js/theme.js?[% version%]" type="text/JAVASCRIPT"></script>
+    <script src="/js/ajax.js?[% version%]" type="text/JAVASCRIPT"></script>
+    <script src="/js/category.js?[% version%]" type="text/JAVASCRIPT"></script>
+
+</head>
+
+<body onload="set_style_from_storage(); updateCategoryDetails()">
+
+    <div class='ido' style='text-align:center'>
+        <h2 class='ih' style='text-align:center'>Categories</h2>
+        <br><br>
+        <div style='margin-left:auto; margin-right:auto;'>
+            <div style='text-align:left; font-size: 9pt; width:400px !important ' class='left-column'>
+
+                Categories appear at the top of your window when browsing the Library.<br>
+                There are two distinct kinds:
+
+                <ul>
+                    <li><i class="fas fa-2x fa-bolt" style="margin-left: -25px; width:25px"></i>
+                        Dynamic Categories contain all archives matching a given predicate, and
+                        automatically update alongside your library.
+                    </li>
+                    <li><i class="fas fa-2x fa-folder-open" style="margin-left: -30px; width:30px"></i>
+                        Static Categories are arbitrary collections of
+                        Archives, where you can add as many items as you want.
+                    </li>
+                </ul>
+
+                You can create new categories here or edit existing ones. </br></br>
+
+                <div style="text-align:center">
+                    <input type='button' value='New Static Category' class='stdbtn' checked='false'
+                        onclick='checkAll(this)'>
+                    <input type='button' value='New Dynamic Category' class='stdbtn' onclick='startBatch()'>
+                </div> <br>
+
+                Select a category in the combobox below to edit its name, the archives it contains, or the search it
+                matches. <br> <b>All your modifications are saved automatically.</b> <br></br>
+
+                <table class="tag-options">
+                    <tbody>
+                        <tr style="border-bottom: 1px solid;">
+                            <td>
+                                <h2>Category:</h2>
+                            </td>
+                            <td>
+                                <select id="category" onchange="updateCategoryDetails()" style="font-size:20px">
+                                    <option disabled selected value> -- No Category -- </option>
+                                    [% FOREACH categories %]
+                                    <option value="[% id %]">[% name %]</option>
+                                    [% END %]
+                                </select> </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>
+                                This is a Dynamic Category.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: right;">Name:</td>
+                            <td>
+                                <input id="catname" value="" /> <i class="fas fa-spin fa-sync-alt"></i> Saved!
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: right;">Predicate:</td>
+                            <td>
+                                <input id="catsearch" value="" /> <i class="fas fa-spin fa-sync-alt"></i> Saved!
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td><input type='button' value='Delete Category' class='stdbtn' onclick='startBatch()'>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+
+            <div class="id1 right-column"
+                style='text-align:center; min-width:400px; width: 60% !important; height:500px;'>
+
+                <div
+                    style="align-content: center;top: 150px; position: relative; margin-left: auto; margin-right: auto; width: 90%;">
+                    <i class="fas fa-8x fa-air-freshener"></i><br><br>
+                    <h2>If you select a Static Category, your archives will appear here so you can add/remove them from
+                        the category.</h2>
+                </div>
+
+                <ul class='checklist' style="display:none">
+                    [% arclist %]
+                </ul>
+            </div>
+            <br><br>
+        </div>
+
+        <input class='stdbtn' type='button' onclick="window.location.href = './';" value='Return to Library' />
+
+    </div>
+    [% INCLUDE footer %]
+</body>
+
+</html>
