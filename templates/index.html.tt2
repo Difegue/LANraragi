@@ -46,7 +46,7 @@
 		<a href="./config">Settings</a>
 		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
-		<a href="./backup">Database Backup/Restore</a>
+		<a href="./config/categories">Modify Categories</a>
 		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
 		<a href="./stats">Statistics</a>

@@ -34,24 +34,21 @@ sub index {
         $title = redis_decode($title);
 
         if ( -e $zipfile ) {
-            $arclist .= "<li><input type='checkbox' name='archive' id='$id' class='archive' >";
+            $arclist .=
+              "<li><input type='checkbox' name='archive' id='$id' class='archive' onchange='updateArchiveInCategory(this.id, this.checked)'>";
             $arclist .= "<label for='$id'> $title</label></li>";
         }
     }
 
     $redis->quit();
 
-    #Build plugin listing
-    my @categories = LANraragi::Model::Category::get_category_list;
-
     $self->render(
-        template   => "category",
-        arclist    => $arclist,
-        categories => \@categories,
-        title      => $self->LRR_CONF->get_htmltitle,
-        cssdrop    => generate_themes_selector,
-        csshead    => generate_themes_header($self),
-        version    => $self->LRR_VERSION
+        template => "category",
+        arclist  => $arclist,
+        title    => $self->LRR_CONF->get_htmltitle,
+        cssdrop  => generate_themes_selector,
+        csshead  => generate_themes_header($self),
+        version  => $self->LRR_VERSION
     );
 }
 

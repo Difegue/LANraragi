@@ -28,6 +28,9 @@ sub get_category_list {
         # redis-decode the name, and the search terms if they exist
         ( $_ = redis_decode($_) ) for ( $data{name}, $data{search} );
 
+        # Deserialize the archives list w. mojo::json
+        $data{archives} = decode_json( $data{archives} );
+
         # Add the key as well
         $data{id} = $key;
 
