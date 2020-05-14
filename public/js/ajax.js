@@ -36,23 +36,48 @@ function genericAPICall(endpoint, successMessage, errorMessage, callback) {
 		});
 }
 
+let isScriptRunning = false;
 function triggerScript(namespace) {
 
-	var arg = $("#" + namespace + "_ARG").val();
+	const scriptArg = $("#" + namespace + "_ARG").val();
 
-	genericAPICall("../api/use_plugin?plugin=" + namespace + "&arg=" + arg, null, "Error while executing Script :",
-		function (r) {
-			$.toast({
-				showHideTransition: 'slide',
-				position: 'top-left',
-				loader: false,
-				heading: "Script result",
-				text: "<pre>" + JSON.stringify(r.data, null, 4) + "</pre>",
-				hideAfter: false,
-				icon: 'info'
-			});
+	if (isScriptRunning) {
+		showErrorToast("A script is already running.", "Please wait for it to terminate.");
+		return;
+	}
+	isScriptRunning = true;
+
+	// Save data before triggering script
+	$.ajax(
+		{
+			url: $('#editPluginForm').attr("action"),
+			type: "POST",
+			data: $('#editPluginForm').serializeArray(),
+			success: function (data, textStatus, jqXHR) {
+				if (data.success)
+					genericAPICall("../api/use_plugin?plugin=" + namespace + "&arg=" + scriptArg, null, "Error while executing Script :",
+						function (r) {
+							$.toast({
+								showHideTransition: 'slide',
+								position: 'top-left',
+								loader: false,
+								heading: "Script result",
+								text: "<pre>" + JSON.stringify(r.data, null, 4) + "</pre>",
+								hideAfter: false,
+								icon: 'info'
+							});
+							isScriptRunning = false;
+						});
+				else {
+					showErrorToast("Saving unsuccessful", data.message);
+					isScriptRunning = false;
+				}
+			},
+			error: function (jqXHR, textStatus, errorThrown) {
+				showErrorToast("Error while saving", errorThrown);
+				isScriptRunning = false;
+			}
 		});
-
 }
 
 function cleanTempFldr() {

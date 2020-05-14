@@ -31,7 +31,7 @@ The `$lrr_info` hash contains two variables you can use in your plugin:
 
 #### One-Shot/Runtime Arguments
 
-Scripts can have one string argument given to them when executed.   
+Scripts can have one string argument given to them when executed.  
 
 If you want the user to be able to enter this override, the `oneshot_arg` field must be present in `plugin_info`, and contain a brief description of what your argument is for.
 

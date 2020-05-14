@@ -16,7 +16,7 @@ sub plugin_info {
         namespace   => "favtagmigration",
         author      => "Difegue",
         version     => "1.0",
-        description => "Migrate your favorite tags from LANraragi 0.6.x to favorite searches in the new 0.7.0 system.",
+        description => "Migrate your favorite tags from LANraragi 0.6.x to Dynamic Categories in the new 0.7.0 system.",
     );
 
 }
