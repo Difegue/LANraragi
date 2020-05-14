@@ -74,6 +74,7 @@ function updateCategoryDetails() {
 
     document.getElementById('catname').value = category.name;
     document.getElementById('catsearch').value = category.search;
+    document.getElementById('pinned').checked = category.pinned === "1";
 
     if (category.search === "") {
         // Show archives if static and check the matching IDs
@@ -103,10 +104,11 @@ function saveCurrentCategoryDetails() {
     const categoryID = document.getElementById('category').value;
     const catName = document.getElementById('catname').value;
     const searchtag = document.getElementById('catsearch').value;
+    const pinned = document.getElementById('pinned').checked ? "1" : "0";
 
     indicateSaving();
     // PUT update with name and search (search is empty if this is a static category)
-    fetch(`/api/categories/${categoryID}?name=${catName}&search=${searchtag}`, { method: 'PUT' })
+    fetch(`/api/categories/${categoryID}?name=${catName}&search=${searchtag}&pinned=${pinned}`, { method: 'PUT' })
         .then(response => response.ok ? response.json() : { success: 0, error: "Response was not OK" })
         .then((data) => {
             if (!data.success)

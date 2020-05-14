@@ -191,17 +191,7 @@ function loadTagSuggestions() {
 				}
 			});
 
-		}).fail(function (data) {
-			$.toast({
-				showHideTransition: 'slide',
-				position: 'top-left',
-				loader: false,
-				heading: errorMessage,
-				text: data.error,
-				hideAfter: false,
-				icon: 'error'
-			});
-		});
+		}).fail(data => showErrorToast("Couldn't load tag suggestions", data.error));
 }
 
 function loadCategories() {
@@ -215,14 +205,16 @@ function loadCategories() {
 
 			for (var i = 0; i < data.length; i++) {
 				category = data[i];
+				const pinned = category.pinned === "1";
+
 				div = "<div style='display:inline-block'>" +
 					"	<input class='favtag-btn " + ((category.id == selectedCategory) ? "toggled" : "") + "' " +
-					"		   type='button' id='" + category.id + "' value='" + category.name + "' " +
+					"		   type='button' id='" + category.id + "' value='" + (pinned ? "📌" : "") + category.name + "' " +
 					"		   onclick='toggleCategory(this)' title='Click here to display the archives contained in this category.' />" +
 					"</div>"
 
 				// Pinned categories ignore LastUsed sorting and are shown at the beginning
-				if (category.pinned === 1)
+				if (pinned)
 					html = div + html;
 				else
 					html += div;
@@ -232,15 +224,5 @@ function loadCategories() {
 
 			$("#category-container").html(html);
 
-		}).fail(function (data) {
-			$.toast({
-				showHideTransition: 'slide',
-				position: 'top-left',
-				loader: false,
-				heading: errorMessage,
-				text: data.error,
-				hideAfter: false,
-				icon: 'error'
-			});
-		});
+		}).fail(data => showErrorToast("Couldn't load categories", data.error));
 }

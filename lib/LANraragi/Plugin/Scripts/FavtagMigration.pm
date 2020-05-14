@@ -2,7 +2,6 @@ package LANraragi::Plugin::Scripts::FavtagMigration;
 
 use strict;
 use warnings;
-no warnings 'uninitialized';
 
 use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Model::Category;

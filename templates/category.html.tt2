@@ -81,6 +81,14 @@
                         </tr>
                         <tr class="tag-options">
                             <td></td>
+                            <td>
+                                <input id="pinned" name="pinned" class="fa" type="checkbox"
+                                    onchange="saveCurrentCategoryDetails()">
+                                <label for="pinned">Pin this Category</label>
+                            </td>
+                        </tr>
+                        <tr class="tag-options">
+                            <td></td>
                             <td><input type='button' value='Delete Category' class='stdbtn'
                                     onclick='deleteSelectedCategory()'>
                             </td>
