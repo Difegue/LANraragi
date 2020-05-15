@@ -1,13 +1,31 @@
-# Favorite Tags
+---
+description: Organize your archives in dynamic or static categories.
+---
 
-In Configuration, you can set five tags as your **favorites**.  
-They'll appear in the archive index as shortcut buttons, which you can toggle to instantly perform a search for said tag.  
-Toggling multiple buttons at once is an OR operation, not an AND -- Selecting _jojo_ and _touhou_ will give you archives containing one or both of those tags.
+# Categories
 
-![](../.gitbook/assets/favtags.jpg)
+Categories appear in the archive index as shortcut buttons.  
+
+![Example categories](../.gitbook/assets/favtags.jpg)
+
+ There are two distinct kinds:
+
+*  📁 Static Categories are arbitrary collections of Archives, where you can add as many items as you want.
+*  ⚡ Dynamic Categories contain all archives matching a given predicate, and automatically update alongside your library.
+
+Toggling a category in the index will restrict all your searches to that category, for as long as it is toggled.
+
+\[Image here\]
+
+To create categories, you can use the dedicated setting page in the app:
+
+\[image here\]
 
 {% hint style="info" %}
-If you do want AND searches in your favorites, you can do so using a quick regex:  
-`jojo.*touhou` for instance, will only search for archives containing both those tags.
+If you have an existing folder hierarchy for your Archives, LRR can automatically create categories from said hierarchy through the dedicated utility Script. 
+
+Look for it in Plugin Configuration.
 {% endhint %}
+
+
 

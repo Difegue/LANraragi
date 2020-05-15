@@ -23,21 +23,31 @@
 ## Advanced Usage
 
 * [Batch Tagging](advanced-usage/batch-tagging.md)
-* [Favorite Tags](advanced-usage/favorite-tags.md)
+* [Categories](advanced-usage/favorite-tags.md)
 * [Backup and Restore](advanced-usage/backup-and-restore.md)
 * [Using External Readers](advanced-usage/external-readers.md)
 * [Network Interface Setup](advanced-usage/network-interfaces.md)
 
 ## Developer Guide
 
-* [Setup a Development Environment](extending-lanraragi/index.md)
-* [Architecture & Style](extending-lanraragi/architecture.md)
-* [Client API](extending-lanraragi/client-api.md)
+* [Setup a Development Environment](developer-guide/index.md)
+* [Architecture & Style](developer-guide/architecture.md)
+
+## API Documentation
+
+* [Getting started](api-documentation/getting-started.md)
+* [Search API](api-documentation/search-api.md)
+* [Archive API](api-documentation/archive-api.md)
+* [Database API](api-documentation/database-api.md)
+* [Category API](api-documentation/category-api.md)
+* [Shinobu API](api-documentation/shinobu-api.md)
+* [Miscellaneous other API](api-documentation/miscellaneous-other-api.md)
 
 ## Writing Plugins
 
-* [Getting started](plugin-docs/index.md)
-* [Login Plugins](plugin-docs/login.md)
-* [Metadata Plugins](plugin-docs/metadata.md)
-* [Generic Plugins ("Scripts")](plugin-docs/scripts.md)
-* [Code Examples](plugin-docs/code-examples.md)
+* [Getting started](writing-plugins/index.md)
+* [Login Plugins](writing-plugins/login.md)
+* [Metadata Plugins](writing-plugins/metadata.md)
+* [Generic Plugins \("Scripts"\)](writing-plugins/scripts.md)
+* [Code Examples](writing-plugins/code-examples.md)
+
