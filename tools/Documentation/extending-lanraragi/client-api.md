@@ -632,7 +632,7 @@ You didn't include the key parameter.
 {% endapi-method-spec %}
 {% endapi-method %}
 
-{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/tagstats" %}
+{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/stats" %}
 {% api-method-summary %}
 Get Tag statistics
 {% endapi-method-summary %}

@@ -28,7 +28,13 @@
 		<h1 class='ih' style='text-align:center'>Uploading Archives to the Library</h1>
 
 		Drag and drop files here, or click the upload button.
-		<br /><br />
+		<br /><br /> Add uploaded files to category:
+		<select id="category">
+			<option selected value=""> -- No Category -- </option>
+			[% FOREACH categories %]
+			<option value="[% id %]">[% name %]</option>
+			[% END %]
+		</select> </td>
 
 		<table style='margin:auto; font-size:9pt; width: 80%; text-align:center;'>
 			<tbody id='files'>
@@ -75,7 +81,8 @@
 					$('#files').append(result);
 
 					//if autoplugin is enabled, call the API to trigger all enabled plugins on the newly uploaded archive.
-					autoplugEnabled = [% autoplugin %];
+					const autoplugEnabled = [% autoplugin %];
+					const categoryID = document.getElementById("category").value;
 
 					if (autoplugEnabled) {
 
@@ -91,11 +98,19 @@
 						}, "json");
 					}
 
+					if (categoryID !== "") {
+						console.log(`Adding ${data.result.id} to category ${categoryID}`)
+						fetch(`/api/categories/${categoryID}/${data.result.id}`, { method: 'PUT' })
+							.then(response => response.ok ? response.json() : { success: 0, error: "Response was not OK" })
+							.then(data => { if (!data.success) throw new Error(data.error); })
+							.catch(error => showErrorToast("Error adding archive to category", error));
+					}
+
 				},
 
 				fail: function (e, data) {
 					result = "<tr><td>" + data.result.name +
-							"</td><td> <i class='fa fa-warning' style='margin-left:20px; margin-right: 10px; color: red'></i>" + data.errorThrown + "</td></tr>";
+						"</td><td> <i class='fa fa-warning' style='margin-left:20px; margin-right: 10px; color: red'></i>" + data.errorThrown + "</td></tr>";
 					$('#progress .bar').css('width', '0%');
 					$('#files').append(result);
 				},

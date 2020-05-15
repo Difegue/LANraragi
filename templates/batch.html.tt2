@@ -60,8 +60,11 @@
 						</tr>
 
 						<tr>
-							<td><input type="checkbox" id="override" onclick="showOverride()"></td>
-							<td>Override Plugin Global Arguments </td>
+							<td></td>
+							<td>
+								<input type="checkbox" id="override" onclick="showOverride()">
+								<label for="override">Override Plugin Global Arguments</label>
+							</td>
 						</tr>
 					</tbody>
 				</table>
@@ -73,18 +76,9 @@
 						<tr class="arg-override [% plugin.namespace %]-arg" style="display:none">
 							<td style="max-width:250px">[% arg.desc %] :</td>
 							<td>
-								<input class="stdinput [% plugin.namespace %]-argvalue" type=
-								[% SWITCH arg.type %]
-									[% CASE 'string' %]
-										"text" 
-									[% CASE 'bool' %]  
-										"checkbox" value="1"
-									[% CASE 'int' %] 
-										"number" 
-									[% CASE %] 
-										"color"
-								[% END %]
-								>
+								<input class="stdinput [% plugin.namespace %]-argvalue" type=[% SWITCH arg.type %] [%
+									CASE 'string' %] "text" [% CASE 'bool' %] "checkbox" value="1" [% CASE 'int'
+									%] "number" [% CASE %] "color" [% END %]>
 							</td>
 						</tr>
 						[% END %][% END %][% END %]
@@ -107,12 +101,12 @@
 					<input id="restart-job" type='button' value='Start another job' class='stdbtn'
 						onclick='restartBatchUI()'>
 					<div id="progress" style="padding-top:6px; padding-bottom:6px">
-							<div class="bar"></div>
-							Processed <span id="arcs"></span> out of <span id="totalarcs"></span>
+						<div class="bar"></div>
+						Processed <span id="arcs"></span> out of <span id="totalarcs"></span>
 					</div>
 					<div class="id1" style="width:400px; height:314px">
 						<pre id="log-container" class="log-panel" />
-					</div>
+						</div>
 				</div>
 
 			</div>

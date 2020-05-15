@@ -16,7 +16,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 
 # Generic Utility Functions.
 use Exporter 'import';
-our @EXPORT_OK = qw(remove_spaces remove_newlines is_image get_tag_with_namespace shasum start_shinobu
+our @EXPORT_OK = qw(remove_spaces remove_newlines is_image success get_tag_with_namespace shasum start_shinobu
   get_css_list generate_themes_header generate_themes_selector);
 
 # Remove spaces before and after a word
@@ -33,6 +33,18 @@ sub remove_newlines {
 # WARNING: This modifies the given filename variable!
 sub is_image {
     return $_[0] =~ /^.+\.(png|jpg|gif|bmp|jpeg|jfif|webp|PNG|JPG|GIF|BMP|JPEG|JFIF|WEBP)$/;
+}
+
+# Renders the basic success API JSON template.
+sub success {
+    my ( $mojo, $operation ) = @_;
+
+    $mojo->render(
+        json => {
+            operation => $operation,
+            success   => 1
+        }
+    );
 }
 
 # Find the first tag matching the given namespace, or return the default value.
