@@ -1,0 +1,3 @@
+#!/usr/bin/execlineb -P
+s6-envuidgid -B koyomi:koyomi
+/usr/bin/redis-server /home/koyomi/lanraragi/tools/build/docker/redis.conf

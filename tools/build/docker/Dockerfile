@@ -1,8 +1,17 @@
 # DOCKER-VERSION 0.3.4
 FROM        alpine:latest
-LABEL       git="https://github.com/Difegue/LANraragi" 
+LABEL       git="https://github.com/Difegue/LANraragi"
 
-ENTRYPOINT ["sh", "/home/koyomi/lanraragi/tools/entrypoint.sh"]
+ENV S6_OVERLAY_RELEASE v1.21.8.0
+ENV S6_KEEP_ENV 1
+
+# terminate if we can't run stage2 (fix-attrs/cont-init)
+ENV S6_BEHAVIOUR_IF_STAGE2_FAILS 2
+
+# wait 10s before KILLing
+ENV S6_KILL_GRACETIME 10000
+
+ENTRYPOINT ["/init"] # s6
 
 # Check application health
 HEALTHCHECK --interval=1m --timeout=10s --retries=3 \
@@ -29,26 +38,37 @@ RUN \
     adduser -D -u ${LRR_UID} -G koyomi koyomi; \
 fi
 
-WORKDIR /home/koyomi/lanraragi
 
-#Copy wsl.conf to /etc for extra WSL compatibility 
-COPY /tools/build/windows/wsl.conf /etc/wsl.conf
+# we use s6-overlay-nobin to just pull in the s6-overlay arch agnostic (shell)
+# components, since we apk install the binaries of s6 later which are arch specific
+ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_RELEASE}/s6-overlay-nobin.tar.gz /tmp/s6-overlay-nobin.tar.gz
+RUN tar -C / -xzf /tmp/s6-overlay-nobin.tar.gz && rm -f /tmp/s6-overlay-nobin.tar.gz
+
+
+WORKDIR /home/koyomi/lanraragi
 
 #Copy cpanfile and install script before copying the entire context
 #This allows for Docker cache to preserve cpan dependencies
-COPY --chown=koyomi:koyomi /tools/cpanfile /tools/install.pl /tools/build/docker/* tools/
+COPY --chown=koyomi:koyomi /tools/cpanfile /tools/install.pl /tools/build/docker/install-everything.sh tools/
 COPY --chown=koyomi:koyomi /package.json package.json
 
-# Make scripts executable + Run the install script as root
-RUN chmod +x ./tools/install-everything.sh ./tools/entrypoint.sh && sh ./tools/install-everything.sh
+# Run the install script as root
+RUN sh ./tools/install-everything.sh
 
-#Copy remaining LRR files from context  
+#Copy remaining LRR files from context
+# consider chowning in s6 setup scripts instead
 COPY --chown=koyomi:koyomi /lib lib
 COPY --chown=koyomi:koyomi /public public
 COPY --chown=koyomi:koyomi /script script
 COPY --chown=koyomi:koyomi /templates templates
 COPY --chown=koyomi:koyomi /tests tests
 COPY --chown=koyomi:koyomi /lrr.conf lrr.conf
+COPY --chown=koyomi:koyomi /tools/build/docker/redis.conf tools/build/docker/
+COPY /tools/build/docker/wsl.conf /etc/wsl.conf
+COPY /tools/build/docker/s6/cont-init.d/ /etc/cont-init.d/
+COPY /tools/build/docker/s6/services.d/ /etc/services.d/
+# keep this out for now and do it in cont-init.d instead
+#COPY /tools/build/docker/s6/fix-attrs.d/ /etc/fix-attrs.d/
 
 # Persistent volumes
 VOLUME [ "/home/koyomi/lanraragi/content" ]

@@ -5,37 +5,41 @@ description: This is a by-OS breakdown of how you can install the software on yo
 # Which installation method is best for me?
 
 As LRR is a server app first and foremost, its setup is a bit more complex than your usual Desktop application.  
-However, a lot of work as been done behind the scenes to make it easy! Look at the methods below for something that fits your OS and usage.
+However, a lot of work as been done behind the scenes to make it easy! 
+
+Look at the methods below for something that fits your OS and usage.
 
 ## macOS/Linux: _Homebrew_
 
 [Homebrew](https://brew.sh/) allows you to quickly setup LRR on Unix systems without relying on containers or modifying your preinstalled system libaries.  
 The package manager is mostly designed for macOS, but it can also be used to install the server on Linux machines. 🐧
 
-![brew](../.gitbook/assets/brew.jpg)  
+![brew](../.gitbook/assets/brew.jpg)
 
-{% page-ref page="macos.md" %}  
+{% page-ref page="macos.md" %}
 
 ## Windows 10: _LRR for Windows_
 
 {% hint style="warning" %}
-This method works on **64-bit** editions of Windows 10 only. Versions under v1809 \(October 2018 Update\) will probably not work properly. v1803 _might_ work, but you're wading uncharted waters.
+This method works on **64-bit** editions of Windows 10 only. 
+
+Versions under _v1809_ \(October 2018 Update\) will probably not work properly. v1803 _might_ work, but you're wading uncharted waters.
 {% endhint %}
 
 ![win10](../.gitbook/assets/karen.jpg)
 
 I provide a dedicated installer for Windows machines as of 0.6.0, complete with a GUI and autostart.
 
-{% page-ref page="windows.md" %}  
+{% page-ref page="windows.md" %}
 
 ## Linux/macOS/Windows 10: _Docker_
- 
+
 Taking a page from sysadmin books, you can easily install LRR as a **container** with Docker.  
-They're lightweight, easy to update, and automatically built/tested. I recommend this for NAS setups!  
+They're lightweight, easy to update, and automatically built/tested. I recommend this for NAS setups!
 
 {% page-ref page="docker.md" %}
 
-## Linux/macOS: _Installing from Source_  
+## Linux/macOS: _Installing from Source_
 
 Installing from **source** is a more involved procedure, but it does put you in full control and able to hack up the app's files as you wish.
 
@@ -50,12 +54,6 @@ At this point the only solutions I have to give you are basically glorified VMs.
 You can either download the [Legacy Docker Toolbox](https://docs.docker.com/toolbox/toolbox_install_windows/) and follow the Docker tutorial linked above, or try Vagrant. I provide **no support** for either of these methods.
 
 {% page-ref page="vagrant.md" %}
-
-{% hint style="info" %}
-I used to provide a Windows source port, but have encountered increasing issues with it as I introduced modern features and dependencies.
-
-If you just want to try the software on old Windows machines, you can still use the old one-click Quickstarter for [v.0.5.6.](https://github.com/Difegue/LANraragi/releases/download/v.0.5.6/LRR_0.5.6_QuickStarter_Windows.zip) Run the .bat file and it should kinda just work.
-{% endhint %}
 
 ## WARNING: Reverse Proxies
 
