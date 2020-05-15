@@ -1,7 +1,7 @@
 # Generic Plugins \("Scripts"\)
 
 Script Plugins are meant for generic workflows that aren't explicitly supported.  
-The main usecase is essentially for users to script their own API endpoints, since those plugins can easily be invoked through the [Client API.](https://github.com/Difegue/LANraragi/tree/b0f2b1a611766b84a0c43df692972a98296fd180/tools/Documentation/plugin-docs/extending-lanraragi/client-api.md)
+The main usecase is essentially for users to script their own API endpoints, since those plugins can easily be invoked through the [Client API.](../extending-lanraragi/client-api.md)
 
 ## Required subroutines
 
@@ -25,8 +25,8 @@ The variables match the parameters you've entered in the `plugin_info` subroutin
 
 The `$lrr_info` hash contains two variables you can use in your plugin:
 
-* _$lrr\_info-&gt;{oneshot\_param}_: Value of your one-shot argument, if it's been set by the User. See below.
-* _$lrr\_info-&gt;{user\_agent}_: [Mojo::UserAgent](https://mojolicious.org/perldoc/Mojo/UserAgent) object you can use for web requests. If this plugin depends on a Login plugin, this UserAgent will be pre-configured with the cookies from the Login.
+* _$lrr\_info->{oneshot\_param}_: Value of your one-shot argument, if it's been set by the User. See below.
+* _$lrr\_info->{user\_agent}_: [Mojo::UserAgent](https://mojolicious.org/perldoc/Mojo/UserAgent) object you can use for web requests. If this plugin depends on a Login plugin, this UserAgent will be pre-configured with the cookies from the Login.
 
 #### One-Shot/Runtime Arguments
 

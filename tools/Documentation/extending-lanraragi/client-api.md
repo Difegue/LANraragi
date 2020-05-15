@@ -27,11 +27,11 @@ Get the Archive Index in JSON form. You can use the IDs of this JSON with the ot
 
 {% api-method-spec %}
 {% api-method-request %}
-{% api-method-path-parameters %}
+{% api-method-query-parameters %}
 {% api-method-parameter name="key" type="string" required=false %}
 API Key if needed.
 {% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
+{% endapi-method-query-parameters %}
 {% endapi-method-request %}
 
 {% api-method-response %}
@@ -96,14 +96,14 @@ Get the Archive Index as an [OPDS 1.2](https://specs.opds.io/opds-1.2) Catalog.
 
 {% api-method-spec %}
 {% api-method-request %}
-{% api-method-path-parameters %}
+{% api-method-query-parameters %}
 {% api-method-parameter name="id" type="string" required=false %}
 ID of an archive. Passing this will show only one `<entry\>` for the given ID in the result, instead of all the archives.
 {% endapi-method-parameter %}
 {% api-method-parameter name="key" type="string" required=false %}
 API Key if needed.
 {% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
+{% endapi-method-query-parameters %}
 {% endapi-method-request %}
 
 {% api-method-response %}
@@ -310,7 +310,7 @@ Search for Archives. You can use the IDs of this JSON with the other endpoints.
 
 {% api-method-spec %}
 {% api-method-request %}
-{% api-method-path-parameters %}
+{% api-method-query-parameters %}
 {% api-method-parameter name="key" type="string" required=false %}
 API Key if needed.
 {% endapi-method-parameter %}
@@ -353,7 +353,7 @@ Set to `true` to only show new archives.
 Set to `true` to only show untagged archives.
 {% endapi-method-parameter %}
 
-{% endapi-method-path-parameters %}
+{% endapi-method-query-parameters %}
 {% endapi-method-request %}
 
 {% api-method-response %}
@@ -423,7 +423,7 @@ Get the Thumbnail image for a given Archive.
 
 {% api-method-spec %}
 {% api-method-request %}
-{% api-method-path-parameters %}
+{% api-method-query-parameters %}
 {% api-method-parameter name="key" type="string" required=false %}
 API Key, if needed.
 {% endapi-method-parameter %}
@@ -431,7 +431,7 @@ API Key, if needed.
 {% api-method-parameter name="id" type="string" required=true %}
 ID of the Archive to process.
 {% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
+{% endapi-method-query-parameters %}
 {% endapi-method-request %}
 
 {% api-method-response %}
@@ -487,7 +487,7 @@ Extract an Archive on the server, and get a list of URLs pointing to its images.
 
 {% api-method-spec %}
 {% api-method-request %}
-{% api-method-path-parameters %}
+{% api-method-query-parameters %}
 {% api-method-parameter name="key" type="string" required=false %}
 API Key, if needed.
 {% endapi-method-parameter %}
@@ -495,7 +495,7 @@ API Key, if needed.
 {% api-method-parameter name="id" type="string" required=true %}
 ID of the Archive to process.
 {% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
+{% endapi-method-query-parameters %}
 {% endapi-method-request %}
 
 {% api-method-response %}
@@ -579,7 +579,7 @@ Download an Archive from the server.
 
 {% api-method-spec %}
 {% api-method-request %}
-{% api-method-path-parameters %}
+{% api-method-query-parameters %}
 {% api-method-parameter name="key" type="string" required=false %}
 API Key, if needed.
 {% endapi-method-parameter %}
@@ -587,7 +587,7 @@ API Key, if needed.
 {% api-method-parameter name="id" type="string" required=true %}
 ID of the Archive to download.
 {% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
+{% endapi-method-query-parameters %}
 {% endapi-method-request %}
 
 {% api-method-response %}
@@ -643,11 +643,11 @@ Get tags from in the database, in order of importance.
 
 {% api-method-spec %}
 {% api-method-request %}
-{% api-method-path-parameters %}
+{% api-method-query-parameters %}
 {% api-method-parameter name="key" type="string" required=false %}
 API Key, if needed.
 {% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
+{% endapi-method-query-parameters %}
 {% endapi-method-request %}
 
 {% api-method-response %}
@@ -694,11 +694,11 @@ Get archives that don't have any tags recorded. This follows the same rules as t
 
 {% api-method-spec %}
 {% api-method-request %}
-{% api-method-path-parameters %}
+{% api-method-query-parameters %}
 {% api-method-parameter name="key" type="string" required=false %}
 API Key, if needed.
 {% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
+{% endapi-method-query-parameters %}
 {% endapi-method-request %}
 
 {% api-method-response %}
@@ -742,7 +742,7 @@ Clears the "New!" flag on an archive if an ID is provided. Otherwise, clears the
 
 {% api-method-spec %}
 {% api-method-request %}
-{% api-method-path-parameters %}
+{% api-method-query-parameters %}
 {% api-method-parameter name="key" type="string" required=false %}
 API Key, if needed.
 {% endapi-method-parameter %}
@@ -750,7 +750,7 @@ API Key, if needed.
 {% api-method-parameter name="id" type="string" required=true %}
 ID of the Archive to process
 {% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
+{% endapi-method-query-parameters %}
 {% endapi-method-request %}
 
 {% api-method-response %}
@@ -794,11 +794,11 @@ Clears the "New!" flag on all archives.
 
 {% api-method-spec %}
 {% api-method-request %}
-{% api-method-path-parameters %}
+{% api-method-query-parameters %}
 {% api-method-parameter name="key" type="string" required=true %}
 API Key, mandatory for this method.
 {% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
+{% endapi-method-query-parameters %}
 {% endapi-method-request %}
 
 {% api-method-response %}
@@ -841,11 +841,11 @@ Stops the Shinobu Background Worker. If you want to restart it, use the `/api/re
 
 {% api-method-spec %}
 {% api-method-request %}
-{% api-method-path-parameters %}
+{% api-method-query-parameters %}
 {% api-method-parameter name="key" type="string" required=true %}
 API Key, mandatory for this method.
 {% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
+{% endapi-method-query-parameters %}
 {% endapi-method-request %}
 
 {% api-method-response %}
@@ -888,11 +888,11 @@ Scans the entire database and returns a backup in JSON form. This backup can be 
 
 {% api-method-spec %}
 {% api-method-request %}
-{% api-method-path-parameters %}
+{% api-method-query-parameters %}
 {% api-method-parameter name="key" type="string" required=true %}
 API Key, mandatory for this method.
 {% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
+{% endapi-method-query-parameters %}
 {% endapi-method-request %}
 
 {% api-method-response %}
@@ -962,7 +962,7 @@ See more info on Plugins in the matching section of the Docs.
 
 {% api-method-spec %}
 {% api-method-request %}
-{% api-method-path-parameters %}
+{% api-method-query-parameters %}
 {% api-method-parameter name="key" type="string" required=true %}
 API Key, mandatory for this method.
 {% endapi-method-parameter %}
@@ -975,7 +975,7 @@ ID of the archive to use the Plugin on. This is only mandatory for metadata plug
 {% api-method-parameter name="arg" type="string" required=false %}
 Optional One-Shot argument to use when executing this Plugin.
 {% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
+{% endapi-method-query-parameters %}
 {% endapi-method-request %}
 
 {% api-method-response %}

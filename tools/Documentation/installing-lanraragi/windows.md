@@ -24,13 +24,13 @@ You don't need to install a distribution through the Windows Store, as that is h
 
 Once the install completes properly, you'll be able to launch the GUI from the shortcut in your Start Menu:
 
-![](../.gitbook/assets/karen-startmenu%20%281%29.png)
+![](../.gitbook/assets/karen-startmenu.png)
 
 ## Configuration
 
 Starting the GUI for the first time will prompt you to setup your content folder and the port you want the server to listen on. The main GUI is always available from your Taskbar.
 
-![Tray GUI and Settings Window](../.gitbook/assets/karen-light%20%281%29.jpg)
+![Tray GUI and Settings Window](../.gitbook/assets/karen-light.jpg)
 
 You can also decide whether to start the GUI alongside Windows, or start LRR alongside the GUI. Combining the two makes it so that LANraragi starts alongside Windows. 🔥🔥🔥
 
@@ -40,7 +40,7 @@ On Windows, VeraCrypt encrypted drives are known to not work properly as the con
 
 ## Usage
 
-![Tray GUI and Log Console. Check that Dark Theme tho &#x1F431;&#x200D;&#x1F453;](../.gitbook/assets/karen-dark%20%281%29.jpg)
+![Tray GUI and Log Console. Check that Dark Theme tho &#x1F431;&#x200D;&#x1F453;](../.gitbook/assets/karen-dark.jpg)
 
 Once the program is running, you can open the Web Client through the shortcut button on the user interface. You can also toggle the Log Console on/off to see what's going on behind the scenes.
 

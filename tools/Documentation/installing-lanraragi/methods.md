@@ -47,7 +47,7 @@ Installing from **source** is a more involved procedure, but it does put you in 
 
 ## Older Windows: _Legacy Docker Toolbox or Vagrant_
 
-![I really hope you guys don&apos;t do this](../.gitbook/assets/shiggy%20%281%29.png)
+![I really hope you guys don&apos;t do this](../.gitbook/assets/shiggy.png)
 
 At this point the only solutions I have to give you are basically glorified VMs.
 

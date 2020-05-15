@@ -11,11 +11,11 @@ Get the Archive Index as an OPDS 1.2 Catalog.
 
 {% api-method-spec %}
 {% api-method-request %}
-{% api-method-path-parameters %}
+{% api-method-query-parameters %}
 {% api-method-parameter name="id" type="string" required=false %}
 ID of an archive. Passing this will show only one `<entry\>` for the given ID in the result, instead of all the archives.
 {% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
+{% endapi-method-query-parameters %}
 {% endapi-method-request %}
 
 {% api-method-response %}
@@ -212,7 +212,7 @@ See more info on Plugins in the matching section of the Docs.
 
 {% api-method-spec %}
 {% api-method-request %}
-{% api-method-path-parameters %}
+{% api-method-query-parameters %}
 {% api-method-parameter name="key" type="string" required=true %}
 API Key, mandatory for this method.
 {% endapi-method-parameter %}
@@ -228,7 +228,7 @@ ID of the archive to use the Plugin on. This is only mandatory for metadata plug
 {% api-method-parameter name="arg" type="string" required=false %}
 Optional One-Shot argument to use when executing this Plugin.
 {% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
+{% endapi-method-query-parameters %}
 {% endapi-method-request %}
 
 {% api-method-response %}

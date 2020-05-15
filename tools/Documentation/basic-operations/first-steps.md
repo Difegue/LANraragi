@@ -2,7 +2,7 @@
 
 ## Quick To-Do List for newcomers
 
-![The default password for a new LRR install is &quot;kamimamita&quot;.](../.gitbook/assets/login%20%282%29.png)
+![The default password for a new LRR install is &quot;kamimamita&quot;.](../.gitbook/assets/login.png)
 
 * [ ] Change Security Settings
 * [ ] Enable and configure wanted Plugins

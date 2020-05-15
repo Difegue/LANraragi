@@ -24,12 +24,12 @@ The variables match the parameters you've entered in the `plugin_info` subroutin
 
 The `$lrr_info` hash contains various variables you can use in your plugin:
 
-* _$lrr\_info-&gt;{archive\_title}_: The title of the archive, as entered by the User. 
-* _$lrr\_info-&gt;{existing\_tags}_: The tags that are already in LRR for this archive, if there are any.
-* _$lrr\_info-&gt;{thumbnail\_hash}_: A SHA-1 hash of the first image of the archive.
-* _$lrr\_info-&gt;{file\_path}_: The filesystem path to the archive.
-* _$lrr\_info-&gt;{oneshot\_param}_: Value of your one-shot argument, if it's been set by the User. See below.
-* _$lrr\_info-&gt;{user\_agent}_: [Mojo::UserAgent](https://mojolicious.org/perldoc/Mojo/UserAgent) object you can use for web requests. If this plugin depends on a Login plugin, this UserAgent will be pre-configured with the cookies from the Login.
+* _$lrr\_info->{archive\_title}_: The title of the archive, as entered by the User. 
+* _$lrr\_info->{existing\_tags}_: The tags that are already in LRR for this archive, if there are any.
+* _$lrr\_info->{thumbnail\_hash}_: A SHA-1 hash of the first image of the archive.
+* _$lrr\_info->{file\_path}_: The filesystem path to the archive.
+* _$lrr\_info->{oneshot\_param}_: Value of your one-shot argument, if it's been set by the User. See below.
+* _$lrr\_info->{user\_agent}_: [Mojo::UserAgent](https://mojolicious.org/perldoc/Mojo/UserAgent) object you can use for web requests. If this plugin depends on a Login plugin, this UserAgent will be pre-configured with the cookies from the Login.
 
 #### One-Shot Arguments
 

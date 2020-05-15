@@ -15,7 +15,7 @@ Search for Archives. You can use the IDs of this JSON with the other endpoints.
 
 {% api-method-spec %}
 {% api-method-request %}
-{% api-method-path-parameters %}
+{% api-method-query-parameters %}
 {% api-method-parameter name="category" type="string" required=false %}
 ID of the category you want to restrict this search to.
 {% endapi-method-parameter %}
@@ -41,7 +41,7 @@ Namespace by which you want to sort the results, or _title_ if you want to sort 
 {% api-method-parameter name="order" type="string" required=false %}
 Order of the sort, either `asc` or `desc`.
 {% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
+{% endapi-method-query-parameters %}
 {% endapi-method-request %}
 
 {% api-method-response %}
@@ -99,11 +99,11 @@ Discard the cache containing previous user searches.
 
 {% api-method-spec %}
 {% api-method-request %}
-{% api-method-path-parameters %}
+{% api-method-query-parameters %}
 {% api-method-parameter name="" type="string" required=false %}
 
 {% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
+{% endapi-method-query-parameters %}
 {% endapi-method-request %}
 
 {% api-method-response %}

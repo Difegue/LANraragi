@@ -23,7 +23,7 @@
 ## Advanced Usage
 
 * [Batch Tagging](advanced-usage/batch-tagging.md)
-* [Categories](advanced-usage/favorite-tags.md)
+* [Categories](advanced-usage/categories.md)
 * [Backup and Restore](advanced-usage/backup-and-restore.md)
 * [Using External Readers](advanced-usage/external-readers.md)
 * [Network Interface Setup](advanced-usage/network-interfaces.md)

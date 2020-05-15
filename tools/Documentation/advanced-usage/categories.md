@@ -26,6 +26,3 @@ If you have an existing folder hierarchy for your Archives, LRR can automaticall
 
 Look for it in Plugin Configuration.
 {% endhint %}
-
-
-
