@@ -28,10 +28,10 @@
 * [Using External Readers](advanced-usage/external-readers.md)
 * [Network Interface Setup](advanced-usage/network-interfaces.md)
 
-## Developer Guide
+## Developer Guide <a id="extending-lanraragi"></a>
 
-* [Setup a Development Environment](developer-guide/index.md)
-* [Architecture & Style](developer-guide/architecture.md)
+* [Setup a Development Environment](extending-lanraragi/index.md)
+* [Architecture & Style](extending-lanraragi/architecture.md)
 
 ## API Documentation
 
@@ -43,11 +43,11 @@
 * [Shinobu API](api-documentation/shinobu-api.md)
 * [Miscellaneous other API](api-documentation/miscellaneous-other-api.md)
 
-## Writing Plugins
+## Writing Plugins <a id="plugin-docs"></a>
 
-* [Getting started](writing-plugins/index.md)
-* [Login Plugins](writing-plugins/login.md)
-* [Metadata Plugins](writing-plugins/metadata.md)
-* [Generic Plugins \("Scripts"\)](writing-plugins/scripts.md)
-* [Code Examples](writing-plugins/code-examples.md)
+* [Getting started](plugin-docs/index.md)
+* [Login Plugins](plugin-docs/login.md)
+* [Metadata Plugins](plugin-docs/metadata.md)
+* [Generic Plugins \("Scripts"\)](plugin-docs/scripts.md)
+* [Code Examples](plugin-docs/code-examples.md)
 

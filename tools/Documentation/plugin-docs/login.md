@@ -5,7 +5,7 @@ Their role is to provide a configured [Mojo::UserAgent](https://mojolicious.org/
 
 ## Required subroutines
 
-Only one subroutine needs to be implemented for the module to be recognized: `do_login`, which contains your working code. You're free to implement other subroutines for cleaner code, of course.  
+Only one subroutine needs to be implemented for the module to be recognized: `do_login`, which contains your working code. You're free to implement other subroutines for cleaner code, of course.
 
 ### Expected Input
 
@@ -17,16 +17,15 @@ sub do_login {
     #First lines you should have in the subroutine
     shift;
     my ($param1, $param2, $param3) = @_; # Plugin parameters
-
 ```
+
 The variables match the parameters you've entered in the `plugin_info` subroutine.
 
 ### Expected Output
 
-Your plugin must return a [Mojo::UserAgent](https://mojolicious.org/perldoc/Mojo/UserAgent) object. That's it!  
+Your plugin must return a [Mojo::UserAgent](https://mojolicious.org/perldoc/Mojo/UserAgent) object. That's it!
 
 There's no particular error handling for Login Plugins at the moment, so I recommend you return an empty UserAgent if Login fails and handle the error in the matching Metadata/Script plugin.
-
 
 ## Plugin Template
 
@@ -100,4 +99,5 @@ sub do_login {
 }
 
 1;
-```  
+```
+

@@ -10,7 +10,7 @@ The _install.pl_ script is essentially a sequence of commands executed to instal
 
 ## Specific environment variables you can apply to change LRR behavior
 
-Those variables were introduced for the Homebrew package, but they can be declared at anytime on any type of install; LRR will try to use them.  
+Those variables were introduced for the Homebrew package, but they can be declared at anytime on any type of install; LRR will try to use them.
 
 * `LRR_DATA_DIRECTORY` - Data directory override. If this variable is set to a path, said path will house the content folder.  
 * `LRR_TEMP_DIRECTORY` - Temporary directory override. If this variable is set to a path, the temporary folder will be there instead of `/public/temp`.
@@ -26,17 +26,17 @@ If installed, you can run the critic on the entire LRR source tree through the `
 Critic is automatically run on every commit made to LRR at the level 5 thanks to [Github Actions](https://github.com/Difegue/LANraragi/blob/dev/.github/main.workflow).
 
 I also run [perltidy](https://en.wikipedia.org/wiki/PerlTidy) on the source tree every now and then for consistency.  
-The rules used in perltidy passes are stored in the .perltidyrc file at the source root.  
+The rules used in perltidy passes are stored in the .perltidyrc file at the source root.
 
-Some extras:  
+Some extras:
 
-* Code width limit is stupid for long strings and comments (ie the base64 pngs in plugin metadata), which is perltidy's default behavior.
-* The visual indentation when setting a bunch of variables at once is made by perltidy but I actually really like it, so I leave it in and try to repro it whenever it makes sense.
-* The codebase does have issues with variable naming -- perl packages usually go for snakecase buuut short variables are ok in flatcase (as per [perlstyle](https://perldoc.perl.org/perlstyle.html) )
+* Code width limit is stupid for long strings and comments \(ie the base64 pngs in plugin metadata\), which is perltidy's default behavior.
+* The visual indentation when setting a bunch of variables at once a perltidy thing, but I actually really like it! I leave it in and try to repro it whenever it makes sense.
+* The codebase does have issues with variable naming -- perl packages usually go for snakecase buuut short variables are ok in flatcase \(as per [perlstyle](https://perldoc.perl.org/perlstyle.html) \)
 * `'`'s should only be used for escaping `"` easily and vice-versa but I don't really care about that one. 😐
 
-A small practice I try to keep on my own for LRR's packages is to use methods (arrow notation, `Class::Name->do_thing`) to call subroutines that take no arguments, and functions (namespace notation, `Class::Name::do_thing($param)`) to call subs with arguments. It doesn't really matter much, but it looks cleaner to me!  
-Also makes it easier if one day I take the OOP pill for this project, as methods always get the current object (or class name) as the first parameter of their call.
+A small practice I try to keep on my own for LRR's packages is to use methods \(arrow notation, `Class::Name->do_thing`\) to call subroutines that take no arguments, and functions \(namespace notation, `Class::Name::do_thing($param)`\) to call subs with arguments. It doesn't really matter much, but it looks cleaner to me!  
+Also makes it easier if one day I take the OOP pill for this project, as methods always get the current object \(or class name\) as the first parameter of their call.
 
 Packages in the `Utils` folder export most of their functions, as those are used by Plugins as well.  
 I recommend trying to only use exported functions in your code, and consider the rest as internal API suspect to change/breakage.
@@ -130,7 +130,7 @@ It's a second process spawned through the Proc::Background Perl Module.
 ## About the Search Cache
 
 When you perform a search in LRR, that search is saved to a cache in order to be served faster the next time it's queried.  
-This cache is busted as soon as the archive index is modified in any way.(be it editing metadata or adding/removing archives)
+This cache is busted as soon as the archive index is modified in any way.\(be it editing metadata or adding/removing archives\)
 
 ## Behaviour in Debug Mode
 
