@@ -25,9 +25,14 @@ sub create_category {
 
     if ( $name eq "" ) {
         $self->render(
-            json   => { error => "Category name not specified." },
+            json => {
+                operation => "create_category",
+                error     => "Category name not specified.",
+                success   => 0
+            },
             status => 400
         );
+        return;
     }
 
     my $created_id = LANraragi::Model::Category::create_category( $name, $search, $pinned, "" );
@@ -43,18 +48,25 @@ sub create_category {
 
 sub update_category {
 
-    my $self   = shift;
-    my $catid  = $self->stash('id');
-    my $name   = $self->req->param('name') || "";
-    my $search = $self->req->param('search') || "";
-    my $pinned = $self->req->param('pinned') ? 1 : 0;
+    my $self     = shift;
+    my $catid    = $self->stash('id');
+    my %category = LANraragi::Model::Category::get_category($catid);
 
-    if ( $name eq "" ) {
+    unless (%category) {
         $self->render(
-            json   => { error => "Category name not specified." },
+            json => {
+                operation => "update_category",
+                error     => "The given category does not exist.",
+                success   => 0
+            },
             status => 400
         );
+        return;
     }
+
+    my $name   = $self->req->param('name')   || $category{name};
+    my $search = $self->req->param('search') || $category{search};
+    my $pinned = $self->req->param('pinned') ? 1 : 0;
 
     my $updated_id = LANraragi::Model::Category::create_category( $name, $search, $pinned, $catid );
 

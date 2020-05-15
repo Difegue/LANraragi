@@ -54,11 +54,6 @@ sub serve_untagged_archivelist {
     $self->render( json => \@idlist );
 }
 
-sub serve_tag_stats {
-    my $self = shift;
-    $self->render( json => from_json(LANraragi::Model::Stats::build_tag_json) );
-}
-
 # Uses a plugin, with the standard global arguments and a provided oneshot argument.
 sub use_plugin {
     my $self = shift;

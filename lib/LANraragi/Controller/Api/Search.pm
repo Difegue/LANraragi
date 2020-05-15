@@ -3,6 +3,7 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use LANraragi::Model::Search;
 use LANraragi::Utils::Generic qw(success);
+use LANraragi::Utils::Database qw(invalidate_cache);
 
 # Undocumented API matching the Datatables spec.
 sub handle_datatables {

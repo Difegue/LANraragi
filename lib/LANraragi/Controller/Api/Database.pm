@@ -4,6 +4,7 @@ use Mojo::Base 'Mojolicious::Controller';
 use Redis;
 
 use LANraragi::Model::Backup;
+use LANraragi::Model::Stats;
 use LANraragi::Utils::Generic qw(success);
 use LANraragi::Utils::Database qw(invalidate_cache);
 
@@ -15,6 +16,11 @@ sub serve_backup {
 sub drop_database {
     LANraragi::Utils::Database::drop_database();
     success( shift, "drop_database" );
+}
+
+sub serve_tag_stats {
+    my $self = shift;
+    $self->render( json => from_json(LANraragi::Model::Stats::build_tag_json) );
 }
 
 sub clean_database {

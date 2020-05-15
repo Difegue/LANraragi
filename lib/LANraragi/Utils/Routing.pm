@@ -66,9 +66,8 @@ sub apply_routes {
 
     # Miscellaneous API
     $public_routes->get('/api/opds')->to('api#serve_opds');
-    $public_routes->get('/api/tagstats')->to('api#serve_tag_stats');    #old
-    $public_routes->get('/api/stats')->to('api#serve_tag_stats');       #old
     $logged_in_api->get('/api/use_plugin')->to('api#use_plugin');
+    $logged_in_api->post('/api/plugin/use')->to('api#use_plugin');
     $logged_in_api->get('/api/clean_temp')->to('api#clean_tempfolder');    #old
     $logged_in_api->delete('/api/tempfolder')->to('api#clean_tempfolder');
 
@@ -98,12 +97,14 @@ sub apply_routes {
     $logged_in_api->get('/api/clear_new_all')->to('api-database#clear_new_all');
     $logged_in_api->get('/api/drop_database')->to('api-database#drop_database');
     $logged_in_api->get('/api/clean_database')->to('api-database#clean_database');
+    $public_routes->get('/api/tagstats')->to('api-database#serve_tag_stats');
 
     # Database API - new endpoints
     $logged_in_api->get('/api/database/backup')->to('api-database#serve_backup');
     $logged_in_api->delete('/api/database/isnew')->to('api-database#clear_new_all');
     $logged_in_api->post('/api/database/drop')->to('api-database#drop_database');
     $logged_in_api->post('/api/database/clean')->to('api-database#clean_database');
+    $public_routes->get('/api/database/stats')->to('api-database#serve_tag_stats');
 
     # Shinobu API - old endpoints
     $logged_in_api->get('/api/shinobu_status')->to('api-shinobu#shinobu_status');

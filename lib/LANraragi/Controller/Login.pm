@@ -49,12 +49,15 @@ sub logged_in_api {
 
     # The API key can be either a key parameter, or in the Authentication header.
     # The parameter variant is deprecated and will be removed in a future release.
-    my $key = $self->req->param('key') || '';
-    my $auth_header = decode_base64( $self->req->headers->authorization || "" );
+    my $key          = $self->req->param('key') || '';
+    my $expected_key = $self->LRR_CONF->get_apikey;
+
+    my $auth_header     = $self->req->headers->authorization || "";
+    my $expected_header = "Bearer " . encode_base64( $expected_key, "" );
 
     return 1
-      if ( $key ne "" && $key eq $self->LRR_CONF->get_apikey )
-      || ( $key ne "" && $auth_header eq $self->LRR_CONF->get_apikey )
+      if ( $key ne "" && $key eq $expected_key )
+      || ( $expected_key ne "" && $auth_header eq $expected_header )
       || $self->session('is_logged')
       || $self->LRR_CONF->enable_pass == 0;
     $self->render(
