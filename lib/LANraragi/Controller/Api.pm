@@ -7,7 +7,7 @@ use Storable;
 use Mojo::JSON qw(decode_json encode_json from_json);
 use File::Path qw(remove_tree);
 
-use LANraragi::Utils::Generic qw(start_shinobu);
+use LANraragi::Utils::Generic qw(success);
 use LANraragi::Utils::Database qw(invalidate_cache);
 use LANraragi::Utils::TempFolder qw(get_tempsize clean_temp_full);
 
@@ -37,18 +37,6 @@ sub check_id_parameter {
     return $id;
 }
 
-# Renders the basic success API JSON template.
-sub success {
-    my ( $mojo, $operation ) = @_;
-
-    $mojo->render(
-        json => {
-            operation => $operation,
-            success   => 1
-        }
-    );
-}
-
 sub serve_archivelist {
     my $self   = shift;
     my @idlist = LANraragi::Model::Api::generate_archive_list;
@@ -64,38 +52,6 @@ sub serve_untagged_archivelist {
     my $self   = shift;
     my @idlist = LANraragi::Model::Api::find_untagged_archives;
     $self->render( json => \@idlist );
-}
-
-sub serve_tag_stats {
-    my $self = shift;
-    $self->render( json => from_json(LANraragi::Model::Stats::build_tag_json) );
-}
-
-sub serve_backup {
-    my $self = shift;
-    $self->render( json => from_json(LANraragi::Model::Backup::build_backup_JSON) );
-}
-
-sub drop_database {
-    LANraragi::Utils::Database::drop_database();
-    success( shift, "drop_database" );
-}
-
-sub clean_database {
-    my $num = LANraragi::Utils::Database::clean_database();
-
-    shift->render(
-        json => {
-            operation => "clean_database",
-            total     => $num,
-            success   => 1
-        }
-    );
-}
-
-sub clear_cache {
-    invalidate_cache();
-    success( shift, "clear_cache" );
 }
 
 # Uses a plugin, with the standard global arguments and a provided oneshot argument.
@@ -189,26 +145,6 @@ sub clear_new {
     );
 }
 
-#Clear new flag in all archives.
-sub clear_new_all {
-
-    my $self  = shift;
-    my $redis = $self->LRR_CONF->get_redis();
-
-    # Get all archives thru redis
-    # 40-character long keys only => Archive IDs
-    my @keys = $redis->keys('????????????????????????????????????????');
-
-    foreach my $idall (@keys) {
-        $redis->hset( $idall, "isnew", "false" );
-    }
-
-    # Bust search cache completely, this is a big change
-    invalidate_cache();
-    $redis->quit();
-    success( $self, "clear_new_all" );
-}
-
 #Use all enabled plugins on an archive ID. Tags are automatically saved in the background.
 #Returns number of successes and failures.
 sub use_enabled_plugins {
@@ -240,47 +176,6 @@ sub use_enabled_plugins {
         );
     }
     $redis->quit();
-}
-
-sub shinobu_status {
-    my $self    = shift;
-    my $shinobu = ${ retrieve("./.shinobu-pid") };
-
-    $self->render(
-        json => {
-            operation => "shinobu_status",
-            is_alive  => $shinobu->poll(),
-            pid       => $shinobu->pid
-        }
-    );
-}
-
-sub stop_shinobu {
-    my $self    = shift;
-    my $shinobu = ${ retrieve("./.shinobu-pid") };
-
-    #commit sudoku
-    $shinobu->kill();
-    success( $self, "shinobu_stop" );
-}
-
-sub restart_shinobu {
-    my $self    = shift;
-    my $shinobu = ${ retrieve("./.shinobu-pid") };
-
-    #commit sudoku
-    $shinobu->kill();
-
-    # Create a new Process, automatically stored in .shinobu-pid
-    my $proc = start_shinobu();
-
-    $self->render(
-        json => {
-            operation => "shinobu_restart",
-            success   => $proc->poll(),
-            new_pid   => $proc->pid
-        }
-    );
 }
 
 1;

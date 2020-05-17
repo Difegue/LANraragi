@@ -35,11 +35,11 @@ if ( $ENV{LRR_NETWORK} ) {
 
 my $backend;
 if ($morbo) {
-    $backend = Mojo::Server::Morbo->new;
+    $backend = Mojo::Server::Morbo->new( keep_alive_timeout => 30 );
     $ENV{MOJO_MODE} = "development";
     $backend->daemon->listen(@listen);
 } else {
-    $backend = Mojo::Server::Hypnotoad->new;
+    $backend = Mojo::Server::Hypnotoad->new( keep_alive_timeout => 30 );
     $backend->prefork->listen(@listen);
 }
 

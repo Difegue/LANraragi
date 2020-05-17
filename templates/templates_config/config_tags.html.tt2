@@ -1,39 +1,13 @@
 <tr>
     <td class="option-td">
-        <h2 class="ih"> Favorite Tags </h2>
-    </td>
-    <td>
-        <div style="width:90px; display:inline-block">Favorite Tag 1:</div> <input class="stdinput" style="width:60%"
-            maxlength="255" size="20" value="[% fav1 %]" name="fav1" type="text">
-        <br>
-        <div style="width:90px; display:inline-block">Favorite Tag 2:</div> <input class="stdinput" style="width:60%"
-            maxlength="255" size="20" value="[% fav2 %]" name="fav2" type="text">
-        <br>
-        <div style="width:90px; display:inline-block">Favorite Tag 3:</div> <input class="stdinput" style="width:60%"
-            maxlength="255" size="20" value="[% fav3 %]" name="fav3" type="text">
-        <br>
-        <div style="width:90px; display:inline-block">Favorite Tag 4:</div> <input class="stdinput" style="width:60%"
-            maxlength="255" size="20" value="[% fav4 %]" name="fav4" type="text">
-        <br>
-        <div style="width:90px; display:inline-block">Favorite Tag 5:</div> <input class="stdinput" style="width:60%"
-            maxlength="255" size="20" value="[% fav5 %]" name="fav5" type="text">
-        <br>Add your favorite tags (or tag combinations) here. <br>They'll become available as shortcuts in the Archive
-        Index.
-    </td>
-</tr>
-
-<tr></tr>
-
-<tr>
-    <td class="option-td">
         <h2 class="ih"> Tag Blacklist </h2>
     </td>
     <td>
         [% IF blackliston %]
         <input id="blackliston" name="blackliston" class="fa" type="checkbox" checked> [% ELSE %]
         <input id="blackliston" name="blackliston" class="fa" type="checkbox"> [% END %]
-
-        <textarea class="stdinput" size="20" style='width:100%; height:125px' name="blacklist"
+        <br>
+        <textarea class="stdinput" size="20" style='width:100%; height:75px' name="blacklist"
             maxlength='5000'>[% blacklist %]</textarea>
         <br> When tagging archives using Plugins, these tags will be automatically omitted.
         <br>Split tags with commas.

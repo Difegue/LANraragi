@@ -15,7 +15,7 @@ function initIndex(pagesize) {
 	arcTable = $('.datatables').DataTable({
 		'serverSide': true,
 		'processing': true,
-  		'ajax': "search",
+		'ajax': "search",
 		'deferRender': true,
 		'lengthChange': false,
 		'pageLength': pagesize,
@@ -29,41 +29,41 @@ function initIndex(pagesize) {
 		'preDrawCallback': thumbViewInit, //callbacks for thumbnail view
 		'rowCallback': buildThumbDiv,
 		'columns': [{
-				className: 'title itd',
-				'data': null,
-				'name': 'title',
-				'render': titleColumnDisplay
-			},{
-				className: column1 + ' itd',
-				'data': 'tags',
-				'name': column1,
-				'render': function (data, type, full, meta) {
-					return createNamespaceColumn(column1, type, data);
-				}
-			},{
-				className: column2 + ' itd',
-				'data': 'tags',
-				'name': column2,
-				'render': function (data, type, full, meta) {
-					return createNamespaceColumn(column2, type, data);
-				}
-			},{
-				className: 'tags itd',
-				'data': 'tags',
-				'name': 'tags',
-				'orderable': false,
-				'render': tagsColumnDisplay
-			},{ // The columns below are invisible and only meant to add extra parameters to a search.
-				className: 'isnew itd',
-				visible: false,
-				'data': 'isnew',
-				'name': 'isnew'
-			},{ 
-				className: 'untagged itd',
-				visible: false,
-				'data': null,
-				'name': 'untagged'
-			}],
+			className: 'title itd',
+			'data': null,
+			'name': 'title',
+			'render': titleColumnDisplay
+		}, {
+			className: column1 + ' itd',
+			'data': 'tags',
+			'name': column1,
+			'render': function (data, type, full, meta) {
+				return createNamespaceColumn(column1, type, data);
+			}
+		}, {
+			className: column2 + ' itd',
+			'data': 'tags',
+			'name': column2,
+			'render': function (data, type, full, meta) {
+				return createNamespaceColumn(column2, type, data);
+			}
+		}, {
+			className: 'tags itd',
+			'data': 'tags',
+			'name': 'tags',
+			'orderable': false,
+			'render': tagsColumnDisplay
+		}, { // The columns below are invisible and only meant to add extra parameters to a search.
+			className: 'isnew itd',
+			visible: false,
+			'data': 'isnew',
+			'name': 'isnew'
+		}, {
+			className: 'untagged itd',
+			visible: false,
+			'data': null,
+			'name': 'untagged'
+		}],
 	});
 
 	//add datatable search event to the local searchbox and clear search to the clear filter button
@@ -71,22 +71,16 @@ function initIndex(pagesize) {
 		performSearch();
 	});
 	$('#srch').keyup(function (e) {
-		if(e.defaultPrevented) {
+		if (e.defaultPrevented) {
 			return;
-		} else if(e.key == "Enter") {
+		} else if (e.key == "Enter") {
 			performSearch();
 		}
 		e.preventDefault();
 	});
 
 	$('#clrsrch').click(function () {
-		//clear all favtags
-		for (var i = 0; i < $(".favtag").length; i++) {
-			$(".favtag")[i].checked = false;
-			$(".favtag-btn")[i].classList.remove("toggled");
-		}
 		$('#srch').val('');
-
 		performSearch();
 	});
 
@@ -108,9 +102,9 @@ function createNamespaceColumn(namespace, type, data) {
 		if (data === "")
 			return "";
 
-    var namespaceRegEx = namespace;
-		if(namespace == "series") namespaceRegEx = "(?:series|parody)";
-		regex = new RegExp(".*"+namespaceRegEx+":\\s?([^,]*),*.*","gi"); // Catch last namespace:xxx value in tags
+		var namespaceRegEx = namespace;
+		if (namespace == "series") namespaceRegEx = "(?:series|parody)";
+		regex = new RegExp(".*" + namespaceRegEx + ":\\s?([^,]*),*.*", "gi"); // Catch last namespace:xxx value in tags
 		match = regex.exec(data);
 
 		if (match != null) {
@@ -129,7 +123,7 @@ function titleColumnDisplay(data, type, full, meta) {
 		titleHtml = "";
 		titleHtml += buildProgressDiv(data.arcid, data.isnew);
 
-		return titleHtml + '<a class="image-tooltip" id="'+ data.arcid +'" onmouseover="buildImageTooltip($(this))" href="./reader?id=' + data.arcid + '">'
+		return titleHtml + '<a class="image-tooltip" id="' + data.arcid + '" onmouseover="buildImageTooltip($(this))" href="./reader?id=' + data.arcid + '">'
 			+ data.title + '</a><div class="caption" style="display: none;"><img style="height:200px" src="./api/thumbnail?id='
 			+ data.arcid + '" onerror="this.src=\'./img/noThumb.png\'"></div>';
 	}
@@ -173,21 +167,21 @@ function buildThumbDiv(row, data, index) {
 
 	if (localStorage.indexViewMode == 1) {
 		//Build a thumb-like div with the data
-		thumb_div = '<div style="height:335px" class="id1" id="'+data.arcid+'">' +
+		thumb_div = '<div style="height:335px" class="id1" id="' + data.arcid + '">' +
 			'<div class="id2">' +
-				buildProgressDiv(data.arcid, data.isnew) +
-				'<a href="./reader?id=' + data.arcid + '" title="' + data.title + '">' + data.title + '</a>' +
+			buildProgressDiv(data.arcid, data.isnew) +
+			'<a href="./reader?id=' + data.arcid + '" title="' + data.title + '">' + data.title + '</a>' +
 			'</div>' +
 			'<div style="height:280px" class="id3" >' +
-				'<a href="./reader?id=' + data.arcid + '" title="' + data.title + '">' +
-					'<img style="position:relative;" id ="' + data.arcid + '_thumb" src="./img/wait_warmly.jpg"/>' +
-					'<i id="' + data.arcid + '_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>' +
-					'<img src="./api/thumbnail?id=' + data.arcid + '" onload="$(\'#' + data.arcid + '_thumb\').remove(); $(\'#' + data.arcid + '_spinner\').remove();" onerror="this.src=\'./img/noThumb.png\'"/>' +
-				'</a>' +
+			'<a href="./reader?id=' + data.arcid + '" title="' + data.title + '">' +
+			'<img style="position:relative;" id ="' + data.arcid + '_thumb" src="./img/wait_warmly.jpg"/>' +
+			'<i id="' + data.arcid + '_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>' +
+			'<img src="./api/thumbnail?id=' + data.arcid + '" onload="$(\'#' + data.arcid + '_thumb\').remove(); $(\'#' + data.arcid + '_spinner\').remove();" onerror="this.src=\'./img/noThumb.png\'"/>' +
+			'</a>' +
 			'</div>' +
 			'<div class="id4">' +
-				'<span class="tags tag-tooltip" onmouseover="buildTagTooltip($(this))">'+colorCodeTags(data.tags)+'</span>' +
-				buildTagsDiv(data.tags) +
+			'<span class="tags tag-tooltip" onmouseover="buildTagTooltip($(this))">' + colorCodeTags(data.tags) + '</span>' +
+			buildTagsDiv(data.tags) +
 			'</div>';
 
 		$('#thumbs_container').append(thumb_div);
@@ -206,7 +200,7 @@ function buildProgressDiv(id, isnew) {
 		if (currentPage === totalPages)
 			return "<div class='isnew'>👑</div>";
 		else
-			return "<div class='isnew'><sup>"+currentPage+"/"+totalPages+"</sup></div>";
+			return "<div class='isnew'><sup>" + currentPage + "/" + totalPages + "</sup></div>";
 	}
 
 	if (isnew === "block" || isnew === "true") {
@@ -316,7 +310,7 @@ function colorCodeTags(tags) {
 	tagsByNamespace = splitTagsByNamespace(tags);
 	Object.keys(tagsByNamespace).sort().forEach(function (key, index) {
 		tagsByNamespace[key].forEach(function (tag) {
-			line+="<span class='"+key.toLowerCase()+"-tag'>"+tag+"</span>, ";
+			line += "<span class='" + key.toLowerCase() + "-tag'>" + tag + "</span>, ";
 		});
 	});
 	// Remove last comma

@@ -32,6 +32,21 @@ sub setup_redis_mock {
             "pagesize": "100",
             "devmode": "0"
         },
+        "SET_1589141306": {
+            "archives": "[\\\"e69e43e1355267f7d32a4f9b7f2fe108d2401ebf\\\",\\\"e69e43e1355267f7d32a4f9b7f2fe108d2401ebg\\\"]",
+            "last_used": "1589141306",
+            "name": "Segata Sanshiro",
+            "pinned": "1",
+            "search": ""
+        },
+        "SET_1589138380":{
+            "archives": "[]",
+            "id": "SET_1589138380",
+            "last_used": "1589138380",
+            "name": "AMERICA ONRY",
+            "pinned": "0",
+            "search": "American"
+        },
         "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf": {
             "isnew": "none",
             "tags": "character:segata sanshiro",
@@ -74,20 +89,31 @@ sub setup_redis_mock {
     # Mock Redis object which uses the datamodel
     my $redis = Test::MockObject->new();
     $redis->mock( 'keys',    sub { return keys %datamodel; } );
-    $redis->mock( 'exists',  sub { 0 } );
+    $redis->mock( 'exists',  sub { shift; return $_[0] eq "LRR_SEARCHCACHE" ? 0 : 1 } );
     $redis->mock( 'hexists', sub { 1 } );
     $redis->mock( 'hset',    sub { 1 } );
     $redis->mock( 'quit',    sub { 1 } );
     $redis->mock( 'select',  sub { 1 } );
 
     $redis->mock(
-        'hget',    # $redis->hget => get key in datamodel
+        'hget',    # $redis->hget => get value of key in datamodel
         sub {
             my $self = shift;
             my ( $key, $hashkey ) = @_;
 
             my $value = $datamodel{$key}{$hashkey};
             return $value;
+        }
+    );
+
+    $redis->mock(
+        'hgetall',    # $redis->hgetall => get all values of key in datamodel
+        sub {
+            my $self = shift;
+            my $key  = shift;
+
+            my %value = %{ $datamodel{$key} };
+            return %value;
         }
     );
 

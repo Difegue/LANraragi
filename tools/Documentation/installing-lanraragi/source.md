@@ -7,7 +7,7 @@ description: The following instructions are based on Debian Stretch.
 ## A small FYI about Vendor Perl
 
 As you might have noticed, LANraragi entirely depends on the Perl programming language.  
-A version of Perl ships already compiled on most Linux distributions(and macOS). It's usually called "Vendor Perl".
+A version of Perl ships already compiled on most Linux distributions\(and macOS\). It's usually called "Vendor Perl".
 
 Using vendor Perl is [generally discouraged](http://www.modernperlbooks.com/mt/2012/01/avoiding-the-vendor-perl-fad-diet.html) due to possible fuck-ups by the Linux distribution creator.  
 As such, you might want to install LANraragi with your own compiled Perl, using a tool such as [Perlbrew](https://perlbrew.pl/).

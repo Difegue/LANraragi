@@ -5,10 +5,9 @@
 ![The default password for a new LRR install is &quot;kamimamita&quot;.](../.gitbook/assets/login.png)
 
 * [ ] Change Security Settings
-* [ ] Change default Content folder location
 * [ ] Enable and configure wanted Plugins
-* [ ] Enable Auto-Tagging on upload if needed
-* [ ] Start uploading Archives!
+* [ ] Enable Auto-Plugin if needed
+* [ ] Change the default Content Folder to your personal folder, or start adding files to the default Content Folder!
 
 {% hint style="info" %}
 If you want to change the used Redis address/database \(If you don't know what that means, you don't want to\), you can do so by editing the _lrr.conf_ file at the root of the app folder.
@@ -41,19 +40,31 @@ If you enable No-Fun Mode, you'll have to set an **API Key** to be able to use t
 One of LRR's core concepts is the **content folder.**  
 This folder contains all the user-generated data:
 
-* Archives \(in zip/rar/targz/lzma/7z/xz/cbz/cbr/pdf format\)  
+* Archives
 * Thumbnails for said archives
 * The Redis database \(Windows only\)  
 
 By default, this folder is placed at the root of the LRR installation, but you can configure it to use any folder on your machine instead. The content folder is subdirectory-aware, so you can easily drop-in an already sorted collection.
 
-{% hint style="info" %}
-If you plan on setting your content folder to a folder that already contains archives, you might want to enable **Plugin AutoTagging** beforehand, so that metadata will be fetched for your files as they're added. See the below section and the Metadata documentation for more info.
+{% hint style="success" %}
+The following formats are supported by LRR for Archives: 
 
-The content folder can be write-only if you so desire, but the caveat is that the thumbnail subfolder needs write rights to function properly for the time being.  
+* zip/cbz
+* rar/cbr \(up to RAR4 only\)
+* tar.gz
+* lzma
+* 7z
+* xz
+* pdf
 {% endhint %}
 
-## Plugin Configuration and AutoTagging
+{% hint style="info" %}
+If you plan on setting your content folder to a folder that already contains archives, you might want to enable **Auto-Plugin** beforehand, so that metadata will be fetched for your files as they're added. See the Metadata documentation linked below for more info.
+
+The content folder can be write-only if you so desire, but the caveat is that the thumbnail subfolder \(`/thumb`\) needs write rights to function properly for the time being.
+{% endhint %}
+
+## Plugin Configuration
 
 **Plugins** are used by LANraragi to fetch Metadata for your Archives using various online services.
 

@@ -1,4 +1,4 @@
-# Frequently used API functions
+# Code Examples
 
 This section contains a few bits of code for things you might want to do with Plugins.
 
@@ -81,3 +81,4 @@ if (is_file_in_archive($file,"info.json")) {
         unlink $filepath;
 }
 ```
+

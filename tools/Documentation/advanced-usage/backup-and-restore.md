@@ -1,9 +1,11 @@
+---
+description: 'You do make backups, right?'
+---
+
 # Backup and Restore
 
-_You do make backups, right?_
-
 This page, available from the top menu once logged in, allows you to backup the entire database to a JSON file.  
-This includes, for every file:
+This includes **all your categories**, and for **every file in the database**:
 
 * The unique ID of the archive \(For the more technologically-enclined: LRR uses a SHA-1 hash of the first 500KBs of the file as the ID\)
 * The saved tags  
