@@ -82,6 +82,14 @@ function updateCategoryDetails() {
         $("#dynamicplaceholder").hide();
         $("#predicatefield").hide();
 
+        // Sort archive list alphabetically
+        const arclist = $("#archivelist");
+        arclist.find('li').sort(function (a, b) {
+            var upA = $(a).find('label').text().toUpperCase();
+            var upB = $(b).find('label').text().toUpperCase();
+            return (upA < upB) ? -1 : (upA > upB) ? 1 : 0;
+        }).appendTo("#archivelist");
+
         // Uncheck all
         $(".checklist > * > input:checkbox").prop("checked", false);
         category.archives.forEach(id => {

@@ -165,7 +165,7 @@ function fullTag(tag) {
 
 function loadTagSuggestions() {
 	// Query the tag cloud API to get the most used tags.
-	$.get("api/stats")
+	$.get("api/database/stats")
 		.done(function (data) {
 			// Only use tags with weight >1 
 			taglist = data.reduce(function (res, tag) {

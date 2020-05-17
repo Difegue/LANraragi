@@ -2,6 +2,7 @@ package LANraragi::Controller::Api::Database;
 use Mojo::Base 'Mojolicious::Controller';
 
 use Redis;
+use Mojo::JSON qw(from_json);
 
 use LANraragi::Model::Backup;
 use LANraragi::Model::Stats;
