@@ -11,6 +11,7 @@ sub shinobu_status {
     $self->render(
         json => {
             operation => "shinobu_status",
+            success   => 1,
             is_alive  => $shinobu->poll(),
             pid       => $shinobu->pid
         }

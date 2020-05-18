@@ -24,6 +24,7 @@ Get the Shinobu process PID, and whether or not it's alive.
 
 ```javascript
 {
+  "success": 1,
   "is_alive": 1,
   "operation": "shinobu_status",
   "pid": 1608
