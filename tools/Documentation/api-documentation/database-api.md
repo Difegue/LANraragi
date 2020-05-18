@@ -52,14 +52,15 @@ Cleans the Database, removing entries for files that are no longer on the filesy
 {% api-method-response %}
 {% api-method-response-example httpCode=200 %}
 {% api-method-response-example-description %}
-The database is cleaned, and the API returns how many items were removed.
+The database is cleaned, and the API returns how many items were removed/unlinked.
 {% endapi-method-response-example-description %}
 
 ```javascript
 {
   "operation": "clean_database",
   "success": 1,
-  "total": 0
+  "deleted": 0,
+  "unlinked": 0
 }
 ```
 {% endapi-method-response-example %}

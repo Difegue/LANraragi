@@ -25,12 +25,13 @@ sub serve_tag_stats {
 }
 
 sub clean_database {
-    my $num = LANraragi::Utils::Database::clean_database();
+    my ($deleted, $unlinked) = LANraragi::Utils::Database::clean_database();
 
     shift->render(
         json => {
             operation => "clean_database",
-            total     => $num,
+            deleted   => $deleted,
+            unlinked  => $unlinked,
             success   => 1
         }
     );

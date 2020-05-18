@@ -112,6 +112,9 @@ sub build_filemap {
 
     $logger->info("Building filemap...This might take some time.");
 
+    # Delete previously serialized filemap
+    unlink '.shinobu-filemap' || $logger->warn("Couldn't delete previous filemap data.");
+
     # Clear hash
     %filemap = ();
     my $dirname = LANraragi::Model::Config->get_userdir;
