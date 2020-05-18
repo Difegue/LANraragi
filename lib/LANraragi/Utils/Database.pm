@@ -121,7 +121,7 @@ sub drop_database {
 
 # clean_database()
 # Remove entries from the database that don't have a matching archive on the filesystem.
-# Returns the number of entries deleted.
+# Returns the number of entries deleted/unlinked.
 sub clean_database {
     my $redis  = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Archive", "lanraragi" );
@@ -140,6 +140,7 @@ sub clean_database {
     my @keys = $redis->keys('????????????????????????????????????????');
 
     my $deleted_arcs = 0;
+    my $unlinked_arcs = 0;
 
     foreach my $id (@keys) {
         my $file = $redis->hget( $id, "file" );
@@ -153,11 +154,12 @@ sub clean_database {
         unless ( $file eq "" || %filemap == 0 || exists $filemap{$id} ) {
             $logger->warn("File exists but its ID is no longer $id -- Removing file reference in its database entry.");
             $redis->hset( $id, "file", "" );
+            $unlinked_arcs++;
         }
     }
 
     $redis->quit;
-    return $deleted_arcs;
+    return ($deleted_arcs, $unlinked_arcs);
 }
 
 #add_tags($id, $tags)

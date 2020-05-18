@@ -7,7 +7,7 @@ use utf8;
 use Redis;
 use File::Find;
 
-use LANraragi::Utils::Generic qw(remove_spaces remove_newlines);
+use LANraragi::Utils::Generic qw(remove_spaces remove_newlines is_archive);
 use LANraragi::Utils::Database qw(redis_decode);
 use LANraragi::Utils::Logging qw(get_logger);
 
@@ -22,7 +22,7 @@ sub get_archive_count {
     find(
         {   wanted => sub {
                 return if -d $_;    #Directories are excluded on the spot
-                if ( $_ =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|pdf|)$/ ) {
+                if ( is_archive($_) ) {
                     $count++;
                 }
             },

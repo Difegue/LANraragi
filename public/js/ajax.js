@@ -115,9 +115,20 @@ function cleanDatabase() {
 				showHideTransition: 'slide',
 				position: 'top-left',
 				loader: false,
-				heading: "Successfully cleaned the database and removed " + data.total + " entries!",
+				heading: "Successfully cleaned the database and removed " + data.deleted + " entries!",
 				icon: 'success'
 			});
+
+			if (data.unlinked > 0) {
+				$.toast({
+					showHideTransition: 'slide',
+					position: 'top-left',
+					loader: false,
+					heading: data.unlinked + " other entries have been unlinked from the database and will be deleted on the next cleanup! <br>Do a backup now if some files disappeared from your archive index.",
+					hideAfter: false,
+					icon: 'warning'
+				});
+			}
 		});
 }
 

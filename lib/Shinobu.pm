@@ -33,6 +33,7 @@ use Encode;
 use LANraragi::Utils::Database qw(invalidate_cache);
 use LANraragi::Utils::TempFolder qw(get_temp clean_temp_partial);
 use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Generic qw(is_archive);
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
@@ -111,6 +112,9 @@ sub build_filemap {
 
     $logger->info("Building filemap...This might take some time.");
 
+    # Delete previously serialized filemap
+    unlink '.shinobu-filemap' || $logger->warn("Couldn't delete previous filemap data.");
+
     # Clear hash
     %filemap = ();
     my $dirname = LANraragi::Model::Config->get_userdir;
@@ -167,7 +171,7 @@ sub add_to_filemap {
 
     my ($file) = shift;
 
-    if ( $file =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|pdf)$/ ) {
+    if ( is_archive($file) ) {
 
         $logger->debug("Adding $file to Shinobu filemap.");
 
