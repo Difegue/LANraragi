@@ -90,7 +90,9 @@ sub get_tags {
         # Return a hash containing the new metadata to be added to LRR.
         return %metadata;
     } else {
-        return ( error => "No matching EH Gallery Found!" );
+        my $source_error = 'No matching EH gallery found. The archive title may have incorrect gallery identifiers.';
+        $logger->error($source_error);
+        return ( error => $source_error );
     }
 
 }
