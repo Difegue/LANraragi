@@ -2,8 +2,6 @@ package LANraragi::Plugin::Metadata::MEMS;
 
 use strict;
 use warnings;
-use Mojo::UserAgent;
-use Mojo::JSON qw(decode_json encode_json);
 use LANraragi::Utils::Logging qw(get_logger);
 
 # Meta-information about the plugin.
