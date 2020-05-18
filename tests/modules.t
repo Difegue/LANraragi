@@ -46,8 +46,9 @@ my @modules = (
     "LANraragi::Plugin::Metadata::Chaika",    "LANraragi::Plugin::Metadata::CopyTags",
     "LANraragi::Plugin::Metadata::DateAdded", "LANraragi::Plugin::Metadata::EHentai",
     "LANraragi::Plugin::Metadata::Eze",       "LANraragi::Plugin::Metadata::Hdoujin",
-    "LANraragi::Plugin::Metadata::Koromo",    "LANraragi::Plugin::Metadata::nHentai",
-    "LANraragi::Plugin::Login::EHentai",      "LANraragi::Plugin::Scripts::SourceFinder"
+    "LANraragi::Plugin::Metadata::Koromo",    "LANraragi::Plugin::Metadata::MEMS",
+    "LANraragi::Plugin::Metadata::nHentai",   "LANraragi::Plugin::Login::EHentai",
+    "LANraragi::Plugin::Scripts::SourceFinder"
 );
 
 # Test all modules load properly
