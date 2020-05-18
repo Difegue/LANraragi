@@ -79,21 +79,22 @@ sub get_tags {
     $logger->info('Source identified. Calling E-Hentai metadata plugin to retrieve metadata from EH API.');
     my ( $eh_all_tags, $eh_title ) = LANraragi::Plugin::Metadata::EHentai::get_tags_from_EH( $gallery_id,
       $gallery_token, $save_jpn_title, $save_additional_metadata );
-    my %metadata = ( tags => $eh_all_tags );
 
     # Add source URL and title if possible.
-    if ( $metadata{tags} ne "" ) {
+    if ( $eh_all_tags ne "" ) {
+        # Title is always updated to hide the identifiers and also to reflect title changes due to rename petitions.
+        my %metadata = ( tags => $eh_all_tags, title => $eh_title );
         # Add the source tag outside get_tags_from_EH(), so that this tag is only added when metadata has been
         # successfully retrieved; otherwise $metadata{tags} may only contain this source tag and truly untagged
         # galleries may be incorrectly hidden.
         my $host         = ( $use_exhentai ? 'exhentai.org' : 'e-hentai.org' );
         $metadata{tags} .= ", source:$host/g/$gallery_id/$gallery_token";
-        # Title is always updated to hide the identifiers and also to reflect title changes due to rename petitions.
-        $metadata{title} = $eh_title;
+        # Return a hash containing the new metadata to be added to LRR.
+        return %metadata;
+    } else {
+        return ( error => "No matching EH Gallery Found!" );
     }
 
-    # Return a hash containing the new metadata to be added to LRR.
-    return %metadata;
 }
 
 1;
