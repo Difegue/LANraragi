@@ -75,12 +75,12 @@ function triggerScript(namespace) {
 								hideAfter: false,
 								icon: 'info'
 							});
-							isScriptRunning = false;
 						});
 				else {
 					showErrorToast("Saving unsuccessful", data.message);
-					isScriptRunning = false;
 				}
+				// TODO: Add a failure callback to genericAPICall 
+				isScriptRunning = false;
 			},
 			error: function (jqXHR, textStatus, errorThrown) {
 				showErrorToast("Error while saving", errorThrown);
