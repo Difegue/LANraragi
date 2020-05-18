@@ -61,8 +61,8 @@ sub get_category {
 
 # create_category(name, favtag, pinned, existing_id)
 #   Create a Category.
-#   If the "favtag" argument is supplied, the category will be a Favorite Search.
-#   Otherwise, it'll be an Archive Set.
+#   If the "favtag" argument is supplied, the category will be Dynamic.
+#   Otherwise, it'll be Static.
 #   If an existing category ID is supplied, said category will be updated with the given parameters.
 #   Returns the ID of the created/updated Category.
 sub create_category {
@@ -130,7 +130,7 @@ sub delete_category {
 
 # add_to_category(categoryid, arcid)
 #   Adds the given archive ID to the given category.
-#   Only valid if the category is an Archive Set.
+#   Only valid if the category is Static.
 #   Returns 1 on success, 0 on failure.
 sub add_to_category {
 
@@ -162,8 +162,6 @@ sub add_to_category {
 
         push @cat_archives, $arc_id;
         $redis->hset( $cat_id, "archives", encode_json( \@cat_archives ) );
-
-        #TODO: Add category id to archive hash ?
 
         invalidate_cache();
         $redis->quit;
@@ -199,8 +197,6 @@ sub remove_from_category {
         splice( @cat_archives, $index, 1 );
 
         $redis->hset( $cat_id, "archives", encode_json( \@cat_archives ) );
-
-        #TODO: Remove category id from archive hash ?
 
         invalidate_cache();
         $redis->quit;

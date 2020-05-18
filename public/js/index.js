@@ -165,7 +165,7 @@ function fullTag(tag) {
 
 function loadTagSuggestions() {
 	// Query the tag cloud API to get the most used tags.
-	$.get("api/database/stats")
+	$.get("/api/database/stats")
 		.done(function (data) {
 			// Only use tags with weight >1 
 			taglist = data.reduce(function (res, tag) {
@@ -196,7 +196,7 @@ function loadTagSuggestions() {
 
 function loadCategories() {
 	// Query the category API to get the most used tags.
-	$.get("api/categories")
+	$.get("/api/categories")
 		.done(function (data) {
 
 			// Sort by LastUsed 

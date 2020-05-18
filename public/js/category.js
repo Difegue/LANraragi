@@ -11,25 +11,11 @@ function addNewCategory(isDynamic) {
     const searchtag = isDynamic ? "language:english" : "";
 
     // Make an API request to create the category, if search is empty -> static, otherwise dynamic
-    fetch(`/api/categories?name=${catName}&search=${searchtag}`, { method: 'PUT' })
-        .then(response => response.ok ? response.json() : { success: 0, error: "Response was not OK" })
-        .then((data) => {
-
-            if (data.success) {
-                $.toast({
-                    showHideTransition: 'slide',
-                    position: 'top-left',
-                    loader: false,
-                    heading: `Category "${catName}" created!`,
-                    icon: 'success'
-                });
-                // Reload categories and select the newly created ID
-                loadCategories(data.category_id);
-            } else {
-                throw new Error(data.error);
-            }
-        })
-        .catch(error => showErrorToast("Error creating category", error));
+    genericAPICall(`/api/categories?name=${catName}&search=${searchtag}`, "PUT", `Category "${catName}" created!`, "Error creating category:",
+        function (data) {
+            // Reload categories and select the newly created ID
+            loadCategories(data.category_id);
+        });
 
 }
 
@@ -115,18 +101,15 @@ function saveCurrentCategoryDetails() {
     const pinned = document.getElementById('pinned').checked ? "1" : "0";
 
     indicateSaving();
-    // PUT update with name and search (search is empty if this is a static category)
-    fetch(`/api/categories/${categoryID}?name=${catName}&search=${searchtag}&pinned=${pinned}`, { method: 'PUT' })
-        .then(response => response.ok ? response.json() : { success: 0, error: "Response was not OK" })
-        .then((data) => {
-            if (!data.success)
-                throw new Error(data.error);
 
+    // PUT update with name and search (search is empty if this is a static category)
+    genericAPICall(`/api/categories/${categoryID}?name=${catName}&search=${searchtag}&pinned=${pinned}`,
+        "PUT", null, "Error updating category:",
+        function (data) {
             // Reload categories and select the newly created ID
             indicateSaved();
             loadCategories(data.category_id);
-        })
-        .catch(error => showErrorToast("Error updating category", error));
+        });
 }
 
 function updateArchiveInCategory(id, checked) {
@@ -134,42 +117,23 @@ function updateArchiveInCategory(id, checked) {
     const categoryID = document.getElementById('category').value;
     indicateSaving();
     // PUT/DELETE api/categories/catID/archiveID
-    fetch(`/api/categories/${categoryID}/${id}`, { method: checked ? 'PUT' : 'DELETE' })
-        .then(response => response.ok ? response.json() : { success: 0, error: "Response was not OK" })
-        .then(data => {
-            if (!data.success)
-                throw new Error(data.error);
-
+    genericAPICall(`/api/categories/${categoryID}/${id}`, checked ? 'PUT' : 'DELETE', null, "Error adding/removing archive to category",
+        function (data) {
+            // Reload categories and select the archive list properly
             indicateSaved();
-            // Reload categories to show the archive list properly
-            loadCategories(categoryID);
-        })
-        .catch(error => showErrorToast("Error adding/removing archive to category", error));
+            loadCategories(data.category_id);
+        });
 }
 
 function deleteSelectedCategory() {
     const categoryID = document.getElementById('category').value;
     if (confirm("Are you sure? The category will be deleted permanently!")) {
 
-        fetch(`/api/categories/${categoryID}`, { method: 'DELETE' })
-            .then(response => response.ok ? response.json() : { success: 0, error: "Response was not OK" })
-            .then(data => {
-                if (!data.success)
-                    throw new Error(data.error);
-
-                $.toast({
-                    showHideTransition: 'slide',
-                    position: 'top-left',
-                    loader: false,
-                    heading: "Category deleted!",
-                    icon: 'success'
-                });
-
+        genericAPICall(`/api/categories/${categoryID}`, "DELETE", "Category deleted!", "Error deleting category",
+            function (data) {
                 // Reload categories to show the archive list properly
                 loadCategories();
-            })
-            .catch(error => showErrorToast("Error deleting category", error));
-
+            });
     }
 }
 

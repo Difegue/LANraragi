@@ -66,7 +66,7 @@ sub apply_routes {
 
     # Miscellaneous API
     $public_routes->get('/api/opds')->to('api#serve_opds');
-    $logged_in_api->get('/api/use_plugin')->to('api#use_plugin');
+    $logged_in_api->get('/api/use_plugin')->to('api#use_plugin');    #old
     $logged_in_api->post('/api/plugin/use')->to('api#use_plugin');
     $logged_in_api->get('/api/clean_temp')->to('api#clean_tempfolder');    #old
     $logged_in_api->delete('/api/tempfolder')->to('api#clean_tempfolder');
