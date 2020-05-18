@@ -7,7 +7,7 @@ use File::Copy;
 use File::Find;
 use File::Basename;
 
-use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header);
+use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header is_archive);
 use LANraragi::Utils::Database qw(invalidate_cache);
 
 sub process_upload {
@@ -20,7 +20,7 @@ sub process_upload {
     my $uploadMime = $file->headers->content_type;
 
     #Check if the uploaded file's extension matches one we accept
-    if ( $filename =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|pdf)$/ ) {
+    if ( is_archive($filename) ) {
 
         # Move file to a temp folder (not the default LRR one)
         my $tempdir  = tempdir();

@@ -183,9 +183,7 @@ sub extract_page_libarchive {
 
     # Filter out non-images
     foreach my $file (@files) {
-
-        my $file2 = $file;
-        if ( is_image($file2) ) {
+        if ( is_image($file) ) {
             push @extracted, $file;
         }
     }

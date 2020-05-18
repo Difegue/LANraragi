@@ -16,7 +16,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 
 # Generic Utility Functions.
 use Exporter 'import';
-our @EXPORT_OK = qw(remove_spaces remove_newlines is_image success get_tag_with_namespace shasum start_shinobu
+our @EXPORT_OK = qw(remove_spaces remove_newlines is_image is_archive success get_tag_with_namespace shasum start_shinobu
   get_css_list generate_themes_header generate_themes_selector);
 
 # Remove spaces before and after a word
@@ -30,9 +30,14 @@ sub remove_newlines {
 }
 
 # Checks if the provided file is an image.
-# WARNING: This modifies the given filename variable!
+# Uses non-capturing groups (?:) to avoid modifying the incoming argument.
 sub is_image {
-    return $_[0] =~ /^.+\.(png|jpg|gif|bmp|jpeg|jfif|webp|PNG|JPG|GIF|BMP|JPEG|JFIF|WEBP)$/;
+    return $_[0] =~ /^.+\.(?:png|jpg|gif|bmp|jpeg|jfif|webp|PNG|JPG|GIF|BMP|JPEG|JFIF|WEBP)$/;
+}
+
+# Checks if the provided file is an archive.
+sub is_archive {
+    return $_[0] =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|pdf|)$/;
 }
 
 # Renders the basic success API JSON template.

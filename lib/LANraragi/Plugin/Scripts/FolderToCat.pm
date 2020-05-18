@@ -7,6 +7,7 @@ use File::Basename;
 use Data::Dumper;
 
 use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Generic qw(is_archive);
 use LANraragi::Model::Category;
 
 #Meta-information about your plugin.
@@ -59,7 +60,7 @@ sub run_script {
                 return if $File::Find::dir eq $userdir;    # Direct children of the content dir are excluded
 
                 my $dirname = basename($File::Find::dir);
-                if ( $_ =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|pdf)$/ ) {
+                if ( is_archive($_) ) {
                     unless ( exists( $subfolders{$dirname} ) ) {
                         $subfolders{$dirname} = [];        # Create array in hash for this folder
                     }
