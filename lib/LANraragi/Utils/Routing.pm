@@ -22,10 +22,12 @@ sub apply_routes {
 
     # Router used for all loginless routes
     my $public_routes = $r;
+    my $public_api    = $r;
 
     #No-Fun Mode locks the base routes behind login as well
     if ( $self->LRR_CONF->enable_nofun ) {
-        $public_routes = $logged_in_api;
+        $public_routes = $logged_in;
+        $public_api    = $logged_in_api;
     }
 
     $public_routes->get('/')->to('index#index');
@@ -65,19 +67,19 @@ sub apply_routes {
     $logged_in->get('/logs/redis')->to('logging#print_redis');
 
     # Miscellaneous API
-    $public_routes->get('/api/opds')->to('api#serve_opds');
+    $public_api->get('/api/opds')->to('api#serve_opds');
     $logged_in_api->get('/api/use_plugin')->to('api#use_plugin');    #old
     $logged_in_api->post('/api/plugin/use')->to('api#use_plugin');
     $logged_in_api->get('/api/clean_temp')->to('api#clean_tempfolder');    #old
     $logged_in_api->delete('/api/tempfolder')->to('api#clean_tempfolder');
 
     # Archive API (TODO)
-    $public_routes->get('/api/thumbnail')->to('api#serve_thumbnail');
-    $public_routes->get('/api/servefile')->to('api#serve_file');
-    $public_routes->get('/api/archivelist')->to('api#serve_archivelist');
-    $public_routes->get('/api/untagged')->to('api#serve_untagged_archivelist');
-    $public_routes->get('/api/extract')->to('api#extract_archive');
-    $public_routes->get('/api/clear_new')->to('api#clear_new');
+    $public_api->get('/api/thumbnail')->to('api#serve_thumbnail');
+    $public_api->get('/api/servefile')->to('api#serve_file');
+    $public_api->get('/api/archivelist')->to('api#serve_archivelist');
+    $public_api->get('/api/untagged')->to('api#serve_untagged_archivelist');
+    $public_api->get('/api/extract')->to('api#extract_archive');
+    $public_api->get('/api/clear_new')->to('api#clear_new');
     $logged_in_api->post('/api/autoplugin')->to('api#use_enabled_plugins');
 
     # /api/page is always available even in No-Fun-Mode.
@@ -87,8 +89,8 @@ sub apply_routes {
     $r->get('/api/page')->to('api#serve_page');
 
     # Search API
-    $public_routes->get('/search')->to('api-search#handle_datatables');
-    $public_routes->get('/api/search')->to('api-search#handle_api');
+    $public_api->get('/search')->to('api-search#handle_datatables');
+    $public_api->get('/api/search')->to('api-search#handle_api');
     $logged_in_api->get('/api/discard_cache')->to('api-search#clear_cache');    #old
     $logged_in_api->delete('/api/search/cache')->to('api-search#clear_cache');
 
@@ -97,14 +99,14 @@ sub apply_routes {
     $logged_in_api->get('/api/clear_new_all')->to('api-database#clear_new_all');
     $logged_in_api->get('/api/drop_database')->to('api-database#drop_database');
     $logged_in_api->get('/api/clean_database')->to('api-database#clean_database');
-    $public_routes->get('/api/tagstats')->to('api-database#serve_tag_stats');
+    $public_api->get('/api/tagstats')->to('api-database#serve_tag_stats');
 
     # Database API - new endpoints
     $logged_in_api->get('/api/database/backup')->to('api-database#serve_backup');
     $logged_in_api->delete('/api/database/isnew')->to('api-database#clear_new_all');
     $logged_in_api->post('/api/database/drop')->to('api-database#drop_database');
     $logged_in_api->post('/api/database/clean')->to('api-database#clean_database');
-    $public_routes->get('/api/database/stats')->to('api-database#serve_tag_stats');
+    $public_api->get('/api/database/stats')->to('api-database#serve_tag_stats');
 
     # Shinobu API - old endpoints
     $logged_in_api->get('/api/shinobu_status')->to('api-shinobu#shinobu_status');
@@ -117,7 +119,7 @@ sub apply_routes {
     $logged_in_api->post('/api/shinobu/restart')->to('api-shinobu#restart_shinobu');
 
     # Category API
-    $public_routes->get('/api/categories')->to('api-category#get_category_list');
+    $public_api->get('/api/categories')->to('api-category#get_category_list');
     $logged_in_api->put('/api/categories')->to('api-category#create_category');
     $logged_in_api->put('/api/categories/:id')->to('api-category#update_category');
     $logged_in_api->delete('/api/categories/:id')->to('api-category#delete_category');
