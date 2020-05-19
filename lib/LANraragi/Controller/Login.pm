@@ -47,6 +47,9 @@ sub logged_in {
 sub logged_in_api {
     my $self = shift;
 
+    # Uncomment this to send Access-Control-Allow-Origin = '*'
+    #$self->res->headers->access_control_allow_origin('*');
+
     # The API key can be either a key parameter, or in the Authentication header.
     # The parameter variant is deprecated and will be removed in a future release.
     my $key          = $self->req->param('key') || '';
