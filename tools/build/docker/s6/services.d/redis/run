@@ -1,2 +1,2 @@
 #!/bin/sh
-s6-setuidgid $(id -u koyomi):$(id -g koyomi) /usr/bin/redis-server /home/koyomi/lanraragi/tools/build/docker/redis.conf
+s6-setuidgid koyomi /usr/bin/redis-server /home/koyomi/lanraragi/tools/build/docker/redis.conf
