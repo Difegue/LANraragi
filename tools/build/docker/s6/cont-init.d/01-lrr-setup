@@ -42,8 +42,6 @@ chmod 744 /home/koyomi/lanraragi/public/temp
 rm /home/koyomi/lanraragi/script/hypnotoad.pid
 rm /home/koyomi/lanraragi/.shinobu-pid
 
-export HOME=/home/koyomi
-
 # https://redis.io/topics/faq#background-saving-fails-with-a-fork-error-under-linux-even-if-i-have-a-lot-of-free-ram
 OVERCOMMIT=$(cat /proc/sys/vm/overcommit_memory)
 if [ $OVERCOMMIT -eq 0 ]

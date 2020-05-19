@@ -1,4 +1,4 @@
-#!/usr/bin/execlineb -P
-s6-envuidgid -B koyomi:koyomi
+#!/bin/sh
 cd /home/koyomi/lanraragi/
-perl /home/koyomi/lanraragi/script/launcher.pl -f /home/koyomi/lanraragi/script/lanraragi
+export HOME=/home/koyomi
+s6-setuidgid $(id -u koyomi):$(id -g koyomi) perl /home/koyomi/lanraragi/script/launcher.pl -f /home/koyomi/lanraragi/script/lanraragi
