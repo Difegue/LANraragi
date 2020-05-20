@@ -1,25 +1,21 @@
-package LANraragi::Controller::Api;
+package LANraragi::Controller::Api::Archive;
 use Mojo::Base 'Mojolicious::Controller';
 
 use Redis;
 use Encode;
 use Storable;
 use Mojo::JSON qw(decode_json encode_json from_json);
-use File::Path qw(remove_tree);
 
 use LANraragi::Utils::Generic qw(success);
-use LANraragi::Utils::Database qw(invalidate_cache);
-use LANraragi::Utils::TempFolder qw(get_tempsize clean_temp_full);
 
-use LANraragi::Model::Api;
+use LANraragi::Model::Archive;
 use LANraragi::Model::Backup;
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
 use LANraragi::Model::Reader;
 use LANraragi::Model::Stats;
 
-# The API. Those methods are all glue to existing methods in the codebase.
-# Dedicated API-only stuff goes in Model::Api.
+# Archive API. To be refactored soon!
 
 # Handle missing ID parameter for a whole lot of api methods down below.
 sub check_id_parameter {
@@ -39,31 +35,20 @@ sub check_id_parameter {
 
 sub serve_archivelist {
     my $self   = shift;
-    my @idlist = LANraragi::Model::Api::generate_archive_list;
+    my @idlist = LANraragi::Model::Archive::generate_archive_list;
     $self->render( json => \@idlist );
-}
-
-sub serve_opds {
-    my $self = shift;
-    $self->render( text => LANraragi::Model::Api::generate_opds_catalog($self), format => 'xml' );
 }
 
 sub serve_untagged_archivelist {
     my $self   = shift;
-    my @idlist = LANraragi::Model::Api::find_untagged_archives;
+    my @idlist = LANraragi::Model::Archive::find_untagged_archives;
     $self->render( json => \@idlist );
-}
-
-# Uses a plugin, with the standard global arguments and a provided oneshot argument.
-sub use_plugin {
-    my $self = shift;
-    LANraragi::Model::Api::use_plugin($self);
 }
 
 sub serve_thumbnail {
     my $self = shift;
     my $id   = check_id_parameter( $self, "thumbnail" ) || return;
-    LANraragi::Model::Api::serve_thumbnail( $self, $id );
+    LANraragi::Model::Archive::serve_thumbnail( $self, $id );
 }
 
 # Use RenderFile to get the file of the provided id to the client.
@@ -82,7 +67,7 @@ sub serve_file {
 sub serve_page {
     my $self = shift;
     my $id   = check_id_parameter( $self, "servefile" ) || return;
-    LANraragi::Model::Api::serve_page( $self, $id );
+    LANraragi::Model::Archive::serve_page( $self, $id );
 }
 
 sub extract_archive {
@@ -101,23 +86,6 @@ sub extract_archive {
     } else {
         $self->render( json => decode_json($readerjson) );
     }
-}
-
-#Remove temp dir.
-sub clean_tempfolder {
-    my $self = shift;
-
-    #Run a full clean, errors are dumped into $@ if they occur
-    eval { clean_temp_full() };
-
-    $self->render(
-        json => {
-            operation => "cleantemp",
-            success   => $@ eq "",
-            error     => $@,
-            newsize   => get_tempsize()
-        }
-    );
 }
 
 sub clear_new {

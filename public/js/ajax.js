@@ -13,15 +13,15 @@ function showErrorToast(header, error) {
 	});
 }
 
-//Call that shows a popup to the user on success/failure. 
+//Call that shows a popup to the user on success/failure. Returns the promise so you can add final callbacks if needed.
 // Endpoint: URL endpoint
 // Method: GET/PUT/DELETE/POST
 // successMessage: Message written in the toast if request succeeded (success = 1)
 // errorMessage: Header of the error message if request fails (success = 0)
-// callback: Func called if request succeeded
-function genericAPICall(endpoint, method, successMessage, errorMessage, callback) {
+// successCallback: Func called if request succeeded
+function genericAPICall(endpoint, method, successMessage, errorMessage, successCallback) {
 
-	fetch(endpoint, { method: method })
+	return fetch(endpoint, { method: method })
 		.then(response => response.ok ? response.json() : { success: 0, error: "Response was not OK" })
 		.then((data) => {
 
@@ -35,8 +35,8 @@ function genericAPICall(endpoint, method, successMessage, errorMessage, callback
 						icon: 'success'
 					});
 
-				if (callback !== null)
-					callback(data);
+				if (successCallback !== null)
+					successCallback(data);
 
 			} else {
 				throw new Error(data.error);
@@ -75,12 +75,11 @@ function triggerScript(namespace) {
 								hideAfter: false,
 								icon: 'info'
 							});
-						});
+						}).then(isScriptRunning = false);
 				else {
 					showErrorToast("Saving unsuccessful", data.message);
+					isScriptRunning = false;
 				}
-				// TODO: Add a failure callback to genericAPICall 
-				isScriptRunning = false;
 			},
 			error: function (jqXHR, textStatus, errorThrown) {
 				showErrorToast("Error while saving", errorThrown);

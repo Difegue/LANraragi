@@ -1,4 +1,4 @@
-package LANraragi::Model::Api;
+package LANraragi::Model::Archive;
 
 use strict;
 use warnings;
@@ -9,15 +9,13 @@ use Redis;
 use Encode;
 use File::Temp qw(tempfile);
 use File::Copy "cp";
-use Mojo::JSON qw(decode_json encode_json);
 
 use LANraragi::Utils::Generic qw(get_tag_with_namespace remove_spaces remove_newlines);
 use LANraragi::Utils::Archive qw(extract_thumbnail);
-use LANraragi::Utils::Plugins qw(get_plugin get_plugin_parameters);
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Database qw(redis_decode);
 
-# Functions used by the API.
+# Functions used when dealing with archives.
 
 # Generates an array of all the archive JSONs in the database that have existing files.
 sub generate_archive_list {
@@ -66,7 +64,9 @@ sub generate_opds_catalog {
             $arcdata->{event}     = get_tag_with_namespace( "event",     $tags, "" );
 
             # Application/zip is universally hated by all readers so it's better to use x-cbz and x-cbr here.
-            if ( $file =~ /^(.*\/)*.+\.(rar|cbr)$/ ) {
+            if ( $file =~ /^(.*\/)*.+\.(pdf)$/ ) {
+                $arcdata->{mimetype} = "application/pdf";
+            } elsif ( $file =~ /^(.*\/)*.+\.(rar|cbr)$/ ) {
                 $arcdata->{mimetype} = "application/x-cbr";
             } else {
                 $arcdata->{mimetype} = "application/x-cbz";
@@ -215,53 +215,6 @@ sub serve_page {
             status => 500
         );
     }
-}
-
-sub use_plugin {
-
-    my ($self)   = @_;
-    my $id       = $self->req->param('id') || 0;
-    my $plugname = $self->req->param('plugin');
-    my $input    = $self->req->param('arg');
-
-    my $plugin = get_plugin($plugname);
-    my %plugin_result;
-    my %pluginfo;
-
-    if ( !$plugin ) {
-        $plugin_result{error} = "Plugin not found on system.";
-    } else {
-        %pluginfo = $plugin->plugin_info();
-
-        #Get the plugin settings in Redis
-        my @settings = get_plugin_parameters($plugname);
-
-        #Execute the plugin, appending the custom args at the end
-        if ( $pluginfo{type} eq "script" ) {
-            eval { %plugin_result = LANraragi::Model::Plugins::exec_script_plugin( $plugin, $input, @settings ); };
-        }
-
-        if ( $pluginfo{type} eq "metadata" ) {
-            eval { %plugin_result = LANraragi::Model::Plugins::exec_metadata_plugin( $plugin, $id, $input, @settings ); };
-        }
-
-        if ($@) {
-            $plugin_result{error} = $@;
-        }
-    }
-
-    #Returns the fetched tags in a JSON response.
-    $self->render(
-        json => {
-            operation => "use_plugin",
-            type      => $pluginfo{type},
-            success   => ( exists $plugin_result{error} ? 0 : 1 ),
-            error     => $plugin_result{error},
-            data      => \%plugin_result
-        }
-    );
-    return;
-
 }
 
 1;

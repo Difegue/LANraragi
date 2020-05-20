@@ -14,7 +14,7 @@ use Mojo::JSON qw(decode_json);
 use LANraragi::Utils::Database qw(redis_decode);
 use LANraragi::Utils::Logging qw(get_logger);
 
-use LANraragi::Model::Api;
+use LANraragi::Model::Archive;
 use LANraragi::Model::Category;
 
 # do_search (filter, filter2, page, key, order, newonly, untaggedonly)
@@ -48,7 +48,7 @@ sub do_search {
         if ($untaggedonly) {
 
             # Map the array to a hash to easily check if it contains our id
-            %untagged = map { $_ => 1 } LANraragi::Model::Api::find_untagged_archives();
+            %untagged = map { $_ => 1 } LANraragi::Model::Archive::find_untagged_archives();
         }
 
         # If the category filter is enabled, fetch the matching category

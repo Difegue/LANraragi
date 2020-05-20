@@ -67,26 +67,27 @@ sub apply_routes {
     $logged_in->get('/logs/redis')->to('logging#print_redis');
 
     # Miscellaneous API
-    $public_api->get('/api/opds')->to('api#serve_opds');
-    $logged_in_api->get('/api/use_plugin')->to('api#use_plugin');    #old
-    $logged_in_api->post('/api/plugin/use')->to('api#use_plugin');
-    $logged_in_api->get('/api/clean_temp')->to('api#clean_tempfolder');    #old
-    $logged_in_api->delete('/api/tempfolder')->to('api#clean_tempfolder');
+    $public_api->get('/api/opds')->to('api-other#serve_opds');
+    $public_api->get('/api/info')->to('api-other#serve_serverinfo');
+    $logged_in_api->get('/api/use_plugin')->to('api-other#use_plugin');    #old
+    $logged_in_api->post('/api/plugin/use')->to('api-other#use_plugin');
+    $logged_in_api->get('/api/clean_temp')->to('api-other#clean_tempfolder');    #old
+    $logged_in_api->delete('/api/tempfolder')->to('api-other#clean_tempfolder');
 
     # Archive API (TODO)
-    $public_api->get('/api/thumbnail')->to('api#serve_thumbnail');
-    $public_api->get('/api/servefile')->to('api#serve_file');
-    $public_api->get('/api/archivelist')->to('api#serve_archivelist');
-    $public_api->get('/api/untagged')->to('api#serve_untagged_archivelist');
-    $public_api->get('/api/extract')->to('api#extract_archive');
-    $public_api->get('/api/clear_new')->to('api#clear_new');
-    $logged_in_api->post('/api/autoplugin')->to('api#use_enabled_plugins');
+    $public_api->get('/api/thumbnail')->to('api-archive#serve_thumbnail');
+    $public_api->get('/api/servefile')->to('api-archive#serve_file');
+    $public_api->get('/api/archivelist')->to('api-archive#serve_archivelist');
+    $public_api->get('/api/untagged')->to('api-archive#serve_untagged_archivelist');
+    $public_api->get('/api/extract')->to('api-archive#extract_archive');
+    $public_api->get('/api/clear_new')->to('api-archive#clear_new');
+    $logged_in_api->post('/api/autoplugin')->to('api-archive#use_enabled_plugins');
 
     # /api/page is always available even in No-Fun-Mode.
     # This technically means that people *can* get pages off an uploaded archive if it's been extracted before.
     # (And if they can guess the ID and path to the files)
     # TODO: Remove as the api key moves to an auth header, removing the need for this compat workaround.
-    $r->get('/api/page')->to('api#serve_page');
+    $r->get('/api/page')->to('api-archive#serve_page');
 
     # Search API
     $public_api->get('/search')->to('api-search#handle_datatables');

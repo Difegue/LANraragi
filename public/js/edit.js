@@ -109,6 +109,7 @@ function getTags() {
 				});
 			}
 
+		}).then(() => {
 			$('#tag-spinner').css("display", "none");
 			$('#tagText').prop("disabled", false);
 			$('#tagText').css("opacity", "1");

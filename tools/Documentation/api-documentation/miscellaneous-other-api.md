@@ -1,5 +1,40 @@
 # Miscellaneous other API
 
+{% api-method method="delete" host="http://lrr.tvc-16.science" path="/api/tempfolder" %}
+{% api-method-summary %}
+Get information about the server
+{% endapi-method-summary %}
+
+{% api-method-description %}
+Returns some basic information about the LRR instance this server is running.
+{% endapi-method-description %}
+
+{% api-method-spec %}
+{% api-method-request %}
+
+{% api-method-response %}
+{% api-method-response-example httpCode=200 %}
+{% api-method-response-example-description %}
+You get server info.
+{% endapi-method-response-example-description %}
+
+```
+{
+    "archives_per_page":"100",
+    "debug_mode":"1",
+    "motd":"Welcome to this Library running LANraragi !",
+    "name":"LANraragi",
+    "nofun_mode":"0",
+    "server_resizes_images":"0",
+    "version":"0.7.0",
+    "version_name":"Cat People (Putting Out Fire)"
+}
+```
+{% endapi-method-response-example %}
+{% endapi-method-response %}
+{% endapi-method-spec %}
+{% endapi-method %}
+
 {% api-method method="get" host="http://lrr.tvc-16.science" path="/api/opds" %}
 {% api-method-summary %}
 Get the OPDS Catalog
