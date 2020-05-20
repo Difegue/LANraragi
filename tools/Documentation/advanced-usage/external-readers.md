@@ -11,7 +11,7 @@ Here are some existing clients:
 ### [Ichaival \(Android\)](https://github.com/Utazukin/Ichaival)
 
 [Download it here.](https://github.com/Utazukin/Ichaival)  
-![ichaival](https://github.com/Difegue/LANraragi/tree/f2cd11026c14d498bb831653857e1c56f415c135/tools/Documentation/.gitboook/assets/ichaival.png)
+![ichaival](../.gitbook/assets/ichaival.png)
 
 **Features:**
 

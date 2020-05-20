@@ -121,7 +121,7 @@ function updateArchiveInCategory(id, checked) {
         function (data) {
             // Reload categories and select the archive list properly
             indicateSaved();
-            loadCategories(data.category_id);
+            loadCategories(categoryID);
         });
 }
 
