@@ -6,7 +6,7 @@ use Encode;
 use Mojo::JSON qw(decode_json encode_json from_json);
 
 use LANraragi::Model::Category;
-use LANraragi::Utils::Generic qw(success);
+use LANraragi::Utils::Generic qw(render_api_response);
 
 sub get_category_list {
 
@@ -24,14 +24,7 @@ sub create_category {
     my $pinned = $self->req->param('pinned') ? 1 : 0;
 
     if ( $name eq "" ) {
-        $self->render(
-            json => {
-                operation => "create_category",
-                error     => "Category name not specified.",
-                success   => 0
-            },
-            status => 400
-        );
+        render_api_response( $self, "create_category", "Category name not specified." );
         return;
     }
 
@@ -53,14 +46,7 @@ sub update_category {
     my %category = LANraragi::Model::Category::get_category($catid);
 
     unless (%category) {
-        $self->render(
-            json => {
-                operation => "update_category",
-                error     => "The given category does not exist.",
-                success   => 0
-            },
-            status => 400
-        );
+        render_api_response( $self, "update_category", "The given category does not exist." );
         return;
     }
 
@@ -86,8 +72,11 @@ sub delete_category {
 
     my $result = LANraragi::Model::Category::delete_category($catid);
 
-    # TODO: refactor success so it can show an error depending on the return code
-    success( $self, "delete_category" );
+    if ($result) {
+        render_api_response( $self, "delete_category" );
+    } else {
+        render_api_response( $self, "delete_category", "The given category does not exist." );
+    }
 }
 
 sub add_to_category {
@@ -96,10 +85,13 @@ sub add_to_category {
     my $catid = $self->stash('id');
     my $arcid = $self->stash('archive');
 
-    my $result = LANraragi::Model::Category::add_to_category( $catid, $arcid );
+    my ( $result, $err ) = LANraragi::Model::Category::add_to_category( $catid, $arcid );
 
-    # TODO: refactor success so it can show an error depending on the return code
-    success( $self, "add_to_category" );
+    if ($result) {
+        render_api_response( $self, "add_to_category" );
+    } else {
+        render_api_response( $self, "add_to_category", $err );
+    }
 }
 
 sub remove_from_category {
@@ -108,10 +100,13 @@ sub remove_from_category {
     my $catid = $self->stash('id');
     my $arcid = $self->stash('archive');
 
-    my $result = LANraragi::Model::Category::remove_from_category( $catid, $arcid );
+    my ( $result, $err ) = LANraragi::Model::Category::remove_from_category( $catid, $arcid );
 
-    # TODO: refactor success so it can show an error depending on the return code
-    success( $self, "remove_from_category" );
+    if ($result) {
+        render_api_response( $self, "remove_from_category" );
+    } else {
+        render_api_response( $self, "remove_from_category", $err );
+    }
 }
 
 1;

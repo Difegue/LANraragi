@@ -26,10 +26,9 @@ If you succeeded in moving, you can proceed to the next step!
 
 If you do not have Homebrew installed yet, simply use the command on [their page](https://brew.sh/).
 
-The next step is to tap a private tap to then install LRR.
+The next step is to then install LRR.
 
 ```text
-brew tap bl4cc4t/other
 brew install lanraragi
 ```
 

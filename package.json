@@ -26,7 +26,7 @@
     "@fortawesome/fontawesome-free": "^5.13.0",
     "allcollapsible": "^1.1.0",
     "awesomplete": "^1.1.5",
-    "blueimp-file-upload": "^9.28.0",
+    "blueimp-file-upload": "^10.28.0",
     "datatables": "^1.10.13",
     "inter-ui": "^3.3.2",
     "jqcloud2": "^2.0.3",

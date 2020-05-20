@@ -2,7 +2,7 @@ package LANraragi::Controller::Api::Shinobu;
 use Mojo::Base 'Mojolicious::Controller';
 use Storable;
 
-use LANraragi::Utils::Generic qw(start_shinobu success);
+use LANraragi::Utils::Generic qw(start_shinobu render_api_response);
 
 sub shinobu_status {
     my $self    = shift;
@@ -24,7 +24,7 @@ sub stop_shinobu {
 
     #commit sudoku
     $shinobu->kill();
-    success( $self, "shinobu_stop" );
+    render_api_response( $self, "shinobu_stop" );
 }
 
 sub restart_shinobu {

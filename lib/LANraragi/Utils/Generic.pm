@@ -16,7 +16,8 @@ use LANraragi::Utils::Logging qw(get_logger);
 
 # Generic Utility Functions.
 use Exporter 'import';
-our @EXPORT_OK = qw(remove_spaces remove_newlines is_image is_archive success get_tag_with_namespace shasum start_shinobu
+our @EXPORT_OK =
+  qw(remove_spaces remove_newlines is_image is_archive render_api_response get_tag_with_namespace shasum start_shinobu
   get_css_list generate_themes_header generate_themes_selector);
 
 # Remove spaces before and after a word
@@ -41,14 +42,18 @@ sub is_archive {
 }
 
 # Renders the basic success API JSON template.
-sub success {
-    my ( $mojo, $operation ) = @_;
+# Specifying an error message argument will set the success variable to 0.
+sub render_api_response {
+    my ( $mojo, $operation, $errormessage ) = @_;
+    my $failed = ( defined $errormessage );
 
     $mojo->render(
         json => {
             operation => $operation,
-            success   => 1
-        }
+            error     => $failed ? $errormessage : "",
+            success   => $failed ? 0 : 1
+        },
+        status => $failed ? 400 : 200
     );
 }
 

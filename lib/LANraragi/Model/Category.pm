@@ -131,25 +131,28 @@ sub delete_category {
 # add_to_category(categoryid, arcid)
 #   Adds the given archive ID to the given category.
 #   Only valid if the category is Static.
-#   Returns 1 on success, 0 on failure.
+#   Returns 1 on success, 0 on failure alongside an error message.
 sub add_to_category {
 
     my ( $cat_id, $arc_id ) = @_;
     my $logger = get_logger( "Categories", "lanraragi" );
     my $redis  = LANraragi::Model::Config->get_redis;
+    my $err    = "";
 
     if ( $redis->exists($cat_id) ) {
 
         unless ( $redis->hget( $cat_id, "search" ) eq "" ) {
-            $logger->error("$cat_id is a favorite search, can't add archives to it.");
+            $err = "$cat_id is a favorite search, can't add archives to it.";
+            $logger->error($err);
             $redis->quit;
-            return 0;
+            return ( 0, $err );
         }
 
         unless ( $redis->exists($arc_id) ) {
-            $logger->error("$arc_id does not exist in the database.");
+            $err = "$arc_id does not exist in the database.";
+            $logger->error($err);
             $redis->quit;
-            return 0;
+            return ( 0, $err );
         }
 
         my @cat_archives = @{ decode_json( $redis->hget( $cat_id, "archives" ) ) };
@@ -157,7 +160,7 @@ sub add_to_category {
         if ( "@cat_archives" =~ m/$arc_id/ ) {
             $logger->warn("$arc_id already present in category $cat_id, doing nothing.");
             $redis->quit;
-            return 1;
+            return ( 1, $err );
         }
 
         push @cat_archives, $arc_id;
@@ -165,29 +168,33 @@ sub add_to_category {
 
         invalidate_cache();
         $redis->quit;
-        return 1;
+        return ( 1, $err );
     }
 
-    $logger->warn("$cat_id doesn't exist in the database!");
+    $err = "$cat_id doesn't exist in the database!";
+    $logger->warn($err);
     $redis->quit;
-    return 0;
+    return ( 0, $err );
 }
 
 # remove_from_category(categoryid, arcid)
 #   Removes the given archive ID from the given category.
 #   Only valid if the category is an Archive Set.
+#   Returns 1 on success, 0 on failure alongside an error message.
 sub remove_from_category {
 
     my ( $cat_id, $arc_id ) = @_;
     my $logger = get_logger( "Categories", "lanraragi" );
     my $redis  = LANraragi::Model::Config->get_redis;
+    my $err    = "";
 
     if ( $redis->exists($cat_id) ) {
 
         unless ( $redis->hget( $cat_id, "search" ) eq "" ) {
-            $logger->error("$cat_id is a favorite search, it doesn't contain archives.");
+            $err = "$cat_id is a favorite search, it doesn't contain archives.";
+            $logger->error($err);
             $redis->quit;
-            return 0;
+            return ( 0, $err );
         }
 
         # Remove occurences of $cat_id in @cat_archives w. grep and array reassignment
@@ -200,10 +207,11 @@ sub remove_from_category {
 
         invalidate_cache();
         $redis->quit;
-        return 1;
+        return ( 1, $err );
     }
 
-    $logger->warn("$cat_id doesn't exist in the database!");
+    $err = "$cat_id doesn't exist in the database!";
+    $logger->warn($err);
     $redis->quit;
     return 0;
 }

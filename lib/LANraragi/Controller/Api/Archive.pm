@@ -6,8 +6,6 @@ use Encode;
 use Storable;
 use Mojo::JSON qw(decode_json encode_json from_json);
 
-use LANraragi::Utils::Generic qw(success);
-
 use LANraragi::Model::Archive;
 use LANraragi::Model::Backup;
 use LANraragi::Model::Config;

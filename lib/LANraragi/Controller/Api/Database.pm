@@ -6,7 +6,7 @@ use Mojo::JSON qw(from_json);
 
 use LANraragi::Model::Backup;
 use LANraragi::Model::Stats;
-use LANraragi::Utils::Generic qw(success);
+use LANraragi::Utils::Generic qw(render_api_response);
 use LANraragi::Utils::Database qw(invalidate_cache);
 
 sub serve_backup {
@@ -16,7 +16,7 @@ sub serve_backup {
 
 sub drop_database {
     LANraragi::Utils::Database::drop_database();
-    success( shift, "drop_database" );
+    render_api_response( shift, "drop_database" );
 }
 
 sub serve_tag_stats {
@@ -25,7 +25,7 @@ sub serve_tag_stats {
 }
 
 sub clean_database {
-    my ($deleted, $unlinked) = LANraragi::Utils::Database::clean_database();
+    my ( $deleted, $unlinked ) = LANraragi::Utils::Database::clean_database();
 
     shift->render(
         json => {
@@ -54,7 +54,7 @@ sub clear_new_all {
     # Bust search cache completely, this is a big change
     invalidate_cache();
     $redis->quit();
-    success( $self, "clear_new_all" );
+    render_api_response( $self, "clear_new_all" );
 }
 
 1;
