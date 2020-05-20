@@ -1,6 +1,11 @@
+---
+description: Other APIs that don't fit a dedicated theme.
+---
+
+
 # Miscellaneous other API
 
-{% api-method method="delete" host="http://lrr.tvc-16.science" path="/api/tempfolder" %}
+{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/info" %}
 {% api-method-summary %}
 Get information about the server
 {% endapi-method-summary %}
@@ -20,14 +25,15 @@ You get server info.
 
 ```
 {
-    "archives_per_page":"100",
-    "debug_mode":"1",
-    "motd":"Welcome to this Library running LANraragi !",
     "name":"LANraragi",
-    "nofun_mode":"0",
-    "server_resizes_images":"0",
+    "motd":"Welcome to this Library running LANraragi !",
     "version":"0.7.0",
-    "version_name":"Cat People (Putting Out Fire)"
+    "version_name":"Cat People (Putting Out Fire)",
+    "has_password": "1",
+    "debug_mode":"1",
+    "nofun_mode":"0",
+    "archives_per_page":"100",
+    "server_resizes_images":"0"
 }
 ```
 {% endapi-method-response-example %}

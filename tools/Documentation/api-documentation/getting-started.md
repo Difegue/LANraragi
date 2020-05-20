@@ -29,5 +29,5 @@ If the user's LRR installation is running under **No-Fun Mode**, all API methods
 Empty API Keys will **not** work, even if there's no key set in Configuration.
 {% endhint %}
 
-Private endpoints will be indicated by a 🔑 symbol next to their name in the following section.
+Private endpoints will be indicated by a 🔑 symbol next to their name in the following sections.
 

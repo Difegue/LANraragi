@@ -15,7 +15,7 @@ Get tags from in the database, in order of importance.
 
 {% api-method-spec %}
 {% api-method-request %}
-
+{% endapi-method-request %}
 {% api-method-response %}
 {% api-method-response-example httpCode=200 %}
 {% api-method-response-example-description %}
@@ -48,7 +48,7 @@ Cleans the Database, removing entries for files that are no longer on the filesy
 
 {% api-method-spec %}
 {% api-method-request %}
-
+{% endapi-method-request %}
 {% api-method-response %}
 {% api-method-response-example httpCode=200 %}
 {% api-method-response-example-description %}
@@ -80,7 +80,7 @@ This is a rather dangerous endpoint, invoking it might lock you out of the serve
 
 {% api-method-spec %}
 {% api-method-request %}
-
+{% endapi-method-request %}
 {% api-method-response %}
 {% api-method-response-example httpCode=200 %}
 {% api-method-response-example-description %}
@@ -113,7 +113,7 @@ This backup can be reimported manually through the Backup and Restore feature.
 
 {% api-method-spec %}
 {% api-method-request %}
-
+{% endapi-method-request %}
 {% api-method-response %}
 {% api-method-response-example httpCode=200 %}
 {% api-method-response-example-description %}
@@ -168,7 +168,7 @@ Clears the "New!" flag on all archives.
 
 {% api-method-spec %}
 {% api-method-request %}
-
+{% endapi-method-request %}
 {% api-method-response %}
 {% api-method-response-example httpCode=200 %}
 {% api-method-response-example-description %}

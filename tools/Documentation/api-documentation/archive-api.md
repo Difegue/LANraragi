@@ -1,3 +1,7 @@
+---
+description: Everything dealing with Archives.
+---
+
 # Archive API
 
 {% api-method method="get" host="http://lrr.tvc-16.science" path="/api/archivelist" %}
@@ -11,6 +15,7 @@ Get the Archive Index in JSON form. You can use the IDs of this JSON with the ot
 
 {% api-method-spec %}
 {% api-method-request %}
+{% endapi-method-request %}
 
 {% api-method-response %}
 {% api-method-response-example httpCode=200 %}
@@ -46,6 +51,7 @@ Archive List successfully retrieved. You can use the arcid parameters with the o
     "title": "Rohan Kishibe goes to Gucci"
 }]
 ```
+
 {% endapi-method-response-example %}
 {% endapi-method-response %}
 {% endapi-method-spec %}
@@ -77,9 +83,11 @@ You get the image directly.
 
 {% tabs %}
 {% tab title="2810d5e0a8d027ecefebca6237031a0fa7b91eb3.jpg" %}
+
 ```text
 
 ```
+
 {% endtab %}
 {% endtabs %}
 {% endapi-method-response-example %}
@@ -94,6 +102,7 @@ You didn't specify the id parameter.
     "error":"API usage: thumbnail?id=YOUR_ID"
 }
 ```
+
 {% endapi-method-response-example %}
 {% endapi-method-response %}
 {% endapi-method-spec %}
@@ -158,6 +167,7 @@ The Archive is extracted server-side and you can now get its images.
     ]
 }
 ```
+
 {% endapi-method-response-example %}
 
 {% api-method-response-example httpCode=400 %}
@@ -170,6 +180,7 @@ You didn't include the id parameter.
     "error":"API usage: extract?id=YOUR_ID"
 }
 ```
+
 {% endapi-method-response-example %}
 {% endapi-method-response %}
 {% endapi-method-spec %}
@@ -201,9 +212,11 @@ You get the Archive.
 
 {% tabs %}
 {% tab title="Archive.zip" %}
+
 ```text
 
 ```
+
 {% endtab %}
 {% endtabs %}
 {% endapi-method-response-example %}
@@ -218,6 +231,7 @@ You get the Archive.
     "error":"API usage: servefile?id=YOUR_ID"
 }
 ```
+
 {% endapi-method-response-example %}
 {% endapi-method-response %}
 {% endapi-method-spec %}
@@ -234,7 +248,7 @@ Get archives that don't have any tags recorded. This follows the same rules as t
 
 {% api-method-spec %}
 {% api-method-request %}
-
+{% endapi-method-request %}
 {% api-method-response %}
 {% api-method-response-example httpCode=200 %}
 {% api-method-response-example-description %}
@@ -248,6 +262,7 @@ JSON Array of Archive IDs.
     "28697b96f0ac5858be2614ed10ca47742c9522fd",
 ]
 ```
+
 {% endapi-method-response-example %}
 {% endapi-method-response %}
 {% endapi-method-spec %}
@@ -284,6 +299,7 @@ New flag is successfully removed
     "success":1
 }
 ```
+
 {% endapi-method-response-example %}
 
 {% api-method-response-example httpCode=401 %}
@@ -296,8 +312,8 @@ You didn't specify an API Key.
     "error":"This API is protected and requires login or an API Key."
 }
 ```
+
 {% endapi-method-response-example %}
 {% endapi-method-response %}
 {% endapi-method-spec %}
 {% endapi-method %}
-

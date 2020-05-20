@@ -11,7 +11,7 @@ Get all the categories saved on the server.
 
 {% api-method-spec %}
 {% api-method-request %}
-
+{% endapi-method-request %}
 {% api-method-response %}
 {% api-method-response-example httpCode=200 %}
 {% api-method-response-example-description %}
