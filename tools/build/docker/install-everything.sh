@@ -10,6 +10,9 @@ apk add shadow s6 s6-portable-utils
 #Hey it's cpanm
 curl -L https://cpanmin.us | perl - App::cpanminus
 
+#Install Linux::Inotify2 manually since we don't run the full installer in a Docker context
+cpanm Linux::Inotify2
+
 #Install the LRR dependencies proper
 cd tools && cpanm --notest --installdeps . -M https://cpan.metacpan.org && cd ..
 npm run lanraragi-installer install-front
