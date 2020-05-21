@@ -7,7 +7,7 @@ use File::Copy;
 use File::Find;
 use File::Basename;
 
-use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header);
+use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header is_archive);
 use LANraragi::Utils::Database qw(invalidate_cache);
 
 sub process_upload {
@@ -20,7 +20,7 @@ sub process_upload {
     my $uploadMime = $file->headers->content_type;
 
     #Check if the uploaded file's extension matches one we accept
-    if ( $filename =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr)$/ ) {
+    if ( is_archive($filename) ) {
 
         # Move file to a temp folder (not the default LRR one)
         my $tempdir  = tempdir();
@@ -29,24 +29,26 @@ sub process_upload {
 
         # Update $tempfile to the exact reference created by the host filesystem
         # This is done by finding the first (and only) file in $tempdir.
-        find(sub {
+        find(
+            sub {
                 return if -d $_;
                 $tempfile = $File::Find::name;
                 $filename = $_;
-            }, $tempdir);
+            },
+            $tempdir
+        );
 
         # Compute an ID here
         my $id = LANraragi::Utils::Database::compute_id($tempfile);
         $self->LRR_LOGGER->debug("ID of uploaded file is $id");
 
         # Future home of the file
-        my $output_file = $self->LRR_CONF->get_userdir . '/'
-          . $filename;    
+        my $output_file = $self->LRR_CONF->get_userdir . '/' . $filename;
 
         #Check if the ID is already in the database, and
         #that the file it references still exists on the filesystem
         my $redis  = $self->LRR_CONF->get_redis();
-        my $isdupe = $redis->exists($id) && -e $redis->hget($id, "file");
+        my $isdupe = $redis->exists($id) && -e $redis->hget( $id, "file" );
 
         if ( -e $output_file || $isdupe ) {
 
@@ -65,49 +67,47 @@ sub process_upload {
                     : "A file with the same name is present in the Library."
                 }
             );
-        }
-        else {
+        } else {
 
             # Add the file to the database ourselves so Shinobu doesn't do it
             # This allows autoplugin to be ran ASAP.
-            LANraragi::Utils::Database::add_archive_to_redis( $id, $output_file,
-                $redis );
+            LANraragi::Utils::Database::add_archive_to_redis( $id, $output_file, $redis );
 
             # Invalidate search cache ourselves, Shinobu won't do it since the file is already in the database
             invalidate_cache();
 
             # Move the file to the content folder.
             # Move to a .tmp first in case copy to the content folder takes a while...
-            move($tempfile,$output_file.".upload");
+            move( $tempfile, $output_file . ".upload" );
+
             # Then rename inside the content folder itself to proc Shinobu.
-            move($output_file.".upload", $output_file);
+            move( $output_file . ".upload", $output_file );
 
             if ( -e $output_file ) {
                 $self->render(
-                json => {
-                    operation => "upload",
-                    name      => $file->filename,
-                    type      => $uploadMime,
-                    success   => 1,
-                    id        => $id
-                }
+                    json => {
+                        operation => "upload",
+                        name      => $file->filename,
+                        type      => $uploadMime,
+                        success   => 1,
+                        id        => $id
+                    }
                 );
             } else {
                 $self->render(
-                json => {
-                    operation => "upload",
-                    name      => $file->filename,
-                    type      => $uploadMime,
-                    success   => 0,
-                    error     => "The file couldn't be moved to your content folder!"
-                }
+                    json => {
+                        operation => "upload",
+                        name      => $file->filename,
+                        type      => $uploadMime,
+                        success   => 0,
+                        error     => "The file couldn't be moved to your content folder!"
+                    }
                 );
             }
-            
+
         }
         $redis->quit();
-    }
-    else {
+    } else {
 
         $self->render(
             json => {
@@ -125,13 +125,20 @@ sub index {
 
     my $self = shift;
 
+    # Allow adding to category on direct uploads
+    my @categories = LANraragi::Model::Category::get_category_list;
+
+    # But only to static categories
+    @categories = grep { %$_{"search"} eq "" } @categories;
+
     $self->render(
-        template    => "upload",
-        title       => $self->LRR_CONF->get_htmltitle,
-        autoplugin  => $self->LRR_CONF->enable_autotag,
-        cssdrop     => generate_themes_selector,
-        csshead     => generate_themes_header($self),
-        version     => $self->LRR_VERSION
+        template   => "upload",
+        title      => $self->LRR_CONF->get_htmltitle,
+        autoplugin => $self->LRR_CONF->enable_autotag,
+        categories => \@categories,
+        cssdrop    => generate_themes_selector,
+        csshead    => generate_themes_header($self),
+        version    => $self->LRR_VERSION
     );
 }
 

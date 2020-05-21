@@ -18,7 +18,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 # Sub used by Auto-Plugin.
 sub exec_enabled_plugins_on_file {
 
-    my $id = shift;
+    my $id     = shift;
     my $logger = get_logger( "Auto-Plugin", "lanraragi" );
 
     $logger->info("Executing enabled metadata plugins on archive with id $id.");
@@ -27,7 +27,7 @@ sub exec_enabled_plugins_on_file {
     my $failures  = 0;
     my $addedtags = 0;
 
-    my @plugins =  LANraragi::Utils::Plugins::get_enabled_plugins("metadata");
+    my @plugins = LANraragi::Utils::Plugins::get_enabled_plugins("metadata");
 
     foreach my $pluginfo (@plugins) {
         my $name   = $pluginfo->{namespace};
@@ -36,35 +36,31 @@ sub exec_enabled_plugins_on_file {
         my %plugin_result;
 
         #Every plugin execution is eval'd separately
-        eval {
-            %plugin_result = exec_metadata_plugin( $plugin, $id, "", @args );
-        };
+        eval { %plugin_result = exec_metadata_plugin( $plugin, $id, "", @args ); };
 
         if ($@) {
             $failures++;
             $logger->error("$@");
-        } elsif ( exists $plugin_result{error}) {
+        } elsif ( exists $plugin_result{error} ) {
             $failures++;
-            $logger->error($plugin_result{error});
+            $logger->error( $plugin_result{error} );
         } else {
             $successes++;
         }
 
         #If the plugin exec returned metadata, add it
         unless ( exists $plugin_result{error} ) {
-            LANraragi::Utils::Database::add_tags( $id,
-                $plugin_result{new_tags} );
+            LANraragi::Utils::Database::add_tags( $id, $plugin_result{new_tags} );
 
             # Sum up all the added tags for later reporting.
             # This doesn't take into account tags that are added twice
-            # (e.g by different plugins), but since this is more meant to show 
+            # (e.g by different plugins), but since this is more meant to show
             # if the plugins added any data at all it's fine.
-            my @added_tags = split(',', $plugin_result{new_tags});
+            my @added_tags = split( ',', $plugin_result{new_tags} );
             $addedtags += @added_tags;
 
             if ( exists $plugin_result{title} ) {
-                LANraragi::Utils::Database::set_title( $id,
-                    $plugin_result{title} );
+                LANraragi::Utils::Database::set_title( $id, $plugin_result{title} );
 
                 # Increment added_tags if the title changed as well
                 $addedtags++;
@@ -79,18 +75,18 @@ sub exec_enabled_plugins_on_file {
 # Might be worth consolidating this later.
 sub exec_login_plugin {
     my $plugname = shift;
-    my $ua = Mojo::UserAgent->new;
-    my $logger = get_logger( "Plugin System", "lanraragi" );
+    my $ua       = Mojo::UserAgent->new;
+    my $logger   = get_logger( "Plugin System", "lanraragi" );
 
     if ($plugname) {
-        $logger->info("Calling matching login plugin $plugname.");
+        $logger->debug("Calling matching login plugin $plugname.");
         my $loginplugin = LANraragi::Utils::Plugins::get_plugin($plugname);
         my @loginargs   = LANraragi::Utils::Plugins::get_plugin_parameters($plugname);
 
-        if ($loginplugin->can('do_login')) {
+        if ( $loginplugin->can('do_login') ) {
             my $loggedinua = $loginplugin->do_login(@loginargs);
 
-            if (ref($loggedinua) eq "Mojo::UserAgent") {
+            if ( ref($loggedinua) eq "Mojo::UserAgent" ) {
                 return $loggedinua;
             } else {
                 $logger->error("Plugin did not return a Mojo::UserAgent object!");
@@ -115,12 +111,12 @@ sub exec_script_plugin {
     if ( $plugin->can('run_script') ) {
 
         my %pluginfo = $plugin->plugin_info();
-        my $ua = exec_login_plugin($pluginfo{login_from});
+        my $ua       = exec_login_plugin( $pluginfo{login_from} );
 
         # Bundle all the potentially interesting info in a hash
         my %infohash = (
-            user_agent      => $ua,
-            oneshot_param   => $input
+            user_agent    => $ua,
+            oneshot_param => $input
         );
 
         # Scripts don't have any predefined metadata in their spec so they're just ran as-is.
@@ -137,7 +133,7 @@ sub exec_metadata_plugin {
     my ( $plugin, $id, $oneshotarg, @args ) = @_;
     my $logger = get_logger( "Plugin System", "lanraragi" );
 
-    if ($id eq 0) {
+    if ( $id eq 0 ) {
         return ( error => "Tried to call a metadata plugin without providing an id." );
     }
 
@@ -148,10 +144,9 @@ sub exec_metadata_plugin {
         my $redis = LANraragi::Model::Config->get_redis;
         my %hash  = $redis->hgetall($id);
 
-        my ( $name, $title, $tags, $file, $thumbhash ) =
-          @hash{qw(name title tags file thumbhash)};
+        my ( $name, $title, $tags, $file, $thumbhash ) = @hash{qw(name title tags file thumbhash)};
 
-        ( $_ = LANraragi::Utils::Database::redis_decode($_) ) for ( $name, $title, $tags);
+        ( $_ = LANraragi::Utils::Database::redis_decode($_) ) for ( $name, $title, $tags );
 
         # If the thumbnail hash is empty or undefined, we'll generate it here.
         unless ( length $thumbhash ) {
@@ -160,29 +155,29 @@ sub exec_metadata_plugin {
 
             #eval the thumbnail extraction as it can error out and die
             eval { extract_thumbnail( $dirname, $id ) };
-            if ($@) { 
+            if ($@) {
                 $logger->warn("Error building thumbnail: $@");
                 $thumbhash = "";
             } else {
                 $thumbhash = $redis->hget( $id, "thumbhash" );
                 $thumbhash = LANraragi::Utils::Database::redis_decode($thumbhash);
             }
-        }          
+        }
         $redis->quit();
 
         # Hand it off to the plugin here.
         # If the plugin requires a login, execute that first to get a UserAgent
         my %pluginfo = $plugin->plugin_info();
-        my $ua = exec_login_plugin($pluginfo{login_from});
+        my $ua       = exec_login_plugin( $pluginfo{login_from} );
 
         # Bundle all the potentially interesting info in a hash
         my %infohash = (
-            archive_title   => $title,
-            existing_tags   => $tags,
-            thumbnail_hash  => $thumbhash,
-            file_path       => $file,
-            user_agent      => $ua,
-            oneshot_param   => $oneshotarg
+            archive_title  => $title,
+            existing_tags  => $tags,
+            thumbnail_hash => $thumbhash,
+            file_path      => $file,
+            user_agent     => $ua,
+            oneshot_param  => $oneshotarg
         );
 
         my %newmetadata = $plugin->get_tags( \%infohash, @args );
@@ -197,12 +192,13 @@ sub exec_metadata_plugin {
         }
 
         my @tagarray = split( ",", $newmetadata{tags} );
-        my $newtags = "";
+        my $newtags  = "";
 
         #Process new metadata,
         #stripping out blacklisted tags and tags that we already have in Redis
-        my $blist = LANraragi::Model::Config->get_tagblacklist;
-        my @blacklist = split( ',', $blist );   # array-ize the blacklist string
+        my $blist       = LANraragi::Model::Config->get_tagblacklist;
+        my $blistenable = LANraragi::Model::Config->enable_blacklst;
+        my @blacklist   = split( ',', $blist );                         # array-ize the blacklist string
 
         foreach my $tagtoadd (@tagarray) {
 
@@ -214,17 +210,19 @@ sub exec_metadata_plugin {
                 #Only proceed if the tag isnt already in redis
                 my $good = 1;
 
-                foreach my $black (@blacklist) {
-                    remove_spaces($black);
+                if ($blistenable) {
+                    foreach my $black (@blacklist) {
+                        remove_spaces($black);
 
-                    if ( index( uc($tagtoadd), uc($black) ) != -1 ) {
-                        $logger->info(
-                            "Tag $tagtoadd is blacklisted, not adding.");
-                        $good = 0;
+                        if ( index( uc($tagtoadd), uc($black) ) != -1 ) {
+                            $logger->info("Tag $tagtoadd is blacklisted, not adding.");
+                            $good = 0;
+                        }
                     }
                 }
 
                 if ($good) {
+
                     #This tag is processed and good to go
                     $newtags .= " $tagtoadd,";
                 }

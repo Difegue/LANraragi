@@ -1,0 +1,4 @@
+#!/bin/sh
+cd /home/koyomi/lanraragi/
+export HOME=/home/koyomi
+s6-setuidgid koyomi perl /home/koyomi/lanraragi/script/launcher.pl -f /home/koyomi/lanraragi/script/lanraragi

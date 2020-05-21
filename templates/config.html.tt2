@@ -38,9 +38,11 @@
 			<h2>Select a category to show the matching settings.</h2>
 			<br />
 			<input class='stdbtn' type='button' onclick="saveFormData('#editConfigForm');"
-				value='Save Settings' />
+				value='Save Settings' /><br />
 			<input class='stdbtn' type='button' onclick="window.location.href = '/config/plugins';"
 				value='Plugin Configuration' />
+			<input class='stdbtn' type='button' onclick="window.location.href = '/backup';"
+				value='Database Backup/Restore' />
 			<input class='stdbtn' type='button' onclick="window.location.href = '/';" value='Return to Library' />
 
 		</div>

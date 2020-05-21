@@ -50,18 +50,20 @@ Windows 7/8 users running the Legacy Docker toolbox will have to explicitly forw
 {% endhint %}
 
 The content directory you have to specify in the command above will contain archives you either upload through the software or directly drop in, alongside generated thumbnails.  
-The database directory houses the LANraragi database\(As database.rdb\), allowing you to hotswap containers without losing any data.  
+The database directory houses the LANraragi database\(As database.rdb\), allowing you to hotswap containers without losing any data.
 
 {% hint style="info" %}
-If you don't care too much about being able to backup your database file, you can mount the database directory to a dedicated Docker volume:  
+If you don't care too much about being able to backup your database file, you can mount the database directory to a dedicated Docker volume:
+
 ```bash
 docker volume create lrr-database
 docker run --name=lanraragi -p 3000:3000 \
 --mount type=bind,source=[YOUR_CONTENT_DIRECTORY],target=/home/koyomi/lanraragi/content \
 --mount source=lrr-database,target=/home/koyomi/lanraragi/database \
 difegue/lanraragi
-```  
-The volume can be reused when updating, so your database will still follow along even if the container is destroyed.  
+```
+
+The volume can be reused when updating, so your database will still follow along even if the container is destroyed.
 {% endhint %}
 
 Once your LANraragi container is loaded, you can access it at [http://localhost:3000](http://localhost:3000) .  
@@ -84,9 +86,15 @@ If you're feeling **extra dangerous**, you can run the last files directly from 
 ## Changing the port
 
 Since Docker allows for port mapping, you can most of times map the default port of 3000 to another port on your host quickly.  
-If you need something a bit more involved \(like adding SSL\), please check the Network Interfaces section.
+If you need something a bit more involved \(like adding SSL\), please check the Network Interfaces section for how to use thhe `LRR_NETWORK` environment variable.
 
 {% page-ref page="../advanced-usage/network-interfaces.md" %}
+
+{% hint style="info" %}
+The default healthchecks of the Docker container base themselves on port 3000.  
+If you use the LRR\_NETWORK variable to change the outgoing port instead of Docker's port mapping, said healthchecks will fail.  
+If you have to use the variable for SSL or the like, I recommend leaving the port in it to 3000 and doing your port mapping on the Docker side.
+{% endhint %}
 
 ## Changing the user ID in case of permission issues
 

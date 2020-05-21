@@ -15,9 +15,10 @@ use Proc::Simple;
 use LANraragi::Utils::Logging qw(get_logger);
 
 # Generic Utility Functions.
-use Exporter 'import'; 
-our @EXPORT_OK = qw(remove_spaces remove_newlines is_image get_tag_with_namespace shasum start_shinobu 
-                    get_css_list generate_themes_header generate_themes_selector); 
+use Exporter 'import';
+our @EXPORT_OK =
+  qw(remove_spaces remove_newlines is_image is_archive render_api_response get_tag_with_namespace shasum start_shinobu
+  get_css_list generate_themes_header generate_themes_selector);
 
 # Remove spaces before and after a word
 sub remove_spaces {
@@ -30,22 +31,43 @@ sub remove_newlines {
 }
 
 # Checks if the provided file is an image.
-# WARNING: This modifies the given filename variable!
+# Uses non-capturing groups (?:) to avoid modifying the incoming argument.
 sub is_image {
-    return $_[0] =~ /^.+\.(png|jpg|gif|bmp|jpeg|jfif|webp|PNG|JPG|GIF|BMP|JPEG|JFIF|WEBP)$/;
+    return $_[0] =~ /^.+\.(?:png|jpg|gif|bmp|jpeg|jfif|webp|PNG|JPG|GIF|BMP|JPEG|JFIF|WEBP)$/;
+}
+
+# Checks if the provided file is an archive.
+sub is_archive {
+    return $_[0] =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|pdf|)$/;
+}
+
+# Renders the basic success API JSON template.
+# Specifying an error message argument will set the success variable to 0.
+sub render_api_response {
+    my ( $mojo, $operation, $errormessage ) = @_;
+    my $failed = ( defined $errormessage );
+
+    $mojo->render(
+        json => {
+            operation => $operation,
+            error     => $failed ? $errormessage : "",
+            success   => $failed ? 0 : 1
+        },
+        status => $failed ? 400 : 200
+    );
 }
 
 # Find the first tag matching the given namespace, or return the default value.
 sub get_tag_with_namespace {
-    my ($namespace, $tags, $default) = @_;
-    my @values = split(',', $tags);
+    my ( $namespace, $tags, $default ) = @_;
+    my @values = split( ',', $tags );
 
     foreach my $tag (@values) {
-        my ($namecheck, $value) = split(':', $tag);
+        my ( $namecheck, $value ) = split( ':', $tag );
         remove_spaces($namecheck);
         remove_spaces($value);
 
-        if ($namecheck eq $namespace) {
+        if ( $namecheck eq $namespace ) {
             return $value;
         }
     }
@@ -57,8 +79,8 @@ sub get_tag_with_namespace {
 sub start_shinobu {
     my $logger = get_logger( "Shinobu Boot", "lanraragi" );
 
-    my $proc = Proc::Simple->new(); 
-    $proc->start($^X, "./lib/Shinobu.pm");
+    my $proc = Proc::Simple->new();
+    $proc->start( $^X, "./lib/Shinobu.pm" );
     $proc->kill_on_destroy(0);
 
     # Freeze the process object in the PID file
@@ -68,8 +90,8 @@ sub start_shinobu {
 
 # Retrieve the Shinobu filemap, serialized to a file.
 sub get_shinobu_filemap {
-    if (-e "./.shinobu-filemap") {
-        return %{lock_retrieve("./.shinobu-filemap")};
+    if ( -e "./.shinobu-filemap" ) {
+        return %{ lock_retrieve("./.shinobu-filemap") };
     } else {
         return;
     }
@@ -115,13 +137,13 @@ sub get_css_list {
 sub generate_themes_header {
 
     my $self = shift;
-    my @css = get_css_list;
+    my @css  = get_css_list;
 
     #html that we'll insert in the header to declare all the available styles.
     my $html = "";
 
     #Go through the css files
-    for ( my $i = 0 ; $i < $#css + 1 ; $i++ ) {
+    for ( my $i = 0; $i < $#css + 1; $i++ ) {
 
         my $css_name = css_default_names( $css[$i] );
 
@@ -131,18 +153,19 @@ sub generate_themes_header {
             $html =
                 $html
               . '<link rel="stylesheet" type="text/css" title="'
-              . $css_name 
+              . $css_name
               . '" href="/themes/'
-              . $css[$i] . '?' . $self->LRR_VERSION . '"> ';
-        }
-        else {
+              . $css[$i] . '?'
+              . $self->LRR_VERSION . '"> ';
+        } else {
 
             $html =
                 $html
               . '<link rel="alternate stylesheet" type="text/css" title="'
-              . $css_name 
+              . $css_name
               . '" href="/themes/'
-              . $css[$i] . '?' . $self->LRR_VERSION . '"> ';
+              . $css[$i] . '?'
+              . $self->LRR_VERSION . '"> ';
         }
     }
 
@@ -152,11 +175,11 @@ sub generate_themes_header {
 
 sub generate_themes_selector {
 
-    my @css = get_css_list;
+    my @css    = get_css_list;
     my $CSSsel = '<div>';
 
     #Go through the css files
-    for ( my $i = 0 ; $i < $#css + 1 ; $i++ ) {
+    for ( my $i = 0; $i < $#css + 1; $i++ ) {
 
         #populate the div with buttons
         my $css_name = css_default_names( $css[$i] );

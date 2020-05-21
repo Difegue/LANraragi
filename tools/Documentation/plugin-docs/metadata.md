@@ -4,7 +4,7 @@ Metadata plugins are the bread-n-butter of LRR plugins: For a given archive, the
 
 ## Required subroutines
 
-Only one subroutine needs to be implemented for the module to be recognized: `get_tags`, which contains your working code. You're free to implement other subroutines for cleaner code, of course.  
+Only one subroutine needs to be implemented for the module to be recognized: `get_tags`, which contains your working code. You're free to implement other subroutines for cleaner code, of course.
 
 ### Expected Input
 
@@ -18,19 +18,18 @@ sub get_tags {
     shift;
     my $lrr_info = shift; # Global info hash
     my ($lang, $savetitle, $usethumbs, $enablepanda) = @_; # Plugin parameters
-
 ```
 
-The variables match the parameters you've entered in the `plugin_info` subroutine. (Example here is for E-H.)  
+The variables match the parameters you've entered in the `plugin_info` subroutine. \(Example here is for E-H.\)
 
-The `$lrr_info` hash contains various variables you can use in your plugin:  
+The `$lrr_info` hash contains various variables you can use in your plugin:
 
-* _$lrr_info->{archive_title}_: The title of the archive, as entered by the User. 
-* _$lrr_info->{existing_tags}_: The tags that are already in LRR for this archive, if there are any.
-* _$lrr_info->{thumbnail_hash}_: A SHA-1 hash of the first image of the archive.
-* _$lrr_info->{file_path}_: The filesystem path to the archive.
-* _$lrr_info->{oneshot_param}_: Value of your one-shot argument, if it's been set by the User. See below.
-* _$lrr_info->{user_agent}_: [Mojo::UserAgent](https://mojolicious.org/perldoc/Mojo/UserAgent) object you can use for web requests. If this plugin depends on a Login plugin, this UserAgent will be pre-configured with the cookies from the Login.
+* _$lrr\_info->{archive\_title}_: The title of the archive, as entered by the User. 
+* _$lrr\_info->{existing\_tags}_: The tags that are already in LRR for this archive, if there are any.
+* _$lrr\_info->{thumbnail\_hash}_: A SHA-1 hash of the first image of the archive.
+* _$lrr\_info->{file\_path}_: The filesystem path to the archive.
+* _$lrr\_info->{oneshot\_param}_: Value of your one-shot argument, if it's been set by the User. See below.
+* _$lrr\_info->{user\_agent}_: [Mojo::UserAgent](https://mojolicious.org/perldoc/Mojo/UserAgent) object you can use for web requests. If this plugin depends on a Login plugin, this UserAgent will be pre-configured with the cookies from the Login.
 
 #### One-Shot Arguments
 
@@ -47,7 +46,7 @@ One-Shot Arguments can only be strings.
 Once you're done and obtained your tags, all that's needed for LRR to handle them is to return a hash containg said tags.  
 Tags are expected to be separated by commas, like this:
 
-`return ( tags => "my:new, tags:here, look ma no namespace" );`  
+`return ( tags => "my:new, tags:here, look ma no namespace" );`
 
 Plugins can also modify the title of the archive:  
 `return ( tags => "some:tags", title=>"My new epic archive title" );`  
@@ -58,7 +57,6 @@ If you couldn't obtain tags for some reason, you can tell LRR that an error occu
 `return ( error => "my error :(" );`
 
 If you do this, no tags will be added for this archive, and the error will be logged/displayed to the user.
-
 
 ## Plugin Template
 
@@ -147,4 +145,5 @@ sub get_tags_from_somewhere {
 }
 
 1;
-```  
+```
+

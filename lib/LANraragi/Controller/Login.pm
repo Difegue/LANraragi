@@ -1,5 +1,6 @@
 package LANraragi::Controller::Login;
 use Mojo::Base 'Mojolicious::Controller';
+use MIME::Base64;
 
 use Redis;
 use Authen::Passphrase;
@@ -18,8 +19,7 @@ sub check {
         $self->session( is_logged  => 1 );
         $self->session( expiration => 60 * 60 * 24 );
         $self->redirect_to('index');
-    }
-    else {
+    } else {
         $self->render(
             template  => "login",
             title     => $self->LRR_CONF->get_htmltitle,
@@ -37,8 +37,8 @@ sub check {
 sub logged_in {
     my $self = shift;
     return 1
-      if $self->session('is_logged') || 
-         $self->LRR_CONF->enable_pass == 0;
+      if $self->session('is_logged')
+      || $self->LRR_CONF->enable_pass == 0;
     $self->redirect_to('login');
     return 0;
 }
@@ -46,17 +46,27 @@ sub logged_in {
 #For APIs, the request can also be authentified with a valid API Key.
 sub logged_in_api {
     my $self = shift;
-    my $key = $self->req->param('key') || '';
+
+    # Uncomment this to send Access-Control-Allow-Origin = '*'
+    #$self->res->headers->access_control_allow_origin('*');
+
+    # The API key can be either a key parameter, or in the Authentication header.
+    # The parameter variant is deprecated and will be removed in a future release.
+    my $key          = $self->req->param('key') || '';
+    my $expected_key = $self->LRR_CONF->get_apikey;
+
+    my $auth_header     = $self->req->headers->authorization || "";
+    my $expected_header = "Bearer " . encode_base64( $expected_key, "" );
+
     return 1
-      if $key ne "" && $key eq $self->LRR_CONF->get_apikey ||
-         $self->session('is_logged') || 
-         $self->LRR_CONF->enable_pass == 0;
+      if ( $key ne "" && $key eq $expected_key )
+      || ( $expected_key ne "" && $auth_header eq $expected_header )
+      || $self->session('is_logged')
+      || $self->LRR_CONF->enable_pass == 0;
     $self->render(
-		json => {
-			error => "This API is protected and requires login or an API Key."
-        },
-		status => 401
-	);
+        json   => { error => "This API is protected and requires login or an API Key." },
+        status => 401
+    );
     return 0;
 }
 
@@ -73,9 +83,9 @@ sub index {
     $self->render(
         template => "login",
         title    => $self->LRR_CONF->get_htmltitle,
-        cssdrop   => generate_themes_selector,
-        csshead   => generate_themes_header($self),
-        version   => $self->LRR_VERSION
+        cssdrop  => generate_themes_selector,
+        csshead  => generate_themes_header($self),
+        version  => $self->LRR_VERSION
     );
 }
 

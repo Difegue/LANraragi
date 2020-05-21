@@ -12,45 +12,30 @@ use File::Path qw(make_path);
 
 #Vendor dependencies
 my @vendor_css = (
-    "/blueimp-file-upload/css/jquery.fileupload.css",
-    "/datatables/media/css/jquery.dataTables.min.css",
-    "/\@fortawesome/fontawesome-free/css/all.min.css",
-    "/jqcloud2/dist/jqcloud.min.css",
-    "/jquery-toast-plugin/dist/jquery.toast.min.css",
-    "/jquery-contextmenu/dist/jquery.contextMenu.min.css",
-    "/qtip2/dist/jquery.qtip.min.css",
-    "/allcollapsible/dist/css/allcollapsible.min.css",
+    "/blueimp-file-upload/css/jquery.fileupload.css",  "/datatables/media/css/jquery.dataTables.min.css",
+    "/\@fortawesome/fontawesome-free/css/all.min.css", "/jqcloud2/dist/jqcloud.min.css",
+    "/jquery-toast-plugin/dist/jquery.toast.min.css",  "/jquery-contextmenu/dist/jquery.contextMenu.min.css",
+    "/qtip2/dist/jquery.qtip.min.css",                 "/allcollapsible/dist/css/allcollapsible.min.css",
     "/awesomplete/awesomplete.css"
 );
 
 my @vendor_js = (
-    "/blueimp-file-upload/js/jquery.fileupload.js",
-    "/blueimp-file-upload/js/vendor/jquery.ui.widget.js",
-    "/datatables/media/js/jquery.dataTables.min.js",
-    "/jqcloud2/dist/jqcloud.min.js",
-    "/jquery/dist/jquery.min.js",
-    "/jquery-migrate/dist/jquery-migrate.min.js",
-    "/jquery-toast-plugin/dist/jquery.toast.min.js",
-    "/jquery-contextmenu/dist/jquery.ui.position.min.js",
-    "/jquery-contextmenu/dist/jquery.contextMenu.min.js",
-    "/qtip2/dist/jquery.qtip.min.js",
-    "/allcollapsible/dist/js/allcollapsible.min.js",
-    "/awesomplete/awesomplete.min.js"
+    "/blueimp-file-upload/js/jquery.fileupload.js",       "/blueimp-file-upload/js/vendor/jquery.ui.widget.js",
+    "/datatables/media/js/jquery.dataTables.min.js",      "/jqcloud2/dist/jqcloud.min.js",
+    "/jquery/dist/jquery.min.js",                         "/jquery-migrate/dist/jquery-migrate.min.js",
+    "/jquery-toast-plugin/dist/jquery.toast.min.js",      "/jquery-contextmenu/dist/jquery.ui.position.min.js",
+    "/jquery-contextmenu/dist/jquery.contextMenu.min.js", "/qtip2/dist/jquery.qtip.min.js",
+    "/allcollapsible/dist/js/allcollapsible.min.js",      "/awesomplete/awesomplete.min.js"
 );
 
 my @vendor_woff = (
-    "/\@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff",
-    "/open-sans-fontface/fonts/Regular/OpenSans-Regular.woff",
-    "/open-sans-fontface/fonts/Bold/OpenSans-Bold.woff",
-    "/roboto-fontface/fonts/roboto/Roboto-Regular.woff",
-    "/roboto-fontface/fonts/roboto/Roboto-Bold.woff",
-    "/inter-ui/Inter (web)/Inter-Regular.woff",
+    "/\@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff", "/open-sans-fontface/fonts/Regular/OpenSans-Regular.woff",
+    "/open-sans-fontface/fonts/Bold/OpenSans-Bold.woff",          "/roboto-fontface/fonts/roboto/Roboto-Regular.woff",
+    "/roboto-fontface/fonts/roboto/Roboto-Bold.woff",             "/inter-ui/Inter (web)/Inter-Regular.woff",
     "/inter-ui/Inter (web)/Inter-Bold.woff"
 );
 
-say(
-"⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⣠⣴⣶⣿⠿⠟⠛⠓⠒⠤"
-);
+say("⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⣠⣴⣶⣿⠿⠟⠛⠓⠒⠤");
 say("⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⣠⣾⣿⡟⠋");
 say("⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢰⣿⣿⠋");
 say("⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⣿⣿⠇⡀");
@@ -59,30 +44,14 @@ say("⢀⢀⢀⢀⢀⢀⢀⣶⣿⠿⠛⠁⠈⢻⡄⢀⠈⠙⠻⢿⣿⣆");
 say("⢀⢀⢀⢀⢀⢀⢸⣿⣿⣶⣤⣀⢀⢀⢀⢀⢀⣀⣤⣶⣿⣿");
 say("⢀⢀⢀⢀⢀⢀⢸⣿⣿⣿⣿⣿⣿⣶⣤⣶⣿⠿⠛⠉⣿⣿");
 say("⢀⢀⢀⢀⢀⢀⢸⣿⣿⣿⣿⣿⣿⣿⣿⠉⢀⢀⢀⢀⣿⣿");
-say(
-"⢀⢀⢀⢀⣀⣤⣾⣿⣿⣿⣿⣿⣿⣿⣿⢀⢀⢀⣠⣴⣿⣿⣦⣄⡀"
-);
-say(
-"⢀⣤⣶⣿⠿⠟⠉⢀⠉⠛⠿⣿⣿⣿⣿⣴⣾⡿⠿⠋⠁⠈⠙⠻⢿⣷⣦⣄"
-);
-say(
-"⣿⣿⣯⣅⢀⢀⢀⢀⢀⢀⢀⣀⣭⣿⣿⣿⣍⡀⢀⢀⢀⢀⢀⢀⢀⣨⣿⣿⡇"
-);
-say(
-"⣿⣿⣿⣿⣿⣶⣤⣀⣤⣶⣿⡿⠟⢹⣿⣿⣿⣿⣷⣦⣄⣠⣴⣾⡿⠿⠋⣿⡇"
-);
-say(
-"⣿⣿⣿⣿⣿⣿⣿⣿⡟⠋⠁⢀⢀⢸⣿⣿⣿⣿⣿⣿⣿⣿⠛⠉⢀⢀⢀⣿⡇"
-);
-say(
-"⣿⣿⣿⣿⣿⣿⣿⣿⡇⢀⢀⢀⢀⣸⣿⣿⣿⣿⣿⣿⣿⣿⢀⢀⢀⢀⢀⣿⡇"
-);
-say(
-"⠙⢿⣿⣿⣿⣿⣿⣿⡇⢀⣠⣴⣿⡿⠿⣿⣿⣿⣿⣿⣿⣿⢀⣀⣤⣾⣿⠟⠃"
-);
-say(
-"⢀⢀⠈⠙⠿⣿⣿⣿⣷⣿⠿⠛⠁⢀⢀⢀⠉⠻⢿⣿⣿⣿⣾⡿⠟⠉"
-);
+say("⢀⢀⢀⢀⣀⣤⣾⣿⣿⣿⣿⣿⣿⣿⣿⢀⢀⢀⣠⣴⣿⣿⣦⣄⡀");
+say("⢀⣤⣶⣿⠿⠟⠉⢀⠉⠛⠿⣿⣿⣿⣿⣴⣾⡿⠿⠋⠁⠈⠙⠻⢿⣷⣦⣄");
+say("⣿⣿⣯⣅⢀⢀⢀⢀⢀⢀⢀⣀⣭⣿⣿⣿⣍⡀⢀⢀⢀⢀⢀⢀⢀⣨⣿⣿⡇");
+say("⣿⣿⣿⣿⣿⣶⣤⣀⣤⣶⣿⡿⠟⢹⣿⣿⣿⣿⣷⣦⣄⣠⣴⣾⡿⠿⠋⣿⡇");
+say("⣿⣿⣿⣿⣿⣿⣿⣿⡟⠋⠁⢀⢀⢸⣿⣿⣿⣿⣿⣿⣿⣿⠛⠉⢀⢀⢀⣿⡇");
+say("⣿⣿⣿⣿⣿⣿⣿⣿⡇⢀⢀⢀⢀⣸⣿⣿⣿⣿⣿⣿⣿⣿⢀⢀⢀⢀⢀⣿⡇");
+say("⠙⢿⣿⣿⣿⣿⣿⣿⡇⢀⣠⣴⣿⡿⠿⣿⣿⣿⣿⣿⣿⣿⢀⣀⣤⣾⣿⠟⠃");
+say("⢀⢀⠈⠙⠿⣿⣿⣿⣷⣿⠿⠛⠁⢀⢀⢀⠉⠻⢿⣿⣿⣿⣾⡿⠟⠉");
 say("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 say("~~~~~LANraragi Installer~~~~~");
 say("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
@@ -107,8 +76,10 @@ say( "Working Directory: " . getcwd );
 say("");
 
 #Load IPC::Cmd
-install_package("IPC::Cmd");
+install_package( "IPC::Cmd",         "" );
+install_package( "Config::AutoConf", "" );
 IPC::Cmd->import('can_run');
+import Config::AutoConf;
 
 say("\r\nWill now check if all LRR software dependencies are met. \r\n");
 
@@ -116,6 +87,18 @@ say("\r\nWill now check if all LRR software dependencies are met. \r\n");
 say("Checking for Redis...");
 can_run('redis-server')
   or die 'NOT FOUND! Please install a Redis server before proceeding.';
+say("OK!");
+
+#Check for GhostScript
+say("Checking for GhostScript...");
+can_run('gs')
+  or warn 'NOT FOUND! PDF support will not work properly. Please install the "gs" tool.';
+say("OK!");
+
+#Check for libarchive
+say("Checking for libarchive...");
+Config::AutoConf->new()->check_header("archive.h")
+  or die 'NOT FOUND! Please install libarchive and ensure its headers are present.';
 say("OK!");
 
 #Check for PerlMagick
@@ -130,41 +113,30 @@ eval {
 if ($@) {
     say("NOT FOUND");
     say("Please install ImageMagick with Perl before proceeding.");
-    say(
-"Further instructions are available at https://www.imagemagick.org/script/perl-magick.php ."
-    );
+    say("Further instructions are available at https://www.imagemagick.org/script/perl-magick.php .");
     say("The ImageMagick detection command returned: $imgk -- $@");
     die;
-}
-else {
+} else {
     say( "Returned QuantumDepth: " . $imgk );
     say("OK!");
 }
 
 #Build & Install CPAN Dependencies
 if ( $back || $full ) {
-    say("Ensure you have libarchive installed or this will fail!"
-    );
     say("\r\nInstalling Perl modules... This might take a while.\r\n");
 
-    # libarchive is not provided by default on macOS, so we have to set the correct env vars
-    # to successfully compile Archive::Extract::Libarchive and Archive::Peek::Libarchive
-    my $pre = "";
-    if ($Config{"osname"} eq "darwin") {
-        say("Setting Environmental Flags for macOS");
-        $pre = "export CFLAGS=\"-I/usr/local/opt/libarchive/include\" && \\
-          export PKG_CONFIG_PATH=\"/usr/local/opt/libarchive/lib/pkgconfig\" && ";
-    } else {
-        say("Installing Linux::Inotify2 for non-macOS systems...");
-        install_package("Linux::Inotify2");
-    }
-    # provide cpanm with the correct module installation dir when using Homebrew
-    my $suff = "";
-    if ($ENV{HOMEBREW_FORMULA_PREFIX}) {
-      $suff = " -l " . $ENV{HOMEBREW_FORMULA_PREFIX} . "/libexec";
+    # Provide cpanm with the correct module installation dir when using Homebrew
+    my $cpanopt = "";
+    if ( $ENV{HOMEBREW_FORMULA_PREFIX} ) {
+        $cpanopt = " -l " . $ENV{HOMEBREW_FORMULA_PREFIX} . "/libexec";
     }
 
-    if ( system($pre . "cpanm --installdeps ./tools/. --notest" . $suff) != 0 ) {
+    if ( $Config{"osname"} ne "darwin" ) {
+        say("Installing Linux::Inotify2 for non-macOS systems...");
+        install_package( "Linux::Inotify2", $cpanopt );
+    }
+
+    if ( system( "cpanm --installdeps ./tools/. --notest" . $cpanopt ) != 0 ) {
         die "Something went wrong while installing Perl modules - Bailing out.";
     }
 }
@@ -193,10 +165,7 @@ if ( $front || $full ) {
     }
 
     #Rename the fontawesome css to something a bit more explanatory
-    copy(
-        getcwd . "/public/css/vendor/all.min.css",
-        getcwd . "/public/css/vendor/fontawesome-all.min.css"
-    );
+    copy( getcwd . "/public/css/vendor/all.min.css", getcwd . "/public/css/vendor/fontawesome-all.min.css" );
 
     for my $js (@vendor_js) {
         cp_node_module( $js, "/public/js/vendor/" );
@@ -210,15 +179,11 @@ if ( $front || $full ) {
 
 #Done!
 say("\r\nAll set! You can start LANraragi by typing the command: \r\n");
-say(
-"   ╭─────────────────────────────────────╮"
-);
+say("   ╭─────────────────────────────────────╮");
 say("   │                                     │");
 say("   │              npm start              │");
 say("   │                                     │");
-say(
-"   ╰─────────────────────────────────────╯"
-);
+say("   ╰─────────────────────────────────────╯");
 
 sub cp_node_module {
 
@@ -236,18 +201,17 @@ sub cp_node_module {
 sub install_package {
 
     my $package = $_[0];
+    my $cpanopt = $_[1];
 
     ## no critic
-    eval "require $package"
-      ; #Run-time evals are needed here to check if the package has been properly installed.
+    eval "require $package";    #Run-time evals are needed here to check if the package has been properly installed.
     ## use critic
 
     if ($@) {
-        say("$package not installed! Trying to install now using cpanm.");
-        system("cpanm $package");
+        say("$package not installed! Trying to install now using cpanm $cpanopt .");
+        system("cpanm $package $cpanopt");
         require $package;
-    }
-    else {
+    } else {
         say("$package package installed, proceeding...");
     }
 

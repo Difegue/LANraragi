@@ -1,4 +1,4 @@
-# Frequently used API functions
+# Code Examples
 
 This section contains a few bits of code for things you might want to do with Plugins.
 
@@ -67,11 +67,18 @@ use LANraragi::Utils::Archive qw(is_file_in_archive extract_file_from_archive);
 if (is_file_in_archive($file,"info.json")) {
 
         #Extract info.json
-        extract_file_from_archive($file, "info.json");
+        my $filepath = extract_file_from_archive($file, "info.json");
 
-        #Extracted files go to public/temp/plugin
-        my $filepath = "./public/temp/plugin/info.json";
+        #Do whatever you need with the extracted file
+        open( my $fh, '<:encoding(UTF-8)', $filepath )
+          or return ( error => "Could not open $filepath!" );
 
-        #Do whatever you need
+        while ( my $row = <$fh> ) {
+            #...
+        }
+
+        #Delete it
+        unlink $filepath;
 }
 ```
+

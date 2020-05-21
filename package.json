@@ -1,7 +1,7 @@
 {
   "name": "lanraragi",
-  "version": "0.6.9-EX",
-  "version_name": "Covid Cahoots",
+  "version": "0.7.0",
+  "version_name": "Cat People (Putting Out Fire)",
   "description": "holla where the chinese comics at",
   "scripts": {
     "test": "prove -l -v tests/*.t",
@@ -23,10 +23,10 @@
   },
   "homepage": "https://github.com/Difegue/LANraragi#readme",
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.7.2",
+    "@fortawesome/fontawesome-free": "^5.13.0",
     "allcollapsible": "^1.1.0",
     "awesomplete": "^1.1.5",
-    "blueimp-file-upload": "^9.28.0",
+    "blueimp-file-upload": "^10.28.0",
     "datatables": "^1.10.13",
     "inter-ui": "^3.3.2",
     "jqcloud2": "^2.0.3",

@@ -9,6 +9,9 @@ requires 'Archive::Extract::Libarchive', 0.38;
 requires 'Archive::Peek::Libarchive', 0.38;
 requires 'Digest::SHA', 6.02;
 
+# Not required by LRR itself but needs this version for Alpine support
+requires 'Crypt::Rijndael', 1.14;
+
 # Web UI
 requires 'Sort::Naturally', 1.03;
 requires 'Authen::Passphrase', 0.008;
@@ -33,7 +36,7 @@ requires 'Test::Harness', 3.42;
 requires 'Test::MockObject', 1.20200122;
 
 # Mojo stuff
-requires 'Mojolicious', 8.33;
+requires 'Mojolicious', 8.42;
 requires 'Mojolicious::Plugin::TemplateToolkit', 0.005;
 requires 'Mojolicious::Plugin::RenderFile', 0.12;
 requires 'IO::Socket::SSL', 2.067;

@@ -71,41 +71,22 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Set up Docker Buildx
-      uses: crazy-max/ghaction-docker-buildx@v1.0.5
+      uses: crazy-max/ghaction-docker-buildx@v1.5.0
       with:
-        version: latest
-    - uses: actions/cache@v1
-      with: 
-        path: /tmp/buildxcache
-        key: ${{ runner.os }}-docker-buildx-${{ hashFiles('**') }}
-        restore-keys: |
-          ${{ runner.os }}-docker-buildx-
+        buildx-version: v0.3.1
+        qemu-version: latest
     - name: Build/Push Latest Docker image and tag with Release number
       env:
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       run: |
         TAG=${GITHUB_REF:10:10}
-        echo "${DOCKER_PASSWORD}" | docker login -u ${DOCKER_USERNAME} --password-stdin
-        if [ -f /tmp/buildxcache/index.json ]; then
-          echo "Using buildx cache!"
-          docker buildx build --pull \
-            --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
-            --output "type=image,push=true" \
-            --tag difegue/lanraragi:latest \
-            --tag difegue/lanraragi:$TAG \
-            --cache-from=type=local,src=/tmp/buildxcache \
-            --cache-to=type=local,dest=/tmp/buildxcache \
-            --file ./tools/build/docker/Dockerfile .
-        else
-          docker buildx build --pull \
-            --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
-            --output "type=image,push=true" \
-            --tag difegue/lanraragi:latest \
-            --tag difegue/lanraragi:$TAG \
-            --cache-to=type=local,dest=/tmp/buildxcache \
-            --file ./tools/build/docker/Dockerfile .
-        fi
+        docker buildx build --pull \
+          --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
+          --output "type=image,push=true" \
+          --tag difegue/lanraragi:latest \
+          --tag difegue/lanraragi:$TAG \
+          --file ./tools/build/docker/Dockerfile .
     - uses: Ilshidur/action-discord@master
       env:
         DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}

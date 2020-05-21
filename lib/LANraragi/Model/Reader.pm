@@ -36,15 +36,16 @@ sub resize_image {
     if ( ( int( ( -s $imgpath ) / 1024 * 10 ) / 10 ) > $threshold ) {
         $img->Read($imgpath);
 
-        my ($origw, $origh) = $img->Get('width', 'height');
-        if ($origw > 1064) {
+        my ( $origw, $origh ) = $img->Get( 'width', 'height' );
+        if ( $origw > 1064 ) {
             $img->Resize( geometry => '1064x' );
         }
 
         # Set format to jpeg and quality
-        $img->Set( quality => $quality, magick => "jpg");
+        $img->Set( quality => $quality, magick => "jpg" );
         $img->Write($imgpath);
     }
+    undef $img;
 }
 
 #build_reader_JSON(mojo,id,forceReload,refreshThumbnail)
@@ -82,16 +83,13 @@ sub build_reader_JSON {
     unless ( -e $path ) {
 
         my $outpath = "";
-        eval {
-            $outpath = extract_archive( $path, $zipfile );
-        };
+        eval { $outpath = extract_archive( $path, $zipfile ); };
 
         if ($@) {
             my $log = $@;
             $self->LRR_LOGGER->error("Error extracting archive : $log");
             die $log;
-        }
-        else {
+        } else {
             $self->LRR_LOGGER->debug("Extraction of archive to $outpath done");
             $path = $outpath;
         }
@@ -102,19 +100,23 @@ sub build_reader_JSON {
     #treat them and jam them into an array.
     my @images;
     eval {
-        find(sub {
+        find(
+            sub {
                 # Is it an image?
                 if ( is_image($_) ) {
                     push @images, $File::Find::name;
                 }
-            }, $path);
+            },
+            $path
+        );
     };
 
-    # TODO: @images = nsort(@images); would theorically be better, but Sort::Naturally's nsort puts letters before numbers, which isn't what we want at all for pages in an archive.
+    # TODO: @images = nsort(@images); would theorically be better, but Sort::Naturally's nsort puts letters before numbers,
+    # which isn't what we want at all for pages in an archive.
     # To investigate further, perhaps with custom sorting algorithms?
     @images = sort { &expand($a) cmp &expand($b) } @images;
 
-    $self->LRR_LOGGER->debug("Files found in archive: \n " . Dumper @images);
+    $self->LRR_LOGGER->debug( "Files found in archive: \n " . Dumper @images );
 
     #Convert page 1 into a thumbnail for the main reader index
     my $thumbname = $dirname . "/thumb/" . $id . ".jpg";
@@ -124,7 +126,7 @@ sub build_reader_JSON {
         $redis->hset( $id, "thumbhash", encode_utf8($shasum) );
 
         $self->LRR_LOGGER->debug("Thumbnail not found at $thumbname! (force-thumb flag = $thumbreload)");
-        $self->LRR_LOGGER->debug("Regenerating from " . $images[0]);
+        $self->LRR_LOGGER->debug( "Regenerating from " . $images[0] );
         mkdir $dirname . "/thumb";
 
         generate_thumbnail( $images[0], $thumbname );
@@ -135,6 +137,10 @@ sub build_reader_JSON {
 
     foreach my $imgpath (@images) {
 
+        # Strip everything before the temporary folder/id folder as to only keep the relative path to it
+        # i.e "/c/bla/lrr/temp/id/file.jpg" becomes "file.jpg"
+        $imgpath =~ s!$path/!!g;
+
         # We need to sanitize the image's path, in case the folder contains illegal characters,
         # but uri_escape would also nuke the / needed for navigation. Let's solve this with a quick regex search&replace.
         # First, we encode all HTML characters...
@@ -142,10 +148,6 @@ sub build_reader_JSON {
 
         # Then we bring the slashes back.
         $imgpath =~ s!%2F!/!g;
-
-        # Strip everything before the temporary folder/id folder as to only keep the relative path to it
-        # i.e "/c/bla/lrr/temp/id/file.jpg" becomes "file.jpg"
-        $imgpath =~ s!$path/!!g;
 
         # Bundle this path into an API call which will be used by the browser
         push @images_browser, "./api/page?id=$id&path=$imgpath";

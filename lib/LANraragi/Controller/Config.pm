@@ -3,7 +3,7 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use Encode;
 
-use LANraragi::Utils::Generic    qw(generate_themes_selector generate_themes_header remove_spaces remove_newlines);
+use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header remove_spaces remove_newlines);
 use LANraragi::Utils::TempFolder qw(get_tempsize);
 
 use Authen::Passphrase::BlowfishCrypt;
@@ -23,6 +23,7 @@ sub index {
         pagesize      => $self->LRR_CONF->get_pagesize,
         enablepass    => $self->LRR_CONF->enable_pass,
         password      => $self->LRR_CONF->get_password,
+        blackliston   => $self->LRR_CONF->enable_blacklst,
         blacklist     => $self->LRR_CONF->get_tagblacklist,
         title         => $self->LRR_CONF->get_htmltitle,
         tempmaxsize   => $self->LRR_CONF->get_tempmaxsize,
@@ -31,11 +32,6 @@ sub index {
         nofunmode     => $self->LRR_CONF->enable_nofun,
         apikey        => $self->LRR_CONF->get_apikey,
         tagregex      => $self->LRR_CONF->get_tagregex,
-        fav1          => $self->LRR_CONF->get_favtag(1),
-        fav2          => $self->LRR_CONF->get_favtag(2),
-        fav3          => $self->LRR_CONF->get_favtag(3),
-        fav4          => $self->LRR_CONF->get_favtag(4),
-        fav5          => $self->LRR_CONF->get_favtag(5),
         enableresize  => $self->LRR_CONF->enable_resize,
         sizethreshold => $self->LRR_CONF->get_threshold,
         readerquality => $self->LRR_CONF->get_readquality,
@@ -62,22 +58,18 @@ sub save_config {
         blacklist     => scalar $self->req->param('blacklist'),
         tempmaxsize   => scalar $self->req->param('tempmaxsize'),
         apikey        => scalar $self->req->param('apikey'),
-        fav1          => scalar $self->req->param('fav1'),
-        fav2          => scalar $self->req->param('fav2'),
-        fav3          => scalar $self->req->param('fav3'),
-        fav4          => scalar $self->req->param('fav4'),
-        fav5          => scalar $self->req->param('fav5'),
         readerquality => scalar $self->req->param('readerquality'),
         sizethreshold => scalar $self->req->param('sizethreshold'),
 
         #for checkboxes,
         #we check if the parameter exists in the POST to return either 1 or 0.
-        enablepass    => ( scalar $self->req->param('enablepass')   ? '1' : '0' ),
-        autotag       => ( scalar $self->req->param('autotag')      ? '1' : '0' ),
-        devmode       => ( scalar $self->req->param('devmode')      ? '1' : '0' ),
-        enableresize  => ( scalar $self->req->param('enableresize') ? '1' : '0' ),
-        nofunmode     => ( scalar $self->req->param('nofunmode')    ? '1' : '0' ),
-        tagregex      => ( scalar $self->req->param('tagregex')     ? '1' : '0' )
+        enablepass   => ( scalar $self->req->param('enablepass')   ? '1' : '0' ),
+        autotag      => ( scalar $self->req->param('autotag')      ? '1' : '0' ),
+        devmode      => ( scalar $self->req->param('devmode')      ? '1' : '0' ),
+        enableresize => ( scalar $self->req->param('enableresize') ? '1' : '0' ),
+        blackliston  => ( scalar $self->req->param('blackliston')  ? '1' : '0' ),
+        nofunmode    => ( scalar $self->req->param('nofunmode')    ? '1' : '0' ),
+        tagregex     => ( scalar $self->req->param('tagregex')     ? '1' : '0' )
     );
 
     #only add newpassword field as password if enablepass = 1
@@ -98,17 +90,16 @@ sub save_config {
         }
     }
 
-    #Verifications.
-    if ( $self->req->param('newpassword') ne $self->req->param('newpassword2') )
-    {    #Password check
+    #Password check
+    if ( $self->req->param('newpassword') ne $self->req->param('newpassword2') ) {
         $success   = 0;
         $errormess = "Mismatched passwords.";
     }
 
     # Numbers only in fields w. numbers
-    if ( $confhash{pagesize} =~ /\D+/ || 
-         $confhash{readerquality} =~ /\D+/ || 
-         $confhash{sizethreshold} =~ /\D+/) {    
+    if (   $confhash{pagesize} =~ /\D+/
+        || $confhash{readerquality} =~ /\D+/
+        || $confhash{sizethreshold} =~ /\D+/ ) {
         $success   = 0;
         $errormess = "Invalid characters.";
     }
@@ -116,17 +107,16 @@ sub save_config {
     #Did all the checks pass ?
     if ($success) {
 
-    # Clean up the user's inputs for non-toggle options and encode for redis insertion
+        # Clean up the user's inputs for non-toggle options and encode for redis insertion
         foreach my $key ( keys %confhash ) {
-            remove_spaces  ( $confhash{$key} );
+            remove_spaces( $confhash{$key} );
             remove_newlines( $confhash{$key} );
-            $confhash{$key} = encode_utf8 ( $confhash{$key} ); 
-            $self->LRR_LOGGER->debug("Saving $key with value ".$confhash{$key});
+            $confhash{$key} = encode_utf8( $confhash{$key} );
+            $self->LRR_LOGGER->debug( "Saving $key with value " . $confhash{$key} );
         }
 
-#for all keys of the hash, add them to the redis config hash with the matching keys.
-        $redis->hset( "LRR_CONFIG", $_, $confhash{$_}, sub { } )
-          for keys %confhash;
+        #for all keys of the hash, add them to the redis config hash with the matching keys.
+        $redis->hset( "LRR_CONFIG", $_, $confhash{$_}, sub { } ) for keys %confhash;
         $redis->wait_all_responses;
     }
 

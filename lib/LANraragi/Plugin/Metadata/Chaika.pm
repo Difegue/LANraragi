@@ -21,10 +21,9 @@ sub plugin_info {
         author      => "Difegue",
         version     => "2.1",
         description => "Searches chaika.moe for tags matching your archive.",
-        icon        => "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA\nB3RJTUUH4wYCFQocjU4r+QAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUH\nAAAEZElEQVQ4y42T3WtTdxzGn/M7J+fk5SRpTk7TxMZkXU84tTbVNrUT3YxO7HA4pdtQZDe7cgx2\ns8vBRvEPsOwFYTDYGJUpbDI2wV04cGXCGFLonIu1L2ptmtrmxeb1JDkvv121ZKVze66f74eH7/f5\nMmjRwMCAwrt4/9KDpflMJpPHvyiR2DPcJklJ3TRDDa0xk36cvrm8vDwHAAwAqKrqjjwXecPG205w\nHBuqa9rk77/d/qJYLD7cCht5deQIIczbgiAEKLVAKXWUiqVV06Tf35q8dYVJJBJem2A7Kwi2nQzD\nZig1CG93+PO5/KN6tf5NKpVqbsBUVVVFUUxwHJc1TXNBoxojS7IbhrnLMMx9pVJlBqFQKBKPxwcB\nkJYgjKIo3QCE1nSKoghbfJuKRqN2RVXexMaQzWaLezyeEUEQDjscjk78PxFFUYRkMsltJgGA3t7e\nyMLCwie6rr8iCILVbDbvMgwzYRjGxe0o4XC4s1AoHPP5fMP5/NNOyzLKAO6Ew+HrDADBbre/Ryk9\nnzx81FXJNlEpVpF+OqtpWu2MpmnXWmH9/f2umZmZi4cOHXnLbILLzOchhz1YerJAs9m1GwRAg2GY\nh7GYah488BJYzYW+2BD61AFBlmX/1nSNRqN9//792ujoaIPVRMjOKHoie3DytVGmp2fXCAEAjuMm\nu7u7Umosho6gjL/u/QHeEgvJZHJ2K/D+/fuL4+PjXyvPd5ldkShy1UXcmb4DnjgQj/fd5gDA6/XS\nYCAwTwh9oT3QzrS1+VDVi+vd3Tsy26yQVoFF3dAXJVmK96p9EJ0iLNOwKKU3CQCk0+lSOpP5WLDz\nF9Q9kZqyO0SloOs6gMfbHSU5NLRiUOuax2/HyZPHEOsLw2SbP83eu/fLxrkNp9P554XxCzVa16MC\n7+BPnTk9cfmH74KJE8nmga7Xy5JkZ8VKifGIHpoBb1VX8hNTd3/t/7lQ3OeXfFPvf/jBRw8ezD/a\n7M/aWq91cGgnJaZ2VcgSdnV1XRNNd3vAoBVVYusmnEQS65hfgSG6c+zy3Kre7nF/KrukcMW0Zg8O\nD08DoJutDxxOEb5IPUymwrq8ft1gLKfkFojkkRxemERCAQUACPFWRazYLJcrFGwQhyufbQQ7rFpy\nLMkCwGZC34qPIuwp+XPOjBFwazQ/txrdFS2GGS/Xuj+pUKLGk1Kjvlded3s72lyGW+PLbGVcmrAA\ngN0wTk1NWYODg9XOKltGtpazi5GigzroUnHN5nUHG1ylRsG7rDXHmnEpu4CeEtEKkqNc6QqlLc/M\n8uT5lLH5eq0aGxsju1O7GQB498a5s/0x9dRALPaQEDZnYwnhWJtMCCNrjeb0UP34Z6e/PW22zjPP\n+vwXBwfPvbw38XnXjk7GsiwKAIQQhjAMMrlsam45d+zLH6/8o6vkWcBcrXbVKQhf6bpucCwLjmUB\nSmmhXC419eblrbD/TAgAkUjE987xE0c7ZDmk66ajUCnq+cL63fErl25s5/8baQPaWLhx6goAAAAA\nSUVORK5CYII=",
-        parameters  =>  [
-            {type => "bool", desc => "Save archive title"}
-        ],
+        icon =>
+          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA\nB3RJTUUH4wYCFQocjU4r+QAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUH\nAAAEZElEQVQ4y42T3WtTdxzGn/M7J+fk5SRpTk7TxMZkXU84tTbVNrUT3YxO7HA4pdtQZDe7cgx2\ns8vBRvEPsOwFYTDYGJUpbDI2wV04cGXCGFLonIu1L2ptmtrmxeb1JDkvv121ZKVze66f74eH7/f5\nMmjRwMCAwrt4/9KDpflMJpPHvyiR2DPcJklJ3TRDDa0xk36cvrm8vDwHAAwAqKrqjjwXecPG205w\nHBuqa9rk77/d/qJYLD7cCht5deQIIczbgiAEKLVAKXWUiqVV06Tf35q8dYVJJBJem2A7Kwi2nQzD\nZig1CG93+PO5/KN6tf5NKpVqbsBUVVVFUUxwHJc1TXNBoxojS7IbhrnLMMx9pVJlBqFQKBKPxwcB\nkJYgjKIo3QCE1nSKoghbfJuKRqN2RVXexMaQzWaLezyeEUEQDjscjk78PxFFUYRkMsltJgGA3t7e\nyMLCwie6rr8iCILVbDbvMgwzYRjGxe0o4XC4s1AoHPP5fMP5/NNOyzLKAO6Ew+HrDADBbre/Ryk9\nnzx81FXJNlEpVpF+OqtpWu2MpmnXWmH9/f2umZmZi4cOHXnLbILLzOchhz1YerJAs9m1GwRAg2GY\nh7GYah488BJYzYW+2BD61AFBlmX/1nSNRqN9//792ujoaIPVRMjOKHoie3DytVGmp2fXCAEAjuMm\nu7u7Umosho6gjL/u/QHeEgvJZHJ2K/D+/fuL4+PjXyvPd5ldkShy1UXcmb4DnjgQj/fd5gDA6/XS\nYCAwTwh9oT3QzrS1+VDVi+vd3Tsy26yQVoFF3dAXJVmK96p9EJ0iLNOwKKU3CQCk0+lSOpP5WLDz\nF9Q9kZqyO0SloOs6gMfbHSU5NLRiUOuax2/HyZPHEOsLw2SbP83eu/fLxrkNp9P554XxCzVa16MC\n7+BPnTk9cfmH74KJE8nmga7Xy5JkZ8VKifGIHpoBb1VX8hNTd3/t/7lQ3OeXfFPvf/jBRw8ezD/a\n7M/aWq91cGgnJaZ2VcgSdnV1XRNNd3vAoBVVYusmnEQS65hfgSG6c+zy3Kre7nF/KrukcMW0Zg8O\nD08DoJutDxxOEb5IPUymwrq8ft1gLKfkFojkkRxemERCAQUACPFWRazYLJcrFGwQhyufbQQ7rFpy\nLMkCwGZC34qPIuwp+XPOjBFwazQ/txrdFS2GGS/Xuj+pUKLGk1Kjvlded3s72lyGW+PLbGVcmrAA\ngN0wTk1NWYODg9XOKltGtpazi5GigzroUnHN5nUHG1ylRsG7rDXHmnEpu4CeEtEKkqNc6QqlLc/M\n8uT5lLH5eq0aGxsju1O7GQB498a5s/0x9dRALPaQEDZnYwnhWJtMCCNrjeb0UP34Z6e/PW22zjPP\n+vwXBwfPvbw38XnXjk7GsiwKAIQQhjAMMrlsam45d+zLH6/8o6vkWcBcrXbVKQhf6bpucCwLjmUB\nSmmhXC419eblrbD/TAgAkUjE987xE0c7ZDmk66ajUCnq+cL63fErl25s5/8baQPaWLhx6goAAAAA\nSUVORK5CYII=",
+        parameters  => [ { type => "bool", desc => "Save archive title" } ],
         oneshot_arg => "Chaika Gallery or Archive URL (Will attach matching tags to your archive)"
     );
 
@@ -34,40 +33,36 @@ sub plugin_info {
 sub get_tags {
 
     shift;
-    my $lrr_info = shift; # Global info hash 
-    my ($savetitle) = @_; # Plugin parameters
+    my $lrr_info = shift;    # Global info hash
+    my ($savetitle) = @_;    # Plugin parameters
 
-    my $logger = get_logger( "Chaika", "plugins" );
-    my $newtags = "";
+    my $logger   = get_logger( "Chaika", "plugins" );
+    my $newtags  = "";
     my $newtitle = "";
 
     # Parse the given link to see if we can extract type and ID
     my $oneshotarg = $lrr_info->{oneshot_param};
-    if ( $oneshotarg =~
-        /https?:\/\/panda\.chaika\.moe\/(gallery|archive)\/([0-9]*)\/?.*/ )
-    {
-        ($newtags, $newtitle) = tags_from_chaika_id( $1, $2 );
-    }
-    else {
+    if ( $oneshotarg =~ /https?:\/\/panda\.chaika\.moe\/(gallery|archive)\/([0-9]*)\/?.*/ ) {
+        ( $newtags, $newtitle ) = tags_from_chaika_id( $1, $2 );
+    } else {
 
         # Try SHA-1 reverse search first
-        ($newtags, $newtitle) = tags_from_sha1($lrr_info->{thumbnail_hash});
+        ( $newtags, $newtitle ) = tags_from_sha1( $lrr_info->{thumbnail_hash} );
 
         # Try search if it fails
         if ( $newtags eq "" ) {
-            ($newtags, $newtitle) = search_for_archive( $lrr_info->{archive_title}, $lrr_info->{existing_tags} );
+            ( $newtags, $newtitle ) = search_for_archive( $lrr_info->{archive_title}, $lrr_info->{existing_tags} );
         }
     }
 
     if ( $newtags eq "" ) {
         $logger->info("No matching Chaika Archive Found!");
         return ( error => "No matching Chaika Archive Found!" );
-    }
-    else {
+    } else {
+
         #Return a hash containing the new metadata
-        if ($savetitle && $newtags ne "") 
-             { return ( tags => $newtags, title => $newtitle ); }
-        else { return ( tags => $newtags ); }
+        if ( $savetitle && $newtags ne "" ) { return ( tags => $newtags, title => $newtitle ); }
+        else                                { return ( tags => $newtags ); }
     }
 
 }
@@ -99,15 +94,15 @@ sub search_for_archive {
     }
 
     $logger->debug("Calling $URL");
-    my $ua      = Mojo::UserAgent->new;
+    my $ua  = Mojo::UserAgent->new;
     my $res = $ua->get($URL)->result;
 
     my $textrep = $res->body;
     $logger->debug("Chaika API returned this JSON: $textrep");
 
-    my ($chaitags, $chaititle) = parse_chaika_json( $res->json->{"galleries"}->[0] );
+    my ( $chaitags, $chaititle ) = parse_chaika_json( $res->json->{"galleries"}->[0] );
     $logger->info("Sending the following tags to LRR: $chaitags");
-    return ($chaitags, $chaititle);
+    return ( $chaitags, $chaititle );
 }
 
 # Uses the jsearch API to get the best json for a file.
@@ -124,10 +119,10 @@ sub tags_from_chaika_id {
     my $textrep = $res->body;
     $logger->debug("Chaika API returned this JSON: $textrep");
 
-    my ($chaitags, $chaititle) = parse_chaika_json( $res->json );
+    my ( $chaitags, $chaititle ) = parse_chaika_json( $res->json );
     $logger->info("Sending the following tags to LRR: $chaitags");
 
-    return ($chaitags, $chaititle);
+    return ( $chaitags, $chaititle );
 
 }
 
@@ -142,18 +137,18 @@ sub tags_from_sha1 {
     # The jsearch API immediately returns a JSON.
     # Said JSON is an array containing multiple archive objects.
     # We just take the first one.
-    my $ua       = Mojo::UserAgent->new;
-    my $res      = $ua->get($URL)->result;
-    my ($chaitags, $chaititle) = parse_chaika_json( $res->json->[0] );
+    my $ua  = Mojo::UserAgent->new;
+    my $res = $ua->get($URL)->result;
+    my ( $chaitags, $chaititle ) = parse_chaika_json( $res->json->[0] );
 
     $logger->info("SHA-1 reverse search found the following tags: $chaitags");
-    return ($chaitags, $chaititle);
+    return ( $chaitags, $chaititle );
 }
 
 # Parses the JSON obtained from the Chaika API to get the tags.
 sub parse_chaika_json {
     my $logger = get_logger( "Chaika", "plugins" );
-    my $json = $_[0];
+    my $json   = $_[0];
 
     # If the json contains a gallery id, we switch to it.
     # Gallery IDs often have more metadata stored.
@@ -168,12 +163,12 @@ sub parse_chaika_json {
 
         # Switch to gallery tags if there are any.
         # Occasionally archives won't have a matching gallery despite the ID being there. (huh)
-        if ($res->json->{"tags"}) {
+        if ( $res->json->{"tags"} ) {
             $json = $res->json;
         } else {
-            $logger->debug("Gallery doesn't actually have tags! Switching back to Archive.")
+            $logger->debug("Gallery doesn't actually have tags! Switching back to Archive.");
         }
-            
+
     }
 
     my $tags = $json->{"tags"};
@@ -187,7 +182,7 @@ sub parse_chaika_json {
         $res .= $tag;
     }
 
-    return ($res, $json->{"title"});
+    return ( $res, $json->{"title"} );
 
 }
 

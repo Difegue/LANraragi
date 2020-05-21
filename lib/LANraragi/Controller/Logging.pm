@@ -23,36 +23,34 @@ sub index {
 
 sub print_lines_from_file {
 
-    my ($mojo, $file) = @_;
+    my ( $mojo, $file ) = @_;
 
     # Number of lines to read
-    my $lines  = 100;     
+    my $lines  = 100;
     my $logdir = get_logdir();
 
     if ( $mojo->req->param('lines') ) {
         $lines = $mojo->req->param('lines');
     }
 
-    $mojo->render(
-        text => get_lines_from_file( $lines, $logdir."/$file.log" ) 
-    );
+    $mojo->render( text => get_lines_from_file( $lines, $logdir . "/$file.log" ) );
 
 }
 
 sub print_general {
-    print_lines_from_file(shift, "lanraragi");
+    print_lines_from_file( shift, "lanraragi" );
 }
 
 sub print_shinobu {
-    print_lines_from_file(shift, "shinobu");
+    print_lines_from_file( shift, "shinobu" );
 }
 
 sub print_plugins {
-    print_lines_from_file(shift, "plugins");
+    print_lines_from_file( shift, "plugins" );
 }
 
 sub print_redis {
-    print_lines_from_file(shift, "redis");
+    print_lines_from_file( shift, "redis" );
 }
 
 sub print_mojo {
@@ -61,7 +59,7 @@ sub print_mojo {
 
     #Depending on the mode, look for development or production.log
     my $mode = $self->app->mode;
-    print_lines_from_file($self, $mode);
+    print_lines_from_file( $self, $mode );
 }
 
 1;

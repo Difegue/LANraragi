@@ -25,10 +25,9 @@ sub plugin_info {
         author      => "Difegue",
         version     => "1.6",
         description => "Searches nHentai for tags matching your archive.",
-        icon        => "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAIAAAAC64paAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA\nB3RJTUUH4wYCFA8s1yKFJwAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUH\nAAACL0lEQVQ4y6XTz0tUURQH8O+59773nLFcaGWTk4UUVCBFiJs27VxEQRH0AyRo4x8Q/Qtt2rhr\nU6soaCG0KYKSwIhMa9Ah+yEhZM/5oZMG88N59717T4sxM8eZCM/ycD6Xwznn0pWhG34mh/+PA8mk\n8jO5heziP0sFYwfgMDFQJg4IUjmquSFGG+OIlb1G9li5kykgTgvzSoUCaIYlo8/Igcjpj5wOkARp\n8AupP0uzJLijCY4zzoXOxdBLshAgABr8VOp7bpAXDEI7IBrhdksnjNr3WzI4LaIRV9fk2iAaYV/y\nA1dPiYjBAALgpQxnhV2XzTCAGWGeq7ACBvCdzKQyTH+voAm2hGlpcmQt2Bc2K+ymAhWPxTzPDQLt\nOKo1FiNBQaArq9WNRQwEgKl7XQ1duzSRSn/88vX0qf7DPQddx1nI5UfHxt+m0sLYPiP3shRAG8MD\nok1XEEXR/EI2ly94nrNYWG6Nx0/2Hp2b94dv34mlZge1e4hVCJ4jc6tl9ZP803n3/i4lpdyzq2N0\n7M3DkSeF5ZVYS8v1qxcGz5+5eey4nPDbmGdE9FpGeWErVNe2tTabX3r0+Nk3PwOgXFkdfz99+exA\nMtFZITEt9F23mpLG0hYTVQCKpfKPlZ/rqWKpYoAPcTmpginW76QBbb0OBaBaDdjaDbNlJmQE3/d0\nMYoaybU9126oPkrEhpr+U2wjtoVVGBowkslEsVSupRKdu0Mduq7q7kqExjSS3V2dvwDLavx0eczM\neAAAAABJRU5ErkJggg==",
-        parameters  => [
-            {type => "bool", desc => "Save archive title"}
-        ],
+        icon =>
+          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAIAAAAC64paAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA\nB3RJTUUH4wYCFA8s1yKFJwAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUH\nAAACL0lEQVQ4y6XTz0tUURQH8O+59773nLFcaGWTk4UUVCBFiJs27VxEQRH0AyRo4x8Q/Qtt2rhr\nU6soaCG0KYKSwIhMa9Ah+yEhZM/5oZMG88N59717T4sxM8eZCM/ycD6Xwznn0pWhG34mh/+PA8mk\n8jO5heziP0sFYwfgMDFQJg4IUjmquSFGG+OIlb1G9li5kykgTgvzSoUCaIYlo8/Igcjpj5wOkARp\n8AupP0uzJLijCY4zzoXOxdBLshAgABr8VOp7bpAXDEI7IBrhdksnjNr3WzI4LaIRV9fk2iAaYV/y\nA1dPiYjBAALgpQxnhV2XzTCAGWGeq7ACBvCdzKQyTH+voAm2hGlpcmQt2Bc2K+ymAhWPxTzPDQLt\nOKo1FiNBQaArq9WNRQwEgKl7XQ1duzSRSn/88vX0qf7DPQddx1nI5UfHxt+m0sLYPiP3shRAG8MD\nok1XEEXR/EI2ly94nrNYWG6Nx0/2Hp2b94dv34mlZge1e4hVCJ4jc6tl9ZP803n3/i4lpdyzq2N0\n7M3DkSeF5ZVYS8v1qxcGz5+5eey4nPDbmGdE9FpGeWErVNe2tTabX3r0+Nk3PwOgXFkdfz99+exA\nMtFZITEt9F23mpLG0hYTVQCKpfKPlZ/rqWKpYoAPcTmpginW76QBbb0OBaBaDdjaDbNlJmQE3/d0\nMYoaybU9126oPkrEhpr+U2wjtoVVGBowkslEsVSupRKdu0Mduq7q7kqExjSS3V2dvwDLavx0eczM\neAAAAABJRU5ErkJggg==",
+        parameters  => [ { type => "bool", desc => "Save archive title" } ],
         oneshot_arg => "nHentai Gallery URL (Will attach tags matching this exact gallery to your archive)"
     );
 
@@ -38,8 +37,8 @@ sub plugin_info {
 sub get_tags {
 
     shift;
-    my $lrr_info = shift; # Global info hash
-    my ($savetitle) = @_; # Plugin parameters
+    my $lrr_info = shift;    # Global info hash
+    my ($savetitle) = @_;    # Plugin parameters
 
     my $logger = get_logger( "nHentai", "plugins" );
 
@@ -49,17 +48,16 @@ sub get_tags {
     # Quick regex to get the nh gallery id from the provided url.
     if ( $lrr_info->{oneshot_param} =~ /.*\/g\/([0-9]*)\/.*/ ) {
         $galleryID = $1;
-    }
-    else {
+    } else {
+
         #Get Gallery ID by hand if the user didn't specify a URL
-        $galleryID = get_gallery_id_from_title($lrr_info->{archive_title});
+        $galleryID = get_gallery_id_from_title( $lrr_info->{archive_title} );
     }
 
     # Did we detect a nHentai gallery?
     if ( defined $galleryID ) {
         $logger->debug("Detected nHentai gallery id is $galleryID");
-    }
-    else {
+    } else {
         $logger->info("No matching nHentai Gallery Found!");
         return ( error => "No matching nHentai Gallery Found!" );
     }
@@ -71,12 +69,11 @@ sub get_tags {
         return ( error => "No matching nHentai Gallery Found!" );
     }
 
-    my ($newtags, $newtitle) = &get_tags_from_NH($galleryID);
+    my ( $newtags, $newtitle ) = &get_tags_from_NH($galleryID);
 
     #Return a hash containing the new metadata - it will be integrated in LRR.
-    if ($savetitle && $newtags ne "") 
-         { return ( tags => $newtags, title => $newtitle ); }
-    else { return ( tags => $newtags ); }
+    if ( $savetitle && $newtags ne "" ) { return ( tags => $newtags, title => $newtitle ); }
+    else                                { return ( tags => $newtags ); }
 }
 
 ######
@@ -87,14 +84,13 @@ sub get_tags {
 #Uses the website's search to find a gallery and returns its gallery ID.
 sub get_gallery_id_from_title {
 
-    my $title = $_[0];
+    my $title  = $_[0];
     my $logger = get_logger( "nHentai", "plugins" );
 
     #Strip away hyphens and apostrophes as they apparently break search
     $title =~ s/-|'/ /g;
 
-    my $URL =
-      "https://nhentai.net/search/?q=" . uri_escape_utf8($title);
+    my $URL = "https://nhentai.net/search/?q=" . uri_escape_utf8($title);
 
     $logger->debug("Using URL $URL to search on nH.");
     my $ua = Mojo::UserAgent->new;
@@ -105,7 +101,7 @@ sub get_gallery_id_from_title {
     my $dom = Mojo::DOM->new( $res->body );
 
     # Get the first gallery url of the search results
-    my $gURL = ($dom->at('.cover')) ? $dom->at('.cover')->attr('href'): "";
+    my $gURL = ( $dom->at('.cover') ) ? $dom->at('.cover')->attr('href') : "";
 
     my $gallery = "";
     if ( $gURL =~ /\/g\/(\d*)\//gm ) {
@@ -159,7 +155,7 @@ sub get_tags_from_NH {
     $logger->info("Sending the following tags to LRR: $returned");
 
     # Use NH's "pretty" names (romaji titles without extraneous data we already have like (Event)[Artist], etc)
-    return ($returned, $json->{"title"}->{"pretty"});
+    return ( $returned, $json->{"title"}->{"pretty"} );
 
 }
 

@@ -12,16 +12,17 @@ sub plugin_info {
 
     return (
         #Standard metadata
-        name        => "E-Hentai",
-        type        => "login",
-        namespace   => "ehlogin",
-        author      => "Difegue",
-        version     => "2.2",
-        description => "Handles login to E-H. If you have an account that can access fjorded content or exhentai, adding the credentials here will make more archives available for parsing.",
-        parameters  => [
-            {type => "int",    desc =>  "ipb_member_id cookie"},
-            {type => "string", desc =>  "ipb_pass_hash cookie"},
-            {type => "string", desc =>  "star cookie (optional, if present you can view fjorded content without exhentai)"}
+        name      => "E-Hentai",
+        type      => "login",
+        namespace => "ehlogin",
+        author    => "Difegue",
+        version   => "2.2",
+        description =>
+          "Handles login to E-H. If you have an account that can access fjorded content or exhentai, adding the credentials here will make more archives available for parsing.",
+        parameters => [
+            { type => "int",    desc => "ipb_member_id cookie" },
+            { type => "string", desc => "ipb_pass_hash cookie" },
+            { type => "string", desc => "star cookie (optional, if present you can view fjorded content without exhentai)" }
         ]
     );
 
@@ -33,8 +34,8 @@ sub do_login {
 
     # Login plugins only receive the parameters entered by the user.
     shift;
-    my ( $ipb_member_id, $ipb_pass_hash, $star) = @_;
-    return get_user_agent($ipb_member_id, $ipb_pass_hash, $star);
+    my ( $ipb_member_id, $ipb_pass_hash, $star ) = @_;
+    return get_user_agent( $ipb_member_id, $ipb_pass_hash, $star );
 }
 
 # get_user_agent(ipb cookies)
@@ -42,13 +43,13 @@ sub do_login {
 # Returns the UA object created.
 sub get_user_agent {
 
-    my ($ipb_member_id, $ipb_pass_hash, $star) = @_;
+    my ( $ipb_member_id, $ipb_pass_hash, $star ) = @_;
 
     my $logger = get_logger( "E-Hentai Login", "plugins" );
-    my $ua = Mojo::UserAgent->new;
+    my $ua     = Mojo::UserAgent->new;
 
-    if ($ipb_member_id ne "" && $ipb_pass_hash ne "") {
-        $logger->info( "Cookies provided ($ipb_member_id $ipb_pass_hash $star)!");
+    if ( $ipb_member_id ne "" && $ipb_pass_hash ne "" ) {
+        $logger->info("Cookies provided ($ipb_member_id $ipb_pass_hash $star)!");
 
         #Setup the needed cookies with both domains
         #They should translate to exhentai cookies with the igneous value generated
@@ -115,7 +116,7 @@ sub get_user_agent {
             )
         );
     } else {
-        $logger->info( "No cookies provided, returning blank UserAgent.");
+        $logger->info("No cookies provided, returning blank UserAgent.");
     }
 
     return $ua;

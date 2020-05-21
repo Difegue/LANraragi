@@ -46,7 +46,7 @@
 		<a href="./config">Settings</a>
 		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
-		<a href="./backup">Database Backup/Restore</a>
+		<a href="./config/categories">Modify Categories</a>
 		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
 		<a href="./stats">Statistics</a>
@@ -67,26 +67,17 @@
 		<h1 class='ih'>[% motd %]</h1>
 		<div id='toppane'>
 			<div class='idi'>
-
-				[% IF favtags && favtags.size %]
-				<div>
-					[% FOREACH tag IN favtags %]
-					<div style="display:inline-block">
-						<input class='favtag' id='[% tag %]' type='hidden' />
-						<input class='favtag-btn' type='button' value='[% tag %]' onclick='toggleFav(this)'
-							title='Click here to instantly search for this tag!' />
-					</div>
-					[% END %]
+				<div id="category-container">
+					<!-- Categories go here -->
 				</div>
-				[% END %]
 				<input id='untaggedbtn' class='favtag-btn' type='button' onclick='toggleFilter(this)'
-					value='Untagged archives only'/>
+					value='Untagged archives only' />
 				<input id='inboxbtn' class='favtag-btn' type='button' onclick='toggleFilter(this)'
-					value='New archives only'/>
-				<br/>
-				<input type='text' id='srch' class='search stdinput' size='90' style='width:100%' 
+					value='New archives only' />
+				<br />
+				<input type='text' id='srch' class='search stdinput' size='90' style='width:100%'
 					placeholder='Search Title, Artist, Series, Language or Tags' />
-       			<input id='subsrch' class='searchbtn stdbtn' type='button' value='Apply Filter' />
+				<input id='subsrch' class='searchbtn stdbtn' type='button' value='Apply Filter' />
 				<input id='clrsrch' class='searchbtn stdbtn' type='button' value='Clear Filter' />
 			</div>
 
@@ -163,18 +154,18 @@
 
 		// Initialize context menu
 		$.contextMenu({
-			selector: '.id1,.image-tooltip', 
-			callback: function(key, options) {
+			selector: '.id1,.image-tooltip',
+			callback: function (key, options) {
 				handleContextMenu(key, $(this).attr("id"));
 			},
 			items: {
 				[% IF userlogged %]
-				"edit": {name: "Edit Metadata", icon: "fas fa-pencil-alt"},
-				"delete": {name: "Delete", icon: "fas fa-trash-alt"},		
-				"sep1": "---------",		
+				"edit": { name: "Edit Metadata", icon: "fas fa-pencil-alt" },
+				"delete": { name: "Delete", icon: "fas fa-trash-alt" },
+				"sep1": "---------",
 				[% END %]
-				"read": {name: "Read", icon: "fas fa-book"},
-				"download": {name: "Download", icon: "fas fa-save"}
+				"read": { name: "Read", icon: "fas fa-book" },
+			"download": { name: "Download", icon: "fas fa-save" }
 			}
 		});
 
@@ -183,16 +174,20 @@
 			localStorage.sawContextMenuToast = true;
 
 			$.toast({
-			heading: 'Welcome to LANraragi [% version %]!',
-			text: "If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!",
-			hideAfter: false,
-			position: 'top-left',
-			icon: 'info'
+				heading: 'Welcome to LANraragi [% version %]!',
+				text: "If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!",
+				hideAfter: false,
+				position: 'top-left',
+				icon: 'info'
 			});
 		}
 
 		// Initialize tag suggestions
 		loadTagSuggestions();
+
+		// Initialize categories
+		selectedCategory = "";
+		loadCategories();
 
 	</script>
 

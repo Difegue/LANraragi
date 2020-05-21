@@ -33,10 +33,11 @@ use Encode;
 use LANraragi::Utils::Database qw(invalidate_cache);
 use LANraragi::Utils::TempFolder qw(get_temp clean_temp_partial);
 use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Generic qw(is_archive);
 
-use LANraragi::Model::Config; 
+use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
-use LANraragi::Utils::Plugins; # Needed here since Shinobu doesn't inherit from the main LRR package
+use LANraragi::Utils::Plugins;    # Needed here since Shinobu doesn't inherit from the main LRR package
 
 # Filemap hash, global to all subs and exposed to the server through IPC
 my %filemap;
@@ -53,7 +54,7 @@ my $inotifysub = sub {
     $logger->debug("Received inotify event $type on $name");
 
     if ( $type eq "create" || $type eq "modify" ) {
-        new_file_callback( $name );
+        new_file_callback($name);
     }
 
     if ( $type eq "delete" ) {
@@ -68,26 +69,23 @@ sub initialize_from_new_process {
 
     $logger->info("Shinobu Background Worker started.");
     $logger->info( "Working dir is " . cwd );
-    
+
     build_filemap();
     $logger->info("Adding watcher to content folder $userdir");
 
     # Add watcher to content directory
-    my $contentwatcher =
-    File::ChangeNotify->instantiate_watcher
-        ( directories     => [ $userdir ],
-          filter          => qr/\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr)$/,
-          follow_symlinks => 1,
-          exclude         => [ 'thumb', '.' ], #excluded subdirs
-        );
+    my $contentwatcher = File::ChangeNotify->instantiate_watcher(
+        directories     => [$userdir],
+        filter          => qr/\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|pdf|)$/,
+        follow_symlinks => 1,
+        exclude         => [ 'thumb', '.' ],                                         #excluded subdirs
+    );
 
     my $class = ref($contentwatcher);
     $logger->debug("Watcher class is $class");
 
     # Add watcher to tempfolder
-    my $tempwatcher =
-    File::ChangeNotify->instantiate_watcher
-        ( directories => [ get_temp() ] );
+    my $tempwatcher = File::ChangeNotify->instantiate_watcher( directories => [ get_temp() ] );
 
     # manual event loop
     $logger->info("All done! Now dutifully watching your files. ");
@@ -114,6 +112,9 @@ sub build_filemap {
 
     $logger->info("Building filemap...This might take some time.");
 
+    # Delete previously serialized filemap
+    unlink '.shinobu-filemap' || $logger->warn("Couldn't delete previous filemap data.");
+
     # Clear hash
     %filemap = ();
     my $dirname = LANraragi::Model::Config->get_userdir;
@@ -121,10 +122,9 @@ sub build_filemap {
 
     # Get all files in content directory and subdirectories.
     find(
-        {
-            wanted => sub {
-                return if -d $_; #Directories are excluded on the spot
-                push @files, $_; #Push files to array
+        {   wanted => sub {
+                return if -d $_;    #Directories are excluded on the spot
+                push @files, $_;    #Push files to array
             },
             no_chdir    => 1,
             follow_fast => 1
@@ -134,7 +134,7 @@ sub build_filemap {
 
     # Now that we have all files, process them...with multithreading!
     my $numCpus = Sys::CpuAffinity::getNumCpus();
-    my $pl = Parallel::Loops->new($numCpus);
+    my $pl      = Parallel::Loops->new($numCpus);
     $pl->share( \%filemap );
 
     $logger->debug("Number of available cores for processing: $numCpus");
@@ -142,23 +142,26 @@ sub build_filemap {
     # Split the workload equally between all CPUs with an array of arrays
     my @sections;
     while (@files) {
-        foreach (0..$numCpus-1){
+        foreach ( 0 .. $numCpus - 1 ) {
             if (@files) {
-                push @{$sections[$_]}, shift @files;
+                push @{ $sections[$_] }, shift @files;
             }
         }
     }
-    
-    $pl->foreach( \@sections, sub {
-        # This sub "magically" executed in parallel forked child
-        # processes
-        foreach my $file (@$_) {
-            add_to_filemap($file);
-        }
-    });
 
-    # Done, serialize filemap for main process to consume 
-    # The filemap hash has been modified into an object by Parallel::Loops... 
+    $pl->foreach(
+        \@sections,
+        sub {
+            # This sub "magically" executed in parallel forked child
+            # processes
+            foreach my $file (@$_) {
+                add_to_filemap($file);
+            }
+        }
+    );
+
+    # Done, serialize filemap for main process to consume
+    # The filemap hash has been modified into an object by Parallel::Loops...
     # It's better to make a clean hash copy and serialize that instead.
     my $copy = {%filemap};
     lock_store $copy, '.shinobu-filemap';
@@ -168,14 +171,14 @@ sub add_to_filemap {
 
     my ($file) = shift;
 
-    if ( $file =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr)$/ ) {
+    if ( is_archive($file) ) {
 
         $logger->debug("Adding $file to Shinobu filemap.");
 
         #Freshly created files might not be complete yet.
         #We have to wait before doing any form of calculation.
         while (1) {
-            last unless -e $file; # Sanity check to avoid sticking in this loop if the file disappears
+            last unless -e $file;    # Sanity check to avoid sticking in this loop if the file disappears
             last if open( my $handle, '<', $file );
             $logger->debug("Waiting for file to be openable");
             sleep(1);
@@ -184,7 +187,7 @@ sub add_to_filemap {
         # Wait for file to be more than 512 KBs or bailout after 5s and assume that file is smaller
         my $cnt = 0;
         while (1) {
-            last if (((-s $file) >= 512000) || $cnt >= 5); 
+            last if ( ( ( -s $file ) >= 512000 ) || $cnt >= 5 );
             $logger->debug("Waiting for file to be fully written");
             sleep(1);
             $cnt++;
@@ -205,24 +208,24 @@ sub add_to_filemap {
         #If the hash already exists, throw a warning about duplicates
         if ( exists( $filemap{$id} ) ) {
 
-            if ($file eq $filemap{$id}) {
-                $logger->debug("$file was logged again but is already in the filemap, duplicate inotify events? Cleaning cache just to make sure");
+            if ( $file eq $filemap{$id} ) {
+                $logger->debug(
+                    "$file was logged again but is already in the filemap, duplicate inotify events? Cleaning cache just to make sure"
+                );
                 invalidate_cache();
             } else {
-                $logger->warn( "$file is a duplicate of the existing file "
-                  . $filemap{$id}
-                  . ". You should delete it." );
+                $logger->warn( "$file is a duplicate of the existing file " . $filemap{$id} . ". You should delete it." );
             }
             return;
-        }
-        else {
+        } else {
             $filemap{$id} = $file;
         }
 
         # Filename sanity check
         if ( $redis->exists($id) ) {
 
-            my $filecheck = $redis->hget($id, "file");
+            my $filecheck = $redis->hget( $id, "file" );
+
             #Update the real file path and title if they differ from the saved one
             #This is meant to always track the current filename for the OS.
             unless ( $file eq $filecheck ) {
@@ -236,6 +239,7 @@ sub add_to_filemap {
                 invalidate_cache();
             }
         } else {
+
             # Add to Redis if not present beforehand
             add_new_file( $id, $file );
             invalidate_cache();
@@ -263,9 +267,8 @@ sub deleted_file_callback {
 
         #Lookup the file in the filemap and prune it
         #As it's a lookup by value it looks kinda ugly...
-        delete( $filemap{$_} )
-          foreach grep { $filemap{$_} eq $name } keys %filemap;
-        
+        delete( $filemap{$_} ) foreach grep { $filemap{$_} eq $name } keys %filemap;
+
         # Serialize filemap for main process to consume
         my $copy = {%filemap};
         lock_store $copy, '.shinobu-filemap';
@@ -282,7 +285,7 @@ sub add_new_file {
         LANraragi::Utils::Database::add_archive_to_redis( $id, $file, $redis );
 
         #AutoTagging using enabled plugins goes here!
-        if (LANraragi::Model::Config->enable_autotag) {
+        if ( LANraragi::Model::Config->enable_autotag ) {
             LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
         }
     };

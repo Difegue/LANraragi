@@ -10,3 +10,5 @@ package-lock.json
 Dockerfile.*
 script/hypnotoad.pid
 .DS_Store
+config.log
+autobackup.json

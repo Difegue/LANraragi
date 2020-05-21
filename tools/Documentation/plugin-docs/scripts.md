@@ -1,11 +1,11 @@
-# Script Plugins
+# Generic Plugins \("Scripts"\)
 
 Script Plugins are meant for generic workflows that aren't explicitly supported.  
-The main usecase is essentially for users to script their own API endpoints, since those plugins can easily be invoked through the [Client API.](extending-lanraragi/client-api.md)  
+The main usecase is essentially for users to script their own API endpoints, since those plugins can easily be invoked through the [Client API.](../extending-lanraragi/client-api.md)
 
 ## Required subroutines
 
-Only one subroutine needs to be implemented for the module to be recognized: `run_script `, which contains your working code. You're free to implement other subroutines for cleaner code, of course.  
+Only one subroutine needs to be implemented for the module to be recognized: `run_script`, which contains your working code. You're free to implement other subroutines for cleaner code, of course.
 
 ### Expected Input
 
@@ -19,26 +19,25 @@ sub run_script {
     shift;
     my $lrr_info = shift; # Global info hash
     my ($param1, $param2) = @_; # Plugin parameters
-
 ```
 
 The variables match the parameters you've entered in the `plugin_info` subroutine.
 
-The `$lrr_info` hash contains two variables you can use in your plugin:  
+The `$lrr_info` hash contains two variables you can use in your plugin:
 
-* _$lrr_info->{oneshot_param}_: Value of your one-shot argument, if it's been set by the User. See below.
-* _$lrr_info->{user_agent}_: [Mojo::UserAgent](https://mojolicious.org/perldoc/Mojo/UserAgent) object you can use for web requests. If this plugin depends on a Login plugin, this UserAgent will be pre-configured with the cookies from the Login.
+* _$lrr\_info->{oneshot\_param}_: Value of your one-shot argument, if it's been set by the User. See below.
+* _$lrr\_info->{user\_agent}_: [Mojo::UserAgent](https://mojolicious.org/perldoc/Mojo/UserAgent) object you can use for web requests. If this plugin depends on a Login plugin, this UserAgent will be pre-configured with the cookies from the Login.
 
 #### One-Shot/Runtime Arguments
 
-Scripts can have one string argument given to them when executed.   
+Scripts can have one string argument given to them when executed.
 
 If you want the user to be able to enter this override, the `oneshot_arg` field must be present in `plugin_info`, and contain a brief description of what your argument is for.
 
 ### Expected Output
 
 LRR expects Scripts to return a hash, containing the results of whatever operations they ran.  
-This hash is then projected back to the user.  
+This hash is then projected back to the user.
 
 `return (total => $filtered, partial_ids => \@ids );`
 
@@ -48,11 +47,10 @@ If your script errored out, you can tell LRR that an error occurred by returning
 
 If you do this, the error will be logged/displayed to the user.
 
-
 ## Plugin Template
 
 ```perl
-package LANraragi::Plugin::Script::MyNewPlugin;
+package LANraragi::Plugin::Scripts::MyNewPlugin;
 
 use strict;
 use warnings;
@@ -125,8 +123,9 @@ sub run_script {
     elsif ($res->is_error) { 
         return ( error => $res->message );  
     }
-    
+
 }
 
 1;
-```  
+```
+

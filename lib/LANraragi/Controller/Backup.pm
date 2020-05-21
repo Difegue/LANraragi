@@ -12,7 +12,7 @@ sub index {
     if ( $self->req->param('dobackup') ) {
         my $json = LANraragi::Model::Backup::build_backup_JSON();
 
-#Write json to file in the user directory and serve that file through render_static
+        #Write json to file in the user directory and serve that file through render_static
         my $file = $self->LRR_CONF->get_userdir . '/backup.json';
 
         if ( -e $file ) { unlink $file }
@@ -25,8 +25,7 @@ sub index {
 
         $self->render_file( filepath => $file );
 
-    }
-    else {    #Get with no parameters => Regular HTML printout
+    } else {    #Get with no parameters => Regular HTML printout
         $self->render(
             template => "backup",
             title    => $self->LRR_CONF->get_htmltitle,
@@ -52,8 +51,7 @@ sub restore {
                 success   => 1
             }
         );
-    }
-    else {
+    } else {
         $self->render(
             json => {
                 operation => "restore_backup",
