@@ -3,13 +3,16 @@ require "language/node"
 class Lanraragi < Formula
   desc "Web application for archival and reading of manga/doujinshi"
   homepage "https://github.com/Difegue/LANraragi"
-  url "https://github.com/Difegue/LANraragi/archive/v.0.6.9-EX.tar.gz"
-  # sha256 "157a3ebdb5f132de179b69013aad351333990577bebd31e4b7b80e939b25921d"
+  url "https://github.com/Difegue/LANraragi/archive/master.tar.gz"
+  #url "https://github.com/Difegue/LANraragi.git",
+  #    :revision => "7752c156e8226fa5ed51a79bf7d75533503e0300"
+  version "0.7.0"
   head "https://github.com/Difegue/LANraragi.git"
 
   depends_on "pkg-config" => :build
   depends_on "cpanminus"
   depends_on "giflib"
+  depends_on "ghostscript"
   depends_on "imagemagick@6"
   depends_on "jpeg"
   depends_on "libpng"
@@ -25,11 +28,9 @@ class Lanraragi < Formula
   end
 
   # libarchive headers from macOS 10.15 source
-  if OS.mac?
-    resource "libarchive-headers-10.15" do
-      url "https://opensource.apple.com/tarballs/libarchive/libarchive-72.11.2.tar.gz"
-      sha256 "655b9270db794ba0b27052fd37b1750514b06769213656ab81e30727322e401f"
-    end
+  resource "libarchive-headers-10.15" do
+    url "https://opensource.apple.com/tarballs/libarchive/libarchive-72.11.2.tar.gz"
+    sha256 "655b9270db794ba0b27052fd37b1750514b06769213656ab81e30727322e401f"
   end
 
   resource "Archive::Peek::Libarchive" do
@@ -52,11 +53,9 @@ class Lanraragi < Formula
       system "make", "install"
     end
 
-    if OS.mac?
-      resource("libarchive-headers-10.15").stage do
-        (libexec/"include").install "libarchive/libarchive/archive.h"
-        (libexec/"include").install "libarchive/libarchive/archive_entry.h"
-      end
+    resource("libarchive-headers-10.15").stage do
+      (libexec/"include").install "libarchive/libarchive/archive.h"
+      (libexec/"include").install "libarchive/libarchive/archive_entry.h"
     end
 
     resource("Archive::Peek::Libarchive").stage do
@@ -64,7 +63,7 @@ class Lanraragi < Formula
         s.gsub! "$autoconf->_get_extra_compiler_flags", "$autoconf->_get_extra_compiler_flags .$ENV{CFLAGS}"
       end
 
-      system "cpanm", "Config::AutoConf", "-l", libexec
+      system "cpanm", "Config::AutoConf", "--notest", "-l", libexec
       system "perl", "Makefile.PL", "INSTALL_BASE=#{libexec}"
       system "make"
       system "make", "install"
