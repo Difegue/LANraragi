@@ -42,8 +42,8 @@ sub build_backup_JSON {
         },);
     }
 
-    #remove last comma for json compliance
-    chop($json);
+    #remove last comma for json compliance -- only if there were actually any cats added
+    chop($json) if scalar @cats > 0;
     $json .= "
     ], 
     \"archives\": [";
@@ -74,7 +74,7 @@ sub build_backup_JSON {
     }
 
     #remove last comma for json compliance
-    chop($json);
+    chop($json) if scalar @keys > 0;
 
     $json .= "
     ]
