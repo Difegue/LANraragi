@@ -132,8 +132,11 @@ sub get_tags_from_NH {
         $jsonstring = $1;
     }
 
-    $logger->info("Tentative JSON: $jsonstring");
+    $logger->debug("Tentative JSON: $jsonstring");
 
+    # nH now provides their JSON with \uXXXX escaped characters.
+    # The first pass of decode_json decodes those characters, but still outputs a string.
+    # The second pass turns said string into an object properly so we can exploit it as a hash.
     my $json = decode_json $jsonstring;
     $json = decode_json $json;
 
