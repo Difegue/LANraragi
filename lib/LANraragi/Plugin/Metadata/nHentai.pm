@@ -128,11 +128,14 @@ sub get_tags_from_NH {
     #Find the metadata JSON in the HTML and turn it into an object
     #It's located under a N.gallery JS object.
     my $jsonstring = "{}";
-    if ( $textrep =~ /.*N\.gallery\((.*)\);\n.*/gmi ) {
+    if ( $textrep =~ /window\._gallery.*=.*JSON\.parse\((.*)\);/gmi ) {
         $jsonstring = $1;
     }
 
+    $logger->info("Tentative JSON: $jsonstring");
+
     my $json = decode_json $jsonstring;
+    $json = decode_json $json;
 
     my $tags = $json->{"tags"};
 
