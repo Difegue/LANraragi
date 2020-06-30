@@ -82,7 +82,7 @@
 			</div>
 
 			<p id='cssbutton' style='display:inline'>
-				<input class='stdbtn' type='button' onclick="var win=window.open('random','_blank'); win.focus();"
+				<input class='stdbtn' type='button' onclick="openInNewTab('random')"
 					value='Give me a random archive' />
 				<input id='viewbtn' class='stdbtn' type='button' onclick="switch_index_view()"
 					value='Switch to List View' />

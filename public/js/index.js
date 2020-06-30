@@ -207,11 +207,11 @@ function loadCategories() {
 				category = data[i];
 				const pinned = category.pinned === "1";
 
-				div = "<div style='display:inline-block'>" +
-					"	<input class='favtag-btn " + ((category.id == selectedCategory) ? "toggled" : "") + "' " +
-					"		   type='button' id='" + category.id + "' value='" + (pinned ? "📌" : "") + category.name + "' " +
-					"		   onclick='toggleCategory(this)' title='Click here to display the archives contained in this category.' />" +
-					"</div>"
+				div = `<div style='display:inline-block'>
+						<input class='favtag-btn ${((category.id == selectedCategory) ? "toggled" : "")}' 
+							   type='button' id='${category.id}' value='${(pinned ? "📌" : "") + category.name}' 
+							   onclick='toggleCategory(this)' title='Click here to display the archives contained in this category.'/>
+					   </div>`;
 
 				// Pinned categories ignore LastUsed sorting and are shown at the beginning
 				if (pinned)
