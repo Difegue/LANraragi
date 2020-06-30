@@ -197,6 +197,11 @@ function saveFormData(formSelector) {
 		});
 }
 
+//Adds an archive to a category. Basic implementation to use in Upload/Index.
+function addArchiveToCategory(arcId, catId) {
+	genericAPICall(`/api/categories/${catId}/${arcId}`, 'PUT', `Added ${arcId} to Category ${catId}!`, "Error adding/removing archive to category", null);
+}
+
 //deleteArchive(id)
 //Sends a DELETE request for that archive ID, deleting the Redis key and attempting to delete the archive file.
 function deleteArchive(arcId) {

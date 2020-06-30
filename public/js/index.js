@@ -135,6 +135,12 @@ function checkVersion(currentVersionConf) {
 
 function handleContextMenu(option, id) {
 
+	if (option.startsWith("category-")) {
+		var catId = option.replace("category-","");
+		addArchiveToCategory(id, catId);
+		return;
+	}
+
 	switch (option) {
 		case "edit":
 			window.open("./edit?id=" + id);
