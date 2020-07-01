@@ -4,6 +4,7 @@ use Mojo::Base 'Mojolicious::Controller';
 use Redis;
 use Encode;
 use Mojo::IOLoop::Subprocess;
+use Mojo::Util qw(xml_escape);
 use Mojo::JSON qw(decode_json encode_json from_json);
 
 use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header);
@@ -28,6 +29,7 @@ sub index {
         my $zipfile = $redis->hget( $id, "file" );
         my $title   = $redis->hget( $id, "title" );
         $title = redis_decode($title);
+        $title = xml_escape($title);
 
         if ( -e $zipfile ) {
             $arclist .= "<li><input type='checkbox' name='archive' id='$id' class='archive' >";

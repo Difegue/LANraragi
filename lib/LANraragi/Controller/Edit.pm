@@ -5,6 +5,7 @@ use File::Basename;
 use Redis;
 use Encode;
 use Template;
+use Mojo::Util qw(xml_escape);
 
 use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header remove_spaces remove_newlines);
 use LANraragi::Utils::Database qw(redis_decode invalidate_cache);
@@ -86,8 +87,8 @@ sub index {
             template  => "edit",
             id        => $id,
             name      => $name,
-            arctitle  => $title,
-            tags      => $tags,
+            arctitle  => xml_escape($title),
+            tags      => xml_escape($tags),
             file      => decode_utf8($file),
             thumbhash => $thumbhash,
             plugins   => \@pluginlist,
