@@ -187,7 +187,7 @@ function buildThumbDiv(row, data, index) {
 							${buildProgressDiv(data.arcid, data.isnew)}
 							<a onclick="openInNewTab('reader?id=${data.arcid}')" title="${encode(data.title)}">${encode(data.title)}</a>
 						</div>
-						<div style="height:280px" class="id3" style="cursor:pointer" >
+						<div style="height:280px; cursor:pointer" class="id3" >
 							<a onclick="openInNewTab('reader?id=${data.arcid}')" title="${encode(data.title)}">
 								<img style="position:relative;" id ="${data.arcid}_thumb" src="./img/wait_warmly.jpg"/>
 								<i id="${data.arcid}_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>
@@ -312,7 +312,7 @@ function buildTagsDiv(tags) {
 		tagsByNamespace[key].forEach(function (tag) {
 			line += `<div class="gt" arc-namespace="${key}" onclick="$('#srch').val($(this).attr('arc-namespace') + ':' + $(this).html()); 
 																	arcTable.search($(this).attr('arc-namespace') + ':' + $(this).html()).draw();">
-					 ${encode(tag)}</div>`;
+					 ${encode(tag[0])}</div>`;
 		});
 
 		line += "</td></tr>";
@@ -332,7 +332,7 @@ function colorCodeTags(tags) {
 	Object.keys(tagsByNamespace).sort().forEach(function (key, index) {
 		tagsByNamespace[key].forEach(function (tag) {
 			var encodedK = encode(key.toLowerCase());
-			line += `<span class='${encodedK}-tag'>"${encode(tag)}"</span>, `;
+			line += `<span class='${encodedK}-tag'>"${encode(tag[0])}"</span>, `;
 		});
 	});
 	// Remove last comma

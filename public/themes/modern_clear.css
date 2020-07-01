@@ -238,7 +238,7 @@ td.itu a{text-decoration:none}
 td.itdc{text-align:center;padding:0 1px 0 2px;margin:0;border-right:1px solid #566D75}
 
 /* page selector */
-.paginate_button {display:inline-block; text-align:center;height:30px;width:31px;cursor:pointer;font-size: 2em;margin-top:10px;margin-bottom:10px;}
+.paginate_button {display:inline-block; text-align:center;height:30px;width:31px;cursor:pointer;font-size: 2em;margin-top:10px;margin-bottom:10px;margin-left: 0.5vw;}
 .paginate_button:hover{
 	background-color: #df696e;
     border-radius: 100% 100% 100% 100%;
