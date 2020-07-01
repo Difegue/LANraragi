@@ -213,9 +213,12 @@ function loadCategories() {
 				category = data[i];
 				const pinned = category.pinned === "1";
 
+				catName = (pinned ? "📌" : "") + category.name;
+				catName = encode(catName);
+
 				div = `<div style='display:inline-block'>
 						<input class='favtag-btn ${((category.id == selectedCategory) ? "toggled" : "")}' 
-							   type='button' id='${category.id}' value='${(pinned ? "📌" : "") + category.name}' 
+							   type='button' id='${category.id}' value='${catName}' 
 							   onclick='toggleCategory(this)' title='Click here to display the archives contained in this category.'/>
 					   </div>`;
 
@@ -231,4 +234,8 @@ function loadCategories() {
 			$("#category-container").html(html);
 
 		}).fail(data => showErrorToast("Couldn't load categories", data.error));
+}
+
+function encode(r){
+	return r.replace(/[\x26\x0A\<>'"]/g,function(r){return"&#"+r.charCodeAt(0)+";"})
 }

@@ -123,10 +123,6 @@ function openInNewTab(url) {
 	win.focus();
 }
 
-function encode(r){
-	return r.replace(/[\x26\x0A\<>'"]/g,function(r){return"&#"+r.charCodeAt(0)+";"})
-}
-
 function titleColumnDisplay(data, type, full, meta) {
 	if (type == "display") {
 
@@ -139,7 +135,7 @@ function titleColumnDisplay(data, type, full, meta) {
 					${encode(data.title)}
 				</a>
 				<div class="caption" style="display: none;">
-					<img style="height:200px" src="./api/thumbnail?id=${data.arcid} onerror="this.src='./img/noThumb.png'">
+					<img style="height:200px" src="./api/thumbnail?id=${data.arcid}" onerror="this.src='./img/noThumb.png'">
 				</div>`;
 	}
 
