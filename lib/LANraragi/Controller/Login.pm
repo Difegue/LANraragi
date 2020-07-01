@@ -50,17 +50,14 @@ sub logged_in_api {
     # Uncomment this to send Access-Control-Allow-Origin = '*'
     #$self->res->headers->access_control_allow_origin('*');
 
-    # The API key can be either a key parameter, or in the Authentication header.
-    # The parameter variant is deprecated and will be removed in a future release.
-    my $key          = $self->req->param('key') || '';
+    # The API key is in the Authentication header.
     my $expected_key = $self->LRR_CONF->get_apikey;
 
     my $auth_header     = $self->req->headers->authorization || "";
     my $expected_header = "Bearer " . encode_base64( $expected_key, "" );
 
     return 1
-      if ( $key ne "" && $key eq $expected_key )
-      || ( $expected_key ne "" && $auth_header eq $expected_header )
+      if ( $expected_key ne "" && $auth_header eq $expected_header )
       || $self->session('is_logged')
       || $self->LRR_CONF->enable_pass == 0;
     $self->render(

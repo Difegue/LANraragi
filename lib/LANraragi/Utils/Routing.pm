@@ -69,9 +69,7 @@ sub apply_routes {
     # Miscellaneous API
     $public_api->get('/api/opds')->to('api-other#serve_opds');
     $public_api->get('/api/info')->to('api-other#serve_serverinfo');
-    $logged_in_api->get('/api/use_plugin')->to('api-other#use_plugin');    #old
     $logged_in_api->post('/api/plugin/use')->to('api-other#use_plugin');
-    $logged_in_api->get('/api/clean_temp')->to('api-other#clean_tempfolder');    #old
     $logged_in_api->delete('/api/tempfolder')->to('api-other#clean_tempfolder');
 
     # Archive API (TODO)
@@ -92,29 +90,16 @@ sub apply_routes {
     # Search API
     $public_api->get('/search')->to('api-search#handle_datatables');
     $public_api->get('/api/search')->to('api-search#handle_api');
-    $logged_in_api->get('/api/discard_cache')->to('api-search#clear_cache');    #old
     $logged_in_api->delete('/api/search/cache')->to('api-search#clear_cache');
 
-    # Database API - old endpoints
-    $logged_in_api->get('/api/backup')->to('api-database#serve_backup');
-    $logged_in_api->get('/api/clear_new_all')->to('api-database#clear_new_all');
-    $logged_in_api->get('/api/drop_database')->to('api-database#drop_database');
-    $logged_in_api->get('/api/clean_database')->to('api-database#clean_database');
-    $public_api->get('/api/tagstats')->to('api-database#serve_tag_stats');
-
-    # Database API - new endpoints
+    # Database API
     $logged_in_api->get('/api/database/backup')->to('api-database#serve_backup');
     $logged_in_api->delete('/api/database/isnew')->to('api-database#clear_new_all');
     $logged_in_api->post('/api/database/drop')->to('api-database#drop_database');
     $logged_in_api->post('/api/database/clean')->to('api-database#clean_database');
     $public_api->get('/api/database/stats')->to('api-database#serve_tag_stats');
 
-    # Shinobu API - old endpoints
-    $logged_in_api->get('/api/shinobu_status')->to('api-shinobu#shinobu_status');
-    $logged_in_api->get('/api/stop_shinobu')->to('api-shinobu#stop_shinobu');
-    $logged_in_api->get('/api/restart_shinobu')->to('api-shinobu#restart_shinobu');
-
-    # Shinobu API - new endpoints
+    # Shinobu API
     $logged_in_api->get('/api/shinobu')->to('api-shinobu#shinobu_status');
     $logged_in_api->post('/api/shinobu/stop')->to('api-shinobu#stop_shinobu');
     $logged_in_api->post('/api/shinobu/restart')->to('api-shinobu#restart_shinobu');
