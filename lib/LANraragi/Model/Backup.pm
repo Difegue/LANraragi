@@ -18,8 +18,12 @@ use LANraragi::Utils::Logging qw(get_logger);
 #Goes through the Redis archive IDs and builds a JSON string containing their metadata.
 sub build_backup_JSON {
     my $redis = LANraragi::Model::Config->get_redis;
-    my $json  = "{ 
-    \"categories\": [";
+
+    # Basic structure of the backup object
+    my %backup = (
+        categories => [],
+        archives   => []
+    );
 
     # Backup categories first
     my @cats = $redis->keys('SET_??????????');
@@ -31,22 +35,16 @@ sub build_backup_JSON {
 
         # redis-decode the name, and the search terms if they exist
         ( $_ = redis_decode($_) ) for ( $name, $search );
-        ( $_ = encode_json($_) )  for ( $name, $search, $archives );
 
-        $json .= qq(
-        {
-            "catid": "$key",
-            "name": $name,
-            "search": $search,
-            "archives": $archives
-        },);
+        my %category = (
+            catid    => $key,
+            name     => $name,
+            search   => $search,
+            archives => decode_json($archives)
+        );
+
+        push @{ $backup{categories} }, \%category;
     }
-
-    #remove last comma for json compliance -- only if there were actually any cats added
-    chop($json) if scalar @cats > 0;
-    $json .= "
-    ], 
-    \"archives\": [";
 
     # Backup archives themselves next
     my @keys = $redis->keys('????????????????????????????????????????');    #40-character long keys only => Archive IDs
@@ -55,33 +53,25 @@ sub build_backup_JSON {
     foreach my $id (@keys) {
 
         my %hash = $redis->hgetall($id);
-
         my ( $name, $title, $tags, $thumbhash ) = @hash{qw(name title tags thumbhash)};
 
         ( $_ = redis_decode($_) ) for ( $name, $title, $tags );
-        ( remove_newlines($_) )   for ( $name, $title, $tags );
-        ( $_ = encode_json($_) )  for ( $name, $title, $tags );
+        ( remove_newlines($_) ) for ( $name, $title, $tags );
 
         #Backup all user-generated metadata, alongside the unique ID.
-        $json .= qq(
-        {
-            "arcid": "$id",
-            "title": $title,
-            "tags": $tags,
-            "thumbhash": "$thumbhash",
-            "filename": $name
-        },);
+        my %arc = (
+            arcid     => $id,
+            title     => $title,
+            tags      => $tags,
+            thumbhash => $thumbhash,
+            filename  => $name
+        );
+
+        push @{ $backup{archives} }, \%arc;
     }
 
-    #remove last comma for json compliance
-    chop($json) if scalar @keys > 0;
-
-    $json .= "
-    ]
-}";
-
     $redis->quit();
-    return $json;
+    return encode_json \%backup;
 
 }
 
