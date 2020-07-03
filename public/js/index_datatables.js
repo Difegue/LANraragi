@@ -119,7 +119,7 @@ function createNamespaceColumn(namespace, type, data) {
 }
 
 function openInNewTab(url) {
-	var win = window.open(url,'_blank'); 
+	var win = window.open(url, '_blank');
 	win.focus();
 }
 
@@ -128,7 +128,7 @@ function titleColumnDisplay(data, type, full, meta) {
 
 		titleHtml = "";
 		titleHtml += buildProgressDiv(data.arcid, data.isnew);
-		
+
 		return `${titleHtml} 
 				<a class="image-tooltip" id="${data.arcid} style="cursor:pointer" 
 				   onmouseover="buildImageTooltip($(this))" onclick="openInNewTab('reader?id=${data.arcid}')"> 
@@ -308,7 +308,7 @@ function buildTagsDiv(tags) {
 		tagsByNamespace[key].forEach(function (tag) {
 			line += `<div class="gt" arc-namespace="${key}" onclick="$('#srch').val($(this).attr('arc-namespace') + ':' + $(this).html()); 
 																	arcTable.search($(this).attr('arc-namespace') + ':' + $(this).html()).draw();">
-					 ${encode(tag[0])}</div>`;
+					 ${encode(tag)}</div>`;
 		});
 
 		line += "</td></tr>";
@@ -328,7 +328,7 @@ function colorCodeTags(tags) {
 	Object.keys(tagsByNamespace).sort().forEach(function (key, index) {
 		tagsByNamespace[key].forEach(function (tag) {
 			var encodedK = encode(key.toLowerCase());
-			line += `<span class='${encodedK}-tag'>"${encode(tag[0])}"</span>, `;
+			line += `<span class='${encodedK}-tag'>${encode(tag)}</span>, `;
 		});
 	});
 	// Remove last comma
