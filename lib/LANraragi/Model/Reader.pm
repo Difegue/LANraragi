@@ -150,7 +150,7 @@ sub build_reader_JSON {
         $imgpath =~ s!%2F!/!g;
 
         # Bundle this path into an API call which will be used by the browser
-        push @images_browser, "./api/$id/page?path=$imgpath";
+        push @images_browser, "./api/archives/$id/page?path=$imgpath";
     }
 
     #Build json (it's just the images array in a string)
