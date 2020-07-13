@@ -6,27 +6,22 @@ use Encode;
 use Storable;
 use Mojo::JSON qw(decode_json encode_json from_json);
 
-use LANraragi::Model::Archive;
-use LANraragi::Model::Backup;
-use LANraragi::Model::Config;
-use LANraragi::Model::Plugins;
-use LANraragi::Model::Reader;
-use LANraragi::Model::Stats;
+use LANraragi::Utils::Generic qw(render_api_response);
 
-# Archive API. To be refactored soon!
+use LANraragi::Model::Archive;
+use LANraragi::Model::Config;
+use LANraragi::Model::Reader;
+
+# Archive API. 
 
 # Handle missing ID parameter for a whole lot of api methods down below.
 sub check_id_parameter {
-    my ( $mojo, $endpoint ) = @_;
+    my ( $mojo, $operation ) = @_;
 
-    my $id = $mojo->req->param('id') || 0;
+    # Use either the id query param(deprecated), or the URL component.
+    my $id = $mojo->req->param('id') || $mojo->stash('id') || 0;
     unless ($id) {
-
-        #High-level API documentation!
-        $mojo->render(
-            json   => { error => "API usage: $endpoint?id=YOUR_ID" },
-            status => 400
-        );
+        render_api_response($mojo, $operation, "No archive ID specified.");
     }
     return $id;
 }
@@ -64,23 +59,22 @@ sub serve_file {
 # Serve an archive page from the temporary folder, using RenderFile.
 sub serve_page {
     my $self = shift;
-    my $id   = check_id_parameter( $self, "servefile" ) || return;
-    LANraragi::Model::Archive::serve_page( $self, $id );
+    my $id   = check_id_parameter( $self, "serve_page" ) || return;
+    my $path = $self->req->param('path') || "404.xyz";
+
+    LANraragi::Model::Archive::serve_page( $self, $id, $path );
 }
 
 sub extract_archive {
     my $self = shift;
-    my $id   = check_id_parameter( $self, "extract" ) || return;
+    my $id   = check_id_parameter( $self, "extract_archive" ) || return;
     my $readerjson;
 
     eval { $readerjson = LANraragi::Model::Reader::build_reader_JSON( $self, $id, "0", "0" ); };
     my $err = $@;
 
     if ($err) {
-        $self->render(
-            json   => { error => $err },
-            status => 500
-        );
+        render_api_response($self, "extract_archive", $err);
     } else {
         $self->render( json => decode_json($readerjson) );
     }
@@ -137,7 +131,7 @@ sub use_enabled_plugins {
                 operation => "autoplugin",
                 id        => $id,
                 success   => 0,
-                message   => "ID not found in database or AutoPlugin disabled by admin."
+                error     => "ID not found in database or AutoPlugin disabled by admin."
             }
         );
     }

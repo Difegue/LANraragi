@@ -72,20 +72,25 @@ sub apply_routes {
     $logged_in_api->post('/api/plugin/use')->to('api-other#use_plugin');
     $logged_in_api->delete('/api/tempfolder')->to('api-other#clean_tempfolder');
 
-    # Archive API (TODO)
+    # Archive API (old)
     $public_api->get('/api/thumbnail')->to('api-archive#serve_thumbnail');
     $public_api->get('/api/servefile')->to('api-archive#serve_file');
+    $public_api->get('/api/page')->to('api-archive#serve_page');
     $public_api->get('/api/archivelist')->to('api-archive#serve_archivelist');
     $public_api->get('/api/untagged')->to('api-archive#serve_untagged_archivelist');
     $public_api->get('/api/extract')->to('api-archive#extract_archive');
     $public_api->get('/api/clear_new')->to('api-archive#clear_new');
     $logged_in_api->post('/api/autoplugin')->to('api-archive#use_enabled_plugins');
 
-    # /api/page is always available even in No-Fun-Mode.
-    # This technically means that people *can* get pages off an uploaded archive if it's been extracted before.
-    # (And if they can guess the ID and path to the files)
-    # TODO: Remove as the api key moves to an auth header, removing the need for this compat workaround.
-    $r->get('/api/page')->to('api-archive#serve_page');
+    # Archive APi (new)
+    $public_api->get('/api/archives')->to('api-archive#serve_archivelist');
+    $public_api->get('/api/archives/untagged')->to('api-archive#serve_untagged_archivelist');
+    $public_api->get('/api/:id/thumbnail')->to('api-archive#serve_thumbnail');
+    $public_api->get('/api/:id/download')->to('api-archive#serve_file');
+    $public_api->get('/api/:id/page')->to('api-archive#serve_page');
+    $public_api->post('/api/:id/extract')->to('api-archive#extract_archive');
+    $public_api->delete('/api/:id/isnew')->to('api-archive#clear_new');
+    $logged_in_api->post('/api/:id/autoplugin')->to('api-archive#use_enabled_plugins');   
 
     # Search API
     $public_api->get('/search')->to('api-search#handle_datatables');

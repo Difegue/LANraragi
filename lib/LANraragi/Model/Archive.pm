@@ -10,7 +10,7 @@ use Encode;
 use File::Temp qw(tempfile);
 use File::Copy "cp";
 
-use LANraragi::Utils::Generic qw(get_tag_with_namespace remove_spaces remove_newlines);
+use LANraragi::Utils::Generic qw(get_tag_with_namespace remove_spaces remove_newlines render_api_response);
 use LANraragi::Utils::Archive qw(extract_thumbnail);
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Database qw(redis_decode);
@@ -167,21 +167,18 @@ sub serve_thumbnail {
 }
 
 sub serve_page {
-    my ( $self, $id ) = @_;
-    my $path = $self->req->param('path') || "404.xyz";
+    my ( $self, $id, $path ) = @_;
 
     my $tempfldr = get_temp();
     my $file     = $tempfldr . "/$id/$path";
     my $abspath  = abs_path($file);            # abs_path returns null if the path is invalid.
 
     if ( !$abspath ) {
-        $self->render(
-            json => {
-                error => "Invalid path.",
-                path  => $file
-            },
-            status => 500
-        );
+        render_api_response($self, "serve_page", "Invalid path $path.");
+    }
+
+    unless (-e $abspath) {
+        render_api_response($self, "serve_page", "$path does not exist.");
     }
 
     # This API can only serve files from the temp folder
@@ -201,19 +198,12 @@ sub serve_page {
             $self->render_file( filepath => $filename );
 
         } else {
-
             # Serve extracted file directly
             $self->render_file( filepath => $file );
         }
 
     } else {
-        $self->render(
-            json => {
-                error => "This API cannot render files outside of the temporary folder.",
-                path  => $abspath
-            },
-            status => 500
-        );
+        render_api_response($self, "serve_page", "This API cannot render files outside of the temporary folder.");
     }
 }
 
