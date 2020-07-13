@@ -136,7 +136,7 @@ function checkVersion(currentVersionConf) {
 function handleContextMenu(option, id) {
 
 	if (option.startsWith("category-")) {
-		var catId = option.replace("category-","");
+		var catId = option.replace("category-", "");
 		addArchiveToCategory(id, catId);
 		return;
 	}
@@ -252,6 +252,9 @@ function loadCategories() {
 		}).fail(data => showErrorToast("Couldn't load categories", data.error));
 }
 
-function encode(r){
-	return r.replace(/[\x26\x0A\<>'"]/g,function(r){return"&#"+r.charCodeAt(0)+";"})
+function encode(r) {
+	if (Array.isArray(r))
+		return r[0].replace(/[\x26\x0A\<>'"]/g, function (r) { return "&#" + r.charCodeAt(0) + ";" });
+	else
+		return r.replace(/[\x26\x0A\<>'"]/g, function (r) { return "&#" + r.charCodeAt(0) + ";" })
 }

@@ -47,8 +47,10 @@ sub logged_in {
 sub logged_in_api {
     my $self = shift;
 
-    # Uncomment this to send Access-Control-Allow-Origin = '*'
-    #$self->res->headers->access_control_allow_origin('*');
+    # The API outputs CORS headers if the user allows it in the settings
+    if ( $self->LRR_CONF->enable_cors ) {
+        $self->res->headers->access_control_allow_origin('*');
+    }
 
     # The API key is in the Authentication header.
     my $expected_key = $self->LRR_CONF->get_apikey;
