@@ -85,7 +85,7 @@ sub apply_routes {
     # Archive APi (new)
     $public_api->get('/api/archives')->to('api-archive#serve_archivelist');
     $public_api->get('/api/archives/untagged')->to('api-archive#serve_untagged_archivelist');
-    $public_api->get('/api/archives/:id/metadata')->to('api-archive#serve_metadata')
+    $public_api->get('/api/archives/:id/metadata')->to('api-archive#serve_metadata');
     $public_api->get('/api/archives/:id/thumbnail')->to('api-archive#serve_thumbnail');
     $public_api->get('/api/archives/:id/download')->to('api-archive#serve_file');
     $public_api->get('/api/archives/:id/page')->to('api-archive#serve_page');

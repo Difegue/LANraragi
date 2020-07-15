@@ -31,6 +31,3 @@ jobs:
         cp /tmp/lanraragi.tar.gz $(brew --cache -s Lanraragi.rb)
         brew unlink node@12
         brew install --verbose --build-from-source Lanraragi.rb
-        rm $(brew --cache -s Lanraragi.rb)
-        brew test --verbose Lanraragi.rb 
-        brew audit --verbose Lanraragi.rb
