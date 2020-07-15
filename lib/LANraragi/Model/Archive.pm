@@ -9,6 +9,7 @@ use Redis;
 use Encode;
 use File::Temp qw(tempfile);
 use File::Copy "cp";
+use Mojo::Util qw(xml_escape);
 
 use LANraragi::Utils::Generic qw(get_tag_with_namespace remove_spaces remove_newlines render_api_response);
 use LANraragi::Utils::Archive qw(extract_thumbnail);
@@ -72,7 +73,7 @@ sub generate_opds_catalog {
                 $arcdata->{mimetype} = "application/x-cbz";
             }
 
-            for ( values %{$arcdata} ) { escape_xml($_); }
+            for ( values %{$arcdata} ) { $_ = xml_escape($_); }
 
             push @list, $arcdata;
         }
@@ -94,14 +95,6 @@ sub generate_opds_catalog {
         motd     => $mojo->LRR_CONF->get_motd,
         version  => $mojo->LRR_VERSION
     );
-}
-
-# Escape XML control characters.
-sub escape_xml {
-    $_[0] =~ s/&/&amp;/sg;
-    $_[0] =~ s/</&lt;/sg;
-    $_[0] =~ s/>/&gt;/sg;
-    $_[0] =~ s/"/&quot;/sg;
 }
 
 # Return a list of archive IDs that have no tags.

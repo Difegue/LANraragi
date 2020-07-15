@@ -388,9 +388,7 @@ ID of the Archive to process.
 {% api-method-parameter name="title" type="string" required=false %}
 New Title of the Archive.
 {% endapi-method-parameter %}
-{% endapi-method-query-parameters %}
 
-{% api-method-query-parameters %}
 {% api-method-parameter name="tags" type="string" required=false %}
 New Tags of the Archive.
 {% endapi-method-parameter %}

@@ -38,6 +38,16 @@ sub serve_untagged_archivelist {
     $self->render( json => \@idlist );
 }
 
+sub serve_metadata {
+    my $self  = shift;
+    my $id    = check_id_parameter( $self, "metadata" ) || return;
+    my $redis = $self->LRR_CONF->get_redis;
+
+    my $arcdata = LANraragi::Utils::Database::build_archive_JSON( $redis, $id );
+    $redis->quit;
+    $self->render( json => $arcdata );
+}
+
 sub serve_thumbnail {
     my $self = shift;
     my $id   = check_id_parameter( $self, "thumbnail" ) || return;
@@ -136,6 +146,10 @@ sub use_enabled_plugins {
         );
     }
     $redis->quit();
+}
+
+sub update_metadata {
+    # TODO
 }
 
 1;
