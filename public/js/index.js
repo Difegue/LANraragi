@@ -150,10 +150,10 @@ function handleContextMenu(option, id) {
 				deleteArchive(id);
 			break;
 		case "read":
-			window.open("./reader?id=" + id);
+			window.open(`./reader?id=${id}`);
 			break;
 		case "download":
-			window.open("./api/servefile?id=" + id);
+			window.open(`./api/archives/${id}/download`);
 			break;
 		default:
 			break;

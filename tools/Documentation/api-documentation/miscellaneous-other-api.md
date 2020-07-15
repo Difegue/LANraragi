@@ -113,10 +113,10 @@ This API is mostly meant to be used as-is by external software implementing the 
           href="/api/opds?id=4857fd2e7c00db8b0af0337b94055d8445118630"
           type="application/atom+xml;type=entry;profile=opds-catalog" />
 
-      <link rel="http://opds-spec.org/image" href="/api/thumbnail?id=4857fd2e7c00db8b0af0337b94055d8445118630" type="image/jpeg"/>
-      <link rel="http://opds-spec.org/image/thumbnail" href="/api/thumbnail?id=4857fd2e7c00db8b0af0337b94055d8445118630" type="image/jpeg"/>
-      <link rel="http://opds-spec.org/acquisition" href="/api/servefile?id=4857fd2e7c00db8b0af0337b94055d8445118630" type="application/x-cbz"/>
-      <link rel="http://opds-spec.org/acquisition" href="/api/servefile?id=4857fd2e7c00db8b0af0337b94055d8445118630" title="Read" type="application/cbz"/>
+      <link rel="http://opds-spec.org/image" href="/api/archives/4857fd2e7c00db8b0af0337b94055d8445118630/thumbnail" type="image/jpeg"/>
+      <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/4857fd2e7c00db8b0af0337b94055d8445118630/thumbnail" type="image/jpeg"/>
+      <link rel="http://opds-spec.org/acquisition" href="/api/archives/4857fd2e7c00db8b0af0337b94055d8445118630/download" type="application/x-cbz"/>
+      <link rel="http://opds-spec.org/acquisition" href="/api/archives/4857fd2e7c00db8b0af0337b94055d8445118630/download" title="Read" type="application/cbz"/>
       <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=4857fd2e7c00db8b0af0337b94055d8445118630"/>
   </entry>
 
@@ -141,10 +141,10 @@ This API is mostly meant to be used as-is by external software implementing the 
           href="/api/opds?id=2810d5e0a8d027ecefebca6237031a0fa7b91eb3"
           type="application/atom+xml;type=entry;profile=opds-catalog" />
 
-      <link rel="http://opds-spec.org/image" href="/api/thumbnail?id=2810d5e0a8d027ecefebca6237031a0fa7b91eb3" type="image/jpeg"/>
-      <link rel="http://opds-spec.org/image/thumbnail" href="/api/thumbnail?id=2810d5e0a8d027ecefebca6237031a0fa7b91eb3" type="image/jpeg"/>
-      <link rel="http://opds-spec.org/acquisition" href="/api/servefile?id=2810d5e0a8d027ecefebca6237031a0fa7b91eb3" type="application/x-cbz"/>
-      <link rel="http://opds-spec.org/acquisition" href="/api/servefile?id=2810d5e0a8d027ecefebca6237031a0fa7b91eb3" title="Read" type="application/cbz"/>
+      <link rel="http://opds-spec.org/image" href="/api/archives/2810d5e0a8d027ecefebca6237031a0fa7b91eb3/thumbnail" type="image/jpeg"/>
+      <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/2810d5e0a8d027ecefebca6237031a0fa7b91eb3/thumbnail" type="image/jpeg"/>
+      <link rel="http://opds-spec.org/acquisition" href="/api/archives/2810d5e0a8d027ecefebca6237031a0fa7b91eb3/download" type="application/x-cbz"/>
+      <link rel="http://opds-spec.org/acquisition" href="/api/archives/2810d5e0a8d027ecefebca6237031a0fa7b91eb3/download" title="Read" type="application/cbz"/>
       <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=2810d5e0a8d027ecefebca6237031a0fa7b91eb3"/>
   </entry>
 
@@ -169,10 +169,10 @@ This API is mostly meant to be used as-is by external software implementing the 
           href="/api/opds?id=e69e43e1355267f7d32a4f9b7f2fe108d2401ebf"
           type="application/atom+xml;type=entry;profile=opds-catalog" />
 
-      <link rel="http://opds-spec.org/image" href="/api/thumbnail?id=e69e43e1355267f7d32a4f9b7f2fe108d2401ebf" type="image/jpeg"/>
-      <link rel="http://opds-spec.org/image/thumbnail" href="/api/thumbnail?id=e69e43e1355267f7d32a4f9b7f2fe108d2401ebf" type="image/jpeg"/>
-      <link rel="http://opds-spec.org/acquisition" href="/api/servefile?id=e69e43e1355267f7d32a4f9b7f2fe108d2401ebf" type="application/x-cbr"/>
-      <link rel="http://opds-spec.org/acquisition" href="/api/servefile?id=e69e43e1355267f7d32a4f9b7f2fe108d2401ebf" title="Read" type="application/cbr"/>
+      <link rel="http://opds-spec.org/image" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebf/thumbnail" type="image/jpeg"/>
+      <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebf/thumbnail" type="image/jpeg"/>
+      <link rel="http://opds-spec.org/acquisition" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebf/download" type="application/x-cbr"/>
+      <link rel="http://opds-spec.org/acquisition" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebf/download" title="Read" type="application/cbr"/>
       <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=e69e43e1355267f7d32a4f9b7f2fe108d2401ebf"/>
   </entry>
 
@@ -197,10 +197,10 @@ This API is mostly meant to be used as-is by external software implementing the 
           href="/api/opds?id=e4c422fd10943dc169e3489a38cdbf57101a5f7e"
           type="application/atom+xml;type=entry;profile=opds-catalog" />
 
-      <link rel="http://opds-spec.org/image" href="/api/thumbnail?id=e4c422fd10943dc169e3489a38cdbf57101a5f7e" type="image/jpeg"/>
-      <link rel="http://opds-spec.org/image/thumbnail" href="/api/thumbnail?id=e4c422fd10943dc169e3489a38cdbf57101a5f7e" type="image/jpeg"/>
-      <link rel="http://opds-spec.org/acquisition" href="/api/servefile?id=e4c422fd10943dc169e3489a38cdbf57101a5f7e" type="application/x-cbz"/>
-      <link rel="http://opds-spec.org/acquisition" href="/api/servefile?id=e4c422fd10943dc169e3489a38cdbf57101a5f7e" title="Read" type="application/cbz"/>
+      <link rel="http://opds-spec.org/image" href="/api/archives/e4c422fd10943dc169e3489a38cdbf57101a5f7e/thumbnail" type="image/jpeg"/>
+      <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/e4c422fd10943dc169e3489a38cdbf57101a5f7e/thumbnail" type="image/jpeg"/>
+      <link rel="http://opds-spec.org/acquisition" href="/api/archives/e4c422fd10943dc169e3489a38cdbf57101a5f7e/download" type="application/x-cbz"/>
+      <link rel="http://opds-spec.org/acquisition" href="/api/archives/e4c422fd10943dc169e3489a38cdbf57101a5f7e/download" title="Read" type="application/cbz"/>
       <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=e4c422fd10943dc169e3489a38cdbf57101a5f7e"/>
   </entry>
 
@@ -225,10 +225,10 @@ This API is mostly meant to be used as-is by external software implementing the 
           href="/api/opds?id=28697b96f0ac5858be2614ed10ca47742c9522fd"
           type="application/atom+xml;type=entry;profile=opds-catalog" />
 
-      <link rel="http://opds-spec.org/image" href="/api/thumbnail?id=28697b96f0ac5858be2614ed10ca47742c9522fd" type="image/jpeg"/>
-      <link rel="http://opds-spec.org/image/thumbnail" href="/api/thumbnail?id=28697b96f0ac5858be2614ed10ca47742c9522fd" type="image/jpeg"/>
-      <link rel="http://opds-spec.org/acquisition" href="/api/servefile?id=28697b96f0ac5858be2614ed10ca47742c9522fd" type="application/x-cbz"/>
-      <link rel="http://opds-spec.org/acquisition" href="/api/servefile?id=28697b96f0ac5858be2614ed10ca47742c9522fd" title="Read" type="application/cbz"/>
+      <link rel="http://opds-spec.org/image" href="/api/archives/28697b96f0ac5858be2614ed10ca47742c9522fd/thumbnail" type="image/jpeg"/>
+      <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/28697b96f0ac5858be2614ed10ca47742c9522fd/thumbnail" type="image/jpeg"/>
+      <link rel="http://opds-spec.org/acquisition" href="/api/archives/28697b96f0ac5858be2614ed10ca47742c9522fd/download" type="application/x-cbz"/>
+      <link rel="http://opds-spec.org/acquisition" href="/api/archives/28697b96f0ac5858be2614ed10ca47742c9522fd/download" title="Read" type="application/cbz"/>
       <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=28697b96f0ac5858be2614ed10ca47742c9522fd"/>
   </entry>
 

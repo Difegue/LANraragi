@@ -89,7 +89,7 @@
 						$("#" + data.result.id).html("Running AutoPlugin on this archive...");
 						$("#" + data.result.id).val("href", "");
 
-						$.post("/api/autoplugin", { id: data.result.id }, function (data) {
+						$.post(`/api/archives/${data.result.id}/autoplugin`, function (data) {
 							if (data.success) {
 								$("#" + data.id).html("Click here to edit metadata.(" + data.message + ")");
 							} else {

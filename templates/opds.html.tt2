@@ -46,10 +46,10 @@
           href="/api/opds?id=[% arc.arcid %]"
           type="application/atom+xml;type=entry;profile=opds-catalog" />
   
-      <link rel="http://opds-spec.org/image" href="/api/thumbnail?id=[% arc.arcid %]" type="image/jpeg"/>
-      <link rel="http://opds-spec.org/image/thumbnail" href="/api/thumbnail?id=[% arc.arcid %]" type="image/jpeg"/>
-      <link rel="http://opds-spec.org/acquisition" href="/api/servefile?id=[% arc.arcid %]" type="[% arc.mimetype %]"/>
-      <link rel="http://opds-spec.org/acquisition" href="/api/servefile?id=[% arc.arcid %]" title="Read" type="[% arc.mimetype2 %]"/>
+      <link rel="http://opds-spec.org/image" href="/api/archives/[% arc.arcid %]/thumbnail" type="image/jpeg"/>
+      <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/[% arc.arcid %]/thumbnail" type="image/jpeg"/>
+      <link rel="http://opds-spec.org/acquisition" href="/api/archives/[% arc.arcid %]/download" type="[% arc.mimetype %]"/>
+      <link rel="http://opds-spec.org/acquisition" href="/api/archives/[% arc.arcid %]/download" title="Read" type="[% arc.mimetype2 %]"/>
       <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=[% arc.arcid %]"/>
   </entry>
   [% END %]

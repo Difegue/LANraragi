@@ -4,7 +4,7 @@ description: Everything dealing with Archives.
 
 # Archive API
 
-{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/archivelist" %}
+{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/archives" %}
 {% api-method-summary %}
 Get the Archive Index
 {% endapi-method-summary %}
@@ -57,7 +57,7 @@ Archive List successfully retrieved. You can use the arcid parameters with the o
 {% endapi-method-spec %}
 {% endapi-method %}
 
-{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/thumbnail" %}
+{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/archives/:id/thumbnail" %}
 {% api-method-summary %}
 Get the Thumbnail of an Archive
 {% endapi-method-summary %}
@@ -68,11 +68,11 @@ Get the Thumbnail image for a given Archive.
 
 {% api-method-spec %}
 {% api-method-request %}
-{% api-method-query-parameters %}
+{% api-method-path-parameters %}
 {% api-method-parameter name="id" type="string" required=true %}
 ID of the Archive to process.
 {% endapi-method-parameter %}
-{% endapi-method-query-parameters %}
+{% endapi-method-path-parameters %}
 {% endapi-method-request %}
 
 {% api-method-response %}
@@ -108,7 +108,7 @@ You didn't specify the id parameter.
 {% endapi-method-spec %}
 {% endapi-method %}
 
-{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/extract" %}
+{% api-method method="post" host="http://lrr.tvc-16.science" path="/api/archives/:id/extract" %}
 {% api-method-summary %}
 Extract an Archive
 {% endapi-method-summary %}
@@ -119,11 +119,11 @@ Extract an Archive on the server, and get a list of URLs pointing to its images.
 
 {% api-method-spec %}
 {% api-method-request %}
-{% api-method-query-parameters %}
+{% api-method-path-parameters %}
 {% api-method-parameter name="id" type="string" required=true %}
 ID of the Archive to process.
 {% endapi-method-parameter %}
-{% endapi-method-query-parameters %}
+{% endapi-method-path-parameters %}
 {% endapi-method-request %}
 
 {% api-method-response %}
@@ -134,36 +134,36 @@ The Archive is extracted server-side and you can now get its images.
 
 ```javascript
 {
-    "pages": [".\/api\/page?id=28697b96f0ac5858be2614ed10ca47742c9522fd&path=00.jpg",
-        ".\/api\/page?id=28697b96f0ac5858be2614ed10ca47742c9522fd&path=01.jpg",
-        ".\/api\/page?id=28697b96f0ac5858be2614ed10ca47742c9522fd&path=03.jpg",
-        ".\/api\/page?id=28697b96f0ac5858be2614ed10ca47742c9522fd&path=04.jpg",
-        ".\/api\/page?id=28697b96f0ac5858be2614ed10ca47742c9522fd&path=05.jpg",
-        ".\/api\/page?id=28697b96f0ac5858be2614ed10ca47742c9522fd&path=06.jpg",
-        ".\/api\/page?id=28697b96f0ac5858be2614ed10ca47742c9522fd&path=07.jpg",
-        ".\/api\/page?id=28697b96f0ac5858be2614ed10ca47742c9522fd&path=08.jpg",
-        ".\/api\/page?id=28697b96f0ac5858be2614ed10ca47742c9522fd&path=09.jpg",
-        ".\/api\/page?id=28697b96f0ac5858be2614ed10ca47742c9522fd&path=20.jpg",
-        ".\/api\/page?id=28697b96f0ac5858be2614ed10ca47742c9522fd&path=21.jpg",
-        ".\/api\/page?id=28697b96f0ac5858be2614ed10ca47742c9522fd&path=22.jpg",
-        ".\/api\/page?id=28697b96f0ac5858be2614ed10ca47742c9522fd&path=23.jpg",
-        ".\/api\/page?id=28697b96f0ac5858be2614ed10ca47742c9522fd&path=24.jpg",
-        ".\/api\/page?id=28697b96f0ac5858be2614ed10ca47742c9522fd&path=25.jpg",
-        ".\/api\/page?id=28697b96f0ac5858be2614ed10ca47742c9522fd&path=26.jpg",
-        ".\/api\/page?id=28697b96f0ac5858be2614ed10ca47742c9522fd&path=27.jpg",
-        ".\/api\/page?id=28697b96f0ac5858be2614ed10ca47742c9522fd&path=28.jpg",
-        ".\/api\/page?id=28697b96f0ac5858be2614ed10ca47742c9522fd&path=29.jpg",
-        ".\/api\/page?id=28697b96f0ac5858be2614ed10ca47742c9522fd&path=30.jpg",
-        ".\/api\/page?id=28697b96f0ac5858be2614ed10ca47742c9522fd&path=31.jpg",
-        ".\/api\/page?id=28697b96f0ac5858be2614ed10ca47742c9522fd&path=32.jpg",
-        ".\/api\/page?id=28697b96f0ac5858be2614ed10ca47742c9522fd&path=33.jpg",
-        ".\/api\/page?id=28697b96f0ac5858be2614ed10ca47742c9522fd&path=34.jpg",
-        ".\/api\/page?id=28697b96f0ac5858be2614ed10ca47742c9522fd&path=35.jpg",
-        ".\/api\/page?id=28697b96f0ac5858be2614ed10ca47742c9522fd&path=36.jpg",
-        ".\/api\/page?id=28697b96f0ac5858be2614ed10ca47742c9522fd&path=37.jpg",
-        ".\/api\/page?id=28697b96f0ac5858be2614ed10ca47742c9522fd&path=38.jpg",
-        ".\/api\/page?id=28697b96f0ac5858be2614ed10ca47742c9522fd&path=39.jpg",
-        ".\/api\/page?id=28697b96f0ac5858be2614ed10ca47742c9522fd&path=40.jpg"
+    "pages": [".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=00.jpg",
+        ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=01.jpg",
+        ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=03.jpg",
+        ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=04.jpg",
+        ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=05.jpg",
+        ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=06.jpg",
+        ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=07.jpg",
+        ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=08.jpg",
+        ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=09.jpg",
+        ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=20.jpg",
+        ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=21.jpg",
+        ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=22.jpg",
+        ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=23.jpg",
+        ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=24.jpg",
+        ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=25.jpg",
+        ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=26.jpg",
+        ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=27.jpg",
+        ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=28.jpg",
+        ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=29.jpg",
+        ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=30.jpg",
+        ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=31.jpg",
+        ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=32.jpg",
+        ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=33.jpg",
+        ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=34.jpg",
+        ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=35.jpg",
+        ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=36.jpg",
+        ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=37.jpg",
+        ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=38.jpg",
+        ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=39.jpg",
+        ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=40.jpg"
     ]
 }
 ```
@@ -186,7 +186,7 @@ You didn't include the id parameter.
 {% endapi-method-spec %}
 {% endapi-method %}
 
-{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/servefile" %}
+{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/archives/:id/download" %}
 {% api-method-summary %}
 Download an Archive
 {% endapi-method-summary %}
@@ -197,11 +197,11 @@ Download an Archive from the server.
 
 {% api-method-spec %}
 {% api-method-request %}
-{% api-method-query-parameters %}
+{% api-method-path-parameters %}
 {% api-method-parameter name="id" type="string" required=true %}
 ID of the Archive to download.
 {% endapi-method-parameter %}
-{% endapi-method-query-parameters %}
+{% endapi-method-path-parameters %}
 {% endapi-method-request %}
 
 {% api-method-response %}
@@ -237,7 +237,7 @@ You get the Archive.
 {% endapi-method-spec %}
 {% endapi-method %}
 
-{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/untagged" %}
+{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/archives/untagged" %}
 {% api-method-summary %}
 Get Untagged archives
 {% endapi-method-summary %}
@@ -268,22 +268,22 @@ JSON Array of Archive IDs.
 {% endapi-method-spec %}
 {% endapi-method %}
 
-{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/clear\_new" %}
+{% api-method method="delete" host="http://lrr.tvc-16.science" path="/api/archives/:id/isnew" %}
 {% api-method-summary %}
 Clear New flag on archive
 {% endapi-method-summary %}
 
 {% api-method-description %}
-Clears the "New!" flag on an archive if an ID is provided. Otherwise, clears the flag on all archives.
+Clears the "New!" flag on an archive.
 {% endapi-method-description %}
 
 {% api-method-spec %}
 {% api-method-request %}
-{% api-method-query-parameters %}
+{% api-method-path-parameters %}
 {% api-method-parameter name="id" type="string" required=true %}
 ID of the Archive to process
 {% endapi-method-parameter %}
-{% endapi-method-query-parameters %}
+{% endapi-method-path-parameters %}
 {% endapi-method-request %}
 
 {% api-method-response %}

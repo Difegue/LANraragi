@@ -135,7 +135,7 @@ function titleColumnDisplay(data, type, full, meta) {
 					${encode(data.title)}
 				</a>
 				<div class="caption" style="display: none;">
-					<img style="height:200px" src="./api/thumbnail?id=${data.arcid}" onerror="this.src='./img/noThumb.png'">
+					<img style="height:200px" src="./api/archives/${data.arcid}/thumbnail" onerror="this.src='./img/noThumb.png'">
 				</div>`;
 	}
 
@@ -187,7 +187,7 @@ function buildThumbDiv(row, data, index) {
 							<a onclick="openInNewTab('reader?id=${data.arcid}')" title="${encode(data.title)}">
 								<img style="position:relative;" id ="${data.arcid}_thumb" src="./img/wait_warmly.jpg"/>
 								<i id="${data.arcid}_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>
-								<img src="./api/thumbnail?id=${data.arcid}" 
+								<img src="./api/archives/${data.arcid}/thumbnail" 
 									 onload="$('#${data.arcid}_thumb').remove(); $('#${data.arcid}_spinner').remove();" 
 									 onerror="this.src='./img/noThumb.png'"/>
 							</a>
