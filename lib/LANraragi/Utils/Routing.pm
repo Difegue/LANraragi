@@ -50,7 +50,6 @@ sub apply_routes {
     $logged_in->websocket('/batch/socket')->to('batch#socket');
 
     $logged_in->get('/edit')->to('edit#index');
-    $logged_in->post('/edit')->to('edit#save_metadata');
     $logged_in->delete('/edit')->to('edit#delete_archive');
 
     $logged_in->get('/backup')->to('backup#index');
@@ -85,13 +84,13 @@ sub apply_routes {
     # Archive APi (new)
     $public_api->get('/api/archives')->to('api-archive#serve_archivelist');
     $public_api->get('/api/archives/untagged')->to('api-archive#serve_untagged_archivelist');
-    $public_api->get('/api/archives/:id/metadata')->to('api-archive#serve_metadata');
     $public_api->get('/api/archives/:id/thumbnail')->to('api-archive#serve_thumbnail');
     $public_api->get('/api/archives/:id/download')->to('api-archive#serve_file');
     $public_api->get('/api/archives/:id/page')->to('api-archive#serve_page');
     $public_api->post('/api/archives/:id/extract')->to('api-archive#extract_archive');
     $public_api->delete('/api/archives/:id/isnew')->to('api-archive#clear_new');
     $logged_in_api->post('/api/archives/:id/autoplugin')->to('api-archive#use_enabled_plugins');  
+    $public_api->get('/api/archives/:id/metadata')->to('api-archive#serve_metadata');
     $logged_in_api->put('/api/archives/:id/metadata')->to('api-archive#update_metadata');   
 
     # Search API

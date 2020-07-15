@@ -149,7 +149,19 @@ sub use_enabled_plugins {
 }
 
 sub update_metadata {
-    # TODO
+    my $self  = shift;
+    my $id    = check_id_parameter( $self, "update_metadata" ) || return;
+
+    my $title = $self->req->param('title') || undef;
+    my $tags = $self->req->param('tags') || undef;
+    
+    my $res = LANraragi::Model::Archive::update_metadata( $id, $title, $tags );
+
+    if ($res eq "") {
+        render_api_response( $self, "add_to_category" );
+    } else {
+        render_api_response($self, "update_metadata", $res);
+    }
 }
 
 1;

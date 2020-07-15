@@ -14,7 +14,7 @@ use Mojo::Util qw(xml_escape);
 use LANraragi::Utils::Generic qw(get_tag_with_namespace remove_spaces remove_newlines render_api_response);
 use LANraragi::Utils::Archive qw(extract_thumbnail);
 use LANraragi::Utils::TempFolder qw(get_temp);
-use LANraragi::Utils::Database qw(redis_decode);
+use LANraragi::Utils::Database qw(redis_decode invalidate_cache);
 
 # Functions used when dealing with archives.
 
@@ -198,6 +198,43 @@ sub serve_page {
     } else {
         render_api_response($self, "serve_page", "This API cannot render files outside of the temporary folder.");
     }
+}
+
+sub update_metadata {
+    my ( $id, $title, $tags ) = @_;
+
+    unless(defined $title || defined $tags) {
+        return "No metadata parameters (Please supply title,tags or both)";
+    }
+
+    # Clean up the user's inputs and encode them.
+    ( remove_spaces($_) )   for ( $title, $tags );
+    ( remove_newlines($_) ) for ( $title, $tags );
+
+    # Input new values into redis hash.
+    my %hash;
+
+    # Prepare the hash which'll be inserted.
+    if (defined $title) {
+        $hash{title} = encode_utf8($title);
+    }
+
+    if (defined $tags) {
+         $hash{tags} = encode_utf8($tags);
+    }
+
+    my $redis = LANraragi::Model::Config->get_redis;
+
+    # For all keys of the hash, add them to the redis hash $id with the matching keys.
+    $redis->hset( $id, $_, $hash{$_}, sub { } ) for keys %hash;
+    $redis->wait_all_responses;
+    $redis->quit();
+
+    #Trigger a JSON rebuild.
+    invalidate_cache();
+
+    # No errors.
+    return "";
 }
 
 1;
