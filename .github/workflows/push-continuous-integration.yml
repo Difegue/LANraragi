@@ -28,8 +28,10 @@ jobs:
         tar -cvzf /tmp/lanraragi.tar.gz .
         cd tools/build/homebrew
         echo "Moving checked out'd code to the brew cache location $(brew --cache -s Lanraragi.rb)"
-        mv /tmp/lanraragi.tar.gz $(brew --cache -s Lanraragi.rb)
+        cp /tmp/lanraragi.tar.gz $(brew --cache -s Lanraragi.rb)
         brew unlink node@12
         brew install --verbose --build-from-source Lanraragi.rb
+        cp /tmp/lanraragi.tar.gz $(brew --cache -s Lanraragi.rb)
         brew test --verbose Lanraragi.rb 
+        cp /tmp/lanraragi.tar.gz $(brew --cache -s Lanraragi.rb)
         brew audit --verbose Lanraragi.rb
