@@ -35,10 +35,10 @@ function saveMetadata() {
 	var id = $("#archiveID").val();
 
 	const formData = new FormData();
-    formData.append('tags', $("#tagText").val());
-    formData.append('title', $("#title").val());
+	formData.append('tags', $("#tagText").val());
+	formData.append('title', $("#title").val());
 
-	return fetch(`api/archives/${id}/metadata`, {method: "PUT", body: formData})
+	return fetch(`api/archives/${id}/metadata`, { method: "PUT", body: formData })
 		.then(response => response.ok ? response.json() : { success: 0, error: "Response was not OK" })
 		.then((data) => {
 			if (data.success) {
@@ -58,7 +58,7 @@ function saveMetadata() {
 }
 
 function runPlugin() {
-	saveMetadata().then(()=>getTags());
+	saveMetadata().then(() => getTags());
 }
 
 function getTags() {
@@ -71,7 +71,7 @@ function getTags() {
 	const pluginID = $("select#plugin option:checked").val();
 	const archivID = $("#archiveID").val();
 	const pluginArg = $("#arg").val()
-	genericAPICall(`../api/plugin/use?plugin=${pluginID}&id=${archivID}&arg=${pluginArg}`, "POST", null,
+	genericAPICall(`../api/plugins/use?plugin=${pluginID}&id=${archivID}&arg=${pluginArg}`, "POST", null,
 		"Error while fetching tags :", function (result) {
 
 			if (result.data.title && result.data.title != "") {

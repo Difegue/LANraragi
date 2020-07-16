@@ -53,7 +53,7 @@ function saveFormData(formSelector) {
 
 	var postData = new FormData($(formSelector)[0]);
 
-	return fetch(window.location.href, {method: "POST", body: postData})
+	return fetch(window.location.href, { method: "POST", body: postData })
 		.then(response => response.ok ? response.json() : { success: 0, error: "Response was not OK" })
 		.then((data) => {
 			if (data.success) {
@@ -87,18 +87,18 @@ function triggerScript(namespace) {
 
 	// Save data before triggering script
 	saveFormData('#editPluginForm')
-		.then(genericAPICall(`../api/plugin/use?plugin=${namespace}&arg=${scriptArg}`, "POST", null, "Error while executing Script :",
-				function (r) {
-					$.toast({
-						showHideTransition: 'slide',
-						position: 'top-left',
-						loader: false,
-						heading: "Script result",
-						text: "<pre>" + JSON.stringify(r.data, null, 4) + "</pre>",
-						hideAfter: false,
-						icon: 'info'
-					});
-				}))
+		.then(genericAPICall(`../api/plugins/use?plugin=${namespace}&arg=${scriptArg}`, "POST", null, "Error while executing Script :",
+			function (r) {
+				$.toast({
+					showHideTransition: 'slide',
+					position: 'top-left',
+					loader: false,
+					heading: "Script result",
+					text: "<pre>" + JSON.stringify(r.data, null, 4) + "</pre>",
+					hideAfter: false,
+					icon: 'info'
+				});
+			}))
 		.then(() => {
 			isScriptRunning = false;
 			$(".script-running").hide();
