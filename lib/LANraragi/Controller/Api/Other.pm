@@ -56,7 +56,7 @@ sub list_plugins {
     my $type = $self->stash('type');
 
     my @plugins = get_plugins($type);
-    $self->render( json => encode_json( \@plugins ) );
+    $self->render( json => \@plugins );
 }
 
 # Uses a plugin, with the standard global arguments and a provided oneshot argument.
