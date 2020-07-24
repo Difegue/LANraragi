@@ -69,6 +69,8 @@ sub generate_opds_catalog {
                 $arcdata->{mimetype} = "application/pdf";
             } elsif ( $file =~ /^(.*\/)*.+\.(rar|cbr)$/ ) {
                 $arcdata->{mimetype} = "application/x-cbr";
+            } elsif ( $file =~ /^(.*\/)*.+\.(epub)$/ ) {
+                $arcdata->{mimetype} = "application/epub+zip";
             } else {
                 $arcdata->{mimetype} = "application/x-cbz";
             }

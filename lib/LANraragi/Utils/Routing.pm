@@ -83,7 +83,7 @@ sub apply_routes {
     $public_api->get('/api/clear_new')->to('api-archive#clear_new');
     $logged_in_api->post('/api/autoplugin')->to('api-archive#use_enabled_plugins');
 
-    # Archive APi (new)
+    # Archive API (new)
     $public_api->get('/api/archives')->to('api-archive#serve_archivelist');
     $public_api->get('/api/archives/untagged')->to('api-archive#serve_untagged_archivelist');
     $public_api->get('/api/archives/:id/thumbnail')->to('api-archive#serve_thumbnail');

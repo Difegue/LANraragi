@@ -35,7 +35,7 @@ Please read more details [here](https://tvc-16.science/lrr-survey-2.html).
 
 ## Features  
 
-* Stores your comics in archive format. (zip/rar/targz/lzma/7z/xz/cbz/cbr/pdf supported)  
+* Stores your comics in archive format. (zip/rar/targz/lzma/7z/xz/cbz/cbr/pdf supported, barebones support for epub)  
 
 * Read archives directly from your web browser: the server reads from within compressed files using temporary folders.
 

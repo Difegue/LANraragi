@@ -56,6 +56,7 @@ The following formats are supported by LRR for Archives:
 * 7z
 * xz
 * pdf
+* epub \(images only if viewed in the Web Client)\
 {% endhint %}
 
 {% hint style="info" %}
