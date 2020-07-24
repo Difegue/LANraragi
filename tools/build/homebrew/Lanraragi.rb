@@ -3,10 +3,11 @@ require "language/node"
 class Lanraragi < Formula
   desc "Web application for archival and reading of manga/doujinshi"
   homepage "https://github.com/Difegue/LANraragi"
-  url "https://github.com/Difegue/LANraragi/archive/v.0.7.0.tar.gz"
+  # url "https://github.com/Difegue/LANraragi/archive/v.0.7.0.tar.gz"
   # sha256 "e0ba954c80e6c2c16994e52b310234b3ee013c7076797c5d9eaf216bda182af6"
-  # url "https://github.com/Difegue/LANraragi.git",
-  #     :revision => "7752c156e8226fa5ed51a79bf7d75533503e0300"
+  url "https://github.com/Difegue/LANraragi.git",
+      :revision => "COMMIT_HASH"
+  version "0.1994-dev"
   head "https://github.com/Difegue/LANraragi.git"
 
   depends_on "pkg-config" => :build
