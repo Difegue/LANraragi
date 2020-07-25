@@ -339,7 +339,7 @@ function splitTagsByNamespace(tags) {
 
 	var tagsByNamespace = {};
 
-	if (tags === null) {
+	if (tags === null || tags === undefined) {
 		return tagsByNamespace;
 	}
 

@@ -253,6 +253,8 @@ function loadCategories() {
 }
 
 function encode(r) {
+	if (r === undefined)
+		return r;
 	if (Array.isArray(r))
 		return r[0].replace(/[\x26\x0A\<>'"]/g, function (r) { return "&#" + r.charCodeAt(0) + ";" });
 	else
