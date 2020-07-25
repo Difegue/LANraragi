@@ -130,7 +130,7 @@ function titleColumnDisplay(data, type, full, meta) {
 		titleHtml += buildProgressDiv(data.arcid, data.isnew);
 
 		return `${titleHtml} 
-				<a class="image-tooltip" id="${data.arcid} style="cursor:pointer" 
+				<a class="image-tooltip" id="${data.arcid}" style="cursor:pointer" 
 				   onmouseover="buildImageTooltip($(this))" onclick="openInNewTab('reader?id=${data.arcid}')"> 
 					${encode(data.title)}
 				</a>
@@ -185,7 +185,7 @@ function buildThumbDiv(row, data, index) {
 						</div>
 						<div style="height:280px; cursor:pointer" class="id3" >
 							<a onclick="openInNewTab('reader?id=${data.arcid}')" title="${encode(data.title)}">
-								<img style="position:relative;" id ="${data.arcid}_thumb" src="./img/wait_warmly.jpg"/>
+								<img style="position:relative;" id="${data.arcid}_thumb" src="./img/wait_warmly.jpg"/>
 								<i id="${data.arcid}_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>
 								<img src="./api/archives/${data.arcid}/thumbnail" 
 									 onload="$('#${data.arcid}_thumb').remove(); $('#${data.arcid}_spinner').remove();" 
