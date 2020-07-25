@@ -11,14 +11,14 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Set up Docker Buildx
-      uses: crazy-max/ghaction-docker-buildx@v1.5.0
+      uses: crazy-max/ghaction-docker-buildx@v3.2.0
       with:
-        buildx-version: v0.3.1
+        buildx-version: latest
         qemu-version: latest
-    - uses: actions/cache@v1
+    - uses: actions/cache@v2
       with: 
         path: /tmp/buildxcache
-        key: ${{ runner.os }}-docker-buildx-${{ hashFiles('**') }}
+        key: ${{ runner.os }}-docker-buildx-${{ github.sha }}
         restore-keys: |
           ${{ runner.os }}-docker-buildx-
     - name: Docker Login
@@ -30,25 +30,13 @@ jobs:
 
     - name: Build/Push Nightly Docker
       run: |
-        if [ -f /tmp/buildxcache/index.json ]; then
-          echo "Using buildx cache!"
-          docker buildx build --pull \
-            --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
-            --output "type=image,push=true" \
-            --tag difegue/lanraragi:latest \
-            --tag difegue/lanraragi:v.0.7.1 \
-            --cache-from=type=local,src=/tmp/buildxcache \
-            --cache-to=type=local,dest=/tmp/buildxcache \
-            --file ./tools/build/docker/Dockerfile .
-        else
-          docker buildx build --pull \
-            --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
-            --output "type=image,push=true" \
-            --tag difegue/lanraragi:latest \
-            --tag difegue/lanraragi:v.0.7.1 \
-            --cache-to=type=local,dest=/tmp/buildxcache \
-            --file ./tools/build/docker/Dockerfile .
-        fi
+        docker buildx build \
+          --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
+          --output "type=image,push=true" \
+          --tag difegue/lanraragi:nightly \
+          --cache-from "type=local,src=/tmp/buildxcache" \
+          --cache-to "type=local,dest=/tmp/buildxcache" \
+          --file ./tools/build/docker/Dockerfile .
 
   exportDockerRootFS:
     name: Build and export Docker rootfs for Windows build
