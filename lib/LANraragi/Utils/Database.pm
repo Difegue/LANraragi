@@ -292,6 +292,8 @@ sub invalidate_cache {
     my $redis = LANraragi::Model::Config->get_redis;
     $redis->del("LRR_SEARCHCACHE");
     $redis->quit();
+    # Re-warm the cache to ensure sufficient speed on the main index
+    LANraragi::Model::Search::do_search( "", "", 0, "title", "asc", 0, 0 );
 }
 
 # Go through the search cache and only invalidate keys that rely on isNew.

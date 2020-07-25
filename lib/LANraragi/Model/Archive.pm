@@ -9,11 +9,12 @@ use Redis;
 use Encode;
 use File::Temp qw(tempfile);
 use File::Copy "cp";
+use Mojo::Util qw(xml_escape);
 
-use LANraragi::Utils::Generic qw(get_tag_with_namespace remove_spaces remove_newlines);
+use LANraragi::Utils::Generic qw(get_tag_with_namespace remove_spaces remove_newlines render_api_response);
 use LANraragi::Utils::Archive qw(extract_thumbnail);
 use LANraragi::Utils::TempFolder qw(get_temp);
-use LANraragi::Utils::Database qw(redis_decode);
+use LANraragi::Utils::Database qw(redis_decode invalidate_cache);
 
 # Functions used when dealing with archives.
 
@@ -68,11 +69,13 @@ sub generate_opds_catalog {
                 $arcdata->{mimetype} = "application/pdf";
             } elsif ( $file =~ /^(.*\/)*.+\.(rar|cbr)$/ ) {
                 $arcdata->{mimetype} = "application/x-cbr";
+            } elsif ( $file =~ /^(.*\/)*.+\.(epub)$/ ) {
+                $arcdata->{mimetype} = "application/epub+zip";
             } else {
                 $arcdata->{mimetype} = "application/x-cbz";
             }
 
-            for ( values %{$arcdata} ) { escape_xml($_); }
+            for ( values %{$arcdata} ) { $_ = xml_escape($_); }
 
             push @list, $arcdata;
         }
@@ -94,14 +97,6 @@ sub generate_opds_catalog {
         motd     => $mojo->LRR_CONF->get_motd,
         version  => $mojo->LRR_VERSION
     );
-}
-
-# Escape XML control characters.
-sub escape_xml {
-    $_[0] =~ s/&/&amp;/sg;
-    $_[0] =~ s/</&lt;/sg;
-    $_[0] =~ s/>/&gt;/sg;
-    $_[0] =~ s/"/&quot;/sg;
 }
 
 # Return a list of archive IDs that have no tags.
@@ -167,21 +162,18 @@ sub serve_thumbnail {
 }
 
 sub serve_page {
-    my ( $self, $id ) = @_;
-    my $path = $self->req->param('path') || "404.xyz";
+    my ( $self, $id, $path ) = @_;
 
     my $tempfldr = get_temp();
     my $file     = $tempfldr . "/$id/$path";
     my $abspath  = abs_path($file);            # abs_path returns null if the path is invalid.
 
     if ( !$abspath ) {
-        $self->render(
-            json => {
-                error => "Invalid path.",
-                path  => $file
-            },
-            status => 500
-        );
+        render_api_response($self, "serve_page", "Invalid path $path.");
+    }
+
+    unless (-e $abspath) {
+        render_api_response($self, "serve_page", "$path does not exist.");
     }
 
     # This API can only serve files from the temp folder
@@ -201,20 +193,50 @@ sub serve_page {
             $self->render_file( filepath => $filename );
 
         } else {
-
             # Serve extracted file directly
             $self->render_file( filepath => $file );
         }
 
     } else {
-        $self->render(
-            json => {
-                error => "This API cannot render files outside of the temporary folder.",
-                path  => $abspath
-            },
-            status => 500
-        );
+        render_api_response($self, "serve_page", "This API cannot render files outside of the temporary folder.");
     }
+}
+
+sub update_metadata {
+    my ( $id, $title, $tags ) = @_;
+
+    unless(defined $title || defined $tags) {
+        return "No metadata parameters (Please supply title,tags or both)";
+    }
+
+    # Clean up the user's inputs and encode them.
+    ( remove_spaces($_) )   for ( $title, $tags );
+    ( remove_newlines($_) ) for ( $title, $tags );
+
+    # Input new values into redis hash.
+    my %hash;
+
+    # Prepare the hash which'll be inserted.
+    if (defined $title) {
+        $hash{title} = encode_utf8($title);
+    }
+
+    if (defined $tags) {
+         $hash{tags} = encode_utf8($tags);
+    }
+
+    my $redis = LANraragi::Model::Config->get_redis;
+
+    # For all keys of the hash, add them to the redis hash $id with the matching keys.
+    $redis->hset( $id, $_, $hash{$_}, sub { } ) for keys %hash;
+    $redis->wait_all_responses;
+    $redis->quit();
+
+    #Trigger a JSON rebuild.
+    invalidate_cache();
+
+    # No errors.
+    return "";
 }
 
 1;

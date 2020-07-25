@@ -256,7 +256,8 @@ td.itdc {
 	cursor: pointer;
 	font-size: 2em;
 	margin-top: 10px;
-	margin-bottom: 10px;
+  margin-bottom: 10px;
+  margin-left: 0.5vw;
 }
 .paginate_button:hover {
 	background-color: #F5F7F7;

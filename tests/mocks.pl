@@ -88,7 +88,14 @@ sub setup_redis_mock {
 
     # Mock Redis object which uses the datamodel
     my $redis = Test::MockObject->new();
-    $redis->mock( 'keys',    sub { return keys %datamodel; } );
+    $redis->mock(
+        'keys',    # $redis->keys => get keys matching predicate in datamodel
+        sub {
+            shift;
+            my $expr = $_[0] =~ s/\?/\./gr;    # Replace redis' '?' wildcards with regex '.'s
+            return grep { /$expr/ } keys %datamodel;
+        }
+    );
     $redis->mock( 'exists',  sub { shift; return $_[0] eq "LRR_SEARCHCACHE" ? 0 : 1 } );
     $redis->mock( 'hexists', sub { 1 } );
     $redis->mock( 'hset',    sub { 1 } );
@@ -96,7 +103,7 @@ sub setup_redis_mock {
     $redis->mock( 'select',  sub { 1 } );
 
     $redis->mock(
-        'hget',    # $redis->hget => get value of key in datamodel
+        'hget',                                # $redis->hget => get value of key in datamodel
         sub {
             my $self = shift;
             my ( $key, $hashkey ) = @_;
@@ -107,7 +114,7 @@ sub setup_redis_mock {
     );
 
     $redis->mock(
-        'hgetall',    # $redis->hgetall => get all values of key in datamodel
+        'hgetall',                             # $redis->hgetall => get all values of key in datamodel
         sub {
             my $self = shift;
             my $key  = shift;

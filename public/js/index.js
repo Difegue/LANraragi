@@ -135,6 +135,12 @@ function checkVersion(currentVersionConf) {
 
 function handleContextMenu(option, id) {
 
+	if (option.startsWith("category-")) {
+		var catId = option.replace("category-", "");
+		addArchiveToCategory(id, catId);
+		return;
+	}
+
 	switch (option) {
 		case "edit":
 			window.open("./edit?id=" + id);
@@ -144,10 +150,10 @@ function handleContextMenu(option, id) {
 				deleteArchive(id);
 			break;
 		case "read":
-			window.open("./reader?id=" + id);
+			window.open(`./reader?id=${id}`);
 			break;
 		case "download":
-			window.open("./api/servefile?id=" + id);
+			window.open(`./api/archives/${id}/download`);
 			break;
 		default:
 			break;
@@ -199,30 +205,56 @@ function loadCategories() {
 	$.get("/api/categories")
 		.done(function (data) {
 
-			// Sort by LastUsed 
+			// Sort by LastUsed + pinned
+			// Pinned categories are shown at the beginning
 			data.sort((a, b) => parseFloat(b.last_used) - parseFloat(a.last_used));
+			data.sort((a, b) => parseFloat(b.pinned) - parseFloat(a.pinned));
 			var html = "";
 
-			for (var i = 0; i < data.length; i++) {
+			var iteration = (data.length > 10 ? 10 : data.length);
+
+			for (var i = 0; i < iteration; i++) {
 				category = data[i];
 				const pinned = category.pinned === "1";
 
-				div = "<div style='display:inline-block'>" +
-					"	<input class='favtag-btn " + ((category.id == selectedCategory) ? "toggled" : "") + "' " +
-					"		   type='button' id='" + category.id + "' value='" + (pinned ? "📌" : "") + category.name + "' " +
-					"		   onclick='toggleCategory(this)' title='Click here to display the archives contained in this category.' />" +
-					"</div>"
+				catName = (pinned ? "📌" : "") + category.name;
+				catName = encode(catName);
 
-				// Pinned categories ignore LastUsed sorting and are shown at the beginning
-				if (pinned)
-					html = div + html;
-				else
-					html += div;
+				div = `<div style='display:inline-block'>
+						<input class='favtag-btn ${((category.id == selectedCategory) ? "toggled" : "")}' 
+							   type='button' id='${category.id}' value='${catName}' 
+							   onclick='toggleCategory(this)' title='Click here to display the archives contained in this category.'/>
+					   </div>`;
 
-				//TODO: more than 10 categories go into a dropdown?
+				html += div;
+			}
+
+			//If more than 10 categories, the rest goes into a dropdown
+			if (data.length > 10) {
+				html += `<select class="favtag-btn">
+							<option selected disabled>...</option>`;
+
+				for (var i = 10; i < data.length; i++) {
+
+					category = data[i];
+					catName = encode(category.name);
+
+					html += `<option id='${category.id}' onclick='toggleCategory(this)'>
+								${catName}
+							 </option>`;
+
+				}
+				html += "</select>";
 			}
 
 			$("#category-container").html(html);
 
 		}).fail(data => showErrorToast("Couldn't load categories", data.error));
+}
+
+function encode(r) {
+	if (Array.isArray(r))
+		return r[0].replace(/[\x26\x0A\<>'"]/g, function (r) { return "&#" + r.charCodeAt(0) + ";" });
+	else
+		return r.replace(/[\x26\x0A\<>'"]/g, function (r) { return "&#" + r.charCodeAt(0) + ";" })
 }

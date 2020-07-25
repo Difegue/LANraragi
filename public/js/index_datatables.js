@@ -108,13 +108,19 @@ function createNamespaceColumn(namespace, type, data) {
 		match = regex.exec(data);
 
 		if (match != null) {
-			return '<a style="cursor:pointer" arc-namespace="' + namespace + '" onclick="$(\'#srch\').val($(this).attr(\'arc-namespace\') + \':\' + $(this).html()); arcTable.search($(this).attr(\'arc-namespace\') + \':\' + $(this).html()).draw();">' +
-				match[1].replace(/\b./g, function (m) { return m.toUpperCase(); }) +
-				'</a>';
+			return `<a style="cursor:pointer" arc-namespace="${namespace}" onclick="$('#srch').val($(this).attr('arc-namespace') + ':' + $(this).html()); 
+																					arcTable.search($(this).attr('arc-namespace') + ':' + $(this).html()).draw();">
+						${match[1].replace(/\b./g, function (m) { return m.toUpperCase(); })}
+					</a>`;
 		} else return "";
 
 	}
 	return data;
+}
+
+function openInNewTab(url) {
+	var win = window.open(url, '_blank');
+	win.focus();
 }
 
 function titleColumnDisplay(data, type, full, meta) {
@@ -123,9 +129,14 @@ function titleColumnDisplay(data, type, full, meta) {
 		titleHtml = "";
 		titleHtml += buildProgressDiv(data.arcid, data.isnew);
 
-		return titleHtml + '<a class="image-tooltip" id="' + data.arcid + '" onmouseover="buildImageTooltip($(this))" href="./reader?id=' + data.arcid + '">'
-			+ data.title + '</a><div class="caption" style="display: none;"><img style="height:200px" src="./api/thumbnail?id='
-			+ data.arcid + '" onerror="this.src=\'./img/noThumb.png\'"></div>';
+		return `${titleHtml} 
+				<a class="image-tooltip" id="${data.arcid} style="cursor:pointer" 
+				   onmouseover="buildImageTooltip($(this))" onclick="openInNewTab('reader?id=${data.arcid}')"> 
+					${encode(data.title)}
+				</a>
+				<div class="caption" style="display: none;">
+					<img style="height:200px" src="./api/archives/${data.arcid}/thumbnail" onerror="this.src='./img/noThumb.png'">
+				</div>`;
 	}
 
 	return data.title;
@@ -167,22 +178,25 @@ function buildThumbDiv(row, data, index) {
 
 	if (localStorage.indexViewMode == 1) {
 		//Build a thumb-like div with the data
-		thumb_div = '<div style="height:335px" class="id1" id="' + data.arcid + '">' +
-			'<div class="id2">' +
-			buildProgressDiv(data.arcid, data.isnew) +
-			'<a href="./reader?id=' + data.arcid + '" title="' + data.title + '">' + data.title + '</a>' +
-			'</div>' +
-			'<div style="height:280px" class="id3" >' +
-			'<a href="./reader?id=' + data.arcid + '" title="' + data.title + '">' +
-			'<img style="position:relative;" id ="' + data.arcid + '_thumb" src="./img/wait_warmly.jpg"/>' +
-			'<i id="' + data.arcid + '_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>' +
-			'<img src="./api/thumbnail?id=' + data.arcid + '" onload="$(\'#' + data.arcid + '_thumb\').remove(); $(\'#' + data.arcid + '_spinner\').remove();" onerror="this.src=\'./img/noThumb.png\'"/>' +
-			'</a>' +
-			'</div>' +
-			'<div class="id4">' +
-			'<span class="tags tag-tooltip" onmouseover="buildTagTooltip($(this))">' + colorCodeTags(data.tags) + '</span>' +
-			buildTagsDiv(data.tags) +
-			'</div>';
+		thumb_div = `<div style="height:335px" class="id1" id="${data.arcid}">
+						<div class="id2" style="cursor:pointer">
+							${buildProgressDiv(data.arcid, data.isnew)}
+							<a onclick="openInNewTab('reader?id=${data.arcid}')" title="${encode(data.title)}">${encode(data.title)}</a>
+						</div>
+						<div style="height:280px; cursor:pointer" class="id3" >
+							<a onclick="openInNewTab('reader?id=${data.arcid}')" title="${encode(data.title)}">
+								<img style="position:relative;" id ="${data.arcid}_thumb" src="./img/wait_warmly.jpg"/>
+								<i id="${data.arcid}_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>
+								<img src="./api/archives/${data.arcid}/thumbnail" 
+									 onload="$('#${data.arcid}_thumb').remove(); $('#${data.arcid}_spinner').remove();" 
+									 onerror="this.src='./img/noThumb.png'"/>
+							</a>
+						</div>
+						<div class="id4">
+							<span class="tags tag-tooltip" onmouseover="buildTagTooltip($(this))">${colorCodeTags(data.tags)}</span>
+							${buildTagsDiv(data.tags)} 
+						</div>
+					</div>`;
 
 		$('#thumbs_container').append(thumb_div);
 	}
@@ -200,7 +214,7 @@ function buildProgressDiv(id, isnew) {
 		if (currentPage === totalPages)
 			return "<div class='isnew'>👑</div>";
 		else
-			return "<div class='isnew'><sup>" + currentPage + "/" + totalPages + "</sup></div>";
+			return `<div class='isnew'><sup>${currentPage}/${totalPages}</sup></div>`;
 	}
 
 	if (isnew === "block" || isnew === "true") {
@@ -288,10 +302,13 @@ function buildTagsDiv(tags) {
 	Object.keys(tagsByNamespace).sort().forEach(function (key, index) {
 
 		ucKey = key.charAt(0).toUpperCase() + key.slice(1);
-		line += "<tr><td style='font-size:10pt; padding: 3px 2px 7px; vertical-align:top'>" + ucKey + ":</td><td>";
+		ucKey = encode(ucKey);
+		line += `<tr><td style='font-size:10pt; padding: 3px 2px 7px; vertical-align:top'>${ucKey}:</td><td>`;
 
 		tagsByNamespace[key].forEach(function (tag) {
-			line += '<div class="gt" arc-namespace="' + key + '" onclick="$(\'#srch\').val($(this).attr(\'arc-namespace\') + \':\' + $(this).html()); arcTable.search($(this).attr(\'arc-namespace\') + \':\' + $(this).html()).draw();">' + tag + '</div>';
+			line += `<div class="gt" arc-namespace="${key}" onclick="$('#srch').val($(this).attr('arc-namespace') + ':' + $(this).html()); 
+																	arcTable.search($(this).attr('arc-namespace') + ':' + $(this).html()).draw();">
+					 ${encode(tag)}</div>`;
 		});
 
 		line += "</td></tr>";
@@ -310,7 +327,8 @@ function colorCodeTags(tags) {
 	tagsByNamespace = splitTagsByNamespace(tags);
 	Object.keys(tagsByNamespace).sort().forEach(function (key, index) {
 		tagsByNamespace[key].forEach(function (tag) {
-			line += "<span class='" + key.toLowerCase() + "-tag'>" + tag + "</span>, ";
+			var encodedK = encode(key.toLowerCase());
+			line += `<span class='${encodedK}-tag'>${encode(tag)}</span>, `;
 		});
 	});
 	// Remove last comma

@@ -45,6 +45,32 @@ function genericAPICall(endpoint, method, successMessage, errorMessage, successC
 		.catch(error => showErrorToast(errorMessage, error));
 }
 
+//saveFormData()
+//POSTs the data of the specified form to the page.
+//This is used for Edit, Config and Plugins.
+// Returns the promise object so you can chain more callbacks.
+function saveFormData(formSelector) {
+
+	var postData = new FormData($(formSelector)[0]);
+
+	return fetch(window.location.href, { method: "POST", body: postData })
+		.then(response => response.ok ? response.json() : { success: 0, error: "Response was not OK" })
+		.then((data) => {
+			if (data.success) {
+				$.toast({
+					showHideTransition: 'slide',
+					position: 'top-left',
+					loader: false,
+					heading: 'Saved Successfully!',
+					icon: 'success'
+				})
+			} else {
+				throw new Error(data.message);
+			}
+		})
+		.catch(error => showErrorToast("Error while saving", error));
+}
+
 let isScriptRunning = false;
 function triggerScript(namespace) {
 
@@ -54,37 +80,34 @@ function triggerScript(namespace) {
 		showErrorToast("A script is already running.", "Please wait for it to terminate.");
 		return;
 	}
+
 	isScriptRunning = true;
+	$(".script-running").show();
+	$(".stdbtn").hide();
 
 	// Save data before triggering script
-	$.ajax(
-		{
-			url: $('#editPluginForm').attr("action"),
-			type: "POST",
-			data: $('#editPluginForm').serializeArray(),
-			success: function (data, textStatus, jqXHR) {
-				if (data.success)
-					genericAPICall(`../api/plugin/use?plugin=${namespace}&arg=${scriptArg}`, "POST", null, "Error while executing Script :",
-						function (r) {
-							$.toast({
-								showHideTransition: 'slide',
-								position: 'top-left',
-								loader: false,
-								heading: "Script result",
-								text: "<pre>" + JSON.stringify(r.data, null, 4) + "</pre>",
-								hideAfter: false,
-								icon: 'info'
-							});
-						}).then(isScriptRunning = false);
-				else {
-					showErrorToast("Saving unsuccessful", data.message);
-					isScriptRunning = false;
-				}
-			},
-			error: function (jqXHR, textStatus, errorThrown) {
-				showErrorToast("Error while saving", errorThrown);
-				isScriptRunning = false;
-			}
+	saveFormData('#editPluginForm')
+		.then(genericAPICall(`../api/plugins/use?plugin=${namespace}&arg=${scriptArg}`, "POST", null, "Error while executing Script :",
+			function (r) {
+				$.toast({
+					showHideTransition: 'slide',
+					position: 'top-left',
+					loader: false,
+					heading: "Script result",
+					text: "<pre>" + JSON.stringify(r.data, null, 4) + "</pre>",
+					hideAfter: false,
+					icon: 'info'
+				});
+			}))
+		.then(() => {
+			isScriptRunning = false;
+			$(".script-running").hide();
+			$(".stdbtn").show();
+		})
+		.catch(() => {
+			isScriptRunning = false;
+			$(".script-running").hide();
+			$(".stdbtn").show();
 		});
 }
 
@@ -166,35 +189,9 @@ function shinobuStatus() {
 		});
 }
 
-//saveFormData()
-//POSTs the data of the specified form to the page.
-//This is used for Edit, Config and Plugins.
-function saveFormData(formSelector) {
-
-	var postData = $(formSelector).serializeArray()
-	var formURL = $(formSelector).attr("action")
-
-	$.ajax(
-		{
-			url: formURL,
-			type: "POST",
-			data: postData,
-			success: function (data, textStatus, jqXHR) {
-				if (data.success)
-					$.toast({
-						showHideTransition: 'slide',
-						position: 'top-left',
-						loader: false,
-						heading: 'Saved Successfully!',
-						icon: 'success'
-					})
-				else
-					showErrorToast("Saving unsuccessful", data.message);
-			},
-			error: function (jqXHR, textStatus, errorThrown) {
-				showErrorToast("Error while saving", errorThrown);
-			}
-		});
+//Adds an archive to a category. Basic implementation to use in Upload/Index.
+function addArchiveToCategory(arcId, catId) {
+	genericAPICall(`/api/categories/${catId}/${arcId}`, 'PUT', `Added ${arcId} to Category ${catId}!`, "Error adding/removing archive to category", null);
 }
 
 //deleteArchive(id)

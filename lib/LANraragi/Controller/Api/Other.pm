@@ -1,10 +1,11 @@
 package LANraragi::Controller::Api::Other;
 use Mojo::Base 'Mojolicious::Controller';
 
+use Mojo::JSON qw(encode_json);
 use Redis;
 
 use LANraragi::Utils::TempFolder qw(get_tempsize clean_temp_full);
-use LANraragi::Utils::Plugins qw(get_plugin get_plugin_parameters);
+use LANraragi::Utils::Plugins qw(get_plugin get_plugins get_plugin_parameters);
 
 sub serve_serverinfo {
     my $self = shift;
@@ -47,6 +48,15 @@ sub clean_tempfolder {
             newsize   => get_tempsize()
         }
     );
+}
+
+# List all plugins of the given type.
+sub list_plugins {
+    my $self = shift;
+    my $type = $self->stash('type');
+
+    my @plugins = get_plugins($type);
+    $self->render( json => \@plugins );
 }
 
 # Uses a plugin, with the standard global arguments and a provided oneshot argument.

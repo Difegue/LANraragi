@@ -128,11 +128,17 @@ sub get_tags_from_NH {
     #Find the metadata JSON in the HTML and turn it into an object
     #It's located under a N.gallery JS object.
     my $jsonstring = "{}";
-    if ( $textrep =~ /.*N\.gallery\((.*)\);\n.*/gmi ) {
+    if ( $textrep =~ /window\._gallery.*=.*JSON\.parse\((.*)\);/gmi ) {
         $jsonstring = $1;
     }
 
+    $logger->debug("Tentative JSON: $jsonstring");
+
+    # nH now provides their JSON with \uXXXX escaped characters.
+    # The first pass of decode_json decodes those characters, but still outputs a string.
+    # The second pass turns said string into an object properly so we can exploit it as a hash.
     my $json = decode_json $jsonstring;
+    $json = decode_json $json;
 
     my $tags = $json->{"tags"};
 

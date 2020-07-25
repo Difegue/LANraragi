@@ -49,7 +49,7 @@ sub resize_image {
 }
 
 #build_reader_JSON(mojo,id,forceReload,refreshThumbnail)
-#Opens the archive specified by its ID and returns a json matching pages to their
+#Opens the archive specified by its ID, and returns a json containing the page names.
 sub build_reader_JSON {
 
     my ( $self, $id, $force, $thumbreload ) = @_;
@@ -150,7 +150,7 @@ sub build_reader_JSON {
         $imgpath =~ s!%2F!/!g;
 
         # Bundle this path into an API call which will be used by the browser
-        push @images_browser, "./api/page?id=$id&path=$imgpath";
+        push @images_browser, "./api/archives/$id/page?path=$imgpath";
     }
 
     #Build json (it's just the images array in a string)

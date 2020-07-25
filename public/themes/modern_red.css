@@ -265,6 +265,7 @@ td.itdc {
   width: 31px;
   margin-top: 10px;
   margin-bottom: 10px;
+  margin-left: 0.5vw;
 }
 
 .paginate_button:hover {

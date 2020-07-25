@@ -89,7 +89,7 @@
 						$("#" + data.result.id).html("Running AutoPlugin on this archive...");
 						$("#" + data.result.id).val("href", "");
 
-						$.post("/api/autoplugin", { id: data.result.id }, function (data) {
+						$.post(`/api/archives/${data.result.id}/autoplugin`, function (data) {
 							if (data.success) {
 								$("#" + data.id).html("Click here to edit metadata.(" + data.message + ")");
 							} else {
@@ -100,10 +100,7 @@
 
 					if (categoryID !== "") {
 						console.log(`Adding ${data.result.id} to category ${categoryID}`)
-						fetch(`/api/categories/${categoryID}/${data.result.id}`, { method: 'PUT' })
-							.then(response => response.ok ? response.json() : { success: 0, error: "Response was not OK" })
-							.then(data => { if (!data.success) throw new Error(data.error); })
-							.catch(error => showErrorToast("Error adding archive to category", error));
+						addArchiveToCategory(data.result.id, categoryID);
 					}
 
 				},

@@ -31,6 +31,7 @@ sub index {
         devmode       => $self->LRR_CONF->enable_devmode,
         nofunmode     => $self->LRR_CONF->enable_nofun,
         apikey        => $self->LRR_CONF->get_apikey,
+        enablecors    => $self->LRR_CONF->enable_cors,
         tagregex      => $self->LRR_CONF->get_tagregex,
         enableresize  => $self->LRR_CONF->enable_resize,
         sizethreshold => $self->LRR_CONF->get_threshold,
@@ -64,6 +65,7 @@ sub save_config {
         #for checkboxes,
         #we check if the parameter exists in the POST to return either 1 or 0.
         enablepass   => ( scalar $self->req->param('enablepass')   ? '1' : '0' ),
+        enablecors   => ( scalar $self->req->param('enablecors')   ? '1' : '0' ),
         autotag      => ( scalar $self->req->param('autotag')      ? '1' : '0' ),
         devmode      => ( scalar $self->req->param('devmode')      ? '1' : '0' ),
         enableresize => ( scalar $self->req->param('enableresize') ? '1' : '0' ),

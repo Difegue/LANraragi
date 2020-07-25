@@ -3,12 +3,16 @@ require "language/node"
 class Lanraragi < Formula
   desc "Web application for archival and reading of manga/doujinshi"
   homepage "https://github.com/Difegue/LANraragi"
-  url "https://github.com/Difegue/LANraragi/archive/v.0.6.9-EX.tar.gz"
-  # sha256 "157a3ebdb5f132de179b69013aad351333990577bebd31e4b7b80e939b25921d"
+  # url "https://github.com/Difegue/LANraragi/archive/v.0.7.0.tar.gz"
+  # sha256 "e0ba954c80e6c2c16994e52b310234b3ee013c7076797c5d9eaf216bda182af6"
+  url "https://github.com/Difegue/LANraragi.git",
+      :revision => "COMMIT_HASH"
+  version "0.1994-dev"
   head "https://github.com/Difegue/LANraragi.git"
 
   depends_on "pkg-config" => :build
   depends_on "cpanminus"
+  depends_on "ghostscript"
   depends_on "giflib"
   depends_on "imagemagick@6"
   depends_on "jpeg"
@@ -25,11 +29,9 @@ class Lanraragi < Formula
   end
 
   # libarchive headers from macOS 10.15 source
-  if OS.mac?
-    resource "libarchive-headers-10.15" do
-      url "https://opensource.apple.com/tarballs/libarchive/libarchive-72.11.2.tar.gz"
-      sha256 "655b9270db794ba0b27052fd37b1750514b06769213656ab81e30727322e401f"
-    end
+  resource "libarchive-headers-10.15" do
+    url "https://opensource.apple.com/tarballs/libarchive/libarchive-72.11.2.tar.gz"
+    sha256 "655b9270db794ba0b27052fd37b1750514b06769213656ab81e30727322e401f"
   end
 
   resource "Archive::Peek::Libarchive" do
@@ -44,7 +46,7 @@ class Lanraragi < Formula
 
     resource("Image::Magick").stage do
       inreplace "Makefile.PL" do |s|
-        s.gsub! "/usr/local/include/ImageMagick-6", "#{HOMEBREW_PREFIX}/opt/imagemagick@6/include/ImageMagick-6"
+        s.gsub! "/usr/local/include/ImageMagick-6", "#{Formula["imagemagick@6"].opt_include}/ImageMagick-6"
       end
 
       system "perl", "Makefile.PL", "INSTALL_BASE=#{libexec}"
@@ -52,11 +54,9 @@ class Lanraragi < Formula
       system "make", "install"
     end
 
-    if OS.mac?
-      resource("libarchive-headers-10.15").stage do
-        (libexec/"include").install "libarchive/libarchive/archive.h"
-        (libexec/"include").install "libarchive/libarchive/archive_entry.h"
-      end
+    resource("libarchive-headers-10.15").stage do
+      (libexec/"include").install "libarchive/libarchive/archive.h"
+      (libexec/"include").install "libarchive/libarchive/archive_entry.h"
     end
 
     resource("Archive::Peek::Libarchive").stage do
@@ -64,7 +64,7 @@ class Lanraragi < Formula
         s.gsub! "$autoconf->_get_extra_compiler_flags", "$autoconf->_get_extra_compiler_flags .$ENV{CFLAGS}"
       end
 
-      system "cpanm", "Config::AutoConf", "-l", libexec
+      system "cpanm", "Config::AutoConf", "--notest", "-l", libexec
       system "perl", "Makefile.PL", "INSTALL_BASE=#{libexec}"
       system "make"
       system "make", "install"

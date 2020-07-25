@@ -30,33 +30,35 @@ function updateOneShotArg() {
 	$('#arg_label').html(arg);
 }
 
-//saveArchiveCallback(callbackFunction,callbackArguments)
-//Grabs the data in the edit.pl form and presaves it to Redis for tag Searches. Executes a callback when data is correctly saved.
-function saveArchiveCallback(callback, arg1, arg2) {
+function saveMetadata() {
 
-	var postData = $("#editArchiveForm").serializeArray()
-	var formURL = $("#editArchiveForm").attr("action")
+	var id = $("#archiveID").val();
 
-	$.ajax(
-		{
-			url: formURL,
-			type: "POST",
-			data: postData,
-			success: function (data, textStatus, jqXHR) {
-				callback(arg1, arg2);
-			},
-			error: function (jqXHR, textStatus, errorThrown) {
+	const formData = new FormData();
+	formData.append('tags', $("#tagText").val());
+	formData.append('title', $("#title").val());
+
+	return fetch(`api/archives/${id}/metadata`, { method: "PUT", body: formData })
+		.then(response => response.ok ? response.json() : { success: 0, error: "Response was not OK" })
+		.then((data) => {
+			if (data.success) {
 				$.toast({
 					showHideTransition: 'slide',
 					position: 'top-left',
 					loader: false,
-					heading: 'Error while saving archive data :',
-					text: errorThrown,
-					icon: 'error'
-				});
+					heading: 'Saved Successfully!',
+					icon: 'success'
+				})
+			} else {
+				throw new Error(data.message);
 			}
-		});
+		})
+		.catch(error => showErrorToast("Error while saving archive data :", error));
 
+}
+
+function runPlugin() {
+	saveMetadata().then(() => getTags());
 }
 
 function getTags() {
@@ -69,7 +71,7 @@ function getTags() {
 	const pluginID = $("select#plugin option:checked").val();
 	const archivID = $("#archiveID").val();
 	const pluginArg = $("#arg").val()
-	genericAPICall(`../api/plugin/use?plugin=${pluginID}&id=${archivID}&arg=${pluginArg}`, "POST", null,
+	genericAPICall(`../api/plugins/use?plugin=${pluginID}&id=${archivID}&arg=${pluginArg}`, "POST", null,
 		"Error while fetching tags :", function (result) {
 
 			if (result.data.title && result.data.title != "") {

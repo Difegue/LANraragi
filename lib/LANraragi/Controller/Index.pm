@@ -52,12 +52,17 @@ sub index {
 
     my $userlogged = $self->LRR_CONF->enable_pass == 0 || $self->session('is_logged');
 
+    # Get static category list to populate the right-click menu
+    my @categories = LANraragi::Model::Category::get_category_list;
+    @categories = grep { %$_{"search"} eq "" } @categories;
+
     $self->render(
         template     => "index",
         version      => $self->LRR_VERSION,
         title        => $self->LRR_CONF->get_htmltitle,
         pagesize     => $self->LRR_CONF->get_pagesize,
         userlogged   => $userlogged,
+        categories   => \@categories,
         motd         => $self->LRR_CONF->get_motd,
         cssdrop      => generate_themes_selector,
         csshead      => generate_themes_header($self),

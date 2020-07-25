@@ -50,7 +50,6 @@ sub apply_routes {
     $logged_in->websocket('/batch/socket')->to('batch#socket');
 
     $logged_in->get('/edit')->to('edit#index');
-    $logged_in->post('/edit')->to('edit#save_metadata');
     $logged_in->delete('/edit')->to('edit#delete_archive');
 
     $logged_in->get('/backup')->to('backup#index');
@@ -69,52 +68,46 @@ sub apply_routes {
     # Miscellaneous API
     $public_api->get('/api/opds')->to('api-other#serve_opds');
     $public_api->get('/api/info')->to('api-other#serve_serverinfo');
-    $logged_in_api->get('/api/use_plugin')->to('api-other#use_plugin');    #old
+    $logged_in_api->get('/api/plugins/:type')->to('api-other#list_plugins');
+    $logged_in_api->post('/api/plugins/use')->to('api-other#use_plugin');
     $logged_in_api->post('/api/plugin/use')->to('api-other#use_plugin');
-    $logged_in_api->get('/api/clean_temp')->to('api-other#clean_tempfolder');    #old
     $logged_in_api->delete('/api/tempfolder')->to('api-other#clean_tempfolder');
 
-    # Archive API (TODO)
+    # Archive API (old)
     $public_api->get('/api/thumbnail')->to('api-archive#serve_thumbnail');
     $public_api->get('/api/servefile')->to('api-archive#serve_file');
+    $public_api->get('/api/page')->to('api-archive#serve_page');
     $public_api->get('/api/archivelist')->to('api-archive#serve_archivelist');
     $public_api->get('/api/untagged')->to('api-archive#serve_untagged_archivelist');
     $public_api->get('/api/extract')->to('api-archive#extract_archive');
     $public_api->get('/api/clear_new')->to('api-archive#clear_new');
     $logged_in_api->post('/api/autoplugin')->to('api-archive#use_enabled_plugins');
 
-    # /api/page is always available even in No-Fun-Mode.
-    # This technically means that people *can* get pages off an uploaded archive if it's been extracted before.
-    # (And if they can guess the ID and path to the files)
-    # TODO: Remove as the api key moves to an auth header, removing the need for this compat workaround.
-    $r->get('/api/page')->to('api-archive#serve_page');
+    # Archive API (new)
+    $public_api->get('/api/archives')->to('api-archive#serve_archivelist');
+    $public_api->get('/api/archives/untagged')->to('api-archive#serve_untagged_archivelist');
+    $public_api->get('/api/archives/:id/thumbnail')->to('api-archive#serve_thumbnail');
+    $public_api->get('/api/archives/:id/download')->to('api-archive#serve_file');
+    $public_api->get('/api/archives/:id/page')->to('api-archive#serve_page');
+    $public_api->post('/api/archives/:id/extract')->to('api-archive#extract_archive');
+    $public_api->delete('/api/archives/:id/isnew')->to('api-archive#clear_new');
+    $logged_in_api->post('/api/archives/:id/autoplugin')->to('api-archive#use_enabled_plugins');
+    $public_api->get('/api/archives/:id/metadata')->to('api-archive#serve_metadata');
+    $logged_in_api->put('/api/archives/:id/metadata')->to('api-archive#update_metadata');
 
     # Search API
     $public_api->get('/search')->to('api-search#handle_datatables');
     $public_api->get('/api/search')->to('api-search#handle_api');
-    $logged_in_api->get('/api/discard_cache')->to('api-search#clear_cache');    #old
     $logged_in_api->delete('/api/search/cache')->to('api-search#clear_cache');
 
-    # Database API - old endpoints
-    $logged_in_api->get('/api/backup')->to('api-database#serve_backup');
-    $logged_in_api->get('/api/clear_new_all')->to('api-database#clear_new_all');
-    $logged_in_api->get('/api/drop_database')->to('api-database#drop_database');
-    $logged_in_api->get('/api/clean_database')->to('api-database#clean_database');
-    $public_api->get('/api/tagstats')->to('api-database#serve_tag_stats');
-
-    # Database API - new endpoints
+    # Database API
     $logged_in_api->get('/api/database/backup')->to('api-database#serve_backup');
     $logged_in_api->delete('/api/database/isnew')->to('api-database#clear_new_all');
     $logged_in_api->post('/api/database/drop')->to('api-database#drop_database');
     $logged_in_api->post('/api/database/clean')->to('api-database#clean_database');
     $public_api->get('/api/database/stats')->to('api-database#serve_tag_stats');
 
-    # Shinobu API - old endpoints
-    $logged_in_api->get('/api/shinobu_status')->to('api-shinobu#shinobu_status');
-    $logged_in_api->get('/api/stop_shinobu')->to('api-shinobu#stop_shinobu');
-    $logged_in_api->get('/api/restart_shinobu')->to('api-shinobu#restart_shinobu');
-
-    # Shinobu API - new endpoints
+    # Shinobu API
     $logged_in_api->get('/api/shinobu')->to('api-shinobu#shinobu_status');
     $logged_in_api->post('/api/shinobu/stop')->to('api-shinobu#stop_shinobu');
     $logged_in_api->post('/api/shinobu/restart')->to('api-shinobu#restart_shinobu');

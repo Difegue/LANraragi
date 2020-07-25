@@ -1,7 +1,7 @@
 {
   "name": "lanraragi",
-  "version": "0.7.0",
-  "version_name": "Cat People (Putting Out Fire)",
+  "version": "0.7.1",
+  "version_name": "Tonight",
   "description": "holla where the chinese comics at",
   "scripts": {
     "test": "prove -l -v tests/*.t",

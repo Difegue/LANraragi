@@ -5,6 +5,7 @@ use utf8;
 use URI::Escape;
 use Redis;
 use Encode;
+use Mojo::Util qw(xml_escape);
 
 use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header);
 use LANraragi::Utils::Database qw(redis_decode);
@@ -32,6 +33,7 @@ sub index {
         my $zipfile = $redis->hget( $id, "file" );
         my $title   = $redis->hget( $id, "title" );
         $title = redis_decode($title);
+        $title = xml_escape($title);
 
         if ( -e $zipfile ) {
             $arclist .=

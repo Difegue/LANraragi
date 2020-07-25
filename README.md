@@ -1,6 +1,7 @@
 [<img src="https://img.shields.io/docker/pulls/difegue/lanraragi.svg">](https://hub.docker.com/r/difegue/lanraragi/)
 [<img src="https://img.shields.io/github/downloads/difegue/lanraragi/total.svg">](https://github.com/Difegue/LANraragi/releases)
 [<img src="https://img.shields.io/github/release/difegue/lanraragi.svg?label=latest%20release">](https://github.com/Difegue/LANraragi/releases/latest)
+[<img src="https://img.shields.io/homebrew/v/lanraragi.svg">](https://formulae.brew.sh/formula/lanraragi)
 [<img src="https://img.shields.io/website/https/lrr.tvc-16.science.svg?label=demo%20website&up_message=online">](https://lrr.tvc-16.science/)
 [<img src="https://action-badges.now.sh/Difegue/lanraragi">](https://github.com/Difegue/LANraragi/actions)
 [<img src="https://img.shields.io/discord/612709831744290847">](https://discord.gg/aRQxtbg)
@@ -30,7 +31,7 @@ Open source server for archival of comics/manga, running on Mojolicious + Redis.
 
 ## Features  
 
-* Stores your comics in archive format. (zip/rar/targz/lzma/7z/xz/cbz/cbr/pdf supported)  
+* Stores your comics in archive format. (zip/rar/targz/lzma/7z/xz/cbz/cbr/pdf supported, barebones support for epub)  
 
 * Read archives directly from your web browser: the server reads from within compressed files using temporary folders.
 
