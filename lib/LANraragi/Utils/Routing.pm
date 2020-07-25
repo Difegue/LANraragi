@@ -70,7 +70,7 @@ sub apply_routes {
     $public_api->get('/api/info')->to('api-other#serve_serverinfo');
     $logged_in_api->get('/api/plugins/:type')->to('api-other#list_plugins');
     $logged_in_api->post('/api/plugins/use')->to('api-other#use_plugin');
-    $logged_in_api->post('/api/plugin/use')->to('api-other#use_plugin');
+    $logged_in_api->post('/api/plugin/use')->to('api-other#use_plugin'); #old
     $logged_in_api->delete('/api/tempfolder')->to('api-other#clean_tempfolder');
 
     # Archive API (old)

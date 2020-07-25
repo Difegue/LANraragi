@@ -35,7 +35,8 @@ jobs:
           docker buildx build --pull \
             --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
             --output "type=image,push=true" \
-            --tag difegue/lanraragi:nightly \
+            --tag difegue/lanraragi:latest \
+            --tag difegue/lanraragi:v.0.7.1 \
             --cache-from=type=local,src=/tmp/buildxcache \
             --cache-to=type=local,dest=/tmp/buildxcache \
             --file ./tools/build/docker/Dockerfile .
@@ -43,7 +44,8 @@ jobs:
           docker buildx build --pull \
             --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
             --output "type=image,push=true" \
-            --tag difegue/lanraragi:nightly \
+            --tag difegue/lanraragi:latest \
+            --tag difegue/lanraragi:v.0.7.1 \
             --cache-to=type=local,dest=/tmp/buildxcache \
             --file ./tools/build/docker/Dockerfile .
         fi
