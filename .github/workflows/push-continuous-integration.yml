@@ -17,18 +17,3 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
           args: ./lib/* ./script/* ./tools/install.pl
-  testBrew:
-    name: Test Homebrew version
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@master
-    - name: Build and test bundled homebrew formula
-      run: |
-        brew update
-        cd tools/build/homebrew
-        echo "Replacing commit hash in formula with current hash $(git rev-parse --verify HEAD)"
-        sed -i.bck "s/COMMIT_HASH/$(git rev-parse --verify HEAD)/" Lanraragi.rb
-        brew unlink node@12
-        brew install --force --verbose --build-from-source Lanraragi.rb
-        brew test --verbose Lanraragi.rb 
-        brew audit --verbose Lanraragi.rb
