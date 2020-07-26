@@ -38,6 +38,7 @@ use LANraragi::Utils::Generic qw(is_archive);
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
 use LANraragi::Utils::Plugins;    # Needed here since Shinobu doesn't inherit from the main LRR package
+use LANraragi::Model::Search;     # idem
 
 # Filemap hash, global to all subs and exposed to the server through IPC
 my %filemap;

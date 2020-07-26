@@ -71,21 +71,29 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Set up Docker Buildx
-      uses: crazy-max/ghaction-docker-buildx@v1.5.0
+      uses: crazy-max/ghaction-docker-buildx@v3.2.0
       with:
-        buildx-version: v0.3.1
+        buildx-version: latest
         qemu-version: latest
+    - uses: actions/cache@v2
+      with: 
+        path: /tmp/buildxcache
+        key: ${{ runner.os }}-docker-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-docker-buildx-
     - name: Build/Push Latest Docker image and tag with Release number
       env:
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       run: |
         TAG=${GITHUB_REF:10:10}
-        docker buildx build --pull \
+        docker buildx build \
           --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
-          --output "type=registry" \
+          --output "type=image,push=true" \
           --tag difegue/lanraragi:latest \
           --tag difegue/lanraragi:$TAG \
+          --cache-from "type=local,src=/tmp/buildxcache" \
+          --cache-to "type=local,dest=/tmp/buildxcache" \
           --file ./tools/build/docker/Dockerfile .
     - uses: Ilshidur/action-discord@master
       env:
