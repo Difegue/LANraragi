@@ -139,7 +139,7 @@ sub clean_database {
     #40-character long keys only => Archive IDs
     my @keys = $redis->keys('????????????????????????????????????????');
 
-    my $deleted_arcs = 0;
+    my $deleted_arcs  = 0;
     my $unlinked_arcs = 0;
 
     foreach my $id (@keys) {
@@ -159,7 +159,7 @@ sub clean_database {
     }
 
     $redis->quit;
-    return ($deleted_arcs, $unlinked_arcs);
+    return ( $deleted_arcs, $unlinked_arcs );
 }
 
 #add_tags($id, $tags)
@@ -292,8 +292,10 @@ sub invalidate_cache {
     my $redis = LANraragi::Model::Config->get_redis;
     $redis->del("LRR_SEARCHCACHE");
     $redis->quit();
+
     # Re-warm the cache to ensure sufficient speed on the main index
-    LANraragi::Model::Search::do_search( "", "", 0, "title", "asc", 0, 0 );
+    # TODO: Reimplement this in a job queue, current iteration blocks some methods too much to be worthwhile
+    #LANraragi::Model::Search::do_search( "", "", 0, "title", "asc", 0, 0 );
 }
 
 # Go through the search cache and only invalidate keys that rely on isNew.

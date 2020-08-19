@@ -130,8 +130,7 @@ function titleColumnDisplay(data, type, full, meta) {
 		titleHtml += buildProgressDiv(data.arcid, data.isnew);
 
 		return `${titleHtml} 
-				<a class="image-tooltip" id="${data.arcid}" style="cursor:pointer" 
-				   onmouseover="buildImageTooltip($(this))" onclick="openInNewTab('reader?id=${data.arcid}')"> 
+				<a class="image-tooltip" id="${data.arcid}" onmouseover="buildImageTooltip($(this))" href="reader?id=${data.arcid}"> 
 					${encode(data.title)}
 				</a>
 				<div class="caption" style="display: none;">
@@ -179,12 +178,12 @@ function buildThumbDiv(row, data, index) {
 	if (localStorage.indexViewMode == 1) {
 		//Build a thumb-like div with the data
 		thumb_div = `<div style="height:335px" class="id1" id="${data.arcid}">
-						<div class="id2" style="cursor:pointer">
+						<div class="id2">
 							${buildProgressDiv(data.arcid, data.isnew)}
-							<a onclick="openInNewTab('reader?id=${data.arcid}')" title="${encode(data.title)}">${encode(data.title)}</a>
+							<a href="reader?id=${data.arcid}" title="${encode(data.title)}">${encode(data.title)}</a>
 						</div>
-						<div style="height:280px; cursor:pointer" class="id3" >
-							<a onclick="openInNewTab('reader?id=${data.arcid}')" title="${encode(data.title)}">
+						<div style="height:280px" class="id3">
+							<a href="reader?id=${data.arcid}" title="${encode(data.title)}">
 								<img style="position:relative;" id="${data.arcid}_thumb" src="./img/wait_warmly.jpg"/>
 								<i id="${data.arcid}_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>
 								<img src="./api/archives/${data.arcid}/thumbnail" 
