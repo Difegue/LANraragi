@@ -6,7 +6,7 @@ class Lanraragi < Formula
   # url "https://github.com/Difegue/LANraragi/archive/v.0.7.1.tar.gz"
   # sha256 "bfef465abb30f2ff18cda2fea6712f5ff35b3d23b0d6f2e7ea4cfe1c46e69585"
   url "https://github.com/Difegue/LANraragi.git",
-      :revision => "COMMIT_HASH"
+      revision: "COMMIT_HASH"
   version "0.1994-dev"
   license "MIT"
   head "https://github.com/Difegue/LANraragi.git"
