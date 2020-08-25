@@ -18,12 +18,6 @@ requires 'Authen::Passphrase', 0.008;
 requires 'File::ReadBackwards', 1.05;
 requires 'URI::Escape', 1.74;
 
-# Background Worker
-requires 'Proc::Simple', 1.32;
-requires 'Parallel::Loops', 0.10;
-requires 'Sys::CpuAffinity', 1.12;
-requires 'File::ChangeNotify', 0.31;
-
 # Used by Installer
 requires 'IPC::Cmd', 1.02;
 
@@ -41,6 +35,16 @@ requires 'Mojolicious::Plugin::TemplateToolkit', 0.005;
 requires 'Mojolicious::Plugin::RenderFile', 0.12;
 requires 'IO::Socket::SSL', 2.067;
 requires 'Cpanel::JSON::XS', 4.06;
+
+# Job Queue (Minion)
+requires 'Mojolicious::Plugin::Minion', 10.13;
+requires 'Minion::Backend::SQLite', 5.0.3;
+
+# Background Worker (Shinobu)
+requires 'Proc::Simple', 1.32;
+requires 'Parallel::Loops', 0.10;
+requires 'Sys::CpuAffinity', 1.12;
+requires 'File::ChangeNotify', 0.31;
 
 # Plugin system
 requires 'Module::Pluggable', 5.2;

@@ -1,5 +1,6 @@
 node_modules
 content
+.minion.db*
 .shinobu-pid
 .shinobu-filemap
 npm-debug.log

@@ -12,7 +12,6 @@ use File::Copy "cp";
 use Mojo::Util qw(xml_escape);
 
 use LANraragi::Utils::Generic qw(get_tag_with_namespace remove_spaces remove_newlines render_api_response);
-use LANraragi::Utils::Archive qw(extract_thumbnail);
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Database qw(redis_decode invalidate_cache);
 
@@ -145,19 +144,21 @@ sub serve_thumbnail {
     my ( $self, $id ) = @_;
     my $dirname = LANraragi::Model::Config->get_userdir;
 
-    #Thumbnails are stored in the content directory, thumb subfolder.
-    my $thumbname = $dirname . "/thumb/" . $id . ".jpg";
+    # Thumbnails are stored in the content directory, thumb subfolder.
+    # Another subfolder with the first two characters of the id is used for FS optimization.
+    my $subfolder = substr($id, 0, 2);
+    my $thumbname = "$dirname/thumb/$subfolder/$id.jpg";
 
+    # Queue a minion job to generate the thumbnail, 
     unless ( -e $thumbname ) {
-        $thumbname = extract_thumbnail( $dirname, $id );
-    }
-
-    #Simply serve the thumbnail.
-    #If it doesn't exist, serve an error placeholder instead.
-    if ( -e $thumbname ) {
-        $self->render_file( filepath => $thumbname );
-    } else {
+        $self->minion->enqueue(
+            thumbnail_task => [$dirname,$id],
+        );
         $self->render_file( filepath => "./public/img/noThumb.png" );
+        return;
+    } else {
+        # Simply serve the thumbnail.
+        $self->render_file( filepath => $thumbname );
     }
 }
 

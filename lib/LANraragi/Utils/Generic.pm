@@ -9,8 +9,10 @@ no warnings 'experimental';
 use Storable qw(store lock_retrieve);
 use Digest::SHA qw(sha256_hex);
 use Mojo::Log;
+use Mojo::IOLoop;
 use Logfile::Rotate;
 use Proc::Simple;
+use Sys::CpuAffinity;
 
 use LANraragi::Utils::Logging qw(get_logger);
 
@@ -18,7 +20,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 use Exporter 'import';
 our @EXPORT_OK =
   qw(remove_spaces remove_newlines is_image is_archive render_api_response get_tag_with_namespace shasum start_shinobu
-  get_css_list generate_themes_header generate_themes_selector);
+  start_minion get_css_list generate_themes_header generate_themes_selector);
 
 # Remove spaces before and after a word
 sub remove_spaces {
@@ -75,10 +77,41 @@ sub get_tag_with_namespace {
     return $default;
 }
 
-#Start Shinobu and return its Proc::Background object.
-sub start_shinobu {
-    my $logger = get_logger( "Shinobu Boot", "lanraragi" );
+# Start a Minion worker if there aren't any available.
+sub start_minion {
+    my $mojo = shift;
+    my $logger = get_logger( "Minion Worker", "minion" );
 
+    my $numcpus = Sys::CpuAffinity::getNumCpus();
+    $logger->info( "Starting new Minion worker in subprocess with $numcpus parallel jobs.");
+
+    # https://github.com/mojolicious/minion/issues/76
+    my $mojominion_subprocess = Mojo::IOLoop->subprocess->run(
+        sub {
+            my $mojominion_subprocess = shift;
+            my $worker = $mojo->app->minion->worker;
+            $worker->status->{jobs} = $numcpus;
+            $logger->info("Minion worker $$ started");
+            $worker->on(dequeue => sub { pop->once(spawn => \&_spawn) });
+            $worker->run;
+            $logger->info("Minion worker $$ stopped");
+            return 1;
+        },
+        sub {
+            $logger->error("Error while running Minion worker: $_[1]");
+        }
+  );
+}
+
+sub _spawn {
+  my ($job, $pid) = @_;
+  my ($id, $task) = ($job->id, $job->task);
+  my $logger = get_logger( "Minion Worker", "minion" );
+  $job->app->log->debug(qq{Process $pid is performing job "$id" with task "$task"});
+}
+
+# Start Shinobu and return its Proc::Background object.
+sub start_shinobu {
     my $proc = Proc::Simple->new();
     $proc->start( $^X, "./lib/Shinobu.pm" );
     $proc->kill_on_destroy(0);

@@ -294,8 +294,7 @@ sub invalidate_cache {
     $redis->quit();
 
     # Re-warm the cache to ensure sufficient speed on the main index
-    # TODO: Reimplement this in a job queue, current iteration blocks some methods too much to be worthwhile
-    #LANraragi::Model::Search::do_search( "", "", 0, "title", "asc", 0, 0 );
+    LANraragi::Model::Config->get_minion->enqueue('warm_cache');
 }
 
 # Go through the search cache and only invalidate keys that rely on isNew.

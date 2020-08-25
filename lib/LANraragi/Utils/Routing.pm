@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use utf8;
 
+use Mojolicious::Plugin::Minion::Admin;
+
 #Contains all the routes used by the app, and applies them on boot.
 sub apply_routes {
     my $self = shift;
@@ -35,6 +37,9 @@ sub apply_routes {
     $public_routes->get('/random')->to('index#random_archive');
     $public_routes->get('/reader')->to('reader#index');
     $public_routes->get('/stats')->to('stats#index');
+
+    # Minion Admin UI
+    $self->plugin('Minion::Admin' => {route => $logged_in->get('/minion')});
 
     # Those routes are only accessible if user is logged in
     $logged_in->get('/config')->to('config#index');

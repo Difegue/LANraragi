@@ -9,10 +9,11 @@ use Mojo::File;
 use Mojo::JSON qw(decode_json encode_json);
 use Storable;
 
-use LANraragi::Utils::Generic qw(start_shinobu);
+use LANraragi::Utils::Generic qw(start_shinobu start_minion);
 use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Utils::Plugins qw(get_plugins);
 use LANraragi::Utils::Routing;
+use LANraragi::Utils::Minion;
 
 use LANraragi::Model::Search;
 use LANraragi::Model::Config;
@@ -100,7 +101,18 @@ sub startup {
         $self->LRR_LOGGER->info( "Script Detected: " . $name );
     }
 
-    #Start Background worker
+    # Enable Minion capabilities in the app
+    my $minion = $self->plugin('Minion' => {SQLite => 'sqlite:./.minion.db'});
+    $self->LRR_LOGGER->info("Successfully connected to Minion database.");
+    $self->minion->missing_after(5); # Clean up older workers after 5 seconds of unavailability
+
+    LANraragi::Utils::Minion::add_tasks($self->minion);
+    $self->LRR_LOGGER->debug("Registered tasks with Minion.");
+
+    # Start a Minion worker in a subprocess
+    start_minion($self);
+
+    # Start Background worker
     if ( -e "./.shinobu-pid" && eval { retrieve("./.shinobu-pid"); } ) {
 
         # Deserialize process
@@ -118,9 +130,7 @@ sub startup {
     $self->LRR_LOGGER->info("Routing done! Ready to receive requests.");
 
     # Warm search cache
-    $self->LRR_LOGGER->info("Warming up search cache...");
-    LANraragi::Model::Search::do_search( "", "", 0, "title", "asc", 0, 0 );
-    $self->LRR_LOGGER->info("Done!");
+    $self->minion->enqueue('warm_cache');
 }
 
 1;
