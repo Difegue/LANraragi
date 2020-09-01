@@ -75,20 +75,9 @@ sub apply_routes {
     $public_api->get('/api/info')->to('api-other#serve_serverinfo');
     $logged_in_api->get('/api/plugins/:type')->to('api-other#list_plugins');
     $logged_in_api->post('/api/plugins/use')->to('api-other#use_plugin');
-    $logged_in_api->post('/api/plugin/use')->to('api-other#use_plugin'); #old
     $logged_in_api->delete('/api/tempfolder')->to('api-other#clean_tempfolder');
 
-    # Archive API (old)
-    $public_api->get('/api/thumbnail')->to('api-archive#serve_thumbnail');
-    $public_api->get('/api/servefile')->to('api-archive#serve_file');
-    $public_api->get('/api/page')->to('api-archive#serve_page');
-    $public_api->get('/api/archivelist')->to('api-archive#serve_archivelist');
-    $public_api->get('/api/untagged')->to('api-archive#serve_untagged_archivelist');
-    $public_api->get('/api/extract')->to('api-archive#extract_archive');
-    $public_api->get('/api/clear_new')->to('api-archive#clear_new');
-    $logged_in_api->post('/api/autoplugin')->to('api-archive#use_enabled_plugins');
-
-    # Archive API (new)
+    # Archive API
     $public_api->get('/api/archives')->to('api-archive#serve_archivelist');
     $public_api->get('/api/archives/untagged')->to('api-archive#serve_untagged_archivelist');
     $public_api->get('/api/archives/:id/thumbnail')->to('api-archive#serve_thumbnail');
