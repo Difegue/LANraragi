@@ -12,7 +12,7 @@ use LANraragi::Model::Archive;
 use LANraragi::Model::Config;
 use LANraragi::Model::Reader;
 
-# Archive API. 
+# Archive API.
 
 # Handle missing ID parameter for a whole lot of api methods down below.
 sub check_id_parameter {
@@ -21,7 +21,7 @@ sub check_id_parameter {
     # Use either the id query param(deprecated), or the URL component.
     my $id = $mojo->req->param('id') || $mojo->stash('id') || 0;
     unless ($id) {
-        render_api_response($mojo, $operation, "No archive ID specified.");
+        render_api_response( $mojo, $operation, "No archive ID specified." );
     }
     return $id;
 }
@@ -84,7 +84,7 @@ sub extract_archive {
     my $err = $@;
 
     if ($err) {
-        render_api_response($self, "extract_archive", $err);
+        render_api_response( $self, "extract_archive", $err );
     } else {
         $self->render( json => decode_json($readerjson) );
     }
@@ -149,18 +149,18 @@ sub use_enabled_plugins {
 }
 
 sub update_metadata {
-    my $self  = shift;
-    my $id    = check_id_parameter( $self, "update_metadata" ) || return;
+    my $self = shift;
+    my $id   = check_id_parameter( $self, "update_metadata" ) || return;
 
     my $title = $self->req->param('title') || undef;
-    my $tags = $self->req->param('tags') || undef;
-    
+    my $tags  = $self->req->param('tags')  || undef;
+
     my $res = LANraragi::Model::Archive::update_metadata( $id, $title, $tags );
 
-    if ($res eq "") {
-        render_api_response( $self, "add_to_category" );
+    if ( $res eq "" ) {
+        render_api_response( $self, "update_metadata" );
     } else {
-        render_api_response($self, "update_metadata", $res);
+        render_api_response( $self, "update_metadata", $res );
     }
 }
 
