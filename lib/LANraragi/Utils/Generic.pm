@@ -79,45 +79,72 @@ sub get_tag_with_namespace {
 
 # Start a Minion worker if there aren't any available.
 sub start_minion {
-    my $mojo = shift;
+    my $mojo   = shift;
     my $logger = get_logger( "Minion Worker", "minion" );
 
+    if ( -e "./script/minion.pid" && eval { retrieve("./script/minion.pid"); } ) {
+
+        # Deserialize process
+        my $oldproc = ${ retrieve("./script/minion.pid") };
+        my $pid     = $oldproc->pid;
+
+        $mojo->LRR_LOGGER->info("Terminating previous Minion Worker if it exists... (PID is $pid)");
+        $oldproc->kill();
+    }
+
     my $numcpus = Sys::CpuAffinity::getNumCpus();
-    $logger->info( "Starting new Minion worker in subprocess with $numcpus parallel jobs.");
+    $logger->info("Starting new Minion worker in subprocess with $numcpus parallel jobs.");
+
+    my $worker = $mojo->app->minion->worker;
+    $worker->status->{jobs} = $numcpus;
+    $worker->on( dequeue => sub { pop->once( spawn => \&_spawn ) } );
 
     # https://github.com/mojolicious/minion/issues/76
-    my $mojominion_subprocess = Mojo::IOLoop->subprocess->run(
+    my $proc = Proc::Simple->new();
+    $proc->start(
         sub {
-            my $mojominion_subprocess = shift;
-            my $worker = $mojo->app->minion->worker;
-            $worker->status->{jobs} = $numcpus;
             $logger->info("Minion worker $$ started");
-            $worker->on(dequeue => sub { pop->once(spawn => \&_spawn) });
             $worker->run;
             $logger->info("Minion worker $$ stopped");
             return 1;
-        },
-        sub {
-            $logger->error("Error while running Minion worker: $_[1]");
         }
-  );
+    );
+    $proc->kill_on_destroy(0);
+
+    # Freeze the process object in the PID file
+    store \$proc, 'script/minion.pid';
+    return $proc;
 }
 
 sub _spawn {
-  my ($job, $pid) = @_;
-  my ($id, $task) = ($job->id, $job->task);
-  my $logger = get_logger( "Minion Worker", "minion" );
-  $job->app->log->debug(qq{Process $pid is performing job "$id" with task "$task"});
+    my ( $job, $pid )  = @_;
+    my ( $id,  $task ) = ( $job->id, $job->task );
+    my $logger = get_logger( "Minion Worker", "minion" );
+    $job->app->log->debug(qq{Process $pid is performing job "$id" with task "$task"});
 }
 
 # Start Shinobu and return its Proc::Background object.
 sub start_shinobu {
+    my $mojo = shift;
+
+    if ( -e "./script/shinobu.pid" && eval { retrieve("./script/shinobu.pid"); } ) {
+
+        # Deserialize process
+        my $oldproc = ${ retrieve("./script/shinobu.pid") };
+        my $pid     = $oldproc->pid;
+
+        $mojo->LRR_LOGGER->info("Terminating previous Shinobu Worker if it exists... (PID is $pid)");
+        $oldproc->kill();
+    }
+
     my $proc = Proc::Simple->new();
     $proc->start( $^X, "./lib/Shinobu.pm" );
     $proc->kill_on_destroy(0);
 
+    $mojo->LRR_LOGGER->debug( "Shinobu Worker new PID is " . $proc->pid );
+
     # Freeze the process object in the PID file
-    store \$proc, '.shinobu-pid';
+    store \$proc, 'script/shinobu.pid';
     return $proc;
 }
 

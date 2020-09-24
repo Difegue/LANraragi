@@ -1,6 +1,6 @@
 package Shinobu;
 
-#LANraragi Background Worker.
+# LANraragi File Watcher.
 #  Uses inotify watches to keep track of filesystem happenings.
 #  My main tasks are:
 #
@@ -20,9 +20,8 @@ use Sys::CpuAffinity;
 use Storable qw(lock_store);
 use Mojo::JSON qw(to_json);
 
-BEGIN {
-    unshift @INC, "$FindBin::Bin/../lib";
-}    #As this is a new process, reloading the LRR libs into INC is needed.
+#As this is a new process, reloading the LRR libs into INC is needed.
+BEGIN { unshift @INC, "$FindBin::Bin/../lib"; }
 
 use Mojolicious;
 use File::ChangeNotify;
@@ -40,7 +39,7 @@ use LANraragi::Model::Plugins;
 use LANraragi::Utils::Plugins;    # Needed here since Shinobu doesn't inherit from the main LRR package
 use LANraragi::Model::Search;     # idem
 
-# Filemap hash, global to all subs and exposed to the server through IPC
+# Filemap hash, global to all subs and exposed to the server through serialization
 my %filemap;
 
 # Logger and Database objects
@@ -79,7 +78,7 @@ sub initialize_from_new_process {
         directories     => [$userdir],
         filter          => qr/\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|pdf|epub|)$/,
         follow_symlinks => 1,
-        exclude         => [ 'thumb', '.' ],                                         #excluded subdirs
+        exclude         => [ 'thumb', '.' ],                                              #excluded subdirs
     );
 
     my $class = ref($contentwatcher);
@@ -111,7 +110,7 @@ sub initialize_from_new_process {
 #This computes IDs for all archives and henceforth is rather expensive !
 sub build_filemap {
 
-    $logger->info("Building filemap...This might take some time.");
+    $logger->info("Scanning content folder for changes...");
 
     # Delete previously serialized filemap
     unlink '.shinobu-filemap' || $logger->warn("Couldn't delete previous filemap data.");

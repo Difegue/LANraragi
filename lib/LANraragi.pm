@@ -102,35 +102,26 @@ sub startup {
     }
 
     # Enable Minion capabilities in the app
-    my $minion = $self->plugin('Minion' => {SQLite => 'sqlite:./.minion.db'});
+    unlink("./.minion.db");    # Delete old DB if it still exists
+    $self->plugin( 'Minion' => { SQLite => 'sqlite:./.minion.db' } );
     $self->LRR_LOGGER->info("Successfully connected to Minion database.");
-    $self->minion->missing_after(5); # Clean up older workers after 5 seconds of unavailability
+    $self->minion->missing_after(5);    # Clean up older workers after 5 seconds of unavailability
 
-    LANraragi::Utils::Minion::add_tasks($self->minion);
+    LANraragi::Utils::Minion::add_tasks( $self->minion );
     $self->LRR_LOGGER->debug("Registered tasks with Minion.");
+
+    # Warm search cache
+    # /!\ Enqueuing tasks must be done either before starting the worker, or once the IOLoop is started
+    $self->minion->enqueue('warm_cache');
 
     # Start a Minion worker in a subprocess
     start_minion($self);
 
-    # Start Background worker
-    if ( -e "./.shinobu-pid" && eval { retrieve("./.shinobu-pid"); } ) {
-
-        # Deserialize process
-        my $proc = ${ retrieve("./.shinobu-pid") };
-        my $pid  = $proc->pid;
-
-        $self->LRR_LOGGER->info("Terminating previous Shinobu Worker if it exists... (PID is $pid)");
-        $proc->kill();
-    }
-
-    my $proc = start_shinobu();
-    $self->LRR_LOGGER->debug( "Shinobu Worker new PID is " . $proc->pid );
+    # Start File Watcher
+    start_shinobu($self);
 
     LANraragi::Utils::Routing::apply_routes($self);
     $self->LRR_LOGGER->info("Routing done! Ready to receive requests.");
-
-    # Warm search cache
-    $self->minion->enqueue('warm_cache');
 }
 
 1;

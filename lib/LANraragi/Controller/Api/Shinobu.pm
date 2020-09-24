@@ -6,7 +6,7 @@ use LANraragi::Utils::Generic qw(start_shinobu render_api_response);
 
 sub shinobu_status {
     my $self    = shift;
-    my $shinobu = ${ retrieve("./.shinobu-pid") };
+    my $shinobu = ${ retrieve("./script/shinobu.pid") };
 
     $self->render(
         json => {
@@ -20,7 +20,7 @@ sub shinobu_status {
 
 sub stop_shinobu {
     my $self    = shift;
-    my $shinobu = ${ retrieve("./.shinobu-pid") };
+    my $shinobu = ${ retrieve("./script/shinobu.pid") };
 
     #commit sudoku
     $shinobu->kill();
@@ -29,12 +29,12 @@ sub stop_shinobu {
 
 sub restart_shinobu {
     my $self    = shift;
-    my $shinobu = ${ retrieve("./.shinobu-pid") };
+    my $shinobu = ${ retrieve("./script/shinobu.pid") };
 
     #commit sudoku
     $shinobu->kill();
 
-    # Create a new Process, automatically stored in .shinobu-pid
+    # Create a new Process, automatically stored in script/shinobu.pid
     my $proc = start_shinobu();
 
     $self->render(

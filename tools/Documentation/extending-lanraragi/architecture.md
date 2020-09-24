@@ -92,6 +92,9 @@ root/
 |- script
 |  |- backup        <- Standalone script for running database backups.
 |  |- launcher.pl   <- Launcher, uses either Morbo or Hypnotoad to run the bootstrap script
+|  |- hypnotoad.pid <- PID of the currently running Hypnotoad Manager process, if existing
+|  |- shinobu.pid   <- Last known PID of the Shinobu File Watcher (Serialized Proc::Simple object)
+|  |- minion.pid    <- Last known PID of the Minion Job Queue (Serialized Proc::Simple object)
 |  +- lanraragi     <- Bootstrap script, starts LANraragi.pm
 |
 |- tests         <- Tests go here
@@ -112,20 +115,20 @@ root/
 |  +- logo.png      <- Self-explanatory
 |
 |- lrr.conf      <- Mojolicious configuration file
-|- .shinobu-pid  <- Last known PID of the Background Worker
 |- .perltidy.rc  <- PerlTidy config file to match the coding style
 +- package.json  <- NPM file, contains front-end dependency listing and shortcuts
 ```
 
-## Background Worker Architecture
+## Shinobu Architecture
 
-The Shinobu Background Worker runs in parallel of the LRR Mojolicious Server and handles various tasks repeatedly:
+The Shinobu File Watcher runs in parallel of the LRR Mojolicious Server and handles various tasks:
 
-* Scanning the content folder for new archives using inotify watches
-* Adding new archives and executing Plugins on them if enabled
-* Regenerates the JSON cache when metadata or archive count changes
+* Scanning the content folder for new archives at start
+* Keeping track of new/deleted archives using inotify watches
+* Adding new archives to the database and executing Plugins on them if enabled
 
-It's a second process spawned through the Proc::Background Perl Module.
+It's a second process spawned through the Proc::Simple Perl Module.  
+Heavier tasks are handled by a [Minion](https://docs.mojolicious.org/Minion) Job Queue, which is much more closely linked to Mojo and basically just werks™
 
 ## About the Search Cache
 

@@ -1,7 +1,6 @@
 node_modules
 content
 .minion.db*
-.shinobu-pid
 .shinobu-filemap
 npm-debug.log
 dump.rdb
@@ -10,6 +9,8 @@ package-lock.json
 *qemu-*-static*
 Dockerfile.*
 script/hypnotoad.pid
+script/shinobu.pid
+script/minion.pid
 .DS_Store
 config.log
 autobackup.json
