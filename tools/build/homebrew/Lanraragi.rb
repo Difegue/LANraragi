@@ -1,5 +1,3 @@
-require "language/node"
-
 class Lanraragi < Formula
   desc "Web application for archival and reading of manga/doujinshi"
   homepage "https://github.com/Difegue/LANraragi"
@@ -94,15 +92,11 @@ class Lanraragi < Formula
   end
 
   test do
-    # This can't have its _user-facing_ functionality tested in the `brew test`
-    # environment because it needs Redis. It fails spectacularly tho with some
-    # table flip emoji. So let's use those to confirm _some_ functionality.
-    output = <<~EOS
-      ｷﾀ━━━━━━(ﾟ∀ﾟ)━━━━━━!!!!!
-      (╯・_>・）╯︵ ┻━┻
-      It appears your Redis database is currently not running.
-      The program will cease functioning now.
-    EOS
-    assert_match output, shell_output("#{bin}/lanraragi", 1)
+    # brew-core uses this to test user-facing functionality by checking for the redis table flip.
+    # As this is used for CI here, it's more logical to run the test suite instead.
+    ENV["PERL5LIB"] = libexec/"lib/perl5"
+    ENV["LRR_LOG_DIRECTORY"] = testpath/"log"
+
+    system "npm", "--prefix", libexec, "test"
   end
 end
