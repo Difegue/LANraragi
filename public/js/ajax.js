@@ -123,7 +123,7 @@ function invalidateCache() {
 }
 
 function clearNew(id) {
-	genericAPICall("api/clear_new?id=" + id, "GET", null, "Error clearing new flag! Check Logs.", null);
+	genericAPICall(`api/archives/${id}/isnew`, "DELETE", null, "Error clearing new flag! Check Logs.", null);
 }
 
 function clearAllNew() {
