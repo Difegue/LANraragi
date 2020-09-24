@@ -115,13 +115,49 @@ sub startup {
     $self->minion->enqueue('warm_cache');
 
     # Start a Minion worker in a subprocess
+    shutdown_from_pid("./script/minion.pid");
     start_minion($self);
 
     # Start File Watcher
+    shutdown_from_pid("./script/shinobu.pid");
     start_shinobu($self);
+
+    # Hook to SIGTERM to cleanly kill minion+shinobu on server shutdown
+    # (https://stackoverflow.com/questions/60814220/how-to-manage-myself-sigint-and-sigterm-signals)
+    $self->hook(
+        before_dispatch => sub {
+            state $unused = add_sigint_handler();
+        }
+    );
 
     LANraragi::Utils::Routing::apply_routes($self);
     $self->LRR_LOGGER->info("Routing done! Ready to receive requests.");
+}
+
+sub shutdown_from_pid {
+    my $file = shift;
+
+    if ( -e $file && eval { retrieve($file); } ) {
+
+        # Deserialize process
+        my $oldproc = ${ retrieve($file) };
+        my $pid     = $oldproc->pid;
+
+        $oldproc->kill();
+    }
+}
+
+sub add_sigint_handler {
+    my $old_int = $SIG{INT};
+    $SIG{INT} = sub {
+        no strict 'refs';
+        say "Shutting down...";    # to be sure to display something
+
+        shutdown_from_pid("./script/shinobu.pid");
+        shutdown_from_pid("./script/minion.pid");
+
+        $old_int->();              # Calling the old handler to cleanly exit the server
+    }
 }
 
 1;

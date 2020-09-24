@@ -82,16 +82,6 @@ sub start_minion {
     my $mojo   = shift;
     my $logger = get_logger( "Minion Worker", "minion" );
 
-    if ( -e "./script/minion.pid" && eval { retrieve("./script/minion.pid"); } ) {
-
-        # Deserialize process
-        my $oldproc = ${ retrieve("./script/minion.pid") };
-        my $pid     = $oldproc->pid;
-
-        $mojo->LRR_LOGGER->info("Terminating previous Minion Worker if it exists... (PID is $pid)");
-        $oldproc->kill();
-    }
-
     my $numcpus = Sys::CpuAffinity::getNumCpus();
     $logger->info("Starting new Minion worker in subprocess with $numcpus parallel jobs.");
 
@@ -126,16 +116,6 @@ sub _spawn {
 # Start Shinobu and return its Proc::Background object.
 sub start_shinobu {
     my $mojo = shift;
-
-    if ( -e "./script/shinobu.pid" && eval { retrieve("./script/shinobu.pid"); } ) {
-
-        # Deserialize process
-        my $oldproc = ${ retrieve("./script/shinobu.pid") };
-        my $pid     = $oldproc->pid;
-
-        $mojo->LRR_LOGGER->info("Terminating previous Shinobu Worker if it exists... (PID is $pid)");
-        $oldproc->kill();
-    }
 
     my $proc = Proc::Simple->new();
     $proc->start( $^X, "./lib/Shinobu.pm" );
