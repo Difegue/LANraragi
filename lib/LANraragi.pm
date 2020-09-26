@@ -123,6 +123,7 @@ sub startup {
     start_shinobu($self);
 
     # Hook to SIGTERM to cleanly kill minion+shinobu on server shutdown
+    # As this is executed during before_dispatch, this code won't work if you SIGTERM without loading a single page!
     # (https://stackoverflow.com/questions/60814220/how-to-manage-myself-sigint-and-sigterm-signals)
     $self->hook(
         before_dispatch => sub {
@@ -143,20 +144,19 @@ sub shutdown_from_pid {
         my $oldproc = ${ retrieve($file) };
         my $pid     = $oldproc->pid;
 
+        say "Killing process $pid from $file";
         $oldproc->kill();
+        unlink($file);
     }
 }
 
 sub add_sigint_handler {
     my $old_int = $SIG{INT};
     $SIG{INT} = sub {
-        no strict 'refs';
-        say "Shutting down...";    # to be sure to display something
+        shutdown_from_pid("script/shinobu.pid");
+        shutdown_from_pid("script/minion.pid");
 
-        shutdown_from_pid("./script/shinobu.pid");
-        shutdown_from_pid("./script/minion.pid");
-
-        $old_int->();              # Calling the old handler to cleanly exit the server
+        \&$old_int;    # Calling the old handler to cleanly exit the server
     }
 }
 
