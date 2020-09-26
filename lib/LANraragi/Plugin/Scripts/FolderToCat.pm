@@ -8,6 +8,7 @@ use Data::Dumper;
 
 use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Utils::Generic qw(is_archive);
+use LANraragi::Utils::Database qw(compute_id);
 use LANraragi::Model::Category;
 
 #Meta-information about your plugin.
@@ -81,7 +82,7 @@ sub run_script {
         push @created_categories, $catID;
 
         for my $file ( @{ $subfolders{$folder} } ) {
-            my $id = LANraragi::Utils::Database::compute_id($file) || next;
+            my $id = compute_id($file) || next;
             LANraragi::Model::Category::add_to_category( $catID, $id );
         }
     }

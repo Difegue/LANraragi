@@ -16,7 +16,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 
 # Functions for interacting with the DB Model.
 use Exporter 'import';
-our @EXPORT_OK = qw(redis_decode invalidate_cache);
+our @EXPORT_OK = qw(redis_decode invalidate_cache compute_id);
 
 #add_archive_to_redis($id,$file,$redis)
 #Parses the name of a file for metadata, and matches that metadata to the SHA-1 hash of the file in our Redis database.

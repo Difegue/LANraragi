@@ -11,7 +11,7 @@ use File::Find;
 use File::Basename;
 
 use LANraragi::Utils::Logging qw(get_logger);
-use LANraragi::Utils::Database qw(invalidate_cache);
+use LANraragi::Utils::Database qw(invalidate_cache compute_id);
 use LANraragi::Model::Search;
 
 #Meta-information about your plugin.
@@ -118,6 +118,7 @@ sub run_script {
 
     ########
     # Download to a temp folder (code below lifted wholesale from Controller/Upload.pm)
+    # TODO switch to Model::Upload::handle_incoming_file
     my $tempdir = tempdir();
     $logger->info("Downloading...This will take some time.");
 
@@ -146,7 +147,7 @@ sub run_script {
     );
 
     # Compute an ID here
-    my $id = LANraragi::Utils::Database::compute_id($tempfile);
+    my $id = compute_id($tempfile);
     $logger->debug("ID of uploaded file is $id");
 
     # Future home of the file

@@ -29,7 +29,7 @@ use File::Find;
 use File::Basename;
 use Encode;
 
-use LANraragi::Utils::Database qw(invalidate_cache);
+use LANraragi::Utils::Database qw(invalidate_cache compute_id);
 use LANraragi::Utils::TempFolder qw(get_temp clean_temp_partial);
 use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Utils::Generic qw(is_archive);
@@ -195,7 +195,7 @@ sub add_to_filemap {
 
         #Compute the ID of the archive and add it to the hash
         my $id = "";
-        eval { $id = LANraragi::Utils::Database::compute_id($file); };
+        eval { $id = compute_id($file); };
 
         if ($@) {
             $logger->error("Couldn't open $file for ID computation: $@");
