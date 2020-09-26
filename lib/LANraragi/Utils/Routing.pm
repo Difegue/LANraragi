@@ -39,7 +39,7 @@ sub apply_routes {
     $public_routes->get('/stats')->to('stats#index');
 
     # Minion Admin UI
-    $self->plugin('Minion::Admin' => {route => $logged_in->get('/minion')});
+    $self->plugin( 'Minion::Admin' => { route => $logged_in->get('/minion') } );
 
     # Those routes are only accessible if user is logged in
     $logged_in->get('/config')->to('config#index');
@@ -85,7 +85,6 @@ sub apply_routes {
     $public_api->get('/api/archives/:id/page')->to('api-archive#serve_page');
     $public_api->post('/api/archives/:id/extract')->to('api-archive#extract_archive');
     $public_api->delete('/api/archives/:id/isnew')->to('api-archive#clear_new');
-    $logged_in_api->post('/api/archives/:id/autoplugin')->to('api-archive#use_enabled_plugins');
     $public_api->get('/api/archives/:id/metadata')->to('api-archive#serve_metadata');
     $logged_in_api->put('/api/archives/:id/metadata')->to('api-archive#update_metadata');
 

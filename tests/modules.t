@@ -4,7 +4,7 @@ use utf8;
 use Cwd;
 
 use Mojo::Base 'Mojolicious';
-use Test::More tests => 50;
+use Test::More tests => 51;
 use Test::Mojo;
 use Test::MockObject;
 
@@ -31,20 +31,20 @@ my @modules = (
     "LANraragi::Utils::Generic",               "LANraragi::Utils::Plugins",
     "LANraragi::Utils::Routing",               "LANraragi::Utils::TempFolder",
     "LANraragi::Utils::Logging",               "LANraragi::Utils::Minion",
-    "LANraragi::Controller::Api::Archive",
-    "LANraragi::Controller::Api::Search",      "LANraragi::Controller::Api::Category",
-    "LANraragi::Controller::Api::Database",    "LANraragi::Controller::Api::Shinobu",
-    "LANraragi::Controller::Api::Other",       "LANraragi::Controller::Backup",
-    "LANraragi::Controller::Batch",            "LANraragi::Controller::Config",
-    "LANraragi::Controller::Edit",             "LANraragi::Controller::Index",
-    "LANraragi::Controller::Logging",          "LANraragi::Controller::Login",
-    "LANraragi::Controller::Plugins",          "LANraragi::Controller::Reader",
-    "LANraragi::Controller::Stats",            "LANraragi::Controller::Upload",
-    "LANraragi::Controller::Category",         "LANraragi::Model::Archive",
-    "LANraragi::Model::Backup",                "LANraragi::Model::Config",
-    "LANraragi::Model::Plugins",               "LANraragi::Model::Reader",
-    "LANraragi::Model::Search",                "LANraragi::Model::Stats",
-    "LANraragi::Model::Category",              "LANraragi::Plugin::Metadata::Chaika",
+    "LANraragi::Controller::Api::Archive",     "LANraragi::Controller::Api::Search",
+    "LANraragi::Controller::Api::Category",    "LANraragi::Controller::Api::Database",
+    "LANraragi::Controller::Api::Shinobu",     "LANraragi::Controller::Api::Other",
+    "LANraragi::Controller::Backup",           "LANraragi::Controller::Batch",
+    "LANraragi::Controller::Config",           "LANraragi::Controller::Edit",
+    "LANraragi::Controller::Index",            "LANraragi::Controller::Logging",
+    "LANraragi::Controller::Login",            "LANraragi::Controller::Plugins",
+    "LANraragi::Controller::Reader",           "LANraragi::Controller::Stats",
+    "LANraragi::Controller::Upload",           "LANraragi::Controller::Category",
+    "LANraragi::Model::Archive",               "LANraragi::Model::Backup",
+    "LANraragi::Model::Config",                "LANraragi::Model::Plugins",
+    "LANraragi::Model::Reader",                "LANraragi::Model::Search",
+    "LANraragi::Model::Stats",                 "LANraragi::Model::Category",
+    "LANraragi::Model::Upload",                "LANraragi::Plugin::Metadata::Chaika",
     "LANraragi::Plugin::Metadata::CopyTags",   "LANraragi::Plugin::Metadata::DateAdded",
     "LANraragi::Plugin::Metadata::EHentai",    "LANraragi::Plugin::Metadata::Eze",
     "LANraragi::Plugin::Metadata::Hdoujin",    "LANraragi::Plugin::Metadata::Koromo",

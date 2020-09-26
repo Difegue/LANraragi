@@ -38,75 +38,20 @@ sub process_upload {
             $tempdir
         );
 
-        # Compute an ID here
-        my $id = LANraragi::Utils::Database::compute_id($tempfile);
-        $self->LRR_LOGGER->debug("ID of uploaded file is $id");
+        # Send a job to Minion to handle the uploaded file.
+        my $jobid = $self->minion->enqueue( handle_upload => [$tempfile], );
 
-        # Future home of the file
-        my $output_file = $self->LRR_CONF->get_userdir . '/' . $filename;
-
-        #Check if the ID is already in the database, and
-        #that the file it references still exists on the filesystem
-        my $redis  = $self->LRR_CONF->get_redis();
-        my $isdupe = $redis->exists($id) && -e $redis->hget( $id, "file" );
-
-        if ( -e $output_file || $isdupe ) {
-
-            # Trash temporary file
-            unlink $tempfile;
-
-            # The file already exists
-            $self->render(
-                json => {
-                    operation => "upload",
-                    name      => $file->filename,
-                    type      => $uploadMime,
-                    success   => 0,
-                    error     => $isdupe
-                    ? "This file already exists in the Library."
-                    : "A file with the same name is present in the Library."
-                }
-            );
-        } else {
-
-            # Add the file to the database ourselves so Shinobu doesn't do it
-            # This allows autoplugin to be ran ASAP.
-            LANraragi::Utils::Database::add_archive_to_redis( $id, $output_file, $redis );
-
-            # Invalidate search cache ourselves, Shinobu won't do it since the file is already in the database
-            invalidate_cache();
-
-            # Move the file to the content folder.
-            # Move to a .tmp first in case copy to the content folder takes a while...
-            move( $tempfile, $output_file . ".upload" );
-
-            # Then rename inside the content folder itself to proc Shinobu.
-            move( $output_file . ".upload", $output_file );
-
-            if ( -e $output_file ) {
-                $self->render(
-                    json => {
-                        operation => "upload",
-                        name      => $file->filename,
-                        type      => $uploadMime,
-                        success   => 1,
-                        id        => $id
-                    }
-                );
-            } else {
-                $self->render(
-                    json => {
-                        operation => "upload",
-                        name      => $file->filename,
-                        type      => $uploadMime,
-                        success   => 0,
-                        error     => "The file couldn't be moved to your content folder!"
-                    }
-                );
+        # Reply with a reference to the job so the client can check on its progress.
+        $self->render(
+            json => {
+                operation => "upload",
+                name      => $file->filename,
+                type      => $uploadMime,
+                success   => 1,
+                job       => $jobid
             }
+        );
 
-        }
-        $redis->quit();
     } else {
 
         $self->render(
@@ -134,7 +79,6 @@ sub index {
     $self->render(
         template   => "upload",
         title      => $self->LRR_CONF->get_htmltitle,
-        autoplugin => $self->LRR_CONF->enable_autotag,
         categories => \@categories,
         cssdrop    => generate_themes_selector,
         csshead    => generate_themes_header($self),

@@ -115,39 +115,6 @@ sub clear_new {
     );
 }
 
-#Use all enabled plugins on an archive ID. Tags are automatically saved in the background.
-#Returns number of successes and failures.
-sub use_enabled_plugins {
-
-    my $self  = shift;
-    my $id    = check_id_parameter( $self, "autoplugin" ) || return;
-    my $redis = $self->LRR_CONF->get_redis();
-
-    if ( $redis->exists($id) && LANraragi::Model::Config->enable_autotag ) {
-
-        my ( $succ, $fail, $addedtags ) = LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
-
-        $self->render(
-            json => {
-                operation => "autoplugin",
-                id        => $id,
-                success   => 1,
-                message   => "$succ Plugins used successfully, $fail Plugins failed, $addedtags tags added."
-            }
-        );
-    } else {
-        $self->render(
-            json => {
-                operation => "autoplugin",
-                id        => $id,
-                success   => 0,
-                error     => "ID not found in database or AutoPlugin disabled by admin."
-            }
-        );
-    }
-    $redis->quit();
-}
-
 sub update_metadata {
     my $self = shift;
     my $id   = check_id_parameter( $self, "update_metadata" ) || return;
