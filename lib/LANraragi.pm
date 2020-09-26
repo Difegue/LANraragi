@@ -101,6 +101,12 @@ sub startup {
         $self->LRR_LOGGER->info( "Script Detected: " . $name );
     }
 
+    @plugins = get_plugins("download");
+    foreach my $pluginfo (@plugins) {
+        my $name = $pluginfo->{name};
+        $self->LRR_LOGGER->info( "Downloader Detected: " . $name );
+    }
+
     # Enable Minion capabilities in the app
     shutdown_from_pid("./script/minion.pid");
     unlink("./.minion.db");    # Delete old DB if it still exists

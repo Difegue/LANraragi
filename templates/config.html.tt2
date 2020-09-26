@@ -96,7 +96,7 @@
 				</li>
 				<li class="option-flyout">
 					<div class="collapsible-title caret-right">
-						<i class="fa fa-satellite" aria-hidden="true"></i> Background Worker</div>
+						<i class="fa fa-satellite" aria-hidden="true"></i> Background Workers</div>
 					<div class="collapsible-body">
 						<table style="margin:auto; font-size:9pt;">
 							<tbody>

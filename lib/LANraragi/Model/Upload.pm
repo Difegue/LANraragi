@@ -86,4 +86,42 @@ sub handle_incoming_file {
     return ( 1, $id, "File added successfully!" );
 }
 
+# Download the given URL, using the given Mojo::UserAgent object.
+# This downloads the URL to a temporaryfolder and returns the full path to the downloaded file.
+sub download_url {
+
+    my ( $ua, $url ) = shift;
+    my $logger = get_logger( "File Upload/Download", "lanraragi" );
+
+    # Download to a temp folder
+    $logger->info("Downloading URL $url...This will take some time.");
+
+    my $tempdir      = tempdir();
+    my $tx           = $ua->max_redirects(5)->get($url);
+    my $content_disp = $tx->result->headers->content_disposition;
+    my $filename     = "placeholder.zip";                           #placeholder;
+
+    $logger->debug("Content-Disposition Header: $content_disp");
+    if ( $content_disp =~ /.*filename=\"(.*)\".*/gim ) {
+        $filename = $1;
+    }
+
+    $logger->debug("Filename: $filename");
+    $tx->result->save_to("$tempdir\/$filename");
+
+    # Update $tempfile to the exact reference created by the host filesystem
+    # This is done by finding the first (and only) file in $tempdir.
+    my $tempfile = "";
+    find(
+        sub {
+            return if -d $_;
+            $tempfile = $File::Find::name;
+            $filename = $_;
+        },
+        $tempdir
+    );
+
+    return "$tempdir\/$filename";
+}
+
 1;

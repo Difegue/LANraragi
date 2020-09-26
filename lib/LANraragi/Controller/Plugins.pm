@@ -18,20 +18,22 @@ sub index {
     my $redis = $self->LRR_CONF->get_redis;
 
     #Build plugin lists, array of hashes
-    my @metaplugins   = get_plugins("metadata");
-    my @loginplugins  = get_plugins("login");
-    my @scriptplugins = get_plugins("script");
+    my @metaplugins     = get_plugins("metadata");
+    my @loginplugins    = get_plugins("login");
+    my @scriptplugins   = get_plugins("script");
+    my @downloadplugins = get_plugins("download");
 
     $redis->quit();
     $self->render(
-        template => "plugins",
-        title    => $self->LRR_CONF->get_htmltitle,
-        metadata => craft_plugin_array(@metaplugins),
-        logins   => craft_plugin_array(@loginplugins),
-        scripts  => craft_plugin_array(@scriptplugins),
-        cssdrop  => generate_themes_selector,
-        csshead  => generate_themes_header($self),
-        version  => $self->LRR_VERSION
+        template    => "plugins",
+        title       => $self->LRR_CONF->get_htmltitle,
+        metadata    => craft_plugin_array(@metaplugins),
+        downloaders => craft_plugin_array(@downloadplugins),
+        logins      => craft_plugin_array(@loginplugins),
+        scripts     => craft_plugin_array(@scriptplugins),
+        cssdrop     => generate_themes_selector,
+        csshead     => generate_themes_header($self),
+        version     => $self->LRR_VERSION
     );
 
 }
@@ -154,7 +156,7 @@ sub process_upload {
         my $filetext   = $file->slurp;
         my $plugintype = "";
 
-        if ( $filetext =~ /package LANraragi::Plugin::(Login|Metadata|Scripts)::/ ) {
+        if ( $filetext =~ /package LANraragi::Plugin::(Login|Metadata|Scripts|Download)::/ ) {
             $plugintype = $1;
         } else {
             my $errormess = "Could not find a valid plugin package type in the plugin \"$filename\"!";

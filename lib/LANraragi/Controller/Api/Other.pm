@@ -103,6 +103,12 @@ sub use_plugin {
             eval { %plugin_result = LANraragi::Model::Plugins::exec_metadata_plugin( $plugin, $id, $input, @settings ); };
         }
 
+        if ( $pluginfo{type} eq "download" ) {
+
+            # TODO queue a minion job here instead
+            eval { %plugin_result = LANraragi::Model::Plugins::exec_download_plugin( $plugin, $input, @settings ); };
+        }
+
         if ($@) {
             $plugin_result{error} = $@;
         }

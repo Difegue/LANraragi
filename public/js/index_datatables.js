@@ -123,11 +123,6 @@ function fillSearchField(namespace, tag) {
 	arcTable.search(`${namespace}:${tag}`).draw();
 }
 
-function openInNewTab(url) {
-	var win = window.open(url, '_blank');
-	win.focus();
-}
-
 function titleColumnDisplay(data, type, full, meta) {
 	if (type == "display") {
 

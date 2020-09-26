@@ -106,7 +106,7 @@ sub exec_script_plugin {
     my ( $plugin, $input, @settings ) = @_;
     my $logger = get_logger( "Plugin System", "lanraragi" );
 
-    #If the plugin has the method "get_tags",
+    #If the plugin has the method "run_script",
     #catch all the required data and feed it to the plugin
     if ( $plugin->can('run_script') ) {
 
@@ -125,6 +125,40 @@ sub exec_script_plugin {
         return %result;
     }
     return ( error => "Plugin doesn't implement run_script despite having a 'script' type." );
+}
+
+sub exec_download_plugin {
+
+    my ( $plugin, $input, @settings ) = @_;
+    my $logger = get_logger( "Plugin System", "lanraragi" );
+
+    #If the plugin has the method "provide_url",
+    #catch all the required data and feed it to the plugin
+    if ( $plugin->can('provide_url') ) {
+
+        my %pluginfo = $plugin->plugin_info();
+        my $ua       = exec_login_plugin( $pluginfo{login_from} );
+
+        # Bundle all the potentially interesting info in a hash
+        my %infohash = (
+            user_agent => $ua,
+            url        => $input
+        );
+
+        # Downloader plugins take an URL, and return...another URL, which we can download through the user-agent.
+        my %result = $plugin->provide_url( \%infohash, @settings );
+
+        if ( exists $result{error} ) {
+            return %result;
+        }
+
+        if ( exists $result{download_url} ) {
+            return ( useragent => $ua, download_url => $result{download_url} );
+        }
+
+        return ( error => "Plugin ran to completion but didn't provide a final URL for us to download." );
+    }
+    return ( error => "Plugin doesn't implement provide_url despite having a 'download' type." );
 }
 
 # Execute a specified plugin on a file, described through its Redis ID.

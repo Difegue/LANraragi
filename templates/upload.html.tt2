@@ -79,7 +79,6 @@
 									  <td><i class='fa fa-exclamation-circle' style='margin-left:20px; margin-right: 10px; color: red'></i>${data.result.error}</td>
 								  </tr>`;
 					else
-						//  <a href='reader?id=" + data.result.id + "'>
 						result = `<tr><td><a href="#" id="${data.result.job}-name">${data.result.name}</a></td>
 									  <td><i id="${data.result.job}-icon" class='fa fa-spinner fa-spin' style='margin-left:20px; margin-right: 10px;'></i>
 										<a href="#" id="${data.result.job}-link">Processing file... (Job #${data.result.job})</a>
