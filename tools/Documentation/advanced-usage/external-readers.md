@@ -21,6 +21,11 @@ Here are some existing clients:
 * Bookmark archives to keep track of your current page  
 * Sort archives by date \(requires archives to be tagged with the DateAdded plugin\)  
 
+### [DuReader \(iOS\)](https://github.com/Doraemoe/DuReader)
+
+[Download it here.](https://github.com/Doraemoe/DuReader)  
+![dureader](../.gitbook/assets/dureader.jpg)
+
 ### [LRReader \(Windows 10\)](https://github.com/Guerra24/LRReader)
 
 [Download it here.](https://github.com/Guerra24/LRReader)  

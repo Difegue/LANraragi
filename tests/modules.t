@@ -51,7 +51,7 @@ my @modules = (
     "LANraragi::Plugin::Metadata::MEMS",       "LANraragi::Plugin::Metadata::nHentai",
     "LANraragi::Plugin::Login::EHentai",       "LANraragi::Plugin::Scripts::SourceFinder",
     "LANraragi::Plugin::Scripts::FolderToCat", "LANraragi::Plugin::Scripts::FavtagMigration",
-    "LANraragi::Plugin::Scripts::EHDL"
+    "LANraragi::Plugin::Download::EHentai"
 );
 
 # Test all modules load properly

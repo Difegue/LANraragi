@@ -35,7 +35,7 @@ sub restart_shinobu {
     $shinobu->kill();
 
     # Create a new Process, automatically stored in script/shinobu.pid
-    my $proc = start_shinobu();
+    my $proc = start_shinobu($self);
 
     $self->render(
         json => {
