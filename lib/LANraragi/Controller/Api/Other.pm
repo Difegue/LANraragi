@@ -5,6 +5,7 @@ use Mojo::JSON qw(encode_json);
 use Redis;
 
 use LANraragi::Utils::TempFolder qw(get_tempsize clean_temp_full);
+use LANraragi::Utils::Generic qw(render_api_response);
 use LANraragi::Utils::Plugins qw(get_plugin get_plugins get_plugin_parameters);
 
 sub serve_serverinfo {
@@ -57,6 +58,20 @@ sub list_plugins {
 
     my @plugins = get_plugins($type);
     $self->render( json => \@plugins );
+}
+
+# Returns the info for the given Minion job id.
+sub minion_job_status {
+    my $self = shift;
+    my $id   = $self->stash('jobid');
+
+    my $job = $self->minion->job($id);
+
+    if ($job) {
+        $self->render( json => $job->info );
+    } else {
+        render_api_response( $self, "minion_job_status", "No job with this ID." );
+    }
 }
 
 # Uses a plugin, with the standard global arguments and a provided oneshot argument.

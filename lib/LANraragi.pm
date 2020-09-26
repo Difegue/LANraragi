@@ -102,6 +102,7 @@ sub startup {
     }
 
     # Enable Minion capabilities in the app
+    shutdown_from_pid("./script/minion.pid");
     unlink("./.minion.db");    # Delete old DB if it still exists
     $self->plugin( 'Minion' => { SQLite => 'sqlite:./.minion.db' } );
     $self->LRR_LOGGER->info("Successfully connected to Minion database.");
@@ -115,7 +116,6 @@ sub startup {
     $self->minion->enqueue('warm_cache');
 
     # Start a Minion worker in a subprocess
-    shutdown_from_pid("./script/minion.pid");
     start_minion($self);
 
     # Start File Watcher

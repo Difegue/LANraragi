@@ -76,6 +76,7 @@ sub apply_routes {
     $logged_in_api->get('/api/plugins/:type')->to('api-other#list_plugins');
     $logged_in_api->post('/api/plugins/use')->to('api-other#use_plugin');
     $logged_in_api->delete('/api/tempfolder')->to('api-other#clean_tempfolder');
+    $logged_in_api->get('/api/minion/:jobid')->to('api-other#minion_job_status');
 
     # Archive API
     $public_api->get('/api/archives')->to('api-archive#serve_archivelist');

@@ -10,10 +10,12 @@
 	<link rel="stylesheet" type="text/css" href="/css/lrr.css?[% version%]" />
 
 	<link rel="stylesheet" type="text/css" href="./css/vendor/jquery.fileupload.css" />
+	<link rel="stylesheet" type="text/css" href="./css/vendor/jquery.toast.min.css" />
 	<link rel="stylesheet" type="text/css" href="./css/vendor/fontawesome-all.min.css" />
 	[% csshead %]
 
 	<script src="./js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
+	<script src="./js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
 	<script src="./js/vendor/jquery.ui.widget.js" type="text/JAVASCRIPT"></script>
 	<script src="./js/vendor/jquery.fileupload.js" type="text/JAVASCRIPT"></script>
 
@@ -65,6 +67,8 @@
 	<script>
 		function initUpload() {
 
+			const categoryID = document.getElementById("category").value;
+
 			//Handler for file uploading.
 			$('#fileupload').fileupload({
 				dataType: 'json',
@@ -77,7 +81,7 @@
 					else
 						//  <a href='reader?id=" + data.result.id + "'>
 						result = `<tr><td><a href="#" id="${data.result.job}-name">${data.result.name}</a></td>
-									  <td><i class='fa fa-spinner fa-spin' style='margin-left:20px; margin-right: 10px;'></i>
+									  <td><i id="${data.result.job}-icon" class='fa fa-spinner fa-spin' style='margin-left:20px; margin-right: 10px;'></i>
 										<a href="#" id="${data.result.job}-link">Processing file... (Job #${data.result.job})</a>
 									  </td>
 								  </tr>`;
@@ -85,17 +89,24 @@
 					$('#progress .bar').css('width', '0%');
 					$('#files').append(result);
 
-					//TODO: check job state periodically to update the result here
-					// genericAPICall
-					// $("#" + data.result.id).val("href", "");
-					// $("#" + data.id).html("Click here to edit metadata.(" + data.message + ")");
+					// Check minion job state periodically to update the result 
+					checkJobStatus(data.result.job, function (d) {
 
-					/*const categoryID = document.getElementById("category").value;
-					if (categoryID !== "") {
-						console.log(`Adding ${data.result.id} to category ${categoryID}`)
-						addArchiveToCategory(data.result.id, categoryID);
-					}*/
+						$(`#${data.result.job}-name`).attr("href", `reader?id=${d.result.id}`);
+						$(`#${data.result.job}-link`).html("Click here to edit metadata.(" + d.result.message + ")");
+						$(`#${data.result.job}-link`).attr("href", `edit?id=${d.result.id}`);
 
+						if (d.result.success) {
+							$(`#${data.result.job}-icon`).attr("class", "fa fa-check-circle");
+						} else {
+							$(`#${data.result.job}-icon`).attr("class", "fa fa-exclamation-circle");
+						}
+
+						if (categoryID !== "") {
+							console.log(`Adding ${d.result.id} to category ${categoryID}`)
+							addArchiveToCategory(d.result.id, categoryID);
+						}
+					})
 				},
 
 				fail: function (e, data) {
@@ -114,6 +125,28 @@
 			});
 
 		}
+
+		function checkJobStatus(jobId, callback) {
+			fetch(`api/minion/${jobId}`, { method: "GET" })
+				.then(response => response.ok ? response.json() : { success: 0, error: "Response was not OK" })
+				.then((data) => {
+
+					if (data.error)
+						throw new Error(data.error);
+
+					if (data.state !== "finished") {
+						// Wait and retry, job isn't done yet
+						setTimeout(function () {
+							checkJobStatus(jobId, callback);
+						}, 500);
+					} else {
+						// Update UI with info
+						callback(data);
+					}
+				})
+				.catch(error => showErrorToast("Error checking Minion job status", error));
+		}
+
 	</script>
 
 	[% INCLUDE footer %]

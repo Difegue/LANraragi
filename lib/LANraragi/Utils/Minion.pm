@@ -49,7 +49,7 @@ sub add_tasks {
             my ( $status, $id, $message ) = LANraragi::Model::Upload::handle_incoming_file($file);
 
             $job->finish(
-                {   status  => $status,
+                {   success => $status,
                     id      => $id,
                     message => $message
                 }

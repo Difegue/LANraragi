@@ -434,6 +434,7 @@ Cleans the server's temporary folder.
 
 {% api-method-spec %}
 {% api-method-request %}
+{% endapi-method-request %}
 
 {% api-method-response %}
 {% api-method-response-example httpCode=200 %}
@@ -455,3 +456,62 @@ Temporary folder is deleted.
 {% endapi-method-spec %}
 {% endapi-method %}
 
+{% api-method method="delete" host="http://lrr.tvc-16.science" path="/api/minion/:jobid" %}
+{% api-method-summary %}
+🔑Get the status of a Minion Job
+{% endapi-method-summary %}
+
+{% api-method-description %}
+Get the status of a Minion Job. Minions jobs are ran for various occasions like thumbnails, cache warmup and handling incoming files.  
+Usually stuff you don't need to care about as a client, but the API is there for internal usage mostly.
+{% endapi-method-description %}
+
+{% api-method-spec %}
+{% api-method-request %}
+{% api-method-path-parameters %}
+{% api-method-parameter name="id" type="string" required=true %}
+ID of the Job. There's no API for getting minion jobs currently, so you have to look in the admin interface.  
+{% endapi-method-parameter %}
+{% endapi-method-path-parameters %}
+{% endapi-method-request %}
+
+{% api-method-response %}
+{% api-method-response-example httpCode=200 %}
+{% api-method-response-example-description %}
+You get the job status. This is essentially "raw" output from Minion and looks a bit different from usual API calls.
+{% endapi-method-response-example-description %}
+
+```javascript
+{
+	"args": ["\/tmp\/QF3UCnKdMr\/myfile.zip"],
+	"attempts": 1,
+	"children": [],
+	"created": "1601145004",
+	"delayed": "1601145004",
+	"expires": null,
+	"finished": "1601145004",
+	"id": 7,
+	"lax": 0,
+	"notes": {},
+	"parents": [],
+	"priority": 0,
+	"queue": "default",
+	"result": {
+		"id": "75d18ce470dc99f83dc355bdad66319d1f33c82b",
+		"message": "This file already exists in the Library.",
+		"success": 0
+	},
+	"retried": null,
+	"retries": 0,
+	"started": "1601145004",
+	"state": "finished",
+	"task": "handle_upload",
+	"time": "1601145005",
+	"worker": 1
+}
+```  
+
+{% endapi-method-response-example %}
+{% endapi-method-response %}
+{% endapi-method-spec %}
+{% endapi-method %}
