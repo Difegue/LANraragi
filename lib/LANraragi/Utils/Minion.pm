@@ -33,8 +33,17 @@ sub add_tasks {
 
             $logger->info("Warming up search cache...");
 
-            # TODO: Add warms for the most used searches -> look at categories
+            # Cache warm performs a search for the base index (no search)
             LANraragi::Model::Search::do_search( "", "", 0, "title", "asc", 0, 0 );
+
+            # And for every category defined by the user.
+            my @categories = LANraragi::Model::Category::get_category_list;
+            for my $category (@categories) {
+                my $cat_id = %{$category}{"id"};
+                $logger->debug("Warming category $cat_id");
+                LANraragi::Model::Search::do_search( "", $cat_id, 0, "title", "asc", 0, 0 );
+            }
+
             $logger->info("Done!");
             $job->finish;
         }
@@ -100,20 +109,32 @@ sub add_tasks {
             }
 
             # Download the URL
-            # TODO: Add error checking
-            my $tempfile = LANraragi::Model::Upload::download_url( $url, $login );
-            $logger->info("URL downloaded to $tempfile");
+            eval {
+                my $tempfile = LANraragi::Model::Upload::download_url( $url, $login );
+                $logger->info("URL downloaded to $tempfile");
 
-            # Hand off the result to handle_incoming_file
-            my ( $status, $id, $message ) = LANraragi::Model::Upload::handle_incoming_file($tempfile);
+                # Hand off the result to handle_incoming_file
+                my ( $status, $id, $message ) = LANraragi::Model::Upload::handle_incoming_file($tempfile);
 
-            $job->finish(
-                {   success => $status,
-                    url     => $url,
-                    id      => $id,
-                    message => $message
-                }
-            );
+                $job->finish(
+                    {   success => $status,
+                        url     => $url,
+                        id      => $id,
+                        message => $message
+                    }
+                );
+            };
+
+            if ($@) {
+
+                # Downloading failed...
+                $job->finish(
+                    {   success => 0,
+                        url     => $url,
+                        message => $@
+                    }
+                );
+            }
         }
     );
 

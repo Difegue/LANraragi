@@ -13,6 +13,7 @@ use Encode;
 
 use LANraragi::Utils::Database qw(invalidate_cache compute_id);
 use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Generic qw(is_archive);
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
@@ -31,7 +32,10 @@ sub handle_incoming_file {
     $filename = $filename . $suffix;
     my $logger = get_logger( "File Upload/Download", "lanraragi" );
 
-    # TODO: Check if file is an archive
+    # Check if file is an archive
+    unless ( is_archive($filename) ) {
+        return ( 0, "deadbeef", "Incoming file $filename is not a recognized archive." );
+    }
 
     # Compute an ID here
     my $id = compute_id($tempfile);
