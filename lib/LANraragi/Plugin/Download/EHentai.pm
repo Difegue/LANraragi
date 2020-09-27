@@ -5,14 +5,8 @@ use warnings;
 no warnings 'uninitialized';
 
 use Mojo::UserAgent;
-use File::Temp qw/ tempfile tempdir /;
-use File::Copy;
-use File::Find;
-use File::Basename;
 
 use LANraragi::Utils::Logging qw(get_logger);
-use LANraragi::Utils::Database qw(invalidate_cache compute_id);
-use LANraragi::Model::Search;
 
 # Meta-information about your plugin.
 sub plugin_info {

@@ -153,7 +153,10 @@ sub exec_download_plugin {
         }
 
         if ( exists $result{download_url} ) {
-            return ( login_from => $pluginfo{login_from}, download_url => $result{download_url} );
+
+            # Add the result URL to the infohash and return that.
+            $infohash{download_url} = $result{download_url};
+            return \%infohash;
         }
 
         return ( error => "Plugin ran to completion but didn't provide a final URL for us to download." );

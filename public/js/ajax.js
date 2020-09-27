@@ -47,7 +47,7 @@ function genericAPICall(endpoint, method, successMessage, errorMessage, successC
 
 // Check the status of a Minion job until it's completed.
 // Execute a callback on successful job completion.
-function checkJobStatus(jobId, callback) {
+function checkJobStatus(jobId, callback, failureCallback) {
 	fetch(`api/minion/${jobId}`, { method: "GET" })
 		.then(response => response.ok ? response.json() : { success: 0, error: "Response was not OK" })
 		.then((data) => {
@@ -69,7 +69,7 @@ function checkJobStatus(jobId, callback) {
 				callback(data);
 			}
 		})
-		.catch(error => showErrorToast("Error checking Minion job status", error));
+		.catch(error => { showErrorToast("Error checking Minion job status", error); failureCallback(error) });
 }
 
 //saveFormData()

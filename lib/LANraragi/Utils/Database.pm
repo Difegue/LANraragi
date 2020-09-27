@@ -54,7 +54,7 @@ sub add_archive_to_redis {
     $redis->hset( $id, "tags",  encode_utf8($tags) );
     $redis->quit;
 
-    return ( $name, $title, $tags, "true" );
+    return ( $name, $title, $tags );
 }
 
 # build_archive_JSON(redis, id)

@@ -53,7 +53,7 @@ sub get_downloader_for_url {
             return $pluginfo;
         }
     }
-    return undef;
+    return;
 }
 
 sub get_enabled_plugins {

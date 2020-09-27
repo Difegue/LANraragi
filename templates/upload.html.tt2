@@ -21,7 +21,7 @@
 
 	<script src="./js/theme.js?[% version%]" type="text/JAVASCRIPT"></script>
 	<script src="./js/ajax.js?[% version%]" type="text/JAVASCRIPT"></script>
-
+	<script src="./js/upload.js?[% version%]" type="text/JAVASCRIPT"></script>
 </head>
 
 <body onload="initUpload()">
@@ -78,6 +78,9 @@
 
 			<div class="right-column">
 
+				<h2 class="ih" id="progressCount"></h2>
+				<h2 class="ih" id="progressTotal"></h2>
+
 				<table style='margin:auto; font-size:9pt; width: 80%; text-align:center;'>
 					<tbody id='files'>
 						<tr>
@@ -87,123 +90,15 @@
 								</div>
 							</td>
 						</tr>
-
 					</tbody>
 				</table>
 
 			</div>
 		</div>
 
+		<br><br>
 		<input class='stdbtn' type='button' onclick="window.location.replace('./');" value='Return to Library' />
 	</div>
-
-	<script>
-
-		function downloadUrl() {
-
-			fetch("/api/download_url", {
-				method: "POST",
-				body: new FormData($("#urlForm")[0])
-			})
-				.then(response => response.json())
-				.then((data) => {
-					if (data.success) {
-						result = `<tr><td><a href="#" id="${data.job}-name">${data.url}</a></td>
-									<td><i id="${data.job}-icon" class='fa fa-spinner fa-spin' style='margin-left:20px; margin-right: 10px;'></i>
-									<a href="#" id="${data.job}-link">Downloading file... (Job #${data.job})</a>
-									</td>
-								</tr>`;
-
-						$('#files').append(result);
-
-						// Check minion job state periodically to update the result 
-						checkJobStatus(data.job, function (d) {
-
-							$(`#${data.job}-name`).attr("href", `reader?id=${d.result.id}`);
-							$(`#${data.job}-link`).html("Click here to edit metadata.(" + d.result.message + ")");
-							$(`#${data.job}-link`).attr("href", `edit?id=${d.result.id}`);
-
-							if (d.result.success) {
-								$(`#${data.job}-icon`).attr("class", "fa fa-check-circle");
-							} else {
-								$(`#${data.job}-icon`).attr("class", "fa fa-exclamation-circle");
-							}
-
-							const categoryID = document.getElementById("category").value;
-							if (categoryID !== "") {
-								console.log(`Adding ${d.result.id} to category ${categoryID}`)
-								addArchiveToCategory(d.result.id, categoryID);
-							}
-						})
-					} else {
-						throw new Error(data.message);
-					}
-				})
-				.catch(error => showErrorToast("Error while adding download job", error));
-
-		}
-
-		function initUpload() {
-
-			//Handler for file uploading.
-			$('#fileupload').fileupload({
-				dataType: 'json',
-				done: function (e, data) {
-
-					const categoryID = document.getElementById("category").value;
-
-					if (data.result.success == 0)
-						result = `<tr><td>${data.result.name}</td>
-									  <td><i class='fa fa-exclamation-circle' style='margin-left:20px; margin-right: 10px; color: red'></i>${data.result.error}</td>
-								  </tr>`;
-					else
-						result = `<tr><td><a href="#" id="${data.result.job}-name">${data.result.name}</a></td>
-									  <td><i id="${data.result.job}-icon" class='fa fa-spinner fa-spin' style='margin-left:20px; margin-right: 10px;'></i>
-										<a href="#" id="${data.result.job}-link">Processing file... (Job #${data.result.job})</a>
-									  </td>
-								  </tr>`;
-
-					$('#progress .bar').css('width', '0%');
-					$('#files').append(result);
-
-					// Check minion job state periodically to update the result 
-					checkJobStatus(data.result.job, function (d) {
-
-						$(`#${data.result.job}-name`).attr("href", `reader?id=${d.result.id}`);
-						$(`#${data.result.job}-link`).html("Click here to edit metadata.(" + d.result.message + ")");
-						$(`#${data.result.job}-link`).attr("href", `edit?id=${d.result.id}`);
-
-						if (d.result.success) {
-							$(`#${data.result.job}-icon`).attr("class", "fa fa-check-circle");
-						} else {
-							$(`#${data.result.job}-icon`).attr("class", "fa fa-exclamation-circle");
-						}
-
-						if (categoryID !== "") {
-							console.log(`Adding ${d.result.id} to category ${categoryID}`)
-							addArchiveToCategory(d.result.id, categoryID);
-						}
-					})
-				},
-
-				fail: function (e, data) {
-					result = `<tr><td>${data.result.name}</td>
-									  <td><i class='fa fa-exclamation-circle' style='margin-left:20px; margin-right: 10px; color: red'></i>${data.errorThrown}</td>
-								  </tr>`;
-					$('#progress .bar').css('width', '0%');
-					$('#files').append(result);
-				},
-
-				progressall: function (e, data) {
-					var progress = parseInt(data.loaded / data.total * 100, 10);
-					$('#progress .bar').css('width', progress + '%');
-				}
-
-			});
-
-		}
-
-	</script>
 
 	[% INCLUDE footer %]
 </body>

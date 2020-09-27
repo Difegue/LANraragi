@@ -24,7 +24,7 @@ use LANraragi::Model::Plugins;
 # as we'll copy it to the content folder and delete the original at the end.
 # Also does autoplugin if enabled.
 #
-# Returns a status value and message.
+# Returns a status value, the ID and title of the file, and a status message.
 sub handle_incoming_file {
 
     my $tempfile = shift;
@@ -34,7 +34,7 @@ sub handle_incoming_file {
 
     # Check if file is an archive
     unless ( is_archive($filename) ) {
-        return ( 0, "deadbeef", "Incoming file $filename is not a recognized archive." );
+        return ( 0, "deadbeef", $filename, "Not a recognized archive." );
     }
 
     # Compute an ID here
@@ -62,12 +62,12 @@ sub handle_incoming_file {
           ? "This file already exists in the Library."
           : "A file with the same name is present in the Library.";
 
-        return ( 0, $id, $msg );
+        return ( 0, $id, $filename, $msg );
     }
 
     # Add the file to the database ourselves so Shinobu doesn't do it
     # This allows autoplugin to be ran ASAP.
-    LANraragi::Utils::Database::add_archive_to_redis( $id, $output_file, $redis );
+    my ( $name, $title, $tags ) = LANraragi::Utils::Database::add_archive_to_redis( $id, $output_file, $redis );
     $redis->quit();
 
     # Invalidate search cache ourselves, Shinobu won't do it since the file is already in the database
@@ -81,34 +81,34 @@ sub handle_incoming_file {
     move( $output_file . ".upload", $output_file );
 
     unless ( -e $output_file ) {
-        return ( 0, $id, "The file couldn't be moved to your content folder!" );
+        return ( 0, $id, $title, "The file couldn't be moved to your content folder!" );
     }
 
     if ( LANraragi::Model::Config->enable_autotag ) {
         $logger->debug("Running autoplugin on newly upload file $id...");
         my ( $succ, $fail, $addedtags ) = LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
-        return ( 1, $id, "$succ Plugins used successfully, $fail Plugins failed, $addedtags tags added." );
+        return ( 1, $id, $title, "$succ Plugins used successfully, $fail Plugins failed, $addedtags tags added." );
     }
 
-    return ( 1, $id, "File added successfully!" );
+    return ( 1, $id, $title, "File added successfully!" );
 }
 
 # Download the given URL, using the given Mojo::UserAgent object.
 # This downloads the URL to a temporaryfolder and returns the full path to the downloaded file.
 sub download_url {
 
-    my ( $url, $login ) = shift;
+    my ( $url, $ua ) = @_;
+
     my $logger = get_logger( "File Upload/Download", "lanraragi" );
 
     # Download to a temp folder
     die "Not a proper URL" unless $url;
     $logger->info("Downloading URL $url...This will take some time.");
 
-    my $ua           = LANraragi::Model::Plugins::exec_login_plugin($login);
     my $tempdir      = tempdir();
     my $tx           = $ua->max_redirects(5)->get($url);
     my $content_disp = $tx->result->headers->content_disposition;
-    my $filename     = "placeholder.zip";                                      #placeholder;
+    my $filename     = "placeholder.zip";                           #placeholder;
 
     $logger->debug("Content-Disposition Header: $content_disp");
     if ( $content_disp =~ /.*filename=\"(.*)\".*/gim ) {
