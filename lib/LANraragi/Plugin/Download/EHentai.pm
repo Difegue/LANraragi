@@ -37,7 +37,7 @@ sub plugin_info {
 sub provide_url {
     shift;
     my $lrr_info = shift;
-    my $logger   = get_logger( "EH Downloader(Preview)", "plugins" );
+    my $logger   = get_logger( "EH Downloader", "plugins" );
 
     # Get the URL to download
     # We don't really download anything here, we just use the E-H URL to get an archiver URL that can be downloaded normally.
