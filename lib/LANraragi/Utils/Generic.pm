@@ -80,7 +80,7 @@ sub get_tag_with_namespace {
 # Start a Minion worker if there aren't any available.
 sub start_minion {
     my $mojo   = shift;
-    my $logger = get_logger( "Minion Worker", "minion" );
+    my $logger = get_logger( "Minion", "minion" );
 
     my $numcpus = Sys::CpuAffinity::getNumCpus();
     $logger->info("Starting new Minion worker in subprocess with $numcpus parallel jobs.");

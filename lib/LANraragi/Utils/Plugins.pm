@@ -6,6 +6,7 @@ use utf8;
 
 use Mojo::JSON qw(decode_json);
 use LANraragi::Utils::Database qw(redis_decode);
+use LANraragi::Utils::Logging qw(get_logger);
 
 # Plugin system ahoy - this makes the LANraragi::Utils::Plugins::plugins method available
 # Don't call this method directly - Rely on LANraragi::Utils::Plugins::get_plugins instead
@@ -14,7 +15,7 @@ use Module::Pluggable require => 1, search_path => ['LANraragi::Plugin'];
 # Functions related to the Plugin system.
 # This mostly contains the glue for parameters w/ Redis, the meat of Plugin execution is in Model::Plugins.
 use Exporter 'import';
-our @EXPORT_OK = qw(get_plugins get_plugin get_enabled_plugins get_plugin_parameters is_plugin_enabled);
+our @EXPORT_OK = qw(get_plugins get_downloader_for_url get_plugin get_enabled_plugins get_plugin_parameters is_plugin_enabled);
 
 # Get metadata of all plugins with the defined type. Returns an array of hashes.
 sub get_plugins {
@@ -32,6 +33,27 @@ sub get_plugins {
     }
 
     return @validplugins;
+}
+
+# Get a downloader plugin matching the given URL.
+# Returns undef if no plugin matches.
+sub get_downloader_for_url {
+
+    my $url     = shift;
+    my $logger  = get_logger( "File Upload/Download", "lanraragi" );
+    my @plugins = get_plugins("download");
+
+    foreach my $pluginfo (@plugins) {
+
+        my $regex = $pluginfo->{url_regex};
+
+        $logger->debug("Matching $url to /$regex/");
+
+        if ( $url =~ m/$regex/ ) {
+            return $pluginfo;
+        }
+    }
+    return undef;
 }
 
 sub get_enabled_plugins {

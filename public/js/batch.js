@@ -1,23 +1,23 @@
 // Check untagged archives, using the matching API endpoint.
 function checkUntagged() {
 
-    $.get("api/untagged")
-		.done(function (data) {
+    $.get("api/archives/untagged")
+        .done(function (data) {
 
             // Check untagged archives
-			data.forEach(id => {
-                $('#'+id)[0].checked = true;
+            data.forEach(id => {
+                $('#' + id)[0].checked = true;
             });
-		})
-		.fail(function () {
-			$.toast({
-				showHideTransition: 'slide',
-				position: 'top-left',
-				loader: false,
-				heading: "Error getting untagged archives!",
-				icon: 'error'
-			});
-		});
+        })
+        .fail(function () {
+            $.toast({
+                showHideTransition: 'slide',
+                position: 'top-left',
+                loader: false,
+                heading: "Error getting untagged archives!",
+                icon: 'error'
+            });
+        });
 }
 
 //Get the titles who have been checked in the batch tagging list and update their tags.
@@ -45,14 +45,14 @@ function startBatch() {
 
     //Only add values into the override argument array if the checkbox is on
     if ($("#override")[0].checked) {
-        for (var j = 0, ref = args.length = arginputs.length; j < ref; j++) { 
+        for (var j = 0, ref = args.length = arginputs.length; j < ref; j++) {
 
             // Checkbox inputs are handled by looking at the checked prop instead of the value.
             if (arginputs[j].type != "checkbox")
-                args[j] = arginputs[j].value; 
-            else 
-                args[j] = arginputs[j].checked ? 1:0; 
-            
+                args[j] = arginputs[j].value;
+            else
+                args[j] = arginputs[j].checked ? 1 : 0;
+
         }
     }
 
@@ -69,12 +69,12 @@ function startBatch() {
 
     batchSocket.onopen = function (event) {
         var command = commandBase;
-        command.archive = arcs.splice(0,1)[0];
+        command.archive = arcs.splice(0, 1)[0];
         console.log(command);
         batchSocket.send(JSON.stringify(command));
     };
 
-    batchSocket.onmessage = function(event) {
+    batchSocket.onmessage = function (event) {
 
         // Update log
         updateBatchStatus(event);
@@ -87,12 +87,12 @@ function startBatch() {
 
         $("#log-container").append('Sleeping for ' + timeout + ' seconds.\n');
         // Wait timeout and pass next archive
-        setTimeout(function(){ 
+        setTimeout(function () {
             var command = commandBase;
-            command.archive = arcs.splice(0,1)[0];
+            command.archive = arcs.splice(0, 1)[0];
             console.log(command);
             batchSocket.send(JSON.stringify(command));
-        }, timeout*1000);       
+        }, timeout * 1000);
     };
 
     batchSocket.onerror = batchError;
@@ -115,9 +115,9 @@ function updateBatchStatus(event) {
         $("#log-container").append('Processed ' + msg.id + '(Added tags: ' + msg.tags + ')\n');
 
         //Uncheck ID in list
-        $('#'+msg.id)[0].checked = false;
+        $('#' + msg.id)[0].checked = false;
 
-        if ( msg.title != "" ) {
+        if (msg.title != "") {
             $("#log-container").append('Changed title to: ' + msg.title + '\n');
         }
     }
@@ -126,9 +126,9 @@ function updateBatchStatus(event) {
     var count = $("#arcs").html();
     var total = $("#totalarcs").html();
     count++;
-    $(".bar").attr("style", "width: "+count/total*100+"%;");
+    $(".bar").attr("style", "width: " + count / total * 100 + "%;");
     $("#arcs").html(count);
-    
+
     scrollLogs();
 }
 

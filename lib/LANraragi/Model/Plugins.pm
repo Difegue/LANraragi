@@ -153,7 +153,7 @@ sub exec_download_plugin {
         }
 
         if ( exists $result{download_url} ) {
-            return ( useragent => $ua, download_url => $result{download_url} );
+            return ( login_from => $pluginfo{login_from}, download_url => $result{download_url} );
         }
 
         return ( error => "Plugin ran to completion but didn't provide a final URL for us to download." );

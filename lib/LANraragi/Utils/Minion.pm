@@ -4,8 +4,11 @@ use strict;
 use warnings;
 use utf8;
 
+use Mojo::UserAgent;
+
 use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Utils::Archive qw(extract_thumbnail);
+use LANraragi::Utils::Plugins qw(get_downloader_for_url get_plugin get_plugin_parameters);
 
 use LANraragi::Model::Upload;
 
@@ -58,6 +61,63 @@ sub add_tasks {
     );
 
     $minion->add_task(
+        download_url => sub {
+            my ( $job, @args ) = @_;
+            my ($url) = @args;
+
+            my $login  = "";                                 # Login plugin to use, if needed
+            my $logger = get_logger( "Minion", "minion" );
+            $logger->info("Downloading url $url...");
+
+            # Check downloader plugins for one matching the given URL
+            my $downloader = get_downloader_for_url($url);
+
+            if ($downloader) {
+
+                $logger->info("Found downloader $downloader");
+
+                # Use the downloader to transform the URL
+                my $plugname = $downloader->{namespace};
+                my $plugin   = get_plugin($plugname);
+                my @settings = get_plugin_parameters($plugname);
+
+                my %plugin_result = LANraragi::Model::Plugins::exec_download_plugin( $plugin, $url, @settings );
+
+                if ( exists $plugin_result{error} ) {
+                    $job->finish(
+                        {   success => 0,
+                            url     => $url,
+                            message => $plugin_result{error}
+                        }
+                    );
+                }
+
+                $login = $plugin_result{login_from};
+                $url   = $plugin_result{download_url};
+                $logger->info("URL transformed by plugin to $url");
+            } else {
+                $logger->debug("No downloader found, trying direct URL.");
+            }
+
+            # Download the URL
+            # TODO: Add error checking
+            my $tempfile = LANraragi::Model::Upload::download_url( $url, $login );
+            $logger->info("URL downloaded to $tempfile");
+
+            # Hand off the result to handle_incoming_file
+            my ( $status, $id, $message ) = LANraragi::Model::Upload::handle_incoming_file($tempfile);
+
+            $job->finish(
+                {   success => $status,
+                    url     => $url,
+                    id      => $id,
+                    message => $message
+                }
+            );
+        }
+    );
+
+    $minion->add_task(
         run_script => sub {
             my ( $job,    @args )      = @_;
             my ( $plugin, $arguments ) = @args;
@@ -65,25 +125,6 @@ sub add_tasks {
             my $logger = get_logger( "Minion", "minion" );
 
             # TODO?
-
-        }
-    );
-
-    $minion->add_task(
-        download_url => sub {
-            my ( $job, @args ) = @_;
-            my ($url) = @args;
-
-            my $logger = get_logger( "Minion", "minion" );
-            $logger->info("Downloading url $url...");
-
-            #TODO: Check downloader plugins for one matching the given URL
-
-            # Invoke plugin if there's a match
-
-            # Otherwise, try downloading the URL the bare-bones way
-
-            # Hand off the result to the handle_incoming_file sub
 
         }
     );

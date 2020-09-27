@@ -74,6 +74,31 @@ sub minion_job_status {
     }
 }
 
+sub download_url {
+
+    my ($self) = shift;
+    my $url = $self->req->param('url');
+
+    if ($url) {
+
+        # Send a job to Minion to queue the download.
+        my $jobid = $self->minion->enqueue( download_url => [$url], );
+
+        $self->render(
+            json => {
+                operation => "download_url",
+                url       => $url,
+                success   => 1,
+                job       => $jobid
+            }
+        );
+
+    } else {
+        render_api_response( $self, "download_url", "No URL specified." );
+    }
+
+}
+
 # Uses a plugin, with the standard global arguments and a provided oneshot argument.
 sub use_plugin {
 
@@ -101,12 +126,6 @@ sub use_plugin {
 
         if ( $pluginfo{type} eq "metadata" ) {
             eval { %plugin_result = LANraragi::Model::Plugins::exec_metadata_plugin( $plugin, $id, $input, @settings ); };
-        }
-
-        if ( $pluginfo{type} eq "download" ) {
-
-            # TODO queue a minion job here instead
-            eval { %plugin_result = LANraragi::Model::Plugins::exec_download_plugin( $plugin, $input, @settings ); };
         }
 
         if ($@) {

@@ -6,6 +6,7 @@ use utf8;
 
 use Redis;
 use File::Basename;
+use File::Temp qw/ tempfile tempdir /;
 use File::Find qw(find);
 use File::Copy qw(move);
 use Encode;
@@ -29,6 +30,8 @@ sub handle_incoming_file {
     my ( $filename, $dirs, $suffix ) = fileparse( $tempfile, qr/\.[^.]*/ );
     $filename = $filename . $suffix;
     my $logger = get_logger( "File Upload/Download", "lanraragi" );
+
+    # TODO: Check if file is an archive
 
     # Compute an ID here
     my $id = compute_id($tempfile);
@@ -90,16 +93,18 @@ sub handle_incoming_file {
 # This downloads the URL to a temporaryfolder and returns the full path to the downloaded file.
 sub download_url {
 
-    my ( $ua, $url ) = shift;
+    my ( $url, $login ) = shift;
     my $logger = get_logger( "File Upload/Download", "lanraragi" );
 
     # Download to a temp folder
+    die "Not a proper URL" unless $url;
     $logger->info("Downloading URL $url...This will take some time.");
 
+    my $ua           = LANraragi::Model::Plugins::exec_login_plugin($login);
     my $tempdir      = tempdir();
     my $tx           = $ua->max_redirects(5)->get($url);
     my $content_disp = $tx->result->headers->content_disposition;
-    my $filename     = "placeholder.zip";                           #placeholder;
+    my $filename     = "placeholder.zip";                                      #placeholder;
 
     $logger->debug("Content-Disposition Header: $content_disp");
     if ( $content_disp =~ /.*filename=\"(.*)\".*/gim ) {
