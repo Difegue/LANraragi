@@ -456,7 +456,45 @@ Temporary folder is deleted.
 {% endapi-method-spec %}
 {% endapi-method %}
 
-{% api-method method="delete" host="http://lrr.tvc-16.science" path="/api/minion/:jobid" %}
+{% api-method method="post" host="http://lrr.tvc-16.science" path="/api/download_url" %}
+{% api-method-summary %}
+🔑Queue a URL download
+{% endapi-method-summary %}
+
+{% api-method-description %}
+Add a URL to be downloaded by the server and added to its library.
+{% endapi-method-description %}
+
+{% api-method-spec %}
+{% api-method-request %}
+{% api-method-path-parameters %}
+{% api-method-parameter name="url" type="string" required=true %}
+URL to download  
+{% endapi-method-parameter %}
+{% endapi-method-path-parameters %}
+{% endapi-method-request %}
+
+{% api-method-response %}
+{% api-method-response-example httpCode=200 %}
+{% api-method-response-example-description %}
+You get the Minion Job ID for the ongoing download. Status for the job can be verified using the `/api/minion/:jobid` endpoint.
+{% endapi-method-response-example-description %}
+
+```javascript
+{
+  "job": 86,
+  "operation": "download_url",
+  "success": 1,
+  "url": "https:\/\/example.com"
+}
+```  
+
+{% endapi-method-response-example %}
+{% endapi-method-response %}
+{% endapi-method-spec %}
+{% endapi-method %}
+
+{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/minion/:jobid" %}
 {% api-method-summary %}
 🔑Get the status of a Minion Job
 {% endapi-method-summary %}
@@ -470,7 +508,7 @@ Usually stuff you don't need to care about as a client, but the API is there for
 {% api-method-request %}
 {% api-method-path-parameters %}
 {% api-method-parameter name="id" type="string" required=true %}
-ID of the Job. There's no API for getting minion jobs currently, so you have to look in the admin interface.  
+ID of the Job.  
 {% endapi-method-parameter %}
 {% endapi-method-path-parameters %}
 {% endapi-method-request %}
@@ -483,31 +521,31 @@ You get the job status. This is essentially "raw" output from Minion and looks a
 
 ```javascript
 {
-	"args": ["\/tmp\/QF3UCnKdMr\/myfile.zip"],
-	"attempts": 1,
-	"children": [],
-	"created": "1601145004",
-	"delayed": "1601145004",
-	"expires": null,
-	"finished": "1601145004",
-	"id": 7,
-	"lax": 0,
-	"notes": {},
-	"parents": [],
-	"priority": 0,
-	"queue": "default",
-	"result": {
-		"id": "75d18ce470dc99f83dc355bdad66319d1f33c82b",
-		"message": "This file already exists in the Library.",
-		"success": 0
-	},
-	"retried": null,
-	"retries": 0,
-	"started": "1601145004",
-	"state": "finished",
-	"task": "handle_upload",
-	"time": "1601145005",
-	"worker": 1
+  "args": ["\/tmp\/QF3UCnKdMr\/myfile.zip"],
+  "attempts": 1,
+  "children": [],
+  "created": "1601145004",
+  "delayed": "1601145004",
+  "expires": null,
+  "finished": "1601145004",
+  "id": 7,
+  "lax": 0,
+  "notes": {},
+  "parents": [],
+  "priority": 0,
+  "queue": "default",
+  "result": {
+    "id": "75d18ce470dc99f83dc355bdad66319d1f33c82b",
+    "message": "This file already exists in the Library.",
+    "success": 0
+  },
+  "retried": null,
+  "retries": 0,
+  "started": "1601145004",
+  "state": "finished",
+  "task": "handle_upload",
+  "time": "1601145005",
+  "worker": 1
 }
 ```  
 

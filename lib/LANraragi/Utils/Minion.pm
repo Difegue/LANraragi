@@ -156,19 +156,6 @@ sub add_tasks {
             }
         }
     );
-
-    $minion->add_task(
-        run_script => sub {
-            my ( $job,    @args )      = @_;
-            my ( $plugin, $arguments ) = @args;
-
-            my $logger = get_logger( "Minion", "minion" );
-
-            # TODO?
-
-        }
-    );
-
 }
 
 1;
