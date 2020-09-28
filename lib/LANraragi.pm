@@ -109,7 +109,8 @@ sub startup {
 
     # Enable Minion capabilities in the app
     shutdown_from_pid("./script/minion.pid");
-    unlink("./.minion.db");    # Delete old DB if it still exists
+
+    #unlink("./.minion.db");     Delete old DB if it still exists -- Might be needed in case of DB lock ?
     $self->plugin( 'Minion' => { SQLite => 'sqlite:./.minion.db' } );
     $self->LRR_LOGGER->info("Successfully connected to Minion database.");
     $self->minion->missing_after(5);    # Clean up older workers after 5 seconds of unavailability

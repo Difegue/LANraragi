@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use utf8;
 
+use Encode;
 use Mojo::UserAgent;
 
 use LANraragi::Utils::Logging qw(get_logger);
@@ -116,6 +117,19 @@ sub add_tasks {
 
                 # Hand off the result to handle_incoming_file
                 my ( $status, $id, $title, $message ) = LANraragi::Model::Upload::handle_incoming_file($tempfile);
+
+                # Add the url as a source: tag
+                my $redis = LANraragi::Model::Config->get_redis;
+                my $tags  = $redis->hget( $id, "tags" );
+                $tags = LANraragi::Utils::Database::redis_decode($tags);
+
+                if ( $tags ne "" ) {
+                    $tags = $tags . ", ";
+                }
+
+                $tags = $tags . "source:$url";
+                $redis->hset( $id, "tags", encode_utf8($tags) );
+                $redis->quit;
 
                 $job->finish(
                     {   success => $status,

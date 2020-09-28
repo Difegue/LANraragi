@@ -13,13 +13,14 @@ sub plugin_info {
 
     return (
         # Standard metadata
-        name        => "E*Hentai Downloader",
-        type        => "download",
-        namespace   => "ehdl",
-        login_from  => "ehlogin",
-        author      => "Difegue",
-        version     => "1.0",
-        description => "Downloads the given e*hentai URL and adds it to LANraragi.",
+        name       => "E*Hentai Downloader",
+        type       => "download",
+        namespace  => "ehdl",
+        login_from => "ehlogin",
+        author     => "Difegue",
+        version    => "1.0",
+        description =>
+          "Downloads the given e*hentai URL and adds it to LANraragi. This uses GP to call the archiver, so make sure you have enough!",
 
         # Downloader-specific metadata
         url_regex => "https?:\/\/e(-|x)hentai.org\/g\/.*\/.*"

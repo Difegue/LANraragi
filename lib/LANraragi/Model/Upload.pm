@@ -34,7 +34,7 @@ sub handle_incoming_file {
 
     # Check if file is an archive
     unless ( is_archive($filename) ) {
-        return ( 0, "deadbeef", $filename, "Not a recognized archive." );
+        return ( 0, "deadbeef", $filename, "Unsupported File Extension" );
     }
 
     # Compute an ID here
@@ -85,7 +85,7 @@ sub handle_incoming_file {
     }
 
     if ( LANraragi::Model::Config->enable_autotag ) {
-        $logger->debug("Running autoplugin on newly upload file $id...");
+        $logger->debug("Running autoplugin on newly uploaded file $id...");
         my ( $succ, $fail, $addedtags ) = LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
         return ( 1, $id, $title, "$succ Plugins used successfully, $fail Plugins failed, $addedtags tags added." );
     }
@@ -108,10 +108,14 @@ sub download_url {
     my $tempdir      = tempdir();
     my $tx           = $ua->max_redirects(5)->get($url);
     my $content_disp = $tx->result->headers->content_disposition;
-    my $filename     = "placeholder.zip";                           #placeholder;
+    my $filename     = "Not_an_archive";                            #placeholder;
 
     $logger->debug("Content-Disposition Header: $content_disp");
     if ( $content_disp =~ /.*filename=\"(.*)\".*/gim ) {
+        $filename = $1;
+    } elsif ( $url =~ /([^\/]+)\/?$/gm ) {
+
+        # Fallback to the last element of the URL as the filename.
         $filename = $1;
     }
 

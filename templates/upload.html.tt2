@@ -60,18 +60,19 @@
 				You can download files from remote URLs directly into LANraragi from here.<br>
 				Download jobs will keep going even if you close this window!<br><br>
 
-				Type in the URL, and click the download button. <br>
+				Type in your URLs (separated by a newline), and click the download button. <br>
 				If a <a href="/config/plugins">Downloader plugin</a> is compatible with the URL, it'll be automatically
 				used.<br><br>
 
-				<form name="urlForm" id="urlForm" enctype="multipart/form-data" method="post">
-					<label for="download_url">URL to download:</label>
-					<input type="text" id="url" style="width:300px" name="url"><br><br>
-				</form>
+				<label for="download_url">URL(s) to download:</label>
+				<textarea type="text" name="urls" id="urlForm"
+					style="width: 400px; height: 100px; white-space: pre;"></textarea>
+				<br><br>
+
 
 				<span class='stdbtn fileinput-button' style="height:50px;" onclick="downloadUrl()">
 					<i class='fas fa-cloud-download-alt fa-2x' style='padding-top:6px; padding-bottom: 5px'></i><br>
-					<span>Add from an URL</span>
+					<span>Add from URL(s)</span>
 				</span>
 
 			</div>

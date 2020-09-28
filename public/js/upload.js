@@ -19,15 +19,17 @@ function updateUploadCounters() {
 
 // Handle a completed job from minion. Update the line in upload results with the title, ID, message.
 function handleCompletedUpload(jobID, d) {
-    $(`#${jobID}-name`).attr("href", `reader?id=${d.result.id}`);
+
     $(`#${jobID}-name`).html(d.result.title);
-    $(`#${jobID}-link`).html("Click here to edit metadata.(" + d.result.message + ")");
-    $(`#${jobID}-link`).attr("href", `edit?id=${d.result.id}`);
 
     if (d.result.success) {
+        $(`#${jobID}-name`).attr("href", `reader?id=${d.result.id}`);
+        $(`#${jobID}-link`).html("Click here to edit metadata.(" + d.result.message + ")");
+        $(`#${jobID}-link`).attr("href", `edit?id=${d.result.id}`);
         $(`#${jobID}-icon`).attr("class", "fa fa-check-circle");
         completedArchives++;
     } else {
+        $(`#${jobID}-link`).html("Error while processing archive.(" + d.result.message + ")");
         $(`#${jobID}-icon`).attr("class", "fa fa-exclamation-circle");
         failedArchives++;
     }
@@ -52,38 +54,49 @@ function handleFailedUpload(jobID, d) {
     updateUploadCounters();
 }
 
-// Send an URL to the Download API and add a checkJobStatus to track its progress.
+// Send URLs to the Download API and add a checkJobStatus to track its progress.
 function downloadUrl() {
 
-    fetch("/api/download_url", {
-        method: "POST",
-        body: new FormData($("#urlForm")[0])
-    })
-        .then(response => response.json())
-        .then((data) => {
-            if (data.success) {
-                result = `<tr><td><a href="#" id="${data.job}-name">${data.url}</a></td>
-                            <td><i id="${data.job}-icon" class='fa fa-spinner fa-spin' style='margin-left:20px; margin-right: 10px;'></i>
-                            <a href="#" id="${data.job}-link">Downloading file... (Job #${data.job})</a>
-                            </td>
-                        </tr>`;
+    // One fetch job per non-empty line of the form
+    $('#urlForm').val().split(/\r|\n/).forEach(url => {
 
-                $('#files').append(result);
+        if (url === "") return;
 
-                totalUploads++;
-                processingArchives++;
-                updateUploadCounters();
+        let formData = new FormData();
+        formData.append('url', url);
 
-                // Check minion job state periodically to update the result 
-                checkJobStatus(data.job,
-                    (d) => handleCompletedUpload(data.job, d),
-                    (error) => handleFailedUpload(data.job, error));
-            } else {
-                throw new Error(data.message);
-            }
+        fetch("/api/download_url", {
+            method: "POST",
+            body: formData
         })
-        .catch(error => showErrorToast("Error while adding download job", error));
+            .then(response => response.json())
+            .then((data) => {
+                if (data.success) {
+                    result = `<tr><td style="max-width:200px; overflow:hidden; text-overflow:ellipsis;">
+                                    <a href="#" id="${data.job}-name" title="${data.url}">${data.url}</a>
+                                </td>
+                                <td><i id="${data.job}-icon" class='fa fa-spinner fa-spin' style='margin-left:20px; margin-right: 10px;'></i>
+                                <a href="#" id="${data.job}-link">Downloading file... (Job #${data.job})</a>
+                                </td>
+                            </tr>`;
 
+                    $('#files').append(result);
+
+                    totalUploads++;
+                    processingArchives++;
+                    updateUploadCounters();
+
+                    // Check minion job state periodically to update the result 
+                    checkJobStatus(data.job,
+                        (d) => handleCompletedUpload(data.job, d),
+                        (error) => handleFailedUpload(data.job, error));
+                } else {
+                    throw new Error(data.message);
+                }
+            })
+            .catch(error => showErrorToast("Error while adding download job", error));
+
+    });
 }
 
 // Set up jqueryfileupload.
@@ -100,7 +113,9 @@ function initUpload() {
                               <td><i class='fa fa-exclamation-circle' style='margin-left:20px; margin-right: 10px; color: red'></i>${data.result.error}</td>
                           </tr>`;
             else
-                result = `<tr><td><a href="#" id="${data.result.job}-name">${data.result.name}</a></td>
+                result = `<tr><td style="max-width:200px; overflow:hidden; text-overflow:ellipsis;">
+                                <a href="#" id="${data.result.job}-name" title="${data.result.name}">${data.result.name}</a>
+                              </td>
                               <td><i id="${data.result.job}-icon" class='fa fa-spinner fa-spin' style='margin-left:20px; margin-right: 10px;'></i>
                                 <a href="#" id="${data.result.job}-link">Processing file... (Job #${data.result.job})</a>
                               </td>
