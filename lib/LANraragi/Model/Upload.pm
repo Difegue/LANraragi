@@ -5,6 +5,7 @@ use warnings;
 use utf8;
 
 use Redis;
+use URI::Escape;
 use File::Basename;
 use File::Temp qw/ tempfile tempdir /;
 use File::Find qw(find);
@@ -113,6 +114,12 @@ sub download_url {
     $logger->debug("Content-Disposition Header: $content_disp");
     if ( $content_disp =~ /.*filename=\"(.*)\".*/gim ) {
         $filename = $1;
+    } elsif ( $content_disp =~ /.*filename\*=UTF-8''(.*)/gim ) {
+
+        # This is an UTF8 filename as per rfc5987.
+        # URL-decode to get the full filename.
+        $filename = uri_unescape($1);
+
     } elsif ( $url =~ /([^\/]+)\/?$/gm ) {
 
         # Fallback to the last element of the URL as the filename.

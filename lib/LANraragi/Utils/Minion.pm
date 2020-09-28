@@ -127,8 +127,11 @@ sub add_tasks {
                     $tags = $tags . ", ";
                 }
 
-                $tags = $tags . "source:$url";
-                $redis->hset( $id, "tags", encode_utf8($tags) );
+                # Strip http(s)://www. from the url before adding it to tags
+                if ( $url =~ /https?:\/\/(.*)/gm ) {
+                    $tags = $tags . "source:$1";
+                    $redis->hset( $id, "tags", encode_utf8($tags) );
+                }
                 $redis->quit;
 
                 $job->finish(
