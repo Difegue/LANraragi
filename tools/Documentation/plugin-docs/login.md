@@ -1,6 +1,6 @@
 # Login Plugins
 
-Login Plugins mostly play a support role: They can be called by both Metadata and Script Plugins.  
+Login Plugins mostly play a support role: They can be called by all other plugins: Metadata, Downloader and Script Plugins.  
 Their role is to provide a configured [Mojo::UserAgent](https://mojolicious.org/perldoc/Mojo/UserAgent) object that can be used to perform authenticated operations on a remote Web service.
 
 ## Required subroutines
