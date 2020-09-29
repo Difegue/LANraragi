@@ -53,6 +53,8 @@ sub plugin_info {
             {type => "string", desc => "String parameter description"},
             {type => "int", desc => "Integer parameter description"}
             ],
+        # Tag-specific metadata
+        cooldown => "If this is a Metadata Plugin, this value will be used to tell the server how long to sleep between executions to avoid remote bans. Defaults to 0.",
         # Downloader-specific metadata
         url_regex => "If this is a Downloader Plugin, this is the regex that will trigger said plugin if it matches the URL to download."
     );

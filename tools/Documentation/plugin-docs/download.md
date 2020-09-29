@@ -8,7 +8,10 @@ Only one subroutine needs to be implemented for the module to be recognized: `pr
 
 Your plugin also needs an extra field in its metadata: `url_regex`, which contains a Regular Expression that'll be used by LANraragi to know if your Downloader should be used.  
 For example, if your regex is `https?:\/\/example.com.*`, LANraragi will invoke your plugin if the user wants to download an URL that comes from `example.com`.  
+
+{% hint style="info" %}
 In case of multiple Downloaders matching the given URL, the server will invoke the first plugin that matches.  
+{% endhint %}
 
 ### Expected Input
 

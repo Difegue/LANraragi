@@ -180,10 +180,14 @@ function checkAll(btn) {
 function showOverride() {
     currentPlugin = $('#plugin').val();
 
+    let cooldown = $(`#${currentPlugin}-timeout`).html();
+    $("#cooldown").html(cooldown);
+    $("#timeout").val(cooldown);
+
     $(".arg-override").hide();
 
     if ($("#override")[0].checked)
-        $("." + currentPlugin + "-arg").show();
+        $(`.${currentPlugin}-arg`).show();
 }
 
 function scrollLogs() {

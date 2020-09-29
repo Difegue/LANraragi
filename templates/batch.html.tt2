@@ -23,7 +23,7 @@
 
 </head>
 
-<body onload="set_style_from_storage(); checkUntagged()">
+<body onload="set_style_from_storage(); checkUntagged(); showOverride()">
 
 	<div class='ido' style='text-align:center'>
 		<h2 class='ih' style='text-align:center'>Batch Tagging</h2>
@@ -58,6 +58,11 @@
 							<td>
 								<input type="number" id="timeout" min="0" max="20" value="0"> seconds </td>
 						</tr>
+						<tr>
+							<td colspan="2">
+								This plugin recommends a cooldown of <span id="cooldown">-1</span> seconds.
+							</td>
+						</tr>
 
 						<tr>
 							<td></td>
@@ -72,6 +77,10 @@
 				<table class="tag-options">
 					<tbody>
 						[% FOREACH plugin IN plugins %][% IF plugin.parameters && plugin.parameters.size %]
+
+						<span id="[% plugin.namespace %]-timeout" style="display:none">[% IF plugin.cooldown %][%
+							plugin.cooldown %][% ELSE %]0[% END %]</span>
+
 						[% FOREACH arg IN plugin.parameters %]
 						<tr class="arg-override [% plugin.namespace %]-arg" style="display:none">
 							<td style="max-width:250px">[% arg.desc %] :</td>
