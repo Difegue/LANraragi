@@ -96,14 +96,8 @@ sub do_search {
                 next;
             }
 
-            my $fileok = $file && -e $file;
-
-            if ( $file && $title && !$fileok ) {
-                $logger->debug("File $file for title $title does not exist and will not be in search results.");
-            }
-
             # Check category search and base search filter
-            if (   $fileok
+            if (   $file
                 && matches_search_filter( $cat_search, $title . "," . $tags )
                 && matches_search_filter( $filter,     $title . "," . $tags ) ) {
 

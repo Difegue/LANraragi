@@ -20,13 +20,16 @@ use LANraragi::Utils::Database qw(redis_decode invalidate_cache);
 # Generates an array of all the archive JSONs in the database that have existing files.
 sub generate_archive_list {
 
-    my $redis = LANraragi::Model::Config->get_redis;
-    my @keys  = $redis->keys('????????????????????????????????????????');
-    my @list  = ();
+    my $redis   = LANraragi::Model::Config->get_redis;
+    my $dirname = LANraragi::Model::Config->get_userdir;
+    my @keys    = $redis->keys('????????????????????????????????????????');
+    my @list    = ();
 
     foreach my $id (@keys) {
-        if ( -e $redis->hget( $id, "file" ) ) {
-            my $arcdata = LANraragi::Utils::Database::build_archive_JSON( $redis, $id );
+
+        my $arcdata = LANraragi::Utils::Database::build_archive_JSON( $redis, $dirname, $id );
+
+        if ($arcdata) {
             push @list, $arcdata;
         }
     }
@@ -37,9 +40,10 @@ sub generate_archive_list {
 
 sub generate_opds_catalog {
 
-    my $mojo  = shift;
-    my $redis = $mojo->LRR_CONF->get_redis;
-    my @keys  = ();
+    my $mojo    = shift;
+    my $redis   = $mojo->LRR_CONF->get_redis;
+    my $dirname = $mojo->LRR_CONF->get_userdir;
+    my @keys    = ();
 
     # Detailed pages just return a single entry instead of all the archives.
     if ( $mojo->req->param('id') ) {
@@ -146,17 +150,16 @@ sub serve_thumbnail {
 
     # Thumbnails are stored in the content directory, thumb subfolder.
     # Another subfolder with the first two characters of the id is used for FS optimization.
-    my $subfolder = substr($id, 0, 2);
+    my $subfolder = substr( $id, 0, 2 );
     my $thumbname = "$dirname/thumb/$subfolder/$id.jpg";
 
-    # Queue a minion job to generate the thumbnail, 
+    # Queue a minion job to generate the thumbnail,
     unless ( -e $thumbname ) {
-        $self->minion->enqueue(
-            thumbnail_task => [$dirname,$id],
-        );
+        $self->minion->enqueue( thumbnail_task => [ $dirname, $id ], );
         $self->render_file( filepath => "./public/img/noThumb.png" );
         return;
     } else {
+
         # Simply serve the thumbnail.
         $self->render_file( filepath => $thumbname );
     }
@@ -170,11 +173,11 @@ sub serve_page {
     my $abspath  = abs_path($file);            # abs_path returns null if the path is invalid.
 
     if ( !$abspath ) {
-        render_api_response($self, "serve_page", "Invalid path $path.");
+        render_api_response( $self, "serve_page", "Invalid path $path." );
     }
 
-    unless (-e $abspath) {
-        render_api_response($self, "serve_page", "$path does not exist.");
+    unless ( -e $abspath ) {
+        render_api_response( $self, "serve_page", "$path does not exist." );
     }
 
     # This API can only serve files from the temp folder
@@ -194,19 +197,20 @@ sub serve_page {
             $self->render_file( filepath => $filename );
 
         } else {
+
             # Serve extracted file directly
             $self->render_file( filepath => $file );
         }
 
     } else {
-        render_api_response($self, "serve_page", "This API cannot render files outside of the temporary folder.");
+        render_api_response( $self, "serve_page", "This API cannot render files outside of the temporary folder." );
     }
 }
 
 sub update_metadata {
     my ( $id, $title, $tags ) = @_;
 
-    unless(defined $title || defined $tags) {
+    unless ( defined $title || defined $tags ) {
         return "No metadata parameters (Please supply title,tags or both)";
     }
 
@@ -218,12 +222,12 @@ sub update_metadata {
     my %hash;
 
     # Prepare the hash which'll be inserted.
-    if (defined $title) {
+    if ( defined $title ) {
         $hash{title} = encode_utf8($title);
     }
 
-    if (defined $tags) {
-         $hash{tags} = encode_utf8($tags);
+    if ( defined $tags ) {
+        $hash{tags} = encode_utf8($tags);
     }
 
     my $redis = LANraragi::Model::Config->get_redis;

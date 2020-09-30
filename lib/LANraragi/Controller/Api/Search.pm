@@ -8,9 +8,10 @@ use LANraragi::Utils::Database qw(invalidate_cache);
 # Undocumented API matching the Datatables spec.
 sub handle_datatables {
 
-    my $self  = shift;
-    my $redis = $self->LRR_CONF->get_redis();
-    my $req   = $self->req;
+    my $self    = shift;
+    my $redis   = $self->LRR_CONF->get_redis();
+    my $dirname = $self->LRR_CONF->get_userdir;
+    my $req     = $self->req;
 
     my $draw   = $req->param('draw');
     my $start  = $req->param('start');
@@ -52,7 +53,7 @@ sub handle_datatables {
     my ( $total, $filtered, @ids ) =
       LANraragi::Model::Search::do_search( $filter, $categoryfilter, $start, $sortkey, $sortorder, $newfilter, $untaggedfilter );
 
-    $self->render( json => get_datatables_object( $draw, $redis, $total, $filtered, @ids ) );
+    $self->render( json => get_datatables_object( $draw, $redis, $dirname, $total, $filtered, @ids ) );
     $redis->quit();
 
 }
@@ -60,9 +61,10 @@ sub handle_datatables {
 # Public search API with saner parameters.
 sub handle_api {
 
-    my $self  = shift;
-    my $redis = $self->LRR_CONF->get_redis();
-    my $req   = $self->req;
+    my $self    = shift;
+    my $redis   = $self->LRR_CONF->get_redis();
+    my $dirname = $self->LRR_CONF->get_userdir;
+    my $req     = $self->req;
 
     my $filter    = $req->param('filter');
     my $category  = $req->param('category') || "";
@@ -80,7 +82,7 @@ sub handle_api {
         $untaggedf eq "true"
     );
 
-    $self->render( json => get_datatables_object( 0, $redis, $total, $filtered, @ids ) );
+    $self->render( json => get_datatables_object( 0, $redis, $dirname, $total, $filtered, @ids ) );
     $redis->quit();
 
 }
@@ -94,12 +96,12 @@ sub clear_cache {
 # Creates a Datatables-compatible json from the given data.
 sub get_datatables_object {
 
-    my ( $draw, $redis, $total, $filtered, @keys ) = @_;
+    my ( $draw, $redis, $dirname, $total, $filtered, @keys ) = @_;
 
     # Get archive data from keys
     my @data = ();
     foreach my $key (@keys) {
-        push @data, LANraragi::Utils::Database::build_archive_JSON( $redis, $key->{id} );
+        push @data, LANraragi::Utils::Database::build_archive_JSON( $redis, $dirname, $key->{id} );
     }
 
     # Create json object matching the datatables structure

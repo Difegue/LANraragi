@@ -39,11 +39,12 @@ sub serve_untagged_archivelist {
 }
 
 sub serve_metadata {
-    my $self  = shift;
-    my $id    = check_id_parameter( $self, "metadata" ) || return;
-    my $redis = $self->LRR_CONF->get_redis;
+    my $self    = shift;
+    my $id      = check_id_parameter( $self, "metadata" ) || return;
+    my $redis   = $self->LRR_CONF->get_redis;
+    my $dirname = $self->LRR_CONF->get_userdir;
 
-    my $arcdata = LANraragi::Utils::Database::build_archive_JSON( $redis, $id );
+    my $arcdata = LANraragi::Utils::Database::build_archive_JSON( $redis, $dirname, $id );
     $redis->quit;
     $self->render( json => $arcdata );
 }

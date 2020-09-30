@@ -57,12 +57,11 @@ sub add_archive_to_redis {
     return ( $name, $title, $tags );
 }
 
-# build_archive_JSON(redis, id)
+# build_archive_JSON(redis, contentdir, id)
 # Builds a JSON object for an archive registered in the database and returns it.
 # This function is usually called many times in a row, so provide your own Redis object.
 sub build_archive_JSON {
-    my ( $redis, $id ) = @_;
-    my $dirname = LANraragi::Model::Config->get_userdir;
+    my ( $redis, $dirname, $id ) = @_;
 
     #Extra check in case we've been given a bogus ID
     return "" unless $redis->exists($id);
@@ -73,6 +72,11 @@ sub build_archive_JSON {
     #It's not a new archive, but it might have never been clicked on yet,
     #so we'll grab the value for $isnew stored in redis.
     my ( $name, $title, $tags, $file, $isnew ) = @hash{qw(name title tags file isnew)};
+
+    # return undef if the file doesn't exist.
+    unless ( -e $file ) {
+        return;
+    }
 
     #Parameters have been obtained, let's decode them.
     ( $_ = redis_decode($_) ) for ( $name, $title, $tags );
