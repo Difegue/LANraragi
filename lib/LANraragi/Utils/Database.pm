@@ -291,6 +291,7 @@ sub redis_decode {
 sub invalidate_cache {
     my $redis = LANraragi::Model::Config->get_redis;
     $redis->del("LRR_SEARCHCACHE");
+    $redis->hset( "LRR_SEARCHCACHE", "created", time );
     $redis->quit();
 
     # Re-warm the cache to ensure sufficient speed on the main index

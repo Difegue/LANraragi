@@ -20,7 +20,9 @@ Returns some basic information about the LRR instance this server is running.
 {% api-method-response %}
 {% api-method-response-example httpCode=200 %}
 {% api-method-response-example-description %}
-You get server info.
+You get server info.  
+The `cache_last_cleared` value is a UNIX timestamp matching the last time the search cache was reset, due to new archives for instance.  
+As a client, you should use this value to know when to refresh your internal archive list if you're keeping one.
 {% endapi-method-response-example-description %}
 
 ```javascript
@@ -33,7 +35,8 @@ You get server info.
     "debug_mode":"1",
     "nofun_mode":"0",
     "archives_per_page":"100",
-    "server_resizes_images":"0"
+    "server_resizes_images":"0",
+    "cache_last_cleared":"1601474241"
 }
 ```  
 

@@ -30,7 +30,7 @@ requires 'Test::Harness', 3.42;
 requires 'Test::MockObject', 1.20200122;
 
 # Mojo stuff
-requires 'Mojolicious', 8.42;
+requires 'Mojolicious', 8.60;
 requires 'Mojolicious::Plugin::TemplateToolkit', 0.005;
 requires 'Mojolicious::Plugin::RenderFile', 0.12;
 requires 'IO::Socket::SSL', 2.067;

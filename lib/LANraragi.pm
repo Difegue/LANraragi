@@ -12,6 +12,7 @@ use Storable;
 use LANraragi::Utils::Generic qw(start_shinobu start_minion);
 use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Utils::Plugins qw(get_plugins);
+use LANraragi::Utils::Database qw(invalidate_cache);
 use LANraragi::Utils::Routing;
 use LANraragi::Utils::Minion;
 
@@ -119,7 +120,8 @@ sub startup {
     $self->LRR_LOGGER->debug("Registered tasks with Minion.");
 
     # Warm search cache
-    # /!\ Enqueuing tasks must be done either before starting the worker, or once the IOLoop is started
+    # /!\ Enqueuing tasks must be done either before starting the worker, or once the IOLoop is started!
+    # Anything else will cause weird database lockups with the SQLite Minion backend.
     $self->minion->enqueue('warm_cache');
 
     # Start a Minion worker in a subprocess

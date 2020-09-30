@@ -11,6 +11,10 @@ use LANraragi::Utils::Plugins qw(get_plugin get_plugins get_plugin_parameters);
 sub serve_serverinfo {
     my $self = shift;
 
+    my $redis      = $self->LRR_CONF->get_redis;
+    my $last_clear = $redis->hget( "LRR_SEARCHCACHE", "created" ) || time;
+    $redis->quit();
+
     # A simple endpoint that forwards some info from LRR_CONF.
     $self->render(
         json => {
@@ -22,7 +26,8 @@ sub serve_serverinfo {
             debug_mode            => $self->LRR_CONF->enable_devmode,
             nofun_mode            => $self->LRR_CONF->enable_nofun,
             archives_per_page     => $self->LRR_CONF->get_pagesize,
-            server_resizes_images => $self->LRR_CONF->enable_resize
+            server_resizes_images => $self->LRR_CONF->enable_resize,
+            cache_last_cleared    => $last_clear
         }
     );
 }
