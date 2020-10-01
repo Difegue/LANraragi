@@ -299,7 +299,7 @@ sub invalidate_cache {
     $redis->quit();
 
     # Re-warm the cache to ensure sufficient speed on the main index
-    LANraragi::Model::Config->get_minion->enqueue('warm_cache');
+    LANraragi::Model::Config->get_minion->enqueue( warm_cache => [] => { priority => 3 } );
 }
 
 # Go through the search cache and only invalidate keys that rely on isNew.

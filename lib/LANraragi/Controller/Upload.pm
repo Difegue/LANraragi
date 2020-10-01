@@ -39,7 +39,7 @@ sub process_upload {
         );
 
         # Send a job to Minion to handle the uploaded file.
-        my $jobid = $self->minion->enqueue( handle_upload => [$tempfile], );
+        my $jobid = $self->minion->enqueue( handle_upload => [$tempfile] => { priority => 2 } );
 
         # Reply with a reference to the job so the client can check on its progress.
         $self->render(

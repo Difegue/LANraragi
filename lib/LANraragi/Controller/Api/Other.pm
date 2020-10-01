@@ -27,7 +27,7 @@ sub serve_serverinfo {
             nofun_mode            => $self->LRR_CONF->enable_nofun,
             archives_per_page     => $self->LRR_CONF->get_pagesize,
             server_resizes_images => $self->LRR_CONF->enable_resize,
-            cache_last_cleared    => $last_clear
+            cache_last_cleared    => "$last_clear"
         }
     );
 }
@@ -87,7 +87,7 @@ sub download_url {
     if ($url) {
 
         # Send a job to Minion to queue the download.
-        my $jobid = $self->minion->enqueue( download_url => [$url], );
+        my $jobid = $self->minion->enqueue( download_url => [$url] => { priority => 1 } );
 
         $self->render(
             json => {

@@ -153,9 +153,9 @@ sub serve_thumbnail {
     my $subfolder = substr( $id, 0, 2 );
     my $thumbname = "$dirname/thumb/$subfolder/$id.jpg";
 
-    # Queue a minion job to generate the thumbnail,
+    # Queue a minion job to generate the thumbnail. Thumbnail jobs have the lowest priority.
     unless ( -e $thumbname ) {
-        $self->minion->enqueue( thumbnail_task => [ $dirname, $id ], );
+        $self->minion->enqueue( thumbnail_task => [ $dirname, $id ] => { priority => 0 } );
         $self->render_file( filepath => "./public/img/noThumb.png" );
         return;
     } else {
