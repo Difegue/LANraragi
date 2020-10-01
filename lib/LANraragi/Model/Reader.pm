@@ -6,7 +6,7 @@ use utf8;
 
 use Redis;
 use File::Basename;
-use File::Path qw(remove_tree);
+use File::Path qw(remove_tree make_path);
 use File::Find qw(find);
 use File::Copy qw(move);
 use Encode;
@@ -118,8 +118,10 @@ sub build_reader_JSON {
 
     $self->LRR_LOGGER->debug( "Files found in archive: \n " . Dumper @images );
 
-    #Convert page 1 into a thumbnail for the main reader index
-    my $thumbname = $dirname . "/thumb/" . $id . ".jpg";
+    # Convert page 1 into a thumbnail for the main reader index
+    my $subfolder = substr($id, 0, 2);
+    my $thumbname = "$dirname/thumb/$subfolder/$id.jpg";
+
     unless ( -e $thumbname && $thumbreload eq "0" ) {
 
         my $shasum = shasum( $images[0], 1 );
@@ -127,7 +129,7 @@ sub build_reader_JSON {
 
         $self->LRR_LOGGER->debug("Thumbnail not found at $thumbname! (force-thumb flag = $thumbreload)");
         $self->LRR_LOGGER->debug( "Regenerating from " . $images[0] );
-        mkdir $dirname . "/thumb";
+        make_path("$dirname/thumb/$subfolder");
 
         generate_thumbnail( $images[0], $thumbname );
     }

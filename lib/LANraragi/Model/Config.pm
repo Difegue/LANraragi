@@ -6,6 +6,7 @@ use utf8;
 use Cwd 'abs_path';
 use Redis;
 use Encode;
+use Minion;
 use Mojolicious::Plugin::Config;
 use Mojo::Home;
 
@@ -23,6 +24,11 @@ sub get_redisdb { return $config->{redis_database} }
 
 #Default CSS file to load.
 sub get_style { return $config->{default_theme} }
+
+# Create a Minion object connected to the Minion database.
+sub get_minion {
+    return Minion->new( SQLite => 'sqlite:' . $home . '/.minion.db' );
+}
 
 #get_redis
 #Create a redis object with the parameters defined at the start of this file and return it

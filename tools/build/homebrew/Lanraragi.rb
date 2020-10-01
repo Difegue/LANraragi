@@ -6,7 +6,7 @@ class Lanraragi < Formula
   # url "https://github.com/Difegue/LANraragi/archive/v.0.7.1.tar.gz"
   # sha256 "bfef465abb30f2ff18cda2fea6712f5ff35b3d23b0d6f2e7ea4cfe1c46e69585"
   url "https://github.com/Difegue/LANraragi.git",
-      :revision => "COMMIT_HASH"
+      revision: "COMMIT_HASH"
   version "0.1994-dev"
   license "MIT"
   head "https://github.com/Difegue/LANraragi.git"
@@ -94,15 +94,11 @@ class Lanraragi < Formula
   end
 
   test do
-    # This can't have its _user-facing_ functionality tested in the `brew test`
-    # environment because it needs Redis. It fails spectacularly tho with some
-    # table flip emoji. So let's use those to confirm _some_ functionality.
-    output = <<~EOS
-      ｷﾀ━━━━━━(ﾟ∀ﾟ)━━━━━━!!!!!
-      (╯・_>・）╯︵ ┻━┻
-      It appears your Redis database is currently not running.
-      The program will cease functioning now.
-    EOS
-    assert_match output, shell_output("#{bin}/lanraragi", 1)
+    # brew-core uses this to test user-facing functionality by checking for the redis table flip.
+    # As this is used for CI here, it's more logical to run the test suite instead.
+    ENV["PERL5LIB"] = libexec/"lib/perl5"
+    ENV["LRR_LOG_DIRECTORY"] = testpath/"log"
+
+    system "npm", "--prefix", libexec, "test"
   end
 end

@@ -37,7 +37,7 @@
 	[% IF userlogged %]
 	<p id="nb">
 		<i class="fa fa-caret-right"></i>
-		<a href="./upload">Upload Archive</a>
+		<a href="./upload">Add Archives</a>
 		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
 		<a href="./batch">Batch Tagging</a>
@@ -82,8 +82,7 @@
 			</div>
 
 			<p id='cssbutton' style='display:inline'>
-				<input class='stdbtn' type='button' onclick="openInNewTab('random')"
-					value='Give me a random archive' />
+				<input class='stdbtn' type='button' onclick="openInNewTab('random')" value='Give me a random archive' />
 				<input id='viewbtn' class='stdbtn' type='button' onclick="switch_index_view()"
 					value='Switch to List View' />
 			</p>
@@ -163,15 +162,15 @@
 				"edit": { name: "Edit Metadata", icon: "fas fa-pencil-alt" },
 				"delete": { name: "Delete", icon: "fas fa-trash-alt" },
 				"category": {
-					"name": "Add to Category", 
+					"name": "Add to Category",
 					"icon": "fas fa-folder-open",
 					"items": {
 						[% IF categories.size > 0 %]
-							[% FOREACH categories %]
-							"category-[% id %]": {"name": "[% name %]"},
-							[% END %]
+						[% FOREACH categories %]
+						"category-[% id %]": { "name": "[% name %]" },
+						[% END %]
 						[% ELSE %]
-						"noop": {"name": "No Categories yet..."}
+						"noop": { "name": "No Categories yet..." }
 						[% END %]
 					}
 				},

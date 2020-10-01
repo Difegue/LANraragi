@@ -57,6 +57,13 @@
 				</li>
 				<li class="option-flyout">
 					<div class="collapsible-title caret-right">
+						<i class="fas fa-cloud-download-alt" aria-hidden="true"></i> Downloaders</div>
+					<div class="collapsible-body">
+						[% INCLUDE pluginlist plugins = downloaders %]
+					</div>
+				</li>
+				<li class="option-flyout">
+					<div class="collapsible-title caret-right">
 						<i class="fa fa-scroll" aria-hidden="true"></i> Scripts</div>
 					<div class="collapsible-body">
 						[% INCLUDE pluginlist plugins = scripts %]
@@ -141,7 +148,10 @@
 		checked [% END %]>
 	<br />
 	[% END %]
-	<i>[% plugin.description %]</i>
+	[% IF plugin.type == "download" %]
+	<pre title="This plugin will trigger on URLs matching this regex!">	[% plugin.url_regex %]</pre>
+	[% END %]
+	[% plugin.description %]
 	<br />
 
 	[% IF plugin.type == "script" %]

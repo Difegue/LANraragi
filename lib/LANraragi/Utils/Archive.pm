@@ -23,7 +23,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Utils::Generic qw(is_image shasum);
 
 # Utilitary functions for handling Archives.
-# Relies on Libarchive and ImageMagick.
+# Relies on Libarchive, ImageMagick and GhostScript for PDFs.
 use Exporter 'import';
 our @EXPORT_OK = qw(is_file_in_archive extract_file_from_archive extract_archive extract_thumbnail generate_thumbnail);
 
@@ -120,9 +120,12 @@ sub extract_pdf {
 sub extract_thumbnail {
 
     my ( $dirname, $id ) = @_;
-    my $thumbname = $dirname . "/thumb/" . $id . ".jpg";
 
-    make_path( $dirname . "/thumb" );
+    # Another subfolder with the first two characters of the id is used for FS optimization.
+    my $subfolder = substr( $id, 0, 2 );
+    my $thumbname = "$dirname/thumb/$subfolder/$id.jpg";
+
+    make_path("$dirname/thumb/$subfolder");
     my $redis = LANraragi::Model::Config->get_redis;
 
     my $file     = $redis->hget( $id, "file" );

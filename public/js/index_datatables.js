@@ -108,8 +108,7 @@ function createNamespaceColumn(namespace, type, data) {
 		match = regex.exec(data);
 
 		if (match != null) {
-			return `<a style="cursor:pointer" arc-namespace="${namespace}" onclick="$('#srch').val($(this).attr('arc-namespace') + ':' + $(this).html()); 
-																					arcTable.search($(this).attr('arc-namespace') + ':' + $(this).html()).draw();">
+			return `<a style="cursor:pointer" onclick="fillSearchField('${namespace}','${match[1]}')">
 						${match[1].replace(/\b./g, function (m) { return m.toUpperCase(); })}
 					</a>`;
 		} else return "";
@@ -118,9 +117,10 @@ function createNamespaceColumn(namespace, type, data) {
 	return data;
 }
 
-function openInNewTab(url) {
-	var win = window.open(url, '_blank');
-	win.focus();
+// Fill out the search field and trigger a search programmatically.
+function fillSearchField(namespace, tag) {
+	$('#srch').val(`${namespace}:${tag}`);
+	arcTable.search(`${namespace}:${tag}`).draw();
 }
 
 function titleColumnDisplay(data, type, full, meta) {
@@ -130,8 +130,7 @@ function titleColumnDisplay(data, type, full, meta) {
 		titleHtml += buildProgressDiv(data.arcid, data.isnew);
 
 		return `${titleHtml} 
-				<a class="image-tooltip" id="${data.arcid}" style="cursor:pointer" 
-				   onmouseover="buildImageTooltip($(this))" onclick="openInNewTab('reader?id=${data.arcid}')"> 
+				<a class="image-tooltip" id="${data.arcid}" onmouseover="buildImageTooltip($(this))" href="reader?id=${data.arcid}"> 
 					${encode(data.title)}
 				</a>
 				<div class="caption" style="display: none;">
@@ -179,12 +178,12 @@ function buildThumbDiv(row, data, index) {
 	if (localStorage.indexViewMode == 1) {
 		//Build a thumb-like div with the data
 		thumb_div = `<div style="height:335px" class="id1" id="${data.arcid}">
-						<div class="id2" style="cursor:pointer">
+						<div class="id2">
 							${buildProgressDiv(data.arcid, data.isnew)}
-							<a onclick="openInNewTab('reader?id=${data.arcid}')" title="${encode(data.title)}">${encode(data.title)}</a>
+							<a href="reader?id=${data.arcid}" title="${encode(data.title)}">${encode(data.title)}</a>
 						</div>
-						<div style="height:280px; cursor:pointer" class="id3" >
-							<a onclick="openInNewTab('reader?id=${data.arcid}')" title="${encode(data.title)}">
+						<div style="height:280px" class="id3">
+							<a href="reader?id=${data.arcid}" title="${encode(data.title)}">
 								<img style="position:relative;" id="${data.arcid}_thumb" src="./img/wait_warmly.jpg"/>
 								<i id="${data.arcid}_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>
 								<img src="./api/archives/${data.arcid}/thumbnail" 
@@ -306,9 +305,9 @@ function buildTagsDiv(tags) {
 		line += `<tr><td style='font-size:10pt; padding: 3px 2px 7px; vertical-align:top'>${ucKey}:</td><td>`;
 
 		tagsByNamespace[key].forEach(function (tag) {
-			line += `<div class="gt" arc-namespace="${key}" onclick="$('#srch').val($(this).attr('arc-namespace') + ':' + $(this).html()); 
-																	arcTable.search($(this).attr('arc-namespace') + ':' + $(this).html()).draw();">
-					 ${encode(tag)}</div>`;
+			line += `<div class="gt" onclick="fillSearchField('${key}','${encode(tag)}')">
+					 	${encode(tag)}
+					 </div>`;
 		});
 
 		line += "</td></tr>";

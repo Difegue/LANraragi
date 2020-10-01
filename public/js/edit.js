@@ -32,6 +32,11 @@ function updateOneShotArg() {
 
 function saveMetadata() {
 
+	$('#tag-spinner').css("display", "block");
+	$('#tagText').css("opacity", "0.5");
+	$('#tagText').prop("disabled", true);
+	$('#plugin-table').hide();
+
 	var id = $("#archiveID").val();
 
 	const formData = new FormData();
@@ -46,14 +51,20 @@ function saveMetadata() {
 					showHideTransition: 'slide',
 					position: 'top-left',
 					loader: false,
-					heading: 'Saved Successfully!',
+					heading: 'Metadata saved!',
 					icon: 'success'
 				})
 			} else {
 				throw new Error(data.message);
 			}
 		})
-		.catch(error => showErrorToast("Error while saving archive data :", error));
+		.catch(error => showErrorToast("Error while saving archive data :", error))
+		.finally(() => {
+			$('#tag-spinner').css("display", "none");
+			$('#tagText').prop("disabled", false);
+			$('#tagText').css("opacity", "1");
+			$('#plugin-table').show();
+		});
 
 }
 
@@ -111,7 +122,7 @@ function getTags() {
 				});
 			}
 
-		}).then(() => {
+		}).finally(() => {
 			$('#tag-spinner').css("display", "none");
 			$('#tagText').prop("disabled", false);
 			$('#tagText').css("opacity", "1");

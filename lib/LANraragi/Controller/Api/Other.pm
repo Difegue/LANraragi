@@ -5,10 +5,15 @@ use Mojo::JSON qw(encode_json);
 use Redis;
 
 use LANraragi::Utils::TempFolder qw(get_tempsize clean_temp_full);
+use LANraragi::Utils::Generic qw(render_api_response);
 use LANraragi::Utils::Plugins qw(get_plugin get_plugins get_plugin_parameters);
 
 sub serve_serverinfo {
     my $self = shift;
+
+    my $redis      = $self->LRR_CONF->get_redis;
+    my $last_clear = $redis->hget( "LRR_SEARCHCACHE", "created" ) || time;
+    $redis->quit();
 
     # A simple endpoint that forwards some info from LRR_CONF.
     $self->render(
@@ -21,7 +26,8 @@ sub serve_serverinfo {
             debug_mode            => $self->LRR_CONF->enable_devmode,
             nofun_mode            => $self->LRR_CONF->enable_nofun,
             archives_per_page     => $self->LRR_CONF->get_pagesize,
-            server_resizes_images => $self->LRR_CONF->enable_resize
+            server_resizes_images => $self->LRR_CONF->enable_resize,
+            cache_last_cleared    => "$last_clear"
         }
     );
 }
@@ -57,6 +63,45 @@ sub list_plugins {
 
     my @plugins = get_plugins($type);
     $self->render( json => \@plugins );
+}
+
+# Returns the info for the given Minion job id.
+sub minion_job_status {
+    my $self = shift;
+    my $id   = $self->stash('jobid');
+
+    my $job = $self->minion->job($id);
+
+    if ($job) {
+        $self->render( json => $job->info );
+    } else {
+        render_api_response( $self, "minion_job_status", "No job with this ID." );
+    }
+}
+
+sub download_url {
+
+    my ($self) = shift;
+    my $url = $self->req->param('url');
+
+    if ($url) {
+
+        # Send a job to Minion to queue the download.
+        my $jobid = $self->minion->enqueue( download_url => [$url] => { priority => 1 } );
+
+        $self->render(
+            json => {
+                operation => "download_url",
+                url       => $url,
+                success   => 1,
+                job       => $jobid
+            }
+        );
+
+    } else {
+        render_api_response( $self, "download_url", "No URL specified." );
+    }
+
 }
 
 # Uses a plugin, with the standard global arguments and a provided oneshot argument.

@@ -45,6 +45,33 @@ function genericAPICall(endpoint, method, successMessage, errorMessage, successC
 		.catch(error => showErrorToast(errorMessage, error));
 }
 
+// Check the status of a Minion job until it's completed.
+// Execute a callback on successful job completion.
+function checkJobStatus(jobId, callback, failureCallback) {
+	fetch(`api/minion/${jobId}`, { method: "GET" })
+		.then(response => response.ok ? response.json() : { success: 0, error: "Response was not OK" })
+		.then((data) => {
+
+			if (data.error)
+				throw new Error(data.error);
+
+			if (data.state === "failed") {
+				throw new Error(data.result);
+			}
+
+			if (data.state !== "finished") {
+				// Wait and retry, job isn't done yet
+				setTimeout(function () {
+					checkJobStatus(jobId, callback);
+				}, 1000);
+			} else {
+				// Update UI with info
+				callback(data);
+			}
+		})
+		.catch(error => { showErrorToast("Error checking Minion job status", error); failureCallback(error) });
+}
+
 //saveFormData()
 //POSTs the data of the specified form to the page.
 //This is used for Edit, Config and Plugins.
@@ -123,7 +150,7 @@ function invalidateCache() {
 }
 
 function clearNew(id) {
-	genericAPICall("api/clear_new?id=" + id, "GET", null, "Error clearing new flag! Check Logs.", null);
+	genericAPICall(`api/archives/${id}/isnew`, "DELETE", null, "Error clearing new flag! Check Logs.", null);
 }
 
 function clearAllNew() {

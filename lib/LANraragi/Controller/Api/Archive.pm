@@ -12,7 +12,7 @@ use LANraragi::Model::Archive;
 use LANraragi::Model::Config;
 use LANraragi::Model::Reader;
 
-# Archive API. 
+# Archive API.
 
 # Handle missing ID parameter for a whole lot of api methods down below.
 sub check_id_parameter {
@@ -21,7 +21,7 @@ sub check_id_parameter {
     # Use either the id query param(deprecated), or the URL component.
     my $id = $mojo->req->param('id') || $mojo->stash('id') || 0;
     unless ($id) {
-        render_api_response($mojo, $operation, "No archive ID specified.");
+        render_api_response( $mojo, $operation, "No archive ID specified." );
     }
     return $id;
 }
@@ -39,11 +39,12 @@ sub serve_untagged_archivelist {
 }
 
 sub serve_metadata {
-    my $self  = shift;
-    my $id    = check_id_parameter( $self, "metadata" ) || return;
-    my $redis = $self->LRR_CONF->get_redis;
+    my $self    = shift;
+    my $id      = check_id_parameter( $self, "metadata" ) || return;
+    my $redis   = $self->LRR_CONF->get_redis;
+    my $dirname = $self->LRR_CONF->get_userdir;
 
-    my $arcdata = LANraragi::Utils::Database::build_archive_JSON( $redis, $id );
+    my $arcdata = LANraragi::Utils::Database::build_archive_JSON( $redis, $dirname, $id );
     $redis->quit;
     $self->render( json => $arcdata );
 }
@@ -84,7 +85,7 @@ sub extract_archive {
     my $err = $@;
 
     if ($err) {
-        render_api_response($self, "extract_archive", $err);
+        render_api_response( $self, "extract_archive", $err );
     } else {
         $self->render( json => decode_json($readerjson) );
     }
@@ -115,52 +116,19 @@ sub clear_new {
     );
 }
 
-#Use all enabled plugins on an archive ID. Tags are automatically saved in the background.
-#Returns number of successes and failures.
-sub use_enabled_plugins {
-
-    my $self  = shift;
-    my $id    = check_id_parameter( $self, "autoplugin" ) || return;
-    my $redis = $self->LRR_CONF->get_redis();
-
-    if ( $redis->exists($id) && LANraragi::Model::Config->enable_autotag ) {
-
-        my ( $succ, $fail, $addedtags ) = LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
-
-        $self->render(
-            json => {
-                operation => "autoplugin",
-                id        => $id,
-                success   => 1,
-                message   => "$succ Plugins used successfully, $fail Plugins failed, $addedtags tags added."
-            }
-        );
-    } else {
-        $self->render(
-            json => {
-                operation => "autoplugin",
-                id        => $id,
-                success   => 0,
-                error     => "ID not found in database or AutoPlugin disabled by admin."
-            }
-        );
-    }
-    $redis->quit();
-}
-
 sub update_metadata {
-    my $self  = shift;
-    my $id    = check_id_parameter( $self, "update_metadata" ) || return;
+    my $self = shift;
+    my $id   = check_id_parameter( $self, "update_metadata" ) || return;
 
     my $title = $self->req->param('title') || undef;
-    my $tags = $self->req->param('tags') || undef;
-    
+    my $tags  = $self->req->param('tags')  || undef;
+
     my $res = LANraragi::Model::Archive::update_metadata( $id, $title, $tags );
 
-    if ($res eq "") {
-        render_api_response( $self, "add_to_category" );
+    if ( $res eq "" ) {
+        render_api_response( $self, "update_metadata" );
     } else {
-        render_api_response($self, "update_metadata", $res);
+        render_api_response( $self, "update_metadata", $res );
     }
 }
 

@@ -24,6 +24,7 @@
 
 * [Batch Tagging](advanced-usage/batch-tagging.md)
 * [Categories](advanced-usage/categories.md)
+* [Downloading Archives](advanced-usage/downloading.md)
 * [Backup and Restore](advanced-usage/backup-and-restore.md)
 * [Using External Readers](advanced-usage/external-readers.md)
 * [Network Interface Setup](advanced-usage/network-interfaces.md)
@@ -48,6 +49,7 @@
 * [Getting started](plugin-docs/index.md)
 * [Login Plugins](plugin-docs/login.md)
 * [Metadata Plugins](plugin-docs/metadata.md)
+* [Downloader Plugins](plugin-docs/download.md)
 * [Generic Plugins \("Scripts"\)](plugin-docs/scripts.md)
 * [Code Examples](plugin-docs/code-examples.md)
 

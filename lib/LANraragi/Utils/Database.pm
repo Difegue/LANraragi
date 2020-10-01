@@ -16,7 +16,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 
 # Functions for interacting with the DB Model.
 use Exporter 'import';
-our @EXPORT_OK = qw(redis_decode invalidate_cache);
+our @EXPORT_OK = qw(redis_decode invalidate_cache compute_id);
 
 #add_archive_to_redis($id,$file,$redis)
 #Parses the name of a file for metadata, and matches that metadata to the SHA-1 hash of the file in our Redis database.
@@ -54,15 +54,14 @@ sub add_archive_to_redis {
     $redis->hset( $id, "tags",  encode_utf8($tags) );
     $redis->quit;
 
-    return ( $name, $title, $tags, "true" );
+    return ( $name, $title, $tags );
 }
 
-# build_archive_JSON(redis, id)
+# build_archive_JSON(redis, contentdir, id)
 # Builds a JSON object for an archive registered in the database and returns it.
 # This function is usually called many times in a row, so provide your own Redis object.
 sub build_archive_JSON {
-    my ( $redis, $id ) = @_;
-    my $dirname = LANraragi::Model::Config->get_userdir;
+    my ( $redis, $dirname, $id ) = @_;
 
     #Extra check in case we've been given a bogus ID
     return "" unless $redis->exists($id);
@@ -73,6 +72,11 @@ sub build_archive_JSON {
     #It's not a new archive, but it might have never been clicked on yet,
     #so we'll grab the value for $isnew stored in redis.
     my ( $name, $title, $tags, $file, $isnew ) = @hash{qw(name title tags file isnew)};
+
+    # return undef if the file doesn't exist.
+    unless ( -e $file ) {
+        return;
+    }
 
     #Parameters have been obtained, let's decode them.
     ( $_ = redis_decode($_) ) for ( $name, $title, $tags );
@@ -139,7 +143,7 @@ sub clean_database {
     #40-character long keys only => Archive IDs
     my @keys = $redis->keys('????????????????????????????????????????');
 
-    my $deleted_arcs = 0;
+    my $deleted_arcs  = 0;
     my $unlinked_arcs = 0;
 
     foreach my $id (@keys) {
@@ -159,7 +163,7 @@ sub clean_database {
     }
 
     $redis->quit;
-    return ($deleted_arcs, $unlinked_arcs);
+    return ( $deleted_arcs, $unlinked_arcs );
 }
 
 #add_tags($id, $tags)
@@ -291,9 +295,11 @@ sub redis_decode {
 sub invalidate_cache {
     my $redis = LANraragi::Model::Config->get_redis;
     $redis->del("LRR_SEARCHCACHE");
+    $redis->hset( "LRR_SEARCHCACHE", "created", time );
     $redis->quit();
+
     # Re-warm the cache to ensure sufficient speed on the main index
-    LANraragi::Model::Search::do_search( "", "", 0, "title", "asc", 0, 0 );
+    LANraragi::Model::Config->get_minion->enqueue( warm_cache => [] => { priority => 3 } );
 }
 
 # Go through the search cache and only invalidate keys that rely on isNew.

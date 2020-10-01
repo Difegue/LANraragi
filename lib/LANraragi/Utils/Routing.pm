@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use utf8;
 
+use Mojolicious::Plugin::Minion::Admin;
+
 #Contains all the routes used by the app, and applies them on boot.
 sub apply_routes {
     my $self = shift;
@@ -35,6 +37,9 @@ sub apply_routes {
     $public_routes->get('/random')->to('index#random_archive');
     $public_routes->get('/reader')->to('reader#index');
     $public_routes->get('/stats')->to('stats#index');
+
+    # Minion Admin UI
+    $self->plugin( 'Minion::Admin' => { route => $logged_in->get('/minion') } );
 
     # Those routes are only accessible if user is logged in
     $logged_in->get('/config')->to('config#index');
@@ -70,20 +75,11 @@ sub apply_routes {
     $public_api->get('/api/info')->to('api-other#serve_serverinfo');
     $logged_in_api->get('/api/plugins/:type')->to('api-other#list_plugins');
     $logged_in_api->post('/api/plugins/use')->to('api-other#use_plugin');
-    $logged_in_api->post('/api/plugin/use')->to('api-other#use_plugin'); #old
     $logged_in_api->delete('/api/tempfolder')->to('api-other#clean_tempfolder');
+    $logged_in_api->get('/api/minion/:jobid')->to('api-other#minion_job_status');
+    $logged_in_api->post('/api/download_url')->to('api-other#download_url');
 
-    # Archive API (old)
-    $public_api->get('/api/thumbnail')->to('api-archive#serve_thumbnail');
-    $public_api->get('/api/servefile')->to('api-archive#serve_file');
-    $public_api->get('/api/page')->to('api-archive#serve_page');
-    $public_api->get('/api/archivelist')->to('api-archive#serve_archivelist');
-    $public_api->get('/api/untagged')->to('api-archive#serve_untagged_archivelist');
-    $public_api->get('/api/extract')->to('api-archive#extract_archive');
-    $public_api->get('/api/clear_new')->to('api-archive#clear_new');
-    $logged_in_api->post('/api/autoplugin')->to('api-archive#use_enabled_plugins');
-
-    # Archive API (new)
+    # Archive API
     $public_api->get('/api/archives')->to('api-archive#serve_archivelist');
     $public_api->get('/api/archives/untagged')->to('api-archive#serve_untagged_archivelist');
     $public_api->get('/api/archives/:id/thumbnail')->to('api-archive#serve_thumbnail');
@@ -91,7 +87,6 @@ sub apply_routes {
     $public_api->get('/api/archives/:id/page')->to('api-archive#serve_page');
     $public_api->post('/api/archives/:id/extract')->to('api-archive#extract_archive');
     $public_api->delete('/api/archives/:id/isnew')->to('api-archive#clear_new');
-    $logged_in_api->post('/api/archives/:id/autoplugin')->to('api-archive#use_enabled_plugins');
     $public_api->get('/api/archives/:id/metadata')->to('api-archive#serve_metadata');
     $logged_in_api->put('/api/archives/:id/metadata')->to('api-archive#update_metadata');
 

@@ -20,7 +20,9 @@ Returns some basic information about the LRR instance this server is running.
 {% api-method-response %}
 {% api-method-response-example httpCode=200 %}
 {% api-method-response-example-description %}
-You get server info.
+You get server info.  
+The `cache_last_cleared` value is a UNIX timestamp matching the last time the search cache was reset, due to new archives for instance.  
+As a client, you should use this value to know when to refresh your internal archive list if you're keeping one.
 {% endapi-method-response-example-description %}
 
 ```javascript
@@ -33,7 +35,8 @@ You get server info.
     "debug_mode":"1",
     "nofun_mode":"0",
     "archives_per_page":"100",
-    "server_resizes_images":"0"
+    "server_resizes_images":"0",
+    "cache_last_cleared":"1601474241"
 }
 ```  
 
@@ -434,6 +437,7 @@ Cleans the server's temporary folder.
 
 {% api-method-spec %}
 {% api-method-request %}
+{% endapi-method-request %}
 
 {% api-method-response %}
 {% api-method-response-example httpCode=200 %}
@@ -455,3 +459,100 @@ Temporary folder is deleted.
 {% endapi-method-spec %}
 {% endapi-method %}
 
+{% api-method method="post" host="http://lrr.tvc-16.science" path="/api/download_url" %}
+{% api-method-summary %}
+🔑Queue a URL download
+{% endapi-method-summary %}
+
+{% api-method-description %}
+Add a URL to be downloaded by the server and added to its library.
+{% endapi-method-description %}
+
+{% api-method-spec %}
+{% api-method-request %}
+{% api-method-query-parameters %}
+{% api-method-parameter name="url" type="string" required=true %}
+URL to download  
+{% endapi-method-parameter %}
+{% endapi-method-query-parameters %}
+{% endapi-method-request %}
+
+{% api-method-response %}
+{% api-method-response-example httpCode=200 %}
+{% api-method-response-example-description %}
+You get the Minion Job ID for the ongoing download. Status for the job can be verified using the `/api/minion/:jobid` endpoint.
+{% endapi-method-response-example-description %}
+
+```javascript
+{
+  "job": 86,
+  "operation": "download_url",
+  "success": 1,
+  "url": "https:\/\/example.com"
+}
+```  
+
+{% endapi-method-response-example %}
+{% endapi-method-response %}
+{% endapi-method-spec %}
+{% endapi-method %}
+
+{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/minion/:jobid" %}
+{% api-method-summary %}
+🔑Get the status of a Minion Job
+{% endapi-method-summary %}
+
+{% api-method-description %}
+Get the status of a Minion Job. Minions jobs are ran for various occasions like thumbnails, cache warmup and handling incoming files.  
+Usually stuff you don't need to care about as a client, but the API is there for internal usage mostly.
+{% endapi-method-description %}
+
+{% api-method-spec %}
+{% api-method-request %}
+{% api-method-path-parameters %}
+{% api-method-parameter name="id" type="string" required=true %}
+ID of the Job.  
+{% endapi-method-parameter %}
+{% endapi-method-path-parameters %}
+{% endapi-method-request %}
+
+{% api-method-response %}
+{% api-method-response-example httpCode=200 %}
+{% api-method-response-example-description %}
+You get the job status. This is essentially "raw" output from Minion and looks a bit different from usual API calls.
+{% endapi-method-response-example-description %}
+
+```javascript
+{
+  "args": ["\/tmp\/QF3UCnKdMr\/myfile.zip"],
+  "attempts": 1,
+  "children": [],
+  "created": "1601145004",
+  "delayed": "1601145004",
+  "expires": null,
+  "finished": "1601145004",
+  "id": 7,
+  "lax": 0,
+  "notes": {},
+  "parents": [],
+  "priority": 0,
+  "queue": "default",
+  "result": {
+    "id": "75d18ce470dc99f83dc355bdad66319d1f33c82b",
+    "message": "This file already exists in the Library.",
+    "success": 0
+  },
+  "retried": null,
+  "retries": 0,
+  "started": "1601145004",
+  "state": "finished",
+  "task": "handle_upload",
+  "time": "1601145005",
+  "worker": 1
+}
+```  
+
+{% endapi-method-response-example %}
+{% endapi-method-response %}
+{% endapi-method-spec %}
+{% endapi-method %}

@@ -6,6 +6,7 @@ LANraragi supports a Plugin system for various purposes:
 
 * Logging in to external web services
 * Importing metadata from said web services and other sources
+* Taking an URL from one of those web services and returning a matching, downloadable URL to add to the archive index
 * Running scripts against the LRR system to manipulate and extract data at will
 
 This part of the documentation aims at giving pointers to would-be Plugin developers.
@@ -51,7 +52,11 @@ sub plugin_info {
             {type => "bool", desc => "Boolean parameter description"},
             {type => "string", desc => "String parameter description"},
             {type => "int", desc => "Integer parameter description"}
-            ]
+            ],
+        # Tag-specific metadata
+        cooldown => "If this is a Metadata Plugin, this value will be used to tell the server how long to sleep between executions to avoid remote bans. Defaults to 0.",
+        # Downloader-specific metadata
+        url_regex => "If this is a Downloader Plugin, this is the regex that will trigger said plugin if it matches the URL to download."
     );
 
 }
@@ -63,7 +68,8 @@ The `login_from` parameter can be used to execute a login plugin before your plu
 The `type` field can be either:
 
 * `login` for [Login Plugins](login.md)
-* `metadata` for [Metadata Plugins](metadata.md)
+* `metadata` for [Metadata Plugins](metadata.md)  
+* `download` for [Downloader Plugins](downloaders.md)  
 * `script` for [Script Plugins](scripts.md)  
 
 The `parameters` array can contain as many arguments as you need. They can be set by the user in Plugin Configuration, and are transmitted every time.  

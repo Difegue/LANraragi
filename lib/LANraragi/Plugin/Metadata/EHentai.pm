@@ -40,7 +40,8 @@ sub plugin_info {
             { type => "bool", desc => "Search expunged galleries as well" },
 
         ],
-        oneshot_arg => "E-H Gallery URL (Will attach tags matching this exact gallery to your archive)"
+        oneshot_arg => "E-H Gallery URL (Will attach tags matching this exact gallery to your archive)",
+        cooldown    => 4
     );
 
 }
