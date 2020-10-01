@@ -14,6 +14,12 @@ Open source server for archival of comics/manga, running on Mojolicious + Redis.
 
 ####  [📄 Documentation](https://sugoi.gitbook.io/lanraragi/) | [⏬ Download](https://github.com/Difegue/LANraragi/releases/latest) | [🎞 Demo](https://lrr.tvc-16.science) | [🐱‍👓 Windows Nightlies](https://mega.nz/#F!rHZynKpZ!ZXlwMam4t8VtYjOiHPONsQ) | [💵 Sponsor Development](https://ko-fi.com/T6T2UP5N)  
 
+## Hacktoberfest is now ongoing!  
+
+![](https://tvc-16.science/images/holofive.png)
+
+Please read this [blog post](https://tvc-16.science/hacktoberfest-lrr-2.html) for more information about potential swag rewards.
+
 ## Screenshots  
  
 |Main Page, Thumbnail View | Main Page, List View |
