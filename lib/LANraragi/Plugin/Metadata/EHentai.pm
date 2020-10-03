@@ -265,6 +265,9 @@ sub get_tags_from_EH {
             $ehtags = $ehtags . ", uploader:" . $ehuploader . ", timestamp:" . $ehtimestamp;
         }
 
+        # Unescape title received from the API as it might contain some HTML characters
+        $ehtitle = uri_unescape($ehtitle);
+
         $logger->info("Sending the following tags to LRR: $ehtags");
         return ( $ehtags, $ehtitle );
     } else {
