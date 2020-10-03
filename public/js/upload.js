@@ -22,10 +22,13 @@ function handleCompletedUpload(jobID, d) {
 
     $(`#${jobID}-name`).html(d.result.title);
 
-    if (d.result.success) {
+    if (d.result.id) {
         $(`#${jobID}-name`).attr("href", `reader?id=${d.result.id}`);
-        $(`#${jobID}-link`).html("Click here to edit metadata.(" + d.result.message + ")");
         $(`#${jobID}-link`).attr("href", `edit?id=${d.result.id}`);
+    }
+
+    if (d.result.success) {
+        $(`#${jobID}-link`).html("Click here to edit metadata.(" + d.result.message + ")")
         $(`#${jobID}-icon`).attr("class", "fa fa-check-circle");
         completedArchives++;
     } else {
