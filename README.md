@@ -24,7 +24,7 @@ Please read this [blog post](https://tvc-16.science/hacktoberfest-lrr-2.html) fo
  
 |Main Page, Thumbnail View | Main Page, List View |
 |---|---|
-| [![archive_thumb](./tools/_screenshots/archive_thumb.jpg)](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/archive_thumb.jpg) | [![archive_list](./tools/_screenshots/archive_list.png)](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/archive_list.png) |
+| [![archive_thumb](./tools/_screenshots/archive_thumb.png)](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/archive_thumb.png) | [![archive_list](./tools/_screenshots/archive_list.png)](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/archive_list.png) |
 
 |Archive Reader | Reader with overlay |
 |---|---|
