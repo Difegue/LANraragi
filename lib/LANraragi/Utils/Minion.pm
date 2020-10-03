@@ -2,7 +2,6 @@ package LANraragi::Utils::Minion;
 
 use strict;
 use warnings;
-use utf8;
 
 use Encode;
 use Mojo::UserAgent;
@@ -57,6 +56,23 @@ sub add_tasks {
 
             my $logger = get_logger( "Minion", "minion" );
             $logger->info("Processing uploaded file $file...");
+
+# Superjank warning for the code below.
+#
+# Filepaths are left unencoded across all of LRR to avoid any headaches with how the filesystem handles filenames with non-ASCII characters.
+# (Some FS do UTF-8 properly, others not at all. We use File::Find, which returns direct bytes, to always have a filepath that matches the FS.)
+#
+# By "unencoded" tho, I actually mean Latin-1/ISO-8859-1.
+# Perl strings are internally either in Latin-1 or non-strict utf-8 ("utf8"), depending on the history of the string.
+# (See https://perldoc.perl.org/perlunifaq#I-lost-track;-what-encoding-is-the-internal-format-really?)
+#
+# When passing the string through the Minion pipe, it gets switched to utf8 for...reasons? ¯\_(ツ)_/¯
+# This actually breaks the string and makes it no longer match the real name/byte sequence if it contained non-ASCII characters,
+# so we use this arcane dark magic function to switch it back.
+# (See https://perldoc.perl.org/perlunicode#Forcing-Unicode-in-Perl-(Or-Unforcing-Unicode-in-Perl))
+            utf8::downgrade( $file, 1 )
+              or die "Bullshit! File path could not be converted back to a byte sequence!"
+              ;    # This error happening would not make any sense at all so it deserves the EYE reference
 
             # Since we already have a file, this goes straight to handle_incoming_file.
             my ( $status, $id, $title, $message ) = LANraragi::Model::Upload::handle_incoming_file($file);
