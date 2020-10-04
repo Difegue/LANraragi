@@ -7,6 +7,7 @@ no warnings 'uninitialized';
 #Plugins can freely use all Perl packages already installed on the system
 #Try however to restrain yourself to the ones already installed for LRR (see tools/cpanfile) to avoid extra installations by the end-user.
 use URI::Escape;
+use HTML::Entities;
 use Mojo::JSON qw(decode_json encode_json);
 use Mojo::UserAgent;
 
@@ -266,7 +267,7 @@ sub get_tags_from_EH {
         }
 
         # Unescape title received from the API as it might contain some HTML characters
-        $ehtitle = uri_unescape($ehtitle);
+        $ehtitle = decode_entities($ehtitle);
 
         $logger->info("Sending the following tags to LRR: $ehtags");
         return ( $ehtags, $ehtitle );
