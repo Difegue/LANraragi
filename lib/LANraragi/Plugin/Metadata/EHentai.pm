@@ -8,6 +8,7 @@ no warnings 'uninitialized';
 #Try however to restrain yourself to the ones already installed for LRR (see tools/cpanfile) to avoid extra installations by the end-user.
 use URI::Escape;
 use Mojo::JSON qw(decode_json encode_json);
+use Mojo::Util qw(html_unescape);
 use Mojo::UserAgent;
 
 #You can also use the LRR Internal API when fitting.
@@ -266,7 +267,7 @@ sub get_tags_from_EH {
         }
 
         # Unescape title received from the API as it might contain some HTML characters
-        $ehtitle = uri_unescape($ehtitle);
+        $ehtitle = html_unescape($ehtitle);
 
         $logger->info("Sending the following tags to LRR: $ehtags");
         return ( $ehtags, $ehtitle );
