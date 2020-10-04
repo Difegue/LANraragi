@@ -7,6 +7,7 @@ use Encode;
 use Mojo::UserAgent;
 
 use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Database qw(redis_decode);
 use LANraragi::Utils::Archive qw(extract_thumbnail);
 use LANraragi::Utils::Plugins qw(get_downloader_for_url get_plugin get_plugin_parameters);
 
@@ -80,7 +81,7 @@ sub add_tasks {
             $job->finish(
                 {   success => $status,
                     id      => $id,
-                    title   => $title,
+                    title   => redis_decode($title),    # We use a decode here to fix display issues in the response.
                     message => $message
                 }
             );
