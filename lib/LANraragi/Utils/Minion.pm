@@ -93,6 +93,7 @@ sub add_tasks {
             my ( $job, @args ) = @_;
             my ($url) = @args;
 
+            my $og_url = $url;                               # Keep a clean copy of the url for final response
             my $ua     = Mojo::UserAgent->new;
             my $logger = get_logger( "Minion", "minion" );
             $logger->info("Downloading url $url...");
@@ -145,7 +146,7 @@ sub add_tasks {
                 }
 
                 # Strip http(s)://www. from the url before adding it to tags
-                if ( $url =~ /https?:\/\/(.*)/gm ) {
+                if ( $og_url =~ /https?:\/\/(.*)/gm ) {
                     $tags = $tags . "source:$1";
                     $redis->hset( $id, "tags", encode_utf8($tags) );
                 }
@@ -153,7 +154,7 @@ sub add_tasks {
 
                 $job->finish(
                     {   success => $status,
-                        url     => $url,
+                        url     => $og_url,
                         id      => $id,
                         title   => $title,
                         message => $message
@@ -166,7 +167,7 @@ sub add_tasks {
                 # Downloading failed...
                 $job->finish(
                     {   success => 0,
-                        url     => $url,
+                        url     => $og_url,
                         message => $@
                     }
                 );
