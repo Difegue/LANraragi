@@ -67,7 +67,7 @@ sub initialize_from_new_process {
 
     my $userdir = LANraragi::Model::Config->get_userdir;
 
-    $logger->info("Shinobu Background Worker started.");
+    $logger->info("Shinobu File Watcher started.");
     $logger->info( "Working dir is " . cwd );
 
     build_filemap();
@@ -149,22 +149,30 @@ sub build_filemap {
         }
     }
 
-    $pl->foreach(
-        \@sections,
-        sub {
-            # This sub "magically" executed in parallel forked child
-            # processes
-            foreach my $file (@$_) {
-                add_to_filemap($file);
+    # Eval the parallelized file crawl to avoid taking down the entire process in case one of the forked processes dies
+    eval {
+        $pl->foreach(
+            \@sections,
+            sub {
+                # This sub "magically" executed in parallel forked child
+                # processes
+                foreach my $file (@$_) {
+                    add_to_filemap($file);
+                }
             }
-        }
-    );
+        );
+    };
 
-    # Done, serialize filemap for main process to consume
-    # The filemap hash has been modified into an object by Parallel::Loops...
-    # It's better to make a clean hash copy and serialize that instead.
-    my $copy = {%filemap};
-    lock_store $copy, '.shinobu-filemap';
+    if ($@) {
+        $logger->error("Error while scanning content folder: $@");
+    } else {
+
+        # Done, serialize filemap for main process to consume
+        # The filemap hash has been modified into an object by Parallel::Loops...
+        # It's better to make a clean hash copy and serialize that instead.
+        my $copy = {%filemap};
+        lock_store $copy, '.shinobu-filemap';
+    }
 }
 
 sub add_to_filemap {
