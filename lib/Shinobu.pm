@@ -261,7 +261,12 @@ sub new_file_callback {
     my $name = shift;
 
     unless ( -d $name ) {
-        add_to_filemap($name);
+
+        eval { add_to_filemap($name); };
+
+        if ($@) {
+            $logger->error("Error while handling new file: $@");
+        }
     }
 }
 
@@ -280,7 +285,7 @@ sub deleted_file_callback {
         # Serialize filemap for main process to consume
         my $copy = {%filemap};
         lock_store $copy, '.shinobu-filemap';
-        invalidate_cache();
+        eval { invalidate_cache(); };
     }
 }
 

@@ -27,7 +27,16 @@ sub get_style { return $config->{default_theme} }
 
 # Create a Minion object connected to the Minion database.
 sub get_minion {
-    return Minion->new( SQLite => 'sqlite:' . $home . '/.minion.db' );
+    my $minion;
+    eval { $minion = Minion->new( SQLite => 'sqlite:' . $home . '/.minion.db' ); };
+
+    if ($@) {
+        say "Couldn't open Minion database: $@";
+        say "Waiting 5s before retrying once.";
+        sleep(5);
+        return Minion->new( SQLite => 'sqlite:' . $home . '/.minion.db' );
+    }
+    return $minion;
 }
 
 #get_redis
