@@ -3,6 +3,7 @@ package LANraragi::Model::Config;
 use strict;
 use warnings;
 use utf8;
+use feature 'say';
 use Cwd 'abs_path';
 use Redis;
 use Encode;

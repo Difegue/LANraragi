@@ -41,6 +41,12 @@ sub run_script {
         return ( error => "No URL specified!", total => 0 );
     }
 
+    # Trim last slash from url if it's present
+    my $char = chop $url;
+    if ( $char ne "/" ) {
+        $url .= $char;
+    }
+
     # Use the search engine to find archives with the source: tag.
     my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "source:" . $url, "", 0, "title", "asc", 0, 0 );
 
