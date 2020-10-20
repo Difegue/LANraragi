@@ -19,8 +19,9 @@ For information, my personal tests are done using Debian's vendor Perl.
 ```text
 apt-get update
 apt-get upgrade -y
-apt-get install build-essential make gnupg pkg-config\
-cpanminus redis-server libarchive-dev imagemagick libimage-magick-perl webp libssl-dev zlib1g-dev npm
+apt-get install build-essential make gnupg pkg-config \
+cpanminus redis-server libarchive-dev imagemagick webp libssl-dev zlib1g-dev \
+perlmagick ghostscript npm
 ```
 
 _Base software dependencies._

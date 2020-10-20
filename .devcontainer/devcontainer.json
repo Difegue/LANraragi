@@ -8,6 +8,7 @@
     },
     // Set *default* container specific settings.json values on container create.
     "settings": {
+        "terminal.integrated.shell.linux": "/bin/zsh",
         "perl.perltidy": "perltidy",
         "perltidy-more.executable": "perltidy",
         "perltidy-more.profile": ".../.perltidyrc",
@@ -24,7 +25,7 @@
         3000
     ],
     // Use 'postCreateCommand' to run commands after the container is created.
-    "postCreateCommand": "npm run lanraragi-installer install-full",
+    "postCreateCommand": "sudo npm run lanraragi-installer install-full",
     // Uncomment to connect as a non-root user. See https://aka.ms/vscode-remote/containers/non-root.
     "remoteUser": "koyomi"
 }
