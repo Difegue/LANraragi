@@ -1,15 +1,13 @@
 {
     "name": "LANraragi",
     "build": {
-        "dockerfile": "../tools/build/docker/Dockerfile",
-        // Update 'VARIANT' to pick a Node version: 10, 12, 14
+        "dockerfile": "Dockerfile",
         "args": {
-            "VARIANT": "14"
+            "VARIANT": "latest"
         }
     },
     // Set *default* container specific settings.json values on container create.
     "settings": {
-        "terminal.integrated.shell.linux": "/bin/bash",
         "perl.perltidy": "perltidy",
         "perltidy-more.executable": "perltidy",
         "perltidy-more.profile": ".../.perltidyrc",
@@ -28,5 +26,5 @@
     // Use 'postCreateCommand' to run commands after the container is created.
     "postCreateCommand": "npm run lanraragi-installer install-full",
     // Uncomment to connect as a non-root user. See https://aka.ms/vscode-remote/containers/non-root.
-    // "remoteUser": "node"
+    "remoteUser": "koyomi"
 }
