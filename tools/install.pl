@@ -79,7 +79,7 @@ say("");
 install_package( "IPC::Cmd",         "" );
 install_package( "Config::AutoConf", "" );
 IPC::Cmd->import('can_run');
-import Config::AutoConf;
+require Config::AutoConf;
 
 say("\r\nWill now check if all LRR software dependencies are met. \r\n");
 
@@ -112,10 +112,9 @@ eval {
 
 if ($@) {
     say("NOT FOUND");
-    say("Please install ImageMagick with Perl before proceeding.");
+    say("Please install ImageMagick with Perl for thumbnail support.");
     say("Further instructions are available at https://www.imagemagick.org/script/perl-magick.php .");
     say("The ImageMagick detection command returned: $imgk -- $@");
-    die;
 } else {
     say( "Returned QuantumDepth: " . $imgk );
     say("OK!");
