@@ -8,7 +8,6 @@ jobs:
     - uses: actions/checkout@master
     - name: Build and test bundled homebrew formula
       run: |
-        brew update
         cd tools/build/homebrew
         echo "Replacing commit hash in formula with current hash $(git rev-parse --verify HEAD)"
         sed -i.bck "s/COMMIT_HASH/$(git rev-parse --verify HEAD)/" Lanraragi.rb
