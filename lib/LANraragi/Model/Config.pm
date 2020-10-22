@@ -3,7 +3,6 @@ package LANraragi::Model::Config;
 use strict;
 use warnings;
 use utf8;
-use feature 'say';
 use Cwd 'abs_path';
 use Redis;
 use Encode;
@@ -28,16 +27,7 @@ sub get_style { return $config->{default_theme} }
 
 # Create a Minion object connected to the Minion database.
 sub get_minion {
-    my $minion;
-    eval { $minion = Minion->new( SQLite => 'sqlite:' . $home . '/.minion.db' ); };
-
-    if ($@) {
-        say "Couldn't open Minion database: $@";
-        say "Waiting 5s before retrying once.";
-        sleep(5);
-        return Minion->new( SQLite => 'sqlite:' . $home . '/.minion.db' );
-    }
-    return $minion;
+    return Minion->new( SQLite => 'sqlite:' . $home . '/.minion.db' );
 }
 
 #get_redis
