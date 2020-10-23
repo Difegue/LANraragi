@@ -1,4 +1,4 @@
-FROM difegue/lanraragi:nightly
+FROM debian:stable
 
 # [Option] Install zsh
 ARG INSTALL_ZSH="true"
@@ -11,13 +11,15 @@ ENV LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 LANGUAGE=en_US.UTF-8
 ARG USERNAME=koyomi
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
-
-RUN apk update && apk add wget
-RUN wget -P /tmp/library-scripts https://raw.githubusercontent.com/microsoft/vscode-dev-containers/master/script-library/common-alpine.sh
-RUN ash /tmp/library-scripts/common-alpine.sh "${INSTALL_ZSH}" "${USERNAME}" "${USER_UID}" "${USER_GID}" "${UPGRADE_PACKAGES}" \
-    && rm -rf /var/lib/apt/lists/* /tmp/library-scripts
+RUN export DEBIAN_FRONTEND=noninteractive \
+	&& apt-get -y update && apt-get -y install wget \
+	&& wget -P /tmp/library-scripts https://raw.githubusercontent.com/microsoft/vscode-dev-containers/master/script-library/common-debian.sh
+RUN /bin/bash /tmp/library-scripts/common-debian.sh "${INSTALL_ZSH}" "${USERNAME}" "${USER_UID}" "${USER_GID}" "${UPGRADE_PACKAGES}" \
+    && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/* /tmp/library-scripts
 
 # Install additional packages.
-RUN apk add perl-dev g++ make gnupg wget curl nodejs nodejs-npm openssl-dev ctags \
-    && cpanm Perl::Tidy
+RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
+    && apt-get -y install --no-install-recommends build-essential make gnupg pkg-config \
+    cpanminus redis-server libarchive-dev webp libssl-dev zlib1g-dev \
+    perlmagick npm perltidy ghostscript 
 
