@@ -29,8 +29,29 @@ sub do_search {
     # Search filter results
     my @filtered;
 
-    # Get all archives from redis
-    my @keys = $redis->keys('????????????????????????????????????????');
+    # If the category filter is enabled, fetch the matching category
+    my %category     = ();
+    my %cat_archives = ();
+    my $cat_search   = "";
+
+    if ( $categoryfilter ne "" ) {
+        %category = LANraragi::Model::Category::get_category($categoryfilter);
+
+        if (%category) {
+
+            # We're using a category! Update its lastused value.
+            $redis->hset( $categoryfilter, "last_used", time() );
+
+            $cat_search = $category{search};    # category search, if it's a favsearch
+
+            if ( $cat_search eq "" ) {
+                %cat_archives =
+                  map { $_ => 1 } @{ decode_json( $category{archives} ) };    # category archives, if it's a standard category
+            }
+        }
+    }
+
+    my @keys;
 
     # Look in searchcache first
     my $cachekey = encode_utf8("$categoryfilter-$filter-$sortkey-$sortorder-$newonly-$untaggedonly");
@@ -43,6 +64,14 @@ sub do_search {
     } else {
         $logger->debug("No cache available, doing a full DB parse.");
 
+        # Get all archives from redis - or just use IDs from the category if it's a standard category!
+        if ( scalar keys %cat_archives > 0 ) {
+            $logger->debug("Static category specified, using its ID list as a base instead of the entire database.");
+            @keys = keys %cat_archives;
+        } else {
+            @keys = $redis->keys('????????????????????????????????????????');
+        }
+
         # If the untagged filter is enabled, call the untagged files API
         my %untagged = ();
         if ($untaggedonly) {
@@ -51,33 +80,11 @@ sub do_search {
             %untagged = map { $_ => 1 } LANraragi::Model::Archive::find_untagged_archives();
         }
 
-        # If the category filter is enabled, fetch the matching category
-        my %category     = ();
-        my %cat_archives = ();
-        my $cat_search   = "";
-        if ( $categoryfilter ne "" ) {
-            %category = LANraragi::Model::Category::get_category($categoryfilter);
-
-            if (%category) {
-
-                # We're using a category! Update its lastused value.
-                $redis->hset( $categoryfilter, "last_used", time() );
-
-                $cat_search = $category{search};    # category search, if it's a favsearch
-
-                if ( $cat_search eq "" ) {
-                    %cat_archives =
-                      map { $_ => 1 } @{ decode_json( $category{archives} ) };    # category archives, if it's a standard category
-                }
-            }
-        }
-
         # Go through tags and apply search filter
         foreach my $id (@keys) {
-            my $tags  = $redis->hget( $id, "tags" );
-            my $title = $redis->hget( $id, "title" );
-            my $file  = $redis->hget( $id, "file" );
-            my $isnew = $redis->hget( $id, "isnew" );
+
+            my %data = $redis->hgetall($id);
+            my ( $tags, $title, $file, $isnew ) = @data{qw(tags title file isnew)};
             $title = redis_decode($title);
             $tags  = redis_decode($tags);
 
