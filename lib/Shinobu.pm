@@ -154,10 +154,15 @@ sub build_filemap {
         $pl->foreach(
             \@sections,
             sub {
-                # This sub "magically" executed in parallel forked child
-                # processes
+                # This sub "magically" executed in parallel forked child processes
                 foreach my $file (@$_) {
-                    add_to_filemap($file);
+
+                    # Individual files are also eval'd so we can keep scanning
+                    eval { add_to_filemap($file); };
+
+                    if ($@) {
+                        $logger->error("Error scanning $file: $@");
+                    }
                 }
             }
         );

@@ -23,3 +23,11 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     cpanminus redis-server libarchive-dev webp libssl-dev zlib1g-dev \
     perlmagick npm perltidy ghostscript 
 
+# Just re-grab cpanfile/install.pl/package.json from the online repo as codespaces' build context is super fucked and I don't get it at all
+# Dropping copies of the files in the .devcontainer folder should also work, but I cba to duplicate my build files for this and symlinks aint working I hate computers
+RUN wget -P /tools https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/cpanfile \
+    && wget -P /tools https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/install.pl \
+    && wget https://raw.githubusercontent.com/Difegue/LANraragi/dev/package.json
+
+RUN npm run lanraragi-installer install-full
+
