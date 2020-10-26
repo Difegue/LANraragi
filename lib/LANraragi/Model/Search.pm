@@ -9,6 +9,8 @@ use Redis;
 use Encode;
 use Storable qw/ nfreeze thaw /;
 use Sort::Naturally;
+use Sys::CpuAffinity;
+use Parallel::Loops;
 use Mojo::JSON qw(decode_json);
 
 use LANraragi::Utils::Database qw(redis_decode);
@@ -26,8 +28,12 @@ sub do_search {
     my $redis  = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Search Engine", "lanraragi" );
 
+    my $numCpus = Sys::CpuAffinity::getNumCpus();
+    my $pl      = Parallel::Loops->new($numCpus);
+
     # Search filter results
     my @filtered;
+    $pl->share( \@filtered );
 
     # If the category filter is enabled, fetch the matching category
     my %category     = ();
@@ -79,33 +85,51 @@ sub do_search {
             %untagged = map { $_ => 1 } LANraragi::Model::Archive::find_untagged_archives();
         }
 
-        # Go through tags and apply search filter
-        foreach my $id (@keys) {
-
-            my %data = $redis->hgetall($id);
-            my ( $tags, $title, $file, $isnew ) = @data{qw(tags title file isnew)};
-            $title = redis_decode($title);
-            $tags  = redis_decode($tags);
-
-            # Check new filter first
-            if ( $newonly && $isnew && $isnew ne "true" && $isnew ne "block" ) {
-                next;
-            }
-
-            # Check untagged filter third
-            unless ( exists( $untagged{$id} ) || !$untaggedonly ) {
-                next;
-            }
-
-            # Check category search and base search filter
-            if (   $file
-                && matches_search_filter( $cat_search, $title . "," . $tags )
-                && matches_search_filter( $filter,     $title . "," . $tags ) ) {
-
-                # Push id to array
-                push @filtered, { id => $id, title => $title, tags => $tags };
+        # Split the workload equally between all CPUs with an array of arrays
+        my @sections;
+        while (@keys) {
+            foreach ( 0 .. $numCpus - 1 ) {
+                if (@keys) {
+                    push @{ $sections[$_] }, shift @keys;
+                }
             }
         }
+
+        # Go through tags and apply search filter
+        $pl->foreach(
+            \@sections,
+            sub {
+                # This sub "magically" executed in parallel forked child processes
+                # Get a new redis connection so we can be independent
+                $redis = LANraragi::Model::Config->get_redis;
+                foreach my $id (@$_) {
+
+                    # Check untagged filter first as it requires no DB hits
+                    unless ( exists( $untagged{$id} ) || !$untaggedonly ) {
+                        next;
+                    }
+
+                    my %data = $redis->hgetall($id);
+                    my ( $tags, $title, $file, $isnew ) = @data{qw(tags title file isnew)};
+                    $title = redis_decode($title);
+                    $tags  = redis_decode($tags);
+
+                    # Check new filter first
+                    if ( $newonly && $isnew && $isnew ne "true" && $isnew ne "block" ) {
+                        next;
+                    }
+
+                    # Check category search and base search filter
+                    if (   $file
+                        && matches_search_filter( $cat_search, $title . "," . $tags )
+                        && matches_search_filter( $filter,     $title . "," . $tags ) ) {
+
+                        # Push id to array
+                        push @filtered, { id => $id, title => $title, tags => $tags };
+                    }
+                }
+            }
+        );
 
         if ( $#filtered > 0 ) {
 
