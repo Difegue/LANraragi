@@ -31,7 +31,7 @@ sub do_search {
 
     # If the category filter is enabled, fetch the matching category
     my %category     = ();
-    my %cat_archives = ();
+    my @cat_archives = ();
     my $cat_search   = "";
 
     if ( $categoryfilter ne "" ) {
@@ -45,13 +45,20 @@ sub do_search {
             $cat_search = $category{search};    # category search, if it's a favsearch
 
             if ( $cat_search eq "" ) {
-                %cat_archives =
-                  map { $_ => 1 } @{ decode_json( $category{archives} ) };    # category archives, if it's a standard category
+                @cat_archives = @{ decode_json( $category{archives} ) };    # category archives, if it's a standard category
             }
         }
     }
 
     my @keys;
+
+    # Get all archives from redis - or just use IDs from the category if it's a standard category!
+    if ( $#cat_archives > 0 ) {
+        $logger->debug("Static category specified, using its ID list as a base instead of the entire database.");
+        @keys = @cat_archives;
+    } else {
+        @keys = $redis->keys('????????????????????????????????????????');
+    }
 
     # Look in searchcache first
     my $cachekey = encode_utf8("$categoryfilter-$filter-$sortkey-$sortorder-$newonly-$untaggedonly");
@@ -63,14 +70,6 @@ sub do_search {
         @filtered = @{ thaw $redis->hget( "LRR_SEARCHCACHE", $cachekey ) };
     } else {
         $logger->debug("No cache available, doing a full DB parse.");
-
-        # Get all archives from redis - or just use IDs from the category if it's a standard category!
-        if ( scalar keys %cat_archives > 0 ) {
-            $logger->debug("Static category specified, using its ID list as a base instead of the entire database.");
-            @keys = keys %cat_archives;
-        } else {
-            @keys = $redis->keys('????????????????????????????????????????');
-        }
 
         # If the untagged filter is enabled, call the untagged files API
         my %untagged = ();
@@ -90,11 +89,6 @@ sub do_search {
 
             # Check new filter first
             if ( $newonly && $isnew && $isnew ne "true" && $isnew ne "block" ) {
-                next;
-            }
-
-            # Check category filter second -- if the category isn't a search
-            unless ( exists( $cat_archives{$id} ) || $cat_search ne "" || !%category ) {
                 next;
             }
 
