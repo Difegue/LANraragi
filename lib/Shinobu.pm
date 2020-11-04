@@ -32,7 +32,7 @@ use Encode;
 use LANraragi::Utils::Database qw(invalidate_cache compute_id);
 use LANraragi::Utils::TempFolder qw(get_temp clean_temp_partial);
 use LANraragi::Utils::Logging qw(get_logger);
-use LANraragi::Utils::Generic qw(is_archive);
+use LANraragi::Utils::Generic qw(is_archive split_workload_by_cpu);
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
@@ -138,16 +138,7 @@ sub build_filemap {
     $pl->share( \%filemap );
 
     $logger->debug("Number of available cores for processing: $numCpus");
-
-    # Split the workload equally between all CPUs with an array of arrays
-    my @sections;
-    while (@files) {
-        foreach ( 0 .. $numCpus - 1 ) {
-            if (@files) {
-                push @{ $sections[$_] }, shift @files;
-            }
-        }
-    }
+    my @sections = split_workload_by_cpu( $numCpus, @files );
 
     # Eval the parallelized file crawl to avoid taking down the entire process in case one of the forked processes dies
     eval {

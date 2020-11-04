@@ -13,6 +13,7 @@ use Sys::CpuAffinity;
 use Parallel::Loops;
 use Mojo::JSON qw(decode_json);
 
+use LANraragi::Utils::Generic qw(split_workload_by_cpu);
 use LANraragi::Utils::Database qw(redis_decode);
 use LANraragi::Utils::Logging qw(get_logger);
 
@@ -75,6 +76,7 @@ sub do_search {
         $logger->debug("Using cache for this query.");
         @filtered = @{ thaw $redis->hget( "LRR_SEARCHCACHE", $cachekey ) };
     } else {
+
         $logger->debug("No cache available, doing a full DB parse.");
 
         # If the untagged filter is enabled, call the untagged files API
@@ -85,21 +87,13 @@ sub do_search {
             %untagged = map { $_ => 1 } LANraragi::Model::Archive::find_untagged_archives();
         }
 
-        # Split the workload equally between all CPUs with an array of arrays
-        my @sections;
-        while (@keys) {
-            foreach ( 0 .. $numCpus - 1 ) {
-                if (@keys) {
-                    push @{ $sections[$_] }, shift @keys;
-                }
-            }
-        }
+        my @sections = split_workload_by_cpu( $numCpus, @keys );
 
-        # Go through tags and apply search filter
+        # Go through tags and apply search filter in subprocesses
         $pl->foreach(
             \@sections,
             sub {
-                # This sub "magically" executed in parallel forked child processes
+
                 # Get a new redis connection so we can be independent
                 $redis = LANraragi::Model::Config->get_redis;
                 foreach my $id (@$_) {
