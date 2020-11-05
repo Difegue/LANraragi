@@ -1,7 +1,7 @@
 {
   "name": "lanraragi",
   "version": "0.7.4",
-  "version_name": "Magic Dance",
+  "version_name": "Chilly Down",
   "description": "holla where the chinese comics at",
   "scripts": {
     "test": "prove -l -v tests/*.t",
