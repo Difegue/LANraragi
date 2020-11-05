@@ -28,11 +28,11 @@ function handleCompletedUpload(jobID, d) {
     }
 
     if (d.result.success) {
-        $(`#${jobID}-link`).html("Click here to edit metadata.(" + d.result.message + ")")
+        $(`#${jobID}-link`).html("Click here to edit metadata.<br>(" + d.result.message + ")")
         $(`#${jobID}-icon`).attr("class", "fa fa-check-circle");
         completedArchives++;
     } else {
-        $(`#${jobID}-link`).html("Error while processing archive.(" + d.result.message + ")");
+        $(`#${jobID}-link`).html("Error while processing archive.<br>(" + d.result.message + ")");
         $(`#${jobID}-icon`).attr("class", "fa fa-exclamation-circle");
         failedArchives++;
     }
@@ -49,7 +49,7 @@ function handleCompletedUpload(jobID, d) {
 
 function handleFailedUpload(jobID, d) {
 
-    $(`#${jobID}-link`).html("Error while processing file.(" + d + ")");
+    $(`#${jobID}-link`).html("Error while processing file.<br>(" + d + ")");
     $(`#${jobID}-icon`).attr("class", "fa fa-exclamation-circle");
 
     failedArchives++;
