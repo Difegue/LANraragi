@@ -20,7 +20,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 use Exporter 'import';
 our @EXPORT_OK =
   qw(remove_spaces remove_newlines is_image is_archive render_api_response get_tag_with_namespace shasum start_shinobu
-  start_minion get_css_list generate_themes_header generate_themes_selector);
+  split_workload_by_cpu start_minion get_css_list generate_themes_header generate_themes_selector);
 
 # Remove spaces before and after a word
 sub remove_spaces {
@@ -75,6 +75,24 @@ sub get_tag_with_namespace {
     }
 
     return $default;
+}
+
+# Split an array into an array of arrays, according to host CPU count.
+sub split_workload_by_cpu {
+
+    my ( $numCpus, @workload ) = @_;
+
+    # Split the workload equally between all CPUs with an array of arrays
+    my @sections;
+    while (@workload) {
+        foreach ( 0 .. $numCpus - 1 ) {
+            if (@workload) {
+                push @{ $sections[$_] }, shift @workload;
+            }
+        }
+    }
+
+    return @sections;
 }
 
 # Start a Minion worker if there aren't any available.

@@ -32,7 +32,7 @@ use Encode;
 use LANraragi::Utils::Database qw(invalidate_cache compute_id);
 use LANraragi::Utils::TempFolder qw(get_temp clean_temp_partial);
 use LANraragi::Utils::Logging qw(get_logger);
-use LANraragi::Utils::Generic qw(is_archive);
+use LANraragi::Utils::Generic qw(is_archive split_workload_by_cpu);
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
@@ -67,7 +67,7 @@ sub initialize_from_new_process {
 
     my $userdir = LANraragi::Model::Config->get_userdir;
 
-    $logger->info("Shinobu Background Worker started.");
+    $logger->info("Shinobu File Watcher started.");
     $logger->info( "Working dir is " . cwd );
 
     build_filemap();
@@ -138,33 +138,37 @@ sub build_filemap {
     $pl->share( \%filemap );
 
     $logger->debug("Number of available cores for processing: $numCpus");
+    my @sections = split_workload_by_cpu( $numCpus, @files );
 
-    # Split the workload equally between all CPUs with an array of arrays
-    my @sections;
-    while (@files) {
-        foreach ( 0 .. $numCpus - 1 ) {
-            if (@files) {
-                push @{ $sections[$_] }, shift @files;
+    # Eval the parallelized file crawl to avoid taking down the entire process in case one of the forked processes dies
+    eval {
+        $pl->foreach(
+            \@sections,
+            sub {
+                # This sub "magically" executed in parallel forked child processes
+                foreach my $file (@$_) {
+
+                    # Individual files are also eval'd so we can keep scanning
+                    eval { add_to_filemap($file); };
+
+                    if ($@) {
+                        $logger->error("Error scanning $file: $@");
+                    }
+                }
             }
-        }
+        );
+    };
+
+    if ($@) {
+        $logger->error("Error while scanning content folder: $@");
+    } else {
+
+        # Done, serialize filemap for main process to consume
+        # The filemap hash has been modified into an object by Parallel::Loops...
+        # It's better to make a clean hash copy and serialize that instead.
+        my $copy = {%filemap};
+        lock_store $copy, '.shinobu-filemap';
     }
-
-    $pl->foreach(
-        \@sections,
-        sub {
-            # This sub "magically" executed in parallel forked child
-            # processes
-            foreach my $file (@$_) {
-                add_to_filemap($file);
-            }
-        }
-    );
-
-    # Done, serialize filemap for main process to consume
-    # The filemap hash has been modified into an object by Parallel::Loops...
-    # It's better to make a clean hash copy and serialize that instead.
-    my $copy = {%filemap};
-    lock_store $copy, '.shinobu-filemap';
 }
 
 sub add_to_filemap {
@@ -253,7 +257,12 @@ sub new_file_callback {
     my $name = shift;
 
     unless ( -d $name ) {
-        add_to_filemap($name);
+
+        eval { add_to_filemap($name); };
+
+        if ($@) {
+            $logger->error("Error while handling new file: $@");
+        }
     }
 }
 
@@ -272,7 +281,7 @@ sub deleted_file_callback {
         # Serialize filemap for main process to consume
         my $copy = {%filemap};
         lock_store $copy, '.shinobu-filemap';
-        invalidate_cache();
+        eval { invalidate_cache(); };
     }
 }
 

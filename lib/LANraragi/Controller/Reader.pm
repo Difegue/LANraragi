@@ -61,6 +61,12 @@ sub index {
             return;
         }
 
+        # Allow adding to category
+        my @categories = LANraragi::Model::Category::get_category_list;
+
+        # But only to static categories
+        @categories = grep { %$_{"search"} eq "" } @categories;
+
         $redis->quit();
         $self->render(
             template   => "reader",
@@ -68,6 +74,7 @@ sub index {
             id         => $id,
             imgpaths   => $imgpaths,
             filename   => $filename,
+            categories => \@categories,
             cssdrop    => generate_themes_selector,
             csshead    => generate_themes_header($self),
             version    => $self->LRR_VERSION,

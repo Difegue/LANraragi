@@ -9,8 +9,11 @@ use Redis;
 use Encode;
 use Storable qw/ nfreeze thaw /;
 use Sort::Naturally;
+use Sys::CpuAffinity;
+use Parallel::Loops;
 use Mojo::JSON qw(decode_json);
 
+use LANraragi::Utils::Generic qw(split_workload_by_cpu);
 use LANraragi::Utils::Database qw(redis_decode);
 use LANraragi::Utils::Logging qw(get_logger);
 
@@ -26,11 +29,43 @@ sub do_search {
     my $redis  = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Search Engine", "lanraragi" );
 
+    my $numCpus = Sys::CpuAffinity::getNumCpus();
+    my $pl      = Parallel::Loops->new($numCpus);
+
     # Search filter results
     my @filtered;
+    $pl->share( \@filtered );
 
-    # Get all archives from redis
-    my @keys = $redis->keys('????????????????????????????????????????');
+    # If the category filter is enabled, fetch the matching category
+    my %category     = ();
+    my @cat_archives = ();
+    my $cat_search   = "";
+
+    if ( $categoryfilter ne "" ) {
+        %category = LANraragi::Model::Category::get_category($categoryfilter);
+
+        if (%category) {
+
+            # We're using a category! Update its lastused value.
+            $redis->hset( $categoryfilter, "last_used", time() );
+
+            $cat_search = $category{search};    # category search, if it's a favsearch
+
+            if ( $cat_search eq "" ) {
+                @cat_archives = @{ decode_json( $category{archives} ) };    # category archives, if it's a standard category
+            }
+        }
+    }
+
+    my @keys;
+
+    # Get all archives from redis - or just use IDs from the category if it's a standard category!
+    if ( $#cat_archives > 0 ) {
+        $logger->debug("Static category specified, using its ID list as a base instead of the entire database.");
+        @keys = @cat_archives;
+    } else {
+        @keys = $redis->keys('????????????????????????????????????????');
+    }
 
     # Look in searchcache first
     my $cachekey = encode_utf8("$categoryfilter-$filter-$sortkey-$sortorder-$newonly-$untaggedonly");
@@ -41,6 +76,7 @@ sub do_search {
         $logger->debug("Using cache for this query.");
         @filtered = @{ thaw $redis->hget( "LRR_SEARCHCACHE", $cachekey ) };
     } else {
+
         $logger->debug("No cache available, doing a full DB parse.");
 
         # If the untagged filter is enabled, call the untagged files API
@@ -51,60 +87,43 @@ sub do_search {
             %untagged = map { $_ => 1 } LANraragi::Model::Archive::find_untagged_archives();
         }
 
-        # If the category filter is enabled, fetch the matching category
-        my %category     = ();
-        my %cat_archives = ();
-        my $cat_search   = "";
-        if ( $categoryfilter ne "" ) {
-            %category = LANraragi::Model::Category::get_category($categoryfilter);
+        my @sections = split_workload_by_cpu( $numCpus, @keys );
 
-            if (%category) {
+        # Go through tags and apply search filter in subprocesses
+        $pl->foreach(
+            \@sections,
+            sub {
 
-                # We're using a category! Update its lastused value.
-                $redis->hset( $categoryfilter, "last_used", time() );
+                # Get a new redis connection so we can be independent
+                $redis = LANraragi::Model::Config->get_redis;
+                foreach my $id (@$_) {
 
-                $cat_search = $category{search};    # category search, if it's a favsearch
+                    # Check untagged filter first as it requires no DB hits
+                    unless ( exists( $untagged{$id} ) || !$untaggedonly ) {
+                        next;
+                    }
 
-                if ( $cat_search eq "" ) {
-                    %cat_archives =
-                      map { $_ => 1 } @{ decode_json( $category{archives} ) };    # category archives, if it's a standard category
+                    my %data = $redis->hgetall($id);
+                    my ( $tags, $title, $file, $isnew ) = @data{qw(tags title file isnew)};
+                    $title = redis_decode($title);
+                    $tags  = redis_decode($tags);
+
+                    # Check new filter first
+                    if ( $newonly && $isnew && $isnew ne "true" && $isnew ne "block" ) {
+                        next;
+                    }
+
+                    # Check category search and base search filter
+                    if (   $file
+                        && matches_search_filter( $cat_search, $title . "," . $tags )
+                        && matches_search_filter( $filter,     $title . "," . $tags ) ) {
+
+                        # Push id to array
+                        push @filtered, { id => $id, title => $title, tags => $tags };
+                    }
                 }
             }
-        }
-
-        # Go through tags and apply search filter
-        foreach my $id (@keys) {
-            my $tags  = $redis->hget( $id, "tags" );
-            my $title = $redis->hget( $id, "title" );
-            my $file  = $redis->hget( $id, "file" );
-            my $isnew = $redis->hget( $id, "isnew" );
-            $title = redis_decode($title);
-            $tags  = redis_decode($tags);
-
-            # Check new filter first
-            if ( $newonly && $isnew && $isnew ne "true" && $isnew ne "block" ) {
-                next;
-            }
-
-            # Check category filter second -- if the category isn't a search
-            unless ( exists( $cat_archives{$id} ) || $cat_search ne "" || !%category ) {
-                next;
-            }
-
-            # Check untagged filter third
-            unless ( exists( $untagged{$id} ) || !$untaggedonly ) {
-                next;
-            }
-
-            # Check category search and base search filter
-            if (   $file
-                && matches_search_filter( $cat_search, $title . "," . $tags )
-                && matches_search_filter( $filter,     $title . "," . $tags ) ) {
-
-                # Push id to array
-                push @filtered, { id => $id, title => $title, tags => $tags };
-            }
-        }
+        );
 
         if ( $#filtered > 0 ) {
 

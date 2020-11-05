@@ -231,7 +231,7 @@ function loadCategories() {
 
 			//If more than 10 categories, the rest goes into a dropdown
 			if (data.length > 10) {
-				html += `<select class="favtag-btn">
+				html += `<select id="catdropdown" class="favtag-btn">
 							<option selected disabled>...</option>`;
 
 				for (var i = 10; i < data.length; i++) {
@@ -239,7 +239,7 @@ function loadCategories() {
 					category = data[i];
 					catName = encode(category.name);
 
-					html += `<option id='${category.id}' onclick='toggleCategory(this)'>
+					html += `<option id='${category.id}'>
 								${catName}
 							 </option>`;
 
@@ -248,6 +248,9 @@ function loadCategories() {
 			}
 
 			$("#category-container").html(html);
+
+			// Add a listener on dropdown selection
+			$("#catdropdown").on("change", () => toggleCategory($("#catdropdown")[0].selectedOptions[0]));
 
 		}).fail(data => showErrorToast("Couldn't load categories", data.error));
 }
