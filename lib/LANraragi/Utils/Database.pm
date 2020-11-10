@@ -57,11 +57,11 @@ sub add_archive_to_redis {
     return ( $name, $title, $tags );
 }
 
-# build_archive_JSON(redis, contentdir, id)
+# build_archive_JSON(redis, id)
 # Builds a JSON object for an archive registered in the database and returns it.
 # This function is usually called many times in a row, so provide your own Redis object.
 sub build_archive_JSON {
-    my ( $redis, $dirname, $id ) = @_;
+    my ( $redis, $id ) = @_;
 
     #Extra check in case we've been given a bogus ID
     return "" unless $redis->exists($id);

@@ -20,14 +20,13 @@ use LANraragi::Utils::Database qw(redis_decode invalidate_cache);
 # Generates an array of all the archive JSONs in the database that have existing files.
 sub generate_archive_list {
 
-    my $redis   = LANraragi::Model::Config->get_redis;
-    my $dirname = LANraragi::Model::Config->get_userdir;
-    my @keys    = $redis->keys('????????????????????????????????????????');
-    my @list    = ();
+    my $redis = LANraragi::Model::Config->get_redis;
+    my @keys  = $redis->keys('????????????????????????????????????????');
+    my @list  = ();
 
     foreach my $id (@keys) {
 
-        my $arcdata = LANraragi::Utils::Database::build_archive_JSON( $redis, $dirname, $id );
+        my $arcdata = LANraragi::Utils::Database::build_archive_JSON( $redis, $id );
 
         if ($arcdata) {
             push @list, $arcdata;
@@ -40,10 +39,9 @@ sub generate_archive_list {
 
 sub generate_opds_catalog {
 
-    my $mojo    = shift;
-    my $redis   = $mojo->LRR_CONF->get_redis;
-    my $dirname = $mojo->LRR_CONF->get_userdir;
-    my @keys    = ();
+    my $mojo  = shift;
+    my $redis = $mojo->LRR_CONF->get_redis;
+    my @keys  = ();
 
     # Detailed pages just return a single entry instead of all the archives.
     if ( $mojo->req->param('id') ) {
