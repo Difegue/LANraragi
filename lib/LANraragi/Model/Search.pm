@@ -60,7 +60,7 @@ sub do_search {
     my @keys;
 
     # Get all archives from redis - or just use IDs from the category if it's a standard category!
-    if ( $#cat_archives > 0 ) {
+    if ( scalar @cat_archives > 0 ) {
         $logger->debug("Static category specified, using its ID list as a base instead of the entire database.");
         @keys = @cat_archives;
     } else {
