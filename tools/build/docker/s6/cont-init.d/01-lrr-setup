@@ -26,7 +26,8 @@ chmod -R 777 /home/koyomi/lanraragi/database
 
 #Ensure thumbnail folder is writable
 chown -R koyomi /home/koyomi/lanraragi/content/thumb
-chmod -R u+rwx /home/koyomi/lanraragi/content/thumb
+find /home/koyomi/lanraragi/content/thumb -type f -exec chmod u+rw  {} \;
+find /home/koyomi/lanraragi/content/thumb -type d -exec chmod u+rwx {} \;
 
 #Ensure log folder is writable
 mkdir /home/koyomi/lanraragi/log
