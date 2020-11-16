@@ -12,7 +12,7 @@ groupmod -g $GROUP_ID koyomi
 
 #Ensure LRR folder is writable
 chown koyomi /home/koyomi/lanraragi
-chmod 744 /home/koyomi/lanraragi
+chmod u+rwx /home/koyomi/lanraragi
 
 #Crash with an error if content folder doesn't exist
 if [ ! -d "/home/koyomi/lanraragi/content" ]; then
@@ -26,17 +26,18 @@ chmod -R 777 /home/koyomi/lanraragi/database
 
 #Ensure thumbnail folder is writable
 chown -R koyomi /home/koyomi/lanraragi/content/thumb
-chmod -R 744 /home/koyomi/lanraragi/content/thumb
+find /home/koyomi/lanraragi/content/thumb -type f -exec chmod u+rw  {} \;
+find /home/koyomi/lanraragi/content/thumb -type d -exec chmod u+rwx {} \;
 
 #Ensure log folder is writable
 mkdir /home/koyomi/lanraragi/log
 chown -R koyomi /home/koyomi/lanraragi/log
-chmod 744 /home/koyomi/lanraragi/log
+chmod u+rwx /home/koyomi/lanraragi/log
 
 #Ensure temp folder is writable
 mkdir /home/koyomi/lanraragi/public/temp
 chown -R koyomi /home/koyomi/lanraragi/public/temp
-chmod 744 /home/koyomi/lanraragi/public/temp
+chmod u+rwx /home/koyomi/lanraragi/public/temp
 
 #Remove hypnotoad, minion and shinobu pid files
 rm /home/koyomi/lanraragi/script/hypnotoad.pid
