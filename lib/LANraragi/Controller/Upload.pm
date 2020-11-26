@@ -8,7 +8,6 @@ use File::Find;
 use File::Basename;
 
 use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header is_archive);
-use LANraragi::Utils::Database qw(invalidate_cache);
 
 sub process_upload {
     my $self = shift;

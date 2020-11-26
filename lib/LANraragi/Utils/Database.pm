@@ -297,14 +297,18 @@ sub redis_decode {
 }
 
 # Bust the current search cache key in Redis.
+# Add "1" as a parameter to perform a cache warm after the wipe.
 sub invalidate_cache {
-    my $redis = LANraragi::Model::Config->get_redis;
+    my $do_warm = shift;
+    my $redis   = LANraragi::Model::Config->get_redis;
     $redis->del("LRR_SEARCHCACHE");
     $redis->hset( "LRR_SEARCHCACHE", "created", time );
     $redis->quit();
 
-    # Re-warm the cache to ensure sufficient speed on the main index
-    LANraragi::Model::Config->get_minion->enqueue( warm_cache => [] => { priority => 3 } );
+    # Re-warm the cache to ensure sufficient speed on the main inde
+    if ($do_warm) {
+        LANraragi::Model::Config->get_minion->enqueue( warm_cache => [] => { priority => 3 } );
+    }
 }
 
 # Go through the search cache and only invalidate keys that rely on isNew.

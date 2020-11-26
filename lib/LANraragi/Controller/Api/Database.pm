@@ -52,7 +52,7 @@ sub clear_new_all {
     }
 
     # Bust search cache completely, this is a big change
-    invalidate_cache();
+    invalidate_cache(1);
     $redis->quit();
     render_api_response( $self, "clear_new_all" );
 }

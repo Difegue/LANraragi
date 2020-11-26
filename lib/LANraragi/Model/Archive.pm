@@ -235,8 +235,8 @@ sub update_metadata {
     $redis->wait_all_responses;
     $redis->quit();
 
-    #Trigger a JSON rebuild.
-    invalidate_cache();
+    # Bust cache
+    invalidate_cache(1);
 
     # No errors.
     return "";

@@ -86,7 +86,7 @@ sub handle_api {
 }
 
 sub clear_cache {
-    invalidate_cache();
+    invalidate_cache(1);
     render_api_response( shift, "clear_cache" );
 }
 
