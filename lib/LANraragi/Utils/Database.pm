@@ -130,12 +130,17 @@ sub clean_database {
     my $redis  = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Archive", "lanraragi" );
 
-    # Save an autobackup somewhere before cleaning
-    my $outfile = getcwd() . "/autobackup.json";
-    open( my $fh, '>', $outfile )
-      or $logger->warn("Unable to open file to save backup before cleaning database!");
-    print $fh LANraragi::Model::Backup::build_backup_JSON();
-    close $fh;
+    eval {
+        # Save an autobackup somewhere before cleaning
+        my $outfile = getcwd() . "/autobackup.json";
+        open( my $fh, '>', $outfile );
+        print $fh LANraragi::Model::Backup::build_backup_JSON();
+        close $fh;
+    };
+
+    if ($@) {
+        $logger->warn("Unable to open a file to save backup before cleaning database! $@");
+    }
 
     # Get the filemap from Shinobu for ID checks later down the line
     my %filemap = LANraragi::Utils::Generic::get_shinobu_filemap();

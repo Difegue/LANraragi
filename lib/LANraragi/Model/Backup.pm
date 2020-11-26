@@ -36,14 +36,19 @@ sub build_backup_JSON {
         # redis-decode the name, and the search terms if they exist
         ( $_ = redis_decode($_) ) for ( $name, $search );
 
-        my %category = (
-            catid    => $key,
-            name     => $name,
-            search   => $search,
-            archives => decode_json($archives)
-        );
+        # Use an eval block in case decode_json fails. This'll drop the category from the backup,
+        # But it's probably dinged anyways...
+        eval {
+            my %category = (
+                catid    => $key,
+                name     => $name,
+                search   => $search,
+                archives => decode_json($archives)
+            );
 
-        push @{ $backup{categories} }, \%category;
+            push @{ $backup{categories} }, \%category;
+        };
+
     }
 
     # Backup archives themselves next
@@ -82,6 +87,8 @@ sub restore_from_JSON {
     my $logger = get_logger( "Backup/Restore", "lanraragi" );
     my $json   = decode_json( $_[0] );
 
+    $logger->info("Received a JSON backup to restore.");
+
     # Clean the database before restoring from JSON
     LANraragi::Utils::Database::clean_database();
 
@@ -92,9 +99,15 @@ sub restore_from_JSON {
 
         my $name     = encode_utf8( $category->{"name"} );
         my $search   = encode_utf8( $category->{"search"} );
-        my @archives = @{ decode_json( $category->{"archives"} ) };
+        my @archives = @{ $category->{"archives"} };
 
         LANraragi::Model::Category::create_category( $name, $search, 0, $cat_id );
+
+        # Explicitly set "new category" values to avoid them being absent from the DB entry
+        # (which likely breaks a bunch of things)
+        $redis->hset( $cat_id, "archives",  "[]" );
+        $redis->hset( $cat_id, "last_used", time() );
+
         foreach my $arcid (@archives) {
             LANraragi::Model::Category::add_to_category( $cat_id, $arcid );
         }

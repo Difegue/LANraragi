@@ -15,7 +15,8 @@ use LANraragi::Utils::Logging qw(get_logger);
 #   Returns a list of all the category objects.
 sub get_category_list {
 
-    my $redis = LANraragi::Model::Config->get_redis;
+    my $logger = get_logger( "Categories", "lanraragi" );
+    my $redis  = LANraragi::Model::Config->get_redis;
 
     # Categories are represented by SET_[timestamp] in DB. Can't wait for 2038!
     my @cats = $redis->keys('SET_??????????');
@@ -29,7 +30,14 @@ sub get_category_list {
         ( $_ = redis_decode($_) ) for ( $data{name}, $data{search} );
 
         # Deserialize the archives list w. mojo::json
-        $data{archives} = decode_json( $data{archives} );
+        if ( $data{search} eq "" ) {
+
+            eval { $data{archives} = decode_json( $data{archives} ) };
+
+            if ($@) {
+                $logger->error("Couldn't deserialize contents of category $key! $@");
+            }
+        }
 
         # Add the key as well
         $data{id} = $key;
@@ -155,7 +163,16 @@ sub add_to_category {
             return ( 0, $err );
         }
 
-        my @cat_archives = @{ decode_json( $redis->hget( $cat_id, "archives" ) ) };
+        my @cat_archives;
+        my $archives_from_redis = $redis->hget( $cat_id, "archives" );
+        eval { @cat_archives = @{ decode_json($archives_from_redis) } };
+
+        if ($@) {
+            $err = "Couldn't deserialize archives in DB for $cat_id! Redis returned the following junk data: $archives_from_redis";
+            $logger->error($err);
+            $redis->quit;
+            return ( 0, $err );
+        }
 
         if ( "@cat_archives" =~ m/$arc_id/ ) {
             $logger->warn("$arc_id already present in category $cat_id, doing nothing.");
@@ -197,9 +214,19 @@ sub remove_from_category {
             return ( 0, $err );
         }
 
+        my @cat_archives;
+        my $archives_from_redis = $redis->hget( $cat_id, "archives" );
+        eval { @cat_archives = @{ decode_json($archives_from_redis) } };
+
+        if ($@) {
+            $err = "Couldn't deserialize archives in DB for $cat_id! Redis returned the following junk data: $archives_from_redis";
+            $logger->error($err);
+            $redis->quit;
+            return ( 0, $err );
+        }
+
         # Remove occurences of $cat_id in @cat_archives w. grep and array reassignment
-        my @cat_archives = @{ decode_json( $redis->hget( $cat_id, "archives" ) ) };
-        my $index        = 0;
+        my $index = 0;
         $index++ until $cat_archives[$index] eq $arc_id || $index == scalar @cat_archives;
         splice( @cat_archives, $index, 1 );
 
