@@ -13,6 +13,7 @@ use Mojo::Util qw(xml_escape);
 
 use LANraragi::Utils::Generic qw(get_tag_with_namespace remove_spaces remove_newlines render_api_response);
 use LANraragi::Utils::TempFolder qw(get_temp);
+use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Utils::Database qw(redis_decode invalidate_cache);
 
 # Functions used when dealing with archives.
@@ -166,6 +167,8 @@ sub serve_thumbnail {
 sub serve_page {
     my ( $self, $id, $path ) = @_;
 
+    my $logger = get_logger( "File Serving", "lanraragi" );
+
     my $tempfldr = get_temp();
     my $file     = $tempfldr . "/$id/$path";
     my $abspath  = abs_path($file);            # abs_path returns null if the path is invalid.
@@ -177,6 +180,8 @@ sub serve_page {
     unless ( -e $abspath ) {
         render_api_response( $self, "serve_page", "$path does not exist." );
     }
+
+    $logger->debug("Path to requested file is $abspath");
 
     # This API can only serve files from the temp folder
     if ( index( $abspath, $tempfldr ) != -1 ) {
