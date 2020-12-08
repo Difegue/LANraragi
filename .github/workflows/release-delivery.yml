@@ -111,11 +111,13 @@ jobs:
       DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
     steps:
     - name: Extract version number from GITHUB_REF
-      run: echo ::set-env name=RELEASE_VERSION::$(echo ${GITHUB_REF:10})
+      run: echo "RELEASE_VERSION=${GITHUB_REF:10}" >> $GITHUB_ENV
     - uses: Ilshidur/action-discord@master
       with:
         args: 'LANraragi {{ RELEASE_VERSION }} is now available! @everyone'
     - uses: Ilshidur/action-discord@master
+      with:
+        args: 'https://github.com/Difegue/LANraragi/releases/tag/{{ RELEASE_VERSION }}'
     - uses: Ilshidur/action-discord@master
       with:
         args: 'Docker image and Windows installer are building... Please wait warmly. ☕'
