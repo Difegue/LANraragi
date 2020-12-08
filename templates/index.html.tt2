@@ -7,7 +7,8 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
 	<link type="image/png" rel="icon" href="favicon.ico" />
-	<link rel="stylesheet" type="text/css" href="/css/lrr.css?[% version%]" />
+	<link rel="stylesheet" type="text/css" href="/css/lrr.css?[% version %]" />
+	<link rel="stylesheet" type="text/css" href="/css/config.css?[% version %]" />
 
 	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.toast.min.css" />
@@ -25,14 +26,14 @@
 	<script src="/js/vendor/jquery.contextMenu.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/awesomplete.min.js" type="text/JAVASCRIPT"></script>
 
-	<script src="/js/index.js?[% version%]" type="text/JAVASCRIPT"></script>
-	<script src="/js/ajax.js?[% version%]" type="text/JAVASCRIPT"></script>
-	<script src="/js/index_datatables.js?[% version%]" type="text/JAVASCRIPT"></script>
-	<script src="/js/theme.js?[% version%]" type="text/JAVASCRIPT"></script>
+	<script src="/js/index.js?[% version %]" type="text/JAVASCRIPT"></script>
+	<script src="/js/ajax.js?[% version %]" type="text/JAVASCRIPT"></script>
+	<script src="/js/index_datatables.js?[% version %]" type="text/JAVASCRIPT"></script>
+	<script src="/js/theme.js?[% version %]" type="text/JAVASCRIPT"></script>
 
 </head>
 
-<body>
+<body onload="init()">
 
 	[% IF userlogged %]
 	<p id="nb">
@@ -83,8 +84,8 @@
 
 			<p id='cssbutton' style='display:inline'>
 				<input class='stdbtn' type='button' onclick="openInNewTab('random')" value='Give me a random archive' />
-				<input id='viewbtn' class='stdbtn' type='button' onclick="switch_index_view()"
-					value='Switch to List View' />
+
+				<input id='viewbtn' class='stdbtn' type='button' onclick="openSettings()" value='Display Options' />
 			</p>
 
 			<table class="itg datatables">
@@ -129,79 +130,91 @@
 
 	<script>
 
-		// Default to thumbnail mode
-		if (localStorage.getItem("indexViewMode") === null) {
-			localStorage.indexViewMode = 1;
-		}
+		function init() {
+			initSettings("[% version %]");
+			initIndex([% pagesize %]);
 
-		initIndex([% pagesize %]);
+			// Initialize tag suggestions
+			loadTagSuggestions();
 
-		[% IF usingdefpass %]
-		//If the json has the "default password" flag, flash a friendly notification inviting the user to change his password
-		$.toast({
-			heading: 'You\'re using the default password and that\'s super baka of you',
-			text: '<a href="login">Login</a> with password "kamimamita" and <a href="config">change that shit</a> on the double.<br/>...Or just disable it! <br/>Why not check the configuration options afterwards, while you\'re at it? ',
-			hideAfter: false,
-			position: 'top-left',
-			icon: 'error'
-		});
-		[% END %]
+			// Initialize categories
+			selectedCategory = "";
+			loadCategories();
 
-		[% IF debugmode %][% ELSE %]
-		checkVersion("[% version %]");
-		[% END %]
-
-		// Initialize context menu
-		$.contextMenu({
-			selector: '.id1,.image-tooltip',
-			callback: function (key, options) {
-				handleContextMenu(key, $(this).attr("id"));
-			},
-			items: {
-				[% IF userlogged %]
-				"edit": { name: "Edit Metadata", icon: "fas fa-pencil-alt" },
-				"delete": { name: "Delete", icon: "fas fa-trash-alt" },
-				"category": {
-					"name": "Add to Category",
-					"icon": "fas fa-folder-open",
-					"items": {
-						[% IF categories.size > 0 %]
-						[% FOREACH categories %]
-						"category-[% id %]": { "name": "[% name %]" },
-						[% END %]
-						[% ELSE %]
-						"noop": { "name": "No Categories yet..." }
-						[% END %]
-					}
-				},
-				"sep1": "---------",
-				[% END %]
-				"read": { name: "Read", icon: "fas fa-book" },
-			"download": { name: "Download", icon: "fas fa-save" }
-			}
-		});
-
-		// Tell user about the context menu
-		if (localStorage.getItem("sawContextMenuToast") === null) {
-			localStorage.sawContextMenuToast = true;
-
+			[% IF usingdefpass %]
+			//If the json has the "default password" flag, flash a friendly notification inviting the user to change his password
 			$.toast({
-				heading: 'Welcome to LANraragi [% version %]!',
-				text: "If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!",
+				heading: 'You\'re using the default password and that\'s super baka of you',
+				text: '<a href="login">Login</a> with password "kamimamita" and <a href="config">change that shit</a> on the double.<br/>...Or just disable it! <br/>Why not check the configuration options afterwards, while you\'re at it? ',
 				hideAfter: false,
 				position: 'top-left',
-				icon: 'info'
+				icon: 'error'
+			});
+			[% END %]
+
+			[% IF debugmode %][% ELSE %]
+			checkVersion("[% version %]");
+			[% END %]
+
+			// Initialize context menu
+			$.contextMenu({
+				selector: '.id1,.image-tooltip',
+				callback: function (key, options) {
+					handleContextMenu(key, $(this).attr("id"));
+				},
+				items: {
+					[% IF userlogged %]
+					"edit": { name: "Edit Metadata", icon: "fas fa-pencil-alt" },
+					"delete": { name: "Delete", icon: "fas fa-trash-alt" },
+					"category": {
+						"name": "Add to Category",
+						"icon": "fas fa-folder-open",
+						"items": {
+							[% IF categories.size > 0 %]
+							[% FOREACH categories %]
+							"category-[% id %]": { "name": "[% name %]" },
+							[% END %]
+						[% ELSE %]
+						"noop": { "name": "No Categories yet..." }
+							[% END %]
+						}
+					},
+					"sep1": "---------",
+					[% END %]
+				"read": { name: "Read", icon: "fas fa-book" },
+				"download": { name: "Download", icon: "fas fa-save" }
+				}
 			});
 		}
 
-		// Initialize tag suggestions
-		loadTagSuggestions();
-
-		// Initialize categories
-		selectedCategory = "";
-		loadCategories();
-
 	</script>
+
+	<div id="overlay-shade" onclick="closeOverlay();"> </div>
+	<div id="settingsOverlay" class="id1 base-overlay small-overlay" style="display:none">
+		<h2 class="ih" style="text-align:center">Index Display Options</h2>
+		<div style="margin:auto; font-size:8pt;">
+
+			<div class="config-panel">
+				<h1 class="ih" style="display:inline"> Use Compact Mode</h1>
+				<input id="compactmode" name="compactmode" class="fa" type="checkbox" style="float:left">
+				<br /> If enabled, archives will be displayed as a list without thumbnails.
+			</div>
+
+			<div class="config-panel">
+				<h1 class="ih" style="display:inline"> Crop Landscape Thumbnails </h1>
+				<input id="cropthumbs" name="cropthumbs" class="fa" type="checkbox" style="float:left">
+				<br /> If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the
+				left side.
+			</div>
+		</div>
+		<br />
+		<br />
+		<input value="Save and Close" onclick="saveSettings()" class="stdbtn" id="goback" type="button">
+		<br />
+		<br />
+		<br />
+	</div>
+
 
 </body>
 

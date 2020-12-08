@@ -40,6 +40,15 @@ span.tags {
   text-overflow:ellipsis;
   min-height:20px;
 }
+
+div.id3 img {
+  max-height: 275px;
+}
+
+div.id3.nocrop img {
+  max-width: 202px;
+}
+
 div.id4 {
   white-space: nowrap;
 }
@@ -49,6 +58,10 @@ div.id4 {
   position: relative;
   top: -162px;
   left: -1px;
+}
+
+table.itg {
+  table-layout:fixed;
 }
 
 /*Archive list Sorting*/

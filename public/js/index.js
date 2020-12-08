@@ -73,24 +73,52 @@ function performSearch() {
 	loadCategories();
 }
 
-//Switch view on index and saves the value in the user's localStorage. The DataTables callbacks adapt automatically.
-//0 = List view
-//1 = Thumbnail view
-function switch_index_view() {
+function initSettings(version) {
 
-	if (localStorage.indexViewMode == 1) {
-		localStorage.indexViewMode = 0;
-		$("#viewbtn").val("Switch to Thumbnail View");
-	}
-	else {
+	// Default to thumbnail mode
+	if (localStorage.getItem("indexViewMode") === null) {
 		localStorage.indexViewMode = 1;
-		$("#viewbtn").val("Switch to List View");
 	}
+
+	// Default to crop landscape
+	if (localStorage.getItem("cropthumbs") === null) {
+		localStorage.cropthumbs = true;
+	}
+
+	// Tell user about the context menu
+	if (localStorage.getItem("sawContextMenuToast") === null) {
+		localStorage.sawContextMenuToast = true;
+
+		$.toast({
+			heading: `Welcome to LANraragi ${version}!`,
+			text: "If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!",
+			hideAfter: false,
+			position: 'top-left',
+			icon: 'info'
+		});
+	}
+
+	//0 = List view
+	//1 = Thumbnail view
+	// List view is at 0 but became the non-default state later so here's some legacy weirdness 
+	if (localStorage.indexViewMode == 0)
+		$("#compactmode").prop("checked", true);
+
+	if (localStorage.cropthumbs === 'true')
+		$("#cropthumbs").prop("checked", true);
+
+}
+
+function saveSettings() {
+	localStorage.indexViewMode = $("#compactmode").prop("checked") ? 0 : 1;
+	localStorage.cropthumbs = $("#cropthumbs").prop("checked");
+
+	closeOverlay();
 
 	//Redraw the table yo
 	arcTable.draw();
-
 }
+
 
 function checkVersion(currentVersionConf) {
 	//Check the github API to see if an update was released. If so, flash another friendly notification inviting the user to check it out
@@ -262,4 +290,15 @@ function encode(r) {
 		return r[0].replace(/[\x26\x0A\<>'"]/g, function (r) { return "&#" + r.charCodeAt(0) + ";" });
 	else
 		return r.replace(/[\x26\x0A\<>'"]/g, function (r) { return "&#" + r.charCodeAt(0) + ";" })
+}
+
+function openSettings() {
+	$('#overlay-shade').fadeTo(150, 0.6, function () {
+		$('#settingsOverlay').css('display', 'block');
+	});
+}
+
+function closeOverlay() {
+	$('#overlay-shade').fadeOut(300);
+	$('.base-overlay').css('display', 'none');
 }
