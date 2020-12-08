@@ -40,6 +40,15 @@ span.tags {
   text-overflow:ellipsis;
   min-height:20px;
 }
+
+div.id3 img {
+  max-height: 275px;
+}
+
+div.id3.nocrop img {
+  max-width: 202px;
+}
+
 div.id4 {
   white-space: nowrap;
 }
@@ -49,6 +58,10 @@ div.id4 {
   position: relative;
   top: -162px;
   left: -1px;
+}
+
+table.itg {
+  table-layout:fixed;
 }
 
 /*Archive list Sorting*/
@@ -97,77 +110,6 @@ p#nb {
 
 .caption-tags {
   max-width: 350px !important;
-}
-
-/*Hide elements within the pages on small screens*/
-
-@media all and (max-width: 1000px) {
-  #i2 {
-    display: none;
-  }
-  .page_dropdown {
-    margin-top: 50px;
-  }
-  #i1 {
-    padding: 2px;
-  }
-  #seriesheader,
-  #langheader,
-  #artistheader,
-  #tagsheader,
-  td.series,
-  td.language,
-  td.artist,
-  td.tags {
-    max-width: 50px;
-  }
-  #titleheader,
-  td.title {
-    max-width: 250px;
-  }
-  .caption-image {
-    margin-left: -15% !important;
-  }
-  .page-overlay,
-  .ie7 .page-overlay {
-    min-height: 100% !important;
-  }
-  .left-column,
-  .right-column {
-    width: 100% !important;
-  }
-}
-
-@media all and (max-width: 540px) {
-  .page_dropdown {
-    margin-top: 50px;
-  }
-  #i1 {
-    padding: 2px;
-  }
-  #i2,
-  #seriesheader,
-  #langheader,
-  #artistheader,
-  #tagsheader,
-  td.series,
-  td.language,
-  td.artist,
-  td.tags {
-    display: none;
-  }
-  #titleheader,
-  td.title {
-    max-width: 180px;
-  }
-  div.sni h1 {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-  .option-td {
-    width: 150px !important;
-  }
 }
 
 /* Reader overlays. */
@@ -438,4 +380,85 @@ li {
 }
 .jq-toast-single h2 {
   margin: 0 !important;
+}
+
+/*Hide elements within the pages on small screens*/
+
+@media all and (max-width: 1000px) {
+  #i2 {
+    display: none;
+  }
+  .page_dropdown {
+    margin-top: 50px;
+  }
+  #i1 {
+    padding: 2px;
+  }
+  #seriesheader,
+  #langheader,
+  #artistheader,
+  #tagsheader,
+  td.series,
+  td.language,
+  td.artist,
+  td.tags {
+    max-width: 50px;
+  }
+  #titleheader,
+  td.title {
+    max-width: 250px;
+  }
+  .caption-image {
+    margin-left: -15% !important;
+  }
+  .page-overlay,
+  .ie7 .page-overlay {
+    min-height: 100% !important;
+  }
+  .left-column,
+  .right-column {
+    width: 100% !important;
+  }
+
+  .small-overlay {
+    left: 20% !important;
+    width: 60% !important;
+  }
+}
+
+@media all and (max-width: 540px) {
+  .page_dropdown {
+    margin-top: 50px;
+  }
+  #i1 {
+    padding: 2px;
+  }
+  #i2,
+  #seriesheader,
+  #langheader,
+  #artistheader,
+  #tagsheader,
+  td.series,
+  td.language,
+  td.artist,
+  td.tags {
+    display: none;
+  }
+  #titleheader,
+  td.title {
+    max-width: 180px;
+  }
+  div.sni h1 {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .option-td {
+    width: 150px !important;
+  }
+
+  .small-overlay {
+    left: 0 !important;
+    width: 100% !important;
+  }
 }

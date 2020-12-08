@@ -32,4 +32,4 @@ Unzip .\tools\build\windows\Karen\lxro.zip .\tools\build\windows\Karen\External\
 # Build Karen and Setup 
 msbuild /p:Configuration=Release /p:Platform=x64
 
-echo "Completed MSI is available at " (Resolve-Path .\Setup\bin\LANraragi.msi).Path 
+Get-FileHash .\Setup\bin\LANraragi.msi | Format-List

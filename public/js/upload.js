@@ -15,6 +15,10 @@ function updateUploadCounters() {
             "fa fa-spinner fa-spin";
 
     $("#progressTotal").html(`<i class="${icon}"></i> Total:${completedArchives + failedArchives}/${totalUploads}`);
+
+    // At the end of the upload job, dump the search cache!
+    if (processingArchives === 0)
+        invalidateCache();
 }
 
 // Handle a completed job from minion. Update the line in upload results with the title, ID, message.

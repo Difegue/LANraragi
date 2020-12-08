@@ -17,6 +17,7 @@ use Image::Magick;
 use LANraragi::Utils::Generic qw(is_image shasum);
 use LANraragi::Utils::Archive qw(extract_archive generate_thumbnail);
 use LANraragi::Utils::TempFolder qw(get_temp);
+use LANraragi::Utils::Database qw(redis_decode);
 
 #magical sort function used below
 sub expand {
@@ -119,7 +120,7 @@ sub build_reader_JSON {
     $self->LRR_LOGGER->debug( "Files found in archive: \n " . Dumper @images );
 
     # Convert page 1 into a thumbnail for the main reader index
-    my $subfolder = substr($id, 0, 2);
+    my $subfolder = substr( $id, 0, 2 );
     my $thumbname = "$dirname/thumb/$subfolder/$id.jpg";
 
     unless ( -e $thumbname && $thumbreload eq "0" ) {
@@ -143,6 +144,12 @@ sub build_reader_JSON {
         # i.e "/c/bla/lrr/temp/id/file.jpg" becomes "file.jpg"
         $imgpath =~ s!$path/!!g;
 
+        $self->LRR_LOGGER->debug("Relative path to temp is $imgpath");
+
+        # Since we're using uri_escape_utf8 for escaping, we need to make sure the path is valid UTF8.
+        # The good ole' redis_decode allows us to make sure of that.
+        $imgpath = redis_decode($imgpath);
+
         # We need to sanitize the image's path, in case the folder contains illegal characters,
         # but uri_escape would also nuke the / needed for navigation. Let's solve this with a quick regex search&replace.
         # First, we encode all HTML characters...
@@ -150,6 +157,8 @@ sub build_reader_JSON {
 
         # Then we bring the slashes back.
         $imgpath =~ s!%2F!/!g;
+
+        $self->LRR_LOGGER->debug("Post-escape: $imgpath");
 
         # Bundle this path into an API call which will be used by the browser
         push @images_browser, "./api/archives/$id/page?path=$imgpath";

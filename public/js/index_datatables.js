@@ -87,12 +87,6 @@ function initIndex(pagesize) {
 	//clear searchbar cache
 	$('#srch').val('');
 
-	//nuke style of table - datatables seems to assign its table a fixed width for some reason.
-	$('.datatables').attr("style", "")
-
-	//Change button label if list mode is enabled.
-	if (localStorage.indexViewMode == 0)
-		$("#viewbtn").val("Switch to Thumbnail View");
 }
 
 //For datatable initialization, columns with just one data source display that source as a link for instant search.
@@ -166,9 +160,15 @@ function thumbViewInit(settings) {
 		$('.itg').hide();
 	}
 	else {
-		//Destroy the thumb container and make the table visible again
+		//Destroy the thumb container, make the table visible again and ensure autowidth is correct
 		$('#thumbs_container').remove();
 		$('.itg').show();
+
+		//nuke style of table - datatables' auto-width gets a bit lost when coming back from thumb view.
+		$('.datatables').attr("style", "");
+
+		if (typeof (arcTable) !== "undefined")
+			arcTable.columns.adjust();
 	}
 }
 
@@ -177,12 +177,13 @@ function buildThumbDiv(row, data, index) {
 
 	if (localStorage.indexViewMode == 1) {
 		//Build a thumb-like div with the data
+		thumb_css = (localStorage.cropthumbs === 'true') ? "id3" : "id3 nocrop";
 		thumb_div = `<div style="height:335px" class="id1" id="${data.arcid}">
 						<div class="id2">
 							${buildProgressDiv(data.arcid, data.isnew)}
 							<a href="reader?id=${data.arcid}" title="${encode(data.title)}">${encode(data.title)}</a>
 						</div>
-						<div style="height:280px" class="id3">
+						<div style="height:280px" class="${thumb_css}">
 							<a href="reader?id=${data.arcid}" title="${encode(data.title)}">
 								<img style="position:relative;" id="${data.arcid}_thumb" src="./img/wait_warmly.jpg"/>
 								<i id="${data.arcid}_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>

@@ -13,6 +13,7 @@ use Mojo::Util qw(xml_escape);
 
 use LANraragi::Utils::Generic qw(get_tag_with_namespace remove_spaces remove_newlines render_api_response);
 use LANraragi::Utils::TempFolder qw(get_temp);
+use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Utils::Database qw(redis_decode invalidate_cache);
 
 # Functions used when dealing with archives.
@@ -20,14 +21,13 @@ use LANraragi::Utils::Database qw(redis_decode invalidate_cache);
 # Generates an array of all the archive JSONs in the database that have existing files.
 sub generate_archive_list {
 
-    my $redis   = LANraragi::Model::Config->get_redis;
-    my $dirname = LANraragi::Model::Config->get_userdir;
-    my @keys    = $redis->keys('????????????????????????????????????????');
-    my @list    = ();
+    my $redis = LANraragi::Model::Config->get_redis;
+    my @keys  = $redis->keys('????????????????????????????????????????');
+    my @list  = ();
 
     foreach my $id (@keys) {
 
-        my $arcdata = LANraragi::Utils::Database::build_archive_JSON( $redis, $dirname, $id );
+        my $arcdata = LANraragi::Utils::Database::build_archive_JSON( $redis, $id );
 
         if ($arcdata) {
             push @list, $arcdata;
@@ -40,10 +40,9 @@ sub generate_archive_list {
 
 sub generate_opds_catalog {
 
-    my $mojo    = shift;
-    my $redis   = $mojo->LRR_CONF->get_redis;
-    my $dirname = $mojo->LRR_CONF->get_userdir;
-    my @keys    = ();
+    my $mojo  = shift;
+    my $redis = $mojo->LRR_CONF->get_redis;
+    my @keys  = ();
 
     # Detailed pages just return a single entry instead of all the archives.
     if ( $mojo->req->param('id') ) {
@@ -168,6 +167,8 @@ sub serve_thumbnail {
 sub serve_page {
     my ( $self, $id, $path ) = @_;
 
+    my $logger = get_logger( "File Serving", "lanraragi" );
+
     my $tempfldr = get_temp();
     my $file     = $tempfldr . "/$id/$path";
     my $abspath  = abs_path($file);            # abs_path returns null if the path is invalid.
@@ -179,6 +180,8 @@ sub serve_page {
     unless ( -e $abspath ) {
         render_api_response( $self, "serve_page", "$path does not exist." );
     }
+
+    $logger->debug("Path to requested file is $abspath");
 
     # This API can only serve files from the temp folder
     if ( index( $abspath, $tempfldr ) != -1 ) {
@@ -237,8 +240,8 @@ sub update_metadata {
     $redis->wait_all_responses;
     $redis->quit();
 
-    #Trigger a JSON rebuild.
-    invalidate_cache();
+    # Bust cache
+    invalidate_cache(1);
 
     # No errors.
     return "";

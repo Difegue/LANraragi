@@ -57,11 +57,11 @@ sub add_archive_to_redis {
     return ( $name, $title, $tags );
 }
 
-# build_archive_JSON(redis, contentdir, id)
+# build_archive_JSON(redis, id)
 # Builds a JSON object for an archive registered in the database and returns it.
 # This function is usually called many times in a row, so provide your own Redis object.
 sub build_archive_JSON {
-    my ( $redis, $dirname, $id ) = @_;
+    my ( $redis, $id ) = @_;
 
     #Extra check in case we've been given a bogus ID
     return "" unless $redis->exists($id);
@@ -130,12 +130,17 @@ sub clean_database {
     my $redis  = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Archive", "lanraragi" );
 
-    # Save an autobackup somewhere before cleaning
-    my $outfile = getcwd() . "/autobackup.json";
-    open( my $fh, '>', $outfile )
-      or $logger->warn("Unable to open file to save backup before cleaning database!");
-    print $fh LANraragi::Model::Backup::build_backup_JSON();
-    close $fh;
+    eval {
+        # Save an autobackup somewhere before cleaning
+        my $outfile = getcwd() . "/autobackup.json";
+        open( my $fh, '>', $outfile );
+        print $fh LANraragi::Model::Backup::build_backup_JSON();
+        close $fh;
+    };
+
+    if ($@) {
+        $logger->warn("Unable to open a file to save backup before cleaning database! $@");
+    }
 
     # Get the filemap from Shinobu for ID checks later down the line
     my %filemap = LANraragi::Utils::Generic::get_shinobu_filemap();
@@ -292,14 +297,18 @@ sub redis_decode {
 }
 
 # Bust the current search cache key in Redis.
+# Add "1" as a parameter to perform a cache warm after the wipe.
 sub invalidate_cache {
-    my $redis = LANraragi::Model::Config->get_redis;
+    my $do_warm = shift;
+    my $redis   = LANraragi::Model::Config->get_redis;
     $redis->del("LRR_SEARCHCACHE");
     $redis->hset( "LRR_SEARCHCACHE", "created", time );
     $redis->quit();
 
-    # Re-warm the cache to ensure sufficient speed on the main index
-    LANraragi::Model::Config->get_minion->enqueue( warm_cache => [] => { priority => 3 } );
+    # Re-warm the cache to ensure sufficient speed on the main inde
+    if ($do_warm) {
+        LANraragi::Model::Config->get_minion->enqueue( warm_cache => [] => { priority => 3 } );
+    }
 }
 
 # Go through the search cache and only invalidate keys that rely on isNew.
