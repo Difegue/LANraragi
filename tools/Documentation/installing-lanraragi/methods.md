@@ -47,7 +47,7 @@ Installing from **source** is a more involved procedure, but it does put you in 
 
 ## Linux/Community: _Community provided install packages_
 
-Ready to install packages provided by voluntary mantainers or by a linux distribution itself.
+Ready-to-install packages provided by voluntary maintainers or by a linux distribution itself.
 
 {% page-ref page="comunity.md" %}
 
@@ -97,4 +97,3 @@ server {
     }
 }
 ```
-
