@@ -22,7 +22,7 @@ fi
 
 #Ensure database is writable
 chown -R koyomi /home/koyomi/lanraragi/database
-chmod -R 777 /home/koyomi/lanraragi/database
+chmod -R u+rwx /home/koyomi/lanraragi/database
 
 #Ensure thumbnail folder is writable
 chown -R koyomi /home/koyomi/lanraragi/content/thumb

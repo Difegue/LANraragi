@@ -1,5 +1,9 @@
 # Community Install Packages  
 
+## UnRAID  
+
+An UnRAID package based on the Docker images is available [here.](https://github.com/naipilk/LANraragi-unraid-template/)  
+
 ## Arch Linux
 
 An installation package is provided [in the AUR](https://aur.archlinux.org/packages/lanraragi/) (Arch User Repository).
