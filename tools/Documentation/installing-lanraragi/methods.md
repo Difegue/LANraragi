@@ -45,6 +45,12 @@ Installing from **source** is a more involved procedure, but it does put you in 
 
 {% page-ref page="source.md" %}
 
+## Linux/Community: _Community provided install packages_
+
+Ready-to-install packages provided by voluntary maintainers or by a linux distribution itself.
+
+{% page-ref page="community.md" %}
+
 ## Older Windows: _Legacy Docker Toolbox or Vagrant_
 
 ![I really hope you guys don&apos;t do this](../.gitbook/assets/shiggy.png)
@@ -91,4 +97,3 @@ server {
     }
 }
 ```
-
