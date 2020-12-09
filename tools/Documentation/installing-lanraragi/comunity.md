@@ -1,3 +1,5 @@
+# Community Install Packages  
+
 ## Arch Linux
 
 An installation package is provided [in the AUR](https://aur.archlinux.org/packages/lanraragi/) (Arch User Repository).
