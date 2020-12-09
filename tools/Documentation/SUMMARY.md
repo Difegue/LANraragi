@@ -9,6 +9,7 @@
 * [Homebrew \(Linux/macOS\)](installing-lanraragi/macos.md)
 * [Docker \(All platforms\)](installing-lanraragi/docker.md)
 * [Source Code \(Linux/macOS\)](installing-lanraragi/source.md)
+* [Community \(Linux\)](installing-lanraragi/source.md)
 * [Vagrant \(Deprecated\)](installing-lanraragi/vagrant.md)
 
 ## Basic Operations
