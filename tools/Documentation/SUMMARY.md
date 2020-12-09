@@ -9,7 +9,7 @@
 * [Homebrew \(Linux/macOS\)](installing-lanraragi/macos.md)
 * [Docker \(All platforms\)](installing-lanraragi/docker.md)
 * [Source Code \(Linux/macOS\)](installing-lanraragi/source.md)
-* [Community \(Linux\)](installing-lanraragi/source.md)
+* [Community \(Linux\)](installing-lanraragi/community.md)
 * [Vagrant \(Deprecated\)](installing-lanraragi/vagrant.md)
 
 ## Basic Operations
@@ -53,4 +53,3 @@
 * [Downloader Plugins](plugin-docs/download.md)
 * [Generic Plugins \("Scripts"\)](plugin-docs/scripts.md)
 * [Code Examples](plugin-docs/code-examples.md)
-
