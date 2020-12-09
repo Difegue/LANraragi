@@ -49,7 +49,7 @@ Installing from **source** is a more involved procedure, but it does put you in 
 
 Ready-to-install packages provided by voluntary maintainers or by a linux distribution itself.
 
-{% page-ref page="comunity.md" %}
+{% page-ref page="community.md" %}
 
 ## Older Windows: _Legacy Docker Toolbox or Vagrant_
 
