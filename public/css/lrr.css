@@ -108,8 +108,16 @@ p#nb {
   font-size: 13px;
 }
 
+.caption-namespace {
+  width: 100px !important;
+  font-size:10pt; 
+  padding: 3px 0px 7px; 
+  vertical-align:top;
+}
+
 .caption-tags {
-  max-width: 350px !important;
+  max-width: 400px !important;
+  min-width: 30% !important;
 }
 
 /* Reader overlays. */
