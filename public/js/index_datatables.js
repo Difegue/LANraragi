@@ -303,7 +303,8 @@ function buildTagsDiv(tags) {
 
 		ucKey = key.charAt(0).toUpperCase() + key.slice(1);
 		ucKey = encode(ucKey);
-		line += `<tr><td class='caption-namespace'>${ucKey}:</td><td>`;
+		encodedK = encode(key.toLowerCase());
+		line += `<tr><td class='caption-namespace ${encodedK}-tag'>${ucKey}:</td><td>`;
 
 		tagsByNamespace[key].forEach(function (tag) {
 			line += `<div class="gt" onclick="fillSearchField('${key}','${encode(tag)}')">
