@@ -61,8 +61,10 @@ div.gt {
     padding: 1px 4px;
     position: relative;
     white-space: nowrap;
-    width: default;
     cursor: pointer;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 div.gt:hover {
