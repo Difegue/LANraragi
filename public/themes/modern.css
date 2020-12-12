@@ -122,7 +122,7 @@ p#nb a {
 
 /* shared table stuff */
 table.itg {
-	width: 99%;
+	width: 99% !important;
   max-width: 90%;
   border-collapse: collapse;
   margin: 0 auto;
@@ -275,6 +275,11 @@ td.itdc {
 .ellipsis {
   font-size: 20px;
   margin-right: 3px;
+}
+
+.page-select {
+  margin-top: -34px;
+  margin-right: 5%;
 }
 
 /* image pages */

@@ -104,6 +104,10 @@ table thead .sorting_desc a:after {
   display: none;
 }
 
+.page-select {
+  text-align:right;
+}
+
 p#nb {
   font-size: 13px;
 }
@@ -468,5 +472,9 @@ li {
   .small-overlay {
     left: 0 !important;
     width: 100% !important;
+  }
+
+  .page-select {
+    margin-top: 0 !important;
   }
 }

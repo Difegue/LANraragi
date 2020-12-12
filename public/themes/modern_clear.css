@@ -96,7 +96,7 @@ p.ip a:hover{color: #ed2553;}
 
 /* shared table stuff */
 table.itg{
-    width:99%;
+    width: 99% !important;
     max-width:90%;
     border-collapse:collapse;
     margin:0px auto;
@@ -256,6 +256,12 @@ td.itdc{text-align:center;padding:0 1px 0 2px;margin:0;border-right:1px solid #5
     font-size: 20px;
     margin-right: 3px;
 }
+
+.page-select {
+    margin-top: -34px;
+    margin-right: 5%;
+    margin-bottom: 8px;
+  }
 
 /* image pages */
 div.sni{

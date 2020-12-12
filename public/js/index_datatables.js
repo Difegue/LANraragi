@@ -27,6 +27,7 @@ function initIndex(pagesize) {
 			'processing': '<div id="progress" class="indeterminate""><div class="bar-container"><div class="bar" style=" width: 80%; "></div></div></div>'
 		},
 		'preDrawCallback': thumbViewInit, //callbacks for thumbnail view
+		'drawCallback': addPageSelect,
 		'rowCallback': buildThumbDiv,
 		'columns': [{
 			className: 'title itd',
@@ -169,6 +170,32 @@ function thumbViewInit(settings) {
 
 		if (typeof (arcTable) !== "undefined")
 			arcTable.columns.adjust();
+	}
+}
+
+function addPageSelect(settings) {
+	if (typeof (arcTable) !== "undefined") {
+		var pageInfo = arcTable.page.info();
+
+		$(".dataTables_paginate").toArray().forEach((div) => {
+
+			var container = $("<div class='page-select' >Go to Page: </div>");
+			var nInput = document.createElement('select');
+			$(nInput).attr("class", "favtag-btn");
+
+			for (var j = 1; j <= pageInfo.pages; j++) { //add the pages
+				var oOption = document.createElement('option');
+				oOption.text = j;
+				oOption.value = j;
+				nInput.add(oOption, null);
+			}
+
+			nInput.value = pageInfo.page + 1;
+			$(nInput).on("change", (e) => arcTable.page(nInput.value - 1).draw("page"));
+
+			container.append(nInput);
+			div.appendChild(container[0]);
+		});
 	}
 }
 

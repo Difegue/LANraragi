@@ -50,7 +50,7 @@ p#nb a{font-weight:bold}
 
 /* shared table stuff */
 table.itg {
-    width:99%;
+    width:99% !important;
     max-width:1175px;
     border-collapse:collapse;
     margin:0px auto;
@@ -136,6 +136,11 @@ td.itdc{text-align:center;padding:0 1px 0 2px;margin:0;border-right:1px solid #4
 .paginate_button.current{color:#C2A8A4;background:#43464e}
 .ellipsis {
     display:inline-block; text-align:center;height:15px;width:31px;background:#34353b;cursor:pointer;border:1px solid #000000;margin-top:10px;margin-bottom:10px;
+}
+.page-select {
+    margin-top: -38px;
+    margin-right: 4px;
+    margin-bottom:5px;
 }
 
 

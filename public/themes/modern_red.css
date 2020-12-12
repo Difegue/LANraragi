@@ -126,7 +126,7 @@ table.itg {
   margin: 0 auto;
   max-width: 90%;
   padding: 3px;
-  width: 99%;
+  width: 99% !important;
 }
 table.itg th {
   background: none repeat scroll 0 0 #D7D4C5;
@@ -284,6 +284,12 @@ td.itdc {
 .ellipsis {
   font-size: 20px;
   margin-right: 3px;
+}
+
+.page-select {
+  margin-top: -34px;
+  margin-right: 5%;
+  margin-bottom: 8px;
 }
 
 div.sni {
