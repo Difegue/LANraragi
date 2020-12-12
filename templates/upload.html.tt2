@@ -36,7 +36,7 @@
 			<div class="left-column">
 
 				Add uploaded files to category:
-				<select id="category">
+				<select id="category" class="favtag-btn">
 					<option selected value=""> -- No Category -- </option>
 					[% FOREACH categories %]
 					<option value="[% id %]">[% name %]</option>

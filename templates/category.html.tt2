@@ -62,7 +62,8 @@
                                 <h2>Category:</h2>
                             </td>
                             <td>
-                                <select id="category" onchange="updateCategoryDetails()" style="font-size:20px">
+                                <select id="category" class="favtag-btn" onchange="updateCategoryDetails()"
+                                    style="font-size:20px; height:30px">
                                     <option disabled selected value> -- No Category -- </option>
                                 </select> </td>
                         </tr>

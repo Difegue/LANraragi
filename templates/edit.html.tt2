@@ -39,49 +39,57 @@
 					<tr>
 						<td style='text-align:left; width:100px'>Current File Name:</td>
 						<td>
-							<input class='stdinput' type='text' style='width:100%' readonly='' size='20' value="[% file %]" name='filename'>
+							<input class='stdinput' type='text' style='width:100%' readonly='' size='20'
+								value="[% file %]" name='filename'>
 						</td>
 					</tr>
 
 					<tr>
 						<td style='text-align:left; width:100px'>ID:</td>
 						<td>
-							<input id='archiveID' class='stdinput' type='text' style='width:100%' readonly='' maxlength='255' size='20'
-							 value="[% id %]" name='id'>
+							<input id='archiveID' class='stdinput' type='text' style='width:100%' readonly=''
+								maxlength='255' size='20' value="[% id %]" name='id'>
 						</td>
 					</tr>
 
 					<tr>
 						<td style='text-align:left; width:100px'>Title:</td>
 						<td>
-							<input id='title' class='stdinput' type='text' style='width:100%' maxlength='255' size='20' value="[% arctitle %]"
-							 name='title'>
+							<input id='title' class='stdinput' type='text' style='width:100%' maxlength='255' size='20'
+								value="[% arctitle %]" name='title'>
 						</td>
 					</tr>
 
 					<tr>
-						<td style='text-align:left; width:100px; vertical-align:top'>Tags <span style="font-size:6pt">(separated by
+						<td style='text-align:left; width:100px; vertical-align:top'>Tags <span
+								style="font-size:6pt">(separated by
 								hyphens, i.e : tag1, tag2)</span> :
 						</td>
 						<td>
-							<textarea id='tagText' class='stdinput' name='tags' maxlength='5000' style='width:100%; height:125px' size='20'>[% tags %]</textarea>
-							<i class='fa fa-5x fa-cog fa-spin' style=' color:black; position:absolute; top:55%; left:52%; display:none' id='tag-spinner'></i>
+							<textarea id='tagText' class='stdinput' name='tags' maxlength='5000'
+								style='width:100%; height:125px' size='20'>[% tags %]</textarea>
+							<i class='fa fa-5x fa-cog fa-spin'
+								style=' color:black; position:absolute; top:55%; left:52%; display:none'
+								id='tag-spinner'></i>
 						</td>
 					</tr>
 
 					<tr>
 						<td style='text-align:left; width:100px; vertical-align:top'>Import Tags from Plugin : <br />
-							<input type='button' name='tag_import' value='Help' onclick="toastHelpEdit();" class='stdbtn' style='min-width:90px;'></input>
+							<input type='button' name='tag_import' value='Help' onclick="toastHelpEdit();"
+								class='stdbtn' style='min-width:90px;'></input>
 						</td>
 						<td id="plugin_table">
 
-							<select id="plugin" onchange="updateOneShotArg()">
+							<select id="plugin" class="favtag-btn" onchange="updateOneShotArg()">
 								[% FOREACH plugin IN plugins %]
-								<option value="[% plugin.namespace %]" arg="[% plugin.oneshot_arg %]">[% plugin.name %]</option>
+								<option value="[% plugin.namespace %]" arg="[% plugin.oneshot_arg %]">[% plugin.name %]
+								</option>
 								[% END %]
 							</select>
 
-							<input class='stdbtn' type='button' style="min-width:90px;" onclick="saveMetadata().then(()=>getTags())" value='Go!' />
+							<input class='stdbtn' type='button' style="min-width:90px;"
+								onclick="saveMetadata().then(()=>getTags())" value='Go!' />
 							<br />
 
 							<span id="arg_label"></span> <br />
@@ -89,7 +97,8 @@
 
 							<br />
 
-							<i class='fa fa-2x fa-exclamation-circle'></i> Using a Plugin will save any modifications to archive metadata
+							<i class='fa fa-2x fa-exclamation-circle'></i> Using a Plugin will save any modifications to
+							archive metadata
 							you might have made !
 						</td>
 					</tr>
@@ -97,9 +106,11 @@
 					<tr>
 						<td colspan='2' style='text-align:center'> <br />
 							<input class='stdbtn' type='button' onclick="saveMetadata()" value='Save Metadata' />
-							<input class='stdbtn' type='button' onclick=" if (confirm('Are you sure you want to delete this archive?')) deleteArchive('[% id %]');"
-							 value='Delete Archive' />
-							<input id='goback' class='stdbtn' type='button' onclick="window.location.replace('./');" value='Return to Library' />
+							<input class='stdbtn' type='button'
+								onclick=" if (confirm('Are you sure you want to delete this archive?')) deleteArchive('[% id %]');"
+								value='Delete Archive' />
+							<input id='goback' class='stdbtn' type='button' onclick="window.location.replace('./');"
+								value='Return to Library' />
 							<br /></td>
 					</tr>
 				</tbody>
