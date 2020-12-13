@@ -149,17 +149,17 @@ function thumbViewInit(settings) {
 	if (localStorage.indexViewMode == 1) {
 		// create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
 		if ($('#thumbs_container').length < 1)
-			$('.top').after("<div id='thumbs_container'></div>");
+			$('.datatables').after("<div id='thumbs_container'></div>");
 
 		// clear out the thumbs container
 		$('#thumbs_container').html('');
 
-		$('.itg').hide();
+		$('.list').hide();
 	}
 	else {
 		//Destroy the thumb container, make the table visible again and ensure autowidth is correct
 		$('#thumbs_container').remove();
-		$('.itg').show();
+		$('.list').show();
 
 		//nuke style of table - datatables' auto-width gets a bit lost when coming back from thumb view.
 		$('.datatables').attr("style", "");
