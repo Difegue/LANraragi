@@ -85,6 +85,12 @@ function initSettings(version) {
 		localStorage.cropthumbs = true;
 	}
 
+	// Default custom columns
+	if (localStorage.getItem("customColumn1") === null) {
+		localStorage.customColumn1 = "artist";
+		localStorage.customColumn2 = "series";
+	}
+
 	// Tell user about the context menu
 	if (localStorage.getItem("sawContextMenuToast") === null) {
 		localStorage.sawContextMenuToast = true;
@@ -107,18 +113,37 @@ function initSettings(version) {
 	if (localStorage.cropthumbs === 'true')
 		$("#cropthumbs").prop("checked", true);
 
+	updateTableHeaders();
 }
 
 function saveSettings() {
 	localStorage.indexViewMode = $("#compactmode").prop("checked") ? 0 : 1;
 	localStorage.cropthumbs = $("#cropthumbs").prop("checked");
 
+	localStorage.customColumn1 = $("#customcol1").val();
+	localStorage.customColumn2 = $("#customcol2").val();
+
+	// Absolutely disgusting
+	arcTable.settings()[0].aoColumns[1].sName = localStorage.customColumn1;
+	arcTable.settings()[0].aoColumns[2].sName = localStorage.customColumn2;
+
+	updateTableHeaders();
 	closeOverlay();
 
 	//Redraw the table yo
 	arcTable.draw();
 }
 
+function updateTableHeaders() {
+
+	var cc1 = localStorage.customColumn1;
+	var cc2 = localStorage.customColumn2;
+
+	$("#customcol1").val(cc1);
+	$("#customcol2").val(cc2);
+	$("#customheader1").children()[0].innerHTML = cc1.charAt(0).toUpperCase() + cc1.slice(1);
+	$("#customheader2").children()[0].innerHTML = cc2.charAt(0).toUpperCase() + cc2.slice(1);
+}
 
 function checkVersion(currentVersionConf) {
 	//Check the github API to see if an update was released. If so, flash another friendly notification inviting the user to check it out

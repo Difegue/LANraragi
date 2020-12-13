@@ -9,31 +9,27 @@ td.itd {
 .itdc {
   min-width: 35px;
 }
-#titleheader {
-  max-width: 400px;
-}
-#seriesheader {
-  max-width: 150px;}
-#langheader {
-  max-width: 100px;
-}
-#artistheader,
-#tagsheader {
-  max-width: 150px;
-}
+
+#titleheader,
 td.title {
   max-width: 400px;
 }
-td.series {
+
+#customheader1,
+td.custom1 {
   max-width: 150px;
 }
-td.language,
-td.artist {
+
+#customheader2,
+td.custom2 {
   max-width: 100px;
 }
+
+#tagsheader,
 td.tags {
   max-width: 250px;
 }
+
 span.tags {
   display: block;
   overflow:hidden;
@@ -180,7 +176,7 @@ p#nb {
 }
 
 .small-overlay {
-  left: 35%;
+  left: 32.5%;
   width: 35% !important;
 }
 
@@ -406,20 +402,21 @@ li {
   #i1 {
     padding: 2px;
   }
-  #seriesheader,
-  #langheader,
-  #artistheader,
+
+  #customheader1,
+  #customheader2,
   #tagsheader,
-  td.series,
-  td.language,
-  td.artist,
+  td.custom1,
+  td.custom2,
   td.tags {
     max-width: 50px;
   }
+
   #titleheader,
   td.title {
     max-width: 250px;
   }
+
   .caption-image {
     margin-left: -15% !important;
   }
@@ -445,21 +442,22 @@ li {
   #i1 {
     padding: 2px;
   }
+
   #i2,
-  #seriesheader,
-  #langheader,
-  #artistheader,
+  #customheader1,
+  #customheader2,
   #tagsheader,
-  td.series,
-  td.language,
-  td.artist,
+  td.custom1,
+  td.custom2,
   td.tags {
     display: none;
   }
+
   #titleheader,
   td.title {
     max-width: 180px;
   }
+  
   div.sni h1 {
     overflow: hidden;
     white-space: nowrap;

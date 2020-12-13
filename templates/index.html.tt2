@@ -96,10 +96,10 @@
 						<th id="titleheader">
 							<a>Title</a>
 						</th>
-						<th id="artistheader">
+						<th id="customheader1">
 							<a>Artist</a>
 						</th>
-						<th id="seriesheader">
+						<th id="customheader2">
 							<a>Series</a>
 						</th>
 						<th id="tagsheader">
@@ -207,6 +207,16 @@
 				<input id="cropthumbs" name="cropthumbs" class="fa" type="checkbox" style="float:left">
 				<br /> If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the
 				left side.
+			</div>
+
+			<div class="config-panel">
+				<h1 class="ih" style="display:inline"> Column Customization </h1>
+				<br>You can customize the namespace used in the two columns between the title and the tag summary.
+				<br>Enter a full namespace without the colon, e.g "artist".<br>
+				<br>If you have multiple tags with the same namespace, only the last one will be shown in the column.
+				<br><br>
+				<b>Column 1: </b> <input id="customcol1" name="customcol2" value="artist"> <br>
+				<b>Column 2: </b> <input id="customcol2" name="customcol2" value="series">
 			</div>
 		</div>
 		<br />

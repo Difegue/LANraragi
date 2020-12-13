@@ -1,9 +1,5 @@
 //Functions for DataTable initialization.
 
-var column1 = "artist";
-var column2 = "series";
-var column3 = "";
-
 //Executed onload of the archive index to initialize DataTables and other minor things.
 //This is painful to read.
 function initIndex(pagesize) {
@@ -35,18 +31,18 @@ function initIndex(pagesize) {
 			'name': 'title',
 			'render': titleColumnDisplay
 		}, {
-			className: column1 + ' itd',
+			className: 'custom1 itd',
 			'data': 'tags',
-			'name': column1,
+			'name': localStorage.customColumn1,
 			'render': function (data, type, full, meta) {
-				return createNamespaceColumn(column1, type, data);
+				return createNamespaceColumn(localStorage.customColumn1, type, data);
 			}
 		}, {
-			className: column2 + ' itd',
+			className: 'custom2 itd',
 			'data': 'tags',
-			'name': column2,
+			'name': localStorage.customColumn2,
 			'render': function (data, type, full, meta) {
-				return createNamespaceColumn(column2, type, data);
+				return createNamespaceColumn(localStorage.customColumn2, type, data);
 			}
 		}, {
 			className: 'tags itd',
