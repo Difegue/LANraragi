@@ -22,6 +22,9 @@ sub get_redisad { return $config->{redis_address} }
 #Database that'll be used by LANraragi. Redis databases are numbered, default is 0.
 sub get_redisdb { return $config->{redis_database} }
 
+#Database that'll be used by Minion. Redis databases are numbered, default is 0.
+sub get_miniondb { return $config->{redis_database_minion} }
+
 #Default CSS file to load.
 sub get_style { return $config->{default_theme} }
 

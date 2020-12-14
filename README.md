@@ -7,7 +7,7 @@
 [<img src="https://img.shields.io/discord/612709831744290847">](https://discord.gg/aRQxtbg)
 
 
-<img src="public/img/logo.png" width="128">  
+<img src="public/favicon.ico" width="128">  
   
 LANraragi
 ===========

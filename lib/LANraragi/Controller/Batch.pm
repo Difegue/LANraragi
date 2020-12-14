@@ -3,7 +3,6 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use Redis;
 use Encode;
-use Mojo::IOLoop::Subprocess;
 use Mojo::Util qw(xml_escape);
 use Mojo::JSON qw(decode_json encode_json from_json);
 
