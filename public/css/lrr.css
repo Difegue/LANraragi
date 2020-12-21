@@ -120,6 +120,11 @@ p#nb {
   min-width: 30% !important;
 }
 
+/* Reader page */ 
+div.sni {
+  max-width: 1200px;
+}
+
 /* Reader overlays. */
 .loading-overlay,
 .page-overlay,
@@ -457,7 +462,7 @@ li {
   td.title {
     max-width: 180px;
   }
-  
+
   div.sni h1 {
     overflow: hidden;
     white-space: nowrap;

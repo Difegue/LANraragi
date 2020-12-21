@@ -299,11 +299,10 @@ div.sni {
   color: #EFEAEA;
   display: block;
   margin: 2px auto 6px;
-  max-width: 1200px;
   padding: 5px 10px 10px;
   position: relative;
   text-align: center;
-  width: 99%;
+  width: 98%;
   z-index: 1;
 }
 div.sni h1 {

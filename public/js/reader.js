@@ -91,12 +91,16 @@ function updateImageMap() {
 	mapWidth = $("#img").get(0).width / 2;
 	mapHeight = $("#img").get(0).height;
 	$("#leftmap").attr("coords", "0,0," + mapWidth + "," + mapHeight);
-	$("#rightmap").attr("coords", (mapWidth + 1) + ",0," + w + "," + mapHeight);
+	$("#rightmap").attr("coords", (mapWidth + 1) + ",0," + $("#img").get(0).width + "," + mapHeight);
 }
 
 function goToPage(page) {
 
 	previousPage = currentPage;
+
+	// Clear out style overrides
+	$("#img").attr("style", "");
+	$(".sni").attr("style", "");
 
 	if (page < 0)
 		currentPage = 0;
@@ -109,9 +113,10 @@ function goToPage(page) {
 		//composite an image and use that as the source
 		img1 = loadImage(pages.pages[currentPage], canvasCallback);
 		img2 = loadImage(pages.pages[currentPage + 1], canvasCallback);
-		//We can also free the maxwidth since we usually have twice the pages
+
+		//We can also override the 1200px maxwidth since we usually have twice the pages
 		$(".sni").attr("style", "max-width: 90%");
-		
+
 		// Preload next two images
 		loadImage(pages.pages[currentPage + 2], null);
 		loadImage(pages.pages[currentPage + 3], null);
@@ -120,17 +125,14 @@ function goToPage(page) {
 		// In single view, just use the source URLs as is
 		$("#img").attr("src", pages.pages[currentPage]);
 		showingSinglePage = true;
-		$(".sni").attr("style", "");
-		
+
 		// Preload next image
 		loadImage(pages.pages[currentPage + 1], null);
 	}
 
-	//scale to view simply forces image height at 90vh (90% of viewport height)
+	//Fit to screen simply forces image height at 90vh (90% of viewport height)
 	if (localStorage.scaletoview === 'true')
 		$("#img").attr("style", "max-height: 90vh;");
-	else
-		$("#img").attr("style", "");
 
 	//hide/show toplevel nav depending on the pref
 	if (localStorage.hidetop === 'true') {
@@ -144,6 +146,12 @@ function goToPage(page) {
 	else {
 		$("#i2").attr("style", "");
 		$("div.sni h1").attr("style", "");
+	}
+
+	// Force full width discards fit to screen and just forces img width to 100%
+	if (localStorage.forcefullwidth === 'true') {
+		$("#img").attr("style", "width: 100%;");
+		$(".sni").attr("style", "max-width: 98%");
 	}
 
 	//update numbers
@@ -201,11 +209,14 @@ function initSettingsOverlay() {
 	if (localStorage.scaletoview === 'true')
 		$("#scaletoview").prop("checked", true);
 
+	if (localStorage.forcefullwidth === 'true')
+		$("#forcefullwidth").prop("checked", true);
+
 	if (localStorage.hidetop === 'true')
 		$("#hidetop").prop("checked", true);
 
 	if (localStorage.nobookmark === 'true')
-		$("#nobookmark").prop("checked", true);	
+		$("#nobookmark").prop("checked", true);
 
 }
 
@@ -213,6 +224,7 @@ function saveSettings() {
 	localStorage.readorder = $("#readorder").prop("checked");
 	localStorage.doublepage = $("#doublepage").prop("checked");
 	localStorage.scaletoview = $("#scaletoview").prop("checked");
+	localStorage.forcefullwidth = $("#forcefullwidth").prop("checked");
 	localStorage.hidetop = $("#hidetop").prop("checked");
 	localStorage.nobookmark = $("#nobookmark").prop("checked");
 
@@ -261,7 +273,7 @@ function canvasCallback() {
 
 	if (imagesLoaded == 2) {
 
-		//If w > h on one of the images, set canvasdata to the first image only
+		//If w > h on one of the images(widespread), set canvasdata to the first image only
 		if (img1.naturalWidth > img1.naturalHeight || img2.naturalWidth > img2.naturalHeight) {
 
 			//Depending on whether we were going forward or backward, display img1 or img2

@@ -178,14 +178,21 @@
 
 	<div class="config-panel">
 		<h1 class="ih" style="display:inline"> Double Page View </h1>
-		<input id="doublepage" name="readorder" class="fa" type="checkbox" style="float:left">
+		<input id="doublepage" name="doublepage" class="fa" type="checkbox" style="float:left">
 		<br /> If enabled, two pages will be displayed at once. (This excludes widespreads)
 	</div>
 
 	<div class="config-panel">
-		<h1 class="ih" style="display:inline"> Scale to View</h1>
-		<input id="scaletoview" name="readorder" class="fa" type="checkbox" style="float:left">
+		<h1 class="ih" style="display:inline"> Fit to Screen</h1>
+		<input id="scaletoview" name="scaletoview" class="fa" type="checkbox" style="float:left">
 		<br /> If enabled, pages will be scaled to the screen's size.
+	</div>
+
+	<div class="config-panel">
+		<h1 class="ih" style="display:inline"> Force Full Width</h1>
+		<input id="forcefullwidth" name="forcefullwidth" class="fa" type="checkbox" style="float:left">
+		<br /> If enabled, pages will be upscaled to fit the browser's width if they're smaller.
+		<br /> This option will override Fit to Screen if enabled.
 	</div>
 
 	<div class="config-panel">

@@ -145,7 +145,7 @@ td.itdc{text-align:center;padding:0 1px 0 2px;margin:0;border-right:1px solid #4
 
 
 /* image pages */
-div.sni{background:#4f535b;max-width: 1200px;border:1px solid #000000;text-align:center;margin:2px auto 6px;padding:0 10px 5px;position:relative;z-index:1}
+div.sni{background:#4f535b;border:1px solid #000000;text-align:center;margin:2px auto 6px;padding:0 10px 5px;position:relative;z-index:1}
 div.sni h1{font-size:12pt;font-weight:bold;text-align:center}
 div.sni img{border:0;vertical-align:middle;margin:1px;clear:both}
 div.if{margin:-5px auto 5px}

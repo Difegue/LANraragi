@@ -276,11 +276,10 @@ div.sni{
     clear: both;
     display: block;
     padding-top: 5px;
-    padding-bottom: 10px;
-    max-width: 1200px;
-    width: 99%;
-
+    padding-bottom: 10px;   
+    width: 98%;
 }
+
 div.sni h1{font-size:12pt;font-weight:bold;text-align:center;}
 div.sni img{border:0;vertical-align:middle;margin:1px;clear:both}
 div.if{margin:-5px auto 5px}
