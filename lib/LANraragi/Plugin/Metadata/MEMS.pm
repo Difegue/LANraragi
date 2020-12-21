@@ -32,13 +32,14 @@ sub plugin_info {
           . 'wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A//8'
           . 'AAP//AACDmQAAg5kAAJ+ZAACfmQAAn5kAAISBAACEgQAAn5kAAJ+ZAACfmQAAg5kAAIOZAAD//wAA//8AAA==',
         # Custom arguments:
-        oneshot_arg => 'Enter a valid EH gallery URL to copy metadata from this EH gallery to this LANraragi archive',
         parameters  => [
             { type => 'bool', desc =>  'Save the original Japanese title when available instead of the English or '
               . 'romanised title' },
             { type => 'bool', desc =>  'Save additional timestamp (time posted) and uploader metadata' },
             { type => 'bool', desc =>  'Use ExHentai link for source instead of E-Hentai link' }
-        ]
+        ],
+        oneshot_arg => 'Enter a valid EH gallery URL to copy metadata from this EH gallery to this LANraragi archive',
+        cooldown    => 4
     );
 }
 
