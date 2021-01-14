@@ -61,6 +61,7 @@ sub get_tags {
     my $gID    = "";
     my $gToken = "";
     my $domain = ( $enablepanda ? 'https://exhentai.org' : 'https://e-hentai.org' );
+    my $hasSrc = 0;
 
     # Quick regex to get the E-H archive ids from the provided url or source tag
     if ( $lrr_info->{oneshot_param} =~ /.*\/g\/([0-9]*)\/([0-z]*)\/*.*/ ) {
@@ -70,6 +71,7 @@ sub get_tags {
     } elsif ( $lrr_info->{existing_tags} =~ /.*source:e(?:x|-)hentai\.org\/g\/([0-9]*)\/([0-z]*)\/*.*/gi ) {
         $gID    = $1;
         $gToken = $2;
+        $hasSrc = 1;
         $logger->debug("Skipping search and using gallery $gID / $gToken from source tag");
     } else {
 
@@ -102,10 +104,10 @@ sub get_tags {
     my ( $ehtags, $ehtitle ) = &get_tags_from_EH( $gID, $gToken, $jpntitle, $additionaltags );
     my %hashdata = ( tags => $ehtags );
 
-    # Add source URL and title if possible
+    # Add source URL and title if possible/applicable
     if ( $hashdata{tags} ne "" ) {
 
-        $hashdata{tags} .= ", source:" . ( split( '://', $domain ) )[1] . "/g/$gID/$gToken";
+        if ( !$hasSrc ) { $hashdata{tags} .= ", source:" . ( split( '://', $domain ) )[1] . "/g/$gID/$gToken"; }
         if ($savetitle) { $hashdata{title} = $ehtitle; }
     }
 

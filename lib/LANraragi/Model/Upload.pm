@@ -21,16 +21,18 @@ use LANraragi::Model::Category;
 
 # Handle files uploaded by the user, or downloaded from remote endpoints.
 
-# Process a file. Argument is the filepath, preferably in a temp directory,
+# Process a file.
+# First argument is the filepath, preferably in a temp directory,
 # as we'll copy it to the content folder and delete the original at the end.
+#
 # The file will be added to a category, if its ID is specified.
-# Also does autoplugin if enabled.
+# You can also specify tags to add to the metadata for the processed file before autoplugin is ran. (if it's enabled)
 #
 # Returns a status value, the ID and title of the file, and a status message.
 sub handle_incoming_file {
 
-    my ( $tempfile, $catid ) = @_;
-    my ( $filename, $dirs, $suffix ) = fileparse( $tempfile, qr/\.[^.]*/ );
+    my ( $tempfile, $catid, $extratags ) = @_;
+    my ( $filename, $dirs,  $suffix )    = fileparse( $tempfile, qr/\.[^.]*/ );
     $filename = $filename . $suffix;
     my $logger = get_logger( "File Upload/Download", "lanraragi" );
 
@@ -70,6 +72,18 @@ sub handle_incoming_file {
     # Add the file to the database ourselves so Shinobu doesn't do it
     # This allows autoplugin to be ran ASAP.
     my ( $name, $title, $tags ) = LANraragi::Utils::Database::add_archive_to_redis( $id, $output_file, $redis );
+
+    # If additional tags were given to the sub, add them now.
+    if ($extratags) {
+
+        if ( $tags ne "" ) {
+            $tags = $tags . ", ";
+        }
+
+        $tags = $tags . $extratags;
+        $redis->hset( $id, "tags", encode_utf8($tags) );
+    }
+
     $redis->quit();
 
     # Move the file to the content folder.

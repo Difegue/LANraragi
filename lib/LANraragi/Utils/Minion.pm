@@ -76,7 +76,7 @@ sub add_tasks {
               ;    # This error happening would not make any sense at all so it deserves the EYE reference
 
             # Since we already have a file, this goes straight to handle_incoming_file.
-            my ( $status, $id, $title, $message ) = LANraragi::Model::Upload::handle_incoming_file( $file, $catid );
+            my ( $status, $id, $title, $message ) = LANraragi::Model::Upload::handle_incoming_file( $file, $catid, "" );
 
             $job->finish(
                 {   success  => $status,
@@ -134,24 +134,16 @@ sub add_tasks {
                 my $tempfile = LANraragi::Model::Upload::download_url( $url, $ua );
                 $logger->info("URL downloaded to $tempfile");
 
-                # Hand off the result to handle_incoming_file
-                my ( $status, $id, $title, $message ) = LANraragi::Model::Upload::handle_incoming_file( $tempfile, $catid );
-
                 # Add the url as a source: tag
-                my $redis = LANraragi::Model::Config->get_redis;
-                my $tags  = $redis->hget( $id, "tags" );
-                $tags = LANraragi::Utils::Database::redis_decode($tags);
-
-                if ( $tags ne "" ) {
-                    $tags = $tags . ", ";
-                }
+                my $tag = "";
 
                 # Strip http(s)://www. from the url before adding it to tags
                 if ( $og_url =~ /https?:\/\/(.*)/gm ) {
-                    $tags = $tags . "source:$1";
-                    $redis->hset( $id, "tags", encode_utf8($tags) );
+                    $tag = "source:$1";
                 }
-                $redis->quit;
+
+                # Hand off the result to handle_incoming_file
+                my ( $status, $id, $title, $message ) = LANraragi::Model::Upload::handle_incoming_file( $tempfile, $catid, $tag );
 
                 $job->finish(
                     {   success  => $status,
