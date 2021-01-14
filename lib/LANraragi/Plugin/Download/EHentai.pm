@@ -109,8 +109,10 @@ sub provide_url {
         return ( error => "Couldn't proceed with an original size download: <pre>$content</pre>" );
     }
 
-    # Append start=1 to get an URL that automatically triggers the download.
-    $finalURL .= "?start=1";
+    # If the URL doesn't already have autostart, append start=1 to get an URL that automatically triggers the download.
+    unless ( $finalURL =~ /.*autostart=1.*/gi ) {
+        $finalURL .= "?start=1";
+    }
 
     # All done!
     return ( download_url => $finalURL );
