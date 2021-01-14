@@ -17,17 +17,19 @@ use LANraragi::Utils::Generic qw(is_archive);
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
+use LANraragi::Model::Category;
 
 # Handle files uploaded by the user, or downloaded from remote endpoints.
 
 # Process a file. Argument is the filepath, preferably in a temp directory,
 # as we'll copy it to the content folder and delete the original at the end.
+# The file will be added to a category, if its ID is specified.
 # Also does autoplugin if enabled.
 #
 # Returns a status value, the ID and title of the file, and a status message.
 sub handle_incoming_file {
 
-    my $tempfile = shift;
+    my ( $tempfile, $catid ) = @_;
     my ( $filename, $dirs, $suffix ) = fileparse( $tempfile, qr/\.[^.]*/ );
     $filename = $filename . $suffix;
     my $logger = get_logger( "File Upload/Download", "lanraragi" );
@@ -70,9 +72,6 @@ sub handle_incoming_file {
     my ( $name, $title, $tags ) = LANraragi::Utils::Database::add_archive_to_redis( $id, $output_file, $redis );
     $redis->quit();
 
-    # Invalidate search cache ourselves, Shinobu won't do it since the file is already in the database
-    invalidate_cache();
-
     # Move the file to the content folder.
     # Move to a .tmp first in case copy to the content folder takes a while...
     move( $tempfile, $output_file . ".upload" );
@@ -84,13 +83,32 @@ sub handle_incoming_file {
         return ( 0, $id, $title, "The file couldn't be moved to your content folder!" );
     }
 
+    my $successmsg = "File added successfully!";
+
     if ( LANraragi::Model::Config->enable_autotag ) {
         $logger->debug("Running autoplugin on newly uploaded file $id...");
+
         my ( $succ, $fail, $addedtags ) = LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
-        return ( 1, $id, $title, "$succ Plugins used successfully, $fail Plugins failed, $addedtags tags added." );
+        $successmsg = "$succ Plugins used successfully, $fail Plugins failed, $addedtags tags added. ";
     }
 
-    return ( 1, $id, $title, "File added successfully!" );
+    if ($catid) {
+        $logger->debug("Adding uploaded file to category $catid");
+
+        my ( $catsucc, $caterr ) = LANraragi::Model::Category::add_to_category( $catid, $id );
+        if ($catsucc) {
+            my %category = LANraragi::Model::Category::get_category($catid);
+            my $catname  = $category{name};
+            $successmsg .= "Added to Category '$catname'!";
+        } else {
+            $successmsg .= "Couldn't add to Category: $caterr";
+        }
+    }
+
+    # Invalidate search cache ourselves, Shinobu won't do it since the file is already in the database
+    invalidate_cache();
+
+    return ( 1, $id, $title, $successmsg );
 }
 
 # Download the given URL, using the given Mojo::UserAgent object.

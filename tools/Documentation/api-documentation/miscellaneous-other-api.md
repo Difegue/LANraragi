@@ -474,6 +474,9 @@ Add a URL to be downloaded by the server and added to its library.
 {% api-method-parameter name="url" type="string" required=true %}
 URL to download  
 {% endapi-method-parameter %}
+{% api-method-parameter name="catid" type="string" required=false %}
+Category ID to add the downloaded URL to.
+{% endapi-method-parameter %}
 {% endapi-method-query-parameters %}
 {% endapi-method-request %}
 

@@ -14,6 +14,7 @@ sub process_upload {
 
     #Receive uploaded file.
     my $file     = $self->req->upload('file');
+    my $catid    = $self->req->param('catid');
     my $filename = $file->filename;
 
     my $uploadMime = $file->headers->content_type;
@@ -38,7 +39,7 @@ sub process_upload {
         );
 
         # Send a job to Minion to handle the uploaded file.
-        my $jobid = $self->minion->enqueue( handle_upload => [$tempfile] => { priority => 2 } );
+        my $jobid = $self->minion->enqueue( handle_upload => [ $tempfile, $catid ] => { priority => 2 } );
 
         # Reply with a reference to the job so the client can check on its progress.
         $self->render(

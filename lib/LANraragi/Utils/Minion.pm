@@ -40,9 +40,9 @@ sub add_tasks {
             # And for every category defined by the user.
             my @categories = LANraragi::Model::Category->get_category_list;
             for my $category (@categories) {
-                my $cat_id = %{$category}{"id"};
-                $logger->debug("Warming category $cat_id");
-                LANraragi::Model::Search::do_search( "", $cat_id, 0, "title", "asc", 0, 0 );
+                my $catid = %{$category}{"id"};
+                $logger->debug("Warming category $catid");
+                LANraragi::Model::Search::do_search( "", $catid, 0, "title", "asc", 0, 0 );
             }
 
             $logger->info("Done!");
@@ -52,8 +52,8 @@ sub add_tasks {
 
     $minion->add_task(
         handle_upload => sub {
-            my ( $job, @args ) = @_;
-            my ($file) = @args;
+            my ( $job,  @args )  = @_;
+            my ( $file, $catid ) = @args;
 
             my $logger = get_logger( "Minion", "minion" );
             $logger->info("Processing uploaded file $file...");
@@ -76,13 +76,14 @@ sub add_tasks {
               ;    # This error happening would not make any sense at all so it deserves the EYE reference
 
             # Since we already have a file, this goes straight to handle_incoming_file.
-            my ( $status, $id, $title, $message ) = LANraragi::Model::Upload::handle_incoming_file($file);
+            my ( $status, $id, $title, $message ) = LANraragi::Model::Upload::handle_incoming_file( $file, $catid );
 
             $job->finish(
-                {   success => $status,
-                    id      => $id,
-                    title   => redis_decode($title),    # We use a decode here to fix display issues in the response.
-                    message => $message
+                {   success  => $status,
+                    id       => $id,
+                    category => $catid,
+                    title    => redis_decode($title),    # We use a decode here to fix display issues in the response.
+                    message  => $message
                 }
             );
         }
@@ -90,8 +91,8 @@ sub add_tasks {
 
     $minion->add_task(
         download_url => sub {
-            my ( $job, @args ) = @_;
-            my ($url) = @args;
+            my ( $job, @args )  = @_;
+            my ( $url, $catid ) = @args;
 
             my $og_url = $url;                               # Keep a clean copy of the url for final response
             my $ua     = Mojo::UserAgent->new;
@@ -134,7 +135,7 @@ sub add_tasks {
                 $logger->info("URL downloaded to $tempfile");
 
                 # Hand off the result to handle_incoming_file
-                my ( $status, $id, $title, $message ) = LANraragi::Model::Upload::handle_incoming_file($tempfile);
+                my ( $status, $id, $title, $message ) = LANraragi::Model::Upload::handle_incoming_file( $tempfile, $catid );
 
                 # Add the url as a source: tag
                 my $redis = LANraragi::Model::Config->get_redis;
@@ -153,11 +154,12 @@ sub add_tasks {
                 $redis->quit;
 
                 $job->finish(
-                    {   success => $status,
-                        url     => $og_url,
-                        id      => $id,
-                        title   => $title,
-                        message => $message
+                    {   success  => $status,
+                        url      => $og_url,
+                        id       => $id,
+                        category => $catid,
+                        title    => $title,
+                        message  => $message
                     }
                 );
             };
