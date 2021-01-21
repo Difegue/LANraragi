@@ -2,7 +2,7 @@
 FROM        alpine:latest
 LABEL       git="https://github.com/Difegue/LANraragi"
 
-ENV S6_OVERLAY_RELEASE v2.2.0.0
+ENV S6_OVERLAY_RELEASE v2.0.0.1
 ENV S6_KEEP_ENV 1
 
 # warn if we can't run stage2 (fix-attrs/cont-init)
