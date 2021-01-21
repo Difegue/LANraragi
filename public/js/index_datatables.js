@@ -172,6 +172,7 @@ function thumbViewInit(settings) {
 function addPageSelect(settings) {
 	if (typeof (arcTable) !== "undefined") {
 		var pageInfo = arcTable.page.info();
+		if (pageInfo.pages == 0) return;
 
 		$(".dataTables_paginate").toArray().forEach((div) => {
 
