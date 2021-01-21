@@ -90,13 +90,15 @@ div.gt {
   background: none repeat scroll 0 0 #4F535B;
   border-radius: 3px;
   float: left;
-  margin: 0;
+  margin: 2px;
   padding: 1px 4px 4px 4px;
   position: relative;
   white-space: nowrap;
-  width: default;
   cursor: pointer;
   line-height: 17px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 div.gt:hover {
@@ -120,7 +122,7 @@ p#nb a {
 
 /* shared table stuff */
 table.itg {
-	width: 99%;
+	width: 99% !important;
   max-width: 90%;
   border-collapse: collapse;
   margin: 0 auto;
@@ -275,6 +277,11 @@ td.itdc {
   margin-right: 3px;
 }
 
+.page-select {
+  margin-top: -34px;
+  margin-right: 5%;
+}
+
 /* image pages */
 div.sni {
 	text-align: center;
@@ -289,8 +296,7 @@ div.sni {
   display: block;
   padding-top: 5px;
   padding-bottom: 10px;
-  max-width: 1200px;
-  width: 99%;
+  width: 98%;
 }
 div.sni h1 {
 	font-size: 12pt;

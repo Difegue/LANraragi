@@ -84,9 +84,11 @@ div.gt {
   padding: 1px 4px;
   position: relative;
   white-space: nowrap;
-  width: default;
   color: #EFEAEA;
   cursor: pointer;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 div.gt:hover {
@@ -124,7 +126,7 @@ table.itg {
   margin: 0 auto;
   max-width: 90%;
   padding: 3px;
-  width: 99%;
+  width: 99% !important;
 }
 table.itg th {
   background: none repeat scroll 0 0 #D7D4C5;
@@ -284,6 +286,12 @@ td.itdc {
   margin-right: 3px;
 }
 
+.page-select {
+  margin-top: -34px;
+  margin-right: 5%;
+  margin-bottom: 8px;
+}
+
 div.sni {
   background-color: #D83B66;
   box-shadow: 0 5px 15px 0 rgba(0, 0, 0, 0.16), 0 2px 15px 0 rgba(0, 0, 0, 0.12);
@@ -291,11 +299,10 @@ div.sni {
   color: #EFEAEA;
   display: block;
   margin: 2px auto 6px;
-  max-width: 1200px;
   padding: 5px 10px 10px;
   position: relative;
   text-align: center;
-  width: 99%;
+  width: 98%;
   z-index: 1;
 }
 div.sni h1 {

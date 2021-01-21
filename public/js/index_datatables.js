@@ -1,9 +1,5 @@
 //Functions for DataTable initialization.
 
-var column1 = "artist";
-var column2 = "series";
-var column3 = "";
-
 //Executed onload of the archive index to initialize DataTables and other minor things.
 //This is painful to read.
 function initIndex(pagesize) {
@@ -27,6 +23,7 @@ function initIndex(pagesize) {
 			'processing': '<div id="progress" class="indeterminate""><div class="bar-container"><div class="bar" style=" width: 80%; "></div></div></div>'
 		},
 		'preDrawCallback': thumbViewInit, //callbacks for thumbnail view
+		'drawCallback': addPageSelect,
 		'rowCallback': buildThumbDiv,
 		'columns': [{
 			className: 'title itd',
@@ -34,18 +31,18 @@ function initIndex(pagesize) {
 			'name': 'title',
 			'render': titleColumnDisplay
 		}, {
-			className: column1 + ' itd',
+			className: 'custom1 itd',
 			'data': 'tags',
-			'name': column1,
+			'name': localStorage.customColumn1,
 			'render': function (data, type, full, meta) {
-				return createNamespaceColumn(column1, type, data);
+				return createNamespaceColumn(localStorage.customColumn1, type, data);
 			}
 		}, {
-			className: column2 + ' itd',
+			className: 'custom2 itd',
 			'data': 'tags',
-			'name': column2,
+			'name': localStorage.customColumn2,
 			'render': function (data, type, full, meta) {
-				return createNamespaceColumn(column2, type, data);
+				return createNamespaceColumn(localStorage.customColumn2, type, data);
 			}
 		}, {
 			className: 'tags itd',
@@ -152,23 +149,49 @@ function thumbViewInit(settings) {
 	if (localStorage.indexViewMode == 1) {
 		// create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
 		if ($('#thumbs_container').length < 1)
-			$('.top').after("<div id='thumbs_container'></div>");
+			$('.datatables').after("<div id='thumbs_container'></div>");
 
 		// clear out the thumbs container
 		$('#thumbs_container').html('');
 
-		$('.itg').hide();
+		$('.list').hide();
 	}
 	else {
 		//Destroy the thumb container, make the table visible again and ensure autowidth is correct
 		$('#thumbs_container').remove();
-		$('.itg').show();
+		$('.list').show();
 
 		//nuke style of table - datatables' auto-width gets a bit lost when coming back from thumb view.
 		$('.datatables').attr("style", "");
 
 		if (typeof (arcTable) !== "undefined")
 			arcTable.columns.adjust();
+	}
+}
+
+function addPageSelect(settings) {
+	if (typeof (arcTable) !== "undefined") {
+		var pageInfo = arcTable.page.info();
+
+		$(".dataTables_paginate").toArray().forEach((div) => {
+
+			var container = $("<div class='page-select' >Go to Page: </div>");
+			var nInput = document.createElement('select');
+			$(nInput).attr("class", "favtag-btn");
+
+			for (var j = 1; j <= pageInfo.pages; j++) { //add the pages
+				var oOption = document.createElement('option');
+				oOption.text = j;
+				oOption.value = j;
+				nInput.add(oOption, null);
+			}
+
+			nInput.value = pageInfo.page + 1;
+			$(nInput).on("change", (e) => arcTable.page(nInput.value - 1).draw("page"));
+
+			container.append(nInput);
+			div.appendChild(container[0]);
+		});
 	}
 }
 
@@ -303,7 +326,8 @@ function buildTagsDiv(tags) {
 
 		ucKey = key.charAt(0).toUpperCase() + key.slice(1);
 		ucKey = encode(ucKey);
-		line += `<tr><td style='font-size:10pt; padding: 3px 2px 7px; vertical-align:top'>${ucKey}:</td><td>`;
+		encodedK = encode(key.toLowerCase());
+		line += `<tr><td class='caption-namespace ${encodedK}-tag'>${ucKey}:</td><td>`;
 
 		tagsByNamespace[key].forEach(function (tag) {
 			line += `<div class="gt" onclick="fillSearchField('${key}','${encode(tag)}')">

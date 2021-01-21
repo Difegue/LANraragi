@@ -80,9 +80,12 @@ function updateCategoryDetails() {
         $(".checklist > * > input:checkbox").prop("checked", false);
         category.archives.forEach(id => {
             const checkbox = document.getElementById(id);
-            checkbox.checked = true;
-            // Prepend matching <li> element to the top of the list (ew)
-            checkbox.parentElement.parentElement.prepend(checkbox.parentElement);
+
+            if (checkbox != null) {
+                checkbox.checked = true;
+                // Prepend matching <li> element to the top of the list (ew)
+                checkbox.parentElement.parentElement.prepend(checkbox.parentElement);
+            }
         });
 
     } else {

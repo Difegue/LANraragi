@@ -164,7 +164,7 @@ sub build_filemap {
     } else {
 
         # Done, serialize filemap for main process to consume
-        # The filemap hash has been modified into an object by Parallel::Loops...
+        # The filemap hash has been turned into an object by Parallel::Loops...
         # It's better to make a clean hash copy and serialize that instead.
         my $copy = {%filemap};
         lock_store $copy, '.shinobu-filemap';

@@ -96,7 +96,7 @@ sub build_archive_JSON {
     return $arcdata;
 }
 
-#Deletes the archive with the given id from redis, and the matching archive file.
+#Deletes the archive with the given id from redis, and the matching archive file/thumbnail.
 sub delete_archive {
 
     my $id       = $_[0];
@@ -108,6 +108,13 @@ sub delete_archive {
 
     if ( -e $filename ) {
         unlink $filename;
+
+        my $dirname = LANraragi::Model::Config->get_userdir;
+        my $subfolder = substr( $id, 0, 2 );
+        my $thumbname = "$dirname/thumb/$subfolder/$id.jpg";
+
+        unlink $thumbname;
+
         return $filename;
     }
 

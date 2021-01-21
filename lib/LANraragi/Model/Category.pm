@@ -37,6 +37,11 @@ sub get_category_list {
             if ($@) {
                 $logger->error("Couldn't deserialize contents of category $key! $@");
             }
+        } else {
+
+            # This is a dynamic category, so $data{archives} must be an empty array.
+            # (We could leave it as-is, but it'd give inconsistent API results depending on your category type...)
+            $data{archives} = decode_json("[]");
         }
 
         # Add the key as well

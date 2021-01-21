@@ -61,8 +61,10 @@ div.gt {
     padding: 1px 4px;
     position: relative;
     white-space: nowrap;
-    width: default;
     cursor: pointer;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 div.gt:hover {
@@ -96,7 +98,7 @@ table.itg {
     margin: 0 auto;
     max-width: 1175px;
     padding: 3px;
-    width: 99%;
+    width: 99% !important;
 }
 table.itg th {
     background: none repeat scroll 0 0 #E0DED3;
@@ -222,7 +224,7 @@ div.sni {
     padding: 0 10px 5px;
     position: relative;
     text-align: center;
-    max-width: 1200px;
+    
     z-index: 1;
 }
 div.sni h1 {
@@ -284,6 +286,12 @@ div#toppane {
 .paginate_button:hover{color:#9b4e03;background:#F2EFDF}
 .paginate_button.current{color:#5C0D11;background:#F2EFDF;}
 .ellipsis {display:inline-block; text-align:center;height:15px;width:31px;background:#EDEADA;cursor:pointer;border:1px solid #000000;margin-top:10px;margin-bottom:10px;}
+
+.page-select {
+    margin-top: -38px;
+    margin-right: 4px;
+    margin-bottom:5px;
+}
 
 .caption, .context-menu-list {
 background-color: #EDEADA;

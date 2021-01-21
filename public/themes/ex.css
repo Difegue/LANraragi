@@ -26,9 +26,11 @@ div.gt {
     padding: 1px 4px;
     position: relative;
     white-space: nowrap;
-    width: default;
     cursor: pointer;
     line-height: 17px;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 div.gt:hover {
@@ -48,7 +50,7 @@ p#nb a{font-weight:bold}
 
 /* shared table stuff */
 table.itg {
-    width:99%;
+    width:99% !important;
     max-width:1175px;
     border-collapse:collapse;
     margin:0px auto;
@@ -135,10 +137,15 @@ td.itdc{text-align:center;padding:0 1px 0 2px;margin:0;border-right:1px solid #4
 .ellipsis {
     display:inline-block; text-align:center;height:15px;width:31px;background:#34353b;cursor:pointer;border:1px solid #000000;margin-top:10px;margin-bottom:10px;
 }
+.page-select {
+    margin-top: -38px;
+    margin-right: 4px;
+    margin-bottom:5px;
+}
 
 
 /* image pages */
-div.sni{background:#4f535b;max-width: 1200px;border:1px solid #000000;text-align:center;margin:2px auto 6px;padding:0 10px 5px;position:relative;z-index:1}
+div.sni{background:#4f535b;border:1px solid #000000;text-align:center;margin:2px auto 6px;padding:0 10px 5px;position:relative;z-index:1}
 div.sni h1{font-size:12pt;font-weight:bold;text-align:center}
 div.sni img{border:0;vertical-align:middle;margin:1px;clear:both}
 div.if{margin:-5px auto 5px}

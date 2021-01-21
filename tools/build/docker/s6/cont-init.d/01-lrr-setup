@@ -7,8 +7,8 @@ echo "Starting LANraragi with UID/GID : $USER_ID/$GROUP_ID"
 
 #Update the koyomi user, using the specified uid/gid.
 #This solves permission problems on the content folder if the Docker user sets the same uid as the owner of the folder.
-usermod -u $USER_ID koyomi
-groupmod -g $GROUP_ID koyomi
+usermod -o -u $USER_ID koyomi
+groupmod -o -g $GROUP_ID koyomi
 
 #Ensure LRR folder is writable
 chown koyomi /home/koyomi/lanraragi
@@ -22,7 +22,7 @@ fi
 
 #Ensure database is writable
 chown -R koyomi /home/koyomi/lanraragi/database
-chmod -R 777 /home/koyomi/lanraragi/database
+chmod -R u+rwx /home/koyomi/lanraragi/database
 
 #Ensure thumbnail folder is writable
 chown -R koyomi /home/koyomi/lanraragi/content/thumb

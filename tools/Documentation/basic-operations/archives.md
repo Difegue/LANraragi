@@ -2,19 +2,23 @@
 
 ## Using the Archive Index
 
-The main page will show all the Archives loaded into the application.
+The main page will show all the Archives loaded into the application, sorted by name.
 
-![Annotated screenshot of the index page of a regular LRR install](../.gitbook/assets/index.png)
+![Archive Index in Thumbnail mode](../.gitbook/assets/archive_thumb.jpg)
+
+You can customize display options to show the index in compact mode, as well as to select which namespace to use in the two extra columns.
+
+![Index page of a regular LRR install in compact mode](../.gitbook/assets/index.png)
+
+![Customized compact mode to sort by ratings](../.gitbook/assets/ratings.png)
+
+{% hint style="info" %}
+Don't forget you can **right-click** archives to show a context menu, allowing you to edit/download/delete them, or to add them to a category.
+{% endhint %}
 
 When reading an archive, it is automatically extracted to a temporary folder.  
 This folder is then simply loaded into the built-in Web Reader.  
 The temporary folder will clean up on its own when it reaches a large enough size, so there's no need to worry about your disk filling up over time.
-
-{% hint style="info" %}
-Don't forget you can **right-click** archives to show a context menu, allowing you to edit/download/delete them.
-{% endhint %}
-
-![Archive Index in Thumbnail mode](../.gitbook/assets/archive_thumb.jpg)
 
 ## Web Reader Options
 
@@ -38,4 +42,3 @@ Thanks to automatic bookmarking, if you close and reopen the archive, it'll show
 If you want to use a third-party application to read your archives, you can use the software listed in the following page:
 
 {% page-ref page="../advanced-usage/external-readers.md" %}
-

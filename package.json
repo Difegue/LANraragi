@@ -1,7 +1,7 @@
 {
   "name": "lanraragi",
-  "version": "0.7.5",
-  "version_name": "Underground",
+  "version": "0.7.6",
+  "version_name": "Magic Dance",
   "description": "holla where the chinese comics at",
   "scripts": {
     "test": "prove -l -v tests/*.t",

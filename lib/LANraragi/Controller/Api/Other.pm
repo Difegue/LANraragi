@@ -82,17 +82,19 @@ sub minion_job_status {
 sub download_url {
 
     my ($self) = shift;
-    my $url = $self->req->param('url');
+    my $url    = $self->req->param('url');
+    my $catid  = $self->req->param('catid');
 
     if ($url) {
 
         # Send a job to Minion to queue the download.
-        my $jobid = $self->minion->enqueue( download_url => [$url] => { priority => 1 } );
+        my $jobid = $self->minion->enqueue( download_url => [ $url, $catid ] => { priority => 1 } );
 
         $self->render(
             json => {
                 operation => "download_url",
                 url       => $url,
+                category  => $catid,
                 success   => 1,
                 job       => $jobid
             }
