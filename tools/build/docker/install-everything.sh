@@ -5,7 +5,7 @@ apk update
 apk add perl perl-io-socket-ssl perl-dev redis libarchive-dev libbz2 openssl-dev zlib-dev
 apk add imagemagick imagemagick-perlmagick libwebp-tools
 apk add g++ make pkgconf gnupg wget curl nodejs nodejs-npm
-apk add shadow s6 s6-portable-utils
+apk add shadow s6=2.9.1.0-r0 s6-portable-utils
 
 #Hey it's cpanm
 curl -L https://cpanmin.us | perl - App::cpanminus
