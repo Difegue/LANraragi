@@ -92,6 +92,13 @@ table thead .sorting_desc a:after {
   top: -10px;
 }
 
+table thead .sorting_disabled a:after {
+  border-top: none;
+  border-bottom: none;
+  border-left: none;
+  border-right: none;
+}
+
 .paginate_button.previous {
   display: none;
 }

@@ -40,6 +40,14 @@ a:hover {
   color: #D7D4C5;
   text-decoration: none;
 }
+
+.sorting_asc>a, .sorting_desc>a {
+  color: #D7D4C5;
+}
+.sorting_asc>a:hover, .sorting_desc>a:hover {
+  color: #EFEAEA;
+}
+
 p.ip {
   clear: both;
   margin: -3px auto;

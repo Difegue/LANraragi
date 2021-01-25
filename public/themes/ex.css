@@ -10,6 +10,13 @@ img{border:0}
 a{color:#DDDDDD; } 
 a:hover{color:#FFFBDB} 
 
+.sorting_asc>a, .sorting_desc>a {
+    color: #FFFBDB;
+}
+.sorting_asc>a:hover, .sorting_desc>a:hover {
+    color: #DDDDDD;
+}
+
 p.ip{margin:-3px auto;text-align:center;padding:0px 5px 5px 5px;clear:both}
 
 img.mr{border:0;margin-left:10px;width:5px;height:7px}

@@ -47,6 +47,12 @@ a:hover {
   text-decoration: none;
 }
 
+.sorting_asc>a, .sorting_desc>a {
+  color: #3b97ea;
+}
+.sorting_asc>a:hover, .sorting_desc>a:hover {
+  color: #DDDDDD;
+}
 
 p.ip {
 	margin: -3px auto;

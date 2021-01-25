@@ -42,6 +42,12 @@ a:hover {
     text-decoration: none;
 }
 
+.sorting_asc>a, .sorting_desc>a {
+    color: #ed2553;
+}
+.sorting_asc>a:hover, .sorting_desc>a:hover {
+    color: #34495E;
+}
 
 p.ip{margin:-3px auto;text-align:center;padding:10px 5px 5px 5px;clear:both}
 

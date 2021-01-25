@@ -116,12 +116,19 @@ function initSettings(version) {
 	updateTableHeaders();
 }
 
+function isNullOrWhitespace(input) {
+	return !input || !input.trim();
+}
+
 function saveSettings() {
 	localStorage.indexViewMode = $("#compactmode").prop("checked") ? 0 : 1;
 	localStorage.cropthumbs = $("#cropthumbs").prop("checked");
 
-	localStorage.customColumn1 = $("#customcol1").val();
-	localStorage.customColumn2 = $("#customcol2").val();
+	if (!isNullOrWhitespace($("#customcol1").val()))
+		localStorage.customColumn1 = $("#customcol1").val().trim();
+
+	if (!isNullOrWhitespace($("#customcol2").val()))
+		localStorage.customColumn2 = $("#customcol2").val().trim();
 
 	// Absolutely disgusting
 	arcTable.settings()[0].aoColumns[1].sName = localStorage.customColumn1;
