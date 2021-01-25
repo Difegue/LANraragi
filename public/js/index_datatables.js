@@ -121,7 +121,7 @@ function titleColumnDisplay(data, type, full, meta) {
 		titleHtml += buildProgressDiv(data.arcid, data.isnew);
 
 		return `${titleHtml} 
-				<a class="image-tooltip" id="${data.arcid}" onmouseover="buildImageTooltip($(this))" href="reader?id=${data.arcid}"> 
+				<a class="context-menu" id="${data.arcid}" onmouseover="buildImageTooltip($(this))" href="reader?id=${data.arcid}"> 
 					${encode(data.title)}
 				</a>
 				<div class="caption" style="display: none;">
@@ -204,7 +204,7 @@ function buildThumbDiv(row, data, index) {
 	if (localStorage.indexViewMode == 1) {
 		//Build a thumb-like div with the data
 		thumb_css = (localStorage.cropthumbs === 'true') ? "id3" : "id3 nocrop";
-		thumb_div = `<div style="height:335px" class="id1" id="${data.arcid}">
+		thumb_div = `<div style="height:335px" class="id1 context-menu" id="${data.arcid}">
 						<div class="id2">
 							${buildProgressDiv(data.arcid, data.isnew)}
 							<a href="reader?id=${data.arcid}" title="${encode(data.title)}">${encode(data.title)}</a>

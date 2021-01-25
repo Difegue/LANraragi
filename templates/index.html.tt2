@@ -160,7 +160,7 @@
 
 			// Initialize context menu
 			$.contextMenu({
-				selector: '.id1,.image-tooltip',
+				selector: '.context-menu',
 				callback: function (key, options) {
 					handleContextMenu(key, $(this).attr("id"));
 				},
