@@ -27,8 +27,6 @@ sub exec_enabled_plugins_on_file {
     my $failures  = 0;
     my $addedtags = 0;
 
-    my $cooldown = 0;
-
     my @plugins = LANraragi::Utils::Plugins::get_enabled_plugins("metadata");
 
     foreach my $pluginfo (@plugins) {
@@ -37,12 +35,7 @@ sub exec_enabled_plugins_on_file {
         my $plugin = LANraragi::Utils::Plugins::get_plugin($name);
         my %plugin_result;
 
-        my %pluginfo        = $plugin->plugin_info();
-        my $plugin_cooldown = 0;
-        if ( exists $pluginfo{cooldown} ) {
-            $plugin_cooldown = $pluginfo{cooldown};
-            $logger->debug("This plugin has a cooldown value of $plugin_cooldown");
-        }
+        my %pluginfo = $plugin->plugin_info();
 
         #Every plugin execution is eval'd separately
         eval { %plugin_result = exec_metadata_plugin( $plugin, $id, "", @args ); };
@@ -74,15 +67,7 @@ sub exec_enabled_plugins_on_file {
                 # Increment added_tags if the title changed as well
                 $addedtags++;
             }
-
-            # Take into account the recommended cooldown of the plugin
-            $cooldown = $plugin_cooldown > $cooldown ? $plugin_cooldown : $cooldown;
         }
-    }
-
-    if ( $cooldown > 0 ) {
-        $logger->info("Plugin execution complete, sleeping $cooldown seconds.");
-        sleep($cooldown);
     }
 
     return ( $successes, $failures, $addedtags );

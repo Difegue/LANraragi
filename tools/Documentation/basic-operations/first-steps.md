@@ -44,7 +44,10 @@ This folder contains all the user-generated data:
 * Thumbnails for said archives
 * The Redis database \(Windows only\)  
 
-By default, this folder is placed at the root of the LRR installation, but you can configure it to use any folder on your machine instead. The content folder is subdirectory-aware, so you can easily drop-in an already sorted collection.
+By default, this folder is placed at the root of the LRR installation, but you can configure it to use any folder on your machine instead. The content folder is subdirectory-aware, so you can easily drop-in an already sorted collection.  
+
+The content folder can be write-only if you so desire, but the caveat is that the thumbnail subfolder \(`/thumb`\) needs write rights to function properly for the time being.  
+You can use a symbolic link if you want the thumbnail folder to be located somewhere else.  
 
 {% hint style="success" %}
 The following formats are supported by LRR for Archives: 
@@ -62,7 +65,8 @@ The following formats are supported by LRR for Archives:
 {% hint style="info" %}
 If you plan on setting your content folder to a folder that already contains archives, you might want to enable **Auto-Plugin** beforehand, so that metadata will be fetched for your files as they're added. See the Metadata documentation linked below for more info.
 
-The content folder can be write-only if you so desire, but the caveat is that the thumbnail subfolder \(`/thumb`\) needs write rights to function properly for the time being.
+However, beware that if you enable plugins that depend on remote services, querying said services to scrap metadata for a large number of archives might lead to **temporary bans**!  
+If you have a large number of archives (More than 500), you might want to ignore Auto-Plugin and use [Batch Tagging](../advanced-usage/batch-tagging) instead.  
 {% endhint %}
 
 ## Plugin Configuration
@@ -88,7 +92,7 @@ See the Adding Metadata section for more information.
 
 You can add archives to the application by either copying them to the content folder, or using the built-in uploader tool.  
 They'll be automatically indexed and added to the database.  
-Plugins will also be ran automatically to try and fetch metadata for them, if you enabled Auto-Tagging previously.  
+Plugins will also be ran automatically to try and fetch metadata for them, if you enabled **Auto-Plugin** previously.  
 
 You can also **queue downloads** by giving URLs to the server in the uploader tool, which will then be downloaded to your content folder seamlessly.  
 See the link below for more details.  

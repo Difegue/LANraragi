@@ -3,7 +3,7 @@
 <html>
 
 <head>
-	<title>[% title %] - Auto-Tagging</title>
+	<title>[% title %] - Batch Tagging</title>
 
 	<meta name="viewport" content="width=device-width" />
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -51,12 +51,14 @@
 									[% FOREACH plugins %]
 									<option value="[% namespace %]">[% name %]</option>
 									[% END %]
-								</select> </td>
+								</select>
+							</td>
 						</tr>
 						<tr>
 							<td>Timeout (max 20s):</td>
 							<td>
-								<input type="number" id="timeout" min="0" max="20" value="0"> seconds </td>
+								<input type="number" id="timeout" min="0" max="20" value="0"> seconds
+							</td>
 						</tr>
 						<tr>
 							<td colspan="2">
@@ -115,12 +117,13 @@
 					</div>
 					<div class="id1" style="width:400px; height:314px">
 						<pre id="log-container" class="log-panel" />
-						</div>
+					</div>
 				</div>
 
 			</div>
 
-			<div class="id1 right-column" style='text-align:center; min-width:400px; width: 60% !important; height:500px;'>
+			<div class="id1 right-column"
+				style='text-align:center; min-width:400px; width: 60% !important; height:500px;'>
 				<ul class='checklist'>
 					[% arclist %]
 				</ul>
@@ -128,7 +131,8 @@
 			<br><br>
 		</div>
 
-		<input class='stdbtn' type='button' onclick="window.location.href = './config/plugins';" value='Plugin Configuration' />
+		<input class='stdbtn' type='button' onclick="window.location.href = './config/plugins';"
+			value='Plugin Configuration' />
 		<input class='stdbtn' type='button' onclick="window.location.href = './';" value='Return to Library' />
 
 	</div>
