@@ -29,12 +29,8 @@ sub do_search {
     my $redis  = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Search Engine", "lanraragi" );
 
-    my $numCpus = Sys::CpuAffinity::getNumCpus();
-    my $pl      = Parallel::Loops->new($numCpus);
-
     # Search filter results
-    my @filtered;
-    $pl->share( \@filtered );
+    my @filtered = ();
 
     # If the category filter is enabled, fetch the matching category
     my %category     = ();
@@ -72,10 +68,18 @@ sub do_search {
     $logger->debug("Search request: $cachekey");
 
     if ( $redis->exists("LRR_SEARCHCACHE") && $redis->hexists( "LRR_SEARCHCACHE", $cachekey ) ) {
-
         $logger->debug("Using cache for this query.");
-        @filtered = @{ thaw $redis->hget( "LRR_SEARCHCACHE", $cachekey ) };
+
+        my $frozendata = $redis->hget( "LRR_SEARCHCACHE", $cachekey );
+        @filtered = @{ thaw $frozendata };
+
     } else {
+
+        # Setup parallel processing
+        my $numCpus = Sys::CpuAffinity::getNumCpus();
+        my $pl      = Parallel::Loops->new($numCpus);
+        my @shared  = ();
+        $pl->share( \@shared );
 
         $logger->debug("No cache available, doing a full DB parse.");
 
@@ -119,11 +123,16 @@ sub do_search {
                         && matches_search_filter( $filter,     $title . "," . $tags ) ) {
 
                         # Push id to array
-                        push @filtered, { id => $id, title => $title, tags => $tags };
+                        push @shared, { id => $id, title => $title, tags => $tags };
                     }
                 }
             }
         );
+
+        # Remove the extra reference/objects Parallel::Loops adds to the array,
+        # as that'll cause memory leaks when we serialize/deserialize them with Storable.
+        # This is done by simply copying the parallelized array to @filtered.
+        @filtered = @shared;
 
         if ( $#filtered > 0 ) {
 

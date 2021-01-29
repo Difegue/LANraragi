@@ -43,6 +43,9 @@ sub startup {
     $self->plugin('TemplateToolkit');
     $self->renderer->default_handler('tt2');
 
+    # Enable Mojolicious::Plugin::LeakTracker if needed
+    #$self->plugin('leak_tracker');
+
     #Remove upload limit
     $self->max_request_size(0);
 
