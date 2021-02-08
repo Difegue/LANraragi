@@ -1,9 +1,6 @@
 <!-- LRR Standard Footer -->
 
 <p class="ip">
-    It's not the side effects of the fapping! I'm thinking that it must be love!
-    <br>
-
     <a href="https://github.com/Difegue/LANraragi"> LANraragi</a>
     -
     <a onclick="openThemeOverlay()" style="cursor:pointer">Change Theme</a>
@@ -16,7 +13,8 @@
     style="display:none; max-height:300px; min-height:300px !important">
 
     <h1>
-        <i class="fa fa-paint-brush"></i> Available Themes </h1>
+        <i class="fa fa-paint-brush"></i> Available Themes
+    </h1>
     <br /> [% cssdrop %]
 
     <br /> Click on a name to immediately try out the theme! Your preference is saved automatically.

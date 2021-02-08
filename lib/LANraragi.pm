@@ -68,10 +68,26 @@ sub startup {
         say "(╯・_>・）╯︵ ┻━┻";
         say "It appears your Redis database is currently not running.";
         say "The program will cease functioning now.";
-        exit;
+        die;
     }
 
-    my $devmode = $self->LRR_CONF->enable_devmode;
+    my $devmode;
+    my $attempt = 1;
+
+    # Catch Redis errors on our first connection. This is useful in case of temporary LOADING errors,
+    # Where Redis lets us send commands but doesn't necessarily reply to them properly.
+    # (https://github.com/redis/redis/issues/4624)
+    while (1) {
+        eval { $devmode = $self->LRR_CONF->enable_devmode; };
+
+        last unless ($@);
+        die "Redis didn't reply $attempt times." if ( $attempt > 5 );
+
+        say "Redis error encountered: $@";
+        say "Trying again in 2 seconds...";
+        sleep 2;
+        $attempt++;
+    }
 
     if ($devmode) {
         $self->mode('development');
