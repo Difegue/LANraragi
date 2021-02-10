@@ -21,7 +21,7 @@ sub create_category {
     my $self   = shift;
     my $name   = $self->req->param('name') || "";
     my $search = $self->req->param('search') || "";
-    my $pinned = $self->req->param('pinned') ? 1 : 0;
+    my $pinned = $self->req->param('pinned') ne "false" ? 1 : 0;
 
     if ( $name eq "" ) {
         render_api_response( $self, "create_category", "Category name not specified." );
