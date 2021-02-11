@@ -57,6 +57,60 @@ You get the categories. The "id" parameter is to be used in the next endpoints.
 {% endapi-method-spec %}
 {% endapi-method %}
 
+{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/categories/:id" %}
+{% api-method-summary %}
+Get a single category
+{% endapi-method-summary %}
+
+{% api-method-description %}
+Get the details of the specified category ID.
+{% endapi-method-description %}
+
+{% api-method-spec %}
+{% api-method-request %}
+{% api-method-path-parameters %}
+{% api-method-parameter name="id" type="string" required=true %}
+ID of the Category desired.
+{% endapi-method-parameter %}
+{% endapi-method-path-parameters %}
+{% endapi-method-request %}
+
+{% api-method-response %}
+{% api-method-response-example httpCode=200 %}
+{% api-method-response-example-description %}
+You get category info.
+{% endapi-method-response-example-description %}
+
+```
+{
+  "archives": [],
+  "id": "SET_1613080290",
+  "last_used": "1613080930",
+  "name": "My great category",
+  "pinned": "0",
+  "search": ""
+}
+```
+{% endapi-method-response-example %}
+
+{% api-method-response-example httpCode=400 %}
+{% api-method-response-example-description %}
+The ID you've specified doesn't exist.
+{% endapi-method-response-example-description %}
+
+```
+{
+  "error": "The given category does not exist.",
+  "operation": "get_category",
+  "success": 0
+}
+```
+{% endapi-method-response-example %}
+{% endapi-method-response %}
+{% endapi-method-spec %}
+{% endapi-method %}
+
+
 {% api-method method="put" host="http://lrr.tvc-16.science" path="/api/categories" %}
 {% api-method-summary %}
 🔑Create a Category

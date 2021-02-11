@@ -109,6 +109,7 @@ sub apply_routes {
 
     # Category API
     $public_api->get('/api/categories')->to('api-category#get_category_list');
+    $public_api->get('/api/categories/:id')->to('api-category#get_category');
     $logged_in_api->put('/api/categories')->to('api-category#create_category');
     $logged_in_api->put('/api/categories/:id')->to('api-category#update_category');
     $logged_in_api->delete('/api/categories/:id')->to('api-category#delete_category');

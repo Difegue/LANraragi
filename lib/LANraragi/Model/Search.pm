@@ -48,7 +48,7 @@ sub do_search {
             $cat_search = $category{search};    # category search, if it's a favsearch
 
             if ( $cat_search eq "" ) {
-                @cat_archives = @{ decode_json( $category{archives} ) };    # category archives, if it's a standard category
+                @cat_archives = @{ $category{archives} };    # category archives, if it's a standard category
             }
         }
     }

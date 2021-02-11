@@ -16,6 +16,20 @@ sub get_category_list {
 
 }
 
+sub get_category {
+
+    my $self     = shift;
+    my $catid    = $self->stash('id');
+    my %category = LANraragi::Model::Category::get_category($catid);
+
+    unless (%category) {
+        render_api_response( $self, "get_category", "The given category does not exist." );
+        return;
+    }
+
+    $self->render( json => \%category );
+}
+
 sub create_category {
 
     my $self   = shift;

@@ -15,8 +15,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 #   Returns a list of all the category objects.
 sub get_category_list {
 
-    my $logger = get_logger( "Categories", "lanraragi" );
-    my $redis  = LANraragi::Model::Config->get_redis;
+    my $redis = LANraragi::Model::Config->get_redis;
 
     # Categories are represented by SET_[timestamp] in DB. Can't wait for 2038!
     my @cats = $redis->keys('SET_??????????');
@@ -24,29 +23,7 @@ sub get_category_list {
     # Jam categories into an array of hashes
     my @result;
     foreach my $key (@cats) {
-        my %data = $redis->hgetall($key);
-
-        # redis-decode the name, and the search terms if they exist
-        ( $_ = redis_decode($_) ) for ( $data{name}, $data{search} );
-
-        # Deserialize the archives list w. mojo::json
-        if ( $data{search} eq "" ) {
-
-            eval { $data{archives} = decode_json( $data{archives} ) };
-
-            if ($@) {
-                $logger->error("Couldn't deserialize contents of category $key! $@");
-            }
-        } else {
-
-            # This is a dynamic category, so $data{archives} must be an empty array.
-            # (We could leave it as-is, but it'd give inconsistent API results depending on your category type...)
-            $data{archives} = decode_json("[]");
-        }
-
-        # Add the key as well
-        $data{id} = $key;
-
+        my %data = get_category($key);
         push( @result, \%data );
     }
 
@@ -68,7 +45,28 @@ sub get_category {
     }
 
     my %category = $redis->hgetall($cat_id);
-    $redis->quit;
+
+    # redis-decode the name, and the search terms if they exist
+    ( $_ = redis_decode($_) ) for ( $category{name}, $category{search} );
+
+    # Deserialize the archives list w. mojo::json
+    if ( $category{search} eq "" ) {
+
+        eval { $category{archives} = decode_json( $category{archives} ) };
+
+        if ($@) {
+            $logger->error("Couldn't deserialize contents of category $cat_id! $@");
+        }
+    } else {
+
+        # This is a dynamic category, so $data{archives} must be an empty array.
+        # (We could leave it as-is, but it'd give inconsistent API results depending on your category type...)
+        $category{archives} = decode_json("[]");
+    }
+
+    # Add the key as well
+    $category{id} = $cat_id;
+
     return %category;
 }
 
