@@ -420,40 +420,22 @@ Progression updated.
 
 {% api-method-response-example httpCode=400 %}
 {% api-method-response-example-description %}
-You didn't specify the id parameter.
+You didn't specify the id parameter, provided a bad progress value, or the server doesn't know how many pages the archive has yet.
 {% endapi-method-response-example-description %}
 
 ```javascript
 {
-    "operation": "______"
+    "operation": "update_progress"
     "error": "No archive ID specified."
     "status": 0
 }
-```
 
-{% endapi-method-response-example %}
-
-{% api-method-response-example httpCode=400 %}
-{% api-method-response-example-description %}
-You provided a bad progress value.
-{% endapi-method-response-example-description %}
-
-```javascript
 {
     "error": "Invalid progress value.",
     "operation": "update_progress",
     "success": 0
 }
-```
 
-{% endapi-method-response-example %}
-
-{% api-method-response-example httpCode=400 %}
-{% api-method-response-example-description %}
-The server doesn't know how many pages the archive has yet.
-{% endapi-method-response-example-description %}
-
-```javascript
 {
     "error": "Archive doesn't have a total page count recorded yet.",
     "operation": "update_progress",
@@ -462,7 +444,6 @@ The server doesn't know how many pages the archive has yet.
 ```
 
 {% endapi-method-response-example %}
-
 
 {% endapi-method-response %}
 {% endapi-method-spec %}
