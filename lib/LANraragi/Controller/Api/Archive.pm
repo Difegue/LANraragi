@@ -5,6 +5,7 @@ use Redis;
 use Encode;
 use Storable;
 use Mojo::JSON qw(decode_json encode_json from_json);
+use Scalar::Util qw(looks_like_number);
 
 use LANraragi::Utils::Generic qw(render_api_response);
 
@@ -129,6 +130,42 @@ sub update_metadata {
     } else {
         render_api_response( $self, "update_metadata", $res );
     }
+}
+
+sub update_progress {
+    my $self = shift;
+    my $id   = check_id_parameter( $self, "update_progress" ) || return;
+
+    my $page  = $self->stash('page') || 0;
+    my $redis = $self->LRR_CONF->get_redis();
+
+    my $pagecount = $redis->hget( $id, "pagecount" );
+
+    # This relies on pagecount, so you can't update progress for archives that don't have a valid pagecount recorded yet.
+    unless ($pagecount) {
+        render_api_response( $self, "update_progress", "Archive doesn't have a total page count recorded yet." );
+        return;
+    }
+
+    # Safety-check the given page value.
+    unless ( looks_like_number($page) && $page > 0 && $page <= $pagecount ) {
+        render_api_response( $self, "update_progress", "Invalid progress value." );
+        return;
+    }
+
+    # Just set the progress value.
+    $redis->hset( $id, "progress", $page );
+    $redis->quit();
+
+    $self->render(
+        json => {
+            operation => "update_progress",
+            id        => $id,
+            page      => $page,
+            success   => 1
+        }
+    );
+
 }
 
 1;

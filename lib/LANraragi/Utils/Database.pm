@@ -67,11 +67,10 @@ sub build_archive_JSON {
     return "" unless $redis->exists($id);
 
     my %hash = $redis->hgetall($id);
-    my ( $path, $suffix );
 
     #It's not a new archive, but it might have never been clicked on yet,
     #so we'll grab the value for $isnew stored in redis.
-    my ( $name, $title, $tags, $file, $isnew ) = @hash{qw(name title tags file isnew)};
+    my ( $name, $title, $tags, $file, $isnew, $progress, $pagecount ) = @hash{qw(name title tags file isnew progress pagecount)};
 
     # return undef if the file doesn't exist.
     unless ( -e $file ) {
@@ -87,10 +86,12 @@ sub build_archive_JSON {
     }
 
     my $arcdata = {
-        arcid => $id,
-        title => $title,
-        tags  => $tags,
-        isnew => $isnew
+        arcid     => $id,
+        title     => $title,
+        tags      => $tags,
+        isnew     => $isnew,
+        progress  => int($progress),
+        pagecount => int($pagecount)
     };
 
     return $arcdata;
@@ -109,7 +110,7 @@ sub delete_archive {
     if ( -e $filename ) {
         unlink $filename;
 
-        my $dirname = LANraragi::Model::Config->get_userdir;
+        my $dirname   = LANraragi::Model::Config->get_userdir;
         my $subfolder = substr( $id, 0, 2 );
         my $thumbname = "$dirname/thumb/$subfolder/$id.jpg";
 

@@ -48,37 +48,49 @@ sub setup_redis_mock {
             "search": "American"
         },
         "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf": {
-            "isnew": "none",
+            "isnew": "false",
+            "pagecount": 2,
+            "progress": 10,
             "tags": "character:segata sanshiro",
             "title": "Saturn Backup Cartridge - Japanese Manual",
             "file": "package.json"
         },
         "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg": {
-            "isnew": "none",
+            "isnew": "false",
+            "pagecount": 0,
+            "progress": 34,
             "tags": "character:segata",
             "title": "Saturn Backup Cartridge - American Manual",
             "file": "package.json"
         },
         "e4c422fd10943dc169e3489a38cdbf57101a5f7e": {
             "isnew": "true",
+            "pagecount": 0,
+            "progress": 0,
             "tags": "parody: jojo's bizarre adventure",
             "title": "Rohan Kishibe goes to Gucci",
             "file": "package.json"
         },
         "4857fd2e7c00db8b0af0337b94055d8445118630": {
-            "isnew": "none",
+            "isnew": "false",
+            "pagecount": 34,
+            "progress": 34,
             "tags": "artist:shirow masamune",
             "title": "Ghost in the Shell 1.5 - Human-Error Processor vol01ch01",
             "file": "package.json"
         },
         "2810d5e0a8d027ecefebca6237031a0fa7b91eb3": {
-            "isnew": "none",
+            "isnew": "false",
+            "pagecount": 34,
+            "progress": 34,
             "tags": "parody:fate grand order,  character:abigail williams,  character:artoria pendragon alter,  character:asterios,  character:ereshkigal,  character:gilgamesh,  character:hans christian andersen,  character:hassan of serenity,  character:hector,  character:helena blavatsky,  character:irisviel von einzbern,  character:jeanne alter,  character:jeanne darc,  character:kiara sessyoin,  character:kiyohime,  character:lancer,  character:martha,  character:minamoto no raikou,  character:mochizuki chiyome,  character:mordred pendragon,  character:nitocris,  character:oda nobunaga,  character:osakabehime,  character:penthesilea,  character:queen of sheba,  character:rin tosaka,  character:saber,  character:sakata kintoki,  character:scheherazade,  character:sherlock holmes,  character:suzuka gozen,  character:tamamo no mae,  character:ushiwakamaru,  character:waver velvet,  character:xuanzang,  character:zhuge liang,  group:wadamemo,  artist:wada rco,  artbook,  full color",
             "title": "Fate GO MEMO 2",
             "file": "package.json"
         },
         "28697b96f0ac5858be2614ed10ca47742c9522fd": {
-            "isnew": "none",
+            "isnew": "false",
+            "pagecount": 0,
+            "progress": 0,
             "tags": "parody:fate grand order,  group:wadamemo,  artist:wada rco,  artbook,  full color",
             "title": "Fate GO MEMO",
             "file": "package.json"

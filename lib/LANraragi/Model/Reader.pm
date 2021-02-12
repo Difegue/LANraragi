@@ -63,7 +63,6 @@ sub build_reader_JSON {
     # Get the path from Redis.
     # Filenames are stored as they are on the OS, so no decoding!
     my $zipfile = $redis->hget( $id, "file" );
-    $redis->quit();
 
     #Get data from the path
     my ( $name, $fpath, $suffix ) = fileparse( $zipfile, qr/\.[^.]*/ );
@@ -135,7 +134,7 @@ sub build_reader_JSON {
         generate_thumbnail( $images[0], $thumbname );
     }
 
-    #Build a browser-compliant filepath array from @images
+    # Build a browser-compliant filepath array from @images
     my @images_browser;
 
     foreach my $imgpath (@images) {
@@ -164,7 +163,11 @@ sub build_reader_JSON {
         push @images_browser, "./api/archives/$id/page?path=$imgpath";
     }
 
-    #Build json (it's just the images array in a string)
+    # Update pagecount
+    $redis->hset( $id, "pagecount", scalar @images );
+    $redis->quit();
+
+    # Build json (it's just the images array in a string)
     my $list = "{\"pages\": [\"" . join( "\",\"", @images_browser ) . "\"]}";
     return $list;
 }

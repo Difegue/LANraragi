@@ -114,13 +114,13 @@
 			});
 		}
 
-		//Go straight to page number in localStorage if it exists
+		// Go straight to page number if there's an existing progress value
 		if (localStorage.nobookmark === 'true')
 			currentPage = 0;
 		else
-			currentPage = parseInt(localStorage[id + "-reader"] || 0);
+			currentPage = parseInt([% progress %] - 1 || 0);
 
-		pageNumber = pages.pages.length;
+		pageNumber = [% pagecount %];
 
 		//canvas variables
 		previousPage = -1;

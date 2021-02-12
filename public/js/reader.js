@@ -174,9 +174,8 @@ function goToPage(page) {
 	//update full image link
 	$("#imgLink").attr("href", pages.pages[currentPage]);
 
-	//store page number and total pages in localStorage
-	localStorage.setItem(id + "-reader", currentPage);
-	localStorage.setItem(id + "-totalPages", pageNumber);
+	// Send an API request to update progress on the server
+	genericAPICall(`api/archives/${id}/progress/${currentPage + 1}`, "PUT", null, "Error updating reading progress!", null);
 
 	//scroll to top
 	window.scrollTo(0, 0);

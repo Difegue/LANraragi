@@ -61,6 +61,10 @@ sub index {
             return;
         }
 
+        # Get current progress
+        my $pagecount = $redis->hget( $id, "pagecount" );
+        my $progress  = $redis->hget( $id, "progress" );
+
         # Allow adding to category
         my @categories = LANraragi::Model::Category::get_category_list;
 
@@ -74,6 +78,8 @@ sub index {
             id         => $id,
             imgpaths   => $imgpaths,
             filename   => $filename,
+            pagecount  => $pagecount,
+            progress   => $progress,
             categories => \@categories,
             cssdrop    => generate_themes_selector,
             csshead    => generate_themes_header($self),

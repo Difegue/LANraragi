@@ -113,7 +113,7 @@ sub do_search {
                     $tags  = redis_decode($tags);
 
                     # Check new filter first
-                    if ( $newonly && $isnew && $isnew ne "true" && $isnew ne "block" ) {
+                    if ( $newonly && $isnew && $isnew ne "true" ) {
                         next;
                     }
 

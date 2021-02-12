@@ -20,33 +20,44 @@ Get the Archive Index in JSON form. You can use the IDs of this JSON with the ot
 {% api-method-response %}
 {% api-method-response-example httpCode=200 %}
 {% api-method-response-example-description %}
-Archive List successfully retrieved. You can use the arcid parameters with the other endpoints.
+Archive List successfully retrieved. You can use the arcid parameters with the other endpoints.  
+The `pagecount` and `progress` values can be both 0 if an archive has never been extracted/read.
 {% endapi-method-response-example-description %}
 
 ```javascript
 [{
     "arcid": "ec9b83b6a835771b0f9862d0326add2f8373989a",
     "isnew": "true",
+    "pagecount": 128,
+    "progress": 0,
     "tags": "",
     "title": "Ghost in the Shell 01.5 - Human-Error Processor v01c01"
 }, {
     "arcid": "28697b96f0ac5858be2614ed10ca47742c9522fd",
     "isnew": "false",
+    "pagecount": 34,
+    "progress": 3,
     "tags": "parody:fate grand order,  group:wadamemo,  artist:wada rco,  artbook,  full color",
     "title": "Fate GO MEMO"
 }, {
     "arcid": "2810d5e0a8d027ecefebca6237031a0fa7b91eb3",
     "isnew": "false",
+    "pagecount": 0,
+    "progress": 0,
     "tags": "parody:fate grand order,  character:abigail williams,  character:artoria pendragon alter,  character:asterios,  character:ereshkigal,  character:gilgamesh,  character:hans christian andersen,  character:hassan of serenity,  character:hector,  character:helena blavatsky,  character:irisviel von einzbern,  character:jeanne alter,  character:jeanne darc,  character:kiara sessyoin,  character:kiyohime,  character:lancer,  character:martha,  character:minamoto no raikou,  character:mochizuki chiyome,  character:mordred pendragon,  character:nitocris,  character:oda nobunaga,  character:osakabehime,  character:penthesilea,  character:queen of sheba,  character:rin tosaka,  character:saber,  character:sakata kintoki,  character:scheherazade,  character:sherlock holmes,  character:suzuka gozen,  character:tamamo no mae,  character:ushiwakamaru,  character:waver velvet,  character:xuanzang,  character:zhuge liang,  group:wadamemo,  artist:wada rco,  artbook,  full color",
     "title": "Fate GO MEMO 2"
 }, {
     "arcid": "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf",
     "isnew": "false",
+    "pagecount": 0,
+    "progress": 0,
     "tags": "character:segata sanshiro",
     "title": "Saturn Backup Cartridge - Japanese Manual"
 }, {
     "arcid": "e4c422fd10943dc169e3489a38cdbf57101a5f7e",
     "isnew": "false",
+    "pagecount": 0,
+    "progress": 0,
     "tags": "parody: jojo's bizarre adventure",
     "title": "Rohan Kishibe goes to Gucci"
 }]
@@ -86,6 +97,8 @@ The JSON object supplied follows the same format as the objects returned by the 
 {
     "arcid": "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf",
     "isnew": "false",
+    "pagecount": 34,
+    "progress": 3,
     "tags": "character:segata sanshiro",
     "title": "Saturn Backup Cartridge - Japanese Manual"
 }
@@ -172,6 +185,7 @@ Extract an Archive
 
 {% api-method-description %}
 Extract an Archive on the server, and get a list of URLs pointing to its images.
+This silently updates the `pagecount` field of the archive.
 {% endapi-method-description %}
 
 {% api-method-spec %}
@@ -355,13 +369,101 @@ New flag is successfully removed
 
 ```javascript
 {
-    "id":"f3fc480a97f1afcd81c8e3392a3bcc66fe6c0809",
-    "operation":"clear_new",
-    "success":1
+    "id": "f3fc480a97f1afcd81c8e3392a3bcc66fe6c0809",
+    "operation": "clear_new",
+    "success": 1
 }
 ```
 
 {% endapi-method-response-example %}
+{% endapi-method-response %}
+{% endapi-method-spec %}
+{% endapi-method %}
+
+{% api-method method="delete" host="http://lrr.tvc-16.science" path="/api/archives/:id/progress/:page" %}
+{% api-method-summary %}
+Update reading progression on an archive.
+{% endapi-method-summary %}
+
+{% api-method-description %}
+Tell the server which page you're currently showing/reading so that it updates its reading progression field accordingly.
+{% endapi-method-description %}
+
+{% api-method-spec %}
+{% api-method-request %}
+{% api-method-path-parameters %}
+{% api-method-parameter name="id" type="string" required=true %}
+ID of the Archive to process
+{% endapi-method-parameter %}
+{% api-method-parameter name="page" type="int" required=true %}
+Current page to update the reading progress to. **Must** be a positive integer, and inferior or equal to the total page number of the archive.
+{% endapi-method-parameter %}
+{% endapi-method-path-parameters %}
+{% endapi-method-request %}
+
+{% api-method-response %}
+{% api-method-response-example httpCode=200 %}
+{% api-method-response-example-description %}
+Progression updated.
+{% endapi-method-response-example-description %}
+
+```javascript
+{
+  "id": "75d18ce470dc99f83dc355bdad66319d1f33c82b",
+  "operation": "update_progress",
+  "page": 34,
+  "success": 1
+}
+```
+
+{% endapi-method-response-example %}
+
+{% api-method-response-example httpCode=400 %}
+{% api-method-response-example-description %}
+You didn't specify the id parameter.
+{% endapi-method-response-example-description %}
+
+```javascript
+{
+    "operation": "______"
+    "error": "No archive ID specified."
+    "status": 0
+}
+```
+
+{% endapi-method-response-example %}
+
+{% api-method-response-example httpCode=400 %}
+{% api-method-response-example-description %}
+You provided a bad progress value.
+{% endapi-method-response-example-description %}
+
+```javascript
+{
+    "error": "Invalid progress value.",
+    "operation": "update_progress",
+    "success": 0
+}
+```
+
+{% endapi-method-response-example %}
+
+{% api-method-response-example httpCode=400 %}
+{% api-method-response-example-description %}
+The server doesn't know how many pages the archive has yet.
+{% endapi-method-response-example-description %}
+
+```javascript
+{
+    "error": "Archive doesn't have a total page count recorded yet.",
+    "operation": "update_progress",
+    "success": 0
+}
+```
+
+{% endapi-method-response-example %}
+
+
 {% endapi-method-response %}
 {% endapi-method-spec %}
 {% endapi-method %}

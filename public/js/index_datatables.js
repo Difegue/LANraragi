@@ -118,7 +118,7 @@ function titleColumnDisplay(data, type, full, meta) {
 	if (type == "display") {
 
 		titleHtml = "";
-		titleHtml += buildProgressDiv(data.arcid, data.isnew);
+		titleHtml += buildProgressDiv(data);
 
 		return `${titleHtml} 
 				<a class="context-menu" id="${data.arcid}" onmouseover="buildImageTooltip($(this))" href="reader?id=${data.arcid}"> 
@@ -206,7 +206,7 @@ function buildThumbDiv(row, data, index) {
 		thumb_css = (localStorage.cropthumbs === 'true') ? "id3" : "id3 nocrop";
 		thumb_div = `<div style="height:335px" class="id1 context-menu" id="${data.arcid}">
 						<div class="id2">
-							${buildProgressDiv(data.arcid, data.isnew)}
+							${buildProgressDiv(data)}
 							<a href="reader?id=${data.arcid}" title="${encode(data.title)}">${encode(data.title)}</a>
 						</div>
 						<div style="height:280px" class="${thumb_css}">
@@ -228,23 +228,22 @@ function buildThumbDiv(row, data, index) {
 	}
 }
 
-function buildProgressDiv(id, isnew) {
+function buildProgressDiv(arcdata) {
 
-	// localStorage'd reader progress takes priority over the server-provided new flag
-	// (which might not always be up to date due to cache n shit)
-	if (localStorage.getItem(id + "-totalPages") !== null && localStorage.nobookmark !== 'true') {
-		// Progress recorded, display an indicator
-		currentPage = Number(localStorage.getItem(id + "-reader")) + 1;
-		totalPages = Number(localStorage.getItem(id + "-totalPages"));
+	id = arcdata.arcid;
+	isnew = arcdata.isnew;
+	pagecount = parseInt(arcdata.pagecount || 0);
+	progress = parseInt(arcdata.progress || 0);
 
-		if (currentPage === totalPages)
+	if (isnew === "true") {
+		return '<div class="isnew">🆕</div>';
+	} else if (pagecount > 0) {
+
+		// Consider an archive read if progress is past 85% of total
+		if ((progress / pagecount) > 0.85)
 			return "<div class='isnew'>👑</div>";
 		else
-			return `<div class='isnew'><sup>${currentPage}/${totalPages}</sup></div>`;
-	}
-
-	if (isnew === "block" || isnew === "true") {
-		return '<div class="isnew">🆕</div>';
+			return `<div class='isnew'><sup>${progress}/${pagecount}</sup></div>`;
 	}
 
 	return "";
