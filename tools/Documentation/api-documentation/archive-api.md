@@ -380,7 +380,7 @@ New flag is successfully removed
 {% endapi-method-spec %}
 {% endapi-method %}
 
-{% api-method method="delete" host="http://lrr.tvc-16.science" path="/api/archives/:id/progress/:page" %}
+{% api-method method="put" host="http://lrr.tvc-16.science" path="/api/archives/:id/progress/:page" %}
 {% api-method-summary %}
 Update reading progression on an archive.
 {% endapi-method-summary %}
