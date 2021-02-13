@@ -4,6 +4,7 @@ use Mojo::Base 'Mojolicious::Controller';
 use Mojo::JSON qw(encode_json);
 use Redis;
 
+use LANraragi::Model::Stats;
 use LANraragi::Utils::TempFolder qw(get_tempsize clean_temp_full);
 use LANraragi::Utils::Generic qw(render_api_response);
 use LANraragi::Utils::Plugins qw(get_plugin get_plugins get_plugin_parameters);
@@ -13,6 +14,7 @@ sub serve_serverinfo {
 
     my $redis      = $self->LRR_CONF->get_redis;
     my $last_clear = $redis->hget( "LRR_SEARCHCACHE", "created" ) || time;
+    my $page_stat  = LANraragi::Model::Stats::get_page_stat;
     $redis->quit();
 
     # A simple endpoint that forwards some info from LRR_CONF.
@@ -22,11 +24,13 @@ sub serve_serverinfo {
             motd                  => $self->LRR_CONF->get_motd,
             version               => $self->LRR_VERSION,
             version_name          => $self->LRR_VERNAME,
+            version_desc          => $self->LRR_DESC,
             has_password          => $self->LRR_CONF->enable_pass,
             debug_mode            => $self->LRR_CONF->enable_devmode,
             nofun_mode            => $self->LRR_CONF->enable_nofun,
             archives_per_page     => $self->LRR_CONF->get_pagesize,
             server_resizes_images => $self->LRR_CONF->enable_resize,
+            total_pages_read      => $page_stat,
             cache_last_cleared    => "$last_clear"
         }
     );

@@ -30,11 +30,12 @@ sub startup {
     # Load configuration from hash returned by "lrr.conf"
     my $config = $self->plugin( 'Config', { file => 'lrr.conf' } );
 
-    # Load package.json to get version/vername
+    # Load package.json to get version/vername/description
     my $packagejson = decode_json( Mojo::File->new('package.json')->slurp );
 
     my $version = $packagejson->{version};
     my $vername = $packagejson->{version_name};
+    my $descstr = $packagejson->{description};
 
     $self->secrets( $config->{secrets} );
     $self->plugin('RenderFile');
@@ -54,6 +55,7 @@ sub startup {
     $self->helper( LRR_CONF    => sub { LANraragi::Model::Config:: } );
     $self->helper( LRR_VERSION => sub { return $version; } );
     $self->helper( LRR_VERNAME => sub { return $vername; } );
+    $self->helper( LRR_DESC    => sub { return $descstr; } );
 
     #Helper to build logger objects quickly
     $self->helper(

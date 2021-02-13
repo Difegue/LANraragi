@@ -20,31 +20,7 @@
 
 </head>
 
-<body onload="  set_style_from_storage(); 
-	
-				// Merge unnamespaced/namespaced tags and lower case it all
-				words = words.reduce(function(res, tag) {
-					var sametag = res.find(x => x.text.toLowerCase() === tag.text.toLowerCase());
-					if (sametag !== undefined) {
-						sametag.weight += tag.weight;
-					} else 
-						res.push(tag);
-					return res;
-				}, []);	
-
-				// Filter out tags with a weight of 1
-				words = words.reduce(function(res, tag) {
-					if (tag.weight > 1) 
-							res.push(tag);
-					return res;
-				}, []);
-
-				$('#tagCloud').jQCloud(words, {
-					autoResize: true
-				});
-
-				$('#tagcount').html(words.length);
-				">
+<body onload="set_style_from_storage();">
 
 	<div class='ido' style='text-align:center'>
 		<h2 class="ih" style="text-align:center">Library Statistics</h2>
@@ -54,39 +30,79 @@
 		<div id="stats" style="">
 
 			<h1 class="ih">
-				<i class="fa fa-book fa-2x" aria-hidden="true"></i> <span style="font-size: 20px"> [% archivecount %] </span>
+				<i class="fa fa-book fa-2x" aria-hidden="true"></i> <span style="font-size: 20px"> [% archivecount %]
+				</span>
 				Archives on record
 				<br><br>
-				<i class="fa fa-tags fa-2x" aria-hidden="true"></i> <span style="font-size: 20px" id="tagcount"> </span> Different
+				<i class="fa fa-tags fa-2x" aria-hidden="true"></i> <span style="font-size: 20px" id="tagcount">
+					<i id="spinner" class="fa fa-cog fa-spin"></i> </span>
+				Different
 				tags existing
 				<br><br>
-				<i class="fa fa-folder-open fa-2x" aria-hidden="true"></i> <span style="font-size: 20px"> [% arcsize %] GB </span>
+				<i class="fa fa-folder-open fa-2x" aria-hidden="true"></i> <span style="font-size: 20px"> [% arcsize %]
+					GB </span>
 				in content folder
-
+				<br><br>
+				<i class="fa fa-book-reader fa-2x" aria-hidden="true"></i> <span style="font-size: 20px"> [% pagestat %]
+				</span>
+				pages read
 				<br><br><br>
 
 				Tag Cloud <br>
 			</h1>
 
-
-
 		</div>
 
 		<br>
 
+		<div id="statsLoading" style="width: 80%; margin-left: auto; margin-right: auto">
+			<p class="loading-spinner">
+				<i id="spinner" class="fa fa-cog fa-4x fa-spin"></i>
+			</p>
+			Asking the great powers that be for your tag statistics...
+		</div>
 
-		<div id="tagCloud" style="width: 80%; height: 500px; margin-left: auto; margin-right: auto"></div>
+		<div id="tagCloud" style="width: 80%; height: 500px; margin-left: auto; margin-right: auto">
+		</div>
 
 		<br>
 		<br>
-		<input type="button" value="Return to Library" onclick="window.location.replace('./');" class="stdbtn" id="goback">
+		<input type="button" value="Return to Library" onclick="window.location.replace('./');" class="stdbtn"
+			id="goback">
 
 
 
 	</div>
 
 	<script>
-		var words = [% tagcloud %];
+		$.get("/api/database/stats")
+			.done(function (data) {
+
+				// Merge unnamespaced/namespaced tags and lower case it all
+				data = data.reduce(function (res, tag) {
+					var sametag = res.find(x => x.text.toLowerCase() === tag.text.toLowerCase());
+					if (sametag !== undefined) {
+						sametag.weight += tag.weight;
+					} else
+						res.push(tag);
+					return res;
+				}, []);
+
+				// Filter out tags with a weight of 1
+				data = data.reduce(function (res, tag) {
+					if (tag.weight > 1)
+						res.push(tag);
+					return res;
+				}, []);
+
+				$('#tagCloud').jQCloud(data, {
+					autoResize: true
+				});
+
+				$('#tagcount').html(data.length);
+				$('#statsLoading').hide();
+
+			}).fail(data => showErrorToast("Couldn't load tag statistics", data.error));
 	</script>
 
 	[% INCLUDE footer %]

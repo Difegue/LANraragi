@@ -79,6 +79,7 @@ sub index {
     $self->render(
         template   => "upload",
         title      => $self->LRR_CONF->get_htmltitle,
+        descstr    => $self->LRR_DESC,
         categories => \@categories,
         cssdrop    => generate_themes_selector,
         csshead    => generate_themes_header($self),

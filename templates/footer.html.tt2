@@ -1,6 +1,8 @@
 <!-- LRR Standard Footer -->
 
 <p class="ip">
+    [% descstr %]
+    <br>
     <a href="https://github.com/Difegue/LANraragi"> LANraragi</a>
     -
     <a onclick="openThemeOverlay()" style="cursor:pointer">Change Theme</a>

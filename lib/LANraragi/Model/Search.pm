@@ -118,9 +118,10 @@ sub do_search {
                     }
 
                     # Check category search and base search filter
+                    my $concat = $tags ? $title . "," . $tags : $title;
                     if (   $file
-                        && matches_search_filter( $cat_search, $title . "," . $tags )
-                        && matches_search_filter( $filter,     $title . "," . $tags ) ) {
+                        && matches_search_filter( $cat_search, $concat )
+                        && matches_search_filter( $filter,     $concat ) ) {
 
                         # Push id to array
                         push @shared, { id => $id, title => $title, tags => $tags };

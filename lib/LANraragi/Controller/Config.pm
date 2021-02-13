@@ -17,6 +17,7 @@ sub index {
         template      => "config",
         version       => $self->LRR_VERSION,
         vername       => $self->LRR_VERNAME,
+        descstr       => $self->LRR_DESC,
         motd          => $self->LRR_CONF->get_motd,
         dirname       => $self->LRR_CONF->get_userdir,
         forceddirname => ( defined $ENV{LRR_DATA_DIRECTORY} ? 1 : 0 ),

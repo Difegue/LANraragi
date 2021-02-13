@@ -60,6 +60,7 @@ sub index {
         template     => "index",
         version      => $self->LRR_VERSION,
         title        => $self->LRR_CONF->get_htmltitle,
+        descstr      => $self->LRR_DESC,
         pagesize     => $self->LRR_CONF->get_pagesize,
         userlogged   => $userlogged,
         categories   => \@categories,

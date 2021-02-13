@@ -11,11 +11,12 @@ sub index {
     $self->render(
         template     => "stats",
         title        => $self->LRR_CONF->get_htmltitle,
+        descstr      => $self->LRR_DESC,
         cssdrop      => generate_themes_selector,
         csshead      => generate_themes_header($self),
-        tagcloud     => LANraragi::Model::Stats::build_tag_json,
         archivecount => LANraragi::Model::Stats::get_archive_count,
         arcsize      => LANraragi::Model::Stats::compute_content_size,
+        pagestat     => LANraragi::Model::Stats::get_page_stat,
         version      => $self->LRR_VERSION
     );
 }
