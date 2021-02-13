@@ -31,10 +31,8 @@ sub add_archive_to_redis {
     $logger->debug("File Name: $name");
     $logger->debug("Filesystem Path: $file");
 
-    my $title = $name;
-    my $tags  = "";
-
-    $redis->hset( $id, "name", encode_utf8($name) );
+    $redis->hset( $id, "name",  encode_utf8($name) );
+    $redis->hset( $id, "title", encode_utf8($name) );
 
     #Don't encode filenames.
     $redis->hset( $id, "file", $file );
@@ -42,19 +40,8 @@ sub add_archive_to_redis {
     #New file in collection, so this flag is set.
     $redis->hset( $id, "isnew", "true" );
 
-    #Use the mythical regex to get title and tags
-    #Except if the matching pref is off
-    if ( LANraragi::Model::Config->get_tagregex eq "1" ) {
-        ( $title, $tags ) = parse_name($name);
-        $logger->debug("Parsed Title: $title");
-        $logger->debug("Parsed Tags: $tags");
-    }
-
-    $redis->hset( $id, "title", encode_utf8($title) );
-    $redis->hset( $id, "tags",  encode_utf8($tags) );
     $redis->quit;
-
-    return ( $name, $title, $tags );
+    return $name;
 }
 
 # build_archive_JSON(redis, id)
@@ -209,58 +196,6 @@ sub set_title {
         $redis->hset( $id, "title", encode_utf8($newtitle) );
     }
     $redis->quit;
-}
-
-#parse_name(name)
-#parses an archive name with the regex specified in the configuration file(get_regex and select_from_regex subs) to find metadata.
-sub parse_name {
-
-    my ( $event, $artist, $title, $series, $language );
-    $event = $artist = $title = $series = $language = "";
-
-    #Replace underscores with spaces
-    $_[0] =~ s/_/ /g;
-
-    #Use the regex on our file, and pipe it to the regexsel sub.
-    $_[0] =~ LANraragi::Model::Config->get_regex;
-
-    #Take variables from the regex selection
-    if ( defined $2 ) { $event    = $2; }
-    if ( defined $4 ) { $artist   = $4; }
-    if ( defined $5 ) { $title    = $5; }
-    if ( defined $7 ) { $series   = $7; }
-    if ( defined $9 ) { $language = $9; }
-
-    my @tags = ();
-
-    if ( $event ne "" ) {
-        push @tags, "event:$event";
-    }
-
-    if ( $artist ne "" ) {
-
-        #Special case for circle/artist sets:
-        #If the string contains parenthesis, what's inside those is the artist name
-        #the rest is the circle.
-        if ( $artist =~ /(.*) \((.*)\)/ ) {
-            push @tags, "group:$1";
-            push @tags, "artist:$2";
-        } else {
-            push @tags, "artist:$artist";
-        }
-    }
-
-    if ( $series ne "" ) {
-        push @tags, "series:$series";
-    }
-
-    if ( $language ne "" ) {
-        push @tags, "language:$language";
-    }
-
-    my $tagstring = join( ", ", @tags );
-
-    return ( $title, $tagstring );
 }
 
 #This function is used for all ID computation in LRR.

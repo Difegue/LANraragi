@@ -26,6 +26,7 @@ sub exec_enabled_plugins_on_file {
     my $successes = 0;
     my $failures  = 0;
     my $addedtags = 0;
+    my $newtitle  = "";
 
     my @plugins = LANraragi::Utils::Plugins::get_enabled_plugins("metadata");
 
@@ -64,13 +65,13 @@ sub exec_enabled_plugins_on_file {
             if ( exists $plugin_result{title} ) {
                 LANraragi::Utils::Database::set_title( $id, $plugin_result{title} );
 
-                # Increment added_tags if the title changed as well
-                $addedtags++;
+                $newtitle = $plugin_result{title};
+                $logger->debug("Changing title to $newtitle.");
             }
         }
     }
 
-    return ( $successes, $failures, $addedtags );
+    return ( $successes, $failures, $addedtags, $newtitle );
 }
 
 # Unlike the two other methods, exec_login_plugin takes a plugin name and does the Redis lookup itself.

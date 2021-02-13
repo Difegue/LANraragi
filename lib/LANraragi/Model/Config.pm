@@ -126,26 +126,9 @@ sub enable_nofun    { return &get_redis_conf( "nofunmode",     "0" ) }
 sub enable_autotag  { return &get_redis_conf( "autotag",       "1" ) }
 sub enable_cors     { return &get_redis_conf( "enablecors",    "0" ) }
 sub get_apikey      { return &get_redis_conf( "apikey",        "" ) }
-sub get_tagregex    { return &get_redis_conf( "tagregex",      "1" ) }
 sub enable_blacklst { return &get_redis_conf( "blackliston",   "1" ) }
 sub enable_resize   { return &get_redis_conf( "enableresize",  "0" ) }
 sub get_threshold   { return &get_redis_conf( "sizethreshold", "1000" ) }
 sub get_readquality { return &get_redis_conf( "readerquality", "50" ) }
-
-#Regular Expression matching the E-Hentai standard: (Release) [Artist] TITLE (Series) [Language]
-#Used in parsing.
-#Stuff that's between unescaped ()s is put in a numbered variable: $1,$2,etc
-#Parsing is only done the first time the file is found. The parsed info is then stored into Redis.
-#Change this regex if you wish to use a different parsing for mass-addition of archives.
-
-#()? indicates the field is optional.
-#(\(([^([]+)\))? returns the content of (Release). Optional.
-#(\[([^]]+)\])? returns the content of [Artist]. Optional.
-#([^([]+) returns the title. Mandatory.
-#(\(([^([)]+)\))? returns the content of (Series). Optional.
-#(\[([^]]+)\])? returns the content of [Language]. Optional.
-#\s* indicates zero or more whitespaces.
-my $regex = qr/(\(([^([]+)\))?\s*(\[([^]]+)\])?\s*([^([]+)\s*(\(([^([)]+)\))?\s*(\[([^]]+)\])?/;
-sub get_regex { return $regex }
 
 1;

@@ -31,8 +31,8 @@ use LANraragi::Model::Category;
 # Returns a status value, the ID and title of the file, and a status message.
 sub handle_incoming_file {
 
-    my ( $tempfile, $catid, $extratags ) = @_;
-    my ( $filename, $dirs,  $suffix )    = fileparse( $tempfile, qr/\.[^.]*/ );
+    my ( $tempfile, $catid, $tags )   = @_;
+    my ( $filename, $dirs,  $suffix ) = fileparse( $tempfile, qr/\.[^.]*/ );
     $filename = $filename . $suffix;
     my $logger = get_logger( "File Upload/Download", "lanraragi" );
 
@@ -71,16 +71,10 @@ sub handle_incoming_file {
 
     # Add the file to the database ourselves so Shinobu doesn't do it
     # This allows autoplugin to be ran ASAP.
-    my ( $name, $title, $tags ) = LANraragi::Utils::Database::add_archive_to_redis( $id, $output_file, $redis );
+    my $name = LANraragi::Utils::Database::add_archive_to_redis( $id, $output_file, $redis );
 
     # If additional tags were given to the sub, add them now.
-    if ($extratags) {
-
-        if ( $tags ne "" ) {
-            $tags = $tags . ", ";
-        }
-
-        $tags = $tags . $extratags;
+    if ($tags) {
         $redis->hset( $id, "tags", encode_utf8($tags) );
     }
 
@@ -94,7 +88,7 @@ sub handle_incoming_file {
     move( $output_file . ".upload", $output_file );
 
     unless ( -e $output_file ) {
-        return ( 0, $id, $title, "The file couldn't be moved to your content folder!" );
+        return ( 0, $id, $name, "The file couldn't be moved to your content folder!" );
     }
 
     my $successmsg = "File added successfully!";
@@ -102,8 +96,12 @@ sub handle_incoming_file {
     if ( LANraragi::Model::Config->enable_autotag ) {
         $logger->debug("Running autoplugin on newly uploaded file $id...");
 
-        my ( $succ, $fail, $addedtags ) = LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
+        my ( $succ, $fail, $addedtags, $newtitle ) = LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
         $successmsg = "$succ Plugins used successfully, $fail Plugins failed, $addedtags tags added. ";
+
+        if ( $newtitle ne "" ) {
+            $name = $newtitle;
+        }
     }
 
     if ($catid) {
@@ -122,7 +120,7 @@ sub handle_incoming_file {
     # Invalidate search cache ourselves, Shinobu won't do it since the file is already in the database
     invalidate_cache();
 
-    return ( 1, $id, $title, $successmsg );
+    return ( 1, $id, $name, $successmsg );
 }
 
 # Download the given URL, using the given Mojo::UserAgent object.

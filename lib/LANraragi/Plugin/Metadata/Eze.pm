@@ -94,10 +94,7 @@ sub tags_from_eze_json {
     my $tags = $hash->{"gallery_info"}->{"tags"};
 
     # Titles returned by eze are in complete E-H notation.
-    # We use the parse_name routine used by Auto-Tag to get the title.
-    my $ogtitle = $hash->{"gallery_info"}->{"title"};
-
-    my ( $title, $autotags ) = LANraragi::Utils::Database::parse_name($ogtitle);
+    my $title = $hash->{"gallery_info"}->{"title"};
     remove_spaces($title);
 
     foreach my $namespace ( sort keys %$tags ) {
@@ -113,7 +110,6 @@ sub tags_from_eze_json {
     }
 
     # Add source tag if possible
-
     my $site   = $hash->{"gallery_info"}->{"source"}->{"site"};
     my $gid    = $hash->{"gallery_info"}->{"source"}->{"gid"};
     my $gtoken = $hash->{"gallery_info"}->{"source"}->{"token"};

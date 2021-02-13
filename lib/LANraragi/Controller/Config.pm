@@ -32,7 +32,6 @@ sub index {
         nofunmode     => $self->LRR_CONF->enable_nofun,
         apikey        => $self->LRR_CONF->get_apikey,
         enablecors    => $self->LRR_CONF->enable_cors,
-        tagregex      => $self->LRR_CONF->get_tagregex,
         enableresize  => $self->LRR_CONF->enable_resize,
         sizethreshold => $self->LRR_CONF->get_threshold,
         readerquality => $self->LRR_CONF->get_readquality,
@@ -70,8 +69,7 @@ sub save_config {
         devmode      => ( scalar $self->req->param('devmode')      ? '1' : '0' ),
         enableresize => ( scalar $self->req->param('enableresize') ? '1' : '0' ),
         blackliston  => ( scalar $self->req->param('blackliston')  ? '1' : '0' ),
-        nofunmode    => ( scalar $self->req->param('nofunmode')    ? '1' : '0' ),
-        tagregex     => ( scalar $self->req->param('tagregex')     ? '1' : '0' )
+        nofunmode    => ( scalar $self->req->param('nofunmode')    ? '1' : '0' )
     );
 
     #only add newpassword field as password if enablepass = 1
