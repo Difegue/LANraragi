@@ -77,8 +77,8 @@ sub build_archive_JSON {
         title     => $title,
         tags      => $tags,
         isnew     => $isnew,
-        progress  => int($progress),
-        pagecount => int($pagecount)
+        progress  => $progress ? int($progress) : 0,
+        pagecount => $pagecount ? int($pagecount) : 0
     };
 
     return $arcdata;
