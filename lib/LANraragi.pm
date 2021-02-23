@@ -74,7 +74,6 @@ sub startup {
     }
 
     my $devmode;
-    my $attempt = 1;
 
     # Catch Redis errors on our first connection. This is useful in case of temporary LOADING errors,
     # Where Redis lets us send commands but doesn't necessarily reply to them properly.
@@ -83,12 +82,10 @@ sub startup {
         eval { $devmode = $self->LRR_CONF->enable_devmode; };
 
         last unless ($@);
-        die "Redis didn't reply $attempt times." if ( $attempt > 5 );
 
         say "Redis error encountered: $@";
         say "Trying again in 2 seconds...";
         sleep 2;
-        $attempt++;
     }
 
     if ($devmode) {

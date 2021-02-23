@@ -190,6 +190,39 @@ function cleanDatabase() {
 		});
 }
 
+function regenThumbnails(force) {
+
+	forceparam = force ? 1 : 0;
+	genericAPICall(`api/regen_thumbs?force=${forceparam}`, "POST",
+		"Queued up a job to regenerate thumbnails! Stay tuned for updates or check the Minion console.", "Error while sending job to Minion:",
+		function (data) {
+			// Disable the buttons to avoid accidental double-clicks. 
+			$("#genthumb-button").prop("disabled", true);
+			$("#forcethumb-button").prop("disabled", true);
+
+			// Check minion job state periodically while we're on this page
+			checkJobStatus(data.job,
+				(d) => {
+					$("#genthumb-button").prop("disabled", false);
+					$("#forcethumb-button").prop("disabled", false);
+					$.toast({
+						showHideTransition: 'slide',
+						position: 'top-left',
+						loader: false,
+						heading: "All thumbnails generated! Encountered the following errors:",
+						text: d.result.errors,
+						hideAfter: false,
+						icon: 'success'
+					});
+				},
+				(error) => {
+					$("#genthumb-button").prop("disabled", false);
+					$("#forcethumb-button").prop("disabled", false);
+					showErrorToast("The thumbnail regen job failed!", error);
+				});
+		});
+}
+
 function rebootShinobu() {
 	$("#restart-button").prop("disabled", true);
 	genericAPICall("api/shinobu/restart", "POST", "Background Worker restarted!", "Error while restarting Worker:",

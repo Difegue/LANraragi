@@ -30,3 +30,23 @@
         </label>
     </td>
 </tr>
+
+<tr>
+    <td class="option-td">
+        <input id="genthumb-button" class='stdbtn' type='button' onclick="regenThumbnails(false);"
+            value='Generate Missing Thumbnails' />
+    </td>
+    <td><br>
+        Generate Thumbnails for all archives that don't have one yet.
+    </td>
+</tr>
+
+<tr>
+    <td class="option-td">
+        <input id="forcethumb-button" class='stdbtn' type='button' onclick="regenThumbnails(true);"
+            value='Regenerate all Thumbnails' />
+    </td>
+    <td><br>
+        Regenerate all thumbnails. This might take a while!
+    </td>
+</tr>

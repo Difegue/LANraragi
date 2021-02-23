@@ -12,6 +12,7 @@ use LANraragi::Utils::Archive qw(extract_thumbnail);
 use LANraragi::Utils::Plugins qw(get_downloader_for_url get_plugin get_plugin_parameters);
 
 use LANraragi::Model::Upload;
+use LANraragi::Model::Config;
 
 # Add Tasks to the Minion instance.
 sub add_tasks {
@@ -24,6 +25,49 @@ sub add_tasks {
 
             my $thumbname = extract_thumbnail( $dirname, $id );
             $job->finish($thumbname);
+        }
+    );
+
+    $minion->add_task(
+        regen_all_thumbnails => sub {
+            my ( $job,     @args )  = @_;
+            my ( $dirname, $force ) = @args;
+
+            my $logger = get_logger( "Minion", "minion" );
+            my $redis  = LANraragi::Model::Config->get_redis;
+            my @keys   = $redis->keys('????????????????????????????????????????');
+
+            $logger->info("Starting thumbnail regen job (force = $force)");
+
+            my $thumbscount = 0;
+            my @errors      = ();
+
+            # Regen thumbnails for errythang if $force = 1, only missing thumbs otherwise
+            foreach my $id (@keys) {
+
+                my $subfolder = substr( $id, 0, 2 );
+                my $thumbname = "$dirname/thumb/$subfolder/$id.jpg";
+
+                unless ( $force == 0 && -e $thumbname ) {
+                    eval {
+                        $logger->debug("Regenerating for $id...");
+                        extract_thumbnail( $dirname, $id );
+                        $thumbscount++;
+                    };
+
+                    if ($@) {
+                        $logger->warn("Error while generating thumbnail: $@");
+                        push @errors, $@;
+                    }
+                }
+
+            }
+            $redis->quit();
+            $job->finish(
+                {   generated_thumbnails => $thumbscount,
+                    errors               => \@errors
+                }
+            );
         }
     );
 
