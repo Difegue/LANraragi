@@ -12,6 +12,7 @@ use Redis;
 use Cwd;
 
 use LANraragi::Model::Plugins;
+use LANraragi::Utils::Generic qw(remove_spaces);
 use LANraragi::Utils::Logging qw(get_logger);
 
 # Functions for interacting with the DB Model.
@@ -137,8 +138,9 @@ sub clean_database {
         $logger->warn("Unable to open a file to save backup before cleaning database! $@");
     }
 
-    # Get the filemap from Shinobu for ID checks later down the line
-    my %filemap = LANraragi::Utils::Generic::get_shinobu_filemap();
+    # Get the filemap for ID checks later down the line
+    my @filemapids = $redis->exists("LRR_FILEMAP") ? $redis->hvals("LRR_FILEMAP") : ();
+    my %filemap = map { $_ => 1 } @filemapids;
 
     #40-character long keys only => Archive IDs
     my @keys = $redis->keys('????????????????????????????????????????');
@@ -155,7 +157,7 @@ sub clean_database {
             next;
         }
 
-        unless ( $file eq "" || %filemap == 0 || exists $filemap{$id} ) {
+        unless ( $file eq "" || exists $filemap{$id} ) {
             $logger->warn("File exists but its ID is no longer $id -- Removing file reference in its database entry.");
             $redis->hset( $id, "file", "" );
             $unlinked_arcs++;
@@ -178,8 +180,12 @@ sub add_tags {
 
     if ( length $newtags ) {
 
-        if ( $oldtags ne "" ) {
-            $newtags = $oldtags . "," . $newtags;
+        if ($oldtags) {
+            remove_spaces($oldtags);
+
+            if ( $oldtags ne "" ) {
+                $newtags = $oldtags . "," . $newtags;
+            }
         }
 
         $redis->hset( $id, "tags", encode_utf8($newtags) );

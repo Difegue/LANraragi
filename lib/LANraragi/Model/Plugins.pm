@@ -245,9 +245,9 @@ sub exec_metadata_plugin {
             remove_spaces($tagtoadd);
             remove_newlines($tagtoadd);
 
+            # Only proceed if the tag isnt already in redis
             unless ( index( uc($tags), uc($tagtoadd) ) != -1 ) {
 
-                #Only proceed if the tag isnt already in redis
                 my $good = 1;
 
                 if ($blistenable) {
