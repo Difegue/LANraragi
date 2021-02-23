@@ -4,7 +4,7 @@ use utf8;
 use Cwd;
 
 use Mojo::Base 'Mojolicious';
-use Test::More tests => 52;
+use Test::More tests => 53;
 use Test::Mojo;
 use Test::MockObject;
 
@@ -51,7 +51,8 @@ my @modules = (
     "LANraragi::Plugin::Metadata::MEMS",        "LANraragi::Plugin::Metadata::nHentai",
     "LANraragi::Plugin::Metadata::RegexParse",  "LANraragi::Plugin::Login::EHentai",
     "LANraragi::Plugin::Scripts::SourceFinder", "LANraragi::Plugin::Scripts::FolderToCat",
-    "LANraragi::Plugin::Download::EHentai",     "LANraragi::Plugin::Download::Chaika"
+    "LANraragi::Plugin::Download::EHentai",     "LANraragi::Plugin::Download::Chaika",
+    "LANraragi::Plugin::Scripts::Normalizer"
 );
 
 # Test all modules load properly

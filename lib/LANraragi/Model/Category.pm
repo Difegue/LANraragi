@@ -5,10 +5,9 @@ use warnings;
 use utf8;
 
 use Redis;
-use Encode;
 use Mojo::JSON qw(decode_json encode_json);
 
-use LANraragi::Utils::Database qw(redis_decode invalidate_cache);
+use LANraragi::Utils::Database qw(redis_encode redis_decode invalidate_cache);
 use LANraragi::Utils::Logging qw(get_logger);
 
 # get_category_list()
@@ -102,8 +101,8 @@ sub create_category {
     }
 
     # Set/update name, pin status and favtag
-    $redis->hset( $cat_id, "name",   encode_utf8($name) );
-    $redis->hset( $cat_id, "search", encode_utf8($favtag) );
+    $redis->hset( $cat_id, "name",   redis_encode($name) );
+    $redis->hset( $cat_id, "search", redis_encode($favtag) );
     $redis->hset( $cat_id, "pinned", $pinned );
 
     $redis->quit;

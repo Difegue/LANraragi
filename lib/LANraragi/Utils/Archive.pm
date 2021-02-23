@@ -144,7 +144,7 @@ sub extract_thumbnail {
     #While we have the image, grab its SHA-1 hash for tag research.
     #That way, no need to repeat the costly extraction later.
     my $shasum = shasum( $arcimg, 1 );
-    $redis->hset( $id, "thumbhash", encode_utf8($shasum) );
+    $redis->hset( $id, "thumbhash", $shasum );
     $redis->quit();
 
     #Thumbnail generation

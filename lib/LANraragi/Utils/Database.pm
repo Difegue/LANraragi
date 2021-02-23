@@ -10,6 +10,7 @@ use Encode;
 use File::Basename;
 use Redis;
 use Cwd;
+use Unicode::Normalize;
 
 use LANraragi::Model::Plugins;
 use LANraragi::Utils::Generic qw(remove_spaces);
@@ -17,7 +18,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 
 # Functions for interacting with the DB Model.
 use Exporter 'import';
-our @EXPORT_OK = qw(redis_decode invalidate_cache compute_id);
+our @EXPORT_OK = qw(redis_encode redis_decode invalidate_cache compute_id);
 
 #add_archive_to_redis($id,$file,$redis)
 #Parses the name of a file for metadata, and matches that metadata to the SHA-1 hash of the file in our Redis database.
@@ -32,8 +33,8 @@ sub add_archive_to_redis {
     $logger->debug("File Name: $name");
     $logger->debug("Filesystem Path: $file");
 
-    $redis->hset( $id, "name",  encode_utf8($name) );
-    $redis->hset( $id, "title", encode_utf8($name) );
+    $redis->hset( $id, "name",  redis_encode($name) );
+    $redis->hset( $id, "title", redis_encode($name) );
 
     #Don't encode filenames.
     $redis->hset( $id, "file", $file );
@@ -188,7 +189,7 @@ sub add_tags {
             }
         }
 
-        $redis->hset( $id, "tags", encode_utf8($newtags) );
+        $redis->hset( $id, "tags", redis_encode($newtags) );
     }
     $redis->quit;
 }
@@ -199,7 +200,7 @@ sub set_title {
     my $redis = LANraragi::Model::Config->get_redis;
 
     if ( $newtitle ne "" ) {
-        $redis->hset( $id, "title", encode_utf8($newtitle) );
+        $redis->hset( $id, "title", redis_encode($newtitle) );
     }
     $redis->quit;
 }
@@ -227,6 +228,15 @@ sub compute_id {
 
     return $digest;
 
+}
+
+# Normalize the string to Unicode NFC, then layer on redis_encode for Redis-safe serialization.
+sub redis_encode {
+
+    my $data     = $_[0];
+    my $NFC_data = NFC($data);
+
+    return encode_utf8($NFC_data);
 }
 
 #Final Solution to the Unicode glitches -- Eval'd double-decode for data obtained from Redis.

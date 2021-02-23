@@ -6,7 +6,6 @@ use utf8;
 
 use Cwd 'abs_path';
 use Redis;
-use Encode;
 use File::Temp qw(tempfile);
 use File::Copy "cp";
 use Mojo::Util qw(xml_escape);
@@ -14,7 +13,7 @@ use Mojo::Util qw(xml_escape);
 use LANraragi::Utils::Generic qw(get_tag_with_namespace remove_spaces remove_newlines render_api_response);
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging qw(get_logger);
-use LANraragi::Utils::Database qw(redis_decode invalidate_cache);
+use LANraragi::Utils::Database qw(redis_encode redis_decode invalidate_cache);
 
 # Functions used when dealing with archives.
 
@@ -229,11 +228,11 @@ sub update_metadata {
 
     # Prepare the hash which'll be inserted.
     if ( defined $title ) {
-        $hash{title} = encode_utf8($title);
+        $hash{title} = redis_encode($title);
     }
 
     if ( defined $tags ) {
-        $hash{tags} = encode_utf8($tags);
+        $hash{tags} = redis_encode($tags);
     }
 
     my $redis = LANraragi::Model::Config->get_redis;

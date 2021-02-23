@@ -9,10 +9,10 @@ use File::Basename;
 use File::Temp qw/ tempfile tempdir /;
 use File::Find qw(find);
 use File::Copy qw(move);
-use Encode;
 
 use LANraragi::Utils::Database qw(invalidate_cache compute_id);
 use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Database qw(redis_encode);
 use LANraragi::Utils::Generic qw(is_archive);
 
 use LANraragi::Model::Config;
@@ -75,7 +75,7 @@ sub handle_incoming_file {
 
     # If additional tags were given to the sub, add them now.
     if ($tags) {
-        $redis->hset( $id, "tags", encode_utf8($tags) );
+        $redis->hset( $id, "tags", redis_encode($tags) );
     }
 
     $redis->quit();

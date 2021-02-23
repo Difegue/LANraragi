@@ -9,7 +9,6 @@ use File::Basename;
 use File::Path qw(remove_tree make_path);
 use File::Find qw(find);
 use File::Copy qw(move);
-use Encode;
 use Data::Dumper;
 use URI::Escape;
 use Image::Magick;
@@ -125,7 +124,7 @@ sub build_reader_JSON {
     unless ( -e $thumbname && $thumbreload eq "0" ) {
 
         my $shasum = shasum( $images[0], 1 );
-        $redis->hset( $id, "thumbhash", encode_utf8($shasum) );
+        $redis->hset( $id, "thumbhash", $shasum );
 
         $self->LRR_LOGGER->debug("Thumbnail not found at $thumbname! (force-thumb flag = $thumbreload)");
         $self->LRR_LOGGER->debug( "Regenerating from " . $images[0] );

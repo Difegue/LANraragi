@@ -245,7 +245,7 @@ sub add_to_filemap {
                 $logger->debug("Database: $filecheck");
                 my ( $name, $path, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
                 $redis->hset( $id, "file", $file );
-                $redis->hset( $id, "name", encode_utf8($name) );
+                $redis->hset( $id, "name", redis_encode($name) );
                 $redis->wait_all_responses;
                 invalidate_cache();
             }
