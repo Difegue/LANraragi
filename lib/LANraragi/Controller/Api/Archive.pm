@@ -10,6 +10,7 @@ use Scalar::Util qw(looks_like_number);
 use LANraragi::Utils::Generic qw(render_api_response);
 
 use LANraragi::Model::Archive;
+use LANraragi::Model::Category;
 use LANraragi::Model::Config;
 use LANraragi::Model::Reader;
 
@@ -47,6 +48,36 @@ sub serve_metadata {
     my $arcdata = LANraragi::Utils::Database::build_archive_JSON( $redis, $id );
     $redis->quit;
     $self->render( json => $arcdata );
+}
+
+# Find which categories this ID is saved in.
+sub get_categories {
+
+    my $self = shift;
+    my $id   = check_id_parameter( $self, "find_arc_categories" ) || return;
+
+    my @categories = LANraragi::Model::Category->get_category_list;
+    @categories = grep { %$_{"search"} eq "" } @categories;
+
+    my @filteredcats = ();
+
+    # Check if the id is in any categories
+    for my $category (@categories) {
+
+        my @archives = @{ $category->{"archives"} };
+
+        if ( grep( /^$id$/, @archives ) ) {
+            push @filteredcats, $category;
+        }
+    }
+
+    $self->render(
+        json => {
+            operation  => "find_arc_categories",
+            categories => \@filteredcats,
+            success    => 1
+        }
+    );
 }
 
 sub serve_thumbnail {

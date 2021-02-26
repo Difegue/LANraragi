@@ -90,6 +90,7 @@ sub apply_routes {
     $public_api->put('/api/archives/:id/progress/:page')->to('api-archive#update_progress');
     $public_api->delete('/api/archives/:id/isnew')->to('api-archive#clear_new');
     $public_api->get('/api/archives/:id')->to('api-archive#serve_metadata');
+    $public_api->get('/api/archives/:id/categories')->to('api-archive#get_categories');
     $public_api->get('/api/archives/:id/metadata')->to('api-archive#serve_metadata');
     $logged_in_api->put('/api/archives/:id/metadata')->to('api-archive#update_metadata');
 

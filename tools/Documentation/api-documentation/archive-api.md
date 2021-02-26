@@ -124,6 +124,71 @@ You didn't specify the id parameter.
 {% endapi-method-spec %}
 {% endapi-method %}
 
+{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/archives/:id/categories" %}
+{% api-method-summary %}
+Get the Categories containing the Archive
+{% endapi-method-summary %}
+
+{% api-method-description %}
+Get all the Categories which currently refer to this Archive ID.
+{% endapi-method-description %}
+
+{% api-method-spec %}
+{% api-method-request %}
+{% api-method-path-parameters %}
+{% api-method-parameter name="id" type="string" required=true %}
+ID of the Archive to process.
+{% endapi-method-parameter %}
+{% endapi-method-path-parameters %}
+{% endapi-method-request %}
+
+{% api-method-response %}
+{% api-method-response-example httpCode=200 %}
+{% api-method-response-example-description %}
+You get the categories containing the Archive with their full metadata.  
+See the `/api/categories` endpoints for more information.
+{% endapi-method-response-example-description %}
+
+```javascript
+{
+    "categories": [
+        {
+            "archives": [
+                "0d50858d727723d856d2ab78564bb8e906e65f14",
+                "7f03b8b1f337e1e42b2c2890533c0de7479d41ca"
+            ],
+            "id": "SET_1613080290",
+            "last_used": "1614298062",
+            "name": "My great category",
+            "pinned": "0",
+            "search": ""
+        }
+    ],
+    "operation": "find_arc_categories",
+    "success": 1
+}
+```
+
+{% endapi-method-response-example %}
+
+{% api-method-response-example httpCode=400 %}
+{% api-method-response-example-description %}
+You didn't specify the id parameter.
+{% endapi-method-response-example-description %}
+
+```javascript
+{
+    "operation": "______"
+    "error": "No archive ID specified."
+    "status": 0
+}
+```
+
+{% endapi-method-response-example %}
+{% endapi-method-response %}
+{% endapi-method-spec %}
+{% endapi-method %}
+
 {% api-method method="get" host="http://lrr.tvc-16.science" path="/api/archives/:id/thumbnail" %}
 {% api-method-summary %}
 Get the Thumbnail of an Archive
@@ -386,7 +451,11 @@ Update reading progression on an archive.
 {% endapi-method-summary %}
 
 {% api-method-description %}
-Tell the server which page you're currently showing/reading so that it updates its reading progression field accordingly.
+Tell the server which page you're currently showing/reading so that it updates its reading progression field accordingly.  
+You should call this endpoint only when you're sure the client is currently reading the page you present. Don't use it when preloading images off the server!  
+
+Consider also removing the "New!" flag from an archive when you start updating its progress - The web client won't display reading progression if the new flag is still set.  
+
 {% endapi-method-description %}
 
 {% api-method-spec %}
