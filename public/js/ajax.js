@@ -36,7 +36,7 @@ function genericAPICall(endpoint, method, successMessage, errorMessage, successC
 					});
 
 				if (successCallback !== null)
-					successCallback(data);
+					return successCallback(data);
 
 			} else {
 				throw new Error(data.error);
@@ -252,6 +252,11 @@ function shinobuStatus() {
 //Adds an archive to a category. Basic implementation to use everywhere.
 function addArchiveToCategory(arcId, catId) {
 	genericAPICall(`/api/categories/${catId}/${arcId}`, 'PUT', `Added ${arcId} to Category ${catId}!`, "Error adding/removing archive to category", null);
+}
+
+//Ditto, but for removing.
+function removeArchiveFromCategory(arcId, catId) {
+	genericAPICall(`/api/categories/${catId}/${arcId}`, 'DELETE', `Removed ${arcId} from Category ${catId}!`, "Error adding/removing archive to category", null);
 }
 
 //deleteArchive(id)

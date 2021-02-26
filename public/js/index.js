@@ -193,11 +193,36 @@ function checkVersion(currentVersionConf) {
 	});
 }
 
+function loadContextMenuCategories(id) {
+	return genericAPICall(`/api/archives/${id}/categories`, 'GET', null, `Error finding categories for ${id}!`,
+		function (data) {
+
+			items = {};
+
+			for (let i = 0; i < data.categories.length; i++) {
+				cat = data.categories[i];
+				items[`delcat-${cat.id}`] = { "name": cat.name, "icon": "fas fa-stream" };
+			}
+
+			if (Object.keys(items).length === 0) {
+				items["noop"] = { "name": "This archive isn't in any category.", "icon": "far fa-sad-cry" };
+			}
+
+			return items;
+		});
+}
+
 function handleContextMenu(option, id) {
 
 	if (option.startsWith("category-")) {
 		var catId = option.replace("category-", "");
 		addArchiveToCategory(id, catId);
+		return;
+	}
+
+	if (option.startsWith("delcat-")) {
+		var catId = option.replace("delcat-", "");
+		removeArchiveFromCategory(id, catId);
 		return;
 	}
 

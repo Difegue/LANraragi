@@ -159,32 +159,40 @@
 			// Initialize context menu
 			$.contextMenu({
 				selector: '.context-menu',
-				callback: function (key, options) {
-					handleContextMenu(key, $(this).attr("id"));
-				},
-				items: {
-					[% IF userlogged %]
-					"edit": { name: "Edit Metadata", icon: "fas fa-pencil-alt" },
-					"delete": { name: "Delete", icon: "fas fa-trash-alt" },
-					"category": {
-						"name": "Add to Category",
-						"icon": "fas fa-folder-open",
-						"items": {
-							[% IF categories.size > 0 %]
-							[% FOREACH categories %]
-							"category-[% id %]": { "name": "[% name %]" },
+				build: ($trigger, e) => {
+					return {
+						callback: function (key, options) {
+							handleContextMenu(key, $(this).attr("id"));
+						},
+						items: {
+							[% IF userlogged %]
+							"edit": { name: "Edit Metadata", icon: "fas fa-pencil-alt" },
+							"delete": { name: "Delete", icon: "fas fa-trash-alt" },
+							"category": {
+								"name": "Add to Category",
+								"icon": "fas fa-search-plus",
+								"items": {
+									[% IF categories.size > 0 %][% FOREACH categories %]
+									"category-[% id %]": { "name": "[% name %]", "icon": "fas fa-stream" },
+									[% END %][% ELSE %]
+								"noop": { "name": "No Categories yet...", "icon": "fas fa-ghost" }
+									[% END %]
+								}
+							},
+							"categoryremove": {
+								"name": "Remove from Category",
+								"icon": "fas fa-search-minus",
+								"items": loadContextMenuCategories($trigger.attr("id"))
+							},
+							"sep1": "---------",
 							[% END %]
-						[% ELSE %]
-						"noop": { "name": "No Categories yet..." }
-							[% END %]
-						}
-					},
-					"sep1": "---------",
-					[% END %]
-				"read": { name: "Read", icon: "fas fa-book" },
-				"download": { name: "Download", icon: "fas fa-save" }
+						"read": { name: "Read", icon: "fas fa-book" },
+					"download": { name: "Download", icon: "fas fa-save" }
+				}
+			}
 				}
 			});
+
 		}
 
 	</script>
