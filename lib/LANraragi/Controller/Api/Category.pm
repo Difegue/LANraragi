@@ -11,7 +11,7 @@ use LANraragi::Utils::Generic qw(render_api_response);
 sub get_category_list {
 
     my $self = shift;
-    my @cats = LANraragi::Model::Category::get_category_list;
+    my @cats = LANraragi::Model::Category->get_category_list;
     $self->render( json => \@cats );
 
 }

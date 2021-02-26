@@ -66,7 +66,7 @@ sub index {
         my $progress  = $redis->hget( $id, "progress" );
 
         # Allow adding to category
-        my @categories = LANraragi::Model::Category::get_category_list;
+        my @categories = LANraragi::Model::Category->get_category_list;
 
         # But only to static categories
         @categories = grep { %$_{"search"} eq "" } @categories;

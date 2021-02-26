@@ -71,7 +71,7 @@ sub index {
     my $self = shift;
 
     # Allow adding to category on direct uploads
-    my @categories = LANraragi::Model::Category::get_category_list;
+    my @categories = LANraragi::Model::Category->get_category_list;
 
     # But only to static categories
     @categories = grep { %$_{"search"} eq "" } @categories;
