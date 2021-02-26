@@ -7,7 +7,7 @@ description: Other APIs that don't fit a dedicated theme.
 
 {% api-method method="get" host="http://lrr.tvc-16.science" path="/api/info" %}
 {% api-method-summary %}
-Get information about the server
+Get Server Information
 {% endapi-method-summary %}
 
 {% api-method-description %}
@@ -31,6 +31,8 @@ As a client, you should use this value to know when to refresh your internal arc
     "motd":"Welcome to this Library running LANraragi !",
     "version":"0.7.0",
     "version_name":"Cat People (Putting Out Fire)",
+    "version_desc":"aye lads time to read some manga",
+    "total_pages_read":"13",
     "has_password": "1",
     "debug_mode":"1",
     "nofun_mode":"0",
