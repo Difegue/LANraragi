@@ -29,7 +29,7 @@
 					<tr>
 						<td>Admin Password:</td>
 						<td>
-							<input id='pw_field' class='stdinput' type='password' style='width:90%' value='' maxlength='255' size='20' name='password'>
+							<input autofocus id='pw_field' class='stdinput' type='password' style='width:90%' value='' maxlength='255' size='20' name='password'>
 						</td>
 					</tr>
 					<tr>
