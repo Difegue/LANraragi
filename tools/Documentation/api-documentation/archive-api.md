@@ -452,9 +452,10 @@ Update reading progression on an archive.
 
 {% api-method-description %}
 Tell the server which page you're currently showing/reading so that it updates its reading progression field accordingly.  
-You should call this endpoint only when you're sure the client is currently reading the page you present. Don't use it when preloading images off the server!  
+You should call this endpoint only when you're sure the user is currently reading the page you present. Don't use it when preloading images off the server!  
 
-Consider also removing the "New!" flag from an archive when you start updating its progress - The web client won't display reading progression if the new flag is still set.  
+Whether to make reading progression regressible or not is up to the client. (The web client will reduce progression if the user starts reading previous pages)
+Consider however removing the "New!" flag from an archive when you start updating its progress - The web client won't display any reading progression if the new flag is still set.  
 
 {% endapi-method-description %}
 
