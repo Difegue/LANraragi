@@ -411,6 +411,10 @@ div#toppane {
   color: inherit;
 }
 
+.context-menu-submenu::after {
+  border-color: transparent transparent transparent #414135;
+}
+
 table.itg a {
   color: #414135;
 }

@@ -189,7 +189,10 @@ border:2px solid #000000 !important;
 .context-menu-item.context-menu-hover, .context-menu-icon.context-menu-icon--fa5.context-menu-hover > i {
     background: #3b97ea !important;
     color: #f1f1f1 !important;
-    
+}
+
+.context-menu-submenu::after {
+    border-color: transparent transparent transparent #DDDDDD;
 }
 
 /* File upload bar */

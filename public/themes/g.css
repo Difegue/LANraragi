@@ -328,6 +328,10 @@ border:2px outset #5C0D11 !important;
     
 }
 
+.context-menu-submenu::after {
+    border-color: transparent transparent transparent #5C0D11;
+}
+
 /* File upload bar */
 .bar {
     height: 18px;

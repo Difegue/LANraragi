@@ -396,6 +396,10 @@ div#toppane {
   color: inherit;
 }
 
+.context-menu-submenu::after {
+  border-color: transparent transparent transparent #FFFFFF;
+}
+
 /* File upload bar */
 .bar {
   height: 18px;
