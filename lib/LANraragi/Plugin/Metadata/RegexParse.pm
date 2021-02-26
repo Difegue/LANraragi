@@ -7,6 +7,7 @@ use warnings;
 #Try however to restrain yourself to the ones already installed for LRR (see tools/cpanfile) to avoid extra installations by the end-user.
 use Mojo::JSON qw(from_json);
 use File::Basename;
+use Scalar::Util qw(looks_like_number);
 
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
@@ -42,7 +43,7 @@ sub get_tags {
     my ($savetitle) = @_;    # Plugin parameters
 
     my $logger = get_logger( "regexparse", "plugins" );
-    my $file   = $lrr_info->{file_path};
+    my $file = $lrr_info->{file_path};
 
     # Get the filename from the file_path info field
     my ( $filename, $filepath, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
@@ -86,7 +87,8 @@ sub get_tags {
         push @tags, "series:$series";
     }
 
-    if ( $language ne "" ) {
+    # Don't push numbers as tags for language.
+    unless ( $language eq "" || looks_like_number($language) ) {
         push @tags, "language:$language";
     }
 
