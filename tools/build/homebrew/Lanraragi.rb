@@ -15,7 +15,7 @@ class Lanraragi < Formula
   depends_on "cpanminus"
   depends_on "ghostscript"
   depends_on "giflib"
-  depends_on "imagemagick@6"
+  depends_on "imagemagick"
   depends_on "jpeg"
   depends_on "libpng"
   depends_on "node"
@@ -25,8 +25,8 @@ class Lanraragi < Formula
   uses_from_macos "libarchive"
 
   resource "Image::Magick" do
-    url "https://cpan.metacpan.org/authors/id/J/JC/JCRISTY/PerlMagick-6.89-1.tar.gz"
-    sha256 "c8f81869a4f007be63e67fddf724b23256f6209f16aa95e14d0eaef283772a59"
+    url "https://cpan.metacpan.org/authors/id/J/JC/JCRISTY/PerlMagick-7.0.10.tar.gz"
+    sha256 "1d5272d71b5cb44c30cd84b09b4dc5735b850de164a192ba191a9b35568305f4"
   end
 
   # libarchive headers from macOS 10.15 source
@@ -44,10 +44,12 @@ class Lanraragi < Formula
     ENV.prepend_create_path "PERL5LIB", libexec/"lib/perl5"
     ENV.prepend_path "PERL5LIB", libexec/"lib"
     ENV["CFLAGS"] = "-I"+libexec/"include"
+    # https://stackoverflow.com/questions/60521205/how-can-i-install-netssleay-with-perlbrew-in-macos-catalina
+    ENV["OPENSSL_PREFIX"] = "#{Formula["openssl@1.1"]}/1.1.1g"
 
     resource("Image::Magick").stage do
       inreplace "Makefile.PL" do |s|
-        s.gsub! "/usr/local/include/ImageMagick-6", "#{Formula["imagemagick@6"].opt_include}/ImageMagick-6"
+        s.gsub! "/usr/local/include/ImageMagick-7", "#{Formula["imagemagick"].opt_include}/ImageMagick-7"
       end
 
       system "perl", "Makefile.PL", "INSTALL_BASE=#{libexec}"
