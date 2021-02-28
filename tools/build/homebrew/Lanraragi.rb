@@ -30,11 +30,6 @@ class Lanraragi < Formula
     sha256 "1d5272d71b5cb44c30cd84b09b4dc5735b850de164a192ba191a9b35568305f4"
   end
 
-  resource "IO::Socket::SSL" do
-    url "https://cpan.metacpan.org/authors/id/S/SU/SULLR/IO-Socket-SSL-2.069.tar.gz"
-    sha256 "d83c2cae5e8a22ab49c9f2d964726625e9efe56490d756a48a7b149a3d6e278d"
-  end
-
   resource "libarchive-headers" do
     url "https://opensource.apple.com/tarballs/libarchive/libarchive-83.40.4.tar.gz"
     sha256 "20ad61b1301138bc7445e204dd9e9e49145987b6655bbac39f6cad3c75b10369"
@@ -49,6 +44,8 @@ class Lanraragi < Formula
     ENV.prepend_create_path "PERL5LIB", "#{libexec}/lib/perl5"
     ENV.prepend_path "PERL5LIB", "#{libexec}/lib"
     ENV["CFLAGS"] = "-I#{libexec}/include"
+    # https://stackoverflow.com/questions/60521205/how-can-i-install-netssleay-with-perlbrew-in-macos-catalina
+    ENV["OPENSSL_PREFIX"] = "#{Formula["openssl@1.1"]}/1.1.1g"
 
     imagemagick = Formula["imagemagick"]
     resource("Image::Magick").stage do
@@ -59,11 +56,6 @@ class Lanraragi < Formula
 
       system "perl", "Makefile.PL", "INSTALL_BASE=#{libexec}"
       system "make"
-      system "make", "install"
-    end
-
-    resource("IO::Socket::SSL").stage do
-      system "perl", "Makefile.PL", "INSTALL_BASE=#{libexec}"
       system "make", "install"
     end
 
