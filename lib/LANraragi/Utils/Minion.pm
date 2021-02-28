@@ -100,7 +100,6 @@ sub add_tasks {
             my ( $file, $catid ) = @args;
 
             my $logger = get_logger( "Minion", "minion" );
-            $logger->info("Processing uploaded file $file...");
 
 # Superjank warning for the code below.
 #
@@ -119,6 +118,10 @@ sub add_tasks {
               or die "Bullshit! File path could not be converted back to a byte sequence!"
               ;    # This error happening would not make any sense at all so it deserves the EYE reference
 
+            # For display however, we'd like to make sure we always show proper UTF-8.
+            # redis_decode, while not initially designed for this, does the job.
+            $logger->info( "Processing uploaded file" . redis_decode($file) . "..." );
+
             # Since we already have a file, this goes straight to handle_incoming_file.
             my ( $status, $id, $title, $message ) = LANraragi::Model::Upload::handle_incoming_file( $file, $catid, "" );
 
@@ -126,7 +129,7 @@ sub add_tasks {
                 {   success  => $status,
                     id       => $id,
                     category => $catid,
-                    title    => redis_decode($title),    # We use a decode here to fix display issues in the response.
+                    title    => redis_decode($title),    # Ditto, to fix display issues in the response
                     message  => $message
                 }
             );
