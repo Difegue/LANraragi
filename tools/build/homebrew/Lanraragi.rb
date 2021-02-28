@@ -3,12 +3,13 @@ require "language/node"
 class Lanraragi < Formula
   desc "Web application for archival and reading of manga/doujinshi"
   homepage "https://github.com/Difegue/LANraragi"
-  # url "https://github.com/Difegue/LANraragi/archive/v.0.7.1.tar.gz"
-  # sha256 "bfef465abb30f2ff18cda2fea6712f5ff35b3d23b0d6f2e7ea4cfe1c46e69585"
+  # url "https://github.com/Difegue/LANraragi/archive/v.0.7.6.tar.gz"
+  # sha256 "2c498cc6a18b9fbb77c52ca41ba329c503aa5d4ec648075c3ebb72bfa7102099"
   url "https://github.com/Difegue/LANraragi.git",
       revision: "COMMIT_HASH"
   version "0.1994-dev"
   license "MIT"
+  revision 1
   head "https://github.com/Difegue/LANraragi.git"
 
   depends_on "pkg-config" => :build
@@ -29,10 +30,14 @@ class Lanraragi < Formula
     sha256 "1d5272d71b5cb44c30cd84b09b4dc5735b850de164a192ba191a9b35568305f4"
   end
 
-  # libarchive headers from macOS 10.15 source
-  resource "libarchive-headers-10.15" do
-    url "https://opensource.apple.com/tarballs/libarchive/libarchive-72.11.2.tar.gz"
-    sha256 "655b9270db794ba0b27052fd37b1750514b06769213656ab81e30727322e401f"
+  resource "IO::Socket::SSL" do
+    url "https://cpan.metacpan.org/authors/id/S/SU/SULLR/IO-Socket-SSL-2.069.tar.gz"
+    sha256 "d83c2cae5e8a22ab49c9f2d964726625e9efe56490d756a48a7b149a3d6e278d"
+  end
+
+  resource "libarchive-headers" do
+    url "https://opensource.apple.com/tarballs/libarchive/libarchive-83.40.4.tar.gz"
+    sha256 "20ad61b1301138bc7445e204dd9e9e49145987b6655bbac39f6cad3c75b10369"
   end
 
   resource "Archive::Peek::Libarchive" do
@@ -41,15 +46,15 @@ class Lanraragi < Formula
   end
 
   def install
-    ENV.prepend_create_path "PERL5LIB", libexec/"lib/perl5"
-    ENV.prepend_path "PERL5LIB", libexec/"lib"
-    ENV["CFLAGS"] = "-I"+libexec/"include"
-    # https://stackoverflow.com/questions/60521205/how-can-i-install-netssleay-with-perlbrew-in-macos-catalina
-    ENV["OPENSSL_PREFIX"] = "#{Formula["openssl@1.1"]}/1.1.1g"
+    ENV.prepend_create_path "PERL5LIB", "#{libexec}/lib/perl5"
+    ENV.prepend_path "PERL5LIB", "#{libexec}/lib"
+    ENV["CFLAGS"] = "-I#{libexec}/include"
 
+    imagemagick = Formula["imagemagick"]
     resource("Image::Magick").stage do
       inreplace "Makefile.PL" do |s|
-        s.gsub! "/usr/local/include/ImageMagick-7", "#{Formula["imagemagick"].opt_include}/ImageMagick-7"
+        s.gsub! "/usr/local/include/ImageMagick-#{imagemagick.version.major}",
+                "#{imagemagick.opt_include}/ImageMagick-#{imagemagick.version.major}"
       end
 
       system "perl", "Makefile.PL", "INSTALL_BASE=#{libexec}"
@@ -57,9 +62,15 @@ class Lanraragi < Formula
       system "make", "install"
     end
 
-    resource("libarchive-headers-10.15").stage do
-      (libexec/"include").install "libarchive/libarchive/archive.h"
-      (libexec/"include").install "libarchive/libarchive/archive_entry.h"
+    resource("IO::Socket::SSL").stage do
+      system "perl", "Makefile.PL", "INSTALL_BASE=#{libexec}"
+      system "make", "install"
+    end
+
+    resource("libarchive-headers").stage do
+      cd "libarchive/libarchive" do
+        (libexec/"include").install "archive.h", "archive_entry.h"
+      end
     end
 
     resource("Archive::Peek::Libarchive").stage do
@@ -77,15 +88,12 @@ class Lanraragi < Formula
     system "perl", "./tools/install.pl", "install-full"
 
     prefix.install "README.md"
-    bin.install "tools/build/homebrew/lanraragi"
     (libexec/"lib").install Dir["lib/*"]
-    libexec.install "script"
-    libexec.install "package.json"
-    libexec.install "public"
-    libexec.install "templates"
-    libexec.install "tests"
-    libexec.install "tools/build/homebrew/redis.conf"
-    libexec.install "lrr.conf"
+    libexec.install "script", "package.json", "public", "templates", "tests", "lrr.conf"
+    cd "tools/build/homebrew" do
+      bin.install "lanraragi"
+      libexec.install "redis.conf"
+    end
   end
 
   def caveats
