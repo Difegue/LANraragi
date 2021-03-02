@@ -8,6 +8,8 @@ use Mojo::Base 'Mojolicious';
 use Mojo::File;
 use Mojo::JSON qw(decode_json encode_json);
 use Storable;
+use Sys::Hostname;
+use Config;
 
 use LANraragi::Utils::Generic qw(start_shinobu start_minion);
 use LANraragi::Utils::Logging qw(get_logger);
@@ -27,9 +29,6 @@ sub startup {
     say "";
     say "ｷﾀ━━━━━━(ﾟ∀ﾟ)━━━━━━!!!!!";
 
-    # Load configuration from hash returned by "lrr.conf"
-    my $config = $self->plugin( 'Config', { file => 'lrr.conf' } );
-
     # Load package.json to get version/vername/description
     my $packagejson = decode_json( Mojo::File->new('package.json')->slurp );
 
@@ -37,15 +36,13 @@ sub startup {
     my $vername = $packagejson->{version_name};
     my $descstr = $packagejson->{description};
 
-    $self->secrets( $config->{secrets} );
+    # Use the hostname and osname for a sorta-unique set of secrets.
+    $self->secrets( [ hostname(), $Config{"osname"}, 'oshino' ] );
     $self->plugin('RenderFile');
 
     # Set Template::Toolkit as default renderer so we can use the LRR templates
     $self->plugin('TemplateToolkit');
     $self->renderer->default_handler('tt2');
-
-    # Enable Mojolicious::Plugin::LeakTracker if needed
-    #$self->plugin('leak_tracker');
 
     #Remove upload limit
     $self->max_request_size(0);
