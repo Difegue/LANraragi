@@ -146,7 +146,7 @@ You didn't specify the id parameter.
 {
     "operation": "______"
     "error": "No archive ID specified."
-    "status": 0
+    "success": 0
 }
 ```
 
@@ -211,7 +211,7 @@ You didn't specify the id parameter.
 {
     "operation": "______"
     "error": "No archive ID specified."
-    "status": 0
+    "success": 0
 }
 ```
 
@@ -265,7 +265,7 @@ You didn't specify the id parameter.
 {
     "operation": "______"
     "error": "No archive ID specified."
-    "status": 0
+    "success": 0
 }
 ```
 
@@ -318,7 +318,7 @@ You get the Archive.
 {
     "operation": "______"
     "error": "No archive ID specified."
-    "status": 0
+    "success": 0
 }
 ```
 
@@ -399,7 +399,7 @@ You didn't include the id parameter.
 {
     "operation": "______"
     "error": "No archive ID specified."
-    "status": 0
+    "success": 0
 }
 ```
 
@@ -499,7 +499,7 @@ You didn't specify the id parameter, provided a bad progress value, or the serve
 {
     "operation": "update_progress"
     "error": "No archive ID specified."
-    "status": 0
+    "success": 0
 }
 
 {
@@ -560,7 +560,7 @@ Metadata is updated.
 ```javascript
 {
     "operation": "update_metadata"
-    "status": 1
+    "success": 1
 }
 ```
 
@@ -575,7 +575,7 @@ You didn't specify the id parameter.
 {
     "operation": "______"
     "error": "No archive ID specified."
-    "status": 0
+    "success": 0
 }
 ```
 
