@@ -124,7 +124,7 @@
 	[% INCLUDE footer %]
 
 	[% IF debugmode %]
-	<i class="fas fa-bug"></i> You're running in Debug Mode!
+	<i class="fas fa-bug"></i> You're running in <a href="./debug">Debug Mode</a>!
 	<i class="fas fa-bug"></i>
 	[% END %]
 
