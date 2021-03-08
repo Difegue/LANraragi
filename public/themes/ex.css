@@ -10,6 +10,10 @@ img{border:0}
 a{color:#DDDDDD; } 
 a:hover{color:#FFFBDB} 
 
+input[type='checkbox']:checked::after, input[type='checkbox']:checked::before {
+    color: #FFFBDB;
+}  
+
 .sorting_asc>a, .sorting_desc>a {
     color: #FFFBDB;
 }

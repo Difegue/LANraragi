@@ -47,6 +47,10 @@ a:hover {
   text-decoration: none;
 }
 
+input[type='checkbox']:checked::after, input[type='checkbox']:checked::before {
+  color: #3b97ea;
+}
+
 .sorting_asc>a, .sorting_desc>a {
   color: #3b97ea;
 }
@@ -221,6 +225,15 @@ tr.gtr1 {
 .stdbtn:hover {
 	background-color: #43464E
 }
+
+.option-td > .stdbtn {
+  background-color: #43464E;
+}
+
+.option-td > .stdbtn:hover {
+  background-color: #34353B; 
+}
+
 .stdinput {
   background: none repeat scroll 0 0 #ECF0F1;
   font-family: "Open Sans", arial,sans-serif;

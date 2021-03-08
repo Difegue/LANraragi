@@ -423,6 +423,9 @@ p#nb a:hover {
   color: #BE234B;
 }
 
+input[type='checkbox']:checked::after, input[type='checkbox']:checked::before {
+  color: #BE234B;
+}
 
 /* File upload bar */
 .bar {

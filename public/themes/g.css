@@ -27,6 +27,10 @@ a:hover {
     color: #9B4E03;
 }
 
+input[type='checkbox']:checked::after, input[type='checkbox']:checked::before {
+    color: #9B4E03;
+}  
+
 .sorting_asc>a, .sorting_desc>a {
     color: #9B4E03;
 }
