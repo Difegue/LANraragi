@@ -32,44 +32,54 @@
 	<div class="ido" style="text-align:center;">
 		<h1 class="ih" style="text-align:center">Plugin Configuration</h1>
 		<br /> Enable/Disable Auto-Plugin on metadata plugins by checking the toggles.
-		<br /> Plugins will be automatically used on new archives if they're toggled here and Auto-Plugin is enabled in
-		Settings.
+		<br /> Plugins will be automatically used on new archives if they're toggled here.
 		<br /> If they have configuration variables, you can set them here as well.
 		<br /> You can also trigger Scripts here. Triggering a script will save your Plugin settings beforehand.
 		<br />
 
 		<form name="editPluginForm" id="editPluginForm" enctype="multipart/form-data" method="post">
 
-			<ul class="collapsible extensible with-right-caret">
-				<li class="option-flyout">
-					<div class="collapsible-title caret-right">
-						<i class="fa fa-digital-tachograph" aria-hidden="true"></i> Metadata Plugins</div>
-					<div class="collapsible-body">
-						[% INCLUDE pluginlist plugins = metadata %]
-					</div>
-				</li>
-				<li class="option-flyout">
-					<div class="collapsible-title caret-right">
-						<i class="fa fa-plug" aria-hidden="true"></i> Login Plugins</div>
-					<div class="collapsible-body">
-						[% INCLUDE pluginlist plugins = logins %]
-					</div>
-				</li>
-				<li class="option-flyout">
-					<div class="collapsible-title caret-right">
-						<i class="fas fa-cloud-download-alt" aria-hidden="true"></i> Downloaders</div>
-					<div class="collapsible-body">
-						[% INCLUDE pluginlist plugins = downloaders %]
-					</div>
-				</li>
-				<li class="option-flyout">
-					<div class="collapsible-title caret-right">
-						<i class="fa fa-scroll" aria-hidden="true"></i> Scripts</div>
-					<div class="collapsible-body">
-						[% INCLUDE pluginlist plugins = scripts %]
-					</div>
-				</li>
-			</ul>
+			<div class="left-column" style="width:49%">
+				<ul class="collapsible extensible with-right-caret">
+					<li class="option-flyout">
+						<div class="collapsible-title caret-right">
+							<i class="fa fa-plug" aria-hidden="true"></i> Login Plugins
+						</div>
+						<div class="collapsible-body">
+							[% INCLUDE pluginlist plugins = logins %]
+						</div>
+					</li>
+					<li class="option-flyout">
+						<div class="collapsible-title caret-right">
+							<i class="fas fa-cloud-download-alt" aria-hidden="true"></i> Downloaders
+						</div>
+						<div class="collapsible-body">
+							[% INCLUDE pluginlist plugins = downloaders %]
+						</div>
+					</li>
+					<li class="option-flyout">
+						<div class="collapsible-title caret-right">
+							<i class="fa fa-scroll" aria-hidden="true"></i> Scripts
+						</div>
+						<div class="collapsible-body">
+							[% INCLUDE pluginlist plugins = scripts %]
+						</div>
+					</li>
+				</ul>
+			</div>
+
+			<div class="right-column" style="width:50%">
+				<ul class="collapsible extensible with-right-caret">
+					<li class="option-flyout">
+						<div class="collapsible-title caret-right">
+							<i class="fa fa-digital-tachograph" aria-hidden="true"></i> Metadata Plugins
+						</div>
+						<div class="collapsible-body">
+							[% INCLUDE pluginlist plugins = metadata %]
+						</div>
+					</li>
+				</ul>
+			</div>
 
 			<br />
 			<h1 style="text-align:center">
@@ -143,7 +153,7 @@
 	[% END %]
 	<br />
 	[% IF plugin.type == "metadata" %]
-	<h1 class="ih" style="display:inline"> Auto-Plugin: </h1>
+	<h1 class="ih" style="display:inline"> Run on new Archives automatically: </h1>
 	<input id="[% plugin.namespace %]" name="[% plugin.namespace %]" class="fa" type="checkbox" [% IF plugin.enabled %]
 		checked [% END %]>
 	<br />
@@ -180,7 +190,11 @@
 
 	[% IF plugin.parameters && plugin.parameters.size %]
 	<div class="collapsible-title " style="padding: 5px 0 0 5px">
-		<i class="fa fa-cog fa-2x" aria-hidden="true"></i><b> Settings</b></div>
+		<a>
+			<i class="fas fa-sliders-h fa-2x" style="margin-right: 4px" aria-hidden="true"></i>
+			<b style="vertical-align: super;">Plugin Settings</b>
+		</a>
+	</div>
 	<div class="collapsible-body" style="padding:5px 0 0 0">
 		<table>
 			<tbody>

@@ -123,7 +123,6 @@ sub get_tempmaxsize { return &get_redis_conf( "tempmaxsize",   "500" ) }
 sub get_pagesize    { return &get_redis_conf( "pagesize",      "100" ) }
 sub enable_pass     { return &get_redis_conf( "enablepass",    "1" ) }
 sub enable_nofun    { return &get_redis_conf( "nofunmode",     "0" ) }
-sub enable_autotag  { return &get_redis_conf( "autotag",       "1" ) }
 sub enable_cors     { return &get_redis_conf( "enablecors",    "0" ) }
 sub get_apikey      { return &get_redis_conf( "apikey",        "" ) }
 sub enable_blacklst { return &get_redis_conf( "blackliston",   "1" ) }

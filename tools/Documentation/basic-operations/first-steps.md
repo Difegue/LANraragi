@@ -5,8 +5,7 @@
 ![The default password for a new LRR install is &quot;kamimamita&quot;.](../.gitbook/assets/login.png)
 
 * [ ] Change Security Settings
-* [ ] Enable and configure wanted Plugins
-* [ ] Enable Auto-Plugin if needed
+* [ ] Enable and configure wanted Plugins to tag your content
 * [ ] Change the default Content Folder to your personal folder, or start adding files to the default Content Folder!
 
 {% hint style="info" %}
@@ -63,10 +62,10 @@ The following formats are supported by LRR for Archives:
 {% endhint %}
 
 {% hint style="info" %}
-If you plan on setting your content folder to a folder that already contains archives, you might want to enable **Auto-Plugin** beforehand, so that metadata will be fetched for your files as they're added. See the Metadata documentation linked below for more info.
+If you plan on setting your content folder to a folder that already contains archives, you might want to enable **some Plugins** beforehand, so that metadata will be fetched for your files as they're added. See the Metadata documentation linked below for more info.
 
 However, beware that if you enable plugins that depend on remote services, querying said services to scrap metadata for a large number of archives might lead to **temporary bans**!  
-If you have a large number of archives (More than 500), you might want to ignore Auto-Plugin and use [Batch Tagging](../advanced-usage/batch-tagging) instead.  
+If you have a large number of archives (More than 500), you might want to ignore Automatic Plugin execution and use [Batch Tagging](../advanced-usage/batch-tagging) instead.  
 {% endhint %}
 
 ## Plugin Configuration
@@ -92,7 +91,7 @@ See the Adding Metadata section for more information.
 
 You can add archives to the application by either copying them to the content folder, or using the built-in uploader tool.  
 They'll be automatically indexed and added to the database.  
-Plugins will also be ran automatically to try and fetch metadata for them, if you enabled **Auto-Plugin** previously.  
+Plugins will also be ran automatically to try and fetch metadata for them, if you toggled them in **Plugin Configuration** previously.  
 
 You can also **queue downloads** by giving URLs to the server in the uploader tool, which will then be downloaded to your content folder seamlessly.  
 See the link below for more details.  

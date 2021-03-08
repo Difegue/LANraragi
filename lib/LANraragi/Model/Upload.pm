@@ -90,18 +90,13 @@ sub handle_incoming_file {
     unless ( -e $output_file ) {
         return ( 0, $id, $name, "The file couldn't be moved to your content folder!" );
     }
+    $logger->debug("Running autoplugin on newly uploaded file $id...");
 
-    my $successmsg = "File added successfully!";
+    my ( $succ, $fail, $addedtags, $newtitle ) = LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
+    my $successmsg = "$succ Plugins used successfully, $fail Plugins failed, $addedtags tags added. ";
 
-    if ( LANraragi::Model::Config->enable_autotag ) {
-        $logger->debug("Running autoplugin on newly uploaded file $id...");
-
-        my ( $succ, $fail, $addedtags, $newtitle ) = LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
-        $successmsg = "$succ Plugins used successfully, $fail Plugins failed, $addedtags tags added. ";
-
-        if ( $newtitle ne "" ) {
-            $name = $newtitle;
-        }
+    if ( $newtitle ne "" ) {
+        $name = $newtitle;
     }
 
     if ($catid) {

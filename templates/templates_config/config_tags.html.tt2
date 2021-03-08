@@ -18,21 +18,6 @@
 
 <tr>
     <td class="option-td">
-        <h2 class="ih"> Auto-Plugin </h2>
-    </td>
-    <td>
-        [% IF autotag %]
-        <input id="autotag" name="autotag" class="fa" type="checkbox" checked> [% ELSE %]
-        <input id="autotag" name="autotag" class="fa" type="checkbox"> [% END %]
-        <label for="autotag">
-            <br>Enabled plugins will be automatically executed on newly uploaded archives if this option is on.
-            <br /> See Plugin Configuration to enable/disable plugins.
-        </label>
-    </td>
-</tr>
-
-<tr>
-    <td class="option-td">
         <input id="genthumb-button" class='stdbtn' type='button' onclick="regenThumbnails(false);"
             value='Generate Missing Thumbnails' />
     </td>

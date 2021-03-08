@@ -303,9 +303,7 @@ sub add_new_file {
         LANraragi::Utils::Database::add_archive_to_redis( $id, $file, $redis );
 
         #AutoTagging using enabled plugins goes here!
-        if ( LANraragi::Model::Config->enable_autotag ) {
-            LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
-        }
+        LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
     };
 
     if ($@) {

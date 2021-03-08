@@ -87,7 +87,7 @@ You can also sideload Plugins through Plugin Configuration in the webapp.
 
 Once this is done, you can test your plugin by simply using it:
 
-* Metadata plugins can be used by enabling them for Auto-Plugin or on individual archives.  
+* Metadata plugins can be used by enabling them for Automatic Execution or on individual archives.  
 * Script plugins can be directly executed from Plugin Configuration.
 * Login plugins can't be tested directly for now.  
 
@@ -96,4 +96,3 @@ It is also possible to execute plugins through the [Client API](../extending-lan
 {% endhint %}
 
 If LANraragi is running in Debug Mode, debug messages from your plugin will be logged.
-
