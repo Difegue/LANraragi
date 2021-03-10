@@ -167,19 +167,22 @@ sub update_progress {
     my $self = shift;
     my $id   = check_id_parameter( $self, "update_progress" ) || return;
 
-    my $page  = $self->stash('page') || 0;
-    my $redis = $self->LRR_CONF->get_redis();
+    my $page = $self->stash('page') || 0;
 
+    # Undocumented parameter to force progress update
+    my $force = $self->req->param('force') || 0;
+
+    my $redis     = $self->LRR_CONF->get_redis();
     my $pagecount = $redis->hget( $id, "pagecount" );
 
     # This relies on pagecount, so you can't update progress for archives that don't have a valid pagecount recorded yet.
-    unless ($pagecount) {
+    unless ( $pagecount || $force ) {
         render_api_response( $self, "update_progress", "Archive doesn't have a total page count recorded yet." );
         return;
     }
 
     # Safety-check the given page value.
-    unless ( looks_like_number($page) && $page > 0 && $page <= $pagecount ) {
+    unless ( $force || ( looks_like_number($page) && $page > 0 && $page <= $pagecount ) ) {
         render_api_response( $self, "update_progress", "Invalid progress value." );
         return;
     }

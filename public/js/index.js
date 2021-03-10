@@ -359,3 +359,46 @@ function closeOverlay() {
 	$('#overlay-shade').fadeOut(300);
 	$('.base-overlay').css('display', 'none');
 }
+
+function migrateProgress() {
+	localProgressKeys = Object.keys(localStorage).filter(x => x.endsWith("-reader")).map(x => x.slice(0, -7));
+
+	if (localProgressKeys.length > 0) {
+		$.toast({
+			heading: 'Your Reading Progression is now saved on the server!',
+			text: 'You seem to have some local progression saved from an earlier LRR version -- Please wait warmly while we migrate it to the server for you. ☕',
+			hideAfter: false,
+			position: 'top-left',
+			icon: 'info'
+		});
+
+		var promises = [];
+		localProgressKeys.forEach(id => {
+
+			var progress = localStorage.getItem(id + "-reader");
+
+			promises.push(fetch(`api/archives/${id}/metadata`, { method: 'GET' })
+				.then(response => response.json())
+				.then((data) => {
+					// Don't migrate if the server progress is already further
+					if (progress !== null && data !== undefined && data !== null && progress > data.progress) {
+						genericAPICall(`api/archives/${id}/progress/${progress}?force=1`, "PUT", null, "Error updating reading progress!", null);
+					}
+
+					// Clear out localStorage'd progress
+					localStorage.removeItem(id + "-reader");
+					localStorage.removeItem(id + "-totalPages");
+				}));
+		});
+
+		Promise.all(promises).then(() => $.toast({
+			heading: 'Reading Progression has been fully migrated! 🎉',
+			text: 'You\'ll have to reopen archives in the Reader to see the migrated progression values.',
+			hideAfter: false,
+			position: 'top-left',
+			icon: 'success'
+		}));
+	} else {
+		console.log("No local reading progression to migrate");
+	}
+}
