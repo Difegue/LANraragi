@@ -56,8 +56,9 @@ sub build_reader_JSON {
     my $tempdir = get_temp();
 
     #Redis stuff: Grab archive path and update some things
-    my $redis   = LANraragi::Model::Config->get_redis;
-    my $dirname = LANraragi::Model::Config->get_userdir;
+    my $redis    = LANraragi::Model::Config->get_redis;
+    my $dirname  = LANraragi::Model::Config->get_userdir;
+    my $thumbdir = LANraragi::Model::Config->get_thumbdir;
 
     # Get the path from Redis.
     # Filenames are stored as they are on the OS, so no decoding!
@@ -119,7 +120,7 @@ sub build_reader_JSON {
 
     # Convert page 1 into a thumbnail for the main reader index
     my $subfolder = substr( $id, 0, 2 );
-    my $thumbname = "$dirname/thumb/$subfolder/$id.jpg";
+    my $thumbname = "$thumbdir/$subfolder/$id.jpg";
 
     unless ( -e $thumbname && $thumbreload eq "0" ) {
 
@@ -128,7 +129,7 @@ sub build_reader_JSON {
 
         $self->LRR_LOGGER->debug("Thumbnail not found at $thumbname! (force-thumb flag = $thumbreload)");
         $self->LRR_LOGGER->debug( "Regenerating from " . $images[0] );
-        make_path("$dirname/thumb/$subfolder");
+        make_path("$thumbdir/$subfolder");
 
         generate_thumbnail( $images[0], $thumbname );
     }

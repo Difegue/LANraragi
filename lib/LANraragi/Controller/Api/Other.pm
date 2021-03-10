@@ -85,11 +85,11 @@ sub minion_job_status {
 
 # Queue the regen_all_thumbnails Minion job.
 sub regen_thumbnails {
-    my $self    = shift;
-    my $dirname = LANraragi::Model::Config->get_userdir;
-    my $force   = ( $self->req->param('force') && $self->req->param('force') ne "false" ) ? 1 : 0;
+    my $self     = shift;
+    my $thumbdir = LANraragi::Model::Config->get_thumbdir;
+    my $force    = ( $self->req->param('force') && $self->req->param('force') ne "false" ) ? 1 : 0;
 
-    my $jobid = $self->minion->enqueue( regen_all_thumbnails => [ $dirname, $force ] => { priority => 0 } );
+    my $jobid = $self->minion->enqueue( regen_all_thumbnails => [ $thumbdir, $force ] => { priority => 0 } );
 
     $self->render(
         json => {

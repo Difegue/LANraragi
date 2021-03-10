@@ -1,20 +1,15 @@
 <tr>
     <td class="option-td">
-        <h2 class="ih"> Tag Blacklist </h2>
+        <h2 class="ih"> Thumbnail Directory </h2>
     </td>
     <td>
-        [% IF blackliston %]
-        <input id="blackliston" name="blackliston" class="fa" type="checkbox" checked> [% ELSE %]
-        <input id="blackliston" name="blackliston" class="fa" type="checkbox"> [% END %]
-        <br>
-        <textarea class="stdinput" size="20" style='width:100%; height:75px' name="blacklist"
-            maxlength='5000'>[% blacklist %]</textarea>
-        <br> When tagging archives using Plugins, these tags will be automatically omitted.
-        <br>Split tags with commas.
+        <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% thumbdir %]" name="thumbdir"
+            type="text" [% IF forcedthumbdir %] disabled title="This option is enforced by an environment variable." [%
+            END %]>
+        <br> Directory where the archive thumbnails will be located. It will be created if it doesn't exist.
+        <br>Make sure the OS user running LANraragi has read/write access to this directory. <br>
     </td>
 </tr>
-
-<tr></tr>
 
 <tr>
     <td class="option-td">
@@ -33,5 +28,23 @@
     </td>
     <td><br>
         Regenerate all thumbnails. This might take a while!
+    </td>
+</tr>
+
+<tr></tr>
+
+<tr>
+    <td class="option-td">
+        <h2 class="ih"> Tag Blacklist </h2>
+    </td>
+    <td>
+        [% IF blackliston %]
+        <input id="blackliston" name="blackliston" class="fa" type="checkbox" checked> [% ELSE %]
+        <input id="blackliston" name="blackliston" class="fa" type="checkbox"> [% END %]
+        <br>
+        <textarea class="stdinput" size="20" style='width:100%; height:75px' name="blacklist"
+            maxlength='5000'>[% blacklist %]</textarea>
+        <br> When tagging archives using Plugins, these tags will be automatically omitted.
+        <br>Split tags with commas.
     </td>
 </tr>

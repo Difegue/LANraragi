@@ -13,12 +13,13 @@ sub plugin_info {
 
     return (
         #Standard metadata
-        name        => "The Normalizer",
-        type        => "script",
-        namespace   => "unicodenorm",
-        author      => "Difegue",
-        version     => "1.0",
-        description => "Normalize all metadata in the database to Unicode NFC."
+        name      => "The Normalizer",
+        type      => "script",
+        namespace => "unicodenorm",
+        author    => "Difegue",
+        version   => "1.0",
+        description =>
+          "Normalize all metadata in the database to Unicode NFC. Consider running this once if you're upgrading from 0.7.6."
     );
 
 }

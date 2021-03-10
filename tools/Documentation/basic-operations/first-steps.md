@@ -6,6 +6,7 @@
 
 * [ ] Change Security Settings
 * [ ] Enable and configure wanted Plugins to tag your content
+* [ ] Move the Thumbnail Folder to a dedicated folder if you don't want them alongside your content
 * [ ] Change the default Content Folder to your personal folder, or start adding files to the default Content Folder!
 
 {% hint style="info" %}
@@ -46,7 +47,7 @@ This folder contains all the user-generated data:
 By default, this folder is placed at the root of the LRR installation, but you can configure it to use any folder on your machine instead. The content folder is subdirectory-aware, so you can easily drop-in an already sorted collection.  
 
 The content folder can be write-only if you so desire, but the caveat is that the thumbnail subfolder \(`/thumb`\) needs write rights to function properly for the time being.  
-You can use a symbolic link if you want the thumbnail folder to be located somewhere else.  
+See the section below if you want to move the thumbnail subfolder somewhere else.  
 
 {% hint style="success" %}
 The following formats are supported by LRR for Archives: 
@@ -66,6 +67,16 @@ If you plan on setting your content folder to a folder that already contains arc
 
 However, beware that if you enable plugins that depend on remote services, querying said services to scrap metadata for a large number of archives might lead to **temporary bans**!  
 If you have a large number of archives (More than 500), you might want to ignore Automatic Plugin execution and use [Batch Tagging](../advanced-usage/batch-tagging) instead.  
+{% endhint %}
+
+## Thumbnail Folder
+
+Starting with 0.7.7, the thumbnail folder can be dissociated from the Content Folder, if you want to move it to a SSD or keep your Content Folder fully read-only.  
+
+![Thumbnail Options](../.gitbook/assets/thumbchange.png)
+
+{% hint style="warning" %}
+There is no support for moving your thumbnails from the old folder to the new one, so make sure to move them manually once you've switched!  
 {% endhint %}
 
 ## Plugin Configuration

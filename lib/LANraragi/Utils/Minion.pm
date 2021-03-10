@@ -20,18 +20,18 @@ sub add_tasks {
 
     $minion->add_task(
         thumbnail_task => sub {
-            my ( $job,     @args ) = @_;
-            my ( $dirname, $id )   = @args;
+            my ( $job,      @args ) = @_;
+            my ( $thumbdir, $id )   = @args;
 
-            my $thumbname = extract_thumbnail( $dirname, $id );
+            my $thumbname = extract_thumbnail( $thumbdir, $id );
             $job->finish($thumbname);
         }
     );
 
     $minion->add_task(
         regen_all_thumbnails => sub {
-            my ( $job,     @args )  = @_;
-            my ( $dirname, $force ) = @args;
+            my ( $job,      @args )  = @_;
+            my ( $thumbdir, $force ) = @args;
 
             my $logger = get_logger( "Minion", "minion" );
             my $redis  = LANraragi::Model::Config->get_redis;
@@ -46,12 +46,12 @@ sub add_tasks {
             foreach my $id (@keys) {
 
                 my $subfolder = substr( $id, 0, 2 );
-                my $thumbname = "$dirname/thumb/$subfolder/$id.jpg";
+                my $thumbname = "$thumbdir/$subfolder/$id.jpg";
 
                 unless ( $force == 0 && -e $thumbname ) {
                     eval {
                         $logger->debug("Regenerating for $id...");
-                        extract_thumbnail( $dirname, $id );
+                        extract_thumbnail( $thumbdir, $id );
                         $thumbscount++;
                     };
 

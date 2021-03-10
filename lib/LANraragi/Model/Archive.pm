@@ -147,16 +147,16 @@ sub find_untagged_archives {
 sub serve_thumbnail {
 
     my ( $self, $id ) = @_;
-    my $dirname = LANraragi::Model::Config->get_userdir;
+    my $thumbdir = LANraragi::Model::Config->get_thumbdir;
 
     # Thumbnails are stored in the content directory, thumb subfolder.
     # Another subfolder with the first two characters of the id is used for FS optimization.
     my $subfolder = substr( $id, 0, 2 );
-    my $thumbname = "$dirname/thumb/$subfolder/$id.jpg";
+    my $thumbname = "$thumbdir/$subfolder/$id.jpg";
 
     # Queue a minion job to generate the thumbnail. Thumbnail jobs have the lowest priority.
     unless ( -e $thumbname ) {
-        $self->minion->enqueue( thumbnail_task => [ $dirname, $id ] => { priority => 0 } );
+        $self->minion->enqueue( thumbnail_task => [ $thumbdir, $id ] => { priority => 0 } );
         $self->render_file( filepath => "./public/img/noThumb.png" );
         return;
     } else {

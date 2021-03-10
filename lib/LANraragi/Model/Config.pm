@@ -98,6 +98,24 @@ sub get_userdir {
     return abs_path($dir);
 }
 
+sub get_thumbdir {
+
+    # Content path can be overriden by LRR_THUMB_DIRECTORY
+    my $dir = &get_redis_conf( "thumbdir", get_userdir() . "/thumb" );
+
+    if ( $ENV{LRR_THUMB_DIRECTORY} ) {
+        $dir = $ENV{LRR_THUMB_DIRECTORY};
+    }
+
+    # Try to create userdir if it doesn't already exist
+    unless ( -e $dir ) {
+        mkdir $dir;
+    }
+
+    #Return full path if it's relative, using the /lanraragi directory as a base
+    return abs_path($dir);
+}
+
 sub enable_devmode {
 
     if ( $ENV{LRR_FORCE_DEBUG} ) {

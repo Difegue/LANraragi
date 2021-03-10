@@ -80,7 +80,7 @@ sub clean_temp_partial {
     if ( $size > $maxsize ) {
         $logger->info( "Current temporary folder size is $size MBs, " . "Maximum size is $maxsize MBs. Cleaning." );
 
-        #Wipe thumb temp folder first
+        # Wipe thumbnail temp folder first
         if ( -e $tempdir . "/thumb" ) { unlink( $tempdir . "/thumb" ); }
 
         opendir( my $dir_fh, $tempdir );

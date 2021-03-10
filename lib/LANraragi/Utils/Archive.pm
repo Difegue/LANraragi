@@ -115,17 +115,17 @@ sub extract_pdf {
     return $destination;
 }
 
-#extract_thumbnail(dirname, id)
+#extract_thumbnail(thumbnaildir, id)
 #Finds the first image for the specified archive ID and makes it the thumbnail.
 sub extract_thumbnail {
 
-    my ( $dirname, $id ) = @_;
+    my ( $thumbdir, $id ) = @_;
 
     # Another subfolder with the first two characters of the id is used for FS optimization.
     my $subfolder = substr( $id, 0, 2 );
-    my $thumbname = "$dirname/thumb/$subfolder/$id.jpg";
+    my $thumbname = "$thumbdir/$subfolder/$id.jpg";
 
-    make_path("$dirname/thumb/$subfolder");
+    make_path("$thumbdir/$subfolder");
     my $redis = LANraragi::Model::Config->get_redis;
 
     my $file     = $redis->hget( $id, "file" );

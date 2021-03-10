@@ -191,10 +191,10 @@ sub exec_metadata_plugin {
         # If the thumbnail hash is empty or undefined, we'll generate it here.
         unless ( length $thumbhash ) {
             $logger->info("Thumbnail hash invalid, regenerating.");
-            my $dirname = LANraragi::Model::Config->get_userdir;
+            my $thumbdir = LANraragi::Model::Config->get_thumbdir;
 
             #eval the thumbnail extraction as it can error out and die
-            eval { extract_thumbnail( $dirname, $id ) };
+            eval { extract_thumbnail( $thumbdir, $id ) };
             if ($@) {
                 $logger->warn("Error building thumbnail: $@");
                 $thumbhash = "";

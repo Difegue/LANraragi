@@ -99,9 +99,9 @@ sub delete_archive {
     if ( -e $filename ) {
         unlink $filename;
 
-        my $dirname   = LANraragi::Model::Config->get_userdir;
+        my $thumbdir  = LANraragi::Model::Config->get_thumbdir;
         my $subfolder = substr( $id, 0, 2 );
-        my $thumbname = "$dirname/thumb/$subfolder/$id.jpg";
+        my $thumbname = "$thumbdir/$subfolder/$id.jpg";
 
         unlink $thumbname;
 
