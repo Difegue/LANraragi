@@ -29,7 +29,7 @@ use File::Find;
 use File::Basename;
 use Encode;
 
-use LANraragi::Utils::Database qw(invalidate_cache compute_id);
+use LANraragi::Utils::Database qw(redis_encode invalidate_cache compute_id);
 use LANraragi::Utils::TempFolder qw(get_temp clean_temp_partial);
 use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Utils::Generic qw(is_archive split_workload_by_cpu);
