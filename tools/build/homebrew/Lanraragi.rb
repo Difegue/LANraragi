@@ -23,6 +23,7 @@ class Lanraragi < Formula
   depends_on "openssl@1.1"
   depends_on "perl"
   depends_on "redis"
+  depends_on "zstd"
   uses_from_macos "libarchive"
 
   resource "Image::Magick" do
