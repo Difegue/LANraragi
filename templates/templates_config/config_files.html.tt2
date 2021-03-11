@@ -3,10 +3,11 @@
         <h2 class="ih"> Archive Directory </h2>
     </td>
     <td>
-        <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% dirname %]" name="dirname" type="text"
-            [% IF forceddirname %] disabled title="This option is enforced by an environment variable."[% END %]>
+        <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% dirname %]" name="dirname"
+            type="text" [% IF forceddirname %] disabled title="This option is enforced by an environment variable." [%
+            END %]>
         <br> Directory where the archives will be located. It will be created if it doesn't exist.
-        <br>Make sure the OS user running LANraragi has access to this directory. <br>
+        <br>Make sure the OS user running LANraragi has read access to this directory. <br>
     </td>
 </tr>
 
@@ -15,7 +16,8 @@
         <h2 class="ih"> Maximum <br>Temporary Folder Size </h2>
     </td>
     <td>
-        <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% tempmaxsize %]" name="tempmaxsize" type="text">
+        <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% tempmaxsize %]"
+            name="tempmaxsize" type="text">
         <br>In MBs. The temporary folder contains recently opened archives, for faster subsequent reading. <br>
         It is automatically emptied when it grows past this specified size.
     </td>
@@ -40,7 +42,7 @@
     </td>
     <td>
         The last searches done in the archive index are cached for faster loads. <br>
-        If something went wrong with said cache, you can reset it by clicking this button. <br> 
+        If something went wrong with said cache, you can reset it by clicking this button. <br>
         <br>
     </td>
 </tr>
@@ -52,7 +54,7 @@
         <input class='stdbtn' type='button' onclick="clearAllNew();" value='Clear NEW flags' />
     </td>
     <td>
-        Newly uploaded archives are marked as "new" in the index until you've opened them.  <br>
+        Newly uploaded archives are marked as "new" in the index until you've opened them. <br>
         If you want to clear those flags, click this button. <br>
         <br>
     </td>

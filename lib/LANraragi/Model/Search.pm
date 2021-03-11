@@ -29,12 +29,8 @@ sub do_search {
     my $redis  = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Search Engine", "lanraragi" );
 
-    my $numCpus = Sys::CpuAffinity::getNumCpus();
-    my $pl      = Parallel::Loops->new($numCpus);
-
     # Search filter results
-    my @filtered;
-    $pl->share( \@filtered );
+    my @filtered = ();
 
     # If the category filter is enabled, fetch the matching category
     my %category     = ();
@@ -52,7 +48,7 @@ sub do_search {
             $cat_search = $category{search};    # category search, if it's a favsearch
 
             if ( $cat_search eq "" ) {
-                @cat_archives = @{ decode_json( $category{archives} ) };    # category archives, if it's a standard category
+                @cat_archives = @{ $category{archives} };    # category archives, if it's a standard category
             }
         }
     }
@@ -72,10 +68,18 @@ sub do_search {
     $logger->debug("Search request: $cachekey");
 
     if ( $redis->exists("LRR_SEARCHCACHE") && $redis->hexists( "LRR_SEARCHCACHE", $cachekey ) ) {
-
         $logger->debug("Using cache for this query.");
-        @filtered = @{ thaw $redis->hget( "LRR_SEARCHCACHE", $cachekey ) };
+
+        my $frozendata = $redis->hget( "LRR_SEARCHCACHE", $cachekey );
+        @filtered = @{ thaw $frozendata };
+
     } else {
+
+        # Setup parallel processing
+        my $numCpus = Sys::CpuAffinity::getNumCpus();
+        my $pl      = Parallel::Loops->new($numCpus);
+        my @shared  = ();
+        $pl->share( \@shared );
 
         $logger->debug("No cache available, doing a full DB parse.");
 
@@ -109,21 +113,27 @@ sub do_search {
                     $tags  = redis_decode($tags);
 
                     # Check new filter first
-                    if ( $newonly && $isnew && $isnew ne "true" && $isnew ne "block" ) {
+                    if ( $newonly && $isnew && $isnew ne "true" ) {
                         next;
                     }
 
                     # Check category search and base search filter
+                    my $concat = $tags ? $title . "," . $tags : $title;
                     if (   $file
-                        && matches_search_filter( $cat_search, $title . "," . $tags )
-                        && matches_search_filter( $filter,     $title . "," . $tags ) ) {
+                        && matches_search_filter( $cat_search, $concat )
+                        && matches_search_filter( $filter,     $concat ) ) {
 
                         # Push id to array
-                        push @filtered, { id => $id, title => $title, tags => $tags };
+                        push @shared, { id => $id, title => $title, tags => $tags };
                     }
                 }
             }
         );
+
+        # Remove the extra reference/objects Parallel::Loops adds to the array,
+        # as that'll cause memory leaks when we serialize/deserialize them with Storable.
+        # This is done by simply copying the parallelized array to @filtered.
+        @filtered = @shared;
 
         if ( $#filtered > 0 ) {
 

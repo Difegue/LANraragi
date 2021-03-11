@@ -26,8 +26,7 @@ sub exec_enabled_plugins_on_file {
     my $successes = 0;
     my $failures  = 0;
     my $addedtags = 0;
-
-    my $cooldown = 0;
+    my $newtitle  = "";
 
     my @plugins = LANraragi::Utils::Plugins::get_enabled_plugins("metadata");
 
@@ -37,12 +36,7 @@ sub exec_enabled_plugins_on_file {
         my $plugin = LANraragi::Utils::Plugins::get_plugin($name);
         my %plugin_result;
 
-        my %pluginfo        = $plugin->plugin_info();
-        my $plugin_cooldown = 0;
-        if ( exists $pluginfo{cooldown} ) {
-            $plugin_cooldown = $pluginfo{cooldown};
-            $logger->debug("This plugin has a cooldown value of $plugin_cooldown");
-        }
+        my %pluginfo = $plugin->plugin_info();
 
         #Every plugin execution is eval'd separately
         eval { %plugin_result = exec_metadata_plugin( $plugin, $id, "", @args ); };
@@ -71,21 +65,13 @@ sub exec_enabled_plugins_on_file {
             if ( exists $plugin_result{title} ) {
                 LANraragi::Utils::Database::set_title( $id, $plugin_result{title} );
 
-                # Increment added_tags if the title changed as well
-                $addedtags++;
+                $newtitle = $plugin_result{title};
+                $logger->debug("Changing title to $newtitle.");
             }
-
-            # Take into account the recommended cooldown of the plugin
-            $cooldown = $plugin_cooldown > $cooldown ? $plugin_cooldown : $cooldown;
         }
     }
 
-    if ( $cooldown > 0 ) {
-        $logger->info("Plugin execution complete, sleeping $cooldown seconds.");
-        sleep($cooldown);
-    }
-
-    return ( $successes, $failures, $addedtags );
+    return ( $successes, $failures, $addedtags, $newtitle );
 }
 
 # Unlike the two other methods, exec_login_plugin takes a plugin name and does the Redis lookup itself.
@@ -205,10 +191,10 @@ sub exec_metadata_plugin {
         # If the thumbnail hash is empty or undefined, we'll generate it here.
         unless ( length $thumbhash ) {
             $logger->info("Thumbnail hash invalid, regenerating.");
-            my $dirname = LANraragi::Model::Config->get_userdir;
+            my $thumbdir = LANraragi::Model::Config->get_thumbdir;
 
             #eval the thumbnail extraction as it can error out and die
-            eval { extract_thumbnail( $dirname, $id ) };
+            eval { extract_thumbnail( $thumbdir, $id ) };
             if ($@) {
                 $logger->warn("Error building thumbnail: $@");
                 $thumbhash = "";
@@ -259,9 +245,9 @@ sub exec_metadata_plugin {
             remove_spaces($tagtoadd);
             remove_newlines($tagtoadd);
 
+            # Only proceed if the tag isnt already in redis
             unless ( index( uc($tags), uc($tagtoadd) ) != -1 ) {
 
-                #Only proceed if the tag isnt already in redis
                 my $good = 1;
 
                 if ($blistenable) {

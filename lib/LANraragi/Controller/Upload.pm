@@ -71,7 +71,7 @@ sub index {
     my $self = shift;
 
     # Allow adding to category on direct uploads
-    my @categories = LANraragi::Model::Category::get_category_list;
+    my @categories = LANraragi::Model::Category->get_category_list;
 
     # But only to static categories
     @categories = grep { %$_{"search"} eq "" } @categories;
@@ -79,6 +79,7 @@ sub index {
     $self->render(
         template   => "upload",
         title      => $self->LRR_CONF->get_htmltitle,
+        descstr    => $self->LRR_DESC,
         categories => \@categories,
         cssdrop    => generate_themes_selector,
         csshead    => generate_themes_header($self),

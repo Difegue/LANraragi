@@ -10,7 +10,7 @@ Get Statistics
 {% endapi-method-summary %}
 
 {% api-method-description %}
-Get tags from in the database, in order of importance.
+Get tags from the database, in order of importance.
 {% endapi-method-description %}
 
 {% api-method-spec %}

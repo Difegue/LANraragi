@@ -116,12 +116,19 @@ function initSettings(version) {
 	updateTableHeaders();
 }
 
+function isNullOrWhitespace(input) {
+	return !input || !input.trim();
+}
+
 function saveSettings() {
 	localStorage.indexViewMode = $("#compactmode").prop("checked") ? 0 : 1;
 	localStorage.cropthumbs = $("#cropthumbs").prop("checked");
 
-	localStorage.customColumn1 = $("#customcol1").val();
-	localStorage.customColumn2 = $("#customcol2").val();
+	if (!isNullOrWhitespace($("#customcol1").val()))
+		localStorage.customColumn1 = $("#customcol1").val().trim();
+
+	if (!isNullOrWhitespace($("#customcol2").val()))
+		localStorage.customColumn2 = $("#customcol2").val().trim();
 
 	// Absolutely disgusting
 	arcTable.settings()[0].aoColumns[1].sName = localStorage.customColumn1;
@@ -186,11 +193,36 @@ function checkVersion(currentVersionConf) {
 	});
 }
 
+function loadContextMenuCategories(id) {
+	return genericAPICall(`/api/archives/${id}/categories`, 'GET', null, `Error finding categories for ${id}!`,
+		function (data) {
+
+			items = {};
+
+			for (let i = 0; i < data.categories.length; i++) {
+				cat = data.categories[i];
+				items[`delcat-${cat.id}`] = { "name": cat.name, "icon": "fas fa-stream" };
+			}
+
+			if (Object.keys(items).length === 0) {
+				items["noop"] = { "name": "This archive isn't in any category.", "icon": "far fa-sad-cry" };
+			}
+
+			return items;
+		});
+}
+
 function handleContextMenu(option, id) {
 
 	if (option.startsWith("category-")) {
 		var catId = option.replace("category-", "");
 		addArchiveToCategory(id, catId);
+		return;
+	}
+
+	if (option.startsWith("delcat-")) {
+		var catId = option.replace("delcat-", "");
+		removeArchiveFromCategory(id, catId);
 		return;
 	}
 
@@ -326,4 +358,47 @@ function openSettings() {
 function closeOverlay() {
 	$('#overlay-shade').fadeOut(300);
 	$('.base-overlay').css('display', 'none');
+}
+
+function migrateProgress() {
+	localProgressKeys = Object.keys(localStorage).filter(x => x.endsWith("-reader")).map(x => x.slice(0, -7));
+
+	if (localProgressKeys.length > 0) {
+		$.toast({
+			heading: 'Your Reading Progression is now synchronized across clients!',
+			text: 'You seem to have some local progression saved from an earlier LRR version -- Please wait warmly while we migrate it to the server for you. ☕',
+			hideAfter: false,
+			position: 'top-left',
+			icon: 'info'
+		});
+
+		var promises = [];
+		localProgressKeys.forEach(id => {
+
+			var progress = localStorage.getItem(id + "-reader");
+
+			promises.push(fetch(`api/archives/${id}/metadata`, { method: 'GET' })
+				.then(response => response.json())
+				.then((data) => {
+					// Don't migrate if the server progress is already further
+					if (progress !== null && data !== undefined && data !== null && progress > data.progress) {
+						genericAPICall(`api/archives/${id}/progress/${progress}?force=1`, "PUT", null, "Error updating reading progress!", null);
+					}
+
+					// Clear out localStorage'd progress
+					localStorage.removeItem(id + "-reader");
+					localStorage.removeItem(id + "-totalPages");
+				}));
+		});
+
+		Promise.all(promises).then(() => $.toast({
+			heading: 'Reading Progression has been fully migrated! 🎉',
+			text: 'You\'ll have to reopen archives in the Reader to see the migrated progression values.',
+			hideAfter: false,
+			position: 'top-left',
+			icon: 'success'
+		}));
+	} else {
+		console.log("No local reading progression to migrate");
+	}
 }

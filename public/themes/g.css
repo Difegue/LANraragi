@@ -27,6 +27,17 @@ a:hover {
     color: #9B4E03;
 }
 
+input[type='checkbox']:checked::after, input[type='checkbox']:checked::before {
+    color: #9B4E03;
+}  
+
+.sorting_asc>a, .sorting_desc>a {
+    color: #9B4E03 !important;
+}
+.sorting_asc>a:hover, .sorting_desc>a:hover {
+    color: #5C0D11 !important;
+}
+
 p.ip {
     clear: both;
     margin: -3px auto;
@@ -319,6 +330,10 @@ border:2px outset #5C0D11 !important;
     background: #F2EFDF !important;
     color: #5C0D11 !important;
     
+}
+
+.context-menu-submenu::after {
+    border-color: transparent transparent transparent #5C0D11;
 }
 
 /* File upload bar */

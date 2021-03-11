@@ -26,8 +26,6 @@
 	<script src="/js/vendor/jquery.contextMenu.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/awesomplete.min.js" type="text/JAVASCRIPT"></script>
 
-	<script src="https://cdn.datatables.net/plug-ins/1.10.22/pagination/select.js" type="text/JAVASCRIPT"></script>
-
 	<script src="/js/index.js?[% version %]" type="text/JAVASCRIPT"></script>
 	<script src="/js/ajax.js?[% version %]" type="text/JAVASCRIPT"></script>
 	<script src="/js/index_datatables.js?[% version %]" type="text/JAVASCRIPT"></script>
@@ -126,7 +124,7 @@
 	[% INCLUDE footer %]
 
 	[% IF debugmode %]
-	<i class="fas fa-bug"></i> You're running in Debug Mode!
+	<i class="fas fa-bug"></i> You're running in <a href="./debug">Debug Mode</a>!
 	<i class="fas fa-bug"></i>
 	[% END %]
 
@@ -142,6 +140,9 @@
 			// Initialize categories
 			selectedCategory = "";
 			loadCategories();
+
+			// Migrate local progression if there's any
+			migrateProgress();
 
 			[% IF usingdefpass %]
 			//If the json has the "default password" flag, flash a friendly notification inviting the user to change his password
@@ -160,33 +161,41 @@
 
 			// Initialize context menu
 			$.contextMenu({
-				selector: '.id1,.image-tooltip',
-				callback: function (key, options) {
-					handleContextMenu(key, $(this).attr("id"));
-				},
-				items: {
-					[% IF userlogged %]
-					"edit": { name: "Edit Metadata", icon: "fas fa-pencil-alt" },
-					"delete": { name: "Delete", icon: "fas fa-trash-alt" },
-					"category": {
-						"name": "Add to Category",
-						"icon": "fas fa-folder-open",
-						"items": {
-							[% IF categories.size > 0 %]
-							[% FOREACH categories %]
-							"category-[% id %]": { "name": "[% name %]" },
+				selector: '.context-menu',
+				build: ($trigger, e) => {
+					return {
+						callback: function (key, options) {
+							handleContextMenu(key, $(this).attr("id"));
+						},
+						items: {
+							[% IF userlogged %]
+							"edit": { name: "Edit Metadata", icon: "fas fa-pencil-alt" },
+							"delete": { name: "Delete", icon: "fas fa-trash-alt" },
+							"category": {
+								"name": "Add to Category",
+								"icon": "fas fa-search-plus",
+								"items": {
+									[% IF categories.size > 0 %][% FOREACH categories %]
+									"category-[% id %]": { "name": "[% name %]", "icon": "fas fa-stream" },
+									[% END %][% ELSE %]
+								"noop": { "name": "No Categories yet...", "icon": "fas fa-ghost" }
+									[% END %]
+								}
+							},
+							"categoryremove": {
+								"name": "Remove from Category",
+								"icon": "fas fa-search-minus",
+								"items": loadContextMenuCategories($trigger.attr("id"))
+							},
+							"sep1": "---------",
 							[% END %]
-						[% ELSE %]
-						"noop": { "name": "No Categories yet..." }
-							[% END %]
-						}
-					},
-					"sep1": "---------",
-					[% END %]
-				"read": { name: "Read", icon: "fas fa-book" },
-				"download": { name: "Download", icon: "fas fa-save" }
+						"read": { name: "Read", icon: "fas fa-book" },
+					"download": { name: "Download", icon: "fas fa-save" }
+				}
+			}
 				}
 			});
+
 		}
 
 	</script>

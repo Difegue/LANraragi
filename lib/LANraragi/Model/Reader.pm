@@ -9,7 +9,6 @@ use File::Basename;
 use File::Path qw(remove_tree make_path);
 use File::Find qw(find);
 use File::Copy qw(move);
-use Encode;
 use Data::Dumper;
 use URI::Escape;
 use Image::Magick;
@@ -57,13 +56,13 @@ sub build_reader_JSON {
     my $tempdir = get_temp();
 
     #Redis stuff: Grab archive path and update some things
-    my $redis   = LANraragi::Model::Config->get_redis;
-    my $dirname = LANraragi::Model::Config->get_userdir;
+    my $redis    = LANraragi::Model::Config->get_redis;
+    my $dirname  = LANraragi::Model::Config->get_userdir;
+    my $thumbdir = LANraragi::Model::Config->get_thumbdir;
 
     # Get the path from Redis.
     # Filenames are stored as they are on the OS, so no decoding!
     my $zipfile = $redis->hget( $id, "file" );
-    $redis->quit();
 
     #Get data from the path
     my ( $name, $fpath, $suffix ) = fileparse( $zipfile, qr/\.[^.]*/ );
@@ -121,21 +120,21 @@ sub build_reader_JSON {
 
     # Convert page 1 into a thumbnail for the main reader index
     my $subfolder = substr( $id, 0, 2 );
-    my $thumbname = "$dirname/thumb/$subfolder/$id.jpg";
+    my $thumbname = "$thumbdir/$subfolder/$id.jpg";
 
     unless ( -e $thumbname && $thumbreload eq "0" ) {
 
         my $shasum = shasum( $images[0], 1 );
-        $redis->hset( $id, "thumbhash", encode_utf8($shasum) );
+        $redis->hset( $id, "thumbhash", $shasum );
 
         $self->LRR_LOGGER->debug("Thumbnail not found at $thumbname! (force-thumb flag = $thumbreload)");
         $self->LRR_LOGGER->debug( "Regenerating from " . $images[0] );
-        make_path("$dirname/thumb/$subfolder");
+        make_path("$thumbdir/$subfolder");
 
         generate_thumbnail( $images[0], $thumbname );
     }
 
-    #Build a browser-compliant filepath array from @images
+    # Build a browser-compliant filepath array from @images
     my @images_browser;
 
     foreach my $imgpath (@images) {
@@ -164,7 +163,11 @@ sub build_reader_JSON {
         push @images_browser, "./api/archives/$id/page?path=$imgpath";
     }
 
-    #Build json (it's just the images array in a string)
+    # Update pagecount
+    $redis->hset( $id, "pagecount", scalar @images );
+    $redis->quit();
+
+    # Build json (it's just the images array in a string)
     my $list = "{\"pages\": [\"" . join( "\",\"", @images_browser ) . "\"]}";
     return $list;
 }

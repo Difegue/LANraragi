@@ -8,6 +8,8 @@ use Mojo::Base 'Mojolicious';
 use Mojo::File;
 use Mojo::JSON qw(decode_json encode_json);
 use Storable;
+use Sys::Hostname;
+use Config;
 
 use LANraragi::Utils::Generic qw(start_shinobu start_minion);
 use LANraragi::Utils::Logging qw(get_logger);
@@ -27,16 +29,15 @@ sub startup {
     say "";
     say "ｷﾀ━━━━━━(ﾟ∀ﾟ)━━━━━━!!!!!";
 
-    # Load configuration from hash returned by "lrr.conf"
-    my $config = $self->plugin( 'Config', { file => 'lrr.conf' } );
-
-    # Load package.json to get version/vername
+    # Load package.json to get version/vername/description
     my $packagejson = decode_json( Mojo::File->new('package.json')->slurp );
 
     my $version = $packagejson->{version};
     my $vername = $packagejson->{version_name};
+    my $descstr = $packagejson->{description};
 
-    $self->secrets( $config->{secrets} );
+    # Use the hostname and osname for a sorta-unique set of secrets.
+    $self->secrets( [ hostname(), $Config{"osname"}, 'oshino' ] );
     $self->plugin('RenderFile');
 
     # Set Template::Toolkit as default renderer so we can use the LRR templates
@@ -51,6 +52,7 @@ sub startup {
     $self->helper( LRR_CONF    => sub { LANraragi::Model::Config:: } );
     $self->helper( LRR_VERSION => sub { return $version; } );
     $self->helper( LRR_VERNAME => sub { return $vername; } );
+    $self->helper( LRR_DESC    => sub { return $descstr; } );
 
     #Helper to build logger objects quickly
     $self->helper(
@@ -65,10 +67,23 @@ sub startup {
         say "(╯・_>・）╯︵ ┻━┻";
         say "It appears your Redis database is currently not running.";
         say "The program will cease functioning now.";
-        exit;
+        die;
     }
 
-    my $devmode = $self->LRR_CONF->enable_devmode;
+    my $devmode;
+
+    # Catch Redis errors on our first connection. This is useful in case of temporary LOADING errors,
+    # Where Redis lets us send commands but doesn't necessarily reply to them properly.
+    # (https://github.com/redis/redis/issues/4624)
+    while (1) {
+        eval { $devmode = $self->LRR_CONF->enable_devmode; };
+
+        last unless ($@);
+
+        say "Redis error encountered: $@";
+        say "Trying again in 2 seconds...";
+        sleep 2;
+    }
 
     if ($devmode) {
         $self->mode('development');

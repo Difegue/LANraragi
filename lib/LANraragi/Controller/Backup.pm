@@ -29,6 +29,7 @@ sub index {
         $self->render(
             template => "backup",
             title    => $self->LRR_CONF->get_htmltitle,
+            descstr  => $self->LRR_DESC,
             cssdrop  => generate_themes_selector,
             csshead  => generate_themes_header($self),
             version  => $self->LRR_VERSION

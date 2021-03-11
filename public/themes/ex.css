@@ -10,6 +10,17 @@ img{border:0}
 a{color:#DDDDDD; } 
 a:hover{color:#FFFBDB} 
 
+input[type='checkbox']:checked::after, input[type='checkbox']:checked::before {
+    color: #FFFBDB;
+}  
+
+.sorting_asc>a, .sorting_desc>a {
+    color: #FFFBDB !important;
+}
+.sorting_asc>a:hover, .sorting_desc>a:hover {
+    color: #DDDDDD !important;
+}
+
 p.ip{margin:-3px auto;text-align:center;padding:0px 5px 5px 5px;clear:both}
 
 img.mr{border:0;margin-left:10px;width:5px;height:7px}
@@ -182,7 +193,10 @@ border:2px solid #000000 !important;
 .context-menu-item.context-menu-hover, .context-menu-icon.context-menu-icon--fa5.context-menu-hover > i {
     background: #3b97ea !important;
     color: #f1f1f1 !important;
-    
+}
+
+.context-menu-submenu::after {
+    border-color: transparent transparent transparent #DDDDDD;
 }
 
 /* File upload bar */

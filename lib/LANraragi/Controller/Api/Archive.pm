@@ -5,10 +5,12 @@ use Redis;
 use Encode;
 use Storable;
 use Mojo::JSON qw(decode_json encode_json from_json);
+use Scalar::Util qw(looks_like_number);
 
 use LANraragi::Utils::Generic qw(render_api_response);
 
 use LANraragi::Model::Archive;
+use LANraragi::Model::Category;
 use LANraragi::Model::Config;
 use LANraragi::Model::Reader;
 
@@ -46,6 +48,36 @@ sub serve_metadata {
     my $arcdata = LANraragi::Utils::Database::build_archive_JSON( $redis, $id );
     $redis->quit;
     $self->render( json => $arcdata );
+}
+
+# Find which categories this ID is saved in.
+sub get_categories {
+
+    my $self = shift;
+    my $id   = check_id_parameter( $self, "find_arc_categories" ) || return;
+
+    my @categories = LANraragi::Model::Category->get_category_list;
+    @categories = grep { %$_{"search"} eq "" } @categories;
+
+    my @filteredcats = ();
+
+    # Check if the id is in any categories
+    for my $category (@categories) {
+
+        my @archives = @{ $category->{"archives"} };
+
+        if ( grep( /^$id$/, @archives ) ) {
+            push @filteredcats, $category;
+        }
+    }
+
+    $self->render(
+        json => {
+            operation  => "find_arc_categories",
+            categories => \@filteredcats,
+            success    => 1
+        }
+    );
 }
 
 sub serve_thumbnail {
@@ -129,6 +161,49 @@ sub update_metadata {
     } else {
         render_api_response( $self, "update_metadata", $res );
     }
+}
+
+sub update_progress {
+    my $self = shift;
+    my $id   = check_id_parameter( $self, "update_progress" ) || return;
+
+    my $page = $self->stash('page') || 0;
+
+    # Undocumented parameter to force progress update
+    my $force = $self->req->param('force') || 0;
+
+    my $redis     = $self->LRR_CONF->get_redis();
+    my $pagecount = $redis->hget( $id, "pagecount" );
+
+    # This relies on pagecount, so you can't update progress for archives that don't have a valid pagecount recorded yet.
+    unless ( $pagecount || $force ) {
+        render_api_response( $self, "update_progress", "Archive doesn't have a total page count recorded yet." );
+        return;
+    }
+
+    # Safety-check the given page value.
+    unless ( $force || ( looks_like_number($page) && $page > 0 && $page <= $pagecount ) ) {
+        render_api_response( $self, "update_progress", "Invalid progress value." );
+        return;
+    }
+
+    # Just set the progress value.
+    $redis->hset( $id, "progress", $page );
+
+    # Update total pages read statistic
+    $redis->incr("LRR_TOTALPAGESTAT");
+
+    $redis->quit();
+
+    $self->render(
+        json => {
+            operation => "update_progress",
+            id        => $id,
+            page      => $page,
+            success   => 1
+        }
+    );
+
 }
 
 1;

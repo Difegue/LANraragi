@@ -11,9 +11,23 @@ use LANraragi::Utils::Generic qw(render_api_response);
 sub get_category_list {
 
     my $self = shift;
-    my @cats = LANraragi::Model::Category::get_category_list;
+    my @cats = LANraragi::Model::Category->get_category_list;
     $self->render( json => \@cats );
 
+}
+
+sub get_category {
+
+    my $self     = shift;
+    my $catid    = $self->stash('id');
+    my %category = LANraragi::Model::Category::get_category($catid);
+
+    unless (%category) {
+        render_api_response( $self, "get_category", "The given category does not exist." );
+        return;
+    }
+
+    $self->render( json => \%category );
 }
 
 sub create_category {
@@ -21,7 +35,7 @@ sub create_category {
     my $self   = shift;
     my $name   = $self->req->param('name') || "";
     my $search = $self->req->param('search') || "";
-    my $pinned = $self->req->param('pinned') ? 1 : 0;
+    my $pinned = ( $self->req->param('pinned') && $self->req->param('pinned') ne "false" ) ? 1 : 0;
 
     if ( $name eq "" ) {
         render_api_response( $self, "create_category", "Category name not specified." );
@@ -52,7 +66,7 @@ sub update_category {
 
     my $name   = $self->req->param('name')   || $category{name};
     my $search = $self->req->param('search') || $category{search};
-    my $pinned = $self->req->param('pinned') ? 1 : 0;
+    my $pinned = ( $self->req->param('pinned') && $self->req->param('pinned') ne "false" ) ? 1 : 0;
 
     my $updated_id = LANraragi::Model::Category::create_category( $name, $search, $pinned, $catid );
 

@@ -39,12 +39,8 @@ use LANraragi::Model::Plugins;
 use LANraragi::Utils::Plugins;    # Needed here since Shinobu doesn't inherit from the main LRR package
 use LANraragi::Model::Search;     # idem
 
-# Filemap hash, global to all subs and exposed to the server through serialization
-my %filemap;
-
 # Logger and Database objects
 my $logger = get_logger( "Shinobu", "shinobu" );
-my $redis  = LANraragi::Model::Config->get_redis;
 
 #Subroutine for new and deleted files that takes inotify events
 my $inotifysub = sub {
@@ -70,7 +66,7 @@ sub initialize_from_new_process {
     $logger->info("Shinobu File Watcher started.");
     $logger->info( "Working dir is " . cwd );
 
-    build_filemap();
+    update_filemap();
     $logger->info("Adding watcher to content folder $userdir");
 
     # Add watcher to content directory
@@ -106,17 +102,14 @@ sub initialize_from_new_process {
     }
 }
 
-#Build the filemap hash from scratch. This acts as a masterlist of what's in the content directory.
-#This computes IDs for all archives and henceforth is rather expensive !
-sub build_filemap {
+# Update the filemap. This acts as a masterlist of what's in the content directory.
+# This computes IDs for all new archives and henceforth can get rather expensive!
+sub update_filemap {
 
     $logger->info("Scanning content folder for changes...");
-
-    # Delete previously serialized filemap
-    unlink '.shinobu-filemap' || $logger->warn("Couldn't delete previous filemap data.");
+    my $redis = LANraragi::Model::Config->get_redis;
 
     # Clear hash
-    %filemap = ();
     my $dirname = LANraragi::Model::Config->get_userdir;
     my @files;
 
@@ -124,6 +117,7 @@ sub build_filemap {
     find(
         {   wanted => sub {
                 return if -d $_;    #Directories are excluded on the spot
+                return unless is_archive($_);
                 push @files, $_;    #Push files to array
             },
             no_chdir    => 1,
@@ -132,13 +126,32 @@ sub build_filemap {
         $dirname
     );
 
-    # Now that we have all files, process them...with multithreading!
+    # Cross-check with filemap to get recorded files that aren't on the FS, and new files that aren't recorded.
+    my @filemapfiles = $redis->exists("LRR_FILEMAP") ? $redis->hkeys("LRR_FILEMAP") : ();
+
+    my %filemaphash = map { $_ => 1 } @filemapfiles;
+    my %fshash      = map { $_ => 1 } @files;
+
+    my @newfiles     = grep { !$filemaphash{$_} } @files;
+    my @deletedfiles = grep { !$fshash{$_} } @filemapfiles;
+
+    $logger->info( "Found " . scalar @newfiles . " new files." );
+    $logger->info( scalar @deletedfiles . " files were found on the filemap but not on the filesystem." );
+
+    # Delete old files from filemap
+    foreach my $deletedfile (@deletedfiles) {
+        $logger->debug("Removing $deletedfile from filemap.");
+        $redis->hdel( "LRR_FILEMAP", $deletedfile ) || $logger->warn("Couldn't delete previous filemap data.");
+    }
+
+    $redis->quit();
+
+    # Now that we have all new files, process them...with multithreading!
     my $numCpus = Sys::CpuAffinity::getNumCpus();
     my $pl      = Parallel::Loops->new($numCpus);
-    $pl->share( \%filemap );
 
     $logger->debug("Number of available cores for processing: $numCpus");
-    my @sections = split_workload_by_cpu( $numCpus, @files );
+    my @sections = split_workload_by_cpu( $numCpus, @newfiles );
 
     # Eval the parallelized file crawl to avoid taking down the entire process in case one of the forked processes dies
     eval {
@@ -161,13 +174,6 @@ sub build_filemap {
 
     if ($@) {
         $logger->error("Error while scanning content folder: $@");
-    } else {
-
-        # Done, serialize filemap for main process to consume
-        # The filemap hash has been turned into an object by Parallel::Loops...
-        # It's better to make a clean hash copy and serialize that instead.
-        my $copy = {%filemap};
-        lock_store $copy, '.shinobu-filemap';
     }
 }
 
@@ -177,6 +183,7 @@ sub add_to_filemap {
 
     if ( is_archive($file) ) {
 
+        my $redis = LANraragi::Model::Config->get_redis;
         $logger->debug("Adding $file to Shinobu filemap.");
 
         #Freshly created files might not be complete yet.
@@ -209,20 +216,20 @@ sub add_to_filemap {
 
         $logger->debug("Computed ID is $id.");
 
-        #If the hash already exists, throw a warning about duplicates
-        if ( exists( $filemap{$id} ) ) {
+        # If the id already exists on the server, throw a warning about duplicates
+        if ( $redis->hexists( "LRR_FILEMAP", $file ) ) {
 
-            if ( $file eq $filemap{$id} ) {
-                $logger->debug(
-                    "$file was logged again but is already in the filemap, duplicate inotify events? Cleaning cache just to make sure"
-                );
-                invalidate_cache();
-            } else {
-                $logger->warn( "$file is a duplicate of the existing file " . $filemap{$id} . ". You should delete it." );
-            }
+            my $id = $redis->hget( "LRR_FILEMAP", $file );
+
+            $logger->debug( "$file was logged again but is already in the filemap, duplicate inotify events? "
+                  . "Cleaning cache just to make sure" );
+
+            invalidate_cache();
+            $redis->quit();
             return;
+
         } else {
-            $filemap{$id} = $file;
+            $redis->hset( "LRR_FILEMAP", $file, $id );    # raw FS path so no encoding/decoding whatsoever
         }
 
         # Filename sanity check
@@ -238,16 +245,18 @@ sub add_to_filemap {
                 $logger->debug("Database: $filecheck");
                 my ( $name, $path, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
                 $redis->hset( $id, "file", $file );
-                $redis->hset( $id, "name", encode_utf8($name) );
+                $redis->hset( $id, "name", redis_encode($name) );
                 $redis->wait_all_responses;
                 invalidate_cache();
             }
         } else {
 
             # Add to Redis if not present beforehand
-            add_new_file( $id, $file );
+            add_new_file( $id, $file, $redis );
             invalidate_cache();
         }
+
+        $redis->quit();
     }
 }
 
@@ -274,29 +283,27 @@ sub deleted_file_callback {
 
     unless ( -d $name ) {
 
-        #Lookup the file in the filemap and prune it
-        #As it's a lookup by value it looks kinda ugly...
-        delete( $filemap{$_} ) foreach grep { $filemap{$_} eq $name } keys %filemap;
+        my $redis = LANraragi::Model::Config->get_redis;
 
-        # Serialize filemap for main process to consume
-        my $copy = {%filemap};
-        lock_store $copy, '.shinobu-filemap';
+        # Prune file from filemap
+        $redis->hdel( "LRR_FILEMAP", $name );
+
         eval { invalidate_cache(); };
+
+        $redis->quit();
     }
 }
 
 sub add_new_file {
 
-    my ( $id, $file ) = @_;
+    my ( $id, $file, $redis ) = @_;
     $logger->info("Adding new file $file with ID $id");
 
     eval {
         LANraragi::Utils::Database::add_archive_to_redis( $id, $file, $redis );
 
         #AutoTagging using enabled plugins goes here!
-        if ( LANraragi::Model::Config->enable_autotag ) {
-            LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
-        }
+        LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
     };
 
     if ($@) {

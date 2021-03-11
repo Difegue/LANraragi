@@ -10,13 +10,15 @@ use Encode;
 use File::Basename;
 use Redis;
 use Cwd;
+use Unicode::Normalize;
 
 use LANraragi::Model::Plugins;
+use LANraragi::Utils::Generic qw(remove_spaces);
 use LANraragi::Utils::Logging qw(get_logger);
 
 # Functions for interacting with the DB Model.
 use Exporter 'import';
-our @EXPORT_OK = qw(redis_decode invalidate_cache compute_id);
+our @EXPORT_OK = qw(redis_encode redis_decode invalidate_cache compute_id);
 
 #add_archive_to_redis($id,$file,$redis)
 #Parses the name of a file for metadata, and matches that metadata to the SHA-1 hash of the file in our Redis database.
@@ -31,10 +33,8 @@ sub add_archive_to_redis {
     $logger->debug("File Name: $name");
     $logger->debug("Filesystem Path: $file");
 
-    my $title = $name;
-    my $tags  = "";
-
-    $redis->hset( $id, "name", encode_utf8($name) );
+    $redis->hset( $id, "name",  redis_encode($name) );
+    $redis->hset( $id, "title", redis_encode($name) );
 
     #Don't encode filenames.
     $redis->hset( $id, "file", $file );
@@ -42,19 +42,8 @@ sub add_archive_to_redis {
     #New file in collection, so this flag is set.
     $redis->hset( $id, "isnew", "true" );
 
-    #Use the mythical regex to get title and tags
-    #Except if the matching pref is off
-    if ( LANraragi::Model::Config->get_tagregex eq "1" ) {
-        ( $title, $tags ) = parse_name($name);
-        $logger->debug("Parsed Title: $title");
-        $logger->debug("Parsed Tags: $tags");
-    }
-
-    $redis->hset( $id, "title", encode_utf8($title) );
-    $redis->hset( $id, "tags",  encode_utf8($tags) );
     $redis->quit;
-
-    return ( $name, $title, $tags );
+    return $name;
 }
 
 # build_archive_JSON(redis, id)
@@ -67,11 +56,10 @@ sub build_archive_JSON {
     return "" unless $redis->exists($id);
 
     my %hash = $redis->hgetall($id);
-    my ( $path, $suffix );
 
     #It's not a new archive, but it might have never been clicked on yet,
     #so we'll grab the value for $isnew stored in redis.
-    my ( $name, $title, $tags, $file, $isnew ) = @hash{qw(name title tags file isnew)};
+    my ( $name, $title, $tags, $file, $isnew, $progress, $pagecount ) = @hash{qw(name title tags file isnew progress pagecount)};
 
     # return undef if the file doesn't exist.
     unless ( -e $file ) {
@@ -87,10 +75,12 @@ sub build_archive_JSON {
     }
 
     my $arcdata = {
-        arcid => $id,
-        title => $title,
-        tags  => $tags,
-        isnew => $isnew
+        arcid     => $id,
+        title     => $title,
+        tags      => $tags,
+        isnew     => $isnew,
+        progress  => $progress ? int($progress) : 0,
+        pagecount => $pagecount ? int($pagecount) : 0
     };
 
     return $arcdata;
@@ -109,9 +99,9 @@ sub delete_archive {
     if ( -e $filename ) {
         unlink $filename;
 
-        my $dirname = LANraragi::Model::Config->get_userdir;
+        my $thumbdir  = LANraragi::Model::Config->get_thumbdir;
         my $subfolder = substr( $id, 0, 2 );
-        my $thumbname = "$dirname/thumb/$subfolder/$id.jpg";
+        my $thumbname = "$thumbdir/$subfolder/$id.jpg";
 
         unlink $thumbname;
 
@@ -149,8 +139,9 @@ sub clean_database {
         $logger->warn("Unable to open a file to save backup before cleaning database! $@");
     }
 
-    # Get the filemap from Shinobu for ID checks later down the line
-    my %filemap = LANraragi::Utils::Generic::get_shinobu_filemap();
+    # Get the filemap for ID checks later down the line
+    my @filemapids = $redis->exists("LRR_FILEMAP") ? $redis->hvals("LRR_FILEMAP") : ();
+    my %filemap = map { $_ => 1 } @filemapids;
 
     #40-character long keys only => Archive IDs
     my @keys = $redis->keys('????????????????????????????????????????');
@@ -167,7 +158,7 @@ sub clean_database {
             next;
         }
 
-        unless ( $file eq "" || %filemap == 0 || exists $filemap{$id} ) {
+        unless ( $file eq "" || exists $filemap{$id} ) {
             $logger->warn("File exists but its ID is no longer $id -- Removing file reference in its database entry.");
             $redis->hset( $id, "file", "" );
             $unlinked_arcs++;
@@ -190,11 +181,15 @@ sub add_tags {
 
     if ( length $newtags ) {
 
-        if ( $oldtags ne "" ) {
-            $newtags = $oldtags . "," . $newtags;
+        if ($oldtags) {
+            remove_spaces($oldtags);
+
+            if ( $oldtags ne "" ) {
+                $newtags = $oldtags . "," . $newtags;
+            }
         }
 
-        $redis->hset( $id, "tags", encode_utf8($newtags) );
+        $redis->hset( $id, "tags", redis_encode($newtags) );
     }
     $redis->quit;
 }
@@ -205,61 +200,9 @@ sub set_title {
     my $redis = LANraragi::Model::Config->get_redis;
 
     if ( $newtitle ne "" ) {
-        $redis->hset( $id, "title", encode_utf8($newtitle) );
+        $redis->hset( $id, "title", redis_encode($newtitle) );
     }
     $redis->quit;
-}
-
-#parse_name(name)
-#parses an archive name with the regex specified in the configuration file(get_regex and select_from_regex subs) to find metadata.
-sub parse_name {
-
-    my ( $event, $artist, $title, $series, $language );
-    $event = $artist = $title = $series = $language = "";
-
-    #Replace underscores with spaces
-    $_[0] =~ s/_/ /g;
-
-    #Use the regex on our file, and pipe it to the regexsel sub.
-    $_[0] =~ LANraragi::Model::Config->get_regex;
-
-    #Take variables from the regex selection
-    if ( defined $2 ) { $event    = $2; }
-    if ( defined $4 ) { $artist   = $4; }
-    if ( defined $5 ) { $title    = $5; }
-    if ( defined $7 ) { $series   = $7; }
-    if ( defined $9 ) { $language = $9; }
-
-    my @tags = ();
-
-    if ( $event ne "" ) {
-        push @tags, "event:$event";
-    }
-
-    if ( $artist ne "" ) {
-
-        #Special case for circle/artist sets:
-        #If the string contains parenthesis, what's inside those is the artist name
-        #the rest is the circle.
-        if ( $artist =~ /(.*) \((.*)\)/ ) {
-            push @tags, "group:$1";
-            push @tags, "artist:$2";
-        } else {
-            push @tags, "artist:$artist";
-        }
-    }
-
-    if ( $series ne "" ) {
-        push @tags, "series:$series";
-    }
-
-    if ( $language ne "" ) {
-        push @tags, "language:$language";
-    }
-
-    my $tagstring = join( ", ", @tags );
-
-    return ( $title, $tagstring );
 }
 
 #This function is used for all ID computation in LRR.
@@ -285,6 +228,15 @@ sub compute_id {
 
     return $digest;
 
+}
+
+# Normalize the string to Unicode NFC, then layer on redis_encode for Redis-safe serialization.
+sub redis_encode {
+
+    my $data     = $_[0];
+    my $NFC_data = NFC($data);
+
+    return encode_utf8($NFC_data);
 }
 
 #Final Solution to the Unicode glitches -- Eval'd double-decode for data obtained from Redis.

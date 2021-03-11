@@ -54,7 +54,7 @@ sub plugin_info {
             {type => "int", desc => "Integer parameter description"}
             ],
         # Tag-specific metadata
-        cooldown => "If this is a Metadata Plugin, this value will be used to tell the server how long to sleep between executions to avoid remote bans. Defaults to 0.",
+        cooldown => "If this is a Metadata Plugin, you can set a recommended value for how long a user should wait between executions to avoid remote bans. Shown in Batch Tagging only, defaults to 0.",
         # Downloader-specific metadata
         url_regex => "If this is a Downloader Plugin, this is the regex that will trigger said plugin if it matches the URL to download."
     );
@@ -87,7 +87,7 @@ You can also sideload Plugins through Plugin Configuration in the webapp.
 
 Once this is done, you can test your plugin by simply using it:
 
-* Metadata plugins can be used by enabling them for Auto-Tagging or on individual archives.  
+* Metadata plugins can be used by enabling them for Automatic Execution or on individual archives.  
 * Script plugins can be directly executed from Plugin Configuration.
 * Login plugins can't be tested directly for now.  
 
@@ -96,4 +96,3 @@ It is also possible to execute plugins through the [Client API](../extending-lan
 {% endhint %}
 
 If LANraragi is running in Debug Mode, debug messages from your plugin will be logged.
-

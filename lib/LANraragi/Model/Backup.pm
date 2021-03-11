@@ -5,13 +5,12 @@ use warnings;
 use utf8;
 
 use Redis;
-use Encode;
 use Mojo::JSON qw(decode_json encode_json);
 
 use LANraragi::Model::Category;
 use LANraragi::Utils::Database;
 use LANraragi::Utils::Generic qw(remove_newlines);
-use LANraragi::Utils::Database qw(redis_decode invalidate_cache);
+use LANraragi::Utils::Database qw(redis_encode redis_decode invalidate_cache);
 use LANraragi::Utils::Logging qw(get_logger);
 
 #build_backup_JSON()
@@ -97,8 +96,8 @@ sub restore_from_JSON {
         my $cat_id = $category->{"catid"};
         $logger->info("Restoring Category $cat_id...");
 
-        my $name     = encode_utf8( $category->{"name"} );
-        my $search   = encode_utf8( $category->{"search"} );
+        my $name     = redis_encode( $category->{"name"} );
+        my $search   = redis_encode( $category->{"search"} );
         my @archives = @{ $category->{"archives"} };
 
         LANraragi::Model::Category::create_category( $name, $search, 0, $cat_id );
@@ -120,9 +119,9 @@ sub restore_from_JSON {
         if ( $redis->exists($id) ) {
 
             $logger->info("Restoring metadata for Archive $id...");
-            my $title     = encode_utf8( $archive->{"title"} );
-            my $tags      = encode_utf8( $archive->{"tags"} );
-            my $thumbhash = encode_utf8( $archive->{"thumbhash"} );
+            my $title     = redis_encode( $archive->{"title"} );
+            my $tags      = redis_encode( $archive->{"tags"} );
+            my $thumbhash = redis_encode( $archive->{"thumbhash"} );
 
             $redis->hset( $id, "title", $title );
             $redis->hset( $id, "tags",  $tags );

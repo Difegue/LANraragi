@@ -34,6 +34,15 @@ sub get_archive_count {
     return $count;
 }
 
+sub get_page_stat {
+
+    my $redis = LANraragi::Model::Config->get_redis;
+    my $stat  = $redis->get("LRR_TOTALPAGESTAT") || 0;
+    $redis->quit();
+
+    return $stat;
+}
+
 sub build_tag_json {
 
     my $t;

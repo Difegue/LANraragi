@@ -12,6 +12,7 @@ use LANraragi::Utils::Archive qw(extract_thumbnail);
 use LANraragi::Utils::Plugins qw(get_downloader_for_url get_plugin get_plugin_parameters);
 
 use LANraragi::Model::Upload;
+use LANraragi::Model::Config;
 
 # Add Tasks to the Minion instance.
 sub add_tasks {
@@ -19,11 +20,54 @@ sub add_tasks {
 
     $minion->add_task(
         thumbnail_task => sub {
-            my ( $job,     @args ) = @_;
-            my ( $dirname, $id )   = @args;
+            my ( $job,      @args ) = @_;
+            my ( $thumbdir, $id )   = @args;
 
-            my $thumbname = extract_thumbnail( $dirname, $id );
+            my $thumbname = extract_thumbnail( $thumbdir, $id );
             $job->finish($thumbname);
+        }
+    );
+
+    $minion->add_task(
+        regen_all_thumbnails => sub {
+            my ( $job,      @args )  = @_;
+            my ( $thumbdir, $force ) = @args;
+
+            my $logger = get_logger( "Minion", "minion" );
+            my $redis  = LANraragi::Model::Config->get_redis;
+            my @keys   = $redis->keys('????????????????????????????????????????');
+
+            $logger->info("Starting thumbnail regen job (force = $force)");
+
+            my $thumbscount = 0;
+            my @errors      = ();
+
+            # Regen thumbnails for errythang if $force = 1, only missing thumbs otherwise
+            foreach my $id (@keys) {
+
+                my $subfolder = substr( $id, 0, 2 );
+                my $thumbname = "$thumbdir/$subfolder/$id.jpg";
+
+                unless ( $force == 0 && -e $thumbname ) {
+                    eval {
+                        $logger->debug("Regenerating for $id...");
+                        extract_thumbnail( $thumbdir, $id );
+                        $thumbscount++;
+                    };
+
+                    if ($@) {
+                        $logger->warn("Error while generating thumbnail: $@");
+                        push @errors, $@;
+                    }
+                }
+
+            }
+            $redis->quit();
+            $job->finish(
+                {   generated_thumbnails => $thumbscount,
+                    errors               => \@errors
+                }
+            );
         }
     );
 
@@ -56,7 +100,6 @@ sub add_tasks {
             my ( $file, $catid ) = @args;
 
             my $logger = get_logger( "Minion", "minion" );
-            $logger->info("Processing uploaded file $file...");
 
 # Superjank warning for the code below.
 #
@@ -75,6 +118,10 @@ sub add_tasks {
               or die "Bullshit! File path could not be converted back to a byte sequence!"
               ;    # This error happening would not make any sense at all so it deserves the EYE reference
 
+            # For display however, we'd like to make sure we always show proper UTF-8.
+            # redis_decode, while not initially designed for this, does the job.
+            $logger->info( "Processing uploaded file" . redis_decode($file) . "..." );
+
             # Since we already have a file, this goes straight to handle_incoming_file.
             my ( $status, $id, $title, $message ) = LANraragi::Model::Upload::handle_incoming_file( $file, $catid, "" );
 
@@ -82,7 +129,7 @@ sub add_tasks {
                 {   success  => $status,
                     id       => $id,
                     category => $catid,
-                    title    => redis_decode($title),    # We use a decode here to fix display issues in the response.
+                    title    => redis_decode($title),    # Ditto, to fix display issues in the response
                     message  => $message
                 }
             );

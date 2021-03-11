@@ -1,4 +1,4 @@
-# Homebrew \(Linux/macOS\)
+# Homebrew \(macOS\)
 
 ## Migration
 

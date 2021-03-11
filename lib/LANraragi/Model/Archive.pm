@@ -6,7 +6,6 @@ use utf8;
 
 use Cwd 'abs_path';
 use Redis;
-use Encode;
 use File::Temp qw(tempfile);
 use File::Copy "cp";
 use Mojo::Util qw(xml_escape);
@@ -14,7 +13,7 @@ use Mojo::Util qw(xml_escape);
 use LANraragi::Utils::Generic qw(get_tag_with_namespace remove_spaces remove_newlines render_api_response);
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging qw(get_logger);
-use LANraragi::Utils::Database qw(redis_decode invalidate_cache);
+use LANraragi::Utils::Database qw(redis_encode redis_decode invalidate_cache);
 
 # Functions used when dealing with archives.
 
@@ -129,7 +128,7 @@ sub find_untagged_archives {
                 remove_spaces($t);
                 remove_newlines($t);
 
-                # the following are the only namespaces that LANraragi::Utils::Database::parse_name adds
+                # The following are basic and therefore don't count as "tagged"
                 # date_added added for convenience as running the matching plugin doesn't really count as tagging
                 $nondefaulttags += 1 unless $t =~ /(artist|parody|series|language|event|group|date_added):.*/;
             }
@@ -148,16 +147,16 @@ sub find_untagged_archives {
 sub serve_thumbnail {
 
     my ( $self, $id ) = @_;
-    my $dirname = LANraragi::Model::Config->get_userdir;
+    my $thumbdir = LANraragi::Model::Config->get_thumbdir;
 
     # Thumbnails are stored in the content directory, thumb subfolder.
     # Another subfolder with the first two characters of the id is used for FS optimization.
     my $subfolder = substr( $id, 0, 2 );
-    my $thumbname = "$dirname/thumb/$subfolder/$id.jpg";
+    my $thumbname = "$thumbdir/$subfolder/$id.jpg";
 
     # Queue a minion job to generate the thumbnail. Thumbnail jobs have the lowest priority.
     unless ( -e $thumbname ) {
-        $self->minion->enqueue( thumbnail_task => [ $dirname, $id ] => { priority => 0 } );
+        $self->minion->enqueue( thumbnail_task => [ $thumbdir, $id ] => { priority => 0 } );
         $self->render_file( filepath => "./public/img/noThumb.png" );
         return;
     } else {
@@ -229,11 +228,11 @@ sub update_metadata {
 
     # Prepare the hash which'll be inserted.
     if ( defined $title ) {
-        $hash{title} = encode_utf8($title);
+        $hash{title} = redis_encode($title);
     }
 
     if ( defined $tags ) {
-        $hash{tags} = encode_utf8($tags);
+        $hash{tags} = redis_encode($tags);
     }
 
     my $redis = LANraragi::Model::Config->get_redis;

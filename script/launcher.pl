@@ -20,6 +20,10 @@ if ( $ENV{LRR_DATA_DIRECTORY} ) {
     make_path( $ENV{LRR_DATA_DIRECTORY} );
 }
 
+if ( $ENV{LRR_THUMB_DIRECTORY} ) {
+    make_path( $ENV{LRR_THUMB_DIRECTORY} );
+}
+
 if ( $ENV{LRR_TEMP_DIRECTORY} ) {
     make_path( $ENV{LRR_TEMP_DIRECTORY} );
 }

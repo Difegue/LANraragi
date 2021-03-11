@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use utf8;
 
+use Mojolicious::Plugin::Status;
 use Mojolicious::Plugin::Minion::Admin;
 
 #Contains all the routes used by the app, and applies them on boot.
@@ -40,6 +41,11 @@ sub apply_routes {
 
     # Minion Admin UI
     $self->plugin( 'Minion::Admin' => { route => $logged_in->get('/minion') } );
+
+    # Mojo Status UI
+    if ( $self->mode eq 'development' ) {
+        $self->plugin( 'Status' => { route => $logged_in->get('/debug') } );
+    }
 
     # Those routes are only accessible if user is logged in
     $logged_in->get('/config')->to('config#index');
@@ -78,6 +84,7 @@ sub apply_routes {
     $logged_in_api->delete('/api/tempfolder')->to('api-other#clean_tempfolder');
     $logged_in_api->get('/api/minion/:jobid')->to('api-other#minion_job_status');
     $logged_in_api->post('/api/download_url')->to('api-other#download_url');
+    $logged_in_api->post('/api/regen_thumbs')->to('api-other#regen_thumbnails');
 
     # Archive API
     $public_api->get('/api/archives')->to('api-archive#serve_archivelist');
@@ -86,7 +93,10 @@ sub apply_routes {
     $public_api->get('/api/archives/:id/download')->to('api-archive#serve_file');
     $public_api->get('/api/archives/:id/page')->to('api-archive#serve_page');
     $public_api->post('/api/archives/:id/extract')->to('api-archive#extract_archive');
+    $public_api->put('/api/archives/:id/progress/:page')->to('api-archive#update_progress');
     $public_api->delete('/api/archives/:id/isnew')->to('api-archive#clear_new');
+    $public_api->get('/api/archives/:id')->to('api-archive#serve_metadata');
+    $public_api->get('/api/archives/:id/categories')->to('api-archive#get_categories');
     $public_api->get('/api/archives/:id/metadata')->to('api-archive#serve_metadata');
     $logged_in_api->put('/api/archives/:id/metadata')->to('api-archive#update_metadata');
 
@@ -109,6 +119,7 @@ sub apply_routes {
 
     # Category API
     $public_api->get('/api/categories')->to('api-category#get_category_list');
+    $public_api->get('/api/categories/:id')->to('api-category#get_category');
     $logged_in_api->put('/api/categories')->to('api-category#create_category');
     $logged_in_api->put('/api/categories/:id')->to('api-category#update_category');
     $logged_in_api->delete('/api/categories/:id')->to('api-category#delete_category');

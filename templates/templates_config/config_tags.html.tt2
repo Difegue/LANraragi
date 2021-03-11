@@ -1,5 +1,40 @@
 <tr>
     <td class="option-td">
+        <h2 class="ih"> Thumbnail Directory </h2>
+    </td>
+    <td>
+        <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% thumbdir %]" name="thumbdir"
+            type="text" [% IF forcedthumbdir %] disabled title="This option is enforced by an environment variable." [%
+            END %]>
+        <br> Directory where the archive thumbnails will be located. It will be created if it doesn't exist.
+        <br>Make sure the OS user running LANraragi has read/write access to this directory. <br>
+    </td>
+</tr>
+
+<tr>
+    <td class="option-td">
+        <input id="genthumb-button" class='stdbtn' type='button' onclick="regenThumbnails(false);"
+            value='Generate Missing Thumbnails' />
+    </td>
+    <td><br>
+        Generate Thumbnails for all archives that don't have one yet.
+    </td>
+</tr>
+
+<tr>
+    <td class="option-td">
+        <input id="forcethumb-button" class='stdbtn' type='button' onclick="regenThumbnails(true);"
+            value='Regenerate all Thumbnails' />
+    </td>
+    <td><br>
+        Regenerate all thumbnails. This might take a while!
+    </td>
+</tr>
+
+<tr></tr>
+
+<tr>
+    <td class="option-td">
         <h2 class="ih"> Tag Blacklist </h2>
     </td>
     <td>
@@ -11,37 +46,5 @@
             maxlength='5000'>[% blacklist %]</textarea>
         <br> When tagging archives using Plugins, these tags will be automatically omitted.
         <br>Split tags with commas.
-    </td>
-</tr>
-
-<tr></tr>
-
-<tr>
-    <td class="option-td">
-        <h2 class="ih"> Auto-Tag </h2>
-    </td>
-    <td>
-        [% IF tagregex %]
-        <input id="tagregex" name="tagregex" class="fa" type="checkbox" checked> [% ELSE %]
-        <input id="tagregex" name="tagregex" class="fa" type="checkbox"> [% END %]
-        <label for="tagregex">
-            <br>If this option is on, we'll try to derive tags from the filename of uploaded archives.
-            <br>Consider disabling it if you often upload archives that don't follow the doujinshi naming standard.
-        </label>
-    </td>
-</tr>
-
-<tr>
-    <td class="option-td">
-        <h2 class="ih"> Auto-Plugin </h2>
-    </td>
-    <td>
-        [% IF autotag %]
-        <input id="autotag" name="autotag" class="fa" type="checkbox" checked> [% ELSE %]
-        <input id="autotag" name="autotag" class="fa" type="checkbox"> [% END %]
-        <label for="autotag">
-            <br>Enabled plugins will be automatically executed on newly uploaded archives if this option is on.
-            <br /> See Plugin Configuration to enable/disable plugins.
-        </label>
     </td>
 </tr>

@@ -1,7 +1,6 @@
 node_modules
 content
 .minion.db*
-.shinobu-filemap
 npm-debug.log
 dump.rdb
 package-lock.json

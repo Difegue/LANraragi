@@ -23,7 +23,7 @@ function initIndex(pagesize) {
 			'processing': '<div id="progress" class="indeterminate""><div class="bar-container"><div class="bar" style=" width: 80%; "></div></div></div>'
 		},
 		'preDrawCallback': thumbViewInit, //callbacks for thumbnail view
-		'drawCallback': addPageSelect,
+		'drawCallback': drawCallback,
 		'rowCallback': buildThumbDiv,
 		'columns': [{
 			className: 'title itd',
@@ -118,10 +118,10 @@ function titleColumnDisplay(data, type, full, meta) {
 	if (type == "display") {
 
 		titleHtml = "";
-		titleHtml += buildProgressDiv(data.arcid, data.isnew);
+		titleHtml += buildProgressDiv(data);
 
 		return `${titleHtml} 
-				<a class="image-tooltip" id="${data.arcid}" onmouseover="buildImageTooltip($(this))" href="reader?id=${data.arcid}"> 
+				<a class="context-menu" id="${data.arcid}" onmouseover="buildImageTooltip($(this))" href="reader?id=${data.arcid}"> 
 					${encode(data.title)}
 				</a>
 				<div class="caption" style="display: none;">
@@ -169,29 +169,32 @@ function thumbViewInit(settings) {
 	}
 }
 
-function addPageSelect(settings) {
+function drawCallback(settings) {
 	if (typeof (arcTable) !== "undefined") {
 		var pageInfo = arcTable.page.info();
+		if (pageInfo.pages == 0) {
+			$('.itg').hide();
+		} else {
+			$('.itg').show();
+			$(".dataTables_paginate").toArray().forEach((div) => {
+				var container = $("<div class='page-select' >Go to Page: </div>");
+				var nInput = document.createElement('select');
+				$(nInput).attr("class", "favtag-btn");
 
-		$(".dataTables_paginate").toArray().forEach((div) => {
+				for (var j = 1; j <= pageInfo.pages; j++) { //add the pages
+					var oOption = document.createElement('option');
+					oOption.text = j;
+					oOption.value = j;
+					nInput.add(oOption, null);
+				}
 
-			var container = $("<div class='page-select' >Go to Page: </div>");
-			var nInput = document.createElement('select');
-			$(nInput).attr("class", "favtag-btn");
+				nInput.value = pageInfo.page + 1;
+				$(nInput).on("change", (e) => arcTable.page(nInput.value - 1).draw("page"));
 
-			for (var j = 1; j <= pageInfo.pages; j++) { //add the pages
-				var oOption = document.createElement('option');
-				oOption.text = j;
-				oOption.value = j;
-				nInput.add(oOption, null);
-			}
-
-			nInput.value = pageInfo.page + 1;
-			$(nInput).on("change", (e) => arcTable.page(nInput.value - 1).draw("page"));
-
-			container.append(nInput);
-			div.appendChild(container[0]);
-		});
+				container.append(nInput);
+				div.appendChild(container[0]);
+			});
+		}
 	}
 }
 
@@ -201,9 +204,9 @@ function buildThumbDiv(row, data, index) {
 	if (localStorage.indexViewMode == 1) {
 		//Build a thumb-like div with the data
 		thumb_css = (localStorage.cropthumbs === 'true') ? "id3" : "id3 nocrop";
-		thumb_div = `<div style="height:335px" class="id1" id="${data.arcid}">
+		thumb_div = `<div style="height:335px" class="id1 context-menu" id="${data.arcid}">
 						<div class="id2">
-							${buildProgressDiv(data.arcid, data.isnew)}
+							${buildProgressDiv(data)}
 							<a href="reader?id=${data.arcid}" title="${encode(data.title)}">${encode(data.title)}</a>
 						</div>
 						<div style="height:280px" class="${thumb_css}">
@@ -225,23 +228,22 @@ function buildThumbDiv(row, data, index) {
 	}
 }
 
-function buildProgressDiv(id, isnew) {
+function buildProgressDiv(arcdata) {
 
-	// localStorage'd reader progress takes priority over the server-provided new flag
-	// (which might not always be up to date due to cache n shit)
-	if (localStorage.getItem(id + "-totalPages") !== null && localStorage.nobookmark !== 'true') {
-		// Progress recorded, display an indicator
-		currentPage = Number(localStorage.getItem(id + "-reader")) + 1;
-		totalPages = Number(localStorage.getItem(id + "-totalPages"));
+	id = arcdata.arcid;
+	isnew = arcdata.isnew;
+	pagecount = parseInt(arcdata.pagecount || 0);
+	progress = parseInt(arcdata.progress || 0);
 
-		if (currentPage === totalPages)
+	if (isnew === "true") {
+		return '<div class="isnew">🆕</div>';
+	} else if (pagecount > 0) {
+
+		// Consider an archive read if progress is past 85% of total
+		if ((progress / pagecount) > 0.85)
 			return "<div class='isnew'>👑</div>";
 		else
-			return `<div class='isnew'><sup>${currentPage}/${totalPages}</sup></div>`;
-	}
-
-	if (isnew === "block" || isnew === "true") {
-		return '<div class="isnew">🆕</div>';
+			return `<div class='isnew'><sup>${progress}/${pagecount}</sup></div>`;
 	}
 
 	return "";

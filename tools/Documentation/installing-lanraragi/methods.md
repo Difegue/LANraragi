@@ -5,14 +5,13 @@ description: This is a by-OS breakdown of how you can install the software on yo
 # Which installation method is best for me?
 
 As LRR is a server app first and foremost, its setup is a bit more complex than your usual Desktop application.  
-However, a lot of work as been done behind the scenes to make it easy! 
+However, a lot of work as been done behind the scenes to make it easy!  
 
 Look at the methods below for something that fits your OS and usage.
 
-## macOS/Linux: _Homebrew_
+## macOS: _Homebrew_
 
-[Homebrew](https://brew.sh/) allows you to quickly setup LRR on Unix systems without relying on containers or modifying your preinstalled system libaries.  
-The package manager is mostly designed for macOS, but it can also be used to install the server on Linux machines. 🐧
+[Homebrew](https://brew.sh/) allows you to quickly setup LRR on macOS without relying on containers or modifying your preinstalled system libaries.  
 
 ![brew](../.gitbook/assets/brew.jpg)
 
@@ -21,7 +20,7 @@ The package manager is mostly designed for macOS, but it can also be used to ins
 ## Windows 10: _LRR for Windows_
 
 {% hint style="warning" %}
-This method works on **64-bit** editions of Windows 10 only. 
+This method works on **64-bit** editions of Windows 10 only.  
 
 Versions under _v1809_ \(October 2018 Update\) will probably not work properly. v1803 _might_ work, but you're wading uncharted waters.
 {% endhint %}

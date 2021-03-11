@@ -25,7 +25,7 @@ sub serve_tag_stats {
 }
 
 sub clean_database {
-    my ( $deleted, $unlinked ) = LANraragi::Utils::Database::clean_database();
+    my ( $deleted, $unlinked ) = LANraragi::Utils::Database::clean_database;
 
     #Force a refresh
     invalidate_cache(1);

@@ -6,7 +6,7 @@ use utf8;
 use feature "switch";
 no warnings 'experimental';
 
-use Storable qw(store lock_retrieve);
+use Storable qw(store);
 use Digest::SHA qw(sha256_hex);
 use Mojo::Log;
 use Mojo::IOLoop;
@@ -35,7 +35,7 @@ sub remove_newlines {
 # Checks if the provided file is an image.
 # Uses non-capturing groups (?:) to avoid modifying the incoming argument.
 sub is_image {
-    return $_[0] =~ /^.+\.(?:png|jpg|gif|bmp|jpeg|jfif|webp|PNG|JPG|GIF|BMP|JPEG|JFIF|WEBP)$/;
+    return $_[0] =~ /^.+\.(?:png|jpg|gif|bmp|jpeg|jfif|webp|avif|heif|heic|PNG|JPG|GIF|BMP|JPEG|JFIF|WEBP|AVIF|HEIF|HEIC)$/;
 }
 
 # Checks if the provided file is an archive.
@@ -144,15 +144,6 @@ sub start_shinobu {
     # Freeze the process object in the PID file
     store \$proc, 'script/shinobu.pid';
     return $proc;
-}
-
-# Retrieve the Shinobu filemap, serialized to a file.
-sub get_shinobu_filemap {
-    if ( -e "./.shinobu-filemap" ) {
-        return %{ lock_retrieve("./.shinobu-filemap") };
-    } else {
-        return;
-    }
 }
 
 #This function gives us a SHA hash for the passed file, which is used for thumbnail reverse search on E-H.

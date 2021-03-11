@@ -53,7 +53,7 @@ The content directory you have to specify in the command above will contain arch
 The database directory houses the LANraragi database\(As database.rdb\), allowing you to hotswap containers without losing any data.
 
 {% hint style="info" %}
-If you don't care too much about being able to backup your database file, you can mount the database directory to a dedicated Docker volume:
+You can also mount the database directory to a dedicated Docker volume:
 
 ```bash
 docker volume create lrr-database
@@ -63,7 +63,8 @@ docker run --name=lanraragi -p 3000:3000 \
 difegue/lanraragi
 ```
 
-The volume can be reused when updating, so your database will still follow along even if the container is destroyed.
+The volume can be reused when updating, so your database will still follow along even if the container is destroyed.  
+You can always backup the database using LANraragi's internal tool.
 {% endhint %}
 
 Once your LANraragi container is loaded, you can access it at [http://localhost:3000](http://localhost:3000) .  
@@ -119,7 +120,7 @@ docker run --name=lanraragi -p 3000:3000 --mount type=bind,source=[YOUR_CONTENT_
 As long as you use the same content directory as the mount source, your data will still be there.
 
 {% hint style="info" %}
-If you update often, you might want to consider using [Portainer](https://portainer.io/) to redeploy containers without entering the entire configuration every time.
+If you update often, you might want to consider using docker-compose or [Portainer](https://portainer.io/) to redeploy containers without entering the entire configuration every time.
 {% endhint %}
 
 ## Building your own

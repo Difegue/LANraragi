@@ -1,17 +1,18 @@
 # DOCKER-VERSION 0.3.4
-FROM        alpine:latest
+FROM        alpine:3.12
 LABEL       git="https://github.com/Difegue/LANraragi"
 
-ENV S6_OVERLAY_RELEASE v1.21.8.0
+ENV S6_OVERLAY_RELEASE v2.0.0.1
 ENV S6_KEEP_ENV 1
 
-# terminate if we can't run stage2 (fix-attrs/cont-init)
-ENV S6_BEHAVIOUR_IF_STAGE2_FAILS 2
+# warn if we can't run stage2 (fix-attrs/cont-init)
+ENV S6_BEHAVIOUR_IF_STAGE2_FAILS 1
 
 # wait 10s before KILLing
 ENV S6_KILL_GRACETIME 10000
 
-ENTRYPOINT ["/init"] # s6
+# s6
+ENTRYPOINT ["/init"] 
 
 # Check application health
 HEALTHCHECK --interval=1m --timeout=10s --retries=3 \
@@ -41,6 +42,7 @@ fi
 
 # we use s6-overlay-nobin to just pull in the s6-overlay arch agnostic (shell)
 # components, since we apk install the binaries of s6 later which are arch specific
+# /!\ While the s6 version here is fixed by an envvar, the apk install is not pinned and takes whatever's in alpine:latest! This certainly needs a fix.
 ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_RELEASE}/s6-overlay-nobin.tar.gz /tmp/s6-overlay-nobin.tar.gz
 RUN tar -C / -xzf /tmp/s6-overlay-nobin.tar.gz && rm -f /tmp/s6-overlay-nobin.tar.gz
 
@@ -56,7 +58,6 @@ COPY --chown=koyomi:koyomi /package.json package.json
 RUN sh ./tools/install-everything.sh
 
 #Copy remaining LRR files from context
-# consider chowning in s6 setup scripts instead
 COPY --chown=koyomi:koyomi /lib lib
 COPY --chown=koyomi:koyomi /public public
 COPY --chown=koyomi:koyomi /script script
@@ -67,7 +68,6 @@ COPY --chown=koyomi:koyomi /tools/build/docker/redis.conf tools/build/docker/
 COPY /tools/build/docker/wsl.conf /etc/wsl.conf
 COPY /tools/build/docker/s6/cont-init.d/ /etc/cont-init.d/
 COPY /tools/build/docker/s6/services.d/ /etc/services.d/
-# keep this out for now and do it in cont-init.d instead
 #COPY /tools/build/docker/s6/fix-attrs.d/ /etc/fix-attrs.d/
 
 # Persistent volumes

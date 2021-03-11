@@ -27,6 +27,7 @@ sub index {
     $self->render(
         template    => "plugins",
         title       => $self->LRR_CONF->get_htmltitle,
+        descstr     => $self->LRR_DESC,
         metadata    => craft_plugin_array(@metaplugins),
         downloaders => craft_plugin_array(@downloadplugins),
         logins      => craft_plugin_array(@loginplugins),
