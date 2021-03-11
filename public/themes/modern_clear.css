@@ -47,10 +47,10 @@ input[type='checkbox']:checked::after, input[type='checkbox']:checked::before {
 }  
 
 .sorting_asc>a, .sorting_desc>a {
-    color: #ed2553;
+    color: #ed2553 !important;
 }
-.sorting_asc>a:hover, .sorting_desc>a:hover {
-    color: #34495E;
+.sorting_asc>a:hover, .sorting_desc>a:hover  {
+    color: #34495E !important;
 }
 
 p.ip{margin:-3px auto;text-align:center;padding:10px 5px 5px 5px;clear:both}
@@ -191,8 +191,8 @@ table.itc {
     color: #34495E !important;
 }
 
-table.itg a{color:#FCFCFC;}
-table.itg a:hover{color:#ed2553;}
+table.itg a, .collapsible-title a{color:#FCFCFC;}
+table.itg a:hover, .collapsible-title a:hover{color:#ed2553;}
 
 /* gallery table */
 tr.gtr{background:#40454b}
@@ -215,12 +215,12 @@ tr.gtr1{background:#34495E}
     cursor: pointer;
 }
 
-.id1 > * > .stdbtn, .id1 > .stdbtn, .option-flyout > .collapsible-body > table > * > tr > td > .stdbtn {
+.id1 > * > .stdbtn, .id1 > .stdbtn, .collapsible-body .stdbtn {
     background-color: #e1e7e9;
     color: #34495e;
 }
 
-.stdbtn:hover, .option-flyout > .collapsible-body > table > * > tr > td > .stdbtn:hover {
+.stdbtn:hover {
     background-color: #ed2553; 
     color: #f1f1f1
 }

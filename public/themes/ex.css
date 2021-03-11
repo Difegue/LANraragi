@@ -15,10 +15,10 @@ input[type='checkbox']:checked::after, input[type='checkbox']:checked::before {
 }  
 
 .sorting_asc>a, .sorting_desc>a {
-    color: #FFFBDB;
+    color: #FFFBDB !important;
 }
 .sorting_asc>a:hover, .sorting_desc>a:hover {
-    color: #DDDDDD;
+    color: #DDDDDD !important;
 }
 
 p.ip{margin:-3px auto;text-align:center;padding:0px 5px 5px 5px;clear:both}

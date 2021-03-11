@@ -19,7 +19,7 @@ sub plugin_info {
         author    => "Difegue",
         version   => "1.0",
         description =>
-          "Normalize all metadata in the database to Unicode NFC. Consider running this once if you're upgrading from 0.7.6."
+          "Normalize all metadata in the database to Unicode NFC. <br>Consider running this once if you're upgrading from 0.7.6."
     );
 
 }

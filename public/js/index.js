@@ -365,7 +365,7 @@ function migrateProgress() {
 
 	if (localProgressKeys.length > 0) {
 		$.toast({
-			heading: 'Your Reading Progression is now saved on the server!',
+			heading: 'Your Reading Progression is now synchronized across clients!',
 			text: 'You seem to have some local progression saved from an earlier LRR version -- Please wait warmly while we migrate it to the server for you. ☕',
 			hideAfter: false,
 			position: 'top-left',

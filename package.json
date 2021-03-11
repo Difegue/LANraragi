@@ -1,7 +1,7 @@
 {
   "name": "lanraragi",
   "version": "0.7.7",
-  "version_name": "Video Crime",
+  "version_name": "Pallas Athena",
   "description": "please stop bullying the filesystem watcher she tries her best",
   "scripts": {
     "test": "prove -l -v tests/*.t",

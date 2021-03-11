@@ -32,10 +32,10 @@ input[type='checkbox']:checked::after, input[type='checkbox']:checked::before {
 }  
 
 .sorting_asc>a, .sorting_desc>a {
-    color: #9B4E03;
+    color: #9B4E03 !important;
 }
 .sorting_asc>a:hover, .sorting_desc>a:hover {
-    color: #5C0D11;
+    color: #5C0D11 !important;
 }
 
 p.ip {

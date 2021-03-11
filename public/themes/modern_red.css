@@ -42,10 +42,10 @@ a:hover {
 }
 
 .sorting_asc>a, .sorting_desc>a {
-  color: #D7D4C5;
+  color: #D7D4C5 !important;
 }
 .sorting_asc>a:hover, .sorting_desc>a:hover {
-  color: #EFEAEA;
+  color: #EFEAEA !important;
 }
 
 p.ip {
@@ -415,10 +415,13 @@ div#toppane {
   border-color: transparent transparent transparent #414135;
 }
 
-table.itg a {
+table.itg a,
+.collapsible-title a {
   color: #414135;
 }
+
 table.itg a:hover,
+.collapsible-title a:hover,
 p#nb a:hover {
   color: #BE234B;
 }

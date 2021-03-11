@@ -115,7 +115,7 @@
 						<div class="bar"></div>
 						Processed <span id="arcs"></span> out of <span id="totalarcs"></span>
 					</div>
-					<div class="id1" style="width:400px; height:314px">
+					<div class="id1" style="width:400px; height:auto">
 						<pre id="log-container" class="log-panel" />
 					</div>
 				</div>
