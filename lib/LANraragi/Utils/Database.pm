@@ -211,7 +211,7 @@ sub compute_id {
 
     my $file = $_[0];
 
-    #Read the first 500 KBs only (allows for faster disk speeds )
+    #Read the first 512 KBs only (allows for faster disk speeds )
     open( my $handle, '<', $file ) or die "Couldn't open $file :" . $!;
     my $data;
     my $len = read $handle, $data, 512000;
