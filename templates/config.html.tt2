@@ -31,8 +31,10 @@
 		<br>
 		<div class="left-column">
 
-			<img id="logo" class="svg logo-container" src="./img/logo.svg">
+			<img style="height: 128px;/*! box-shadow: 5px 5px 5px #999; */border-radius: 35px;background-color: #EFEAEA;padding: 8px;"
+				src="./img/logo.png">
 			<br>
+			<h1>LANraragi</h1>
 			Version [% version %] - "[% vername %]"
 			<br>
 			<h2>Select a category to show the matching settings.</h2>
