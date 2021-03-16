@@ -6,7 +6,7 @@
 [<img src="https://action-badges.now.sh/Difegue/lanraragi">](https://github.com/Difegue/LANraragi/actions)
 [<img src="https://img.shields.io/discord/612709831744290847">](https://discord.gg/aRQxtbg)
 
-# <img alt="LANraragi" src="https://raw.githubusercontent.com/Difegue/LANraragi/public/img/logo.png" width="128"> LANraragi  
+# <img alt="LANraragi" src="https://github.com/Difegue/LANraragi/raw/dev/public/img/logo.png" width="128"> LANraragi  
 
 Open source server for archival of comics/manga, running on Mojolicious + Redis.
 
