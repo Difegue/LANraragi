@@ -33,10 +33,9 @@ body {
   font-size: 8pt !important;
 }
 
-.logo {
-  fill: #DDDDDD !important;
+.logo-container {
+  background-color: #DDDDDD;
 }
-
 
 a {
   color: #DDDDDD;

@@ -31,11 +31,10 @@
 		<br>
 		<div class="left-column">
 
-			<img style="height: 128px;/*! box-shadow: 5px 5px 5px #999; */border-radius: 35px;background-color: #EFEAEA;padding: 8px;"
-				src="./img/logo.png">
+			<img class="logo-container" src="./img/logo.png">
 			<br>
-			<h1>LANraragi</h1>
-			Version [% version %] - "[% vername %]"
+			<h1 style="margin-bottom: 2px">LANraragi</h1>
+			Version [% version %], "[% vername %]"
 			<br>
 			<h2>Select a category to show the matching settings.</h2>
 			<br />
@@ -120,7 +119,6 @@
 		$(function () {
 			enable_pass();
 			enable_resize();
-			replace_img_svg();
 			shinobuStatus();
 			setInterval(shinobuStatus, 5000);
 			$("#enablepass").click(enable_pass);

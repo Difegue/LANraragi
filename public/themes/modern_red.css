@@ -28,8 +28,8 @@ body {
   text-align: center;
 }
 
-.logo {
-  fill: #EFEAEA !important;
+.logo-container {
+  background-color: #EFEAEA;
 }
 
 a {

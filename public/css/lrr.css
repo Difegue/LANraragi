@@ -316,8 +316,10 @@ li {
 }
 
 .logo-container {
-  width: 300px;
-  height: 100px;
+  height: 128px;
+  border-radius: 35px;
+  background-color: #EFEAEA;
+  padding: 2px;
 }
 
 .context-menu-list {

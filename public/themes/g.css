@@ -16,8 +16,8 @@ img {
     border: 0 none;
 }
 
-.logo {
-    fill: #5C0D11 !important;
+.logo-container {
+    background-color: #5C0D11;
 }
 
 a {
