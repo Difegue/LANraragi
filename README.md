@@ -6,11 +6,15 @@
 [<img src="https://action-badges.now.sh/Difegue/lanraragi">](https://github.com/Difegue/LANraragi/actions)
 [<img src="https://img.shields.io/discord/612709831744290847">](https://discord.gg/aRQxtbg)
 
-# <img alt="LANraragi" src="https://github.com/Difegue/LANraragi/raw/dev/public/img/logo.png" width="128"> LANraragi  
+
+<img src="public/img/logo.png" width="128">  
+  
+LANraragi
+===========
 
 Open source server for archival of comics/manga, running on Mojolicious + Redis.
 
-#### [💬 Talk with other fellow LANraragi Users](https://discord.gg/aRQxtbg)
+#### 💬 Talk with other fellow LANraragi Users on [Discord](https://discord.gg/aRQxtbg) or [Github Discussions](https://github.com/Difegue/LANraragi/discussions)  
 
 ####  [📄 Documentation](https://sugoi.gitbook.io/lanraragi/) | [⏬ Download](https://github.com/Difegue/LANraragi/releases/latest) | [🎞 Demo](https://lrr.tvc-16.science) | [🐱‍👓 Windows Nightlies](https://mega.nz/#F!rHZynKpZ!ZXlwMam4t8VtYjOiHPONsQ) | [💵 Sponsor Development](https://ko-fi.com/T6T2UP5N)  
 
