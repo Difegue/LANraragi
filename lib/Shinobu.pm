@@ -12,7 +12,6 @@ use strict;
 use warnings;
 use utf8;
 use feature qw(say);
-use Cwd;
 
 use FindBin;
 use Parallel::Loops;
@@ -64,10 +63,10 @@ sub initialize_from_new_process {
     my $userdir = LANraragi::Model::Config->get_userdir;
 
     $logger->info("Shinobu File Watcher started.");
-    $logger->info( "Working dir is " . cwd );
+    $logger->info("Content folder is $userdir.");
 
     update_filemap();
-    $logger->info("Adding watcher to content folder $userdir");
+    $logger->info("Initial scan complete! Adding watcher to content folder to monitor for further file edits.");
 
     # Add watcher to content directory
     my $contentwatcher = File::ChangeNotify->instantiate_watcher(
