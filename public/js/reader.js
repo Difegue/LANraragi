@@ -186,11 +186,11 @@ function initArchivePageOverlay() {
 	//For each link in the pages array, craft a div and jam it in the overlay.
 	for (index = 0; index < pages.pages.length; ++index) {
 
-		thumbnail = "<div class='id3' style='display: inline-block; cursor: pointer'>" +
-			"<a onclick='goToPage(" + index + "); closeOverlay()'>" +
-			"<span class='page-number'>Page " + (index + 1) + "</span>" +
-			"<img src='" + pages.pages[index] + "' /></a>" +
-			"</div>";
+		thumb_css = (localStorage.cropthumbs === 'true') ? "id3" : "id3 nocrop";
+		thumbnail = `<div class='${thumb_css}' style='display: inline-block; cursor: pointer'>` +
+			`<a onclick='goToPage(${index}); closeOverlay()'>` +
+			`<span class='page-number'>Page ${(index + 1)}</span>` +
+			`<img src='${pages.pages[index]}' /></a></div>`;
 
 		$("#archivePagesOverlay").append(thumbnail);
 	}
