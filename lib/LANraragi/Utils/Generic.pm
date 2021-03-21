@@ -35,12 +35,12 @@ sub remove_newlines {
 # Checks if the provided file is an image.
 # Uses non-capturing groups (?:) to avoid modifying the incoming argument.
 sub is_image {
-    return $_[0] =~ /^.+\.(?:png|jpg|gif|bmp|jpeg|jfif|webp|avif|heif|heic|PNG|JPG|GIF|BMP|JPEG|JFIF|WEBP|AVIF|HEIF|HEIC)$/;
+    return $_[0] =~ /^.+\.(?:png|jpg|gif|bmp|jpeg|jfif|webp|avif|heif|heic)$/i;
 }
 
 # Checks if the provided file is an archive.
 sub is_archive {
-    return $_[0] =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|pdf|epub|)$/;
+    return $_[0] =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|pdf|epub|)$/i;
 }
 
 # Renders the basic success API JSON template.
