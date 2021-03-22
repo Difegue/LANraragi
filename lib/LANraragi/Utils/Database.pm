@@ -21,8 +21,8 @@ use Exporter 'import';
 our @EXPORT_OK = qw(redis_encode redis_decode invalidate_cache compute_id);
 
 #add_archive_to_redis($id,$file,$redis)
-#Parses the name of a file for metadata, and matches that metadata to the SHA-1 hash of the file in our Redis database.
-#This function doesn't actually require the file to exist at its given location.
+# Creates a DB entry for a file path with the given ID.
+# This function doesn't actually require the file to exist at its given location.
 sub add_archive_to_redis {
     my ( $id, $file, $redis ) = @_;
     my $logger = get_logger( "Archive", "lanraragi" );
@@ -35,6 +35,9 @@ sub add_archive_to_redis {
 
     $redis->hset( $id, "name",  redis_encode($name) );
     $redis->hset( $id, "title", redis_encode($name) );
+
+    # Initialize tags to an empty string
+    $redis->hset( $id, "tags", "" );
 
     #Don't encode filenames.
     $redis->hset( $id, "file", $file );
