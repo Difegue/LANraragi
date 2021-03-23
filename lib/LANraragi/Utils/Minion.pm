@@ -9,7 +9,7 @@ use Mojo::UserAgent;
 use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Utils::Database qw(redis_decode);
 use LANraragi::Utils::Archive qw(extract_thumbnail);
-use LANraragi::Utils::Plugins qw(get_downloader_for_url get_plugin get_plugin_parameters);
+use LANraragi::Utils::Plugins qw(get_downloader_for_url get_plugin get_plugin_parameters use_plugin);
 
 use LANraragi::Model::Upload;
 use LANraragi::Model::Config;
@@ -213,6 +213,26 @@ sub add_tasks {
                     }
                 );
             }
+        }
+    );
+
+    $minion->add_task(
+        run_plugin => sub {
+            my ( $job, @args ) = @_;
+            my ( $namespace, $id, $scriptarg ) = @args;
+
+            my $logger = get_logger( "Minion", "minion" );
+            $logger->info("Running plugin $namespace...");
+
+            my ( $pluginfo, $plugin_result ) = use_plugin( $namespace, $id, $scriptarg );
+
+            $job->finish(
+                {   type    => $pluginfo->{type},
+                    success => ( exists $plugin_result->{error} ? 0 : 1 ),
+                    error   => $plugin_result->{error},
+                    data    => $plugin_result
+                }
+            );
         }
     );
 }

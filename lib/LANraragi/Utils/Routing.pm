@@ -80,9 +80,11 @@ sub apply_routes {
     $public_api->get('/api/opds')->to('api-other#serve_opds');
     $public_api->get('/api/info')->to('api-other#serve_serverinfo');
     $logged_in_api->get('/api/plugins/:type')->to('api-other#list_plugins');
-    $logged_in_api->post('/api/plugins/use')->to('api-other#use_plugin');
+    $logged_in_api->post('/api/plugins/use')->to('api-other#use_plugin_sync');
+    $logged_in_api->post('/api/plugins/queue')->to('api-other#use_plugin_async');
     $logged_in_api->delete('/api/tempfolder')->to('api-other#clean_tempfolder');
     $logged_in_api->get('/api/minion/:jobid')->to('api-other#minion_job_status');
+    $logged_in_api->post('/api/minion/:jobname/queue')->to('api-other#queue_minion_job');
     $logged_in_api->post('/api/download_url')->to('api-other#download_url');
     $logged_in_api->post('/api/regen_thumbs')->to('api-other#regen_thumbnails');
 

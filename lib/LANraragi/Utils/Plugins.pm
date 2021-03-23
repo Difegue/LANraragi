@@ -15,7 +15,8 @@ use Module::Pluggable require => 1, search_path => ['LANraragi::Plugin'];
 # Functions related to the Plugin system.
 # This mostly contains the glue for parameters w/ Redis, the meat of Plugin execution is in Model::Plugins.
 use Exporter 'import';
-our @EXPORT_OK = qw(get_plugins get_downloader_for_url get_plugin get_enabled_plugins get_plugin_parameters is_plugin_enabled);
+our @EXPORT_OK =
+  qw(get_plugins get_downloader_for_url get_plugin get_enabled_plugins get_plugin_parameters is_plugin_enabled use_plugin);
 
 # Get metadata of all plugins with the defined type. Returns an array of hashes.
 sub get_plugins {
@@ -130,6 +131,40 @@ sub is_plugin_enabled {
 
     $redis->quit();
     return 0;
+}
+
+# Shorthand method to use a plugin by name.
+sub use_plugin {
+
+    my ( $plugname, $id, $input ) = @_;
+
+    my $plugin = get_plugin($plugname);
+    my %plugin_result;
+    my %pluginfo;
+
+    if ( !$plugin ) {
+        $plugin_result{error} = "Plugin not found on system.";
+    } else {
+        %pluginfo = $plugin->plugin_info();
+
+        #Get the plugin settings in Redis
+        my @settings = get_plugin_parameters($plugname);
+
+        #Execute the plugin, appending the custom args at the end
+        if ( $pluginfo{type} eq "script" ) {
+            eval { %plugin_result = LANraragi::Model::Plugins::exec_script_plugin( $plugin, $input, @settings ); };
+        }
+
+        if ( $pluginfo{type} eq "metadata" ) {
+            eval { %plugin_result = LANraragi::Model::Plugins::exec_metadata_plugin( $plugin, $id, $input, @settings ); };
+        }
+
+        if ($@) {
+            $plugin_result{error} = $@;
+        }
+    }
+
+    return ( \%pluginfo, \%plugin_result );
 }
 
 1;
