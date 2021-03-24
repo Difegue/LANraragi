@@ -34,10 +34,16 @@ input[type='checkbox']:checked::after {
 
 .config-panel {
     float:left; 
-    margin-left: 5%; 
+    margin-left: 5% !important; 
     text-align: left; 
     width:90%;
     margin-bottom: 10px;
+}
+
+.config-btn {
+    display:inline;
+    min-width:96px !important;
+    height:28px !important;
 }
 
 /* lrr.css override */

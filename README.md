@@ -49,9 +49,11 @@ Open source server for archival of comics/manga, running on Mojolicious + Redis.
 
 * Full Tag support with Namespaces: Add your own or import them from other sources using Plugins.  
 
-* Set Favorite Tags to be able to quickly find archives containing them in your collection
+* Store archives in either arbitary or dynamic Categories to sort your Library easily
 
-* Auto-Tagging: Import metadata using Plugins automatically when archives are added to LANraragi.
+* Import metadata using Plugins automatically when archives are added to LANraragi.
+
+* Download archives from the Internet directly to the server, while using the aforementioned automatic metadata import
 
 * Backup your database as JSON to carry your tags over to another LANraragi instance.
 

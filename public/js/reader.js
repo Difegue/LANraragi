@@ -108,6 +108,10 @@ function goToPage(page) {
 		currentPage = pageNumber - 1;
 	else currentPage = page;
 
+	if (localStorage.containerwidth !== "" && !isNaN(localStorage.containerwidth)) {
+		$(".sni").attr("style", `max-width: ${localStorage.containerwidth}px`);
+	}
+
 	//if double-page view is enabled(and the current page isn't the first or the last)
 	if (localStorage.doublepage === 'true' && currentPage > 0 && currentPage < pageNumber - 1) {
 		//composite an image and use that as the source
@@ -115,7 +119,8 @@ function goToPage(page) {
 		img2 = loadImage(pages.pages[currentPage + 1], canvasCallback);
 
 		//We can also override the 1200px maxwidth since we usually have twice the pages
-		$(".sni").attr("style", "max-width: 90%");
+		if (localStorage.containerwidth === "" || isNaN(localStorage.containerwidth))
+			$(".sni").attr("style", "max-width: 90%");
 
 		// Preload next two images
 		loadImage(pages.pages[currentPage + 2], null);
@@ -197,38 +202,82 @@ function initArchivePageOverlay() {
 	$("#archivePagesOverlay").attr("loaded", "true");
 }
 
-function initSettingsOverlay() {
+function applySettings() {
+
+	$(".favtag-btn").removeClass("toggled");
+	$("#containersetting").hide();
+
+	if (!isNaN(localStorage.containerwidth))
+		$("#containerwidth").val(localStorage.containerwidth);
 
 	if (localStorage.readorder === 'true')
-		$("#readorder").prop("checked", true);
+		$("#mangaread").addClass("toggled");
+	else
+		$("#normalread").addClass("toggled");
 
 	if (localStorage.doublepage === 'true')
-		$("#doublepage").prop("checked", true);
-
-	if (localStorage.scaletoview === 'true')
-		$("#scaletoview").prop("checked", true);
+		$("#doublepage").addClass("toggled");
+	else
+		$("#singlepage").addClass("toggled");
 
 	if (localStorage.forcefullwidth === 'true')
-		$("#forcefullwidth").prop("checked", true);
+		$("#fitwidth").addClass("toggled");
+	else if (localStorage.scaletoview === 'true')
+		$("#fitheight").addClass("toggled");
+	else {
+		$("#fitcontainer").addClass("toggled");
+		$("#containersetting").show();
+	}
 
 	if (localStorage.hidetop === 'true')
-		$("#hidetop").prop("checked", true);
+		$("#hidetop").addClass("toggled");
+	else
+		$("#showtop").addClass("toggled");
 
 	if (localStorage.nobookmark === 'true')
-		$("#nobookmark").prop("checked", true);
+		$("#nobookmark").addClass("toggled");
+	else
+		$("#dobookmark").addClass("toggled");
 
+	// Reset reader
+	goToPage(currentPage);
 }
 
-function saveSettings() {
-	localStorage.readorder = $("#readorder").prop("checked");
-	localStorage.doublepage = $("#doublepage").prop("checked");
-	localStorage.scaletoview = $("#scaletoview").prop("checked");
-	localStorage.forcefullwidth = $("#forcefullwidth").prop("checked");
-	localStorage.hidetop = $("#hidetop").prop("checked");
-	localStorage.nobookmark = $("#nobookmark").prop("checked");
+function setDisplayMode(fittowidth, fittoheight) {
+	localStorage.forcefullwidth = fittowidth;
+	localStorage.scaletoview = fittoheight;
+	applySettings();
+}
 
-	closeOverlay();
-	goToPage(currentPage);
+function setDoublePage(doublepage) {
+	localStorage.doublepage = doublepage;
+	applySettings();
+}
+
+function setRTL(righttoleft) {
+	localStorage.readorder = righttoleft;
+	applySettings();
+}
+
+function setHideHeader(hideheader) {
+	localStorage.hidetop = hideheader;
+	applySettings();
+}
+
+function setTracking(disablebookmark) {
+	localStorage.nobookmark = disablebookmark;
+	applySettings();
+}
+
+function applyContainerWidth() {
+	input = $("#containerwidth").val().trim();
+
+	if (!isNaN(input))
+		localStorage.containerwidth = input;
+	else
+		localStorage.removeItem("containerwidth");
+
+	applySettings();
 }
 
 function openOverlay() {

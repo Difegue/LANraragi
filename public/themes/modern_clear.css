@@ -163,10 +163,16 @@ table.itc {
 
 .toggled {
     background:#ed2553 !important;
+    color: #f1f1f1 !important;
 }
 
 .toggled:hover {
     color: #34495E !important;
+}
+
+.config-btn {
+    background: #e1e7e9;
+    color: #34495E;
 }
 
 /* options flyout menus */
