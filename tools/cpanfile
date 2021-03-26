@@ -39,7 +39,7 @@ requires 'Cpanel::JSON::XS', 4.06;
 
 # Job Queue (Minion)
 requires 'Minion', 10.13;
-requires 'Minion::Backend::Redis';
+# requires 'Minion::Backend::Redis'; TODO when the package lands in CPAN
 
 # Background Worker (Shinobu)
 requires 'Proc::Simple', 1.32;
