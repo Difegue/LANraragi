@@ -103,5 +103,14 @@ class Lanraragi < Formula
     ENV["LRR_LOG_DIRECTORY"] = testpath/"log"
 
     system "npm", "--prefix", libexec, "test"
+
+    # but while we're at it, we can also check for the table flip! it's free real estate
+    output = <<~EOS
+      ｷﾀ━━━━━━(ﾟ∀ﾟ)━━━━━━!!!!!
+      (╯・_>・）╯︵ ┻━┻
+      It appears your Redis database is currently not running.
+      The program will cease functioning now.
+    EOS
+    assert_match output, shell_output("#{bin}/lanraragi", 1)
   end
 end

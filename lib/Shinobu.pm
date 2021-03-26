@@ -22,7 +22,7 @@ use Mojo::JSON qw(to_json);
 #As this is a new process, reloading the LRR libs into INC is needed.
 BEGIN { unshift @INC, "$FindBin::Bin/../lib"; }
 
-use Mojolicious;
+use Mojolicious;    # Needed by Model::Config to read the Redis address/port.
 use File::ChangeNotify;
 use File::Find;
 use File::Basename;
