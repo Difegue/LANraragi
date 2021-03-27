@@ -111,6 +111,6 @@ class Lanraragi < Formula
       It appears your Redis database is currently not running.
       The program will cease functioning now.
     EOS
-    assert_match output, shell_output("#{bin}/lanraragi", 1)
+    assert_match output, shell_output("npm start --prefix #{libexec}", 61)
   end
 end
