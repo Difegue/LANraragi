@@ -154,7 +154,7 @@ function createNamespaceColumn(namespace, type, data) {
 		match = regex.exec(data);
 
 		if (match != null) {
-			return `<a style="cursor:pointer" onclick="fillSearchField('${namespace}','${match[1]}')">
+			return `<a style="cursor:pointer" onclick="fillSearchField(event, '${namespace}','${match[1]}')">
 						${match[1].replace(/\b./g, function (m) { return m.toUpperCase(); })}
 					</a>`;
 		} else return "";
@@ -164,9 +164,10 @@ function createNamespaceColumn(namespace, type, data) {
 }
 
 // Fill out the search field and trigger a search programmatically.
-function fillSearchField(namespace, tag) {
+function fillSearchField(e, namespace, tag) {
 	$('#srch').val(`${namespace}:${tag}`);
 	arcTable.search(`${namespace}:${tag}`).draw();
+	e.preventDefault(); // Override href 
 }
 
 function titleColumnDisplay(data, type, full, meta) {
@@ -457,8 +458,11 @@ function buildTagsDiv(tags) {
 		line += `<tr><td class='caption-namespace ${encodedK}-tag'>${ucKey}:</td><td>`;
 
 		tagsByNamespace[key].forEach(function (tag) {
-			line += `<div class="gt" onclick="fillSearchField('${key}','${encode(tag)}')">
-					 	${encode(tag)}
+			line += `<div class="gt">
+					 	<a onclick="fillSearchField(event, '${key}','${encode(tag)}')" 
+						   href="?q=${encodeURIComponent(key + ":" + tag)}">
+						   ${encode(tag)}
+						</a>
 					 </div>`;
 		});
 
