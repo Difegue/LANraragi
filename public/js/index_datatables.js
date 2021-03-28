@@ -4,6 +4,9 @@
 //This is painful to read.
 function initIndex(pagesize) {
 
+	selectedCategory = "";
+	isComingFromPopstate = false;
+
 	$.fn.dataTableExt.oStdClasses.sStripeOdd = 'gtr0';
 	$.fn.dataTableExt.oStdClasses.sStripeEven = 'gtr1';
 
@@ -64,7 +67,7 @@ function initIndex(pagesize) {
 	});
 
 	//add datatable search event to the local searchbox and clear search to the clear filter button
-	$('#subsrch').click(function () {
+	$('#subsrch').on("click", function () {
 		performSearch();
 	});
 	$('#srch').keyup(function (e) {
@@ -76,7 +79,7 @@ function initIndex(pagesize) {
 		e.preventDefault();
 	});
 
-	$('#clrsrch').click(function () {
+	$('#clrsrch').on("click", function () {
 		$('#srch').val('');
 		performSearch();
 	});
@@ -84,6 +87,58 @@ function initIndex(pagesize) {
 	//clear searchbar cache
 	$('#srch').val('');
 
+	// Add a listen event to window.popstate to update the search accordingly if the user goes back using browser history
+	window.onpopstate = () => {
+		isComingFromPopstate = true;
+		searchFromURLParams();
+	}
+
+	// If the url has parameters, handle them now by doing the matching search.
+	searchFromURLParams();
+}
+
+// Looks at the active filters and performs a search using DataTables' API.
+// (which is hooked back to the internal Search API)
+// If you specify a page argument, the search will load the given page.
+function performSearch(page) {
+
+	// Add the selected category to the tags column so it's picked up by the search engine 
+	// This allows for the regular search bar to be used in conjunction with categories.
+	arcTable.column('.tags.itd').search(selectedCategory);
+
+	// Add the isnew filter if asked
+	input = $("#inboxbtn");
+
+	if (input.prop("checked")) {
+		arcTable.column('.isnew').search("true");
+	} else {
+		// no fav filters
+		arcTable.column('.isnew').search("");
+	}
+
+	// Add the untagged filter if asked
+	input = $("#untaggedbtn");
+
+	if (input.prop("checked")) {
+		arcTable.column('.untagged').search("true");
+	} else {
+		// no fav filters
+		arcTable.column('.untagged').search("");
+	}
+
+	arcTable.search($('#srch').val().replace(",", ""));
+
+	if (page) {
+		// Hack the displayStart value to draw at the page we asked
+		arcTable.settings()[0].iInitDisplayStart = page * arcTable.settings()[0]._iDisplayLength;
+	}
+	else {
+		arcTable.settings()[0].iInitDisplayStart = 0;
+	}
+	arcTable.draw();
+
+	//Re-load categories so the most recently selected/created ones appear first
+	loadCategories();
 }
 
 //For datatable initialization, columns with just one data source display that source as a link for instant search.
@@ -195,7 +250,77 @@ function drawCallback(settings) {
 				div.appendChild(container[0]);
 			});
 		}
+
+		// Update url to contain all search parameters, and push it to the history 
+		if (isComingFromPopstate) // But don't fire this if we're coming from popstate 
+			isComingFromPopstate = false;
+		else {
+			var params = buildURLParams();
+			if (params === "?")
+				params = "/";
+			window.history.pushState(null, null, params);
+		}
 	}
+}
+
+function buildURLParams() {
+
+	var cat = arcTable.column('.tags.itd').search();
+	var untag = arcTable.column('.untagged').search();
+	var isnew = arcTable.column('.isnew').search();
+	var page = arcTable.page.info().page + 1;
+	var sortby = arcTable.order()[0][0];
+	var sortorder = arcTable.order()[0][1];
+
+	var encodedSearch = encodeURIComponent(arcTable.search());
+
+	return `?`
+		+ ((page !== 1) ? `p=${page}` : "")
+		+ ((sortby !== 0) ? `&sort=${sortby}` : "")
+		+ ((sortorder !== "asc") ? `&sortdir=${sortorder}` : "")
+		+ ((encodedSearch !== "") ? `&q=${encodedSearch}` : "")
+		+ ((cat !== "") ? `&c=${cat}` : "")
+		+ ((untag !== "") ? `&untagged` : "")
+		+ ((isnew !== "") ? `&isnew` : "");
+
+}
+
+function searchFromURLParams() {
+
+	var params = new URLSearchParams(window.location.search);
+
+	if (params.has("c"))
+		selectedCategory = params.get("c");
+	else
+		selectedCategory = "";
+
+	$("#untaggedbtn").prop("checked", params.has("untagged"));
+	updateToggleClass($("#untaggedbtn"));
+
+	$("#inboxbtn").prop("checked", params.has("isnew"));
+	updateToggleClass($("#inboxbtn"));
+
+	if (params.has("q")) {
+		$('#srch').val(decodeURIComponent(params.get("q")));
+	} else {
+		$('#srch').val("");
+	}
+
+	var order = [[0, "asc"]];
+
+	if (params.has("sort"))
+		order[0][0] = params.get("sort");
+
+	if (params.has("sortdir"))
+		order[0][1] = params.get("sortdir");
+
+	arcTable.order(order);
+
+	if (params.has("p"))
+		performSearch(params.get("p") - 1);
+	else
+		performSearch();
+
 }
 
 //Builds a id1 class div to jam in the thumb container for an archive whose JSON data we read
@@ -342,53 +467,4 @@ function buildTagsDiv(tags) {
 
 	line += '</tbody></table></div>';
 	return line;
-}
-
-// Remove namespace from tags and color-code them. Meant for inline display.
-function colorCodeTags(tags) {
-	line = "";
-	if (tags === "")
-		return line;
-
-	tagsByNamespace = splitTagsByNamespace(tags);
-	Object.keys(tagsByNamespace).sort().forEach(function (key, index) {
-		tagsByNamespace[key].forEach(function (tag) {
-			var encodedK = encode(key.toLowerCase());
-			line += `<span class='${encodedK}-tag'>${encode(tag)}</span>, `;
-		});
-	});
-	// Remove last comma
-	return line.slice(0, -2);
-}
-
-function splitTagsByNamespace(tags) {
-
-	var tagsByNamespace = {};
-
-	if (tags === null || tags === undefined) {
-		return tagsByNamespace;
-	}
-
-	tags.split(/,\s?/).forEach(function (tag) {
-		nspce = null;
-		val = null;
-
-		//Split the tag from its namespace
-		arr = tag.split(/:\s?/);
-		if (arr.length == 2) {
-			nspce = arr[0].trim();
-			val = arr[1].trim();
-		} else {
-			nspce = "other";
-			val = arr;
-		}
-
-		if (nspce in tagsByNamespace)
-			tagsByNamespace[nspce].push(val);
-		else
-			tagsByNamespace[nspce] = [val];
-
-	});
-
-	return tagsByNamespace;
 }

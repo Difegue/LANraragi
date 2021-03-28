@@ -138,7 +138,6 @@
 			loadTagSuggestions();
 
 			// Initialize categories
-			selectedCategory = "";
 			loadCategories();
 
 			// Migrate local progression if there's any

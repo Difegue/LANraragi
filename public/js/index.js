@@ -28,49 +28,18 @@ function toggleFilter(button) {
 	inboxState = !(button.prop("checked"));
 	button.prop("checked", inboxState);
 
-	if (inboxState) {
-		button.addClass("toggled");
-	} else {
-		button.removeClass("toggled");
-	}
+	updateToggleClass(button);
 
 	//Redraw the table 
 	performSearch();
 }
 
-// Looks at the active filters and performs a search using DataTables' API.
-// (which is hooked back to the internal Search API)
-function performSearch() {
+function updateToggleClass(button) {
 
-	// Add the selected category to the tags column so it's picked up by the search engine 
-	// This allows for the regular search bar to be used in conjunction with categories.
-	arcTable.column('.tags.itd').search(selectedCategory);
-
-	// Add the isnew filter if asked
-	input = $("#inboxbtn");
-
-	if (input.prop("checked")) {
-		arcTable.column('.isnew').search("true");
-	} else {
-		// no fav filters
-		arcTable.column('.isnew').search("");
-	}
-
-	// Add the untagged filter if asked
-	input = $("#untaggedbtn");
-
-	if (input.prop("checked")) {
-		arcTable.column('.untagged').search("true");
-	} else {
-		// no fav filters
-		arcTable.column('.untagged').search("");
-	}
-
-	arcTable.search($('#srch').val().replace(",", ""));
-	arcTable.draw();
-
-	//Re-load categories so the most recently selected/created ones appear first
-	loadCategories();
+	if (button.prop("checked"))
+		button.addClass("toggled");
+	else
+		button.removeClass("toggled");
 }
 
 function initSettings(version) {
@@ -340,6 +309,7 @@ function loadCategories() {
 		}).fail(data => showErrorToast("Couldn't load categories", data.error));
 }
 
+// Quick 'n dirty HTML encoding function.
 function encode(r) {
 	if (r === undefined)
 		return r;
@@ -358,6 +328,55 @@ function openSettings() {
 function closeOverlay() {
 	$('#overlay-shade').fadeOut(300);
 	$('.base-overlay').css('display', 'none');
+}
+
+// Remove namespace from tags and color-code them. Meant for inline display.
+function colorCodeTags(tags) {
+	line = "";
+	if (tags === "")
+		return line;
+
+	tagsByNamespace = splitTagsByNamespace(tags);
+	Object.keys(tagsByNamespace).sort().forEach(function (key, index) {
+		tagsByNamespace[key].forEach(function (tag) {
+			var encodedK = encode(key.toLowerCase());
+			line += `<span class='${encodedK}-tag'>${encode(tag)}</span>, `;
+		});
+	});
+	// Remove last comma
+	return line.slice(0, -2);
+}
+
+function splitTagsByNamespace(tags) {
+
+	var tagsByNamespace = {};
+
+	if (tags === null || tags === undefined) {
+		return tagsByNamespace;
+	}
+
+	tags.split(/,\s?/).forEach(function (tag) {
+		nspce = null;
+		val = null;
+
+		//Split the tag from its namespace
+		arr = tag.split(/:\s?/);
+		if (arr.length == 2) {
+			nspce = arr[0].trim();
+			val = arr[1].trim();
+		} else {
+			nspce = "other";
+			val = arr;
+		}
+
+		if (nspce in tagsByNamespace)
+			tagsByNamespace[nspce].push(val);
+		else
+			tagsByNamespace[nspce] = [val];
+
+	});
+
+	return tagsByNamespace;
 }
 
 function migrateProgress() {
