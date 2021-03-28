@@ -309,6 +309,15 @@ background-color: #EDEADA;
 border:2px outset #5C0D11 !important;
 }
 
+.caption-tags {
+    padding: 5px;
+    color: #5C0D11 !important;
+}
+
+.tippy-arrow {
+    color: #5C0D11;
+}
+
 .context-menu-separator {
     padding: 0 !important;
     margin: .35em 0;

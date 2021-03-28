@@ -124,16 +124,16 @@ table.itg th{font-weight:bold;
     overflow: hidden;
     text-overflow: ellipsis;}
 
-.qtip {
+.tippy-content {
     border: 1px solid #E1E7E9;
 }
 
-.qtip > * > * > table.itg {
+.caption-tags > table.itg {
     color: #34495E !important;
 }
 
-.qtip-tip {
-    display:none !important;
+.tippy-arrow {
+    color: #E1E7E9;
 }
 
 /* favtags */

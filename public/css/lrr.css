@@ -115,6 +115,14 @@ p#nb {
   font-size: 13px;
 }
 
+.tippy-box {
+  background-color: transparent !important;
+}
+
+.tippy-content {
+  padding: 0px !important;
+}
+
 .caption-namespace {
   width: 100px !important;
   font-size:10pt; 
@@ -123,7 +131,7 @@ p#nb {
 }
 
 .caption-tags {
-  max-width: 400px !important;
+  width: 400px !important;
   min-width: 30% !important;
 }
 
@@ -429,9 +437,6 @@ li {
     max-width: 250px;
   }
 
-  .caption-image {
-    margin-left: -15% !important;
-  }
   .page-overlay,
   .ie7 .page-overlay {
     min-height: 100% !important;

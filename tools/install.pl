@@ -15,16 +15,16 @@ my @vendor_css = (
     "/blueimp-file-upload/css/jquery.fileupload.css",  "/datatables/media/css/jquery.dataTables.min.css",
     "/\@fortawesome/fontawesome-free/css/all.min.css", "/jqcloud2/dist/jqcloud.min.css",
     "/jquery-toast-plugin/dist/jquery.toast.min.css",  "/jquery-contextmenu/dist/jquery.contextMenu.min.css",
-    "/qtip2/dist/jquery.qtip.min.css",                 "/allcollapsible/dist/css/allcollapsible.min.css",
+    "/tippy.js/dist/tippy.css",                        "/allcollapsible/dist/css/allcollapsible.min.css",
     "/awesomplete/awesomplete.css"
 );
 
 my @vendor_js = (
     "/blueimp-file-upload/js/jquery.fileupload.js",       "/blueimp-file-upload/js/vendor/jquery.ui.widget.js",
     "/datatables/media/js/jquery.dataTables.min.js",      "/jqcloud2/dist/jqcloud.min.js",
-    "/jquery/dist/jquery.min.js",                         "/jquery-migrate/dist/jquery-migrate.min.js",
-    "/jquery-toast-plugin/dist/jquery.toast.min.js",      "/jquery-contextmenu/dist/jquery.ui.position.min.js",
-    "/jquery-contextmenu/dist/jquery.contextMenu.min.js", "/qtip2/dist/jquery.qtip.min.js",
+    "/jquery/dist/jquery.min.js",                         "/jquery-toast-plugin/dist/jquery.toast.min.js",
+    "/jquery-contextmenu/dist/jquery.ui.position.min.js", "/jquery-contextmenu/dist/jquery.contextMenu.min.js",
+    "/tippy.js/dist/tippy-bundle.umd.min.js",             "/\@popperjs/core/dist/umd/popper.min.js",
     "/allcollapsible/dist/js/allcollapsible.min.js",      "/awesomplete/awesomplete.min.js"
 );
 

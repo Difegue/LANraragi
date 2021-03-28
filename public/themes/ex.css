@@ -50,8 +50,13 @@ div.gt:hover {
 
 h1.ih{font-size:10pt;font-weight:bold;margin:2px auto;text-align:center;padding-bottom:6px}
 
-.qtip > * > * > table.itg {
+.caption-tags {
+    padding: 5px;
     color: #dddddd !important;
+}
+
+.tippy-arrow {
+    color: #000;
 }
 
 /* navbar */

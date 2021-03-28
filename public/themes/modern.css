@@ -149,13 +149,17 @@ table.itg th {
   text-overflow: ellipsis;
 }
 
-.qtip,
+.tippy-content,
 .context-menu-list {
   border: 1px solid #363940 !important;
   border-radius: 3px !important;
 }
 
-.qtip > * > * > table.itg {
+.tippy-arrow {
+  color: #363940;
+}
+
+.caption-tags > table.itg {
   color: #dddddd !important;
 }
 

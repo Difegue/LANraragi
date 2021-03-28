@@ -177,11 +177,11 @@ function titleColumnDisplay(data, type, full, meta) {
 		titleHtml += buildProgressDiv(data);
 
 		return `${titleHtml} 
-				<a class="context-menu" id="${data.arcid}" onmouseover="buildImageTooltip($(this))" href="reader?id=${data.arcid}"> 
+				<a class="context-menu" id="${data.arcid}" onmouseover="buildImageTooltip(this)" href="reader?id=${data.arcid}"> 
 					${encode(data.title)}
 				</a>
 				<div class="caption" style="display: none;">
-					<img style="height:200px" src="./api/archives/${data.arcid}/thumbnail" onerror="this.src='./img/noThumb.png'">
+					<img style="height:300px" src="./api/archives/${data.arcid}/thumbnail" onerror="this.src='./img/noThumb.png'">
 				</div>`;
 	}
 
@@ -191,7 +191,7 @@ function titleColumnDisplay(data, type, full, meta) {
 function tagsColumnDisplay(data, type, full, meta) {
 	if (type == "display") {
 
-		line = '<span class="tag-tooltip" onmouseover="buildTagTooltip($(this))" style="text-overflow:ellipsis;">' + colorCodeTags(data) + '</span>';
+		line = '<span class="tag-tooltip" onmouseover="buildTagTooltip(this)" style="text-overflow:ellipsis;">' + colorCodeTags(data) + '</span>';
 		line += buildTagsDiv(data);
 		return line;
 	}
@@ -345,7 +345,7 @@ function buildThumbDiv(row, data, index) {
 							</a>
 						</div>
 						<div class="id4">
-							<span class="tags tag-tooltip" onmouseover="buildTagTooltip($(this))">${colorCodeTags(data.tags)}</span>
+							<span class="tags tag-tooltip" onmouseover="buildTagTooltip(this)">${colorCodeTags(data.tags)}</span>
 							${buildTagsDiv(data.tags)} 
 						</div>
 					</div>`;
@@ -381,61 +381,28 @@ function buildImageTooltip(target) {
 	if (target.innerHTML === "")
 		return;
 
-	target.qtip({
-		content: {
-			//make a clone of the existing image div and rip off the caption class to avoid display glitches
-			text: target.next('div').clone().removeClass("caption")
-		},
-		position: {
-			target: 'mouse',
-			adjust: {
-				mouse: true,
-				x: 5
-			},
-			viewport: $(window)
-		},
-		show: {
-			solo: true
-		},
-		style: {
-			classes: 'caption caption-image'
-		},
-		show: {
-			delay: 45
-		}
-	});
+	tippy(target, {
+		content: $(target).next('div').clone().attr("style", "height:300px;")[0],
+		delay: 0,
+		animation: false,
+		maxWidth: 'none',
+		followCursor: true,
+	}).show(); //Call show() so that the tooltip shows now
 
-	target.attr('onmouseover', ''); //Don't trigger this function again for this element
-	target.mouseover(); //Call the mouseover event again so the tooltip shows now
+	$(target).attr('onmouseover', ''); //Don't trigger this function again for this element
 }
 
 //Ditto for tag tooltips, with different options.
 function buildTagTooltip(target) {
-	target.qtip({
-		content: {
-			text: target.next('div')
-		},
-		position: {
-			my: 'middle right',
-			at: 'top left',
-			target: false,
-			viewport: $(window)
-		},
-		show: {
-			solo: true,
-			delay: 45
-		},
-		hide: {
-			fixed: true,
-			delay: 300
-		},
-		style: {
-			classes: 'caption caption-tags'
-		}
-	});
+	tippy(target, {
+		content: $(target).next('div').attr("style", "")[0],
+		delay: 0,
+		placement: 'auto-start',
+		maxWidth: 'none',
+		interactive: true
+	}).show(); //Call show() so that the tooltip shows now
 
-	target.attr('onmouseover', '');
-	target.mouseover();
+	$(target).attr('onmouseover', '');
 }
 
 //Builds a caption div containing clickable tags. Uses a string containing all tags, split by commas.
@@ -446,7 +413,7 @@ function buildTagsDiv(tags) {
 
 	tagsByNamespace = splitTagsByNamespace(tags);
 
-	line = '<div style="display: none;" >';
+	line = '<div class="caption caption-tags" style="display: none;" >';
 	line += '<table class="itg" style="box-shadow: 0 0 0 0; border: none; border-radius: 0" ><tbody>';
 
 	//Go through resolved namespaces and print tag divs

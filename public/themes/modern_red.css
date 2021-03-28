@@ -92,17 +92,20 @@ div.gt {
   padding: 1px 4px;
   position: relative;
   white-space: nowrap;
-  color: #EFEAEA;
+  color: #EFEAEA !important;
   cursor: pointer;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-div.gt:hover {
-  color: #D7D4C5;
+div.gt > a {
+  color: #EFEAEA !important;
 }
 
+div.gt > a:hover {
+  color: #D7D4C5 !important;
+}
 
 p#nb {
   margin: 2px auto;
@@ -146,11 +149,11 @@ table.itg th {
   text-overflow: ellipsis;
 }
 
-.qtip {
+.tippy-content {
   border: 2px dotted #414135;
 }
 
-.qtip-tip {
+.tippy-arrow {
   display:none !important;
 }
 
