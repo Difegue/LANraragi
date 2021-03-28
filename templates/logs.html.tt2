@@ -85,7 +85,7 @@
 		function showLog(type) {
 
 			$.get("/logs/" + type + "?lines=" + $("#loglines").val(), function (data) {
-				$("#log-container").html(data);
+				$("#log-container").html(encode(data));
 				$("#indicator").html(type);
 				$("#log-container").scrollTop($("#log-container").prop("scrollHeight"));
 			});
@@ -96,6 +96,15 @@
 
 		function refreshLog() {
 			showLog(lastType);
+		}
+
+		function encode(r) {
+			if (r === undefined)
+				return r;
+			if (Array.isArray(r))
+				return r[0].replace(/[\x26\x0A\<>'"]/g, function (r) { return "&#" + r.charCodeAt(0) + ";" });
+			else
+				return r.replace(/[\x26\x0A\<>'"]/g, function (r) { return "&#" + r.charCodeAt(0) + ";" })
 		}
 
 		showLog("general");
