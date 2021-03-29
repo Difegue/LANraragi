@@ -108,7 +108,12 @@ sub search_for_fakku_url {
     # Get the first gallery url of the search results
     my $path = ( $dom->at('.content-title') ) ? $dom->at('.content-title')->attr('href') : "";
 
-    return $fakku_host . $path;
+    if ( $path ne "" ) {
+        return $fakku_host . $path;
+    } else {
+        return "";
+    }
+
 }
 
 # get_tags_from_fakku(fURL)
