@@ -184,6 +184,13 @@ function goToPage(page) {
 
 	//scroll to top
 	window.scrollTo(0, 0);
+
+	// Update url to contain all search parameters, and push it to the history 
+	if (isComingFromPopstate) // But don't fire this if we're coming from popstate 
+		isComingFromPopstate = false;
+	else {
+		window.history.pushState(null, null, `?id=${id}&p=${page + 1}`);
+	}
 }
 
 function initArchivePageOverlay() {

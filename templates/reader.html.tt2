@@ -84,10 +84,11 @@
 
 	<script>
 
+		isComingFromPopstate = false;
 		pages = [% imgpaths %];
 		id = "[%id%]";
-
 		filename = "[% filename %]";
+
 		if ((filename.endsWith(".rar") || filename.endsWith(".cbr")) && !localStorage.rarWarningShown) {
 			localStorage.rarWarningShown = true;
 			$.toast({
@@ -133,7 +134,12 @@
 		if (currentPage === pageNumber - 1)
 			currentPage = 0;
 
-		goToPage(currentPage);
+		var params = new URLSearchParams(window.location.search);
+
+		if (params.has("p"))
+			goToPage(params.get("p") - 1);
+		else
+			goToPage(currentPage);
 
 		// Remove new flag with an API call
 		clearNew(id);
@@ -142,6 +148,15 @@
 		$(window).resize(function () {
 			updateImageMap();
 		});
+
+		// Add a listen event to window.popstate to update the page accordingly if the user goes back using browser history
+		window.onpopstate = () => {
+			var params = new URLSearchParams(window.location.search);
+			if (params.has("p")) {
+				isComingFromPopstate = true;
+				goToPage(params.get("p") - 1);
+			}
+		}
 
 	</script>
 
