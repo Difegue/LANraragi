@@ -1,7 +1,7 @@
 {
   "name": "lanraragi",
-  "version": "0.7.7",
-  "version_name": "Pallas Athena",
+  "version": "0.7.8",
+  "version_name": "Looking for Lester",
   "description": "please stop bullying the filesystem watcher she tries her best",
   "scripts": {
     "test": "prove -l -v tests/*.t",
