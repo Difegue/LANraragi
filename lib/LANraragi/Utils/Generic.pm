@@ -19,7 +19,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 # Generic Utility Functions.
 use Exporter 'import';
 our @EXPORT_OK =
-  qw(remove_spaces remove_newlines is_image is_archive render_api_response get_tag_with_namespace shasum start_shinobu
+  qw(remove_spaces remove_newlines trim_url is_image is_archive render_api_response get_tag_with_namespace shasum start_shinobu
   split_workload_by_cpu start_minion get_css_list generate_themes_header generate_themes_selector);
 
 # Remove spaces before and after a word
@@ -30,6 +30,21 @@ sub remove_spaces {
 # Remove all newlines in a string
 sub remove_newlines {
     $_[0] =~ s/\R//g;
+}
+
+# Fixes up a URL string for use in the DL system.
+sub trim_url {
+
+    remove_spaces( $_[0] );
+
+    if ( $_[0] =~ /https?:\/\/(.*)/gm ) {
+        $_[0] = $1;
+    }
+
+    my $char = chop $_[0];
+    if ( $char ne "/" ) {
+        $_[0] .= $char;
+    }
 }
 
 # Checks if the provided file is an image.

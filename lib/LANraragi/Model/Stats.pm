@@ -7,7 +7,7 @@ use utf8;
 use Redis;
 use File::Find;
 
-use LANraragi::Utils::Generic qw(remove_spaces remove_newlines is_archive);
+use LANraragi::Utils::Generic qw(remove_spaces remove_newlines is_archive trim_url);
 use LANraragi::Utils::Database qw(redis_decode redis_encode);
 use LANraragi::Utils::Logging qw(get_logger);
 
@@ -79,8 +79,11 @@ sub build_stat_hashes {
 
                 # If the tag is a source: tag, add it to the URL index
                 if ( $t =~ /source:(.*)/i ) {
-                    $logger->debug("Adding $1 as an URL for $id");
-                    $redistx->hset( "LRR_URLMAP", $1, $id );    # No need to encode the value, as URLs are already encoded by design
+                    my $url = $1;
+                    $logger->debug("Adding $url as an URL for $id");
+                    trim_url($url);
+                    $logger->debug("Trimmed: $url");
+                    $redistx->hset( "LRR_URLMAP", $url, $id );  # No need to encode the value, as URLs are already encoded by design
                 }
 
                 # Increment tag in stats, all lowercased here to avoid redundancy/dupes
@@ -91,8 +94,27 @@ sub build_stat_hashes {
 
     $redistx->exec;
     $logger->debug("Done!");
-    $redis->quit();
-    $redistx->quit();
+    $redis->quit;
+    $redistx->quit;
+}
+
+sub is_url_recorded {
+
+    my $url    = $_[0];
+    my $logger = get_logger( "Tag Stats", "lanraragi" );
+    my $redis  = LANraragi::Model::Config->get_redis;
+    my $id     = 0;
+    $logger->debug("Checking if url $url is in the url map.");
+
+    # Trim last slash from url if it's present
+    trim_url($url);
+
+    if ( $redis->hexists( "LRR_URLMAP", $url ) ) {
+        $id = $redis->hget( "LRR_URLMAP", $url );
+        $logger->debug("Found! id $id.");
+    }
+    $redis->quit;
+    return $id;
 }
 
 sub build_tag_json {

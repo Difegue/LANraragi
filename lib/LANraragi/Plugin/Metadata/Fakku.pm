@@ -97,7 +97,6 @@ sub search_for_fakku_url {
     my $URL = "$fakku_host/search/" . uri_escape_utf8($title);
 
     $logger->debug("Using URL $URL to search on FAKKU.");
-    my $ua = Mojo::UserAgent->new;
 
     my $res = $ua->max_redirects(5)->get($URL)->result;
     $logger->debug( "Got this HTML: " . $res->body );
