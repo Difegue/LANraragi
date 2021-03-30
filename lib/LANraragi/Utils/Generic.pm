@@ -37,8 +37,9 @@ sub trim_url {
 
     remove_spaces( $_[0] );
 
-    if ( $_[0] =~ /https?:\/\/(.*)/gm ) {
-        $_[0] = $1;
+    # Remove scheme and www. if present. Other subdomains are not removed
+    if ( $_[0] =~ /https?:\/\/(www\.)?(.*)/gm ) {
+        $_[0] = $2;
     }
 
     my $char = chop $_[0];

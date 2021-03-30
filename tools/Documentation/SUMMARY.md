@@ -6,7 +6,7 @@
 
 * [Which installation method is best for me?](installing-lanraragi/methods.md)
 * [LRR for Windows \(Win10\)](installing-lanraragi/windows.md)
-* [Homebrew \(Linux/macOS\)](installing-lanraragi/macos.md)
+* [Homebrew \(macOS\)](installing-lanraragi/macos.md)
 * [Docker \(All platforms\)](installing-lanraragi/docker.md)
 * [Source Code \(Linux/macOS\)](installing-lanraragi/source.md)
 * [Community \(Linux\)](installing-lanraragi/community.md)
