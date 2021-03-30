@@ -267,9 +267,10 @@ sub invalidate_cache {
     $redis->hset( "LRR_SEARCHCACHE", "created", time );
     $redis->quit();
 
-    # Re-warm the cache to ensure sufficient speed on the main inde
+    # Re-warm the cache to ensure sufficient speed on the main index
     if ($do_warm) {
-        LANraragi::Model::Config->get_minion->enqueue( warm_cache => [] => { priority => 3 } );
+        LANraragi::Model::Config->get_minion->enqueue( warm_cache        => [] => { priority => 3 } );
+        LANraragi::Model::Config->get_minion->enqueue( build_stat_hashes => [] => { priority => 3 } );
     }
 }
 

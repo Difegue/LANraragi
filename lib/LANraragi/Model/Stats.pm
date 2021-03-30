@@ -8,7 +8,7 @@ use Redis;
 use File::Find;
 
 use LANraragi::Utils::Generic qw(remove_spaces remove_newlines is_archive);
-use LANraragi::Utils::Database qw(redis_decode);
+use LANraragi::Utils::Database qw(redis_decode redis_encode);
 use LANraragi::Utils::Logging qw(get_logger);
 
 sub get_archive_count {
@@ -43,44 +43,68 @@ sub get_page_stat {
     return $stat;
 }
 
-sub build_tag_json {
+# This operation builds two hashes: LRR_URL_MAP, which maps URLs to IDs in the database that have them as a source: tag,
+# and LRR_STATS, which is a sorted set used to build the statistics/tag cloud JSON.
+sub build_stat_hashes {
 
-    my $t;
-    my @tags;
-    my %tagcloud;
+# This method does only one atomic write transaction, using Redis' watch/multi mode.
+# But we can't use the connection to get other data while it's in transaction mode! So we instantiate a second connection to get the data we need.
+    my $redis   = LANraragi::Model::Config->get_redis;
+    my $redistx = LANraragi::Model::Config->get_redis;
+    my $logger  = get_logger( "Tag Stats", "lanraragi" );
 
-    #Login to Redis and get all hashes
-    my $redis  = LANraragi::Model::Config->get_redis;
-    my $logger = get_logger( "Tag Stats", "lanraragi" );
-
-    #40-character long keys only => Archive IDs
+    # 40-character long keys only => Archive IDs
     my @keys = $redis->keys('????????????????????????????????????????');
 
-    #Iterate on hashes to get their tags
+    # Cancel the transaction if the hashes have been modified by another job in the meantime.
+    # This also allows for the previous stats/map to still be readable until we're done.
+    $redistx->watch( "LRR_STATS", "LRR_URLMAP" );
+    $redistx->multi;
+    $redistx->del("LRR_STATS");
+    $redistx->del("LRR_URLMAP");
+
+    # Iterate on hashes to get their tags
+    $logger->debug("Building stat indexes...");
     foreach my $id (@keys) {
         if ( $redis->hexists( $id, "tags" ) ) {
 
-            $t = $redis->hget( $id, "tags" );
-            $t = redis_decode($t);
+            my $rawtags = $redis->hget( $id, "tags" );
 
             #Split tags by comma
-            @tags = split( /,\s?/, $t );
+            my @tags = split( /,\s?/, redis_decode($rawtags) );
 
             foreach my $t (@tags) {
-
                 remove_spaces($t);
                 remove_newlines($t);
 
-                #Increment value of tag or create it
-                if   ( exists( $tagcloud{$t} ) ) { $tagcloud{$t}++; }
-                else                             { $tagcloud{$t} = 1; }
-            }
+                # If the tag is a source: tag, add it to the URL index
+                if ( $t =~ /source:(.*)/i ) {
+                    $logger->debug("Adding $1 as an URL for $id");
+                    $redistx->hset( "LRR_URLMAP", $1, $id );    # No need to encode the value, as URLs are already encoded by design
+                }
 
+                # Increment tag in stats, all lowercased here to avoid redundancy/dupes
+                $redistx->zincrby( "LRR_STATS", 1, redis_encode( lc($t) ) );
+            }
         }
     }
+
+    $redistx->exec;
+    $logger->debug("Done!");
+    $redis->quit();
+    $redistx->quit();
+}
+
+sub build_tag_json {
+
+    my $logger = get_logger( "Tag Stats", "lanraragi" );
+
+    #Login to Redis and grab the stats sorted set
+    my $redis    = LANraragi::Model::Config->get_redis;
+    my %tagcloud = $redis->zrange( "LRR_STATS", 0, -1, "WITHSCORES" );
     $redis->quit();
 
-    #Go through the tagCloud hash and build a JSON
+    # Go through the data from stats and build a JSON
     my $tagsjson = "[";
 
     for ( keys %tagcloud ) {
@@ -89,7 +113,7 @@ sub build_tag_json {
         # Split namespace
         # detect the : symbol and only use what's after it
         my $ns = "";
-        my $t  = $_;
+        my $t  = redis_decode($_);
         if ( $t =~ /(.*):(.*)/ ) { $ns = $1; $t = $2; }
 
         if ( $_ ne "" ) {

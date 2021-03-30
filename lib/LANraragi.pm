@@ -140,8 +140,9 @@ sub startup {
 
     # Warm search cache
     # /!\ Enqueuing tasks must be done either before starting the worker, or once the IOLoop is started!
-    # Anything else will cause weird database lockups with the SQLite Minion backend.
+    # Anything else can cause weird database lockups.
     $self->minion->enqueue('warm_cache');
+    $self->minion->enqueue('build_stat_hashes');
 
     # Start a Minion worker in a subprocess
     start_minion($self);

@@ -13,6 +13,7 @@ use LANraragi::Utils::Plugins qw(get_downloader_for_url get_plugin get_plugin_pa
 
 use LANraragi::Model::Upload;
 use LANraragi::Model::Config;
+use LANraragi::Model::Stats;
 
 # Add Tasks to the Minion instance.
 sub add_tasks {
@@ -90,6 +91,14 @@ sub add_tasks {
             }
 
             $logger->info("Done!");
+            $job->finish;
+        }
+    );
+
+    $minion->add_task(
+        build_stat_hashes => sub {
+            my ( $job, @args ) = @_;
+            LANraragi::Model::Stats->build_stat_hashes;
             $job->finish;
         }
     );

@@ -78,9 +78,9 @@
 		$.get("/api/database/stats")
 			.done(function (data) {
 
-				// Merge unnamespaced/namespaced tags and lower case it all
+				// Merge unnamespaced/namespaced tags, casing is handled by the server
 				data = data.reduce(function (res, tag) {
-					var sametag = res.find(x => x.text.toLowerCase() === tag.text.toLowerCase());
+					var sametag = res.find(x => x.text === tag.text);
 					if (sametag !== undefined) {
 						sametag.weight += tag.weight;
 					} else
