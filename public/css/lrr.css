@@ -237,6 +237,19 @@ a:hover > .page-number {
   user-select: none;
 }
 
+.caption-reader {
+  margin-left: auto; 
+  margin-right: auto; 
+  padding:16px; 
+  min-width: 50% !important;
+}
+
+.reader-thumbnail {
+  display: inline-block; 
+  vertical-align: middle;
+  margin-right: 48px !important;
+}
+
 /* Option menu. */
 .collapsible {
   box-shadow: none !important;
@@ -449,6 +462,10 @@ li {
   .small-overlay {
     left: 20% !important;
     width: 60% !important;
+  }
+
+  .reader-thumbnail {
+    margin-right: 0px !important;
   }
 }
 

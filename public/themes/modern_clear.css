@@ -132,6 +132,10 @@ table.itg th{font-weight:bold;
     color: #34495E !important;
 }
 
+.caption-tags > * > * > h2 {
+    color: #34495E !important;
+}
+
 .tippy-arrow {
     color: #E1E7E9;
 }

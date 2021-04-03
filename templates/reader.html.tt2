@@ -18,6 +18,7 @@
 	<script src="./js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
 
 	<script src="./js/theme.js?[% version %]" type="text/JAVASCRIPT"></script>
+	<script src="./js/common.js?[% version %]" type="text/JAVASCRIPT"></script>
 	<script src="./js/reader.js?[% version %]" type="text/JAVASCRIPT"></script>
 	<script src="./js/ajax.js?[% version %]" type="text/JAVASCRIPT"></script>
 
@@ -62,17 +63,6 @@
 			</div>
 		</div>
 
-		[% IF userlogged %]
-		<div id="i6" class="if">
-			<i class="fa fa-caret-right fa-lg"></i>
-			<a style="cursor:pointer" onclick="confirmThumbnailReset('[% id %]')">Regenerate Archive Thumbnail </a>
-			<i class="fa fa-caret-right fa-lg"></i>
-			<a href="./reader?id=[% id %]&force_reload=1">Clean Archive Cache</a>
-			<i class="fa fa-caret-right fa-lg"></i>
-			<a target="_blank" href="./edit?id=[% id %]">Edit this Archive's Metadata</a>
-		</div>
-		[% END %]
-
 		<div id="i7" class="if">
 			<i class="fa fa-caret-right fa-lg"></i>
 			<a id="imgLink" style="cursor:pointer;">View full-size image</a>
@@ -84,10 +74,11 @@
 
 	<script>
 
-		isComingFromPopstate = false;
-		pages = [% imgpaths %];
-		id = "[%id%]";
-		filename = "[% filename %]";
+		let isComingFromPopstate = false;
+		const pages = [% imgpaths %];
+		const id = "[%id%]";
+		let filename = "[% filename %]";
+		const tags = "[% tags %]";
 
 		if ((filename.endsWith(".rar") || filename.endsWith(".cbr")) && !localStorage.rarWarningShown) {
 			localStorage.rarWarningShown = true;
@@ -163,6 +154,50 @@
 	<div id="overlay-shade" onclick="closeOverlay();"></div>
 	<div id="archivePagesOverlay" class="id1 base-overlay page-overlay" style="display:none" loaded="false">
 		<h2 class="ih" style="text-align:center">Archive Overview</h2>
+		<div id="tagContainer" class="caption caption-tags caption-reader">
+			<br>
+			<div style="margin-bottom:16px;">
+				<div class="id3 nocrop reader-thumbnail">
+					<img src="./api/archives/[% id %]/thumbnail" />
+				</div>
+
+				[% IF userlogged %]
+				<div style="display:inline-block; vertical-align: middle;">
+
+					<h2>Admin Options</h2>
+
+					<input class="stdbtn" type='button' onclick="confirmThumbnailReset('[% id %]')"
+						value="Regenerate Archive Thumbnail" />
+					<br>
+					<input class='stdbtn' type='button'
+						onclick="window.location.href = './reader?id=[% id %]&force_reload=1'"
+						value='Clean Archive Cache' />
+					<br>
+					<input class='stdbtn' type='button' onclick="openInNewTab('./edit?id=[% id %]')"
+						value='Edit Archive Metadata' />
+
+					<h2>Add this archive to a Category</h2>
+
+					<select id="category" class="favtag-btn" style="width:200px; margin-right: 8px">
+						<option selected value=""> -- No Category -- </option>
+						[% FOREACH categories %]
+						<option value="[% id %]">[% name %]</option>
+						[% END %]
+					</select>
+					<br>
+					<input value="Add Archive" onclick="addArchiveToCategory('[% id %]', $('#category').val())"
+						class="stdbtn" id="goback" type="button">
+				</div>
+				[% END %]
+			</div>
+
+		</div>
+
+		<br><br>
+
+		<h2 class="ih" style="text-align:center">Pages</h2>
+	</div>
+	</div>
 	</div>
 	<div id="settingsOverlay" class="id1 base-overlay small-overlay" style="display:none">
 		[% INCLUDE config %]
@@ -199,7 +234,8 @@
 	<h2 class="config-panel"> Container Width (in pixels)</h2>
 	<input id="containerwidth" class="stdinput" style="display:inline" onsubmit="applyContainerWidth()"
 		placeholder="The default value is 1200px, or 90% in Double Page Mode.">
-	<input class="stdbtn" type="button" style="display:inline" value="Apply" onclick="applyContainerWidth()">
+	<input class="favtag-btn config-btn" type="button" style="display:inline" value="Apply"
+		onclick="applyContainerWidth()">
 </div>
 
 <div style="margin:auto; font-size:8pt;">
@@ -229,20 +265,6 @@
 	<input id="nobookmark" class="favtag-btn config-btn" type="button" value="Disabled" onclick="setTracking(true)">
 </div>
 
-[% IF userlogged %]
-<h2 class="config-panel">Add this archive to a Category</h2>
-
-<select id="category" class="favtag-btn" style="width:200px; margin-right: 8px">
-	<option selected value=""> -- No Category -- </option>
-	[% FOREACH categories %]
-	<option value="[% id %]">[% name %]</option>
-	[% END %]
-</select>
-
-<input value="Add Archive" onclick="addArchiveToCategory('[% id %]', $('#category').val())" class="stdbtn" id="goback"
-	type="button">
-
-[% END %]
 [% END %]
 <!-- -->
 [% BLOCK arrows %]

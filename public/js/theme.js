@@ -19,11 +19,6 @@ function rgb2hex(rgb) {
 
 }
 
-function openInNewTab(url) {
-  var win = window.open(url, '_blank');
-  win.focus();
-}
-
 function switch_style(css_title) {
 
   var i, link_tag, correct_style, default_style, new_style;

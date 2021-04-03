@@ -229,12 +229,14 @@ tr.gtr1 {
 	background-color: #43464E
 }
 
-.option-td > .stdbtn {
-  background-color: #43464E;
+.option-td > .stdbtn,
+.caption-tags > * > * > .stdbtn {
+  background-color: #4F535B;
 }
 
-.option-td > .stdbtn:hover {
-  background-color: #34353B; 
+.option-td > .stdbtn:hover,
+.caption-tags > * > * > .stdbtn:hover {
+  background-color: #43464E; 
 }
 
 .stdinput {

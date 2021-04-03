@@ -195,6 +195,8 @@ function goToPage(page) {
 
 function initArchivePageOverlay() {
 
+	$("#tagContainer").append(buildTagsDiv(tags));
+
 	//For each link in the pages array, craft a div and jam it in the overlay.
 	for (index = 0; index < pages.pages.length; ++index) {
 
@@ -294,17 +296,6 @@ function openOverlay() {
 	$('#overlay-shade').fadeTo(150, 0.6, function () {
 		$('#archivePagesOverlay').css('display', 'block');
 	});
-}
-
-function openSettings() {
-	$('#overlay-shade').fadeTo(150, 0.6, function () {
-		$('#settingsOverlay').css('display', 'block');
-	});
-}
-
-function closeOverlay() {
-	$('#overlay-shade').fadeOut(300);
-	$('.base-overlay').css('display', 'none');
 }
 
 function confirmThumbnailReset(id) {

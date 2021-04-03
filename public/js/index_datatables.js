@@ -191,9 +191,8 @@ function titleColumnDisplay(data, type, full, meta) {
 function tagsColumnDisplay(data, type, full, meta) {
 	if (type == "display") {
 
-		line = '<span class="tag-tooltip" onmouseover="buildTagTooltip(this)" style="text-overflow:ellipsis;">' + colorCodeTags(data) + '</span>';
-		line += buildTagsDiv(data);
-		return line;
+		return `<span class="tag-tooltip" onmouseover="buildTagTooltip(this)" style="text-overflow:ellipsis;">${colorCodeTags(data)}</span>
+				<div class="caption caption-tags" style="display: none;" >${buildTagsDiv(data)}</div>`;
 	}
 	return data;
 }
@@ -346,7 +345,7 @@ function buildThumbDiv(row, data, index) {
 						</div>
 						<div class="id4">
 							<span class="tags tag-tooltip" onmouseover="buildTagTooltip(this)">${colorCodeTags(data.tags)}</span>
-							${buildTagsDiv(data.tags)} 
+							<div class="caption caption-tags" style="display: none;" >${buildTagsDiv(data.tags)}</div>
 						</div>
 					</div>`;
 
@@ -403,39 +402,4 @@ function buildTagTooltip(target) {
 	}).show(); //Call show() so that the tooltip shows now
 
 	$(target).attr('onmouseover', '');
-}
-
-//Builds a caption div containing clickable tags. Uses a string containing all tags, split by commas.
-//Namespaces are resolved on the fly.
-function buildTagsDiv(tags) {
-	if (tags === "")
-		return "";
-
-	tagsByNamespace = splitTagsByNamespace(tags);
-
-	line = '<div class="caption caption-tags" style="display: none;" >';
-	line += '<table class="itg" style="box-shadow: 0 0 0 0; border: none; border-radius: 0" ><tbody>';
-
-	//Go through resolved namespaces and print tag divs
-	Object.keys(tagsByNamespace).sort().forEach(function (key, index) {
-
-		ucKey = key.charAt(0).toUpperCase() + key.slice(1);
-		ucKey = encode(ucKey);
-		encodedK = encode(key.toLowerCase());
-		line += `<tr><td class='caption-namespace ${encodedK}-tag'>${ucKey}:</td><td>`;
-
-		tagsByNamespace[key].forEach(function (tag) {
-			line += `<div class="gt">
-					 	<a onclick="fillSearchField(event, '${key}','${encode(tag)}')" 
-						   href="?q=${encodeURIComponent(key + ":" + tag)}">
-						   ${encode(tag)}
-						</a>
-					 </div>`;
-		});
-
-		line += "</td></tr>";
-	});
-
-	line += '</tbody></table></div>';
-	return line;
 }
