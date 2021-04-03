@@ -30,7 +30,8 @@ sub get_style { return $config->{default_theme} }
 
 # Create a Minion object connected to the Minion database.
 sub get_minion {
-    return Minion->new( SQLite => 'sqlite:' . $home . '/.minion.db' );
+    my $miniondb = get_redisad . "/" . get_miniondb;
+    return Minion->new( Redis => "redis://$miniondb" );
 }
 
 #get_redis

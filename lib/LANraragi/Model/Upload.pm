@@ -13,7 +13,7 @@ use File::Copy qw(move);
 use LANraragi::Utils::Database qw(invalidate_cache compute_id);
 use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Utils::Database qw(redis_encode);
-use LANraragi::Utils::Generic qw(is_archive);
+use LANraragi::Utils::Generic qw(is_archive remove_spaces remove_newlines trim_url);
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
@@ -76,6 +76,24 @@ sub handle_incoming_file {
     # If additional tags were given to the sub, add them now.
     if ($tags) {
         $redis->hset( $id, "tags", redis_encode($tags) );
+
+        # Check for a source: tag, and if it exists amend the urlmap by hand.
+        # This is faster than queueing a full recalculation job.
+        my @tags = split( /,\s?/, $tags );
+
+        foreach my $t (@tags) {
+            remove_spaces($t);
+            remove_newlines($t);
+
+            # If the tag is a source: tag, add it to the URL index
+            if ( $t =~ /source:(.*)/i ) {
+                my $url = $1;
+                $logger->debug("Adding $url as an URL for $id");
+                trim_url($url);
+                $logger->debug("Trimmed: $url");
+                $redis->hset( "LRR_URLMAP", $url, $id );    # No need to encode the value, as URLs are already encoded by design
+            }
+        }
     }
 
     $redis->quit();
