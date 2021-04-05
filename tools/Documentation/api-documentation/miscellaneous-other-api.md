@@ -318,7 +318,7 @@ Said information is a 1:1 match to the [plugin metadata](../plugin-docs/index#pl
     ],
     "type": "metadata",
     "version": "0.3"
-  }
+  },
   {
     "author": "Difegue",
     "description": "Collects metadata embedded into your archives by the eze userscript. (info.json files)",
