@@ -56,7 +56,7 @@ sub is_image {
 
 # Checks if the provided file is an archive.
 sub is_archive {
-    return $_[0] =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|pdf|epub|)$/i;
+    return $_[0] =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|cb7|cbt|pdf|epub|)$/i;
 }
 
 # Renders the basic success API JSON template.
