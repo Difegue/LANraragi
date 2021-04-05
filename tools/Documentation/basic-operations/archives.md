@@ -41,7 +41,7 @@ The Reader comes with its own set of clientside options to customize the reading
 
 ![Reader Options](../.gitbook/assets/reader_options.png)  
 
-If automatic bookmarking is enabled, when you close and reopen the archive, it'll show you the page you last stopped at.  
+If "Progression Tracking" is enabled, when you close and reopen the archive, it'll show you the page you last stopped at.  
 
 ## Non-Web Reader \(Third-Party applications\)
 
