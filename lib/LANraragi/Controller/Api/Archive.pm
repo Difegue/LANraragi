@@ -8,6 +8,7 @@ use Mojo::JSON qw(decode_json encode_json from_json);
 use Scalar::Util qw(looks_like_number);
 
 use LANraragi::Utils::Generic qw(render_api_response);
+use LANraragi::Utils::Database;
 
 use LANraragi::Model::Archive;
 use LANraragi::Model::Category;
@@ -143,6 +144,22 @@ sub clear_new {
             operation => "clear_new",
             id        => $id,
             success   => 1
+        }
+    );
+}
+
+sub delete_archive {
+    my $self = shift;
+    my $id   = check_id_parameter( $self, "delete_archive" ) || return;
+
+    my $delStatus = LANraragi::Utils::Database::delete_archive($id);
+
+    $self->render(
+        json => {
+            operation => "delete_archive",
+            id        => $id,
+            filename  => $delStatus,
+            success   => $delStatus eq "0" ? 0 : 1
         }
     );
 }

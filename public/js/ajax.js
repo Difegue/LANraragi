@@ -270,7 +270,7 @@ function removeArchiveFromCategory(arcId, catId) {
 //Sends a DELETE request for that archive ID, deleting the Redis key and attempting to delete the archive file.
 function deleteArchive(arcId) {
 
-	fetch("edit?id=" + arcId, { method: "DELETE" })
+	fetch(`/api/archives/${arcId}`, { method: "DELETE" })
 		.then(response => response.ok ? response.json() : { success: 0, error: "Response was not OK" })
 		.then((data) => {
 
@@ -293,7 +293,7 @@ function deleteArchive(arcId) {
 					position: 'top-left',
 					loader: false,
 					heading: 'Archive successfully deleted. Redirecting you ...',
-					text: 'File name : ' + data.success,
+					text: 'File name : ' + data.filename,
 					icon: 'success'
 				});
 				setTimeout("location.href = './';", 1500);

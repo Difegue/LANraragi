@@ -11,21 +11,6 @@ use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header
 use LANraragi::Utils::Database qw(redis_decode);
 use LANraragi::Utils::Plugins qw(get_plugins);
 
-sub delete_archive {
-    my $self = shift;
-    my $id   = $self->req->param('id');
-
-    my $delStatus = LANraragi::Utils::Database::delete_archive($id);
-
-    $self->render(
-        json => {
-            id        => $id,
-            operation => "delete",
-            success   => $delStatus
-        }
-    );
-}
-
 sub index {
     my $self = shift;
 

@@ -61,7 +61,6 @@ sub apply_routes {
     $logged_in->websocket('/batch/socket')->to('batch#socket');
 
     $logged_in->get('/edit')->to('edit#index');
-    $logged_in->delete('/edit')->to('edit#delete_archive');
 
     $logged_in->get('/backup')->to('backup#index');
     $logged_in->post('/backup')->to('backup#restore');
@@ -101,6 +100,7 @@ sub apply_routes {
     $public_api->get('/api/archives/:id/categories')->to('api-archive#get_categories');
     $public_api->get('/api/archives/:id/metadata')->to('api-archive#serve_metadata');
     $logged_in_api->put('/api/archives/:id/metadata')->to('api-archive#update_metadata');
+    $logged_in_api->delete('/api/archives/:id')->to('api-archive#delete_archive');
 
     # Search API
     $public_api->get('/search')->to('api-search#handle_datatables');

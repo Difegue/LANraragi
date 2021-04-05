@@ -583,3 +583,58 @@ You didn't specify the id parameter.
 {% endapi-method-response %}
 {% endapi-method-spec %}
 {% endapi-method %}
+
+{% api-method method="delete" host="http://lrr.tvc-16.science" path="/api/archives/:id" %}
+{% api-method-summary %}
+🔑Delete Archive
+{% endapi-method-summary %}
+
+{% api-method-description %}
+Delete both the archive metadata and the file stored on the server.  
+🙏 Please ask your user for confirmation before invoking this endpoint.
+{% endapi-method-description %}
+
+{% api-method-spec %}
+{% api-method-request %}
+{% api-method-path-parameters %}
+{% api-method-parameter name="id" type="string" required=true %}
+ID of the Archive to process.
+{% endapi-method-parameter %}
+{% endapi-method-path-parameters %}
+
+{% endapi-method-request %}
+
+{% api-method-response %}
+{% api-method-response-example httpCode=200 %}
+{% api-method-response-example-description %}
+Archive is deleted. You get the filename that was removed from the server as well.
+{% endapi-method-response-example-description %}
+
+```javascript
+{
+    "operation": "delete_archive"
+    "success": 1,
+    "id": "75d18ce470dc99f83dc355bdad66319d1f33c82b",
+    "filename": "big_chungus.zip"
+}
+```
+
+{% endapi-method-response-example %}
+
+{% api-method-response-example httpCode=400 %}
+{% api-method-response-example-description %}
+You didn't specify the id parameter.
+{% endapi-method-response-example-description %}
+
+```javascript
+{
+    "operation": "delete_archive"
+    "error": "No archive ID specified."
+    "success": 0
+}
+```
+
+{% endapi-method-response-example %}
+{% endapi-method-response %}
+{% endapi-method-spec %}
+{% endapi-method %}
