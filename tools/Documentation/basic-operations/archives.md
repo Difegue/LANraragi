@@ -34,10 +34,13 @@ The Reader Options button shows the various options you can toggle to change the
 The Page Overlay button \(also actionable by pressing **CTRL**\) will show all the pages of the current archive, allowing for quick navigation and preview.
 
 ![Reader with overlay](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/reader_overlay.jpg)  
+
 Starting with 0.7.8, you can also quickly check the metadata here.  
 
-The Reader comes with its own set of clientside options to customize the reading experience as you want.
-![Reader Options](../.gitbook/assets/reader_options.png)
+The Reader comes with its own set of clientside options to customize the reading experience as you want.  
+
+![Reader Options](../.gitbook/assets/reader_options.png)  
+
 If automatic bookmarking is enabled, when you close and reopen the archive, it'll show you the page you last stopped at.  
 
 ## Non-Web Reader \(Third-Party applications\)
