@@ -23,13 +23,9 @@ For more info on Batch Tagging, check the following article:
 
 {% page-ref page="../advanced-usage/batch-tagging.md" %}
 
-To use plugins automatically, you need to enable the option in Configuration first.
+To use plugins automatically, you have to first use the **Plugin Configuration** page to choose which plugins will be automatically executed, and set their options if they need any.
 
-![](../.gitbook/assets/autotag.PNG)
-
-Once this is done, you can use the **Plugin Configuration** page to choose which plugins will be automatically executed, and set their options if they need any.
-
-![Plugin Configuration \(on this screenshot, eze will be executed automatically.\)](../.gitbook/assets/cfg_plugin.png)
+![Plugin Configuration \(on this screenshot, eze and regex parsing will be executed automatically.\)](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/_screenshots/cfg_plugin.png)
 
 LRR ships with a few plugins out of the box, in the _/lib/LANraragi/Plugins_ folder.  
 To install other Plugins \(in .pm format\), drag them to this folder and they'll appear in Plugin Configuration.

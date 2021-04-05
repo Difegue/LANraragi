@@ -1,6 +1,6 @@
 ---
 description: >-
-  Download remote URLs directly to LANraragi!
+  Download remote URLs directly to LANraragi.
 ---
 
 # Downloading Archives
@@ -21,3 +21,9 @@ LANraragi currently ships with Downloaders handling E-H and Chaika links.
 {% hint style="info" %}
 Just like with Metadata plugins, Downloaders might require using a matching **Login Plugin** to authenticate to the remote website.
 {% endhint %}
+
+## Browser Extension  
+
+You can also install the [Tsukihi Browser Extension](https://github.com/Difegue/Tsukihi) to automatically verify/download URLs you browse to your server instance.  
+
+![Tsukihi Web Extension](../.gitbook/assets/webext.png)  

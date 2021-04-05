@@ -25,7 +25,7 @@ This method works on **64-bit** editions of Windows 10 only.
 Versions under _v1809_ \(October 2018 Update\) will probably not work properly. v1803 _might_ work, but you're wading uncharted waters.
 {% endhint %}
 
-![win10](../.gitbook/assets/karen.jpg)
+![win10](../.gitbook/assets/karen-dark.jpg)
 
 I provide a dedicated installer for Windows machines as of 0.6.0, complete with a GUI and autostart.
 
