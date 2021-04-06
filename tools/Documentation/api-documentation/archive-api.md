@@ -144,8 +144,8 @@ You didn't specify the id parameter.
 
 ```javascript
 {
-    "operation": "______"
-    "error": "No archive ID specified."
+    "operation": "______",
+    "error": "No archive ID specified.",
     "success": 0
 }
 ```
@@ -209,8 +209,8 @@ You didn't specify the id parameter.
 
 ```javascript
 {
-    "operation": "______"
-    "error": "No archive ID specified."
+    "operation": "______",
+    "error": "No archive ID specified.",
     "success": 0
 }
 ```
@@ -263,8 +263,8 @@ You didn't specify the id parameter.
 
 ```javascript
 {
-    "operation": "______"
-    "error": "No archive ID specified."
+    "operation": "______",
+    "error": "No archive ID specified.",
     "success": 0
 }
 ```
@@ -316,8 +316,8 @@ You get the Archive.
 
 ```javascript
 {
-    "operation": "______"
-    "error": "No archive ID specified."
+    "operation": "______",
+    "error": "No archive ID specified.",
     "success": 0
 }
 ```
@@ -397,8 +397,8 @@ You didn't include the id parameter.
 
 ```javascript
 {
-    "operation": "______"
-    "error": "No archive ID specified."
+    "operation": "______",
+    "error": "No archive ID specified.",
     "success": 0
 }
 ```
@@ -497,8 +497,8 @@ You didn't specify the id parameter, provided a bad progress value, or the serve
 
 ```javascript
 {
-    "operation": "update_progress"
-    "error": "No archive ID specified."
+    "operation": "update_progress",
+    "error": "No archive ID specified.",
     "success": 0
 }
 
@@ -559,7 +559,7 @@ Metadata is updated.
 
 ```javascript
 {
-    "operation": "update_metadata"
+    "operation": "update_metadata",
     "success": 1
 }
 ```
@@ -573,8 +573,8 @@ You didn't specify the id parameter.
 
 ```javascript
 {
-    "operation": "______"
-    "error": "No archive ID specified."
+    "operation": "______",
+    "error": "No archive ID specified.",
     "success": 0
 }
 ```
@@ -612,7 +612,7 @@ Archive is deleted. You get the filename that was removed from the server as wel
 
 ```javascript
 {
-    "operation": "delete_archive"
+    "operation": "delete_archive",
     "success": 1,
     "id": "75d18ce470dc99f83dc355bdad66319d1f33c82b",
     "filename": "big_chungus.zip"
@@ -628,8 +628,8 @@ You didn't specify the id parameter.
 
 ```javascript
 {
-    "operation": "delete_archive"
-    "error": "No archive ID specified."
+    "operation": "delete_archive",
+    "error": "No archive ID specified.",
     "success": 0
 }
 ```
