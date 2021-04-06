@@ -141,11 +141,6 @@ if ( $back || $full ) {
         install_package( "Linux::Inotify2", $cpanopt );
     }
 
-    if ( system( "cpanm https://github.com/Difegue/Minion-Backend-Redis/archive/refs/tags/0.002.tar.gz --notest" . $cpanopt ) != 0 )
-    {
-        die "Couldn't install Minion::Backend::Redis from GitHub!";
-    }
-
     if ( system( "cpanm --installdeps ./tools/. --notest" . $cpanopt ) != 0 ) {
         die "Something went wrong while installing Perl modules - Bailing out.";
     }
