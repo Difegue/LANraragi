@@ -38,7 +38,7 @@ requires 'IO::Socket::SSL', 2.067;
 requires 'Cpanel::JSON::XS', 4.06;
 
 # Job Queue (Minion)
-requires 'Minion', 10.13;
+requires 'Minion', 10.20;
 # requires 'Minion::Backend::Redis'; TODO when the package lands in CPAN
 
 # Background Worker (Shinobu)
