@@ -1,13 +1,13 @@
 package LANraragi::Controller::Api::Other;
 use Mojo::Base 'Mojolicious::Controller';
 
-use Mojo::JSON qw(encode_json);
+use Mojo::JSON qw(encode_json decode_json);
 use Redis;
 
 use LANraragi::Model::Stats;
 use LANraragi::Utils::TempFolder qw(get_tempsize clean_temp_full);
 use LANraragi::Utils::Generic qw(render_api_response);
-use LANraragi::Utils::Plugins qw(get_plugin get_plugins get_plugin_parameters);
+use LANraragi::Utils::Plugins qw(get_plugin get_plugins get_plugin_parameters use_plugin);
 
 sub serve_serverinfo {
     my $self = shift;
@@ -128,51 +128,65 @@ sub download_url {
 }
 
 # Uses a plugin, with the standard global arguments and a provided oneshot argument.
-sub use_plugin {
+sub use_plugin_sync {
 
     my ($self)   = shift;
     my $id       = $self->req->param('id') || 0;
     my $plugname = $self->req->param('plugin');
     my $input    = $self->req->param('arg');
 
-    my $plugin = get_plugin($plugname);
-    my %plugin_result;
-    my %pluginfo;
-
-    if ( !$plugin ) {
-        $plugin_result{error} = "Plugin not found on system.";
-    } else {
-        %pluginfo = $plugin->plugin_info();
-
-        #Get the plugin settings in Redis
-        my @settings = get_plugin_parameters($plugname);
-
-        #Execute the plugin, appending the custom args at the end
-        if ( $pluginfo{type} eq "script" ) {
-            eval { %plugin_result = LANraragi::Model::Plugins::exec_script_plugin( $plugin, $input, @settings ); };
-        }
-
-        if ( $pluginfo{type} eq "metadata" ) {
-            eval { %plugin_result = LANraragi::Model::Plugins::exec_metadata_plugin( $plugin, $id, $input, @settings ); };
-        }
-
-        if ($@) {
-            $plugin_result{error} = $@;
-        }
-    }
+    my ( $pluginfo, $plugin_result ) = use_plugin( $plugname, $id, $input );
 
     #Returns the fetched tags in a JSON response.
     $self->render(
         json => {
             operation => "use_plugin",
-            type      => $pluginfo{type},
-            success   => ( exists $plugin_result{error} ? 0 : 1 ),
-            error     => $plugin_result{error},
-            data      => \%plugin_result
+            type      => $pluginfo->{type},
+            success   => ( exists $plugin_result->{error} ? 0 : 1 ),
+            error     => $plugin_result->{error},
+            data      => $plugin_result
         }
     );
     return;
+}
 
+# Queues a plugin execution into Minion.
+sub use_plugin_async {
+
+    my ($self) = shift;
+    my $id       = $self->req->param('id')       || 0;
+    my $priority = $self->req->param('priority') || 0;
+    my $plugname = $self->req->param('plugin');
+    my $input    = $self->req->param('arg');
+
+    my $jobid = $self->minion->enqueue( run_plugin => [ $plugname, $id, $input ] => { priority => $priority } );
+
+    $self->render(
+        json => {
+            operation => "queue_plugin_exec",
+            success   => 1,
+            job       => $jobid
+        }
+    );
+}
+
+# Queues a job into Minion.
+sub queue_minion_job {
+
+    my ($self)   = shift;
+    my $jobname  = $self->stash('jobname');
+    my @jobargs  = decode_json( $self->req->param('args') );
+    my $priority = $self->req->param('priority') || 0;
+
+    my $jobid = $self->minion->enqueue( $jobname => @jobargs => { priority => $priority } );
+
+    $self->render(
+        json => {
+            operation => "queue_minion_job",
+            success   => 1,
+            job       => $jobid
+        }
+    );
 }
 
 1;

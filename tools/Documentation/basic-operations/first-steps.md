@@ -50,7 +50,7 @@ The content folder can be write-only if you so desire, but the caveat is that th
 See the section below if you want to move the thumbnail subfolder somewhere else.  
 
 {% hint style="success" %}
-The following formats are supported by LRR for Archives: 
+The following formats are supported by LRR for Archives:  
 
 * zip/cbz
 * rar/cbr \(up to RAR4 only\)

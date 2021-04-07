@@ -33,10 +33,9 @@ body {
   font-size: 8pt !important;
 }
 
-.logo {
-  fill: #DDDDDD !important;
+.logo-container {
+  background-color: #DDDDDD;
 }
-
 
 a {
   color: #DDDDDD;
@@ -150,13 +149,17 @@ table.itg th {
   text-overflow: ellipsis;
 }
 
-.qtip,
+.tippy-content,
 .context-menu-list {
   border: 1px solid #363940 !important;
   border-radius: 3px !important;
 }
 
-.qtip > * > * > table.itg {
+.tippy-arrow {
+  color: #363940;
+}
+
+.caption-tags > table.itg {
   color: #dddddd !important;
 }
 
@@ -226,12 +229,14 @@ tr.gtr1 {
 	background-color: #43464E
 }
 
-.option-td > .stdbtn {
-  background-color: #43464E;
+.option-td > .stdbtn,
+.caption-tags > * > * > .stdbtn {
+  background-color: #4F535B;
 }
 
-.option-td > .stdbtn:hover {
-  background-color: #34353B; 
+.option-td > .stdbtn:hover,
+.caption-tags > * > * > .stdbtn:hover {
+  background-color: #43464E; 
 }
 
 .stdinput {

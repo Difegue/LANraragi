@@ -16,8 +16,8 @@ img {
     border: 0 none;
 }
 
-.logo {
-    fill: #5C0D11 !important;
+.logo-container {
+    background-color: #5C0D11;
 }
 
 a {
@@ -307,6 +307,15 @@ div#toppane {
 .caption, .context-menu-list {
 background-color: #EDEADA;
 border:2px outset #5C0D11 !important;
+}
+
+.caption-tags {
+    padding: 5px;
+    color: #5C0D11 !important;
+}
+
+.tippy-arrow {
+    color: #5C0D11;
 }
 
 .context-menu-separator {

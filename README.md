@@ -6,11 +6,15 @@
 [<img src="https://action-badges.now.sh/Difegue/lanraragi">](https://github.com/Difegue/LANraragi/actions)
 [<img src="https://img.shields.io/discord/612709831744290847">](https://discord.gg/aRQxtbg)
 
-# <img alt="LANraragi" src="https://raw.githubusercontent.com/Difegue/LANraragi/master/tools/logo.png" width="300">
+
+<img src="public/favicon.ico" width="128">  
+  
+LANraragi
+===========
 
 Open source server for archival of comics/manga, running on Mojolicious + Redis.
 
-#### [💬 Talk with other fellow LANraragi Users](https://discord.gg/aRQxtbg)
+#### 💬 Talk with other fellow LANraragi Users on [Discord](https://discord.gg/aRQxtbg) or [Github Discussions](https://github.com/Difegue/LANraragi/discussions)  
 
 ####  [📄 Documentation](https://sugoi.gitbook.io/lanraragi/) | [⏬ Download](https://github.com/Difegue/LANraragi/releases/latest) | [🎞 Demo](https://lrr.tvc-16.science) | [🐱‍👓 Windows Nightlies](https://mega.nz/#F!rHZynKpZ!ZXlwMam4t8VtYjOiHPONsQ) | [💵 Sponsor Development](https://ko-fi.com/T6T2UP5N)  
 
@@ -45,9 +49,11 @@ Open source server for archival of comics/manga, running on Mojolicious + Redis.
 
 * Full Tag support with Namespaces: Add your own or import them from other sources using Plugins.  
 
-* Set Favorite Tags to be able to quickly find archives containing them in your collection
+* Store archives in either arbitary or dynamic Categories to sort your Library easily
 
-* Auto-Tagging: Import metadata using Plugins automatically when archives are added to LANraragi.
+* Import metadata using Plugins automatically when archives are added to LANraragi.
+
+* Download archives from the Internet directly to the server, while using the aforementioned automatic metadata import
 
 * Backup your database as JSON to carry your tags over to another LANraragi instance.
 

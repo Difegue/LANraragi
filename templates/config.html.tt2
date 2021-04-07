@@ -19,8 +19,9 @@
 	<script src="/js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/allcollapsible.min.js" type="text/JAVASCRIPT"></script>
 
-	<script src="/js/theme.js?[% version%]" type="text/JAVASCRIPT"></script>
-	<script src="/js/ajax.js?[% version%]" type="text/JAVASCRIPT"></script>
+	<script src="/js/common.js?[% version %]" type="text/JAVASCRIPT"></script>
+	<script src="/js/theme.js?[% version %]" type="text/JAVASCRIPT"></script>
+	<script src="/js/ajax.js?[% version %]" type="text/JAVASCRIPT"></script>
 
 </head>
 
@@ -31,9 +32,10 @@
 		<br>
 		<div class="left-column">
 
-			<img id="logo" class="svg logo-container" src="./img/logo.svg">
+			<img class="logo-container" src="./img/logo.png">
 			<br>
-			Version [% version %] - "[% vername %]"
+			<h1 style="margin-bottom: 2px">LANraragi</h1>
+			Version [% version %], "[% vername %]"
 			<br>
 			<h2>Select a category to show the matching settings.</h2>
 			<br />
@@ -118,7 +120,6 @@
 		$(function () {
 			enable_pass();
 			enable_resize();
-			replace_img_svg();
 			shinobuStatus();
 			setInterval(shinobuStatus, 5000);
 			$("#enablepass").click(enable_pass);

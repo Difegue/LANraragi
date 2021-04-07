@@ -138,8 +138,12 @@ This cache is busted as soon as the archive index is modified in any way.\(be it
 
 ## Behaviour in Debug Mode
 
-In Debug Mode, the Mojolicious server auto-restarts on every file modification.  
-You also get access to the Mojolicious logs in LRR's built-in Log View. More logs are also published when in Debug mode.
+In Debug Mode:  
+
+* The Mojolicious server auto-restarts on every file modification,  
+* Logs are way more detailed,
+* You get access to Mojolicious logs in LRR's built-in Log View,
+* A Status dashboard becomes available at `http://LRR_URL/debug`.  
 
 ## Database Architecture
 
@@ -157,19 +161,31 @@ The base architecture is as follows:
 |  |- isnew <- Whether the archive has been opened in LRR once or not
 |  +- thumbhash <- SHA-1 hash of the first image of the archive
 |
+|- LRR_PLUGIN_xxxxxxx <- Settings for a plugin with namespace xxxxxxx
+|
+|- LRR_TOTALPAGESTAT <- Total pages read
+|
+|- LRR_FILEMAP <- Shinobu Filemap, maps IDs in the database to their location on the filesystem
+|
+|- SET_xxxxxxxxxx <- A Category.
+|
 |- LRR_CONFIG <- Configuration keys, usually set through the LRR Configuration page.
-|  |- tempmaxsize  
-|  |- autotag  
-|  |- blacklist  
-|  |- devmode  
-|  |- readorder  
-|  |- motd
-|  |- pagesize  
-|  |- dirname  
 |  |- htmltitle
-|  |- apikey
-|  |- fav1/5 <- Favorite tags, if set by the user.
-|  +- enablepass <- Enable/Disable Password Authentication.
+|  |- motd
+|  |- dirname  <- Content directory
+|  |- thumbdir <- Thumbnail directory  
+|  |- tempmaxsize <- Temp folder max size 
+|  |- enableresize <- Whether automatic image resizing is enabled  
+|  |- sizethreshold <- Auto-resizing threshold
+|  |- readerquality <- Auto-resizing quality
+|  |- enablecors <- Whether CORS headers are enabled 
+|  |- blacklist  <- Tag blacklist
+|  |- blackliston <- Whether tag blacklisting is enabled
+|  |- devmode  <- Whether debug mode is enabled
+|  |- enablepass <- Enable/Disable Password Authentication.
+|  |- nofunmode <- Whether No-Fun Mode is enabled
+|  |- pagesize <- Amount of archives per Index page 
+|  +- apikey <- Key for API requests
 |
 +- LRR_SEARCHCACHE <- Search Cache
    |- $columnfilter-$filter-$sortkey-$sortorder-$newonly <- Unique ID for a search. The search result is serialized and saved as the value for this ID.
@@ -177,7 +193,7 @@ The base architecture is as follows:
 ```
 
 {% hint style="info" %}
-The archive IDs computed by LRR are created by taking the first 500KBs of the file, and computing a SHA-1 hash from this data.
+The archive IDs computed by LRR are created by taking the first 512KBs of the file, and computing a SHA-1 hash from this data.
 
 You can find the code used for the calculation in _LANraragi::Utils::Database_.
 {% endhint %}

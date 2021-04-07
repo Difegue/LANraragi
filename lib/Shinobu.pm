@@ -12,7 +12,6 @@ use strict;
 use warnings;
 use utf8;
 use feature qw(say);
-use Cwd;
 
 use FindBin;
 use Parallel::Loops;
@@ -23,13 +22,13 @@ use Mojo::JSON qw(to_json);
 #As this is a new process, reloading the LRR libs into INC is needed.
 BEGIN { unshift @INC, "$FindBin::Bin/../lib"; }
 
-use Mojolicious;
+use Mojolicious;    # Needed by Model::Config to read the Redis address/port.
 use File::ChangeNotify;
 use File::Find;
 use File::Basename;
 use Encode;
 
-use LANraragi::Utils::Database qw(invalidate_cache compute_id);
+use LANraragi::Utils::Database qw(redis_encode invalidate_cache compute_id);
 use LANraragi::Utils::TempFolder qw(get_temp clean_temp_partial);
 use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Utils::Generic qw(is_archive split_workload_by_cpu);
@@ -64,17 +63,17 @@ sub initialize_from_new_process {
     my $userdir = LANraragi::Model::Config->get_userdir;
 
     $logger->info("Shinobu File Watcher started.");
-    $logger->info( "Working dir is " . cwd );
+    $logger->info("Content folder is $userdir.");
 
     update_filemap();
-    $logger->info("Adding watcher to content folder $userdir");
+    $logger->info("Initial scan complete! Adding watcher to content folder to monitor for further file edits.");
 
     # Add watcher to content directory
     my $contentwatcher = File::ChangeNotify->instantiate_watcher(
         directories     => [$userdir],
-        filter          => qr/\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|pdf|epub|)$/,
+        filter          => qr/\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|cb7|cbt|pdf|epub)$/i,
         follow_symlinks => 1,
-        exclude         => [ 'thumb', '.' ],                                              #excluded subdirs
+        exclude         => [ 'thumb', '.' ],                                                      #excluded subdirs
     );
 
     my $class = ref($contentwatcher);

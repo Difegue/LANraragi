@@ -61,7 +61,6 @@ sub apply_routes {
     $logged_in->websocket('/batch/socket')->to('batch#socket');
 
     $logged_in->get('/edit')->to('edit#index');
-    $logged_in->delete('/edit')->to('edit#delete_archive');
 
     $logged_in->get('/backup')->to('backup#index');
     $logged_in->post('/backup')->to('backup#restore');
@@ -80,9 +79,11 @@ sub apply_routes {
     $public_api->get('/api/opds')->to('api-other#serve_opds');
     $public_api->get('/api/info')->to('api-other#serve_serverinfo');
     $logged_in_api->get('/api/plugins/:type')->to('api-other#list_plugins');
-    $logged_in_api->post('/api/plugins/use')->to('api-other#use_plugin');
+    $logged_in_api->post('/api/plugins/use')->to('api-other#use_plugin_sync');
+    $logged_in_api->post('/api/plugins/queue')->to('api-other#use_plugin_async');
     $logged_in_api->delete('/api/tempfolder')->to('api-other#clean_tempfolder');
     $logged_in_api->get('/api/minion/:jobid')->to('api-other#minion_job_status');
+    $logged_in_api->post('/api/minion/:jobname/queue')->to('api-other#queue_minion_job');
     $logged_in_api->post('/api/download_url')->to('api-other#download_url');
     $logged_in_api->post('/api/regen_thumbs')->to('api-other#regen_thumbnails');
 
@@ -99,6 +100,7 @@ sub apply_routes {
     $public_api->get('/api/archives/:id/categories')->to('api-archive#get_categories');
     $public_api->get('/api/archives/:id/metadata')->to('api-archive#serve_metadata');
     $logged_in_api->put('/api/archives/:id/metadata')->to('api-archive#update_metadata');
+    $logged_in_api->delete('/api/archives/:id')->to('api-archive#delete_archive');
 
     # Search API
     $public_api->get('/search')->to('api-search#handle_datatables');

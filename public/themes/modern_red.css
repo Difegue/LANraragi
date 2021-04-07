@@ -28,8 +28,8 @@ body {
   text-align: center;
 }
 
-.logo {
-  fill: #EFEAEA !important;
+.logo-container {
+  background-color: #EFEAEA;
 }
 
 a {
@@ -92,17 +92,20 @@ div.gt {
   padding: 1px 4px;
   position: relative;
   white-space: nowrap;
-  color: #EFEAEA;
+  color: #EFEAEA !important;
   cursor: pointer;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-div.gt:hover {
-  color: #D7D4C5;
+div.gt > a {
+  color: #EFEAEA !important;
 }
 
+div.gt > a:hover {
+  color: #D7D4C5 !important;
+}
 
 p#nb {
   margin: 2px auto;
@@ -146,11 +149,11 @@ table.itg th {
   text-overflow: ellipsis;
 }
 
-.qtip {
+.tippy-content {
   border: 2px dotted #414135;
 }
 
-.qtip-tip {
+.tippy-arrow {
   display:none !important;
 }
 
@@ -385,6 +388,11 @@ div#toppane {
 .context-menu-list {
   background-color: #DCDDCB;
   box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+}
+
+.caption-reader {
+  box-shadow:none;
+  border: 2px dashed #414135;
 }
 
 .context-menu-item {

@@ -28,49 +28,18 @@ function toggleFilter(button) {
 	inboxState = !(button.prop("checked"));
 	button.prop("checked", inboxState);
 
-	if (inboxState) {
-		button.addClass("toggled");
-	} else {
-		button.removeClass("toggled");
-	}
+	updateToggleClass(button);
 
 	//Redraw the table 
 	performSearch();
 }
 
-// Looks at the active filters and performs a search using DataTables' API.
-// (which is hooked back to the internal Search API)
-function performSearch() {
+function updateToggleClass(button) {
 
-	// Add the selected category to the tags column so it's picked up by the search engine 
-	// This allows for the regular search bar to be used in conjunction with categories.
-	arcTable.column('.tags.itd').search(selectedCategory);
-
-	// Add the isnew filter if asked
-	input = $("#inboxbtn");
-
-	if (input.prop("checked")) {
-		arcTable.column('.isnew').search("true");
-	} else {
-		// no fav filters
-		arcTable.column('.isnew').search("");
-	}
-
-	// Add the untagged filter if asked
-	input = $("#untaggedbtn");
-
-	if (input.prop("checked")) {
-		arcTable.column('.untagged').search("true");
-	} else {
-		// no fav filters
-		arcTable.column('.untagged').search("");
-	}
-
-	arcTable.search($('#srch').val().replace(",", ""));
-	arcTable.draw();
-
-	//Re-load categories so the most recently selected/created ones appear first
-	loadCategories();
+	if (button.prop("checked"))
+		button.addClass("toggled");
+	else
+		button.removeClass("toggled");
 }
 
 function initSettings(version) {
@@ -338,26 +307,6 @@ function loadCategories() {
 			$("#catdropdown").on("change", () => toggleCategory($("#catdropdown")[0].selectedOptions[0]));
 
 		}).fail(data => showErrorToast("Couldn't load categories", data.error));
-}
-
-function encode(r) {
-	if (r === undefined)
-		return r;
-	if (Array.isArray(r))
-		return r[0].replace(/[\x26\x0A\<>'"]/g, function (r) { return "&#" + r.charCodeAt(0) + ";" });
-	else
-		return r.replace(/[\x26\x0A\<>'"]/g, function (r) { return "&#" + r.charCodeAt(0) + ";" })
-}
-
-function openSettings() {
-	$('#overlay-shade').fadeTo(150, 0.6, function () {
-		$('#settingsOverlay').css('display', 'block');
-	});
-}
-
-function closeOverlay() {
-	$('#overlay-shade').fadeOut(300);
-	$('.base-overlay').css('display', 'none');
 }
 
 function migrateProgress() {

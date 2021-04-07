@@ -4,6 +4,9 @@
 //This is painful to read.
 function initIndex(pagesize) {
 
+	selectedCategory = "";
+	isComingFromPopstate = false;
+
 	$.fn.dataTableExt.oStdClasses.sStripeOdd = 'gtr0';
 	$.fn.dataTableExt.oStdClasses.sStripeEven = 'gtr1';
 
@@ -64,7 +67,7 @@ function initIndex(pagesize) {
 	});
 
 	//add datatable search event to the local searchbox and clear search to the clear filter button
-	$('#subsrch').click(function () {
+	$('#subsrch').on("click", function () {
 		performSearch();
 	});
 	$('#srch').keyup(function (e) {
@@ -76,7 +79,7 @@ function initIndex(pagesize) {
 		e.preventDefault();
 	});
 
-	$('#clrsrch').click(function () {
+	$('#clrsrch').on("click", function () {
 		$('#srch').val('');
 		performSearch();
 	});
@@ -84,6 +87,58 @@ function initIndex(pagesize) {
 	//clear searchbar cache
 	$('#srch').val('');
 
+	// Add a listen event to window.popstate to update the search accordingly if the user goes back using browser history
+	window.onpopstate = () => {
+		isComingFromPopstate = true;
+		searchFromURLParams();
+	}
+
+	// If the url has parameters, handle them now by doing the matching search.
+	searchFromURLParams();
+}
+
+// Looks at the active filters and performs a search using DataTables' API.
+// (which is hooked back to the internal Search API)
+// If you specify a page argument, the search will load the given page.
+function performSearch(page) {
+
+	// Add the selected category to the tags column so it's picked up by the search engine 
+	// This allows for the regular search bar to be used in conjunction with categories.
+	arcTable.column('.tags.itd').search(selectedCategory);
+
+	// Add the isnew filter if asked
+	input = $("#inboxbtn");
+
+	if (input.prop("checked")) {
+		arcTable.column('.isnew').search("true");
+	} else {
+		// no fav filters
+		arcTable.column('.isnew').search("");
+	}
+
+	// Add the untagged filter if asked
+	input = $("#untaggedbtn");
+
+	if (input.prop("checked")) {
+		arcTable.column('.untagged').search("true");
+	} else {
+		// no fav filters
+		arcTable.column('.untagged').search("");
+	}
+
+	arcTable.search($('#srch').val().replace(",", ""));
+
+	if (page) {
+		// Hack the displayStart value to draw at the page we asked
+		arcTable.settings()[0].iInitDisplayStart = page * arcTable.settings()[0]._iDisplayLength;
+	}
+	else {
+		arcTable.settings()[0].iInitDisplayStart = 0;
+	}
+	arcTable.draw();
+
+	//Re-load categories so the most recently selected/created ones appear first
+	loadCategories();
 }
 
 //For datatable initialization, columns with just one data source display that source as a link for instant search.
@@ -99,7 +154,7 @@ function createNamespaceColumn(namespace, type, data) {
 		match = regex.exec(data);
 
 		if (match != null) {
-			return `<a style="cursor:pointer" onclick="fillSearchField('${namespace}','${match[1]}')">
+			return `<a style="cursor:pointer" onclick="fillSearchField(event, '${namespace}','${match[1]}')">
 						${match[1].replace(/\b./g, function (m) { return m.toUpperCase(); })}
 					</a>`;
 		} else return "";
@@ -109,9 +164,10 @@ function createNamespaceColumn(namespace, type, data) {
 }
 
 // Fill out the search field and trigger a search programmatically.
-function fillSearchField(namespace, tag) {
+function fillSearchField(e, namespace, tag) {
 	$('#srch').val(`${namespace}:${tag}`);
 	arcTable.search(`${namespace}:${tag}`).draw();
+	e.preventDefault(); // Override href 
 }
 
 function titleColumnDisplay(data, type, full, meta) {
@@ -121,11 +177,11 @@ function titleColumnDisplay(data, type, full, meta) {
 		titleHtml += buildProgressDiv(data);
 
 		return `${titleHtml} 
-				<a class="context-menu" id="${data.arcid}" onmouseover="buildImageTooltip($(this))" href="reader?id=${data.arcid}"> 
+				<a class="context-menu" id="${data.arcid}" onmouseover="buildImageTooltip(this)" href="reader?id=${data.arcid}"> 
 					${encode(data.title)}
 				</a>
 				<div class="caption" style="display: none;">
-					<img style="height:200px" src="./api/archives/${data.arcid}/thumbnail" onerror="this.src='./img/noThumb.png'">
+					<img style="height:300px" src="./api/archives/${data.arcid}/thumbnail" onerror="this.src='./img/noThumb.png'">
 				</div>`;
 	}
 
@@ -135,9 +191,8 @@ function titleColumnDisplay(data, type, full, meta) {
 function tagsColumnDisplay(data, type, full, meta) {
 	if (type == "display") {
 
-		line = '<span class="tag-tooltip" onmouseover="buildTagTooltip($(this))" style="text-overflow:ellipsis;">' + colorCodeTags(data) + '</span>';
-		line += buildTagsDiv(data);
-		return line;
+		return `<span class="tag-tooltip" onmouseover="buildTagTooltip(this)" style="text-overflow:ellipsis;">${colorCodeTags(data)}</span>
+				<div class="caption caption-tags" style="display: none;" >${buildTagsDiv(data)}</div>`;
 	}
 	return data;
 }
@@ -195,7 +250,77 @@ function drawCallback(settings) {
 				div.appendChild(container[0]);
 			});
 		}
+
+		// Update url to contain all search parameters, and push it to the history 
+		if (isComingFromPopstate) // But don't fire this if we're coming from popstate 
+			isComingFromPopstate = false;
+		else {
+			var params = buildURLParams();
+			if (params === "?")
+				params = "/";
+			window.history.pushState(null, null, params);
+		}
 	}
+}
+
+function buildURLParams() {
+
+	var cat = arcTable.column('.tags.itd').search();
+	var untag = arcTable.column('.untagged').search();
+	var isnew = arcTable.column('.isnew').search();
+	var page = arcTable.page.info().page + 1;
+	var sortby = arcTable.order()[0][0];
+	var sortorder = arcTable.order()[0][1];
+
+	var encodedSearch = encodeURIComponent(arcTable.search());
+
+	return `?`
+		+ ((page !== 1) ? `p=${page}` : "")
+		+ ((sortby !== 0) ? `&sort=${sortby}` : "")
+		+ ((sortorder !== "asc") ? `&sortdir=${sortorder}` : "")
+		+ ((encodedSearch !== "") ? `&q=${encodedSearch}` : "")
+		+ ((cat !== "") ? `&c=${cat}` : "")
+		+ ((untag !== "") ? `&untagged` : "")
+		+ ((isnew !== "") ? `&isnew` : "");
+
+}
+
+function searchFromURLParams() {
+
+	var params = new URLSearchParams(window.location.search);
+
+	if (params.has("c"))
+		selectedCategory = params.get("c");
+	else
+		selectedCategory = "";
+
+	$("#untaggedbtn").prop("checked", params.has("untagged"));
+	updateToggleClass($("#untaggedbtn"));
+
+	$("#inboxbtn").prop("checked", params.has("isnew"));
+	updateToggleClass($("#inboxbtn"));
+
+	if (params.has("q")) {
+		$('#srch').val(decodeURIComponent(params.get("q")));
+	} else {
+		$('#srch').val("");
+	}
+
+	var order = [[0, "asc"]];
+
+	if (params.has("sort"))
+		order[0][0] = params.get("sort");
+
+	if (params.has("sortdir"))
+		order[0][1] = params.get("sortdir");
+
+	arcTable.order(order);
+
+	if (params.has("p"))
+		performSearch(params.get("p") - 1);
+	else
+		performSearch();
+
 }
 
 //Builds a id1 class div to jam in the thumb container for an archive whose JSON data we read
@@ -219,8 +344,8 @@ function buildThumbDiv(row, data, index) {
 							</a>
 						</div>
 						<div class="id4">
-							<span class="tags tag-tooltip" onmouseover="buildTagTooltip($(this))">${colorCodeTags(data.tags)}</span>
-							${buildTagsDiv(data.tags)} 
+							<span class="tags tag-tooltip" onmouseover="buildTagTooltip(this)">${colorCodeTags(data.tags)}</span>
+							<div class="caption caption-tags" style="display: none;" >${buildTagsDiv(data.tags)}</div>
 						</div>
 					</div>`;
 
@@ -255,140 +380,26 @@ function buildImageTooltip(target) {
 	if (target.innerHTML === "")
 		return;
 
-	target.qtip({
-		content: {
-			//make a clone of the existing image div and rip off the caption class to avoid display glitches
-			text: target.next('div').clone().removeClass("caption")
-		},
-		position: {
-			target: 'mouse',
-			adjust: {
-				mouse: true,
-				x: 5
-			},
-			viewport: $(window)
-		},
-		show: {
-			solo: true
-		},
-		style: {
-			classes: 'caption caption-image'
-		},
-		show: {
-			delay: 45
-		}
-	});
+	tippy(target, {
+		content: $(target).next('div').clone().attr("style", "height:300px;")[0],
+		delay: 0,
+		animation: false,
+		maxWidth: 'none',
+		followCursor: true,
+	}).show(); //Call show() so that the tooltip shows now
 
-	target.attr('onmouseover', ''); //Don't trigger this function again for this element
-	target.mouseover(); //Call the mouseover event again so the tooltip shows now
+	$(target).attr('onmouseover', ''); //Don't trigger this function again for this element
 }
 
 //Ditto for tag tooltips, with different options.
 function buildTagTooltip(target) {
-	target.qtip({
-		content: {
-			text: target.next('div')
-		},
-		position: {
-			my: 'middle right',
-			at: 'top left',
-			target: false,
-			viewport: $(window)
-		},
-		show: {
-			solo: true,
-			delay: 45
-		},
-		hide: {
-			fixed: true,
-			delay: 300
-		},
-		style: {
-			classes: 'caption caption-tags'
-		}
-	});
+	tippy(target, {
+		content: $(target).next('div').attr("style", "")[0],
+		delay: 0,
+		placement: 'auto-start',
+		maxWidth: 'none',
+		interactive: true
+	}).show(); //Call show() so that the tooltip shows now
 
-	target.attr('onmouseover', '');
-	target.mouseover();
-}
-
-//Builds a caption div containing clickable tags. Uses a string containing all tags, split by commas.
-//Namespaces are resolved on the fly.
-function buildTagsDiv(tags) {
-	if (tags === "")
-		return "";
-
-	tagsByNamespace = splitTagsByNamespace(tags);
-
-	line = '<div style="display: none;" >';
-	line += '<table class="itg" style="box-shadow: 0 0 0 0; border: none; border-radius: 0" ><tbody>';
-
-	//Go through resolved namespaces and print tag divs
-	Object.keys(tagsByNamespace).sort().forEach(function (key, index) {
-
-		ucKey = key.charAt(0).toUpperCase() + key.slice(1);
-		ucKey = encode(ucKey);
-		encodedK = encode(key.toLowerCase());
-		line += `<tr><td class='caption-namespace ${encodedK}-tag'>${ucKey}:</td><td>`;
-
-		tagsByNamespace[key].forEach(function (tag) {
-			line += `<div class="gt" onclick="fillSearchField('${key}','${encode(tag)}')">
-					 	${encode(tag)}
-					 </div>`;
-		});
-
-		line += "</td></tr>";
-	});
-
-	line += '</tbody></table></div>';
-	return line;
-}
-
-// Remove namespace from tags and color-code them. Meant for inline display.
-function colorCodeTags(tags) {
-	line = "";
-	if (tags === "")
-		return line;
-
-	tagsByNamespace = splitTagsByNamespace(tags);
-	Object.keys(tagsByNamespace).sort().forEach(function (key, index) {
-		tagsByNamespace[key].forEach(function (tag) {
-			var encodedK = encode(key.toLowerCase());
-			line += `<span class='${encodedK}-tag'>${encode(tag)}</span>, `;
-		});
-	});
-	// Remove last comma
-	return line.slice(0, -2);
-}
-
-function splitTagsByNamespace(tags) {
-
-	var tagsByNamespace = {};
-
-	if (tags === null || tags === undefined) {
-		return tagsByNamespace;
-	}
-
-	tags.split(/,\s?/).forEach(function (tag) {
-		nspce = null;
-		val = null;
-
-		//Split the tag from its namespace
-		arr = tag.split(/:\s?/);
-		if (arr.length == 2) {
-			nspce = arr[0].trim();
-			val = arr[1].trim();
-		} else {
-			nspce = "other";
-			val = arr;
-		}
-
-		if (nspce in tagsByNamespace)
-			tagsByNamespace[nspce].push(val);
-		else
-			tagsByNamespace[nspce] = [val];
-
-	});
-
-	return tagsByNamespace;
+	$(target).attr('onmouseover', '');
 }

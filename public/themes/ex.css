@@ -3,8 +3,8 @@ body{font-size:8pt;font-family:arial,helvetica,sans-serif;color:#f1f1f1;backgrou
 p{padding:3px 1px;margin:0}
 img{border:0}
 
-.logo {
-    fill: #DDDDDD !important;
+.logo-container {
+    background-color: #DDDDDD;
 }
 
 a{color:#DDDDDD; } 
@@ -50,8 +50,13 @@ div.gt:hover {
 
 h1.ih{font-size:10pt;font-weight:bold;margin:2px auto;text-align:center;padding-bottom:6px}
 
-.qtip > * > * > table.itg {
+.caption-tags {
+    padding: 5px;
     color: #dddddd !important;
+}
+
+.tippy-arrow {
+    color: #000;
 }
 
 /* navbar */

@@ -18,12 +18,13 @@
 	<script src="./js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
 
 	<script src="./js/theme.js?[% version %]" type="text/JAVASCRIPT"></script>
+	<script src="./js/common.js?[% version %]" type="text/JAVASCRIPT"></script>
 	<script src="./js/reader.js?[% version %]" type="text/JAVASCRIPT"></script>
 	<script src="./js/ajax.js?[% version %]" type="text/JAVASCRIPT"></script>
 
 </head>
 
-<body onload="set_style_from_storage(); initSettingsOverlay();">
+<body onload="set_style_from_storage(); applySettings();">
 
 	<div id="i1" class="sni">
 		<h1>[% arcname %]</h1>
@@ -62,17 +63,6 @@
 			</div>
 		</div>
 
-		[% IF userlogged %]
-		<div id="i6" class="if">
-			<i class="fa fa-caret-right fa-lg"></i>
-			<a style="cursor:pointer" onclick="confirmThumbnailReset('[% id %]')">Regenerate Archive Thumbnail </a>
-			<i class="fa fa-caret-right fa-lg"></i>
-			<a href="./reader?id=[% id %]&force_reload=1">Clean Archive Cache</a>
-			<i class="fa fa-caret-right fa-lg"></i>
-			<a target="_blank" href="./edit?id=[% id %]">Edit this Archive's Metadata</a>
-		</div>
-		[% END %]
-
 		<div id="i7" class="if">
 			<i class="fa fa-caret-right fa-lg"></i>
 			<a id="imgLink" style="cursor:pointer;">View full-size image</a>
@@ -84,10 +74,12 @@
 
 	<script>
 
-		pages = [% imgpaths %];
-		id = "[%id%]";
+		let isComingFromPopstate = false;
+		const pages = [% imgpaths %];
+		const id = "[%id%]";
+		let filename = "[% filename %]";
+		const tags = "[% tags %]";
 
-		filename = "[% filename %]";
 		if ((filename.endsWith(".rar") || filename.endsWith(".cbr")) && !localStorage.rarWarningShown) {
 			localStorage.rarWarningShown = true;
 			$.toast({
@@ -133,7 +125,12 @@
 		if (currentPage === pageNumber - 1)
 			currentPage = 0;
 
-		goToPage(currentPage);
+		var params = new URLSearchParams(window.location.search);
+
+		if (params.has("p"))
+			goToPage(params.get("p") - 1);
+		else
+			goToPage(currentPage);
 
 		// Remove new flag with an API call
 		clearNew(id);
@@ -143,11 +140,64 @@
 			updateImageMap();
 		});
 
+		// Add a listen event to window.popstate to update the page accordingly if the user goes back using browser history
+		window.onpopstate = () => {
+			var params = new URLSearchParams(window.location.search);
+			if (params.has("p")) {
+				isComingFromPopstate = true;
+				goToPage(params.get("p") - 1);
+			}
+		}
+
 	</script>
 
 	<div id="overlay-shade" onclick="closeOverlay();"></div>
 	<div id="archivePagesOverlay" class="id1 base-overlay page-overlay" style="display:none" loaded="false">
 		<h2 class="ih" style="text-align:center">Archive Overview</h2>
+		<div id="tagContainer" class="caption caption-tags caption-reader">
+			<br>
+			<div style="margin-bottom:16px;">
+				<div class="id3 nocrop reader-thumbnail">
+					<img src="./api/archives/[% id %]/thumbnail" />
+				</div>
+
+				[% IF userlogged %]
+				<div style="display:inline-block; vertical-align: middle;">
+
+					<h2>Admin Options</h2>
+
+					<input class="stdbtn" type='button' onclick="confirmThumbnailReset('[% id %]')"
+						value="Regenerate Archive Thumbnail" />
+					<br>
+					<input class='stdbtn' type='button'
+						onclick="window.location.href = './reader?id=[% id %]&force_reload=1'"
+						value='Clean Archive Cache' />
+					<br>
+					<input class='stdbtn' type='button' onclick="openInNewTab('./edit?id=[% id %]')"
+						value='Edit Archive Metadata' />
+
+					<h2>Add this archive to a Category</h2>
+
+					<select id="category" class="favtag-btn" style="width:200px; margin-right: 8px">
+						<option selected value=""> -- No Category -- </option>
+						[% FOREACH categories %]
+						<option value="[% id %]">[% name %]</option>
+						[% END %]
+					</select>
+					<br>
+					<input value="Add Archive" onclick="addArchiveToCategory('[% id %]', $('#category').val())"
+						class="stdbtn" id="goback" type="button">
+				</div>
+				[% END %]
+			</div>
+
+		</div>
+
+		<br><br>
+
+		<h2 class="ih" style="text-align:center">Pages</h2>
+	</div>
+	</div>
 	</div>
 	<div id="settingsOverlay" class="id1 base-overlay small-overlay" style="display:none">
 		[% INCLUDE config %]
@@ -168,67 +218,53 @@
 [% BLOCK config %]
 
 <h2 class="ih" style="text-align:center">Reader Options</h2>
+
+<h1 class="ih config-panel">Those options save automatically -- Click around and find out!</h1>
+
 <div style="margin:auto; font-size:8pt;">
-
-	<div class="config-panel">
-		<h1 class="ih" style="display:inline"> Japanese Read Order </h1>
-		<input id="readorder" name="readorder" class="fa" type="checkbox" style="float:left">
-		<br /> If enabled, pages will be read right-to-left.
-	</div>
-
-	<div class="config-panel">
-		<h1 class="ih" style="display:inline"> Double Page View </h1>
-		<input id="doublepage" name="doublepage" class="fa" type="checkbox" style="float:left">
-		<br /> If enabled, two pages will be displayed at once. (This excludes widespreads)
-	</div>
-
-	<div class="config-panel">
-		<h1 class="ih" style="display:inline"> Fit to Screen</h1>
-		<input id="scaletoview" name="scaletoview" class="fa" type="checkbox" style="float:left">
-		<br /> If enabled, pages will be scaled to the screen's size.
-	</div>
-
-	<div class="config-panel">
-		<h1 class="ih" style="display:inline"> Force Full Width</h1>
-		<input id="forcefullwidth" name="forcefullwidth" class="fa" type="checkbox" style="float:left">
-		<br /> If enabled, pages will be upscaled to fit the browser's width if they're smaller.
-		<br /> This option will override Fit to Screen if enabled.
-	</div>
-
-	<div class="config-panel">
-		<h1 class="ih" style="display:inline"> Hide Top-level Navigation</h1>
-		<input id="hidetop" name="hidetop" class="fa" type="checkbox" style="float:left">
-		<br /> If enabled, every element that comes before images at the top will be hidden.
-	</div>
-
-	<div class="config-panel">
-		<h1 class="ih" style="display:inline"> Disable Automatic Bookmarking</h1>
-		<input id="nobookmark" name="nobookmark" class="fa" type="checkbox" style="float:left">
-		<br /> Check this to start over from the first page every time you open the reader.
-	</div>
+	<h2 class="config-panel"> Fit display to </h2>
+	<input id="fitcontainer" class="favtag-btn config-btn" type="button" value="Container"
+		onclick="setDisplayMode(false,false)">
+	<input id="fitwidth" class="favtag-btn config-btn" type="button" value="Width" onclick="setDisplayMode(true,false)">
+	<input id="fitheight" class="favtag-btn config-btn" type="button" value="Height"
+		onclick="setDisplayMode(false,true)">
 </div>
 
-<br />
-<br />
-<input value="Save and Close" onclick="saveSettings()" class="stdbtn" id="goback" type="button">
-<br />
-<br />
-<br />
-[% IF userlogged %]
-<h2 class="ih" style="text-align:center">Add to Category</h2>
-<div style="margin:auto; font-size:8pt;">
-
-	<select id="category" class="favtag-btn" style="width:200px; margin-right: 8px">
-		<option selected value=""> -- No Category -- </option>
-		[% FOREACH categories %]
-		<option value="[% id %]">[% name %]</option>
-		[% END %]
-	</select>
-
-	<input value="Add Archive" onclick="addArchiveToCategory('[% id %]', $('#category').val())" class="stdbtn"
-		id="goback" type="button">
+<div style="margin:auto; font-size:8pt;" id="containersetting">
+	<h2 class="config-panel"> Container Width (in pixels)</h2>
+	<input id="containerwidth" class="stdinput" style="display:inline" onsubmit="applyContainerWidth()"
+		placeholder="The default value is 1200px, or 90% in Double Page Mode.">
+	<input class="favtag-btn config-btn" type="button" style="display:inline" value="Apply"
+		onclick="applyContainerWidth()">
 </div>
-[% END %]
+
+<div style="margin:auto; font-size:8pt;">
+	<h2 class="config-panel"> Page Rendering </h2>
+	<input id="singlepage" class="favtag-btn config-btn" type="button" value="Single" onclick="setDoublePage(false)">
+	<input id="doublepage" class="favtag-btn config-btn" type="button" value="Double" onclick="setDoublePage(true)">
+</div>
+
+<div style="margin:auto; font-size:8pt;">
+	<h2 class="config-panel"> Direction </h2>
+	<span class="config-panel"></span>
+	<input id="normalread" class="favtag-btn config-btn" type="button" value="Left to Right" onclick="setRTL(false)">
+	<input id="mangaread" class="favtag-btn config-btn" type="button" value="Right to Left" onclick="setRTL(true)">
+</div>
+
+<div style="margin:auto; font-size:8pt;">
+	<h2 class="config-panel"> Header </h2>
+	<input id="showtop" class="favtag-btn config-btn" type="button" value="Visible" onclick="setHideHeader(false)">
+	<input id="hidetop" class="favtag-btn config-btn" type="button" value="Hidden" onclick="setHideHeader(true)">
+</div>
+
+<div style="margin:auto; font-size:8pt;">
+	<h2 class="config-panel"> Progression Tracking </h2>
+	<span class="config-panel">Disabling tracking will restart reading from page one every time you reopen the reader.
+	</span>
+	<input id="dobookmark" class="favtag-btn config-btn" type="button" value="Enabled" onclick="setTracking(false)">
+	<input id="nobookmark" class="favtag-btn config-btn" type="button" value="Disabled" onclick="setTracking(true)">
+</div>
+
 [% END %]
 <!-- -->
 [% BLOCK arrows %]

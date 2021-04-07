@@ -34,10 +34,6 @@ if [[ ${LRR_TEMP_DIRECTORY} == "" ]]; then
   export LRR_TEMP_DIRECTORY="${_LRR_TEMP_DIRECTORY}"
 fi
 
-# change values in redis.conf
-perl -pi -e "s~<LRR_DATABASE_DIRECTORY>~${LRR_DATABASE_DIRECTORY}~g" ${workdir}/redis.conf
-perl -pi -e "s~<LRR_LOG_DIRECTORY>~${LRR_LOG_DIRECTORY}~g" ${workdir}/redis.conf
-
 # output -- Directories are created by LRR's launcher.pl if they don't exist
 echo "Data Directory      is set to '${LRR_DATA_DIRECTORY}'"
 echo "Thumbnail Directory is set to '${LRR_THUMB_DIRECTORY}'"
@@ -56,5 +52,5 @@ mkdir -p "${LRR_TEMP_DIRECTORY}"
 export PERL5LIB="${workdir}/lib/perl5"
 
 # launch command
-redis-server "${workdir}/redis.conf"
+redis-server "${workdir}/redis.conf" --logfile "${LRR_LOG_DIRECTORY}/redis.log" --dir "${LRR_DATABASE_DIRECTORY}"
 npm start --prefix "${workdir}" && redis-cli shutdown

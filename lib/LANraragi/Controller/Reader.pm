@@ -75,6 +75,7 @@ sub index {
         $self->render(
             template   => "reader",
             arcname    => $arcname,
+            tags       => $tags,
             id         => $id,
             imgpaths   => $imgpaths,
             filename   => $filename,

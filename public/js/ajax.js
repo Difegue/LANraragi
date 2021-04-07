@@ -48,7 +48,7 @@ function genericAPICall(endpoint, method, successMessage, errorMessage, successC
 // Check the status of a Minion job until it's completed.
 // Execute a callback on successful job completion.
 function checkJobStatus(jobId, callback, failureCallback) {
-	fetch(`api/minion/${jobId}`, { method: "GET" })
+	fetch(`/api/minion/${jobId}`, { method: "GET" })
 		.then(response => response.ok ? response.json() : { success: 0, error: "Response was not OK" })
 		.then((data) => {
 
@@ -62,7 +62,7 @@ function checkJobStatus(jobId, callback, failureCallback) {
 			if (data.state !== "finished") {
 				// Wait and retry, job isn't done yet
 				setTimeout(function () {
-					checkJobStatus(jobId, callback);
+					checkJobStatus(jobId, callback, failureCallback);
 				}, 1000);
 			} else {
 				// Update UI with info
@@ -114,52 +114,59 @@ function triggerScript(namespace) {
 
 	// Save data before triggering script
 	saveFormData('#editPluginForm')
-		.then(genericAPICall(`../api/plugins/use?plugin=${namespace}&arg=${scriptArg}`, "POST", null, "Error while executing Script :",
-			function (r) {
-				$.toast({
-					showHideTransition: 'slide',
-					position: 'top-left',
-					loader: false,
-					heading: "Script result",
-					text: "<pre>" + JSON.stringify(r.data, null, 4) + "</pre>",
-					hideAfter: false,
-					icon: 'info'
-				});
-			}))
-		.then(() => {
-			isScriptRunning = false;
-			$(".script-running").hide();
-			$(".stdbtn").show();
-		})
-		.catch(() => {
-			isScriptRunning = false;
-			$(".script-running").hide();
-			$(".stdbtn").show();
-		});
+		.then(genericAPICall(`/api/plugins/queue?plugin=${namespace}&arg=${scriptArg}`, "POST", null, "Error while executing Script :",
+			function (data) {
+
+				// Check minion job state periodically while we're on this page
+				checkJobStatus(data.job,
+					(d) => {
+						isScriptRunning = false;
+						$(".script-running").hide();
+						$(".stdbtn").show();
+
+						if (d.result.success === 1)
+							$.toast({
+								showHideTransition: 'slide',
+								position: 'top-left',
+								loader: false,
+								heading: "Script result",
+								text: "<pre>" + JSON.stringify(d.result.data, null, 4) + "</pre>",
+								hideAfter: false,
+								icon: 'info'
+							});
+						else
+							showErrorToast("Script failed: " + d.result.error);
+					},
+					(error) => {
+						isScriptRunning = false;
+						$(".script-running").hide();
+						$(".stdbtn").show();
+					});
+			}));
 }
 
 function cleanTempFldr() {
-	genericAPICall("api/tempfolder", "DELETE", "Temporary Folder Cleaned!", "Error while cleaning Temporary Folder :",
+	genericAPICall("/api/tempfolder", "DELETE", "Temporary Folder Cleaned!", "Error while cleaning Temporary Folder :",
 		function (data) {
 			$("#tempsize").html(data.newsize);
 		});
 }
 
 function invalidateCache() {
-	genericAPICall("api/search/cache", "DELETE", "Threw away the Search Cache!", "Error while deleting cache! Check Logs.", null);
+	genericAPICall("/api/search/cache", "DELETE", "Threw away the Search Cache!", "Error while deleting cache! Check Logs.", null);
 }
 
 function clearNew(id) {
-	genericAPICall(`api/archives/${id}/isnew`, "DELETE", null, "Error clearing new flag! Check Logs.", null);
+	genericAPICall(`/api/archives/${id}/isnew`, "DELETE", null, "Error clearing new flag! Check Logs.", null);
 }
 
 function clearAllNew() {
-	genericAPICall("api/database/isnew", "DELETE", "All archives are no longer new!", "Error while clearing flags! Check Logs.", null);
+	genericAPICall("/api/database/isnew", "DELETE", "All archives are no longer new!", "Error while clearing flags! Check Logs.", null);
 }
 
 function dropDatabase() {
 	if (confirm('Danger! Are you *sure* you want to do this?')) {
-		genericAPICall("api/database/drop", "POST", "Sayonara! Redirecting you...", "Error while resetting the database? Check Logs.",
+		genericAPICall("/api/database/drop", "POST", "Sayonara! Redirecting you...", "Error while resetting the database? Check Logs.",
 			function (data) {
 				setTimeout("location.href = './';", 1500);
 			});
@@ -167,7 +174,7 @@ function dropDatabase() {
 }
 
 function cleanDatabase() {
-	genericAPICall("api/database/clean", "POST", null, "Error while cleaning the database! Check Logs.",
+	genericAPICall("/api/database/clean", "POST", null, "Error while cleaning the database! Check Logs.",
 		function (data) {
 			$.toast({
 				showHideTransition: 'slide',
@@ -193,7 +200,7 @@ function cleanDatabase() {
 function regenThumbnails(force) {
 
 	forceparam = force ? 1 : 0;
-	genericAPICall(`api/regen_thumbs?force=${forceparam}`, "POST",
+	genericAPICall(`/api/regen_thumbs?force=${forceparam}`, "POST",
 		"Queued up a job to regenerate thumbnails! Stay tuned for updates or check the Minion console.", "Error while sending job to Minion:",
 		function (data) {
 			// Disable the buttons to avoid accidental double-clicks. 
@@ -225,7 +232,7 @@ function regenThumbnails(force) {
 
 function rebootShinobu() {
 	$("#restart-button").prop("disabled", true);
-	genericAPICall("api/shinobu/restart", "POST", "Background Worker restarted!", "Error while restarting Worker:",
+	genericAPICall("/api/shinobu/restart", "POST", "Background Worker restarted!", "Error while restarting Worker:",
 		function (data) {
 			$("#restart-button").prop("disabled", false);
 			shinobuStatus();
@@ -235,7 +242,7 @@ function rebootShinobu() {
 //Update the status of the background worker.
 function shinobuStatus() {
 
-	genericAPICall("api/shinobu", "GET", null, "Error while querying Shinobu status:",
+	genericAPICall("/api/shinobu", "GET", null, "Error while querying Shinobu status:",
 		function (data) {
 			if (data.is_alive) {
 				$("#shinobu-ok").show();
@@ -263,7 +270,7 @@ function removeArchiveFromCategory(arcId, catId) {
 //Sends a DELETE request for that archive ID, deleting the Redis key and attempting to delete the archive file.
 function deleteArchive(arcId) {
 
-	fetch("edit?id=" + arcId, { method: "DELETE" })
+	fetch(`/api/archives/${arcId}`, { method: "DELETE" })
 		.then(response => response.ok ? response.json() : { success: 0, error: "Response was not OK" })
 		.then((data) => {
 
@@ -286,7 +293,7 @@ function deleteArchive(arcId) {
 					position: 'top-left',
 					loader: false,
 					heading: 'Archive successfully deleted. Redirecting you ...',
-					text: 'File name : ' + data.success,
+					text: 'File name : ' + data.filename,
 					icon: 'success'
 				});
 				setTimeout("location.href = './';", 1500);

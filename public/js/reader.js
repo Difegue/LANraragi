@@ -108,6 +108,10 @@ function goToPage(page) {
 		currentPage = pageNumber - 1;
 	else currentPage = page;
 
+	if (localStorage.containerwidth !== "" && !isNaN(localStorage.containerwidth)) {
+		$(".sni").attr("style", `max-width: ${localStorage.containerwidth}px`);
+	}
+
 	//if double-page view is enabled(and the current page isn't the first or the last)
 	if (localStorage.doublepage === 'true' && currentPage > 0 && currentPage < pageNumber - 1) {
 		//composite an image and use that as the source
@@ -115,7 +119,8 @@ function goToPage(page) {
 		img2 = loadImage(pages.pages[currentPage + 1], canvasCallback);
 
 		//We can also override the 1200px maxwidth since we usually have twice the pages
-		$(".sni").attr("style", "max-width: 90%");
+		if (localStorage.containerwidth === "" || isNaN(localStorage.containerwidth))
+			$(".sni").attr("style", "max-width: 90%");
 
 		// Preload next two images
 		loadImage(pages.pages[currentPage + 2], null);
@@ -179,56 +184,109 @@ function goToPage(page) {
 
 	//scroll to top
 	window.scrollTo(0, 0);
+
+	// Update url to contain all search parameters, and push it to the history 
+	if (isComingFromPopstate) // But don't fire this if we're coming from popstate 
+		isComingFromPopstate = false;
+	else {
+		window.history.pushState(null, null, `?id=${id}&p=${page + 1}`);
+	}
 }
 
 function initArchivePageOverlay() {
 
+	$("#tagContainer").append(buildTagsDiv(tags));
+
 	//For each link in the pages array, craft a div and jam it in the overlay.
 	for (index = 0; index < pages.pages.length; ++index) {
 
-		thumbnail = "<div class='id3' style='display: inline-block; cursor: pointer'>" +
-			"<a onclick='goToPage(" + index + "); closeOverlay()'>" +
-			"<span class='page-number'>Page " + (index + 1) + "</span>" +
-			"<img src='" + pages.pages[index] + "' /></a>" +
-			"</div>";
+		thumb_css = (localStorage.cropthumbs === 'true') ? "id3" : "id3 nocrop";
+		thumbnail = `<div class='${thumb_css}' style='display: inline-block; cursor: pointer'>` +
+			`<a onclick='goToPage(${index}); closeOverlay()'>` +
+			`<span class='page-number'>Page ${(index + 1)}</span>` +
+			`<img src='${pages.pages[index]}' /></a></div>`;
 
 		$("#archivePagesOverlay").append(thumbnail);
 	}
 	$("#archivePagesOverlay").attr("loaded", "true");
 }
 
-function initSettingsOverlay() {
+function applySettings() {
+
+	$(".favtag-btn").removeClass("toggled");
+	$("#containersetting").hide();
+
+	if (!isNaN(localStorage.containerwidth))
+		$("#containerwidth").val(localStorage.containerwidth);
 
 	if (localStorage.readorder === 'true')
-		$("#readorder").prop("checked", true);
+		$("#mangaread").addClass("toggled");
+	else
+		$("#normalread").addClass("toggled");
 
 	if (localStorage.doublepage === 'true')
-		$("#doublepage").prop("checked", true);
-
-	if (localStorage.scaletoview === 'true')
-		$("#scaletoview").prop("checked", true);
+		$("#doublepage").addClass("toggled");
+	else
+		$("#singlepage").addClass("toggled");
 
 	if (localStorage.forcefullwidth === 'true')
-		$("#forcefullwidth").prop("checked", true);
+		$("#fitwidth").addClass("toggled");
+	else if (localStorage.scaletoview === 'true')
+		$("#fitheight").addClass("toggled");
+	else {
+		$("#fitcontainer").addClass("toggled");
+		$("#containersetting").show();
+	}
 
 	if (localStorage.hidetop === 'true')
-		$("#hidetop").prop("checked", true);
+		$("#hidetop").addClass("toggled");
+	else
+		$("#showtop").addClass("toggled");
 
 	if (localStorage.nobookmark === 'true')
-		$("#nobookmark").prop("checked", true);
+		$("#nobookmark").addClass("toggled");
+	else
+		$("#dobookmark").addClass("toggled");
 
+	// Reset reader
+	goToPage(currentPage);
 }
 
-function saveSettings() {
-	localStorage.readorder = $("#readorder").prop("checked");
-	localStorage.doublepage = $("#doublepage").prop("checked");
-	localStorage.scaletoview = $("#scaletoview").prop("checked");
-	localStorage.forcefullwidth = $("#forcefullwidth").prop("checked");
-	localStorage.hidetop = $("#hidetop").prop("checked");
-	localStorage.nobookmark = $("#nobookmark").prop("checked");
+function setDisplayMode(fittowidth, fittoheight) {
+	localStorage.forcefullwidth = fittowidth;
+	localStorage.scaletoview = fittoheight;
+	applySettings();
+}
 
-	closeOverlay();
-	goToPage(currentPage);
+function setDoublePage(doublepage) {
+	localStorage.doublepage = doublepage;
+	applySettings();
+}
+
+function setRTL(righttoleft) {
+	localStorage.readorder = righttoleft;
+	applySettings();
+}
+
+function setHideHeader(hideheader) {
+	localStorage.hidetop = hideheader;
+	applySettings();
+}
+
+function setTracking(disablebookmark) {
+	localStorage.nobookmark = disablebookmark;
+	applySettings();
+}
+
+function applyContainerWidth() {
+	input = $("#containerwidth").val().trim();
+
+	if (!isNaN(input))
+		localStorage.containerwidth = input;
+	else
+		localStorage.removeItem("containerwidth");
+
+	applySettings();
 }
 
 function openOverlay() {
@@ -238,17 +296,6 @@ function openOverlay() {
 	$('#overlay-shade').fadeTo(150, 0.6, function () {
 		$('#archivePagesOverlay').css('display', 'block');
 	});
-}
-
-function openSettings() {
-	$('#overlay-shade').fadeTo(150, 0.6, function () {
-		$('#settingsOverlay').css('display', 'block');
-	});
-}
-
-function closeOverlay() {
-	$('#overlay-shade').fadeOut(300);
-	$('.base-overlay').css('display', 'none');
 }
 
 function confirmThumbnailReset(id) {

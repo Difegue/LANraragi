@@ -12,21 +12,22 @@
 
 	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.toast.min.css" />
-	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.qtip.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.contextMenu.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/awesomplete.css" />
+	<link rel="stylesheet" type="text/css" href="/css/vendor/tippy.css" />
 	[% csshead %]
 
 	<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/jquery-migrate.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.dataTables.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/jquery.qtip.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.ui.position.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.contextMenu.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/awesomplete.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/popper.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/tippy-bundle.umd.min.js" type="text/JAVASCRIPT"></script>
 
 	<script src="/js/index.js?[% version %]" type="text/JAVASCRIPT"></script>
+	<script src="/js/common.js?[% version %]" type="text/JAVASCRIPT"></script>
 	<script src="/js/ajax.js?[% version %]" type="text/JAVASCRIPT"></script>
 	<script src="/js/index_datatables.js?[% version %]" type="text/JAVASCRIPT"></script>
 	<script src="/js/theme.js?[% version %]" type="text/JAVASCRIPT"></script>
@@ -138,7 +139,6 @@
 			loadTagSuggestions();
 
 			// Initialize categories
-			selectedCategory = "";
 			loadCategories();
 
 			// Migrate local progression if there's any

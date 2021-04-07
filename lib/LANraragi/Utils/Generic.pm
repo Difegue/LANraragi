@@ -19,7 +19,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 # Generic Utility Functions.
 use Exporter 'import';
 our @EXPORT_OK =
-  qw(remove_spaces remove_newlines is_image is_archive render_api_response get_tag_with_namespace shasum start_shinobu
+  qw(remove_spaces remove_newlines trim_url is_image is_archive render_api_response get_tag_with_namespace shasum start_shinobu
   split_workload_by_cpu start_minion get_css_list generate_themes_header generate_themes_selector);
 
 # Remove spaces before and after a word
@@ -32,15 +32,31 @@ sub remove_newlines {
     $_[0] =~ s/\R//g;
 }
 
+# Fixes up a URL string for use in the DL system.
+sub trim_url {
+
+    remove_spaces( $_[0] );
+
+    # Remove scheme and www. if present. Other subdomains are not removed
+    if ( $_[0] =~ /https?:\/\/(www\.)?(.*)/gm ) {
+        $_[0] = $2;
+    }
+
+    my $char = chop $_[0];
+    if ( $char ne "/" ) {
+        $_[0] .= $char;
+    }
+}
+
 # Checks if the provided file is an image.
 # Uses non-capturing groups (?:) to avoid modifying the incoming argument.
 sub is_image {
-    return $_[0] =~ /^.+\.(?:png|jpg|gif|bmp|jpeg|jfif|webp|avif|heif|heic|PNG|JPG|GIF|BMP|JPEG|JFIF|WEBP|AVIF|HEIF|HEIC)$/;
+    return $_[0] =~ /^.+\.(?:png|jpg|gif|bmp|jpeg|jfif|webp|avif|heif|heic)$/i;
 }
 
 # Checks if the provided file is an archive.
 sub is_archive {
-    return $_[0] =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|pdf|epub|)$/;
+    return $_[0] =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|cb7|cbt|pdf|epub|)$/i;
 }
 
 # Renders the basic success API JSON template.

@@ -29,8 +29,8 @@ body {
     font-size: 8pt;
 }    
 
-.logo {
-    fill: #34495E !important;
+.logo-container {
+    background-color: #34495E;
 }
 
 a {
@@ -124,16 +124,20 @@ table.itg th{font-weight:bold;
     overflow: hidden;
     text-overflow: ellipsis;}
 
-.qtip {
+.tippy-content {
     border: 1px solid #E1E7E9;
 }
 
-.qtip > * > * > table.itg {
+.caption-tags > table.itg {
     color: #34495E !important;
 }
 
-.qtip-tip {
-    display:none !important;
+.caption-tags > * > * > h2 {
+    color: #34495E !important;
+}
+
+.tippy-arrow {
+    color: #E1E7E9;
 }
 
 /* favtags */
@@ -163,10 +167,16 @@ table.itc {
 
 .toggled {
     background:#ed2553 !important;
+    color: #f1f1f1 !important;
 }
 
 .toggled:hover {
     color: #34495E !important;
+}
+
+.config-btn {
+    background: #e1e7e9;
+    color: #34495E;
 }
 
 /* options flyout menus */

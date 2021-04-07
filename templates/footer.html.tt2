@@ -1,8 +1,10 @@
 <!-- LRR Standard Footer -->
 
 <p class="ip">
+    [% IF descstr %]
     [% descstr %]
     <br>
+    [% END %]
     <a href="https://github.com/Difegue/LANraragi"> LANraragi</a>
     -
     <a onclick="openThemeOverlay()" style="cursor:pointer">Change Theme</a>

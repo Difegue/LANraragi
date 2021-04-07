@@ -21,8 +21,8 @@ use Exporter 'import';
 our @EXPORT_OK = qw(redis_encode redis_decode invalidate_cache compute_id);
 
 #add_archive_to_redis($id,$file,$redis)
-#Parses the name of a file for metadata, and matches that metadata to the SHA-1 hash of the file in our Redis database.
-#This function doesn't actually require the file to exist at its given location.
+# Creates a DB entry for a file path with the given ID.
+# This function doesn't actually require the file to exist at its given location.
 sub add_archive_to_redis {
     my ( $id, $file, $redis ) = @_;
     my $logger = get_logger( "Archive", "lanraragi" );
@@ -35,6 +35,9 @@ sub add_archive_to_redis {
 
     $redis->hset( $id, "name",  redis_encode($name) );
     $redis->hset( $id, "title", redis_encode($name) );
+
+    # Initialize tags to an empty string
+    $redis->hset( $id, "tags", "" );
 
     #Don't encode filenames.
     $redis->hset( $id, "file", $file );
@@ -211,7 +214,7 @@ sub compute_id {
 
     my $file = $_[0];
 
-    #Read the first 500 KBs only (allows for faster disk speeds )
+    #Read the first 512 KBs only (allows for faster disk speeds )
     open( my $handle, '<', $file ) or die "Couldn't open $file :" . $!;
     my $data;
     my $len = read $handle, $data, 512000;
@@ -264,9 +267,10 @@ sub invalidate_cache {
     $redis->hset( "LRR_SEARCHCACHE", "created", time );
     $redis->quit();
 
-    # Re-warm the cache to ensure sufficient speed on the main inde
+    # Re-warm the cache to ensure sufficient speed on the main index
     if ($do_warm) {
-        LANraragi::Model::Config->get_minion->enqueue( warm_cache => [] => { priority => 3 } );
+        LANraragi::Model::Config->get_minion->enqueue( warm_cache        => [] => { priority => 3 } );
+        LANraragi::Model::Config->get_minion->enqueue( build_stat_hashes => [] => { priority => 3 } );
     }
 }
 

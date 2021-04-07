@@ -318,7 +318,7 @@ Said information is a 1:1 match to the [plugin metadata](../plugin-docs/index#pl
     ],
     "type": "metadata",
     "version": "0.3"
-  }
+  },
   {
     "author": "Difegue",
     "description": "Collects metadata embedded into your archives by the eze userscript. (info.json files)",
@@ -420,6 +420,56 @@ Executes the Plugin and returns the result.
     "operation":"use_plugin",
     "success":1,
     "type":"metadata"
+}
+```  
+
+{% endapi-method-response-example %}
+{% endapi-method-response %}
+{% endapi-method-spec %}
+{% endapi-method %}
+
+{% api-method method="post" host="http://lrr.tvc-16.science" path="/api/plugins/queue" %}
+{% api-method-summary %}
+🔑Use a Plugin Asynchronously
+{% endapi-method-summary %}
+
+{% api-method-description %}
+Uses a Plugin and returns a Minion Job ID matching the Plugin run.  
+This endpoint is useful if you want to run longer-lived plugins which might timeout if ran with the standard endpoint.  
+{% endapi-method-description %}
+
+{% api-method-spec %}
+{% api-method-request %}
+{% api-method-query-parameters %}
+{% api-method-parameter name="key" type="string" required=true %}
+API Key, mandatory for this method.
+{% endapi-method-parameter %}
+
+{% api-method-parameter name="plugin" type="string" required=true %}
+Namespace of the plugin to use.
+{% endapi-method-parameter %}
+
+{% api-method-parameter name="id" type="string" required=false %}
+ID of the archive to use the Plugin on. This is only mandatory for metadata plugins.
+{% endapi-method-parameter %}
+
+{% api-method-parameter name="arg" type="string" required=false %}
+Optional One-Shot argument to use when executing this Plugin.
+{% endapi-method-parameter %}
+{% endapi-method-query-parameters %}
+{% endapi-method-request %}
+
+{% api-method-response %}
+{% api-method-response-example httpCode=200 %}
+{% api-method-response-example-description %}
+You get the Minion Job ID for the plugin run. Status for the job can be verified using the `/api/minion/:jobid` endpoint.
+{% endapi-method-response-example-description %}
+
+```javascript
+{
+  "job": 86,
+  "operation": "queue_plugin_exec",
+  "success": 1,
 }
 ```  
 

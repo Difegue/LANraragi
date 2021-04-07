@@ -126,10 +126,12 @@ sub startup {
     # Enable Minion capabilities in the app
     shutdown_from_pid("./script/minion.pid");
 
-    #Delete old DB if it still exists -- Might be needed in case of DB lock ?
+    # Delete old SQLite DB if it still exists
     unlink("./.minion.db");
 
-    $self->plugin( 'Minion' => { SQLite => 'sqlite:./.minion.db' } );
+    my $miniondb = $self->LRR_CONF->get_redisad . "/" . $self->LRR_CONF->get_miniondb;
+    say "Minion will use the Redis database at $miniondb";
+    $self->plugin( 'Minion' => { Redis => "redis://$miniondb" } );
     $self->LRR_LOGGER->info("Successfully connected to Minion database.");
     $self->minion->missing_after(5);    # Clean up older workers after 5 seconds of unavailability
 
@@ -138,8 +140,9 @@ sub startup {
 
     # Warm search cache
     # /!\ Enqueuing tasks must be done either before starting the worker, or once the IOLoop is started!
-    # Anything else will cause weird database lockups with the SQLite Minion backend.
+    # Anything else can cause weird database lockups.
     $self->minion->enqueue('warm_cache');
+    $self->minion->enqueue('build_stat_hashes');
 
     # Start a Minion worker in a subprocess
     start_minion($self);
