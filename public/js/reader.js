@@ -19,7 +19,7 @@ function moveSomething(e) {
 			break;
 		case 32:  // spacebar
 			if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
-				advancePage(1);
+(localStorage.readorder === 'true') ? advancePage(-1) : advancePage(1);			
 			}
 			break;
 		case 81:  // q
