@@ -5,7 +5,7 @@ use Cwd;
 
 use Mojo::Base 'Mojolicious';
 
-use Test::More tests => 18;
+use Test::More tests => 15;
 use Test::Mojo;
 use Test::MockObject;
 
@@ -104,10 +104,11 @@ my $f_url   = "https://www.fakku.net/hentai/kairakuten-cover-girls-episode-009-h
 my $f_tags =
   "Artist:Hamao, Parody:Original Work, Magazine:Comic Kairakuten 2020-04, Publisher:FAKKU, Language:English, color, schoolgirl outfit, osananajimi, unlimited, non-h, illustration";
 
-is( LANraragi::Plugin::Metadata::Fakku::search_for_fakku_url($f_title), $f_url, 'FAKKU search test' );
+# Those tests tend to fail on CI due to cloudflare blocks, so they're not enabled by default for the time being. :(
+#is( LANraragi::Plugin::Metadata::Fakku::search_for_fakku_url($f_title), $f_url, 'FAKKU search test' );
 
-my ( $f_result_tags, $f_result_title ) = LANraragi::Plugin::Metadata::Fakku::get_tags_from_fakku($f_url);
-is( $f_result_tags,  $f_tags,  'FAKKU tags parsing test' );
-is( $f_result_title, $f_title, 'FAKKU title parsing test' );
+#my ( $f_result_tags, $f_result_title ) = LANraragi::Plugin::Metadata::Fakku::get_tags_from_fakku($f_url);
+#is( $f_result_tags,  $f_tags,  'FAKKU tags parsing test' );
+#is( $f_result_title, $f_title, 'FAKKU title parsing test' );
 
 done_testing();
