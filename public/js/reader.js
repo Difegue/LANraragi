@@ -2,24 +2,27 @@
 //also handles the thumbnail archive explorer.
 
 function moveSomething(e) {
-
+    if (e.target.tagName === "INPUT") {
+        return;
+    }
 	switch (e.keyCode) {
-		case 37:
-			// left key pressed
+		case 8:   // backspace
+			returnToIndex();
+			break;
+		case 37:  // left arrow
+		case 65:  // a
 			advancePage(-1);
 			break;
-		case 32:
-			// spacebar pressed
+		case 39:  // right arrow
+		case 68:  // d
+			advancePage(1);
+			break;
+		case 32:  // spacebar
 			if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
 				advancePage(1);
 			}
 			break;
-		case 39:
-			// right key pressed
-			advancePage(1);
-			break;
-		case 17:
-			// Ctrl key pressed
+		case 81:  // q
 			openOverlay();
 			break;
 	}
@@ -28,12 +31,21 @@ function moveSomething(e) {
 document.addEventListener("keyup", moveSomething, false);
 
 function toastHelpReader() {
-
 	$.toast().reset('all');
 
 	$.toast({
 		heading: 'Navigation Help',
-		text: 'You can navigate between pages using : <ul><li> The arrow icons</li> <li>Your keyboard arrows (and the spacebar)</li> <li> Touching the left/right side of the image.</li></ul><br> To return to the archive index, touch the arrow pointing down.<br> Pressing CTRL will bring up the pages overlay.',
+		text: `
+			You can navigate between pages using:
+			<ul>
+				<li>The arrow icons</li>
+				<li>The a/d keys</li>
+				<li>Your keyboard arrows (and the spacebar)</li>
+				<li>Touching the left/right side of the image.</li>
+			</ul>
+			<br>To return to the archive index, touch the arrow pointing down or use Backspace.
+			<br>Pressing the q key will bring up the thumbnail index and archive options.
+		`,
 		hideAfter: false,
 		position: 'top-left',
 		icon: 'info'
@@ -368,7 +380,6 @@ function loadImage(src, onload) {
 
 // Go forward or backward in pages. Pass -1 for left, +1 for right.
 function advancePage(pageModifier) {
-
 	if (localStorage.doublepage === 'true' && showingSinglePage == false)
 		pageModifier = pageModifier * 2;
 
@@ -390,4 +401,8 @@ function goLast() {
 		goToPage(0);
 	else
 		goToPage(pageNumber - 1);
+}
+
+function returnToIndex() {
+	document.location.href = "/";
 }
