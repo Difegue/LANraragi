@@ -30,7 +30,7 @@ sub setup_redis_mock {
         {
         "LRR_CONFIG": {
             "pagesize": "100",
-            "devmode": "0"
+            "devmode": "1"
         },
         "SET_1589141306": {
             "archives": "[\\\"e69e43e1355267f7d32a4f9b7f2fe108d2401ebf\\\",\\\"e69e43e1355267f7d32a4f9b7f2fe108d2401ebg\\\"]",

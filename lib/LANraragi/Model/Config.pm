@@ -16,16 +16,16 @@ $home->detect;
 
 my $config = Mojolicious::Plugin::Config->register( Mojolicious->new, { file => $home . '/lrr.conf' } );
 
-#Address and port of your redis instance.
+# Address and port of your redis instance.
 sub get_redisad { return $config->{redis_address} }
 
-#Database that'll be used by LANraragi. Redis databases are numbered, default is 0.
+# Database that'll be used by LANraragi. Redis databases are numbered, default is 0.
 sub get_redisdb { return $config->{redis_database} }
 
-#Database that'll be used by Minion. Redis databases are numbered, default is 0.
+# Database that'll be used by Minion. Redis databases are numbered, default is 1.
 sub get_miniondb { return $config->{redis_database_minion} }
 
-#Default CSS file to load.
+# Default CSS file to load.
 sub get_style { return $config->{default_theme} }
 
 # Create a Minion object connected to the Minion database.

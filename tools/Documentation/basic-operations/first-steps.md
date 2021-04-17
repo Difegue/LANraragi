@@ -54,9 +54,9 @@ The following formats are supported by LRR for Archives:
 
 * zip/cbz
 * rar/cbr \(up to RAR4 only\)
-* tar.gz
+* tar.gz/cbt
 * lzma
-* 7z
+* 7z/cb7
 * xz
 * pdf
 * epub \(images only if viewed in the Web Client)\
