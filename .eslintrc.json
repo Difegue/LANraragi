@@ -1,0 +1,27 @@
+{
+    "env": {
+        "browser": true,
+        "es2021": true,
+        "jquery": true
+    },
+    "extends": [
+        "airbnb-base"
+    ],
+    "parserOptions": {
+        "ecmaVersion": 12,
+        "sourceType": "module"
+    },
+    "rules": {
+        "indent": ["error", 4],
+        "quotes": ["error", "double"],
+        "func-names": ["error", "never"],
+        "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
+        "no-unused-expressions": [
+            "error",
+            {
+                "allowShortCircuit": true,
+                "allowTernary": true
+            }
+        ]
+    }
+}
