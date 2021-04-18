@@ -12,7 +12,7 @@
         "editor.formatOnSave": true,
         "eslint.format.enable": true,
         "eslint.options": {
-            "configFile": "eslintrc.json"
+            "configFile": ".eslintrc.json"
         },
         "[perl]": {
             "editor.defaultFormatter": "Kaktus.perltidy-more"
