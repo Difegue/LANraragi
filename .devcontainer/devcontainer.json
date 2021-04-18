@@ -9,8 +9,21 @@
         "perl.perltidy": "perltidy",
         "perltidy-more.executable": "perltidy",
         "perltidy-more.profile": ".../.perltidyrc",
-        "editor.defaultFormatter": "Kaktus.perltidy-more",
-        "editor.formatOnSave": true
+        "editor.formatOnSave": true,
+        "eslint.format.enable": true,
+        "eslint.options": {
+            "configFile": "eslintrc.json"
+        },
+        "[perl]": {
+            "editor.defaultFormatter": "Kaktus.perltidy-more"
+        },
+        "[javascript]": {
+            "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+        },
+        "files.associations": {
+            "*.tt2": "html",
+            "*.pm": "perl"
+        },
     },
     // Add the IDs of extensions you want installed when the container is created.
     "extensions": [
@@ -18,7 +31,8 @@
         "cfgweb.vscode-perl",
         "kaktus.perltidy-more",
         "davidanson.vscode-markdownlint",
-        "madprops.fortune"
+        "madprops.fortune",
+        "dbaeumer.vscode-eslint"
     ],
     // Use 'forwardPorts' to make a list of ports inside the container available locally.
     "forwardPorts": [
