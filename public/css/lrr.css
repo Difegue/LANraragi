@@ -505,3 +505,8 @@ li {
     margin-top: 0 !important;
   }
 }
+
+.page_dropdown a {
+   padding-right: 10px;
+   text-decoration: none;
+}

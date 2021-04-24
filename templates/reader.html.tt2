@@ -99,8 +99,7 @@
 
                     <h2>Admin Options</h2>
 
-                    <input class="stdbtn" type='button' onclick="confirmThumbnailReset('[% id %]')"
-                        value="Regenerate Archive Thumbnail" />
+                    <input class="stdbtn" type='button' id="regenerate-thumbnail" value="Regenerate Archive Thumbnail" />
                     <br>
                     <input class='stdbtn' type='button'
                         onclick="window.location.href = './reader?id=[% id %]&force_reload=1'"
@@ -224,19 +223,9 @@
 <!-- -->
 [% BLOCK pagesel %]
 <div style="position: absolute; right: 20px; z-index:20" class="page_dropdown">
-
-    <a href="#" onclick="openOverlay();" title="Archive Overview">
-        <i class="fa fa-th fa-2x" style="padding-right: 10px;"></i>
-    </a>
-
-    <a href="#" onclick="openSettings();" title="Reader Settings">
-        <i class="fa fa-cog fa-2x" style="padding-right: 10px;"></i>
-    </a>
-
-    <a href="#" onclick="toastHelpReader()" title="Help">
-        <i class="fa fa-info-circle fa-2x" style="padding-right: 10px;"></i>
-    </a>
-
+    <a class="fa fa-th fa-2x" id="toggle-archive-overlay" href="#" title="Archive Overview"></a>
+    <a class="fa fa-cog fa-2x" id="toggle-settings-overlay" href="#" title="Reader Settings"></a>
+    <a class="fa fa-info-circle fa-2x" id="toggle-help" href="#" title="Help"></a>
 </div>
 [% END %]
 <!-- -->

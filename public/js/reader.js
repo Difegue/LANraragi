@@ -13,14 +13,19 @@ Reader.initializeAll = function () {
     // bind events to DOM
     $(window).on("resize", updateImageMap);
     $(document).on("keyup", Reader.handleShortcuts);
+
     $(document).on("click.toggle_fit_mode", "#fit-mode input", Reader.toggleFitMode);
     $(document).on("click.toggle_double_mode", "#toggle-double-mode input", Reader.toggleDoublePageMode);
     $(document).on("click.toggle_manga_mode", "#toggle-manga-mode input", Reader.toggleMangaMode);
     $(document).on("click.toggle_header", "#toggle-header input", Reader.toggleHeader);
     $(document).on("click.toggle_progress", "#toggle-progress input", Reader.toggleProgressTracking);
-
     $(document).on("submit.container_width", "#container-width-input", Reader.registerContainerWidth);
     $(document).on("click.container_width", "#container-width-apply", Reader.registerContainerWidth);
+
+    $(document).on("click.toggle_archive_overlay", "#toggle-archive-overlay", Reader.toggleArchiveOverlay);
+    $(document).on("click.toggle_settings_overlay", "#toggle-settings-overlay", Reader.toggleSettingsOverlay);
+    $(document).on("click.toggle_help", "#toggle-help", Reader.toggleHelp);
+    $(document).on("click.regenerate_thumbnail", "#regenerate-thumbnail", Reader.regenerateThumbnail);
 
     // check and display warnings for unsupported filetypes
     Reader.checkFiletypeSupport();
@@ -111,6 +116,7 @@ Reader.handleShortcuts = function (e) {
         closeOverlay();
         break;
     case 32: // spacebar
+        if ($(".page-overlay").is(":visible")) { break; }
         if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
             (Reader.mangaMode) ? advancePage(-1) : advancePage(1);
         }
@@ -123,14 +129,20 @@ Reader.handleShortcuts = function (e) {
     case 68: // d
         advancePage(1);
         break;
+    case 72: // h
+        Reader.toggleHelp();
+        break;
     case 77: // m
         Reader.toggleMangaMode();
+        break;
+    case 79: // o
+        Reader.toggleSettingsOverlay();
         break;
     case 80: // p
         Reader.toggleDoublePageMode();
         break;
     case 81: // q
-        openOverlay();
+        Reader.toggleArchiveOverlay();
         break;
     default:
         break;
@@ -163,12 +175,18 @@ Reader.checkFiletypeSupport = function () {
     }
 };
 
-function toastHelpReader() {
-    $.toast().reset("all");
+Reader.toggleHelp = function () {
+    const existingToast = $(".navigation-help-toast:visible");
+    if (existingToast.length) {
+        // ugly hack: this is an abandoned plugin, we should be using something like toastr
+        existingToast.closest(".jq-toast-wrap").find(".close-jq-toast-single").click();
+        return false;
+    }
 
     $.toast({
         heading: "Navigation Help",
         text: `
+        <div class="navigation-help-toast">
             You can navigate between pages using:
             <ul>
                 <li>The arrow icons</li>
@@ -180,15 +198,20 @@ function toastHelpReader() {
             <ul>
                 <li>M: toggle manga mode (right-to-left reading)</li>
                 <li>P: toggle double page mode</li>
+                <li>O: show advanced reader options.</li>
                 <li>Q: bring up the thumbnail index and archive options.</li>
             </ul>
             <br>To return to the archive index, touch the arrow pointing down or use Backspace.
+        </div>
         `,
         hideAfter: false,
         position: "top-left",
-        icon: "info"
+        icon: "info",
     });
-}
+
+    return false;
+    // all toggable panes need to return false to avoid scrolling to top
+};
 
 function updateMetadata() {
 
@@ -306,24 +329,6 @@ function goToPage(page) {
     }
 }
 
-function initArchivePageOverlay() {
-
-    $("#tagContainer").append(buildTagsDiv(Reader.tags));
-
-    // For each link in the pages array, craft a div and jam it in the overlay.
-    for (index = 0; index < Reader.pages.length; ++index) {
-
-        thumb_css = (localStorage.cropthumbs === "true") ? "id3" : "id3 nocrop";
-        thumbnail = `<div class="${thumb_css}" style="display: inline-block; cursor: pointer">` +
-            `<a onclick="goToPage(${index}); closeOverlay()">` +
-            `<span class="page-number">Page ${(index + 1)}</span>` +
-            `<img src="${Reader.pages[index]}" /></a></div>`;
-
-        $("#archivePagesOverlay").append(thumbnail);
-    }
-    $("#archivePagesOverlay").attr("loaded", "true");
-}
-
 Reader.toggleFitMode = function (e) {
     // possible options: fit-container, fit-width, fit-height
     Reader.fitMode = localStorage.fitMode = e.target.id;
@@ -407,30 +412,63 @@ Reader.toggleProgressTracking = function () {
     $("#toggle-progress input").toggleClass("toggled");
 };
 
-function openOverlay() {
-    if ($("#archivePagesOverlay").attr("loaded") === "false")
-        initArchivePageOverlay();
+Reader.toggleOverlay = function (selector) {
+    // This function would be better fit for common.js
+    const overlay = $(selector);
+    overlay.is(":visible")
+        ? closeOverlay()
+        : $("#overlay-shade").fadeTo(150, 0.6, () => overlay.show());
 
-    $("#overlay-shade").fadeTo(150, 0.6, function () {
-        $("#archivePagesOverlay").css("display", "block");
-    });
-}
+    return false; // needs to return false to prevent scrolling to top
+};
 
-function confirmThumbnailReset(id) {
+Reader.toggleSettingsOverlay = function () {
+    return Reader.toggleOverlay("#settingsOverlay");
+};
 
-    if (confirm("Are you sure you want to regenerate the thumbnail for this archive?")) {
+Reader.toggleArchiveOverlay = function () {
+    Reader.initializeArchiveOverlay();
+    return Reader.toggleOverlay("#archivePagesOverlay");
+};
 
-        $.get(`./reader?id=${id}&reload_thumbnail=1`).done(function () {
-            $.toast({
-                showHideTransition: "slide",
-                position: "top-left",
-                loader: false,
-                heading: "Thumbnail Regenerated.",
-                icon: "success"
-            });
-        });
+Reader.initializeArchiveOverlay = function () {
+    if ($("#archivePagesOverlay").attr("loaded") === "true") {
+        return;
     }
-}
+    $("#tagContainer").append(buildTagsDiv(Reader.tags));
+
+    // For each link in the pages array, craft a div and jam it in the overlay.
+    for (let index = 0; index < Reader.pages.length; ++index) {
+        const thumbCss = (localStorage.cropthumbs === "true") ? "id3" : "id3 nocrop";
+        const thumbnail = `
+            <div class='${thumbCss}' style='display: inline-block; cursor: pointer'>
+                <a onclick='goToPage(${index}); closeOverlay()'>
+                    <span class='page-number'>Page ${(index + 1)}</span>
+                    <img src='${Reader.pages[index]}'/>
+                </a>
+            </div>`;
+
+        $("#archivePagesOverlay").append(thumbnail);
+    }
+    $("#archivePagesOverlay").attr("loaded", "true");
+};
+
+Reader.regenerateThumbnail = function () {
+    // this function would be better suited for common.js, since it can be reused in the index
+    if (!window.confirm("Are you sure you want to regenerate the thumbnail for this archive?")) {
+        return;
+    }
+
+    $.get(`./reader?id${Reader.id}&reload_thumbnail=1`).done(() => {
+        $.toast({
+            showHideTransition: "slide",
+            position: "top-left",
+            loader: false,
+            heading: "Thumbnail regenerated.",
+            icon: "success",
+        });
+    });
+};
 
 function canvasCallback() {
     Reader.imagesLoaded += 1;
