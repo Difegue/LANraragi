@@ -8,9 +8,19 @@ Reader.imagesLoaded = 0;
 
 Reader.initializeAll = function () {
     Reader.maxPage = Reader.pages.length - 1;
+    Reader.initializeSettings();
 
+    // bind events to DOM
     $(window).on("resize", updateImageMap);
     $(document).on("keyup", Reader.handleShortcuts);
+    $(document).on("click.toggle_fit_mode", "#fit-mode input", Reader.toggleFitMode);
+    $(document).on("click.toggle_double_mode", "#toggle-double-mode input", Reader.toggleDoublePageMode);
+    $(document).on("click.toggle_manga_mode", "#toggle-manga-mode input", Reader.toggleMangaMode);
+    $(document).on("click.toggle_header", "#toggle-header input", Reader.toggleHeader);
+    $(document).on("click.toggle_progress", "#toggle-progress input", Reader.toggleProgressTracking);
+
+    $(document).on("submit.container_width", "#container-width-input", Reader.registerContainerWidth);
+    $(document).on("click.container_width", "#container-width-apply", Reader.registerContainerWidth);
 
     // check and display warnings for unsupported filetypes
     Reader.checkFiletypeSupport();
@@ -18,14 +28,75 @@ Reader.initializeAll = function () {
     // remove the "new" tag with an api call
     clearNew(Reader.id);
 
+    let params = new URLSearchParams(window.location.search);
+
     // initialize current page and bind popstate
     $(window).on("popstate", () => {
-        const params = new URLSearchParams(window.location.search);
+        params = new URLSearchParams(window.location.search);
         if (params.has("p")) {
             const paramsPage = +params.get("p");
             goToPage(paramsPage - 1);
         }
     });
+
+    Reader.currentPage = (+params.get("p") || 1) - 1;
+    // when there's no parameter, null is coerced to 0 so it becomes -1
+    Reader.currentPage ||= (
+        !Reader.ignoreProgress && Reader.progress < Reader.maxPage
+            ? Reader.progress
+            : 0
+    );
+    // Choices in order for page picking:
+    // * p is in parameters and is not the first page
+    // * progress is tracked and is not the last page
+    // * first page
+    // This allows for bookmarks to trump progress
+
+    $(".current-page").each((_i, el) => $(el).html(Reader.currentPage + 1));
+    goToPage(Reader.currentPage);
+};
+
+Reader.initializeSettings = function () {
+    // Initialize settings and button toggles
+    // Has legacy localstorage options from before the refactoring, these can be removed later on
+    if (localStorage.hideHeader === "true" || localStorage.hidetop === "true" || false) {
+        $("#hide-header").addClass("toggled");
+        $("#i2").hide();
+    } else {
+        $("#show-header").addClass("toggled");
+    }
+
+    Reader.mangaMode = localStorage.mangaMode === "true" || localStorage.righttoleft === "true" || false;
+    Reader.mangaMode ? $("#manga-mode").addClass("toggled") : $("#normal-mode").addClass("toggled");
+
+    Reader.doublePageMode = localStorage.doublePageMode === "true" || localStorage.doublepage === "true" || false;
+    Reader.doublePageMode ? $("#double-page").addClass("toggled") : $("#single-page").addClass("toggled");
+
+    Reader.ignoreProgress = localStorage.ignoreProgress === "true" || localStorage.nobookmark === "true" || false;
+    Reader.ignoreProgress ? $("#untrack-progress").addClass("toggled") : $("#track-progress").addClass("toggled");
+
+    if (localStorage.forcefullwidth === "true" || localStorage.fitMode === "fit-width") {
+        Reader.fitMode = "fit-width";
+        $("#fit-width").addClass("toggled");
+    } else if (localStorage.scaletoview === "true" || localStorage.fitMode === "fit-height") {
+        Reader.fitMode = "fit-height";
+        $("#fit-height").addClass("toggled");
+    } else {
+        Reader.fitMode = "fit-container";
+        $("#fit-container").addClass("toggled");
+    }
+
+    Reader.containerWidth = localStorage.containerWidth || +localStorage.containerwidth;
+    if (Reader.containerWidth) { $("#container-width-input").val(Reader.containerWidth); }
+
+    // remove legacy options
+    localStorage.removeItem("doublepage");
+    localStorage.removeItem("righttoleft");
+    localStorage.removeItem("hidetop");
+    localStorage.removeItem("nobookmark");
+    localStorage.removeItem("forcefullwidth");
+    localStorage.removeItem("scaletoview");
+    localStorage.removeItem("containerwidth");
 };
 
 Reader.handleShortcuts = function (e) {
@@ -41,7 +112,7 @@ Reader.handleShortcuts = function (e) {
         break;
     case 32: // spacebar
         if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
-            (localStorage.readorder === "true") ? advancePage(-1) : advancePage(1);
+            (Reader.mangaMode) ? advancePage(-1) : advancePage(1);
         }
         break;
     case 37: // left arrow
@@ -51,6 +122,12 @@ Reader.handleShortcuts = function (e) {
     case 39: // right arrow
     case 68: // d
         advancePage(1);
+        break;
+    case 77: // m
+        Reader.toggleMangaMode();
+        break;
+    case 80: // p
+        Reader.toggleDoublePageMode();
         break;
     case 81: // q
         openOverlay();
@@ -99,8 +176,13 @@ function toastHelpReader() {
                 <li>Your keyboard arrows (and the spacebar)</li>
                 <li>Touching the left/right side of the image.</li>
             </ul>
+            <br>Other keyboard shortcuts:
+            <ul>
+                <li>M: toggle manga mode (right-to-left reading)</li>
+                <li>P: toggle double page mode</li>
+                <li>Q: bring up the thumbnail index and archive options.</li>
+            </ul>
             <br>To return to the archive index, touch the arrow pointing down or use Backspace.
-            <br>Pressing the q key will bring up the thumbnail index and archive options.
         `,
         hideAfter: false,
         position: "top-left",
@@ -123,7 +205,7 @@ function updateMetadata() {
 
         // HEAD request to get filesize
         xhr = $.ajax({
-            url: Reader.pages[currentPage],
+            url: Reader.pages[Reader.currentPage],
             type: "HEAD",
             success: function () {
                 size = parseInt(xhr.getResponseHeader("Content-Length") / 1024, 10);
@@ -164,73 +246,40 @@ function updateImageMap() {
 
 function goToPage(page) {
 
-    Reader.previousPage = currentPage;
-
-    // Clear out style overrides
-    $("#img").attr("style", "");
-    $(".sni").attr("style", "");
+    Reader.previousPage = Reader.currentPage;
 
     if (page < 0)
-        currentPage = 0;
+        Reader.currentPage = 0;
     else if (page >= Reader.maxPage)
-        currentPage = Reader.maxPage;
-    else currentPage = page;
-
-    if (localStorage.containerwidth !== "" && !isNaN(localStorage.containerwidth)) {
-        $(".sni").attr("style", `max-width: ${localStorage.containerwidth}px`);
-    }
+        Reader.currentPage = Reader.maxPage;
+    else Reader.currentPage = page;
 
     // if double-page view is enabled(and the current page isn"t the first or the last)
-    if (localStorage.doublepage === "true" && currentPage > 0 && currentPage < Reader.maxPage) {
+    Reader.showingSinglePage = false;
+    if (Reader.doublePageMode && Reader.currentPage > 0 && Reader.currentPage < Reader.maxPage) {
         // composite an image and use that as the source
-        img1 = loadImage(Reader.pages[currentPage], canvasCallback);
-        img2 = loadImage(Reader.pages[currentPage + 1], canvasCallback);
-
-        // We can also override the 1200px maxwidth since we usually have twice the pages
-        if (localStorage.containerwidth === "" || isNaN(localStorage.containerwidth))
-            $(".sni").attr("style", "max-width: 90%");
+        img1 = loadImage(Reader.pages[Reader.currentPage], canvasCallback);
+        img2 = loadImage(Reader.pages[Reader.currentPage + 1], canvasCallback);
 
         // Preload next two images
-        loadImage(Reader.pages[currentPage + 2], null);
-        loadImage(Reader.pages[currentPage + 3], null);
+        loadImage(Reader.pages[Reader.currentPage + 2], null);
+        loadImage(Reader.pages[Reader.currentPage + 3], null);
     }
     else {
         // In single view, just use the source URLs as is
-        $("#img").attr("src", Reader.pages[currentPage]);
+        $("#img").attr("src", Reader.pages[Reader.currentPage]);
         Reader.showingSinglePage = true;
 
         // Preload next image
-        loadImage(Reader.pages[currentPage + 1], null);
-    }
-
-    // Fit to screen simply forces image height at 90vh (90% of viewport height)
-    if (localStorage.scaletoview === "true")
-        $("#img").attr("style", "max-height: 90vh;");
-
-    // hide/show toplevel nav depending on the pref
-    if (localStorage.hidetop === "true") {
-        $("#i2").attr("style", "display:none");
-        $("div.sni h1").attr("style", "display:none");
-
-        // Since the topnav is gone, we can afford to make the image a bit bigger.
-        if (localStorage.scaletoview === "true")
-            $("#img").attr("style", "max-height: 98vh;");
-    }
-    else {
-        $("#i2").attr("style", "");
-        $("div.sni h1").attr("style", "");
-    }
-
-    // Force full width discards fit to screen and just forces img width to 100%
-    if (localStorage.forcefullwidth === "true") {
-        $("#img").attr("style", "width: 100%;");
-        $(".sni").attr("style", "max-width: 98%");
+        loadImage(Reader.pages[Reader.currentPage + 1], null);
     }
 
     // update numbers
     $(".current-page").each(function () {
-        $(this).html(parseInt(currentPage) + 1);
+        $(this).html(Reader.currentPage + 1);
     });
+
+    Reader.applyContainerWidth();
 
     loaded = false;
 
@@ -241,10 +290,10 @@ function goToPage(page) {
     }, 500);
 
     // update full image link
-    $("#imgLink").attr("href", Reader.pages[currentPage]);
+    $("#imgLink").attr("href", Reader.pages[Reader.currentPage]);
 
     // Send an API request to update progress on the server
-    genericAPICall(`api/archives/${Reader.id}/progress/${currentPage + 1}`, "PUT", null, "Error updating reading progress!", null);
+    genericAPICall(`api/archives/${Reader.id}/progress/${Reader.currentPage + 1}`, "PUT", null, "Error updating reading progress!", null);
 
     // scroll to top
     window.scrollTo(0, 0);
@@ -275,83 +324,88 @@ function initArchivePageOverlay() {
     $("#archivePagesOverlay").attr("loaded", "true");
 }
 
-function applySettings() {
+Reader.toggleFitMode = function (e) {
+    // possible options: fit-container, fit-width, fit-height
+    Reader.fitMode = localStorage.fitMode = e.target.id;
+    $("#fit-mode input").removeClass("toggled");
+    $(e.target).addClass("toggled");
 
-    $(".favtag-btn").removeClass("toggled");
-    $("#containersetting").hide();
-
-    if (!isNaN(localStorage.containerwidth))
-        $("#containerwidth").val(localStorage.containerwidth);
-
-    if (localStorage.readorder === "true")
-        $("#mangaread").addClass("toggled");
-    else
-        $("#normalread").addClass("toggled");
-
-    if (localStorage.doublepage === "true")
-        $("#doublepage").addClass("toggled");
-    else
-        $("#singlepage").addClass("toggled");
-
-    if (localStorage.forcefullwidth === "true")
-        $("#fitwidth").addClass("toggled");
-    else if (localStorage.scaletoview === "true")
-        $("#fitheight").addClass("toggled");
-    else {
-        $("#fitcontainer").addClass("toggled");
-        $("#containersetting").show();
+    if (Reader.fitMode === "fit-container") {
+        $("#container-width").show();
+    } else {
+        $("#container-width").hide();
     }
+    Reader.applyContainerWidth();
+};
 
-    if (localStorage.hidetop === "true")
-        $("#hidetop").addClass("toggled");
-    else
-        $("#showtop").addClass("toggled");
+Reader.registerContainerWidth = function () {
+    // Examples of allowed values: 1200, 1200px, 90%
+    // Default value: 1200px
+    const raw = $("#container-width-input").val().trim();
+    if (!raw) { // fall back to default
+        delete Reader.containerWidth;
+        localStorage.removeItem("containerWidth");
+    } else {
+        let value, type;
 
-    if (localStorage.nobookmark === "true")
-        $("#nobookmark").addClass("toggled");
-    else
-        $("#dobookmark").addClass("toggled");
+        [, value, type] = /^(\d+)(px|%)?$/.exec(raw);
+        value ||= 1200;
+        type ||= "px";
 
-    // Reset reader
-    goToPage(currentPage);
-}
+        Reader.containerWidth = localStorage.containerWidth = `${value}${type}`;
+    }
+    Reader.applyContainerWidth();
+};
 
-function setDisplayMode(fittowidth, fittoheight) {
-    localStorage.forcefullwidth = fittowidth;
-    localStorage.scaletoview = fittoheight;
-    applySettings();
-}
+Reader.applyContainerWidth = function () {
+    $("#img, .sni").attr("style", "");
 
-function setDoublePage(doublepage) {
-    localStorage.doublepage = doublepage;
-    applySettings();
-}
+    if (Reader.fitMode === "fit-height") {
+        // Fit to height forces the image to 90% of visible screen height.
+        // If the header is hidden, then the image can take up to
+        // 98% of visible screen height because there's more free space
+        $("#img").attr("style", `max-height: ${Reader.hideHeader ? 98 : 90}vh;`);
+        $(".sni").attr("style", "width: fit-content; width: -moz-fit-content");
+    } else if (Reader.fitMode === "fit-width") {
+        $("#img").attr("style", "width: 100%;");
+        $(".sni").attr("style", "max-width: 98%");
+    } else if (Reader.containerWidth) {
+        // If the user defined a custom width, then we can fall back to that one
+        $(".sni").attr("style", `max-width: ${Reader.containerWidth}`);
+        $("#img").attr("style", "width: 100%");
+    } else if (!Reader.showingSinglePage) {
+        // Otherwise, if we are showing two pages we can override the default width
+        $(".sni").attr("style", "max-width: 90%");
+    } else {
+        // Finally, fall back to 1200px width if none of the above matches
+        $(".sni").attr("style", "max-width: 1200px");
+    }
+};
 
-function setRTL(righttoleft) {
-    localStorage.readorder = righttoleft;
-    applySettings();
-}
+Reader.toggleDoublePageMode = function () {
+    Reader.doublePageMode = localStorage.doublePageMode = !Reader.doublePageMode;
+    $("#toggle-double-mode input").toggleClass("toggled");
 
-function setHideHeader(hideheader) {
-    localStorage.hidetop = hideheader;
-    applySettings();
-}
+    goToPage(Reader.currentPage);
+};
 
-function setTracking(disablebookmark) {
-    localStorage.nobookmark = disablebookmark;
-    applySettings();
-}
+Reader.toggleMangaMode = function () {
+    Reader.mangaMode = localStorage.mangaMode = !Reader.mangaMode;
+    $("#toggle-manga-mode input").toggleClass("toggled");
 
-function applyContainerWidth() {
-    input = $("#containerwidth").val().trim();
+    if (!Reader.showingSinglePage) { goToPage(Reader.currentPage); }
+};
 
-    if (!isNaN(input))
-        localStorage.containerwidth = input;
-    else
-        localStorage.removeItem("containerwidth");
+Reader.toggleHeader = function () {
+    localStorage.hideHeader = $("#i2").is(":visible");
+    $("#toggle-header input").toggleClass("toggled");
+    $("#i2").toggle();
+};
 
-    applySettings();
-}
+Reader.toggleProgressTracking = function () {
+    Reader.ignoreProgress = localStorage.ignoreProgress = !Reader.ignoreProgress;
+    $("#toggle-progress input").toggleClass("toggled");
+};
 
 function openOverlay() {
     if ($("#archivePagesOverlay").attr("loaded") === "false")
@@ -387,7 +441,7 @@ function canvasCallback() {
         if (img1.naturalWidth > img1.naturalHeight || img2.naturalWidth > img2.naturalHeight) {
 
             // Depending on whether we were going forward or backward, display img1 or img2
-            if (Reader.previousPage > currentPage)
+            if (Reader.previousPage > Reader.currentPage)
                 $("#img").attr("src", img2.src);
             else
                 $("#img").attr("src", img1.src);
@@ -397,9 +451,6 @@ function canvasCallback() {
             return;
         }
 
-        // Double page confirmed
-        Reader.showingSinglePage = false;
-
         // Create an adequately-sized canvas
         var canvas = $("#dpcanvas")[0];
         canvas.width = img1.naturalWidth + img2.naturalWidth;
@@ -407,7 +458,7 @@ function canvasCallback() {
 
         // Draw both images on it
         ctx = canvas.getContext("2d");
-        if (localStorage.readorder === "true") {
+        if (Reader.mangaMode) {
             ctx.drawImage(img2, 0, 0);
             ctx.drawImage(img1, img2.naturalWidth + 1, 0);
         } else {
@@ -432,24 +483,24 @@ function loadImage(src, onload) {
 
 // Go forward or backward in pages. Pass -1 for left, +1 for right.
 function advancePage(pageModifier) {
-    if (localStorage.doublepage === "true" && Reader.showingSinglePage == false)
+    if (Reader.doublePageMode && !Reader.showingSinglePage)
         pageModifier = pageModifier * 2;
 
-    if (localStorage.readorder === "true")
+    if (Reader.mangaMode)
         pageModifier = -pageModifier;
 
-    goToPage(currentPage + pageModifier);
+    goToPage(Reader.currentPage + pageModifier);
 }
 
 function goFirst() {
-    if (localStorage.readorder === "true")
+    if (Reader.mangaMode)
         goToPage(Reader.maxPage);
     else
         goToPage(0);
 }
 
 function goLast() {
-    if (localStorage.readorder === "true")
+    if (Reader.mangaMode)
         goToPage(0);
     else
         goToPage(Reader.maxPage);
