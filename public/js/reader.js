@@ -40,7 +40,7 @@ Reader.initializeAll = function () {
         params = new URLSearchParams(window.location.search);
         if (params.has("p")) {
             const paramsPage = +params.get("p");
-            goToPage(paramsPage - 1);
+            Reader.goToPage(paramsPage - 1, true);
         }
     });
 
@@ -58,7 +58,7 @@ Reader.initializeAll = function () {
     // This allows for bookmarks to trump progress
 
     $(".current-page").each((_i, el) => $(el).html(Reader.currentPage + 1));
-    goToPage(Reader.currentPage);
+    Reader.goToPage(Reader.currentPage);
 };
 
 Reader.initializeSettings = function () {
@@ -216,7 +216,7 @@ Reader.toggleHelp = function () {
 function updateMetadata() {
 
     // remove overlay
-    loaded = true;
+    Reader.currentPageLoaded = true;
     $("#i3").removeClass("loading");
 
     filename = $("#img").get(0).src.replace(/^.*[\\\/]/, "");
@@ -267,34 +267,35 @@ function updateImageMap() {
     $("#rightmap").attr("coords", (mapWidth + 1) + ",0," + $("#img").get(0).width + "," + mapHeight);
 }
 
-function goToPage(page) {
-
+Reader.goToPage = function (page, fromHistory = false) {
     Reader.previousPage = Reader.currentPage;
+    Reader.currentPage = Math.min(Reader.maxPage, Math.max(0, +page));
 
-    if (page < 0)
-        Reader.currentPage = 0;
-    else if (page >= Reader.maxPage)
-        Reader.currentPage = Reader.maxPage;
-    else Reader.currentPage = page;
-
-    // if double-page view is enabled(and the current page isn"t the first or the last)
     Reader.showingSinglePage = false;
     if (Reader.doublePageMode && Reader.currentPage > 0 && Reader.currentPage < Reader.maxPage) {
         // composite an image and use that as the source
-        img1 = loadImage(Reader.pages[Reader.currentPage], canvasCallback);
-        img2 = loadImage(Reader.pages[Reader.currentPage + 1], canvasCallback);
-
-        // Preload next two images
-        loadImage(Reader.pages[Reader.currentPage + 2], null);
-        loadImage(Reader.pages[Reader.currentPage + 3], null);
-    }
-    else {
+        img1 = Reader.loadImage(Reader.pages[Reader.currentPage], Reader.canvasCallback);
+        img2 = Reader.loadImage(Reader.pages[Reader.currentPage + 1], Reader.canvasCallback);
+    } else {
         // In single view, just use the source URLs as is
         $("#img").attr("src", Reader.pages[Reader.currentPage]);
         Reader.showingSinglePage = true;
+    }
 
-        // Preload next image
-        loadImage(Reader.pages[Reader.currentPage + 1], null);
+    // Preload N images, in the future this can be turned into a setting
+    let preloadNext = 2;
+    let preloadPrev = 1;
+
+    if (Reader.doublePageMode) { preloadNext *= 2; preloadPrev *= 2; }
+    if (Reader.mangaMode) { [preloadNext, preloadPrev] = [preloadPrev, preloadNext]; }
+
+    for (let i = 1; i <= preloadNext; i++) {
+        if (Reader.currentPage + i > Reader.maxPage) { break; }
+        Reader.loadImage(Reader.pages[Reader.currentPage + i], null);
+    }
+    for (let i = 1; i <= preloadPrev; i++) {
+        if (Reader.currentPage - i < 0) { break; }
+        Reader.loadImage(Reader.pages[Reader.currentPage - i], null);
     }
 
     // update numbers
@@ -304,12 +305,10 @@ function goToPage(page) {
 
     Reader.applyContainerWidth();
 
-    loaded = false;
-
+    Reader.currentPageLoaded = false;
     // display overlay if it takes too long to load a page
-    setTimeout(function () {
-        if (!loaded)
-            $("#i3").addClass("loading");
+    setTimeout(() => {
+        if (!Reader.currentPageLoaded) { $("#i3").addClass("loading"); }
     }, 500);
 
     // update full image link
@@ -322,12 +321,8 @@ function goToPage(page) {
     window.scrollTo(0, 0);
 
     // Update url to contain all search parameters, and push it to the history
-    if (isComingFromPopstate) // But don"t fire this if we"re coming from popstate
-        isComingFromPopstate = false;
-    else {
-        window.history.pushState(null, null, `?id=${Reader.id}&p=${page + 1}`);
-    }
-}
+    if (!fromHistory) { window.history.pushState(null, null, `?id=${Reader.id}&p=${Reader.currentPage + 1}`); }
+};
 
 Reader.toggleFitMode = function (e) {
     // possible options: fit-container, fit-width, fit-height
@@ -391,14 +386,14 @@ Reader.toggleDoublePageMode = function () {
     Reader.doublePageMode = localStorage.doublePageMode = !Reader.doublePageMode;
     $("#toggle-double-mode input").toggleClass("toggled");
 
-    goToPage(Reader.currentPage);
+    Reader.goToPage(Reader.currentPage);
 };
 
 Reader.toggleMangaMode = function () {
     Reader.mangaMode = localStorage.mangaMode = !Reader.mangaMode;
     $("#toggle-manga-mode input").toggleClass("toggled");
 
-    if (!Reader.showingSinglePage) { goToPage(Reader.currentPage); }
+    if (!Reader.showingSinglePage) { Reader.goToPage(Reader.currentPage); }
 };
 
 Reader.toggleHeader = function () {
@@ -442,7 +437,7 @@ Reader.initializeArchiveOverlay = function () {
         const thumbCss = (localStorage.cropthumbs === "true") ? "id3" : "id3 nocrop";
         const thumbnail = `
             <div class='${thumbCss}' style='display: inline-block; cursor: pointer'>
-                <a onclick='goToPage(${index}); closeOverlay()'>
+                <a onclick='Reader.goToPage(${index}); closeOverlay()'>
                     <span class='page-number'>Page ${(index + 1)}</span>
                     <img src='${Reader.pages[index]}'/>
                 </a>
@@ -470,54 +465,46 @@ Reader.regenerateThumbnail = function () {
     });
 };
 
-function canvasCallback() {
+Reader.canvasCallback = function () {
     Reader.imagesLoaded += 1;
+    if (Reader.imagesLoaded !== 2) { return; }
 
-    if (Reader.imagesLoaded === 2) {
-
-        // If w > h on one of the images(widespread), set canvasdata to the first image only
-        if (img1.naturalWidth > img1.naturalHeight || img2.naturalWidth > img2.naturalHeight) {
-
-            // Depending on whether we were going forward or backward, display img1 or img2
-            if (Reader.previousPage > Reader.currentPage)
-                $("#img").attr("src", img2.src);
-            else
-                $("#img").attr("src", img1.src);
-
-            Reader.showingSinglePage = true;
-            Reader.imagesLoaded = 0;
-            return;
-        }
-
-        // Create an adequately-sized canvas
-        var canvas = $("#dpcanvas")[0];
-        canvas.width = img1.naturalWidth + img2.naturalWidth;
-        canvas.height = Math.max(img1.naturalHeight, img2.naturalHeight);
-
-        // Draw both images on it
-        ctx = canvas.getContext("2d");
-        if (Reader.mangaMode) {
-            ctx.drawImage(img2, 0, 0);
-            ctx.drawImage(img1, img2.naturalWidth + 1, 0);
-        } else {
-            ctx.drawImage(img1, 0, 0);
-            ctx.drawImage(img2, img1.naturalWidth + 1, 0);
-        }
-
+    // If w > h on one of the images(widespread), set canvasdata to the first image only
+    if (img1.naturalWidth > img1.naturalHeight || img2.naturalWidth > img2.naturalHeight) {
+        // Depending on whether we were going forward or backward, display img1 or img2
+        $("#img").attr("src", Reader.previousPage > Reader.currentPage ? img2.src : img1.src);
+        Reader.showingSinglePage = true;
         Reader.imagesLoaded = 0;
-        $("#img").attr("src", canvas.toDataURL("image/jpeg"));
-
+        return;
     }
-}
 
-function loadImage(src, onload) {
-    var img = new Image();
+    // Create an adequately-sized canvas
+    const canvas = $("#dpcanvas")[0];
+    canvas.width = img1.naturalWidth + img2.naturalWidth;
+    canvas.height = Math.max(img1.naturalHeight, img2.naturalHeight);
+
+    // Draw both images on it
+    const ctx = canvas.getContext("2d");
+    if (Reader.mangaMode) {
+        ctx.drawImage(img2, 0, 0);
+        ctx.drawImage(img1, img2.naturalWidth + 1, 0);
+    } else {
+        ctx.drawImage(img1, 0, 0);
+        ctx.drawImage(img2, img1.naturalWidth + 1, 0);
+    }
+
+    Reader.imagesLoaded = 0;
+    $("#img").attr("src", canvas.toDataURL("image/jpeg"));
+};
+
+Reader.loadImage = function (src, onload) {
+    const img = new Image();
 
     img.onload = onload;
     img.src = src;
 
     return img;
-}
+};
 
 // Go forward or backward in pages. Pass -1 for left, +1 for right.
 function advancePage(pageModifier) {
@@ -527,21 +514,21 @@ function advancePage(pageModifier) {
     if (Reader.mangaMode)
         pageModifier = -pageModifier;
 
-    goToPage(Reader.currentPage + pageModifier);
+    Reader.goToPage(Reader.currentPage + pageModifier);
 }
 
 function goFirst() {
     if (Reader.mangaMode)
-        goToPage(Reader.maxPage);
+        Reader.goToPage(Reader.maxPage);
     else
-        goToPage(0);
+        Reader.goToPage(0);
 }
 
 function goLast() {
     if (Reader.mangaMode)
-        goToPage(0);
+        Reader.goToPage(0);
     else
-        goToPage(Reader.maxPage);
+        Reader.goToPage(Reader.maxPage);
 }
 
 $(document).ready(() => {

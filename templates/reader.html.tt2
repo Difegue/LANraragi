@@ -73,8 +73,6 @@
     </div>
 
     <script>
-
-        let isComingFromPopstate = false;
         Reader.pages = [% imgpaths %].pages;
         Reader.id = "[%id%]";
         Reader.filename = "[% filename %]";
