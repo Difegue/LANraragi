@@ -75,36 +75,10 @@
     <script>
 
         let isComingFromPopstate = false;
-        const pages = [% imgpaths %];
-        const id = "[%id%]";
-        let filename = "[% filename %]";
-        const tags = "[% tags %]";
-
-        if ((filename.endsWith(".rar") || filename.endsWith(".cbr")) && !localStorage.rarWarningShown) {
-            localStorage.rarWarningShown = true;
-            $.toast({
-                showHideTransition: 'slide',
-                position: 'top-left',
-                loader: false,
-                heading: "This archive seems to be in RAR format!",
-                text: 'RAR archives might not work properly in LANraragi depending on how they were made. If you encounter errors while reading, consider converting your archive to zip.',
-                hideAfter: false,
-                icon: 'warning'
-            });
-        }
-
-        if (filename.endsWith(".epub") && !localStorage.epubWarningShown) {
-            localStorage.epubWarningShown = true;
-            $.toast({
-                showHideTransition: 'slide',
-                position: 'top-left',
-                loader: false,
-                heading: "EPUB support in LANraragi is minimal",
-                text: 'EPUB books will only show images in the Web Reader. If you want text support, consider pairing LANraragi with an <a href= "https://sugoi.gitbook.io/lanraragi/advanced-usage/external-readers#generic-opds-readers">OPDS reader.</a> ',
-                hideAfter: false,
-                icon: 'warning'
-            });
-        }
+        Reader.pages = [% imgpaths %].pages;
+        Reader.id = "[%id%]";
+        Reader.filename = "[% filename %]";
+        Reader.tags = "[% tags %]";
 
         // Go straight to page number if there's an existing progress value
         if (localStorage.nobookmark === 'true')
@@ -112,17 +86,12 @@
         else
             currentPage = parseInt([% progress %] - 1 || 0);
 
-        pageNumber = [% pagecount %];
-
         //canvas variables
-        previousPage = -1;
-        imagesLoaded = 0;
         img1 = "";
         img2 = "";
-        showingSinglePage = false;
 
         //if we made it to the last page in a previous read, reset the page number
-        if (currentPage === pageNumber - 1)
+        if (currentPage === Reader.maxPage)
             currentPage = 0;
 
         var params = new URLSearchParams(window.location.search);
@@ -131,24 +100,6 @@
             goToPage(params.get("p") - 1);
         else
             goToPage(currentPage);
-
-        // Remove new flag with an API call
-        clearNew(id);
-
-        //image map update on window resize
-        $(window).resize(function () {
-            updateImageMap();
-        });
-
-        // Add a listen event to window.popstate to update the page accordingly if the user goes back using browser history
-        window.onpopstate = () => {
-            var params = new URLSearchParams(window.location.search);
-            if (params.has("p")) {
-                isComingFromPopstate = true;
-                goToPage(params.get("p") - 1);
-            }
-        }
-
     </script>
 
     <div id="overlay-shade" onclick="closeOverlay();"></div>
@@ -280,7 +231,7 @@
 
     <div class="pagecount">
         <span class="current-page"></span> /
-        <span class="max-page"></span>
+        <span class="max-page">[% pagecount %]</span>
     </div>
 
     <a id="right" onclick="advancePage(1)" style="cursor:pointer;">
