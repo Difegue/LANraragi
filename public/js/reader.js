@@ -11,7 +11,6 @@ Reader.initializeAll = function () {
     Reader.initializeSettings();
 
     // bind events to DOM
-    $(window).on("resize", Reader.updateImageMap);
     $(document).on("load.style", "body", set_style_from_storage);
     $(document).on("keyup", Reader.handleShortcuts);
 
@@ -20,10 +19,10 @@ Reader.initializeAll = function () {
     $(document).on("click.toggle_manga_mode", "#toggle-manga-mode input", Reader.toggleMangaMode);
     $(document).on("click.toggle_header", "#toggle-header input", Reader.toggleHeader);
     $(document).on("click.toggle_progress", "#toggle-progress input", Reader.toggleProgressTracking);
+    $(document).on("click.toggle_infinite_scroll", "#toggle-infinite-scroll input", Reader.toggleInfiniteScroll);
     $(document).on("submit.container_width", "#container-width-input", Reader.registerContainerWidth);
     $(document).on("click.container_width", "#container-width-apply", Reader.registerContainerWidth);
     $(document).on("click.pagination_change_pages", ".page-link", Reader.handlePaginator);
-    $(document).on("click.imagemap_change_pages", "#Map area", Reader.handlePaginator);
 
     $(document).on("click.close_overlay", "#overlay-shade", closeOverlay);
     $(document).on("click.toggle_archive_overlay", "#toggle-archive-overlay", Reader.toggleArchiveOverlay);
@@ -41,6 +40,28 @@ Reader.initializeAll = function () {
 
     // remove the "new" tag with an api call
     clearNew(Reader.id);
+
+    Reader.infiniteScroll = localStorage.infiniteScroll === "true" || false;
+    $(Reader.infiniteScroll ? "#infinite-scroll-on" : "#infinite-scroll-off").addClass("toggled");
+
+    $(document).on("click.thumbnail", ".quick-thumbnail", (e) => {
+        closeOverlay();
+        const pageNumber = +$(e.target).closest("div[page]").attr("page");
+        if (Reader.infiniteScroll) {
+            $("#display img").get(pageNumber).scrollIntoView({ behavior: "smooth" });
+        } else {
+            Reader.goToPage(pageNumber);
+        }
+    });
+
+    if (Reader.infiniteScroll) {
+        Reader.initInfiniteScrollView();
+        return;
+    }
+
+    // all these init values need to be after the infinite loader check
+    $(document).on("click.imagemap_change_pages", "#Map area", Reader.handlePaginator);
+    $(window).on("resize", Reader.updateImagemap);
 
     let params = new URLSearchParams(window.location.search);
 
@@ -111,6 +132,23 @@ Reader.initializeSettings = function () {
     localStorage.removeItem("forcefullwidth");
     localStorage.removeItem("scaletoview");
     localStorage.removeItem("containerwidth");
+};
+
+Reader.initInfiniteScrollView = function () {
+    $("body").addClass("infinite-scroll");
+    $("#Map").remove();
+    $(".reader-image").first().attr("src", Reader.pages[0]);
+
+    Reader.pages.slice(1).forEach((source) => {
+        const img = new Image();
+        img.src = source;
+        $(img).addClass("reader-image");
+        $("#display").append(img);
+    });
+
+    $("#i3").removeClass("loading");
+    $(document).on("click.infinite_scroll_map", "#display .reader-image", () => Reader.changePage(1));
+    Reader.applyContainerWidth();
 };
 
 Reader.handleShortcuts = function (e) {
@@ -352,21 +390,21 @@ Reader.registerContainerWidth = function () {
 };
 
 Reader.applyContainerWidth = function () {
-    $("#img, .sni").attr("style", "");
+    $(".reader-image, .sni").attr("style", "");
 
     if (Reader.fitMode === "fit-height") {
         // Fit to height forces the image to 90% of visible screen height.
-        // If the header is hidden, then the image can take up to
-        // 98% of visible screen height because there's more free space
-        $("#img").attr("style", `max-height: ${Reader.hideHeader ? 98 : 90}vh;`);
+        // If the header is hidden, or if we're in infinite scrolling, then the image
+        // can take up to 98% of visible screen height because there's more free space
+        $(".reader-image").attr("style", `max-height: ${Reader.hideHeader || Reader.infiniteScroll ? 98 : 90}vh;`);
         $(".sni").attr("style", "width: fit-content; width: -moz-fit-content");
     } else if (Reader.fitMode === "fit-width") {
-        $("#img").attr("style", "width: 100%;");
+        $(".reader-image").attr("style", "width: 100%;");
         $(".sni").attr("style", "max-width: 98%");
     } else if (Reader.containerWidth) {
         // If the user defined a custom width, then we can fall back to that one
         $(".sni").attr("style", `max-width: ${Reader.containerWidth}`);
-        $("#img").attr("style", "width: 100%");
+        $(".reader-image").attr("style", "width: 100%");
     } else if (!Reader.showingSinglePage) {
         // Otherwise, if we are showing two pages we can override the default width
         $(".sni").attr("style", "max-width: 90%");
@@ -377,17 +415,19 @@ Reader.applyContainerWidth = function () {
 };
 
 Reader.toggleDoublePageMode = function () {
+    if (Reader.infiniteScroll) { return; }
     Reader.doublePageMode = localStorage.doublePageMode = !Reader.doublePageMode;
     $("#toggle-double-mode input").toggleClass("toggled");
-
     Reader.goToPage(Reader.currentPage);
 };
 
 Reader.toggleMangaMode = function () {
+    if (Reader.infiniteScroll) { return false; }
     Reader.mangaMode = localStorage.mangaMode = !Reader.mangaMode;
     $("#toggle-manga-mode input").toggleClass("toggled");
-
     if (!Reader.showingSinglePage) { Reader.goToPage(Reader.currentPage); }
+
+    return false;
 };
 
 Reader.toggleHeader = function () {
@@ -399,6 +439,12 @@ Reader.toggleHeader = function () {
 Reader.toggleProgressTracking = function () {
     Reader.ignoreProgress = localStorage.ignoreProgress = !Reader.ignoreProgress;
     $("#toggle-progress input").toggleClass("toggled");
+};
+
+Reader.toggleInfiniteScroll = function () {
+    Reader.infiniteScroll = localStorage.infiniteScroll = !Reader.infiniteScroll;
+    $("#toggle-infinite-scroll input").toggleClass("toggled");
+    window.location.reload();
 };
 
 Reader.toggleOverlay = function (selector) {
@@ -430,11 +476,9 @@ Reader.initializeArchiveOverlay = function () {
     for (let index = 0; index < Reader.pages.length; ++index) {
         const thumbCss = (localStorage.cropthumbs === "true") ? "id3" : "id3 nocrop";
         const thumbnail = `
-            <div class='${thumbCss}' style='display: inline-block; cursor: pointer'>
-                <a onclick='Reader.goToPage(${index}); closeOverlay()'>
-                    <span class='page-number'>Page ${(index + 1)}</span>
-                    <img src='${Reader.pages[index]}'/>
-                </a>
+            <div class='${thumbCss} quick-thumbnail' page='${index}' style='display: inline-block; cursor: pointer'>
+                <span class='page-number'>Page ${(index + 1)}</span>
+                <img src='${Reader.pages[index]}'/>
             </div>`;
 
         $("#archivePagesOverlay").append(thumbnail);
@@ -502,6 +546,16 @@ Reader.loadImage = function (src, onload) {
 
 Reader.changePage = function (targetPage) {
     let destination;
+    if (Reader.infiniteScroll) {
+        if (targetPage === 1) {
+            destination = $.grep($("#display img"), (img) => $(img).position().top >= $(window).scrollTop())[0];
+        } else {
+            destination = $.grep($("#display img"), (img) => $(img).position().top + (img.naturalHeight / 2) <= $(window).scrollTop()).pop();
+        }
+        if (!destination) { return; }
+        destination.scrollIntoView();
+        return;
+    }
     if (targetPage === "first") {
         destination = Reader.mangaMode ? Reader.maxPage : 0;
     } else if (targetPage === "last") {

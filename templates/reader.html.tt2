@@ -187,6 +187,14 @@
     <input id="untrack-progress" class="favtag-btn config-btn" type="button" value="Disabled">
 </div>
 
+<div id="toggle-infinite-scroll" style="margin:auto; font-size:8pt;">
+    <h2 class="config-panel"> Infinite Scrolling </h2>
+    <span class="config-panel">Display all images in a vertical view in the same page.
+    </span>
+    <input id="infinite-scroll-on" class="favtag-btn config-btn" type="button" value="Enabled">
+    <input id="infinite-scroll-off" class="favtag-btn config-btn" type="button" value="Disabled">
+</div>
+
 [% END %]
 <!-- -->
 [% BLOCK arrows %]
@@ -205,7 +213,7 @@
 [% END %]
 <!-- -->
 [% BLOCK pagesel %]
-<div style="position: absolute; right: 20px; z-index:20" class="page_dropdown">
+<div class="page_dropdown">
     <a class="fa fa-th fa-2x" id="toggle-archive-overlay" href="#" title="Archive Overview"></a>
     <a class="fa fa-cog fa-2x" id="toggle-settings-overlay" href="#" title="Reader Settings"></a>
     <a class="fa fa-info-circle fa-2x" id="toggle-help" href="#" title="Help"></a>
