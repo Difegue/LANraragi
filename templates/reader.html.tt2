@@ -41,11 +41,11 @@
             </div>
 
             <a id="display">
-                <img id="img" class="reader-image" onload="updateMetadata()" onerror="this.src='./img/noThumb.png'"
+                <img id="img" class="reader-image" onload="Reader.updateMetadata()" onerror="this.src='./img/noThumb.png'"
                     src="[% imgpath %]" usemap="#Map" />
                 <map name="Map" id="Map">
-                    <area id="leftmap" style="cursor:pointer;" onclick="advancePage(-1)" shape="rect" />
-                    <area id="rightmap" style="cursor:pointer;" onclick="advancePage(1)" shape="rect" />
+                    <area id="leftmap" style="cursor:pointer;" shape="rect" value="left"/>
+                    <area id="rightmap" style="cursor:pointer;" shape="rect" value="right" />
                 </map>
             </a>
 
@@ -194,28 +194,17 @@
 [% END %]
 <!-- -->
 [% BLOCK arrows %]
-<div class="sn">
-
-    <a onclick="goFirst()" style="cursor:pointer;">
-        <i class="fa fa-angle-double-left" style="font-size: 1.5em;"></i>
-    </a>
-
-    <a id="left" onclick="advancePage(-1)" style="cursor:pointer;">
-        <i class="fa fa-angle-left" style="font-size: 1.5em;"></i>
-    </a>
+<div class="sn paginator">
+    <a class="fa fa-angle-double-left page-link" style="font-size: 1.5em;" value="outer-left"></a>
+    <a class="fa fa-angle-left page-link" style="font-size: 1.5em;" value="left"></a>
 
     <div class="pagecount">
         <span class="current-page"></span> /
         <span class="max-page">[% pagecount %]</span>
     </div>
 
-    <a id="right" onclick="advancePage(1)" style="cursor:pointer;">
-        <i class="fa fa-angle-right" style="font-size: 1.5em;"></i>
-    </a>
-
-    <a onclick="goLast()" style="cursor:pointer;">
-        <i class="fa fa-angle-double-right" style="font-size: 1.5em;"></i>
-    </a>
+    <a class="fa fa-angle-right page-link" style="font-size: 1.5em;" value="right"></a>
+    <a class="fa fa-angle-double-right page-link" style="font-size: 1.5em;" value="outer-right"></a>
 </div>
 [% END %]
 <!-- -->

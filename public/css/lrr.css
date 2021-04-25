@@ -510,3 +510,11 @@ li {
    padding-right: 10px;
    text-decoration: none;
 }
+
+.pagecount {
+  vertical-align: unset !important;
+}
+
+.page-link {
+  cursor: pointer;
+}

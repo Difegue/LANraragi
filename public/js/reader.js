@@ -11,7 +11,7 @@ Reader.initializeAll = function () {
     Reader.initializeSettings();
 
     // bind events to DOM
-    $(window).on("resize", updateImageMap);
+    $(window).on("resize", Reader.updateImageMap);
     $(document).on("keyup", Reader.handleShortcuts);
 
     $(document).on("click.toggle_fit_mode", "#fit-mode input", Reader.toggleFitMode);
@@ -21,6 +21,8 @@ Reader.initializeAll = function () {
     $(document).on("click.toggle_progress", "#toggle-progress input", Reader.toggleProgressTracking);
     $(document).on("submit.container_width", "#container-width-input", Reader.registerContainerWidth);
     $(document).on("click.container_width", "#container-width-apply", Reader.registerContainerWidth);
+    $(document).on("click.pagination_change_pages", ".page-link", Reader.handlePaginator);
+    $(document).on("click.imagemap_change_pages", "#Map area", Reader.handlePaginator);
 
     $(document).on("click.toggle_archive_overlay", "#toggle-archive-overlay", Reader.toggleArchiveOverlay);
     $(document).on("click.toggle_settings_overlay", "#toggle-settings-overlay", Reader.toggleSettingsOverlay);
@@ -118,16 +120,18 @@ Reader.handleShortcuts = function (e) {
     case 32: // spacebar
         if ($(".page-overlay").is(":visible")) { break; }
         if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
-            (Reader.mangaMode) ? advancePage(-1) : advancePage(1);
+            (Reader.mangaMode) ? Reader.changePage(-1) : Reader.changePage(1);
         }
+        // spacebar is always forward regardless of reading direction, so it needs to be flipped
+        // to always result in a positive offset when it reaches the changePage() logic
         break;
     case 37: // left arrow
     case 65: // a
-        advancePage(-1);
+        Reader.changePage(-1);
         break;
     case 39: // right arrow
     case 68: // d
-        advancePage(1);
+        Reader.changePage(1);
         break;
     case 72: // h
         Reader.toggleHelp();
@@ -213,59 +217,45 @@ Reader.toggleHelp = function () {
     // all toggable panes need to return false to avoid scrolling to top
 };
 
-function updateMetadata() {
-
-    // remove overlay
-    Reader.currentPageLoaded = true;
-    $("#i3").removeClass("loading");
-
-    filename = $("#img").get(0).src.replace(/^.*[\\\/]/, "");
-    w = $("#img").get(0).naturalWidth;
-    h = $("#img").get(0).naturalHeight;
-    size = "UNKNOWN"
+Reader.updateMetadata = function () {
+    const img = $("#img")[0];
+    const imageUrl = new URL(img.src);
+    const filename = imageUrl.searchParams.get("path");
 
     if (Reader.showingSinglePage) {
-
         // HEAD request to get filesize
-        xhr = $.ajax({
+        $.ajax({
             url: Reader.pages[Reader.currentPage],
             type: "HEAD",
-            success: function () {
-                size = parseInt(xhr.getResponseHeader("Content-Length") / 1024, 10);
-            }
-        }).done(function (data) {
-
-            metadataString = filename + " :: " + w + " x " + h + " :: " + size + " KB";
-
-            $(".file-info").each(function () {
-                $(this).html(metadataString);
-            });
-
-            updateImageMap();
+            success: (data, textStatus, request) => {
+                const size = parseInt(request.getResponseHeader("Content-Length") / 1024, 10);
+                $(".file-info").text(`${filename} :: ${img.width} x ${img.height} :: ${size} KB`);
+            },
         });
-
     } else {
-
-        metadataString = "Double-Page View :: " + w + " x " + h;
-
-        $(".file-info").each(function () {
-            $(this).html(metadataString);
-        });
-
-        updateImageMap();
-
+        $(".file-info").text(`Double-Page View :: ${img.width} x ${img.height}`);
     }
 
-}
+    // Update page numbers in the paginator
+    const newVal = Reader.showingSinglePage
+        ? Reader.currentPage + 1
+        : `${Reader.currentPage + 1} + ${Reader.currentPage + 2}`;
+    $(".current-page").each((_i, el) => $(el).html(newVal));
 
-function updateImageMap() {
+    Reader.updateImageMap();
+    Reader.currentPageLoaded = true;
+    $("#i3").removeClass("loading");
+};
 
+Reader.updateImageMap = function () {
     // update imagemap with the w/h parameters we obtained
-    mapWidth = $("#img").get(0).width / 2;
-    mapHeight = $("#img").get(0).height;
-    $("#leftmap").attr("coords", "0,0," + mapWidth + "," + mapHeight);
-    $("#rightmap").attr("coords", (mapWidth + 1) + ",0," + $("#img").get(0).width + "," + mapHeight);
-}
+    const img = $("#img")[0];
+    const mapWidth = img.width / 2;
+    const mapHeight = img.height;
+
+    $("#leftmap").attr("coords", `0,0,${mapWidth},${mapHeight}`);
+    $("#rightmap").attr("coords", `${mapWidth + 1},0,${img.width},${mapHeight}`);
+};
 
 Reader.goToPage = function (page, fromHistory = false) {
     Reader.previousPage = Reader.currentPage;
@@ -297,11 +287,6 @@ Reader.goToPage = function (page, fromHistory = false) {
         if (Reader.currentPage - i < 0) { break; }
         Reader.loadImage(Reader.pages[Reader.currentPage - i], null);
     }
-
-    // update numbers
-    $(".current-page").each(function () {
-        $(this).html(Reader.currentPage + 1);
-    });
 
     Reader.applyContainerWidth();
 
@@ -506,30 +491,41 @@ Reader.loadImage = function (src, onload) {
     return img;
 };
 
-// Go forward or backward in pages. Pass -1 for left, +1 for right.
-function advancePage(pageModifier) {
-    if (Reader.doublePageMode && !Reader.showingSinglePage)
-        pageModifier = pageModifier * 2;
+Reader.changePage = function (targetPage) {
+    let destination;
+    if (targetPage === "first") {
+        destination = Reader.mangaMode ? Reader.maxPage : 0;
+    } else if (targetPage === "last") {
+        destination = Reader.mangaMode ? 0 : Reader.maxPage;
+    } else {
+        let offset = targetPage;
+        if (Reader.doublePageMode && !Reader.showingSinglePage && Reader.currentPage > 0) {
+            offset *= 2;
+        }
+        destination = Reader.currentPage + (Reader.mangaMode ? -offset : offset);
+    }
 
-    if (Reader.mangaMode)
-        pageModifier = -pageModifier;
+    Reader.goToPage(destination);
+};
 
-    Reader.goToPage(Reader.currentPage + pageModifier);
-}
-
-function goFirst() {
-    if (Reader.mangaMode)
-        Reader.goToPage(Reader.maxPage);
-    else
-        Reader.goToPage(0);
-}
-
-function goLast() {
-    if (Reader.mangaMode)
-        Reader.goToPage(0);
-    else
-        Reader.goToPage(Reader.maxPage);
-}
+Reader.handlePaginator = function () {
+    switch (this.getAttribute("value")) {
+    case "outer-left":
+        Reader.changePage("first");
+        break;
+    case "left":
+        Reader.changePage(-1);
+        break;
+    case "right":
+        Reader.changePage(1);
+        break;
+    case "outer-right":
+        Reader.changePage("last");
+        break;
+    default:
+        break;
+    }
+};
 
 $(document).ready(() => {
     Reader.initializeAll();
