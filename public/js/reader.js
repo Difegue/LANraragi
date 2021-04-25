@@ -12,6 +12,7 @@ Reader.initializeAll = function () {
 
     // bind events to DOM
     $(window).on("resize", Reader.updateImageMap);
+    $(document).on("load.style", "body", set_style_from_storage);
     $(document).on("keyup", Reader.handleShortcuts);
 
     $(document).on("click.toggle_fit_mode", "#fit-mode input", Reader.toggleFitMode);
@@ -24,10 +25,16 @@ Reader.initializeAll = function () {
     $(document).on("click.pagination_change_pages", ".page-link", Reader.handlePaginator);
     $(document).on("click.imagemap_change_pages", "#Map area", Reader.handlePaginator);
 
+    $(document).on("click.close_overlay", "#overlay-shade", closeOverlay);
     $(document).on("click.toggle_archive_overlay", "#toggle-archive-overlay", Reader.toggleArchiveOverlay);
     $(document).on("click.toggle_settings_overlay", "#toggle-settings-overlay", Reader.toggleSettingsOverlay);
     $(document).on("click.toggle_help", "#toggle-help", Reader.toggleHelp);
     $(document).on("click.regenerate_thumbnail", "#regenerate-thumbnail", Reader.regenerateThumbnail);
+    $(document).on("click.regenerate_archive_cache", "#regenerate-cache", () => {
+        window.location.href = `./reader?id=${Reader.id}&force_reload=1`;
+    });
+    $(document).on("click.edit_metadata", "#edit-archive", () => openInNewTab(`./edit?id=${Reader.id}`));
+    $(document).on("click.add_category", "#add-category", () => addArchiveToCategory(Reader.id, $("#category").val()));
 
     // check and display warnings for unsupported filetypes
     Reader.checkFiletypeSupport();
@@ -119,7 +126,9 @@ Reader.handleShortcuts = function (e) {
         break;
     case 32: // spacebar
         if ($(".page-overlay").is(":visible")) { break; }
-        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+        if (e.originalEvent.getModifierState("Shift") && (window.scrollY) === 0) {
+            (Reader.mangaMode) ? Reader.changePage(1) : Reader.changePage(-1);
+        } else if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
             (Reader.mangaMode) ? Reader.changePage(-1) : Reader.changePage(1);
         }
         // spacebar is always forward regardless of reading direction, so it needs to be flipped

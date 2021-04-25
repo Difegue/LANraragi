@@ -24,7 +24,7 @@
 
 </head>
 
-<body onload="set_style_from_storage();">
+<body>
 
     <div id="i1" class="sni">
         <div id="i2">
@@ -82,7 +82,7 @@
         img2 = "";
     </script>
 
-    <div id="overlay-shade" onclick="closeOverlay();"></div>
+    <div id="overlay-shade"></div>
     <div id="archivePagesOverlay" class="id1 base-overlay page-overlay" style="display:none" loaded="false">
         <h2 class="ih" style="text-align:center">Archive Overview</h2>
         <div id="tagContainer" class="caption caption-tags caption-reader">
@@ -99,12 +99,9 @@
 
                     <input class="stdbtn" type='button' id="regenerate-thumbnail" value="Regenerate Archive Thumbnail" />
                     <br>
-                    <input class='stdbtn' type='button'
-                        onclick="window.location.href = './reader?id=[% id %]&force_reload=1'"
-                        value='Clean Archive Cache' />
+                    <input id="regenerate-cache" class='stdbtn' type='button' value='Clean Archive Cache' />
                     <br>
-                    <input class='stdbtn' type='button' onclick="openInNewTab('./edit?id=[% id %]')"
-                        value='Edit Archive Metadata' />
+                    <input id="edit-archive" class='stdbtn' type='button' value='Edit Archive Metadata' />
 
                     <h2>Add this archive to a Category</h2>
 
@@ -115,8 +112,7 @@
                         [% END %]
                     </select>
                     <br>
-                    <input value="Add Archive" onclick="addArchiveToCategory('[% id %]', $('#category').val())"
-                        class="stdbtn" id="goback" type="button">
+                    <input value="Add Archive" class="stdbtn" id="add-category" type="button">
                 </div>
                 [% END %]
             </div>
