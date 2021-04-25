@@ -539,6 +539,7 @@ li {
 
 body.infinite-scroll .sn,
 body.infinite-scroll .file-info,
+body.infinite-scroll .reading-direction,
 body.infinite-scroll #toggle-manga-mode,
 body.infinite-scroll #toggle-double-mode {
   display: none;

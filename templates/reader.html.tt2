@@ -214,6 +214,7 @@
 <!-- -->
 [% BLOCK pagesel %]
 <div class="page_dropdown">
+    <a class="fa fa-arrow-right fa-2x reading-direction" href="#" title="Reading Direction"></a>
     <a class="fa fa-th fa-2x" id="toggle-archive-overlay" href="#" title="Archive Overview"></a>
     <a class="fa fa-cog fa-2x" id="toggle-settings-overlay" href="#" title="Reader Settings"></a>
     <a class="fa fa-info-circle fa-2x" id="toggle-help" href="#" title="Help"></a>

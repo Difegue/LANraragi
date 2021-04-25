@@ -16,7 +16,7 @@ Reader.initializeAll = function () {
 
     $(document).on("click.toggle_fit_mode", "#fit-mode input", Reader.toggleFitMode);
     $(document).on("click.toggle_double_mode", "#toggle-double-mode input", Reader.toggleDoublePageMode);
-    $(document).on("click.toggle_manga_mode", "#toggle-manga-mode input", Reader.toggleMangaMode);
+    $(document).on("click.toggle_manga_mode", "#toggle-manga-mode input, .reading-direction", Reader.toggleMangaMode);
     $(document).on("click.toggle_header", "#toggle-header input", Reader.toggleHeader);
     $(document).on("click.toggle_progress", "#toggle-progress input", Reader.toggleProgressTracking);
     $(document).on("click.toggle_infinite_scroll", "#toggle-infinite-scroll input", Reader.toggleInfiniteScroll);
@@ -102,7 +102,12 @@ Reader.initializeSettings = function () {
     }
 
     Reader.mangaMode = localStorage.mangaMode === "true" || localStorage.righttoleft === "true" || false;
-    Reader.mangaMode ? $("#manga-mode").addClass("toggled") : $("#normal-mode").addClass("toggled");
+    if (Reader.mangaMode) {
+        $("#manga-mode").addClass("toggled");
+        $(".reading-direction").toggleClass("fa-arrow-left fa-arrow-right");
+    } else {
+        $("#normal-mode").addClass("toggled");
+    }
 
     Reader.doublePageMode = localStorage.doublePageMode === "true" || localStorage.doublepage === "true" || false;
     Reader.doublePageMode ? $("#double-page").addClass("toggled") : $("#single-page").addClass("toggled");
@@ -425,6 +430,7 @@ Reader.toggleMangaMode = function () {
     if (Reader.infiniteScroll) { return false; }
     Reader.mangaMode = localStorage.mangaMode = !Reader.mangaMode;
     $("#toggle-manga-mode input").toggleClass("toggled");
+    $(".reading-direction").toggleClass("fa-arrow-left fa-arrow-right");
     if (!Reader.showingSinglePage) { Reader.goToPage(Reader.currentPage); }
 
     return false;
