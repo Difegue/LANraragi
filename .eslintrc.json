@@ -12,16 +12,22 @@
         "sourceType": "module"
     },
     "rules": {
+        "func-names": ["error", "never"],
         "indent": ["error", 4],
         "quotes": ["error", "double"],
-        "func-names": ["error", "never"],
+        "no-alert": "off",
+        "no-else-return": "off",
         "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
+        "no-multi-assign": ["error", { "ignoreNonDeclaration": true }],
         "no-unused-expressions": [
             "error",
             {
                 "allowShortCircuit": true,
                 "allowTernary": true
             }
-        ]
+        ],
+        "one-var": "off",
+        "one-var-declaration-per-line": ["error", "initializations"],
+        "prefer-destructuring": ["error", {"object": true, "array": false}]
     }
 }
