@@ -200,6 +200,9 @@ Reader.handleShortcuts = function (e) {
     case 81: // q
         Reader.toggleArchiveOverlay();
         break;
+    case 82: // r
+        document.location.href = "/random";
+        break;
     default:
         break;
     }
@@ -253,9 +256,10 @@ Reader.toggleHelp = function () {
             <br>Other keyboard shortcuts:
             <ul>
                 <li>M: toggle manga mode (right-to-left reading)</li>
-                <li>P: toggle double page mode</li>
                 <li>O: show advanced reader options.</li>
+                <li>P: toggle double page mode</li>
                 <li>Q: bring up the thumbnail index and archive options.</li>
+                <li>R: open a random archive.</li>
             </ul>
             <br>To return to the archive index, touch the arrow pointing down or use Backspace.
         </div>
