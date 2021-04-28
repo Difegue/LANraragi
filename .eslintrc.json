@@ -17,6 +17,7 @@
         "quotes": ["error", "double"],
         "no-alert": "off",
         "no-else-return": "off",
+        "no-param-reassign": ["error", { "props": false }],
         "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
         "no-multi-assign": ["error", { "ignoreNonDeclaration": true }],
         "no-unused-expressions": [

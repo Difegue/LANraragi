@@ -4,7 +4,8 @@
 const Reader = {};
 Reader.previousPage = -1;
 Reader.showingSinglePage = true;
-Reader.imagesLoaded = 0;
+Reader.preloadedImg = {};
+Reader.preloadedSizes = {};
 
 Reader.initializeAll = function () {
     Reader.maxPage = Reader.pages.length - 1;
@@ -22,6 +23,8 @@ Reader.initializeAll = function () {
     $(document).on("click.toggle_infinite_scroll", "#toggle-infinite-scroll input", Reader.toggleInfiniteScroll);
     $(document).on("submit.container_width", "#container-width-input", Reader.registerContainerWidth);
     $(document).on("click.container_width", "#container-width-apply", Reader.registerContainerWidth);
+    $(document).on("submit.preload", "#preload-input", Reader.registerPreload);
+    $(document).on("click.preload", "#preload-apply", Reader.registerPreload);
     $(document).on("click.pagination_change_pages", ".page-link", Reader.handlePaginator);
 
     $(document).on("click.close_overlay", "#overlay-shade", closeOverlay);
@@ -40,6 +43,8 @@ Reader.initializeAll = function () {
 
     // remove the "new" tag with an api call
     clearNew(Reader.id);
+
+    Reader.registerPreload();
 
     Reader.infiniteScroll = localStorage.infiniteScroll === "true" || false;
     $(Reader.infiniteScroll ? "#infinite-scroll-on" : "#infinite-scroll-off").addClass("toggled");
@@ -279,21 +284,30 @@ Reader.updateMetadata = function () {
     const img = $("#img")[0];
     const imageUrl = new URL(img.src);
     const filename = imageUrl.searchParams.get("path");
-    if (!filename) { return; }
+    if (!filename && Reader.showingSinglePage) {
+        Reader.currentPageLoaded = true;
+        $("#i3").removeClass("loading");
+        return;
+    }
+
+    const width = img.naturalWidth;
+    const height = img.naturalHeight;
 
     if (Reader.showingSinglePage) {
         // HEAD request to get filesize
-        $.ajax({
-            url: Reader.pages[Reader.currentPage],
-            type: "HEAD",
-            success: (data, textStatus, request) => {
-                const size = parseInt(request.getResponseHeader("Content-Length") / 1024, 10);
-                $(".file-info").text(`${filename} :: ${img.width} x ${img.height} :: ${size} KB`);
-            },
-        });
-    } else {
-        $(".file-info").text(`Double-Page View :: ${img.width} x ${img.height}`);
-    }
+        let size = Reader.preloadedSizes[Reader.currentPage];
+        if (!size) {
+            $.ajax({
+                url: Reader.pages[Reader.currentPage],
+                type: "HEAD",
+                success: (data, textStatus, request) => {
+                    size = parseInt(request.getResponseHeader("Content-Length") / 1024, 10);
+                    Reader.preloadedSizes[Reader.currentPage] = size;
+                    $(".file-info").text(`${filename} :: ${width} x ${height} :: ${size} KB`);
+                },
+            });
+        } else { $(".file-info").text(`${filename} :: ${width} x ${height} :: ${size} KB`); }
+    } else { $(".file-info").text(`Double-Page View :: ${width} x ${height}`); }
 
     // Update page numbers in the paginator
     const newVal = Reader.showingSinglePage
@@ -323,30 +337,22 @@ Reader.goToPage = function (page, fromHistory = false) {
     Reader.showingSinglePage = false;
     if (Reader.doublePageMode && Reader.currentPage > 0 && Reader.currentPage < Reader.maxPage) {
         // composite an image and use that as the source
-        img1 = Reader.loadImage(Reader.pages[Reader.currentPage], Reader.canvasCallback);
-        img2 = Reader.loadImage(Reader.pages[Reader.currentPage + 1], Reader.canvasCallback);
+        const img1 = Reader.loadImage(Reader.currentPage);
+        const img2 = Reader.loadImage(Reader.currentPage + 1);
+        let imagesLoaded = 0;
+        const loadHandler = () => { (imagesLoaded += 1) === 2 && Reader.drawCanvas(img1, img2); };
+        $([img1, img2]).each((_i, img) => {
+            img.onload = loadHandler;
+            // If the image is preloaded it does not trigger onload, so we have to call it manually
+            if (img.complete) { loadHandler(); }
+        });
     } else {
-        // In single view, just use the source URLs as is
-        $("#img").attr("src", Reader.pages[Reader.currentPage]);
+        const img = Reader.loadImage(Reader.currentPage);
+        $("#img").attr("src", img.src);
         Reader.showingSinglePage = true;
     }
 
-    // Preload N images, in the future this can be turned into a setting
-    let preloadNext = 2;
-    let preloadPrev = 1;
-
-    if (Reader.doublePageMode) { preloadNext *= 2; preloadPrev *= 2; }
-    if (Reader.mangaMode) { [preloadNext, preloadPrev] = [preloadPrev, preloadNext]; }
-
-    for (let i = 1; i <= preloadNext; i++) {
-        if (Reader.currentPage + i > Reader.maxPage) { break; }
-        Reader.loadImage(Reader.pages[Reader.currentPage + i], null);
-    }
-    for (let i = 1; i <= preloadPrev; i++) {
-        if (Reader.currentPage - i < 0) { break; }
-        Reader.loadImage(Reader.pages[Reader.currentPage - i], null);
-    }
-
+    Reader.preloadImages();
     Reader.applyContainerWidth();
 
     Reader.currentPageLoaded = false;
@@ -366,6 +372,34 @@ Reader.goToPage = function (page, fromHistory = false) {
 
     // Update url to contain all search parameters, and push it to the history
     if (!fromHistory) { window.history.pushState(null, null, `?id=${Reader.id}&p=${Reader.currentPage + 1}`); }
+};
+
+Reader.preloadImages = function () {
+    let preloadNext = Reader.preloadCount;
+    let preloadPrev = 1;
+
+    if (Reader.doublePageMode) { preloadNext *= 2; preloadPrev *= 2; }
+
+    for (let i = 1; i <= preloadNext; i++) {
+        if (Reader.currentPage + i > Reader.maxPage) { break; }
+        Reader.loadImage(Reader.currentPage + i);
+    }
+    for (let i = 1; i <= preloadPrev; i++) {
+        if (Reader.currentPage - i < 0) { break; }
+        Reader.loadImage(Reader.currentPage - i);
+    }
+};
+
+Reader.loadImage = function (index) {
+    const src = Reader.pages[index];
+
+    if (!Reader.preloadedImg[src]) {
+        const img = new Image();
+        img.src = src;
+        Reader.preloadedImg[src] = img;
+    }
+
+    return Reader.preloadedImg[src];
 };
 
 Reader.toggleFitMode = function (e) {
@@ -424,6 +458,12 @@ Reader.applyContainerWidth = function () {
         // Finally, fall back to 1200px width if none of the above matches
         $(".sni").attr("style", "max-width: 1200px");
     }
+};
+
+Reader.registerPreload = function () {
+    Reader.preloadCount = +$("#preload-input").val().trim() || +localStorage.preloadCount || 2;
+    $("#preload-input").val(Reader.preloadCount);
+    localStorage.preloadCount = Reader.preloadCount;
 };
 
 Reader.toggleDoublePageMode = function () {
@@ -516,16 +556,12 @@ Reader.regenerateThumbnail = function () {
     });
 };
 
-Reader.canvasCallback = function () {
-    Reader.imagesLoaded += 1;
-    if (Reader.imagesLoaded !== 2) { return; }
-
+Reader.drawCanvas = function (img1, img2) {
     // If w > h on one of the images(widespread), set canvasdata to the first image only
     if (img1.naturalWidth > img1.naturalHeight || img2.naturalWidth > img2.naturalHeight) {
         // Depending on whether we were going forward or backward, display img1 or img2
         $("#img").attr("src", Reader.previousPage > Reader.currentPage ? img2.src : img1.src);
         Reader.showingSinglePage = true;
-        Reader.imagesLoaded = 0;
         return;
     }
 
@@ -544,17 +580,7 @@ Reader.canvasCallback = function () {
         ctx.drawImage(img2, img1.naturalWidth + 1, 0);
     }
 
-    Reader.imagesLoaded = 0;
     $("#img").attr("src", canvas.toDataURL("image/jpeg"));
-};
-
-Reader.loadImage = function (src, onload) {
-    const img = new Image();
-
-    img.onload = onload;
-    img.src = src;
-
-    return img;
 };
 
 Reader.changePage = function (targetPage) {

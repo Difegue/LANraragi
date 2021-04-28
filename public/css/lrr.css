@@ -535,12 +535,18 @@ li {
   height: unset;
 }
 
+#settingsOverlay > div {
+    margin: auto;
+    font-size: 8pt;
+}
+
 /* Infinite Scrolling Reader */
 
 body.infinite-scroll .sn,
 body.infinite-scroll .file-info,
 body.infinite-scroll .reading-direction,
 body.infinite-scroll #toggle-manga-mode,
+body.infinite-scroll #preload-images,
 body.infinite-scroll #toggle-double-mode {
   display: none;
 }

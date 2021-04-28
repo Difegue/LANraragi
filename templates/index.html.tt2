@@ -203,7 +203,7 @@
 	<div id="overlay-shade" onclick="closeOverlay();"> </div>
 	<div id="settingsOverlay" class="id1 base-overlay small-overlay" style="display:none">
 		<h2 class="ih" style="text-align:center">Index Display Options</h2>
-		<div style="margin:auto; font-size:8pt;">
+		<div>
 
 			<div class="config-panel">
 				<h1 class="ih" style="display:inline"> Use Compact Mode</h1>
