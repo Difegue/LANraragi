@@ -6,6 +6,7 @@ use utf8;
 
 use Cwd 'abs_path';
 use Redis;
+use File::Basename;
 use File::Temp qw(tempfile);
 use File::Copy "cp";
 use Mojo::Util qw(xml_escape);
@@ -199,12 +200,24 @@ sub serve_page {
             my $quality   = LANraragi::Model::Config->get_readquality;
             LANraragi::Model::Reader::resize_image( $filename, $quality, $threshold );
 
-            $self->render_file( filepath => $filename );
+            # resize_image always converts the image to jpg
+            $self->render_file(
+                filepath            => $filename,
+                content_disposition => "inline",
+                format              => "jpg"
+            );
 
         } else {
 
+            # Get the file extension to report content-type properly
+            my ( $n, $p, $file_ext ) = fileparse( $file, qr/\.[^.]*/ );
+
             # Serve extracted file directly
-            $self->render_file( filepath => $file );
+            $self->render_file(
+                filepath            => $file,
+                content_disposition => "inline",
+                format              => substr( $file_ext, 1 )
+            );
         }
 
     } else {
