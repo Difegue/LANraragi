@@ -279,6 +279,7 @@ Reader.updateMetadata = function () {
     const img = $("#img")[0];
     const imageUrl = new URL(img.src);
     const filename = imageUrl.searchParams.get("path");
+    if (!filename) { return; }
 
     if (Reader.showingSinglePage) {
         // HEAD request to get filesize
