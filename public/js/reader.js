@@ -118,9 +118,11 @@ Reader.initializeSettings = function () {
     if (localStorage.forcefullwidth === "true" || localStorage.fitMode === "fit-width") {
         Reader.fitMode = "fit-width";
         $("#fit-width").addClass("toggled");
+        $("#container-width").hide();
     } else if (localStorage.scaletoview === "true" || localStorage.fitMode === "fit-height") {
         Reader.fitMode = "fit-height";
         $("#fit-height").addClass("toggled");
+        $("#container-width").hide();
     } else {
         Reader.fitMode = "fit-container";
         $("#fit-container").addClass("toggled");
