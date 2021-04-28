@@ -107,6 +107,15 @@ table thead .sorting_disabled a:after {
   display: none;
 }
 
+.paginate_button {
+  min-width: 2rem;
+  width: auto !important;
+}
+
+.ellipsis {
+  margin-left: 1rem;
+}
+
 .page-select {
   text-align:right;
 }
