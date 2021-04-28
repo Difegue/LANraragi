@@ -442,7 +442,8 @@ Reader.applyContainerWidth = function () {
         // Fit to height forces the image to 90% of visible screen height.
         // If the header is hidden, or if we're in infinite scrolling, then the image
         // can take up to 98% of visible screen height because there's more free space
-        $(".reader-image").attr("style", `max-height: ${Reader.hideHeader || Reader.infiniteScroll ? 98 : 90}vh;`);
+        const height = localStorage.hideHeader === "true" || Reader.infiniteScroll ? 98 : 90;
+        $(".reader-image").attr("style", `max-height: ${height}vh;`);
         $(".sni").attr("style", "width: fit-content; width: -moz-fit-content");
     } else if (Reader.fitMode === "fit-width") {
         $(".reader-image").attr("style", "width: 100%;");
@@ -487,6 +488,7 @@ Reader.toggleHeader = function () {
     localStorage.hideHeader = $("#i2").is(":visible");
     $("#toggle-header input").toggleClass("toggled");
     $("#i2").toggle();
+    Reader.applyContainerWidth();
 };
 
 Reader.toggleProgressTracking = function () {

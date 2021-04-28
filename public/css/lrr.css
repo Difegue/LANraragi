@@ -560,12 +560,12 @@ body.infinite-scroll #toggle-double-mode {
   display: none;
 }
 
-body.infinite-scroll #i2 .page_dropdown {
+body.infinite-scroll #i4 .page_dropdown {
   position: fixed;
   top: 20px;
 }
 
-body.infinite-scroll #i4 {
+body.infinite-scroll #i2 {
   display: none;
 }
 
