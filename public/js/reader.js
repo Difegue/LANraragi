@@ -208,6 +208,7 @@ Reader.handleShortcuts = function (e) {
         Reader.toggleArchiveOverlay();
         break;
     case 82: // r
+        if (e.ctrlKey || e.shiftKey || e.metaKey) { break; }
         document.location.href = "/random";
         break;
     default:
