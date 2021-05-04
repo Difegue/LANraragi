@@ -4,6 +4,7 @@ use strict;
 use warnings;
 no warnings 'uninitialized';
 
+use URI;
 use Mojo::UserAgent;
 
 use LANraragi::Utils::Logging qw(get_logger);
