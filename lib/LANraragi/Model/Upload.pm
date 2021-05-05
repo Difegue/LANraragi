@@ -169,6 +169,10 @@ sub download_url {
     }
 
     $logger->debug("Filename: $filename");
+    
+    # remove invalid Windows chars
+    $filename =~ s@[\\/:"*?<>|]+@@g;
+    $logger->debug("Filename post clean: $filename");
     $tx->result->save_to("$tempdir\/$filename");
 
     # Update $tempfile to the exact reference created by the host filesystem
