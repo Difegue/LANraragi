@@ -109,7 +109,7 @@ sub download_url {
     if ($url) {
 
         # Send a job to Minion to queue the download.
-        my $jobid = $self->minion->enqueue( download_url => [ $url, $catid ] => { priority => 1 } );
+        my $jobid = $self->minion->enqueue( download_url => [ $url, $catid ] => { priority => 1, attempts => 5 } );
 
         $self->render(
             json => {
