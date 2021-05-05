@@ -110,7 +110,7 @@ sub provide_url {
         return ( error => "Couldn't proceed with an original size download: <pre>$content</pre>" );
     }
 
-    # Append start=1 to get an URL that automatically triggers the download.
+    # Set URL query parameters to ?start=1 to automatically trigger the download.
     $finalURL->query("start=1");
 
     # All done!
