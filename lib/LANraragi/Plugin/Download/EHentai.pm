@@ -4,6 +4,7 @@ use strict;
 use warnings;
 no warnings 'uninitialized';
 
+use URI;
 use Mojo::UserAgent;
 
 use LANraragi::Utils::Logging qw(get_logger);
@@ -96,11 +97,11 @@ sub provide_url {
     $content = $response->body;
     $logger->debug("/archiver.php result: $content");
 
-    my $finalURL = "";
+    my $finalURL = URI->new();
     eval {
         # Parse that to get the final URL
         if ( $content =~ /.*document.location = "(.*)".*/gim ) {
-            $finalURL = $1;
+            $finalURL = URI->new($1);
             $logger->info("Final URL obtained: $finalURL");
         }
     };
@@ -109,10 +110,8 @@ sub provide_url {
         return ( error => "Couldn't proceed with an original size download: <pre>$content</pre>" );
     }
 
-    # If the URL doesn't already have autostart, append start=1 to get an URL that automatically triggers the download.
-    unless ( $finalURL =~ /.*autostart=1.*/gi ) {
-        $finalURL .= "?start=1";
-    }
+    # Set URL query parameters to ?start=1 to automatically trigger the download.
+    $finalURL->query("start=1");
 
     # All done!
     return ( download_url => $finalURL );
