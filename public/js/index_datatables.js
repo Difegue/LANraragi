@@ -154,7 +154,7 @@ function createNamespaceColumn(namespace, type, data) {
 		match = regex.exec(data);
 
 		if (match != null) {
-			return `<a style="cursor:pointer" onclick="fillSearchField(event, '${namespace}','${match[1]}')">
+			return `<a style="cursor:pointer" onclick="fillSearchField(event, '${namespace}:${match[1]}')">
 						${match[1].replace(/\b./g, function (m) { return m.toUpperCase(); })}
 					</a>`;
 		} else return "";
@@ -164,9 +164,9 @@ function createNamespaceColumn(namespace, type, data) {
 }
 
 // Fill out the search field and trigger a search programmatically.
-function fillSearchField(e, namespace, tag) {
-	$('#srch').val(`${namespace}:${tag}`);
-	arcTable.search(`${namespace}:${tag}`).draw();
+function fillSearchField(e, tag) {
+	$('#srch').val(`${tag}`);
+	arcTable.search(`${tag}`).draw();
 	e.preventDefault(); // Override href 
 }
 
