@@ -34,9 +34,10 @@ sub do_search {
 
     # If the category filter is enabled, fetch the matching category
     my %category     = ();
-    my @cat_archives = ();
     my $cat_search   = "";
 
+    # Get all archives from redis - or just use IDs from the category if it's a standard category!
+    my @keys = ();
     if ( $categoryfilter ne "" ) {
         %category = LANraragi::Model::Category::get_category($categoryfilter);
 
@@ -48,17 +49,13 @@ sub do_search {
             $cat_search = $category{search};    # category search, if it's a favsearch
 
             if ( $cat_search eq "" ) {
-                @cat_archives = @{ $category{archives} };    # category archives, if it's a standard category
+                $logger->debug("Static category specified, using its ID list as a base instead of the entire database.");
+                @keys = @{ $category{archives} };    # category archives, if it's a standard category
+            } else {
+                @keys = $redis->keys('????????????????????????????????????????');
             }
         }
-    }
 
-    my @keys;
-
-    # Get all archives from redis - or just use IDs from the category if it's a standard category!
-    if ( scalar @cat_archives > 0 ) {
-        $logger->debug("Static category specified, using its ID list as a base instead of the entire database.");
-        @keys = @cat_archives;
     } else {
         @keys = $redis->keys('????????????????????????????????????????');
     }
