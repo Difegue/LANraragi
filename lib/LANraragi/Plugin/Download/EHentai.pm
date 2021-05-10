@@ -114,7 +114,7 @@ sub provide_url {
     $finalURL->query("start=1");
 
     # All done!
-    return ( download_url => $finalURL );
+    return ( download_url => $finalURL->as_string );
 }
 
 1;
