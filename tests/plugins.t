@@ -69,7 +69,7 @@ my $test_nH_gID = LANraragi::Plugin::Metadata::nHentai::get_gallery_id_from_titl
 
 is( $test_nH_gID, $nH_gID, 'nHentai search test' );
 
-my $nH_tags = "language:japanese, artist:masamune shirow, full color, non-h, artbook, category:manga";
+my $nH_tags = "language:japanese, artist:masamune shirow, full color, non-h, artbook, category:manga, source: website.net/g/52249";
 my ( $test_nH_tags, $test_nH_title ) = LANraragi::Plugin::Metadata::nHentai::get_tags_from_NH($nH_gID);
 
 is( split( ", ", $test_nH_tags ), split( ", ", $nH_tags ), 'nHentai API Tag retrieval test' );
