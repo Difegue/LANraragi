@@ -30,7 +30,7 @@ sub serve_serverinfo {
             nofun_mode             => $self->LRR_CONF->enable_nofun,
             archives_per_page      => $self->LRR_CONF->get_pagesize,
             server_resizes_images  => $self->LRR_CONF->enable_resize,
-            server_tracks_progress => !$self->LRR_CONF->enable_localprogress . "",    # bad hack to force string type
+            server_tracks_progress => $self->LRR_CONF->enable_localprogress ? "0" : "1",
             total_pages_read       => $page_stat,
             cache_last_cleared     => "$last_clear"
         }

@@ -458,6 +458,9 @@ You should call this endpoint only when you're sure the user is currently readin
 Whether to make reading progression regressible or not is up to the client. (The web client will reduce progression if the user starts reading previous pages)  
 Consider however removing the "New!" flag from an archive when you start updating its progress - The web client won't display any reading progression if the new flag is still set.  
 
+⚠ If the server is configured to use clientside progress tracking, this API call will return an error!  
+Make sure to check using `/api/info` whether the server tracks reading progression or not before calling this endpoint.
+
 {% endapi-method-description %}
 
 {% api-method-spec %}
