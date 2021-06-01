@@ -197,17 +197,17 @@ function handleContextMenu(option, id) {
 
 	switch (option) {
 		case "edit":
-			window.open("./edit?id=" + id);
+			openInNewTab("./edit?id=" + id);
 			break;
 		case "delete":
 			if (confirm('Are you sure you want to delete this archive?'))
 				deleteArchive(id);
 			break;
 		case "read":
-			window.open(`./reader?id=${id}`);
+			openInNewTab(`./reader?id=${id}`);
 			break;
 		case "download":
-			window.open(`./api/archives/${id}/download`);
+			openInNewTab(`./api/archives/${id}/download`);
 			break;
 		default:
 			break;

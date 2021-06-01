@@ -168,7 +168,10 @@
 							handleContextMenu(key, $(this).attr("id"));
 						},
 						items: {
+							"read": { name: "Read", icon: "fas fa-book" },
+							"download": { name: "Download", icon: "fas fa-save" },
 							[% IF userlogged %]
+							"sep1": "---------",
 							"edit": { name: "Edit Metadata", icon: "fas fa-pencil-alt" },
 							"delete": { name: "Delete", icon: "fas fa-trash-alt" },
 							"category": {
@@ -186,13 +189,10 @@
 								"name": "Remove from Category",
 								"icon": "fas fa-search-minus",
 								"items": loadContextMenuCategories($trigger.attr("id"))
-							},
-							"sep1": "---------",
+							}
 							[% END %]
-						"read": { name: "Read", icon: "fas fa-book" },
-					"download": { name: "Download", icon: "fas fa-save" }
-				}
-			}
+						}
+					}
 				}
 			});
 
