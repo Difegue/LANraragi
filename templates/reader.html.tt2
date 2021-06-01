@@ -41,10 +41,10 @@
             </div>
 
             <a id="display">
-                <img id="img" class="reader-image" onload="Reader.updateMetadata()" onerror="this.src='./img/noThumb.png'"
-                    src="[% imgpath %]" usemap="#Map" />
+                <img id="img" class="reader-image" onload="Reader.updateMetadata()"
+                    onerror="this.src='./img/noThumb.png'" src="[% imgpath %]" usemap="#Map" />
                 <map name="Map" id="Map">
-                    <area id="leftmap" style="cursor:pointer;" shape="rect" value="left"/>
+                    <area id="leftmap" style="cursor:pointer;" shape="rect" value="left" />
                     <area id="rightmap" style="cursor:pointer;" shape="rect" value="right" />
                 </map>
             </a>
@@ -77,6 +77,7 @@
         Reader.id = "[%id%]";
         Reader.filename = "[% filename %]";
         Reader.tags = "[% tags %]";
+        Reader.trackProgressLocally = "[% use_local %]" === "1";
         Reader.progress = [% progress %] - 1;
     </script>
 
@@ -95,7 +96,8 @@
 
                     <h2>Admin Options</h2>
 
-                    <input class="stdbtn" type='button' id="regenerate-thumbnail" value="Regenerate Archive Thumbnail" />
+                    <input class="stdbtn" type='button' id="regenerate-thumbnail"
+                        value="Regenerate Archive Thumbnail" />
                     <br>
                     <input id="regenerate-cache" class='stdbtn' type='button' value='Clean Archive Cache' />
                     <br>
@@ -154,7 +156,8 @@
 
 <div id="container-width">
     <h2 class="config-panel"> Container Width (in pixels or percentage)</h2>
-    <input id="container-width-input" class="stdinput" style="display:inline" placeholder="The default value is 1200px, or 90% in Double Page Mode.">
+    <input id="container-width-input" class="stdinput" style="display:inline"
+        placeholder="The default value is 1200px, or 90% in Double Page Mode.">
     <input id="container-width-apply" class="favtag-btn config-btn" type="button" style="display:inline;" value="Apply">
 </div>
 

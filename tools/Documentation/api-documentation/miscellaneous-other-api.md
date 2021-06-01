@@ -38,6 +38,7 @@ As a client, you should use this value to know when to refresh your internal arc
     "nofun_mode":"0",
     "archives_per_page":"100",
     "server_resizes_images":"0",
+    "server_tracks_progress":"1",
     "cache_last_cleared":"1601474241"
 }
 ```  

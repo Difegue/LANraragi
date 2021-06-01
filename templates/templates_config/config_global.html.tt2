@@ -3,7 +3,8 @@
         <h2 class="ih"> Site Title </h2>
     </td>
     <td>
-        <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% title %]" name="htmltitle" type="text">
+        <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% title %]" name="htmltitle"
+            type="text">
         <br>The site title appears on most pages as...their title.
     </td>
 </tr>
@@ -13,7 +14,8 @@
         <h2 class="ih"> MOTD </h2>
     </td>
     <td>
-        <input id="motd" class="stdinput" style="width:100%" maxlength="255" size="20" value="[% motd %]" name="motd" type="text">
+        <input id="motd" class="stdinput" style="width:100%" maxlength="255" size="20" value="[% motd %]" name="motd"
+            type="text">
         <br>Slang for Message of the Day. Appears on top of the main Library view.
     </td>
 </tr>
@@ -23,7 +25,8 @@
         <h2 class="ih"> Archives per page </h2>
     </td>
     <td>
-        <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% pagesize %]" name="pagesize" type="number">
+        <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% pagesize %]" name="pagesize"
+            type="number">
         <br> Number of archives shown on a page in the main list.
     </td>
 </tr>
@@ -38,7 +41,8 @@
         <input id="enableresize" name="enableresize" class="fa" type="checkbox"> [% END %]
         <label for="enableresize">
             <br> If enabled, pages exceeding a certain size will be resized when viewed to save bandwidth.
-            <br> <i class="fas fa-exclamation-triangle" style="color:red"></i> This option can potentially consume a lot of RAM if enabled and used on large images! Use with caution.
+            <br> <i class="fas fa-exclamation-triangle" style="color:red"></i> This option can potentially consume a lot
+            of RAM if enabled and used on large images! Use with caution.
         </label>
     </td>
 </tr>
@@ -48,8 +52,8 @@
         <h2 class="ih"> Image Size Threshold </h2>
     </td>
     <td>
-        <input id="sizethreshold" class="stdinput" type="number" style="width:100%" 
-               maxlength="255" size="20" value="[% sizethreshold %]" name="sizethreshold">
+        <input id="sizethreshold" class="stdinput" type="number" style="width:100%" maxlength="255" size="20"
+            value="[% sizethreshold %]" name="sizethreshold">
         <br>(in KBs.) Maximum size an image can reach before being resized.
     </td>
 </tr>
@@ -59,9 +63,25 @@
         <h2 class="ih"> Resize Quality </h2>
     </td>
     <td>
-        <input id="readerquality" class="stdinput" type="number" min="0" max="100" style="width:100%" 
-               maxlength="255" size="20" value="[% readerquality %]" name="readerquality">
+        <input id="readerquality" class="stdinput" type="number" min="0" max="100" style="width:100%" maxlength="255"
+            size="20" value="[% readerquality %]" name="readerquality">
         <br> Quality of the resized images. Less quality = Smaller image. (0-100)
+    </td>
+</tr>
+
+<tr>
+    <td class="option-td">
+        <h2 class="ih"> Clientside Progress Tracking </h2>
+    </td>
+    <td>
+        [% IF localprogress %]
+        <input id="localprogress" name="localprogress" class="fa" type="checkbox" checked> [% ELSE %]
+        <input id="localprogress" name="localprogress" class="fa" type="checkbox"> [% END %]
+        <label for="localprogress">
+            <br>Enabling this option will save reading progression on the browser (through localStorage) instead of the
+            server. <br />
+            Consider toggling this option if you're sharing the LANraragi instance with multiple users!
+        </label>
     </td>
 </tr>
 
@@ -74,7 +94,8 @@
         <input id="devmode" name="devmode" class="fa" type="checkbox" checked> [% ELSE %]
         <input id="devmode" name="devmode" class="fa" type="checkbox"> [% END %]
         <label for="devmode">
-            <br>Enabling Debug Mode will show more logs and disable update nagging. <br/>Fully effective after restarting LANraragi.
+            <br>Enabling Debug Mode will show more logs and disable update nagging. <br />Fully effective after
+            restarting LANraragi.
         </label>
     </td>
 </tr>
@@ -85,7 +106,7 @@
         <input class='stdbtn' type='button' onclick="cleanDatabase();" value='Clean Database' />
     </td>
     <td>
-        Cleaning the database will remove entries that aren't on your filesystem.  
+        Cleaning the database will remove entries that aren't on your filesystem.
         <br>
     </td>
 </tr>
@@ -95,7 +116,7 @@
         <input class='stdbtn' type='button' onclick="dropDatabase();" value='Reset Database' />
     </td>
     <td>
-        <span style="color:red"><i class="fas fa-exclamation-triangle"></i> Danger zone!</span>  <br>
+        <span style="color:red"><i class="fas fa-exclamation-triangle"></i> Danger zone!</span> <br>
         Clicking this button will reset the entire database and delete all settings and metadata. <br>
         <br>
     </td>

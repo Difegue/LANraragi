@@ -41,6 +41,11 @@ Reader.initializeAll = function () {
     // check and display warnings for unsupported filetypes
     Reader.checkFiletypeSupport();
 
+    // Use localStorage progress value instead of the server one if needed
+    if (Reader.trackProgressLocally) {
+        Reader.progress = localStorage.getItem(`${Reader.id}-reader`) - 1 || 0;
+    }
+
     // remove the "new" tag with an api call
     clearNew(Reader.id);
 
@@ -366,7 +371,11 @@ Reader.goToPage = function (page, fromHistory = false) {
     $("#imgLink").attr("href", Reader.pages[Reader.currentPage]);
 
     // Send an API request to update progress on the server
-    genericAPICall(`api/archives/${Reader.id}/progress/${Reader.currentPage + 1}`, "PUT", null, "Error updating reading progress!", null);
+    if (Reader.trackProgressLocally) {
+        localStorage.setItem(`${Reader.id}-reader`, Reader.currentPage + 1);
+    } else {
+        genericAPICall(`api/archives/${Reader.id}/progress/${Reader.currentPage + 1}`, "PUT", null, "Error updating reading progress!", null);
+    }
 
     // scroll to top
     window.scrollTo(0, 0);

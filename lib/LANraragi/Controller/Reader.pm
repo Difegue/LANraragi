@@ -81,6 +81,7 @@ sub index {
             filename   => $filename,
             pagecount  => $pagecount,
             progress   => $progress,
+            use_local  => $self->LRR_CONF->enable_localprogress,
             categories => \@categories,
             cssdrop    => generate_themes_selector,
             csshead    => generate_themes_header($self),

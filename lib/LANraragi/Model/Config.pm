@@ -141,15 +141,16 @@ sub get_tagblacklist {
     );
 }
 
-sub get_tempmaxsize { return &get_redis_conf( "tempmaxsize",   "500" ) }
-sub get_pagesize    { return &get_redis_conf( "pagesize",      "100" ) }
-sub enable_pass     { return &get_redis_conf( "enablepass",    "1" ) }
-sub enable_nofun    { return &get_redis_conf( "nofunmode",     "0" ) }
-sub enable_cors     { return &get_redis_conf( "enablecors",    "0" ) }
-sub get_apikey      { return &get_redis_conf( "apikey",        "" ) }
-sub enable_blacklst { return &get_redis_conf( "blackliston",   "1" ) }
-sub enable_resize   { return &get_redis_conf( "enableresize",  "0" ) }
-sub get_threshold   { return &get_redis_conf( "sizethreshold", "1000" ) }
-sub get_readquality { return &get_redis_conf( "readerquality", "50" ) }
+sub get_tempmaxsize      { return &get_redis_conf( "tempmaxsize",   "500" ) }
+sub get_pagesize         { return &get_redis_conf( "pagesize",      "100" ) }
+sub enable_pass          { return &get_redis_conf( "enablepass",    "1" ) }
+sub enable_nofun         { return &get_redis_conf( "nofunmode",     "0" ) }
+sub enable_cors          { return &get_redis_conf( "enablecors",    "0" ) }
+sub get_apikey           { return &get_redis_conf( "apikey",        "" ) }
+sub enable_localprogress { return &get_redis_conf( "localprogress", "0" ) }
+sub enable_blacklist     { return &get_redis_conf( "blackliston",   "1" ) }
+sub enable_resize        { return &get_redis_conf( "enableresize",  "0" ) }
+sub get_threshold        { return &get_redis_conf( "sizethreshold", "1000" ) }
+sub get_readquality      { return &get_redis_conf( "readerquality", "50" ) }
 
 1;

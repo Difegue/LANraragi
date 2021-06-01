@@ -2,8 +2,9 @@
 
 //Executed onload of the archive index to initialize DataTables and other minor things.
 //This is painful to read.
-function initIndex(pagesize) {
+function initIndex(pagesize, trackLocal) {
 
+	trackProgressLocally = trackLocal;
 	selectedCategory = "";
 	isComingFromPopstate = false;
 
@@ -358,7 +359,12 @@ function buildProgressDiv(arcdata) {
 	id = arcdata.arcid;
 	isnew = arcdata.isnew;
 	pagecount = parseInt(arcdata.pagecount || 0);
-	progress = parseInt(arcdata.progress || 0);
+
+	if (trackProgressLocally) {
+		progress = parseInt(localStorage.getItem(id + "-reader") || 0);
+	} else {
+		progress = parseInt(arcdata.progress || 0);
+	}
 
 	if (isnew === "true") {
 		return '<div class="isnew">🆕</div>';

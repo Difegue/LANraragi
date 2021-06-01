@@ -132,8 +132,10 @@
 	<script>
 
 		function init() {
+			let trackProgressLocally = "[% use_local %]" === "1";
+
 			initSettings("[% version %]");
-			initIndex([% pagesize %]);
+			initIndex([% pagesize %], trackProgressLocally);
 
 			// Initialize tag suggestions
 			loadTagSuggestions();
@@ -141,8 +143,10 @@
 			// Initialize categories
 			loadCategories();
 
-			// Migrate local progression if there's any
-			migrateProgress();
+			// Migrate local progression if there's any and serverside tracking is enabled
+			if (!trackProgressLocally) {
+				migrateProgress();
+			}
 
 			[% IF usingdefpass %]
 			//If the json has the "default password" flag, flash a friendly notification inviting the user to change his password

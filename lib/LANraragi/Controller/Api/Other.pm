@@ -20,18 +20,19 @@ sub serve_serverinfo {
     # A simple endpoint that forwards some info from LRR_CONF.
     $self->render(
         json => {
-            name                  => $self->LRR_CONF->get_htmltitle,
-            motd                  => $self->LRR_CONF->get_motd,
-            version               => $self->LRR_VERSION,
-            version_name          => $self->LRR_VERNAME,
-            version_desc          => $self->LRR_DESC,
-            has_password          => $self->LRR_CONF->enable_pass,
-            debug_mode            => $self->LRR_CONF->enable_devmode,
-            nofun_mode            => $self->LRR_CONF->enable_nofun,
-            archives_per_page     => $self->LRR_CONF->get_pagesize,
-            server_resizes_images => $self->LRR_CONF->enable_resize,
-            total_pages_read      => $page_stat,
-            cache_last_cleared    => "$last_clear"
+            name                   => $self->LRR_CONF->get_htmltitle,
+            motd                   => $self->LRR_CONF->get_motd,
+            version                => $self->LRR_VERSION,
+            version_name           => $self->LRR_VERNAME,
+            version_desc           => $self->LRR_DESC,
+            has_password           => $self->LRR_CONF->enable_pass,
+            debug_mode             => $self->LRR_CONF->enable_devmode,
+            nofun_mode             => $self->LRR_CONF->enable_nofun,
+            archives_per_page      => $self->LRR_CONF->get_pagesize,
+            server_resizes_images  => $self->LRR_CONF->enable_resize,
+            server_tracks_progress => !$self->LRR_CONF->enable_localprogress . "",    # bad hack to force string type
+            total_pages_read       => $page_stat,
+            cache_last_cleared     => "$last_clear"
         }
     );
 }
