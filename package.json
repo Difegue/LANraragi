@@ -1,8 +1,8 @@
 {
   "name": "lanraragi",
-  "version": "0.7.8",
-  "version_name": "Looking for Lester",
-  "description": "please stop bullying the filesystem watcher she tries her best",
+  "version": "0.7.9",
+  "version_name": "Lucy Can’t Dance",
+  "description": "I'm under Japanese influence and my honor's at stake!",
   "scripts": {
     "test": "prove -l -v tests/*.t",
     "lanraragi-installer": "perl ./tools/install.pl",

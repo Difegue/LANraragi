@@ -203,6 +203,8 @@ p#nb {
 .small-overlay {
   left: 32.5%;
   width: 35% !important;
+  overflow-y: scroll;
+  max-height: 90vh;
 }
 
 .ie7 .page-overlay {
