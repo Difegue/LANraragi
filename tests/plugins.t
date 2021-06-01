@@ -5,7 +5,7 @@ use Cwd;
 
 use Mojo::Base 'Mojolicious';
 
-use Test::More tests => 15;
+use Test::More tests => 13;
 use Test::Mojo;
 use Test::MockObject;
 
@@ -50,8 +50,9 @@ my $eH_gToken = "0439fa3666";
 my ( $test_eH_gID, $test_eH_gToken ) =
   LANraragi::Plugin::Metadata::EHentai::lookup_gallery( "TOUHOU GUNMANIA", "", "", $ua, $domain, "", 0, 0 );
 
-is( $test_eH_gID,    $eH_gID,    'eHentai search test 1/2' );
-is( $test_eH_gToken, $eH_gToken, 'eHentai search test 2/2' );
+# Disabled due to cloudflare being used on E-H.
+#is( $test_eH_gID,    $eH_gID,    'eHentai search test 1/2' );
+#is( $test_eH_gToken, $eH_gToken, 'eHentai search test 2/2' );
 
 my $eH_tags =
   "parody:touhou project, character:hong meiling, character:marisa kirisame, character:reimu hakurei, character:sanae kochiya, character:youmu konpaku, group:handful happiness, artist:nanahara fuyuki, artbook, full color, category:non-h";
@@ -104,7 +105,7 @@ my $f_url   = "https://www.fakku.net/hentai/kairakuten-cover-girls-episode-009-h
 my $f_tags =
   "Artist:Hamao, Parody:Original Work, Magazine:Comic Kairakuten 2020-04, Publisher:FAKKU, Language:English, color, schoolgirl outfit, osananajimi, unlimited, non-h, illustration";
 
-# Those tests tend to fail on CI due to cloudflare blocks, so they're not enabled by default for the time being. :(
+# Disabled due to cloudflare being used on FAKKU.
 #is( LANraragi::Plugin::Metadata::Fakku::search_for_fakku_url($f_title), $f_url, 'FAKKU search test' );
 
 #my ( $f_result_tags, $f_result_title ) = LANraragi::Plugin::Metadata::Fakku::get_tags_from_fakku($f_url);
