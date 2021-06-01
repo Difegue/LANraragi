@@ -5,7 +5,7 @@ use Cwd;
 
 use Mojo::Base 'Mojolicious';
 
-use Test::More tests => 13;
+use Test::More tests => 11;
 use Test::Mojo;
 use Test::MockObject;
 
@@ -47,8 +47,8 @@ my $domain    = "e-hentai.org";
 my $eH_gID    = "618395";
 my $eH_gToken = "0439fa3666";
 
-my ( $test_eH_gID, $test_eH_gToken ) =
-  LANraragi::Plugin::Metadata::EHentai::lookup_gallery( "TOUHOU GUNMANIA", "", "", $ua, $domain, "", 0, 0 );
+#my ( $test_eH_gID, $test_eH_gToken ) =
+#  LANraragi::Plugin::Metadata::EHentai::lookup_gallery( "TOUHOU GUNMANIA", "", "", $ua, $domain, "", 0, 0 );
 
 # Disabled due to cloudflare being used on E-H.
 #is( $test_eH_gID,    $eH_gID,    'eHentai search test 1/2' );
@@ -56,13 +56,14 @@ my ( $test_eH_gID, $test_eH_gToken ) =
 
 my $eH_tags =
   "parody:touhou project, character:hong meiling, character:marisa kirisame, character:reimu hakurei, character:sanae kochiya, character:youmu konpaku, group:handful happiness, artist:nanahara fuyuki, artbook, full color, category:non-h";
-my ( $test_eH_tags, $test_eH_title ) = LANraragi::Plugin::Metadata::EHentai::get_tags_from_EH( $eH_gID, $eH_gToken );
 
-is( split( ", ", $test_eH_tags ), split( ", ", $eH_tags ), 'eHentai API Tag retrieval test' );
-is( $test_eH_title,
-    "(Kouroumu 8) [Handful☆Happiness! (Fuyuki Nanahara)] TOUHOU GUNMANIA A2 (Touhou Project)",
-    "eHentai title test"
-);
+#my ( $test_eH_tags, $test_eH_title ) = LANraragi::Plugin::Metadata::EHentai::get_tags_from_EH( $eH_gID, $eH_gToken );
+
+#is( split( ", ", $test_eH_tags ), split( ", ", $eH_tags ), 'eHentai API Tag retrieval test' );
+#is( $test_eH_title,
+#    "(Kouroumu 8) [Handful☆Happiness! (Fuyuki Nanahara)] TOUHOU GUNMANIA A2 (Touhou Project)",
+#    "eHentai title test"
+#);
 
 # nHentai Tests
 my $nH_gID      = "52249";
