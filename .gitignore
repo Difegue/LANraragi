@@ -7,9 +7,6 @@ package-lock.json
 .vstags
 *qemu-*-static*
 Dockerfile.*
-script/hypnotoad.pid
-script/shinobu.pid
-script/minion.pid
 .DS_Store
 config.log
 autobackup.json

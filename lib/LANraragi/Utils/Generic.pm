@@ -14,6 +14,7 @@ use Logfile::Rotate;
 use Proc::Simple;
 use Sys::CpuAffinity;
 
+use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging qw(get_logger);
 
 # Generic Utility Functions.
@@ -136,7 +137,7 @@ sub start_minion {
     $proc->kill_on_destroy(0);
 
     # Freeze the process object in the PID file
-    store \$proc, 'script/minion.pid';
+    store \$proc, get_temp . "/minion.pid";
     return $proc;
 }
 
@@ -158,7 +159,7 @@ sub start_shinobu {
     $mojo->LRR_LOGGER->debug( "Shinobu Worker new PID is " . $proc->pid );
 
     # Freeze the process object in the PID file
-    store \$proc, 'script/shinobu.pid';
+    store \$proc, get_temp . "/shinobu.pid";
     return $proc;
 }
 

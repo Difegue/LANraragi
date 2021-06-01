@@ -2,11 +2,11 @@
 
 use strict;
 use warnings;
-use Cwd;
+use Cwd 'abs_path';
 
 use Mojo::Base -strict;
 use Mojo::Server::Morbo;
-use Mojo::Server::Hypnotoad;
+use Mojo::Server::Prefork;
 use Mojo::Util qw(extract_usage getopt);
 use File::Path qw(make_path);
 
@@ -37,24 +37,44 @@ if ( $ENV{LRR_NETWORK} ) {
     @listen = ["http://*:3000"];
 }
 
+# Relocate the Prefork PID file
+my $hypno_pid;
+if ( $ENV{LRR_TEMP_DIRECTORY} ) {
+    $hypno_pid = $ENV{LRR_TEMP_DIRECTORY} . "/server.pid";
+} else {
+    $hypno_pid = "./public/temp/server.pid";
+}
+$hypno_pid = abs_path($hypno_pid);
+
 my $backend;
 if ($morbo) {
     $backend = Mojo::Server::Morbo->new( keep_alive_timeout => 30 );
     $ENV{MOJO_MODE} = "development";
     $backend->daemon->listen(@listen);
+    $backend->run($app);
 } else {
-    $backend = Mojo::Server::Hypnotoad->new( keep_alive_timeout => 30 );
-    $backend->prefork->listen(@listen);
+    print "Server PID will be at " . $hypno_pid . "\n";
+
+    $backend = Mojo::Server::Prefork->new( keep_alive_timeout => 30 );
+    $backend->pid_file($hypno_pid);
+    $backend->listen(@listen);
+
+    $backend->load_app($app);
+
+    $backend->start;
+    $backend->daemonize if !$ENV{HYPNOTOAD_FOREGROUND};
+
+    # Start accepting connections
+    $backend->cleanup(1)->run;
 }
 
-$backend->run($app);
 exit;
 
 =encoding utf8
 
 =head1 NAME
 
-LRR launcher using either morbo or hypnotoad. Morbo always starts in dev mode.
+LRR launcher using either morbo or Prefork. Morbo always starts in dev mode.
 To change the listen port, use the LRR_NETWORK environment variable.
 
 =head1 SYNOPSIS
@@ -62,8 +82,8 @@ To change the listen port, use the LRR_NETWORK environment variable.
   Usage: perl launcher.pl [OPTIONS] lanraragi
 
   Options:
-    -m, --morbo        Use morbo instead of hypnotoad
-    -f, --foreground   Keep manager process in foreground (hypnotoad)
+    -m, --morbo        Use morbo instead of Prefork
+    -f, --foreground   Keep manager process in foreground (Prefork)
     -v, --verbose      Print details about what files changed to
                        STDOUT (morbo)
     -h, --help         Show this message
@@ -71,7 +91,7 @@ To change the listen port, use the LRR_NETWORK environment variable.
 =head1 DESCRIPTION
 
 Start L<Mojolicious> and L<Mojolicious::Lite> applications with the
-L<Hypnotoad|Mojo::Server::Hypnotoad> web server.
+L<Prefork|Mojo::Server::Prefork> web server.
 
 =head1 SEE ALSO
 

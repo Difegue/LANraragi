@@ -39,10 +39,10 @@ mkdir /home/koyomi/lanraragi/public/temp
 chown -R koyomi /home/koyomi/lanraragi/public/temp
 chmod u+rwx /home/koyomi/lanraragi/public/temp
 
-#Remove hypnotoad, minion and shinobu pid files
-rm /home/koyomi/lanraragi/script/hypnotoad.pid
-rm /home/koyomi/lanraragi/script/shinobu.pid
-rm /home/koyomi/lanraragi/script/minion.pid
+#Remove mojo, minion and shinobu pid files
+rm /home/koyomi/lanraragi/public/temp/server.pid
+rm /home/koyomi/lanraragi/public/temp/shinobu.pid
+rm /home/koyomi/lanraragi/public/temp/minion.pid
 
 # https://redis.io/topics/faq#background-saving-fails-with-a-fork-error-under-linux-even-if-i-have-a-lot-of-free-ram
 OVERCOMMIT=$(cat /proc/sys/vm/overcommit_memory)
