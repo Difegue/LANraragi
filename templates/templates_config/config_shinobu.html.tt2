@@ -21,7 +21,7 @@
         <input id="restart-button" class='stdbtn' type='button' onclick="rebootShinobu();"
             value='Restart File Watcher' />
     </td>
-    <td><br>
+    <td>
         If Shinobu is dead or unresponsive, you can reboot her by clicking this button.
     </td>
 </tr>

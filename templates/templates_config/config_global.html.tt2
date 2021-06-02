@@ -107,7 +107,6 @@
     </td>
     <td>
         Cleaning the database will remove entries that aren't on your filesystem.
-        <br>
     </td>
 </tr>
 
@@ -118,6 +117,5 @@
     <td>
         <span style="color:red"><i class="fas fa-exclamation-triangle"></i> Danger zone!</span> <br>
         Clicking this button will reset the entire database and delete all settings and metadata. <br>
-        <br>
     </td>
 </tr>
