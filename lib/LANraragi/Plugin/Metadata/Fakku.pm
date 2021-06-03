@@ -64,7 +64,14 @@ sub get_tags {
         return ( error => "No matching FAKKU Gallery Found!" );
     }
 
-    my ( $newtags, $newtitle ) = get_tags_from_fakku($jewcobURL);
+    my ( $newtags, $newtitle );
+    eval { 
+        ( $newtags, $newtitle ) = get_tags_from_fakku($jewcobURL);
+    };
+
+    if ($@) {
+        return ( error => $@);
+    }
 
     #Return a hash containing the new metadata - it will be integrated in LRR.
     if ( $savetitle && $newtags ne "" ) { return ( tags => $newtags, title => $newtitle ); }
@@ -129,9 +136,14 @@ sub get_tags_from_fakku {
     my $res = $ua->max_redirects(5)->get($URL)->result;
 
     # It's HTML parsing time yahoo
-    my $dom = Mojo::DOM->new( $res->body );
+    my $html = $res->body;
+    my $dom = Mojo::DOM->new( $html );
 
-    $logger->debug( "Got this HTML: " . $res->body );
+    $logger->debug( "Got this HTML: " . $html );
+    if ($html =~ /.*error code: (\d*).*/gim) {
+        $logger->debug("Blocked by Cloudflare, aborting for now. (Error code $1)");
+        die "The plugin has been blocked by Cloudflare. (Error code $1) Try opening FAKKU in your browser to bypass this.";
+    }
 
     $title =
       ( $dom->at('.content-name') )
