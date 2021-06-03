@@ -152,7 +152,8 @@ sub exec_download_plugin {
         my %result = $plugin->provide_url( \%infohash, @settings );
 
         if ( exists $result{error} ) {
-            return %result;
+            $logger->info("Downloader plugin failed to provide an URL, aborting now. Error: ". $result{error});
+            return \%result;
         }
 
         if ( exists $result{download_url} ) {

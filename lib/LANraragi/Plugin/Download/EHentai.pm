@@ -97,6 +97,11 @@ sub provide_url {
     $content = $response->body;
     $logger->debug("/archiver.php result: $content");
 
+    if ($content =~ /.*Insufficient funds.*/gim) {
+        $logger->debug("Not enough GP, aborting download.");
+        return ( error => "You do not have enough GP to download this URL." );
+    }
+
     my $finalURL = URI->new();
     eval {
         # Parse that to get the final URL
@@ -106,7 +111,7 @@ sub provide_url {
         }
     };
 
-    if ( $finalURL eq "" ) {
+    if ( $@ || $finalURL eq "" ) {
         return ( error => "Couldn't proceed with an original size download: <pre>$content</pre>" );
     }
 
