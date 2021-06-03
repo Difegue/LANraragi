@@ -65,12 +65,10 @@ sub get_tags {
     }
 
     my ( $newtags, $newtitle );
-    eval { 
-        ( $newtags, $newtitle ) = get_tags_from_fakku($jewcobURL);
-    };
+    eval { ( $newtags, $newtitle ) = get_tags_from_fakku($jewcobURL); };
 
     if ($@) {
-        return ( error => $@);
+        return ( error => $@ );
     }
 
     #Return a hash containing the new metadata - it will be integrated in LRR.
@@ -137,10 +135,10 @@ sub get_tags_from_fakku {
 
     # It's HTML parsing time yahoo
     my $html = $res->body;
-    my $dom = Mojo::DOM->new( $html );
+    my $dom  = Mojo::DOM->new($html);
 
     $logger->debug( "Got this HTML: " . $html );
-    if ($html =~ /.*error code: (\d*).*/gim) {
+    if ( $html =~ /.*error code: (\d*).*/gim ) {
         $logger->debug("Blocked by Cloudflare, aborting for now. (Error code $1)");
         die "The plugin has been blocked by Cloudflare. (Error code $1) Try opening FAKKU in your browser to bypass this.";
     }
@@ -159,7 +157,11 @@ sub get_tags_from_fakku {
         my $namespace = $div->text;
         $logger->debug("Parsed row: $namespace");
 
-        unless ( $namespace eq "Tags" || $namespace eq "Pages" || $namespace eq "Description" || $namespace eq "Favorites" ) {
+        unless ( $namespace eq "Tags"
+            || $namespace eq "Pages"
+            || $namespace eq "Description"
+            || $namespace eq "Direction"
+            || $namespace eq "Favorites" ) {
 
             my $content = $div->next->at('a')->text;
             remove_spaces($content);
