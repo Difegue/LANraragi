@@ -140,6 +140,9 @@ function performSearch(page) {
 
 	//Re-load categories so the most recently selected/created ones appear first
 	loadCategories();
+
+	// Clear potential leftover tooltips
+	tippy.hideAll();
 }
 
 //For datatable initialization, columns with just one data source display that source as a link for instant search.
