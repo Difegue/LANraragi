@@ -2,7 +2,7 @@
     <td class="option-td">
         <h2 class="ih"> Site Title </h2>
     </td>
-    <td>
+    <td class="config-td">
         <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% title %]" name="htmltitle"
             type="text">
         <br>The site title appears on most pages as...their title.
@@ -13,7 +13,7 @@
     <td class="option-td">
         <h2 class="ih"> MOTD </h2>
     </td>
-    <td>
+    <td class="config-td">
         <input id="motd" class="stdinput" style="width:100%" maxlength="255" size="20" value="[% motd %]" name="motd"
             type="text">
         <br>Slang for Message of the Day. Appears on top of the main Library view.
@@ -24,7 +24,7 @@
     <td class="option-td">
         <h2 class="ih"> Archives per page </h2>
     </td>
-    <td>
+    <td class="config-td">
         <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% pagesize %]" name="pagesize"
             type="number">
         <br> Number of archives shown on a page in the main list.
@@ -35,7 +35,7 @@
     <td class="option-td">
         <h2 class="ih"> Resize Images in Reader </h2>
     </td>
-    <td>
+    <td class="config-td">
         [% IF enableresize %]
         <input id="enableresize" name="enableresize" class="fa" type="checkbox" checked> [% ELSE %]
         <input id="enableresize" name="enableresize" class="fa" type="checkbox"> [% END %]
@@ -51,7 +51,7 @@
     <td class="option-td">
         <h2 class="ih"> Image Size Threshold </h2>
     </td>
-    <td>
+    <td class="config-td">
         <input id="sizethreshold" class="stdinput" type="number" style="width:100%" maxlength="255" size="20"
             value="[% sizethreshold %]" name="sizethreshold">
         <br>(in KBs.) Maximum size an image can reach before being resized.
@@ -62,7 +62,7 @@
     <td class="option-td">
         <h2 class="ih"> Resize Quality </h2>
     </td>
-    <td>
+    <td class="config-td">
         <input id="readerquality" class="stdinput" type="number" min="0" max="100" style="width:100%" maxlength="255"
             size="20" value="[% readerquality %]" name="readerquality">
         <br> Quality of the resized images. Less quality = Smaller image. (0-100)
@@ -73,7 +73,7 @@
     <td class="option-td">
         <h2 class="ih"> Clientside Progress Tracking </h2>
     </td>
-    <td>
+    <td class="config-td">
         [% IF localprogress %]
         <input id="localprogress" name="localprogress" class="fa" type="checkbox" checked> [% ELSE %]
         <input id="localprogress" name="localprogress" class="fa" type="checkbox"> [% END %]
@@ -89,7 +89,7 @@
     <td class="option-td">
         <h2 class="ih"> Debug Mode </h2>
     </td>
-    <td>
+    <td class="config-td">
         [% IF devmode %]
         <input id="devmode" name="devmode" class="fa" type="checkbox" checked> [% ELSE %]
         <input id="devmode" name="devmode" class="fa" type="checkbox"> [% END %]
@@ -105,7 +105,7 @@
     <td class="option-td">
         <input class='stdbtn' type='button' onclick="cleanDatabase();" value='Clean Database' />
     </td>
-    <td>
+    <td class="config-td">
         Cleaning the database will remove entries that aren't on your filesystem.
     </td>
 </tr>
@@ -114,7 +114,7 @@
     <td class="option-td">
         <input class='stdbtn' type='button' onclick="dropDatabase();" value='Reset Database' />
     </td>
-    <td>
+    <td class="config-td">
         <span style="color:red"><i class="fas fa-exclamation-triangle"></i> Danger zone!</span> <br>
         Clicking this button will reset the entire database and delete all settings and metadata. <br>
     </td>

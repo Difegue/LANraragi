@@ -211,13 +211,13 @@
 
 			<div class="config-panel">
 				<h1 class="ih" style="display:inline"> Use Compact Mode</h1>
-				<input id="compactmode" name="compactmode" class="fa" type="checkbox" style="float:left">
+				<input id="compactmode" name="compactmode" class="fa" type="checkbox" style="float:left; width: 68px;">
 				<br /> If enabled, archives will be displayed as a list without thumbnails.
 			</div>
 
 			<div class="config-panel">
 				<h1 class="ih" style="display:inline"> Crop Landscape Thumbnails </h1>
-				<input id="cropthumbs" name="cropthumbs" class="fa" type="checkbox" style="float:left">
+				<input id="cropthumbs" name="cropthumbs" class="fa" type="checkbox" style="float:left; width: 68px;">
 				<br /> If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the
 				left side.
 			</div>

@@ -47,7 +47,7 @@ input[type='checkbox']:checked::after {
 }
 
 /* lrr.css override */
-td {
+.config-td {
     max-width: 2000px !important;
     width: 30vw;
     vertical-align: middle;
