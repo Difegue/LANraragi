@@ -43,11 +43,28 @@ sub get_tempsize {
     return int( $size / 1048576 * 100 ) / 100;
 }
 
-#Remove all folders in the tempfolder.
-#Dies if an error occurs.
+# Remove all folders in the tempfolder.
+# Dies if an error occurs.
 sub clean_temp_full {
 
-    remove_tree( &get_temp, { error => \my $err } );
+    my $tempdir = &get_temp;
+
+    # Abort if the temp dir doesn't exist yet
+    return unless ( -e $tempdir );
+
+    opendir( my $dir_fh, $tempdir );
+
+    my @folder_list;
+    while ( my $file = readdir $dir_fh ) {
+
+        next unless -d $tempdir . '/' . $file;
+        next if $file eq '.' or $file eq '..';
+
+        push @folder_list, "$tempdir/$file";
+    }
+    closedir $dir_fh;
+
+    remove_tree( @folder_list, { error => \my $err } );
 
     my $cleanmsg = "";
     if (@$err) {
@@ -63,12 +80,11 @@ sub clean_temp_full {
 
 }
 
-#Remove all folders in /public/temp except the most recent one
-#For this, we use Perl's ctime, which uses inode last modified time.
+# Remove all folders in the tempfolder except the most recent one
+# For this, we use Perl's ctime, which uses inode last modified time.
 sub clean_temp_partial {
 
-    my $logger = get_logger( "Temporary Folder", "lanraragi" );
-
+    my $logger  = get_logger( "Temporary Folder", "lanraragi" );
     my $tempdir = &get_temp;
 
     #Abort if the temp dir doesn't exist yet
