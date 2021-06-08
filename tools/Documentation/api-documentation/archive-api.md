@@ -458,6 +458,9 @@ You should call this endpoint only when you're sure the user is currently readin
 Whether to make reading progression regressible or not is up to the client. (The web client will reduce progression if the user starts reading previous pages)  
 Consider however removing the "New!" flag from an archive when you start updating its progress - The web client won't display any reading progression if the new flag is still set.  
 
+⚠ If the server is configured to use clientside progress tracking, this API call will return an error!  
+Make sure to check using `/api/info` whether the server tracks reading progression or not before calling this endpoint.
+
 {% endapi-method-description %}
 
 {% api-method-spec %}
@@ -492,7 +495,8 @@ Progression updated.
 
 {% api-method-response-example httpCode=400 %}
 {% api-method-response-example-description %}
-You didn't specify the id parameter, provided a bad progress value, or the server doesn't know how many pages the archive has yet.
+You didn't specify the id parameter, provided a bad progress value, or the server doesn't know how many pages the archive has yet.  
+The call can also fail if the server has server-side progress tracking turned off.
 {% endapi-method-response-example-description %}
 
 ```javascript
@@ -503,14 +507,20 @@ You didn't specify the id parameter, provided a bad progress value, or the serve
 }
 
 {
-    "error": "Invalid progress value.",
     "operation": "update_progress",
+    "error": "Server-side Progress Tracking is disabled on this instance.",
     "success": 0
 }
 
 {
-    "error": "Archive doesn't have a total page count recorded yet.",
     "operation": "update_progress",
+    "error": "Invalid progress value.",
+    "success": 0
+}
+
+{
+    "operation": "update_progress",
+    "error": "Archive doesn't have a total page count recorded yet.",
     "success": 0
 }
 ```

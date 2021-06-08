@@ -5,7 +5,7 @@ use Cwd;
 
 use Mojo::Base 'Mojolicious';
 
-use Test::More tests => 18;
+use Test::More tests => 15;
 use Test::Mojo;
 use Test::MockObject;
 
@@ -55,6 +55,7 @@ is( $test_eH_gToken, $eH_gToken, 'eHentai search test 2/2' );
 
 my $eH_tags =
   "parody:touhou project, character:hong meiling, character:marisa kirisame, character:reimu hakurei, character:sanae kochiya, character:youmu konpaku, group:handful happiness, artist:nanahara fuyuki, artbook, full color, category:non-h";
+
 my ( $test_eH_tags, $test_eH_title ) = LANraragi::Plugin::Metadata::EHentai::get_tags_from_EH( $eH_gID, $eH_gToken );
 
 is( split( ", ", $test_eH_tags ), split( ", ", $eH_tags ), 'eHentai API Tag retrieval test' );
@@ -69,7 +70,7 @@ my $test_nH_gID = LANraragi::Plugin::Metadata::nHentai::get_gallery_id_from_titl
 
 is( $test_nH_gID, $nH_gID, 'nHentai search test' );
 
-my $nH_tags = "language:japanese, artist:masamune shirow, full color, non-h, artbook, category:manga";
+my $nH_tags = "language:japanese, artist:masamune shirow, full color, non-h, artbook, category:manga, source: website.net/g/52249";
 my ( $test_nH_tags, $test_nH_title ) = LANraragi::Plugin::Metadata::nHentai::get_tags_from_NH($nH_gID);
 
 is( split( ", ", $test_nH_tags ), split( ", ", $nH_tags ), 'nHentai API Tag retrieval test' );
@@ -104,10 +105,11 @@ my $f_url   = "https://www.fakku.net/hentai/kairakuten-cover-girls-episode-009-h
 my $f_tags =
   "Artist:Hamao, Parody:Original Work, Magazine:Comic Kairakuten 2020-04, Publisher:FAKKU, Language:English, color, schoolgirl outfit, osananajimi, unlimited, non-h, illustration";
 
-is( LANraragi::Plugin::Metadata::Fakku::search_for_fakku_url($f_title), $f_url, 'FAKKU search test' );
+# Disabled due to cloudflare being used on FAKKU.
+#is( LANraragi::Plugin::Metadata::Fakku::search_for_fakku_url($f_title), $f_url, 'FAKKU search test' );
 
-my ( $f_result_tags, $f_result_title ) = LANraragi::Plugin::Metadata::Fakku::get_tags_from_fakku($f_url);
-is( $f_result_tags,  $f_tags,  'FAKKU tags parsing test' );
-is( $f_result_title, $f_title, 'FAKKU title parsing test' );
+#my ( $f_result_tags, $f_result_title ) = LANraragi::Plugin::Metadata::Fakku::get_tags_from_fakku($f_url);
+#is( $f_result_tags,  $f_tags,  'FAKKU tags parsing test' );
+#is( $f_result_title, $f_title, 'FAKKU title parsing test' );
 
 done_testing();

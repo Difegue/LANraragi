@@ -88,14 +88,14 @@ root/
 |     |- *.js
 |     +- vendor        <- Third-party JS obtained through NPM
 |  |- temp          <- Archives are extracted in this folder to be served to clients. Also used for thumbnail creation.
+|  |  |- server.pid <- PID of the currently running Prefork Manager process, if existing
+|  |  |- shinobu.pid   <- Last known PID of the Shinobu File Watcher (Serialized Proc::Simple object)
+|  |  +- minion.pid    <- Last known PID of the Minion Job Queue (Serialized Proc::Simple object)
 |  +- themes        <- Contains CSS sheets for Themes.
 |
 |- script
 |  |- backup        <- Standalone script for running database backups.
-|  |- launcher.pl   <- Launcher, uses either Morbo or Hypnotoad to run the bootstrap script
-|  |- hypnotoad.pid <- PID of the currently running Hypnotoad Manager process, if existing
-|  |- shinobu.pid   <- Last known PID of the Shinobu File Watcher (Serialized Proc::Simple object)
-|  |- minion.pid    <- Last known PID of the Minion Job Queue (Serialized Proc::Simple object)
+|  |- launcher.pl   <- Launcher, uses either Morbo or Prefork to run the bootstrap script
 |  +- lanraragi     <- Bootstrap script, starts LANraragi.pm
 |
 |- tests         <- Tests go here

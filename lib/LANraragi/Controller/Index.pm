@@ -65,6 +65,7 @@ sub index {
         userlogged   => $userlogged,
         categories   => \@categories,
         motd         => $self->LRR_CONF->get_motd,
+        use_local    => $self->LRR_CONF->enable_localprogress,
         cssdrop      => generate_themes_selector,
         csshead      => generate_themes_header($self),
         usingdefpass => $passcheck,

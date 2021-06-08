@@ -152,7 +152,8 @@ sub exec_download_plugin {
         my %result = $plugin->provide_url( \%infohash, @settings );
 
         if ( exists $result{error} ) {
-            return %result;
+            $logger->info("Downloader plugin failed to provide an URL, aborting now. Error: ". $result{error});
+            return \%result;
         }
 
         if ( exists $result{download_url} ) {
@@ -237,7 +238,7 @@ sub exec_metadata_plugin {
         #Process new metadata,
         #stripping out blacklisted tags and tags that we already have in Redis
         my $blist       = LANraragi::Model::Config->get_tagblacklist;
-        my $blistenable = LANraragi::Model::Config->enable_blacklst;
+        my $blistenable = LANraragi::Model::Config->enable_blacklist;
         my @blacklist   = split( ',', $blist );                         # array-ize the blacklist string
 
         foreach my $tagtoadd (@tagarray) {

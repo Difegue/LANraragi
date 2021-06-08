@@ -3,10 +3,11 @@ use Mojo::Base 'Mojolicious::Controller';
 use Storable;
 
 use LANraragi::Utils::Generic qw(start_shinobu render_api_response);
+use LANraragi::Utils::TempFolder qw(get_temp);
 
 sub shinobu_status {
     my $self    = shift;
-    my $shinobu = ${ retrieve("./script/shinobu.pid") };
+    my $shinobu = ${ retrieve( get_temp . "/shinobu.pid" ) };
 
     $self->render(
         json => {
@@ -20,7 +21,7 @@ sub shinobu_status {
 
 sub stop_shinobu {
     my $self    = shift;
-    my $shinobu = ${ retrieve("./script/shinobu.pid") };
+    my $shinobu = ${ retrieve( get_temp . "/shinobu.pid" ) };
 
     #commit sudoku
     $shinobu->kill();
@@ -29,12 +30,12 @@ sub stop_shinobu {
 
 sub restart_shinobu {
     my $self    = shift;
-    my $shinobu = ${ retrieve("./script/shinobu.pid") };
+    my $shinobu = ${ retrieve( get_temp . "/shinobu.pid" ) };
 
     #commit sudoku
     $shinobu->kill();
 
-    # Create a new Process, automatically stored in script/shinobu.pid
+    # Create a new Process, automatically stored in TEMP_FOLDER/shinobu.pid
     my $proc = start_shinobu($self);
 
     $self->render(

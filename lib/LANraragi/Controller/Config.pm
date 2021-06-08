@@ -1,9 +1,8 @@
 package LANraragi::Controller::Config;
 use Mojo::Base 'Mojolicious::Controller';
 
-use Encode;
-
 use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header remove_spaces remove_newlines);
+use LANraragi::Utils::Database qw(redis_encode redis_decode);
 use LANraragi::Utils::TempFolder qw(get_tempsize);
 
 use Authen::Passphrase::BlowfishCrypt;
@@ -26,10 +25,11 @@ sub index {
         pagesize       => $self->LRR_CONF->get_pagesize,
         enablepass     => $self->LRR_CONF->enable_pass,
         password       => $self->LRR_CONF->get_password,
-        blackliston    => $self->LRR_CONF->enable_blacklst,
+        blackliston    => $self->LRR_CONF->enable_blacklist,
         blacklist      => $self->LRR_CONF->get_tagblacklist,
         title          => $self->LRR_CONF->get_htmltitle,
         tempmaxsize    => $self->LRR_CONF->get_tempmaxsize,
+        localprogress  => $self->LRR_CONF->enable_localprogress,
         devmode        => $self->LRR_CONF->enable_devmode,
         nofunmode      => $self->LRR_CONF->enable_nofun,
         apikey         => $self->LRR_CONF->get_apikey,
@@ -64,20 +64,21 @@ sub save_config {
         readerquality => scalar $self->req->param('readerquality'),
         sizethreshold => scalar $self->req->param('sizethreshold'),
 
-        #for checkboxes,
-        #we check if the parameter exists in the POST to return either 1 or 0.
-        enablepass   => ( scalar $self->req->param('enablepass')   ? '1' : '0' ),
-        enablecors   => ( scalar $self->req->param('enablecors')   ? '1' : '0' ),
-        devmode      => ( scalar $self->req->param('devmode')      ? '1' : '0' ),
-        enableresize => ( scalar $self->req->param('enableresize') ? '1' : '0' ),
-        blackliston  => ( scalar $self->req->param('blackliston')  ? '1' : '0' ),
-        nofunmode    => ( scalar $self->req->param('nofunmode')    ? '1' : '0' )
+        # For checkboxes,
+        # we check if the parameter exists in the POST to return either 1 or 0.
+        enablepass    => ( scalar $self->req->param('enablepass')    ? '1' : '0' ),
+        enablecors    => ( scalar $self->req->param('enablecors')    ? '1' : '0' ),
+        localprogress => ( scalar $self->req->param('localprogress') ? '1' : '0' ),
+        devmode       => ( scalar $self->req->param('devmode')       ? '1' : '0' ),
+        enableresize  => ( scalar $self->req->param('enableresize')  ? '1' : '0' ),
+        blackliston   => ( scalar $self->req->param('blackliston')   ? '1' : '0' ),
+        nofunmode     => ( scalar $self->req->param('nofunmode')     ? '1' : '0' )
     );
 
-    #only add newpassword field as password if enablepass = 1
+    # Only add newpassword field as password if enablepass = 1
     if ( $self->req->param('enablepass') ) {
 
-        #hash password with authen
+        # Hash password with authen
         my $password = $self->req->param('newpassword');
 
         if ( $password ne "" ) {
@@ -92,7 +93,7 @@ sub save_config {
         }
     }
 
-    #Password check
+    # Password check
     if ( $self->req->param('newpassword') ne $self->req->param('newpassword2') ) {
         $success   = 0;
         $errormess = "Mismatched passwords.";
@@ -113,7 +114,7 @@ sub save_config {
         foreach my $key ( keys %confhash ) {
             remove_spaces( $confhash{$key} );
             remove_newlines( $confhash{$key} );
-            $confhash{$key} = encode_utf8( $confhash{$key} );
+            $confhash{$key} = redis_encode( $confhash{$key} );
             $self->LRR_LOGGER->debug( "Saving $key with value " . $confhash{$key} );
         }
 

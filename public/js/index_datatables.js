@@ -2,8 +2,9 @@
 
 //Executed onload of the archive index to initialize DataTables and other minor things.
 //This is painful to read.
-function initIndex(pagesize) {
+function initIndex(pagesize, trackLocal) {
 
+	trackProgressLocally = trackLocal;
 	selectedCategory = "";
 	isComingFromPopstate = false;
 
@@ -139,6 +140,9 @@ function performSearch(page) {
 
 	//Re-load categories so the most recently selected/created ones appear first
 	loadCategories();
+
+	// Clear potential leftover tooltips
+	tippy.hideAll();
 }
 
 //For datatable initialization, columns with just one data source display that source as a link for instant search.
@@ -154,7 +158,7 @@ function createNamespaceColumn(namespace, type, data) {
 		match = regex.exec(data);
 
 		if (match != null) {
-			return `<a style="cursor:pointer" onclick="fillSearchField(event, '${namespace}','${match[1]}')">
+			return `<a style="cursor:pointer" onclick="fillSearchField(event, '${namespace}:${match[1]}')">
 						${match[1].replace(/\b./g, function (m) { return m.toUpperCase(); })}
 					</a>`;
 		} else return "";
@@ -164,9 +168,9 @@ function createNamespaceColumn(namespace, type, data) {
 }
 
 // Fill out the search field and trigger a search programmatically.
-function fillSearchField(e, namespace, tag) {
-	$('#srch').val(`${namespace}:${tag}`);
-	arcTable.search(`${namespace}:${tag}`).draw();
+function fillSearchField(e, tag) {
+	$('#srch').val(`${tag}`);
+	arcTable.search(`${tag}`).draw();
 	e.preventDefault(); // Override href 
 }
 
@@ -358,7 +362,12 @@ function buildProgressDiv(arcdata) {
 	id = arcdata.arcid;
 	isnew = arcdata.isnew;
 	pagecount = parseInt(arcdata.pagecount || 0);
-	progress = parseInt(arcdata.progress || 0);
+
+	if (trackProgressLocally) {
+		progress = parseInt(localStorage.getItem(id + "-reader") || 0);
+	} else {
+		progress = parseInt(arcdata.progress || 0);
+	}
 
 	if (isnew === "true") {
 		return '<div class="isnew">🆕</div>';

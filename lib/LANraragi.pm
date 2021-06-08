@@ -15,6 +15,7 @@ use LANraragi::Utils::Generic qw(start_shinobu start_minion);
 use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Utils::Plugins qw(get_plugins);
 use LANraragi::Utils::Database qw(invalidate_cache);
+use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Routing;
 use LANraragi::Utils::Minion;
 
@@ -124,10 +125,7 @@ sub startup {
     }
 
     # Enable Minion capabilities in the app
-    shutdown_from_pid("./script/minion.pid");
-
-    # Delete old SQLite DB if it still exists
-    unlink("./.minion.db");
+    shutdown_from_pid( get_temp . "/minion.pid" );
 
     my $miniondb = $self->LRR_CONF->get_redisad . "/" . $self->LRR_CONF->get_miniondb;
     say "Minion will use the Redis database at $miniondb";
@@ -148,7 +146,7 @@ sub startup {
     start_minion($self);
 
     # Start File Watcher
-    shutdown_from_pid("./script/shinobu.pid");
+    shutdown_from_pid( get_temp . "/shinobu.pid" );
     start_shinobu($self);
 
     # Hook to SIGTERM to cleanly kill minion+shinobu on server shutdown
@@ -182,8 +180,8 @@ sub shutdown_from_pid {
 sub add_sigint_handler {
     my $old_int = $SIG{INT};
     $SIG{INT} = sub {
-        shutdown_from_pid("script/shinobu.pid");
-        shutdown_from_pid("script/minion.pid");
+        shutdown_from_pid( get_temp . "/shinobu.pid" );
+        shutdown_from_pid( get_temp . "/minion.pid" );
 
         \&$old_int;    # Calling the old handler to cleanly exit the server
     }

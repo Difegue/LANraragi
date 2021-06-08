@@ -192,6 +192,11 @@ sub update_progress {
     my $redis     = $self->LRR_CONF->get_redis();
     my $pagecount = $redis->hget( $id, "pagecount" );
 
+    if ( LANraragi::Model::Config->enable_localprogress ) {
+        render_api_response( $self, "update_progress", "Server-side Progress Tracking is disabled on this instance." );
+        return;
+    }
+
     # This relies on pagecount, so you can't update progress for archives that don't have a valid pagecount recorded yet.
     unless ( $pagecount || $force ) {
         render_api_response( $self, "update_progress", "Archive doesn't have a total page count recorded yet." );

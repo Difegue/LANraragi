@@ -16,16 +16,16 @@ $home->detect;
 
 my $config = Mojolicious::Plugin::Config->register( Mojolicious->new, { file => $home . '/lrr.conf' } );
 
-#Address and port of your redis instance.
+# Address and port of your redis instance.
 sub get_redisad { return $config->{redis_address} }
 
-#Database that'll be used by LANraragi. Redis databases are numbered, default is 0.
+# Database that'll be used by LANraragi. Redis databases are numbered, default is 0.
 sub get_redisdb { return $config->{redis_database} }
 
-#Database that'll be used by Minion. Redis databases are numbered, default is 0.
+# Database that'll be used by Minion. Redis databases are numbered, default is 1.
 sub get_miniondb { return $config->{redis_database_minion} }
 
-#Default CSS file to load.
+# Default CSS file to load.
 sub get_style { return $config->{default_theme} }
 
 # Create a Minion object connected to the Minion database.
@@ -64,8 +64,9 @@ sub get_redis_conf {
         # Call Utils::Database directly as importing it with use; would cause circular dependencies...
         my $value = LANraragi::Utils::Database::redis_decode( $redis->hget( "LRR_CONFIG", $param ) );
 
-        #failsafe against blank config values
+        # Failsafe against blank config values
         unless ( $value =~ /^\s*$/ ) {
+            $redis->quit();
             return $value;
         }
     }
@@ -73,17 +74,8 @@ sub get_redis_conf {
     return $default;
 }
 
-#Functions that return the config variables stored in Redis, or default values if they don't exist. Descriptions for each one of these can be found in the web configuration page.
-sub get_htmltitle {
-
-    #enforcing unicode to make sure it doesn't fuck up the templates by appearing in some other encoding
-    return encode( 'utf-8', &get_redis_conf( "htmltitle", "LANraragi" ) );
-}
-
-sub get_motd {
-    return encode( 'utf-8', &get_redis_conf( "motd", "Welcome to this Library running LANraragi!" ) );
-}
-
+# Functions that return the config variables stored in Redis, or default values if they don't exist.
+# Descriptions for each one of these can be found in the web configuration page.
 sub get_userdir {
 
     # Content path can be overriden by LRR_DATA_DIRECTORY
@@ -98,7 +90,7 @@ sub get_userdir {
         mkdir $dir;
     }
 
-    #Return full path if it's relative, using the /lanraragi directory as a base
+    # Return full path if it's relative, using the /lanraragi directory as a base
     return abs_path($dir);
 }
 
@@ -141,15 +133,18 @@ sub get_tagblacklist {
     );
 }
 
-sub get_tempmaxsize { return &get_redis_conf( "tempmaxsize",   "500" ) }
-sub get_pagesize    { return &get_redis_conf( "pagesize",      "100" ) }
-sub enable_pass     { return &get_redis_conf( "enablepass",    "1" ) }
-sub enable_nofun    { return &get_redis_conf( "nofunmode",     "0" ) }
-sub enable_cors     { return &get_redis_conf( "enablecors",    "0" ) }
-sub get_apikey      { return &get_redis_conf( "apikey",        "" ) }
-sub enable_blacklst { return &get_redis_conf( "blackliston",   "1" ) }
-sub enable_resize   { return &get_redis_conf( "enableresize",  "0" ) }
-sub get_threshold   { return &get_redis_conf( "sizethreshold", "1000" ) }
-sub get_readquality { return &get_redis_conf( "readerquality", "50" ) }
+sub get_htmltitle        { return &get_redis_conf( "htmltitle",     "LANraragi" ) }
+sub get_motd             { return &get_redis_conf( "motd",          "Welcome to this Library running LANraragi!" ) }
+sub get_tempmaxsize      { return &get_redis_conf( "tempmaxsize",   "500" ) }
+sub get_pagesize         { return &get_redis_conf( "pagesize",      "100" ) }
+sub enable_pass          { return &get_redis_conf( "enablepass",    "1" ) }
+sub enable_nofun         { return &get_redis_conf( "nofunmode",     "0" ) }
+sub enable_cors          { return &get_redis_conf( "enablecors",    "0" ) }
+sub get_apikey           { return &get_redis_conf( "apikey",        "" ) }
+sub enable_localprogress { return &get_redis_conf( "localprogress", "0" ) }
+sub enable_blacklist     { return &get_redis_conf( "blackliston",   "1" ) }
+sub enable_resize        { return &get_redis_conf( "enableresize",  "0" ) }
+sub get_threshold        { return &get_redis_conf( "sizethreshold", "1000" ) }
+sub get_readquality      { return &get_redis_conf( "readerquality", "50" ) }
 
 1;

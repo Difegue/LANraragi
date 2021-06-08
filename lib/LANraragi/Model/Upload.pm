@@ -38,7 +38,7 @@ sub handle_incoming_file {
 
     # Check if file is an archive
     unless ( is_archive($filename) ) {
-        return ( 0, "deadbeef", $filename, "Unsupported File Extension" );
+        return ( 0, "deadbeef", $filename, "Unsupported File Extension ($filename)" );
     }
 
     # Compute an ID here
@@ -169,6 +169,17 @@ sub download_url {
     }
 
     $logger->debug("Filename: $filename");
+
+    # remove invalid Windows chars
+    $filename =~ s@[\\/:"*?<>|]+@@g;
+
+    my ( $fn, $path, $ext ) = fileparse( $filename, qr/\.[^.]*/ );
+
+    # don't allow the main filename to exceed 255 chars after accounting
+    # for extension and .upload prefix used by `handle_incoming_file`
+    $filename = substr $fn, 0, 254 - length($ext) - length(".upload");
+    $filename = $filename . $ext;
+    $logger->debug("Filename post clean: $filename");
     $tx->result->save_to("$tempdir\/$filename");
 
     # Update $tempfile to the exact reference created by the host filesystem

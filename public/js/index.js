@@ -197,17 +197,17 @@ function handleContextMenu(option, id) {
 
 	switch (option) {
 		case "edit":
-			window.open("./edit?id=" + id);
+			openInNewTab("./edit?id=" + id);
 			break;
 		case "delete":
 			if (confirm('Are you sure you want to delete this archive?'))
 				deleteArchive(id);
 			break;
 		case "read":
-			window.open(`./reader?id=${id}`);
+			openInNewTab(`./reader?id=${id}`);
 			break;
 		case "download":
-			window.open(`./api/archives/${id}/download`);
+			openInNewTab(`./api/archives/${id}/download`);
 			break;
 		default:
 			break;
@@ -314,8 +314,8 @@ function migrateProgress() {
 
 	if (localProgressKeys.length > 0) {
 		$.toast({
-			heading: 'Your Reading Progression is now synchronized across clients!',
-			text: 'You seem to have some local progression saved from an earlier LRR version -- Please wait warmly while we migrate it to the server for you. ☕',
+			heading: 'Your Reading Progression is now saved on the server!',
+			text: 'You seem to have some local progression hanging around -- Please wait warmly while we migrate it to the server for you. ☕',
 			hideAfter: false,
 			position: 'top-left',
 			icon: 'info'

@@ -2,7 +2,7 @@
     <td class="option-td">
         <h2 class="ih"> Archive Directory </h2>
     </td>
-    <td>
+    <td class="config-td">
         <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% dirname %]" name="dirname"
             type="text" [% IF forceddirname %] disabled title="This option is enforced by an environment variable." [%
             END %]>
@@ -15,7 +15,7 @@
     <td class="option-td">
         <h2 class="ih"> Maximum <br>Temporary Folder Size </h2>
     </td>
-    <td>
+    <td class="config-td">
         <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% tempmaxsize %]"
             name="tempmaxsize" type="text">
         <br>In MBs. The temporary folder contains recently opened archives, for faster subsequent reading. <br>
@@ -27,7 +27,7 @@
     <td class="option-td">
         <input class='stdbtn' type='button' onclick="cleanTempFldr();" value='Clean Temporary Folder' />
     </td>
-    <td>
+    <td class="config-td">
         Current Size:
         <h2 style="display:inline"><span id="tempsize"> [%tempsize%] </span> MBs </h2>
         <br>Empty the temporary folder manually by clicking this button.
@@ -40,7 +40,7 @@
     <td class="option-td">
         <input class='stdbtn' type='button' onclick="invalidateCache();" value='Reset Search Cache' />
     </td>
-    <td>
+    <td class="config-td">
         The last searches done in the archive index are cached for faster loads. <br>
         If something went wrong with said cache, you can reset it by clicking this button. <br>
         <br>
@@ -53,7 +53,7 @@
     <td class="option-td">
         <input class='stdbtn' type='button' onclick="clearAllNew();" value='Clear NEW flags' />
     </td>
-    <td>
+    <td class="config-td">
         Newly uploaded archives are marked as "new" in the index until you've opened them. <br>
         If you want to clear those flags, click this button. <br>
         <br>

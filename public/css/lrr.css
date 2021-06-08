@@ -107,6 +107,15 @@ table thead .sorting_disabled a:after {
   display: none;
 }
 
+.paginate_button {
+  min-width: 2rem;
+  width: auto !important;
+}
+
+.ellipsis {
+  margin-left: 1rem;
+}
+
 .page-select {
   text-align:right;
 }
@@ -133,11 +142,6 @@ p#nb {
 .caption-tags {
   width: 400px !important;
   min-width: 30% !important;
-}
-
-/* Reader page */ 
-div.sni {
-  max-width: 1200px;
 }
 
 /* Reader overlays. */
@@ -193,11 +197,14 @@ div.sni {
   left: 5%;
   width: 90% !important;
   overflow-y: scroll;
+  max-height: 90vh;
 }
 
 .small-overlay {
   left: 32.5%;
   width: 35% !important;
+  overflow-y: scroll;
+  max-height: 90vh;
 }
 
 .ie7 .page-overlay {
@@ -222,9 +229,10 @@ div.sni {
   left: 30%;
   z-index: -1;
   padding: 5px;
+  color: lightskyblue;
 }
 
-a:hover > .page-number {
+.quick-thumbnail:hover > .page-number {
   z-index: 300;
   background-color: #000000;
 }
@@ -509,4 +517,70 @@ li {
   .page-select {
     margin-top: 0 !important;
   }
+}
+
+.page_dropdown {
+  position: absolute;
+  right: 20px;
+  z-index: 20;
+}
+
+.page_dropdown a {
+  padding-right: 10px;
+  text-decoration: none;
+}
+
+.pagecount {
+  vertical-align: unset !important;
+}
+
+.page-link {
+  cursor: pointer;
+}
+
+#archivePagesOverlay {
+  height: 90vh;
+}
+
+#settingsOverlay {
+  height: unset;
+}
+
+#settingsOverlay > div {
+    margin: auto;
+    font-size: 8pt;
+}
+
+/* Infinite Scrolling Reader */
+
+body.infinite-scroll .sn,
+body.infinite-scroll .file-info,
+body.infinite-scroll .reading-direction,
+body.infinite-scroll #toggle-manga-mode,
+body.infinite-scroll #preload-images,
+body.infinite-scroll #toggle-double-mode {
+  display: none;
+}
+
+body.infinite-scroll #i4 .page_dropdown {
+  position: fixed;
+  top: 20px;
+}
+
+body.infinite-scroll #i2 {
+  display: none;
+}
+
+body.infinite-scroll #display {
+  display: flex;
+  flex-direction: column;
+}
+
+body.infinite-scroll #display img {
+  margin: 5px auto;
+  cursor: pointer;
+}
+
+body.infinite-scroll .sb {
+  margin-top: 10px;
 }

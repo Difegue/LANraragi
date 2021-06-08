@@ -79,7 +79,7 @@
 							<input type='button' name='tag_import' value='Help' onclick="toastHelpEdit();"
 								class='stdbtn' style='min-width:90px;'></input>
 						</td>
-						<td id="plugin_table">
+						<td id="plugin_table" style="text-align: left">
 
 							<select id="plugin" class="favtag-btn" onchange="updateOneShotArg()">
 								[% FOREACH plugin IN plugins %]
@@ -111,7 +111,8 @@
 								value='Delete Archive' />
 							<input id='goback' class='stdbtn' type='button' onclick="window.location.replace('./');"
 								value='Return to Library' />
-							<br /></td>
+							<br />
+						</td>
 					</tr>
 				</tbody>
 			</table>

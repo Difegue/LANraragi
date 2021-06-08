@@ -132,8 +132,10 @@
 	<script>
 
 		function init() {
+			let trackProgressLocally = "[% use_local %]" === "1";
+
 			initSettings("[% version %]");
-			initIndex([% pagesize %]);
+			initIndex([% pagesize %], trackProgressLocally);
 
 			// Initialize tag suggestions
 			loadTagSuggestions();
@@ -141,8 +143,10 @@
 			// Initialize categories
 			loadCategories();
 
-			// Migrate local progression if there's any
-			migrateProgress();
+			// Migrate local progression if there's any and serverside tracking is enabled
+			if (!trackProgressLocally) {
+				migrateProgress();
+			}
 
 			[% IF usingdefpass %]
 			//If the json has the "default password" flag, flash a friendly notification inviting the user to change his password
@@ -168,7 +172,10 @@
 							handleContextMenu(key, $(this).attr("id"));
 						},
 						items: {
+							"read": { name: "Read", icon: "fas fa-book" },
+							"download": { name: "Download", icon: "fas fa-save" },
 							[% IF userlogged %]
+							"sep1": "---------",
 							"edit": { name: "Edit Metadata", icon: "fas fa-pencil-alt" },
 							"delete": { name: "Delete", icon: "fas fa-trash-alt" },
 							"category": {
@@ -186,13 +193,10 @@
 								"name": "Remove from Category",
 								"icon": "fas fa-search-minus",
 								"items": loadContextMenuCategories($trigger.attr("id"))
-							},
-							"sep1": "---------",
+							}
 							[% END %]
-						"read": { name: "Read", icon: "fas fa-book" },
-					"download": { name: "Download", icon: "fas fa-save" }
-				}
-			}
+						}
+					}
 				}
 			});
 
@@ -203,17 +207,17 @@
 	<div id="overlay-shade" onclick="closeOverlay();"> </div>
 	<div id="settingsOverlay" class="id1 base-overlay small-overlay" style="display:none">
 		<h2 class="ih" style="text-align:center">Index Display Options</h2>
-		<div style="margin:auto; font-size:8pt;">
+		<div>
 
 			<div class="config-panel">
 				<h1 class="ih" style="display:inline"> Use Compact Mode</h1>
-				<input id="compactmode" name="compactmode" class="fa" type="checkbox" style="float:left">
+				<input id="compactmode" name="compactmode" class="fa" type="checkbox" style="float:left; width: 68px;">
 				<br /> If enabled, archives will be displayed as a list without thumbnails.
 			</div>
 
 			<div class="config-panel">
 				<h1 class="ih" style="display:inline"> Crop Landscape Thumbnails </h1>
-				<input id="cropthumbs" name="cropthumbs" class="fa" type="checkbox" style="float:left">
+				<input id="cropthumbs" name="cropthumbs" class="fa" type="checkbox" style="float:left; width: 68px;">
 				<br /> If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the
 				left side.
 			</div>

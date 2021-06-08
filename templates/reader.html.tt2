@@ -1,211 +1,137 @@
 <!DOCTYPE html>
 
 <head>
-	<title>[% arcname %]</title>
+    <title>[% arcname %]</title>
 
-	<meta name="viewport" content="width=device-width" />
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
-	<link type="image/png" rel="icon" href="favicon.ico" />
-	<link rel="stylesheet" type="text/css" href="/css/lrr.css?[% version %]" />
-	<link rel="stylesheet" type="text/css" href="/css/config.css?[% version %]" />
+    <link type="image/png" rel="icon" href="favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="/css/lrr.css?[% version %]" />
+    <link rel="stylesheet" type="text/css" href="/css/config.css?[% version %]" />
 
-	<link rel="stylesheet" type="text/css" href="./css/vendor/fontawesome-all.min.css" />
-	<link rel="stylesheet" type="text/css" href="./css/vendor/jquery.toast.min.css" />
-	[% csshead %]
+    <link rel="stylesheet" type="text/css" href="./css/vendor/fontawesome-all.min.css" />
+    <link rel="stylesheet" type="text/css" href="./css/vendor/jquery.toast.min.css" />
+    [% csshead %]
 
-	<script src="./js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
-	<script src="./js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
+    <script src="./js/vendor/jquery.min.js" type="text/javascript"></script>
+    <script src="./js/vendor/jquery.toast.min.js" type="text/javascript"></script>
 
-	<script src="./js/theme.js?[% version %]" type="text/JAVASCRIPT"></script>
-	<script src="./js/common.js?[% version %]" type="text/JAVASCRIPT"></script>
-	<script src="./js/reader.js?[% version %]" type="text/JAVASCRIPT"></script>
-	<script src="./js/ajax.js?[% version %]" type="text/JAVASCRIPT"></script>
+    <script src="./js/theme.js?[% version %]" type="text/javascript"></script>
+    <script src="./js/common.js?[% version %]" type="text/javascript"></script>
+    <script src="./js/reader.js?[% version %]" type="text/javascript"></script>
+    <script src="./js/ajax.js?[% version %]" type="text/javascript"></script>
 
 </head>
 
-<body onload="set_style_from_storage(); applySettings();">
+<body>
 
-	<div id="i1" class="sni">
-		<h1>[% arcname %]</h1>
+    <div id="i1" class="sni">
+        <div id="i2">
+            <h1 id="archive-title">[% arcname %]</h1>
 
-		<div id="i2">
-			[% INCLUDE pagesel %] [% INCLUDE arrows %] [% INCLUDE fileinfo %]
-		</div>
+            [% INCLUDE pagesel %] [% INCLUDE arrows %] [% INCLUDE fileinfo %]
+        </div>
 
-		<div id="i3">
-			<div class="loading-overlay">
-				<p class="loading-spinner">
-					<i id="spinner" class="fa fa-cog fa-spin"></i>
-				</p>
-			</div>
+        <div id="i3">
+            <div class="loading-overlay">
+                <p class="loading-spinner">
+                    <i id="spinner" class="fa fa-cog fa-spin"></i>
+                </p>
+            </div>
 
-			<a id="display">
-				<img id="img" class="reader-image" onload="updateMetadata()" onerror="this.src='./img/noThumb.png'"
-					src="[% imgpath %]" usemap="#Map" />
-				<map name="Map" id="Map">
-					<area id="leftmap" style="cursor:pointer;" onclick="advancePage(-1)" shape="rect" />
-					<area id="rightmap" style="cursor:pointer;" onclick="advancePage(1)" shape="rect" />
-				</map>
-			</a>
+            <a id="display">
+                <img id="img" class="reader-image" onload="Reader.updateMetadata()"
+                    onerror="this.src='./img/noThumb.png'" src="[% imgpath %]" usemap="#Map" />
+                <map name="Map" id="Map">
+                    <area id="leftmap" style="cursor:pointer;" shape="rect" value="left" />
+                    <area id="rightmap" style="cursor:pointer;" shape="rect" value="right" />
+                </map>
+            </a>
 
-		</div>
+        </div>
 
-		<div id="i4">
-			[% INCLUDE fileinfo %] [% INCLUDE pagesel %] [% INCLUDE arrows %]
-		</div>
+        <div id="i4">
+            [% INCLUDE fileinfo %] [% INCLUDE pagesel %] [% INCLUDE arrows %]
+        </div>
 
-		<div id="i5">
-			<div class="sb">
-				<a href="./" title="Done reading? Go back to Archive Index">
-					<i class="fa fa-angle-down fa-3x"></i>
-				</a>
-			</div>
-		</div>
+        <div id="i5">
+            <div class="sb">
+                <a href="./" title="Done reading? Go back to Archive Index">
+                    <i class="fa fa-angle-down fa-3x"></i>
+                </a>
+            </div>
+        </div>
 
-		<div id="i7" class="if">
-			<i class="fa fa-caret-right fa-lg"></i>
-			<a id="imgLink" style="cursor:pointer;">View full-size image</a>
-			<i class="fa fa-caret-right fa-lg"></i>
-			<a href="./random">Switch to another random archive</a>
-		</div>
+        <div id="i7" class="if">
+            <i class="fa fa-caret-right fa-lg"></i>
+            <a id="imgLink" style="cursor:pointer;">View full-size image</a>
+            <i class="fa fa-caret-right fa-lg"></i>
+            <a href="./random">Switch to another random archive</a>
+        </div>
 
-	</div>
+    </div>
 
-	<script>
+    <script>
+        Reader.pages = [% imgpaths %].pages;
+        Reader.id = "[%id%]";
+        Reader.filename = "[% filename %]";
+        Reader.tags = "[% tags %]";
+        Reader.trackProgressLocally = "[% use_local %]" === "1";
+        Reader.progress = [% progress %] - 1;
+    </script>
 
-		let isComingFromPopstate = false;
-		const pages = [% imgpaths %];
-		const id = "[%id%]";
-		let filename = "[% filename %]";
-		const tags = "[% tags %]";
+    <div id="overlay-shade"></div>
+    <div id="archivePagesOverlay" class="id1 base-overlay page-overlay" style="display:none" loaded="false">
+        <h2 class="ih" style="text-align:center">Archive Overview</h2>
+        <div id="tagContainer" class="caption caption-tags caption-reader">
+            <br>
+            <div style="margin-bottom:16px;">
+                <div class="id3 nocrop reader-thumbnail">
+                    <img src="./api/archives/[% id %]/thumbnail" />
+                </div>
 
-		if ((filename.endsWith(".rar") || filename.endsWith(".cbr")) && !localStorage.rarWarningShown) {
-			localStorage.rarWarningShown = true;
-			$.toast({
-				showHideTransition: 'slide',
-				position: 'top-left',
-				loader: false,
-				heading: "This archive seems to be in RAR format!",
-				text: 'RAR archives might not work properly in LANraragi depending on how they were made. If you encounter errors while reading, consider converting your archive to zip.',
-				hideAfter: false,
-				icon: 'warning'
-			});
-		}
+                [% IF userlogged %]
+                <div style="display:inline-block; vertical-align: middle;">
 
-		if (filename.endsWith(".epub") && !localStorage.epubWarningShown) {
-			localStorage.epubWarningShown = true;
-			$.toast({
-				showHideTransition: 'slide',
-				position: 'top-left',
-				loader: false,
-				heading: "EPUB support in LANraragi is minimal",
-				text: 'EPUB books will only show images in the Web Reader. If you want text support, consider pairing LANraragi with an <a href= "https://sugoi.gitbook.io/lanraragi/advanced-usage/external-readers#generic-opds-readers">OPDS reader.</a> ',
-				hideAfter: false,
-				icon: 'warning'
-			});
-		}
+                    <h2>Admin Options</h2>
 
-		// Go straight to page number if there's an existing progress value
-		if (localStorage.nobookmark === 'true')
-			currentPage = 0;
-		else
-			currentPage = parseInt([% progress %] - 1 || 0);
+                    <input class="stdbtn" type='button' id="regenerate-thumbnail"
+                        value="Regenerate Archive Thumbnail" />
+                    <br>
+                    <input id="regenerate-cache" class='stdbtn' type='button' value='Clean Archive Cache' />
+                    <br>
+                    <input id="edit-archive" class='stdbtn' type='button' value='Edit Archive Metadata' />
 
-		pageNumber = [% pagecount %];
+                    <h2>Add this archive to a Category</h2>
 
-		//canvas variables
-		previousPage = -1;
-		imagesLoaded = 0;
-		img1 = "";
-		img2 = "";
-		showingSinglePage = false;
+                    <select id="category" class="favtag-btn" style="width:200px; margin-right: 8px">
+                        <option selected value=""> -- No Category -- </option>
+                        [% FOREACH categories %]
+                        <option value="[% id %]">[% name %]</option>
+                        [% END %]
+                    </select>
+                    <br>
+                    <input value="Add Archive" class="stdbtn" id="add-category" type="button">
+                </div>
+                [% END %]
+            </div>
 
-		//if we made it to the last page in a previous read, reset the page number
-		if (currentPage === pageNumber - 1)
-			currentPage = 0;
+        </div>
 
-		var params = new URLSearchParams(window.location.search);
+        <br><br>
 
-		if (params.has("p"))
-			goToPage(params.get("p") - 1);
-		else
-			goToPage(currentPage);
+        <h2 class="ih" style="text-align:center">Pages</h2>
+    </div>
+    </div>
+    </div>
+    <div id="settingsOverlay" class="id1 base-overlay small-overlay" style="display:none">
+        [% INCLUDE config %]
+    </div>
 
-		// Remove new flag with an API call
-		clearNew(id);
+    <canvas id="dpcanvas" style="display:none" width="100" height="100"></canvas>
 
-		//image map update on window resize
-		$(window).resize(function () {
-			updateImageMap();
-		});
-
-		// Add a listen event to window.popstate to update the page accordingly if the user goes back using browser history
-		window.onpopstate = () => {
-			var params = new URLSearchParams(window.location.search);
-			if (params.has("p")) {
-				isComingFromPopstate = true;
-				goToPage(params.get("p") - 1);
-			}
-		}
-
-	</script>
-
-	<div id="overlay-shade" onclick="closeOverlay();"></div>
-	<div id="archivePagesOverlay" class="id1 base-overlay page-overlay" style="display:none" loaded="false">
-		<h2 class="ih" style="text-align:center">Archive Overview</h2>
-		<div id="tagContainer" class="caption caption-tags caption-reader">
-			<br>
-			<div style="margin-bottom:16px;">
-				<div class="id3 nocrop reader-thumbnail">
-					<img src="./api/archives/[% id %]/thumbnail" />
-				</div>
-
-				[% IF userlogged %]
-				<div style="display:inline-block; vertical-align: middle;">
-
-					<h2>Admin Options</h2>
-
-					<input class="stdbtn" type='button' onclick="confirmThumbnailReset('[% id %]')"
-						value="Regenerate Archive Thumbnail" />
-					<br>
-					<input class='stdbtn' type='button'
-						onclick="window.location.href = './reader?id=[% id %]&force_reload=1'"
-						value='Clean Archive Cache' />
-					<br>
-					<input class='stdbtn' type='button' onclick="openInNewTab('./edit?id=[% id %]')"
-						value='Edit Archive Metadata' />
-
-					<h2>Add this archive to a Category</h2>
-
-					<select id="category" class="favtag-btn" style="width:200px; margin-right: 8px">
-						<option selected value=""> -- No Category -- </option>
-						[% FOREACH categories %]
-						<option value="[% id %]">[% name %]</option>
-						[% END %]
-					</select>
-					<br>
-					<input value="Add Archive" onclick="addArchiveToCategory('[% id %]', $('#category').val())"
-						class="stdbtn" id="goback" type="button">
-				</div>
-				[% END %]
-			</div>
-
-		</div>
-
-		<br><br>
-
-		<h2 class="ih" style="text-align:center">Pages</h2>
-	</div>
-	</div>
-	</div>
-	<div id="settingsOverlay" class="id1 base-overlay small-overlay" style="display:none">
-		[% INCLUDE config %]
-	</div>
-
-	<canvas id="dpcanvas" style="display:none" width="100" height="100"></canvas>
-
-	[% INCLUDE footer %]
+    [% INCLUDE footer %]
 </body>
 
 </html>
@@ -221,93 +147,84 @@
 
 <h1 class="ih config-panel">Those options save automatically -- Click around and find out!</h1>
 
-<div style="margin:auto; font-size:8pt;">
-	<h2 class="config-panel"> Fit display to </h2>
-	<input id="fitcontainer" class="favtag-btn config-btn" type="button" value="Container"
-		onclick="setDisplayMode(false,false)">
-	<input id="fitwidth" class="favtag-btn config-btn" type="button" value="Width" onclick="setDisplayMode(true,false)">
-	<input id="fitheight" class="favtag-btn config-btn" type="button" value="Height"
-		onclick="setDisplayMode(false,true)">
+<div id="fit-mode">
+    <h2 class="config-panel"> Fit display to </h2>
+    <input id="fit-container" class="favtag-btn config-btn" type="button" value="Container">
+    <input id="fit-width" class="favtag-btn config-btn" type="button" value="Width">
+    <input id="fit-height" class="favtag-btn config-btn" type="button" value="Height">
 </div>
 
-<div style="margin:auto; font-size:8pt;" id="containersetting">
-	<h2 class="config-panel"> Container Width (in pixels)</h2>
-	<input id="containerwidth" class="stdinput" style="display:inline" onsubmit="applyContainerWidth()"
-		placeholder="The default value is 1200px, or 90% in Double Page Mode.">
-	<input class="favtag-btn config-btn" type="button" style="display:inline" value="Apply"
-		onclick="applyContainerWidth()">
+<div id="container-width">
+    <h2 class="config-panel"> Container Width (in pixels or percentage)</h2>
+    <input id="container-width-input" class="stdinput" style="display:inline"
+        placeholder="The default value is 1200px, or 90% in Double Page Mode.">
+    <input id="container-width-apply" class="favtag-btn config-btn" type="button" style="display:inline;" value="Apply">
 </div>
 
-<div style="margin:auto; font-size:8pt;">
-	<h2 class="config-panel"> Page Rendering </h2>
-	<input id="singlepage" class="favtag-btn config-btn" type="button" value="Single" onclick="setDoublePage(false)">
-	<input id="doublepage" class="favtag-btn config-btn" type="button" value="Double" onclick="setDoublePage(true)">
+<div id="toggle-double-mode">
+    <h2 class="config-panel"> Page Rendering </h2>
+    <input id="single-page" class="favtag-btn config-btn" type="button" value="Single">
+    <input id="double-page" class="favtag-btn config-btn" type="button" value="Double">
 </div>
 
-<div style="margin:auto; font-size:8pt;">
-	<h2 class="config-panel"> Direction </h2>
-	<span class="config-panel"></span>
-	<input id="normalread" class="favtag-btn config-btn" type="button" value="Left to Right" onclick="setRTL(false)">
-	<input id="mangaread" class="favtag-btn config-btn" type="button" value="Right to Left" onclick="setRTL(true)">
+<div id="toggle-manga-mode">
+    <h2 class="config-panel"> Reading Direction </h2>
+    <span class="config-panel"></span>
+    <input id="normal-mode" class="favtag-btn config-btn" type="button" value="Left to Right">
+    <input id="manga-mode" class="favtag-btn config-btn" type="button" value="Right to Left">
 </div>
 
-<div style="margin:auto; font-size:8pt;">
-	<h2 class="config-panel"> Header </h2>
-	<input id="showtop" class="favtag-btn config-btn" type="button" value="Visible" onclick="setHideHeader(false)">
-	<input id="hidetop" class="favtag-btn config-btn" type="button" value="Hidden" onclick="setHideHeader(true)">
+<div id="preload-images">
+    <h2 class="config-panel"> How many images to preload</h2>
+    <input id="preload-input" class="stdinput" style="display:inline" placeholder="The default is two images.">
+    <input id="preload-apply" class="favtag-btn config-btn" type="button" style="display:inline;" value="Apply">
 </div>
 
-<div style="margin:auto; font-size:8pt;">
-	<h2 class="config-panel"> Progression Tracking </h2>
-	<span class="config-panel">Disabling tracking will restart reading from page one every time you reopen the reader.
-	</span>
-	<input id="dobookmark" class="favtag-btn config-btn" type="button" value="Enabled" onclick="setTracking(false)">
-	<input id="nobookmark" class="favtag-btn config-btn" type="button" value="Disabled" onclick="setTracking(true)">
+<div id="toggle-header">
+    <h2 class="config-panel"> Header </h2>
+    <input id="show-header" class="favtag-btn config-btn" type="button" value="Visible">
+    <input id="hide-header" class="favtag-btn config-btn" type="button" value="Hidden">
+</div>
+
+<div id="toggle-progress">
+    <h2 class="config-panel"> Progression Tracking </h2>
+    <span class="config-panel">Disabling tracking will restart reading from page one every time you reopen the reader.
+    </span>
+    <input id="track-progress" class="favtag-btn config-btn" type="button" value="Enabled">
+    <input id="untrack-progress" class="favtag-btn config-btn" type="button" value="Disabled">
+</div>
+
+<div id="toggle-infinite-scroll">
+    <h2 class="config-panel"> Infinite Scrolling </h2>
+    <span class="config-panel">Display all images in a vertical view in the same page.
+    </span>
+    <input id="infinite-scroll-on" class="favtag-btn config-btn" type="button" value="Enabled">
+    <input id="infinite-scroll-off" class="favtag-btn config-btn" type="button" value="Disabled">
 </div>
 
 [% END %]
 <!-- -->
 [% BLOCK arrows %]
-<div class="sn">
+<div class="sn paginator">
+    <a class="fa fa-angle-double-left page-link" style="font-size: 1.5em;" value="outer-left"></a>
+    <a class="fa fa-angle-left page-link" style="font-size: 1.5em;" value="left"></a>
 
-	<a onclick="goFirst()" style="cursor:pointer;">
-		<i class="fa fa-angle-double-left" style="font-size: 1.5em;"></i>
-	</a>
+    <div class="pagecount">
+        <span class="current-page"></span> /
+        <span class="max-page">[% pagecount %]</span>
+    </div>
 
-	<a id="left" onclick="advancePage(-1)" style="cursor:pointer;">
-		<i class="fa fa-angle-left" style="font-size: 1.5em;"></i>
-	</a>
-
-	<div class="pagecount">
-		<span class="current-page"></span> /
-		<span class="max-page"></span>
-	</div>
-
-	<a id="right" onclick="advancePage(1)" style="cursor:pointer;">
-		<i class="fa fa-angle-right" style="font-size: 1.5em;"></i>
-	</a>
-
-	<a onclick="goLast()" style="cursor:pointer;">
-		<i class="fa fa-angle-double-right" style="font-size: 1.5em;"></i>
-	</a>
+    <a class="fa fa-angle-right page-link" style="font-size: 1.5em;" value="right"></a>
+    <a class="fa fa-angle-double-right page-link" style="font-size: 1.5em;" value="outer-right"></a>
 </div>
 [% END %]
 <!-- -->
 [% BLOCK pagesel %]
-<div style="position: absolute; right: 20px; z-index:20" class="page_dropdown">
-
-	<a href="#" onclick="openOverlay();" title="Archive Overview">
-		<i class="fa fa-th fa-2x" style="padding-right: 10px;"></i>
-	</a>
-
-	<a href="#" onclick="openSettings();" title="Reader Settings">
-		<i class="fa fa-cog fa-2x" style="padding-right: 10px;"></i>
-	</a>
-
-	<a href="#" onclick="toastHelpReader()" title="Help">
-		<i class="fa fa-info-circle fa-2x" style="padding-right: 10px;"></i>
-	</a>
-
+<div class="page_dropdown">
+    <a class="fa fa-arrow-right fa-2x reading-direction" href="#" title="Reading Direction"></a>
+    <a class="fa fa-th fa-2x" id="toggle-archive-overlay" href="#" title="Archive Overview"></a>
+    <a class="fa fa-cog fa-2x" id="toggle-settings-overlay" href="#" title="Reader Settings"></a>
+    <a class="fa fa-info-circle fa-2x" id="toggle-help" href="#" title="Help"></a>
 </div>
 [% END %]
 <!-- -->
