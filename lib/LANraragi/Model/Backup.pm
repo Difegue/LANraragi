@@ -29,15 +29,15 @@ sub build_backup_JSON {
 
     # Parse the category list and add them to JSON.
     foreach my $key (@cats) {
-        my %data = $redis->hgetall($key);
-        my ( $name, $search, $archives ) = @data{qw(name search archives)};
-
-        # redis-decode the name, and the search terms if they exist
-        ( $_ = redis_decode($_) ) for ( $name, $search );
-
         # Use an eval block in case decode_json fails. This'll drop the category from the backup,
         # But it's probably dinged anyways...
         eval {
+            my %data = $redis->hgetall($key);
+            my ( $name, $search, $archives ) = @data{qw(name search archives)};
+
+            # redis-decode the name, and the search terms if they exist
+            ( $_ = redis_decode($_) ) for ( $name, $search );
+
             my %category = (
                 catid    => $key,
                 name     => $name,
@@ -56,22 +56,24 @@ sub build_backup_JSON {
     #Parse the archive list and add them to JSON.
     foreach my $id (@keys) {
 
-        my %hash = $redis->hgetall($id);
-        my ( $name, $title, $tags, $thumbhash ) = @hash{qw(name title tags thumbhash)};
+        eval {
+            my %hash = $redis->hgetall($id);
+            my ( $name, $title, $tags, $thumbhash ) = @hash{qw(name title tags thumbhash)};
 
-        ( $_ = redis_decode($_) ) for ( $name, $title, $tags );
-        ( remove_newlines($_) ) for ( $name, $title, $tags );
+            ( $_ = redis_decode($_) ) for ( $name, $title, $tags );
+            ( remove_newlines($_) ) for ( $name, $title, $tags );
 
-        #Backup all user-generated metadata, alongside the unique ID.
-        my %arc = (
-            arcid     => $id,
-            title     => $title,
-            tags      => $tags,
-            thumbhash => $thumbhash,
-            filename  => $name
-        );
+            #Backup all user-generated metadata, alongside the unique ID.
+            my %arc = (
+                arcid     => $id,
+                title     => $title,
+                tags      => $tags,
+                thumbhash => $thumbhash,
+                filename  => $name
+            );
 
-        push @{ $backup{archives} }, \%arc;
+            push @{ $backup{archives} }, \%arc;
+        };
     }
 
     $redis->quit();

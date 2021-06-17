@@ -104,25 +104,27 @@ sub do_search {
                         next;
                     }
 
-                    my %data = $redis->hgetall($id);
-                    my ( $tags, $title, $file, $isnew ) = @data{qw(tags title file isnew)};
-                    $title = redis_decode($title);
-                    $tags  = redis_decode($tags);
+                    eval {
+                        my %data = $redis->hgetall($id);
+                        my ( $tags, $title, $file, $isnew ) = @data{qw(tags title file isnew)};
+                        $title = redis_decode($title);
+                        $tags  = redis_decode($tags);
 
-                    # Check new filter first
-                    if ( $newonly && $isnew && $isnew ne "true" ) {
-                        next;
-                    }
+                        # Check new filter first
+                        if ( $newonly && $isnew && $isnew ne "true" ) {
+                            next;
+                        }
 
-                    # Check category search and base search filter
-                    my $concat = $tags ? $title . "," . $tags : $title;
-                    if (   $file
-                        && matches_search_filter( $cat_search, $concat )
-                        && matches_search_filter( $filter,     $concat ) ) {
+                        # Check category search and base search filter
+                        my $concat = $tags ? $title . "," . $tags : $title;
+                        if (   $file
+                            && matches_search_filter( $cat_search, $concat )
+                            && matches_search_filter( $filter,     $concat ) ) {
 
-                        # Push id to array
-                        push @shared, { id => $id, title => $title, tags => $tags };
-                    }
+                            # Push id to array
+                            push @shared, { id => $id, title => $title, tags => $tags };
+                        }
+                    };
                 }
             }
         );

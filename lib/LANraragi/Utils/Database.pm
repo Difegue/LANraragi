@@ -54,36 +54,38 @@ sub add_archive_to_redis {
 # This function is usually called many times in a row, so provide your own Redis object.
 sub build_archive_JSON {
     my ( $redis, $id ) = @_;
+    my $arcdata;
 
-    #Extra check in case we've been given a bogus ID
-    return "" unless $redis->exists($id);
+    eval {
+        #Extra check in case we've been given a bogus ID
+        die unless $redis->exists($id);
 
-    my %hash = $redis->hgetall($id);
+        my %hash = $redis->hgetall($id);
 
-    #It's not a new archive, but it might have never been clicked on yet,
-    #so we'll grab the value for $isnew stored in redis.
-    my ( $name, $title, $tags, $file, $isnew, $progress, $pagecount ) = @hash{qw(name title tags file isnew progress pagecount)};
+        #It's not a new archive, but it might have never been clicked on yet,
+        #so we'll grab the value for $isnew stored in redis.
+        my ( $name, $title, $tags, $file, $isnew, $progress, $pagecount ) = @hash{qw(name title tags file isnew progress pagecount)};
 
-    # return undef if the file doesn't exist.
-    unless ( -e $file ) {
-        return;
-    }
+        # return undef if the file doesn't exist.
+        die unless ( -e $file );
 
-    #Parameters have been obtained, let's decode them.
-    ( $_ = redis_decode($_) ) for ( $name, $title, $tags );
+        #Parameters have been obtained, let's decode them.
+        ( $_ = redis_decode($_) ) for ( $name, $title, $tags );
 
-    #Workaround if title was incorrectly parsed as blank
-    if ( !defined($title) || $title =~ /^\s*$/ ) {
-        $title = $name;
-    }
+        #Workaround if title was incorrectly parsed as blank
+        if ( !defined($title) || $title =~ /^\s*$/ ) {
+            $title = $name;
+        }
 
-    my $arcdata = {
-        arcid     => $id,
-        title     => $title,
-        tags      => $tags,
-        isnew     => $isnew,
-        progress  => $progress ? int($progress) : 0,
-        pagecount => $pagecount ? int($pagecount) : 0
+        $arcdata = {
+            arcid     => $id,
+            title     => $title,
+            tags      => $tags,
+            isnew     => $isnew,
+            progress  => $progress ? int($progress) : 0,
+            pagecount => $pagecount ? int($pagecount) : 0
+        };
+    
     };
 
     return $arcdata;
