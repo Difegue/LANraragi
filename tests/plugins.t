@@ -56,7 +56,7 @@ is( $test_eH_gToken, $eH_gToken, 'eHentai search test 2/2' );
 my $eH_tags =
   "parody:touhou project, character:hong meiling, character:marisa kirisame, character:reimu hakurei, character:sanae kochiya, character:youmu konpaku, group:handful happiness, artist:nanahara fuyuki, artbook, full color, category:non-h";
 
-my ( $test_eH_tags, $test_eH_title ) = LANraragi::Plugin::Metadata::EHentai::get_tags_from_EH( $eH_gID, $eH_gToken );
+my ( $test_eH_tags, $test_eH_title ) = LANraragi::Plugin::Metadata::EHentai::get_tags_from_EH( $ua, $eH_gID, $eH_gToken );
 
 is( split( ", ", $test_eH_tags ), split( ", ", $eH_tags ), 'eHentai API Tag retrieval test' );
 is( $test_eH_title,
