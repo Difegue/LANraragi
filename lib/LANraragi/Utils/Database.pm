@@ -155,8 +155,18 @@ sub clean_database {
     my $unlinked_arcs = 0;
 
     foreach my $id (@keys) {
-        my $file = $redis->hget( $id, "file" );
 
+        # Check if the DB entry is correct
+        eval { $redis->hgetall( $id ); };
+
+        if ($@) {
+            $redis->del($id);
+            $deleted_arcs++;
+            next;
+        }
+
+        # Check if the linked file exists
+        my $file = $redis->hget( $id, "file" );
         unless ( -e $file ) {
             $redis->del($id);
             $deleted_arcs++;
