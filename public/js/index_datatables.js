@@ -4,6 +4,7 @@
 //This is painful to read.
 function initIndex(pagesize, trackLocal) {
 
+	originalTitle = document.title;
 	trackProgressLocally = trackLocal;
 	selectedCategory = "";
 	isComingFromPopstate = false;
@@ -127,7 +128,11 @@ function performSearch(page) {
 		arcTable.column('.untagged').search("");
 	}
 
-	arcTable.search($('#srch').val().replace(",", ""));
+	let searchText = $('#srch').val();
+	arcTable.search(searchText.replace(",", ""));
+	
+	// Add the current search terms to the title tab
+	document.title = originalTitle + ((searchText !== "") ? ` - ${searchText}`: "");
 
 	if (page) {
 		// Hack the displayStart value to draw at the page we asked
