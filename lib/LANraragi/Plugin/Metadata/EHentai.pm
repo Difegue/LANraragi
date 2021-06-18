@@ -101,7 +101,7 @@ sub get_tags {
         $logger->debug("EH API Tokens are $gID / $gToken");
     }
 
-    my ( $ehtags, $ehtitle ) = &get_tags_from_EH( $gID, $gToken, $jpntitle, $additionaltags );
+    my ( $ehtags, $ehtitle ) = &get_tags_from_EH( $lrr_info->{user_agent}, $gID, $gToken, $jpntitle, $additionaltags );
     my %hashdata = ( tags => $ehtags );
 
     # Add source URL and title if possible/applicable
@@ -226,14 +226,12 @@ sub ehentai_parse() {
     return ( $gID, $gToken );
 }
 
-# get_tags_from_EH(gID, gToken, jpntitle, additionaltags)
+# get_tags_from_EH(userAgent, gID, gToken, jpntitle, additionaltags)
 # Executes an e-hentai API request with the given JSON and returns tags and title.
 sub get_tags_from_EH {
 
-    my ( $gID, $gToken, $jpntitle, $additionaltags ) = @_;
-    my $uri = 'https://e-hentai.org/api.php';
-
-    my $ua = Mojo::UserAgent->new;
+    my ( $ua, $gID, $gToken, $jpntitle, $additionaltags ) = @_;
+    my $uri = 'https://api.e-hentai.org/api.php';
 
     my $logger = get_logger( "E-Hentai", "plugins" );
 
