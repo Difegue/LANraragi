@@ -6,6 +6,7 @@ use utf8;
 
 use Redis;
 use File::Find;
+use Mojo::JSON qw(encode_json);
 
 use LANraragi::Utils::Generic qw(remove_spaces remove_newlines is_archive trim_url);
 use LANraragi::Utils::Database qw(redis_decode redis_encode);
@@ -136,10 +137,11 @@ sub build_tag_json {
         # detect the : symbol and only use what's after it
         my $ns = "";
         my $t  = redis_decode($_);
-        if ( $t =~ /(.*):(.*)/ ) { $ns = $1; $t = $2; }
+        if ( $t =~ /([^:]*):(.*)/ ) { $ns = $1; $t = $2; }
 
         if ( $_ ne "" ) {
-            $tagsjson .= qq({"text": "$t", "namespace": "$ns", "weight": $w },);
+            my $j = encode_json { text => $t, namespace => $ns, weight => $w };
+            $tagsjson .= "$j,";
         }
     }
 
