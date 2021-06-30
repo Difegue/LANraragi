@@ -27,7 +27,7 @@
     "allcollapsible": "^1.1.0",
     "awesomplete": "^1.1.5",
     "blueimp-file-upload": "^10.28.0",
-    "datatables": "^1.10.18",
+    "datatables.net": "^1.10.25",
     "inter-ui": "^3.3.2",
     "jqcloud2": "^2.0.3",
     "jquery": "^3.6.0",
