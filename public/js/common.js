@@ -54,7 +54,8 @@ function colorCodeTags(tags) {
 
 function splitTagsByNamespace(tags) {
 
-    var tagsByNamespace = {};
+    let tagsByNamespace = {};
+    let namespaceRegex = /([^:]*):(.*)/i;
 
     if (tags === null || tags === undefined) {
         return tagsByNamespace;
@@ -65,13 +66,14 @@ function splitTagsByNamespace(tags) {
         val = null;
 
         //Split the tag from its namespace
-        arr = tag.split(/:\s?/);
-        if (arr.length == 2) {
-            nspce = arr[0].trim();
-            val = arr[1].trim();
+		arr = namespaceRegex.exec(tag);
+
+		if (arr != null) {
+            nspce = arr[1].trim();
+            val = arr[2].trim();
         } else {
             nspce = "other";
-            val = arr;
+            val = tag.trim();
         }
 
         if (nspce in tagsByNamespace)
