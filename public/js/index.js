@@ -215,7 +215,7 @@ function handleContextMenu(option, id) {
 }
 
 // Format tag objects from the API into a format awesomplete likes.
-function fullTag(tag) {
+function getAwesompleteTagObject(tag) {
 	label = tag.text;
 	if (tag.namespace !== "")
 		label = tag.namespace + ":" + tag.text;
@@ -236,7 +236,7 @@ function loadTagSuggestions() {
 
 			new Awesomplete('#srch', {
 				list: taglist,
-				data: fullTag,
+				data: getAwesompleteTagObject,
 				// Sort by weight
 				sort: function (a, b) { return b.value - a.value; },
 				filter: function (text, input) {

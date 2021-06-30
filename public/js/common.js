@@ -106,11 +106,11 @@ function buildTagsDiv(tags) {
         line += `<tr><td class='caption-namespace ${encodedK}-tag'>${ucKey}:</td><td>`;
 
         tagsByNamespace[key].forEach(function (tag) {
-            fullTag = (key !== "other") ? key + ":" + tag : tag;
+            let namespacedTag = (key !== "other") ? key + ":" + tag : tag;
 
             line += `<div class="gt">
-					 	<a onclick="fillSearchField(event, '${encode(fullTag)}')" 
-						   href="/?q=${encodeURIComponent(fullTag)}">
+					 	<a onclick="fillSearchField(event, '${encode(namespacedTag)}')" 
+						   href="/?q=${encodeURIComponent(namespacedTag)}">
 						   ${encode(tag)}
 						</a>
 					 </div>`;
