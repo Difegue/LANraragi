@@ -26,7 +26,6 @@ sub generate_archive_list {
     my @list  = ();
 
     foreach my $id (@keys) {
-
         my $arcdata = LANraragi::Utils::Database::build_archive_JSON( $redis, $id );
 
         if ($arcdata) {
@@ -57,7 +56,9 @@ sub generate_opds_catalog {
         my $file = $redis->hget( $id, "file" );
         if ( -e $file ) {
             my $arcdata = LANraragi::Utils::Database::build_archive_JSON( $redis, $id );
-            my $tags    = $arcdata->{tags};
+            unless ($arcdata) { next; }
+
+            my $tags = $arcdata->{tags};
 
             # Infer a few OPDS-related fields from the tags
             $arcdata->{dateadded} = get_tag_with_namespace( "dateadded", $tags, "2010-01-10T10:01:11Z" );
