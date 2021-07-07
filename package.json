@@ -4,7 +4,7 @@
   "version_name": "Lucy Can’t Dance",
   "description": "I'm under Japanese influence and my honor's at stake!",
   "scripts": {
-    "test": "prove -l -v tests/*.t",
+    "test": "prove -l -r -v tests/",
     "lanraragi-installer": "perl ./tools/install.pl",
     "start": "perl ./script/launcher.pl -f ./script/lanraragi",
     "dev-server": "perl ./script/launcher.pl -m -v ./script/lanraragi ",

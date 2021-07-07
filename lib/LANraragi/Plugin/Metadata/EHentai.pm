@@ -14,6 +14,7 @@ use Mojo::UserAgent;
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
 use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Generic qw(remove_spaces);
 
 #Meta-information about your plugin.
 sub plugin_info {
@@ -25,7 +26,7 @@ sub plugin_info {
         namespace   => "ehplugin",
         login_from  => "ehlogin",
         author      => "Difegue and others",
-        version     => "2.5",
+        version     => "2.6",
         description => "Searches g.e-hentai for tags matching your archive.",
         icon =>
           "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAABmJLR0QA/wD/AP+gvaeTAAAACXBI\nWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4wYBFg0JvyFIYgAAAB1pVFh0Q29tbWVudAAAAAAAQ3Jl\nYXRlZCB3aXRoIEdJTVBkLmUHAAAEo0lEQVQ4y02UPWhT7RvGf8/5yMkxMU2NKaYIFtKAHxWloYNU\ncRDeQTsUFPwAFwUHByu4ODq4Oghdiri8UIrooCC0Lx01ONSKfYOioi1WpWmaxtTm5PTkfNzv0H/D\n/9oeePjdPNd13Y8aHR2VR48eEUURpmmiaRqmaXbOAK7r4vs+IsLk5CSTk5P4vo9hGIgIsViMra0t\nCoUCRi6XY8+ePVSrVTRN61yybZuXL1/y7t078vk8mUyGvXv3cuLECWZnZ1lbW6PdbpNIJHAcB8uy\nePr0KYZlWTSbTRKJBLquo5TCMAwmJia4f/8+Sini8Ti1Wo0oikin09i2TbPZJJPJUK/XefDgAefO\nnWNlZQVD0zSUUvi+TxAE6LqOrut8/fqVTCaDbdvkcjk0TSOdTrOysoLrujiOw+bmJmEYMjAwQLVa\nJZVKYXR1ddFut/F9H9M0MU0T3/dZXV3FdV36+/vp7u7m6NGj7Nq1i0qlwuLiIqVSib6+Pubn5wGw\nbZtYLIaxMymVSuH7PpZlEUURSina7TZBEOD7Pp8/fyYMQ3zfZ25ujv3795NOp3n48CE9PT3ouk4Q\nBBi/fv3Ctm0cx6Grq4utrS26u7sREQzDIIoifv78SU9PD5VKhTAMGRoaYnV1leHhYa5evUoQBIRh\niIigiQhRFKHrOs1mE9u2iaKIkydPYhgGAKZp8v79e+LxOPl8Htd1uXbtGrdv3yYMQ3ZyAODFixeb\nrVZLvn//Lq7rSqVSkfX1dREROXz4sBw/flyUUjI6OipXrlyRQ4cOSbPZlCiKxHVdCcNQHMcRz/PE\ndV0BGL53756sra1JrVaT9fV1cRxHRESGhoakr69PUqmUvHr1SsrlsuzI931ptVriuq78+fNHPM+T\nVqslhoikjh075p09e9ba6aKu6/T39zM4OMjS0hIzMzM0Gg12794N0LEIwPd9YrEYrusShiEK4Nmz\nZ41yudyVy+XI5/MMDAyQzWap1+tks1lEhIWFBQqFArZto5QiCAJc1+14t7m5STweRwOo1WoSBAEj\nIyMUi0WSySQiQiqV6lRoYWGhY3673e7sfRAEiAjZbBbHcbaBb9++5cCBA2SzWZLJJLZt43kesViM\nHX379g1d1wnDsNNVEQEgCAIajQZ3797dBi4tLWGaJq7rYpompVKJmZkZ2u12B3j58mWUUmiahoiw\nsbFBEASdD2VsbIwnT55gACil+PHjB7Ozs0xPT/P7929u3ryJZVmEYUgYhhQKBZRSiAie52EYBkop\nLMvi8ePHTE1NUSwWt0OZn5/3hoeHzRs3bqhcLseXL1+YmJjowGzbRtO07RT/F8jO09+8ecP58+dJ\nJBKcPn0abW5uThWLRevOnTv/Li4u8vr1a3p7e9E0jXg8zsePHymVSnz69Kmzr7quY9s2U1NTXLp0\nCc/zOHLkCPv27UPxf6rX63+NjIz8IyKMj48zPT3NwYMHGRwcpLe3FwARodVqcf36dS5evMj4+DhB\nEHDmzBkymQz6DqxSqZDNZr8tLy//DYzdunWL5eVlqtUqHz58IJVKkUwmaTQalMtlLly4gIjw/Plz\nTp06RT6fZ2Njg/8AqMV7tO07rnsAAAAASUVORK5CYII=",
@@ -55,7 +56,7 @@ sub get_tags {
     my ( $lang, $savetitle, $usethumbs, $enablepanda, $jpntitle, $additionaltags, $expunged ) = @_;    # Plugin parameters
 
     # Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
-    my $logger = get_logger( "E-Hentai", "plugins" );
+    my $logger = &get_local_logger();
 
     # Work your magic here - You can create subroutines below to organize the code better
     my $gID    = "";
@@ -101,18 +102,34 @@ sub get_tags {
         $logger->debug("EH API Tokens are $gID / $gToken");
     }
 
-    my ( $ehtags, $ehtitle ) = &get_tags_from_EH( $lrr_info->{user_agent}, $gID, $gToken, $jpntitle, $additionaltags );
-    my %hashdata = ( tags => $ehtags );
+    my $json = &get_tags_from_EH( $lrr_info->{user_agent}, $gID, $gToken );
+    my %hashdata = ( tags => "" );
 
-    # Add source URL and title if possible/applicable
-    if ( $hashdata{tags} ne "" ) {
+    if ( $json ) {
+        my $tags = &get_tags_from_json( $json, $additionaltags );
+        # only check language on e-hentai
+        if ( !$enablepanda and !has_language_tag($tags) ) {
+            my $dom = &get_EH_gallery_dom($lrr_info->{user_agent}, $domain, $gID, $gToken);
+            if ($dom) {
+                my $language = &get_language_from_dom($dom) ;
+                if ($language) { push( @$tags, "language:$language"  ); }
+            }
+        }
 
-        if ( !$hasSrc ) { $hashdata{tags} .= ", source:" . ( split( '://', $domain ) )[1] . "/g/$gID/$gToken"; }
-        if ($savetitle) { $hashdata{title} = $ehtitle; }
+        if ( !$hasSrc ) { push( @$tags, "source:" . get_source_url( $domain, $gID, $gToken ) ); }
+        if ($savetitle) { $hashdata{title} = get_title_from_json( $json, $jpntitle ); }
+
+        $hashdata{tags} = join(', ', @$tags);
+        $logger->info("Sending the following tags to LRR: " . $hashdata{tags});
     }
 
     #Return a hash containing the new metadata - it will be integrated in LRR.
     return %hashdata;
+}
+
+sub get_local_logger {
+    my %pi = plugin_info();
+    return get_logger( $pi{name}, "plugins" );
 }
 
 ######
@@ -122,7 +139,7 @@ sub get_tags {
 sub lookup_gallery {
 
     my ( $title, $tags, $thumbhash, $ua, $domain, $defaultlanguage, $usethumbs, $expunged ) = @_;
-    my $logger = get_logger( "E-Hentai", "plugins" );
+    my $logger = &get_local_logger();
     my $URL    = "";
 
     #Thumbnail reverse image search
@@ -188,7 +205,7 @@ sub ehentai_parse() {
 
     my $URL    = $_[0];
     my $ua     = $_[1];
-    my $logger = get_logger( "E-Hentai", "plugins" );
+    my $logger = &get_local_logger();
 
     my $response = $ua->max_redirects(5)->get($URL)->result;
     my $content  = $response->body;
@@ -230,10 +247,10 @@ sub ehentai_parse() {
 # Executes an e-hentai API request with the given JSON and returns tags and title.
 sub get_tags_from_EH {
 
-    my ( $ua, $gID, $gToken, $jpntitle, $additionaltags ) = @_;
+    my ( $ua, $gID, $gToken ) = @_;
     my $uri = 'https://api.e-hentai.org/api.php';
 
-    my $logger = get_logger( "E-Hentai", "plugins" );
+    my $logger = &get_local_logger();
 
     #Execute the request
     my $rep = $ua->post(
@@ -248,34 +265,103 @@ sub get_tags_from_EH {
     my $textrep      = $rep->body;
     $logger->debug("E-H API returned this JSON: $textrep");
 
-    unless ( exists $jsonresponse->{"error"} ) {
-
-        my $data    = $jsonresponse->{"gmetadata"};
-        my $tags    = @$data[0]->{"tags"};
-        my $ehtitle = @$data[0]->{ ( $jpntitle ? "title_jpn" : "title" ) };
-        if ( $ehtitle eq "" && $jpntitle ) {
-            $ehtitle = @$data[0]->{"title"};
-        }
-        my $ehcat = lc @$data[0]->{"category"};
-
-        my $ehtags = join( ", ", @$tags );
-        $ehtags = $ehtags . ", category:" . $ehcat;
-        if ($additionaltags) {
-            my $ehuploader  = @$data[0]->{"uploader"};
-            my $ehtimestamp = @$data[0]->{"posted"};
-            $ehtags = $ehtags . ", uploader:" . $ehuploader . ", timestamp:" . $ehtimestamp;
-        }
-
-        # Unescape title received from the API as it might contain some HTML characters
-        $ehtitle = html_unescape($ehtitle);
-
-        $logger->info("Sending the following tags to LRR: $ehtags");
-        return ( $ehtags, $ehtitle );
-    } else {
-
+    if ( exists $jsonresponse->{"error"} ) {
         #if an error occurs(no tags available) return empty strings.
-        return ( "", "" );
+        return;
     }
+
+    return $jsonresponse;
+
+}
+
+sub get_EH_gallery_dom {
+
+    my ( $ua, $domain, $gID, $gToken ) = @_;
+
+    my $logger = &get_local_logger();
+    my $uri = "$domain/g/$gID/$gToken/";
+
+    #Execute the request
+    my $rep = $ua->get($uri)->result;
+    if ( $rep->is_error ) {
+        $logger->error( "E-H GET message: " . $rep->message );
+        return;
+    }
+
+    return $rep->dom;
+
+}
+
+sub get_title_from_json {
+
+    my ( $jsonresponse, $jpntitle ) = @_;
+
+    my $data    = $jsonresponse->{"gmetadata"};
+    my $ehtitle = @$data[0]->{ ( $jpntitle ? "title_jpn" : "title" ) };
+    if ( $ehtitle eq "" && $jpntitle ) {
+        $ehtitle = @$data[0]->{"title"};
+    }
+
+    # Unescape title received from the API as it might contain some HTML characters
+    $ehtitle = html_unescape($ehtitle);
+
+    return $ehtitle;
+
+}
+
+sub get_tags_from_json {
+
+    my ($jsonresponse, $additionaltags) = @_;
+
+    my $data  = $jsonresponse->{"gmetadata"};
+    my $tags  = @$data[0]->{"tags"};
+    my $ehcat = lc @$data[0]->{"category"};
+    push ( @$tags, "category:${ehcat}" ) if $ehcat;
+
+    if ($additionaltags) {
+        my $ehuploader  = @$data[0]->{"uploader"};
+        my $ehtimestamp = @$data[0]->{"posted"};
+        push ( @$tags, "uploader:${ehuploader}" ) if $ehuploader;
+        push ( @$tags, "timestamp:${ehtimestamp}" ) if $ehtimestamp;
+    }
+
+    return $tags;
+
+}
+
+sub get_language_from_dom {
+
+    my ( $dom ) = @_;
+
+    my $language = "";
+    for my $el ( $dom->find('#gdd')->first->find('td')->each ) {
+        if ( $el->text =~ m/.*Language:.*/ ) {
+            $language = $el->following->first->text;
+            # remove non-printable characters
+            $language =~ s/[^[:print:]]+//g;
+            remove_spaces($language);
+        }
+    }
+
+    return lc $language;
+
+}
+
+sub get_source_url {
+
+    my ($domain, $gID, $gToken) = @_;
+
+    return ( split( '://', $domain ) )[1] . "/g/$gID/$gToken";
+
+}
+
+sub has_language_tag {
+
+    my ($tags) = @_;
+
+    if (grep m/^language:.+/, @$tags) { return 1; }
+    return 0;
+
 }
 
 1;
