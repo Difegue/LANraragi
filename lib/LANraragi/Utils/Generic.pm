@@ -25,12 +25,16 @@ our @EXPORT_OK =
 
 # Remove spaces before and after a word
 sub remove_spaces {
-    $_[0] =~ s/^\s+|\s+$//g;
+    if ( $_[0] ) {
+        $_[0] =~ s/^\s+|\s+$//g;
+    }
 }
 
 # Remove all newlines in a string
 sub remove_newlines {
-    $_[0] =~ s/\R//g;
+    if ( $_[0] ) {
+        $_[0] =~ s/\R//g;
+    }
 }
 
 # Fixes up a URL string for use in the DL system.
