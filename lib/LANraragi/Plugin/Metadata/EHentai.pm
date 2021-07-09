@@ -271,7 +271,6 @@ sub get_tags_from_EH {
     }
 
     return $jsonresponse;
-
 }
 
 sub get_EH_gallery_dom {
@@ -289,7 +288,6 @@ sub get_EH_gallery_dom {
     }
 
     return $rep->dom;
-
 }
 
 sub get_title_from_json {
@@ -306,7 +304,6 @@ sub get_title_from_json {
     $ehtitle = html_unescape($ehtitle);
 
     return $ehtitle;
-
 }
 
 sub get_tags_from_json {
@@ -326,7 +323,6 @@ sub get_tags_from_json {
     }
 
     return $tags;
-
 }
 
 sub get_language_from_dom {
@@ -344,24 +340,17 @@ sub get_language_from_dom {
     }
 
     return lc $language;
-
 }
 
 sub get_source_url {
-
     my ($domain, $gID, $gToken) = @_;
-
     return ( split( '://', $domain ) )[1] . "/g/$gID/$gToken";
-
 }
 
 sub has_language_tag {
-
     my ($tags) = @_;
-
     if (grep m/^language:.+/, @$tags) { return 1; }
     return 0;
-
 }
 
 1;
