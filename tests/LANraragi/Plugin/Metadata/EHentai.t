@@ -71,7 +71,7 @@ note ( 'testing looking for the language in the DOM ...' );
     is( $language, 'japanese', "language from DOM" );
 }
 
-note ( 'testing the existence of a language tags ...' );
+note ( 'testing the existence of a language tag ...' );
 {
     ok( ! LANraragi::Plugin::Metadata::EHentai::has_language_tag( [ qw( category:manga tankoubon ) ] ), "no language" );
     ok( ! LANraragi::Plugin::Metadata::EHentai::has_language_tag( [ qw( category:manga language ) ] ), "no language" );
