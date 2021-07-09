@@ -102,7 +102,7 @@ sub get_tags {
         $logger->debug("EH API Tokens are $gID / $gToken");
     }
 
-    my $json = &get_tags_from_EH( $lrr_info->{user_agent}, $gID, $gToken );
+    my $json = &get_json_from_API( $lrr_info->{user_agent}, $gID, $gToken );
     my %hashdata = ( tags => "" );
 
     if ( $json ) {
