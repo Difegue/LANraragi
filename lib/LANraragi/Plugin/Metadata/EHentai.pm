@@ -245,7 +245,7 @@ sub ehentai_parse() {
 
 # get_tags_from_EH(userAgent, gID, gToken, jpntitle, additionaltags)
 # Executes an e-hentai API request with the given gallery info and returns the result JSON.
-sub get_tags_from_EH {
+sub get_json_from_API {
 
     my ( $ua, $gID, $gToken ) = @_;
     my $uri = 'https://api.e-hentai.org/api.php';

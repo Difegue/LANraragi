@@ -53,7 +53,7 @@ my ( $test_eH_gID, $test_eH_gToken ) =
 is( $test_eH_gID,    $eH_gID,    'eHentai search test 1/2' );
 is( $test_eH_gToken, $eH_gToken, 'eHentai search test 2/2' );
 
-my $test_eH_json = LANraragi::Plugin::Metadata::EHentai::get_tags_from_EH( $ua, $eH_gID, $eH_gToken );
+my $test_eH_json = LANraragi::Plugin::Metadata::EHentai::get_json_from_API( $ua, $eH_gID, $eH_gToken );
 ok( exists $test_eH_json->{gmetadata}, 'gmetadata exists' );
 isa_ok( $test_eH_json->{gmetadata}, 'ARRAY', 'type of gmetadata' );
 is( $test_eH_json->{gmetadata}[0]{title},
