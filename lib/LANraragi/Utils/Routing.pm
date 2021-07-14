@@ -11,23 +11,34 @@ use Mojolicious::Plugin::Minion::Admin;
 sub apply_routes {
     my $self = shift;
 
-    # Router
-    my $r = $self->routes;
+    # Routers used for all loginless routes
+    my $public_routes = $self->routes;
+    my $public_api    = $public_routes;
 
     # Normal route to controller
-    $r->get('/login')->to('login#index');
-    $r->post('/login')->to('login#check');
+    $public_routes->get('/login')->to('login#index');
+    $public_routes->post('/login')->to('login#check');
+    $public_routes->get('/logout')->to('login#logout');
 
-    my $logged_in = $r->under('/')->to('login#logged_in');
+    # The API router outputs CORS headers if the user allows it in the settings.
+    if ( $self->LRR_CONF->enable_cors ) {
+        $public_api = $public_api->under('/')->to('login#setup_cors');
 
-    # These API endpoints will always require the API Key or to be logged in
-    my $logged_in_api = $r->under('/')->to('login#logged_in_api');
+        # Private API requests are non-simple due to the Authorization header, so browsers send a preflight request.
+        # Preflight requests are OPTIONS requests, which we need to support explicitly
+        $public_api->options(
+            '/api/*' => sub {
+                my $self = shift;
+                $self->rendered(200);
+            }
+        );
+    }
 
-    # Router used for all loginless routes
-    my $public_routes = $r;
-    my $public_api    = $r;
+    # Routers for routes that require auth
+    my $logged_in     = $public_routes->under('/')->to('login#logged_in');
+    my $logged_in_api = $public_api->under('/')->to('login#logged_in_api');
 
-    #No-Fun Mode locks the base routes behind login as well
+    # No-Fun Mode locks the base routes behind login as well
     if ( $self->LRR_CONF->enable_nofun ) {
         $public_routes = $logged_in;
         $public_api    = $logged_in_api;
@@ -127,8 +138,6 @@ sub apply_routes {
     $logged_in_api->delete('/api/categories/:id')->to('api-category#delete_category');
     $logged_in_api->put('/api/categories/:id/:archive')->to('api-category#add_to_category');
     $logged_in_api->delete('/api/categories/:id/:archive')->to('api-category#remove_from_category');
-
-    $r->get('/logout')->to('login#logout');
 
 }
 
