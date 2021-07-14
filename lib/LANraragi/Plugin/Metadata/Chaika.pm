@@ -152,12 +152,12 @@ sub parse_chaika_json {
 
     # If the json contains a gallery id, we switch to it.
     # Gallery IDs often have more metadata stored.
-    if ( $json->{"gallery"} ) {
+    if ( $json->{"id"} ) {
 
-        my $gID = $json->{"gallery"};
-        $logger->debug("Gallery ID detected($gID), trying to switch to it.");
+        my $chaika_id = $json->{"id"};
+        $logger->debug("Gallery ID detected($chaika_id), trying to switch to it.");
 
-        my $URL = "$chaika_url/jsearch/?gallery=$gID";
+        my $URL = "$chaika_url/jsearch/?gallery=$chaika_id";
         my $ua  = Mojo::UserAgent->new;
         my $res = $ua->get($URL)->result;
 
@@ -168,7 +168,6 @@ sub parse_chaika_json {
         } else {
             $logger->debug("Gallery doesn't actually have tags! Switching back to Archive.");
         }
-
     }
 
     my $tags = $json->{"tags"};
