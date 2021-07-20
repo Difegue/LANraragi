@@ -1,45 +1,45 @@
 {
-  "name": "lanraragi",
-  "version": "0.8.0",
-  "version_name": "Black Tie White Noise",
-  "description": "I'm under Japanese influence and my honor's at stake!",
-  "scripts": {
-    "test": "prove -l -v tests/*.t",
-    "lanraragi-installer": "perl ./tools/install.pl",
-    "start": "perl ./script/launcher.pl -f ./script/lanraragi",
-    "dev-server": "perl ./script/launcher.pl -m -v ./script/lanraragi ",
-    "docker-build": "docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile .",
-    "critic": "perlcritic ./lib/* ./script/* ./tools/install.pl",
-    "backup-db": "perl ./script/backup"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Difegue/LANraragi.git"
-  },
-  "author": "dfug",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Difegue/LANraragi/issues"
-  },
-  "homepage": "https://github.com/Difegue/LANraragi#readme",
-  "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.13.0",
-    "allcollapsible": "^1.1.0",
-    "awesomplete": "^1.1.5",
-    "blueimp-file-upload": "^10.28.0",
-    "datatables.net": "^1.10.25",
-    "inter-ui": "^3.3.2",
-    "jqcloud2": "^2.0.3",
-    "jquery": "^3.6.0",
-    "jquery-contextmenu": "^2.9.2",
-    "jquery-toast-plugin": "^1.3.2",
-    "open-sans-fontface": "^1.4.0",
-    "tippy.js": "^6.3.1",
-    "roboto-fontface": "^0.8.0"
-  },
-  "devDependencies": {
-    "eslint": "^7.24.0",
-    "eslint-config-airbnb-base": "^14.2.1",
-    "eslint-plugin-import": "^2.22.1"
-  }
+    "name": "lanraragi",
+    "version": "0.8.0",
+    "version_name": "Black Tie White Noise",
+    "description": "I'm under Japanese influence and my honor's at stake!",
+    "scripts": {
+        "test": "prove -r -l -v tests/",
+        "lanraragi-installer": "perl ./tools/install.pl",
+        "start": "perl ./script/launcher.pl -f ./script/lanraragi",
+        "dev-server": "perl ./script/launcher.pl -m -v ./script/lanraragi ",
+        "docker-build": "docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile .",
+        "critic": "perlcritic ./lib/* ./script/* ./tools/install.pl",
+        "backup-db": "perl ./script/backup"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Difegue/LANraragi.git"
+    },
+    "author": "dfug",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/Difegue/LANraragi/issues"
+    },
+    "homepage": "https://github.com/Difegue/LANraragi#readme",
+    "dependencies": {
+        "@fortawesome/fontawesome-free": "^5.13.0",
+        "allcollapsible": "^1.1.0",
+        "awesomplete": "^1.1.5",
+        "blueimp-file-upload": "^10.28.0",
+        "datatables.net": "^1.10.25",
+        "inter-ui": "^3.3.2",
+        "jqcloud2": "^2.0.3",
+        "jquery": "^3.6.0",
+        "jquery-contextmenu": "^2.9.2",
+        "jquery-toast-plugin": "^1.3.2",
+        "open-sans-fontface": "^1.4.0",
+        "tippy.js": "^6.3.1",
+        "roboto-fontface": "^0.8.0"
+    },
+    "devDependencies": {
+        "eslint": "^7.24.0",
+        "eslint-config-airbnb-base": "^14.2.1",
+        "eslint-plugin-import": "^2.22.1"
+    }
 }
