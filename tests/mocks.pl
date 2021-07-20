@@ -13,7 +13,7 @@ sub setup_eze_mock {
     # Copy the eze sample json to a temporary directory as it's deleted once parsed
     my $cwd = getcwd;
     my ( $fh, $filename ) = tempfile();
-    cp( $cwd . "/tests/eze_sample.json", $fh );
+    cp( $cwd . "/tests/samples/eze/eze_sample.json", $fh );
 
     # Mock LANraragi::Utils::Archive's subs to return the temporary sample JSON
     # Since we're using exports, the methods are under the plugin's namespace.
