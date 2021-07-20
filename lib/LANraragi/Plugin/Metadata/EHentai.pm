@@ -25,7 +25,7 @@ sub plugin_info {
         namespace   => "ehplugin",
         login_from  => "ehlogin",
         author      => "Difegue and others",
-        version     => "2.5",
+        version     => "2.5.1",
         description => "Searches g.e-hentai for tags matching your archive.",
         icon =>
           "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAABmJLR0QA/wD/AP+gvaeTAAAACXBI\nWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4wYBFg0JvyFIYgAAAB1pVFh0Q29tbWVudAAAAAAAQ3Jl\nYXRlZCB3aXRoIEdJTVBkLmUHAAAEo0lEQVQ4y02UPWhT7RvGf8/5yMkxMU2NKaYIFtKAHxWloYNU\ncRDeQTsUFPwAFwUHByu4ODq4Oghdiri8UIrooCC0Lx01ONSKfYOioi1WpWmaxtTm5PTkfNzv0H/D\n/9oeePjdPNd13Y8aHR2VR48eEUURpmmiaRqmaXbOAK7r4vs+IsLk5CSTk5P4vo9hGIgIsViMra0t\nCoUCRi6XY8+ePVSrVTRN61yybZuXL1/y7t078vk8mUyGvXv3cuLECWZnZ1lbW6PdbpNIJHAcB8uy\nePr0KYZlWTSbTRKJBLquo5TCMAwmJia4f/8+Sini8Ti1Wo0oikin09i2TbPZJJPJUK/XefDgAefO\nnWNlZQVD0zSUUvi+TxAE6LqOrut8/fqVTCaDbdvkcjk0TSOdTrOysoLrujiOw+bmJmEYMjAwQLVa\nJZVKYXR1ddFut/F9H9M0MU0T3/dZXV3FdV36+/vp7u7m6NGj7Nq1i0qlwuLiIqVSib6+Pubn5wGw\nbZtYLIaxMymVSuH7PpZlEUURSina7TZBEOD7Pp8/fyYMQ3zfZ25ujv3795NOp3n48CE9PT3ouk4Q\nBBi/fv3Ctm0cx6Grq4utrS26u7sREQzDIIoifv78SU9PD5VKhTAMGRoaYnV1leHhYa5evUoQBIRh\niIigiQhRFKHrOs1mE9u2iaKIkydPYhgGAKZp8v79e+LxOPl8Htd1uXbtGrdv3yYMQ3ZyAODFixeb\nrVZLvn//Lq7rSqVSkfX1dREROXz4sBw/flyUUjI6OipXrlyRQ4cOSbPZlCiKxHVdCcNQHMcRz/PE\ndV0BGL53756sra1JrVaT9fV1cRxHRESGhoakr69PUqmUvHr1SsrlsuzI931ptVriuq78+fNHPM+T\nVqslhoikjh075p09e9ba6aKu6/T39zM4OMjS0hIzMzM0Gg12794N0LEIwPd9YrEYrusShiEK4Nmz\nZ41yudyVy+XI5/MMDAyQzWap1+tks1lEhIWFBQqFArZto5QiCAJc1+14t7m5STweRwOo1WoSBAEj\nIyMUi0WSySQiQiqV6lRoYWGhY3673e7sfRAEiAjZbBbHcbaBb9++5cCBA2SzWZLJJLZt43kesViM\nHX379g1d1wnDsNNVEQEgCAIajQZ3797dBi4tLWGaJq7rYpompVKJmZkZ2u12B3j58mWUUmiahoiw\nsbFBEASdD2VsbIwnT55gACil+PHjB7Ozs0xPT/P7929u3ryJZVmEYUgYhhQKBZRSiAie52EYBkop\nLMvi8ePHTE1NUSwWt0OZn5/3hoeHzRs3bqhcLseXL1+YmJjowGzbRtO07RT/F8jO09+8ecP58+dJ\nJBKcPn0abW5uThWLRevOnTv/Li4u8vr1a3p7e9E0jXg8zsePHymVSnz69Kmzr7quY9s2U1NTXLp0\nCc/zOHLkCPv27UPxf6rX63+NjIz8IyKMj48zPT3NwYMHGRwcpLe3FwARodVqcf36dS5evMj4+DhB\nEHDmzBkymQz6DqxSqZDNZr8tLy//DYzdunWL5eVlqtUqHz58IJVKkUwmaTQalMtlLly4gIjw/Plz\nTp06RT6fZ2Njg/8AqMV7tO07rnsAAAAASUVORK5CYII=",
@@ -55,7 +55,7 @@ sub get_tags {
     my ( $lang, $savetitle, $usethumbs, $enablepanda, $jpntitle, $additionaltags, $expunged ) = @_;    # Plugin parameters
 
     # Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
-    my $logger = get_logger( "E-Hentai", "plugins" );
+    my $logger = get_local_logger();
 
     # Work your magic here - You can create subroutines below to organize the code better
     my $gID    = "";
@@ -115,6 +115,11 @@ sub get_tags {
     return %hashdata;
 }
 
+sub get_local_logger {
+    my %pi = plugin_info();
+    return get_logger( $pi{name}, "plugins" );
+}
+
 ######
 ## EH Specific Methods
 ######
@@ -122,7 +127,7 @@ sub get_tags {
 sub lookup_gallery {
 
     my ( $title, $tags, $thumbhash, $ua, $domain, $defaultlanguage, $usethumbs, $expunged ) = @_;
-    my $logger = get_logger( "E-Hentai", "plugins" );
+    my $logger = get_local_logger();
     my $URL    = "";
 
     #Thumbnail reverse image search
@@ -186,21 +191,17 @@ sub lookup_gallery {
 # Performs a remote search on e- or exhentai, and returns the ID/token matching the found gallery.
 sub ehentai_parse() {
 
-    my $URL    = $_[0];
-    my $ua     = $_[1];
-    my $logger = get_logger( "E-Hentai", "plugins" );
+    my ( $url, $ua ) = @_;
 
-    my $response = $ua->max_redirects(5)->get($URL)->result;
-    my $content  = $response->body;
+    my $logger = get_local_logger();
 
-    if ( index( $content, "Your IP address has been" ) != -1 ) {
-        return ( "", "Temporarily banned from EH for excessive pageloads." );
+    my ( $dom, $error ) = search_gallery( $url, $ua );
+    if ( $error ) {
+        return ( "", $error );
     }
 
     my $gID    = "";
     my $gToken = "";
-
-    my $dom = Mojo::DOM->new($content);
 
     eval {
         # Get the first row of the search results
@@ -216,7 +217,7 @@ sub ehentai_parse() {
         $gToken = $values[1];
     };
 
-    if ( index( $content, "You are opening" ) != -1 ) {
+    if ( index( $dom->to_string, "You are opening" ) != -1 ) {
         my $rand = 15 + int( rand( 51 - 15 ) );
         $logger->info("Sleeping for $rand seconds due to EH excessive requests warning");
         sleep($rand);
@@ -226,6 +227,20 @@ sub ehentai_parse() {
     return ( $gID, $gToken );
 }
 
+sub search_gallery {
+
+    my ( $url, $ua ) = @_;
+    my $logger = get_local_logger();
+
+    my $res = $ua->max_redirects(5)->get($url)->result;
+
+    if ( index( $res->body, "Your IP address has been" ) != -1 ) {
+        return ( "", "Temporarily banned from EH for excessive pageloads." );
+    }
+
+    return ( $res->dom, undef );
+}
+
 # get_tags_from_EH(userAgent, gID, gToken, jpntitle, additionaltags)
 # Executes an e-hentai API request with the given JSON and returns tags and title.
 sub get_tags_from_EH {
@@ -233,7 +248,46 @@ sub get_tags_from_EH {
     my ( $ua, $gID, $gToken, $jpntitle, $additionaltags ) = @_;
     my $uri = 'https://api.e-hentai.org/api.php';
 
-    my $logger = get_logger( "E-Hentai", "plugins" );
+    my $logger = get_local_logger();
+
+    my $jsonresponse = get_json_from_EH( $ua, $gID, $gToken );
+
+    #if an error occurs(no response) return empty strings.
+    if ( !$jsonresponse ) {
+        return ( "", "" );
+    }
+
+    my $data    = $jsonresponse->{"gmetadata"};
+    my @tags    = @{ @$data[0]->{"tags"} };
+    my $ehtitle = @$data[0]->{ ( $jpntitle ? "title_jpn" : "title" ) };
+    if ( $ehtitle eq "" && $jpntitle ) {
+        $ehtitle = @$data[0]->{"title"};
+    }
+    my $ehcat = lc @$data[0]->{"category"};
+
+    push( @tags, "category:$ehcat" );
+    if ($additionaltags) {
+        my $ehuploader  = @$data[0]->{"uploader"};
+        my $ehtimestamp = @$data[0]->{"posted"};
+        push( @tags, "uploader:$ehuploader" );
+        push( @tags, "timestamp:$ehtimestamp" );
+    }
+
+    # Unescape title received from the API as it might contain some HTML characters
+    $ehtitle = html_unescape($ehtitle);
+
+    my $ehtags = join( ', ', @tags );
+    $logger->info("Sending the following tags to LRR: $ehtags");
+
+    return ( $ehtags, $ehtitle );
+}
+
+sub get_json_from_EH {
+
+    my ( $ua, $gID, $gToken ) = @_;
+    my $uri = 'https://api.e-hentai.org/api.php';
+
+    my $logger = get_local_logger();
 
     #Execute the request
     my $rep = $ua->post(
@@ -244,38 +298,15 @@ sub get_tags_from_EH {
         }
     )->result;
 
-    my $jsonresponse = $rep->json;
     my $textrep      = $rep->body;
     $logger->debug("E-H API returned this JSON: $textrep");
 
-    unless ( exists $jsonresponse->{"error"} ) {
-
-        my $data    = $jsonresponse->{"gmetadata"};
-        my $tags    = @$data[0]->{"tags"};
-        my $ehtitle = @$data[0]->{ ( $jpntitle ? "title_jpn" : "title" ) };
-        if ( $ehtitle eq "" && $jpntitle ) {
-            $ehtitle = @$data[0]->{"title"};
-        }
-        my $ehcat = lc @$data[0]->{"category"};
-
-        my $ehtags = join( ", ", @$tags );
-        $ehtags = $ehtags . ", category:" . $ehcat;
-        if ($additionaltags) {
-            my $ehuploader  = @$data[0]->{"uploader"};
-            my $ehtimestamp = @$data[0]->{"posted"};
-            $ehtags = $ehtags . ", uploader:" . $ehuploader . ", timestamp:" . $ehtimestamp;
-        }
-
-        # Unescape title received from the API as it might contain some HTML characters
-        $ehtitle = html_unescape($ehtitle);
-
-        $logger->info("Sending the following tags to LRR: $ehtags");
-        return ( $ehtags, $ehtitle );
-    } else {
-
-        #if an error occurs(no tags available) return empty strings.
-        return ( "", "" );
+    my $jsonresponse = $rep->json;
+    if ( exists $jsonresponse->{"error"} ) {
+        return;
     }
+
+    return $jsonresponse;
 }
 
 1;
