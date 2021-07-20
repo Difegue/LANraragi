@@ -24,7 +24,7 @@ sub plugin_info {
         type        => "metadata",
         namespace   => "jewcob",
         author      => "Difegue",
-        version     => "0.5",
+        version     => "0.5.1",
         description => "Searches FAKKU for tags matching your archive.",
         icon =>
           "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAFiUAABYlAUlSJPAAAACZSURBVDhPlY+xDYQwDEWvZgRGYA22Y4frqJDSZhFugiuuo4cqPGT0iTjAYL3C+fGzktc3hEcsQvJq6HtjE2Jdv4viH4a4pWnL8q4A6g+ET9P8YhS2/kqwIZXWnwqChDxPfCFfD76wOzJ2IOR/0DSwnuRKYAKUW3gq2OsJTYM0jr7QVRVwlabJEaw3ARYBcmFXeomxphIeEMIMmh3lOLQR+QQAAAAASUVORK5CYII=",
@@ -41,7 +41,7 @@ sub get_tags {
     my $lrr_info = shift;    # Global info hash
     my ($savetitle) = @_;    # Plugin parameters
 
-    my $logger = get_logger( "FAKKU", "plugins" );
+    my $logger = get_local_logger();
 
     # Work your magic here - You can create subs below to organize the code better
     my $jewcobURL = "";
@@ -71,9 +71,16 @@ sub get_tags {
         return ( error => $@ );
     }
 
+    $logger->info("Sending the following tags to LRR: $newtags");
+
     #Return a hash containing the new metadata - it will be integrated in LRR.
     if ( $savetitle && $newtags ne "" ) { return ( tags => $newtags, title => $newtitle ); }
     else                                { return ( tags => $newtags ); }
+}
+
+sub get_local_logger {
+    my %pi = plugin_info();
+    return get_logger( $pi{name}, "plugins" );
 }
 
 ######
@@ -86,28 +93,9 @@ my $fakku_host = "https://www.fakku.net";
 # Uses the website's search to find a gallery and returns its gallery ID.
 sub search_for_fakku_url {
 
-    my $title  = $_[0];
-    my $logger = get_logger( "FAKKU", "plugins" );
+    my ($title) = @_;
 
-    #Strip away hyphens and apostrophes as they can break search
-    $title =~ s/-|'/ /g;
-
-    my $ua = Mojo::UserAgent->new;
-
-    # Visit the base host once to set cloudflare cookies and jank
-    $ua->max_redirects(5)->get($fakku_host);
-
-# Use the regular search page.
-# The autosuggest API (fakku.net/suggest/blahblah) yields better results but is blocked unless you make it through cloudflare or are logged in?
-    my $URL = "$fakku_host/search/" . uri_escape_utf8($title);
-
-    $logger->debug("Using URL $URL to search on FAKKU.");
-
-    my $res = $ua->max_redirects(5)->get($URL)->result;
-    $logger->debug( "Got this HTML: " . $res->body );
-
-    # Parse
-    my $dom = Mojo::DOM->new( $res->body );
+    my $dom = get_search_result_dom_by_title($title);
 
     # Get the first gallery url of the search results
     my $path = ( $dom->at('.content-title') ) ? $dom->at('.content-title')->attr('href') : "";
@@ -120,30 +108,63 @@ sub search_for_fakku_url {
 
 }
 
-# get_tags_from_fakku(fURL)
-# Parses a FAKKU URL for tags.
-sub get_tags_from_fakku {
+sub get_search_result_dom_by_title {
 
-    my $URL   = $_[0];
-    my $tags  = "";
-    my $title = "";
+    my ( $title ) = @_;
 
-    my $logger = get_logger( "FAKKU", "plugins" );
+    my $logger = get_local_logger();
+
+    #Strip away hyphens and apostrophes as they can break search
+    $title =~ s/-|'/ /g;
+
+    my $ua = Mojo::UserAgent->new;
+
+    # Visit the base host once to set cloudflare cookies and jank
+    $ua->max_redirects(5)->get($fakku_host);
+
+    # Use the regular search page.
+    # The autosuggest API (fakku.net/suggest/blahblah) yields better results but is blocked unless you make it through cloudflare or are logged in?
+    my $URL = "$fakku_host/search/" . uri_escape_utf8($title);
+
+    $logger->debug("Using URL $URL to search on FAKKU.");
+
+    my $res = $ua->max_redirects(5)->get($URL)->result;
+    $logger->debug( "Got this HTML: " . $res->body );
+
+    return $res->dom;
+}
+
+sub get_dom_from_fakku {
+
+    my ( $url ) = @_;
+
+    my $logger = get_local_logger();
 
     my $ua  = Mojo::UserAgent->new;
-    my $res = $ua->max_redirects(5)->get($URL)->result;
+    my $res = $ua->max_redirects(5)->get($url)->result;
 
-    # It's HTML parsing time yahoo
     my $html = $res->body;
-    my $dom  = Mojo::DOM->new($html);
-
     $logger->debug( "Got this HTML: " . $html );
     if ( $html =~ /.*error code: (\d*).*/gim ) {
         $logger->debug("Blocked by Cloudflare, aborting for now. (Error code $1)");
         die "The plugin has been blocked by Cloudflare. (Error code $1) Try opening FAKKU in your browser to bypass this.";
     }
 
-    $title =
+    return $res->dom;
+}
+
+# get_tags_from_fakku(fURL)
+# Parses a FAKKU URL for tags.
+sub get_tags_from_fakku {
+
+    my ( $url ) = @_;
+
+    my $logger = get_local_logger();
+
+    my $dom = get_dom_from_fakku($url);
+
+    my @tags  = ();
+    my $title =
       ( $dom->at('.content-name') )
       ? $dom->at('.content-name')->at('h1')->text
       : "";
@@ -168,8 +189,7 @@ sub get_tags_from_fakku {
             remove_newlines($content);
             $logger->debug("Matching tag: $content");
 
-            $tags .= ", " unless $tags eq "";
-            $tags .= "$namespace:$content";
+            push( @tags, "$namespace:$content" );
         }
     }
 
@@ -182,14 +202,11 @@ sub get_tags_from_fakku {
         remove_spaces($tag);
         remove_newlines($tag);
         unless ( $tag eq "+" || $tag eq "" ) {
-            $tags .= ", " unless $tags eq "";
-            $tags .= $tag;
+            push( @tags, $tag );
         }
     }
 
-    $logger->info("Sending the following tags to LRR: $tags");
-
-    return ( $tags, $title );
+    return ( join( ', ', @tags ), $title );
 
 }
 
