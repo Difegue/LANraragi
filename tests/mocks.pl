@@ -17,6 +17,7 @@ sub setup_eze_mock {
 
     # Mock LANraragi::Utils::Archive's subs to return the temporary sample JSON
     # Since we're using exports, the methods are under the plugin's namespace.
+    no warnings 'once', 'redefine';
     *LANraragi::Plugin::Metadata::Eze::extract_file_from_archive = sub { $filename };
     *LANraragi::Plugin::Metadata::Eze::is_file_in_archive        = sub { 1 };
 }
