@@ -29,6 +29,7 @@ requires 'Compress::Zlib', 2.087;
 # Test Utils
 requires 'Test::Harness', 3.42;
 requires 'Test::MockObject', 1.20200122;
+requires 'Test::Trap', 0.3.4;
 
 # Mojo stuff
 requires 'Mojolicious', 9.02;
