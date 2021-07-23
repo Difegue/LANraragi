@@ -82,8 +82,6 @@ sub get_local_logger {
     return get_logger( $pi{name}, "plugins" );
 }
 
-#Error: Undefined subroutine &LANraragi::Plugin::Metadata::nHentai::get_tags_from_NH called at /home/koyomi/lanraragi/script/../lib/LANraragi/Plugin/Metadata/nHentai.pm line 72.
-
 ######
 ## NH Specific Methods
 ######

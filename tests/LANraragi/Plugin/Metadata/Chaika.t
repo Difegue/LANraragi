@@ -55,7 +55,6 @@ note ( 'testing retrieving tags by SHA1 when "gallery" has "tags" ...' );
 {
     my $json_by_sha1 = [ { 'id' => '666' } ];
     my $json = decode_json( Mojo::File->new("$SAMPLES/chaika/001_gid_27240.json")->slurp );
-    #my $json = decode_json( Mojo::File->new("$SAMPLES/chaika/002_sha1_response.json")->slurp );
     my @type_params = ();
 
     no warnings 'once', 'redefine';
