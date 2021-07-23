@@ -92,7 +92,7 @@ note ( 'testing retrieving tags with original title...' );
     my ( $tags, $title ) = LANraragi::Plugin::Metadata::EHentai::get_tags_from_EH('dummy', 'dummy', 'dummy', $jpntitle, 1);
 
     cmp_bag( [ split( ', ', $tags ) ], \@all_tags, 'tag list' );
-    is($title, '[八樹ひより] ちょろすぎっ! [DL版]', 'titile');
+    is($title, '[八樹ひより] ちょろすぎっ! [DL版]', 'title');
 }
 
 note ( 'testing parsing search results...' );
