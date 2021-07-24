@@ -33,7 +33,7 @@ note("testing searching URL by title ...");
 {
     my $html = ( Mojo::File->new("$SAMPLES/fakku/001_search_response.html")->slurp );
     no warnings 'once', 'redefine';
-    *LANraragi::Plugin::Metadata::Fakku::get_search_result_dom_by_title = sub { return Mojo::DOM->new( $html ); };
+    *LANraragi::Plugin::Metadata::Fakku::get_search_result_dom = sub { return Mojo::DOM->new( $html ); };
     *LANraragi::Plugin::Metadata::Fakku::get_local_logger = sub { return $mock_log; };
 
     my $url = LANraragi::Plugin::Metadata::Fakku::search_for_fakku_url("my wonderful manga");

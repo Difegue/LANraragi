@@ -95,7 +95,7 @@ sub search_for_fakku_url {
 
     my ($title) = @_;
 
-    my $dom = get_search_result_dom_by_title($title);
+    my $dom = get_search_result_dom($title);
 
     # Get the first gallery url of the search results
     my $path = ( $dom->at('.content-title') ) ? $dom->at('.content-title')->attr('href') : "";
@@ -108,7 +108,7 @@ sub search_for_fakku_url {
 
 }
 
-sub get_search_result_dom_by_title {
+sub get_search_result_dom {
 
     my ( $title ) = @_;
 
