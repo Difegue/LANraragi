@@ -8,8 +8,8 @@ use Module::Pluggable require => 1, search_path => ['LANraragi::Plugin::Metadata
 use Test::More;
 use Test::Deep;
 
-my @required_keywords = qw( author description icon name namespace parameters type version );
-my @keywords = ( @required_keywords, qw( cooldown login_from oneshot_arg ) );
+my @required_keywords = qw( author description name namespace type version );
+my @keywords = ( @required_keywords, qw( cooldown icon login_from oneshot_arg parameters ) );
 
 my @metadata_modules = plugins();
 
