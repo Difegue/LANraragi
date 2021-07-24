@@ -15,10 +15,7 @@ use Test::MockObject;
 
 my $cwd = getcwd();
 my $SAMPLES = "$cwd/tests/samples";
-
-my $mock_log = Test::MockObject->new();
-$mock_log->mock( 'debug', sub { } );
-$mock_log->mock( 'info', sub { } );
+require "$cwd/tests/mocks.pl";
 
 require $cwd . "/tests/mocks.pl";
 setup_redis_mock();
@@ -38,7 +35,7 @@ note ( 'testing searching gallery by title ...' );
 
 {
     no warnings 'once', 'redefine';
-    *LANraragi::Plugin::Metadata::nHentai::get_local_logger = sub { return $mock_log; };
+    *LANraragi::Plugin::Metadata::nHentai::get_local_logger = sub { return get_logger_mock(); };
     *LANraragi::Plugin::Metadata::nHentai::get_gallery_dom_by_title = sub { return; };
 
     my $gID = LANraragi::Plugin::Metadata::nHentai::get_gallery_id_from_title("you will not find this");

@@ -15,10 +15,7 @@ use Test::MockObject;
 
 my $cwd = getcwd();
 my $SAMPLES = "$cwd/tests/samples";
-
-my $mock_log = Test::MockObject->new();
-$mock_log->mock( 'debug', sub { } );
-$mock_log->mock( 'info', sub { } );
+require "$cwd/tests/mocks.pl";
 
 my @tags_list_from_gallery = (
     'female:sole female', 'male:sole male', 'artist:kemuri haku', 'full censorship',
@@ -42,7 +39,7 @@ note ( 'testing retrieving tags by ID ...' );
 
     no warnings 'once', 'redefine';
     *LANraragi::Plugin::Metadata::Chaika::get_json_from_chaika = sub { return $json; };
-    *LANraragi::Plugin::Metadata::Chaika::get_local_logger = sub { return $mock_log; };
+    *LANraragi::Plugin::Metadata::Chaika::get_local_logger = sub { return get_logger_mock(); };
 
     my ( $tags, $title ) = LANraragi::Plugin::Metadata::Chaika::tags_from_chaika_id( "my-type", 123 );
 
@@ -58,7 +55,7 @@ note ( 'testing retrieving tags by SHA1 when "gallery" has "tags" ...' );
     my @type_params = ();
 
     no warnings 'once', 'redefine';
-    *LANraragi::Plugin::Metadata::Chaika::get_local_logger = sub { return $mock_log; };
+    *LANraragi::Plugin::Metadata::Chaika::get_local_logger = sub { return get_logger_mock(); };
     *LANraragi::Plugin::Metadata::Chaika::get_json_from_chaika = sub {
         my ( $type, $value ) = @_;
         push( @type_params, $type );
@@ -79,7 +76,7 @@ note ( 'testing retrieving tags by SHA1 when "gallery" has no "tags" ...' );
     my @type_params = ();
 
     no warnings 'once', 'redefine';
-    *LANraragi::Plugin::Metadata::Chaika::get_local_logger = sub { return $mock_log; };
+    *LANraragi::Plugin::Metadata::Chaika::get_local_logger = sub { return get_logger_mock(); };
     *LANraragi::Plugin::Metadata::Chaika::get_json_from_chaika = sub {
         my ( $type, $value ) = @_;
         push( @type_params, $type );

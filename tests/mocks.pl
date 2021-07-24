@@ -140,4 +140,13 @@ sub setup_redis_mock {
     $redis->fake_module( "Redis", new => sub { $redis } );
 }
 
+sub get_logger_mock {
+    my $mock = Test::MockObject->new();
+    $mock->mock(
+        'debug', sub { },
+        'info', sub { }
+    );
+    return $mock;
+}
+
 1;

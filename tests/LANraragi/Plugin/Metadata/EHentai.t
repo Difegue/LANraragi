@@ -14,10 +14,7 @@ use Test::MockObject;
 
 my $cwd = getcwd();
 my $SAMPLES = "$cwd/tests/samples";
-
-my $mock_log = Test::MockObject->new();
-$mock_log->mock( 'debug', sub { } );
-$mock_log->mock( 'info', sub { } );
+require "$cwd/tests/mocks.pl";
 
 my @all_tags = (
     'artist:yatsuki hiyori',
@@ -52,7 +49,7 @@ note ( 'testing retrieving tags without "additionaltags" ...' );
     my $json = decode_json( Mojo::File->new("$SAMPLES/eh/001_gid-1866546.json")->slurp );
 
     no warnings 'once', 'redefine';
-    *LANraragi::Plugin::Metadata::EHentai::get_local_logger = sub { return $mock_log; };
+    *LANraragi::Plugin::Metadata::EHentai::get_local_logger = sub { return get_logger_mock(); };
     *LANraragi::Plugin::Metadata::EHentai::get_json_from_EH = sub { return $json; };
 
     my $additionaltags = 0;
@@ -68,7 +65,7 @@ note ( 'testing retrieving tags with "additionaltags" ...' );
     my $json = decode_json( Mojo::File->new("$SAMPLES/eh/001_gid-1866546.json")->slurp );
 
     no warnings 'once', 'redefine';
-    *LANraragi::Plugin::Metadata::EHentai::get_local_logger = sub { return $mock_log; };
+    *LANraragi::Plugin::Metadata::EHentai::get_local_logger = sub { return get_logger_mock(); };
     *LANraragi::Plugin::Metadata::EHentai::get_json_from_EH = sub { return $json; };
 
     my $additionaltags = 1;
@@ -84,7 +81,7 @@ note ( 'testing retrieving tags with original title...' );
     my $json = decode_json( Mojo::File->new("$SAMPLES/eh/001_gid-1866546.json")->slurp );
 
     no warnings 'once', 'redefine';
-    *LANraragi::Plugin::Metadata::EHentai::get_local_logger = sub { return $mock_log; };
+    *LANraragi::Plugin::Metadata::EHentai::get_local_logger = sub { return get_logger_mock(); };
     *LANraragi::Plugin::Metadata::EHentai::get_json_from_EH = sub { return $json; };
 
     my $jpntitle = 1;
@@ -100,7 +97,7 @@ note ( 'testing parsing search results...' );
     my $dom = Mojo::DOM->new( Mojo::File->new("$SAMPLES/eh/002_search_results.html")->slurp );
 
     no warnings 'once', 'redefine';
-    *LANraragi::Plugin::Metadata::EHentai::get_local_logger = sub { return $mock_log; };
+    *LANraragi::Plugin::Metadata::EHentai::get_local_logger = sub { return get_logger_mock(); };
     *LANraragi::Plugin::Metadata::EHentai::search_gallery = sub { return $dom; };
 
     my ( $gID, $gToken ) = LANraragi::Plugin::Metadata::EHentai::ehentai_parse( 'dummy-url', 'dummy-ua' );
