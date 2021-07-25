@@ -30,8 +30,8 @@ note("testing searching URL by title ...");
 {
     my $html = ( Mojo::File->new("$SAMPLES/fakku/001_search_response.html")->slurp );
     no warnings 'once', 'redefine';
-    *LANraragi::Plugin::Metadata::Fakku::get_search_result_dom = sub { return Mojo::DOM->new( $html ); };
-    *LANraragi::Plugin::Metadata::Fakku::get_local_logger = sub { return get_logger_mock(); };
+    local *LANraragi::Plugin::Metadata::Fakku::get_search_result_dom = sub { return Mojo::DOM->new( $html ); };
+    local *LANraragi::Plugin::Metadata::Fakku::get_local_logger = sub { return get_logger_mock(); };
 
     my $url = LANraragi::Plugin::Metadata::Fakku::search_for_fakku_url("my wonderful manga");
     is( $url , "https://www.fakku.net/hentai/kairakuten-cover-girls-episode-009-hamao-english", "url check");
@@ -42,8 +42,8 @@ note("testing parsing gallery front page ...");
 {
     my $html = ( Mojo::File->new("$SAMPLES/fakku/002_gallery_front.html")->slurp );
     no warnings 'once', 'redefine';
-    *LANraragi::Plugin::Metadata::Fakku::get_dom_from_fakku = sub { return Mojo::DOM->new( $html ); };
-    *LANraragi::Plugin::Metadata::Fakku::get_local_logger = sub { return get_logger_mock(); };
+    local *LANraragi::Plugin::Metadata::Fakku::get_dom_from_fakku = sub { return Mojo::DOM->new( $html ); };
+    local *LANraragi::Plugin::Metadata::Fakku::get_local_logger = sub { return get_logger_mock(); };
 
     my ( $tags, $title ) = LANraragi::Plugin::Metadata::Fakku::get_tags_from_fakku("https://url/to/my/page.html");
     cmp_bag( [ split( ', ', $tags ) ] , \@tags_list_from_gallery, "tag check");

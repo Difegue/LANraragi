@@ -38,8 +38,8 @@ note ( 'testing retrieving tags by ID ...' );
     my $json = decode_json( Mojo::File->new("$SAMPLES/chaika/001_gid_27240.json")->slurp );
 
     no warnings 'once', 'redefine';
-    *LANraragi::Plugin::Metadata::Chaika::get_json_from_chaika = sub { return $json; };
-    *LANraragi::Plugin::Metadata::Chaika::get_local_logger = sub { return get_logger_mock(); };
+    local *LANraragi::Plugin::Metadata::Chaika::get_json_from_chaika = sub { return $json; };
+    local *LANraragi::Plugin::Metadata::Chaika::get_local_logger = sub { return get_logger_mock(); };
 
     my ( $tags, $title ) = LANraragi::Plugin::Metadata::Chaika::tags_from_chaika_id( "my-type", 123 );
 
@@ -55,8 +55,8 @@ note ( 'testing retrieving tags by SHA1 when "gallery" has "tags" ...' );
     my @type_params = ();
 
     no warnings 'once', 'redefine';
-    *LANraragi::Plugin::Metadata::Chaika::get_local_logger = sub { return get_logger_mock(); };
-    *LANraragi::Plugin::Metadata::Chaika::get_json_from_chaika = sub {
+    local *LANraragi::Plugin::Metadata::Chaika::get_local_logger = sub { return get_logger_mock(); };
+    local *LANraragi::Plugin::Metadata::Chaika::get_json_from_chaika = sub {
         my ( $type, $value ) = @_;
         push( @type_params, $type );
         return ( $type eq 'sha1' ) ? $json_by_sha1 : $json;
@@ -76,8 +76,8 @@ note ( 'testing retrieving tags by SHA1 when "gallery" has no "tags" ...' );
     my @type_params = ();
 
     no warnings 'once', 'redefine';
-    *LANraragi::Plugin::Metadata::Chaika::get_local_logger = sub { return get_logger_mock(); };
-    *LANraragi::Plugin::Metadata::Chaika::get_json_from_chaika = sub {
+    local *LANraragi::Plugin::Metadata::Chaika::get_local_logger = sub { return get_logger_mock(); };
+    local *LANraragi::Plugin::Metadata::Chaika::get_json_from_chaika = sub {
         my ( $type, $value ) = @_;
         push( @type_params, $type );
         return ( $type eq 'sha1' ) ? $json : {};

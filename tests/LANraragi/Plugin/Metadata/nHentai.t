@@ -35,8 +35,8 @@ note ( 'testing searching gallery by title ...' );
 
 {
     no warnings 'once', 'redefine';
-    *LANraragi::Plugin::Metadata::nHentai::get_local_logger = sub { return get_logger_mock(); };
-    *LANraragi::Plugin::Metadata::nHentai::get_gallery_dom_by_title = sub { return; };
+    local *LANraragi::Plugin::Metadata::nHentai::get_local_logger = sub { return get_logger_mock(); };
+    local *LANraragi::Plugin::Metadata::nHentai::get_gallery_dom_by_title = sub { return; };
 
     my $gID = LANraragi::Plugin::Metadata::nHentai::get_gallery_id_from_title("you will not find this");
 
@@ -47,7 +47,7 @@ note ( 'testing searching gallery by title ...' );
     my $body = Mojo::File->new("$SAMPLES/nh/001_search_results.html")->slurp;
 
     no warnings 'once', 'redefine';
-    *LANraragi::Plugin::Metadata::nHentai::get_gallery_dom_by_title = sub { return Mojo::DOM->new( $body ); };
+    local *LANraragi::Plugin::Metadata::nHentai::get_gallery_dom_by_title = sub { return Mojo::DOM->new( $body ); };
 
     my $gID = LANraragi::Plugin::Metadata::nHentai::get_gallery_id_from_title("a title that exists");
 
@@ -57,6 +57,9 @@ note ( 'testing searching gallery by title ...' );
 note ( 'testing parsing JSON from HTML ...' );
 
 {
+    no warnings 'once', 'redefine';
+    local *LANraragi::Plugin::Metadata::nHentai::get_local_logger = sub { return get_logger_mock(); };
+
     my $body = Mojo::File->new("$SAMPLES/nh/002_gid_52249.html")->slurp;
 
     my $json = LANraragi::Plugin::Metadata::nHentai::get_json_from_html($body);
@@ -72,6 +75,9 @@ note ( 'testing parsing JSON from HTML ...' );
 note ( 'testing getting tags from JSON ...' );
 
 {
+    no warnings 'once', 'redefine';
+    local *LANraragi::Plugin::Metadata::nHentai::get_local_logger = sub { return get_logger_mock(); };
+
     my $body = Mojo::File->new("$SAMPLES/nh/002_gid_52249.html")->slurp;
     my $json = LANraragi::Plugin::Metadata::nHentai::get_json_from_html($body);
 
@@ -83,6 +89,9 @@ note ( 'testing getting tags from JSON ...' );
 note ( 'testing getting tags from JSON ...' );
 
 {
+    no warnings 'once', 'redefine';
+    local *LANraragi::Plugin::Metadata::nHentai::get_local_logger = sub { return get_logger_mock(); };
+
     my $body = Mojo::File->new("$SAMPLES/nh/002_gid_52249.html")->slurp;
     my $json = LANraragi::Plugin::Metadata::nHentai::get_json_from_html($body);
 
