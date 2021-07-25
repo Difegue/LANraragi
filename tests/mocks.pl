@@ -13,10 +13,11 @@ sub setup_eze_mock {
     # Copy the eze sample json to a temporary directory as it's deleted once parsed
     my $cwd = getcwd;
     my ( $fh, $filename ) = tempfile();
-    cp( $cwd . "/tests/eze_sample.json", $fh );
+    cp( $cwd . "/tests/samples/eze/eze_sample.json", $fh );
 
     # Mock LANraragi::Utils::Archive's subs to return the temporary sample JSON
     # Since we're using exports, the methods are under the plugin's namespace.
+    no warnings 'once', 'redefine';
     *LANraragi::Plugin::Metadata::Eze::extract_file_from_archive = sub { $filename };
     *LANraragi::Plugin::Metadata::Eze::is_file_in_archive        = sub { 1 };
 }
@@ -137,6 +138,15 @@ sub setup_redis_mock {
     );
 
     $redis->fake_module( "Redis", new => sub { $redis } );
+}
+
+sub get_logger_mock {
+    my $mock = Test::MockObject->new();
+    $mock->mock(
+        'debug', sub { },
+        'info', sub { }
+    );
+    return $mock;
 }
 
 1;

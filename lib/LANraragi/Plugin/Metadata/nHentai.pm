@@ -23,7 +23,7 @@ sub plugin_info {
         type        => "metadata",
         namespace   => "nhplugin",
         author      => "Difegue",
-        version     => "1.7",
+        version     => "1.7.1",
         description => "Searches nHentai for tags matching your archive. <br>Supports reading the ID from files formatted as \"{Id} Title\" and if not, tries to search for a matching gallery.",
         icon =>
           "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAIAAAAC64paAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA\nB3RJTUUH4wYCFA8s1yKFJwAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUH\nAAACL0lEQVQ4y6XTz0tUURQH8O+59773nLFcaGWTk4UUVCBFiJs27VxEQRH0AyRo4x8Q/Qtt2rhr\nU6soaCG0KYKSwIhMa9Ah+yEhZM/5oZMG88N59717T4sxM8eZCM/ycD6Xwznn0pWhG34mh/+PA8mk\n8jO5heziP0sFYwfgMDFQJg4IUjmquSFGG+OIlb1G9li5kykgTgvzSoUCaIYlo8/Igcjpj5wOkARp\n8AupP0uzJLijCY4zzoXOxdBLshAgABr8VOp7bpAXDEI7IBrhdksnjNr3WzI4LaIRV9fk2iAaYV/y\nA1dPiYjBAALgpQxnhV2XzTCAGWGeq7ACBvCdzKQyTH+voAm2hGlpcmQt2Bc2K+ymAhWPxTzPDQLt\nOKo1FiNBQaArq9WNRQwEgKl7XQ1duzSRSn/88vX0qf7DPQddx1nI5UfHxt+m0sLYPiP3shRAG8MD\nok1XEEXR/EI2ly94nrNYWG6Nx0/2Hp2b94dv34mlZge1e4hVCJ4jc6tl9ZP803n3/i4lpdyzq2N0\n7M3DkSeF5ZVYS8v1qxcGz5+5eey4nPDbmGdE9FpGeWErVNe2tTabX3r0+Nk3PwOgXFkdfz99+exA\nMtFZITEt9F23mpLG0hYTVQCKpfKPlZ/rqWKpYoAPcTmpginW76QBbb0OBaBaDdjaDbNlJmQE3/d0\nMYoaybU9126oPkrEhpr+U2wjtoVVGBowkslEsVSupRKdu0Mduq7q7kqExjSS3V2dvwDLavx0eczM\neAAAAABJRU5ErkJggg==",
@@ -40,7 +40,7 @@ sub get_tags {
     my $lrr_info = shift;    # Global info hash
     my ($savetitle) = @_;    # Plugin parameters
 
-    my $logger = get_logger( "nHentai", "plugins" );
+    my $logger = get_local_logger();
 
     # Work your magic here - You can create subs below to organize the code better
     my $galleryID = "";
@@ -69,23 +69,29 @@ sub get_tags {
         return ( error => "No matching nHentai Gallery Found!" );
     }
 
-    my ( $newtags, $newtitle ) = &get_tags_from_NH($galleryID);
+    my %hashdata = get_tags_from_NH( $galleryID, $savetitle );
+
+    $logger->info("Sending the following tags to LRR: " . $hashdata{tags});
 
     #Return a hash containing the new metadata - it will be integrated in LRR.
-    if ( $savetitle && $newtags ne "" ) { return ( tags => $newtags, title => $newtitle ); }
-    else                                { return ( tags => $newtags ); }
+    return %hashdata;
+}
+
+sub get_local_logger {
+    my %pi = plugin_info();
+    return get_logger( $pi{name}, "plugins" );
 }
 
 ######
 ## NH Specific Methods
 ######
 
-#get_gallery_id_from_title(title)
-#Uses the website's search to find a gallery and returns its gallery ID.
-sub get_gallery_id_from_title {
+#Uses the website's search to find a gallery and returns its content.
+sub get_gallery_dom_by_title {
 
-    my $title  = $_[0];
-    my $logger = get_logger( "nHentai", "plugins" );
+    my ( $title ) = @_;
+
+    my $logger = get_local_logger();
 
     my $gallery = "";
 
@@ -105,37 +111,60 @@ sub get_gallery_id_from_title {
 
     my $res = $ua->get($URL)->result;
 
-    # Parse
-    my $dom = Mojo::DOM->new( $res->body );
-
-    # Get the first gallery url of the search results
-    my $gURL = ( $dom->at('.cover') ) ? $dom->at('.cover')->attr('href') : "";
-
-    if ( $gURL =~ /\/g\/(\d*)\//gm ) {
-        $gallery = $1;
+    if ($res->is_error) {
+        return;
     }
 
-    return $gallery;
+    return $res->dom;
 }
 
-# get_tags_from_NH(galleryID)
-# Parses the JSON obtained from a nhentai allery page to get the tags.
-sub get_tags_from_NH {
+sub get_gallery_id_from_title {
 
-    my $gID      = $_[0];
-    my $returned = "";
+    my ( $title ) = @_;
 
-    my $logger = get_logger( "nHentai", "plugins" );
+    my $dom = get_gallery_dom_by_title($title);
+
+    if ($dom) {
+        # Get the first gallery url of the search results
+        my $gURL = ( $dom->at('.cover') )
+                 ? $dom->at('.cover')->attr('href')
+                 : "";
+
+        if ( $gURL =~ /\/g\/(\d*)\//gm ) {
+            return $1;
+        }
+    }
+
+    return;
+}
+
+# retrieves html page from NH
+sub get_html_from_NH {
+
+    my ( $gID ) = @_;
 
     my $URL = "https://nhentai.net/g/$gID/";
     my $ua  = Mojo::UserAgent->new;
 
-    my $textrep = $ua->get($URL)->result->body;
+    my $res = $ua->get($URL)->result;
 
-    #Find the metadata JSON in the HTML and turn it into an object
-    #It's located under a N.gallery JS object.
+    if ($res->is_error) {
+        return;
+    }
+
+    return $res->body;
+}
+
+#Find the metadata JSON in the HTML and turn it into an object
+#It's located under a N.gallery JS object.
+sub get_json_from_html {
+
+    my ( $html ) = @_;
+
+    my $logger = get_local_logger();
+
     my $jsonstring = "{}";
-    if ( $textrep =~ /window\._gallery.*=.*JSON\.parse\((.*)\);/gmi ) {
+    if ( $html =~ /window\._gallery.*=.*JSON\.parse\((.*)\);/gmi ) {
         $jsonstring = $1;
     }
 
@@ -147,30 +176,55 @@ sub get_tags_from_NH {
     my $json = decode_json $jsonstring;
     $json = decode_json $json;
 
-    my $tags = $json->{"tags"};
+    return $json;
+}
 
-    foreach my $tag (@$tags) {
+sub get_tags_from_json {
 
-        $returned .= ", " unless $returned eq "";
+    my ( $json ) = @_;
 
-        #Try using the "type" attribute to craft a namespace.
-        #The basic "tag" type the NH API adds by default will be ignored here.
-        my $namespace = "";
+    my @json_tags = @{ $json->{"tags"} };
+    my @tags = ();
 
-        unless ( $tag->{"type"} eq "tag" ) {
-            $namespace = $tag->{"type"} . ":";
+    foreach my $tag (@json_tags) {
+
+        my $namespace = $tag->{"type"};
+        my $name = $tag->{"name"};
+
+        if ( $namespace eq "tag" ) {
+            push ( @tags, $name );
+        } else {
+            push ( @tags, "$namespace:$name" );
         }
-
-        $returned .= $namespace . $tag->{"name"};
-
     }
-    $returned .= ", source:https://nhentai.net/g/$gID";
 
-    $logger->info("Sending the following tags to LRR: $returned");
+    return @tags;
+}
 
-    # Use NH's "pretty" names (romaji titles without extraneous data we already have like (Event)[Artist], etc)
-    return ( $returned, $json->{"title"}->{"pretty"} );
+sub get_title_from_json {
+    my ( $json ) = @_;
+    return $json->{"title"}{"pretty"};
+}
 
+sub get_tags_from_NH {
+
+    my ( $gID, $savetitle ) = @_;
+
+    my %hashdata = ( tags => "" );
+
+    my $html = get_html_from_NH($gID);
+    my $json = get_json_from_html($html);
+
+    if ( $json ) {
+        my @tags = get_tags_from_json($json);
+        push( @tags, "source:https://nhentai.net/g/$gID" ) if ( @tags > 0 );
+
+        # Use NH's "pretty" names (romaji titles without extraneous data we already have like (Event)[Artist], etc)
+        $hashdata{tags}  = join(', ', @tags);
+        $hashdata{title} = get_title_from_json($json) if ($savetitle);
+    }
+
+    return %hashdata;
 }
 
 1;
