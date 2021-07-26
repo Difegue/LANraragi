@@ -6,12 +6,9 @@ use Data::Dumper;
 use Cwd qw( getcwd );
 use Mojo::JSON qw(decode_json encode_json);
 use Mojo::File;
-use Mojolicious;
-use LANraragi::Model::Config;
 
 use Test::More;
 use Test::Deep;
-use Test::MockObject;
 
 my $cwd = getcwd();
 my $SAMPLES = "$cwd/tests/samples";
@@ -39,7 +36,6 @@ note ( 'testing retrieving tags by ID ...' );
 
     no warnings 'once', 'redefine';
     local *LANraragi::Plugin::Metadata::Chaika::get_json_from_chaika = sub { return $json; };
-    local *LANraragi::Plugin::Metadata::Chaika::get_local_logger = sub { return get_logger_mock(); };
 
     my ( $tags, $title ) = LANraragi::Plugin::Metadata::Chaika::tags_from_chaika_id( "my-type", 123 );
 
@@ -55,7 +51,7 @@ note ( 'testing retrieving tags by SHA1 when "gallery" has "tags" ...' );
     my @type_params = ();
 
     no warnings 'once', 'redefine';
-    local *LANraragi::Plugin::Metadata::Chaika::get_local_logger = sub { return get_logger_mock(); };
+    local *LANraragi::Plugin::Metadata::Chaika::get_plugin_logger = sub { return get_logger_mock(); };
     local *LANraragi::Plugin::Metadata::Chaika::get_json_from_chaika = sub {
         my ( $type, $value ) = @_;
         push( @type_params, $type );
@@ -76,7 +72,7 @@ note ( 'testing retrieving tags by SHA1 when "gallery" has no "tags" ...' );
     my @type_params = ();
 
     no warnings 'once', 'redefine';
-    local *LANraragi::Plugin::Metadata::Chaika::get_local_logger = sub { return get_logger_mock(); };
+    local *LANraragi::Plugin::Metadata::Chaika::get_plugin_logger = sub { return get_logger_mock(); };
     local *LANraragi::Plugin::Metadata::Chaika::get_json_from_chaika = sub {
         my ( $type, $value ) = @_;
         push( @type_params, $type );
