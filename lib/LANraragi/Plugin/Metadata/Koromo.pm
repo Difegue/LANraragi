@@ -9,7 +9,7 @@ use Mojo::JSON qw(from_json);
 
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
-use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Logging qw(get_plugin_logger);
 use LANraragi::Utils::Archive qw(is_file_in_archive extract_file_from_archive);
 
 #Meta-information about your plugin.
@@ -36,7 +36,7 @@ sub get_tags {
     shift;
     my $lrr_info = shift;    # Global info hash
 
-    my $logger = get_logger( "koromo", "plugins" );
+    my $logger = get_plugin_logger();
     my $file   = $lrr_info->{file_path};
 
     if ( is_file_in_archive( $file, "Info.json" ) ) {
