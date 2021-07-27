@@ -2,7 +2,7 @@ package LANraragi::Plugin::Metadata::MEMS;
 
 use strict;
 use warnings;
-use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Logging qw(get_plugin_logger);
 
 # Meta-information about the plugin.
 sub plugin_info {
@@ -48,7 +48,7 @@ sub get_tags {
 
     shift;
     my $lrr_info      = shift;
-    my $logger        = get_logger( 'Mayriad\'s EH Master Script', 'plugins' );
+    my $logger        = get_plugin_logger();
     my $gallery_id    = '';
     my $gallery_token = '';
     my ( $save_jpn_title, $save_additional_metadata, $use_exhentai ) = @_;

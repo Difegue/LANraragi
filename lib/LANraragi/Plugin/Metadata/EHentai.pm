@@ -13,7 +13,7 @@ use Mojo::UserAgent;
 
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
-use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Logging qw(get_plugin_logger);
 
 #Meta-information about your plugin.
 sub plugin_info {
@@ -55,7 +55,7 @@ sub get_tags {
     my ( $lang, $savetitle, $usethumbs, $enablepanda, $jpntitle, $additionaltags, $expunged ) = @_;    # Plugin parameters
 
     # Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
-    my $logger = get_local_logger();
+    my $logger = get_plugin_logger();
 
     # Work your magic here - You can create subroutines below to organize the code better
     my $gID    = "";
@@ -115,11 +115,6 @@ sub get_tags {
     return %hashdata;
 }
 
-sub get_local_logger {
-    my %pi = plugin_info();
-    return get_logger( $pi{name}, "plugins" );
-}
-
 ######
 ## EH Specific Methods
 ######
@@ -127,7 +122,7 @@ sub get_local_logger {
 sub lookup_gallery {
 
     my ( $title, $tags, $thumbhash, $ua, $domain, $defaultlanguage, $usethumbs, $expunged ) = @_;
-    my $logger = get_local_logger();
+    my $logger = get_plugin_logger();
     my $URL    = "";
 
     #Thumbnail reverse image search
@@ -193,7 +188,7 @@ sub ehentai_parse() {
 
     my ( $url, $ua ) = @_;
 
-    my $logger = get_local_logger();
+    my $logger = get_plugin_logger();
 
     my ( $dom, $error ) = search_gallery( $url, $ua );
     if ( $error ) {
@@ -230,7 +225,7 @@ sub ehentai_parse() {
 sub search_gallery {
 
     my ( $url, $ua ) = @_;
-    my $logger = get_local_logger();
+    my $logger = get_plugin_logger();
 
     my $res = $ua->max_redirects(5)->get($url)->result;
 
@@ -248,7 +243,7 @@ sub get_tags_from_EH {
     my ( $ua, $gID, $gToken, $jpntitle, $additionaltags ) = @_;
     my $uri = 'https://api.e-hentai.org/api.php';
 
-    my $logger = get_local_logger();
+    my $logger = get_plugin_logger();
 
     my $jsonresponse = get_json_from_EH( $ua, $gID, $gToken );
 
@@ -287,7 +282,7 @@ sub get_json_from_EH {
     my ( $ua, $gID, $gToken ) = @_;
     my $uri = 'https://api.e-hentai.org/api.php';
 
-    my $logger = get_local_logger();
+    my $logger = get_plugin_logger();
 
     #Execute the request
     my $rep = $ua->post(

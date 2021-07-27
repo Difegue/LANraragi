@@ -12,7 +12,7 @@ use Mojo::DOM;
 
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
-use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Logging qw(get_plugin_logger);
 use LANraragi::Utils::Generic qw(remove_spaces remove_newlines);
 
 #Meta-information about your plugin.
@@ -41,7 +41,7 @@ sub get_tags {
     my $lrr_info = shift;    # Global info hash
     my ($savetitle) = @_;    # Plugin parameters
 
-    my $logger = get_local_logger();
+    my $logger = get_plugin_logger();
 
     # Work your magic here - You can create subs below to organize the code better
     my $jewcobURL = "";
@@ -78,11 +78,6 @@ sub get_tags {
     else                                { return ( tags => $newtags ); }
 }
 
-sub get_local_logger {
-    my %pi = plugin_info();
-    return get_logger( $pi{name}, "plugins" );
-}
-
 ######
 ## FAKKU-Specific Methods
 ######
@@ -112,7 +107,7 @@ sub get_search_result_dom {
 
     my ( $title ) = @_;
 
-    my $logger = get_local_logger();
+    my $logger = get_plugin_logger();
 
     #Strip away hyphens and apostrophes as they can break search
     $title =~ s/-|'/ /g;
@@ -138,7 +133,7 @@ sub get_dom_from_fakku {
 
     my ( $url ) = @_;
 
-    my $logger = get_local_logger();
+    my $logger = get_plugin_logger();
 
     my $ua  = Mojo::UserAgent->new;
     my $res = $ua->max_redirects(5)->get($url)->result;
@@ -159,7 +154,7 @@ sub get_tags_from_fakku {
 
     my ( $url ) = @_;
 
-    my $logger = get_local_logger();
+    my $logger = get_plugin_logger();
 
     my $dom = get_dom_from_fakku($url);
 

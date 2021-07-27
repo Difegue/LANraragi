@@ -6,18 +6,13 @@ use Data::Dumper;
 use Cwd qw( getcwd );
 use Mojo::JSON qw(decode_json encode_json);
 use Mojo::File;
-use Mojolicious;
-use LANraragi::Model::Config;
 
 use Test::More;
 use Test::Deep;
-use Test::MockObject;
 
 my $cwd = getcwd();
 my $SAMPLES = "$cwd/tests/samples";
 require "$cwd/tests/mocks.pl";
-
-require $cwd . "/tests/mocks.pl";
 setup_redis_mock();
 
 my @all_tags = (
@@ -35,7 +30,6 @@ note ( 'testing searching gallery by title ...' );
 
 {
     no warnings 'once', 'redefine';
-    local *LANraragi::Plugin::Metadata::nHentai::get_local_logger = sub { return get_logger_mock(); };
     local *LANraragi::Plugin::Metadata::nHentai::get_gallery_dom_by_title = sub { return; };
 
     my $gID = LANraragi::Plugin::Metadata::nHentai::get_gallery_id_from_title("you will not find this");
@@ -58,7 +52,7 @@ note ( 'testing parsing JSON from HTML ...' );
 
 {
     no warnings 'once', 'redefine';
-    local *LANraragi::Plugin::Metadata::nHentai::get_local_logger = sub { return get_logger_mock(); };
+    local *LANraragi::Plugin::Metadata::nHentai::get_plugin_logger = sub { return get_logger_mock(); };
 
     my $body = Mojo::File->new("$SAMPLES/nh/002_gid_52249.html")->slurp;
 
@@ -76,7 +70,7 @@ note ( 'testing getting tags from JSON ...' );
 
 {
     no warnings 'once', 'redefine';
-    local *LANraragi::Plugin::Metadata::nHentai::get_local_logger = sub { return get_logger_mock(); };
+    local *LANraragi::Plugin::Metadata::nHentai::get_plugin_logger = sub { return get_logger_mock(); };
 
     my $body = Mojo::File->new("$SAMPLES/nh/002_gid_52249.html")->slurp;
     my $json = LANraragi::Plugin::Metadata::nHentai::get_json_from_html($body);
@@ -90,7 +84,7 @@ note ( 'testing getting tags from JSON ...' );
 
 {
     no warnings 'once', 'redefine';
-    local *LANraragi::Plugin::Metadata::nHentai::get_local_logger = sub { return get_logger_mock(); };
+    local *LANraragi::Plugin::Metadata::nHentai::get_plugin_logger = sub { return get_logger_mock(); };
 
     my $body = Mojo::File->new("$SAMPLES/nh/002_gid_52249.html")->slurp;
     my $json = LANraragi::Plugin::Metadata::nHentai::get_json_from_html($body);

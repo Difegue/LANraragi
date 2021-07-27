@@ -6,7 +6,7 @@ use warnings;
 use URI::Escape;
 use Mojo::UserAgent;
 use Mojo::DOM;
-use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Logging qw(get_plugin_logger);
 
 my $chaika_url = "https://panda.chaika.moe";
 
@@ -36,7 +36,7 @@ sub get_tags {
     my $lrr_info = shift;    # Global info hash
     my ($savetitle) = @_;    # Plugin parameters
 
-    my $logger   = get_logger( "Chaika", "plugins" );
+    my $logger   = get_plugin_logger();
     my $newtags  = "";
     my $newtitle = "";
 
@@ -68,11 +68,6 @@ sub get_tags {
 
 }
 
-sub get_local_logger {
-    my %pi = plugin_info();
-    return get_logger( $pi{name}, "plugins" );
-}
-
 ######
 ## Chaika Specific Methods
 ######
@@ -81,7 +76,7 @@ sub get_local_logger {
 # Uses chaika's html search to find a matching archive ID
 sub search_for_archive {
 
-    my $logger = get_local_logger();
+    my $logger = get_plugin_logger();
     my $title  = $_[0];
     my $tags   = $_[1];
 
@@ -126,7 +121,7 @@ sub tags_from_sha1 {
 
     my ( $sha1 ) = @_;
 
-    my $logger = get_local_logger();
+    my $logger = get_plugin_logger();
 
     # The jsearch API immediately returns a JSON.
     # Said JSON is an array containing multiple archive objects.
@@ -152,7 +147,7 @@ sub get_json_from_chaika {
 
     my ( $type, $value ) = @_;
 
-    my $logger = get_local_logger();
+    my $logger = get_plugin_logger();
     my $URL    = "$chaika_url/jsearch/?$type=$value";
     my $ua     = Mojo::UserAgent->new;
     my $res    = $ua->get($URL)->result;

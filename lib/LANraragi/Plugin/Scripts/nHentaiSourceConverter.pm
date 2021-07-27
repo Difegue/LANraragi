@@ -4,7 +4,7 @@ use strict;
 use warnings;
 no warnings 'uninitialized';
 
-use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Logging qw(get_plugin_logger);
 use LANraragi::Utils::Database qw(invalidate_cache);
 use LANraragi::Model::Config;
 
@@ -29,7 +29,7 @@ sub run_script {
     shift;
     my $lrr_info = shift;    # Global info hash
 
-    my $logger = get_logger( "nHentai Source Converter", "plugins" );
+    my $logger = get_plugin_logger();
     my $redis  = LANraragi::Model::Config->get_redis;
 
     my @keys = $redis->keys('????????????????????????????????????????');    #40-character long keys only => Archive IDs

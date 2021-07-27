@@ -8,11 +8,10 @@ use warnings;
 use URI::Escape;
 use Mojo::JSON qw(decode_json);
 use Mojo::UserAgent;
-use Mojo::DOM;
 
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
-use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Logging qw(get_plugin_logger);
 
 #Meta-information about your plugin.
 sub plugin_info {
@@ -40,7 +39,7 @@ sub get_tags {
     my $lrr_info = shift;    # Global info hash
     my ($savetitle) = @_;    # Plugin parameters
 
-    my $logger = get_local_logger();
+    my $logger = get_plugin_logger();
 
     # Work your magic here - You can create subs below to organize the code better
     my $galleryID = "";
@@ -77,11 +76,6 @@ sub get_tags {
     return %hashdata;
 }
 
-sub get_local_logger {
-    my %pi = plugin_info();
-    return get_logger( $pi{name}, "plugins" );
-}
-
 ######
 ## NH Specific Methods
 ######
@@ -91,7 +85,7 @@ sub get_gallery_dom_by_title {
 
     my ( $title ) = @_;
 
-    my $logger = get_local_logger();
+    my $logger = get_plugin_logger();
 
     my $gallery = "";
 
@@ -161,7 +155,7 @@ sub get_json_from_html {
 
     my ( $html ) = @_;
 
-    my $logger = get_local_logger();
+    my $logger = get_plugin_logger();
 
     my $jsonstring = "{}";
     if ( $html =~ /window\._gallery.*=.*JSON\.parse\((.*)\);/gmi ) {

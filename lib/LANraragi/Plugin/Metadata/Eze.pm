@@ -10,7 +10,7 @@ use Mojo::JSON qw(from_json);
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
 use LANraragi::Utils::Database;
-use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Logging qw(get_plugin_logger);
 use LANraragi::Utils::Generic qw(remove_spaces);
 use LANraragi::Utils::Archive qw(is_file_in_archive extract_file_from_archive);
 
@@ -39,7 +39,7 @@ sub get_tags {
     my $lrr_info = shift;    # Global info hash
     my ($savetitle) = @_;    # Plugin parameters
 
-    my $logger = get_logger( "eze", "plugins" );
+    my $logger = get_plugin_logger();
     if ( is_file_in_archive( $lrr_info->{file_path}, "info.json" ) ) {
 
         #Extract info.json
