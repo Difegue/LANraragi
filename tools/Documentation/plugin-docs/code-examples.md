@@ -6,9 +6,9 @@ This section contains a few bits of code for things you might want to do with Pl
 
 ```perl
 # Import the LRR logging module
-use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Logging qw(get_plugin_logger);
 # Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
-my $logger = get_logger("MyPluginName","plugins");
+my $logger = get_plugin_logger();
 
 $plugin->debug("This message will only show if LRR is in Debug Mode")
 $plugin->info("You know me the fighting freak Knuckles and we're at Pumpkin Hill");
