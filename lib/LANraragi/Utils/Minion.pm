@@ -5,12 +5,13 @@ use warnings;
 
 use Encode;
 use Mojo::UserAgent;
+use Parallel::Loops;
 
 use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Utils::Database qw(redis_decode);
 use LANraragi::Utils::Archive qw(extract_thumbnail);
 use LANraragi::Utils::Plugins qw(get_downloader_for_url get_plugin get_plugin_parameters use_plugin);
-use LANraragi::Utils::Generic qw(trim_url);
+use LANraragi::Utils::Generic qw(trim_url split_workload_by_cpu);
 
 use LANraragi::Model::Upload;
 use LANraragi::Model::Config;
@@ -38,38 +39,45 @@ sub add_tasks {
             my $logger = get_logger( "Minion", "minion" );
             my $redis  = LANraragi::Model::Config->get_redis;
             my @keys   = $redis->keys('????????????????????????????????????????');
+            $redis->quit();
 
             $logger->info("Starting thumbnail regen job (force = $force)");
+            my @errors = ();
 
-            my $thumbscount = 0;
-            my @errors      = ();
+            my $numCpus = Sys::CpuAffinity::getNumCpus();
+            my $pl      = Parallel::Loops->new($numCpus);
+            $pl->share( \@errors );
+
+            $logger->debug("Number of available cores for processing: $numCpus");
+            my @sections = split_workload_by_cpu( $numCpus, @keys );
 
             # Regen thumbnails for errythang if $force = 1, only missing thumbs otherwise
-            foreach my $id (@keys) {
+            eval {
+                $pl->foreach(
+                    \@sections,
+                    sub {
+                        foreach my $id (@$_) {
 
-                my $subfolder = substr( $id, 0, 2 );
-                my $thumbname = "$thumbdir/$subfolder/$id.jpg";
+                            my $subfolder = substr( $id, 0, 2 );
+                            my $thumbname = "$thumbdir/$subfolder/$id.jpg";
 
-                unless ( $force == 0 && -e $thumbname ) {
-                    eval {
-                        $logger->debug("Regenerating for $id...");
-                        extract_thumbnail( $thumbdir, $id );
-                        $thumbscount++;
-                    };
+                            unless ( $force == 0 && -e $thumbname ) {
+                                eval {
+                                    $logger->debug("Regenerating for $id...");
+                                    extract_thumbnail( $thumbdir, $id );
+                                };
 
-                    if ($@) {
-                        $logger->warn("Error while generating thumbnail: $@");
-                        push @errors, $@;
+                                if ($@) {
+                                    $logger->warn("Error while generating thumbnail: $@");
+                                    push @errors, $@;
+                                }
+                            }
+                        }
                     }
-                }
+                );
+            };
 
-            }
-            $redis->quit();
-            $job->finish(
-                {   generated_thumbnails => $thumbscount,
-                    errors               => \@errors
-                }
-            );
+            $job->finish( { errors => \@errors } );
         }
     );
 
