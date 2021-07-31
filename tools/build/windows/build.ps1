@@ -24,11 +24,6 @@ cd .\tools\build\windows\Karen
 echo (Resolve-Path .\).Path
 nuget restore
 
-# Download LxRunOffline
-Invoke-WebRequest https://github.com/DDoSolitary/LxRunOffline/releases/download/v3.4.1/LxRunOffline-v3.4.1-msvc.zip -outfile .\lxro.zip -verbose
-echo (dir)
-Unzip .\tools\build\windows\Karen\lxro.zip .\tools\build\windows\Karen\External\LxRunOffline
-
 # Build Karen and Setup 
 msbuild /p:Configuration=Release /p:Platform=x64
 
