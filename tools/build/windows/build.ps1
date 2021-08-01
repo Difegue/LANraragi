@@ -1,13 +1,5 @@
 # --- LRR Windows build script ---
 
-Add-Type -AssemblyName System.IO.Compression.FileSystem
-function Unzip
-{
-    param([string]$zipfile, [string]$outpath)
-
-    [System.IO.Compression.ZipFile]::ExtractToDirectory($zipfile, $outpath)
-}
-
 echo "🎌 Building up LRR Windows Package 🎌"
 echo "Inferring version from package.json..."
 
