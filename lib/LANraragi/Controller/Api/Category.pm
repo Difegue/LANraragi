@@ -3,7 +3,6 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use Redis;
 use Encode;
-use Mojo::JSON qw(decode_json encode_json from_json);
 
 use LANraragi::Model::Category;
 use LANraragi::Utils::Generic qw(render_api_response);

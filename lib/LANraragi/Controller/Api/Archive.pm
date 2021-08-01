@@ -4,7 +4,7 @@ use Mojo::Base 'Mojolicious::Controller';
 use Redis;
 use Encode;
 use Storable;
-use Mojo::JSON qw(decode_json encode_json from_json);
+use Mojo::JSON qw(decode_json);
 use Scalar::Util qw(looks_like_number);
 
 use LANraragi::Utils::Generic qw(render_api_response);
