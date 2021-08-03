@@ -110,8 +110,11 @@ Now LANraragi should run as a service.
 
 ## Mountpoints
 
-Depending on your setup you might want to consider creating mountpoints for the content and temp folder since those can getrather large.
-![Mountpoints](../.gitbook/assets/Mountpoints.jpg)
+{% hint style="info" %}
+In many setups jails are running on fast but small drives while the bulk of data is offloaded somewhere else. If you are running a similar config you might want to consider offloading your content and tmp folders from your SSD to your HDDs with the help of mountpoints.
+{% endhint %}
+
+![Mountpoints](../.gitbook/assets/mountpoints.jpg)
 
 ### Updating
 
