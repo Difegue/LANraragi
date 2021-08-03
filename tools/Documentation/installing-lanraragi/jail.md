@@ -1,19 +1,22 @@
 ---
 description: >-
-  If your server is running on BSD (FreeNAS/TrueNAS for example) and you do not want to use virtualisation you can install LANraragi in a jail. This process is rather cli heavy and depending on you and your system error prone so it is not recommended for beginners or casual users.
+  If your server is running on FreeBSD (FreeNAS/TrueNAS for example) and you do not want to use virtualisation you can install LANraragi in a jail. This process is rather cli heavy and depending on you and your system error prone so it is not recommended for beginners or casual users.
 ---
 
 # FreeBSD / Jail
 
-Installing LANraragi on BSD or in a jail is similar to [installing it from source](https://sugoi.gitbook.io/lanraragi/installing-lanraragi/source) with slighly altered dependecies and some extra steps.
+Installing LANraragi on FreeBSD or in a jail is similar to [installing it from source](https://sugoi.gitbook.io/lanraragi/installing-lanraragi/source) with slighly altered dependecies and some extra steps.
 
 ## Jail creation
 
 For creating the jail on a regular FreeBSD installation refer to its [documentation](https://docs.freebsd.org/doc/7.3-RELEASE/usr/share/doc/handbook/jails-build.html).
 
 For creating the jail on FreeNas simply navigate to the jails tab in the webui and click on 'add'.
+
 ![Jail Overview](../.gitbook/assets/jails.jpg)
+
 After creating the jail enter it, type ```pkg``` and confirm the next prompt.
+
 ![Entering a jail](../.gitbook/assets/shell.jpg)
 
 If you want to install it on the main system itself (which in most cases is not recommended) you can simply skip this step.
@@ -49,7 +52,7 @@ You need to restart the jail now so that the changes can take effect (Keep in mi
 ## Installing LANraragi
 
 This step is effectively the same as when [installing from source](https://sugoi.gitbook.io/lanraragi/installing-lanraragi/source). 
-Depending on how you build your jail you might already have a place to put your installation, else I recommend conforming to Unix standards.
+Depending on how you have built your jail you might already have a place to put your installation, else I recommend conforming to Unix standards.
 
 ```sh
 mkdir /usr/local/etc/LANraragi
