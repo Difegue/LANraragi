@@ -157,16 +157,17 @@ sub update_filemap {
         $pl->foreach(
             \@sections,
             sub {
-                # This sub "magically" executed in parallel forked child processes
+                my $redis = LANraragi::Model::Config->get_redis;
                 foreach my $file (@$_) {
 
                     # Individual files are also eval'd so we can keep scanning
-                    eval { add_to_filemap($file); };
+                    eval { add_to_filemap($redis, $file); };
 
                     if ($@) {
                         $logger->error("Error scanning $file: $@");
                     }
                 }
+                $redis->quit();
             }
         );
     };
@@ -178,11 +179,9 @@ sub update_filemap {
 
 sub add_to_filemap {
 
-    my ($file) = shift;
-
+    my ($redis, $file) = @_;
     if ( is_archive($file) ) {
 
-        my $redis = LANraragi::Model::Config->get_redis;
         $logger->debug("Adding $file to Shinobu filemap.");
 
         #Freshly created files might not be complete yet.
@@ -224,7 +223,6 @@ sub add_to_filemap {
                   . "Cleaning cache just to make sure" );
 
             invalidate_cache();
-            $redis->quit();
             return;
 
         } else {
@@ -254,16 +252,14 @@ sub add_to_filemap {
             add_new_file( $id, $file, $redis );
             invalidate_cache();
         }
-
-        $redis->quit();
     }
 }
 
 # Only handle new files. As per the ChangeNotify doc, it
 # "handles the addition of new subdirectories by adding them to the watch list"
 sub new_file_callback {
-    my $name = shift;
 
+    my $name = shift;
     unless ( -d $name ) {
 
         eval { add_to_filemap($name); };
@@ -277,9 +273,9 @@ sub new_file_callback {
 #Deleted files are simply dropped from the filemap.
 #Deleted subdirectories trigger deleted events for every file deleted.
 sub deleted_file_callback {
+    
     my $name = shift;
     $logger->info("$name was deleted from the content folder!");
-
     unless ( -d $name ) {
 
         my $redis = LANraragi::Model::Config->get_redis;
