@@ -114,15 +114,13 @@ Now LANraragi should run as a service.
 
 ## Mountpoints
 
-{% hint style="info" %}
-In many setups jails are running on fast but small drives while the bulk of data is offloaded somewhere else. If you are running a similar config you might want to consider offloading your content and tmp folders from your SSD to your HDDs with the help of mountpoints.
-{% endhint %}
+In many setups, jails are running on fast but small drives while the bulk of data is offloaded somewhere else. If you are running a similar config you might want to consider offloading your content and tmp folders from your SSD to your HDDs with the help of mountpoints.
 
 ![Mountpoints](../.gitbook/assets/mountpoints.jpg)
 
-### Updating
+## Updating
 
-{% page-ref page="../installing-lanraragi/source.md#updating" %}
+Updating works the same as when installing from source [installing from source](https://sugoi.gitbook.io/lanraragi/installing-lanraragi/source#updating).  
 
 {% hint style="info" %}
 By default, LRR listens on all IPv4 Interfaces on port 3000, unsecured HTTP.
