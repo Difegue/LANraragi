@@ -9,7 +9,7 @@ Installing LANraragi on FreeBSD or in a jail is similar to [installing it from s
 
 ## Jail creation
 
-For creating the jail on a regular FreeBSD installation refer to its [documentation](https://docs.freebsd.org/doc/7.3-RELEASE/usr/share/doc/handbook/jails-build.html).
+For creating the jail on a regular FreeBSD installation, refer to its [documentation](https://docs.freebsd.org/doc/7.3-RELEASE/usr/share/doc/handbook/jails-build.html).
 
 For creating the jail on FreeNas simply navigate to the jails tab in the webui and click on 'add'.
 
