@@ -1,6 +1,6 @@
 ---
 description: >-
-  If your server is running on FreeBSD (FreeNAS/TrueNAS for example) and you do not want to use virtualisation you can install LANraragi in a jail. This process is rather cli heavy and depending on you and your system error prone so it is not recommended for beginners or casual users.
+  If your server is running on FreeBSD (FreeNAS/TrueNAS for example) and you do not want to use virtualization, you can install LANraragi in a jail. This process is rather cli-heavy and error prone (depending on your system), so it is not recommended for beginners or casual users.
 ---
 
 # FreeBSD / Jail
@@ -9,7 +9,7 @@ Installing LANraragi on FreeBSD or in a jail is similar to [installing it from s
 
 ## Jail creation
 
-For creating the jail on a regular FreeBSD installation refer to its [documentation](https://docs.freebsd.org/doc/7.3-RELEASE/usr/share/doc/handbook/jails-build.html).
+For creating the jail on a regular FreeBSD installation, refer to its [documentation](https://docs.freebsd.org/doc/7.3-RELEASE/usr/share/doc/handbook/jails-build.html).
 
 For creating the jail on FreeNas simply navigate to the jails tab in the webui and click on 'add'.
 
@@ -21,10 +21,10 @@ After creating the jail enter it, type ```pkg``` and confirm the next prompt.
 
 If you want to install it on the main system itself (which in most cases is not recommended) you can simply skip this step.
 
-## Installing dependecies
+## Installing dependencies
 
 It is recommended that you first check/install all neccessary dependecies. 
-Although you can also go along with the installation and fix any critical dependecie errors as they pop up along the way. This way you might potentially decrease installation size, however this will most likely result in issues later on.
+Although you can also go along with the installation and fix any critical dependency errors along the way. This will decrease installation size, but most likely result in issues later on.
 
 ```sh
 pkg update
@@ -41,7 +41,7 @@ pkg install git
 cpan Parallel::Loops
 ```
 
-Afterwards you need to add redis_enable="YES" to your rc.conf with your text editor of choice. The preinstalled one is easy editor but you can install nano as well.
+Afterwards, you need to add redis_enable="YES" to your `rc.conf` with your text editor of choice. The preinstalled one is Easy Editor (`ee`), but you can install `nano` as well.
 
 ```ee /etc/rc.conf```
  
