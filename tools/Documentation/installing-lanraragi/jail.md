@@ -1,6 +1,6 @@
 ---
 description: >-
-  If your server is running on FreeBSD (FreeNAS/TrueNAS for example) and you do not want to use virtualisation you can install LANraragi in a jail. This process is rather cli heavy and depending on you and your system error prone so it is not recommended for beginners or casual users.
+  If your server is running on FreeBSD (FreeNAS/TrueNAS for example) and you do not want to use virtualization, you can install LANraragi in a jail. This process is rather cli-heavy and error prone (depending on your system), so it is not recommended for beginners or casual users.
 ---
 
 # FreeBSD / Jail
