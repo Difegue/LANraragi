@@ -50,6 +50,10 @@ Ready-to-install packages provided by voluntary maintainers or by a linux distri
 
 {% page-ref page="community.md" %}
 
+## FreeBSD/Jail
+
+Similar to installing from source with an altered process for FreeBSD compatability.
+{% page-ref page="jail.md" %}
 ## Older Windows: _Legacy Docker Toolbox or Vagrant_
 
 ![I really hope you guys don&apos;t do this](../.gitbook/assets/shiggy.png)
