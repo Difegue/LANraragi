@@ -24,7 +24,7 @@ If you want to install it on the main system itself (which in most cases is not 
 ## Installing dependencies
 
 It is recommended that you first check/install all neccessary dependecies. 
-Although you can also go along with the installation and fix any critical dependecie errors as they pop up along the way. This way you might potentially decrease installation size, however this will most likely result in issues later on.
+Although you can also go along with the installation and fix any critical dependency errors along the way. This will decrease installation size, but most likely result in issues later on.
 
 ```sh
 pkg update
