@@ -41,6 +41,10 @@ pkg install git
 cpan Parallel::Loops
 ```
 
+{% hint style="info" %}
+If you want to configure your jail a little bit leaner you can install the noX11 version of ImageMagick and other dependencies if available.
+{% endhint %}
+
 Afterwards, you need to add redis_enable="YES" to your `rc.conf` with your text editor of choice. The preinstalled one is Easy Editor (`ee`), but you can install `nano` as well.
 
 ```ee /etc/rc.conf```

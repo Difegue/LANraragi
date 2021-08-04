@@ -27,6 +27,10 @@ perlmagick ghostscript npm
 _Base software dependencies._
 
 {% hint style="info" %}
+If your package manager requires you to specify which ImageMagick version to install you need to choose version 7.
+{% endhint %}
+
+{% hint style="info" %}
 For macOS, you should be able to install the dependencies using Homebrew.
 {% endhint %}
 
