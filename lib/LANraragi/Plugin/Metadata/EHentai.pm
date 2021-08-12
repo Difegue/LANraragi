@@ -51,7 +51,8 @@ sub plugin_info {
 sub get_tags {
 
     shift;
-    my $lrr_info = shift;    # Global info hash
+    my $lrr_info = shift;                     # Global info hash
+    my $ua       = $lrr_info->{user_agent};
     my ( $lang, $savetitle, $usethumbs, $enablepanda, $jpntitle, $additionaltags, $expunged ) = @_;    # Plugin parameters
 
     # Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
@@ -80,8 +81,7 @@ sub get_tags {
             $lrr_info->{archive_title},
             $lrr_info->{existing_tags},
             $lrr_info->{thumbnail_hash},
-            $lrr_info->{user_agent},
-            $domain, $lang, $usethumbs, $expunged
+            $ua, $domain, $lang, $usethumbs, $expunged
         );
     }
 
@@ -101,7 +101,7 @@ sub get_tags {
         $logger->debug("EH API Tokens are $gID / $gToken");
     }
 
-    my ( $ehtags, $ehtitle ) = &get_tags_from_EH( $lrr_info->{user_agent}, $gID, $gToken, $jpntitle, $additionaltags );
+    my ( $ehtags, $ehtitle ) = &get_tags_from_EH( $ua, $gID, $gToken, $jpntitle, $additionaltags );
     my %hashdata = ( tags => $ehtags );
 
     # Add source URL and title if possible/applicable
@@ -191,7 +191,7 @@ sub ehentai_parse() {
     my $logger = get_plugin_logger();
 
     my ( $dom, $error ) = search_gallery( $url, $ua );
-    if ( $error ) {
+    if ($error) {
         return ( "", $error );
     }
 
@@ -293,7 +293,7 @@ sub get_json_from_EH {
         }
     )->result;
 
-    my $textrep      = $rep->body;
+    my $textrep = $rep->body;
     $logger->debug("E-H API returned this JSON: $textrep");
 
     my $jsonresponse = $rep->json;
