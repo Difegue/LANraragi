@@ -73,6 +73,7 @@
     </div>
 
     <script>
+        // This would be better in the reader.js file, but we still need to source this data from the server template for now.
         Reader.pages = [% imgpaths %].pages;
         Reader.id = "[%id%]";
         Reader.filename = "[% filename %]";
