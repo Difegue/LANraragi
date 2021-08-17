@@ -214,29 +214,21 @@ function handleContextMenu(option, id) {
 	}
 }
 
-// Format tag objects from the API into a format awesomplete likes.
-function getAwesompleteTagObject(tag) {
-	label = tag.text;
-	if (tag.namespace !== "")
-		label = tag.namespace + ":" + tag.text;
-
-	return { label: label, value: tag.weight };
-}
-
 function loadTagSuggestions() {
 	// Query the tag cloud API to get the most used tags.
-	$.get("/api/database/stats")
+	$.get("/api/database/stats?minweight=2")
 		.done(function (data) {
-			// Only use tags with weight >1 
-			taglist = data.reduce(function (res, tag) {
-				if (tag.weight > 1)
-					res.push(tag);
-				return res;
-			}, []);
 
 			new Awesomplete('#srch', {
 				list: taglist,
-				data: getAwesompleteTagObject,
+				data: function (tag, input) {
+					// Format tag objects from the API into a format awesomplete likes.
+					label = tag.text;
+					if (tag.namespace !== "")
+						label = tag.namespace + ":" + tag.text;
+
+					return { label: label, value: tag.weight };
+				},
 				// Sort by weight
 				sort: function (a, b) { return b.value - a.value; },
 				filter: function (text, input) {

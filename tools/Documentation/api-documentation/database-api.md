@@ -10,16 +10,22 @@ Get Statistics
 {% endapi-method-summary %}
 
 {% api-method-description %}
-Get tags from the database, in order of importance.
+Get tags from the database, with a value symbolizing their prevalence.
 {% endapi-method-description %}
 
 {% api-method-spec %}
 {% api-method-request %}
+{% api-method-query-parameters %}
+{% api-method-parameter name="minweight" type="int" required=false %}
+Add this parameter if you want to only get tags whose weight is at least the given minimum.  
+Default is 1 if not specified, to get all tags.
+{% endapi-method-parameter %}
+{% endapi-method-query-parameters %}
 {% endapi-method-request %}
 {% api-method-response %}
 {% api-method-response-example httpCode=200 %}
 {% api-method-response-example-description %}
-JSON Array of {tag; weight} objects. Higher weight = Tag is more prevalent in the DB.
+JSON Array of {tag; weight} objects. Higher weight = Tag is more prevalent in the DB. The array is unsorted.
 {% endapi-method-response-example-description %}
 
 ```javascript

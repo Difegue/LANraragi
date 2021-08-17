@@ -21,7 +21,9 @@ sub drop_database {
 
 sub serve_tag_stats {
     my $self = shift;
-    $self->render( json => decode_json(LANraragi::Model::Stats::build_tag_json) );
+    my $minscore = $self->req->param('minweight') || "1";
+
+    $self->render( json => LANraragi::Model::Stats::build_tag_stats($minscore) );
 }
 
 sub clean_database {
