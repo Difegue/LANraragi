@@ -123,7 +123,6 @@ sub setup_redis_mock {
         sub {
             my $self = shift;
             $self->{ismulti} = 1;
-            $self->{results} = ();
         }
     );
 
@@ -132,12 +131,14 @@ sub setup_redis_mock {
         sub {
             my $self = shift;
             $self->{ismulti} = 0;
-            return $self->{results};
+            my @a =
+              values @{ $self->{results} }; # We return the values directly to match Redis module instead of boxing them in an array
+            return @a;
         }
     );
 
     $redis->mock(
-        'hget',    # $redis->hget => get value of key in datamodel
+        'hget',                             # $redis->hget => get value of key in datamodel
         sub {
             my $self = shift;
             my ( $key, $hashkey ) = @_;
@@ -148,18 +149,18 @@ sub setup_redis_mock {
     );
 
     $redis->mock(
-        'hgetall',    # $redis->hgetall => get all values of key in datamodel
+        'hgetall',                          # $redis->hgetall => get all values of key in datamodel
         sub {
             my $self = shift;
             my $key  = shift;
 
-            my %value = %{ $datamodel{$key} };
+            my @value = %{ $datamodel{$key} };
 
             if ( $self->{ismulti} ) {
-                push @{ $self->{results} }, %value;
+                push @{ $self->{results} }, \@value;
                 return 1;
             } else {
-                return %value;
+                return @value;
             }
         }
     );
