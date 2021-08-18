@@ -5,6 +5,7 @@ use Cwd;
 use File::Temp qw(tempfile);
 use File::Copy "cp";
 
+use Data::Dumper;
 use Test::MockObject;
 use Mojo::JSON qw (decode_json);
 
@@ -27,7 +28,8 @@ sub setup_redis_mock {
     # DataModel for searches
     # files are set to package.json since the search engine checks for file existence and I ain't about to mock perl's -e call
     # Switch devmode to 1 for debug output in test
-    my %datamodel = %{ decode_json qq(
+    my %datamodel =
+      %{ decode_json qq(
         {
         "LRR_CONFIG": {
             "pagesize": "100",
@@ -97,7 +99,7 @@ sub setup_redis_mock {
             "file": "package.json"
         }
     })
-    };
+      };
 
     # Mock Redis object which uses the datamodel
     my $redis = Test::MockObject->new();
@@ -109,14 +111,33 @@ sub setup_redis_mock {
             return grep { /$expr/ } keys %datamodel;
         }
     );
-    $redis->mock( 'exists',  sub { shift; return $_[0] eq "LRR_SEARCHCACHE" ? 0 : 1 } );
+    $redis->mock( 'exists', sub { shift; return $_[0] eq "LRR_SEARCHCACHE" ? 0 : 1 } );
     $redis->mock( 'hexists', sub { 1 } );
     $redis->mock( 'hset',    sub { 1 } );
     $redis->mock( 'quit',    sub { 1 } );
     $redis->mock( 'select',  sub { 1 } );
+    $redis->mock( 'dbsize',  sub { 1337 } );
 
     $redis->mock(
-        'hget',                                # $redis->hget => get value of key in datamodel
+        'multi',
+        sub {
+            my $self = shift;
+            $self->{ismulti} = 1;
+            $self->{results} = ();
+        }
+    );
+
+    $redis->mock(
+        'exec',
+        sub {
+            my $self = shift;
+            $self->{ismulti} = 0;
+            return $self->{results};
+        }
+    );
+
+    $redis->mock(
+        'hget',    # $redis->hget => get value of key in datamodel
         sub {
             my $self = shift;
             my ( $key, $hashkey ) = @_;
@@ -127,13 +148,19 @@ sub setup_redis_mock {
     );
 
     $redis->mock(
-        'hgetall',                             # $redis->hgetall => get all values of key in datamodel
+        'hgetall',    # $redis->hgetall => get all values of key in datamodel
         sub {
             my $self = shift;
             my $key  = shift;
 
             my %value = %{ $datamodel{$key} };
-            return %value;
+
+            if ( $self->{ismulti} ) {
+                push @{ $self->{results} }, %value;
+                return 1;
+            } else {
+                return %value;
+            }
         }
     );
 
@@ -142,10 +169,7 @@ sub setup_redis_mock {
 
 sub get_logger_mock {
     my $mock = Test::MockObject->new();
-    $mock->mock(
-        'debug', sub { },
-        'info', sub { }
-    );
+    $mock->mock( 'debug', sub { }, 'info', sub { } );
     return $mock;
 }
 

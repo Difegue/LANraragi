@@ -111,8 +111,14 @@ sub do_search {
                 for my $i ( 0 .. $#data ) {
 
              # MULTI returns data in the same order the operations were sent, so we can get the ID from the original array this way.
-                    my %hash = @{ $data[$i] };
-                    my $id   = @$_[$i];
+                    my %hash;
+
+                    if ( $data[$i] ) {
+                        %hash = @{ $data[$i] };
+                    } else {
+                        next;
+                    }
+                    my $id = @$_[$i];
 
                     my ( $tags, $title, $file, $isnew ) = @hash{qw(tags title file isnew)};
 
