@@ -26,39 +26,12 @@ sub do_search {
 
     my ( $filter, $categoryfilter, $start, $sortkey, $sortorder, $newonly, $untaggedonly ) = @_;
 
-    my $redis  = LANraragi::Model::Config->get_redis;
+    my $redis = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Search Engine", "lanraragi" );
 
     # Search filter results
+    my $total    = $redis->dbsize;   #TODO this is incorrect by a few keys due to the config keys being strewn about on the DB root.
     my @filtered = ();
-
-    # If the category filter is enabled, fetch the matching category
-    my %category     = ();
-    my $cat_search   = "";
-
-    # Get all archives from redis - or just use IDs from the category if it's a standard category!
-    my @keys = ();
-    if ( $categoryfilter ne "" ) {
-        %category = LANraragi::Model::Category::get_category($categoryfilter);
-
-        if (%category) {
-
-            # We're using a category! Update its lastused value.
-            $redis->hset( $categoryfilter, "last_used", time() );
-
-            $cat_search = $category{search};    # category search, if it's a favsearch
-
-            if ( $cat_search eq "" ) {
-                $logger->debug("Static category specified, using its ID list as a base instead of the entire database.");
-                @keys = @{ $category{archives} };    # category archives, if it's a standard category
-            } else {
-                @keys = $redis->keys('????????????????????????????????????????');
-            }
-        }
-
-    } else {
-        @keys = $redis->keys('????????????????????????????????????????');
-    }
 
     # Look in searchcache first
     my $cachekey = encode_utf8("$categoryfilter-$filter-$sortkey-$sortorder-$newonly-$untaggedonly");
@@ -71,14 +44,39 @@ sub do_search {
         @filtered = @{ thaw $frozendata };
 
     } else {
+        $logger->debug("No cache available, doing a full DB parse.");
+
+        # Get all archives from redis - or just use IDs from the category if possible.
+        my @keys       = ();
+        my $cat_search = "";
+
+        if ( $categoryfilter ne "" ) {
+            my %category = LANraragi::Model::Category::get_category($categoryfilter);
+
+            if (%category) {
+
+                # We're using a category! Update its lastused value.
+                $redis->hset( $categoryfilter, "last_used", time() );
+
+                $cat_search = $category{search};    # category search, if it's a favsearch
+
+                if ( $cat_search eq "" ) {
+                    $logger->debug("Static category specified, using its ID list as a base instead of the entire database.");
+                    @keys = @{ $category{archives} };    # category archives, if it's a standard category
+                } else {
+                    @keys = $redis->keys('????????????????????????????????????????');
+                }
+            }
+
+        } else {
+            @keys = $redis->keys('????????????????????????????????????????');
+        }
 
         # Setup parallel processing
         my $numCpus = Sys::CpuAffinity::getNumCpus();
         my $pl      = Parallel::Loops->new($numCpus);
         my @shared  = ();
         $pl->share( \@shared );
-
-        $logger->debug("No cache available, doing a full DB parse.");
 
         # If the untagged filter is enabled, call the untagged files API
         my %untagged = ();
@@ -95,8 +93,9 @@ sub do_search {
             \@sections,
             sub {
 
-                # Get a new redis connection so we can be independent
+                # Get all the info for the given IDs as an atomic operation
                 $redis = LANraragi::Model::Config->get_redis;
+                $redis->multi;
                 foreach my $id (@$_) {
 
                     # Check untagged filter first as it requires no DB hits
@@ -104,27 +103,36 @@ sub do_search {
                         next;
                     }
 
-                    eval {
-                        my %data = $redis->hgetall($id);
-                        my ( $tags, $title, $file, $isnew ) = @data{qw(tags title file isnew)};
-                        $title = redis_decode($title);
-                        $tags  = redis_decode($tags);
+                    $redis->hgetall($id);
+                }
+                my @data = $redis->exec;
+                $redis->quit;
 
-                        # Check new filter first
-                        if ( $newonly && $isnew && $isnew ne "true" ) {
-                            next;
-                        }
+                for my $i ( 0 .. $#data ) {
 
-                        # Check category search and base search filter
-                        my $concat = $tags ? $title . "," . $tags : $title;
-                        if (   $file
-                            && matches_search_filter( $cat_search, $concat )
-                            && matches_search_filter( $filter,     $concat ) ) {
+             # MULTI returns data in the same order the operations were sent, so we can get the ID from the original array this way.
+                    my %hash = @{ $data[$i] };
+                    my $id   = @$_[$i];
 
-                            # Push id to array
-                            push @shared, { id => $id, title => $title, tags => $tags };
-                        }
-                    };
+                    my ( $tags, $title, $file, $isnew ) = @hash{qw(tags title file isnew)};
+
+                    $title = redis_decode($title);
+                    $tags  = redis_decode($tags);
+
+                    # Check new filter first
+                    if ( $newonly && $isnew && $isnew ne "true" ) {
+                        next;
+                    }
+
+                    # Check category search and base search filter
+                    my $concat = $tags ? $title . "," . $tags : $title;
+                    if (   $file
+                        && matches_search_filter( $cat_search, $concat )
+                        && matches_search_filter( $filter,     $concat ) ) {
+
+                        # Push id to array
+                        push @shared, { id => $id, title => $title, tags => $tags };
+                    }
                 }
             }
         );
@@ -181,7 +189,7 @@ sub do_search {
 
     # Return total keys and the filtered ones
     my $end = min( $start + $keysperpage - 1, $#filtered );
-    return ( $#keys + 1, $#filtered + 1, @filtered[ $start .. $end ] );
+    return ( $total, $#filtered + 1, @filtered[ $start .. $end ] );
 }
 
 # matches_search_filter($filter, $tags)
