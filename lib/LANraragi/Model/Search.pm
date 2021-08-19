@@ -25,6 +25,7 @@ use LANraragi::Model::Category;
 sub do_search {
 
     my ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $untaggedonly ) = @_;
+    my $sortorder_inv = $sortorder ? 0 : 1;
 
     my $redis = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Search Engine", "lanraragi" );
@@ -34,14 +35,25 @@ sub do_search {
     my @filtered = ();
 
     # Look in searchcache first
-    my $cachekey = encode_utf8("$category_id-$filter-$sortkey-$sortorder-$newonly-$untaggedonly");
+    my $cachekey     = encode_utf8("$category_id-$filter-$sortkey-$sortorder-$newonly-$untaggedonly");
+    my $cachekey_inv = encode_utf8("$category_id-$filter-$sortkey-$sortorder_inv-$newonly-$untaggedonly");
     $logger->debug("Search request: $cachekey");
 
-    if ( $redis->exists("LRR_SEARCHCACHE") && $redis->hexists( "LRR_SEARCHCACHE", $cachekey ) ) {
+    if (   $redis->exists("LRR_SEARCHCACHE")
+        && $redis->hexists( "LRR_SEARCHCACHE", $cachekey ) ) {
         $logger->debug("Using cache for this query.");
 
+        # Thaw cache and use that as the filtered list
         my $frozendata = $redis->hget( "LRR_SEARCHCACHE", $cachekey );
         @filtered = @{ thaw $frozendata };
+
+    } elsif ( $redis->exists("LRR_SEARCHCACHE")
+        && $redis->hexists( "LRR_SEARCHCACHE", $cachekey_inv ) ) {
+        $logger->debug("A cache key exists with the opposite sortorder.");
+
+        # Thaw cache, invert the list to match the sortorder and use that as the filtered list
+        my $frozendata = $redis->hget( "LRR_SEARCHCACHE", $cachekey_inv );
+        @filtered = reverse @{ thaw $frozendata };
 
     } else {
         $logger->debug("No cache available, doing a full DB parse.");
@@ -137,34 +149,7 @@ sub do_search {
             }
 
             # Sort by the required metadata, asc or desc
-            @filtered = sort {
-
-                #Use either tags or title depending on the sortkey
-                my $meta1 = $a->{title};
-                my $meta2 = $b->{title};
-
-                if ( $sortkey ne "title" ) {
-                    my $re = qr/$sortkey/;
-                    if ( $a->{tags} =~ m/.*${re}:(.*)(\,.*|$)/ ) {
-                        $meta1 = $1;
-                    } else {
-                        $meta1 = "zzzz";    # Not a very good way to make items end at the bottom...
-                    }
-
-                    if ( $b->{tags} =~ m/.*${re}:(.*)(\,.*|$)/ ) {
-                        $meta2 = $1;
-                    } else {
-                        $meta2 = "zzzz";
-                    }
-                }
-
-                if ($sortorder) {
-                    ncmp( lc($meta2), lc($meta1) );
-                } else {
-                    ncmp( lc($meta1), lc($meta2) );
-                }
-
-            } @filtered;
+            @filtered = sort_results( $sortkey, $sortorder, @filtered );
         }
 
         # Cache this query in Redis
@@ -318,6 +303,42 @@ sub matches_search_filter {
 
     # All filters passed!
     return 1;
+}
+
+sub sort_results {
+
+    my ( $sortkey, $sortorder, @filtered ) = @_;
+
+    @filtered = sort {
+
+        #Use either tags or title depending on the sortkey
+        my $meta1 = $a->{title};
+        my $meta2 = $b->{title};
+
+        if ( $sortkey ne "title" ) {
+            my $re = qr/$sortkey/;
+            if ( $a->{tags} =~ m/.*${re}:(.*)(\,.*|$)/ ) {
+                $meta1 = $1;
+            } else {
+                $meta1 = "zzzz";    # Not a very good way to make items end at the bottom...
+            }
+
+            if ( $b->{tags} =~ m/.*${re}:(.*)(\,.*|$)/ ) {
+                $meta2 = $1;
+            } else {
+                $meta2 = "zzzz";
+            }
+        }
+
+        if ($sortorder) {
+            ncmp( lc($meta2), lc($meta1) );
+        } else {
+            ncmp( lc($meta1), lc($meta2) );
+        }
+
+    } @filtered;
+
+    return @filtered;
 }
 
 1;
