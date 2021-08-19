@@ -24,7 +24,7 @@ use LANraragi::Model::Category;
 # Performs a search on the database.
 sub do_search {
 
-    my ( $filter, $categoryfilter, $start, $sortkey, $sortorder, $newonly, $untaggedonly ) = @_;
+    my ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $untaggedonly ) = @_;
 
     my $redis = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Search Engine", "lanraragi" );
@@ -34,7 +34,7 @@ sub do_search {
     my @filtered = ();
 
     # Look in searchcache first
-    my $cachekey = encode_utf8("$categoryfilter-$filter-$sortkey-$sortorder-$newonly-$untaggedonly");
+    my $cachekey = encode_utf8("$category_id-$filter-$sortkey-$sortorder-$newonly-$untaggedonly");
     $logger->debug("Search request: $cachekey");
 
     if ( $redis->exists("LRR_SEARCHCACHE") && $redis->hexists( "LRR_SEARCHCACHE", $cachekey ) ) {
@@ -47,30 +47,11 @@ sub do_search {
         $logger->debug("No cache available, doing a full DB parse.");
 
         # Get all archives from redis - or just use IDs from the category if possible.
-        my @keys       = ();
-        my $cat_search = "";
+        my ( $filter_cat, @keys ) = get_source_data( $redis, $category_id );
 
-        if ( $categoryfilter ne "" ) {
-            my %category = LANraragi::Model::Category::get_category($categoryfilter);
-
-            if (%category) {
-
-                # We're using a category! Update its lastused value.
-                $redis->hset( $categoryfilter, "last_used", time() );
-
-                $cat_search = $category{search};    # category search, if it's a favsearch
-
-                if ( $cat_search eq "" ) {
-                    $logger->debug("Static category specified, using its ID list as a base instead of the entire database.");
-                    @keys = @{ $category{archives} };    # category archives, if it's a standard category
-                } else {
-                    @keys = $redis->keys('????????????????????????????????????????');
-                }
-            }
-
-        } else {
-            @keys = $redis->keys('????????????????????????????????????????');
-        }
+        # Compute search filters
+        my @tokens     = compute_search_filter($filter);
+        my @tokens_cat = compute_search_filter($filter_cat);
 
         # Setup parallel processing
         my $numCpus = Sys::CpuAffinity::getNumCpus();
@@ -110,7 +91,8 @@ sub do_search {
 
                 for my $i ( 0 .. $#data ) {
 
-             # MULTI returns data in the same order the operations were sent, so we can get the ID from the original array this way.
+                    # MULTI returns data in the same order the operations were sent,
+                    # so we can get the ID from the original array this way.
                     my %hash;
 
                     if ( $data[$i] ) {
@@ -133,8 +115,8 @@ sub do_search {
                     # Check category search and base search filter
                     my $concat = $tags ? $title . "," . $tags : $title;
                     if (   $file
-                        && matches_search_filter( $cat_search, $concat )
-                        && matches_search_filter( $filter,     $concat ) ) {
+                        && matches_search_filter( $concat, @tokens_cat )
+                        && matches_search_filter( $concat, @tokens ) ) {
 
                         # Push id to array
                         push @shared, { id => $id, title => $title, tags => $tags };
@@ -198,11 +180,45 @@ sub do_search {
     return ( $total, $#filtered + 1, @filtered[ $start .. $end ] );
 }
 
-# matches_search_filter($filter, $tags)
-# Search engine core.
-sub matches_search_filter {
+sub get_source_data {
 
-    my ( $filter, $tags ) = @_;
+    my ( $redis, $category_id ) = @_;
+    my @keys       = ();
+    my $filter_cat = "";
+
+    if ( $category_id ne "" ) {
+        my %category = LANraragi::Model::Category::get_category($category_id);
+
+        if (%category) {
+
+            # We're using a category! Update its lastused value.
+            $redis->hset( $category_id, "last_used", time() );
+
+            # If the category is dynamic, get its search predicate
+            $filter_cat = $category{search};
+
+            # If it's static however, we can use its ID list as the source data.
+            if ( $filter_cat eq "" ) {
+                @keys = @{ $category{archives} };
+            } else {
+                @keys = $redis->keys('????????????????????????????????????????');
+            }
+        }
+
+    } else {
+        @keys = $redis->keys('????????????????????????????????????????');
+    }
+
+    return ( $filter_cat, @keys );
+}
+
+# compute_search_filter($filter)
+# Transform the search engine syntax into a list of tokens.
+# A token object contains the tag, whether it must be an exact match, and whether it must be absent.
+sub compute_search_filter {
+
+    my $filter = shift;
+    my @tokens = ();
     if ( !$filter ) { $filter = ""; }
 
     # Special characters:
@@ -264,7 +280,28 @@ sub matches_search_filter {
         # * % => .*
         $tag =~ s/\\\*|\\\%/\.\*/g;
 
-        # Got the tag, check if it's present
+        push @tokens,
+          { tag     => $tag,
+            isneg   => $isneg,
+            isexact => $isexact
+          };
+    }
+    return @tokens;
+}
+
+# matches_search_filter($computed_filter, $tags)
+# Search engine core.
+sub matches_search_filter {
+
+    my ( $tags, @tokens ) = @_;
+
+    foreach my $token (@tokens) {
+
+        my $tag     = $token->{tag};
+        my $isneg   = $token->{isneg};
+        my $isexact = $token->{isexact};
+
+        # For each token, we check if the tag is present.
         my $tagpresent = 0;
         if ($isexact) {    # The tag must necessarily be complete if isexact = 1
              # Check for comma + potential space before and comma after the tag, or start/end of string to account for the first/last tag.
