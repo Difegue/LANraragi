@@ -55,7 +55,9 @@ Presto! Your database is not deleted in case you ever fancy coming back.
 
 ## Troubleshooting
 
-If the installer fails, it's likely because it can't enable the Windows Subsystem for Linux \(WSL\) on your machine. Try running through the official Microsoft installation guide depicted[ here](https://docs.microsoft.com/en-us/windows/wsl/install-win10).
+### Installer failures 
+
+If the installer fails, it's likely because it can't enable the Windows Subsystem for Linux \(WSL\) on your machine. Try running through the official Microsoft installation guide depicted [here](https://docs.microsoft.com/en-us/windows/wsl/install-win10).
 
 If WSL is installed properly but the tray GUI reports LANraragi as not being installed, try using the `wslconfig.exe /l` command and make sure the "lanraragi" distribution is present.
 
@@ -63,3 +65,17 @@ If WSL is installed properly but the tray GUI reports LANraragi as not being ins
 
 The tray GUI will show the error message it encountered instead of the LRR Version number if it fails to detect the distro - This might help you troubleshoot further.
 
+Some users reported that antivirus software can block the WSL distro install portion of the installer, so you might have some luck temporarily disabling it.  
+
+If you're still getting installer failures past that, try generating a full log of the installer:  
+```
+msiexec /i "lanraragi.msi" /l*v "install.log"
+```
+and open a GitHub issue with it.  
+
+### Server isn't available on `localhost:3000` even though it has started properly
+
+Running the application as Administrator might fix this in some instances.  
+Otherwise, make sure the Windows Firewall isn't blocking any `perl` process.  
+
+WSL2 uses a different network stack and can help if all else fails, although enabling it will likely make the server unreachable from remote machines.
