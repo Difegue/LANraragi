@@ -49,7 +49,7 @@ jobs:
     - name: Upload rootfs
       uses: actions/upload-artifact@v1
       with:
-        name: wsl-distro
+        name: package
         path: package.tar 
 
   buildNightlyWSL:
@@ -61,7 +61,7 @@ jobs:
     - name: Download package
       uses: actions/download-artifact@v1
       with:
-        name: wsl-distro
+        name: package
     - name: Build MSI Installer
       shell: powershell
       run: |
