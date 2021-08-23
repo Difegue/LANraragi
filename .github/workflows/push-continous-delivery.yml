@@ -49,7 +49,7 @@ jobs:
     - name: Upload rootfs
       uses: actions/upload-artifact@v1
       with:
-        name: package
+        name: wsl-distro
         path: package.tar 
 
   buildNightlyWSL:
@@ -61,7 +61,7 @@ jobs:
     - name: Download package
       uses: actions/download-artifact@v1
       with:
-        name: package
+        name: wsl-distro
     - name: Build MSI Installer
       shell: powershell
       run: |
@@ -75,22 +75,5 @@ jobs:
     - name: Upload Installer
       uses: actions/upload-artifact@v1
       with:
-        name: wsl
+        name: LANraragi.msi
         path: ./tools/build/windows/Karen/Setup/bin/LANraragi.msi
-  
-  uploadInstaller:
-    name: Upload Installer to MEGA
-    needs: buildNightlyWSL
-    runs-on: ubuntu-latest
-    steps:
-    - name: Download package
-      uses: actions/download-artifact@v1
-      with:
-        name: wsl
-    - name: Upload Installer to MEGA
-      uses: difegue/action-megacmd@master
-      env:
-        PASSWORD: ${{ secrets.MEGA_PASSWORD }}
-        USERNAME: ${{ secrets.MEGA_USERNAME }}
-      with:
-        args: put -c wsl/LANraragi.msi Windows_Nightlies/LRR_${GITHUB_SHA}.msi
