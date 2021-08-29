@@ -22,7 +22,7 @@ sub plugin_info {
         #Standard metadata
         name        => "FAKKU",
         type        => "metadata",
-        namespace   => "jewcob",
+        namespace   => "fakkumetadata",
         author      => "Difegue",
         version     => "0.5.1",
         description => "Searches FAKKU for tags matching your archive.",
@@ -44,28 +44,28 @@ sub get_tags {
     my $logger = get_plugin_logger();
 
     # Work your magic here - You can create subs below to organize the code better
-    my $jewcobURL = "";
+    my $fakku_URL = "";
 
     # If the user specified a oneshot argument, use it as-is.
     # We could stand to pre-check it to see if it really is a FAKKU URL but meh
     if ( $lrr_info->{oneshot_param} ) {
-        $jewcobURL = $lrr_info->{oneshot_param};
+        $fakku_URL = $lrr_info->{oneshot_param};
     } else {
 
         # Search for a FAKKU URL if the user didn't specify one
-        $jewcobURL = search_for_fakku_url( $lrr_info->{archive_title} );
+        $fakku_URL = search_for_fakku_url( $lrr_info->{archive_title} );
     }
 
     # Do we have a URL to grab data from?
-    if ( $jewcobURL ne "" ) {
-        $logger->debug("Detected FAKKU URL: $jewcobURL");
+    if ( $fakku_URL ne "" ) {
+        $logger->debug("Detected FAKKU URL: $fakku_URL");
     } else {
         $logger->info("No matching FAKKU Gallery Found!");
         return ( error => "No matching FAKKU Gallery Found!" );
     }
 
     my ( $newtags, $newtitle );
-    eval { ( $newtags, $newtitle ) = get_tags_from_fakku($jewcobURL); };
+    eval { ( $newtags, $newtitle ) = get_tags_from_fakku($fakku_URL); };
 
     if ($@) {
         return ( error => $@ );
@@ -105,7 +105,7 @@ sub search_for_fakku_url {
 
 sub get_search_result_dom {
 
-    my ( $title ) = @_;
+    my ($title) = @_;
 
     my $logger = get_plugin_logger();
 
@@ -117,8 +117,8 @@ sub get_search_result_dom {
     # Visit the base host once to set cloudflare cookies and jank
     $ua->max_redirects(5)->get($fakku_host);
 
-    # Use the regular search page.
-    # The autosuggest API (fakku.net/suggest/blahblah) yields better results but is blocked unless you make it through cloudflare or are logged in?
+# Use the regular search page.
+# The autosuggest API (fakku.net/suggest/blahblah) yields better results but is blocked unless you make it through cloudflare or are logged in?
     my $URL = "$fakku_host/search/" . uri_escape_utf8($title);
 
     $logger->debug("Using URL $URL to search on FAKKU.");
@@ -131,7 +131,7 @@ sub get_search_result_dom {
 
 sub get_dom_from_fakku {
 
-    my ( $url ) = @_;
+    my ($url) = @_;
 
     my $logger = get_plugin_logger();
 
@@ -152,13 +152,13 @@ sub get_dom_from_fakku {
 # Parses a FAKKU URL for tags.
 sub get_tags_from_fakku {
 
-    my ( $url ) = @_;
+    my ($url) = @_;
 
     my $logger = get_plugin_logger();
 
     my $dom = get_dom_from_fakku($url);
 
-    my @tags  = ();
+    my @tags = ();
     my $title =
       ( $dom->at('.content-name') )
       ? $dom->at('.content-name')->at('h1')->text
