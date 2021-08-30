@@ -23,6 +23,7 @@ sub plugin_info {
         name        => "FAKKU",
         type        => "metadata",
         namespace   => "fakkumetadata",
+        login_from  => "fakkulogin",
         author      => "Difegue",
         version     => "0.6",
         description => "Searches FAKKU for tags matching your archive.",
