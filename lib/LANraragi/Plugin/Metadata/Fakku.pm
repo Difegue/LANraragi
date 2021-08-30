@@ -23,9 +23,10 @@ sub plugin_info {
         name        => "FAKKU",
         type        => "metadata",
         namespace   => "fakkumetadata",
+        login_from  => "fakkulogin",
         author      => "Difegue",
-        version     => "0.5.1",
-        description => "Searches FAKKU for tags matching your archive.",
+        version     => "0.6",
+       description => "Searches FAKKU for tags matching your archive. If you have an account, don't forget to enter the matching cookie in the login plugin to be able to access controversial content.",
         icon =>
           "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAFiUAABYlAUlSJPAAAACZSURBVDhPlY+xDYQwDEWvZgRGYA22Y4frqJDSZhFugiuuo4cqPGT0iTjAYL3C+fGzktc3hEcsQvJq6HtjE2Jdv4viH4a4pWnL8q4A6g+ET9P8YhS2/kqwIZXWnwqChDxPfCFfD76wOzJ2IOR/0DSwnuRKYAKUW3gq2OsJTYM0jr7QVRVwlabJEaw3ARYBcmFXeomxphIeEMIMmh3lOLQR+QQAAAAASUVORK5CYII=",
         parameters  => [ { type => "bool", desc => "Save archive title" } ],
@@ -39,7 +40,10 @@ sub get_tags {
 
     shift;
     my $lrr_info = shift;    # Global info hash
+    my $ua       = $lrr_info->{user_agent};
+    
     my ($savetitle) = @_;    # Plugin parameters
+    
 
     my $logger = get_plugin_logger();
 
@@ -53,7 +57,7 @@ sub get_tags {
     } else {
 
         # Search for a FAKKU URL if the user didn't specify one
-        $fakku_URL = search_for_fakku_url( $lrr_info->{archive_title} );
+        $fakku_URL = search_for_fakku_url( $lrr_info->{archive_title}, $ua);
     }
 
     # Do we have a URL to grab data from?
@@ -65,7 +69,7 @@ sub get_tags {
     }
 
     my ( $newtags, $newtitle );
-    eval { ( $newtags, $newtitle ) = get_tags_from_fakku($fakku_URL); };
+    eval { ( $newtags, $newtitle ) = get_tags_from_fakku($fakku_URL, $ua); };
 
     if ($@) {
         return ( error => $@ );
@@ -87,10 +91,10 @@ my $fakku_host = "https://www.fakku.net";
 # search_for_fakku_url(title)
 # Uses the website's search to find a gallery and returns its gallery ID.
 sub search_for_fakku_url {
+    
+    my ($title, $ua) = @_;
 
-    my ($title) = @_;
-
-    my $dom = get_search_result_dom($title);
+    my $dom = get_search_result_dom($title, $ua);
 
     # Get the first gallery url of the search results
     my $path = ( $dom->at('.content-title') ) ? $dom->at('.content-title')->attr('href') : "";
@@ -105,14 +109,12 @@ sub search_for_fakku_url {
 
 sub get_search_result_dom {
 
-    my ($title) = @_;
+    my ($title, $ua) = @_;
 
     my $logger = get_plugin_logger();
 
     #Strip away hyphens and apostrophes as they can break search
     $title =~ s/-|'/ /g;
-
-    my $ua = Mojo::UserAgent->new;
 
     # Visit the base host once to set cloudflare cookies and jank
     $ua->max_redirects(5)->get($fakku_host);
@@ -131,11 +133,10 @@ sub get_search_result_dom {
 
 sub get_dom_from_fakku {
 
-    my ($url) = @_;
+    my ($url, $ua) = @_;
 
     my $logger = get_plugin_logger();
 
-    my $ua  = Mojo::UserAgent->new;
     my $res = $ua->max_redirects(5)->get($url)->result;
 
     my $html = $res->body;
@@ -152,11 +153,11 @@ sub get_dom_from_fakku {
 # Parses a FAKKU URL for tags.
 sub get_tags_from_fakku {
 
-    my ($url) = @_;
+    my ($url, $ua) = @_;
 
     my $logger = get_plugin_logger();
 
-    my $dom = get_dom_from_fakku($url);
+    my $dom = get_dom_from_fakku($url, $ua);
 
     my @tags = ();
     my $title =
