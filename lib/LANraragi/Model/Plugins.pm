@@ -14,6 +14,7 @@ use Data::Dumper;
 use LANraragi::Utils::Generic qw(remove_spaces remove_newlines);
 use LANraragi::Utils::Archive qw(extract_thumbnail);
 use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Tags qw(rewrite_tags split_tags_to_array);
 
 # Sub used by Auto-Plugin.
 sub exec_enabled_plugins_on_file {
@@ -232,7 +233,7 @@ sub exec_metadata_plugin {
             return %newmetadata;
         }
 
-        my @tagarray = split( ",", $newmetadata{tags} );
+        my @tagarray = split_tags_to_array($newmetadata{tags});
         my $newtags  = "";
 
         #Process new metadata,
@@ -241,11 +242,12 @@ sub exec_metadata_plugin {
         my $blistenable = LANraragi::Model::Config->enable_blacklist;
         my @blacklist   = split( ',', $blist );                         # array-ize the blacklist string
 
+        if (LANraragi::Model::Config->enable_tagsrules) {
+            $logger->info("Applaying tags rules...");
+            @tagarray = rewrite_tags(\@tagarray, LANraragi::Model::Config->get_exptagsrules());
+        }
+
         foreach my $tagtoadd (@tagarray) {
-
-            remove_spaces($tagtoadd);
-            remove_newlines($tagtoadd);
-
             # Only proceed if the tag isnt already in redis
             unless ( index( uc($tags), uc($tagtoadd) ) != -1 ) {
 

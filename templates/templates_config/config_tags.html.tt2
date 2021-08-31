@@ -48,3 +48,21 @@
         <br>Split tags with commas.
     </td>
 </tr>
+
+<tr>
+    <td class="option-td">
+        <h2 class="ih"> Tag Rules </h2>
+    </td>
+    <td class="config-td">
+        <input id="tagsruleson" name="tagsruleson" class="fa" type="checkbox" [% IF tagsruleson %]checked[% END %]>
+        <br>
+        <textarea class="stdinput" size="20" style='width:100%; height:75px' name="tagsrules"
+            maxlength='5000'>[% tagsrules %]</textarea>
+        <br>
+        <br><b>-tag | tag</b> : removes the tag (like a blacklist)
+        <br><b>-namespace:*</b> : removes all tags within this namespace
+        <br><b>~namespace</b> : strips the namespace from the tags
+        <br><b>tag -> new-tag</b> : replaces one tag
+        <br><b>namespace:* -> new-namespace:*</b> : replaces the namespace with the new one
+    </td>
+</tr>
