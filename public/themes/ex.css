@@ -148,7 +148,10 @@ tr.gtr1{background:#363940}
 .stdinput:disabled{color:#f1f1f1;background:#34353b}
 
 .tagger {
-    font-size:8pt;color:#f1f1f1;background:#34353b;border:1px solid #000000;
+    font-size:8pt !important;
+    color:#f1f1f1;
+    background:#34353b;
+    border:1px solid #000000;
     max-width: 450px;
     margin: 4px 1px 0;
     font-size: 9pt;

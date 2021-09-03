@@ -37,6 +37,10 @@ span.tags {
   min-height:20px;
 }
 
+.tagger {
+  min-height:125px;
+}
+
 div.id3 img {
   max-height: 275px;
 }
