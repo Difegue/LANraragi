@@ -87,14 +87,6 @@ sub get_gallery_dom_by_title {
 
     my $logger = get_plugin_logger();
 
-    my $gallery = "";
-
-    if ( $title =~ /\{(\d*)\}.*$/gm ) {
-        $gallery = $1;
-        $logger->debug("Got $gallery from file.");
-        return $gallery;
-    }
-
     #Strip away hyphens and apostrophes as they apparently break search
     $title =~ s/-|'/ /g;
 
@@ -115,6 +107,13 @@ sub get_gallery_dom_by_title {
 sub get_gallery_id_from_title {
 
     my ( $title ) = @_;
+
+    my $logger = get_plugin_logger();
+
+    if ( $title =~ /\{(\d*)\}.*$/gm ) {
+        $logger->debug("Got $1 from file.");
+        return $1;
+    }
 
     my $dom = get_gallery_dom_by_title($title);
 
