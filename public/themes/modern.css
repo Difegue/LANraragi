@@ -248,8 +248,9 @@ tr.gtr1 {
   height: 21px;
   margin: 4px 1px 0;
   padding: 2px 7px;
-  max-width: 450px;
+  max-width: 768px;
   width: 80%;
+  border-radius: 3px;
 }
 .searchbtn {
   min-width: 100px !important;
