@@ -69,7 +69,7 @@ sub tags_rules_to_array {
                 $rule_type = 'replace'
             }
 
-            push( @rules, [ $rule_type, $match, $value ] ) if ($rule_type);
+            push( @rules, [ $rule_type, lc $match, $value ] ) if ($rule_type);
         }
     }
     return @rules;
@@ -94,11 +94,11 @@ sub apply_rules {
         my $match = $rule->[1];
         my $value = $rule->[2];
         given($rule->[0]) {
-            when ('remove')     { return if ( $tag eq $match ); }
-            when ('remove_ns')  { return if ( $tag =~ m/^$match:/ ); }
-            when ('replace_ns') { $tag =~ s/^\Q$match:/$value\:/; }
-            when ('strip_ns')   { $tag =~ s/^\Q$match://; }
-            default             { $tag = $value if ( $tag eq $match ); }
+            when ('remove')     { return if ( lc $tag eq $match ); }
+            when ('remove_ns')  { return if ( $tag =~ m/^$match:/i ); }
+            when ('replace_ns') { $tag =~ s/^\Q$match:/$value\:/i; }
+            when ('strip_ns')   { $tag =~ s/^\Q$match://i; }
+            default             { $tag = $value if ( lc $tag eq $match ); }
         }
     }
 
