@@ -265,7 +265,9 @@ sub new_file_callback {
     $logger->debug("New file detected: $name");
     unless ( -d $name ) {
 
-        eval { add_to_filemap($name); };
+        my $redis = LANraragi::Model::Config->get_redis;
+        eval { add_to_filemap( $redis, $name ); };
+        $redis->quit();
 
         if ($@) {
             $logger->error("Error while handling new file: $@");
