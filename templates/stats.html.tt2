@@ -17,7 +17,7 @@
 	<script src="./js/vendor/jqcloud.min.js"></script>
 
 	<script src="./js/theme.js?[% version%]" type="text/JAVASCRIPT"></script>
-
+	<script src="./js/ajax.js?[% version%]" type="text/JAVASCRIPT"></script>
 </head>
 
 <body onload="set_style_from_storage();">
@@ -75,8 +75,8 @@
 	</div>
 
 	<script>
-		$.get("/api/database/stats")
-			.done(function (data) {
+		genericAPICall("/api/database/stats?minweight=2", "GET", null, "Couldn't load tag statistics",
+			(data) => {
 
 				// Merge unnamespaced/namespaced tags, casing is handled by the server
 				data = data.reduce(function (res, tag) {
@@ -102,7 +102,7 @@
 				$('#tagcount').html(data.length);
 				$('#statsLoading').hide();
 
-			}).fail(data => showErrorToast("Couldn't load tag statistics", data.error));
+			});
 	</script>
 
 	[% INCLUDE footer %]

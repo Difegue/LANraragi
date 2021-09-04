@@ -103,7 +103,16 @@ div.gt > a {
   color: #EFEAEA !important;
 }
 
-div.gt > a:hover {
+.tagger > ul > li:not(.tagger-new) > a, .tagger li:not(.tagger-new) > span, .tagger .tagger-new ul {
+  background: none repeat scroll 0 0 #4F535B;
+  border-radius: 3px;
+}
+
+.tagger > ul > li:not(.tagger-new) a, .tagger > ul > li:not(.tagger-new) a:visited, .tagger-new ul a, .tagger-new ul a:visited {
+  color: #EFEAEA !important;
+}
+
+div.gt > a:hover, .tagger > ul > li:not(.tagger-new) a:hover {
   color: #D7D4C5 !important;
 }
 
@@ -243,9 +252,21 @@ tr.gtr1 {
   padding: 2px 3px;
   width: 80%;
 }
+
+.tagger {
+  background: none repeat scroll 0 0 #FCFCFC;
+  border: medium none;
+  color: #ED2553;
+  font-family: "Roboto", arial, sans-serif;
+  max-width: 768px;
+  margin: 4px 4px 0;
+  font-size: 9pt;
+}
+
 .searchbtn {
   min-width: 100px !important;
 }
+
 td.itd {
   border-right: 2px dotted #414135;
   padding: 3px 4px;

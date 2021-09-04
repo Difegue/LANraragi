@@ -123,7 +123,7 @@ sub find_untagged_archives {
 
             my $tagstr = $redis->hget( $id, "tags" );
             $tagstr = redis_decode($tagstr);
-            my @tags           = split( /,\s?/, $tagstr );
+            my @tags = split( /,\s?/, $tagstr );
             my $nondefaulttags = 0;
 
             foreach my $t (@tags) {
@@ -230,7 +230,7 @@ sub update_metadata {
     my ( $id, $title, $tags ) = @_;
 
     unless ( defined $title || defined $tags ) {
-        return "No metadata parameters (Please supply title,tags or both)";
+        return "No metadata parameters (Please supply title, tags or both)";
     }
 
     # Clean up the user's inputs and encode them.

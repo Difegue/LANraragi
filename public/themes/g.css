@@ -78,7 +78,17 @@ div.gt {
     text-overflow: ellipsis;
 }
 
-div.gt:hover {
+.tagger > ul > li:not(.tagger-new) > a, .tagger li:not(.tagger-new) > span, .tagger .tagger-new ul {
+    background: none repeat scroll 0 0 #F2EFDF;
+    border: 1px solid #806769;
+    border-radius: 5px 5px 5px 5px;
+  }
+  
+  .tagger > ul > li:not(.tagger-new) a, .tagger > ul > li:not(.tagger-new) a:visited, .tagger-new ul a, .tagger-new ul a:visited {
+    color: #5C0D11;
+  }
+  
+  div.gt:hover, .tagger > ul > li:not(.tagger-new) a:hover {
     color: #9b4e03;
 }
 
@@ -206,6 +216,17 @@ tr.gtr1 {
     background: none repeat scroll 0 0 #F2EFDF;
     color: #9B4E03;
 }
+
+.tagger {
+    font-size:8pt !important;
+    background: none repeat scroll 0 0 #EDEADA;
+    border: 1px solid #5C0D11;
+    color: #5C0D11;
+    max-width: 450px;
+    margin: 4px 1px 0;
+    font-size: 9pt;
+}
+
 .searchbtn {
     min-width: 100px !important;
 }
