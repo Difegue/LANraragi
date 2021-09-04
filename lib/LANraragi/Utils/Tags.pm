@@ -8,13 +8,25 @@ no warnings 'experimental';
 
 use LANraragi::Utils::Generic qw(remove_spaces remove_newlines);
 
-# Generic Utility Functions.
+# Functions related to the Tag system.
 use Exporter 'import';
 our @EXPORT_OK =
-  qw( tags_rules_to_array rewrite_tags split_tags_to_array );
+  qw( replace_CRLF restore_CRLF tags_rules_to_array rewrite_tags split_tags_to_array );
 
 sub is_null_or_empty {
     return !length(shift);
+}
+
+sub replace_CRLF {
+    my ($val) = @_;
+    $val =~ s/\x{d}\x{a}/;/g if ( $val );
+    return $val;
+}
+
+sub restore_CRLF {
+    my ($val) = @_;
+    $val =~ s/;/\x{d}\x{a}/g if ( $val );
+    return $val;
 }
 
 sub split_tags_to_array {

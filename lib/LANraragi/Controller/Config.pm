@@ -1,10 +1,10 @@
 package LANraragi::Controller::Config;
 use Mojo::Base 'Mojolicious::Controller';
 
-use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header remove_spaces remove_newlines replace_CRLF restore_CRLF);
+use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header remove_spaces remove_newlines);
 use LANraragi::Utils::Database qw(redis_encode redis_decode);
 use LANraragi::Utils::TempFolder qw(get_tempsize);
-use LANraragi::Utils::Tags qw(tags_rules_to_array);
+use LANraragi::Utils::Tags qw(tags_rules_to_array replace_CRLF restore_CRLF);
 use Mojo::JSON qw(encode_json);
 
 use Authen::Passphrase::BlowfishCrypt;
@@ -29,8 +29,8 @@ sub index {
         password       => $self->LRR_CONF->get_password,
         blackliston    => $self->LRR_CONF->enable_blacklist,
         blacklist      => $self->LRR_CONF->get_tagblacklist,
-        tagsruleson    => $self->LRR_CONF->enable_tagsrules,
-        tagsrules      => restore_CRLF($self->LRR_CONF->get_tagsrules),
+        tagruleson    => $self->LRR_CONF->enable_tagrules,
+        tagrules      => restore_CRLF($self->LRR_CONF->get_tagrules),
         title          => $self->LRR_CONF->get_htmltitle,
         tempmaxsize    => $self->LRR_CONF->get_tempmaxsize,
         localprogress  => $self->LRR_CONF->enable_localprogress,
@@ -63,7 +63,7 @@ sub save_config {
         thumbdir      => scalar $self->req->param('thumbdir'),
         pagesize      => scalar $self->req->param('pagesize'),
         blacklist     => scalar $self->req->param('blacklist'),
-        tagsrules     => replace_CRLF($self->req->param('tagsrules')),
+        tagrules     => replace_CRLF($self->req->param('tagrules')),
         tempmaxsize   => scalar $self->req->param('tempmaxsize'),
         apikey        => scalar $self->req->param('apikey'),
         readerquality => scalar $self->req->param('readerquality'),
@@ -77,12 +77,12 @@ sub save_config {
         devmode       => ( scalar $self->req->param('devmode')       ? '1' : '0' ),
         enableresize  => ( scalar $self->req->param('enableresize')  ? '1' : '0' ),
         blackliston   => ( scalar $self->req->param('blackliston')   ? '1' : '0' ),
-        tagsruleson   => ( scalar $self->req->param('tagsruleson')   ? '1' : '0' ),
+        tagruleson   => ( scalar $self->req->param('tagruleson')   ? '1' : '0' ),
         nofunmode     => ( scalar $self->req->param('nofunmode')     ? '1' : '0' ),
 
         # For backend only
         # Expands rules on save so they can be used directly
-        exptagsrules  => encode_json( [ tags_rules_to_array($self->req->param('tagsrules')) ] )
+        exptagrules  => encode_json( [ tags_rules_to_array($self->req->param('tagrules')) ] )
     );
 
     # Only add newpassword field as password if enablepass = 1

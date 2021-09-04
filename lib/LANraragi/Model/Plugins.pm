@@ -242,9 +242,9 @@ sub exec_metadata_plugin {
         my $blistenable = LANraragi::Model::Config->enable_blacklist;
         my @blacklist   = split( ',', $blist );                         # array-ize the blacklist string
 
-        if (LANraragi::Model::Config->enable_tagsrules) {
-            $logger->info("Applaying tags rules...");
-            @tagarray = rewrite_tags(\@tagarray, LANraragi::Model::Config->get_exptagsrules());
+        if (LANraragi::Model::Config->enable_tagrules) {
+            $logger->info("Applying tag rules...");
+            @tagarray = rewrite_tags(\@tagarray, LANraragi::Model::Config->get_exptagrules());
         }
 
         foreach my $tagtoadd (@tagarray) {

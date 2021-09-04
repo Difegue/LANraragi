@@ -21,7 +21,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 use Exporter 'import';
 our @EXPORT_OK =
   qw(remove_spaces remove_newlines trim_url is_image is_archive render_api_response get_tag_with_namespace shasum start_shinobu
-  split_workload_by_cpu start_minion get_css_list generate_themes_header generate_themes_selector replace_CRLF restore_CRLF);
+  split_workload_by_cpu start_minion get_css_list generate_themes_header generate_themes_selector);
 
 # Remove spaces before and after a word
 sub remove_spaces {
@@ -279,18 +279,6 @@ sub css_default_names {
         when ("ex.css")           { return "Sad Panda" }
         default                   { return $_[0] }
     }
-}
-
-sub replace_CRLF {
-    my ($val) = @_;
-    $val =~ s/\x{d}\x{a}/;/g if ( $val );
-    return $val;
-}
-
-sub restore_CRLF {
-    my ($val) = @_;
-    $val =~ s/;/\x{d}\x{a}/g if ( $val );
-    return $val;
 }
 
 1;

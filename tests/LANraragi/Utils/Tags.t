@@ -29,7 +29,7 @@ my @incoming_tags = (
 
 BEGIN { use_ok('LANraragi::Utils::Tags'); }
 
-note ("testing tags rules conversion...");
+note ("testing tag rules conversion...");
 
 {
     my $text_rules = '     ping    ->   pong
@@ -39,7 +39,7 @@ note ("testing tags rules conversion...");
 
     my @rules = LANraragi::Utils::Tags::tags_rules_to_array($text_rules);
 
-    cmp_deeply( \@rules, [ [ 'replace', 'ping', 'pong' ], [ 'replace', 'no-space', 'keep     spaces' ] ], 'skips empty lines and remove surrounding spaces');
+    cmp_deeply( \@rules, [ [ 'replace', 'ping', 'pong' ], [ 'replace', 'no-space', 'keep     spaces' ] ], 'skips empty lines and removes surrounding spaces');
 }
 
 {
@@ -104,7 +104,7 @@ note ("testing tags rules conversion...");
 
     my @rules = LANraragi::Utils::Tags::tags_rules_to_array($text_rules);
 
-    cmp_deeply( \@rules, [ [ 'strip_ns', 'namespace', undef ] ], 'strip namespace');
+    cmp_deeply( \@rules, [ [ 'strip_ns', 'namespace', undef ] ], 'strips namespace');
 }
 
 note("testing tags manipulation ...");
@@ -198,7 +198,7 @@ note("testing tags manipulation ...");
             'cat',
             'with space'
         ],
-        'strip namespace');
+        'strips namespace');
 }
 
 done_testing();
