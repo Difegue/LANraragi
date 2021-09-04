@@ -161,7 +161,7 @@ sub update_filemap {
                 foreach my $file (@$_) {
 
                     # Individual files are also eval'd so we can keep scanning
-                    eval { add_to_filemap($redis, $file); };
+                    eval { add_to_filemap( $redis, $file ); };
 
                     if ($@) {
                         $logger->error("Error scanning $file: $@");
@@ -179,7 +179,7 @@ sub update_filemap {
 
 sub add_to_filemap {
 
-    my ($redis, $file) = @_;
+    my ( $redis, $file ) = @_;
     if ( is_archive($file) ) {
 
         $logger->debug("Adding $file to Shinobu filemap.");
@@ -252,6 +252,8 @@ sub add_to_filemap {
             add_new_file( $id, $file, $redis );
             invalidate_cache();
         }
+    } else {
+        $logger->debug("$file not recognized as archive, skipping.");
     }
 }
 
@@ -260,6 +262,7 @@ sub add_to_filemap {
 sub new_file_callback {
 
     my $name = shift;
+    $logger->debug("New file detected: $name");
     unless ( -d $name ) {
 
         eval { add_to_filemap($name); };
@@ -273,7 +276,7 @@ sub new_file_callback {
 #Deleted files are simply dropped from the filemap.
 #Deleted subdirectories trigger deleted events for every file deleted.
 sub deleted_file_callback {
-    
+
     my $name = shift;
     $logger->info("$name was deleted from the content folder!");
     unless ( -d $name ) {
