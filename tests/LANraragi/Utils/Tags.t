@@ -51,7 +51,7 @@ note ("testing tag rules conversion...");
 
     my @rules = LANraragi::Utils::Tags::tags_rules_to_array($text_rules);
 
-    cmp_deeply( \@rules, [ [ 'replace', 'ping', 'pong' ], [ 'remove', 'cat', undef ] ], 'handles CRLF');
+    cmp_deeply( \@rules, [ [ 'replace', 'ping', 'pong' ], [ 'remove', 'cat', '' ] ], 'handles CRLF');
 }
 
 {
@@ -60,7 +60,7 @@ note ("testing tag rules conversion...");
 
     my @rules = LANraragi::Utils::Tags::tags_rules_to_array($text_rules);
 
-    cmp_deeply( \@rules, [ [ 'remove', 'ping', undef ], [ 'remove', 'flip', undef ] ], 'blacklist mode');
+    cmp_deeply( \@rules, [ [ 'remove', 'ping', '' ], [ 'remove', 'flip', '' ] ], 'blacklist mode');
 }
 
 {
@@ -92,7 +92,7 @@ note ("testing tag rules conversion...");
 
     my @rules = LANraragi::Utils::Tags::tags_rules_to_array($text_rules);
 
-    cmp_deeply( \@rules, [ [ 'remove', 'with space', undef ] ], 'simple deletion');
+    cmp_deeply( \@rules, [ [ 'remove', 'with space', '' ] ], 'simple deletion');
 }
 
 {
@@ -100,7 +100,7 @@ note ("testing tag rules conversion...");
 
     my @rules = LANraragi::Utils::Tags::tags_rules_to_array($text_rules);
 
-    cmp_deeply( \@rules, [ [ 'remove_ns', 'namespace', undef ] ], 'namespace deletion');
+    cmp_deeply( \@rules, [ [ 'remove_ns', 'namespace', '' ] ], 'namespace deletion');
 }
 
 {
@@ -108,7 +108,7 @@ note ("testing tag rules conversion...");
 
     my @rules = LANraragi::Utils::Tags::tags_rules_to_array($text_rules);
 
-    cmp_deeply( \@rules, [ [ 'strip_ns', 'namespace', undef ] ], 'strips namespace');
+    cmp_deeply( \@rules, [ [ 'strip_ns', 'namespace', '' ] ], 'strips namespace');
 }
 
 note("testing tags manipulation ...");
@@ -187,6 +187,29 @@ note("testing tags manipulation ...");
 }
 
 {
+    my $text_rules = 'group:* -> block:*';
+    my @rules = LANraragi::Utils::Tags::tags_rules_to_array($text_rules);
+
+    my @tags = LANraragi::Utils::Tags::rewrite_tags(\@incoming_tags, \@rules);
+
+    cmp_deeply(
+        \@tags,
+        [
+            'block:alpha',
+            'block:beta',
+            'namespace:ONE',
+            'namespace:Two and Three',
+            'namespace-fake',
+            'flip',
+            'ping',
+            'cat',
+            'with space',
+            'SCREAM'
+        ],
+        'namespace substitution');
+}
+
+{
     my $text_rules = '~namespace';
     my @rules = LANraragi::Utils::Tags::tags_rules_to_array($text_rules);
 
@@ -231,6 +254,59 @@ note("testing tags manipulation ...");
             'Please Stop'
         ],
         'rules matching is case insensitive');
+}
+
+note('testing rules flattening...');
+
+{
+    my $text_rules = '~NameSpace
+    scream -> Please Stop
+    -PING';
+    my @rules = LANraragi::Utils::Tags::tags_rules_to_array($text_rules);
+
+    my @flattened_rules = LANraragi::Utils::Tags::flat(@rules);
+    cmp_deeply(
+        \@flattened_rules,
+        [
+            'strip_ns',
+            'namespace',
+            '',
+            'replace',
+            'scream',
+            'Please Stop',
+            'remove',
+            'ping',
+            ''
+        ],
+        'flattened rules');
+}
+
+note('testing rules unflattening...');
+
+{
+    my @flattened_rules = (
+        'strip_ns', 'namespace', '',
+        'replace', 'scream', 'Please Stop',
+        'remove', 'ping', ''
+    );
+
+    my @rules = LANraragi::Utils::Tags::unflat_tagrules(\@flattened_rules);
+    cmp_deeply(
+        \@rules,
+        [
+            [ 'strip_ns', 'namespace', '' ],
+            [ 'replace', 'scream', 'Please Stop' ],
+            [ 'remove', 'ping', '' ]
+        ],
+        'unflattened rules');
+}
+
+{
+    my @empty_rules;
+    my @rules = LANraragi::Utils::Tags::unflat_tagrules(\@empty_rules);
+    cmp_deeply( \@rules, [ ], 'unflattened empty rules');
+    my @rules = LANraragi::Utils::Tags::unflat_tagrules(undef);
+    cmp_deeply( \@rules, [ ], 'unflattened undef array');
 }
 
 done_testing();
