@@ -30,7 +30,7 @@ sub plugin_info {
 # Mandatory function to be implemented by your script
 sub run_script {
     shift;
-    my $lrr_info = shift;                                      # Global info hash
+    my $lrr_info = shift;                 # Global info hash
     my $logger   = get_plugin_logger();
 
     # Only info we need is the URL to search
@@ -48,6 +48,25 @@ sub run_script {
         return (
             total => 1,
             id    => $recorded_id
+        );
+    }
+
+    # Specific variant for EH/Ex URLs, where we'll check with the other domain as well.
+    my $last_chance_id = "";
+    if ( $url =~ /https?:\/\/exhentai\.org\/g\/([0-9]*)\/([0-z]*)\/*.*/gi ) {
+        my $url2 = "https://e-hentai.org/g/$1/$2";
+        $last_chance_id = LANraragi::Model::Stats::is_url_recorded($url2);
+    }
+
+    if ( $url =~ /https?:\/\/e-hentai\.org\/g\/([0-9]*)\/([0-z]*)\/*.*/gi ) {
+        my $url2 = "https://exhentai.org/g/$1/$2";
+        $last_chance_id = LANraragi::Model::Stats::is_url_recorded($url);
+    }
+
+    if ($last_chance_id) {
+        return (
+            total => 1,
+            id    => $last_chance_id
         );
     }
 
