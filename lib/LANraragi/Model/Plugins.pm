@@ -11,6 +11,7 @@ use Mojo::JSON qw(decode_json encode_json);
 use Mojo::UserAgent;
 use Data::Dumper;
 
+use LANraragi::Utils::Database qw(get_computed_tagrules);
 use LANraragi::Utils::Generic qw(remove_spaces remove_newlines);
 use LANraragi::Utils::Archive qw(extract_thumbnail);
 use LANraragi::Utils::Logging qw(get_logger);
@@ -244,7 +245,8 @@ sub exec_metadata_plugin {
 
         if (LANraragi::Model::Config->enable_tagrules) {
             $logger->info("Applying tag rules...");
-            @tagarray = rewrite_tags(\@tagarray, LANraragi::Model::Config->get_exptagrules());
+            my @rules = LANraragi::Utils::Database::get_computed_tagrules();
+            @tagarray = rewrite_tags(\@tagarray, \@rules);
         }
 
         foreach my $tagtoadd (@tagarray) {

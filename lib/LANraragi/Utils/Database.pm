@@ -14,11 +14,12 @@ use Unicode::Normalize;
 
 use LANraragi::Model::Plugins;
 use LANraragi::Utils::Generic qw(remove_spaces);
+use LANraragi::Utils::Tags qw(flat unflat_tagrules);
 use LANraragi::Utils::Logging qw(get_logger);
 
 # Functions for interacting with the DB Model.
 use Exporter 'import';
-our @EXPORT_OK = qw(redis_encode redis_decode invalidate_cache compute_id);
+our @EXPORT_OK = qw(redis_encode redis_decode invalidate_cache compute_id get_computed_tagrules save_computed_tagrules);
 
 #add_archive_to_redis($id,$file,$redis)
 # Creates a DB entry for a file path with the given ID.
@@ -85,7 +86,7 @@ sub build_archive_JSON {
             progress  => $progress ? int($progress) : 0,
             pagecount => $pagecount ? int($pagecount) : 0
         };
-    
+
     };
 
     return $arcdata;
@@ -301,6 +302,22 @@ sub invalidate_isnew_cache {
         }
     }
     $redis->quit();
+}
+
+sub save_computed_tagrules {
+    my ( $tagrules ) = @_;
+    my $redis = LANraragi::Model::Config->get_redis;
+    $redis->del("LRR_TAGRULES");
+    $redis->lpush("LRR_TAGRULES", reverse flat(@$tagrules)) if (@$tagrules);
+    $redis->quit();
+    return;
+}
+
+sub get_computed_tagrules {
+    my $redis = LANraragi::Model::Config->get_redis;
+    my @flattened_rules = $redis->lrange("LRR_TAGRULES", 0,-1);
+    $redis->quit();
+    return unflat_tagrules(\@flattened_rules);
 }
 
 1;

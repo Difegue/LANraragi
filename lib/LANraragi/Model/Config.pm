@@ -140,10 +140,6 @@ sub get_tagrules {
     );
 }
 
-sub get_exptagrules {
-    return decode_json( &get_redis_conf( "exptagrules", '[]') );
-}
-
 sub get_htmltitle        { return &get_redis_conf( "htmltitle",     "LANraragi" ) }
 sub get_motd             { return &get_redis_conf( "motd",          "Welcome to this Library running LANraragi!" ) }
 sub get_tempmaxsize      { return &get_redis_conf( "tempmaxsize",   "500" ) }

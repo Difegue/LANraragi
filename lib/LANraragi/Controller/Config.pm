@@ -2,7 +2,7 @@ package LANraragi::Controller::Config;
 use Mojo::Base 'Mojolicious::Controller';
 
 use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header remove_spaces remove_newlines);
-use LANraragi::Utils::Database qw(redis_encode redis_decode);
+use LANraragi::Utils::Database qw(redis_encode redis_decode save_computed_tagrules);
 use LANraragi::Utils::TempFolder qw(get_tempsize);
 use LANraragi::Utils::Tags qw(tags_rules_to_array replace_CRLF restore_CRLF);
 use Mojo::JSON qw(encode_json);
@@ -63,7 +63,7 @@ sub save_config {
         thumbdir      => scalar $self->req->param('thumbdir'),
         pagesize      => scalar $self->req->param('pagesize'),
         blacklist     => scalar $self->req->param('blacklist'),
-        tagrules     => replace_CRLF($self->req->param('tagrules')),
+        tagrules      => replace_CRLF($self->req->param('tagrules')),
         tempmaxsize   => scalar $self->req->param('tempmaxsize'),
         apikey        => scalar $self->req->param('apikey'),
         readerquality => scalar $self->req->param('readerquality'),
@@ -77,12 +77,8 @@ sub save_config {
         devmode       => ( scalar $self->req->param('devmode')       ? '1' : '0' ),
         enableresize  => ( scalar $self->req->param('enableresize')  ? '1' : '0' ),
         blackliston   => ( scalar $self->req->param('blackliston')   ? '1' : '0' ),
-        tagruleson   => ( scalar $self->req->param('tagruleson')   ? '1' : '0' ),
-        nofunmode     => ( scalar $self->req->param('nofunmode')     ? '1' : '0' ),
-
-        # For backend only
-        # Expands rules on save so they can be used directly
-        exptagrules  => encode_json( [ tags_rules_to_array($self->req->param('tagrules')) ] )
+        tagruleson    => ( scalar $self->req->param('tagruleson')    ? '1' : '0' ),
+        nofunmode     => ( scalar $self->req->param('nofunmode')     ? '1' : '0' )
     );
 
     # Only add newpassword field as password if enablepass = 1
@@ -134,6 +130,11 @@ sub save_config {
     }
 
     $redis->quit();
+
+    my @computed_tagrules = tags_rules_to_array($self->req->param('tagrules'));
+    $self->LRR_LOGGER->debug( "Saving computed tag rules : " . encode_json(\@computed_tagrules) );
+    save_computed_tagrules(\@computed_tagrules);
+
     $self->render(
         json => {
             operation => "config",
