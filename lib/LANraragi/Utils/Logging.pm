@@ -10,7 +10,6 @@ use FindBin;
 
 use Encode;
 use File::ReadBackwards;
-use LANraragi::Model::Config;
 
 # Contains all functions related to logging.
 use Exporter 'import';
