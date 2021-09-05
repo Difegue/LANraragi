@@ -10,45 +10,40 @@ use Mojo::File;
 use Test::More;
 use Test::Deep;
 
-my $cwd = getcwd();
+my $cwd     = getcwd();
 my $SAMPLES = "$cwd/tests/samples";
 require "$cwd/tests/mocks.pl";
 setup_redis_mock();
 
-my @all_tags = (
-    'language:japanese',
-    'artist:masamune shirow',
-    'full color',
-    'non-h',
-    'artbook',
-    'category:manga'
-);
+my @all_tags = ( 'language:japanese', 'artist:masamune shirow', 'full color', 'non-h', 'artbook', 'category:manga' );
 
 use_ok('LANraragi::Plugin::Metadata::nHentai');
 
-note ( 'testing searching gallery by title ...' );
+note('testing searching gallery by title ...');
 
 {
     no warnings 'once', 'redefine';
+    local *LANraragi::Plugin::Metadata::nHentai::get_plugin_logger        = sub { return get_logger_mock(); };
     local *LANraragi::Plugin::Metadata::nHentai::get_gallery_dom_by_title = sub { return; };
 
     my $gID = LANraragi::Plugin::Metadata::nHentai::get_gallery_id_from_title("you will not find this");
 
-    is($gID, undef, 'empty gallery ID');
+    is( $gID, undef, 'empty gallery ID' );
 }
 
 {
     my $body = Mojo::File->new("$SAMPLES/nh/001_search_results.html")->slurp;
 
     no warnings 'once', 'redefine';
-    local *LANraragi::Plugin::Metadata::nHentai::get_gallery_dom_by_title = sub { return Mojo::DOM->new( $body ); };
+    local *LANraragi::Plugin::Metadata::nHentai::get_plugin_logger        = sub { return get_logger_mock(); };
+    local *LANraragi::Plugin::Metadata::nHentai::get_gallery_dom_by_title = sub { return Mojo::DOM->new($body); };
 
     my $gID = LANraragi::Plugin::Metadata::nHentai::get_gallery_id_from_title("a title that exists");
 
-    is($gID, '999999', 'gallery ID');
+    is( $gID, '999999', 'gallery ID' );
 }
 
-note ( 'testing parsing JSON from HTML ...' );
+note('testing parsing JSON from HTML ...');
 
 {
     no warnings 'once', 'redefine';
@@ -58,15 +53,15 @@ note ( 'testing parsing JSON from HTML ...' );
 
     my $json = LANraragi::Plugin::Metadata::nHentai::get_json_from_html($body);
 
-    isa_ok($json, 'HASH', 'json');
-    is($json->{id}, 52249, 'gallery ID');
-    isa_ok($json->{title}, 'HASH', 'json.title');
-    is($json->{title}{pretty}, 'Pieces 1', 'json.title.pretty');
-    isa_ok($json->{tags}, 'ARRAY', 'json.tags');
-    is(scalar @{$json->{tags}}, 6, 'tags count');
+    isa_ok( $json, 'HASH', 'json' );
+    is( $json->{id}, 52249, 'gallery ID' );
+    isa_ok( $json->{title}, 'HASH', 'json.title' );
+    is( $json->{title}{pretty}, 'Pieces 1', 'json.title.pretty' );
+    isa_ok( $json->{tags}, 'ARRAY', 'json.tags' );
+    is( scalar @{ $json->{tags} }, 6, 'tags count' );
 }
 
-note ( 'testing getting tags from JSON ...' );
+note('testing getting tags from JSON ...');
 
 {
     no warnings 'once', 'redefine';
@@ -80,7 +75,7 @@ note ( 'testing getting tags from JSON ...' );
     cmp_bag( \@tags, \@all_tags, 'tag list' );
 }
 
-note ( 'testing getting tags from JSON ...' );
+note('testing getting tags from JSON ...');
 
 {
     no warnings 'once', 'redefine';
