@@ -14,7 +14,7 @@ use Unicode::Normalize;
 
 use LANraragi::Model::Plugins;
 use LANraragi::Utils::Generic qw(remove_spaces);
-use LANraragi::Utils::Tags qw(flat unflat_tagrules);
+use LANraragi::Utils::Tags qw(flat unflat_tagrules tags_rules_to_array restore_CRLF);
 use LANraragi::Utils::Logging qw(get_logger);
 
 # Functions for interacting with the DB Model.
@@ -314,10 +314,20 @@ sub save_computed_tagrules {
 }
 
 sub get_computed_tagrules {
+    my @tagrules;
+
     my $redis = LANraragi::Model::Config->get_redis;
-    my @flattened_rules = $redis->lrange("LRR_TAGRULES", 0,-1);
+
+    if ( $redis->exists("LRR_TAGRULES") ) {
+        my @flattened_rules = $redis->lrange("LRR_TAGRULES", 0,-1);
+        @tagrules = unflat_tagrules(\@flattened_rules);
+    } else {
+        @tagrules = tags_rules_to_array(restore_CRLF(LANraragi::Model::Config->get_tagrules));
+        $redis->lpush("LRR_TAGRULES", reverse flat(@tagrules)) if (@tagrules);
+    }
+
     $redis->quit();
-    return unflat_tagrules(\@flattened_rules);
+    return @tagrules;
 }
 
 1;
