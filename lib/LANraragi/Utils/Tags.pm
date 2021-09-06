@@ -11,7 +11,7 @@ use LANraragi::Utils::Generic qw(remove_spaces remove_newlines);
 # Functions related to the Tag system.
 use Exporter 'import';
 our @EXPORT_OK =
-  qw( flat unflat_tagrules replace_CRLF restore_CRLF tags_rules_to_array rewrite_tags split_tags_to_array );
+  qw( unflat_tagrules replace_CRLF restore_CRLF tags_rules_to_array rewrite_tags split_tags_to_array );
 
 sub is_null_or_empty {
     return !length(shift);
@@ -27,11 +27,6 @@ sub restore_CRLF {
     my ($val) = @_;
     $val =~ s/;/\x{d}\x{a}/g if ( $val );
     return $val;
-}
-
-# from "List::Flatten"
-sub flat {
-    return map { ref eq 'ARRAY' ? @$_ : $_ } @_;
 }
 
 sub unflat_tagrules {

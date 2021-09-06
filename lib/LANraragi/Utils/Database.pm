@@ -13,8 +13,8 @@ use Cwd;
 use Unicode::Normalize;
 
 use LANraragi::Model::Plugins;
-use LANraragi::Utils::Generic qw(remove_spaces);
-use LANraragi::Utils::Tags qw(flat unflat_tagrules tags_rules_to_array restore_CRLF);
+use LANraragi::Utils::Generic qw(flat remove_spaces);
+use LANraragi::Utils::Tags qw(unflat_tagrules tags_rules_to_array restore_CRLF);
 use LANraragi::Utils::Logging qw(get_logger);
 
 # Functions for interacting with the DB Model.

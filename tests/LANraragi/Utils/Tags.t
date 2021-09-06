@@ -3,6 +3,8 @@ use warnings;
 use utf8;
 use Data::Dumper;
 
+use LANraragi::Utils::Generic qw(flat);
+
 use Cwd qw( getcwd );
 
 use Test::More;
@@ -256,49 +258,19 @@ note("testing tags manipulation ...");
         'rules matching is case insensitive');
 }
 
-note('testing rules flattening...');
-
-{
-    my $text_rules = '~NameSpace
-    scream -> Please Stop
-    -PING';
-    my @rules = LANraragi::Utils::Tags::tags_rules_to_array($text_rules);
-
-    my @flattened_rules = LANraragi::Utils::Tags::flat(@rules);
-    cmp_deeply(
-        \@flattened_rules,
-        [
-            'strip_ns',
-            'namespace',
-            '',
-            'replace',
-            'scream',
-            'Please Stop',
-            'remove',
-            'ping',
-            ''
-        ],
-        'flattened rules');
-}
-
 note('testing rules unflattening...');
 
 {
-    my @flattened_rules = (
-        'strip_ns', 'namespace', '',
-        'replace', 'scream', 'Please Stop',
-        'remove', 'ping', ''
-    );
+    my $expected_rules = [
+        [ 'strip_ns', 'namespace', '' ],
+        [ 'replace', 'scream', 'Please Stop' ],
+        [ 'remove', 'ping', '']
+    ];
+    my @flattened_rules = flat(@$expected_rules);
 
     my @rules = LANraragi::Utils::Tags::unflat_tagrules(\@flattened_rules);
-    cmp_deeply(
-        \@rules,
-        [
-            [ 'strip_ns', 'namespace', '' ],
-            [ 'replace', 'scream', 'Please Stop' ],
-            [ 'remove', 'ping', '' ]
-        ],
-        'unflattened rules');
+
+    cmp_deeply( \@rules, $expected_rules, 'unflattened rules');
 }
 
 {
