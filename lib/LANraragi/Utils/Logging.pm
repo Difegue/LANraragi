@@ -82,7 +82,7 @@ sub get_logger {
 
 sub get_plugin_logger {
 
-    my ($pkg, $filename, $line) = caller;
+    my ( $pkg, $filename, $line ) = caller;
 
     if ( !$pkg->can('plugin_info') ) {
         die "\"get_plugin_logger\" cannot be called from \"$pkg\"; line $line at $filename\n";
