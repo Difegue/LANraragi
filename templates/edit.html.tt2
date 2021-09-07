@@ -35,7 +35,8 @@
 		<h2 class='ih' style='text-align:center'>Editing [% arctitle %]</h2>
 		[% END %]
 
-		<form name='editArchiveForm' id='editArchiveForm' enctype='multipart/form-data' method='post'>
+		<form name='editArchiveForm' id='editArchiveForm' enctype='multipart/form-data' method='post'
+			autocomplete="off">
 			<table style='margin:auto; font-size:8pt;'>
 				<tbody>
 					<tr>
@@ -68,7 +69,7 @@
 								hyphens, i.e : tag1, tag2)</span> :
 						</td>
 						<td>
-							<textarea id='tagText' class='stdinput' name='tags'>[% tags %]</textarea>
+							<textarea id='tagText' class='stdinput' name='tags' autocomplete="off">[% tags %]</textarea>
 							<i class='fa fa-5x fa-cog fa-spin'
 								style=' color:black; position:absolute; top:45%; left:52%; display:none'
 								id='tag-spinner'></i>
