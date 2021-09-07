@@ -30,6 +30,7 @@
 * [Backup and Restore](advanced-usage/backup-and-restore.md)
 * [Using External Readers](advanced-usage/external-readers.md)
 * [Network Interface Setup](advanced-usage/network-interfaces.md)
+* [Tag Rules](advanced-usage/tag-rules.md )
 
 ## Developer Guide <a id="extending-lanraragi"></a>
 

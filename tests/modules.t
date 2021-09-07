@@ -4,7 +4,7 @@ use utf8;
 use Cwd;
 
 use Mojo::Base 'Mojolicious';
-use Test::More tests => 56;
+use Test::More tests => 57;
 use Test::Mojo;
 use Test::MockObject;
 
@@ -31,6 +31,7 @@ my @modules = (
     "LANraragi::Utils::Generic",                            "LANraragi::Utils::Plugins",
     "LANraragi::Utils::Routing",                            "LANraragi::Utils::TempFolder",
     "LANraragi::Utils::Logging",                            "LANraragi::Utils::Minion",
+    "LANraragi::Utils::Tags",
     "LANraragi::Controller::Api::Archive",                  "LANraragi::Controller::Api::Search",
     "LANraragi::Controller::Api::Category",                 "LANraragi::Controller::Api::Database",
     "LANraragi::Controller::Api::Shinobu",                  "LANraragi::Controller::Api::Other",

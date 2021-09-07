@@ -9,6 +9,7 @@ use Encode;
 use Minion;
 use Mojolicious::Plugin::Config;
 use Mojo::Home;
+use Mojo::JSON qw(decode_json);
 
 # Find the project root directory to load the conf file
 my $home = Mojo::Home->new;
@@ -133,6 +134,12 @@ sub get_tagblacklist {
     );
 }
 
+sub get_tagrules {
+    return &get_redis_conf( "tagrules",
+        "-already uploaded;-forbidden content;-incomplete;-ongoing;-complete;-various;-digital;-translated;-russian;-chinese;-portuguese;-french;-spanish;-italian;-vietnamese;-german;-indonesian"
+    );
+}
+
 sub get_htmltitle        { return &get_redis_conf( "htmltitle",     "LANraragi" ) }
 sub get_motd             { return &get_redis_conf( "motd",          "Welcome to this Library running LANraragi!" ) }
 sub get_tempmaxsize      { return &get_redis_conf( "tempmaxsize",   "500" ) }
@@ -143,6 +150,7 @@ sub enable_cors          { return &get_redis_conf( "enablecors",    "0" ) }
 sub get_apikey           { return &get_redis_conf( "apikey",        "" ) }
 sub enable_localprogress { return &get_redis_conf( "localprogress", "0" ) }
 sub enable_blacklist     { return &get_redis_conf( "blackliston",   "1" ) }
+sub enable_tagrules      { return &get_redis_conf( "tagruleson",    "1" ) }
 sub enable_resize        { return &get_redis_conf( "enableresize",  "0" ) }
 sub get_threshold        { return &get_redis_conf( "sizethreshold", "1000" ) }
 sub get_readquality      { return &get_redis_conf( "readerquality", "50" ) }
