@@ -25,7 +25,7 @@ sub plugin_info {
         namespace   => "fakkumetadata",
         login_from  => "fakkulogin",
         author      => "Difegue",
-        version     => "0.6",
+        version     => "0.6a",
        description => "Searches FAKKU for tags matching your archive. If you have an account, don't forget to enter the matching cookie in the login plugin to be able to access controversial content.",
         icon =>
           "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAFiUAABYlAUlSJPAAAACZSURBVDhPlY+xDYQwDEWvZgRGYA22Y4frqJDSZhFugiuuo4cqPGT0iTjAYL3C+fGzktc3hEcsQvJq6HtjE2Jdv4viH4a4pWnL8q4A6g+ET9P8YhS2/kqwIZXWnwqChDxPfCFfD76wOzJ2IOR/0DSwnuRKYAKUW3gq2OsJTYM0jr7QVRVwlabJEaw3ARYBcmFXeomxphIeEMIMmh3lOLQR+QQAAAAASUVORK5CYII=",
@@ -96,8 +96,8 @@ sub search_for_fakku_url {
 
     my $dom = get_search_result_dom($title, $ua);
 
-    # Get the first gallery url of the search results
-    my $path = ( $dom->at('.content-title') ) ? $dom->at('.content-title')->attr('href') : "";
+    # Get the first link on the page that starts with '/hentai/' if we have a span that says "search results" in the page
+    my $path = ( $dom->at('span:text(Search Results)') ) ? $dom->at('a[href^="/hentai/"]')->attr('href') : "";
 
     if ( $path ne "" ) {
         return $fakku_host . $path;
@@ -113,8 +113,8 @@ sub get_search_result_dom {
 
     my $logger = get_plugin_logger();
 
-    #Strip away hyphens and apostrophes as they can break search
-    $title =~ s/-|'/ /g;
+    #Strip away hyphens, apostrophes and tildes as they can break search
+    $title =~ s/-|'|~/ /g;
 
     # Visit the base host once to set cloudflare cookies and jank
     $ua->max_redirects(5)->get($fakku_host);
@@ -158,47 +158,62 @@ sub get_tags_from_fakku {
     my $logger = get_plugin_logger();
 
     my $dom = get_dom_from_fakku($url, $ua);
+    
+    # find the "suggest more tags" link and use parent div
+    # this is not ideal, but the divs don't have named classes anymore
+    my $tags_parent = $dom->at('a[data-tippy-content="Suggest More Tags"]')->parent;
+    
+    # div that contains other divs with title, namespaced tags (artist, magazine, etc.) and misc tags
+    my $metadata_parent = $tags_parent->parent->parent;
+    
 
-    my @tags = ();
-    my $title =
-      ( $dom->at('.content-name') )
-      ? $dom->at('.content-name')->at('h1')->text
-      : "";
+    my $title = $metadata_parent->at('h1')->text;
     $logger->debug("Parsed title: $title");
-
-    # We can grab some namespaced tags from the first few rows.
-    my @namespaces = $dom->find('.row-left')->each;
-
+    
+    my @tags = ();
+    # We can grab some namespaced tags from the first few div.
+    my @namespaces = $metadata_parent->children('div')->each;
+    
     foreach my $div (@namespaces) {
+        
+        my @row = $div->children->each;
+        
+        next if ( scalar @row != 2);
 
-        my $namespace = $div->text;
+        my $namespace = $row[0]->text;
+        
+        $logger->debug("testaroni: $row[1]");
+        my $value = 
+          ( $row[1]->at('a') )
+          ? $row[1]->at('a')->text
+          : $row[1]->text;
+        
+        remove_spaces($value);
+        remove_newlines($value);
+        
         $logger->debug("Parsed row: $namespace");
+        $logger->debug("Matching tag: $value");
 
         unless ( $namespace eq "Tags"
             || $namespace eq "Pages"
             || $namespace eq "Description"
             || $namespace eq "Direction"
-            || $namespace eq "Favorites" ) {
-
-            my $content = $div->next->at('a')->text;
-            remove_spaces($content);
-            remove_newlines($content);
-            $logger->debug("Matching tag: $content");
-
-            push( @tags, "$namespace:$content" );
+            || $namespace eq "Favorites"
+            || $value eq "") {
+            push( @tags, "$namespace:$value" );
         }
     }
+    
+    # might be worth filtering by links starting with '/tags/*' but that filters out the special "unlimited" tag
+    my @tag_links = $tags_parent->find('a')->each;
 
-    # Miscellaneous tags are all the <a> links in the div with the "tags" class
-    my @divs = $dom->at('.tags')->child_nodes->each;
-
-    foreach my $div (@divs) {
-        my $tag = $div->text;
+    foreach my $link (@tag_links) {
+        my $tag = $link->text;
 
         remove_spaces($tag);
         remove_newlines($tag);
         unless ( $tag eq "+" || $tag eq "" ) {
-            push( @tags, $tag );
+            push( @tags, lc $tag );
         }
     }
 
