@@ -21,7 +21,7 @@ RUN /bin/bash /tmp/library-scripts/common-debian.sh "${INSTALL_ZSH}" "${USERNAME
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends build-essential make gnupg pkg-config \
     cpanminus redis-server libarchive-dev webp libssl-dev zlib1g-dev \
-    perlmagick npm perltidy ghostscript ctags 
+    perlmagick npm perltidy ghostscript exuberant-ctags 
 
 # Just re-grab cpanfile/install.pl/package.json from the online repo as codespaces' build context is super fucked and I don't get it at all
 # Dropping copies of the files in the .devcontainer folder should also work, but I cba to duplicate my build files for this and symlinks aint working I hate computers
