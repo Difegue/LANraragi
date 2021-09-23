@@ -20,7 +20,7 @@ use LANraragi::Utils::Tags qw(rewrite_tags split_tags_to_array);
 # Sub used by Auto-Plugin.
 sub exec_enabled_plugins_on_file {
 
-    my $id     = shift;
+    my $id = shift;
     my $logger = get_logger( "Auto-Plugin", "lanraragi" );
 
     $logger->info("Executing enabled metadata plugins on archive with id $id.");
@@ -154,7 +154,7 @@ sub exec_download_plugin {
         my %result = $plugin->provide_url( \%infohash, @settings );
 
         if ( exists $result{error} ) {
-            $logger->info("Downloader plugin failed to provide an URL, aborting now. Error: ". $result{error});
+            $logger->info( "Downloader plugin failed to provide an URL, aborting now. Error: " . $result{error} );
             return \%result;
         }
 
@@ -234,51 +234,29 @@ sub exec_metadata_plugin {
             return %newmetadata;
         }
 
-        my @tagarray = split_tags_to_array($newmetadata{tags});
+        my @tagarray = split_tags_to_array( $newmetadata{tags} );
         my $newtags  = "";
 
-        #Process new metadata,
-        #stripping out blacklisted tags and tags that we already have in Redis
-        my $blist       = LANraragi::Model::Config->get_tagblacklist;
-        my $blistenable = LANraragi::Model::Config->enable_blacklist;
-        my @blacklist   = split( ',', $blist );                         # array-ize the blacklist string
-
-        if (LANraragi::Model::Config->enable_tagrules) {
+        # Process new metadata.
+        if ( LANraragi::Model::Config->enable_tagrules ) {
             $logger->info("Applying tag rules...");
             my @rules = LANraragi::Utils::Database::get_computed_tagrules();
-            @tagarray = rewrite_tags(\@tagarray, \@rules);
+            @tagarray = rewrite_tags( \@tagarray, \@rules );
         }
 
         foreach my $tagtoadd (@tagarray) {
-            # Only proceed if the tag isnt already in redis
+
+            # Only proceed if the tag isn't already in redis
             unless ( index( uc($tags), uc($tagtoadd) ) != -1 ) {
-
-                my $good = 1;
-
-                if ($blistenable) {
-                    foreach my $black (@blacklist) {
-                        remove_spaces($black);
-
-                        if ( index( uc($tagtoadd), uc($black) ) != -1 ) {
-                            $logger->info("Tag $tagtoadd is blacklisted, not adding.");
-                            $good = 0;
-                        }
-                    }
-                }
-
-                if ($good) {
-
-                    #This tag is processed and good to go
-                    $newtags .= " $tagtoadd,";
-                }
+                $newtags .= " $tagtoadd,";
             }
         }
 
-        #Strip last comma and return processed tags in a hash
+        # Strip last comma and return processed tags in a hash
         chop($newtags);
         my %returnhash = ( new_tags => $newtags );
 
-        #Indicate a title change, if the plugin reports one
+        # Indicate a title change, if the plugin reports one
         if ( exists $newmetadata{title} ) {
 
             my $newtitle = $newmetadata{title};

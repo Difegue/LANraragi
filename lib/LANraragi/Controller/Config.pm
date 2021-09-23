@@ -27,10 +27,8 @@ sub index {
         pagesize       => $self->LRR_CONF->get_pagesize,
         enablepass     => $self->LRR_CONF->enable_pass,
         password       => $self->LRR_CONF->get_password,
-        blackliston    => $self->LRR_CONF->enable_blacklist,
-        blacklist      => $self->LRR_CONF->get_tagblacklist,
         tagruleson     => $self->LRR_CONF->enable_tagrules,
-        tagrules       => restore_CRLF($self->LRR_CONF->get_tagrules),
+        tagrules       => restore_CRLF( $self->LRR_CONF->get_tagrules ),
         title          => $self->LRR_CONF->get_htmltitle,
         tempmaxsize    => $self->LRR_CONF->get_tempmaxsize,
         localprogress  => $self->LRR_CONF->enable_localprogress,
@@ -62,8 +60,7 @@ sub save_config {
         dirname       => scalar $self->req->param('dirname'),
         thumbdir      => scalar $self->req->param('thumbdir'),
         pagesize      => scalar $self->req->param('pagesize'),
-        blacklist     => scalar $self->req->param('blacklist'),
-        tagrules      => replace_CRLF($self->req->param('tagrules')),
+        tagrules      => replace_CRLF( $self->req->param('tagrules') ),
         tempmaxsize   => scalar $self->req->param('tempmaxsize'),
         apikey        => scalar $self->req->param('apikey'),
         readerquality => scalar $self->req->param('readerquality'),
@@ -76,7 +73,6 @@ sub save_config {
         localprogress => ( scalar $self->req->param('localprogress') ? '1' : '0' ),
         devmode       => ( scalar $self->req->param('devmode')       ? '1' : '0' ),
         enableresize  => ( scalar $self->req->param('enableresize')  ? '1' : '0' ),
-        blackliston   => ( scalar $self->req->param('blackliston')   ? '1' : '0' ),
         tagruleson    => ( scalar $self->req->param('tagruleson')    ? '1' : '0' ),
         nofunmode     => ( scalar $self->req->param('nofunmode')     ? '1' : '0' )
     );
@@ -131,9 +127,9 @@ sub save_config {
 
     $redis->quit();
 
-    my @computed_tagrules = tags_rules_to_array($self->req->param('tagrules'));
-    $self->LRR_LOGGER->debug( "Saving computed tag rules : " . encode_json(\@computed_tagrules) );
-    save_computed_tagrules(\@computed_tagrules);
+    my @computed_tagrules = tags_rules_to_array( $self->req->param('tagrules') );
+    $self->LRR_LOGGER->debug( "Saving computed tag rules : " . encode_json( \@computed_tagrules ) );
+    save_computed_tagrules( \@computed_tagrules );
 
     $self->render(
         json => {
