@@ -149,6 +149,36 @@ function checkVersion(currentVersionConf) {
     });
 }
 
+function fetchChangelog(version) {
+    if (localStorage.lrrVersion !== version) {
+        localStorage.lrrVersion = version;
+
+        fetch("https://api.github.com/repos/difegue/lanraragi/releases/latest", { method: "GET" })
+            .then((response) => (response.ok ? response.json() : { error: "Response was not OK" }))
+            .then((data) => {
+                if (data.error) throw new Error(data.error);
+
+                if (data.state === "failed") {
+                    throw new Error(data.result);
+                }
+
+                marked(data.body, {
+                    gfm: true,
+                    breaks: true,
+                    sanitize: true,
+                }, (err, html) => {
+                    document.getElementById("changelog").innerHTML = html;
+                    $("#updateOverlay").scrollTop(0);
+                });
+
+                $("#overlay-shade").fadeTo(150, 0.6, () => {
+                    $("#updateOverlay").css("display", "block");
+                });
+            })
+            .catch((error) => { showErrorToast("Error getting changelog for new version", error); failureCallback(error); });
+    }
+}
+
 function loadContextMenuCategories(id) {
     return genericAPICall(`/api/archives/${id}/categories`, "GET", null, `Error finding categories for ${id}!`,
         (data) => {

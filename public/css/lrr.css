@@ -580,6 +580,15 @@ li {
     font-size: 8pt;
 }
 
+#changelog {
+  margin: 12px;
+  text-align: left;
+}
+
+#changelog > * > img {
+  max-width: 400px;
+}
+
 /* Infinite Scrolling Reader */
 
 body.infinite-scroll .sn,

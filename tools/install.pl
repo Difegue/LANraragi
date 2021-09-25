@@ -26,7 +26,7 @@ my @vendor_js = (
     "/jquery-contextmenu/dist/jquery.ui.position.min.js", "/jquery-contextmenu/dist/jquery.contextMenu.min.js",
     "/tippy.js/dist/tippy-bundle.umd.min.js",             "/\@popperjs/core/dist/umd/popper.min.js",
     "/allcollapsible/dist/js/allcollapsible.min.js",      "/awesomplete/awesomplete.min.js",
-    "/\@jcubic/tagger/tagger.js"
+    "/\@jcubic/tagger/tagger.js",                         "/marked/marked.min.js"
 );
 
 my @vendor_woff = (
