@@ -452,6 +452,7 @@ div.id2 {
     text-overflow: ellipsis;
     vertical-align: middle;
     white-space: nowrap;
+    width: 97%;
 }
 
 div.id2 a {
@@ -483,6 +484,7 @@ div.id4 {
     margin: auto;
     position: relative;
     text-align: center;
+    padding: 0 4px;
 }
 
 div.id4 a {
