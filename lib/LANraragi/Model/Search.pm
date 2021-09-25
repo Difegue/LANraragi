@@ -86,17 +86,20 @@ sub do_search {
             \@sections,
             sub {
 
+                my @ids = @$_;
+
                 # Get all the info for the given IDs as an atomic operation
                 $redis = LANraragi::Model::Config->get_redis;
                 $redis->multi;
                 foreach my $id (@$_) {
 
                     # Check untagged filter first as it requires no DB hits
-                    unless ( exists( $untagged{$id} ) || !$untaggedonly ) {
-                        next;
+                    if ( !$untaggedonly || exists( $untagged{$id} ) ) {
+                        $redis->hgetall($id);
+                    } else {
+                        $logger->debug("$id doesn't exist in the untagged_archives set, skipping.");
+                        @ids = grep { $_ ne $id } @ids;    # Remove id from array to avoid messing up the mapping post-multi
                     }
-
-                    $redis->hgetall($id);
                 }
                 my @data = $redis->exec;
                 $redis->quit;
@@ -112,7 +115,7 @@ sub do_search {
                     } else {
                         next;
                     }
-                    my $id = @$_[$i];
+                    my $id = @ids[$i];
 
                     my ( $tags, $title, $file, $isnew ) = @hash{qw(tags title file isnew)};
 
