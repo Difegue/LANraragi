@@ -508,7 +508,6 @@ div.id1 {
   display: inline-block;
   margin: 3px 5px 5px 3px;
   padding-top: 3px;
-  width: 228px;
   height: 335px;
 }
 
@@ -521,7 +520,6 @@ div.id2 {
   text-overflow: ellipsis;
   vertical-align: middle;
   white-space: nowrap;
-  width: 220px;
 }
 
 div.id2 a {
@@ -540,7 +538,6 @@ div.id3 {
   overflow: hidden;
   position: relative;
   text-align: center;
-  width: 202px;
   height: 280px;
 }
 
@@ -553,7 +550,6 @@ div.id4 {
   margin: auto;
   position: relative;
   text-align: center;
-  width: 220px;
 }
 
 div.id4 a {
@@ -564,30 +560,6 @@ div.id4 a {
 div.id4 a:hover {
   color: #BE2348;
 
-}
-
-div.id41 {
-  float: left;
-  left: 2px;
-  width: 88px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: left;
-  white-space: nowrap;
-}
-
-div.id42 {
-  height: 15px;
-  width: 102px;
-  overflow: hidden;
-  float: right;
-  text-overflow: ellipsis;
-  text-align: right;
-}
-div.id43 {
-  left: 70px;
-  position: absolute;
-  top: 2px;
 }
 
 /* awesomplete */

@@ -77,7 +77,7 @@
 				<input id='inboxbtn' class='favtag-btn' type='button' onclick='toggleFilter(this)'
 					value='New archives only' />
 				<br />
-				<input type='text' id='srch' class='search stdinput' size='90' style='width:100%'
+				<input type='text' id='srch' class='search stdinput' size='90' style='width:95%'
 					placeholder='Search Title, Artist, Series, Language or Tags' />
 				<input id='subsrch' class='searchbtn stdbtn' type='button' value='Apply Filter' />
 				<input id='clrsrch' class='searchbtn stdbtn' type='button' value='Clear Filter' />
