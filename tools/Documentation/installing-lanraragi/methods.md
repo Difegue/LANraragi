@@ -17,12 +17,12 @@ Look at the methods below for something that fits your OS and usage.
 
 {% page-ref page="macos.md" %}
 
-## Windows 10: _LRR for Windows_
+## Windows 10/11: _LRR for Windows_
 
 {% hint style="warning" %}
 This method works on **64-bit** editions of Windows 10 only.  
 
-Versions under _v1809_ \(October 2018 Update\) will probably not work properly. v1803 _might_ work, but you're wading uncharted waters.
+Since LRR 0.8.0, you need Windows 10 version _1903_ at least. 0.7.9 will work with version _1809_ if you're on an LTSC channel. 
 {% endhint %}
 
 ![win10](../.gitbook/assets/karen-dark.jpg)

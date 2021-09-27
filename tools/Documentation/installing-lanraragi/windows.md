@@ -7,7 +7,7 @@ You can download the latest Windows MSI Installer on the [Release Page](https://
 {% hint style="info" %}
 Prior to 0.6.7, Windows releases were available as .zips containing a PowerShell script installer.
 
-Windows Nightlies are available [here](https://mega.nz/#F!rHZynKpZ!ZXlwMam4t8VtYjOiHPONsQ).
+Windows Nightlies are available [here](https://nightly.link/Difegue/LANraragi/workflows/push-continous-delivery/dev).
 {% endhint %}
 
 ## Installation
