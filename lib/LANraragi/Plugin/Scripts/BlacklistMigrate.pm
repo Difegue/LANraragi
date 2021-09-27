@@ -44,6 +44,8 @@ sub run_script {
         return ( status => "Nothing to migrate" );
     }
 
+    $logger->debug("Blacklist is $blist");
+    $logger->debug("Rules are $rules");
     my @blacklist = split( ',', $blist );    # array-ize the blacklist string
     my $migrated = 0;
 
@@ -51,7 +53,7 @@ sub run_script {
     foreach my $tag (@blacklist) {
 
         remove_spaces($tag);
-        unless ( index( uc($tag), uc($rules) ) != -1 ) {
+        if ( index( uc($rules), uc($tag) ) == -1 ) {
             $logger->debug("Adding rule -$tag");
             $rules = $rules . ";-$tag";
             $migrated++;
