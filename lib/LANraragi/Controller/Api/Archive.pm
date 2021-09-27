@@ -4,7 +4,7 @@ use Mojo::Base 'Mojolicious::Controller';
 use Redis;
 use Encode;
 use Storable;
-use Mojo::JSON qw(decode_json encode_json from_json);
+use Mojo::JSON qw(decode_json);
 use Scalar::Util qw(looks_like_number);
 
 use LANraragi::Utils::Generic qw(render_api_response);
@@ -55,7 +55,7 @@ sub serve_metadata {
 sub get_categories {
 
     my $self = shift;
-    my $id   = check_id_parameter( $self, "find_arc_categories" ) || return;
+    my $id = check_id_parameter( $self, "find_arc_categories" ) || return;
 
     my @categories = LANraragi::Model::Category->get_category_list;
     @categories = grep { %$_{"search"} eq "" } @categories;
@@ -83,7 +83,7 @@ sub get_categories {
 
 sub serve_thumbnail {
     my $self = shift;
-    my $id   = check_id_parameter( $self, "thumbnail" ) || return;
+    my $id = check_id_parameter( $self, "thumbnail" ) || return;
     LANraragi::Model::Archive::serve_thumbnail( $self, $id );
 }
 
@@ -110,7 +110,7 @@ sub serve_page {
 
 sub extract_archive {
     my $self = shift;
-    my $id   = check_id_parameter( $self, "extract_archive" ) || return;
+    my $id = check_id_parameter( $self, "extract_archive" ) || return;
     my $readerjson;
 
     eval { $readerjson = LANraragi::Model::Reader::build_reader_JSON( $self, $id, "0", "0" ); };
@@ -125,7 +125,7 @@ sub extract_archive {
 
 sub clear_new {
     my $self = shift;
-    my $id   = check_id_parameter( $self, "clear_new" ) || return;
+    my $id = check_id_parameter( $self, "clear_new" ) || return;
 
     my $redis = $self->LRR_CONF->get_redis();
 
@@ -150,7 +150,7 @@ sub clear_new {
 
 sub delete_archive {
     my $self = shift;
-    my $id   = check_id_parameter( $self, "delete_archive" ) || return;
+    my $id = check_id_parameter( $self, "delete_archive" ) || return;
 
     my $delStatus = LANraragi::Utils::Database::delete_archive($id);
 
@@ -166,10 +166,10 @@ sub delete_archive {
 
 sub update_metadata {
     my $self = shift;
-    my $id   = check_id_parameter( $self, "update_metadata" ) || return;
+    my $id = check_id_parameter( $self, "update_metadata" ) || return;
 
-    my $title = $self->req->param('title') || undef;
-    my $tags  = $self->req->param('tags')  || undef;
+    my $title = $self->req->param('title');
+    my $tags  = $self->req->param('tags');
 
     my $res = LANraragi::Model::Archive::update_metadata( $id, $title, $tags );
 
@@ -182,14 +182,14 @@ sub update_metadata {
 
 sub update_progress {
     my $self = shift;
-    my $id   = check_id_parameter( $self, "update_progress" ) || return;
+    my $id = check_id_parameter( $self, "update_progress" ) || return;
 
     my $page = $self->stash('page') || 0;
 
     # Undocumented parameter to force progress update
     my $force = $self->req->param('force') || 0;
 
-    my $redis     = $self->LRR_CONF->get_redis();
+    my $redis = $self->LRR_CONF->get_redis();
     my $pagecount = $redis->hget( $id, "pagecount" );
 
     if ( LANraragi::Model::Config->enable_localprogress ) {

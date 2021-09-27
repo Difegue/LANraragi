@@ -4,7 +4,7 @@ use Mojo::Base 'Mojolicious::Controller';
 use Redis;
 use Encode;
 use Mojo::Util qw(xml_escape);
-use Mojo::JSON qw(decode_json encode_json from_json);
+use Mojo::JSON qw(decode_json);
 
 use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header);
 use LANraragi::Utils::Database qw(redis_decode);

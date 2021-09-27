@@ -99,7 +99,11 @@ sub get_datatables_object {
     # Get archive data from keys
     my @data = ();
     foreach my $key (@keys) {
-        push @data, LANraragi::Utils::Database::build_archive_JSON( $redis, $key->{id} );
+        my $arcdata = LANraragi::Utils::Database::build_archive_JSON( $redis, $key->{id} );
+
+        if ($arcdata) {
+            push @data, $arcdata;
+        }
     }
 
     # Create json object matching the datatables structure

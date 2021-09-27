@@ -91,7 +91,16 @@ div.gt {
     text-overflow: ellipsis;
 }
 
-div.gt:hover {
+.tagger > ul > li:not(.tagger-new) > a, .tagger li:not(.tagger-new) > span, .tagger .tagger-new ul {
+    background: none repeat scroll 0 0 #4F535B;
+    border-radius: 3px;
+}
+  
+.tagger > ul > li:not(.tagger-new) a, .tagger > ul > li:not(.tagger-new) a:visited, .tagger-new ul a, .tagger-new ul a:visited {
+    color: #DDDDDD;
+}
+  
+div.gt:hover, .tagger > ul > li:not(.tagger-new) a:hover {
     color: #ed2553;
 }
 
@@ -246,6 +255,18 @@ tr.gtr1{background:#34495E}
     padding: 2px 3px;
     max-width: 450px;
     width:80%;
+    border-radius: 3px;
+}
+
+.tagger {
+    background: none repeat scroll 0 0 #fcfcfc;
+    font-family: 'Inter UI',arial,sans-serif;
+    border: medium none;
+    color: #34495E;
+    max-width: 768px;
+    margin: 4px 4px 0;
+    border-radius: 3px;
+    font-size: 9pt;
 }
 
 .searchbtn {
@@ -421,7 +442,6 @@ div.id1 {
     display: inline-block;
     margin: 3px 5px 5px 3px;
     padding-top: 3px;
-    width: 228px;
     height: 335px;
 }
 
@@ -432,7 +452,7 @@ div.id2 {
     text-overflow: ellipsis;
     vertical-align: middle;
     white-space: nowrap;
-    width: 220px;
+    width: 97%;
 }
 
 div.id2 a {
@@ -452,7 +472,6 @@ div.id3 {
     overflow: hidden;
     position: relative;
     text-align: center;
-    width: 202px;
     height: 280px;
 }
 
@@ -465,41 +484,16 @@ div.id4 {
     margin: auto;
     position: relative;
     text-align: center;
-    width: 220px;
+    padding: 0 4px;
 }
 
 div.id4 a {
     color: #FCFCFC;
-
 }
 
 div.id4 a:hover {
     color: #ED2553;
 
-}
-
-div.id41 {
-    float: left;
-    left: 2px;
-    width: 88px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-align: left;
-    white-space: nowrap;
-}
-
-div.id42 {
-    height: 15px;
-    width: 102px;
-    overflow: hidden;
-    float: right;
-    text-overflow: ellipsis;
-    text-align: right;
-}
-div.id43 {
-    left: 70px;
-    position: absolute;
-    top: 2px;
 }
 
 /* awesomplete */

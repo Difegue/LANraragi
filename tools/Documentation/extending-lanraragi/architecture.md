@@ -179,13 +179,15 @@ The base architecture is as follows:
 |  |- sizethreshold <- Auto-resizing threshold
 |  |- readerquality <- Auto-resizing quality
 |  |- enablecors <- Whether CORS headers are enabled 
-|  |- blacklist  <- Tag blacklist
-|  |- blackliston <- Whether tag blacklisting is enabled
+|  |- tagruleson <- Whether tag rules are enabled
+|  |- tagrules <- Tag rules, saved as a big ol' string
 |  |- devmode  <- Whether debug mode is enabled
 |  |- enablepass <- Enable/Disable Password Authentication.
 |  |- nofunmode <- Whether No-Fun Mode is enabled
 |  |- pagesize <- Amount of archives per Index page 
 |  +- apikey <- Key for API requests
+|
+|- LRR_TAGRULES <- Computed Tag Rules, as a Redis list
 |
 +- LRR_SEARCHCACHE <- Search Cache
    |- $columnfilter-$filter-$sortkey-$sortorder-$newonly <- Unique ID for a search. The search result is serialized and saved as the value for this ID.

@@ -6,6 +6,7 @@ use utf8;
 
 use Redis;
 use File::Find;
+use Mojo::JSON qw(encode_json);
 
 use LANraragi::Utils::Generic qw(remove_spaces remove_newlines is_archive trim_url);
 use LANraragi::Utils::Database qw(redis_decode redis_encode);
@@ -37,7 +38,7 @@ sub get_archive_count {
 sub get_page_stat {
 
     my $redis = LANraragi::Model::Config->get_redis;
-    my $stat  = $redis->get("LRR_TOTALPAGESTAT") || 0;
+    my $stat = $redis->get("LRR_TOTALPAGESTAT") || 0;
     $redis->quit();
 
     return $stat;
@@ -117,17 +118,19 @@ sub is_url_recorded {
     return $id;
 }
 
-sub build_tag_json {
+sub build_tag_stats {
 
+    my $minscore = shift;
     my $logger = get_logger( "Tag Stats", "lanraragi" );
+    $logger->debug("Serving tag statistics with a minimum weight of $minscore");
 
-    #Login to Redis and grab the stats sorted set
-    my $redis    = LANraragi::Model::Config->get_redis;
-    my %tagcloud = $redis->zrange( "LRR_STATS", 0, -1, "WITHSCORES" );
+    # Login to Redis and grab the stats sorted set
+    my $redis = LANraragi::Model::Config->get_redis;
+    my %tagcloud = $redis->zrangebyscore( "LRR_STATS", $minscore, "+inf", "WITHSCORES" );
     $redis->quit();
 
-    # Go through the data from stats and build a JSON
-    my $tagsjson = "[";
+    # Go through the data from stats and build an array
+    my @tags;
 
     for ( keys %tagcloud ) {
         my $w = $tagcloud{$_};
@@ -136,17 +139,15 @@ sub build_tag_json {
         # detect the : symbol and only use what's after it
         my $ns = "";
         my $t  = redis_decode($_);
-        if ( $t =~ /(.*):(.*)/ ) { $ns = $1; $t = $2; }
+        if ( $t =~ /([^:]*):(.*)/ ) { $ns = $1; $t = $2; }
 
         if ( $_ ne "" ) {
-            $tagsjson .= qq({"text": "$t", "namespace": "$ns", "weight": $w },);
+            my $j = { text => $t, namespace => $ns, weight => $w };
+            push( @tags, $j );
         }
     }
 
-    chop $tagsjson if $tagsjson ne "[";
-    $tagsjson .= "]";
-    $logger->debug("Tag stats JSON is $tagsjson");
-    return $tagsjson;
+    return \@tags;
 }
 
 sub compute_content_size {

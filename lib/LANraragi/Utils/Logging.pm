@@ -13,7 +13,7 @@ use File::ReadBackwards;
 
 # Contains all functions related to logging.
 use Exporter 'import';
-our @EXPORT_OK = qw(get_logger get_logdir get_lines_from_file);
+our @EXPORT_OK = qw(get_logger get_plugin_logger get_logdir get_lines_from_file);
 
 # Get the Log folder.
 sub get_logdir {
@@ -78,6 +78,17 @@ sub get_logger {
     );
 
     return $log;
+}
+
+sub get_plugin_logger {
+
+    my ( $pkg, $filename, $line ) = caller;
+
+    if ( !$pkg->can('plugin_info') ) {
+        die "\"get_plugin_logger\" cannot be called from \"$pkg\"; line $line at $filename\n";
+    }
+    my %pi = $pkg->plugin_info();
+    return get_logger( $pi{name}, "plugins" );
 }
 
 sub get_lines_from_file {

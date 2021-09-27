@@ -24,61 +24,52 @@ use LANraragi::Model::Category;
 # Performs a search on the database.
 sub do_search {
 
-    my ( $filter, $categoryfilter, $start, $sortkey, $sortorder, $newonly, $untaggedonly ) = @_;
+    my ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $untaggedonly ) = @_;
+    my $sortorder_inv = $sortorder ? 0 : 1;
 
-    my $redis  = LANraragi::Model::Config->get_redis;
+    my $redis = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Search Engine", "lanraragi" );
 
     # Search filter results
+    my $total    = $redis->dbsize;   #TODO this is incorrect by a few keys due to the config keys being strewn about on the DB root.
     my @filtered = ();
 
-    # If the category filter is enabled, fetch the matching category
-    my %category     = ();
-    my $cat_search   = "";
-
-    # Get all archives from redis - or just use IDs from the category if it's a standard category!
-    my @keys = ();
-    if ( $categoryfilter ne "" ) {
-        %category = LANraragi::Model::Category::get_category($categoryfilter);
-
-        if (%category) {
-
-            # We're using a category! Update its lastused value.
-            $redis->hset( $categoryfilter, "last_used", time() );
-
-            $cat_search = $category{search};    # category search, if it's a favsearch
-
-            if ( $cat_search eq "" ) {
-                $logger->debug("Static category specified, using its ID list as a base instead of the entire database.");
-                @keys = @{ $category{archives} };    # category archives, if it's a standard category
-            } else {
-                @keys = $redis->keys('????????????????????????????????????????');
-            }
-        }
-
-    } else {
-        @keys = $redis->keys('????????????????????????????????????????');
-    }
-
     # Look in searchcache first
-    my $cachekey = encode_utf8("$categoryfilter-$filter-$sortkey-$sortorder-$newonly-$untaggedonly");
+    my $cachekey     = encode_utf8("$category_id-$filter-$sortkey-$sortorder-$newonly-$untaggedonly");
+    my $cachekey_inv = encode_utf8("$category_id-$filter-$sortkey-$sortorder_inv-$newonly-$untaggedonly");
     $logger->debug("Search request: $cachekey");
 
-    if ( $redis->exists("LRR_SEARCHCACHE") && $redis->hexists( "LRR_SEARCHCACHE", $cachekey ) ) {
+    if (   $redis->exists("LRR_SEARCHCACHE")
+        && $redis->hexists( "LRR_SEARCHCACHE", $cachekey ) ) {
         $logger->debug("Using cache for this query.");
 
+        # Thaw cache and use that as the filtered list
         my $frozendata = $redis->hget( "LRR_SEARCHCACHE", $cachekey );
         @filtered = @{ thaw $frozendata };
 
+    } elsif ( $redis->exists("LRR_SEARCHCACHE")
+        && $redis->hexists( "LRR_SEARCHCACHE", $cachekey_inv ) ) {
+        $logger->debug("A cache key exists with the opposite sortorder.");
+
+        # Thaw cache, invert the list to match the sortorder and use that as the filtered list
+        my $frozendata = $redis->hget( "LRR_SEARCHCACHE", $cachekey_inv );
+        @filtered = reverse @{ thaw $frozendata };
+
     } else {
+        $logger->debug("No cache available, doing a full DB parse.");
+
+        # Get all archives from redis - or just use IDs from the category if possible.
+        my ( $filter_cat, @keys ) = get_source_data( $redis, $category_id );
+
+        # Compute search filters
+        my @tokens     = compute_search_filter($filter);
+        my @tokens_cat = compute_search_filter($filter_cat);
 
         # Setup parallel processing
         my $numCpus = Sys::CpuAffinity::getNumCpus();
         my $pl      = Parallel::Loops->new($numCpus);
         my @shared  = ();
         $pl->share( \@shared );
-
-        $logger->debug("No cache available, doing a full DB parse.");
 
         # If the untagged filter is enabled, call the untagged files API
         my %untagged = ();
@@ -95,17 +86,39 @@ sub do_search {
             \@sections,
             sub {
 
-                # Get a new redis connection so we can be independent
+                my @ids = @$_;
+
+                # Get all the info for the given IDs as an atomic operation
                 $redis = LANraragi::Model::Config->get_redis;
+                $redis->multi;
                 foreach my $id (@$_) {
 
                     # Check untagged filter first as it requires no DB hits
-                    unless ( exists( $untagged{$id} ) || !$untaggedonly ) {
+                    if ( !$untaggedonly || exists( $untagged{$id} ) ) {
+                        $redis->hgetall($id);
+                    } else {
+                        $logger->debug("$id doesn't exist in the untagged_archives set, skipping.");
+                        @ids = grep { $_ ne $id } @ids;    # Remove id from array to avoid messing up the mapping post-multi
+                    }
+                }
+                my @data = $redis->exec;
+                $redis->quit;
+
+                for my $i ( 0 .. $#data ) {
+
+                    # MULTI returns data in the same order the operations were sent,
+                    # so we can get the ID from the original array this way.
+                    my %hash;
+
+                    if ( $data[$i] ) {
+                        %hash = @{ $data[$i] };
+                    } else {
                         next;
                     }
+                    my $id = @ids[$i];
 
-                    my %data = $redis->hgetall($id);
-                    my ( $tags, $title, $file, $isnew ) = @data{qw(tags title file isnew)};
+                    my ( $tags, $title, $file, $isnew ) = @hash{qw(tags title file isnew)};
+
                     $title = redis_decode($title);
                     $tags  = redis_decode($tags);
 
@@ -117,8 +130,8 @@ sub do_search {
                     # Check category search and base search filter
                     my $concat = $tags ? $title . "," . $tags : $title;
                     if (   $file
-                        && matches_search_filter( $cat_search, $concat )
-                        && matches_search_filter( $filter,     $concat ) ) {
+                        && matches_search_filter( $concat, @tokens_cat )
+                        && matches_search_filter( $concat, @tokens ) ) {
 
                         # Push id to array
                         push @shared, { id => $id, title => $title, tags => $tags };
@@ -139,34 +152,7 @@ sub do_search {
             }
 
             # Sort by the required metadata, asc or desc
-            @filtered = sort {
-
-                #Use either tags or title depending on the sortkey
-                my $meta1 = $a->{title};
-                my $meta2 = $b->{title};
-
-                if ( $sortkey ne "title" ) {
-                    my $re = qr/$sortkey/;
-                    if ( $a->{tags} =~ m/.*${re}:(.*)(\,.*|$)/ ) {
-                        $meta1 = $1;
-                    } else {
-                        $meta1 = "zzzz";    # Not a very good way to make items end at the bottom...
-                    }
-
-                    if ( $b->{tags} =~ m/.*${re}:(.*)(\,.*|$)/ ) {
-                        $meta2 = $1;
-                    } else {
-                        $meta2 = "zzzz";
-                    }
-                }
-
-                if ($sortorder) {
-                    ncmp( lc($meta2), lc($meta1) );
-                } else {
-                    ncmp( lc($meta1), lc($meta2) );
-                }
-
-            } @filtered;
+            @filtered = sort_results( $sortkey, $sortorder, @filtered );
         }
 
         # Cache this query in Redis
@@ -179,14 +165,48 @@ sub do_search {
 
     # Return total keys and the filtered ones
     my $end = min( $start + $keysperpage - 1, $#filtered );
-    return ( $#keys + 1, $#filtered + 1, @filtered[ $start .. $end ] );
+    return ( $total, $#filtered + 1, @filtered[ $start .. $end ] );
 }
 
-# matches_search_filter($filter, $tags)
-# Search engine core.
-sub matches_search_filter {
+sub get_source_data {
 
-    my ( $filter, $tags ) = @_;
+    my ( $redis, $category_id ) = @_;
+    my @keys       = ();
+    my $filter_cat = "";
+
+    if ( $category_id ne "" ) {
+        my %category = LANraragi::Model::Category::get_category($category_id);
+
+        if (%category) {
+
+            # We're using a category! Update its lastused value.
+            $redis->hset( $category_id, "last_used", time() );
+
+            # If the category is dynamic, get its search predicate
+            $filter_cat = $category{search};
+
+            # If it's static however, we can use its ID list as the source data.
+            if ( $filter_cat eq "" ) {
+                @keys = @{ $category{archives} };
+            } else {
+                @keys = $redis->keys('????????????????????????????????????????');
+            }
+        }
+
+    } else {
+        @keys = $redis->keys('????????????????????????????????????????');
+    }
+
+    return ( $filter_cat, @keys );
+}
+
+# compute_search_filter($filter)
+# Transform the search engine syntax into a list of tokens.
+# A token object contains the tag, whether it must be an exact match, and whether it must be absent.
+sub compute_search_filter {
+
+    my $filter = shift;
+    my @tokens = ();
     if ( !$filter ) { $filter = ""; }
 
     # Special characters:
@@ -248,7 +268,28 @@ sub matches_search_filter {
         # * % => .*
         $tag =~ s/\\\*|\\\%/\.\*/g;
 
-        # Got the tag, check if it's present
+        push @tokens,
+          { tag     => $tag,
+            isneg   => $isneg,
+            isexact => $isexact
+          };
+    }
+    return @tokens;
+}
+
+# matches_search_filter($computed_filter, $tags)
+# Search engine core.
+sub matches_search_filter {
+
+    my ( $tags, @tokens ) = @_;
+
+    foreach my $token (@tokens) {
+
+        my $tag     = $token->{tag};
+        my $isneg   = $token->{isneg};
+        my $isexact = $token->{isexact};
+
+        # For each token, we check if the tag is present.
         my $tagpresent = 0;
         if ($isexact) {    # The tag must necessarily be complete if isexact = 1
              # Check for comma + potential space before and comma after the tag, or start/end of string to account for the first/last tag.
@@ -265,6 +306,42 @@ sub matches_search_filter {
 
     # All filters passed!
     return 1;
+}
+
+sub sort_results {
+
+    my ( $sortkey, $sortorder, @filtered ) = @_;
+
+    @filtered = sort {
+
+        #Use either tags or title depending on the sortkey
+        my $meta1 = $a->{title};
+        my $meta2 = $b->{title};
+
+        if ( $sortkey ne "title" ) {
+            my $re = qr/$sortkey/;
+            if ( $a->{tags} =~ m/.*${re}:(.*)(\,.*|$)/ ) {
+                $meta1 = $1;
+            } else {
+                $meta1 = "zzzz";    # Not a very good way to make items end at the bottom...
+            }
+
+            if ( $b->{tags} =~ m/.*${re}:(.*)(\,.*|$)/ ) {
+                $meta2 = $1;
+            } else {
+                $meta2 = "zzzz";
+            }
+        }
+
+        if ($sortorder) {
+            ncmp( lc($meta2), lc($meta1) );
+        } else {
+            ncmp( lc($meta1), lc($meta2) );
+        }
+
+    } @filtered;
+
+    return @filtered;
 }
 
 1;

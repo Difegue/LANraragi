@@ -50,7 +50,7 @@ $mojo->mock(
     }
 );
 
-my $expected_opds = read_file( $cwd . "/tests/opds_sample.xml" );
+my $expected_opds = read_file( $cwd . "/tests/samples/opds/opds_sample.xml" );
 
 # Generate a new OPDS Catalog and compare it against our sample
 my $opds_result = LANraragi::Model::Archive::generate_opds_catalog($mojo);

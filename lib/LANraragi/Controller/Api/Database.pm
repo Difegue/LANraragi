@@ -2,7 +2,7 @@ package LANraragi::Controller::Api::Database;
 use Mojo::Base 'Mojolicious::Controller';
 
 use Redis;
-use Mojo::JSON qw(from_json);
+use Mojo::JSON qw(decode_json);
 
 use LANraragi::Model::Backup;
 use LANraragi::Model::Stats;
@@ -11,7 +11,7 @@ use LANraragi::Utils::Database qw(invalidate_cache);
 
 sub serve_backup {
     my $self = shift;
-    $self->render( json => from_json(LANraragi::Model::Backup::build_backup_JSON) );
+    $self->render( json => decode_json(LANraragi::Model::Backup::build_backup_JSON) );
 }
 
 sub drop_database {
@@ -21,7 +21,9 @@ sub drop_database {
 
 sub serve_tag_stats {
     my $self = shift;
-    $self->render( json => from_json(LANraragi::Model::Stats::build_tag_json) );
+    my $minscore = $self->req->param('minweight') || "1";
+
+    $self->render( json => LANraragi::Model::Stats::build_tag_stats($minscore) );
 }
 
 sub clean_database {

@@ -86,7 +86,7 @@ Reader.initializeAll = function () {
 
     Reader.currentPage = (+params.get("p") || 1) - 1;
     // when there's no parameter, null is coerced to 0 so it becomes -1
-    Reader.currentPage ||= (
+    Reader.currentPage = Reader.currentPage || (
         !Reader.ignoreProgress && Reader.progress < Reader.maxPage
             ? Reader.progress
             : 0
@@ -437,8 +437,8 @@ Reader.registerContainerWidth = function () {
         let value, type;
 
         [, value, type] = /^(\d+)(px|%)?$/.exec(raw);
-        value ||= 1200;
-        type ||= "px";
+        value = value || 1200;
+        type = type || "px";
 
         Reader.containerWidth = localStorage.containerWidth = `${value}${type}`;
     }

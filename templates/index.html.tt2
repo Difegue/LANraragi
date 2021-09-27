@@ -25,6 +25,7 @@
 	<script src="/js/vendor/awesomplete.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/popper.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/tippy-bundle.umd.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/marked.min.js" type="text/JAVASCRIPT"></script>
 
 	<script src="/js/index.js?[% version %]" type="text/JAVASCRIPT"></script>
 	<script src="/js/common.js?[% version %]" type="text/JAVASCRIPT"></script>
@@ -77,7 +78,7 @@
 				<input id='inboxbtn' class='favtag-btn' type='button' onclick='toggleFilter(this)'
 					value='New archives only' />
 				<br />
-				<input type='text' id='srch' class='search stdinput' size='90' style='width:100%'
+				<input type='text' id='srch' class='search stdinput' size='90' style='width:95%'
 					placeholder='Search Title, Artist, Series, Language or Tags' />
 				<input id='subsrch' class='searchbtn stdbtn' type='button' value='Apply Filter' />
 				<input id='clrsrch' class='searchbtn stdbtn' type='button' value='Clear Filter' />
@@ -163,6 +164,8 @@
 			checkVersion("[% version %]");
 			[% END %]
 
+			fetchChangelog("[% version %]");
+
 			// Initialize context menu
 			$.contextMenu({
 				selector: '.context-menu',
@@ -238,6 +241,11 @@
 		<br />
 		<br />
 		<br />
+	</div>
+
+	<div id="updateOverlay" class="id1 base-overlay small-overlay" style="display:none">
+		<h2 class="ih" style="text-align:center">New Version Release Notes</h2>
+		<div id="changelog" />
 	</div>
 
 

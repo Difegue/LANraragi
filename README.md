@@ -3,7 +3,7 @@
 [<img src="https://img.shields.io/github/release/difegue/lanraragi.svg?label=latest%20release">](https://github.com/Difegue/LANraragi/releases/latest)
 [<img src="https://img.shields.io/homebrew/v/lanraragi.svg">](https://formulae.brew.sh/formula/lanraragi)
 [<img src="https://img.shields.io/website/https/lrr.tvc-16.science.svg?label=demo%20website&up_message=online">](https://lrr.tvc-16.science/)
-[<img src="https://action-badges.now.sh/Difegue/lanraragi">](https://github.com/Difegue/LANraragi/actions)
+[<img src="https://github.com/Difegue/LANraragi/actions/workflows/push-continuous-integration.yml/badge.svg">](https://github.com/Difegue/LANraragi/actions)
 [<img src="https://img.shields.io/discord/612709831744290847">](https://discord.gg/aRQxtbg)
 
 
@@ -16,7 +16,12 @@ Open source server for archival of comics/manga, running on Mojolicious + Redis.
 
 #### 💬 Talk with other fellow LANraragi Users on [Discord](https://discord.gg/aRQxtbg) or [Github Discussions](https://github.com/Difegue/LANraragi/discussions)  
 
-####  [📄 Documentation](https://sugoi.gitbook.io/lanraragi/) | [⏬ Download](https://github.com/Difegue/LANraragi/releases/latest) | [🎞 Demo](https://lrr.tvc-16.science) | [🐱‍👓 Windows Nightlies](https://mega.nz/#F!rHZynKpZ!ZXlwMam4t8VtYjOiHPONsQ) | [💵 Sponsor Development](https://ko-fi.com/T6T2UP5N)  
+####  [📄 Documentation](https://sugoi.gitbook.io/lanraragi/) | [⏬ Download](https://github.com/Difegue/LANraragi/releases/latest) | [🎞 Demo](https://lrr.tvc-16.science) | [🐱‍👓 Windows Nightlies](https://nightly.link/Difegue/LANraragi/workflows/push-continous-delivery/dev) | [💵 Sponsor Development](https://ko-fi.com/T6T2UP5N)  
+
+## The 2021 User Survey is live! 
+
+Suggest new features and give feedback without having to create a GitHub account!  
+Check [here](https://tvc-16.science/lrr-survey-3.html) for more info.
 
 ## Screenshots  
  

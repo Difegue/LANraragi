@@ -63,9 +63,9 @@ sub extract_archive {
     #Extract to $destination. Report if it fails.
     my $ok = $ae->extract( to => $destination ) or die $ae->error;
 
-    #Rename files and folders to an encoded version
     my $cwd = getcwd();
 
+    # Rename extracted files and folders to an encoded version for easier handling
     finddepth(
         sub {
             unless ( $_ eq '.' ) {
@@ -102,9 +102,20 @@ sub extract_archive {
 
 sub extract_pdf {
     my ( $destination, $to_extract ) = @_;
+    my $logger = get_logger( "Archive", "lanraragi" );
+
+    # Raw Perl strings won't necessarily work in a terminal command, so we must decode the filepath here
+    $logger->debug("Decoding PDF filepath $to_extract before sending it to GhostScript");
+
+    eval {
+        # Try a guess to regular japanese encodings first
+        $to_extract = decode( "Guess", $to_extract );
+    };
+
+    # Fallback to utf8
+    $to_extract = decode_utf8($to_extract) if $@;
 
     make_path($destination);
-    my $logger = get_logger( "Archive", "lanraragi" );
 
     my $gscmd = "gs -dNOPAUSE -sDEVICE=jpeg -r200 -o '$destination/\%d.jpg' '$to_extract'";
     $logger->debug("Sending PDF $to_extract to GhostScript...");
@@ -128,7 +139,7 @@ sub extract_thumbnail {
     make_path("$thumbdir/$subfolder");
     my $redis = LANraragi::Model::Config->get_redis;
 
-    my $file     = $redis->hget( $id, "file" );
+    my $file = $redis->hget( $id, "file" );
     my $temppath = get_temp . "/thumb/$id/";
 
     # Make sure the thumb temp dir exists
@@ -180,7 +191,7 @@ sub extract_page_libarchive {
     my ( $file, $temppath ) = @_;
 
     # Get all the files of the archive
-    my $peek  = Archive::Peek::Libarchive->new( filename => $file );
+    my $peek = Archive::Peek::Libarchive->new( filename => $file );
     my @files = $peek->files();
     my @extracted;
 
@@ -227,7 +238,7 @@ sub is_file_in_archive {
     $logger->debug("Iterating files of archive $archive, looking for '$wantedname'");
     $Data::Dumper::Useqq = 1;
 
-    my $peek  = Archive::Peek::Libarchive->new( filename => $archive );
+    my $peek = Archive::Peek::Libarchive->new( filename => $archive );
     my $found = 0;
     $peek->iterate(
         sub {

@@ -21,16 +21,20 @@ use LANraragi::Utils::Logging qw(get_logger);
 use Exporter 'import';
 our @EXPORT_OK =
   qw(remove_spaces remove_newlines trim_url is_image is_archive render_api_response get_tag_with_namespace shasum start_shinobu
-  split_workload_by_cpu start_minion get_css_list generate_themes_header generate_themes_selector);
+  split_workload_by_cpu start_minion get_css_list generate_themes_header generate_themes_selector flat);
 
 # Remove spaces before and after a word
 sub remove_spaces {
-    $_[0] =~ s/^\s+|\s+$//g;
+    if ( $_[0] ) {
+        $_[0] =~ s/^\s+|\s+$//g;
+    }
 }
 
 # Remove all newlines in a string
 sub remove_newlines {
-    $_[0] =~ s/\R//g;
+    if ( $_[0] ) {
+        $_[0] =~ s/\R//g;
+    }
 }
 
 # Fixes up a URL string for use in the DL system.
@@ -275,6 +279,10 @@ sub css_default_names {
         when ("ex.css")           { return "Sad Panda" }
         default                   { return $_[0] }
     }
+}
+
+sub flat {
+    return map { ref eq 'ARRAY' ? @$_ : $_ } @_;
 }
 
 1;

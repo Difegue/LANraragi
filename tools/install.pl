@@ -12,20 +12,21 @@ use File::Path qw(make_path);
 
 #Vendor dependencies
 my @vendor_css = (
-    "/blueimp-file-upload/css/jquery.fileupload.css",  "/datatables/media/css/jquery.dataTables.min.css",
-    "/\@fortawesome/fontawesome-free/css/all.min.css", "/jqcloud2/dist/jqcloud.min.css",
-    "/jquery-toast-plugin/dist/jquery.toast.min.css",  "/jquery-contextmenu/dist/jquery.contextMenu.min.css",
-    "/tippy.js/dist/tippy.css",                        "/allcollapsible/dist/css/allcollapsible.min.css",
-    "/awesomplete/awesomplete.css"
+    "/blueimp-file-upload/css/jquery.fileupload.css",      "/\@fortawesome/fontawesome-free/css/all.min.css",
+    "/jqcloud2/dist/jqcloud.min.css",                      "/jquery-toast-plugin/dist/jquery.toast.min.css",
+    "/jquery-contextmenu/dist/jquery.contextMenu.min.css", "/tippy.js/dist/tippy.css",
+    "/allcollapsible/dist/css/allcollapsible.min.css",     "/awesomplete/awesomplete.css",
+    "/\@jcubic/tagger/tagger.css"
 );
 
 my @vendor_js = (
     "/blueimp-file-upload/js/jquery.fileupload.js",       "/blueimp-file-upload/js/vendor/jquery.ui.widget.js",
-    "/datatables/media/js/jquery.dataTables.min.js",      "/jqcloud2/dist/jqcloud.min.js",
+    "/datatables.net/js/jquery.dataTables.min.js",        "/jqcloud2/dist/jqcloud.min.js",
     "/jquery/dist/jquery.min.js",                         "/jquery-toast-plugin/dist/jquery.toast.min.js",
     "/jquery-contextmenu/dist/jquery.ui.position.min.js", "/jquery-contextmenu/dist/jquery.contextMenu.min.js",
     "/tippy.js/dist/tippy-bundle.umd.min.js",             "/\@popperjs/core/dist/umd/popper.min.js",
-    "/allcollapsible/dist/js/allcollapsible.min.js",      "/awesomplete/awesomplete.min.js"
+    "/allcollapsible/dist/js/allcollapsible.min.js",      "/awesomplete/awesomplete.min.js",
+    "/\@jcubic/tagger/tagger.js",                         "/marked/marked.min.js"
 );
 
 my @vendor_woff = (
@@ -137,8 +138,10 @@ if ( $back || $full ) {
     }
 
     if ( $Config{"osname"} ne "darwin" ) {
-        say("Installing Linux::Inotify2 for non-macOS systems...");
-        install_package( "Linux::Inotify2", $cpanopt );
+        say("Installing Linux::Inotify2 (2.2) for non-macOS systems...");
+
+        # Install 2.2 explicitly as 2.3 doesn't work properly on WSL
+        install_package( "MLEHMANN/Linux-Inotify2-2.2.tar.gz", $cpanopt . "--reinstall" );
     }
 
     if ( system( "cpanm --installdeps ./tools/. --notest" . $cpanopt ) != 0 ) {

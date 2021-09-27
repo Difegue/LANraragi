@@ -13,12 +13,13 @@ use Cwd;
 use Unicode::Normalize;
 
 use LANraragi::Model::Plugins;
-use LANraragi::Utils::Generic qw(remove_spaces);
+use LANraragi::Utils::Generic qw(flat remove_spaces);
+use LANraragi::Utils::Tags qw(unflat_tagrules tags_rules_to_array restore_CRLF);
 use LANraragi::Utils::Logging qw(get_logger);
 
 # Functions for interacting with the DB Model.
 use Exporter 'import';
-our @EXPORT_OK = qw(redis_encode redis_decode invalidate_cache compute_id);
+our @EXPORT_OK = qw(redis_encode redis_decode invalidate_cache compute_id get_computed_tagrules save_computed_tagrules);
 
 #add_archive_to_redis($id,$file,$redis)
 # Creates a DB entry for a file path with the given ID.
@@ -54,36 +55,38 @@ sub add_archive_to_redis {
 # This function is usually called many times in a row, so provide your own Redis object.
 sub build_archive_JSON {
     my ( $redis, $id ) = @_;
+    my $arcdata;
 
-    #Extra check in case we've been given a bogus ID
-    return "" unless $redis->exists($id);
+    eval {
+        #Extra check in case we've been given a bogus ID
+        die unless $redis->exists($id);
 
-    my %hash = $redis->hgetall($id);
+        my %hash = $redis->hgetall($id);
 
-    #It's not a new archive, but it might have never been clicked on yet,
-    #so we'll grab the value for $isnew stored in redis.
-    my ( $name, $title, $tags, $file, $isnew, $progress, $pagecount ) = @hash{qw(name title tags file isnew progress pagecount)};
+        #It's not a new archive, but it might have never been clicked on yet,
+        #so we'll grab the value for $isnew stored in redis.
+        my ( $name, $title, $tags, $file, $isnew, $progress, $pagecount ) = @hash{qw(name title tags file isnew progress pagecount)};
 
-    # return undef if the file doesn't exist.
-    unless ( -e $file ) {
-        return;
-    }
+        # return undef if the file doesn't exist.
+        die unless ( -e $file );
 
-    #Parameters have been obtained, let's decode them.
-    ( $_ = redis_decode($_) ) for ( $name, $title, $tags );
+        #Parameters have been obtained, let's decode them.
+        ( $_ = redis_decode($_) ) for ( $name, $title, $tags );
 
-    #Workaround if title was incorrectly parsed as blank
-    if ( !defined($title) || $title =~ /^\s*$/ ) {
-        $title = $name;
-    }
+        #Workaround if title was incorrectly parsed as blank
+        if ( !defined($title) || $title =~ /^\s*$/ ) {
+            $title = $name;
+        }
 
-    my $arcdata = {
-        arcid     => $id,
-        title     => $title,
-        tags      => $tags,
-        isnew     => $isnew,
-        progress  => $progress ? int($progress) : 0,
-        pagecount => $pagecount ? int($pagecount) : 0
+        $arcdata = {
+            arcid     => $id,
+            title     => $title,
+            tags      => $tags,
+            isnew     => $isnew,
+            progress  => $progress ? int($progress) : 0,
+            pagecount => $pagecount ? int($pagecount) : 0
+        };
+
     };
 
     return $arcdata;
@@ -153,8 +156,18 @@ sub clean_database {
     my $unlinked_arcs = 0;
 
     foreach my $id (@keys) {
-        my $file = $redis->hget( $id, "file" );
 
+        # Check if the DB entry is correct
+        eval { $redis->hgetall( $id ); };
+
+        if ($@) {
+            $redis->del($id);
+            $deleted_arcs++;
+            next;
+        }
+
+        # Check if the linked file exists
+        my $file = $redis->hget( $id, "file" );
         unless ( -e $file ) {
             $redis->del($id);
             $deleted_arcs++;
@@ -289,6 +302,32 @@ sub invalidate_isnew_cache {
         }
     }
     $redis->quit();
+}
+
+sub save_computed_tagrules {
+    my ( $tagrules ) = @_;
+    my $redis = LANraragi::Model::Config->get_redis;
+    $redis->del("LRR_TAGRULES");
+    $redis->lpush("LRR_TAGRULES", reverse flat(@$tagrules)) if (@$tagrules);
+    $redis->quit();
+    return;
+}
+
+sub get_computed_tagrules {
+    my @tagrules;
+
+    my $redis = LANraragi::Model::Config->get_redis;
+
+    if ( $redis->exists("LRR_TAGRULES") ) {
+        my @flattened_rules = $redis->lrange("LRR_TAGRULES", 0,-1);
+        @tagrules = unflat_tagrules(\@flattened_rules);
+    } else {
+        @tagrules = tags_rules_to_array(restore_CRLF(LANraragi::Model::Config->get_tagrules));
+        $redis->lpush("LRR_TAGRULES", reverse flat(@tagrules)) if (@tagrules);
+    }
+
+    $redis->quit();
+    return @tagrules;
 }
 
 1;

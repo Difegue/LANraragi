@@ -44,14 +44,9 @@ sub logged_in {
     return 0;
 }
 
-#For APIs, the request can also be authentified with a valid API Key.
+# For APIs, the request can also be authentified with a valid API Key.
 sub logged_in_api {
     my $self = shift;
-
-    # The API outputs CORS headers if the user allows it in the settings
-    if ( $self->LRR_CONF->enable_cors ) {
-        $self->res->headers->access_control_allow_origin('*');
-    }
 
     # The API key is in the Authentication header.
     my $expected_key = $self->LRR_CONF->get_apikey;
@@ -68,6 +63,18 @@ sub logged_in_api {
         status => 401
     );
     return 0;
+}
+
+sub setup_cors {
+    my $self = shift;
+
+    # Set Allow-Origin to wildcard
+    $self->res->headers->header( 'Access-Control-Allow-Origin' => '*' );
+
+    # Explicitly say requests with an Authorization header (private API requests) are allowed
+    $self->res->headers->header( 'Access-Control-Allow-Headers' => 'Authorization' );
+
+    return 1;
 }
 
 sub logout {

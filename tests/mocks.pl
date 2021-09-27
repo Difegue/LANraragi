@@ -5,6 +5,7 @@ use Cwd;
 use File::Temp qw(tempfile);
 use File::Copy "cp";
 
+use Data::Dumper;
 use Test::MockObject;
 use Mojo::JSON qw (decode_json);
 
@@ -13,10 +14,11 @@ sub setup_eze_mock {
     # Copy the eze sample json to a temporary directory as it's deleted once parsed
     my $cwd = getcwd;
     my ( $fh, $filename ) = tempfile();
-    cp( $cwd . "/tests/eze_sample.json", $fh );
+    cp( $cwd . "/tests/samples/eze/eze_sample.json", $fh );
 
     # Mock LANraragi::Utils::Archive's subs to return the temporary sample JSON
     # Since we're using exports, the methods are under the plugin's namespace.
+    no warnings 'once', 'redefine';
     *LANraragi::Plugin::Metadata::Eze::extract_file_from_archive = sub { $filename };
     *LANraragi::Plugin::Metadata::Eze::is_file_in_archive        = sub { 1 };
 }
@@ -26,7 +28,8 @@ sub setup_redis_mock {
     # DataModel for searches
     # files are set to package.json since the search engine checks for file existence and I ain't about to mock perl's -e call
     # Switch devmode to 1 for debug output in test
-    my %datamodel = %{ decode_json qq(
+    my %datamodel =
+      %{ decode_json qq(
         {
         "LRR_CONFIG": {
             "pagesize": "100",
@@ -96,7 +99,7 @@ sub setup_redis_mock {
             "file": "package.json"
         }
     })
-    };
+      };
 
     # Mock Redis object which uses the datamodel
     my $redis = Test::MockObject->new();
@@ -108,14 +111,35 @@ sub setup_redis_mock {
             return grep { /$expr/ } keys %datamodel;
         }
     );
-    $redis->mock( 'exists',  sub { shift; return $_[0] eq "LRR_SEARCHCACHE" ? 0 : 1 } );
+    $redis->mock( 'exists', sub { shift; return $_[0] eq "LRR_SEARCHCACHE" ? 0 : 1 } );
     $redis->mock( 'hexists', sub { 1 } );
     $redis->mock( 'hset',    sub { 1 } );
     $redis->mock( 'quit',    sub { 1 } );
     $redis->mock( 'select',  sub { 1 } );
+    $redis->mock( 'dbsize',  sub { 1337 } );
 
     $redis->mock(
-        'hget',                                # $redis->hget => get value of key in datamodel
+        'multi',
+        sub {
+            my $self = shift;
+            $self->{ismulti} = 1;
+        }
+    );
+
+    $redis->mock(
+        'exec',
+        sub {
+            my $self = shift;
+            $self->{ismulti} = 0;
+            my @a = values @{ $self->{results} };
+
+            # Return the values directly to match Redis module behavior, instead of boxing them in an array
+            return @a;
+        }
+    );
+
+    $redis->mock(
+        'hget',    # $redis->hget => get value of key in datamodel
         sub {
             my $self = shift;
             my ( $key, $hashkey ) = @_;
@@ -126,17 +150,29 @@ sub setup_redis_mock {
     );
 
     $redis->mock(
-        'hgetall',                             # $redis->hgetall => get all values of key in datamodel
+        'hgetall',    # $redis->hgetall => get all values of key in datamodel
         sub {
             my $self = shift;
             my $key  = shift;
 
-            my %value = %{ $datamodel{$key} };
-            return %value;
+            my @value = %{ $datamodel{$key} };
+
+            if ( $self->{ismulti} ) {
+                push @{ $self->{results} }, \@value;
+                return 1;
+            } else {
+                return @value;
+            }
         }
     );
 
     $redis->fake_module( "Redis", new => sub { $redis } );
+}
+
+sub get_logger_mock {
+    my $mock = Test::MockObject->new();
+    $mock->mock( 'debug', sub { }, 'info', sub { } );
+    return $mock;
 }
 
 1;
