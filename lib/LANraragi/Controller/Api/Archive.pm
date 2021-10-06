@@ -48,7 +48,12 @@ sub serve_metadata {
 
     my $arcdata = LANraragi::Utils::Database::build_archive_JSON( $redis, $id );
     $redis->quit;
-    $self->render( json => $arcdata );
+
+    if ($arcdata) {
+        $self->render( json => $arcdata );
+    } else {
+        render_api_response( $self, "metadata", "This ID doesn't exist on the server." );
+    }
 }
 
 # Find which categories this ID is saved in.
