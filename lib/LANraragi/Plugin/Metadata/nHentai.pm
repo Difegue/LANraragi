@@ -45,7 +45,7 @@ sub get_tags {
     my $galleryID = "";
 
     # Quick regex to get the nh gallery id from the provided url.
-    if ( $lrr_info->{oneshot_param} =~ /.*\/g\/([0-9]*)\/.*/ ) {
+    if ( $lrr_info->{oneshot_param} =~ /.*\/g\/([0-9]+).*/ ) {
         $galleryID = $1;
     } else {
 

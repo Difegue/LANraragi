@@ -18,10 +18,9 @@ Open source server for archival of comics/manga, running on Mojolicious + Redis.
 
 ####  [📄 Documentation](https://sugoi.gitbook.io/lanraragi/) | [⏬ Download](https://github.com/Difegue/LANraragi/releases/latest) | [🎞 Demo](https://lrr.tvc-16.science) | [🐱‍👓 Windows Nightlies](https://nightly.link/Difegue/LANraragi/workflows/push-continous-delivery/dev) | [💵 Sponsor Development](https://ko-fi.com/T6T2UP5N)  
 
-## The 2021 User Survey is live! 
+## The 2021 User Survey results have landed! 
 
-Suggest new features and give feedback without having to create a GitHub account!  
-Check [here](https://tvc-16.science/lrr-survey-3.html) for more info.
+Check [here](https://tvc-16.science/lrr-survey-3-results.html) for more info.
 
 ## Screenshots  
  

@@ -1,7 +1,7 @@
 {
     "name": "lanraragi",
-    "version": "0.8.0",
-    "version_name": "Black Tie White Noise",
+    "version": "0.8.1",
+    "version_name": "Black Tie White Noise (Here Come Da Jazz Mix)",
     "description": "I'm under Japanese influence and my honor's at stake!",
     "scripts": {
         "test": "prove -r -l -v tests/",

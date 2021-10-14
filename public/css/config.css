@@ -6,6 +6,7 @@ input[type='checkbox'] {
     font-size:20px;
     cursor:pointer;
     margin-left: 0px;
+    color: inherit;
 }
 
 input[type='checkbox']::before {

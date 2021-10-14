@@ -25,7 +25,7 @@ sub plugin_info {
         namespace  => "fakkumetadata",
         login_from => "fakkulogin",
         author     => "Difegue, Nodja",
-        version    => "0.7",
+        version    => "0.8",
         description =>
           "Searches FAKKU for tags matching your archive. If you have an account, don't forget to enter the matching cookie in the login plugin to be able to access controversial content.",
         icon =>
@@ -113,8 +113,10 @@ sub get_search_result_dom {
 
     my $logger = get_plugin_logger();
 
-    #Strip away characters that break search
-    $title =~ s/-|'|~|!|/ /g;
+    # Strip away characters that break search
+    # Note: Those characters work fine, but the F! search backend sometimes fails to match you anyway.
+    # Removing them doesn't seem to really improve the situation. :/ The autosuggest API would work better but then again, CF issues
+    $title =~ s/-|'|~|!|//g;
 
     # Visit the base host once to set cloudflare cookies and jank
     $ua->max_redirects(5)->get($fakku_host);
@@ -183,7 +185,7 @@ sub get_tags_from_fakku {
 
         my $namespace = $row[0]->text;
 
-        $logger->debug("testaroni: $row[1]");
+        $logger->debug("Evaluating row: $row[1]");
         my $value =
           ( $row[1]->at('a') )
           ? $row[1]->at('a')->text
