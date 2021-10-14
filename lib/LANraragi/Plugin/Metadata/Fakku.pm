@@ -114,8 +114,8 @@ sub get_search_result_dom {
     my $logger = get_plugin_logger();
 
     # Strip away characters that break search
-    # Note: Does this really break search? tests on live F! show those characters work perfectly fine,
-    # and they should be caught by uri_escape_utf8 if the issue is the URL encoding part..
+    # Note: Those characters work fine, but the F! search backend sometimes fails to match you anyway.
+    # Removing them doesn't seem to really improve the situation. :/ The autosuggest API would work better but then again, CF issues
     $title =~ s/-|'|~|!|//g;
 
     # Visit the base host once to set cloudflare cookies and jank
