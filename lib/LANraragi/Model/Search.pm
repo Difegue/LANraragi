@@ -115,7 +115,7 @@ sub do_search {
                     } else {
                         next;
                     }
-                    my $id = @ids[$i];
+                    my $id = $ids[$i];
 
                     my ( $tags, $title, $file, $isnew ) = @hash{qw(tags title file isnew)};
 

@@ -81,9 +81,8 @@ sub build_stat_hashes {
                 # If the tag is a source: tag, add it to the URL index
                 if ( $t =~ /source:(.*)/i ) {
                     my $url = $1;
-                    $logger->debug("Adding $url as an URL for $id");
                     trim_url($url);
-                    $logger->debug("Trimmed: $url");
+                    $logger->debug("Adding $url as an URL for $id");
                     $redistx->hset( "LRR_URLMAP", $url, $id );  # No need to encode the value, as URLs are already encoded by design
                 }
 
