@@ -113,10 +113,13 @@ sub get_search_result_dom {
 
     my $logger = get_plugin_logger();
 
-    # Strip away characters that break search
-    # Note: Those characters work fine, but the F! search backend sometimes fails to match you anyway.
-    # Removing them doesn't seem to really improve the situation. :/ The autosuggest API would work better but then again, CF issues
-    $title =~ s/-|'|~|!|//g;
+    # Strip away (some) characters that break search
+    # Note: The F! search backend sometimes fails to match you anyway. :/ The autosuggest API would work better but then again, CF issues
+    # * Changed the ' filter to '\w*, meaning instead of just stripping the apostrophe, we also strip whatever is after it ("we're" > "we" instead of "we're" > "were"). 
+    #      This is because just removing the apostrophe will return wrong (or no) results (to give an example "Were in love" would not return anything, whereas "we in love" would)
+    # * Added @ to the filters, because it's not supported by F*'s search engine either
+    # * Added a space ahead of the - (hyphen) filter, to only remove hyphens directly prepended to something else (those are the only ones that break searches, probably because the search engine treats them as exclusions as most engines would).
+    $title =~ s/ -|'\w*|~|!|@//g; 
 
     # Visit the base host once to set cloudflare cookies and jank
     $ua->max_redirects(5)->get($fakku_host);
