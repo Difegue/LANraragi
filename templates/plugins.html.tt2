@@ -22,12 +22,11 @@
 	<script src="/js/vendor/jquery.fileupload.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/allcollapsible.min.js" type="text/JAVASCRIPT"></script>
 
-	<script src="/js/theme.js?[% version%]" type="text/JAVASCRIPT"></script>
 	<script src="/js/server.js?[% version%]" type="text/JAVASCRIPT"></script>
 
 </head>
 
-<body onload="set_style_from_storage(); initUpload();">
+<body>
 
 	<div class="ido" style="text-align:center;">
 		<h1 class="ih" style="text-align:center">Plugin Configuration</h1>

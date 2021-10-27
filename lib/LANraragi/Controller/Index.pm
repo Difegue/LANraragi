@@ -8,7 +8,7 @@ use Encode;
 use File::Basename;
 use Authen::Passphrase;
 
-use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header);
+use LANraragi::Utils::Generic qw(generate_themes_header);
 
 sub random_archive {
     my $self          = shift;
@@ -66,7 +66,6 @@ sub index {
         categories   => \@categories,
         motd         => $self->LRR_CONF->get_motd,
         use_local    => $self->LRR_CONF->enable_localprogress,
-        cssdrop      => generate_themes_selector,
         csshead      => generate_themes_header($self),
         usingdefpass => $passcheck,
         debugmode    => $self->app->mode eq "development"

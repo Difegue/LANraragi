@@ -12,7 +12,7 @@ Edit.hideTags = function () {
     $("#plugin-table").hide();
 };
 
-Edit.showTags = function() {
+Edit.showTags = function () {
     $("#tag-spinner").css("display", "none");
     $("#tagText").prop("disabled", false);
     $("#tagText").css("opacity", "1");
@@ -21,7 +21,6 @@ Edit.showTags = function() {
 
 Edit.initializeAll = function () {
     // bind events to DOM
-    $(document).on("load.style", "body", set_style_from_storage);
     $(document).on("click.show-help", "#show-help", Edit.showHelp);
     $(document).on("click.run-plugin", "#run-plugin", Edit.runPlugin);
     $(document).on("click.save-metadata", "#save-metadata", Edit.saveMetadata);
@@ -85,7 +84,6 @@ Edit.updateOneShotArg = function () {
 };
 
 Edit.saveMetadata = function () {
-
     Edit.hideTags();
     const id = $("#archiveID").val();
 
@@ -116,22 +114,19 @@ Edit.saveMetadata = function () {
 
 Edit.Server.deleteArchive = function () {
     if (confirm("Are you sure you want to delete this archive?")) {
-        Server.deleteArchive($("#archiveID").val(), () => { location.href = "./"; });
+        Server.deleteArchive($("#archiveID").val(), () => { document.location.href = "./"; });
     }
 };
 
 Edit.getTags = function () {
-    $("#tag-spinner").css("display", "block");
-    $("#tagText").css("opacity", "0.5");
-    $("#tagText").prop("disabled", true);
-    $("#plugin-table").hide();
+    Edit.hideTags();
 
     const pluginID = $("select#plugin option:checked").val();
     const archivID = $("#archiveID").val();
     const pluginArg = $("#arg").val();
     Server.callAPI(`../api/plugins/use?plugin=${pluginID}&id=${archivID}&arg=${pluginArg}`, "POST", null,
         "Error while fetching tags :", (result) => {
-            if (result.data.title && result.data.title != "") {
+            if (result.data.title && result.data.title !== "") {
                 $("#title").val(result.data.title);
                 $.toast({
                     showHideTransition: "slide",
@@ -167,10 +162,7 @@ Edit.getTags = function () {
                 });
             }
         }).finally(() => {
-        $("#tag-spinner").css("display", "none");
-        $("#tagText").prop("disabled", false);
-        $("#tagText").css("opacity", "1");
-        $("#plugin-table").show();
+        Edit.showTags();
     });
 };
 

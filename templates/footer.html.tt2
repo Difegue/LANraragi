@@ -5,36 +5,5 @@
     [% descstr %]
     <br>
     [% END %]
-    <a href="https://github.com/Difegue/LANraragi"> LANraragi</a>
-    -
-    <a onclick="openThemeOverlay()" style="cursor:pointer">Change Theme</a>
+    Powered by <a href="https://github.com/Difegue/LANraragi"> LANraragi.</a>
 </p>
-
-
-<div id="theme-overlay-shade" class="overlay-sh" onclick="closeThemeOverlay();"></div>
-
-<div id="themeOverlay" class="id1 base-overlay small-overlay"
-    style="display:none; max-height:300px; min-height:300px !important">
-
-    <h1>
-        <i class="fa fa-paint-brush"></i> Available Themes
-    </h1>
-    <br /> [% cssdrop %]
-
-    <br /> Click on a name to immediately try out the theme! Your preference is saved automatically.
-
-</div>
-
-<script>
-
-    function openThemeOverlay() {
-        $('#theme-overlay-shade').fadeTo(150, 0.6, function () {
-            $('#themeOverlay').css('display', 'block');
-        });
-    }
-
-    function closeThemeOverlay() {
-        $('#theme-overlay-shade').fadeOut(300);
-        $('#themeOverlay').css('display', 'none');
-    }
-</script>

@@ -31,7 +31,6 @@
 	<script src="/js/common.js?[% version %]" type="text/JAVASCRIPT"></script>
 	<script src="/js/server.js?[% version %]" type="text/JAVASCRIPT"></script>
 	<script src="/js/index_datatables.js?[% version %]" type="text/JAVASCRIPT"></script>
-	<script src="/js/theme.js?[% version %]" type="text/JAVASCRIPT"></script>
 
 </head>
 

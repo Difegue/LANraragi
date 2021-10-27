@@ -7,7 +7,7 @@ use Mojo::JSON qw(encode_json);
 no warnings 'experimental';
 use Cwd;
 
-use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header);
+use LANraragi::Utils::Generic qw(generate_themes_header);
 use LANraragi::Utils::Plugins qw(get_plugins get_plugin_parameters is_plugin_enabled);
 use LANraragi::Utils::Logging qw(get_logger);
 
@@ -32,7 +32,6 @@ sub index {
         downloaders => craft_plugin_array(@downloadplugins),
         logins      => craft_plugin_array(@loginplugins),
         scripts     => craft_plugin_array(@scriptplugins),
-        cssdrop     => generate_themes_selector,
         csshead     => generate_themes_header($self),
         version     => $self->LRR_VERSION
     );

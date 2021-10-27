@@ -2,26 +2,38 @@
 
 const LRR = {};
 
-// Quick 'n dirty HTML encoding function.
+/**
+ * Quick 'n dirty HTML encoding function.
+ * @param {*} r The HTML to encode
+ * @returns Encoded string
+ */
 LRR.encodeHTML = function (r) {
     if (r === undefined) return r;
     if (Array.isArray(r)) return r[0].replace(/[\x26\x0A\<>'"]/g, (r2) => `&#${r2.charCodeAt(0)};`);
     else return r.replace(/[\x26\x0A\<>'"]/g, (r2) => `&#${r2.charCodeAt(0)};`);
 };
 
+/**
+ * Open the given URL in a new browser tab.
+ * @param {*} url The URL
+ */
 LRR.openInNewTab = function (url) {
     const win = window.open(url, "_blank");
     win.focus();
 };
 
-// Applies to Index and Reader.
+/**
+ * Applies to Index and Reader.
+ */
 LRR.openSettings = function () {
     $("#overlay-shade").fadeTo(150, 0.6, () => {
         $("#settingsOverlay").css("display", "block");
     });
 };
 
-// Ditto
+/**
+ * Applies to Index and Reader.
+ */
 LRR.closeOverlay = function () {
     $("#overlay-shade").fadeOut(300);
     $(".base-overlay").css("display", "none");
@@ -47,6 +59,11 @@ LRR.colorCodeTags = function (tags) {
     return line.slice(0, -2);
 };
 
+/**
+ * Splits a LRR tag string into a per-namespace dictionary of arrays.
+ * @param {*} tags string containing all tags, split by commas.
+ * @returns The tag dictionary
+ */
 LRR.splitTagsByNamespace = function (tags) {
     const tagsByNamespace = {};
     const namespaceRegex = /([^:]*):(.*)/i;
@@ -118,7 +135,11 @@ LRR.buildTagsDiv = function (tags) {
     return line;
 };
 
-// Show a generic error toast with a given header and message.
+/**
+ * Show a generic error toast with a given header and message.
+ * @param {*} header Error header
+ * @param {*} error Error message
+ */
 LRR.showErrorToast = function (header, error) {
     $.toast({
         showHideTransition: "slide",

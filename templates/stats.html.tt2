@@ -16,11 +16,10 @@
 	<script src="./js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
 	<script src="./js/vendor/jqcloud.min.js"></script>
 
-	<script src="./js/theme.js?[% version%]" type="text/JAVASCRIPT"></script>
 	<script src="./js/server.js?[% version%]" type="text/JAVASCRIPT"></script>
 </head>
 
-<body onload="set_style_from_storage();">
+<body>
 
 	<div class='ido' style='text-align:center'>
 		<h2 class="ih" style="text-align:center">Library Statistics</h2>

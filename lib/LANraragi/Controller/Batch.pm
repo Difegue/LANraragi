@@ -6,7 +6,7 @@ use Encode;
 use Mojo::Util qw(xml_escape);
 use Mojo::JSON qw(decode_json);
 
-use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header);
+use LANraragi::Utils::Generic qw(generate_themes_header);
 use LANraragi::Utils::Database qw(redis_decode);
 use LANraragi::Utils::Plugins qw(get_plugins get_plugin get_plugin_parameters);
 use LANraragi::Utils::Logging qw(get_logger);
@@ -47,7 +47,6 @@ sub index {
         plugins  => \@pluginlist,
         title    => $self->LRR_CONF->get_htmltitle,
         descstr  => $self->LRR_DESC,
-        cssdrop  => generate_themes_selector,
         csshead  => generate_themes_header($self),
         version  => $self->LRR_VERSION
     );

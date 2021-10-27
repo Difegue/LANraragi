@@ -17,13 +17,12 @@
 	<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
 
-	<script src="/js/theme.js?[% version%]" type="text/JAVASCRIPT"></script>
 	<script src="/js/server.js?[% version%]" type="text/JAVASCRIPT"></script>
 	<script src="/js/batch.js?[% version%]" type="text/JAVASCRIPT"></script>
 
 </head>
 
-<body onload="set_style_from_storage(); checkUntagged(); showOverride()">
+<body onload="checkUntagged(); showOverride()">
 
 	<div class='ido' style='text-align:center'>
 		<h2 class='ih' style='text-align:center'>Batch Tagging</h2>

@@ -20,12 +20,11 @@
 	<script src="/js/vendor/allcollapsible.min.js" type="text/JAVASCRIPT"></script>
 
 	<script src="/js/common.js?[% version %]" type="text/JAVASCRIPT"></script>
-	<script src="/js/theme.js?[% version %]" type="text/JAVASCRIPT"></script>
 	<script src="/js/server.js?[% version %]" type="text/JAVASCRIPT"></script>
 
 </head>
 
-<body onload="set_style_from_storage();">
+<body>
 
 	<div class="ido">
 		<h2 class="ih" style="text-align:center">Admin Settings</h2>
@@ -49,7 +48,7 @@
 
 		</div>
 		<form class="right-column" name="editConfigForm" id="editConfigForm" enctype="multipart/form-data"
-			method="post">
+			method="post" autocomplete="off">
 
 			<ul class="collapsible extensible with-right-caret">
 				<li class="option-flyout">
@@ -60,6 +59,18 @@
 						<table style="margin:auto; font-size:9pt;">
 							<tbody>
 								[% INCLUDE templates_config/config_global %]
+							</tbody>
+						</table>
+					</div>
+				</li>
+				<li class="option-flyout">
+					<div class="collapsible-title caret-right">
+						<i class="fa fa-paint-brush" aria-hidden="true"></i> Theme
+					</div>
+					<div class="collapsible-body">
+						<table style="margin:auto; font-size:9pt;">
+							<tbody>
+								[% INCLUDE templates_config/config_theme %]
 							</tbody>
 						</table>
 					</div>
@@ -148,6 +159,33 @@
 					}
 					$("#pid").html(data.pid);
 				});
+		}
+
+		function switch_style(css_title) {
+
+			var i, link_tag, correct_style, default_style, new_style;
+			correct_style = 0;
+
+			for (i = 0, link_tag = document.getElementsByTagName("link"); i < link_tag.length; i++) {
+
+				if ((link_tag[i].rel.indexOf("stylesheet") != -1) && link_tag[i].title) {
+
+					if ((link_tag[i].rel.indexOf("alternate stylesheet") != -1))
+					link_tag[i].disabled = true;
+					else
+					default_style = link_tag[i];
+
+					if (link_tag[i].title == css_title) {
+					new_style = link_tag[i];
+					correct_style = 1;
+					}
+				}
+			}
+
+			if (correct_style == 1) { //if the style that was switched to exists
+				default_style.disabled = true; //we disable the default style 
+				new_style.disabled = false; //we enable the new style  
+			}
 		}
 
 		function enable_pass() {

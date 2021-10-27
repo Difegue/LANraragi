@@ -11,6 +11,12 @@
         "ecmaVersion": 12,
         "sourceType": "module"
     },
+    "globals": {
+        "LRR": "readonly",
+        "Common": "readonly",
+        "Server": "readonly",
+        "tagger": "readonly"
+    },
     "rules": {
         "func-names": ["error", "never"],
         "indent": ["error", 4],

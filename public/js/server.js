@@ -3,13 +3,16 @@
 const Server = {};
 Server.isScriptRunning = false;
 
-// Call that shows a popup to the user on success/failure.
-// Returns the promise so you can add final callbacks if needed.
-// Endpoint: URL endpoint
-// Method: GET/PUT/DELETE/POST
-// successMessage: Message written in the toast if request succeeded (success = 1)
-// errorMessage: Header of the error message if request fails (success = 0)
-// successCallback: Func called if request succeeded
+/**
+ * Call that shows a popup to the user on success/failure.
+ * Returns the promise so you can add final callbacks if needed.
+ * @param {*} endpoint URL endpoint
+ * @param {*} method GET/PUT/DELETE/POST
+ * @param {*} successMessage Message written in the toast if request succeeded (success = 1)
+ * @param {*} errorMessage Header of the error message if request fails (success = 0)
+ * @param {*} successCallback called if request succeeded
+ * @returns The result of the callback, or NULL.
+ */
 Server.callAPI = function (endpoint, method, successMessage, errorMessage, successCallback) {
     return fetch(endpoint, { method })
         .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))
@@ -35,8 +38,12 @@ Server.callAPI = function (endpoint, method, successMessage, errorMessage, succe
         .catch((error) => LRR.showErrorToast(errorMessage, error));
 };
 
-// Check the status of a Minion job until it's completed.
-// Execute a callback on successful job completion.
+/**
+ * Check the status of a Minion job until it's completed.
+ * @param {*} jobId Job ID to check
+ * @param {*} callback Execute a callback on successful job completion.
+ * @param {*} failureCallback Execute a callback on unsuccessful job completion.
+ */
 Server.checkJobStatus = function (jobId, callback, failureCallback) {
     fetch(`/api/minion/${jobId}`, { method: "GET" })
         .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))
@@ -60,10 +67,12 @@ Server.checkJobStatus = function (jobId, callback, failureCallback) {
         .catch((error) => { LRR.showErrorToast("Error checking Minion job status", error); failureCallback(error); });
 };
 
-// Server.saveFormData()
-// POSTs the data of the specified form to the page.
-// This is used for Edit, Config and Plugins.
-// Returns the promise object so you can chain more callbacks.
+/**
+ * POSTs the data of the specified form to the page.
+ * This is used for Edit, Config and Plugins.
+ * @param {*} formSelector The form to POST
+ * @returns the promise object so you can chain more callbacks.
+ */
 Server.saveFormData = function (formSelector) {
     const postData = new FormData($(formSelector)[0]);
 
@@ -147,7 +156,7 @@ Server.dropDatabase = function () {
     if (confirm("Danger! Are you *sure* you want to do this?")) {
         Server.callAPI("/api/database/drop", "POST", "Sayonara! Redirecting you...", "Error while resetting the database? Check Logs.",
             () => {
-                setTimeout(() => { location.href = './'; }, 1500);
+                setTimeout(() => { document.location.href = "./"; }, 1500);
             });
     }
 };
@@ -218,9 +227,12 @@ Server.removeArchiveFromCategory = function (arcId, catId) {
     Server.callAPI(`/api/categories/${catId}/${arcId}`, "DELETE", `Removed ${arcId} from Category ${catId}!`, "Error adding/removing archive to category", null);
 };
 
-// Server.deleteArchive(id)
-// Sends a DELETE request for that archive ID, 
-// deleting the Redis key and attempting to delete the archive file.
+/**
+ * Sends a DELETE request for that archive ID,
+ * deleting the Redis key and attempting to delete the archive file.
+ * @param {*} arcId Archive ID
+ * @param {*} callback Callback to execute once the archive is deleted (usually a redirection)
+ */
 Server.deleteArchive = function (arcId, callback) {
     fetch(`/api/archives/${arcId}`, { method: "DELETE" })
         .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))

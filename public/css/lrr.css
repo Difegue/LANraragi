@@ -621,3 +621,10 @@ body.infinite-scroll #display img {
 body.infinite-scroll .sb {
   margin-top: 10px;
 }
+
+.theme-preview {
+  height: 64px; 
+  margin-top:4px;
+  margin-right:8px;
+  border-radius: 4px;
+}

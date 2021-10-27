@@ -5,7 +5,7 @@ use MIME::Base64;
 use Redis;
 use Authen::Passphrase;
 
-use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header);
+use LANraragi::Utils::Generic qw(generate_themes_header);
 
 sub check {
     my $self = shift;
@@ -24,7 +24,6 @@ sub check {
             template  => "login",
             title     => $self->LRR_CONF->get_htmltitle,
             descstr   => $self->LRR_DESC,
-            cssdrop   => generate_themes_selector,
             csshead   => generate_themes_header($self),
             version   => $self->LRR_VERSION,
             wrongpass => 1
@@ -91,7 +90,6 @@ sub index {
         template => "login",
         title    => $self->LRR_CONF->get_htmltitle,
         descstr  => $self->LRR_DESC,
-        cssdrop  => generate_themes_selector,
         csshead  => generate_themes_header($self),
         version  => $self->LRR_VERSION
     );

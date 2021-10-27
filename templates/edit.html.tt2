@@ -19,7 +19,6 @@
 	<script src="/js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/tagger.js" type="text/JAVASCRIPT"></script>
 
-	<script src="/js/theme.js?[% version%]" type="text/JAVASCRIPT"></script>
 	<script src="/js/server.js?[% version%]" type="text/JAVASCRIPT"></script>
 	<script src="/js/edit.js?[% version%]" type="text/JAVASCRIPT"></script>
 

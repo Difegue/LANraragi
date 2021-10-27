@@ -3,7 +3,7 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use Encode;
 
-use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header);
+use LANraragi::Utils::Generic qw(generate_themes_header);
 use LANraragi::Utils::Database qw(redis_decode);
 
 use LANraragi::Model::Reader;
@@ -83,7 +83,6 @@ sub index {
             progress   => $progress,
             use_local  => $self->LRR_CONF->enable_localprogress,
             categories => \@categories,
-            cssdrop    => generate_themes_selector,
             csshead    => generate_themes_header($self),
             version    => $self->LRR_VERSION,
             userlogged => $self->LRR_CONF->enable_pass == 0 || $self->session('is_logged')

@@ -12,7 +12,6 @@ Reader.initializeAll = function () {
     Reader.initializeSettings();
 
     // bind events to DOM
-    $(document).on("load.style", "body", set_style_from_storage);
     $(document).on("keyup", Reader.handleShortcuts);
 
     $(document).on("click.toggle_fit_mode", "#fit-mode input", Reader.toggleFitMode);
