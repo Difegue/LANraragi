@@ -20,7 +20,7 @@
 	<script src="/js/vendor/tagger.js" type="text/JAVASCRIPT"></script>
 
 	<script src="/js/theme.js?[% version%]" type="text/JAVASCRIPT"></script>
-	<script src="/js/ajax.js?[% version%]" type="text/JAVASCRIPT"></script>
+	<script src="/js/server.js?[% version%]" type="text/JAVASCRIPT"></script>
 	<script src="/js/edit.js?[% version%]" type="text/JAVASCRIPT"></script>
 
 </head>
@@ -109,9 +109,7 @@
 					<tr>
 						<td colspan='2' style='text-align:center'> <br />
 							<input class='stdbtn' type='button' id="save-metadata" value='Save Metadata' />
-							<input class='stdbtn' type='button'
-								onclick=" if (confirm('Are you sure you want to delete this archive?')) deleteArchive('[% id %]');"
-								value='Delete Archive' />
+							<input class='stdbtn' type='button' id="delete-archive" value='Delete Archive' />
 							<input id='goback' class='stdbtn' type='button' onclick="window.location.replace('./');"
 								value='Return to Library' />
 							<br />

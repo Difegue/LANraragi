@@ -94,7 +94,7 @@ function saveSettings() {
     arcTable.settings()[0].aoColumns[2].sName = localStorage.customColumn2;
 
     updateTableHeaders();
-    closeOverlay();
+    LRR.closeOverlay();
 
     // Redraw the table yo
     arcTable.draw();
@@ -175,12 +175,12 @@ function fetchChangelog(version) {
                     $("#updateOverlay").css("display", "block");
                 });
             })
-            .catch((error) => { showErrorToast("Error getting changelog for new version", error); failureCallback(error); });
+            .catch((error) => { LRR.showErrorToast("Error getting changelog for new version", error); failureCallback(error); });
     }
 }
 
 function loadContextMenuCategories(id) {
-    return genericAPICall(`/api/archives/${id}/categories`, "GET", null, `Error finding categories for ${id}!`,
+    return Server.callAPI(`/api/archives/${id}/categories`, "GET", null, `Error finding categories for ${id}!`,
         (data) => {
             items = {};
 
@@ -200,28 +200,28 @@ function loadContextMenuCategories(id) {
 function handleContextMenu(option, id) {
     if (option.startsWith("category-")) {
         var catId = option.replace("category-", "");
-        addArchiveToCategory(id, catId);
+        Server.addArchiveToCategory(id, catId);
         return;
     }
 
     if (option.startsWith("delcat-")) {
         var catId = option.replace("delcat-", "");
-        removeArchiveFromCategory(id, catId);
+        Server.removeArchiveFromCategory(id, catId);
         return;
     }
 
     switch (option) {
     case "edit":
-        openInNewTab(`./edit?id=${id}`);
+        LRR.openInNewTab(`./edit?id=${id}`);
         break;
     case "delete":
-        if (confirm("Are you sure you want to delete this archive?")) deleteArchive(id);
+        if (confirm("Are you sure you want to delete this archive?")) Server.deleteArchive(id, () => { document.location.reload(true); });
         break;
     case "read":
-        openInNewTab(`./reader?id=${id}`);
+        LRR.openInNewTab(`./reader?id=${id}`);
         break;
     case "download":
-        openInNewTab(`./api/archives/${id}/download`);
+        LRR.openInNewTab(`./api/archives/${id}/download`);
         break;
     default:
         break;
@@ -230,7 +230,7 @@ function handleContextMenu(option, id) {
 
 function loadTagSuggestions() {
     // Query the tag cloud API to get the most used tags.
-    genericAPICall("/api/database/stats?minweight=2", "GET", null, "Couldn't load tag suggestions",
+    Server.callAPI("/api/database/stats?minweight=2", "GET", null, "Couldn't load tag suggestions",
         (data) => {
             new Awesomplete("#srch", {
                 list: data,
@@ -274,7 +274,7 @@ function loadCategories() {
                 const pinned = category.pinned === "1";
 
                 catName = (pinned ? "📌" : "") + category.name;
-                catName = encode(catName);
+                catName = LRR.encodeHTML(catName);
 
                 div = `<div style='display:inline-block'>
 						<input class='favtag-btn ${((category.id == selectedCategory) ? "toggled" : "")}' 
@@ -292,7 +292,7 @@ function loadCategories() {
 
                 for (var i = 10; i < data.length; i++) {
                     category = data[i];
-                    catName = encode(category.name);
+                    catName = LRR.encodeHTML(category.name);
 
                     html += `<option id='${category.id}'>
 								${catName}
@@ -305,7 +305,7 @@ function loadCategories() {
 
             // Add a listener on dropdown selection
             $("#catdropdown").on("change", () => toggleCategory($("#catdropdown")[0].selectedOptions[0]));
-        }).fail((data) => showErrorToast("Couldn't load categories", data.error));
+        }).fail((data) => LRR.showErrorToast("Couldn't load categories", data.error));
 }
 
 function migrateProgress() {
@@ -329,7 +329,7 @@ function migrateProgress() {
                 .then((data) => {
                     // Don't migrate if the server progress is already further
                     if (progress !== null && data !== undefined && data !== null && progress > data.progress) {
-                        genericAPICall(`api/archives/${id}/progress/${progress}?force=1`, "PUT", null, "Error updating reading progress!", null);
+                        Server.callAPI(`api/archives/${id}/progress/${progress}?force=1`, "PUT", null, "Error updating reading progress!", null);
                     }
 
                     // Clear out localStorage'd progress

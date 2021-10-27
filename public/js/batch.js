@@ -168,7 +168,7 @@ function endBatch(event) {
     });
 
     // Delete the search cache after a finished session
-    genericAPICall("api/search/cache", "DELETE", null, "Error while deleting cache! Check Logs.", null);
+    Server.callAPI("api/search/cache", "DELETE", null, "Error while deleting cache! Check Logs.", null);
 
     $('#cancel-job').hide();
     $('#restart-job').show();

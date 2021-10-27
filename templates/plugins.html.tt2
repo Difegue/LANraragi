@@ -23,7 +23,7 @@
 	<script src="/js/vendor/allcollapsible.min.js" type="text/JAVASCRIPT"></script>
 
 	<script src="/js/theme.js?[% version%]" type="text/JAVASCRIPT"></script>
-	<script src="/js/ajax.js?[% version%]" type="text/JAVASCRIPT"></script>
+	<script src="/js/server.js?[% version%]" type="text/JAVASCRIPT"></script>
 
 </head>
 
@@ -87,7 +87,7 @@
 					<i aria-hidden="true" class="fa fa-3x fa-cog fa-spin"></i> <br>
 					A script is running...
 				</span>
-				<input class='stdbtn' type='button' onclick="saveFormData('#editPluginForm');"
+				<input class='stdbtn' type='button' onclick="Server.saveFormData('#editPluginForm');"
 					value='Save Plugin Configuration' />
 				<span id="plugin-upload" class='stdbtn fileinput-button'
 					style="margin-bottom: -10px; font-weight:normal">
@@ -186,7 +186,7 @@
 			[% END %]
 			<tr>
 				<td colspan="2">
-					<input class='stdbtn' type='button' onclick="triggerScript('[% plugin.namespace %]');"
+					<input class='stdbtn' type='button' onclick="Server.triggerScript('[% plugin.namespace %]');"
 						value='Trigger Script' />
 				</td>
 			</tr>

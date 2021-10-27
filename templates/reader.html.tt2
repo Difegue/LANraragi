@@ -20,7 +20,7 @@
     <script src="./js/theme.js?[% version %]" type="text/javascript"></script>
     <script src="./js/common.js?[% version %]" type="text/javascript"></script>
     <script src="./js/reader.js?[% version %]" type="text/javascript"></script>
-    <script src="./js/ajax.js?[% version %]" type="text/javascript"></script>
+    <script src="./js/server.js?[% version %]" type="text/javascript"></script>
 
 </head>
 

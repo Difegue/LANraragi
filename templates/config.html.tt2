@@ -21,7 +21,7 @@
 
 	<script src="/js/common.js?[% version %]" type="text/JAVASCRIPT"></script>
 	<script src="/js/theme.js?[% version %]" type="text/JAVASCRIPT"></script>
-	<script src="/js/ajax.js?[% version %]" type="text/JAVASCRIPT"></script>
+	<script src="/js/server.js?[% version %]" type="text/JAVASCRIPT"></script>
 
 </head>
 
@@ -39,7 +39,7 @@
 			<br>
 			<h2>Select a category to show the matching settings.</h2>
 			<br />
-			<input class='stdbtn' type='button' onclick="saveFormData('#editConfigForm');"
+			<input class='stdbtn' type='button' onclick="Server.saveFormData('#editConfigForm');"
 				value='Save Settings' /><br />
 			<input class='stdbtn' type='button' onclick="window.location.href = '/config/plugins';"
 				value='Plugin Configuration' />
@@ -125,6 +125,30 @@
 			$("#enablepass").click(enable_pass);
 			$("#enableresize").click(enable_resize);
 		});
+
+		function rebootShinobu() {
+			$("#restart-button").prop("disabled", true);
+			Server.callAPI("/api/shinobu/restart", "POST", "Background Worker restarted!", "Error while restarting Worker:",
+				() => {
+					$("#restart-button").prop("disabled", false);
+					shinobuStatus();
+				});
+		}
+
+		// Update the status of the background worker.
+		function shinobuStatus() {
+			Server.callAPI("/api/shinobu", "GET", null, "Error while querying Shinobu status:",
+				(data) => {
+					if (data.is_alive) {
+						$("#shinobu-ok").show();
+						$("#shinobu-ko").hide();
+					} else {
+						$("#shinobu-ko").show();
+						$("#shinobu-ok").hide();
+					}
+					$("#pid").html(data.pid);
+				});
+		}
 
 		function enable_pass() {
 			if ($("#enablepass").prop("checked"))

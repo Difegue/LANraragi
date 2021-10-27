@@ -17,7 +17,7 @@
 	<script src="./js/vendor/jqcloud.min.js"></script>
 
 	<script src="./js/theme.js?[% version%]" type="text/JAVASCRIPT"></script>
-	<script src="./js/ajax.js?[% version%]" type="text/JAVASCRIPT"></script>
+	<script src="./js/server.js?[% version%]" type="text/JAVASCRIPT"></script>
 </head>
 
 <body onload="set_style_from_storage();">
@@ -75,7 +75,7 @@
 	</div>
 
 	<script>
-		genericAPICall("/api/database/stats?minweight=2", "GET", null, "Couldn't load tag statistics",
+		Server.callAPI("/api/database/stats?minweight=2", "GET", null, "Couldn't load tag statistics",
 			(data) => {
 
 				// Merge unnamespaced/namespaced tags, casing is handled by the server

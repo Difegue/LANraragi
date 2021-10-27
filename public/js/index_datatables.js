@@ -177,7 +177,7 @@ function titleColumnDisplay(data, type, full, meta) {
 
         return `${titleHtml} 
 				<a class="context-menu" id="${data.arcid}" onmouseover="buildImageTooltip(this)" href="reader?id=${data.arcid}"> 
-					${encode(data.title)}
+					${LRR.encodeHTML(data.title)}
 				</a>
 				<div class="caption" style="display: none;">
 					<img style="height:300px" src="./api/archives/${data.arcid}/thumbnail" onerror="this.src='./img/noThumb.png'">
@@ -189,8 +189,8 @@ function titleColumnDisplay(data, type, full, meta) {
 
 function tagsColumnDisplay(data, type, full, meta) {
     if (type == "display") {
-        return `<span class="tag-tooltip" onmouseover="buildTagTooltip(this)" style="text-overflow:ellipsis;">${colorCodeTags(data)}</span>
-				<div class="caption caption-tags" style="display: none;" >${buildTagsDiv(data)}</div>`;
+        return `<span class="tag-tooltip" onmouseover="buildTagTooltip(this)" style="text-overflow:ellipsis;">${LRR.colorCodeTags(data)}</span>
+				<div class="caption caption-tags" style="display: none;" >${LRR.buildTagsDiv(data)}</div>`;
     }
     return data;
 }
@@ -317,10 +317,10 @@ function buildThumbDiv(row, data, index) {
         thumb_div = `<div style="height:335px" class="id1 context-menu" id="${data.arcid}">
 						<div class="id2">
 							${buildProgressDiv(data)}
-							<a href="reader?id=${data.arcid}" title="${encode(data.title)}">${encode(data.title)}</a>
+							<a href="reader?id=${data.arcid}" title="${LRR.encodeHTML(data.title)}">${LRR.encodeHTML(data.title)}</a>
 						</div>
 						<div style="height:280px" class="${thumb_css}">
-							<a href="reader?id=${data.arcid}" title="${encode(data.title)}">
+							<a href="reader?id=${data.arcid}" title="${LRR.encodeHTML(data.title)}">
 								<img style="position:relative;" id="${data.arcid}_thumb" src="./img/wait_warmly.jpg"/>
 								<i id="${data.arcid}_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>
 								<img src="./api/archives/${data.arcid}/thumbnail" 
@@ -329,8 +329,8 @@ function buildThumbDiv(row, data, index) {
 							</a>
 						</div>
 						<div class="id4">
-							<span class="tags tag-tooltip" onmouseover="buildTagTooltip(this)">${colorCodeTags(data.tags)}</span>
-							<div class="caption caption-tags" style="display: none;" >${buildTagsDiv(data.tags)}</div>
+							<span class="tags tag-tooltip" onmouseover="buildTagTooltip(this)">${LRR.colorCodeTags(data.tags)}</span>
+							<div class="caption caption-tags" style="display: none;" >${LRR.buildTagsDiv(data.tags)}</div>
 						</div>
 					</div>`;
 

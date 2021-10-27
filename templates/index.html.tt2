@@ -29,7 +29,7 @@
 
 	<script src="/js/index.js?[% version %]" type="text/JAVASCRIPT"></script>
 	<script src="/js/common.js?[% version %]" type="text/JAVASCRIPT"></script>
-	<script src="/js/ajax.js?[% version %]" type="text/JAVASCRIPT"></script>
+	<script src="/js/server.js?[% version %]" type="text/JAVASCRIPT"></script>
 	<script src="/js/index_datatables.js?[% version %]" type="text/JAVASCRIPT"></script>
 	<script src="/js/theme.js?[% version %]" type="text/JAVASCRIPT"></script>
 
@@ -85,9 +85,9 @@
 			</div>
 
 			<p id='cssbutton' style='display:inline'>
-				<input class='stdbtn' type='button' onclick="openInNewTab('random')" value='Give me a random archive' />
+				<input class='stdbtn' type='button' onclick="LRR.openInNewTab('random')" value='Give me a random archive' />
 
-				<input id='viewbtn' class='stdbtn' type='button' onclick="openSettings()" value='Display Options' />
+				<input id='viewbtn' class='stdbtn' type='button' onclick="LRR.openSettings()" value='Display Options' />
 			</p>
 
 			<table class="itg datatables">
@@ -207,7 +207,7 @@
 
 	</script>
 
-	<div id="overlay-shade" onclick="closeOverlay();"> </div>
+	<div id="overlay-shade" onclick="LRR.closeOverlay();"> </div>
 	<div id="settingsOverlay" class="id1 base-overlay small-overlay" style="display:none">
 		<h2 class="ih" style="text-align:center">Index Display Options</h2>
 		<div>

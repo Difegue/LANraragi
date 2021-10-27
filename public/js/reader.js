@@ -27,7 +27,7 @@ Reader.initializeAll = function () {
     $(document).on("click.preload", "#preload-apply", Reader.registerPreload);
     $(document).on("click.pagination_change_pages", ".page-link", Reader.handlePaginator);
 
-    $(document).on("click.close_overlay", "#overlay-shade", closeOverlay);
+    $(document).on("click.close_overlay", "#overlay-shade", LRR.closeOverlay);
     $(document).on("click.toggle_archive_overlay", "#toggle-archive-overlay", Reader.toggleArchiveOverlay);
     $(document).on("click.toggle_settings_overlay", "#toggle-settings-overlay", Reader.toggleSettingsOverlay);
     $(document).on("click.toggle_help", "#toggle-help", Reader.toggleHelp);
@@ -35,8 +35,8 @@ Reader.initializeAll = function () {
     $(document).on("click.regenerate_archive_cache", "#regenerate-cache", () => {
         window.location.href = `./reader?id=${Reader.id}&force_reload=1`;
     });
-    $(document).on("click.edit_metadata", "#edit-archive", () => openInNewTab(`./edit?id=${Reader.id}`));
-    $(document).on("click.add_category", "#add-category", () => addArchiveToCategory(Reader.id, $("#category").val()));
+    $(document).on("click.edit_metadata", "#edit-archive", () => LRR.openInNewTab(`./edit?id=${Reader.id}`));
+    $(document).on("click.add_category", "#add-category", () => Server.addArchiveToCategory(Reader.id, $("#category").val()));
 
     // check and display warnings for unsupported filetypes
     Reader.checkFiletypeSupport();
@@ -47,7 +47,7 @@ Reader.initializeAll = function () {
     }
 
     // remove the "new" tag with an api call
-    clearNew(Reader.id);
+    Server.callAPI(`/api/archives/${Reader.id}/isnew`, "DELETE", null, "Error clearing new flag! Check Logs.", null);
 
     Reader.registerPreload();
 
@@ -55,7 +55,7 @@ Reader.initializeAll = function () {
     $(Reader.infiniteScroll ? "#infinite-scroll-on" : "#infinite-scroll-off").addClass("toggled");
 
     $(document).on("click.thumbnail", ".quick-thumbnail", (e) => {
-        closeOverlay();
+        LRR.closeOverlay();
         const pageNumber = +$(e.target).closest("div[page]").attr("page");
         if (Reader.infiniteScroll) {
             $("#display img").get(pageNumber).scrollIntoView({ behavior: "smooth" });
@@ -177,7 +177,7 @@ Reader.handleShortcuts = function (e) {
         document.location.href = "/";
         break;
     case 27: // escape
-        closeOverlay();
+        LRR.closeOverlay();
         break;
     case 32: // spacebar
         if ($(".page-overlay").is(":visible")) { break; }
@@ -374,7 +374,7 @@ Reader.goToPage = function (page, fromHistory = false) {
     if (Reader.trackProgressLocally) {
         localStorage.setItem(`${Reader.id}-reader`, Reader.currentPage + 1);
     } else {
-        genericAPICall(`api/archives/${Reader.id}/progress/${Reader.currentPage + 1}`, "PUT", null, "Error updating reading progress!", null);
+        Server.callAPI(`api/archives/${Reader.id}/progress/${Reader.currentPage + 1}`, "PUT", null, "Error updating reading progress!", null);
     }
 
     // scroll to top
@@ -516,7 +516,7 @@ Reader.toggleOverlay = function (selector) {
     // This function would be better fit for common.js
     const overlay = $(selector);
     overlay.is(":visible")
-        ? closeOverlay()
+        ? LRR.closeOverlay()
         : $("#overlay-shade").fadeTo(150, 0.6, () => overlay.show());
 
     return false; // needs to return false to prevent scrolling to top
@@ -535,7 +535,7 @@ Reader.initializeArchiveOverlay = function () {
     if ($("#archivePagesOverlay").attr("loaded") === "true") {
         return;
     }
-    $("#tagContainer").append(buildTagsDiv(Reader.tags));
+    $("#tagContainer").append(LRR.buildTagsDiv(Reader.tags));
 
     // For each link in the pages array, craft a div and jam it in the overlay.
     for (let index = 0; index < Reader.pages.length; ++index) {
