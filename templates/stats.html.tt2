@@ -12,11 +12,13 @@
 	<link rel="stylesheet" type="text/css" href="./css/vendor/fontawesome-all.min.css" />
 	<link rel="stylesheet" type="text/css" href="./css/vendor/jquery.toast.min.css" />
 	<link rel="stylesheet" type="text/css" href="./css/vendor/jqcloud.min.css">
+	<link rel="stylesheet" type="text/css" href="/css/vendor/allcollapsible.min.css" />
 	[% csshead %]
 
 	<script src="./js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
 	<script src="./js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
 	<script src="./js/vendor/jqcloud.min.js"></script>
+	<script src="/js/vendor/allcollapsible.min.js" type="text/JAVASCRIPT"></script>
 
 	<script src="./js/common.js?[% version%]" type="text/JAVASCRIPT"></script>
 	<script src="./js/server.js?[% version%]" type="text/JAVASCRIPT"></script>
@@ -67,19 +69,20 @@
 		<div id="tagCloud" style="width: 80%; height: 500px; margin-left: auto; margin-right: auto">
 		</div>
 
-		<h1 class="ih"> Detailed Statistics </h1>
-
-		<table class="itg" id="detailTable">
-			<thead>
-				<tr>
-					<td>Tag</td>
-					<td>Occurences</td>
-				</tr>
-			</thead>
-			<tbody>
-
-			</tbody>
-		</table>
+		<ul class="collapsible extensible with-right-caret" id="detailedStats"
+			style="display: none; width:80%; margin-left: auto; margin-right: auto">
+			<li class="option-flyout">
+				<div class="collapsible-title caret-right">
+					<i class="fa fa-chart-bar" aria-hidden="true"></i> Detailed Stats
+				</div>
+				<div class="collapsible-body">
+					<div id="tagList"
+						style="max-width: 80vw; display: flex; height:calc(2048px - 25vw); flex-direction: column; flex-wrap:wrap; align-items:flex-start">
+					</div>
+					(These statistics only show tags that appear at least twice in your database.)
+				</div>
+			</li>
+		</ul>
 
 		<br>
 		<br>
@@ -91,33 +94,33 @@
 	</div>
 
 	<script>
-		let cloudData = {};
 
 		Server.callAPI("/api/database/stats?minweight=2", "GET", null, "Couldn't load tag statistics",
 			(data) => {
 
-				var table = document.getElementById("detailTable");
-				data.forEach(tag => {
-					var row = table.insertRow(0);
-
-					var tagText = tag.namespace === "" ? tag.text : tag.namespace + ":" + tag.text;
-
-					row.insertCell(0).innerHTML = tagText;
-					row.insertCell(1).innerHTML = tag.weight;
-
-					if (tagText in cloudData) {
-						cloudData[tagText] += tag.weight;
-					} else {
-						cloudData[tagText] = tag.weight;
-					}
-				});
-
+				$('#statsLoading').hide();
+				$('#tagcount').html(data.length);
 				$('#tagCloud').jQCloud(data, {
 					autoResize: true
 				});
 
-				$('#tagcount').html(data.length);
-				$('#statsLoading').hide();
+				// Sort data by weight
+				data.sort((a, b) => {
+					return b.weight - a.weight;
+				});
+
+				// Buildup detailed stats
+				let tagList = $('#tagList');
+				data.forEach(tag => {
+
+					const namespacedTag = LRR.buildNamespacedTag(tag.namespace, tag.text);
+					const url = (tag.namespace !== "source") ? `/?q=${encodeURIComponent(namespacedTag)}` : `http://${tag.text}`;
+
+					let html = `<a href="${url}" class="${tag.namespace}-tag" > ${namespacedTag} <b>(${tag.weight})</b></div><br/>`;
+					tagList.append(html);
+				});
+
+				$('#detailedStats').show();
 
 			});
 	</script>

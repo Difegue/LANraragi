@@ -40,6 +40,17 @@ LRR.closeOverlay = function () {
 };
 
 /**
+ * Get a string representation of a namespace+tag combo.
+ * The namespace is omitted if blank or "other".
+ * @param {*} namespace The namespace
+ * @param {*} tag The tag
+ * @returns namespace:tag, or tag alone.
+ */
+LRR.buildNamespacedTag = function (namespace, tag) {
+    return (namespace !== "" && namespace !== "other") ? `${namespace}:${tag}` : tag;
+};
+
+/**
  * Remove namespace from tags and color-code them. Meant for inline display.
  * @param {*} tags string containing all tags, split by commas.
  * @returns
@@ -115,7 +126,7 @@ LRR.buildTagsDiv = function (tags) {
         line += `<tr><td class='caption-namespace ${encodedK}-tag'>${ucKey}:</td><td>`;
 
         tagsByNamespace[key].forEach((tag) => {
-            const namespacedTag = (key !== "other") ? `${key}:${tag}` : tag;
+            const namespacedTag = this.buildNamespacedTag(key, tag);
 
             const url = (key !== "source") ? `/?q=${encodeURIComponent(namespacedTag)}` : `http://${tag}`;
 
