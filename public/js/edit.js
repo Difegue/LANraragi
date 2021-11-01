@@ -24,7 +24,7 @@ Edit.initializeAll = function () {
     $(document).on("click.show-help", "#show-help", Edit.showHelp);
     $(document).on("click.run-plugin", "#run-plugin", Edit.runPlugin);
     $(document).on("click.save-metadata", "#save-metadata", Edit.saveMetadata);
-    $(document).on("click.delete-archive", "#delete-archive", Edit.Server.deleteArchive);
+    $(document).on("click.delete-archive", "#delete-archive", Edit.deleteArchive);
     $(document).on("change.plugin", "#plugin", Edit.updateOneShotArg);
 
     Edit.updateOneShotArg();
@@ -112,7 +112,7 @@ Edit.saveMetadata = function () {
         });
 };
 
-Edit.Server.deleteArchive = function () {
+Edit.deleteArchive = function () {
     if (confirm("Are you sure you want to delete this archive?")) {
         Server.deleteArchive($("#archiveID").val(), () => { document.location.href = "./"; });
     }

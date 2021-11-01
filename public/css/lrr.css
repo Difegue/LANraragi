@@ -383,6 +383,19 @@ li {
   color: #36d7b7;
 }
 
+.theme-preview {
+  height: 64px; 
+  margin-top:4px;
+  margin-right:8px;
+  border-radius: 4px;
+}
+
+.edit-mode-stdinput {
+  width: 96%;
+  max-width: 100%;
+  min-width: 33vw;
+}
+
 /* Indeterminate progress bar */
 .indeterminate {
   height: 15px;
@@ -620,11 +633,4 @@ body.infinite-scroll #display img {
 
 body.infinite-scroll .sb {
   margin-top: 10px;
-}
-
-.theme-preview {
-  height: 64px; 
-  margin-top:4px;
-  margin-right:8px;
-  border-radius: 4px;
 }
