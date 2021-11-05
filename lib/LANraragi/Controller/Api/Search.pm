@@ -3,7 +3,7 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use LANraragi::Model::Search;
 use LANraragi::Utils::Generic qw(render_api_response);
-use LANraragi::Utils::Database qw(invalidate_cache);
+use LANraragi::Utils::Database qw(invalidate_cache get_archive_json_multi);
 
 # Undocumented API matching the Datatables spec.
 sub handle_datatables {
@@ -96,15 +96,11 @@ sub get_datatables_object {
 
     my ( $draw, $redis, $total, $filtered, @keys ) = @_;
 
-    # Get archive data from keys
-    my @data = ();
-    foreach my $key (@keys) {
-        my $arcdata = LANraragi::Utils::Database::build_archive_JSON( $redis, $key->{id} );
+    # Get IDs from keys
+    my @ids = map { $_->{id} } @keys;
 
-        if ($arcdata) {
-            push @data, $arcdata;
-        }
-    }
+    # Get archive data
+    my @data = get_archive_json_multi(@ids);
 
     # Create json object matching the datatables structure
     return {

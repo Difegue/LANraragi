@@ -8,7 +8,7 @@ use Mojo::JSON qw(decode_json);
 use Scalar::Util qw(looks_like_number);
 
 use LANraragi::Utils::Generic qw(render_api_response);
-use LANraragi::Utils::Database;
+use LANraragi::Utils::Database qw(get_archive_json);
 
 use LANraragi::Model::Archive;
 use LANraragi::Model::Category;
@@ -46,7 +46,7 @@ sub serve_metadata {
     my $id    = check_id_parameter( $self, "metadata" ) || return;
     my $redis = $self->LRR_CONF->get_redis;
 
-    my $arcdata = LANraragi::Utils::Database::build_archive_JSON( $redis, $id );
+    my $arcdata = get_archive_json( $redis, $id );
     $redis->quit;
 
     if ($arcdata) {

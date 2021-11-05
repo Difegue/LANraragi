@@ -14,7 +14,7 @@ use Mojo::Util qw(xml_escape);
 use LANraragi::Utils::Generic qw(get_tag_with_namespace remove_spaces remove_newlines render_api_response);
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging qw(get_logger);
-use LANraragi::Utils::Database qw(redis_encode redis_decode invalidate_cache);
+use LANraragi::Utils::Database qw(redis_encode redis_decode invalidate_cache get_archive_json get_archive_json_multi);
 
 # Functions used when dealing with archives.
 
@@ -23,18 +23,9 @@ sub generate_archive_list {
 
     my $redis = LANraragi::Model::Config->get_redis;
     my @keys  = $redis->keys('????????????????????????????????????????');
-    my @list  = ();
-
-    foreach my $id (@keys) {
-        my $arcdata = LANraragi::Utils::Database::build_archive_JSON( $redis, $id );
-
-        if ($arcdata) {
-            push @list, $arcdata;
-        }
-    }
-
     $redis->quit;
-    return @list;
+
+    return get_archive_json_multi(@keys);
 }
 
 sub generate_opds_catalog {
@@ -55,7 +46,7 @@ sub generate_opds_catalog {
     foreach my $id (@keys) {
         my $file = $redis->hget( $id, "file" );
         if ( -e $file ) {
-            my $arcdata = LANraragi::Utils::Database::build_archive_JSON( $redis, $id );
+            my $arcdata = get_archive_json( $redis, $id );
             unless ($arcdata) { next; }
 
             my $tags = $arcdata->{tags};
