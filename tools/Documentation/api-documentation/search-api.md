@@ -113,6 +113,8 @@ Search query. This follows the same rules as the queries in `/api/search`.
 How many archives you want to pull randomly. Defaults to 5.  
 If the search doesn't return enough data to match your count, you will get the full search shuffled randomly.
 {% endapi-method-parameter %}
+{% endapi-method-query-parameters %}
+{% endapi-method-request %}
 
 {% api-method-response %}
 {% api-method-response-example httpCode=200 %}
@@ -163,9 +165,6 @@ Discard the cache containing previous user searches.
 {% api-method-spec %}
 {% api-method-request %}
 {% api-method-query-parameters %}
-{% api-method-parameter name="" type="string" required=false %}
-
-{% endapi-method-parameter %}
 {% endapi-method-query-parameters %}
 {% endapi-method-request %}
 
