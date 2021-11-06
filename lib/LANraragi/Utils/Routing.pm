@@ -116,6 +116,7 @@ sub apply_routes {
     # Search API
     $public_api->get('/search')->to('api-search#handle_datatables');
     $public_api->get('/api/search')->to('api-search#handle_api');
+    $public_api->get('/api/search/random')->to('api-search#get_random_archives');
     $logged_in_api->delete('/api/search/cache')->to('api-search#clear_cache');
 
     # Database API

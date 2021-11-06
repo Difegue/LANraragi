@@ -160,6 +160,13 @@ sub do_search {
     }
     $redis->quit();
 
+    # If start is negative, return all possible data
+    # Kind of a hack for the random API, not sure how this could be improved...
+    # (The paging has always been there mostly to make datatables behave after all.)
+    if ( $start == -1 ) {
+        return ( $total, $#filtered + 1, @filtered );
+    }
+
     # Only get the first X keys
     my $keysperpage = LANraragi::Model::Config->get_pagesize;
 
