@@ -1,203 +1,261 @@
-// Check untagged archives, using the matching API endpoint.
-function checkUntagged() {
+// Batch Operations
 
-    $.get("api/archives/untagged")
-        .done(function (data) {
+const Batch = {};
+Batch.socket = {};
+Batch.treatedArchives = 0;
+Batch.totalArchives = 0;
 
-            // Check untagged archives
-            data.forEach(id => {
-                $('#' + id)[0].checked = true;
+Batch.initializeAll = function () {
+    // bind events to DOM
+    $(document).on("change.plugin", "#plugin", Batch.showOverride);
+    $(document).on("click.override", "#override", Batch.showOverride);
+    $(document).on("click.check-uncheck", "#check-uncheck", Batch.checkAll);
+    $(document).on("click.start-batch", "#start-batch", Batch.startBatch);
+    $(document).on("click.restart-job", "#restart-job", Batch.restartBatchUI);
+    $(document).on("click.cancel-job", "#cancel-job", Batch.cancelBatch);
+
+    Batch.showOverride();
+
+    // Load all archives, showing a spinner while doing so
+    $("#arclist").hide();
+
+    Server.callAPI("/api/archives", "GET", null, "Couldn't load the complete archive list! Please reload the page.",
+        (data) => {
+            // Parse the archive list and add <li> elements to arclist
+            data.forEach((archive) => {
+                const escapedTitle = LRR.encodeHTML(archive.title);
+                const html = `<li><input type='checkbox' name='archive' id='${archive.arcid}' class='archive' ><label for='${archive.arcid}'>${escapedTitle}</label></li>`;
+                $("#arclist").append(html);
             });
+
+            Batch.checkUntagged();
         })
-        .fail(function () {
-            $.toast({
-                showHideTransition: 'slide',
-                position: 'top-left',
-                loader: false,
-                heading: "Error getting untagged archives!",
-                icon: 'error'
+        .finally(() => {
+            $("#arclist").show();
+            $("#loading-placeholder").hide();
+        });
+};
+
+/**
+ * Check untagged archives, using the matching API endpoint.
+ */
+Batch.checkUntagged = function () {
+    Server.callAPI("api/archives/untagged", "GET", null, "Error getting untagged archives!",
+        (data) => {
+            // Check untagged archives
+            data.forEach((id) => {
+                const checkbox = document.getElementById(id);
+
+                if (checkbox != null) {
+                    checkbox.checked = true;
+                    // Prepend matching <li> element to the top of the list
+                    checkbox.parentElement.parentElement.prepend(checkbox.parentElement);
+                }
             });
         });
-}
+};
 
-//Get the titles who have been checked in the batch tagging list and update their tags.
-//This crafts a JSON list to send to the batch tagging websocket service.
-function startBatch() {
+/**
+ * Get the titles who have been checked in the batch tagging list, and update their tags.
+ * This crafts a JSON list to send to the batch tagging websocket service.
+ */
+Batch.startBatch = function () {
+    $(".tag-options").hide();
 
-    $('.tag-options').hide();
+    $("#log-container").html("Started Batch Tagging operation...\n************\n");
+    $("#cancel-job").show();
+    $("#restart-job").hide();
+    $(".job-status").show();
 
-    $("#log-container").html('Started Batch Tagging operation...\n************\n');
-    $('#cancel-job').show();
-    $('#restart-job').hide();
-    $('.job-status').show();
+    const checkeds = document.querySelectorAll("input[name=archive]:checked");
+    const arginputs = $(`.${$("#plugin").val()}-argvalue`);
 
-    var checkeds = document.querySelectorAll('input[name=archive]:checked');
-    var arginputs = $('.' + $('#plugin').val() + '-argvalue');
+    // Extract IDs from nodelist
+    const arcs = [];
+    const args = [];
 
-    //convert nodelist to json
-    arcs = [];
-    var args = [];
+    for (let i = 0, ref = arcs.length = checkeds.length; i < ref; i++) {
+        arcs[i] = checkeds[i].id;
+    }
 
-    for (var i = 0, ref = arcs.length = checkeds.length; i < ref; i++) { arcs[i] = checkeds[i].id; }
+    // Reset counts
+    Batch.treatedArchives = 0;
+    Batch.totalArchives = arcs.length;
     $("#arcs").html(0);
     $("#totalarcs").html(arcs.length);
     $(".bar").attr("style", "width: 0%;");
 
-    //Only add values into the override argument array if the checkbox is on
+    // Only add values into the override argument array if the checkbox is on
     if ($("#override")[0].checked) {
-        for (var j = 0, ref = args.length = arginputs.length; j < ref; j++) {
-
+        for (let j = 0, ref = args.length = arginputs.length; j < ref; j++) {
             // Checkbox inputs are handled by looking at the checked prop instead of the value.
-            if (arginputs[j].type != "checkbox")
+            if (arginputs[j].type !== "checkbox") {
                 args[j] = arginputs[j].value;
-            else
+            } else {
                 args[j] = arginputs[j].checked ? 1 : 0;
-
+            }
         }
     }
 
     // Initialize websocket connection
-    timeout = $('#timeout').val();
-    commandBase = {
-        plugin: $('#plugin').val(),
-        args: args,
+    const timeout = $("#timeout").val();
+    const commandBase = {
+        plugin: $("#plugin").val(),
+        args,
     };
 
-    var wsProto = "ws://";
-    if (location.protocol == 'https:') wsProto = "wss://";
-    var batchSocket = new WebSocket(wsProto + window.location.host + "/batch/socket");
+    // Close any existing connection
+    // eslint-disable-next-line no-empty
+    try { Batch.socket.close(); } catch {}
 
-    batchSocket.onopen = function (event) {
-        var command = commandBase;
+    let wsProto = "ws://";
+    if (document.location.protocol === "https:") wsProto = "wss://";
+    Batch.socket = new WebSocket(`${wsProto + window.location.host}/batch/socket`);
+
+    Batch.socket.onopen = function () {
+        const command = commandBase;
         command.archive = arcs.splice(0, 1)[0];
+        // eslint-disable-next-line no-console
         console.log(command);
-        batchSocket.send(JSON.stringify(command));
+        Batch.socket.send(JSON.stringify(command));
     };
 
-    batchSocket.onmessage = function (event) {
-
+    Batch.socket.onmessage = function (event) {
         // Update log
-        updateBatchStatus(event);
+        Batch.updateBatchStatus(event);
 
         // If there are no archives left, end session
         if (arcs.length === 0) {
-            batchSocket.close(1000);
+            Batch.socket.close(1000);
             return;
         }
 
-        $("#log-container").append('Sleeping for ' + timeout + ' seconds.\n');
+        $("#log-container").append(`Sleeping for ${timeout} seconds.\n`);
         // Wait timeout and pass next archive
-        setTimeout(function () {
-            var command = commandBase;
+        setTimeout(() => {
+            const command = commandBase;
             command.archive = arcs.splice(0, 1)[0];
+            // eslint-disable-next-line no-console
             console.log(command);
-            batchSocket.send(JSON.stringify(command));
+            Batch.socket.send(JSON.stringify(command));
         }, timeout * 1000);
     };
 
-    batchSocket.onerror = batchError;
-    batchSocket.onclose = endBatch;
+    Batch.socket.onerror = Batch.batchError;
+    Batch.socket.onclose = Batch.endBatch;
+};
 
-    $('#cancel-job').on("click", function () {
-        $("#log-container").append('Cancelling...\n');
-        batchSocket.close();
-    });
-}
-
-//On websocket message, update the UI to show the archive currently being treated
-function updateBatchStatus(event) {
-
-    var msg = JSON.parse(event.data);
+/**
+ * On websocket message, update the UI to show the archive currently being treated
+ * @param {*} event The websocket message
+ */
+Batch.updateBatchStatus = function (event) {
+    const msg = JSON.parse(event.data);
 
     if (msg.success === 0) {
-        $("#log-container").append('Plugin error while processing ID ' + msg.id + '(' + msg.message + ')\n');
+        $("#log-container").append(`Plugin error while processing ID ${msg.id}(${msg.message})\n`);
     } else {
-        $("#log-container").append('Processed ' + msg.id + '(Added tags: ' + msg.tags + ')\n');
+        $("#log-container").append(`Processed ${msg.id}(Added tags: ${msg.tags})\n`);
 
-        //Uncheck ID in list
-        $('#' + msg.id)[0].checked = false;
+        // Uncheck ID in list
+        $(`#${msg.id}`)[0].checked = false;
 
-        if (msg.title != "") {
-            $("#log-container").append('Changed title to: ' + msg.title + '\n');
+        if (msg.title !== "") {
+            $("#log-container").append(`Changed title to: ${msg.title}\n`);
         }
     }
 
-    //Update counts
-    var count = $("#arcs").html();
-    var total = $("#totalarcs").html();
-    count++;
-    $(".bar").attr("style", "width: " + count / total * 100 + "%;");
-    $("#arcs").html(count);
+    // Update counts
+    Batch.treatedArchives += 1;
 
-    scrollLogs();
-}
+    const percentage = Batch.treatedArchives / Batch.totalArchives;
+    $(".bar").attr("style", `width: ${percentage * 100}%;`);
+    $("#arcs").html(Batch.treatedArchives);
 
-function batchError(event) {
+    Batch.scrollLogs();
+};
 
-    $("#log-container").append('************\nError! Terminating session.\n');
-    scrollLogs();
+/**
+ * Handle websocket errors.
+ */
+Batch.batchError = function () {
+    $("#log-container").append("************\nError! Terminating session.\n");
+    Batch.scrollLogs();
 
     $.toast({
-        showHideTransition: 'slide',
-        position: 'top-left',
+        showHideTransition: "slide",
+        position: "top-left",
         loader: false,
         hideAfter: false,
-        heading: 'An error occured during batch tagging!',
-        text: 'Please check application logs.',
-        icon: 'error'
+        heading: "An error occured during batch tagging!",
+        text: "Please check application logs.",
+        icon: "error",
     });
-}
+};
 
-function endBatch(event) {
+/**
+ * Handle WS connection close events.
+ * @param {*} event The closing event
+ */
+Batch.endBatch = function (event) {
+    let status = "info";
 
-    var status = 'info';
+    if (event.code === 1001) { status = "warning"; }
 
-    if (event.code === 1001)
-        status = 'warning';
-
-    $("#log-container").append('************\n' + event.reason + '(code ' + event.code + ')\n');
-    scrollLogs();
+    $("#log-container").append(`************\n${event.reason}(code ${event.code})\n`);
+    Batch.scrollLogs();
 
     $.toast({
-        showHideTransition: 'slide',
-        position: 'top-left',
+        showHideTransition: "slide",
+        position: "top-left",
         loader: false,
         heading: "Batch Tagging complete!",
-        text: '',
-        icon: status
+        text: "",
+        icon: status,
     });
 
     // Delete the search cache after a finished session
     Server.callAPI("api/search/cache", "DELETE", null, "Error while deleting cache! Check Logs.", null);
 
-    $('#cancel-job').hide();
-    $('#restart-job').show();
+    $("#cancel-job").hide();
+    $("#restart-job").show();
+};
 
-}
+Batch.checkAll = function () {
+    const btn = $("#check-uncheck")[0];
 
-function checkAll(btn) {
     $(".checklist > * > input:checkbox").prop("checked", btn.checked);
     btn.checked = !btn.checked;
-}
+};
 
-function showOverride() {
-    currentPlugin = $('#plugin').val();
+Batch.showOverride = function () {
+    const currentPlugin = $("#plugin").val();
 
-    let cooldown = $(`#${currentPlugin}-timeout`).html();
+    const cooldown = $(`#${currentPlugin}-timeout`).html();
     $("#cooldown").html(cooldown);
     $("#timeout").val(cooldown);
 
     $(".arg-override").hide();
 
-    if ($("#override")[0].checked)
-        $(`.${currentPlugin}-arg`).show();
-}
+    if ($("#override")[0].checked) { $(`.${currentPlugin}-arg`).show(); }
+};
 
-function scrollLogs() {
+Batch.scrollLogs = function () {
     $("#log-container").scrollTop($("#log-container").prop("scrollHeight"));
-}
+};
 
-function restartBatchUI() {
-    $('.tag-options').show();
-    $('.job-status').hide();
-}
+Batch.cancelBatch = function () {
+    $("#log-container").append("Cancelling...\n");
+    Batch.socket.close();
+};
+
+Batch.restartBatchUI = function () {
+    $(".tag-options").show();
+    $(".job-status").hide();
+};
+
+$(document).ready(() => {
+    Batch.initializeAll();
+});
+
+window.Batch = Batch;

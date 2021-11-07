@@ -3,7 +3,7 @@
 <html>
 
 <head>
-	<title>[% title %] - Batch Tagging</title>
+	<title>[% title %] - Batch Operations</title>
 
 	<meta name="viewport" content="width=device-width" />
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -23,10 +23,10 @@
 
 </head>
 
-<body onload="checkUntagged(); showOverride()">
+<body>
 
 	<div class='ido' style='text-align:center'>
-		<h2 class='ih' style='text-align:center'>Batch Tagging</h2>
+		<h2 class='ih' style='text-align:center'>Batch Operations</h2>
 		<br><br>
 		<div style='margin-left:auto; margin-right:auto;'>
 			<div style='text-align:left; width:400px !important' class='left-column'>
@@ -47,7 +47,7 @@
 						<tr>
 							<td>Use plugin :</td>
 							<td>
-								<select id="plugin" class="favtag-btn" onchange="showOverride()">
+								<select id="plugin" class="favtag-btn">
 									[% FOREACH plugins %]
 									<option value="[% namespace %]">[% name %]</option>
 									[% END %]
@@ -69,7 +69,7 @@
 						<tr>
 							<td></td>
 							<td>
-								<input type="checkbox" id="override" onclick="showOverride()">
+								<input type="checkbox" id="override">
 								<label for="override">Override Plugin Global Arguments</label>
 							</td>
 						</tr>
@@ -101,16 +101,16 @@
 
 				<div class="tag-options" style="text-align:center">
 					<br /><br />
-					<input type='button' value='Check/Uncheck all' class='stdbtn' checked='false'
-						onclick='checkAll(this)'>
-					<input type='button' value='Start Tagging' class='stdbtn' onclick='startBatch()'>
+					<input type='button' id="check-uncheck" value='Check/Uncheck all' class='stdbtn' checked='false'>
+					<input type='button' id="start-batch" value='Start Tagging' class='stdbtn'>
 
 				</div>
 
 				<div class="job-status" style="display:none; text-align:center">
+
 					<input id="cancel-job" type='button' value='Cancel' class='stdbtn'>
-					<input id="restart-job" type='button' value='Start another job' class='stdbtn'
-						onclick='restartBatchUI()'>
+					<input id="restart-job" type='button' value='Start another job' class='stdbtn'>
+
 					<div id="progress" style="padding-top:6px; padding-bottom:6px">
 						<div class="bar"></div>
 						Processed <span id="arcs"></span> out of <span id="totalarcs"></span>
@@ -124,9 +124,14 @@
 
 			<div class="id1 right-column"
 				style='text-align:center; min-width:400px; width: 60% !important; height:500px;'>
-				<ul class='checklist'>
-					[% arclist %]
+				<ul class='checklist' id="arclist">
 				</ul>
+
+				<div id="loading-placeholder"
+					style="align-content: center;top: 150px; position: relative; margin-left: auto; margin-right: auto; width: 90%;">
+					<i class="fas fa-8x fa-spin fa-compact-disc"></i><br><br>
+					<h2>Preparing your data.</h2>
+				</div>
 			</div>
 			<br><br>
 		</div>

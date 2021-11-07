@@ -42,7 +42,7 @@
 		<a href="./upload">Add Archives</a>
 		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
-		<a href="./batch">Batch Tagging</a>
+		<a href="./batch">Batch Operations</a>
 		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
 		<a href="./config">Settings</a>
@@ -84,7 +84,8 @@
 			</div>
 
 			<p id='cssbutton' style='display:inline'>
-				<input class='stdbtn' type='button' onclick="LRR.openInNewTab('random')" value='Give me a random archive' />
+				<input class='stdbtn' type='button' onclick="LRR.openInNewTab('random')"
+					value='Give me a random archive' />
 
 				<input id='viewbtn' class='stdbtn' type='button' onclick="LRR.openSettings()" value='Display Options' />
 			</p>

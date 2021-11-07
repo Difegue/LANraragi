@@ -91,7 +91,7 @@ Search is performed.
 
 {% api-method method="get" host="http://lrr.tvc-16.science" path="/api/search/random" %}
 {% api-method-summary %}
-Get Random Archives out of the Index.
+Get Random Archives out of the Index
 {% endapi-method-summary %}
 
 {% api-method-description %}
