@@ -19,6 +19,11 @@ Edit.showTags = function () {
     $("#plugin-table").show();
 };
 
+Edit.focusTagInput = function () {
+    // Focus child of tagger-new
+    $(".tagger-new").children()[0].focus();
+};
+
 Edit.initializeAll = function () {
     // bind events to DOM
     $(document).on("click.show-help", "#show-help", Edit.showHelp);
@@ -26,6 +31,7 @@ Edit.initializeAll = function () {
     $(document).on("click.save-metadata", "#save-metadata", Edit.saveMetadata);
     $(document).on("click.delete-archive", "#delete-archive", Edit.deleteArchive);
     $(document).on("change.plugin", "#plugin", Edit.updateOneShotArg);
+    $(document).on("click.tagger", ".tagger", Edit.focusTagInput);
 
     Edit.updateOneShotArg();
 

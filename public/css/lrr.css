@@ -39,6 +39,7 @@ span.tags {
 
 .tagger {
   min-height:125px;
+  cursor:text;
 }
 
 
