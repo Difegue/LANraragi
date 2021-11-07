@@ -27,82 +27,130 @@
 
 	<div class='ido' style='text-align:center'>
 		<h2 class='ih' style='text-align:center'>Batch Operations</h2>
-		<br><br>
+
+		You can apply modifications to multiple archives in one go here.<br><br>
+		Select what you'd like to do, check archives you want to use it on, and get rolling! <br>
+		Archives with no tags have been pre-checked.<br><br>
+
 		<div style='margin-left:auto; margin-right:auto;'>
 			<div style='text-align:left; width:400px !important' class='left-column'>
 
-				<br>
-				You can use a plugin on multiple archives in one operation here.<br><br>
-				Select your plugin, check archives you want to use it on, and get rolling! <br>
-				Archives with no tags have been pre-checked.<br><br>
-				<i class="fas fa-exclamation-triangle"></i> Some external services may temporarily ban your machine for
-				excessive
-				loads if you call a plugin too many times! <br /></br>
-				Make sure to set a suitable <b>timeout</b> between archives using the picker below if the plugin you
-				want to use is
-				concerned. <br /><br />
-
-				<table class="tag-options">
+				<!-- Task Selector -->
+				<table class="tag-options" style="margin-left: auto;margin-right: auto;">
 					<tbody>
 						<tr>
-							<td>Use plugin :</td>
 							<td>
-								<select id="plugin" class="favtag-btn">
-									[% FOREACH plugins %]
-									<option value="[% namespace %]">[% name %]</option>
-									[% END %]
+								<h2>Task :</h2>
+							</td>
+							<td>
+								<select id="batch-operation" class="favtag-btn" style="font-size:20px; height:30px">
+									<option value="plugin">🧩 Use Plugin</option>
+									<option value="tagrules">📏 Apply Tag Rules</option>
+									<option value="delete">🗑️ Delete Archive</option>
 								</select>
 							</td>
 						</tr>
-						<tr>
-							<td>Timeout (max 20s):</td>
-							<td>
-								<input type="number" id="timeout" min="0" max="20" value="0"> seconds
-							</td>
-						</tr>
-						<tr>
-							<td colspan="2">
-								This plugin recommends a cooldown of <span id="cooldown">-1</span> seconds.
-							</td>
-						</tr>
-
-						<tr>
-							<td></td>
-							<td>
-								<input type="checkbox" id="override">
-								<label for="override">Override Plugin Global Arguments</label>
-							</td>
-						</tr>
 					</tbody>
 				</table>
 
-				<table class="tag-options">
-					<tbody>
-						[% FOREACH plugin IN plugins %][% IF plugin.parameters && plugin.parameters.size %]
+				<!-- Task Options -->
+				<div class="id1 tag-options" style="padding:4px; height:unset; width:97%;">
+					<table>
+						<tbody>
+							<tr class="operation plugin-operation">
+								<td>Use plugin :</td>
+								<td>
+									<select id="plugin" class="favtag-btn">
+										[% FOREACH plugins %]
+										<option value="[% namespace %]">[% name %]</option>
+										[% END %]
+									</select>
+								</td>
+							</tr>
+							<tr class="operation plugin-operation">
+								<td>Timeout (max 20s):</td>
+								<td>
+									<input type="number" id="timeout" min="0" max="20" value="0"> seconds
+								</td>
+							</tr>
+							<tr class="operation plugin-operation">
+								<td colspan="2">
+									<h3>This plugin recommends a cooldown of <span id="cooldown">-1</span> seconds.
+									</h3>
+									<i class="fas fa-exclamation-triangle"></i> Some external services may temporarily
+									ban
+									your machine for excessive loads if you call a plugin too many times! <br>
+									Make sure to set a suitable <b>timeout</b> between archives using this picker if
+									the plugin you want to use is concerned. <br><br>
 
-						<span id="[% plugin.namespace %]-timeout" style="display:none">[% IF plugin.cooldown %][%
-							plugin.cooldown %][% ELSE %]0[% END %]</span>
+								</td>
+							</tr>
 
-						[% FOREACH arg IN plugin.parameters %]
-						<tr class="arg-override [% plugin.namespace %]-arg" style="display:none">
-							<td style="max-width:250px">[% arg.desc %] :</td>
-							<td>
-								<input class="stdinput [% plugin.namespace %]-argvalue" type=[% SWITCH arg.type %] [%
-									CASE 'string' %] "text" [% CASE 'bool' %] "checkbox" value="1" [% CASE 'int'
-									%] "number" [% CASE %] "color" [% END %]>
-							</td>
-						</tr>
-						[% END %][% END %][% END %]
+							<tr class="operation plugin-operation">
+								<td colspan="2">
+									<input type="checkbox" id="override">
+									<label for="override">Override Plugin Global Arguments</label>
+								</td>
+							</tr>
 
-					</tbody>
-				</table>
+							<tr class="operation tagrules-operation">
+								<td style="vertical-align: top;">This will apply the following Tag Rules to the selected
+									Archives.<br><br>
+									You can edit your Tag Rules in Server Configuration.<br><br>
 
+									<input class='stdbtn' type='button' onclick="LRR.openInNewTab('./config');"
+										value='Server Configuration' />
+								</td>
+								<td>
+									<textarea class="stdinput" size="20" style='height:196px'
+										disabled>[% tagrules %]</textarea>
+								</td>
+							</tr>
 
+							<tr class="operation delete-operation">
+								<td></td>
+								<td style="font-size:36px; text-align: center;">
+									💣👀💦💦
+								</td>
+							</tr>
+							<tr class="operation delete-operation">
+								<td colspan="2" style="text-align: center;">
+
+									<h3>This will delete both metadata and matching files from your system!
+										Please use with caution.
+									</h3>
+									<br>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+
+					<table class="operation plugin-operation">
+						<tbody>
+							[% FOREACH plugin IN plugins %][% IF plugin.parameters && plugin.parameters.size %]
+
+							<span id="[% plugin.namespace %]-timeout" style="display:none">[% IF plugin.cooldown %][%
+								plugin.cooldown %][% ELSE %]0[% END %]</span>
+
+							[% FOREACH arg IN plugin.parameters %]
+							<tr class="arg-override [% plugin.namespace %]-arg" style="display:none">
+								<td style="max-width:250px">[% arg.desc %] :</td>
+								<td>
+									<input class="stdinput [% plugin.namespace %]-argvalue" type=[% SWITCH arg.type %]
+										[% CASE 'string' %] "text" [% CASE 'bool' %] "checkbox" value="1" [% CASE 'int'
+										%] "number" [% CASE %] "color" [% END %]>
+								</td>
+							</tr>
+							[% END %][% END %][% END %]
+
+						</tbody>
+					</table>
+				</div>
 
 				<div class="tag-options" style="text-align:center">
 					<br /><br />
 					<input type='button' id="check-uncheck" value='Check/Uncheck all' class='stdbtn' checked='false'>
-					<input type='button' id="start-batch" value='Start Tagging' class='stdbtn'>
+					<input type='button' id="start-batch" value='Start Task' class='stdbtn'>
 
 				</div>
 
@@ -115,7 +163,7 @@
 						<div class="bar"></div>
 						Processed <span id="arcs"></span> out of <span id="totalarcs"></span>
 					</div>
-					<div class="id1" style="width:400px; height:auto">
+					<div class="id1" style="padding:4px; height:auto; width:97%;">
 						<pre id="log-container" class="log-panel" />
 					</div>
 				</div>
@@ -136,7 +184,7 @@
 			<br><br>
 		</div>
 
-		<input class='stdbtn' type='button' onclick="window.location.href = './config/plugins';"
+		<input class='stdbtn' type='button' onclick="LRR.openInNewTab('./config/plugins');"
 			value='Plugin Configuration' />
 		<input class='stdbtn' type='button' onclick="window.location.href = './';" value='Return to Library' />
 

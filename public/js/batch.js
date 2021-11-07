@@ -4,9 +4,12 @@ const Batch = {};
 Batch.socket = {};
 Batch.treatedArchives = 0;
 Batch.totalArchives = 0;
+Batch.currentOperation = "";
+Batch.currentPlugin = "";
 
 Batch.initializeAll = function () {
     // bind events to DOM
+    $(document).on("change.batch-operation", "#batch-operation", Batch.selectOperation);
     $(document).on("change.plugin", "#plugin", Batch.showOverride);
     $(document).on("click.override", "#override", Batch.showOverride);
     $(document).on("click.check-uncheck", "#check-uncheck", Batch.checkAll);
@@ -14,6 +17,7 @@ Batch.initializeAll = function () {
     $(document).on("click.restart-job", "#restart-job", Batch.restartBatchUI);
     $(document).on("click.cancel-job", "#cancel-job", Batch.cancelBatch);
 
+    Batch.selectOperation();
     Batch.showOverride();
 
     // Load all archives, showing a spinner while doing so
@@ -34,6 +38,31 @@ Batch.initializeAll = function () {
             $("#arclist").show();
             $("#loading-placeholder").hide();
         });
+};
+
+/**
+ * Show the matching rows depending on the selected operation.
+ */
+Batch.selectOperation = function () {
+    Batch.currentOperation = $("#batch-operation").val();
+
+    $(".operation").hide();
+    $(`.${Batch.currentOperation}-operation`).show();
+};
+
+/**
+ * Show the matching override arguments for the selected plugin.
+ */
+Batch.showOverride = function () {
+    Batch.currentPlugin = $("#plugin").val();
+
+    const cooldown = $(`#${Batch.currentPlugin}-timeout`).html();
+    $("#cooldown").html(cooldown);
+    $("#timeout").val(cooldown);
+
+    $(".arg-override").hide();
+
+    if ($("#override")[0].checked) { $(`.${Batch.currentPlugin}-arg`).show(); }
 };
 
 /**
@@ -62,13 +91,12 @@ Batch.checkUntagged = function () {
 Batch.startBatch = function () {
     $(".tag-options").hide();
 
-    $("#log-container").html("Started Batch Tagging operation...\n************\n");
+    $("#log-container").html("Started Batch Operation...\n************\n");
     $("#cancel-job").show();
     $("#restart-job").hide();
     $(".job-status").show();
 
     const checkeds = document.querySelectorAll("input[name=archive]:checked");
-    const arginputs = $(`.${$("#plugin").val()}-argvalue`);
 
     // Extract IDs from nodelist
     const arcs = [];
@@ -86,6 +114,7 @@ Batch.startBatch = function () {
     $(".bar").attr("style", "width: 0%;");
 
     // Only add values into the override argument array if the checkbox is on
+    const arginputs = $(`.${Batch.currentPlugin}-argvalue`);
     if ($("#override")[0].checked) {
         for (let j = 0, ref = args.length = arginputs.length; j < ref; j++) {
             // Checkbox inputs are handled by looking at the checked prop instead of the value.
@@ -98,9 +127,10 @@ Batch.startBatch = function () {
     }
 
     // Initialize websocket connection
-    const timeout = $("#timeout").val();
+    const timeout = (Batch.currentOperation === "plugin") ? $("#timeout").val() : 0;
     const commandBase = {
-        plugin: $("#plugin").val(),
+        operation: Batch.currentOperation,
+        plugin: Batch.currentPlugin,
         args,
     };
 
@@ -130,7 +160,9 @@ Batch.startBatch = function () {
             return;
         }
 
-        $("#log-container").append(`Sleeping for ${timeout} seconds.\n`);
+        if (timeout !== 0) {
+            $("#log-container").append(`Sleeping for ${timeout} seconds.\n`);
+        }
         // Wait timeout and pass next archive
         setTimeout(() => {
             const command = commandBase;
@@ -153,14 +185,27 @@ Batch.updateBatchStatus = function (event) {
     const msg = JSON.parse(event.data);
 
     if (msg.success === 0) {
-        $("#log-container").append(`Plugin error while processing ID ${msg.id}(${msg.message})\n`);
+        $("#log-container").append(`Error while processing ID ${msg.id} (${msg.message})\n\n`);
     } else {
-        $("#log-container").append(`Processed ${msg.id}(Added tags: ${msg.tags})\n`);
+        switch (Batch.currentOperation) {
+        case "plugin":
+            $("#log-container").append(`Processed ID ${msg.id} with "${Batch.currentPlugin}" (Added tags: ${msg.tags})\n\n`);
+            break;
+        case "delete":
+            $("#log-container").append(`Deleted ID ${msg.id} (Filename: ${msg.filename})\n\n`);
+            break;
+        case "tagrules":
+            $("#log-container").append(`Replaced tags for ID ${msg.id} (New tags: ${msg.tags})\n\n`);
+            break;
+        default:
+            $("#log-container").append(`Unknown operation ${Batch.currentOperation} (${msg.message})\n\n`);
+            break;
+        }
 
         // Uncheck ID in list
         $(`#${msg.id}`)[0].checked = false;
 
-        if (msg.title !== "") {
+        if (msg.title !== undefined && msg.title !== "") {
             $("#log-container").append(`Changed title to: ${msg.title}\n`);
         }
     }
@@ -209,7 +254,7 @@ Batch.endBatch = function (event) {
         showHideTransition: "slide",
         position: "top-left",
         loader: false,
-        heading: "Batch Tagging complete!",
+        heading: "Batch Operation complete!",
         text: "",
         icon: status,
     });
@@ -218,7 +263,13 @@ Batch.endBatch = function (event) {
     Server.callAPI("api/search/cache", "DELETE", null, "Error while deleting cache! Check Logs.", null);
 
     $("#cancel-job").hide();
-    $("#restart-job").show();
+
+    if (Batch.currentOperation === "delete") {
+        $("#log-container").append("Reloading page in 5 seconds to account for deleted archives...\n");
+        setTimeout(() => { window.location.reload(); }, 5000);
+    } else {
+        $("#restart-job").show();
+    }
 };
 
 Batch.checkAll = function () {
@@ -226,18 +277,6 @@ Batch.checkAll = function () {
 
     $(".checklist > * > input:checkbox").prop("checked", btn.checked);
     btn.checked = !btn.checked;
-};
-
-Batch.showOverride = function () {
-    const currentPlugin = $("#plugin").val();
-
-    const cooldown = $(`#${currentPlugin}-timeout`).html();
-    $("#cooldown").html(cooldown);
-    $("#timeout").val(cooldown);
-
-    $(".arg-override").hide();
-
-    if ($("#override")[0].checked) { $(`.${currentPlugin}-arg`).show(); }
 };
 
 Batch.scrollLogs = function () {

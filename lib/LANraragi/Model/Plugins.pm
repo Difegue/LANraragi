@@ -240,7 +240,7 @@ sub exec_metadata_plugin {
         # Process new metadata.
         if ( LANraragi::Model::Config->enable_tagrules ) {
             $logger->info("Applying tag rules...");
-            my @rules = LANraragi::Utils::Database::get_computed_tagrules();
+            my @rules = get_computed_tagrules();
             @tagarray = rewrite_tags( \@tagarray, \@rules );
         }
 

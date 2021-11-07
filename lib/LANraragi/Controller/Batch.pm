@@ -6,7 +6,8 @@ use Encode;
 use Mojo::JSON qw(decode_json);
 
 use LANraragi::Utils::Generic qw(generate_themes_header);
-use LANraragi::Utils::Database qw(redis_decode);
+use LANraragi::Utils::Tags qw(rewrite_tags split_tags_to_array restore_CRLF);
+use LANraragi::Utils::Database qw(redis_decode get_computed_tagrules);
 use LANraragi::Utils::Plugins qw(get_plugins get_plugin get_plugin_parameters);
 use LANraragi::Utils::Logging qw(get_logger);
 
@@ -23,11 +24,12 @@ sub index {
         title    => $self->LRR_CONF->get_htmltitle,
         descstr  => $self->LRR_DESC,
         csshead  => generate_themes_header($self),
+        tagrules => restore_CRLF( $self->LRR_CONF->get_tagrules ),
         version  => $self->LRR_VERSION
     );
 }
 
-#Websocket server receiving a list of IDs as a JSON and calling the specified plugin on them.
+# Websocket server receiving a list of IDs as a JSON and calling the specified plugin on them.
 sub socket {
 
     my $self      = shift;
@@ -46,19 +48,29 @@ sub socket {
         message => sub {
             my ( $self, $msg ) = @_;
 
-            #JSON-decode message and grab the plugin
+            # JSON-decode message and perform the requested action
             my $command    = decode_json($msg);
+            my $operation  = $command->{'operation'};
             my $pluginname = $command->{"plugin"};
+            my $id         = $command->{"archive"};
 
-            my $plugin = get_plugin($pluginname);
+            unless ($id) {
+                $client->finish( 1001 => 'No archives provided.' );
+                return;
+            }
+            $logger->debug("Processing $id");
 
-            #Global arguments can come from the database or the user override
-            my @args = @{ $command->{"args"} };
-            my $timeout = $command->{"timeout"} || 0;
+            if ( $operation eq "plugin" ) {
 
-            if ($plugin) {
+                my $plugin = get_plugin($pluginname);
+                unless ($plugin) {
+                    $client->finish( 1001 => 'Plugin not found.' );
+                    return;
+                }
 
-                #If the array is empty(no overrides)
+                # Global arguments can come from the database or the user override
+                my @args = @{ $command->{"args"} };
+
                 if ( !@args ) {
                     $logger->debug("No user overrides given.");
 
@@ -66,50 +78,56 @@ sub socket {
                     @args = get_plugin_parameters($pluginname);
                 }
 
-                # Run plugin with args on id
-                my $id = $command->{"archive"};
-                unless ($id) {
-                    $client->finish( 1001 => 'No archives provided.' );
-                    return;
-                }
-                $logger->debug("Processing $id");
-
-                my %plugin_result;
-                eval { %plugin_result = LANraragi::Model::Plugins::exec_metadata_plugin( $plugin, $id, "", @args ); };
-
-                if ($@) {
-                    $plugin_result{error} = $@;
-                }
-
-                #If the plugin exec returned tags, add them
-                unless ( exists $plugin_result{error} ) {
-                    LANraragi::Utils::Database::add_tags( $id, $plugin_result{new_tags} );
-
-                    if ( exists $plugin_result{title} ) {
-                        LANraragi::Utils::Database::set_title( $id, $plugin_result{title} );
-                    }
-                }
-
                 # Send reply message for completed archive
+                $client->send( { json => batch_plugin( $id, $plugin, @args ) } );
+            }
+
+            if ( $operation eq "tagrules" ) {
+
+                $logger->debug("Applying tag rules to $id...");
+                my $tags = $redis->hget( $id, "tags" );
+
+                my @tagarray = split_tags_to_array($tags);
+                my @rules    = get_computed_tagrules();
+                @tagarray = rewrite_tags( \@tagarray, \@rules );
+
+                # Merge array with commas
+                my $newtags = join( ', ', @tagarray );
+                $logger->debug("New tags: $newtags");
+                $redis->hset( $id, "tags", $newtags );
+
                 $client->send(
                     {   json => {
                             id      => $id,
-                            success => exists $plugin_result{error} ? 0 : 1,
-                            message => $plugin_result{error},
-                            tags    => $plugin_result{new_tags},
-                            title   => exists $plugin_result{title} ? $plugin_result{title} : ""
+                            success => 1,
+                            tags    => $newtags,
                         }
                     }
                 );
-            } else {
-                $client->finish( 1001 => 'This plugin does not exist' );
             }
+
+            if ( $operation eq "delete" ) {
+                $logger->debug("Deleting $id...");
+
+                my $delStatus = LANraragi::Utils::Database::delete_archive($id);
+
+                $client->send(
+                    {   json => {
+                            id       => $id,
+                            filename => $delStatus,
+                            message  => $delStatus ? "Archive deleted." : "Archive not found.",
+                            success  => $delStatus ? 1 : 0
+                        }
+                    }
+                );
+            }
+
         }
     );
 
     $self->on(
 
-        #If the client doesn't respond, halt processing
+        # If the client doesn't respond, halt processing
         finish => sub {
             $logger->info('Client disconnected, halting remaining operations');
             $cancelled = 1;
@@ -117,6 +135,35 @@ sub socket {
         }
     );
 
+}
+
+sub batch_plugin {
+    my ( $id, $plugin, @args ) = @_;
+
+    # Run plugin with args on id
+    my %plugin_result;
+    eval { %plugin_result = LANraragi::Model::Plugins::exec_metadata_plugin( $plugin, $id, "", @args ); };
+
+    if ($@) {
+        $plugin_result{error} = $@;
+    }
+
+    # If the plugin exec returned tags, add them
+    unless ( exists $plugin_result{error} ) {
+        LANraragi::Utils::Database::add_tags( $id, $plugin_result{new_tags} );
+
+        if ( exists $plugin_result{title} ) {
+            LANraragi::Utils::Database::set_title( $id, $plugin_result{title} );
+        }
+    }
+
+    return {
+        id      => $id,
+        success => exists $plugin_result{error} ? 0 : 1,
+        message => $plugin_result{error},
+        tags    => $plugin_result{new_tags},
+        title   => exists $plugin_result{title} ? $plugin_result{title} : ""
+    };
 }
 
 1;
