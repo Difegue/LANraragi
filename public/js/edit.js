@@ -1,7 +1,9 @@
-// JS functions meant for use in the Edit page.
-// Mostly dealing with plugins.
-
+/**
+ * JS functions meant for use in the Edit page.
+ * Mostly dealing with plugins.
+ */
 const Edit = {};
+
 Edit.tagInput = {};
 Edit.suggestions = [];
 

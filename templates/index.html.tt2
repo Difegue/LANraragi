@@ -34,7 +34,7 @@
 
 </head>
 
-<body onload="init()">
+<body>
 
 	[% IF userlogged %]
 	<p id="nb">
@@ -77,17 +77,17 @@
 				<input id='inboxbtn' class='favtag-btn' type='button' onclick='toggleFilter(this)'
 					value='New archives only' />
 				<br />
-				<input type='text' id='srch' class='search stdinput' size='90' style='width:95%'
+				<input type='text' id='search-input' class='search stdinput' size='90' style='width:95%'
 					placeholder='Search Title, Artist, Series, Language or Tags' />
-				<input id='subsrch' class='searchbtn stdbtn' type='button' value='Apply Filter' />
-				<input id='clrsrch' class='searchbtn stdbtn' type='button' value='Clear Filter' />
+				<input id='apply-search' class='searchbtn stdbtn' type='button' value='Apply Filter' />
+				<input id='clear-search' class='searchbtn stdbtn' type='button' value='Clear Filter' />
 			</div>
 
 			<p id='cssbutton' style='display:inline'>
 				<input class='stdbtn' type='button' onclick="LRR.openInNewTab('random')"
 					value='Give me a random archive' />
 
-				<input id='viewbtn' class='stdbtn' type='button' onclick="LRR.openSettings()" value='Display Options' />
+				<input id='settings-btn' class='stdbtn' type='button' value='Display Options' />
 			</p>
 
 			<table class="itg datatables">
@@ -125,29 +125,10 @@
 
 	[% INCLUDE footer %]
 
-	[% IF debugmode %]
-	<i class="fas fa-bug"></i> You're running in <a href="./debug">Debug Mode</a>!
-	<i class="fas fa-bug"></i>
-	[% END %]
-
 	<script>
 
-		function init() {
-			let trackProgressLocally = "[% use_local %]" === "1";
-
-			initSettings("[% version %]");
-			initIndex([% pagesize %], trackProgressLocally);
-
-			// Initialize tag suggestions
-			loadTagSuggestions();
-
-			// Initialize categories
-			loadCategories();
-
-			// Migrate local progression if there's any and serverside tracking is enabled
-			if (!trackProgressLocally) {
-				migrateProgress();
-			}
+		// Last few remains of JS using server-provided data
+		$(document).ready(() => {
 
 			[% IF usingdefpass %]
 			//If the json has the "default password" flag, flash a friendly notification inviting the user to change his password
@@ -160,19 +141,13 @@
 			});
 			[% END %]
 
-			[% IF debugmode %][% ELSE %]
-			checkVersion("[% version %]");
-			[% END %]
-
-			fetchChangelog("[% version %]");
-
 			// Initialize context menu
 			$.contextMenu({
 				selector: '.context-menu',
 				build: ($trigger, e) => {
 					return {
 						callback: function (key, options) {
-							handleContextMenu(key, $(this).attr("id"));
+							Index.handleContextMenu(key, $(this).attr("id"));
 						},
 						items: {
 							"read": { name: "Read", icon: "fas fa-book" },
@@ -195,7 +170,7 @@
 							"categoryremove": {
 								"name": "Remove from Category",
 								"icon": "fas fa-search-minus",
-								"items": loadContextMenuCategories($trigger.attr("id"))
+								"items": Index.loadContextMenuCategories($trigger.attr("id"))
 							}
 							[% END %]
 						}
@@ -203,11 +178,11 @@
 				}
 			});
 
-		}
-
+			Index.initializeAll();
+		});
 	</script>
 
-	<div id="overlay-shade" onclick="LRR.closeOverlay();"> </div>
+	<div id="overlay-shade"> </div>
 	<div id="settingsOverlay" class="id1 base-overlay small-overlay" style="display:none">
 		<h2 class="ih" style="text-align:center">Index Display Options</h2>
 		<div>
@@ -237,7 +212,7 @@
 		</div>
 		<br />
 		<br />
-		<input value="Save and Close" onclick="saveSettings()" class="stdbtn" id="goback" type="button">
+		<input value="Save and Close" class="stdbtn" id="save-settings" type="button">
 		<br />
 		<br />
 		<br />

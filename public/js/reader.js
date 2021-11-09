@@ -1,7 +1,9 @@
-// functions to navigate in reader with the keyboard.
-// also handles the thumbnail archive explorer.
-
+/**
+ * Functions to navigate in reader with the keyboard.
+ * Also handles the thumbnail archive explorer.
+ */
 const Reader = {};
+
 Reader.previousPage = -1;
 Reader.showingSinglePage = true;
 Reader.preloadedImg = {};

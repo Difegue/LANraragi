@@ -1,43 +1,54 @@
-/*
-* 	REGULAR INDEX PAGE FUNCTIONS
-*/
+/**
+ * Non-DataTables Index functions.
+ * (The split is there to permit easier switch if we ever yeet datatables from the main UI)
+ */
+const Index = {};
+Index.selectedCategory = "";
+Index.awesomplete = {};
+Index.serverVersion = "";
+Index.debugMode = false;
+Index.isProgressLocal = true;
+Index.pageSize = 100;
 
-// Toggles a category filter. Sets the internal selectedCategory variable and changes the button's class.
-function toggleCategory(button) {
-    // Add/remove class to button depending on the state
-    categoryId = button.id;
-    if (selectedCategory === categoryId) {
-        button.classList.remove("toggled");
-        selectedCategory = "";
-    } else {
-        selectedCategory = categoryId;
-        button.classList.add("toggled");
-    }
+/**
+ * Initialize the Archive Index.
+ */
+Index.initializeAll = function () {
+    // Bind events to DOM
+    $(document).on("click.save-settings", "#save-settings", Index.saveSettings);
 
-    // Trigger search
-    performSearch();
-}
+    $(document).on("click.settings-btn", "#settings-btn", LRR.openSettings);
+    $(document).on("click.close_overlay", "#overlay-shade", LRR.closeOverlay);
 
-function toggleFilter(button) {
-    // jquerify
-    button = $(button);
+    // Get some info from the server: version, debug mode, local progress
+    Server.callAPI("/api/info", "GET", null, "Error getting basic server info!", (data) => {
+        Index.serverVersion = data.version;
+        Index.debugMode = data.debug_mode;
+        Index.isProgressLocal = data.server_tracks_progress;
+        Index.pageSize = data.archives_per_page;
 
-    // invert input's checked value
-    inboxState = !(button.prop("checked"));
-    button.prop("checked", inboxState);
+        // Check version if not in debug mode
+        if (!Index.debugMode) {
+            Index.checkVersion();
+            Index.fetchChangelog();
+        } else {
+            $.toast({
+                heading: "<i class=\"fas fa-bug\"></i> You're running in Debug Mode!",
+                text: "Advanced server statistics can be viewed <a href=\"./debug\">here.</a>",
+                hideAfter: false,
+                position: "top-left",
+                icon: "warning",
+            });
+        }
 
-    updateToggleClass(button);
+        Index.migrateProgress();
+        Index.loadTagSuggestions();
+        Index.loadCategories();
 
-    // Redraw the table
-    performSearch();
-}
+        // Initialize DataTables
+        IndexTable.initializeAll();
+    });
 
-function updateToggleClass(button) {
-    if (button.prop("checked")) button.addClass("toggled");
-    else button.removeClass("toggled");
-}
-
-function initSettings(version) {
     // Default to thumbnail mode
     if (localStorage.getItem("indexViewMode") === null) {
         localStorage.indexViewMode = 1;
@@ -59,7 +70,7 @@ function initSettings(version) {
         localStorage.sawContextMenuToast = true;
 
         $.toast({
-            heading: `Welcome to LANraragi ${version}!`,
+            heading: `Welcome to LANraragi ${Index.serverVersion}!`,
             text: "If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!",
             hideAfter: false,
             position: "top-left",
@@ -70,37 +81,58 @@ function initSettings(version) {
     // 0 = List view
     // 1 = Thumbnail view
     // List view is at 0 but became the non-default state later so here's some legacy weirdness
-    if (localStorage.indexViewMode == 0) $("#compactmode").prop("checked", true);
-
+    if (localStorage.indexViewMode === 0) $("#compactmode").prop("checked", true);
     if (localStorage.cropthumbs === "true") $("#cropthumbs").prop("checked", true);
 
-    updateTableHeaders();
-}
+    Index.updateTableHeaders();
+};
 
-function isNullOrWhitespace(input) {
-    return !input || !input.trim();
-}
+/**
+ * Toggles a category filter.
+ * Sets the internal selectedCategory variable and changes the button's class.
+ * @param {*} button Button matching the category.
+ */
+Index.toggleCategory = function (button) {
+    // Add/remove class to button depending on the state
+    const categoryId = button.id;
+    if (Index.selectedCategory === categoryId) {
+        button.classList.remove("toggled");
+        Index.selectedCategory = "";
+    } else {
+        Index.selectedCategory = categoryId;
+        button.classList.add("toggled");
+    }
 
-function saveSettings() {
+    // Trigger search
+    IndexTable.doSearch();
+};
+
+/**
+ * Save settings to localStorage.
+ */
+Index.saveSettings = function () {
     localStorage.indexViewMode = $("#compactmode").prop("checked") ? 0 : 1;
     localStorage.cropthumbs = $("#cropthumbs").prop("checked");
 
-    if (!isNullOrWhitespace($("#customcol1").val())) localStorage.customColumn1 = $("#customcol1").val().trim();
+    if (!LRR.isNullOrWhitespace($("#customcol1").val())) localStorage.customColumn1 = $("#customcol1").val().trim();
 
-    if (!isNullOrWhitespace($("#customcol2").val())) localStorage.customColumn2 = $("#customcol2").val().trim();
+    if (!LRR.isNullOrWhitespace($("#customcol2").val())) localStorage.customColumn2 = $("#customcol2").val().trim();
 
     // Absolutely disgusting
-    arcTable.settings()[0].aoColumns[1].sName = localStorage.customColumn1;
-    arcTable.settings()[0].aoColumns[2].sName = localStorage.customColumn2;
+    IndexTable.dataTable.settings()[0].aoColumns[1].sName = localStorage.customColumn1;
+    IndexTable.dataTable.settings()[0].aoColumns[2].sName = localStorage.customColumn2;
 
-    updateTableHeaders();
+    Index.updateTableHeaders();
     LRR.closeOverlay();
 
     // Redraw the table yo
-    arcTable.draw();
-}
+    IndexTable.dataTable.draw();
+};
 
-function updateTableHeaders() {
+/**
+ * Update the Table Headers based on the custom namespaces set in localStorage.
+ */
+Index.updateTableHeaders = function () {
     const cc1 = localStorage.customColumn1;
     const cc2 = localStorage.customColumn2;
 
@@ -108,18 +140,20 @@ function updateTableHeaders() {
     $("#customcol2").val(cc2);
     $("#customheader1").children()[0].innerHTML = cc1.charAt(0).toUpperCase() + cc1.slice(1);
     $("#customheader2").children()[0].innerHTML = cc2.charAt(0).toUpperCase() + cc2.slice(1);
-}
+};
 
-function checkVersion(currentVersionConf) {
-    // Check the github API to see if an update was released. If so, flash another friendly notification inviting the user to check it out
+/**
+ * Check the Github API to see if an update was released.
+ * If so, flash another friendly notification inviting the user to check it out
+ */
+Index.checkVersion = function () {
     const githubAPI = "https://api.github.com/repos/difegue/lanraragi/releases/latest";
-    let latestVersion;
 
     $.getJSON(githubAPI).done((data) => {
         const expr = /(\d+)/g;
         const latestVersionArr = Array.from(data.tag_name.match(expr));
         let latestVersion = "";
-        const currentVersionArr = Array.from(currentVersionConf.match(expr));
+        const currentVersionArr = Array.from(Index.serverVersion.match(expr));
         let currentVersion = "";
 
         latestVersionArr.forEach((element, index) => {
@@ -147,11 +181,14 @@ function checkVersion(currentVersionConf) {
             });
         }
     });
-}
+};
 
-function fetchChangelog(version) {
-    if (localStorage.lrrVersion !== version) {
-        localStorage.lrrVersion = version;
+/**
+ * Fetch the latest LRR changelog and show it to the user if he just updated
+ */
+Index.fetchChangelog = function () {
+    if (localStorage.lrrVersion !== Index.serverVersion) {
+        localStorage.lrrVersion = Index.serverVersion;
 
         fetch("https://api.github.com/repos/difegue/lanraragi/releases/latest", { method: "GET" })
             .then((response) => (response.ok ? response.json() : { error: "Response was not OK" }))
@@ -175,17 +212,22 @@ function fetchChangelog(version) {
                     $("#updateOverlay").css("display", "block");
                 });
             })
-            .catch((error) => { LRR.showErrorToast("Error getting changelog for new version", error); failureCallback(error); });
+            .catch((error) => { LRR.showErrorToast("Error getting changelog for new version", error); });
     }
-}
+};
 
-function loadContextMenuCategories(id) {
+/**
+ * Load the categories a given ID belongs to.
+ * @param {*} id The ID of the archive to check
+ * @returns Categories
+ */
+Index.loadContextMenuCategories = function (id) {
     return Server.callAPI(`/api/archives/${id}/categories`, "GET", null, `Error finding categories for ${id}!`,
         (data) => {
-            items = {};
+            const items = {};
 
             for (let i = 0; i < data.categories.length; i++) {
-                cat = data.categories[i];
+                const cat = data.categories[i];
                 items[`delcat-${cat.id}`] = { name: cat.name, icon: "fas fa-stream" };
             }
 
@@ -195,17 +237,23 @@ function loadContextMenuCategories(id) {
 
             return items;
         });
-}
+};
 
-function handleContextMenu(option, id) {
+/**
+ * Handle context menu clicks.
+ * @param {*} option The clicked option
+ * @param {*} id The Archive ID
+ * @returns
+ */
+Index.handleContextMenu = function (option, id) {
     if (option.startsWith("category-")) {
-        var catId = option.replace("category-", "");
+        const catId = option.replace("category-", "");
         Server.addArchiveToCategory(id, catId);
         return;
     }
 
     if (option.startsWith("delcat-")) {
-        var catId = option.replace("delcat-", "");
+        const catId = option.replace("delcat-", "");
         Server.removeArchiveFromCategory(id, catId);
         return;
     }
@@ -215,7 +263,9 @@ function handleContextMenu(option, id) {
         LRR.openInNewTab(`./edit?id=${id}`);
         break;
     case "delete":
-        if (confirm("Are you sure you want to delete this archive?")) Server.deleteArchive(id, () => { document.location.reload(true); });
+        if (confirm("Are you sure you want to delete this archive?")) {
+            Server.deleteArchive(id, () => { document.location.reload(true); });
+        }
         break;
     case "read":
         LRR.openInNewTab(`./reader?id=${id}`);
@@ -226,23 +276,28 @@ function handleContextMenu(option, id) {
     default:
         break;
     }
-}
+};
 
-function loadTagSuggestions() {
+/**
+ * Load tag suggestions for the tag search bar.
+ */
+Index.loadTagSuggestions = function () {
     // Query the tag cloud API to get the most used tags.
     Server.callAPI("/api/database/stats?minweight=2", "GET", null, "Couldn't load tag suggestions",
         (data) => {
-            new Awesomplete("#srch", {
+            Index.awesomplete = new Awesomplete("#search-input", {
                 list: data,
-                data(tag, input) {
+                data(tag) {
                     // Format tag objects from the API into a format awesomplete likes.
-                    label = tag.text;
+                    let label = tag.text;
                     if (tag.namespace !== "") label = `${tag.namespace}:${tag.text}`;
 
                     return { label, value: tag.weight };
                 },
                 // Sort by weight
-                sort(a, b) { return b.value - a.value; },
+                sort(a, b) {
+                    return b.value - a.value;
+                },
                 filter(text, input) {
                     return Awesomplete.FILTER_CONTAINS(text, input.match(/[^, -]*$/)[0]);
                 },
@@ -255,10 +310,12 @@ function loadTagSuggestions() {
                 },
             });
         });
-}
+};
 
-function loadCategories() {
-    // Query the category API to get the most used tags.
+/**
+ * Query the category API to build the filter buttons.
+ */
+Index.loadCategories = function () {
     $.get("/api/categories")
         .done((data) => {
             // Sort by LastUsed + pinned
@@ -269,18 +326,18 @@ function loadCategories() {
 
             const iteration = (data.length > 10 ? 10 : data.length);
 
-            for (var i = 0; i < iteration; i++) {
-                category = data[i];
+            for (let i = 0; i < iteration; i++) {
+                const category = data[i];
                 const pinned = category.pinned === "1";
 
-                catName = (pinned ? "📌" : "") + category.name;
+                let catName = (pinned ? "📌" : "") + category.name;
                 catName = LRR.encodeHTML(catName);
 
-                div = `<div style='display:inline-block'>
-						<input class='favtag-btn ${((category.id == selectedCategory) ? "toggled" : "")}' 
-							   type='button' id='${category.id}' value='${catName}' 
-							   onclick='toggleCategory(this)' title='Click here to display the archives contained in this category.'/>
-					   </div>`;
+                const div = `<div style='display:inline-block'>
+                    <input class='favtag-btn ${((category.id === Index.selectedCategory) ? "toggled" : "")}' 
+                            type='button' id='${category.id}' value='${catName}' 
+                            onclick='Index.toggleCategory(this)' title='Click here to display the archives contained in this category.'/>
+                </div>`;
 
                 html += div;
             }
@@ -288,15 +345,14 @@ function loadCategories() {
             // If more than 10 categories, the rest goes into a dropdown
             if (data.length > 10) {
                 html += `<select id="catdropdown" class="favtag-btn">
-							<option selected disabled>...</option>`;
+                            <option selected disabled>...</option>`;
 
-                for (var i = 10; i < data.length; i++) {
-                    category = data[i];
-                    catName = LRR.encodeHTML(category.name);
+                for (let i = 10; i < data.length; i++) {
+                    const category = data[i];
 
                     html += `<option id='${category.id}'>
-								${catName}
-							 </option>`;
+                                ${LRR.encodeHTML(category.name)}
+                            </option>`;
                 }
                 html += "</select>";
             }
@@ -304,13 +360,20 @@ function loadCategories() {
             $("#category-container").html(html);
 
             // Add a listener on dropdown selection
-            $("#catdropdown").on("change", () => toggleCategory($("#catdropdown")[0].selectedOptions[0]));
+            $("#catdropdown").on("change", () => Index.toggleCategory($("#catdropdown")[0].selectedOptions[0]));
         }).fail((data) => LRR.showErrorToast("Couldn't load categories", data.error));
-}
+};
 
-function migrateProgress() {
-    localProgressKeys = Object.keys(localStorage).filter((x) => x.endsWith("-reader")).map((x) => x.slice(0, -7));
+/**
+ * If server-side progress tracking is enabled, migrate local progression to the server.
+ */
+Index.migrateProgress = function () {
+    // No migration if local progress is enabled
+    if (Index.isProgressLocal) {
+        return;
+    }
 
+    const localProgressKeys = Object.keys(localStorage).filter((x) => x.endsWith("-reader")).map((x) => x.slice(0, -7));
     if (localProgressKeys.length > 0) {
         $.toast({
             heading: "Your Reading Progression is now saved on the server!",
@@ -348,4 +411,6 @@ function migrateProgress() {
     } else {
         console.log("No local reading progression to migrate");
     }
-}
+};
+
+window.Index = Index;

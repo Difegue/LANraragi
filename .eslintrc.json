@@ -15,7 +15,12 @@
         "LRR": "readonly",
         "Common": "readonly",
         "Server": "readonly",
-        "tagger": "readonly"
+        "tagger": "readonly",
+        "marked": "readonly",
+        "Awesomplete": "readonly",
+        "tippy": "readonly",
+        "Index": "readonly",
+        "IndexTable": "readonly"
     },
     "rules": {
         "func-names": ["error", "never"],

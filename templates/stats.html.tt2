@@ -114,7 +114,7 @@
 				data.forEach(tag => {
 
 					const namespacedTag = LRR.buildNamespacedTag(tag.namespace, tag.text);
-					const url = (tag.namespace !== "source") ? `/?q=${encodeURIComponent(namespacedTag)}` : `http://${tag.text}`;
+					const url = LRR.getTagSearchURL(tag.namespace, tag.text);
 
 					let html = `<a href="${url}" class="${tag.namespace}-tag" > ${namespacedTag} <b>(${tag.weight})</b></div><br/>`;
 					tagList.append(html);

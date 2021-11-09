@@ -1,24 +1,59 @@
-// Functions for DataTable initialization.
+/**
+ * All the Archive Index functions related to DataTables.
+ */
+const IndexTable = {};
+IndexTable.dataTable = {};
+IndexTable.originalTitle = document.title;
+IndexTable.isComingFromPopstate = false;
+IndexTable.currentSearch = "";
 
-// Executed onload of the archive index to initialize DataTables and other minor things.
-// This is painful to read.
-function initIndex(pagesize, trackLocal) {
-    originalTitle = document.title;
-    trackProgressLocally = trackLocal;
-    selectedCategory = "";
-    isComingFromPopstate = false;
+/**
+ * Initialize DataTables.
+ */
+IndexTable.initializeAll = function () {
+    // Bind events to DOM
+    $(document).on("click.apply-search", "#apply-search", () => { IndexTable.currentSearch = $("#search-input").val(); IndexTable.doSearch(); });
+    $(document).on("click.clear-search", "#clear-search", () => { IndexTable.currentSearch = ""; $("#search-input").val(""); IndexTable.doSearch(); });
+    $(document).on("keyup.search-input", "#search-input", (e) => {
+        if (e.defaultPrevented) {
+            return;
+        } else if (e.key === "Enter") {
+            IndexTable.currentSearch = $("#search-input").val();
+            IndexTable.doSearch();
+        }
+        e.preventDefault();
+    });
 
+    // TODO: Catch hrefs and do a search instead of reloading the page
+    $(document).on("click.search-link", "a.search-link", function (e) {
+        e.preventDefault();
+        IndexTable.currentSearch = $(this).attr("href");
+        IndexTable.isComingFromPopstate = false;
+        IndexTable.doSearch();
+    });
+
+    // Add a listen event to window.popstate to update the search accordingly
+    // if the user goes back using browser history
+    $(window).on("popstate", () => {
+        IndexTable.isComingFromPopstate = true;
+        IndexTable.consumeURLParameters();
+    });
+
+    // Clear searchbar cache
+    $("#search-input").val("");
+
+    // Classes for even/odd lines
     $.fn.dataTableExt.oStdClasses.sStripeOdd = "gtr0";
     $.fn.dataTableExt.oStdClasses.sStripeEven = "gtr1";
 
-    // datatables configuration
-    arcTable = $(".datatables").DataTable({
+    // Datatables configuration
+    IndexTable.dataTable = $(".datatables").DataTable({
         serverSide: true,
         processing: true,
         ajax: "search",
         deferRender: true,
         lengthChange: false,
-        pageLength: pagesize,
+        pageLength: Index.pageSize,
         order: [[0, "asc"]],
         dom: "<\"top\"ip>rt<\"bottom\"p><\"clear\">",
         language: {
@@ -26,181 +61,155 @@ function initIndex(pagesize, trackLocal) {
             infoEmpty: "<h1><br/><i class=\"fas fa-4x fa-toilet-paper-slash\"></i><br/><br/>No archives to show you! Try <a href=\"upload\">uploading some</a>?</h1><br/>",
             processing: "<div id=\"progress\" class=\"indeterminate\"\"><div class=\"bar-container\"><div class=\"bar\" style=\" width: 80%; \"></div></div></div>",
         },
-        preDrawCallback: thumbViewInit, // callbacks for thumbnail view
-        drawCallback,
-        rowCallback: buildThumbDiv,
-        columns: [{
-            className: "title itd",
-            data: null,
-            name: "title",
-            render: titleColumnDisplay,
-        }, {
-            className: "custom1 itd",
-            data: "tags",
-            name: localStorage.customColumn1,
-            render(data, type, full, meta) {
-                return createNamespaceColumn(localStorage.customColumn1, type, data);
-            },
-        }, {
-            className: "custom2 itd",
-            data: "tags",
-            name: localStorage.customColumn2,
-            render(data, type, full, meta) {
-                return createNamespaceColumn(localStorage.customColumn2, type, data);
-            },
-        }, {
-            className: "tags itd",
-            data: "tags",
-            name: "tags",
-            orderable: false,
-            render: tagsColumnDisplay,
-        }, { // The columns below are invisible and only meant to add extra parameters to a search.
-            className: "isnew itd",
-            visible: false,
-            data: "isnew",
-            name: "isnew",
-        }, {
-            className: "untagged itd",
-            visible: false,
-            data: null,
-            name: "untagged",
-        }],
+        preDrawCallback: IndexTable.initializeThumbView, // callbacks for thumbnail view
+        drawCallback: IndexTable.drawTable,
+        rowCallback: IndexTable.buildThumbnailCell,
+        columns: [
+            /* eslint-disable object-curly-newline */
+            { data: null, className: "title itd", name: "title", render: IndexTable.renderTitle },
+            { data: "tags", className: "custom1 itd", name: localStorage.customColumn1, render: (data, type) => IndexTable.renderColumn(localStorage.customColumn1, type, data) },
+            { data: "tags", className: "custom2 itd", name: localStorage.customColumn2, render: (data, type) => IndexTable.renderColumn(localStorage.customColumn2, type, data) },
+            { data: "tags", className: "tags itd", name: "tags", orderable: false, render: IndexTable.renderTags },
+            { data: "isnew", className: "isnew itd", name: "isnew", visible: false },
+            { data: null, className: "untagged itd", name: "untagged", visible: false },
+        ],
     });
-
-    // add datatable search event to the local searchbox and clear search to the clear filter button
-    $("#subsrch").on("click", () => {
-        performSearch();
-    });
-    $("#srch").keyup((e) => {
-        if (e.defaultPrevented) {
-            return;
-        } else if (e.key == "Enter") {
-            performSearch();
-        }
-        e.preventDefault();
-    });
-
-    $("#clrsrch").on("click", () => {
-        $("#srch").val("");
-        performSearch();
-    });
-
-    // clear searchbar cache
-    $("#srch").val("");
-
-    // Add a listen event to window.popstate to update the search accordingly if the user goes back using browser history
-    window.onpopstate = () => {
-        isComingFromPopstate = true;
-        searchFromURLParams();
-    };
 
     // If the url has parameters, handle them now by doing the matching search.
-    searchFromURLParams();
-}
+    IndexTable.consumeURLParameters();
+};
 
-// Looks at the active filters and performs a search using DataTables' API.
-// (which is hooked back to the internal Search API)
-// If you specify a page argument, the search will load the given page.
-function performSearch(page) {
+/**
+ * Looks at the active filters and performs a search using DataTables' API.
+ * (which is hooked back to the internal Search API)
+ * If you specify a page argument, the search will load the given page.
+ * @param {*} page Page to load
+ */
+IndexTable.doSearch = function (page) {
     // Add the selected category to the tags column so it's picked up by the search engine
     // This allows for the regular search bar to be used in conjunction with categories.
-    arcTable.column(".tags.itd").search(selectedCategory);
+    IndexTable.dataTable.column(".tags.itd").search(Index.selectedCategory);
 
     // Add the isnew filter if asked
-    input = $("#inboxbtn");
+    // TODO: replace with carousel
+    let input = $("#inboxbtn");
 
     if (input.prop("checked")) {
-        arcTable.column(".isnew").search("true");
+        IndexTable.dataTable.column(".isnew").search("true");
     } else {
         // no fav filters
-        arcTable.column(".isnew").search("");
+        IndexTable.dataTable.column(".isnew").search("");
     }
 
     // Add the untagged filter if asked
+    // TODO: replace with carousel
     input = $("#untaggedbtn");
 
     if (input.prop("checked")) {
-        arcTable.column(".untagged").search("true");
+        IndexTable.dataTable.column(".untagged").search("true");
     } else {
         // no fav filters
-        arcTable.column(".untagged").search("");
+        IndexTable.dataTable.column(".untagged").search("");
     }
 
-    const searchText = $("#srch").val();
-    arcTable.search(searchText.replace(",", ""));
+    // Update search input field
+    $("#search-input").val(IndexTable.currentSearch);
+    IndexTable.dataTable.search(IndexTable.currentSearch.replace(",", ""));
 
     // Add the current search terms to the title tab
-    document.title = originalTitle + ((searchText !== "") ? ` - ${searchText}` : "");
+    document.title = IndexTable.originalTitle + ((IndexTable.currentSearch !== "") ? ` - ${IndexTable.currentSearch}` : "");
 
     if (page) {
         // Hack the displayStart value to draw at the page we asked
-        arcTable.settings()[0].iInitDisplayStart = page * arcTable.settings()[0]._iDisplayLength;
+        // eslint-disable-next-line no-underscore-dangle
+        const customDisplayStart = page * IndexTable.dataTable.settings()[0]._iDisplayLength;
+        IndexTable.dataTable.settings()[0].iInitDisplayStart = customDisplayStart;
     } else {
-        arcTable.settings()[0].iInitDisplayStart = 0;
+        IndexTable.dataTable.settings()[0].iInitDisplayStart = 0;
     }
-    arcTable.draw();
+    IndexTable.dataTable.draw();
 
     // Re-load categories so the most recently selected/created ones appear first
-    loadCategories();
-}
+    Index.loadCategories();
+};
 
-// For datatable initialization, columns with just one data source display that source as a link for instant search.
-function createNamespaceColumn(namespace, type, data) {
-    if (type == "display") {
+// #region DataTables render callbacks
+
+/**
+ * Generic function for rendering namespace columns.
+ * @param {*} namespace The tag namespace to render
+ * @param {*} type Whether this is a displayed column (html) or just a data request
+ * @param {*} data The tag contents
+ * @returns The table HTML, or raw data if type is data
+ */
+IndexTable.renderColumn = function (namespace, type, data) {
+    if (type === "display") {
         if (data === "") return "";
 
         let namespaceRegEx = namespace;
-        if (namespace == "series") namespaceRegEx = "(?:series|parody)";
-        regex = new RegExp(`.*${namespaceRegEx}:\\s?([^,]*),*.*`, "gi"); // Catch last namespace:xxx value in tags
-        match = regex.exec(data);
+        if (namespace === "series") namespaceRegEx = "(?:series|parody)";
+        const regex = new RegExp(`.*${namespaceRegEx}:\\s?([^,]*),*.*`, "gi"); // Catch last namespace:xxx value in tags
+        const match = regex.exec(data);
 
         if (match != null) {
-            return `<a style="cursor:pointer" onclick="fillSearchField(event, '${namespace}:${match[1]}')">
-						${match[1].replace(/\b./g, (m) => m.toUpperCase())}
-					</a>`;
+            return `<a style="cursor:pointer" href="${LRR.getTagSearchURL(namespace, match[1])}">
+                        ${match[1].replace(/\b./g, (m) => m.toUpperCase())}
+                    </a>`;
         } else return "";
     }
     return data;
-}
+};
 
-// Fill out the search field and trigger a search programmatically.
-function fillSearchField(e, tag) {
-    $("#srch").val(`${tag}`);
-    arcTable.search(`${tag}`).draw();
-    e.preventDefault(); // Override href
-}
-
-function titleColumnDisplay(data, type, full, meta) {
-    if (type == "display") {
-        titleHtml = "";
-        titleHtml += buildProgressDiv(data);
-
-        return `${titleHtml} 
-				<a class="context-menu" id="${data.arcid}" onmouseover="buildImageTooltip(this)" href="reader?id=${data.arcid}"> 
-					${LRR.encodeHTML(data.title)}
-				</a>
-				<div class="caption" style="display: none;">
-					<img style="height:300px" src="./api/archives/${data.arcid}/thumbnail" onerror="this.src='./img/noThumb.png'">
-				</div>`;
+/**
+ * Render the title column.
+ * @param {*} data Title
+ * @param {*} type Whether this is a displayed column (html) or just a data request
+ * @returns The table HTML, or raw title if type is data
+ */
+IndexTable.renderTitle = function (data, type) {
+    if (type === "display") {
+        return `${IndexTable.buildProgressDiv(data)} 
+                <a class="context-menu" id="${data.arcid}" onmouseover="IndexTable.buildImageTooltip(this)" href="reader?id=${data.arcid}"> 
+                    ${LRR.encodeHTML(data.title)}
+                </a>
+                <div class="caption" style="display: none;">
+                    <img style="height:300px" src="./api/archives/${data.arcid}/thumbnail" onerror="this.src='./img/noThumb.png'">
+                </div>`;
     }
 
     return data.title;
-}
+};
 
-function tagsColumnDisplay(data, type, full, meta) {
-    if (type == "display") {
-        return `<span class="tag-tooltip" onmouseover="buildTagTooltip(this)" style="text-overflow:ellipsis;">${LRR.colorCodeTags(data)}</span>
-				<div class="caption caption-tags" style="display: none;" >${LRR.buildTagsDiv(data)}</div>`;
+/**
+ * Render the tags column.
+ * @param {*} data Tags
+ * @param {*} type Whether this is a displayed column (html) or just a data request
+ * @returns The table HTML, or raw tags if type is data
+ */
+IndexTable.renderTags = function (data, type) {
+    if (type === "display") {
+        return `<span class="tag-tooltip" onmouseover="IndexTable.buildTagTooltip(this)" style="text-overflow:ellipsis;">
+                    ${LRR.colorCodeTags(data)}
+                </span>
+                <div class="caption caption-tags" style="display: none;" >
+                    ${LRR.buildTagsDiv(data)}
+                </div>`;
     }
     return data;
-}
+};
 
+// #endregion
+
+// #region Thumbnail View
 // Functions executed on DataTables draw callbacks to build the thumbnail view if it's enabled:
-// Inits the div that contains the thumbnails
-function thumbViewInit(settings) {
+
+/**
+ * Inits the div that contains the thumbnails
+ */
+IndexTable.initializeThumbView = function () {
     // we only do all this thingamajang if thumbnail view is enabled
-    if (localStorage.indexViewMode == 1) {
-        // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
+    if (localStorage.indexViewMode === "1") {
+        // Create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
         if ($("#thumbs_container").length < 1) $(".datatables").after("<div id='thumbs_container'></div>");
 
         // clear out the thumbs container
@@ -212,17 +221,53 @@ function thumbViewInit(settings) {
         $("#thumbs_container").remove();
         $(".list").show();
 
-        // nuke style of table - datatables' auto-width gets a bit lost when coming back from thumb view.
+        // Nuke style of table
+        // Datatables' auto-width gets a bit lost when coming back from thumb view.
         $(".datatables").attr("style", "");
 
-        if (typeof (arcTable) !== "undefined") arcTable.columns.adjust();
+        IndexTable.dataTable.columns?.adjust();
     }
-}
+};
 
-function drawCallback(settings) {
-    if (typeof (arcTable) !== "undefined") {
-        const pageInfo = arcTable.page.info();
-        if (pageInfo.pages == 0) {
+/**
+ * Builds a id1 class div to jam in the thumb container for the given archive data
+ * @param {*} row matching DataTables row
+ * @param {*} data raw data
+ */
+IndexTable.buildThumbnailCell = function (row, data) {
+    if (localStorage.indexViewMode === "1") {
+        // Build a thumb-like div with the data
+        const thumbCss = (localStorage.cropthumbs === "true") ? "id3" : "id3 nocrop";
+        const thumbDiv = `<div style="height:335px" class="id1 context-menu" id="${data.arcid}">
+                        <div class="id2">
+                            ${IndexTable.buildProgressDiv(data)}
+                            <a href="reader?id=${data.arcid}" title="${LRR.encodeHTML(data.title)}">${LRR.encodeHTML(data.title)}</a>
+                        </div>
+                        <div style="height:280px" class="${thumbCss}">
+                            <a href="reader?id=${data.arcid}" title="${LRR.encodeHTML(data.title)}">
+                                <img style="position:relative;" id="${data.arcid}_thumb" src="./img/wait_warmly.jpg"/>
+                                <i id="${data.arcid}_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>
+                                <img src="./api/archives/${data.arcid}/thumbnail" 
+                                        onload="$('#${data.arcid}_thumb').remove(); $('#${data.arcid}_spinner').remove();" 
+                                        onerror="this.src='./img/noThumb.png'"/>
+                            </a>
+                        </div>
+                        <div class="id4">
+                            <span class="tags tag-tooltip" onmouseover="IndexTable.buildTagTooltip(this)">${LRR.colorCodeTags(data.tags)}</span>
+                            <div class="caption caption-tags" style="display: none;" >${LRR.buildTagsDiv(data.tags)}</div>
+                        </div>
+                    </div>`;
+
+        $("#thumbs_container").append(thumbDiv);
+    }
+};
+
+// #endregion
+
+IndexTable.drawTable = function () {
+    if (typeof (IndexTable.dataTable) !== "undefined") {
+        const pageInfo = IndexTable.dataTable.page.info();
+        if (pageInfo.pages === 0) {
             $(".itg").hide();
         } else {
             $(".itg").show();
@@ -239,7 +284,7 @@ function drawCallback(settings) {
                 }
 
                 nInput.value = pageInfo.page + 1;
-                $(nInput).on("change", (e) => arcTable.page(nInput.value - 1).draw("page"));
+                $(nInput).on("change", () => IndexTable.dataTable.page(nInput.value - 1).draw("page"));
 
                 container.append(nInput);
                 div.appendChild(container[0]);
@@ -247,9 +292,11 @@ function drawCallback(settings) {
         }
 
         // Update url to contain all search parameters, and push it to the history
-        if (isComingFromPopstate) // But don't fire this if we're coming from popstate
-        { isComingFromPopstate = false; } else {
-            let params = buildURLParams();
+        if (IndexTable.isComingFromPopstate) {
+            // But don't fire this if we're coming from popstate
+            IndexTable.isComingFromPopstate = false;
+        } else {
+            let params = IndexTable.buildURLParameters();
             if (params === "?") params = "/";
             window.history.pushState(null, null, params);
         }
@@ -257,96 +304,77 @@ function drawCallback(settings) {
         // Clear potential leftover tooltips
         tippy.hideAll();
     }
-}
+};
 
-function buildURLParams() {
-    const cat = arcTable.column(".tags.itd").search();
-    const untag = arcTable.column(".untagged").search();
-    const isnew = arcTable.column(".isnew").search();
-    const page = arcTable.page.info().page + 1;
-    const sortby = arcTable.order()[0][0];
-    const sortorder = arcTable.order()[0][1];
+// #region Pushstate/Popstate URL parameters handling
 
-    const encodedSearch = encodeURIComponent(arcTable.search());
+IndexTable.buildURLParameters = function () {
+    const cat = IndexTable.dataTable.column(".tags.itd").search();
+    const untag = IndexTable.dataTable.column(".untagged").search();
+    const isnew = IndexTable.dataTable.column(".isnew").search();
+    const page = IndexTable.dataTable.page.info().page + 1;
+    const sortby = IndexTable.dataTable.order()[0][0];
+    const sortorder = IndexTable.dataTable.order()[0][1];
 
-    return `?${
-		 (page !== 1) ? `p=${page}` : ""
-		 }${(sortby !== 0) ? `&sort=${sortby}` : ""
-		 }${(sortorder !== "asc") ? `&sortdir=${sortorder}` : ""
-		 }${(encodedSearch !== "") ? `&q=${encodedSearch}` : ""
-		 }${(cat !== "") ? `&c=${cat}` : ""
-		 }${(untag !== "") ? "&untagged" : ""
-		 }${(isnew !== "") ? "&isnew" : ""}`;
-}
+    const encodedSearch = encodeURIComponent(IndexTable.dataTable.search());
 
-function searchFromURLParams() {
+    // Check each parameter and append them to the URL if they exist
+    let params = "?";
+    if (page !== 1) params += `p=${page}&`;
+    if (sortby !== 0) params += `sort=${sortby}&`;
+    if (sortorder !== "asc") params += `sortdir=${sortorder}&`;
+    if (encodedSearch !== "") params += `q=${encodedSearch}&`;
+    if (cat !== "") params += `c=${cat}&`;
+    if (untag !== "") params += "untagged&";
+    if (isnew !== "") params += "isnew&";
+
+    return params;
+};
+
+IndexTable.consumeURLParameters = function () {
     const params = new URLSearchParams(window.location.search);
 
-    if (params.has("c")) selectedCategory = params.get("c");
-    else selectedCategory = "";
+    if (params.has("c")) Index.selectedCategory = params.get("c");
+    else Index.selectedCategory = "";
 
     $("#untaggedbtn").prop("checked", params.has("untagged"));
-    updateToggleClass($("#untaggedbtn"));
+    // updateToggleClass($("#untaggedbtn"));
 
     $("#inboxbtn").prop("checked", params.has("isnew"));
-    updateToggleClass($("#inboxbtn"));
+    // updateToggleClass($("#inboxbtn"));
 
-    if (params.has("q")) {
-        $("#srch").val(decodeURIComponent(params.get("q")));
-    } else {
-        $("#srch").val("");
-    }
+    if (params.has("q")) { IndexTable.currentSearch = decodeURIComponent(params.get("q")); }
 
     const order = [[0, "asc"]];
-
     if (params.has("sort")) order[0][0] = params.get("sort");
-
     if (params.has("sortdir")) order[0][1] = params.get("sortdir");
 
-    arcTable.order(order);
+    IndexTable.dataTable.order(order);
 
-    if (params.has("p")) performSearch(params.get("p") - 1);
-    else performSearch();
-}
-
-// Builds a id1 class div to jam in the thumb container for an archive whose JSON data we read
-function buildThumbDiv(row, data, index) {
-    if (localStorage.indexViewMode == 1) {
-        // Build a thumb-like div with the data
-        thumb_css = (localStorage.cropthumbs === "true") ? "id3" : "id3 nocrop";
-        thumb_div = `<div style="height:335px" class="id1 context-menu" id="${data.arcid}">
-						<div class="id2">
-							${buildProgressDiv(data)}
-							<a href="reader?id=${data.arcid}" title="${LRR.encodeHTML(data.title)}">${LRR.encodeHTML(data.title)}</a>
-						</div>
-						<div style="height:280px" class="${thumb_css}">
-							<a href="reader?id=${data.arcid}" title="${LRR.encodeHTML(data.title)}">
-								<img style="position:relative;" id="${data.arcid}_thumb" src="./img/wait_warmly.jpg"/>
-								<i id="${data.arcid}_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>
-								<img src="./api/archives/${data.arcid}/thumbnail" 
-									 onload="$('#${data.arcid}_thumb').remove(); $('#${data.arcid}_spinner').remove();" 
-									 onerror="this.src='./img/noThumb.png'"/>
-							</a>
-						</div>
-						<div class="id4">
-							<span class="tags tag-tooltip" onmouseover="buildTagTooltip(this)">${LRR.colorCodeTags(data.tags)}</span>
-							<div class="caption caption-tags" style="display: none;" >${LRR.buildTagsDiv(data.tags)}</div>
-						</div>
-					</div>`;
-
-        $("#thumbs_container").append(thumb_div);
-    }
-}
-
-function buildProgressDiv(arcdata) {
-    id = arcdata.arcid;
-    isnew = arcdata.isnew;
-    pagecount = parseInt(arcdata.pagecount || 0);
-
-    if (trackProgressLocally) {
-        progress = parseInt(localStorage.getItem(`${id}-reader`) || 0);
+    if (params.has("p")) {
+        IndexTable.doSearch(params.get("p") - 1);
     } else {
-        progress = parseInt(arcdata.progress || 0);
+        IndexTable.doSearch();
+    }
+};
+
+// #endregion
+
+/**
+ * Show an emoji or a progress number for the given archive data.
+ * @param {*} arcdata The archive data
+ * @returns HTML string
+ */
+IndexTable.buildProgressDiv = function (arcdata) {
+    const id = arcdata.arcid;
+    const { isnew } = arcdata;
+    const pagecount = parseInt(arcdata.pagecount || 0, 10);
+    let progress = -1;
+
+    if (Index.isProgressLocal) {
+        progress = parseInt(localStorage.getItem(`${id}-reader`) || 0, 10);
+    } else {
+        progress = parseInt(arcdata.progress || 0, 10);
     }
 
     if (isnew === "true") {
@@ -358,10 +386,15 @@ function buildProgressDiv(arcdata) {
     }
 
     return "";
-}
+};
 
-// Build a tooltip when hovering over an archive title, then display it. The tooltip is saved in DOM for further uses.
-function buildImageTooltip(target) {
+/**
+ * Build a tooltip when hovering over an archive title, then display it.
+ * The tooltip is saved in DOM for further uses.
+ * @param {*} target The target archive title
+ * @returns
+ */
+IndexTable.buildImageTooltip = function (target) {
     if (target.innerHTML === "") return;
 
     tippy(target, {
@@ -373,10 +406,13 @@ function buildImageTooltip(target) {
     }).show(); // Call show() so that the tooltip shows now
 
     $(target).attr("onmouseover", ""); // Don't trigger this function again for this element
-}
+};
 
-// Ditto for tag tooltips, with different options.
-function buildTagTooltip(target) {
+/**
+ * Build a tooltip when hovering over a tag div, then display it.
+ * @param {*} target The target tags div
+ */
+IndexTable.buildTagTooltip = function (target) {
     tippy(target, {
         content: $(target).next("div").attr("style", "")[0],
         delay: 0,
@@ -386,4 +422,4 @@ function buildTagTooltip(target) {
     }).show(); // Call show() so that the tooltip shows now
 
     $(target).attr("onmouseover", "");
-}
+};

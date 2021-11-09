@@ -1,5 +1,6 @@
-// Functions that get used in multiple pages but don't really depend on networking.
-
+/**
+ * Functions that get used in multiple pages but don't really depend on networking.
+ */
 const LRR = {};
 
 /**
@@ -11,6 +12,26 @@ LRR.encodeHTML = function (r) {
     if (r === undefined) return r;
     if (Array.isArray(r)) return r[0].replace(/[\x26\x0A\<>'"]/g, (r2) => `&#${r2.charCodeAt(0)};`);
     else return r.replace(/[\x26\x0A\<>'"]/g, (r2) => `&#${r2.charCodeAt(0)};`);
+};
+
+/**
+ * Checks if the given string is null or whitespace.
+ * @param {*} input The string to check
+ * @returns true or false
+ */
+LRR.isNullOrWhitespace = function (input) {
+    return !input || !input.trim();
+};
+
+/**
+ * Get the URL to search for a given tag.
+ * @param {*} namespace Tag namespace
+ * @param {*} tag tag
+ * @returns The URL.
+ */
+LRR.getTagSearchURL = function (namespace, tag) {
+    const namespacedTag = this.buildNamespacedTag(namespace, tag);
+    return (namespace !== "source") ? `/?q=${encodeURIComponent(namespacedTag)}` : `http://${tag}`;
 };
 
 /**
@@ -126,14 +147,10 @@ LRR.buildTagsDiv = function (tags) {
         line += `<tr><td class='caption-namespace ${encodedK}-tag'>${ucKey}:</td><td>`;
 
         tagsByNamespace[key].forEach((tag) => {
-            const namespacedTag = this.buildNamespacedTag(key, tag);
-
-            const url = (key !== "source") ? `/?q=${encodeURIComponent(namespacedTag)}` : `http://${tag}`;
+            const url = LRR.getTagSearchURL(key, tag);
 
             line += `<div class="gt">
-                        <a href="${url}"
-                            ${(key !== "source") ? `onclick="fillSearchField(event, '${LRR.encodeHTML(namespacedTag)}')"` : ""}
-                            >
+                        <a href="${url}">
                             ${LRR.encodeHTML(tag)}
                         </a>
                     </div>`;

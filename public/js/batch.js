@@ -1,6 +1,8 @@
-// Batch Operations
-
+/**
+ * Batch Operations.
+ */
 const Batch = {};
+
 Batch.socket = {};
 Batch.treatedArchives = 0;
 Batch.totalArchives = 0;
@@ -89,6 +91,10 @@ Batch.checkUntagged = function () {
  * This crafts a JSON list to send to the batch tagging websocket service.
  */
 Batch.startBatch = function () {
+    if (Batch.currentOperation === "delete" && !confirm("This is a destructive operation! Are you sure you want to delete the selected archives?")) {
+        return;
+    }
+
     $(".tag-options").hide();
 
     $("#log-container").html("Started Batch Operation...\n************\n");

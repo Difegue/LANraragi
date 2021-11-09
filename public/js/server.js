@@ -1,6 +1,8 @@
-// Scripting for Generic API calls.
-
+/**
+ * Functions for Generic API calls.
+ */
 const Server = {};
+
 Server.isScriptRunning = false;
 
 /**
