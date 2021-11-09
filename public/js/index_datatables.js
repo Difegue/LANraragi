@@ -13,7 +13,7 @@ IndexTable.currentSearch = "";
 IndexTable.initializeAll = function () {
     // Bind events to DOM
     $(document).on("click.apply-search", "#apply-search", () => { IndexTable.currentSearch = $("#search-input").val(); IndexTable.doSearch(); });
-    $(document).on("click.clear-search", "#clear-search", () => { IndexTable.currentSearch = ""; $("#search-input").val(""); IndexTable.doSearch(); });
+    $(document).on("click.clear-search", "#clear-search", () => { IndexTable.currentSearch = ""; IndexTable.doSearch(); });
     $(document).on("keyup.search-input", "#search-input", (e) => {
         if (e.defaultPrevented) {
             return;
@@ -24,11 +24,10 @@ IndexTable.initializeAll = function () {
         e.preventDefault();
     });
 
-    // TODO: Catch hrefs and do a search instead of reloading the page
-    $(document).on("click.search-link", "a.search-link", function (e) {
+    // Catch tag div clicks and do a search instead of reloading the page
+    $(document).on("click.gt", ".gt", (e) => {
         e.preventDefault();
-        IndexTable.currentSearch = $(this).attr("href");
-        IndexTable.isComingFromPopstate = false;
+        IndexTable.currentSearch = $(e.target).attr("search");
         IndexTable.doSearch();
     });
 
@@ -62,7 +61,7 @@ IndexTable.initializeAll = function () {
             processing: "<div id=\"progress\" class=\"indeterminate\"\"><div class=\"bar-container\"><div class=\"bar\" style=\" width: 80%; \"></div></div></div>",
         },
         preDrawCallback: IndexTable.initializeThumbView, // callbacks for thumbnail view
-        drawCallback: IndexTable.drawTable,
+        drawCallback: IndexTable.addPageSelector,
         rowCallback: IndexTable.buildThumbnailCell,
         columns: [
             /* eslint-disable object-curly-newline */
@@ -133,7 +132,7 @@ IndexTable.doSearch = function (page) {
     Index.loadCategories();
 };
 
-// #region DataTables render callbacks
+// #region Compact View
 
 /**
  * Generic function for rendering namespace columns.
@@ -264,7 +263,13 @@ IndexTable.buildThumbnailCell = function (row, data) {
 
 // #endregion
 
-IndexTable.drawTable = function () {
+// #region Pushstate/Popstate URL parameters handling
+
+/**
+ * Called after the table is drawn. Adds the page selector to the table.
+ * (And handles pushing the search parameters to the URL)
+ */
+IndexTable.addPageSelector = function () {
     if (typeof (IndexTable.dataTable) !== "undefined") {
         const pageInfo = IndexTable.dataTable.page.info();
         if (pageInfo.pages === 0) {
@@ -305,8 +310,6 @@ IndexTable.drawTable = function () {
         tippy.hideAll();
     }
 };
-
-// #region Pushstate/Popstate URL parameters handling
 
 IndexTable.buildURLParameters = function () {
     const cat = IndexTable.dataTable.column(".tags.itd").search();

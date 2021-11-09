@@ -81,7 +81,7 @@ Index.initializeAll = function () {
     // 0 = List view
     // 1 = Thumbnail view
     // List view is at 0 but became the non-default state later so here's some legacy weirdness
-    if (localStorage.indexViewMode === 0) $("#compactmode").prop("checked", true);
+    if (localStorage.indexViewMode === "0") $("#compactmode").prop("checked", true);
     if (localStorage.cropthumbs === "true") $("#cropthumbs").prop("checked", true);
 
     Index.updateTableHeaders();
@@ -115,7 +115,6 @@ Index.saveSettings = function () {
     localStorage.cropthumbs = $("#cropthumbs").prop("checked");
 
     if (!LRR.isNullOrWhitespace($("#customcol1").val())) localStorage.customColumn1 = $("#customcol1").val().trim();
-
     if (!LRR.isNullOrWhitespace($("#customcol2").val())) localStorage.customColumn2 = $("#customcol2").val().trim();
 
     // Absolutely disgusting
@@ -316,8 +315,8 @@ Index.loadTagSuggestions = function () {
  * Query the category API to build the filter buttons.
  */
 Index.loadCategories = function () {
-    $.get("/api/categories")
-        .done((data) => {
+    Server.callAPI("/api/categories", "GET", null, "Couldn't load categories",
+        (data) => {
             // Sort by LastUsed + pinned
             // Pinned categories are shown at the beginning
             data.sort((a, b) => parseFloat(b.last_used) - parseFloat(a.last_used));
@@ -361,7 +360,7 @@ Index.loadCategories = function () {
 
             // Add a listener on dropdown selection
             $("#catdropdown").on("change", () => Index.toggleCategory($("#catdropdown")[0].selectedOptions[0]));
-        }).fail((data) => LRR.showErrorToast("Couldn't load categories", data.error));
+        });
 };
 
 /**

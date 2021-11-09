@@ -148,9 +148,10 @@ LRR.buildTagsDiv = function (tags) {
 
         tagsByNamespace[key].forEach((tag) => {
             const url = LRR.getTagSearchURL(key, tag);
+            const searchTag = LRR.buildNamespacedTag(key, tag);
 
             line += `<div class="gt">
-                        <a href="${url}">
+                        <a href="${url}" search="${LRR.encodeHTML(searchTag)}">
                             ${LRR.encodeHTML(tag)}
                         </a>
                     </div>`;
