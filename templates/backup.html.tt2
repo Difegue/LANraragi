@@ -58,7 +58,7 @@
 		<span style='margin:auto; font-size:9pt; width: 80%; text-align:center;'>
 
 			<div id='processing' style='display:none'>
-				<i class='fa fa-3x fa-cog fa-spin' style='margin-top:20px' id='tag-spinner'></i>
+				<i class='fa fa-3x fa-compact-disc fa-spin' style='margin-top:20px' id='tag-spinner'></i>
 				<h3>Restoring your backup ... </h3>
 			</div>
 

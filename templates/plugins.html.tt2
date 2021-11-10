@@ -84,7 +84,7 @@
 			<br />
 			<h1 style="text-align:center">
 				<span class="script-running" style="display:none">
-					<i aria-hidden="true" class="fa fa-3x fa-cog fa-spin"></i> <br>
+					<i aria-hidden="true" class="fa fa-3x fa-atom fa-spin"></i> <br>
 					A script is running...
 				</span>
 				<input class='stdbtn' type='button' onclick="Server.saveFormData('#editPluginForm');"

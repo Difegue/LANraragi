@@ -71,7 +71,7 @@
 						<td>
 							<textarea id='tagText' class='stdinput' name='tags' autocomplete="off"
 								style="min-height:125px; width:96%">[% tags %]</textarea>
-							<i class='fa fa-5x fa-cog fa-spin'
+							<i class='fa fa-5x fa-compact-disc fa-spin'
 								style=' color:black; position:absolute; top:45%; left:52%; display:none'
 								id='tag-spinner'></i>
 						</td>

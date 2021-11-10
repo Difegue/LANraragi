@@ -35,7 +35,7 @@
         <div id="i3">
             <div class="loading-overlay">
                 <p class="loading-spinner">
-                    <i id="spinner" class="fa fa-cog fa-spin"></i>
+                    <i id="spinner" class="fa fa-fan fa-spin"></i>
                 </p>
             </div>
 

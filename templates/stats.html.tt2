@@ -39,7 +39,7 @@
 				Archives on record
 				<br><br>
 				<i class="fa fa-tags fa-2x" aria-hidden="true"></i> <span style="font-size: 20px" id="tagcount">
-					<i id="spinner" class="fa fa-cog fa-spin"></i> </span>
+					<i id="spinner" class="fa fa-circle-notch fa-spin"></i> </span>
 				Different
 				tags existing
 				<br><br>
@@ -61,7 +61,7 @@
 
 		<div id="statsLoading" style="width: 80%; margin-left: auto; margin-right: auto">
 			<p class="loading-spinner">
-				<i id="spinner" class="fa fa-cog fa-4x fa-spin"></i>
+				<i id="spinner" class="fa fa-dharmachakra fa-4x fa-spin"></i>
 			</p>
 			Asking the great powers that be for your tag statistics...
 		</div>
