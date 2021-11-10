@@ -237,12 +237,12 @@ IndexTable.buildThumbnailCell = function (row, data) {
     if (localStorage.indexViewMode === "1") {
         // Build a thumb-like div with the data
         const thumbCss = (localStorage.cropthumbs === "true") ? "id3" : "id3 nocrop";
-        const thumbDiv = `<div style="height:335px" class="id1 context-menu" id="${data.arcid}">
+        const thumbDiv = `<div class="id1 context-menu" id="${data.arcid}">
                         <div class="id2">
                             ${IndexTable.buildProgressDiv(data)}
                             <a href="reader?id=${data.arcid}" title="${LRR.encodeHTML(data.title)}">${LRR.encodeHTML(data.title)}</a>
                         </div>
-                        <div style="height:280px" class="${thumbCss}">
+                        <div class="${thumbCss}">
                             <a href="reader?id=${data.arcid}" title="${LRR.encodeHTML(data.title)}">
                                 <img style="position:relative;" id="${data.arcid}_thumb" src="./img/wait_warmly.jpg"/>
                                 <i id="${data.arcid}_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>

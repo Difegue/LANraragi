@@ -523,6 +523,15 @@ li {
 
   div.id1 {
     width:164px;
+    height: 256px !important;
+  }
+
+  div.id3 {
+    height: 196px !important;
+  }
+
+  div.id3 img {
+    max-height: 196px;
   }
 
 }
