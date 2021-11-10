@@ -329,6 +329,10 @@ td.itdc {
   margin-bottom: -64px;
 }
 
+.table-option {
+  margin-bottom: 6px;
+}
+
 /* image pages */
 div.sni {
 	text-align: center;

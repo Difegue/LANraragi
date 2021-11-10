@@ -320,10 +320,13 @@ div#toppane {
 .ellipsis {display:inline-block; text-align:center;height:15px;width:31px;background:#EDEADA;cursor:pointer;border:1px solid #000000;margin-top:10px;margin-bottom:10px;}
 
 .table-options {
-    margin-top: -38px;
     margin-right: 4px;
     margin-left: 4px;
-    margin-bottom:5px;
+    margin-bottom:-38px;
+}
+
+.table-option {
+    margin-bottom: 2px;
 }
 
 .caption, .context-menu-list {

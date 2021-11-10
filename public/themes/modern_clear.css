@@ -299,11 +299,14 @@ td.itdc{text-align:center;padding:0 1px 0 2px;margin:0;border-right:1px solid #5
 }
 
 .table-options {
-    margin-top: -34px;
     margin-right: 4%;
     margin-left: 4%;
-    margin-bottom: 34px;
-  }
+    margin-bottom: -60px;
+}
+
+.table-option {
+    margin-bottom: 3px;
+}  
 
 /* image pages */
 div.sni{

@@ -174,12 +174,14 @@ td.itdc{text-align:center;padding:0 1px 0 2px;margin:0;border-right:1px solid #4
     display:inline-block; text-align:center;height:15px;width:31px;background:#34353b;cursor:pointer;border:1px solid #000000;margin-top:10px;margin-bottom:10px;
 }
 .table-options {
-    margin-top: -38px;
     margin-right: 4px;
     margin-left: 4px;
-    margin-bottom:38px;
+    margin-bottom:-38px;
 }
 
+.table-option {
+    margin-bottom: 2px;
+}
 
 /* image pages */
 div.sni{background:#4f535b;border:1px solid #000000;text-align:center;margin:2px auto 6px;padding:0 10px 5px;position:relative;z-index:1}
