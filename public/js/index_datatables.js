@@ -61,7 +61,7 @@ IndexTable.initializeAll = function () {
             processing: "<div id=\"progress\" class=\"indeterminate\"\"><div class=\"bar-container\"><div class=\"bar\" style=\" width: 80%; \"></div></div></div>",
         },
         preDrawCallback: IndexTable.initializeThumbView, // callbacks for thumbnail view
-        drawCallback: IndexTable.addPageSelector,
+        drawCallback: IndexTable.drawCallback,
         rowCallback: IndexTable.buildThumbnailCell,
         columns: [
             /* eslint-disable object-curly-newline */
@@ -266,34 +266,16 @@ IndexTable.buildThumbnailCell = function (row, data) {
 // #region Pushstate/Popstate URL parameters handling
 
 /**
- * Called after the table is drawn. Adds the page selector to the table.
+ * Called after the table is drawn. Updates page selector.
  * (And handles pushing the search parameters to the URL)
  */
-IndexTable.addPageSelector = function () {
+IndexTable.drawCallback = function () {
     if (typeof (IndexTable.dataTable) !== "undefined") {
         const pageInfo = IndexTable.dataTable.page.info();
         if (pageInfo.pages === 0) {
             $(".itg").hide();
         } else {
             $(".itg").show();
-            $(".dataTables_paginate").toArray().forEach((div) => {
-                const container = $("<div class='page-select' >Go to Page: </div>");
-                const nInput = document.createElement("select");
-                $(nInput).attr("class", "favtag-btn");
-
-                for (let j = 1; j <= pageInfo.pages; j++) { // add the pages
-                    const oOption = document.createElement("option");
-                    oOption.text = j;
-                    oOption.value = j;
-                    nInput.add(oOption, null);
-                }
-
-                nInput.value = pageInfo.page + 1;
-                $(nInput).on("change", () => IndexTable.dataTable.page(nInput.value - 1).draw("page"));
-
-                container.append(nInput);
-                div.appendChild(container[0]);
-            });
         }
 
         // Update url to contain all search parameters, and push it to the history
@@ -305,6 +287,21 @@ IndexTable.addPageSelector = function () {
             if (params === "?") params = "/";
             window.history.pushState(null, null, params);
         }
+
+        let currentSort = IndexTable.dataTable.order()[0][0];
+        // Using double equals here since the sort column can be either a string or an int
+        // eslint-disable-next-line eqeqeq
+        if (currentSort == 1) {
+            currentSort = localStorage.customColumn1;
+            // eslint-disable-next-line eqeqeq
+        } else if (currentSort == 2) {
+            currentSort = localStorage.customColumn2;
+        } else {
+            currentSort = "title";
+        }
+
+        const currentOrder = IndexTable.dataTable.order()[0][1];
+        Index.updateTableControls(currentSort, currentOrder, pageInfo.pages, pageInfo.page + 1);
 
         // Clear potential leftover tooltips
         tippy.hideAll();
@@ -340,6 +337,7 @@ IndexTable.consumeURLParameters = function () {
     if (params.has("c")) Index.selectedCategory = params.get("c");
     else Index.selectedCategory = "";
 
+    // TODO
     $("#untaggedbtn").prop("checked", params.has("untagged"));
     // updateToggleClass($("#untaggedbtn"));
 

@@ -15,10 +15,45 @@ Index.pageSize = 100;
  */
 Index.initializeAll = function () {
     // Bind events to DOM
-    $(document).on("click.save-settings", "#save-settings", Index.saveSettings);
-
-    $(document).on("click.settings-btn", "#settings-btn", LRR.openSettings);
+    $(document).on("click.edit-header-1", "#edit-header-1", () => { Index.promptCustomColumn(1); });
+    $(document).on("click.edit-header-2", "#edit-header-2", () => { Index.promptCustomColumn(2); });
+    $(document).on("click.mode-toggle", ".mode-toggle", Index.toggleMode);
+    $(document).on("change.page-select", "#page-select", () => IndexTable.dataTable.page($("#page-select").val() - 1).draw("page"));
+    $(document).on("change.thumbnail-crop", "#thumbnail-crop", Index.toggleCrop);
+    $(document).on("change.namespace-sortby", "#namespace-sortby", Index.handleCustomSort);
+    $(document).on("click.order-sortby", "#order-sortby", Index.toggleOrder);
     $(document).on("click.close_overlay", "#overlay-shade", LRR.closeOverlay);
+
+    // 0 = List view
+    // 1 = Thumbnail view
+    // List view is at 0 but became the non-default state later so here's some legacy weirdness
+    if (localStorage.getItem("indexViewMode") === null) {
+        localStorage.indexViewMode = 1;
+    }
+
+    // Default to crop landscape
+    if (localStorage.getItem("cropthumbs") === null) {
+        localStorage.cropthumbs = true;
+    }
+
+    // Default custom columns
+    if (localStorage.getItem("customColumn1") === null) {
+        localStorage.customColumn1 = "artist";
+        localStorage.customColumn2 = "series";
+    }
+
+    // Tell user about the context menu
+    if (localStorage.getItem("sawContextMenuToast") === null) {
+        localStorage.sawContextMenuToast = true;
+
+        $.toast({
+            heading: `Welcome to LANraragi ${Index.serverVersion}!`,
+            text: "If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!",
+            hideAfter: false,
+            position: "top-left",
+            icon: "info",
+        });
+    }
 
     // Get some info from the server: version, debug mode, local progress
     Server.callAPI("/api/info", "GET", null, "Error getting basic server info!", (data) => {
@@ -49,42 +84,25 @@ Index.initializeAll = function () {
         IndexTable.initializeAll();
     });
 
-    // Default to thumbnail mode
-    if (localStorage.getItem("indexViewMode") === null) {
-        localStorage.indexViewMode = 1;
-    }
-
-    // Default to crop landscape
-    if (localStorage.getItem("cropthumbs") === null) {
-        localStorage.cropthumbs = true;
-    }
-
-    // Default custom columns
-    if (localStorage.getItem("customColumn1") === null) {
-        localStorage.customColumn1 = "artist";
-        localStorage.customColumn2 = "series";
-    }
-
-    // Tell user about the context menu
-    if (localStorage.getItem("sawContextMenuToast") === null) {
-        localStorage.sawContextMenuToast = true;
-
-        $.toast({
-            heading: `Welcome to LANraragi ${Index.serverVersion}!`,
-            text: "If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!",
-            hideAfter: false,
-            position: "top-left",
-            icon: "info",
-        });
-    }
-
-    // 0 = List view
-    // 1 = Thumbnail view
-    // List view is at 0 but became the non-default state later so here's some legacy weirdness
-    if (localStorage.indexViewMode === "0") $("#compactmode").prop("checked", true);
-    if (localStorage.cropthumbs === "true") $("#cropthumbs").prop("checked", true);
-
     Index.updateTableHeaders();
+};
+
+Index.toggleMode = function () {
+    localStorage.indexViewMode = (localStorage.indexViewMode === "1") ? "0" : "1";
+    IndexTable.dataTable.draw();
+};
+
+Index.toggleCrop = function () {
+    localStorage.cropthumbs = $("#thumbnail-crop")[0].checked;
+    IndexTable.dataTable.draw();
+};
+
+Index.toggleOrder = function (e) {
+    e.preventDefault();
+    const order = IndexTable.dataTable.order();
+    order[0][1] = order[0][1] === "asc" ? "desc" : "asc";
+    IndexTable.dataTable.order(order);
+    IndexTable.dataTable.draw();
 };
 
 /**
@@ -108,23 +126,80 @@ Index.toggleCategory = function (button) {
 };
 
 /**
- * Save settings to localStorage.
+ * Show a prompt to update the namespace of a column in compact mode.
+ * @param {*} column Index of the column to modify, either 1 or 2
  */
-Index.saveSettings = function () {
-    localStorage.indexViewMode = $("#compactmode").prop("checked") ? 0 : 1;
-    localStorage.cropthumbs = $("#cropthumbs").prop("checked");
+Index.promptCustomColumn = function (column) {
+    const promptText = "Enter the namespace of the tags you want to show in this column. \n\n"
+    + "Enter a full namespace without the colon, e.g \"artist\".\n"
+    + "If you have multiple tags with the same namespace, only the last one will be shown in the column.";
 
-    if (!LRR.isNullOrWhitespace($("#customcol1").val())) localStorage.customColumn1 = $("#customcol1").val().trim();
-    if (!LRR.isNullOrWhitespace($("#customcol2").val())) localStorage.customColumn2 = $("#customcol2").val().trim();
+    const defaultText = localStorage.getItem(`customColumn${column}`);
+    const input = prompt(promptText, defaultText);
 
-    // Absolutely disgusting
-    IndexTable.dataTable.settings()[0].aoColumns[1].sName = localStorage.customColumn1;
-    IndexTable.dataTable.settings()[0].aoColumns[2].sName = localStorage.customColumn2;
+    if (!LRR.isNullOrWhitespace(input)) {
+        localStorage.setItem(`customColumn${column}`, input.trim());
 
-    Index.updateTableHeaders();
-    LRR.closeOverlay();
+        // Absolutely disgusting
+        IndexTable.dataTable.settings()[0].aoColumns[column].sName = input.trim();
+        Index.updateTableHeaders();
+    }
+};
 
-    // Redraw the table yo
+/**
+ * Update table controls to reflect the current status.
+ * @param {*} currentSort Current sort column
+ * @param {*} currentOrder Current sort order
+ * @param {*} totalPages Total pages of the table
+ * @param {*} currentPage Current page of the table
+ */
+Index.updateTableControls = function (currentSort, currentOrder, totalPages, currentPage) {
+    $("#thumbnail-crop")[0].checked = localStorage.cropthumbs === "true";
+
+    $("#namespace-sortby").val(currentSort);
+    $("#order-sortby")[0].classList.remove("fa-sort-alpha-down", "fa-sort-alpha-up");
+    $("#order-sortby")[0].classList.add(currentOrder === "asc" ? "fa-sort-alpha-down" : "fa-sort-alpha-up");
+
+    if (localStorage.indexViewMode === "1") {
+        $(".thumbnail-options").show();
+        $(".thumbnail-toggle").show();
+        $(".compact-toggle").hide();
+    } else {
+        $(".thumbnail-options").hide();
+        $(".thumbnail-toggle").hide();
+        $(".compact-toggle").show();
+    }
+
+    // Page selector
+    const pageSelect = $("#page-select");
+    pageSelect.empty();
+
+    for (let j = 1; j <= totalPages; j++) {
+        const oOption = document.createElement("option");
+        oOption.text = j;
+        oOption.value = j;
+        pageSelect[0].add(oOption, null);
+    }
+
+    pageSelect.val(currentPage);
+};
+
+Index.handleCustomSort = function () {
+    const namespace = $("#namespace-sortby").val();
+    const order = IndexTable.dataTable.order();
+
+    // Special case for title sorting, as that uses column 0
+    if (namespace === "title") {
+        order[0][0] = 0;
+    } else {
+        // The order set in the combobox uses customColumn1
+        order[0][0] = 1;
+        localStorage.customColumn1 = namespace;
+        IndexTable.dataTable.settings()[0].aoColumns[1].sName = namespace;
+        Index.updateTableHeaders();
+    }
+
+    IndexTable.dataTable.order(order);
     IndexTable.dataTable.draw();
 };
 
@@ -137,8 +212,10 @@ Index.updateTableHeaders = function () {
 
     $("#customcol1").val(cc1);
     $("#customcol2").val(cc2);
-    $("#customheader1").children()[0].innerHTML = cc1.charAt(0).toUpperCase() + cc1.slice(1);
-    $("#customheader2").children()[0].innerHTML = cc2.charAt(0).toUpperCase() + cc2.slice(1);
+
+    // Modify text of <a> in headers
+    $("#header-1").html(cc1.charAt(0).toUpperCase() + cc1.slice(1));
+    $("#header-2").html(cc2.charAt(0).toUpperCase() + cc2.slice(1));
 };
 
 /**
@@ -284,6 +361,15 @@ Index.loadTagSuggestions = function () {
     // Query the tag cloud API to get the most used tags.
     Server.callAPI("/api/database/stats?minweight=2", "GET", null, "Couldn't load tag suggestions",
         (data) => {
+            // Get namespaces objects in the data array to fill the namespace-sortby combobox
+            const namespacesSet = new Set(data.map((element) => (element.namespace === "parody" ? "series" : element.namespace)));
+            namespacesSet.forEach((element) => {
+                if (element !== "") {
+                    $("#namespace-sortby").append(`<option value="${element}">${element.charAt(0).toUpperCase() + element.slice(1)}</option>`);
+                }
+            });
+
+            // Setup awesomplete for the tag search bar
             Index.awesomplete = new Awesomplete("#search-input", {
                 list: data,
                 data(tag) {

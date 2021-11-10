@@ -318,10 +318,11 @@ td.itdc {
   margin-right: 3px;
 }
 
-.page-select {
+.table-options {
   margin-top: -34px;
-  margin-right: 5%;
-  margin-bottom: 8px;
+  margin-right: 4%;
+  margin-left: 4%;
+  margin-bottom: 34px;
 }
 
 div.sni {

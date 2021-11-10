@@ -319,9 +319,10 @@ div#toppane {
 .paginate_button.current{color:#5C0D11;background:#F2EFDF;}
 .ellipsis {display:inline-block; text-align:center;height:15px;width:31px;background:#EDEADA;cursor:pointer;border:1px solid #000000;margin-top:10px;margin-bottom:10px;}
 
-.page-select {
+.table-options {
     margin-top: -38px;
     margin-right: 4px;
+    margin-left: 4px;
     margin-bottom:5px;
 }
 

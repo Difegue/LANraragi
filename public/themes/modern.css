@@ -323,9 +323,10 @@ td.itdc {
   margin-right: 3px;
 }
 
-.page-select {
-  margin-top: -34px;
-  margin-right: 5%;
+.table-options {
+  margin-right: 4%;
+  margin-left: 4%;
+  margin-bottom: -64px;
 }
 
 /* image pages */

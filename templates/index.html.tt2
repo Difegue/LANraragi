@@ -72,42 +72,56 @@
 				<div id="category-container">
 					<!-- Categories go here -->
 				</div>
-				<input id='untaggedbtn' class='favtag-btn' type='button' onclick='toggleFilter(this)'
-					value='Untagged archives only' />
-				<input id='inboxbtn' class='favtag-btn' type='button' onclick='toggleFilter(this)'
-					value='New archives only' />
-				<br />
 				<input type='text' id='search-input' class='search stdinput' size='90' style='width:95%'
 					placeholder='Search Title, Artist, Series, Language or Tags' />
 				<input id='apply-search' class='searchbtn stdbtn' type='button' value='Apply Filter' />
 				<input id='clear-search' class='searchbtn stdbtn' type='button' value='Clear Filter' />
 			</div>
 
-			<p id='cssbutton' style='display:inline'>
-				<input class='stdbtn' type='button' onclick="LRR.openInNewTab('random')"
-					value='Give me a random archive' />
+			<div class="table-options">
+				<div class="thumbnail-options">Sort by:
+					<select class="favtag-btn" id="namespace-sortby">
+						<option selected value="title">Title</option>
+					</select>
+					<a class="fa fa-sort-alpha-down fa-2x table-option" id="order-sortby" href="#"
+						title="Sort Order"></a>
 
-				<input id='settings-btn' class='stdbtn' type='button' value='Display Options' />
-			</p>
+					<input id="thumbnail-crop" class="fa table-option" type="checkbox"
+						title="If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the left side.">
+					<label for="thumbnail-crop" style="vertical-align: middle; padding-top:6px">Crop thumbnails</label>
+				</div>
+				<div style="margin-left:auto">Go to Page:
+					<select class="favtag-btn" id="page-select">
+					</select>
+					<a class="fa fa-list fa-2x mode-toggle thumbnail-toggle table-option" href="#"
+						title="Switch to Compact Mode"></a>
+					<a class="fa fa-table fa-2x mode-toggle compact-toggle table-option" href="#"
+						title="Switch to Thumbnail Mode"></a>
+				</div>
+			</div>
 
 			<table class="itg datatables">
-				<thead>
+				<thead class="list" style="display: none;">
 					<tr>
 						<th id="titleheader">
 							<a>Title</a>
 						</th>
 						<th id="customheader1">
-							<a>Artist</a>
+							<i id="edit-header-1" class="fas fa-pencil-alt edit-header-btn"
+								title="Edit this column"></i>
+							<a id="header-1">Artist</a>
 						</th>
 						<th id="customheader2">
-							<a>Series</a>
+							<i id="edit-header-2" class="fas fa-pencil-alt edit-header-btn"
+								title="Edit this column"></i>
+							<a id="header-2">Series</a>
 						</th>
 						<th id="tagsheader">
 							<a>Tags</a>
 						</th>
 					</tr>
 				</thead>
-				<tbody class="list">
+				<tbody class="list" style="display: none;">
 				</tbody>
 			</table>
 
@@ -183,40 +197,6 @@
 	</script>
 
 	<div id="overlay-shade"> </div>
-	<div id="settingsOverlay" class="id1 base-overlay small-overlay" style="display:none">
-		<h2 class="ih" style="text-align:center">Index Display Options</h2>
-		<div>
-
-			<div class="config-panel">
-				<h1 class="ih" style="display:inline"> Use Compact Mode</h1>
-				<input id="compactmode" name="compactmode" class="fa" type="checkbox" style="float:left; width: 68px;">
-				<br /> If enabled, archives will be displayed as a list without thumbnails.
-			</div>
-
-			<div class="config-panel">
-				<h1 class="ih" style="display:inline"> Crop Landscape Thumbnails </h1>
-				<input id="cropthumbs" name="cropthumbs" class="fa" type="checkbox" style="float:left; width: 68px;">
-				<br /> If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the
-				left side.
-			</div>
-
-			<div class="config-panel">
-				<h1 class="ih" style="display:inline"> Column Customization </h1>
-				<br>You can customize the namespace used in the two columns between the title and the tag summary.
-				<br>Enter a full namespace without the colon, e.g "artist".<br>
-				<br>If you have multiple tags with the same namespace, only the last one will be shown in the column.
-				<br><br>
-				<b>Column 1: </b> <input id="customcol1" name="customcol2" value="artist"> <br>
-				<b>Column 2: </b> <input id="customcol2" name="customcol2" value="series">
-			</div>
-		</div>
-		<br />
-		<br />
-		<input value="Save and Close" class="stdbtn" id="save-settings" type="button">
-		<br />
-		<br />
-		<br />
-	</div>
 
 	<div id="updateOverlay" class="id1 base-overlay small-overlay" style="display:none">
 		<h2 class="ih" style="text-align:center">New Version Release Notes</h2>

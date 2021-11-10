@@ -30,6 +30,10 @@ td.tags {
   max-width: 250px;
 }
 
+.edit-header-btn {
+  cursor: pointer;
+}
+
 span.tags {
   display: block;
   overflow:hidden;
@@ -130,8 +134,14 @@ table thead .sorting_disabled a:after {
   margin-left: 1rem;
 }
 
-.page-select {
-  text-align:right;
+.table-options {
+  display: flex;
+}
+
+.table-option {
+  margin-left: 8px !important;
+  vertical-align: bottom;
+  margin-bottom: 6px;
 }
 
 p#nb {
@@ -502,17 +512,25 @@ li {
   }
 }
 
+@media all and (max-width: 1024px) {
+
+  .table-options {
+    margin-bottom: 0 !important;
+  }
+
+}
+
 @media all and (max-width: 560px) {
 
   div.id1 {
-    width:192px;
+    width:164px;
   }
 
 }
 
 @media all and (max-width: 540px) {
 
-  .reader_options {
+  .absolute-options {
     margin-top: 30px;
   }
 
@@ -549,25 +567,22 @@ li {
     width: 100% !important;
   }
 
-  .page-select {
-    margin-top: 0 !important;
-  }
 }
 
-.reader_options {
+.absolute-options {
   position: absolute;
   z-index: 20;
 }
 
-.drop_left {
+.absolute-left {
   left: 12px;
 }
 
-.drop_right {
+.absolute-right {
   right: 1px;
 }
 
-.reader_options a {
+.absolute-options a {
   padding-right: 10px;
   text-decoration: none;
 }
@@ -613,7 +628,7 @@ body.infinite-scroll #toggle-double-mode {
   display: none;
 }
 
-body.infinite-scroll #i4 .reader_options {
+body.infinite-scroll #i4 .absolute-options {
   position: fixed;
   top: 20px;
 }
