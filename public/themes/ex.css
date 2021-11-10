@@ -7,6 +7,10 @@ img{border:0}
     background-color: #DDDDDD;
 }
 
+a.fa {
+    text-decoration: none;
+}
+
 a{color:#DDDDDD; } 
 a:hover{color:#FFFBDB} 
 
@@ -181,6 +185,35 @@ td.itdc{text-align:center;padding:0 1px 0 2px;margin:0;border-right:1px solid #4
 
 .table-option {
     margin-bottom: 2px;
+}
+
+.collapsible-title {
+    padding: 0.5rem;
+}
+
+.collapsible-right {
+    padding: 0.2rem 0.5rem 0 0 !important;
+  }
+
+.index-carousel {
+    margin-top: 0 !important;
+    margin-bottom: 12px !important;
+}
+
+.index-carousel > .option-flyout {
+    margin: 0 !important;
+}
+
+.carousel-prev {
+    padding:4px;
+    border:1px solid #000000;
+    background-color: #40454b;
+}
+  
+.carousel-next {
+    padding:4px;
+    border:1px solid #000000;
+    background-color: #40454b;
 }
 
 /* image pages */

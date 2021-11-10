@@ -130,6 +130,8 @@ IndexTable.doSearch = function (page) {
 
     // Re-load categories so the most recently selected/created ones appear first
     Index.loadCategories();
+
+    Index.updateCarousel();
 };
 
 // #region Compact View

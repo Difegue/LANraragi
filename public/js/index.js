@@ -5,6 +5,7 @@
 const Index = {};
 Index.selectedCategory = "";
 Index.awesomplete = {};
+Index.swiper = {};
 Index.serverVersion = "";
 Index.debugMode = false;
 Index.isProgressLocal = true;
@@ -22,7 +23,21 @@ Index.initializeAll = function () {
     $(document).on("change.thumbnail-crop", "#thumbnail-crop", Index.toggleCrop);
     $(document).on("change.namespace-sortby", "#namespace-sortby", Index.handleCustomSort);
     $(document).on("click.order-sortby", "#order-sortby", Index.toggleOrder);
+    $(document).on("click.reload-carousel", "#reload-carousel", Index.updateCarousel);
     $(document).on("click.close_overlay", "#overlay-shade", LRR.closeOverlay);
+
+    // hack: force-open the collapsible
+    $(".collapsible-title").click();
+    Index.swiper = new Swiper(".index-carousel-container", {
+        slidesPerView: "auto",
+        spaceBetween: 8,
+        navigation: {
+            nextEl: ".carousel-next",
+            prevEl: ".carousel-prev",
+        },
+        mousewheel: true,
+        freeMode: true,
+    });
 
     // 0 = List view
     // 1 = Thumbnail view
@@ -154,6 +169,7 @@ Index.promptCustomColumn = function (column) {
  * @param {*} currentPage Current page of the table
  */
 Index.updateTableControls = function (currentSort, currentOrder, totalPages, currentPage) {
+    $(".table-options").show();
     $("#thumbnail-crop")[0].checked = localStorage.cropthumbs === "true";
 
     $("#namespace-sortby").val(currentSort);
@@ -201,6 +217,46 @@ Index.handleCustomSort = function () {
 
     IndexTable.dataTable.order(order);
     IndexTable.dataTable.draw();
+};
+
+Index.updateCarousel = function (e) {
+    e?.preventDefault();
+
+    const carousel = $(".swiper-wrapper");
+    carousel.empty();
+    $("#carousel-loading").show();
+
+    Server.callAPI(`/api/search/random?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}&count=15`,
+        "GET", null, "Error getting random archives!",
+        (data) => {
+            const thumbCss = (localStorage.cropthumbs === "true") ? "id3" : "id3 nocrop";
+
+            data.forEach((archive) => {
+                const thumbDiv = `<div class="id1 context-menu swiper-slide" id="${archive.id}">
+                <div class="id2">
+                    <a href="reader?id=${archive.id}" title="${LRR.encodeHTML(archive.title)}">${LRR.encodeHTML(archive.title)}</a>
+                </div>
+                <div class="${thumbCss}">
+                    <a href="reader?id=${archive.id}" title="${LRR.encodeHTML(archive.title)}">
+                        <img style="position:relative;" id="${archive.id}_thumb" src="./img/wait_warmly.jpg"/>
+                        <i id="${archive.id}_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>
+                        <img src="./api/archives/${archive.id}/thumbnail" 
+                                onload="$('#${archive.id}_thumb').remove(); $('#${archive.id}_spinner').remove();" 
+                                onerror="this.src='./img/noThumb.png'"/>
+                    </a>
+                </div>
+                <div class="id4">
+                    <span class="tags tag-tooltip" onmouseover="IndexTable.buildTagTooltip(this)">${LRR.colorCodeTags(archive.tags)}</span>
+                    <div class="caption caption-tags" style="display: none;" >${LRR.buildTagsDiv(archive.tags)}</div>
+                </div>
+            </div>`;
+
+                carousel.append(thumbDiv);
+            });
+
+            Index.swiper.update();
+            $("#carousel-loading").hide();
+        });
 };
 
 /**

@@ -143,6 +143,33 @@ table thead .sorting_disabled a:after {
   vertical-align: bottom;
 }
 
+.index-carousel {
+  margin-top: -20px;
+  margin-bottom: 36px;
+}
+
+.index-carousel > .option-flyout {
+  margin: 0 4%;
+}
+
+.index-carousel-container {
+  margin-top: -20px;
+}
+
+.carousel-prev {
+  position: absolute;
+  top: 136px;
+  left: 0;
+  z-index: 20;
+}
+
+.carousel-next {
+  position: absolute;
+  top: 136px;
+  right: 0;
+  z-index: 20;
+}
+
 p#nb {
   font-size: 13px;
 }
@@ -295,6 +322,11 @@ p#nb {
 
 .collapsible-title {
   border: none !important;
+}
+
+.collapsible-right {
+  float: right; 
+  padding: 1.2rem 1.2rem 0 0;
 }
 
 .collapsible-body {
@@ -517,6 +549,9 @@ li {
     margin-bottom: 0 !important;
   }
 
+  .index-carousel {
+    margin-bottom: 0px !important;
+  }
 }
 
 @media all and (max-width: 560px) {

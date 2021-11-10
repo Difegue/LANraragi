@@ -15,6 +15,8 @@
 	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.contextMenu.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/awesomplete.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/tippy.css" />
+	<link rel="stylesheet" type="text/css" href="/css/vendor/allcollapsible.min.css" />
+	<link rel="stylesheet" type="text/css" href="/css/vendor/swiper-bundle.min.css" />
 	[% csshead %]
 
 	<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
@@ -26,6 +28,8 @@
 	<script src="/js/vendor/popper.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/tippy-bundle.umd.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/marked.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/allcollapsible.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/swiper-bundle.min.js" type="text/JAVASCRIPT"></script>
 
 	<script src="/js/index.js?[% version %]" type="text/JAVASCRIPT"></script>
 	<script src="/js/common.js?[% version %]" type="text/JAVASCRIPT"></script>
@@ -78,7 +82,38 @@
 				<input id='clear-search' class='searchbtn stdbtn' type='button' value='Clear Filter' />
 			</div>
 
-			<div class="table-options">
+			<ul class="collapsible index-carousel with-right-caret">
+				<li class="option-flyout" style="text-align: left;">
+					<div class="collapsible-title caret-right" style="display:inline-block;">
+						<i class="fa fa-random" aria-hidden="true"></i> Randomly Picked
+					</div>
+					<div class="collapsible-right">
+						<!--<select class="favtag-btn">
+							<option value="1">On Deck</option>
+							<option value="1">Randomly Picked</option>
+							<option value="1">New Archives</option>
+							<option value="1">Untagged Archives</option>
+						</select>-->
+						<a class="fa fa-2x fa-sync-alt" style="margin-bottom: -4px" id="reload-carousel" href="#"
+							title="Refresh Selection"></a>
+					</div>
+
+
+					<div class="collapsible-body">
+						<div class="swiper index-carousel-container">
+							<a href="#" class="fa fa-3x fa-chevron-left carousel-prev"></a>
+							<a href="#" class="fa fa-3x fa-chevron-right carousel-next"></a>
+							<div class="swiper-wrapper"></div>
+							<div id="carousel-loading" style="text-align: center; height: 344px;">
+								<i class="fa fa-4x fa-stroopwafel fa-spin"></i>
+							</div>
+
+						</div>
+					</div>
+				</li>
+			</ul>
+
+			<div class="table-options" style="display: none;">
 				<div class="thumbnail-options">Sort by:
 					<select class="favtag-btn" id="namespace-sortby">
 						<option selected value="title">Title</option>
