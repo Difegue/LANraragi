@@ -153,8 +153,15 @@ IndexTable.renderColumn = function (namespace, type, data) {
         const match = regex.exec(data);
 
         if (match != null) {
+            let tagText = match[1].replace(/\b./g, (m) => m.toUpperCase());
+            // If namespace is a date, consider the contents are a UNIX timestamp
+            if (namespace === "date_added" || namespace === "timestamp") {
+                const date = new Date(match[1] * 1000);
+                tagText = date.toLocaleDateString();
+            }
+
             return `<a style="cursor:pointer" href="${LRR.getTagSearchURL(namespace, match[1])}">
-                        ${match[1].replace(/\b./g, (m) => m.toUpperCase())}
+                        ${tagText}
                     </a>`;
         } else return "";
     }

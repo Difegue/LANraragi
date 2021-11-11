@@ -83,6 +83,8 @@ LRR.colorCodeTags = function (tags) {
     const tagsByNamespace = LRR.splitTagsByNamespace(tags);
     Object.keys(tagsByNamespace).sort().forEach((key) => {
         tagsByNamespace[key].forEach((tag) => {
+            if (key === "date_added" || key === "timestamp") return;
+
             const encodedK = LRR.encodeHTML(key.toLowerCase());
             line += `<span class='${encodedK}-tag'>${LRR.encodeHTML(tag)}</span>, `;
         });
@@ -150,9 +152,15 @@ LRR.buildTagsDiv = function (tags) {
             const url = LRR.getTagSearchURL(key, tag);
             const searchTag = LRR.buildNamespacedTag(key, tag);
 
+            let tagText = LRR.encodeHTML(tag);
+            if (key === "date_added" || key === "timestamp") {
+                const date = new Date(tag * 1000);
+                tagText = date.toLocaleDateString();
+            }
+
             line += `<div class="gt">
                         <a href="${url}" search="${LRR.encodeHTML(searchTag)}">
-                            ${LRR.encodeHTML(tag)}
+                            ${tagText}
                         </a>
                     </div>`;
         });

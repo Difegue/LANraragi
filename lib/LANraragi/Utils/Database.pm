@@ -38,13 +38,13 @@ sub add_archive_to_redis {
     $redis->hset( $id, "name",  redis_encode($name) );
     $redis->hset( $id, "title", redis_encode($name) );
 
-    # Initialize tags to an empty string
-    $redis->hset( $id, "tags", "" );
+    # Initialize tags to the current date
+    $redis->hset( $id, "tags", "date_added:" . time() );
 
-    #Don't encode filenames.
+    # Don't encode filenames.
     $redis->hset( $id, "file", $file );
 
-    #New file in collection, so this flag is set.
+    # New file in collection, so this flag is set.
     $redis->hset( $id, "isnew", "true" );
 
     $redis->quit;

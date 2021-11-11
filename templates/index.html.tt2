@@ -8,7 +8,6 @@
 
 	<link type="image/png" rel="icon" href="favicon.ico" />
 	<link rel="stylesheet" type="text/css" href="/css/lrr.css?[% version %]" />
-	<link rel="stylesheet" type="text/css" href="/css/config.css?[% version %]" />
 
 	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.toast.min.css" />
@@ -117,6 +116,7 @@
 				<div class="thumbnail-options">Sort by:
 					<select class="favtag-btn" id="namespace-sortby">
 						<option selected value="title">Title</option>
+						<option selected value="date_added">Date</option>
 					</select>
 					<a class="fa fa-sort-alpha-down fa-2x table-option" id="order-sortby" href="#"
 						title="Sort Order"></a>
