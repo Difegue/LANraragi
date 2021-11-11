@@ -203,6 +203,13 @@ Batch.updateBatchStatus = function (event) {
         case "tagrules":
             $("#log-container").append(`Replaced tags for ID ${msg.id} (New tags: ${msg.tags})\n\n`);
             break;
+        case "clearnew": {
+            $("#log-container").append(`Cleared new flag for ID ${msg.id}\n\n`);
+            // Remove last character from matching row
+            const t = $(`#${msg.id}`).next().text().replace("🆕", "");
+            $(`#${msg.id}`).next().text(t);
+            break;
+        }
         default:
             $("#log-container").append(`Unknown operation ${Batch.currentOperation} (${msg.message})\n\n`);
             break;

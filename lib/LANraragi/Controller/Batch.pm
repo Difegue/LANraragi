@@ -80,6 +80,20 @@ sub socket {
 
                 # Send reply message for completed archive
                 $client->send( { json => batch_plugin( $id, $plugin, @args ) } );
+                return;
+            }
+
+            if ( $operation eq "clearnew" ) {
+                $redis->hset( $id, "isnew", "false" );
+
+                $client->send(
+                    {   json => {
+                            id      => $id,
+                            success => 1,
+                        }
+                    }
+                );
+                return;
             }
 
             if ( $operation eq "tagrules" ) {
@@ -104,6 +118,7 @@ sub socket {
                         }
                     }
                 );
+                return;
             }
 
             if ( $operation eq "delete" ) {
@@ -120,8 +135,18 @@ sub socket {
                         }
                     }
                 );
+                return;
             }
 
+            # Unknown operation
+            $client->send(
+                {   json => {
+                        id      => $id,
+                        message => "Unknown operation type $operation.",
+                        success => 0
+                    }
+                }
+            );
         }
     );
 

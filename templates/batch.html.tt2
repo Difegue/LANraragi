@@ -45,6 +45,7 @@
 							<td>
 								<select id="batch-operation" class="favtag-btn" style="font-size:20px; height:30px">
 									<option value="plugin">🧩 Use Plugin</option>
+									<option value="clearnew">🆕 Remove New Flag</option>
 									<option value="tagrules">📏 Apply Tag Rules</option>
 									<option value="delete">🗑️ Delete Archive</option>
 								</select>
@@ -104,6 +105,14 @@
 								<td>
 									<textarea class="stdinput" size="20" style='height:196px'
 										disabled>[% tagrules %]</textarea>
+								</td>
+							</tr>
+
+							<tr class="operation clearnew-operation">
+								<td colspan="2" style="text-align: center;">
+
+									This removes the "new" flag from the selected archives.
+									<br>
 								</td>
 							</tr>
 
