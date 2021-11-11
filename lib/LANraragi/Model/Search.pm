@@ -31,7 +31,7 @@ sub do_search {
     my $logger = get_logger( "Search Engine", "lanraragi" );
 
     # Search filter results
-    my $total    = $redis->dbsize;   #TODO this is incorrect by a few keys due to the config keys being strewn about on the DB root.
+    my $total    = $redis->hlen("LRR_FILEMAP");    # Total number of archives
     my @filtered = ();
 
     # Look in searchcache first
