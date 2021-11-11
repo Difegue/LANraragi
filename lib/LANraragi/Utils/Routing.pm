@@ -46,7 +46,6 @@ sub apply_routes {
 
     $public_routes->get('/')->to('index#index');
     $public_routes->get('/index')->to('index#index');
-    $public_routes->get('/random')->to('index#random_archive');
     $public_routes->get('/reader')->to('reader#index');
     $public_routes->get('/stats')->to('stats#index');
 
