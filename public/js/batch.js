@@ -29,7 +29,7 @@ Batch.initializeAll = function () {
         (data) => {
             // Parse the archive list and add <li> elements to arclist
             data.forEach((archive) => {
-                const escapedTitle = LRR.encodeHTML(archive.title);
+                const escapedTitle = LRR.encodeHTML(archive.title) + (archive.isnew === "true" ? " 🆕" : "");
                 const html = `<li><input type='checkbox' name='archive' id='${archive.arcid}' class='archive' ><label for='${archive.arcid}'>${escapedTitle}</label></li>`;
                 $("#arclist").append(html);
             });

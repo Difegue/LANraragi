@@ -20,7 +20,8 @@
         "Awesomplete": "readonly",
         "tippy": "readonly",
         "Index": "readonly",
-        "IndexTable": "readonly"
+        "IndexTable": "readonly",
+        "Swiper": "readonly"
     },
     "rules": {
         "func-names": ["error", "never"],
