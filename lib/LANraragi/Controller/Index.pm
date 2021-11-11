@@ -10,6 +10,36 @@ use Authen::Passphrase;
 
 use LANraragi::Utils::Generic qw(generate_themes_header);
 
+sub random_archive {
+    my $self          = shift;
+    my $archive       = "";
+    my $archiveexists = 0;
+
+    my $redis = $self->LRR_CONF->get_redis();
+
+    # We get a random archive ID.
+    # We check for the length to (sort-of) avoid not getting an archive ID.
+    # TODO: This will loop infinitely if there are zero archives in store.
+    until ($archiveexists) {
+        $archive = $redis->randomkey();
+
+        $self->LRR_LOGGER->debug("Found key $archive");
+
+        #We got a key, but does the matching archive still exist on the server?
+        if (   length($archive) == 40
+            && $redis->type($archive) eq "hash"
+            && $redis->hexists( $archive, "file" ) ) {
+            my $arclocation = $redis->hget( $archive, "file" );
+            if ( -e $arclocation ) { $archiveexists = 1; }
+        }
+    }
+
+    $redis->quit();
+
+    #We redirect to the reader, with the key as parameter.
+    $self->redirect_to( '/reader?id=' . $archive );
+}
+
 # Render the index template with a few prefilled arguments.
 # Most of the work is done in JS these days.
 sub index {
