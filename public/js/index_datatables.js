@@ -69,8 +69,6 @@ IndexTable.initializeAll = function () {
             { data: "tags", className: "custom1 itd", name: localStorage.customColumn1, render: (data, type) => IndexTable.renderColumn(localStorage.customColumn1, type, data) },
             { data: "tags", className: "custom2 itd", name: localStorage.customColumn2, render: (data, type) => IndexTable.renderColumn(localStorage.customColumn2, type, data) },
             { data: "tags", className: "tags itd", name: "tags", orderable: false, render: IndexTable.renderTags },
-            { data: "isnew", className: "isnew itd", name: "isnew", visible: false },
-            { data: null, className: "untagged itd", name: "untagged", visible: false },
         ],
     });
 
@@ -88,28 +86,6 @@ IndexTable.doSearch = function (page) {
     // Add the selected category to the tags column so it's picked up by the search engine
     // This allows for the regular search bar to be used in conjunction with categories.
     IndexTable.dataTable.column(".tags.itd").search(Index.selectedCategory);
-
-    // Add the isnew filter if asked
-    // TODO: replace with carousel
-    let input = $("#inboxbtn");
-
-    if (input.prop("checked")) {
-        IndexTable.dataTable.column(".isnew").search("true");
-    } else {
-        // no fav filters
-        IndexTable.dataTable.column(".isnew").search("");
-    }
-
-    // Add the untagged filter if asked
-    // TODO: replace with carousel
-    input = $("#untaggedbtn");
-
-    if (input.prop("checked")) {
-        IndexTable.dataTable.column(".untagged").search("true");
-    } else {
-        // no fav filters
-        IndexTable.dataTable.column(".untagged").search("");
-    }
 
     // Update search input field
     $("#search-input").val(IndexTable.currentSearch);
@@ -176,7 +152,7 @@ IndexTable.renderColumn = function (namespace, type, data) {
  */
 IndexTable.renderTitle = function (data, type) {
     if (type === "display") {
-        return `${IndexTable.buildProgressDiv(data)} 
+        return `${LRR.buildProgressDiv(data)} 
                 <a class="context-menu" id="${data.arcid}" onmouseover="IndexTable.buildImageTooltip(this)" href="reader?id=${data.arcid}"> 
                     ${LRR.encodeHTML(data.title)}
                 </a>
@@ -245,28 +221,7 @@ IndexTable.initializeThumbView = function () {
 IndexTable.buildThumbnailCell = function (row, data) {
     if (localStorage.indexViewMode === "1") {
         // Build a thumb-like div with the data
-        const thumbCss = (localStorage.cropthumbs === "true") ? "id3" : "id3 nocrop";
-        const thumbDiv = `<div class="id1 context-menu" id="${data.arcid}">
-                        <div class="id2">
-                            ${IndexTable.buildProgressDiv(data)}
-                            <a href="reader?id=${data.arcid}" title="${LRR.encodeHTML(data.title)}">${LRR.encodeHTML(data.title)}</a>
-                        </div>
-                        <div class="${thumbCss}">
-                            <a href="reader?id=${data.arcid}" title="${LRR.encodeHTML(data.title)}">
-                                <img style="position:relative;" id="${data.arcid}_thumb" src="./img/wait_warmly.jpg"/>
-                                <i id="${data.arcid}_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>
-                                <img src="./api/archives/${data.arcid}/thumbnail" 
-                                        onload="$('#${data.arcid}_thumb').remove(); $('#${data.arcid}_spinner').remove();" 
-                                        onerror="this.src='./img/noThumb.png'"/>
-                            </a>
-                        </div>
-                        <div class="id4">
-                            <span class="tags tag-tooltip" onmouseover="IndexTable.buildTagTooltip(this)">${LRR.colorCodeTags(data.tags)}</span>
-                            <div class="caption caption-tags" style="display: none;" >${LRR.buildTagsDiv(data.tags)}</div>
-                        </div>
-                    </div>`;
-
-        $("#thumbs_container").append(thumbDiv);
+        $("#thumbs_container").append(LRR.buildThumbnailDiv(data));
     }
 };
 
@@ -319,8 +274,6 @@ IndexTable.drawCallback = function () {
 
 IndexTable.buildURLParameters = function () {
     const cat = IndexTable.dataTable.column(".tags.itd").search();
-    const untag = IndexTable.dataTable.column(".untagged").search();
-    const isnew = IndexTable.dataTable.column(".isnew").search();
     const page = IndexTable.dataTable.page.info().page + 1;
     const sortby = IndexTable.dataTable.order()[0][0];
     const sortorder = IndexTable.dataTable.order()[0][1];
@@ -334,8 +287,6 @@ IndexTable.buildURLParameters = function () {
     if (sortorder !== "asc") params += `sortdir=${sortorder}&`;
     if (encodedSearch !== "") params += `q=${encodedSearch}&`;
     if (cat !== "") params += `c=${cat}&`;
-    if (untag !== "") params += "untagged&";
-    if (isnew !== "") params += "isnew&";
 
     return params;
 };
@@ -345,13 +296,6 @@ IndexTable.consumeURLParameters = function () {
 
     if (params.has("c")) Index.selectedCategory = params.get("c");
     else Index.selectedCategory = "";
-
-    // TODO
-    $("#untaggedbtn").prop("checked", params.has("untagged"));
-    // updateToggleClass($("#untaggedbtn"));
-
-    $("#inboxbtn").prop("checked", params.has("isnew"));
-    // updateToggleClass($("#inboxbtn"));
 
     if (params.has("q")) { IndexTable.currentSearch = decodeURIComponent(params.get("q")); }
 
@@ -369,34 +313,6 @@ IndexTable.consumeURLParameters = function () {
 };
 
 // #endregion
-
-/**
- * Show an emoji or a progress number for the given archive data.
- * @param {*} arcdata The archive data
- * @returns HTML string
- */
-IndexTable.buildProgressDiv = function (arcdata) {
-    const id = arcdata.arcid;
-    const { isnew } = arcdata;
-    const pagecount = parseInt(arcdata.pagecount || 0, 10);
-    let progress = -1;
-
-    if (Index.isProgressLocal) {
-        progress = parseInt(localStorage.getItem(`${id}-reader`) || 0, 10);
-    } else {
-        progress = parseInt(arcdata.progress || 0, 10);
-    }
-
-    if (isnew === "true") {
-        return "<div class=\"isnew\">🆕</div>";
-    } else if (pagecount > 0) {
-        // Consider an archive read if progress is past 85% of total
-        if ((progress / pagecount) > 0.85) return "<div class='isnew'>👑</div>";
-        else return `<div class='isnew'><sup>${progress}/${pagecount}</sup></div>`;
-    }
-
-    return "";
-};
 
 /**
  * Build a tooltip when hovering over an archive title, then display it.

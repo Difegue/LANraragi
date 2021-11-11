@@ -173,6 +173,65 @@ LRR.buildTagsDiv = function (tags) {
 };
 
 /**
+ * Build a thumbnail div for the given archive data.
+ * @param {*} data The archive data
+ * @returns HTML component string
+ */
+LRR.buildThumbnailDiv = function (data) {
+    const thumbCss = (localStorage.cropthumbs === "true") ? "id3" : "id3 nocrop";
+    // The ID can be in a different field depending on the archive object...
+    const id = data.arcid || data.id;
+
+    return `<div class="id1 context-menu swiper-slide" id="${id}">
+                <div class="id2">
+                    ${LRR.buildProgressDiv(data)}
+                    <a href="reader?id=${id}" title="${LRR.encodeHTML(data.title)}">${LRR.encodeHTML(data.title)}</a>
+                </div>
+                <div class="${thumbCss}">
+                    <a href="reader?id=${id}" title="${LRR.encodeHTML(data.title)}">
+                        <img style="position:relative;" id="${id}_thumb" src="./img/wait_warmly.jpg"/>
+                        <i id="${id}_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>
+                        <img src="./api/archives/${id}/thumbnail" 
+                                onload="$('#${id}_thumb').remove(); $('#${id}_spinner').remove();" 
+                                onerror="this.src='./img/noThumb.png'"/>
+                    </a>
+                </div>
+                <div class="id4">
+                    <span class="tags tag-tooltip" onmouseover="IndexTable.buildTagTooltip(this)">${LRR.colorCodeTags(data.tags)}</span>
+                    <div class="caption caption-tags" style="display: none;" >${LRR.buildTagsDiv(data.tags)}</div>
+                </div>
+            </div>`;
+};
+
+/**
+ * Show an emoji or a progress number for the given archive data.
+ * @param {*} arcdata The archive data object
+ * @returns HTML string
+ */
+LRR.buildProgressDiv = function (arcdata) {
+    const id = arcdata.arcid;
+    const { isnew } = arcdata;
+    const pagecount = parseInt(arcdata.pagecount || 0, 10);
+    let progress = -1;
+
+    if (Index.isProgressLocal) {
+        progress = parseInt(localStorage.getItem(`${id}-reader`) || 0, 10);
+    } else {
+        progress = parseInt(arcdata.progress || 0, 10);
+    }
+
+    if (isnew === "true") {
+        return "<div class=\"isnew\">🆕</div>";
+    } else if (pagecount > 0) {
+        // Consider an archive read if progress is past 85% of total
+        if ((progress / pagecount) > 0.85) return "<div class='isnew'>👑</div>";
+        else return `<div class='isnew'><sup>${progress}/${pagecount}</sup></div>`;
+    }
+    // If there wasn't sufficient data, return an empty string
+    return "";
+};
+
+/**
  * Show a generic error toast with a given header and message.
  * @param {*} header Error header
  * @param {*} error Error message

@@ -39,6 +39,29 @@ Index.initializeAll = function () {
         freeMode: true,
     });
 
+    // Default to randomly picked for carousel
+    if (localStorage.getItem("carouselType") === undefined) {
+        localStorage.carouselMode = "random";
+    }
+
+    // Initialize carousel mode menu
+    $.contextMenu({
+        selector: "#carousel-mode-menu",
+        trigger: "left",
+        build: () => ({
+            callback(key) {
+                localStorage.carouselType = key;
+                Index.updateCarousel();
+            },
+            items: {
+                random: { name: "Randomly Picked", icon: "fas fa-random" },
+                inbox: { name: "New Archives", icon: "fas fa-envelope-open-text" },
+                untagged: { name: "Untagged Archives", icon: "fas fa-edit" },
+                // ondeck: { name: "On Deck", icon: "fas fa-book-reader" },
+            },
+        }),
+    });
+
     // 0 = List view
     // 1 = Thumbnail view
     // List view is at 0 but became the non-default state later so here's some legacy weirdness
@@ -226,32 +249,39 @@ Index.updateCarousel = function (e) {
     carousel.empty();
     $("#carousel-loading").show();
 
-    Server.callAPI(`/api/search/random?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}&count=15`,
-        "GET", null, "Error getting random archives!",
+    // Hit a different API endpoint depending on the requested localStorage carousel type
+    let endpoint;
+    switch (localStorage.carouselType) {
+    case "random":
+        $("#carousel-icon")[0].classList = "fas fa-random";
+        $("#carousel-title").text("Randomly Picked");
+        endpoint = `/api/search/random?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}&count=15`;
+        break;
+    case "inbox":
+        $("#carousel-icon")[0].classList = "fas fa-envelope-open-text";
+        $("#carousel-title").text("New Archives");
+        endpoint = `/api/search?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}&newonly=true&sortby=date_added&order=desc&start=-1`;
+        break;
+    case "untagged":
+        $("#carousel-icon")[0].classList = "fas fa-edit";
+        $("#carousel-title").text("Untagged Archives");
+        endpoint = `/api/search?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}&untaggedonly=true&sortby=date_added&order=desc&start=-1`;
+        break;
+    default:
+        $("#carousel-icon")[0].classList = "fas fa-pastafarianism";
+        $("#carousel-title").text("What???");
+        endpoint = `/api/search?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}`;
+        break;
+    }
+
+    Server.callAPI(endpoint,
+        "GET", null, "Error getting carousel data!",
         (data) => {
-            const thumbCss = (localStorage.cropthumbs === "true") ? "id3" : "id3 nocrop";
+            // Check if data is an array, otherwise get data.data
+            const results = Array.isArray(data) ? data : data.data;
 
-            data.forEach((archive) => {
-                const thumbDiv = `<div class="id1 context-menu swiper-slide" id="${archive.id}">
-                <div class="id2">
-                    <a href="reader?id=${archive.id}" title="${LRR.encodeHTML(archive.title)}">${LRR.encodeHTML(archive.title)}</a>
-                </div>
-                <div class="${thumbCss}">
-                    <a href="reader?id=${archive.id}" title="${LRR.encodeHTML(archive.title)}">
-                        <img style="position:relative;" id="${archive.id}_thumb" src="./img/wait_warmly.jpg"/>
-                        <i id="${archive.id}_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>
-                        <img src="./api/archives/${archive.id}/thumbnail" 
-                                onload="$('#${archive.id}_thumb').remove(); $('#${archive.id}_spinner').remove();" 
-                                onerror="this.src='./img/noThumb.png'"/>
-                    </a>
-                </div>
-                <div class="id4">
-                    <span class="tags tag-tooltip" onmouseover="IndexTable.buildTagTooltip(this)">${LRR.colorCodeTags(archive.tags)}</span>
-                    <div class="caption caption-tags" style="display: none;" >${LRR.buildTagsDiv(archive.tags)}</div>
-                </div>
-            </div>`;
-
-                carousel.append(thumbDiv);
+            results.forEach((archive) => {
+                carousel.append(LRR.buildThumbnailDiv(archive));
             });
 
             Index.swiper.update();

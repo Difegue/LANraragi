@@ -84,26 +84,23 @@
 			<ul class="collapsible index-carousel with-right-caret">
 				<li class="option-flyout" style="text-align: left;">
 					<div class="collapsible-title caret-right" style="display:inline-block;">
-						<i class="fa fa-random" aria-hidden="true"></i> Randomly Picked
+						<i id="carousel-icon" class="fa"></i>
+						<div id="carousel-title" style="display:inline">...</div>
 					</div>
 					<div class="collapsible-right">
-						<!--<select class="favtag-btn">
-							<option value="1">On Deck</option>
-							<option value="1">Randomly Picked</option>
-							<option value="1">New Archives</option>
-							<option value="1">Untagged Archives</option>
-						</select>-->
 						<a class="fa fa-2x fa-sync-alt" style="margin-bottom: -4px" id="reload-carousel" href="#"
 							title="Refresh Selection"></a>
+						<a class="fa fa-2x fa-ellipsis-h" style="margin-bottom: -4px; margin-left: 12px"
+							id="carousel-mode-menu" href="#" title="Carousel Options"></a>
 					</div>
-
 
 					<div class="collapsible-body">
 						<div class="swiper index-carousel-container">
 							<a href="#" class="fa fa-3x fa-chevron-left carousel-prev"></a>
 							<a href="#" class="fa fa-3x fa-chevron-right carousel-next"></a>
 							<div class="swiper-wrapper"></div>
-							<div id="carousel-loading" style="text-align: center; height: 344px;">
+							<div id="carousel-loading"
+								style="height: 344px; display:flex; justify-content: center; align-items: center;">
 								<i class="fa fa-4x fa-stroopwafel fa-spin"></i>
 							</div>
 
