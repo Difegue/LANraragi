@@ -116,15 +116,18 @@ sub serve_page {
 sub extract_archive {
     my $self = shift;
     my $id = check_id_parameter( $self, "extract_archive" ) || return;
-    my $readerjson;
 
-    eval { $readerjson = LANraragi::Model::Reader::build_reader_JSON( $self, $id, "0", "0" ); };
+    my $force       = $self->req->param('force') eq "true"          || "0";
+    my $regen_thumb = $self->req->param('regenthumbnail') eq "true" || "0";
+    my $reader_json;
+
+    eval { $reader_json = LANraragi::Model::Reader::build_reader_JSON( $self, $id, $force, $regen_thumb ); };
     my $err = $@;
 
     if ($err) {
         render_api_response( $self, "extract_archive", $err );
     } else {
-        $self->render( json => decode_json($readerjson) );
+        $self->render( json => decode_json($reader_json) );
     }
 }
 

@@ -44,16 +44,21 @@ LRR.openInNewTab = function (url) {
 };
 
 /**
- * Applies to Index and Reader.
+ * Toggles the visibility of the base-overlay div that's in the given selector.
+ * @param {*} selector
+ * @returns
  */
-LRR.openSettings = function () {
-    $("#overlay-shade").fadeTo(150, 0.6, () => {
-        $("#settingsOverlay").css("display", "block");
-    });
+LRR.toggleOverlay = function (selector) {
+    const overlay = $(selector);
+    overlay.is(":visible")
+        ? LRR.closeOverlay()
+        : $("#overlay-shade").fadeTo(150, 0.6, () => overlay.show());
+
+    return false; // needs to return false to prevent scrolling to top
 };
 
 /**
- * Applies to Index and Reader.
+ * Close any opened overlay that uses base-overlay.
  */
 LRR.closeOverlay = function () {
     $("#overlay-shade").fadeOut(300);
