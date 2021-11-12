@@ -28,6 +28,7 @@ The `pagecount` and `progress` values can be both 0 if an archive has never been
 [{
     "arcid": "ec9b83b6a835771b0f9862d0326add2f8373989a",
     "isnew": "true",
+    "extension": "zip",
     "pagecount": 128,
     "progress": 0,
     "tags": "",
@@ -35,6 +36,7 @@ The `pagecount` and `progress` values can be both 0 if an archive has never been
 }, {
     "arcid": "28697b96f0ac5858be2614ed10ca47742c9522fd",
     "isnew": "false",
+    "extension": "rar",
     "pagecount": 34,
     "progress": 3,
     "tags": "parody:fate grand order,  group:wadamemo,  artist:wada rco,  artbook,  full color",
@@ -42,6 +44,7 @@ The `pagecount` and `progress` values can be both 0 if an archive has never been
 }, {
     "arcid": "2810d5e0a8d027ecefebca6237031a0fa7b91eb3",
     "isnew": "false",
+    "extension": "cbz",
     "pagecount": 0,
     "progress": 0,
     "tags": "parody:fate grand order,  character:abigail williams,  character:artoria pendragon alter,  character:asterios,  character:ereshkigal,  character:gilgamesh,  character:hans christian andersen,  character:hassan of serenity,  character:hector,  character:helena blavatsky,  character:irisviel von einzbern,  character:jeanne alter,  character:jeanne darc,  character:kiara sessyoin,  character:kiyohime,  character:lancer,  character:martha,  character:minamoto no raikou,  character:mochizuki chiyome,  character:mordred pendragon,  character:nitocris,  character:oda nobunaga,  character:osakabehime,  character:penthesilea,  character:queen of sheba,  character:rin tosaka,  character:saber,  character:sakata kintoki,  character:scheherazade,  character:sherlock holmes,  character:suzuka gozen,  character:tamamo no mae,  character:ushiwakamaru,  character:waver velvet,  character:xuanzang,  character:zhuge liang,  group:wadamemo,  artist:wada rco,  artbook,  full color",
@@ -49,6 +52,7 @@ The `pagecount` and `progress` values can be both 0 if an archive has never been
 }, {
     "arcid": "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf",
     "isnew": "false",
+    "extension": "pdf",
     "pagecount": 0,
     "progress": 0,
     "tags": "character:segata sanshiro",
@@ -56,6 +60,7 @@ The `pagecount` and `progress` values can be both 0 if an archive has never been
 }, {
     "arcid": "e4c422fd10943dc169e3489a38cdbf57101a5f7e",
     "isnew": "false",
+    "extension": "epub",
     "pagecount": 0,
     "progress": 0,
     "tags": "parody: jojo's bizarre adventure",
