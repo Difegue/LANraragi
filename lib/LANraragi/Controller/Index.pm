@@ -10,6 +10,7 @@ use Authen::Passphrase;
 
 use LANraragi::Utils::Generic qw(generate_themes_header);
 
+# This endpoint is technically superseded by /api/search/random, but it's still useful in the Reader.
 sub random_archive {
     my $self          = shift;
     my $archive       = "";

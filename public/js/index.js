@@ -51,7 +51,6 @@ Index.initializeAll = function () {
         build: () => ({
             callback(key) {
                 localStorage.carouselType = key;
-                $(".collapsible-title").click();
                 Index.updateCarousel();
             },
             items: {
