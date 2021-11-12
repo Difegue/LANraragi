@@ -83,7 +83,7 @@ Reader.initializeAll = function () {
             }
 
             $("#archive-title").html(title);
-            $(".max-page").html(data.pagecount);
+            if (data.pagecount) { $(".max-page").html(data.pagecount); }
             document.title = title;
 
             Reader.tags = data.tags;
@@ -99,10 +99,12 @@ Reader.initializeAll = function () {
             Reader.checkFiletypeSupport(data.extension);
 
             // Load the actual reader pages now that we have basic info
+            $("#img").attr("style", "min-width:50%");
             Reader.loadImages();
         });
 
     Reader.registerPreload();
+    Reader.applyContainerWidth();
 };
 
 Reader.loadImages = function () {
@@ -110,6 +112,9 @@ Reader.loadImages = function () {
         (data) => {
             Reader.pages = data.pages;
             Reader.maxPage = Reader.pages.length - 1;
+            $(".max-page").html(Reader.pages.length);
+
+            $("#img").on("load", Reader.updateMetadata);
 
             if (Reader.infiniteScroll) {
                 Reader.initInfiniteScrollView();
@@ -132,7 +137,12 @@ Reader.loadImages = function () {
                 $(".current-page").each((_i, el) => $(el).html(Reader.currentPage + 1));
                 Reader.goToPage(Reader.currentPage);
             }
-        });
+        }).finally(() => {
+        if (Reader.pages === undefined) {
+            $("#img").attr("src", "img/flubbed.gif");
+            $("#display").append("<h2>I flubbed it while trying to open the archive.</h2>");
+        }
+    });
 };
 
 Reader.initializeSettings = function () {

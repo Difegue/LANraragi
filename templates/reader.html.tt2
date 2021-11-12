@@ -32,7 +32,7 @@
             [% INCLUDE pagesel %] [% INCLUDE arrows %] [% INCLUDE fileinfo %]
         </div>
 
-        <div id="i3">
+        <div id="i3" class="loading">
             <div class="loading-overlay">
                 <p class="loading-spinner">
                     <i id="spinner" class="fa fa-fan fa-spin"></i>
@@ -40,8 +40,7 @@
             </div>
 
             <a id="display">
-                <img id="img" class="reader-image" onload="Reader.updateMetadata()"
-                    onerror="this.src='./img/noThumb.png'" src="" usemap="#Map" />
+                <img id="img" class="reader-image" onerror="this.src='./img/noThumb.png'" src="" usemap="#Map" />
                 <map name="Map" id="Map">
                     <area id="leftmap" style="cursor:pointer;" shape="rect" value="left" />
                     <area id="rightmap" style="cursor:pointer;" shape="rect" value="right" />
@@ -226,7 +225,7 @@
     <a class="fa fa-angle-left page-link" style="font-size: 1.5em;" value="left"></a>
 
     <div class="pagecount">
-        <span class="current-page"></span> /
+        <span class="current-page">...</span> /
         <span class="max-page">...</span>
     </div>
 
