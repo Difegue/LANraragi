@@ -201,6 +201,10 @@ p#nb {
   display: none;
 }
 
+.loading {
+  min-height: 75vh;
+}
+
 .loading .loading-overlay {
   position: absolute;
   top: 0;

@@ -40,7 +40,7 @@
             </div>
 
             <a id="display">
-                <img id="img" class="reader-image" onerror="this.src='./img/noThumb.png'" src="" usemap="#Map" />
+                <img id="img" class="reader-image" usemap="#Map" />
                 <map name="Map" id="Map">
                     <area id="leftmap" style="cursor:pointer;" shape="rect" value="left" />
                     <area id="rightmap" style="cursor:pointer;" shape="rect" value="right" />

@@ -99,7 +99,6 @@ Reader.initializeAll = function () {
             Reader.checkFiletypeSupport(data.extension);
 
             // Load the actual reader pages now that we have basic info
-            $("#img").attr("style", "min-width:50%");
             Reader.loadImages();
         });
 
