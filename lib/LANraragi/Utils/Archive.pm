@@ -15,8 +15,8 @@ use Redis;
 use Cwd;
 use Data::Dumper;
 use Image::Magick;
-use Archive::Peek::Libarchive;
-use Archive::Extract::Libarchive;
+use Archive::Libarchive::Extract;
+use Archive::Libarchive::Peek;
 
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging qw(get_logger);
@@ -46,58 +46,83 @@ sub generate_thumbnail {
     undef $img;
 }
 
-#extract_archive(path, archive_to_extract)
-#Extract the given archive to the given path.
+# sanitize_filename(filename)
+# Extract the given archive to the given path.
+# Converts filenames to an ascii variant to avoid extra filesystem headaches.
+sub sanitize_filename {
+
+    my $filename = $_[0];
+    eval {
+        # Try a guess to regular japanese encodings first
+        $filename = decode( "Guess", $filename );
+    };
+
+    # Fallback to utf8
+    $filename = decode_utf8($filename) if $@;
+
+    # Re-encode the result to ASCII and move the file to said result name.
+    # Use Encode's coderef feature to map non-ascii characters to their Unicode codepoint equivalent.
+    $filename = encode( "ascii", $filename, sub { sprintf "%04X", shift } );
+
+    if ( length $filename > 254 ) {
+        $filename = substr( $filename, 0, 254 );
+    }
+
+    return $filename;
+}
+
+# extract_archive(path, archive_to_extract, force)
+# Extract the given archive to the given path.
+# This sub won't re-extract files already present in the destination unless force = 1.
 sub extract_archive {
 
-    my ( $destination, $to_extract ) = @_;
+    my ( $destination, $to_extract, $force_extract ) = @_;
+    my $logger = get_logger( "Archive", "lanraragi" );
 
     # PDFs are handled by Ghostscript (alas)
     if ( is_pdf($to_extract) ) {
         return extract_pdf( $destination, $to_extract );
     }
 
-    # build an Archive::Extract object
-    my $ae = Archive::Extract::Libarchive->new( archive => $to_extract );
+    # Prepare libarchive with a callback to skip over existing files (unless force=1)
+    my $ae = Archive::Libarchive::Extract->new(
+        filename => $to_extract,
+        entry    => sub {
+            my $e = shift;
+            if ($force_extract) { return 1; }
 
-    #Extract to $destination. Report if it fails.
-    my $ok = $ae->extract( to => $destination ) or die $ae->error;
+            my $filename = $e->pathname;
+            $filename = sanitize_filename($filename);
+            if ( -e "$destination/$filename" ) {
+                $logger->debug("$filename already exists in $destination");
+                return 0;
+            }
+            return 1;
+        }
+    );
 
-    my $cwd = getcwd();
+    # Extract to $destination. This method throws if extraction fails.
+    $ae->extract( to => $destination );
+
+    # Get extraction folder
+    my $result_dir = $ae->to;
+    my $cwd        = getcwd();
 
     # Rename extracted files and folders to an encoded version for easier handling
     finddepth(
         sub {
             unless ( $_ eq '.' ) {
-
-                my $filename = $_;
-                eval {
-                    # Try a guess to regular japanese encodings first
-                    $filename = decode( "Guess", $filename );
-                };
-
-                # Fallback to utf8
-                $filename = decode_utf8($filename) if $@;
-
-                # Re-encode the result to ASCII and move the file to said result name.
-                # Use Encode's coderef feature to map non-ascii characters to their Unicode codepoint equivalent.
-                $filename = encode( "ascii", $filename, sub { sprintf "%04X", shift } );
-
-                if ( length $filename > 254 ) {
-                    $filename = substr( $filename, 0, 254 );
-                }
-
-                move( $_, $filename );
+                move( $_, sanitize_filename($_) );
             }
         },
-        $ae->extract_path
+        $result_dir
     );
 
     # chdir back to the base cwd in case finddepth died midway
     chdir $cwd;
 
-    # dir that was extracted to
-    return $ae->extract_path;
+    # Return the directory we extracted the files to.
+    return $result_dir;
 }
 
 sub extract_pdf {
@@ -191,7 +216,7 @@ sub extract_page_libarchive {
     my ( $file, $temppath ) = @_;
 
     # Get all the files of the archive
-    my $peek = Archive::Peek::Libarchive->new( filename => $file );
+    my $peek = Archive::Libarchive::Peek->new( filename => $file );
     my @files = $peek->files();
     my @extracted;
 
@@ -221,13 +246,40 @@ sub extract_page_libarchive {
     return $arcimg;
 }
 
-#is_file_in_archive($archive, $file)
-#Uses libarchive::peek to figure out if $archive contains $file.
-#Returns 1 if it does exist, 0 otherwise.
+# get_filelist($archive)
+# Returns a list of all the files contained in the given archive.
+sub get_filelist {
+
+    my $archive = $_[0];
+    my @files   = ();
+
+    if ( is_pdf($archive) ) {
+
+        # For pdfs, extraction returns images from 1.jpg to x.jpg, where x is the pdf pagecount.
+        my $pages = `gs -q -c "($archive) (r) file runpdfbegin pdfpagecount = quit"`;
+        for my $num ( 1 .. $pages ) {
+            push @files, "$num.jpg";
+        }
+    } else {
+        my $peek = Archive::Libarchive::Peek->new( filename => $archive );
+
+        # Filter out non-images
+        foreach my $file ( $peek->files ) {
+            if ( is_image($file) ) {
+                push @files, $file;
+            }
+        }
+    }
+
+    return @files;
+}
+
+# is_file_in_archive($archive, $file)
+# Uses libarchive::peek to figure out if $archive contains $file.
+# Returns 1 if it does exist, 0 otherwise.
 sub is_file_in_archive {
 
     my ( $archive, $wantedname ) = @_;
-
     my $logger = get_logger( "Archive", "lanraragi" );
 
     if ( is_pdf($archive) ) {
@@ -238,7 +290,7 @@ sub is_file_in_archive {
     $logger->debug("Iterating files of archive $archive, looking for '$wantedname'");
     $Data::Dumper::Useqq = 1;
 
-    my $peek = Archive::Peek::Libarchive->new( filename => $archive );
+    my $peek = Archive::Libarchive::Peek->new( filename => $archive );
     my $found = 0;
     $peek->iterate(
         sub {
@@ -254,23 +306,16 @@ sub is_file_in_archive {
     return $found;
 }
 
-#extract_file_from_archive($archive, $file)
-#Extract $file from $archive and returns the filesystem path it's extracted to.
-#If the file doesn't exist in the archive, this will still create a file, but empty.
-sub extract_file_from_archive {
+# extract_single_file ($archive, $file, $destination)
+# Extract $file from $archive to $destination and returns the filesystem path it's extracted to.
+# If the file doesn't exist in the archive, this will still create a file, but empty.
+sub extract_single_file {
 
-    my ( $archive, $filename ) = @_;
-
-    #Timestamp extractions in microseconds
-    my ( $seconds, $microseconds ) = gettimeofday;
-    my $stamp = "$seconds-$microseconds";
-    my $path  = get_temp . "/plugin/$stamp";
-    mkdir get_temp . "/plugin";
-    mkdir $path;
+    my ( $archive, $filename, $destination ) = @_;
     my $contents = "";
 
     unless ( is_pdf($archive) ) {
-        my $peek = Archive::Peek::Libarchive->new( filename => $archive );
+        my $peek = Archive::Libarchive::Peek->new( filename => $archive );
         $peek->iterate(
             sub {
                 my ( $file, $data ) = @_;
@@ -282,7 +327,7 @@ sub extract_file_from_archive {
         );
     }
 
-    my $outfile = $path . "/" . $filename;
+    my $outfile = "$destination/$filename";
 
     open( my $fh, '>', $outfile )
       or die "Could not open file '$outfile' $!";
@@ -290,6 +335,23 @@ sub extract_file_from_archive {
     close $fh;
 
     return $outfile;
+}
+
+# extract_file_from_archive($archive, $file)
+# Variant for plugins.
+# Extracts the file with a timestamp to a folder in /temp/plugin.
+sub extract_file_from_archive {
+
+    my ( $archive, $filename ) = @_;
+
+    # Timestamp extractions in microseconds
+    my ( $seconds, $microseconds ) = gettimeofday;
+    my $stamp = "$seconds-$microseconds";
+    my $path  = get_temp . "/plugin/$stamp";
+    mkdir get_temp . "/plugin";
+    mkdir $path;
+
+    return extract_single_file( $archive, $filename, $path );
 }
 
 1;

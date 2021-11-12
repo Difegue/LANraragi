@@ -15,6 +15,8 @@ Reader.preloadedSizes = {};
 
 Reader.initializeAll = function () {
     Reader.initializeSettings();
+    Reader.applyContainerWidth();
+    Reader.registerPreload();
 
     // Bind events to DOM
     $(document).on("keyup", Reader.handleShortcuts);
@@ -101,9 +103,6 @@ Reader.initializeAll = function () {
             // Load the actual reader pages now that we have basic info
             Reader.loadImages();
         });
-
-    Reader.registerPreload();
-    Reader.applyContainerWidth();
 };
 
 Reader.loadImages = function () {

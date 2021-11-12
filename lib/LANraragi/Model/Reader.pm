@@ -55,6 +55,9 @@ sub build_reader_JSON {
     my ( $self, $id, $force, $thumbreload ) = @_;
     my $tempdir = get_temp();
 
+    # TODO: Queue a full extract job into Minion.
+    # This'll fill in the missing pages (or regen everything if force = 1)
+
     #Redis stuff: Grab archive path and update some things
     my $redis    = LANraragi::Model::Config->get_redis;
     my $dirname  = LANraragi::Model::Config->get_userdir;
@@ -70,30 +73,16 @@ sub build_reader_JSON {
 
     my $path = $tempdir . "/" . $id;
 
-    if ( -e $path && $force eq "1" ) {
+    my $outpath = "";
+    eval { $outpath = extract_archive( $path, $zipfile, $force ); };
 
-        #If the file has been extracted and force-reload=1,
-        #we wipe the extraction directory.
-        remove_tree($path);
-    }
-
-    #Now, has our file been extracted to the temporary directory recently?
-    #If it hasn't, we call libarchive to do it.
-    #If the file hasn't been extracted, or if force-reload =1
-    unless ( -e $path ) {
-
-        my $outpath = "";
-        eval { $outpath = extract_archive( $path, $zipfile ); };
-
-        if ($@) {
-            my $log = $@;
-            $self->LRR_LOGGER->error("Error extracting archive : $log");
-            die $log;
-        } else {
-            $self->LRR_LOGGER->debug("Extraction of archive to $outpath done");
-            $path = $outpath;
-        }
-
+    if ($@) {
+        my $log = $@;
+        $self->LRR_LOGGER->error("Error extracting archive : $log");
+        die $log;
+    } else {
+        $self->LRR_LOGGER->debug("Extraction of archive to $outpath done");
+        $path = $outpath;
     }
 
     #Find the extracted images with a full search (subdirectories included),
