@@ -276,11 +276,8 @@ Index.updateCarousel = function (e) {
 
     Server.callAPI(endpoint,
         "GET", null, "Error getting carousel data!",
-        (data) => {
-            // Check if data is an array, otherwise get data.data
-            const results = Array.isArray(data) ? data : data.data;
-
-            results.forEach((archive) => {
+        (results) => {
+            results.data.forEach((archive) => {
                 carousel.append(LRR.buildThumbnailDiv(archive));
             });
 

@@ -118,7 +118,7 @@ sub get_random_archives {
         $random_count--;
     }
 
-    $self->render( json => \@random_ids );
+    $self->render( json => { data => \@random_ids } );
     $redis->quit();
 }
 
