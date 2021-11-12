@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+
+<head>
+	<title>Page Not Found</title>
+
+	<meta name="viewport" content="width=device-width" />
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+	<link type="image/png" rel="icon" href="favicon.ico" />
+</head>
+
+<body style=' text-align: center'>
+
+	<img src='/img/notfound.jpg' />
+
+</body>
+
+</html>

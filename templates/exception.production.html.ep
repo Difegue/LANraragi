@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <head>
-	<title>[% title %] - Reader Error</title>
+	<title>LANraragi Server Error</title>
 
 	<meta name="viewport" content="width=device-width" />
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -13,11 +13,14 @@
 
 	<img src='/img/flubbed.gif' />
 	<br />
-	<h2>I flubbed it while trying to open the archive [% filename %]</h2>
-	It's likely the archive is corrupt.<br />
+	<h2>I flubbed it while rendering your page!</h2>
+	It's likely there's a bug with the server at this point.<br />
+	<p>
+		<%= $exception->message %>
+	</p>
 
 	<h3>Some more info below if available:</h3>
-	<pre>[% errorlog %]</pre>
+	<pre><%= dumper $snapshot %></pre>
 
 </body>
 
