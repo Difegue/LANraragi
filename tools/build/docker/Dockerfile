@@ -1,8 +1,8 @@
 # DOCKER-VERSION 0.3.4
-FROM        alpine:3.12
+FROM        alpine:3.14
 LABEL       git="https://github.com/Difegue/LANraragi"
 
-ENV S6_OVERLAY_RELEASE v2.0.0.1
+ENV S6_OVERLAY_RELEASE v2.2.0.3
 ENV S6_KEEP_ENV 1
 
 # warn if we can't run stage2 (fix-attrs/cont-init)
@@ -42,7 +42,7 @@ fi
 
 # we use s6-overlay-nobin to just pull in the s6-overlay arch agnostic (shell)
 # components, since we apk install the binaries of s6 later which are arch specific
-# /!\ While the s6 version here is fixed by an envvar, the apk install is not pinned and takes whatever's in alpine:latest! This certainly needs a fix.
+# /!\ While the s6 version here is fixed by an envvar, the apk install is not pinned and takes whatever's in alpine:3.14! This certainly needs a fix.
 ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_RELEASE}/s6-overlay-nobin.tar.gz /tmp/s6-overlay-nobin.tar.gz
 RUN tar -C / -xzf /tmp/s6-overlay-nobin.tar.gz && rm -f /tmp/s6-overlay-nobin.tar.gz
 
