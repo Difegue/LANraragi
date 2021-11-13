@@ -14,8 +14,7 @@ use URI::Escape;
 use Image::Magick;
 
 use LANraragi::Utils::Generic qw(is_image shasum);
-use LANraragi::Utils::Archive qw(extract_archive generate_thumbnail);
-use LANraragi::Utils::TempFolder qw(get_temp);
+use LANraragi::Utils::Archive qw(extract_archive generate_thumbnail get_filelist);
 use LANraragi::Utils::Database qw(redis_decode);
 
 #magical sort function used below
@@ -25,8 +24,8 @@ sub expand {
     return $file;
 }
 
-#resize_image(image,quality, size_threshold)
-#convert an image to a cheaper on bandwidth format through ImageMagick.
+# resize_image(image,quality, size_threshold)
+# Convert an image to a cheaper on bandwidth format through ImageMagick.
 sub resize_image {
 
     my ( $imgpath, $quality, $threshold ) = @_;
@@ -48,57 +47,26 @@ sub resize_image {
     undef $img;
 }
 
-#build_reader_JSON(mojo,id,forceReload,refreshThumbnail)
-#Opens the archive specified by its ID, and returns a json containing the page names.
+# build_reader_JSON(mojo, id, forceReload)
+# Opens the archive specified by its ID, and returns a json containing the page names.
 sub build_reader_JSON {
 
-    my ( $self, $id, $force, $thumbreload ) = @_;
-    my $tempdir = get_temp();
+    my ( $self, $id, $force ) = @_;
 
-    # TODO: Queue a full extract job into Minion.
+    # Queue a full extract job into Minion.
     # This'll fill in the missing pages (or regen everything if force = 1)
-
-    #Redis stuff: Grab archive path and update some things
-    my $redis    = LANraragi::Model::Config->get_redis;
-    my $dirname  = LANraragi::Model::Config->get_userdir;
-    my $thumbdir = LANraragi::Model::Config->get_thumbdir;
+    $self->minion->enqueue(
+        extract_archive => [ $id, $force ],
+        { priority => 4 }
+    );
 
     # Get the path from Redis.
     # Filenames are stored as they are on the OS, so no decoding!
-    my $zipfile = $redis->hget( $id, "file" );
+    my $redis = LANraragi::Model::Config->get_redis;
+    my $archive = $redis->hget( $id, "file" );
 
-    #Get data from the path
-    my ( $name, $fpath, $suffix ) = fileparse( $zipfile, qr/\.[^.]*/ );
-    my $filename = $name . $suffix;
-
-    my $path = $tempdir . "/" . $id;
-
-    my $outpath = "";
-    eval { $outpath = extract_archive( $path, $zipfile, $force ); };
-
-    if ($@) {
-        my $log = $@;
-        $self->LRR_LOGGER->error("Error extracting archive : $log");
-        die $log;
-    } else {
-        $self->LRR_LOGGER->debug("Extraction of archive to $outpath done");
-        $path = $outpath;
-    }
-
-    #Find the extracted images with a full search (subdirectories included),
-    #treat them and jam them into an array.
-    my @images;
-    eval {
-        find(
-            sub {
-                # Is it an image?
-                if ( is_image($_) ) {
-                    push @images, $File::Find::name;
-                }
-            },
-            $path
-        );
-    };
+    # Parse archive to get its list of images
+    my @images = get_filelist($archive);
 
     # TODO: @images = nsort(@images); would theorically be better, but Sort::Naturally's nsort puts letters before numbers,
     # which isn't what we want at all for pages in an archive.
@@ -107,32 +75,10 @@ sub build_reader_JSON {
 
     $self->LRR_LOGGER->debug( "Files found in archive: \n " . Dumper @images );
 
-    # Convert page 1 into a thumbnail for the main reader index
-    my $subfolder = substr( $id, 0, 2 );
-    my $thumbname = "$thumbdir/$subfolder/$id.jpg";
-
-    unless ( -e $thumbname && $thumbreload eq "0" ) {
-
-        my $shasum = shasum( $images[0], 1 );
-        $redis->hset( $id, "thumbhash", $shasum );
-
-        $self->LRR_LOGGER->debug("Thumbnail not found at $thumbname! (force-thumb flag = $thumbreload)");
-        $self->LRR_LOGGER->debug( "Regenerating from " . $images[0] );
-        make_path("$thumbdir/$subfolder");
-
-        generate_thumbnail( $images[0], $thumbname );
-    }
-
     # Build a browser-compliant filepath array from @images
     my @images_browser;
 
     foreach my $imgpath (@images) {
-
-        # Strip everything before the temporary folder/id folder as to only keep the relative path to it
-        # i.e "/c/bla/lrr/temp/id/file.jpg" becomes "file.jpg"
-        $imgpath =~ s!$path/!!g;
-
-        $self->LRR_LOGGER->debug("Relative path to temp is $imgpath");
 
         # Since we're using uri_escape_utf8 for escaping, we need to make sure the path is valid UTF8.
         # The good ole' redis_decode allows us to make sure of that.
@@ -146,7 +92,7 @@ sub build_reader_JSON {
         # Then we bring the slashes back.
         $imgpath =~ s!%2F!/!g;
 
-        $self->LRR_LOGGER->debug("Post-escape: $imgpath");
+        $self->LRR_LOGGER->debug("Will be extracted to disk as: $imgpath");
 
         # Bundle this path into an API call which will be used by the browser
         push @images_browser, "./api/archives/$id/page?path=$imgpath";

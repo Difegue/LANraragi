@@ -6,7 +6,6 @@ const Reader = {};
 
 Reader.id = "";
 Reader.force = false;
-Reader.reloadThumbnail = false;
 Reader.previousPage = -1;
 Reader.currentPage = -1;
 Reader.showingSinglePage = true;
@@ -37,7 +36,6 @@ Reader.initializeAll = function () {
     $(document).on("click.toggle_archive_overlay", "#toggle-archive-overlay", Reader.toggleArchiveOverlay);
     $(document).on("click.toggle_settings_overlay", "#toggle-settings-overlay", Reader.toggleSettingsOverlay);
     $(document).on("click.toggle_help", "#toggle-help", Reader.toggleHelp);
-    $(document).on("click.regenerate_thumbnail", "#regenerate-thumbnail", Reader.regenerateThumbnail);
     $(document).on("click.regenerate_archive_cache", "#regenerate-cache", () => {
         window.location.href = `./reader?id=${Reader.id}&force_reload`;
     });
@@ -67,7 +65,6 @@ Reader.initializeAll = function () {
     const params = new URLSearchParams(window.location.search);
     Reader.id = params.get("id");
     Reader.force = params.get("force_reload") !== null;
-    Reader.reloadThumbnail = params.get("reload_thumbnail") !== null;
     Reader.currentPage = (+params.get("p") || 1) - 1;
 
     // Remove the "new" tag with an api call
@@ -106,7 +103,7 @@ Reader.initializeAll = function () {
 };
 
 Reader.loadImages = function () {
-    Server.callAPI(`/api/archives/${Reader.id}/extract?force=${Reader.force}&regenthumbnail=${Reader.reloadThumbnail}`, "POST", null, "Error extracting images from the archive!",
+    Server.callAPI(`/api/archives/${Reader.id}/files?force=${Reader.force}`, "GET", null, "Error getting the archive's imagelist!",
         (data) => {
             Reader.pages = data.pages;
             Reader.maxPage = Reader.pages.length - 1;
@@ -555,24 +552,6 @@ Reader.initializeArchiveOverlay = function () {
         $("#archivePagesOverlay").append(thumbnail);
     }
     $("#archivePagesOverlay").attr("loaded", "true");
-};
-
-Reader.regenerateThumbnail = function () {
-    // this function would be better suited for common.js, since it can be reused in the index
-    // TODO Once archive regeneration has an actual API endpoint and not just this jank thing
-    if (!window.confirm("Are you sure you want to regenerate the thumbnail for this archive?")) {
-        return;
-    }
-
-    $.get(`./reader?id${Reader.id}&reload_thumbnail`).done(() => {
-        $.toast({
-            showHideTransition: "slide",
-            position: "top-left",
-            loader: false,
-            heading: "Thumbnail regenerated.",
-            icon: "success",
-        });
-    });
 };
 
 Reader.drawCanvas = function (img1, img2) {

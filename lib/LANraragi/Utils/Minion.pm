@@ -9,9 +9,10 @@ use Parallel::Loops;
 
 use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Utils::Database qw(redis_decode);
-use LANraragi::Utils::Archive qw(extract_thumbnail);
+use LANraragi::Utils::Archive qw(extract_thumbnail extract_archive);
 use LANraragi::Utils::Plugins qw(get_downloader_for_url get_plugin get_plugin_parameters use_plugin);
 use LANraragi::Utils::Generic qw(trim_url split_workload_by_cpu);
+use LANraragi::Utils::TempFolder qw(get_temp);
 
 use LANraragi::Model::Upload;
 use LANraragi::Model::Config;
@@ -159,7 +160,7 @@ sub add_tasks {
             my ( $job, @args )  = @_;
             my ( $url, $catid ) = @args;
 
-            my $ua     = Mojo::UserAgent->new;
+            my $ua = Mojo::UserAgent->new;
             my $logger = get_logger( "Minion", "minion" );
             $logger->info("Downloading url $url...");
 
@@ -262,6 +263,40 @@ sub add_tasks {
                     data    => $plugin_result
                 }
             );
+        }
+    );
+
+    $minion->add_task(
+        extract_archive => sub {
+            my ( $job, @args )  = @_;
+            my ( $id,  $force ) = @args;
+
+            my $tempdir = get_temp();
+            my $path    = $tempdir . "/" . $id;
+            my $redis   = LANraragi::Model::Config->get_redis;
+
+            # Get the path from Redis.
+            # Filenames are stored as they are on the OS, so no decoding!
+            my $zipfile = $redis->hget( $id, "file" );
+
+            my $outpath = "";
+            eval { $outpath = extract_archive( $path, $zipfile, $force ); };
+
+            if ($@) {
+                $job->finish(
+                    {   success => 0,
+                        id      => $id,
+                        message => $@
+                    }
+                );
+            } else {
+                $job->finish(
+                    {   success => 1,
+                        id      => $id,
+                        outpath => $outpath
+                    }
+                );
+            }
         }
     );
 }

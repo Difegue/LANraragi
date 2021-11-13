@@ -25,7 +25,8 @@ use LANraragi::Utils::Generic qw(is_image shasum);
 # Utilitary functions for handling Archives.
 # Relies on Libarchive, ImageMagick and GhostScript for PDFs.
 use Exporter 'import';
-our @EXPORT_OK = qw(is_file_in_archive extract_file_from_archive extract_archive extract_thumbnail generate_thumbnail);
+our @EXPORT_OK =
+  qw(is_file_in_archive extract_file_from_archive extract_single_file extract_archive extract_thumbnail generate_thumbnail get_filelist);
 
 sub is_pdf {
     my ( $filename, $dirs, $suffix ) = fileparse( $_[0], qr/\.[^.]*/ );
@@ -47,8 +48,7 @@ sub generate_thumbnail {
 }
 
 # sanitize_filename(filename)
-# Extract the given archive to the given path.
-# Converts filenames to an ascii variant to avoid extra filesystem headaches.
+# Converts extracted filenames to an ascii variant to avoid extra filesystem headaches.
 sub sanitize_filename {
 
     my $filename = $_[0];
@@ -151,8 +151,8 @@ sub extract_pdf {
     return $destination;
 }
 
-#extract_thumbnail(thumbnaildir, id)
-#Finds the first image for the specified archive ID and makes it the thumbnail.
+# extract_thumbnail(thumbnaildir, id)
+# Finds the first image for the specified archive ID and makes it the thumbnail.
 sub extract_thumbnail {
 
     my ( $thumbdir, $id ) = @_;
@@ -170,12 +170,12 @@ sub extract_thumbnail {
     # Make sure the thumb temp dir exists
     make_path($temppath);
 
-    my $arcimg = "";
-    if ( is_pdf($file) ) {
-        $arcimg = extract_page_pdf( $file, $temppath );
-    } else {
-        $arcimg = extract_page_libarchive( $file, $temppath );
-    }
+    # Get first image from archive using filelist
+    my @filelist    = get_filelist($file);
+    my $first_image = $filelist[0];
+
+    # Extract first image to temp dir
+    my $arcimg = extract_single_file( $file, $first_image, $temppath );
 
     #While we have the image, grab its SHA-1 hash for tag research.
     #That way, no need to repeat the costly extraction later.
@@ -192,58 +192,6 @@ sub extract_thumbnail {
     # Clean up safe folder
     remove_tree($temppath);
     return $thumbname;
-}
-
-sub extract_page_pdf {
-
-    my ( $file, $temppath ) = @_;
-    mkdir $temppath;
-    my $output = $temppath . "pdf_first_page.jpg";
-
-    my $logger = get_logger( "Archive", "lanraragi" );
-
-    my $gscmd = "gs -dNOPAUSE -dLastPage=1 -sDEVICE=jpeg -r72 -o '$output' '$file'";
-    $logger->debug("Sending PDF $file to GhostScript...");
-    $logger->debug($gscmd);
-
-    `$gscmd`;
-
-    return $output;
-}
-
-sub extract_page_libarchive {
-
-    my ( $file, $temppath ) = @_;
-
-    # Get all the files of the archive
-    my $peek = Archive::Libarchive::Peek->new( filename => $file );
-    my @files = $peek->files();
-    my @extracted;
-
-    # Filter out non-images
-    foreach my $file (@files) {
-        if ( is_image($file) ) {
-            push @extracted, $file;
-        }
-    }
-
-    @extracted = sort { lc($a) cmp lc($b) } @extracted;
-
-    # Get the first file of the list and spit it out into a file
-    my $contents = $peek->file( $extracted[0] );
-
-    # The name sometimes comes with the folder as a bonus, so we use basename to filter it out.
-    my ( $filename, $dirs, $suffix ) = fileparse( $extracted[0], qr/\.[^.]*/ );
-
-    # Move the extracted file to a safe folder to avoid concurrent overwrites
-    my $arcimg = $temppath . $filename . $suffix;
-
-    open( my $fh, '>', $arcimg )
-      or die "Could not open file '$arcimg' $!";
-    print $fh $contents;
-    close $fh;
-
-    return $arcimg;
 }
 
 # get_filelist($archive)
@@ -312,29 +260,37 @@ sub is_file_in_archive {
 sub extract_single_file {
 
     my ( $archive, $filename, $destination ) = @_;
-    my $contents = "";
+    make_path($destination);
 
-    unless ( is_pdf($archive) ) {
-        my $peek = Archive::Libarchive::Peek->new( filename => $archive );
-        $peek->iterate(
-            sub {
-                my ( $file, $data ) = @_;
-
-                if ( $file =~ /$filename$/ ) {
-                    $contents = $data;
-                }
-            }
-        );
-    }
-
+    my $logger = get_logger( "Archive", "lanraragi" );
     my $outfile = "$destination/$filename";
 
-    open( my $fh, '>', $outfile )
-      or die "Could not open file '$outfile' $!";
-    print $fh $contents;
-    close $fh;
+    if ( is_pdf($archive) ) {
 
-    return $outfile;
+        # For pdfs the filenames are always x.jpg, so we pull the page number from that
+        my $page = $filename;
+        $page =~ s/^(\d+).jpg$/$1/;
+
+        my $gscmd = "gs -dNOPAUSE -dFirstPage=$page -dLastPage=$page -sDEVICE=jpeg -r200 -o '$outfile' '$archive'";
+        $logger->debug("Extracting page $filename from PDF $archive");
+        $logger->debug($gscmd);
+
+        `$gscmd`;
+    } else {
+
+        my $contents = "";
+        my $peek = Archive::Libarchive::Peek->new( filename => $archive );
+        $contents = $peek->file($filename);
+
+        open( my $fh, '>', $outfile )
+          or die "Could not open file '$outfile' $!";
+        print $fh $contents;
+        close $fh;
+    }
+
+    my $fixed_name = sanitize_filename($outfile);
+    move( $outfile, $fixed_name );
+    return $fixed_name;
 }
 
 # extract_file_from_archive($archive, $file)
