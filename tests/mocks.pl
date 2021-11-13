@@ -116,6 +116,7 @@ sub setup_redis_mock {
     $redis->mock( 'hset',    sub { 1 } );
     $redis->mock( 'quit',    sub { 1 } );
     $redis->mock( 'select',  sub { 1 } );
+    $redis->mock( 'hlen',    sub { 1337 } );
     $redis->mock( 'dbsize',  sub { 1337 } );
 
     $redis->mock(

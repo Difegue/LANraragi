@@ -12,13 +12,14 @@ use Mojo::JSON qw(decode_json encode_json);
 use Data::Dumper;
 
 use Template;
-use File::Slurp;
+use Mojo::File;
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Archive;
 
 # Mock Redis
-my $cwd = getcwd;
+my $cwd     = getcwd;
+my $SAMPLES = "$cwd/tests/samples";
 require $cwd . "/tests/mocks.pl";
 setup_redis_mock();
 
@@ -50,7 +51,7 @@ $mojo->mock(
     }
 );
 
-my $expected_opds = read_file( $cwd . "/tests/samples/opds/opds_sample.xml" );
+my $expected_opds = ( Mojo::File->new("$SAMPLES/opds/opds_sample.xml")->slurp );
 
 # Generate a new OPDS Catalog and compare it against our sample
 my $opds_result = LANraragi::Model::Archive::generate_opds_catalog($mojo);
