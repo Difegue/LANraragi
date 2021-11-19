@@ -27,11 +27,11 @@ sub do_search {
     my ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $untaggedonly ) = @_;
     my $sortorder_inv = $sortorder ? 0 : 1;
 
-    my $redis = LANraragi::Model::Config->get_redis;
+    my $redis  = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Search Engine", "lanraragi" );
 
     # Search filter results
-    my $total    = $redis->hlen("LRR_FILEMAP");    # Total number of archives
+    my $total    = $redis->hlen("LRR_FILEMAP") + 0;    # Total number of archives (as int)
     my @filtered = ();
 
     # Look in searchcache first
