@@ -13,7 +13,14 @@ curl -L https://cpanmin.us | perl - App::cpanminus
 #Alpine's libffi build comes with AVX instructions enabled
 #Rebuild our own libffi with those disabled
 if [ $(uname -m) == 'x86_64' ]; then
-  cpanm --notest Alien::FFI
+  #Install deps only
+  cpanm --notest --installdeps Alien::FFI
+  curl -L -s https://cpan.metacpan.org/authors/id/P/PL/PLICEASE/Alien-FFI-0.25.tar.gz | tar -xz
+  cd Alien-FFI-0.25
+  #Patch build script to disable AVX
+  sed -i 's/--disable-builddir/--disable-builddir --with-gcc-arch=x86-64-v2/' alienfile
+  perl Makefile.PL && make install
+  cd ../ && rm -rf Alien-FFI-0.25
 fi
 
 #Install the LRR dependencies proper
