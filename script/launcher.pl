@@ -43,7 +43,7 @@ if ( $ENV{LRR_TEMP_DIRECTORY} ) {
     $hypno_pid = $ENV{LRR_TEMP_DIRECTORY} . "/server.pid";
 } else {
     $hypno_pid = "./public/temp/server.pid";
-    make_path("./public/temp");
+    eval { make_path("./public/temp"); }    # Try creating the temp directory
 }
 
 $hypno_pid = abs_path($hypno_pid);
