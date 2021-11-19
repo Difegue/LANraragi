@@ -96,8 +96,8 @@ Index.initializeAll = function () {
     // Get some info from the server: version, debug mode, local progress
     Server.callAPI("/api/info", "GET", null, "Error getting basic server info!", (data) => {
         Index.serverVersion = data.version;
-        Index.debugMode = data.debug_mode;
-        Index.isProgressLocal = data.server_tracks_progress;
+        Index.debugMode = data.debug_mode === "1";
+        Index.isProgressLocal = data.server_tracks_progress === "1";
         Index.pageSize = data.archives_per_page;
 
         // Check version if not in debug mode
