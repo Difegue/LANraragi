@@ -176,8 +176,8 @@ sub serve_page {
         my $last_size = 0;
         my $size      = -s $file;
         while (1) {
-            $logger->debug("Waiting for file to be fully written ($size, $last_size)");
-            usleep(1000);    # 1ms
+            $logger->debug("Waiting for file to be fully written ($size, previously $last_size)");
+            usleep(10000);    # 10ms
             $last_size = $size;
             $size      = -s $file;
             last if ( $last_size eq $size );    # If the size hasn't changed since the last loop, it's likely the file is ready.
