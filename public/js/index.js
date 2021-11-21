@@ -39,11 +39,6 @@ Index.initializeAll = function () {
         freeMode: true,
     });
 
-    // Default to randomly picked for carousel
-    if (localStorage.getItem("carouselType") === undefined) {
-        localStorage.carouselMode = "random";
-    }
-
     // Initialize carousel mode menu
     $.contextMenu({
         selector: "#carousel-mode-menu",
@@ -78,6 +73,11 @@ Index.initializeAll = function () {
     if (localStorage.getItem("customColumn1") === null) {
         localStorage.customColumn1 = "artist";
         localStorage.customColumn2 = "series";
+    }
+
+    // Default to randomly picked for carousel
+    if (localStorage.getItem("carouselType") === null) {
+        localStorage.carouselMode = "random";
     }
 
     // Tell user about the context menu
