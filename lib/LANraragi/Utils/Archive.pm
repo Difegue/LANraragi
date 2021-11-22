@@ -97,6 +97,10 @@ sub extract_archive {
                 $logger->debug("$filename already exists in $destination");
                 return 0;
             }
+
+            # Pre-emptively create the file to signal we're working on it
+            open( my $fh, ">", "$destination/$filename" ) or return 0;
+            close $fh;
             return 1;
         }
     );
@@ -156,6 +160,7 @@ sub extract_pdf {
 sub extract_thumbnail {
 
     my ( $thumbdir, $id ) = @_;
+    my $logger = get_logger( "Archive", "lanraragi" );
 
     # Another subfolder with the first two characters of the id is used for FS optimization.
     my $subfolder = substr( $id, 0, 2 );
@@ -165,7 +170,7 @@ sub extract_thumbnail {
     my $redis = LANraragi::Model::Config->get_redis;
 
     my $file = $redis->hget( $id, "file" );
-    my $temppath = get_temp . "/thumb/$id/";
+    my $temppath = get_temp . "/thumb/$id";
 
     # Make sure the thumb temp dir exists
     make_path($temppath);
@@ -174,19 +179,22 @@ sub extract_thumbnail {
     my @filelist    = get_filelist($file);
     my $first_image = $filelist[0];
 
+    die "First image not found" unless $first_image;
+    $logger->debug("Extracting thumbnail for $id from $first_image");
+
     # Extract first image to temp dir
     my $arcimg = extract_single_file( $file, $first_image, $temppath );
 
-    #While we have the image, grab its SHA-1 hash for tag research.
-    #That way, no need to repeat the costly extraction later.
+    # While we have the image, grab its SHA-1 hash for tag research.
+    # That way, no need to repeat the costly extraction later.
     my $shasum = shasum( $arcimg, 1 );
     $redis->hset( $id, "thumbhash", $shasum );
     $redis->quit();
 
-    #Thumbnail generation
+    # Thumbnail generation
     generate_thumbnail( $arcimg, $thumbname );
 
-    #Delete the previously extracted file.
+    # Delete the previously extracted file.
     unlink $arcimg;
 
     # Clean up safe folder
@@ -259,20 +267,26 @@ sub is_file_in_archive {
 # If the file doesn't exist in the archive, this will still create a file, but empty.
 sub extract_single_file {
 
-    my ( $archive, $filename, $destination ) = @_;
+    my ( $archive, $filepath, $destination ) = @_;
     make_path($destination);
 
     my $logger = get_logger( "Archive", "lanraragi" );
+
+    # Remove folders from filepath
+    my $filename = $filepath;
+    $filename =~ s/^.*\///;
+
     my $outfile = "$destination/$filename";
+    $logger->debug("Output for single file extraction: $outfile");
 
     if ( is_pdf($archive) ) {
 
         # For pdfs the filenames are always x.jpg, so we pull the page number from that
-        my $page = $filename;
+        my $page = $filepath;
         $page =~ s/^(\d+).jpg$/$1/;
 
         my $gscmd = "gs -dNOPAUSE -dFirstPage=$page -dLastPage=$page -sDEVICE=jpeg -r200 -o '$outfile' '$archive'";
-        $logger->debug("Extracting page $filename from PDF $archive");
+        $logger->debug("Extracting page $filepath from PDF $archive");
         $logger->debug($gscmd);
 
         `$gscmd`;
@@ -280,7 +294,7 @@ sub extract_single_file {
 
         my $contents = "";
         my $peek = Archive::Libarchive::Peek->new( filename => $archive );
-        $contents = $peek->file($filename);
+        $contents = $peek->file($filepath);
 
         open( my $fh, '>', $outfile )
           or die "Could not open file '$outfile' $!";
