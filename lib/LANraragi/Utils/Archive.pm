@@ -268,16 +268,14 @@ sub is_file_in_archive {
 sub extract_single_file {
 
     my ( $archive, $filepath, $destination ) = @_;
-    make_path($destination);
-
     my $logger = get_logger( "Archive", "lanraragi" );
 
-    # Remove folders from filepath
-    my $filename = $filepath;
-    $filename =~ s/^.*\///;
-
-    my $outfile = "$destination/$filename";
+    my $outfile = "$destination/$filepath";
     $logger->debug("Output for single file extraction: $outfile");
+
+    # Remove file from $outfile and hand the full directory to make_path
+    my ( $name, $path, $suffix ) = fileparse( $outfile, qr/\.[^.]*/ );
+    make_path($path);
 
     if ( is_pdf($archive) ) {
 
