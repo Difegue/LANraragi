@@ -30,6 +30,10 @@ td.tags {
   max-width: 250px;
 }
 
+.edit-header-btn {
+  cursor: pointer;
+}
+
 span.tags {
   display: block;
   overflow:hidden;
@@ -39,6 +43,7 @@ span.tags {
 
 .tagger {
   min-height:125px;
+  cursor:text;
 }
 
 
@@ -129,8 +134,40 @@ table thead .sorting_disabled a:after {
   margin-left: 1rem;
 }
 
-.page-select {
-  text-align:right;
+.table-options {
+  display: flex;
+}
+
+.table-option {
+  margin-left: 8px !important;
+  vertical-align: bottom;
+}
+
+.index-carousel {
+  margin-top: -20px;
+  margin-bottom: 36px;
+}
+
+.index-carousel > .option-flyout {
+  margin: 0 4%;
+}
+
+.index-carousel-container {
+  margin-top: -20px;
+}
+
+.carousel-prev {
+  position: absolute;
+  top: 136px;
+  left: 0;
+  z-index: 20;
+}
+
+.carousel-next {
+  position: absolute;
+  top: 136px;
+  right: 0;
+  z-index: 20;
 }
 
 p#nb {
@@ -162,6 +199,10 @@ p#nb {
 .page-overlay,
 #overlay-shade {
   display: none;
+}
+
+.loading {
+  min-height: 75vh;
 }
 
 .loading .loading-overlay {
@@ -287,6 +328,11 @@ p#nb {
   border: none !important;
 }
 
+.collapsible-right {
+  float: right; 
+  padding: 1.2rem 1.2rem 0 0;
+}
+
 .collapsible-body {
   border: none !important;
 }
@@ -381,6 +427,19 @@ li {
 
 .circle-tag, .group-tag {
   color: #36d7b7;
+}
+
+.theme-preview {
+  height: 64px; 
+  margin-top:4px;
+  margin-right:8px;
+  border-radius: 4px;
+}
+
+.edit-mode-stdinput {
+  width: 96%;
+  max-width: 100%;
+  min-width: 33vw;
 }
 
 /* Indeterminate progress bar */
@@ -488,17 +547,37 @@ li {
   }
 }
 
+@media all and (max-width: 1024px) {
+
+  .table-options {
+    margin-bottom: 0 !important;
+  }
+
+  .index-carousel {
+    margin-bottom: 0px !important;
+  }
+}
+
 @media all and (max-width: 560px) {
 
   div.id1 {
-    width:192px;
+    width:164px;
+    height: 256px !important;
+  }
+
+  div.id3 {
+    height: 196px !important;
+  }
+
+  div.id3 img {
+    max-height: 196px;
   }
 
 }
 
 @media all and (max-width: 540px) {
 
-  .reader_options {
+  .absolute-options {
     margin-top: 30px;
   }
 
@@ -535,25 +614,22 @@ li {
     width: 100% !important;
   }
 
-  .page-select {
-    margin-top: 0 !important;
-  }
 }
 
-.reader_options {
+.absolute-options {
   position: absolute;
   z-index: 20;
 }
 
-.drop_left {
+.absolute-left {
   left: 12px;
 }
 
-.drop_right {
+.absolute-right {
   right: 1px;
 }
 
-.reader_options a {
+.absolute-options a {
   padding-right: 10px;
   text-decoration: none;
 }
@@ -599,7 +675,7 @@ body.infinite-scroll #toggle-double-mode {
   display: none;
 }
 
-body.infinite-scroll #i4 .reader_options {
+body.infinite-scroll #i4 .absolute-options {
   position: fixed;
   top: 20px;
 }

@@ -318,10 +318,39 @@ td.itdc {
   margin-right: 3px;
 }
 
-.page-select {
-  margin-top: -34px;
-  margin-right: 5%;
-  margin-bottom: 8px;
+.table-options {
+  margin-right: 4%;
+  margin-left: 4%;
+  margin-bottom: -60px;
+}
+
+.table-option {
+  margin-bottom: 3px;
+}
+
+.carousel-prev {
+  padding:4px;
+  background-color: #d7d4c5;
+  color: #414135;
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+}
+
+.carousel-next {
+  padding:4px;
+  background-color: #d7d4c5;
+  color: #414135;
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+}
+
+.carousel-prev:hover, .carousel-next:hover {
+  color: #ed2553;
+}
+
+#reload-carousel {
+  color: #414135;
+}
+#reload-carousel:hover {
+  color: #ed2553;
 }
 
 div.sni {

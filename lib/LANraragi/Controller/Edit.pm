@@ -7,7 +7,7 @@ use Encode;
 use Template;
 use Mojo::Util qw(xml_escape);
 
-use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header);
+use LANraragi::Utils::Generic qw(generate_themes_header);
 use LANraragi::Utils::Database qw(redis_decode);
 use LANraragi::Utils::Plugins qw(get_plugins);
 
@@ -42,7 +42,6 @@ sub index {
             plugins   => \@pluginlist,
             title     => $self->LRR_CONF->get_htmltitle,
             descstr   => $self->LRR_DESC,
-            cssdrop   => generate_themes_selector,
             csshead   => generate_themes_header($self),
             version   => $self->LRR_VERSION
         );

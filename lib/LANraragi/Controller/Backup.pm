@@ -1,7 +1,7 @@
 package LANraragi::Controller::Backup;
 use Mojo::Base 'Mojolicious::Controller';
 
-use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header);
+use LANraragi::Utils::Generic qw(generate_themes_header);
 use LANraragi::Model::Backup;
 
 # This action will render a template
@@ -30,7 +30,6 @@ sub index {
             template => "backup",
             title    => $self->LRR_CONF->get_htmltitle,
             descstr  => $self->LRR_DESC,
-            cssdrop  => generate_themes_selector,
             csshead  => generate_themes_header($self),
             version  => $self->LRR_VERSION
         );

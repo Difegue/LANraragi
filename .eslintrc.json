@@ -11,6 +11,18 @@
         "ecmaVersion": 12,
         "sourceType": "module"
     },
+    "globals": {
+        "LRR": "readonly",
+        "Common": "readonly",
+        "Server": "readonly",
+        "tagger": "readonly",
+        "marked": "readonly",
+        "Awesomplete": "readonly",
+        "tippy": "readonly",
+        "Index": "readonly",
+        "IndexTable": "readonly",
+        "Swiper": "readonly"
+    },
     "rules": {
         "func-names": ["error", "never"],
         "indent": ["error", 4],

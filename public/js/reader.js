@@ -1,18 +1,23 @@
-// functions to navigate in reader with the keyboard.
-// also handles the thumbnail archive explorer.
-
+/**
+ * Functions to navigate in reader with the keyboard.
+ * Also handles the thumbnail archive explorer.
+ */
 const Reader = {};
+
+Reader.id = "";
+Reader.force = false;
 Reader.previousPage = -1;
+Reader.currentPage = -1;
 Reader.showingSinglePage = true;
 Reader.preloadedImg = {};
 Reader.preloadedSizes = {};
 
 Reader.initializeAll = function () {
-    Reader.maxPage = Reader.pages.length - 1;
     Reader.initializeSettings();
+    Reader.applyContainerWidth();
+    Reader.registerPreload();
 
-    // bind events to DOM
-    $(document).on("load.style", "body", set_style_from_storage);
+    // Bind events to DOM
     $(document).on("keyup", Reader.handleShortcuts);
 
     $(document).on("click.toggle_fit_mode", "#fit-mode input", Reader.toggleFitMode);
@@ -27,35 +32,18 @@ Reader.initializeAll = function () {
     $(document).on("click.preload", "#preload-apply", Reader.registerPreload);
     $(document).on("click.pagination_change_pages", ".page-link", Reader.handlePaginator);
 
-    $(document).on("click.close_overlay", "#overlay-shade", closeOverlay);
+    $(document).on("click.close_overlay", "#overlay-shade", LRR.closeOverlay);
     $(document).on("click.toggle_archive_overlay", "#toggle-archive-overlay", Reader.toggleArchiveOverlay);
     $(document).on("click.toggle_settings_overlay", "#toggle-settings-overlay", Reader.toggleSettingsOverlay);
     $(document).on("click.toggle_help", "#toggle-help", Reader.toggleHelp);
-    $(document).on("click.regenerate_thumbnail", "#regenerate-thumbnail", Reader.regenerateThumbnail);
     $(document).on("click.regenerate_archive_cache", "#regenerate-cache", () => {
-        window.location.href = `./reader?id=${Reader.id}&force_reload=1`;
+        window.location.href = `./reader?id=${Reader.id}&force_reload`;
     });
-    $(document).on("click.edit_metadata", "#edit-archive", () => openInNewTab(`./edit?id=${Reader.id}`));
-    $(document).on("click.add_category", "#add-category", () => addArchiveToCategory(Reader.id, $("#category").val()));
-
-    // check and display warnings for unsupported filetypes
-    Reader.checkFiletypeSupport();
-
-    // Use localStorage progress value instead of the server one if needed
-    if (Reader.trackProgressLocally) {
-        Reader.progress = localStorage.getItem(`${Reader.id}-reader`) - 1 || 0;
-    }
-
-    // remove the "new" tag with an api call
-    clearNew(Reader.id);
-
-    Reader.registerPreload();
-
-    Reader.infiniteScroll = localStorage.infiniteScroll === "true" || false;
-    $(Reader.infiniteScroll ? "#infinite-scroll-on" : "#infinite-scroll-off").addClass("toggled");
+    $(document).on("click.edit_metadata", "#edit-archive", () => LRR.openInNewTab(`./edit?id=${Reader.id}`));
+    $(document).on("click.add_category", "#add-category", () => Server.addArchiveToCategory(Reader.id, $("#category").val()));
 
     $(document).on("click.thumbnail", ".quick-thumbnail", (e) => {
-        closeOverlay();
+        LRR.closeOverlay();
         const pageNumber = +$(e.target).closest("div[page]").attr("page");
         if (Reader.infiniteScroll) {
             $("#display img").get(pageNumber).scrollIntoView({ behavior: "smooth" });
@@ -64,54 +52,104 @@ Reader.initializeAll = function () {
         }
     });
 
-    if (Reader.infiniteScroll) {
-        Reader.initInfiniteScrollView();
-        return;
-    }
-
-    // all these init values need to be after the infinite loader check
-    $(document).on("click.imagemap_change_pages", "#Map area", Reader.handlePaginator);
-    $(window).on("resize", Reader.updateImagemap);
-
-    let params = new URLSearchParams(window.location.search);
-
-    // initialize current page and bind popstate
+    // Bind popstate
     $(window).on("popstate", () => {
-        params = new URLSearchParams(window.location.search);
-        if (params.has("p")) {
-            const paramsPage = +params.get("p");
+        const popped = new URLSearchParams(window.location.search);
+        if (popped.has("p")) {
+            const paramsPage = +popped.get("p");
             Reader.goToPage(paramsPage - 1, true);
         }
     });
 
+    // Infer initial information from the URL
+    const params = new URLSearchParams(window.location.search);
+    Reader.id = params.get("id");
+    Reader.force = params.get("force_reload") !== null;
     Reader.currentPage = (+params.get("p") || 1) - 1;
-    // when there's no parameter, null is coerced to 0 so it becomes -1
-    Reader.currentPage = Reader.currentPage || (
-        !Reader.ignoreProgress && Reader.progress < Reader.maxPage
-            ? Reader.progress
-            : 0
-    );
-    // Choices in order for page picking:
-    // * p is in parameters and is not the first page
-    // * progress is tracked and is not the last page
-    // * first page
-    // This allows for bookmarks to trump progress
 
-    $(".current-page").each((_i, el) => $(el).html(Reader.currentPage + 1));
-    Reader.goToPage(Reader.currentPage);
+    // Remove the "new" tag with an api call
+    Server.callAPI(`/api/archives/${Reader.id}/isnew`, "DELETE", null, "Error clearing new flag! Check Logs.", null);
+
+    // Get basic metadata
+    Server.callAPI(`/api/archives/${Reader.id}/metadata`, "GET", null, "Error getting basic archive info!",
+        (data) => {
+            let { title } = data;
+
+            // Regex look in tags for artist
+            const artist = data.tags.match(/.*artist:([^,]*),.*/i);
+            if (artist) {
+                title = `${title} by ${artist[1]}`;
+            }
+
+            $("#archive-title").html(title);
+            if (data.pagecount) { $(".max-page").html(data.pagecount); }
+            document.title = title;
+
+            Reader.tags = data.tags;
+
+            // Use localStorage progress value instead of the server one if needed
+            if (Reader.trackProgressLocally) {
+                Reader.progress = localStorage.getItem(`${Reader.id}-reader`) - 1 || 0;
+            } else {
+                Reader.progress = data.progress - 1;
+            }
+
+            // check and display warnings for unsupported filetypes
+            Reader.checkFiletypeSupport(data.extension);
+
+            // Load the actual reader pages now that we have basic info
+            Reader.loadImages();
+        });
+};
+
+Reader.loadImages = function () {
+    Server.callAPI(`/api/archives/${Reader.id}/files?force=${Reader.force}`, "GET", null, "Error getting the archive's imagelist!",
+        (data) => {
+            Reader.pages = data.pages;
+            Reader.maxPage = Reader.pages.length - 1;
+            $(".max-page").html(Reader.pages.length);
+
+            $("#img").on("load", Reader.updateMetadata);
+
+            if (Reader.infiniteScroll) {
+                Reader.initInfiniteScrollView();
+            } else {
+                $(document).on("click.imagemap_change_pages", "#Map area", Reader.handlePaginator);
+                $(window).on("resize", Reader.updateImagemap);
+
+                // when there's no parameter, null is coerced to 0 so it becomes -1
+                Reader.currentPage = Reader.currentPage || (
+                    !Reader.ignoreProgress && Reader.progress < Reader.maxPage
+                        ? Reader.progress
+                        : 0
+                );
+                // Choices in order for page picking:
+                // * p is in parameters and is not the first page
+                // * progress is tracked and is not the last page
+                // * first page
+                // This allows for bookmarks to trump progress
+
+                $(".current-page").each((_i, el) => $(el).html(Reader.currentPage + 1));
+                Reader.goToPage(Reader.currentPage);
+            }
+        }).finally(() => {
+        if (Reader.pages === undefined) {
+            $("#img").attr("src", "img/flubbed.gif");
+            $("#display").append("<h2>I flubbed it while trying to open the archive.</h2>");
+        }
+    });
 };
 
 Reader.initializeSettings = function () {
     // Initialize settings and button toggles
-    // Has legacy localstorage options from before the refactoring, these can be removed later on
-    if (localStorage.hideHeader === "true" || localStorage.hidetop === "true" || false) {
+    if (localStorage.hideHeader === "true" || false) {
         $("#hide-header").addClass("toggled");
         $("#i2").hide();
     } else {
         $("#show-header").addClass("toggled");
     }
 
-    Reader.mangaMode = localStorage.mangaMode === "true" || localStorage.righttoleft === "true" || false;
+    Reader.mangaMode = localStorage.mangaMode === "true" || false;
     if (Reader.mangaMode) {
         $("#manga-mode").addClass("toggled");
         $(".reading-direction").toggleClass("fa-arrow-left fa-arrow-right");
@@ -119,17 +157,20 @@ Reader.initializeSettings = function () {
         $("#normal-mode").addClass("toggled");
     }
 
-    Reader.doublePageMode = localStorage.doublePageMode === "true" || localStorage.doublepage === "true" || false;
+    Reader.doublePageMode = localStorage.doublePageMode === "true" || false;
     Reader.doublePageMode ? $("#double-page").addClass("toggled") : $("#single-page").addClass("toggled");
 
-    Reader.ignoreProgress = localStorage.ignoreProgress === "true" || localStorage.nobookmark === "true" || false;
+    Reader.ignoreProgress = localStorage.ignoreProgress === "true" || false;
     Reader.ignoreProgress ? $("#untrack-progress").addClass("toggled") : $("#track-progress").addClass("toggled");
 
-    if (localStorage.forcefullwidth === "true" || localStorage.fitMode === "fit-width") {
+    Reader.infiniteScroll = localStorage.infiniteScroll === "true" || false;
+    $(Reader.infiniteScroll ? "#infinite-scroll-on" : "#infinite-scroll-off").addClass("toggled");
+
+    if (localStorage.fitMode === "fit-width") {
         Reader.fitMode = "fit-width";
         $("#fit-width").addClass("toggled");
         $("#container-width").hide();
-    } else if (localStorage.scaletoview === "true" || localStorage.fitMode === "fit-height") {
+    } else if (localStorage.fitMode === "fit-height") {
         Reader.fitMode = "fit-height";
         $("#fit-height").addClass("toggled");
         $("#container-width").hide();
@@ -138,17 +179,8 @@ Reader.initializeSettings = function () {
         $("#fit-container").addClass("toggled");
     }
 
-    Reader.containerWidth = localStorage.containerWidth || +localStorage.containerwidth;
+    Reader.containerWidth = localStorage.containerWidth;
     if (Reader.containerWidth) { $("#container-width-input").val(Reader.containerWidth); }
-
-    // remove legacy options
-    localStorage.removeItem("doublepage");
-    localStorage.removeItem("righttoleft");
-    localStorage.removeItem("hidetop");
-    localStorage.removeItem("nobookmark");
-    localStorage.removeItem("forcefullwidth");
-    localStorage.removeItem("scaletoview");
-    localStorage.removeItem("containerwidth");
 };
 
 Reader.initInfiniteScrollView = function () {
@@ -177,7 +209,7 @@ Reader.handleShortcuts = function (e) {
         document.location.href = "/";
         break;
     case 27: // escape
-        closeOverlay();
+        LRR.closeOverlay();
         break;
     case 32: // spacebar
         if ($(".page-overlay").is(":visible")) { break; }
@@ -221,8 +253,8 @@ Reader.handleShortcuts = function (e) {
     }
 };
 
-Reader.checkFiletypeSupport = function () {
-    if ((Reader.filename.endsWith(".rar") || Reader.filename.endsWith(".cbr")) && !localStorage.rarWarningShown) {
+Reader.checkFiletypeSupport = function (extension) {
+    if ((extension === "rar" || extension === "cbr") && !localStorage.rarWarningShown) {
         localStorage.rarWarningShown = true;
         $.toast({
             showHideTransition: "slide",
@@ -233,7 +265,7 @@ Reader.checkFiletypeSupport = function () {
             hideAfter: false,
             icon: "warning",
         });
-    } else if (Reader.filename.endsWith(".epub") && !localStorage.epubWarningShown) {
+    } else if (extension === "epub" && !localStorage.epubWarningShown) {
         localStorage.epubWarningShown = true;
         $.toast({
             showHideTransition: "slide",
@@ -257,26 +289,7 @@ Reader.toggleHelp = function () {
 
     $.toast({
         heading: "Navigation Help",
-        text: `
-        <div class="navigation-help-toast">
-            You can navigate between pages using:
-            <ul>
-                <li>The arrow icons</li>
-                <li>The a/d keys</li>
-                <li>Your keyboard arrows (and the spacebar)</li>
-                <li>Touching the left/right side of the image.</li>
-            </ul>
-            <br>Other keyboard shortcuts:
-            <ul>
-                <li>M: toggle manga mode (right-to-left reading)</li>
-                <li>O: show advanced reader options.</li>
-                <li>P: toggle double page mode</li>
-                <li>Q: bring up the thumbnail index and archive options.</li>
-                <li>R: open a random archive.</li>
-            </ul>
-            <br>To return to the archive index, touch the arrow pointing down or use Backspace.
-        </div>
-        `,
+        text: $("#reader-help").children().first().html(),
         hideAfter: false,
         position: "top-left",
         icon: "info",
@@ -374,7 +387,7 @@ Reader.goToPage = function (page, fromHistory = false) {
     if (Reader.trackProgressLocally) {
         localStorage.setItem(`${Reader.id}-reader`, Reader.currentPage + 1);
     } else {
-        genericAPICall(`api/archives/${Reader.id}/progress/${Reader.currentPage + 1}`, "PUT", null, "Error updating reading progress!", null);
+        Server.callAPI(`api/archives/${Reader.id}/progress/${Reader.currentPage + 1}`, "PUT", null, "Error updating reading progress!", null);
     }
 
     // scroll to top
@@ -512,30 +525,20 @@ Reader.toggleInfiniteScroll = function () {
     window.location.reload();
 };
 
-Reader.toggleOverlay = function (selector) {
-    // This function would be better fit for common.js
-    const overlay = $(selector);
-    overlay.is(":visible")
-        ? closeOverlay()
-        : $("#overlay-shade").fadeTo(150, 0.6, () => overlay.show());
-
-    return false; // needs to return false to prevent scrolling to top
-};
-
 Reader.toggleSettingsOverlay = function () {
-    return Reader.toggleOverlay("#settingsOverlay");
+    return LRR.toggleOverlay("#settingsOverlay");
 };
 
 Reader.toggleArchiveOverlay = function () {
     Reader.initializeArchiveOverlay();
-    return Reader.toggleOverlay("#archivePagesOverlay");
+    return LRR.toggleOverlay("#archivePagesOverlay");
 };
 
 Reader.initializeArchiveOverlay = function () {
     if ($("#archivePagesOverlay").attr("loaded") === "true") {
         return;
     }
-    $("#tagContainer").append(buildTagsDiv(Reader.tags));
+    $("#tagContainer").append(LRR.buildTagsDiv(Reader.tags));
 
     // For each link in the pages array, craft a div and jam it in the overlay.
     for (let index = 0; index < Reader.pages.length; ++index) {
@@ -549,23 +552,6 @@ Reader.initializeArchiveOverlay = function () {
         $("#archivePagesOverlay").append(thumbnail);
     }
     $("#archivePagesOverlay").attr("loaded", "true");
-};
-
-Reader.regenerateThumbnail = function () {
-    // this function would be better suited for common.js, since it can be reused in the index
-    if (!window.confirm("Are you sure you want to regenerate the thumbnail for this archive?")) {
-        return;
-    }
-
-    $.get(`./reader?id${Reader.id}&reload_thumbnail=1`).done(() => {
-        $.toast({
-            showHideTransition: "slide",
-            position: "top-left",
-            loader: false,
-            heading: "Thumbnail regenerated.",
-            icon: "success",
-        });
-    });
 };
 
 Reader.drawCanvas = function (img1, img2) {

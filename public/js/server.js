@@ -1,26 +1,21 @@
-// Scripting for Generic API calls.
+/**
+ * Functions for Generic API calls.
+ */
+const Server = {};
 
-// Show a generic error toast with a given header and message.
-function showErrorToast(header, error) {
-    $.toast({
-        showHideTransition: "slide",
-        position: "top-left",
-        loader: false,
-        heading: header,
-        text: error,
-        hideAfter: false,
-        icon: "error",
-    });
-}
+Server.isScriptRunning = false;
 
-// Call that shows a popup to the user on success/failure.
-// Returns the promise so you can add final callbacks if needed.
-// Endpoint: URL endpoint
-// Method: GET/PUT/DELETE/POST
-// successMessage: Message written in the toast if request succeeded (success = 1)
-// errorMessage: Header of the error message if request fails (success = 0)
-// successCallback: Func called if request succeeded
-function genericAPICall(endpoint, method, successMessage, errorMessage, successCallback) {
+/**
+ * Call that shows a popup to the user on success/failure.
+ * Returns the promise so you can add final callbacks if needed.
+ * @param {*} endpoint URL endpoint
+ * @param {*} method GET/PUT/DELETE/POST
+ * @param {*} successMessage Message written in the toast if request succeeded (success = 1)
+ * @param {*} errorMessage Header of the error message if request fails (success = 0)
+ * @param {*} successCallback called if request succeeded
+ * @returns The result of the callback, or NULL.
+ */
+Server.callAPI = function (endpoint, method, successMessage, errorMessage, successCallback) {
     return fetch(endpoint, { method })
         .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))
         .then((data) => {
@@ -38,14 +33,20 @@ function genericAPICall(endpoint, method, successMessage, errorMessage, successC
                 }
 
                 if (successCallback !== null) return successCallback(data);
+
+                return null;
             }
         })
-        .catch((error) => showErrorToast(errorMessage, error));
-}
+        .catch((error) => LRR.showErrorToast(errorMessage, error));
+};
 
-// Check the status of a Minion job until it's completed.
-// Execute a callback on successful job completion.
-function checkJobStatus(jobId, callback, failureCallback) {
+/**
+ * Check the status of a Minion job until it's completed.
+ * @param {*} jobId Job ID to check
+ * @param {*} callback Execute a callback on successful job completion.
+ * @param {*} failureCallback Execute a callback on unsuccessful job completion.
+ */
+Server.checkJobStatus = function (jobId, callback, failureCallback) {
     fetch(`/api/minion/${jobId}`, { method: "GET" })
         .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))
         .then((data) => {
@@ -58,21 +59,23 @@ function checkJobStatus(jobId, callback, failureCallback) {
             if (data.state !== "finished") {
                 // Wait and retry, job isn't done yet
                 setTimeout(() => {
-                    checkJobStatus(jobId, callback, failureCallback);
+                    Server.checkJobStatus(jobId, callback, failureCallback);
                 }, 1000);
             } else {
                 // Update UI with info
                 callback(data);
             }
         })
-        .catch((error) => { showErrorToast("Error checking Minion job status", error); failureCallback(error); });
-}
+        .catch((error) => { LRR.showErrorToast("Error checking Minion job status", error); failureCallback(error); });
+};
 
-// saveFormData()
-// POSTs the data of the specified form to the page.
-// This is used for Edit, Config and Plugins.
-// Returns the promise object so you can chain more callbacks.
-function saveFormData(formSelector) {
+/**
+ * POSTs the data of the specified form to the page.
+ * This is used for Edit, Config and Plugins.
+ * @param {*} formSelector The form to POST
+ * @returns the promise object so you can chain more callbacks.
+ */
+Server.saveFormData = function (formSelector) {
     const postData = new FormData($(formSelector)[0]);
 
     return fetch(window.location.href, { method: "POST", body: postData })
@@ -90,30 +93,29 @@ function saveFormData(formSelector) {
                 throw new Error(data.message);
             }
         })
-        .catch((error) => showErrorToast("Error while saving", error));
-}
+        .catch((error) => LRR.showErrorToast("Error while saving", error));
+};
 
-let isScriptRunning = false;
-function triggerScript(namespace) {
+Server.triggerScript = function (namespace) {
     const scriptArg = $(`#${namespace}_ARG`).val();
 
-    if (isScriptRunning) {
-        showErrorToast("A script is already running.", "Please wait for it to terminate.");
+    if (Server.isScriptRunning) {
+        LRR.showErrorToast("A script is already running.", "Please wait for it to terminate.");
         return;
     }
 
-    isScriptRunning = true;
+    Server.isScriptRunning = true;
     $(".script-running").show();
     $(".stdbtn").hide();
 
     // Save data before triggering script
-    saveFormData("#editPluginForm")
-        .then(genericAPICall(`/api/plugins/queue?plugin=${namespace}&arg=${scriptArg}`, "POST", null, "Error while executing Script :",
+    Server.saveFormData("#editPluginForm")
+        .then(Server.callAPI(`/api/plugins/queue?plugin=${namespace}&arg=${scriptArg}`, "POST", null, "Error while executing Script :",
             (data) => {
                 // Check minion job state periodically while we're on this page
-                checkJobStatus(data.job,
+                Server.checkJobStatus(data.job,
                     (d) => {
-                        isScriptRunning = false;
+                        Server.isScriptRunning = false;
                         $(".script-running").hide();
                         $(".stdbtn").show();
 
@@ -127,46 +129,42 @@ function triggerScript(namespace) {
                                 hideAfter: false,
                                 icon: "info",
                             });
-                        } else showErrorToast(`Script failed: ${d.result.error}`);
+                        } else LRR.showErrorToast(`Script failed: ${d.result.error}`);
                     },
-                    (error) => {
-                        isScriptRunning = false;
+                    () => {
+                        Server.isScriptRunning = false;
                         $(".script-running").hide();
                         $(".stdbtn").show();
                     });
             }));
-}
+};
 
-function cleanTempFldr() {
-    genericAPICall("/api/tempfolder", "DELETE", "Temporary Folder Cleaned!", "Error while cleaning Temporary Folder :",
+Server.cleanTemporaryFolder = function () {
+    Server.callAPI("/api/tempfolder", "DELETE", "Temporary Folder Cleaned!", "Error while cleaning Temporary Folder :",
         (data) => {
             $("#tempsize").html(data.newsize);
         });
-}
+};
 
-function invalidateCache() {
-    genericAPICall("/api/search/cache", "DELETE", "Threw away the Search Cache!", "Error while deleting cache! Check Logs.", null);
-}
+Server.invalidateCache = function () {
+    Server.callAPI("/api/search/cache", "DELETE", "Threw away the Search Cache!", "Error while deleting cache! Check Logs.", null);
+};
 
-function clearNew(id) {
-    genericAPICall(`/api/archives/${id}/isnew`, "DELETE", null, "Error clearing new flag! Check Logs.", null);
-}
+Server.clearAllNewFlags = function () {
+    Server.callAPI("/api/database/isnew", "DELETE", "All archives are no longer new!", "Error while clearing flags! Check Logs.", null);
+};
 
-function clearAllNew() {
-    genericAPICall("/api/database/isnew", "DELETE", "All archives are no longer new!", "Error while clearing flags! Check Logs.", null);
-}
-
-function dropDatabase() {
+Server.dropDatabase = function () {
     if (confirm("Danger! Are you *sure* you want to do this?")) {
-        genericAPICall("/api/database/drop", "POST", "Sayonara! Redirecting you...", "Error while resetting the database? Check Logs.",
-            (data) => {
-                setTimeout("location.href = './';", 1500);
+        Server.callAPI("/api/database/drop", "POST", "Sayonara! Redirecting you...", "Error while resetting the database? Check Logs.",
+            () => {
+                setTimeout(() => { document.location.href = "./"; }, 1500);
             });
     }
-}
+};
 
-function cleanDatabase() {
-    genericAPICall("/api/database/clean", "POST", null, "Error while cleaning the database! Check Logs.",
+Server.cleanDatabase = function () {
+    Server.callAPI("/api/database/clean", "POST", null, "Error while cleaning the database! Check Logs.",
         (data) => {
             $.toast({
                 showHideTransition: "slide",
@@ -187,11 +185,11 @@ function cleanDatabase() {
                 });
             }
         });
-}
+};
 
-function regenThumbnails(force) {
-    forceparam = force ? 1 : 0;
-    genericAPICall(`/api/regen_thumbs?force=${forceparam}`, "POST",
+Server.regenerateThumbnails = function (force) {
+    const forceparam = force ? 1 : 0;
+    Server.callAPI(`/api/regen_thumbs?force=${forceparam}`, "POST",
         "Queued up a job to regenerate thumbnails! Stay tuned for updates or check the Minion console.", "Error while sending job to Minion:",
         (data) => {
             // Disable the buttons to avoid accidental double-clicks.
@@ -199,7 +197,7 @@ function regenThumbnails(force) {
             $("#forcethumb-button").prop("disabled", true);
 
             // Check minion job state periodically while we're on this page
-            checkJobStatus(data.job,
+            Server.checkJobStatus(data.job,
                 (d) => {
                     $("#genthumb-button").prop("disabled", false);
                     $("#forcethumb-button").prop("disabled", false);
@@ -216,52 +214,32 @@ function regenThumbnails(force) {
                 (error) => {
                     $("#genthumb-button").prop("disabled", false);
                     $("#forcethumb-button").prop("disabled", false);
-                    showErrorToast("The thumbnail regen job failed!", error);
+                    LRR.showErrorToast("The thumbnail regen job failed!", error);
                 });
         });
-}
-
-function rebootShinobu() {
-    $("#restart-button").prop("disabled", true);
-    genericAPICall("/api/shinobu/restart", "POST", "Background Worker restarted!", "Error while restarting Worker:",
-        (data) => {
-            $("#restart-button").prop("disabled", false);
-            shinobuStatus();
-        });
-}
-
-// Update the status of the background worker.
-function shinobuStatus() {
-    genericAPICall("/api/shinobu", "GET", null, "Error while querying Shinobu status:",
-        (data) => {
-            if (data.is_alive) {
-                $("#shinobu-ok").show();
-                $("#shinobu-ko").hide();
-            } else {
-                $("#shinobu-ko").show();
-                $("#shinobu-ok").hide();
-            }
-            $("#pid").html(data.pid);
-        });
-}
+};
 
 // Adds an archive to a category. Basic implementation to use everywhere.
-function addArchiveToCategory(arcId, catId) {
-    genericAPICall(`/api/categories/${catId}/${arcId}`, "PUT", `Added ${arcId} to Category ${catId}!`, "Error adding/removing archive to category", null);
-}
+Server.addArchiveToCategory = function (arcId, catId) {
+    Server.callAPI(`/api/categories/${catId}/${arcId}`, "PUT", `Added ${arcId} to Category ${catId}!`, "Error adding/removing archive to category", null);
+};
 
 // Ditto, but for removing.
-function removeArchiveFromCategory(arcId, catId) {
-    genericAPICall(`/api/categories/${catId}/${arcId}`, "DELETE", `Removed ${arcId} from Category ${catId}!`, "Error adding/removing archive to category", null);
-}
+Server.removeArchiveFromCategory = function (arcId, catId) {
+    Server.callAPI(`/api/categories/${catId}/${arcId}`, "DELETE", `Removed ${arcId} from Category ${catId}!`, "Error adding/removing archive to category", null);
+};
 
-// deleteArchive(id)
-// Sends a DELETE request for that archive ID, deleting the Redis key and attempting to delete the archive file.
-function deleteArchive(arcId) {
+/**
+ * Sends a DELETE request for that archive ID,
+ * deleting the Redis key and attempting to delete the archive file.
+ * @param {*} arcId Archive ID
+ * @param {*} callback Callback to execute once the archive is deleted (usually a redirection)
+ */
+Server.deleteArchive = function (arcId, callback) {
     fetch(`/api/archives/${arcId}`, { method: "DELETE" })
         .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))
         .then((data) => {
-            if (data.success == "0") {
+            if (data.success === "0") {
                 $.toast({
                     showHideTransition: "slide",
                     position: "top-left",
@@ -282,8 +260,8 @@ function deleteArchive(arcId) {
                     text: `File name : ${data.filename}`,
                     icon: "success",
                 });
-                setTimeout("location.href = './';", 1500);
+                setTimeout(callback, 1500);
             }
         })
-        .catch((error) => showErrorToast("Error while deleting archive", error));
-}
+        .catch((error) => LRR.showErrorToast("Error while deleting archive", error));
+};

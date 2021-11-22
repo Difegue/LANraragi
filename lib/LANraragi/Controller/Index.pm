@@ -8,8 +8,9 @@ use Encode;
 use File::Basename;
 use Authen::Passphrase;
 
-use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header);
+use LANraragi::Utils::Generic qw(generate_themes_header);
 
+# This endpoint is technically superseded by /api/search/random, but it's still useful in the Reader.
 sub random_archive {
     my $self          = shift;
     my $archive       = "";
@@ -47,7 +48,7 @@ sub index {
     my $self = shift;
 
     #Checking if the user still has the default password enabled
-    my $ppr       = Authen::Passphrase->from_rfc2307( $self->LRR_CONF->get_password );
+    my $ppr = Authen::Passphrase->from_rfc2307( $self->LRR_CONF->get_password );
     my $passcheck = ( $ppr->match("kamimamita") && $self->LRR_CONF->enable_pass );
 
     my $userlogged = $self->LRR_CONF->enable_pass == 0 || $self->session('is_logged');
@@ -61,15 +62,11 @@ sub index {
         version      => $self->LRR_VERSION,
         title        => $self->LRR_CONF->get_htmltitle,
         descstr      => $self->LRR_DESC,
-        pagesize     => $self->LRR_CONF->get_pagesize,
         userlogged   => $userlogged,
         categories   => \@categories,
         motd         => $self->LRR_CONF->get_motd,
-        use_local    => $self->LRR_CONF->enable_localprogress,
-        cssdrop      => generate_themes_selector,
         csshead      => generate_themes_header($self),
-        usingdefpass => $passcheck,
-        debugmode    => $self->app->mode eq "development"
+        usingdefpass => $passcheck
     );
 }
 

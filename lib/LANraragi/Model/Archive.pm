@@ -6,6 +6,7 @@ use utf8;
 
 use Cwd 'abs_path';
 use Redis;
+use Time::HiRes qw(usleep);
 use File::Basename;
 use File::Temp qw(tempfile);
 use File::Copy "cp";
@@ -14,7 +15,8 @@ use Mojo::Util qw(xml_escape);
 use LANraragi::Utils::Generic qw(get_tag_with_namespace remove_spaces remove_newlines render_api_response);
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging qw(get_logger);
-use LANraragi::Utils::Database qw(redis_encode redis_decode invalidate_cache);
+use LANraragi::Utils::Archive qw(extract_single_file);
+use LANraragi::Utils::Database qw(redis_encode redis_decode invalidate_cache get_archive_json get_archive_json_multi);
 
 # Functions used when dealing with archives.
 
@@ -23,18 +25,9 @@ sub generate_archive_list {
 
     my $redis = LANraragi::Model::Config->get_redis;
     my @keys  = $redis->keys('????????????????????????????????????????');
-    my @list  = ();
-
-    foreach my $id (@keys) {
-        my $arcdata = LANraragi::Utils::Database::build_archive_JSON( $redis, $id );
-
-        if ($arcdata) {
-            push @list, $arcdata;
-        }
-    }
-
     $redis->quit;
-    return @list;
+
+    return get_archive_json_multi(@keys);
 }
 
 sub generate_opds_catalog {
@@ -55,7 +48,7 @@ sub generate_opds_catalog {
     foreach my $id (@keys) {
         my $file = $redis->hget( $id, "file" );
         if ( -e $file ) {
-            my $arcdata = LANraragi::Utils::Database::build_archive_JSON( $redis, $id );
+            my $arcdata = get_archive_json( $redis, $id );
             unless ($arcdata) { next; }
 
             my $tags = $arcdata->{tags};
@@ -115,8 +108,8 @@ sub find_untagged_archives {
 
     #Parse the archive list.
     foreach my $id (@keys) {
-        my $zipfile = $redis->hget( $id, "file" );
-        if ( $zipfile && -e $zipfile ) {
+        my $archive = $redis->hget( $id, "file" );
+        if ( $archive && -e $archive ) {
 
             my $title = $redis->hget( $id, "title" );
             $title = redis_decode($title);
@@ -174,15 +167,44 @@ sub serve_page {
     my $logger = get_logger( "File Serving", "lanraragi" );
 
     my $tempfldr = get_temp();
-    my $file     = $tempfldr . "/$id/$path";
-    my $abspath  = abs_path($file);            # abs_path returns null if the path is invalid.
+    my $file     = LANraragi::Utils::Archive::sanitize_filename( $tempfldr . "/$id/$path" );
 
-    if ( !$abspath ) {
-        render_api_response( $self, "serve_page", "Invalid path $path." );
+    if ( -e $file ) {
+
+        # Freshly created files might not be complete yet.
+        # We have to wait before trying to serve them out...
+        my $last_size = 0;
+        my $size      = -s $file;
+        while (1) {
+            $logger->debug("Waiting for file to be fully written ($size, previously $last_size)");
+            usleep(10000);    # 10ms
+            $last_size = $size;
+            $size      = -s $file;
+            last if ( $last_size eq $size );    # If the size hasn't changed since the last loop, it's likely the file is ready.
+        }
+
+    } else {
+
+        # Extract the file from the parent archive if it doesn't exist
+        $logger->debug("Extracting missing file");
+        my $redis = LANraragi::Model::Config->get_redis;
+        my $archive = $redis->hget( $id, "file" );
+        $redis->quit();
+
+        # Check again just in case
+        unless ( -e $file ) {
+            my $outfile = extract_single_file( $archive, $path, $tempfldr . "/$id" );
+            die "mismatched filenames $file and $outfile" unless $file eq $outfile;    # sanity check
+        }
     }
 
-    unless ( -e $abspath ) {
-        render_api_response( $self, "serve_page", "$path does not exist." );
+    # abs_path returns null if the path is invalid or doesn't exist.
+    my $abspath = abs_path($file);
+
+    if ( !$abspath ) {
+        $logger->debug("abs_path returned null with $file as input");
+        render_api_response( $self, "serve_page", "Invalid path $path." );
+        return;
     }
 
     $logger->debug("Path to requested file is $abspath");

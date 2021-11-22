@@ -19,7 +19,8 @@ use LANraragi::Utils::Logging qw(get_logger);
 
 # Functions for interacting with the DB Model.
 use Exporter 'import';
-our @EXPORT_OK = qw(redis_encode redis_decode invalidate_cache compute_id get_computed_tagrules save_computed_tagrules);
+our @EXPORT_OK =
+  qw(redis_encode redis_decode invalidate_cache compute_id get_computed_tagrules save_computed_tagrules get_archive_json get_archive_json_multi);
 
 #add_archive_to_redis($id,$file,$redis)
 # Creates a DB entry for a file path with the given ID.
@@ -37,23 +38,23 @@ sub add_archive_to_redis {
     $redis->hset( $id, "name",  redis_encode($name) );
     $redis->hset( $id, "title", redis_encode($name) );
 
-    # Initialize tags to an empty string
-    $redis->hset( $id, "tags", "" );
+    # Initialize tags to the current date
+    $redis->hset( $id, "tags", "date_added:" . time() );
 
-    #Don't encode filenames.
+    # Don't encode filenames.
     $redis->hset( $id, "file", $file );
 
-    #New file in collection, so this flag is set.
+    # New file in collection, so this flag is set.
     $redis->hset( $id, "isnew", "true" );
 
     $redis->quit;
     return $name;
 }
 
-# build_archive_JSON(redis, id)
+# get_archive_json(redis, id)
 # Builds a JSON object for an archive registered in the database and returns it.
-# This function is usually called many times in a row, so provide your own Redis object.
-sub build_archive_JSON {
+# If you need to get many JSONs at once, use the multi variant.
+sub get_archive_json {
     my ( $redis, $id ) = @_;
     my $arcdata;
 
@@ -62,31 +63,75 @@ sub build_archive_JSON {
         die unless $redis->exists($id);
 
         my %hash = $redis->hgetall($id);
+        $arcdata = build_json( $id, %hash );
+    };
 
-        #It's not a new archive, but it might have never been clicked on yet,
-        #so we'll grab the value for $isnew stored in redis.
-        my ( $name, $title, $tags, $file, $isnew, $progress, $pagecount ) = @hash{qw(name title tags file isnew progress pagecount)};
+    return $arcdata;
+}
 
-        # return undef if the file doesn't exist.
-        die unless ( -e $file );
+# get_archive_json_multi(redis, ids)
+# Uses Redis' MULTI to get an archive JSON for each ID.
+sub get_archive_json_multi {
+    my @ids   = @_;
+    my $redis = LANraragi::Model::Config->get_redis;
 
-        #Parameters have been obtained, let's decode them.
-        ( $_ = redis_decode($_) ) for ( $name, $title, $tags );
-
-        #Workaround if title was incorrectly parsed as blank
-        if ( !defined($title) || $title =~ /^\s*$/ ) {
-            $title = $name;
+    # Get the archive JSON for each ID.
+    my @archives;
+    my @results;
+    eval {
+        $redis->multi;
+        foreach my $id (@ids) {
+            $redis->hgetall($id);
         }
+        @results = $redis->exec;
+        $redis->quit;
+    };
 
-        $arcdata = {
-            arcid     => $id,
-            title     => $title,
-            tags      => $tags,
-            isnew     => $isnew,
-            progress  => $progress ? int($progress) : 0,
-            pagecount => $pagecount ? int($pagecount) : 0
-        };
+    # Build the archive JSONs.
+    for my $i ( 0 .. $#results ) {
 
+        # If we got no results for one ID/hgetall, skip it.
+        next unless ( $results[$i] );
+        my %hash = @{ $results[$i] };
+        my $id   = $ids[$i];
+
+        my $arcdata = build_json( $id, %hash );
+
+        if ($arcdata) {
+            push @archives, $arcdata;
+        }
+    }
+
+    return @archives;
+}
+
+# Internal function for building an archive JSON.
+sub build_json {
+    my ( $id, %hash ) = @_;
+
+    # It's not a new archive, but it might have never been clicked on yet,
+    # so grab the value for $isnew stored in redis.
+    my ( $name, $title, $tags, $file, $isnew, $progress, $pagecount ) = @hash{qw(name title tags file isnew progress pagecount)};
+
+    # Return undef if the file doesn't exist.
+    return unless ( -e $file );
+
+    # Parameters have been obtained, let's decode them.
+    ( $_ = redis_decode($_) ) for ( $name, $title, $tags );
+
+    # Workaround if title was incorrectly parsed as blank
+    if ( !defined($title) || $title =~ /^\s*$/ ) {
+        $title = $name;
+    }
+
+    my $arcdata = {
+        arcid     => $id,
+        title     => $title,
+        tags      => $tags,
+        isnew     => $isnew,
+        extension => lc( ( split( /\./, $file ) )[-1] ),
+        progress  => $progress ? int($progress) : 0,
+        pagecount => $pagecount ? int($pagecount) : 0
     };
 
     return $arcdata;
@@ -130,7 +175,7 @@ sub drop_database {
 # Remove entries from the database that don't have a matching archive on the filesystem.
 # Returns the number of entries deleted/unlinked.
 sub clean_database {
-    my $redis  = LANraragi::Model::Config->get_redis;
+    my $redis = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Archive", "lanraragi" );
 
     eval {
@@ -158,7 +203,7 @@ sub clean_database {
     foreach my $id (@keys) {
 
         # Check if the DB entry is correct
-        eval { $redis->hgetall( $id ); };
+        eval { $redis->hgetall($id); };
 
         if ($@) {
             $redis->del($id);
@@ -191,7 +236,7 @@ sub add_tags {
 
     my ( $id, $newtags ) = @_;
 
-    my $redis   = LANraragi::Model::Config->get_redis;
+    my $redis = LANraragi::Model::Config->get_redis;
     my $oldtags = $redis->hget( $id, "tags" );
     $oldtags = redis_decode($oldtags);
 
@@ -305,10 +350,10 @@ sub invalidate_isnew_cache {
 }
 
 sub save_computed_tagrules {
-    my ( $tagrules ) = @_;
+    my ($tagrules) = @_;
     my $redis = LANraragi::Model::Config->get_redis;
     $redis->del("LRR_TAGRULES");
-    $redis->lpush("LRR_TAGRULES", reverse flat(@$tagrules)) if (@$tagrules);
+    $redis->lpush( "LRR_TAGRULES", reverse flat(@$tagrules) ) if (@$tagrules);
     $redis->quit();
     return;
 }
@@ -319,11 +364,11 @@ sub get_computed_tagrules {
     my $redis = LANraragi::Model::Config->get_redis;
 
     if ( $redis->exists("LRR_TAGRULES") ) {
-        my @flattened_rules = $redis->lrange("LRR_TAGRULES", 0,-1);
-        @tagrules = unflat_tagrules(\@flattened_rules);
+        my @flattened_rules = $redis->lrange( "LRR_TAGRULES", 0, -1 );
+        @tagrules = unflat_tagrules( \@flattened_rules );
     } else {
-        @tagrules = tags_rules_to_array(restore_CRLF(LANraragi::Model::Config->get_tagrules));
-        $redis->lpush("LRR_TAGRULES", reverse flat(@tagrules)) if (@tagrules);
+        @tagrules = tags_rules_to_array( restore_CRLF( LANraragi::Model::Config->get_tagrules ) );
+        $redis->lpush( "LRR_TAGRULES", reverse flat(@tagrules) ) if (@tagrules);
     }
 
     $redis->quit();

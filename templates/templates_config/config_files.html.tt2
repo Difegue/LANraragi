@@ -25,7 +25,7 @@
 
 <tr>
     <td class="option-td">
-        <input class='stdbtn' type='button' onclick="cleanTempFldr();" value='Clean Temporary Folder' />
+        <input class='stdbtn' type='button' onclick="Server.cleanTemporaryFolder();" value='Clean Temporary Folder' />
     </td>
     <td class="config-td">
         Current Size:
@@ -38,7 +38,7 @@
 
 <tr>
     <td class="option-td">
-        <input class='stdbtn' type='button' onclick="invalidateCache();" value='Reset Search Cache' />
+        <input class='stdbtn' type='button' onclick="Server.invalidateCache();" value='Reset Search Cache' />
     </td>
     <td class="config-td">
         The last searches done in the archive index are cached for faster loads. <br>
@@ -51,7 +51,7 @@
 
 <tr>
     <td class="option-td">
-        <input class='stdbtn' type='button' onclick="clearAllNew();" value='Clear NEW flags' />
+        <input class='stdbtn' type='button' onclick="Server.clearAllNewFlags()" value='Clear NEW flags' />
     </td>
     <td class="config-td">
         Newly uploaded archives are marked as "new" in the index until you've opened them. <br>

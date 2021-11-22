@@ -28,6 +28,7 @@ The `pagecount` and `progress` values can be both 0 if an archive has never been
 [{
     "arcid": "ec9b83b6a835771b0f9862d0326add2f8373989a",
     "isnew": "true",
+    "extension": "zip",
     "pagecount": 128,
     "progress": 0,
     "tags": "",
@@ -35,6 +36,7 @@ The `pagecount` and `progress` values can be both 0 if an archive has never been
 }, {
     "arcid": "28697b96f0ac5858be2614ed10ca47742c9522fd",
     "isnew": "false",
+    "extension": "rar",
     "pagecount": 34,
     "progress": 3,
     "tags": "parody:fate grand order,  group:wadamemo,  artist:wada rco,  artbook,  full color",
@@ -42,6 +44,7 @@ The `pagecount` and `progress` values can be both 0 if an archive has never been
 }, {
     "arcid": "2810d5e0a8d027ecefebca6237031a0fa7b91eb3",
     "isnew": "false",
+    "extension": "cbz",
     "pagecount": 0,
     "progress": 0,
     "tags": "parody:fate grand order,  character:abigail williams,  character:artoria pendragon alter,  character:asterios,  character:ereshkigal,  character:gilgamesh,  character:hans christian andersen,  character:hassan of serenity,  character:hector,  character:helena blavatsky,  character:irisviel von einzbern,  character:jeanne alter,  character:jeanne darc,  character:kiara sessyoin,  character:kiyohime,  character:lancer,  character:martha,  character:minamoto no raikou,  character:mochizuki chiyome,  character:mordred pendragon,  character:nitocris,  character:oda nobunaga,  character:osakabehime,  character:penthesilea,  character:queen of sheba,  character:rin tosaka,  character:saber,  character:sakata kintoki,  character:scheherazade,  character:sherlock holmes,  character:suzuka gozen,  character:tamamo no mae,  character:ushiwakamaru,  character:waver velvet,  character:xuanzang,  character:zhuge liang,  group:wadamemo,  artist:wada rco,  artbook,  full color",
@@ -49,6 +52,7 @@ The `pagecount` and `progress` values can be both 0 if an archive has never been
 }, {
     "arcid": "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf",
     "isnew": "false",
+    "extension": "pdf",
     "pagecount": 0,
     "progress": 0,
     "tags": "character:segata sanshiro",
@@ -56,6 +60,7 @@ The `pagecount` and `progress` values can be both 0 if an archive has never been
 }, {
     "arcid": "e4c422fd10943dc169e3489a38cdbf57101a5f7e",
     "isnew": "false",
+    "extension": "epub",
     "pagecount": 0,
     "progress": 0,
     "tags": "parody: jojo's bizarre adventure",
@@ -327,14 +332,14 @@ You get the Archive.
 {% endapi-method-spec %}
 {% endapi-method %}
 
-{% api-method method="post" host="http://lrr.tvc-16.science" path="/api/archives/:id/extract" %}
+{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/archives/:id/files" %}
 {% api-method-summary %}
-Extract an Archive
+Extract an Archive 
 {% endapi-method-summary %}
 
 {% api-method-description %}
-Extract an Archive on the server, and get a list of URLs pointing to its images.
-This silently updates the `pagecount` field of the archive.
+Get a list of URLs pointing to the images contained in an archive.
+If necessary, this endpoint also launches a background Minion job to extract the archive so it is ready for reading.
 {% endapi-method-description %}
 
 {% api-method-spec %}
@@ -344,12 +349,18 @@ This silently updates the `pagecount` field of the archive.
 ID of the Archive to process.
 {% endapi-method-parameter %}
 {% endapi-method-path-parameters %}
+{% api-method-query-parameters %}
+{% api-method-parameter name="force" type="bool" required=false %}
+Force a full background re-extraction of the Archive.  
+Existing cached files might still be used in subsequent `/api/archives/:id/page` calls until the Archive is fully re-extracted.
+{% endapi-method-parameter %}
+{% endapi-method-query-parameters %}
 {% endapi-method-request %}
 
 {% api-method-response %}
 {% api-method-response-example httpCode=200 %}
 {% api-method-response-example-description %}
-The Archive is extracted server-side and you can now get its images.
+The Archive is being extracted server-side and you can now get its images.
 {% endapi-method-response-example-description %}
 
 ```javascript
@@ -392,12 +403,12 @@ The Archive is extracted server-side and you can now get its images.
 
 {% api-method-response-example httpCode=400 %}
 {% api-method-response-example-description %}
-You didn't include the id parameter.
+You didn't include the id parameter, or something went wrong while getting the file list.
 {% endapi-method-response-example-description %}
 
 ```javascript
 {
-    "operation": "______",
+    "operation": "get_file_list",
     "error": "No archive ID specified.",
     "success": 0
 }

@@ -323,9 +323,26 @@ td.itdc {
   margin-right: 3px;
 }
 
-.page-select {
-  margin-top: -34px;
-  margin-right: 5%;
+.table-options {
+  margin-right: 4%;
+  margin-left: 4%;
+  margin-bottom: -64px;
+}
+
+.table-option {
+  margin-bottom: 6px;
+}
+
+.carousel-prev {
+  padding:4px;
+  background-color: #363940;
+  border-radius: 0px 9px 9px 0px;
+}
+
+.carousel-next {
+  padding:4px;
+  background-color: #363940;
+  border-radius: 9px 0px 0px 9px;
 }
 
 /* image pages */

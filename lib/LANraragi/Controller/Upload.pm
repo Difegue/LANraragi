@@ -7,7 +7,7 @@ use File::Copy;
 use File::Find;
 use File::Basename;
 
-use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header is_archive);
+use LANraragi::Utils::Generic qw(generate_themes_header is_archive);
 
 sub process_upload {
     my $self = shift;
@@ -81,7 +81,6 @@ sub index {
         title      => $self->LRR_CONF->get_htmltitle,
         descstr    => $self->LRR_DESC,
         categories => \@categories,
-        cssdrop    => generate_themes_selector,
         csshead    => generate_themes_header($self),
         version    => $self->LRR_VERSION
     );

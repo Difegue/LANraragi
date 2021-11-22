@@ -21,7 +21,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 use Exporter 'import';
 our @EXPORT_OK =
   qw(remove_spaces remove_newlines trim_url is_image is_archive render_api_response get_tag_with_namespace shasum start_shinobu
-  split_workload_by_cpu start_minion get_css_list generate_themes_header generate_themes_selector flat);
+  split_workload_by_cpu start_minion get_css_list generate_themes_header flat);
 
 # Remove spaces before and after a word
 sub remove_spaces {
@@ -203,39 +203,31 @@ sub get_css_list {
     return @css;
 }
 
-#Print a dropdown list to select CSS, and adds <link> tags for all the style sheets present in the /style folder.
+# Print a dropdown list to select CSS, and adds <link> tags for all the style sheets present in the /style folder.
 sub generate_themes_header {
 
     my $self = shift;
+    my $version = $self->LRR_VERSION;
     my @css  = get_css_list;
 
-    #html that we'll insert in the header to declare all the available styles.
+    # Html that we'll insert in the header to declare all the available styles.
     my $html = "";
 
-    #Go through the css files
+    # Go through the css files
     for ( my $i = 0; $i < $#css + 1; $i++ ) {
 
-        my $css_name = css_default_names( $css[$i] );
+        my $css_file = $css[$i];
+        my ($css_name, $css_color) = css_default_data( $css_file );
 
-        #if this is the default sheet, set it up as so.
+        # If this is the default sheet, set it up as so.
         if ( $css[$i] eq LANraragi::Model::Config->get_style ) {
 
-            $html =
-                $html
-              . '<link rel="stylesheet" type="text/css" title="'
-              . $css_name
-              . '" href="/themes/'
-              . $css[$i] . '?'
-              . $self->LRR_VERSION . '"> ';
-        } else {
+            $html .= qq(<link rel="stylesheet" type="text/css" title="$css_name" href="/themes/$css_file?$version">);
 
-            $html =
-                $html
-              . '<link rel="alternate stylesheet" type="text/css" title="'
-              . $css_name
-              . '" href="/themes/'
-              . $css[$i] . '?'
-              . $self->LRR_VERSION . '"> ';
+            # Add the main color as a them-color meta tag
+            $html .= qq(<meta name="theme-color" content="$css_color">);
+        } else {
+            $html .= qq(<link rel="alternate stylesheet" type="text/css" title="$css_name" href="/themes/$css_file?$version">);
         }
     }
 
@@ -243,41 +235,17 @@ sub generate_themes_header {
 
 }
 
-sub generate_themes_selector {
-
-    my @css    = get_css_list;
-    my $CSSsel = '<div>';
-
-    #Go through the css files
-    for ( my $i = 0; $i < $#css + 1; $i++ ) {
-
-        #populate the div with buttons
-        my $css_name = css_default_names( $css[$i] );
-        $CSSsel =
-            $CSSsel
-          . '<input class="stdbtn" type="button" onclick="switch_style(\''
-          . $css_name
-          . '\');" value="'
-          . $css_name . '"/>';
-    }
-
-    #close up div
-    $CSSsel = $CSSsel . '</div>';
-
-    return $CSSsel;
-}
-
-#Assign a name to the css file passed. You can add names by adding cases.
-#Note: CSS files added to the /themes folder will ALWAYS be pickable by the users no matter what.
-#All this sub does is give .css files prettier names in the dropdown. Files without a name here will simply show as their filename to the users.
-sub css_default_names {
+# Assign a name and an accent color to the css file passed. You can add names by adding cases.
+# Note: CSS files added to the /themes folder will ALWAYS be pickable by the users no matter what.
+# All this sub does is give .css files prettier names in the dropdown. Files without a name here will simply show as their filename to the users.
+sub css_default_data {
     given ( $_[0] ) {
-        when ("g.css")            { return "HentaiVerse" }
-        when ("modern.css")       { return "Hachikuji" }
-        when ("modern_clear.css") { return "Yotsugi" }
-        when ("modern_red.css")   { return "Nadeko" }
-        when ("ex.css")           { return "Sad Panda" }
-        default                   { return $_[0] }
+        when ("g.css")            { return ("H-Verse", "#5F0D1F") }
+        when ("modern.css")       { return ("Hachikuji", "#34353B") }
+        when ("modern_clear.css") { return ("Yotsugi", "#34495E") }
+        when ("modern_red.css")   { return ("Nadeko", "#D83B66") }
+        when ("ex.css")           { return ("Sad Panda", "#43464E") }
+        default                   { return ($_[0], "#34353B") }
     }
 }
 

@@ -28,7 +28,7 @@
 
 <tr>
     <td class="option-td">
-        <input class='stdbtn' type='button' onclick="openInNewTab('/minion')" value='Open Minion Console' />
+        <input class='stdbtn' type='button' onclick="LRR.openInNewTab('/minion')" value='Open Minion Console' />
     </td>
     <td class="config-td">
         The Minion Worker handles spare tasks that are too long to execute within the request/response lifecycle of web

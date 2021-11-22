@@ -16,7 +16,7 @@ my @vendor_css = (
     "/jqcloud2/dist/jqcloud.min.css",                      "/jquery-toast-plugin/dist/jquery.toast.min.css",
     "/jquery-contextmenu/dist/jquery.contextMenu.min.css", "/tippy.js/dist/tippy.css",
     "/allcollapsible/dist/css/allcollapsible.min.css",     "/awesomplete/awesomplete.css",
-    "/\@jcubic/tagger/tagger.css"
+    "/\@jcubic/tagger/tagger.css",                         "/swiper/swiper-bundle.min.css"
 );
 
 my @vendor_js = (
@@ -26,7 +26,8 @@ my @vendor_js = (
     "/jquery-contextmenu/dist/jquery.ui.position.min.js", "/jquery-contextmenu/dist/jquery.contextMenu.min.js",
     "/tippy.js/dist/tippy-bundle.umd.min.js",             "/\@popperjs/core/dist/umd/popper.min.js",
     "/allcollapsible/dist/js/allcollapsible.min.js",      "/awesomplete/awesomplete.min.js",
-    "/\@jcubic/tagger/tagger.js",                         "/marked/marked.min.js"
+    "/\@jcubic/tagger/tagger.js",                         "/marked/marked.min.js",
+    "/swiper/swiper-bundle.min.js"
 );
 
 my @vendor_woff = (

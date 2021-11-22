@@ -17,13 +17,13 @@
     <script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
     <script src="/js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
 
-    <script src="/js/theme.js?[% version%]" type="text/JAVASCRIPT"></script>
-    <script src="/js/ajax.js?[% version%]" type="text/JAVASCRIPT"></script>
+    <script src="/js/common.js?[% version%]" type="text/JAVASCRIPT"></script>
+    <script src="/js/server.js?[% version%]" type="text/JAVASCRIPT"></script>
     <script src="/js/category.js?[% version%]" type="text/JAVASCRIPT"></script>
 
 </head>
 
-<body onload="set_style_from_storage(); loadCategories()">
+<body onload="loadCategories()">
 
     <div class='ido' style='text-align:center'>
         <h2 class='ih' style='text-align:center'>Categories</h2>
@@ -65,7 +65,8 @@
                                 <select id="category" class="favtag-btn" onchange="updateCategoryDetails()"
                                     style="font-size:20px; height:30px">
                                     <option disabled selected value> -- No Category -- </option>
-                                </select> </td>
+                                </select>
+                            </td>
                         </tr>
                         <tr class="tag-options">
                             <td style="text-align: right;">Name:</td>

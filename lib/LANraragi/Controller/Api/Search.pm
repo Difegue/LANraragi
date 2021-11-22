@@ -1,9 +1,11 @@
 package LANraragi::Controller::Api::Search;
 use Mojo::Base 'Mojolicious::Controller';
 
+use List::Util qw(min);
+
 use LANraragi::Model::Search;
 use LANraragi::Utils::Generic qw(render_api_response);
-use LANraragi::Utils::Database qw(invalidate_cache);
+use LANraragi::Utils::Database qw(invalidate_cache get_archive_json_multi);
 
 # Undocumented API matching the Datatables spec.
 sub handle_datatables {
@@ -90,21 +92,47 @@ sub clear_cache {
     render_api_response( shift, "clear_cache" );
 }
 
+# Pull random archives out of the given search
+sub get_random_archives {
+
+    my $self  = shift;
+    my $redis = $self->LRR_CONF->get_redis();
+    my $req   = $self->req;
+
+    my $filter       = $req->param('filter');
+    my $category     = $req->param('category') || "";
+    my $random_count = $req->param('count') || 5;
+
+    # Use the search engine to get IDs matching the filter/category selection, with start=-1 to get all data
+    # This method could be extended later to also use isnew/untagged filters.
+    my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $filter, $category, -1, "title", 0, "", "" );
+    my @random_ids;
+
+    $random_count = min( $random_count, scalar(@ids) );
+
+    while ( $random_count > 0 ) {
+        my $random_id = $ids[ int( rand( scalar @ids ) ) ];
+        next if ( grep { $_ eq $random_id } @random_ids );
+
+        push @random_ids, $random_id;
+        $random_count--;
+    }
+
+    $self->render( json => { data => \@random_ids } );
+    $redis->quit();
+}
+
 # get_datatables_object($draw, $total, $totalsearched, @pagedkeys)
 # Creates a Datatables-compatible json from the given data.
 sub get_datatables_object {
 
     my ( $draw, $redis, $total, $filtered, @keys ) = @_;
 
-    # Get archive data from keys
-    my @data = ();
-    foreach my $key (@keys) {
-        my $arcdata = LANraragi::Utils::Database::build_archive_JSON( $redis, $key->{id} );
+    # Get IDs from keys
+    my @ids = map { $_->{id} } @keys;
 
-        if ($arcdata) {
-            push @data, $arcdata;
-        }
-    }
+    # Get archive data
+    my @data = get_archive_json_multi(@ids);
 
     # Create json object matching the datatables structure
     return {

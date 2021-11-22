@@ -19,8 +19,8 @@
 	<script src="./js/vendor/jquery.ui.widget.js" type="text/JAVASCRIPT"></script>
 	<script src="./js/vendor/jquery.fileupload.js" type="text/JAVASCRIPT"></script>
 
-	<script src="./js/theme.js?[% version%]" type="text/JAVASCRIPT"></script>
-	<script src="./js/ajax.js?[% version%]" type="text/JAVASCRIPT"></script>
+	<script src="./js/common.js?[% version%]" type="text/JAVASCRIPT"></script>
+	<script src="./js/server.js?[% version%]" type="text/JAVASCRIPT"></script>
 	<script src="./js/upload.js?[% version%]" type="text/JAVASCRIPT"></script>
 </head>
 

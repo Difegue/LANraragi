@@ -27,11 +27,11 @@ sub do_search {
     my ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $untaggedonly ) = @_;
     my $sortorder_inv = $sortorder ? 0 : 1;
 
-    my $redis = LANraragi::Model::Config->get_redis;
+    my $redis  = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Search Engine", "lanraragi" );
 
     # Search filter results
-    my $total    = $redis->dbsize;   #TODO this is incorrect by a few keys due to the config keys being strewn about on the DB root.
+    my $total    = $redis->hlen("LRR_FILEMAP") + 0;    # Total number of archives (as int)
     my @filtered = ();
 
     # Look in searchcache first
@@ -159,6 +159,13 @@ sub do_search {
         eval { $redis->hset( "LRR_SEARCHCACHE", $cachekey, nfreeze \@filtered ); };
     }
     $redis->quit();
+
+    # If start is negative, return all possible data
+    # Kind of a hack for the random API, not sure how this could be improved...
+    # (The paging has always been there mostly to make datatables behave after all.)
+    if ( $start == -1 ) {
+        return ( $total, $#filtered + 1, @filtered );
+    }
 
     # Only get the first X keys
     my $keysperpage = LANraragi::Model::Config->get_pagesize;

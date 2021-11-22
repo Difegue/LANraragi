@@ -1,7 +1,7 @@
 package LANraragi::Controller::Config;
 use Mojo::Base 'Mojolicious::Controller';
 
-use LANraragi::Utils::Generic qw(generate_themes_selector generate_themes_header remove_spaces remove_newlines);
+use LANraragi::Utils::Generic qw(generate_themes_header remove_spaces remove_newlines);
 use LANraragi::Utils::Database qw(redis_encode redis_decode save_computed_tagrules);
 use LANraragi::Utils::TempFolder qw(get_tempsize);
 use LANraragi::Utils::Tags qw(tags_rules_to_array replace_CRLF restore_CRLF);
@@ -39,7 +39,7 @@ sub index {
         enableresize   => $self->LRR_CONF->enable_resize,
         sizethreshold  => $self->LRR_CONF->get_threshold,
         readerquality  => $self->LRR_CONF->get_readquality,
-        cssdrop        => generate_themes_selector,
+        theme          => $self->LRR_CONF->get_style,
         csshead        => generate_themes_header($self),
         tempsize       => get_tempsize
     );
@@ -65,6 +65,7 @@ sub save_config {
         apikey        => scalar $self->req->param('apikey'),
         readerquality => scalar $self->req->param('readerquality'),
         sizethreshold => scalar $self->req->param('sizethreshold'),
+        theme         => scalar $self->req->param('theme'),
 
         # For checkboxes,
         # we check if the parameter exists in the POST to return either 1 or 0.

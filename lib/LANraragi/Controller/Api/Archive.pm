@@ -8,7 +8,7 @@ use Mojo::JSON qw(decode_json);
 use Scalar::Util qw(looks_like_number);
 
 use LANraragi::Utils::Generic qw(render_api_response);
-use LANraragi::Utils::Database;
+use LANraragi::Utils::Database qw(get_archive_json);
 
 use LANraragi::Model::Archive;
 use LANraragi::Model::Category;
@@ -46,7 +46,7 @@ sub serve_metadata {
     my $id    = check_id_parameter( $self, "metadata" ) || return;
     my $redis = $self->LRR_CONF->get_redis;
 
-    my $arcdata = LANraragi::Utils::Database::build_archive_JSON( $redis, $id );
+    my $arcdata = get_archive_json( $redis, $id );
     $redis->quit;
 
     if ($arcdata) {
@@ -113,18 +113,20 @@ sub serve_page {
     LANraragi::Model::Archive::serve_page( $self, $id, $path );
 }
 
-sub extract_archive {
+sub get_file_list {
     my $self = shift;
-    my $id = check_id_parameter( $self, "extract_archive" ) || return;
-    my $readerjson;
+    my $id = check_id_parameter( $self, "get_file_list" ) || return;
 
-    eval { $readerjson = LANraragi::Model::Reader::build_reader_JSON( $self, $id, "0", "0" ); };
+    my $force = $self->req->param('force') eq "true" || "0";
+    my $reader_json;
+
+    eval { $reader_json = LANraragi::Model::Reader::build_reader_JSON( $self, $id, $force ); };
     my $err = $@;
 
     if ($err) {
-        render_api_response( $self, "extract_archive", $err );
+        render_api_response( $self, "get_file_list", $err );
     } else {
-        $self->render( json => decode_json($readerjson) );
+        $self->render( json => decode_json($reader_json) );
     }
 }
 

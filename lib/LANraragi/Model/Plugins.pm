@@ -11,7 +11,6 @@ use Mojo::JSON qw(decode_json encode_json);
 use Mojo::UserAgent;
 use Data::Dumper;
 
-use LANraragi::Utils::Database qw(get_computed_tagrules);
 use LANraragi::Utils::Generic qw(remove_spaces remove_newlines);
 use LANraragi::Utils::Archive qw(extract_thumbnail);
 use LANraragi::Utils::Logging qw(get_logger);

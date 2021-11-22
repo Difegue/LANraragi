@@ -36,11 +36,6 @@ class Lanraragi < Formula
     sha256 "20ad61b1301138bc7445e204dd9e9e49145987b6655bbac39f6cad3c75b10369"
   end
 
-  resource "Archive::Peek::Libarchive" do
-    url "https://cpan.metacpan.org/authors/id/R/RE/REHSACK/Archive-Peek-Libarchive-0.38.tar.gz"
-    sha256 "332159603c5cd560da27fd80759da84dad7d8c5b3d96fbf7586de2b264f11b70"
-  end
-
   def install
     ENV.prepend_create_path "PERL5LIB", "#{libexec}/lib/perl5"
     ENV.prepend_path "PERL5LIB", "#{libexec}/lib"
@@ -66,18 +61,8 @@ class Lanraragi < Formula
       end
     end
 
-    resource("Archive::Peek::Libarchive").stage do
-      inreplace "Makefile.PL" do |s|
-        s.gsub! "$autoconf->_get_extra_compiler_flags", "$autoconf->_get_extra_compiler_flags .$ENV{CFLAGS}"
-      end
-
-      system "cpanm", "Config::AutoConf", "--notest", "-l", libexec
-      system "perl", "Makefile.PL", "INSTALL_BASE=#{libexec}"
-      system "make"
-      system "make", "install"
-    end
-
     system "npm", "install", *Language::Node.local_npm_install_args
+    system "cpanm", "Config::AutoConf", "--notest", "-l", libexec
     system "perl", "./tools/install.pl", "install-full"
 
     prefix.install "README.md"

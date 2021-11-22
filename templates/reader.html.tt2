@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <head>
-    <title>[% arcname %]</title>
+    <title>[% title %]</title>
 
     <meta name="viewport" content="width=device-width" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -17,10 +17,9 @@
     <script src="./js/vendor/jquery.min.js" type="text/javascript"></script>
     <script src="./js/vendor/jquery.toast.min.js" type="text/javascript"></script>
 
-    <script src="./js/theme.js?[% version %]" type="text/javascript"></script>
     <script src="./js/common.js?[% version %]" type="text/javascript"></script>
     <script src="./js/reader.js?[% version %]" type="text/javascript"></script>
-    <script src="./js/ajax.js?[% version %]" type="text/javascript"></script>
+    <script src="./js/server.js?[% version %]" type="text/javascript"></script>
 
 </head>
 
@@ -28,21 +27,20 @@
 
     <div id="i1" class="sni">
         <div id="i2">
-            <h1 id="archive-title">[% arcname %]</h1>
+            <h1 id="archive-title">...</h1>
 
             [% INCLUDE pagesel %] [% INCLUDE arrows %] [% INCLUDE fileinfo %]
         </div>
 
-        <div id="i3">
+        <div id="i3" class="loading">
             <div class="loading-overlay">
                 <p class="loading-spinner">
-                    <i id="spinner" class="fa fa-cog fa-spin"></i>
+                    <i id="spinner" class="fa fa-fan fa-spin"></i>
                 </p>
             </div>
 
             <a id="display">
-                <img id="img" class="reader-image" onload="Reader.updateMetadata()"
-                    onerror="this.src='./img/noThumb.png'" src="[% imgpath %]" usemap="#Map" />
+                <img id="img" class="reader-image" usemap="#Map" />
                 <map name="Map" id="Map">
                     <area id="leftmap" style="cursor:pointer;" shape="rect" value="left" />
                     <area id="rightmap" style="cursor:pointer;" shape="rect" value="right" />
@@ -73,13 +71,8 @@
     </div>
 
     <script>
-        // This would be better in the reader.js file, but we still need to source this data from the server template for now.
-        Reader.pages = [% imgpaths %].pages;
-        Reader.id = "[%id%]";
-        Reader.filename = "[% filename %]";
-        Reader.tags = "[% tags %]";
+        // This would be better in the reader.js file, but it's faster to source this data from the server template for now.
         Reader.trackProgressLocally = "[% use_local %]" === "1";
-        Reader.progress = [% progress %] - 1;
     </script>
 
     <div id="overlay-shade"></div>
@@ -97,8 +90,8 @@
 
                     <h2>Admin Options</h2>
 
-                    <input class="stdbtn" type='button' id="regenerate-thumbnail"
-                        value="Regenerate Archive Thumbnail" />
+                    <input class="stdbtn" type='button' id="regenerate-thumbnail" value="Regenerate Archive Thumbnail"
+                        disabled title="Coming back soon!" />
                     <br>
                     <input id="regenerate-cache" class='stdbtn' type='button' value='Clean Archive Cache' />
                     <br>
@@ -131,6 +124,27 @@
     </div>
 
     <canvas id="dpcanvas" style="display:none" width="100" height="100"></canvas>
+
+    <div id="reader-help" style="display: none;">
+        <div class="navigation-help-toast">
+            You can navigate between pages using:
+            <ul>
+                <li>The arrow icons</li>
+                <li>The a/d keys</li>
+                <li>Your keyboard arrows (and the spacebar)</li>
+                <li>Touching the left/right side of the image.</li>
+            </ul>
+            <br>Other keyboard shortcuts:
+            <ul>
+                <li>M: toggle manga mode (right-to-left reading)</li>
+                <li>O: show advanced reader options.</li>
+                <li>P: toggle double page mode</li>
+                <li>Q: bring up the thumbnail index and archive options.</li>
+                <li>R: open a random archive.</li>
+            </ul>
+            <br>To return to the archive index, touch the arrow pointing down or use Backspace.
+        </div>
+    </div>
 
     [% INCLUDE footer %]
 </body>
@@ -211,8 +225,8 @@
     <a class="fa fa-angle-left page-link" style="font-size: 1.5em;" value="left"></a>
 
     <div class="pagecount">
-        <span class="current-page"></span> /
-        <span class="max-page">[% pagecount %]</span>
+        <span class="current-page">...</span> /
+        <span class="max-page">...</span>
     </div>
 
     <a class="fa fa-angle-right page-link" style="font-size: 1.5em;" value="right"></a>
@@ -221,12 +235,12 @@
 [% END %]
 <!-- -->
 [% BLOCK pagesel %]
-<div class="reader_options drop_left">
+<div class="absolute-options absolute-left">
     <a class="fa fa-cog fa-2x" id="toggle-settings-overlay" href="#" title="Reader Settings"></a>
     <a class="fa fa-info-circle fa-2x" id="toggle-help" href="#" title="Help"></a>
 </div>
 
-<div class="reader_options drop_right">
+<div class="absolute-options absolute-right">
     <a class="fa fa-arrow-right fa-2x reading-direction" href="#" title="Reading Direction"></a>
     <a class="fa fa-th fa-2x" id="toggle-archive-overlay" href="#" title="Archive Overview"></a>
 </div>

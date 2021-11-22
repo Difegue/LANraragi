@@ -1,0 +1,72 @@
+<tr>
+<td></td>
+    <td class="config-td"><br>
+        The selected theme will apply to the entire application and be shown to all users.<br>
+        If you're using a browser that supports "theme-color", the theme's primary color will also be applied there.<br><br>
+        Click on a theme to preview it before saving!
+    </td>
+
+</tr>
+
+<tr>
+    <td colspan="2">
+        
+    <!-- TODO: This series of inputs should be generated dynamically to account for custom css files. -->
+    <div style="display: inline-block;">
+        <input type="radio" id="modern" name="theme" value="modern.css" [% IF theme == "modern.css" %]checked[% END %]>
+            <label for="modern">
+                <div style="cursor:pointer" onclick="switch_style('Hachikuji')">
+                    <img title="Hachikuji" src="img/theme_preview/hachikuji.png" 
+                         class="theme-preview">
+                    <h3>Hachikuji</h3>
+                </div>
+                
+            </label>
+    </div>
+
+    <div style="display: inline-block;">
+        <input type="radio" id="modern_clear" name="theme" value="modern_clear.css" [% IF theme == "modern_clear.css" %]checked[% END %]>
+            <label for="modern_clear">
+                <div style="cursor:pointer" onclick="switch_style('Yotsugi')">
+                    <img title="Yotsugi" src="img/theme_preview/yotsugi.png"
+                        class="theme-preview">
+                    <h3>Yotsugi</h3>
+                </div>
+            </label>
+    </div>  
+
+    <div style="display: inline-block;">
+        <input type="radio" id="modern_red" name="theme" value="modern_red.css" [% IF theme == "modern_red.css" %]checked[% END %]>
+            <label for="modern_red">
+                <div style="cursor:pointer" onclick="switch_style('Nadeko')">
+                    <img title="Nadeko" src="img/theme_preview/nadeko.png"
+                        class="theme-preview">
+                    <h3>Nadeko</h3>
+                </div>
+            </label>
+    </div>
+
+    <div style="display: inline-block;">
+        <input type="radio" id="ex" name="theme" value="ex.css" [% IF theme == "ex.css" %]checked[% END %]>
+            <label for="ex">
+                <div style="cursor:pointer" onclick="switch_style('Sad Panda')">
+                    <img title="Sad Panda" src="img/theme_preview/sadpanda.png"
+                        class="theme-preview">
+                    <h3>Sad Panda</h3>
+                </div>
+            </label>
+    </div>
+
+    <div style="display: inline-block;">
+        <input type="radio" id="g" name="theme" value="g.css" [% IF theme == "g.css" %]checked[% END %]>
+            <label for="g">
+                <div style="cursor:pointer" onclick="switch_style('H-Verse')">
+                    <img title="H-Verse" src="img/theme_preview/hverse.png"
+                        class="theme-preview">
+                    <h3>H-Verse</h3>
+                </div>
+            </label>
+    </div>
+    
+    </td>
+</tr>

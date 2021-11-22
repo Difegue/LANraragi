@@ -8,13 +8,14 @@
 
 	<link type="image/png" rel="icon" href="favicon.ico" />
 	<link rel="stylesheet" type="text/css" href="/css/lrr.css?[% version %]" />
-	<link rel="stylesheet" type="text/css" href="/css/config.css?[% version %]" />
 
 	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.toast.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.contextMenu.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/awesomplete.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/tippy.css" />
+	<link rel="stylesheet" type="text/css" href="/css/vendor/allcollapsible.min.css" />
+	<link rel="stylesheet" type="text/css" href="/css/vendor/swiper-bundle.min.css" />
 	[% csshead %]
 
 	<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
@@ -26,16 +27,17 @@
 	<script src="/js/vendor/popper.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/tippy-bundle.umd.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/marked.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/allcollapsible.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/swiper-bundle.min.js" type="text/JAVASCRIPT"></script>
 
 	<script src="/js/index.js?[% version %]" type="text/JAVASCRIPT"></script>
 	<script src="/js/common.js?[% version %]" type="text/JAVASCRIPT"></script>
-	<script src="/js/ajax.js?[% version %]" type="text/JAVASCRIPT"></script>
+	<script src="/js/server.js?[% version %]" type="text/JAVASCRIPT"></script>
 	<script src="/js/index_datatables.js?[% version %]" type="text/JAVASCRIPT"></script>
-	<script src="/js/theme.js?[% version %]" type="text/JAVASCRIPT"></script>
 
 </head>
 
-<body onload="init()">
+<body>
 
 	[% IF userlogged %]
 	<p id="nb">
@@ -43,7 +45,7 @@
 		<a href="./upload">Add Archives</a>
 		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
-		<a href="./batch">Batch Tagging</a>
+		<a href="./batch">Batch Operations</a>
 		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
 		<a href="./config">Settings</a>
@@ -73,41 +75,85 @@
 				<div id="category-container">
 					<!-- Categories go here -->
 				</div>
-				<input id='untaggedbtn' class='favtag-btn' type='button' onclick='toggleFilter(this)'
-					value='Untagged archives only' />
-				<input id='inboxbtn' class='favtag-btn' type='button' onclick='toggleFilter(this)'
-					value='New archives only' />
-				<br />
-				<input type='text' id='srch' class='search stdinput' size='90' style='width:95%'
+				<input type='text' id='search-input' class='search stdinput' size='90' style='width:95%'
 					placeholder='Search Title, Artist, Series, Language or Tags' />
-				<input id='subsrch' class='searchbtn stdbtn' type='button' value='Apply Filter' />
-				<input id='clrsrch' class='searchbtn stdbtn' type='button' value='Clear Filter' />
+				<input id='apply-search' class='searchbtn stdbtn' type='button' value='Apply Filter' />
+				<input id='clear-search' class='searchbtn stdbtn' type='button' value='Clear Filter' />
 			</div>
 
-			<p id='cssbutton' style='display:inline'>
-				<input class='stdbtn' type='button' onclick="openInNewTab('random')" value='Give me a random archive' />
+			<ul class="collapsible index-carousel with-right-caret">
+				<li class="option-flyout" style="text-align: left;">
+					<div class="collapsible-title caret-right" style="display:inline-block;">
+						<i id="carousel-icon" class="fa"></i>
+						<div id="carousel-title" style="display:inline">...</div>
+					</div>
+					<div class="collapsible-right">
+						<a class="fa fa-2x fa-sync-alt" style="margin-bottom: -4px" id="reload-carousel" href="#"
+							title="Refresh Selection"></a>
+						<a class="fa fa-2x fa-ellipsis-h" style="margin-bottom: -4px; margin-left: 12px"
+							id="carousel-mode-menu" href="#" title="Carousel Options"></a>
+					</div>
 
-				<input id='viewbtn' class='stdbtn' type='button' onclick="openSettings()" value='Display Options' />
-			</p>
+					<div class="collapsible-body">
+						<div class="swiper index-carousel-container">
+							<a href="#" class="fa fa-3x fa-chevron-left carousel-prev"></a>
+							<a href="#" class="fa fa-3x fa-chevron-right carousel-next"></a>
+							<div class="swiper-wrapper"></div>
+							<div id="carousel-loading"
+								style="height: 344px; display:flex; justify-content: center; align-items: center;">
+								<i class="fa fa-4x fa-stroopwafel fa-spin"></i>
+							</div>
+
+						</div>
+					</div>
+				</li>
+			</ul>
+
+			<div class="table-options" style="display: none;">
+				<div class="thumbnail-options">Sort by:
+					<select class="favtag-btn" id="namespace-sortby">
+						<option selected value="title">Title</option>
+						<option selected value="date_added">Date</option>
+					</select>
+					<a class="fa fa-sort-alpha-down fa-2x table-option" id="order-sortby" href="#"
+						title="Sort Order"></a>
+
+					<input id="thumbnail-crop" class="fa table-option" type="checkbox"
+						title="If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the left side.">
+					<label for="thumbnail-crop" style="vertical-align: middle; padding-top:6px">Crop thumbnails</label>
+				</div>
+				<div style="margin-left:auto">Go to Page:
+					<select class="favtag-btn" id="page-select">
+					</select>
+					<a class="fa fa-list fa-2x mode-toggle thumbnail-toggle table-option" href="#"
+						title="Switch to Compact Mode"></a>
+					<a class="fa fa-table fa-2x mode-toggle compact-toggle table-option" href="#"
+						title="Switch to Thumbnail Mode"></a>
+				</div>
+			</div>
 
 			<table class="itg datatables">
-				<thead>
+				<thead class="list" style="display: none;">
 					<tr>
 						<th id="titleheader">
 							<a>Title</a>
 						</th>
 						<th id="customheader1">
-							<a>Artist</a>
+							<i id="edit-header-1" class="fas fa-pencil-alt edit-header-btn"
+								title="Edit this column"></i>
+							<a id="header-1">Artist</a>
 						</th>
 						<th id="customheader2">
-							<a>Series</a>
+							<i id="edit-header-2" class="fas fa-pencil-alt edit-header-btn"
+								title="Edit this column"></i>
+							<a id="header-2">Series</a>
 						</th>
 						<th id="tagsheader">
 							<a>Tags</a>
 						</th>
 					</tr>
 				</thead>
-				<tbody class="list">
+				<tbody class="list" style="display: none;">
 				</tbody>
 			</table>
 
@@ -125,29 +171,10 @@
 
 	[% INCLUDE footer %]
 
-	[% IF debugmode %]
-	<i class="fas fa-bug"></i> You're running in <a href="./debug">Debug Mode</a>!
-	<i class="fas fa-bug"></i>
-	[% END %]
-
 	<script>
 
-		function init() {
-			let trackProgressLocally = "[% use_local %]" === "1";
-
-			initSettings("[% version %]");
-			initIndex([% pagesize %], trackProgressLocally);
-
-			// Initialize tag suggestions
-			loadTagSuggestions();
-
-			// Initialize categories
-			loadCategories();
-
-			// Migrate local progression if there's any and serverside tracking is enabled
-			if (!trackProgressLocally) {
-				migrateProgress();
-			}
+		// Last few remains of JS using server-provided data
+		$(document).ready(() => {
 
 			[% IF usingdefpass %]
 			//If the json has the "default password" flag, flash a friendly notification inviting the user to change his password
@@ -160,19 +187,13 @@
 			});
 			[% END %]
 
-			[% IF debugmode %][% ELSE %]
-			checkVersion("[% version %]");
-			[% END %]
-
-			fetchChangelog("[% version %]");
-
 			// Initialize context menu
 			$.contextMenu({
 				selector: '.context-menu',
 				build: ($trigger, e) => {
 					return {
 						callback: function (key, options) {
-							handleContextMenu(key, $(this).attr("id"));
+							Index.handleContextMenu(key, $(this).attr("id"));
 						},
 						items: {
 							"read": { name: "Read", icon: "fas fa-book" },
@@ -195,7 +216,7 @@
 							"categoryremove": {
 								"name": "Remove from Category",
 								"icon": "fas fa-search-minus",
-								"items": loadContextMenuCategories($trigger.attr("id"))
+								"items": Index.loadContextMenuCategories($trigger.attr("id"))
 							}
 							[% END %]
 						}
@@ -203,45 +224,11 @@
 				}
 			});
 
-		}
-
+			Index.initializeAll();
+		});
 	</script>
 
-	<div id="overlay-shade" onclick="closeOverlay();"> </div>
-	<div id="settingsOverlay" class="id1 base-overlay small-overlay" style="display:none">
-		<h2 class="ih" style="text-align:center">Index Display Options</h2>
-		<div>
-
-			<div class="config-panel">
-				<h1 class="ih" style="display:inline"> Use Compact Mode</h1>
-				<input id="compactmode" name="compactmode" class="fa" type="checkbox" style="float:left; width: 68px;">
-				<br /> If enabled, archives will be displayed as a list without thumbnails.
-			</div>
-
-			<div class="config-panel">
-				<h1 class="ih" style="display:inline"> Crop Landscape Thumbnails </h1>
-				<input id="cropthumbs" name="cropthumbs" class="fa" type="checkbox" style="float:left; width: 68px;">
-				<br /> If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the
-				left side.
-			</div>
-
-			<div class="config-panel">
-				<h1 class="ih" style="display:inline"> Column Customization </h1>
-				<br>You can customize the namespace used in the two columns between the title and the tag summary.
-				<br>Enter a full namespace without the colon, e.g "artist".<br>
-				<br>If you have multiple tags with the same namespace, only the last one will be shown in the column.
-				<br><br>
-				<b>Column 1: </b> <input id="customcol1" name="customcol2" value="artist"> <br>
-				<b>Column 2: </b> <input id="customcol2" name="customcol2" value="series">
-			</div>
-		</div>
-		<br />
-		<br />
-		<input value="Save and Close" onclick="saveSettings()" class="stdbtn" id="goback" type="button">
-		<br />
-		<br />
-		<br />
-	</div>
+	<div id="overlay-shade"> </div>
 
 	<div id="updateOverlay" class="id1 base-overlay small-overlay" style="display:none">
 		<h2 class="ih" style="text-align:center">New Version Release Notes</h2>

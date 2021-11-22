@@ -1,7 +1,7 @@
 {
     "name": "lanraragi",
-    "version": "0.8.1",
-    "version_name": "Black Tie White Noise (Here Come Da Jazz Mix)",
+    "version": "0.8.2",
+    "version_name": "Nite Flights",
     "description": "I'm under Japanese influence and my honor's at stake!",
     "scripts": {
         "test": "prove -r -l -v tests/",
@@ -37,6 +37,7 @@
         "marked": "^3.0.4",
         "open-sans-fontface": "^1.4.0",
         "roboto-fontface": "^0.8.0",
+        "swiper": "^7.2.0",
         "tippy.js": "^6.3.1"
     },
     "devDependencies": {
