@@ -84,7 +84,7 @@
 		function showLog(type) {
 
 			$.get("/logs/" + type + "?lines=" + $("#loglines").val(), function (data) {
-				$("#log-container").html(encode(data));
+				$("#log-container").html(LRR.encodeHTML(data));
 				$("#indicator").html(type);
 				$("#log-container").scrollTop($("#log-container").prop("scrollHeight"));
 			});
