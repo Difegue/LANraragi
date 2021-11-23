@@ -27,7 +27,7 @@
 
 </head>
 
-<body>
+<body onload="initUpload()">
 
 	<div class="ido" style="text-align:center;">
 		<h1 class="ih" style="text-align:center">Plugin Configuration</h1>
