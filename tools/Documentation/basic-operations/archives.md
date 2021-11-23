@@ -3,13 +3,15 @@
 ## Using the Archive Index
 
 The main page will show all the Archives loaded into the application, sorted by name.  
-![Archive Index in Thumbnail mode](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/\_screenshots/archive\_thumb.png)  
 
-You can customize display options to show the index in compact mode, as well as to select which namespace to use in the two extra columns.
+![Archive Index in Thumbnail mode](<https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/\_screenshots/archive\_thumb.png>)  
+
+You can customize display options to show the index in compact mode, as well as to select which namespace to use in the two extra columns.  
+
 ![Customized compact mode to sort by ratings](../.screenshots/ratings.png)  
 
 The topmost **carousel** view will show random archives from your current search in both thumbnail and compact modes -- It can also be configured to show New or Untagged archives instead.  
-![Index page of a regular LRR install in compact mode](https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/\_screenshots/archive\_list.png)
+![Index page of a regular LRR install in compact mode](<https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/\_screenshots/archive\_list.png>)
 
 {% hint style="info" %}
 Don't forget you can **right-click** archives to show a context menu, allowing you to edit/download/delete them, or to add them to a category.

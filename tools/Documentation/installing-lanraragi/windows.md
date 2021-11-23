@@ -73,7 +73,7 @@ If the installer fails, it's likely because it can't enable the Windows Subsyste
 
 If WSL is installed properly but the tray GUI reports LANraragi as not being installed, try using the `wslconfig.exe /l` command and make sure the "lanraragi" distribution is present.
 
-![](../.screenshots/karen-distro).png)
+![](../.screenshots/karen-distro.png)
 
 The tray GUI will show the error message it encountered instead of the LRR Version number if it fails to detect the distro - This might help you troubleshoot further.
 

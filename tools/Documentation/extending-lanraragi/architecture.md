@@ -46,6 +46,7 @@ I recommend trying to only use exported functions in your code, and consider the
 
 ```
 root/
+|- .devcontainer <- VSCode setup files for Codespaces
 |- .github       <- Github-specific files
 |  |- action-run-tests <- Run the LRR Test Suite
 |  |- ISSUE_TEMPLATE   <- Template for bug reports
@@ -62,20 +63,26 @@ root/
 |  |- Shinobu.pm    <- Background Worker (see below)
 |  +- LANraragi
 |     |- Controller <- One Controller per page
-|        +- *.pm       <- Index, Config, Reader, Api, etc.
+|     |  |- Api     <- API implementation
+|     |  |  +- ...   
+|        +- *.pm       <- Index, Config, Reader, etc.
 |     |- Model      <- Application code that doesn't rely on Mojolicious
-|        |- Api.pm     <- Api business implementation
+|        |- Archive.pm <- Serve files from archives and OPDS catalog
 |        |- Backup.pm  <- Encodes/Decodes Backup JSONs
+|        |- Category.pm <- Save/Read Category data
 |        |- Config.pm  <- Communicates with the Redis DB to store/retrieve Configuration
 |        |- Plugins.pm <- Executes Plugins on archives
 |        |- Reader.pm  <- Archive Extraction
 |        |- Search.pm  <- Search Engine
-|        +- Stats.pm   <- Tag Cloud and Statistics
+|        |- Stats.pm   <- Tag Cloud and Statistics
+|        +- Upload.pm  <- Handle incoming files (Download System)
 |     +- Plugin     <- LRR Plugins are stored here
 |        |- Login
 |        |- Metadata
 |        +- Scripts
 |     +- Utils      <- Generic Functions
+|        |- *.pm 
+|        +- Minion.pm <- Minion jobs are implemented here
 |
 |- log           <- Application Logs end up here
 |
@@ -104,6 +111,7 @@ root/
 |  +- *.html.tt2
 |
 |- tools         <- Contains scripts for building and installing LRR.
+|  |- _screenshots  <- Screenshots
 |  |- Documentation <- What you're reading right now
 |  |- build         <- Build tools and scrpits
 |     |- windows          <- Windows build script and submodule link to the Karen WPF Bootstrapper
@@ -112,11 +120,11 @@ root/
 |     |- vagrant          <- Vagrantfile for LRR Vagrant Machine
 |  |- cpanfile      <- Perl dependencies description
 |  |- install.pl    <- LANraragi Installer
-|  |- lanraragi-systemd.service <- Example SystemD service
-|  +- logo.png      <- Self-explanatory
+|  +- lanraragi-systemd.service <- Example SystemD service
 |
 |- lrr.conf      <- Mojolicious configuration file
 |- .perltidy.rc  <- PerlTidy config file to match the coding style
+|- .eslintrc.json   <- ESLint config file to match the coding style
 +- package.json  <- NPM file, contains front-end dependency listing and shortcuts
 ```
 

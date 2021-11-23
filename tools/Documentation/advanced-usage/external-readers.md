@@ -11,7 +11,7 @@ Here are some existing clients:
 ### [Ichaival (Android)](https://github.com/Utazukin/Ichaival)
 
 [Download it here.](https://github.com/Utazukin/Ichaival)\
-![ichaival](../.screenshots/ichaival.png)
+![ichaival](<../.screenshots/ichaival.png>)
 
 **Features:**
 
@@ -29,7 +29,7 @@ Here are some existing clients:
 ### [LRReader (Windows 10)](https://github.com/Guerra24/LRReader)
 
 [Download it here.](https://github.com/Guerra24/LRReader)\
-![lrreader](https://s3.guerra24.net/projects/lrr/screenshots/01.png)
+![lrreader](<https://s3.guerra24.net/projects/lrr/screenshots/01.png>)
 
 **Features:**
 

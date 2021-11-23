@@ -27,7 +27,7 @@ This method works on **64-bit** editions of Windows 10 only.
 Since LRR 0.8.0, you need Windows 10 version _1903_ at least. 0.7.9 will work with version _1809_ if you're on an LTSC channel.
 {% endhint %}
 
-![win10](<../.screenshots/karen-dark.jpg>)
+![win10](../.screenshots/karen.jpg)
 
 I provide a dedicated installer for Windows machines as of 0.6.0, complete with a GUI and autostart.
 
