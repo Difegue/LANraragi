@@ -215,16 +215,8 @@ ID of the Archive to process.
 {% endswagger-parameter %}
 
 {% swagger-parameter name="force" type="bool" required="false" in="query" %}
-Force a full background re-extraction of the Archive.
-
-\
-
-
-Existing cached files might still be used in subsequent 
-
-`/api/archives/:id/page`
-
- calls until the Archive is fully re-extracted.
+Force a full background re-extraction of the Archive.  
+Existing cached files might still be used in subsequent `/api/archives/:id/page` calls until the Archive is fully re-extracted.
 {% endswagger-parameter %}
 
 {% swagger-response status="200" description="" %}
@@ -298,14 +290,14 @@ ID of the Archive to process
 
 {% swagger baseUrl="http://lrr.tvc-16.science" path="/api/archives/:id/progress/:page" method="put" summary="Update Reading Progression" %}
 {% swagger-description %}
-Tell the server which page of this Archive you're currently showing/reading, so that it updates its internal reading progression accordingly.\
-You should call this endpoint only when you're sure the user is currently reading the page you present.\
+Tell the server which page of this Archive you're currently showing/reading, so that it updates its internal reading progression accordingly.  
+You should call this endpoint only when you're sure the user is currently reading the page you present.  
 **Don't** use it when preloading images off the server.
 
-Whether to make reading progression regressible or not is up to the client. (The web client will reduce progression if the user starts reading previous pages)\
+Whether to make reading progression regressible or not is up to the client. (The web client will reduce progression if the user starts reading previous pages)  
 Consider however removing the "New!" flag from an archive when you start updating its progress - The web client won't display any reading progression if the new flag is still set.
 
-⚠ If the server is configured to use clientside progress tracking, this API call will return an error!\
+⚠ If the server is configured to use clientside progress tracking, this API call will return an error!  
 Make sure to check using `/api/info` whether the server tracks reading progression or not before calling this endpoint.
 {% endswagger-description %}
 
@@ -314,16 +306,7 @@ ID of the Archive to process
 {% endswagger-parameter %}
 
 {% swagger-parameter name="page" type="int" required="true" in="path" %}
-Current page to update the reading progress to.
-
-\
-
-
-
-
-**Must**
-
- be a positive integer, and inferior or equal to the total page number of the archive.
+Current page to update the reading progress to. **Must** be a positive integer, and inferior or equal to the total page number of the archive.
 {% endswagger-parameter %}
 
 {% swagger-response status="200" description="" %}
@@ -368,16 +351,7 @@ Current page to update the reading progress to.
 
 {% swagger baseUrl="http://lrr.tvc-16.science" path="/api/archives/:id/metadata" method="put" summary="🔑Update Archive Metadata" %}
 {% swagger-description %}
-Update tags and title for the given Archive.
-
-\
-
-
-Data supplied to the server through this method will 
-
-**overwrite**
-
- the previous data.
+Update tags and title for the given Archive. Data supplied to the server through this method will **overwrite** the previous data.
 {% endswagger-description %}
 
 {% swagger-parameter name="id" type="string" required="true" in="path" %}
@@ -414,11 +388,7 @@ New Tags of the Archive.
 
 {% swagger baseUrl="http://lrr.tvc-16.science" path="/api/archives/:id" method="delete" summary="🔑Delete Archive" %}
 {% swagger-description %}
-Delete both the archive metadata and the file stored on the server.
-
-\
-
-
+Delete both the archive metadata and the file stored on the server.  
 🙏 Please ask your user for confirmation before invoking this endpoint.
 {% endswagger-description %}
 

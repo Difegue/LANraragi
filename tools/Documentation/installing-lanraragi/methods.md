@@ -4,7 +4,7 @@ description: This is a by-OS breakdown of how you can install the software on yo
 
 # ❓ Which installation method is best for me?
 
-As LRR is a server app first and foremost, its setup is a bit more complex than your usual Desktop application.\
+As LRR is a server app first and foremost, its setup is a bit more complex than your usual Desktop application.  
 However, a lot of work as been done behind the scenes to make it easy!
 
 Look at the methods below for something that fits your OS and usage.
@@ -13,7 +13,7 @@ Look at the methods below for something that fits your OS and usage.
 
 [Homebrew](https://brew.sh) allows you to quickly setup LRR on macOS without relying on containers or modifying your preinstalled system libaries.
 
-![brew](<../.gitbook/assets/brew (1).jpg>)
+![brew](<../.screenshots/brew.jpg>)
 
 {% content-ref url="macos.md" %}
 [macos.md](macos.md)
@@ -27,7 +27,7 @@ This method works on **64-bit** editions of Windows 10 only.
 Since LRR 0.8.0, you need Windows 10 version _1903_ at least. 0.7.9 will work with version _1809_ if you're on an LTSC channel.
 {% endhint %}
 
-![win10](<../.gitbook/assets/karen-dark (2).jpg>)
+![win10](<../.screenshots/karen-dark.jpg>)
 
 I provide a dedicated installer for Windows machines as of 0.6.0, complete with a GUI and autostart.
 
@@ -37,7 +37,7 @@ I provide a dedicated installer for Windows machines as of 0.6.0, complete with 
 
 ## Linux/macOS/Windows 10: _Docker_
 
-Taking a page from sysadmin books, you can easily install LRR as a **container** with Docker.\
+Taking a page from sysadmin books, you can easily install LRR as a **container** with Docker.  
 They're lightweight, easy to update, and automatically built/tested. I recommend this for NAS setups!
 
 {% content-ref url="docker.md" %}
@@ -70,7 +70,7 @@ Similar to installing from source with an altered process for FreeBSD compatabil
 
 ## Older Windows: _Legacy Docker Toolbox or Vagrant_
 
-![I really hope you guys don't do this](<../.gitbook/assets/shiggy (3).png>)
+![I really hope you guys don't do this](../.screenshots/shiggy.png)
 
 At this point the only solutions I have to give you are basically glorified VMs.
 
@@ -82,7 +82,7 @@ You can either download the [Legacy Docker Toolbox](https://docs.docker.com/tool
 
 ## WARNING: Reverse Proxies
 
-A common post-install setup is to make requests to the app transit through a gateway server such as Apache or nginx.\
+A common post-install setup is to make requests to the app transit through a gateway server such as Apache or nginx.  
 If you do so, please note that archive uploads through LRR will likely **not work out of the box** due to maximum sizes on uploads those servers can enforce. The example below is for nginx:
 
 ```

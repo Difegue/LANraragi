@@ -13,17 +13,17 @@ This part of the documentation aims at giving pointers to would-be Plugin develo
 
 ## Available Language and Modules
 
-Plugins are expected to be [Perl Modules](http://www.perlmonks.org/?node\_id=102347).\
-All Plugins need to declare their metadata through the `plugin_info` hash.\
+Plugins are expected to be [Perl Modules](http://www.perlmonks.org/?node\_id=102347).  
+All Plugins need to declare their metadata through the `plugin_info` hash.  
 Other subroutines need to be implemented depending on the Plugin type.
 
-Once the module is recognized, it will be available for use in LANraragi.\
-All Perl features are available for use, as well as all installed CPAN Modules and LRR API functions present.\
+Once the module is recognized, it will be available for use in LANraragi.  
+All Perl features are available for use, as well as all installed CPAN Modules and LRR API functions present.  
 Basically, _as long as it can run, it will run_.
 
 {% hint style="danger" %}
-As you might've guessed, Plugins run with the same permissions as the main application.\
-This means they can modify the application database at will, delete files, and execute system commands.\
+As you might've guessed, Plugins run with the same permissions as the main application.  
+This means they can modify the application database at will, delete files, and execute system commands.  
 None of this is obviously an issue if the application is installed in a proper fashion.(Docker/Vagrant, or non-root user on Linux _I seriously hope you guys don't run this as root_)
 
 Still, as said in the User Documentation, be careful of what you do with Plugins.
@@ -63,8 +63,8 @@ sub plugin_info {
 ```
 
 There are no restrictions on what you can write in those fields, except for the `namespace`, which should preferrably be **a single word.**\
-It's used as a unique ID for your Plugin in various parts of the app.\
-The `login_from` parameter can be used to execute a login plugin before your plugin runs.\
+It's used as a unique ID for your Plugin in various parts of the app.  
+The `login_from` parameter can be used to execute a login plugin before your plugin runs.  
 The `type` field can be either:
 
 * `login` for [Login Plugins](login.md)
@@ -72,13 +72,13 @@ The `type` field can be either:
 * `download` for [Downloader Plugins](downloaders.md)
 * `script` for [Script Plugins](scripts.md)
 
-The `parameters` array can contain as many arguments as you need. They can be set by the user in Plugin Configuration, and are transmitted every time.\
-Typical uses for it include login credentials for a remote website, configuration options, etc. Basic stuff.\
+The `parameters` array can contain as many arguments as you need. They can be set by the user in Plugin Configuration, and are transmitted every time.  
+Typical uses for it include login credentials for a remote website, configuration options, etc. Basic stuff.  
 The field **MUST** contain an array, even if it only has one argument inside!
 
 ## Installing and Testing your Plugin
 
-Installing a Plugin is as simple as dropping the .pm file in LANraragi's Plugin directory.\
+Installing a Plugin is as simple as dropping the .pm file in LANraragi's Plugin directory.  
 Restart the app, and your Plugin's name should appear on the initial listing.
 
 {% hint style="info" %}

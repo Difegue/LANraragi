@@ -25,12 +25,12 @@ vagrant plugin install vagrant-vbguest
 vagrant up
 ```
 
-Once the Vagrant machine is up and provisioned, you can access LANraragi at [http://localhost:3000](http://localhost:3000).\
+Once the Vagrant machine is up and provisioned, you can access LANraragi at [http://localhost:3000](http://localhost:3000).  
 Archives you upload will be placed in the directory of the Vagrantfile.
 
 The Vagrant machine is a simple Docker wrapper, so the database will also be stored in this directory. (As database.rdb)
 
-You can use `vagrant halt` to stop the VM when you're done.\
+You can use `vagrant halt` to stop the VM when you're done.  
 To start it up again, use the following commands:
 
 ```

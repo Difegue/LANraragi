@@ -11,7 +11,7 @@ Here are some existing clients:
 ### [Ichaival (Android)](https://github.com/Utazukin/Ichaival)
 
 [Download it here.](https://github.com/Utazukin/Ichaival)\
-![ichaival](../.gitbook/assets/ichaival.png)
+![ichaival](../.screenshots/ichaival.png)
 
 **Features:**
 
@@ -24,7 +24,7 @@ Here are some existing clients:
 ### [DuReader (iOS)](https://github.com/Doraemoe/DuReader)
 
 [Download it here.](https://github.com/Doraemoe/DuReader)\
-![dureader](../.gitbook/assets/dureader.jpg)
+![dureader](../.screenshots/dureader.jpg)
 
 ### [LRReader (Windows 10)](https://github.com/Guerra24/LRReader)
 
@@ -42,20 +42,20 @@ Here are some existing clients:
 
 ### Tachiyomi reader
 
-![Tachiyomi](<../.gitbook/assets/tachiyomi (1).jpg>)
+![Tachiyomi](<../.screenshots/tachiyomi.jpg>)
 
-The open-source [Tachiyomi](https://tachiyomi.org) Android reader has a readymade plugin to consume the LANraragi API.\
+The open-source [Tachiyomi](https://tachiyomi.org) Android reader has a readymade plugin to consume the LANraragi API.  
 You can download it [here.](https://github.com/inorichi/tachiyomi-extensions/blob/repo/apk/tachiyomi-all.lanraragi-v1.2.1.apk)
 
 ## Generic OPDS readers
 
-![Example OPDS reader](<../.gitbook/assets/opds (1).jpg>)
+![Example OPDS reader](<../.screenshots/opds.jpg>)
 
-Some readers can leverage the [OPDS Catalog](https://opds.io) exposed by LANraragi to visualize and read the available archives.\
+Some readers can leverage the [OPDS Catalog](https://opds.io) exposed by LANraragi to visualize and read the available archives.  
 Those programs can't exploit all of LRR's features(Search, Database backup, Streaming images), but they might have reading features you won't find in the current dedicated clients.
 
-The URL for the OPDS Catalog is `[YOUR_LANRARAGI_URL]/api/opds`.\
-You can use [the Demo](https://lrr.tvc-16.science/api/opds) as an example.\
+The URL for the OPDS Catalog is `[YOUR_LANRARAGI_URL]/api/opds`.  
+You can use [the Demo](https://lrr.tvc-16.science/api/opds) as an example.  
 Refer to your reader's documentation to figure out where to put this URL.
 
 {% hint style="warning" %}

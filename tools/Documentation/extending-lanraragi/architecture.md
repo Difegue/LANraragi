@@ -21,12 +21,12 @@ Those variables were introduced for the Homebrew package, but they can be declar
 
 ## Coding Style
 
-While Perl's mantra is "There's more than one way to do it", I try to make LRR follow the PBP, aka Perl Best Practices.\
-This is done by the use of the [Perl::Critic](https://metacpan.org/pod/Perl::Critic) module, which reports PBP violations.\
-If installed, you can run the critic on the entire LRR source tree through the `npm run critic` shortcut command.\
+While Perl's mantra is "There's more than one way to do it", I try to make LRR follow the PBP, aka Perl Best Practices.  
+This is done by the use of the [Perl::Critic](https://metacpan.org/pod/Perl::Critic) module, which reports PBP violations.  
+If installed, you can run the critic on the entire LRR source tree through the `npm run critic` shortcut command.  
 Critic is automatically run on every commit made to LRR at the level 5 thanks to [Github Actions](../../../.github/main.workflow).
 
-I also run [perltidy](https://en.wikipedia.org/wiki/PerlTidy) on the source tree every now and then for consistency.\
+I also run [perltidy](https://en.wikipedia.org/wiki/PerlTidy) on the source tree every now and then for consistency.  
 The rules used in perltidy passes are stored in the .perltidyrc file at the source root.
 
 Some extras:
@@ -39,7 +39,7 @@ Some extras:
 A small practice I try to keep on my own for LRR's packages is to use methods (arrow notation, `Class::Name->do_thing`) to call subroutines that take no arguments, and functions (namespace notation, `Class::Name::do_thing($param)`) to call subs with arguments. It doesn't really matter much, but it looks cleaner to me!\
 Also makes it easier if one day I take the OOP pill for this project, as methods always get the current object (or class name) as the first parameter of their call.
 
-Packages in the `Utils` folder export most of their functions, as those are used by Plugins as well.\
+Packages in the `Utils` folder export most of their functions, as those are used by Plugins as well.  
 I recommend trying to only use exported functions in your code, and consider the rest as internal API suspect to change/breakage.
 
 ## Main App Architecture
@@ -128,12 +128,12 @@ The Shinobu File Watcher runs in parallel of the LRR Mojolicious Server and hand
 * Keeping track of new/deleted archives using inotify watches
 * Adding new archives to the database and executing Plugins on them if enabled
 
-It's a second process spawned through the Proc::Simple Perl Module.\
+It's a second process spawned through the Proc::Simple Perl Module.  
 Heavier tasks are handled by a [Minion](https://docs.mojolicious.org/Minion) Job Queue, which is much more closely linked to Mojo and basically just werks™
 
 ## About the Search Cache
 
-When you perform a search in LRR, that search is saved to a cache in order to be served faster the next time it's queried.\
+When you perform a search in LRR, that search is saved to a cache in order to be served faster the next time it's queried.  
 This cache is busted as soon as the archive index is modified in any way.(be it editing metadata or adding/removing archives)
 
 ## Behaviour in Debug Mode

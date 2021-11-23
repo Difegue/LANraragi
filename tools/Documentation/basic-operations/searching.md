@@ -2,7 +2,7 @@
 
 The search bar in LANraragi tries to not be too dumb and will actively suggest tags to you as you type.
 
-![Search suggestions](../.gitbook/assets/search.png)
+![Search suggestions](../.screenshots/search.png)
 
 You can also use the following special characters in a search:
 

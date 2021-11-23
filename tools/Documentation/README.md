@@ -1,5 +1,5 @@
 ---
-cover: .gitbook/assets/archive_thumb (2).jpg
+cover: ../_screenshots/archive_thumb.png
 coverY: -164.01117318435755
 ---
 

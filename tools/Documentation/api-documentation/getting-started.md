@@ -25,7 +25,7 @@ If you fail to meet this requirement, the API endpoint will return error 401 and
 ```
 
 {% hint style="warning" %}
-If the user's LRR installation is running under **No-Fun Mode**, all API methods will be locked behind the key.\
+If the user's LRR installation is running under **No-Fun Mode**, all API methods will be locked behind the key.  
 Empty API Keys will **not** work, even if there's no key set in Configuration.
 {% endhint %}
 

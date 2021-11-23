@@ -34,14 +34,14 @@ brew install lanraragi
 
 ## Configuration
 
-Your content folder is stored by default in `${HOME}/Library/Application Support/LANraragi`.\
+Your content folder is stored by default in `${HOME}/Library/Application Support/LANraragi`.  
 The Redis database is stored in `${HOME}/Library/Application Support/LANraragi/database`. The content folder can be moved to any folder you want through the in-app settings page.
 
 ## Usage
 
 Once installed, you can get started by running `lanraragi` and opening [http://localhost:3000](http://localhost:3000).
 
-![brew](<../.gitbook/assets/brew (1).jpg>)
+![brew](<../.screenshots/brew.jpg>)
 
 To change the default port or add SSL support, see this page:
 
@@ -63,5 +63,5 @@ The same warning as in the Installation step applies.
 
 ## Uninstallation
 
-Run `brew remove lanraragi` to uninstall the app.\
+Run `brew remove lanraragi` to uninstall the app.  
 Data in the `${HOME}/Library/Application Support/LANraragi` folder is not deleted.

@@ -20,7 +20,7 @@ sub get_tags {
     my ($lang, $savetitle, $usethumbs, $enablepanda) = @_; # Plugin parameters
 ```
 
-The variables match the parameters you've entered in the `plugin_info` subroutine. \(Example here is for E-H.\)
+The variables match the parameters you've entered in the `plugin_info` subroutine. \(Example here is for E-H.  )
 
 The `$lrr_info` hash contains various variables you can use in your plugin:
 
