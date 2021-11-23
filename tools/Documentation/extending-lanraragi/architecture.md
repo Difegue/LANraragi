@@ -2,7 +2,7 @@
 description: Read up on all the badly hacked nitty gritty that makes LRR tick here.
 ---
 
-# Architecture & Style
+# 🏛 Architecture & Style
 
 ## Installation Script
 
@@ -12,39 +12,39 @@ The _install.pl_ script is essentially a sequence of commands executed to instal
 
 Those variables were introduced for the Homebrew package, but they can be declared at anytime on any type of install; LRR will try to use them.
 
-* `LRR_DATA_DIRECTORY` - Data directory override. If this variable is set to a path, said path will house the content folder.  
-* `LRR_THUMB_DIRECTORY` - Thumbnail directory override. If this variable is set to a path, said path will house the generated archive thumbnails.  
+* `LRR_DATA_DIRECTORY` - Data directory override. If this variable is set to a path, said path will house the content folder.
+* `LRR_THUMB_DIRECTORY` - Thumbnail directory override. If this variable is set to a path, said path will house the generated archive thumbnails.
 * `LRR_TEMP_DIRECTORY` - Temporary directory override. If this variable is set to a path, the temporary folder will be there instead of `/public/temp`.
-* `LRR_LOG_DIRECTORY` - Log directory override. Changes the location of the `log` folder.  
+* `LRR_LOG_DIRECTORY` - Log directory override. Changes the location of the `log` folder.
 * `LRR_FORCE_DEBUG` - Debug Mode override. This will force Debug Mode to be enabled regardless of the user setting.
-* `LRR_NETWORK` - Network Interface. See the dedicated page in Advanced Operations.  
+* `LRR_NETWORK` - Network Interface. See the dedicated page in Advanced Operations.
 
 ## Coding Style
 
-While Perl's mantra is "There's more than one way to do it", I try to make LRR follow the PBP, aka Perl Best Practices.  
-This is done by the use of the [Perl::Critic](https://metacpan.org/pod/Perl::Critic) module, which reports PBP violations.  
-If installed, you can run the critic on the entire LRR source tree through the `npm run critic` shortcut command.  
-Critic is automatically run on every commit made to LRR at the level 5 thanks to [Github Actions](https://github.com/Difegue/LANraragi/blob/dev/.github/main.workflow).
+While Perl's mantra is "There's more than one way to do it", I try to make LRR follow the PBP, aka Perl Best Practices.\
+This is done by the use of the [Perl::Critic](https://metacpan.org/pod/Perl::Critic) module, which reports PBP violations.\
+If installed, you can run the critic on the entire LRR source tree through the `npm run critic` shortcut command.\
+Critic is automatically run on every commit made to LRR at the level 5 thanks to [Github Actions](../../../.github/main.workflow).
 
-I also run [perltidy](https://en.wikipedia.org/wiki/PerlTidy) on the source tree every now and then for consistency.  
+I also run [perltidy](https://en.wikipedia.org/wiki/PerlTidy) on the source tree every now and then for consistency.\
 The rules used in perltidy passes are stored in the .perltidyrc file at the source root.
 
 Some extras:
 
-* Code width limit is stupid for long strings and comments \(ie the base64 pngs in plugin metadata\), which is perltidy's default behavior.
+* Code width limit is stupid for long strings and comments (ie the base64 pngs in plugin metadata), which is perltidy's default behavior.
 * The visual indentation when setting a bunch of variables at once a perltidy thing, but I actually really like it! I leave it in and try to repro it whenever it makes sense.
-* The codebase does have issues with variable naming -- perl packages usually go for snakecase buuut short variables are ok in flatcase \(as per [perlstyle](https://perldoc.perl.org/perlstyle.html) \)
+* The codebase does have issues with variable naming -- perl packages usually go for snakecase buuut short variables are ok in flatcase (as per [perlstyle](https://perldoc.perl.org/perlstyle.html) )
 * `'`'s should only be used for escaping `"` easily and vice-versa but I don't really care about that one. 😐
 
-A small practice I try to keep on my own for LRR's packages is to use methods \(arrow notation, `Class::Name->do_thing`\) to call subroutines that take no arguments, and functions \(namespace notation, `Class::Name::do_thing($param)`\) to call subs with arguments. It doesn't really matter much, but it looks cleaner to me!  
-Also makes it easier if one day I take the OOP pill for this project, as methods always get the current object \(or class name\) as the first parameter of their call.
+A small practice I try to keep on my own for LRR's packages is to use methods (arrow notation, `Class::Name->do_thing`) to call subroutines that take no arguments, and functions (namespace notation, `Class::Name::do_thing($param)`) to call subs with arguments. It doesn't really matter much, but it looks cleaner to me!\
+Also makes it easier if one day I take the OOP pill for this project, as methods always get the current object (or class name) as the first parameter of their call.
 
-Packages in the `Utils` folder export most of their functions, as those are used by Plugins as well.  
+Packages in the `Utils` folder export most of their functions, as those are used by Plugins as well.\
 I recommend trying to only use exported functions in your code, and consider the rest as internal API suspect to change/breakage.
 
 ## Main App Architecture
 
-```text
+```
 root/
 |- .github       <- Github-specific files
 |  |- action-run-tests <- Run the LRR Test Suite
@@ -128,22 +128,22 @@ The Shinobu File Watcher runs in parallel of the LRR Mojolicious Server and hand
 * Keeping track of new/deleted archives using inotify watches
 * Adding new archives to the database and executing Plugins on them if enabled
 
-It's a second process spawned through the Proc::Simple Perl Module.  
+It's a second process spawned through the Proc::Simple Perl Module.\
 Heavier tasks are handled by a [Minion](https://docs.mojolicious.org/Minion) Job Queue, which is much more closely linked to Mojo and basically just werks™
 
 ## About the Search Cache
 
-When you perform a search in LRR, that search is saved to a cache in order to be served faster the next time it's queried.  
-This cache is busted as soon as the archive index is modified in any way.\(be it editing metadata or adding/removing archives\)
+When you perform a search in LRR, that search is saved to a cache in order to be served faster the next time it's queried.\
+This cache is busted as soon as the archive index is modified in any way.(be it editing metadata or adding/removing archives)
 
 ## Behaviour in Debug Mode
 
-In Debug Mode:  
+In Debug Mode:
 
-* The Mojolicious server auto-restarts on every file modification,  
+* The Mojolicious server auto-restarts on every file modification,
 * Logs are way more detailed,
 * You get access to Mojolicious logs in LRR's built-in Log View,
-* A Status dashboard becomes available at `http://LRR_URL/debug`.  
+* A Status dashboard becomes available at `http://LRR_URL/debug`.
 
 ## Database Architecture
 
@@ -151,7 +151,7 @@ You can look inside the LRR Redis database at any moment through the `redis-cli`
 
 The base architecture is as follows:
 
-```text
+```
 -Redis Database
 |- **************************************** <- 40-character long ID for every logged archive
 |  |- tags <- Saved tags
@@ -199,4 +199,3 @@ The archive IDs computed by LRR are created by taking the first 512KBs of the fi
 
 You can find the code used for the calculation in _LANraragi::Utils::Database_.
 {% endhint %}
-

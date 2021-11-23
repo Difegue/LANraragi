@@ -2,74 +2,90 @@
 description: This is a by-OS breakdown of how you can install the software on your machine.
 ---
 
-# Which installation method is best for me?
+# ❓ Which installation method is best for me?
 
-As LRR is a server app first and foremost, its setup is a bit more complex than your usual Desktop application.  
-However, a lot of work as been done behind the scenes to make it easy!  
+As LRR is a server app first and foremost, its setup is a bit more complex than your usual Desktop application.\
+However, a lot of work as been done behind the scenes to make it easy!
 
 Look at the methods below for something that fits your OS and usage.
 
 ## macOS: _Homebrew_
 
-[Homebrew](https://brew.sh/) allows you to quickly setup LRR on macOS without relying on containers or modifying your preinstalled system libaries.  
+[Homebrew](https://brew.sh) allows you to quickly setup LRR on macOS without relying on containers or modifying your preinstalled system libaries.
 
-![brew](../.gitbook/assets/brew.jpg)
+![brew](<../.gitbook/assets/brew (1).jpg>)
 
-{% page-ref page="macos.md" %}
+{% content-ref url="macos.md" %}
+[macos.md](macos.md)
+{% endcontent-ref %}
 
 ## Windows 10/11: _LRR for Windows_
 
 {% hint style="warning" %}
-This method works on **64-bit** editions of Windows 10 only.  
+This method works on **64-bit** editions of Windows 10 only.
 
-Since LRR 0.8.0, you need Windows 10 version _1903_ at least. 0.7.9 will work with version _1809_ if you're on an LTSC channel. 
+Since LRR 0.8.0, you need Windows 10 version _1903_ at least. 0.7.9 will work with version _1809_ if you're on an LTSC channel.
 {% endhint %}
 
-![win10](../.gitbook/assets/karen-dark.jpg)
+![win10](<../.gitbook/assets/karen-dark (2).jpg>)
 
 I provide a dedicated installer for Windows machines as of 0.6.0, complete with a GUI and autostart.
 
-{% page-ref page="windows.md" %}
+{% content-ref url="windows.md" %}
+[windows.md](windows.md)
+{% endcontent-ref %}
 
 ## Linux/macOS/Windows 10: _Docker_
 
-Taking a page from sysadmin books, you can easily install LRR as a **container** with Docker.  
+Taking a page from sysadmin books, you can easily install LRR as a **container** with Docker.\
 They're lightweight, easy to update, and automatically built/tested. I recommend this for NAS setups!
 
-{% page-ref page="docker.md" %}
+{% content-ref url="docker.md" %}
+[docker.md](docker.md)
+{% endcontent-ref %}
 
 ## Linux/macOS: _Installing from Source_
 
 Installing from **source** is a more involved procedure, but it does put you in full control and able to hack up the app's files as you wish.
 
-{% page-ref page="source.md" %}
+{% content-ref url="source.md" %}
+[source.md](source.md)
+{% endcontent-ref %}
 
 ## Linux/Community: _Community provided install packages_
 
 Ready-to-install packages provided by voluntary maintainers or by a linux distribution itself.
 
-{% page-ref page="community.md" %}
+{% content-ref url="community.md" %}
+[community.md](community.md)
+{% endcontent-ref %}
 
 ## FreeBSD/Jail
 
 Similar to installing from source with an altered process for FreeBSD compatability.
-{% page-ref page="jail.md" %}
+
+{% content-ref url="jail.md" %}
+[jail.md](jail.md)
+{% endcontent-ref %}
+
 ## Older Windows: _Legacy Docker Toolbox or Vagrant_
 
-![I really hope you guys don&apos;t do this](../.gitbook/assets/shiggy.png)
+![I really hope you guys don't do this](<../.gitbook/assets/shiggy (3).png>)
 
 At this point the only solutions I have to give you are basically glorified VMs.
 
-You can either download the [Legacy Docker Toolbox](https://docs.docker.com/toolbox/toolbox_install_windows/) and follow the Docker tutorial linked above, or try Vagrant. I provide **no support** for either of these methods.
+You can either download the [Legacy Docker Toolbox](https://docs.docker.com/toolbox/toolbox\_install\_windows/) and follow the Docker tutorial linked above, or try Vagrant. I provide **no support** for either of these methods.
 
-{% page-ref page="vagrant.md" %}
+{% content-ref url="vagrant.md" %}
+[vagrant.md](vagrant.md)
+{% endcontent-ref %}
 
 ## WARNING: Reverse Proxies
 
-A common post-install setup is to make requests to the app transit through a gateway server such as Apache or nginx.  
+A common post-install setup is to make requests to the app transit through a gateway server such as Apache or nginx.\
 If you do so, please note that archive uploads through LRR will likely **not work out of the box** due to maximum sizes on uploads those servers can enforce. The example below is for nginx:
 
-```text
+```
 http {
     client_max_body_size 0;   <----------------------- This line here
 }

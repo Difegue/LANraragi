@@ -1,10 +1,10 @@
 ---
 description: >-
-  Batch Tagging allows you to execute a plugin on your choice on a selection of
+  Batch Tagging allows you to execute a task on your choice on a selection of
   archives.
 ---
 
-# Batch Tagging
+# 🦇 Batch Operations
 
 It's a pretty common occurence: You imported archives without enabling automatic tagging, or you suddenly want to add tags to a lot of archives at once.
 
@@ -29,4 +29,3 @@ If you set a timeout value, the batch session will wait the specified time betwe
 ![Batch Tagging status window](../.gitbook/assets/batchlog.png)
 
 While a batch session runs, you get a live summary of what the server is doing, and can cancel at any time.
-

@@ -2,29 +2,14 @@
 description: Other APIs that don't fit a dedicated theme.
 ---
 
-
 # Miscellaneous other API
 
-{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/info" %}
-{% api-method-summary %}
-Get Server Information
-{% endapi-method-summary %}
-
-{% api-method-description %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/info" method="get" summary="Get Server Information" %}
+{% swagger-description %}
 Returns some basic information about the LRR instance this server is running.
-{% endapi-method-description %}
+{% endswagger-description %}
 
-{% api-method-spec %}
-{% api-method-request %}
-{% endapi-method-request %}
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-You get server info.  
-The `cache_last_cleared` value is a UNIX timestamp matching the last time the search cache was reset, due to new archives for instance.  
-As a client, you should use this value to know when to refresh your internal archive list if you're keeping one.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="200" description="" %}
 ```javascript
 {
     "name":"LANraragi",
@@ -41,38 +26,24 @@ As a client, you should use this value to know when to refresh your internal arc
     "server_tracks_progress":"1",
     "cache_last_cleared":"1601474241"
 }
-```  
+```
+{% endswagger-response %}
+{% endswagger %}
 
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
-
-{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/opds" %}
-{% api-method-summary %}
-Get the OPDS Catalog
-{% endapi-method-summary %}
-
-{% api-method-description %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/opds" method="get" summary="Get the OPDS Catalog" %}
+{% swagger-description %}
 Get the Archive Index as an OPDS 1.2 Catalog.
-{% endapi-method-description %}
+{% endswagger-description %}
 
-{% api-method-spec %}
-{% api-method-request %}
-{% api-method-query-parameters %}
-{% api-method-parameter name="id" type="string" required=false %}
-ID of an archive. Passing this will show only one `<entry\>` for the given ID in the result, instead of all the archives.
-{% endapi-method-parameter %}
-{% endapi-method-query-parameters %}
-{% endapi-method-request %}
+{% swagger-parameter name="id" type="string" required="false" in="query" %}
+ID of an archive. Passing this will show only one 
 
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-The OPDS Catalog is generated.   
-This API is mostly meant to be used as-is by external software implementing the spec.
-{% endapi-method-response-example-description %}
+`<entry\>`
 
+ for the given ID in the result, instead of all the archives.
+{% endswagger-parameter %}
+
+{% swagger-response status="200" description="" %}
 ```markup
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom"
@@ -241,38 +212,41 @@ This API is mostly meant to be used as-is by external software implementing the 
 
 
 </feed>
-```  
+```
+{% endswagger-response %}
+{% endswagger %}
 
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
-
-{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/plugins/:type" %}
-{% api-method-summary %}
-🔑Get available plugins
-{% endapi-method-summary %}
-
-{% api-method-description %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/plugins/:type" method="get" summary="🔑Get available plugins" %}
+{% swagger-description %}
 Get a list of the available plugins on the server, filtered by type.
-{% endapi-method-description %}
+{% endswagger-description %}
 
-{% api-method-spec %}
-{% api-method-request %}
-{% api-method-path-parameters %}
-{% api-method-parameter name="type" type="string" required=true %}
-Type of plugins you want to list.  
-You can either use `login`, `metadata`, `script`, or `all` to get all previous types at once.
-{% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
-{% endapi-method-request %}
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-You get plugin info.  
-Said information is a 1:1 match to the [plugin metadata](../plugin-docs/index#plugin-metadata).
-{% endapi-method-response-example-description %}
+{% swagger-parameter name="type" type="string" required="true" in="path" %}
+Type of plugins you want to list.
 
+\
+
+
+You can either use 
+
+`login`
+
+, 
+
+`metadata`
+
+, 
+
+`script`
+
+, or 
+
+`all`
+
+ to get all previous types at once.
+{% endswagger-parameter %}
+
+{% swagger-response status="200" description="" %}
 ```javascript
 [
   {
@@ -369,50 +343,45 @@ Said information is a 1:1 match to the [plugin metadata](../plugin-docs/index#pl
   }
 ]
 ```
+{% endswagger-response %}
+{% endswagger %}
 
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/plugins/use" method="post" summary="🔑Use a Plugin" %}
+{% swagger-description %}
+Uses a Plugin and returns the result.
 
-{% api-method method="post" host="http://lrr.tvc-16.science" path="/api/plugins/use" %}
-{% api-method-summary %}
-🔑Use a Plugin
-{% endapi-method-summary %}
+\
 
-{% api-method-description %}
-Uses a Plugin and returns the result.   
-If using a metadata plugin, the matching archive will **not** be modified in the database.  
+
+If using a metadata plugin, the matching archive will 
+
+**not**
+
+ be modified in the database.
+
+\
+
+
 See more info on Plugins in the matching section of the Docs.
-{% endapi-method-description %}
+{% endswagger-description %}
 
-{% api-method-spec %}
-{% api-method-request %}
-{% api-method-query-parameters %}
-{% api-method-parameter name="key" type="string" required=true %}
+{% swagger-parameter name="key" type="string" required="true" in="query" %}
 API Key, mandatory for this method.
-{% endapi-method-parameter %}
+{% endswagger-parameter %}
 
-{% api-method-parameter name="plugin" type="string" required=true %}
+{% swagger-parameter name="plugin" type="string" required="true" in="query" %}
 Namespace of the plugin to use.
-{% endapi-method-parameter %}
+{% endswagger-parameter %}
 
-{% api-method-parameter name="id" type="string" required=false %}
+{% swagger-parameter name="id" type="string" required="false" in="query" %}
 ID of the archive to use the Plugin on. This is only mandatory for metadata plugins.
-{% endapi-method-parameter %}
+{% endswagger-parameter %}
 
-{% api-method-parameter name="arg" type="string" required=false %}
+{% swagger-parameter name="arg" type="string" required="false" in="query" %}
 Optional One-Shot argument to use when executing this Plugin.
-{% endapi-method-parameter %}
-{% endapi-method-query-parameters %}
-{% endapi-method-request %}
+{% endswagger-parameter %}
 
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-Executes the Plugin and returns the result.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="200" description="" %}
 ```javascript
 {
     "data":{
@@ -422,82 +391,53 @@ Executes the Plugin and returns the result.
     "success":1,
     "type":"metadata"
 }
-```  
+```
+{% endswagger-response %}
+{% endswagger %}
 
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/plugins/queue" method="post" summary="🔑Use a Plugin Asynchronously" %}
+{% swagger-description %}
+Uses a Plugin and returns a Minion Job ID matching the Plugin run.
 
-{% api-method method="post" host="http://lrr.tvc-16.science" path="/api/plugins/queue" %}
-{% api-method-summary %}
-🔑Use a Plugin Asynchronously
-{% endapi-method-summary %}
+\
 
-{% api-method-description %}
-Uses a Plugin and returns a Minion Job ID matching the Plugin run.  
-This endpoint is useful if you want to run longer-lived plugins which might timeout if ran with the standard endpoint.  
-{% endapi-method-description %}
 
-{% api-method-spec %}
-{% api-method-request %}
-{% api-method-query-parameters %}
-{% api-method-parameter name="key" type="string" required=true %}
+This endpoint is useful if you want to run longer-lived plugins which might timeout if ran with the standard endpoint.
+{% endswagger-description %}
+
+{% swagger-parameter name="key" type="string" required="true" in="query" %}
 API Key, mandatory for this method.
-{% endapi-method-parameter %}
+{% endswagger-parameter %}
 
-{% api-method-parameter name="plugin" type="string" required=true %}
+{% swagger-parameter name="plugin" type="string" required="true" in="query" %}
 Namespace of the plugin to use.
-{% endapi-method-parameter %}
+{% endswagger-parameter %}
 
-{% api-method-parameter name="id" type="string" required=false %}
+{% swagger-parameter name="id" type="string" required="false" in="query" %}
 ID of the archive to use the Plugin on. This is only mandatory for metadata plugins.
-{% endapi-method-parameter %}
+{% endswagger-parameter %}
 
-{% api-method-parameter name="arg" type="string" required=false %}
+{% swagger-parameter name="arg" type="string" required="false" in="query" %}
 Optional One-Shot argument to use when executing this Plugin.
-{% endapi-method-parameter %}
-{% endapi-method-query-parameters %}
-{% endapi-method-request %}
+{% endswagger-parameter %}
 
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-You get the Minion Job ID for the plugin run. Status for the job can be verified using the `/api/minion/:jobid` endpoint.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="200" description="" %}
 ```javascript
 {
   "job": 86,
   "operation": "queue_plugin_exec",
   "success": 1,
 }
-```  
+```
+{% endswagger-response %}
+{% endswagger %}
 
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
-
-{% api-method method="delete" host="http://lrr.tvc-16.science" path="/api/tempfolder" %}
-{% api-method-summary %}
-🔑Clean the Temporary Folder
-{% endapi-method-summary %}
-
-{% api-method-description %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/tempfolder" method="delete" summary="🔑Clean the Temporary Folder" %}
+{% swagger-description %}
 Cleans the server's temporary folder.
-{% endapi-method-description %}
+{% endswagger-description %}
 
-{% api-method-spec %}
-{% api-method-request %}
-{% endapi-method-request %}
-
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-Temporary folder is deleted.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="200" description="" %}
 ```javascript
 {
   "error": "",
@@ -505,40 +445,24 @@ Temporary folder is deleted.
   "operation": "cleantemp",
   "success": 1
 }
-```  
+```
+{% endswagger-response %}
+{% endswagger %}
 
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
-
-{% api-method method="post" host="http://lrr.tvc-16.science" path="/api/download_url" %}
-{% api-method-summary %}
-🔑Queue a URL download
-{% endapi-method-summary %}
-
-{% api-method-description %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/download_url" method="post" summary="🔑Queue a URL download" %}
+{% swagger-description %}
 Add a URL to be downloaded by the server and added to its library.
-{% endapi-method-description %}
+{% endswagger-description %}
 
-{% api-method-spec %}
-{% api-method-request %}
-{% api-method-query-parameters %}
-{% api-method-parameter name="url" type="string" required=true %}
-URL to download  
-{% endapi-method-parameter %}
-{% api-method-parameter name="catid" type="string" required=false %}
+{% swagger-parameter name="url" type="string" required="true" in="query" %}
+URL to download
+{% endswagger-parameter %}
+
+{% swagger-parameter name="catid" type="string" required="false" in="query" %}
 Category ID to add the downloaded URL to.
-{% endapi-method-parameter %}
-{% endapi-method-query-parameters %}
-{% endapi-method-request %}
+{% endswagger-parameter %}
 
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-You get the Minion Job ID for the ongoing download. Status for the job can be verified using the `/api/minion/:jobid` endpoint.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="200" description="" %}
 ```javascript
 {
   "job": 86,
@@ -546,75 +470,45 @@ You get the Minion Job ID for the ongoing download. Status for the job can be ve
   "success": 1,
   "url": "https:\/\/example.com"
 }
-```  
+```
+{% endswagger-response %}
+{% endswagger %}
 
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
-
-{% api-method method="post" host="http://lrr.tvc-16.science" path="/api/regen_thumbs" %}
-{% api-method-summary %}
-🔑Regenerate Thumbnails
-{% endapi-method-summary %}
-
-{% api-method-description %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/regen_thumbs" method="post" summary="🔑Regenerate Thumbnails" %}
+{% swagger-description %}
 Queue a Minion job to regenerate missing/all thumbnails on the server.
-{% endapi-method-description %}
+{% endswagger-description %}
 
-{% api-method-spec %}
-{% api-method-request %}
-{% api-method-query-parameters %}
-{% api-method-parameter name="force" type="boolean" required=false %}
+{% swagger-parameter name="force" type="boolean" required="false" in="query" %}
 Whether to generate all thumbnails, or only the missing ones.
-{% endapi-method-parameter %}
-{% endapi-method-query-parameters %}
-{% endapi-method-request %}
+{% endswagger-parameter %}
 
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-You get the Minion Job ID for the thumbnail regen request. Status for the job can be verified using the `/api/minion/:jobid` endpoint.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="200" description="" %}
 ```javascript
 {
   "job": 3,
   "operation": "regen_thumbnails",
   "success": 1,
 }
-```  
+```
+{% endswagger-response %}
+{% endswagger %}
 
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/minion/:jobid" method="get" summary="🔑Get the status of a Minion Job" %}
+{% swagger-description %}
+Get the status of a Minion Job. Minions jobs are ran for various occasions like thumbnails, cache warmup and handling incoming files.
 
-{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/minion/:jobid" %}
-{% api-method-summary %}
-🔑Get the status of a Minion Job
-{% endapi-method-summary %}
+\
 
-{% api-method-description %}
-Get the status of a Minion Job. Minions jobs are ran for various occasions like thumbnails, cache warmup and handling incoming files.  
+
 Usually stuff you don't need to care about as a client, but the API is there for internal usage mostly.
-{% endapi-method-description %}
+{% endswagger-description %}
 
-{% api-method-spec %}
-{% api-method-request %}
-{% api-method-path-parameters %}
-{% api-method-parameter name="id" type="string" required=true %}
-ID of the Job.  
-{% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
-{% endapi-method-request %}
+{% swagger-parameter name="id" type="string" required="true" in="path" %}
+ID of the Job.
+{% endswagger-parameter %}
 
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-You get the job status. This is essentially "raw" output from Minion and looks a bit different from usual API calls.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="200" description="" %}
 ```javascript
 {
   "args": ["\/tmp\/QF3UCnKdMr\/myfile.zip"],
@@ -643,9 +537,6 @@ You get the job status. This is essentially "raw" output from Minion and looks a
   "time": "1601145005",
   "worker": 1
 }
-```  
-
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
+```
+{% endswagger-response %}
+{% endswagger %}

@@ -4,26 +4,12 @@ description: Everything dealing with Archives.
 
 # Archive API
 
-{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/archives" %}
-{% api-method-summary %}
-Get all Archives
-{% endapi-method-summary %}
-
-{% api-method-description %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/archives" method="get" summary="Get all Archives" %}
+{% swagger-description %}
 Get the Archive Index in JSON form. You can use the IDs of this JSON with the other endpoints.
-{% endapi-method-description %}
+{% endswagger-description %}
 
-{% api-method-spec %}
-{% api-method-request %}
-{% endapi-method-request %}
-
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-Archive List successfully retrieved. You can use the arcid parameters with the other endpoints.  
-The `pagecount` and `progress` values can be both 0 if an archive has never been extracted/read.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="200" description="" %}
 ```javascript
 [{
     "arcid": "ec9b83b6a835771b0f9862d0326add2f8373989a",
@@ -67,30 +53,15 @@ The `pagecount` and `progress` values can be both 0 if an archive has never been
     "title": "Rohan Kishibe goes to Gucci"
 }]
 ```
+{% endswagger-response %}
+{% endswagger %}
 
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
-
-{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/archives/untagged" %}
-{% api-method-summary %}
-Get Untagged Archives
-{% endapi-method-summary %}
-
-{% api-method-description %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/archives/untagged" method="get" summary="Get Untagged Archives" %}
+{% swagger-description %}
 Get archives that don't have any tags recorded. This follows the same rules as the Batch Tagging filter and will include archives that have parody:, date_added:, series: or artist: tags.
-{% endapi-method-description %}
+{% endswagger-description %}
 
-{% api-method-spec %}
-{% api-method-request %}
-{% endapi-method-request %}
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-JSON Array of Archive IDs.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="200" description="" %}
 ```javascript
 [
     "d1858d5dc36925aa66be072a97817650d39de166",
@@ -98,37 +69,19 @@ JSON Array of Archive IDs.
     "28697b96f0ac5858be2614ed10ca47742c9522fd",
 ]
 ```
+{% endswagger-response %}
+{% endswagger %}
 
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
-
-{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/archives/:id/metadata" %}
-{% api-method-summary %}
-Get Archive Metadata
-{% endapi-method-summary %}
-
-{% api-method-description %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/archives/:id/metadata" method="get" summary="Get Archive Metadata" %}
+{% swagger-description %}
 Get Metadata (title, tags) for a given Archive.
-{% endapi-method-description %}
+{% endswagger-description %}
 
-{% api-method-spec %}
-{% api-method-request %}
-{% api-method-path-parameters %}
-{% api-method-parameter name="id" type="string" required=true %}
+{% swagger-parameter name="id" type="string" required="true" in="path" %}
 ID of the Archive to process.
-{% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
-{% endapi-method-request %}
+{% endswagger-parameter %}
 
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-You get metadata for the Archive.  
-The JSON object supplied follows the same format as the objects returned by the `/api/archives` endpoint.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="200" description="" %}
 ```javascript
 {
     "arcid": "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf",
@@ -139,14 +92,9 @@ The JSON object supplied follows the same format as the objects returned by the 
     "title": "Saturn Backup Cartridge - Japanese Manual"
 }
 ```
+{% endswagger-response %}
 
-{% endapi-method-response-example %}
-
-{% api-method-response-example httpCode=400 %}
-{% api-method-response-example-description %}
-You didn't specify the id parameter.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="400" description="" %}
 ```javascript
 {
     "operation": "______",
@@ -154,37 +102,19 @@ You didn't specify the id parameter.
     "success": 0
 }
 ```
+{% endswagger-response %}
+{% endswagger %}
 
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
-
-{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/archives/:id/categories" %}
-{% api-method-summary %}
-Get Archive Categories
-{% endapi-method-summary %}
-
-{% api-method-description %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/archives/:id/categories" method="get" summary="Get Archive Categories" %}
+{% swagger-description %}
 Get all the Categories which currently refer to this Archive ID.
-{% endapi-method-description %}
+{% endswagger-description %}
 
-{% api-method-spec %}
-{% api-method-request %}
-{% api-method-path-parameters %}
-{% api-method-parameter name="id" type="string" required=true %}
+{% swagger-parameter name="id" type="string" required="true" in="path" %}
 ID of the Archive to process.
-{% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
-{% endapi-method-request %}
+{% endswagger-parameter %}
 
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-You get the categories containing the Archive with their full metadata.  
-See the `/api/categories` endpoints for more information.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="200" description="" %}
 ```javascript
 {
     "categories": [
@@ -204,14 +134,9 @@ See the `/api/categories` endpoints for more information.
     "success": 1
 }
 ```
+{% endswagger-response %}
 
-{% endapi-method-response-example %}
-
-{% api-method-response-example httpCode=400 %}
-{% api-method-response-example-description %}
-You didn't specify the id parameter.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="400" description="" %}
 ```javascript
 {
     "operation": "______",
@@ -219,53 +144,28 @@ You didn't specify the id parameter.
     "success": 0
 }
 ```
+{% endswagger-response %}
+{% endswagger %}
 
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
-
-{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/archives/:id/thumbnail" %}
-{% api-method-summary %}
-Get Archive Thumbnail
-{% endapi-method-summary %}
-
-{% api-method-description %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/archives/:id/thumbnail" method="get" summary="Get Archive Thumbnail" %}
+{% swagger-description %}
 Get the Thumbnail image for a given Archive.
-{% endapi-method-description %}
+{% endswagger-description %}
 
-{% api-method-spec %}
-{% api-method-request %}
-{% api-method-path-parameters %}
-{% api-method-parameter name="id" type="string" required=true %}
+{% swagger-parameter name="id" type="string" required="true" in="path" %}
 ID of the Archive to process.
-{% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
-{% endapi-method-request %}
+{% endswagger-parameter %}
 
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-You get the image directly.  
-If the thumbnail hasn't been generated by the server yet, you might receive a placeholder image.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="200" description="" %}
 {% tabs %}
 {% tab title="2810d5e0a8d027ecefebca6237031a0fa7b91eb3.jpg" %}
-
-```text
-
 ```
-
+```
 {% endtab %}
 {% endtabs %}
-{% endapi-method-response-example %}
+{% endswagger-response %}
 
-{% api-method-response-example httpCode=400 %}
-{% api-method-response-example-description %}
-You didn't specify the id parameter.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="400" description="" %}
 ```javascript
 {
     "operation": "______",
@@ -273,52 +173,28 @@ You didn't specify the id parameter.
     "success": 0
 }
 ```
+{% endswagger-response %}
+{% endswagger %}
 
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
-
-{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/archives/:id/download" %}
-{% api-method-summary %}
-Download an Archive
-{% endapi-method-summary %}
-
-{% api-method-description %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/archives/:id/download" method="get" summary="Download an Archive" %}
+{% swagger-description %}
 Download an Archive from the server.
-{% endapi-method-description %}
+{% endswagger-description %}
 
-{% api-method-spec %}
-{% api-method-request %}
-{% api-method-path-parameters %}
-{% api-method-parameter name="id" type="string" required=true %}
+{% swagger-parameter name="id" type="string" required="true" in="path" %}
 ID of the Archive to download.
-{% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
-{% endapi-method-request %}
+{% endswagger-parameter %}
 
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-You get the Archive.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="200" description="" %}
 {% tabs %}
 {% tab title="Archive.zip" %}
-
-```text
-
 ```
-
+```
 {% endtab %}
 {% endtabs %}
-{% endapi-method-response-example %}
+{% endswagger-response %}
 
-{% api-method-response-example httpCode=400 %}
-{% api-method-response-example-description %}
-
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="400" description="" %}
 ```javascript
 {
     "operation": "______",
@@ -326,43 +202,32 @@ You get the Archive.
     "success": 0
 }
 ```
+{% endswagger-response %}
+{% endswagger %}
 
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/archives/:id/files" method="get" summary="Extract an Archive" %}
+{% swagger-description %}
+Get a list of URLs pointing to the images contained in an archive. If necessary, this endpoint also launches a background Minion job to extract the archive so it is ready for reading.
+{% endswagger-description %}
 
-{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/archives/:id/files" %}
-{% api-method-summary %}
-Extract an Archive 
-{% endapi-method-summary %}
-
-{% api-method-description %}
-Get a list of URLs pointing to the images contained in an archive.
-If necessary, this endpoint also launches a background Minion job to extract the archive so it is ready for reading.
-{% endapi-method-description %}
-
-{% api-method-spec %}
-{% api-method-request %}
-{% api-method-path-parameters %}
-{% api-method-parameter name="id" type="string" required=true %}
+{% swagger-parameter name="id" type="string" required="true" in="path" %}
 ID of the Archive to process.
-{% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
-{% api-method-query-parameters %}
-{% api-method-parameter name="force" type="bool" required=false %}
-Force a full background re-extraction of the Archive.  
-Existing cached files might still be used in subsequent `/api/archives/:id/page` calls until the Archive is fully re-extracted.
-{% endapi-method-parameter %}
-{% endapi-method-query-parameters %}
-{% endapi-method-request %}
+{% endswagger-parameter %}
 
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-The Archive is being extracted server-side and you can now get its images.
-{% endapi-method-response-example-description %}
+{% swagger-parameter name="force" type="bool" required="false" in="query" %}
+Force a full background re-extraction of the Archive.
 
+\
+
+
+Existing cached files might still be used in subsequent 
+
+`/api/archives/:id/page`
+
+ calls until the Archive is fully re-extracted.
+{% endswagger-parameter %}
+
+{% swagger-response status="200" description="" %}
 ```javascript
 {
     "pages": [".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=00.jpg",
@@ -398,14 +263,9 @@ The Archive is being extracted server-side and you can now get its images.
     ]
 }
 ```
+{% endswagger-response %}
 
-{% endapi-method-response-example %}
-
-{% api-method-response-example httpCode=400 %}
-{% api-method-response-example-description %}
-You didn't include the id parameter, or something went wrong while getting the file list.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="400" description="" %}
 ```javascript
 {
     "operation": "get_file_list",
@@ -413,36 +273,19 @@ You didn't include the id parameter, or something went wrong while getting the f
     "success": 0
 }
 ```
+{% endswagger-response %}
+{% endswagger %}
 
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
-
-{% api-method method="delete" host="http://lrr.tvc-16.science" path="/api/archives/:id/isnew" %}
-{% api-method-summary %}
-Clear Archive New flag 
-{% endapi-method-summary %}
-
-{% api-method-description %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/archives/:id/isnew" method="delete" summary="Clear Archive New flag" %}
+{% swagger-description %}
 Clears the "New!" flag on an archive.
-{% endapi-method-description %}
+{% endswagger-description %}
 
-{% api-method-spec %}
-{% api-method-request %}
-{% api-method-path-parameters %}
-{% api-method-parameter name="id" type="string" required=true %}
+{% swagger-parameter name="id" type="string" required="true" in="path" %}
 ID of the Archive to process
-{% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
-{% endapi-method-request %}
+{% endswagger-parameter %}
 
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-New flag is successfully removed
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="200" description="" %}
 ```javascript
 {
     "id": "f3fc480a97f1afcd81c8e3392a3bcc66fe6c0809",
@@ -450,49 +293,40 @@ New flag is successfully removed
     "success": 1
 }
 ```
+{% endswagger-response %}
+{% endswagger %}
 
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/archives/:id/progress/:page" method="put" summary="Update Reading Progression" %}
+{% swagger-description %}
+Tell the server which page of this Archive you're currently showing/reading, so that it updates its internal reading progression accordingly.\
+You should call this endpoint only when you're sure the user is currently reading the page you present.\
+**Don't** use it when preloading images off the server.
 
-{% api-method method="put" host="http://lrr.tvc-16.science" path="/api/archives/:id/progress/:page" %}
-{% api-method-summary %}
-Update Reading Progression 
-{% endapi-method-summary %}
+Whether to make reading progression regressible or not is up to the client. (The web client will reduce progression if the user starts reading previous pages)\
+Consider however removing the "New!" flag from an archive when you start updating its progress - The web client won't display any reading progression if the new flag is still set.
 
-{% api-method-description %}
-Tell the server which page of this Archive you're currently showing/reading, so that it updates its internal reading progression accordingly.  
-You should call this endpoint only when you're sure the user is currently reading the page you present.  
-**Don't** use it when preloading images off the server.  
-
-Whether to make reading progression regressible or not is up to the client. (The web client will reduce progression if the user starts reading previous pages)  
-Consider however removing the "New!" flag from an archive when you start updating its progress - The web client won't display any reading progression if the new flag is still set.  
-
-⚠ If the server is configured to use clientside progress tracking, this API call will return an error!  
+⚠ If the server is configured to use clientside progress tracking, this API call will return an error!\
 Make sure to check using `/api/info` whether the server tracks reading progression or not before calling this endpoint.
+{% endswagger-description %}
 
-{% endapi-method-description %}
-
-{% api-method-spec %}
-{% api-method-request %}
-{% api-method-path-parameters %}
-{% api-method-parameter name="id" type="string" required=true %}
+{% swagger-parameter name="id" type="string" required="true" in="path" %}
 ID of the Archive to process
-{% endapi-method-parameter %}
-{% api-method-parameter name="page" type="int" required=true %}
-Current page to update the reading progress to.  
-**Must** be a positive integer, and inferior or equal to the total page number of the archive.
-{% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
-{% endapi-method-request %}
+{% endswagger-parameter %}
 
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-Progression updated.
-{% endapi-method-response-example-description %}
+{% swagger-parameter name="page" type="int" required="true" in="path" %}
+Current page to update the reading progress to.
 
+\
+
+
+
+
+**Must**
+
+ be a positive integer, and inferior or equal to the total page number of the archive.
+{% endswagger-parameter %}
+
+{% swagger-response status="200" description="" %}
 ```javascript
 {
   "id": "75d18ce470dc99f83dc355bdad66319d1f33c82b",
@@ -501,15 +335,9 @@ Progression updated.
   "success": 1
 }
 ```
+{% endswagger-response %}
 
-{% endapi-method-response-example %}
-
-{% api-method-response-example httpCode=400 %}
-{% api-method-response-example-description %}
-You didn't specify the id parameter, provided a bad progress value, or the server doesn't know how many pages the archive has yet.  
-The call can also fail if the server has server-side progress tracking turned off.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="400" description="" %}
 ```javascript
 {
     "operation": "update_progress",
@@ -535,63 +363,45 @@ The call can also fail if the server has server-side progress tracking turned of
     "success": 0
 }
 ```
+{% endswagger-response %}
+{% endswagger %}
 
-{% endapi-method-response-example %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/archives/:id/metadata" method="put" summary="🔑Update Archive Metadata" %}
+{% swagger-description %}
+Update tags and title for the given Archive.
 
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
+\
 
-{% api-method method="put" host="http://lrr.tvc-16.science" path="/api/archives/:id/metadata" %}
-{% api-method-summary %}
-🔑Update Archive Metadata
-{% endapi-method-summary %}
 
-{% api-method-description %}
-Update tags and title for the given Archive.  
-Data supplied to the server through this method will **overwrite** the previous data.
-{% endapi-method-description %}
+Data supplied to the server through this method will 
 
-{% api-method-spec %}
-{% api-method-request %}
-{% api-method-path-parameters %}
-{% api-method-parameter name="id" type="string" required=true %}
+**overwrite**
+
+ the previous data.
+{% endswagger-description %}
+
+{% swagger-parameter name="id" type="string" required="true" in="path" %}
 ID of the Archive to process.
-{% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
+{% endswagger-parameter %}
 
-{% api-method-query-parameters %}
-{% api-method-parameter name="title" type="string" required=false %}
+{% swagger-parameter name="title" type="string" required="false" in="query" %}
 New Title of the Archive.
-{% endapi-method-parameter %}
+{% endswagger-parameter %}
 
-{% api-method-parameter name="tags" type="string" required=false %}
+{% swagger-parameter name="tags" type="string" required="false" in="query" %}
 New Tags of the Archive.
-{% endapi-method-parameter %}
-{% endapi-method-query-parameters %}
+{% endswagger-parameter %}
 
-{% endapi-method-request %}
-
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-Metadata is updated.  
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="200" description="" %}
 ```javascript
 {
     "operation": "update_metadata",
     "success": 1
 }
 ```
+{% endswagger-response %}
 
-{% endapi-method-response-example %}
-
-{% api-method-response-example httpCode=400 %}
-{% api-method-response-example-description %}
-You didn't specify the id parameter.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="400" description="" %}
 ```javascript
 {
     "operation": "______",
@@ -599,38 +409,24 @@ You didn't specify the id parameter.
     "success": 0
 }
 ```
+{% endswagger-response %}
+{% endswagger %}
 
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/archives/:id" method="delete" summary="🔑Delete Archive" %}
+{% swagger-description %}
+Delete both the archive metadata and the file stored on the server.
 
-{% api-method method="delete" host="http://lrr.tvc-16.science" path="/api/archives/:id" %}
-{% api-method-summary %}
-🔑Delete Archive
-{% endapi-method-summary %}
+\
 
-{% api-method-description %}
-Delete both the archive metadata and the file stored on the server.  
+
 🙏 Please ask your user for confirmation before invoking this endpoint.
-{% endapi-method-description %}
+{% endswagger-description %}
 
-{% api-method-spec %}
-{% api-method-request %}
-{% api-method-path-parameters %}
-{% api-method-parameter name="id" type="string" required=true %}
+{% swagger-parameter name="id" type="string" required="true" in="path" %}
 ID of the Archive to process.
-{% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
+{% endswagger-parameter %}
 
-{% endapi-method-request %}
-
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-Archive is deleted. You get the filename that was removed from the server as well.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="200" description="" %}
 ```javascript
 {
     "operation": "delete_archive",
@@ -639,14 +435,9 @@ Archive is deleted. You get the filename that was removed from the server as wel
     "filename": "big_chungus.zip"
 }
 ```
+{% endswagger-response %}
 
-{% endapi-method-response-example %}
-
-{% api-method-response-example httpCode=400 %}
-{% api-method-response-example-description %}
-You didn't specify the id parameter.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="400" description="" %}
 ```javascript
 {
     "operation": "delete_archive",
@@ -654,8 +445,5 @@ You didn't specify the id parameter.
     "success": 0
 }
 ```
-
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
+{% endswagger-response %}
+{% endswagger %}

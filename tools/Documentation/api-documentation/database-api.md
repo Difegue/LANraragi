@@ -4,30 +4,21 @@ description: Query and modify the database.
 
 # Database API
 
-{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/database/stats" %}
-{% api-method-summary %}
-Get Statistics
-{% endapi-method-summary %}
-
-{% api-method-description %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/database/stats" method="get" summary="Get Statistics" %}
+{% swagger-description %}
 Get tags from the database, with a value symbolizing their prevalence.
-{% endapi-method-description %}
+{% endswagger-description %}
 
-{% api-method-spec %}
-{% api-method-request %}
-{% api-method-query-parameters %}
-{% api-method-parameter name="minweight" type="int" required=false %}
-Add this parameter if you want to only get tags whose weight is at least the given minimum.  
+{% swagger-parameter name="minweight" type="int" required="false" in="query" %}
+Add this parameter if you want to only get tags whose weight is at least the given minimum.
+
+\
+
+
 Default is 1 if not specified, to get all tags.
-{% endapi-method-parameter %}
-{% endapi-method-query-parameters %}
-{% endapi-method-request %}
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-JSON Array of {tag; weight} objects. Higher weight = Tag is more prevalent in the DB. The array is unsorted.
-{% endapi-method-response-example-description %}
+{% endswagger-parameter %}
 
+{% swagger-response status="200" description="" %}
 ```javascript
 [
     {"namespace":"character","text":"jeanne alter","weight":2},
@@ -38,29 +29,15 @@ JSON Array of {tag; weight} objects. Higher weight = Tag is more prevalent in th
     {"namespace":"","text":"artbook","weight":2},
 ]
 ```
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
+{% endswagger-response %}
+{% endswagger %}
 
-{% api-method method="post" host="http://lrr.tvc-16.science" path="/api/database/clean" %}
-{% api-method-summary %}
-🔑Clean the Database
-{% endapi-method-summary %}
-
-{% api-method-description %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/database/clean" method="post" summary="🔑Clean the Database" %}
+{% swagger-description %}
 Cleans the Database, removing entries for files that are no longer on the filesystem.
-{% endapi-method-description %}
+{% endswagger-description %}
 
-{% api-method-spec %}
-{% api-method-request %}
-{% endapi-method-request %}
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-The database is cleaned, and the API returns how many items were removed/unlinked.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="200" description="" %}
 ```javascript
 {
   "operation": "clean_database",
@@ -69,63 +46,40 @@ The database is cleaned, and the API returns how many items were removed/unlinke
   "unlinked": 0
 }
 ```
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
+{% endswagger-response %}
+{% endswagger %}
 
-{% api-method method="post" host="http://lrr.tvc-16.science" path="/api/database/drop" %}
-{% api-method-summary %}
-🔑Drop the Database
-{% endapi-method-summary %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/database/drop" method="post" summary="🔑Drop the Database" %}
+{% swagger-description %}
+Delete the entire database, including user preferences.
 
-{% api-method-description %}
-Delete the entire database, including user preferences.  
+\
+
+
 This is a rather dangerous endpoint, invoking it might lock you out of the server as a client!
-{% endapi-method-description %}
+{% endswagger-description %}
 
-{% api-method-spec %}
-{% api-method-request %}
-{% endapi-method-request %}
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-LIVING IN THE DA  
-TA  
-BASE  
-WOW WOW
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="200" description="" %}
 ```javascript
 {
     "operation":"drop_database",
     "success":1
 }
 ```
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
+{% endswagger-response %}
+{% endswagger %}
 
-{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/database/backup" %}
-{% api-method-summary %}
-🔑Get a backup JSON
-{% endapi-method-summary %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/database/backup" method="get" summary="🔑Get a backup JSON" %}
+{% swagger-description %}
+Scans the entire database and returns a backup in JSON form.
 
-{% api-method-description %}
-Scans the entire database and returns a backup in JSON form.   
+\
+
+
 This backup can be reimported manually through the Backup and Restore feature.
-{% endapi-method-description %}
+{% endswagger-description %}
 
-{% api-method-spec %}
-{% api-method-request %}
-{% endapi-method-request %}
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-Prints a backup JSON.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="200" description="" %}
 ```javascript
 [
     {
@@ -158,37 +112,20 @@ Prints a backup JSON.
     }
 ]
 ```
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
+{% endswagger-response %}
+{% endswagger %}
 
-{% api-method method="delete" host="http://lrr.tvc-16.science" path="/api/database/isnew" %}
-{% api-method-summary %}
-🔑Clear all "New" flags
-{% endapi-method-summary %}
-
-{% api-method-description %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/database/isnew" method="delete" summary="🔑Clear all "New" flags" %}
+{% swagger-description %}
 Clears the "New!" flag on all archives.
-{% endapi-method-description %}
+{% endswagger-description %}
 
-{% api-method-spec %}
-{% api-method-request %}
-{% endapi-method-request %}
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-New flags are successfully removed
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="200" description="" %}
 ```javascript
 {
     "operation":"clear_new_all",
     "success":1
 }
 ```
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
-
+{% endswagger-response %}
+{% endswagger %}
