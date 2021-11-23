@@ -2,18 +2,23 @@
 
 ## Download a Release
 
-You can download the latest Windows MSI Installer on the [Release Page](https://github.com/Difegue/LANraragi/releases), starting from 0.6.7.
+You can directly install LANraragi from the [Microsoft Store](ms-windows-store://pdp/?productid=XP9K4NMNPDMH6L). This will install the latest release.  
+As an alternative, you can always download the latest Windows MSI Installer on the [Release Page](https://github.com/Difegue/LANraragi/releases).  
 
 {% hint style="info" %}
-Prior to 0.6.7, Windows releases were available as .zips containing a PowerShell script installer.
-
 Windows Nightlies are available [here](https://nightly.link/Difegue/LANraragi/workflows/push-continous-delivery/dev).
 {% endhint %}
 
 ## Installation
 
-Simply execute the installer package. You should get a few security prompts from Windows as the installer isn't signed; These are perfectly normal.  
+Simply execute the installer package. (The MS Store will do this for you if you went that way)  
+
+You might get a SmartScreen prompt from Windows (doesn't seem to happen with the Store) as the installer isn't signed; These are perfectly normal.  
 \(If you're wondering why I don't sign installers, [this](https://gaby.dev/posts/code-signing) article is a good read.\)
+
+{% hint style="info" %}
+MS Store installs will be installed to the default location. If you don't want the app to install in %AppData%, consider downloading the installer and running it manually.  
+{% endhint %}
 
 {% hint style="warning" %}
 The installer will tell you about this anyways, but LRR for Windows **requires** the Windows Subsystem for Linux to function properly.  
@@ -46,11 +51,12 @@ Once the program is running, you can open the Web Client through the shortcut bu
 
 ## Updating
 
-Simply download the latest zip and re-run the installer script.
+Updates have to be done manually by downloading and running the latest installer.  
+If you're using the MS Store, you can also update through it -- Keep in mind releases take usually a day or so to land on the store compared to direct downloads off GitHub.  
 
 ## Uninstallation
 
-Simply execute the uninstaller shortcut left in your Start Menu.  
+Simply uninstall the app from Windows Settings.    
 Presto! Your database is not deleted in case you ever fancy coming back.
 
 ## Troubleshooting
