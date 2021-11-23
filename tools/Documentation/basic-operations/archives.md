@@ -11,6 +11,7 @@ You can customize display options to show the index in compact mode, as well as 
 ![Customized compact mode to sort by ratings](../.screenshots/ratings.png)  
 
 The topmost **carousel** view will show random archives from your current search in both thumbnail and compact modes -- It can also be configured to show New or Untagged archives instead.  
+
 ![Index page of a regular LRR install in compact mode](<https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/\_screenshots/archive\_list.png>)
 
 {% hint style="info" %}

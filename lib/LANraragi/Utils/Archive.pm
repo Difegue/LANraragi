@@ -47,30 +47,6 @@ sub generate_thumbnail {
     undef $img;
 }
 
-# sanitize_filename(filename)
-# Converts extracted filenames to an ascii variant to avoid extra filesystem headaches.
-sub sanitize_filename {
-
-    my $filename = $_[0];
-    eval {
-        # Try a guess to regular japanese encodings first
-        $filename = decode( "Guess", $filename );
-    };
-
-    # Fallback to utf8
-    $filename = decode_utf8($filename) if $@;
-
-    # Re-encode the result to ASCII and move the file to said result name.
-    # Use Encode's coderef feature to map non-ascii characters to their Unicode codepoint equivalent.
-    $filename = encode( "ascii", $filename, sub { sprintf "%04X", shift } );
-
-    if ( length $filename > 254 ) {
-        $filename = substr( $filename, 0, 254 );
-    }
-
-    return $filename;
-}
-
 # extract_archive(path, archive_to_extract, force)
 # Extract the given archive to the given path.
 # This sub won't re-extract files already present in the destination unless force = 1.
@@ -78,6 +54,7 @@ sub extract_archive {
 
     my ( $destination, $to_extract, $force_extract ) = @_;
     my $logger = get_logger( "Archive", "lanraragi" );
+    $logger->debug("Fully extracting archive $to_extract");
 
     # PDFs are handled by Ghostscript (alas)
     if ( is_pdf($to_extract) ) {
@@ -92,14 +69,16 @@ sub extract_archive {
             if ($force_extract) { return 1; }
 
             my $filename = $e->pathname;
-            $filename = sanitize_filename($filename);
             if ( -e "$destination/$filename" ) {
                 $logger->debug("$filename already exists in $destination");
                 return 0;
             }
+            $logger->debug("Extracting $filename");
 
             # Pre-emptively create the file to signal we're working on it
-            open( my $fh, ">", "$destination/$filename" ) or return 0;
+            open( my $fh, ">", "$destination/$filename" )
+              or
+              $logger->error("Couldn't create placeholder file $destination/$filename (might be a folder?), moving on nonetheless");
             close $fh;
             return 1;
         }
@@ -111,16 +90,6 @@ sub extract_archive {
     # Get extraction folder
     my $result_dir = $ae->to;
     my $cwd        = getcwd();
-
-    # Rename extracted files and folders to an encoded version for easier handling
-    finddepth(
-        sub {
-            unless ( $_ eq '.' ) {
-                move( $_, sanitize_filename($_) );
-            }
-        },
-        $result_dir
-    );
 
     # chdir back to the base cwd in case finddepth died midway
     chdir $cwd;
@@ -291,8 +260,19 @@ sub extract_single_file {
     } else {
 
         my $contents = "";
-        my $peek = Archive::Libarchive::Peek->new( filename => $archive );
-        $contents = $peek->file($filepath);
+        my $peek     = Archive::Libarchive::Peek->new( filename => $archive );
+        my @files    = $peek->files;
+
+        for my $name (@files) {
+            my $decoded_name = LANraragi::Utils::Database::redis_decode($name);
+
+            # This sub can receive either encoded or raw filenames, so we have to test for both.
+            if ( $decoded_name eq $filepath || $name eq $filepath ) {
+                $logger->debug("Found file $filepath in archive $archive");
+                $contents = $peek->file($name);
+                last;
+            }
+        }
 
         open( my $fh, '>', $outfile )
           or die "Could not open file '$outfile' $!";
@@ -300,9 +280,7 @@ sub extract_single_file {
         close $fh;
     }
 
-    my $fixed_name = sanitize_filename($outfile);
-    move( $outfile, $fixed_name );
-    return $fixed_name;
+    return $outfile;
 }
 
 # extract_file_from_archive($archive, $file)

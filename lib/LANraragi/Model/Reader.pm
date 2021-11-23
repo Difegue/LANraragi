@@ -73,7 +73,7 @@ sub build_reader_JSON {
     # To investigate further, perhaps with custom sorting algorithms?
     @images = sort { &expand($a) cmp &expand($b) } @images;
 
-    $self->LRR_LOGGER->debug( "Files found in archive: \n " . Dumper @images );
+    $self->LRR_LOGGER->debug( "Files found in archive (encoding might be incorrect): \n " . Dumper @images );
 
     # Build a browser-compliant filepath array from @images
     my @images_browser;
@@ -91,8 +91,6 @@ sub build_reader_JSON {
 
         # Then we bring the slashes back.
         $imgpath =~ s!%2F!/!g;
-
-        $self->LRR_LOGGER->debug("Will be extracted to disk as: $imgpath");
 
         # Bundle this path into an API call which will be used by the browser
         push @images_browser, "./api/archives/$id/page?path=$imgpath";
