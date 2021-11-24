@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use utf8;
 
+use feature qw(say);
 use Time::HiRes qw(gettimeofday);
 use File::Basename;
 use File::Path qw(remove_tree make_path);
@@ -15,6 +16,7 @@ use Redis;
 use Cwd;
 use Data::Dumper;
 use Image::Magick;
+use Archive::Libarchive qw( ARCHIVE_OK );
 use Archive::Libarchive::Extract;
 use Archive::Libarchive::Peek;
 
@@ -171,12 +173,20 @@ sub extract_thumbnail {
     return $thumbname;
 }
 
+#magical sort function used below
+sub expand {
+    my $file = shift;
+    $file =~ s{(\d+)}{sprintf "%04d", $1}eg;
+    return $file;
+}
+
 # get_filelist($archive)
 # Returns a list of all the files contained in the given archive.
 sub get_filelist {
 
     my $archive = $_[0];
     my @files   = ();
+    my @sizes   = ();
 
     if ( is_pdf($archive) ) {
 
@@ -184,18 +194,37 @@ sub get_filelist {
         my $pages = `gs -q -c "($archive) (r) file runpdfbegin pdfpagecount = quit"`;
         for my $num ( 1 .. $pages ) {
             push @files, "$num.jpg";
+            push @sizes, 0;
         }
     } else {
-        my $peek = Archive::Libarchive::Peek->new( filename => $archive );
 
-        # Filter out non-images
-        foreach my $file ( $peek->files ) {
-            if ( is_image($file) ) {
-                push @files, $file;
+        my $r = Archive::Libarchive::ArchiveRead->new;
+        $r->support_filter_all;
+        $r->support_format_all;
+
+        my $ret = $r->open_filename( $archive, 10240 );
+        die unless ( $ret == ARCHIVE_OK );
+
+        my $e = Archive::Libarchive::Entry->new;
+        while ( $r->next_header($e) == ARCHIVE_OK ) {
+
+            my $filesize = ( $e->size_is_set eq 64 ) ? $e->size : 0;
+            my $filename = $e->pathname;
+            if ( is_image($filename) ) {
+                push @files, $filename;
+                push @sizes, $filesize;
             }
+            $r->read_data_skip;
         }
+
     }
 
+    # TODO: @images = nsort(@images); would theorically be better, but Sort::Naturally's nsort puts letters before numbers,
+    # which isn't what we want at all for pages in an archive.
+    # To investigate further, perhaps with custom sorting algorithms?
+    @files = sort { &expand($a) cmp &expand($b) } @files;
+
+    # TODO: Return file and sizes in a hash
     return @files;
 }
 
