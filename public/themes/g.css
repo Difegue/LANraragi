@@ -227,8 +227,10 @@ tr.gtr1 {
     border: 1px solid #5C0D11;
     color: #5C0D11;
     max-width: 450px;
+    width: 60%;
     margin: 4px 1px 0;
     font-size: 9pt;
+    display: table-cell;
 }
 
 .searchbtn {

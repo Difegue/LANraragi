@@ -157,8 +157,10 @@ tr.gtr1{background:#363940}
     background:#34353b;
     border:1px solid #000000;
     max-width: 450px;
+    width: 60%;
     margin: 4px 1px 0;
     font-size: 9pt;
+    display: table-cell;
 }
 
 .searchbtn{min-width: 100px !important;}
