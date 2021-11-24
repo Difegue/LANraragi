@@ -503,6 +503,10 @@ li {
   margin: 0 !important;
 }
 
+.awesomplete > ul {
+  z-index: 99 !important;
+}
+
 /*Hide elements within the pages on small screens*/
 
 @media all and (max-width: 1000px) {
