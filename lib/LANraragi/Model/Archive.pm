@@ -166,8 +166,10 @@ sub serve_page {
 
     my $logger = get_logger( "File Serving", "lanraragi" );
 
+    $logger->debug("Page /$id/$path was requested");
+
     my $tempfldr = get_temp();
-    my $file     = LANraragi::Utils::Archive::sanitize_filename( $tempfldr . "/$id/$path" );
+    my $file     = $tempfldr . "/$id/$path";
 
     if ( -e $file ) {
 
@@ -175,12 +177,17 @@ sub serve_page {
         # We have to wait before trying to serve them out...
         my $last_size = 0;
         my $size      = -s $file;
+        my $timeout   = 0;
         while (1) {
             $logger->debug("Waiting for file to be fully written ($size, previously $last_size)");
             usleep(10000);    # 10ms
+            $timeout += 10;   # Sanity check in case the file remains at 0 bytes forever
             $last_size = $size;
             $size      = -s $file;
-            last if ( $last_size eq $size );    # If the size hasn't changed since the last loop, it's likely the file is ready.
+
+            # If the size hasn't changed since the last loop, it's likely the file is ready.
+            last
+              if ( $last_size eq $size && ( $size ne 0 || $timeout > 1000 ) );
         }
 
     } else {

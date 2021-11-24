@@ -4,7 +4,7 @@ description: >-
   Windows 7 and 8), Vagrant allows you to quickly get started nonetheless.
 ---
 
-# Vagrant \(Deprecated\)
+# 🕸 Vagrant (Deprecated)
 
 {% hint style="danger" %}
 Vagrant installs are **deprecated** as of 0.6.0. They'll work, but come with enough potential issues and slowdowns that I don't recommend you use them at all!
@@ -15,12 +15,12 @@ Vagrant installs are **deprecated** as of 0.6.0. They'll work, but come with eno
 You can use the available Vagrantfile with [Vagrant](https://www.vagrantup.com/downloads.html) to deploy a virtual machine on your computer with LANraragi preinstalled.
 
 {% hint style="info" %}
-This method requires [VirtualBox](https://www.virtualbox.org/) to be installed on your machine!
+This method requires [VirtualBox](https://www.virtualbox.org) to be installed on your machine!
 {% endhint %}
 
 Download the [Vagrantfile](https://github.com/Difegue/LANraragi/tree/dev/tools/build/vagrant) that's relevant to the version of LANraragi that you want to install, then move it to your future LANraragi folder. If you downloaded the nightly Vagrantfile, be sure to remove `_nightly` from the end of the filename. Once you've done that, open a terminal in that folder and enter the following commands:
 
-```text
+```
 vagrant plugin install vagrant-vbguest
 vagrant up
 ```
@@ -28,12 +28,12 @@ vagrant up
 Once the Vagrant machine is up and provisioned, you can access LANraragi at [http://localhost:3000](http://localhost:3000).  
 Archives you upload will be placed in the directory of the Vagrantfile.
 
-The Vagrant machine is a simple Docker wrapper, so the database will also be stored in this directory. \(As database.rdb\)
+The Vagrant machine is a simple Docker wrapper, so the database will also be stored in this directory. (As database.rdb)
 
 You can use `vagrant halt` to stop the VM when you're done.  
 To start it up again, use the following commands:
 
-```text
+```
 vagrant up
 vagrant provision
 ```
@@ -49,5 +49,4 @@ vagrant up
 vagrant provision
 ```
 
-Those two commands will update the wrapped Docker image to the latest one\(basically automatically doing the commands written up there on the Docker section\). No other operations are needed.
-
+Those two commands will update the wrapped Docker image to the latest one(basically automatically doing the commands written up there on the Docker section). No other operations are needed.

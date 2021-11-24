@@ -1,10 +1,10 @@
-# Statistics and Logs
+# 📈 Statistics and Logs
 
 ## Statistics
 
 This page shows basic stats about your content folder, as well as your most used tags.
 
-![](../.gitbook/assets/cloud.PNG)
+![](../.screenshots/cloud.PNG)
 
 ## Logs
 
@@ -14,4 +14,3 @@ If you enable _Debug Mode_ in Configuration, more logs will be displayed.
 {% hint style="warning" %}
 If you enable Debug Mode for troubleshooting purposes, make sure to disable it once you're done!
 {% endhint %}
-

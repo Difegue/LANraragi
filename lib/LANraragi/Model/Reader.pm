@@ -17,13 +17,6 @@ use LANraragi::Utils::Generic qw(is_image shasum);
 use LANraragi::Utils::Archive qw(extract_archive generate_thumbnail get_filelist);
 use LANraragi::Utils::Database qw(redis_decode);
 
-#magical sort function used below
-sub expand {
-    my $file = shift;
-    $file =~ s{(\d+)}{sprintf "%04d", $1}eg;
-    return $file;
-}
-
 # resize_image(image,quality, size_threshold)
 # Convert an image to a cheaper on bandwidth format through ImageMagick.
 sub resize_image {
@@ -68,12 +61,7 @@ sub build_reader_JSON {
     # Parse archive to get its list of images
     my @images = get_filelist($archive);
 
-    # TODO: @images = nsort(@images); would theorically be better, but Sort::Naturally's nsort puts letters before numbers,
-    # which isn't what we want at all for pages in an archive.
-    # To investigate further, perhaps with custom sorting algorithms?
-    @images = sort { &expand($a) cmp &expand($b) } @images;
-
-    $self->LRR_LOGGER->debug( "Files found in archive: \n " . Dumper @images );
+    $self->LRR_LOGGER->debug( "Files found in archive (encoding might be incorrect): \n " . Dumper @images );
 
     # Build a browser-compliant filepath array from @images
     my @images_browser;
@@ -91,8 +79,6 @@ sub build_reader_JSON {
 
         # Then we bring the slashes back.
         $imgpath =~ s!%2F!/!g;
-
-        $self->LRR_LOGGER->debug("Will be extracted to disk as: $imgpath");
 
         # Bundle this path into an API call which will be used by the browser
         push @images_browser, "./api/archives/$id/page?path=$imgpath";

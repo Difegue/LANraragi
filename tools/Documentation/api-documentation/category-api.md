@@ -1,23 +1,11 @@
 # Category API
 
-{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/categories" %}
-{% api-method-summary %}
-Get all categories
-{% endapi-method-summary %}
-
-{% api-method-description %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/categories" method="get" summary="Get all categories" %}
+{% swagger-description %}
 Get all the categories saved on the server.
-{% endapi-method-description %}
+{% endswagger-description %}
 
-{% api-method-spec %}
-{% api-method-request %}
-{% endapi-method-request %}
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-You get the categories. The "id" parameter is to be used in the next endpoints.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="200" description="" %}
 ```javascript
 [
   {
@@ -52,35 +40,19 @@ You get the categories. The "id" parameter is to be used in the next endpoints.
   }
 ]
 ```
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
+{% endswagger-response %}
+{% endswagger %}
 
-{% api-method method="get" host="http://lrr.tvc-16.science" path="/api/categories/:id" %}
-{% api-method-summary %}
-Get a single category
-{% endapi-method-summary %}
-
-{% api-method-description %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/categories/:id" method="get" summary="Get a single category" %}
+{% swagger-description %}
 Get the details of the specified category ID.
-{% endapi-method-description %}
+{% endswagger-description %}
 
-{% api-method-spec %}
-{% api-method-request %}
-{% api-method-path-parameters %}
-{% api-method-parameter name="id" type="string" required=true %}
+{% swagger-parameter name="id" type="string" required="true" in="path" %}
 ID of the Category desired.
-{% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
-{% endapi-method-request %}
+{% endswagger-parameter %}
 
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-You get category info.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="200" description="" %}
 ```
 {
   "archives": [],
@@ -91,13 +63,9 @@ You get category info.
   "search": ""
 }
 ```
-{% endapi-method-response-example %}
+{% endswagger-response %}
 
-{% api-method-response-example httpCode=400 %}
-{% api-method-response-example-description %}
-The ID you've specified doesn't exist.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="400" description="" %}
 ```
 {
   "error": "The given category does not exist.",
@@ -105,44 +73,27 @@ The ID you've specified doesn't exist.
   "success": 0
 }
 ```
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
+{% endswagger-response %}
+{% endswagger %}
 
-
-{% api-method method="put" host="http://lrr.tvc-16.science" path="/api/categories" %}
-{% api-method-summary %}
-🔑Create a Category
-{% endapi-method-summary %}
-
-{% api-method-description %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/categories" method="put" summary="🔑Create a Category" %}
+{% swagger-description %}
 Create a new Category.
-{% endapi-method-description %}
+{% endswagger-description %}
 
-{% api-method-spec %}
-{% api-method-request %}
-{% api-method-query-parameters %}
-{% api-method-parameter name="pinned" type="boolean" required=false %}
+{% swagger-parameter name="pinned" type="boolean" required="false" in="query" %}
 Add this parameter if you want the created category to be pinned.
-{% endapi-method-parameter %}
+{% endswagger-parameter %}
 
-{% api-method-parameter name="search" type="string" required=false %}
+{% swagger-parameter name="search" type="string" required="false" in="query" %}
 Matching predicate, if creating a Dynamic Category.
-{% endapi-method-parameter %}
+{% endswagger-parameter %}
 
-{% api-method-parameter name="name" type="string" required=true %}
+{% swagger-parameter name="name" type="string" required="true" in="query" %}
 Name of the Category.
-{% endapi-method-parameter %}
-{% endapi-method-query-parameters %}
-{% endapi-method-request %}
+{% endswagger-parameter %}
 
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-The category is successfully created.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="200" description="" %}
 ```
 {
   "category_id": "SET_1589383525",
@@ -150,13 +101,9 @@ The category is successfully created.
   "success": 1
 }
 ```
-{% endapi-method-response-example %}
+{% endswagger-response %}
 
-{% api-method-response-example httpCode=400 %}
-{% api-method-response-example-description %}
-You did not specify a category name.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="400" description="" %}
 ```
 {
   "error": "Category name not specified.",
@@ -164,50 +111,36 @@ You did not specify a category name.
   "success": 0
 }
 ```
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
+{% endswagger-response %}
+{% endswagger %}
 
-{% api-method method="put" host="http://lrr.tvc-16.science" path="/api/categories/:id" %}
-{% api-method-summary %}
-🔑Update a Category
-{% endapi-method-summary %}
-
-{% api-method-description %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/categories/:id" method="put" summary="🔑Update a Category" %}
+{% swagger-description %}
 Modify a Category.
-{% endapi-method-description %}
+{% endswagger-description %}
 
-{% api-method-spec %}
-{% api-method-request %}
-{% api-method-path-parameters %}
-{% api-method-parameter name="id" type="string" required=true %}
+{% swagger-parameter name="id" type="string" required="true" in="path" %}
 ID of the Category to update.
-{% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
+{% endswagger-parameter %}
 
-{% api-method-query-parameters %}
-{% api-method-parameter name="name" type="string" required=false %}
+{% swagger-parameter name="name" type="string" required="false" in="query" %}
 New name of the Category
-{% endapi-method-parameter %}
+{% endswagger-parameter %}
 
-{% api-method-parameter name="search" type="string" required=false %}
+{% swagger-parameter name="search" type="string" required="false" in="query" %}
 Predicate. Trying to add a predicate to a category that already contains Archives will give you an error.
-{% endapi-method-parameter %}
+{% endswagger-parameter %}
 
-{% api-method-parameter name="pinned" type="boolean" required=false %}
-Add this argument to pin the Category.   
+{% swagger-parameter name="pinned" type="boolean" required="false" in="query" %}
+Add this argument to pin the Category.
+
+\
+
+
 If you don't, the category will be unpinned on update.
-{% endapi-method-parameter %}
-{% endapi-method-query-parameters %}
-{% endapi-method-request %}
+{% endswagger-parameter %}
 
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-The category is updated with the specified info.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="200" description="" %}
 ```
 {
   "category_id": "SET_1589573608",
@@ -215,13 +148,9 @@ The category is updated with the specified info.
   "success": 1
 }
 ```
-{% endapi-method-response-example %}
+{% endswagger-response %}
 
-{% api-method-response-example httpCode=400 %}
-{% api-method-response-example-description %}
-The ID you've specified doesn't exist.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="400" description="" %}
 ```
 {
   "error": "The given category does not exist.",
@@ -229,121 +158,70 @@ The ID you've specified doesn't exist.
   "success": 0
 }
 ```
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
+{% endswagger-response %}
+{% endswagger %}
 
-{% api-method method="delete" host="http://lrr.tvc-16.science" path="/api/categories/:id" %}
-{% api-method-summary %}
-🔑Delete a Category
-{% endapi-method-summary %}
-
-{% api-method-description %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/categories/:id" method="delete" summary="🔑Delete a Category" %}
+{% swagger-description %}
 Remove a Category.
-{% endapi-method-description %}
+{% endswagger-description %}
 
-{% api-method-spec %}
-{% api-method-request %}
-{% api-method-path-parameters %}
-{% api-method-parameter name="id" type="string" required=true %}
+{% swagger-parameter name="id" type="string" required="true" in="path" %}
 ID of the Category to delete.
-{% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
-{% endapi-method-request %}
+{% endswagger-parameter %}
 
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-The Category is deleted. This endpoint doesn't return error codes for the time being.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="200" description="" %}
 ```
 {
   "operation": "delete_category",
   "success": 1
 }
 ```
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
+{% endswagger-response %}
+{% endswagger %}
 
-{% api-method method="put" host="http://lrr.tvc-16.science" path="/api/categories/:id/:archive" %}
-{% api-method-summary %}
-🔑Add an Archive to a Category
-{% endapi-method-summary %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/categories/:id/:archive" method="put" summary="🔑Add an Archive to a Category" %}
+{% swagger-description %}
+Adds the specified Archive ID (see Archive API) to the given Category.
+{% endswagger-description %}
 
-{% api-method-description %}
-Adds the specified Archive ID \(see Archive API\) to the given Category.
-{% endapi-method-description %}
-
-{% api-method-spec %}
-{% api-method-request %}
-{% api-method-path-parameters %}
-{% api-method-parameter name="id" type="string" required=true %}
+{% swagger-parameter name="id" type="string" required="true" in="path" %}
 Category ID to add the Archive to.
-{% endapi-method-parameter %}
+{% endswagger-parameter %}
 
-{% api-method-parameter name="archive" type="string" required=true %}
+{% swagger-parameter name="archive" type="string" required="true" in="path" %}
 Archive ID to add.
-{% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
-{% endapi-method-request %}
+{% endswagger-parameter %}
 
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-Archive is added. This endpoint doesn't return error codes for the time being.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="200" description="" %}
 ```
 {
   "operation": "add_to_category",
   "success": 1
 }
 ```
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
+{% endswagger-response %}
+{% endswagger %}
 
-{% api-method method="delete" host="http://lrr.tvc-16.science" path="/api/categories/:id/:archive" %}
-{% api-method-summary %}
-🔑Remove an Archive from a Category
-{% endapi-method-summary %}
-
-{% api-method-description %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/categories/:id/:archive" method="delete" summary="🔑Remove an Archive from a Category" %}
+{% swagger-description %}
 Remove an Archive ID from a Category.
-{% endapi-method-description %}
+{% endswagger-description %}
 
-{% api-method-spec %}
-{% api-method-request %}
-{% api-method-path-parameters %}
-{% api-method-parameter name="id" type="string" required=true %}
+{% swagger-parameter name="id" type="string" required="true" in="path" %}
 Category ID
-{% endapi-method-parameter %}
+{% endswagger-parameter %}
 
-{% api-method-parameter name="archive" type="string" required=true %}
+{% swagger-parameter name="archive" type="string" required="true" in="path" %}
 Archive ID
-{% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
-{% endapi-method-request %}
+{% endswagger-parameter %}
 
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-The archive is removed from the category. This endpoint doesn't return error codes for the time being.
-{% endapi-method-response-example-description %}
-
+{% swagger-response status="200" description="" %}
 ```
 {
   "operation": "remove_from_category",
   "success": 1
 }
 ```
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
-
+{% endswagger-response %}
+{% endswagger %}
