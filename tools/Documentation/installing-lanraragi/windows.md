@@ -2,11 +2,13 @@
 
 ## Download a Release
 
-You can directly install LANraragi from the Microsoft Store. This will install the latest release. &#x20;
+You can directly install LANraragi from the [Microsoft Store](https://cutt.ly/9TJIMC6). This will install the latest release.  
 
-ms-windows-store://pdp/?productid=XP9K4NMNPDMH6L&#x20;
+[<img src="https://getbadgecdn.azureedge.net/images/English_L.png">](https://cutt.ly/9TJIMC6)  
 
-\
+ms-windows-store://pdp/?productid=XP9K4NMNPDMH6L  
+
+
 As an alternative, you can always download the latest Windows MSI Installer on the [Release Page](https://github.com/Difegue/LANraragi/releases).
 
 {% hint style="info" %}
