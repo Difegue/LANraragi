@@ -53,15 +53,19 @@ Edit.initializeAll = function () {
             const input = $("#tagText")[0];
 
             Edit.showTags();
-            Edit.tagInput = tagger(input, {
-                allow_duplicates: false,
-                allow_spaces: true,
-                wrap: true,
-                completion: {
-                    list: Edit.suggestions,
-                },
-                link: (name) => `/?q=${name}`,
-            });
+
+            // Initialize tagger unless we're on a mobile OS (#531)
+            if (!LRR.isMobile()) {
+                Edit.tagInput = tagger(input, {
+                    allow_duplicates: false,
+                    allow_spaces: true,
+                    wrap: true,
+                    completion: {
+                        list: Edit.suggestions,
+                    },
+                    link: (name) => `/?q=${name}`,
+                });
+            }
         });
 };
 
