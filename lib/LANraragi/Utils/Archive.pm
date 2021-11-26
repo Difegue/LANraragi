@@ -140,7 +140,7 @@ sub extract_thumbnail {
     make_path("$thumbdir/$subfolder");
     my $redis = LANraragi::Model::Config->get_redis;
 
-    my $file = $redis->hget( $id, "file" );
+    my $file     = $redis->hget( $id, "file" );
     my $temppath = get_temp . "/thumb/$id";
 
     # Make sure the thumb temp dir exists
@@ -191,7 +191,8 @@ sub get_filelist {
     if ( is_pdf($archive) ) {
 
         # For pdfs, extraction returns images from 1.jpg to x.jpg, where x is the pdf pagecount.
-        my $pages = `gs -q -c "($archive) (r) file runpdfbegin pdfpagecount = quit"`;
+        # Using -dNOSAFER or --permit-file-read is required since GS 9.50, see https://github.com/doxygen/doxygen/issues/7290
+        my $pages = `gs -q -dNOSAFER -c "($archive) (r) file runpdfbegin pdfpagecount = quit"`;
         for my $num ( 1 .. $pages ) {
             push @files, "$num.jpg";
             push @sizes, 0;
@@ -244,7 +245,7 @@ sub is_file_in_archive {
     $logger->debug("Iterating files of archive $archive, looking for '$wantedname'");
     $Data::Dumper::Useqq = 1;
 
-    my $peek = Archive::Libarchive::Peek->new( filename => $archive );
+    my $peek  = Archive::Libarchive::Peek->new( filename => $archive );
     my $found = 0;
     $peek->iterate(
         sub {
