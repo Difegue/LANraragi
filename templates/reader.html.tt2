@@ -55,7 +55,7 @@
 
         <div id="i5">
             <div class="sb">
-                <a href="./" title="Done reading? Go back to Archive Index">
+                <a href="./?[% ref_query %]" id="return-to-index" title="Done reading? Go back to Archive Index">
                     <i class="fa fa-angle-down fa-3x"></i>
                 </a>
             </div>

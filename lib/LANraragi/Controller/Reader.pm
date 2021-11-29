@@ -1,5 +1,6 @@
 package LANraragi::Controller::Reader;
 use Mojo::Base 'Mojolicious::Controller';
+use Mojo::URL;
 
 use Encode;
 
@@ -20,6 +21,14 @@ sub index {
         # But only to static categories
         @categories = grep { %$_{"search"} eq "" } @categories;
 
+        # Get query string from referrer URL, if there's one
+        my $referrer = $self->req->headers->referrer;
+        my $query    = "";
+        
+        if ($referrer) {
+            $query = Mojo::URL->new($referrer)->query->to_string;
+        }
+
         $self->render(
             template   => "reader",
             title      => $self->LRR_CONF->get_htmltitle,
@@ -28,6 +37,7 @@ sub index {
             categories => \@categories,
             csshead    => generate_themes_header($self),
             version    => $self->LRR_VERSION,
+            ref_query  => $query,
             userlogged => $self->LRR_CONF->enable_pass == 0 || $self->session('is_logged')
         );
     } else {

@@ -77,7 +77,7 @@ Index.initializeAll = function () {
 
     // Default to randomly picked for carousel
     if (localStorage.getItem("carouselType") === null) {
-        localStorage.carouselMode = "random";
+        localStorage.carouselType = "random";
     }
 
     // Tell user about the context menu

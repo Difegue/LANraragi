@@ -206,7 +206,7 @@ Reader.handleShortcuts = function (e) {
     }
     switch (e.keyCode) {
     case 8: // backspace
-        document.location.href = "/";
+        document.location.href = $("#return-to-index").attr("href");
         break;
     case 27: // escape
         LRR.closeOverlay();
@@ -393,7 +393,7 @@ Reader.goToPage = function (page, fromHistory = false) {
     // scroll to top
     window.scrollTo(0, 0);
 
-    // Update url to contain all search parameters, and push it to the history
+    // Update url to contain current page, and push it to the history
     if (!fromHistory) { window.history.pushState(null, null, `?id=${Reader.id}&p=${Reader.currentPage + 1}`); }
 };
 
