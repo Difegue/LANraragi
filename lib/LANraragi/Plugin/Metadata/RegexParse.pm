@@ -14,7 +14,6 @@ use LANraragi::Model::Plugins;
 use LANraragi::Utils::Database qw(redis_encode redis_decode);
 use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Utils::Generic qw(remove_spaces);
-use LANraragi::Utils::Archive qw(is_file_in_archive extract_file_from_archive);
 
 #Meta-information about your plugin.
 sub plugin_info {
@@ -43,7 +42,7 @@ sub get_tags {
     my ($savetitle) = @_;    # Plugin parameters
 
     my $logger = get_logger( "regexparse", "plugins" );
-    my $file   = $lrr_info->{file_path};
+    my $file = $lrr_info->{file_path};
 
     # lrr_info's file_path is taken straight from the filesystem, which might not be proper UTF-8.
     # Run a decode to make sure we can derive tags with the proper encoding.

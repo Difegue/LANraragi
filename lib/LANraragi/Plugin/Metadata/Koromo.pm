@@ -39,10 +39,11 @@ sub get_tags {
     my $logger = get_plugin_logger();
     my $file   = $lrr_info->{file_path};
 
-    if ( is_file_in_archive( $file, "Info.json" ) ) {
+    my $path_in_archive = is_file_in_archive( $file, "Info.json" );
+    if ($path_in_archive) {
 
         #Extract info.json
-        my $filepath = extract_file_from_archive( $file, "Info.json" );
+        my $filepath = extract_file_from_archive( $file, $path_in_archive );
 
         #Open it
         my $stringjson = "";

@@ -63,11 +63,12 @@ If you're running 0.5.2 or later:
 ```perl
 use LANraragi::Utils::Archive qw(is_file_in_archive extract_file_from_archive);
 
-#Check if info.json is in the archive located at $file
-if (is_file_in_archive($file,"info.json")) {
+# Check if info.json is in the archive located at $file and get its precise path
+my $info_path = is_file_in_archive($file, "info.json");
+if ($info_path) {
 
         #Extract info.json
-        my $filepath = extract_file_from_archive($file, "info.json");
+        my $filepath = extract_file_from_archive($file, $info_path);
 
         #Do whatever you need with the extracted file
         open( my $fh, '<:encoding(UTF-8)', $filepath )

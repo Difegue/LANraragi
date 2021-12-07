@@ -40,10 +40,11 @@ sub get_tags {
     my ($savetitle) = @_;    # Plugin parameters
 
     my $logger = get_plugin_logger();
-    if ( is_file_in_archive( $lrr_info->{file_path}, "info.json" ) ) {
+    my $path_in_archive = is_file_in_archive( $lrr_info->{file_path}, "info.json" );
+    if ($path_in_archive) {
 
         #Extract info.json
-        my $filepath = extract_file_from_archive( $lrr_info->{file_path}, "info.json" );
+        my $filepath = extract_file_from_archive( $lrr_info->{file_path}, $path_in_archive );
 
         #Open it
         my $stringjson = "";

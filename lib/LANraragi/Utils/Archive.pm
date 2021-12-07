@@ -140,7 +140,7 @@ sub extract_thumbnail {
     make_path("$thumbdir/$subfolder");
     my $redis = LANraragi::Model::Config->get_redis;
 
-    my $file     = $redis->hget( $id, "file" );
+    my $file = $redis->hget( $id, "file" );
     my $temppath = get_temp . "/thumb/$id";
 
     # Make sure the thumb temp dir exists
@@ -231,7 +231,7 @@ sub get_filelist {
 
 # is_file_in_archive($archive, $file)
 # Uses libarchive::peek to figure out if $archive contains $file.
-# Returns 1 if it does exist, 0 otherwise.
+# Returns the exact in-archive path of the file if it exists, undef otherwise.
 sub is_file_in_archive {
 
     my ( $archive, $wantedname ) = @_;
@@ -239,24 +239,27 @@ sub is_file_in_archive {
 
     if ( is_pdf($archive) ) {
         $logger->debug("$archive is a pdf, no sense looking for specific files");
-        return 0;
+        return undef;
     }
 
     $logger->debug("Iterating files of archive $archive, looking for '$wantedname'");
     $Data::Dumper::Useqq = 1;
 
-    my $peek  = Archive::Libarchive::Peek->new( filename => $archive );
-    my $found = 0;
-    $peek->iterate(
-        sub {
-            my $name = $_[0];
-            $logger->debug( "Found file " . Dumper($name) );
+    my $peek = Archive::Libarchive::Peek->new( filename => $archive );
+    my $found;
+    my @files = $peek->files;
 
-            if ( $name =~ /$wantedname$/ ) {
-                $found = 1;
-            }
+    for my $file (@files) {
+        $logger->debug( "Found file " . Dumper($file) );
+        my ( $name, $path, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
+
+        # If the end of the file contains $wantedname we're good
+        if ( "$name$suffix" =~ /$wantedname$/ ) {
+            $logger->debug("OK!");
+            $found = $file;
+            last;
         }
-    );
+    }
 
     return $found;
 }
