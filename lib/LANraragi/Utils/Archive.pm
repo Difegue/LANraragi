@@ -239,7 +239,7 @@ sub is_file_in_archive {
 
     if ( is_pdf($archive) ) {
         $logger->debug("$archive is a pdf, no sense looking for specific files");
-        return undef;
+        return;
     }
 
     $logger->debug("Iterating files of archive $archive, looking for '$wantedname'");
