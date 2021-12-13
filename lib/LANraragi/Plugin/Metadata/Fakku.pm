@@ -27,7 +27,8 @@ sub plugin_info {
         author     => "Difegue, Nodja",
         version    => "0.8",
         description =>
-          "Searches FAKKU for tags matching your archive. If you have an account, don't forget to enter the matching cookie in the login plugin to be able to access controversial content.",
+          "Searches FAKKU for tags matching your archive. If you have an account, don't forget to enter the matching cookie in the login plugin to be able to access controversial content. <br/><br/>  
+           <i class='fa fa-exclamation-circle'></i> <b>This plugin can and will return invalid results depending on what you're searching for!</b> <br/>The FAKKU search API isn't very precise and I recommend you use the Chaika.moe plugin when possible.",
         icon =>
           "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAFiUAABYlAUlSJPAAAACZSURBVDhPlY+xDYQwDEWvZgRGYA22Y4frqJDSZhFugiuuo4cqPGT0iTjAYL3C+fGzktc3hEcsQvJq6HtjE2Jdv4viH4a4pWnL8q4A6g+ET9P8YhS2/kqwIZXWnwqChDxPfCFfD76wOzJ2IOR/0DSwnuRKYAKUW3gq2OsJTYM0jr7QVRVwlabJEaw3ARYBcmFXeomxphIeEMIMmh3lOLQR+QQAAAAASUVORK5CYII=",
         parameters  => [ { type => "bool", desc => "Save archive title" } ],
@@ -113,13 +114,13 @@ sub get_search_result_dom {
 
     my $logger = get_plugin_logger();
 
-    # Strip away (some) characters that break search
-    # Note: The F! search backend sometimes fails to match you anyway. :/ The autosuggest API would work better but then again, CF issues
-    # * Changed the ' filter to '\w*, meaning instead of just stripping the apostrophe, we also strip whatever is after it ("we're" > "we" instead of "we're" > "were"). 
-    #      This is because just removing the apostrophe will return wrong (or no) results (to give an example "Were in love" would not return anything, whereas "we in love" would)
-    # * Added @ to the filters, because it's not supported by F*'s search engine either
-    # * Added a space ahead of the - (hyphen) filter, to only remove hyphens directly prepended to something else (those are the only ones that break searches, probably because the search engine treats them as exclusions as most engines would).
-    $title =~ s/ -|'\w*|~|!|@//g; 
+# Strip away (some) characters that break search
+# Note: The F! search backend sometimes fails to match you anyway. :/ The autosuggest API would work better but then again, CF issues
+# * Changed the ' filter to '\w*, meaning instead of just stripping the apostrophe, we also strip whatever is after it ("we're" > "we" instead of "we're" > "were").
+#      This is because just removing the apostrophe will return wrong (or no) results (to give an example "Were in love" would not return anything, whereas "we in love" would)
+# * Added @ to the filters, because it's not supported by F*'s search engine either
+# * Added a space ahead of the - (hyphen) filter, to only remove hyphens directly prepended to something else (those are the only ones that break searches, probably because the search engine treats them as exclusions as most engines would).
+    $title =~ s/ -|'\w*|~|!|@//g;
 
     # Visit the base host once to set cloudflare cookies and jank
     $ua->max_redirects(5)->get($fakku_host);
