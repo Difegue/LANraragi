@@ -39,6 +39,28 @@ Once the install completes properly, you'll be able to launch the GUI from the s
 
 ![](../.screenshots/karen-startmenu.png)
 
+## Installation on Windows 10 1809 (LTSC)  
+
+Recent MSI packages don't install on 1809 anymore due to underlying changes to make the installer lighter, but you can still sideload the latest server version on top of an old 0.7.9 install.
+
+{% hint style="warning" %}
+This method shouldn't break in the foreseeable future, but as the Win32 bootstrapper will still be the 0.7.9 version, you might lose out on future functionalities later on.  
+You might want to consider switching to a [source install](./source.md) on top of a Debian WSL distro you'd maintain yourself.  
+{% endhint %}
+
+1. Install 0.7.9 like normal, this is mostly done to get the Win32 UI application installed on to your taskbar, we'll install the updated Linux image next.  
+2. If you started the service and the Windows application, make sure to close BOTH.  
+3. Download the [MSI installer for the latest version](https://github.com/Difegue/LANraragi/releases/latest)   
+4. Open the MSI file in 7zip, and extract the "package.tar" file, which is the underlying Linux image  
+5. Download [LxRunOffline](https://github.com/DDoSolitary/LxRunOffline/releases) and put it in the same directory as the "package.tar" file you just extracted  
+6. Uninstall the old Linux image from 0.7.9 with the following command, make sure to have your command window opened as administrator:  
+ `lxrunoffline ui -n lanraragi`  
+7. install the new image:  
+ `lxrunoffline i -n lanraragi -d "C:\Users\*your user name*\AppData\Roaming\LANraragi\Distro\rootfs" -f LANraragi.tar`  
+Note: the name of the install HAS to be "lanraragi", do not change this on the -n argument  
+8. Start the application again, and you should see that it now shows the newest version of the server  
+
+
 ## Configuration
 
 Starting the GUI for the first time will prompt you to setup your content folder and the port you want the server to listen on. The main GUI is always available from your Taskbar.
