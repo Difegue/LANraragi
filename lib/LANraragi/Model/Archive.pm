@@ -142,6 +142,7 @@ sub find_untagged_archives {
 sub serve_thumbnail {
 
     my ( $self, $id ) = @_;
+    my $no_fallback = $self->req->param('no_fallback') eq "true" || "0";
     my $thumbdir = LANraragi::Model::Config->get_thumbdir;
 
     # Thumbnails are stored in the content directory, thumb subfolder.
@@ -151,9 +152,25 @@ sub serve_thumbnail {
 
     # Queue a minion job to generate the thumbnail. Thumbnail jobs have the lowest priority.
     unless ( -e $thumbname ) {
-        $self->minion->enqueue( thumbnail_task => [ $thumbdir, $id ] => { priority => 0 } );
-        $self->render_file( filepath => "./public/img/noThumb.png" );
+        my $job_id = $self->minion->enqueue( thumbnail_task => [ $thumbdir, $id ] => { priority => 0 } );
+
+        if ($no_fallback) {
+
+            $self->render(
+                json => {
+                    operation => "serve_thumbnail",
+                    success   => 1,
+                    job       => $job_id
+                },
+                status => 202    # 202 Accepted
+            );
+        } else {
+
+            # If the thumbnail doesn't exist, serve the default thumbnail.
+            $self->render_file( filepath => "./public/img/noThumb.png" );
+        }
         return;
+
     } else {
 
         # Simply serve the thumbnail.

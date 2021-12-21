@@ -222,28 +222,8 @@ Get a list of the available plugins on the server, filtered by type.
 {% endswagger-description %}
 
 {% swagger-parameter name="type" type="string" required="true" in="path" %}
-Type of plugins you want to list.
-
-\
-
-
-You can either use 
-
-`login`
-
-, 
-
-`metadata`
-
-, 
-
-`script`
-
-, or 
-
-`all`
-
- to get all previous types at once.
+Type of plugins you want to list.  
+You can either use `login`, `metadata`, `script`, or `all` to get all previous types at once.
 {% endswagger-parameter %}
 
 {% swagger-response status="200" description="" %}
@@ -348,20 +328,8 @@ You can either use
 
 {% swagger baseUrl="http://lrr.tvc-16.science" path="/api/plugins/use" method="post" summary="🔑Use a Plugin" %}
 {% swagger-description %}
-Uses a Plugin and returns the result.
-
-\
-
-
-If using a metadata plugin, the matching archive will 
-
-**not**
-
- be modified in the database.
-
-\
-
-
+Uses a Plugin and returns the result.  
+If using a metadata plugin, the matching archive will **not** be modified in the database.  
 See more info on Plugins in the matching section of the Docs.
 {% endswagger-description %}
 
@@ -397,11 +365,7 @@ Optional One-Shot argument to use when executing this Plugin.
 
 {% swagger baseUrl="http://lrr.tvc-16.science" path="/api/plugins/queue" method="post" summary="🔑Use a Plugin Asynchronously" %}
 {% swagger-description %}
-Uses a Plugin and returns a Minion Job ID matching the Plugin run.
-
-\
-
-
+Uses a Plugin and returns a Minion Job ID matching the Plugin run.  
 This endpoint is useful if you want to run longer-lived plugins which might timeout if ran with the standard endpoint.
 {% endswagger-description %}
 
@@ -496,11 +460,7 @@ Whether to generate all thumbnails, or only the missing ones.
 
 {% swagger baseUrl="http://lrr.tvc-16.science" path="/api/minion/:jobid" method="get" summary="🔑Get the status of a Minion Job" %}
 {% swagger-description %}
-Get the status of a Minion Job. Minions jobs are ran for various occasions like thumbnails, cache warmup and handling incoming files.
-
-\
-
-
+Get the status of a Minion Job. Minions jobs are ran for various occasions like thumbnails, cache warmup and handling incoming files.  
 Usually stuff you don't need to care about as a client, but the API is there for internal usage mostly.
 {% endswagger-description %}
 

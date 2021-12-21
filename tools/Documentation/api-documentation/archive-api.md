@@ -149,12 +149,26 @@ ID of the Archive to process.
 
 {% swagger baseUrl="http://lrr.tvc-16.science" path="/api/archives/:id/thumbnail" method="get" summary="Get Archive Thumbnail" %}
 {% swagger-description %}
-Get the Thumbnail image for a given Archive.
+Get the Thumbnail image for a given Archive. This endpoint will queue generation of the thumbnail in the background if it doesn't already exist, and return a placeholder image.  
+If you want to get the background job ID instead of the placeholder, you can use the `no_fallback` query parameter.
 {% endswagger-description %}
 
 {% swagger-parameter name="id" type="string" required="true" in="path" %}
 ID of the Archive to process.
 {% endswagger-parameter %}
+{% swagger-parameter name="no_fallback" type="boolean" required="false" in="query" %}
+Disables the placeholder image and returns a JSON if the thumbnail is queued for extraction. This parameter does nothing if the image already exists.
+{% endswagger-parameter %}
+
+{% swagger-response status="202" description="The thumbnail is queued for extraction. Use `/api/minion/:jobid` to track when your thumbnail is ready." %}
+```javascript
+{
+    "operation": "______",
+    "error": "No archive ID specified.",
+    "success": 0
+}
+```
+{% endswagger-response %}
 
 {% swagger-response status="200" description="" %}
 {% tabs %}

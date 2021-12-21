@@ -88,15 +88,15 @@ sub get_categories {
 
 sub serve_thumbnail {
     my $self = shift;
-    my $id = check_id_parameter( $self, "thumbnail" ) || return;
-    LANraragi::Model::Archive::serve_thumbnail( $self, $id );
+    my $id = check_id_parameter( $self, "serve_thumbnail" ) || return;
+    LANraragi::Model::Archive::serve_thumbnail( $self, $id, $no_fallback );
 }
 
 # Use RenderFile to get the file of the provided id to the client.
 sub serve_file {
 
     my $self  = shift;
-    my $id    = check_id_parameter( $self, "servefile" ) || return;
+    my $id    = check_id_parameter( $self, "serve_file" ) || return;
     my $redis = $self->LRR_CONF->get_redis();
 
     my $file = $redis->hget( $id, "file" );
