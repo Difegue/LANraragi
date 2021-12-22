@@ -89,7 +89,7 @@ sub get_categories {
 sub serve_thumbnail {
     my $self = shift;
     my $id = check_id_parameter( $self, "serve_thumbnail" ) || return;
-    LANraragi::Model::Archive::serve_thumbnail( $self, $id, $no_fallback );
+    LANraragi::Model::Archive::serve_thumbnail( $self, $id );
 }
 
 # Use RenderFile to get the file of the provided id to the client.

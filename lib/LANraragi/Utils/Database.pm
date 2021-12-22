@@ -128,7 +128,7 @@ sub build_json {
         arcid     => $id,
         title     => $title,
         tags      => $tags,
-        isnew     => $isnew,
+        isnew     => $isnew ? $isnew : "false",
         extension => lc( ( split( /\./, $file ) )[-1] ),
         progress  => $progress ? int($progress) : 0,
         pagecount => $pagecount ? int($pagecount) : 0
