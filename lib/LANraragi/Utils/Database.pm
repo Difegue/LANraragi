@@ -373,7 +373,13 @@ sub save_computed_tagrules {
     my ($tagrules) = @_;
     my $redis = LANraragi::Model::Config->get_redis;
     $redis->del("LRR_TAGRULES");
-    $redis->lpush( "LRR_TAGRULES", reverse flat(@$tagrules) ) if (@$tagrules);
+
+    if (@$tagrules) {
+        my @flat = reverse flat(@$tagrules);
+        my @encoded_flat = map { redis_encode($_) } @flat;
+        $redis->lpush( "LRR_TAGRULES", @encoded_flat );
+    }
+
     $redis->quit();
     return;
 }
@@ -385,7 +391,8 @@ sub get_computed_tagrules {
 
     if ( $redis->exists("LRR_TAGRULES") ) {
         my @flattened_rules = $redis->lrange( "LRR_TAGRULES", 0, -1 );
-        @tagrules = unflat_tagrules( \@flattened_rules );
+        my @decoded_rules = map { redis_decode($_) } @flattened_rules;
+        @tagrules = unflat_tagrules( \@decoded_rules );
     } else {
         @tagrules = tags_rules_to_array( restore_CRLF( LANraragi::Model::Config->get_tagrules ) );
         $redis->lpush( "LRR_TAGRULES", reverse flat(@tagrules) ) if (@tagrules);
