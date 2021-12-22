@@ -13,7 +13,6 @@ use Cwd;
 use Unicode::Normalize;
 
 use LANraragi::Model::Plugins;
-use LANraragi::Model::Config;
 use LANraragi::Utils::Generic qw(flat remove_spaces);
 use LANraragi::Utils::Tags qw(unflat_tagrules tags_rules_to_array restore_CRLF);
 use LANraragi::Utils::Logging qw(get_logger);
@@ -31,27 +30,14 @@ sub add_archive_to_redis {
     my $logger = get_logger( "Archive", "lanraragi" );
     my ( $name, $path, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
 
-    #jam this shit in redis
+    # Initialize Redis hash for the added file
     $logger->debug("Pushing to redis on ID $id:");
     $logger->debug("File Name: $name");
     $logger->debug("Filesystem Path: $file");
 
     $redis->hset( $id, "name",  redis_encode($name) );
     $redis->hset( $id, "title", redis_encode($name) );
-
-    # Initialize tags to the current date if the matching pref is enabled
-    if ( LANraragi::Model::Config->enable_dateadded eq "1" ) {
-
-        if ( LANraragi::Model::Config->use_lastmodified eq "1" ) {
-            $logger->info("Using file date");
-            $redis->hset( $id, "tags", "date_added:" . ( stat($file) )[9] );    #9 is the unix time stamp for date modified.
-        } else {
-            $logger->info("Using current date");
-            $redis->hset( $id, "tags", "date_added:" . time() );
-        }
-    } else {
-        $redis->hset( $id, "tags", "" );
-    }
+    $redis->hset( $id, "tags",  "" );
 
     # Don't encode filenames.
     $redis->hset( $id, "file", $file );
@@ -61,6 +47,28 @@ sub add_archive_to_redis {
 
     $redis->quit;
     return $name;
+}
+
+# add_timestamp_tag(redis, id)
+# Adds a timestamp tag to the given ID.
+sub add_timestamp_tag {
+    my ( $redis, $id ) = @_;
+    my $logger = get_logger( "Archive", "lanraragi" );
+
+    # Initialize tags to the current date if the matching pref is enabled
+    if ( LANraragi::Model::Config->enable_dateadded eq "1" ) {
+
+        $logger->debug("Adding timestamp tag...");
+
+        if ( LANraragi::Model::Config->use_lastmodified eq "1" ) {
+            $logger->info("Using file date");
+            my $date = ( stat( $redis->hget( $id, "file" ) ) )[9];    #9 is the unix time stamp for date modified.
+            $redis->hset( $id, "tags", "date_added:$date" );
+        } else {
+            $logger->info("Using current date");
+            $redis->hset( $id, "tags", "date_added:" . time() );
+        }
+    }
 }
 
 # get_archive_json(redis, id)

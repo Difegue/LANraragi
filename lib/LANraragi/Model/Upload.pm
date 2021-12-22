@@ -31,8 +31,8 @@ use LANraragi::Model::Category;
 # Returns a status value, the ID and title of the file, and a status message.
 sub handle_incoming_file {
 
-    my ( $tempfile, $catid, $tags )   = @_;
-    my ( $filename, $dirs,  $suffix ) = fileparse( $tempfile, qr/\.[^.]*/ );
+    my ( $tempfile, $catid, $tags ) = @_;
+    my ( $filename, $dirs, $suffix ) = fileparse( $tempfile, qr/\.[^.]*/ );
     $filename = $filename . $suffix;
     my $logger = get_logger( "File Upload/Download", "lanraragi" );
 
@@ -51,7 +51,7 @@ sub handle_incoming_file {
 
     #Check if the ID is already in the database, and
     #that the file it references still exists on the filesystem
-    my $redis  = LANraragi::Model::Config->get_redis();
+    my $redis = LANraragi::Model::Config->get_redis();
     my $isdupe = $redis->exists($id) && -e $redis->hget( $id, "file" );
 
     # Stop here if file is a dupe.
@@ -96,8 +96,6 @@ sub handle_incoming_file {
         }
     }
 
-    $redis->quit();
-
     # Move the file to the content folder.
     # Move to a .tmp first in case copy to the content folder takes a while...
     move( $tempfile, $output_file . ".upload" );
@@ -108,6 +106,12 @@ sub handle_incoming_file {
     unless ( -e $output_file ) {
         return ( 0, $id, $name, "The file couldn't be moved to your content folder!" );
     }
+
+    # Now that the file has been copied, we can add the timestamp tag.
+    # (The file being physically present is necessary in case last modified time is used)
+    LANraragi::Utils::Database::add_timestamp_tag( $redis, $id );
+    $redis->quit();
+
     $logger->debug("Running autoplugin on newly uploaded file $id...");
 
     my ( $succ, $fail, $addedtags, $newtitle ) = LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
