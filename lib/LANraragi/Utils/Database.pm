@@ -13,6 +13,7 @@ use Cwd;
 use Unicode::Normalize;
 
 use LANraragi::Model::Plugins;
+use LANraragi::Model::Config;
 use LANraragi::Utils::Generic qw(flat remove_spaces);
 use LANraragi::Utils::Tags qw(unflat_tagrules tags_rules_to_array restore_CRLF);
 use LANraragi::Utils::Logging qw(get_logger);
@@ -38,8 +39,19 @@ sub add_archive_to_redis {
     $redis->hset( $id, "name",  redis_encode($name) );
     $redis->hset( $id, "title", redis_encode($name) );
 
-    # Initialize tags to the current date
-    $redis->hset( $id, "tags", "date_added:" . time() );
+    # Initialize tags to the current date if the matching pref is enabled
+    if ( LANraragi::Model::Config->enable_dateadded eq "1" ) {
+
+        if ( LANraragi::Model::Config->use_lastmodified eq "1" ) {
+            $logger->info("Using file date");
+            $redis->hset( $id, "tags", "date_added:" . ( stat($file) )[9] );    #9 is the unix time stamp for date modified.
+        } else {
+            $logger->info("Using current date");
+            $redis->hset( $id, "tags", "date_added:" . time() );
+        }
+    } else {
+        $redis->hset( $id, "tags", "" );
+    }
 
     # Don't encode filenames.
     $redis->hset( $id, "file", $file );

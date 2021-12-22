@@ -124,7 +124,6 @@ sub find_untagged_archives {
                 remove_newlines($t);
 
                 # The following are basic and therefore don't count as "tagged"
-                # date_added added for convenience as running the matching plugin doesn't really count as tagging
                 $nondefaulttags += 1 unless $t =~ /(artist|parody|series|language|event|group|date_added):.*/;
             }
 

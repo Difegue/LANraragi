@@ -15,33 +15,35 @@ sub index {
     my $self = shift;
 
     $self->render(
-        template       => "config",
-        version        => $self->LRR_VERSION,
-        vername        => $self->LRR_VERNAME,
-        descstr        => $self->LRR_DESC,
-        motd           => $self->LRR_CONF->get_motd,
-        dirname        => $self->LRR_CONF->get_userdir,
-        thumbdir       => $self->LRR_CONF->get_thumbdir,
-        forceddirname  => ( defined $ENV{LRR_DATA_DIRECTORY} ? 1 : 0 ),
-        forcedthumbdir => ( defined $ENV{LRR_THUMB_DIRECTORY} ? 1 : 0 ),
-        pagesize       => $self->LRR_CONF->get_pagesize,
-        enablepass     => $self->LRR_CONF->enable_pass,
-        password       => $self->LRR_CONF->get_password,
-        tagruleson     => $self->LRR_CONF->enable_tagrules,
-        tagrules       => restore_CRLF( $self->LRR_CONF->get_tagrules ),
-        title          => $self->LRR_CONF->get_htmltitle,
-        tempmaxsize    => $self->LRR_CONF->get_tempmaxsize,
-        localprogress  => $self->LRR_CONF->enable_localprogress,
-        devmode        => $self->LRR_CONF->enable_devmode,
-        nofunmode      => $self->LRR_CONF->enable_nofun,
-        apikey         => $self->LRR_CONF->get_apikey,
-        enablecors     => $self->LRR_CONF->enable_cors,
-        enableresize   => $self->LRR_CONF->enable_resize,
-        sizethreshold  => $self->LRR_CONF->get_threshold,
-        readerquality  => $self->LRR_CONF->get_readquality,
-        theme          => $self->LRR_CONF->get_style,
-        csshead        => generate_themes_header($self),
-        tempsize       => get_tempsize
+        template        => "config",
+        version         => $self->LRR_VERSION,
+        vername         => $self->LRR_VERNAME,
+        descstr         => $self->LRR_DESC,
+        motd            => $self->LRR_CONF->get_motd,
+        dirname         => $self->LRR_CONF->get_userdir,
+        thumbdir        => $self->LRR_CONF->get_thumbdir,
+        forceddirname   => ( defined $ENV{LRR_DATA_DIRECTORY} ? 1 : 0 ),
+        forcedthumbdir  => ( defined $ENV{LRR_THUMB_DIRECTORY} ? 1 : 0 ),
+        pagesize        => $self->LRR_CONF->get_pagesize,
+        enablepass      => $self->LRR_CONF->enable_pass,
+        password        => $self->LRR_CONF->get_password,
+        tagruleson      => $self->LRR_CONF->enable_tagrules,
+        tagrules        => restore_CRLF( $self->LRR_CONF->get_tagrules ),
+        title           => $self->LRR_CONF->get_htmltitle,
+        tempmaxsize     => $self->LRR_CONF->get_tempmaxsize,
+        localprogress   => $self->LRR_CONF->enable_localprogress,
+        devmode         => $self->LRR_CONF->enable_devmode,
+        nofunmode       => $self->LRR_CONF->enable_nofun,
+        apikey          => $self->LRR_CONF->get_apikey,
+        enablecors      => $self->LRR_CONF->enable_cors,
+        enableresize    => $self->LRR_CONF->enable_resize,
+        sizethreshold   => $self->LRR_CONF->get_threshold,
+        readerquality   => $self->LRR_CONF->get_readquality,
+        theme           => $self->LRR_CONF->get_style,
+        usedateadded    => $self->LRR_CONF->enable_dateadded,
+        usedatemodified => $self->LRR_CONF->use_lastmodified,
+        csshead         => generate_themes_header($self),
+        tempsize        => get_tempsize
     );
 }
 
@@ -69,13 +71,15 @@ sub save_config {
 
         # For checkboxes,
         # we check if the parameter exists in the POST to return either 1 or 0.
-        enablepass    => ( scalar $self->req->param('enablepass')    ? '1' : '0' ),
-        enablecors    => ( scalar $self->req->param('enablecors')    ? '1' : '0' ),
-        localprogress => ( scalar $self->req->param('localprogress') ? '1' : '0' ),
-        devmode       => ( scalar $self->req->param('devmode')       ? '1' : '0' ),
-        enableresize  => ( scalar $self->req->param('enableresize')  ? '1' : '0' ),
-        tagruleson    => ( scalar $self->req->param('tagruleson')    ? '1' : '0' ),
-        nofunmode     => ( scalar $self->req->param('nofunmode')     ? '1' : '0' )
+        enablepass      => ( scalar $self->req->param('enablepass')      ? '1' : '0' ),
+        enablecors      => ( scalar $self->req->param('enablecors')      ? '1' : '0' ),
+        localprogress   => ( scalar $self->req->param('localprogress')   ? '1' : '0' ),
+        devmode         => ( scalar $self->req->param('devmode')         ? '1' : '0' ),
+        enableresize    => ( scalar $self->req->param('enableresize')    ? '1' : '0' ),
+        tagruleson      => ( scalar $self->req->param('tagruleson')      ? '1' : '0' ),
+        nofunmode       => ( scalar $self->req->param('nofunmode')       ? '1' : '0' ),
+        usedateadded    => ( scalar $self->req->param('usedateadded')    ? '1' : '0' ),
+        usedatemodified => ( scalar $self->req->param('usedatemodified') ? '1' : '0' )
     );
 
     # Only add newpassword field as password if enablepass = 1

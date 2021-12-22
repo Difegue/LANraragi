@@ -19,7 +19,7 @@ Here are some existing clients:
 * View tags
 * Read archives
 * Bookmark archives to keep track of your current page
-* Sort archives by date (requires archives to be tagged with the DateAdded plugin)
+* Sort archives by date (requires Timestamp tags to be enabled)
 
 ### [DuReader (iOS)](https://github.com/Doraemoe/DuReader)
 
