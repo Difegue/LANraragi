@@ -27,7 +27,7 @@ sub do_search {
     my ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $untaggedonly ) = @_;
     my $sortorder_inv = $sortorder ? 0 : 1;
 
-    my $redis  = LANraragi::Model::Config->get_redis;
+    my $redis = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Search Engine", "lanraragi" );
 
     # Search filter results
@@ -128,7 +128,7 @@ sub do_search {
                     }
 
                     # Check category search and base search filter
-                    my $concat = $tags ? $title . "," . $tags : $title;
+                    my $concat = $tags ? $title ? $title . "," . $tags : $tags : $title;
                     if (   $file
                         && matches_search_filter( $concat, @tokens_cat )
                         && matches_search_filter( $concat, @tokens ) ) {

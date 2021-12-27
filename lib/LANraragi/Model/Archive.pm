@@ -141,7 +141,10 @@ sub find_untagged_archives {
 sub serve_thumbnail {
 
     my ( $self, $id ) = @_;
-    my $no_fallback = $self->req->param('no_fallback') eq "true" || "0";
+
+    my $no_fallback = $self->req->param('no_fallback');
+    $no_fallback = ( $no_fallback && $no_fallback eq "true" ) || "0";    # Prevent undef warnings by checking the variable first
+
     my $thumbdir = LANraragi::Model::Config->get_thumbdir;
 
     # Thumbnails are stored in the content directory, thumb subfolder.
