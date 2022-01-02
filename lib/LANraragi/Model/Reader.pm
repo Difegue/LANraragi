@@ -14,7 +14,7 @@ use URI::Escape;
 use Image::Magick;
 
 use LANraragi::Utils::Generic qw(is_image shasum);
-use LANraragi::Utils::Archive qw(extract_archive generate_thumbnail get_filelist);
+use LANraragi::Utils::Archive qw(extract_archive get_filelist);
 use LANraragi::Utils::Database qw(redis_decode);
 
 # resize_image(image,quality, size_threshold)
