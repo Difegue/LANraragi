@@ -42,7 +42,13 @@ sub generate_thumbnail {
     my ( $orig_path, $thumb_path ) = @_;
     my $img = Image::Magick->new;
 
-    $img->Read($orig_path);
+    # If the image is a gif, only take the first frame
+    if ( $orig_path =~ /\.gif$/ ) {
+        $img->Read( $orig_path . "[0]" );
+    } else {
+        $img->Read($orig_path);
+    }
+
     $img->Thumbnail( geometry => '500x1000' );
     $img->Set( quality => "50", magick => "jpg" );
     $img->Write($thumb_path);
