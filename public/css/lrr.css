@@ -233,7 +233,7 @@ p#nb {
   top: 0;
   width: 100%;
   height: 100%;
-  z-index: 9999;
+  z-index: 8999;
   background-color: #000;
 }
 
@@ -241,7 +241,7 @@ p#nb {
   position: fixed;
   top: 40px;
   min-height: 70%;
-  z-index: 10000;
+  z-index: 9000;
   box-shadow: 0 0 16px #000;
   padding-top: 10px !important;
   padding-bottom: 10px !important;
@@ -263,17 +263,6 @@ p#nb {
 
 .ie7 .page-overlay {
   height: 50%;
-}
-
-#theme-overlay-shade {
-  position: fixed;
-  display: none;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 9999;
-  background-color: #000;
 }
 
 .page-number {
