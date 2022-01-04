@@ -201,6 +201,15 @@
     <input id="hide-header" class="favtag-btn config-btn" type="button" value="Hidden">
 </div>
 
+<div id="toggle-overlay">
+    <h2 class="config-panel"> Show Archive Overlay by default </h2>
+    <span class="config-panel">This will show the overlay with thumbnails every time you open a new Reader page.
+    </span>
+    <input id="show-overlay" class="favtag-btn config-btn" type="button" value="Enabled">
+    <input id="hide-overlay" class="favtag-btn config-btn" type="button" value="Disabled">
+</div>
+
+
 <div id="toggle-progress">
     <h2 class="config-panel"> Progression Tracking </h2>
     <span class="config-panel">Disabling tracking will restart reading from page one every time you reopen the reader.

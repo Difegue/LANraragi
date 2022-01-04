@@ -26,6 +26,7 @@ Reader.initializeAll = function () {
     $(document).on("click.toggle_header", "#toggle-header input", Reader.toggleHeader);
     $(document).on("click.toggle_progress", "#toggle-progress input", Reader.toggleProgressTracking);
     $(document).on("click.toggle_infinite_scroll", "#toggle-infinite-scroll input", Reader.toggleInfiniteScroll);
+    $(document).on("click.toggle_overlay", "#toggle-overlay input", Reader.toggleOverlayByDefault);
     $(document).on("submit.container_width", "#container-width-input", Reader.registerContainerWidth);
     $(document).on("click.container_width", "#container-width-apply", Reader.registerContainerWidth);
     $(document).on("submit.preload", "#preload-input", Reader.registerPreload);
@@ -123,6 +124,8 @@ Reader.loadImages = function () {
                 $(".current-page").each((_i, el) => $(el).html(Reader.currentPage + 1));
                 Reader.goToPage(Reader.currentPage);
             }
+
+            if (Reader.showOverlayByDefault) { Reader.toggleArchiveOverlay(); }
         }).finally(() => {
         if (Reader.pages === undefined) {
             $("#img").attr("src", "img/flubbed.gif");
@@ -156,6 +159,9 @@ Reader.initializeSettings = function () {
 
     Reader.infiniteScroll = localStorage.infiniteScroll === "true" || false;
     $(Reader.infiniteScroll ? "#infinite-scroll-on" : "#infinite-scroll-off").addClass("toggled");
+
+    Reader.showOverlayByDefault = localStorage.showOverlayByDefault === "true" || false;
+    $(Reader.showOverlayByDefault ? "#show-overlay" : "#hide-overlay").addClass("toggled");
 
     if (localStorage.fitMode === "fit-width") {
         Reader.fitMode = "fit-width";
@@ -512,6 +518,11 @@ Reader.toggleInfiniteScroll = function () {
     Reader.infiniteScroll = localStorage.infiniteScroll = !Reader.infiniteScroll;
     $("#toggle-infinite-scroll input").toggleClass("toggled");
     window.location.reload();
+};
+
+Reader.toggleOverlayByDefault = function () {
+    Reader.overlayByDefault = localStorage.showOverlayByDefault = !Reader.showOverlayByDefault;
+    $("#toggle-overlay input").toggleClass("toggled");
 };
 
 Reader.toggleSettingsOverlay = function () {
