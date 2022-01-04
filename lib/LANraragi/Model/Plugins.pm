@@ -31,6 +31,18 @@ sub exec_enabled_plugins_on_file {
 
     my @plugins = LANraragi::Utils::Plugins::get_enabled_plugins("metadata");
 
+    # If the regex plugin is in the list, make sure it's ran first.
+    foreach my $plugin (@plugins) {
+        if ( $plugin->{namespace} eq "regexplugin" ) {
+            my $regex_plugin = $plugin;
+
+            # Remove element from array
+            @plugins = grep { $_->{namespace} ne "regexplugin" } @plugins;
+            unshift @plugins, $regex_plugin;
+            last;
+        }
+    }
+
     foreach my $pluginfo (@plugins) {
         my $name   = $pluginfo->{namespace};
         my @args   = LANraragi::Utils::Plugins::get_plugin_parameters($name);
