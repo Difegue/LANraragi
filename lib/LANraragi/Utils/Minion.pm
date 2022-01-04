@@ -24,10 +24,10 @@ sub add_tasks {
 
     $minion->add_task(
         thumbnail_task => sub {
-            my ( $job,      @args ) = @_;
-            my ( $thumbdir, $id )   = @args;
+            my ( $job, @args ) = @_;
+            my ( $thumbdir, $id, $page ) = @args;
 
-            my $thumbname = extract_thumbnail( $thumbdir, $id );
+            my $thumbname = extract_thumbnail( $thumbdir, $id, $page );
             $job->finish($thumbname);
         }
     );
@@ -65,7 +65,7 @@ sub add_tasks {
                             unless ( $force == 0 && -e $thumbname ) {
                                 eval {
                                     $logger->debug("Regenerating for $id...");
-                                    extract_thumbnail( $thumbdir, $id );
+                                    extract_thumbnail( $thumbdir, $id, 1 );
                                 };
 
                                 if ($@) {

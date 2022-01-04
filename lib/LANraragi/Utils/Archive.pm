@@ -132,18 +132,26 @@ sub extract_pdf {
     return $destination;
 }
 
-# extract_thumbnail(thumbnaildir, id)
-# Finds the first image for the specified archive ID and makes it the thumbnail.
+# extract_thumbnail(thumbnaildir, id, page)
+# Extracts a thumbnail from the specified archive ID and page. Returns the path to the thumbnail.
+# Non-cover thumbnails land in a folder named after the ID.
 sub extract_thumbnail {
 
-    my ( $thumbdir, $id ) = @_;
+    my ( $thumbdir, $id, $page ) = @_;
     my $logger = get_logger( "Archive", "lanraragi" );
 
     # Another subfolder with the first two characters of the id is used for FS optimization.
     my $subfolder = substr( $id, 0, 2 );
     my $thumbname = "$thumbdir/$subfolder/$id.jpg";
-
     make_path("$thumbdir/$subfolder");
+
+    if ( $page > 1 ) {
+
+        # Non-cover thumbnails land in a dedicated folder.
+        $thumbname = "$thumbdir/$subfolder/$id/$page.jpg";
+        make_path("$thumbdir/$subfolder/$id");
+    }
+
     my $redis = LANraragi::Model::Config->get_redis;
 
     my $file = $redis->hget( $id, "file" );
@@ -156,20 +164,23 @@ sub extract_thumbnail {
     my ( $images, $sizes ) = get_filelist($file);
 
     # Dereference arrays
-    my @filelist    = @$images;
-    my $first_image = $filelist[0];
+    my @filelist        = @$images;
+    my $requested_image = $filelist[ $page - 1 ];
 
-    die "First image not found" unless $first_image;
-    $logger->debug("Extracting thumbnail for $id from $first_image");
+    die "Requested image not found" unless $requested_image;
+    $logger->debug("Extracting thumbnail for $id page $page from $requested_image");
 
     # Extract first image to temp dir
-    my $arcimg = extract_single_file( $file, $first_image, $temppath );
+    my $arcimg = extract_single_file( $file, $requested_image, $temppath );
 
-    # While we have the image, grab its SHA-1 hash for tag research.
-    # That way, no need to repeat the costly extraction later.
-    my $shasum = shasum( $arcimg, 1 );
-    $redis->hset( $id, "thumbhash", $shasum );
-    $redis->quit();
+    if ( $page == 1 ) {
+
+        # While we have the first page, grab its SHA-1 hash for tag research.
+        # That way, no need to repeat the costly extraction later.
+        my $shasum = shasum( $arcimg, 1 );
+        $redis->hset( $id, "thumbhash", $shasum );
+        $redis->quit();
+    }
 
     # Thumbnail generation
     generate_thumbnail( $arcimg, $thumbname );

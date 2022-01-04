@@ -207,8 +207,8 @@ sub exec_metadata_plugin {
             $logger->info("Thumbnail hash invalid, regenerating.");
             my $thumbdir = LANraragi::Model::Config->get_thumbdir;
 
-            #eval the thumbnail extraction as it can error out and die
-            eval { extract_thumbnail( $thumbdir, $id ) };
+            # Eval the thumbnail extraction, as it can error out and die
+            eval { extract_thumbnail( $thumbdir, $id, 1 ) };
             if ($@) {
                 $logger->warn("Error building thumbnail: $@");
                 $thumbhash = "";

@@ -92,6 +92,12 @@ sub serve_thumbnail {
     LANraragi::Model::Archive::serve_thumbnail( $self, $id );
 }
 
+sub update_thumbnail {
+    my $self = shift;
+    my $id = check_id_parameter( $self, "update_thumbnail" ) || return;
+    LANraragi::Model::Archive::update_thumbnail( $self, $id );
+}
+
 # Use RenderFile to get the file of the provided id to the client.
 sub serve_file {
 
