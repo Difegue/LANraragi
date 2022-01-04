@@ -126,7 +126,7 @@ sub get_file_list {
     if ($err) {
         render_api_response( $self, "get_file_list", $err );
     } else {
-        $self->render( json => decode_json($reader_json) );
+        $self->render( json => $reader_json );
     }
 }
 

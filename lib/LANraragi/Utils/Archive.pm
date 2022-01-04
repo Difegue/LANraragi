@@ -153,7 +153,10 @@ sub extract_thumbnail {
     make_path($temppath);
 
     # Get first image from archive using filelist
-    my @filelist    = get_filelist($file);
+    my ( $images, $sizes ) = get_filelist($file);
+
+    # Dereference arrays
+    my @filelist    = @$images;
     my $first_image = $filelist[0];
 
     die "First image not found" unless $first_image;
@@ -231,8 +234,8 @@ sub get_filelist {
     # To investigate further, perhaps with custom sorting algorithms?
     @files = sort { &expand($a) cmp &expand($b) } @files;
 
-    # TODO: Return file and sizes in a hash
-    return @files;
+    # Return files and sizes in a hashref
+    return ( \@files, \@sizes );
 }
 
 # is_file_in_archive($archive, $file)
