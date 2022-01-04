@@ -146,7 +146,7 @@ sub lookup_gallery {
         if ( $defaultlanguage ne "" ) {
 
             # Add f_stags to search in tags for language
-            $URL = $URL . "&f_search=" . uri_escape_utf8("language:$defaultlanguage&f_stags=on");
+            $URL = $URL . "&f_stags=on&f_search=" . uri_escape_utf8("language:$defaultlanguage");
         }
 
         $logger->debug("Using URL $URL (archive thumbnail hash)");
