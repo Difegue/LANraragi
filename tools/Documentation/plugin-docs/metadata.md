@@ -94,7 +94,7 @@ sub plugin_info {
         oneshot_arg => "This is a one-shot argument that can be entered by the user when executing this plugin on a file",
         parameters  => [
             {type => "bool", desc => "Enable the DOOMSDAY DEVICE"},
-            {type => "int",  desc => "Number of iterations"}
+            {type => "int",  desc => "Number of iterations", default_value => "9001"}
         ]
     );
 

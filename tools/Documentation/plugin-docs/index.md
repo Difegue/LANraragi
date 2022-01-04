@@ -49,8 +49,8 @@ sub plugin_info {
         icon        => "This is a base64-encoded 20x20 image that will be displayed as an icon in the plugin list. Optional!"
         oneshot_arg => "This is the description for a one-shot argument that can be entered by the user when executing this plugin on a file",
         parameters  => [
-            {type => "bool", desc => "Boolean parameter description"},
-            {type => "string", desc => "String parameter description"},
+            {type => "bool", desc => "Boolean parameter description", default_value => "1"},
+            {type => "string", desc => "String parameter description", default_value => "A default parameter"},
             {type => "int", desc => "Integer parameter description"}
             ],
         # Tag-specific metadata

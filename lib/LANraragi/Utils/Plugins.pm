@@ -95,17 +95,27 @@ sub get_plugin {
     return 0;
 }
 
-# Get the parameters input by the user for thespecified plugin.
+# Get the parameters for thespecified plugin, either default values or input by the user in the settings page.
 # Returns an array of values.
 sub get_plugin_parameters {
 
     my $namespace = shift;
 
-    #Get the matching argument JSON in Redis
+    # Get the matching argument JSON in Redis
     my $redis   = LANraragi::Model::Config->get_redis;
     my $namerds = "LRR_PLUGIN_" . uc($namespace);
-    my @args    = ();
 
+    my $plugin   = get_plugin($namespace);
+    my %pluginfo = $plugin->plugin_info();
+
+    my @args = ();
+
+    # Fill with default values first
+    foreach my $param ( @{ $pluginfo{parameters} } ) {
+        push( @args, $param->{default_value} );
+    }
+
+    # Replace with saved values if they exist
     if ( $redis->hexists( $namerds, "enabled" ) ) {
         my $argsjson = $redis->hget( $namerds, "customargs" );
         $argsjson = redis_decode($argsjson);

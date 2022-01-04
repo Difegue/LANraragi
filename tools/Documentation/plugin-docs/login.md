@@ -52,7 +52,7 @@ sub plugin_info {
         #If your plugin uses/needs custom arguments, input their name here. 
         #This name will be displayed in plugin configuration next to an input box.
         parameters  => [
-            {type => "bool",   desc => "Enable logging in to service X"},
+            {type => "bool",   desc => "Enable logging in to service X", default_value => "1"},
             {type => "int",    desc => "User ID"},
             {type => "string", desc => "Password"}
         ]

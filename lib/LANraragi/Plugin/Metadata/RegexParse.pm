@@ -29,7 +29,7 @@ sub plugin_info {
           "Derive tags from the filename of the given archive. <br>Follows the doujinshi naming standard (Release) [Artist] TITLE (Series) [Language].",
         icon =>
           "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAL1JREFUOI1jZMABpNbH/sclx8DAwPAscDEjNnEMQUIGETIYhUOqYdgMhTPINQzdUEZqGIZsKBM1DEIGTOiuexqwCKdidDl0vtT62P9kuZCJEWuKYWBgYGBgRHbh04BFDNIb4jAUbbSrZTARUkURg6lD10OUC/0PNaMYgs1Skgwk1jCSDCQWoBg46dYmhite0+D8pwGLCMY6uotRDOy8toZBkI2HIhcO/pxCm8KBUkOxFl/kGoq3gCXFYFxVAACeoU/8xSNybwAAAABJRU5ErkJggg==",
-        parameters => [ { type => "bool", desc => "Save archive title" } ]
+        parameters => [ { type => "bool", desc => "Save archive title", default_value => "1" } ]
     );
 
 }
