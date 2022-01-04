@@ -52,15 +52,6 @@ Reader.initializeAll = function () {
         }
     });
 
-    // Bind popstate
-    $(window).on("popstate", () => {
-        const popped = new URLSearchParams(window.location.search);
-        if (popped.has("p")) {
-            const paramsPage = +popped.get("p");
-            Reader.goToPage(paramsPage - 1, true);
-        }
-    });
-
     // Infer initial information from the URL
     const params = new URLSearchParams(window.location.search);
     Reader.id = params.get("id");
@@ -349,7 +340,7 @@ Reader.updateImageMap = function () {
     $("#rightmap").attr("coords", `${mapWidth + 1},0,${img.width},${mapHeight}`);
 };
 
-Reader.goToPage = function (page, fromHistory = false) {
+Reader.goToPage = function (page) {
     Reader.previousPage = Reader.currentPage;
     Reader.currentPage = Math.min(Reader.maxPage, Math.max(0, +page));
 
@@ -392,9 +383,6 @@ Reader.goToPage = function (page, fromHistory = false) {
 
     // scroll to top
     window.scrollTo(0, 0);
-
-    // Update url to contain current page, and push it to the history
-    if (!fromHistory) { window.history.pushState(null, null, `?id=${Reader.id}&p=${Reader.currentPage + 1}`); }
 };
 
 Reader.preloadImages = function () {
