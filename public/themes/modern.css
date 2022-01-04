@@ -190,9 +190,13 @@ table.itc {
   cursor: pointer;
 }
 
-.favtag-btn:hover,
+.favtag-btn:hover {
+  background: #34353B;
+}
+
 .toggled {
   background: #34353B !important;
+  border: 2px solid #3b97ea !important;
 }
 
 /* options flyout menus */

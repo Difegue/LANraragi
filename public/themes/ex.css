@@ -122,6 +122,7 @@ table.itc {
 
 .toggled {
     background:#3b3435 !important;
+    border: 2px solid #3b97ea !important;
 }
 
 /* options flyout menus */

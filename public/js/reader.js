@@ -508,6 +508,7 @@ Reader.toggleMangaMode = function () {
 };
 
 Reader.toggleHeader = function () {
+    if (Reader.infiniteScroll) { return false; }
     localStorage.hideHeader = $("#i2").is(":visible");
     $("#toggle-header input").toggleClass("toggled");
     $("#i2").toggle();
