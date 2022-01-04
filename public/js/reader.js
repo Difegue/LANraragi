@@ -42,6 +42,8 @@ Reader.initializeAll = function () {
     });
     $(document).on("click.edit_metadata", "#edit-archive", () => LRR.openInNewTab(`./edit?id=${Reader.id}`));
     $(document).on("click.add_category", "#add-category", () => Server.addArchiveToCategory(Reader.id, $("#category").val()));
+    $(document).on("click.set_thumbnail", "#set-thumbnail", () => Server.callAPI(`/api/archives/${Reader.id}/thumbnail?page=${Reader.currentPage + 1}`,
+        "PUT", `Successfully set page ${Reader.currentPage + 1} as the thumbnail!`, "Error updating thumbnail!", null));
 
     $(document).on("click.thumbnail", ".quick-thumbnail", (e) => {
         LRR.closeOverlay();

@@ -90,8 +90,8 @@
 
                     <h2>Admin Options</h2>
 
-                    <input class="stdbtn" type='button' id="regenerate-thumbnail" value="Regenerate Archive Thumbnail"
-                        disabled title="Coming back soon!" />
+                    <input class="stdbtn" type='button' id="set-thumbnail" value="Set this Page as Thumbnail"
+                        title="Set the currently opened page as the thumbnail for this archive." />
                     <br>
                     <input id="regenerate-cache" class='stdbtn' type='button' value='Clean Archive Cache' />
                     <br>
