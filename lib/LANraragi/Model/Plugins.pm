@@ -208,7 +208,7 @@ sub exec_metadata_plugin {
             my $thumbdir = LANraragi::Model::Config->get_thumbdir;
 
             # Eval the thumbnail extraction, as it can error out and die
-            eval { extract_thumbnail( $thumbdir, $id, 1 ) };
+            eval { extract_thumbnail( $thumbdir, $id, 0 ) };
             if ($@) {
                 $logger->warn("Error building thumbnail: $@");
                 $thumbhash = "";

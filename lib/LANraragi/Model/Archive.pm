@@ -182,7 +182,7 @@ sub serve_thumbnail {
     my ( $self, $id ) = @_;
 
     my $page = $self->req->param('page');
-    $page = 1 unless $page;
+    $page = 0 unless $page;
 
     my $no_fallback = $self->req->param('no_fallback');
     $no_fallback = ( $no_fallback && $no_fallback eq "true" ) || "0";    # Prevent undef warnings by checking the variable first
@@ -194,7 +194,7 @@ sub serve_thumbnail {
     my $subfolder = substr( $id, 0, 2 );
     my $thumbname = "$thumbdir/$subfolder/$id.jpg";
 
-    if ( $page > 1 ) {
+    if ( $page > 0 ) {
         $thumbname = "$thumbdir/$subfolder/$id/$page.jpg";
     }
 

@@ -135,7 +135,7 @@ sub extract_pdf {
 
 # extract_thumbnail(thumbnaildir, id, page)
 # Extracts a thumbnail from the specified archive ID and page. Returns the path to the thumbnail.
-# Non-cover thumbnails land in a folder named after the ID.
+# Non-cover thumbnails land in a folder named after the ID. Specify page=0 if you want the cover.
 sub extract_thumbnail {
 
     my ( $thumbdir, $id, $page ) = @_;
@@ -146,13 +146,6 @@ sub extract_thumbnail {
     my $thumbname = "$thumbdir/$subfolder/$id.jpg";
     make_path("$thumbdir/$subfolder");
 
-    if ( $page > 1 ) {
-
-        # Non-cover thumbnails land in a dedicated folder.
-        $thumbname = "$thumbdir/$subfolder/$id/$page.jpg";
-        make_path("$thumbdir/$subfolder/$id");
-    }
-
     my $redis = LANraragi::Model::Config->get_redis;
 
     my $file = $redis->hget( $id, "file" );
@@ -162,8 +155,8 @@ sub extract_thumbnail {
     my ( $images, $sizes ) = get_filelist($file);
 
     # Dereference arrays
-    my @filelist        = @$images;
-    my $requested_image = $filelist[ $page - 1 ];
+    my @filelist = @$images;
+    my $requested_image = $filelist[ $page > 0 ? $page - 1 : 0 ];
 
     die "Requested image not found" unless $requested_image;
     $logger->debug("Extracting thumbnail for $id page $page from $requested_image");
@@ -171,10 +164,15 @@ sub extract_thumbnail {
     # Extract first image to temp dir
     my $arcimg = extract_single_file( $file, $requested_image, $temppath );
 
-    if ( $page == 1 ) {
+    if ( $page > 0 ) {
 
-        # While we have the first page, grab its SHA-1 hash for tag research.
-        # That way, no need to repeat the costly extraction later.
+        # Non-cover thumbnails land in a dedicated folder.
+        $thumbname = "$thumbdir/$subfolder/$id/$page.jpg";
+        make_path("$thumbdir/$subfolder/$id");
+    } else {
+
+        # For cover thumbnails, grab the SHA-1 hash for tag research.
+        # That way, no need to repeat a costly extraction later.
         my $shasum = shasum( $arcimg, 1 );
         $redis->hset( $id, "thumbhash", $shasum );
         $redis->quit();
