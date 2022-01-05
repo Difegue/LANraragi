@@ -19,6 +19,7 @@ use Image::Magick;
 use Archive::Libarchive qw( ARCHIVE_OK );
 use Archive::Libarchive::Extract;
 use Archive::Libarchive::Peek;
+use File::Temp qw(tempfile tempdir);
 
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging qw(get_logger);
@@ -155,10 +156,7 @@ sub extract_thumbnail {
     my $redis = LANraragi::Model::Config->get_redis;
 
     my $file = $redis->hget( $id, "file" );
-    my $temppath = get_temp . "/thumb/$id";
-
-    # Make sure the thumb temp dir exists
-    make_path($temppath);
+    my $temppath = tempdir();
 
     # Get first image from archive using filelist
     my ( $images, $sizes ) = get_filelist($file);
@@ -184,9 +182,6 @@ sub extract_thumbnail {
 
     # Thumbnail generation
     generate_thumbnail( $arcimg, $thumbname );
-
-    # Delete the previously extracted file.
-    unlink $arcimg;
 
     # Clean up safe folder
     remove_tree($temppath);
