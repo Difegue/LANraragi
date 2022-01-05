@@ -80,6 +80,7 @@ Reader.initializeAll = function () {
             document.title = title;
 
             Reader.tags = data.tags;
+            $("#tagContainer").append(LRR.buildTagsDiv(Reader.tags));
 
             // Use localStorage progress value instead of the server one if needed
             if (Reader.trackProgressLocally) {
@@ -546,7 +547,6 @@ Reader.initializeArchiveOverlay = function () {
     }
 
     $("#extract-spinner").hide();
-    $("#tagContainer").append(LRR.buildTagsDiv(Reader.tags));
 
     // For each link in the pages array, craft a div and jam it in the overlay.
     for (let index = 0; index < Reader.pages.length; ++index) {
