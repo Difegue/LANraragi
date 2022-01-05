@@ -128,6 +128,11 @@ Reader.loadImages = function () {
             }
 
             if (Reader.showOverlayByDefault) { Reader.toggleArchiveOverlay(); }
+
+            // Wait for the extraction job to conclude before getting thumbnails
+            Server.checkJobStatus(data.job,
+                () => Reader.initializeArchiveOverlay(),
+                () => LRR.showErrorToast("The extraction job didn't conclude properly. Your archive might be corrupted."));
         }).finally(() => {
         if (Reader.pages === undefined) {
             $("#img").attr("src", "img/flubbed.gif");
@@ -532,7 +537,6 @@ Reader.toggleSettingsOverlay = function () {
 };
 
 Reader.toggleArchiveOverlay = function () {
-    Reader.initializeArchiveOverlay();
     return LRR.toggleOverlay("#archivePagesOverlay");
 };
 
@@ -540,16 +544,51 @@ Reader.initializeArchiveOverlay = function () {
     if ($("#archivePagesOverlay").attr("loaded") === "true") {
         return;
     }
+
+    $("#extract-spinner").hide();
     $("#tagContainer").append(LRR.buildTagsDiv(Reader.tags));
 
     // For each link in the pages array, craft a div and jam it in the overlay.
     for (let index = 0; index < Reader.pages.length; ++index) {
+        const page = index + 1;
+
         const thumbCss = (localStorage.cropthumbs === "true") ? "id3" : "id3 nocrop";
         const thumbnail = `
             <div class='${thumbCss} quick-thumbnail' page='${index}' style='display: inline-block; cursor: pointer'>
-                <span class='page-number'>Page ${(index + 1)}</span>
-                <img src='${Reader.pages[index]}'/>
+                <span class='page-number'>Page ${page}</span>
+                <img src="./img/wait_warmly.jpg" id="${index}_thumb" />
+                <i id="${index}_spinner" class="fa fa-4x fa-circle-notch fa-spin ttspinner" style="display:flex;justify-content: center; align-items: center;"></i>
             </div>`;
+
+        // Try to load the thumbnail and see if we have to wait for a Minion job (202 vs 200)
+        const thumbnailUrl = `/api/archives/${Reader.id}/thumbnail?page=${page}`;
+
+        const thumbSuccess = function () {
+            // Set image source to the thumbnail
+            $(`#${index}_thumb`).attr("src", thumbnailUrl);
+            $(`#${index}_spinner`).hide();
+        };
+
+        const thumbFail = function () {
+            // If we fail to load the thumbnail, then we'll just show a placeholder
+            $(`#${index}_thumb`).attr("src", "/img/noThumb.png");
+            $(`#${index}_spinner`).hide();
+        };
+
+        fetch(`${thumbnailUrl}&no_fallback=true`, { method: "GET" })
+            .then((response) => {
+                if (response.status === 200) {
+                    thumbSuccess();
+                } else if (response.status === 202) {
+                    // Wait for Minion job to finish
+                    response.json().then((data) => Server.checkJobStatus(data.job,
+                        () => thumbSuccess(),
+                        () => thumbFail()));
+                } else {
+                    // We don't have a thumbnail for this page
+                    thumbFail();
+                }
+            });
 
         $("#archivePagesOverlay").append(thumbnail);
     }

@@ -39,7 +39,7 @@
 				Archives on record
 				<br><br>
 				<i class="fa fa-tags fa-2x" aria-hidden="true"></i> <span style="font-size: 20px" id="tagcount">
-					<i id="spinner" class="fa fa-circle-notch fa-spin"></i> </span>
+					<i id="spinner" class="fa fa-virus fa-spin"></i> </span>
 				Different
 				tags existing
 				<br><br>

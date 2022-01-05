@@ -116,6 +116,13 @@
         <br><br>
 
         <h2 class="ih" style="text-align:center">Pages</h2>
+
+        <div id="extract-spinner" style="width: 80%; margin-left: auto; margin-right: auto">
+            <p class="loading-spinner">
+                <i id="spinner" class="fa fa-dharmachakra fa-4x fa-spin"></i>
+            </p>
+            Working on it...
+        </div>
     </div>
     </div>
     </div>

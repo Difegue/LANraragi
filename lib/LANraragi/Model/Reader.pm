@@ -95,9 +95,10 @@ sub build_reader_JSON {
     $redis->quit();
 
     return {
-        pages     => \@images_browser,
-        filesizes => \@sizes,
-        job       => $jobid
+        pages => \@images_browser,
+
+        # filesizes => \@sizes,
+        job => $jobid
     };
 }
 

@@ -236,9 +236,10 @@ Force a full background re-extraction of the Archive.
 Existing cached files might still be used in subsequent `/api/archives/:id/page` calls until the Archive is fully re-extracted.
 {% endswagger-parameter %}
 
-{% swagger-response status="200" description="" %}
+{% swagger-response status="200" description="You get page URLs, and the ID of the background extract job." %}
 ```javascript
 {
+    "job": 561,
     "pages": [".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=00.jpg",
         ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=01.jpg",
         ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=03.jpg",
