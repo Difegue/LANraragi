@@ -19,6 +19,7 @@ use Image::Magick;
 use Archive::Libarchive qw( ARCHIVE_OK );
 use Archive::Libarchive::Extract;
 use Archive::Libarchive::Peek;
+use File::Temp qw(tempfile tempdir);
 
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging qw(get_logger);
@@ -42,7 +43,13 @@ sub generate_thumbnail {
     my ( $orig_path, $thumb_path ) = @_;
     my $img = Image::Magick->new;
 
-    $img->Read($orig_path);
+    # If the image is a gif, only take the first frame
+    if ( $orig_path =~ /\.gif$/ ) {
+        $img->Read( $orig_path . "[0]" );
+    } else {
+        $img->Read($orig_path);
+    }
+
     $img->Thumbnail( geometry => '500x1000' );
     $img->Set( quality => "50", magick => "jpg" );
     $img->Write($thumb_path);
@@ -126,47 +133,53 @@ sub extract_pdf {
     return $destination;
 }
 
-# extract_thumbnail(thumbnaildir, id)
-# Finds the first image for the specified archive ID and makes it the thumbnail.
+# extract_thumbnail(thumbnaildir, id, page)
+# Extracts a thumbnail from the specified archive ID and page. Returns the path to the thumbnail.
+# Non-cover thumbnails land in a folder named after the ID. Specify page=0 if you want the cover.
 sub extract_thumbnail {
 
-    my ( $thumbdir, $id ) = @_;
+    my ( $thumbdir, $id, $page ) = @_;
     my $logger = get_logger( "Archive", "lanraragi" );
 
     # Another subfolder with the first two characters of the id is used for FS optimization.
     my $subfolder = substr( $id, 0, 2 );
     my $thumbname = "$thumbdir/$subfolder/$id.jpg";
-
     make_path("$thumbdir/$subfolder");
+
     my $redis = LANraragi::Model::Config->get_redis;
 
     my $file = $redis->hget( $id, "file" );
-    my $temppath = get_temp . "/thumb/$id";
-
-    # Make sure the thumb temp dir exists
-    make_path($temppath);
+    my $temppath = tempdir();
 
     # Get first image from archive using filelist
-    my @filelist    = get_filelist($file);
-    my $first_image = $filelist[0];
+    my ( $images, $sizes ) = get_filelist($file);
 
-    die "First image not found" unless $first_image;
-    $logger->debug("Extracting thumbnail for $id from $first_image");
+    # Dereference arrays
+    my @filelist = @$images;
+    my $requested_image = $filelist[ $page > 0 ? $page - 1 : 0 ];
+
+    die "Requested image not found" unless $requested_image;
+    $logger->debug("Extracting thumbnail for $id page $page from $requested_image");
 
     # Extract first image to temp dir
-    my $arcimg = extract_single_file( $file, $first_image, $temppath );
+    my $arcimg = extract_single_file( $file, $requested_image, $temppath );
 
-    # While we have the image, grab its SHA-1 hash for tag research.
-    # That way, no need to repeat the costly extraction later.
-    my $shasum = shasum( $arcimg, 1 );
-    $redis->hset( $id, "thumbhash", $shasum );
-    $redis->quit();
+    if ( $page > 0 ) {
+
+        # Non-cover thumbnails land in a dedicated folder.
+        $thumbname = "$thumbdir/$subfolder/$id/$page.jpg";
+        make_path("$thumbdir/$subfolder/$id");
+    } else {
+
+        # For cover thumbnails, grab the SHA-1 hash for tag research.
+        # That way, no need to repeat a costly extraction later.
+        my $shasum = shasum( $arcimg, 1 );
+        $redis->hset( $id, "thumbhash", $shasum );
+        $redis->quit();
+    }
 
     # Thumbnail generation
     generate_thumbnail( $arcimg, $thumbname );
-
-    # Delete the previously extracted file.
-    unlink $arcimg;
 
     # Clean up safe folder
     remove_tree($temppath);
@@ -191,7 +204,8 @@ sub get_filelist {
     if ( is_pdf($archive) ) {
 
         # For pdfs, extraction returns images from 1.jpg to x.jpg, where x is the pdf pagecount.
-        my $pages = `gs -q -c "($archive) (r) file runpdfbegin pdfpagecount = quit"`;
+        # Using -dNOSAFER or --permit-file-read is required since GS 9.50, see https://github.com/doxygen/doxygen/issues/7290
+        my $pages = `gs -q -dNOSAFER -c "($archive) (r) file runpdfbegin pdfpagecount = quit"`;
         for my $num ( 1 .. $pages ) {
             push @files, "$num.jpg";
             push @sizes, 0;
@@ -224,13 +238,13 @@ sub get_filelist {
     # To investigate further, perhaps with custom sorting algorithms?
     @files = sort { &expand($a) cmp &expand($b) } @files;
 
-    # TODO: Return file and sizes in a hash
-    return @files;
+    # Return files and sizes in a hashref
+    return ( \@files, \@sizes );
 }
 
 # is_file_in_archive($archive, $file)
 # Uses libarchive::peek to figure out if $archive contains $file.
-# Returns 1 if it does exist, 0 otherwise.
+# Returns the exact in-archive path of the file if it exists, undef otherwise.
 sub is_file_in_archive {
 
     my ( $archive, $wantedname ) = @_;
@@ -238,24 +252,27 @@ sub is_file_in_archive {
 
     if ( is_pdf($archive) ) {
         $logger->debug("$archive is a pdf, no sense looking for specific files");
-        return 0;
+        return;
     }
 
     $logger->debug("Iterating files of archive $archive, looking for '$wantedname'");
     $Data::Dumper::Useqq = 1;
 
     my $peek = Archive::Libarchive::Peek->new( filename => $archive );
-    my $found = 0;
-    $peek->iterate(
-        sub {
-            my $name = $_[0];
-            $logger->debug( "Found file " . Dumper($name) );
+    my $found;
+    my @files = $peek->files;
 
-            if ( $name =~ /$wantedname$/ ) {
-                $found = 1;
-            }
+    for my $file (@files) {
+        $logger->debug( "Found file " . Dumper($file) );
+        my ( $name, $path, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
+
+        # If the end of the file contains $wantedname we're good
+        if ( "$name$suffix" =~ /$wantedname$/ ) {
+            $logger->debug("OK!");
+            $found = $file;
+            last;
         }
-    );
+    }
 
     return $found;
 }

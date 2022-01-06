@@ -149,14 +149,31 @@ ID of the Archive to process.
 
 {% swagger baseUrl="http://lrr.tvc-16.science" path="/api/archives/:id/thumbnail" method="get" summary="Get Archive Thumbnail" %}
 {% swagger-description %}
-Get the Thumbnail image for a given Archive.
+Get a Thumbnail image for a given Archive. This endpoint will queue generation of the thumbnail in the background if it doesn't already exist, and return a placeholder image.  
+If you want to get the background job ID instead of the placeholder, you can use the `no_fallback` query parameter.
 {% endswagger-description %}
 
 {% swagger-parameter name="id" type="string" required="true" in="path" %}
 ID of the Archive to process.
 {% endswagger-parameter %}
+{% swagger-parameter name="page" type="int" required="false" in="query" %}
+Specify which page you want to get a thumbnail for. Defaults to the cover, aka page 1.
+{% endswagger-parameter %}
+{% swagger-parameter name="no_fallback" type="boolean" required="false" in="query" %}
+Disables the placeholder image and returns a JSON if the thumbnail is queued for extraction. This parameter does nothing if the image already exists.
+{% endswagger-parameter %}
 
-{% swagger-response status="200" description="" %}
+{% swagger-response status="202" description="The thumbnail is queued for extraction. Use `/api/minion/:jobid` to track when your thumbnail is ready." %}
+```javascript
+{
+  "job": 2429,
+  "operation": "serve_thumbnail",
+  "success": 1
+}
+```
+{% endswagger-response %}
+
+{% swagger-response status="200" description="If the thumbnail was already extracted, you get it directly." %}
 {% tabs %}
 {% tab title="2810d5e0a8d027ecefebca6237031a0fa7b91eb3.jpg" %}
 ```
@@ -168,7 +185,7 @@ ID of the Archive to process.
 {% swagger-response status="400" description="" %}
 ```javascript
 {
-    "operation": "______",
+    "operation": "serve_thumbnail",
     "error": "No archive ID specified.",
     "success": 0
 }
@@ -219,9 +236,10 @@ Force a full background re-extraction of the Archive.
 Existing cached files might still be used in subsequent `/api/archives/:id/page` calls until the Archive is fully re-extracted.
 {% endswagger-parameter %}
 
-{% swagger-response status="200" description="" %}
+{% swagger-response status="200" description="You get page URLs, and the ID of the background extract job." %}
 ```javascript
 {
+    "job": 561,
     "pages": [".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=00.jpg",
         ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=01.jpg",
         ".\/api\/archives\/28697b96f0ac5858be2614ed10ca47742c9522fd\/page&path=03.jpg",
@@ -343,6 +361,40 @@ Current page to update the reading progress to. **Must** be a positive integer, 
 {
     "operation": "update_progress",
     "error": "Archive doesn't have a total page count recorded yet.",
+    "success": 0
+}
+```
+{% endswagger-response %}
+{% endswagger %}
+
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/archives/:id/thumbnail" method="put" summary="🔑Update Thumbnail" %}
+{% swagger-description %}
+Update the cover thumbnail for the given Archive.
+You can specify a page number to use as the thumbnail, or you can use the default thumbnail.
+{% endswagger-description %}
+
+{% swagger-parameter name="id" type="string" required="true" in="path" %}
+ID of the Archive to process.
+{% endswagger-parameter %}
+{% swagger-parameter name="page" type="int" required="false" in="path" %}
+Page you want to make the thumbnail out of. Defaults to 1.
+{% endswagger-parameter %}
+
+{% swagger-response status="200" description="" %}
+```javascript
+{
+  "operation": "update_thumbnail",
+  "success": 1,
+  "new_thumbnail": "/mnt//lrr/content/thumb/95/9595845d952e8141feeba375767248b960979bc2.jpg"
+}
+```
+{% endswagger-response %}
+
+{% swagger-response status="400" description="" %}
+```javascript
+{
+    "operation": "update_thumbnail",
+    "error": "No archive ID specified.",
     "success": 0
 }
 ```

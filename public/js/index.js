@@ -5,6 +5,7 @@
 const Index = {};
 Index.selectedCategory = "";
 Index.awesomplete = {};
+Index.carouselInitialized = false;
 Index.swiper = {};
 Index.serverVersion = "";
 Index.debugMode = false;
@@ -23,39 +24,9 @@ Index.initializeAll = function () {
     $(document).on("change.thumbnail-crop", "#thumbnail-crop", Index.toggleCrop);
     $(document).on("change.namespace-sortby", "#namespace-sortby", Index.handleCustomSort);
     $(document).on("click.order-sortby", "#order-sortby", Index.toggleOrder);
+    $(document).on("click.open_carousel", ".collapsible-title", Index.toggleCarousel);
     $(document).on("click.reload-carousel", "#reload-carousel", Index.updateCarousel);
     $(document).on("click.close_overlay", "#overlay-shade", LRR.closeOverlay);
-
-    // hack: force-open the collapsible
-    $(".collapsible-title").click();
-    Index.swiper = new Swiper(".index-carousel-container", {
-        slidesPerView: "auto",
-        spaceBetween: 8,
-        navigation: {
-            nextEl: ".carousel-next",
-            prevEl: ".carousel-prev",
-        },
-        mousewheel: true,
-        freeMode: true,
-    });
-
-    // Initialize carousel mode menu
-    $.contextMenu({
-        selector: "#carousel-mode-menu",
-        trigger: "left",
-        build: () => ({
-            callback(key) {
-                localStorage.carouselType = key;
-                Index.updateCarousel();
-            },
-            items: {
-                random: { name: "Randomly Picked", icon: "fas fa-random" },
-                inbox: { name: "New Archives", icon: "fas fa-envelope-open-text" },
-                untagged: { name: "Untagged Archives", icon: "fas fa-edit" },
-                // ondeck: { name: "On Deck", icon: "fas fa-book-reader" },
-            },
-        }),
-    });
 
     // 0 = List view
     // 1 = Thumbnail view
@@ -77,8 +48,38 @@ Index.initializeAll = function () {
 
     // Default to randomly picked for carousel
     if (localStorage.getItem("carouselType") === null) {
-        localStorage.carouselMode = "random";
+        localStorage.carouselType = "random";
     }
+
+    // Default to opened carousel
+    if (localStorage.getItem("carouselOpen") === null) {
+        localStorage.carouselOpen = 1;
+    }
+
+    // Force-open the collapsible if carouselOpen = true
+    if (localStorage.carouselOpen === "1") {
+        localStorage.carouselOpen = "0"; // Bad hack since clicking collapsible-title will trigger toggleCarousel and modify this
+        $(".collapsible-title").click();
+    }
+    Index.updateCarousel();
+
+    // Initialize carousel mode menu
+    $.contextMenu({
+        selector: "#carousel-mode-menu",
+        trigger: "left",
+        build: () => ({
+            callback(key) {
+                localStorage.carouselType = key;
+                Index.updateCarousel();
+            },
+            items: {
+                random: { name: "Randomly Picked", icon: "fas fa-random" },
+                inbox: { name: "New Archives", icon: "fas fa-envelope-open-text" },
+                untagged: { name: "Untagged Archives", icon: "fas fa-edit" },
+                // ondeck: { name: "On Deck", icon: "fas fa-book-reader" },
+            },
+        }),
+    });
 
     // Tell user about the context menu
     if (localStorage.getItem("sawContextMenuToast") === null) {
@@ -128,6 +129,28 @@ Index.initializeAll = function () {
 Index.toggleMode = function () {
     localStorage.indexViewMode = (localStorage.indexViewMode === "1") ? "0" : "1";
     IndexTable.dataTable.draw();
+};
+
+Index.toggleCarousel = function () {
+    localStorage.carouselOpen = (localStorage.carouselOpen === "1") ? "0" : "1";
+
+    if (!Index.carouselInitialized) {
+        Index.carouselInitialized = true;
+        $("#reload-carousel").show();
+
+        Index.swiper = new Swiper(".index-carousel-container", {
+            slidesPerView: "auto",
+            spaceBetween: 8,
+            navigation: {
+                nextEl: ".carousel-next",
+                prevEl: ".carousel-prev",
+            },
+            mousewheel: true,
+            freeMode: true,
+        });
+
+        Index.updateCarousel();
+    }
 };
 
 Index.toggleCrop = function () {
@@ -274,16 +297,18 @@ Index.updateCarousel = function (e) {
         break;
     }
 
-    Server.callAPI(endpoint,
-        "GET", null, "Error getting carousel data!",
-        (results) => {
-            results.data.forEach((archive) => {
-                carousel.append(LRR.buildThumbnailDiv(archive));
-            });
+    if (Index.carouselInitialized) {
+        Server.callAPI(endpoint,
+            "GET", null, "Error getting carousel data!",
+            (results) => {
+                results.data.forEach((archive) => {
+                    carousel.append(LRR.buildThumbnailDiv(archive));
+                });
 
-            Index.swiper.update();
-            $("#carousel-loading").hide();
-        });
+                Index.swiper.update();
+                $("#carousel-loading").hide();
+            });
+    }
 };
 
 /**

@@ -39,7 +39,7 @@
 				Archives on record
 				<br><br>
 				<i class="fa fa-tags fa-2x" aria-hidden="true"></i> <span style="font-size: 20px" id="tagcount">
-					<i id="spinner" class="fa fa-circle-notch fa-spin"></i> </span>
+					<i id="spinner" class="fa fa-virus fa-spin"></i> </span>
 				Different
 				tags existing
 				<br><br>
@@ -77,14 +77,13 @@
 				</div>
 				<div class="collapsible-body">
 					<div id="tagList"
-						style="max-width: 80vw; display: flex; height:calc(2048px - 25vw); flex-direction: column; flex-wrap:wrap; align-items:flex-start">
-					</div>
+						style="max-width: 80vw; display: flex; height:calc(2048px - 25vw); flex-direction: column; flex-wrap:wrap; align-items:flex-start; overflow:auto">
+					</div><br>
 					(These statistics only show tags that appear at least twice in your database.)
 				</div>
 			</li>
 		</ul>
 
-		<br>
 		<br>
 		<input type="button" value="Return to Library" onclick="window.location.replace('./');" class="stdbtn"
 			id="goback">
@@ -116,7 +115,10 @@
 					const namespacedTag = LRR.buildNamespacedTag(tag.namespace, tag.text);
 					const url = LRR.getTagSearchURL(tag.namespace, tag.text);
 
-					let html = `<a href="${url}" class="${tag.namespace}-tag" > ${namespacedTag} <b>(${tag.weight})</b></div><br/>`;
+					const ocss = 'max-width: 95%; display: flex;';
+					const icss = 'text-overflow: ellipsis; white-space: nowrap; overflow: hidden; min-width: 0; max-width: 100%;';
+
+					let html = `<a href="${url}" title="${namespacedTag}" class="${tag.namespace}-tag" style="${ocss}"><span style="${icss}">${namespacedTag}</span>&nbsp;<b>(${tag.weight})</b>`;
 					tagList.append(html);
 				});
 

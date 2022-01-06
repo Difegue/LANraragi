@@ -26,6 +26,7 @@ Reader.initializeAll = function () {
     $(document).on("click.toggle_header", "#toggle-header input", Reader.toggleHeader);
     $(document).on("click.toggle_progress", "#toggle-progress input", Reader.toggleProgressTracking);
     $(document).on("click.toggle_infinite_scroll", "#toggle-infinite-scroll input", Reader.toggleInfiniteScroll);
+    $(document).on("click.toggle_overlay", "#toggle-overlay input", Reader.toggleOverlayByDefault);
     $(document).on("submit.container_width", "#container-width-input", Reader.registerContainerWidth);
     $(document).on("click.container_width", "#container-width-apply", Reader.registerContainerWidth);
     $(document).on("submit.preload", "#preload-input", Reader.registerPreload);
@@ -41,6 +42,8 @@ Reader.initializeAll = function () {
     });
     $(document).on("click.edit_metadata", "#edit-archive", () => LRR.openInNewTab(`./edit?id=${Reader.id}`));
     $(document).on("click.add_category", "#add-category", () => Server.addArchiveToCategory(Reader.id, $("#category").val()));
+    $(document).on("click.set_thumbnail", "#set-thumbnail", () => Server.callAPI(`/api/archives/${Reader.id}/thumbnail?page=${Reader.currentPage + 1}`,
+        "PUT", `Successfully set page ${Reader.currentPage + 1} as the thumbnail!`, "Error updating thumbnail!", null));
 
     $(document).on("click.thumbnail", ".quick-thumbnail", (e) => {
         LRR.closeOverlay();
@@ -49,15 +52,6 @@ Reader.initializeAll = function () {
             $("#display img").get(pageNumber).scrollIntoView({ behavior: "smooth" });
         } else {
             Reader.goToPage(pageNumber);
-        }
-    });
-
-    // Bind popstate
-    $(window).on("popstate", () => {
-        const popped = new URLSearchParams(window.location.search);
-        if (popped.has("p")) {
-            const paramsPage = +popped.get("p");
-            Reader.goToPage(paramsPage - 1, true);
         }
     });
 
@@ -86,6 +80,7 @@ Reader.initializeAll = function () {
             document.title = title;
 
             Reader.tags = data.tags;
+            $("#tagContainer").append(LRR.buildTagsDiv(Reader.tags));
 
             // Use localStorage progress value instead of the server one if needed
             if (Reader.trackProgressLocally) {
@@ -132,6 +127,13 @@ Reader.loadImages = function () {
                 $(".current-page").each((_i, el) => $(el).html(Reader.currentPage + 1));
                 Reader.goToPage(Reader.currentPage);
             }
+
+            if (Reader.showOverlayByDefault) { Reader.toggleArchiveOverlay(); }
+
+            // Wait for the extraction job to conclude before getting thumbnails
+            Server.checkJobStatus(data.job,
+                () => Reader.initializeArchiveOverlay(),
+                () => LRR.showErrorToast("The extraction job didn't conclude properly. Your archive might be corrupted."));
         }).finally(() => {
         if (Reader.pages === undefined) {
             $("#img").attr("src", "img/flubbed.gif");
@@ -165,6 +167,9 @@ Reader.initializeSettings = function () {
 
     Reader.infiniteScroll = localStorage.infiniteScroll === "true" || false;
     $(Reader.infiniteScroll ? "#infinite-scroll-on" : "#infinite-scroll-off").addClass("toggled");
+
+    Reader.showOverlayByDefault = localStorage.showOverlayByDefault === "true" || false;
+    $(Reader.showOverlayByDefault ? "#show-overlay" : "#hide-overlay").addClass("toggled");
 
     if (localStorage.fitMode === "fit-width") {
         Reader.fitMode = "fit-width";
@@ -206,7 +211,7 @@ Reader.handleShortcuts = function (e) {
     }
     switch (e.keyCode) {
     case 8: // backspace
-        document.location.href = "/";
+        document.location.href = $("#return-to-index").attr("href");
         break;
     case 27: // escape
         LRR.closeOverlay();
@@ -349,7 +354,7 @@ Reader.updateImageMap = function () {
     $("#rightmap").attr("coords", `${mapWidth + 1},0,${img.width},${mapHeight}`);
 };
 
-Reader.goToPage = function (page, fromHistory = false) {
+Reader.goToPage = function (page) {
     Reader.previousPage = Reader.currentPage;
     Reader.currentPage = Math.min(Reader.maxPage, Math.max(0, +page));
 
@@ -392,9 +397,6 @@ Reader.goToPage = function (page, fromHistory = false) {
 
     // scroll to top
     window.scrollTo(0, 0);
-
-    // Update url to contain all search parameters, and push it to the history
-    if (!fromHistory) { window.history.pushState(null, null, `?id=${Reader.id}&p=${Reader.currentPage + 1}`); }
 };
 
 Reader.preloadImages = function () {
@@ -508,6 +510,7 @@ Reader.toggleMangaMode = function () {
 };
 
 Reader.toggleHeader = function () {
+    if (Reader.infiniteScroll) { return false; }
     localStorage.hideHeader = $("#i2").is(":visible");
     $("#toggle-header input").toggleClass("toggled");
     $("#i2").toggle();
@@ -525,12 +528,16 @@ Reader.toggleInfiniteScroll = function () {
     window.location.reload();
 };
 
+Reader.toggleOverlayByDefault = function () {
+    Reader.overlayByDefault = localStorage.showOverlayByDefault = !Reader.showOverlayByDefault;
+    $("#toggle-overlay input").toggleClass("toggled");
+};
+
 Reader.toggleSettingsOverlay = function () {
     return LRR.toggleOverlay("#settingsOverlay");
 };
 
 Reader.toggleArchiveOverlay = function () {
-    Reader.initializeArchiveOverlay();
     return LRR.toggleOverlay("#archivePagesOverlay");
 };
 
@@ -538,16 +545,50 @@ Reader.initializeArchiveOverlay = function () {
     if ($("#archivePagesOverlay").attr("loaded") === "true") {
         return;
     }
-    $("#tagContainer").append(LRR.buildTagsDiv(Reader.tags));
+
+    $("#extract-spinner").hide();
 
     // For each link in the pages array, craft a div and jam it in the overlay.
     for (let index = 0; index < Reader.pages.length; ++index) {
+        const page = index + 1;
+
         const thumbCss = (localStorage.cropthumbs === "true") ? "id3" : "id3 nocrop";
         const thumbnail = `
             <div class='${thumbCss} quick-thumbnail' page='${index}' style='display: inline-block; cursor: pointer'>
-                <span class='page-number'>Page ${(index + 1)}</span>
-                <img src='${Reader.pages[index]}'/>
+                <span class='page-number'>Page ${page}</span>
+                <img src="./img/wait_warmly.jpg" id="${index}_thumb" />
+                <i id="${index}_spinner" class="fa fa-4x fa-circle-notch fa-spin ttspinner" style="display:flex;justify-content: center; align-items: center;"></i>
             </div>`;
+
+        // Try to load the thumbnail and see if we have to wait for a Minion job (202 vs 200)
+        const thumbnailUrl = `/api/archives/${Reader.id}/thumbnail?page=${page}`;
+
+        const thumbSuccess = function () {
+            // Set image source to the thumbnail
+            $(`#${index}_thumb`).attr("src", thumbnailUrl);
+            $(`#${index}_spinner`).hide();
+        };
+
+        const thumbFail = function () {
+            // If we fail to load the thumbnail, then we'll just show a placeholder
+            $(`#${index}_thumb`).attr("src", "/img/noThumb.png");
+            $(`#${index}_spinner`).hide();
+        };
+
+        fetch(`${thumbnailUrl}&no_fallback=true`, { method: "GET" })
+            .then((response) => {
+                if (response.status === 200) {
+                    thumbSuccess();
+                } else if (response.status === 202) {
+                    // Wait for Minion job to finish
+                    response.json().then((data) => Server.checkJobStatus(data.job,
+                        () => thumbSuccess(),
+                        () => thumbFail()));
+                } else {
+                    // We don't have a thumbnail for this page
+                    thumbFail();
+                }
+            });
 
         $("#archivePagesOverlay").append(thumbnail);
     }

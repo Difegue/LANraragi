@@ -122,6 +122,7 @@ table.itc {
 
 .toggled {
     background:#3b3435 !important;
+    border: 2px solid #3b97ea !important;
 }
 
 /* options flyout menus */
@@ -157,8 +158,10 @@ tr.gtr1{background:#363940}
     background:#34353b;
     border:1px solid #000000;
     max-width: 450px;
+    width: 60%;
     margin: 4px 1px 0;
     font-size: 9pt;
+    display: table-cell;
 }
 
 .searchbtn{min-width: 100px !important;}
@@ -187,7 +190,7 @@ td.itdc{text-align:center;padding:0 1px 0 2px;margin:0;border-right:1px solid #4
     margin-bottom: 2px;
 }
 
-.collapsible-title {
+.index-carousel .collapsible-title {
     padding: 0.5rem;
 }
 

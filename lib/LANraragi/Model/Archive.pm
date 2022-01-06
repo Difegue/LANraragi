@@ -15,7 +15,7 @@ use Mojo::Util qw(xml_escape);
 use LANraragi::Utils::Generic qw(get_tag_with_namespace remove_spaces remove_newlines render_api_response);
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging qw(get_logger);
-use LANraragi::Utils::Archive qw(extract_single_file);
+use LANraragi::Utils::Archive qw(extract_single_file extract_thumbnail);
 use LANraragi::Utils::Database qw(redis_encode redis_decode invalidate_cache get_archive_json get_archive_json_multi);
 
 # Functions used when dealing with archives.
@@ -124,7 +124,6 @@ sub find_untagged_archives {
                 remove_newlines($t);
 
                 # The following are basic and therefore don't count as "tagged"
-                # date_added added for convenience as running the matching plugin doesn't really count as tagging
                 $nondefaulttags += 1 unless $t =~ /(artist|parody|series|language|event|group|date_added):.*/;
             }
 
@@ -139,9 +138,55 @@ sub find_untagged_archives {
     return @untagged;
 }
 
+sub update_thumbnail {
+
+    my ( $self, $id ) = @_;
+
+    my $page = $self->req->param('page');
+    $page = 1 unless $page;
+
+    my $thumbdir = LANraragi::Model::Config->get_thumbdir;
+
+    # Thumbnails are stored in the content directory, thumb subfolder.
+    # Another subfolder with the first two characters of the id is used for FS optimization.
+    my $subfolder = substr( $id, 0, 2 );
+    my $thumbname = "$thumbdir/$subfolder/$id.jpg";    # Path to main thumbnail
+
+    my $newthumb = "";
+
+    # Get the required thumbnail we want to make the main one
+    eval { $newthumb = extract_thumbnail( $thumbdir, $id, $page ) };
+
+    if ( $@ || !$newthumb ) {
+        render_api_response( $self, "update_thumbnail", $@ );
+    } else {
+        if ( $newthumb ne $thumbname && $newthumb ne "" ) {
+
+            # Copy the thumbnail to the main thumbnail location
+            cp( $newthumb, $thumbname );
+        }
+
+        $self->render(
+            json => {
+                operation     => "update_thumbnail",
+                new_thumbnail => $newthumb,
+                success       => 1
+            }
+        );
+    }
+
+}
+
 sub serve_thumbnail {
 
     my ( $self, $id ) = @_;
+
+    my $page = $self->req->param('page');
+    $page = 0 unless $page;
+
+    my $no_fallback = $self->req->param('no_fallback');
+    $no_fallback = ( $no_fallback && $no_fallback eq "true" ) || "0";    # Prevent undef warnings by checking the variable first
+
     my $thumbdir = LANraragi::Model::Config->get_thumbdir;
 
     # Thumbnails are stored in the content directory, thumb subfolder.
@@ -149,11 +194,31 @@ sub serve_thumbnail {
     my $subfolder = substr( $id, 0, 2 );
     my $thumbname = "$thumbdir/$subfolder/$id.jpg";
 
+    if ( $page > 0 ) {
+        $thumbname = "$thumbdir/$subfolder/$id/$page.jpg";
+    }
+
     # Queue a minion job to generate the thumbnail. Thumbnail jobs have the lowest priority.
     unless ( -e $thumbname ) {
-        $self->minion->enqueue( thumbnail_task => [ $thumbdir, $id ] => { priority => 0 } );
-        $self->render_file( filepath => "./public/img/noThumb.png" );
+        my $job_id = $self->minion->enqueue( thumbnail_task => [ $thumbdir, $id, $page ] => { priority => 0, attempts => 3 } );
+
+        if ($no_fallback) {
+
+            $self->render(
+                json => {
+                    operation => "serve_thumbnail",
+                    success   => 1,
+                    job       => $job_id
+                },
+                status => 202    # 202 Accepted
+            );
+        } else {
+
+            # If the thumbnail doesn't exist, serve the default thumbnail.
+            $self->render_file( filepath => "./public/img/noThumb.png" );
+        }
         return;
+
     } else {
 
         # Simply serve the thumbnail.

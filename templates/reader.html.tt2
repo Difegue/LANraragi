@@ -55,7 +55,7 @@
 
         <div id="i5">
             <div class="sb">
-                <a href="./" title="Done reading? Go back to Archive Index">
+                <a href="./?[% ref_query %]" id="return-to-index" title="Done reading? Go back to Archive Index">
                     <i class="fa fa-angle-down fa-3x"></i>
                 </a>
             </div>
@@ -90,8 +90,8 @@
 
                     <h2>Admin Options</h2>
 
-                    <input class="stdbtn" type='button' id="regenerate-thumbnail" value="Regenerate Archive Thumbnail"
-                        disabled title="Coming back soon!" />
+                    <input class="stdbtn" type='button' id="set-thumbnail" value="Set this Page as Thumbnail"
+                        title="Set the currently opened page as the thumbnail for this archive." />
                     <br>
                     <input id="regenerate-cache" class='stdbtn' type='button' value='Clean Archive Cache' />
                     <br>
@@ -116,6 +116,13 @@
         <br><br>
 
         <h2 class="ih" style="text-align:center">Pages</h2>
+
+        <div id="extract-spinner" style="width: 80%; margin-left: auto; margin-right: auto">
+            <p class="loading-spinner">
+                <i id="spinner" class="fa fa-dharmachakra fa-4x fa-spin"></i>
+            </p>
+            Working on it...
+        </div>
     </div>
     </div>
     </div>
@@ -171,7 +178,7 @@
 
 <div id="container-width">
     <h2 class="config-panel"> Container Width (in pixels or percentage)</h2>
-    <input id="container-width-input" class="stdinput" style="display:inline"
+    <input id="container-width-input" class="stdinput" style="display:inline; width: 70%;"
         placeholder="The default value is 1200px, or 90% in Double Page Mode.">
     <input id="container-width-apply" class="favtag-btn config-btn" type="button" style="display:inline;" value="Apply">
 </div>
@@ -200,6 +207,15 @@
     <input id="show-header" class="favtag-btn config-btn" type="button" value="Visible">
     <input id="hide-header" class="favtag-btn config-btn" type="button" value="Hidden">
 </div>
+
+<div id="toggle-overlay">
+    <h2 class="config-panel"> Show Archive Overlay by default </h2>
+    <span class="config-panel">This will show the overlay with thumbnails every time you open a new Reader page.
+    </span>
+    <input id="show-overlay" class="favtag-btn config-btn" type="button" value="Enabled">
+    <input id="hide-overlay" class="favtag-btn config-btn" type="button" value="Disabled">
+</div>
+
 
 <div id="toggle-progress">
     <h2 class="config-panel"> Progression Tracking </h2>

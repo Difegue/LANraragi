@@ -15,6 +15,13 @@ LRR.encodeHTML = function (r) {
 };
 
 /**
+ * Check if we're running on a mobile browser.
+ */
+LRR.isMobile = function () {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+};
+
+/**
  * Checks if the given string is null or whitespace.
  * @param {*} input The string to check
  * @returns true or false

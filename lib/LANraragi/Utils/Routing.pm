@@ -111,6 +111,7 @@ sub apply_routes {
     $public_api->get('/api/archives/:id')->to('api-archive#serve_metadata');
     $public_api->get('/api/archives/:id/categories')->to('api-archive#get_categories');
     $public_api->get('/api/archives/:id/metadata')->to('api-archive#serve_metadata');
+    $logged_in_api->put('/api/archives/:id/thumbnail')->to('api-archive#update_thumbnail');
     $logged_in_api->put('/api/archives/:id/metadata')->to('api-archive#update_metadata');
     $logged_in_api->delete('/api/archives/:id')->to('api-archive#delete_archive');
 

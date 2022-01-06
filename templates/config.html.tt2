@@ -47,8 +47,8 @@
 			<input class='stdbtn' type='button' onclick="window.location.href = '/';" value='Return to Library' />
 
 		</div>
-		<form class="right-column" name="editConfigForm" id="editConfigForm" enctype="multipart/form-data"
-			method="post" autocomplete="off">
+		<form class="right-column" name="editConfigForm" id="editConfigForm" enctype="multipart/form-data" method="post"
+			autocomplete="off">
 
 			<ul class="collapsible extensible with-right-caret">
 				<li class="option-flyout">
@@ -131,10 +131,12 @@
 		$(function () {
 			enable_pass();
 			enable_resize();
+			enable_timemodified();
 			shinobuStatus();
 			setInterval(shinobuStatus, 5000);
 			$("#enablepass").click(enable_pass);
 			$("#enableresize").click(enable_resize);
+			$("#usedateadded").click(enable_timemodified);
 		});
 
 		function rebootShinobu() {
@@ -171,13 +173,13 @@
 				if ((link_tag[i].rel.indexOf("stylesheet") != -1) && link_tag[i].title) {
 
 					if ((link_tag[i].rel.indexOf("alternate stylesheet") != -1))
-					link_tag[i].disabled = true;
+						link_tag[i].disabled = true;
 					else
-					default_style = link_tag[i];
+						default_style = link_tag[i];
 
 					if (link_tag[i].title == css_title) {
-					new_style = link_tag[i];
-					correct_style = 1;
+						new_style = link_tag[i];
+						correct_style = 1;
 					}
 				}
 			}
@@ -200,6 +202,13 @@
 				$(".resizefields").show();
 			else
 				$(".resizefields").hide();
+		}
+
+		function enable_timemodified() {
+			if ($("#usedateadded").prop("checked"))
+				$(".datemodified").show();
+			else
+				$(".datemodified").hide();
 		}
 
 	</script> [% INCLUDE footer %]

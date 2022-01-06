@@ -85,11 +85,12 @@
 				<li class="option-flyout" style="text-align: left;">
 					<div class="collapsible-title caret-right" style="display:inline-block;">
 						<i id="carousel-icon" class="fa"></i>
-						<div id="carousel-title" style="display:inline">...</div>
+						<div id="carousel-title" style="display:inline"
+							title="Click to show archives from the current search with the specified filter">...</div>
 					</div>
 					<div class="collapsible-right">
-						<a class="fa fa-2x fa-sync-alt" style="margin-bottom: -4px" id="reload-carousel" href="#"
-							title="Refresh Selection"></a>
+						<a class="fa fa-2x fa-sync-alt" style="margin-bottom: -4px; display:none" id="reload-carousel"
+							href="#" title="Refresh Selection"></a>
 						<a class="fa fa-2x fa-ellipsis-h" style="margin-bottom: -4px; margin-left: 12px"
 							id="carousel-mode-menu" href="#" title="Carousel Options"></a>
 					</div>

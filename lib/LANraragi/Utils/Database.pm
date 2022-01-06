@@ -30,16 +30,14 @@ sub add_archive_to_redis {
     my $logger = get_logger( "Archive", "lanraragi" );
     my ( $name, $path, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
 
-    #jam this shit in redis
+    # Initialize Redis hash for the added file
     $logger->debug("Pushing to redis on ID $id:");
     $logger->debug("File Name: $name");
     $logger->debug("Filesystem Path: $file");
 
     $redis->hset( $id, "name",  redis_encode($name) );
     $redis->hset( $id, "title", redis_encode($name) );
-
-    # Initialize tags to the current date
-    $redis->hset( $id, "tags", "date_added:" . time() );
+    $redis->hset( $id, "tags",  "" );
 
     # Don't encode filenames.
     $redis->hset( $id, "file", $file );
@@ -49,6 +47,28 @@ sub add_archive_to_redis {
 
     $redis->quit;
     return $name;
+}
+
+# add_timestamp_tag(redis, id)
+# Adds a timestamp tag to the given ID.
+sub add_timestamp_tag {
+    my ( $redis, $id ) = @_;
+    my $logger = get_logger( "Archive", "lanraragi" );
+
+    # Initialize tags to the current date if the matching pref is enabled
+    if ( LANraragi::Model::Config->enable_dateadded eq "1" ) {
+
+        $logger->debug("Adding timestamp tag...");
+
+        if ( LANraragi::Model::Config->use_lastmodified eq "1" ) {
+            $logger->info("Using file date");
+            my $date = ( stat( $redis->hget( $id, "file" ) ) )[9];    #9 is the unix time stamp for date modified.
+            $redis->hset( $id, "tags", "date_added:$date" );
+        } else {
+            $logger->info("Using current date");
+            $redis->hset( $id, "tags", "date_added:" . time() );
+        }
+    }
 }
 
 # get_archive_json(redis, id)
@@ -128,7 +148,7 @@ sub build_json {
         arcid     => $id,
         title     => $title,
         tags      => $tags,
-        isnew     => $isnew,
+        isnew     => $isnew ? $isnew : "false",
         extension => lc( ( split( /\./, $file ) )[-1] ),
         progress  => $progress ? int($progress) : 0,
         pagecount => $pagecount ? int($pagecount) : 0
@@ -353,7 +373,13 @@ sub save_computed_tagrules {
     my ($tagrules) = @_;
     my $redis = LANraragi::Model::Config->get_redis;
     $redis->del("LRR_TAGRULES");
-    $redis->lpush( "LRR_TAGRULES", reverse flat(@$tagrules) ) if (@$tagrules);
+
+    if (@$tagrules) {
+        my @flat = reverse flat(@$tagrules);
+        my @encoded_flat = map { redis_encode($_) } @flat;
+        $redis->lpush( "LRR_TAGRULES", @encoded_flat );
+    }
+
     $redis->quit();
     return;
 }
@@ -365,7 +391,8 @@ sub get_computed_tagrules {
 
     if ( $redis->exists("LRR_TAGRULES") ) {
         my @flattened_rules = $redis->lrange( "LRR_TAGRULES", 0, -1 );
-        @tagrules = unflat_tagrules( \@flattened_rules );
+        my @decoded_rules = map { redis_decode($_) } @flattened_rules;
+        @tagrules = unflat_tagrules( \@decoded_rules );
     } else {
         @tagrules = tags_rules_to_array( restore_CRLF( LANraragi::Model::Config->get_tagrules ) );
         $redis->lpush( "LRR_TAGRULES", reverse flat(@tagrules) ) if (@tagrules);

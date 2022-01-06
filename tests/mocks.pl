@@ -2,26 +2,10 @@ use strict;
 use warnings;
 use utf8;
 use Cwd;
-use File::Temp qw(tempfile);
-use File::Copy "cp";
 
 use Data::Dumper;
 use Test::MockObject;
 use Mojo::JSON qw (decode_json);
-
-sub setup_eze_mock {
-
-    # Copy the eze sample json to a temporary directory as it's deleted once parsed
-    my $cwd = getcwd;
-    my ( $fh, $filename ) = tempfile();
-    cp( $cwd . "/tests/samples/eze/eze_sample.json", $fh );
-
-    # Mock LANraragi::Utils::Archive's subs to return the temporary sample JSON
-    # Since we're using exports, the methods are under the plugin's namespace.
-    no warnings 'once', 'redefine';
-    *LANraragi::Plugin::Metadata::Eze::extract_file_from_archive = sub { $filename };
-    *LANraragi::Plugin::Metadata::Eze::is_file_in_archive        = sub { 1 };
-}
 
 sub setup_redis_mock {
 

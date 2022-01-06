@@ -88,15 +88,21 @@ sub get_categories {
 
 sub serve_thumbnail {
     my $self = shift;
-    my $id = check_id_parameter( $self, "thumbnail" ) || return;
+    my $id = check_id_parameter( $self, "serve_thumbnail" ) || return;
     LANraragi::Model::Archive::serve_thumbnail( $self, $id );
+}
+
+sub update_thumbnail {
+    my $self = shift;
+    my $id = check_id_parameter( $self, "update_thumbnail" ) || return;
+    LANraragi::Model::Archive::update_thumbnail( $self, $id );
 }
 
 # Use RenderFile to get the file of the provided id to the client.
 sub serve_file {
 
     my $self  = shift;
-    my $id    = check_id_parameter( $self, "servefile" ) || return;
+    my $id    = check_id_parameter( $self, "serve_file" ) || return;
     my $redis = $self->LRR_CONF->get_redis();
 
     my $file = $redis->hget( $id, "file" );
@@ -126,7 +132,7 @@ sub get_file_list {
     if ($err) {
         render_api_response( $self, "get_file_list", $err );
     } else {
-        $self->render( json => decode_json($reader_json) );
+        $self->render( json => $reader_json );
     }
 }
 

@@ -9,12 +9,13 @@ use File::Basename;
 use File::Path qw(remove_tree make_path);
 use File::Find qw(find);
 use File::Copy qw(move);
+use Mojo::JSON qw(encode_json);
 use Data::Dumper;
 use URI::Escape;
 use Image::Magick;
 
 use LANraragi::Utils::Generic qw(is_image shasum);
-use LANraragi::Utils::Archive qw(extract_archive generate_thumbnail get_filelist);
+use LANraragi::Utils::Archive qw(extract_archive get_filelist);
 use LANraragi::Utils::Database qw(redis_decode);
 
 # resize_image(image,quality, size_threshold)
@@ -48,7 +49,7 @@ sub build_reader_JSON {
 
     # Queue a full extract job into Minion.
     # This'll fill in the missing pages (or regen everything if force = 1)
-    $self->minion->enqueue(
+    my $jobid = $self->minion->enqueue(
         extract_archive => [ $id, $force ],
         { priority => 4 }
     );
@@ -59,7 +60,11 @@ sub build_reader_JSON {
     my $archive = $redis->hget( $id, "file" );
 
     # Parse archive to get its list of images
-    my @images = get_filelist($archive);
+    my ( $images, $sizes ) = get_filelist($archive);
+
+    # Dereference arrays
+    my @images = @$images;
+    my @sizes  = @$sizes;
 
     $self->LRR_LOGGER->debug( "Files found in archive (encoding might be incorrect): \n " . Dumper @images );
 
@@ -84,13 +89,17 @@ sub build_reader_JSON {
         push @images_browser, "./api/archives/$id/page?path=$imgpath";
     }
 
-    # Update pagecount
+    # Update pagecount and sizes
     $redis->hset( $id, "pagecount", scalar @images );
+    $redis->hset( $id, "filesizes", encode_json( \@sizes ) );
     $redis->quit();
 
-    # Build json (it's just the images array in a string)
-    my $list = "{\"pages\": [\"" . join( "\",\"", @images_browser ) . "\"]}";
-    return $list;
+    return {
+        pages => \@images_browser,
+
+        # filesizes => \@sizes,
+        job => $jobid
+    };
 }
 
 1;

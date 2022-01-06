@@ -25,27 +25,7 @@ my $cwd = getcwd;
 require $cwd . "/tests/mocks.pl";
 setup_redis_mock();
 
-# Mock Utils::Archive
-setup_eze_mock();
-
-note ( "eze Tests" );
-
-{
-    my %dummyhash = ( something => 22, file_path => "test" );
-
-    # Since this is calling the sub directly and not in an object context, we pass a dummy string as first parameter to replace the object.
-    my %ezetags = trap { LANraragi::Plugin::Metadata::Eze::get_tags( "", \%dummyhash, 1 ); };
-
-    my $ezetags =
-      "artist:mitarashi kousei, character:akiko minase, character:yuuichi aizawa, female:aunt, female:lingerie, female:sole female, group:mitarashi club, language:english, language:translated, male:sole male, misc:multi-work series, parody:kanon, source: website.org/g/1179590/7c5815c77b";
-    is( $ezetags{title},
-        "(C72) [Mitarashi Club (Mitarashi Kousei)] Akiko-san to Issho (Kanon) [English] [Belldandy100] [Decensored]",
-        "eze parsing test 1/2"
-    );
-    is( $ezetags{tags}, $ezetags, "eze parsing test 2/2" );
-}
-
-note ( "E-Hentai Tests" );
+note("E-Hentai Tests");
 
 {
     my $ua        = trap { LANraragi::Plugin::Login::EHentai::do_login( "", "", "" ); };
@@ -54,7 +34,7 @@ note ( "E-Hentai Tests" );
     my $eH_gToken = "0439fa3666";
 
     my ( $test_eH_gID, $test_eH_gToken ) =
-        trap { LANraragi::Plugin::Metadata::EHentai::lookup_gallery( "TOUHOU GUNMANIA", "", "", $ua, $domain, "", 0, 0 ); };
+      trap { LANraragi::Plugin::Metadata::EHentai::lookup_gallery( "TOUHOU GUNMANIA", "", "", $ua, $domain, "", 0, 0 ); };
 
     is( $test_eH_gID,    $eH_gID,    'eHentai search test 1/2' );
     is( $test_eH_gToken, $eH_gToken, 'eHentai search test 2/2' );
@@ -63,42 +43,43 @@ note ( "E-Hentai Tests" );
 
     ok( exists $test_eH_json->{gmetadata}, 'gmetadata exists' );
     isa_ok( $test_eH_json->{gmetadata}, 'ARRAY', 'type of gmetadata' );
-    ok( length ( $test_eH_json->{gmetadata}[0]{title} ) > 0, "eHentai title test 1" );
+    ok( length( $test_eH_json->{gmetadata}[0]{title} ) > 0, "eHentai title test 1" );
     isa_ok( $test_eH_json->{gmetadata}[0]{tags}, 'ARRAY', 'type of tags' );
 }
 
-note ( "nHentai Tests" );
+note("nHentai Tests");
 
 {
-    my $nH_gID      = "52249";
+    my $nH_gID = "52249";
     my $test_nH_gID = trap { LANraragi::Plugin::Metadata::nHentai::get_gallery_id_from_title("\"Pieces 1\" shirow"); };
 
     is( $test_nH_gID, $nH_gID, 'nHentai search test' );
 
-    my %nH_hashdata = trap { LANraragi::Plugin::Metadata::nHentai::get_tags_from_NH($nH_gID, 1) };
+    my %nH_hashdata = trap { LANraragi::Plugin::Metadata::nHentai::get_tags_from_NH( $nH_gID, 1 ) };
 
-    ok( length $nH_hashdata{tags} > 0, 'nHentai API Tag retrieval test' );
+    ok( length $nH_hashdata{tags} > 0,  'nHentai API Tag retrieval test' );
     ok( length $nH_hashdata{title} > 0, 'nHentai title test' );
 }
 
-note ( "Chaika Tests" );
+note("Chaika Tests");
 
 {
     my ( $tags_jsearch, $title_jsearch ) =
-        trap { LANraragi::Plugin::Metadata::Chaika::search_for_archive( "Zettai Seikou Keikaku", "artist:kemuri haku" ); };
-    ok( length $tags_jsearch > 0, 'chaika.moe search test' );
+      trap { LANraragi::Plugin::Metadata::Chaika::search_for_archive( "Zettai Seikou Keikaku", "artist:kemuri haku" ); };
+    ok( length $tags_jsearch > 0,  'chaika.moe search test' );
     ok( length $title_jsearch > 0, 'chaika.moe title test' );
 
     my ( $tags_by_id, $title_by_id ) = trap { LANraragi::Plugin::Metadata::Chaika::tags_from_chaika_id( "archive", "27240" ); };
     ok( length $tags_by_id > 0,  'chaika.moe API Tag retrieval test' );
     ok( length $title_by_id > 0, 'chaika.moe ID title test ' );
 
-    my ( $tags_by_sha1, $title_by_sha1 ) = trap { LANraragi::Plugin::Metadata::Chaika::tags_from_sha1("276601a0e5dae9427940ed17ac470c9945b47073"); };
+    my ( $tags_by_sha1, $title_by_sha1 ) =
+      trap { LANraragi::Plugin::Metadata::Chaika::tags_from_sha1("276601a0e5dae9427940ed17ac470c9945b47073"); };
     ok( length $tags_jsearch > 0, 'chaika.moe SHA-1 reverse search test' );
-    ok( length $title_by_id > 0, 'chaika.moe SHA-1 title test' );
+    ok( length $title_by_id > 0,  'chaika.moe SHA-1 title test' );
 }
 
-note ( "FAKKU Tests : Disabled due to cloudflare being used on FAKKU" );
+note("FAKKU Tests : Disabled due to cloudflare being used on FAKKU");
 
 # {
 #     my $f_title = "Kairakuten Cover Girl's Episode 009: Hamao";

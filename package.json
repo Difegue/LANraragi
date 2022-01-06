@@ -1,7 +1,7 @@
 {
     "name": "lanraragi",
-    "version": "0.8.3",
-    "version_name": "Nite Flights (Moodswings Back to Basics Mix)",
+    "version": "0.8.4",
+    "version_name": "Real Cool World",
     "description": "I'm under Japanese influence and my honor's at stake!",
     "scripts": {
         "test": "prove -r -l -v tests/",

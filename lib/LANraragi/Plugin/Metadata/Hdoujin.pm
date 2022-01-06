@@ -39,10 +39,11 @@ sub get_tags {
     my $logger = get_plugin_logger();
     my $file   = $lrr_info->{file_path};
 
-    if ( is_file_in_archive( $file, "info.json" ) ) {
+    my $path_in_archive = is_file_in_archive( $file, "info.json" );
+    if ($path_in_archive) {
 
         #Extract info.json
-        my $filepath = extract_file_from_archive( $file, "info.json" );
+        my $filepath = extract_file_from_archive( $file, $path_in_archive );
 
         #Open it
         my $stringjson = "";
@@ -70,28 +71,30 @@ sub get_tags {
         $logger->info("Sending the following tags to LRR: $tags");
         return ( tags => $tags );
 
-    } elsif ( is_file_in_archive( $file, "info.txt" ) ) {
-
-        # Extract info.txt
-        my $filepath = extract_file_from_archive( $file, "info.txt" );
-
-        # Open it
-        open( my $fh, '<:encoding(UTF-8)', $filepath )
-          or return ( error => "Could not open $filepath!" );
-
-        while ( my $line = <$fh> ) {
-
-            # Check if the line starts with TAGS:
-            if ( $line =~ m/TAGS: (.*)/ ) {
-                return ( tags => $1 );
-            }
-        }
-        return ( error => "No tags were found in info.txt!" );
-
     } else {
-        return ( error => "No Hdoujin info.json or info.txt file found in this archive!" );
-    }
+        $path_in_archive = is_file_in_archive( $file, "info.txt" );
+        if ($path_in_archive) {
 
+            # Extract info.txt
+            my $filepath = extract_file_from_archive( $file, $path_in_archive );
+
+            # Open it
+            open( my $fh, '<:encoding(UTF-8)', $filepath )
+              or return ( error => "Could not open $filepath!" );
+
+            while ( my $line = <$fh> ) {
+
+                # Check if the line starts with TAGS:
+                if ( $line =~ m/TAGS: (.*)/ ) {
+                    return ( tags => $1 );
+                }
+            }
+            return ( error => "No tags were found in info.txt!" );
+
+        } else {
+            return ( error => "No Hdoujin info.json or info.txt file found in this archive!" );
+        }
+    }
 }
 
 #tags_from_Hdoujin_json(decodedjson)
