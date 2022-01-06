@@ -90,7 +90,7 @@ jobs:
       run: |
         TAG=${GITHUB_REF:10:10}
         docker buildx build \
-          --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
+          --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64 \
           --output "type=image,push=true" \
           --tag difegue/lanraragi:latest \
           --tag difegue/lanraragi:$TAG \
