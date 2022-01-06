@@ -77,7 +77,7 @@
 				</div>
 				<div class="collapsible-body">
 					<div id="tagList"
-						style="max-width: 80vw; display: flex; height:calc(2048px - 25vw); flex-direction: column; flex-wrap:wrap; align-items:flex-start">
+						style="max-width: 80vw; display: flex; height:calc(2048px - 25vw); flex-direction: column; flex-wrap:wrap; align-items:flex-start; overflow:auto">
 					</div><br>
 					(These statistics only show tags that appear at least twice in your database.)
 				</div>
