@@ -12,6 +12,7 @@ class Lanraragi < Formula
   revision 1
   head "https://github.com/Difegue/LANraragi.git"
 
+  depends_on "nettle" => :build
   depends_on "pkg-config" => :build
   depends_on "cpanminus"
   depends_on "ghostscript"
@@ -24,6 +25,7 @@ class Lanraragi < Formula
   depends_on "perl"
   depends_on "redis"
   depends_on "zstd"
+
   uses_from_macos "libarchive"
 
   resource "Image::Magick" do
@@ -61,8 +63,8 @@ class Lanraragi < Formula
       end
     end
 
-    system "npm", "install", *Language::Node.local_npm_install_args
     system "cpanm", "Config::AutoConf", "--notest", "-l", libexec
+    system "npm", "install", *Language::Node.local_npm_install_args
     system "perl", "./tools/install.pl", "install-full"
 
     prefix.install "README.md"

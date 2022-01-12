@@ -63,7 +63,7 @@ jobs:
       env:
         DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
       with:
-        args: 'Windows Installer built and available on the Release page! :logo:🪟'
+        args: 'Windows Installer built and available on the Release page! <:logo:821516019179978772>🪟'
 
   buildLatestDocker:
     name: Build Latest Docker image
