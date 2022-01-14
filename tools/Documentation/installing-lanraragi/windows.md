@@ -2,12 +2,21 @@
 
 ## Download a Release
 
-You can directly install LANraragi from the [Microsoft Store](https://cutt.ly/9TJIMC6). This will install the latest release.  
-
-[<img src="https://getbadgecdn.azureedge.net/images/English_L.png">](https://cutt.ly/9TJIMC6)  
-
+You can directly install LANraragi from the Microsoft Store, using either this link: (paste in a browser window)  
 ms-windows-store://pdp/?productid=XP9K4NMNPDMH6L  
 
+Or through winget:  
+
+```
+winget install lanraragi
+```
+
+{% hint style="warning" %}
+The installer will tell you about this anyways, but LRR for Windows **requires** the Windows Subsystem for Linux to function properly.  
+Read the tutorial [here](https://docs.microsoft.com/en-us/windows/wsl/install) to see how to enable WSL on your Windows 10 machine.
+
+You don't need to install a distribution through the Windows Store, as that is handled by the LRR installer package.
+{% endhint %}
 
 As an alternative, you can always download the latest Windows MSI Installer on the [Release Page](https://github.com/Difegue/LANraragi/releases).
 
@@ -23,16 +32,7 @@ You might get a SmartScreen prompt from Windows (doesn't seem to happen with the
 (If you're wondering why I don't sign installers, [this](https://gaby.dev/posts/code-signing) article is a good read.)
 
 {% hint style="info" %}
-MS Store installs will be installed to the default location. If you don't want the app to install in _%AppData%_, consider downloading the installer and running it manually.
-{% endhint %}
-
-
-
-{% hint style="warning" %}
-The installer will tell you about this anyways, but LRR for Windows **requires** the Windows Subsystem for Linux to function properly.  
-Read the tutorial [here](https://docs.microsoft.com/en-us/windows/wsl/install) to see how to enable WSL on your Windows 10 machine.
-
-You don't need to install a distribution through the Windows Store, as that is handled by the LRR installer package.
+MS Store/winget installs will be installed to the default location. If you don't want the app to install in _%AppData%_, consider downloading the installer and running it manually.
 {% endhint %}
 
 Once the install completes properly, you'll be able to launch the GUI from the shortcut in your Start Menu:
