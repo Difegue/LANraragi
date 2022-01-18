@@ -28,6 +28,10 @@ class Lanraragi < Formula
 
   uses_from_macos "libarchive"
 
+  on_linux do
+    depends_on "libarchive"
+  end
+
   resource "Image::Magick" do
     url "https://cpan.metacpan.org/authors/id/J/JC/JCRISTY/PerlMagick-7.0.10.tar.gz"
     sha256 "1d5272d71b5cb44c30cd84b09b4dc5735b850de164a192ba191a9b35568305f4"
@@ -43,7 +47,7 @@ class Lanraragi < Formula
     ENV.prepend_path "PERL5LIB", "#{libexec}/lib"
     ENV["CFLAGS"] = "-I#{libexec}/include"
     # https://stackoverflow.com/questions/60521205/how-can-i-install-netssleay-with-perlbrew-in-macos-catalina
-    ENV["OPENSSL_PREFIX"] = "#{Formula["openssl@1.1"]}/1.1.1g"
+    ENV["OPENSSL_PREFIX"] = "#{Formula["openssl@1.1"]}/1.1.1m"
 
     imagemagick = Formula["imagemagick"]
     resource("Image::Magick").stage do
