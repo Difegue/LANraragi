@@ -134,7 +134,7 @@ sub apply_routes {
     # Minion API
     $public_api->get('/api/minion/:jobid')->to('api-minion#minion_job_status');
     $logged_in_api->get('/api/minion/:jobid/detail')->to('api-minion#minion_job_detail');
-    $logged_in_api->post('/api/minion/:jobname/queue')->to('api-minion#queue_minion_job');
+    $logged_in_api->post('/api/minion/:jobname/queue')->to('api-minion#queue_minion_job');    # unused for now
 
     # Category API
     $public_api->get('/api/categories')->to('api-category#get_category_list');

@@ -383,7 +383,7 @@ Index.fetchChangelog = function () {
                     throw new Error(data.result);
                 }
 
-                marked(data.body, {
+                marked.parse(data.body, {
                     gfm: true,
                     breaks: true,
                     sanitize: true,
