@@ -131,7 +131,7 @@ Reader.loadImages = function () {
             if (Reader.showOverlayByDefault) { Reader.toggleArchiveOverlay(); }
 
             // Wait for the extraction job to conclude before getting thumbnails
-            Server.checkJobStatus(data.job,
+            Server.checkJobStatus(data.job, false,
                 () => Reader.initializeArchiveOverlay(),
                 () => LRR.showErrorToast("The extraction job didn't conclude properly. Your archive might be corrupted."));
         }).finally(() => {
@@ -581,7 +581,7 @@ Reader.initializeArchiveOverlay = function () {
                     thumbSuccess();
                 } else if (response.status === 202) {
                     // Wait for Minion job to finish
-                    response.json().then((data) => Server.checkJobStatus(data.job,
+                    response.json().then((data) => Server.checkJobStatus(data.job, false,
                         () => thumbSuccess(),
                         () => thumbFail()));
                 } else {
