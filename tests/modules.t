@@ -4,7 +4,7 @@ use utf8;
 use Cwd;
 
 use Mojo::Base 'Mojolicious';
-use Test::More tests => 57;
+use Test::More;
 use Test::Mojo;
 use Test::MockObject;
 
