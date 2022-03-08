@@ -48,7 +48,7 @@ class Lanraragi < Formula
     ENV["CFLAGS"] = "-I#{libexec}/include"
 
     # https://stackoverflow.com/questions/60521205/how-can-i-install-netssleay-with-perlbrew-in-macos-catalina
-    ENV["OPENSSL_PREFIX"] = "#{Formula["openssl@1.1"]}/1.1.1m"
+    ENV["OPENSSL_PREFIX"] = Formula["openssl@1.1"].opt_prefix # for Net::SSLeay
     system "cpanm", "-v", "Net::SSLeay", "-l", libexec
 
     imagemagick = Formula["imagemagick"]
