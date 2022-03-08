@@ -46,8 +46,10 @@ class Lanraragi < Formula
     ENV.prepend_create_path "PERL5LIB", "#{libexec}/lib/perl5"
     ENV.prepend_path "PERL5LIB", "#{libexec}/lib"
     ENV["CFLAGS"] = "-I#{libexec}/include"
+    
     # https://stackoverflow.com/questions/60521205/how-can-i-install-netssleay-with-perlbrew-in-macos-catalina
     ENV["OPENSSL_PREFIX"] = "#{Formula["openssl@1.1"]}/1.1.1m"
+    system "cpanm", "Net::SSLeay", "--notest", "-l", libexec
 
     imagemagick = Formula["imagemagick"]
     resource("Image::Magick").stage do
