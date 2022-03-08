@@ -117,7 +117,7 @@ sub tags_from_eze_json {
     my $gtoken = $hash->{"gallery_info"}->{"source"}->{"token"};
 
     if ( $site && $gid && $gtoken ) {
-        $return .= ", source: $site.org/g/$gid/$gtoken";
+        $return .= ", source:$site.org/g/$gid/$gtoken";
     }
 
     #Done-o

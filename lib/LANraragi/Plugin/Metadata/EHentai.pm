@@ -69,7 +69,7 @@ sub get_tags {
         $gID    = $1;
         $gToken = $2;
         $logger->debug("Skipping search and using gallery $gID / $gToken from oneshot args");
-    } elsif ( $lrr_info->{existing_tags} =~ /.*source:e(?:x|-)hentai\.org\/g\/([0-9]*)\/([0-z]*)\/*.*/gi ) {
+    } elsif ( $lrr_info->{existing_tags} =~ /.*source:\s*e(?:x|-)hentai\.org\/g\/([0-9]*)\/([0-z]*)\/*.*/gi ) {
         $gID    = $1;
         $gToken = $2;
         $hasSrc = 1;

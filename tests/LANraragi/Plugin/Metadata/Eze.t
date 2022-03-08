@@ -38,7 +38,7 @@ note("eze Tests");
     my %ezetags = trap { LANraragi::Plugin::Metadata::Eze::get_tags( "", \%dummyhash, 1 ); };
 
     my $ezetags =
-      "artist:mitarashi kousei, character:akiko minase, character:yuuichi aizawa, female:aunt, female:lingerie, female:sole female, group:mitarashi club, language:english, language:translated, male:sole male, misc:multi-work series, parody:kanon, source: website.org/g/1179590/7c5815c77b";
+      "artist:mitarashi kousei, character:akiko minase, character:yuuichi aizawa, female:aunt, female:lingerie, female:sole female, group:mitarashi club, language:english, language:translated, male:sole male, misc:multi-work series, parody:kanon, source:website.org/g/1179590/7c5815c77b";
     is( $ezetags{title},
         "(C72) [Mitarashi Club (Mitarashi Kousei)] Akiko-san to Issho (Kanon) [English] [Belldandy100] [Decensored]",
         "eze parsing test 1/2"
