@@ -32,8 +32,11 @@ jobs:
     - name: Build MSI Installer
       shell: powershell
       run: |
-        Import-Module "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"; 
-        Enter-VsDevShell -VsInstallPath "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise" -SkipAutomaticLocation
+        [array]$installPath = &"C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -property installationpath
+        # Get first line of installPath in case we have multiple VS installs
+        Import-Module (Join-Path $installPath[0] "Common7\Tools\Microsoft.VisualStudio.DevShell.dll")
+        # Import the VS shell module 
+        Enter-VsDevShell -VsInstallPath $installPath[0] -SkipAutomaticLocation
         $ErrorActionPreference = 'Continue'
         git submodule init
         git submodule update

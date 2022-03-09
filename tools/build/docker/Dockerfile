@@ -1,8 +1,7 @@
 # DOCKER-VERSION 0.3.4
-FROM        alpine:3.12
+FROM        alpine:3.14
 LABEL       git="https://github.com/Difegue/LANraragi"
 
-ENV S6_OVERLAY_RELEASE v2.0.0.1
 ENV S6_KEEP_ENV 1
 
 # warn if we can't run stage2 (fix-attrs/cont-init)
@@ -11,8 +10,9 @@ ENV S6_BEHAVIOUR_IF_STAGE2_FAILS 1
 # wait 10s before KILLing
 ENV S6_KILL_GRACETIME 10000
 
-# s6
-ENTRYPOINT ["/init"] 
+# s6: The init is provided by alpine's s6-overlay package, hence the double slash. 
+# See https://pkgs.alpinelinux.org/contents?branch=v3.14&name=s6-overlay&arch=x86&repo=community
+ENTRYPOINT ["//init"] 
 
 # Check application health
 HEALTHCHECK --interval=1m --timeout=10s --retries=3 \
@@ -38,14 +38,6 @@ RUN \
     addgroup -g ${LRR_GID} koyomi && \
     adduser -D -u ${LRR_UID} -G koyomi koyomi; \
 fi
-
-
-# we use s6-overlay-nobin to just pull in the s6-overlay arch agnostic (shell)
-# components, since we apk install the binaries of s6 later which are arch specific
-# /!\ While the s6 version here is fixed by an envvar, the apk install is not pinned and takes whatever's in alpine:latest! This certainly needs a fix.
-ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_RELEASE}/s6-overlay-nobin.tar.gz /tmp/s6-overlay-nobin.tar.gz
-RUN tar -C / -xzf /tmp/s6-overlay-nobin.tar.gz && rm -f /tmp/s6-overlay-nobin.tar.gz
-
 
 WORKDIR /home/koyomi/lanraragi
 
