@@ -10,8 +10,9 @@ ENV S6_BEHAVIOUR_IF_STAGE2_FAILS 1
 # wait 10s before KILLing
 ENV S6_KILL_GRACETIME 10000
 
-# s6
-ENTRYPOINT ["/init"] 
+# s6: The init is provided by alpine's s6-overlay package, hence the double slash. 
+# See https://pkgs.alpinelinux.org/contents?branch=v3.14&name=s6-overlay&arch=x86&repo=community
+ENTRYPOINT ["//init"] 
 
 # Check application health
 HEALTHCHECK --interval=1m --timeout=10s --retries=3 \
