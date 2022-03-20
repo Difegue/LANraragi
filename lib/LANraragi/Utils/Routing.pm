@@ -130,6 +130,7 @@ sub apply_routes {
     $logged_in_api->get('/api/shinobu')->to('api-shinobu#shinobu_status');
     $logged_in_api->post('/api/shinobu/stop')->to('api-shinobu#stop_shinobu');
     $logged_in_api->post('/api/shinobu/restart')->to('api-shinobu#restart_shinobu');
+    $logged_in_api->post('/api/shinobu/rescan')->to('api-shinobu#reset_filemap');
 
     # Minion API
     $public_api->get('/api/minion/:jobid')->to('api-minion#minion_job_status');

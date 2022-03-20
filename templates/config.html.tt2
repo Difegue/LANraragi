@@ -148,6 +148,15 @@
 				});
 		}
 
+		function rescanContentFolder() {
+			$("#rescan-button").prop("disabled", true);
+			Server.callAPI("/api/shinobu/rescan", "POST", "Content folder rescan started!", "Error while restarting Worker:",
+				() => {
+					$("#rescan-button").prop("disabled", false);
+					shinobuStatus();
+				});
+		}
+
 		// Update the status of the background worker.
 		function shinobuStatus() {
 			Server.callAPI("/api/shinobu", "GET", null, "Error while querying Shinobu status:",
