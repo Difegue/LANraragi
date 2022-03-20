@@ -15,6 +15,7 @@ use Unicode::Normalize;
 use LANraragi::Model::Plugins;
 use LANraragi::Utils::Generic qw(flat remove_spaces);
 use LANraragi::Utils::Tags qw(unflat_tagrules tags_rules_to_array restore_CRLF);
+use LANraragi::Utils::Archive qw(get_filelist);
 use LANraragi::Utils::Logging qw(get_logger);
 
 # Functions for interacting with the DB Model.
@@ -69,6 +70,18 @@ sub add_timestamp_tag {
             $redis->hset( $id, "tags", "date_added:" . time() );
         }
     }
+}
+
+# add_pagecount(redis,id)
+# Calculates and adds pagecount to the given ID.
+sub add_pagecount {
+    my ( $redis, $id ) = @_;
+    my $logger = get_logger( "Archive", "lanraragi" );
+
+    my $file = $redis->hget( $id, "file" );
+    my ( $images, $sizes ) = get_filelist($file);
+    my @images = @$images;
+    $redis->hset( $id, "pagecount", scalar @images );
 }
 
 # get_archive_json(redis, id)
