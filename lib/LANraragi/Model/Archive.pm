@@ -8,8 +8,8 @@ use Cwd 'abs_path';
 use Redis;
 use Time::HiRes qw(usleep);
 use File::Basename;
-use File::Temp qw(tempfile);
 use File::Copy "cp";
+use File::Path qw(make_path);
 use Mojo::Util qw(xml_escape);
 
 use LANraragi::Utils::Generic qw(get_tag_with_namespace remove_spaces remove_newlines render_api_response);
@@ -287,17 +287,21 @@ sub serve_page {
         # Apply resizing transformation if set in Settings
         if ( LANraragi::Model::Config->enable_resize ) {
 
-            # Use File::Temp to copy the extracted file and resize it
-            my ( $fh, $filename ) = tempfile();
-            cp( $file, $fh );
+            # Store resized files in a subfolder of the ID's temp folder
+            my $resized_file = "$tempfldr/$id/resized/$path";
+            my ( $n, $resized_folder, $e ) = fileparse( $resized_file, qr/\.[^.]*/ );
+            make_path($resized_folder);
+
+            $logger->debug("Copying file to $resized_folder for resize transformation");
+            cp( $file, $resized_file );
 
             my $threshold = LANraragi::Model::Config->get_threshold;
             my $quality   = LANraragi::Model::Config->get_readquality;
-            LANraragi::Model::Reader::resize_image( $filename, $quality, $threshold );
+            LANraragi::Model::Reader::resize_image( $resized_file, $quality, $threshold );
 
             # resize_image always converts the image to jpg
             $self->render_file(
-                filepath            => $filename,
+                filepath            => $resized_file,
                 content_disposition => "inline",
                 format              => "jpg"
             );

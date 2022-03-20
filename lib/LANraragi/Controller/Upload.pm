@@ -2,7 +2,7 @@ package LANraragi::Controller::Upload;
 use Mojo::Base 'Mojolicious::Controller';
 
 use Redis;
-use File::Temp qw/ tempfile tempdir /;
+use File::Temp qw(tempdir);
 use File::Copy;
 use File::Find;
 use File::Basename;

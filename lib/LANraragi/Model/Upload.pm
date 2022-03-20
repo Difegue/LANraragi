@@ -6,7 +6,7 @@ use warnings;
 use Redis;
 use URI::Escape;
 use File::Basename;
-use File::Temp qw/ tempfile tempdir /;
+use File::Temp qw(tempdir);
 use File::Find qw(find);
 use File::Copy qw(move);
 
