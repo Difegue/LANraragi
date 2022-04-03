@@ -40,11 +40,7 @@
             </div>
 
             <a id="display">
-                <img id="img" class="reader-image" usemap="#Map" />
-                <map name="Map" id="Map">
-                    <area id="leftmap" style="cursor:pointer;" shape="rect" value="left" />
-                    <area id="rightmap" style="cursor:pointer;" shape="rect" value="right" />
-                </map>
+                <img id="img" class="reader-image"><img id="img_pre" class="reader-image">
             </a>
 
         </div>
