@@ -388,23 +388,24 @@ Reader.goToPage = function (page) {
         // composite an image and use that as the source
         const img1 = Reader.loadImage(Reader.currentPage);
         const img2 = Reader.loadImage(Reader.currentPage + 1);
-		if (img1.naturalWidth > img1.naturalHeight || img2.naturalWidth > img2.naturalHeight) {
-			// Depending on whether we were going forward or backward, display img1 or img2
-			$("#img").attr("src", Reader.previousPage > Reader.currentPage ? img2.src : img1.src);
-			Reader.showingSinglePage = true;
-			return;
-		} else {
-			if (Reader.mangaMode) {
-				$("#img").attr("src", img2.src);
-				$("#img_pre").attr("src", img1.src);
-			} else {
-				$("#img").attr("src", img1.src);
-				$("#img_pre").attr("src", img2.src);
-			}
-		}
+	if (img1.naturalWidth > img1.naturalHeight || img2.naturalWidth > img2.naturalHeight) {
+	    // Depending on whether we were going forward or backward, display img1 or img2
+	    $("#img").attr("src", Reader.previousPage > Reader.currentPage ? img2.src : img1.src);
+	    $("#img_pre").attr("src", "");
+	    Reader.showingSinglePage = true;
+        } else {
+	    if (Reader.mangaMode) {
+	        $("#img").attr("src", img2.src);
+	        $("#img_pre").attr("src", img1.src);
+	    } else {
+	        $("#img").attr("src", img1.src);
+	        $("#img_pre").attr("src", img2.src);
+	    }
+	}
     } else {
         const img = Reader.loadImage(Reader.currentPage);
         $("#img").attr("src", img.src);
+	$("#img_pre").attr("src", "");
         Reader.showingSinglePage = true;
     }
 
