@@ -333,6 +333,9 @@ Reader.updateMetadata = function () {
     const img = $("#img")[0];
     const imageUrl = new URL(img.src);
     const filename = imageUrl.searchParams.get("path");
+    const img_pre = $("#img_pre")[0];
+    const imageUrl_pre = new URL(img_pre.src);
+    const filename_pre = imageUrl_pre.searchParams.get("path");
     if (!filename && Reader.showingSinglePage) {
         Reader.currentPageLoaded = true;
         $("#i3").removeClass("loading");
@@ -341,6 +344,10 @@ Reader.updateMetadata = function () {
 
     const width = img.naturalWidth;
     const height = img.naturalHeight;
+    const width_pre = img_pre.naturalWidth;
+    const height_pre = img_pre.naturalHeight;
+    const width_view = width + width_pre;
+    const height_view = height > height_pre ? height : height_pre;
 
     if (Reader.showingSinglePage) {
         // HEAD request to get filesize
@@ -356,7 +363,36 @@ Reader.updateMetadata = function () {
                 },
             });
         } else { $(".file-info").text(`${filename} :: ${width} x ${height} :: ${size} KB`); }
-    } else { $(".file-info").text(`Double-Page View :: ${width} x ${height}`); }
+    } else { 
+        // HEAD request to get filesize
+        let size = Reader.preloadedSizes[Reader.currentPage];
+        let size_pre = Reader.preloadedSizes[Reader.currentPage+1];
+		let size_view = size + size_pre;
+        if (!size || !size_pre) {
+            $.ajax({
+                url: Reader.pages[Reader.currentPage],
+                type: "HEAD",
+                success: (data, textStatus, request) => {
+                    size = parseInt(request.getResponseHeader("Content-Length") / 1024, 10);
+                    Reader.preloadedSizes[Reader.currentPage] = size;
+                    $.ajax({
+                        url: Reader.pages[Reader.currentPage+1],
+                        type: "HEAD",
+                        success: (data, textStatus, request) => {
+                            size_pre = parseInt(request.getResponseHeader("Content-Length") / 1024, 10);
+                            Reader.preloadedSizes[Reader.currentPage+1] = size_pre;
+                            size_view = size + size_pre;
+                            $(".file-info").text(`${filename} - ${filename_pre} :: ${width_view} x ${height} :: ${size_view} KB`);
+                            $(".file-info").attr("title", `${filename} :: ${width} x ${height} :: ${size} KB - ${filename_pre} :: ${width_pre} x ${height_pre} :: ${size_pre} KB`);
+                        },
+                    });
+                },
+            });
+        } else { 
+            $(".file-info").text(`${filename} - ${filename_pre} :: ${width_view} x ${height} :: ${size_view} KB`);
+            $(".file-info").attr("title", `${filename} :: ${width} x ${height} :: ${size} KB - ${filename_pre} :: ${width_pre} x ${height_pre} :: ${size_pre} KB`);
+        }
+    }
 
     // Update page numbers in the paginator
     const newVal = Reader.showingSinglePage
