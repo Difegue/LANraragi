@@ -109,7 +109,32 @@ Reader.loadImages = function () {
             if (Reader.infiniteScroll) {
                 Reader.initInfiniteScrollView();
             } else {
-                $(document).on("click.imagemap_change_pages", "#Map area", Reader.handlePaginator);
+				$(document).click((event) => {
+					var screenw = $(window).width();
+					var aheight = $('a#display img').height();
+					if (event.clientY < aheight){
+						var whereside = event.clientX < screenw/2 ? 'left' : 'right';
+						if (!$(event.target).closest('a#display').length) {
+							whereside = 'outer-'+whereside;
+						}
+						switch (whereside) {
+						case "outer-left":
+							Reader.changePage("first");
+							break;
+						case "left":
+							Reader.changePage(-1);
+							break;
+						case "right":
+							Reader.changePage(1);
+							break;
+						case "outer-right":
+							Reader.changePage("last");
+							break;
+						default:
+							break;
+						}
+					}
+				});
                 $(window).on("resize", Reader.updateImagemap);
 
                 // when there's no parameter, null is coerced to 0 so it becomes -1
@@ -363,13 +388,20 @@ Reader.goToPage = function (page) {
         // composite an image and use that as the source
         const img1 = Reader.loadImage(Reader.currentPage);
         const img2 = Reader.loadImage(Reader.currentPage + 1);
-        let imagesLoaded = 0;
-        const loadHandler = () => { (imagesLoaded += 1) === 2 && Reader.drawCanvas(img1, img2); };
-        $([img1, img2]).each((_i, img) => {
-            img.onload = loadHandler;
-            // If the image is preloaded it does not trigger onload, so we have to call it manually
-            if (img.complete) { loadHandler(); }
-        });
+		if (img1.naturalWidth > img1.naturalHeight || img2.naturalWidth > img2.naturalHeight) {
+			// Depending on whether we were going forward or backward, display img1 or img2
+			$("#img").attr("src", Reader.previousPage > Reader.currentPage ? img2.src : img1.src);
+			Reader.showingSinglePage = true;
+			return;
+		} else {
+			if (Reader.mangaMode) {
+				$("#img").attr("src", img2.src);
+				$("#img_pre").attr("src", img1.src);
+			} else {
+				$("#img").attr("src", img1.src);
+				$("#img_pre").attr("src", img2.src);
+			}
+		}
     } else {
         const img = Reader.loadImage(Reader.currentPage);
         $("#img").attr("src", img.src);
