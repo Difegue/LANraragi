@@ -351,7 +351,7 @@ td.itdc {
 div.sni {
 	text-align: center;
 	margin: 2px auto 6px;
-	padding: 0 10px 5px;
+	padding: 0 0px 5px;
 	/*min-width: 800px;*/
 	position: relative;
 	z-index: 1;
@@ -359,7 +359,6 @@ div.sni {
   border-radius: 9px;
   clear: both;
   display: block;
-  padding-top: 5px;
   padding-bottom: 10px;
   width: 98%;
 }
@@ -373,6 +372,10 @@ div.sni img {
 	vertical-align: middle;
 	margin: 1px;
 	clear: both;
+}
+div.fullscreen img {
+	height: unset !important;
+	max-height: 100vh !important;
 }
 div.if {
 	margin: -5px auto 5px;
