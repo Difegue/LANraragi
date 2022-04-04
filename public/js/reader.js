@@ -109,32 +109,31 @@ Reader.loadImages = function () {
             if (Reader.infiniteScroll) {
                 Reader.initInfiniteScrollView();
             } else {
-				$(document).click((event) => {
-					var screenw = $(window).width();
-					var aheight = $('a#display img').height();
-					if (event.clientY < aheight){
-						var whereside = event.clientX < screenw/2 ? 'left' : 'right';
-						if (!$(event.target).closest('a#display').length) {
-							whereside = 'outer-'+whereside;
-						}
-						switch (whereside) {
-						case "outer-left":
-							Reader.changePage("first");
-							break;
-						case "left":
-							Reader.changePage(-1);
-							break;
-						case "right":
-							Reader.changePage(1);
-							break;
-						case "outer-right":
-							Reader.changePage("last");
-							break;
-						default:
-							break;
-						}
-					}
-				});
+                $(document).on('click', function(event) {
+                    var img_y_offset = $('a#display img').offset()['top'] + $('a#display img').height();
+                    if (event.pageY < img_y_offset && !$('#overlay-shade').is(':visible') ){
+                        var whereside = event.pageX < $(window).width()/2 ? 'left' : 'right';
+                        if (!$(event.target).closest('a#display').length) {
+                            whereside = 'outer-'+whereside;
+                        }
+                        switch (whereside) {
+                        case "outer-left":
+                            Reader.changePage("first");
+                            break;
+                        case "left":
+                            Reader.changePage(-1);
+                            break;
+                        case "right":
+                            Reader.changePage(1);
+                            break;
+                        case "outer-right":
+                            Reader.changePage("last");
+                            break;
+                        default:
+                            break;
+                        }
+                    }
+                });
                 $(window).on("resize", Reader.updateImagemap);
 
                 // when there's no parameter, null is coerced to 0 so it becomes -1
