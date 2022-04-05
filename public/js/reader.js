@@ -267,7 +267,7 @@ Reader.handleShortcuts = function (e) {
     case 68: // d
         Reader.changePage(1);
         break;
-    case 70: // d
+    case 70: // f
         Reader.toggleFullScreen();
         break;
     case 72: // h
