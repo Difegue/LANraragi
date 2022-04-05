@@ -259,3 +259,20 @@ LRR.showErrorToast = function (header, error) {
         icon: "error",
     });
 };
+
+/**
+ * return target img size.
+ * @param {*} target Target img link String
+ */
+LRR.getImgSize = function (target) {
+    let img_size = 0;
+    $.ajax({
+        async: false,
+        url: target,
+        type: "HEAD",
+        success: (data, textStatus, request) => {
+            img_size = parseInt(request.getResponseHeader("Content-Length") / 1024, 10);
+        },
+    });
+    return img_size;
+};
