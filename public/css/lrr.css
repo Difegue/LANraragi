@@ -284,7 +284,6 @@ p#nb {
   max-width:100%;
   height: auto;
   width: auto;
-  min-height:300px;
   user-select: none;
 }
 
@@ -690,4 +689,39 @@ body.infinite-scroll #display img {
 
 body.infinite-scroll .sb {
   margin-top: 10px;
+}
+
+/* Double Page & Fullscreen */
+
+@media screen and (orientation:portrait) {
+  /* Image size fix when device is portrait and double page mode */
+  div.sni .double-mode img {
+    width: calc(50% - 2px);
+  }
+  div.fullscreen .double-mod img {
+    width: calc(50%);
+  }
+}
+
+div.sni img[src=""] {
+  display: none;
+}
+
+div.fullscreen img {
+  height: unset !important;
+  max-height: 100vh !important;
+  margin: 0px !important;
+}
+
+#display {
+  display: flex;
+  justify-content: center;
+}
+
+.fullscreen-infinite {
+  overflow-y: scroll;
+}
+
+body.infinite-scroll .fullscreen-infinite img {
+  margin: 0 auto !important;
 }
