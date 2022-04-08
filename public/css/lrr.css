@@ -698,7 +698,7 @@ body.infinite-scroll .sb {
   div.sni .double-mode img {
     width: calc(50% - 2px);
   }
-  div.fullscreen .double-mod img {
+  div.fullscreen .double-mode img {
     width: calc(50%);
   }
 }

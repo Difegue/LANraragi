@@ -115,6 +115,7 @@ Reader.loadImages = function () {
                     if(Reader.isFullscreen) {
                         let changePage_val = 1;
                         if (e.originalEvent.deltaY > 0) changePage_val = -1;
+                        // In Manga mode, reverse the changePage variable so that we always move forwar
                         if (!Reader.mangaMode) changePage_val *= -1;
                         Reader.changePage(changePage_val);
                         return false;
@@ -123,7 +124,7 @@ Reader.loadImages = function () {
                 // when click left or right img area change page
                 $(document).on("click", function(event) {
                     // check click Y position is in img Y area 
-                    if (event.pageY < ($("a#display img").offset()["top"] + $("a#display img").height()) && !$("#overlay-shade").is(":visible") ){
+                    if ($(event.target).closest("#i3").length && !$("#overlay-shade").is(":visible") ){
                         // is click X position is left on screen or right
                         switch (event.pageX < $(window).width()/2 ? "left" : "right") {
                         case "left":
@@ -338,9 +339,9 @@ Reader.updateMetadata = function () {
     const img = $("#img")[0];
     const imageUrl = new URL(img.src);
     const filename = imageUrl.searchParams.get("path");
-    const img_doublepage = $("#img_doublepage")[0];
-    const imageUrl_doublepage = new URL(img_doublepage.src);
-    const filename_doublepage = imageUrl_doublepage.searchParams.get("path");
+    const imgDoublePage = $("#img_doublepage")[0];
+    const imageUrlDoublePage = new URL(imgDoublePage.src);
+    const filenameDoublePage = imageUrlDoublePage.searchParams.get("path");
     if (!filename && Reader.showingSinglePage) {
         Reader.currentPageLoaded = true;
         $("#i3").removeClass("loading");
@@ -349,25 +350,19 @@ Reader.updateMetadata = function () {
 
     const width = img.naturalWidth;
     const height = img.naturalHeight;
-    const width_doublepage = img_doublepage.naturalWidth;
-    const height_doublepage = img_doublepage.naturalHeight;
-    const width_view = width + width_doublepage;
-    const height_view = height > height_doublepage ? height : height_doublepage;
+    const widthDoublePage = imgDoublePage.naturalWidth;
+    const heightDoublePage = imgDoublePage.naturalHeight;
+    const widthView = width + widthDoublePage;
+    const heightView = height > heightDoublePage ? height : heightDoublePage;
 
     if (Reader.showingSinglePage) {
         // HEAD request to get filesize
         let size = Reader.preloadedSizes[Reader.currentPage];
         if (!size) {
-            $.ajax({
-                url: Reader.pages[Reader.currentPage],
-                type: "HEAD",
-                success: (data, textStatus, request) => {
-                    size = parseInt(request.getResponseHeader("Content-Length") / 1024, 10);
-                    Reader.preloadedSizes[Reader.currentPage] = size;
-                    $(".file-info").text(`${filename} :: ${width} x ${height} :: ${size} KB`);
-                    $(".file-info").attr("title", `${filename} :: ${width} x ${height} :: ${size} KB`);
-                },
-            });
+            size = LRR.getImgSize(Reader.pages[Reader.currentPage]);
+            Reader.preloadedSizes[Reader.currentPage] = size;
+            $(".file-info").text(`${filename} :: ${width} x ${height} :: ${size} KB`);
+            $(".file-info").attr("title", `${filename} :: ${width} x ${height} :: ${size} KB`);
         } else { 
             $(".file-info").text(`${filename} :: ${width} x ${height} :: ${size} KB`); 
             $(".file-info").attr("title", `${filename} :: ${width} x ${height} :: ${size} KB`);
@@ -375,19 +370,19 @@ Reader.updateMetadata = function () {
     } else { 
         // HEAD request to get filesize
         let size = Reader.preloadedSizes[Reader.currentPage];
-        let size_pre = Reader.preloadedSizes[Reader.currentPage+1];
-        let size_view = size + size_pre;
-        if (!size || !size_pre) {
+        let sizePre = Reader.preloadedSizes[Reader.currentPage+1];
+        let sizeView = size + sizePre;
+        if (!size || !sizePre) {
             size = LRR.getImgSize(Reader.pages[Reader.currentPage]);
-            size_doublepage = LRR.getImgSize(Reader.pages[Reader.currentPage+1]);
+            sizeDoublePage = LRR.getImgSize(Reader.pages[Reader.currentPage+1]);
             Reader.preloadedSizes[Reader.currentPage] = size;
-            Reader.preloadedSizes[Reader.currentPage+1] = size_doublepage;
-            size_view = size + size_doublepage;
-            $(".file-info").text(`${filename} - ${filename_doublepage} :: ${width_view} x ${height} :: ${size_view} KB`);
-            $(".file-info").attr("title", `${filename} :: ${width} x ${height} :: ${size} KB - ${filename_doublepage} :: ${width_doublepage} x ${height_doublepage} :: ${size_doublepage} KB`);
+            Reader.preloadedSizes[Reader.currentPage+1] = sizeDoublePage;
+            sizeView = size + sizeDoublePage;
+            $(".file-info").text(`${filename} - ${filenameDoublePage} :: ${widthView} x ${height} :: ${sizeView} KB`);
+            $(".file-info").attr("title", `${filename} :: ${width} x ${height} :: ${size} KB - ${filenameDoublePage} :: ${widthDoublePage} x ${heightDoublePage} :: ${sizeDoublePage} KB`);
         } else { 
-            $(".file-info").text(`${filename} - ${filename_doublepage} :: ${width_view} x ${height} :: ${size_view} KB`);
-            $(".file-info").attr("title", `${filename} :: ${width} x ${height} :: ${size} KB - ${filename_doublepage} :: ${width_doublepage} x ${height_doublepage} :: ${size_doublepage} KB`);
+            $(".file-info").text(`${filename} - ${filenameDoublePage} :: ${widthView} x ${height} :: ${sizeView} KB`);
+            $(".file-info").attr("title", `${filename} :: ${width} x ${height} :: ${size} KB - ${filenameDoublePage} :: ${widthDoublePage} x ${heightDoublePage} :: ${sizeDoublePage} KB`);
         }
     }
 
@@ -417,6 +412,8 @@ Reader.goToPage = function (page) {
     Reader.currentPage = Math.min(Reader.maxPage, Math.max(0, +page));
 
     Reader.showingSinglePage = false;
+    $("#img_doublepage").attr("src", "");
+    $("#display").removeClass("double-mode");
     if (Reader.doublePageMode && Reader.currentPage > 0 && Reader.currentPage < Reader.maxPage) {
         // composite an image and use that as the source
         const img1 = Reader.loadImage(Reader.currentPage);
@@ -424,8 +421,6 @@ Reader.goToPage = function (page) {
         if (img1.naturalWidth > img1.naturalHeight || img2.naturalWidth > img2.naturalHeight) {
             // Depending on whether we were going forward or backward, display img1 or img2
             $("#img").attr("src", Reader.previousPage > Reader.currentPage ? img2.src : img1.src);
-            $("#img_doublepage").attr("src", "");
-            $("a#display").removeClass("double-mode");
             Reader.showingSinglePage = true;
         } else {
             if (Reader.mangaMode) {
@@ -435,13 +430,11 @@ Reader.goToPage = function (page) {
                 $("#img").attr("src", img1.src);
                 $("#img_doublepage").attr("src", img2.src);
             }
-            $("a#display").addClass("double-mode");
+            $("#display").addClass("double-mode");
         }
     } else {
         const img = Reader.loadImage(Reader.currentPage);
         $("#img").attr("src", img.src);
-        $("#img_doublepage").attr("src", "");
-        $("a#display").removeClass("double-mode");
         Reader.showingSinglePage = true;
     }
 
@@ -611,47 +604,47 @@ Reader.toggleArchiveOverlay = function () {
 };
 
 Reader.toggleFullScreen = function () {
-  // if already full screen; exit
-  // else go fullscreen
-  if (
-    document.fullscreenElement ||
-    document.webkitFullscreenElement ||
-    document.mozFullScreenElement ||
-    document.msFullscreenElement
-  ) {
-    if($("body").hasClass("infinite-scroll")) {
-        $("div#i3").removeClass("fullscreen-infinite");
+    // if already full screen; exit
+    // else go fullscreen
+    if (
+        document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.mozFullScreenElement ||
+        document.msFullscreenElement
+    ) {
+        if($("body").hasClass("infinite-scroll")) {
+            $("div#i3").removeClass("fullscreen-infinite");
+        } else {
+            $("div#i3").removeClass("fullscreen");
+        }
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+        Reader.isFullscreen = false;
     } else {
-        $("div#i3").removeClass("fullscreen");
+        if($("body").hasClass("infinite-scroll")) {
+            $("div#i3").addClass("fullscreen-infinite");
+        } else {
+            $("div#i3").addClass("fullscreen");
+        }
+        const element = $("div#i3").get(0);
+        if (element.requestFullscreen) {
+            element.requestFullscreen();
+        } else if (element.mozRequestFullScreen) {
+            element.mozRequestFullScreen();
+        } else if (element.webkitRequestFullscreen) {
+            element.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+        } else if (element.msRequestFullscreen) {
+            element.msRequestFullscreen();
+        }
+        Reader.isFullscreen = true;
     }
-    if (document.exitFullscreen) {
-      document.exitFullscreen();
-    } else if (document.mozCancelFullScreen) {
-      document.mozCancelFullScreen();
-    } else if (document.webkitExitFullscreen) {
-      document.webkitExitFullscreen();
-    } else if (document.msExitFullscreen) {
-      document.msExitFullscreen();
-    }
-    Reader.isFullscreen = false;
-  } else {
-    if($("body").hasClass("infinite-scroll")) {
-        $("div#i3").addClass("fullscreen-infinite");
-    } else {
-        $("div#i3").addClass("fullscreen");
-    }
-    element = $("div#i3").get(0);
-    if (element.requestFullscreen) {
-      element.requestFullscreen();
-    } else if (element.mozRequestFullScreen) {
-      element.mozRequestFullScreen();
-    } else if (element.webkitRequestFullscreen) {
-      element.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
-    } else if (element.msRequestFullscreen) {
-      element.msRequestFullscreen();
-    }
-    Reader.isFullscreen = true;
-  }
 };
 
 Reader.initializeArchiveOverlay = function () {
