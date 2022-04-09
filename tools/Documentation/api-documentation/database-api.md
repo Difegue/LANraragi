@@ -10,11 +10,7 @@ Get tags from the database, with a value symbolizing their prevalence.
 {% endswagger-description %}
 
 {% swagger-parameter name="minweight" type="int" required="false" in="query" %}
-Add this parameter if you want to only get tags whose weight is at least the given minimum.
-
-\
-
-
+Add this parameter if you want to only get tags whose weight is at least the given minimum.  
 Default is 1 if not specified, to get all tags.
 {% endswagger-parameter %}
 
@@ -51,11 +47,7 @@ Cleans the Database, removing entries for files that are no longer on the filesy
 
 {% swagger baseUrl="http://lrr.tvc-16.science" path="/api/database/drop" method="post" summary="🔑Drop the Database" %}
 {% swagger-description %}
-Delete the entire database, including user preferences.
-
-\
-
-
+Delete the entire database, including user preferences.  
 This is a rather dangerous endpoint, invoking it might lock you out of the server as a client!
 {% endswagger-description %}
 
@@ -71,11 +63,7 @@ This is a rather dangerous endpoint, invoking it might lock you out of the serve
 
 {% swagger baseUrl="http://lrr.tvc-16.science" path="/api/database/backup" method="get" summary="🔑Get a backup JSON" %}
 {% swagger-description %}
-Scans the entire database and returns a backup in JSON form.
-
-\
-
-
+Scans the entire database and returns a backup in JSON form.  
 This backup can be reimported manually through the Backup and Restore feature.
 {% endswagger-description %}
 

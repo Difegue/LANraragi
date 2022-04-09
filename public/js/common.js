@@ -261,8 +261,9 @@ LRR.showErrorToast = function (header, error) {
 };
 
 /**
+ * Fires a HEAD request to get filesize of a given URL.
  * return target img size.
- * @param {*} target Target img link String
+ * @param {*} target Target URL String
  */
 LRR.getImgSize = function (target) {
     let imgSize = 0;

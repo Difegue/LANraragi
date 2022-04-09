@@ -144,6 +144,7 @@
                 <li>P: toggle double page mode</li>
                 <li>Q: bring up the thumbnail index and archive options.</li>
                 <li>R: open a random archive.</li>
+                <li>F: toggle fullscreen mode</li>
             </ul>
             <br>To return to the archive index, touch the arrow pointing down or use Backspace.
         </div>
