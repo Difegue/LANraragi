@@ -20,6 +20,7 @@ Reader.initializeAll = function () {
 
     // Bind events to DOM
     $(document).on("keyup", Reader.handleShortcuts);
+    $(document).on("wheel", Reader.handleWheel);
 
     $(document).on("click.toggle_fit_mode", "#fit-mode input", Reader.toggleFitMode);
     $(document).on("click.toggle_double_mode", "#toggle-double-mode input", Reader.toggleDoublePageMode);
@@ -111,17 +112,6 @@ Reader.loadImages = function () {
             if (Reader.infiniteScroll) {
                 Reader.initInfiniteScrollView();
             } else {
-                $(window).on("wheel", (e) => {
-                    if (Reader.isFullscreen) {
-                        let changePage = 1;
-                        if (e.originalEvent.deltaY > 0) changePage = -1;
-                        // In Manga mode, reverse the changePage variable
-                        // so that we always move forward
-                        if (!Reader.mangaMode) changePage *= -1;
-                        Reader.changePage(changePage);
-                    }
-                    return false;
-                });
                 // when click left or right img area change page
                 $(document).on("click", (event) => {
                     // check click Y position is in img Y area
@@ -281,6 +271,17 @@ Reader.handleShortcuts = function (e) {
         break;
     default:
         break;
+    }
+};
+
+Reader.handleWheel = function (e) {
+    if (Reader.isFullscreen && !Reader.infiniteScroll) {
+        let changePage = 1;
+        if (e.originalEvent.deltaY > 0) changePage = -1;
+        // In Manga mode, reverse the changePage variable
+        // so that we always move forward
+        if (!Reader.mangaMode) changePage *= -1;
+        Reader.changePage(changePage);
     }
 };
 

@@ -27,7 +27,7 @@ perlmagick ghostscript npm
 _Base software dependencies._
 
 {% hint style="info" %}
-If your package manager requires you to specify which ImageMagick version to install you need to choose version 7.
+If your package manager requires you to specify which ImageMagick version to install, choose version 7.
 {% endhint %}
 
 {% hint style="info" %}
@@ -44,7 +44,10 @@ git clone -b master http://github.com/Difegue/LANraragi /home/koyomi/lanraragi
 cd /home/koyomi/lanraragi && sudo npm run lanraragi-installer install-full
 ```
 
-Note: Do not use `sudo` in the above command if you are using `perlbrew`.
+{% hint style="info"}
+Do not use `sudo` in the above command if you are using `perlbrew`.  
+Arch users might need to install `perl-config-autoconf` and use env variable `export PERL5LIB=~/perl5/lib/perl5` before running the installer.
+{% endhint %}
 
 Once this is done, you can get started by running `npm start` and opening [http://localhost:3000](http://localhost:3000).
 
