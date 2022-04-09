@@ -127,19 +127,13 @@ Reader.loadImages = function () {
                     // check click Y position is in img Y area
                     if ($(event.target).closest("#i3").length && !$("#overlay-shade").is(":visible")) {
                         // is click X position is left on screen or right
-                        switch (event.pageX < $(window).width() / 2 ? "left" : "right") {
-                        case "left":
+                        if (event.pageX < $(window).width() / 2) {
                             Reader.changePage(-1);
-                            break;
-                        case "right":
+                        } else {
                             Reader.changePage(1);
-                            break;
-                        default:
-                            break;
                         }
                     }
                 });
-                $(window).on("resize", Reader.updateImageMap);
 
                 // when there's no parameter, null is coerced to 0 so it becomes -1
                 Reader.currentPage = Reader.currentPage || (
@@ -390,19 +384,8 @@ Reader.updateMetadata = function () {
         : `${Reader.currentPage + 1} + ${Reader.currentPage + 2}`;
     $(".current-page").each((_i, el) => $(el).html(newVal));
 
-    Reader.updateImageMap();
     Reader.currentPageLoaded = true;
     $("#i3").removeClass("loading");
-};
-
-Reader.updateImageMap = function () {
-    // update imagemap with the w/h parameters we obtained
-    const img = $("#img")[0];
-    const mapWidth = img.width / 2;
-    const mapHeight = img.height;
-
-    $("#leftmap").attr("coords", `0,0,${mapWidth},${mapHeight}`);
-    $("#rightmap").attr("coords", `${mapWidth + 1},0,${img.width},${mapHeight}`);
 };
 
 Reader.goToPage = function (page) {
@@ -413,12 +396,14 @@ Reader.goToPage = function (page) {
     $("#img_doublepage").attr("src", "");
     $("#display").removeClass("double-mode");
     if (Reader.doublePageMode && Reader.currentPage > 0 && Reader.currentPage < Reader.maxPage) {
-        // composite an image and use that as the source
+        // Composite an image and use that as the source
         const img1 = Reader.loadImage(Reader.currentPage);
         const img2 = Reader.loadImage(Reader.currentPage + 1);
+        // If w > h on one of the images(widespread), set canvasdata to the first image only
         if (img1.naturalWidth > img1.naturalHeight || img2.naturalWidth > img2.naturalHeight) {
             // Depending on whether we were going forward or backward, display img1 or img2
-            $("#img").attr("src", Reader.previousPage > Reader.currentPage ? img2.src : img1.src);
+            const wideSrc = Reader.previousPage > Reader.currentPage ? img2.src : img1.src;
+            $("#img").attr("src", wideSrc);
             Reader.showingSinglePage = true;
         } else {
             if (Reader.mangaMode) {
@@ -698,33 +683,6 @@ Reader.initializeArchiveOverlay = function () {
         $("#archivePagesOverlay").append(thumbnail);
     }
     $("#archivePagesOverlay").attr("loaded", "true");
-};
-
-Reader.drawCanvas = function (img1, img2) {
-    // If w > h on one of the images(widespread), set canvasdata to the first image only
-    if (img1.naturalWidth > img1.naturalHeight || img2.naturalWidth > img2.naturalHeight) {
-        // Depending on whether we were going forward or backward, display img1 or img2
-        $("#img").attr("src", Reader.previousPage > Reader.currentPage ? img2.src : img1.src);
-        Reader.showingSinglePage = true;
-        return;
-    }
-
-    // Create an adequately-sized canvas
-    const canvas = $("#dpcanvas")[0];
-    canvas.width = img1.naturalWidth + img2.naturalWidth;
-    canvas.height = Math.max(img1.naturalHeight, img2.naturalHeight);
-
-    // Draw both images on it
-    const ctx = canvas.getContext("2d");
-    if (Reader.mangaMode) {
-        ctx.drawImage(img2, 0, 0);
-        ctx.drawImage(img1, img2.naturalWidth + 1, 0);
-    } else {
-        ctx.drawImage(img1, 0, 0);
-        ctx.drawImage(img2, img1.naturalWidth + 1, 0);
-    }
-
-    $("#img").attr("src", canvas.toDataURL("image/jpeg"));
 };
 
 Reader.changePage = function (targetPage) {
