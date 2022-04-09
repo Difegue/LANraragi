@@ -265,14 +265,14 @@ LRR.showErrorToast = function (header, error) {
  * @param {*} target Target img link String
  */
 LRR.getImgSize = function (target) {
-    let img_size = 0;
+    let imgSize = 0;
     $.ajax({
         async: false,
         url: target,
         type: "HEAD",
         success: (data, textStatus, request) => {
-            img_size = parseInt(request.getResponseHeader("Content-Length") / 1024, 10);
+            imgSize = parseInt(request.getResponseHeader("Content-Length") / 1024, 10);
         },
     });
-    return img_size;
+    return imgSize;
 };
