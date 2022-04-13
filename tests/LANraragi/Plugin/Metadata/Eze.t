@@ -38,7 +38,7 @@ note("eze Tests");
     my %ezetags = trap { LANraragi::Plugin::Metadata::Eze::get_tags( "", \%dummyhash, 1 ); };
 
     my $ezetags =
-      "artist:mitarashi kousei, character:akiko minase, character:yuuichi aizawa, female:aunt, female:lingerie, female:sole female, group:mitarashi club, language:english, language:translated, male:sole male, misc:multi-work series, parody:kanon, date_uploaded:1517540580, source:website.org/g/1179590/7c5815c77b";
+      "artist:mitarashi kousei, character:akiko minase, character:yuuichi aizawa, female:aunt, female:lingerie, female:sole female, group:mitarashi club, language:english, language:translated, male:sole male, misc:multi-work series, parody:kanon, timestamp:1517540580, source:website.org/g/1179590/7c5815c77b";
     is( $ezetags{title},
         "(C72) [Mitarashi Club (Mitarashi Kousei)] Akiko-san to Issho (Kanon) [English] [Belldandy100] [Decensored]",
         "eze parsing test 1/2"
@@ -66,7 +66,7 @@ note("eze-full Tests");
     my %ezetags = trap { LANraragi::Plugin::Metadata::Eze::get_tags( "", \%dummyhash, 1 ); };
 
     my $ezetags =
-      "artist:hiten, female:females only, group:hitenkei, misc:artbook, misc:full color, category:non-h, date_uploaded:1549380180, source:exhentai.org/g/1360136/96e61584d9";
+      "artist:hiten, female:females only, group:hitenkei, misc:artbook, misc:full color, category:non-h, uploader:RICO740, timestamp:1549380180, source:exhentai.org/g/1360136/96e61584d9";
     is( $ezetags{title},
         "(C95) [HitenKei (Hiten)]Re:IMPERMANENT",
         "eze-full parsing test 1/2"

@@ -117,23 +117,28 @@ sub tags_from_eze_json {
     my $gid    = $hash->{"gallery_info"}->{"source"}->{"gid"};
     my $gtoken = $hash->{"gallery_info"}->{"source"}->{"token"};
     my $category = $hash->{"gallery_info"}->{"category"};
-    my $date_uploaded = $hash->{"gallery_info_full"}->{"date_uploaded"};
+    my $uploader = $hash->{"gallery_info_full"}->{"uploader"};
+    my $timestamp = $hash->{"gallery_info_full"}->{"date_uploaded"};
 
-    if ( $date_uploaded ) {
+    if ( $timestamp ) {
         # convert microsecond to second
-        $date_uploaded = $date_uploaded / 1000;
+        $timestamp = $timestamp / 1000;
     } else {
         my $upload_date = $hash->{"gallery_info"}->{"upload_date"};
         my $time = timegm_posix($$upload_date[5],$$upload_date[4],$$upload_date[3],$$upload_date[2],$$upload_date[1]-1,$$upload_date[0]-1900);
-        $date_uploaded = $time;
+        $timestamp = $time;
     }
 
     if ( $category ) {
         $return .= ", category:$category";
     }
 
-    if ( $date_uploaded ) {
-        $return .= ", date_uploaded:$date_uploaded";
+    if ( $uploader ) {
+        $return .= ", uploader:$uploader";
+    }
+
+    if ( $timestamp ) {
+        $return .= ", timestamp:$timestamp";
     }
 
     if ( $site && $gid && $gtoken ) {
