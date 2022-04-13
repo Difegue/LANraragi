@@ -6,6 +6,7 @@ use warnings;
 #Plugins can freely use all Perl packages already installed on the system
 #Try however to restrain yourself to the ones already installed for LRR (see tools/cpanfile) to avoid extra installations by the end-user.
 use Mojo::JSON qw(from_json);
+use Time::Local qw(timelocal_posix timegm_posix);
 
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
@@ -115,6 +116,25 @@ sub tags_from_eze_json {
     my $site   = $hash->{"gallery_info"}->{"source"}->{"site"};
     my $gid    = $hash->{"gallery_info"}->{"source"}->{"gid"};
     my $gtoken = $hash->{"gallery_info"}->{"source"}->{"token"};
+    my $category = $hash->{"gallery_info_full"}->{"category"};
+    my $date_uploaded = $hash->{"gallery_info_full"}->{"date_uploaded"};
+
+    if ( $date_uploaded ) {
+        # convert microsecond to second
+        $date_uploaded = $date_uploaded / 1000;
+    } else {
+        my $upload_date = $hash->{"gallery_info"}->{"upload_date"};
+        my $time = timegm_posix($$upload_date[5],$$upload_date[4],$$upload_date[3],$$upload_date[2],$$upload_date[1]-1,$$upload_date[0]-1900);
+        $date_uploaded = $time;
+    }
+
+    if ( $category ) {
+        $return .= ", category:$category";
+    }
+
+    if ( $date_uploaded ) {
+        $return .= ", date_uploaded:$date_uploaded";
+    }
 
     if ( $site && $gid && $gtoken ) {
         $return .= ", source:$site.org/g/$gid/$gtoken";
