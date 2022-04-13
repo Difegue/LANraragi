@@ -7,6 +7,7 @@ use warnings;
 #Try however to restrain yourself to the ones already installed for LRR (see tools/cpanfile) to avoid extra installations by the end-user.
 use Mojo::JSON qw(from_json);
 use Time::Local qw(timelocal_posix timegm_posix);
+use File::Basename;
 
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
@@ -43,6 +44,11 @@ sub get_tags {
 
     my $logger = get_plugin_logger();
     my $path_in_archive = is_file_in_archive( $lrr_info->{file_path}, "info.json" );
+
+    my @suffixlist = qw(.zip .cbz .rar .cbr .tar.gz .cbt .lzma .7z .cb7 .xz .pdf .epub);
+    my ($name, $path, $suffix) = fileparse($lrr_info->{file_path}, @suffixlist);
+    my $path_nearby_json = $path . $name . '.json';
+
     if ($path_in_archive) {
 
         #Extract info.json
@@ -62,7 +68,7 @@ sub get_tags {
         #Use Mojo::JSON to decode the string into a hash
         my $hashjson = from_json $stringjson;
 
-        $logger->debug("Found and loaded the following JSON: $stringjson");
+        $logger->debug("Found in archive and loaded the following JSON: $stringjson");
 
         #Parse it
         my ( $tags, $title ) = tags_from_eze_json($hashjson);
@@ -80,8 +86,45 @@ sub get_tags {
             return ( tags => $tags );
         }
 
+    } elsif (-e $path_nearby_json){
+
+        $logger->debug("Found file $path_nearby_json");
+
+        my $filepath = $path_nearby_json;
+        
+        #Open it
+        my $stringjson = "";
+
+        open( my $fh, '<:encoding(UTF-8)', $filepath )
+            or return ( error => "Could not open $filepath!" );
+
+        while ( my $row = <$fh> ) {
+            chomp $row;
+            $stringjson .= $row;
+        }
+
+        #Use Mojo::JSON to decode the string into a hash
+        my $hashjson = from_json $stringjson;
+
+        $logger->debug("Found nearby and loaded the following JSON: $stringjson");
+
+        #Parse it
+        my ( $tags, $title ) = tags_from_eze_json($hashjson);
+
+        #Return tags
+        $logger->info("Sending the following tags to LRR: $tags");
+
+        if ( $save_title && $title ) {
+            $logger->info("Parsed title is $title");
+            return ( tags => $tags, title => $title );
+        } else {
+            return ( tags => $tags );
+        }
+
     } else {
-        return ( error => "No eze info.json file found in this archive!" );
+
+        return ( error => "No in-archive eze info.json or .json file with same name found!" );
+
     }
 
 }
