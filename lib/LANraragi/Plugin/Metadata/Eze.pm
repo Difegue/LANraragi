@@ -116,7 +116,7 @@ sub tags_from_eze_json {
     my $site   = $hash->{"gallery_info"}->{"source"}->{"site"};
     my $gid    = $hash->{"gallery_info"}->{"source"}->{"gid"};
     my $gtoken = $hash->{"gallery_info"}->{"source"}->{"token"};
-    my $category = $hash->{"gallery_info_full"}->{"category"};
+    my $category = $hash->{"gallery_info"}->{"category"};
     my $date_uploaded = $hash->{"gallery_info_full"}->{"date_uploaded"};
 
     if ( $date_uploaded ) {
