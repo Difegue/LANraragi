@@ -25,7 +25,7 @@ sub plugin_info {
         type      => "metadata",
         namespace => "ezeplugin",
         author    => "Difegue",
-        version   => "2.2",
+        version   => "2.3",
         description =>
           "Collects metadata from eze-style info.json file in archives or {archive_name}.json file nearby the archive file. ({'gallery_info': {xxx} } syntax)",
         icon =>
@@ -33,7 +33,7 @@ sub plugin_info {
         parameters => [
             { type => "bool", desc => "Save archive title" },
             { type => "bool",
-              desc => "Save the original title when available instead of" . "the English or romanised title"
+              desc => "Save the original title when available instead of the English or romanised title"
             },
             { type => "bool", desc => "Fetch additional timestamp (time posted) and uploader metadata" },
         ]
