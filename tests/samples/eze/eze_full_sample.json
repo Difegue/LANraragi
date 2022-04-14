@@ -1,93 +1,109 @@
 {
   "gallery_info": {
-    "title": "(C95) [HitenKei (Hiten)]Re:IMPERMANENT",
-    "title_original": "(C95) [HitenKei (Hiten)]Re:IMPERMANENT",
-    "category": "non-h",
+    "title": "(C91) [HitenKei (Hiten)] R.E.I.N.A [Chinese] [無邪気漢化組]",
+    "title_original": "(C91) [HitenKei (Hiten)] R.E.I.N.A [中国翻訳]",
+    "category": "doujinshi",
     "tags": {
+      "language": [
+        "chinese",
+        "translated"
+      ],
+      "parody": [
+        "original"
+      ],
       "group": [
         "hitenkei"
       ],
       "artist": [
         "hiten"
       ],
-      "female": [
-        "females only"
+      "male": [
+        "sole male"
       ],
-      "misc": [
-        "artbook",
-        "full color"
+      "female": [
+        "defloration",
+        "pantyhose",
+        "sole female"
       ]
     },
-    "language": "Japanese",
-    "translated": false,
+    "language": "Chinese",
+    "translated": true,
     "favorite_category": null,
     "upload_date": [
-      2019,
-      2,
-      5,
-      15,
-      23,
+      2017,
+      1,
+      14,
+      16,
+      46,
       0
     ],
     "source": {
       "site": "exhentai",
-      "gid": 1360136,
-      "token": "96e61584d9",
+      "gid": 1017975,
+      "token": "49b3c275a1",
       "parent_gallery": null,
       "newer_versions": []
     }
   },
   "gallery_info_full": {
     "gallery": {
-      "gid": 1360136,
-      "token": "96e61584d9"
+      "gid": 1017975,
+      "token": "49b3c275a1"
     },
-    "title": "(C95) [HitenKei (Hiten)]Re:IMPERMANENT",
-    "title_original": "(C95) [HitenKei (Hiten)]Re:IMPERMANENT",
-    "date_uploaded": 1549380180000,
-    "category": "non-h",
-    "uploader": "RICO740",
+    "title": "(C91) [HitenKei (Hiten)] R.E.I.N.A [Chinese] [無邪気漢化組]",
+    "title_original": "(C91) [HitenKei (Hiten)] R.E.I.N.A [中国翻訳]",
+    "date_uploaded": 1484412360000,
+    "category": "doujinshi",
+    "uploader": "cocy",
     "rating": {
-      "average": 4.73,
-      "count": 92
+      "average": 4.85,
+      "count": 557
     },
     "favorites": {
       "category": -1,
       "category_title": "",
-      "count": 473
+      "count": 5166
     },
     "parent": null,
     "newer_versions": [],
-    "thumbnail": "https://exhentai.org/t/c1/d1/c1d120f95f7fdc919fed8339f2f141fff89a6a8f-5512590-2106-2961-png_250.jpg",
+    "thumbnail": "https://exhentai.org/t/03/a6/03a6180e6de784661608a2c7416588dae530110a-4062963-2116-3000-png_250.jpg",
     "thumbnail_size": "large",
     "thumbnail_rows": 4,
-    "image_count": 10,
+    "image_count": 23,
     "images_resized": false,
-    "total_file_size_approx": 80100720,
+    "total_file_size_approx": 56675532,
     "visible": true,
     "visible_reason": "",
-    "language": "Japanese",
-    "translated": false,
+    "language": "Chinese",
+    "translated": true,
     "tags": {
+      "language": [
+        "chinese",
+        "translated"
+      ],
+      "parody": [
+        "original"
+      ],
       "group": [
         "hitenkei"
       ],
       "artist": [
         "hiten"
       ],
-      "female": [
-        "females only"
+      "male": [
+        "sole male"
       ],
-      "misc": [
-        "artbook",
-        "full color"
+      "female": [
+        "defloration",
+        "pantyhose",
+        "sole female"
       ]
     },
     "tags_have_namespace": true,
     "torrent_count": 1,
-    "archiver_key": "447276--4c3c6b8d96bca9e686ef7c0dae7c25795ff644a0",
+    "archiver_key": "458297--6d569f8eddc13d17401566b8786598987906ee0b",
     "source": "html",
     "source_site": "exhentai",
-    "date_generated": 1610195755882
+    "date_generated": 1649871435117
   }
 }

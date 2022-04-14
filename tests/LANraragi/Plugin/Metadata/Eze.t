@@ -18,11 +18,11 @@ require "$cwd/tests/mocks.pl";
 
 use_ok('LANraragi::Plugin::Metadata::Eze');
 
-note("eze Tests");
+note("eze-lite Tests, with save original title but no original title exist");
 {
     # Copy the eze sample json to a temporary directory as it's deleted once parsed
     my ( $fh, $filename ) = tempfile();
-    cp( $SAMPLES . "/eze/eze_sample.json", $fh );
+    cp( $SAMPLES . "/eze/eze_lite_sample.json", $fh );
 
     # Mock LANraragi::Utils::Archive's subs to return the temporary sample JSON
     # Since we're using exports, the methods are under the plugin's namespace.
@@ -32,21 +32,24 @@ note("eze Tests");
     local *LANraragi::Plugin::Metadata::Eze::is_file_in_archive        = sub { 1 };
 
     my %dummyhash = ( something => 22, file_path => "test" );
+    my $savetitle = 1;
+    my $jpntitle = 1;
+    my $additionaltags = 1;
 
     # Since this is calling the sub directly and not in an object context,
     # we pass a dummy string as first parameter to replace the object.
-    my %ezetags = trap { LANraragi::Plugin::Metadata::Eze::get_tags( "", \%dummyhash, 1 ); };
+    my %ezetags = trap { LANraragi::Plugin::Metadata::Eze::get_tags( "", \%dummyhash, $savetitle, $jpntitle, $additionaltags ); };
 
     my $ezetags =
       "artist:mitarashi kousei, character:akiko minase, character:yuuichi aizawa, female:aunt, female:lingerie, female:sole female, group:mitarashi club, language:english, language:translated, male:sole male, misc:multi-work series, parody:kanon, timestamp:1517540580, source:website.org/g/1179590/7c5815c77b";
     is( $ezetags{title},
         "(C72) [Mitarashi Club (Mitarashi Kousei)] Akiko-san to Issho (Kanon) [English] [Belldandy100] [Decensored]",
-        "eze parsing test 1/2"
+        "eze-lite, with save original title but no original title exist parsing test 1/2"
     );
-    is( $ezetags{tags}, $ezetags, "eze parsing test 2/2" );
+    is( $ezetags{tags}, $ezetags, "eze-lite, with save original title but no original title exist parsing test 2/2" );
 }
 
-note("eze-full Tests");
+note("eze-full Tests without 'savetitle', without 'additionaltags'");
 {
     # Copy the eze sample json to a temporary directory as it's deleted once parsed
     my ( $fh, $filename ) = tempfile();
@@ -60,18 +63,83 @@ note("eze-full Tests");
     local *LANraragi::Plugin::Metadata::Eze::is_file_in_archive        = sub { 1 };
 
     my %dummyhash = ( something => 22, file_path => "test" );
+    my $savetitle = 0;
+    my $jpntitle = 0;
+    my $additionaltags = 0;
 
     # Since this is calling the sub directly and not in an object context,
     # we pass a dummy string as first parameter to replace the object.
-    my %ezetags = trap { LANraragi::Plugin::Metadata::Eze::get_tags( "", \%dummyhash, 1 ); };
+    my %ezetags = trap { LANraragi::Plugin::Metadata::Eze::get_tags( "", \%dummyhash, $savetitle, $jpntitle, $additionaltags ); };
 
     my $ezetags =
-      "artist:hiten, female:females only, group:hitenkei, misc:artbook, misc:full color, category:non-h, uploader:RICO740, timestamp:1549380180, source:exhentai.org/g/1360136/96e61584d9";
-    is( $ezetags{title},
-        "(C95) [HitenKei (Hiten)]Re:IMPERMANENT",
-        "eze-full parsing test 1/2"
+      "artist:hiten, female:defloration, female:pantyhose, female:sole female, group:hitenkei, language:chinese, language:translated, male:sole male, parody:original, category:doujinshi, source:exhentai.org/g/1017975/49b3c275a1";
+    is( !$ezetags{title},
+        1,
+        "eze-full without 'savetitle', without 'additionaltags' parsing test 1/2"
     );
-    is( $ezetags{tags}, $ezetags, "eze-full parsing test 2/2" );
+    is( $ezetags{tags}, $ezetags, "eze-full without 'savetitle', without 'additionaltags' parsing test 2/2" );
+}
+
+note("eze-full Tests with 'savetitle', with 'additionaltags'");
+{
+    # Copy the eze sample json to a temporary directory as it's deleted once parsed
+    my ( $fh, $filename ) = tempfile();
+    cp( $SAMPLES . "/eze/eze_full_sample.json", $fh );
+
+    # Mock LANraragi::Utils::Archive's subs to return the temporary sample JSON
+    # Since we're using exports, the methods are under the plugin's namespace.
+    no warnings 'once', 'redefine';
+    local *LANraragi::Plugin::Metadata::Eze::get_plugin_logger         = sub { return get_logger_mock(); };
+    local *LANraragi::Plugin::Metadata::Eze::extract_file_from_archive = sub { $filename };
+    local *LANraragi::Plugin::Metadata::Eze::is_file_in_archive        = sub { 1 };
+
+    my %dummyhash = ( something => 22, file_path => "test" );
+    my $savetitle = 1;
+    my $jpntitle = 0;
+    my $additionaltags = 1;
+
+    # Since this is calling the sub directly and not in an object context,
+    # we pass a dummy string as first parameter to replace the object.
+    my %ezetags = trap { LANraragi::Plugin::Metadata::Eze::get_tags( "", \%dummyhash, $savetitle, $jpntitle, $additionaltags ); };
+
+    my $ezetags =
+      "artist:hiten, female:defloration, female:pantyhose, female:sole female, group:hitenkei, language:chinese, language:translated, male:sole male, parody:original, category:doujinshi, uploader:cocy, timestamp:1484412360, source:exhentai.org/g/1017975/49b3c275a1";
+    is( $ezetags{title},
+        "(C91) [HitenKei (Hiten)] R.E.I.N.A [Chinese] [無邪気漢化組]",
+        "eze-full with 'savetitle', with 'additionaltags' parsing test 1/2"
+    );
+    is( $ezetags{tags}, $ezetags, "eze-full with 'savetitle', with 'additionaltags' parsing test 2/2" );
+}
+
+note("eze-full Tests with save original title, with 'additionaltags'");
+{
+    # Copy the eze sample json to a temporary directory as it's deleted once parsed
+    my ( $fh, $filename ) = tempfile();
+    cp( $SAMPLES . "/eze/eze_full_sample.json", $fh );
+
+    # Mock LANraragi::Utils::Archive's subs to return the temporary sample JSON
+    # Since we're using exports, the methods are under the plugin's namespace.
+    no warnings 'once', 'redefine';
+    local *LANraragi::Plugin::Metadata::Eze::get_plugin_logger         = sub { return get_logger_mock(); };
+    local *LANraragi::Plugin::Metadata::Eze::extract_file_from_archive = sub { $filename };
+    local *LANraragi::Plugin::Metadata::Eze::is_file_in_archive        = sub { 1 };
+
+    my %dummyhash = ( something => 22, file_path => "test" );
+    my $savetitle = 1;
+    my $jpntitle = 1;
+    my $additionaltags = 1;
+
+    # Since this is calling the sub directly and not in an object context,
+    # we pass a dummy string as first parameter to replace the object.
+    my %ezetags = trap { LANraragi::Plugin::Metadata::Eze::get_tags( "", \%dummyhash, $savetitle, $jpntitle, $additionaltags ); };
+
+    my $ezetags =
+      "artist:hiten, female:defloration, female:pantyhose, female:sole female, group:hitenkei, language:chinese, language:translated, male:sole male, parody:original, category:doujinshi, uploader:cocy, timestamp:1484412360, source:exhentai.org/g/1017975/49b3c275a1";
+    is( $ezetags{title},
+        "(C91) [HitenKei (Hiten)] R.E.I.N.A [中国翻訳]",
+        "eze-full with save original title, with 'additionaltags' parsing test 1/2"
+    );
+    is( $ezetags{tags}, $ezetags, "eze-full with save original title, with 'additionaltags' parsing test 2/2" );
 }
 
 done_testing();
