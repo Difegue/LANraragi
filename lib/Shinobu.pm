@@ -308,7 +308,6 @@ sub add_new_file {
 
     eval {
         LANraragi::Utils::Database::add_archive_to_redis( $id, $file, $redis );
-        LANraragi::Utils::Database::add_timestamp_tag( $redis, $id );
         LANraragi::Utils::Database::add_pagecount( $redis, $id );
 
         #AutoTagging using enabled plugins goes here!

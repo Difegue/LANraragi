@@ -35,37 +35,6 @@
 
 <tr>
     <td class="option-td">
-        <h2 class="ih"> Add Timestamp Tag </h2>
-    </td>
-    <td class="config-td">
-        [% IF usedateadded %]
-        <input id="usedateadded" name="usedateadded" class="fa" type="checkbox" checked> [% ELSE %]
-        <input id="usedateadded" name="usedateadded" class="fa" type="checkbox"> [% END %]
-        <label for="usedateadded">
-            <br>If enabled, LANraragi will add the UNIX timestamp of the current time as a tag under the
-            "date_added" namespace to newly added archives.
-        </label>
-    </td>
-</tr>
-
-<tr class="datemodified">
-    <td class="option-td">
-        <h2 class="ih"> Use "Last modified" Time </h2>
-    </td>
-    <td class="config-td">
-        [% IF usedatemodified %]
-        <input id="usedatemodified" name="usedatemodified" class="fa" type="checkbox" checked> [% ELSE %]
-        <input id="usedatemodified" name="usedatemodified" class="fa" type="checkbox"> [% END %]
-        <label for="usedatemodified">
-            <br>Enabling this will use file modified time instead of current time when setting "date_added" timestamps.
-        </label>
-    </td>
-</tr>
-
-
-
-<tr>
-    <td class="option-td">
         <h2 class="ih"> Tag Rules </h2>
     </td>
     <td class="config-td">

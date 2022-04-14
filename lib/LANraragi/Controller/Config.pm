@@ -40,8 +40,6 @@ sub index {
         sizethreshold   => $self->LRR_CONF->get_threshold,
         readerquality   => $self->LRR_CONF->get_readquality,
         theme           => $self->LRR_CONF->get_style,
-        usedateadded    => $self->LRR_CONF->enable_dateadded,
-        usedatemodified => $self->LRR_CONF->use_lastmodified,
         csshead         => generate_themes_header($self),
         tempsize        => get_tempsize
     );
@@ -77,9 +75,7 @@ sub save_config {
         devmode         => ( scalar $self->req->param('devmode')         ? '1' : '0' ),
         enableresize    => ( scalar $self->req->param('enableresize')    ? '1' : '0' ),
         tagruleson      => ( scalar $self->req->param('tagruleson')      ? '1' : '0' ),
-        nofunmode       => ( scalar $self->req->param('nofunmode')       ? '1' : '0' ),
-        usedateadded    => ( scalar $self->req->param('usedateadded')    ? '1' : '0' ),
-        usedatemodified => ( scalar $self->req->param('usedatemodified') ? '1' : '0' )
+        nofunmode       => ( scalar $self->req->param('nofunmode')       ? '1' : '0' )
     );
 
     # Only add newpassword field as password if enablepass = 1

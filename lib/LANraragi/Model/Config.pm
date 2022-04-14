@@ -145,7 +145,5 @@ sub enable_resize        { return &get_redis_conf( "enableresize",    "0" ) }
 sub get_threshold        { return &get_redis_conf( "sizethreshold",   "1000" ) }
 sub get_readquality      { return &get_redis_conf( "readerquality",   "50" ) }
 sub get_style            { return &get_redis_conf( "theme",           "modern.css" ) }
-sub enable_dateadded     { return &get_redis_conf( "usedateadded",    "1" ) }
-sub use_lastmodified     { return &get_redis_conf( "usedatemodified", "0" ) }
 
 1;

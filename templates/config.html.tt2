@@ -131,12 +131,10 @@
 		$(function () {
 			enable_pass();
 			enable_resize();
-			enable_timemodified();
 			shinobuStatus();
 			setInterval(shinobuStatus, 5000);
 			$("#enablepass").click(enable_pass);
 			$("#enableresize").click(enable_resize);
-			$("#usedateadded").click(enable_timemodified);
 		});
 
 		function rebootShinobu() {
@@ -211,13 +209,6 @@
 				$(".resizefields").show();
 			else
 				$(".resizefields").hide();
-		}
-
-		function enable_timemodified() {
-			if ($("#usedateadded").prop("checked"))
-				$(".datemodified").show();
-			else
-				$(".datemodified").hide();
 		}
 
 	</script> [% INCLUDE footer %]

@@ -50,28 +50,6 @@ sub add_archive_to_redis {
     return $name;
 }
 
-# add_timestamp_tag(redis, id)
-# Adds a timestamp tag to the given ID.
-sub add_timestamp_tag {
-    my ( $redis, $id ) = @_;
-    my $logger = get_logger( "Archive", "lanraragi" );
-
-    # Initialize tags to the current date if the matching pref is enabled
-    if ( LANraragi::Model::Config->enable_dateadded eq "1" ) {
-
-        $logger->debug("Adding timestamp tag...");
-
-        if ( LANraragi::Model::Config->use_lastmodified eq "1" ) {
-            $logger->info("Using file date");
-            my $date = ( stat( $redis->hget( $id, "file" ) ) )[9];    #9 is the unix time stamp for date modified.
-            $redis->hset( $id, "tags", "date_added:$date" );
-        } else {
-            $logger->info("Using current date");
-            $redis->hset( $id, "tags", "date_added:" . time() );
-        }
-    }
-}
-
 # add_pagecount(redis,id)
 # Calculates and adds pagecount to the given ID.
 sub add_pagecount {
