@@ -48,8 +48,8 @@ sub get_tags {
     my ($name, $path, $suffix) = fileparse($lrr_info->{file_path}, qr/\.[^.]*/);
     my $path_nearby_json = $path . $name . '.json';
 
-    my $filepath = undef;
-    my $delete_after_parse = undef;
+    my $filepath;
+    my $delete_after_parse;
     
     #Extract info.json
     if($path_in_archive) {
