@@ -6,7 +6,7 @@ use warnings;
 #Plugins can freely use all Perl packages already installed on the system
 #Try however to restrain yourself to the ones already installed for LRR (see tools/cpanfile) to avoid extra installations by the end-user.
 use Mojo::JSON qw(from_json);
-use Time::Local qw(timelocal_posix timegm_posix);
+use Time::Local qw(timegm_modern);
 
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
@@ -137,7 +137,7 @@ sub tags_from_eze_json {
         $timestamp = $timestamp / 1000;
     } else {
         my $upload_date = $hash->{"gallery_info"}->{"upload_date"};
-        my $time = timegm_posix($$upload_date[5],$$upload_date[4],$$upload_date[3],$$upload_date[2],$$upload_date[1]-1,$$upload_date[0]-1900);
+        my $time = timegm_modern($$upload_date[5],$$upload_date[4],$$upload_date[3],$$upload_date[2],$$upload_date[1]-1,$$upload_date[0]);
         $timestamp = $time;
     }
 
