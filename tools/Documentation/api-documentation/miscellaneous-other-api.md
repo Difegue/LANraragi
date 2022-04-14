@@ -283,10 +283,18 @@ You can either use `login`, `metadata`, `script`, or `all` to get all previous t
       {
         "desc": "Save archive title",
         "type": "bool"
+      },
+      {
+        "desc": "Save the original title when available instead of the English or romanised title",
+        "type": "bool"
+      },
+      {
+        "desc": "Fetch additional timestamp (time posted) and uploader metadata",
+        "type": "bool"
       }
     ],
     "type": "metadata",
-    "version": "2.2"
+    "version": "2.3"
   },
   {
     "author": "Pao",
