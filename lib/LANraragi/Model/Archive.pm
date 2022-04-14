@@ -124,7 +124,7 @@ sub find_untagged_archives {
                 remove_newlines($t);
 
                 # The following are basic and therefore don't count as "tagged"
-                $nondefaulttags += 1 unless $t =~ /(artist|uploader|parody|series|category|language|event|group|date_added|timestamp):.*/;
+                $nondefaulttags += 1 unless $t =~ /(artist|parody|series|language|event|group|date_added|timestamp):.*/;
             }
 
             #If the archive has no tags, or the tags namespaces are only from
