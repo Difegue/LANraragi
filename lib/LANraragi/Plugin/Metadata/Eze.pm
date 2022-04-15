@@ -88,7 +88,7 @@ sub get_tags {
     $logger->debug("Loaded the following JSON: $stringjson");
 
     #Parse it
-    my ( $tags, $title ) = tags_from_eze_json($hashjson);
+    my ( $tags, $title ) = tags_from_eze_json($origin_title, $additional_tags, $hashjson);
 
     if ($delete_after_parse){
         #Delete it
