@@ -6,6 +6,7 @@ use warnings;
 #Plugins can freely use all Perl packages already installed on the system
 #Try however to restrain yourself to the ones already installed for LRR (see tools/cpanfile) to avoid extra installations by the end-user.
 use Mojo::JSON qw(from_json);
+use File::Basename;
 use Time::Local qw(timegm_modern);
 
 #You can also use the LRR Internal API when fitting.
@@ -26,7 +27,7 @@ sub plugin_info {
         author    => "Difegue",
         version   => "2.3",
         description =>
-          "Collects metadata from eze-style info.json file in archives or {archive_name}.json file nearby the archive file. ({'gallery_info': {xxx} } syntax)",
+          "Collects metadata from eze-style info.json files ({'gallery_info': {xxx} } syntax), either embedded in your archive or in the same folder with the same name. ({archive_name}.json)",
         icon =>
           "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA\nB3RJTUUH4wYCFDYBnHlU6AAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUH\nAAAETUlEQVQ4y22UTWhTWRTHf/d9JHmNJLFpShMcKoRIqxXE4sKpjgthYLCLggU/wI1CUWRUxlmU\nWblw20WZMlJc1yKKKCjCdDdYuqgRiygq2mL8aJpmQot5uabv3XdnUftG0bu593AOv3M45/yvGBgY\n4OrVqwRBgG3bGIaBbduhDSClxPM8tNZMTEwwMTGB53lYloXWmkgkwqdPnygUCljZbJbW1lYqlQqG\nYYRBjuNw9+5dHj16RD6fJ51O09bWxt69e5mammJ5eZm1tTXi8Tiu6xKNRrlx4wZWNBqlXq8Tj8cx\nTRMhBJZlMT4+zuXLlxFCEIvFqFarBEFAKpXCcRzq9TrpdJparcbIyAiHDh1icXERyzAMhBB4nofv\n+5imiWmavHr1inQ6jeM4ZLNZDMMglUqxuLiIlBLXdfn48SNKKXp6eqhUKiQSCaxkMsna2hqe52Hb\nNsMdec3n8+Pn2+vpETt37qSlpYVyucz8/DzT09Ns3bqVYrEIgOM4RCIRrI1MiUQCz/P43vE8jxcv\nXqCUwvM8Zmdn2bJlC6lUitHRUdrb2zFNE9/3sd6/f4/jOLiuSzKZDCH1wV/EzMwM3d3dNN69o729\nnXK5jFKKPXv2sLS0RF9fHydOnMD3fZRSaK0xtNYEQYBpmtTr9RC4b98+LMsCwLZtHj9+TCwWI5/P\nI6Xk5MmTXLhwAaUUG3MA4M6dOzQaDd68eYOUkqHIZj0U2ay11mzfvp1du3YhhGBgYIDjx4/T3d1N\nvV4nCAKklCilcF2XZrOJlBIBcOnSJc6ePYsQgj9yBf1l//7OJcXPH1Y1wK/Ff8SfvT995R9d/SA8\nzyMaja5Xq7Xm1q1bLCwssLS09M1Atm3bFr67urq+8W8oRUqJlBJLCMHNmze5d+8e2Ww2DPyrsSxq\ntRqZTAattZibm6PZbHJFVoUQgtOxtAbwfR8A13WJxWIYANVqFd/36e/v/ypzIpEgCAKEEMzNzYXN\n34CN/FsSvu+jtSaTyeC67jrw4cOHdHZ2kslkQmCz2SQSiYT269evMU0zhF2RVaH1ejt932dlZYXh\n4eF14MLCArZtI6UMAb+1/qBPx9L6jNOmAY4dO/b/agBnnDb9e1un3vhQzp8/z/Xr19eBQgjevn3L\n1NTUd5WilKJQKGAYxje+lpYWrl27xuTk5PqKARSLRfr6+hgaGiKbzfLy5UvGx8dRSqGUwnEcDMNA\nKYUQIlRGNBplZmaGw4cPE4/HOXDgAMbs7Cy9vb1cvHiR+fl5Hjx4QC6XwzAMYrEYz549Y3p6mufP\nn4d6NU0Tx3GYnJzk6NGjNJtNduzYQUdHB+LL8mu1Gv39/WitGRsb4/79+3R1dbF7925yuVw4/Uaj\nwalTpzhy5AhjY2P4vs/BgwdJp9OYG7ByuUwmk6FUKgFw7tw5SqUSlUqFp0+fkkgk2LRpEysrKzx5\n8oTBwUG01ty+fZv9+/eTz+dZXV3lP31rAEu+yXjEAAAAAElFTkSuQmCC",
         parameters => [
@@ -48,47 +49,60 @@ sub get_tags {
     my ($save_title, $origin_title, $additional_tags) = @_;    # Plugin parameters
 
     my $logger = get_plugin_logger();
+
     my $path_in_archive = is_file_in_archive( $lrr_info->{file_path}, "info.json" );
 
-    if ($path_in_archive) {
+    my ($name, $path, $suffix) = fileparse($lrr_info->{file_path}, qr/\.[^.]*/);
+    my $path_nearby_json = $path . $name . '.json';
 
-        #Extract info.json
-        my $filepath = extract_file_from_archive( $lrr_info->{file_path}, $path_in_archive );
+    my $filepath;
+    my $delete_after_parse;
+    
+    #Extract info.json
+    if($path_in_archive) {
+        $filepath = extract_file_from_archive( $lrr_info->{file_path}, $path_in_archive );
+        $logger->debug("Found file in archive at $filepath");
+        $delete_after_parse = 1;
+    } elsif (-e $path_nearby_json) {
+        $filepath = $path_nearby_json;
+        $logger->debug("Found file nearby at $filepath");
+        $delete_after_parse = 0;
+    } else {
+        return ( error => "No in-archive info.json or {archive_name}.json file found!" );
+    }
 
-        #Open it
-        my $stringjson = "";
+    #Open it
+    my $stringjson = "";
 
-        open( my $fh, '<:encoding(UTF-8)', $filepath )
-          or return ( error => "Could not open $filepath!" );
+    open( my $fh, '<:encoding(UTF-8)', $filepath )
+        or return ( error => "Could not open $filepath!" );
 
-        while ( my $row = <$fh> ) {
-            chomp $row;
-            $stringjson .= $row;
-        }
+    while ( my $row = <$fh> ) {
+        chomp $row;
+        $stringjson .= $row;
+    }
 
-        #Use Mojo::JSON to decode the string into a hash
-        my $hashjson = from_json $stringjson;
+    #Use Mojo::JSON to decode the string into a hash
+    my $hashjson = from_json $stringjson;
 
-        $logger->debug("Found and loaded the following JSON: $stringjson");
+    $logger->debug("Loaded the following JSON: $stringjson");
 
-        #Parse it
-        my ( $tags, $title ) = tags_from_eze_json($origin_title, $additional_tags, $hashjson);
+    #Parse it
+    my ( $tags, $title ) = tags_from_eze_json($hashjson);
 
+    if ($delete_after_parse){
         #Delete it
         unlink $filepath;
+    }
 
-        #Return tags
-        $logger->info("Sending the following tags to LRR: $tags");
+    #Return tags
+    $logger->info("Sending the following tags to LRR: $tags");
 
-        if ( $save_title && $title ) {
-            $logger->info("Parsed title is $title");
-            return ( tags => $tags, title => $title );
-        } else {
-            return ( tags => $tags );
-        }
-
+    if ( $save_title && $title ) {
+        $logger->info("Parsed title is $title");
+        return ( tags => $tags, title => $title );
     } else {
-        return ( error => "No eze info.json file found in this archive!" );
+        return ( tags => $tags );
     }
 
 }
