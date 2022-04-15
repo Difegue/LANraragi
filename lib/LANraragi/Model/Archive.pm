@@ -54,11 +54,11 @@ sub generate_opds_catalog {
             my $tags = $arcdata->{tags};
 
             # Infer a few OPDS-related fields from the tags
-            $arcdata->{dateadded} = get_tag_with_namespace( "dateadded", $tags, "2010-01-10T10:01:11Z" );
-            $arcdata->{author}    = get_tag_with_namespace( "artist",    $tags, "" );
-            $arcdata->{language}  = get_tag_with_namespace( "language",  $tags, "" );
-            $arcdata->{circle}    = get_tag_with_namespace( "group",     $tags, "" );
-            $arcdata->{event}     = get_tag_with_namespace( "event",     $tags, "" );
+            $arcdata->{dateadded} = get_tag_with_namespace( "date_added", $tags, "2010-01-10T10:01:11Z" );
+            $arcdata->{author}    = get_tag_with_namespace( "artist",     $tags, "" );
+            $arcdata->{language}  = get_tag_with_namespace( "language",   $tags, "" );
+            $arcdata->{circle}    = get_tag_with_namespace( "group",      $tags, "" );
+            $arcdata->{event}     = get_tag_with_namespace( "event",      $tags, "" );
 
             # Application/zip is universally hated by all readers so it's better to use x-cbz and x-cbr here.
             if ( $file =~ /^(.*\/)*.+\.(pdf)$/ ) {
