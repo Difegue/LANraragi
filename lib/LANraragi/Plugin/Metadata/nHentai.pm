@@ -44,11 +44,14 @@ sub get_tags {
     # Work your magic here - You can create subs below to organize the code better
     my $galleryID = "";
 
-    # Quick regex to get the nh gallery id from the provided url.
+    # Quick regex to get the nh gallery id from the provided url or source tag.
     if ( $lrr_info->{oneshot_param} =~ /.*\/g\/([0-9]+).*/ ) {
         $galleryID = $1;
+        $logger->debug("Skipping search and using gallery $galleryID from oneshot args");
+    } elsif ( $lrr_info->{existing_tags} =~ /.*source:\s*(?:https:\/\/|)nhentai\.net\/g\/([0-9]*).*/gi ) {
+        $galleryID = $1;
+        $logger->debug("Skipping search and using gallery $galleryID from source tag")
     } else {
-
         #Get Gallery ID by hand if the user didn't specify a URL
         $galleryID = get_gallery_id_from_title( $lrr_info->{archive_title} );
     }
