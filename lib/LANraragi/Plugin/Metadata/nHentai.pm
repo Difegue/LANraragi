@@ -210,7 +210,7 @@ sub get_tags_from_NH {
 
     if ( $json ) {
         my @tags = get_tags_from_json($json);
-        push( @tags, "source:https://nhentai.net/g/$gID" ) if ( @tags > 0 );
+        push( @tags, "source:nhentai.net/g/$gID" ) if ( @tags > 0 );
 
         # Use NH's "pretty" names (romaji titles without extraneous data we already have like (Event)[Artist], etc)
         $hashdata{tags}  = join(', ', @tags);
