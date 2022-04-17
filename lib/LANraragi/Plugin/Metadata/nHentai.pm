@@ -48,7 +48,8 @@ sub get_tags {
     if ( $lrr_info->{oneshot_param} =~ /.*\/g\/([0-9]+).*/ ) {
         $galleryID = $1;
         $logger->debug("Skipping search and using gallery $galleryID from oneshot args");
-    } elsif ( $lrr_info->{existing_tags} =~ /.*source:\s*(?:https:\/\/|)nhentai\.net\/g\/([0-9]*).*/gi ) {
+    } elsif ( $lrr_info->{existing_tags} =~ /.*source:\s*(?:https?:\/\/)?nhentai\.net\/g\/([0-9]*).*/gi ) {
+        # Matching URL Scheme like 'https://' is only for backward compatible purpose.
         $galleryID = $1;
         $logger->debug("Skipping search and using gallery $galleryID from source tag")
     } else {
