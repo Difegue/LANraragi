@@ -19,7 +19,7 @@ sub plugin_info {
         author    => "Guerra24",
         version   => "1.0",
         description =>
-          "Converts \"source:id\" tags with 6 or less digits into \"source:https://nhentai.net/g/id\""
+          "Converts \"source:{id}\" tags with 6 or less digits into \"source:nhentai.net/g/{id}\""
     );
 
 }
@@ -41,7 +41,7 @@ sub run_script {
         my %hash = $redis->hgetall($id);
         my ( $tags ) = @hash{qw(tags)};
 
-        if ( $tags =~ s/source:(\d{1,6})/source:https:\/\/nhentai\.net\/g\/$1/igm ) {
+        if ( $tags =~ s/source:(\d{1,6})/source:nhentai\.net\/g\/$1/igm ) {
             $count++;
         }
 
