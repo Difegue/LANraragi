@@ -38,7 +38,13 @@ LRR.isNullOrWhitespace = function (input) {
  */
 LRR.getTagSearchURL = function (namespace, tag) {
     const namespacedTag = this.buildNamespacedTag(namespace, tag);
-    return (namespace !== "source") ? `/?q=${encodeURIComponent(namespacedTag)}` : `http://${tag}`;
+    if (namespace !== "source"){
+        return `/?q=${encodeURIComponent(namespacedTag)}`;
+    } else if (/https?:\/\//.test(tag)) {
+        return `${tag}`;
+    } else {
+        return `https://${tag}`;
+    }
 };
 
 /**
