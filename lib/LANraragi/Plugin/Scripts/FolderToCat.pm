@@ -82,8 +82,10 @@ sub run_script {
         push @created_categories, $catID;
 
         for my $file ( @{ $subfolders{$folder} } ) {
-            my $id = compute_id($file) || next;
-            LANraragi::Model::Category::add_to_category( $catID, $id );
+            eval {
+                my $id = compute_id($file) || next;
+                LANraragi::Model::Category::add_to_category( $catID, $id );
+            };
         }
     }
 
