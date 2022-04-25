@@ -40,3 +40,9 @@ Plugins have as much control over your system as the main LANraragi application 
 
 When installing Plugins from unknown sources, do a little research first.
 {% endhint %}
+
+## About source: tags
+
+If your archive has a `source:` tag (likely from the use of the [built-in downloading feature](../advanced-usage/downloading.md)), many plugins will use said tag to directly fetch metadata from it without having to use heuristics of any kind to guess what your archive is.  
+
+If you have the URL on hand directly, you can either add it as a `source:` tag to your archive, or use it as a one-shot parameter on most downloader plugins.
