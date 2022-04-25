@@ -117,7 +117,6 @@ root/
 |     |- windows          <- Windows build script and submodule link to the Karen WPF Bootstrapper
 |     |- docker           <- Dockerfile and configuration files for LRR Docker Container
 |     |- homebrew         <- Script and configuration files for the LRR Homebrew cask
-|     |- vagrant          <- Vagrantfile for LRR Vagrant Machine
 |  |- cpanfile      <- Perl dependencies description
 |  |- install.pl    <- LANraragi Installer
 |  +- lanraragi-systemd.service <- Example SystemD service

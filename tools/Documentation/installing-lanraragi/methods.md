@@ -23,9 +23,6 @@ Look at the methods below for something that fits your OS and usage.
 
 {% hint style="warning" %}
 This method works on **64-bit** editions of Windows 10 only.
-
-Since LRR 0.8.0, you need Windows 10 version _1903_ at least. 0.7.9 will work with version _1809_ if you're on an LTSC channel.  
-If you still want to use further server versions on 1809, a step-by-step workaround is available on the Windows documentation page below.  
 {% endhint %}
 
 ![win10](../.screenshots/karen.jpg)
@@ -69,17 +66,11 @@ Similar to installing from source with an altered process for FreeBSD compatabil
 [jail.md](jail.md)
 {% endcontent-ref %}
 
-## Older Windows: _Legacy Docker Toolbox or Vagrant_
+## Windows 7 or 8: don't
 
 ![I really hope you guys don't do this](../.screenshots/shiggy.png)
 
-At this point the only solutions I have to give you are basically glorified VMs.
-
-You can either download the [Legacy Docker Toolbox](https://docs.docker.com/toolbox/toolbox\_install\_windows/) and follow the Docker tutorial linked above, or try Vagrant. I provide **no support** for either of these methods.
-
-{% content-ref url="vagrant.md" %}
-[vagrant.md](vagrant.md)
-{% endcontent-ref %}
+Switch to 10 or Linux.  
 
 ## WARNING: Reverse Proxies
 
