@@ -47,19 +47,19 @@ note("E-Hentai Tests");
     isa_ok( $test_eH_json->{gmetadata}[0]{tags}, 'ARRAY', 'type of tags' );
 }
 
-note("nHentai Tests");
+note("nHentai Tests : Disabled due to cloudflare being used on nH");
 
-{
-    my $nH_gID = "52249";
-    my $test_nH_gID = trap { LANraragi::Plugin::Metadata::nHentai::get_gallery_id_from_title("\"Pieces 1\" shirow"); };
+# {
+#     my $nH_gID      = "52249";
+#     my $test_nH_gID = LANraragi::Plugin::Metadata::nHentai::get_gallery_id_from_title("\"Pieces 1\" shirow");
+#
+#     is( $test_nH_gID, $nH_gID, 'nHentai search test' );
 
-    is( $test_nH_gID, $nH_gID, 'nHentai search test' );
+#     my %nH_hashdata = trap { LANraragi::Plugin::Metadata::nHentai::get_tags_from_NH( $nH_gID, 1 ) };
 
-    my %nH_hashdata = trap { LANraragi::Plugin::Metadata::nHentai::get_tags_from_NH( $nH_gID, 1 ) };
-
-    ok( length $nH_hashdata{tags} > 0,  'nHentai API Tag retrieval test' );
-    ok( length $nH_hashdata{title} > 0, 'nHentai title test' );
-}
+#     ok( length $nH_hashdata{tags} > 0,  'nHentai API Tag retrieval test' );
+#     ok( length $nH_hashdata{title} > 0, 'nHentai title test' );
+# }
 
 note("Chaika Tests");
 
