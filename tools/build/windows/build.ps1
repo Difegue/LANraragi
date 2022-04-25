@@ -17,6 +17,6 @@ echo (Resolve-Path .\).Path
 nuget restore
 
 # Build Karen and Setup 
-msbuild /p:Configuration=Release /p:Platform=x64
+msbuild /p:Configuration=Release
 
 Get-FileHash .\Setup\bin\LANraragi.msi | Format-List
