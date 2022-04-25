@@ -70,20 +70,6 @@ sub list_plugins {
     $self->render( json => \@plugins );
 }
 
-# Returns the info for the given Minion job id.
-sub minion_job_status {
-    my $self = shift;
-    my $id   = $self->stash('jobid');
-
-    my $job = $self->minion->job($id);
-
-    if ($job) {
-        $self->render( json => $job->info );
-    } else {
-        render_api_response( $self, "minion_job_status", "No job with this ID." );
-    }
-}
-
 # Queue the regen_all_thumbnails Minion job.
 sub regen_thumbnails {
     my $self     = shift;
@@ -102,7 +88,6 @@ sub regen_thumbnails {
 }
 
 sub download_url {
-
     my ($self) = shift;
     my $url    = $self->req->param('url');
     my $catid  = $self->req->param('catid');
@@ -130,8 +115,7 @@ sub download_url {
 
 # Uses a plugin, with the standard global arguments and a provided oneshot argument.
 sub use_plugin_sync {
-
-    my ($self)   = shift;
+    my ($self) = shift;
     my $id       = $self->req->param('id') || 0;
     my $plugname = $self->req->param('plugin');
     my $input    = $self->req->param('arg');
@@ -153,7 +137,6 @@ sub use_plugin_sync {
 
 # Queues a plugin execution into Minion.
 sub use_plugin_async {
-
     my ($self) = shift;
     my $id       = $self->req->param('id')       || 0;
     my $priority = $self->req->param('priority') || 0;
@@ -165,25 +148,6 @@ sub use_plugin_async {
     $self->render(
         json => {
             operation => "queue_plugin_exec",
-            success   => 1,
-            job       => $jobid
-        }
-    );
-}
-
-# Queues a job into Minion.
-sub queue_minion_job {
-
-    my ($self)   = shift;
-    my $jobname  = $self->stash('jobname');
-    my @jobargs  = decode_json( $self->req->param('args') );
-    my $priority = $self->req->param('priority') || 0;
-
-    my $jobid = $self->minion->enqueue( $jobname => @jobargs => { priority => $priority } );
-
-    $self->render(
-        json => {
-            operation => "queue_minion_job",
             success   => 1,
             job       => $jobid
         }

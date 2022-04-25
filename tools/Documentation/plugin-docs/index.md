@@ -69,7 +69,7 @@ The `type` field can be either:
 
 * `login` for [Login Plugins](login.md)
 * `metadata` for [Metadata Plugins](metadata.md)
-* `download` for [Downloader Plugins](downloaders.md)
+* `download` for [Downloader Plugins](download.md)
 * `script` for [Script Plugins](scripts.md)
 
 The `parameters` array can contain as many arguments as you need. They can be set by the user in Plugin Configuration, and are transmitted every time.  

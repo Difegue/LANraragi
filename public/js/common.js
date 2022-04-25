@@ -38,7 +38,13 @@ LRR.isNullOrWhitespace = function (input) {
  */
 LRR.getTagSearchURL = function (namespace, tag) {
     const namespacedTag = this.buildNamespacedTag(namespace, tag);
-    return (namespace !== "source") ? `/?q=${encodeURIComponent(namespacedTag)}` : `http://${tag}`;
+    if (namespace !== "source"){
+        return `/?q=${encodeURIComponent(namespacedTag)}`;
+    } else if (/https?:\/\//.test(tag)) {
+        return `${tag}`;
+    } else {
+        return `https://${tag}`;
+    }
 };
 
 /**
@@ -258,4 +264,22 @@ LRR.showErrorToast = function (header, error) {
         hideAfter: false,
         icon: "error",
     });
+};
+
+/**
+ * Fires a HEAD request to get filesize of a given URL.
+ * return target img size.
+ * @param {*} target Target URL String
+ */
+LRR.getImgSize = function (target) {
+    let imgSize = 0;
+    $.ajax({
+        async: false,
+        url: target,
+        type: "HEAD",
+        success: (data, textStatus, request) => {
+            imgSize = parseInt(request.getResponseHeader("Content-Length") / 1024, 10);
+        },
+    });
+    return imgSize;
 };

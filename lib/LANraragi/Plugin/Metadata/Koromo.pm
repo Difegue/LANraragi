@@ -41,6 +41,13 @@ sub get_tags {
     my $file   = $lrr_info->{file_path};
 
     my $path_in_archive = is_file_in_archive( $file, "Info.json" );
+
+    unless ($path_in_archive) {
+
+        # Try for the lowercase variant as well
+        $path_in_archive = is_file_in_archive( $file, "info.json" );
+    }
+
     if ($path_in_archive) {
 
         #Extract info.json

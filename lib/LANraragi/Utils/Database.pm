@@ -15,6 +15,7 @@ use Unicode::Normalize;
 use LANraragi::Model::Plugins;
 use LANraragi::Utils::Generic qw(flat remove_spaces);
 use LANraragi::Utils::Tags qw(unflat_tagrules tags_rules_to_array restore_CRLF);
+use LANraragi::Utils::Archive qw(get_filelist);
 use LANraragi::Utils::Logging qw(get_logger);
 
 # Functions for interacting with the DB Model.
@@ -59,16 +60,30 @@ sub add_timestamp_tag {
     if ( LANraragi::Model::Config->enable_dateadded eq "1" ) {
 
         $logger->debug("Adding timestamp tag...");
+        my $date;
 
         if ( LANraragi::Model::Config->use_lastmodified eq "1" ) {
             $logger->info("Using file date");
-            my $date = ( stat( $redis->hget( $id, "file" ) ) )[9];    #9 is the unix time stamp for date modified.
-            $redis->hset( $id, "tags", "date_added:$date" );
+            $date = ( stat( $redis->hget( $id, "file" ) ) )[9];    #9 is the unix time stamp for date modified.
         } else {
             $logger->info("Using current date");
-            $redis->hset( $id, "tags", "date_added:" . time() );
+            $date = time();
         }
+
+        add_tags( $id, "date_added:$date" );
     }
+}
+
+# add_pagecount(redis,id)
+# Calculates and adds pagecount to the given ID.
+sub add_pagecount {
+    my ( $redis, $id ) = @_;
+    my $logger = get_logger( "Archive", "lanraragi" );
+
+    my $file = $redis->hget( $id, "file" );
+    my ( $images, $sizes ) = get_filelist($file);
+    my @images = @$images;
+    $redis->hset( $id, "pagecount", scalar @images );
 }
 
 # get_archive_json(redis, id)

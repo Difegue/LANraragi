@@ -9,6 +9,7 @@ Reader.force = false;
 Reader.previousPage = -1;
 Reader.currentPage = -1;
 Reader.showingSinglePage = true;
+Reader.isFullscreen = false;
 Reader.preloadedImg = {};
 Reader.preloadedSizes = {};
 
@@ -19,6 +20,7 @@ Reader.initializeAll = function () {
 
     // Bind events to DOM
     $(document).on("keyup", Reader.handleShortcuts);
+    $(document).on("wheel", Reader.handleWheel);
 
     $(document).on("click.toggle_fit_mode", "#fit-mode input", Reader.toggleFitMode);
     $(document).on("click.toggle_double_mode", "#toggle-double-mode input", Reader.toggleDoublePageMode);
@@ -34,6 +36,7 @@ Reader.initializeAll = function () {
     $(document).on("click.pagination_change_pages", ".page-link", Reader.handlePaginator);
 
     $(document).on("click.close_overlay", "#overlay-shade", LRR.closeOverlay);
+    $(document).on("click.toggle_full_screen", "#toggle-full-screen", Reader.toggleFullScreen);
     $(document).on("click.toggle_archive_overlay", "#toggle-archive-overlay", Reader.toggleArchiveOverlay);
     $(document).on("click.toggle_settings_overlay", "#toggle-settings-overlay", Reader.toggleSettingsOverlay);
     $(document).on("click.toggle_help", "#toggle-help", Reader.toggleHelp);
@@ -109,8 +112,18 @@ Reader.loadImages = function () {
             if (Reader.infiniteScroll) {
                 Reader.initInfiniteScrollView();
             } else {
-                $(document).on("click.imagemap_change_pages", "#Map area", Reader.handlePaginator);
-                $(window).on("resize", Reader.updateImagemap);
+                // when click left or right img area change page
+                $(document).on("click", (event) => {
+                    // check click Y position is in img Y area
+                    if ($(event.target).closest("#i3").length && !$("#overlay-shade").is(":visible")) {
+                        // is click X position is left on screen or right
+                        if (event.pageX < $(window).width() / 2) {
+                            Reader.changePage(-1);
+                        } else {
+                            Reader.changePage(1);
+                        }
+                    }
+                });
 
                 // when there's no parameter, null is coerced to 0 so it becomes -1
                 Reader.currentPage = Reader.currentPage || (
@@ -131,7 +144,7 @@ Reader.loadImages = function () {
             if (Reader.showOverlayByDefault) { Reader.toggleArchiveOverlay(); }
 
             // Wait for the extraction job to conclude before getting thumbnails
-            Server.checkJobStatus(data.job,
+            Server.checkJobStatus(data.job, false,
                 () => Reader.initializeArchiveOverlay(),
                 () => LRR.showErrorToast("The extraction job didn't conclude properly. Your archive might be corrupted."));
         }).finally(() => {
@@ -234,6 +247,9 @@ Reader.handleShortcuts = function (e) {
     case 68: // d
         Reader.changePage(1);
         break;
+    case 70: // f
+        Reader.toggleFullScreen();
+        break;
     case 72: // h
         Reader.toggleHelp();
         break;
@@ -255,6 +271,17 @@ Reader.handleShortcuts = function (e) {
         break;
     default:
         break;
+    }
+};
+
+Reader.handleWheel = function (e) {
+    if (Reader.isFullscreen && !Reader.infiniteScroll) {
+        let changePage = 1;
+        if (e.originalEvent.deltaY > 0) changePage = -1;
+        // In Manga mode, reverse the changePage variable
+        // so that we always move forward
+        if (!Reader.mangaMode) changePage *= -1;
+        Reader.changePage(changePage);
     }
 };
 
@@ -308,6 +335,11 @@ Reader.updateMetadata = function () {
     const img = $("#img")[0];
     const imageUrl = new URL(img.src);
     const filename = imageUrl.searchParams.get("path");
+
+    const imgDoublePage = $("#img_doublepage")[0];
+    const imageUrlDoublePage = new URL(imgDoublePage.src);
+    const filenameDoublePage = imageUrlDoublePage.searchParams.get("path");
+
     if (!filename && Reader.showingSinglePage) {
         Reader.currentPageLoaded = true;
         $("#i3").removeClass("loading");
@@ -316,22 +348,36 @@ Reader.updateMetadata = function () {
 
     const width = img.naturalWidth;
     const height = img.naturalHeight;
+    const widthDoublePage = imgDoublePage.naturalWidth;
+    const heightDoublePage = imgDoublePage.naturalHeight;
+    const widthView = width + widthDoublePage;
 
     if (Reader.showingSinglePage) {
-        // HEAD request to get filesize
         let size = Reader.preloadedSizes[Reader.currentPage];
         if (!size) {
-            $.ajax({
-                url: Reader.pages[Reader.currentPage],
-                type: "HEAD",
-                success: (data, textStatus, request) => {
-                    size = parseInt(request.getResponseHeader("Content-Length") / 1024, 10);
-                    Reader.preloadedSizes[Reader.currentPage] = size;
-                    $(".file-info").text(`${filename} :: ${width} x ${height} :: ${size} KB`);
-                },
-            });
-        } else { $(".file-info").text(`${filename} :: ${width} x ${height} :: ${size} KB`); }
-    } else { $(".file-info").text(`Double-Page View :: ${width} x ${height}`); }
+            size = LRR.getImgSize(Reader.pages[Reader.currentPage]);
+            Reader.preloadedSizes[Reader.currentPage] = size;
+            $(".file-info").text(`${filename} :: ${width} x ${height} :: ${size} KB`);
+            $(".file-info").attr("title", `${filename} :: ${width} x ${height} :: ${size} KB`);
+        } else {
+            $(".file-info").text(`${filename} :: ${width} x ${height} :: ${size} KB`);
+            $(".file-info").attr("title", `${filename} :: ${width} x ${height} :: ${size} KB`);
+        }
+    } else {
+        let size = Reader.preloadedSizes[Reader.currentPage];
+        let sizePre = Reader.preloadedSizes[Reader.currentPage + 1];
+
+        if (!size || !sizePre) {
+            size = LRR.getImgSize(Reader.pages[Reader.currentPage]);
+            sizePre = LRR.getImgSize(Reader.pages[Reader.currentPage + 1]);
+            Reader.preloadedSizes[Reader.currentPage] = size;
+            Reader.preloadedSizes[Reader.currentPage + 1] = sizePre;
+        }
+
+        const sizeView = size + sizePre;
+        $(".file-info").text(`${filename} - ${filenameDoublePage} :: ${widthView} x ${height} :: ${sizeView} KB`);
+        $(".file-info").attr("title", `${filename} :: ${width} x ${height} :: ${size} KB - ${filenameDoublePage} :: ${widthDoublePage} x ${heightDoublePage} :: ${sizePre} KB`);
+    }
 
     // Update page numbers in the paginator
     const newVal = Reader.showingSinglePage
@@ -339,19 +385,8 @@ Reader.updateMetadata = function () {
         : `${Reader.currentPage + 1} + ${Reader.currentPage + 2}`;
     $(".current-page").each((_i, el) => $(el).html(newVal));
 
-    Reader.updateImageMap();
     Reader.currentPageLoaded = true;
     $("#i3").removeClass("loading");
-};
-
-Reader.updateImageMap = function () {
-    // update imagemap with the w/h parameters we obtained
-    const img = $("#img")[0];
-    const mapWidth = img.width / 2;
-    const mapHeight = img.height;
-
-    $("#leftmap").attr("coords", `0,0,${mapWidth},${mapHeight}`);
-    $("#rightmap").attr("coords", `${mapWidth + 1},0,${img.width},${mapHeight}`);
 };
 
 Reader.goToPage = function (page) {
@@ -359,17 +394,28 @@ Reader.goToPage = function (page) {
     Reader.currentPage = Math.min(Reader.maxPage, Math.max(0, +page));
 
     Reader.showingSinglePage = false;
+    $("#img_doublepage").attr("src", "");
+    $("#display").removeClass("double-mode");
     if (Reader.doublePageMode && Reader.currentPage > 0 && Reader.currentPage < Reader.maxPage) {
-        // composite an image and use that as the source
+        // Composite an image and use that as the source
         const img1 = Reader.loadImage(Reader.currentPage);
         const img2 = Reader.loadImage(Reader.currentPage + 1);
-        let imagesLoaded = 0;
-        const loadHandler = () => { (imagesLoaded += 1) === 2 && Reader.drawCanvas(img1, img2); };
-        $([img1, img2]).each((_i, img) => {
-            img.onload = loadHandler;
-            // If the image is preloaded it does not trigger onload, so we have to call it manually
-            if (img.complete) { loadHandler(); }
-        });
+        // If w > h on one of the images(widespread), set canvasdata to the first image only
+        if (img1.naturalWidth > img1.naturalHeight || img2.naturalWidth > img2.naturalHeight) {
+            // Depending on whether we were going forward or backward, display img1 or img2
+            const wideSrc = Reader.previousPage > Reader.currentPage ? img2.src : img1.src;
+            $("#img").attr("src", wideSrc);
+            Reader.showingSinglePage = true;
+        } else {
+            if (Reader.mangaMode) {
+                $("#img").attr("src", img2.src);
+                $("#img_doublepage").attr("src", img1.src);
+            } else {
+                $("#img").attr("src", img1.src);
+                $("#img_doublepage").attr("src", img2.src);
+            }
+            $("#display").addClass("double-mode");
+        }
     } else {
         const img = Reader.loadImage(Reader.currentPage);
         $("#img").attr("src", img.src);
@@ -515,6 +561,7 @@ Reader.toggleHeader = function () {
     $("#toggle-header input").toggleClass("toggled");
     $("#i2").toggle();
     Reader.applyContainerWidth();
+    return false;
 };
 
 Reader.toggleProgressTracking = function () {
@@ -539,6 +586,50 @@ Reader.toggleSettingsOverlay = function () {
 
 Reader.toggleArchiveOverlay = function () {
     return LRR.toggleOverlay("#archivePagesOverlay");
+};
+
+Reader.toggleFullScreen = function () {
+    // if already full screen; exit
+    // else go fullscreen
+    if (
+        document.fullscreenElement
+        || document.webkitFullscreenElement
+        || document.mozFullScreenElement
+        || document.msFullscreenElement
+    ) {
+        if ($("body").hasClass("infinite-scroll")) {
+            $("div#i3").removeClass("fullscreen-infinite");
+        } else {
+            $("div#i3").removeClass("fullscreen");
+        }
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+        Reader.isFullscreen = false;
+    } else {
+        if ($("body").hasClass("infinite-scroll")) {
+            $("div#i3").addClass("fullscreen-infinite");
+        } else {
+            $("div#i3").addClass("fullscreen");
+        }
+        const element = $("div#i3").get(0);
+        if (element.requestFullscreen) {
+            element.requestFullscreen();
+        } else if (element.mozRequestFullScreen) {
+            element.mozRequestFullScreen();
+        } else if (element.webkitRequestFullscreen) {
+            element.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+        } else if (element.msRequestFullscreen) {
+            element.msRequestFullscreen();
+        }
+        Reader.isFullscreen = true;
+    }
 };
 
 Reader.initializeArchiveOverlay = function () {
@@ -581,7 +672,7 @@ Reader.initializeArchiveOverlay = function () {
                     thumbSuccess();
                 } else if (response.status === 202) {
                     // Wait for Minion job to finish
-                    response.json().then((data) => Server.checkJobStatus(data.job,
+                    response.json().then((data) => Server.checkJobStatus(data.job, false,
                         () => thumbSuccess(),
                         () => thumbFail()));
                 } else {
@@ -593,33 +684,6 @@ Reader.initializeArchiveOverlay = function () {
         $("#archivePagesOverlay").append(thumbnail);
     }
     $("#archivePagesOverlay").attr("loaded", "true");
-};
-
-Reader.drawCanvas = function (img1, img2) {
-    // If w > h on one of the images(widespread), set canvasdata to the first image only
-    if (img1.naturalWidth > img1.naturalHeight || img2.naturalWidth > img2.naturalHeight) {
-        // Depending on whether we were going forward or backward, display img1 or img2
-        $("#img").attr("src", Reader.previousPage > Reader.currentPage ? img2.src : img1.src);
-        Reader.showingSinglePage = true;
-        return;
-    }
-
-    // Create an adequately-sized canvas
-    const canvas = $("#dpcanvas")[0];
-    canvas.width = img1.naturalWidth + img2.naturalWidth;
-    canvas.height = Math.max(img1.naturalHeight, img2.naturalHeight);
-
-    // Draw both images on it
-    const ctx = canvas.getContext("2d");
-    if (Reader.mangaMode) {
-        ctx.drawImage(img2, 0, 0);
-        ctx.drawImage(img1, img2.naturalWidth + 1, 0);
-    } else {
-        ctx.drawImage(img1, 0, 0);
-        ctx.drawImage(img2, img1.naturalWidth + 1, 0);
-    }
-
-    $("#img").attr("src", canvas.toDataURL("image/jpeg"));
 };
 
 Reader.changePage = function (targetPage) {

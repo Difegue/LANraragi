@@ -93,8 +93,6 @@ sub apply_routes {
     $logged_in_api->post('/api/plugins/use')->to('api-other#use_plugin_sync');
     $logged_in_api->post('/api/plugins/queue')->to('api-other#use_plugin_async');
     $logged_in_api->delete('/api/tempfolder')->to('api-other#clean_tempfolder');
-    $logged_in_api->get('/api/minion/:jobid')->to('api-other#minion_job_status');
-    $logged_in_api->post('/api/minion/:jobname/queue')->to('api-other#queue_minion_job');
     $logged_in_api->post('/api/download_url')->to('api-other#download_url');
     $logged_in_api->post('/api/regen_thumbs')->to('api-other#regen_thumbnails');
 
@@ -132,6 +130,12 @@ sub apply_routes {
     $logged_in_api->get('/api/shinobu')->to('api-shinobu#shinobu_status');
     $logged_in_api->post('/api/shinobu/stop')->to('api-shinobu#stop_shinobu');
     $logged_in_api->post('/api/shinobu/restart')->to('api-shinobu#restart_shinobu');
+    $logged_in_api->post('/api/shinobu/rescan')->to('api-shinobu#reset_filemap');
+
+    # Minion API
+    $public_api->get('/api/minion/:jobid')->to('api-minion#minion_job_status');
+    $logged_in_api->get('/api/minion/:jobid/detail')->to('api-minion#minion_job_detail');
+    $logged_in_api->post('/api/minion/:jobname/queue')->to('api-minion#queue_minion_job');    # unused for now
 
     # Category API
     $public_api->get('/api/categories')->to('api-category#get_category_list');

@@ -4,8 +4,8 @@
 apk update
 apk add perl perl-io-socket-ssl perl-dev redis libarchive-dev libbz2 openssl-dev zlib-dev
 apk add imagemagick imagemagick-perlmagick libwebp-tools libheif
-apk add g++ make pkgconf gnupg wget curl nodejs nodejs-npm file
-apk add shadow s6 s6-portable-utils
+apk add g++ make pkgconf gnupg wget curl nodejs npm file
+apk add shadow s6 s6-portable-utils s6-overlay s6-overlay-preinit
 
 #Hey it's cpanm
 curl -L https://cpanmin.us | perl - App::cpanminus
@@ -28,5 +28,5 @@ cd tools && cpanm --notest --installdeps . -M https://cpan.metacpan.org && cd ..
 npm run lanraragi-installer install-full
 
 #Cleanup to lighten the image
-apk del perl-dev g++ make gnupg wget curl nodejs nodejs-npm openssl-dev file
+apk del perl-dev g++ make gnupg wget curl nodejs npm openssl-dev file
 rm -rf /root/.cpanm/* /root/.npm/ /usr/local/share/man/* node_modules /var/cache/apk/*

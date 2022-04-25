@@ -52,3 +52,6 @@ requires 'File::ChangeNotify', 0.31;
 
 # Plugin system
 requires 'Module::Pluggable', 5.2;
+
+# Eze plugin
+requires 'Time::Local', 1.30;

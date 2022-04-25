@@ -11,6 +11,20 @@
     </td>
 </tr>
 
+<tr></tr>
+
+<tr>
+    <td class="option-td">
+        <input id="rescan-button" class='stdbtn' type='button' onclick="rescanContentFolder()"
+            value='Rescan Archive Directory' />
+    </td>
+    <td class="config-td">
+        Click this button to trigger a rescan of the Archive Directory in case you're missing files, <br>
+        or some data such as total page counts. <br>
+        <br>
+    </td>
+</tr>
+
 <tr>
     <td class="option-td">
         <h2 class="ih"> Maximum <br>Temporary Folder Size </h2>

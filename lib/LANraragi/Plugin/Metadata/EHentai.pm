@@ -35,7 +35,7 @@ sub plugin_info {
             { type => "bool",   desc => "Fetch using thumbnail first (falls back to title)" },
             { type => "bool",   desc => "Use ExHentai (enable to search for fjorded content without star cookie)" },
             {   type => "bool",
-                desc => "Save the original Japanese title when available instead of the English or " . "romanised title"
+                desc => "Save the original title when available instead of the English or romanised title"
             },
             { type => "bool", desc => "Fetch additional timestamp (time posted) and uploader metadata" },
             { type => "bool", desc => "Search expunged galleries as well" },
@@ -69,7 +69,7 @@ sub get_tags {
         $gID    = $1;
         $gToken = $2;
         $logger->debug("Skipping search and using gallery $gID / $gToken from oneshot args");
-    } elsif ( $lrr_info->{existing_tags} =~ /.*source:e(?:x|-)hentai\.org\/g\/([0-9]*)\/([0-z]*)\/*.*/gi ) {
+    } elsif ( $lrr_info->{existing_tags} =~ /.*source:\s*e(?:x|-)hentai\.org\/g\/([0-9]*)\/([0-z]*)\/*.*/gi ) {
         $gID    = $1;
         $gToken = $2;
         $hasSrc = 1;

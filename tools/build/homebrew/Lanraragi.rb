@@ -12,6 +12,7 @@ class Lanraragi < Formula
   revision 1
   head "https://github.com/Difegue/LANraragi.git"
 
+  depends_on "nettle" => :build
   depends_on "pkg-config" => :build
   depends_on "cpanminus"
   depends_on "ghostscript"
@@ -24,7 +25,12 @@ class Lanraragi < Formula
   depends_on "perl"
   depends_on "redis"
   depends_on "zstd"
+
   uses_from_macos "libarchive"
+
+  on_linux do
+    depends_on "libarchive"
+  end
 
   resource "Image::Magick" do
     url "https://cpan.metacpan.org/authors/id/J/JC/JCRISTY/PerlMagick-7.0.10.tar.gz"
@@ -40,8 +46,10 @@ class Lanraragi < Formula
     ENV.prepend_create_path "PERL5LIB", "#{libexec}/lib/perl5"
     ENV.prepend_path "PERL5LIB", "#{libexec}/lib"
     ENV["CFLAGS"] = "-I#{libexec}/include"
+
     # https://stackoverflow.com/questions/60521205/how-can-i-install-netssleay-with-perlbrew-in-macos-catalina
-    ENV["OPENSSL_PREFIX"] = "#{Formula["openssl@1.1"]}/1.1.1g"
+    ENV["OPENSSL_PREFIX"] = Formula["openssl@1.1"].opt_prefix # for Net::SSLeay
+    system "cpanm", "-v", "Net::SSLeay", "-l", libexec
 
     imagemagick = Formula["imagemagick"]
     resource("Image::Magick").stage do
@@ -61,8 +69,8 @@ class Lanraragi < Formula
       end
     end
 
-    system "npm", "install", *Language::Node.local_npm_install_args
     system "cpanm", "Config::AutoConf", "--notest", "-l", libexec
+    system "npm", "install", *Language::Node.local_npm_install_args
     system "perl", "./tools/install.pl", "install-full"
 
     prefix.install "README.md"

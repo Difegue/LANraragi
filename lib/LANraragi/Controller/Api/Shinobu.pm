@@ -19,6 +19,32 @@ sub shinobu_status {
     );
 }
 
+sub reset_filemap {
+    my $self = shift;
+
+    # This is a shinobu endpoint even though we're deleting stuff in redis
+    # since we'll have to restart shinobu anyway to proc filemap re-creation.
+
+    my $redis = $self->LRR_CONF->get_redis;
+    $redis->del("LRR_FILEMAP");
+
+    my $shinobu = ${ retrieve( get_temp . "/shinobu.pid" ) };
+
+    #commit sudoku
+    $shinobu->kill();
+
+    # Create a new Process, automatically stored in TEMP_FOLDER/shinobu.pid
+    my $proc = start_shinobu($self);
+
+    $self->render(
+        json => {
+            operation => "shinobu_rescan",
+            success   => $proc->poll(),
+            new_pid   => $proc->pid
+        }
+    );
+}
+
 sub stop_shinobu {
     my $self    = shift;
     my $shinobu = ${ retrieve( get_temp . "/shinobu.pid" ) };

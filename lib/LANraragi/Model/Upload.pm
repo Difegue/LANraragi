@@ -6,7 +6,7 @@ use warnings;
 use Redis;
 use URI::Escape;
 use File::Basename;
-use File::Temp qw/ tempfile tempdir /;
+use File::Temp qw(tempdir);
 use File::Find qw(find);
 use File::Copy qw(move);
 
@@ -107,9 +107,10 @@ sub handle_incoming_file {
         return ( 0, $id, $name, "The file couldn't be moved to your content folder!" );
     }
 
-    # Now that the file has been copied, we can add the timestamp tag.
+    # Now that the file has been copied, we can add the timestamp tag and calculate pagecount.
     # (The file being physically present is necessary in case last modified time is used)
     LANraragi::Utils::Database::add_timestamp_tag( $redis, $id );
+    LANraragi::Utils::Database::add_pagecount( $redis, $id );
     $redis->quit();
 
     $logger->debug("Running autoplugin on newly uploaded file $id...");

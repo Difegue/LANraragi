@@ -5,7 +5,7 @@ use Cwd;
 
 use Mojo::Base 'Mojolicious';
 
-use Test::More tests => 19;
+use Test::More;
 use Test::Mojo;
 use Test::MockObject;
 use Mojo::JSON qw (decode_json);

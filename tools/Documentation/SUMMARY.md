@@ -45,6 +45,7 @@
 * [Database API](api-documentation/database-api.md)
 * [Category API](api-documentation/category-api.md)
 * [Shinobu API](api-documentation/shinobu-api.md)
+* [Minion API](api-documentation/minion-api.md)
 * [Miscellaneous other API](api-documentation/miscellaneous-other-api.md)
 
 ## Writing Plugins <a href="plugin-docs" id="plugin-docs"></a>

@@ -19,7 +19,7 @@ use Image::Magick;
 use Archive::Libarchive qw( ARCHIVE_OK );
 use Archive::Libarchive::Extract;
 use Archive::Libarchive::Peek;
-use File::Temp qw(tempfile tempdir);
+use File::Temp qw(tempdir);
 
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging qw(get_logger);
