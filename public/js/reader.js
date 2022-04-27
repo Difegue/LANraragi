@@ -315,7 +315,7 @@ Reader.toggleHelp = function () {
     const existingToast = $(".navigation-help-toast:visible");
     if (existingToast.length) {
         // ugly hack: this is an abandoned plugin, we should be using something like toastr
-        existingToast.closest(".jq-toast-wrap").find(".close-jq-toast-single").click();
+        existingToast.closest(".jq-toast-wrap").find(".close-jq-toast-single").trigger("click");
         return false;
     }
 

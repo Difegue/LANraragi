@@ -59,7 +59,7 @@ Index.initializeAll = function () {
     // Force-open the collapsible if carouselOpen = true
     if (localStorage.carouselOpen === "1") {
         localStorage.carouselOpen = "0"; // Bad hack since clicking collapsible-title will trigger toggleCarousel and modify this
-        $(".collapsible-title").click();
+        $(".collapsible-title").trigger("click");
     }
     Index.updateCarousel();
 

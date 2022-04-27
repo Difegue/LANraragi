@@ -134,9 +134,9 @@
 			enable_timemodified();
 			shinobuStatus();
 			setInterval(shinobuStatus, 5000);
-			$("#enablepass").click(enable_pass);
-			$("#enableresize").click(enable_resize);
-			$("#usedateadded").click(enable_timemodified);
+			$("#enablepass").on("click", enable_pass);
+			$("#enableresize").on("click", enable_resize);
+			$("#usedateadded").on("click", enable_timemodified);
 		});
 
 		function rebootShinobu() {
