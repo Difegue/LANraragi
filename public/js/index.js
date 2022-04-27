@@ -268,8 +268,6 @@ Index.handleCustomSort = function () {
 Index.updateCarousel = function (e) {
     e?.preventDefault();
 
-    const carousel = $(".swiper-wrapper");
-    carousel.empty();
     $("#carousel-loading").show();
 
     // Hit a different API endpoint depending on the requested localStorage carousel type
@@ -301,6 +299,8 @@ Index.updateCarousel = function (e) {
         Server.callAPI(endpoint,
             "GET", null, "Error getting carousel data!",
             (results) => {
+                const carousel = $(".swiper-wrapper");
+                carousel.empty();
                 results.data.forEach((archive) => {
                     carousel.append(LRR.buildThumbnailDiv(archive));
                 });
