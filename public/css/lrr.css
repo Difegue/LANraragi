@@ -324,9 +324,6 @@ p#nb {
 }
 
 .collapsible-body {
-  flex: 1 0 100%;
-  overflow: hidden;
-  box-sizing: border-box;
   border: none !important;
 }
 
