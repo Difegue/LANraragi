@@ -193,9 +193,10 @@ LRR.buildTagsDiv = function (tags) {
 /**
  * Build a thumbnail div for the given archive data.
  * @param {*} data The archive data
+ * @param {Boolean} data The archive data
  * @returns HTML component string
  */
-LRR.buildThumbnailDiv = function (data) {
+LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
     const thumbCss = (localStorage.cropthumbs === "true") ? "id3" : "id3 nocrop";
     // The ID can be in a different field depending on the archive object...
     const id = data.arcid || data.id;
@@ -215,8 +216,8 @@ LRR.buildThumbnailDiv = function (data) {
                     </a>
                 </div>
                 <div class="id4">
-                    <span class="tags tag-tooltip" onmouseover="IndexTable.buildTagTooltip(this)">${LRR.colorCodeTags(data.tags)}</span>
-                    <div class="caption caption-tags" style="display: none;" >${LRR.buildTagsDiv(data.tags)}</div>
+                        <span class="tags tag-tooltip" ${tagTooltip ? `onmouseover="IndexTable.buildTagTooltip(this)"` : ``}>${LRR.colorCodeTags(data.tags)}</span>
+                        ${tagTooltip ? `<div class="caption caption-tags" style="display: none;" >${LRR.buildTagsDiv(data.tags)}</div>` : ``}
                 </div>
             </div>`;
 };

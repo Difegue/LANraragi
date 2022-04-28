@@ -328,7 +328,7 @@ Index.updateCarousel = function (e) {
             (results) => {
                 Index.swiper.virtual.removeAllSlides();
                 const slides = results.data.map((archive) => {
-                    return LRR.buildThumbnailDiv(archive);
+                    return LRR.buildThumbnailDiv(archive, tagTooltip=false);
                 });
                 Index.swiper.virtual.appendSlide(slides);
                 Index.swiper.virtual.update();
