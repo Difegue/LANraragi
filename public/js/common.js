@@ -4,20 +4,26 @@
 const LRR = {};
 
 /**
- * Quick 'n dirty HTML encoding function.
+ * Quickly HTML encoding function.
  * @param {*} r The HTML to encode
- * @param {boolean} isTimestamp Option to convert timestamp to date string
  * @returns Encoded string
  */
-LRR.encodeHTML = function (r, isTimestamp = false) {
+LRR.encodeHTML = function (r) {
     if (r === undefined) return r;
-    if (isTimestamp === true) return (new Date(r * 1000)).toLocaleDateString();
     if (Array.isArray(r)) {
         return r[0].replace(/[\n&<>'"]/g, (r2) => `&#${r2.charCodeAt(0)};`);
     } else {
-        // console.log(r);
         return r.replace(/[\n&<>'"]/g, (r2) => `&#${r2.charCodeAt(0)};`);
     }
+};
+
+/**
+ * Unix timestamp converting function.
+ * @param {number} r The timestamp to convert
+ * @returns Converted string
+ */
+LRR.convertTimestamp = function (r) {
+    return (new Date(r * 1000)).toLocaleDateString();
 };
 
 /**
@@ -117,7 +123,7 @@ LRR.colorCodeTags = function (tags) {
     tagsToEncode.sort().forEach((key) => {
         tagsByNamespace[key].forEach((tag) => {
             const encodedK = LRR.encodeHTML(key.toLowerCase());
-            line += `<span class='${encodedK}-tag'>${LRR.encodeHTML(tag, key === "date_added" || key === "timestamp")}</span>, `;
+            line += `<span class='${encodedK}-tag'>${LRR.encodeHTML(key === "date_added" || key === "timestamp" ? LRR.convertTimestamp(tag) : tag)}</span>, `;
         });
     });
     // Remove last comma
@@ -183,7 +189,7 @@ LRR.buildTagsDiv = function (tags) {
             const url = LRR.getTagSearchURL(key, tag);
             const searchTag = LRR.buildNamespacedTag(key, tag);
 
-            const tagText = LRR.encodeHTML(tag, key === "date_added" || key === "timestamp");
+            const tagText = LRR.encodeHTML(key === "date_added" || key === "timestamp" ? LRR.convertTimestamp(tag) : tag);
 
             line += `<div class="gt">
                         <a href="${url}" search="${LRR.encodeHTML(searchTag)}">
