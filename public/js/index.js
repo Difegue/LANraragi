@@ -58,7 +58,7 @@ Index.initializeAll = function () {
 
     // Force-open the collapsible if carouselOpen = true
     if (localStorage.carouselOpen === "1") {
-        $(".collapsible-title").trigger("click", [true]);
+        $(".collapsible-title").trigger("click", [false]);
         // Index.updateCarousel(); will be executed by toggleCarousel
     } else {
         Index.updateCarousel();
@@ -132,8 +132,8 @@ Index.toggleMode = function () {
     IndexTable.dataTable.draw();
 };
 
-Index.toggleCarousel = function (e, firstrun = false) {
-    if (!firstrun) localStorage.carouselOpen = (localStorage.carouselOpen === "1") ? "0" : "1";
+Index.toggleCarousel = function (e, updateLocalStorage = true) {
+    if (updateLocalStorage) localStorage.carouselOpen = (localStorage.carouselOpen === "1") ? "0" : "1";
 
     if (!Index.carouselInitialized) {
         Index.carouselInitialized = true;
