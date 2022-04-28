@@ -96,33 +96,34 @@ Index.initializeAll = function () {
     }
 
     // Get some info from the server: version, debug mode, local progress
-    Server.callAPI("/api/info", "GET", null, "Error getting basic server info!", (data) => {
-        Index.serverVersion = data.version;
-        Index.debugMode = data.debug_mode === "1";
-        Index.isProgressLocal = data.server_tracks_progress !== "1";
-        Index.pageSize = data.archives_per_page;
+    Server.callAPI("/api/info", "GET", null, "Error getting basic server info!",
+        (data) => {
+            Index.serverVersion = data.version;
+            Index.debugMode = data.debug_mode === "1";
+            Index.isProgressLocal = data.server_tracks_progress !== "1";
+            Index.pageSize = data.archives_per_page;
 
-        // Check version if not in debug mode
-        if (!Index.debugMode) {
-            Index.checkVersion();
-            Index.fetchChangelog();
-        } else {
-            $.toast({
-                heading: "<i class=\"fas fa-bug\"></i> You're running in Debug Mode!",
-                text: "Advanced server statistics can be viewed <a href=\"./debug\">here.</a>",
-                hideAfter: false,
-                position: "top-left",
-                icon: "warning",
-            });
-        }
+            // Check version if not in debug mode
+            if (!Index.debugMode) {
+                Index.checkVersion();
+                Index.fetchChangelog();
+            } else {
+                $.toast({
+                    heading: "<i class=\"fas fa-bug\"></i> You're running in Debug Mode!",
+                    text: "Advanced server statistics can be viewed <a href=\"./debug\">here.</a>",
+                    hideAfter: false,
+                    position: "top-left",
+                    icon: "warning",
+                });
+            }
 
-        Index.migrateProgress();
-        Index.loadTagSuggestions();
-        Index.loadCategories();
+            Index.migrateProgress();
+            Index.loadTagSuggestions();
+            Index.loadCategories();
 
-        // Initialize DataTables
-        IndexTable.initializeAll();
-    });
+            // Initialize DataTables
+            IndexTable.initializeAll();
+        });
 
     Index.updateTableHeaders();
 };
@@ -323,11 +324,7 @@ Index.updateCarousel = function (e) {
     }
 
     if (Index.carouselInitialized) {
-        Server.callAPI(
-            endpoint,
-            "GET",
-            null,
-            "Error getting carousel data!",
+        Server.callAPI(endpoint, "GET", null, "Error getting carousel data!",
             (results) => {
                 Index.swiper.virtual.removeAllSlides();
                 const slides = results.data
@@ -438,11 +435,7 @@ Index.fetchChangelog = function () {
  * @returns Categories
  */
 Index.loadContextMenuCategories = function (id) {
-    return Server.callAPI(
-        `/api/archives/${id}/categories`,
-        "GET",
-        null,
-        `Error finding categories for ${id}!`,
+    return Server.callAPI(`/api/archives/${id}/categories`, "GET", null, `Error finding categories for ${id}!`,
         (data) => {
             const items = {};
 
@@ -504,11 +497,7 @@ Index.handleContextMenu = function (option, id) {
  */
 Index.loadTagSuggestions = function () {
     // Query the tag cloud API to get the most used tags.
-    Server.callAPI(
-        "/api/database/stats?minweight=2",
-        "GET",
-        null,
-        "Couldn't load tag suggestions",
+    Server.callAPI("/api/database/stats?minweight=2", "GET", null, "Couldn't load tag suggestions",
         (data) => {
             // Get namespaces objects in the data array to fill the namespace-sortby combobox
             const namespacesSet = new Set(data.map((element) => (element.namespace === "parody" ? "series" : element.namespace)));
@@ -551,11 +540,7 @@ Index.loadTagSuggestions = function () {
  * Query the category API to build the filter buttons.
  */
 Index.loadCategories = function () {
-    Server.callAPI(
-        "/api/categories",
-        "GET",
-        null,
-        "Couldn't load categories",
+    Server.callAPI("/api/categories", "GET", null, "Couldn't load categories",
         (data) => {
             // Sort by LastUsed + pinned
             // Pinned categories are shown at the beginning

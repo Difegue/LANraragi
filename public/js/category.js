@@ -30,11 +30,7 @@ Category.addNewCategory = function (isDynamic) {
     const searchtag = isDynamic ? "language:english" : "";
 
     // Make an API request to create the category, if search is empty -> static, otherwise dynamic
-    Server.callAPI(
-        `/api/categories?name=${catName}&search=${searchtag}`,
-        "PUT",
-        `Category "${catName}" created!`,
-        "Error creating category:",
+    Server.callAPI(`/api/categories?name=${catName}&search=${searchtag}`, "PUT", `Category "${catName}" created!`, "Error creating category:",
         (data) => {
             // Reload categories and select the newly created ID
             Category.loadCategories(data.category_id);
@@ -129,11 +125,7 @@ Category.saveCurrentCategoryDetails = function () {
     Category.indicateSaving();
 
     // PUT update with name and search (search is empty if this is a static category)
-    Server.callAPI(
-        `/api/categories/${categoryID}?name=${catName}&search=${searchtag}&pinned=${pinned}`,
-        "PUT",
-        null,
-        "Error updating category:",
+    Server.callAPI(`/api/categories/${categoryID}?name=${catName}&search=${searchtag}&pinned=${pinned}`, "PUT", null, "Error updating category:",
         (data) => {
             // Reload categories and select the newly created ID
             Category.indicateSaved();
@@ -146,11 +138,7 @@ Category.updateArchiveInCategory = function (id, checked) {
     const categoryID = document.getElementById("category").value;
     Category.indicateSaving();
     // PUT/DELETE api/categories/catID/archiveID
-    Server.callAPI(
-        `/api/categories/${categoryID}/${id}`,
-        checked ? "PUT" : "DELETE",
-        null,
-        "Error adding/removing archive to category",
+    Server.callAPI(`/api/categories/${categoryID}/${id}`, checked ? "PUT" : "DELETE", null, "Error adding/removing archive to category",
         () => {
             // Reload categories and select the archive list properly
             Category.indicateSaved();
@@ -162,11 +150,7 @@ Category.updateArchiveInCategory = function (id, checked) {
 Category.deleteSelectedCategory = function () {
     const categoryID = document.getElementById("category").value;
     if (window.confirm("Are you sure? The category will be deleted permanently!")) {
-        Server.callAPI(
-            `/api/categories/${categoryID}`,
-            "DELETE",
-            "Category deleted!",
-            "Error deleting category",
+        Server.callAPI(`/api/categories/${categoryID}`, "DELETE", "Category deleted!", "Error deleting category",
             () => {
                 // Reload categories to show the archive list properly
                 Category.loadCategories();

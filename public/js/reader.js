@@ -45,13 +45,8 @@ Reader.initializeAll = function () {
     });
     $(document).on("click.edit_metadata", "#edit-archive", () => LRR.openInNewTab(`./edit?id=${Reader.id}`));
     $(document).on("click.add_category", "#add-category", () => Server.addArchiveToCategory(Reader.id, $("#category").val()));
-    $(document).on("click.set_thumbnail", "#set-thumbnail", () => Server.callAPI(
-        `/api/archives/${Reader.id}/thumbnail?page=${Reader.currentPage + 1}`,
-        "PUT",
-        `Successfully set page ${Reader.currentPage + 1} as the thumbnail!`,
-        "Error updating thumbnail!",
-        null,
-    ));
+    $(document).on("click.set_thumbnail", "#set-thumbnail", () => Server.callAPI(`/api/archives/${Reader.id}/thumbnail?page=${Reader.currentPage + 1}`,
+        "PUT", `Successfully set page ${Reader.currentPage + 1} as the thumbnail!`, "Error updating thumbnail!", null));
 
     $(document).on("click.thumbnail", ".quick-thumbnail", (e) => {
         LRR.closeOverlay();
@@ -73,11 +68,7 @@ Reader.initializeAll = function () {
     Server.callAPI(`/api/archives/${Reader.id}/isnew`, "DELETE", null, "Error clearing new flag! Check Logs.", null);
 
     // Get basic metadata
-    Server.callAPI(
-        `/api/archives/${Reader.id}/metadata`,
-        "GET",
-        null,
-        "Error getting basic archive info!",
+    Server.callAPI(`/api/archives/${Reader.id}/metadata`, "GET", null, "Error getting basic archive info!",
         (data) => {
             let { title } = data;
 
@@ -111,11 +102,7 @@ Reader.initializeAll = function () {
 };
 
 Reader.loadImages = function () {
-    Server.callAPI(
-        `/api/archives/${Reader.id}/files?force=${Reader.force}`,
-        "GET",
-        null,
-        "Error getting the archive's imagelist!",
+    Server.callAPI(`/api/archives/${Reader.id}/files?force=${Reader.force}`, "GET", null, "Error getting the archive's imagelist!",
         (data) => {
             Reader.pages = data.pages;
             Reader.maxPage = Reader.pages.length - 1;

@@ -22,11 +22,7 @@ Edit.initializeAll = function () {
     // Hide tag input while statistics load
     Edit.hideTags();
 
-    Server.callAPI(
-        "/api/database/stats?minweight=2",
-        "GET",
-        null,
-        "Couldn't load tag statistics",
+    Server.callAPI("/api/database/stats?minweight=2", "GET", null, "Couldn't load tag statistics",
         (data) => {
             Edit.suggestions = data.reduce((res, tag) => {
                 let label = tag.text;
@@ -142,11 +138,7 @@ Edit.getTags = function () {
     const pluginID = $("select#plugin option:checked").val();
     const archivID = $("#archiveID").val();
     const pluginArg = $("#arg").val();
-    Server.callAPI(
-        `../api/plugins/use?plugin=${pluginID}&id=${archivID}&arg=${pluginArg}`,
-        "POST",
-        null,
-        "Error while fetching tags :",
+    Server.callAPI(`../api/plugins/use?plugin=${pluginID}&id=${archivID}&arg=${pluginArg}`, "POST", null, "Error while fetching tags :",
         (result) => {
             if (result.data.title && result.data.title !== "") {
                 $("#title").val(result.data.title);

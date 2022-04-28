@@ -7,11 +7,7 @@ Stats.initializeAll = function () {
     // bind events to DOM
     $(document).on("click.goback", "#goback", () => { window.location.replace("./"); });
 
-    Server.callAPI(
-        "/api/database/stats?minweight=2",
-        "GET",
-        null,
-        "Couldn't load tag statistics",
+    Server.callAPI("/api/database/stats?minweight=2", "GET", null, "Couldn't load tag statistics",
         (data) => {
             $("#statsLoading").hide();
             $("#tagcount").html(data.length);

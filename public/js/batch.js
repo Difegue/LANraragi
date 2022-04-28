@@ -28,11 +28,7 @@ Batch.initializeAll = function () {
     // Load all archives, showing a spinner while doing so
     $("#arclist").hide();
 
-    Server.callAPI(
-        "/api/archives",
-        "GET",
-        null,
-        "Couldn't load the complete archive list! Please reload the page.",
+    Server.callAPI("/api/archives", "GET", null, "Couldn't load the complete archive list! Please reload the page.",
         (data) => {
             // Parse the archive list and add <li> elements to arclist
             data.forEach((archive) => {
@@ -79,11 +75,7 @@ Batch.showOverride = function () {
  * Check untagged archives, using the matching API endpoint.
  */
 Batch.checkUntagged = function () {
-    Server.callAPI(
-        "api/archives/untagged",
-        "GET",
-        null,
-        "Error getting untagged archives!",
+    Server.callAPI("api/archives/untagged", "GET", null, "Error getting untagged archives!",
         (data) => {
             // Check untagged archives
             data.forEach((id) => {
