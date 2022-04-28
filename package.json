@@ -6,6 +6,7 @@
     "scripts": {
         "test": "prove -r -l -v tests/",
         "lanraragi-installer": "perl ./tools/install.pl",
+        "lint": "eslint --ext .js public/",
         "start": "perl ./script/launcher.pl -f ./script/lanraragi",
         "dev-server": "perl ./script/launcher.pl -m -v ./script/lanraragi ",
         "docker-build": "docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile .",

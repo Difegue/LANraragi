@@ -5,7 +5,8 @@
         "jquery": true
     },
     "extends": [
-        "airbnb-base"
+        "airbnb-base",
+        "eslint:recommended"
     ],
     "parserOptions": {
         "ecmaVersion": 12,
@@ -23,6 +24,7 @@
         "IndexTable": "readonly",
         "Swiper": "readonly"
     },
+    "ignorePatterns": ["**/vendor/*.js"],
     "rules": {
         "func-names": ["error", "never"],
         "indent": ["error", 4],

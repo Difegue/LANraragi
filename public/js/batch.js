@@ -91,7 +91,7 @@ Batch.checkUntagged = function () {
  * This crafts a JSON list to send to the batch tagging websocket service.
  */
 Batch.startBatch = function () {
-    if (Batch.currentOperation === "delete" && !confirm("This is a destructive operation! Are you sure you want to delete the selected archives?")) {
+    if (Batch.currentOperation === "delete" && !window.confirm("This is a destructive operation! Are you sure you want to delete the selected archives?")) {
         return;
     }
 
@@ -105,12 +105,8 @@ Batch.startBatch = function () {
     const checkeds = document.querySelectorAll("input[name=archive]:checked");
 
     // Extract IDs from nodelist
-    const arcs = [];
-    const args = [];
-
-    for (let i = 0, ref = arcs.length = checkeds.length; i < ref; i++) {
-        arcs[i] = checkeds[i].id;
-    }
+    const arcs = Array.from(checkeds).map((item) => item.id);
+    let args = [];
 
     // Reset counts
     Batch.treatedArchives = 0;
@@ -122,14 +118,14 @@ Batch.startBatch = function () {
     // Only add values into the override argument array if the checkbox is on
     const arginputs = $(`.${Batch.currentPlugin}-argvalue`);
     if ($("#override")[0].checked) {
-        for (let j = 0, ref = args.length = arginputs.length; j < ref; j++) {
+        args = Array.from(arginputs).map((item) => {
             // Checkbox inputs are handled by looking at the checked prop instead of the value.
-            if (arginputs[j].type !== "checkbox") {
-                args[j] = arginputs[j].value;
+            if (item.type !== "checkbox") {
+                return item.value;
             } else {
-                args[j] = arginputs[j].checked ? 1 : 0;
+                return item.checked ? 1 : 0;
             }
-        }
+        });
     }
 
     // Initialize websocket connection
@@ -142,7 +138,7 @@ Batch.startBatch = function () {
 
     // Close any existing connection
     // eslint-disable-next-line no-empty
-    try { Batch.socket.close(); } catch {}
+    try { Batch.socket.close(); } catch { }
 
     let wsProto = "ws://";
     if (document.location.protocol === "https:") wsProto = "wss://";

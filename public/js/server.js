@@ -157,7 +157,7 @@ Server.clearAllNewFlags = function () {
 };
 
 Server.dropDatabase = function () {
-    if (confirm("Danger! Are you *sure* you want to do this?")) {
+    if (window.confirm("Danger! Are you *sure* you want to do this?")) {
         Server.callAPI("/api/database/drop", "POST", "Sayonara! Redirecting you...", "Error while resetting the database? Check Logs.",
             () => {
                 setTimeout(() => { document.location.href = "./"; }, 1500);

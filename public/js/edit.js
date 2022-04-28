@@ -125,7 +125,7 @@ Edit.saveMetadata = function () {
 };
 
 Edit.deleteArchive = function () {
-    if (confirm("Are you sure you want to delete this archive?")) {
+    if (window.confirm("Are you sure you want to delete this archive?")) {
         Server.deleteArchive($("#archiveID").val(), () => { document.location.href = "./"; });
     }
 };

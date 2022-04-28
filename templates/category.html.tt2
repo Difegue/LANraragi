@@ -23,7 +23,7 @@
 
 </head>
 
-<body onload="loadCategories()">
+<body onload="Category.loadCategories()">
 
     <div class='ido' style='text-align:center'>
         <h2 class='ih' style='text-align:center'>Categories</h2>
@@ -48,8 +48,8 @@
                 You can create new categories here or edit existing ones. </br></br>
 
                 <div style="text-align:center">
-                    <input type='button' value='New Static Category' class='stdbtn' onclick='addNewCategory(false)'>
-                    <input type='button' value='New Dynamic Category' class='stdbtn' onclick='addNewCategory(true)'>
+                    <input type='button' value='New Static Category' class='stdbtn' onclick='Category.addNewCategory(false)'>
+                    <input type='button' value='New Dynamic Category' class='stdbtn' onclick='Category.addNewCategory(true)'>
                 </div> <br>
 
                 Select a category in the combobox below to edit its name, the archives it contains, or its predicate.
@@ -62,7 +62,7 @@
                                 <h2>Category:</h2>
                             </td>
                             <td>
-                                <select id="category" class="favtag-btn" onchange="updateCategoryDetails()"
+                                <select id="category" class="favtag-btn" onchange="Category.updateCategoryDetails()"
                                     style="font-size:20px; height:30px">
                                     <option disabled selected value> -- No Category -- </option>
                                 </select>
@@ -71,28 +71,28 @@
                         <tr class="tag-options">
                             <td style="text-align: right;">Name:</td>
                             <td>
-                                <input id="catname" value="" onchange="saveCurrentCategoryDetails()" />
+                                <input id="catname" value="" onchange="Category.saveCurrentCategoryDetails()" />
                             </td>
                         </tr>
                         <tr id="predicatefield" class="tag-options">
                             <td style="text-align: right;">Predicate:</td>
                             <td>
-                                <input id="catsearch" value="" onchange="saveCurrentCategoryDetails()" />
-                                <i onclick="predicateHelp()" style="cursor:pointer" class="fas fa-question-circle"></i>
+                                <input id="catsearch" value="" onchange="Category.saveCurrentCategoryDetails()" />
+                                <i onclick="Category.predicateHelp()" style="cursor:pointer" class="fas fa-question-circle"></i>
                             </td>
                         </tr>
                         <tr class="tag-options">
                             <td></td>
                             <td>
                                 <input id="pinned" name="pinned" class="fa" type="checkbox"
-                                    onchange="saveCurrentCategoryDetails()">
+                                    onchange="Category.saveCurrentCategoryDetails()">
                                 <label for="pinned">Pin this Category</label>
                             </td>
                         </tr>
                         <tr class="tag-options">
                             <td></td>
                             <td><input type='button' value='Delete Category' class='stdbtn'
-                                    onclick='deleteSelectedCategory()'>
+                                    onclick='Category.deleteSelectedCategory()'>
                             </td>
                         </tr>
                         <tr class="tag-options">

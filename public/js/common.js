@@ -11,10 +11,13 @@ const LRR = {};
  */
 LRR.encodeHTML = function (r, isTimestamp = false) {
     if (r === undefined) return r;
-    if (isTimestamp === true)
-        return (new Date(r * 1000)).toLocaleDateString();
-    if (Array.isArray(r)) return r[0].replace(/[\x26\x0A\<>'"]/g, (r2) => `&#${r2.charCodeAt(0)};`);
-    else return r.replace(/[\x26\x0A\<>'"]/g, (r2) => `&#${r2.charCodeAt(0)};`);
+    if (isTimestamp === true) return (new Date(r * 1000)).toLocaleDateString();
+    if (Array.isArray(r)) {
+        return r[0].replace(/[\x26\x0A\<>'"]/g, (r2) => `&#${r2.charCodeAt(0)};`);
+    } else {
+        // console.log(r);
+        return r.replace(/[\x26\x0A\<>'"]/g, (r2) => `&#${r2.charCodeAt(0)};`);
+    }
 };
 
 /**
@@ -41,7 +44,7 @@ LRR.isNullOrWhitespace = function (input) {
  */
 LRR.getTagSearchURL = function (namespace, tag) {
     const namespacedTag = this.buildNamespacedTag(namespace, tag);
-    if (namespace !== "source"){
+    if (namespace !== "source") {
         return `/?q=${encodeURIComponent(namespacedTag)}`;
     } else if (/https?:\/\//.test(tag)) {
         return `${tag}`;
@@ -102,13 +105,13 @@ LRR.colorCodeTags = function (tags) {
     if (tags === "") return line;
 
     const tagsByNamespace = LRR.splitTagsByNamespace(tags);
-    const filteredTags = Object.keys(tagsByNamespace).filter(tag => tag !== "date_added" && tag !== "timestamp");
+    const filteredTags = Object.keys(tagsByNamespace).filter((tag) => tag !== "date_added" && tag !== "timestamp");
     let tagsToEncode;
 
-    if (filteredTags.length){
+    if (filteredTags.length) {
         tagsToEncode = filteredTags.sort();
     } else {
-        tagsToEncode = Object.keys(tagsByNamespace).sort()
+        tagsToEncode = Object.keys(tagsByNamespace).sort();
     }
 
     tagsToEncode.sort().forEach((key) => {
@@ -180,7 +183,7 @@ LRR.buildTagsDiv = function (tags) {
             const url = LRR.getTagSearchURL(key, tag);
             const searchTag = LRR.buildNamespacedTag(key, tag);
 
-            let tagText = LRR.encodeHTML(tag, key === "date_added" || key === "timestamp");
+            const tagText = LRR.encodeHTML(tag, key === "date_added" || key === "timestamp");
 
             line += `<div class="gt">
                         <a href="${url}" search="${LRR.encodeHTML(searchTag)}">
@@ -222,8 +225,8 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
                     </a>
                 </div>
                 <div class="id4">
-                        <span class="tags tag-tooltip" ${tagTooltip === true ? `onmouseover="IndexTable.buildTagTooltip(this)"` : ``}>${LRR.colorCodeTags(data.tags)}</span>
-                        ${tagTooltip === true ? `<div class="caption caption-tags" style="display: none;" >${LRR.buildTagsDiv(data.tags)}</div>` : ``}
+                        <span class="tags tag-tooltip" ${tagTooltip === true ? "onmouseover=\"IndexTable.buildTagTooltip(this)\"" : ""}>${LRR.colorCodeTags(data.tags)}</span>
+                        ${tagTooltip === true ? `<div class="caption caption-tags" style="display: none;" >${LRR.buildTagsDiv(data.tags)}</div>` : ""}
                 </div>
             </div>`;
 };

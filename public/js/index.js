@@ -133,15 +133,14 @@ Index.toggleMode = function () {
 };
 
 Index.toggleCarousel = function (e, firstrun = false) {
-    if (!firstrun)
-        localStorage.carouselOpen = (localStorage.carouselOpen === "1") ? "0" : "1";
+    if (!firstrun) localStorage.carouselOpen = (localStorage.carouselOpen === "1") ? "0" : "1";
 
     if (!Index.carouselInitialized) {
         Index.carouselInitialized = true;
         $("#reload-carousel").show();
 
         Index.swiper = new Swiper(".index-carousel-container", {
-            breakpoints: (() => { // Virtual Slides realization doesn't work with slidesPerView: 'auto'
+            breakpoints: (() => { // Virtual Slides doesn't work with slidesPerView: 'auto'
                 const breakpoints = {
                     0: {
                         slidesPerView: 1,
@@ -157,7 +156,7 @@ Index.toggleCarousel = function (e, firstrun = false) {
                     breakpoints[width] = {
                         slidesPerView: sides,
                     };
-                };
+                }
                 return breakpoints;
             })(),
             breakpointsBase: "container",
@@ -218,8 +217,8 @@ Index.toggleCategory = function (button) {
  */
 Index.promptCustomColumn = function (column) {
     const promptText = "Enter the namespace of the tags you want to show in this column. \n\n"
-    + "Enter a full namespace without the colon, e.g \"artist\".\n"
-    + "If you have multiple tags with the same namespace, only the last one will be shown in the column.";
+        + "Enter a full namespace without the colon, e.g \"artist\".\n"
+        + "If you have multiple tags with the same namespace, only the last one will be shown in the column.";
 
     const defaultText = localStorage.getItem(`customColumn${column}`);
     const input = prompt(promptText, defaultText);
@@ -328,9 +327,8 @@ Index.updateCarousel = function (e) {
             "GET", null, "Error getting carousel data!",
             (results) => {
                 Index.swiper.virtual.removeAllSlides();
-                const slides = results.data.map((archive) => {
-                    return LRR.buildThumbnailDiv(archive, tagTooltip=false);
-                });
+                const slides = results.data
+                    .map((archive) => LRR.buildThumbnailDiv(archive, false));
                 Index.swiper.virtual.appendSlide(slides);
                 Index.swiper.virtual.update();
 
@@ -477,7 +475,7 @@ Index.handleContextMenu = function (option, id) {
         LRR.openInNewTab(`./edit?id=${id}`);
         break;
     case "delete":
-        if (confirm("Are you sure you want to delete this archive?")) {
+        if (window.confirm("Are you sure you want to delete this archive?")) {
             Server.deleteArchive(id, () => { document.location.reload(true); });
         }
         break;
@@ -614,7 +612,10 @@ Index.migrateProgress = function () {
                 .then((response) => response.json())
                 .then((data) => {
                     // Don't migrate if the server progress is already further
-                    if (progress !== null && data !== undefined && data !== null && progress > data.progress) {
+                    if (progress !== null
+                        && data !== undefined
+                        && data !== null
+                        && progress > data.progress) {
                         Server.callAPI(`api/archives/${id}/progress/${progress}?force=1`, "PUT", null, "Error updating reading progress!", null);
                     }
 
@@ -632,6 +633,7 @@ Index.migrateProgress = function () {
             icon: "success",
         }));
     } else {
+        // eslint-disable-next-line no-console
         console.log("No local reading progression to migrate");
     }
 };

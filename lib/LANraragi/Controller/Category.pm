@@ -37,7 +37,7 @@ sub index {
 
         if ( -e $zipfile ) {
             $arclist .=
-              "<li><input type='checkbox' name='archive' id='$id' class='archive' onchange='updateArchiveInCategory(this.id, this.checked)'>";
+              "<li><input type='checkbox' name='archive' id='$id' class='archive' onchange='Category.updateArchiveInCategory(this.id, this.checked)'>";
             $arclist .= "<label for='$id'> $title</label></li>";
         }
     }
