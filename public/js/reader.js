@@ -45,8 +45,13 @@ Reader.initializeAll = function () {
     });
     $(document).on("click.edit_metadata", "#edit-archive", () => LRR.openInNewTab(`./edit?id=${Reader.id}`));
     $(document).on("click.add_category", "#add-category", () => Server.addArchiveToCategory(Reader.id, $("#category").val()));
-    $(document).on("click.set_thumbnail", "#set-thumbnail", () => Server.callAPI(`/api/archives/${Reader.id}/thumbnail?page=${Reader.currentPage + 1}`,
-        "PUT", `Successfully set page ${Reader.currentPage + 1} as the thumbnail!`, "Error updating thumbnail!", null));
+    $(document).on("click.set_thumbnail", "#set-thumbnail", () => Server.callAPI(
+        `/api/archives/${Reader.id}/thumbnail?page=${Reader.currentPage + 1}`,
+        "PUT",
+        `Successfully set page ${Reader.currentPage + 1} as the thumbnail!`,
+        "Error updating thumbnail!",
+        null,
+    ));
 
     $(document).on("click.thumbnail", ".quick-thumbnail", (e) => {
         LRR.closeOverlay();
@@ -68,7 +73,11 @@ Reader.initializeAll = function () {
     Server.callAPI(`/api/archives/${Reader.id}/isnew`, "DELETE", null, "Error clearing new flag! Check Logs.", null);
 
     // Get basic metadata
-    Server.callAPI(`/api/archives/${Reader.id}/metadata`, "GET", null, "Error getting basic archive info!",
+    Server.callAPI(
+        `/api/archives/${Reader.id}/metadata`,
+        "GET",
+        null,
+        "Error getting basic archive info!",
         (data) => {
             let { title } = data;
 
@@ -97,11 +106,16 @@ Reader.initializeAll = function () {
 
             // Load the actual reader pages now that we have basic info
             Reader.loadImages();
-        });
+        },
+    );
 };
 
 Reader.loadImages = function () {
-    Server.callAPI(`/api/archives/${Reader.id}/files?force=${Reader.force}`, "GET", null, "Error getting the archive's imagelist!",
+    Server.callAPI(
+        `/api/archives/${Reader.id}/files?force=${Reader.force}`,
+        "GET",
+        null,
+        "Error getting the archive's imagelist!",
         (data) => {
             Reader.pages = data.pages;
             Reader.maxPage = Reader.pages.length - 1;
@@ -144,10 +158,14 @@ Reader.loadImages = function () {
             if (Reader.showOverlayByDefault) { Reader.toggleArchiveOverlay(); }
 
             // Wait for the extraction job to conclude before getting thumbnails
-            Server.checkJobStatus(data.job, false,
+            Server.checkJobStatus(
+                data.job,
+                false,
                 () => Reader.initializeArchiveOverlay(),
-                () => LRR.showErrorToast("The extraction job didn't conclude properly. Your archive might be corrupted."));
-        }).finally(() => {
+                () => LRR.showErrorToast("The extraction job didn't conclude properly. Your archive might be corrupted."),
+            );
+        },
+    ).finally(() => {
         if (Reader.pages === undefined) {
             $("#img").attr("src", "img/flubbed.gif");
             $("#display").append("<h2>I flubbed it while trying to open the archive.</h2>");
@@ -672,9 +690,12 @@ Reader.initializeArchiveOverlay = function () {
                     thumbSuccess();
                 } else if (response.status === 202) {
                     // Wait for Minion job to finish
-                    response.json().then((data) => Server.checkJobStatus(data.job, false,
+                    response.json().then((data) => Server.checkJobStatus(
+                        data.job,
+                        false,
                         () => thumbSuccess(),
-                        () => thumbFail()));
+                        () => thumbFail(),
+                    ));
                 } else {
                     // We don't have a thumbnail for this page
                     thumbFail();

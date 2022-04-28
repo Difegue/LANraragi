@@ -323,8 +323,11 @@ Index.updateCarousel = function (e) {
     }
 
     if (Index.carouselInitialized) {
-        Server.callAPI(endpoint,
-            "GET", null, "Error getting carousel data!",
+        Server.callAPI(
+            endpoint,
+            "GET",
+            null,
+            "Error getting carousel data!",
             (results) => {
                 Index.swiper.virtual.removeAllSlides();
                 const slides = results.data
@@ -335,7 +338,8 @@ Index.updateCarousel = function (e) {
                 $("#carousel-loading").hide();
                 $(".swiper-wrapper").show();
                 $("#reload-carousel").removeClass("fa-spin");
-            });
+            },
+        );
     }
 };
 
@@ -434,7 +438,11 @@ Index.fetchChangelog = function () {
  * @returns Categories
  */
 Index.loadContextMenuCategories = function (id) {
-    return Server.callAPI(`/api/archives/${id}/categories`, "GET", null, `Error finding categories for ${id}!`,
+    return Server.callAPI(
+        `/api/archives/${id}/categories`,
+        "GET",
+        null,
+        `Error finding categories for ${id}!`,
         (data) => {
             const items = {};
 
@@ -448,7 +456,8 @@ Index.loadContextMenuCategories = function (id) {
             }
 
             return items;
-        });
+        },
+    );
 };
 
 /**
@@ -495,7 +504,11 @@ Index.handleContextMenu = function (option, id) {
  */
 Index.loadTagSuggestions = function () {
     // Query the tag cloud API to get the most used tags.
-    Server.callAPI("/api/database/stats?minweight=2", "GET", null, "Couldn't load tag suggestions",
+    Server.callAPI(
+        "/api/database/stats?minweight=2",
+        "GET",
+        null,
+        "Couldn't load tag suggestions",
         (data) => {
             // Get namespaces objects in the data array to fill the namespace-sortby combobox
             const namespacesSet = new Set(data.map((element) => (element.namespace === "parody" ? "series" : element.namespace)));
@@ -530,14 +543,19 @@ Index.loadTagSuggestions = function () {
                     this.input.value = `${before + text}, `;
                 },
             });
-        });
+        },
+    );
 };
 
 /**
  * Query the category API to build the filter buttons.
  */
 Index.loadCategories = function () {
-    Server.callAPI("/api/categories", "GET", null, "Couldn't load categories",
+    Server.callAPI(
+        "/api/categories",
+        "GET",
+        null,
+        "Couldn't load categories",
         (data) => {
             // Sort by LastUsed + pinned
             // Pinned categories are shown at the beginning
@@ -582,7 +600,8 @@ Index.loadCategories = function () {
 
             // Add a listener on dropdown selection
             $("#catdropdown").on("change", () => Index.toggleCategory($("#catdropdown")[0].selectedOptions[0]));
-        });
+        },
+    );
 };
 
 /**

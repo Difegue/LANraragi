@@ -95,9 +95,12 @@ Upload.downloadUrl = function () {
                     Upload.updateUploadCounters();
 
                     // Check minion job state periodically to update the result
-                    Server.checkJobStatus(data.job, true,
+                    Server.checkJobStatus(
+                        data.job,
+                        true,
                         (d) => Upload.handleCompletedUpload(data.job, d),
-                        (error) => Upload.handleFailedUpload(data.job, error));
+                        (error) => Upload.handleFailedUpload(data.job, error),
+                    );
                 } else {
                     throw new Error(data.message);
                 }
@@ -138,9 +141,12 @@ Upload.initUpload = function () {
             Upload.updateUploadCounters();
 
             // Check minion job state periodically to update the result
-            Server.checkJobStatus(data.result.job, true,
+            Server.checkJobStatus(
+                data.result.job,
+                true,
                 (d) => Upload.handleCompletedUpload(data.result.job, d),
-                (error) => Upload.handleFailedUpload(data.result.job, error));
+                (error) => Upload.handleFailedUpload(data.result.job, error),
+            );
         },
 
         fail(e, data) {
