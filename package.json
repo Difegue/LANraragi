@@ -37,7 +37,7 @@
         "marked": "^4.0.10",
         "open-sans-fontface": "^1.4.0",
         "roboto-fontface": "^0.8.0",
-        "swiper": "^7.2.0",
+        "swiper": "^8.1.4",
         "tippy.js": "^6.3.1"
     },
     "devDependencies": {

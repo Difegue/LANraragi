@@ -141,14 +141,38 @@ Index.toggleCarousel = function (e, firstrun = false) {
         $("#reload-carousel").show();
 
         Index.swiper = new Swiper(".index-carousel-container", {
-            slidesPerView: "auto",
-            spaceBetween: 8,
+            breakpoints: (() => { // Virtual Slides realization doesn't work with slidesPerView: 'auto'
+                const breakpoints = {
+                    0: {
+                        slidesPerView: 1,
+                    },
+                    210: {
+                        slidesPerView: 2,
+                    },
+                    360: {
+                        slidesPerView: 2.5,
+                    },
+                };
+                for (let width = 690, sides = 3; width <= 2760; width += 115, sides += 0.5) {
+                    breakpoints[width] = {
+                        slidesPerView: sides,
+                    };
+                };
+                return breakpoints;
+            })(),
+            breakpointsBase: "container",
+            centerInsufficientSlides: true,
+            mousewheel: true,
             navigation: {
                 nextEl: ".carousel-next",
                 prevEl: ".carousel-prev",
             },
-            mousewheel: true,
-            freeMode: true,
+            slidesPerView: 7,
+            virtual: {
+                enabled: true,
+                addSlidesAfter: 2,
+                addSlidesBefore: 2,
+            },
         });
 
         Index.updateCarousel();
@@ -271,6 +295,7 @@ Index.updateCarousel = function (e) {
     e?.preventDefault();
 
     $("#carousel-loading").show();
+    $(".swiper-wrapper").hide();
 
     // Hit a different API endpoint depending on the requested localStorage carousel type
     let endpoint;
@@ -301,14 +326,15 @@ Index.updateCarousel = function (e) {
         Server.callAPI(endpoint,
             "GET", null, "Error getting carousel data!",
             (results) => {
-                const carousel = $(".swiper-wrapper");
-                carousel.empty();
-                results.data.forEach((archive) => {
-                    carousel.append(LRR.buildThumbnailDiv(archive));
+                Index.swiper.virtual.removeAllSlides();
+                const slides = results.data.map((archive) => {
+                    return LRR.buildThumbnailDiv(archive);
                 });
+                Index.swiper.virtual.appendSlide(slides);
+                Index.swiper.virtual.update();
 
-                Index.swiper.update();
                 $("#carousel-loading").hide();
+                $(".swiper-wrapper").show();
             });
     }
 };
