@@ -7,33 +7,15 @@ const Edit = {};
 Edit.tagInput = {};
 Edit.suggestions = [];
 
-Edit.hideTags = function () {
-    $("#tag-spinner").css("display", "block");
-    $("#tagText").css("opacity", "0.5");
-    $("#tagText").prop("disabled", true);
-    $("#plugin-table").hide();
-};
-
-Edit.showTags = function () {
-    $("#tag-spinner").css("display", "none");
-    $("#tagText").prop("disabled", false);
-    $("#tagText").css("opacity", "1");
-    $("#plugin-table").show();
-};
-
-Edit.focusTagInput = function () {
-    // Focus child of tagger-new
-    $(".tagger-new").children()[0].focus();
-};
-
 Edit.initializeAll = function () {
     // bind events to DOM
+    $(document).on("change.plugin", "#plugin", Edit.updateOneShotArg);
     $(document).on("click.show-help", "#show-help", Edit.showHelp);
     $(document).on("click.run-plugin", "#run-plugin", Edit.runPlugin);
     $(document).on("click.save-metadata", "#save-metadata", Edit.saveMetadata);
     $(document).on("click.delete-archive", "#delete-archive", Edit.deleteArchive);
-    $(document).on("change.plugin", "#plugin", Edit.updateOneShotArg);
     $(document).on("click.tagger", ".tagger", Edit.focusTagInput);
+    $(document).on("click.goback", "#goback", () => { window.location.replace("./"); });
 
     Edit.updateOneShotArg();
 
@@ -72,6 +54,25 @@ Edit.initializeAll = function () {
                 });
             }
         });
+};
+
+Edit.hideTags = function () {
+    $("#tag-spinner").css("display", "block");
+    $("#tagText").css("opacity", "0.5");
+    $("#tagText").prop("disabled", true);
+    $("#plugin-table").hide();
+};
+
+Edit.showTags = function () {
+    $("#tag-spinner").css("display", "none");
+    $("#tagText").prop("disabled", false);
+    $("#tagText").css("opacity", "1");
+    $("#plugin-table").show();
+};
+
+Edit.focusTagInput = function () {
+    // Focus child of tagger-new
+    $(".tagger-new").children()[0].focus();
 };
 
 Edit.showHelp = function () {
@@ -192,7 +193,7 @@ Edit.runPlugin = function () {
     Edit.saveMetadata().then(() => Edit.getTags());
 };
 
-$(document).ready(() => {
+jQuery(() => {
     Edit.initializeAll();
 });
 

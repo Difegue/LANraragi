@@ -657,4 +657,8 @@ Index.migrateProgress = function () {
     }
 };
 
+jQuery(() => {
+    Index.initializeAll();
+});
+
 window.Index = Index;

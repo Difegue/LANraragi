@@ -1,5 +1,24 @@
+/**
+ * Category Operations.
+ */
 const Category = {};
-let categories = [];
+
+Category.categories = [];
+
+Category.initializeAll = function () {
+    // bind events to DOM
+    $(document).on("change.category", "#category", Category.updateCategoryDetails);
+    $(document).on("change.catname", "#catname", Category.saveCurrentCategoryDetails);
+    $(document).on("change.catsearch", "#catsearch", Category.saveCurrentCategoryDetails);
+    $(document).on("change.pinned", "#pinned", Category.saveCurrentCategoryDetails);
+    $(document).on("click.new-static", "#new-static", () => Category.addNewCategory(false));
+    $(document).on("click.new-dynamic", "#new-dynamic", () => Category.addNewCategory(true));
+    $(document).on("click.predicate-help", "#predicate-help", Category.predicateHelp);
+    $(document).on("click.delete", "#delete", Category.deleteSelectedCategory);
+    $(document).on("click.return", "#return", () => { window.location.href = "/"; });
+
+    Category.loadCategories();
+};
 
 Category.addNewCategory = function (isDynamic) {
     const catName = prompt("Enter a name for the new category:", "My Category");
@@ -28,7 +47,7 @@ Category.loadCategories = function (selectedID) {
         .then((response) => response.json())
         .then((data) => {
             // Save data clientside for reference in later functions
-            categories = data;
+            Category.categories = data;
 
             // Clear combobox and fill it again with categories from the API
             const catCombobox = document.getElementById("category");
@@ -50,7 +69,7 @@ Category.loadCategories = function (selectedID) {
 Category.updateCategoryDetails = function () {
     // Get selected category ID and find it in the reference array
     const categoryID = document.getElementById("category").value;
-    const category = categories.find((x) => x.id === categoryID);
+    const category = Category.categories.find((x) => x.id === categoryID);
 
     $("#archivelist").hide();
     $("#dynamicplaceholder").show();
@@ -173,3 +192,9 @@ Category.predicateHelp = function () {
         icon: "info",
     });
 };
+
+jQuery(() => {
+    Category.initializeAll();
+});
+
+window.Category = Category;

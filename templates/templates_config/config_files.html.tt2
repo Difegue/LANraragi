@@ -15,8 +15,7 @@
 
 <tr>
     <td class="option-td">
-        <input id="rescan-button" class='stdbtn' type='button' onclick="rescanContentFolder()"
-            value='Rescan Archive Directory' />
+        <input id="rescan-button" class='stdbtn' type='button' value='Rescan Archive Directory' />
     </td>
     <td class="config-td">
         Click this button to trigger a rescan of the Archive Directory in case you're missing files, <br>
@@ -39,7 +38,7 @@
 
 <tr>
     <td class="option-td">
-        <input class='stdbtn' type='button' onclick="Server.cleanTemporaryFolder();" value='Clean Temporary Folder' />
+        <input id='clean_temp' class='stdbtn' type='button' value='Clean Temporary Folder' />
     </td>
     <td class="config-td">
         Current Size:
@@ -52,7 +51,7 @@
 
 <tr>
     <td class="option-td">
-        <input class='stdbtn' type='button' onclick="Server.invalidateCache();" value='Reset Search Cache' />
+        <input id='reset_search_cache' class='stdbtn' type='button' value='Reset Search Cache' />
     </td>
     <td class="config-td">
         The last searches done in the archive index are cached for faster loads. <br>
@@ -65,7 +64,7 @@
 
 <tr>
     <td class="option-td">
-        <input class='stdbtn' type='button' onclick="Server.clearAllNewFlags()" value='Clear NEW flags' />
+        <input id='clear_new_tags' class='stdbtn' type='button' value='Clear NEW flags' />
     </td>
     <td class="config-td">
         Newly uploaded archives are marked as "new" in the index until you've opened them. <br>

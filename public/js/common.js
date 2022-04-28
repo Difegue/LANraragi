@@ -299,3 +299,5 @@ LRR.getImgSize = function (target) {
     });
     return imgSize;
 };
+
+window.LRR = LRR;

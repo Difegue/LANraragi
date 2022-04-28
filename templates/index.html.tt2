@@ -82,10 +82,12 @@
 			</div>
 
 			<ul class="collapsible index-carousel with-right-caret">
-				<li class="option-flyout" style="text-align: left;display: flex;flex-wrap: wrap;justify-content: space-between;">
+				<li class="option-flyout"
+					style="text-align: left;display: flex;flex-wrap: wrap;justify-content: space-between;">
 					<div class="collapsible-title caret-right" style="display: flex;flex: 1 1 0;overflow: hidden;">
 						<i id="carousel-icon" class="fa"></i>
-						<div id="carousel-title" style="display:inline;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+						<div id="carousel-title"
+							style="display:inline;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
 							title="Click to show archives from the current search with the specified filter">...</div>
 					</div>
 					<div class="collapsible-right">
@@ -175,7 +177,7 @@
 	<script>
 
 		// Last few remains of JS using server-provided data
-		$(document).ready(() => {
+		jQuery(() => {
 
 			[% IF usingdefpass %]
 			//If the json has the "default password" flag, flash a friendly notification inviting the user to change his password
@@ -224,8 +226,6 @@
 					}
 				}
 			});
-
-			Index.initializeAll();
 		});
 	</script>
 
@@ -233,7 +233,7 @@
 
 	<div id="updateOverlay" class="id1 base-overlay small-overlay" style="display:none">
 		<h2 class="ih" style="text-align:center">New Version Release Notes</h2>
-		<div id="changelog" />
+		<div id="changelog"></div>
 	</div>
 
 

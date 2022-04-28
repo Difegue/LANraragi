@@ -753,7 +753,7 @@ Reader.handlePaginator = function () {
     }
 };
 
-$(document).ready(() => {
+jQuery(() => {
     Reader.initializeAll();
 });
 

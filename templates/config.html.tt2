@@ -21,6 +21,7 @@
 
 	<script src="/js/common.js?[% version %]" type="text/JAVASCRIPT"></script>
 	<script src="/js/server.js?[% version %]" type="text/JAVASCRIPT"></script>
+	<script src="/js/config.js?[% version %]" type="text/JAVASCRIPT"></script>
 
 </head>
 
@@ -38,13 +39,10 @@
 			<br>
 			<h2>Select a category to show the matching settings.</h2>
 			<br />
-			<input class='stdbtn' type='button' onclick="Server.saveFormData('#editConfigForm');"
-				value='Save Settings' /><br />
-			<input class='stdbtn' type='button' onclick="window.location.href = '/config/plugins';"
-				value='Plugin Configuration' />
-			<input class='stdbtn' type='button' onclick="window.location.href = '/backup';"
-				value='Database Backup/Restore' />
-			<input class='stdbtn' type='button' onclick="window.location.href = '/';" value='Return to Library' />
+			<input id='save' class='stdbtn' type='button' value='Save Settings' /><br />
+			<input id='plugin-config' class='stdbtn' type='button' value='Plugin Configuration' />
+			<input id='backup' class='stdbtn' type='button' value='Database Backup/Restore' />
+			<input id='return' class='stdbtn' type='button' value='Return to Library' />
 
 		</div>
 		<form class="right-column" name="editConfigForm" id="editConfigForm" enctype="multipart/form-data" method="post"
@@ -126,101 +124,7 @@
 			</ul>
 		</form>
 	</div>
-
-	<script>
-		$(function () {
-			enable_pass();
-			enable_resize();
-			enable_timemodified();
-			shinobuStatus();
-			setInterval(shinobuStatus, 5000);
-			$("#enablepass").on("click", enable_pass);
-			$("#enableresize").on("click", enable_resize);
-			$("#usedateadded").on("click", enable_timemodified);
-		});
-
-		function rebootShinobu() {
-			$("#restart-button").prop("disabled", true);
-			Server.callAPI("/api/shinobu/restart", "POST", "Background Worker restarted!", "Error while restarting Worker:",
-				() => {
-					$("#restart-button").prop("disabled", false);
-					shinobuStatus();
-				});
-		}
-
-		function rescanContentFolder() {
-			$("#rescan-button").prop("disabled", true);
-			Server.callAPI("/api/shinobu/rescan", "POST", "Content folder rescan started!", "Error while restarting Worker:",
-				() => {
-					$("#rescan-button").prop("disabled", false);
-					shinobuStatus();
-				});
-		}
-
-		// Update the status of the background worker.
-		function shinobuStatus() {
-			Server.callAPI("/api/shinobu", "GET", null, "Error while querying Shinobu status:",
-				(data) => {
-					if (data.is_alive) {
-						$("#shinobu-ok").show();
-						$("#shinobu-ko").hide();
-					} else {
-						$("#shinobu-ko").show();
-						$("#shinobu-ok").hide();
-					}
-					$("#pid").html(data.pid);
-				});
-		}
-
-		function switch_style(css_title) {
-
-			var i, link_tag, correct_style, default_style, new_style;
-			correct_style = 0;
-
-			for (i = 0, link_tag = document.getElementsByTagName("link"); i < link_tag.length; i++) {
-
-				if ((link_tag[i].rel.indexOf("stylesheet") != -1) && link_tag[i].title) {
-
-					if ((link_tag[i].rel.indexOf("alternate stylesheet") != -1))
-						link_tag[i].disabled = true;
-					else
-						default_style = link_tag[i];
-
-					if (link_tag[i].title == css_title) {
-						new_style = link_tag[i];
-						correct_style = 1;
-					}
-				}
-			}
-
-			if (correct_style == 1) { //if the style that was switched to exists
-				default_style.disabled = true; //we disable the default style 
-				new_style.disabled = false; //we enable the new style  
-			}
-		}
-
-		function enable_pass() {
-			if ($("#enablepass").prop("checked"))
-				$(".passwordfields").show();
-			else
-				$(".passwordfields").hide();
-		}
-
-		function enable_resize() {
-			if ($("#enableresize").prop("checked"))
-				$(".resizefields").show();
-			else
-				$(".resizefields").hide();
-		}
-
-		function enable_timemodified() {
-			if ($("#usedateadded").prop("checked"))
-				$(".datemodified").show();
-			else
-				$(".datemodified").hide();
-		}
-
-	</script> [% INCLUDE footer %]
+	[% INCLUDE footer %]
 </body>
 
 </html>

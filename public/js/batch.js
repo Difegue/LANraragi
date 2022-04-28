@@ -18,6 +18,9 @@ Batch.initializeAll = function () {
     $(document).on("click.start-batch", "#start-batch", Batch.startBatch);
     $(document).on("click.restart-job", "#restart-job", Batch.restartBatchUI);
     $(document).on("click.cancel-job", "#cancel-job", Batch.cancelBatch);
+    $(document).on("click.server-config", "#server-config", () => LRR.openInNewTab("./config"));
+    $(document).on("click.plugin-config", "#plugin-config", () => LRR.openInNewTab("./config/plugins"));
+    $(document).on("click.return", "#return", () => { window.location.href = "./"; });
 
     Batch.selectOperation();
     Batch.showOverride();
@@ -312,7 +315,7 @@ Batch.restartBatchUI = function () {
     $(".job-status").hide();
 };
 
-$(document).ready(() => {
+jQuery(() => {
     Batch.initializeAll();
 });
 

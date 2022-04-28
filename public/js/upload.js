@@ -1,11 +1,74 @@
 // Scripting for the Upload page.
-
 const Upload = {};
 
 let processingArchives = 0;
 let completedArchives = 0;
 let failedArchives = 0;
 let totalUploads = 0;
+
+// Set up jqueryfileupload.
+Upload.initializeAll = function () {
+    // bind events to DOM
+    $(document).on("click.download-url", "#download-url", Upload.downloadUrl);
+    $(document).on("click.return", "#return", () => { window.location.replace("./"); });
+
+    $("#fileupload").fileupload({
+        dataType: "json",
+        formData() {
+            const array = [{ name: "catid", value: document.getElementById("category").value }];
+            return array;
+        },
+        done(e, data) {
+            let result;
+            if (data.result.success === 0) {
+                result = `<tr><td>${data.result.name}</td>
+                              <td><i class='fa fa-exclamation-circle' style='margin-left:20px; margin-right: 10px; color: red'></i>${data.result.error}</td>
+                          </tr>`;
+            } else {
+                result = `<tr><td style="max-width:200px; overflow:hidden; text-overflow:ellipsis;">
+                                <a href="#" id="${data.result.job}-name" title="${data.result.name}">${data.result.name}</a>
+                              </td>
+                              <td><i id="${data.result.job}-icon" class='fa fa-spinner fa-spin' style='margin-left:20px; margin-right: 10px;'></i>
+                                <a href="#" id="${data.result.job}-link">Processing file... (Job #${data.result.job})</a>
+                              </td>
+                          </tr>`;
+            }
+
+            $("#progress .bar").css("width", "0%");
+            $("#files").append(result);
+
+            totalUploads += 1;
+            processingArchives += 1;
+            Upload.updateUploadCounters();
+
+            // Check minion job state periodically to update the result
+            Server.checkJobStatus(
+                data.result.job,
+                true,
+                (d) => Upload.handleCompletedUpload(data.result.job, d),
+                (error) => Upload.handleFailedUpload(data.result.job, error),
+            );
+        },
+
+        fail(e, data) {
+            const result = `<tr><td>${data.result.name}</td>
+                              <td><i class='fa fa-exclamation-circle' style='margin-left:20px; margin-right: 10px; color: red'></i>${data.errorThrown}</td>
+                          </tr>`;
+            $("#progress .bar").css("width", "0%");
+            $("#files").append(result);
+
+            totalUploads += 1;
+            failedArchives += 1;
+            Upload.updateUploadCounters();
+        },
+
+        progressall(e, data) {
+            const progress = parseInt((data.loaded / data.total) * 100, 10);
+            $("#progress .bar").css("width", `${progress}%`);
+        },
+
+    });
+};
 
 // Handle updating the upload counters.
 Upload.updateUploadCounters = function () {
@@ -109,62 +172,8 @@ Upload.downloadUrl = function () {
     });
 };
 
-// Set up jqueryfileupload.
-Upload.initUpload = function () {
-    $("#fileupload").fileupload({
-        dataType: "json",
-        formData() {
-            const array = [{ name: "catid", value: document.getElementById("category").value }];
-            return array;
-        },
-        done(e, data) {
-            let result;
-            if (data.result.success === 0) {
-                result = `<tr><td>${data.result.name}</td>
-                              <td><i class='fa fa-exclamation-circle' style='margin-left:20px; margin-right: 10px; color: red'></i>${data.result.error}</td>
-                          </tr>`;
-            } else {
-                result = `<tr><td style="max-width:200px; overflow:hidden; text-overflow:ellipsis;">
-                                <a href="#" id="${data.result.job}-name" title="${data.result.name}">${data.result.name}</a>
-                              </td>
-                              <td><i id="${data.result.job}-icon" class='fa fa-spinner fa-spin' style='margin-left:20px; margin-right: 10px;'></i>
-                                <a href="#" id="${data.result.job}-link">Processing file... (Job #${data.result.job})</a>
-                              </td>
-                          </tr>`;
-            }
+jQuery(() => {
+    Upload.initializeAll();
+});
 
-            $("#progress .bar").css("width", "0%");
-            $("#files").append(result);
-
-            totalUploads += 1;
-            processingArchives += 1;
-            Upload.updateUploadCounters();
-
-            // Check minion job state periodically to update the result
-            Server.checkJobStatus(
-                data.result.job,
-                true,
-                (d) => Upload.handleCompletedUpload(data.result.job, d),
-                (error) => Upload.handleFailedUpload(data.result.job, error),
-            );
-        },
-
-        fail(e, data) {
-            const result = `<tr><td>${data.result.name}</td>
-                              <td><i class='fa fa-exclamation-circle' style='margin-left:20px; margin-right: 10px; color: red'></i>${data.errorThrown}</td>
-                          </tr>`;
-            $("#progress .bar").css("width", "0%");
-            $("#files").append(result);
-
-            totalUploads += 1;
-            failedArchives += 1;
-            Upload.updateUploadCounters();
-        },
-
-        progressall(e, data) {
-            const progress = parseInt((data.loaded / data.total) * 100, 10);
-            $("#progress .bar").css("width", `${progress}%`);
-        },
-
-    });
-};
+window.Upload = Upload;

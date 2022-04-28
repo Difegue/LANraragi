@@ -2,6 +2,7 @@
  * All the Archive Index functions related to DataTables.
  */
 const IndexTable = {};
+
 IndexTable.dataTable = {};
 IndexTable.originalTitle = document.title;
 IndexTable.isComingFromPopstate = false;
@@ -347,3 +348,5 @@ IndexTable.buildTagTooltip = function (target) {
 
     $(target).attr("onmouseover", "");
 };
+
+window.IndexTable = IndexTable;

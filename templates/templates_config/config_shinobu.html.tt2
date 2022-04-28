@@ -18,8 +18,7 @@
 
 <tr>
     <td class="option-td">
-        <input id="restart-button" class='stdbtn' type='button' onclick="rebootShinobu();"
-            value='Restart File Watcher' />
+        <input id="restart-button" class='stdbtn' type='button' value='Restart File Watcher' />
     </td>
     <td class="config-td">
         If Shinobu is dead or unresponsive, you can reboot her by clicking this button.
@@ -28,7 +27,7 @@
 
 <tr>
     <td class="option-td">
-        <input class='stdbtn' type='button' onclick="LRR.openInNewTab('/minion')" value='Open Minion Console' />
+        <input id='open_minion' class='stdbtn' type='button' value='Open Minion Console' />
     </td>
     <td class="config-td">
         The Minion Worker handles spare tasks that are too long to execute within the request/response lifecycle of web

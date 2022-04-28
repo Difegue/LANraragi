@@ -24,7 +24,7 @@
 	<script src="./js/upload.js?[% version%]" type="text/JAVASCRIPT"></script>
 </head>
 
-<body onload="Upload.initUpload()">
+<body>
 
 	<div class='ido' style='text-align:center; font-size:8pt'>
 		<h1 class='ih' style='text-align:center'>Adding Archives to the Library</h1>
@@ -70,7 +70,7 @@
 				<br><br>
 
 
-				<span class='stdbtn fileinput-button' style="height:50px;" onclick="Upload.downloadUrl()">
+				<span id="download-url" class='stdbtn fileinput-button' style="height:50px;">
 					<i class='fas fa-cloud-download-alt fa-2x' style='padding-top:6px; padding-bottom: 5px'></i><br>
 					<span>Add from URL(s)</span>
 				</span>
@@ -98,7 +98,7 @@
 		</div>
 
 		<br><br>
-		<input class='stdbtn' type='button' onclick="window.location.replace('./');" value='Return to Library' />
+		<input id='return' class='stdbtn' type='button' value='Return to Library' />
 	</div>
 
 	[% INCLUDE footer %]
