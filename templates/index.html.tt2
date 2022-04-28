@@ -83,9 +83,9 @@
 
 			<ul class="collapsible index-carousel with-right-caret">
 				<li class="option-flyout" style="text-align: left;">
-					<div class="collapsible-title caret-right" style="display:inline-block;">
+					<div class="collapsible-title caret-right">
 						<i id="carousel-icon" class="fa"></i>
-						<div id="carousel-title" style="display:inline"
+						<div id="carousel-title" style="display:inline;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
 							title="Click to show archives from the current search with the specified filter">...</div>
 					</div>
 					<div class="collapsible-right">
