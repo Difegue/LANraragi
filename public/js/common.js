@@ -13,10 +13,10 @@ LRR.encodeHTML = function (r, isTimestamp = false) {
     if (r === undefined) return r;
     if (isTimestamp === true) return (new Date(r * 1000)).toLocaleDateString();
     if (Array.isArray(r)) {
-        return r[0].replace(/[\x26\x0A\<>'"]/g, (r2) => `&#${r2.charCodeAt(0)};`);
+        return r[0].replace(/[\x26\x0A<>'"]/g, (r2) => `&#${r2.charCodeAt(0)};`);
     } else {
         // console.log(r);
-        return r.replace(/[\x26\x0A\<>'"]/g, (r2) => `&#${r2.charCodeAt(0)};`);
+        return r.replace(/[\x26\x0A<>'"]/g, (r2) => `&#${r2.charCodeAt(0)};`);
     }
 };
 
