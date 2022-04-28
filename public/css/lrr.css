@@ -330,18 +330,9 @@ p#nb {
   border: none !important;
 }
 
-.option-flyout {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-}
-
 .option-flyout>.collapsible-title {
   font-size: 18px;
   font-weight: bold;
-  display: flex;
-  flex: 1 1 0;
-  overflow: hidden;
 }
 
 .option-flyout>.collapsible-body {
