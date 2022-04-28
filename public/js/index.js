@@ -296,6 +296,7 @@ Index.updateCarousel = function (e) {
 
     $("#carousel-loading").show();
     $(".swiper-wrapper").hide();
+    $("#reload-carousel").addClass("fa-spin");
 
     // Hit a different API endpoint depending on the requested localStorage carousel type
     let endpoint;
@@ -335,6 +336,7 @@ Index.updateCarousel = function (e) {
 
                 $("#carousel-loading").hide();
                 $(".swiper-wrapper").show();
+                $("#reload-carousel").removeClass("fa-spin");
             });
     }
 };
