@@ -13,7 +13,8 @@ winget install lanraragi
 
 {% hint style="warning" %}
 The installer will tell you about this anyways, but LRR for Windows **requires** the Windows Subsystem for Linux to function properly.  
-Read the tutorial [here](https://docs.microsoft.com/en-us/windows/wsl/install) to see how to enable WSL on your Windows 10 machine.
+Read the tutorial [here](https://docs.microsoft.com/en-us/windows/wsl/install) to see how to enable WSL on your Windows 10 machine.  
+WSL defaults to WSL2, so if the installer doesn't work properly make sure you have virtualization enabled as well, or switch to WSL1. (`wsl --set-default-version 1`)   
 
 You don't need to install a distribution through the Windows Store, as that is handled by the LRR installer package.
 {% endhint %}
