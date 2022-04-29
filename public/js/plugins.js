@@ -6,7 +6,7 @@ const Plugins = {};
 Plugins.initializeAll = function () {
     // bind events to DOM
     $(document).on("click.save", "#save", () => Server.saveFormData("#editPluginForm"));
-    $(document).on("click.return", "#return", () => { window.location.replace("/"); });
+    $(document).on("click.return", "#return", () => { window.location.href = "/"; });
 
     // Handler for file uploading.
     $("#fileupload").fileupload({
@@ -38,5 +38,3 @@ Plugins.initializeAll = function () {
 jQuery(() => {
     Plugins.initializeAll();
 });
-
-window.Plugins = Plugins;

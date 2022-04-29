@@ -14,24 +14,24 @@ Config.initializeAll = function () {
     $(document).on("click.usedateadded", "#usedateadded", () => Config.enable_timemodified);
 
     $(document).on("click.rescan-button", "#rescan-button", Config.rescanContentFolder);
-    $(document).on("click.clean_temp", "#clean_temp", Server.cleanTemporaryFolder);
-    $(document).on("click.reset_search_cache", "#reset_search_cache", Server.invalidateCache);
-    $(document).on("click.clear_new_tags", "#clear_new_tags", Server.clearAllNewFlags);
+    $(document).on("click.clean-temp", "#clean-temp", Server.cleanTemporaryFolder);
+    $(document).on("click.reset-search-cache", "#reset-search-cache", Server.invalidateCache);
+    $(document).on("click.clear-new-tags", "#clear-new-tags", Server.clearAllNewFlags);
 
-    $(document).on("click.clean_db", "#clean_db", Server.cleanDatabase);
-    $(document).on("click.drop_db", "#drop_db", Server.dropDatabase);
+    $(document).on("click.clean-db", "#clean-db", Server.cleanDatabase);
+    $(document).on("click.drop-db", "#drop-db", Server.dropDatabase);
 
     $(document).on("click.restart-button", "#restart-button", Config.rebootShinobu);
-    $(document).on("click.open_minion", "#open_minion", () => LRR.openInNewTab("/minion"));
+    $(document).on("click.open-minion", "#open-minion", () => LRR.openInNewTab("/minion"));
 
     $(document).on("click.genthumb-button", "#genthumb-button", () => Server.regenerateThumbnails(false));
     $(document).on("click.forcethumb-button", "#forcethumb-button", () => Server.regenerateThumbnails(true));
 
-    $(document).on("click.modern_div", "#modern_div", () => Config.switch_style("Hachikuji"));
-    $(document).on("click.modern_clear_div", "#modern_clear_div", () => Config.switch_style("Yotsugi"));
-    $(document).on("click.modern_red_div", "#modern_red_div", () => Config.switch_style("Nadeko"));
-    $(document).on("click.ex_div", "#ex_div", () => Config.switch_style("Sad Panda"));
-    $(document).on("click.g_div", "#g_div", () => Config.switch_style("H-Verse"));
+    $(document).on("click.modern-div", "#modern-div", () => Config.switch_style("Hachikuji"));
+    $(document).on("click.modern-clear-div", "#modern-clear-div", () => Config.switch_style("Yotsugi"));
+    $(document).on("click.modern-red-div", "#modern-red-div", () => Config.switch_style("Nadeko"));
+    $(document).on("click.ex-div", "#ex-div", () => Config.switch_style("Sad Panda"));
+    $(document).on("click.g-div", "#g-div", () => Config.switch_style("H-Verse"));
 
     Config.enable_pass();
     Config.enable_resize();
@@ -116,5 +116,3 @@ Config.enable_timemodified = function () {
 jQuery(() => {
     Config.initializeAll();
 });
-
-window.Config = Config;

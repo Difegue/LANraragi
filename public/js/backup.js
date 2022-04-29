@@ -5,7 +5,7 @@ const Backup = {};
 
 Backup.initializeAll = function () {
     // bind events to DOM
-    $(document).on("click.return", "#return", () => { window.location.replace("./"); });
+    $(document).on("click.return", "#return", () => { window.location.href = "/"; });
     $(document).on("click.do-backup", "#do-backup", () => { window.open("./backup?dobackup=1", "_blank"); });
 
     // Handler for file uploading.
@@ -34,5 +34,3 @@ Backup.initializeAll = function () {
 jQuery(() => {
     Backup.initializeAll();
 });
-
-window.Backup = Backup;

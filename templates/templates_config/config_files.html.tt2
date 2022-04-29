@@ -38,7 +38,7 @@
 
 <tr>
     <td class="option-td">
-        <input id='clean_temp' class='stdbtn' type='button' value='Clean Temporary Folder' />
+        <input id='clean-temp' class='stdbtn' type='button' value='Clean Temporary Folder' />
     </td>
     <td class="config-td">
         Current Size:
@@ -51,7 +51,7 @@
 
 <tr>
     <td class="option-td">
-        <input id='reset_search_cache' class='stdbtn' type='button' value='Reset Search Cache' />
+        <input id='reset-search-cache' class='stdbtn' type='button' value='Reset Search Cache' />
     </td>
     <td class="config-td">
         The last searches done in the archive index are cached for faster loads. <br>
@@ -64,7 +64,7 @@
 
 <tr>
     <td class="option-td">
-        <input id='clear_new_tags' class='stdbtn' type='button' value='Clear NEW flags' />
+        <input id='clear-new-tags' class='stdbtn' type='button' value='Clear NEW flags' />
     </td>
     <td class="config-td">
         Newly uploaded archives are marked as "new" in the index until you've opened them. <br>

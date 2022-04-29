@@ -24,9 +24,9 @@ Index.initializeAll = function () {
     $(document).on("change.thumbnail-crop", "#thumbnail-crop", Index.toggleCrop);
     $(document).on("change.namespace-sortby", "#namespace-sortby", Index.handleCustomSort);
     $(document).on("click.order-sortby", "#order-sortby", Index.toggleOrder);
-    $(document).on("click.open_carousel", ".collapsible-title", Index.toggleCarousel);
+    $(document).on("click.open-carousel", ".collapsible-title", Index.toggleCarousel);
     $(document).on("click.reload-carousel", "#reload-carousel", Index.updateCarousel);
-    $(document).on("click.close_overlay", "#overlay-shade", LRR.closeOverlay);
+    $(document).on("click.close-overlay", "#overlay-shade", LRR.closeOverlay);
 
     // 0 = List view
     // 1 = Thumbnail view
@@ -141,23 +141,30 @@ Index.toggleCarousel = function (e, updateLocalStorage = true) {
         $("#reload-carousel").show();
 
         Index.swiper = new Swiper(".index-carousel-container", {
-            breakpoints: (() => { // Virtual Slides doesn't work with slidesPerView: 'auto'
+            breakpoints: (() => {
                 const breakpoints = {
-                    0: {
+                    0: { // ensure every device have at least 1 slide
                         slidesPerView: 1,
                     },
-                    210: {
-                        slidesPerView: 2,
-                    },
-                    360: {
-                        slidesPerView: 2.5,
-                    },
                 };
-                for (let width = 690, sides = 3; width <= 2760; width += 115, sides += 0.5) {
+                // virtual Slides doesn't work with slidesPerView: 'auto'
+                // the following loops are meant to implement same functionality by doing mathworks
+                // it also helps avoid writing a billion slidesPerView combos for window widths
+                // when the screen width <= 560px, every thumbnails have a different width
+                // from 169px, when the width is 17px bigger, we display 0.1 more slide
+                for (let width = 169, sides = 1; width <= 424; width += 17, sides += 0.1) {
                     breakpoints[width] = {
                         slidesPerView: sides,
                     };
                 }
+                // from 427px, when the width is 46px bigger, we display 0.2 more slide
+                // the width support up to 4K resolution
+                for (let width = 427, sides = 1.8; width <= 3840; width += 46, sides += 0.2) {
+                    breakpoints[width] = {
+                        slidesPerView: sides,
+                    };
+                }
+                console.log(breakpoints);
                 return breakpoints;
             })(),
             breakpointsBase: "container",
@@ -645,5 +652,3 @@ Index.migrateProgress = function () {
 jQuery(() => {
     Index.initializeAll();
 });
-
-window.Index = Index;

@@ -4,7 +4,7 @@
 const LRR = {};
 
 /**
- * Quickly HTML encoding function.
+ * Quick HTML encoding function.
  * @param {*} r The HTML to encode
  * @returns Encoded string
  */
@@ -123,7 +123,8 @@ LRR.colorCodeTags = function (tags) {
     tagsToEncode.sort().forEach((key) => {
         tagsByNamespace[key].forEach((tag) => {
             const encodedK = LRR.encodeHTML(key.toLowerCase());
-            line += `<span class='${encodedK}-tag'>${LRR.encodeHTML(key === "date_added" || key === "timestamp" ? LRR.convertTimestamp(tag) : tag)}</span>, `;
+            const encodedVal = LRR.encodeHTML(key === "date_added" || key === "timestamp" ? LRR.convertTimestamp(tag) : tag);
+            line += `<span class='${encodedK}-tag'>${encodedVal}</span>, `;
         });
     });
     // Remove last comma
@@ -299,5 +300,3 @@ LRR.getImgSize = function (target) {
     });
     return imgSize;
 };
-
-window.LRR = LRR;

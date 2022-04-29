@@ -10,7 +10,7 @@ let totalUploads = 0;
 Upload.initializeAll = function () {
     // bind events to DOM
     $(document).on("click.download-url", "#download-url", Upload.downloadUrl);
-    $(document).on("click.return", "#return", () => { window.location.replace("./"); });
+    $(document).on("click.return", "#return", () => { window.location.href = "/"; });
 
     $("#fileupload").fileupload({
         dataType: "json",
@@ -175,5 +175,3 @@ Upload.downloadUrl = function () {
 jQuery(() => {
     Upload.initializeAll();
 });
-
-window.Upload = Upload;

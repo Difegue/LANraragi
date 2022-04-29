@@ -9,12 +9,12 @@ Logs.initializeAll = function () {
     // bind events to DOM
     $(document).on("click.refresh", "#refresh", Logs.refreshLog);
     $(document).on("click.loglines", "#loglines", Logs.refreshLog);
-    $(document).on("click.show_general", "#show_general", () => Logs.showLog("general"));
-    $(document).on("click.show_shinobu", "#show_shinobu", () => Logs.showLog("shinobu"));
-    $(document).on("click.show_plugins", "#show_plugins", () => Logs.showLog("plugins"));
-    $(document).on("click.show_mojo", "#show_mojo", () => Logs.showLog("mojo"));
-    $(document).on("click.show_redis", "#show_redis", () => Logs.showLog("redis"));
-    $(document).on("click.return", "#return", () => { window.location.replace("/"); });
+    $(document).on("click.show-general", "#show-general", () => Logs.showLog("general"));
+    $(document).on("click.show-shinobu", "#show-shinobu", () => Logs.showLog("shinobu"));
+    $(document).on("click.show-plugins", "#show-plugins", () => Logs.showLog("plugins"));
+    $(document).on("click.show-mojo", "#show-mojo", () => Logs.showLog("mojo"));
+    $(document).on("click.show-redis", "#show-redis", () => Logs.showLog("redis"));
+    $(document).on("click.return", "#return", () => { window.location.href = "/"; });
 
     Logs.showLog("general");
 };
@@ -36,5 +36,3 @@ Logs.refreshLog = function () {
 jQuery(() => {
     Logs.initializeAll();
 });
-
-window.Logs = Logs;

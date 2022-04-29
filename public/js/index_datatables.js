@@ -348,5 +348,3 @@ IndexTable.buildTagTooltip = function (target) {
 
     $(target).attr("onmouseover", "");
 };
-
-window.IndexTable = IndexTable;

@@ -87,7 +87,7 @@
 					<div class="collapsible-title caret-right" style="display: flex;flex: 1 1 0;overflow: hidden;">
 						<i id="carousel-icon" class="fa"></i>
 						<div id="carousel-title"
-							style="display:inline;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+							style="display:inline;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-left: 8px;"
 							title="Click to show archives from the current search with the specified filter">...</div>
 					</div>
 					<div class="collapsible-right">

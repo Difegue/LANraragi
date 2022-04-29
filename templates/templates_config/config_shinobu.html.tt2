@@ -27,7 +27,7 @@
 
 <tr>
     <td class="option-td">
-        <input id='open_minion' class='stdbtn' type='button' value='Open Minion Console' />
+        <input id='open-minion' class='stdbtn' type='button' value='Open Minion Console' />
     </td>
     <td class="config-td">
         The Minion Worker handles spare tasks that are too long to execute within the request/response lifecycle of web

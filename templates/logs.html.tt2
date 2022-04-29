@@ -61,15 +61,15 @@
 
 		<br><br>
 		<span id='buttonstagging'>
-			<input id="show_general" type='button' value='View LANraragi Logs' class='stdbtn'>
+			<input id="show-general" type='button' value='View LANraragi Logs' class='stdbtn'>
 
-			<input id="show_shinobu" type='button' value='View Shinobu Logs' class='stdbtn'>
+			<input id="show-shinobu" type='button' value='View Shinobu Logs' class='stdbtn'>
 
-			<input id="show_plugins" type='button' value='View Plugin Logs' class='stdbtn'>
+			<input id="show-plugins" type='button' value='View Plugin Logs' class='stdbtn'>
 
-			<input id="show_mojo" type='button' value='View Mojolicious Logs' class='stdbtn'>
+			<input id="show-mojo" type='button' value='View Mojolicious Logs' class='stdbtn'>
 
-			<input id="show_redis" type='button' value='View Redis Logs' class='stdbtn'>
+			<input id="show-redis" type='button' value='View Redis Logs' class='stdbtn'>
 
 			<br><br>
 			<input id='return' class='stdbtn' type='button' value='Return to Library' />

@@ -180,5 +180,3 @@ Category.predicateHelp = function () {
 jQuery(() => {
     Category.initializeAll();
 });
-
-window.Category = Category;

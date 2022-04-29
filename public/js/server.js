@@ -279,5 +279,3 @@ Server.deleteArchive = function (arcId, callback) {
         })
         .catch((error) => LRR.showErrorToast("Error while deleting archive", error));
 };
-
-window.Server = Server;

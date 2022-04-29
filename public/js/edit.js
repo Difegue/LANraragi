@@ -15,7 +15,7 @@ Edit.initializeAll = function () {
     $(document).on("click.save-metadata", "#save-metadata", Edit.saveMetadata);
     $(document).on("click.delete-archive", "#delete-archive", Edit.deleteArchive);
     $(document).on("click.tagger", ".tagger", Edit.focusTagInput);
-    $(document).on("click.goback", "#goback", () => { window.location.replace("./"); });
+    $(document).on("click.goback", "#goback", () => { window.location.href = "/"; });
 
     Edit.updateOneShotArg();
 
@@ -188,5 +188,3 @@ Edit.runPlugin = function () {
 jQuery(() => {
     Edit.initializeAll();
 });
-
-window.Edit = Edit;

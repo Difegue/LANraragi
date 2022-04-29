@@ -39,5 +39,3 @@ Stats.initializeAll = function () {
 jQuery(() => {
     Stats.initializeAll();
 });
-
-window.Stats = Stats;
