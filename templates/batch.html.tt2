@@ -99,7 +99,7 @@
 									Archives.<br><br>
 									You can edit your Tag Rules in Server Configuration.<br><br>
 
-									<input class='stdbtn' type='button' onclick="LRR.openInNewTab('./config');"
+									<input id='server-config' class='stdbtn' type='button'
 										value='Server Configuration' />
 								</td>
 								<td>
@@ -193,9 +193,8 @@
 			<br><br>
 		</div>
 
-		<input class='stdbtn' type='button' onclick="LRR.openInNewTab('./config/plugins');"
-			value='Plugin Configuration' />
-		<input class='stdbtn' type='button' onclick="window.location.href = './';" value='Return to Library' />
+		<input id='plugin-config' class='stdbtn' type='button' value='Plugin Configuration' />
+		<input id='return' class='stdbtn' type='button' value='Return to Library' />
 
 	</div>
 	[% INCLUDE footer %]

@@ -353,6 +353,14 @@ td.itdc {
   color: #ed2553;
 }
 
+#carousel-mode-menu {
+  color: #414135;
+}
+#carousel-mode-menu:hover {
+  color: #ed2553;
+}
+
+
 div.sni {
   background-color: #D83B66;
   box-shadow: 0 5px 15px 0 rgba(0, 0, 0, 0.16), 0 2px 15px 0 rgba(0, 0, 0, 0.12);

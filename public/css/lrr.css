@@ -153,7 +153,7 @@ table thead .sorting_disabled a:after {
 }
 
 .index-carousel-container {
-  margin-top: -20px;
+  margin-top: -10px;
 }
 
 .carousel-prev {
@@ -320,7 +320,6 @@ p#nb {
 }
 
 .collapsible-right {
-  float: right;
   padding: 1.2rem 1.2rem 0 0;
 }
 

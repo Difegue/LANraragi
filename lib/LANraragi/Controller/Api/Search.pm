@@ -71,8 +71,8 @@ sub handle_api {
     my $start     = $req->param('start');
     my $sortkey   = $req->param('sortby');
     my $sortorder = $req->param('order');
-    my $newfilter = $req->param('newonly');
-    my $untaggedf = $req->param('untaggedonly');
+    my $newfilter = $req->param('newonly') || "false";
+    my $untaggedf = $req->param('untaggedonly') || "false";
 
     $sortorder = ( $sortorder && $sortorder eq 'desc' ) ? 1 : 0;
 

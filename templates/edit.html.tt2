@@ -111,8 +111,7 @@
 						<td colspan='2' style='text-align:center'> <br />
 							<input class='stdbtn' type='button' id="save-metadata" value='Save Metadata' />
 							<input class='stdbtn' type='button' id="delete-archive" value='Delete Archive' />
-							<input id='goback' class='stdbtn' type='button' onclick="window.location.replace('./');"
-								value='Return to Library' />
+							<input id='goback' class='stdbtn' type='button' value='Return to Library' />
 							<br />
 						</td>
 					</tr>

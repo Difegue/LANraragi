@@ -115,7 +115,9 @@ Server.triggerScript = function (namespace) {
         .then(Server.callAPI(`/api/plugins/queue?plugin=${namespace}&arg=${scriptArg}`, "POST", null, "Error while executing Script :",
             (data) => {
                 // Check minion job state periodically while we're on this page
-                Server.checkJobStatus(data.job, true,
+                Server.checkJobStatus(
+                    data.job,
+                    true,
                     (d) => {
                         Server.isScriptRunning = false;
                         $(".script-running").hide();
@@ -137,15 +139,18 @@ Server.triggerScript = function (namespace) {
                         Server.isScriptRunning = false;
                         $(".script-running").hide();
                         $(".stdbtn").show();
-                    });
-            }));
+                    },
+                );
+            },
+        ));
 };
 
 Server.cleanTemporaryFolder = function () {
     Server.callAPI("/api/tempfolder", "DELETE", "Temporary Folder Cleaned!", "Error while cleaning Temporary Folder :",
         (data) => {
             $("#tempsize").html(data.newsize);
-        });
+        },
+    );
 };
 
 Server.invalidateCache = function () {
@@ -157,11 +162,12 @@ Server.clearAllNewFlags = function () {
 };
 
 Server.dropDatabase = function () {
-    if (confirm("Danger! Are you *sure* you want to do this?")) {
+    if (window.confirm("Danger! Are you *sure* you want to do this?")) {
         Server.callAPI("/api/database/drop", "POST", "Sayonara! Redirecting you...", "Error while resetting the database? Check Logs.",
             () => {
                 setTimeout(() => { document.location.href = "./"; }, 1500);
-            });
+            },
+        );
     }
 };
 
@@ -186,20 +192,24 @@ Server.cleanDatabase = function () {
                     icon: "warning",
                 });
             }
-        });
+        },
+    );
 };
 
 Server.regenerateThumbnails = function (force) {
     const forceparam = force ? 1 : 0;
     Server.callAPI(`/api/regen_thumbs?force=${forceparam}`, "POST",
-        "Queued up a job to regenerate thumbnails! Stay tuned for updates or check the Minion console.", "Error while sending job to Minion:",
+        "Queued up a job to regenerate thumbnails! Stay tuned for updates or check the Minion console.",
+        "Error while sending job to Minion:",
         (data) => {
             // Disable the buttons to avoid accidental double-clicks.
             $("#genthumb-button").prop("disabled", true);
             $("#forcethumb-button").prop("disabled", true);
 
             // Check minion job state periodically while we're on this page
-            Server.checkJobStatus(data.job, true,
+            Server.checkJobStatus(
+                data.job,
+                true,
                 (d) => {
                     $("#genthumb-button").prop("disabled", false);
                     $("#forcethumb-button").prop("disabled", false);
@@ -217,8 +227,10 @@ Server.regenerateThumbnails = function (force) {
                     $("#genthumb-button").prop("disabled", false);
                     $("#forcethumb-button").prop("disabled", false);
                     LRR.showErrorToast("The thumbnail regen job failed!", error);
-                });
-        });
+                },
+            );
+        },
+    );
 };
 
 // Adds an archive to a category. Basic implementation to use everywhere.

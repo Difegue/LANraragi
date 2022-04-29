@@ -15,6 +15,7 @@
 	<script src="./js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
 
 	<script src="./js/common.js?[% version%]" type="text/JAVASCRIPT"></script>
+	<script src="./js/logs.js?[% version%]" type="text/JAVASCRIPT"></script>
 </head>
 
 <body>
@@ -38,11 +39,11 @@
 
 		<div style="margin-right: 5%;float: right;">
 
-			<a href="#" onclick="refreshLog()" title="Refresh">
+			<a id="refresh" href="#" title="Refresh">
 				<i style="padding-right: 10px;" class="fa fa-sync-alt fa-2x"></i>
 			</a>
 
-			Lines: <input type="number" min="0" value="100" id="loglines" onchange="refreshLog()" style="width: 60px;">
+			Lines: <input type="number" min="0" value="100" id="loglines" style="width: 60px;">
 
 		</div>
 
@@ -60,18 +61,18 @@
 
 		<br><br>
 		<span id='buttonstagging'>
-			<input type='button' value='View LANraragi Logs' class='stdbtn' onclick='showLog("general")'>
+			<input id="show-general" type='button' value='View LANraragi Logs' class='stdbtn'>
 
-			<input type='button' value='View Shinobu Logs' class='stdbtn' onclick='showLog("shinobu")'>
+			<input id="show-shinobu" type='button' value='View Shinobu Logs' class='stdbtn'>
 
-			<input type='button' value='View Plugin Logs' class='stdbtn' onclick='showLog("plugins")'>
+			<input id="show-plugins" type='button' value='View Plugin Logs' class='stdbtn'>
 
-			<input type='button' value='View Mojolicious Logs' class='stdbtn' onclick='showLog("mojo")'>
+			<input id="show-mojo" type='button' value='View Mojolicious Logs' class='stdbtn'>
 
-			<input type='button' value='View Redis Logs' class='stdbtn' onclick='showLog("redis")'>
+			<input id="show-redis" type='button' value='View Redis Logs' class='stdbtn'>
 
 			<br><br>
-			<input class='stdbtn' type='button' onclick="window.location.replace('/');" value='Return to Library' />
+			<input id='return' class='stdbtn' type='button' value='Return to Library' />
 
 		</span>
 

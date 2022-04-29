@@ -22,30 +22,30 @@ Reader.initializeAll = function () {
     $(document).on("keyup", Reader.handleShortcuts);
     $(document).on("wheel", Reader.handleWheel);
 
-    $(document).on("click.toggle_fit_mode", "#fit-mode input", Reader.toggleFitMode);
-    $(document).on("click.toggle_double_mode", "#toggle-double-mode input", Reader.toggleDoublePageMode);
-    $(document).on("click.toggle_manga_mode", "#toggle-manga-mode input, .reading-direction", Reader.toggleMangaMode);
-    $(document).on("click.toggle_header", "#toggle-header input", Reader.toggleHeader);
-    $(document).on("click.toggle_progress", "#toggle-progress input", Reader.toggleProgressTracking);
-    $(document).on("click.toggle_infinite_scroll", "#toggle-infinite-scroll input", Reader.toggleInfiniteScroll);
-    $(document).on("click.toggle_overlay", "#toggle-overlay input", Reader.toggleOverlayByDefault);
-    $(document).on("submit.container_width", "#container-width-input", Reader.registerContainerWidth);
-    $(document).on("click.container_width", "#container-width-apply", Reader.registerContainerWidth);
+    $(document).on("click.toggle-fit-mode", "#fit-mode input", Reader.toggleFitMode);
+    $(document).on("click.toggle-double-mode", "#toggle-double-mode input", Reader.toggleDoublePageMode);
+    $(document).on("click.toggle-manga-mode", "#toggle-manga-mode input, .reading-direction", Reader.toggleMangaMode);
+    $(document).on("click.toggle-header", "#toggle-header input", Reader.toggleHeader);
+    $(document).on("click.toggle-progress", "#toggle-progress input", Reader.toggleProgressTracking);
+    $(document).on("click.toggle-infinite-scroll", "#toggle-infinite-scroll input", Reader.toggleInfiniteScroll);
+    $(document).on("click.toggle-overlay", "#toggle-overlay input", Reader.toggleOverlayByDefault);
+    $(document).on("submit.container-width", "#container-width-input", Reader.registerContainerWidth);
+    $(document).on("click.container-width", "#container-width-apply", Reader.registerContainerWidth);
     $(document).on("submit.preload", "#preload-input", Reader.registerPreload);
     $(document).on("click.preload", "#preload-apply", Reader.registerPreload);
-    $(document).on("click.pagination_change_pages", ".page-link", Reader.handlePaginator);
+    $(document).on("click.pagination-change-pages", ".page-link", Reader.handlePaginator);
 
-    $(document).on("click.close_overlay", "#overlay-shade", LRR.closeOverlay);
-    $(document).on("click.toggle_full_screen", "#toggle-full-screen", Reader.toggleFullScreen);
-    $(document).on("click.toggle_archive_overlay", "#toggle-archive-overlay", Reader.toggleArchiveOverlay);
-    $(document).on("click.toggle_settings_overlay", "#toggle-settings-overlay", Reader.toggleSettingsOverlay);
-    $(document).on("click.toggle_help", "#toggle-help", Reader.toggleHelp);
-    $(document).on("click.regenerate_archive_cache", "#regenerate-cache", () => {
+    $(document).on("click.close-overlay", "#overlay-shade", LRR.closeOverlay);
+    $(document).on("click.toggl-_full-screen", "#toggle-full-screen", Reader.toggleFullScreen);
+    $(document).on("click.toggle-archive-overlay", "#toggle-archive-overlay", Reader.toggleArchiveOverlay);
+    $(document).on("click.toggle-settings-overlay", "#toggle-settings-overlay", Reader.toggleSettingsOverlay);
+    $(document).on("click.toggle-help", "#toggle-help", Reader.toggleHelp);
+    $(document).on("click.regenerate-archive-cache", "#regenerate-cache", () => {
         window.location.href = `./reader?id=${Reader.id}&force_reload`;
     });
-    $(document).on("click.edit_metadata", "#edit-archive", () => LRR.openInNewTab(`./edit?id=${Reader.id}`));
-    $(document).on("click.add_category", "#add-category", () => Server.addArchiveToCategory(Reader.id, $("#category").val()));
-    $(document).on("click.set_thumbnail", "#set-thumbnail", () => Server.callAPI(`/api/archives/${Reader.id}/thumbnail?page=${Reader.currentPage + 1}`,
+    $(document).on("click.edit-metadata", "#edit-archive", () => LRR.openInNewTab(`./edit?id=${Reader.id}`));
+    $(document).on("click.add-category", "#add-category", () => Server.addArchiveToCategory(Reader.id, $("#category").val()));
+    $(document).on("click.set-thumbnail", "#set-thumbnail", () => Server.callAPI(`/api/archives/${Reader.id}/thumbnail?page=${Reader.currentPage + 1}`,
         "PUT", `Successfully set page ${Reader.currentPage + 1} as the thumbnail!`, "Error updating thumbnail!", null));
 
     $(document).on("click.thumbnail", ".quick-thumbnail", (e) => {
@@ -97,7 +97,8 @@ Reader.initializeAll = function () {
 
             // Load the actual reader pages now that we have basic info
             Reader.loadImages();
-        });
+        },
+    );
 };
 
 Reader.loadImages = function () {
@@ -144,10 +145,14 @@ Reader.loadImages = function () {
             if (Reader.showOverlayByDefault) { Reader.toggleArchiveOverlay(); }
 
             // Wait for the extraction job to conclude before getting thumbnails
-            Server.checkJobStatus(data.job, false,
+            Server.checkJobStatus(
+                data.job,
+                false,
                 () => Reader.initializeArchiveOverlay(),
-                () => LRR.showErrorToast("The extraction job didn't conclude properly. Your archive might be corrupted."));
-        }).finally(() => {
+                () => LRR.showErrorToast("The extraction job didn't conclude properly. Your archive might be corrupted."),
+            );
+        },
+    ).finally(() => {
         if (Reader.pages === undefined) {
             $("#img").attr("src", "img/flubbed.gif");
             $("#display").append("<h2>I flubbed it while trying to open the archive.</h2>");
@@ -214,7 +219,7 @@ Reader.initInfiniteScrollView = function () {
     });
 
     $("#i3").removeClass("loading");
-    $(document).on("click.infinite_scroll_map", "#display .reader-image", () => Reader.changePage(1));
+    $(document).on("click.infinite-scroll-map", "#display .reader-image", () => Reader.changePage(1));
     Reader.applyContainerWidth();
 };
 
@@ -315,7 +320,7 @@ Reader.toggleHelp = function () {
     const existingToast = $(".navigation-help-toast:visible");
     if (existingToast.length) {
         // ugly hack: this is an abandoned plugin, we should be using something like toastr
-        existingToast.closest(".jq-toast-wrap").find(".close-jq-toast-single").click();
+        existingToast.closest(".jq-toast-wrap").find(".close-jq-toast-single").trigger("click");
         return false;
     }
 
@@ -672,9 +677,12 @@ Reader.initializeArchiveOverlay = function () {
                     thumbSuccess();
                 } else if (response.status === 202) {
                     // Wait for Minion job to finish
-                    response.json().then((data) => Server.checkJobStatus(data.job, false,
+                    response.json().then((data) => Server.checkJobStatus(
+                        data.job,
+                        false,
                         () => thumbSuccess(),
-                        () => thumbFail()));
+                        () => thumbFail(),
+                    ));
                 } else {
                     // We don't have a thumbnail for this page
                     thumbFail();
@@ -732,8 +740,6 @@ Reader.handlePaginator = function () {
     }
 };
 
-$(document).ready(() => {
+jQuery(() => {
     Reader.initializeAll();
 });
-
-window.Reader = Reader;

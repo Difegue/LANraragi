@@ -331,6 +331,13 @@ td.itdc{text-align:center;padding:0 1px 0 2px;margin:0;border-right:1px solid #5
     color: #ed2553;
 }
 
+#carousel-mode-menu {
+    color: #e1e7e9;
+}
+#carousel-mode-menu:hover {
+    color: #ed2553;
+}
+
 /* image pages */
 div.sni{
 	text-align:center;

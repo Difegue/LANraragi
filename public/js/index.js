@@ -24,9 +24,9 @@ Index.initializeAll = function () {
     $(document).on("change.thumbnail-crop", "#thumbnail-crop", Index.toggleCrop);
     $(document).on("change.namespace-sortby", "#namespace-sortby", Index.handleCustomSort);
     $(document).on("click.order-sortby", "#order-sortby", Index.toggleOrder);
-    $(document).on("click.open_carousel", ".collapsible-title", Index.toggleCarousel);
+    $(document).on("click.open-carousel", ".collapsible-title", Index.toggleCarousel);
     $(document).on("click.reload-carousel", "#reload-carousel", Index.updateCarousel);
-    $(document).on("click.close_overlay", "#overlay-shade", LRR.closeOverlay);
+    $(document).on("click.close-overlay", "#overlay-shade", LRR.closeOverlay);
 
     // 0 = List view
     // 1 = Thumbnail view
@@ -58,10 +58,11 @@ Index.initializeAll = function () {
 
     // Force-open the collapsible if carouselOpen = true
     if (localStorage.carouselOpen === "1") {
-        localStorage.carouselOpen = "0"; // Bad hack since clicking collapsible-title will trigger toggleCarousel and modify this
-        $(".collapsible-title").click();
+        $(".collapsible-title").trigger("click", [false]);
+        // Index.updateCarousel(); will be executed by toggleCarousel
+    } else {
+        Index.updateCarousel();
     }
-    Index.updateCarousel();
 
     // Initialize carousel mode menu
     $.contextMenu({
@@ -95,33 +96,34 @@ Index.initializeAll = function () {
     }
 
     // Get some info from the server: version, debug mode, local progress
-    Server.callAPI("/api/info", "GET", null, "Error getting basic server info!", (data) => {
-        Index.serverVersion = data.version;
-        Index.debugMode = data.debug_mode === "1";
-        Index.isProgressLocal = data.server_tracks_progress !== "1";
-        Index.pageSize = data.archives_per_page;
+    Server.callAPI("/api/info", "GET", null, "Error getting basic server info!",
+        (data) => {
+            Index.serverVersion = data.version;
+            Index.debugMode = data.debug_mode === "1";
+            Index.isProgressLocal = data.server_tracks_progress !== "1";
+            Index.pageSize = data.archives_per_page;
 
-        // Check version if not in debug mode
-        if (!Index.debugMode) {
-            Index.checkVersion();
-            Index.fetchChangelog();
-        } else {
-            $.toast({
-                heading: "<i class=\"fas fa-bug\"></i> You're running in Debug Mode!",
-                text: "Advanced server statistics can be viewed <a href=\"./debug\">here.</a>",
-                hideAfter: false,
-                position: "top-left",
-                icon: "warning",
-            });
-        }
+            // Check version if not in debug mode
+            if (!Index.debugMode) {
+                Index.checkVersion();
+                Index.fetchChangelog();
+            } else {
+                $.toast({
+                    heading: "<i class=\"fas fa-bug\"></i> You're running in Debug Mode!",
+                    text: "Advanced server statistics can be viewed <a href=\"./debug\">here.</a>",
+                    hideAfter: false,
+                    position: "top-left",
+                    icon: "warning",
+                });
+            }
 
-        Index.migrateProgress();
-        Index.loadTagSuggestions();
-        Index.loadCategories();
+            Index.migrateProgress();
+            Index.loadTagSuggestions();
+            Index.loadCategories();
 
-        // Initialize DataTables
-        IndexTable.initializeAll();
-    });
+            // Initialize DataTables
+            IndexTable.initializeAll();
+        });
 
     Index.updateTableHeaders();
 };
@@ -131,22 +133,53 @@ Index.toggleMode = function () {
     IndexTable.dataTable.draw();
 };
 
-Index.toggleCarousel = function () {
-    localStorage.carouselOpen = (localStorage.carouselOpen === "1") ? "0" : "1";
+Index.toggleCarousel = function (e, updateLocalStorage = true) {
+    if (updateLocalStorage) localStorage.carouselOpen = (localStorage.carouselOpen === "1") ? "0" : "1";
 
     if (!Index.carouselInitialized) {
         Index.carouselInitialized = true;
         $("#reload-carousel").show();
 
         Index.swiper = new Swiper(".index-carousel-container", {
-            slidesPerView: "auto",
-            spaceBetween: 8,
+            breakpoints: (() => {
+                const breakpoints = {
+                    0: { // ensure every device have at least 1 slide
+                        slidesPerView: 1,
+                    },
+                };
+                // virtual Slides doesn't work with slidesPerView: 'auto'
+                // the following loops are meant to implement same functionality by doing mathworks
+                // it also helps avoid writing a billion slidesPerView combos for window widths
+                // when the screen width <= 560px, every thumbnails have a different width
+                // from 169px, when the width is 17px bigger, we display 0.1 more slide
+                for (let width = 169, sides = 1; width <= 424; width += 17, sides += 0.1) {
+                    breakpoints[width] = {
+                        slidesPerView: sides,
+                    };
+                }
+                // from 427px, when the width is 46px bigger, we display 0.2 more slide
+                // the width support up to 4K resolution
+                for (let width = 427, sides = 1.8; width <= 3840; width += 46, sides += 0.2) {
+                    breakpoints[width] = {
+                        slidesPerView: sides,
+                    };
+                }
+                console.log(breakpoints);
+                return breakpoints;
+            })(),
+            breakpointsBase: "container",
+            centerInsufficientSlides: true,
+            mousewheel: true,
             navigation: {
                 nextEl: ".carousel-next",
                 prevEl: ".carousel-prev",
             },
-            mousewheel: true,
-            freeMode: true,
+            slidesPerView: 7,
+            virtual: {
+                enabled: true,
+                addSlidesAfter: 2,
+                addSlidesBefore: 2,
+            },
         });
 
         Index.updateCarousel();
@@ -192,8 +225,8 @@ Index.toggleCategory = function (button) {
  */
 Index.promptCustomColumn = function (column) {
     const promptText = "Enter the namespace of the tags you want to show in this column. \n\n"
-    + "Enter a full namespace without the colon, e.g \"artist\".\n"
-    + "If you have multiple tags with the same namespace, only the last one will be shown in the column.";
+        + "Enter a full namespace without the colon, e.g \"artist\".\n"
+        + "If you have multiple tags with the same namespace, only the last one will be shown in the column.";
 
     const defaultText = localStorage.getItem(`customColumn${column}`);
     const input = prompt(promptText, defaultText);
@@ -268,9 +301,9 @@ Index.handleCustomSort = function () {
 Index.updateCarousel = function (e) {
     e?.preventDefault();
 
-    const carousel = $(".swiper-wrapper");
-    carousel.empty();
     $("#carousel-loading").show();
+    $(".swiper-wrapper").hide();
+    $("#reload-carousel").addClass("fa-spin");
 
     // Hit a different API endpoint depending on the requested localStorage carousel type
     let endpoint;
@@ -298,16 +331,19 @@ Index.updateCarousel = function (e) {
     }
 
     if (Index.carouselInitialized) {
-        Server.callAPI(endpoint,
-            "GET", null, "Error getting carousel data!",
+        Server.callAPI(endpoint, "GET", null, "Error getting carousel data!",
             (results) => {
-                results.data.forEach((archive) => {
-                    carousel.append(LRR.buildThumbnailDiv(archive));
-                });
+                Index.swiper.virtual.removeAllSlides();
+                const slides = results.data
+                    .map((archive) => LRR.buildThumbnailDiv(archive, false));
+                Index.swiper.virtual.appendSlide(slides);
+                Index.swiper.virtual.update();
 
-                Index.swiper.update();
                 $("#carousel-loading").hide();
-            });
+                $(".swiper-wrapper").show();
+                $("#reload-carousel").removeClass("fa-spin");
+            },
+        );
     }
 };
 
@@ -420,7 +456,8 @@ Index.loadContextMenuCategories = function (id) {
             }
 
             return items;
-        });
+        },
+    );
 };
 
 /**
@@ -447,7 +484,7 @@ Index.handleContextMenu = function (option, id) {
         LRR.openInNewTab(`./edit?id=${id}`);
         break;
     case "delete":
-        if (confirm("Are you sure you want to delete this archive?")) {
+        if (window.confirm("Are you sure you want to delete this archive?")) {
             Server.deleteArchive(id, () => { document.location.reload(true); });
         }
         break;
@@ -502,7 +539,8 @@ Index.loadTagSuggestions = function () {
                     this.input.value = `${before + text}, `;
                 },
             });
-        });
+        },
+    );
 };
 
 /**
@@ -554,7 +592,8 @@ Index.loadCategories = function () {
 
             // Add a listener on dropdown selection
             $("#catdropdown").on("change", () => Index.toggleCategory($("#catdropdown")[0].selectedOptions[0]));
-        });
+        },
+    );
 };
 
 /**
@@ -584,7 +623,10 @@ Index.migrateProgress = function () {
                 .then((response) => response.json())
                 .then((data) => {
                     // Don't migrate if the server progress is already further
-                    if (progress !== null && data !== undefined && data !== null && progress > data.progress) {
+                    if (progress !== null
+                        && data !== undefined
+                        && data !== null
+                        && progress > data.progress) {
                         Server.callAPI(`api/archives/${id}/progress/${progress}?force=1`, "PUT", null, "Error updating reading progress!", null);
                     }
 
@@ -602,8 +644,11 @@ Index.migrateProgress = function () {
             icon: "success",
         }));
     } else {
+        // eslint-disable-next-line no-console
         console.log("No local reading progression to migrate");
     }
 };
 
-window.Index = Index;
+jQuery(() => {
+    Index.initializeAll();
+});

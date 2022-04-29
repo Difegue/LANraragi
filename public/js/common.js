@@ -4,14 +4,26 @@
 const LRR = {};
 
 /**
- * Quick 'n dirty HTML encoding function.
+ * Quick HTML encoding function.
  * @param {*} r The HTML to encode
  * @returns Encoded string
  */
 LRR.encodeHTML = function (r) {
     if (r === undefined) return r;
-    if (Array.isArray(r)) return r[0].replace(/[\x26\x0A\<>'"]/g, (r2) => `&#${r2.charCodeAt(0)};`);
-    else return r.replace(/[\x26\x0A\<>'"]/g, (r2) => `&#${r2.charCodeAt(0)};`);
+    if (Array.isArray(r)) {
+        return r[0].replace(/[\n&<>'"]/g, (r2) => `&#${r2.charCodeAt(0)};`);
+    } else {
+        return r.replace(/[\n&<>'"]/g, (r2) => `&#${r2.charCodeAt(0)};`);
+    }
+};
+
+/**
+ * Unix timestamp converting function.
+ * @param {number} r The timestamp to convert
+ * @returns Converted string
+ */
+LRR.convertTimestamp = function (r) {
+    return (new Date(r * 1000)).toLocaleDateString();
 };
 
 /**
@@ -38,7 +50,7 @@ LRR.isNullOrWhitespace = function (input) {
  */
 LRR.getTagSearchURL = function (namespace, tag) {
     const namespacedTag = this.buildNamespacedTag(namespace, tag);
-    if (namespace !== "source"){
+    if (namespace !== "source") {
         return `/?q=${encodeURIComponent(namespacedTag)}`;
     } else if (/https?:\/\//.test(tag)) {
         return `${tag}`;
@@ -99,12 +111,20 @@ LRR.colorCodeTags = function (tags) {
     if (tags === "") return line;
 
     const tagsByNamespace = LRR.splitTagsByNamespace(tags);
-    Object.keys(tagsByNamespace).sort().forEach((key) => {
-        tagsByNamespace[key].forEach((tag) => {
-            if (key === "date_added" || key === "timestamp") return;
+    const filteredTags = Object.keys(tagsByNamespace).filter((tag) => tag !== "date_added" && tag !== "timestamp");
+    let tagsToEncode;
 
+    if (filteredTags.length) {
+        tagsToEncode = filteredTags.sort();
+    } else {
+        tagsToEncode = Object.keys(tagsByNamespace).sort();
+    }
+
+    tagsToEncode.sort().forEach((key) => {
+        tagsByNamespace[key].forEach((tag) => {
             const encodedK = LRR.encodeHTML(key.toLowerCase());
-            line += `<span class='${encodedK}-tag'>${LRR.encodeHTML(tag)}</span>, `;
+            const encodedVal = LRR.encodeHTML(key === "date_added" || key === "timestamp" ? LRR.convertTimestamp(tag) : tag);
+            line += `<span class='${encodedK}-tag'>${encodedVal}</span>, `;
         });
     });
     // Remove last comma
@@ -170,11 +190,7 @@ LRR.buildTagsDiv = function (tags) {
             const url = LRR.getTagSearchURL(key, tag);
             const searchTag = LRR.buildNamespacedTag(key, tag);
 
-            let tagText = LRR.encodeHTML(tag);
-            if (key === "date_added" || key === "timestamp") {
-                const date = new Date(tag * 1000);
-                tagText = date.toLocaleDateString();
-            }
+            const tagText = LRR.encodeHTML(key === "date_added" || key === "timestamp" ? LRR.convertTimestamp(tag) : tag);
 
             line += `<div class="gt">
                         <a href="${url}" search="${LRR.encodeHTML(searchTag)}">
@@ -193,9 +209,10 @@ LRR.buildTagsDiv = function (tags) {
 /**
  * Build a thumbnail div for the given archive data.
  * @param {*} data The archive data
+ * @param {boolean} tagTooltip Option to build TagTooltip on mouseover
  * @returns HTML component string
  */
-LRR.buildThumbnailDiv = function (data) {
+LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
     const thumbCss = (localStorage.cropthumbs === "true") ? "id3" : "id3 nocrop";
     // The ID can be in a different field depending on the archive object...
     const id = data.arcid || data.id;
@@ -215,8 +232,8 @@ LRR.buildThumbnailDiv = function (data) {
                     </a>
                 </div>
                 <div class="id4">
-                    <span class="tags tag-tooltip" onmouseover="IndexTable.buildTagTooltip(this)">${LRR.colorCodeTags(data.tags)}</span>
-                    <div class="caption caption-tags" style="display: none;" >${LRR.buildTagsDiv(data.tags)}</div>
+                        <span class="tags tag-tooltip" ${tagTooltip === true ? "onmouseover=\"IndexTable.buildTagTooltip(this)\"" : ""}>${LRR.colorCodeTags(data.tags)}</span>
+                        ${tagTooltip === true ? `<div class="caption caption-tags" style="display: none;" >${LRR.buildTagsDiv(data.tags)}</div>` : ""}
                 </div>
             </div>`;
 };

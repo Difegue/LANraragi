@@ -18,8 +18,8 @@
     <script src="./js/vendor/jquery.toast.min.js" type="text/javascript"></script>
 
     <script src="./js/common.js?[% version %]" type="text/javascript"></script>
-    <script src="./js/reader.js?[% version %]" type="text/javascript"></script>
     <script src="./js/server.js?[% version %]" type="text/javascript"></script>
+    <script src="./js/reader.js?[% version %]" type="text/javascript"></script>
 
 </head>
 

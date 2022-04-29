@@ -2,6 +2,7 @@
  * All the Archive Index functions related to DataTables.
  */
 const IndexTable = {};
+
 IndexTable.dataTable = {};
 IndexTable.originalTitle = document.title;
 IndexTable.isComingFromPopstate = false;
