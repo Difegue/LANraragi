@@ -11,9 +11,9 @@ function initToast() {
     };
     const toastDiv = document.createElement("div");
     document.body.appendChild(toastDiv);
-    toastDiv.style.all = "initial";
+    toastDiv.style.textAlign = "initial";
     window.react.render(
-        window.react.createElement(window.reactToastify.ToastContainer, null, undefined), toastDiv);
+        window.react.createElement(window.reactToastify.ToastContainer, { theme: "colored" }, undefined), toastDiv);
 }
 
 $("head").append(`<link rel="stylesheet" type="text/css" href="/css/vendor/ReactToastify.min.css" />
