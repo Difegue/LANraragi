@@ -42,7 +42,7 @@ my @vendor_woff = (
     "/roboto-fontface/fonts/roboto/Roboto-Regular.woff",
     "/roboto-fontface/fonts/roboto/Roboto-Bold.woff",
     "/inter-ui/Inter (web)/Inter-Regular.woff",
-    "/inter-ui/Inter (web)/Inter-Bold.woff"
+    "/inter-ui/Inter (web)/Inter-Bold.woff",
 );
 
 say("⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⣠⣴⣶⣿⠿⠟⠛⠓⠒⠤");
