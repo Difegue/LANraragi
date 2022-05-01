@@ -164,7 +164,6 @@ Index.toggleCarousel = function (e, updateLocalStorage = true) {
                         slidesPerView: sides,
                     };
                 }
-                console.log(breakpoints);
                 return breakpoints;
             })(),
             breakpointsBase: "container",
