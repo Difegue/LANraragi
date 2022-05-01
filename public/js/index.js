@@ -383,38 +383,42 @@ Index.updateTableHeaders = function () {
 Index.checkVersion = function () {
     const githubAPI = "https://api.github.com/repos/difegue/lanraragi/releases/latest";
 
-    $.getJSON(githubAPI).done((data) => {
-        const expr = /(\d+)/g;
-        const latestVersionArr = Array.from(data.tag_name.match(expr));
-        let latestVersion = "";
-        const currentVersionArr = Array.from(Index.serverVersion.match(expr));
-        let currentVersion = "";
+    fetch(githubAPI)
+        .then((response) => response.json())
+        .then((data) => {
+            const expr = /(\d+)/g;
+            const latestVersionArr = Array.from(data.tag_name.match(expr));
+            let latestVersion = "";
+            const currentVersionArr = Array.from(Index.serverVersion.match(expr));
+            let currentVersion = "";
 
-        latestVersionArr.forEach((element, index) => {
-            if (index + 1 < latestVersionArr.length) {
-                latestVersion = `${latestVersion}${element}`;
-            } else {
-                latestVersion = `${latestVersion}.${element}`;
-            }
-        });
-        currentVersionArr.forEach((element, index) => {
-            if (index + 1 < currentVersionArr.length) {
-                currentVersion = `${currentVersion}${element}`;
-            } else {
-                currentVersion = `${currentVersion}.${element}`;
-            }
-        });
-
-        if (latestVersion > currentVersion) {
-            window.toast({
-                heading: `A new version of LANraragi (${data.tag_name}) is available !`,
-                text: `<a href="${data.html_url}">Click here to check it out.</a>`,
-                hideAfter: false,
-                position: "top-left",
-                icon: "info",
+            latestVersionArr.forEach((element, index) => {
+                if (index + 1 < latestVersionArr.length) {
+                    latestVersion = `${latestVersion}${element}`;
+                } else {
+                    latestVersion = `${latestVersion}.${element}`;
+                }
             });
-        }
-    });
+            currentVersionArr.forEach((element, index) => {
+                if (index + 1 < currentVersionArr.length) {
+                    currentVersion = `${currentVersion}${element}`;
+                } else {
+                    currentVersion = `${currentVersion}.${element}`;
+                }
+            });
+
+            if (latestVersion > currentVersion) {
+                window.toast({
+                    heading: `A new version of LANraragi (${data.tag_name}) is available !`,
+                    text: `<a href="${data.html_url}">Click here to check it out.</a>`,
+                    hideAfter: false,
+                    position: "top-left",
+                    icon: "info",
+                });
+            }
+        })
+        // eslint-disable-next-line no-console
+        .catch((error) => console.log("Error checking latest version.", error));
 };
 
 /**
