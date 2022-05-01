@@ -24,9 +24,6 @@ Server.callAPI = function (endpoint, method, successMessage, errorMessage, succe
             } else {
                 if (successMessage !== null) {
                     window.toast({
-                        showHideTransition: "slide",
-                        position: "top-left",
-                        loader: false,
                         heading: successMessage,
                         icon: "success",
                     });
@@ -85,9 +82,6 @@ Server.saveFormData = function (formSelector) {
         .then((data) => {
             if (data.success) {
                 window.toast({
-                    showHideTransition: "slide",
-                    position: "top-left",
-                    loader: false,
                     heading: "Saved Successfully!",
                     icon: "success",
                 });
@@ -125,12 +119,8 @@ Server.triggerScript = function (namespace) {
 
                         if (d.result.success === 1) {
                             window.toast({
-                                showHideTransition: "slide",
-                                position: "top-left",
-                                loader: false,
                                 heading: "Script result",
                                 text: `<pre>${JSON.stringify(d.result.data, null, 4)}</pre>`,
-                                hideAfter: false,
                                 icon: "info",
                             });
                         } else LRR.showErrorToast(`Script failed: ${d.result.error}`);
@@ -187,20 +177,14 @@ Server.cleanDatabase = function () {
     Server.callAPI("/api/database/clean", "POST", null, "Error while cleaning the database! Check Logs.",
         (data) => {
             window.toast({
-                showHideTransition: "slide",
-                position: "top-left",
-                loader: false,
                 heading: `Successfully cleaned the database and removed ${data.deleted} entries!`,
                 icon: "success",
             });
 
             if (data.unlinked > 0) {
                 window.toast({
-                    showHideTransition: "slide",
-                    position: "top-left",
-                    loader: false,
-                    heading: `${data.unlinked} other entries have been unlinked from the database and will be deleted on the next cleanup! <br>Do a backup now if some files disappeared from your archive index.`,
-                    hideAfter: false,
+                    heading: `${data.unlinked} other entries have been unlinked from the database and will be deleted on the next cleanup!`,
+                    text: "Do a backup now if some files disappeared from your archive index.",
                     icon: "warning",
                 });
             }
@@ -226,12 +210,8 @@ Server.regenerateThumbnails = function (force) {
                     $("#genthumb-button").prop("disabled", false);
                     $("#forcethumb-button").prop("disabled", false);
                     window.toast({
-                        showHideTransition: "slide",
-                        position: "top-left",
-                        loader: false,
                         heading: "All thumbnails generated! Encountered the following errors:",
                         text: d.result.errors,
-                        hideAfter: false,
                         icon: "success",
                     });
                 },
@@ -267,21 +247,14 @@ Server.deleteArchive = function (arcId, callback) {
         .then((data) => {
             if (data.success === "0") {
                 window.toast({
-                    showHideTransition: "slide",
-                    position: "top-left",
-                    loader: false,
                     heading: "Couldn't delete archive file. <br> (Maybe it has already been deleted beforehand?)",
                     text: "Archive metadata has been deleted properly. <br> Please delete the file manually before returning to Library View.",
-                    hideAfter: false,
                     icon: "warning",
                 });
                 $(".stdbtn").hide();
                 $("#goback").show();
             } else {
                 window.toast({
-                    showHideTransition: "slide",
-                    position: "top-left",
-                    loader: false,
                     heading: "Archive successfully deleted. Redirecting you ...",
                     text: `File name : ${data.filename}`,
                     icon: "success",

@@ -263,10 +263,6 @@ Batch.batchError = function () {
     Batch.scrollLogs();
 
     window.toast({
-        showHideTransition: "slide",
-        position: "top-left",
-        loader: false,
-        hideAfter: false,
         heading: "An error occured during batch tagging!",
         text: "Please check application logs.",
         icon: "error",
@@ -286,11 +282,7 @@ Batch.endBatch = function (event) {
     Batch.scrollLogs();
 
     window.toast({
-        showHideTransition: "slide",
-        position: "top-left",
-        loader: false,
         heading: "Batch Operation complete!",
-        text: "",
         icon: status,
     });
 

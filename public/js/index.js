@@ -89,8 +89,6 @@ Index.initializeAll = function () {
         window.toast({
             heading: `Welcome to LANraragi ${Index.serverVersion}!`,
             text: "If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!",
-            hideAfter: false,
-            position: "top-left",
             icon: "info",
         });
     }
@@ -111,8 +109,6 @@ Index.initializeAll = function () {
                 window.toast({
                     heading: "<i class=\"fas fa-bug\"></i> You're running in Debug Mode!",
                     text: "Advanced server statistics can be viewed <a href=\"./debug\">here.</a>",
-                    hideAfter: false,
-                    position: "top-left",
                     icon: "warning",
                 });
             }
@@ -411,9 +407,9 @@ Index.checkVersion = function () {
                 window.toast({
                     heading: `A new version of LANraragi (${data.tag_name}) is available !`,
                     text: `<a href="${data.html_url}">Click here to check it out.</a>`,
-                    hideAfter: false,
-                    position: "top-left",
                     icon: "info",
+                    closeOnClick: false,
+                    draggable: false,
                 });
             }
         })
@@ -640,8 +636,6 @@ Index.migrateProgress = function () {
         window.toast({
             heading: "Your Reading Progression is now saved on the server!",
             text: "You seem to have some local progression hanging around -- Please wait warmly while we migrate it to the server for you. ☕",
-            hideAfter: false,
-            position: "top-left",
             icon: "info",
         });
 
@@ -669,8 +663,6 @@ Index.migrateProgress = function () {
         Promise.all(promises).then(() => window.toast({
             heading: "Reading Progression has been fully migrated! 🎉",
             text: "You'll have to reopen archives in the Reader to see the migrated progression values.",
-            hideAfter: false,
-            position: "top-left",
             icon: "success",
         }));
     } else {

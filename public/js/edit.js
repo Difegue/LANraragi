@@ -73,10 +73,9 @@ Edit.focusTagInput = function () {
 
 Edit.showHelp = function () {
     window.toast({
+        toastId: "pluginHelp",
         heading: "About Plugins",
         text: "You can use plugins to automatically fetch metadata for this archive. <br/> Just select a plugin from the dropdown and hit Go! <br/> Some plugins might provide an optional argument for you to specify. If that's the case, a textbox will be available to input said argument.",
-        hideAfter: false,
-        position: "top-left",
         icon: "info",
     });
 };
@@ -110,9 +109,6 @@ Edit.saveMetadata = function () {
         .then((data) => {
             if (data.success) {
                 window.toast({
-                    showHideTransition: "slide",
-                    position: "top-left",
-                    loader: false,
                     heading: "Metadata saved!",
                     icon: "success",
                 });
@@ -155,9 +151,6 @@ Edit.getTags = function () {
             if (result.data.title && result.data.title !== "") {
                 $("#title").val(result.data.title);
                 window.toast({
-                    showHideTransition: "slide",
-                    position: "top-left",
-                    loader: false,
                     heading: "Archive title changed to :",
                     text: result.data.title,
                     icon: "info",
@@ -170,18 +163,12 @@ Edit.getTags = function () {
                 });
 
                 window.toast({
-                    showHideTransition: "slide",
-                    position: "top-left",
-                    loader: false,
                     heading: "Added the following tags :",
                     text: result.data.new_tags,
                     icon: "info",
                 });
             } else {
                 window.toast({
-                    showHideTransition: "slide",
-                    position: "top-left",
-                    loader: false,
                     heading: "No new tags added!",
                     text: result.data.new_tags,
                     icon: "info",
