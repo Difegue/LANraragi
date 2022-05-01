@@ -11,11 +11,10 @@
     <link type="image/png" rel="icon" href="/favicon.ico" />
     <link rel="stylesheet" type="text/css" href="/css/lrr.css?[% version%]" />
     <link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
-    <link rel="stylesheet" type="text/css" href="/css/vendor/jquery.toast.min.css" />
     [% csshead %]
 
     <script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
-    <script src="/js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/init_toast.js" type="text/JAVASCRIPT"></script>
 
     <script src="/js/common.js?[% version%]" type="text/JAVASCRIPT"></script>
     <script src="/js/server.js?[% version%]" type="text/JAVASCRIPT"></script>

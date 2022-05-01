@@ -11,12 +11,11 @@
 	<link rel="stylesheet" type="text/css" href="/css/config.css" />
 
 	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
-	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.toast.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/tagger.css" />
 	[% csshead %]
 
 	<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/init_toast.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/tagger.js" type="text/JAVASCRIPT"></script>
 
 	<script src="/js/common.js?[% version%]" type="text/JAVASCRIPT"></script>

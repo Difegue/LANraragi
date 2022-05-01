@@ -10,7 +10,6 @@
 	<link rel="stylesheet" type="text/css" href="/css/lrr.css?[% version %]" />
 
 	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
-	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.toast.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.contextMenu.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/awesomplete.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/tippy.css" />
@@ -20,7 +19,7 @@
 
 	<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.dataTables.min.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/init_toast.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.ui.position.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.contextMenu.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/awesomplete.min.js" type="text/JAVASCRIPT"></script>

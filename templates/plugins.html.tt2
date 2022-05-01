@@ -12,12 +12,11 @@
 
 	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.fileupload.css" />
-	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.toast.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/allcollapsible.min.css" />
 	[% csshead %]
 
 	<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/init_toast.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.ui.widget.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.fileupload.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/allcollapsible.min.js" type="text/JAVASCRIPT"></script>
