@@ -15,6 +15,7 @@
 
     <script src="./js/vendor/jquery.min.js" type="text/javascript"></script>
 	<script src="/js/init_toast.js" type="text/JAVASCRIPT"></script>
+    <script src="/js/vendor/sweetalert2.all.min.js" type="text/JAVASCRIPT"></script>
 
     <script src="./js/common.js?[% version %]" type="text/javascript"></script>
     <script src="./js/server.js?[% version %]" type="text/javascript"></script>

@@ -28,6 +28,7 @@
 	<script src="/js/vendor/marked.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/allcollapsible.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/swiper-bundle.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/sweetalert2.all.min.js" type="text/JAVASCRIPT"></script>
 
 	<script src="/js/index.js?[% version %]" type="text/JAVASCRIPT"></script>
 	<script src="/js/common.js?[% version %]" type="text/JAVASCRIPT"></script>

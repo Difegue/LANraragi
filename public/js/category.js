@@ -21,7 +21,7 @@ Category.initializeAll = function () {
 };
 
 Category.addNewCategory = function (isDynamic) {
-    const catName = prompt("Enter a name for the new category:", "My Category");
+    const catName = window.prompt("Enter a name for the new category:", "My Category");
     if (catName === null || catName === "") {
         return;
     }

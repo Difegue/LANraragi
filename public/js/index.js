@@ -228,7 +228,7 @@ Index.promptCustomColumn = function (column) {
         + "If you have multiple tags with the same namespace, only the last one will be shown in the column.";
 
     const defaultText = localStorage.getItem(`customColumn${column}`);
-    const input = prompt(promptText, defaultText);
+    const input = window.prompt(promptText, defaultText);
 
     if (!LRR.isNullOrWhitespace(input)) {
         localStorage.setItem(`customColumn${column}`, input.trim());

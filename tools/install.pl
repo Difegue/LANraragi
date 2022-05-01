@@ -29,7 +29,7 @@ my @vendor_js = (
     "/\@jcubic/tagger/tagger.js",                         "/marked/marked.min.js",
     "/swiper/swiper-bundle.min.js",                       "/preact/dist/preact.umd.js",
     "/clsx/dist/clsx.min.js",                             "/preact/compat/dist/compat.umd.js",
-    "/preact/hooks/dist/hooks.umd.js",
+    "/preact/hooks/dist/hooks.umd.js",                    "/sweetalert2/dist/sweetalert2.all.min.js",
 );
 
 my @vendor_woff = (
