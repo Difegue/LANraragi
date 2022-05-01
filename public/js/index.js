@@ -17,8 +17,8 @@ Index.pageSize = 100;
  */
 Index.initializeAll = function () {
     // Bind events to DOM
-    $(document).on("click.edit-header-1", "#edit-header-1", () => { Index.promptCustomColumn(1); });
-    $(document).on("click.edit-header-2", "#edit-header-2", () => { Index.promptCustomColumn(2); });
+    $(document).on("click.edit-header-1", "#edit-header-1", () => Index.promptCustomColumn(1));
+    $(document).on("click.edit-header-2", "#edit-header-2", () => Index.promptCustomColumn(2));
     $(document).on("click.mode-toggle", ".mode-toggle", Index.toggleMode);
     $(document).on("change.page-select", "#page-select", () => IndexTable.dataTable.page($("#page-select").val() - 1).draw("page"));
     $(document).on("change.thumbnail-crop", "#thumbnail-crop", Index.toggleCrop);
@@ -223,20 +223,35 @@ Index.toggleCategory = function (button) {
  * @param {*} column Index of the column to modify, either 1 or 2
  */
 Index.promptCustomColumn = function (column) {
-    const promptText = "Enter the namespace of the tags you want to show in this column. \n\n"
-        + "Enter a full namespace without the colon, e.g \"artist\".\n"
-        + "If you have multiple tags with the same namespace, only the last one will be shown in the column.";
+    window.Swal.fire({
+        title: "Enter a tag namespace for this column",
+        text: "Enter a full namespace without the colon, e.g \"artist\".\nIf you have multiple tags with the same namespace, only the last one will be shown in the column.",
+        input: "text",
+        inputValue: localStorage.getItem(`customColumn${column}`),
+        inputPlaceholder: "Tag namespace",
+        inputAttributes: {
+            autocapitalize: "off",
+        },
+        showCancelButton: true,
+        reverseButtons: true,
+        inputValidator: (value) => {
+            if (!value) {
+                return "You need to write something!";
+            }
+            return undefined;
+        },
+    }).then((result) => {
+        if (result.isConfirmed) {
+            if (!LRR.isNullOrWhitespace(result.value)) {
+                localStorage.setItem(`customColumn${column}`, result.value.trim());
 
-    const defaultText = localStorage.getItem(`customColumn${column}`);
-    const input = window.prompt(promptText, defaultText);
-
-    if (!LRR.isNullOrWhitespace(input)) {
-        localStorage.setItem(`customColumn${column}`, input.trim());
-
-        // Absolutely disgusting
-        IndexTable.dataTable.settings()[0].aoColumns[column].sName = input.trim();
-        Index.updateTableHeaders();
-    }
+                // Absolutely disgusting
+                IndexTable.dataTable.settings()[0].aoColumns[column].sName = result.value.trim();
+                Index.updateTableHeaders();
+                IndexTable.doSearch();
+            }
+        }
+    });
 };
 
 /**
@@ -483,9 +498,21 @@ Index.handleContextMenu = function (option, id) {
         LRR.openInNewTab(`./edit?id=${id}`);
         break;
     case "delete":
-        if (window.confirm("Are you sure you want to delete this archive?")) {
-            Server.deleteArchive(id, () => { document.location.reload(true); });
-        }
+        window.Swal.fire({
+            title: "Are you sure?",
+            text: "This is a destructive operation! Are you sure you want to delete this archive?",
+            icon: "warning",
+            showCancelButton: true,
+            focusConfirm: false,
+            confirmButtonText: "Yes, delete it!",
+            reverseButtons: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Server.deleteArchive(id, () => { document.location.reload(true); });
+            }
+        });
         break;
     case "read":
         LRR.openInNewTab(`./reader?id=${id}`);

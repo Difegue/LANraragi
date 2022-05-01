@@ -15,7 +15,7 @@ Batch.initializeAll = function () {
     $(document).on("change.plugin", "#plugin", Batch.showOverride);
     $(document).on("click.override", "#override", Batch.showOverride);
     $(document).on("click.check-uncheck", "#check-uncheck", Batch.checkAll);
-    $(document).on("click.start-batch", "#start-batch", Batch.startBatch);
+    $(document).on("click.start-batch", "#start-batch", Batch.startBatchCheck);
     $(document).on("click.restart-job", "#restart-job", Batch.restartBatchUI);
     $(document).on("click.cancel-job", "#cancel-job", Batch.cancelBatch);
     $(document).on("click.server-config", "#server-config", () => LRR.openInNewTab("./config"));
@@ -92,14 +92,35 @@ Batch.checkUntagged = function () {
 };
 
 /**
+ * Pop up a confirm dialog if operation is destructive.
+ */
+Batch.startBatchCheck = function () {
+    if (Batch.currentOperation === "delete") {
+        window.Swal.fire({
+            title: "Are you sure?",
+            text: "This is a destructive operation! Are you sure you want to delete the selected archives?",
+            icon: "warning",
+            showCancelButton: true,
+            focusConfirm: false,
+            confirmButtonText: "Yes, delete it!",
+            reverseButtons: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Batch.startBatch();
+            }
+        });
+    } else {
+        Batch.startBatch();
+    }
+};
+
+/**
  * Get the titles who have been checked in the batch tagging list, and update their tags.
  * This crafts a JSON list to send to the batch tagging websocket service.
  */
 Batch.startBatch = function () {
-    if (Batch.currentOperation === "delete" && !window.confirm("This is a destructive operation! Are you sure you want to delete the selected archives?")) {
-        return;
-    }
-
     $(".tag-options").hide();
 
     $("#log-container").html("Started Batch Operation...\n************\n");

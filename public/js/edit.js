@@ -127,9 +127,21 @@ Edit.saveMetadata = function () {
 };
 
 Edit.deleteArchive = function () {
-    if (window.confirm("Are you sure you want to delete this archive?")) {
-        Server.deleteArchive($("#archiveID").val(), () => { document.location.href = "./"; });
-    }
+    window.Swal.fire({
+        title: "Are you sure?",
+        text: "This is a destructive operation! Are you sure you want to delete this archive?",
+        icon: "warning",
+        showCancelButton: true,
+        focusConfirm: false,
+        confirmButtonText: "Yes, delete it!",
+        reverseButtons: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Server.deleteArchive($("#archiveID").val(), () => { document.location.href = "./"; });
+        }
+    });
 };
 
 Edit.getTags = function () {

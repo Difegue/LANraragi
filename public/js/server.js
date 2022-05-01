@@ -162,13 +162,25 @@ Server.clearAllNewFlags = function () {
 };
 
 Server.dropDatabase = function () {
-    if (window.confirm("Danger! Are you *sure* you want to do this?")) {
-        Server.callAPI("/api/database/drop", "POST", "Sayonara! Redirecting you...", "Error while resetting the database? Check Logs.",
-            () => {
-                setTimeout(() => { document.location.href = "./"; }, 1500);
-            },
-        );
-    }
+    window.Swal.fire({
+        title: "Are you sure?",
+        text: "This is a destructive operation! Are you SURE you want to RESET THE DATABASE?",
+        icon: "warning",
+        showCancelButton: true,
+        focusConfirm: false,
+        confirmButtonText: "Yes, do it!",
+        reverseButtons: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Server.callAPI("/api/database/drop", "POST", "Sayonara! Redirecting you...", "Error while resetting the database? Check Logs.",
+                () => {
+                    setTimeout(() => { document.location.href = "./"; }, 1500);
+                },
+            );
+        }
+    });
 };
 
 Server.cleanDatabase = function () {
