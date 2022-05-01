@@ -14,7 +14,7 @@ Plugins.initializeAll = function () {
         dataType: "json",
         done(e, data) {
             if (data.result.success) {
-                $.toast({
+                window.toast({
                     heading: "Plugin successfully uploaded!",
                     text: `The plugin "${data.result.name}" has been successfully added. Refresh the page to see it.`,
                     hideAfter: false,
@@ -22,7 +22,7 @@ Plugins.initializeAll = function () {
                     icon: "info",
                 });
             } else {
-                $.toast({
+                window.toast({
                     heading: "Error uploading plugin",
                     text: data.result.error,
                     hideAfter: false,

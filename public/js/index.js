@@ -86,7 +86,7 @@ Index.initializeAll = function () {
     if (localStorage.getItem("sawContextMenuToast") === null) {
         localStorage.sawContextMenuToast = true;
 
-        $.toast({
+        window.toast({
             heading: `Welcome to LANraragi ${Index.serverVersion}!`,
             text: "If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!",
             hideAfter: false,
@@ -108,7 +108,7 @@ Index.initializeAll = function () {
                 Index.checkVersion();
                 Index.fetchChangelog();
             } else {
-                $.toast({
+                window.toast({
                     heading: "<i class=\"fas fa-bug\"></i> You're running in Debug Mode!",
                     text: "Advanced server statistics can be viewed <a href=\"./debug\">here.</a>",
                     hideAfter: false,
@@ -391,7 +391,7 @@ Index.checkVersion = function () {
         });
 
         if (latestVersion > currentVersion) {
-            $.toast({
+            window.toast({
                 heading: `A new version of LANraragi (${data.tag_name}) is available !`,
                 text: `<a href="${data.html_url}">Click here to check it out.</a>`,
                 hideAfter: false,
@@ -606,7 +606,7 @@ Index.migrateProgress = function () {
 
     const localProgressKeys = Object.keys(localStorage).filter((x) => x.endsWith("-reader")).map((x) => x.slice(0, -7));
     if (localProgressKeys.length > 0) {
-        $.toast({
+        window.toast({
             heading: "Your Reading Progression is now saved on the server!",
             text: "You seem to have some local progression hanging around -- Please wait warmly while we migrate it to the server for you. ☕",
             hideAfter: false,
@@ -635,7 +635,7 @@ Index.migrateProgress = function () {
                 }));
         });
 
-        Promise.all(promises).then(() => $.toast({
+        Promise.all(promises).then(() => window.toast({
             heading: "Reading Progression has been fully migrated! 🎉",
             text: "You'll have to reopen archives in the Reader to see the migrated progression values.",
             hideAfter: false,

@@ -293,7 +293,7 @@ Reader.handleWheel = function (e) {
 Reader.checkFiletypeSupport = function (extension) {
     if ((extension === "rar" || extension === "cbr") && !localStorage.rarWarningShown) {
         localStorage.rarWarningShown = true;
-        $.toast({
+        window.toast({
             showHideTransition: "slide",
             position: "top-left",
             loader: false,
@@ -304,7 +304,7 @@ Reader.checkFiletypeSupport = function (extension) {
         });
     } else if (extension === "epub" && !localStorage.epubWarningShown) {
         localStorage.epubWarningShown = true;
-        $.toast({
+        window.toast({
             showHideTransition: "slide",
             position: "top-left",
             loader: false,
@@ -324,7 +324,7 @@ Reader.toggleHelp = function () {
         return false;
     }
 
-    $.toast({
+    window.toast({
         heading: "Navigation Help",
         text: $("#reader-help").children().first().html(),
         hideAfter: false,

@@ -168,7 +168,7 @@ Category.indicateSaved = function () {
 };
 
 Category.predicateHelp = function () {
-    $.toast({
+    window.toast({
         heading: "Writing a Predicate",
         text: "Predicates follow the same syntax as searches in the Archive Index. Check the <a href=\"https://sugoi.gitbook.io/lanraragi/basic-operations/searching\">Documentation</a> for more information.",
         hideAfter: false,

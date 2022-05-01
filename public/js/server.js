@@ -23,7 +23,7 @@ Server.callAPI = function (endpoint, method, successMessage, errorMessage, succe
                 throw new Error(data.error);
             } else {
                 if (successMessage !== null) {
-                    $.toast({
+                    window.toast({
                         showHideTransition: "slide",
                         position: "top-left",
                         loader: false,
@@ -84,7 +84,7 @@ Server.saveFormData = function (formSelector) {
         .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))
         .then((data) => {
             if (data.success) {
-                $.toast({
+                window.toast({
                     showHideTransition: "slide",
                     position: "top-left",
                     loader: false,
@@ -124,7 +124,7 @@ Server.triggerScript = function (namespace) {
                         $(".stdbtn").show();
 
                         if (d.result.success === 1) {
-                            $.toast({
+                            window.toast({
                                 showHideTransition: "slide",
                                 position: "top-left",
                                 loader: false,
@@ -174,7 +174,7 @@ Server.dropDatabase = function () {
 Server.cleanDatabase = function () {
     Server.callAPI("/api/database/clean", "POST", null, "Error while cleaning the database! Check Logs.",
         (data) => {
-            $.toast({
+            window.toast({
                 showHideTransition: "slide",
                 position: "top-left",
                 loader: false,
@@ -183,7 +183,7 @@ Server.cleanDatabase = function () {
             });
 
             if (data.unlinked > 0) {
-                $.toast({
+                window.toast({
                     showHideTransition: "slide",
                     position: "top-left",
                     loader: false,
@@ -213,7 +213,7 @@ Server.regenerateThumbnails = function (force) {
                 (d) => {
                     $("#genthumb-button").prop("disabled", false);
                     $("#forcethumb-button").prop("disabled", false);
-                    $.toast({
+                    window.toast({
                         showHideTransition: "slide",
                         position: "top-left",
                         loader: false,
@@ -254,7 +254,7 @@ Server.deleteArchive = function (arcId, callback) {
         .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))
         .then((data) => {
             if (data.success === "0") {
-                $.toast({
+                window.toast({
                     showHideTransition: "slide",
                     position: "top-left",
                     loader: false,
@@ -266,7 +266,7 @@ Server.deleteArchive = function (arcId, callback) {
                 $(".stdbtn").hide();
                 $("#goback").show();
             } else {
-                $.toast({
+                window.toast({
                     showHideTransition: "slide",
                     position: "top-left",
                     loader: false,

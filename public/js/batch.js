@@ -241,7 +241,7 @@ Batch.batchError = function () {
     $("#log-container").append("************\nError! Terminating session.\n");
     Batch.scrollLogs();
 
-    $.toast({
+    window.toast({
         showHideTransition: "slide",
         position: "top-left",
         loader: false,
@@ -264,7 +264,7 @@ Batch.endBatch = function (event) {
     $("#log-container").append(`************\n${event.reason}(code ${event.code})\n`);
     Batch.scrollLogs();
 
-    $.toast({
+    window.toast({
         showHideTransition: "slide",
         position: "top-left",
         loader: false,

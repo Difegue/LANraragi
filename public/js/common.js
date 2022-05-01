@@ -272,7 +272,7 @@ LRR.buildProgressDiv = function (arcdata) {
  * @param {*} error Error message
  */
 LRR.showErrorToast = function (header, error) {
-    $.toast({
+    window.toast({
         showHideTransition: "slide",
         position: "top-left",
         loader: false,

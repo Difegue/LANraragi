@@ -72,7 +72,7 @@ Edit.focusTagInput = function () {
 };
 
 Edit.showHelp = function () {
-    $.toast({
+    window.toast({
         heading: "About Plugins",
         text: "You can use plugins to automatically fetch metadata for this archive. <br/> Just select a plugin from the dropdown and hit Go! <br/> Some plugins might provide an optional argument for you to specify. If that's the case, a textbox will be available to input said argument.",
         hideAfter: false,
@@ -109,7 +109,7 @@ Edit.saveMetadata = function () {
         .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))
         .then((data) => {
             if (data.success) {
-                $.toast({
+                window.toast({
                     showHideTransition: "slide",
                     position: "top-left",
                     loader: false,
@@ -142,7 +142,7 @@ Edit.getTags = function () {
         (result) => {
             if (result.data.title && result.data.title !== "") {
                 $("#title").val(result.data.title);
-                $.toast({
+                window.toast({
                     showHideTransition: "slide",
                     position: "top-left",
                     loader: false,
@@ -157,7 +157,7 @@ Edit.getTags = function () {
                     Edit.tagInput.add_tag(tag);
                 });
 
-                $.toast({
+                window.toast({
                     showHideTransition: "slide",
                     position: "top-left",
                     loader: false,
@@ -166,7 +166,7 @@ Edit.getTags = function () {
                     icon: "info",
                 });
             } else {
-                $.toast({
+                window.toast({
                     showHideTransition: "slide",
                     position: "top-left",
                     loader: false,
