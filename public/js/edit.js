@@ -77,6 +77,7 @@ Edit.showHelp = function () {
         heading: "About Plugins",
         text: "You can use plugins to automatically fetch metadata for this archive. <br/> Just select a plugin from the dropdown and hit Go! <br/> Some plugins might provide an optional argument for you to specify. If that's the case, a textbox will be available to input said argument.",
         icon: "info",
+        hideAfter: 33000,
     });
 };
 
@@ -132,7 +133,6 @@ Edit.deleteArchive = function () {
         confirmButtonText: "Yes, delete it!",
         reverseButtons: true,
         confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
     }).then((result) => {
         if (result.isConfirmed) {
             Server.deleteArchive($("#archiveID").val(), () => { document.location.href = "./"; });
@@ -166,6 +166,7 @@ Edit.getTags = function () {
                     heading: "Added the following tags :",
                     text: result.data.new_tags,
                     icon: "info",
+                    hideAfter: 7000,
                 });
             } else {
                 window.toast({

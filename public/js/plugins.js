@@ -18,12 +18,14 @@ Plugins.initializeAll = function () {
                     heading: "Plugin successfully uploaded!",
                     text: `The plugin "${data.result.name}" has been successfully added. Refresh the page to see it.`,
                     icon: "info",
+                    hideAfter: 10000,
                 });
             } else {
                 window.toast({
                     heading: "Error uploading plugin",
                     text: data.result.error,
                     icon: "error",
+                    hideAfter: false,
                 });
             }
         },

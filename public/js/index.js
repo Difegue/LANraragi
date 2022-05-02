@@ -90,6 +90,7 @@ Index.initializeAll = function () {
             heading: `Welcome to LANraragi ${Index.serverVersion}!`,
             text: "If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!",
             icon: "info",
+            hideAfter: 13000,
         });
     }
 
@@ -410,6 +411,7 @@ Index.checkVersion = function () {
                     icon: "info",
                     closeOnClick: false,
                     draggable: false,
+                    hideAfter: 7000,
                 });
             }
         })
@@ -507,7 +509,6 @@ Index.handleContextMenu = function (option, id) {
             confirmButtonText: "Yes, delete it!",
             reverseButtons: true,
             confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
         }).then((result) => {
             if (result.isConfirmed) {
                 Server.deleteArchive(id, () => { document.location.reload(true); });
@@ -637,6 +638,7 @@ Index.migrateProgress = function () {
             heading: "Your Reading Progression is now saved on the server!",
             text: "You seem to have some local progression hanging around -- Please wait warmly while we migrate it to the server for you. ☕",
             icon: "info",
+            hideAfter: 23000,
         });
 
         const promises = [];
@@ -664,6 +666,7 @@ Index.migrateProgress = function () {
             heading: "Reading Progression has been fully migrated! 🎉",
             text: "You'll have to reopen archives in the Reader to see the migrated progression values.",
             icon: "success",
+            hideAfter: 13000,
         }));
     } else {
         // eslint-disable-next-line no-console

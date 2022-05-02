@@ -29,4 +29,5 @@ npm run lanraragi-installer install-full
 
 #Cleanup to lighten the image
 apk del perl-dev g++ make gnupg wget curl nodejs npm openssl-dev file
+rm -rf public/js/vendor/*.map public/css/vendor/*.map
 rm -rf /root/.cpanm/* /root/.npm/ /usr/local/share/man/* node_modules /var/cache/apk/*

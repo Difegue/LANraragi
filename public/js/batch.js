@@ -105,7 +105,6 @@ Batch.startBatchCheck = function () {
             confirmButtonText: "Yes, delete it!",
             reverseButtons: true,
             confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
         }).then((result) => {
             if (result.isConfirmed) {
                 Batch.startBatch();
@@ -266,6 +265,7 @@ Batch.batchError = function () {
         heading: "An error occured during batch tagging!",
         text: "Please check application logs.",
         icon: "error",
+        hideAfter: false,
     });
 };
 

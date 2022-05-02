@@ -297,6 +297,7 @@ Reader.checkFiletypeSupport = function (extension) {
             heading: "This archive seems to be in RAR format!",
             text: "RAR archives might not work properly in LANraragi depending on how they were made. If you encounter errors while reading, consider converting your archive to zip.",
             icon: "warning",
+            hideAfter: 23000,
         });
     } else if (extension === "epub" && !localStorage.epubWarningShown) {
         localStorage.epubWarningShown = true;
@@ -304,6 +305,9 @@ Reader.checkFiletypeSupport = function (extension) {
             heading: "EPUB support in LANraragi is minimal",
             text: "EPUB books will only show images in the Web Reader. If you want text support, consider pairing LANraragi with an <a href='https://sugoi.gitbook.io/lanraragi/advanced-usage/external-readers#generic-opds-readers'>OPDS reader.</a>",
             icon: "warning",
+            hideAfter: 20000,
+            closeOnClick: false,
+            draggable: false,
         });
     }
 };
@@ -314,6 +318,7 @@ Reader.toggleHelp = function () {
         heading: "Navigation Help",
         text: $("#reader-help").children().first().html(),
         icon: "info",
+        hideAfter: 60000,
     });
 
     return false;

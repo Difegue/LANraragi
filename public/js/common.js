@@ -276,6 +276,7 @@ LRR.showErrorToast = function (header, error) {
         heading: header,
         text: error,
         icon: "error",
+        hideAfter: false,
     });
 };
 

@@ -26,6 +26,7 @@ Server.callAPI = function (endpoint, method, successMessage, errorMessage, succe
                     window.toast({
                         heading: successMessage,
                         icon: "success",
+                        hideAfter: 70000,
                     });
                 }
 
@@ -122,6 +123,9 @@ Server.triggerScript = function (namespace) {
                                 heading: "Script result",
                                 text: `<pre>${JSON.stringify(d.result.data, null, 4)}</pre>`,
                                 icon: "info",
+                                hideAfter: 10000,
+                                closeOnClick: false,
+                                draggable: false,
                             });
                         } else LRR.showErrorToast(`Script failed: ${d.result.error}`);
                     },
@@ -161,7 +165,6 @@ Server.dropDatabase = function () {
         confirmButtonText: "Yes, do it!",
         reverseButtons: true,
         confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
     }).then((result) => {
         if (result.isConfirmed) {
             Server.callAPI("/api/database/drop", "POST", "Sayonara! Redirecting you...", "Error while resetting the database? Check Logs.",
@@ -179,6 +182,7 @@ Server.cleanDatabase = function () {
             window.toast({
                 heading: `Successfully cleaned the database and removed ${data.deleted} entries!`,
                 icon: "success",
+                hideAfter: 7000,
             });
 
             if (data.unlinked > 0) {
@@ -186,6 +190,7 @@ Server.cleanDatabase = function () {
                     heading: `${data.unlinked} other entries have been unlinked from the database and will be deleted on the next cleanup!`,
                     text: "Do a backup now if some files disappeared from your archive index.",
                     icon: "warning",
+                    hideAfter: 16000,
                 });
             }
         },
@@ -213,6 +218,9 @@ Server.regenerateThumbnails = function (force) {
                         heading: "All thumbnails generated! Encountered the following errors:",
                         text: d.result.errors,
                         icon: "success",
+                        hideAfter: 15000,
+                        closeOnClick: false,
+                        draggable: false,
                     });
                 },
                 (error) => {
@@ -250,6 +258,7 @@ Server.deleteArchive = function (arcId, callback) {
                     heading: "Couldn't delete archive file. <br> (Maybe it has already been deleted beforehand?)",
                     text: "Archive metadata has been deleted properly. <br> Please delete the file manually before returning to Library View.",
                     icon: "warning",
+                    hideAfter: 20000,
                 });
                 $(".stdbtn").hide();
                 $("#goback").show();
@@ -258,6 +267,7 @@ Server.deleteArchive = function (arcId, callback) {
                     heading: "Archive successfully deleted. Redirecting you ...",
                     text: `File name : ${data.filename}`,
                     icon: "success",
+                    hideAfter: 7000,
                 });
                 setTimeout(callback, 1500);
             }

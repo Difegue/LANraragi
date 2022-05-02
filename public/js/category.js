@@ -172,7 +172,6 @@ Category.deleteSelectedCategory = function () {
         confirmButtonText: "Yes, delete it!",
         reverseButtons: true,
         confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
     }).then((result) => {
         if (result.isConfirmed) {
             Server.callAPI(`/api/categories/${categoryID}`, "DELETE", "Category deleted!", "Error deleting category",
@@ -199,6 +198,7 @@ Category.predicateHelp = function () {
         heading: "Writing a Predicate",
         text: "Predicates follow the same syntax as searches in the Archive Index. Check the <a href=\"https://sugoi.gitbook.io/lanraragi/basic-operations/searching\">Documentation</a> for more information.",
         icon: "info",
+        hideAfter: 20000,
     });
 };
 

@@ -192,7 +192,10 @@
 			window.toast({
 				heading: 'You\'re using the default password and that\'s super baka of you',
 				text: '<a href="login">Login</a> with password "kamimamita" and <a href="config">change that shit</a> on the double.<br/>...Or just disable it! <br/>Why not check the configuration options afterwards, while you\'re at it? ',
-				icon: 'warning'
+				icon: 'warning',
+                hideAfter: 25000,
+				closeOnClick: false,
+				draggable: false,
 			});
 			[% END %]
 
