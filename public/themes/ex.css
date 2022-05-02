@@ -412,4 +412,14 @@ div.id4 {
     padding: 4px 4px 0 0;
   }
   
+  /** handle the popup color and the text color based on the theme **/
+.swal2-popup {
+    background: #3c3f44;
+    color: #e1e1e1;
+  }
+  
+  body.swal2-shown > [aria-hidden="true"] {
+    transition: 0.1s filter;
+    filter: blur(3px);
+  }
   

@@ -17,6 +17,7 @@ my @vendor_css = (
     "/jquery-contextmenu/dist/jquery.contextMenu.min.css", "/tippy.js/dist/tippy.css",
     "/allcollapsible/dist/css/allcollapsible.min.css",     "/awesomplete/awesomplete.css",
     "/\@jcubic/tagger/tagger.css",                         "/swiper/swiper-bundle.min.css",
+    "/sweetalert2/dist/sweetalert2.min.css",
 );
 
 my @vendor_js = (
@@ -29,7 +30,7 @@ my @vendor_js = (
     "/\@jcubic/tagger/tagger.js",                         "/marked/marked.min.js",
     "/swiper/swiper-bundle.min.js",                       "/preact/dist/preact.umd.js",
     "/clsx/dist/clsx.min.js",                             "/preact/compat/dist/compat.umd.js",
-    "/preact/hooks/dist/hooks.umd.js",                    "/sweetalert2/dist/sweetalert2.all.min.js",
+    "/preact/hooks/dist/hooks.umd.js",                    "/sweetalert2/dist/sweetalert2.min.js",
 );
 
 my @vendor_woff = (

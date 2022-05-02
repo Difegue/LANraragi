@@ -14,6 +14,7 @@
 	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.fileupload.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/allcollapsible.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/ReactToastify.min.css" />
+	<link rel="stylesheet" type="text/css" href="/css/vendor/sweetalert2.min.css" />
 	[% csshead %]
 
 	<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
@@ -27,7 +28,7 @@
 	<script src="/js/vendor/jquery.ui.widget.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.fileupload.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/allcollapsible.min.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/sweetalert2.all.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/sweetalert2.min.js" type="text/JAVASCRIPT"></script>
 
 	<script src="/js/common.js?[% version%]" type="text/JAVASCRIPT"></script>
 	<script src="/js/server.js?[% version%]" type="text/JAVASCRIPT"></script>
