@@ -21,21 +21,36 @@ Category.initializeAll = function () {
 };
 
 Category.addNewCategory = function (isDynamic) {
-    const catName = prompt("Enter a name for the new category:", "My Category");
-    if (catName === null || catName === "") {
-        return;
-    }
-
-    // Initialize dynamic collections with a bogus search
-    const searchtag = isDynamic ? "language:english" : "";
-
-    // Make an API request to create the category, if search is empty -> static, otherwise dynamic
-    Server.callAPI(`/api/categories?name=${catName}&search=${searchtag}`, "PUT", `Category "${catName}" created!`, "Error creating category:",
-        (data) => {
-            // Reload categories and select the newly created ID
-            Category.loadCategories(data.category_id);
+    LRR.showPopUp({
+        title: "Enter a name for the new category",
+        icon: "info",
+        input: "text",
+        inputPlaceholder: "My Category",
+        inputAttributes: {
+            autocapitalize: "off",
         },
-    );
+        showCancelButton: true,
+        reverseButtons: true,
+        inputValidator: (value) => {
+            if (!value) {
+                return "You need to write something!";
+            }
+            return undefined;
+        },
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Initialize dynamic collections with a bogus search
+            const searchtag = isDynamic ? "language:english" : "";
+
+            // Make an API request to create category, search is empty -> static, otherwise dynamic
+            Server.callAPI(`/api/categories?name=${result.value}&search=${searchtag}`, "PUT", `Category "${result.value}" created!`, "Error creating category:",
+                (data) => {
+                    // Reload categories and select the newly created ID
+                    Category.loadCategories(data.category_id);
+                },
+            );
+        }
+    });
 };
 
 Category.loadCategories = function (selectedID) {
@@ -149,14 +164,25 @@ Category.updateArchiveInCategory = function (id, checked) {
 
 Category.deleteSelectedCategory = function () {
     const categoryID = document.getElementById("category").value;
-    if (window.confirm("Are you sure? The category will be deleted permanently!")) {
-        Server.callAPI(`/api/categories/${categoryID}`, "DELETE", "Category deleted!", "Error deleting category",
-            () => {
+    LRR.showPopUp({
+        title: "Are you sure?",
+        text: "This is a destructive operation! The category will be deleted permanently!",
+        icon: "warning",
+        showCancelButton: true,
+        focusConfirm: false,
+        confirmButtonText: "Yes, delete it!",
+        reverseButtons: true,
+        confirmButtonColor: "#d33",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Server.callAPI(`/api/categories/${categoryID}`, "DELETE", "Category deleted!", "Error deleting category",
+                () => {
                 // Reload categories to show the archive list properly
-                Category.loadCategories();
-            },
-        );
-    }
+                    Category.loadCategories();
+                },
+            );
+        }
+    });
 };
 
 Category.indicateSaving = function () {
@@ -168,12 +194,12 @@ Category.indicateSaved = function () {
 };
 
 Category.predicateHelp = function () {
-    $.toast({
+    LRR.toast({
+        toastId: "predicateHelp",
         heading: "Writing a Predicate",
         text: "Predicates follow the same syntax as searches in the Archive Index. Check the <a href=\"https://sugoi.gitbook.io/lanraragi/basic-operations/searching\">Documentation</a> for more information.",
-        hideAfter: false,
-        position: "top-left",
         icon: "info",
+        hideAfter: 20000,
     });
 };
 

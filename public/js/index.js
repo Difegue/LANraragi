@@ -17,8 +17,8 @@ Index.pageSize = 100;
  */
 Index.initializeAll = function () {
     // Bind events to DOM
-    $(document).on("click.edit-header-1", "#edit-header-1", () => { Index.promptCustomColumn(1); });
-    $(document).on("click.edit-header-2", "#edit-header-2", () => { Index.promptCustomColumn(2); });
+    $(document).on("click.edit-header-1", "#edit-header-1", () => Index.promptCustomColumn(1));
+    $(document).on("click.edit-header-2", "#edit-header-2", () => Index.promptCustomColumn(2));
     $(document).on("click.mode-toggle", ".mode-toggle", Index.toggleMode);
     $(document).on("change.page-select", "#page-select", () => IndexTable.dataTable.page($("#page-select").val() - 1).draw("page"));
     $(document).on("change.thumbnail-crop", "#thumbnail-crop", Index.toggleCrop);
@@ -86,12 +86,11 @@ Index.initializeAll = function () {
     if (localStorage.getItem("sawContextMenuToast") === null) {
         localStorage.sawContextMenuToast = true;
 
-        $.toast({
+        LRR.toast({
             heading: `Welcome to LANraragi ${Index.serverVersion}!`,
             text: "If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!",
-            hideAfter: false,
-            position: "top-left",
             icon: "info",
+            hideAfter: 13000,
         });
     }
 
@@ -108,11 +107,9 @@ Index.initializeAll = function () {
                 Index.checkVersion();
                 Index.fetchChangelog();
             } else {
-                $.toast({
+                LRR.toast({
                     heading: "<i class=\"fas fa-bug\"></i> You're running in Debug Mode!",
                     text: "Advanced server statistics can be viewed <a href=\"./debug\">here.</a>",
-                    hideAfter: false,
-                    position: "top-left",
                     icon: "warning",
                 });
             }
@@ -164,7 +161,6 @@ Index.toggleCarousel = function (e, updateLocalStorage = true) {
                         slidesPerView: sides,
                     };
                 }
-                console.log(breakpoints);
                 return breakpoints;
             })(),
             breakpointsBase: "container",
@@ -224,20 +220,36 @@ Index.toggleCategory = function (button) {
  * @param {*} column Index of the column to modify, either 1 or 2
  */
 Index.promptCustomColumn = function (column) {
-    const promptText = "Enter the namespace of the tags you want to show in this column. \n\n"
-        + "Enter a full namespace without the colon, e.g \"artist\".\n"
-        + "If you have multiple tags with the same namespace, only the last one will be shown in the column.";
+    LRR.showPopUp({
+        title: "Enter a tag namespace for this column",
+        text: "Enter a full namespace without the colon, e.g \"artist\".\nIf you have multiple tags with the same namespace, only the last one will be shown in the column.",
+        icon: "info",
+        input: "text",
+        inputValue: localStorage.getItem(`customColumn${column}`),
+        inputPlaceholder: "Tag namespace",
+        inputAttributes: {
+            autocapitalize: "off",
+        },
+        showCancelButton: true,
+        reverseButtons: true,
+        inputValidator: (value) => {
+            if (!value) {
+                return "You need to write something!";
+            }
+            return undefined;
+        },
+    }).then((result) => {
+        if (result.isConfirmed) {
+            if (!LRR.isNullOrWhitespace(result.value)) {
+                localStorage.setItem(`customColumn${column}`, result.value.trim());
 
-    const defaultText = localStorage.getItem(`customColumn${column}`);
-    const input = prompt(promptText, defaultText);
-
-    if (!LRR.isNullOrWhitespace(input)) {
-        localStorage.setItem(`customColumn${column}`, input.trim());
-
-        // Absolutely disgusting
-        IndexTable.dataTable.settings()[0].aoColumns[column].sName = input.trim();
-        Index.updateTableHeaders();
-    }
+                // Absolutely disgusting
+                IndexTable.dataTable.settings()[0].aoColumns[column].sName = result.value.trim();
+                Index.updateTableHeaders();
+                IndexTable.doSearch();
+            }
+        }
+    });
 };
 
 /**
@@ -369,38 +381,43 @@ Index.updateTableHeaders = function () {
 Index.checkVersion = function () {
     const githubAPI = "https://api.github.com/repos/difegue/lanraragi/releases/latest";
 
-    $.getJSON(githubAPI).done((data) => {
-        const expr = /(\d+)/g;
-        const latestVersionArr = Array.from(data.tag_name.match(expr));
-        let latestVersion = "";
-        const currentVersionArr = Array.from(Index.serverVersion.match(expr));
-        let currentVersion = "";
+    fetch(githubAPI)
+        .then((response) => response.json())
+        .then((data) => {
+            const expr = /(\d+)/g;
+            const latestVersionArr = Array.from(data.tag_name.match(expr));
+            let latestVersion = "";
+            const currentVersionArr = Array.from(Index.serverVersion.match(expr));
+            let currentVersion = "";
 
-        latestVersionArr.forEach((element, index) => {
-            if (index + 1 < latestVersionArr.length) {
-                latestVersion = `${latestVersion}${element}`;
-            } else {
-                latestVersion = `${latestVersion}.${element}`;
-            }
-        });
-        currentVersionArr.forEach((element, index) => {
-            if (index + 1 < currentVersionArr.length) {
-                currentVersion = `${currentVersion}${element}`;
-            } else {
-                currentVersion = `${currentVersion}.${element}`;
-            }
-        });
-
-        if (latestVersion > currentVersion) {
-            $.toast({
-                heading: `A new version of LANraragi (${data.tag_name}) is available !`,
-                text: `<a href="${data.html_url}">Click here to check it out.</a>`,
-                hideAfter: false,
-                position: "top-left",
-                icon: "info",
+            latestVersionArr.forEach((element, index) => {
+                if (index + 1 < latestVersionArr.length) {
+                    latestVersion = `${latestVersion}${element}`;
+                } else {
+                    latestVersion = `${latestVersion}.${element}`;
+                }
             });
-        }
-    });
+            currentVersionArr.forEach((element, index) => {
+                if (index + 1 < currentVersionArr.length) {
+                    currentVersion = `${currentVersion}${element}`;
+                } else {
+                    currentVersion = `${currentVersion}.${element}`;
+                }
+            });
+
+            if (latestVersion > currentVersion) {
+                LRR.toast({
+                    heading: `A new version of LANraragi (${data.tag_name}) is available !`,
+                    text: `<a href="${data.html_url}">Click here to check it out.</a>`,
+                    icon: "info",
+                    closeOnClick: false,
+                    draggable: false,
+                    hideAfter: 7000,
+                });
+            }
+        })
+        // eslint-disable-next-line no-console
+        .catch((error) => console.log("Error checking latest version.", error));
 };
 
 /**
@@ -484,9 +501,20 @@ Index.handleContextMenu = function (option, id) {
         LRR.openInNewTab(`./edit?id=${id}`);
         break;
     case "delete":
-        if (window.confirm("Are you sure you want to delete this archive?")) {
-            Server.deleteArchive(id, () => { document.location.reload(true); });
-        }
+        LRR.showPopUp({
+            title: "Are you sure?",
+            text: "This is a destructive operation! Are you sure you want to delete this archive?",
+            icon: "warning",
+            showCancelButton: true,
+            focusConfirm: false,
+            confirmButtonText: "Yes, delete it!",
+            reverseButtons: true,
+            confirmButtonColor: "#d33",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Server.deleteArchive(id, () => { document.location.reload(true); });
+            }
+        });
         break;
     case "read":
         LRR.openInNewTab(`./reader?id=${id}`);
@@ -607,12 +635,11 @@ Index.migrateProgress = function () {
 
     const localProgressKeys = Object.keys(localStorage).filter((x) => x.endsWith("-reader")).map((x) => x.slice(0, -7));
     if (localProgressKeys.length > 0) {
-        $.toast({
+        LRR.toast({
             heading: "Your Reading Progression is now saved on the server!",
             text: "You seem to have some local progression hanging around -- Please wait warmly while we migrate it to the server for you. ☕",
-            hideAfter: false,
-            position: "top-left",
             icon: "info",
+            hideAfter: 23000,
         });
 
         const promises = [];
@@ -636,12 +663,11 @@ Index.migrateProgress = function () {
                 }));
         });
 
-        Promise.all(promises).then(() => $.toast({
+        Promise.all(promises).then(() => LRR.toast({
             heading: "Reading Progression has been fully migrated! 🎉",
             text: "You'll have to reopen archives in the Reader to see the migrated progression values.",
-            hideAfter: false,
-            position: "top-left",
             icon: "success",
+            hideAfter: 13000,
         }));
     } else {
         // eslint-disable-next-line no-console

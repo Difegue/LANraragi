@@ -72,12 +72,12 @@ Edit.focusTagInput = function () {
 };
 
 Edit.showHelp = function () {
-    $.toast({
+    LRR.toast({
+        toastId: "pluginHelp",
         heading: "About Plugins",
         text: "You can use plugins to automatically fetch metadata for this archive. <br/> Just select a plugin from the dropdown and hit Go! <br/> Some plugins might provide an optional argument for you to specify. If that's the case, a textbox will be available to input said argument.",
-        hideAfter: false,
-        position: "top-left",
         icon: "info",
+        hideAfter: 33000,
     });
 };
 
@@ -109,10 +109,7 @@ Edit.saveMetadata = function () {
         .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))
         .then((data) => {
             if (data.success) {
-                $.toast({
-                    showHideTransition: "slide",
-                    position: "top-left",
-                    loader: false,
+                LRR.toast({
                     heading: "Metadata saved!",
                     icon: "success",
                 });
@@ -127,9 +124,20 @@ Edit.saveMetadata = function () {
 };
 
 Edit.deleteArchive = function () {
-    if (window.confirm("Are you sure you want to delete this archive?")) {
-        Server.deleteArchive($("#archiveID").val(), () => { document.location.href = "./"; });
-    }
+    LRR.showPopUp({
+        title: "Are you sure?",
+        text: "This is a destructive operation! Are you sure you want to delete this archive?",
+        icon: "warning",
+        showCancelButton: true,
+        focusConfirm: false,
+        confirmButtonText: "Yes, delete it!",
+        reverseButtons: true,
+        confirmButtonColor: "#d33",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Server.deleteArchive($("#archiveID").val(), () => { document.location.href = "./"; });
+        }
+    });
 };
 
 Edit.getTags = function () {
@@ -142,10 +150,7 @@ Edit.getTags = function () {
         (result) => {
             if (result.data.title && result.data.title !== "") {
                 $("#title").val(result.data.title);
-                $.toast({
-                    showHideTransition: "slide",
-                    position: "top-left",
-                    loader: false,
+                LRR.toast({
                     heading: "Archive title changed to :",
                     text: result.data.title,
                     icon: "info",
@@ -157,19 +162,14 @@ Edit.getTags = function () {
                     Edit.tagInput.add_tag(tag);
                 });
 
-                $.toast({
-                    showHideTransition: "slide",
-                    position: "top-left",
-                    loader: false,
+                LRR.toast({
                     heading: "Added the following tags :",
                     text: result.data.new_tags,
                     icon: "info",
+                    hideAfter: 7000,
                 });
             } else {
-                $.toast({
-                    showHideTransition: "slide",
-                    position: "top-left",
-                    loader: false,
+                LRR.toast({
                     heading: "No new tags added!",
                     text: result.data.new_tags,
                     icon: "info",

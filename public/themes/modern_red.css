@@ -621,3 +621,19 @@ div.id4 a:hover {
   background: #E9A53A;
   color: #F1F1F1;
 }
+
+
+/** handle the notificaiton color and the text color based on the theme **/
+.Toastify {
+  --toastify-font-family: "Roboto",arial,sans-serif;
+}
+
+.Toastify__toast-body a {
+  color: #414135;
+}
+
+/** handle the popup color and the text color based on the theme **/
+.swal2-popup {
+  background: #efeaea;
+  color: #d83b66;
+}

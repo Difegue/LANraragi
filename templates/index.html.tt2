@@ -10,17 +10,23 @@
 	<link rel="stylesheet" type="text/css" href="/css/lrr.css?[% version %]" />
 
 	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
-	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.toast.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.contextMenu.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/awesomplete.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/tippy.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/allcollapsible.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/swiper-bundle.min.css" />
+	<link rel="stylesheet" type="text/css" href="/css/vendor/ReactToastify.min.css" />
+	<link rel="stylesheet" type="text/css" href="/css/vendor/sweetalert2.min.css" />
 	[% csshead %]
 
 	<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.dataTables.min.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/preact.umd.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/hooks.umd.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/compat.umd.js" type="text/JAVASCRIPT"></script>
+	<script>window.React=window.preactCompat;window.react=window.preactCompat;</script>
+	<script src="/js/vendor/clsx.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/react-toastify.umd.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.ui.position.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.contextMenu.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/awesomplete.min.js" type="text/JAVASCRIPT"></script>
@@ -29,6 +35,7 @@
 	<script src="/js/vendor/marked.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/allcollapsible.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/swiper-bundle.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/sweetalert2.min.js" type="text/JAVASCRIPT"></script>
 
 	<script src="/js/index.js?[% version %]" type="text/JAVASCRIPT"></script>
 	<script src="/js/common.js?[% version %]" type="text/JAVASCRIPT"></script>
@@ -181,12 +188,13 @@
 
 			[% IF usingdefpass %]
 			//If the json has the "default password" flag, flash a friendly notification inviting the user to change his password
-			$.toast({
+			LRR.toast({
 				heading: 'You\'re using the default password and that\'s super baka of you',
 				text: '<a href="login">Login</a> with password "kamimamita" and <a href="config">change that shit</a> on the double.<br/>...Or just disable it! <br/>Why not check the configuration options afterwards, while you\'re at it? ',
-				hideAfter: false,
-				position: 'top-left',
-				icon: 'error'
+				icon: 'warning',
+                hideAfter: 25000,
+				closeOnClick: false,
+				draggable: false,
 			});
 			[% END %]
 

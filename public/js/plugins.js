@@ -14,20 +14,18 @@ Plugins.initializeAll = function () {
         dataType: "json",
         done(e, data) {
             if (data.result.success) {
-                $.toast({
+                LRR.toast({
                     heading: "Plugin successfully uploaded!",
                     text: `The plugin "${data.result.name}" has been successfully added. Refresh the page to see it.`,
-                    hideAfter: false,
-                    position: "top-left",
                     icon: "info",
+                    hideAfter: 10000,
                 });
             } else {
-                $.toast({
+                LRR.toast({
                     heading: "Error uploading plugin",
                     text: data.result.error,
-                    hideAfter: false,
-                    position: "top-left",
                     icon: "error",
+                    hideAfter: false,
                 });
             }
         },

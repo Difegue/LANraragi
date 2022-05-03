@@ -551,3 +551,19 @@ div.id4 a:hover {
 .awesomplete li:hover mark, .awesomplete li[aria-selected="true"] mark {
     background: #ED2553;
 }
+
+
+/** handle the notificaiton color and the text color based on the theme **/
+.Toastify {
+    --toastify-font-family: "Inter UI";
+  }
+
+.Toastify__toast-body a {
+    color: #34495E;
+}
+
+/** handle the popup color and the text color based on the theme **/
+.swal2-popup {
+    background: #fcfcfc;
+    color: #34495e;
+}

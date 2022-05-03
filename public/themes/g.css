@@ -513,3 +513,14 @@ div.id4 {
     background: hsl(39, 74%, 60%);
 }
 
+
+/** handle the notificaiton color and the text color based on the theme **/
+.Toastify__toast-body a {
+    color: #5C0D11;
+}
+
+/** handle the popup color and the text color based on the theme **/
+.swal2-popup {
+    background: #e3e0d1;
+    color: #5c0d11;
+}

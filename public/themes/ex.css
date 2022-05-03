@@ -371,3 +371,30 @@ div.id4 {
 .awesomplete li:hover mark {
     background: #3b97ea;
 }
+
+/** handle the notificaiton color and the text color based on the theme **/
+.Toastify {
+    --toastify-text-color-light: #DDDDDD;
+    --toastify-color-light: #4F535B;
+    --toastify-color-dark: #121212;
+    --toastify-color-info: #4890cb;
+    --toastify-color-success: #5c8a5e;
+    --toastify-color-warning: #bf9722;
+    --toastify-color-error: #a85d5d;
+    --toastify-color-transparent: rgba(255, 255, 255, 0.7);
+}
+
+.Toastify__close-button--light {
+    color: #fff;
+    opacity: 1;
+}
+
+.Toastify__toast-body a {
+    color: #fff;
+}
+
+/** handle the popup color and the text color based on the theme **/
+.swal2-popup {
+    background: #43464e;
+    color: #dddddd;
+}

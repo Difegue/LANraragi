@@ -293,43 +293,32 @@ Reader.handleWheel = function (e) {
 Reader.checkFiletypeSupport = function (extension) {
     if ((extension === "rar" || extension === "cbr") && !localStorage.rarWarningShown) {
         localStorage.rarWarningShown = true;
-        $.toast({
-            showHideTransition: "slide",
-            position: "top-left",
-            loader: false,
+        LRR.toast({
             heading: "This archive seems to be in RAR format!",
             text: "RAR archives might not work properly in LANraragi depending on how they were made. If you encounter errors while reading, consider converting your archive to zip.",
-            hideAfter: false,
             icon: "warning",
+            hideAfter: 23000,
         });
     } else if (extension === "epub" && !localStorage.epubWarningShown) {
         localStorage.epubWarningShown = true;
-        $.toast({
-            showHideTransition: "slide",
-            position: "top-left",
-            loader: false,
+        LRR.toast({
             heading: "EPUB support in LANraragi is minimal",
             text: "EPUB books will only show images in the Web Reader. If you want text support, consider pairing LANraragi with an <a href='https://sugoi.gitbook.io/lanraragi/advanced-usage/external-readers#generic-opds-readers'>OPDS reader.</a>",
-            hideAfter: false,
             icon: "warning",
+            hideAfter: 20000,
+            closeOnClick: false,
+            draggable: false,
         });
     }
 };
 
 Reader.toggleHelp = function () {
-    const existingToast = $(".navigation-help-toast:visible");
-    if (existingToast.length) {
-        // ugly hack: this is an abandoned plugin, we should be using something like toastr
-        existingToast.closest(".jq-toast-wrap").find(".close-jq-toast-single").trigger("click");
-        return false;
-    }
-
-    $.toast({
+    LRR.toast({
+        toastId: "readerHelp",
         heading: "Navigation Help",
         text: $("#reader-help").children().first().html(),
-        hideAfter: false,
-        position: "top-left",
         icon: "info",
+        hideAfter: 60000,
     });
 
     return false;

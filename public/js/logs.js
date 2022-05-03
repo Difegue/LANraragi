@@ -20,13 +20,15 @@ Logs.initializeAll = function () {
 };
 
 Logs.showLog = function (type) {
-    $.get(`/logs/${type}?lines=${$("#loglines").val()}`, (data) => {
-        $("#log-container").html(LRR.encodeHTML(data));
-        $("#indicator").html(type);
-        $("#log-container").scrollTop($("#log-container").prop("scrollHeight"));
-    });
-
-    Logs.lastType = type;
+    fetch(`/logs/${type}?lines=${$("#loglines").val()}`)
+        .then((response) => response.text())
+        .then((data) => {
+            $("#log-container").html(LRR.encodeHTML(data));
+            $("#indicator").html(type);
+            $("#log-container").scrollTop($("#log-container").prop("scrollHeight"));
+            Logs.lastType = type;
+        })
+        .catch((error) => LRR.showErrorToast("Error getting logs from server", error));
 };
 
 Logs.refreshLog = function () {
