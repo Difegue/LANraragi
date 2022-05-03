@@ -39,7 +39,7 @@
         3000
     ],
     // Use 'postCreateCommand' to run commands after the container is created.
-    "postCreateCommand": "sudo service redis-server start",
+    "postCreateCommand": "npm run lanraragi-installer install-front && sudo service redis-server start",
     // Uncomment to connect as a non-root user. See https://aka.ms/vscode-remote/containers/non-root.
     "remoteUser": "koyomi"
 }

@@ -2,21 +2,25 @@ p {
   margin: 0;
   padding: 3px 1px;
 }
+
 img {
   border: 0 none;
 }
+
 @font-face {
   font-family: "Roboto";
   font-style: normal;
   font-weight: 400;
   src: local("Roboto"), local("Roboto-Regular"), url(../css/webfonts/Roboto-Regular.woff) format("woff");
 }
+
 @font-face {
   font-family: "Roboto";
   font-style: normal;
   font-weight: 700;
   src: local("Roboto Bold"), local("Roboto-Bold"), url(../css/webfonts/Roboto-Bold.woff) format("woff");
 }
+
 body {
   background-color: #E9BBC5;
   color: #EFEAEA;
@@ -36,15 +40,19 @@ a {
   color: #EFEAEA;
   text-decoration: none;
 }
+
 a:hover {
   color: #D7D4C5;
   text-decoration: none;
 }
 
-.sorting_asc>a, .sorting_desc>a {
+.sorting_asc>a,
+.sorting_desc>a {
   color: #D7D4C5 !important;
 }
-.sorting_asc>a:hover, .sorting_desc>a:hover {
+
+.sorting_asc>a:hover,
+.sorting_desc>a:hover {
   color: #EFEAEA !important;
 }
 
@@ -55,12 +63,14 @@ p.ip {
   text-align: center;
   color: #414135
 }
+
 img.mr {
   border: 0 none;
   height: 7px;
   margin-left: 10px;
   width: 5px;
 }
+
 h1.ih {
   font-size: 10pt;
   font-weight: bold;
@@ -68,6 +78,7 @@ h1.ih {
   padding-bottom: 6px;
   text-align: center;
 }
+
 div.ido {
   background-color: #D83B66;
   box-shadow: 0 5px 15px 0 rgba(0, 0, 0, 0.16), 0 2px 15px 0 rgba(0, 0, 0, 0.12);
@@ -99,20 +110,26 @@ div.gt {
   text-overflow: ellipsis;
 }
 
-div.gt > a {
+div.gt>a {
   color: #EFEAEA !important;
 }
 
-.tagger > ul > li:not(.tagger-new) > a, .tagger li:not(.tagger-new) > span, .tagger .tagger-new ul {
+.tagger>ul>li:not(.tagger-new)>a,
+.tagger li:not(.tagger-new)>span,
+.tagger .tagger-new ul {
   background: none repeat scroll 0 0 #4F535B;
   border-radius: 3px;
 }
 
-.tagger > ul > li:not(.tagger-new) a, .tagger > ul > li:not(.tagger-new) a:visited, .tagger-new ul a, .tagger-new ul a:visited {
+.tagger>ul>li:not(.tagger-new) a,
+.tagger>ul>li:not(.tagger-new) a:visited,
+.tagger-new ul a,
+.tagger-new ul a:visited {
   color: #EFEAEA !important;
 }
 
-div.gt > a:hover, .tagger > ul > li:not(.tagger-new) a:hover {
+div.gt>a:hover,
+.tagger>ul>li:not(.tagger-new) a:hover {
   color: #D7D4C5 !important;
 }
 
@@ -120,22 +137,27 @@ p#nb {
   margin: 2px auto;
   text-align: center;
 }
+
 p#nb img {
   border: 0 none;
   height: 7px;
   margin-left: 10px;
   width: 5px;
 }
+
 p#nb a {
   color: #414135;
   font-weight: bold;
 }
+
 p.ip a {
   color: #34495E;
 }
+
 p.ip a:hover {
   color: #00BCD4;
 }
+
 table.itg {
   border: 0 none;
   border-collapse: collapse;
@@ -148,6 +170,7 @@ table.itg {
   padding: 3px;
   width: 99% !important;
 }
+
 table.itg th {
   background: none repeat scroll 0 0 #D7D4C5;
   border-bottom: 2px solid #414135;
@@ -163,7 +186,7 @@ table.itg th {
 }
 
 .tippy-arrow {
-  display:none !important;
+  display: none !important;
 }
 
 /* favtags */
@@ -179,7 +202,7 @@ table.itc {
   border: 0 none;
   border-radius: 3px 3px 3px 3px;
   color: #F1F1F1;
-  font-family: "Roboto",arial,sans-serif;
+  font-family: "Roboto", arial, sans-serif;
   margin: 1px;
   outline: 0 none;
   padding: 0 4px 1px;
@@ -189,7 +212,7 @@ table.itc {
 
 .favtag-btn:hover,
 .toggled {
-  background:#E9A53A !important;
+  background: #E9A53A !important;
 }
 
 .toggled:hover {
@@ -205,7 +228,7 @@ table.itc {
   border-bottom: 2px solid #414135;
 }
 
-.option-flyout > .collapsible-body > table {
+.option-flyout>.collapsible-body>table {
   border-top: 2px dashed #414135;
   color: #414135;
 }
@@ -217,12 +240,15 @@ table.itc {
 tr.gtr {
   background: none repeat scroll 0 0 #40454B;
 }
+
 tr.gtr0 {
   background: none repeat scroll 0 0 #DCDDCB;
 }
+
 tr.gtr1 {
   background: none repeat scroll 0 0 #D7D4C5;
 }
+
 .stdbtn {
   background-color: #E9A53A;
   border: 0 none;
@@ -237,9 +263,11 @@ tr.gtr1 {
   outline: 0 none;
   padding: 0 4px 1px;
 }
+
 .stdbtn:hover {
   background-color: #BE234B;
 }
+
 .stdinput {
   background: none repeat scroll 0 0 #FCFCFC;
   border: medium none;
@@ -272,17 +300,21 @@ td.itd {
   padding: 3px 4px;
   text-align: left;
 }
+
 td.itd a {
   text-decoration: none;
 }
+
 td.itu {
   border-right: 1px solid #B84B55;
   padding: 3px 4px;
   text-align: left;
 }
+
 td.itu a {
   text-decoration: none;
 }
+
 td.itdc {
   border-right: 2px dotted #414135;
   margin: 0;
@@ -329,26 +361,28 @@ td.itdc {
 }
 
 .carousel-prev {
-  padding:4px;
+  padding: 4px;
   background-color: #d7d4c5;
   color: #414135;
   box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
 }
 
 .carousel-next {
-  padding:4px;
+  padding: 4px;
   background-color: #d7d4c5;
   color: #414135;
   box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
 }
 
-.carousel-prev:hover, .carousel-next:hover {
+.carousel-prev:hover,
+.carousel-next:hover {
   color: #ed2553;
 }
 
 #reload-carousel {
   color: #414135;
 }
+
 #reload-carousel:hover {
   color: #ed2553;
 }
@@ -356,6 +390,7 @@ td.itdc {
 #carousel-mode-menu {
   color: #414135;
 }
+
 #carousel-mode-menu:hover {
   color: #ed2553;
 }
@@ -374,11 +409,13 @@ div.sni {
   width: 98%;
   z-index: 1;
 }
+
 div.sni h1 {
   font-size: 12pt;
   font-weight: bold;
   text-align: center;
 }
+
 div.sni img {
   border: 0 none;
   box-shadow: 0 5px 15px 0 rgba(0, 0, 0, 0.16), 0 2px 15px 0 rgba(0, 0, 0, 0.12);
@@ -386,50 +423,61 @@ div.sni img {
   margin: 1px;
   vertical-align: middle;
 }
+
 div.if {
   margin: -5px auto 5px;
 }
+
 div.sn {
   font-size: 15pt;
   height: 32px;
   margin: 10px auto;
   z-index: 1;
 }
+
 div.sn div {
   display: inline;
   margin: 2px 25px 0;
   padding-bottom: 15px;
   vertical-align: middle;
 }
+
 div.pagecount {
   position: relative;
 }
+
 div.sn span {
   font-weight: bold;
 }
+
 div.sn img {
   height: 30px;
   padding: 0 2px;
   width: 30px;
 }
+
 div.sn a,
 div.if a,
 div.sb a {
   color: #EFEAEA;
 }
+
 div.sn a:hover,
 div.if a:hover,
 div.sb a:hover {
   color: #E9A53A;
 }
+
 div.sb {
   margin-top: -10px;
   position: relative;
   z-index: 2;
 }
+
 div.sb img {
   border: 0 none;
 }
+
 div.idi {
   border: medium none;
   border-collapse: collapse;
@@ -438,10 +486,12 @@ div.idi {
   padding: 15px;
   text-align: center;
 }
+
 div#toppane {
   margin: auto;
   width: 99%;
 }
+
 .caption,
 .context-menu-list {
   background-color: #DCDDCB;
@@ -449,7 +499,7 @@ div#toppane {
 }
 
 .caption-reader {
-  box-shadow:none;
+  box-shadow: none;
   border: 2px dashed #414135;
 }
 
@@ -467,7 +517,7 @@ div#toppane {
 }
 
 .context-menu-item.context-menu-hover,
-.context-menu-icon.context-menu-icon--fa5.context-menu-hover > i {
+.context-menu-icon.context-menu-icon--fa5.context-menu-hover>i {
   background-color: #E9A53A !important;
   color: #F1F1F1;
 }
@@ -492,7 +542,8 @@ p#nb a:hover {
   color: #BE234B;
 }
 
-input[type='checkbox']:checked::after, input[type='checkbox']:checked::before {
+input[type='checkbox']:checked::after,
+input[type='checkbox']:checked::before {
   color: #BE234B;
 }
 
@@ -521,16 +572,19 @@ div.jqcloud {
 div.jqcloud span.w1 {
   color: #b29999 !important;
 }
+
 div.jqcloud span.w2,
 div.jqcloud span.w3,
 div.jqcloud span.w4 {
   color: #c8b6b6 !important;
 }
+
 div.jqcloud span.w5,
 div.jqcloud span.w6,
 div.jqcloud span.w7 {
   color: #ded3d3 !important;
 }
+
 div.jqcloud span.w8,
 div.jqcloud span.w9,
 div.jqcloud span.w10 {
@@ -602,19 +656,22 @@ div.id4 a:hover {
 }
 
 /* awesomplete */
-.awesomplete > ul {
+.awesomplete>ul {
   color: #414135;
   background: #DCDDCB;
   border: 2px dotted #414135;
 }
-.awesomplete > ul:before {
+
+.awesomplete>ul:before {
   display: none;
 }
-.awesomplete > ul > li:hover,
-.awesomplete > ul > li[aria-selected="true"] {
+
+.awesomplete>ul>li:hover,
+.awesomplete>ul>li[aria-selected="true"] {
   color: #EFEAEA;
   background: #D83B66;
 }
+
 .awesomplete mark,
 .awesomplete li:hover mark,
 .awesomplete li[aria-selected="true"] mark {
@@ -622,18 +679,19 @@ div.id4 a:hover {
   color: #F1F1F1;
 }
 
-
-/** handle the notificaiton color and the text color based on the theme **/
+/** Toasts **/
 .Toastify {
-  --toastify-font-family: "Roboto",arial,sans-serif;
+  --toastify-font-family: "Roboto", arial, sans-serif;
+  --toastify-text-color-light: #DDDDDD;
+  --toastify-color-light: #414135;
 }
 
 .Toastify__toast-body a {
   color: #414135;
 }
 
-/** handle the popup color and the text color based on the theme **/
+/** Popups **/
 .swal2-popup {
-  background: #efeaea;
-  color: #d83b66;
+  background: #D7D4C5;
+  color: #414135;
 }
