@@ -23,7 +23,7 @@ Server.callAPI = function (endpoint, method, successMessage, errorMessage, succe
                 throw new Error(data.error);
             } else {
                 if (successMessage !== null) {
-                    window.toast({
+                    LRR.toast({
                         heading: successMessage,
                         icon: "success",
                         hideAfter: 70000,
@@ -82,7 +82,7 @@ Server.saveFormData = function (formSelector) {
         .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))
         .then((data) => {
             if (data.success) {
-                window.toast({
+                LRR.toast({
                     heading: "Saved Successfully!",
                     icon: "success",
                 });
@@ -119,7 +119,7 @@ Server.triggerScript = function (namespace) {
                         $(".stdbtn").show();
 
                         if (d.result.success === 1) {
-                            window.toast({
+                            LRR.toast({
                                 heading: "Script result",
                                 text: `<pre>${JSON.stringify(d.result.data, null, 4)}</pre>`,
                                 icon: "info",
@@ -156,7 +156,7 @@ Server.clearAllNewFlags = function () {
 };
 
 Server.dropDatabase = function () {
-    window.Swal.fire({
+    LRR.showPopUp({
         title: "Are you sure?",
         text: "This is a destructive operation! Are you SURE you want to RESET THE DATABASE?",
         icon: "warning",
@@ -179,14 +179,14 @@ Server.dropDatabase = function () {
 Server.cleanDatabase = function () {
     Server.callAPI("/api/database/clean", "POST", null, "Error while cleaning the database! Check Logs.",
         (data) => {
-            window.toast({
+            LRR.toast({
                 heading: `Successfully cleaned the database and removed ${data.deleted} entries!`,
                 icon: "success",
                 hideAfter: 7000,
             });
 
             if (data.unlinked > 0) {
-                window.toast({
+                LRR.toast({
                     heading: `${data.unlinked} other entries have been unlinked from the database and will be deleted on the next cleanup!`,
                     text: "Do a backup now if some files disappeared from your archive index.",
                     icon: "warning",
@@ -214,7 +214,7 @@ Server.regenerateThumbnails = function (force) {
                 (d) => {
                     $("#genthumb-button").prop("disabled", false);
                     $("#forcethumb-button").prop("disabled", false);
-                    window.toast({
+                    LRR.toast({
                         heading: "All thumbnails generated! Encountered the following errors:",
                         text: d.result.errors,
                         icon: "success",
@@ -254,7 +254,7 @@ Server.deleteArchive = function (arcId, callback) {
         .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))
         .then((data) => {
             if (data.success === "0") {
-                window.toast({
+                LRR.toast({
                     heading: "Couldn't delete archive file. <br> (Maybe it has already been deleted beforehand?)",
                     text: "Archive metadata has been deleted properly. <br> Please delete the file manually before returning to Library View.",
                     icon: "warning",
@@ -263,7 +263,7 @@ Server.deleteArchive = function (arcId, callback) {
                 $(".stdbtn").hide();
                 $("#goback").show();
             } else {
-                window.toast({
+                LRR.toast({
                     heading: "Archive successfully deleted. Redirecting you ...",
                     text: `File name : ${data.filename}`,
                     icon: "success",

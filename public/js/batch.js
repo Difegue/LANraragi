@@ -96,7 +96,7 @@ Batch.checkUntagged = function () {
  */
 Batch.startBatchCheck = function () {
     if (Batch.currentOperation === "delete") {
-        window.Swal.fire({
+        LRR.showPopUp({
             title: "Are you sure?",
             text: "This is a destructive operation! Are you sure you want to delete the selected archives?",
             icon: "warning",
@@ -261,7 +261,7 @@ Batch.batchError = function () {
     $("#log-container").append("************\nError! Terminating session.\n");
     Batch.scrollLogs();
 
-    window.toast({
+    LRR.toast({
         heading: "An error occured during batch tagging!",
         text: "Please check application logs.",
         icon: "error",
@@ -281,7 +281,7 @@ Batch.endBatch = function (event) {
     $("#log-container").append(`************\n${event.reason}(code ${event.code})\n`);
     Batch.scrollLogs();
 
-    window.toast({
+    LRR.toast({
         heading: "Batch Operation complete!",
         icon: status,
     });

@@ -21,8 +21,9 @@ Category.initializeAll = function () {
 };
 
 Category.addNewCategory = function (isDynamic) {
-    window.Swal.fire({
+    LRR.showPopUp({
         title: "Enter a name for the new category",
+        icon: "info",
         input: "text",
         inputPlaceholder: "My Category",
         inputAttributes: {
@@ -163,7 +164,7 @@ Category.updateArchiveInCategory = function (id, checked) {
 
 Category.deleteSelectedCategory = function () {
     const categoryID = document.getElementById("category").value;
-    window.Swal.fire({
+    LRR.showPopUp({
         title: "Are you sure?",
         text: "This is a destructive operation! The category will be deleted permanently!",
         icon: "warning",
@@ -193,7 +194,7 @@ Category.indicateSaved = function () {
 };
 
 Category.predicateHelp = function () {
-    window.toast({
+    LRR.toast({
         toastId: "predicateHelp",
         heading: "Writing a Predicate",
         text: "Predicates follow the same syntax as searches in the Archive Index. Check the <a href=\"https://sugoi.gitbook.io/lanraragi/basic-operations/searching\">Documentation</a> for more information.",

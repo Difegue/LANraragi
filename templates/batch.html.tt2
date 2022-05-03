@@ -22,7 +22,6 @@
 	<script>window.React=window.preactCompat;window.react=window.preactCompat;</script>
 	<script src="/js/vendor/clsx.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/react-toastify.umd.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/init_toast.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/sweetalert2.min.js" type="text/JAVASCRIPT"></script>
 
 	<script src="/js/common.js?[% version%]" type="text/JAVASCRIPT"></script>

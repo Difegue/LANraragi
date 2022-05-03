@@ -72,7 +72,7 @@ Edit.focusTagInput = function () {
 };
 
 Edit.showHelp = function () {
-    window.toast({
+    LRR.toast({
         toastId: "pluginHelp",
         heading: "About Plugins",
         text: "You can use plugins to automatically fetch metadata for this archive. <br/> Just select a plugin from the dropdown and hit Go! <br/> Some plugins might provide an optional argument for you to specify. If that's the case, a textbox will be available to input said argument.",
@@ -109,7 +109,7 @@ Edit.saveMetadata = function () {
         .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))
         .then((data) => {
             if (data.success) {
-                window.toast({
+                LRR.toast({
                     heading: "Metadata saved!",
                     icon: "success",
                 });
@@ -124,7 +124,7 @@ Edit.saveMetadata = function () {
 };
 
 Edit.deleteArchive = function () {
-    window.Swal.fire({
+    LRR.showPopUp({
         title: "Are you sure?",
         text: "This is a destructive operation! Are you sure you want to delete this archive?",
         icon: "warning",
@@ -150,7 +150,7 @@ Edit.getTags = function () {
         (result) => {
             if (result.data.title && result.data.title !== "") {
                 $("#title").val(result.data.title);
-                window.toast({
+                LRR.toast({
                     heading: "Archive title changed to :",
                     text: result.data.title,
                     icon: "info",
@@ -162,14 +162,14 @@ Edit.getTags = function () {
                     Edit.tagInput.add_tag(tag);
                 });
 
-                window.toast({
+                LRR.toast({
                     heading: "Added the following tags :",
                     text: result.data.new_tags,
                     icon: "info",
                     hideAfter: 7000,
                 });
             } else {
-                window.toast({
+                LRR.toast({
                     heading: "No new tags added!",
                     text: result.data.new_tags,
                     icon: "info",

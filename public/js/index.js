@@ -86,7 +86,7 @@ Index.initializeAll = function () {
     if (localStorage.getItem("sawContextMenuToast") === null) {
         localStorage.sawContextMenuToast = true;
 
-        window.toast({
+        LRR.toast({
             heading: `Welcome to LANraragi ${Index.serverVersion}!`,
             text: "If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!",
             icon: "info",
@@ -107,7 +107,7 @@ Index.initializeAll = function () {
                 Index.checkVersion();
                 Index.fetchChangelog();
             } else {
-                window.toast({
+                LRR.toast({
                     heading: "<i class=\"fas fa-bug\"></i> You're running in Debug Mode!",
                     text: "Advanced server statistics can be viewed <a href=\"./debug\">here.</a>",
                     icon: "warning",
@@ -220,9 +220,10 @@ Index.toggleCategory = function (button) {
  * @param {*} column Index of the column to modify, either 1 or 2
  */
 Index.promptCustomColumn = function (column) {
-    window.Swal.fire({
+    LRR.showPopUp({
         title: "Enter a tag namespace for this column",
         text: "Enter a full namespace without the colon, e.g \"artist\".\nIf you have multiple tags with the same namespace, only the last one will be shown in the column.",
+        icon: "info",
         input: "text",
         inputValue: localStorage.getItem(`customColumn${column}`),
         inputPlaceholder: "Tag namespace",
@@ -405,7 +406,7 @@ Index.checkVersion = function () {
             });
 
             if (latestVersion > currentVersion) {
-                window.toast({
+                LRR.toast({
                     heading: `A new version of LANraragi (${data.tag_name}) is available !`,
                     text: `<a href="${data.html_url}">Click here to check it out.</a>`,
                     icon: "info",
@@ -500,7 +501,7 @@ Index.handleContextMenu = function (option, id) {
         LRR.openInNewTab(`./edit?id=${id}`);
         break;
     case "delete":
-        window.Swal.fire({
+        LRR.showPopUp({
             title: "Are you sure?",
             text: "This is a destructive operation! Are you sure you want to delete this archive?",
             icon: "warning",
@@ -634,7 +635,7 @@ Index.migrateProgress = function () {
 
     const localProgressKeys = Object.keys(localStorage).filter((x) => x.endsWith("-reader")).map((x) => x.slice(0, -7));
     if (localProgressKeys.length > 0) {
-        window.toast({
+        LRR.toast({
             heading: "Your Reading Progression is now saved on the server!",
             text: "You seem to have some local progression hanging around -- Please wait warmly while we migrate it to the server for you. ☕",
             icon: "info",
@@ -662,7 +663,7 @@ Index.migrateProgress = function () {
                 }));
         });
 
-        Promise.all(promises).then(() => window.toast({
+        Promise.all(promises).then(() => LRR.toast({
             heading: "Reading Progression has been fully migrated! 🎉",
             text: "You'll have to reopen archives in the Reader to see the migrated progression values.",
             icon: "success",
