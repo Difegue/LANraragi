@@ -26,7 +26,7 @@ Server.callAPI = function (endpoint, method, successMessage, errorMessage, succe
                     LRR.toast({
                         heading: successMessage,
                         icon: "success",
-                        hideAfter: 70000,
+                        hideAfter: 7000,
                     });
                 }
 
