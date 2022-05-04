@@ -257,6 +257,10 @@ tr.gtr1 {
   cursor: pointer;
 }
 
+.swal2-actions>.stdbtn {
+  background-color: #34353B;
+}
+
 .stdbtn:hover {
   background-color: #43464E
 }
@@ -612,6 +616,6 @@ div.id4 {
 
 /** Popups **/
 .swal2-popup {
-  background: #4F535B;
+  background: #43464e;
   color: #dddddd;
 }

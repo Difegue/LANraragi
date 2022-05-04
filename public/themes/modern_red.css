@@ -264,6 +264,10 @@ tr.gtr1 {
   padding: 0 4px 1px;
 }
 
+.swal2-actions>.stdbtn {
+  background-color: #E9A53A;
+}
+
 .stdbtn:hover {
   background-color: #BE234B;
 }
@@ -682,8 +686,13 @@ div.id4 a:hover {
 /** Toasts **/
 .Toastify {
   --toastify-font-family: "Roboto", arial, sans-serif;
-  --toastify-text-color-light: #DDDDDD;
-  --toastify-color-light: #414135;
+  --toastify-text-color-light: #414135;
+  --toastify-color-light: #d7d4c5;
+}
+
+.Toastify__toast {
+  box-shadow: 0 5px 15px 0 rgba(0, 0, 0, 0.16), 0 2px 15px 0 rgba(0, 0, 0, 0.12);
+  border-radius: 0;
 }
 
 .Toastify__toast-body a {
@@ -693,5 +702,11 @@ div.id4 a:hover {
 /** Popups **/
 .swal2-popup {
   background: #D7D4C5;
+  border-radius: 0;
   color: #414135;
+}
+
+.swal2-icon.swal2-warning {
+  border-color: #D83B66;
+  color: #BE234B;
 }

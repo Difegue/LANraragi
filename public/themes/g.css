@@ -217,6 +217,14 @@ tr.gtr1 {
     cursor: pointer;
 }
 
+.swal2-actions>.stdbtn {
+    background: none repeat scroll 0 0 #EDEADA;
+    border: 2px outset #5C0D11;
+    color: #5C0D11;
+    border-radius: 0;
+    height: 24px;
+}
+
 .stdbtn:hover {
     background: none repeat scroll 0 0 #F2EFDF;
     border: 2px outset #9B4E03;
@@ -606,6 +614,12 @@ div.id4 {
 .Toastify {
     --toastify-text-color-light: #5c0d11;
     --toastify-color-light: #EDEBDF;
+
+}
+
+.Toastify__toast {
+    box-shadow: 0 0 0 0;
+    border: 1px solid #5C0D12;
 }
 
 .Toastify__toast-body a {
@@ -618,6 +632,7 @@ div.id4 {
 
 /** handle the popup color and the text color based on the theme **/
 .swal2-popup {
+    border: 1px solid #5C0D12;
     background: #EDEBDF;
     color: #5c0d11;
 }

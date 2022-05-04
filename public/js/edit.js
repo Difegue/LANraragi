@@ -125,8 +125,7 @@ Edit.saveMetadata = function () {
 
 Edit.deleteArchive = function () {
     LRR.showPopUp({
-        title: "Are you sure?",
-        text: "This is a destructive operation! Are you sure you want to delete this archive?",
+        text: "Are you sure you want to delete this archive?",
         icon: "warning",
         showCancelButton: true,
         focusConfirm: false,

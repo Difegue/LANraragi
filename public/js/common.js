@@ -285,6 +285,16 @@ LRR.showErrorToast = function (header, error) {
  * @param {*} c Pop-up body
  */
 LRR.showPopUp = function (c) {
+    if (!c.customClass) {
+        c.customClass = {
+            cancelButton: "stdbtn",
+            confirmButton: "stdbtn",
+        };
+    }
+
+    if (c.icon === "warning" && !c.title) {
+        c.title = "This is a destructive operation!";
+    }
     return window.Swal.fire(c);
 };
 

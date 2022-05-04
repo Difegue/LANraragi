@@ -231,6 +231,13 @@ tr.gtr1 {
     cursor: pointer;
 }
 
+.swal2-actions>.stdbtn {
+    background: #34353b;
+    border: 2px solid #000000;
+    border-radius: 0;
+    height: 24px;
+}
+
 .stdbtn:hover {
     color: #f1f1f1;
     background: #43464e;
@@ -606,6 +613,12 @@ div.id4 {
     --toastify-color-light: #4F535B;
 }
 
+.Toastify__toast {
+    box-shadow: 0 0 0 0;
+    border: 1px solid #000000;
+    border-radius: 0;
+}
+
 .Toastify__close-button--light {
     color: #fff;
     opacity: 1;
@@ -619,4 +632,6 @@ div.id4 {
 .swal2-popup {
     background: #43464e;
     color: #dddddd;
+    border-radius: 0;
+    border: 1px solid #000000;
 }

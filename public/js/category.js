@@ -23,7 +23,6 @@ Category.initializeAll = function () {
 Category.addNewCategory = function (isDynamic) {
     LRR.showPopUp({
         title: "Enter a name for the new category",
-        icon: "info",
         input: "text",
         inputPlaceholder: "My Category",
         inputAttributes: {
@@ -33,7 +32,7 @@ Category.addNewCategory = function (isDynamic) {
         reverseButtons: true,
         inputValidator: (value) => {
             if (!value) {
-                return "You need to write something!";
+                return "Please enter a category name.";
             }
             return undefined;
         },
@@ -165,8 +164,7 @@ Category.updateArchiveInCategory = function (id, checked) {
 Category.deleteSelectedCategory = function () {
     const categoryID = document.getElementById("category").value;
     LRR.showPopUp({
-        title: "Are you sure?",
-        text: "This is a destructive operation! The category will be deleted permanently!",
+        text: "The category will be deleted permanently.",
         icon: "warning",
         showCancelButton: true,
         focusConfirm: false,

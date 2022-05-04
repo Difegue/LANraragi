@@ -97,8 +97,7 @@ Batch.checkUntagged = function () {
 Batch.startBatchCheck = function () {
     if (Batch.currentOperation === "delete") {
         LRR.showPopUp({
-            title: "Are you sure?",
-            text: "This is a destructive operation! Are you sure you want to delete the selected archives?",
+            text: "Are you sure you want to delete the selected archives?",
             icon: "warning",
             showCancelButton: true,
             focusConfirm: false,

@@ -26,7 +26,7 @@ Server.callAPI = function (endpoint, method, successMessage, errorMessage, succe
                     LRR.toast({
                         heading: successMessage,
                         icon: "success",
-                        hideAfter: 70000,
+                        hideAfter: 7000,
                     });
                 }
 
@@ -157,8 +157,8 @@ Server.clearAllNewFlags = function () {
 
 Server.dropDatabase = function () {
     LRR.showPopUp({
-        title: "Are you sure?",
-        text: "This is a destructive operation! Are you SURE you want to RESET THE DATABASE?",
+        title: "This is a (very) destructive operation! ",
+        text: "Are you sure you want to wipe the database?",
         icon: "warning",
         showCancelButton: true,
         focusConfirm: false,

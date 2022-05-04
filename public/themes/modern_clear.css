@@ -307,7 +307,8 @@ tr.gtr1 {
 
 .id1>*>.stdbtn,
 .id1>.stdbtn,
-.collapsible-body .stdbtn {
+.collapsible-body .stdbtn,
+.swal2-actions>.stdbtn {
     background-color: #e1e7e9;
     color: #34495e;
 }

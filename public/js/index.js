@@ -223,7 +223,6 @@ Index.promptCustomColumn = function (column) {
     LRR.showPopUp({
         title: "Enter a tag namespace for this column",
         text: "Enter a full namespace without the colon, e.g \"artist\".\nIf you have multiple tags with the same namespace, only the last one will be shown in the column.",
-        icon: "info",
         input: "text",
         inputValue: localStorage.getItem(`customColumn${column}`),
         inputPlaceholder: "Tag namespace",
@@ -234,7 +233,7 @@ Index.promptCustomColumn = function (column) {
         reverseButtons: true,
         inputValidator: (value) => {
             if (!value) {
-                return "You need to write something!";
+                return "Please enter a namespace.";
             }
             return undefined;
         },
@@ -502,8 +501,7 @@ Index.handleContextMenu = function (option, id) {
         break;
     case "delete":
         LRR.showPopUp({
-            title: "Are you sure?",
-            text: "This is a destructive operation! Are you sure you want to delete this archive?",
+            text: "Are you sure you want to delete this archive?",
             icon: "warning",
             showCancelButton: true,
             focusConfirm: false,

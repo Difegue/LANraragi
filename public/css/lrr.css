@@ -528,7 +528,15 @@ li {
   padding: 4px 4px 0 0;
 }
 
-body.swal2-shown > [aria-hidden="true"] {
+.swal2-popup {
+  font-size: 9pt !important;
+}
+
+.swal2-styled.swal2-cancel {
+  margin-right: 8px;
+}
+
+body.swal2-shown>[aria-hidden="true"] {
   transition: 0.1s filter;
   filter: opacity(0.8);
 }
