@@ -9,7 +9,6 @@ Reader.force = false;
 Reader.previousPage = -1;
 Reader.currentPage = -1;
 Reader.showingSinglePage = true;
-Reader.isFullscreen = false;
 Reader.preloadedImg = {};
 Reader.preloadedSizes = {};
 
@@ -36,7 +35,7 @@ Reader.initializeAll = function () {
     $(document).on("click.pagination-change-pages", ".page-link", Reader.handlePaginator);
 
     $(document).on("click.close-overlay", "#overlay-shade", LRR.closeOverlay);
-    $(document).on("click.toggl-_full-screen", "#toggle-full-screen", Reader.toggleFullScreen);
+    $(document).on("click.toggle-full-screen", "#toggle-full-screen", () => Reader.handleFullScreen(true));
     $(document).on("click.toggle-archive-overlay", "#toggle-archive-overlay", Reader.toggleArchiveOverlay);
     $(document).on("click.toggle-settings-overlay", "#toggle-settings-overlay", Reader.toggleSettingsOverlay);
     $(document).on("click.toggle-help", "#toggle-help", Reader.toggleHelp);
@@ -57,6 +56,81 @@ Reader.initializeAll = function () {
             Reader.goToPage(pageNumber);
         }
     });
+
+    // Apply full-screen utility
+    // Taken from Fscreen - Fullscreen API, https://github.com/rafgraph/fscreen
+    const fscreenKey = {
+        fullscreenEnabled: 0,
+        fullscreenElement: 1,
+        requestFullscreen: 2,
+        exitFullscreen: 3,
+        fullscreenchange: 4,
+        fullscreenerror: 5,
+        fullscreen: 6,
+    };
+    const fscreenWebkit = [
+        "webkitFullscreenEnabled",
+        "webkitFullscreenElement",
+        "webkitRequestFullscreen",
+        "webkitExitFullscreen",
+        "webkitfullscreenchange",
+        "webkitfullscreenerror",
+        "-webkit-full-screen",
+    ];
+    const fscreenMoz = [
+        "mozFullScreenEnabled",
+        "mozFullScreenElement",
+        "mozRequestFullScreen",
+        "mozCancelFullScreen",
+        "mozfullscreenchange",
+        "mozfullscreenerror",
+        "-moz-full-screen",
+    ];
+    const fscreenMs = [
+        "msFullscreenEnabled",
+        "msFullscreenElement",
+        "msRequestFullscreen",
+        "msExitFullscreen",
+        "MSFullscreenChange",
+        "MSFullscreenError",
+        "-ms-fullscreen",
+    ];
+    const vendor = (("fullscreenEnabled" in document && Object.keys(fscreenKey))
+        || (fscreenWebkit[0] in document && fscreenWebkit)
+        || (fscreenMoz[0] in document && fscreenMoz)
+        || (fscreenMs[0] in document && fscreenMs)
+        || []);
+    window.fscreen = {
+        requestFullscreen(element) { return element[vendor[fscreenKey.requestFullscreen]](); },
+        requestFullscreenFunction(element) {
+            return element[vendor[fscreenKey.requestFullscreen]];
+        },
+        get exitFullscreen() { return document[vendor[fscreenKey.exitFullscreen]].bind(document); },
+        get fullscreenPseudoClass() { return `:${vendor[fscreenKey.fullscreen]}`; },
+        addEventListener(type, handler, options) {
+            return document.addEventListener(vendor[fscreenKey[type]], handler, options);
+        },
+        removeEventListener(type, handler, options) {
+            return document.removeEventListener(vendor[fscreenKey[type]], handler, options);
+        },
+        get fullscreenEnabled() { return Boolean(document[vendor[fscreenKey.fullscreenEnabled]]); },
+        get fullscreenElement() { return document[vendor[fscreenKey.fullscreenElement]]; },
+        get onfullscreenchange() { return document[(`on${vendor[fscreenKey.fullscreenchange]}`).toLowerCase()]; },
+        set onfullscreenchange(handler) {
+            document[(`on${vendor[fscreenKey.fullscreenchange]}`).toLowerCase()] = handler;
+        },
+        get onfullscreenerror() { return document[(`on${vendor[fscreenKey.fullscreenerror]}`).toLowerCase()]; },
+        set onfullscreenerror(handler) {
+            document[(`on${vendor[fscreenKey.fullscreenerror]}`).toLowerCase()] = handler;
+        },
+        inFullscreen: () => !!window.fscreen.fullscreenElement, // always return boolean
+    };
+
+    // F11 Fullscreen is totally another "Fullscreen", so its support is beyong consideration.
+    if (!window.fscreen.fullscreenEnabled) {
+        // Fullscreen mode is unsupported
+        $("#toggle-full-screen").hide();
+    }
 
     // Infer initial information from the URL
     const params = new URLSearchParams(window.location.search);
@@ -214,6 +288,7 @@ Reader.initInfiniteScrollView = function () {
     Reader.pages.slice(1).forEach((source) => {
         const img = new Image();
         img.src = source;
+        img.loading = "lazy";
         $(img).addClass("reader-image");
         $("#display").append(img);
     });
@@ -280,7 +355,7 @@ Reader.handleShortcuts = function (e) {
 };
 
 Reader.handleWheel = function (e) {
-    if (Reader.isFullscreen && !Reader.infiniteScroll) {
+    if (window.fscreen.inFullscreen() && !Reader.infiniteScroll) {
         let changePage = 1;
         if (e.originalEvent.deltaY > 0) changePage = -1;
         // In Manga mode, reverse the changePage variable
@@ -583,46 +658,29 @@ Reader.toggleArchiveOverlay = function () {
 };
 
 Reader.toggleFullScreen = function () {
-    // if already full screen; exit
-    // else go fullscreen
-    if (
-        document.fullscreenElement
-        || document.webkitFullscreenElement
-        || document.mozFullScreenElement
-        || document.msFullscreenElement
-    ) {
-        if ($("body").hasClass("infinite-scroll")) {
-            $("div#i3").removeClass("fullscreen-infinite");
-        } else {
-            $("div#i3").removeClass("fullscreen");
-        }
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        } else if (document.mozCancelFullScreen) {
-            document.mozCancelFullScreen();
-        } else if (document.webkitExitFullscreen) {
-            document.webkitExitFullscreen();
-        } else if (document.msExitFullscreen) {
-            document.msExitFullscreen();
-        }
-        Reader.isFullscreen = false;
+    if (window.fscreen.inFullscreen()) {
+        // if already full screen; exit
+        window.fscreen.exitFullscreen();
+        Reader.handleFullScreen();
     } else {
+        // else go fullscreen
+        Reader.handleFullScreen(true);
+    }
+};
+
+Reader.handleFullScreen = function (enableFullscreen = false) {
+    if (window.fscreen.inFullscreen() || enableFullscreen === true) {
         if ($("body").hasClass("infinite-scroll")) {
             $("div#i3").addClass("fullscreen-infinite");
         } else {
             $("div#i3").addClass("fullscreen");
         }
-        const element = $("div#i3").get(0);
-        if (element.requestFullscreen) {
-            element.requestFullscreen();
-        } else if (element.mozRequestFullScreen) {
-            element.mozRequestFullScreen();
-        } else if (element.webkitRequestFullscreen) {
-            element.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
-        } else if (element.msRequestFullscreen) {
-            element.msRequestFullscreen();
-        }
-        Reader.isFullscreen = true;
+        // ensure in every case, the correct fullscreen element is binded.
+        window.fscreen.requestFullscreen($("div#i3").get(0));
+    } else if ($("body").hasClass("infinite-scroll")) {
+        $("div#i3").removeClass("fullscreen-infinite");
+    } else {
+        $("div#i3").removeClass("fullscreen");
     }
 };
 
