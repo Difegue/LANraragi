@@ -288,6 +288,7 @@ Reader.initInfiniteScrollView = function () {
     Reader.pages.slice(1).forEach((source) => {
         const img = new Image();
         img.src = source;
+        img.loading = "lazy";
         $(img).addClass("reader-image");
         $("#display").append(img);
     });
