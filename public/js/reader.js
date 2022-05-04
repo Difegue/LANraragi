@@ -36,7 +36,7 @@ Reader.initializeAll = function () {
     $(document).on("click.pagination-change-pages", ".page-link", Reader.handlePaginator);
 
     $(document).on("click.close-overlay", "#overlay-shade", LRR.closeOverlay);
-    $(document).on("click.toggl-_full-screen", "#toggle-full-screen", Reader.toggleFullScreen);
+    $(document).on("click.toggle-full-screen", "#toggle-full-screen", Reader.toggleFullScreen);
     $(document).on("click.toggle-archive-overlay", "#toggle-archive-overlay", Reader.toggleArchiveOverlay);
     $(document).on("click.toggle-settings-overlay", "#toggle-settings-overlay", Reader.toggleSettingsOverlay);
     $(document).on("click.toggle-help", "#toggle-help", Reader.toggleHelp);
