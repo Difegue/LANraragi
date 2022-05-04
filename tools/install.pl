@@ -31,6 +31,7 @@ my @vendor_js = (
     "/swiper/swiper-bundle.min.js",                       "/preact/dist/preact.umd.js",
     "/clsx/dist/clsx.min.js",                             "/preact/compat/dist/compat.umd.js",
     "/preact/hooks/dist/hooks.umd.js",                    "/sweetalert2/dist/sweetalert2.min.js",
+    "/fscreen/dist/fscreen.esm.js"
 );
 
 my @vendor_woff = (
@@ -203,14 +204,14 @@ sub cp_node_module {
 
     my $nodename = getcwd . "/node_modules" . $item;
     $item =~ /([^\/]+$)/;
-    my $newname = getcwd . $newpath . $&;
+    my $newname     = getcwd . $newpath . $&;
     my $nodemapname = $nodename . ".map";
-    my $newmapname = $newname . ".map";
+    my $newmapname  = $newname . ".map";
 
     say("\r\nCopying $nodename \r\n to $newname");
     copy( $nodename, $newname ) or die "The copy operation failed: $!";
 
-    my $mapresult = copy( $nodemapname, $newmapname ) and say("Copied sourcemap file.\r\n");;
+    my $mapresult = copy( $nodemapname, $newmapname ) and say("Copied sourcemap file.\r\n");
 
 }
 

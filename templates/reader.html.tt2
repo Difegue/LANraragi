@@ -12,22 +12,24 @@
 
     <link rel="stylesheet" type="text/css" href="./css/vendor/fontawesome-all.min.css" />
     <link rel="stylesheet" type="text/css" href="/css/vendor/ReactToastify.min.css" />
-	<link rel="stylesheet" type="text/css" href="/css/vendor/sweetalert2.min.css" />
+    <link rel="stylesheet" type="text/css" href="/css/vendor/sweetalert2.min.css" />
     [% csshead %]
 
     <script src="./js/vendor/jquery.min.js" type="text/javascript"></script>
-	<script src="/js/vendor/preact.umd.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/hooks.umd.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/compat.umd.js" type="text/JAVASCRIPT"></script>
-	<script>window.React=window.preactCompat;window.react=window.preactCompat;</script>
-	<script src="/js/vendor/clsx.min.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/react-toastify.umd.js" type="text/JAVASCRIPT"></script>
+    <script src="/js/vendor/preact.umd.js" type="text/JAVASCRIPT"></script>
+    <script src="/js/vendor/hooks.umd.js" type="text/JAVASCRIPT"></script>
+    <script src="/js/vendor/compat.umd.js" type="text/JAVASCRIPT"></script>
+    <script>window.React = window.preactCompat; window.react = window.preactCompat;</script>
+    <script src="/js/vendor/clsx.min.js" type="text/JAVASCRIPT"></script>
+    <script src="/js/vendor/react-toastify.umd.js" type="text/JAVASCRIPT"></script>
     <script src="/js/vendor/sweetalert2.min.js" type="text/JAVASCRIPT"></script>
 
     <script src="./js/common.js?[% version %]" type="text/javascript"></script>
     <script src="./js/server.js?[% version %]" type="text/javascript"></script>
     <script src="./js/reader.js?[% version %]" type="text/javascript"></script>
 
+    <script
+        type="module">window.fscreen = (await import('./js/vendor/fscreen.esm.js')).default; Reader.initializeAll();</script>
 </head>
 
 <body>

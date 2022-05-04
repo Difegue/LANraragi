@@ -58,78 +58,13 @@ Reader.initializeAll = function () {
     });
 
     // Apply full-screen utility
-    // Taken from Fscreen - Fullscreen API, https://github.com/rafgraph/fscreen
-    const fscreenKey = {
-        fullscreenEnabled: 0,
-        fullscreenElement: 1,
-        requestFullscreen: 2,
-        exitFullscreen: 3,
-        fullscreenchange: 4,
-        fullscreenerror: 5,
-        fullscreen: 6,
-    };
-    const fscreenWebkit = [
-        "webkitFullscreenEnabled",
-        "webkitFullscreenElement",
-        "webkitRequestFullscreen",
-        "webkitExitFullscreen",
-        "webkitfullscreenchange",
-        "webkitfullscreenerror",
-        "-webkit-full-screen",
-    ];
-    const fscreenMoz = [
-        "mozFullScreenEnabled",
-        "mozFullScreenElement",
-        "mozRequestFullScreen",
-        "mozCancelFullScreen",
-        "mozfullscreenchange",
-        "mozfullscreenerror",
-        "-moz-full-screen",
-    ];
-    const fscreenMs = [
-        "msFullscreenEnabled",
-        "msFullscreenElement",
-        "msRequestFullscreen",
-        "msExitFullscreen",
-        "MSFullscreenChange",
-        "MSFullscreenError",
-        "-ms-fullscreen",
-    ];
-    const vendor = (("fullscreenEnabled" in document && Object.keys(fscreenKey))
-        || (fscreenWebkit[0] in document && fscreenWebkit)
-        || (fscreenMoz[0] in document && fscreenMoz)
-        || (fscreenMs[0] in document && fscreenMs)
-        || []);
-    window.fscreen = {
-        requestFullscreen(element) { return element[vendor[fscreenKey.requestFullscreen]](); },
-        requestFullscreenFunction(element) {
-            return element[vendor[fscreenKey.requestFullscreen]];
-        },
-        get exitFullscreen() { return document[vendor[fscreenKey.exitFullscreen]].bind(document); },
-        get fullscreenPseudoClass() { return `:${vendor[fscreenKey.fullscreen]}`; },
-        addEventListener(type, handler, options) {
-            return document.addEventListener(vendor[fscreenKey[type]], handler, options);
-        },
-        removeEventListener(type, handler, options) {
-            return document.removeEventListener(vendor[fscreenKey[type]], handler, options);
-        },
-        get fullscreenEnabled() { return Boolean(document[vendor[fscreenKey.fullscreenEnabled]]); },
-        get fullscreenElement() { return document[vendor[fscreenKey.fullscreenElement]]; },
-        get onfullscreenchange() { return document[(`on${vendor[fscreenKey.fullscreenchange]}`).toLowerCase()]; },
-        set onfullscreenchange(handler) {
-            document[(`on${vendor[fscreenKey.fullscreenchange]}`).toLowerCase()] = handler;
-        },
-        get onfullscreenerror() { return document[(`on${vendor[fscreenKey.fullscreenerror]}`).toLowerCase()]; },
-        set onfullscreenerror(handler) {
-            document[(`on${vendor[fscreenKey.fullscreenerror]}`).toLowerCase()] = handler;
-        },
-        inFullscreen: () => !!window.fscreen.fullscreenElement, // always return boolean
-    };
-
     // F11 Fullscreen is totally another "Fullscreen", so its support is beyong consideration.
     if (!window.fscreen.fullscreenEnabled) {
         // Fullscreen mode is unsupported
         $("#toggle-full-screen").hide();
+    } else {
+        // Small override function, always returns boolean
+        window.fscreen.inFullscreen = () => !!window.fscreen.fullscreenElement;
     }
 
     // Infer initial information from the URL
@@ -786,7 +721,3 @@ Reader.handlePaginator = function () {
         break;
     }
 };
-
-jQuery(() => {
-    Reader.initializeAll();
-});

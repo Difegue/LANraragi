@@ -31,6 +31,7 @@
         "blueimp-file-upload": "^10.32.0",
         "clsx": "^1.1.1",
         "datatables.net": "^1.11.5",
+        "fscreen": "^1.2.0",
         "inter-ui": "^3.19.3",
         "jqcloud2": "^2.0.3",
         "jquery": "^3.6.0",
