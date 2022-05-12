@@ -12,6 +12,9 @@ requires 'Digest::SHA',                  6.02;
 # Not required by LRR itself but needs this version for Alpine support
 requires 'Crypt::Rijndael', 1.14;
 
+# Specifically use native DNS resolver to fix issues on WSL1+Alpine
+requires 'Net::DNS::Native', 0.22;
+
 # Web UI
 requires 'Sort::Naturally',     1.03;
 requires 'Authen::Passphrase',  0.008;
