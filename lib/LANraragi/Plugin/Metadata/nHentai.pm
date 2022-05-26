@@ -21,8 +21,9 @@ sub plugin_info {
         name        => "nHentai",
         type        => "metadata",
         namespace   => "nhplugin",
-        author      => "Difegue",
-        version     => "1.7.1",
+        login_from  => "nhentaicfbypass",
+        author      => "Difegue and others",
+        version     => "1.7.2",
         description => "Searches nHentai for tags matching your archive. 
           <br>Supports reading the ID from files formatted as \"{Id} Title\" and if not, tries to search for a matching gallery.
           <br><i class='fa fa-exclamation-circle'></i> This plugin will use the source: tag of the archive if it exists.",
@@ -40,7 +41,8 @@ sub get_tags {
     shift;
     my $lrr_info = shift;    # Global info hash
     my ($savetitle) = @_;    # Plugin parameters
-
+    my $ua = $lrr_info->{user_agent};    # UserAgent from login plugin
+    
     my $logger = get_plugin_logger();
 
     # Work your magic here - You can create subs below to organize the code better
@@ -58,7 +60,7 @@ sub get_tags {
     } else {
 
         #Get Gallery ID by hand if the user didn't specify a URL
-        $galleryID = get_gallery_id_from_title( $lrr_info->{archive_title} );
+        $galleryID = get_gallery_id_from_title( $lrr_info->{archive_title}, $ua );
     }
 
     # Did we detect a nHentai gallery?
@@ -76,7 +78,7 @@ sub get_tags {
         return ( error => "No matching nHentai Gallery Found!" );
     }
 
-    my %hashdata = get_tags_from_NH( $galleryID, $savetitle );
+    my %hashdata = get_tags_from_NH( $galleryID, $savetitle, $ua );
 
     $logger->info( "Sending the following tags to LRR: " . $hashdata{tags} );
 
@@ -91,7 +93,7 @@ sub get_tags {
 #Uses the website's search to find a gallery and returns its content.
 sub get_gallery_dom_by_title {
 
-    my ($title) = @_;
+    my ($title, $ua) = @_;
 
     my $logger = get_plugin_logger();
 
@@ -101,7 +103,6 @@ sub get_gallery_dom_by_title {
     my $URL = "https://nhentai.net/search/?q=" . uri_escape_utf8($title);
 
     $logger->debug("Using URL $URL to search on nH.");
-    my $ua = Mojo::UserAgent->new;
 
     my $res = $ua->get($URL)->result;
     $logger->debug( "Got response " . $res->body );
@@ -115,7 +116,7 @@ sub get_gallery_dom_by_title {
 
 sub get_gallery_id_from_title {
 
-    my ($title) = @_;
+    my ($title, $ua) = @_;
 
     my $logger = get_plugin_logger();
 
@@ -124,7 +125,7 @@ sub get_gallery_id_from_title {
         return $1;
     }
 
-    my $dom = get_gallery_dom_by_title($title);
+    my $dom = get_gallery_dom_by_title($title, $ua);
 
     if ($dom) {
 
@@ -146,10 +147,9 @@ sub get_gallery_id_from_title {
 # retrieves html page from NH
 sub get_html_from_NH {
 
-    my ($gID) = @_;
-
+    my ($gID, $ua) = @_;
+    
     my $URL = "https://nhentai.net/g/$gID/";
-    my $ua  = Mojo::UserAgent->new;
 
     my $res = $ua->get($URL)->result;
 
@@ -213,11 +213,11 @@ sub get_title_from_json {
 
 sub get_tags_from_NH {
 
-    my ( $gID, $savetitle ) = @_;
+    my ( $gID, $savetitle, $ua ) = @_;
 
     my %hashdata = ( tags => "" );
 
-    my $html = get_html_from_NH($gID);
+    my $html = get_html_from_NH($gID, $ua);
     my $json = get_json_from_html($html);
 
     if ($json) {
