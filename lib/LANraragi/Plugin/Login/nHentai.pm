@@ -20,9 +20,9 @@ sub plugin_info {
         description =>
           "Bypasses the Cloudflare Javascript-challenge by re-using cookies from your browser. Both CF cookies and the user-agent must originate from the same webbrowser.",
         parameters => [
-            { type => "string", desc => "user-agent" },
-			{ type => "string", desc => "csrftoken cookie of domain nhentai.net" },
-			{ type => "string", desc => "cf_clearance cookie of domain .nhentai.net" }
+              { type => "string", desc => "Browser UserAgent string (Can be found at http://useragentstring.com/ for your browser)" },
+			{ type => "string", desc => "csrftoken cookie for domain nhentai.net" },
+			{ type => "string", desc => "cf_clearance cookie for domain nhentai.net" }
         ]
     );
 
