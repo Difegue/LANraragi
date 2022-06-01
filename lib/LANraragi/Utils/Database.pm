@@ -50,6 +50,31 @@ sub add_archive_to_redis {
     return $name;
 }
 
+#change_archive_id($old_id,$new_id,$redis)
+# Updates the DB entry for the given ID to reflect the new ID.
+# This is used in case the file changes substantially and its hash becomes different.
+sub change_archive_id {
+    my ( $old_id, $new_id, $redis ) = @_;
+    my $logger = get_logger( "Archive", "lanraragi" );
+
+    $logger->debug("Changing ID $old_id to $new_id");
+    $redis->rename( $old_id, $new_id );
+
+    # We also need to update categories that contain the ID.
+    # TODO: When meta-archives are implemented, this will need to be updated.
+    # It might also be a good idea to move this to Shinobu so that IDs are updated as soon as the discrepancy is detected,
+    # and not just when we run a DB cleanup.
+    $logger->warn("Updating categories that contained $old_id to $new_id.");
+    my @categories = LANraragi::Model::Category::get_categories_containing_archive($old_id);
+
+    foreach my $cat (@categories) {
+        my $catid = %{$cat}{"id"};
+        $logger->warn("Updating category $catid");
+        LANraragi::Model::Category->remove_from_category( $catid, $old_id );
+        LANraragi::Model::Category->add_to_category( $catid, $new_id );
+    }
+}
+
 # add_timestamp_tag(redis, id)
 # Adds a timestamp tag to the given ID.
 sub add_timestamp_tag {
@@ -263,20 +288,12 @@ sub clean_database {
             if ( $redis->hexists( "LRR_FILEMAP", $file ) ) {
                 my $newid = $redis->hget( "LRR_FILEMAP", $file );
                 $logger->warn("Found $newid in the filemap! Changing ID from $id to it.");
-                $redis->rename( $id, $newid );
 
-              # We also need to update categories that contain the ID.
-              # TODO: When meta-archives are implemented, this will need to be updated.
-              # It might also be a good idea to move this to Shinobu so that IDs are updated as soon as the discrepancy is detected,
-              # and not just when we run a DB cleanup.
-                $logger->warn("Updating categories that contained $id to $newid.");
-                my @categories = LANraragi::Model::Category::get_categories_containing_archive($id);
-
-                foreach my $cat (@categories) {
-                    my $catid = %{$cat}{"id"};
-                    $logger->warn("Updating category $catid");
-                    LANraragi::Model::Category->remove_from_category( $catid, $id );
-                    LANraragi::Model::Category->add_to_category( $catid, $newid );
+                if ( $redis->exists($newid) ) {
+                    $logger->warn("ID $newid already exists in the database! Unlinking old ID.");
+                    $redis->hset( $id, "file", "" );
+                } else {
+                    change_archive_id( $id, $newid, $redis );
                 }
 
             } else {
