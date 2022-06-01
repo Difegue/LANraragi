@@ -216,6 +216,7 @@ sub clean_database {
     eval {
         # Save an autobackup somewhere before cleaning
         my $outfile = getcwd() . "/autobackup.json";
+        $logger->info("Saving automatic backup to $outfile");
         open( my $fh, '>', $outfile );
         print $fh LANraragi::Model::Backup::build_backup_JSON();
         close $fh;
@@ -254,10 +255,36 @@ sub clean_database {
             next;
         }
 
+        # If the linked file exists, check if its ID is in the filemap
         unless ( $file eq "" || exists $filemap{$id} ) {
-            $logger->warn("File exists but its ID is no longer $id -- Removing file reference in its database entry.");
-            $redis->hset( $id, "file", "" );
-            $unlinked_arcs++;
+            $logger->warn("File exists but its ID is no longer $id!");
+            $logger->warn("Trying to find its new ID in the Shinobu filemap...");
+
+            if ( $redis->hexists( "LRR_FILEMAP", $file ) ) {
+                my $newid = $redis->hget( "LRR_FILEMAP", $file );
+                $logger->warn("Found $newid in the filemap! Changing ID from $id to it.");
+                $redis->rename( $id, $newid );
+
+              # We also need to update categories that contain the ID.
+              # TODO: When meta-archives are implemented, this will need to be updated.
+              # It might also be a good idea to move this to Shinobu so that IDs are updated as soon as the discrepancy is detected,
+              # and not just when we run a DB cleanup.
+                $logger->warn("Updating categories that contained $id to $newid.");
+                my @categories = LANraragi::Model::Category::get_categories_containing_archive($id);
+
+                foreach my $cat (@categories) {
+                    my $catid = %{$cat}{"id"};
+                    $logger->warn("Updating category $catid");
+                    LANraragi::Model::Category->remove_from_category( $catid, $id );
+                    LANraragi::Model::Category->add_to_category( $catid, $newid );
+                }
+
+            } else {
+                $logger->warn("File $file not found in the filemap! Removing file reference in the database entry for $id.");
+                $redis->hset( $id, "file", "" );
+                $unlinked_arcs++;
+            }
+
         }
     }
 
