@@ -157,10 +157,10 @@ sub use_plugin {
     } else {
         %pluginfo = $plugin->plugin_info();
 
-        #Get the plugin settings in Redis
+        # Get the plugin settings in Redis
         my @settings = get_plugin_parameters($plugname);
 
-        #Execute the plugin, appending the custom args at the end
+        # Execute the plugin, appending the custom args at the end
         if ( $pluginfo{type} eq "script" ) {
             eval { %plugin_result = LANraragi::Model::Plugins::exec_script_plugin( $plugin, $input, @settings ); };
         }
@@ -171,6 +171,11 @@ sub use_plugin {
 
         if ($@) {
             $plugin_result{error} = $@;
+        }
+
+        # Decode the error value if there's one to avoid garbled characters
+        if ( exists $plugin_result{error} ) {
+            $plugin_result{error} = redis_decode( $plugin_result{error} );
         }
     }
 
