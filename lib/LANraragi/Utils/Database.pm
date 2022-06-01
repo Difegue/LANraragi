@@ -58,7 +58,10 @@ sub change_archive_id {
     my $logger = get_logger( "Archive", "lanraragi" );
 
     $logger->debug("Changing ID $old_id to $new_id");
-    $redis->rename( $old_id, $new_id );
+
+    if ( $redis->exists($old_id) ) {
+        $redis->rename( $old_id, $new_id );
+    }
 
     # We also need to update categories that contain the ID.
     # TODO: When meta-archives are implemented, this will need to be updated.
@@ -70,8 +73,8 @@ sub change_archive_id {
     foreach my $cat (@categories) {
         my $catid = %{$cat}{"id"};
         $logger->warn("Updating category $catid");
-        LANraragi::Model::Category->remove_from_category( $catid, $old_id );
-        LANraragi::Model::Category->add_to_category( $catid, $new_id );
+        LANraragi::Model::Category::remove_from_category( $catid, $old_id );
+        LANraragi::Model::Category::add_to_category( $catid, $new_id );
     }
 }
 
