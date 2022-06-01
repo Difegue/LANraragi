@@ -303,8 +303,9 @@ sub deleted_file_callback {
 
 sub add_new_file {
 
-    my ( $id, $file, $redis ) = @_;
-    $logger->info("Adding new file $file with ID $id");
+    my ( $id, $file, $redis,$outputname ) = @_;
+	$outputname = decode("utf8", $file);
+    $logger->info("Adding new file $outputname with ID $id");
 
     eval {
         LANraragi::Utils::Database::add_archive_to_redis( $id, $file, $redis );
