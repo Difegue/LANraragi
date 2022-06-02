@@ -303,7 +303,7 @@ sub deleted_file_callback {
 
 sub add_new_file {
 
-    my ( $id, $file, $redis,$outputname ) = @_;
+    my ( $id, $file, $redis) = @_;
 	my $outputname = redis_decode($file);
     $logger->info("Adding new file $outputname with ID $id");
 
