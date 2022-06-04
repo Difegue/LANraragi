@@ -65,9 +65,7 @@ sub change_archive_id {
 
     # We also need to update categories that contain the ID.
     # TODO: When meta-archives are implemented, this will need to be updated.
-    # It might also be a good idea to move this to Shinobu so that IDs are updated as soon as the discrepancy is detected,
-    # and not just when we run a DB cleanup.
-    $logger->warn("Updating categories that contained $old_id to $new_id.");
+    $logger->debug("Updating categories that contained $old_id to $new_id.");
     my @categories = LANraragi::Model::Category::get_categories_containing_archive($old_id);
 
     foreach my $cat (@categories) {

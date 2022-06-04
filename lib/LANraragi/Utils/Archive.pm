@@ -233,10 +233,12 @@ sub get_filelist {
 
     }
 
-    # TODO: @images = nsort(@images); would theorically be better, but Sort::Naturally's nsort puts letters before numbers,
-    # which isn't what we want at all for pages in an archive.
-    # To investigate further, perhaps with custom sorting algorithms?
     @files = sort { &expand($a) cmp &expand($b) } @files;
+
+    # Move any pages containing "credit" to the end of the array.
+    my @credit_pages     = grep { /credit/i } @files;
+    my @non_credit_pages = grep { !/credit/i } @files;
+    @files = ( @non_credit_pages, @credit_pages );
 
     # Return files and sizes in a hashref
     return ( \@files, \@sizes );
