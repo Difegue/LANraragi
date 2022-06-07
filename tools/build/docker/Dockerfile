@@ -22,14 +22,16 @@ HEALTHCHECK --interval=1m --timeout=10s --retries=3 \
 #Default mojo server port
 EXPOSE 3000
 
-#Enable UTF-8 (might not do anything extra on alpine tho)
+# Enable UTF-8 (might not do anything extra on alpine tho)
 ENV LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 LANGUAGE=en_US.UTF-8 \
-    #rootless user id
+    # rootless user id
     LRR_UID=9001 LRR_GID=9001 \
-    #Environment variables overridable by the user on container deployment
+    # Environment variables overridable by the user on container deployment
     LRR_NETWORK=http://*:3000 \
     # extra variables
-    EV_EXTRA_DEFS=-DEV_NO_ATFORK
+    EV_EXTRA_DEFS=-DEV_NO_ATFORK \
+    # Enable automatic http proxy detection for mojo
+    MOJO_PROXY=1
 
 RUN \
   if [ $(getent group ${LRR_GID}) ]; then \
