@@ -2,7 +2,7 @@ package LANraragi::Controller::Config;
 use Mojo::Base 'Mojolicious::Controller';
 
 use LANraragi::Utils::Generic qw(generate_themes_header remove_spaces remove_newlines);
-use LANraragi::Utils::Database qw(redis_encode redis_decode save_computed_tagrules);
+use LANraragi::Utils::Database qw(redis_encode save_computed_tagrules);
 use LANraragi::Utils::TempFolder qw(get_tempsize);
 use LANraragi::Utils::Tags qw(tags_rules_to_array replace_CRLF restore_CRLF);
 use Mojo::JSON qw(encode_json);

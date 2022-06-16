@@ -5,7 +5,6 @@ use Mojo::URL;
 use Encode;
 
 use LANraragi::Utils::Generic qw(generate_themes_header);
-use LANraragi::Utils::Database qw(redis_decode);
 
 use LANraragi::Model::Reader;
 
@@ -24,7 +23,7 @@ sub index {
         # Get query string from referrer URL, if there's one
         my $referrer = $self->req->headers->referrer;
         my $query    = "";
-        
+
         if ($referrer) {
             $query = Mojo::URL->new($referrer)->query->to_string;
         }
