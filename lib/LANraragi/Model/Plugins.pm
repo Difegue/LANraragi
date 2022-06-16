@@ -226,6 +226,7 @@ sub exec_metadata_plugin {
 
         # Bundle all the potentially interesting info in a hash
         my %infohash = (
+            archive_id     => $id,
             archive_title  => $title,
             existing_tags  => $tags,
             thumbnail_hash => $thumbhash,
