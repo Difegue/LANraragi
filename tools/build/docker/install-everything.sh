@@ -4,8 +4,18 @@
 apk update
 apk add perl perl-io-socket-ssl perl-dev redis libarchive-dev libbz2 openssl-dev zlib-dev
 apk add imagemagick imagemagick-perlmagick libwebp-tools libheif
-apk add g++ make pkgconf gnupg wget curl nodejs npm file
-apk add shadow s6 s6-portable-utils s6-overlay s6-overlay-preinit
+apk add g++ make pkgconf gnupg wget curl  file
+apk add shadow s6 s6-portable-utils 
+
+# Check for alpine version
+if [ -f /etc/alpine-release ]; then
+  alpine_version=$(cat /etc/alpine-release)
+  if [ "$alpine_version" = "3.12.12" ]; then
+      apk add nodejs-npm
+    else # Those packages don't exist on 3.12
+      apk add nodejs npm s6-overlay s6-overlay-preinit
+  fi
+fi
 
 #Hey it's cpanm
 curl -L https://cpanmin.us | perl - App::cpanminus
