@@ -3,6 +3,7 @@ on:
     branches:
     - dev
     - test-builds
+    - actions-testing
 name: Continuous Delivery 
 jobs:
   buildNightlyDocker:
