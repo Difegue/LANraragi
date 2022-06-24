@@ -31,7 +31,9 @@ ENV LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 LANGUAGE=en_US.UTF-8 \
     # extra variables
     EV_EXTRA_DEFS=-DEV_NO_ATFORK \
     # Enable automatic http proxy detection for mojo
-    MOJO_PROXY=1
+    MOJO_PROXY=1 \
+    # Allow Mojo to automatically pick up the X-Forwarded-For and X-Forwarded-Proto headers
+    MOJO_REVERSE_PROXY=1
 
 RUN \
   if [ $(getent group ${LRR_GID}) ]; then \
