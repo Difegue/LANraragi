@@ -42,8 +42,8 @@ sub trim_url {
 
     remove_spaces( $_[0] );
 
-    # Remove scheme and www. if present. Other subdomains are not removed
-    if ( $_[0] =~ /https?:\/\/(www\.)?(.*)/gm ) {
+    # Remove scheme, www. and query parameters if present. Other subdomains are not removed
+    if ( $_[0] =~ /https?:\/\/(www\.)?([^\?]*)\??.*/gm ) {
         $_[0] = $2;
     }
 
@@ -118,7 +118,7 @@ sub split_workload_by_cpu {
 
 # Start a Minion worker if there aren't any available.
 sub start_minion {
-    my $mojo   = shift;
+    my $mojo = shift;
     my $logger = get_logger( "Minion", "minion" );
 
     my $numcpus = Sys::CpuAffinity::getNumCpus();
@@ -146,8 +146,8 @@ sub start_minion {
 }
 
 sub _spawn {
-    my ( $job, $pid )  = @_;
-    my ( $id,  $task ) = ( $job->id, $job->task );
+    my ( $job, $pid ) = @_;
+    my ( $id, $task ) = ( $job->id, $job->task );
     my $logger = get_logger( "Minion Worker", "minion" );
     $job->app->log->debug(qq{Process $pid is performing job "$id" with task "$task"});
 }
@@ -206,9 +206,9 @@ sub get_css_list {
 # Print a dropdown list to select CSS, and adds <link> tags for all the style sheets present in the /style folder.
 sub generate_themes_header {
 
-    my $self = shift;
+    my $self    = shift;
     my $version = $self->LRR_VERSION;
-    my @css  = get_css_list;
+    my @css     = get_css_list;
 
     # Html that we'll insert in the header to declare all the available styles.
     my $html = "";
@@ -217,7 +217,7 @@ sub generate_themes_header {
     for ( my $i = 0; $i < $#css + 1; $i++ ) {
 
         my $css_file = $css[$i];
-        my ($css_name, $css_color) = css_default_data( $css_file );
+        my ( $css_name, $css_color ) = css_default_data($css_file);
 
         # If this is the default sheet, set it up as so.
         if ( $css[$i] eq LANraragi::Model::Config->get_style ) {
@@ -240,12 +240,12 @@ sub generate_themes_header {
 # All this sub does is give .css files prettier names in the dropdown. Files without a name here will simply show as their filename to the users.
 sub css_default_data {
     given ( $_[0] ) {
-        when ("g.css")            { return ("H-Verse", "#5F0D1F") }
-        when ("modern.css")       { return ("Hachikuji", "#34353B") }
-        when ("modern_clear.css") { return ("Yotsugi", "#34495E") }
-        when ("modern_red.css")   { return ("Nadeko", "#D83B66") }
-        when ("ex.css")           { return ("Sad Panda", "#43464E") }
-        default                   { return ($_[0], "#34353B") }
+        when ("g.css")            { return ( "H-Verse",   "#5F0D1F" ) }
+        when ("modern.css")       { return ( "Hachikuji", "#34353B" ) }
+        when ("modern_clear.css") { return ( "Yotsugi",   "#34495E" ) }
+        when ("modern_red.css")   { return ( "Nadeko",    "#D83B66" ) }
+        when ("ex.css")           { return ( "Sad Panda", "#43464E" ) }
+        default                   { return ( $_[0],       "#34353B" ) }
     }
 }
 

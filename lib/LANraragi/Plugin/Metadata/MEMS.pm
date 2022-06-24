@@ -12,8 +12,9 @@ sub plugin_info {
         name        => 'Mayriad\'s EH Master Script',
         type        => 'metadata',
         namespace   => 'memsplugin',
+        login_from  => "ehlogin",
         author      => 'Mayriad',
-        version     => '1.1.0',
+        version     => '1.1.1',
         description => 'Accurately retrieves metadata from e-hentai.org using the identifiers appeneded to the '
           . 'filenames of archives downloaded by Mayriad\'s EH Master Script.',
         icon => 'data:image/png;base64,AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAQAAAAAAAAAAAAAA'
