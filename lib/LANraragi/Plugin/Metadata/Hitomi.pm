@@ -144,62 +144,71 @@ sub get_tags_from_taglist {
     my ($json, $gendertag) = @_;
 	
 	my $logger = get_plugin_logger();
-
-	$logger->debug("Extracting tags array");
-    my @tags_list = @{ $json->{"tags"} };
-    my @tags      = ();
 	
-	$logger->debug("Cycling tags array");
-    foreach my $tag (@tags_list) {
-		my $name = $tag->{"tag"};
-        my $male = $tag->{"male"};
-        my $female = $tag->{"female"};
+	my @tags = ();
+
+	if(defined $json->{"tags"}) {
+		$logger->debug("Extracting tags array");
+		my @tags_list = @{ $json->{"tags"} };
 		
-		if($gendertag) {
-			if($male eq 1){
-				$name = $name . " ♂️"
-			}
+		$logger->debug("Cycling tags array");
+		foreach my $tag (@tags_list) {
+			my $name = $tag->{"tag"};
+			my $male = $tag->{"male"};
+			my $female = $tag->{"female"};
 			
-			if($female eq 1){
-				$name = $name . " ♀️"
+			if($gendertag) {
+				if($male eq 1){
+					$name = $name . " ♂️"
+				}
+				
+				if($female eq 1){
+					$name = $name . " ♀️"
+				}
 			}
+
+			push( @tags, $name );
 		}
-
-		push( @tags, $name );
-    }
+	}
 	
-	$logger->debug("Extracting parodies array");
-    my @parodies_list = @{ $json->{"parodys"} };
-	$logger->debug("Cycling parodies array");
-    foreach my $tag (@parodies_list) {
-		my $name = $tag->{"parody"};
+	if(defined $json->{"parodys"}) {
+		$logger->debug("Extracting parodies array");
+		my @parodies_list = @{ $json->{"parodys"} };
+		$logger->debug("Cycling parodies array");
+		foreach my $tag (@parodies_list) {
+			my $name = $tag->{"parody"};
 
-		push( @tags, "parody:" . $name );
-    }
+			push( @tags, "parody:" . $name );
+		}
+	}
 	
-	$logger->debug("Extracting artists array");
-    my @artists_list = @{ $json->{"artists"} };
-	$logger->debug("Cycling artists array");
-    foreach my $tag (@artists_list) {
-		my $name = $tag->{"artist"};
+	if(defined $json->{"artists"}) {
+		$logger->debug("Extracting artists array");
+		my @artists_list = @{ $json->{"artists"} };
+		$logger->debug("Cycling artists array");
+		foreach my $tag (@artists_list) {
+			my $name = $tag->{"artist"};
 
-		push( @tags, "artist:" . $name );
-    }
+			push( @tags, "artist:" . $name );
+		}
+	}
 	
-	$logger->debug("Extracting groups array");
-    my @group_list = @{ $json->{"groups"} };
-	$logger->debug("Cycling groups array");
-    foreach my $tag (@group_list) {
-		my $name = $tag->{"group"};
+	if(defined $json->{"groups"}) {
+		$logger->debug("Extracting groups array");
+		my @group_list = @{ $json->{"groups"} };
+		$logger->debug("Cycling groups array");
+		foreach my $tag (@group_list) {
+			my $name = $tag->{"group"};
 
-		push( @tags, "group:" . $name );
-    }
+			push( @tags, "group:" . $name );
+		}
+	}
 	
 	if(defined $json->{"characters"}) {
 		$logger->debug("Extracting characters array");
 		my @characters_list = @{ $json->{"characters"} };
 		$logger->debug("Cycling characters array");
-		foreach my $tag (@group_list) {
+		foreach my $tag (@characters_list) {
 			my $name = $tag->{"character"};
 
 			push( @tags, "character:" . $name );
