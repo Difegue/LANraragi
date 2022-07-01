@@ -21,7 +21,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 use Exporter 'import';
 our @EXPORT_OK =
   qw(remove_spaces remove_newlines trim_url is_image is_archive render_api_response get_tag_with_namespace shasum start_shinobu
-  split_workload_by_cpu start_minion get_css_list generate_themes_header flat);
+  split_workload_by_cpu start_minion get_css_list generate_themes_header flat get_bytelength);
 
 # Remove spaces before and after a word
 sub remove_spaces {
@@ -251,6 +251,12 @@ sub css_default_data {
 
 sub flat {
     return map { ref eq 'ARRAY' ? @$_ : $_ } @_;
+}
+
+# Get the byte length of a string.
+sub get_bytelength {
+    use bytes;
+    return length shift;
 }
 
 1;

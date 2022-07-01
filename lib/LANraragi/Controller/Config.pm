@@ -42,6 +42,7 @@ sub index {
         theme           => $self->LRR_CONF->get_style,
         usedateadded    => $self->LRR_CONF->enable_dateadded,
         usedatemodified => $self->LRR_CONF->use_lastmodified,
+        enablecryptofs  => $self->LRR_CONF->enable_cryptofs,
         csshead         => generate_themes_header($self),
         tempsize        => get_tempsize
     );
@@ -79,7 +80,8 @@ sub save_config {
         tagruleson      => ( scalar $self->req->param('tagruleson')      ? '1' : '0' ),
         nofunmode       => ( scalar $self->req->param('nofunmode')       ? '1' : '0' ),
         usedateadded    => ( scalar $self->req->param('usedateadded')    ? '1' : '0' ),
-        usedatemodified => ( scalar $self->req->param('usedatemodified') ? '1' : '0' )
+        usedatemodified => ( scalar $self->req->param('usedatemodified') ? '1' : '0' ),
+        enablecryptofs  => ( scalar $self->req->param('enablecryptofs')  ? '1' : '0' ),
     );
 
     # Only add newpassword field as password if enablepass = 1
