@@ -11,7 +11,7 @@ Config.initializeAll = function () {
     $(document).on("click.return", "#return", () => { window.location.href = "/"; });
     $(document).on("click.enablepass", "#enablepass", Config.enable_pass);
     $(document).on("click.enableresize", "#enableresize", Config.enable_resize);
-    $(document).on("click.usedateadded", "#usedateadded", () => Config.enable_timemodified);
+    $(document).on("click.usedateadded", "#usedateadded", Config.enable_timemodified);
 
     $(document).on("click.rescan-button", "#rescan-button", Config.rescanContentFolder);
     $(document).on("click.clean-temp", "#clean-temp", Server.cleanTemporaryFolder);

@@ -11,6 +11,20 @@
     </td>
 </tr>
 
+<tr>
+    <td class="option-td">
+        <h2 class="ih"> Synology eCryptFS Compatibility Mode </h2>
+    </td>
+    <td class="config-td">
+        [% IF enablecryptofs %]
+        <input id="enablecryptofs" name="enablecryptofs" class="fa" type="checkbox" checked> [% ELSE %]
+        <input id="enablecryptofs" name="enablecryptofs" class="fa" type="checkbox"> [% END %]
+        <label for="enablecryptofs">
+            <br>If enabled, LANraragi will cutoff archive filenames to 143 bytes, which is the max accepted by eCryptFS.
+        </label>
+    </td>
+</tr>
+
 <tr></tr>
 
 <tr>

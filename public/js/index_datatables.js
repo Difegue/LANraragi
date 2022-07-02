@@ -252,6 +252,12 @@ IndexTable.drawCallback = function () {
         }
 
         let currentSort = IndexTable.dataTable.order()[0][0];
+        const currentOrder = IndexTable.dataTable.order()[0][1];
+
+        // Save sort/order/page to localStorage
+        localStorage.indexSort = currentSort;
+        localStorage.indexOrder = currentOrder;
+
         // Using double equals here since the sort column can be either a string or an int
         // eslint-disable-next-line eqeqeq
         if (currentSort == 1) {
@@ -263,7 +269,6 @@ IndexTable.drawCallback = function () {
             currentSort = "title";
         }
 
-        const currentOrder = IndexTable.dataTable.order()[0][1];
         Index.updateTableControls(currentSort, currentOrder, pageInfo.pages, pageInfo.page + 1);
 
         // Clear potential leftover tooltips
@@ -298,9 +303,20 @@ IndexTable.consumeURLParameters = function () {
 
     if (params.has("q")) { IndexTable.currentSearch = decodeURIComponent(params.get("q")); }
 
+    // Get order from URL, fallback to localstorage if available
     const order = [[0, "asc"]];
-    if (params.has("sort")) order[0][0] = params.get("sort");
-    if (params.has("sortdir")) order[0][1] = params.get("sortdir");
+
+    if (params.has("sort")) {
+        order[0][0] = params.get("sort");
+    } else if (localStorage.indexSort) {
+        order[0][0] = localStorage.indexSort;
+    }
+
+    if (params.has("sortdir")) {
+        order[0][1] = params.get("sortdir");
+    } else if (localStorage.indexOrder) {
+        order[0][1] = localStorage.indexOrder;
+    }
 
     IndexTable.dataTable.order(order);
 

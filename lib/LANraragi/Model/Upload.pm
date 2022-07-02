@@ -13,7 +13,7 @@ use File::Copy qw(move);
 use LANraragi::Utils::Database qw(invalidate_cache compute_id);
 use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Utils::Database qw(redis_encode);
-use LANraragi::Utils::Generic qw(is_archive remove_spaces remove_newlines trim_url);
+use LANraragi::Utils::Generic qw(is_archive remove_spaces remove_newlines trim_url get_bytelength);
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
@@ -179,10 +179,14 @@ sub download_url {
     $filename =~ s@[\\/:"*?<>|]+@@g;
 
     my ( $fn, $path, $ext ) = fileparse( $filename, qr/\.[^.]*/ );
+    my $byte_limit = LANraragi::Model::Config->enable_cryptofs ? 143 : 255;
 
-    # don't allow the main filename to exceed 255 chars after accounting
+    # don't allow the main filename to exceed the given byte limit
     # for extension and .upload prefix used by `handle_incoming_file`
-    $filename = substr $fn, 0, 254 - length($ext) - length(".upload");
+    $filename = $fn;
+    while ( get_bytelength( $filename . $ext . ".upload" ) > $byte_limit ) {
+        $filename = substr( $filename, 0, -1 );
+    }
     $filename = $filename . $ext;
     $logger->debug("Filename post clean: $filename");
     $tx->result->save_to("$tempdir\/$filename");

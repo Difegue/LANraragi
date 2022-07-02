@@ -190,7 +190,7 @@ sub extract_thumbnail {
 sub expand {
     my $file = shift;
     $file =~ s{(\d+)}{sprintf "%04d", $1}eg;
-    return $file;
+    return lc($file);
 }
 
 # get_filelist($archive)
