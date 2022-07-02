@@ -19,6 +19,7 @@ use LANraragi::Plugin::Metadata::nHentai;
 use LANraragi::Plugin::Metadata::Chaika;
 use LANraragi::Plugin::Metadata::Eze;
 use LANraragi::Plugin::Metadata::Fakku;
+use LANraragi::Plugin::Metadata::Hitomi;
 
 # Mock Redis
 my $cwd = getcwd;
@@ -97,12 +98,14 @@ note("FAKKU Tests : Disabled due to cloudflare being used on FAKKU");
 note("Hitomi Tests");
 
 {
-     my $hi_gID      = "2261881";
-     my %hi_hashdata = trap { LANraragi::Plugin::Metadata::Hitomi::get_gallery_id_from_title( $hi_gID, 1 ) };
+    my $hi_gID = "2261881";
+    my %hi_hashdata = trap { LANraragi::Plugin::Metadata::Hitomi::get_tags_from_Hitomi( $hi_gID, 1 ); };
 
-     ok( length hi_hashdata{tags} > 0,  'Hitomi API Tag retrieval test' );
-     ok( length hi_hashdata{title} > 0, 'Hitomi title test' );
+    ok( length $hi_hashdata{tags} > 0, 'Hitomi API Tag retrieval test' );
+    is( $hi_hashdata{title},
+        "Nakayoshi Onna Boukensha wa Yoru ni Naru to Yadoya de Mechakucha Ecchi Suru | Party of Female Adventurers Fuck a lot at the Inn Once Nighttime Comes.",
+        'Hitomi title test'
+    );
 }
-
 
 done_testing();
