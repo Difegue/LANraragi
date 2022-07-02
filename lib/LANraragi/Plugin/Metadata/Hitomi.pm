@@ -39,7 +39,7 @@ sub get_tags {
 
     shift;
     my $lrr_info = shift;    # Global info hash
-    my ($gendertag, $savetitle) = @_;    # Plugin parameters
+    my ($savetitle) = @_;    # Plugin parameters
     my $logger = get_plugin_logger();
 
     # Work your magic here - You can create subs below to organize the code better
@@ -76,7 +76,7 @@ sub get_tags {
         return ( error => "No matching Hitomi Gallery Found!" );
     }
 
-    my %hashdata = get_tags_from_Hitomi( $galleryID, $gendertag, $savetitle);
+    my %hashdata = get_tags_from_Hitomi( $galleryID, $savetitle);
 
     $logger->info( "Sending the following tags to LRR: " . $hashdata{tags} );
 
@@ -139,7 +139,7 @@ sub get_js_from_hitomi {
 #Extract tags from Hitomi JSON
 sub get_tags_from_taglist {
 
-    my ($json, $gendertag) = @_;
+    my ($json) = @_;
 	
 	my $logger = get_plugin_logger();
 	
@@ -214,7 +214,7 @@ sub get_title_from_json {
 
 sub get_tags_from_Hitomi {
 
-    my ( $gID , $gendertag, $savetitle) = @_;
+    my ( $gID , $savetitle) = @_;
 
     my %hashdata = ( tags => "" );
 	
@@ -224,7 +224,7 @@ sub get_tags_from_Hitomi {
 	$logger->debug("Got fully formed JS from Hitomi");
 
     if ($json) {
-        my @tags = get_tags_from_taglist($json, $gendertag);
+        my @tags = get_tags_from_taglist($json);
         push( @tags, "source:https://hitomi.la/galleries/$gID.html" ) if ( @tags > 0 );
 		$hashdata{tags} = join( ', ', @tags );
 		$hashdata{title} = get_title_from_json($json) if ($savetitle);
