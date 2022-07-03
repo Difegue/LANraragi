@@ -374,7 +374,7 @@ Index.updateTableHeaders = function () {
 };
 
 /**
- * Check the Github API to see if an update was released.
+ * Check the GitHub API to see if an update was released.
  * If so, flash another friendly notification inviting the user to check it out
  */
 Index.checkVersion = function () {
