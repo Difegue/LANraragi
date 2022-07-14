@@ -35,6 +35,8 @@ ENV LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 LANGUAGE=en_US.UTF-8 \
     # Allow Mojo to automatically pick up the X-Forwarded-For and X-Forwarded-Proto headers
     MOJO_REVERSE_PROXY=1
 
+RUN apk add tzdata
+
 RUN \
   if [ $(getent group ${LRR_GID}) ]; then \
     adduser -D -u ${LRR_UID} koyomi; \
