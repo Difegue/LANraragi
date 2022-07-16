@@ -2,9 +2,10 @@
 
 #Just do everything
 apk update
+apk add tzdata
 apk add perl perl-io-socket-ssl perl-dev redis libarchive-dev libbz2 openssl-dev zlib-dev
 apk add imagemagick imagemagick-perlmagick libwebp-tools libheif
-apk add g++ make pkgconf gnupg wget curl  file
+apk add g++ make pkgconf gnupg wget curl file
 apk add shadow s6 s6-portable-utils 
 
 # Check for alpine version
