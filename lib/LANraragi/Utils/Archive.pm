@@ -36,12 +36,18 @@ sub is_pdf {
     return ( $suffix eq ".pdf" );
 }
 
-# generate_thumbnail(original_image, thumbnail_location)
+# generate_thumbnail(original_image, thumbnail_location, use_sample)
 # use ImageMagick to make a thumbnail, height = 500px (view in index is 280px tall)
+# If use_sample is true, the sample algorithm will be used instead of scale.
 sub generate_thumbnail {
 
-    my ( $orig_path, $thumb_path ) = @_;
+    my ( $orig_path, $thumb_path, $use_sample ) = @_;
     my $img = Image::Magick->new;
+
+    # For JPEG, the size option (or jpeg:size option) provides a hint to the JPEG decoder
+    # that it can reduce the size on-the-fly during decoding. This saves memory because
+    # it never has to allocate memory for the full-sized image
+    $img->Set( option => 'jpeg:size=500x' );
 
     # If the image is a gif, only take the first frame
     if ( $orig_path =~ /\.gif$/ ) {
@@ -50,7 +56,12 @@ sub generate_thumbnail {
         $img->Read($orig_path);
     }
 
-    $img->Thumbnail( geometry => '500x1000' );
+    # Sample is very fast due to not applying filters.
+    if ($use_sample) {
+        $img->Sample( geometry => '500x1000' );
+    } else {    # The "-scale" resize operator is a simplified, faster form of the resize command.
+        $img->Scale( geometry => '500x1000' );
+    }
     $img->Set( quality => "50", magick => "jpg" );
     $img->Write($thumb_path);
     undef $img;
@@ -179,7 +190,7 @@ sub extract_thumbnail {
     }
 
     # Thumbnail generation
-    generate_thumbnail( $arcimg, $thumbname );
+    generate_thumbnail( $arcimg, $thumbname, $page > 0 );
 
     # Clean up safe folder
     remove_tree($temppath);
