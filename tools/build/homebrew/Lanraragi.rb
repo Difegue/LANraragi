@@ -75,7 +75,6 @@ class Lanraragi < Formula
       end
     end
 
-    system "cpanm", "-v", "Config::AutoConf", "-l", libexec
     system "npm", "install", *Language::Node.local_npm_install_args
     system "perl", "./tools/install.pl", "install-full"
 

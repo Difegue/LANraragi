@@ -87,9 +87,15 @@ my $full  = $ARGV[0] eq "install-full";
 say( "Working Directory: " . getcwd );
 say("");
 
+# Provide cpanm with the correct module installation dir when using Homebrew
+my $cpanopt = "";
+if ( $ENV{HOMEBREW_FORMULA_PREFIX} ) {
+    $cpanopt = " -l " . $ENV{HOMEBREW_FORMULA_PREFIX} . "/libexec";
+}
+
 #Load IPC::Cmd
-install_package( "IPC::Cmd",         "" );
-install_package( "Config::AutoConf", "" );
+install_package( "IPC::Cmd",         $cpanopt );
+install_package( "Config::AutoConf", $cpanopt );
 IPC::Cmd->import('can_run');
 require Config::AutoConf;
 
@@ -135,12 +141,6 @@ if ($@) {
 #Build & Install CPAN Dependencies
 if ( $back || $full ) {
     say("\r\nInstalling Perl modules... This might take a while.\r\n");
-
-    # Provide cpanm with the correct module installation dir when using Homebrew
-    my $cpanopt = "";
-    if ( $ENV{HOMEBREW_FORMULA_PREFIX} ) {
-        $cpanopt = " -l " . $ENV{HOMEBREW_FORMULA_PREFIX} . "/libexec";
-    }
 
     if ( $Config{"osname"} ne "darwin" ) {
         say("Installing Linux::Inotify2 (2.2) for non-macOS systems...");
