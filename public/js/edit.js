@@ -158,7 +158,8 @@ Edit.getTags = function () {
 
             if (result.data.new_tags !== "") {
                 result.data.new_tags.split(/,\s?/).forEach((tag) => {
-                    Edit.tagInput.add_tag(tag);
+                    // Remove trailing/leading spaces from tag before adding it
+                    Edit.tagInput.add_tag(tag.trim());
                 });
 
                 LRR.toast({
