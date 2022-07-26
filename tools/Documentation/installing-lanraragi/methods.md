@@ -9,9 +9,9 @@ However, a lot of work as been done behind the scenes to make it easy!
 
 Look at the methods below for something that fits your OS and usage.
 
-## macOS: _Homebrew_
+## Linux/macOS: _Homebrew_
 
-[Homebrew](https://brew.sh) allows you to quickly setup LRR on macOS without relying on containers or modifying your preinstalled system libaries.
+[Homebrew](https://brew.sh) allows you to quickly setup LRR on macOS and Linux without relying on containers or modifying your preinstalled system libaries.
 
 ![brew](<../.screenshots/brew.jpg>)
 

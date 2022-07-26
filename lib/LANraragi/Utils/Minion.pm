@@ -27,7 +27,9 @@ sub add_tasks {
             my ( $job, @args ) = @_;
             my ( $thumbdir, $id, $page ) = @args;
 
-            my $thumbname = extract_thumbnail( $thumbdir, $id, $page );
+            # Non-cover thumbnails are rendered in low quality by default.
+            my $use_hq = $page eq 0 || LANraragi::Model::Config->get_hqthumbpages;
+            my $thumbname = extract_thumbnail( $thumbdir, $id, $page, $use_hq );
             $job->finish($thumbname);
         }
     );
@@ -65,7 +67,7 @@ sub add_tasks {
                             unless ( $force == 0 && -e $thumbname ) {
                                 eval {
                                     $logger->debug("Regenerating for $id...");
-                                    extract_thumbnail( $thumbdir, $id, 0 );
+                                    extract_thumbnail( $thumbdir, $id, 0, 1 );
                                 };
 
                                 if ($@) {

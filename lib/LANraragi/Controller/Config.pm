@@ -43,6 +43,7 @@ sub index {
         usedateadded    => $self->LRR_CONF->enable_dateadded,
         usedatemodified => $self->LRR_CONF->use_lastmodified,
         enablecryptofs  => $self->LRR_CONF->enable_cryptofs,
+        hqthumbpages    => $self->LRR_CONF->get_hqthumbpages,
         csshead         => generate_themes_header($self),
         tempsize        => get_tempsize
     );
@@ -82,6 +83,7 @@ sub save_config {
         usedateadded    => ( scalar $self->req->param('usedateadded')    ? '1' : '0' ),
         usedatemodified => ( scalar $self->req->param('usedatemodified') ? '1' : '0' ),
         enablecryptofs  => ( scalar $self->req->param('enablecryptofs')  ? '1' : '0' ),
+        hqthumbpages    => ( scalar $self->req->param('hqthumbpages')    ? '1' : '0' ),
     );
 
     # Only add newpassword field as password if enablepass = 1

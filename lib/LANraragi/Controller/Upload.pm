@@ -28,7 +28,7 @@ sub process_upload {
         my ( $fn, $path, $ext ) = fileparse( $filename, qr/\.[^.]*/ );
         my $byte_limit = LANraragi::Model::Config->enable_cryptofs ? 143 : 255;
 
-        # don't allow the main filename to exceed 143 bytes after accounting
+        # don't allow the main filename to exceed 143/255 bytes after accounting
         # for extension and .upload prefix used by `handle_incoming_file`
         $filename = $fn;
         while ( get_bytelength( $filename . $ext . ".upload" ) > $byte_limit ) {

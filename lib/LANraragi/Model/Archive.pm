@@ -155,7 +155,7 @@ sub update_thumbnail {
     my $newthumb = "";
 
     # Get the required thumbnail we want to make the main one
-    eval { $newthumb = extract_thumbnail( $thumbdir, $id, $page ) };
+    eval { $newthumb = extract_thumbnail( $thumbdir, $id, $page, 1 ) };
 
     if ( $@ || !$newthumb ) {
         render_api_response( $self, "update_thumbnail", $@ );
