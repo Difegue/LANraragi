@@ -2,7 +2,7 @@ package LANraragi::Controller::Config;
 use Mojo::Base 'Mojolicious::Controller';
 
 use LANraragi::Utils::Generic qw(generate_themes_header remove_spaces remove_newlines);
-use LANraragi::Utils::Database qw(redis_encode redis_decode save_computed_tagrules);
+use LANraragi::Utils::Database qw(redis_encode save_computed_tagrules);
 use LANraragi::Utils::TempFolder qw(get_tempsize);
 use LANraragi::Utils::Tags qw(tags_rules_to_array replace_CRLF restore_CRLF);
 use Mojo::JSON qw(encode_json);
@@ -42,6 +42,8 @@ sub index {
         theme           => $self->LRR_CONF->get_style,
         usedateadded    => $self->LRR_CONF->enable_dateadded,
         usedatemodified => $self->LRR_CONF->use_lastmodified,
+        enablecryptofs  => $self->LRR_CONF->enable_cryptofs,
+        hqthumbpages    => $self->LRR_CONF->get_hqthumbpages,
         csshead         => generate_themes_header($self),
         tempsize        => get_tempsize
     );
@@ -79,7 +81,9 @@ sub save_config {
         tagruleson      => ( scalar $self->req->param('tagruleson')      ? '1' : '0' ),
         nofunmode       => ( scalar $self->req->param('nofunmode')       ? '1' : '0' ),
         usedateadded    => ( scalar $self->req->param('usedateadded')    ? '1' : '0' ),
-        usedatemodified => ( scalar $self->req->param('usedatemodified') ? '1' : '0' )
+        usedatemodified => ( scalar $self->req->param('usedatemodified') ? '1' : '0' ),
+        enablecryptofs  => ( scalar $self->req->param('enablecryptofs')  ? '1' : '0' ),
+        hqthumbpages    => ( scalar $self->req->param('hqthumbpages')    ? '1' : '0' ),
     );
 
     # Only add newpassword field as password if enablepass = 1

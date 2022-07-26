@@ -103,7 +103,7 @@
 
 <tr>
     <td class="option-td">
-        <input class='stdbtn' type='button' onclick="Server.cleanDatabase();" value='Clean Database' />
+        <input id='clean-db' class='stdbtn' type='button' value='Clean Database' />
     </td>
     <td class="config-td">
         Cleaning the database will remove entries that aren't on your filesystem.
@@ -112,7 +112,7 @@
 
 <tr>
     <td class="option-td">
-        <input class='stdbtn' type='button' onclick="Server.dropDatabase();" value='Reset Database' />
+        <input id='drop-db' class='stdbtn' type='button' value='Reset Database' />
     </td>
     <td class="config-td">
         <span style="color:red"><i class="fas fa-exclamation-triangle"></i> Danger zone!</span> <br>

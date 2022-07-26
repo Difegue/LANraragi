@@ -13,21 +13,25 @@ use File::Path qw(make_path);
 #Vendor dependencies
 my @vendor_css = (
     "/blueimp-file-upload/css/jquery.fileupload.css",      "/\@fortawesome/fontawesome-free/css/all.min.css",
-    "/jqcloud2/dist/jqcloud.min.css",                      "/jquery-toast-plugin/dist/jquery.toast.min.css",
+    "/jqcloud2/dist/jqcloud.min.css",                      "/react-toastify/dist/ReactToastify.min.css",
     "/jquery-contextmenu/dist/jquery.contextMenu.min.css", "/tippy.js/dist/tippy.css",
     "/allcollapsible/dist/css/allcollapsible.min.css",     "/awesomplete/awesomplete.css",
-    "/\@jcubic/tagger/tagger.css",                         "/swiper/swiper-bundle.min.css"
+    "/\@jcubic/tagger/tagger.css",                         "/swiper/swiper-bundle.min.css",
+    "/sweetalert2/dist/sweetalert2.min.css",
 );
 
 my @vendor_js = (
     "/blueimp-file-upload/js/jquery.fileupload.js",       "/blueimp-file-upload/js/vendor/jquery.ui.widget.js",
     "/datatables.net/js/jquery.dataTables.min.js",        "/jqcloud2/dist/jqcloud.min.js",
-    "/jquery/dist/jquery.min.js",                         "/jquery-toast-plugin/dist/jquery.toast.min.js",
+    "/jquery/dist/jquery.min.js",                         "/react-toastify/dist/react-toastify.umd.js",
     "/jquery-contextmenu/dist/jquery.ui.position.min.js", "/jquery-contextmenu/dist/jquery.contextMenu.min.js",
     "/tippy.js/dist/tippy-bundle.umd.min.js",             "/\@popperjs/core/dist/umd/popper.min.js",
     "/allcollapsible/dist/js/allcollapsible.min.js",      "/awesomplete/awesomplete.min.js",
     "/\@jcubic/tagger/tagger.js",                         "/marked/marked.min.js",
-    "/swiper/swiper-bundle.min.js"
+    "/swiper/swiper-bundle.min.js",                       "/preact/dist/preact.umd.js",
+    "/clsx/dist/clsx.min.js",                             "/preact/compat/dist/compat.umd.js",
+    "/preact/hooks/dist/hooks.umd.js",                    "/sweetalert2/dist/sweetalert2.min.js",
+    "/fscreen/dist/fscreen.esm.js"
 );
 
 my @vendor_woff = (
@@ -40,7 +44,7 @@ my @vendor_woff = (
     "/roboto-fontface/fonts/roboto/Roboto-Regular.woff",
     "/roboto-fontface/fonts/roboto/Roboto-Bold.woff",
     "/inter-ui/Inter (web)/Inter-Regular.woff",
-    "/inter-ui/Inter (web)/Inter-Bold.woff"
+    "/inter-ui/Inter (web)/Inter-Bold.woff",
 );
 
 say("⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⢀⣠⣴⣶⣿⠿⠟⠛⠓⠒⠤");
@@ -83,9 +87,15 @@ my $full  = $ARGV[0] eq "install-full";
 say( "Working Directory: " . getcwd );
 say("");
 
+# Provide cpanm with the correct module installation dir when using Homebrew
+my $cpanopt = "";
+if ( $ENV{HOMEBREW_FORMULA_PREFIX} ) {
+    $cpanopt = " -l " . $ENV{HOMEBREW_FORMULA_PREFIX} . "/libexec";
+}
+
 #Load IPC::Cmd
-install_package( "IPC::Cmd",         "" );
-install_package( "Config::AutoConf", "" );
+install_package( "IPC::Cmd",         $cpanopt );
+install_package( "Config::AutoConf", $cpanopt );
 IPC::Cmd->import('can_run');
 require Config::AutoConf;
 
@@ -131,12 +141,6 @@ if ($@) {
 #Build & Install CPAN Dependencies
 if ( $back || $full ) {
     say("\r\nInstalling Perl modules... This might take a while.\r\n");
-
-    # Provide cpanm with the correct module installation dir when using Homebrew
-    my $cpanopt = "";
-    if ( $ENV{HOMEBREW_FORMULA_PREFIX} ) {
-        $cpanopt = " -l " . $ENV{HOMEBREW_FORMULA_PREFIX} . "/libexec";
-    }
 
     if ( $Config{"osname"} ne "darwin" ) {
         say("Installing Linux::Inotify2 (2.2) for non-macOS systems...");
@@ -200,10 +204,14 @@ sub cp_node_module {
 
     my $nodename = getcwd . "/node_modules" . $item;
     $item =~ /([^\/]+$)/;
-    my $newname = getcwd . $newpath . $&;
+    my $newname     = getcwd . $newpath . $&;
+    my $nodemapname = $nodename . ".map";
+    my $newmapname  = $newname . ".map";
 
-    say("Copying $nodename \r\n to $newname \r\n");
+    say("\r\nCopying $nodename \r\n to $newname");
     copy( $nodename, $newname ) or die "The copy operation failed: $!";
+
+    my $mapresult = copy( $nodemapname, $newmapname ) and say("Copied sourcemap file.\r\n");
 
 }
 

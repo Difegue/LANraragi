@@ -36,12 +36,18 @@ sub is_pdf {
     return ( $suffix eq ".pdf" );
 }
 
-# generate_thumbnail(original_image, thumbnail_location)
+# generate_thumbnail(original_image, thumbnail_location, use_hq)
 # use ImageMagick to make a thumbnail, height = 500px (view in index is 280px tall)
+# If use_hq is true, the scale algorithm will be used instead of sample.
 sub generate_thumbnail {
 
-    my ( $orig_path, $thumb_path ) = @_;
+    my ( $orig_path, $thumb_path, $use_hq ) = @_;
     my $img = Image::Magick->new;
+
+    # For JPEG, the size option (or jpeg:size option) provides a hint to the JPEG decoder
+    # that it can reduce the size on-the-fly during decoding. This saves memory because
+    # it never has to allocate memory for the full-sized image
+    $img->Set( option => 'jpeg:size=500x' );
 
     # If the image is a gif, only take the first frame
     if ( $orig_path =~ /\.gif$/ ) {
@@ -50,7 +56,12 @@ sub generate_thumbnail {
         $img->Read($orig_path);
     }
 
-    $img->Thumbnail( geometry => '500x1000' );
+    # The "-scale" resize operator is a simplified, faster form of the resize command.
+    if ($use_hq) {
+        $img->Scale( geometry => '500x1000' );
+    } else {    # Sample is very fast due to not applying filters.
+        $img->Sample( geometry => '500x1000' );
+    }
     $img->Set( quality => "50", magick => "jpg" );
     $img->Write($thumb_path);
     undef $img;
@@ -133,12 +144,13 @@ sub extract_pdf {
     return $destination;
 }
 
-# extract_thumbnail(thumbnaildir, id, page)
+# extract_thumbnail(thumbnaildir, id, page, use_hq)
 # Extracts a thumbnail from the specified archive ID and page. Returns the path to the thumbnail.
 # Non-cover thumbnails land in a folder named after the ID. Specify page=0 if you want the cover.
+# Thumbnails will be generated at low quality by default unless you specify use_hq=1.
 sub extract_thumbnail {
 
-    my ( $thumbdir, $id, $page ) = @_;
+    my ( $thumbdir, $id, $page, $use_hq ) = @_;
     my $logger = get_logger( "Archive", "lanraragi" );
 
     # Another subfolder with the first two characters of the id is used for FS optimization.
@@ -179,7 +191,7 @@ sub extract_thumbnail {
     }
 
     # Thumbnail generation
-    generate_thumbnail( $arcimg, $thumbname );
+    generate_thumbnail( $arcimg, $thumbname, $use_hq );
 
     # Clean up safe folder
     remove_tree($temppath);
@@ -190,7 +202,7 @@ sub extract_thumbnail {
 sub expand {
     my $file = shift;
     $file =~ s{(\d+)}{sprintf "%04d", $1}eg;
-    return $file;
+    return lc($file);
 }
 
 # get_filelist($archive)
@@ -233,10 +245,12 @@ sub get_filelist {
 
     }
 
-    # TODO: @images = nsort(@images); would theorically be better, but Sort::Naturally's nsort puts letters before numbers,
-    # which isn't what we want at all for pages in an archive.
-    # To investigate further, perhaps with custom sorting algorithms?
     @files = sort { &expand($a) cmp &expand($b) } @files;
+
+    # Move any pages containing "credit" to the end of the array.
+    my @credit_pages     = grep { /credit/i } @files;
+    my @non_credit_pages = grep { !/credit/i } @files;
+    @files = ( @non_credit_pages, @credit_pages );
 
     # Return files and sizes in a hashref
     return ( \@files, \@sizes );

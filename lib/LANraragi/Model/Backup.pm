@@ -29,6 +29,7 @@ sub build_backup_JSON {
 
     # Parse the category list and add them to JSON.
     foreach my $key (@cats) {
+
         # Use an eval block in case decode_json fails. This'll drop the category from the backup,
         # But it's probably dinged anyways...
         eval {
@@ -53,7 +54,7 @@ sub build_backup_JSON {
     # Backup archives themselves next
     my @keys = $redis->keys('????????????????????????????????????????');    #40-character long keys only => Archive IDs
 
-    #Parse the archive list and add them to JSON.
+    # Parse the archive list and add them to JSON.
     foreach my $id (@keys) {
 
         eval {
@@ -63,7 +64,7 @@ sub build_backup_JSON {
             ( $_ = redis_decode($_) ) for ( $name, $title, $tags );
             ( remove_newlines($_) ) for ( $name, $title, $tags );
 
-            #Backup all user-generated metadata, alongside the unique ID.
+            # Backup all user-generated metadata, alongside the unique ID.
             my %arc = (
                 arcid     => $id,
                 title     => $title,
@@ -129,7 +130,7 @@ sub restore_from_JSON {
             $redis->hset( $id, "tags",  $tags );
 
             if (   $redis->hexists( $id, "thumbhash" )
-                && $redis->hget( $id, "thumbhash" ) eq "" ) {
+                && $redis->hget( $id, "thumbhash" ) ne "" ) {
                 $redis->hset( $id, "thumbhash", $thumbhash );
             }
 

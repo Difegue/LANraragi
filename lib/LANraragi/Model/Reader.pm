@@ -27,6 +27,12 @@ sub resize_image {
 
     #Is the file size higher than the threshold?
     if ( ( int( ( -s $imgpath ) / 1024 * 10 ) / 10 ) > $threshold ) {
+
+        # For JPEG, the size option (or jpeg:size option) provides a hint to the JPEG decoder
+        # that it can reduce the size on-the-fly during decoding. This saves memory because
+        # it never has to allocate memory for the full-sized image
+        $img->Set( option => 'jpeg:size=1064x' );
+
         $img->Read($imgpath);
 
         my ( $origw, $origh ) = $img->Get( 'width', 'height' );

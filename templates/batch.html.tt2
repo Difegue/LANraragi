@@ -11,11 +11,18 @@
 	<link type="image/png" rel="icon" href="favicon.ico" />
 	<link rel="stylesheet" type="text/css" href="/css/lrr.css?[% version%]" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
-	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.toast.min.css" />
+	<link rel="stylesheet" type="text/css" href="/css/vendor/ReactToastify.min.css" />
+	<link rel="stylesheet" type="text/css" href="/css/vendor/sweetalert2.min.css" />
 	[% csshead %]
 
 	<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/preact.umd.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/hooks.umd.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/compat.umd.js" type="text/JAVASCRIPT"></script>
+	<script>window.React=window.preactCompat;window.react=window.preactCompat;</script>
+	<script src="/js/vendor/clsx.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/react-toastify.umd.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/sweetalert2.min.js" type="text/JAVASCRIPT"></script>
 
 	<script src="/js/common.js?[% version%]" type="text/JAVASCRIPT"></script>
 	<script src="/js/server.js?[% version%]" type="text/JAVASCRIPT"></script>
@@ -99,7 +106,7 @@
 									Archives.<br><br>
 									You can edit your Tag Rules in Server Configuration.<br><br>
 
-									<input class='stdbtn' type='button' onclick="LRR.openInNewTab('./config');"
+									<input id='server-config' class='stdbtn' type='button'
 										value='Server Configuration' />
 								</td>
 								<td>
@@ -193,9 +200,8 @@
 			<br><br>
 		</div>
 
-		<input class='stdbtn' type='button' onclick="LRR.openInNewTab('./config/plugins');"
-			value='Plugin Configuration' />
-		<input class='stdbtn' type='button' onclick="window.location.href = './';" value='Return to Library' />
+		<input id='plugin-config' class='stdbtn' type='button' value='Plugin Configuration' />
+		<input id='return' class='stdbtn' type='button' value='Return to Library' />
 
 	</div>
 	[% INCLUDE footer %]

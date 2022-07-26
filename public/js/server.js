@@ -23,12 +23,10 @@ Server.callAPI = function (endpoint, method, successMessage, errorMessage, succe
                 throw new Error(data.error);
             } else {
                 if (successMessage !== null) {
-                    $.toast({
-                        showHideTransition: "slide",
-                        position: "top-left",
-                        loader: false,
+                    LRR.toast({
                         heading: successMessage,
                         icon: "success",
+                        hideAfter: 7000,
                     });
                 }
 
@@ -84,10 +82,7 @@ Server.saveFormData = function (formSelector) {
         .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))
         .then((data) => {
             if (data.success) {
-                $.toast({
-                    showHideTransition: "slide",
-                    position: "top-left",
-                    loader: false,
+                LRR.toast({
                     heading: "Saved Successfully!",
                     icon: "success",
                 });
@@ -115,21 +110,22 @@ Server.triggerScript = function (namespace) {
         .then(Server.callAPI(`/api/plugins/queue?plugin=${namespace}&arg=${scriptArg}`, "POST", null, "Error while executing Script :",
             (data) => {
                 // Check minion job state periodically while we're on this page
-                Server.checkJobStatus(data.job, true,
+                Server.checkJobStatus(
+                    data.job,
+                    true,
                     (d) => {
                         Server.isScriptRunning = false;
                         $(".script-running").hide();
                         $(".stdbtn").show();
 
                         if (d.result.success === 1) {
-                            $.toast({
-                                showHideTransition: "slide",
-                                position: "top-left",
-                                loader: false,
+                            LRR.toast({
                                 heading: "Script result",
                                 text: `<pre>${JSON.stringify(d.result.data, null, 4)}</pre>`,
-                                hideAfter: false,
                                 icon: "info",
+                                hideAfter: 10000,
+                                closeOnClick: false,
+                                draggable: false,
                             });
                         } else LRR.showErrorToast(`Script failed: ${d.result.error}`);
                     },
@@ -137,15 +133,18 @@ Server.triggerScript = function (namespace) {
                         Server.isScriptRunning = false;
                         $(".script-running").hide();
                         $(".stdbtn").show();
-                    });
-            }));
+                    },
+                );
+            },
+        ));
 };
 
 Server.cleanTemporaryFolder = function () {
     Server.callAPI("/api/tempfolder", "DELETE", "Temporary Folder Cleaned!", "Error while cleaning Temporary Folder :",
         (data) => {
             $("#tempsize").html(data.newsize);
-        });
+        },
+    );
 };
 
 Server.invalidateCache = function () {
@@ -157,68 +156,81 @@ Server.clearAllNewFlags = function () {
 };
 
 Server.dropDatabase = function () {
-    if (confirm("Danger! Are you *sure* you want to do this?")) {
-        Server.callAPI("/api/database/drop", "POST", "Sayonara! Redirecting you...", "Error while resetting the database? Check Logs.",
-            () => {
-                setTimeout(() => { document.location.href = "./"; }, 1500);
-            });
-    }
+    LRR.showPopUp({
+        title: "This is a (very) destructive operation! ",
+        text: "Are you sure you want to wipe the database?",
+        icon: "warning",
+        showCancelButton: true,
+        focusConfirm: false,
+        confirmButtonText: "Yes, do it!",
+        reverseButtons: true,
+        confirmButtonColor: "#d33",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Server.callAPI("/api/database/drop", "POST", "Sayonara! Redirecting you...", "Error while resetting the database? Check Logs.",
+                () => {
+                    setTimeout(() => { document.location.href = "./"; }, 1500);
+                },
+            );
+        }
+    });
 };
 
 Server.cleanDatabase = function () {
     Server.callAPI("/api/database/clean", "POST", null, "Error while cleaning the database! Check Logs.",
         (data) => {
-            $.toast({
-                showHideTransition: "slide",
-                position: "top-left",
-                loader: false,
+            LRR.toast({
                 heading: `Successfully cleaned the database and removed ${data.deleted} entries!`,
                 icon: "success",
+                hideAfter: 7000,
             });
 
             if (data.unlinked > 0) {
-                $.toast({
-                    showHideTransition: "slide",
-                    position: "top-left",
-                    loader: false,
-                    heading: `${data.unlinked} other entries have been unlinked from the database and will be deleted on the next cleanup! <br>Do a backup now if some files disappeared from your archive index.`,
-                    hideAfter: false,
+                LRR.toast({
+                    heading: `${data.unlinked} other entries have been unlinked from the database and will be deleted on the next cleanup!`,
+                    text: "Do a backup now if some files disappeared from your archive index.",
                     icon: "warning",
+                    hideAfter: 16000,
                 });
             }
-        });
+        },
+    );
 };
 
 Server.regenerateThumbnails = function (force) {
     const forceparam = force ? 1 : 0;
     Server.callAPI(`/api/regen_thumbs?force=${forceparam}`, "POST",
-        "Queued up a job to regenerate thumbnails! Stay tuned for updates or check the Minion console.", "Error while sending job to Minion:",
+        "Queued up a job to regenerate thumbnails! Stay tuned for updates or check the Minion console.",
+        "Error while sending job to Minion:",
         (data) => {
             // Disable the buttons to avoid accidental double-clicks.
             $("#genthumb-button").prop("disabled", true);
             $("#forcethumb-button").prop("disabled", true);
 
             // Check minion job state periodically while we're on this page
-            Server.checkJobStatus(data.job, true,
+            Server.checkJobStatus(
+                data.job,
+                true,
                 (d) => {
                     $("#genthumb-button").prop("disabled", false);
                     $("#forcethumb-button").prop("disabled", false);
-                    $.toast({
-                        showHideTransition: "slide",
-                        position: "top-left",
-                        loader: false,
+                    LRR.toast({
                         heading: "All thumbnails generated! Encountered the following errors:",
                         text: d.result.errors,
-                        hideAfter: false,
                         icon: "success",
+                        hideAfter: 15000,
+                        closeOnClick: false,
+                        draggable: false,
                     });
                 },
                 (error) => {
                     $("#genthumb-button").prop("disabled", false);
                     $("#forcethumb-button").prop("disabled", false);
                     LRR.showErrorToast("The thumbnail regen job failed!", error);
-                });
-        });
+                },
+            );
+        },
+    );
 };
 
 // Adds an archive to a category. Basic implementation to use everywhere.
@@ -242,25 +254,20 @@ Server.deleteArchive = function (arcId, callback) {
         .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))
         .then((data) => {
             if (data.success === "0") {
-                $.toast({
-                    showHideTransition: "slide",
-                    position: "top-left",
-                    loader: false,
+                LRR.toast({
                     heading: "Couldn't delete archive file. <br> (Maybe it has already been deleted beforehand?)",
                     text: "Archive metadata has been deleted properly. <br> Please delete the file manually before returning to Library View.",
-                    hideAfter: false,
                     icon: "warning",
+                    hideAfter: 20000,
                 });
                 $(".stdbtn").hide();
                 $("#goback").show();
             } else {
-                $.toast({
-                    showHideTransition: "slide",
-                    position: "top-left",
-                    loader: false,
+                LRR.toast({
                     heading: "Archive successfully deleted. Redirecting you ...",
                     text: `File name : ${data.filename}`,
                     icon: "success",
+                    hideAfter: 7000,
                 });
                 setTimeout(callback, 1500);
             }

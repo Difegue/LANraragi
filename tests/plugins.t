@@ -19,6 +19,7 @@ use LANraragi::Plugin::Metadata::nHentai;
 use LANraragi::Plugin::Metadata::Chaika;
 use LANraragi::Plugin::Metadata::Eze;
 use LANraragi::Plugin::Metadata::Fakku;
+use LANraragi::Plugin::Metadata::Hitomi;
 
 # Mock Redis
 my $cwd = getcwd;
@@ -47,19 +48,19 @@ note("E-Hentai Tests");
     isa_ok( $test_eH_json->{gmetadata}[0]{tags}, 'ARRAY', 'type of tags' );
 }
 
-note("nHentai Tests");
+note("nHentai Tests : Disabled due to cloudflare being used on nH");
 
-{
-    my $nH_gID = "52249";
-    my $test_nH_gID = trap { LANraragi::Plugin::Metadata::nHentai::get_gallery_id_from_title("\"Pieces 1\" shirow"); };
+# {
+#     my $nH_gID      = "52249";
+#     my $test_nH_gID = LANraragi::Plugin::Metadata::nHentai::get_gallery_id_from_title("\"Pieces 1\" shirow");
+#
+#     is( $test_nH_gID, $nH_gID, 'nHentai search test' );
 
-    is( $test_nH_gID, $nH_gID, 'nHentai search test' );
+#     my %nH_hashdata = trap { LANraragi::Plugin::Metadata::nHentai::get_tags_from_NH( $nH_gID, 1 ) };
 
-    my %nH_hashdata = trap { LANraragi::Plugin::Metadata::nHentai::get_tags_from_NH( $nH_gID, 1 ) };
-
-    ok( length $nH_hashdata{tags} > 0,  'nHentai API Tag retrieval test' );
-    ok( length $nH_hashdata{title} > 0, 'nHentai title test' );
-}
+#     ok( length $nH_hashdata{tags} > 0,  'nHentai API Tag retrieval test' );
+#     ok( length $nH_hashdata{title} > 0, 'nHentai title test' );
+# }
 
 note("Chaika Tests");
 
@@ -93,5 +94,18 @@ note("FAKKU Tests : Disabled due to cloudflare being used on FAKKU");
 #     is( $f_result_tags,  $f_tags,  'FAKKU tags parsing test' );
 #     is( $f_result_title, $f_title, 'FAKKU title parsing test' );
 # }
+
+note("Hitomi Tests");
+
+{
+    my $hi_gID = "2261881";
+    my %hi_hashdata = trap { LANraragi::Plugin::Metadata::Hitomi::get_tags_from_Hitomi( $hi_gID, 1 ); };
+
+    ok( length $hi_hashdata{tags} > 0, 'Hitomi API Tag retrieval test' );
+    is( $hi_hashdata{title},
+        "Nakayoshi Onna Boukensha wa Yoru ni Naru to Yadoya de Mechakucha Ecchi Suru | Party of Female Adventurers Fuck a lot at the Inn Once Nighttime Comes.",
+        'Hitomi title test'
+    );
+}
 
 done_testing();

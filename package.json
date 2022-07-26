@@ -1,13 +1,14 @@
 {
     "name": "lanraragi",
-    "version": "0.8.5",
-    "version_name": "Sex and the Church",
+    "version": "0.8.6",
+    "version_name": "Buddha of Suburbia",
     "description": "I'm under Japanese influence and my honor's at stake!",
     "scripts": {
         "test": "prove -r -l -v tests/",
         "lanraragi-installer": "perl ./tools/install.pl",
+        "lint": "eslint --ext .js public/",
         "start": "perl ./script/launcher.pl -f ./script/lanraragi",
-        "dev-server": "perl ./script/launcher.pl -m -v ./script/lanraragi ",
+        "dev-server": "perl ./script/launcher.pl -m -v ./script/lanraragi",
         "docker-build": "docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile .",
         "critic": "perlcritic ./lib/* ./script/* ./tools/install.pl",
         "backup-db": "perl ./script/backup"
@@ -23,26 +24,30 @@
     },
     "homepage": "https://github.com/Difegue/LANraragi#readme",
     "dependencies": {
-        "@fortawesome/fontawesome-free": "^5.13.0",
-        "@jcubic/tagger": "^0.4.0",
+        "@fortawesome/fontawesome-free": "^5.15.4",
+        "@jcubic/tagger": "^0.4.2",
         "allcollapsible": "^1.1.0",
         "awesomplete": "^1.1.5",
-        "blueimp-file-upload": "^10.28.0",
-        "datatables.net": "^1.10.25",
-        "inter-ui": "^3.3.2",
+        "blueimp-file-upload": "^10.32.0",
+        "clsx": "^1.1.1",
+        "datatables.net": "^1.11.5",
+        "fscreen": "^1.2.0",
+        "inter-ui": "^3.19.3",
         "jqcloud2": "^2.0.3",
         "jquery": "^3.6.0",
         "jquery-contextmenu": "^2.9.2",
-        "jquery-toast-plugin": "^1.3.2",
-        "marked": "^4.0.10",
+        "marked": "^4.0.14",
         "open-sans-fontface": "^1.4.0",
+        "preact": "^10.7.1",
+        "react-toastify": "^9.0.0-rc-2",
         "roboto-fontface": "^0.8.0",
-        "swiper": "^7.2.0",
-        "tippy.js": "^6.3.1"
+        "sweetalert2": "^11.4.10",
+        "swiper": "^8.1.4",
+        "tippy.js": "^6.3.7"
     },
     "devDependencies": {
-        "eslint": "^7.24.0",
-        "eslint-config-airbnb-base": "^14.2.1",
-        "eslint-plugin-import": "^2.22.1"
+        "eslint": "^7.32.0",
+        "eslint-config-airbnb-base": "^15.0.0",
+        "eslint-plugin-import": "^2.26.0"
     }
 }

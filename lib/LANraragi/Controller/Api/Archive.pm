@@ -62,25 +62,12 @@ sub get_categories {
     my $self = shift;
     my $id = check_id_parameter( $self, "find_arc_categories" ) || return;
 
-    my @categories = LANraragi::Model::Category->get_category_list;
-    @categories = grep { %$_{"search"} eq "" } @categories;
-
-    my @filteredcats = ();
-
-    # Check if the id is in any categories
-    for my $category (@categories) {
-
-        my @archives = @{ $category->{"archives"} };
-
-        if ( grep( /^$id$/, @archives ) ) {
-            push @filteredcats, $category;
-        }
-    }
+    my @categories = LANraragi::Model::Category::get_categories_containing_archive($id);
 
     $self->render(
         json => {
             operation  => "find_arc_categories",
-            categories => \@filteredcats,
+            categories => \@categories,
             success    => 1
         }
     );

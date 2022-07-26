@@ -29,6 +29,32 @@ sub get_category_list {
     return @result;
 }
 
+# get_categories_containing_archive(id)
+#   Returns a list of all the categories that contain the given archive.
+sub get_categories_containing_archive {
+    my $archive_id = shift;
+
+    my $logger = get_logger( "Categories", "lanraragi" );
+    $logger->debug("Finding categories containing $archive_id");
+
+    my @categories = get_category_list();
+    @categories = grep { %$_{"search"} eq "" } @categories;
+
+    my @filteredcats = ();
+
+    # Check if the id is in any categories
+    for my $category (@categories) {
+        my @archives = @{ $category->{"archives"} };
+
+        if ( grep( /^$archive_id$/, @archives ) ) {
+            $logger->debug( "$archive_id is in '" . $category->{name} . "'" );
+            push @filteredcats, $category;
+        }
+    }
+
+    return @filteredcats;
+}
+
 # get_category(id)
 #   Returns the category matching the given id.
 #   Returns undef if the id doesn't exist.

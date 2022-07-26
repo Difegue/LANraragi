@@ -24,6 +24,7 @@ The variables match the parameters you've entered in the `plugin_info` subroutin
 
 The `$lrr_info` hash contains various variables you can use in your plugin:
 
+* _$lrr\_info->{archive\_id}_: The internal ID of the archive.
 * _$lrr\_info->{archive\_title}_: The title of the archive, as entered by the User. 
 * _$lrr\_info->{existing\_tags}_: The tags that are already in LRR for this archive, if there are any.
 * _$lrr\_info->{thumbnail\_hash}_: A SHA-1 hash of the first image of the archive.

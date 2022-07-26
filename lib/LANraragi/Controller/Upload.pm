@@ -7,7 +7,7 @@ use File::Copy;
 use File::Find;
 use File::Basename;
 
-use LANraragi::Utils::Generic qw(generate_themes_header is_archive);
+use LANraragi::Utils::Generic qw(generate_themes_header is_archive get_bytelength);
 
 sub process_upload {
     my $self = shift;
@@ -23,7 +23,19 @@ sub process_upload {
     if ( is_archive($filename) ) {
 
         # Move file to a temp folder (not the default LRR one)
-        my $tempdir  = tempdir();
+        my $tempdir = tempdir();
+
+        my ( $fn, $path, $ext ) = fileparse( $filename, qr/\.[^.]*/ );
+        my $byte_limit = LANraragi::Model::Config->enable_cryptofs ? 143 : 255;
+
+        # don't allow the main filename to exceed 143/255 bytes after accounting
+        # for extension and .upload prefix used by `handle_incoming_file`
+        $filename = $fn;
+        while ( get_bytelength( $filename . $ext . ".upload" ) > $byte_limit ) {
+            $filename = substr( $filename, 0, -1 );
+        }
+        $filename = $filename . $ext;
+
         my $tempfile = $tempdir . '/' . $filename;
         $file->move_to($tempfile) or die "Couldn't move uploaded file.";
 
@@ -44,11 +56,12 @@ sub process_upload {
         # Reply with a reference to the job so the client can check on its progress.
         $self->render(
             json => {
-                operation => "upload",
-                name      => $file->filename,
-                type      => $uploadMime,
-                success   => 1,
-                job       => $jobid
+                operation  => "upload",
+                name       => $file->filename,
+                debug_name => $filename,
+                type       => $uploadMime,
+                success    => 1,
+                job        => $jobid
             }
         );
 

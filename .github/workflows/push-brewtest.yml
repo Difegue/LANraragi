@@ -11,6 +11,5 @@ jobs:
         cd tools/build/homebrew
         echo "Replacing commit hash in formula with current hash $(git rev-parse --verify HEAD)"
         sed -i.bck "s/COMMIT_HASH/$(git rev-parse --verify HEAD)/" Lanraragi.rb
-        brew unlink node@14
         brew install --force --verbose --build-from-source Lanraragi.rb
         brew test --verbose Lanraragi.rb

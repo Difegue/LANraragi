@@ -10,11 +10,19 @@
 	<link rel="stylesheet" type="text/css" href="/css/lrr.css?[% version%]" />
 
 	<link rel="stylesheet" type="text/css" href="./css/vendor/fontawesome-all.min.css" />
+	<link rel="stylesheet" type="text/css" href="/css/vendor/ReactToastify.min.css" />
 	[% csshead %]
 
 	<script src="./js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/preact.umd.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/hooks.umd.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/compat.umd.js" type="text/JAVASCRIPT"></script>
+	<script>window.React=window.preactCompat;window.react=window.preactCompat;</script>
+	<script src="/js/vendor/clsx.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/react-toastify.umd.js" type="text/JAVASCRIPT"></script>
 
 	<script src="./js/common.js?[% version%]" type="text/JAVASCRIPT"></script>
+	<script src="./js/logs.js?[% version%]" type="text/JAVASCRIPT"></script>
 </head>
 
 <body>
@@ -38,11 +46,11 @@
 
 		<div style="margin-right: 5%;float: right;">
 
-			<a href="#" onclick="refreshLog()" title="Refresh">
+			<a id="refresh" href="#" title="Refresh">
 				<i style="padding-right: 10px;" class="fa fa-sync-alt fa-2x"></i>
 			</a>
 
-			Lines: <input type="number" min="0" value="100" id="loglines" onchange="refreshLog()" style="width: 60px;">
+			Lines: <input type="number" min="0" value="100" id="loglines" style="width: 60px;">
 
 		</div>
 
@@ -60,46 +68,22 @@
 
 		<br><br>
 		<span id='buttonstagging'>
-			<input type='button' value='View LANraragi Logs' class='stdbtn' onclick='showLog("general")'>
+			<input id="show-general" type='button' value='View LANraragi Logs' class='stdbtn'>
 
-			<input type='button' value='View Shinobu Logs' class='stdbtn' onclick='showLog("shinobu")'>
+			<input id="show-shinobu" type='button' value='View Shinobu Logs' class='stdbtn'>
 
-			<input type='button' value='View Plugin Logs' class='stdbtn' onclick='showLog("plugins")'>
+			<input id="show-plugins" type='button' value='View Plugin Logs' class='stdbtn'>
 
-			<input type='button' value='View Mojolicious Logs' class='stdbtn' onclick='showLog("mojo")'>
+			<input id="show-mojo" type='button' value='View Mojolicious Logs' class='stdbtn'>
 
-			<input type='button' value='View Redis Logs' class='stdbtn' onclick='showLog("redis")'>
+			<input id="show-redis" type='button' value='View Redis Logs' class='stdbtn'>
 
 			<br><br>
-			<input class='stdbtn' type='button' onclick="window.location.replace('/');" value='Return to Library' />
+			<input id='return' class='stdbtn' type='button' value='Return to Library' />
 
 		</span>
 
 	</div>
-
-	<script>
-
-		lastType = "";
-
-		function showLog(type) {
-
-			$.get("/logs/" + type + "?lines=" + $("#loglines").val(), function (data) {
-				$("#log-container").html(LRR.encodeHTML(data));
-				$("#indicator").html(type);
-				$("#log-container").scrollTop($("#log-container").prop("scrollHeight"));
-			});
-
-			lastType = type;
-
-		}
-
-		function refreshLog() {
-			showLog(lastType);
-		}
-
-		showLog("general");
-
-	</script>
 
 	[% INCLUDE footer %]
 </body>

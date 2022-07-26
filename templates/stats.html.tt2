@@ -10,18 +10,26 @@
 	<link rel="stylesheet" type="text/css" href="/css/lrr.css?[% version%]" />
 
 	<link rel="stylesheet" type="text/css" href="./css/vendor/fontawesome-all.min.css" />
-	<link rel="stylesheet" type="text/css" href="./css/vendor/jquery.toast.min.css" />
 	<link rel="stylesheet" type="text/css" href="./css/vendor/jqcloud.min.css">
 	<link rel="stylesheet" type="text/css" href="/css/vendor/allcollapsible.min.css" />
+	<link rel="stylesheet" type="text/css" href="/css/vendor/ReactToastify.min.css" />
+	<link rel="stylesheet" type="text/css" href="/css/vendor/sweetalert2.min.css" />
 	[% csshead %]
 
 	<script src="./js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
-	<script src="./js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/preact.umd.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/hooks.umd.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/compat.umd.js" type="text/JAVASCRIPT"></script>
+	<script>window.React=window.preactCompat;window.react=window.preactCompat;</script>
+	<script src="/js/vendor/clsx.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/react-toastify.umd.js" type="text/JAVASCRIPT"></script>
 	<script src="./js/vendor/jqcloud.min.js"></script>
 	<script src="/js/vendor/allcollapsible.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/sweetalert2.min.js" type="text/JAVASCRIPT"></script>
 
 	<script src="./js/common.js?[% version%]" type="text/JAVASCRIPT"></script>
 	<script src="./js/server.js?[% version%]" type="text/JAVASCRIPT"></script>
+	<script src="./js/stats.js?[% version%]" type="text/JAVASCRIPT"></script>
 </head>
 
 <body>
@@ -85,48 +93,9 @@
 		</ul>
 
 		<br>
-		<input type="button" value="Return to Library" onclick="window.location.replace('./');" class="stdbtn"
-			id="goback">
-
-
+		<input id="goback" type="button" value="Return to Library" class="stdbtn">
 
 	</div>
-
-	<script>
-
-		Server.callAPI("/api/database/stats?minweight=2", "GET", null, "Couldn't load tag statistics",
-			(data) => {
-
-				$('#statsLoading').hide();
-				$('#tagcount').html(data.length);
-				$('#tagCloud').jQCloud(data, {
-					autoResize: true
-				});
-
-				// Sort data by weight
-				data.sort((a, b) => {
-					return b.weight - a.weight;
-				});
-
-				// Buildup detailed stats
-				let tagList = $('#tagList');
-				data.forEach(tag => {
-
-					const namespacedTag = LRR.buildNamespacedTag(tag.namespace, tag.text);
-					const url = LRR.getTagSearchURL(tag.namespace, tag.text);
-
-					const ocss = 'max-width: 95%; display: flex;';
-					const icss = 'text-overflow: ellipsis; white-space: nowrap; overflow: hidden; min-width: 0; max-width: 100%;';
-
-					let html = `<a href="${url}" title="${namespacedTag}" class="${tag.namespace}-tag" style="${ocss}"><span style="${icss}">${namespacedTag}</span>&nbsp;<b>(${tag.weight})</b>`;
-					tagList.append(html);
-				});
-
-				$('#detailedStats').show();
-
-			});
-	</script>
-
 	[% INCLUDE footer %]
 </body>
 

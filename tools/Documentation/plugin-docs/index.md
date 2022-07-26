@@ -24,7 +24,7 @@ Basically, _as long as it can run, it will run_.
 {% hint style="danger" %}
 As you might've guessed, Plugins run with the same permissions as the main application.  
 This means they can modify the application database at will, delete files, and execute system commands.  
-None of this is obviously an issue if the application is installed in a proper fashion.(Docker/Vagrant, or non-root user on Linux _I seriously hope you guys don't run this as root_)
+None of this is obviously an issue if the application is installed in a proper fashion.(Docker/VM, or non-root user on Linux _I seriously hope you guys don't run this as root_)
 
 Still, as said in the User Documentation, be careful of what you do with Plugins.
 {% endhint %}

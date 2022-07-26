@@ -27,7 +27,9 @@ sub add_tasks {
             my ( $job, @args ) = @_;
             my ( $thumbdir, $id, $page ) = @args;
 
-            my $thumbname = extract_thumbnail( $thumbdir, $id, $page );
+            # Non-cover thumbnails are rendered in low quality by default.
+            my $use_hq = $page eq 0 || LANraragi::Model::Config->get_hqthumbpages;
+            my $thumbname = extract_thumbnail( $thumbdir, $id, $page, $use_hq );
             $job->finish($thumbname);
         }
     );
@@ -65,7 +67,7 @@ sub add_tasks {
                             unless ( $force == 0 && -e $thumbname ) {
                                 eval {
                                     $logger->debug("Regenerating for $id...");
-                                    extract_thumbnail( $thumbdir, $id, 0 );
+                                    extract_thumbnail( $thumbdir, $id, 0, 1 );
                                 };
 
                                 if ($@) {
@@ -137,9 +139,7 @@ sub add_tasks {
               or die "Bullshit! File path could not be converted back to a byte sequence!"
               ;    # This error happening would not make any sense at all so it deserves the EYE reference
 
-            # For display however, we'd like to make sure we always show proper UTF-8.
-            # redis_decode, while not initially designed for this, does the job.
-            $logger->info( "Processing uploaded file" . redis_decode($file) . "..." );
+            $logger->info("Processing uploaded file $file...");
 
             # Since we already have a file, this goes straight to handle_incoming_file.
             my ( $status, $id, $title, $message ) = LANraragi::Model::Upload::handle_incoming_file( $file, $catid, "" );
@@ -148,7 +148,7 @@ sub add_tasks {
                 {   success  => $status,
                     id       => $id,
                     category => $catid,
-                    title    => redis_decode($title),    # Ditto, to fix display issues in the response
+                    title    => redis_decode($title),    # Fix display issues in the response
                     message  => $message
                 }
             );

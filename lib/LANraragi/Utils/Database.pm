@@ -50,6 +50,32 @@ sub add_archive_to_redis {
     return $name;
 }
 
+#change_archive_id($old_id,$new_id,$redis)
+# Updates the DB entry for the given ID to reflect the new ID.
+# This is used in case the file changes substantially and its hash becomes different.
+sub change_archive_id {
+    my ( $old_id, $new_id, $redis ) = @_;
+    my $logger = get_logger( "Archive", "lanraragi" );
+
+    $logger->debug("Changing ID $old_id to $new_id");
+
+    if ( $redis->exists($old_id) ) {
+        $redis->rename( $old_id, $new_id );
+    }
+
+    # We also need to update categories that contain the ID.
+    # TODO: When meta-archives are implemented, this will need to be updated.
+    $logger->debug("Updating categories that contained $old_id to $new_id.");
+    my @categories = LANraragi::Model::Category::get_categories_containing_archive($old_id);
+
+    foreach my $cat (@categories) {
+        my $catid = %{$cat}{"id"};
+        $logger->warn("Updating category $catid");
+        LANraragi::Model::Category::remove_from_category( $catid, $old_id );
+        LANraragi::Model::Category::add_to_category( $catid, $new_id );
+    }
+}
+
 # add_timestamp_tag(redis, id)
 # Adds a timestamp tag to the given ID.
 sub add_timestamp_tag {
@@ -216,6 +242,7 @@ sub clean_database {
     eval {
         # Save an autobackup somewhere before cleaning
         my $outfile = getcwd() . "/autobackup.json";
+        $logger->info("Saving automatic backup to $outfile");
         open( my $fh, '>', $outfile );
         print $fh LANraragi::Model::Backup::build_backup_JSON();
         close $fh;
@@ -254,10 +281,28 @@ sub clean_database {
             next;
         }
 
+        # If the linked file exists, check if its ID is in the filemap
         unless ( $file eq "" || exists $filemap{$id} ) {
-            $logger->warn("File exists but its ID is no longer $id -- Removing file reference in its database entry.");
-            $redis->hset( $id, "file", "" );
-            $unlinked_arcs++;
+            $logger->warn("File exists but its ID is no longer $id!");
+            $logger->warn("Trying to find its new ID in the Shinobu filemap...");
+
+            if ( $redis->hexists( "LRR_FILEMAP", $file ) ) {
+                my $newid = $redis->hget( "LRR_FILEMAP", $file );
+                $logger->warn("Found $newid in the filemap! Changing ID from $id to it.");
+
+                if ( $redis->exists($newid) ) {
+                    $logger->warn("ID $newid already exists in the database! Unlinking old ID.");
+                    $redis->hset( $id, "file", "" );
+                } else {
+                    change_archive_id( $id, $newid, $redis );
+                }
+
+            } else {
+                $logger->warn("File $file not found in the filemap! Removing file reference in the database entry for $id.");
+                $redis->hset( $id, "file", "" );
+                $unlinked_arcs++;
+            }
+
         }
     }
 

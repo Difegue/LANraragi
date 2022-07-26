@@ -13,8 +13,23 @@
 
 <tr>
     <td class="option-td">
-        <input id="genthumb-button" class='stdbtn' type='button' onclick="Server.regenerateThumbnails(false);"
-            value='Generate Missing Thumbnails' />
+        <h2 class="ih"> Use high-quality thumbnails for pages </h2>
+    </td>
+    <td class="config-td">
+        [% IF hqthumbpages %]
+        <input id="hqthumbpages" name="hqthumbpages" class="fa" type="checkbox" checked> [% ELSE %]
+        <input id="hqthumbpages" name="hqthumbpages" class="fa" type="checkbox"> [% END %]
+        <label for="hqthumbpages">
+            <br>LANraragi generates lower-quality thumbnails for archive pages for performance reasons.
+            <br>If this option is checked, it will instead generate page thumbnails at the same quality as cover
+            thumbnails.
+        </label>
+    </td>
+</tr>
+
+<tr>
+    <td class="option-td">
+        <input id="genthumb-button" class='stdbtn' type='button' value='Generate Missing Thumbnails' />
     </td>
     <td class="config-td">
         Generate Thumbnails for all archives that don't have one yet.
@@ -23,8 +38,7 @@
 
 <tr>
     <td class="option-td">
-        <input id="forcethumb-button" class='stdbtn' type='button' onclick="Server.regenerateThumbnails(true);"
-            value='Regenerate all Thumbnails' />
+        <input id="forcethumb-button" class='stdbtn' type='button' value='Regenerate all Thumbnails' />
     </td>
     <td class="config-td">
         Regenerate all thumbnails. This might take a while!

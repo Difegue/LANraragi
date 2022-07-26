@@ -10,17 +10,23 @@
 	<link rel="stylesheet" type="text/css" href="/css/lrr.css?[% version %]" />
 
 	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
-	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.toast.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.contextMenu.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/awesomplete.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/tippy.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/allcollapsible.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/swiper-bundle.min.css" />
+	<link rel="stylesheet" type="text/css" href="/css/vendor/ReactToastify.min.css" />
+	<link rel="stylesheet" type="text/css" href="/css/vendor/sweetalert2.min.css" />
 	[% csshead %]
 
 	<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.dataTables.min.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/jquery.toast.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/preact.umd.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/hooks.umd.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/compat.umd.js" type="text/JAVASCRIPT"></script>
+	<script>window.React=window.preactCompat;window.react=window.preactCompat;</script>
+	<script src="/js/vendor/clsx.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/react-toastify.umd.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.ui.position.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.contextMenu.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/awesomplete.min.js" type="text/JAVASCRIPT"></script>
@@ -29,6 +35,7 @@
 	<script src="/js/vendor/marked.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/allcollapsible.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/swiper-bundle.min.js" type="text/JAVASCRIPT"></script>
+	<script src="/js/vendor/sweetalert2.min.js" type="text/JAVASCRIPT"></script>
 
 	<script src="/js/index.js?[% version %]" type="text/JAVASCRIPT"></script>
 	<script src="/js/common.js?[% version %]" type="text/JAVASCRIPT"></script>
@@ -82,10 +89,12 @@
 			</div>
 
 			<ul class="collapsible index-carousel with-right-caret">
-				<li class="option-flyout" style="text-align: left;">
-					<div class="collapsible-title caret-right" style="display:inline-block;">
+				<li class="option-flyout"
+					style="text-align: left;display: flex;flex-wrap: wrap;justify-content: space-between;">
+					<div class="collapsible-title caret-right" style="display: flex;flex: 1 1 0;overflow: hidden;">
 						<i id="carousel-icon" class="fa"></i>
-						<div id="carousel-title" style="display:inline"
+						<div id="carousel-title"
+							style="display:inline;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-left: 8px;"
 							title="Click to show archives from the current search with the specified filter">...</div>
 					</div>
 					<div class="collapsible-right">
@@ -95,7 +104,7 @@
 							id="carousel-mode-menu" href="#" title="Carousel Options"></a>
 					</div>
 
-					<div class="collapsible-body">
+					<div class="collapsible-body" style="flex: 1 0 100%;overflow: hidden;box-sizing: border-box;">
 						<div class="swiper index-carousel-container">
 							<a href="#" class="fa fa-3x fa-chevron-left carousel-prev"></a>
 							<a href="#" class="fa fa-3x fa-chevron-right carousel-next"></a>
@@ -175,16 +184,17 @@
 	<script>
 
 		// Last few remains of JS using server-provided data
-		$(document).ready(() => {
+		jQuery(() => {
 
 			[% IF usingdefpass %]
 			//If the json has the "default password" flag, flash a friendly notification inviting the user to change his password
-			$.toast({
+			LRR.toast({
 				heading: 'You\'re using the default password and that\'s super baka of you',
 				text: '<a href="login">Login</a> with password "kamimamita" and <a href="config">change that shit</a> on the double.<br/>...Or just disable it! <br/>Why not check the configuration options afterwards, while you\'re at it? ',
-				hideAfter: false,
-				position: 'top-left',
-				icon: 'error'
+				icon: 'warning',
+                hideAfter: 25000,
+				closeOnClick: false,
+				draggable: false,
 			});
 			[% END %]
 
@@ -224,8 +234,6 @@
 					}
 				}
 			});
-
-			Index.initializeAll();
 		});
 	</script>
 
@@ -233,7 +241,7 @@
 
 	<div id="updateOverlay" class="id1 base-overlay small-overlay" style="display:none">
 		<h2 class="ih" style="text-align:center">New Version Release Notes</h2>
-		<div id="changelog" />
+		<div id="changelog"></div>
 	</div>
 
 

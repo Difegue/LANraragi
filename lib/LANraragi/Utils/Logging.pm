@@ -73,7 +73,14 @@ sub get_logger {
         sub {
             my ( $time, $level, @lines ) = @_;
             my $time2 = strftime( "%Y-%m-%d %H:%M:%S", localtime($time) );
-            return "[$time2] [$pgname] [$level] " . join( "\n", @lines ) . "\n";
+
+            my $logstring = join( "\n", @lines );
+
+            # We'd like to make sure we always show proper UTF-8.
+            # redis_decode, while not initially designed for this, does the job.
+            $logstring = LANraragi::Utils::Database::redis_decode($logstring);
+
+            return "[$time2] [$pgname] [$level] $logstring\n";
         }
     );
 

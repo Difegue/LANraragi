@@ -24,7 +24,7 @@ Those variables were introduced for the Homebrew package, but they can be declar
 While Perl's mantra is "There's more than one way to do it", I try to make LRR follow the PBP, aka Perl Best Practices.  
 This is done by the use of the [Perl::Critic](https://metacpan.org/pod/Perl::Critic) module, which reports PBP violations.  
 If installed, you can run the critic on the entire LRR source tree through the `npm run critic` shortcut command.  
-Critic is automatically run on every commit made to LRR at the level 5 thanks to [Github Actions](../../../.github/main.workflow).
+Critic is automatically run on every commit made to LRR at the level 5 thanks to [GitHub Actions](../../../.github/main.workflow).
 
 I also run [perltidy](https://en.wikipedia.org/wiki/PerlTidy) on the source tree every now and then for consistency.  
 The rules used in perltidy passes are stored in the .perltidyrc file at the source root.
@@ -47,14 +47,14 @@ I recommend trying to only use exported functions in your code, and consider the
 ```
 root/
 |- .devcontainer <- VSCode setup files for Codespaces
-|- .github       <- Github-specific files
+|- .github       <- GitHub-specific files
 |  |- action-run-tests <- Run the LRR Test Suite
 |  |- ISSUE_TEMPLATE   <- Template for bug reports
-|  |- workflows        <- Github Actions workflows
+|  |- workflows        <- GitHub Actions workflows
 |     |- CD               <- Continuous Delivery, Nightly builds
 |     |- CI               <- Tests
 |     +- Release          <- Build latest and upload .zip to release post on GH
-|  +- FUNDING.yml      <- Github Sponsors file
+|  +- FUNDING.yml      <- GitHub Sponsors file
 |
 |- content       <- Default content folder
 |
@@ -117,7 +117,6 @@ root/
 |     |- windows          <- Windows build script and submodule link to the Karen WPF Bootstrapper
 |     |- docker           <- Dockerfile and configuration files for LRR Docker Container
 |     |- homebrew         <- Script and configuration files for the LRR Homebrew cask
-|     |- vagrant          <- Vagrantfile for LRR Vagrant Machine
 |  |- cpanfile      <- Perl dependencies description
 |  |- install.pl    <- LANraragi Installer
 |  +- lanraragi-systemd.service <- Example SystemD service

@@ -12,41 +12,22 @@ Docker is the best way to install the software on remote servers. I don't recomm
 
 ## Cloning the base LRR image
 
-Download [the Docker setup](https://www.docker.com/products/docker) and install it. Once you're done, execute:
+Download [the Docker setup](https://www.docker.com/products/docker) and install it.  
 
+{% hint style="warning" %}
+The LRR Docker container uses a fairly recent ([3.14](https://alpinelinux.org/posts/Alpine-3.14.0-released.html)) version of Alpine Linux as its base. I recommend you use at least Docker version **20.10.0** to avoid issues with the `faccessat2` syscall.  
+You can check your Docker version by executing `docker version`. 
+{% endhint %}
+
+Once you're done, execute:
 ```bash
 docker run --name=lanraragi -p 3000:3000 \
 --mount type=bind,source=[YOUR_CONTENT_DIRECTORY],target=/home/koyomi/lanraragi/content \
 --mount type=bind,source=[YOUR_DATABASE_DIRECTORY],target=/home/koyomi/lanraragi/database \
 difegue/lanraragi
 ```
-
-{% hint style="warning" %}
-If your Docker version is [_below 17.06_](https://docs.docker.com/storage/bind-mounts/) and you use the --mount option as listed above, you will get the following error:
-
-```bash
-unknown flag: --mount 
-See 'docker run --help'.
-```
-
-You can bypass this issue by using the --volume option for bind-mounting like so:
-
-```bash
-docker run --name=lanraragi -p 3000:3000 \
---volume [YOUR_CONTENT_DIRECTORY]:/home/koyomi/lanraragi/content \
---volume [YOUR_CONTENT_DIRECTORY]:/home/koyomi/lanraragi/database \
-difegue/lanraragi
-```
-{% endhint %}
-
 {% hint style="info" %}
 You can tell Docker to auto-restart the LRR container on boot by adding the `--restart always` flag to this command.
-{% endhint %}
-
-{% hint style="warning" %}
-If you're running on Windows, please check the syntax for mapping your content directory [here](https://docs.docker.com/docker-for-windows/#shared-drives).
-
-Windows 7/8 users running the Legacy Docker toolbox will have to explicitly forward port 127.0.0.1:3000 from the host to the container in order to be able to access the app.
 {% endhint %}
 
 The content directory you have to specify in the command above will contain archives you either upload through the software or directly drop in, alongside generated thumbnails.  
@@ -84,6 +65,24 @@ If you're feeling **extra dangerous**, you can run the last files directly from 
 `docker run [zoinks] difegue/lanraragi:nightly`
 {% endhint %}
 
+## Platform-specific caveats
+
+### Windows
+If you're running on Windows, please check the syntax for mapping your content directory [here](https://docs.docker.com/docker-for-windows/#shared-drives).
+
+Windows 7/8 users running the Legacy Docker toolbox will have to explicitly forward port 127.0.0.1:3000 from the host to the container in order to be able to access the app.
+### Raspbian 
+
+If you're using **Raspbian**, it's likely you'll encounter installation issues like `s6-svscan: warning: unable to iopause: Operation not permitted` due to their outdated version of `libseccomp`.  
+You can fix this by either adding `--security-opt seccomp=unconfined` to your Docker arguments(discouraged, allows LRR wider access to underlying OS), or by installing an up-to-date version of `libseccomp`:  
+
+```bash
+wget http://ftp.debian.org/debian/pool/main/libs/libseccomp/libseccomp2_2.5.1-1~bpo10+1_armhf.deb
+sudo dpkg -i libseccomp2_2.5.1-1~bpo10+1_armhf.deb
+```
+
+Regular versions of Debian shouldn't have this issue.
+
 ## Changing the port
 
 Since Docker allows for port mapping, you can most of times map the default port of 3000 to another port on your host quickly.  
@@ -116,10 +115,13 @@ As Docker containers are immutable, you need to destroy your existing container 
 docker pull difegue/lanraragi
 docker stop lanraragi
 docker rm lanraragi
-docker run --name=lanraragi -p 3000:3000 --mount type=bind,source=[YOUR_CONTENT_DIRECTORY],target=/home/koyomi/lanraragi/content difegue/lanraragi
+docker run --name=lanraragi -p 3000:3000 \
+           --mount type=bind,source=[YOUR_CONTENT_DIRECTORY],target=/home/koyomi/lanraragi/content \
+           --mount type=bind,source=[YOUR_DATABASE_DIRECTORY],target=/home/koyomi/lanraragi/database \
+           difegue/lanraragi
 ```
 
-As long as you use the same content directory as the mount source, your data will still be there.
+As long as you use the same content/database directories as before, your data will still be there.
 
 {% hint style="info" %}
 If you update often, you might want to consider using docker-compose or [Portainer](https://portainer.io) to redeploy containers without entering the entire configuration every time.

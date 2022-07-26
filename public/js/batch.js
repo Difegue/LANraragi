@@ -15,9 +15,12 @@ Batch.initializeAll = function () {
     $(document).on("change.plugin", "#plugin", Batch.showOverride);
     $(document).on("click.override", "#override", Batch.showOverride);
     $(document).on("click.check-uncheck", "#check-uncheck", Batch.checkAll);
-    $(document).on("click.start-batch", "#start-batch", Batch.startBatch);
+    $(document).on("click.start-batch", "#start-batch", Batch.startBatchCheck);
     $(document).on("click.restart-job", "#restart-job", Batch.restartBatchUI);
     $(document).on("click.cancel-job", "#cancel-job", Batch.cancelBatch);
+    $(document).on("click.server-config", "#server-config", () => LRR.openInNewTab("./config"));
+    $(document).on("click.plugin-config", "#plugin-config", () => LRR.openInNewTab("./config/plugins"));
+    $(document).on("click.return", "#return", () => { window.location.href = "/"; });
 
     Batch.selectOperation();
     Batch.showOverride();
@@ -35,7 +38,8 @@ Batch.initializeAll = function () {
             });
 
             Batch.checkUntagged();
-        })
+        },
+    )
         .finally(() => {
             $("#arclist").show();
             $("#loading-placeholder").hide();
@@ -83,7 +87,31 @@ Batch.checkUntagged = function () {
                     checkbox.parentElement.parentElement.prepend(checkbox.parentElement);
                 }
             });
+        },
+    );
+};
+
+/**
+ * Pop up a confirm dialog if operation is destructive.
+ */
+Batch.startBatchCheck = function () {
+    if (Batch.currentOperation === "delete") {
+        LRR.showPopUp({
+            text: "Are you sure you want to delete the selected archives?",
+            icon: "warning",
+            showCancelButton: true,
+            focusConfirm: false,
+            confirmButtonText: "Yes, delete it!",
+            reverseButtons: true,
+            confirmButtonColor: "#d33",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Batch.startBatch();
+            }
         });
+    } else {
+        Batch.startBatch();
+    }
 };
 
 /**
@@ -91,10 +119,6 @@ Batch.checkUntagged = function () {
  * This crafts a JSON list to send to the batch tagging websocket service.
  */
 Batch.startBatch = function () {
-    if (Batch.currentOperation === "delete" && !confirm("This is a destructive operation! Are you sure you want to delete the selected archives?")) {
-        return;
-    }
-
     $(".tag-options").hide();
 
     $("#log-container").html("Started Batch Operation...\n************\n");
@@ -105,12 +129,8 @@ Batch.startBatch = function () {
     const checkeds = document.querySelectorAll("input[name=archive]:checked");
 
     // Extract IDs from nodelist
-    const arcs = [];
-    const args = [];
-
-    for (let i = 0, ref = arcs.length = checkeds.length; i < ref; i++) {
-        arcs[i] = checkeds[i].id;
-    }
+    const arcs = Array.from(checkeds).map((item) => item.id);
+    let args = [];
 
     // Reset counts
     Batch.treatedArchives = 0;
@@ -122,14 +142,14 @@ Batch.startBatch = function () {
     // Only add values into the override argument array if the checkbox is on
     const arginputs = $(`.${Batch.currentPlugin}-argvalue`);
     if ($("#override")[0].checked) {
-        for (let j = 0, ref = args.length = arginputs.length; j < ref; j++) {
+        args = Array.from(arginputs).map((item) => {
             // Checkbox inputs are handled by looking at the checked prop instead of the value.
-            if (arginputs[j].type !== "checkbox") {
-                args[j] = arginputs[j].value;
+            if (item.type !== "checkbox") {
+                return item.value;
             } else {
-                args[j] = arginputs[j].checked ? 1 : 0;
+                return item.checked ? 1 : 0;
             }
-        }
+        });
     }
 
     // Initialize websocket connection
@@ -142,7 +162,7 @@ Batch.startBatch = function () {
 
     // Close any existing connection
     // eslint-disable-next-line no-empty
-    try { Batch.socket.close(); } catch {}
+    try { Batch.socket.close(); } catch { }
 
     let wsProto = "ws://";
     if (document.location.protocol === "https:") wsProto = "wss://";
@@ -240,14 +260,11 @@ Batch.batchError = function () {
     $("#log-container").append("************\nError! Terminating session.\n");
     Batch.scrollLogs();
 
-    $.toast({
-        showHideTransition: "slide",
-        position: "top-left",
-        loader: false,
-        hideAfter: false,
+    LRR.toast({
         heading: "An error occured during batch tagging!",
         text: "Please check application logs.",
         icon: "error",
+        hideAfter: false,
     });
 };
 
@@ -263,12 +280,8 @@ Batch.endBatch = function (event) {
     $("#log-container").append(`************\n${event.reason}(code ${event.code})\n`);
     Batch.scrollLogs();
 
-    $.toast({
-        showHideTransition: "slide",
-        position: "top-left",
-        loader: false,
+    LRR.toast({
         heading: "Batch Operation complete!",
-        text: "",
         icon: status,
     });
 
@@ -306,8 +319,6 @@ Batch.restartBatchUI = function () {
     $(".job-status").hide();
 };
 
-$(document).ready(() => {
+jQuery(() => {
     Batch.initializeAll();
 });
-
-window.Batch = Batch;
