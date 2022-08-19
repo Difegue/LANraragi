@@ -56,7 +56,7 @@ sub trim_url {
 # Checks if the provided file is an image.
 # Uses non-capturing groups (?:) to avoid modifying the incoming argument.
 sub is_image {
-    return $_[0] =~ /^.+\.(?:png|jpg|gif|bmp|jpeg|jfif|webp|avif|heif|heic)$/i;
+    return $_[0] =~ /^.+\.(?:png|jpg|gif|bmp|jpeg|jfif|webp|avif|heif|heic|jxl|)$/i;
 }
 
 # Checks if the provided file is an archive.
