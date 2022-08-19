@@ -153,10 +153,12 @@ sub download_url {
     die "Not a proper URL" unless $url;
     $logger->info("Downloading URL $url...This will take some time.");
 
-    my $tempdir      = tempdir();
-    my $tx           = $ua->max_redirects(5)->get($url);
+    my $tempdir = tempdir();
+
+    # Download the URL, with 5 maximum redirects and unlimited response size.
+    my $tx           = $ua->max_response_size(0)->max_redirects(5)->get($url);
     my $content_disp = $tx->result->headers->content_disposition;
-    my $filename     = "Not_an_archive";                            #placeholder;
+    my $filename     = "Not_an_archive";                                         #placeholder;
 
     $logger->debug("Content-Disposition Header: $content_disp");
     if ( $content_disp =~ /.*filename=\"(.*)\".*/gim ) {
