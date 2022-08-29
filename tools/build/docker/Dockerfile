@@ -9,10 +9,11 @@ ENV S6_BEHAVIOUR_IF_STAGE2_FAILS 1
 
 # wait 10s before KILLing
 ENV S6_KILL_GRACETIME 10000
+ENV S6_CMD_WAIT_FOR_SERVICES_MAXTIME 0
 
-# s6: The init is provided by alpine's s6-overlay package, hence the double slash. 
+# s6: The init is provided by alpine's s6-overlay package, hence the double slash.
 # See https://pkgs.alpinelinux.org/contents?branch=v3.14&name=s6-overlay&arch=x86&repo=community
-ENTRYPOINT ["//init"] 
+ENTRYPOINT ["//init"]
 
 # Check application health
 HEALTHCHECK --interval=1m --timeout=10s --retries=3 \
@@ -62,8 +63,11 @@ COPY --chown=koyomi:koyomi /tests tests
 COPY --chown=koyomi:koyomi /lrr.conf lrr.conf
 COPY --chown=koyomi:koyomi /tools/build/docker/redis.conf tools/build/docker/
 COPY /tools/build/docker/wsl.conf /etc/wsl.conf
-COPY /tools/build/docker/s6/cont-init.d/ /etc/cont-init.d/
-COPY /tools/build/docker/s6/services.d/ /etc/services.d/
+#Copy s6-overlay 3.x services
+#Uses a system-d like definition that can't be use in 2.x
+COPY /tools/build/docker/s6/s6-rc.d/ /etc/s6-overlay/s6-rc.d/
+#Copy setup script as-is since no changes are needed between 2.x and 3.x
+COPY /tools/build/docker/s6/cont-init.d/01-lrr-setup /etc/s6-overlay/s6-rc.d/init/
 #COPY /tools/build/docker/s6/fix-attrs.d/ /etc/fix-attrs.d/
 
 # Persistent volumes

@@ -14,7 +14,7 @@ if [ -f /etc/alpine-release ]; then
   if [ "$alpine_version" = "3.12.12" ]; then
       apk add nodejs-npm
     else # Those packages don't exist on 3.12
-      apk add nodejs npm s6-overlay s6-overlay-preinit libjxl
+      apk add nodejs npm s6-overlay libjxl
   fi
 fi
 

@@ -42,7 +42,9 @@ chmod u+rwx /home/koyomi/lanraragi/public/temp
 #Remove mojo, minion and shinobu pid files
 rm /home/koyomi/lanraragi/public/temp/server.pid
 rm /home/koyomi/lanraragi/public/temp/shinobu.pid
+rm /home/koyomi/lanraragi/public/temp/shinobu.pid-s6
 rm /home/koyomi/lanraragi/public/temp/minion.pid
+rm /home/koyomi/lanraragi/public/temp/minion.pid-s6
 
 # https://redis.io/topics/faq#background-saving-fails-with-a-fork-error-under-linux-even-if-i-have-a-lot-of-free-ram
 OVERCOMMIT=$(cat /proc/sys/vm/overcommit_memory)
