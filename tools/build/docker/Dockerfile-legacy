@@ -67,7 +67,7 @@ COPY --chown=koyomi:koyomi /lrr.conf lrr.conf
 COPY --chown=koyomi:koyomi /tools/build/docker/redis.conf tools/build/docker/
 COPY /tools/build/docker/wsl.conf /etc/wsl.conf
 COPY /tools/build/docker/s6/cont-init.d/ /etc/cont-init.d/
-COPY /tools/build/docker/s6/services.d/ /etc/services.d/
+COPY /tools/build/docker/s6/legacy-services.d/ /etc/services.d/
 #COPY /tools/build/docker/s6/fix-attrs.d/ /etc/fix-attrs.d/
 
 # Persistent volumes

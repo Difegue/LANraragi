@@ -142,9 +142,9 @@ sub start_minion {
 
     # Freeze the process object in the PID file
     store \$proc, get_temp . "/minion.pid";
-    open(FH, ">", get_temp . "/minion.pid-s6");
-    print FH $proc->pid;
-    close(FH);
+    open( my $fh, ">", get_temp . "/minion.pid-s6" );
+    print $fh $proc->pid;
+    close($fh);
     return $proc;
 }
 
@@ -167,9 +167,9 @@ sub start_shinobu {
 
     # Freeze the process object in the PID file
     store \$proc, get_temp . "/shinobu.pid";
-    open(FH, ">", get_temp . "/shinobu.pid-s6");
-    print FH $proc->pid;
-    close(FH);
+    open( $fh, ">", get_temp . "/shinobu.pid-s6" );
+    print $fh $proc->pid;
+    close($fh);
     return $proc;
 }
 
