@@ -11,7 +11,8 @@
         "dev-server": "perl ./script/launcher.pl -m -v ./script/lanraragi",
         "docker-build": "docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile .",
         "critic": "perlcritic ./lib/* ./script/* ./tools/install.pl",
-        "backup-db": "perl ./script/backup"
+        "backup-db": "perl ./script/backup",
+        "get-version": "perl -Mojo -E \"my \\$conf = j(f(qw(package.json))->slurp); say %\\$conf{version} .q/ - '/. %\\$conf{version_name} .q/'/ \""
     },
     "repository": {
         "type": "git",

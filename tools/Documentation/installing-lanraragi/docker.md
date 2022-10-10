@@ -86,7 +86,7 @@ Regular versions of Debian shouldn't have this issue.
 ## Changing the port
 
 Since Docker allows for port mapping, you can most of times map the default port of 3000 to another port on your host quickly.  
-If you need something a bit more involved (like adding SSL), please check the Network Interfaces section for how to use thhe `LRR_NETWORK` environment variable.
+If you need something a bit more involved (like adding SSL), please check the Network Interfaces section for how to use the `LRR_NETWORK` environment variable.
 
 {% content-ref url="../advanced-usage/network-interfaces.md" %}
 [network-interfaces.md](../advanced-usage/network-interfaces.md)
