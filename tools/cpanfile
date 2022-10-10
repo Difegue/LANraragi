@@ -6,7 +6,7 @@ requires 'local::lib', 2.000024;
 requires 'Redis',                        1.995;
 requires 'Encode',                       3.01;
 requires 'Archive::Libarchive::Extract', 0.03;
-requires 'Archive::Libarchive::Peek',    0.03;
+requires 'Archive::Libarchive::Peek',    0.04;
 requires 'Digest::SHA',                  6.02;
 
 # Not required by LRR itself but needs this version for Alpine support
