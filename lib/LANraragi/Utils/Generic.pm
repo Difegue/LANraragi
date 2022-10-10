@@ -167,7 +167,7 @@ sub start_shinobu {
 
     # Freeze the process object in the PID file
     store \$proc, get_temp . "/shinobu.pid";
-    open( $fh, ">", get_temp . "/shinobu.pid-s6" );
+    open( my $fh, ">", get_temp . "/shinobu.pid-s6" );
     print $fh $proc->pid;
     close($fh);
     return $proc;
