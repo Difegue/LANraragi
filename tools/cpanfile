@@ -3,8 +3,10 @@ requires 'perl',       '5.20.2';
 requires 'local::lib', 2.000024;
 
 # LRR Core
-requires 'Redis',                        1.995;
-requires 'Encode',                       3.01;
+requires 'Redis',  1.995;
+requires 'Encode', 3.01;
+requires 'Archive::Libarchive',
+  0.05;    # Hold back to this version as later ones bring in an updated FFI::Platypus (2.x instead of 1.58) which uses AVX
 requires 'Archive::Libarchive::Extract', 0.03;
 requires 'Archive::Libarchive::Peek',    0.04;
 requires 'Digest::SHA',                  6.02;
