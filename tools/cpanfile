@@ -6,7 +6,7 @@ requires 'local::lib', 2.000024;
 requires 'Redis',  1.995;
 requires 'Encode', 3.01;
 requires 'Archive::Libarchive',
-  0.05;    # Hold back to this version as later ones bring in an updated FFI::Platypus (2.x instead of 1.58) which uses AVX
+  '>= 0.05, < 0.06';    # Hold back to 0.05 as later ones bring in an updated FFI::Platypus (2.x instead of 1.58) which uses AVX
 requires 'Archive::Libarchive::Extract', 0.03;
 requires 'Archive::Libarchive::Peek',    0.04;
 requires 'Digest::SHA',                  6.02;
