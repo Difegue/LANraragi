@@ -24,6 +24,7 @@ curl -L https://cpanmin.us | perl - App::cpanminus
 #Alpine's libffi build comes with AVX instructions enabled
 #Rebuild our own libffi with those disabled
 if [ $(uname -m) == 'x86_64' ]; then
+
   #Install deps only
   cpanm --notest --installdeps Alien::FFI
   curl -L -s https://cpan.metacpan.org/authors/id/P/PL/PLICEASE/Alien-FFI-0.25.tar.gz | tar -xz
@@ -35,11 +36,6 @@ if [ $(uname -m) == 'x86_64' ]; then
 fi
 
 #Install the LRR dependencies proper
-
-# Install held back versions as FFI::Platypus 2.x seems to use AVX
-cpanm FFI::Platypus@1.58
-cpanm Archive::Libarchive@0.05
-
 cd tools && cpanm --notest --installdeps . -M https://cpan.metacpan.org && cd ..
 npm run lanraragi-installer install-full
 

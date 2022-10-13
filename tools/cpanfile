@@ -5,8 +5,6 @@ requires 'local::lib', 2.000024;
 # LRR Core
 requires 'Redis',                        1.995;
 requires 'Encode',                       3.01;
-requires 'FFI::Platypus',                '== 1.58';
-requires 'Archive::Libarchive',          '== 0.05';
 requires 'Archive::Libarchive::Extract', 0.03;
 requires 'Archive::Libarchive::Peek',    0.04;
 requires 'Digest::SHA',                  6.02;
@@ -38,7 +36,7 @@ requires 'Test::Trap',       0.3.4;
 requires 'Test::Deep',       1.130;
 
 # Mojo stuff
-requires 'Mojolicious',                          9.19;
+requires 'Mojolicious',                          9.27;
 requires 'Mojolicious::Plugin::TemplateToolkit', 0.005;
 requires 'Mojolicious::Plugin::RenderFile',      0.12;
 requires 'Mojolicious::Plugin::Status',          1.15;
@@ -46,7 +44,7 @@ requires 'IO::Socket::SSL',                      2.067;
 requires 'Cpanel::JSON::XS',                     4.06;
 
 # Job Queue (Minion)
-requires 'Minion',                 10.20;
+requires 'Minion',                 10.25;
 requires 'Minion::Backend::Redis', 0.002;
 
 # Background Worker (Shinobu)
