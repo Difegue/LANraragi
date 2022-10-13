@@ -14,11 +14,8 @@ sub index {
 
     if ( $self->req->param('id') ) {
 
-        # Allow adding to category
-        my @categories = LANraragi::Model::Category->get_category_list;
-
-        # But only to static categories
-        @categories = grep { %$_{"search"} eq "" } @categories;
+        # Allow adding to static categories
+        my @categories = LANraragi::Model::Category->get_static_category_list;
 
         # Get query string from referrer URL, if there's one
         my $referrer = $self->req->headers->referrer;

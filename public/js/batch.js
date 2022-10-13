@@ -157,6 +157,7 @@ Batch.startBatch = function () {
     const commandBase = {
         operation: Batch.currentOperation,
         plugin: Batch.currentPlugin,
+        category: $("#category").val(),
         args,
     };
 
@@ -222,6 +223,11 @@ Batch.updateBatchStatus = function (event) {
             break;
         case "tagrules":
             $("#log-container").append(`Replaced tags for ID ${msg.id} (New tags: ${msg.tags})\n\n`);
+            break;
+        case "addcat":
+            // Append the message at the end of this log,
+            // as it can contain the warning about the ID already being in the category
+            $("#log-container").append(`Added ID ${msg.id} to category ${msg.category}! ${msg.message} \n\n`);
             break;
         case "clearnew": {
             $("#log-container").append(`Cleared new flag for ID ${msg.id}\n\n`);

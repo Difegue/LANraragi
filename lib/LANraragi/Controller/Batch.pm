@@ -18,14 +18,18 @@ sub index {
     #Build plugin listing
     my @pluginlist = get_plugins("metadata");
 
+    # Get static category list
+    my @categories = LANraragi::Model::Category->get_static_category_list;
+
     $self->render(
-        template => "batch",
-        plugins  => \@pluginlist,
-        title    => $self->LRR_CONF->get_htmltitle,
-        descstr  => $self->LRR_DESC,
-        csshead  => generate_themes_header($self),
-        tagrules => restore_CRLF( $self->LRR_CONF->get_tagrules ),
-        version  => $self->LRR_VERSION
+        template   => "batch",
+        plugins    => \@pluginlist,
+        title      => $self->LRR_CONF->get_htmltitle,
+        descstr    => $self->LRR_DESC,
+        csshead    => generate_themes_header($self),
+        tagrules   => restore_CRLF( $self->LRR_CONF->get_tagrules ),
+        categories => \@categories,
+        version    => $self->LRR_VERSION
     );
 }
 
@@ -90,6 +94,22 @@ sub socket {
                     {   json => {
                             id      => $id,
                             success => 1,
+                        }
+                    }
+                );
+                return;
+            }
+
+            if ( $operation eq "addcat" ) {
+                my $catid = $command->{"category"};
+                my ( $catsucc, $caterr ) = LANraragi::Model::Category::add_to_category( $catid, $id );
+
+                $client->send(
+                    {   json => {
+                            id       => $id,
+                            category => $catid,
+                            success  => $catsucc,
+                            message  => $caterr
                         }
                     }
                 );

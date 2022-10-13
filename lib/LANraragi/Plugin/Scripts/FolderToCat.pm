@@ -45,13 +45,11 @@ sub run_script {
     if ($delete_old_cats) {
         $logger->info("Deleting all Static Categories before folder walking as instructed.");
 
-        my @categories = LANraragi::Model::Category->get_category_list;
+        my @categories = LANraragi::Model::Category->get_static_category_list;
         for my $category (@categories) {
-            if ( %{$category}{"search"} eq "" ) {
-                my $cat_id = %{$category}{"id"};
-                $logger->debug("Deleting '$cat_id'");
-                LANraragi::Model::Category::delete_category($cat_id);
-            }
+            my $cat_id = %{$category}{"id"};
+            $logger->debug("Deleting '$cat_id'");
+            LANraragi::Model::Category::delete_category($cat_id);
         }
     }
 
