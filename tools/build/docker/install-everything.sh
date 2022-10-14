@@ -29,8 +29,8 @@ if [ $(uname -m) == 'x86_64' ]; then
   cpanm --notest --installdeps Alien::FFI
   curl -L -s https://cpan.metacpan.org/authors/id/P/PL/PLICEASE/Alien-FFI-0.25.tar.gz | tar -xz
   cd Alien-FFI-0.25
-  #Patch build script to disable AVX
-  sed -i 's/--disable-builddir/--disable-builddir --with-gcc-arch=x86-64-v2/' alienfile
+  #Patch build script to disable AVX - and SSE4 for real old CPUs
+  sed -i 's/--disable-builddir/--disable-builddir --with-gcc-arch=x86-64/' alienfile
   perl Makefile.PL && make install
   cd ../ && rm -rf Alien-FFI-0.25
 fi
