@@ -36,7 +36,7 @@ brew install lanraragi
 
 Your content folder is stored by default in `${HOME}/Library/Application Support/LANraragi`. (`${HOME}/LANraragi/content` on Linux.)  
 The Redis database is stored in `${HOME}/Library/Application Support/LANraragi/database`. (`${HOME}/LANraragi/database` on Linux.)  
-The content folder can be moved to any folder you want through the in-app settings page.
+While the in-app settings page won't allow you to change the location of the content folder, you can do so by overriding the `LRR_DATA_DIRECTORY` environment variable before launching.
 
 ## Usage
 

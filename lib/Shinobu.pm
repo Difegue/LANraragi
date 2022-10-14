@@ -227,6 +227,8 @@ sub add_to_filemap {
 
                 LANraragi::Utils::Database::change_archive_id( $filemap_id, $id, $redis );
 
+                # Don't forget to update the filemap, later operations will behave incorrectly otherwise
+                $redis->hset( "LRR_FILEMAP", $file, $id );
             } else {
                 $logger->debug(
                     "$file has the same ID as the one in the filemap. Duplicate inotify events? Cleaning cache just to make sure");

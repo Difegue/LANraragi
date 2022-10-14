@@ -19,7 +19,7 @@
 	<script src="/js/vendor/preact.umd.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/hooks.umd.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/compat.umd.js" type="text/JAVASCRIPT"></script>
-	<script>window.React=window.preactCompat;window.react=window.preactCompat;</script>
+	<script>window.React = window.preactCompat; window.react = window.preactCompat;</script>
 	<script src="/js/vendor/clsx.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/react-toastify.umd.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/sweetalert2.min.js" type="text/JAVASCRIPT"></script>
@@ -54,6 +54,7 @@
 									<option value="plugin">🧩 Use Plugin</option>
 									<option value="clearnew">🆕 Remove New Flag</option>
 									<option value="tagrules">📏 Apply Tag Rules</option>
+									<option value="addcat">📚 Add To Category</option>
 									<option value="delete">🗑️ Delete Archive</option>
 								</select>
 							</td>
@@ -120,6 +121,17 @@
 
 									This removes the "new" flag from the selected archives.
 									<br>
+								</td>
+							</tr>
+
+							<tr class="operation addcat-operation">
+								<td>Add to Category :</td>
+								<td>
+									<select id="category" class="favtag-btn">
+										[% FOREACH categories %]
+										<option value="[% id %]">[% name %]</option>
+										[% END %]
+									</select>
 								</td>
 							</tr>
 

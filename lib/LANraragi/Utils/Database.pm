@@ -295,6 +295,7 @@ sub clean_database {
                     $redis->hset( $id, "file", "" );
                 } else {
                     change_archive_id( $id, $newid, $redis );
+                    $redis->hset( "LRR_FILEMAP", $file, $newid );
                 }
 
             } else {

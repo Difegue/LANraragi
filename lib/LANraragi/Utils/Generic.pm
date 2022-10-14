@@ -56,7 +56,7 @@ sub trim_url {
 # Checks if the provided file is an image.
 # Uses non-capturing groups (?:) to avoid modifying the incoming argument.
 sub is_image {
-    return $_[0] =~ /^.+\.(?:png|jpg|gif|bmp|jpeg|jfif|webp|avif|heif|heic)$/i;
+    return $_[0] =~ /^.+\.(?:png|jpg|gif|bmp|jpeg|jfif|webp|avif|heif|heic|jxl|)$/i;
 }
 
 # Checks if the provided file is an archive.
@@ -142,6 +142,9 @@ sub start_minion {
 
     # Freeze the process object in the PID file
     store \$proc, get_temp . "/minion.pid";
+    open( my $fh, ">", get_temp . "/minion.pid-s6" );
+    print $fh $proc->pid;
+    close($fh);
     return $proc;
 }
 
@@ -164,6 +167,9 @@ sub start_shinobu {
 
     # Freeze the process object in the PID file
     store \$proc, get_temp . "/shinobu.pid";
+    open( my $fh, ">", get_temp . "/shinobu.pid-s6" );
+    print $fh $proc->pid;
+    close($fh);
     return $proc;
 }
 

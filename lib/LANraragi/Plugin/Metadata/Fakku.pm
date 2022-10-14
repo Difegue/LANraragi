@@ -122,6 +122,12 @@ sub get_search_result_dom {
 # * Added a space ahead of the - (hyphen) filter, to only remove hyphens directly prepended to something else (those are the only ones that break searches, probably because the search engine treats them as exclusions as most engines would).
     $title =~ s/ -|'\w*|~|!|@//g;
 
+    # Removes everything inside [ ] as well as the brackets themselves
+    $title =~ s/\[([^\[\]]|(?0))*]//g;
+
+    # Removes everything inside () as well as the parentheses themselves
+    $title =~ s/\(.*$//g;
+
     # Visit the base host once to set cloudflare cookies and jank
     $ua->max_redirects(5)->get($fakku_host);
 
