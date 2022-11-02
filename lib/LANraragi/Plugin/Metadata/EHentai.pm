@@ -134,21 +134,9 @@ sub lookup_gallery {
         #search with image SHA hash
         $URL =
             $domain
-          . "?advsearch=1&f_sname=on&f_sdt2=on&f_spf=&f_spt=&f_sfu=on&f_sft=on&f_sfl=on&f_shash="
+          . "?f_shash="
           . $thumbhash
-          . "&fs_covers=1&fs_similar=1";
-
-        #Include expunged galleries in the search if the option is enabled.
-        if ($expunged) {
-            $URL = $URL . "&fs_exp=1";
-        }
-
-        # Add the language override, if it's defined.
-        if ( $defaultlanguage ne "" ) {
-
-            # Add f_stags to search in tags for language
-            $URL = $URL . "&f_stags=on&f_search=" . uri_escape_utf8("language:$defaultlanguage");
-        }
+          . "&fs_similar=on&fs_covers=on";
 
         $logger->debug("Using URL $URL (archive thumbnail hash)");
 
@@ -159,10 +147,10 @@ sub lookup_gallery {
         }
     }
 
-    # Regular text search
+    # Regular text search (advanced options: Disable default filters for: Language, Uploader, Tags)
     $URL =
         $domain
-      . "?advsearch=1&f_sname=on&f_sdt2=on&f_spf=&f_spt=&f_sfu=on&f_sft=on&f_sfl=on"
+      . "?advsearch=1&f_sfu=on&f_sft=on&f_sfl=on"
       . "&f_search="
       . uri_escape_utf8( qw(") . $title . qw(") );
 
@@ -179,12 +167,7 @@ sub lookup_gallery {
         $URL = $URL . "+" . uri_escape_utf8("language:$defaultlanguage");
     }
 
-    # Add f_stags to search in tags if we added a tag (or two) in the search
-    if ( $has_artist || $defaultlanguage ne "" ) {
-        $URL = $URL . "&f_stags=on";
-    }
-
-    # Include expunged galleries in the search if the option is enabled.
+    # Search expunged galleries if the option is enabled.
     if ($expunged) {
         $URL = $URL . "&f_sh=on";
     }
