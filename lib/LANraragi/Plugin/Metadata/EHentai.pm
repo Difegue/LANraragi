@@ -34,6 +34,7 @@ sub plugin_info {
             { type => "string", desc => "Forced language to use in searches (Japanese won't work due to EH limitations)" },
             { type => "bool",   desc => "Save archive title" },
             { type => "bool",   desc => "Fetch using thumbnail first (falls back to title)" },
+            { type => "bool",   desc => "Search using gID from title (falls back to title)" },
             { type => "bool",   desc => "Use ExHentai (enable to search for fjorded content without star cookie)" },
             {   type => "bool",
                 desc => "Save the original title when available instead of the English or romanised title"
@@ -54,7 +55,7 @@ sub get_tags {
     shift;
     my $lrr_info = shift;                     # Global info hash
     my $ua       = $lrr_info->{user_agent};
-    my ( $lang, $savetitle, $usethumbs, $enablepanda, $jpntitle, $additionaltags, $expunged ) = @_;    # Plugin parameters
+    my ( $lang, $savetitle, $usethumbs, $search_gid, $enablepanda, $jpntitle, $additionaltags, $expunged ) = @_;    # Plugin parameters
 
     # Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
     my $logger = get_plugin_logger();
@@ -82,7 +83,7 @@ sub get_tags {
             $lrr_info->{archive_title},
             $lrr_info->{existing_tags},
             $lrr_info->{thumbnail_hash},
-            $ua, $domain, $lang, $usethumbs, $expunged
+            $ua, $domain, $lang, $usethumbs, $search_gid, $expunged
         );
     }
 
@@ -122,7 +123,7 @@ sub get_tags {
 
 sub lookup_gallery {
 
-    my ( $title, $tags, $thumbhash, $ua, $domain, $defaultlanguage, $usethumbs, $expunged ) = @_;
+    my ( $title, $tags, $thumbhash, $ua, $domain, $defaultlanguage, $usethumbs, $search_gid, $expunged ) = @_;
     my $logger = get_plugin_logger();
     my $URL    = "";
 
@@ -139,6 +140,23 @@ sub lookup_gallery {
           . "&fs_similar=on&fs_covers=on";
 
         $logger->debug("Using URL $URL (archive thumbnail hash)");
+
+        my ( $gId, $gToken ) = &ehentai_parse( $URL, $ua );
+
+        if ( $gId ne "" && $gToken ne "" ) {
+            return ( $gId, $gToken );
+        }
+    }
+
+    # Search using gID if present in title name
+    my ( $title_gid ) = $title =~ /\[([0-9]+)\]/g;
+    if ( $search_gid && $title_gid ) {
+        $URL =
+        $domain
+        . "?f_search="
+        . uri_escape_utf8("gid:$title_gid");
+
+        $logger->debug("Found gID: $title_gid, Using URL $URL (gID from archive title)");
 
         my ( $gId, $gToken ) = &ehentai_parse( $URL, $ua );
 
@@ -168,7 +186,7 @@ sub lookup_gallery {
     }
 
     # Search expunged galleries if the option is enabled.
-    if ($expunged) {
+    if ( $expunged ) {
         $URL = $URL . "&f_sh=on";
     }
 
