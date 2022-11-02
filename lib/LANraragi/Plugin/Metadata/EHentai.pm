@@ -39,7 +39,7 @@ sub plugin_info {
                 desc => "Save the original title when available instead of the English or romanised title"
             },
             { type => "bool", desc => "Fetch additional timestamp (time posted) and uploader metadata" },
-            { type => "bool", desc => "Search expunged galleries as well" },
+            { type => "bool", desc => "Search only expunged galleries" },
 
         ],
         oneshot_arg => "E-H Gallery URL (Will attach tags matching this exact gallery to your archive)",
