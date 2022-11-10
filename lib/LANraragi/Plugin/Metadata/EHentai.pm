@@ -34,12 +34,13 @@ sub plugin_info {
             { type => "string", desc => "Forced language to use in searches (Japanese won't work due to EH limitations)" },
             { type => "bool",   desc => "Save archive title" },
             { type => "bool",   desc => "Fetch using thumbnail first (falls back to title)" },
+            { type => "bool",   desc => "Search using gID from title (falls back to title)" },
             { type => "bool",   desc => "Use ExHentai (enable to search for fjorded content without star cookie)" },
             {   type => "bool",
                 desc => "Save the original title when available instead of the English or romanised title"
             },
             { type => "bool", desc => "Fetch additional timestamp (time posted) and uploader metadata" },
-            { type => "bool", desc => "Search expunged galleries as well" },
+            { type => "bool", desc => "Search only expunged galleries" },
 
         ],
         oneshot_arg => "E-H Gallery URL (Will attach tags matching this exact gallery to your archive)",
@@ -54,7 +55,7 @@ sub get_tags {
     shift;
     my $lrr_info = shift;                     # Global info hash
     my $ua       = $lrr_info->{user_agent};
-    my ( $lang, $savetitle, $usethumbs, $enablepanda, $jpntitle, $additionaltags, $expunged ) = @_;    # Plugin parameters
+    my ( $lang, $savetitle, $usethumbs, $search_gid, $enablepanda, $jpntitle, $additionaltags, $expunged ) = @_;    # Plugin parameters
 
     # Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
     my $logger = get_plugin_logger();
@@ -82,7 +83,7 @@ sub get_tags {
             $lrr_info->{archive_title},
             $lrr_info->{existing_tags},
             $lrr_info->{thumbnail_hash},
-            $ua, $domain, $lang, $usethumbs, $expunged
+            $ua, $domain, $lang, $usethumbs, $search_gid, $expunged
         );
     }
 
@@ -122,7 +123,7 @@ sub get_tags {
 
 sub lookup_gallery {
 
-    my ( $title, $tags, $thumbhash, $ua, $domain, $defaultlanguage, $usethumbs, $expunged ) = @_;
+    my ( $title, $tags, $thumbhash, $ua, $domain, $defaultlanguage, $usethumbs, $search_gid, $expunged ) = @_;
     my $logger = get_plugin_logger();
     my $URL    = "";
 
@@ -134,21 +135,9 @@ sub lookup_gallery {
         #search with image SHA hash
         $URL =
             $domain
-          . "?advsearch=1&f_sname=on&f_sdt2=on&f_spf=&f_spt=&f_sfu=on&f_sft=on&f_sfl=on&f_shash="
+          . "?f_shash="
           . $thumbhash
-          . "&fs_covers=1&fs_similar=1";
-
-        #Include expunged galleries in the search if the option is enabled.
-        if ($expunged) {
-            $URL = $URL . "&fs_exp=1";
-        }
-
-        # Add the language override, if it's defined.
-        if ( $defaultlanguage ne "" ) {
-
-            # Add f_stags to search in tags for language
-            $URL = $URL . "&f_stags=on&f_search=" . uri_escape_utf8("language:$defaultlanguage");
-        }
+          . "&fs_similar=on&fs_covers=on";
 
         $logger->debug("Using URL $URL (archive thumbnail hash)");
 
@@ -159,10 +148,27 @@ sub lookup_gallery {
         }
     }
 
-    # Regular text search
+    # Search using gID if present in title name
+    my ( $title_gid ) = $title =~ /\[([0-9]+)\]/g;
+    if ( $search_gid && $title_gid ) {
+        $URL =
+        $domain
+        . "?f_search="
+        . uri_escape_utf8("gid:$title_gid");
+
+        $logger->debug("Found gID: $title_gid, Using URL $URL (gID from archive title)");
+
+        my ( $gId, $gToken ) = &ehentai_parse( $URL, $ua );
+
+        if ( $gId ne "" && $gToken ne "" ) {
+            return ( $gId, $gToken );
+        }
+    }
+
+    # Regular text search (advanced options: Disable default filters for: Language, Uploader, Tags)
     $URL =
         $domain
-      . "?advsearch=1&f_sname=on&f_sdt2=on&f_spf=&f_spt=&f_sfu=on&f_sft=on&f_sfl=on"
+      . "?advsearch=1&f_sfu=on&f_sft=on&f_sfl=on"
       . "&f_search="
       . uri_escape_utf8( qw(") . $title . qw(") );
 
@@ -179,13 +185,8 @@ sub lookup_gallery {
         $URL = $URL . "+" . uri_escape_utf8("language:$defaultlanguage");
     }
 
-    # Add f_stags to search in tags if we added a tag (or two) in the search
-    if ( $has_artist || $defaultlanguage ne "" ) {
-        $URL = $URL . "&f_stags=on";
-    }
-
-    # Include expunged galleries in the search if the option is enabled.
-    if ($expunged) {
+    # Search expunged galleries if the option is enabled.
+    if ( $expunged ) {
         $URL = $URL . "&f_sh=on";
     }
 
