@@ -73,8 +73,9 @@ sub logged_in_api {
 sub setup_cors {
     my $self = shift;
 
-    # Set Allow-Origin to wildcard
-    $self->res->headers->header( 'Access-Control-Allow-Origin' => '*' );
+    # Set Allow-Origin to wildcard and Allow-Methods to most common ones
+    $self->res->headers->header( 'Access-Control-Allow-Origin'  => '*' );
+    $self->res->headers->header( 'Access-Control-Allow-Methods' => 'GET, OPTIONS, POST, DELETE, PUT' );
 
     # Explicitly say requests with an Authorization header (private API requests) are allowed
     $self->res->headers->header( 'Access-Control-Allow-Headers' => 'Authorization' );
