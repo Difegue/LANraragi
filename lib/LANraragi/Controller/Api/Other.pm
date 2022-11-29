@@ -31,6 +31,8 @@ sub serve_serverinfo {
             archives_per_page      => $self->LRR_CONF->get_pagesize,
             server_resizes_images  => $self->LRR_CONF->enable_resize,
             server_tracks_progress => $self->LRR_CONF->enable_localprogress ? "0" : "1",
+            ootb_completed         => $self->LRR_CONF->saw_ootb,
+            version_previous       => $self->LRR_CONF->get_previousver,
             total_pages_read       => $page_stat,
             cache_last_cleared     => "$last_clear"
         }
@@ -115,7 +117,7 @@ sub download_url {
 
 # Uses a plugin, with the standard global arguments and a provided oneshot argument.
 sub use_plugin_sync {
-    my ($self) = shift;
+    my ($self)   = shift;
     my $id       = $self->req->param('id') || 0;
     my $plugname = $self->req->param('plugin');
     my $input    = $self->req->param('arg');

@@ -147,5 +147,7 @@ sub get_readquality      { return &get_redis_conf( "readerquality",   "50" ) }
 sub get_style            { return &get_redis_conf( "theme",           "modern.css" ) }
 sub enable_dateadded     { return &get_redis_conf( "usedateadded",    "1" ) }
 sub use_lastmodified     { return &get_redis_conf( "usedatemodified", "0" ) }
+sub get_previousver      { return &get_redis_conf( "lastver",         "none" ) }
+sub saw_ootb             { return &get_redis_conf( "sawootb",         "0" ) }
 
 1;

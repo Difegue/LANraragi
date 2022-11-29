@@ -111,6 +111,16 @@ sub startup {
         $self->LRR_LOGGER->info("LANraragi $version started. (Production Mode)");
     }
 
+    # Get the last version of the server this endpoint was ran on
+    my $previous_ver = $self->LRR_CONF->last_used_version;
+
+    if ($previous_ver ne $version) {
+        $self->LRR_LOGGER->info("The server has been updated from $previous_ver to $version!");
+
+        # Update the recorded previous version
+        $self->LRR_CONF->get_redis->hset("LRR_CONFIG", "lastver", $self->LRR_VERSION);
+    }
+
     #Plugin listing
     my @plugins = get_plugins("metadata");
     foreach my $pluginfo (@plugins) {
