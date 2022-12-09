@@ -23,7 +23,7 @@ sub plugin_info {
             { type => "int",    desc => "ipb_member_id cookie" },
             { type => "string", desc => "ipb_pass_hash cookie" },
             { type => "string", desc => "star cookie (optional, if present you can view fjorded content without exhentai)" },
-            { type => "string", desc => "igneous cookie(optional, if present you can view exhentai outside Europe and America)" }
+            { type => "string", desc => "igneous cookie(optional, if present you can view exhentai without Europe and America IP)" }
         ]
     );
 
@@ -108,7 +108,6 @@ sub get_user_agent {
             )
         );
         
-
         $ua->cookie_jar->add(
             Mojo::Cookie::Response->new(
                 name   => 'star',
@@ -126,6 +125,7 @@ sub get_user_agent {
                 path   => '/'
             )
         );
+        
         $ua->cookie_jar->add(
             Mojo::Cookie::Response->new(
                 name   => 'ipb_coppa',
