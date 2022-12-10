@@ -20,6 +20,9 @@ my $config = Mojolicious::Plugin::Config->register( Mojolicious->new, { file => 
 # Address and port of your redis instance.
 sub get_redisad { return $config->{redis_address} }
 
+# Optional password of your redis instance.
+sub get_redispassword { return $config->{redis_address} }
+
 # Database that'll be used by LANraragi. Redis databases are numbered, default is 0.
 sub get_redisdb { return $config->{redis_database} }
 
@@ -29,7 +32,12 @@ sub get_miniondb { return $config->{redis_database_minion} }
 # Create a Minion object connected to the Minion database.
 sub get_minion {
     my $miniondb = get_redisad . "/" . get_miniondb;
-    return Minion->new( Redis => "redis://$miniondb" );
+    my $password = get_redispassword;
+
+    # If the password is non-empty, add the required @
+    if ($password) { $password = $password . "@"; }
+
+    return Minion->new( Redis => "redis://$password$miniondb" );
 }
 
 #get_redis
@@ -40,6 +48,7 @@ sub get_redis {
     #Auto-reconnect on, one attempt every 2ms up to 3 seconds. Die after that.
     my $redis = Redis->new(
         server    => &get_redisad,
+        password  => &get_redispssword,
         reconnect => 3
     );
 
