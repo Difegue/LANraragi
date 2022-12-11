@@ -21,7 +21,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 # Functions for interacting with the DB Model.
 use Exporter 'import';
 our @EXPORT_OK =
-  qw(redis_encode redis_decode invalidate_cache compute_id get_computed_tagrules save_computed_tagrules get_archive_json get_archive_json_multi);
+  qw(redis_encode redis_decode invalidate_cache compute_id set_tags set_title get_computed_tagrules save_computed_tagrules get_archive_json get_archive_json_multi);
 
 #add_archive_to_redis($id,$file,$redis)
 # Creates a DB entry for a file path with the given ID.
@@ -348,12 +348,40 @@ sub set_tags {
         }
     }
 
-    # TODO: Update sets depending on the added/removed tags
+    # Update sets depending on the added/removed tags
+    update_indexes( $id, $oldtags, $newtags );
 
     $redis->hset( $id, "tags", redis_encode($newtags) );
     $redis->quit;
 
     invalidate_cache();
+}
+
+# Splits both old and new tags, and:
+# Removes the ID from all sets of the old tags
+# Adds it back to all sets of the new tags.
+sub update_indexes {
+
+    my ( $id, $oldtags, $newtags ) = @_;
+
+    my $redis = LANraragi::Model::Config->get_redis_search;
+    $redis->multi;
+
+    my @oldtags = split( ',', $oldtags );
+    my @newtags = split( ',', $newtags );
+
+    foreach my $tag (@oldtags) {
+
+        # Tag is lowercased here to avoid redundancy/dupes
+        $redis->srem( redis_encode( lc($tag) ), $id );
+    }
+
+    foreach my $tag (@newtags) {
+        $redis->sadd( redis_encode( lc($tag) ), $id );
+    }
+
+    $redis->exec;
+    $redis->quit;
 }
 
 #This function is used for all ID computation in LRR.

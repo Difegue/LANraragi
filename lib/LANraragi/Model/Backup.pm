@@ -10,7 +10,7 @@ use Mojo::JSON qw(decode_json encode_json);
 use LANraragi::Model::Category;
 use LANraragi::Utils::Database;
 use LANraragi::Utils::Generic qw(remove_newlines);
-use LANraragi::Utils::Database qw(redis_encode redis_decode invalidate_cache);
+use LANraragi::Utils::Database qw(redis_encode redis_decode invalidate_cache set_title set_tags);
 use LANraragi::Utils::Logging qw(get_logger);
 
 #build_backup_JSON()
@@ -122,12 +122,10 @@ sub restore_from_JSON {
         if ( $redis->exists($id) ) {
 
             $logger->info("Restoring metadata for Archive $id...");
-            my $title     = redis_encode( $archive->{"title"} );
-            my $tags      = redis_encode( $archive->{"tags"} );
             my $thumbhash = redis_encode( $archive->{"thumbhash"} );
 
-            $redis->hset( $id, "title", $title );
-            $redis->hset( $id, "tags",  $tags );
+            set_title( $id, $archive->{"title"} );
+            set_tags( $id, $archive->{"tags"} );
 
             if (   $redis->hexists( $id, "thumbhash" )
                 && $redis->hget( $id, "thumbhash" ) ne "" ) {

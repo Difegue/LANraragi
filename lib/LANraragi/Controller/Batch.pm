@@ -7,7 +7,7 @@ use Mojo::JSON qw(decode_json);
 
 use LANraragi::Utils::Generic qw(generate_themes_header);
 use LANraragi::Utils::Tags qw(rewrite_tags split_tags_to_array restore_CRLF);
-use LANraragi::Utils::Database qw(get_computed_tagrules invalidate_cache);
+use LANraragi::Utils::Database qw(get_computed_tagrules set_tags set_title invalidate_cache);
 use LANraragi::Utils::Plugins qw(get_plugins get_plugin get_plugin_parameters);
 use LANraragi::Utils::Logging qw(get_logger);
 
@@ -128,7 +128,7 @@ sub socket {
                 # Merge array with commas
                 my $newtags = join( ', ', @tagarray );
                 $logger->debug("New tags: $newtags");
-                $redis->hset( $id, "tags", $newtags );
+                set_tags( $id, $newtags );
 
                 $client->send(
                     {   json => {
@@ -198,10 +198,10 @@ sub batch_plugin {
 
     # If the plugin exec returned tags, add them
     unless ( exists $plugin_result{error} ) {
-        LANraragi::Utils::Database::set_tags( $id, $plugin_result{new_tags}, 1 );
+        set_tags( $id, $plugin_result{new_tags}, 1 );
 
         if ( exists $plugin_result{title} ) {
-            LANraragi::Utils::Database::set_title( $id, $plugin_result{title} );
+            set_title( $id, $plugin_result{title} );
         }
     }
 

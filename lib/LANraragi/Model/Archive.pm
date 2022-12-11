@@ -16,7 +16,8 @@ use LANraragi::Utils::Generic qw(get_tag_with_namespace remove_spaces remove_new
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Utils::Archive qw(extract_single_file extract_thumbnail);
-use LANraragi::Utils::Database qw(redis_encode redis_decode invalidate_cache get_archive_json get_archive_json_multi);
+use LANraragi::Utils::Database
+  qw(redis_encode redis_decode invalidate_cache set_title set_tags get_archive_json get_archive_json_multi);
 
 # Functions used when dealing with archives.
 
@@ -335,24 +336,13 @@ sub update_metadata {
     ( remove_spaces($_) )   for ( $title, $tags );
     ( remove_newlines($_) ) for ( $title, $tags );
 
-    # Input new values into redis hash.
-    my %hash;
-
-    # Prepare the hash which'll be inserted.
     if ( defined $title ) {
-        $hash{title} = redis_encode($title);
+        set_title( $id, $title );
     }
 
     if ( defined $tags ) {
-        $hash{tags} = redis_encode($tags);
+        set_tags( $id, $tags );
     }
-
-    my $redis = LANraragi::Model::Config->get_redis;
-
-    # For all keys of the hash, add them to the redis hash $id with the matching keys.
-    $redis->hset( $id, $_, $hash{$_}, sub { } ) for keys %hash;
-    $redis->wait_all_responses;
-    $redis->quit();
 
     # Bust cache
     invalidate_cache(1);
