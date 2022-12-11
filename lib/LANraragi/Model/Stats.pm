@@ -46,12 +46,14 @@ sub get_page_stat {
 
 # This operation builds two hashes: LRR_URL_MAP, which maps URLs to IDs in the database that have them as a source: tag,
 # and LRR_STATS, which is a sorted set used to build the statistics/tag cloud JSON.
+# It also builds the sets for each distinct tag.
 sub build_stat_hashes {
 
-# This method does only one atomic write transaction, using Redis' watch/multi mode.
-# But we can't use the connection to get other data while it's in transaction mode! So we instantiate a second connection to get the data we need.
+  # This method does only one atomic write transaction, using Redis' watch/multi mode.
+  # But we can't use the connection to get other data while it's in transaction mode!
+  # So we instantiate a second connection to get the data we need. Helps as well now that both connections are made on separate DBs.
     my $redis   = LANraragi::Model::Config->get_redis;
-    my $redistx = LANraragi::Model::Config->get_redis;
+    my $redistx = LANraragi::Model::Config->get_redis_search;
     my $logger  = get_logger( "Tag Stats", "lanraragi" );
 
     # 40-character long keys only => Archive IDs
@@ -61,8 +63,9 @@ sub build_stat_hashes {
     # This also allows for the previous stats/map to still be readable until we're done.
     $redistx->watch( "LRR_STATS", "LRR_URLMAP" );
     $redistx->multi;
-    $redistx->del("LRR_STATS");
-    $redistx->del("LRR_URLMAP");
+
+    # Hose the entire index DB since we're rebuilding it
+    $redistx->flushdb();
 
     # Iterate on hashes to get their tags
     $logger->debug("Building stat indexes...");
@@ -86,8 +89,14 @@ sub build_stat_hashes {
                     $redistx->hset( "LRR_URLMAP", $url, $id );  # No need to encode the value, as URLs are already encoded by design
                 }
 
-                # Increment tag in stats, all lowercased here to avoid redundancy/dupes
-                $redistx->zincrby( "LRR_STATS", 1, redis_encode( lc($t) ) );
+                # Tag is lowercased here to avoid redundancy/dupes
+                my $redis_tag = redis_encode( lc($t) );
+
+                # Increment tag in stats,
+                $redistx->zincrby( "LRR_STATS", 1, $redis_tag );
+
+                # Add the archive ID to the set for this tag
+                $redistx->sadd( $redis_tag, $id );
             }
         }
     }

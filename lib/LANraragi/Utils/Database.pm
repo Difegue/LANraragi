@@ -225,6 +225,7 @@ sub delete_archive {
 
 # drop_database()
 # Drops the entire database. Hella dangerous
+# TODO: Might be worth it to add versions that only do flushdb on certain databases like the config/archive data one?
 sub drop_database {
     my $redis = LANraragi::Model::Config->get_redis;
 
