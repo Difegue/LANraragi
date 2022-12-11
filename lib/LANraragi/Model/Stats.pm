@@ -96,7 +96,7 @@ sub build_stat_hashes {
                 $redistx->zincrby( "LRR_STATS", 1, $redis_tag );
 
                 # Add the archive ID to the set for this tag
-                $redistx->sadd( $redis_tag, $id );
+                $redistx->sadd( "INDEX_" . $redis_tag, $id );
             }
         }
     }

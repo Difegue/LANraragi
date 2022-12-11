@@ -373,11 +373,11 @@ sub update_indexes {
     foreach my $tag (@oldtags) {
 
         # Tag is lowercased here to avoid redundancy/dupes
-        $redis->srem( redis_encode( lc($tag) ), $id );
+        $redis->srem( "INDEX_" . redis_encode( lc($tag) ), $id );
     }
 
     foreach my $tag (@newtags) {
-        $redis->sadd( redis_encode( lc($tag) ), $id );
+        $redis->sadd( "INDEX_" . redis_encode( lc($tag) ), $id );
     }
 
     $redis->exec;

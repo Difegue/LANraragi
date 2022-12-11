@@ -212,7 +212,9 @@ The base architecture is as follows:
 |
 |- LRR_STATS <- Redis sorted set used to build the statistics/tag cloud JSON.
 |
-|- ***:**** <- Each namespaced tag has a matching Redis set, with all the IDs that have this tag in their metadata. This is used for search indexing.
+|- LRR_UNTAGGED <- List of archive IDs that don't have any tags (except for tags added automatically by the autotagger)
+|
+|- INDEX_***:**** <- Each tag(namespaced or not) has a matching Redis set, with all the IDs that have this tag in their metadata. This is used for search indexing.
 |
 +- LRR_SEARCHCACHE <- Search Cache
    |- $columnfilter-$filter-$sortkey-$sortorder-$newonly <- Unique ID for a search. The search result is serialized and saved as the value for this ID.
