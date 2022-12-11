@@ -14,7 +14,6 @@ use Config;
 use LANraragi::Utils::Generic qw(start_shinobu start_minion);
 use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Utils::Plugins qw(get_plugins);
-use LANraragi::Utils::Database qw(invalidate_cache);
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Routing;
 use LANraragi::Utils::Minion;

@@ -312,31 +312,6 @@ sub clean_database {
     return ( $deleted_arcs, $unlinked_arcs );
 }
 
-#add_tags($id, $tags)
-#add the $tags to the archive with id $id.
-sub add_tags {
-
-    my ( $id, $newtags ) = @_;
-
-    my $redis = LANraragi::Model::Config->get_redis;
-    my $oldtags = $redis->hget( $id, "tags" );
-    $oldtags = redis_decode($oldtags);
-
-    if ( length $newtags ) {
-
-        if ($oldtags) {
-            remove_spaces($oldtags);
-
-            if ( $oldtags ne "" ) {
-                $newtags = $oldtags . "," . $newtags;
-            }
-        }
-
-        $redis->hset( $id, "tags", redis_encode($newtags) );
-    }
-    $redis->quit;
-}
-
 sub set_title {
 
     my ( $id, $newtitle ) = @_;
@@ -346,6 +321,39 @@ sub set_title {
         $redis->hset( $id, "title", redis_encode($newtitle) );
     }
     $redis->quit;
+}
+
+#set_tags($id, $tags, $append)
+# Set $tags for the archive with id $id.
+# Set $append to 1 if you want to append the tags instead of replacing them.
+sub set_tags {
+
+    my ( $id, $newtags, $append ) = @_;
+
+    my $redis = LANraragi::Model::Config->get_redis;
+    my $oldtags = $redis->hget( $id, "tags" );
+    $oldtags = redis_decode($oldtags);
+
+    if ($append) {
+
+        # If the new tags are empty, don't do anything
+        unless ( length $newtags ) return;
+
+        if ($oldtags) {
+            remove_spaces($oldtags);
+
+            if ( $oldtags ne "" ) {
+                $newtags = $oldtags . "," . $newtags;
+            }
+        }
+    }
+
+    # TODO: Update sets depending on the added/removed tags
+
+    $redis->hset( $id, "tags", redis_encode($newtags) );
+    $redis->quit;
+
+    invalidate_cache();
 }
 
 #This function is used for all ID computation in LRR.

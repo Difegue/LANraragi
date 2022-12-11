@@ -56,8 +56,8 @@ sub clear_new_all {
         $redis->hset( $idall, "isnew", "false" );
     }
 
-    # Bust search cache completely, this is a big change
-    invalidate_cache(1);
+    # Bust isnew cache
+    invalidate_isnew_cache();
     $redis->quit();
     render_api_response( $self, "clear_new_all" );
 }

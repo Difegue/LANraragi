@@ -66,7 +66,7 @@ sub exec_enabled_plugins_on_file {
 
         #If the plugin exec returned metadata, add it
         unless ( exists $plugin_result{error} ) {
-            LANraragi::Utils::Database::add_tags( $id, $plugin_result{new_tags} );
+            LANraragi::Utils::Database::set_tags( $id, $plugin_result{new_tags}, 1 );
 
             # Sum up all the added tags for later reporting.
             # This doesn't take into account tags that are added twice
