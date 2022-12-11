@@ -10,7 +10,8 @@ use LANraragi::Utils::Generic qw(generate_themes_header);
 sub check {
     my $self = shift;
 
-    my $pw = $self->req->param('password') || '';
+    my $pw       = $self->req->param('password') || '';
+    my $redirect = $self->req->param('redirect') || 'index';
 
     #match password we got with the authen hash stored in redis
     my $ppr = Authen::Passphrase->from_rfc2307( $self->LRR_CONF->get_password );
@@ -21,7 +22,7 @@ sub check {
 
         $self->session( is_logged  => 1 );
         $self->session( expiration => 60 * 60 * 24 );
-        $self->redirect_to('index');
+        $self->redirect_to($redirect);
     } else {
 
         $self->LRR_LOGGER->warn( "Failed login attempt with password '$pw' from " . $self->tx->remote_address );
@@ -45,7 +46,9 @@ sub logged_in {
     return 1
       if $self->session('is_logged')
       || $self->LRR_CONF->enable_pass == 0;
-    $self->redirect_to('login');
+
+    my $url = $self->url_for("login");
+    $self->redirect_to( $url->query( redirect => $self->req->url->path ) );
     return 0;
 }
 

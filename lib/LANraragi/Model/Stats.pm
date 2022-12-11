@@ -46,7 +46,7 @@ sub get_page_stat {
 
 # This operation builds two hashes: LRR_URL_MAP, which maps URLs to IDs in the database that have them as a source: tag,
 # and LRR_STATS, which is a sorted set used to build the statistics/tag cloud JSON.
-# It also builds the sets for each distinct tag.
+# It also builds the index sets for each distinct tag.
 sub build_stat_hashes {
 
   # This method does only one atomic write transaction, using Redis' watch/multi mode.

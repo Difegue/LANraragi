@@ -337,7 +337,7 @@ sub set_tags {
     if ($append) {
 
         # If the new tags are empty, don't do anything
-        unless ( length $newtags ) return;
+        unless ( length $newtags ) { return; }
 
         if ($oldtags) {
             remove_spaces($oldtags);
