@@ -111,7 +111,7 @@ sub is_url_recorded {
 
     my $url    = $_[0];
     my $logger = get_logger( "Tag Stats", "lanraragi" );
-    my $redis  = LANraragi::Model::Config->get_redis;
+    my $redis  = LANraragi::Model::Config->get_redis_search;
     my $id     = 0;
     $logger->debug("Checking if url $url is in the url map.");
 
@@ -133,7 +133,7 @@ sub build_tag_stats {
     $logger->debug("Serving tag statistics with a minimum weight of $minscore");
 
     # Login to Redis and grab the stats sorted set
-    my $redis = LANraragi::Model::Config->get_redis;
+    my $redis = LANraragi::Model::Config->get_redis_search;
     my %tagcloud = $redis->zrangebyscore( "LRR_STATS", $minscore, "+inf", "WITHSCORES" );
     $redis->quit();
 
