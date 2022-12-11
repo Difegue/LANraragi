@@ -21,7 +21,7 @@ my $config = Mojolicious::Plugin::Config->register( Mojolicious->new, { file => 
 sub get_redisad { return $config->{redis_address} }
 
 # Optional password of your redis instance.
-sub get_redispassword { return $config->{redis_address} }
+sub get_redispassword { return $config->{redis_password} }
 
 # LANraragi uses 4 Redis Databases. Redis databases are numbered, default is 0.
 
@@ -64,15 +64,19 @@ sub get_redis_internal {
 
     my $db = $_[0];
 
-    #Default redis server location is localhost:6379.
-    #Auto-reconnect on, one attempt every 2ms up to 3 seconds. Die after that.
+    # Default redis server location is localhost:6379.
+    # Auto-reconnect on, one attempt every 2ms up to 3 seconds. Die after that.
     my $redis = Redis->new(
         server    => &get_redisad,
-        password  => &get_redispassword,
         reconnect => 3
     );
 
-    #Database switch
+    # Auth if password is set
+    if ( &get_redispassword ne "" ) {
+        $redis->auth(&get_redispassword);
+    }
+
+    # Switch to specced database
     $redis->select($db);
     return $redis;
 }
