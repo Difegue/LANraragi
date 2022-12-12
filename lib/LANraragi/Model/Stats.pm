@@ -44,9 +44,12 @@ sub get_page_stat {
     return $stat;
 }
 
-# This operation builds two hashes: LRR_URL_MAP, which maps URLs to IDs in the database that have them as a source: tag,
-# and LRR_STATS, which is a sorted set used to build the statistics/tag cloud JSON.
-# It also builds the index sets for each distinct tag.
+# This operation builds the following hashes:
+# - LRR_URL_MAP, which maps URLs to IDs in the database that have them as a source: tag
+# - LRR_STATS, which is a sorted set used to build the statistics/tag cloud JSON
+# - LRR_UNTAGGED, which is a set used by the untagged archives API
+# - LRR_TITLES, which is a set containing all titles in the DB, alongside their ID. (In the "title\0ID" format)
+# * It also builds index sets for each distinct tag.
 sub build_stat_hashes {
 
   # This method does only one atomic write transaction, using Redis' watch/multi mode.
@@ -61,7 +64,7 @@ sub build_stat_hashes {
 
     # Cancel the transaction if the hashes have been modified by another job in the meantime.
     # This also allows for the previous stats/map to still be readable until we're done.
-    $redistx->watch( "LRR_STATS", "LRR_URLMAP" );
+    $redistx->watch( "LRR_STATS", "LRR_URLMAP", "LRR_UNTAGGED", "LRR_TITLES" );
     $redistx->multi;
 
     # Hose the entire index DB since we're rebuilding it
@@ -74,12 +77,16 @@ sub build_stat_hashes {
 
             my $rawtags = $redis->hget( $id, "tags" );
 
-            #Split tags by comma
+            # Split tags by comma
             my @tags = split( /,\s?/, redis_decode($rawtags) );
+            my $has_tags = 0;
 
             foreach my $t (@tags) {
                 remove_spaces($t);
                 remove_newlines($t);
+
+                # The following are basic and therefore don't count as "tagged"
+                $has_tags = 1 unless $t =~ /(artist|parody|series|language|event|group|date_added|timestamp):.*/;
 
                 # If the tag is a source: tag, add it to the URL index
                 if ( $t =~ /source:(.*)/i ) {
@@ -92,12 +99,30 @@ sub build_stat_hashes {
                 # Tag is lowercased here to avoid redundancy/dupes
                 my $redis_tag = redis_encode( lc($t) );
 
-                # Increment tag in stats,
+                # Increment tag in stats
                 $redistx->zincrby( "LRR_STATS", 1, $redis_tag );
 
                 # Add the archive ID to the set for this tag
                 $redistx->sadd( "INDEX_" . $redis_tag, $id );
             }
+
+            # Flag the ID as untagged if it had no tags
+            unless ($has_tags) {
+                $redistx->sadd( "LRR_UNTAGGED", $id );
+            }
+        }
+
+        if ( $redis->hexists( $id, "title" ) ) {
+            my $title = $redis->hget( $id, "title" );
+
+            # Decode and lowercase the title
+            $title = lc( redis_decode($title) );
+            remove_spaces($title);
+            remove_newlines($title);
+            $title = redis_encode($title);
+
+            # The LRR_TITLES set contains both the title and the id under the form $title\x00$id.
+            $redistx->sadd( "LRR_TITLES", "$title\0$id" );
         }
     }
 

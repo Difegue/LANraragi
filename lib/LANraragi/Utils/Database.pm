@@ -315,10 +315,27 @@ sub clean_database {
 sub set_title {
 
     my ( $id, $newtitle ) = @_;
-    my $redis = LANraragi::Model::Config->get_redis;
+    my $redis        = LANraragi::Model::Config->get_redis;
+    my $redis_search = LANraragi::Model::Config->get_redis_search;
 
     if ( $newtitle ne "" ) {
+
+        # Remove old title from search set
+        my $oldtitle = lc( redis_decode( $redis->hget( $id, "title" ) ) );
+        remove_spaces($oldtitle);
+        remove_newlines($oldtitle);
+        $oldtitle = redis_encode($oldtitle);
+        $redis_search->srem( "LRR_TITLES", "$oldtitle\0$id" );
+
+        # Set actual title in metadata DB
         $redis->hset( $id, "title", redis_encode($newtitle) );
+
+        # Set title/ID key in search set
+        $newtitle = lc($newtitle);
+        remove_spaces($newtitle);
+        remove_newlines($newtitle);
+        $newtitle = redis_encode($newtitle);
+        $redis_search->sadd( "LRR_TITLES", "$oldtitle\0$id" );
     }
     $redis->quit;
 }
@@ -367,8 +384,9 @@ sub update_indexes {
     my $redis = LANraragi::Model::Config->get_redis_search;
     $redis->multi;
 
-    my @oldtags = split( ',', $oldtags );
-    my @newtags = split( ',', $newtags );
+    my @oldtags = split( /,\s?/, $oldtags );
+    my @newtags = split( /,\s?/, $newtags );
+    my $has_tags = 0;
 
     foreach my $tag (@oldtags) {
 
@@ -377,7 +395,18 @@ sub update_indexes {
     }
 
     foreach my $tag (@newtags) {
+
+        # The following are basic and therefore don't count as "tagged"
+        $has_tags = 1 unless $tag =~ /(artist|parody|series|language|event|group|date_added|timestamp):.*/;
+
         $redis->sadd( "INDEX_" . redis_encode( lc($tag) ), $id );
+    }
+
+    # Add or remove the ID from the untagged list
+    if ($has_tags) {
+        $redis->srem( "LRR_UNTAGGED", $id );
+    } else {
+        $redis->sadd( "LRR_UNTAGGED", $id );
     }
 
     $redis->exec;
