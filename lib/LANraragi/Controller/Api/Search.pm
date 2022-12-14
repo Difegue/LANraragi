@@ -103,6 +103,7 @@ sub get_random_archives {
     my $category     = $req->param('category') || "";
     my $random_count = $req->param('count') || 5;
 
+    # TODO rework this
     # Use the search engine to get IDs matching the filter/category selection, with start=-1 to get all data
     # This method could be extended later to also use isnew/untagged filters.
     my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $filter, $category, -1, "title", 0, "", "" );
@@ -126,10 +127,7 @@ sub get_random_archives {
 # Creates a Datatables-compatible json from the given data.
 sub get_datatables_object {
 
-    my ( $draw, $redis, $total, $filtered, @keys ) = @_;
-
-    # Get IDs from keys
-    my @ids = map { $_->{id} } @keys;
+    my ( $draw, $redis, $total, $filtered, @ids ) = @_;
 
     # Get archive data
     my @data = get_archive_json_multi(@ids);
