@@ -30,7 +30,7 @@ sub do_search {
     my $logger = get_logger( "Search Engine", "lanraragi" );
 
     # Search filter results
-    my $total = $redis->hlen("LRR_FILEMAP") + 0;    # Total number of archives (as int)
+    my $total = $redis->zcard("LRR_TITLES") + 0;    # Total number of archives (as int)
 
     # Look in searchcache first
     my $sortorder_inv = $sortorder ? 0 : 1;
