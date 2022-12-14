@@ -57,7 +57,6 @@ sub clear_new_all {
     }
 
     # Bust isnew cache
-    invalidate_isnew_cache();
     $redis->quit();
     render_api_response( $self, "clear_new_all" );
 }

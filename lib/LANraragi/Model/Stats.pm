@@ -48,6 +48,7 @@ sub get_page_stat {
 # - LRR_URL_MAP, which maps URLs to IDs in the database that have them as a source: tag
 # - LRR_STATS, which is a sorted set used to build the statistics/tag cloud JSON
 # - LRR_UNTAGGED, which is a set used by the untagged archives API
+# - LRR_NEW, which contains all archives that have isnew=true
 # - LRR_TITLES, which is a lexicographically sorted set containing all titles in the DB, alongside their ID. (In the "title\0ID" format)
 # * It also builds index sets for each distinct tag.
 sub build_stat_hashes {
@@ -60,18 +61,19 @@ sub build_stat_hashes {
     my $logger  = get_logger( "Tag Stats", "lanraragi" );
 
     # 40-character long keys only => Archive IDs
-    my @keys = $redis->keys('????????????????????????????????????????');
+    my @keys          = $redis->keys('????????????????????????????????????????');
+    my $archive_count = scalar @keys;
 
     # Cancel the transaction if the hashes have been modified by another job in the meantime.
     # This also allows for the previous stats/map to still be readable until we're done.
-    $redistx->watch( "LRR_STATS", "LRR_URLMAP", "LRR_UNTAGGED", "LRR_TITLES" );
+    $redistx->watch( "LRR_STATS", "LRR_URLMAP", "LRR_UNTAGGED", "LRR_TITLES", "LRR_NEW" );
     $redistx->multi;
 
     # Hose the entire index DB since we're rebuilding it
     $redistx->flushdb();
 
     # Iterate on hashes to get their tags
-    $logger->debug("Building stat indexes...");
+    $logger->info("Building stat indexes... ($archive_count archives)");
     foreach my $id (@keys) {
         if ( $redis->hexists( $id, "tags" ) ) {
 
@@ -92,7 +94,7 @@ sub build_stat_hashes {
                 if ( $t =~ /source:(.*)/i ) {
                     my $url = $1;
                     trim_url($url);
-                    $logger->debug("Adding $url as an URL for $id");
+                    $logger->trace("Adding $url as an URL for $id");
                     $redistx->hset( "LRR_URLMAP", $url, $id );  # No need to encode the value, as URLs are already encoded by design
                 }
 
@@ -108,6 +110,7 @@ sub build_stat_hashes {
 
             # Flag the ID as untagged if it had no tags
             unless ($has_tags) {
+                $logger->trace("Adding $id to LRR_UNTAGGED");
                 $redistx->sadd( "LRR_UNTAGGED", $id );
             }
         }
@@ -124,10 +127,15 @@ sub build_stat_hashes {
             # The LRR_TITLES lexicographically sorted set contains both the title and the id under the form $title\x00$id.
             $redistx->zadd( "LRR_TITLES", 0, "$title\0$id" );
         }
+
+        if ( $redis->hget( $id, "isnew" ) eq "true" ) {
+            $logger->trace("Adding $id to LRR_ISNEW");
+            $redistx->sadd( "LRR_NEW", $id );
+        }
     }
 
     $redistx->exec;
-    $logger->debug("Done!");
+    $logger->info("Stat indexes built! ($archive_count archives)");
     $redis->quit;
     $redistx->quit;
 }

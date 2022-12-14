@@ -21,7 +21,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 # Functions for interacting with the DB Model.
 use Exporter 'import';
 our @EXPORT_OK =
-  qw(redis_encode redis_decode invalidate_cache compute_id set_tags set_title get_computed_tagrules save_computed_tagrules get_archive_json get_archive_json_multi);
+  qw(redis_encode redis_decode invalidate_cache compute_id set_tags set_title set_isnew get_computed_tagrules save_computed_tagrules get_archive_json get_archive_json_multi);
 
 #add_archive_to_redis($id,$file,$redis)
 # Creates a DB entry for a file path with the given ID.
@@ -44,7 +44,7 @@ sub add_archive_to_redis {
     $redis->hset( $id, "file", $file );
 
     # New file in collection, so this flag is set.
-    $redis->hset( $id, "isnew", "true" );
+    set_isnew( $id, "true" );
 
     $redis->quit;
     return $name;
@@ -374,6 +374,29 @@ sub set_tags {
     invalidate_cache();
 }
 
+#set_isnew($id, $isnew)
+# Set $isnew for the archive with id $id.
+sub set_isnew {
+
+    my ( $id, $isnew ) = @_;
+    my $redis        = LANraragi::Model::Config->get_redis();
+    my $redis_search = LANraragi::Model::Config->get_redis_search();
+
+    # Just set isnew for the provided ID.
+    my $newval = $isnew ne "false" ? "true" : "false";
+
+    $redis->hset( $id, "isnew", $newval );
+
+    if ( $newval eq "true" ) {
+        $redis_search->sadd( "LRR_NEW", $id );
+    } else {
+        $redis_search->srem( "LRR_NEW", $id );
+    }
+
+    $redis_search->quit;
+    $redis->quit;
+}
+
 # Splits both old and new tags, and:
 # Removes the ID from all sets of the old tags
 # Adds it back to all sets of the new tags.
@@ -467,7 +490,7 @@ sub redis_decode {
 # Add "1" as a parameter to rebuild stat hashes as well. (Use with caution!)
 sub invalidate_cache {
     my $rebuild_indexes = shift;
-    my $redis   = LANraragi::Model::Config->get_redis_search;
+    my $redis           = LANraragi::Model::Config->get_redis_search;
     $redis->del("LRR_SEARCHCACHE");
     $redis->hset( "LRR_SEARCHCACHE", "created", time );
     $redis->quit();
@@ -476,23 +499,6 @@ sub invalidate_cache {
     if ($rebuild_indexes) {
         LANraragi::Model::Config->get_minion->enqueue( build_stat_hashes => [] => { priority => 3 } );
     }
-}
-
-# Go through the search cache and only invalidate keys that rely on isNew.
-sub invalidate_isnew_cache {
-
-    my $redis = LANraragi::Model::Config->get_redis;
-    my %cache = $redis->hgetall("LRR_SEARCHCACHE");
-
-    foreach my $cachekey ( keys(%cache) ) {
-
-        # A cached search uses isNew if the second to last number is equal to 1
-        # i.e, "--title-asc-1-0" has to be pruned
-        if ( $cachekey =~ /.*-.*-.*-.*-1-\d?/ ) {
-            $redis->hdel( "LRR_SEARCHCACHE", $cachekey );
-        }
-    }
-    $redis->quit();
 }
 
 sub save_computed_tagrules {
