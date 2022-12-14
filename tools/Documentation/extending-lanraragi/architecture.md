@@ -214,7 +214,7 @@ The base architecture is as follows:
 |
 |- LRR_UNTAGGED <- Redis set of archive IDs that don't have any tags (except for tags added automatically by the autotagger)
 |
-|- LRR_TITLES <- Redis set containing all titles in the DB, alongside their ID. (In the "title\0ID" format)
+|- LRR_TITLES <- Redis lexicographically sorted set containing all titles in the DB, alongside their ID. (In the "title\0ID" format)
 |
 |- INDEX_***:**** <- Each tag(namespaced or not) has a matching Redis set, with all the IDs that have this tag in their metadata. This is used for search indexing.
 |

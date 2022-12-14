@@ -75,6 +75,11 @@ sub get_category {
     my $logger = get_logger( "Categories", "lanraragi" );
     my $redis  = LANraragi::Model::Config->get_redis;
 
+    if ( $cat_id eq "" ) {
+        $logger->debug("No category ID provided.");
+        return ();
+    }
+
     unless ( length($cat_id) == 14 && $redis->exists($cat_id) ) {
         $logger->warn("$cat_id doesn't exist in the database!");
         return ();

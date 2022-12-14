@@ -48,7 +48,7 @@ sub get_page_stat {
 # - LRR_URL_MAP, which maps URLs to IDs in the database that have them as a source: tag
 # - LRR_STATS, which is a sorted set used to build the statistics/tag cloud JSON
 # - LRR_UNTAGGED, which is a set used by the untagged archives API
-# - LRR_TITLES, which is a set containing all titles in the DB, alongside their ID. (In the "title\0ID" format)
+# - LRR_TITLES, which is a lexicographically sorted set containing all titles in the DB, alongside their ID. (In the "title\0ID" format)
 # * It also builds index sets for each distinct tag.
 sub build_stat_hashes {
 
@@ -121,8 +121,8 @@ sub build_stat_hashes {
             remove_newlines($title);
             $title = redis_encode($title);
 
-            # The LRR_TITLES set contains both the title and the id under the form $title\x00$id.
-            $redistx->sadd( "LRR_TITLES", "$title\0$id" );
+            # The LRR_TITLES lexicographically sorted set contains both the title and the id under the form $title\x00$id.
+            $redistx->zadd( "LRR_TITLES", 0, "$title\0$id" );
         }
     }
 

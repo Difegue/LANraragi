@@ -136,7 +136,7 @@ sub restore_from_JSON {
     }
 
     # Force a refresh
-    invalidate_cache(1);
+    invalidate_cache();
     $redis->quit();
 }
 

@@ -100,41 +100,11 @@ sub generate_opds_catalog {
 }
 
 # Return a list of archive IDs that have no tags.
-# Tags added automatically by the autotagger are ignored.
+# TODO: Move this simple call to the API and integrate the smembers call in the search engine itself
 sub find_untagged_archives {
 
-    my $redis = LANraragi::Model::Config->get_redis;
-    my @keys  = $redis->keys('????????????????????????????????????????');
-    my @untagged;
-
-    #Parse the archive list.
-    foreach my $id (@keys) {
-        my $archive = $redis->hget( $id, "file" );
-        if ( $archive && -e $archive ) {
-
-            my $title = $redis->hget( $id, "title" );
-            $title = redis_decode($title);
-
-            my $tagstr = $redis->hget( $id, "tags" );
-            $tagstr = redis_decode($tagstr);
-            my @tags = split( /,\s?/, $tagstr );
-            my $nondefaulttags = 0;
-
-            foreach my $t (@tags) {
-                remove_spaces($t);
-                remove_newlines($t);
-
-                # The following are basic and therefore don't count as "tagged"
-                $nondefaulttags += 1 unless $t =~ /(artist|parody|series|language|event|group|date_added|timestamp):.*/;
-            }
-
-            #If the archive has no tags, or the tags namespaces are only from
-            #filename parsing (probably), add it to the list.
-            if ( !@tags || $nondefaulttags == 0 ) {
-                push @untagged, $id;
-            }
-        }
-    }
+    my $redis    = LANraragi::Model::Config->get_redis_search;
+    my @untagged = $redis->smembers("LRR_UNTAGGED");
     $redis->quit;
     return @untagged;
 }
@@ -345,7 +315,7 @@ sub update_metadata {
     }
 
     # Bust cache
-    invalidate_cache(1);
+    invalidate_cache();
 
     # No errors.
     return "";

@@ -325,7 +325,7 @@ sub set_title {
         remove_spaces($oldtitle);
         remove_newlines($oldtitle);
         $oldtitle = redis_encode($oldtitle);
-        $redis_search->srem( "LRR_TITLES", "$oldtitle\0$id" );
+        $redis_search->zrem( "LRR_TITLES", "$oldtitle\0$id" );
 
         # Set actual title in metadata DB
         $redis->hset( $id, "title", redis_encode($newtitle) );
@@ -335,7 +335,7 @@ sub set_title {
         remove_spaces($newtitle);
         remove_newlines($newtitle);
         $newtitle = redis_encode($newtitle);
-        $redis_search->sadd( "LRR_TITLES", "$oldtitle\0$id" );
+        $redis_search->zadd( "LRR_TITLES", 0, "$oldtitle\0$id" );
     }
     $redis->quit;
 }
@@ -464,17 +464,16 @@ sub redis_decode {
 }
 
 # Bust the current search cache key in Redis.
-# Add "1" as a parameter to perform a cache warm after the wipe.
+# Add "1" as a parameter to rebuild stat hashes as well. (Use with caution!)
 sub invalidate_cache {
-    my $do_warm = shift;
-    my $redis   = LANraragi::Model::Config->get_redis;
+    my $rebuild_indexes = shift;
+    my $redis   = LANraragi::Model::Config->get_redis_search;
     $redis->del("LRR_SEARCHCACHE");
     $redis->hset( "LRR_SEARCHCACHE", "created", time );
     $redis->quit();
 
     # Re-warm the cache to ensure sufficient speed on the main index
-    if ($do_warm) {
-        LANraragi::Model::Config->get_minion->enqueue( warm_cache        => [] => { priority => 3 } );
+    if ($rebuild_indexes) {
         LANraragi::Model::Config->get_minion->enqueue( build_stat_hashes => [] => { priority => 3 } );
     }
 }
