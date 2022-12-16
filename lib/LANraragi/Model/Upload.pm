@@ -51,8 +51,9 @@ sub handle_incoming_file {
 
     #Check if the ID is already in the database, and
     #that the file it references still exists on the filesystem
-    my $redis = LANraragi::Model::Config->get_redis();
-    my $isdupe = $redis->exists($id) && -e $redis->hget( $id, "file" );
+    my $redis        = LANraragi::Model::Config->get_redis;
+    my $redis_search = LANraragi::Model::Config->get_redis_search;
+    my $isdupe       = $redis->exists($id) && -e $redis->hget( $id, "file" );
 
     # Stop here if file is a dupe.
     if ( -e $output_file || $isdupe ) {
@@ -91,7 +92,9 @@ sub handle_incoming_file {
                 $logger->debug("Adding $url as an URL for $id");
                 trim_url($url);
                 $logger->debug("Trimmed: $url");
-                $redis->hset( "LRR_URLMAP", $url, $id );    # No need to encode the value, as URLs are already encoded by design
+
+                # No need to encode the value, as URLs are already encoded by design
+                $redis_search->hset( "LRR_URLMAP", $url, $id );
             }
         }
     }
@@ -112,6 +115,7 @@ sub handle_incoming_file {
     LANraragi::Utils::Database::add_timestamp_tag( $redis, $id );
     LANraragi::Utils::Database::add_pagecount( $redis, $id );
     $redis->quit();
+    $redis_search->quit();
 
     $logger->debug("Running autoplugin on newly uploaded file $id...");
 

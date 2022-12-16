@@ -329,6 +329,8 @@ sub compute_search_filter {
         # Escape already present regex characters
         $logger->debug("Pre-escaped tag: $tag");
 
+        remove_spaces($tag);
+
         # Escape characters according to redis zscan rules
         $tag =~ s/([\[\]\^\\])/\\$1/g;
 

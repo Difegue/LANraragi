@@ -338,6 +338,7 @@ sub set_title {
         $redis_search->zadd( "LRR_TITLES", 0, "$newtitle\0$id" );
     }
     $redis->quit;
+    $redis_search->quit;
 }
 
 #set_tags($id, $tags, $append)
