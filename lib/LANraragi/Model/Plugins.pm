@@ -112,7 +112,7 @@ sub exec_login_plugin {
             $logger->error("Plugin doesn't implement do_login!");
         }
     } else {
-        $logger->info("No login plugin specified, returning empty UserAgent.");
+        $logger->debug("No login plugin specified, returning empty UserAgent.");
     }
 
     return $ua;

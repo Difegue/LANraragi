@@ -128,7 +128,8 @@ sub build_stat_hashes {
             $redistx->zadd( "LRR_TITLES", 0, "$title\0$id" );
         }
 
-        if ( $redis->hget( $id, "isnew" ) eq "true" ) {
+        my $isnew = $redis->hget( $id, "isnew" );
+        if ( $isnew && $isnew eq "true" ) {
             $logger->trace("Adding $id to LRR_ISNEW");
             $redistx->sadd( "LRR_NEW", $id );
         }
