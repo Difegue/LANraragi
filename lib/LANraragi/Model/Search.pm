@@ -13,7 +13,7 @@ use Sys::CpuAffinity;
 use Parallel::Loops;
 use Mojo::JSON qw(decode_json);
 
-use LANraragi::Utils::Generic qw(split_workload_by_cpu);
+use LANraragi::Utils::Generic qw(split_workload_by_cpu remove_spaces);
 use LANraragi::Utils::Database qw(redis_decode);
 use LANraragi::Utils::Logging qw(get_logger);
 
@@ -151,26 +151,30 @@ sub search_uncached {
             my @ids = ();
 
             # Tags are always considered exact for now, so just check if an index for it exists
+            # TODO Add fuzzy search for tags? Probably needed if only to have wildcards work...
             if ( $redis->exists("INDEX_$tag") ) {
 
                 # Get the list of IDs for this tag
                 @ids = $redis->smembers("INDEX_$tag");
+                $logger->trace( "Found tag index for $tag, containing " . scalar @ids . " IDs" );
             }
 
             # Append fuzzy title search
             my $namesearch = $isexact ? $tag : "*$tag*";
             my $scan = -1;
-            while ( $scan > 0 ) {
+            while ( $scan != 0 ) {
 
                 # First iteration
                 if ( $scan == -1 ) { $scan = 0; }
-                $logger->debug("Scanning for $namesearch, cursor=$scan");
+                $logger->trace("Scanning for $namesearch, cursor=$scan");
 
-                my @result = $redis->zscan( "LRR_TITLES", $scan, "MATCH", $namesearch );
+                my @result = $redis->zscan( "LRR_TITLES", $scan, "MATCH", $namesearch, "COUNT", 100 );
                 $scan = $result[0];
 
                 foreach my $title ( @{ $result[1] } ) {
-                    $logger->debug("Found title match: $title");
+
+                    if ( $title eq "0" ) { next; }    # Skip scores
+                    $logger->trace("Found title match: $title");
 
                     # Strip everything before \x00 to get the ID out of the key
                     my $id = substr( $title, index( $title, "\x00" ) + 1 );
@@ -181,11 +185,11 @@ sub search_uncached {
             if ( scalar @ids == 0 && !$isneg ) {
 
                 # No more results, we can end search here
-                $logger->debug("No results for this token, halting search.");
+                $logger->trace("No results for this token, halting search.");
                 @filtered = ();
                 last;
             } else {
-                $logger->debug( "Found " . scalar @ids . " results for this token." );
+                $logger->trace( "Found " . scalar @ids . " results for this token." );
 
                 # Intersect the new list with the previous ones
                 @filtered = intersect_arrays( \@ids, \@filtered, $isneg );
@@ -256,13 +260,18 @@ sub compute_search_filter {
         my $char  = chop $b;
         my $isneg = 0;
 
+        # Skip spaces
+        while ( $char eq " " && $b ne "" ) {
+            $char = chop $b;
+        }
+
         if ( $char eq "-" ) {
             $isneg = 1;
             $char  = chop $b;
         }
 
-        # Get characters until the next space, or the next " if the following char is "
-        my $delimiter = ' ';
+        # Get characters until the next comma, or the next " if the following char is "
+        my $delimiter = ',';
         if ( $char eq '"' ) {
             $delimiter = '"';
             $char      = chop $b;
@@ -296,7 +305,8 @@ sub compute_search_filter {
         # Escape already present regex characters
         $logger->debug("Pre-escaped tag: $tag");
 
-        #$tag = quotemeta($tag);
+        # Escape characters according to redis zscan rules
+        $tag =~ s/([\[\]\^\\])/\\$1/g;
 
         # Replace placeholders with glob-style patterns,
         # ? or _ => ?

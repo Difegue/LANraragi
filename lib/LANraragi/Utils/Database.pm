@@ -13,7 +13,7 @@ use Cwd;
 use Unicode::Normalize;
 
 use LANraragi::Model::Plugins;
-use LANraragi::Utils::Generic qw(flat remove_spaces);
+use LANraragi::Utils::Generic qw(flat remove_spaces remove_newlines);
 use LANraragi::Utils::Tags qw(unflat_tagrules tags_rules_to_array restore_CRLF);
 use LANraragi::Utils::Archive qw(get_filelist);
 use LANraragi::Utils::Logging qw(get_logger);
@@ -335,7 +335,7 @@ sub set_title {
         remove_spaces($newtitle);
         remove_newlines($newtitle);
         $newtitle = redis_encode($newtitle);
-        $redis_search->zadd( "LRR_TITLES", 0, "$oldtitle\0$id" );
+        $redis_search->zadd( "LRR_TITLES", 0, "$newtitle\0$id" );
     }
     $redis->quit;
 }
