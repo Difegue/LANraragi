@@ -203,8 +203,32 @@ sub search_uncached {
             $sortkey = "title";
         }
 
-        # TODO Sort by the required metadata, asc or desc
-        #@filtered = sort_results( $sortkey, $sortorder, @filtered );
+        if ( $sortkey eq "title" ) {
+            my @ordered = ();
+
+            # For title sorting, we can just use the LRR_TITLES set, which is sorted lexicographically.
+            if ($sortorder) {
+                @ordered = $redis->zrevrangebylex( "LRR_TITLES", "+", "-" );
+            } else {
+                @ordered = $redis->zrangebylex( "LRR_TITLES", "-", "+" );
+            }
+
+            # Remove the titles from the keys, which are stored as "title\x00id"
+            @ordered = map { substr( $_, index( $_, "\x00" ) + 1 ) } @ordered;
+
+            $logger->trace( "Example element from ordered list: " . $ordered[0] );
+
+            # Just intersect the ordered list with the filtered one to get the final result
+            @filtered = intersect_arrays( \@filtered, \@ordered, 0 );
+        } else {
+
+            # For other sorting, we need to get the metadata for each archive and sort it manually.
+            # Just use the old sort algorithm at this point.
+            @filtered = sort_results( $sortkey, $sortorder, @filtered );
+
+            # We could theoretically use the tag indexes for this by scanning them all
+            # to find the filtered IDs and then ordering on those namespace/ID pairs, but that's a lot of work for little gain.
+        }
     }
 
     return @filtered;
@@ -328,24 +352,25 @@ sub sort_results {
 
     my ( $sortkey, $sortorder, @filtered ) = @_;
 
+    my $redis = LANraragi::Model::Config->get_redis;
+
     @filtered = sort {
 
-        #Use either tags or title depending on the sortkey
-        my $meta1 = $a->{title};
-        my $meta2 = $b->{title};
+        my $tags_a = $redis->hget( $a, "tags" );
+        my $tags_b = $redis->hget( $b, "tags" );
+
+        # Not a very good way to make items end at the bottom...
+        my $meta1 = "zzzz";
+        my $meta2 = "zzzz";
 
         if ( $sortkey ne "title" ) {
             my $re = qr/$sortkey/;
-            if ( $a->{tags} =~ m/.*${re}:(.*)(\,.*|$)/ ) {
+            if ( $tags_a =~ m/.*${re}:(.*)(\,.*|$)/ ) {
                 $meta1 = $1;
-            } else {
-                $meta1 = "zzzz";    # Not a very good way to make items end at the bottom...
             }
 
-            if ( $b->{tags} =~ m/.*${re}:(.*)(\,.*|$)/ ) {
+            if ( $tags_b =~ m/.*${re}:(.*)(\,.*|$)/ ) {
                 $meta2 = $1;
-            } else {
-                $meta2 = "zzzz";
             }
         }
 
