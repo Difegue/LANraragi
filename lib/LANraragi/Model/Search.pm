@@ -29,6 +29,11 @@ sub do_search {
     my $redis = LANraragi::Model::Config->get_redis_search;
     my $logger = get_logger( "Search Engine", "lanraragi" );
 
+    unless ( $redis->exists("LAST_JOB_TIME") ) {
+        $logger->error("Search engine is not initialized yet. Please wait a few seconds.");
+        return ( -1, -1, () );
+    }
+
     # Search filter results
     my $total = $redis->zcard("LRR_TITLES") + 0;    # Total number of archives (as int)
 
@@ -47,9 +52,7 @@ sub do_search {
     }
     $redis->quit();
 
-    # If start is negative, return all possible data
-    # Kind of a hack for the random API, not sure how this could be improved...
-    # (The paging has always been there mostly to make datatables behave after all.)
+    # If start is negative, return all possible data.
     if ( $start == -1 ) {
         return ( $total, $#filtered + 1, @filtered );
     }
@@ -150,13 +153,23 @@ sub search_uncached {
 
             my @ids = ();
 
-            # Tags are always considered exact for now, so just check if an index for it exists
-            # TODO Add fuzzy search for tags? Probably needed if only to have wildcards work...
-            if ( $redis->exists("INDEX_$tag") ) {
+            # For exact tag searches, just check if an index for it exists
+            if ( $isexact && $redis->exists("INDEX_$tag") ) {
 
                 # Get the list of IDs for this tag
                 @ids = $redis->smembers("INDEX_$tag");
                 $logger->trace( "Found tag index for $tag, containing " . scalar @ids . " IDs" );
+            } else {
+
+                # Get index keys that match this tag
+                my @keys = $redis->keys("INDEX_*$tag*");
+
+                # Get the list of IDs for each key
+                foreach my $key (@keys) {
+                    my @keyids = $redis->smembers($key);
+                    $logger->trace( "Found index $key for $tag, containing " . scalar @ids . " IDs" );
+                    push @ids, @keyids;
+                }
             }
 
             # Append fuzzy title search

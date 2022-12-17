@@ -57,7 +57,7 @@ sub get_logger {
     }
 
     # Step down into trace if we're launched from npm run dev-server
-    if ( $ENV{MOJO_MODE} && $ENV{MOJO_MODE} eq "development" ) {
+    if ( $ENV{LRR_DEVSERVER} ) {
         $log->level('trace');
     }
 
