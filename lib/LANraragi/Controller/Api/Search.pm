@@ -101,25 +101,25 @@ sub get_random_archives {
 
     my $filter       = $req->param('filter');
     my $category     = $req->param('category') || "";
+    my $isnew        = $req->param('isnew') || "";
+    my $untaggedonly = $req->param('untaggedonly') || "";
     my $random_count = $req->param('count') || 5;
 
-    # TODO rework this
     # Use the search engine to get IDs matching the filter/category selection, with start=-1 to get all data
-    # This method could be extended later to also use isnew/untagged filters.
-    my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $filter, $category, -1, "title", 0, "", "" );
+    my ( $total, $filtered, @ids ) =
+      LANraragi::Model::Search::do_search( $filter, $category, -1, "title", 0, $isnew, $untaggedonly );
     my @random_ids;
 
     $random_count = min( $random_count, scalar(@ids) );
 
-    while ( $random_count > 0 ) {
-        my $random_id = $ids[ int( rand( scalar @ids ) ) ];
-        next if ( grep { $_ eq $random_id } @random_ids );
-
-        push @random_ids, $random_id;
-        $random_count--;
+    # Get random IDs out of the array
+    for ( 1 .. $random_count ) {
+        my $random_index = int( rand( scalar(@ids) ) );
+        push( @random_ids, splice( @ids, $random_index, 1 ) );
     }
 
-    $self->render( json => { data => \@random_ids } );
+    my @data = get_archive_json_multi( $redis, @random_ids );
+    $self->render( json => { data => \@data } );
     $redis->quit();
 }
 
