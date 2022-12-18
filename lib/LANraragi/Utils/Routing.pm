@@ -86,8 +86,12 @@ sub apply_routes {
     $logged_in->get('/logs/mojo')->to('logging#print_mojo');
     $logged_in->get('/logs/redis')->to('logging#print_redis');
 
+    # OPDS API
+    $public_api->get('/api/opds')->to('api-other#serve_opds_catalog');
+    $public_api->get('/api/opds/:id')->to('api-other#serve_opds_item');
+    $public_api->get('/api/opds/:id/pse')->to('api-other#serve_opds_page');
+
     # Miscellaneous API
-    $public_api->get('/api/opds')->to('api-other#serve_opds');
     $public_api->get('/api/info')->to('api-other#serve_serverinfo');
     $logged_in_api->get('/api/plugins/:type')->to('api-other#list_plugins');
     $logged_in_api->post('/api/plugins/use')->to('api-other#use_plugin_sync');

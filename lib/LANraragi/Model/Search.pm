@@ -20,7 +20,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Model::Archive;
 use LANraragi::Model::Category;
 
-# do_search (filter, filter2, page, key, order, newonly, untaggedonly)
+# do_search (filter, category_id, page, key, order, newonly, untaggedonly)
 # Performs a search on the database.
 sub do_search {
 

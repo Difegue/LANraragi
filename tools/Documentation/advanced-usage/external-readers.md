@@ -52,7 +52,13 @@ You can download it [here.](https://github.com/inorichi/tachiyomi-extensions/blo
 ![Example OPDS reader](<../.screenshots/opds.jpg>)
 
 Some readers can leverage the [OPDS Catalog](https://opds.io) exposed by LANraragi to visualize and read the available archives.  
-Those programs can't exploit all of LRR's features(Search, Database backup, Streaming images), but they might have reading features you won't find in the current dedicated clients.
+Those programs can't exploit all of LRR's features(Search, Database backup), but they might have reading features you won't find in the current dedicated clients.  
+
+If your OPDS reader supports [Page Streaming Extensions](https://anansi-project.github.io/docs/opds-pse/intro), LANraragi is compatible with it and will serve individual pages.  
+
+{% hint style="info" %}
+LRR supports OPDS PSE 1.1, which means that if you have server-side progress tracking enabled, you can pick up where you stopped reading from any OPDS client. Syndication!
+{% endhint %}
 
 The URL for the OPDS Catalog is `[YOUR_LANRARAGI_URL]/api/opds`.  
 You can use [the Demo](https://lrr.tvc-16.science/api/opds) as an example.  
@@ -73,3 +79,4 @@ The following readers haven't been tested but should work:
 
 * [**TiReader (iOS)**](http://tireader.com)
 * [**Chunky Reader (iOS)**](http://chunkyreader.com)
+* [**Panels (iOS)**](https://panels.app/)

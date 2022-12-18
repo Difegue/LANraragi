@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<entry xmlns="http://www.w3.org/2005/Atom"
-    xmlns:thr="http://purl.org/syndication/thread/1.0" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:opds="http://opds-spec.org/2010/catalog" 
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:schema="http://schema.org/">
+<entry xmlns="http://www.w3.org/2005/Atom" 
+    xmlns:thr="http://purl.org/syndication/thread/1.0"
+    xmlns:dcterms="http://purl.org/dc/terms/" 
+    xmlns:opds="http://opds-spec.org/2010/catalog"
+    xmlns:pse="http://vaemendis.net/opds-pse/ns" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:schema="http://schema.org/">
 
-    <link href="/api/opds" type="application/atom+xml;profile=opds-catalog;kind=navigation" rel="start"/>
-    <link rel="self" href="/api/opds?id=[% arc.arcid %]" type="application/atom+xml;type=entry;profile=opds-catalog"/>
+    <link rel="start" href="/api/opds" type="application/atom+xml;profile=opds-catalog;kind=navigation" />
+    <link rel="self" href="/api/opds/[% arc.arcid %]" type="application/atom+xml;type=entry;profile=opds-catalog" />
 
     <title>[% arc.title %]</title>
     <id>urn:lrr:[% arc.arcid %]</id>
@@ -17,16 +21,19 @@
     <dcterms:language>[% arc.language %]</dcterms:language>
     <dcterms:publisher>[% arc.circle %]</dcterms:publisher>
     <dcterms:issued>[% arc.event %]</dcterms:issued>
-    [% IF arc.isnew %]
-        <category term="Archive"/>
+    [% IF arc.isnew == "false" %]
+    <category term="Archive" />
     [% ELSE %]
-        <category term="New Archive"/>
+    <category term="New Archive" />
     [% END %]
     <summary>[% arc.tags %]</summary>
 
-    <link rel="http://opds-spec.org/image" href="/api/archives/[% arc.arcid %]/thumbnail" type="image/jpeg"/>
-    <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/[% arc.arcid %]/thumbnail" type="image/jpeg"/>
-    <link rel="http://opds-spec.org/acquisition" href="/api/archives/[% arc.arcid %]/download" title="Read" type="[% arc.mimetype %]"/>
-    <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=[% arc.arcid %]"/>
+    <link rel="http://opds-spec.org/image" href="/api/archives/[% arc.arcid %]/thumbnail" type="image/jpeg" />
+    <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/[% arc.arcid %]/thumbnail" type="image/jpeg" />
+    <link rel="http://opds-spec.org/acquisition" href="/api/archives/[% arc.arcid %]/download" title="Download/Read"
+        type="[% arc.mimetype %]" />
+    <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
+        href="/api/opds/[% arc.arcid %]/pse?page={pageNumber}" pse:count="[% arc.pagecount %]" [% IF arc.progress %] pse:lastRead="[% arc.progress %]" [% END %]/>
+    <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=[% arc.arcid %]" />
 
 </entry>

@@ -44,7 +44,7 @@ sub setup_redis_mock {
         },
         "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg": {
             "isnew": "false",
-            "pagecount": 0,
+            "pagecount": 200,
             "progress": 34,
             "tags": "character:segata, female:very cool too",
             "title": "Saturn Backup Cartridge - American Manual",
@@ -52,7 +52,7 @@ sub setup_redis_mock {
         },
         "e4c422fd10943dc169e3489a38cdbf57101a5f7e": {
             "isnew": "true",
-            "pagecount": 0,
+            "pagecount": 10,
             "progress": 0,
             "tags": "parody: jojo's bizarre adventure",
             "title": "Rohan Kishibe goes to Gucci",
@@ -76,7 +76,7 @@ sub setup_redis_mock {
         },
         "28697b96f0ac5858be2614ed10ca47742c9522fd": {
             "isnew": "false",
-            "pagecount": 0,
+            "pagecount": 1,
             "progress": 0,
             "tags": "parody:fate grand order,  group:wadamemo,  artist:wada rco,  artbook,  full color, male:very cool too",
             "title": "Fate GO MEMO",
