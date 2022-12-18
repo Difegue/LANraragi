@@ -48,7 +48,7 @@ sub logged_in {
       || $self->LRR_CONF->enable_pass == 0;
 
     my $url = $self->url_for("login");
-    $self->redirect_to( $url->query( redirect => $self->req->url->path ) );
+    $self->redirect_to( $url->query( redirect => $self->req->url->path_query ) );
     return 0;
 }
 
