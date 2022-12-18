@@ -13,6 +13,7 @@ use Data::Dumper;
 
 use LANraragi::Model::Search;
 use LANraragi::Model::Config;
+use LANraragi::Model::Stats;
 
 # Mock Redis
 my $cwd = getcwd;
@@ -22,6 +23,9 @@ setup_redis_mock();
 my $redis = LANraragi::Model::Config->get_redis;
 
 is( $redis->hget( "28697b96f0ac5858be2614ed10ca47742c9522fd", "title" ), "Fate GO MEMO", 'Redis mock test' );
+
+# Build search hashes
+LANraragi::Model::Stats::build_stat_hashes();
 
 # Search queries
 my $search = "";
@@ -36,11 +40,19 @@ is( $filtered, 6, qq(Empty search(full index)) );
 
 $search = qq(Ghost in the Shell);
 do_test_search();
-is( %{ $ids[0] }{title}, "Ghost in the Shell 1.5 - Human-Error Processor vol01ch01", qq(Basic search ($search)) );
+is( $ids[0], "4857fd2e7c00db8b0af0337b94055d8445118630", qq(Basic search ($search)) );
 
-$search = qq("Fate GO MEMO");
+$search = qq("male:very cool");
 do_test_search();
-is( $filtered, 2, qq(Non-exact quoted search ($search)) );
+is( $filtered, 1, qq(Exact namespace search ($search)) );
+
+$search = qq(male:very cool);
+do_test_search();
+is( $filtered, 2, qq(Fuzzy namespace search ($search)) );
+
+$search = qq(*male:very cool);
+do_test_search();
+is( $filtered, 3, qq(Very fuzzy namespace search ($search)) );
 
 $search = qq("Fate GO MEMO ?");
 do_test_search();
@@ -50,25 +62,25 @@ $search = qq("Fate GO MEMO _");
 do_test_search();
 is( $filtered, 1, qq(Wildcard search ($search)) );
 
-$search = qq("Saturn*Cartridge*Japanese");
+$search = qq("Saturn*Cartridge*Japanese Manual");
 do_test_search();
-is( %{ $ids[0] }{title}, "Saturn Backup Cartridge - Japanese Manual", qq(Multiple wildcard search ($search)) );
+is( $ids[0], "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf", qq(Multiple wildcard search ($search)) );
 
-$search = qq("Saturn\%American");
+$search = qq("Saturn\%American\%");
 do_test_search();
-is( %{ $ids[0] }{title}, "Saturn Backup Cartridge - American Manual", qq(Multiple wildcard search ($search)) );
+is( $ids[0], "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg", qq(Multiple wildcard search ($search)) );
 
-$search = qq("artist:wada rco" character:ereshkigal);
+$search = qq(artist:wada rco, character:ereshkigal);
 do_test_search();
-ok( $filtered eq 1 && %{ $ids[0] }{title} eq "Fate GO MEMO 2", qq(Tag inclusion search ($search)) );
+ok( $filtered eq 1 && $ids[0] eq "2810d5e0a8d027ecefebca6237031a0fa7b91eb3", qq(Tag inclusion search ($search)) );
 
-$search = qq("artist:wada rco" -character:ereshkigal);
+$search = qq(artist:wada rco, -character:ereshkigal);
 do_test_search();
-ok( $filtered eq 1 && %{ $ids[0] }{title} eq "Fate GO MEMO", qq(Tag exclusion search ($search)) );
+ok( $filtered eq 1 && $ids[0] eq "28697b96f0ac5858be2614ed10ca47742c9522fd", qq(Tag exclusion search ($search)) );
 
-$search = qq("artist:wada rco" -"character:waver velvet");
+$search = qq(artist:wada rco, -character:waver velvet);
 do_test_search();
-ok( $filtered eq 1 && %{ $ids[0] }{title} eq "Fate GO MEMO", qq(Tag exclusion with quotes ($search)) );
+ok( $filtered eq 1 && $ids[0] eq "28697b96f0ac5858be2614ed10ca47742c9522fd", qq(Tag exclusion with quotes ($search)) );
 
 $search = qq("artist:wada rco" "-character:waver velvet");
 do_test_search();
@@ -76,10 +88,9 @@ is( $filtered, 0, qq(Incorrect tag exclusion ($search)) );
 
 $search = qq(character:segata\$);
 do_test_search();
-ok( $filtered eq 1 && %{ $ids[0] }{title} eq "Saturn Backup Cartridge - American Manual",
-    qq(Exact search without quotes ($search)) );
+ok( $filtered eq 1 && $ids[0] eq "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg", qq(Exact search without quotes ($search)) );
 
-$search = qq("Fate GO MEMO"\$);
+$search = qq("Fate GO MEMO");
 do_test_search();
 is( $filtered, 1, qq(Exact search with quotes ($search)) );
 
@@ -95,10 +106,9 @@ $search = qq("character:segata");
 is( $filtered, 1, qq(Search with favorite search category applied ($search) + (SET_1589138380: American)) );
 
 ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", 0, 0, 0, 1, 0 );
-ok( $filtered eq 1 && %{ $ids[0] }{title} eq "Rohan Kishibe goes to Gucci", qq(Search with new filter applied) );
+ok( $filtered eq 1 && $ids[0] eq "e4c422fd10943dc169e3489a38cdbf57101a5f7e", qq(Search with new filter applied) );
 
 ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", 0, 0, 0, 0, 1 );
-ok( $filtered eq 2 && %{ $ids[0] }{title} eq "Ghost in the Shell 1.5 - Human-Error Processor vol01ch01",
-    qq(Search with untagged filter applied) );
+ok( $filtered eq 2 && $ids[0] eq "4857fd2e7c00db8b0af0337b94055d8445118630", qq(Search with untagged filter applied) );
 
 done_testing();

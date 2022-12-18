@@ -45,6 +45,7 @@ sub do_search {
 
     unless ($cachehit) {
         $logger->debug("No cache available, doing a full DB parse.");
+        $logger->trace("No cache sdfsdavailable, doing a full DB parse.");
         @filtered = search_uncached( $category_id, $filter, $sortkey, $sortorder, $newonly, $untaggedonly );
 
         # Cache this query in the search database
@@ -158,11 +159,14 @@ sub search_uncached {
 
                 # Get the list of IDs for this tag
                 @ids = $redis->smembers("INDEX_$tag");
-                $logger->trace( "Found tag index for $tag, containing " . scalar @ids . " IDs" );
+                $logger->debug( "Found tag index for $tag, containing " . scalar @ids . " IDs" );
             } else {
 
-                # Get index keys that match this tag
-                my @keys = $redis->keys("INDEX_*$tag*");
+                # Get index keys that match this tag.
+                # If the tag has a namespace, We don't add a wildcard at the start of the tag to keep it intact.
+                # Otherwise, we add a wildcard at the start to match all namespaces.
+                my $indexkey = $tag =~ /:/ ? "INDEX_$tag*" : "INDEX_*$tag*";
+                my @keys = $redis->keys($indexkey);
 
                 # Get the list of IDs for each key
                 foreach my $key (@keys) {
@@ -173,7 +177,7 @@ sub search_uncached {
             }
 
             # Append fuzzy title search
-            my $namesearch = $isexact ? $tag : "*$tag*";
+            my $namesearch = $isexact ? "$tag\x00*" : "*$tag*";
             my $scan = -1;
             while ( $scan != 0 ) {
 
@@ -211,6 +215,7 @@ sub search_uncached {
     }
 
     if ( $#filtered > 0 ) {
+        $logger->debug( "Found " . $#filtered . " results after filtering." );
 
         if ( !$sortkey ) {
             $sortkey = "title";
@@ -286,7 +291,7 @@ sub compute_search_filter {
     if ( !$filter ) { $filter = ""; }
 
     # Special characters:
-    # "" for exact search (or $ but is that one really useful)
+    # "" for exact search (or $, but is that one really useful now?)
     # ?/_ for any character
     # * % for multiple characters
     # - to exclude the next tag
@@ -322,12 +327,13 @@ sub compute_search_filter {
             $char = chop $b;
         }
 
-        #If last char is $, enable isexact
+        #If last char is $ or delimiter was ", enable isexact
         if ( $delimiter eq '"' ) {
+            $isexact = 1;
+
+            # Quotes then $ is an accepted syntax, even though it does nothing
             $char = chop $b;
-            if ( $char eq "\$" ) {
-                $isexact = 1;
-            } else {
+            unless ( $char eq "\$" ) {
                 $b = $b . $char;
             }
         } else {

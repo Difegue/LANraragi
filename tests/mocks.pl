@@ -38,7 +38,7 @@ sub setup_redis_mock {
             "isnew": "false",
             "pagecount": 2,
             "progress": 10,
-            "tags": "character:segata sanshiro",
+            "tags": "character:segata sanshiro, male:very cool",
             "title": "Saturn Backup Cartridge - Japanese Manual",
             "file": "package.json"
         },
@@ -46,7 +46,7 @@ sub setup_redis_mock {
             "isnew": "false",
             "pagecount": 0,
             "progress": 34,
-            "tags": "character:segata",
+            "tags": "character:segata, female:very cool too",
             "title": "Saturn Backup Cartridge - American Manual",
             "file": "package.json"
         },
@@ -78,7 +78,7 @@ sub setup_redis_mock {
             "isnew": "false",
             "pagecount": 0,
             "progress": 0,
-            "tags": "parody:fate grand order,  group:wadamemo,  artist:wada rco,  artbook,  full color",
+            "tags": "parody:fate grand order,  group:wadamemo,  artist:wada rco,  artbook,  full color, male:very cool too",
             "title": "Fate GO MEMO",
             "file": "package.json"
         }
@@ -91,7 +91,12 @@ sub setup_redis_mock {
         'keys',    # $redis->keys => get keys matching predicate in datamodel
         sub {
             shift;
-            my $expr = $_[0] =~ s/\?/\./gr;    # Replace redis' '?' wildcards with regex '.'s
+
+            # Replace redis' '?' wildcards with regex '.'s
+            my $expr = $_[0] =~ s/\?/\./gr;
+
+            # Replace redis' '*' wildcards with regex '.*'s
+            $expr = $expr =~ s/\*/\.\*/gr;
             return grep { /$expr/ } keys %datamodel;
         }
     );
@@ -100,6 +105,9 @@ sub setup_redis_mock {
     $redis->mock( 'hset',    sub { 1 } );
     $redis->mock( 'quit',    sub { 1 } );
     $redis->mock( 'select',  sub { 1 } );
+    $redis->mock( 'flushdb', sub { 1 } );
+    $redis->mock( 'zincrby', sub { 1 } );
+    $redis->mock( 'watch',   sub { 1 } );
     $redis->mock( 'hlen',    sub { 1337 } );
     $redis->mock( 'dbsize',  sub { 1337 } );
 
@@ -135,6 +143,101 @@ sub setup_redis_mock {
     );
 
     $redis->mock(
+        'sadd',    # $redis->sadd => add value to list named by key in datamodel
+        sub {
+            my $self = shift;
+            my ( $key, $value ) = @_;
+
+            if ( !exists $datamodel{$key} ) {
+                $datamodel{$key} = [];
+            }
+
+            push @{ $datamodel{$key} }, $value;
+        }
+    );
+
+    $redis->mock(
+        'zadd',    # $redis->zadd => add value to list named by key in datamodel
+        sub {
+            my $self = shift;
+            my ( $key, $weight, $value ) = @_;
+
+            if ( !exists $datamodel{$key} ) {
+                $datamodel{$key} = [];
+            }
+
+            push @{ $datamodel{$key} }, $value;
+        }
+    );
+
+    $redis->mock(
+        'zcard',    # $redis->zcard => number of values in list named by key in datamodel
+        sub {
+            my $self = shift;
+            my ($key) = @_;
+
+            if ( !exists $datamodel{$key} ) {
+                $datamodel{$key} = [];
+            }
+
+            return scalar @{ $datamodel{$key} };
+        }
+    );
+
+    $redis->mock(
+        'zrangebylex',    # $redis->zrangebylex => get all values of key in datamodel
+        sub {
+            my $self = shift;
+            my ( $key, $start, $end ) = @_;
+
+            if ( !exists $datamodel{$key} ) {
+                $datamodel{$key} = [];
+            }
+
+            # Return array, ordered alphabetically
+            return sort @{ $datamodel{$key} };
+        }
+    );
+
+    $redis->mock(
+        'zscan',    # $redis->zscan => get all values of key in datamodel
+        sub {
+            my $self = shift;
+            my ( $key, $cursor, $match, $matchexpr, $count, $countnumber ) = @_;
+
+            if ( !exists $datamodel{LRR_TITLES} ) {
+                $datamodel{LRR_TITLES} = [];
+            }
+
+            # Search for the match expression in the list of titles
+            # Replace redis' '?' wildcards with regex '.'s
+            my $expr = $matchexpr =~ s/\?/\./gr;
+
+            # Replace redis' '*' wildcards with regex '.*'s
+            $expr = $expr =~ s/\*/\.\*/gr;
+
+            my @matches = grep { /$expr/i } @{ $datamodel{LRR_TITLES} };
+
+            # Return 0 for cursor to indicate we scanned everything, and
+            return ( 0, \@matches );
+        }
+    );
+
+    $redis->mock(
+        'smembers',    # $redis->smembers => return all values of key in datamodel
+        sub {
+            my $self = shift;
+            my ($key) = @_;
+
+            if ( !exists $datamodel{$key} ) {
+                $datamodel{$key} = [];
+            }
+
+            return @{ $datamodel{$key} };
+        }
+    );
+
+    $redis->mock(
         'hgetall',    # $redis->hgetall => get all values of key in datamodel
         sub {
             my $self = shift;
@@ -156,7 +259,7 @@ sub setup_redis_mock {
 
 sub get_logger_mock {
     my $mock = Test::MockObject->new();
-    $mock->mock( 'debug', sub { }, 'info', sub { } );
+    $mock->mock( 'debug', sub { }, 'info', sub { }, 'trace', sub { } );
     return $mock;
 }
 
