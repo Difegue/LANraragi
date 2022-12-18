@@ -130,7 +130,7 @@ sub get_archive_json {
     return $arcdata;
 }
 
-# get_archive_json_multi(redis, ids)
+# get_archive_json_multi(ids)
 # Uses Redis' MULTI to get an archive JSON for each ID.
 sub get_archive_json_multi {
     my @ids   = @_;

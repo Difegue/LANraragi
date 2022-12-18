@@ -10,9 +10,8 @@ use LANraragi::Utils::Database qw(invalidate_cache get_archive_json_multi);
 # Undocumented API matching the Datatables spec.
 sub handle_datatables {
 
-    my $self  = shift;
-    my $redis = $self->LRR_CONF->get_redis();
-    my $req   = $self->req;
+    my $self = shift;
+    my $req  = $self->req;
 
     my $draw   = $req->param('draw');
     my $start  = $req->param('start');
@@ -54,7 +53,7 @@ sub handle_datatables {
     my ( $total, $filtered, @ids ) =
       LANraragi::Model::Search::do_search( $filter, $categoryfilter, $start, $sortkey, $sortorder, $newfilter, $untaggedfilter );
 
-    $self->render( json => get_datatables_object( $draw, $redis, $total, $filtered, @ids ) );
+    $self->render( json => get_datatables_object( $draw, $total, $filtered, @ids ) );
     $redis->quit();
 
 }
@@ -62,9 +61,8 @@ sub handle_datatables {
 # Public search API with saner parameters.
 sub handle_api {
 
-    my $self  = shift;
-    my $redis = $self->LRR_CONF->get_redis();
-    my $req   = $self->req;
+    my $self = shift;
+    my $req  = $self->req;
 
     my $filter    = $req->param('filter');
     my $category  = $req->param('category') || "";
@@ -82,7 +80,7 @@ sub handle_api {
         $untaggedf eq "true"
     );
 
-    $self->render( json => get_datatables_object( 0, $redis, $total, $filtered, @ids ) );
+    $self->render( json => get_datatables_object( 0, $total, $filtered, @ids ) );
     $redis->quit();
 
 }
@@ -95,9 +93,8 @@ sub clear_cache {
 # Pull random archives out of the given search
 sub get_random_archives {
 
-    my $self  = shift;
-    my $redis = $self->LRR_CONF->get_redis();
-    my $req   = $self->req;
+    my $self = shift;
+    my $req  = $self->req;
 
     my $filter       = $req->param('filter');
     my $category     = $req->param('category') || "";
@@ -118,16 +115,15 @@ sub get_random_archives {
         push( @random_ids, splice( @ids, $random_index, 1 ) );
     }
 
-    my @data = get_archive_json_multi( $redis, @random_ids );
+    my @data = get_archive_json_multi(@random_ids);
     $self->render( json => { data => \@data } );
-    $redis->quit();
 }
 
 # get_datatables_object($draw, $total, $totalsearched, @pagedkeys)
 # Creates a Datatables-compatible json from the given data.
 sub get_datatables_object {
 
-    my ( $draw, $redis, $total, $filtered, @ids ) = @_;
+    my ( $draw, $total, $filtered, @ids ) = @_;
 
     # Get archive data
     my @data = get_archive_json_multi(@ids);
