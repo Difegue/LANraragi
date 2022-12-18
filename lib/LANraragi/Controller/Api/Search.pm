@@ -54,8 +54,6 @@ sub handle_datatables {
       LANraragi::Model::Search::do_search( $filter, $categoryfilter, $start, $sortkey, $sortorder, $newfilter, $untaggedfilter );
 
     $self->render( json => get_datatables_object( $draw, $total, $filtered, @ids ) );
-    $redis->quit();
-
 }
 
 # Public search API with saner parameters.
@@ -81,8 +79,6 @@ sub handle_api {
     );
 
     $self->render( json => get_datatables_object( 0, $total, $filtered, @ids ) );
-    $redis->quit();
-
 }
 
 sub clear_cache {

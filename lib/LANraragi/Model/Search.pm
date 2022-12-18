@@ -361,7 +361,7 @@ sub compute_search_filter {
         $tag =~ s/\%/\*/g;
 
         push @tokens,
-          { tag     => $tag,
+          { tag     => lc($tag),
             isneg   => $isneg,
             isexact => $isexact
           };
