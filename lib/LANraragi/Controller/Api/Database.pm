@@ -45,8 +45,9 @@ sub clean_database {
 #Clear new flag in all archives.
 sub clear_new_all {
 
-    my $self  = shift;
-    my $redis = $self->LRR_CONF->get_redis();
+    my $self         = shift;
+    my $redis        = $self->LRR_CONF->get_redis();
+    my $redis_search = $self->LRR_CONF->get_redis_search();
 
     # Get all archives thru redis
     # 40-character long keys only => Archive IDs
@@ -56,8 +57,12 @@ sub clear_new_all {
         $redis->hset( $idall, "isnew", "false" );
     }
 
-    # Bust isnew cache
     $redis->quit();
+
+    # Bust isnew cache
+    $redis_search->del("LRR_NEW");
+    $redis_search->quit();
+
     render_api_response( $self, "clear_new_all" );
 }
 
