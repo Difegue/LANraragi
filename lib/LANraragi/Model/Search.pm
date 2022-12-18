@@ -132,7 +132,7 @@ sub search_uncached {
 
     # If the untagged filter is enabled, call the untagged files API
     if ($untaggedonly) {
-        my @untagged = LANraragi::Model::Archive::find_untagged_archives();
+        my @untagged = $redis->smembers("LRR_UNTAGGED");
         @filtered = intersect_arrays( \@untagged, \@filtered, 0 );
     }
 

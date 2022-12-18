@@ -36,9 +36,13 @@ sub serve_archivelist {
 }
 
 sub serve_untagged_archivelist {
-    my $self   = shift;
-    my @idlist = LANraragi::Model::Archive::find_untagged_archives;
-    $self->render( json => \@idlist );
+    my $self  = shift;
+    my $redis = $self->LRR_CONF->get_redis_search;
+
+    my @untagged = $redis->smembers("LRR_UNTAGGED");
+    $redis->quit;
+
+    $self->render( json => \@untagged );
 }
 
 sub serve_metadata {
