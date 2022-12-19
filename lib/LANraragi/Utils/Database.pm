@@ -96,7 +96,7 @@ sub add_timestamp_tag {
             $date = time();
         }
 
-        add_tags( $id, "date_added:$date" );
+        set_tags( $id, "date_added:$date", 1 );
     }
 }
 
