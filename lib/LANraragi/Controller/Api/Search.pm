@@ -94,13 +94,13 @@ sub get_random_archives {
 
     my $filter       = $req->param('filter');
     my $category     = $req->param('category') || "";
-    my $isnew        = $req->param('isnew') || "";
-    my $untaggedonly = $req->param('untaggedonly') || "";
+    my $newfilter    = $req->param('newonly') || "false";
+    my $untaggedf    = $req->param('untaggedonly') || "false";
     my $random_count = $req->param('count') || 5;
 
     # Use the search engine to get IDs matching the filter/category selection, with start=-1 to get all data
     my ( $total, $filtered, @ids ) =
-      LANraragi::Model::Search::do_search( $filter, $category, -1, "title", 0, $isnew, $untaggedonly );
+      LANraragi::Model::Search::do_search( $filter, $category, -1, "title", 0, $newfilter eq "true", $untaggedf eq "true" );
     my @random_ids;
 
     $random_count = min( $random_count, scalar(@ids) );
