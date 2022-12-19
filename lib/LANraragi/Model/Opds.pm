@@ -15,9 +15,12 @@ use LANraragi::Model::Search;
 
 sub generate_opds_catalog {
 
-    my $mojo   = shift;
+    my $mojo = shift;
     my $cat_id = $mojo->req->param('category') || "";
-    my @cats   = LANraragi::Model::Category->get_category_list;
+
+    # If the user authentified to this via an API key, we need to carry it over to the OPDS links.
+    my $api_key = $mojo->req->param('key') ? "key=" . $mojo->req->param('key') : "";
+    my @cats = LANraragi::Model::Category->get_category_list;
 
     # Use the search engine to get the list of archives to show in the catalog.
     my ( $total, $filtered, @keys ) = LANraragi::Model::Search::do_search( "", $cat_id, -1, "title", 0, 0, 0 );
@@ -52,13 +55,17 @@ sub generate_opds_catalog {
         nocat    => $cat_id eq "",
         title    => $mojo->LRR_CONF->get_htmltitle,
         motd     => $mojo->LRR_CONF->get_motd,
-        version  => $mojo->LRR_VERSION
+        version  => $mojo->LRR_VERSION,
+        api_key  => $api_key
     );
 }
 
 sub generate_opds_item {
 
     my ( $mojo, $id ) = @_;
+
+    # If the user authentified to this via an API key, we need to carry it over to the OPDS links.
+    my $api_key = $mojo->req->param('key') ? "key=" . $mojo->req->param('key') : "";
 
     # Detailed pages just return a single entry instead of all the archives.
     my $arcdata = get_opds_data($id);
@@ -68,7 +75,8 @@ sub generate_opds_item {
         arc      => $arcdata,
         title    => $mojo->LRR_CONF->get_htmltitle,
         motd     => $mojo->LRR_CONF->get_motd,
-        version  => $mojo->LRR_VERSION
+        version  => $mojo->LRR_VERSION,
+        api_key  => $api_key
     );
 }
 

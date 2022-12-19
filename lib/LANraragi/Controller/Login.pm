@@ -58,12 +58,16 @@ sub logged_in_api {
 
     # The API key is in the Authentication header.
     my $expected_key = $self->LRR_CONF->get_apikey;
+    my $expected_header = "Bearer " . encode_base64( $expected_key, "" );
 
     my $auth_header = $self->req->headers->authorization || "";
-    my $expected_header = "Bearer " . encode_base64( $expected_key, "" );
+
+    # It can also be passed as a parameter. (Undocumented, mostly just meant for OPDS)
+    my $param_key = $self->req->param('key') || '';
 
     return 1
       if ( $expected_key ne "" && $auth_header eq $expected_header )
+      || ( $param_key ne "" && $param_key eq $expected_key )
       || $self->session('is_logged')
       || $self->LRR_CONF->enable_pass == 0;
     $self->render(

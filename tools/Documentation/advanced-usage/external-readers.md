@@ -65,7 +65,9 @@ You can use [the Demo](https://lrr.tvc-16.science/api/opds) as an example.
 Refer to your reader's documentation to figure out where to put this URL.
 
 {% hint style="warning" %}
-If you have No-Fun Mode enabled, remember that you'll need to add the API Key to this URL for the catalog to be available to your reader application.
+If you have No-Fun Mode enabled, remember that you'll need to add the API Key to this URL for the catalog to be available to your reader application.  
+You can either use the `Bearer` token approach like with regular API calls, or add `?key=[API_KEY]` as a parameter to the URL.
+
 {% endhint %}
 
 The following readers have been tested with the OPDS Catalog:
