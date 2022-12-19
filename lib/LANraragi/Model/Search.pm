@@ -258,9 +258,9 @@ sub intersect_arrays {
 
     my ( $array1, $array2, $isneg ) = @_;
 
-    # Special case: If array1 is empty, just return array2 as we don't have anything to intersect yet
+    # If array1 is empty, just return an empty array or the second array if $isneg is true
     if ( scalar @$array1 == 0 ) {
-        return @$array2;
+        return $isneg ? @$array2 : ();
     }
 
     # If array2 is empty, die since this sub shouldn't even be used in that case
