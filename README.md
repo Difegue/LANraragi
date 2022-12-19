@@ -41,7 +41,7 @@ Open source server for archival of comics/manga, running on Mojolicious + Redis.
 
 * Read your archives in dedicated reader software using the built-in OPDS Catalog (now with PSE support!)
 
-* Use the Client API to interact with LANraragi from other programs
+* Use the Client API to interact with LANraragi from other programs (Available for [many platforms!](https://sugoi.gitbook.io/lanraragi/v/dev/advanced-usage/external-readers))
 
 * Two different user interfaces : compact archive list with thumbnails-on-hover, or thumbnail view.
 
