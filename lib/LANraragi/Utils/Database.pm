@@ -12,7 +12,6 @@ use Redis;
 use Cwd;
 use Unicode::Normalize;
 
-use LANraragi::Model::Plugins;
 use LANraragi::Utils::Generic qw(flat remove_spaces remove_newlines trim_url);
 use LANraragi::Utils::Tags qw(unflat_tagrules tags_rules_to_array restore_CRLF);
 use LANraragi::Utils::Archive qw(get_filelist);
