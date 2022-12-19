@@ -5,6 +5,11 @@ use Cwd;
 
 use Test::More;
 
+# Mock Redis
+my $cwd = getcwd;
+require $cwd . "/tests/mocks.pl";
+setup_redis_mock();
+
 my @modules = (
     "Shinobu",                                      "LANraragi",
     "LANraragi::Utils::Archive",                    "LANraragi::Utils::Database",
