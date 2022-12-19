@@ -13,7 +13,7 @@ use Cwd;
 use Unicode::Normalize;
 
 use LANraragi::Model::Plugins;
-use LANraragi::Utils::Generic qw(flat remove_spaces remove_newlines);
+use LANraragi::Utils::Generic qw(flat remove_spaces remove_newlines trim_url);
 use LANraragi::Utils::Tags qw(unflat_tagrules tags_rules_to_array restore_CRLF);
 use LANraragi::Utils::Archive qw(get_filelist);
 use LANraragi::Utils::Logging qw(get_logger);
@@ -204,9 +204,25 @@ sub delete_archive {
     my $id       = $_[0];
     my $redis    = LANraragi::Model::Config->get_redis;
     my $filename = $redis->hget( $id, "file" );
+    my $oldtags  = $redis->hget( $id, "tags" );
+    $oldtags = redis_decode($oldtags);
+
+    my $oldtitle = lc( redis_decode( $redis->hget( $id, "title" ) ) );
+    remove_spaces($oldtitle);
+    remove_newlines($oldtitle);
+    $oldtitle = redis_encode($oldtitle);
 
     $redis->del($id);
     $redis->quit();
+
+    # Remove matching data from the search indexes
+    my $redis_search = LANraragi::Model::Config->get_redis_search;
+    $redis_search->zrem( "LRR_TITLES", "$oldtitle\0$id" );
+    $redis_search->srem( "LRR_NEW",      $id );
+    $redis_search->srem( "LRR_UNTAGGED", $id );
+    $redis_search->quit();
+
+    update_indexes( $id, $oldtags, "" );
 
     if ( -e $filename ) {
         unlink $filename;
@@ -414,8 +430,16 @@ sub update_indexes {
 
     foreach my $tag (@oldtags) {
 
-        # Tag is lowercased here to avoid redundancy/dupes
-        $redis->srem( "INDEX_" . redis_encode( lc($tag) ), $id );
+        if ( $tag =~ /source:(.*)/i ) {
+            my $url = $1;
+            trim_url($url);
+            $redis->hdel( "LRR_URLMAP", $url );
+        } else {
+
+            # Tag is lowercased here to avoid redundancy/dupes
+            $redis->srem( "INDEX_" . redis_encode( lc($tag) ), $id );
+        }
+
     }
 
     foreach my $tag (@newtags) {
@@ -423,7 +447,14 @@ sub update_indexes {
         # The following are basic and therefore don't count as "tagged"
         $has_tags = 1 unless $tag =~ /(artist|parody|series|language|event|group|date_added|timestamp):.*/;
 
-        $redis->sadd( "INDEX_" . redis_encode( lc($tag) ), $id );
+        # If the tag is a source: tag, add it to the URL index
+        if ( $tag =~ /source:(.*)/i ) {
+            my $url = $1;
+            trim_url($url);
+            $redis->hset( "LRR_URLMAP", $url, $id );
+        } else {
+            $redis->sadd( "INDEX_" . redis_encode( lc($tag) ), $id );
+        }
     }
 
     # Add or remove the ID from the untagged list
