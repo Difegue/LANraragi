@@ -2,12 +2,13 @@
 <feed xmlns="http://www.w3.org/2005/Atom" 
     xmlns:dcterms="http://purl.org/dc/terms/"
     xmlns:opds="http://opds-spec.org/2010/catalog" 
-    xmlns:pse="http://vaemendis.net/opds-pse/ns">
+    xmlns:pse="http://vaemendis.net/opds-pse/ns"
+    xmlns:thr="http://purl.org/syndication/thread/1.0">
 
     <id>urn:lrr:0</id>
 
-    <link rel="self" href="/api/opds?" type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
-    <link rel="start" href="/api/opds?" type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
+    <link rel="self" href="/api/opds" type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
+    <link rel="start" href="/api/opds" type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
 
     <title>LANraragi</title>
     <updated>2010-01-10T10:03:10Z</updated>
@@ -19,20 +20,20 @@
     </author>
 
     <link rel="http://opds-spec.org/facet" 
-        href="/api/opds?" 
+        href="/api/opds" 
         title="All Archives" 
         opds:facetGroup="Categories" 
         opds:activeFacet="true" />
 
     
     <link rel="http://opds-spec.org/facet" 
-        href="/api/opds?category=SET_1589138380&" 
+        href="/api/opds?category=SET_1589138380" 
         title="AMERICA ONRY"  
         opds:facetGroup="Categories" 
         />
     
     <link rel="http://opds-spec.org/facet" 
-        href="/api/opds?category=SET_1589141306&" 
+        href="/api/opds?category=SET_1589141306" 
         title="Segata Sanshiro"  
         opds:facetGroup="Categories" 
         thr:count="2" />
@@ -56,17 +57,17 @@
         
         <summary>parody:fate grand order,  group:wadamemo,  artist:wada rco,  artbook,  full color, male:very cool too</summary>
 
-        <link rel="alternate" href="/api/opds/28697b96f0ac5858be2614ed10ca47742c9522fd?"
+        <link rel="alternate" href="/api/opds/28697b96f0ac5858be2614ed10ca47742c9522fd"
             type="application/atom+xml;type=entry;profile=opds-catalog" />
 
-        <link rel="http://opds-spec.org/image" href="/api/archives/28697b96f0ac5858be2614ed10ca47742c9522fd/thumbnail?" type="image/jpeg" />
-        <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/28697b96f0ac5858be2614ed10ca47742c9522fd/thumbnail?"
+        <link rel="http://opds-spec.org/image" href="/api/archives/28697b96f0ac5858be2614ed10ca47742c9522fd/thumbnail" type="image/jpeg" />
+        <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/28697b96f0ac5858be2614ed10ca47742c9522fd/thumbnail"
             type="image/jpeg" />
-        <link rel="http://opds-spec.org/acquisition" href="/api/archives/28697b96f0ac5858be2614ed10ca47742c9522fd/download?" title="Download/Read"
+        <link rel="http://opds-spec.org/acquisition" href="/api/archives/28697b96f0ac5858be2614ed10ca47742c9522fd/download" title="Download/Read"
             type="application/x-cbz" />
         <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
-            href="/api/opds/28697b96f0ac5858be2614ed10ca47742c9522fd/pse?page={pageNumber}&" pse:count="1" />
-        <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=28697b96f0ac5858be2614ed10ca47742c9522fd&" />
+            href="/api/opds/28697b96f0ac5858be2614ed10ca47742c9522fd/pse?page={pageNumber}" pse:count="1" />
+        <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=28697b96f0ac5858be2614ed10ca47742c9522fd" />
     </entry>
     
     <entry>
@@ -86,17 +87,17 @@
         
         <summary>parody:fate grand order,  character:abigail williams,  character:artoria pendragon alter,  character:asterios,  character:ereshkigal,  character:gilgamesh,  character:hans christian andersen,  character:hassan of serenity,  character:hector,  character:helena blavatsky,  character:irisviel von einzbern,  character:jeanne alter,  character:jeanne darc,  character:kiara sessyoin,  character:kiyohime,  character:lancer,  character:martha,  character:minamoto no raikou,  character:mochizuki chiyome,  character:mordred pendragon,  character:nitocris,  character:oda nobunaga,  character:osakabehime,  character:penthesilea,  character:queen of sheba,  character:rin tosaka,  character:saber,  character:sakata kintoki,  character:scheherazade,  character:sherlock holmes,  character:suzuka gozen,  character:tamamo no mae,  character:ushiwakamaru,  character:waver velvet,  character:xuanzang,  character:zhuge liang,  group:wadamemo,  artist:wada rco,  artbook,  full color</summary>
 
-        <link rel="alternate" href="/api/opds/2810d5e0a8d027ecefebca6237031a0fa7b91eb3?"
+        <link rel="alternate" href="/api/opds/2810d5e0a8d027ecefebca6237031a0fa7b91eb3"
             type="application/atom+xml;type=entry;profile=opds-catalog" />
 
-        <link rel="http://opds-spec.org/image" href="/api/archives/2810d5e0a8d027ecefebca6237031a0fa7b91eb3/thumbnail?" type="image/jpeg" />
-        <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/2810d5e0a8d027ecefebca6237031a0fa7b91eb3/thumbnail?"
+        <link rel="http://opds-spec.org/image" href="/api/archives/2810d5e0a8d027ecefebca6237031a0fa7b91eb3/thumbnail" type="image/jpeg" />
+        <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/2810d5e0a8d027ecefebca6237031a0fa7b91eb3/thumbnail"
             type="image/jpeg" />
-        <link rel="http://opds-spec.org/acquisition" href="/api/archives/2810d5e0a8d027ecefebca6237031a0fa7b91eb3/download?" title="Download/Read"
+        <link rel="http://opds-spec.org/acquisition" href="/api/archives/2810d5e0a8d027ecefebca6237031a0fa7b91eb3/download" title="Download/Read"
             type="application/x-cbz" />
         <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
-            href="/api/opds/2810d5e0a8d027ecefebca6237031a0fa7b91eb3/pse?page={pageNumber}&" pse:count="34"  pse:lastRead="34" />
-        <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=2810d5e0a8d027ecefebca6237031a0fa7b91eb3&" />
+            href="/api/opds/2810d5e0a8d027ecefebca6237031a0fa7b91eb3/pse?page={pageNumber}" pse:count="34"  pse:lastRead="34" />
+        <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=2810d5e0a8d027ecefebca6237031a0fa7b91eb3" />
     </entry>
     
     <entry>
@@ -116,17 +117,17 @@
         
         <summary>artist:shirow masamune</summary>
 
-        <link rel="alternate" href="/api/opds/4857fd2e7c00db8b0af0337b94055d8445118630?"
+        <link rel="alternate" href="/api/opds/4857fd2e7c00db8b0af0337b94055d8445118630"
             type="application/atom+xml;type=entry;profile=opds-catalog" />
 
-        <link rel="http://opds-spec.org/image" href="/api/archives/4857fd2e7c00db8b0af0337b94055d8445118630/thumbnail?" type="image/jpeg" />
-        <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/4857fd2e7c00db8b0af0337b94055d8445118630/thumbnail?"
+        <link rel="http://opds-spec.org/image" href="/api/archives/4857fd2e7c00db8b0af0337b94055d8445118630/thumbnail" type="image/jpeg" />
+        <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/4857fd2e7c00db8b0af0337b94055d8445118630/thumbnail"
             type="image/jpeg" />
-        <link rel="http://opds-spec.org/acquisition" href="/api/archives/4857fd2e7c00db8b0af0337b94055d8445118630/download?" title="Download/Read"
+        <link rel="http://opds-spec.org/acquisition" href="/api/archives/4857fd2e7c00db8b0af0337b94055d8445118630/download" title="Download/Read"
             type="application/x-cbz" />
         <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
-            href="/api/opds/4857fd2e7c00db8b0af0337b94055d8445118630/pse?page={pageNumber}&" pse:count="34"  pse:lastRead="34" />
-        <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=4857fd2e7c00db8b0af0337b94055d8445118630&" />
+            href="/api/opds/4857fd2e7c00db8b0af0337b94055d8445118630/pse?page={pageNumber}" pse:count="34"  pse:lastRead="34" />
+        <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=4857fd2e7c00db8b0af0337b94055d8445118630" />
     </entry>
     
     <entry>
@@ -146,17 +147,17 @@
         
         <summary>parody: jojo&#39;s bizarre adventure</summary>
 
-        <link rel="alternate" href="/api/opds/e4c422fd10943dc169e3489a38cdbf57101a5f7e?"
+        <link rel="alternate" href="/api/opds/e4c422fd10943dc169e3489a38cdbf57101a5f7e"
             type="application/atom+xml;type=entry;profile=opds-catalog" />
 
-        <link rel="http://opds-spec.org/image" href="/api/archives/e4c422fd10943dc169e3489a38cdbf57101a5f7e/thumbnail?" type="image/jpeg" />
-        <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/e4c422fd10943dc169e3489a38cdbf57101a5f7e/thumbnail?"
+        <link rel="http://opds-spec.org/image" href="/api/archives/e4c422fd10943dc169e3489a38cdbf57101a5f7e/thumbnail" type="image/jpeg" />
+        <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/e4c422fd10943dc169e3489a38cdbf57101a5f7e/thumbnail"
             type="image/jpeg" />
-        <link rel="http://opds-spec.org/acquisition" href="/api/archives/e4c422fd10943dc169e3489a38cdbf57101a5f7e/download?" title="Download/Read"
+        <link rel="http://opds-spec.org/acquisition" href="/api/archives/e4c422fd10943dc169e3489a38cdbf57101a5f7e/download" title="Download/Read"
             type="application/x-cbz" />
         <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
-            href="/api/opds/e4c422fd10943dc169e3489a38cdbf57101a5f7e/pse?page={pageNumber}&" pse:count="10" />
-        <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=e4c422fd10943dc169e3489a38cdbf57101a5f7e&" />
+            href="/api/opds/e4c422fd10943dc169e3489a38cdbf57101a5f7e/pse?page={pageNumber}" pse:count="10" />
+        <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=e4c422fd10943dc169e3489a38cdbf57101a5f7e" />
     </entry>
     
     <entry>
@@ -176,17 +177,17 @@
         
         <summary>character:segata, female:very cool too</summary>
 
-        <link rel="alternate" href="/api/opds/e69e43e1355267f7d32a4f9b7f2fe108d2401ebg?"
+        <link rel="alternate" href="/api/opds/e69e43e1355267f7d32a4f9b7f2fe108d2401ebg"
             type="application/atom+xml;type=entry;profile=opds-catalog" />
 
-        <link rel="http://opds-spec.org/image" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebg/thumbnail?" type="image/jpeg" />
-        <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebg/thumbnail?"
+        <link rel="http://opds-spec.org/image" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebg/thumbnail" type="image/jpeg" />
+        <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebg/thumbnail"
             type="image/jpeg" />
-        <link rel="http://opds-spec.org/acquisition" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebg/download?" title="Download/Read"
+        <link rel="http://opds-spec.org/acquisition" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebg/download" title="Download/Read"
             type="application/x-cbz" />
         <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
-            href="/api/opds/e69e43e1355267f7d32a4f9b7f2fe108d2401ebg/pse?page={pageNumber}&" pse:count="200"  pse:lastRead="34" />
-        <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=e69e43e1355267f7d32a4f9b7f2fe108d2401ebg&" />
+            href="/api/opds/e69e43e1355267f7d32a4f9b7f2fe108d2401ebg/pse?page={pageNumber}" pse:count="200"  pse:lastRead="34" />
+        <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=e69e43e1355267f7d32a4f9b7f2fe108d2401ebg" />
     </entry>
     
     <entry>
@@ -206,17 +207,17 @@
         
         <summary>character:segata sanshiro, male:very cool</summary>
 
-        <link rel="alternate" href="/api/opds/e69e43e1355267f7d32a4f9b7f2fe108d2401ebf?"
+        <link rel="alternate" href="/api/opds/e69e43e1355267f7d32a4f9b7f2fe108d2401ebf"
             type="application/atom+xml;type=entry;profile=opds-catalog" />
 
-        <link rel="http://opds-spec.org/image" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebf/thumbnail?" type="image/jpeg" />
-        <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebf/thumbnail?"
+        <link rel="http://opds-spec.org/image" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebf/thumbnail" type="image/jpeg" />
+        <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebf/thumbnail"
             type="image/jpeg" />
-        <link rel="http://opds-spec.org/acquisition" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebf/download?" title="Download/Read"
+        <link rel="http://opds-spec.org/acquisition" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebf/download" title="Download/Read"
             type="application/x-cbz" />
         <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
-            href="/api/opds/e69e43e1355267f7d32a4f9b7f2fe108d2401ebf/pse?page={pageNumber}&" pse:count="2"  pse:lastRead="10" />
-        <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=e69e43e1355267f7d32a4f9b7f2fe108d2401ebf&" />
+            href="/api/opds/e69e43e1355267f7d32a4f9b7f2fe108d2401ebf/pse?page={pageNumber}" pse:count="2"  pse:lastRead="10" />
+        <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=e69e43e1355267f7d32a4f9b7f2fe108d2401ebf" />
     </entry>
     
 
