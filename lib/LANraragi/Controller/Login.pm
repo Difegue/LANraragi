@@ -10,7 +10,8 @@ use LANraragi::Utils::Generic qw(generate_themes_header);
 sub check {
     my $self = shift;
 
-    my $pw = $self->req->param('password') || '';
+    my $pw       = $self->req->param('password') || '';
+    my $redirect = $self->req->param('redirect') || 'index';
 
     #match password we got with the authen hash stored in redis
     my $ppr = Authen::Passphrase->from_rfc2307( $self->LRR_CONF->get_password );
@@ -21,7 +22,7 @@ sub check {
 
         $self->session( is_logged  => 1 );
         $self->session( expiration => 60 * 60 * 24 );
-        $self->redirect_to('index');
+        $self->redirect_to($redirect);
     } else {
 
         $self->LRR_LOGGER->warn( "Failed login attempt with password '$pw' from " . $self->tx->remote_address );
@@ -45,7 +46,9 @@ sub logged_in {
     return 1
       if $self->session('is_logged')
       || $self->LRR_CONF->enable_pass == 0;
-    $self->redirect_to('login');
+
+    my $url = $self->url_for("login");
+    $self->redirect_to( $url->query( redirect => $self->req->url->path_query ) );
     return 0;
 }
 
@@ -55,12 +58,16 @@ sub logged_in_api {
 
     # The API key is in the Authentication header.
     my $expected_key = $self->LRR_CONF->get_apikey;
+    my $expected_header = "Bearer " . encode_base64( $expected_key, "" );
 
     my $auth_header = $self->req->headers->authorization || "";
-    my $expected_header = "Bearer " . encode_base64( $expected_key, "" );
+
+    # It can also be passed as a parameter. (Undocumented, mostly just meant for OPDS)
+    my $param_key = $self->req->param('key') || '';
 
     return 1
       if ( $expected_key ne "" && $auth_header eq $expected_header )
+      || ( $param_key ne "" && $param_key eq $expected_key )
       || $self->session('is_logged')
       || $self->LRR_CONF->enable_pass == 0;
     $self->render(
@@ -73,8 +80,9 @@ sub logged_in_api {
 sub setup_cors {
     my $self = shift;
 
-    # Set Allow-Origin to wildcard
-    $self->res->headers->header( 'Access-Control-Allow-Origin' => '*' );
+    # Set Allow-Origin to wildcard and Allow-Methods to most common ones
+    $self->res->headers->header( 'Access-Control-Allow-Origin'  => '*' );
+    $self->res->headers->header( 'Access-Control-Allow-Methods' => 'GET, OPTIONS, POST, DELETE, PUT' );
 
     # Explicitly say requests with an Authorization header (private API requests) are allowed
     $self->res->headers->header( 'Access-Control-Allow-Headers' => 'Authorization' );

@@ -10,13 +10,13 @@ use Time::HiRes qw(usleep);
 use File::Basename;
 use File::Copy "cp";
 use File::Path qw(make_path);
-use Mojo::Util qw(xml_escape);
 
-use LANraragi::Utils::Generic qw(get_tag_with_namespace remove_spaces remove_newlines render_api_response);
+use LANraragi::Utils::Generic qw(remove_spaces remove_newlines render_api_response);
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Utils::Archive qw(extract_single_file extract_thumbnail);
-use LANraragi::Utils::Database qw(redis_encode redis_decode invalidate_cache get_archive_json get_archive_json_multi);
+use LANraragi::Utils::Database
+  qw(redis_encode redis_decode invalidate_cache set_title set_tags get_archive_json get_archive_json_multi);
 
 # Functions used when dealing with archives.
 
@@ -28,114 +28,6 @@ sub generate_archive_list {
     $redis->quit;
 
     return get_archive_json_multi(@keys);
-}
-
-sub generate_opds_catalog {
-
-    my $mojo  = shift;
-    my $redis = $mojo->LRR_CONF->get_redis;
-    my @keys  = ();
-
-    # Detailed pages just return a single entry instead of all the archives.
-    if ( $mojo->req->param('id') ) {
-        @keys = ( $mojo->req->param('id') );
-    } else {
-        @keys = $redis->keys('????????????????????????????????????????');
-    }
-
-    my @list = ();
-
-    foreach my $id (@keys) {
-        my $file = $redis->hget( $id, "file" );
-        if ( -e $file ) {
-            my $arcdata = get_archive_json( $redis, $id );
-            unless ($arcdata) { next; }
-
-            my $tags = $arcdata->{tags};
-
-            # Infer a few OPDS-related fields from the tags
-            $arcdata->{dateadded} = get_tag_with_namespace( "date_added", $tags, "2010-01-10T10:01:11Z" );
-            $arcdata->{author}    = get_tag_with_namespace( "artist",     $tags, "" );
-            $arcdata->{language}  = get_tag_with_namespace( "language",   $tags, "" );
-            $arcdata->{circle}    = get_tag_with_namespace( "group",      $tags, "" );
-            $arcdata->{event}     = get_tag_with_namespace( "event",      $tags, "" );
-
-            # Application/zip is universally hated by all readers so it's better to use x-cbz and x-cbr here.
-            if ( $file =~ /^(.*\/)*.+\.(pdf)$/ ) {
-                $arcdata->{mimetype} = "application/pdf";
-            } elsif ( $file =~ /^(.*\/)*.+\.(rar|cbr)$/ ) {
-                $arcdata->{mimetype} = "application/x-cbr";
-            } elsif ( $file =~ /^(.*\/)*.+\.(epub)$/ ) {
-                $arcdata->{mimetype} = "application/epub+zip";
-            } else {
-                $arcdata->{mimetype} = "application/x-cbz";
-            }
-
-            for ( values %{$arcdata} ) { $_ = xml_escape($_); }
-
-            push @list, $arcdata;
-        }
-    }
-
-    $redis->quit;
-
-    if ( $mojo->req->param('id') ) {
-        @keys = ( $mojo->req->param('id') );
-    } else {
-        @keys = $redis->keys('????????????????????????????????????????');
-    }
-
-    # Sort list to get reproducible results
-    @list = sort { lc( $a->{title} ) cmp lc( $b->{title} ) } @list;
-
-    return $mojo->render_to_string(
-        template => $mojo->req->param('id') ? "opds_entry" : "opds",
-        arclist  => \@list,
-        arc      => $mojo->req->param('id') ? $list[0] : "",
-        title    => $mojo->LRR_CONF->get_htmltitle,
-        motd     => $mojo->LRR_CONF->get_motd,
-        version  => $mojo->LRR_VERSION
-    );
-}
-
-# Return a list of archive IDs that have no tags.
-# Tags added automatically by the autotagger are ignored.
-sub find_untagged_archives {
-
-    my $redis = LANraragi::Model::Config->get_redis;
-    my @keys  = $redis->keys('????????????????????????????????????????');
-    my @untagged;
-
-    #Parse the archive list.
-    foreach my $id (@keys) {
-        my $archive = $redis->hget( $id, "file" );
-        if ( $archive && -e $archive ) {
-
-            my $title = $redis->hget( $id, "title" );
-            $title = redis_decode($title);
-
-            my $tagstr = $redis->hget( $id, "tags" );
-            $tagstr = redis_decode($tagstr);
-            my @tags = split( /,\s?/, $tagstr );
-            my $nondefaulttags = 0;
-
-            foreach my $t (@tags) {
-                remove_spaces($t);
-                remove_newlines($t);
-
-                # The following are basic and therefore don't count as "tagged"
-                $nondefaulttags += 1 unless $t =~ /(artist|parody|series|language|event|group|date_added|timestamp):.*/;
-            }
-
-            #If the archive has no tags, or the tags namespaces are only from
-            #filename parsing (probably), add it to the list.
-            if ( !@tags || $nondefaulttags == 0 ) {
-                push @untagged, $id;
-            }
-        }
-    }
-    $redis->quit;
-    return @untagged;
 }
 
 sub update_thumbnail {
@@ -335,27 +227,16 @@ sub update_metadata {
     ( remove_spaces($_) )   for ( $title, $tags );
     ( remove_newlines($_) ) for ( $title, $tags );
 
-    # Input new values into redis hash.
-    my %hash;
-
-    # Prepare the hash which'll be inserted.
     if ( defined $title ) {
-        $hash{title} = redis_encode($title);
+        set_title( $id, $title );
     }
 
     if ( defined $tags ) {
-        $hash{tags} = redis_encode($tags);
+        set_tags( $id, $tags );
     }
 
-    my $redis = LANraragi::Model::Config->get_redis;
-
-    # For all keys of the hash, add them to the redis hash $id with the matching keys.
-    $redis->hset( $id, $_, $hash{$_}, sub { } ) for keys %hash;
-    $redis->wait_all_responses;
-    $redis->quit();
-
     # Bust cache
-    invalidate_cache(1);
+    invalidate_cache();
 
     # No errors.
     return "";

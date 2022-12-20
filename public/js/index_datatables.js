@@ -90,7 +90,7 @@ IndexTable.doSearch = function (page) {
 
     // Update search input field
     $("#search-input").val(IndexTable.currentSearch);
-    IndexTable.dataTable.search(IndexTable.currentSearch.replace(",", ""));
+    IndexTable.dataTable.search(IndexTable.currentSearch);
 
     // Add the current search terms to the title tab
     document.title = IndexTable.originalTitle + ((IndexTable.currentSearch !== "") ? ` - ${IndexTable.currentSearch}` : "");
@@ -107,6 +107,9 @@ IndexTable.doSearch = function (page) {
 
     // Re-load categories so the most recently selected/created ones appear first
     Index.loadCategories();
+
+    // Re-load carousel
+    Index.updateCarousel();
 };
 
 // #region Compact View

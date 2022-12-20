@@ -12,8 +12,7 @@ use Redis;
 use Cwd;
 use Unicode::Normalize;
 
-use LANraragi::Model::Plugins;
-use LANraragi::Utils::Generic qw(flat remove_spaces);
+use LANraragi::Utils::Generic qw(flat remove_spaces remove_newlines trim_url);
 use LANraragi::Utils::Tags qw(unflat_tagrules tags_rules_to_array restore_CRLF);
 use LANraragi::Utils::Archive qw(get_filelist);
 use LANraragi::Utils::Logging qw(get_logger);
@@ -21,7 +20,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 # Functions for interacting with the DB Model.
 use Exporter 'import';
 our @EXPORT_OK =
-  qw(redis_encode redis_decode invalidate_cache compute_id get_computed_tagrules save_computed_tagrules get_archive_json get_archive_json_multi);
+  qw(redis_encode redis_decode invalidate_cache compute_id set_tags set_title set_isnew get_computed_tagrules save_computed_tagrules get_archive_json get_archive_json_multi);
 
 #add_archive_to_redis($id,$file,$redis)
 # Creates a DB entry for a file path with the given ID.
@@ -44,7 +43,7 @@ sub add_archive_to_redis {
     $redis->hset( $id, "file", $file );
 
     # New file in collection, so this flag is set.
-    $redis->hset( $id, "isnew", "true" );
+    set_isnew( $id, "true" );
 
     $redis->quit;
     return $name;
@@ -96,7 +95,7 @@ sub add_timestamp_tag {
             $date = time();
         }
 
-        add_tags( $id, "date_added:$date" );
+        set_tags( $id, "date_added:$date", 1 );
     }
 }
 
@@ -130,7 +129,7 @@ sub get_archive_json {
     return $arcdata;
 }
 
-# get_archive_json_multi(redis, ids)
+# get_archive_json_multi(ids)
 # Uses Redis' MULTI to get an archive JSON for each ID.
 sub get_archive_json_multi {
     my @ids   = @_;
@@ -204,9 +203,25 @@ sub delete_archive {
     my $id       = $_[0];
     my $redis    = LANraragi::Model::Config->get_redis;
     my $filename = $redis->hget( $id, "file" );
+    my $oldtags  = $redis->hget( $id, "tags" );
+    $oldtags = redis_decode($oldtags);
+
+    my $oldtitle = lc( redis_decode( $redis->hget( $id, "title" ) ) );
+    remove_spaces($oldtitle);
+    remove_newlines($oldtitle);
+    $oldtitle = redis_encode($oldtitle);
 
     $redis->del($id);
     $redis->quit();
+
+    # Remove matching data from the search indexes
+    my $redis_search = LANraragi::Model::Config->get_redis_search;
+    $redis_search->zrem( "LRR_TITLES", "$oldtitle\0$id" );
+    $redis_search->srem( "LRR_NEW",      $id );
+    $redis_search->srem( "LRR_UNTAGGED", $id );
+    $redis_search->quit();
+
+    update_indexes( $id, $oldtags, "" );
 
     if ( -e $filename ) {
         unlink $filename;
@@ -225,6 +240,7 @@ sub delete_archive {
 
 # drop_database()
 # Drops the entire database. Hella dangerous
+# TODO: Might be worth it to add versions that only do flushdb on certain databases like the config/archive data one?
 sub drop_database {
     my $redis = LANraragi::Model::Config->get_redis;
 
@@ -311,17 +327,50 @@ sub clean_database {
     return ( $deleted_arcs, $unlinked_arcs );
 }
 
-#add_tags($id, $tags)
-#add the $tags to the archive with id $id.
-sub add_tags {
+sub set_title {
 
-    my ( $id, $newtags ) = @_;
+    my ( $id, $newtitle ) = @_;
+    my $redis        = LANraragi::Model::Config->get_redis;
+    my $redis_search = LANraragi::Model::Config->get_redis_search;
+
+    if ( $newtitle ne "" ) {
+
+        # Remove old title from search set
+        my $oldtitle = lc( redis_decode( $redis->hget( $id, "title" ) ) );
+        remove_spaces($oldtitle);
+        remove_newlines($oldtitle);
+        $oldtitle = redis_encode($oldtitle);
+        $redis_search->zrem( "LRR_TITLES", "$oldtitle\0$id" );
+
+        # Set actual title in metadata DB
+        $redis->hset( $id, "title", redis_encode($newtitle) );
+
+        # Set title/ID key in search set
+        $newtitle = lc($newtitle);
+        remove_spaces($newtitle);
+        remove_newlines($newtitle);
+        $newtitle = redis_encode($newtitle);
+        $redis_search->zadd( "LRR_TITLES", 0, "$newtitle\0$id" );
+    }
+    $redis->quit;
+    $redis_search->quit;
+}
+
+#set_tags($id, $tags, $append)
+# Set $tags for the archive with id $id.
+# Set $append to 1 if you want to append the tags instead of replacing them.
+sub set_tags {
+
+    my ( $id, $newtags, $append ) = @_;
 
     my $redis = LANraragi::Model::Config->get_redis;
     my $oldtags = $redis->hget( $id, "tags" );
     $oldtags = redis_decode($oldtags);
 
-    if ( length $newtags ) {
+    if ($append) {
+
+        # If the new tags are empty, don't do anything
+        unless ( length $newtags ) { return; }
 
         if ($oldtags) {
             remove_spaces($oldtags);
@@ -330,20 +379,91 @@ sub add_tags {
                 $newtags = $oldtags . "," . $newtags;
             }
         }
-
-        $redis->hset( $id, "tags", redis_encode($newtags) );
     }
+
+    # Update sets depending on the added/removed tags
+    update_indexes( $id, $oldtags, $newtags );
+
+    $redis->hset( $id, "tags", redis_encode($newtags) );
+    $redis->quit;
+
+    invalidate_cache();
+}
+
+#set_isnew($id, $isnew)
+# Set $isnew for the archive with id $id.
+sub set_isnew {
+
+    my ( $id, $isnew ) = @_;
+    my $redis        = LANraragi::Model::Config->get_redis();
+    my $redis_search = LANraragi::Model::Config->get_redis_search();
+
+    # Just set isnew for the provided ID.
+    my $newval = $isnew ne "false" ? "true" : "false";
+
+    $redis->hset( $id, "isnew", $newval );
+
+    if ( $newval eq "true" ) {
+        $redis_search->sadd( "LRR_NEW", $id );
+    } else {
+        $redis_search->srem( "LRR_NEW", $id );
+    }
+
+    $redis_search->quit;
     $redis->quit;
 }
 
-sub set_title {
+# Splits both old and new tags, and:
+# Removes the ID from all sets of the old tags
+# Adds it back to all sets of the new tags.
+sub update_indexes {
 
-    my ( $id, $newtitle ) = @_;
-    my $redis = LANraragi::Model::Config->get_redis;
+    my ( $id, $oldtags, $newtags ) = @_;
 
-    if ( $newtitle ne "" ) {
-        $redis->hset( $id, "title", redis_encode($newtitle) );
+    my $redis = LANraragi::Model::Config->get_redis_search;
+    $redis->multi;
+
+    my @oldtags = split( /,\s?/, $oldtags );
+    my @newtags = split( /,\s?/, $newtags );
+    my $has_tags = 0;
+
+    foreach my $tag (@oldtags) {
+
+        if ( $tag =~ /source:(.*)/i ) {
+            my $url = $1;
+            trim_url($url);
+            $redis->hdel( "LRR_URLMAP", $url );
+        } else {
+
+            # Tag is lowercased here to avoid redundancy/dupes
+            $redis->srem( "INDEX_" . redis_encode( lc($tag) ), $id );
+        }
+
     }
+
+    foreach my $tag (@newtags) {
+
+        # The following are basic and therefore don't count as "tagged"
+        $has_tags = 1 unless $tag =~ /(artist|parody|series|language|event|group|date_added|timestamp):.*/;
+
+        # If the tag is a source: tag, add it to the URL index
+        if ( $tag =~ /source:(.*)/i ) {
+            my $url = $1;
+            trim_url($url);
+            $redis->hset( "LRR_URLMAP", $url, $id );
+        } else {
+            $redis->sadd( "INDEX_" . redis_encode( lc($tag) ), $id );
+        }
+    }
+
+    # Add or remove the ID from the untagged list
+    if ($has_tags) {
+        $redis->srem( "LRR_UNTAGGED", $id );
+    } else {
+        $redis->sadd( "LRR_UNTAGGED", $id );
+    }
+
+    $redis->exec;
     $redis->quit;
 }
 
@@ -398,36 +518,18 @@ sub redis_decode {
 }
 
 # Bust the current search cache key in Redis.
-# Add "1" as a parameter to perform a cache warm after the wipe.
+# Add "1" as a parameter to rebuild stat hashes as well. (Use with caution!)
 sub invalidate_cache {
-    my $do_warm = shift;
-    my $redis   = LANraragi::Model::Config->get_redis;
+    my $rebuild_indexes = shift;
+    my $redis           = LANraragi::Model::Config->get_redis_search;
     $redis->del("LRR_SEARCHCACHE");
     $redis->hset( "LRR_SEARCHCACHE", "created", time );
     $redis->quit();
 
     # Re-warm the cache to ensure sufficient speed on the main index
-    if ($do_warm) {
-        LANraragi::Model::Config->get_minion->enqueue( warm_cache        => [] => { priority => 3 } );
+    if ($rebuild_indexes) {
         LANraragi::Model::Config->get_minion->enqueue( build_stat_hashes => [] => { priority => 3 } );
     }
-}
-
-# Go through the search cache and only invalidate keys that rely on isNew.
-sub invalidate_isnew_cache {
-
-    my $redis = LANraragi::Model::Config->get_redis;
-    my %cache = $redis->hgetall("LRR_SEARCHCACHE");
-
-    foreach my $cachekey ( keys(%cache) ) {
-
-        # A cached search uses isNew if the second to last number is equal to 1
-        # i.e, "--title-asc-1-0" has to be pruned
-        if ( $cachekey =~ /.*-.*-.*-.*-1-\d?/ ) {
-            $redis->hdel( "LRR_SEARCHCACHE", $cachekey );
-        }
-    }
-    $redis->quit();
 }
 
 sub save_computed_tagrules {

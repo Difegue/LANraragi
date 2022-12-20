@@ -154,19 +154,28 @@ In Debug Mode:
 
 ## Database Architecture
 
-You can look inside the LRR Redis database at any moment through the `redis-cli` tool.
+You can look inside the LRR Redis databases at any moment through the `redis-cli` tool.
+
+LRR uses three databases to store its own data, and a fourth for the Minion Job Queue.
 
 The base architecture is as follows:
 
 ```
--Redis Database
+-Redis Database 1 - Archive data
+|
 |- **************************************** <- 40-character long ID for every logged archive
 |  |- tags <- Saved tags
 |  |- name <- Name of the archive file, kept for filesystem checks
 |  |- title <- Title of the archive, as set by the User
 |  |- file <- Filesystem path to archive
 |  |- isnew <- Whether the archive has been opened in LRR once or not
+|  |- filesizes <- Size in bytes of each file in the archive, as a serialized JSON array. This value is only present if the archive has been opened once for reading.
+|  |- pagecount <- Number of pages of the archive file
+|  |- progress <- Reading progress, if server-side progress is enabled
 |  +- thumbhash <- SHA-1 hash of the first image of the archive
++
+
+-Redis Database 2 - Configuration
 |
 |- LRR_PLUGIN_xxxxxxx <- Settings for a plugin with namespace xxxxxxx
 |
@@ -194,11 +203,25 @@ The base architecture is as follows:
 |  |- pagesize <- Amount of archives per Index page 
 |  +- apikey <- Key for API requests
 |
-|- LRR_TAGRULES <- Computed Tag Rules, as a Redis list
++- LRR_TAGRULES <- Computed Tag Rules, as a Redis list
+
+
+-Redis Database 3 - Search indexes
+|
+|- LRR_URLMAP <- Maps archive IDs to their source: tag, used by the Downloader system.
+|
+|- LRR_STATS <- Redis sorted set used to build the statistics/tag cloud JSON.
+|
+|- LRR_UNTAGGED <- Redis set of archive IDs that don't have any tags (except for tags added automatically by the autotagger)
+|
+|- LRR_TITLES <- Redis lexicographically sorted set containing all titles in the DB, alongside their ID. (In the "title\0ID" format)
+|
+|- INDEX_***:**** <- Each tag(namespaced or not) has a matching Redis set, with all the IDs that have this tag in their metadata. This is used for search indexing.
 |
 +- LRR_SEARCHCACHE <- Search Cache
    |- $columnfilter-$filter-$sortkey-$sortorder-$newonly <- Unique ID for a search. The search result is serialized and saved as the value for this ID.
    +- --title-asc-0 <- Example ID for a search made on titles with no filters.
+
 ```
 
 {% hint style="info" %}

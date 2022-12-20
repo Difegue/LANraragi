@@ -20,32 +20,64 @@ my $config = Mojolicious::Plugin::Config->register( Mojolicious->new, { file => 
 # Address and port of your redis instance.
 sub get_redisad { return $config->{redis_address} }
 
-# Database that'll be used by LANraragi. Redis databases are numbered, default is 0.
-sub get_redisdb { return $config->{redis_database} }
+# Optional password of your redis instance.
+sub get_redispassword { return $config->{redis_password} }
 
-# Database that'll be used by Minion. Redis databases are numbered, default is 1.
+# LANraragi uses 4 Redis Databases. Redis databases are numbered, default is 0.
+
+# Database used for archive data and tag indexes
+sub get_archivedb { return $config->{redis_database} }
+
+# Database used by Minion
 sub get_miniondb { return $config->{redis_database_minion} }
+
+# Database used to store config keys
+sub get_configdb { return $config->{redis_database_config} }
+
+# Database used to store search index and cache
+sub get_searchdb { return $config->{redis_database_search} }
 
 # Create a Minion object connected to the Minion database.
 sub get_minion {
     my $miniondb = get_redisad . "/" . get_miniondb;
-    return Minion->new( Redis => "redis://$miniondb" );
+    my $password = get_redispassword;
+
+    # If the password is non-empty, add the required @
+    if ($password) { $password = $password . "@"; }
+
+    return Minion->new( Redis => "redis://$password$miniondb" );
 }
 
-#get_redis
-#Create a redis object with the parameters defined at the start of this file and return it
 sub get_redis {
+    return get_redis_internal(&get_archivedb);
+}
 
-    #Default redis server location is localhost:6379.
-    #Auto-reconnect on, one attempt every 2ms up to 3 seconds. Die after that.
+sub get_redis_config {
+    return get_redis_internal(&get_configdb);
+}
+
+sub get_redis_search {
+    return get_redis_internal(&get_searchdb);
+}
+
+sub get_redis_internal {
+
+    my $db = $_[0];
+
+    # Default redis server location is localhost:6379.
+    # Auto-reconnect on, one attempt every 2ms up to 3 seconds. Die after that.
     my $redis = Redis->new(
         server    => &get_redisad,
         reconnect => 3
     );
 
-    #Database switch if it's not 0
-    if ( &get_redisdb != 0 ) { $redis->select(&get_redisdb); }
+    # Auth if password is set
+    if ( &get_redispassword ne "" ) {
+        $redis->auth(&get_redispassword);
+    }
 
+    # Switch to specced database
+    $redis->select($db);
     return $redis;
 }
 

@@ -18,10 +18,6 @@ Open source server for archival of comics/manga, running on Mojolicious + Redis.
 
 ####  [📄 Documentation](https://sugoi.gitbook.io/lanraragi/v/dev) | [⏬ Download](https://github.com/Difegue/LANraragi/releases/latest) | [🎞 Demo](https://lrr.tvc-16.science) | [🪟🌃 Windows Nightlies](https://nightly.link/Difegue/LANraragi/workflows/push-continous-delivery/dev) | [💵 Sponsor Development](https://ko-fi.com/T6T2UP5N)  
 
-## The 2021 User Survey results have landed! 
-
-Check [here](https://tvc-16.science/lrr-survey-3-results.html) for more info.
-
 ## Screenshots  
  
 |Main Page, Thumbnail View | Main Page, List View |
@@ -43,9 +39,9 @@ Check [here](https://tvc-16.science/lrr-survey-3-results.html) for more info.
 
 * Read archives directly from your web browser: the server reads from within compressed files using temporary folders.
 
-* Read your archives in dedicated reader software using the built-in OPDS Catalog
+* Read your archives in dedicated reader software using the built-in OPDS Catalog (now with PSE support!)
 
-* Use the Client API to interact with LANraragi from other programs
+* Use the Client API to interact with LANraragi from other programs (Available for [many platforms!](https://sugoi.gitbook.io/lanraragi/v/dev/advanced-usage/external-readers))
 
 * Two different user interfaces : compact archive list with thumbnails-on-hover, or thumbnail view.
 

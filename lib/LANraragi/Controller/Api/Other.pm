@@ -5,6 +5,7 @@ use Mojo::JSON qw(encode_json decode_json);
 use Redis;
 
 use LANraragi::Model::Stats;
+use LANraragi::Model::Opds;
 use LANraragi::Utils::TempFolder qw(get_tempsize clean_temp_full);
 use LANraragi::Utils::Generic qw(render_api_response);
 use LANraragi::Utils::Plugins qw(get_plugin get_plugins get_plugin_parameters use_plugin);
@@ -37,11 +38,25 @@ sub serve_serverinfo {
     );
 }
 
-sub serve_opds {
+# Basic OPDS catalog
+sub serve_opds_catalog {
     my $self = shift;
+    $self->render( text => LANraragi::Model::Opds::generate_opds_catalog($self), format => 'xml' );
+}
 
-    # TODO: Move to LRR::Model::Opds
-    $self->render( text => LANraragi::Model::Archive::generate_opds_catalog($self), format => 'xml' );
+sub serve_opds_item {
+    my $self = shift;
+    my $id   = $self->stash('id');
+    $self->render( text => LANraragi::Model::Opds::generate_opds_item( $self, $id ), format => 'xml' );
+}
+
+# OPDS-PSE specific endpoint
+sub serve_opds_page {
+    my $self = shift;
+    my $id   = $self->stash('id');
+    my $page = $self->req->param('page') || 1;
+
+    LANraragi::Model::Opds::render_archive_page( $self, $id, $page );
 }
 
 #Remove temp dir.

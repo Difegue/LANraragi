@@ -1,14 +1,15 @@
 {
     "name": "lanraragi",
-    "version": "0.8.7",
-    "version_name": "Outside",
+    "version": "0.8.8",
+    "version_name": "I'm Deranged",
     "description": "I'm under Japanese influence and my honor's at stake!",
     "scripts": {
         "test": "prove -r -l -v tests/",
         "lanraragi-installer": "perl ./tools/install.pl",
         "lint": "eslint --ext .js public/",
         "start": "perl ./script/launcher.pl -f ./script/lanraragi",
-        "dev-server": "perl ./script/launcher.pl -m -v ./script/lanraragi",
+        "dev-server": "export LRR_DEVSERVER && perl ./script/launcher.pl -m -v ./script/lanraragi",
+        "kill-workers": "(kill -15 `cat ./public/temp/shinobu.pid-s6` || true) && (kill -15 `cat ./public/temp/minion.pid-s6` || true) && (pkill -9 -f ./script/lanraragi || true)",
         "docker-build": "docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile .",
         "critic": "perlcritic ./lib/* ./script/* ./tools/install.pl",
         "backup-db": "perl ./script/backup",
@@ -25,7 +26,7 @@
     },
     "homepage": "https://github.com/Difegue/LANraragi#readme",
     "dependencies": {
-        "@fortawesome/fontawesome-free": "^5.15.4",
+        "@fortawesome/fontawesome-free": "^6.2.1",
         "@jcubic/tagger": "^0.4.2",
         "allcollapsible": "^1.1.0",
         "awesomplete": "^1.1.5",

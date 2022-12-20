@@ -311,9 +311,10 @@ Index.handleCustomSort = function () {
 
 Index.updateCarousel = function (e) {
     e?.preventDefault();
-
+    $("#carousel-empty").hide();
     $("#carousel-loading").show();
     $(".swiper-wrapper").hide();
+
     $("#reload-carousel").addClass("fa-spin");
 
     // Hit a different API endpoint depending on the requested localStorage carousel type
@@ -346,9 +347,13 @@ Index.updateCarousel = function (e) {
             (results) => {
                 Index.swiper.virtual.removeAllSlides();
                 const slides = results.data
-                    .map((archive) => LRR.buildThumbnailDiv(archive, false));
+                    .map((archive) => LRR.buildThumbnailDiv(archive));
                 Index.swiper.virtual.appendSlide(slides);
                 Index.swiper.virtual.update();
+
+                if (results.data.length === 0) {
+                    $("#carousel-empty").show();
+                }
 
                 $("#carousel-loading").hide();
                 $(".swiper-wrapper").show();

@@ -32,184 +32,240 @@ Returns some basic information about the LRR instance this server is running.
 
 {% swagger baseUrl="http://lrr.tvc-16.science" path="/api/opds" method="get" summary="Get the OPDS Catalog" %}
 {% swagger-description %}
-Get the Archive Index as an OPDS 1.2 Catalog.
+Get the Archive Index as an OPDS 1.2 Catalog with PSE 1.1 compatibility.
 {% endswagger-description %}
 
-{% swagger-parameter name="id" type="string" required="false" in="query" %}
-ID of an archive. Passing this will show only one 
+{% swagger-parameter name="category" type="string" required="false" in="query" %}
+Category ID. If passed, the OPDS catalog will be filtered to only show archives from this category.
+{% endswagger-parameter %}
 
-`<entry\>`
-
- for the given ID in the result, instead of all the archives.
+{% swagger-parameter name="id" type="string" required="false" in="path" %}
+ID of an archive. Passing this will show only one `<entry\>` for the given ID in the result, instead of all the archives.
 {% endswagger-parameter %}
 
 {% swagger-response status="200" description="" %}
 ```markup
 <?xml version="1.0" encoding="UTF-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"
-      xmlns:dcterms="http://purl.org/dc/terms/"
-      xmlns:opds="http://opds-spec.org/2010/catalog">
+<feed xmlns="http://www.w3.org/2005/Atom" 
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:opds="http://opds-spec.org/2010/catalog" 
+    xmlns:pse="http://vaemendis.net/opds-pse/ns">
 
-  <id>urn:lrr:0</id>
+    <id>urn:lrr:0</id>
 
-  <link rel="self"    
-        href="/api/opds"
-        type="application/atom+xml;profile=opds-catalog;kind=acquisition"/>
+    <link rel="self" href="/api/opds" type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
+    <link rel="start" href="/api/opds" type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
 
-  <link rel="start"    
-        href="/api/opds"
-        type="application/atom+xml;profile=opds-catalog;kind=acquisition"/>
+    <title>LANraragi</title>
+    <updated>2010-01-10T10:03:10Z</updated>
+    <subtitle>Welcome to this Library running LANraragi!</subtitle>
+    <icon>/favicon.ico</icon>
+    <author>
+        <name>9.9.9</name>
+        <uri>http://github.org/Difegue/LANraragi</uri>
+    </author>
 
-  <title>LANraragi Demo</title>
-  <updated>2010-01-10T10:03:10Z</updated>
-  <subtitle>LANraragi Demo, running in Docker @ TVC-16</subtitle>
-  <icon>/favicon.ico</icon>
-  <author>
-    <name>0.6.6</name>
-    <uri>http://github.org/Difegue/LANraragi</uri>
-  </author>
+    <link rel="http://opds-spec.org/facet" 
+        href="/api/opds" 
+        title="All Archives" 
+        opds:facetGroup="Categories" 
+        opds:activeFacet="true" />
 
+    
+    <link rel="http://opds-spec.org/facet" 
+        href="/api/opds?category=SET_1589138380" 
+        title="AMERICA ONRY"  
+        opds:facetGroup="Categories" 
+        />
+    
+    <link rel="http://opds-spec.org/facet" 
+        href="/api/opds?category=SET_1589141306" 
+        title="Segata Sanshiro"  
+        opds:facetGroup="Categories" 
+        thr:count="2" />
+    
 
-  <entry>
-      <title>Ghost in the Shell 1.5 - Human-Error Processor vol01ch01</title>
-      <id>urn:lrr:4857fd2e7c00db8b0af0337b94055d8445118630</id>
-      <updated>2010-01-10T10:01:11Z</updated>
-      <published>2010-01-10T10:01:11Z</published>
-      <author>
-          <name>shirow masamune</name>
-      </author>
-      <rights></rights>
-      <dcterms:language></dcterms:language>
-      <dcterms:publisher></dcterms:publisher>
-      <dcterms:issued></dcterms:issued>
+    
+    <entry>
+        <title>Fate GO MEMO</title>
+        <id>urn:lrr:28697b96f0ac5858be2614ed10ca47742c9522fd</id>
+        <updated>2010-01-10T10:01:11Z</updated>
+        <published>2010-01-10T10:01:11Z</published>
+        <author>
+            <name>wada rco</name>
+        </author>
+        <rights></rights>
+        <dcterms:language></dcterms:language>
+        <dcterms:publisher>wadamemo</dcterms:publisher>
+        <dcterms:issued></dcterms:issued>
+        
+        <category term="Archive" />
+        
+        <summary>parody:fate grand order,  group:wadamemo,  artist:wada rco,  artbook,  full color, male:very cool too</summary>
 
-      <category term="Archive"/>
+        <link rel="alternate" href="/api/opds/28697b96f0ac5858be2614ed10ca47742c9522fd"
+            type="application/atom+xml;type=entry;profile=opds-catalog" />
 
-      <summary>artist:shirow masamune</summary>
+        <link rel="http://opds-spec.org/image" href="/api/archives/28697b96f0ac5858be2614ed10ca47742c9522fd/thumbnail" type="image/jpeg" />
+        <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/28697b96f0ac5858be2614ed10ca47742c9522fd/thumbnail"
+            type="image/jpeg" />
+        <link rel="http://opds-spec.org/acquisition" href="/api/archives/28697b96f0ac5858be2614ed10ca47742c9522fd/download" title="Download/Read"
+            type="application/x-cbz" />
+        <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
+            href="/api/opds/28697b96f0ac5858be2614ed10ca47742c9522fd/pse?page={pageNumber}" pse:count="1" />
+        <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=28697b96f0ac5858be2614ed10ca47742c9522fd" />
+    </entry>
+    
+    <entry>
+        <title>Fate GO MEMO 2</title>
+        <id>urn:lrr:2810d5e0a8d027ecefebca6237031a0fa7b91eb3</id>
+        <updated>2010-01-10T10:01:11Z</updated>
+        <published>2010-01-10T10:01:11Z</published>
+        <author>
+            <name>wada rco</name>
+        </author>
+        <rights></rights>
+        <dcterms:language></dcterms:language>
+        <dcterms:publisher>wadamemo</dcterms:publisher>
+        <dcterms:issued></dcterms:issued>
+        
+        <category term="Archive" />
+        
+        <summary>parody:fate grand order,  character:abigail williams,  character:artoria pendragon alter,  character:asterios,  character:ereshkigal,  character:gilgamesh,  character:hans christian andersen,  character:hassan of serenity,  character:hector,  character:helena blavatsky,  character:irisviel von einzbern,  character:jeanne alter,  character:jeanne darc,  character:kiara sessyoin,  character:kiyohime,  character:lancer,  character:martha,  character:minamoto no raikou,  character:mochizuki chiyome,  character:mordred pendragon,  character:nitocris,  character:oda nobunaga,  character:osakabehime,  character:penthesilea,  character:queen of sheba,  character:rin tosaka,  character:saber,  character:sakata kintoki,  character:scheherazade,  character:sherlock holmes,  character:suzuka gozen,  character:tamamo no mae,  character:ushiwakamaru,  character:waver velvet,  character:xuanzang,  character:zhuge liang,  group:wadamemo,  artist:wada rco,  artbook,  full color</summary>
 
-      <link rel="alternate"
-          href="/api/opds?id=4857fd2e7c00db8b0af0337b94055d8445118630"
-          type="application/atom+xml;type=entry;profile=opds-catalog" />
+        <link rel="alternate" href="/api/opds/2810d5e0a8d027ecefebca6237031a0fa7b91eb3"
+            type="application/atom+xml;type=entry;profile=opds-catalog" />
 
-      <link rel="http://opds-spec.org/image" href="/api/archives/4857fd2e7c00db8b0af0337b94055d8445118630/thumbnail" type="image/jpeg"/>
-      <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/4857fd2e7c00db8b0af0337b94055d8445118630/thumbnail" type="image/jpeg"/>
-      <link rel="http://opds-spec.org/acquisition" href="/api/archives/4857fd2e7c00db8b0af0337b94055d8445118630/download" type="application/x-cbz"/>
-      <link rel="http://opds-spec.org/acquisition" href="/api/archives/4857fd2e7c00db8b0af0337b94055d8445118630/download" title="Read" type="application/cbz"/>
-      <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=4857fd2e7c00db8b0af0337b94055d8445118630"/>
-  </entry>
+        <link rel="http://opds-spec.org/image" href="/api/archives/2810d5e0a8d027ecefebca6237031a0fa7b91eb3/thumbnail" type="image/jpeg" />
+        <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/2810d5e0a8d027ecefebca6237031a0fa7b91eb3/thumbnail"
+            type="image/jpeg" />
+        <link rel="http://opds-spec.org/acquisition" href="/api/archives/2810d5e0a8d027ecefebca6237031a0fa7b91eb3/download" title="Download/Read"
+            type="application/x-cbz" />
+        <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
+            href="/api/opds/2810d5e0a8d027ecefebca6237031a0fa7b91eb3/pse?page={pageNumber}" pse:count="34"  pse:lastRead="34" />
+        <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=2810d5e0a8d027ecefebca6237031a0fa7b91eb3" />
+    </entry>
+    
+    <entry>
+        <title>Ghost in the Shell 1.5 - Human-Error Processor vol01ch01</title>
+        <id>urn:lrr:4857fd2e7c00db8b0af0337b94055d8445118630</id>
+        <updated>2010-01-10T10:01:11Z</updated>
+        <published>2010-01-10T10:01:11Z</published>
+        <author>
+            <name>shirow masamune</name>
+        </author>
+        <rights></rights>
+        <dcterms:language></dcterms:language>
+        <dcterms:publisher></dcterms:publisher>
+        <dcterms:issued></dcterms:issued>
+        
+        <category term="Archive" />
+        
+        <summary>artist:shirow masamune</summary>
 
-  <entry>
-      <title>Fate GO MEMO 2</title>
-      <id>urn:lrr:2810d5e0a8d027ecefebca6237031a0fa7b91eb3</id>
-      <updated>2010-01-10T10:01:11Z</updated>
-      <published>2010-01-10T10:01:11Z</published>
-      <author>
-          <name>wada rco</name>
-      </author>
-      <rights></rights>
-      <dcterms:language></dcterms:language>
-      <dcterms:publisher>wadamemo</dcterms:publisher>
-      <dcterms:issued></dcterms:issued>
+        <link rel="alternate" href="/api/opds/4857fd2e7c00db8b0af0337b94055d8445118630"
+            type="application/atom+xml;type=entry;profile=opds-catalog" />
 
-      <category term="Archive"/>
+        <link rel="http://opds-spec.org/image" href="/api/archives/4857fd2e7c00db8b0af0337b94055d8445118630/thumbnail" type="image/jpeg" />
+        <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/4857fd2e7c00db8b0af0337b94055d8445118630/thumbnail"
+            type="image/jpeg" />
+        <link rel="http://opds-spec.org/acquisition" href="/api/archives/4857fd2e7c00db8b0af0337b94055d8445118630/download" title="Download/Read"
+            type="application/x-cbz" />
+        <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
+            href="/api/opds/4857fd2e7c00db8b0af0337b94055d8445118630/pse?page={pageNumber}" pse:count="34"  pse:lastRead="34" />
+        <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=4857fd2e7c00db8b0af0337b94055d8445118630" />
+    </entry>
+    
+    <entry>
+        <title>Rohan Kishibe goes to Gucci</title>
+        <id>urn:lrr:e4c422fd10943dc169e3489a38cdbf57101a5f7e</id>
+        <updated>2010-01-10T10:01:11Z</updated>
+        <published>2010-01-10T10:01:11Z</published>
+        <author>
+            <name></name>
+        </author>
+        <rights></rights>
+        <dcterms:language></dcterms:language>
+        <dcterms:publisher></dcterms:publisher>
+        <dcterms:issued></dcterms:issued>
+        
+        <category term="New Archive" />
+        
+        <summary>parody: jojo&#39;s bizarre adventure</summary>
 
-      <summary>parody:fate grand order,  character:abigail williams,  character:artoria pendragon alter,  character:asterios,  character:ereshkigal,  character:gilgamesh,  character:hans christian andersen,  character:hassan of serenity,  character:hector,  character:helena blavatsky,  character:irisviel von einzbern,  character:jeanne alter,  character:jeanne darc,  character:kiara sessyoin,  character:kiyohime,  character:lancer,  character:martha,  character:minamoto no raikou,  character:mochizuki chiyome,  character:mordred pendragon,  character:nitocris,  character:oda nobunaga,  character:osakabehime,  character:penthesilea,  character:queen of sheba,  character:rin tosaka,  character:saber,  character:sakata kintoki,  character:scheherazade,  character:sherlock holmes,  character:suzuka gozen,  character:tamamo no mae,  character:ushiwakamaru,  character:waver velvet,  character:xuanzang,  character:zhuge liang,  group:wadamemo,  artist:wada rco,  artbook,  full color</summary>
+        <link rel="alternate" href="/api/opds/e4c422fd10943dc169e3489a38cdbf57101a5f7e"
+            type="application/atom+xml;type=entry;profile=opds-catalog" />
 
-      <link rel="alternate"
-          href="/api/opds?id=2810d5e0a8d027ecefebca6237031a0fa7b91eb3"
-          type="application/atom+xml;type=entry;profile=opds-catalog" />
+        <link rel="http://opds-spec.org/image" href="/api/archives/e4c422fd10943dc169e3489a38cdbf57101a5f7e/thumbnail" type="image/jpeg" />
+        <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/e4c422fd10943dc169e3489a38cdbf57101a5f7e/thumbnail"
+            type="image/jpeg" />
+        <link rel="http://opds-spec.org/acquisition" href="/api/archives/e4c422fd10943dc169e3489a38cdbf57101a5f7e/download" title="Download/Read"
+            type="application/x-cbz" />
+        <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
+            href="/api/opds/e4c422fd10943dc169e3489a38cdbf57101a5f7e/pse?page={pageNumber}" pse:count="10" />
+        <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=e4c422fd10943dc169e3489a38cdbf57101a5f7e" />
+    </entry>
+    
+    <entry>
+        <title>Saturn Backup Cartridge - American Manual</title>
+        <id>urn:lrr:e69e43e1355267f7d32a4f9b7f2fe108d2401ebg</id>
+        <updated>2010-01-10T10:01:11Z</updated>
+        <published>2010-01-10T10:01:11Z</published>
+        <author>
+            <name></name>
+        </author>
+        <rights></rights>
+        <dcterms:language></dcterms:language>
+        <dcterms:publisher></dcterms:publisher>
+        <dcterms:issued></dcterms:issued>
+        
+        <category term="Archive" />
+        
+        <summary>character:segata, female:very cool too</summary>
 
-      <link rel="http://opds-spec.org/image" href="/api/archives/2810d5e0a8d027ecefebca6237031a0fa7b91eb3/thumbnail" type="image/jpeg"/>
-      <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/2810d5e0a8d027ecefebca6237031a0fa7b91eb3/thumbnail" type="image/jpeg"/>
-      <link rel="http://opds-spec.org/acquisition" href="/api/archives/2810d5e0a8d027ecefebca6237031a0fa7b91eb3/download" type="application/x-cbz"/>
-      <link rel="http://opds-spec.org/acquisition" href="/api/archives/2810d5e0a8d027ecefebca6237031a0fa7b91eb3/download" title="Read" type="application/cbz"/>
-      <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=2810d5e0a8d027ecefebca6237031a0fa7b91eb3"/>
-  </entry>
+        <link rel="alternate" href="/api/opds/e69e43e1355267f7d32a4f9b7f2fe108d2401ebg"
+            type="application/atom+xml;type=entry;profile=opds-catalog" />
 
-  <entry>
-      <title>Saturn Backup Cartridge - Japanese Manual</title>
-      <id>urn:lrr:e69e43e1355267f7d32a4f9b7f2fe108d2401ebf</id>
-      <updated>2010-01-10T10:01:11Z</updated>
-      <published>2010-01-10T10:01:11Z</published>
-      <author>
-          <name></name>
-      </author>
-      <rights></rights>
-      <dcterms:language></dcterms:language>
-      <dcterms:publisher></dcterms:publisher>
-      <dcterms:issued></dcterms:issued>
+        <link rel="http://opds-spec.org/image" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebg/thumbnail" type="image/jpeg" />
+        <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebg/thumbnail"
+            type="image/jpeg" />
+        <link rel="http://opds-spec.org/acquisition" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebg/download" title="Download/Read"
+            type="application/x-cbz" />
+        <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
+            href="/api/opds/e69e43e1355267f7d32a4f9b7f2fe108d2401ebg/pse?page={pageNumber}" pse:count="200"  pse:lastRead="34" />
+        <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=e69e43e1355267f7d32a4f9b7f2fe108d2401ebg" />
+    </entry>
+    
+    <entry>
+        <title>Saturn Backup Cartridge - Japanese Manual</title>
+        <id>urn:lrr:e69e43e1355267f7d32a4f9b7f2fe108d2401ebf</id>
+        <updated>2010-01-10T10:01:11Z</updated>
+        <published>2010-01-10T10:01:11Z</published>
+        <author>
+            <name></name>
+        </author>
+        <rights></rights>
+        <dcterms:language></dcterms:language>
+        <dcterms:publisher></dcterms:publisher>
+        <dcterms:issued></dcterms:issued>
+        
+        <category term="Archive" />
+        
+        <summary>character:segata sanshiro, male:very cool</summary>
 
-      <category term="Archive"/>
+        <link rel="alternate" href="/api/opds/e69e43e1355267f7d32a4f9b7f2fe108d2401ebf"
+            type="application/atom+xml;type=entry;profile=opds-catalog" />
 
-      <summary>character:segata sanshiro</summary>
-
-      <link rel="alternate"
-          href="/api/opds?id=e69e43e1355267f7d32a4f9b7f2fe108d2401ebf"
-          type="application/atom+xml;type=entry;profile=opds-catalog" />
-
-      <link rel="http://opds-spec.org/image" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebf/thumbnail" type="image/jpeg"/>
-      <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebf/thumbnail" type="image/jpeg"/>
-      <link rel="http://opds-spec.org/acquisition" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebf/download" type="application/x-cbr"/>
-      <link rel="http://opds-spec.org/acquisition" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebf/download" title="Read" type="application/cbr"/>
-      <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=e69e43e1355267f7d32a4f9b7f2fe108d2401ebf"/>
-  </entry>
-
-  <entry>
-      <title>Rohan Kishibe goes to Gucci</title>
-      <id>urn:lrr:e4c422fd10943dc169e3489a38cdbf57101a5f7e</id>
-      <updated>2010-01-10T10:01:11Z</updated>
-      <published>2010-01-10T10:01:11Z</published>
-      <author>
-          <name></name>
-      </author>
-      <rights></rights>
-      <dcterms:language></dcterms:language>
-      <dcterms:publisher></dcterms:publisher>
-      <dcterms:issued></dcterms:issued>
-
-      <category term="Archive"/>
-
-      <summary>parody: jojo's bizarre adventure</summary>
-
-      <link rel="alternate"
-          href="/api/opds?id=e4c422fd10943dc169e3489a38cdbf57101a5f7e"
-          type="application/atom+xml;type=entry;profile=opds-catalog" />
-
-      <link rel="http://opds-spec.org/image" href="/api/archives/e4c422fd10943dc169e3489a38cdbf57101a5f7e/thumbnail" type="image/jpeg"/>
-      <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/e4c422fd10943dc169e3489a38cdbf57101a5f7e/thumbnail" type="image/jpeg"/>
-      <link rel="http://opds-spec.org/acquisition" href="/api/archives/e4c422fd10943dc169e3489a38cdbf57101a5f7e/download" type="application/x-cbz"/>
-      <link rel="http://opds-spec.org/acquisition" href="/api/archives/e4c422fd10943dc169e3489a38cdbf57101a5f7e/download" title="Read" type="application/cbz"/>
-      <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=e4c422fd10943dc169e3489a38cdbf57101a5f7e"/>
-  </entry>
-
-  <entry>
-      <title>Fate GO MEMO</title>
-      <id>urn:lrr:28697b96f0ac5858be2614ed10ca47742c9522fd</id>
-      <updated>2010-01-10T10:01:11Z</updated>
-      <published>2010-01-10T10:01:11Z</published>
-      <author>
-          <name>wada rco</name>
-      </author>
-      <rights></rights>
-      <dcterms:language></dcterms:language>
-      <dcterms:publisher>wadamemo</dcterms:publisher>
-      <dcterms:issued></dcterms:issued>
-
-      <category term="Archive"/>
-
-      <summary>parody:fate grand order,  group:wadamemo,  artist:wada rco,  artbook,  full color</summary>
-
-      <link rel="alternate"
-          href="/api/opds?id=28697b96f0ac5858be2614ed10ca47742c9522fd"
-          type="application/atom+xml;type=entry;profile=opds-catalog" />
-
-      <link rel="http://opds-spec.org/image" href="/api/archives/28697b96f0ac5858be2614ed10ca47742c9522fd/thumbnail" type="image/jpeg"/>
-      <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/28697b96f0ac5858be2614ed10ca47742c9522fd/thumbnail" type="image/jpeg"/>
-      <link rel="http://opds-spec.org/acquisition" href="/api/archives/28697b96f0ac5858be2614ed10ca47742c9522fd/download" type="application/x-cbz"/>
-      <link rel="http://opds-spec.org/acquisition" href="/api/archives/28697b96f0ac5858be2614ed10ca47742c9522fd/download" title="Read" type="application/cbz"/>
-      <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=28697b96f0ac5858be2614ed10ca47742c9522fd"/>
-  </entry>
-
+        <link rel="http://opds-spec.org/image" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebf/thumbnail" type="image/jpeg" />
+        <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebf/thumbnail"
+            type="image/jpeg" />
+        <link rel="http://opds-spec.org/acquisition" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebf/download" title="Download/Read"
+            type="application/x-cbz" />
+        <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
+            href="/api/opds/e69e43e1355267f7d32a4f9b7f2fe108d2401ebf/pse?page={pageNumber}" pse:count="2"  pse:lastRead="10" />
+        <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=e69e43e1355267f7d32a4f9b7f2fe108d2401ebf" />
+    </entry>
+    
 
 </feed>
 ```

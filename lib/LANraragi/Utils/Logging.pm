@@ -56,6 +56,11 @@ sub get_logger {
         $log->level('debug');
     }
 
+    # Step down into trace if we're launched from npm run dev-server
+    if ( $ENV{LRR_DEVSERVER} ) {
+        $log->level('trace');
+    }
+
     #Copy logged messages to STDOUT with the matching name
     $log->on(
         message => sub {

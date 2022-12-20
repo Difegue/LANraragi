@@ -12,6 +12,7 @@ use Mojo::UserAgent;
 use Data::Dumper;
 
 use LANraragi::Utils::Generic qw(remove_spaces remove_newlines);
+use LANraragi::Utils::Database qw(set_tags set_title);
 use LANraragi::Utils::Archive qw(extract_thumbnail);
 use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Utils::Tags qw(rewrite_tags split_tags_to_array);
@@ -66,7 +67,7 @@ sub exec_enabled_plugins_on_file {
 
         #If the plugin exec returned metadata, add it
         unless ( exists $plugin_result{error} ) {
-            LANraragi::Utils::Database::add_tags( $id, $plugin_result{new_tags} );
+            set_tags( $id, $plugin_result{new_tags}, 1 );
 
             # Sum up all the added tags for later reporting.
             # This doesn't take into account tags that are added twice
@@ -76,7 +77,7 @@ sub exec_enabled_plugins_on_file {
             $addedtags += @added_tags;
 
             if ( exists $plugin_result{title} ) {
-                LANraragi::Utils::Database::set_title( $id, $plugin_result{title} );
+                set_title( $id, $plugin_result{title} );
 
                 $newtitle = $plugin_result{title};
                 $logger->debug("Changing title to $newtitle.");
@@ -111,7 +112,7 @@ sub exec_login_plugin {
             $logger->error("Plugin doesn't implement do_login!");
         }
     } else {
-        $logger->info("No login plugin specified, returning empty UserAgent.");
+        $logger->debug("No login plugin specified, returning empty UserAgent.");
     }
 
     return $ua;

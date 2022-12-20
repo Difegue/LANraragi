@@ -1,57 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"
-      xmlns:dcterms="http://purl.org/dc/terms/"
-      xmlns:opds="http://opds-spec.org/2010/catalog">
+<feed xmlns="http://www.w3.org/2005/Atom" 
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:opds="http://opds-spec.org/2010/catalog" 
+    xmlns:pse="http://vaemendis.net/opds-pse/ns">
 
-  <id>urn:lrr:0</id>
+    <id>urn:lrr:0</id>
 
-  <link rel="self"    
-        href="/api/opds"
-        type="application/atom+xml;profile=opds-catalog;kind=acquisition"/>
+    <link rel="self" href="/api/opds?[% api_key %]" type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
+    <link rel="start" href="/api/opds?[% api_key %]" type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
 
-  <link rel="start"    
-        href="/api/opds"
-        type="application/atom+xml;profile=opds-catalog;kind=acquisition"/>
+    <title>[% title %]</title>
+    <updated>2010-01-10T10:03:10Z</updated>
+    <subtitle>[% motd %]</subtitle>
+    <icon>/favicon.ico</icon>
+    <author>
+        <name>[% version %]</name>
+        <uri>http://github.org/Difegue/LANraragi</uri>
+    </author>
 
-  <title>[% title %]</title>
-  <updated>2010-01-10T10:03:10Z</updated>
-  <subtitle>[% motd %]</subtitle>
-  <icon>/favicon.ico</icon>
-  <author>
-    <name>[% version %]</name>
-    <uri>http://github.org/Difegue/LANraragi</uri>
-  </author>
+    <link rel="http://opds-spec.org/facet" 
+        href="/api/opds?[% api_key %]" 
+        title="All Archives" 
+        opds:facetGroup="Categories" 
+        [% IF nocat %]opds:activeFacet="true" [% END %]/>
+ 
+    [% FOREACH cat IN catlist %]
+    <link rel="http://opds-spec.org/facet" 
+        href="/api/opds?category=[% cat.id %]&[% api_key %]" 
+        title="[% cat.name %]"  
+        opds:facetGroup="Categories" 
+        [% IF cat.count %]thr:count="[% cat.count %]" [% END %][% IF cat.active %]opds:activeFacet="true" [% END %]/>
+    [% END %]
 
-  [% FOREACH arc IN arclist %]
-  <entry>
-      <title>[% arc.title %]</title>
-      <id>urn:lrr:[% arc.arcid %]</id>
-      <updated>[% arc.dateadded %]</updated>
-      <published>[% arc.dateadded %]</published>
-      <author>
-          <name>[% arc.author %]</name>
-      </author>
-      <rights>[% arc.series %]</rights>
-      <dcterms:language>[% arc.language %]</dcterms:language>
-      <dcterms:publisher>[% arc.circle %]</dcterms:publisher>
-      <dcterms:issued>[% arc.event %]</dcterms:issued>
-      [% IF arc.isnew %]
-      <category term="Archive"/>
-      [% ELSE %]
-      <category term="New Archive"/>
-      [% END %]
-      <summary>[% arc.tags %]</summary>
-      
-      <link rel="alternate"
-          href="/api/opds?id=[% arc.arcid %]"
-          type="application/atom+xml;type=entry;profile=opds-catalog" />
-  
-      <link rel="http://opds-spec.org/image" href="/api/archives/[% arc.arcid %]/thumbnail" type="image/jpeg"/>
-      <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/[% arc.arcid %]/thumbnail" type="image/jpeg"/>
-      <link rel="http://opds-spec.org/acquisition" href="/api/archives/[% arc.arcid %]/download" type="[% arc.mimetype %]"/>
-      <link rel="http://opds-spec.org/acquisition" href="/api/archives/[% arc.arcid %]/download" title="Read" type="[% arc.mimetype2 %]"/>
-      <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=[% arc.arcid %]"/>
-  </entry>
-  [% END %]
+    [% FOREACH arc IN arclist %]
+    <entry>
+        <title>[% arc.title %]</title>
+        <id>urn:lrr:[% arc.arcid %]</id>
+        <updated>[% arc.dateadded %]</updated>
+        <published>[% arc.dateadded %]</published>
+        <author>
+            <name>[% arc.author %]</name>
+        </author>
+        <rights>[% arc.series %]</rights>
+        <dcterms:language>[% arc.language %]</dcterms:language>
+        <dcterms:publisher>[% arc.circle %]</dcterms:publisher>
+        <dcterms:issued>[% arc.event %]</dcterms:issued>
+        [% IF arc.isnew == "false" %]
+        <category term="Archive" />
+        [% ELSE %]
+        <category term="New Archive" />
+        [% END %]
+        <summary>[% arc.tags %]</summary>
+
+        <link rel="alternate" href="/api/opds/[% arc.arcid %]?[% api_key %]"
+            type="application/atom+xml;type=entry;profile=opds-catalog" />
+
+        <link rel="http://opds-spec.org/image" href="/api/archives/[% arc.arcid %]/thumbnail?[% api_key %]" type="image/jpeg" />
+        <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/[% arc.arcid %]/thumbnail?[% api_key %]"
+            type="image/jpeg" />
+        <link rel="http://opds-spec.org/acquisition" href="/api/archives/[% arc.arcid %]/download?[% api_key %]" title="Download/Read"
+            type="[% arc.mimetype %]" />
+        <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
+            href="/api/opds/[% arc.arcid %]/pse?page={pageNumber}&[% api_key %]" pse:count="[% arc.pagecount %]" [% IF arc.progress %] pse:lastRead="[% arc.progress %]" [% END %]/>
+        <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=[% arc.arcid %]&[% api_key %]" />
+    </entry>
+    [% END %]
 
 </feed>
