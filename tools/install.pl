@@ -144,7 +144,11 @@ if ( $back || $full ) {
         say("Installing Linux::Inotify2 (2.2) for non-macOS systems...");
 
         # Install 2.2 explicitly as 2.3 doesn't work properly on WSL
-        install_package( "MLEHMANN/Linux-Inotify2-2.2.tar.gz", $cpanopt . "--reinstall" );
+        eval { system("cpanm https://cpan.metacpan.org/authors/id/M/ML/MLEHMANN/Linux-Inotify2-2.2.tar.gz $cpanopt --reinstall"); }
+
+          if ($@) {
+            die "Something went wrong while installing Linux::Inotify2 - Bailing out.";
+        }
     }
 
     if ( system( "cpanm --installdeps ./tools/. --notest" . $cpanopt ) != 0 ) {
