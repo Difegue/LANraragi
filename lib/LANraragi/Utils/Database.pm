@@ -35,12 +35,14 @@ sub add_archive_to_redis {
     $logger->debug("File Name: $name");
     $logger->debug("Filesystem Path: $file");
 
-    $redis->hset( $id, "name",  redis_encode($name) );
-    $redis->hset( $id, "title", redis_encode($name) );
-    $redis->hset( $id, "tags",  "" );
+    $redis->hset( $id, "name", redis_encode($name) );
+    $redis->hset( $id, "tags", "" );
 
     # Don't encode filenames.
     $redis->hset( $id, "file", $file );
+
+    # Set title so that index is updated
+    set_title( $id, $name );
 
     # New file in collection, so this flag is set.
     set_isnew( $id, "true" );
