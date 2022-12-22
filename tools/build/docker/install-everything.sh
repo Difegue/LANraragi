@@ -16,8 +16,6 @@ if [ -f /etc/alpine-release ]; then
   alpine_version=$(cat /etc/alpine-release)
   if [ "$alpine_version" = "3.12.12" ]; then
       apk add nodejs-npm
-    else # Those packages don't exist on 3.12
-      apk add nodejs npm s6-overlay libjxl
 
       # Install Linux::Inotify 2.2 explicitly as 2.3 doesn't work properly on WSL:
       # WSL2 literally doesn't work for any form of filewatching,
@@ -25,6 +23,8 @@ if [ -f /etc/alpine-release ]; then
 
       # Doing the install here allows us to use 2.3 on non-WSL builds. 
       cpanm https://cpan.metacpan.org/authors/id/M/ML/MLEHMANN/Linux-Inotify2-2.2.tar.gz --reinstall
+    else # Those packages don't exist on 3.12
+      apk add nodejs npm s6-overlay libjxl
   fi
 fi
 
