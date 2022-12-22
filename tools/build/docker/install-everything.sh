@@ -34,6 +34,7 @@ if [ $(uname -m) == 'x86_64' ]; then
 
   #Install deps only
   cpanm --notest --installdeps Alien::FFI
+  cpanm Sort::Versions 
   curl -L -s https://cpan.metacpan.org/authors/id/P/PL/PLICEASE/Alien-FFI-0.25.tar.gz | tar -xz
   cd Alien-FFI-0.25
   # Patch build script to disable AVX - and SSE4 for real old CPUs
