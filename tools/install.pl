@@ -141,17 +141,9 @@ if ( $back || $full ) {
     say("\r\nInstalling Perl modules... This might take a while.\r\n");
 
     if ( $Config{"osname"} ne "darwin" ) {
-        say("Installing Linux::Inotify2 (2.2) for non-macOS systems...");
+        say("Installing Linux::Inotify2 for non-macOS systems... (This will do nothing if the package is there already)");
 
-        # Install 2.2 explicitly as 2.3 doesn't work properly on WSL:
-        # WSL2 literally doesn't work for any form of filewatching,
-        # WSL1 works with both default watcher and inotify 2.2, but crashes with inotify 2.3 ("can't open fd 4 as perl handle")
-        eval { system("cpanm https://cpan.metacpan.org/authors/id/M/ML/MLEHMANN/Linux-Inotify2-2.2.tar.gz $cpanopt --reinstall"); };
-
-        if ($@) {
-            die "Something went wrong while installing Linux::Inotify2 - Bailing out.";
-        }
-
+        install_package( "Linux::Inotify2", $cpanopt );
     }
 
     if ( system( "cpanm --installdeps ./tools/. --notest" . $cpanopt ) != 0 ) {
@@ -171,7 +163,7 @@ if ( $front || $full ) {
     say("\r\nProvisioning...\r\n");
 
     #Load File::Copy
-    install_package("File::Copy");
+    install_package( "File::Copy", $cpanopt );
     File::Copy->import("copy");
 
     make_path getcwd . "/public/css/vendor";
