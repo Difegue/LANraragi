@@ -5,6 +5,7 @@ use warnings;
 use utf8;
 
 use Redis;
+use POSIX qw(strftime);
 use Mojo::Util qw(xml_escape);
 
 use LANraragi::Utils::Generic qw(get_tag_with_namespace);
@@ -57,7 +58,7 @@ sub generate_opds_catalog {
         motd          => $mojo->LRR_CONF->get_motd,
         version       => $mojo->LRR_VERSION,
         api_key_query => $api_key ? "?key=" . $api_key : "",
-        api_key_and   => $api_key ? "&key=" . $api_key : ""
+        api_key_and   => $api_key ? "&amp;key=" . $api_key : ""
     );
 }
 
@@ -78,7 +79,7 @@ sub generate_opds_item {
         motd          => $mojo->LRR_CONF->get_motd,
         version       => $mojo->LRR_VERSION,
         api_key_query => $api_key ? "?key=" . $api_key : "",
-        api_key_and   => $api_key ? "&key=" . $api_key : ""
+        api_key_and   => $api_key ? "&amp;key=" . $api_key : ""
     );
 }
 
@@ -95,12 +96,15 @@ sub get_opds_data {
 
     my $tags = $arcdata->{tags};
 
+    # Parse date from the date_added tag, and convert from unix time to ISO 8601.
+    my $date = get_tag_with_namespace( "date_added", $tags, "0" );
+    $arcdata->{dateadded} = strftime( "%Y-%m-%dT%H:%M:%SZ", gmtime($date) );
+
     # Infer a few OPDS-related fields from the tags
-    $arcdata->{dateadded} = get_tag_with_namespace( "date_added", $tags, "2010-01-10T10:01:11Z" );
-    $arcdata->{author}    = get_tag_with_namespace( "artist",     $tags, "" );
-    $arcdata->{language}  = get_tag_with_namespace( "language",   $tags, "" );
-    $arcdata->{circle}    = get_tag_with_namespace( "group",      $tags, "" );
-    $arcdata->{event}     = get_tag_with_namespace( "event",      $tags, "" );
+    $arcdata->{author}   = get_tag_with_namespace( "artist",   $tags, "" );
+    $arcdata->{language} = get_tag_with_namespace( "language", $tags, "" );
+    $arcdata->{circle}   = get_tag_with_namespace( "group",    $tags, "" );
+    $arcdata->{event}    = get_tag_with_namespace( "event",    $tags, "" );
 
     # Application/zip is universally hated by all readers so it's better to use x-cbz and x-cbr here.
     if ( $file =~ /^(.*\/)*.+\.(pdf)$/ ) {
