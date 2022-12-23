@@ -35,12 +35,14 @@ sub add_archive_to_redis {
     $logger->debug("File Name: $name");
     $logger->debug("Filesystem Path: $file");
 
-    $redis->hset( $id, "name",  redis_encode($name) );
-    $redis->hset( $id, "title", redis_encode($name) );
-    $redis->hset( $id, "tags",  "" );
+    $redis->hset( $id, "name", redis_encode($name) );
+    $redis->hset( $id, "tags", "" );
 
     # Don't encode filenames.
     $redis->hset( $id, "file", $file );
+
+    # Set title so that index is updated
+    set_title( $id, $name );
 
     # New file in collection, so this flag is set.
     set_isnew( $id, "true" );
@@ -336,11 +338,13 @@ sub set_title {
     if ( $newtitle ne "" ) {
 
         # Remove old title from search set
-        my $oldtitle = lc( redis_decode( $redis->hget( $id, "title" ) ) );
-        remove_spaces($oldtitle);
-        remove_newlines($oldtitle);
-        $oldtitle = redis_encode($oldtitle);
-        $redis_search->zrem( "LRR_TITLES", "$oldtitle\0$id" );
+        if ( $redis->hexists( $id, "title" ) ) {
+            my $oldtitle = lc( redis_decode( $redis->hget( $id, "title" ) ) );
+            remove_spaces($oldtitle);
+            remove_newlines($oldtitle);
+            $oldtitle = redis_encode($oldtitle);
+            $redis_search->zrem( "LRR_TITLES", "$oldtitle\0$id" );
+        }
 
         # Set actual title in metadata DB
         $redis->hset( $id, "title", redis_encode($newtitle) );

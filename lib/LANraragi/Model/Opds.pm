@@ -19,8 +19,8 @@ sub generate_opds_catalog {
     my $cat_id = $mojo->req->param('category') || "";
 
     # If the user authentified to this via an API key, we need to carry it over to the OPDS links.
-    my $api_key = $mojo->req->param('key') ? "key=" . $mojo->req->param('key') : "";
-    my @cats = LANraragi::Model::Category->get_category_list;
+    my $api_key = $mojo->req->param('key');
+    my @cats    = LANraragi::Model::Category->get_category_list;
 
     # Use the search engine to get the list of archives to show in the catalog.
     my ( $total, $filtered, @keys ) = LANraragi::Model::Search::do_search( "", $cat_id, -1, "title", 0, 0, 0 );
@@ -49,14 +49,15 @@ sub generate_opds_catalog {
     @cats = sort { lc( $a->{name} ) cmp lc( $b->{name} ) } @cats;
 
     return $mojo->render_to_string(
-        template => "opds",
-        arclist  => \@list,
-        catlist  => \@cats,
-        nocat    => $cat_id eq "",
-        title    => $mojo->LRR_CONF->get_htmltitle,
-        motd     => $mojo->LRR_CONF->get_motd,
-        version  => $mojo->LRR_VERSION,
-        api_key  => $api_key
+        template      => "opds",
+        arclist       => \@list,
+        catlist       => \@cats,
+        nocat         => $cat_id eq "",
+        title         => $mojo->LRR_CONF->get_htmltitle,
+        motd          => $mojo->LRR_CONF->get_motd,
+        version       => $mojo->LRR_VERSION,
+        api_key_query => $api_key ? "?key=" . $api_key : "",
+        api_key_and   => $api_key ? "&key=" . $api_key : ""
     );
 }
 
@@ -65,18 +66,19 @@ sub generate_opds_item {
     my ( $mojo, $id ) = @_;
 
     # If the user authentified to this via an API key, we need to carry it over to the OPDS links.
-    my $api_key = $mojo->req->param('key') ? "key=" . $mojo->req->param('key') : "";
+    my $api_key = $mojo->req->param('key');
 
     # Detailed pages just return a single entry instead of all the archives.
     my $arcdata = get_opds_data($id);
 
     return $mojo->render_to_string(
-        template => "opds_entry",
-        arc      => $arcdata,
-        title    => $mojo->LRR_CONF->get_htmltitle,
-        motd     => $mojo->LRR_CONF->get_motd,
-        version  => $mojo->LRR_VERSION,
-        api_key  => $api_key
+        template      => "opds_entry",
+        arc           => $arcdata,
+        title         => $mojo->LRR_CONF->get_htmltitle,
+        motd          => $mojo->LRR_CONF->get_motd,
+        version       => $mojo->LRR_VERSION,
+        api_key_query => $api_key ? "?key=" . $api_key : "",
+        api_key_and   => $api_key ? "&key=" . $api_key : ""
     );
 }
 

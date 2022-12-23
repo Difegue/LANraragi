@@ -8,18 +8,25 @@ apk add imagemagick imagemagick-perlmagick libwebp-tools libheif
 apk add g++ make pkgconf gnupg wget curl file
 apk add shadow s6 s6-portable-utils 
 
-# Check for alpine version
+# Install cpanm
+curl -L https://cpanmin.us | perl - App::cpanminus
+
+# Check for alpine version - 3.12 is used for the WSL version.
 if [ -f /etc/alpine-release ]; then
   alpine_version=$(cat /etc/alpine-release)
   if [ "$alpine_version" = "3.12.12" ]; then
       apk add nodejs-npm
+
+      # Install Linux::Inotify 2.2 explicitly as 2.3 doesn't work properly on WSL:
+      # WSL2 literally doesn't work for any form of filewatching,
+      # WSL1 works with both default watcher and inotify 2.2, but crashes with inotify 2.3 ("can't open fd 4 as perl handle")
+
+      # Doing the install here allows us to use 2.3 on non-WSL builds. 
+      cpanm https://cpan.metacpan.org/authors/id/M/ML/MLEHMANN/Linux-Inotify2-2.2.tar.gz --reinstall
     else # Those packages don't exist on 3.12
       apk add nodejs npm s6-overlay libjxl
   fi
 fi
-
-#Hey it's cpanm
-curl -L https://cpanmin.us | perl - App::cpanminus
 
 #Alpine's libffi build comes with AVX instructions enabled
 #Rebuild our own libffi with those disabled
@@ -27,6 +34,7 @@ if [ $(uname -m) == 'x86_64' ]; then
 
   #Install deps only
   cpanm --notest --installdeps Alien::FFI
+  cpanm Sort::Versions 
   curl -L -s https://cpan.metacpan.org/authors/id/P/PL/PLICEASE/Alien-FFI-0.25.tar.gz | tar -xz
   cd Alien-FFI-0.25
   # Patch build script to disable AVX - and SSE4 for real old CPUs
