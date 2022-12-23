@@ -52,6 +52,12 @@ You can also decide whether to start the GUI alongside Windows, or start LRR alo
 On Windows, VeraCrypt encrypted drives are known to not work properly as the content folder. See [https://github.com/Difegue/LANraragi/issues/182](https://github.com/Difegue/LANraragi/issues/182) for details.
 {% endhint %}
 
+You can choose whether to use WSL1 or WSL2 to run the server as well - I recommend WSL1 as WSL2 is:  
+
+- slower overall with NTFS filesystem access
+- non-functional when it comes to file watching -- You will have to use the "Rescan content folder" button instead every time you add new archives.
+- requires Hyper-V to be installed and active
+
 ## Usage
 
 ![Tray GUI and Log Console. Check that Dark Theme tho ‍](../.screenshots/karen-dark.jpg)
