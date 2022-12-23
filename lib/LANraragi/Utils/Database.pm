@@ -338,11 +338,13 @@ sub set_title {
     if ( $newtitle ne "" ) {
 
         # Remove old title from search set
-        my $oldtitle = lc( redis_decode( $redis->hget( $id, "title" ) ) );
-        remove_spaces($oldtitle);
-        remove_newlines($oldtitle);
-        $oldtitle = redis_encode($oldtitle);
-        $redis_search->zrem( "LRR_TITLES", "$oldtitle\0$id" );
+        if ( $redis->hexists( $id, "title" ) ) {
+            my $oldtitle = lc( redis_decode( $redis->hget( $id, "title" ) ) );
+            remove_spaces($oldtitle);
+            remove_newlines($oldtitle);
+            $oldtitle = redis_encode($oldtitle);
+            $redis_search->zrem( "LRR_TITLES", "$oldtitle\0$id" );
+        }
 
         # Set actual title in metadata DB
         $redis->hset( $id, "title", redis_encode($newtitle) );

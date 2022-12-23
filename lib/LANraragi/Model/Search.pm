@@ -6,15 +6,11 @@ use utf8;
 
 use List::Util qw(min);
 use Redis;
-use Encode;
 use Storable qw/ nfreeze thaw /;
 use Sort::Naturally;
-use Sys::CpuAffinity;
-use Parallel::Loops;
-use Mojo::JSON qw(decode_json);
 
 use LANraragi::Utils::Generic qw(split_workload_by_cpu remove_spaces);
-use LANraragi::Utils::Database qw(redis_decode);
+use LANraragi::Utils::Database qw(redis_decode redis_encode);
 use LANraragi::Utils::Logging qw(get_logger);
 
 use LANraragi::Model::Archive;
@@ -39,13 +35,12 @@ sub do_search {
 
     # Look in searchcache first
     my $sortorder_inv = $sortorder ? 0 : 1;
-    my $cachekey      = encode_utf8("$category_id-$filter-$sortkey-$sortorder-$newonly-$untaggedonly");
-    my $cachekey_inv  = encode_utf8("$category_id-$filter-$sortkey-$sortorder_inv-$newonly-$untaggedonly");
+    my $cachekey      = redis_encode("$category_id-$filter-$sortkey-$sortorder-$newonly-$untaggedonly");
+    my $cachekey_inv  = redis_encode("$category_id-$filter-$sortkey-$sortorder_inv-$newonly-$untaggedonly");
     my ( $cachehit, @filtered ) = check_cache( $cachekey, $cachekey_inv );
 
     unless ($cachehit) {
         $logger->debug("No cache available, doing a full DB parse.");
-        $logger->trace("No cache sdfsdavailable, doing a full DB parse.");
         @filtered = search_uncached( $category_id, $filter, $sortkey, $sortorder, $newonly, $untaggedonly );
 
         # Cache this query in the search database
@@ -151,6 +146,9 @@ sub search_uncached {
             my $isexact = $token->{isexact};
 
             $logger->debug("Searching for $tag, isneg=$isneg, isexact=$isexact");
+
+            # Encode tag as we'll use it in redis operations
+            $tag = redis_encode($tag);
 
             my @ids = ();
 
