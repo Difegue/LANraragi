@@ -68,7 +68,7 @@ sub get_redis_internal {
     # Auto-reconnect on, one attempt every 2ms up to 3 seconds. Die after that.
     my $redis = Redis->new(
         server    => &get_redisad,
-        debug     => &enable_devmode,
+        debug     => $ENV{LRR_DEVSERVER} ? "1" : "0",
         reconnect => 3
     );
 
