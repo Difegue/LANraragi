@@ -363,6 +363,8 @@ IndexTable.buildTagTooltip = function (target) {
         placement: "auto-start",
         maxWidth: "none",
         interactive: true,
+        // Have to be outside so that it is not hidden by other elements.
+        appendTo: document.body,
     }).show(); // Call show() so that the tooltip shows now
 
     $(target).attr("onmouseover", "");

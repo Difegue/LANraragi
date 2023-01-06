@@ -182,11 +182,6 @@ p#nb {
   padding: 0px !important;
 }
 
-/* Bugfix for swiper + tippy compatibility */
-.swiper-virtual .swiper-slide {
-  transform: none !important;
-}
-
 .caption-namespace {
   width: 100px !important;
   font-size: 10pt;
