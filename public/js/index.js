@@ -164,7 +164,7 @@ Index.toggleCarousel = function (e, updateLocalStorage = true) {
                 return breakpoints;
             })(),
             breakpointsBase: "container",
-            centerInsufficientSlides: true,
+            centerInsufficientSlides: false,
             mousewheel: true,
             navigation: {
                 nextEl: ".carousel-next",
