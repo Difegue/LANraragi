@@ -248,10 +248,9 @@ sub get_filelist {
     @files = sort { &expand($a) cmp &expand($b) } @files;
 
     # Move front cover pages to the start of a gallery, and miscellaneous pages such as translator credits to the end.
-    my @cover_pages      = grep { /cover\.[^\.]*$/i } @files;
+    my @cover_pages      = grep { /^(?!.*(back|end|rear|recover)).*cover.*/i } @files;
     my @credit_pages     = grep { /^999999|^bumper|^ramble\.[^\.]*$|^end_card_save_file|notes\.[^\.]*$|note\.[^\.]*$|^artist_info|credit|999nhnl\.|^group\.[^\.]*$/i } @files;
-    my @non_credit_pages = grep { !/^999999|^bumper|^ramble\.[^\.]*$|^end_card_save_file|notes\.[^\.]*$|note\.[^\.]*$|^artist_info|credit|999nhnl\.|^group\.[^\.]*$|cover\.[^\.]*$/i } @files;
-    @files = ( @cover_pages, @non_credit_pages, @credit_pages );
+    my @non_credit_pages = grep { !/^999999|^bumper|^ramble\.[^\.]*$|^end_card_save_file|notes\.[^\.]*$|note\.[^\.]*$|^artist_info|credit|999nhnl\.|^group\.[^\.]*$|^(?!.*(back|end|rear|recover)).*cover.*/i } @files;
 
     # Return files and sizes in a hashref
     return ( \@files, \@sizes );
