@@ -251,7 +251,7 @@ sub get_filelist {
     my @cover_pages      = grep { /^(?!.*(back|end|rear|recover)).*cover.*/i } @files;
     my @credit_pages     = grep { /^999999|^bumper|^ramble\.[^\.]*$|^end_card_save_file|notes\.[^\.]*$|note\.[^\.]*$|^artist_info|credit|999nhnl\.|^group\.[^\.]*$/i } @files;
     my @non_credit_pages = grep { !/^999999|^bumper|^ramble\.[^\.]*$|^end_card_save_file|notes\.[^\.]*$|note\.[^\.]*$|^artist_info|credit|999nhnl\.|^group\.[^\.]*$|^(?!.*(back|end|rear|recover)).*cover.*/i } @files;
-
+@files = ( @cover_pages, @other_pages, @credit_pages );
     # Return files and sizes in a hashref
     return ( \@files, \@sizes );
 }
