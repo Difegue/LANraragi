@@ -173,22 +173,32 @@ sub parse_chaika_json {
         }
     }
 
+    my $category = lc $json->{"category"};
     my $download = $json->{"download"} ? $json->{"download"} : $json->{"archives"}->[0]->{"link"};
     my $gallery = $json->{"gallery"} ? $json->{"gallery"} : $json->{"id"};
+    my $timestamp = $json->{"posted"};
     if ( $tags ) {
-        push(@$tags, "category:" . lc $json->{"category"});
-        push(@$tags, "download:" . $download);
-        push(@$tags, "gallery:" . $json->{"gallery"});
-        push(@$tags, "timestamp:" . $json->{"posted"});
+        if ($category ne "") {
+            push(@$tags, "category:" . $category);
+        }
+        if ($download ne "") {
+            push(@$tags, "download:" . $download);
+        }
+        if ($gallery ne "") {
+            push(@$tags, "gallery:" . $gallery);
+        }
+        if ($timestamp ne "") {
+            push(@$tags, "timestamp:" . $timestamp);
+        }
         if ($addsource ne "") {
             push(@$tags, "source:" . $addsource);
         }
     }
-    if ($gallery && $gallery != "") {
-      $logger->debug("Found these tags: " . join( ', ', @$tags ));
-      return ( join( ', ', @$tags ), $json->{"title"} );
+    if ($gallery && $gallery ne "") {
+        $logger->debug("Found these tags: " . join( ', ', @$tags ));
+        return ( join( ', ', @$tags ), $json->{"title"} );
     } else {
-      return "";
+        return "";
     }
 }
 
