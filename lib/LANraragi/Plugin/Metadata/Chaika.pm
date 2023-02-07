@@ -188,11 +188,12 @@ sub parse_chaika_json {
             push(@$tags, "timestamp:" . $timestamp);
         }
     }
-    # add custom source, but only if having found tags
-    if ($tags && $addsource ne "") {
-        push(@$tags, "source:" . $addsource);
-    }
+
     if ($gallery && $gallery ne "") {
+        # add custom source, but only if having found gallery
+        if ($addsource ne "") {
+            push(@$tags, "source:" . $addsource);
+        }
         return ( join( ', ', @$tags ), $json->{"title"} );
     } else {
         return "";
