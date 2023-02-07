@@ -25,7 +25,8 @@ sub plugin_info {
           "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA\nB3RJTUUH4wYCFQocjU4r+QAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUH\nAAAEZElEQVQ4y42T3WtTdxzGn/M7J+fk5SRpTk7TxMZkXU84tTbVNrUT3YxO7HA4pdtQZDe7cgx2\ns8vBRvEPsOwFYTDYGJUpbDI2wV04cGXCGFLonIu1L2ptmtrmxeb1JDkvv121ZKVze66f74eH7/f5\nMmjRwMCAwrt4/9KDpflMJpPHvyiR2DPcJklJ3TRDDa0xk36cvrm8vDwHAAwAqKrqjjwXecPG205w\nHBuqa9rk77/d/qJYLD7cCht5deQIIczbgiAEKLVAKXWUiqVV06Tf35q8dYVJJBJem2A7Kwi2nQzD\nZig1CG93+PO5/KN6tf5NKpVqbsBUVVVFUUxwHJc1TXNBoxojS7IbhrnLMMx9pVJlBqFQKBKPxwcB\nkJYgjKIo3QCE1nSKoghbfJuKRqN2RVXexMaQzWaLezyeEUEQDjscjk78PxFFUYRkMsltJgGA3t7e\nyMLCwie6rr8iCILVbDbvMgwzYRjGxe0o4XC4s1AoHPP5fMP5/NNOyzLKAO6Ew+HrDADBbre/Ryk9\nnzx81FXJNlEpVpF+OqtpWu2MpmnXWmH9/f2umZmZi4cOHXnLbILLzOchhz1YerJAs9m1GwRAg2GY\nh7GYah488BJYzYW+2BD61AFBlmX/1nSNRqN9//792ujoaIPVRMjOKHoie3DytVGmp2fXCAEAjuMm\nu7u7Umosho6gjL/u/QHeEgvJZHJ2K/D+/fuL4+PjXyvPd5ldkShy1UXcmb4DnjgQj/fd5gDA6/XS\nYCAwTwh9oT3QzrS1+VDVi+vd3Tsy26yQVoFF3dAXJVmK96p9EJ0iLNOwKKU3CQCk0+lSOpP5WLDz\nF9Q9kZqyO0SloOs6gMfbHSU5NLRiUOuax2/HyZPHEOsLw2SbP83eu/fLxrkNp9P554XxCzVa16MC\n7+BPnTk9cfmH74KJE8nmga7Xy5JkZ8VKifGIHpoBb1VX8hNTd3/t/7lQ3OeXfFPvf/jBRw8ezD/a\n7M/aWq91cGgnJaZ2VcgSdnV1XRNNd3vAoBVVYusmnEQS65hfgSG6c+zy3Kre7nF/KrukcMW0Zg8O\nD08DoJutDxxOEb5IPUymwrq8ft1gLKfkFojkkRxemERCAQUACPFWRazYLJcrFGwQhyufbQQ7rFpy\nLMkCwGZC34qPIuwp+XPOjBFwazQ/txrdFS2GGS/Xuj+pUKLGk1Kjvlded3s72lyGW+PLbGVcmrAA\ngN0wTk1NWYODg9XOKltGtpazi5GigzroUnHN5nUHG1ylRsG7rDXHmnEpu4CeEtEKkqNc6QqlLc/M\n8uT5lLH5eq0aGxsju1O7GQB498a5s/0x9dRALPaQEDZnYwnhWJtMCCNrjeb0UP34Z6e/PW22zjPP\n+vwXBwfPvbw38XnXjk7GsiwKAIQQhjAMMrlsam45d+zLH6/8o6vkWcBcrXbVKQhf6bpucCwLjmUB\nSmmhXC419eblrbD/TAgAkUjE987xE0c7ZDmk66ajUCnq+cL63fErl25s5/8baQPaWLhx6goAAAAA\nSUVORK5CYII=",
         parameters  => [
             { type => "bool", desc => "Save archive title" },
-            { type => "bool", desc => "Add tags without a namespace to the 'other:' namespace instead" },
+            { type => "bool", desc => "Add the following tags if available: download URL, gallery ID, category, timestamp" },
+            { type => "bool", desc => "Add tags without a namespace to the 'other:' namespace instead, mirroring E-H's behavior of namespacing everything" },
             { type => "string", desc => "Add a custom 'source:' tag to your archive. Example: chaika. Will NOT add a tag if blank" }
         ],
         oneshot_arg => "Chaika Gallery or Archive URL (Will attach matching tags to your archive)"
@@ -38,7 +39,7 @@ sub get_tags {
 
     shift;
     my $lrr_info = shift;    # Global info hash
-    my ( $savetitle, $addother, $addsource ) = @_;    # Plugin parameters
+    my ( $savetitle, $addextra, $addother, $addsource ) = @_;    # Plugin parameters
 
     my $logger   = get_plugin_logger();
     my $newtags  = "";
@@ -47,17 +48,17 @@ sub get_tags {
     # Parse the given link to see if we can extract type and ID
     my $oneshotarg = $lrr_info->{oneshot_param};
     if ( $oneshotarg =~ /https?:\/\/panda\.chaika\.moe\/(gallery|archive)\/([0-9]*)\/?.*/ ) {
-        ( $newtags, $newtitle ) = tags_from_chaika_id( $1, $2, $addother, $addsource );
+        ( $newtags, $newtitle ) = tags_from_chaika_id( $1, $2, $addextra, $addother );
     } else {
 
         # Try SHA-1 reverse search first
         $logger->info("Using thumbnail hash " . $lrr_info->{thumbnail_hash});
-        ( $newtags, $newtitle ) = tags_from_sha1( $lrr_info->{thumbnail_hash}, $addother, $addsource );
+        ( $newtags, $newtitle ) = tags_from_sha1( $lrr_info->{thumbnail_hash}, $addextra, $addother );
 
         # Try text search if it fails
         if ( $newtags eq "" ) {
             $logger->info("No results, falling back to text search.");
-            ( $newtags, $newtitle ) = search_for_archive( $lrr_info->{archive_title}, $lrr_info->{existing_tags}, $addother, $addsource );
+            ( $newtags, $newtitle ) = search_for_archive( $lrr_info->{archive_title}, $lrr_info->{existing_tags}, $addextra, $addother );
         }
     }
 
@@ -65,7 +66,9 @@ sub get_tags {
         $logger->info("No matching Chaika Archive Found!");
         return ( error => "No matching Chaika Archive Found!" );
     } else {
-
+        if ( $addsource ne "" ) {
+            $newtags .= ", source:" . $addsource;
+        }
         $logger->info("Sending the following tags to LRR: $newtags");
         #Return a hash containing the new metadata
         if ( $savetitle && $newtags ne "" ) { return ( tags => $newtags, title => $newtitle ); }
@@ -83,7 +86,7 @@ sub get_tags {
 sub search_for_archive {
 
     my $logger = get_plugin_logger();
-    my ( $title, $tags, $addother, $addsource ) = @_;
+    my ( $title, $tags, $addextra, $addother ) = @_;
 
     #Auto-lowercase the title for better results
     $title = lc($title);
@@ -106,7 +109,7 @@ sub search_for_archive {
     my $textrep = $res->body;
     $logger->debug("Chaika API returned this JSON: $textrep");
 
-    my ( $chaitags, $chaititle ) = parse_chaika_json( $res->json->{"galleries"}->[0], $addother, $addsource );
+    my ( $chaitags, $chaititle ) = parse_chaika_json( $res->json->{"galleries"}->[0], $addextra, $addother );
 
     return ( $chaitags, $chaititle );
 }
@@ -114,17 +117,17 @@ sub search_for_archive {
 # Uses the jsearch API to get the best json for a file.
 sub tags_from_chaika_id {
 
-    my ( $type, $ID, $addother, $addsource ) = @_;
+    my ( $type, $ID, $addextra, $addother ) = @_;
 
     my $json = get_json_from_chaika( $type, $ID );
-    return parse_chaika_json( $json, $addother, $addsource );
+    return parse_chaika_json( $json, $addextra, $addother );
 }
 
 # tags_from_sha1
 # Uses chaika's SHA-1 search with the first page hash we have.
 sub tags_from_sha1 {
 
-    my ( $sha1, $addother, $addsource ) = @_;
+    my ( $sha1, $addextra, $addother ) = @_;
 
     my $logger = get_plugin_logger();
 
@@ -132,7 +135,7 @@ sub tags_from_sha1 {
     # Said JSON is an array containing multiple archive objects.
     # We just take the first one.
     my $json_by_sha1 = get_json_from_chaika( 'sha1', $sha1 );
-    return parse_chaika_json( $json_by_sha1->[0], $addother, $addsource );
+    return parse_chaika_json( $json_by_sha1->[0], $addextra, $addother );
 }
 
 # Calls chaika's API
@@ -157,7 +160,7 @@ sub get_json_from_chaika {
 # Parses the JSON obtained from the Chaika API to get the tags.
 sub parse_chaika_json {
 
-    my ( $json, $addother, $addsource ) = @_;
+    my ( $json, $addextra, $addother ) = @_;
     
     my $logger = get_plugin_logger();
     $logger->debug("Chaika JSON: " . $json);
@@ -177,7 +180,7 @@ sub parse_chaika_json {
     my $download = $json->{"download"} ? $json->{"download"} : $json->{"archives"}->[0]->{"link"};
     my $gallery = $json->{"gallery"} ? $json->{"gallery"} : $json->{"id"};
     my $timestamp = $json->{"posted"};
-    if ( $tags ) {
+    if ($tags && $addextra) {
         if ($category ne "") {
             push(@$tags, "category:" . $category);
         }
@@ -189,9 +192,6 @@ sub parse_chaika_json {
         }
         if ($timestamp ne "") {
             push(@$tags, "timestamp:" . $timestamp);
-        }
-        if ($addsource ne "") {
-            push(@$tags, "source:" . $addsource);
         }
     }
     if ($gallery && $gallery ne "") {
