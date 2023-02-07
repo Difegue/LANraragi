@@ -48,17 +48,17 @@ sub get_tags {
     # Parse the given link to see if we can extract type and ID
     my $oneshotarg = $lrr_info->{oneshot_param};
     if ( $oneshotarg =~ /https?:\/\/panda\.chaika\.moe\/(gallery|archive)\/([0-9]*)\/?.*/ ) {
-        ( $newtags, $newtitle ) = tags_from_chaika_id( $1, $2, $addextra, $addother );
+        ( $newtags, $newtitle ) = tags_from_chaika_id( $1, $2, $addextra, $addother, $addsource );
     } else {
 
         # Try SHA-1 reverse search first
         $logger->info("Using thumbnail hash " . $lrr_info->{thumbnail_hash});
-        ( $newtags, $newtitle ) = tags_from_sha1( $lrr_info->{thumbnail_hash}, $addextra, $addother );
+        ( $newtags, $newtitle ) = tags_from_sha1( $lrr_info->{thumbnail_hash}, $addextra, $addother, $addsource );
 
         # Try text search if it fails
         if ( $newtags eq "" ) {
             $logger->info("No results, falling back to text search.");
-            ( $newtags, $newtitle ) = search_for_archive( $lrr_info->{archive_title}, $lrr_info->{existing_tags}, $addextra, $addother );
+            ( $newtags, $newtitle ) = search_for_archive( $lrr_info->{archive_title}, $lrr_info->{existing_tags}, $addextra, $addother, $addsource );
         }
     }
 
@@ -66,9 +66,6 @@ sub get_tags {
         $logger->info("No matching Chaika Archive Found!");
         return ( error => "No matching Chaika Archive Found!" );
     } else {
-        if ( $addsource ne "" ) {
-            $newtags .= ", source:" . $addsource;
-        }
         $logger->info("Sending the following tags to LRR: $newtags");
         #Return a hash containing the new metadata
         if ( $savetitle && $newtags ne "" ) { return ( tags => $newtags, title => $newtitle ); }
@@ -86,7 +83,7 @@ sub get_tags {
 sub search_for_archive {
 
     my $logger = get_plugin_logger();
-    my ( $title, $tags, $addextra, $addother ) = @_;
+    my ( $title, $tags, $addextra, $addother, $addsource ) = @_;
 
     #Auto-lowercase the title for better results
     $title = lc($title);
@@ -109,7 +106,7 @@ sub search_for_archive {
     my $textrep = $res->body;
     $logger->debug("Chaika API returned this JSON: $textrep");
 
-    my ( $chaitags, $chaititle ) = parse_chaika_json( $res->json->{"galleries"}->[0], $addextra, $addother );
+    my ( $chaitags, $chaititle ) = parse_chaika_json( $res->json->{"galleries"}->[0], $addextra, $addother, $addsource );
 
     return ( $chaitags, $chaititle );
 }
@@ -117,17 +114,17 @@ sub search_for_archive {
 # Uses the jsearch API to get the best json for a file.
 sub tags_from_chaika_id {
 
-    my ( $type, $ID, $addextra, $addother ) = @_;
+    my ( $type, $ID, $addextra, $addother, $addsource ) = @_;
 
     my $json = get_json_from_chaika( $type, $ID );
-    return parse_chaika_json( $json, $addextra, $addother );
+    return parse_chaika_json( $json, $addextra, $addother, $addsource );
 }
 
 # tags_from_sha1
 # Uses chaika's SHA-1 search with the first page hash we have.
 sub tags_from_sha1 {
 
-    my ( $sha1, $addextra, $addother ) = @_;
+    my ( $sha1, $addextra, $addother, $addsource ) = @_;
 
     my $logger = get_plugin_logger();
 
@@ -135,7 +132,7 @@ sub tags_from_sha1 {
     # Said JSON is an array containing multiple archive objects.
     # We just take the first one.
     my $json_by_sha1 = get_json_from_chaika( 'sha1', $sha1 );
-    return parse_chaika_json( $json_by_sha1->[0], $addextra, $addother );
+    return parse_chaika_json( $json_by_sha1->[0], $addextra, $addother, $addsource );
 }
 
 # Calls chaika's API
@@ -160,7 +157,7 @@ sub get_json_from_chaika {
 # Parses the JSON obtained from the Chaika API to get the tags.
 sub parse_chaika_json {
 
-    my ( $json, $addextra, $addother ) = @_;
+    my ( $json, $addextra, $addother, $addsource ) = @_;
 
     my $tags = $json->{"tags"} || ();
     foreach my $tag (@$tags) {
@@ -190,6 +187,10 @@ sub parse_chaika_json {
         if ($timestamp ne "") {
             push(@$tags, "timestamp:" . $timestamp);
         }
+    }
+    # add custom source, but only if having found tags
+    if ($tags && $addsource ne "") {
+        push(@$tags, "source:" . $addsource);
     }
     if ($gallery && $gallery ne "") {
         return ( join( ', ', @$tags ), $json->{"title"} );
