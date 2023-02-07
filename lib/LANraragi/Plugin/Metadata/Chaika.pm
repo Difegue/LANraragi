@@ -191,7 +191,7 @@ sub parse_chaika_json {
 
     if ($gallery && $gallery ne "") {
         # add custom source, but only if having found gallery
-        if ($addsource ne "") {
+        if ($addsource && $addsource ne "") {
             push(@$tags, "source:" . $addsource);
         }
         return ( join( ', ', @$tags ), $json->{"title"} );
