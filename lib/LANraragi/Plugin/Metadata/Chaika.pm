@@ -161,9 +161,6 @@ sub get_json_from_chaika {
 sub parse_chaika_json {
 
     my ( $json, $addextra, $addother ) = @_;
-    
-    my $logger = get_plugin_logger();
-    $logger->debug("Chaika JSON: " . $json);
 
     my $tags = $json->{"tags"} || ();
     foreach my $tag (@$tags) {
@@ -195,7 +192,6 @@ sub parse_chaika_json {
         }
     }
     if ($gallery && $gallery ne "") {
-        $logger->debug("Found these tags: " . join( ', ', @$tags ));
         return ( join( ', ', @$tags ), $json->{"title"} );
     } else {
         return "";
