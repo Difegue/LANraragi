@@ -200,11 +200,11 @@ sub get_css_list {
 
     #Get all the available CSS sheets.
     my @css;
-    opendir( DIR, "./public/themes" ) or die $!;
-    while ( my $file = readdir(DIR) ) {
+    opendir( my $dir, "./public/themes" ) or die $!;
+    while ( my $file = readdir($dir) ) {
         if ( $file =~ /.+\.css/ ) { push( @css, $file ); }
     }
-    closedir(DIR);
+    closedir($dir);
 
     return @css;
 }
