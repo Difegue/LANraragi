@@ -141,8 +141,8 @@ sub start_minion {
     $proc->kill_on_destroy(0);
 
     # Freeze the process object in the PID file
-    store \$proc, get_temp . "/minion.pid";
-    open( my $fh, ">", get_temp . "/minion.pid-s6" );
+    store \$proc, get_temp() . "/minion.pid";
+    open( my $fh, ">", get_temp() . "/minion.pid-s6" );
     print $fh $proc->pid;
     close($fh);
     return $proc;
@@ -166,8 +166,8 @@ sub start_shinobu {
     $mojo->LRR_LOGGER->debug( "Shinobu Worker new PID is " . $proc->pid );
 
     # Freeze the process object in the PID file
-    store \$proc, get_temp . "/shinobu.pid";
-    open( my $fh, ">", get_temp . "/shinobu.pid-s6" );
+    store \$proc, get_temp() . "/shinobu.pid";
+    open( my $fh, ">", get_temp() . "/shinobu.pid-s6" );
     print $fh $proc->pid;
     close($fh);
     return $proc;
