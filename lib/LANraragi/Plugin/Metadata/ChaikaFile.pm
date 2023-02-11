@@ -46,8 +46,8 @@ sub get_tags {
     }
 
     if ( $newtags eq "" ) {
-        $logger->info("No matching Chaika Archive Found!");
-        return ( error => "No matching Chaika Archive Found!" );
+        $logger->info("No Chaika File Found!");
+        return ( error => "No Chaika File Found!" );
     } else {
 
         $logger->info("Sending the following tags to LRR: $newtags");
