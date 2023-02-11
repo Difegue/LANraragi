@@ -15,7 +15,7 @@ sub plugin_info {
         #Standard metadata
         name        => "Chaika.moe api.json",
         type        => "metadata",
-        namespace   => "trabant",
+        namespace   => "chaikafileplugin",
         author      => "Hackerman",
         version     => "0.1",
         description => "Collects metadata embedded into your archives as Chaika-style api.json files",
