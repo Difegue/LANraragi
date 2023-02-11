@@ -3,11 +3,11 @@ package LANraragi::Plugin::Metadata::Ksk;
 use strict;
 use warnings;
 
-use YAML::Tiny;
-
 use LANraragi::Model::Plugins;
 use LANraragi::Utils::Logging qw(get_plugin_logger);
 use LANraragi::Utils::Archive qw(is_file_in_archive extract_file_from_archive);
+
+use YAML::Syck qw(LoadFile);
 
 sub plugin_info {
 
@@ -39,9 +39,9 @@ sub get_tags {
 
     my $filepath = extract_file_from_archive( $file, $path_in_archive );
 
-    my $parsed_data = YAML::Tiny->read($filepath);
+    my $parsed_data = LoadFile($filepath);
 
-    my ( $tags, $title ) = tags_from_ksk_yaml( $parsed_data->[0], $assume_english );
+    my ( $tags, $title ) = tags_from_ksk_yaml( $parsed_data, $assume_english );
 
     unlink $filepath;
 

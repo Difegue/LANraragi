@@ -61,4 +61,4 @@ requires 'Module::Pluggable', 5.2;
 requires 'Time::Local', 1.30;
 
 # Ksk plugin
-requires 'YAML::Tiny', 1.73;
+requires 'YAML::Syck', 1.34;
