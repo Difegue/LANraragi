@@ -72,14 +72,12 @@ sub get_tags {
         if ( $save_title && $title ) {
             $logger->info("Parsed title is $title");
             return ( tags => $tags, title => $title );
-        } else {
+        } elsif ($tags ne "") {
             return ( tags => $tags );
         }
-
-    } else {
-
-        return ( error => "No hentag info.json file found in this archive!" );
     }
+
+    return ( error => "No hentag info.json file found in this archive!" );
 }
 
 #tags_from_hentag_json(decodedjson)
