@@ -199,7 +199,7 @@ sub build_json {
     return $arcdata;
 }
 
-#Deletes the archive with the given id from redis, and the matching archive file/thumbnail.
+# Deletes the archive with the given id from redis, and the matching archive file/thumbnail.
 sub delete_archive {
 
     my $id       = $_[0];

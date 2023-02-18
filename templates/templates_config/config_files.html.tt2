@@ -86,3 +86,17 @@
         <br>
     </td>
 </tr>
+
+<tr>
+    <td class="option-td">
+        <h2 class="ih">Replace duplicated archive</h2>
+    </td>
+    <td class="config-td">
+        [% IF replacedupe %]
+        <input id="replacedupe" name="replacedupe" class="fa" type="checkbox" checked> [% ELSE %]
+        <input id="replacedupe" name="replacedupe" class="fa" type="checkbox"> [% END %]
+        <label for="replacedupe">
+            <br>If enabled, LANraragi will replace old archive when a duplicated one (of the same name) is added.
+        </label>
+    </td>
+</tr>
