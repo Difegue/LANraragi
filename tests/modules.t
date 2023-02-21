@@ -41,7 +41,7 @@ my @modules = (
     "LANraragi::Plugin::Scripts::FolderToCat",      "LANraragi::Plugin::Download::EHentai",
     "LANraragi::Plugin::Download::Chaika",          "LANraragi::Plugin::Scripts::nHentaiSourceConverter",
     "LANraragi::Plugin::Scripts::BlacklistMigrate", "LANraragi::Plugin::Metadata::Hitomi",
-    "LANraragi::Plugin::Metadata::ComicInfo"
+    "LANraragi::Plugin::Metadata::ChaikaFile",      "LANraragi::Plugin::Metadata::ComicInfo"
 );
 
 # Test all modules load properly
