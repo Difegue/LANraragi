@@ -46,7 +46,7 @@ This folder contains all the user-generated data:
 
 By default, this folder is placed at the root of the LRR installation, but you can configure it to use any folder on your machine instead. The content folder is subdirectory-aware, so you can easily drop-in an already sorted collection.
 
-The content folder can be write-only if you so desire, but the caveat is that the thumbnail subfolder (`/thumb`) needs write rights to function properly for the time being.  
+The content folder can be read-only if you so desire, but the caveat is that the thumbnail subfolder (`/thumb`) needs write rights to function properly for the time being.  
 See the section below if you want to move the thumbnail subfolder somewhere else.
 
 {% hint style="success" %}
