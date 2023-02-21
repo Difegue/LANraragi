@@ -1,5 +1,5 @@
 # LANraragi::Plugin::Metadata::ComicInfo
-use strict;
+use strict;CoolAchumuchi
 use warnings;
 use utf8;
 use Data::Dumper;
@@ -34,11 +34,17 @@ note("00 - [れむ] 夜伽妻 [DL版]");
     # we pass a dummy string as first parameter to replace the object.
     my $returned_tags = LANraragi::Plugin::Metadata::ComicInfo::get_tags( "", \%dummyhash);
 
-    my $expected_tags = "Ahegao, Bbw, Big Areolae, Big Ass, Big Breasts, Big Nipples, Big Penis, Blowjob, Bondage, Cheating, Crotch Tattoo, Dark Skin, Facial Hair, Filming, Glasses, Glasses, Gyaru, Hairy, Huge Breasts, Impregnation, Maid, Milf, Nakadashi, Netorare, Oil, Paizuri, Pregnant, Prostitution, Schoolgirl Uniform, Swinging, Tall Girl, Tankoubon, Very Long Hair, Voyeurism, Widow, X-Ray";
+    my $expected_group_tag = "group:Achumuchi, group:Ashita, group:Cool Kyou Shinja, group:Danimaru, group:Eba, group:Emuo, group:Fushoku, group:Inukami Inoji, group:Itaba Hiroshi, group:Kaiduka, group:Ken Sogen, group:Kosuke Haruhito, group:Maeda Momo, group:Miyano Kintarou, group:Rei, group:Sasahiro, group:Sekine Hajime, group:Ushinomiya, group:Yamamoto Ahiru, group:Yamamoto Zenzen";
+    my $expected_artist_tag = "artist:Achumuchi, artist:Ashita, artist:Cool Kyou Shinja, artist:Danimaru, artist:Eba, artist:Emuo, artist:Fushoku, artist:Inukami Inoji, artist:Itaba Hiroshi, artist:Kaiduka, artist:Ken Sogen, artist:Kosuke Haruhito, artist:Maeda Momo, artist:Miyano Kintarou, artist:Rei, artist:Sasahiro, artist:Sekine Hajime, artist:Ushinomiya, artist:Yamamoto Ahiru, artist:Yamamoto Zenzen"
+    my $expected_source_tag = "source:https://nhentai.net/g/369909/";
+    my $expected_lang_tag = "language:ja";
+    my $expected_genre_tags = "Anal, Anthology, Beauty Mark, Big Breasts, Collar, Defloration, Eye-Covering Bang, Glasses, Gyaru, Huge Breasts, Incest, Inverted Nipples, Leotard, Long Tongue, Maid, Netorare, Pantyhose, Piercing, Ponytail, Robot, Schoolboy Uniform, Schoolgirl Uniform, Sister, Stockings, Sweating, Tomboy";
+    my @tag_array = ($expected_group_tag, $expected_artist_tag, $expected_source_tag, $expected_lang_tag, $expected_genre_tags);
+    my $expected_tags = join( ", ", @tag_array );
     is( $returned_tags,  $expected_tags, "correct tags" );
 }
 
-note("01 - COMIC Anthurium 2021-09 [Digital]");
+note("01 - 夜伽妻");
 {
     my ( $fh, $filename ) = tempfile();
     cp( $SAMPLES . "/comicinfo/01_sample.xml", $fh );
@@ -54,7 +60,13 @@ note("01 - COMIC Anthurium 2021-09 [Digital]");
     # we pass a dummy string as first parameter to replace the object.
     my $returned_tags = LANraragi::Plugin::Metadata::ComicInfo::get_tags( "", \%dummyhash);
 
-    my $expected_tags = "Anthology, Beauty Mark, Big Breasts, Glasses, Group, Gyaru, Lolicon, Paizuri, Rape, Schoolboy Uniform, Schoolgirl Uniform";
+    my $expected_group_tag = "group:Remu";
+    my $expected_artist_tag = "artist:Remu";
+    my $expected_source_tag = "source:https://exhentai.org/g/2470908/3dd0f5801e";
+    my $expected_lang_tag = "language:ja";
+    my $expected_genre_tags = "Ahegao, Bbw, Big Areolae, Big Ass, Big Breasts, Big Nipples, Big Penis, Blowjob, Bondage, Cheating, Crotch Tattoo, Dark Skin, Facial Hair, Filming, Glasses, Glasses, Gyaru, Hairy, Huge Breasts, Impregnation, Maid, Milf, Nakadashi, Netorare, Oil, Paizuri, Pregnant, Prostitution, Schoolgirl Uniform, Swinging, Tall Girl, Tankoubon, Very Long Hair, Voyeurism, Widow, X-Ray";
+    my @tag_array = ($expected_group_tag, $expected_artist_tag, $expected_source_tag, $expected_lang_tag, $expected_genre_tags);
+    my $expected_tags = join( ", ", @tag_array );
     is( $returned_tags,  $expected_tags, "correct tags" );
 }
 
@@ -74,7 +86,12 @@ note("02 - よつばと！ 第01巻");
     # we pass a dummy string as first parameter to replace the object.
     my $returned_tags = LANraragi::Plugin::Metadata::ComicInfo::get_tags( "", \%dummyhash);
 
-    my $expected_tags = "Comedy, Shounen, Slice of Life";
+    my $expected_group_tag = "group:あずまきよひこ";
+    my $expected_artist_tag = "artist:あずまきよひこ";
+    my $expected_lang_tag = "language:ja";
+    my $expected_genre_tags = "Comedy, Shounen, Slice of Life";
+    my @tag_array = ($expected_group_tag, $expected_artist_tag, $expected_lang_tag, $expected_genre_tags);
+    my $expected_tags = join( ", ", @tag_array );
     is( $returned_tags,  $expected_tags, "correct tags" );
 }
 
