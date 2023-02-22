@@ -19,7 +19,7 @@ sub plugin_info {
         type         => "metadata",
         namespace    => "comicinfo",
         author       => "Gin-no-kami",
-        version      => "1.1",
+        version      => "1.0",
         description  => "Parses metadata from ComicInfo.xml embedded in the archive",
         parameters => []
     );
@@ -61,19 +61,19 @@ sub get_tags {
         if (defined $result) {
             $genre = $result->text;
         }
-        my $result = Mojo::DOM->new->xml(1)->parse($stringxml)->at('Web');
+        $result = Mojo::DOM->new->xml(1)->parse($stringxml)->at('Web');
         if (defined $result) {
             $url = $result->text;
         }
-        my $result = Mojo::DOM->new->xml(1)->parse($stringxml)->at('Writer');
+        $result = Mojo::DOM->new->xml(1)->parse($stringxml)->at('Writer');
         if (defined $result) {
             $group = $result->text;
         }
-        my $result = Mojo::DOM->new->xml(1)->parse($stringxml)->at('Penciller');
+        $result = Mojo::DOM->new->xml(1)->parse($stringxml)->at('Penciller');
         if (defined $result) {
             $artist = $result->text;
         }
-        my $result = Mojo::DOM->new->xml(1)->parse($stringxml)->at('LanguageISO');
+        $result = Mojo::DOM->new->xml(1)->parse($stringxml)->at('LanguageISO');
         if (defined $result) {
             $lang = $result->text;
         }
