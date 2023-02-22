@@ -13,6 +13,9 @@ use Mojo::UserAgent;
 use LANraragi::Model::Plugins;
 use LANraragi::Utils::Logging qw(get_plugin_logger);
 
+# Most parsing is reused between the two plugins
+require LANraragi::Plugin::Metadata::Hentag;
+
 #Meta-information about your plugin.
 sub plugin_info {
 
@@ -43,15 +46,14 @@ sub get_tags {
     my $file   = $lrr_info->{file_path};
     my $archive_title = $lrr_info->{archive_title};
 
-    # Example URL  https://hentag.com/public/api/vault-search?t=%5BSarfatation+%28Sarfata%29%5D+The+Day+Hamakaze+and+I++Got+Married+%28x2000%29+%5B2D+Market%5D&ila=1&p=1&s=24&dk64=5f3756b4-ded1-4360-ab46-f1b5bc28efda
-
     my $stringjson = get_json_from_api($ua, $archive_title);
 
     if ($stringjson ne '') {
         $logger->debug("Received the following JSON: $stringjson");
+        my $json = from_json($stringjson);
 
         #Parse it
-        my ( $tags, $title ) = tags_from_hentag_json(from_json $stringjson);
+        my ( $tags, $title ) = tags_from_hentag_api_json($json);
 
         #Return tags IFF data is found
         $logger->info("Sending the following tags to LRR: $tags");
@@ -63,62 +65,12 @@ sub get_tags {
         }
     }
 
-    return ( error => "No matching Chaika Archive Found!" );
+    return ( error => "No matching Hentag Archive Found!" );
 }
 
-#tags_from_hentag_json(decodedjson)
-#Goes through the JSON hash obtained from an info.json file and return the contained tags (and title if found).
-sub tags_from_hentag_json {
-    my $hash = $_[0];
-    my @found_tags;
-
-    my $title      = $hash->{"title"};
-    my $parodies   = $hash->{"parodies"};
-    my $groups     = $hash->{"circles"};
-    my $artists    = $hash->{"artists"};
-    my $characters = $hash->{"characters"};
-    my $maleTags   = $hash->{"maleTags"};
-    my $femaleTags = $hash->{"femaleTags"};
-    my $otherTags  = $hash->{"otherTags"};
-    my $language   = $hash->{"language"};
-    my $urls       = $hash->{"locations"};
-    # not handled yet: category, createdAt
-
-    # tons of different shit creates different kinds of info.json file, so validate the shit out of the data
-    @found_tags = try_add_tags(\@found_tags, "series:", $parodies);
-    @found_tags = try_add_tags(\@found_tags, "group:", $groups);
-    @found_tags = try_add_tags(\@found_tags, "artist:", $artists);
-    @found_tags = try_add_tags(\@found_tags, "character:", $characters);
-    @found_tags = try_add_tags(\@found_tags, "male:", $maleTags);
-    @found_tags = try_add_tags(\@found_tags, "female:", $femaleTags);
-    @found_tags = try_add_tags(\@found_tags, "other:", $otherTags);
-    push( @found_tags, "language:" . $language ) unless !$language;
-    @found_tags = try_add_tags(\@found_tags, "url:", $urls);
-
-    #Done-o
-    my $concat_tags = join( ", ", @found_tags );
-    return ( $concat_tags, $title );
-
-}
-
-sub try_add_tags {
-    my @found_tags = @{$_[0]};
-    my $prefix = $_[1];
-    my $tags = $_[2];
-
-    if (ref($tags) eq 'ARRAY') {
-        foreach my $tag (@$tags) {
-            push( @found_tags, $prefix . $tag );
-        }
-    }
-    return @found_tags;
-}
-
-# get_json_from_api(ua, archive_title)
+# get_json_from_api(ua, archive_title, logger)
 sub get_json_from_api {
-    my $logger = get_plugin_logger();
-
-    my ($ua, $archive_title) = @_;
+    my ($ua, $archive_title, $logger) = @_;
     my $stringjson = '';
     my $url = Mojo::URL->new('https://hentag.com/public/api/vault-search');
     $url->query->merge(
@@ -133,6 +85,17 @@ sub get_json_from_api {
         $stringjson = $res->body;
     }
     return $stringjson;
+}
+
+sub tags_from_hentag_api_json {
+    my ($json) = @_;
+
+    # The JSON can contain multiple hits, stored inside the "works" subkey. Loop through them and pick the "best" one
+    my $works   = $json->{"works"};
+    foreach my $work (@$works) {
+        my ( $tags, $title ) = LANraragi::Plugin::Metadata::Hentag::tags_from_hentag_json($work);
+        return ($tags, $title);
+    }
 }
 
 1;
