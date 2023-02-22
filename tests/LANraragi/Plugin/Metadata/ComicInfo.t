@@ -62,7 +62,7 @@ note("01 - 夜伽妻");
 
     my $expected_group_tag = "group:Remu";
     my $expected_artist_tag = "artist:Remu";
-    my $expected_source_tag = "source:https://e-hentai.org/g/2470908/3dd0f5801e";
+    my $expected_source_tag = "source:https://e-hentai.org/g/2470908/3dd0f5801e/";
     my $expected_lang_tag = "language:ja";
     my $expected_genre_tags = "Ahegao, Bbw, Big Areolae, Big Ass, Big Breasts, Big Nipples, Big Penis, Blowjob, Bondage, Cheating, Crotch Tattoo, Dark Skin, Facial Hair, Filming, Glasses, Glasses, Gyaru, Hairy, Huge Breasts, Impregnation, Maid, Milf, Nakadashi, Netorare, Oil, Paizuri, Pregnant, Prostitution, Schoolgirl Uniform, Swinging, Tall Girl, Tankoubon, Very Long Hair, Voyeurism, Widow, X-Ray";
     my @tag_array = ($expected_group_tag, $expected_artist_tag, $expected_source_tag, $expected_lang_tag, $expected_genre_tags);

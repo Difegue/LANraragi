@@ -52,11 +52,31 @@ sub get_tags {
         }
 
         #Parse file into DOM object and extract tags
-        my $genre = Mojo::DOM->new->xml(1)->parse($stringxml)->at('Genre')->text;
-        my $url = Mojo::DOM->new->xml(1)->parse($stringxml)->at('Web')->text;
-        my $group = Mojo::DOM->new->xml(1)->parse($stringxml)->at('Writer')->text;
-        my $artist = Mojo::DOM->new->xml(1)->parse($stringxml)->at('Penciller')->text;
-        my $lang = Mojo::DOM->new->xml(1)->parse($stringxml)->at('LanguageISO')->text;
+        my $genre;
+        my $group;
+        my $url;
+        my $artist;
+        my $lang;
+        my $result = Mojo::DOM->new->xml(1)->parse($stringxml)->at('Genre');
+        if (defined $result) {
+            $genre = $result->text;
+        }
+        my $result = Mojo::DOM->new->xml(1)->parse($stringxml)->at('Web');
+        if (defined $result) {
+            $url = $result->text;
+        }
+        my $result = Mojo::DOM->new->xml(1)->parse($stringxml)->at('Writer');
+        if (defined $result) {
+            $group = $result->text;
+        }
+        my $result = Mojo::DOM->new->xml(1)->parse($stringxml)->at('Penciller');
+        if (defined $result) {
+            $artist = $result->text;
+        }
+        my $result = Mojo::DOM->new->xml(1)->parse($stringxml)->at('LanguageISO');
+        if (defined $result) {
+            $lang = $result->text;
+        }
 
         #Delete local file
         unlink $filepath;
@@ -70,7 +90,7 @@ sub get_tags {
         push( @found_tags, "language:" . $lang ) unless !$lang;
         my @genres = split(',', $genre);
         foreach my $genre_tag (@genres){
-            push(@found_tags, $genre_tag);
+            push(@found_tags, trim($genre_tag));
         }
         my $tags = join( ", ", @found_tags );
 
@@ -88,9 +108,11 @@ sub try_add_tags {
     my @tags_array = split(',', $tags);
 
     foreach my $tag (@tags_array) {
-        push( @found_tags, $prefix . $tag );
+        push( @found_tags, $prefix . trim($tag) );
     }
     return @found_tags;
 }
+
+sub  trim { my $s = shift; $s =~ s/^\s+|\s+$//g; return $s };
 
 1;
