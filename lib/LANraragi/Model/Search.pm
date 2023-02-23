@@ -370,38 +370,22 @@ sub compute_search_filter {
 sub sort_results {
 
     my ( $sortkey, $sortorder, @filtered ) = @_;
-
     my $redis = LANraragi::Model::Config->get_redis;
-
-    @filtered = sort {
-
-        my $tags_a = $redis->hget( $a, "tags" );
-        my $tags_b = $redis->hget( $b, "tags" );
-
-        # Not a very good way to make items end at the bottom...
-        my $meta1 = "zzzz";
-        my $meta2 = "zzzz";
-
-        if ( $sortkey ne "title" ) {
-            my $re = qr/$sortkey/;
-            if ( $tags_a =~ m/.*${re}:(.*)(\,.*|$)/ ) {
-                $meta1 = $1;
-            }
-
-            if ( $tags_b =~ m/.*${re}:(.*)(\,.*|$)/ ) {
-                $meta2 = $1;
-            }
-        }
-
-        if ($sortorder) {
-            ncmp( lc($meta2), lc($meta1) );
-        } else {
-            ncmp( lc($meta1), lc($meta2) );
-        }
-
-    } @filtered;
-
-    return @filtered;
+	
+    my $re = qr/$sortkey/;
+	
+	my %tmpfilter = map {$_ => ($redis->hget( $_, "tags" ) =~ m/.*${re}:(.*)(\,.*|$)/) ? $1 : "zzzz" } @filtered;
+	
+	my @sorted = map { $_->[0] }
+	  sort { ncmp($a->[1], $b->[1]) }
+	  map  { [$_, lc($tmpfilter{$_})] }
+	  keys %tmpfilter;
+	
+	if ($sortorder) {
+		@sorted = reverse @sorted;
+	}
+	
+    return @sorted;
 }
 
 1;
