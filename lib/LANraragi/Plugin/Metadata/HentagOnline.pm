@@ -2,9 +2,8 @@ package LANraragi::Plugin::Metadata::HentagOnline;
 
 use strict;
 use warnings;
+use feature qw(signatures);
 
-#Plugins can freely use all Perl packages already installed on the system
-#Try however to restrain yourself to the ones already installed for LRR (see tools/cpanfile) to avoid extra installations by the end-user.
 use URI::Escape;
 use Mojo::JSON qw(from_json);
 use Mojo::UserAgent;
@@ -27,7 +26,8 @@ sub plugin_info {
         version     => "0.1",
         description => "Searches hentag.com for tags matching your archive",
 		parameters  => [
-            { type => "bool", desc => "Save archive title" }
+            { type => "bool", desc => "Save archive title" },
+            { type => "string", desc => "Comma-separated list of languages to consider. First language = most preferred. Default is \"english, japanese\""}
         ],
         oneshot_arg => "Hentag.com vault URL (Will attach matching tags to your archive)",
         icon =>
@@ -40,10 +40,15 @@ sub plugin_info {
 sub get_tags {
 
     shift;
-    my $lrr_info = shift;     # Global info hash
-    my ($save_title) = @_;    # Plugin parameter
-    my $ua       = $lrr_info->{user_agent};
+    my $lrr_info = shift;
+    my ($save_title, $allowed_languages) = @_;
+    my $ua = $lrr_info->{user_agent};
     my $logger = get_plugin_logger();
+
+    if (!defined($allowed_languages) || $allowed_languages eq '') {
+        # Weeby default
+        $allowed_languages = "english, japanese";
+    }
 
     my $stringjson = '';
     my $oneshot_id = parse_vault_url($lrr_info->{oneshot_param});
@@ -69,7 +74,7 @@ sub get_tags {
         my $json = from_json($stringjson);
 
         #Parse it
-        my ( $tags, $title ) = tags_from_hentag_api_json($json);
+        my ( $tags, $title ) = tags_from_hentag_api_json($json, $allowed_languages);
 
         #Return tags IFF data is found
         $logger->info("Sending the following tags to LRR: $tags");
@@ -84,9 +89,8 @@ sub get_tags {
     return ( error => "No matching Hentag Archive Found!" );
 }
 
-# parse_vault_url($url)
-sub parse_vault_url {
-    my ($url) = @_;
+# Returns the ID from a hentag URL, or undef if invalid.
+sub parse_vault_url($url) {
     if (!defined $url) {
         return undef;
     }
@@ -98,8 +102,7 @@ sub parse_vault_url {
 
 # Fairly good for mocking in tests
 # get_json_by_title(ua, archive_title, logger)
-sub get_json_by_title {
-    my ($ua, $archive_title, $logger) = @_;
+sub get_json_by_title($ua, $archive_title, $logger) {
     my $stringjson = '';
     my $url = Mojo::URL->new('https://hentag.com/api/v1/search/vault/title');
     $logger->info("Hentag search for $archive_title");
@@ -114,31 +117,56 @@ sub get_json_by_title {
 }
 
 # Fairly good for mocking in tests
-# get_json_by_vault_id(ua, id, logger)
-sub get_json_by_vault_id {
-    my ($ua, $vault_id, $logger) = @_;
-    my $stringjson = '';
+# Returns the json response (as a string) from hentag. If no response, an empty string is returned.
+sub get_json_by_vault_id($ua, $vault_id, $logger) {
+    my $string_json = '';
     my $url = Mojo::URL->new('https://hentag.com/api/v1/search/vault/id');
     $logger->info("Hentag search for $vault_id");
 
     my $res = $ua->post($url => json => {ids => [$vault_id]})->result;
 
     if ($res->is_success) {
-        $stringjson = $res->body;
-        $logger->info('Successful request, response: '.$stringjson);
+        $string_json = $res->body;
+        $logger->info('Successful request, response: '.$string_json);
     }
-    return $stringjson;
+    return $string_json;
 }
 
-sub tags_from_hentag_api_json {
-    my ($json) = @_;
+# Fetches tags and title, optionally restricted to a language
+sub tags_in_language_from_hentag_api_json($json, $language = undef) {
+    $language =~ s/^\s+|\s+$//g;
+    $language = lc($language);
 
-    # The JSON can contain multiple hits. Loop through them and pick the "best" one using the "pick the first one"-algorithm.
+    # The JSON can contain multiple hits. Loop through them and pick the "best" one.
     # Possible improvement: Look for hits with "better" metadata (more tags, more tags in namespaces, etc).
     foreach my $work (@$json) {
+        # Filter out any hits in the wrong language, if requested. Anyone competent in perl, go ahead and golf this shit
+        if (defined($language)) {
+            my $found_language = LANraragi::Plugin::Metadata::Hentag::language_from_hentag_json($work);
+            if (defined($found_language)) {
+                $found_language = lc($found_language);
+            }
+            if($found_language ne $language) {
+                next;
+            }
+        }
+
         my ( $tags, $title ) = LANraragi::Plugin::Metadata::Hentag::tags_from_hentag_json($work);
         return ($tags, $title);
     }
+    return ('', '');
+}
+
+# Returns (string_with_tags, string_with_title) on success, (empty_string, empty_string) on failure
+sub tags_from_hentag_api_json($json, $string_prefered_languages) {
+    my @prefered_languages = split(",", $string_prefered_languages);
+    foreach my $language (@prefered_languages) {
+        my ($tags, $title) = tags_in_language_from_hentag_api_json($json, $language);
+        if ($tags ne '') {
+            return ($tags, $title);
+        }
+    }
+    return ('', '');
 }
 
 1;

@@ -83,7 +83,7 @@ sub get_tags {
 #tags_from_hentag_json(decodedjson)
 #Goes through the JSON hash obtained from an info.json file and return the contained tags (and title if found).
 sub tags_from_hentag_json {
-    my $hash = $_[0];
+    my ($hash) = @_;
     my @found_tags;
 
     my $title      = $hash->{"title"};
@@ -94,7 +94,7 @@ sub tags_from_hentag_json {
     my $maleTags   = $hash->{"maleTags"};
     my $femaleTags = $hash->{"femaleTags"};
     my $otherTags  = $hash->{"otherTags"};
-    my $language   = $hash->{"language"};
+    my $language   = language_from_hentag_json($hash);
     my $urls       = $hash->{"locations"};
     # not handled yet: category, createdAt
 
@@ -113,6 +113,13 @@ sub tags_from_hentag_json {
     my $concat_tags = join( ", ", @found_tags );
     return ( $concat_tags, $title );
 
+}
+
+sub language_from_hentag_json {
+    my ($hash) = @_;
+
+    my $language   = $hash->{"language"};
+    return $language;
 }
 
 sub try_add_tags {
