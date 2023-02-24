@@ -45,6 +45,12 @@ sub get_tags {
     my $logger = get_plugin_logger();
     my $archive_title = $lrr_info->{archive_title};
 
+    # Possible improvement: Detect any currently set hentag URLs, fetch based on that id.
+    # Endpoint: /api/v1/search/vault/id with payload {"ids": [id]}
+
+    # Another possible improvement: Detect any other existing source tags, perform search based on that
+    # Endpoint: /api/v1/search/vault/url with payload {"urls": [url1, url2, ...]}
+
     my $stringjson = get_json_from_api($ua, $archive_title, $logger);
 
     if ($stringjson ne '') {
@@ -67,6 +73,7 @@ sub get_tags {
     return ( error => "No matching Hentag Archive Found!" );
 }
 
+# Fairly good for mocking in tests
 # get_json_from_api(ua, archive_title, logger)
 sub get_json_from_api {
     my ($ua, $archive_title, $logger) = @_;
@@ -86,7 +93,8 @@ sub get_json_from_api {
 sub tags_from_hentag_api_json {
     my ($json) = @_;
 
-    # The JSON can contain multiple hits, stored inside the "works" subkey. Loop through them and pick the "best" one
+    # The JSON can contain multiple hits. Loop through them and pick the "best" one using the "pick the first one"-algorithm.
+    # Possible improvement: Look for hits with "better" metadata (more tags, more tags in namespaces, etc).
     foreach my $work (@$json) {
         my ( $tags, $title ) = LANraragi::Plugin::Metadata::Hentag::tags_from_hentag_json($work);
         return ($tags, $title);
