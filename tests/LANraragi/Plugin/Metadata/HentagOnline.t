@@ -23,7 +23,7 @@ note("00 - api response");
 
     no warnings 'once', 'redefine';
     local *LANraragi::Plugin::Metadata::HentagOnline::get_plugin_logger = sub { return get_logger_mock(); };
-    local *LANraragi::Plugin::Metadata::HentagOnline::get_json_from_api = sub {
+    local *LANraragi::Plugin::Metadata::HentagOnline::get_json_by_title = sub {
         my ( $ua, $our_archive_title ) = @_;
         $received_title = $our_archive_title;
         return $mock_json;
@@ -39,6 +39,17 @@ note("00 - api response");
     is( $received_title, $archive_title, "sent correct title to get_json_from_api");
     is( $response{title}, $expected_title, "correct title" );
     is( $response{tags},  $expected_tags, "correct tags" );
+}
+
+note("01 - vault url parsing");
+{
+    my $url_nowww = "https://hentag.com/vault/QNWPNY5lxYtqOxDN7OgqsyqW0pZDNwf3REXoLyb4iWpkR8n5qrfm3Bw";
+    my $url_www = "https://www.hentag.com/vault/QNWPNY5lxYtqOxDN7OgqsyqW0pZDNwf3REXoLyb4iWpkR8n5qrfm3Bw";
+    my $expected_id = "QNWPNY5lxYtqOxDN7OgqsyqW0pZDNwf3REXoLyb4iWpkR8n5qrfm3Bw";
+
+    is(LANraragi::Plugin::Metadata::HentagOnline::parse_vault_url($url_nowww), $expected_id, "got correct id, without www");
+    is(LANraragi::Plugin::Metadata::HentagOnline::parse_vault_url($url_www), $expected_id, "got correct id, with www");
+    is(LANraragi::Plugin::Metadata::HentagOnline::parse_vault_url(), undef, "empty URL returns nothing");
 }
 
 done_testing();
