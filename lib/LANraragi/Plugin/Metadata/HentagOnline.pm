@@ -72,17 +72,14 @@ sub get_tags {
 sub get_json_from_api {
     my ($ua, $archive_title, $logger) = @_;
     my $stringjson = '';
-    my $url = Mojo::URL->new('https://hentag.com/public/api/vault-search');
-    $url->query->merge(
-        't' => $archive_title,
-        'ila' => 1,
-    );
+    my $url = Mojo::URL->new('https://hentag.com/api/v1/search/vault');
     $logger->info('Calling hentag');
 
-    my $res = $ua->get($url)->result;
+    my $res = $ua->post($url => json => {searchMethod => 'title', title => $archive_title})->result;
 
     if ($res->is_success) {
         $stringjson = $res->body;
+        $logger->info('Successful request, response: '.$stringjson);
     }
     return $stringjson;
 }
@@ -91,8 +88,7 @@ sub tags_from_hentag_api_json {
     my ($json) = @_;
 
     # The JSON can contain multiple hits, stored inside the "works" subkey. Loop through them and pick the "best" one
-    my $works   = $json->{"works"};
-    foreach my $work (@$works) {
+    foreach my $work (@$json) {
         my ( $tags, $title ) = LANraragi::Plugin::Metadata::Hentag::tags_from_hentag_json($work);
         return ($tags, $title);
     }
