@@ -71,10 +71,10 @@ sub get_tags {
 sub get_json_from_api {
     my ($ua, $archive_title, $logger) = @_;
     my $stringjson = '';
-    my $url = Mojo::URL->new('https://hentag.com/api/v1/search/vault');
-    $logger->info('Calling hentag');
+    my $url = Mojo::URL->new('https://hentag.com/api/v1/search/vault/title');
+    $logger->info("Hentag search for $archive_title");
 
-    my $res = $ua->post($url => json => {searchMethod => 'title', title => $archive_title})->result;
+    my $res = $ua->post($url => json => {title => $archive_title})->result;
 
     if ($res->is_success) {
         $stringjson = $res->body;
