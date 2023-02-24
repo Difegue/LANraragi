@@ -1,50 +1,19 @@
-{
-    "page": 1,
-    "pageSize": 24,
-    "works": [
-        {
-            "id": "QNWPNY5lxYtqOxDN7OgqsyqW0pZDNwf3REXoLyb4iWpkR8n5qrfm3Bw",
-            "title": "[Doi Sakazaki] Boin Tantei vs Kaitou Sanmensou [ENG]",
-            "parodies": [],
-            "circles": [],
-            "artists": [
-                {
-                    "id": "Zby3",
-                    "name": "doi sakazaki"
-                }
-            ],
-            "characters": [],
-            "maleTags": [],
-            "femaleTags": [
-                {
-                    "id": "qj",
-                    "name": "big breasts"
-                },
-                {
-                    "id": "Qg",
-                    "name": "maid"
-                },
-                {
-                    "id": "QPg",
-                    "name": "paizuri"
-                }
-            ],
-            "otherTags": [],
-            "language": 1,
-            "category": 2,
-            "locations": [
-                "https://e-hentai.org/g/162620/e5019a16d7",
-                "https://exhentai.org/g/162620/e5019a16d7"
-            ],
-            "createdAt": 1255081730000,
-            "lastModified": 1255081730000,
-            "coverImageUrl": "https://cdn.hentag.com/public/api/file/cover-img/hfpuu45v7sn75fsrmmnpp52r30itj2bg2qcfdhafvtc8f1a8sov0.jpg",
-            "favorite": false,
-            "isControversial": false,
-            "isDead": false,
-            "isPendingApproval": false
-        }
+[
+  {
+    "title": "[Doi Sakazaki] Boin Tantei vs Kaitou Sanmensou [ENG]",
+    "artists": [
+      "doi sakazaki"
     ],
-    "total": 1,
-    "requestedAt": 1677096036370
-}
+    "femaleTags": [
+      "big breasts",
+      "maid",
+      "paizuri"
+    ],
+    "language": "english",
+    "category": "manga",
+    "createdAt": 1255081730000,
+    "locations": [
+      "https://hentag.com/vault/QNWPNY5lxYtqOxDN7OgqsyqW0pZDNwf3REXoLyb4iWpkR8n5qrfm3Bw"
+    ]
+  }
+]
