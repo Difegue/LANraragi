@@ -43,7 +43,6 @@ sub get_tags {
     my ($save_title) = @_;    # Plugin parameter
     my $ua       = $lrr_info->{user_agent};
     my $logger = get_plugin_logger();
-    my $file   = $lrr_info->{file_path};
     my $archive_title = $lrr_info->{archive_title};
 
     my $stringjson = get_json_from_api($ua, $archive_title);
