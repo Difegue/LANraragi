@@ -106,12 +106,7 @@ sub tags_from_hentag_json {
     @found_tags = try_add_tags(\@found_tags, "male:", $maleTags);
     @found_tags = try_add_tags(\@found_tags, "female:", $femaleTags);
     @found_tags = try_add_tags(\@found_tags, "other:", $otherTags);
-    if ($language) {
-        if ($language == 1) {
-            $language = "english";
-        }
-        push( @found_tags, "language:" . $language );
-    }
+    push( @found_tags, "language:" . $language ) unless !defined $language;
     @found_tags = try_add_tags(\@found_tags, "url:", $urls);
 
     #Done-o
@@ -128,11 +123,9 @@ sub try_add_tags {
 
     if (ref($tags) eq 'ARRAY') {
         foreach my $tag (@$tags) {
-            if (ref($tag) eq 'HASH') {
-                # Search API-style result. {id: 'FOO', name: 'Actual tag'}
-                if (exists($tag->{"name"})) {
-                    $tag = $tag->{"name"};
-                }
+            if (ref($tag) eq 'HASH' || ref($tag) eq 'ARRAY') {
+                # Weird stuff in here, don't continue parsing to avoid garbage data
+                return @found_tags;
             }
             push( @potential_tags, $prefix . $tag );
         }
