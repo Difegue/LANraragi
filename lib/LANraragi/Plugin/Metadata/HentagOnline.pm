@@ -25,7 +25,7 @@ sub plugin_info {
         namespace   => "hentagonlineplugin",
         author      => "siliconfeces",
         version     => "0.1",
-        description => "Searches hentag.com for tags matching your arhcive",
+        description => "Searches hentag.com for tags matching your archive",
 		parameters  => [
             { type => "bool", desc => "Save archive title" }
         ],
