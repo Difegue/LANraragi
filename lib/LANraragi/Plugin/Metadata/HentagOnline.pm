@@ -45,7 +45,7 @@ sub get_tags {
     my $logger = get_plugin_logger();
     my $archive_title = $lrr_info->{archive_title};
 
-    my $stringjson = get_json_from_api($ua, $archive_title);
+    my $stringjson = get_json_from_api($ua, $archive_title, $logger);
 
     if ($stringjson ne '') {
         $logger->debug("Received the following JSON: $stringjson");
