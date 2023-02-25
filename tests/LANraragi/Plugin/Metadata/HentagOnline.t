@@ -35,7 +35,7 @@ note("00 - api response");
 
     my $expected_title = "[Doi Sakazaki] Boin Tantei vs Kaitou Sanmensou [ENG]";
     my $expected_tags =
-      "artist:doi sakazaki, female:big breasts, female:maid, female:paizuri, language:english, url:https://hentag.com/vault/QNWPNY5lxYtqOxDN7OgqsyqW0pZDNwf3REXoLyb4iWpkR8n5qrfm3Bw";
+      "artist:doi sakazaki, female:big breasts, female:maid, female:paizuri, language:english, source:https://hentag.com/vault/QNWPNY5lxYtqOxDN7OgqsyqW0pZDNwf3REXoLyb4iWpkR8n5qrfm3Bw";
     is( $received_title, $archive_title, "sent correct title to get_json_from_api");
     is( $response{title}, $expected_title, "correct title" );
     is( $response{tags},  $expected_tags, "correct tags" );
@@ -72,7 +72,7 @@ note("02 - multilaguage hit");
 
     my $expected_title = "Do match this title";
     my $expected_tags =
-        "artist:the artist, female:penis, language:english, url:https://hentag.com/vault/QNWPNY5lxYtqOxDN7OgqsyqW0pZDNwf3REXoLyb4iWpkR8n5qrfm3Bw";
+        "artist:the artist, female:penis, language:english, source:https://hentag.com/vault/QNWPNY5lxYtqOxDN7OgqsyqW0pZDNwf3REXoLyb4iWpkR8n5qrfm3Bw";
     is( $received_title, $archive_title, "sent correct title to get_json_from_api");
     is( $response{title}, $expected_title, "correct title" );
     is( $response{tags},  $expected_tags, "correct tags" );

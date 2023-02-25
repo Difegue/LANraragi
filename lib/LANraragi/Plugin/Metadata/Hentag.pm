@@ -107,7 +107,7 @@ sub tags_from_hentag_json {
     @found_tags = try_add_tags(\@found_tags, "female:", $femaleTags);
     @found_tags = try_add_tags(\@found_tags, "other:", $otherTags);
     push( @found_tags, "language:" . $language ) unless !defined $language;
-    @found_tags = try_add_tags(\@found_tags, "url:", $urls);
+    @found_tags = try_add_tags(\@found_tags, "source:", $urls);
 
     #Done-o
     my $concat_tags = join( ", ", @found_tags );
