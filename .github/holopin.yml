@@ -1,0 +1,11 @@
+organization: lanraragi
+defaultSticker: clcv2m3k3787908igx3n92wd4
+stickers:
+  #- id: clekglig8137209kxga2do5jq
+  #  alias: give-him-the-burg
+holobytes:
+  - evolvingStickerId: clcv23azc576308igea3o58p8
+    alias: holobyte
+    from: true
+    in: true
+ 
