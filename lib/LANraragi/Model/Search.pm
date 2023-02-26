@@ -370,38 +370,23 @@ sub compute_search_filter {
 sub sort_results {
 
     my ( $sortkey, $sortorder, @filtered ) = @_;
-
     my $redis = LANraragi::Model::Config->get_redis;
-
-    @filtered = sort {
-
-        my $tags_a = $redis->hget( $a, "tags" );
-        my $tags_b = $redis->hget( $b, "tags" );
-
-        # Not a very good way to make items end at the bottom...
-        my $meta1 = "zzzz";
-        my $meta2 = "zzzz";
-
-        if ( $sortkey ne "title" ) {
-            my $re = qr/$sortkey/;
-            if ( $tags_a =~ m/.*${re}:(.*)(\,.*|$)/ ) {
-                $meta1 = $1;
-            }
-
-            if ( $tags_b =~ m/.*${re}:(.*)(\,.*|$)/ ) {
-                $meta2 = $1;
-            }
-        }
-
-        if ($sortorder) {
-            ncmp( lc($meta2), lc($meta1) );
-        } else {
-            ncmp( lc($meta1), lc($meta2) );
-        }
-
-    } @filtered;
-
-    return @filtered;
+	
+    my $re = qr/$sortkey/;
+	
+        # Map our archives to a hash, where the key is the ID and the value is the first tag we found that matches the sortkey/namespace. (If no tag, defaults to "zzzz")
+	my %tmpfilter = map {$_ => ($redis->hget( $_, "tags" ) =~ m/.*${re}:(.*)(\,.*|$)/) ? $1 : "zzzz" } @filtered;
+	
+	my @sorted = map { $_->[0] } # Map back to only having the ID
+	  sort { ncmp($a->[1], $b->[1]) } # Sort by the tag
+	  map  { [$_, lc($tmpfilter{$_})] } # Map to an array containing the ID and the lowercased tag
+	  keys %tmpfilter; # List of IDs
+	
+	if ($sortorder) {
+		@sorted = reverse @sorted;
+	}
+	
+    return @sorted;
 }
 
 1;
