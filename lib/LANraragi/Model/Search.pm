@@ -374,6 +374,7 @@ sub sort_results {
 	
     my $re = qr/$sortkey/;
 	
+        # Map our archives to a hash, where the key is the ID and the value is the first tag we found that matches the sortkey/namespace. (If no tag, defaults to "zzzz")
 	my %tmpfilter = map {$_ => ($redis->hget( $_, "tags" ) =~ m/.*${re}:(.*)(\,.*|$)/) ? $1 : "zzzz" } @filtered;
 	
 	my @sorted = map { $_->[0] }
