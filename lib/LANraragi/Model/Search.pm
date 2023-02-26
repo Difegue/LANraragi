@@ -377,10 +377,10 @@ sub sort_results {
         # Map our archives to a hash, where the key is the ID and the value is the first tag we found that matches the sortkey/namespace. (If no tag, defaults to "zzzz")
 	my %tmpfilter = map {$_ => ($redis->hget( $_, "tags" ) =~ m/.*${re}:(.*)(\,.*|$)/) ? $1 : "zzzz" } @filtered;
 	
-	my @sorted = map { $_->[0] }
-	  sort { ncmp($a->[1], $b->[1]) }
-	  map  { [$_, lc($tmpfilter{$_})] }
-	  keys %tmpfilter;
+	my @sorted = map { $_->[0] } # Map back to only having the ID
+	  sort { ncmp($a->[1], $b->[1]) } # Sort by the tag
+	  map  { [$_, lc($tmpfilter{$_})] } # Map to an array containing the ID and the lowercased tag
+	  keys %tmpfilter; # List of IDs
 	
 	if ($sortorder) {
 		@sorted = reverse @sorted;
