@@ -222,11 +222,10 @@ sub search_uncached {
         if ( $sortkey eq "title" ) {
             my @ordered = ();
 
-            # For title sorting, we can just use the LRR_TITLES set, which is sorted lexicographically.
+            # For title sorting, we can just use the LRR_TITLES set, which is sorted lexicographically (but not naturally).
+            @ordered = nsort($redis->zrangebylex( "LRR_TITLES", "-", "+" ));
             if ($sortorder) {
-                @ordered = $redis->zrevrangebylex( "LRR_TITLES", "+", "-" );
-            } else {
-                @ordered = $redis->zrangebylex( "LRR_TITLES", "-", "+" );
+                @ordered = reverse(@ordered);
             }
 
             # Remove the titles from the keys, which are stored as "title\x00id"
