@@ -92,12 +92,12 @@ sub get_tags {
 # Returns the ID from a hentag URL, or undef if invalid.
 sub parse_vault_url($url) {
     if (!defined $url) {
-        return undef;
+        return;
     }
     if ( $url =~ /https?:\/\/(?:www\.)?hentag\.com\/vault\/([a-zA-Z0-9]*)\/?.*/ ) {
         return $1;
     }
-    return undef;
+    return;
 }
 
 # Fairly good for mocking in tests
