@@ -292,7 +292,6 @@ sub is_file_in_archive ( $archive, $wantedname ) {
 # If the file doesn't exist in the archive, this will still create a file, but empty.
 sub extract_single_file ( $archive, $filepath, $destination ) {
 
-    my = @_;
     my $logger = get_logger( "Archive", "lanraragi" );
 
     my $outfile = "$destination/$filepath";
