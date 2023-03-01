@@ -140,7 +140,7 @@ sub get_json_by_title($ua, $archive_title, $logger) {
     my $res = $ua->post($url => json => {title => $archive_title})->result;
 
     if ($res->is_success) {
-        $stringjson = $res->body;
+        $stringjson = $res->text;
         $logger->info('Successful request, response: '.$stringjson);
     }
     return $stringjson;
@@ -156,7 +156,7 @@ sub get_json_by_vault_id($ua, $vault_id, $logger) {
     my $res = $ua->post($url => json => {ids => [$vault_id]})->result;
 
     if ($res->is_success) {
-        $string_json = $res->body;
+        $string_json = $res->text;
         $logger->info('Successful request, response: '.$string_json);
     }
     return $string_json;
@@ -171,7 +171,7 @@ sub get_json_by_urls($ua, $logger, @urls) {
     my $res = $ua->post($url => json => {urls => \@urls})->result;
 
     if ($res->is_success) {
-        $string_json = $res->body;
+        $string_json = $res->text;
         $logger->info('Successful request, response: '.$string_json);
     }
     return $string_json;
