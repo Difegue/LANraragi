@@ -177,18 +177,17 @@ sub get_json_by_urls($ua, $logger, @urls) {
     return $string_json;
 }
 
-# Fetches tags and title, optionally restricted to a language
-sub tags_in_language_from_hentag_api_json($json, $language = undef) {
+# Fetches tags and title, restricted to a language
+sub tags_in_language_from_hentag_api_json($json, $language) {
     $language =~ s/^\s+|\s+$//g;
     $language = lc($language);
 
-    # The JSON can contain multiple hits. Loop through them and pick the "best" one.
-    # Possible improvement: Look for hits with "better" metadata (more tags, more tags in namespaces, etc).
-    my %json_per_lang = map { LANraragi::Plugin::Metadata::Hentag::language_from_hentag_json($_) => $_ } @$json;
+    # The JSON can contain multiple hits. Fetch all that match the requested language
+    my @lang_json_pairs = map { LANraragi::Plugin::Metadata::Hentag::language_from_hentag_json($_) eq $language? $_ : () } @$json;
 
-    # Filter out any hits in the wrong language
-    if (exists $json_per_lang{$language}) {
-        my ( $tags, $title ) = LANraragi::Plugin::Metadata::Hentag::tags_from_hentag_json($json_per_lang{$language});
+    if (@lang_json_pairs) {
+        # Possible improvement: Look for hits with "better" metadata (more tags, more tags in namespaces, etc).
+        my ( $tags, $title ) = LANraragi::Plugin::Metadata::Hentag::tags_from_hentag_json($lang_json_pairs[0]);
         return ($tags, $title);
     }
     return ('', '');
