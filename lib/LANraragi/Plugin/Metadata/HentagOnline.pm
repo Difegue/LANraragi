@@ -43,27 +43,53 @@ sub get_tags {
     my $lrr_info = shift;
     my ($save_title, $allowed_languages) = @_;
     my $ua = $lrr_info->{user_agent};
+    my $oneshot_param = $lrr_info->{oneshot_param};
     my $logger = get_plugin_logger();
+    my $raw_existing_tags = $lrr_info->{existing_tags};
+    my @existing_tags;
+    if (defined($raw_existing_tags)) {
+        @existing_tags = split(',', $lrr_info->{existing_tags});
+    }
 
     if (!defined($allowed_languages) || $allowed_languages eq '') {
         # Weeby default
         $allowed_languages = "english, japanese";
     }
 
-    my $stringjson = '';
-    my $oneshot_id = parse_vault_url($lrr_info->{oneshot_param});
-    if (defined $oneshot_id) {
-        # Oneshot argument run
-        $logger->info('Oneshot run');
-        $stringjson = get_json_by_vault_id($ua, $oneshot_id, $logger);
+    my $vault_id;
+
+    # First, try running based on a vault ID from a hentag URL
+    if (defined($oneshot_param) && $oneshot_param ne '') {
+        $logger->info("Oneshot param = $oneshot_param");
+        # URL was passed as a oneshot param, done!
+        $vault_id = parse_vault_url($oneshot_param);
+        if (!defined($vault_id)) {
+            $logger->info("Failed parsing URL $oneshot_param");
+            # Don't continue execution if the oneshot URL was invalid. Raise an error instead to avoid surprises
+            return ( error => "Did not recognize the URL, is it a proper vault URL?" );
+        }
     } else {
-        # Standard run
-        $logger->info('Standard run');
+        # There might be a hentag URL inside a tag. If it fails parsing, that's okay, just continue execution with any other approach
+        my $hentag_source = get_existing_hentag_source_url(@existing_tags);
+        if (defined($hentag_source)) {
+            $logger->info("Found an existing (parsable) hentag source, will use that!");
+            $vault_id = parse_vault_url($hentag_source);
+        }
+    }
+
+    # Possible improvement: Detect any other existing source tags, perform search based on that
+    # Endpoint: /api/v1/search/vault/url with payload {"urls": [url1, url2, ...]}
+
+    my $stringjson = '';
+    if (defined($vault_id)) {
+        # Use a vault ID for lookups
+        $logger->info('Vault ID run');
+        $stringjson = get_json_by_vault_id($ua, $vault_id, $logger);
+    } else {
+        # Title lookup
+        $logger->info('Title lookup');
         my $archive_title = $lrr_info->{archive_title};
 
-        # Possible improvement: Detect any currently set hentag URLs, fetch based on that id.
-        # Possible improvement: Detect any other existing source tags, perform search based on that
-        # Endpoint: /api/v1/search/vault/url with payload {"urls": [url1, url2, ...]}
         if ($stringjson eq '') {
             $stringjson = get_json_by_title($ua, $archive_title, $logger);
         }
@@ -167,6 +193,16 @@ sub tags_from_hentag_api_json($json, $string_prefered_languages) {
         }
     }
     return ('', '');
+}
+
+sub get_existing_hentag_source_url(@tags)
+{
+    foreach my $tag (@tags) {
+        if ($tag =~ /.*source:(https?:\/\/(www\.)?hentag\.com\/vault\/.*)/) {
+            return $1;
+        }
+    }
+    return;
 }
 
 1;
