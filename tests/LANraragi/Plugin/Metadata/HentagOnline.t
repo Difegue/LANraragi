@@ -125,5 +125,40 @@ note("05 - hentag source tag usage");
     is( $response{tags},  $expected_tags, "correct tags" );
 }
 
+note("06 - source url lookups");
+{
+    my $expected_id = "QNWPNY5lxYtqOxDN7OgqsyqW0pZDNwf3REXoLyb4iWpkR8n5qrfm3Bw";
+    my $archive_title = "The adventures of irrelevant title";
+    my $url1 = "https://example.com/big-tiddy-anime-waifus";
+    my $url2 = "https://example.com/big-tiddy-anime-waifus-vol2";
+    my $mock_json = Mojo::File->new("$SAMPLES/hentag/02_search_response.json")->slurp;
+    my @received_urls;
+
+    no warnings 'once', 'redefine';
+    local *LANraragi::Plugin::Metadata::HentagOnline::get_plugin_logger = sub { return get_logger_mock(); };
+    local *LANraragi::Plugin::Metadata::HentagOnline::get_json_by_title = sub {
+        fail("get_json_by_title should not have been called");
+        return;
+    };
+    local *LANraragi::Plugin::Metadata::HentagOnline::get_json_by_vault_id = sub {
+        fail("get_json_by_vault_id should not have been called");
+        return;
+    };
+    local *LANraragi::Plugin::Metadata::HentagOnline::get_json_by_urls = sub($ua, $logger, @urls) {
+        @received_urls = @urls;
+        return $mock_json;
+    };
+    my %get_tags_params = ( archive_title => $archive_title, existing_tags => "sometag, source:$url1, source:$url2");
+
+    my %response = LANraragi::Plugin::Metadata::HentagOnline::get_tags( "", \%get_tags_params, 1 );
+
+    my $expected_title = "[Doi Sakazaki] Boin Tantei vs Kaitou Sanmensou [ENG]";
+    my $expected_tags =
+        "artist:doi sakazaki, female:big breasts, female:maid, female:paizuri, language:english, source:https://hentag.com/vault/$expected_id";
+    eq_array( \@received_urls, \($url1, $url2), "sent correct urls to get_json_by_urls");
+    is( $response{title}, $expected_title, "correct title" );
+    is( $response{tags},  $expected_tags, "correct tags" );
+}
+
 
 done_testing();

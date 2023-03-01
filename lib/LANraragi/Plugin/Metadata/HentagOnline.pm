@@ -57,6 +57,7 @@ sub get_tags {
     }
 
     my $vault_id;
+    my @source_urls = undef;
 
     # First, try running based on a vault ID from a hentag URL
     if (defined($oneshot_param) && $oneshot_param ne '') {
@@ -68,23 +69,26 @@ sub get_tags {
             # Don't continue execution if the oneshot URL was invalid. Raise an error instead to avoid surprises
             return ( error => "Did not recognize the URL, is it a proper vault URL?" );
         }
-    } else {
+    } elsif (my $hentag_source = get_existing_hentag_source_url(@existing_tags)) {
         # There might be a hentag URL inside a tag. If it fails parsing, that's okay, just continue execution with any other approach
-        my $hentag_source = get_existing_hentag_source_url(@existing_tags);
         if (defined($hentag_source)) {
             $logger->info("Found an existing (parsable) hentag source, will use that!");
             $vault_id = parse_vault_url($hentag_source);
         }
+    } else {
+        # Try to fetch any other existing source tags
+        @source_urls = get_source_tags(@existing_tags);
     }
-
-    # Possible improvement: Detect any other existing source tags, perform search based on that
-    # Endpoint: /api/v1/search/vault/url with payload {"urls": [url1, url2, ...]}
 
     my $stringjson = '';
     if (defined($vault_id)) {
         # Use a vault ID for lookups
         $logger->info('Vault ID run');
         $stringjson = get_json_by_vault_id($ua, $vault_id, $logger);
+    } elsif (@source_urls) {
+        # Use existing URL tags for lookups
+        $logger->info('URL lookup run');
+        $stringjson = get_json_by_urls($ua, $logger, @source_urls);
     } else {
         # Title lookup
         $logger->info('Title lookup');
@@ -158,6 +162,21 @@ sub get_json_by_vault_id($ua, $vault_id, $logger) {
     return $string_json;
 }
 
+# Fairly good for mocking in tests
+# Returns the json response (as a string) from hentag. If no response, an empty string is returned.
+sub get_json_by_urls($ua, $logger, @urls) {
+    my $string_json = '';
+    my $url = Mojo::URL->new('https://hentag.com/api/v1/search/vault/url');
+    $logger->info("Hentag search based on URLs: @urls");
+    my $res = $ua->post($url => json => {urls => \@urls})->result;
+
+    if ($res->is_success) {
+        $string_json = $res->body;
+        $logger->info('Successful request, response: '.$string_json);
+    }
+    return $string_json;
+}
+
 # Fetches tags and title, optionally restricted to a language
 sub tags_in_language_from_hentag_api_json($json, $language = undef) {
     $language =~ s/^\s+|\s+$//g;
@@ -197,12 +216,23 @@ sub tags_from_hentag_api_json($json, $string_prefered_languages) {
 
 sub get_existing_hentag_source_url(@tags)
 {
-    foreach my $tag (@tags) {
-        if ($tag =~ /.*source:(https?:\/\/(www\.)?hentag\.com\/vault\/.*)/) {
-            return $1;
+    foreach my $tag (get_source_tags(@tags)) {
+        if (parse_vault_url($tag)) {
+            return $tag;
         }
     }
     return;
+}
+
+sub get_source_tags(@tags)
+{
+    my @found_tags;
+    foreach my $tag (@tags) {
+        if ($tag =~ /.*source:(.*)/) {
+            push(@found_tags, $1);
+        }
+    }
+    return @found_tags;
 }
 
 1;
