@@ -80,28 +80,28 @@ sub get_tags {
         @source_urls = get_source_tags(@existing_tags);
     }
 
-    my $stringjson = '';
+    my $string_json = '';
     if (defined($vault_id)) {
         # Use a vault ID for lookups
         $logger->info('Vault ID run');
-        $stringjson = get_json_by_vault_id($ua, $vault_id, $logger);
+        $string_json = get_json_by_vault_id($ua, $vault_id, $logger);
     } elsif (@source_urls) {
         # Use existing URL tags for lookups
         $logger->info('URL lookup run');
-        $stringjson = get_json_by_urls($ua, $logger, @source_urls);
+        $string_json = get_json_by_urls($ua, $logger, @source_urls);
     } else {
         # Title lookup
         $logger->info('Title lookup');
         my $archive_title = $lrr_info->{archive_title};
 
-        if ($stringjson eq '') {
-            $stringjson = get_json_by_title($ua, $archive_title, $logger);
+        if ($string_json eq '') {
+            $string_json = get_json_by_title($ua, $archive_title, $logger);
         }
     }
 
-    if ($stringjson ne '') {
-        $logger->debug("Received the following JSON: $stringjson");
-        my $json = from_json($stringjson);
+    if ($string_json ne '') {
+        $logger->debug("Received the following JSON: $string_json");
+        my $json = from_json($string_json);
 
         #Parse it
         my ( $tags, $title ) = tags_from_hentag_api_json($json, $allowed_languages);
@@ -133,17 +133,17 @@ sub parse_vault_url($url) {
 # Fairly good for mocking in tests
 # get_json_by_title(ua, archive_title, logger)
 sub get_json_by_title($ua, $archive_title, $logger) {
-    my $stringjson = '';
+    my $string_json = '';
     my $url = Mojo::URL->new('https://hentag.com/api/v1/search/vault/title');
     $logger->info("Hentag search for $archive_title");
 
     my $res = $ua->post($url => json => {title => $archive_title})->result;
 
     if ($res->is_success) {
-        $stringjson = $res->text;
-        $logger->info('Successful request, response: '.$stringjson);
+        $string_json = $res->text;
+        $logger->info('Successful request, response: '.$string_json);
     }
-    return $stringjson;
+    return $string_json;
 }
 
 # Fairly good for mocking in tests
