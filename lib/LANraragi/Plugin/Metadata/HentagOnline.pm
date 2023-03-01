@@ -184,19 +184,11 @@ sub tags_in_language_from_hentag_api_json($json, $language = undef) {
 
     # The JSON can contain multiple hits. Loop through them and pick the "best" one.
     # Possible improvement: Look for hits with "better" metadata (more tags, more tags in namespaces, etc).
-    foreach my $work (@$json) {
-        # Filter out any hits in the wrong language, if requested. Anyone competent in perl, go ahead and golf this shit
-        if (defined($language)) {
-            my $found_language = LANraragi::Plugin::Metadata::Hentag::language_from_hentag_json($work);
-            if (defined($found_language)) {
-                $found_language = lc($found_language);
-            }
-            if($found_language ne $language) {
-                next;
-            }
-        }
+    my %json_per_lang = map { LANraragi::Plugin::Metadata::Hentag::language_from_hentag_json($_) => $_ } @$json;
 
-        my ( $tags, $title ) = LANraragi::Plugin::Metadata::Hentag::tags_from_hentag_json($work);
+    # Filter out any hits in the wrong language
+    if (exists $json_per_lang{$language}) {
+        my ( $tags, $title ) = LANraragi::Plugin::Metadata::Hentag::tags_from_hentag_json($json_per_lang{$language});
         return ($tags, $title);
     }
     return ('', '');

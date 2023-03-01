@@ -160,5 +160,27 @@ note("06 - source url lookups");
     is( $response{tags},  $expected_tags, "correct tags" );
 }
 
+note("02 - no allowed language");
+{
+    my $archive_title = "Whatever";
+    my $received_title;
+    my $mock_json = Mojo::File->new("$SAMPLES/hentag/03_search_response_multiple.json")->slurp;
+
+    no warnings 'once', 'redefine';
+    local *LANraragi::Plugin::Metadata::HentagOnline::get_plugin_logger = sub { return get_logger_mock(); };
+    local *LANraragi::Plugin::Metadata::HentagOnline::get_json_by_title = sub {
+        my ( $ua, $our_archive_title ) = @_;
+        $received_title = $our_archive_title;
+        return $mock_json;
+    };
+
+    my %get_tags_params = ( archive_title => $archive_title);
+
+    my %response = LANraragi::Plugin::Metadata::HentagOnline::get_tags( "", \%get_tags_params, 1, "florp, flarp" );
+
+
+
+    ok( exists($response{error}), "got an error");
+}
 
 done_testing();
