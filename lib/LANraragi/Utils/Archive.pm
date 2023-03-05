@@ -6,6 +6,7 @@ use utf8;
 
 use feature qw(say);
 use feature qw(signatures);
+no warnings 'experimental::signatures';
 
 use Time::HiRes qw(gettimeofday);
 use File::Basename;
