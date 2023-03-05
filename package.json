@@ -1,7 +1,7 @@
 {
     "name": "lanraragi",
-    "version": "0.8.81",
-    "version_name": "I'm Deranged (Lost Highway edit)",
+    "version": "0.8.90",
+    "version_name": "The Hearts' Filthy Lesson",
     "description": "I'm under Japanese influence and my honor's at stake!",
     "scripts": {
         "test": "prove -r -l -v tests/",

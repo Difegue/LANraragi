@@ -16,6 +16,10 @@ sub serve_backup {
 
 sub drop_database {
     LANraragi::Utils::Database::drop_database();
+
+    # Force a refresh
+    invalidate_cache(1);
+
     render_api_response( shift, "drop_database" );
 }
 
