@@ -437,12 +437,10 @@ sub update_indexes {
             my $url = $1;
             trim_url($url);
             $redis->hdel( "LRR_URLMAP", $url );
-        } else {
-
-            # Tag is lowercased here to avoid redundancy/dupes
-            $redis->srem( "INDEX_" . redis_encode( lc($tag) ), $id );
         }
 
+        # Tag is lowercased here to avoid redundancy/dupes
+        $redis->srem( "INDEX_" . redis_encode( lc($tag) ), $id );
     }
 
     foreach my $tag (@newtags) {
@@ -455,9 +453,9 @@ sub update_indexes {
             my $url = $1;
             trim_url($url);
             $redis->hset( "LRR_URLMAP", $url, $id );
-        } else {
-            $redis->sadd( "INDEX_" . redis_encode( lc($tag) ), $id );
         }
+
+        $redis->sadd( "INDEX_" . redis_encode( lc($tag) ), $id );
     }
 
     # Add or remove the ID from the untagged list
