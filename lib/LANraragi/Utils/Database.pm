@@ -249,8 +249,9 @@ sub drop_database {
 # Remove entries from the database that don't have a matching archive on the filesystem.
 # Returns the number of entries deleted/unlinked.
 sub clean_database {
-    my $redis = LANraragi::Model::Config->get_redis;
-    my $logger = get_logger( "Archive", "lanraragi" );
+    my $redis        = LANraragi::Model::Config->get_redis;
+    my $redis_config = LANraragi::Model::Config->get_redis_config;
+    my $logger       = get_logger( "Archive", "lanraragi" );
 
     eval {
         # Save an autobackup somewhere before cleaning
@@ -266,7 +267,7 @@ sub clean_database {
     }
 
     # Get the filemap for ID checks later down the line
-    my @filemapids = $redis->exists("LRR_FILEMAP") ? $redis->hvals("LRR_FILEMAP") : ();
+    my @filemapids = $redis_config->exists("LRR_FILEMAP") ? $redis_config->hvals("LRR_FILEMAP") : ();
     my %filemap = map { $_ => 1 } @filemapids;
 
     #40-character long keys only => Archive IDs
@@ -299,8 +300,8 @@ sub clean_database {
             $logger->warn("File exists but its ID is no longer $id!");
             $logger->warn("Trying to find its new ID in the Shinobu filemap...");
 
-            if ( $redis->hexists( "LRR_FILEMAP", $file ) ) {
-                my $newid = $redis->hget( "LRR_FILEMAP", $file );
+            if ( $redis_config->hexists( "LRR_FILEMAP", $file ) ) {
+                my $newid = $redis_config->hget( "LRR_FILEMAP", $file );
                 $logger->warn("Found $newid in the filemap! Changing ID from $id to it.");
 
                 if ( $redis->exists($newid) ) {
@@ -308,7 +309,7 @@ sub clean_database {
                     $redis->hset( $id, "file", "" );
                 } else {
                     change_archive_id( $id, $newid, $redis );
-                    $redis->hset( "LRR_FILEMAP", $file, $newid );
+                    $redis_config->hset( "LRR_FILEMAP", $file, $newid );
                 }
 
             } else {
@@ -321,6 +322,7 @@ sub clean_database {
     }
 
     $redis->quit;
+    $redis_config->quit;
     return ( $deleted_arcs, $unlinked_arcs );
 }
 
@@ -517,7 +519,7 @@ sub invalidate_cache {
 
 sub save_computed_tagrules($tagrules) {
 
-    my $redis = LANraragi::Model::Config->get_redis;
+    my $redis = LANraragi::Model::Config->get_redis_config;
     $redis->del("LRR_TAGRULES");
 
     if (@$tagrules) {
@@ -533,7 +535,7 @@ sub save_computed_tagrules($tagrules) {
 sub get_computed_tagrules {
     my @tagrules;
 
-    my $redis = LANraragi::Model::Config->get_redis;
+    my $redis = LANraragi::Model::Config->get_redis_config;
 
     if ( $redis->exists("LRR_TAGRULES") ) {
         my @flattened_rules = $redis->lrange( "LRR_TAGRULES", 0, -1 );

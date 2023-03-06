@@ -50,8 +50,8 @@ sub clean_database {
 sub clear_new_all {
 
     my $self         = shift;
-    my $redis        = $self->LRR_CONF->get_redis();
-    my $redis_search = $self->LRR_CONF->get_redis_search();
+    my $redis        = $self->LRR_CONF->get_redis;
+    my $redis_search = $self->LRR_CONF->get_redis_search;
 
     # Get all archives thru redis
     # 40-character long keys only => Archive IDs

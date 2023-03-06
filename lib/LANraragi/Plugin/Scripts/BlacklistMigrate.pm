@@ -32,7 +32,7 @@ sub run_script {
     my $lrr_info = shift;    # Global info hash
 
     my $logger = get_plugin_logger();
-    my $redis  = LANraragi::Model::Config->get_redis;
+    my $redis  = LANraragi::Model::Config->get_redis_config;
 
     my $blist = LANraragi::Model::Config::get_redis_conf( "blacklist", undef );
     my $rules = LANraragi::Model::Config::get_redis_conf( "tagrules",

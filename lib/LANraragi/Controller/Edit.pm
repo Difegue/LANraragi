@@ -17,7 +17,7 @@ sub index {
     #Does the passed file exist in the database?
     my $id = $self->req->param('id');
 
-    my $redis = $self->LRR_CONF->get_redis();
+    my $redis = $self->LRR_CONF->get_redis;
 
     if ( $redis->exists($id) ) {
         my %hash = $redis->hgetall($id);

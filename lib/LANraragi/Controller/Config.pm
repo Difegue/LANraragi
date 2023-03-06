@@ -54,7 +54,7 @@ sub index {
 sub save_config {
 
     my $self  = shift;
-    my $redis = $self->LRR_CONF->get_redis();
+    my $redis = $self->LRR_CONF->get_redis_config;
 
     my $success   = 1;
     my $errormess = "";

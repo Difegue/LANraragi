@@ -70,6 +70,12 @@ sub startup {
         die;
     }
 
+    # Check old settings and migrate them if needed
+    if ( $self->LRR_CONF->get_redis->keys('LRR_*') ) {
+        say "Migrating old settings to new format...";
+        migrate_old_settings($self);
+    }
+
     my $devmode;
 
     # Catch Redis errors on our first connection. This is useful in case of temporary LOADING errors,
@@ -194,6 +200,21 @@ sub add_sigint_handler {
 
         \&$old_int;    # Calling the old handler to cleanly exit the server
       }
+}
+
+sub migrate_old_settings {
+    my $self = shift;
+
+    # Grab all LRR_* keys from LRR_CONF->get_redis and move them to the config DB
+    my $redis     = $self->LRR_CONF->get_redis;
+    my $config_db = $self->LRR_CONF->get_configdb;
+    my @keys      = $redis->keys('LRR_*');
+
+    foreach my $key (@keys) {
+        say "Migrating $key to database $config_db";
+        $redis->move( $key, $config_db );
+    }
+
 }
 
 1;

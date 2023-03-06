@@ -106,7 +106,7 @@ sub initialize_from_new_process {
 sub update_filemap {
 
     $logger->info("Scanning content folder for changes...");
-    my $redis = LANraragi::Model::Config->get_redis;
+    my $redis = LANraragi::Model::Config->get_redis_config;
 
     # Clear hash
     my $dirname = LANraragi::Model::Config->get_userdir;
@@ -157,7 +157,7 @@ sub update_filemap {
         $pl->foreach(
             \@sections,
             sub {
-                my $redis = LANraragi::Model::Config->get_redis;
+                my $redis = LANraragi::Model::Config->get_redis_config;
                 foreach my $file (@$_) {
 
                     # Individual files are also eval'd so we can keep scanning
@@ -284,7 +284,7 @@ sub new_file_callback {
     $logger->debug("New file detected: $name");
     unless ( -d $name ) {
 
-        my $redis = LANraragi::Model::Config->get_redis;
+        my $redis = LANraragi::Model::Config->get_redis_config;
         eval { add_to_filemap( $redis, $name ); };
         $redis->quit();
 
@@ -302,7 +302,7 @@ sub deleted_file_callback {
     $logger->info("$name was deleted from the content folder!");
     unless ( -d $name ) {
 
-        my $redis = LANraragi::Model::Config->get_redis;
+        my $redis = LANraragi::Model::Config->get_redis_config;
 
         # Prune file from filemap
         $redis->hdel( "LRR_FILEMAP", $name );

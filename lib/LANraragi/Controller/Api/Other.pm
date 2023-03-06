@@ -13,7 +13,7 @@ use LANraragi::Utils::Plugins qw(get_plugin get_plugins get_plugin_parameters us
 sub serve_serverinfo {
     my $self = shift;
 
-    my $redis      = $self->LRR_CONF->get_redis;
+    my $redis      = $self->LRR_CONF->get_redis_config;
     my $last_clear = $redis->hget( "LRR_SEARCHCACHE", "created" ) || time;
     my $page_stat  = LANraragi::Model::Stats::get_page_stat;
     $redis->quit();

@@ -88,7 +88,7 @@ sub get_redis_conf {
     my $param   = $_[0];
     my $default = $_[1];
 
-    my $redis = get_redis();
+    my $redis = get_redis_config();
 
     if ( $redis->hexists( "LRR_CONFIG", $param ) ) {
 

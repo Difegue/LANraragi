@@ -223,7 +223,7 @@ sub search_uncached {
             my @ordered = ();
 
             # For title sorting, we can just use the LRR_TITLES set, which is sorted lexicographically (but not naturally).
-            @ordered = nsort($redis->zrangebylex( "LRR_TITLES", "-", "+" ));
+            @ordered = nsort( $redis->zrangebylex( "LRR_TITLES", "-", "+" ) );
             if ($sortorder) {
                 @ordered = reverse(@ordered);
             }
@@ -370,21 +370,22 @@ sub sort_results {
 
     my ( $sortkey, $sortorder, @filtered ) = @_;
     my $redis = LANraragi::Model::Config->get_redis;
-	
+
     my $re = qr/$sortkey/;
-	
-        # Map our archives to a hash, where the key is the ID and the value is the first tag we found that matches the sortkey/namespace. (If no tag, defaults to "zzzz")
-	my %tmpfilter = map {$_ => ($redis->hget( $_, "tags" ) =~ m/.*${re}:(.*)(\,.*|$)/) ? $1 : "zzzz" } @filtered;
-	
-	my @sorted = map { $_->[0] } # Map back to only having the ID
-	  sort { ncmp($a->[1], $b->[1]) } # Sort by the tag
-	  map  { [$_, lc($tmpfilter{$_})] } # Map to an array containing the ID and the lowercased tag
-	  keys %tmpfilter; # List of IDs
-	
-	if ($sortorder) {
-		@sorted = reverse @sorted;
-	}
-	
+
+   # Map our archives to a hash, where the key is the ID and the value is the first tag we found that matches the sortkey/namespace.
+   # (If no tag, defaults to "zzzz")
+    my %tmpfilter = map { $_ => ( $redis->hget( $_, "tags" ) =~ m/.*${re}:(.*)(\,.*|$)/ ) ? $1 : "zzzz" } @filtered;
+
+    my @sorted = map { $_->[0] }    # Map back to only having the ID
+      sort { ncmp( $a->[1], $b->[1] ) }    # Sort by the tag
+      map { [ $_, lc( $tmpfilter{$_} ) ] } # Map to an array containing the ID and the lowercased tag
+      keys %tmpfilter;                     # List of IDs
+
+    if ($sortorder) {
+        @sorted = reverse @sorted;
+    }
+
     return @sorted;
 }
 

@@ -14,16 +14,14 @@ use LANraragi::Utils::Logging qw(get_logger);
 # This action will render a template
 sub index {
 
-    my $self  = shift;
-    my $redis = $self->LRR_CONF->get_redis;
+    my $self = shift;
 
-    #Build plugin lists, array of hashes
+    # Build plugin lists, array of hashes
     my @metaplugins     = get_plugins("metadata");
     my @loginplugins    = get_plugins("login");
     my @scriptplugins   = get_plugins("script");
     my @downloadplugins = get_plugins("download");
 
-    $redis->quit();
     $self->render(
         template    => "plugins",
         title       => $self->LRR_CONF->get_htmltitle,
@@ -72,7 +70,7 @@ sub craft_plugin_array {
 sub save_config {
 
     my $self  = shift;
-    my $redis = $self->LRR_CONF->get_redis;
+    my $redis = $self->LRR_CONF->get_redis_config;
 
     # Update settings for every plugin.
     my @plugins = get_plugins("all");
@@ -174,7 +172,7 @@ sub process_upload {
             return;
         }
 
-        my $dir         = getcwd() . ("/lib/LANraragi/Plugin/$plugintype/");
+        my $dir = getcwd() . ("/lib/LANraragi/Plugin/$plugintype/");
         my $output_file = $dir . $filename;
 
         $logger->info("Uploading new plugin $filename to $output_file ...");
