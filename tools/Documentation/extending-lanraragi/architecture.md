@@ -161,7 +161,14 @@ LRR uses three databases to store its own data, and a fourth for the Minion Job 
 The base architecture is as follows:
 
 ```
--Redis Database 1 - Archive data
+-Redis Database 1 - Archive & category data
+|
+|- SET_xxxxxxxxxx <- A Category.
+|  |- archives <- Serialized array of IDs this category holds (if static)
+|  |- search <- Search predicate of this category (if dynamic)
+|  |- name <- Name of the Category, as set by the User
+|  |- last_used <- Timestamp of the last time the category was used in a search
+|  |- pinned <- Whether the category is pinned in the index or not
 |
 |- **************************************** <- 40-character long ID for every logged archive
 |  |- tags <- Saved tags
@@ -182,8 +189,6 @@ The base architecture is as follows:
 |- LRR_TOTALPAGESTAT <- Total pages read
 |
 |- LRR_FILEMAP <- Shinobu Filemap, maps IDs in the database to their location on the filesystem
-|
-|- SET_xxxxxxxxxx <- A Category.
 |
 |- LRR_CONFIG <- Configuration keys, usually set through the LRR Configuration page.
 |  |- htmltitle
