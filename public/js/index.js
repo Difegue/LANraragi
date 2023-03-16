@@ -567,7 +567,7 @@ Index.loadTagSuggestions = function () {
                 },
                 replace(text) {
                     const before = this.input.value.match(/^.*(,|-)\s*-*|/)[0];
-                    this.input.value = `${before + text}, `;
+                    this.input.value = `${before + text}$, `;
                 },
             });
         },

@@ -422,7 +422,8 @@ Reader.goToPage = function (page) {
     } else {
         $("#img_doublepage").attr("src", "");
         $("#display").removeClass("double-mode");
-        if (Reader.doublePageMode && Reader.currentPage > 0 && Reader.currentPage < Reader.maxPage) {
+        if (Reader.doublePageMode && Reader.currentPage > 0
+            && Reader.currentPage < Reader.maxPage) {
             // Composite an image and use that as the source
             const img1 = Reader.loadImage(Reader.currentPage);
             const img2 = Reader.loadImage(Reader.currentPage + 1);
