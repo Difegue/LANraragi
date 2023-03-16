@@ -96,8 +96,9 @@ sub check_cache {
 sub search_uncached {
 
     my ( $category_id, $filter, $sortkey, $sortorder, $newonly, $untaggedonly ) = @_;
-    my $redis = LANraragi::Model::Config->get_redis_search;
-    my $logger = get_logger( "Search Core", "lanraragi" );
+    my $redis    = LANraragi::Model::Config->get_redis_search;
+    my $redis_db = LANraragi::Model::Config->get_redis;
+    my $logger   = get_logger( "Search Core", "lanraragi" );
 
     # Compute search filters
     my @tokens = compute_search_filter($filter);
@@ -105,7 +106,7 @@ sub search_uncached {
     # Prepare array: For each token, we'll have a list of matching archive IDs.
     # We intersect those lists as we proceed to get the final result.
     # Start with all our IDs.
-    my @filtered = LANraragi::Model::Config->get_redis->keys('????????????????????????????????????????');
+    my @filtered = $redis_db->keys('????????????????????????????????????????');
 
     # If we're using a category, we'll need to get its source data first.
     my %category = LANraragi::Model::Category::get_category($category_id);
@@ -151,6 +152,31 @@ sub search_uncached {
             $tag = redis_encode($tag);
 
             my @ids = ();
+
+           # Specific case for pagecount searches
+           # You can search for galleries with a specific number of pages with pages:20, or with a page range: pages:>20 pages:<=30.
+            if ( $tag =~ /^pages:(>|<|>=|<=)?(\d+)$/ ) {
+                my $operator  = $1;
+                my $pagecount = $2;
+
+                $logger->debug("Searching for IDs with pages $operator $pagecount");
+
+                # If no operator is specified, we assume it's an exact match
+                $operator = "=" if !$operator;
+
+                # Go through all IDs in @filtered and check if they have the right pagecount
+                # This could be sped up with an index, but it's probably not worth it.
+                foreach my $id (@filtered) {
+                    my $count = $redis_db->hget( $id, "pagecount" );
+                    if (   ( $operator eq "=" && $count == $pagecount )
+                        || ( $operator eq ">"  && $count > $pagecount )
+                        || ( $operator eq ">=" && $count >= $pagecount )
+                        || ( $operator eq "<"  && $count < $pagecount )
+                        || ( $operator eq "<=" && $count <= $pagecount ) ) {
+                        push @ids, $id;
+                    }
+                }
+            }
 
             # For exact tag searches, just check if an index for it exists
             if ( $isexact && $redis->exists("INDEX_$tag") ) {
@@ -246,6 +272,8 @@ sub search_uncached {
         }
     }
 
+    $redis->quit();
+    $redis_db->quit();
     return @filtered;
 }
 
