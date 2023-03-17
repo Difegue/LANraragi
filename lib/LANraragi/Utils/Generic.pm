@@ -67,14 +67,15 @@ sub is_archive {
 # Renders the basic success API JSON template.
 # Specifying an error message argument will set the success variable to 0.
 sub render_api_response {
-    my ( $mojo, $operation, $errormessage ) = @_;
+    my ( $mojo, $operation, $errormessage, $successMessage ) = @_;
     my $failed = ( defined $errormessage );
 
     $mojo->render(
         json => {
-            operation => $operation,
-            error     => $failed ? $errormessage : "",
-            success   => $failed ? 0 : 1
+            operation       => $operation,
+            error           => $failed ? $errormessage : "",
+            success         => $failed ? 0 : 1,
+            successMessage  => $failed ? "" : $successMessage,
         },
         status => $failed ? 400 : 200
     );
