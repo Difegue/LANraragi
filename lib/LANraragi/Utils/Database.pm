@@ -172,7 +172,7 @@ sub build_json ( $id, %hash ) {
     my ( $name, $title, $tags, $file, $isnew, $progress, $pagecount ) = @hash{qw(name title tags file isnew progress pagecount)};
 
     # Return undef if the file doesn't exist.
-    return unless ( -e $file );
+    return unless ( defined($file) && -e $file );
 
     # Parameters have been obtained, let's decode them.
     ( $_ = redis_decode($_) ) for ( $name, $title, $tags );
@@ -416,8 +416,8 @@ sub update_indexes ( $id, $oldtags, $newtags ) {
     my $redis = LANraragi::Model::Config->get_redis_search;
     $redis->multi;
 
-    my @oldtags = split( /,\s?/, $oldtags );
-    my @newtags = split( /,\s?/, $newtags );
+    my @oldtags = split( /,\s?/, $oldtags // "" );
+    my @newtags = split( /,\s?/, $newtags // "" );
     my $has_tags = 0;
 
     foreach my $tag (@oldtags) {
