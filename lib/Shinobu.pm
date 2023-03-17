@@ -333,6 +333,7 @@ sub add_new_file {
     if ($@) {
         $logger->error("Error while adding file: $@");
     }
+    $redis->quit;
 }
 
 __PACKAGE__->initialize_from_new_process unless caller;

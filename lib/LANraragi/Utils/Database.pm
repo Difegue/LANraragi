@@ -310,7 +310,7 @@ sub clean_database {
                     $logger->warn("ID $newid already exists in the database! Unlinking old ID.");
                     $redis->hset( $id, "file", "" );
                 } else {
-                    change_archive_id( $id, $newid, $redis );
+                    change_archive_id( $id, $newid );
                     $redis_config->hset( "LRR_FILEMAP", $file, $newid );
                 }
 
@@ -360,7 +360,7 @@ sub set_title ( $id, $newtitle ) {
 
 # Set $tags for the archive with id $id.
 # Set $append to 1 if you want to append the tags instead of replacing them.
-sub set_tags ( $id, $newtags, $append ) {
+sub set_tags ( $id, $newtags, $append = 0 ) {
 
     my $redis = LANraragi::Model::Config->get_redis;
     my $oldtags = $redis->hget( $id, "tags" );
