@@ -101,7 +101,15 @@ sub add_to_category {
     my ( $result, $err ) = LANraragi::Model::Category::add_to_category( $catid, $arcid );
 
     if ($result) {
-        render_api_response( $self, "add_to_category" );
+        my $successMessage = "Added $arcid to Category $catid!";
+        my %category = LANraragi::Model::Category::get_category($catid);
+        my $title = LANraragi::Model::Archive::get_title($arcid);
+
+        if (%category && defined($title)) {
+            $successMessage = "Added \"$title\" to category \"$category{name}\"!";
+        }
+
+        render_api_response( $self, "add_to_category", undef, $successMessage );
     } else {
         render_api_response( $self, "add_to_category", $err );
     }
