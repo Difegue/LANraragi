@@ -221,12 +221,30 @@ Reader.initInfiniteScrollView = function () {
     Reader.mangaMode = false;
     Reader.doublePageMode = false;
 
+    // Create an observer to update progress when a new page is scrolled in
+    let allImagesLoaded = false;
+    const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && allImagesLoaded) {
+            // Find the entry in the list of images
+            const index = entries[0].target.id.replace("page-", "");
+            // Convert to int
+            const page = parseInt(index, 10);
+            // Avoid double progress updates
+            if (Reader.currentPage !== page) {
+                Reader.currentPage = page;
+                Reader.updateProgress();
+            }
+        }
+    }, { threshold: 0.8 });
+
     Reader.pages.slice(1).forEach((source) => {
         const img = new Image();
         img.src = source;
+        img.id = `page-${Reader.pages.indexOf(source)}`;
         img.loading = "lazy";
         $(img).addClass("reader-image");
         $("#display").append(img);
+        observer.observe(img);
     });
 
     $("#i3").removeClass("loading");
@@ -247,6 +265,7 @@ Reader.initInfiniteScrollView = function () {
     images.on("load", () => {
         loaded += 1;
         if (loaded === images.length) {
+            allImagesLoaded = true;
             Reader.goToPage(Reader.currentPage);
         }
     });
@@ -465,6 +484,10 @@ Reader.goToPage = function (page) {
         window.scrollTo(0, 0);
     }
 
+    Reader.updateProgress();
+};
+
+Reader.updateProgress = function () {
     // Send an API request to update progress on the server
     if (Reader.trackProgressLocally) {
         localStorage.setItem(`${Reader.id}-reader`, Reader.currentPage + 1);
