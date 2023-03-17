@@ -55,15 +55,17 @@ sub add_archive_to_redis ( $id, $file, $redis ) {
 
 # Updates the DB entry for the given ID to reflect the new ID.
 # This is used in case the file changes substantially and its hash becomes different.
-sub change_archive_id ( $old_id, $new_id, $redis ) {
+sub change_archive_id ( $old_id, $new_id ) {
 
     my $logger = get_logger( "Archive", "lanraragi" );
+    my $redis = LANraragi::Model::Config->get_redis;
 
     $logger->debug("Changing ID $old_id to $new_id");
 
     if ( $redis->exists($old_id) ) {
         $redis->rename( $old_id, $new_id );
     }
+    $redis->quit;
 
     # We also need to update categories that contain the ID.
     # TODO: When meta-archives are implemented, this will need to be updated.
