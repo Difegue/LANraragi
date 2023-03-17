@@ -183,7 +183,8 @@ sub update_progress {
     # Undocumented parameter to force progress update
     my $force = $self->req->param('force') || 0;
 
-    my $redis = $self->LRR_CONF->get_redis;
+    my $redis     = $self->LRR_CONF->get_redis;
+    my $redis_cfg = $self->LRR_CONF->get_redis_config;
     my $pagecount = $redis->hget( $id, "pagecount" );
 
     if ( LANraragi::Model::Config->enable_localprogress ) {
@@ -207,9 +208,10 @@ sub update_progress {
     $redis->hset( $id, "progress", $page );
 
     # Update total pages read statistic
-    $redis->incr("LRR_TOTALPAGESTAT");
+    $redis_cfg->incr("LRR_TOTALPAGESTAT");
 
     $redis->quit();
+    $redis_cfg->quit();
 
     $self->render(
         json => {
