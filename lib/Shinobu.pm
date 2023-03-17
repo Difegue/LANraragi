@@ -11,7 +11,8 @@ package Shinobu;
 use strict;
 use warnings;
 use utf8;
-use feature qw(say);
+use feature qw(say signatures);
+no warnings 'experimental::signatures';
 
 use FindBin;
 use Parallel::Loops;
@@ -177,9 +178,8 @@ sub update_filemap {
     }
 }
 
-sub add_to_filemap {
+sub add_to_filemap ( $redis_cfg, $file ) {
 
-    my ( $redis_cfg, $file ) = @_;
     my $redis_arc = LANraragi::Model::Config->get_redis;
     if ( is_archive($file) ) {
 
@@ -280,9 +280,8 @@ sub add_to_filemap {
 
 # Only handle new files. As per the ChangeNotify doc, it
 # "handles the addition of new subdirectories by adding them to the watch list"
-sub new_file_callback {
+sub new_file_callback($name) {
 
-    my $name = shift;
     $logger->debug("New file detected: $name");
     unless ( -d $name ) {
 
@@ -296,11 +295,10 @@ sub new_file_callback {
     }
 }
 
-#Deleted files are simply dropped from the filemap.
-#Deleted subdirectories trigger deleted events for every file deleted.
-sub deleted_file_callback {
+# Deleted files are simply dropped from the filemap.
+# Deleted subdirectories trigger deleted events for every file deleted.
+sub deleted_file_callback($name) {
 
-    my $name = shift;
     $logger->info("$name was deleted from the content folder!");
     unless ( -d $name ) {
 
@@ -315,9 +313,8 @@ sub deleted_file_callback {
     }
 }
 
-sub add_new_file {
+sub add_new_file ( $id, $file ) {
 
-    my ( $id, $file ) = @_;
     my $redis = LANraragi::Model::Config->get_redis;
     $logger->info("Adding new file $file with ID $id");
 

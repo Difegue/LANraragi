@@ -506,9 +506,9 @@ sub redis_decode($data) {
 
 # Bust the current search cache key in Redis.
 # Add "1" as a parameter to rebuild stat hashes as well. (Use with caution!)
-sub invalidate_cache {
-    my $rebuild_indexes = shift;
-    my $redis           = LANraragi::Model::Config->get_redis_search;
+sub invalidate_cache($rebuild_indexes = 0) {
+
+    my $redis = LANraragi::Model::Config->get_redis_search;
     $redis->del("LRR_SEARCHCACHE");
     $redis->hset( "LRR_SEARCHCACHE", "created", time );
     $redis->quit();
