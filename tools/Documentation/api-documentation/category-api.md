@@ -197,7 +197,8 @@ Archive ID to add.
 ```
 {
   "operation": "add_to_category",
-  "success": 1
+  "success": 1,
+  "successMessage": "Added \"Name of archive\" to category \"Name of category\""
 }
 ```
 {% endswagger-response %}
