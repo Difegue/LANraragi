@@ -54,12 +54,7 @@ sub print_redis {
 }
 
 sub print_mojo {
-
-    my $self = shift;
-
-    #Depending on the mode, look for development or production.log
-    my $mode = $self->app->mode;
-    print_lines_from_file( $self, $mode );
+    print_lines_from_file( shift, "mojo" );
 }
 
 1;

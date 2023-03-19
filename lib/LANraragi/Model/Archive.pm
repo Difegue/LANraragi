@@ -4,6 +4,9 @@ use strict;
 use warnings;
 use utf8;
 
+use feature qw(signatures);
+no warnings 'experimental::signatures';
+
 use Cwd 'abs_path';
 use Redis;
 use Time::HiRes qw(usleep);
@@ -17,6 +20,22 @@ use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Utils::Archive qw(extract_single_file extract_thumbnail);
 use LANraragi::Utils::Database
   qw(redis_encode redis_decode invalidate_cache set_title set_tags get_archive_json get_archive_json_multi);
+
+# get_archive(id)
+#   Returns the title for the archive matching the given id.
+#   Returns undef if the id doesn't exist.
+sub get_title($id) {
+
+    my $logger = get_logger( "Archives", "lanraragi" );
+    my $redis  = LANraragi::Model::Config->get_redis;
+
+    if ( $id eq "" ) {
+        $logger->debug("No archive ID provided.");
+        return ();
+    }
+
+    return $redis->hget( $id, "title" );
+}
 
 # Functions used when dealing with archives.
 

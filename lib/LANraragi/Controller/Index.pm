@@ -16,7 +16,7 @@ sub random_archive {
     my $archive       = "";
     my $archiveexists = 0;
 
-    my $redis = $self->LRR_CONF->get_redis();
+    my $redis = $self->LRR_CONF->get_redis;
 
     # We get a random archive ID.
     # We check for the length to (sort-of) avoid not getting an archive ID.

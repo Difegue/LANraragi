@@ -22,9 +22,13 @@ Server.callAPI = function (endpoint, method, successMessage, errorMessage, succe
             if (Object.prototype.hasOwnProperty.call(data, "success") && !data.success) {
                 throw new Error(data.error);
             } else {
-                if (successMessage !== null) {
+                let message = successMessage;
+                if ("successMessage" in data && data.successMessage !== null) {
+                    message = data.successMessage;
+                }
+                if (message !== null) {
                     LRR.toast({
-                        heading: successMessage,
+                        heading: message,
                         icon: "success",
                         hideAfter: 7000,
                     });

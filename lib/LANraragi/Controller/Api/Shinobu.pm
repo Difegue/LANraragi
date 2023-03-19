@@ -25,8 +25,9 @@ sub reset_filemap {
     # This is a shinobu endpoint even though we're deleting stuff in redis
     # since we'll have to restart shinobu anyway to proc filemap re-creation.
 
-    my $redis = $self->LRR_CONF->get_redis;
+    my $redis = $self->LRR_CONF->get_redis_config;
     $redis->del("LRR_FILEMAP");
+    $redis->quit();
 
     my $shinobu = ${ retrieve( get_temp . "/shinobu.pid" ) };
 

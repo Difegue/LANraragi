@@ -6,6 +6,7 @@ The search bar in LANraragi tries to not be too dumb and will actively suggest t
 
 If you want to queue multiple terms/tags, you have to use **commas** to separate them, much like how tags are entered in the metadata field when editing an archive.  
 You can mix both tags and a specific title in a search if you want.  
+You can search for galleries with a specific number of pages with `pages:20`, or with a page range: `pages:>20, pages:<=30`.  
 
 You can also use the following special characters in a search:
 

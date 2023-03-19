@@ -1,0 +1,32 @@
+[
+  {
+    "title": "First hit",
+    "artists": [
+      "plop"
+    ],
+    "femaleTags": [
+      "bilbul"
+    ],
+    "language": "english",
+    "category": "manga",
+    "createdAt": 1255081730000,
+    "locations": [
+      "whatever"
+    ]
+  },
+  {
+    "title": "Second hit",
+    "artists": [
+      "the artist"
+    ],
+    "femaleTags": [
+      "penis"
+    ],
+    "language": "english",
+    "category": "manga",
+    "createdAt": 1255081730000,
+    "locations": [
+      "whatever 2"
+    ]
+  }
+]

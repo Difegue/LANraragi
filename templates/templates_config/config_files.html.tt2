@@ -86,3 +86,20 @@
         <br>
     </td>
 </tr>
+
+<tr>
+    <td class="option-td">
+        <h2 class="ih">Replace duplicated archives</h2>
+    </td>
+    <td class="config-td">
+        [% IF replacedupe %]
+        <input id="replacedupe" name="replacedupe" class="fa" type="checkbox" checked> [% ELSE %]
+        <input id="replacedupe" name="replacedupe" class="fa" type="checkbox"> [% END %]
+        <label for="replacedupe">
+            <br>If enabled, LANraragi will overwrite old archives when a newer one (with the same name) is uploaded
+            through the Web Uploader or the Download System.
+            <br> <i class="fas fa-exclamation-triangle" style="color:red"></i> This will delete metadata for old files
+            when they're replaced! Use with caution.
+        </label>
+    </td>
+</tr>

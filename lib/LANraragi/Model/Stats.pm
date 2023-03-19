@@ -37,7 +37,7 @@ sub get_archive_count {
 
 sub get_page_stat {
 
-    my $redis = LANraragi::Model::Config->get_redis;
+    my $redis = LANraragi::Model::Config->get_redis_config;
     my $stat = $redis->get("LRR_TOTALPAGESTAT") || 0;
     $redis->quit();
 

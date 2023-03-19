@@ -20,13 +20,15 @@ sub plugin_info {
         type      => "script",
         namespace => "fldr2cat",
         author    => "Difegue",
-        version   => "1.0",
+        version   => "1.1",
         icon =>
           "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAuJJREFUOI3FlE1sVFUUx3/nvVdaSqd0sAmElDYopOWjsKiEnYkLowU2uMGw0ajBhS5oqAtwo3FTaIQNCz7CBldEE01M+AglJMACUyBQrI6iQ2groNNxpjPz5n3MnXddvOnrfACNK09yk/fuved3//933j3wf8Thw6O6q6tHd3X16FOnTusX7ZW7I7H0kuUrV6hCtmHxt7UnOXHiDInEJAAzM49kscMtw2xesWHfKOTGASNa+GnmHfYP7gSgr28TY2PnF4UBWAD88Tlk7kFVyuDbX0ew43vzU/6bnc+12vnqx4OrX//i4gIQXS2uJkZGvqRXD3Q/V9LKXdjmSxcmjq7ahi6vtRazMKAHGua8oolbsHDyFk7iF4r/3IOyGl9QKI1u+vo2kUhMsmZ3T8Pa5c+E5vYYzbFWWkQTW23R+XKc+9/+eKUB+MbBHZWqhpW9MGSjtdDes57OzRtZ2hFD4tshcEAVkHIeVIapse8wDPNQxbKBDuDhxHKODd5myZ44698dBTQgUbEkex0CFzJXIfDC58CDwCP3Z1ZtPpAaD4FWnJIv2Nkm+j85AroE/jRoHwI/SgoBbt27h+54DS3je0VEh7VtimOnm2mKxRcguhpUDXvGUDb9bd3fh14rCtNPWuh9/6s6RfWq6mEetG0le/cb5KPbpajKActwChaIVNR5ddAqeLkCmt9TLjCbzEVFtQDstENTW0c4M58cJbiNsPmxtBs7eQ03p87VANP3J+n94CjiPKj76N4z7M4f6IPKk35YAFMORUCzpRU3/VdoV82BytUm+jMQlEArlBJmEyncORdnroTypxCRt7YMp5IRUBVzv/cPnV0n+VshyH8MgYuycyjHJjPt4GbyONki5VIAItfQnBeTG62YD1458DTF8EJXscSw1lEu4s0m8TJ/k/o5iZuZIygHlb+ZHwzkUoC+2T+cuiNSd08/re1qMjFa25YM5D0xjVtGe8fUhg9/zfMf41+ZdKPYI8TqHgAAAABJRU5ErkJggg==",
         description =>
           "Scan your Content Folder and automatically create Static Categories for each subfolder.<br>This Script will create a category for each subfolder with archives as direct children.",
-        parameters =>
-          [ { type => "bool", desc => "Delete all your static categories before creating the ones matching your subfolders" } ]
+        parameters => [
+            { type => "bool", desc => "Delete all your static categories before creating the ones matching your subfolders" },
+            { type => "bool", desc => "Use top level subfolders only to create categories" }
+        ]
     );
 
 }
@@ -34,13 +36,14 @@ sub plugin_info {
 # Mandatory function to be implemented by your script
 sub run_script {
     shift;
-    my $lrr_info          = shift;
-    my ($delete_old_cats) = @_;
-    my $logger            = get_logger( "Folder2Category", "plugins" );
-    my $userdir           = LANraragi::Model::Config->get_userdir;
+    my $lrr_info = shift;
+    my ( $delete_old_cats, $by_top_folder ) = @_;
+    my $logger = get_logger( "Folder2Category", "plugins" );
+    my $userdir = LANraragi::Model::Config->get_userdir;
 
     my %subfolders;
     my @created_categories;
+    my $dirname;
 
     if ($delete_old_cats) {
         $logger->info("Deleting all Static Categories before folder walking as instructed.");
@@ -58,10 +61,20 @@ sub run_script {
         {   wanted => sub {
                 return if $File::Find::dir eq $userdir;    # Direct children of the content dir are excluded
 
-                my $dirname = basename($File::Find::dir);
+                if ($by_top_folder) {
+
+                    # Remove content folder from path
+                    $dirname = substr( $File::Find::dir, length($userdir) + 1 );
+
+                    # Get first subfolder
+                    $dirname = ( split( '/', $dirname ) )[0];
+                } else {
+                    $dirname = basename($File::Find::dir);
+                }
+
                 if ( is_archive($_) ) {
                     unless ( exists( $subfolders{$dirname} ) ) {
-                        $subfolders{$dirname} = [];        # Create array in hash for this folder
+                        $subfolders{$dirname} = [];    # Create array in hash for this folder
                     }
                     push @{ $subfolders{$dirname} }, $_;
                 }

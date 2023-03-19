@@ -102,7 +102,7 @@ sub get_plugin_parameters {
     my $namespace = shift;
 
     # Get the matching argument JSON in Redis
-    my $redis   = LANraragi::Model::Config->get_redis;
+    my $redis   = LANraragi::Model::Config->get_redis_config;
     my $namerds = "LRR_PLUGIN_" . uc($namespace);
 
     my $plugin   = get_plugin($namespace);
@@ -132,7 +132,7 @@ sub get_plugin_parameters {
 sub is_plugin_enabled {
 
     my $namespace = shift;
-    my $redis     = LANraragi::Model::Config->get_redis;
+    my $redis     = LANraragi::Model::Config->get_redis_config;
     my $namerds   = "LRR_PLUGIN_" . uc($namespace);
 
     if ( $redis->hexists( $namerds, "enabled" ) ) {

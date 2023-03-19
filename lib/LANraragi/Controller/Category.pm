@@ -14,7 +14,7 @@ use LANraragi::Utils::Database qw(redis_decode);
 sub index {
 
     my $self  = shift;
-    my $redis = $self->LRR_CONF->get_redis();
+    my $redis = $self->LRR_CONF->get_redis;
     my $force = 0;
 
     my $userlogged = $self->LRR_CONF->enable_pass == 0 || $self->session('is_logged');

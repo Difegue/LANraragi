@@ -96,8 +96,9 @@ sub check_cache {
 sub search_uncached {
 
     my ( $category_id, $filter, $sortkey, $sortorder, $newonly, $untaggedonly ) = @_;
-    my $redis = LANraragi::Model::Config->get_redis_search;
-    my $logger = get_logger( "Search Core", "lanraragi" );
+    my $redis    = LANraragi::Model::Config->get_redis_search;
+    my $redis_db = LANraragi::Model::Config->get_redis;
+    my $logger   = get_logger( "Search Core", "lanraragi" );
 
     # Compute search filters
     my @tokens = compute_search_filter($filter);
@@ -105,7 +106,7 @@ sub search_uncached {
     # Prepare array: For each token, we'll have a list of matching archive IDs.
     # We intersect those lists as we proceed to get the final result.
     # Start with all our IDs.
-    my @filtered = LANraragi::Model::Config->get_redis->keys('????????????????????????????????????????');
+    my @filtered = $redis_db->keys('????????????????????????????????????????');
 
     # If we're using a category, we'll need to get its source data first.
     my %category = LANraragi::Model::Category::get_category($category_id);
@@ -151,6 +152,31 @@ sub search_uncached {
             $tag = redis_encode($tag);
 
             my @ids = ();
+
+           # Specific case for pagecount searches
+           # You can search for galleries with a specific number of pages with pages:20, or with a page range: pages:>20 pages:<=30.
+            if ( $tag =~ /^pages:(>|<|>=|<=)?(\d+)$/ ) {
+                my $operator  = $1;
+                my $pagecount = $2;
+
+                $logger->debug("Searching for IDs with pages $operator $pagecount");
+
+                # If no operator is specified, we assume it's an exact match
+                $operator = "=" if !$operator;
+
+                # Go through all IDs in @filtered and check if they have the right pagecount
+                # This could be sped up with an index, but it's probably not worth it.
+                foreach my $id (@filtered) {
+                    my $count = $redis_db->hget( $id, "pagecount" );
+                    if (   ( $operator eq "=" && $count == $pagecount )
+                        || ( $operator eq ">"  && $count > $pagecount )
+                        || ( $operator eq ">=" && $count >= $pagecount )
+                        || ( $operator eq "<"  && $count < $pagecount )
+                        || ( $operator eq "<=" && $count <= $pagecount ) ) {
+                        push @ids, $id;
+                    }
+                }
+            }
 
             # For exact tag searches, just check if an index for it exists
             if ( $isexact && $redis->exists("INDEX_$tag") ) {
@@ -222,11 +248,10 @@ sub search_uncached {
         if ( $sortkey eq "title" ) {
             my @ordered = ();
 
-            # For title sorting, we can just use the LRR_TITLES set, which is sorted lexicographically.
+            # For title sorting, we can just use the LRR_TITLES set, which is sorted lexicographically (but not naturally).
+            @ordered = nsort( $redis->zrangebylex( "LRR_TITLES", "-", "+" ) );
             if ($sortorder) {
-                @ordered = $redis->zrevrangebylex( "LRR_TITLES", "+", "-" );
-            } else {
-                @ordered = $redis->zrangebylex( "LRR_TITLES", "-", "+" );
+                @ordered = reverse(@ordered);
             }
 
             # Remove the titles from the keys, which are stored as "title\x00id"
@@ -247,6 +272,8 @@ sub search_uncached {
         }
     }
 
+    $redis->quit();
+    $redis_db->quit();
     return @filtered;
 }
 
@@ -370,38 +397,24 @@ sub compute_search_filter {
 sub sort_results {
 
     my ( $sortkey, $sortorder, @filtered ) = @_;
-
     my $redis = LANraragi::Model::Config->get_redis;
 
-    @filtered = sort {
+    my $re = qr/$sortkey/;
 
-        my $tags_a = $redis->hget( $a, "tags" );
-        my $tags_b = $redis->hget( $b, "tags" );
+   # Map our archives to a hash, where the key is the ID and the value is the first tag we found that matches the sortkey/namespace.
+   # (If no tag, defaults to "zzzz")
+    my %tmpfilter = map { $_ => ( $redis->hget( $_, "tags" ) =~ m/.*${re}:(.*)(\,.*|$)/ ) ? $1 : "zzzz" } @filtered;
 
-        # Not a very good way to make items end at the bottom...
-        my $meta1 = "zzzz";
-        my $meta2 = "zzzz";
+    my @sorted = map { $_->[0] }    # Map back to only having the ID
+      sort { ncmp( $a->[1], $b->[1] ) }    # Sort by the tag
+      map { [ $_, lc( $tmpfilter{$_} ) ] } # Map to an array containing the ID and the lowercased tag
+      keys %tmpfilter;                     # List of IDs
 
-        if ( $sortkey ne "title" ) {
-            my $re = qr/$sortkey/;
-            if ( $tags_a =~ m/.*${re}:(.*)(\,.*|$)/ ) {
-                $meta1 = $1;
-            }
+    if ($sortorder) {
+        @sorted = reverse @sorted;
+    }
 
-            if ( $tags_b =~ m/.*${re}:(.*)(\,.*|$)/ ) {
-                $meta2 = $1;
-            }
-        }
-
-        if ($sortorder) {
-            ncmp( lc($meta2), lc($meta1) );
-        } else {
-            ncmp( lc($meta1), lc($meta2) );
-        }
-
-    } @filtered;
-
-    return @filtered;
+    return @sorted;
 }
 
 1;

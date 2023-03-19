@@ -40,7 +40,10 @@ my @modules = (
     "LANraragi::Plugin::Login::Fakku",              "LANraragi::Plugin::Scripts::SourceFinder",
     "LANraragi::Plugin::Scripts::FolderToCat",      "LANraragi::Plugin::Download::EHentai",
     "LANraragi::Plugin::Download::Chaika",          "LANraragi::Plugin::Scripts::nHentaiSourceConverter",
-    "LANraragi::Plugin::Scripts::BlacklistMigrate", "LANraragi::Plugin::Metadata::Hitomi"
+    "LANraragi::Plugin::Scripts::BlacklistMigrate", "LANraragi::Plugin::Metadata::Hitomi",
+    "LANraragi::Plugin::Metadata::Hentag",          "LANraragi::Plugin::Metadata::HentagOnline",
+    "LANraragi::Plugin::Metadata::ComicInfo",
+    "LANraragi::Plugin::Metadata::ChaikaFile"
 );
 
 # Test all modules load properly

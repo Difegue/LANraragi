@@ -67,14 +67,15 @@ sub is_archive {
 # Renders the basic success API JSON template.
 # Specifying an error message argument will set the success variable to 0.
 sub render_api_response {
-    my ( $mojo, $operation, $errormessage ) = @_;
+    my ( $mojo, $operation, $errormessage, $successMessage ) = @_;
     my $failed = ( defined $errormessage );
 
     $mojo->render(
         json => {
-            operation => $operation,
-            error     => $failed ? $errormessage : "",
-            success   => $failed ? 0 : 1
+            operation       => $operation,
+            error           => $failed ? $errormessage : "",
+            success         => $failed ? 0 : 1,
+            successMessage  => $failed ? "" : $successMessage,
         },
         status => $failed ? 400 : 200
     );
@@ -141,8 +142,8 @@ sub start_minion {
     $proc->kill_on_destroy(0);
 
     # Freeze the process object in the PID file
-    store \$proc, get_temp . "/minion.pid";
-    open( my $fh, ">", get_temp . "/minion.pid-s6" );
+    store \$proc, get_temp() . "/minion.pid";
+    open( my $fh, ">", get_temp() . "/minion.pid-s6" );
     print $fh $proc->pid;
     close($fh);
     return $proc;
@@ -166,8 +167,8 @@ sub start_shinobu {
     $mojo->LRR_LOGGER->debug( "Shinobu Worker new PID is " . $proc->pid );
 
     # Freeze the process object in the PID file
-    store \$proc, get_temp . "/shinobu.pid";
-    open( my $fh, ">", get_temp . "/shinobu.pid-s6" );
+    store \$proc, get_temp() . "/shinobu.pid";
+    open( my $fh, ">", get_temp() . "/shinobu.pid-s6" );
     print $fh $proc->pid;
     close($fh);
     return $proc;
@@ -200,11 +201,11 @@ sub get_css_list {
 
     #Get all the available CSS sheets.
     my @css;
-    opendir( DIR, "./public/themes" ) or die $!;
-    while ( my $file = readdir(DIR) ) {
+    opendir( my $dir, "./public/themes" ) or die $!;
+    while ( my $file = readdir($dir) ) {
         if ( $file =~ /.+\.css/ ) { push( @css, $file ); }
     }
-    closedir(DIR);
+    closedir($dir);
 
     return @css;
 }

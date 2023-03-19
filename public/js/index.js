@@ -164,7 +164,7 @@ Index.toggleCarousel = function (e, updateLocalStorage = true) {
                 return breakpoints;
             })(),
             breakpointsBase: "container",
-            centerInsufficientSlides: true,
+            centerInsufficientSlides: false,
             mousewheel: true,
             navigation: {
                 nextEl: ".carousel-next",
@@ -567,7 +567,7 @@ Index.loadTagSuggestions = function () {
                 },
                 replace(text) {
                     const before = this.input.value.match(/^.*(,|-)\s*-*|/)[0];
-                    this.input.value = `${before + text}, `;
+                    this.input.value = `${before + text}$, `;
                 },
             });
         },

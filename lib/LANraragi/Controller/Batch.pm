@@ -39,7 +39,7 @@ sub socket {
     my $self      = shift;
     my $cancelled = 0;
     my $client    = $self->tx;
-    my $redis     = $self->LRR_CONF->get_redis();
+    my $redis     = $self->LRR_CONF->get_redis;
 
     my $logger = get_logger( "Batch Tagging", "lanraragi" );
 

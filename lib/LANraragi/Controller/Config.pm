@@ -45,7 +45,8 @@ sub index {
         enablecryptofs  => $self->LRR_CONF->enable_cryptofs,
         hqthumbpages    => $self->LRR_CONF->get_hqthumbpages,
         csshead         => generate_themes_header($self),
-        tempsize        => get_tempsize
+        tempsize        => get_tempsize,
+        replacedupe     => $self->LRR_CONF->get_replacedupe
     );
 }
 
@@ -53,7 +54,7 @@ sub index {
 sub save_config {
 
     my $self  = shift;
-    my $redis = $self->LRR_CONF->get_redis();
+    my $redis = $self->LRR_CONF->get_redis_config;
 
     my $success   = 1;
     my $errormess = "";
@@ -84,6 +85,7 @@ sub save_config {
         usedatemodified => ( scalar $self->req->param('usedatemodified') ? '1' : '0' ),
         enablecryptofs  => ( scalar $self->req->param('enablecryptofs')  ? '1' : '0' ),
         hqthumbpages    => ( scalar $self->req->param('hqthumbpages')    ? '1' : '0' ),
+        replacedupe     => ( scalar $self->req->param('replacedupe')     ? '1' : '0' ),
     );
 
     # Only add newpassword field as password if enablepass = 1

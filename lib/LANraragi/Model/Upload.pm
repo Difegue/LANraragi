@@ -53,21 +53,29 @@ sub handle_incoming_file {
     #that the file it references still exists on the filesystem
     my $redis        = LANraragi::Model::Config->get_redis;
     my $redis_search = LANraragi::Model::Config->get_redis_search;
+    my $replace_dupe = LANraragi::Model::Config->get_replacedupe;
     my $isdupe       = $redis->exists($id) && -e $redis->hget( $id, "file" );
 
-    # Stop here if file is a dupe.
-    if ( -e $output_file || $isdupe ) {
+    # Stop here if file is a dupe and replacement is turned off.
+    if ((-e $output_file || $isdupe) && !$replace_dupe) {
 
         # Trash temporary file
         unlink $tempfile;
 
         # The file already exists
+        my $suffix = " Enable replace duplicated archive in config to replace old ones.";
         my $msg =
           $isdupe
-          ? "This file already exists in the Library."
-          : "A file with the same name is present in the Library.";
+          ? "This file already exists in the Library." . $suffix
+          : "A file with the same name is present in the Library." . $suffix;
 
         return ( 0, $id, $filename, $msg );
+    }
+
+    # If we are replacing an existing one, just remove the old one first.
+    if ($replace_dupe) {
+        $logger->debug("Delete archive $id before replacing it.");
+        LANraragi::Utils::Database::delete_archive( $id );
     }
 
     # Add the file to the database ourselves so Shinobu doesn't do it
@@ -100,7 +108,7 @@ sub handle_incoming_file {
     }
 
     # Move the file to the content folder.
-    # Move to a .tmp first in case copy to the content folder takes a while...
+    # Move to a .upload first in case copy to the content folder takes a while...
     move( $tempfile, $output_file . ".upload" );
 
     # Then rename inside the content folder itself to proc Shinobu.

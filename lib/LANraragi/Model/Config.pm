@@ -68,6 +68,7 @@ sub get_redis_internal {
     # Auto-reconnect on, one attempt every 2ms up to 3 seconds. Die after that.
     my $redis = Redis->new(
         server    => &get_redisad,
+        debug     => $ENV{LRR_DEVSERVER} ? "1" : "0",
         reconnect => 3
     );
 
@@ -87,7 +88,7 @@ sub get_redis_conf {
     my $param   = $_[0];
     my $default = $_[1];
 
-    my $redis = get_redis();
+    my $redis = get_redis_config();
 
     if ( $redis->hexists( "LRR_CONFIG", $param ) ) {
 
@@ -181,5 +182,6 @@ sub enable_dateadded     { return &get_redis_conf( "usedateadded",    "1" ) }
 sub use_lastmodified     { return &get_redis_conf( "usedatemodified", "0" ) }
 sub enable_cryptofs      { return &get_redis_conf( "enablecryptofs",  "0" ) }
 sub get_hqthumbpages     { return &get_redis_conf( "hqthumbpages",    "0" ) }
+sub get_replacedupe      { return &get_redis_conf( "replacedupe",     "0" ) }
 
 1;

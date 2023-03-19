@@ -11,7 +11,8 @@ package Shinobu;
 use strict;
 use warnings;
 use utf8;
-use feature qw(say);
+use feature qw(say signatures);
+no warnings 'experimental::signatures';
 
 use FindBin;
 use Parallel::Loops;
@@ -106,7 +107,7 @@ sub initialize_from_new_process {
 sub update_filemap {
 
     $logger->info("Scanning content folder for changes...");
-    my $redis = LANraragi::Model::Config->get_redis;
+    my $redis = LANraragi::Model::Config->get_redis_config;
 
     # Clear hash
     my $dirname = LANraragi::Model::Config->get_userdir;
@@ -157,7 +158,7 @@ sub update_filemap {
         $pl->foreach(
             \@sections,
             sub {
-                my $redis = LANraragi::Model::Config->get_redis;
+                my $redis = LANraragi::Model::Config->get_redis_config;
                 foreach my $file (@$_) {
 
                     # Individual files are also eval'd so we can keep scanning
@@ -177,9 +178,9 @@ sub update_filemap {
     }
 }
 
-sub add_to_filemap {
+sub add_to_filemap ( $redis_cfg, $file ) {
 
-    my ( $redis, $file ) = @_;
+    my $redis_arc = LANraragi::Model::Config->get_redis;
     if ( is_archive($file) ) {
 
         $logger->debug("Adding $file to Shinobu filemap.");
@@ -215,9 +216,9 @@ sub add_to_filemap {
         $logger->debug("Computed ID is $id.");
 
         # If the id already exists on the server, throw a warning about duplicates
-        if ( $redis->hexists( "LRR_FILEMAP", $file ) ) {
+        if ( $redis_cfg->hexists( "LRR_FILEMAP", $file ) ) {
 
-            my $filemap_id = $redis->hget( "LRR_FILEMAP", $file );
+            my $filemap_id = $redis_cfg->hget( "LRR_FILEMAP", $file );
 
             $logger->debug("$file was logged but is already in the filemap!");
 
@@ -225,10 +226,10 @@ sub add_to_filemap {
                 $logger->debug("$file has a different ID than the one in the filemap! ($filemap_id)");
                 $logger->info("$file has been modified, updating its ID from $filemap_id to $id.");
 
-                LANraragi::Utils::Database::change_archive_id( $filemap_id, $id, $redis );
+                LANraragi::Utils::Database::change_archive_id( $filemap_id, $id );
 
                 # Don't forget to update the filemap, later operations will behave incorrectly otherwise
-                $redis->hset( "LRR_FILEMAP", $file, $id );
+                $redis_cfg->hset( "LRR_FILEMAP", $file, $id );
             } else {
                 $logger->debug(
                     "$file has the same ID as the one in the filemap. Duplicate inotify events? Cleaning cache just to make sure");
@@ -238,13 +239,13 @@ sub add_to_filemap {
             return;
 
         } else {
-            $redis->hset( "LRR_FILEMAP", $file, $id );    # raw FS path so no encoding/decoding whatsoever
+            $redis_cfg->hset( "LRR_FILEMAP", $file, $id );    # raw FS path so no encoding/decoding whatsoever
         }
 
         # Filename sanity check
-        if ( $redis->exists($id) ) {
+        if ( $redis_arc->exists($id) ) {
 
-            my $filecheck = $redis->hget( $id, "file" );
+            my $filecheck = $redis_arc->hget( $id, "file" );
 
             #Update the real file path and title if they differ from the saved one
             #This is meant to always track the current filename for the OS.
@@ -253,38 +254,38 @@ sub add_to_filemap {
                 $logger->debug("Filesystem: $file");
                 $logger->debug("Database: $filecheck");
                 my ( $name, $path, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
-                $redis->hset( $id, "file", $file );
-                $redis->hset( $id, "name", redis_encode($name) );
-                $redis->wait_all_responses;
+                $redis_arc->hset( $id, "file", $file );
+                $redis_arc->hset( $id, "name", redis_encode($name) );
+                $redis_arc->wait_all_responses;
                 invalidate_cache();
             }
 
             # Set pagecount in case it's not already there
-            unless ( $redis->hget( $id, "pagecount" ) ) {
+            unless ( $redis_arc->hget( $id, "pagecount" ) ) {
                 $logger->debug("Pagecount not calculated for $id, doing it now!");
-                LANraragi::Utils::Database::add_pagecount( $redis, $id );
+                LANraragi::Utils::Database::add_pagecount( $redis_arc, $id );
             }
 
         } else {
 
             # Add to Redis if not present beforehand
-            add_new_file( $id, $file, $redis );
+            add_new_file( $id, $file );
             invalidate_cache();
         }
     } else {
         $logger->debug("$file not recognized as archive, skipping.");
     }
+    $redis_arc->quit;
 }
 
 # Only handle new files. As per the ChangeNotify doc, it
 # "handles the addition of new subdirectories by adding them to the watch list"
-sub new_file_callback {
+sub new_file_callback($name) {
 
-    my $name = shift;
     $logger->debug("New file detected: $name");
     unless ( -d $name ) {
 
-        my $redis = LANraragi::Model::Config->get_redis;
+        my $redis = LANraragi::Model::Config->get_redis_config;
         eval { add_to_filemap( $redis, $name ); };
         $redis->quit();
 
@@ -294,15 +295,14 @@ sub new_file_callback {
     }
 }
 
-#Deleted files are simply dropped from the filemap.
-#Deleted subdirectories trigger deleted events for every file deleted.
-sub deleted_file_callback {
+# Deleted files are simply dropped from the filemap.
+# Deleted subdirectories trigger deleted events for every file deleted.
+sub deleted_file_callback($name) {
 
-    my $name = shift;
     $logger->info("$name was deleted from the content folder!");
     unless ( -d $name ) {
 
-        my $redis = LANraragi::Model::Config->get_redis;
+        my $redis = LANraragi::Model::Config->get_redis_config;
 
         # Prune file from filemap
         $redis->hdel( "LRR_FILEMAP", $name );
@@ -313,9 +313,9 @@ sub deleted_file_callback {
     }
 }
 
-sub add_new_file {
+sub add_new_file ( $id, $file ) {
 
-    my ( $id, $file, $redis ) = @_;
+    my $redis = LANraragi::Model::Config->get_redis;
     $logger->info("Adding new file $file with ID $id");
 
     eval {
@@ -330,6 +330,7 @@ sub add_new_file {
     if ($@) {
         $logger->error("Error while adding file: $@");
     }
+    $redis->quit;
 }
 
 __PACKAGE__->initialize_from_new_process unless caller;
