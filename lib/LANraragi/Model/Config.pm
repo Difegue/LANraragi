@@ -16,6 +16,9 @@ my $home = Mojo::Home->new;
 $home->detect;
 
 my $config = Mojolicious::Plugin::Config->register( Mojolicious->new, { file => $home . '/lrr.conf' } );
+if ($ENV{LRR_REDIS_ADDRESS}) {
+    $config->{redis_address} = $ENV{LRR_REDIS_ADDRESS};
+}
 
 # Address and port of your redis instance.
 sub get_redisad { return $config->{redis_address} }
