@@ -117,6 +117,10 @@ sub get_opds_data {
         $arcdata->{mimetype} = "application/x-cbz";
     }
 
+    if ( $arcdata->{lastreaddate} > 0) {
+      $arcdata->{lastreaddate} = strftime( "%Y-%m-%dT%H:%M:%SZ", gmtime($arcdata->{lastreaddate}) );
+    }
+
     for ( values %{$arcdata} ) { $_ = xml_escape($_); }
 
     return $arcdata;

@@ -171,7 +171,7 @@ sub build_json ( $id, %hash ) {
 
     # It's not a new archive, but it might have never been clicked on yet,
     # so grab the value for $isnew stored in redis.
-    my ( $name, $title, $tags, $file, $isnew, $progress, $pagecount ) = @hash{qw(name title tags file isnew progress pagecount)};
+    my ( $name, $title, $tags, $file, $isnew, $progress, $pagecount, $lastreaddate) = @hash{qw(name title tags file isnew progress pagecount lastreaddate)};
 
     # Return undef if the file doesn't exist.
     return unless ( defined($file) && -e $file );
@@ -191,7 +191,8 @@ sub build_json ( $id, %hash ) {
         isnew     => $isnew ? $isnew : "false",
         extension => lc( ( split( /\./, $file ) )[-1] ),
         progress  => $progress ? int($progress) : 0,
-        pagecount => $pagecount ? int($pagecount) : 0
+        pagecount => $pagecount ? int($pagecount) : 0,
+        lastreaddate => $lastreaddate ? int($lastreaddate) : 0
     };
 
     return $arcdata;
