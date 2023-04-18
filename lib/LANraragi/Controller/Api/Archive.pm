@@ -206,6 +206,7 @@ sub update_progress {
 
     # Just set the progress value.
     $redis->hset( $id, "progress", $page );
+    $redis->hset( $id, "lastreadtime", time());
 
     # Update total pages read statistic
     $redis_cfg->incr("LRR_TOTALPAGESTAT");
