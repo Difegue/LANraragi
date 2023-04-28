@@ -50,9 +50,7 @@ sub build_backup_JSON {
             push @{ $backup{categories} }, \%category;
         };
 
-        if ($@) {
-            $logger->warn("Failed to backup category $key: $@");
-        }
+        $logger->trace("Backing up category $key: $@");
 
     }
 
@@ -81,9 +79,8 @@ sub build_backup_JSON {
             push @{ $backup{archives} }, \%arc;
         };
 
-        if ($@) {
-            $logger->warn("Failed to backup archive $id: $@");
-        }
+        $logger->trace("Backing up archive $id: $@");
+
     }
 
     $redis->quit();

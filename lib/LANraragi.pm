@@ -111,7 +111,9 @@ sub startup {
                 open( my $fh, '>>', $logpath )
                   or die "Could not open file '$logpath' $!";
 
-                print $fh "[Mojolicious] " . $lines[0] . " " . $lines[1] . "\n";
+                my $l1 = $lines[0] // "";
+                my $l2 = $lines[1] // "";
+                print $fh "[Mojolicious] $l1 $l2 \n";
                 close $fh;
             }
         );
