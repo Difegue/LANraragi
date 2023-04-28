@@ -352,7 +352,7 @@ Reader.checkFiletypeSupport = function (extension) {
         localStorage.epubWarningShown = true;
         LRR.toast({
             heading: "EPUB support in LANraragi is minimal",
-            text: "EPUB books will only show images in the Web Reader. If you want text support, consider pairing LANraragi with an <a href='https://sugoi.gitbook.io/lanraragi/advanced-usage/external-readers#generic-opds-readers'>OPDS reader.</a>",
+            text: "EPUB books will only show images in the Web Reader, and potentially out of order. If you want text support, consider pairing LANraragi with an <a href='https://sugoi.gitbook.io/lanraragi/advanced-usage/external-readers#generic-opds-readers'>OPDS reader.</a>",
             icon: "warning",
             hideAfter: 20000,
             closeOnClick: false,
