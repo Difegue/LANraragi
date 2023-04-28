@@ -82,7 +82,7 @@
 
     <div id="overlay-shade"></div>
     <div id="archivePagesOverlay" class="id1 base-overlay page-overlay" style="display:none" loaded="false">
-        <h2 class="ih" style="text-align:center">Archive Overview</h2>
+        <h2 class="ih" id="archive-title-overlay" style="text-align:center">Archive Overview</h2>
         <div id="tagContainer" class="caption caption-tags caption-reader">
             <br>
             <div style="margin-bottom:16px;">

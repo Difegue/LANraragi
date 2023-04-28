@@ -84,6 +84,7 @@ Reader.initializeAll = function () {
             }
 
             $("#archive-title").html(title);
+            $("#archive-title-overlay").html(title);
             if (data.pagecount) { $(".max-page").html(data.pagecount); }
             document.title = title;
 
