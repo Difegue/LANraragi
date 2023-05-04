@@ -55,7 +55,7 @@ sub get_tags {
     shift;
     my $lrr_info = shift;                     # Global info hash
     my $ua       = $lrr_info->{user_agent};
-    my ( $lang, $savetitle, $usethumbs, $search_gid, $enablepanda, $jpntitle, $additionaltags, $expunged ) = @_;    # Plugin parameters
+    my ( $lang, $savetitle, $usethumbs, $search_gid, $enablepanda, $jpntitle, $additionaltags, $expunged ) = @_; # Plugin parameters
 
     # Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
     my $logger = get_plugin_logger();
@@ -133,11 +133,7 @@ sub lookup_gallery {
         $logger->info("Reverse Image Search Enabled, trying now.");
 
         #search with image SHA hash
-        $URL =
-            $domain
-          . "?f_shash="
-          . $thumbhash
-          . "&fs_similar=on&fs_covers=on";
+        $URL = $domain . "?f_shash=" . $thumbhash . "&fs_similar=on&fs_covers=on";
 
         $logger->debug("Using URL $URL (archive thumbnail hash)");
 
@@ -149,12 +145,9 @@ sub lookup_gallery {
     }
 
     # Search using gID if present in title name
-    my ( $title_gid ) = $title =~ /\[([0-9]+)\]/g;
+    my ($title_gid) = $title =~ /\[([0-9]+)\]/g;
     if ( $search_gid && $title_gid ) {
-        $URL =
-        $domain
-        . "?f_search="
-        . uri_escape_utf8("gid:$title_gid");
+        $URL = $domain . "?f_search=" . uri_escape_utf8("gid:$title_gid");
 
         $logger->debug("Found gID: $title_gid, Using URL $URL (gID from archive title)");
 
@@ -166,18 +159,17 @@ sub lookup_gallery {
     }
 
     # Regular text search (advanced options: Disable default filters for: Language, Uploader, Tags)
-    $URL =
-        $domain
-      . "?advsearch=1&f_sfu=on&f_sft=on&f_sfl=on"
-      . "&f_search="
-      . uri_escape_utf8( qw(") . $title . qw(") );
+    $URL = $domain . "?advsearch=1&f_sfu=on&f_sft=on&f_sfl=on" . "&f_search=" . uri_escape_utf8( qw(") . $title . qw(") );
 
     my $has_artist = 0;
 
-    # Add artist tag from the OG tags if it exists
+    # Add artist tag from the OG tags if it exists (and only contains ASCII characters)
     if ( $tags =~ /.*artist:\s?([^,]*),*.*/gi ) {
-        $URL        = $URL . "+" . uri_escape_utf8("artist:$1");
-        $has_artist = 1;
+        my $artist = $1;
+        if ( $artist =~ /^[\x00-\x7F]*$/ ) {
+            $URL        = $URL . "+" . uri_escape_utf8("artist:$artist");
+            $has_artist = 1;
+        }
     }
 
     # Add the language override, if it's defined.
@@ -186,7 +178,7 @@ sub lookup_gallery {
     }
 
     # Search expunged galleries if the option is enabled.
-    if ( $expunged ) {
+    if ($expunged) {
         $URL = $URL . "&f_sh=on";
     }
 
