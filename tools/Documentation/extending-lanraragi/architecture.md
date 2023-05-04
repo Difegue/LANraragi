@@ -17,7 +17,8 @@ Those variables were introduced for the Homebrew package, but they can be declar
 * `LRR_TEMP_DIRECTORY` - Temporary directory override. If this variable is set to a path, the temporary folder will be there instead of `/public/temp`.
 * `LRR_LOG_DIRECTORY` - Log directory override. Changes the location of the `log` folder.
 * `LRR_FORCE_DEBUG` - Debug Mode override. This will force Debug Mode to be enabled regardless of the user setting.
-* `LRR_NETWORK` - Network Interface. See the dedicated page in Advanced Operations.
+* `LRR_NETWORK` - Network Interface. See the dedicated page in Advanced Operations.  
+* `LRR_REDIS_ADDRESS` - Redis adress override. This has priority over the `redis_address` specified in `lrr.conf`.  
 
 ## Coding Style
 
