@@ -27,10 +27,21 @@ sub add_tasks {
             my ( $job, @args ) = @_;
             my ( $thumbdir, $id, $page ) = @args;
 
+            my $logger = get_logger( "Minion", "minion" );
+
             # Non-cover thumbnails are rendered in low quality by default.
             my $use_hq = $page eq 0 || LANraragi::Model::Config->get_hqthumbpages;
-            my $thumbname = extract_thumbnail( $thumbdir, $id, $page, $use_hq );
-            $job->finish($thumbname);
+            my $thumbname = "";
+
+            eval { $thumbname = extract_thumbnail( $thumbdir, $id, $page, $use_hq ); };
+            if ($@) {
+                my $msg = "Error building thumbnail: $@";
+                $logger->error($msg);
+                $job->fail( { errors => [$msg] } );
+            } else {
+                $job->finish($thumbname);
+            }
+
         }
     );
 
