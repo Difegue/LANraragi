@@ -20,3 +20,8 @@ Said development server can be ran with the `npm run dev-server` command.
 The major difference is that this server will automatically reload when you modify any file within LANraragi. Background worker included!
 
 You'll also probably want to enable **Debug Mode** in the LRR Options, as that will allow you to view debug-tier logs, alongside the raw Mojolicious logs.
+
+## Using docker compose
+
+You can use [Docker Compose](https://docs.docker.com/compose/) for quickly bringing up a LANraragi instance suitable for development.
+Run `docker compose up -d` inside `tools/build/docker` and hack away!
