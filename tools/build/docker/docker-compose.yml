@@ -4,9 +4,9 @@ services:
   lanraragi:
     build:
       dockerfile: tools/build/docker/Dockerfile-dev
-      context: .
+      context: ../../..
     volumes:
-      - ./:/home/koyomi/lanraragi
+      - ../../../:/home/koyomi/lanraragi
     ports:
       - "3000:3000"
     environment:
