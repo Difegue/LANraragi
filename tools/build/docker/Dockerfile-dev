@@ -38,6 +38,11 @@ RUN sh ./tools/install-everything.sh
 RUN rm -rf /tmp/lrr
 
 RUN apk add npm
+
+# Add sudo to make dev more practical, and allow passwordless sudo
+RUN apk add --update sudo
+RUN echo "koyomi ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/koyomi && chmod 0440 /etc/sudoers.d/koyomi
+
 # We're done, since this is not a production build.
 
 WORKDIR /home/koyomi/lanraragi
