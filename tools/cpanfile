@@ -30,6 +30,7 @@ requires 'Logfile::Rotate', 1.04;
 requires 'Compress::Zlib',  2.087;
 
 # Test Utils
+requires 'App::Prove',       1.7046;
 requires 'Test::Harness',    3.42;
 requires 'Test::MockObject', 1.20200122;
 requires 'Test::Trap',       0.3.4;
