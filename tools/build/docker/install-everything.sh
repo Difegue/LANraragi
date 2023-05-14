@@ -1,5 +1,20 @@
 #!/bin/sh
 
+usage() { echo "Usage: $0 [-d]" 1>&2; exit 1; }
+
+DEV=0
+
+while getopts "d" o; do
+    case "${o}" in
+        d)
+            DEV=1
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+
 #Just do everything
 apk update
 apk add tzdata
@@ -48,7 +63,9 @@ fi
 cd tools && cpanm --notest --installdeps . -M https://cpan.metacpan.org && cd ..
 npm run lanraragi-installer install-full
 
-#Cleanup to lighten the image
-apk del perl-dev g++ make gnupg wget curl nodejs npm openssl-dev file
-rm -rf public/js/vendor/*.map public/css/vendor/*.map
-rm -rf /root/.cpanm/* /root/.npm/ /usr/local/share/man/* node_modules /var/cache/apk/*
+if [ $DEV -eq 0 ]; then
+  #Cleanup to lighten the image
+  apk del perl-dev g++ make gnupg wget curl nodejs npm openssl-dev file
+  rm -rf public/js/vendor/*.map public/css/vendor/*.map
+  rm -rf /root/.cpanm/* /root/.npm/ /usr/local/share/man/* node_modules /var/cache/apk/*
+fi
