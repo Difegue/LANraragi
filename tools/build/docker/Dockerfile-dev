@@ -32,8 +32,8 @@ WORKDIR /tmp/lrr
 COPY --chown=koyomi:koyomi /tools/cpanfile /tools/install.pl /tools/build/docker/install-everything.sh tools/
 COPY --chown=koyomi:koyomi /package.json package.json
 
-# Run the install script as root
-RUN sh ./tools/install-everything.sh
+# Run the install script as root, in dev mode to prevent wget etc from being uninstalled
+RUN sh ./tools/install-everything.sh -d
 
 RUN rm -rf /tmp/lrr
 
