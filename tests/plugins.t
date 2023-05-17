@@ -4,7 +4,6 @@ use utf8;
 use Cwd;
 
 use Mojo::Base 'Mojolicious';
-
 use Test::More;
 use Test::Trap;
 use Test::Mojo;
@@ -20,6 +19,7 @@ use LANraragi::Plugin::Metadata::Chaika;
 use LANraragi::Plugin::Metadata::Eze;
 use LANraragi::Plugin::Metadata::Fakku;
 use LANraragi::Plugin::Metadata::Hitomi;
+use LANraragi::Plugin::Metadata::Koushoku;
 
 # Mock Redis
 my $cwd = getcwd;
@@ -94,6 +94,23 @@ note("FAKKU Tests : Disabled due to cloudflare being used on FAKKU");
 #     is( $f_result_tags,  $f_tags,  'FAKKU tags parsing test' );
 #     is( $f_result_title, $f_title, 'FAKKU title parsing test' );
 # }
+
+note("Koushoku Tests");
+
+{
+    my $ua      = Mojo::UserAgent->new;
+    my $k_title = "futuregraph #175";
+    my $k_url   = "https://ksk.moe/view/3077/f8d48ef8c7be";
+    my $k_tags =
+      "artist:range murata, parody:original work, magazine:comic kairakuten 2018-06, color, illustration, non-h, twintails, unlimited";
+
+    is( LANraragi::Plugin::Metadata::Koushoku::search_for_ksk_url( "title:futuregraph magazine:comic kairakuten 2018-06", $ua ),
+        $k_url, 'Koushoku search test' );
+
+    my ( $k_result_tags, $k_result_title ) = LANraragi::Plugin::Metadata::Koushoku::get_tags_from_ksk( $k_url, $ua );
+    is( $k_result_tags,  $k_tags,  'Koushoku tags parsing test' );
+    is( $k_result_title, $k_title, 'Koushoku title parsing test' );
+}
 
 note("Hitomi Tests");
 
