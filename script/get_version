@@ -1,0 +1,12 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use feature qw(say);
+
+use Mojo::JSON qw(j);
+use Mojo::File;
+
+my $conf = j( Mojo::File->new(qw(package.json))->slurp );
+say %$conf{version} . " - '" . %$conf{version_name} . "'"
+
