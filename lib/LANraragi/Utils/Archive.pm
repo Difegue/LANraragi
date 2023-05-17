@@ -340,17 +340,16 @@ sub extract_single_file ( $archive, $filepath, $destination ) {
 }
 
 # Variant for plugins.
-# Extracts the file with a timestamp to a folder in /temp/plugin.
+# Extracts the file to a folder in /temp/plugin.
 sub extract_file_from_archive ( $archive, $filename ) {
 
-    # Timestamp extractions in microseconds
-    my ( $seconds, $microseconds ) = gettimeofday;
-    my $stamp = "$seconds-$microseconds";
-    my $path  = get_temp . "/plugin/$stamp";
-    mkdir get_temp . "/plugin";
+    my $path  = get_temp . "/plugin";
     mkdir $path;
 
-    return extract_single_file( $archive, $filename, $path );
+    my $tmp = File::Temp->new( DIR => $path );
+    $tmp->unlink_on_destroy(0);
+
+    return extract_single_file( $archive, $filename, $tmp->filename );
 }
 
 1;
