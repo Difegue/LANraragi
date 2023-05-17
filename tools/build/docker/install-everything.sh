@@ -1,6 +1,6 @@
 #!/bin/sh
 
-usage() { echo "Usage: $0 [-d -win]" 1>&2; exit 1; }
+usage() { echo "Usage: $0 [-d (devmode) -w (wsl cpan packages)]" 1>&2; exit 1; }
 
 DEV=0
 WSL=0
@@ -10,7 +10,7 @@ while getopts "d" o; do
         d)
             DEV=1
             ;;
-        win)
+        w)
             WSL=1
             ;;
         *)
