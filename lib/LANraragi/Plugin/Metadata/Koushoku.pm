@@ -119,7 +119,7 @@ sub get_search_result_dom {
     $logger->debug("Using URL $URL to search.");
 
     my $res = $ua->max_redirects(5)->get($URL)->result;
-    $logger->trace( "Got this HTML: " . $res->body );
+    $logger->debug( "Got this HTML: " . $res->body );
 
     return $res->dom;
 }
