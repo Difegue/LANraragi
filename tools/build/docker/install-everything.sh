@@ -5,7 +5,7 @@ usage() { echo "Usage: $0 [-d (devmode) -w (wsl cpan packages)]" 1>&2; exit 1; }
 DEV=0
 WSL=0
 
-while getopts "d" o; do
+while getopts "dw" o; do
     case "${o}" in
         d)
             DEV=1
