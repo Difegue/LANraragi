@@ -104,10 +104,8 @@ note("Koushoku Tests");
     my $k_tags =
       "artist:range murata, parody:original work, magazine:comic kairakuten 2018-06, color, illustration, non-h, twintails, unlimited";
 
-    is( LANraragi::Plugin::Metadata::Koushoku::search_for_ksk_url( qw(title:futuregraph magazine:"comic kairakuten 2018-06"), $ua ),
-        $k_url,
-        'Koushoku search test'
-    );
+    is( LANraragi::Plugin::Metadata::Koushoku::search_for_ksk_url( "title:futuregraph magazine:comic kairakuten 2018-06", $ua ),
+        $k_url, 'Koushoku search test' );
 
     my ( $k_result_tags, $k_result_title ) = LANraragi::Plugin::Metadata::Koushoku::get_tags_from_ksk( $k_url, $ua );
     is( $k_result_tags,  $k_tags,  'Koushoku tags parsing test' );
