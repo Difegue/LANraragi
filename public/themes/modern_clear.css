@@ -651,20 +651,22 @@ div.id1 {
 }
 
 div.id2 {
-    height: 20px;
-    overflow: hidden;
+    min-height: 32px;
     text-align: center;
-    text-overflow: ellipsis;
-    vertical-align: middle;
-    white-space: nowrap;
     width: 97%;
 }
 
 div.id2 a {
     font-weight: bold;
     text-decoration: none;
+    overflow: hidden;
     color: #FCFCFC;
     font-size: 12px;
+
+    /* Multi-line title support */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
 }
 
 div.id2 a:hover {

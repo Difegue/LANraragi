@@ -544,22 +544,26 @@ div.id1 {
     display: inline-block;
     margin: 3px 2px 2px 3px;
     padding-top: 3px;
-    height: 335px;
+    vertical-align: top;
+    min-height: 335px;
 }
 
 div.id2 {
     height: 30px;
     margin: auto;
-    overflow: hidden;
     text-align: center;
-    vertical-align: middle;
-    line-height: 15px;
     width: 97%;
 }
 
 div.id2 a {
     font-weight: bold;
     text-decoration: none;
+    overflow: hidden;
+
+    /* Multi-line title support */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
 }
 
 div.id3 {

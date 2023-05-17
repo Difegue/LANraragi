@@ -603,26 +603,29 @@ div.id1 {
   display: inline-block;
   margin: 3px 5px 5px 3px;
   padding-top: 3px;
-  height: 335px;
+  vertical-align: top;
+  min-height: 335px;
 }
 
 div.id2 {
   border-bottom: 2px dotted #414135;
-  height: 20px;
+  min-height: 20px;
   margin: auto auto 10px;
-  overflow: hidden;
   text-align: center;
-  text-overflow: ellipsis;
-  vertical-align: middle;
-  white-space: nowrap;
   width: 97%;
 }
 
 div.id2 a {
   font-weight: bold;
   text-decoration: none;
+  overflow: hidden;
   color: #414135;
   font-size: 12px;
+
+  /* Multi-line title support */
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
 }
 
 div.id2 a:hover {
