@@ -167,13 +167,13 @@ sub extract_thumbnail ( $thumbdir, $id, $page, $use_hq ) {
     my @filelist = @$images;
     my $requested_image = $filelist[ $page > 0 ? $page - 1 : 0 ];
 
-    die "Requested image not found" unless $requested_image;
+    die "Requested image not found: $requested_image" unless $requested_image;
     $logger->debug("Extracting thumbnail for $id page $page from $requested_image");
 
     # Extract first image to temp dir
     my $arcimg = extract_single_file( $file, $requested_image, $temppath );
 
-    if ( $page > 0 ) {
+    if ( $page - 1 > 0 ) {
 
         # Non-cover thumbnails land in a dedicated folder.
         $thumbname = "$thumbdir/$subfolder/$id/$page.jpg";
@@ -183,6 +183,7 @@ sub extract_thumbnail ( $thumbdir, $id, $page, $use_hq ) {
         # For cover thumbnails, grab the SHA-1 hash for tag research.
         # That way, no need to repeat a costly extraction later.
         my $shasum = shasum( $arcimg, 1 );
+        $logger->debug("Setting thumbnail hash: $shasum");
         $redis->hset( $id, "thumbhash", $shasum );
         $redis->quit();
     }
@@ -343,7 +344,7 @@ sub extract_single_file ( $archive, $filepath, $destination ) {
 # Extracts the file to a folder in /temp/plugin.
 sub extract_file_from_archive ( $archive, $filename ) {
 
-    my $path  = get_temp . "/plugin";
+    my $path = get_temp . "/plugin";
     mkdir $path;
 
     my $tmp = File::Temp->new( DIR => $path );
