@@ -1,6 +1,7 @@
 # DOCKER-VERSION 0.3.4
 FROM        alpine:3.18
 LABEL       git="https://github.com/Difegue/LANraragi"
+ARG INSTALL_PARAMETER
 
 ENV S6_KEEP_ENV 1
 
@@ -52,7 +53,7 @@ COPY --chown=koyomi:koyomi /tools/cpanfile /tools/install.pl /tools/build/docker
 COPY --chown=koyomi:koyomi /package.json package.json
 
 # Run the install script as root
-RUN sh ./tools/install-everything.sh
+RUN sh ./tools/install-everything.sh $INSTALL_PARAMETER
 
 #Copy remaining LRR files from context
 COPY --chown=koyomi:koyomi /lib lib
