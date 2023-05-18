@@ -91,12 +91,6 @@ sub startup {
         sleep 2;
     }
 
-    # Enable AOF saving on the Redis server.
-    # This allows us to start creating an aof file using existing RDB snapshot data.
-    # Later LRR releases will then be able to set appendonly directly in redis.conf without fearing data loss.
-    say "Enabling AOF on Redis... This might take a while.";
-    $self->LRR_CONF->get_redis->config_set( "appendonly", "yes" );
-
     if ($devmode) {
         $self->mode('development');
         $self->LRR_LOGGER->info("LANraragi $version (re-)started. (Debug Mode)");
