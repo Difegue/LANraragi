@@ -43,7 +43,39 @@ Reader.initializeAll = function () {
         window.location.href = `./reader?id=${Reader.id}&force_reload`;
     });
     $(document).on("click.edit-metadata", "#edit-archive", () => LRR.openInNewTab(`./edit?id=${Reader.id}`));
-    $(document).on("click.add-category", "#add-category", () => Server.addArchiveToCategory(Reader.id, $("#category").val()));
+    $(document).on("click.delete-archive", "#delete-archive", () => {
+        LRR.closeOverlay();
+        LRR.showPopUp({
+            text: "Are you sure you want to delete this archive?",
+            icon: "warning",
+            showCancelButton: true,
+            focusConfirm: false,
+            confirmButtonText: "Yes, delete it!",
+            reverseButtons: true,
+            confirmButtonColor: "#d33",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Server.deleteArchive(Reader.id, () => { document.location.href = "./"; });
+            }
+        });
+    });
+    $(document).on("click.add-category", "#add-category", () => {
+        if ($("#category").val() === "" || $(`#archive-categories a[data-id="${$("#category").val()}"]`).length !== 0) { return; }
+        Server.addArchiveToCategory(Reader.id, $("#category").val());
+
+        const html = `<div class="gt" style="font-size:14px; padding:4px">
+            <a href="/?c=${$("#category").val()}">
+            <span class="label">${$("#category option:selected").text()}</span>
+            <a href="#" class="remove-category" data-id="${$("#category").val()}"
+                style="margin-left:4px; margin-right:2px">×</a>
+        </a>`;
+
+        $("#archive-categories").append(html);
+    });
+    $(document).on("click.remove-category", ".remove-category", (e) => {
+        Server.removeArchiveFromCategory(Reader.id, $(e.target).attr("data-id"));
+        $(e.target).parent().remove();
+    });
     $(document).on("click.set-thumbnail", "#set-thumbnail", () => Server.callAPI(`/api/archives/${Reader.id}/thumbnail?page=${Reader.currentPage + 1}`,
         "PUT", `Successfully set page ${Reader.currentPage + 1} as the thumbnail!`, "Error updating thumbnail!", null));
 

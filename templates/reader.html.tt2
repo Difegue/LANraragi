@@ -96,22 +96,38 @@
                     <h2>Admin Options</h2>
 
                     <input class="stdbtn" type='button' id="set-thumbnail" value="Set this Page as Thumbnail"
-                        title="Set the currently opened page as the thumbnail for this archive." />
+                        style="width:160px" title="Set the currently opened page as the thumbnail for this archive." />
+                    <input id="regenerate-cache" class='stdbtn' type='button' value='Clean Archive Cache'
+                        style="width:160px" />
                     <br>
-                    <input id="regenerate-cache" class='stdbtn' type='button' value='Clean Archive Cache' />
-                    <br>
-                    <input id="edit-archive" class='stdbtn' type='button' value='Edit Archive Metadata' />
+                    <input id="edit-archive" class='stdbtn' type='button' value='Edit Archive Metadata'
+                        style="width:160px" />
+                    <input id="delete-archive" class='stdbtn' type='button' value='Delete Archive'
+                        style="width:160px" />
 
-                    <h2>Add this archive to a Category</h2>
+                    <h2>Categories</h2>
 
+                    <div id="archive-categories" style="display:inline-block">
+                        [% FOREACH arc_categories %]
+                        <div class="gt" style="font-size:14px; padding:4px">
+                            <a href="/?c=[% id %]">
+                                <span class="label">[% name %]</span>
+                                <a href="#" class="remove-category" data-id="[% id %]"
+                                    style="margin-left:4px; margin-right:2px">×</a>
+                            </a>
+                        </div>
+                        [% END %]
+                    </div>
+
+                    <br />
+                    <span>Add to : </span>
                     <select id="category" class="favtag-btn" style="width:200px; margin-right: 8px">
                         <option selected value=""> -- No Category -- </option>
                         [% FOREACH categories %]
                         <option value="[% id %]">[% name %]</option>
                         [% END %]
                     </select>
-                    <br>
-                    <input value="Add Archive" class="stdbtn" id="add-category" type="button">
+                    <a class="fas fa-plus" id="add-category" href="#" title="Add Archive to Category"></a>
                 </div>
                 [% END %]
             </div>
