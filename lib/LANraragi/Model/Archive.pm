@@ -34,7 +34,7 @@ sub get_title($id) {
         return ();
     }
 
-    return $redis->hget( $id, "title" );
+    return redis_decode($redis->hget( $id, "title" ));
 }
 
 # Functions used when dealing with archives.
