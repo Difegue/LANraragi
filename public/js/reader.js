@@ -470,7 +470,7 @@ Reader.goToPage = function (page) {
     Reader.showingSinglePage = false;
 
     if (Reader.infiniteScroll) {
-        $("#display img").get(page).scrollIntoView({ behavior: "smooth" });
+        $("#display img").get(Reader.currentPage).scrollIntoView({ behavior: "smooth" });
     } else {
         $("#img_doublepage").attr("src", "");
         $("#display").removeClass("double-mode");
