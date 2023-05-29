@@ -70,19 +70,11 @@ sub startup {
         die;
     }
 
-    # Check old settings and migrate them if needed
-    if ( $self->LRR_CONF->get_redis->keys('LRR_*') ) {
-        say "Migrating old settings to new format...";
-        migrate_old_settings($self);
-    }
-
-    my $devmode;
-
     # Catch Redis errors on our first connection. This is useful in case of temporary LOADING errors,
     # Where Redis lets us send commands but doesn't necessarily reply to them properly.
     # (https://github.com/redis/redis/issues/4624)
     while (1) {
-        eval { $devmode = $self->LRR_CONF->enable_devmode; };
+        eval { $self->LRR_CONF->get_redis->keys('*') };
 
         last unless ($@);
 
@@ -91,7 +83,13 @@ sub startup {
         sleep 2;
     }
 
-    if ($devmode) {
+    # Check old settings and migrate them if needed
+    if ( $self->LRR_CONF->get_redis->keys('LRR_*') ) {
+        say "Migrating old settings to new format...";
+        migrate_old_settings($self);
+    }
+
+    if ( $self->LRR_CONF->enable_devmode ) {
         $self->mode('development');
         $self->LRR_LOGGER->info("LANraragi $version (re-)started. (Debug Mode)");
 
