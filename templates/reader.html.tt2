@@ -28,8 +28,12 @@
     <script src="./js/server.js?[% version %]" type="text/javascript"></script>
     <script src="./js/reader.js?[% version %]" type="text/javascript"></script>
 
-    <script
-        type="module">window.fscreen = (await import('./js/vendor/fscreen.esm.js')).default; Reader.initializeAll();</script>
+    <script type="module">
+        import('./js/vendor/fscreen.esm.js').then( r => {
+            window.fscreen = r.default;
+            Reader.initializeAll();
+        })
+    </script>
 </head>
 
 <body>
