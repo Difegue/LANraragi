@@ -57,11 +57,13 @@ sub update_thumbnail {
     $page = 1 unless $page;
 
     my $thumbdir = LANraragi::Model::Config->get_thumbdir;
+    my $use_jxl = LANraragi::Model::Config->get_jxlthumbpages;
+    my $format = $use_jxl ? 'jxl' : 'jpg';
 
     # Thumbnails are stored in the content directory, thumb subfolder.
     # Another subfolder with the first two characters of the id is used for FS optimization.
     my $subfolder = substr( $id, 0, 2 );
-    my $thumbname = "$thumbdir/$subfolder/$id.jpg";    # Path to main thumbnail
+    my $thumbname = "$thumbdir/$subfolder/$id.$format";    # Path to main thumbnail
 
     my $newthumb = "";
 
@@ -99,14 +101,16 @@ sub serve_thumbnail {
     $no_fallback = ( $no_fallback && $no_fallback eq "true" ) || "0";    # Prevent undef warnings by checking the variable first
 
     my $thumbdir = LANraragi::Model::Config->get_thumbdir;
+    my $use_jxl = LANraragi::Model::Config->get_jxlthumbpages;
+    my $format = $use_jxl ? 'jxl' : 'jpg';
 
     # Thumbnails are stored in the content directory, thumb subfolder.
     # Another subfolder with the first two characters of the id is used for FS optimization.
     my $subfolder = substr( $id, 0, 2 );
-    my $thumbname = "$thumbdir/$subfolder/$id.jpg";
+    my $thumbname = "$thumbdir/$subfolder/$id.$format";
 
     if ( $page - 1 > 0 ) {
-        $thumbname = "$thumbdir/$subfolder/$id/$page.jpg";
+        $thumbname = "$thumbdir/$subfolder/$id/$page.$format";
     }
 
     # Queue a minion job to generate the thumbnail. Thumbnail jobs have the lowest priority.

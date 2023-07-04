@@ -226,9 +226,12 @@ sub delete_archive($id) {
     if ( -e $filename ) {
         unlink $filename;
 
+        my $use_jxl = LANraragi::Model::Config->get_jxlthumbpages;
+        my $format = $use_jxl ? 'jxl' : 'jpg';
         my $thumbdir  = LANraragi::Model::Config->get_thumbdir;
         my $subfolder = substr( $id, 0, 2 );
-        my $thumbname = "$thumbdir/$subfolder/$id.jpg";
+        my $thumbname = "$thumbdir/$subfolder/$id.$format";
+        # this should probablydelete the thumbpages folder too?
 
         unlink $thumbname;
 
