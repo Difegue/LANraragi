@@ -38,7 +38,6 @@
         <label for="jxlthumbpages">
             <br>LANraragi generates JPEG thumbnails for compatibility and performance reasons.
             <br>If this option is checked, it will instead generate thumbnails using JPEG XL.
-            thumbnails.
         </label>
     </td>
 </tr>
