@@ -29,6 +29,22 @@
 
 <tr>
     <td class="option-td">
+        <h2 class="ih"> Use JPEG XL for thumbnails </h2>
+    </td>
+    <td class="config-td">
+        [% IF jxlthumbpages %]
+        <input id="jxlthumbpages" name="jxlthumbpages" class="fa" type="checkbox" checked> [% ELSE %]
+        <input id="jxlthumbpages" name="jxlthumbpages" class="fa" type="checkbox"> [% END %]
+        <label for="jxlthumbpages">
+            <br>LANraragi generates JPEG thumbnails for compatibility and performance reasons.
+            <br>If this option is checked, it will instead generate thumbnails using JPEG XL.
+            thumbnails.
+        </label>
+    </td>
+</tr>
+
+<tr>
+    <td class="option-td">
         <input id="genthumb-button" class='stdbtn' type='button' value='Generate Missing Thumbnails' />
     </td>
     <td class="config-td">
