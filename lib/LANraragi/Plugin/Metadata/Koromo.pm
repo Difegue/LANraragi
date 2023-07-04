@@ -102,6 +102,7 @@ sub tags_from_koromo_json {
     my $tags       = $hash->{"Tags"};
     my $characters = $hash->{"Characters"};
     my $series     = $hash->{"Series"};
+    my $magazine   = $hash->{"Magazine"};
     my $parody     = $hash->{"Parody"};
     my $groups     = $hash->{"Groups"};
     my $artist     = $hash->{"Artist"};
@@ -132,6 +133,7 @@ sub tags_from_koromo_json {
 
     push( @found_tags, "series:" . $parody ) unless !$parody;
 
+
     # Don't add bogus artist:ARRAYblabla if artist is an array
     if ($artist) {
         if ( ref $artist eq 'ARRAY' ) {
@@ -143,6 +145,7 @@ sub tags_from_koromo_json {
         }
     }
 
+    push( @found_tags, "magazine:" . $magazine ) unless !$magazine;
     push( @found_tags, "language:" . $language ) unless !$language;
     push( @found_tags, "category:" . $type )     unless !$type;
     push( @found_tags, "source:" . $url )        unless !$url;
