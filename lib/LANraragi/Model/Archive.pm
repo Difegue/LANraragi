@@ -110,8 +110,9 @@ sub serve_thumbnail {
     my $subfolder = substr( $id, 0, 2 );
 
     # Check for the page and set the appropriate thumbnail name and fallback thumbnail name
-    my $thumbname = ( $page - 1 > 0 ) ? "$thumbdir/$subfolder/$id/$page.$format" : "$thumbdir/$subfolder/$id.$format";
-    my $fallback_thumbname = ( $page - 1 > 0 ) ? "$thumbdir/$subfolder/$id/$page.$fallback_format" : "$thumbdir/$subfolder/$id.$fallback_format";
+    my $thumbbase = ( $page - 1 > 0 ) ? "$thumbdir/$subfolder/$id/$page" : "$thumbdir/$subfolder/$id";
+    my $thumbname = "$thumbbase.$format";
+    my $fallback_thumbname = "$thumbbase.$fallback_format";
 
     # Check if the preferred format thumbnail exists, if not, try the alternate format
     unless ( -e $thumbname ) {
