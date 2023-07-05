@@ -360,7 +360,7 @@ sub extract_file_from_archive ( $archive, $filename ) {
     my $tmp = File::Temp->new( DIR => $path );
     $tmp->unlink_on_destroy(0);
 
-    return extract_single_file( $archive, $filename, $tmp->filename );
+    return extract_single_file( $archive, $filename, dirname( $tmp->filename ) );
 }
 
 1;
