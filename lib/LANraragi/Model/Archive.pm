@@ -103,22 +103,26 @@ sub serve_thumbnail {
     my $thumbdir = LANraragi::Model::Config->get_thumbdir;
     my $use_jxl = LANraragi::Model::Config->get_jxlthumbpages;
     my $format = $use_jxl ? 'jxl' : 'jpg';
+    my $fallback_format = $format eq 'jxl' ? 'jpg' : 'jxl';
 
     # Thumbnails are stored in the content directory, thumb subfolder.
     # Another subfolder with the first two characters of the id is used for FS optimization.
     my $subfolder = substr( $id, 0, 2 );
-    my $thumbname = "$thumbdir/$subfolder/$id.$format";
 
-    if ( $page - 1 > 0 ) {
-        $thumbname = "$thumbdir/$subfolder/$id/$page.$format";
+    # Check for the page and set the appropriate thumbnail name and fallback thumbnail name
+    my $thumbname = ( $page - 1 > 0 ) ? "$thumbdir/$subfolder/$id/$page.$format" : "$thumbdir/$subfolder/$id.$format";
+    my $fallback_thumbname = ( $page - 1 > 0 ) ? "$thumbdir/$subfolder/$id/$page.$fallback_format" : "$thumbdir/$subfolder/$id.$fallback_format";
+
+    # Check if the preferred format thumbnail exists, if not, try the alternate format
+    unless ( -e $thumbname ) {
+        $thumbname = $fallback_thumbname;
     }
 
     # Queue a minion job to generate the thumbnail. Thumbnail jobs have the lowest priority.
     unless ( -e $thumbname ) {
         my $job_id = $self->minion->enqueue( thumbnail_task => [ $thumbdir, $id, $page ] => { priority => 0, attempts => 3 } );
 
-        if ($no_fallback) {
-
+        if ( $no_fallback ) {
             $self->render(
                 json => {
                     operation => "serve_thumbnail",
@@ -128,14 +132,11 @@ sub serve_thumbnail {
                 status => 202    # 202 Accepted
             );
         } else {
-
             # If the thumbnail doesn't exist, serve the default thumbnail.
             $self->render_file( filepath => "./public/img/noThumb.png" );
         }
         return;
-
     } else {
-
         # Simply serve the thumbnail.
         $self->render_file( filepath => $thumbname );
     }

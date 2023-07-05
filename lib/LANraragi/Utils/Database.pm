@@ -11,6 +11,7 @@ use Digest::SHA qw(sha256_hex);
 use Mojo::JSON qw(decode_json);
 use Encode;
 use File::Basename;
+use File::Path qw(remove_tree);
 use Redis;
 use Cwd;
 use Unicode::Normalize;
@@ -226,14 +227,17 @@ sub delete_archive($id) {
     if ( -e $filename ) {
         unlink $filename;
 
-        my $use_jxl = LANraragi::Model::Config->get_jxlthumbpages;
-        my $format = $use_jxl ? 'jxl' : 'jpg';
         my $thumbdir  = LANraragi::Model::Config->get_thumbdir;
         my $subfolder = substr( $id, 0, 2 );
-        my $thumbname = "$thumbdir/$subfolder/$id.$format";
-        # this should probablydelete the thumbpages folder too?
 
-        unlink $thumbname;
+        my $jpg_thumbname = "$thumbdir/$subfolder/$id.jpg";
+        unlink $jpg_thumbname;
+
+        my $jxl_thumbname = "$thumbdir/$subfolder/$id.jxl";
+        unlink $jxl_thumbname;
+
+        # Delete the thumbpages folder
+        remove_tree("$thumbdir/$subfolder/$id/");
 
         return $filename;
     }
