@@ -38,7 +38,7 @@ note("Koromo Tests");
     my %ko_tags = trap { LANraragi::Plugin::Metadata::Koromo::get_tags( "", \%dummyhash, 1 ); };
 
     my $expected_tags =
-      "Teacher, Schoolgirl Outfit, Cheating, Hentai, Ahegao, Creampie, Uncensored, Condom, Unlimited, Heart Pupils, Love Hotel, series:Original Work, artist:▲ Chimaki, language:English, source:https://www.fakku.net/hentai/after-school-english_1632947200";
+      "Teacher, Schoolgirl Outfit, Cheating, Hentai, Ahegao, Creampie, Uncensored, Condom, Unlimited, Heart Pupils, Love Hotel, series:Original Work, artist:▲ Chimaki, magazine:Comic Bavel 2021-11, language:English, source:https://www.fakku.net/hentai/after-school-english_1632947200";
     is( $ko_tags{title}, "After School", "Koromo parsing test 1/2" );
     is( $ko_tags{tags},  $expected_tags, "Koromo parsing test 2/2" );
 }
@@ -63,7 +63,7 @@ note("multiple artists json");
     my %ko_tags = trap { LANraragi::Plugin::Metadata::Koromo::get_tags( "", \%dummyhash, 1 ); };
 
     my $expected_tags =
-      "Teacher, Schoolgirl Outfit, Cheating, Hentai, Ahegao, Creampie, Uncensored, Condom, Unlimited, Heart Pupils, Love Hotel, series:Original Work, artist:First, artist:Second, language:English, source:https://www.fakku.net/hentai/after-school-english_1632947200";
+      "Teacher, Schoolgirl Outfit, Cheating, Hentai, Ahegao, Creampie, Uncensored, Condom, Unlimited, Heart Pupils, Love Hotel, series:Original Work, artist:First, artist:Second, magazine:Comic Bavel 2021-11, language:English, source:https://www.fakku.net/hentai/after-school-english_1632947200";
     is( $ko_tags{title}, "After School", "Koromo parsing test 1/2" );
     is( $ko_tags{tags},  $expected_tags, "Koromo parsing test 2/2" );
 }
