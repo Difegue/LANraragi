@@ -23,7 +23,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 # Functions for interacting with the DB Model.
 use Exporter 'import';
 our @EXPORT_OK =
-  qw(redis_encode redis_decode invalidate_cache compute_id set_tags set_title set_isnew get_computed_tagrules save_computed_tagrules get_archive_json get_archive_json_multi);
+  qw(redis_encode redis_decode invalidate_cache compute_id set_tags set_title set_isnew get_computed_tagrules save_computed_tagrules get_archive_json get_archive_json_multi get_tankoubons_by_file);
 
 # Creates a DB entry for a file path with the given ID.
 # This function doesn't actually require the file to exist at its given location.
@@ -551,6 +551,33 @@ sub get_computed_tagrules {
 
     $redis->quit();
     return @tagrules;
+}
+
+sub get_tankoubons_by_file($arcid) {
+    my $redis = LANraragi::Model::Config->get_redis;
+    my @tankoubons;
+
+    my $logger = get_logger( "Tankoubon", "lanraragi" );
+    my $err    = "";
+
+    unless ( $redis->exists($arcid) ) {
+        $err = "$arcid does not exist in the database.";
+        $logger->error($err);
+        $redis->quit;
+        return ();
+    }
+
+    my @tanks = $redis->keys('TANK_??????????');  
+
+    foreach my $key (sort @tanks) {
+
+        if ($redis->zscore($key, $arcid)) {
+            push( @tankoubons, $key)
+        }
+    }
+
+    $redis->quit;
+    return @tankoubons;
 }
 
 1;

@@ -118,5 +118,20 @@ sub add_to_tankoubon {
     }
 }
 
+sub get_tankoubons_file {
+
+    my $self = shift;
+    my $arcid   = $self->req->param('arcid') || "";
+
+    if ( $arcid eq "" ) {
+        render_api_response( $self, "get_tankoubons_file", "Archive no specified." );
+        return;
+    }
+
+    my @tanks = LANraragi::Model::Tankoubon::get_tankoubons_file( $arcid );
+
+    $self->render( json => \@tanks );
+}
+
 1;
 

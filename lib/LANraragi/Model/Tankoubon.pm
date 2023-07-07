@@ -13,7 +13,7 @@ use Redis;
 use Mojo::JSON qw(decode_json encode_json);
 use List::Util qw(min);
 
-use LANraragi::Utils::Database qw(redis_encode redis_decode invalidate_cache get_archive_json_multi);
+use LANraragi::Utils::Database qw(redis_encode redis_decode invalidate_cache get_archive_json_multi get_tankoubons_by_file);
 use LANraragi::Utils::Logging qw(get_logger);
 
 # get_tankoubon_list(page)
@@ -248,6 +248,19 @@ sub add_to_tankoubon( $tank_id, $arc_id ) {
     $logger->warn($err);
     $redis->quit;
     return ( 0, $err );
+}
+
+# get_tankoubons_file(arcid)
+#   Gets a list of Tankoubons where archive ID is contained.
+#   Returns an array of tank IDs.
+sub get_tankoubons_file($arcid) {
+
+    my $logger = get_logger( "Tankoubon", "lanraragi" );
+
+    my @tanks = get_tankoubons_by_file($arcid);
+
+    return @tanks
+
 }
 
 
