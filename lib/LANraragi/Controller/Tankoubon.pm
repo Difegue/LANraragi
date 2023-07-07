@@ -1,4 +1,4 @@
-package LANraragi::Controller::Readinggroup;
+package LANraragi::Controller::Tankoubon;
 use Mojo::Base 'Mojolicious::Controller';
 
 use utf8;
@@ -22,7 +22,7 @@ sub index {
     $redis->quit();
 
     $self->render(
-        template => "rgroups",
+        template => "tankoubon",
         title    => $self->LRR_CONF->get_htmltitle,
         descstr  => $self->LRR_DESC,
         csshead  => generate_themes_header($self),

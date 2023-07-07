@@ -38,7 +38,7 @@
 	<script src="/js/vendor/swiper-bundle.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/sweetalert2.min.js" type="text/JAVASCRIPT"></script>
 
-	<script src="/js/rgroups.js?[% version %]" type="text/JAVASCRIPT"></script>
+	<script src="/js/tankoubon.js?[% version %]" type="text/JAVASCRIPT"></script>
 	<script src="/js/common.js?[% version %]" type="text/JAVASCRIPT"></script>
 	<script src="/js/server.js?[% version %]" type="text/JAVASCRIPT"></script>
 	<script src="/js/index_datatables.js?[% version %]" type="text/JAVASCRIPT"></script>
@@ -64,7 +64,7 @@
 		<i class="fa fa-caret-right"></i>
 		<a href="./stats">Statistics</a>
 		<i class="fa fa-caret-right"></i>
-		<a href="./rgroups">Reading Groups</a>
+		<a href="./tankoubon">Tankoubons</a>
 		<i class="fa fa-caret-right"></i>
 		<a href="./logs">Logs</a>
 	</p>
@@ -76,7 +76,7 @@
 		<i class="fa fa-caret-right"></i>
 		<a href="./stats">Statistics</a>
 		<i class="fa fa-caret-right"></i>
-		<a href="./rgroups">Reading Groups</a>
+		<a href="./tankoubon">Tankoubons</a>
 	</p>
 	[% END %]
 

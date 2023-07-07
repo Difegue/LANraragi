@@ -73,11 +73,12 @@ Index.initializeGroups = function () {
     //$("#rg_1").remove();
     Index.baserg = $("#rg_1");
     let endpoint;
-    endpoint = `/api/reading-group`;
+    endpoint = `/api/tankoubon`;
     Server.callAPI(endpoint, "GET", null, "Error getting carousel data!",
         (results) => {
+            console.log(results);
             var list;
-            results.forEach(element => {
+            results.result.forEach(element => {
                 list = Index.baserg.clone(true);
                 Index.carouselMap.set(element.id, false);
                 list.attr("id", element.id);
@@ -207,7 +208,7 @@ Index.updateCarousel = function (e, id) {
     // Hit a different API endpoint depending on the requested localStorage carousel type
     let endpoint;
     //$("#carousel-title").text("Randomly Picked");
-    endpoint = `/api/reading-group/${id}?decoded=1`;
+    endpoint = `/api/tankoubon/${id}?decoded=1`;
 
     if (Index.carouselMap.get(id)) {
         Server.callAPI(endpoint, "GET", null, "Error getting carousel data!",
@@ -235,14 +236,14 @@ Index.createList = function (e) {
     var modal = document.getElementById("addl-modal");
     let endpoint;
     let lname = $("#list-name").val();
-    endpoint = `/api/reading-group?name=${lname}`;
+    endpoint = `/api/tankoubon?name=${lname}`;
 
     Server.callAPI(endpoint, 'PUT', null, "Error Creating!", 
         (json) => {
             var list;
             list = Index.baserg.clone(true);
-            Index.carouselMap.set(json.reading_group_id, false);
-            list.attr("id", json.reading_group_id);
+            Index.carouselMap.set(json.tankoubon_id, false);
+            list.attr("id", json.tankoubon_id);
             list.find("#carousel-title").text(lname);
             list.appendTo("#list_rg");
         }
@@ -254,7 +255,7 @@ Index.createList = function (e) {
 
 Index.editList = function (id) {
     let endpoint;
-    endpoint = `/api/reading-group/${id}?decoded=1`;
+    endpoint = `/api/tankoubon/${id}?decoded=1`;
     Server.callAPI(endpoint, "GET", null, "Error getting carousel data!",
         (results) => {
             $("#sortlist").empty();
@@ -288,12 +289,13 @@ Index.editList = function (id) {
 
 Index.saveList = function (id) {
     var updated_list = [];
+    let endpoint = `/api/tankoubon/${id}/archive`;
     $('#sortlist li').each(function(i)
     {
        updated_list.push($(this).attr('id'));
     });
 
-    Server.callAPIBody("/api/reading-group/RG_1687309631/archive", "PUT", 
+    Server.callAPIBody(endpoint, "PUT", 
         JSON.stringify({archives:updated_list}), null, "Error", (json) => {
             Index.updateCarousel(null, id);
         });
@@ -301,11 +303,22 @@ Index.saveList = function (id) {
 
 Index.removeList = function (id) {
     let endpoint;
-    endpoint = `/api/reading-group/${id}`;
+    endpoint = `/api/tankoubon/${id}`;
 
     Server.callAPI(endpoint, 'DELETE', null, "Error deleting!", 
         (json) => {
             $(`#${id}`).remove();
+        }
+    );
+}
+
+Index.addElementToList = function (id, arcid) {
+    var updated_list = [];
+    let endpoint = `/api/tankoubon/${id}/${arcid}`;
+
+    Server.callAPI(endpoint, 'PUT', null, "Error adding!", 
+        (json) => {
+            console.log(json);
         }
     );
 }

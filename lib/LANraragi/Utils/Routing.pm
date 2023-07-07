@@ -86,7 +86,7 @@ sub apply_routes {
     $logged_in->get('/logs/mojo')->to('logging#print_mojo');
     $logged_in->get('/logs/redis')->to('logging#print_redis');
 
-    $public_routes->get('/rgroups')->to('readinggroup#index');
+    $logged_in->get('/tankoubons')->to('tankoubon#index');
 
     # OPDS API
     $public_api->get('/api/opds')->to('api-other#serve_opds_catalog');
@@ -152,15 +152,13 @@ sub apply_routes {
     $logged_in_api->put('/api/categories/:id/:archive')->to('api-category#add_to_category');
     $logged_in_api->delete('/api/categories/:id/:archive')->to('api-category#remove_from_category');
 
-    # Reading Group API
-    $public_api->put('/api/reading-group/test')->to('api-readinggroup#test');
-    $public_api->get('/api/reading-group')->to('api-readinggroup#get_reading_group_list');
-    $public_api->get('/api/reading-group/:id')->to('api-readinggroup#get_reading_group');
-    $public_api->put('/api/reading-group')->to('api-readinggroup#create_reading_group');
-    $public_api->delete('/api/reading-group/:id')->to('api-readinggroup#delete_reading_group');
-    $public_api->put('/api/reading-group/:id/archive')->to('api-readinggroup#update_archive_list');
-    $public_api->put('/api/reading-group/:id/:archive')->to('api-readinggroup#add_to_readinggroup');
-    # $public_api->delete('/api/reading-group/:id/:archive')->to('api-readinggroup#remove_from_reading_group');
+    # Tankoubon API
+    $public_api->get('/api/tankoubon')->to('api-tankoubon#get_tankoubon_list');
+    $public_api->get('/api/tankoubon/:id')->to('api-tankoubon#get_tankoubon');
+    $logged_in_api->put('/api/tankoubon')->to('api-tankoubon#create_tankoubon');
+    $logged_in_api->delete('/api/tankoubon/:id')->to('api-tankoubon#delete_tankoubon');
+    $logged_in_api->put('/api/tankoubon/:id/archive')->to('api-tankoubon#update_archive_list');
+    $logged_in_api->put('/api/tankoubon/:id/:archive')->to('api-tankoubon#add_to_tankoubon');
 
 }
 
