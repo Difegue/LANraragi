@@ -87,7 +87,16 @@ sub setup_redis_mock {
             "title": "Fate GO MEMO",
             "file": "package.json",
             "lastreadtime": 0
-        }
+        },
+        "TANK_1589141306": [
+            "Hello",
+            "2810d5e0a8d027ecefebca6237031a0fa7b91eb3",
+            "28697b96f0ac5858be2614ed10ca47742c9522fd"
+        ],
+        "TANK_1589138380":[
+            "World",
+            "28697b96f0ac5858be2614ed10ca47742c9522fd"
+        ]
     })
       };
 
@@ -113,6 +122,7 @@ sub setup_redis_mock {
     $redis->mock( 'select',  sub { 1 } );
     $redis->mock( 'flushdb', sub { 1 } );
     $redis->mock( 'zincrby', sub { 1 } );
+    $redis->mock( 'zrem',   sub { 1 } );
     $redis->mock( 'watch',   sub { 1 } );
     $redis->mock( 'hlen',    sub { 1337 } );
     $redis->mock( 'dbsize',  sub { 1337 } );
@@ -190,6 +200,26 @@ sub setup_redis_mock {
         }
     );
 
+    # $redis->mock(
+    #     'zscore',    # $redis->zscore => array position in list named by key in datamodel
+    #     sub {
+    #         my $self = shift;
+    #         my ($key, $value) = @_;
+
+    #         if ( !exists $datamodel{$key} ) {
+    #             $datamodel{$key} = [];
+    #         }
+
+    #         for my $i ( 0 .. $#results ) {
+    #             if ($element == $value) {
+    #                 return 
+    #             }
+    #         }
+
+    #         return scalar @{ $datamodel{$key} };
+    #     }
+    # );
+
     $redis->mock(
         'zrangebylex',    # $redis->zrangebylex => get all values of key in datamodel
         sub {
@@ -202,6 +232,21 @@ sub setup_redis_mock {
 
             # Return array, ordered alphabetically
             return sort @{ $datamodel{$key} };
+        }
+    );
+
+    $redis->mock(
+        'zrangebyscore',    # $redis->zrangebyscore => get all values of key in datamodel
+        sub {
+            my $self = shift;
+            my ( $key, $start, $end ) = @_;
+
+            if ( !exists $datamodel{$key} ) {
+                $datamodel{$key} = [];
+            }
+
+            # Return array, ordered alphabetically
+            return @{ $datamodel{$key} };
         }
     );
 
