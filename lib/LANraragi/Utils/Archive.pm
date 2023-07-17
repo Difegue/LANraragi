@@ -357,10 +357,8 @@ sub extract_file_from_archive ( $archive, $filename ) {
     my $path = get_temp . "/plugin";
     mkdir $path;
 
-    my $tmp = File::Temp->new( DIR => $path );
-    $tmp->unlink_on_destroy(0);
-
-    return extract_single_file( $archive, $filename, $tmp->filename );
+    my $tmp = tempdir( DIR => $path, CLEANUP => 1 );
+    return extract_single_file( $archive, $filename, $tmp );
 }
 
 1;
