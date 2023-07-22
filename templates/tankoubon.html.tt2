@@ -125,8 +125,8 @@
 								title="Click to show archives from the current search with the specified filter">Something Something</div>
 						</div>
 						<div class="collapsible-right">
-							<!-- <a class="fa fa-2x fa-sync-alt" style="margin-bottom: -4px; display:none" id="reload-carousel"
-								href="#" title="Refresh Selection"></a> -->
+							<a class="fa fa-2x fa-sync-alt" style="margin-bottom: -4px;" id="reload-carousel"
+							href="#" title="Refresh Selection"></a>
 							<a class="fa fa-2x fa-ellipsis-h" style="margin-bottom: -4px; margin-left: 12px"
 								id="carousel-mode-menu" href="#" title="Carousel Options"></a>
 						</div>
@@ -167,59 +167,6 @@
 	[% INCLUDE footer %]
 
 	<script>
-
-		// Last few remains of JS using server-provided data
-		jQuery(() => {
-
-			[% IF usingdefpass %]
-			//If the json has the "default password" flag, flash a friendly notification inviting the user to change his password
-			LRR.toast({
-				heading: 'You\'re using the default password and that\'s super baka of you',
-				text: '<a href="login">Login</a> with password "kamimamita" and <a href="config">change that shit</a> on the double.<br/>...Or just disable it! <br/>Why not check the configuration options afterwards, while you\'re at it? ',
-				icon: 'warning',
-				hideAfter: 25000,
-				closeOnClick: false,
-				draggable: false,
-			});
-			[% END %]
-
-			// Initialize context menu
-			$.contextMenu({
-				selector: '.context-menu',
-				build: ($trigger, e) => {
-					return {
-						callback: function (key, options) {
-							Index.handleContextMenu(key, $(this).attr("id"));
-						},
-						items: {
-							"read": { name: "Read", icon: "fas fa-book" },
-							"download": { name: "Download", icon: "fas fa-save" },
-							[% IF userlogged %]
-							"sep1": "---------",
-							"edit": { name: "Edit Metadata", icon: "fas fa-pencil-alt" },
-							"delete": { name: "Delete", icon: "fas fa-trash-alt" },
-							"category": {
-								"name": "Add to Category",
-								"icon": "fas fa-search-plus",
-								"items": {
-									[% IF categories.size > 0 %][% FOREACH categories %]
-									"category-[% id %]": { "name": "[% name %]", "icon": "fas fa-stream" },
-									[% END %][% ELSE %]
-								"noop": { "name": "No Categories yet...", "icon": "fas fa-ghost" }
-									[% END %]
-								}
-							},
-							"categoryremove": {
-								"name": "Remove from Category",
-								"icon": "fas fa-search-minus",
-								"items": Index.loadContextMenuCategories($trigger.attr("id"))
-							}
-							[% END %]
-						}
-					}
-				}
-			});
-		});
 	</script>
 
 	<div id="overlay-shade"> </div>

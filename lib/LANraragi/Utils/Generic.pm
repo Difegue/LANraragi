@@ -21,7 +21,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 use Exporter 'import';
 our @EXPORT_OK =
   qw(remove_spaces remove_newlines trim_url is_image is_archive render_api_response get_tag_with_namespace shasum start_shinobu
-  split_workload_by_cpu start_minion get_css_list generate_themes_header flat get_bytelength);
+  split_workload_by_cpu start_minion get_css_list generate_themes_header flat get_bytelength array_difference);
 
 # Remove spaces before and after a word
 sub remove_spaces {
@@ -264,6 +264,24 @@ sub flat {
 sub get_bytelength {
     use bytes;
     return length shift;
+}
+
+# Gets right difference between 2 arrays.
+sub array_difference {
+    my ( $array1, $array2 ) = @_;
+
+    my %seen;
+    my @difference;
+    
+    # Add all elements from array1 to the hash
+    $seen{$_} = 1 for @$array1;
+    
+    # Check elements in array2 and add the ones not seen in array1 to the difference array
+    foreach my $element (@$array2) {
+        push @difference, $element unless $seen{$element};
+    }
+    
+    return @difference;
 }
 
 1;
