@@ -72,8 +72,10 @@ sub add_tasks {
                     sub {
                         foreach my $id (@$_) {
 
+                            my $use_jxl = LANraragi::Model::Config->get_jxlthumbpages;
+                            my $format = $use_jxl ? 'jxl' : 'jpg';
                             my $subfolder = substr( $id, 0, 2 );
-                            my $thumbname = "$thumbdir/$subfolder/$id.jpg";
+                            my $thumbname = "$thumbdir/$subfolder/$id.$format";
 
                             unless ( $force == 0 && -e $thumbname ) {
                                 eval {

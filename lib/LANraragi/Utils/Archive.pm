@@ -41,29 +41,35 @@ sub is_pdf {
 
 # use ImageMagick to make a thumbnail, height = 500px (view in index is 280px tall)
 # If use_hq is true, the scale algorithm will be used instead of sample.
-sub generate_thumbnail ( $orig_path, $thumb_path, $use_hq ) {
+# If use_jxl is true, JPEG XL will be used instead of JPEG.
+sub generate_thumbnail ( $orig_path, $thumb_path, $use_hq, $use_jxl ) {
 
     my $img = Image::Magick->new;
+
+    my $format = $use_jxl ? 'jxl' : 'jpg';
 
     # For JPEG, the size option (or jpeg:size option) provides a hint to the JPEG decoder
     # that it can reduce the size on-the-fly during decoding. This saves memory because
     # it never has to allocate memory for the full-sized image
-    $img->Set( option => 'jpeg:size=500x' );
+    if ($format eq 'jpg') {
+        $img->Set(option => 'jpeg:size=500x');
+    }
 
     # If the image is a gif, only take the first frame
-    if ( $orig_path =~ /\.gif$/ ) {
-        $img->Read( $orig_path . "[0]" );
+    if ($orig_path =~ /\.gif$/) {
+        $img->Read($orig_path . "[0]");
     } else {
         $img->Read($orig_path);
     }
 
     # The "-scale" resize operator is a simplified, faster form of the resize command.
     if ($use_hq) {
-        $img->Scale( geometry => '500x1000' );
-    } else {    # Sample is very fast due to not applying filters.
-        $img->Sample( geometry => '500x1000' );
+        $img->Scale(geometry => '500x1000');
+    } else { # Sample is very fast due to not applying filters.
+        $img->Sample(geometry => '500x1000');
     }
-    $img->Set( quality => "50", magick => "jpg" );
+
+    $img->Set(quality => "50", magick => $format);
     $img->Write($thumb_path);
     undef $img;
 }
@@ -150,9 +156,13 @@ sub extract_thumbnail ( $thumbdir, $id, $page, $use_hq ) {
 
     my $logger = get_logger( "Archive", "lanraragi" );
 
+    # JPG is used for thumbnails by default
+    my $use_jxl = LANraragi::Model::Config->get_jxlthumbpages;
+    my $format = $use_jxl ? 'jxl' : 'jpg';
+
     # Another subfolder with the first two characters of the id is used for FS optimization.
     my $subfolder = substr( $id, 0, 2 );
-    my $thumbname = "$thumbdir/$subfolder/$id.jpg";
+    my $thumbname = "$thumbdir/$subfolder/$id.$format";
     make_path("$thumbdir/$subfolder");
 
     my $redis = LANraragi::Model::Config->get_redis;
@@ -176,7 +186,7 @@ sub extract_thumbnail ( $thumbdir, $id, $page, $use_hq ) {
     if ( $page - 1 > 0 ) {
 
         # Non-cover thumbnails land in a dedicated folder.
-        $thumbname = "$thumbdir/$subfolder/$id/$page.jpg";
+        $thumbname = "$thumbdir/$subfolder/$id/$page.$format";
         make_path("$thumbdir/$subfolder/$id");
     } else {
 
@@ -189,7 +199,7 @@ sub extract_thumbnail ( $thumbdir, $id, $page, $use_hq ) {
     }
 
     # Thumbnail generation
-    generate_thumbnail( $arcimg, $thumbname, $use_hq );
+    generate_thumbnail( $arcimg, $thumbname, $use_hq, $use_jxl );
 
     # Clean up safe folder
     remove_tree($temppath);
@@ -347,10 +357,8 @@ sub extract_file_from_archive ( $archive, $filename ) {
     my $path = get_temp . "/plugin";
     mkdir $path;
 
-    my $tmp = File::Temp->new( DIR => $path );
-    $tmp->unlink_on_destroy(0);
-
-    return extract_single_file( $archive, $filename, $tmp->filename );
+    my $tmp = tempdir( DIR => $path, CLEANUP => 1 );
+    return extract_single_file( $archive, $filename, $tmp );
 }
 
 1;

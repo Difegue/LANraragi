@@ -44,6 +44,7 @@ sub index {
         usedatemodified => $self->LRR_CONF->use_lastmodified,
         enablecryptofs  => $self->LRR_CONF->enable_cryptofs,
         hqthumbpages    => $self->LRR_CONF->get_hqthumbpages,
+        jxlthumbpages   => $self->LRR_CONF->get_jxlthumbpages,
         csshead         => generate_themes_header($self),
         tempsize        => get_tempsize,
         replacedupe     => $self->LRR_CONF->get_replacedupe
@@ -85,6 +86,7 @@ sub save_config {
         usedatemodified => ( scalar $self->req->param('usedatemodified') ? '1' : '0' ),
         enablecryptofs  => ( scalar $self->req->param('enablecryptofs')  ? '1' : '0' ),
         hqthumbpages    => ( scalar $self->req->param('hqthumbpages')    ? '1' : '0' ),
+        jxlthumbpages   => ( scalar $self->req->param('jxlthumbpages')   ? '1' : '0' ),
         replacedupe     => ( scalar $self->req->param('replacedupe')     ? '1' : '0' ),
     );
 
