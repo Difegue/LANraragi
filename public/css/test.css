@@ -1,0 +1,44 @@
+ /* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1000 !important; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.modal-content {
+  background-color: #4F535B;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%; /* Could be more or less, depending on screen size */
+}
+
+.slist {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.slist li {
+  margin: 10px;
+  padding: 15px;
+  border: 1px solid #dfdfdf;
+  background: #363940;
+}
+
+/* (B) DRAG-AND-DROP HINT */
+.slist li.hint {
+  border: 1px solid #ffc49a;
+  background: #feffb4;
+}
+.slist li.active {
+  border: 1px solid #ffa5a5;
+  background: #ffe7e7;
+}

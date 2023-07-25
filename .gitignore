@@ -11,3 +11,4 @@ Dockerfile.*
 .DS_Store
 config.log
 autobackup.json
+Makefile

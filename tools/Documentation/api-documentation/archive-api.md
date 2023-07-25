@@ -147,6 +147,29 @@ ID of the Archive to process.
 {% endswagger-response %}
 {% endswagger %}
 
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/archives/:id/tankoubons" method="get" summary="Get Archive Tankoubons" %}
+{% swagger-description %}
+Get all the Tankoubons which currently refer to this Archive ID.
+{% endswagger-description %}
+
+{% swagger-parameter name="id" type="string" required="true" in="path" %}
+ID of the Archive to process.
+{% endswagger-parameter %}
+
+{% swagger-response status="200" description="" %}
+```javascript
+{
+    "operation": "find_arc_tankoubons",
+    "success": 1,
+    "tankoubons": [
+        "TANK_1688616437",
+        "TANK_1688693913"
+    ]
+}
+```
+{% endswagger-response %}
+{% endswagger %}
+
 {% swagger baseUrl="http://lrr.tvc-16.science" path="/api/archives/:id/thumbnail" method="get" summary="Get Archive Thumbnail" %}
 {% swagger-description %}
 Get a Thumbnail image for a given Archive. This endpoint will queue generation of the thumbnail in the background if it doesn't already exist, and return a placeholder image.  
