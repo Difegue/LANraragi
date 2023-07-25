@@ -24,6 +24,8 @@ sub get_tankoubon_list($page=0) {
     my $redis = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Tankoubon", "lanraragi" );
 
+    $page //= 0;
+
     # Tankoubons are represented by RG_[timestamp] in DB. Can't wait for 2038!
     my @tanks = $redis->keys('TANK_??????????');  
 
@@ -75,8 +77,8 @@ sub create_tankoubon( $name, $tank_id ) {
         }
     } else {
         # Get name
-        my @name = $redis->zrangebyscore($tank_id, 0, 0, qw{LIMIT 0 1});
-        my $n = redis_decode($name[0]);
+        my @old_name = $redis->zrangebyscore($tank_id, 0, 0, qw{LIMIT 0 1});
+        my $n = redis_decode($old_name[0]);
 
         $redis->zrem($tank_id, $n);
     }
@@ -98,6 +100,8 @@ sub get_tankoubon($tank_id,$fulldata=0,$page=0) {
     my $logger = get_logger( "Tankoubon", "lanraragi" );
     my $redis  = LANraragi::Model::Config->get_redis;
     my $keysperpage = LANraragi::Model::Config->get_pagesize;
+
+    $page //= 0;
 
     if ( $tank_id eq "" ) {
         $logger->debug("No Tankoubon ID provided.");
@@ -136,7 +140,7 @@ sub get_tankoubon($tank_id,$fulldata=0,$page=0) {
     if ($fulldata) {
         my @data = get_archive_json_multi(@archives);
         eval { $tank{archives} = \@archives };
-        eval {$tank{full_data} = \@data}
+        eval { $tank{full_data} = \@data }
     } else {
         eval { $tank{archives} = \@archives };
     }
@@ -331,8 +335,6 @@ sub remove_from_tankoubon( $tank_id, $arcid ) {
 #   Gets a list of Tankoubons where archive ID is contained.
 #   Returns an array of tank IDs.
 sub get_tankoubons_file($arcid) {
-
-    # Arcid does not exists?
 
     return get_tankoubons_by_file($arcid);
 

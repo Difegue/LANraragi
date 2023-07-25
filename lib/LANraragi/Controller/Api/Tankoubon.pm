@@ -34,8 +34,7 @@ sub get_tankoubon {
         render_api_response( $self, "get_tankoubon", "The given tankoubon does not exist." );
         return;
     }
-
-    #$self->render( json => \%tankoubon );
+    
     $self->render( json => {result => \%tankoubon, total => $total, filtered => $filtered} );
 }
 
@@ -158,8 +157,6 @@ sub get_tankoubons_file {
             success    => 1
         }
     );
-
-    #$self->render( json => \@tanks );
 }
 
 1;
