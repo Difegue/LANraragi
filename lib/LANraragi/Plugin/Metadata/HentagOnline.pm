@@ -13,6 +13,8 @@ use Mojo::UserAgent;
 use LANraragi::Model::Plugins;
 use LANraragi::Utils::Logging qw(get_plugin_logger);
 
+use LANraragi::Utils::String;
+
 # Most parsing is reused between the two plugins
 require LANraragi::Plugin::Metadata::Hentag;
 
@@ -64,6 +66,7 @@ sub get_tags {
 
     my $vault_id;
     my @source_urls = undef;
+    my $archive_title = undef;
 
     # First, try running based on a vault ID from a hentag URL
     if ( defined($oneshot_param) && $oneshot_param ne '' ) {
@@ -105,7 +108,7 @@ sub get_tags {
 
         # Title lookup
         $logger->info('Title lookup');
-        my $archive_title = $lrr_info->{archive_title};
+        $archive_title = $lrr_info->{archive_title};
 
         if ( $string_json eq '' ) {
             $string_json = get_json_by_title( $ua, $archive_title, $logger );
@@ -117,7 +120,7 @@ sub get_tags {
         my $json = from_json($string_json);
 
         #Parse it
-        my ( $tags, $title ) = tags_from_hentag_api_json( $json, $allowed_languages );
+        my ( $tags, $title ) = tags_from_hentag_api_json( $json, $allowed_languages, $archive_title );
 
         #Return tags IFF data is found
         $logger->info("Sending the following tags to LRR: $tags");
@@ -191,7 +194,8 @@ sub get_json_by_urls ( $ua, $logger, @urls ) {
 }
 
 # Fetches tags and title, restricted to a language
-sub tags_in_language_from_hentag_api_json ( $json, $language ) {
+# If $title_hint is set, it attempts to pick the "best" result if multiple hits were returned from Hentag
+sub tags_in_language_from_hentag_api_json ( $json, $language, $title_hint =  undef ) {
     $language =~ s/^\s+|\s+$//g;
     $language = lc($language);
 
@@ -201,17 +205,17 @@ sub tags_in_language_from_hentag_api_json ( $json, $language ) {
     if (@lang_json_pairs) {
 
         # Possible improvement: Look for hits with "better" metadata (more tags, more tags in namespaces, etc).
-        my ( $tags, $title ) = LANraragi::Plugin::Metadata::Hentag::tags_from_hentag_json( $lang_json_pairs[0] );
+        my ( $tags, $title ) = LANraragi::Plugin::Metadata::Hentag::tags_from_hentag_json( pick_best_hit($title_hint, @lang_json_pairs) );
         return ( $tags, $title );
     }
     return ( '', '' );
 }
 
 # Returns (string_with_tags, string_with_title) on success, (empty_string, empty_string) on failure
-sub tags_from_hentag_api_json ( $json, $string_prefered_languages ) {
+sub tags_from_hentag_api_json ( $json, $string_prefered_languages, $title_hint =  undef ) {
     my @prefered_languages = split( ",", $string_prefered_languages );
     foreach my $language (@prefered_languages) {
-        my ( $tags, $title ) = tags_in_language_from_hentag_api_json( $json, $language );
+        my ( $tags, $title ) = tags_in_language_from_hentag_api_json( $json, $language, $title_hint );
         if ( $tags ne '' ) {
             return ( $tags, $title );
         }
@@ -236,6 +240,22 @@ sub get_source_tags(@tags) {
         }
     }
     return @found_tags;
+}
+
+sub pick_best_hit($title_hint, @hits) {
+    if (!defined($title_hint)) {
+        return $hits[0];
+    }
+    $title_hint = LANraragi::Utils::String::clean_title($title_hint);
+    foreach my $row (@hits) {
+        my ($tags, $title) = LANraragi::Plugin::Metadata::Hentag::tags_from_hentag_json($row);
+        $title = LANraragi::Utils::String::clean_title($title);
+        # Possible improvement: Check for most similar string, rather than equality
+        if (lc($title_hint) eq lc($title)) {
+            return $row;
+        }
+    }
+    return @hits[0];
 }
 
 1;
