@@ -59,3 +59,6 @@ requires 'Module::Pluggable', 5.2;
 
 # Eze plugin
 requires 'Time::Local', 1.30;
+
+# Ksk plugin
+requires 'YAML::Syck', 1.34;
