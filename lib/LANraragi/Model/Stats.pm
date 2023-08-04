@@ -74,6 +74,9 @@ sub build_stat_hashes {
 
     # Iterate on hashes to get their tags
     $logger->info("Building stat indexes... ($archive_count archives)");
+
+    # TODO go through tanks first, and remove their IDs from @keys
+
     foreach my $id (@keys) {
         if ( $redis->hexists( $id, "tags" ) ) {
 
