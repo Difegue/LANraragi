@@ -57,8 +57,8 @@ requires 'File::ChangeNotify', 0.31;
 # Plugin system
 requires 'Module::Pluggable', 5.2;
 
-# Eze plugin
+# Eze plugin/Timestamp calculation
 requires 'Time::Local', 1.30;
 
-# Ksk plugin
+# Ksk plugin/YAML Support
 requires 'YAML::Syck', 1.34;
