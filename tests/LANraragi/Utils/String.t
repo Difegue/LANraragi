@@ -44,5 +44,11 @@ note('testing title cleanup...');
     is($result, $expected, "Remove leading/trailing junk");
 }
 
+note('testing string similarity detection...');
+{
+    is(LANraragi::Utils::String::most_similar("orange", ("door hinge", "sporange")), 1, "Simple case");
+    is(LANraragi::Utils::String::most_similar("orange", ()), undef, "Empty set");
+}
+
 done_testing();
 

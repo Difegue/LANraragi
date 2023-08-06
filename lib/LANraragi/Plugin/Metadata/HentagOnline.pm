@@ -247,24 +247,14 @@ sub pick_best_hit($title_hint, @hits) {
     if (!defined($title_hint)) {
         return $hits[0];
     }
-    $title_hint = LANraragi::Utils::String::clean_title($title_hint);
-    my $best_similarity = 0.0;
-    my $best_row = $hits[0];
-    foreach my $row (@hits) {
-        my ($tags, $title) = LANraragi::Plugin::Metadata::Hentag::tags_from_hentag_json($row);
-        $title = LANraragi::Utils::String::clean_title($title);
-        # Automatically accept identical hits (after cleanup)
-        if (lc($title_hint) eq lc($title)) {
-            return $row;
-        }
-        # If no perfect match is found, use the most similar hit
-        my $similarity = similarity($title, $title_hint);
-        if ($similarity > $best_similarity) {
-            $best_similarity = $similarity;
-            $best_row = $row;
-        }
+    $title_hint = lc(LANraragi::Utils::String::clean_title($title_hint));
+
+    my @titles;
+    while (my ($index, $elem) = each @hits) {
+        my ($tags, $title) = LANraragi::Plugin::Metadata::Hentag::tags_from_hentag_json($elem);
+        $titles[$index] = lc(LANraragi::Utils::String::clean_title($title));
     }
-    return $best_row;
+    return $hits[LANraragi::Utils::String::most_similar($title_hint, @titles)];
 }
 
 1;
