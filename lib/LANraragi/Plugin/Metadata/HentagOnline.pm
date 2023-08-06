@@ -14,6 +14,7 @@ use LANraragi::Model::Plugins;
 use LANraragi::Utils::Logging qw(get_plugin_logger);
 
 use LANraragi::Utils::String;
+use String::Similarity;
 
 # Most parsing is reused between the two plugins
 require LANraragi::Plugin::Metadata::Hentag;
@@ -247,15 +248,23 @@ sub pick_best_hit($title_hint, @hits) {
         return $hits[0];
     }
     $title_hint = LANraragi::Utils::String::clean_title($title_hint);
+    my $best_similarity = 0.0;
+    my $best_row = $hits[0];
     foreach my $row (@hits) {
         my ($tags, $title) = LANraragi::Plugin::Metadata::Hentag::tags_from_hentag_json($row);
         $title = LANraragi::Utils::String::clean_title($title);
-        # Possible improvement: Check for most similar string, rather than equality
+        # Automatically accept identical hits (after cleanup)
         if (lc($title_hint) eq lc($title)) {
             return $row;
         }
+        # If no perfect match is found, use the most similar hit
+        my $similarity = similarity($title, $title_hint);
+        if ($similarity > $best_similarity) {
+            $best_similarity = $similarity;
+            $best_row = $row;
+        }
     }
-    return @hits[0];
+    return $best_row;
 }
 
 1;

@@ -62,3 +62,6 @@ requires 'Time::Local', 1.30;
 
 # Ksk plugin/YAML Support
 requires 'YAML::Syck', 1.34;
+
+# Hentag plugin
+requires 'String::Similarity', 1.04
