@@ -38,13 +38,13 @@ my @modules = (
     "LANraragi::Plugin::Metadata::nHentai",         "LANraragi::Plugin::Metadata::RegexParse",
     "LANraragi::Plugin::Metadata::Fakku",           "LANraragi::Plugin::Metadata::Koushoku",
     "LANraragi::Plugin::Login::EHentai",            "LANraragi::Plugin::Login::Fakku",
-    "LANraragi::Plugin::Scripts::SourceFinder",     "LANraragi::Plugin::Scripts::FolderToCat",
-    "LANraragi::Plugin::Download::EHentai",         "LANraragi::Plugin::Download::Chaika",
-    "LANraragi::Plugin::Download::Koushoku",        "LANraragi::Plugin::Scripts::nHentaiSourceConverter",
-    "LANraragi::Plugin::Scripts::BlacklistMigrate", "LANraragi::Plugin::Metadata::Hitomi",
+    "LANraragi::Plugin::Login::Hentag",             "LANraragi::Plugin::Scripts::SourceFinder",
+    "LANraragi::Plugin::Scripts::FolderToCat",      "LANraragi::Plugin::Download::EHentai",
+    "LANraragi::Plugin::Download::Chaika",          "LANraragi::Plugin::Download::Koushoku",
+    "LANraragi::Plugin::Scripts::BlacklistMigrate", "LANraragi::Plugin::Scripts::nHentaiSourceConverter",
+    "LANraragi::Plugin::Metadata::Hitomi",          "LANraragi::Plugin::Metadata::Ksk",
     "LANraragi::Plugin::Metadata::Hentag",          "LANraragi::Plugin::Metadata::HentagOnline",
-    "LANraragi::Plugin::Metadata::ComicInfo",       "LANraragi::Plugin::Metadata::ChaikaFile",
-    "LANraragi::Plugin::Metadata::Ksk",
+    "LANraragi::Plugin::Metadata::ComicInfo",       "LANraragi::Plugin::Metadata::ChaikaFile"
 );
 
 # Test all modules load properly
