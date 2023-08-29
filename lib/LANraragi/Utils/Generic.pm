@@ -15,43 +15,13 @@ use Proc::Simple;
 use Sys::CpuAffinity;
 
 use LANraragi::Utils::TempFolder qw(get_temp);
+use LANraragi::Utils::String qw(trim);
 use LANraragi::Utils::Logging qw(get_logger);
 
 # Generic Utility Functions.
 use Exporter 'import';
-our @EXPORT_OK =
-  qw(remove_spaces remove_newlines trim_url is_image is_archive render_api_response get_tag_with_namespace shasum start_shinobu
+our @EXPORT_OK = qw(is_image is_archive render_api_response get_tag_with_namespace shasum start_shinobu
   split_workload_by_cpu start_minion get_css_list generate_themes_header flat get_bytelength array_difference);
-
-# Remove spaces before and after a word
-sub remove_spaces {
-    if ( $_[0] ) {
-        $_[0] =~ s/^\s+|\s+$//g;
-    }
-}
-
-# Remove all newlines in a string
-sub remove_newlines {
-    if ( $_[0] ) {
-        $_[0] =~ s/\R//g;
-    }
-}
-
-# Fixes up a URL string for use in the DL system.
-sub trim_url {
-
-    remove_spaces( $_[0] );
-
-    # Remove scheme, www. and query parameters if present. Other subdomains are not removed
-    if ( $_[0] =~ /https?:\/\/(www\.)?([^\?]*)\??.*/gm ) {
-        $_[0] = $2;
-    }
-
-    my $char = chop $_[0];
-    if ( $char ne "/" ) {
-        $_[0] .= $char;
-    }
-}
 
 # Checks if the provided file is an image.
 # Uses non-capturing groups (?:) to avoid modifying the incoming argument.
@@ -72,10 +42,10 @@ sub render_api_response {
 
     $mojo->render(
         json => {
-            operation       => $operation,
-            error           => $failed ? $errormessage : "",
-            success         => $failed ? 0 : 1,
-            successMessage  => $failed ? "" : $successMessage,
+            operation      => $operation,
+            error          => $failed ? $errormessage : "",
+            success        => $failed ? 0 : 1,
+            successMessage => $failed ? "" : $successMessage,
         },
         status => $failed ? 400 : 200
     );
@@ -88,8 +58,8 @@ sub get_tag_with_namespace {
 
     foreach my $tag (@values) {
         my ( $namecheck, $value ) = split( ':', $tag );
-        remove_spaces($namecheck);
-        remove_spaces($value);
+        $namecheck = trim($namecheck);
+        $value     = trim($value);
 
         if ( $namecheck eq $namespace ) {
             return $value;
@@ -119,7 +89,7 @@ sub split_workload_by_cpu {
 
 # Start a Minion worker if there aren't any available.
 sub start_minion {
-    my $mojo = shift;
+    my $mojo   = shift;
     my $logger = get_logger( "Minion", "minion" );
 
     my $numcpus = Sys::CpuAffinity::getNumCpus();
@@ -150,8 +120,8 @@ sub start_minion {
 }
 
 sub _spawn {
-    my ( $job, $pid ) = @_;
-    my ( $id, $task ) = ( $job->id, $job->task );
+    my ( $job, $pid )  = @_;
+    my ( $id,  $task ) = ( $job->id, $job->task );
     my $logger = get_logger( "Minion Worker", "minion" );
     $job->app->log->debug(qq{Process $pid is performing job "$id" with task "$task"});
 }
@@ -272,15 +242,15 @@ sub array_difference {
 
     my %seen;
     my @difference;
-    
+
     # Add all elements from array1 to the hash
     $seen{$_} = 1 for @$array1;
-    
+
     # Check elements in array2 and add the ones not seen in array1 to the difference array
     foreach my $element (@$array2) {
         push @difference, $element unless $seen{$element};
     }
-    
+
     return @difference;
 }
 

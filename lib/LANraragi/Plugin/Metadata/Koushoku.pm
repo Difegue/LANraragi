@@ -13,7 +13,7 @@ use Mojo::DOM;
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
 use LANraragi::Utils::Logging qw(get_plugin_logger);
-use LANraragi::Utils::Generic qw(remove_spaces);
+use LANraragi::Utils::String qw(trim);
 
 #Meta-information about your plugin.
 sub plugin_info {
@@ -135,7 +135,7 @@ sub get_tags_from_ksk {
 
     # Title is the first h1 block
     my $title = $dom->at('h1')->text;
-    remove_spaces($title);
+    $title = trim($title);
     $logger->debug("Parsed title: $title");
 
     # Get all the links with rel="tag"
@@ -153,7 +153,7 @@ sub get_tags_from_ksk {
 
             # url-decode it before pushing
             my $tag = uri_unescape($2);
-            remove_spaces($tag);
+            $tag = trim($tag);
 
             if ( $1 eq "artists" ) {
                 $tag = "artist:" . $tag;

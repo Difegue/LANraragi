@@ -1,7 +1,8 @@
 package LANraragi::Controller::Config;
 use Mojo::Base 'Mojolicious::Controller';
 
-use LANraragi::Utils::Generic qw(generate_themes_header remove_spaces remove_newlines);
+use LANraragi::Utils::Generic qw(generate_themes_header);
+use LANraragi::Utils::String qw(trim trim_CRLF);
 use LANraragi::Utils::Database qw(redis_encode save_computed_tagrules);
 use LANraragi::Utils::TempFolder qw(get_tempsize);
 use LANraragi::Utils::Tags qw(tags_rules_to_array replace_CRLF restore_CRLF);
@@ -127,10 +128,11 @@ sub save_config {
 
         # Clean up the user's inputs for non-toggle options and encode for redis insertion
         foreach my $key ( keys %confhash ) {
-            remove_spaces( $confhash{$key} );
-            remove_newlines( $confhash{$key} );
-            $confhash{$key} = redis_encode( $confhash{$key} );
-            $self->LRR_LOGGER->debug( "Saving $key with value " . $confhash{$key} );
+            my $value = $confhash{$key};
+            $value = trim($value);
+            $value = trim_CRLF($value);
+            $value = redis_encode($value);
+            $self->LRR_LOGGER->debug( "Saving $key with value " . $value );
         }
 
         #for all keys of the hash, add them to the redis config hash with the matching keys.

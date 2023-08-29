@@ -11,7 +11,7 @@ use Mojo::JSON qw(decode_json encode_json);
 use Mojo::UserAgent;
 use Data::Dumper;
 
-use LANraragi::Utils::Generic qw(remove_spaces remove_newlines);
+use LANraragi::Utils::String qw(trim);
 use LANraragi::Utils::Database qw(set_tags set_title);
 use LANraragi::Utils::Archive qw(extract_thumbnail);
 use LANraragi::Utils::Logging qw(get_logger);
@@ -20,7 +20,7 @@ use LANraragi::Utils::Tags qw(rewrite_tags split_tags_to_array);
 # Sub used by Auto-Plugin.
 sub exec_enabled_plugins_on_file {
 
-    my $id = shift;
+    my $id     = shift;
     my $logger = get_logger( "Auto-Plugin", "lanraragi" );
 
     $logger->info("Executing enabled metadata plugins on archive with id $id.");
@@ -273,7 +273,7 @@ sub exec_metadata_plugin {
         if ( exists $newmetadata{title} ) {
 
             my $newtitle = $newmetadata{title};
-            remove_spaces($newtitle);
+            $newtitle = trim($newtitle);
             $returnhash{title} = $newtitle;
         }
         return %returnhash;

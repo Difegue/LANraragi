@@ -9,7 +9,8 @@ use Redis;
 use Storable qw/ nfreeze thaw /;
 use Sort::Naturally;
 
-use LANraragi::Utils::Generic qw(split_workload_by_cpu remove_spaces);
+use LANraragi::Utils::Generic qw(split_workload_by_cpu);
+use LANraragi::Utils::String qw(trim);
 use LANraragi::Utils::Database qw(redis_decode redis_encode);
 use LANraragi::Utils::Logging qw(get_logger);
 
@@ -22,7 +23,7 @@ sub do_search {
 
     my ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $untaggedonly ) = @_;
 
-    my $redis = LANraragi::Model::Config->get_redis_search;
+    my $redis  = LANraragi::Model::Config->get_redis_search;
     my $logger = get_logger( "Search Engine", "lanraragi" );
 
     unless ( $redis->exists("LAST_JOB_TIME") ) {
@@ -64,7 +65,7 @@ sub do_search {
 sub check_cache {
 
     my ( $cachekey, $cachekey_inv ) = @_;
-    my $redis = LANraragi::Model::Config->get_redis_search;
+    my $redis  = LANraragi::Model::Config->get_redis_search;
     my $logger = get_logger( "Search Cache", "lanraragi" );
 
     my @filtered = ();
@@ -190,7 +191,7 @@ sub search_uncached {
                 # If the tag has a namespace, We don't add a wildcard at the start of the tag to keep it intact.
                 # Otherwise, we add a wildcard at the start to match all namespaces.
                 my $indexkey = $tag =~ /:/ ? "INDEX_$tag*" : "INDEX_*$tag*";
-                my @keys = $redis->keys($indexkey);
+                my @keys     = $redis->keys($indexkey);
 
                 # Get the list of IDs for each key
                 foreach my $key (@keys) {
@@ -202,7 +203,7 @@ sub search_uncached {
 
             # Append fuzzy title search
             my $namesearch = $isexact ? "$tag\x00*" : "*$tag*";
-            my $scan = -1;
+            my $scan       = -1;
             while ( $scan != 0 ) {
 
                 # First iteration
@@ -373,7 +374,7 @@ sub compute_search_filter {
         # Escape already present regex characters
         $logger->debug("Pre-escaped tag: $tag");
 
-        remove_spaces($tag);
+        $tag = trim($tag);
 
         # Escape characters according to redis zscan rules
         $tag =~ s/([\[\]\^\\])/\\$1/g;
@@ -405,10 +406,10 @@ sub sort_results {
    # (If no tag, defaults to "zzzz")
     my %tmpfilter = map { $_ => ( $redis->hget( $_, "tags" ) =~ m/.*${re}:(.*)(\,.*|$)/ ) ? $1 : "zzzz" } @filtered;
 
-    my @sorted = map { $_->[0] }    # Map back to only having the ID
-      sort { ncmp( $a->[1], $b->[1] ) }    # Sort by the tag
-      map { [ $_, lc( $tmpfilter{$_} ) ] } # Map to an array containing the ID and the lowercased tag
-      keys %tmpfilter;                     # List of IDs
+    my @sorted = map { $_->[0] }                         # Map back to only having the ID
+      sort           { ncmp( $a->[1], $b->[1] ) }        # Sort by the tag
+      map            { [ $_, lc( $tmpfilter{$_} ) ] }    # Map to an array containing the ID and the lowercased tag
+      keys %tmpfilter;                                   # List of IDs
 
     if ($sortorder) {
         @sorted = reverse @sorted;
