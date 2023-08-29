@@ -206,4 +206,48 @@ note("08 - multiple hits in same language");
     is( $response{tags},  $expected_tags,  "correct tags" );
 }
 
+note("08 - multiple hits, pick the best hit");
+{
+    my $archive_title = "some series 1";
+    my $received_title;
+    my $mock_json = Mojo::File->new("$SAMPLES/hentag/05_search_response_multiple_similar_titles.json")->slurp;
+
+    no warnings 'once', 'redefine';
+    local *LANraragi::Plugin::Metadata::HentagOnline::get_plugin_logger = sub { return get_logger_mock(); };
+    local *LANraragi::Plugin::Metadata::HentagOnline::get_json_by_title = sub {
+        my ( $ua, $our_archive_title ) = @_;
+        $received_title = $our_archive_title;
+        return $mock_json;
+    };
+
+    my %get_tags_params = ( archive_title => $archive_title);
+
+    my %response = LANraragi::Plugin::Metadata::HentagOnline::get_tags( "", \%get_tags_params, 1 );
+
+    my $expected_title = "(c20) [auth (circ)] some series 1 [peepee] [poopoo]";
+    is( $response{title}, $expected_title, "correct title" );
+}
+
+note("09 - multiple hits, pick the best hit, by similarity");
+{
+    my $archive_title = "some seris 1";
+    my $received_title;
+    my $mock_json = Mojo::File->new("$SAMPLES/hentag/05_search_response_multiple_similar_titles.json")->slurp;
+
+    no warnings 'once', 'redefine';
+    local *LANraragi::Plugin::Metadata::HentagOnline::get_plugin_logger = sub { return get_logger_mock(); };
+    local *LANraragi::Plugin::Metadata::HentagOnline::get_json_by_title = sub {
+        my ( $ua, $our_archive_title ) = @_;
+        $received_title = $our_archive_title;
+        return $mock_json;
+    };
+
+    my %get_tags_params = ( archive_title => $archive_title);
+
+    my %response = LANraragi::Plugin::Metadata::HentagOnline::get_tags( "", \%get_tags_params, 1 );
+
+    my $expected_title = "(c20) [auth (circ)] some series 1 [peepee] [poopoo]";
+    is( $response{title}, $expected_title, "correct title" );
+}
+
 done_testing();
