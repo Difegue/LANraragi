@@ -339,6 +339,4 @@ sub get_tankoubons_file($arcid) {
 
 }
 
-# UTILS - Probably better to move to another file
-
 1;
