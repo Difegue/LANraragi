@@ -1,4 +1,4 @@
-package LANraragi::Plugin::Login::EHentai;
+package LANraragi::Plugin::Login::Hentag;
 
 use strict;
 use warnings;
@@ -38,7 +38,7 @@ sub do_login {
 }
 
 # get_user_agent(ipb cookies)
-# Try crafting a Mojo::UserAgent object that can access E-Hentai.
+# Try crafting a Mojo::UserAgent object that can access Hentag.
 # Returns the UA object created.
 sub get_user_agent {
 
@@ -51,7 +51,6 @@ sub get_user_agent {
         $logger->info("Cookies provided ($hx $hu)!");
 
         #Setup the needed cookies with both domains
-        #They should translate to exhentai cookies with the igneous value generated
         $ua->cookie_jar->add(
             Mojo::Cookie::Response->new(
                 name   => 'hx',
