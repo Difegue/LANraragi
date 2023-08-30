@@ -26,7 +26,7 @@ sub plugin_info {
         name        => "Hentag Online Lookups",
         type        => "metadata",
         namespace   => "hentagonlineplugin",
-        author      => "siliconfeces & Moort",
+        author      => "siliconfeces & Moordp",
         version     => "0.2",
         login_from  => "hentaglogin"
         description => "Searches hentag.com for tags matching your archive",

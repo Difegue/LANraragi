@@ -15,7 +15,7 @@ sub plugin_info {
         name      => "Hentag",
         type      => "login",
         namespace => "hentaglogin",
-        author    => "Moort",
+        author    => "Moordp",
         version   => "1.0",
         description =>
           "Handles login to Hentag. If you have an account with contraversial content enabled, hentag online lookup can parse more archives",
