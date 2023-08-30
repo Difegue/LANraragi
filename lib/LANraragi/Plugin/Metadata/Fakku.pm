@@ -13,7 +13,7 @@ use Mojo::DOM;
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
 use LANraragi::Utils::Logging qw(get_plugin_logger);
-use LANraragi::Utils::Generic qw(remove_spaces remove_newlines);
+use LANraragi::Utils::String qw(trim trim_CRLF);
 
 #Meta-information about your plugin.
 sub plugin_info {
@@ -179,7 +179,7 @@ sub get_tags_from_fakku {
     my $metadata_parent = $tags_parent->parent->parent;
 
     my $title = $metadata_parent->at('h1')->text;
-    remove_spaces($title);
+    $title = trim($title);
     $logger->debug("Parsed title: $title");
 
     my @tags = ();
@@ -201,8 +201,8 @@ sub get_tags_from_fakku {
           ? $row[1]->at('a')->text
           : $row[1]->text;
 
-        remove_spaces($value);
-        remove_newlines($value);
+        $value = trim($value);
+        $value = trim_CRLF($value);
 
         $logger->debug("Parsed row: $namespace");
         $logger->debug("Matching tag: $value");
@@ -223,8 +223,8 @@ sub get_tags_from_fakku {
     foreach my $link (@tag_links) {
         my $tag = $link->text;
 
-        remove_spaces($tag);
-        remove_newlines($tag);
+        $tag = trim($tag);
+        $tag = trim_CRLF($tag);
         unless ( $tag eq "+" || $tag eq "" ) {
             push( @tags, lc $tag );
         }

@@ -16,7 +16,8 @@ use Redis;
 use Cwd;
 use Unicode::Normalize;
 
-use LANraragi::Utils::Generic qw(flat remove_spaces remove_newlines trim_url);
+use LANraragi::Utils::Generic qw(flat);
+use LANraragi::Utils::String qw(trim trim_CRLF trim_url);
 use LANraragi::Utils::Tags qw(unflat_tagrules tags_rules_to_array restore_CRLF);
 use LANraragi::Utils::Archive qw(get_filelist);
 use LANraragi::Utils::Logging qw(get_logger);
@@ -59,7 +60,7 @@ sub add_archive_to_redis ( $id, $file, $redis ) {
 sub change_archive_id ( $old_id, $new_id ) {
 
     my $logger = get_logger( "Archive", "lanraragi" );
-    my $redis = LANraragi::Model::Config->get_redis;
+    my $redis  = LANraragi::Model::Config->get_redis;
 
     $logger->debug("Changing ID $old_id to $new_id");
 
@@ -172,7 +173,8 @@ sub build_json ( $id, %hash ) {
 
     # It's not a new archive, but it might have never been clicked on yet,
     # so grab the value for $isnew stored in redis.
-    my ( $name, $title, $tags, $file, $isnew, $progress, $pagecount, $lastreadtime) = @hash{qw(name title tags file isnew progress pagecount lastreadtime)};
+    my ( $name, $title, $tags, $file, $isnew, $progress, $pagecount, $lastreadtime ) =
+      @hash{qw(name title tags file isnew progress pagecount lastreadtime)};
 
     # Return undef if the file doesn't exist.
     return unless ( defined($file) && -e $file );
@@ -186,13 +188,13 @@ sub build_json ( $id, %hash ) {
     }
 
     my $arcdata = {
-        arcid     => $id,
-        title     => $title,
-        tags      => $tags,
-        isnew     => $isnew ? $isnew : "false",
-        extension => lc( ( split( /\./, $file ) )[-1] ),
-        progress  => $progress ? int($progress) : 0,
-        pagecount => $pagecount ? int($pagecount) : 0,
+        arcid        => $id,
+        title        => $title,
+        tags         => $tags,
+        isnew        => $isnew ? $isnew : "false",
+        extension    => lc( ( split( /\./, $file ) )[-1] ),
+        progress     => $progress ? int($progress) : 0,
+        pagecount    => $pagecount ? int($pagecount) : 0,
         lastreadtime => $lastreadtime ? int($lastreadtime) : 0
     };
 
@@ -208,8 +210,8 @@ sub delete_archive($id) {
     $oldtags = redis_decode($oldtags);
 
     my $oldtitle = lc( redis_decode( $redis->hget( $id, "title" ) ) );
-    remove_spaces($oldtitle);
-    remove_newlines($oldtitle);
+    $oldtitle = trim($oldtitle);
+    $oldtitle = trim_CRLF($oldtitle);
     $oldtitle = redis_encode($oldtitle);
 
     $redis->del($id);
@@ -278,7 +280,7 @@ sub clean_database {
 
     # Get the filemap for ID checks later down the line
     my @filemapids = $redis_config->exists("LRR_FILEMAP") ? $redis_config->hvals("LRR_FILEMAP") : ();
-    my %filemap = map { $_ => 1 } @filemapids;
+    my %filemap    = map { $_ => 1 } @filemapids;
 
     #40-character long keys only => Archive IDs
     my @keys = $redis->keys('????????????????????????????????????????');
@@ -346,8 +348,8 @@ sub set_title ( $id, $newtitle ) {
         # Remove old title from search set
         if ( $redis->hexists( $id, "title" ) ) {
             my $oldtitle = lc( redis_decode( $redis->hget( $id, "title" ) ) );
-            remove_spaces($oldtitle);
-            remove_newlines($oldtitle);
+            $oldtitle = trim($oldtitle);
+            $oldtitle = trim_CRLF($oldtitle);
             $oldtitle = redis_encode($oldtitle);
             $redis_search->zrem( "LRR_TITLES", "$oldtitle\0$id" );
         }
@@ -357,8 +359,8 @@ sub set_title ( $id, $newtitle ) {
 
         # Set title/ID key in search set
         $newtitle = lc($newtitle);
-        remove_spaces($newtitle);
-        remove_newlines($newtitle);
+        $newtitle = trim($newtitle);
+        $newtitle = trim_CRLF($newtitle);
         $newtitle = redis_encode($newtitle);
         $redis_search->zadd( "LRR_TITLES", 0, "$newtitle\0$id" );
     }
@@ -370,7 +372,7 @@ sub set_title ( $id, $newtitle ) {
 # Set $append to 1 if you want to append the tags instead of replacing them.
 sub set_tags ( $id, $newtags, $append = 0 ) {
 
-    my $redis = LANraragi::Model::Config->get_redis;
+    my $redis   = LANraragi::Model::Config->get_redis;
     my $oldtags = $redis->hget( $id, "tags" );
     $oldtags = redis_decode($oldtags);
 
@@ -380,7 +382,7 @@ sub set_tags ( $id, $newtags, $append = 0 ) {
         unless ( length $newtags ) { return; }
 
         if ($oldtags) {
-            remove_spaces($oldtags);
+            $oldtags = trim($oldtags);
 
             if ( $oldtags ne "" ) {
                 $newtags = $oldtags . "," . $newtags;
@@ -433,8 +435,7 @@ sub update_indexes ( $id, $oldtags, $newtags ) {
     foreach my $tag (@oldtags) {
 
         if ( $tag =~ /source:(.*)/i ) {
-            my $url = $1;
-            trim_url($url);
+            my $url = trim_url($1);
             $redis->hdel( "LRR_URLMAP", $url );
         }
 
@@ -449,8 +450,7 @@ sub update_indexes ( $id, $oldtags, $newtags ) {
 
         # If the tag is a source: tag, add it to the URL index
         if ( $tag =~ /source:(.*)/i ) {
-            my $url = $1;
-            trim_url($url);
+            my $url = trim_url($1);
             $redis->hset( "LRR_URLMAP", $url, $id );
         }
 
@@ -533,7 +533,7 @@ sub save_computed_tagrules($tagrules) {
     $redis->del("LRR_TAGRULES");
 
     if (@$tagrules) {
-        my @flat = reverse flat(@$tagrules);
+        my @flat         = reverse flat(@$tagrules);
         my @encoded_flat = map { redis_encode($_) } @flat;
         $redis->lpush( "LRR_TAGRULES", @encoded_flat );
     }
@@ -549,7 +549,7 @@ sub get_computed_tagrules {
 
     if ( $redis->exists("LRR_TAGRULES") ) {
         my @flattened_rules = $redis->lrange( "LRR_TAGRULES", 0, -1 );
-        my @decoded_rules = map { redis_decode($_) } @flattened_rules;
+        my @decoded_rules   = map { redis_decode($_) } @flattened_rules;
         @tagrules = unflat_tagrules( \@decoded_rules );
     } else {
         @tagrules = tags_rules_to_array( restore_CRLF( LANraragi::Model::Config->get_tagrules ) );
@@ -574,12 +574,12 @@ sub get_tankoubons_by_file($arcid) {
         return ();
     }
 
-    my @tanks = $redis->keys('TANK_??????????');  
+    my @tanks = $redis->keys('TANK_??????????');
 
-    foreach my $key (sort @tanks) {
+    foreach my $key ( sort @tanks ) {
 
-        if ($redis->zscore($key, $arcid)) {
-            push( @tankoubons, $key)
+        if ( $redis->zscore( $key, $arcid ) ) {
+            push( @tankoubons, $key );
         }
     }
 

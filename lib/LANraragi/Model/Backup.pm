@@ -9,14 +9,14 @@ use Mojo::JSON qw(decode_json encode_json);
 
 use LANraragi::Model::Category;
 use LANraragi::Utils::Database;
-use LANraragi::Utils::Generic qw(remove_newlines);
+use LANraragi::Utils::String qw(trim_CRLF);
 use LANraragi::Utils::Database qw(redis_encode redis_decode invalidate_cache set_title set_tags);
 use LANraragi::Utils::Logging qw(get_logger);
 
 #build_backup_JSON()
 #Goes through the Redis archive IDs and builds a JSON string containing their metadata.
 sub build_backup_JSON {
-    my $redis = LANraragi::Model::Config->get_redis;
+    my $redis  = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Backup/Restore", "lanraragi" );
 
     # Basic structure of the backup object
@@ -65,7 +65,7 @@ sub build_backup_JSON {
             my ( $name, $title, $tags, $thumbhash ) = @hash{qw(name title tags thumbhash)};
 
             ( $_ = redis_decode($_) ) for ( $name, $title, $tags );
-            ( remove_newlines($_) ) for ( $name, $title, $tags );
+            ( $_ = trim_CRLF($_) )    for ( $name, $title, $tags );
 
             # Backup all user-generated metadata, alongside the unique ID.
             my %arc = (

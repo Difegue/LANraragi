@@ -7,7 +7,7 @@ no warnings 'uninitialized';
 use Mojo::UserAgent;
 use LANraragi::Utils::Logging qw(get_plugin_logger);
 use LANraragi::Model::Stats;
-use LANraragi::Utils::Generic qw(trim_url);
+use LANraragi::Utils::String qw(trim_url);
 
 #Meta-information about your plugin.
 sub plugin_info {

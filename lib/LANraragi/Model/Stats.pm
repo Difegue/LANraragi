@@ -8,7 +8,8 @@ use Redis;
 use File::Find;
 use Mojo::JSON qw(encode_json);
 
-use LANraragi::Utils::Generic qw(remove_spaces remove_newlines is_archive trim_url);
+use LANraragi::Utils::Generic qw(is_archive);
+use LANraragi::Utils::String qw(trim trim_CRLF trim_url);
 use LANraragi::Utils::Database qw(redis_decode redis_encode);
 use LANraragi::Utils::Logging qw(get_logger);
 
@@ -38,7 +39,7 @@ sub get_archive_count {
 sub get_page_stat {
 
     my $redis = LANraragi::Model::Config->get_redis_config;
-    my $stat = $redis->get("LRR_TOTALPAGESTAT") || 0;
+    my $stat  = $redis->get("LRR_TOTALPAGESTAT") || 0;
     $redis->quit();
 
     return $stat;
@@ -83,20 +84,19 @@ sub build_stat_hashes {
             my $rawtags = $redis->hget( $id, "tags" );
 
             # Split tags by comma
-            my @tags = split( /,\s?/, redis_decode($rawtags) );
+            my @tags     = split( /,\s?/, redis_decode($rawtags) );
             my $has_tags = 0;
 
             foreach my $t (@tags) {
-                remove_spaces($t);
-                remove_newlines($t);
+                $t = trim($t);
+                $t = trim_CRLF($t);
 
                 # The following are basic and therefore don't count as "tagged"
                 $has_tags = 1 unless $t =~ /(artist|parody|series|language|event|group|date_added|timestamp):.*/;
 
                 # If the tag is a source: tag, add it to the URL index
                 if ( $t =~ /source:(.*)/i ) {
-                    my $url = $1;
-                    trim_url($url);
+                    my $url = trim_url($1);
                     $logger->trace("Adding $url as an URL for $id");
                     $redistx->hset( "LRR_URLMAP", $url, $id );  # No need to encode the value, as URLs are already encoded by design
                 }
@@ -123,8 +123,8 @@ sub build_stat_hashes {
 
             # Decode and lowercase the title
             $title = lc( redis_decode($title) );
-            remove_spaces($title);
-            remove_newlines($title);
+            $title = trim($title);
+            $title = trim_CRLF($title);
             $title = redis_encode($title);
 
             # The LRR_TITLES lexicographically sorted set contains both the title and the id under the form $title\x00$id.
@@ -156,7 +156,7 @@ sub is_url_recorded {
     $logger->debug("Checking if url $url is in the url map.");
 
     # Trim last slash from url if it's present
-    trim_url($url);
+    $url = trim_url($url);
 
     if ( $redis->hexists( "LRR_URLMAP", $url ) ) {
         $id = $redis->hget( "LRR_URLMAP", $url );
@@ -169,11 +169,11 @@ sub is_url_recorded {
 sub build_tag_stats {
 
     my $minscore = shift;
-    my $logger = get_logger( "Tag Stats", "lanraragi" );
+    my $logger   = get_logger( "Tag Stats", "lanraragi" );
     $logger->debug("Serving tag statistics with a minimum weight of $minscore");
 
     # Login to Redis and grab the stats sorted set
-    my $redis = LANraragi::Model::Config->get_redis_search;
+    my $redis    = LANraragi::Model::Config->get_redis_search;
     my %tagcloud = $redis->zrangebyscore( "LRR_STATS", $minscore, "+inf", "WITHSCORES" );
     $redis->quit();
 
