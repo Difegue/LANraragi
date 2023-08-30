@@ -28,7 +28,7 @@ sub plugin_info {
         namespace   => "hentagonlineplugin",
         author      => "siliconfeces & Moordp",
         version     => "0.2",
-        login_from  => "hentaglogin"
+        login_from  => "hentaglogin",
         description => "Searches hentag.com for tags matching your archive",
         parameters  => [
             { type => "bool", desc => "Save archive title" },
