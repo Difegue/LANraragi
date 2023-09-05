@@ -76,4 +76,20 @@ note("test fetching title, assuming language");
     is( $ko_tags{tags},  $expected_tags, "Language is present" );
 }
 
+note("test support for info.yaml");
+{
+    my ( $fh, $filename ) = tempfile();
+    cp( $SAMPLES . "/ksk/fake.yaml", $fh );
+
+    no warnings 'once', 'redefine';
+    local *LANraragi::Plugin::Metadata::Ksk::get_plugin_logger         = sub { return get_logger_mock(); };
+    local *LANraragi::Plugin::Metadata::Ksk::extract_file_from_archive = sub { $filename };
+    local *LANraragi::Plugin::Metadata::Ksk::is_file_in_archive        = sub  { my $fn = $_[1]; return $fn eq "info.yaml"; };
+
+    my %dummyhash = ( file_path => "test" );
+
+    my %ko_tags = LANraragi::Plugin::Metadata::Ksk::get_tags( "", \%dummyhash, 1, 1 );
+    is( $ko_tags{title}, "My Immortal",  "Loads data from info.yaml" );
+}
+
 done_testing();

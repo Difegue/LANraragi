@@ -34,7 +34,11 @@ sub get_tags {
     my $path_in_archive = is_file_in_archive( $file, "koushoku.yaml" );
 
     if ( !$path_in_archive ) {
-        return ( error => "No koushoku.yaml file found in archive" );
+        $path_in_archive = is_file_in_archive( $file, "info.yaml" );
+    }
+
+    if ( !$path_in_archive ) {
+        return ( error => "No KSK metadata file found in archive" );
     }
 
     my $filepath = extract_file_from_archive( $file, $path_in_archive );
