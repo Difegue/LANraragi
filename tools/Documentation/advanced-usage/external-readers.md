@@ -45,7 +45,14 @@ Here are some existing clients:
 ![Tachiyomi](<../.screenshots/tachiyomi.jpg>)
 
 The open-source [Tachiyomi](https://tachiyomi.org) Android reader has a readymade plugin to consume the LANraragi API.  
-You can download it [here.](https://github.com/inorichi/tachiyomi-extensions/blob/repo/apk/tachiyomi-all.lanraragi-v1.2.1.apk)
+You can download it [here.](https://github.com/tachiyomiorg/tachiyomi-extensions/blob/repo/apk/tachiyomi-all.lanraragi-v1.4.14.apk)  
+
+### LRR React Web
+
+![LRR React-Web](../.screenshots/lrr_react.jpg)
+
+A React-based frontend PWA making use of the Client API. "Works best on mobile and tablet viewports, but the desktop experience is okay."  
+Check it out [here.](https://github.com/hibikikuze4dan/lanraragi-react-web)
 
 ## Generic OPDS readers
 

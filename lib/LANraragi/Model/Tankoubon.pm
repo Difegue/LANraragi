@@ -12,19 +12,19 @@ use Mojo::JSON qw(decode_json encode_json);
 use List::Util qw(min);
 
 use LANraragi::Utils::Database qw(redis_encode redis_decode invalidate_cache get_archive_json_multi get_tankoubons_by_file);
-use LANraragi::Utils::Generic qw(array_difference);
-use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Generic  qw(array_difference);
+use LANraragi::Utils::Logging  qw(get_logger);
 
 # get_tankoubon_list(page)
 #   Returns a list of all the Tankoubon objects.
-sub get_tankoubon_list($page=0) {
+sub get_tankoubon_list ( $page = 0 ) {
 
-    my $redis = LANraragi::Model::Config->get_redis;
+    my $redis  = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Tankoubon", "lanraragi" );
 
     $page //= 0;
 
-    # Tankoubons are represented by RG_[timestamp] in DB. Can't wait for 2038!
+    # Tankoubons are represented by TANK_[timestamp] in DB. Can't wait for 2038!
     my @tanks = $redis->keys('TANK_??????????');
 
     # Jam tanks into an array of hashes
@@ -77,7 +77,7 @@ sub create_tankoubon ( $name, $tank_id ) {
 
         # Get name
         my @old_name = $redis->zrangebyscore( $tank_id, 0, 0, qw{LIMIT 0 1} );
-        my $n = redis_decode( $old_name[0] );
+        my $n        = redis_decode( $old_name[0] );
 
         $redis->zrem( $tank_id, $n );
     }
@@ -159,10 +159,10 @@ sub get_tankoubon ( $tank_id, $fulldata = 0, $page = 0 ) {
 # delete_tankoubon(tankoubonid)
 #   Deletes the Tankoubon with the given ID.
 #   Returns 0 if the given ID isn't a Tankoubon ID, 1 otherwise
-sub delete_tankoubon($tank_id) {
+sub delete_tankoubon ($tank_id) {
 
     my $logger = get_logger( "Tankoubon", "lanraragi" );
-    my $redis = LANraragi::Model::Config->get_redis;
+    my $redis  = LANraragi::Model::Config->get_redis;
 
     if ( length($tank_id) != 15 ) {
 
@@ -205,7 +205,7 @@ sub update_archive_list ( $tank_id, $data ) {
         }
 
         my @origs = $redis->zrangebyscore( $tank_id, 1, "+inf" );
-        my @diff = array_difference( \@tank_archives, \@origs );
+        my @diff  = array_difference( \@tank_archives, \@origs );
         my @update;
 
         # Remove the ones not in the order
@@ -333,7 +333,7 @@ sub remove_from_tankoubon ( $tank_id, $arcid ) {
 # get_tankoubons_file(arcid)
 #   Gets a list of Tankoubons where archive ID is contained.
 #   Returns an array of tank IDs.
-sub get_tankoubons_file($arcid) {
+sub get_tankoubons_file ($arcid) {
 
     return get_tankoubons_by_file($arcid);
 
