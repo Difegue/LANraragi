@@ -14,26 +14,8 @@ use LANraragi::Utils::Database qw(redis_decode redis_encode);
 use LANraragi::Utils::Logging qw(get_logger);
 
 sub get_archive_count {
-
-    #We can't trust the DB to contain the exact amount of files,
-    #As deleted files are still kept in store.
-    my $dirname = LANraragi::Model::Config->get_userdir;
-    my $count   = 0;
-
-    #Count files the old-fashioned way instead
-    find(
-        {   wanted => sub {
-                return if -d $_;    #Directories are excluded on the spot
-                if ( is_archive($_) ) {
-                    $count++;
-                }
-            },
-            no_chdir    => 1,
-            follow_fast => 1
-        },
-        $dirname
-    );
-    return $count;
+    my $redis  = LANraragi::Model::Config->get_redis_search;
+    return $redis->zcard("LRR_TITLES") + 0;    # Total number of archives (as int)
 }
 
 sub get_page_stat {
