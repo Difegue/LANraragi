@@ -181,12 +181,13 @@ sub build_tag_stats {
 }
 
 sub compute_content_size {
+    my $redis_db = LANraragi::Model::Config->get_redis;
 
-    #Get size of archive folder
-    my $dirname = LANraragi::Model::Config->get_userdir;
-    my $size    = 0;
-
-    find( sub { $size += -s if -f }, $dirname );
+    my @keys = $redis_db->keys('????????????????????????????????????????');
+    my $size = 0;
+    foreach my $id (@keys) {
+        $size = $size + LANraragi::Utils::Database::get_arcsize($id);
+    }
 
     return int( $size / 1073741824 * 100 ) / 100;
 }
