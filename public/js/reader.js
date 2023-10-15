@@ -273,7 +273,6 @@ Reader.initInfiniteScrollView = function () {
     Reader.pages.slice(1).forEach((source) => {
         const img = new Image();
         img.id = `page-${Reader.pages.indexOf(source)}`;
-        img.loading = "lazy";
         img.height = 800;
         img.width = 600;
         img.src = source;
