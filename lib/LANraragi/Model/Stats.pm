@@ -194,7 +194,9 @@ sub compute_content_size {
 
     my $size = 0;
     foreach my $row (@result) {
-        $size = $size + $row;
+        if (defined($row)) {
+            $size = $size + $row;
+        }
     }
 
     return int( $size / 1073741824 * 100 ) / 100;
