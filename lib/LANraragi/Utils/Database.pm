@@ -41,7 +41,7 @@ sub add_archive_to_redis ( $id, $file, $redis ) {
 
     $redis->hset( $id, "name", redis_encode($name) );
     $redis->hset( $id, "tags", "" );
-    set_arcsize( $id, -s $file );
+    set_arcsize( $id, -s $file, $redis );
 
     # Don't encode filenames.
     $redis->hset( $id, "file", $file );
@@ -588,15 +588,13 @@ sub get_tankoubons_by_file($arcid) {
     return @tankoubons;
 }
 
-sub add_arcsize ( $id ) {
-    my $redis = LANraragi::Model::Config->get_redis;
+sub add_arcsize ( $id, $redis ) {
     my $file = $redis->hget( $id, "file" );
     my $arcsize = -s $file;
-    set_arcsize( $id, $arcsize );
+    set_arcsize( $id, $arcsize, $redis );
 }
 
-sub set_arcsize( $id, $arcsize ) {
-    my $redis = LANraragi::Model::Config->get_redis;
+sub set_arcsize( $id, $arcsize, $redis ) {
     $redis->hset( $id, "arcsize", $arcsize );
 }
 
