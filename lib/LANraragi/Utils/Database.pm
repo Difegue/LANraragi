@@ -68,6 +68,9 @@ sub change_archive_id ( $old_id, $new_id ) {
     if ( $redis->exists($old_id) ) {
         $redis->rename( $old_id, $new_id );
     }
+
+    my $file = $redis->hget($new_id, "file");
+    set_arcsize($new_id, -s $file, $redis);
     $redis->quit;
 
     # We also need to update categories that contain the ID.
