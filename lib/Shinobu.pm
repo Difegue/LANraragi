@@ -260,7 +260,7 @@ sub add_to_filemap ( $redis_cfg, $file ) {
                 invalidate_cache();
             }
 
-            unless ( LANraragi::Utils::Database::get_arcsize( $id ) ) {
+            unless ( LANraragi::Utils::Database::get_arcsize( $id, $redis_arc ) ) {
                 $logger->debug("arcsize is not set for $id, storing now!");
                 LANraragi::Utils::Database::add_arcsize(  $id );
             }

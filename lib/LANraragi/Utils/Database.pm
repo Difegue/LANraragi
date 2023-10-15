@@ -600,8 +600,7 @@ sub set_arcsize( $id, $arcsize ) {
     $redis->hset( $id, "arcsize", $arcsize );
 }
 
-sub get_arcsize ( $id ) {
-    my $redis = LANraragi::Model::Config->get_redis;
+sub get_arcsize ( $id, $redis ) {
     return $redis->hget( $id, "arcsize" );
 }
 

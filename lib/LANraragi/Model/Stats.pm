@@ -184,9 +184,17 @@ sub compute_content_size {
     my $redis_db = LANraragi::Model::Config->get_redis;
 
     my @keys = $redis_db->keys('????????????????????????????????????????');
-    my $size = 0;
+
+    $redis_db->multi;
     foreach my $id (@keys) {
-        $size = $size + LANraragi::Utils::Database::get_arcsize($id);
+        LANraragi::Utils::Database::get_arcsize($id, $redis_db);
+    }
+    my @result = $redis_db->exec;
+    $redis_db->quit;
+
+    my $size = 0;
+    foreach my $row (@result) {
+        $size = $size + $row;
     }
 
     return int( $size / 1073741824 * 100 ) / 100;
