@@ -41,7 +41,9 @@ sub add_archive_to_redis ( $id, $file, $redis ) {
 
     $redis->hset( $id, "name", redis_encode($name) );
     $redis->hset( $id, "tags", "" );
-    set_arcsize( $id, -s $file, $redis );
+    if (defined($file) && -e $file) {
+        set_arcsize($id, -s $file, $redis);
+    }
 
     # Don't encode filenames.
     $redis->hset( $id, "file", $file );

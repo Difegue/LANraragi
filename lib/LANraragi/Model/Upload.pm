@@ -123,6 +123,7 @@ sub handle_incoming_file {
     # (The file being physically present is necessary in case last modified time is used)
     LANraragi::Utils::Database::add_timestamp_tag( $redis, $id );
     LANraragi::Utils::Database::add_pagecount( $redis, $id );
+    LANraragi::Utils::Database::add_arcsize( $id, $redis );
     $redis->quit();
     $redis_search->quit();
 
