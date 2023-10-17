@@ -10,7 +10,7 @@ use LANraragi::Utils::String qw(trim trim_CRLF);
 
 # Functions related to the Tag system.
 use Exporter 'import';
-our @EXPORT_OK = qw( unflat_tagrules replace_CRLF restore_CRLF tags_rules_to_array rewrite_tags split_tags_to_array );
+our @EXPORT_OK = qw( unflat_tagrules replace_CRLF restore_CRLF tags_rules_to_array rewrite_tags split_tags_to_array join_tags_to_string );
 
 sub is_null_or_empty {
     return !length(shift);
@@ -45,6 +45,10 @@ sub split_tags_to_array {
         $tags = trim_CRLF($tags);
     }
     return @tags;
+}
+
+sub join_tags_to_string {
+    return join( ',', @_ );
 }
 
 sub tags_rules_to_array {
