@@ -42,7 +42,7 @@ sub add_archive_to_redis ( $id, $file, $redis ) {
     $redis->hset( $id, "name", redis_encode($name) );
     $redis->hset( $id, "tags", "" );
     if (defined($file) && -e $file) {
-        set_arcsize($id, -s $file, $redis);
+        set_arcsize($redis, $id, -s $file);
     }
 
     # Don't encode filenames.
@@ -72,7 +72,7 @@ sub change_archive_id ( $old_id, $new_id ) {
     }
 
     my $file = $redis->hget($new_id, "file");
-    set_arcsize($new_id, -s $file, $redis);
+    set_arcsize($redis, $new_id, -s $file);
     $redis->quit;
 
     # We also need to update categories that contain the ID.
@@ -593,17 +593,17 @@ sub get_tankoubons_by_file($arcid) {
     return @tankoubons;
 }
 
-sub add_arcsize ( $id, $redis ) {
+sub add_arcsize ( $redis, $id ) {
     my $file = $redis->hget( $id, "file" );
     my $arcsize = -s $file;
-    set_arcsize( $id, $arcsize, $redis );
+    set_arcsize( $redis, $id, $arcsize );
 }
 
-sub set_arcsize( $id, $arcsize, $redis ) {
+sub set_arcsize( $redis, $id, $arcsize ) {
     $redis->hset( $id, "arcsize", $arcsize );
 }
 
-sub get_arcsize ( $id, $redis ) {
+sub get_arcsize ( $redis, $id ) {
     return $redis->hget( $id, "arcsize" );
 }
 

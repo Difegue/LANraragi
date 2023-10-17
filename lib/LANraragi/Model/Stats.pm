@@ -187,7 +187,7 @@ sub compute_content_size {
 
     $redis_db->multi;
     foreach my $id (@keys) {
-        LANraragi::Utils::Database::get_arcsize($id, $redis_db);
+        LANraragi::Utils::Database::get_arcsize($redis_db, $id);
     }
     my @result = $redis_db->exec;
     $redis_db->quit;
