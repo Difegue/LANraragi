@@ -8,6 +8,7 @@ requires 'Encode',                       3.01;
 requires 'Archive::Libarchive::Extract', 0.03;
 requires 'Archive::Libarchive::Peek',    0.04;
 requires 'Digest::SHA',                  6.02;
+requires 'List::MoreUtils',              0.430;
 
 # Not required by LRR itself but needs this version for Alpine support
 requires 'Crypt::Rijndael', 1.14;

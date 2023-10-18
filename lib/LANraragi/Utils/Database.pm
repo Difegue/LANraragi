@@ -15,10 +15,11 @@ use File::Path qw(remove_tree);
 use Redis;
 use Cwd;
 use Unicode::Normalize;
+use List::MoreUtils qw(uniq);
 
 use LANraragi::Utils::Generic qw(flat);
 use LANraragi::Utils::String qw(trim trim_CRLF trim_url);
-use LANraragi::Utils::Tags qw(unflat_tagrules tags_rules_to_array restore_CRLF);
+use LANraragi::Utils::Tags qw(unflat_tagrules tags_rules_to_array restore_CRLF join_tags_to_string split_tags_to_array );
 use LANraragi::Utils::Archive qw(get_filelist);
 use LANraragi::Utils::Logging qw(get_logger);
 
@@ -389,6 +390,8 @@ sub set_tags ( $id, $newtags, $append = 0 ) {
             }
         }
     }
+
+    $newtags = join_tags_to_string(uniq(split_tags_to_array($newtags)));
 
     # Update sets depending on the added/removed tags
     update_indexes( $id, $oldtags, $newtags );
