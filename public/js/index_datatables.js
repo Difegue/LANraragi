@@ -50,7 +50,10 @@ IndexTable.initializeAll = function () {
     IndexTable.dataTable = $(".datatables").DataTable({
         serverSide: true,
         processing: true,
-        ajax: "search",
+        ajax: {
+        url: "search",
+        cache: true,
+        },
         deferRender: true,
         lengthChange: false,
         pageLength: Index.pageSize,
