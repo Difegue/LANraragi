@@ -308,6 +308,7 @@ LRR.getImgSize = function (target) {
     $.ajax({
         async: false,
         url: target,
+        cache: true,
         type: "HEAD",
         success: (data, textStatus, request) => {
             imgSize = parseInt(request.getResponseHeader("Content-Length") / 1024, 10);
