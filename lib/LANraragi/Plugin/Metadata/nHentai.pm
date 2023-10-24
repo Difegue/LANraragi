@@ -220,7 +220,8 @@ sub get_tags_from_NH {
 
     my $html = get_html_from_NH( $gID, $ua );
 
-    if ( $html =~ /error/gmi ) {
+    # If the string starts with "error", we couldn't retrieve data from NH.
+    if ( $html =~ /^error/ ) {
         return ( error => "Error retrieving gallery from nHentai! ($html)" );
     }
 
