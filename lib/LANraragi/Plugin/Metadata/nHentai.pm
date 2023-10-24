@@ -39,10 +39,10 @@ sub plugin_info {
 sub get_tags {
 
     shift;
-    my $lrr_info = shift;    # Global info hash
-    my ($savetitle) = @_;    # Plugin parameters
-    my $ua = $lrr_info->{user_agent};    # UserAgent from login plugin
-    
+    my $lrr_info    = shift;                      # Global info hash
+    my ($savetitle) = @_;                         # Plugin parameters
+    my $ua          = $lrr_info->{user_agent};    # UserAgent from login plugin
+
     my $logger = get_plugin_logger();
 
     # Work your magic here - You can create subs below to organize the code better
@@ -93,7 +93,7 @@ sub get_tags {
 #Uses the website's search to find a gallery and returns its content.
 sub get_gallery_dom_by_title {
 
-    my ($title, $ua) = @_;
+    my ( $title, $ua ) = @_;
 
     my $logger = get_plugin_logger();
 
@@ -116,7 +116,7 @@ sub get_gallery_dom_by_title {
 
 sub get_gallery_id_from_title {
 
-    my ($title, $ua) = @_;
+    my ( $title, $ua ) = @_;
 
     my $logger = get_plugin_logger();
 
@@ -125,7 +125,7 @@ sub get_gallery_id_from_title {
         return $1;
     }
 
-    my $dom = get_gallery_dom_by_title($title, $ua);
+    my $dom = get_gallery_dom_by_title( $title, $ua );
 
     if ($dom) {
 
@@ -147,14 +147,15 @@ sub get_gallery_id_from_title {
 # retrieves html page from NH
 sub get_html_from_NH {
 
-    my ($gID, $ua) = @_;
-    
+    my ( $gID, $ua ) = @_;
+
     my $URL = "https://nhentai.net/g/$gID/";
 
     my $res = $ua->get($URL)->result;
 
     if ( $res->is_error ) {
-        return;
+        my $code = $res->code;
+        return "error ($code)";
     }
 
     return $res->body;
@@ -217,7 +218,12 @@ sub get_tags_from_NH {
 
     my %hashdata = ( tags => "" );
 
-    my $html = get_html_from_NH($gID, $ua);
+    my $html = get_html_from_NH( $gID, $ua );
+
+    if ( $html =~ /error/gmi ) {
+        return ( error => "Error retrieving gallery from nHentai! ($html)" );
+    }
+
     my $json = get_json_from_html($html);
 
     if ($json) {
@@ -225,7 +231,7 @@ sub get_tags_from_NH {
         push( @tags, "source:nhentai.net/g/$gID" ) if ( @tags > 0 );
 
         # Use NH's "pretty" names (romaji titles without extraneous data we already have like (Event)[Artist], etc)
-        $hashdata{tags} = join( ', ', @tags );
+        $hashdata{tags}  = join( ', ', @tags );
         $hashdata{title} = get_title_from_json($json) if ($savetitle);
     }
 
