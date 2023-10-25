@@ -26,7 +26,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 # Functions for interacting with the DB Model.
 use Exporter 'import';
 our @EXPORT_OK =
-  qw(redis_encode redis_decode invalidate_cache compute_id set_tags set_title set_isnew get_computed_tagrules save_computed_tagrules get_archive_json get_archive_json_multi get_tankoubons_by_file);
+  qw(redis_encode redis_decode invalidate_cache compute_id set_tags set_title set_isnew get_computed_tagrules save_computed_tagrules get_archive_json get_archive_json_multi get_tankoubons_by_file get_toc get_toc_titles);
 
 # Creates a DB entry for a file path with the given ID.
 # This function doesn't actually require the file to exist at its given location.
@@ -608,6 +608,46 @@ sub set_arcsize( $redis, $id, $arcsize ) {
 
 sub get_arcsize ( $redis, $id ) {
     return $redis->hget( $id, "arcsize" );
+}
+
+sub get_toc ( $id ) {
+    my $redis = LANraragi::Model::Config->get_redis;
+
+    my $toc = $redis->hget( $id, "toc" );
+    my %ordered;
+
+    if ( defined $toc ) {
+        eval { $toc = decode_json( $toc ) };
+
+        foreach my $name ( sort keys %$toc ) {
+            $ordered{$name} = $toc->{$name};
+        }
+    } else {
+        $redis->hset( $id, "toc", "{}" );
+    }
+
+    $redis->quit();
+
+    return %ordered;
+}
+
+sub get_toc_titles ( $id ) {
+    my $redis = LANraragi::Model::Config->get_redis;
+
+    my $toc = $redis->hget( $id, "toc" );
+    my @vals;
+
+    if ( defined $toc ) {
+        eval { $toc = decode_json( $toc ) };
+
+        @vals = values %$toc;
+    } else {
+        $redis->hset( $id, "toc", "{}" );
+    }
+
+    $redis->quit();
+
+    return @vals;
 }
 
 1;
