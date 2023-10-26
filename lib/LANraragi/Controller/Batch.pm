@@ -5,11 +5,11 @@ use Redis;
 use Encode;
 use Mojo::JSON qw(decode_json);
 
-use LANraragi::Utils::Generic qw(generate_themes_header);
-use LANraragi::Utils::Tags qw(rewrite_tags split_tags_to_array restore_CRLF);
-use LANraragi::Utils::Database qw(get_computed_tagrules set_tags set_title set_isnew invalidate_cache);
-use LANraragi::Utils::Plugins qw(get_plugins get_plugin get_plugin_parameters);
-use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Generic  qw(generate_themes_header);
+use LANraragi::Utils::Tags     qw(rewrite_tags split_tags_to_array restore_CRLF);
+use LANraragi::Utils::Database qw(redis_decode get_computed_tagrules set_tags set_title set_isnew invalidate_cache);
+use LANraragi::Utils::Plugins  qw(get_plugins get_plugin get_plugin_parameters);
+use LANraragi::Utils::Logging  qw(get_logger);
 
 # This action will render a template
 sub index {
@@ -52,6 +52,12 @@ sub socket {
         message => sub {
             my ( $self, $msg ) = @_;
 
+            $logger->debug("Received WS message $msg");
+
+            # encode message before json-decoding it in case it has UTF8 characters in the argument overrides
+            $msg = encode( 'UTF-8', $msg );
+            $logger->trace("Encoded message $msg");
+
             # JSON-decode message and perform the requested action
             my $command    = decode_json($msg);
             my $operation  = $command->{'operation'};
@@ -62,7 +68,6 @@ sub socket {
                 $client->finish( 1001 => 'No archives provided.' );
                 return;
             }
-            $logger->debug("Processing $id");
 
             if ( $operation eq "plugin" ) {
 
@@ -80,6 +85,10 @@ sub socket {
 
                     # Try getting the saved defaults
                     @args = get_plugin_parameters($pluginname);
+                } else {
+
+                    # Decode user overrides
+                    @args = map { redis_decode($_) } @args;
                 }
 
                 # Send reply message for completed archive
@@ -154,7 +163,7 @@ sub socket {
                             id       => $id,
                             filename => $delStatus,
                             message  => $delStatus ? "Archive deleted." : "Archive not found.",
-                            success  => $delStatus ? 1 : 0
+                            success  => $delStatus ? 1                  : 0
                         }
                     }
                 );
