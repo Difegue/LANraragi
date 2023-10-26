@@ -13,25 +13,25 @@ use Mojo::DOM;
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
 use LANraragi::Utils::Logging qw(get_plugin_logger);
-use LANraragi::Utils::String qw(trim trim_CRLF);
+use LANraragi::Utils::String  qw(trim trim_CRLF);
 
 #Meta-information about your plugin.
 sub plugin_info {
 
     return (
         #Standard metadata
-        name       => "FAKKU",
-        type       => "metadata",
-        namespace  => "fakkumetadata",
-        login_from => "fakkulogin",
-        author     => "Difegue, Nodja",
-        version    => "0.8",
+        name        => "FAKKU",
+        type        => "metadata",
+        namespace   => "fakkumetadata",
+        login_from  => "fakkulogin",
+        author      => "Difegue, Nodja",
+        version     => "0.9",
         description =>
           "Searches FAKKU for tags matching your archive. If you have an account, don't forget to enter the matching cookie in the login plugin to be able to access controversial content. <br/><br/>  
            <i class='fa fa-exclamation-circle'></i> <b>This plugin can and will return invalid results depending on what you're searching for!</b> <br/>The FAKKU search API isn't very precise and I recommend you use the Chaika.moe plugin when possible.",
         icon =>
           "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAFiUAABYlAUlSJPAAAACZSURBVDhPlY+xDYQwDEWvZgRGYA22Y4frqJDSZhFugiuuo4cqPGT0iTjAYL3C+fGzktc3hEcsQvJq6HtjE2Jdv4viH4a4pWnL8q4A6g+ET9P8YhS2/kqwIZXWnwqChDxPfCFfD76wOzJ2IOR/0DSwnuRKYAKUW3gq2OsJTYM0jr7QVRVwlabJEaw3ARYBcmFXeomxphIeEMIMmh3lOLQR+QQAAAAASUVORK5CYII=",
-        parameters  => [ { type => "bool", desc => "Save archive title" } ],
+        parameters  => [],
         oneshot_arg => "FAKKU Gallery URL (Will attach tags matching this exact gallery to your archive)"
     );
 
@@ -43,8 +43,6 @@ sub get_tags {
     shift;
     my $lrr_info = shift;                     # Global info hash
     my $ua       = $lrr_info->{user_agent};
-
-    my ($savetitle) = @_;                     # Plugin parameters
 
     my $logger = get_plugin_logger();
 
@@ -79,8 +77,7 @@ sub get_tags {
     $logger->info("Sending the following tags to LRR: $newtags");
 
     #Return a hash containing the new metadata - it will be integrated in LRR.
-    if ( $savetitle && $newtags ne "" ) { return ( tags => $newtags, title => $newtitle ); }
-    else                                { return ( tags => $newtags ); }
+    return ( tags => $newtags, title => $newtitle );
 }
 
 ######

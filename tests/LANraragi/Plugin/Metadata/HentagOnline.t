@@ -33,7 +33,7 @@ note("00 - api response");
 
     my %get_tags_params = ( archive_title => $archive_title );
 
-    my %response = LANraragi::Plugin::Metadata::HentagOnline::get_tags( "", \%get_tags_params, 1 );
+    my %response = LANraragi::Plugin::Metadata::HentagOnline::get_tags( "", \%get_tags_params );
 
     my $expected_title = "[Doi Sakazaki] Boin Tantei vs Kaitou Sanmensou [ENG]";
     my $expected_tags =
@@ -70,7 +70,7 @@ note("02 - multilaguage hit");
 
     my %get_tags_params = ( archive_title => $archive_title );
 
-    my %response = LANraragi::Plugin::Metadata::HentagOnline::get_tags( "", \%get_tags_params, 1 );
+    my %response = LANraragi::Plugin::Metadata::HentagOnline::get_tags( "", \%get_tags_params );
 
     my $expected_title = "Do match this title";
     my $expected_tags =
@@ -117,7 +117,7 @@ note("05 - hentag source tag usage");
     my %get_tags_params =
       ( archive_title => $archive_title, existing_tags => "sometag, source:https://hentag.com/vault/$expected_id" );
 
-    my %response = LANraragi::Plugin::Metadata::HentagOnline::get_tags( "", \%get_tags_params, 1 );
+    my %response = LANraragi::Plugin::Metadata::HentagOnline::get_tags( "", \%get_tags_params );
 
     my $expected_title = "[Doi Sakazaki] Boin Tantei vs Kaitou Sanmensou [ENG]";
     my $expected_tags =
@@ -152,7 +152,7 @@ note("06 - source url lookups");
     };
     my %get_tags_params = ( archive_title => $archive_title, existing_tags => "sometag, source:$url1, source:$url2" );
 
-    my %response = LANraragi::Plugin::Metadata::HentagOnline::get_tags( "", \%get_tags_params, 1 );
+    my %response = LANraragi::Plugin::Metadata::HentagOnline::get_tags( "", \%get_tags_params );
 
     my $expected_title = "[Doi Sakazaki] Boin Tantei vs Kaitou Sanmensou [ENG]";
     my $expected_tags =
@@ -178,7 +178,7 @@ note("07 - no allowed language");
 
     my %get_tags_params = ( archive_title => $archive_title );
 
-    my %response = LANraragi::Plugin::Metadata::HentagOnline::get_tags( "", \%get_tags_params, 1, "florp, flarp" );
+    my %response = LANraragi::Plugin::Metadata::HentagOnline::get_tags( "", \%get_tags_params, "florp, flarp" );
     ok( exists( $response{error} ), "got an error" );
 }
 
@@ -198,7 +198,7 @@ note("08 - multiple hits in same language");
 
     my %get_tags_params = ( archive_title => $archive_title );
 
-    my %response = LANraragi::Plugin::Metadata::HentagOnline::get_tags( "", \%get_tags_params, 1 );
+    my %response = LANraragi::Plugin::Metadata::HentagOnline::get_tags( "", \%get_tags_params );
 
     my $expected_title = "First hit";
     my $expected_tags  = "artist:plop, female:bilbul, language:english, source:whatever";
@@ -220,9 +220,9 @@ note("08 - multiple hits, pick the best hit");
         return $mock_json;
     };
 
-    my %get_tags_params = ( archive_title => $archive_title);
+    my %get_tags_params = ( archive_title => $archive_title );
 
-    my %response = LANraragi::Plugin::Metadata::HentagOnline::get_tags( "", \%get_tags_params, 1 );
+    my %response = LANraragi::Plugin::Metadata::HentagOnline::get_tags( "", \%get_tags_params );
 
     my $expected_title = "(c20) [auth (circ)] some series 1 [peepee] [poopoo]";
     is( $response{title}, $expected_title, "correct title" );
@@ -242,9 +242,9 @@ note("09 - multiple hits, pick the best hit, by similarity");
         return $mock_json;
     };
 
-    my %get_tags_params = ( archive_title => $archive_title);
+    my %get_tags_params = ( archive_title => $archive_title );
 
-    my %response = LANraragi::Plugin::Metadata::HentagOnline::get_tags( "", \%get_tags_params, 1 );
+    my %response = LANraragi::Plugin::Metadata::HentagOnline::get_tags( "", \%get_tags_params );
 
     my $expected_title = "(c20) [auth (circ)] some series 1 [peepee] [poopoo]";
     is( $response{title}, $expected_title, "correct title" );

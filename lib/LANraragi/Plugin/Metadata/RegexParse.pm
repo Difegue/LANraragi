@@ -12,23 +12,23 @@ use Scalar::Util qw(looks_like_number);
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
 use LANraragi::Utils::Database qw(redis_encode redis_decode);
-use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Logging  qw(get_logger);
 
 #Meta-information about your plugin.
 sub plugin_info {
 
     return (
         #Standard metadata
-        name      => "Filename Parsing",
-        type      => "metadata",
-        namespace => "regexplugin",
-        author    => "Difegue",
-        version   => "1.0",
+        name        => "Filename Parsing",
+        type        => "metadata",
+        namespace   => "regexplugin",
+        author      => "Difegue",
+        version     => "1.0",
         description =>
           "Derive tags from the filename of the given archive. <br>Follows the doujinshi naming standard (Release) [Artist] TITLE (Series) [Language].",
         icon =>
           "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAL1JREFUOI1jZMABpNbH/sclx8DAwPAscDEjNnEMQUIGETIYhUOqYdgMhTPINQzdUEZqGIZsKBM1DEIGTOiuexqwCKdidDl0vtT62P9kuZCJEWuKYWBgYGBgRHbh04BFDNIb4jAUbbSrZTARUkURg6lD10OUC/0PNaMYgs1Skgwk1jCSDCQWoBg46dYmhite0+D8pwGLCMY6uotRDOy8toZBkI2HIhcO/pxCm8KBUkOxFl/kGoq3gCXFYFxVAACeoU/8xSNybwAAAABJRU5ErkJggg==",
-        parameters => [ { type => "bool", desc => "Save archive title", default_value => "1" } ]
+        parameters => [ ]
     );
 
 }
@@ -38,7 +38,6 @@ sub get_tags {
 
     shift;
     my $lrr_info = shift;    # Global info hash
-    my ($savetitle) = @_;    # Plugin parameters
 
     my $logger = get_logger( "regexparse", "plugins" );
     my $file   = $lrr_info->{file_path};
@@ -98,12 +97,8 @@ sub get_tags {
 
     $logger->info("Sending the following tags to LRR: $tagstring");
 
-    if ($savetitle) {
-        $logger->info("Parsed title is $title");
-        return ( tags => $tagstring, title => $title );
-    } else {
-        return ( tags => $tagstring );
-    }
+    $logger->info("Parsed title is $title");
+    return ( tags => $tagstring, title => $title );
 
 }
 

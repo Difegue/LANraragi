@@ -27,17 +27,16 @@ sub plugin_info {
         type        => "metadata",
         namespace   => "hentagonlineplugin",
         author      => "siliconfeces",
-        version     => "0.1",
+        version     => "0.2",
         description => "Searches hentag.com for tags matching your archive",
         parameters  => [
-            { type => "bool", desc => "Save archive title" },
             {   type => "string",
                 desc =>
                   "Comma-separated list of languages to consider. First language = most preferred. Default is \"english, japanese\""
             }
         ],
         oneshot_arg => "Hentag.com vault URL (Will attach matching tags to your archive)",
-        icon =>
+        icon        =>
           "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAPoAAAD6AG1e1JrAAAEzklEQVR4nO2Xa0xbZRjH6xe/0NKW0p7TQgul9GJpuQ0YbcFgXFx0M+NaoF0gY4mbkwLLxjYoMoiZMVGnDJZt2TT7plnGxmVCgXEdi859MGabH0xqNHFeBsxsETSGnL95314sWyuXrMYYP/zznHN6zvv83uft87zvw4tnzRYho/HGMmrEMmpOxGg5MWuAiNFBzOofE30uN0Ao0yJWkuKXBsL41LWIo5KkQijVeiVKo4XHlyV5GcUmqBKLllWJRYiXmyFg1AgHEbgXxKVAqjJDaS6A0mRDQtpmsMZsyNNyIDeuLoUpd1mqNiM2LsXLy9Xsw+H875eP5N9Fi+Vn7rWcL7hk5RYIZCshAjMXiNVItW7FKxcG0OCZgmtoAq6hcTj7PkRp77sou/QeynojiqMi71w8vmzYvg28g5u/4Tpsi2izLnBuyxz3ZiFQajqPGFki4thnHlsCgUSN8nd60HLjSzSNXcP+8es4MPEZXFfHYb/SA/uVbr+NKM4+2M1VjZxC8Udvczy/Y7gt81yr5R46bEtwZvQhlkmJsP56OM+cx8GpG2gcnfFBjM2iYXQS9oEeVAycWIu4iv4uEBCe2zJPZk8AQAA6bb/BkXE5PACrg0imQ9XJc2ie/RxNnhk0jc5i/9h1NIz8BWAf7A46C173d6Gin1jfNXlefvl9rAtALNdBJNbBuetjNM/cROP0FJqmZ9A0fQ0N0xOo9pwOOg2I3FcOnUT16GmQsFN5TsFx9Qzy6uvAa7P6AIhdFYDVQ8ikotY8gnbHPA7Vf43D+7xorf8OrrqbKDzUAPtQyDL0d1HHzx07AP22l5BWVgxjyQ5qtS9spUvK2xBA1jA6836HO2sBbVn30ZGzCFfqbRhfLEalp8cX5oETNMTOqXPIrnPg6acYCMQp4Mcmgy9IgkBIsky/QYBMDzoKFtFquwe3bQ5Hn30IV8YtpJdUrATo64Jz8ixy9tZSx5JEI+IUBiqS0hEBnBRAQ+vAoxIxWgrQaVui75MMOlrwEC7zLZh3lIcH2FODmBiVz/EjE+KFA6jO6EWMTAkho6EgJBo+q4FAloyazKHoAXTYlugM5Yo8JCRY/bIErSIhH7uzJ0GKVyutH08QwB1MyTlSniPoLv09kLpPFKDNPyixr1t/iajQ96IUgXk6cGTNRzsC99FufRBR5PeoRqDF8iMa8+5E0FdosfwUnQi0+tNwZ+Yg3Yql8nTEU5mDVsKasCtrzJ8FUaoDjoxLNN9J0SEi1S9wTWpCTeZwdAuRI1iKQz/wXf8jldCxhr3gf4DO/8wSuNdzJPv3AAz/PcBAGAB+xCVYWPOxPJiGWR502H4NArQXPIDLfBvpJXbYh7tXHskmziJ3b+3KCDB6zjeWnltnY2IAX6ZCVfoFHCvkghvTG4V/YI/5U2iKttBTb+UnvgaFQOyc/gDpjgrw+UkBAOKcEzFkPB23vtaMNUAgS4JW9TIac+/QPeFI/g9ozv8WWSm7ESNVwtb8Ko1A6cXj9FT8/FvNiE8yQSTTUuciRkedi1jdMrFhmlPTKs0pgUim+wR5n4hRZEPAJNOmRShNBWsINKqb6DdCKXUeOt6ymNFBxOq9vA2156wBQrov0G/oHzO0bNNWnLTg8WQPCY1gIPw6cu8Vs3rLnwIWEm0oy+KXAAAAAElFTkSuQmCC",
     );
 
@@ -48,7 +47,8 @@ sub get_tags {
 
     shift;
     my $lrr_info = shift;
-    my ( $save_title, $allowed_languages ) = @_;
+    my ($allowed_languages) = @_;
+
     my $ua                = $lrr_info->{user_agent};
     my $oneshot_param     = $lrr_info->{oneshot_param};
     my $logger            = get_plugin_logger();
@@ -66,7 +66,7 @@ sub get_tags {
     }
 
     my $vault_id;
-    my @source_urls = undef;
+    my @source_urls   = undef;
     my $archive_title = undef;
 
     # First, try running based on a vault ID from a hentag URL
@@ -125,7 +125,7 @@ sub get_tags {
 
         #Return tags IFF data is found
         $logger->info("Sending the following tags to LRR: $tags");
-        if ( $save_title && $title ) {
+        if ($title) {
             $logger->info("Parsed title is $title");
             return ( tags => $tags, title => $title );
         } elsif ( $tags ne "" ) {
@@ -137,7 +137,7 @@ sub get_tags {
 }
 
 # Returns the ID from a hentag URL, or undef if invalid.
-sub parse_vault_url($url) {
+sub parse_vault_url ($url) {
     if ( !defined $url ) {
         return;
     }
@@ -196,7 +196,7 @@ sub get_json_by_urls ( $ua, $logger, @urls ) {
 
 # Fetches tags and title, restricted to a language
 # If $title_hint is set, it attempts to pick the "best" result if multiple hits were returned from Hentag
-sub tags_in_language_from_hentag_api_json ( $json, $language, $title_hint =  undef ) {
+sub tags_in_language_from_hentag_api_json ( $json, $language, $title_hint = undef ) {
     $language =~ s/^\s+|\s+$//g;
     $language = lc($language);
 
@@ -206,14 +206,15 @@ sub tags_in_language_from_hentag_api_json ( $json, $language, $title_hint =  und
     if (@lang_json_pairs) {
 
         # Possible improvement: Look for hits with "better" metadata (more tags, more tags in namespaces, etc).
-        my ( $tags, $title ) = LANraragi::Plugin::Metadata::Hentag::tags_from_hentag_json( pick_best_hit($title_hint, @lang_json_pairs) );
+        my ( $tags, $title ) =
+          LANraragi::Plugin::Metadata::Hentag::tags_from_hentag_json( pick_best_hit( $title_hint, @lang_json_pairs ) );
         return ( $tags, $title );
     }
     return ( '', '' );
 }
 
 # Returns (string_with_tags, string_with_title) on success, (empty_string, empty_string) on failure
-sub tags_from_hentag_api_json ( $json, $string_prefered_languages, $title_hint =  undef ) {
+sub tags_from_hentag_api_json ( $json, $string_prefered_languages, $title_hint = undef ) {
     my @prefered_languages = split( ",", $string_prefered_languages );
     foreach my $language (@prefered_languages) {
         my ( $tags, $title ) = tags_in_language_from_hentag_api_json( $json, $language, $title_hint );
@@ -224,7 +225,7 @@ sub tags_from_hentag_api_json ( $json, $string_prefered_languages, $title_hint =
     return ( '', '' );
 }
 
-sub get_existing_hentag_source_url(@tags) {
+sub get_existing_hentag_source_url (@tags) {
     foreach my $tag ( get_source_tags(@tags) ) {
         if ( parse_vault_url($tag) ) {
             return $tag;
@@ -233,7 +234,7 @@ sub get_existing_hentag_source_url(@tags) {
     return;
 }
 
-sub get_source_tags(@tags) {
+sub get_source_tags (@tags) {
     my @found_tags;
     foreach my $tag (@tags) {
         if ( $tag =~ /.*source:(.*)/ ) {
@@ -243,18 +244,18 @@ sub get_source_tags(@tags) {
     return @found_tags;
 }
 
-sub pick_best_hit($title_hint, @hits) {
-    if (!defined($title_hint)) {
+sub pick_best_hit ( $title_hint, @hits ) {
+    if ( !defined($title_hint) ) {
         return $hits[0];
     }
-    $title_hint = lc(LANraragi::Utils::String::clean_title($title_hint));
+    $title_hint = lc( LANraragi::Utils::String::clean_title($title_hint) );
 
     my @titles;
-    while (my ($index, $elem) = each @hits) {
-        my ($tags, $title) = LANraragi::Plugin::Metadata::Hentag::tags_from_hentag_json($elem);
-        $titles[$index] = lc(LANraragi::Utils::String::clean_title($title));
+    while ( my ( $index, $elem ) = each @hits ) {
+        my ( $tags, $title ) = LANraragi::Plugin::Metadata::Hentag::tags_from_hentag_json($elem);
+        $titles[$index] = lc( LANraragi::Utils::String::clean_title($title) );
     }
-    return $hits[LANraragi::Utils::String::most_similar($title_hint, @titles)];
+    return $hits[ LANraragi::Utils::String::most_similar( $title_hint, @titles ) ];
 }
 
 1;

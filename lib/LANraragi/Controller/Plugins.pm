@@ -23,15 +23,16 @@ sub index {
     my @downloadplugins = get_plugins("download");
 
     $self->render(
-        template    => "plugins",
-        title       => $self->LRR_CONF->get_htmltitle,
-        descstr     => $self->LRR_DESC,
-        metadata    => craft_plugin_array(@metaplugins),
-        downloaders => craft_plugin_array(@downloadplugins),
-        logins      => craft_plugin_array(@loginplugins),
-        scripts     => craft_plugin_array(@scriptplugins),
-        csshead     => generate_themes_header($self),
-        version     => $self->LRR_VERSION
+        template      => "plugins",
+        title         => $self->LRR_CONF->get_htmltitle,
+        descstr       => $self->LRR_DESC,
+        replacetitles => $self->LRR_CONF->can_replacetitles,
+        metadata      => craft_plugin_array(@metaplugins),
+        downloaders   => craft_plugin_array(@downloadplugins),
+        logins        => craft_plugin_array(@loginplugins),
+        scripts       => craft_plugin_array(@scriptplugins),
+        csshead       => generate_themes_header($self),
+        version       => $self->LRR_VERSION
     );
 
 }
@@ -81,6 +82,12 @@ sub save_config {
     my $errormess  = "";
 
     eval {
+
+        # Save title preference first
+        my $replacetitles = ( scalar $self->req->param('replacetitles') ? '1' : '0' );
+        $redis->hset( "LRR_CONFIG", "replacetitles", $replacetitles );
+
+        # Save each plugin's settings
         foreach my $pluginfo (@plugins) {
 
             my $namespace = $pluginfo->{namespace};
@@ -172,7 +179,7 @@ sub process_upload {
             return;
         }
 
-        my $dir = getcwd() . ("/lib/LANraragi/Plugin/$plugintype/");
+        my $dir         = getcwd() . ("/lib/LANraragi/Plugin/$plugintype/");
         my $output_file = $dir . $filename;
 
         $logger->info("Uploading new plugin $filename to $output_file ...");

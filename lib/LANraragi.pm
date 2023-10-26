@@ -47,7 +47,7 @@ sub startup {
     }
 
     # Use the hostname alongside the random secret
-    $self->secrets( $secret . hostname() );
+    $self->secrets( [ $secret . hostname() ] );
     $self->plugin('RenderFile');
 
     # Set Template::Toolkit as default renderer so we can use the LRR templates
