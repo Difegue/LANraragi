@@ -33,6 +33,7 @@ sub exec_enabled_plugins_on_file {
     my @plugins = LANraragi::Utils::Plugins::get_enabled_plugins("metadata");
 
     # If the regex plugin is in the list, make sure it's ran first.
+    # TODO: Make plugin exec order configurable
     foreach my $plugin (@plugins) {
         if ( $plugin->{namespace} eq "regexplugin" ) {
             my $regex_plugin = $plugin;
@@ -82,6 +83,7 @@ sub exec_enabled_plugins_on_file {
                 $newtitle = $plugin_result{title};
                 $logger->debug("Changing title to $newtitle. (Will do nothing if title is blank)");
             }
+
         }
     }
 
