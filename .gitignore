@@ -11,3 +11,4 @@ Dockerfile.*
 config.log
 autobackup.json
 Makefile
+oshino

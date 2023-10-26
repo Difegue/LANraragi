@@ -11,9 +11,9 @@ use Storable;
 use Sys::Hostname;
 use Config;
 
-use LANraragi::Utils::Generic qw(start_shinobu start_minion);
-use LANraragi::Utils::Logging qw(get_logger get_logdir);
-use LANraragi::Utils::Plugins qw(get_plugins);
+use LANraragi::Utils::Generic    qw(start_shinobu start_minion);
+use LANraragi::Utils::Logging    qw(get_logger get_logdir);
+use LANraragi::Utils::Plugins    qw(get_plugins);
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Routing;
 use LANraragi::Utils::Minion;
@@ -36,8 +36,18 @@ sub startup {
     my $vername = $packagejson->{version_name};
     my $descstr = $packagejson->{description};
 
-    # Use the hostname and osname for a sorta-unique set of secrets.
-    $self->secrets( [ hostname(), $Config{"osname"}, 'oshino' ] );
+    my $secret = "";
+    if ( -e "oshino" ) {
+        $secret = Mojo::File->new('oshino')->slurp;
+    } else {
+
+        # Generate a random string as the secret and store it in a file
+        $secret .= sprintf( "%x", rand 16 ) for 1 .. 8;
+        Mojo::File->new('oshino')->spew($secret);
+    }
+
+    # Use the hostname alongside the random secret
+    $self->secrets( $secret . hostname() );
     $self->plugin('RenderFile');
 
     # Set Template::Toolkit as default renderer so we can use the LRR templates
@@ -137,7 +147,7 @@ sub startup {
     # Enable Minion capabilities in the app
     shutdown_from_pid( get_temp . "/minion.pid" );
 
-    my $miniondb = $self->LRR_CONF->get_redisad . "/" . $self->LRR_CONF->get_miniondb;
+    my $miniondb      = $self->LRR_CONF->get_redisad . "/" . $self->LRR_CONF->get_miniondb;
     my $redispassword = $self->LRR_CONF->get_redispassword;
 
     # If the password is non-empty, add the required delimiters
@@ -198,7 +208,7 @@ sub add_sigint_handler {
         shutdown_from_pid( get_temp . "/minion.pid" );
 
         \&$old_int;    # Calling the old handler to cleanly exit the server
-      }
+    }
 }
 
 sub migrate_old_settings {
