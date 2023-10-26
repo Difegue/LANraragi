@@ -138,8 +138,13 @@ sub startup {
     shutdown_from_pid( get_temp . "/minion.pid" );
 
     my $miniondb = $self->LRR_CONF->get_redisad . "/" . $self->LRR_CONF->get_miniondb;
+    my $redispassword = $self->LRR_CONF->get_redispassword;
+
+    # If the password is non-empty, add the required delimiters
+    if ($redispassword) { $redispassword = "x:" . $redispassword . "@"; }
+
     say "Minion will use the Redis database at $miniondb";
-    $self->plugin( 'Minion' => { Redis => "redis://$miniondb" } );
+    $self->plugin( 'Minion' => { Redis => "redis://$redispassword$miniondb" } );
     $self->LRR_LOGGER->info("Successfully connected to Minion database.");
     $self->minion->missing_after(5);    # Clean up older workers after 5 seconds of unavailability
 

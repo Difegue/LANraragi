@@ -45,8 +45,8 @@ sub get_minion {
     my $miniondb = get_redisad . "/" . get_miniondb;
     my $password = get_redispassword;
 
-    # If the password is non-empty, add the required @
-    if ($password) { $password = $password . "@"; }
+    # If the password is non-empty, add the required delimiters
+    if ($password) { $password = "x:" . $password . "@"; }
 
     return Minion->new( Redis => "redis://$password$miniondb" );
 }
