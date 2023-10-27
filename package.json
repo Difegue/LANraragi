@@ -44,7 +44,7 @@
         "preact": "^10.7.1",
         "react-toastify": "^9.0.0-rc-2",
         "roboto-fontface": "^0.8.0",
-        "sweetalert2": "^11.4.10",
+        "sweetalert2": "^11.6.14",
         "swiper": "^8.4.5",
         "tippy.js": "^6.3.7"
     },
