@@ -36,14 +36,15 @@ sub startup {
     my $vername = $packagejson->{version_name};
     my $descstr = $packagejson->{description};
 
-    my $secret = "";
-    if ( -e "oshino" ) {
-        $secret = Mojo::File->new('oshino')->slurp;
+    my $secret          = "";
+    my $secretfile_path = $ENV{LRR_DATA_DIRECTORY} ? $ENV{LRR_DATA_DIRECTORY} . "/oshino" : "oshino";
+    if ( -e $secretfile_path ) {
+        $secret = Mojo::File->new($secretfile_path)->slurp;
     } else {
 
         # Generate a random string as the secret and store it in a file
         $secret .= sprintf( "%x", rand 16 ) for 1 .. 8;
-        Mojo::File->new('oshino')->spew($secret);
+        Mojo::File->new($secretfile_path)->spew($secret);
     }
 
     # Use the hostname alongside the random secret
