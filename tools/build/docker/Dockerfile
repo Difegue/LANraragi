@@ -53,6 +53,7 @@ WORKDIR /home/koyomi/lanraragi
 #This allows for Docker cache to preserve cpan dependencies
 COPY --chown=koyomi:koyomi /tools/cpanfile /tools/install.pl /tools/build/docker/install-everything.sh tools/
 COPY --chown=koyomi:koyomi /package.json package.json
+COPY --chown=koyomi:koyomi /package-lock.json package-lock.json
 
 # Run the install script as root
 RUN sh ./tools/install-everything.sh $INSTALL_PARAMETER

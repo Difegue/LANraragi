@@ -125,7 +125,8 @@ root/
 |- lrr.conf      <- Mojolicious configuration file
 |- .perltidy.rc  <- PerlTidy config file to match the coding style
 |- .eslintrc.json   <- ESLint config file to match the coding style
-+- package.json  <- NPM file, contains front-end dependency listing and shortcuts
+|- package.json  <- NPM file, contains front-end dependency listing and shortcuts
++- package-lock.json <- NPM lockfile used by installer/`npm ci` for reproducible builds
 ```
 
 ## Shinobu Architecture

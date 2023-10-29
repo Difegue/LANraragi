@@ -81,7 +81,7 @@ class Lanraragi < Formula
 
     prefix.install "README.md"
     (libexec/"lib").install Dir["lib/*"]
-    libexec.install "script", "package.json", "public", "templates", "tests", "lrr.conf"
+    libexec.install "script", "package.json", "package-lock.json", "public", "templates", "tests", "lrr.conf"
     cd "tools/build/homebrew" do
       bin.install "lanraragi"
       libexec.install "redis.conf"
