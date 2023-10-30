@@ -13,7 +13,7 @@ use Exporter 'import';
 our @EXPORT_OK = qw(clean_title trim trim_CRLF trim_url most_similar);
 
 # Remove "junk" from titles, turning something like "(c12) [poop (butt)] hardcore handholding [monogolian] [recensored]" into "hardcore handholding"
-sub clean_title($title) {
+sub clean_title ($title) {
     $title = trim($title);
 
     # Remove leading "(c12)"
@@ -29,19 +29,21 @@ sub clean_title($title) {
 }
 
 # Remove spaces before and after a word
-sub trim($s) {
+sub trim ($s) {
+    unless ($s) { return; }
     $s =~ s/^\s+|\s+$//g;
     return $s;
 }
 
 # Remove all newlines in a string
-sub trim_CRLF($s) {
+sub trim_CRLF ($s) {
+    unless ($s) { return; }
     $s =~ s/\R//g;
     return $s;
 }
 
 # Fixes up a URL string for use in the DL system.
-sub trim_url($url) {
+sub trim_url ($url) {
 
     $url = trim($url);
 

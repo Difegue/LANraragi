@@ -1,12 +1,12 @@
 package LANraragi::Controller::Config;
 use Mojo::Base 'Mojolicious::Controller';
 
-use LANraragi::Utils::Generic qw(generate_themes_header);
-use LANraragi::Utils::String qw(trim trim_CRLF);
-use LANraragi::Utils::Database qw(redis_encode save_computed_tagrules);
+use LANraragi::Utils::Generic    qw(generate_themes_header);
+use LANraragi::Utils::String     qw(trim trim_CRLF);
+use LANraragi::Utils::Database   qw(redis_encode save_computed_tagrules);
 use LANraragi::Utils::TempFolder qw(get_tempsize);
-use LANraragi::Utils::Tags qw(tags_rules_to_array replace_CRLF restore_CRLF);
-use Mojo::JSON qw(encode_json);
+use LANraragi::Utils::Tags       qw(tags_rules_to_array replace_CRLF restore_CRLF);
+use Mojo::JSON                   qw(encode_json);
 
 use Authen::Passphrase::BlowfishCrypt;
 
@@ -23,7 +23,7 @@ sub index {
         motd            => $self->LRR_CONF->get_motd,
         dirname         => $self->LRR_CONF->get_userdir,
         thumbdir        => $self->LRR_CONF->get_thumbdir,
-        forceddirname   => ( defined $ENV{LRR_DATA_DIRECTORY} ? 1 : 0 ),
+        forceddirname   => ( defined $ENV{LRR_DATA_DIRECTORY}  ? 1 : 0 ),
         forcedthumbdir  => ( defined $ENV{LRR_THUMB_DIRECTORY} ? 1 : 0 ),
         pagesize        => $self->LRR_CONF->get_pagesize,
         enablepass      => $self->LRR_CONF->enable_pass,
@@ -126,21 +126,29 @@ sub save_config {
     #Did all the checks pass ?
     if ($success) {
 
-        # Clean up the user's inputs for non-toggle options and encode for redis insertion
+        $redis->watch("LRR_CONFIG");
+        $redis->multi;
+
         foreach my $key ( keys %confhash ) {
             my $value = $confhash{$key};
-            $value = trim($value);
-            $value = trim_CRLF($value);
-            $value = redis_encode($value);
+
+            if ( $value ne '0' && $value ne '1' ) {
+
+                # Clean up the user's inputs for non-toggle options and encode for redis insertion
+                $value = trim($value);
+                $value = trim_CRLF($value);
+                $value = redis_encode($value);
+            }
+
+            # For all keys of the hash, add them to the redis config hash with the matching keys.
             $self->LRR_LOGGER->debug( "Saving $key with value " . $value );
+            $redis->hset( "LRR_CONFIG", $key, $value );
         }
 
-        #for all keys of the hash, add them to the redis config hash with the matching keys.
-        $redis->hset( "LRR_CONFIG", $_, $confhash{$_}, sub { } ) for keys %confhash;
-        $redis->wait_all_responses;
+        $redis->exec;
     }
 
-    $redis->quit();
+    $redis->quit;
 
     my @computed_tagrules = tags_rules_to_array( $self->req->param('tagrules') );
     $self->LRR_LOGGER->debug( "Saving computed tag rules : " . encode_json( \@computed_tagrules ) );
