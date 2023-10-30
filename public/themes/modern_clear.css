@@ -201,6 +201,18 @@ table.itg th {
     color: #34495E !important;
 }
 
+.caption-tags>*>*>span {
+    color: #34495E !important;
+}
+
+#archive-categories .gt a {
+    color: #E1E7E9;
+}
+
+#archive-categories .gt a:hover {
+    color: #ed2553;
+}
+
 .tippy-arrow {
     color: #E1E7E9;
 }
