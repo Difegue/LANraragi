@@ -30,14 +30,12 @@ sub clean_title ($title) {
 
 # Remove spaces before and after a word
 sub trim ($s) {
-    unless ($s) { return; }
     $s =~ s/^\s+|\s+$//g;
     return $s;
 }
 
 # Remove all newlines in a string
 sub trim_CRLF ($s) {
-    unless ($s) { return; }
     $s =~ s/\R//g;
     return $s;
 }

@@ -111,6 +111,11 @@ sub clean_temp_partial {
         }
         closedir $dir_fh;
 
+        if ( scalar @folder_list <= 1 ) {
+            $logger->info("Only one folder left in /temp, aborting clean.");
+            return;
+        }
+
         @folder_list = sort {
             my $a_stat = stat($a);
             my $b_stat = stat($b);
