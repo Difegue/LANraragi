@@ -105,7 +105,7 @@ class Lanraragi < Formula
 
     # but while we're at it, we can also check for the table flip! it's free real estate
     # Make sure lanraragi writes files to a path allowed by the sandbox
-    ENV["LRR_LOG_DIRECTORY"] = ENV["LRR_TEMP_DIRECTORY"] = testpath
+    ENV["LRR_LOG_DIRECTORY"] = ENV["LRR_TEMP_DIRECTORY"] ENV["LRR_DATA_DIRECTORY"] = testpath
     %w[server.pid shinobu.pid minion.pid].each { |file| touch file }
 
     # Set PERL5LIB as we're not calling the launcher script
