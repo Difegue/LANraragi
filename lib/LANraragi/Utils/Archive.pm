@@ -177,7 +177,7 @@ sub extract_thumbnail ( $thumbdir, $id, $page, $use_hq ) {
     my @filelist = @$images;
     my $requested_image = $filelist[ $page > 0 ? $page - 1 : 0 ];
 
-    die "Requested image not found: $requested_image" unless $requested_image;
+    die "Requested image not found: $id page $page" unless $requested_image;
     $logger->debug("Extracting thumbnail for $id page $page from $requested_image");
 
     # Extract first image to temp dir
