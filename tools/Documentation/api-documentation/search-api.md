@@ -14,55 +14,26 @@ ID of the category you want to restrict this search to.
 {% endswagger-parameter %}
 
 {% swagger-parameter name="filter" type="string" required="false" in="query" %}
-Search query. You can use the following special characters in it:
+Search query. You can use the following special characters in it:  
 
-\
-
-
-
-
-**Quotation Marks ("...")**
-
-\
-
-
+**Quotation Marks ("...")**  
 Exact string search. Allows a search term to include spaces. Everything placed inside a pair of quotation marks is treated as a singular term. Wildcard characters are still interpreted as wildcards.
 
-**Question Mark (?), Underscore (_)**
-
-\
-
-
+**Question Mark (?), Underscore (_)**  
 Wildcard. Can match any single character.
 
-**Asterisk (*), Percentage Sign (%)**
-
-\
-
-
+**Asterisk (*), Percentage Sign (%)**  
 Wildcard. Can match any sequence of characters (including none).
 
-**Subtraction Sign (-)**
-
-\
-
-
+**Subtraction Sign (-)**  
 Exclusion. When placed before a term, prevents search results from including that term.
 
-**Dollar Sign ($)**
-
-\
-
-
+**Dollar Sign ($)**  
 Add at the end of a tag to perform an exact tag search rather than displaying all elements that start with the term. Only matches tags regardless of search parameters and can be used as an exclusion to ignore misc tags in the search query.
 {% endswagger-parameter %}
 
 {% swagger-parameter name="start" type="string" required="false" in="query" %}
-From which archive in the total result count this enumeration should start. The total number of archives displayed depends on the server-side _page size_ preference.
-
-\
-
-
+From which archive in the total result count this enumeration should start. The total number of archives displayed depends on the server-side _page size_ preference.  
 From 0.8.2 onwards, you can use "-1" here to get the full, unpaged data.
 {% endswagger-parameter %}
 

@@ -91,6 +91,7 @@ Page of the Archives list.
                 "pagecount": 30,
                 "progress": 0,
                 "tags": "date_added:1688608157",
+                "lastreadtime": 0,
                 "title": "(C95) [wadamemo (WADA Rco)] Fate GO MEMO 3 (Fate Grand Order)"
             },
             {
@@ -101,6 +102,7 @@ Page of the Archives list.
                 "pagecount": 30,
                 "progress": 0,
                 "tags": "date_added:1688608157",
+                "lastreadtime": 0,
                 "title": "FateGOMEMO"
             },
             {
@@ -111,6 +113,7 @@ Page of the Archives list.
                 "pagecount": 26,
                 "progress": 0,
                 "tags": "date_added:1688608157",
+                "lastreadtime": 0,
                 "title": "gits (2)"
             }
         ],
