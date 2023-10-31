@@ -33,7 +33,9 @@
     <link rel="http://opds-spec.org/acquisition" href="/api/archives/[% arc.arcid %]/download[% api_key_query %]" title="Download/Read"
         type="[% arc.mimetype %]" />
     <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
-        href="/api/opds/[% arc.arcid %]/pse?page={pageNumber}[% api_key_and %]" pse:count="[% arc.pagecount %]" [% IF arc.progress %] pse:lastRead="[% arc.progress %]" [% END %]/>
+        href="/api/opds/[% arc.arcid %]/pse?page={pageNumber}[% api_key_and %]" pse:count="[% arc.pagecount %]" 
+        [% IF arc.progress %] pse:lastRead="[% arc.progress %]" [% END %] 
+        [% IF arc.lastreaddate %] pse:lastReadDate="[% arc.lastreaddate %]" [% END %] />
     <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=[% arc.arcid %][% api_key_and %]" />
 
 </entry>

@@ -16,6 +16,9 @@ my $home = Mojo::Home->new;
 $home->detect;
 
 my $config = Mojolicious::Plugin::Config->register( Mojolicious->new, { file => $home . '/lrr.conf' } );
+if ( $ENV{LRR_REDIS_ADDRESS} ) {
+    $config->{redis_address} = $ENV{LRR_REDIS_ADDRESS};
+}
 
 # Address and port of your redis instance.
 sub get_redisad { return $config->{redis_address} }
@@ -42,8 +45,8 @@ sub get_minion {
     my $miniondb = get_redisad . "/" . get_miniondb;
     my $password = get_redispassword;
 
-    # If the password is non-empty, add the required @
-    if ($password) { $password = $password . "@"; }
+    # If the password is non-empty, add the required delimiters
+    if ($password) { $password = "x:" . $password . "@"; }
 
     return Minion->new( Redis => "redis://$password$miniondb" );
 }
@@ -182,6 +185,8 @@ sub enable_dateadded     { return &get_redis_conf( "usedateadded",    "1" ) }
 sub use_lastmodified     { return &get_redis_conf( "usedatemodified", "0" ) }
 sub enable_cryptofs      { return &get_redis_conf( "enablecryptofs",  "0" ) }
 sub get_hqthumbpages     { return &get_redis_conf( "hqthumbpages",    "0" ) }
+sub get_jxlthumbpages    { return &get_redis_conf( "jxlthumbpages",   "0" ) }
 sub get_replacedupe      { return &get_redis_conf( "replacedupe",     "0" ) }
+sub can_replacetitles    { return &get_redis_conf( "replacetitles",   "1" ) }
 
 1;

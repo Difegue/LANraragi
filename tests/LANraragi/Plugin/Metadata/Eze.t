@@ -19,12 +19,12 @@ require "$cwd/tests/mocks.pl";
 use_ok('LANraragi::Plugin::Metadata::Eze');
 
 sub eve_test {
-    
-    my ($jsonpath, $save_title, $origin_title, $additional_tags) = @_;
+
+    my ( $jsonpath, $save_title, $origin_title, $additional_tags ) = @_;
 
     # Copy the eze sample json to a temporary directory as it's deleted once parsed
     my ( $fh, $filename ) = tempfile();
-    cp( $SAMPLES . $jsonpath , $fh );
+    cp( $SAMPLES . $jsonpath, $fh );
 
     # Mock LANraragi::Utils::Archive's subs to return the temporary sample JSON
     # Since we're using exports, the methods are under the plugin's namespace.
@@ -37,19 +37,19 @@ sub eve_test {
 
     # Since this is calling the sub directly and not in an object context,
     # we pass a dummy string as first parameter to replace the object.
-    my %ezetags = trap { LANraragi::Plugin::Metadata::Eze::get_tags( "", \%dummyhash, $save_title, $origin_title, $additional_tags ); };
+    my %ezetags =
+      trap { LANraragi::Plugin::Metadata::Eze::get_tags( "", \%dummyhash, $save_title, $origin_title, $additional_tags ); };
 
     return %ezetags;
 
 }
 
-note("eze-lite Tests, save_title on, origin_title off, additional_tags off");
+note("eze-lite Tests, origin_title off, additional_tags off");
 {
-    my $save_title = 1;
-    my $origin_title = 0;
+    my $origin_title    = 0;
     my $additional_tags = 0;
-    
-    my %ezetags = eve_test("/eze/eze_lite_sample.json", $save_title, $origin_title, $additional_tags);
+
+    my %ezetags = eve_test( "/eze/eze_lite_sample.json", $origin_title, $additional_tags );
 
     is( $ezetags{title},
         "(C72) [Mitarashi Club (Mitarashi Kousei)] Akiko-san to Issho (Kanon) [English] [Belldandy100] [Decensored]",
@@ -61,14 +61,12 @@ note("eze-lite Tests, save_title on, origin_title off, additional_tags off");
     );
 }
 
-
-note("eze-lite Tests, save_title on, origin_title on, additional_tags on");
+note("eze-lite Tests, origin_title on, additional_tags on");
 {
-    my $save_title = 1;
-    my $origin_title = 1;
+    my $origin_title    = 1;
     my $additional_tags = 1;
-    
-    my %ezetags = eve_test("/eze/eze_lite_sample.json", $save_title, $origin_title, $additional_tags);
+
+    my %ezetags = eve_test( "/eze/eze_lite_sample.json", $origin_title, $additional_tags );
 
     is( $ezetags{title},
         "(C72) [Mitarashi Club (Mitarashi Kousei)] Akiko-san to Issho (Kanon) [English] [Belldandy100] [Decensored]",
@@ -80,56 +78,30 @@ note("eze-lite Tests, save_title on, origin_title on, additional_tags on");
     );
 }
 
-note("eze-full Tests, save_title off, origin_title off, additional_tags off");
+note("eze-full Tests, origin_title off, additional_tags on");
 {
-    my $save_title = 0;
-    my $origin_title = 0;
-    my $additional_tags = 0;
-    
-    my %ezetags = eve_test("/eze/eze_full_sample.json", $save_title, $origin_title, $additional_tags);
+    my $origin_title    = 0;
+    my $additional_tags = 1;
 
-    is( $ezetags{title},
-        undef,
-        "title parsing test 1/2"
+    my %ezetags = eve_test( "/eze/eze_full_sample.json", $origin_title, $additional_tags );
+
+    is( $ezetags{title}, "(C91) [HitenKei (Hiten)] R.E.I.N.A [Chinese] [無邪気漢化組]", "title parsing test 1/2" );
+    is( $ezetags{tags},
+        "artist:hiten, female:defloration, female:pantyhose, female:sole female, group:hitenkei, language:chinese, language:translated, male:sole male, parody:original, category:doujinshi, uploader:cocy, timestamp:1484412360, source:exhentai.org/g/1017975/49b3c275a1",
+        "tags parsing test 2/2"
     );
+}
+
+note("eze-full Tests, origin_title on, additional_tags off");
+{
+    my $origin_title    = 1;
+    my $additional_tags = 0;
+
+    my %ezetags = eve_test( "/eze/eze_full_sample.json", $origin_title, $additional_tags );
+
+    is( $ezetags{title}, "(C91) [HitenKei (Hiten)] R.E.I.N.A [中国翻訳]", "title parsing test 1/2" );
     is( $ezetags{tags},
         "artist:hiten, female:defloration, female:pantyhose, female:sole female, group:hitenkei, language:chinese, language:translated, male:sole male, parody:original, category:doujinshi, source:exhentai.org/g/1017975/49b3c275a1",
-        "tags parsing test 2/2"
-    );
-}
-
-note("eze-full Tests, save_title on, origin_title off, additional_tags on");
-{
-    my $save_title = 1;
-    my $origin_title = 0;
-    my $additional_tags = 1;
-    
-    my %ezetags = eve_test("/eze/eze_full_sample.json", $save_title, $origin_title, $additional_tags);
-
-    is( $ezetags{title},
-        "(C91) [HitenKei (Hiten)] R.E.I.N.A [Chinese] [無邪気漢化組]",
-        "title parsing test 1/2"
-    );
-    is( $ezetags{tags},
-        "artist:hiten, female:defloration, female:pantyhose, female:sole female, group:hitenkei, language:chinese, language:translated, male:sole male, parody:original, category:doujinshi, uploader:cocy, timestamp:1484412360, source:exhentai.org/g/1017975/49b3c275a1",
-        "tags parsing test 2/2"
-    );
-}
-
-note("eze-full Tests, save_title on, origin_title on, additional_tags on");
-{
-    my $save_title = 1;
-    my $origin_title = 1;
-    my $additional_tags = 1;
-    
-    my %ezetags = eve_test("/eze/eze_full_sample.json", $save_title, $origin_title, $additional_tags);
-
-    is( $ezetags{title},
-        "(C91) [HitenKei (Hiten)] R.E.I.N.A [中国翻訳]",
-        "title parsing test 1/2"
-    );
-    is( $ezetags{tags},
-        "artist:hiten, female:defloration, female:pantyhose, female:sole female, group:hitenkei, language:chinese, language:translated, male:sole male, parody:original, category:doujinshi, uploader:cocy, timestamp:1484412360, source:exhentai.org/g/1017975/49b3c275a1",
         "tags parsing test 2/2"
     );
 }

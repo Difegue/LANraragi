@@ -42,6 +42,33 @@ Server.callAPI = function (endpoint, method, successMessage, errorMessage, succe
         .catch((error) => LRR.showErrorToast(errorMessage, error));
 };
 
+Server.callAPIBody = function (endpoint, method, body, successMessage, errorMessage, successCallback) {
+    return fetch(endpoint, { method, body })
+        .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))
+        .then((data) => {
+            if (Object.prototype.hasOwnProperty.call(data, "success") && !data.success) {
+                throw new Error(data.error);
+            } else {
+                let message = successMessage;
+                if ("successMessage" in data && data.successMessage !== null) {
+                    message = data.successMessage;
+                }
+                if (message !== null) {
+                    LRR.toast({
+                        heading: message,
+                        icon: "success",
+                        hideAfter: 7000,
+                    });
+                }
+
+                if (successCallback !== null) return successCallback(data);
+
+                return null;
+            }
+        })
+        .catch((error) => LRR.showErrorToast(errorMessage, error));
+};
+
 /**
  * Check the status of a Minion job until it's completed.
  * @param {*} jobId Job ID to check

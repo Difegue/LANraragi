@@ -20,11 +20,11 @@ sub plugin_info {
         type        => "metadata",
         namespace   => "hentagplugin",
         author      => "siliconfeces",
-        version     => "0.1",
+        version     => "0.2",
         description => "Parses Hentag info.json files embedded in archives. Achtung, no API calls!",
-		parameters  => [{ type => "bool", desc => "Save archive title" }],
-        icon =>
-           "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAPoAAAD6AG1e1JrAAAEzklEQVR4nO2Xa0xbZRjH6xe/0NKW0p7TQgul9GJpuQ0YbcFgXFx0M+NaoF0gY4mbkwLLxjYoMoiZMVGnDJZt2TT7plnGxmVCgXEdi859MGabH0xqNHFeBsxsETSGnL95314sWyuXrMYYP/zznHN6zvv83uft87zvw4tnzRYho/HGMmrEMmpOxGg5MWuAiNFBzOofE30uN0Ao0yJWkuKXBsL41LWIo5KkQijVeiVKo4XHlyV5GcUmqBKLllWJRYiXmyFg1AgHEbgXxKVAqjJDaS6A0mRDQtpmsMZsyNNyIDeuLoUpd1mqNiM2LsXLy9Xsw+H875eP5N9Fi+Vn7rWcL7hk5RYIZCshAjMXiNVItW7FKxcG0OCZgmtoAq6hcTj7PkRp77sou/QeynojiqMi71w8vmzYvg28g5u/4Tpsi2izLnBuyxz3ZiFQajqPGFki4thnHlsCgUSN8nd60HLjSzSNXcP+8es4MPEZXFfHYb/SA/uVbr+NKM4+2M1VjZxC8Udvczy/Y7gt81yr5R46bEtwZvQhlkmJsP56OM+cx8GpG2gcnfFBjM2iYXQS9oEeVAycWIu4iv4uEBCe2zJPZk8AQAA6bb/BkXE5PACrg0imQ9XJc2ie/RxNnhk0jc5i/9h1NIz8BWAf7A46C173d6Gin1jfNXlefvl9rAtALNdBJNbBuetjNM/cROP0FJqmZ9A0fQ0N0xOo9pwOOg2I3FcOnUT16GmQsFN5TsFx9Qzy6uvAa7P6AIhdFYDVQ8ikotY8gnbHPA7Vf43D+7xorf8OrrqbKDzUAPtQyDL0d1HHzx07AP22l5BWVgxjyQ5qtS9spUvK2xBA1jA6836HO2sBbVn30ZGzCFfqbRhfLEalp8cX5oETNMTOqXPIrnPg6acYCMQp4Mcmgy9IgkBIsky/QYBMDzoKFtFquwe3bQ5Hn30IV8YtpJdUrATo64Jz8ixy9tZSx5JEI+IUBiqS0hEBnBRAQ+vAoxIxWgrQaVui75MMOlrwEC7zLZh3lIcH2FODmBiVz/EjE+KFA6jO6EWMTAkho6EgJBo+q4FAloyazKHoAXTYlugM5Yo8JCRY/bIErSIhH7uzJ0GKVyutH08QwB1MyTlSniPoLv09kLpPFKDNPyixr1t/iajQ96IUgXk6cGTNRzsC99FufRBR5PeoRqDF8iMa8+5E0FdosfwUnQi0+tNwZ+Yg3Yql8nTEU5mDVsKasCtrzJ8FUaoDjoxLNN9J0SEi1S9wTWpCTeZwdAuRI1iKQz/wXf8jldCxhr3gf4DO/8wSuNdzJPv3AAz/PcBAGAB+xCVYWPOxPJiGWR502H4NArQXPIDLfBvpJXbYh7tXHskmziJ3b+3KCDB6zjeWnltnY2IAX6ZCVfoFHCvkghvTG4V/YI/5U2iKttBTb+UnvgaFQOyc/gDpjgrw+UkBAOKcEzFkPB23vtaMNUAgS4JW9TIac+/QPeFI/g9ozv8WWSm7ESNVwtb8Ko1A6cXj9FT8/FvNiE8yQSTTUuciRkedi1jdMrFhmlPTKs0pgUim+wR5n4hRZEPAJNOmRShNBWsINKqb6DdCKXUeOt6ymNFBxOq9vA2156wBQrov0G/oHzO0bNNWnLTg8WQPCY1gIPw6cu8Vs3rLnwIWEm0oy+KXAAAAAElFTkSuQmCC",
+        parameters  => [],
+        icon        =>
+          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAPoAAAD6AG1e1JrAAAEzklEQVR4nO2Xa0xbZRjH6xe/0NKW0p7TQgul9GJpuQ0YbcFgXFx0M+NaoF0gY4mbkwLLxjYoMoiZMVGnDJZt2TT7plnGxmVCgXEdi859MGabH0xqNHFeBsxsETSGnL95314sWyuXrMYYP/zznHN6zvv83uft87zvw4tnzRYho/HGMmrEMmpOxGg5MWuAiNFBzOofE30uN0Ao0yJWkuKXBsL41LWIo5KkQijVeiVKo4XHlyV5GcUmqBKLllWJRYiXmyFg1AgHEbgXxKVAqjJDaS6A0mRDQtpmsMZsyNNyIDeuLoUpd1mqNiM2LsXLy9Xsw+H875eP5N9Fi+Vn7rWcL7hk5RYIZCshAjMXiNVItW7FKxcG0OCZgmtoAq6hcTj7PkRp77sou/QeynojiqMi71w8vmzYvg28g5u/4Tpsi2izLnBuyxz3ZiFQajqPGFki4thnHlsCgUSN8nd60HLjSzSNXcP+8es4MPEZXFfHYb/SA/uVbr+NKM4+2M1VjZxC8Udvczy/Y7gt81yr5R46bEtwZvQhlkmJsP56OM+cx8GpG2gcnfFBjM2iYXQS9oEeVAycWIu4iv4uEBCe2zJPZk8AQAA6bb/BkXE5PACrg0imQ9XJc2ie/RxNnhk0jc5i/9h1NIz8BWAf7A46C173d6Gin1jfNXlefvl9rAtALNdBJNbBuetjNM/cROP0FJqmZ9A0fQ0N0xOo9pwOOg2I3FcOnUT16GmQsFN5TsFx9Qzy6uvAa7P6AIhdFYDVQ8ikotY8gnbHPA7Vf43D+7xorf8OrrqbKDzUAPtQyDL0d1HHzx07AP22l5BWVgxjyQ5qtS9spUvK2xBA1jA6836HO2sBbVn30ZGzCFfqbRhfLEalp8cX5oETNMTOqXPIrnPg6acYCMQp4Mcmgy9IgkBIsky/QYBMDzoKFtFquwe3bQ5Hn30IV8YtpJdUrATo64Jz8ixy9tZSx5JEI+IUBiqS0hEBnBRAQ+vAoxIxWgrQaVui75MMOlrwEC7zLZh3lIcH2FODmBiVz/EjE+KFA6jO6EWMTAkho6EgJBo+q4FAloyazKHoAXTYlugM5Yo8JCRY/bIErSIhH7uzJ0GKVyutH08QwB1MyTlSniPoLv09kLpPFKDNPyixr1t/iajQ96IUgXk6cGTNRzsC99FufRBR5PeoRqDF8iMa8+5E0FdosfwUnQi0+tNwZ+Yg3Yql8nTEU5mDVsKasCtrzJ8FUaoDjoxLNN9J0SEi1S9wTWpCTeZwdAuRI1iKQz/wXf8jldCxhr3gf4DO/8wSuNdzJPv3AAz/PcBAGAB+xCVYWPOxPJiGWR502H4NArQXPIDLfBvpJXbYh7tXHskmziJ3b+3KCDB6zjeWnltnY2IAX6ZCVfoFHCvkghvTG4V/YI/5U2iKttBTb+UnvgaFQOyc/gDpjgrw+UkBAOKcEzFkPB23vtaMNUAgS4JW9TIac+/QPeFI/g9ozv8WWSm7ESNVwtb8Ko1A6cXj9FT8/FvNiE8yQSTTUuciRkedi1jdMrFhmlPTKs0pgUim+wR5n4hRZEPAJNOmRShNBWsINKqb6DdCKXUeOt6ymNFBxOq9vA2156wBQrov0G/oHzO0bNNWnLTg8WQPCY1gIPw6cu8Vs3rLnwIWEm0oy+KXAAAAAElFTkSuQmCC",
     );
 
 }
@@ -33,8 +33,7 @@ sub plugin_info {
 sub get_tags {
 
     shift;
-    my $lrr_info = shift;     # Global info hash
-    my ($save_title) = @_;    # Plugin parameter
+    my $lrr_info = shift;    # Global info hash
 
     my $logger = get_plugin_logger();
     my $file   = $lrr_info->{file_path};
@@ -42,6 +41,7 @@ sub get_tags {
     my $path_in_archive = is_file_in_archive( $file, "info.json" );
 
     if ($path_in_archive) {
+
         #Extract info.json
         my $filepath = extract_file_from_archive( $file, $path_in_archive );
 
@@ -69,10 +69,10 @@ sub get_tags {
 
         #Return tags
         $logger->info("Sending the following tags to LRR: $tags");
-        if ( $save_title && $title ) {
+        if ($title) {
             $logger->info("Parsed title is $title");
             return ( tags => $tags, title => $title );
-        } elsif ($tags ne "") {
+        } elsif ( $tags ne "" ) {
             return ( tags => $tags );
         }
     }
@@ -96,18 +96,19 @@ sub tags_from_hentag_json {
     my $otherTags  = $hash->{"otherTags"};
     my $language   = language_from_hentag_json($hash);
     my $urls       = $hash->{"locations"};
+
     # not handled yet: category, createdAt
 
     # tons of different shit creates different kinds of info.json file, so validate the shit out of the data
-    @found_tags = try_add_tags(\@found_tags, "series:", $parodies);
-    @found_tags = try_add_tags(\@found_tags, "group:", $groups);
-    @found_tags = try_add_tags(\@found_tags, "artist:", $artists);
-    @found_tags = try_add_tags(\@found_tags, "character:", $characters);
-    @found_tags = try_add_tags(\@found_tags, "male:", $maleTags);
-    @found_tags = try_add_tags(\@found_tags, "female:", $femaleTags);
-    @found_tags = try_add_tags(\@found_tags, "other:", $otherTags);
+    @found_tags = try_add_tags( \@found_tags, "series:",    $parodies );
+    @found_tags = try_add_tags( \@found_tags, "group:",     $groups );
+    @found_tags = try_add_tags( \@found_tags, "artist:",    $artists );
+    @found_tags = try_add_tags( \@found_tags, "character:", $characters );
+    @found_tags = try_add_tags( \@found_tags, "male:",      $maleTags );
+    @found_tags = try_add_tags( \@found_tags, "female:",    $femaleTags );
+    @found_tags = try_add_tags( \@found_tags, "other:",     $otherTags );
     push( @found_tags, "language:" . $language ) unless !defined $language;
-    @found_tags = try_add_tags(\@found_tags, "source:", $urls);
+    @found_tags = try_add_tags( \@found_tags, "source:", $urls );
 
     #Done-o
     my $concat_tags = join( ", ", @found_tags );
@@ -118,19 +119,20 @@ sub tags_from_hentag_json {
 sub language_from_hentag_json {
     my ($hash) = @_;
 
-    my $language   = $hash->{"language"};
+    my $language = $hash->{"language"};
     return $language;
 }
 
 sub try_add_tags {
-    my @found_tags = @{$_[0]};
-    my $prefix = $_[1];
-    my $tags = $_[2];
+    my @found_tags = @{ $_[0] };
+    my $prefix     = $_[1];
+    my $tags       = $_[2];
     my @potential_tags;
 
-    if (ref($tags) eq 'ARRAY') {
+    if ( ref($tags) eq 'ARRAY' ) {
         foreach my $tag (@$tags) {
-            if (ref($tag) eq 'HASH' || ref($tag) eq 'ARRAY') {
+            if ( ref($tag) eq 'HASH' || ref($tag) eq 'ARRAY' ) {
+
                 # Weird stuff in here, don't continue parsing to avoid garbage data
                 return @found_tags;
             }
@@ -138,7 +140,7 @@ sub try_add_tags {
         }
     }
 
-    push(@found_tags, @potential_tags);
+    push( @found_tags, @potential_tags );
     return @found_tags;
 }
 

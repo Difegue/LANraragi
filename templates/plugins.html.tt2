@@ -21,7 +21,7 @@
 	<script src="/js/vendor/preact.umd.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/hooks.umd.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/compat.umd.js" type="text/JAVASCRIPT"></script>
-	<script>window.React=window.preactCompat;window.react=window.preactCompat;</script>
+	<script>window.React = window.preactCompat; window.react = window.preactCompat;</script>
 	<script src="/js/vendor/clsx.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/react-toastify.umd.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/jquery.ui.widget.js" type="text/JAVASCRIPT"></script>
@@ -83,6 +83,19 @@
 							<i class="fa fa-digital-tachograph" aria-hidden="true"></i> Metadata Plugins
 						</div>
 						<div class="collapsible-body">
+
+							<h1 class="ih" style="display:inline">Allow Plugins to replace archive titles: </h1>
+							[% IF replacetitles %]
+							<input id="replacetitles" name="replacetitles" class="fa" type="checkbox" checked> [% ELSE
+							%]
+							<input id="replacetitles" name="replacetitles" class="fa" type="checkbox"> [% END %]
+							<label for="replacetitles">
+								<br> If enabled, metadata plugins will be able to change the title of your archives
+								alongside
+								adding tags to them.
+							</label>
+							<br />
+							<br />
 							[% INCLUDE pluginlist plugins = metadata %]
 						</div>
 					</li>

@@ -20,3 +20,13 @@ Said development server can be ran with the `npm run dev-server` command.
 The major difference is that this server will automatically reload when you modify any file within LANraragi. Background worker included!
 
 You'll also probably want to enable **Debug Mode** in the LRR Options, as that will allow you to view debug-tier logs, alongside the raw Mojolicious logs.
+
+## Using Github Codespaces
+
+The LRR Git repository contains [devcontainer.json](https://github.com/Difegue/LANraragi/tree/dev/.devcontainer) configuration for [Codespaces](https://github.com/Difegue/LANraragi/codespaces), so you can easily spin up a development VM using that. 
+Deployment might take some time, as the VM will download all dependencies.  
+
+## Using Docker Compose
+
+You can use [Docker Compose](https://docs.docker.com/compose/) for quickly bringing up a LANraragi instance suitable for development.
+Run `docker compose up -d` inside `tools/build/docker` and hack away!

@@ -17,7 +17,11 @@ Look at the methods below for something that fits your OS and usage.
 
 {% content-ref url="macos.md" %}
 [macos.md](macos.md)
-{% endcontent-ref %}
+{% endcontent-ref %} 
+
+{% hint style="info" %}
+While not a part of the main repo, you can check out the [Nix](community.md) package as well if brew isn't to your taste.
+{% endhint %}
 
 ## Windows 10/11: _LRR for Windows_
 

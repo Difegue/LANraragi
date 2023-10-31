@@ -18,6 +18,7 @@ Get the Archive Index in JSON form. You can use the IDs of this JSON with the ot
     "pagecount": 128,
     "progress": 0,
     "tags": "",
+    "lastreadtime": 1589038280,
     "title": "Ghost in the Shell 01.5 - Human-Error Processor v01c01"
 }, {
     "arcid": "28697b96f0ac5858be2614ed10ca47742c9522fd",
@@ -26,6 +27,7 @@ Get the Archive Index in JSON form. You can use the IDs of this JSON with the ot
     "pagecount": 34,
     "progress": 3,
     "tags": "parody:fate grand order,  group:wadamemo,  artist:wada rco,  artbook,  full color",
+    "lastreadtime": 1337038281,
     "title": "Fate GO MEMO"
 }, {
     "arcid": "2810d5e0a8d027ecefebca6237031a0fa7b91eb3",
@@ -34,6 +36,7 @@ Get the Archive Index in JSON form. You can use the IDs of this JSON with the ot
     "pagecount": 0,
     "progress": 0,
     "tags": "parody:fate grand order,  character:abigail williams,  character:artoria pendragon alter,  character:asterios,  character:ereshkigal,  character:gilgamesh,  character:hans christian andersen,  character:hassan of serenity,  character:hector,  character:helena blavatsky,  character:irisviel von einzbern,  character:jeanne alter,  character:jeanne darc,  character:kiara sessyoin,  character:kiyohime,  character:lancer,  character:martha,  character:minamoto no raikou,  character:mochizuki chiyome,  character:mordred pendragon,  character:nitocris,  character:oda nobunaga,  character:osakabehime,  character:penthesilea,  character:queen of sheba,  character:rin tosaka,  character:saber,  character:sakata kintoki,  character:scheherazade,  character:sherlock holmes,  character:suzuka gozen,  character:tamamo no mae,  character:ushiwakamaru,  character:waver velvet,  character:xuanzang,  character:zhuge liang,  group:wadamemo,  artist:wada rco,  artbook,  full color",
+    "lastreadtime": 1337038282,
     "title": "Fate GO MEMO 2"
 }, {
     "arcid": "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf",
@@ -42,6 +45,7 @@ Get the Archive Index in JSON form. You can use the IDs of this JSON with the ot
     "pagecount": 0,
     "progress": 0,
     "tags": "character:segata sanshiro",
+    "lastreadtime": 1337038234,
     "title": "Saturn Backup Cartridge - Japanese Manual"
 }, {
     "arcid": "e4c422fd10943dc169e3489a38cdbf57101a5f7e",
@@ -50,6 +54,7 @@ Get the Archive Index in JSON form. You can use the IDs of this JSON with the ot
     "pagecount": 0,
     "progress": 0,
     "tags": "parody: jojo's bizarre adventure",
+    "lastreadtime": 0,
     "title": "Rohan Kishibe goes to Gucci"
 }]
 ```
@@ -89,6 +94,7 @@ ID of the Archive to process.
     "pagecount": 34,
     "progress": 3,
     "tags": "character:segata sanshiro",
+    "lastreadtime": 1337038234,
     "title": "Saturn Backup Cartridge - Japanese Manual"
 }
 ```
@@ -142,6 +148,29 @@ ID of the Archive to process.
     "operation": "______",
     "error": "No archive ID specified.",
     "success": 0
+}
+```
+{% endswagger-response %}
+{% endswagger %}
+
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/archives/:id/tankoubons" method="get" summary="Get Archive Tankoubons" %}
+{% swagger-description %}
+Get all the Tankoubons which currently refer to this Archive ID.
+{% endswagger-description %}
+
+{% swagger-parameter name="id" type="string" required="true" in="path" %}
+ID of the Archive to process.
+{% endswagger-parameter %}
+
+{% swagger-response status="200" description="" %}
+```javascript
+{
+    "operation": "find_arc_tankoubons",
+    "success": 1,
+    "tankoubons": [
+        "TANK_1688616437",
+        "TANK_1688693913"
+    ]
 }
 ```
 {% endswagger-response %}
@@ -309,6 +338,8 @@ ID of the Archive to process
 {% swagger baseUrl="http://lrr.tvc-16.science" path="/api/archives/:id/progress/:page" method="put" summary="Update Reading Progression" %}
 {% swagger-description %}
 Tell the server which page of this Archive you're currently showing/reading, so that it updates its internal reading progression accordingly.  
+This endpoint will also update the date this Archive was last read, using the current server timestamp.  
+
 You should call this endpoint only when you're sure the user is currently reading the page you present.  
 **Don't** use it when preloading images off the server.
 
@@ -333,6 +364,7 @@ Current page to update the reading progress to. **Must** be a positive integer, 
   "id": "75d18ce470dc99f83dc355bdad66319d1f33c82b",
   "operation": "update_progress",
   "page": 34,
+  "lastreadtime": 123943543,
   "success": 1
 }
 ```

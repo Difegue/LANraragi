@@ -3,7 +3,6 @@ content
 .minion.db*
 npm-debug.log
 dump.rdb
-package-lock.json
 .vstags
 .gitbook
 *qemu-*-static*
@@ -11,3 +10,5 @@ Dockerfile.*
 .DS_Store
 config.log
 autobackup.json
+Makefile
+oshino

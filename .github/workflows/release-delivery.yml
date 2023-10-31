@@ -11,7 +11,7 @@ jobs:
     - uses: actions/checkout@master
     - name: Docker Build and export
       run: |
-        docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile-legacy .
+        docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile --build-arg INSTALL_PARAMETER=-w .
         docker create --name rootfs difegue/lanraragi 
         docker export --output=package.tar rootfs
     - name: Upload rootfs

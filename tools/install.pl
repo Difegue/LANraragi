@@ -7,7 +7,7 @@ use open ':std', ':encoding(UTF-8)';
 use Cwd;
 use Config;
 
-use feature qw(say);
+use feature    qw(say);
 use File::Path qw(make_path);
 
 #Vendor dependencies
@@ -156,7 +156,7 @@ if ( $front || $full ) {
 
     say("\r\nObtaining remote Web dependencies...\r\n");
 
-    if ( system("npm install") != 0 ) {
+    if ( system("npm ci") != 0 ) {
         die "Something went wrong while obtaining node modules - Bailing out.";
     }
 

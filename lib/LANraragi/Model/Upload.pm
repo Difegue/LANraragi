@@ -13,7 +13,8 @@ use File::Copy qw(move);
 use LANraragi::Utils::Database qw(invalidate_cache compute_id);
 use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Utils::Database qw(redis_encode);
-use LANraragi::Utils::Generic qw(is_archive remove_spaces remove_newlines trim_url get_bytelength);
+use LANraragi::Utils::Generic qw(is_archive get_bytelength);
+use LANraragi::Utils::String qw(trim trim_CRLF trim_url);
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
@@ -31,8 +32,8 @@ use LANraragi::Model::Category;
 # Returns a status value, the ID and title of the file, and a status message.
 sub handle_incoming_file {
 
-    my ( $tempfile, $catid, $tags ) = @_;
-    my ( $filename, $dirs, $suffix ) = fileparse( $tempfile, qr/\.[^.]*/ );
+    my ( $tempfile, $catid, $tags )   = @_;
+    my ( $filename, $dirs,  $suffix ) = fileparse( $tempfile, qr/\.[^.]*/ );
     $filename = $filename . $suffix;
     my $logger = get_logger( "File Upload/Download", "lanraragi" );
 
@@ -57,7 +58,7 @@ sub handle_incoming_file {
     my $isdupe       = $redis->exists($id) && -e $redis->hget( $id, "file" );
 
     # Stop here if file is a dupe and replacement is turned off.
-    if ((-e $output_file || $isdupe) && !$replace_dupe) {
+    if ( ( -e $output_file || $isdupe ) && !$replace_dupe ) {
 
         # Trash temporary file
         unlink $tempfile;
@@ -75,7 +76,7 @@ sub handle_incoming_file {
     # If we are replacing an existing one, just remove the old one first.
     if ($replace_dupe) {
         $logger->debug("Delete archive $id before replacing it.");
-        LANraragi::Utils::Database::delete_archive( $id );
+        LANraragi::Utils::Database::delete_archive($id);
     }
 
     # Add the file to the database ourselves so Shinobu doesn't do it
@@ -91,8 +92,8 @@ sub handle_incoming_file {
         my @tags = split( /,\s?/, $tags );
 
         foreach my $t (@tags) {
-            remove_spaces($t);
-            remove_newlines($t);
+            $t = trim($t);
+            $t = trim_CRLF($t);
 
             # If the tag is a source: tag, add it to the URL index
             if ( $t =~ /source:(.*)/i ) {
@@ -122,6 +123,7 @@ sub handle_incoming_file {
     # (The file being physically present is necessary in case last modified time is used)
     LANraragi::Utils::Database::add_timestamp_tag( $redis, $id );
     LANraragi::Utils::Database::add_pagecount( $redis, $id );
+    LANraragi::Utils::Database::add_arcsize( $redis, $id );
     $redis->quit();
     $redis_search->quit();
 

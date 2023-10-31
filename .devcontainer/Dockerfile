@@ -27,7 +27,8 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 # Dropping copies of the files in the .devcontainer folder should also work, but I cba to duplicate my build files for this and symlinks aint working I hate computers
 RUN wget -P /tools https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/cpanfile \
     && wget -P /tools https://raw.githubusercontent.com/Difegue/LANraragi/dev/tools/install.pl \
-    && wget https://raw.githubusercontent.com/Difegue/LANraragi/dev/package.json
+    && wget https://raw.githubusercontent.com/Difegue/LANraragi/dev/package.json \
+    && wget https://raw.githubusercontent.com/Difegue/LANraragi/dev/package-lock.json
 
 RUN npm run lanraragi-installer install-full
 

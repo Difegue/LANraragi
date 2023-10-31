@@ -4,6 +4,11 @@
 
 An UnRAID package based on the Docker images is available [here.](https://github.com/naipilk/LANraragi-unraid-template/)
 
+## Nix/NixOS
+
+If you're using [NixOS](https://nixos.org/) or the Nix package manager, a [LANraragi](https://search.nixos.org/packages?channel=unstable&show=lanraragi&from=0&size=50&sort=relevance&type=packages&query=lanraragi) package is available.  
+Unlike the other options here, this one is also available for Darwin/macOS!  
+
 ## Arch Linux
 
 An installation package is provided [in the AUR](https://aur.archlinux.org/packages/lanraragi/) (Arch User Repository).

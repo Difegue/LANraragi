@@ -4,7 +4,6 @@ use utf8;
 use Cwd;
 
 use Mojo::Base 'Mojolicious';
-
 use Test::More;
 use Test::Trap;
 use Test::Mojo;
@@ -80,7 +79,7 @@ note("Chaika Tests");
     ok( length $title_by_id > 0,  'chaika.moe SHA-1 title test' );
 }
 
-note("FAKKU Tests : Disabled due to cloudflare being used on FAKKU");
+note("FAKKU Tests : Disabled due to cloudflare being used");
 
 # {
 #     my $f_title = "Kairakuten Cover Girl's Episode 009: Hamao";
@@ -98,7 +97,7 @@ note("FAKKU Tests : Disabled due to cloudflare being used on FAKKU");
 note("Hitomi Tests");
 
 {
-    my $hi_gID = "2261881";
+    my $hi_gID      = "2261881";
     my %hi_hashdata = trap { LANraragi::Plugin::Metadata::Hitomi::get_tags_from_Hitomi( $hi_gID, 1 ); };
 
     ok( length $hi_hashdata{tags} > 0, 'Hitomi API Tag retrieval test' );

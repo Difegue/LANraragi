@@ -11,7 +11,8 @@ use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Utils::Database qw(redis_decode);
 use LANraragi::Utils::Archive qw(extract_thumbnail extract_archive);
 use LANraragi::Utils::Plugins qw(get_downloader_for_url get_plugin get_plugin_parameters use_plugin);
-use LANraragi::Utils::Generic qw(trim_url split_workload_by_cpu);
+use LANraragi::Utils::Generic qw(split_workload_by_cpu);
+use LANraragi::Utils::String qw(trim_url);
 use LANraragi::Utils::TempFolder qw(get_temp);
 
 use LANraragi::Model::Upload;
@@ -27,10 +28,21 @@ sub add_tasks {
             my ( $job, @args ) = @_;
             my ( $thumbdir, $id, $page ) = @args;
 
+            my $logger = get_logger( "Minion", "minion" );
+
             # Non-cover thumbnails are rendered in low quality by default.
-            my $use_hq = $page eq 0 || LANraragi::Model::Config->get_hqthumbpages;
-            my $thumbname = extract_thumbnail( $thumbdir, $id, $page, $use_hq );
-            $job->finish($thumbname);
+            my $use_hq    = $page eq 0 || LANraragi::Model::Config->get_hqthumbpages;
+            my $thumbname = "";
+
+            eval { $thumbname = extract_thumbnail( $thumbdir, $id, $page, $use_hq ); };
+            if ($@) {
+                my $msg = "Error building thumbnail: $@";
+                $logger->error($msg);
+                $job->fail( { errors => [$msg] } );
+            } else {
+                $job->finish($thumbname);
+            }
+
         }
     );
 
@@ -61,8 +73,10 @@ sub add_tasks {
                     sub {
                         foreach my $id (@$_) {
 
+                            my $use_jxl   = LANraragi::Model::Config->get_jxlthumbpages;
+                            my $format    = $use_jxl ? 'jxl' : 'jpg';
                             my $subfolder = substr( $id, 0, 2 );
-                            my $thumbname = "$thumbdir/$subfolder/$id.jpg";
+                            my $thumbname = "$thumbdir/$subfolder/$id.$format";
 
                             unless ( $force == 0 && -e $thumbname ) {
                                 eval {
@@ -137,7 +151,7 @@ sub add_tasks {
             my ( $job, @args )  = @_;
             my ( $url, $catid ) = @args;
 
-            my $ua = Mojo::UserAgent->new;
+            my $ua     = Mojo::UserAgent->new;
             my $logger = get_logger( "Minion", "minion" );
             $logger->info("Downloading url $url...");
 

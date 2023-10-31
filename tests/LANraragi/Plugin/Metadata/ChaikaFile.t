@@ -18,21 +18,23 @@ require "$cwd/tests/mocks.pl";
 
 use_ok('LANraragi::Plugin::Metadata::ChaikaFile');
 
-my @tags_list= (
-    'full censorship', 'female:sole female', 'male:sole male', 'artist:kemuri haku', 'female:tall girl', 
-    'female:cunnilingus', 'male:shotacon', 'female:defloration', 'female:nakadashi', 'female:x-ray',
-    'female:big breasts', 'language:translated', 'language:english'
+my @tags_list = (
+    'full censorship',  'female:sole female', 'male:sole male',     'artist:kemuri haku',
+    'female:tall girl', 'female:cunnilingus', 'male:shotacon',      'female:defloration',
+    'female:nakadashi', 'female:x-ray',       'female:big breasts', 'language:translated',
+    'language:english'
 );
-my @tags_list_extra= (
-    'other:full censorship', 'female:sole female', 'male:sole male', 'artist:kemuri haku', 'female:tall girl', 
-    'female:cunnilingus', 'male:shotacon', 'female:defloration', 'female:nakadashi', 'female:x-ray',
-    'female:big breasts', 'language:translated', 'language:english', 'category:manga', 'download:/archive/27240/download/',
-    'gallery:23532', 'timestamp:1521357552', 'source:chaika'
+my @tags_list_extra = (
+    'other:full censorship', 'female:sole female', 'male:sole male',                    'artist:kemuri haku',
+    'female:tall girl',      'female:cunnilingus', 'male:shotacon',                     'female:defloration',
+    'female:nakadashi',      'female:x-ray',       'female:big breasts',                'language:translated',
+    'language:english',      'category:manga',     'download:/archive/27240/download/', 'gallery:23532',
+    'timestamp:1521357552',  'source:chaika'
 );
 
 use_ok('LANraragi::Plugin::Metadata::ChaikaFile');
 
-note ( 'testing reading file without extra data...' );
+note('testing reading file without extra data...');
 {
     # Copy the sample json to a temporary directory as it's deleted once parsed
     my ( $fh, $filename ) = tempfile();
@@ -46,16 +48,19 @@ note ( 'testing reading file without extra data...' );
     my %dummyhash = ( file_path => "test" );
 
     my $saveTitle = 0;
-    my $addextra = 0;
-    my $addother = 0;
+    my $addextra  = 0;
+    my $addother  = 0;
     my $addsource = '';
-    my %ko_tags = trap { LANraragi::Plugin::Metadata::ChaikaFile::get_tags( "", \%dummyhash, $saveTitle, $addextra, $addother, $addsource ); };
+    my %ko_tags = trap { LANraragi::Plugin::Metadata::ChaikaFile::get_tags( "", \%dummyhash, $addextra, $addother, $addsource ); };
 
-    is( $ko_tags{title}, undef, 'gallery title');
-    is( $ko_tags{tags}, join(", ", @tags_list), 'gallery tag list');
+    is( $ko_tags{title},
+        "[Kemuri Haku] Zettai Seikou Keikaku | Absolute Intercourse Plan (COMIC Shitsurakuten 2016-03) [English] [Redlantern]",
+        'gallery title'
+    );
+    is( $ko_tags{tags}, join( ", ", @tags_list ), 'gallery tag list' );
 }
 
-note ( 'testing reading file with extra data...' );
+note('testing reading file with extra data...');
 {
     # Copy the sample json to a temporary directory as it's deleted once parsed
     my ( $fh, $filename ) = tempfile();
@@ -68,15 +73,17 @@ note ( 'testing reading file with extra data...' );
 
     my %dummyhash = ( file_path => "test" );
 
-    my $saveTitle = 1;
-    my $addextra = 1;
-    my $addother = 1;
+    my $addextra  = 1;
+    my $addother  = 1;
     my $addsource = 'chaika';
 
-    my %ko_tags = trap { LANraragi::Plugin::Metadata::ChaikaFile::get_tags( "", \%dummyhash, $saveTitle, $addextra, $addother, $addsource ); };
+    my %ko_tags = trap { LANraragi::Plugin::Metadata::ChaikaFile::get_tags( "", \%dummyhash, $addextra, $addother, $addsource ); };
 
-    is( $ko_tags{title}, "[Kemuri Haku] Zettai Seikou Keikaku | Absolute Intercourse Plan (COMIC Shitsurakuten 2016-03) [English] [Redlantern]", 'gallery title');
-    is( $ko_tags{tags}, join(", ", @tags_list_extra), 'gallery tag list');
+    is( $ko_tags{title},
+        "[Kemuri Haku] Zettai Seikou Keikaku | Absolute Intercourse Plan (COMIC Shitsurakuten 2016-03) [English] [Redlantern]",
+        'gallery title'
+    );
+    is( $ko_tags{tags}, join( ", ", @tags_list_extra ), 'gallery tag list' );
 }
 
 done_testing();

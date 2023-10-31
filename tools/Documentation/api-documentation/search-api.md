@@ -14,80 +14,35 @@ ID of the category you want to restrict this search to.
 {% endswagger-parameter %}
 
 {% swagger-parameter name="filter" type="string" required="false" in="query" %}
-Search query. You can use the following special characters in it:
+Search query. You can use the following special characters in it:  
 
-\
-
-
-
-
-**Quotation Marks ("...")**
-
-\
-
-
+**Quotation Marks ("...")**  
 Exact string search. Allows a search term to include spaces. Everything placed inside a pair of quotation marks is treated as a singular term. Wildcard characters are still interpreted as wildcards.
 
-**Question Mark (?), Underscore (_)**
-
-\
-
-
+**Question Mark (?), Underscore (_)**  
 Wildcard. Can match any single character.
 
-**Asterisk (*), Percentage Sign (%)**
-
-\
-
-
+**Asterisk (*), Percentage Sign (%)**  
 Wildcard. Can match any sequence of characters (including none).
 
-**Subtraction Sign (-)**
-
-\
-
-
+**Subtraction Sign (-)**  
 Exclusion. When placed before a term, prevents search results from including that term.
 
-**Dollar Sign ($)**
-
-\
-
-
+**Dollar Sign ($)**  
 Add at the end of a tag to perform an exact tag search rather than displaying all elements that start with the term. Only matches tags regardless of search parameters and can be used as an exclusion to ignore misc tags in the search query.
 {% endswagger-parameter %}
 
 {% swagger-parameter name="start" type="string" required="false" in="query" %}
-From which archive in the total result count this enumeration should start. The total number of archives displayed depends on the server-side 
-
-_page size_
-
- preference.
-
-\
-
-
+From which archive in the total result count this enumeration should start. The total number of archives displayed depends on the server-side _page size_ preference.  
 From 0.8.2 onwards, you can use "-1" here to get the full, unpaged data.
 {% endswagger-parameter %}
 
 {% swagger-parameter name="sortby" type="string" required="false" in="query" %}
-Namespace by which you want to sort the results, or 
-
-_title_
-
- if you want to sort by title. (Default value is title.)
+Namespace by which you want to sort the results, or _title_ if you want to sort by title. (Default value is title.)
 {% endswagger-parameter %}
 
 {% swagger-parameter name="order" type="string" required="false" in="query" %}
-Order of the sort, either 
-
-`asc`
-
- or 
-
-`desc`
-
-.
+Order of the sort, either `asc` or `desc`.
 {% endswagger-parameter %}
 
 {% swagger-response status="200" description="" %}
@@ -98,30 +53,35 @@ Order of the sort, either
         "isnew": "none",
         "extension": "zip",
         "tags": "parody:fate grand order,  group:wadamemo,  artist:wada rco,  artbook,  full color",
+        "lastreadtime": 1337038234,
         "title": "Fate GO MEMO"
     }, {
         "arcid": "2810d5e0a8d027ecefebca6237031a0fa7b91eb3",
         "isnew": "none",
         "extension": "rar",
         "tags": "parody:fate grand order,  character:abigail williams,  character:artoria pendragon alter,  character:asterios,  character:ereshkigal,  character:gilgamesh,  character:hans christian andersen,  character:hassan of serenity,  character:hector,  character:helena blavatsky,  character:irisviel von einzbern,  character:jeanne alter,  character:jeanne darc,  character:kiara sessyoin,  character:kiyohime,  character:lancer,  character:martha,  character:minamoto no raikou,  character:mochizuki chiyome,  character:mordred pendragon,  character:nitocris,  character:oda nobunaga,  character:osakabehime,  character:penthesilea,  character:queen of sheba,  character:rin tosaka,  character:saber,  character:sakata kintoki,  character:scheherazade,  character:sherlock holmes,  character:suzuka gozen,  character:tamamo no mae,  character:ushiwakamaru,  character:waver velvet,  character:xuanzang,  character:zhuge liang,  group:wadamemo,  artist:wada rco,  artbook,  full color",
+        "lastreadtime": 1337038234,
         "title": "Fate GO MEMO 2"
     }, {
         "arcid": "4857fd2e7c00db8b0af0337b94055d8445118630",
         "isnew": "none",
         "extension": "pdf",
         "tags": "artist:shirow masamune",
+        "lastreadtime": 1337038234,
         "title": "Ghost in the Shell 1.5 - Human-Error Processor vol01ch01"
     }, {
         "arcid": "e4c422fd10943dc169e3489a38cdbf57101a5f7e",
         "isnew": "none",
         "extension": "epub",
         "tags": "parody: jojo's bizarre adventure",
+        "lastreadtime": 0,
         "title": "Rohan Kishibe goes to Gucci"
     }, {
         "arcid": "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf",
         "isnew": "none",
         "extension": "lzma",
         "tags": "character:segata sanshiro",
+        "lastreadtime": 1337038236,
         "title": "Saturn Backup Cartridge - Japanese Manual"
     }],
     "draw": 0,
@@ -160,24 +120,28 @@ If the search doesn't return enough data to match your count, you will get the f
         "isnew": "none",
         "extension": "rar",
         "tags": "parody:fate grand order,  character:abigail williams,  character:artoria pendragon alter,  character:asterios,  character:ereshkigal,  character:gilgamesh,  character:hans christian andersen,  character:hassan of serenity,  character:hector,  character:helena blavatsky,  character:irisviel von einzbern,  character:jeanne alter,  character:jeanne darc,  character:kiara sessyoin,  character:kiyohime,  character:lancer,  character:martha,  character:minamoto no raikou,  character:mochizuki chiyome,  character:mordred pendragon,  character:nitocris,  character:oda nobunaga,  character:osakabehime,  character:penthesilea,  character:queen of sheba,  character:rin tosaka,  character:saber,  character:sakata kintoki,  character:scheherazade,  character:sherlock holmes,  character:suzuka gozen,  character:tamamo no mae,  character:ushiwakamaru,  character:waver velvet,  character:xuanzang,  character:zhuge liang,  group:wadamemo,  artist:wada rco,  artbook,  full color",
+        "lastreadtime": 1337038234,
         "title": "Fate GO MEMO 2"
         }, {
             "arcid": "4857fd2e7c00db8b0af0337b94055d8445118630",
             "isnew": "none",
             "extension": "pdf",
             "tags": "artist:shirow masamune",
+            "lastreadtime": 1337038234,
             "title": "Ghost in the Shell 1.5 - Human-Error Processor vol01ch01"
         }, {
             "arcid": "e4c422fd10943dc169e3489a38cdbf57101a5f7e",
             "isnew": "none",
             "extension": "epub",
             "tags": "parody: jojo's bizarre adventure",
+            "lastreadtime": 0,
             "title": "Rohan Kishibe goes to Gucci"
         }, {
             "arcid": "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf",
             "isnew": "none",
             "extension": "lzma",
             "tags": "character:segata sanshiro",
+            "lastreadtime": 1337033234,
             "title": "Saturn Backup Cartridge - Japanese Manual"
         }
     ]

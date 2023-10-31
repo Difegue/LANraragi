@@ -3,14 +3,14 @@ require "language/node"
 class Lanraragi < Formula
   desc "Web application for archival and reading of manga/doujinshi"
   homepage "https://github.com/Difegue/LANraragi"
-  # url "https://github.com/Difegue/LANraragi/archive/v.0.7.6.tar.gz"
-  # sha256 "2c498cc6a18b9fbb77c52ca41ba329c503aa5d4ec648075c3ebb72bfa7102099"
+  # url "https://github.com/Difegue/LANraragi/archive/refs/tags/v.0.8.90.tar.gz"
+  # sha256 "290bd2299962f14667a279dd8e40a1f93d1e9e338c08342af5830a1ce119c93e"
   url "https://github.com/Difegue/LANraragi.git",
       revision: "COMMIT_HASH"
   version "0.1994-dev"
   license "MIT"
   revision 1
-  head "https://github.com/Difegue/LANraragi.git"
+  head "https://github.com/Difegue/LANraragi.git", branch: "dev"
 
   depends_on "nettle" => :build
   depends_on "pkg-config" => :build
@@ -28,16 +28,16 @@ class Lanraragi < Formula
 
   uses_from_macos "libarchive"
 
-  on_macos do
-    resource "libarchive-headers" do
-      url "https://opensource.apple.com/tarballs/libarchive/libarchive-83.100.2.tar.gz"
-      sha256 "a0228f75792f881bc927196f8b794d0263a019aab741765e54550f75271258aa"
+  resource "libarchive-headers" do
+    on_macos do
+      url "https://github.com/apple-oss-distributions/libarchive/archive/refs/tags/libarchive-113.tar.gz"
+      sha256 "b422c37cc5f9ec876d927768745423ac3aae2d2a85686bc627b97e22d686930f"
     end
   end
 
   resource "Image::Magick" do
-    url "https://cpan.metacpan.org/authors/id/J/JC/JCRISTY/PerlMagick-7.0.10.tar.gz"
-    sha256 "1d5272d71b5cb44c30cd84b09b4dc5735b850de164a192ba191a9b35568305f4"
+    url "https://cpan.metacpan.org/authors/id/J/JC/JCRISTY/Image-Magick-7.1.0-0.tar.gz"
+    sha256 "f90c975cbe21445777c40d19c17b7f79023d3064ef8fabcf348cf82654bc16eb"
   end
 
   def install
@@ -75,13 +75,13 @@ class Lanraragi < Formula
       end
     end
 
-    system "cpanm", "-v", "Config::AutoConf", "-l", libexec
+    system "cpanm", "Config::AutoConf", "--notest", "-l", libexec
     system "npm", "install", *Language::Node.local_npm_install_args
     system "perl", "./tools/install.pl", "install-full"
 
     prefix.install "README.md"
     (libexec/"lib").install Dir["lib/*"]
-    libexec.install "script", "package.json", "public", "templates", "tests", "lrr.conf"
+    libexec.install "script", "package.json", "package-lock.json", "public", "templates", "tests", "lrr.conf"
     cd "tools/build/homebrew" do
       bin.install "lanraragi"
       libexec.install "redis.conf"
@@ -105,7 +105,7 @@ class Lanraragi < Formula
 
     # but while we're at it, we can also check for the table flip! it's free real estate
     # Make sure lanraragi writes files to a path allowed by the sandbox
-    ENV["LRR_LOG_DIRECTORY"] = ENV["LRR_TEMP_DIRECTORY"] = testpath
+    ENV["LRR_LOG_DIRECTORY"] = ENV["LRR_TEMP_DIRECTORY"] = ENV["LRR_DATA_DIRECTORY"] = testpath
     %w[server.pid shinobu.pid minion.pid].each { |file| touch file }
 
     # Set PERL5LIB as we're not calling the launcher script

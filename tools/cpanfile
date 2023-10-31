@@ -8,6 +8,7 @@ requires 'Encode',                       3.01;
 requires 'Archive::Libarchive::Extract', 0.03;
 requires 'Archive::Libarchive::Peek',    0.04;
 requires 'Digest::SHA',                  6.02;
+requires 'List::MoreUtils',              0.430;
 
 # Not required by LRR itself but needs this version for Alpine support
 requires 'Crypt::Rijndael', 1.14;
@@ -30,13 +31,14 @@ requires 'Logfile::Rotate', 1.04;
 requires 'Compress::Zlib',  2.087;
 
 # Test Utils
+requires 'App::Prove',       1.7046;
 requires 'Test::Harness',    3.42;
 requires 'Test::MockObject', 1.20200122;
 requires 'Test::Trap',       0.3.4;
 requires 'Test::Deep',       1.130;
 
 # Mojo stuff
-requires 'Mojolicious',                          9.30;
+requires 'Mojolicious',                          9.34;
 requires 'Mojolicious::Plugin::TemplateToolkit', 0.005;
 requires 'Mojolicious::Plugin::RenderFile',      0.12;
 requires 'Mojolicious::Plugin::Status',          1.15;
@@ -56,5 +58,11 @@ requires 'File::ChangeNotify', 0.31;
 # Plugin system
 requires 'Module::Pluggable', 5.2;
 
-# Eze plugin
+# Eze plugin/Timestamp calculation
 requires 'Time::Local', 1.30;
+
+# Ksk plugin/YAML Support
+requires 'YAML::Syck', 1.34;
+
+# Hentag plugin
+requires 'String::Similarity', 1.04

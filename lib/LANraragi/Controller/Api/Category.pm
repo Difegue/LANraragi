@@ -102,10 +102,10 @@ sub add_to_category {
 
     if ($result) {
         my $successMessage = "Added $arcid to Category $catid!";
-        my %category = LANraragi::Model::Category::get_category($catid);
-        my $title = LANraragi::Model::Archive::get_title($arcid);
+        my %category       = LANraragi::Model::Category::get_category($catid);
+        my $title          = LANraragi::Model::Archive::get_title($arcid);
 
-        if (%category && defined($title)) {
+        if ( %category && defined($title) ) {
             $successMessage = "Added \"$title\" to category \"$category{name}\"!";
         }
 
@@ -124,7 +124,15 @@ sub remove_from_category {
     my ( $result, $err ) = LANraragi::Model::Category::remove_from_category( $catid, $arcid );
 
     if ($result) {
-        render_api_response( $self, "remove_from_category" );
+        my $successMessage = "Removed $arcid from Category $catid!";
+        my %category       = LANraragi::Model::Category::get_category($catid);
+        my $title          = LANraragi::Model::Archive::get_title($arcid);
+
+        if ( %category && defined($title) ) {
+            $successMessage = "Removed \"$title\" from category \"$category{name}\"!";
+        }
+
+        render_api_response( $self, "remove_from_category", undef, $successMessage );
     } else {
         render_api_response( $self, "remove_from_category", $err );
     }

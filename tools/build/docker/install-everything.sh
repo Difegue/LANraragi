@@ -1,5 +1,24 @@
 #!/bin/sh
 
+usage() { echo "Usage: $0 [-d (devmode) -w (wsl cpan packages)]" 1>&2; exit 1; }
+
+DEV=0
+WSL=0
+
+while getopts "dw" o; do
+    case "${o}" in
+        d)
+            DEV=1
+            ;;
+        w)
+            WSL=1
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+
 #Just do everything
 apk update
 apk add tzdata
@@ -7,25 +26,19 @@ apk add perl perl-io-socket-ssl perl-dev redis libarchive-dev libbz2 openssl-dev
 apk add imagemagick imagemagick-perlmagick libwebp-tools libheif
 apk add g++ make pkgconf gnupg wget curl file
 apk add shadow s6 s6-portable-utils 
+apk add nodejs npm s6-overlay libjxl
 
 # Install cpanm
 curl -L https://cpanmin.us | perl - App::cpanminus
 
-# Check for alpine version - 3.12 is used for the WSL version.
-if [ -f /etc/alpine-release ]; then
-  alpine_version=$(cat /etc/alpine-release)
-  if [ "$alpine_version" = "3.12.12" ]; then
-      apk add nodejs-npm
+# Check for windows to install specific versions of packages
+if [ $WSL -eq 1 ]; then
+    # Install Linux::Inotify 2.2 explicitly as 2.3 doesn't work properly on WSL:
+    # WSL2 literally doesn't work for any form of filewatching,
+    # WSL1 works with both default watcher and inotify 2.2, but crashes with inotify 2.3 ("can't open fd 4 as perl handle")
 
-      # Install Linux::Inotify 2.2 explicitly as 2.3 doesn't work properly on WSL:
-      # WSL2 literally doesn't work for any form of filewatching,
-      # WSL1 works with both default watcher and inotify 2.2, but crashes with inotify 2.3 ("can't open fd 4 as perl handle")
-
-      # Doing the install here allows us to use 2.3 on non-WSL builds. 
-      cpanm https://cpan.metacpan.org/authors/id/M/ML/MLEHMANN/Linux-Inotify2-2.2.tar.gz --reinstall
-    else # Those packages don't exist on 3.12
-      apk add nodejs npm s6-overlay libjxl
-  fi
+    # Doing the install here allows us to use 2.3 on non-WSL builds. 
+    cpanm https://cpan.metacpan.org/authors/id/M/ML/MLEHMANN/Linux-Inotify2-2.2.tar.gz --reinstall
 fi
 
 #Alpine's libffi build comes with AVX instructions enabled
@@ -48,7 +61,9 @@ fi
 cd tools && cpanm --notest --installdeps . -M https://cpan.metacpan.org && cd ..
 npm run lanraragi-installer install-full
 
-#Cleanup to lighten the image
-apk del perl-dev g++ make gnupg wget curl nodejs npm openssl-dev file
-rm -rf public/js/vendor/*.map public/css/vendor/*.map
-rm -rf /root/.cpanm/* /root/.npm/ /usr/local/share/man/* node_modules /var/cache/apk/*
+if [ $DEV -eq 0 ]; then
+  #Cleanup to lighten the image
+  apk del perl-dev g++ make gnupg wget curl nodejs npm openssl-dev file
+  rm -rf public/js/vendor/*.map public/css/vendor/*.map
+  rm -rf /root/.cpanm/* /root/.npm/ /usr/local/share/man/* node_modules /var/cache/apk/*
+fi

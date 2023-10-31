@@ -260,6 +260,11 @@ sub add_to_filemap ( $redis_cfg, $file ) {
                 invalidate_cache();
             }
 
+            unless ( LANraragi::Utils::Database::get_arcsize( $redis_arc, $id ) ) {
+                $logger->debug("arcsize is not set for $id, storing now!");
+                LANraragi::Utils::Database::add_arcsize( $redis_arc, $id );
+            }
+
             # Set pagecount in case it's not already there
             unless ( $redis_arc->hget( $id, "pagecount" ) ) {
                 $logger->debug("Pagecount not calculated for $id, doing it now!");
