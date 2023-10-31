@@ -284,7 +284,7 @@ Server.deleteArchive = function (arcId, callback) {
     fetch(`/api/archives/${arcId}`, { method: "DELETE" })
         .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))
         .then((data) => {
-            if (data.success === "0") {
+            if (!data.success) {
                 LRR.toast({
                     heading: "Couldn't delete archive file. <br> (Maybe it has already been deleted beforehand?)",
                     text: "Archive metadata has been deleted properly. <br> Please delete the file manually before returning to Library View.",
