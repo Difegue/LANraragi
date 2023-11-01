@@ -248,7 +248,7 @@ sub delete_archive ($id) {
         # Delete the thumbpages folder
         remove_tree("$thumbdir/$subfolder/$id/");
 
-        return $status?$filename:"0";
+        return $status ? $filename : "0";
     }
 
     return "0";
