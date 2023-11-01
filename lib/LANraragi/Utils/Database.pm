@@ -234,7 +234,7 @@ sub delete_archive ($id) {
     update_indexes( $id, $oldtags, "" );
 
     if ( -e $filename ) {
-        unlink $filename;
+        my $status = unlink $filename;
 
         my $thumbdir  = LANraragi::Model::Config->get_thumbdir;
         my $subfolder = substr( $id, 0, 2 );
@@ -248,7 +248,7 @@ sub delete_archive ($id) {
         # Delete the thumbpages folder
         remove_tree("$thumbdir/$subfolder/$id/");
 
-        return $filename;
+        return $status ? $filename : "0";
     }
 
     return "0";
