@@ -57,6 +57,6 @@ Open source server for archival of comics/manga, running on Mojolicious + Redis.
 
 * Backup your database as JSON to carry your tags over to another LANraragi instance.
 
-## Make a PR, get stickers™  
+## Make a PR to get stickers™  
 
 Merged PRs to this repo(or $5+ donations) are eligible to get a dumb sticker pack [shipped on the house.](https://forms.office.com/Pages/ResponsePage.aspx?id=DQSIkWdsW0yxEjajBLZtrQAAAAAAAAAAAAN__osxt25URTdTUTVBVFRCTjlYWFJLMlEzRTJPUEhEVy4u)  
