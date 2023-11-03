@@ -24,7 +24,7 @@ img {
 }
 
 body {
-  background-color: #34353B;
+  background-color: #121212;
   color: #DDDDDD;
   font-family: "Open Sans", arial, sans-serif;
   height: 100%;
@@ -86,7 +86,7 @@ h1.ih {
 }
 
 div.ido {
-  background-color: #4F535B;
+  background-color: #282828;
   border-radius: 9px 9px 9px 9px;
   clear: both;
   display: block;
@@ -102,7 +102,7 @@ div.ido {
 
 /* Tags */
 div.gt {
-  background: none repeat scroll 0 0 #4F535B;
+  background: none repeat scroll 0 0 #282828;
   border-radius: 3px;
   float: left;
   margin: 2px;
@@ -119,7 +119,7 @@ div.gt {
 .tagger>ul>li:not(.tagger-new)>a,
 .tagger li:not(.tagger-new)>span,
 .tagger .tagger-new ul {
-  background: none repeat scroll 0 0 #4F535B;
+  background: none repeat scroll 0 0 #282828;
   border-radius: 3px;
 }
 
@@ -160,7 +160,7 @@ table.itg {
   margin: 0 auto;
   padding: 3px;
   font-size: 9pt;
-  border: 1px solid #363940;
+  border: 1px solid #181818;
   border-radius: 9px;
 }
 
@@ -168,19 +168,19 @@ table.itg th {
   font-weight: bold;
   text-align: left;
   padding: 3px 4px;
-  background: #363940;
+  background: #181818;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .tippy-content,
 .context-menu-list {
-  border: 1px solid #363940 !important;
+  border: 1px solid #181818 !important;
   border-radius: 3px !important;
 }
 
 .tippy-arrow {
-  color: #363940;
+  color: #181818;
 }
 
 .caption-tags>table.itg {
@@ -196,8 +196,8 @@ table.itc {
   font-size: 10pt;
   min-width: 50px;
   height: 25px;
-  background-color: #4F535B;
-  border: 1px solid #34353B;
+  background-color: #282828;
+  border: 1px solid #121212;
   border-radius: 3px;
   color: #FFFFFF;
   margin: 4px 1px 5px 1px;
@@ -206,19 +206,19 @@ table.itc {
 }
 
 .favtag-btn:hover {
-  background: #34353B;
+  background: #121212;
 }
 
 .toggled {
-  background: #34353B !important;
+  background: #121212 !important;
   border: 2px solid #3b97ea !important;
 }
 
 /* options flyout menus */
 .option-flyout {
-  border: 1px solid #363940;
+  border: 1px solid #181818;
   border-radius: 9px;
-  background: #363940;
+  background: #181818;
   padding: 3px 4px;
   margin: 10px;
 }
@@ -234,16 +234,16 @@ tr.gtr {
 }
 
 tr.gtr0 {
-  background: #4F535B
+  background: #282828
 }
 
 tr.gtr1 {
-  background: #363940
+  background: #181818
 }
 
 /* input */
 .stdbtn {
-  background-color: #34353B;
+  background-color: #121212;
   border: 0 none;
   border-radius: 3px;
   color: #FFFFFF;
@@ -258,28 +258,28 @@ tr.gtr1 {
 }
 
 .swal2-actions>.stdbtn {
-  background-color: #34353B;
+  background-color: #121212;
 }
 
 .stdbtn:hover {
-  background-color: #43464E
+  background-color: #202020
 }
 
 .option-td>.stdbtn,
 .caption-tags>*>*>.stdbtn {
-  background-color: #4F535B;
+  background-color: #282828;
 }
 
 .option-td>.stdbtn:hover,
 .caption-tags>*>*>.stdbtn:hover {
-  background-color: #43464E;
+  background-color: #202020;
 }
 
 .stdinput {
   background: none repeat scroll 0 0 #ECF0F1;
   font-family: "Open Sans", arial, sans-serif;
   border: medium none;
-  color: #34353B;
+  color: #121212;
   font-size: 9pt;
   height: 21px;
   margin: 4px 1px 0;
@@ -291,7 +291,7 @@ tr.gtr1 {
   background: none repeat scroll 0 0 #ECF0F1;
   font-family: "Open Sans", arial, sans-serif;
   border: medium none;
-  color: #34353B;
+  color: #121212;
   max-width: 768px;
   margin: 4px 1px 0;
   border-radius: 3px;
@@ -342,7 +342,7 @@ td.itdc {
 
 .paginate_button.current {
   font-weight: bold;
-  background-color: #363940;
+  background-color: #181818;
   border-radius: 100%;
 }
 
@@ -363,13 +363,13 @@ td.itdc {
 
 .carousel-prev {
   padding: 4px;
-  background-color: #363940;
+  background-color: #181818;
   border-radius: 0px 9px 9px 0px;
 }
 
 .carousel-next {
   padding: 4px;
-  background-color: #363940;
+  background-color: #181818;
   border-radius: 9px 0px 0px 9px;
 }
 
@@ -381,7 +381,7 @@ div.sni {
   /*min-width: 800px;*/
   position: relative;
   z-index: 1;
-  background-color: #4F535B;
+  background-color: #282828;
   border-radius: 9px;
   clear: both;
   display: block;
@@ -462,7 +462,7 @@ div#toppane {
 
 .caption,
 .context-menu-list {
-  background-color: #34353B;
+  background-color: #121212;
   box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
 }
 
@@ -475,12 +475,12 @@ div#toppane {
 .context-menu-separator {
   padding: 0 !important;
   margin: .35em 0;
-  border-bottom: 2px solid #43464E;
+  border-bottom: 2px solid #202020;
 }
 
 .context-menu-item.context-menu-hover,
 .context-menu-icon.context-menu-icon--fa5.context-menu-hover>i {
-  background-color: #43464E !important;
+  background-color: #202020 !important;
   color: #3b97ea;
 }
 
@@ -496,7 +496,7 @@ div#toppane {
 /* File upload bar */
 .bar {
   height: 18px;
-  background: #34353B;
+  background: #121212;
 }
 
 .indeterminate {
@@ -532,7 +532,7 @@ div.jqcloud span.w10 {
 
 /* Thumbnail View container divs*/
 div.id1 {
-  background: none repeat scroll 0 0 #43464E;
+  background: none repeat scroll 0 0 #202020;
   border: 1px none;
   border-radius: 9px;
   display: inline-block;
@@ -582,19 +582,19 @@ div.id4 {
 
 /* awesomplete */
 .awesomplete>ul {
-  background: #363940;
+  background: #181818;
   border-radius: 3px;
   border: none;
   box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
 }
 
 .awesomplete>ul:before {
-  background: #363940;
+  background: #181818;
 }
 
 .awesomplete>ul>li:hover {
   color: inherit;
-  background: #4F535B;
+  background: #282828;
 }
 
 .awesomplete mark,
@@ -605,7 +605,7 @@ div.id4 {
 /** Toasts **/
 .Toastify {
   --toastify-text-color-light: #DDDDDD;
-  --toastify-color-light: #4F535B;
+  --toastify-color-light: #282828;
 }
 
 .Toastify__close-button--light {
@@ -619,6 +619,6 @@ div.id4 {
 
 /** Popups **/
 .swal2-popup {
-  background: #43464e;
+  background: #202020;
   color: #dddddd;
 }
