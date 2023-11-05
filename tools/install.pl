@@ -37,10 +37,8 @@ my @vendor_js = (
 my @vendor_woff = (
     "/\@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2",
     "/\@fortawesome/fontawesome-free/webfonts/fa-regular-400.woff2",
-    "/open-sans-fontface/fonts/Regular/OpenSans-Regular.woff",
-    "/open-sans-fontface/fonts/Bold/OpenSans-Bold.woff",
-    "/roboto-fontface/fonts/roboto/Roboto-Regular.woff",
-    "/roboto-fontface/fonts/roboto/Roboto-Bold.woff",
+    "/geist/dist/fonts/geist-sans/Geist-Regular.woff2",
+    "/geist/dist/fonts/geist-sans/Geist-SemiBold.woff2",
     "/inter-ui/Inter (web)/Inter-Regular.woff",
     "/inter-ui/Inter (web)/Inter-Bold.woff",
 );

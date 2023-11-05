@@ -10,23 +10,23 @@ img {
 }
 
 @font-face {
-  font-family: "Open Sans";
+  font-family: "Geist";
   font-style: normal;
   font-weight: 400;
-  src: local("Open Sans"), local("OpenSans"), url(../css/webfonts/OpenSans-Regular.woff) format("woff");
+  src: url(../css/webfonts/Geist-Regular.woff2) format("woff2");
 }
 
 @font-face {
-  font-family: "Open Sans";
+  font-family: "Geist";
   font-style: normal;
-  font-weight: 700;
-  src: local("Open Sans Bold"), local("OpenSans-Bold"), url(../css/webfonts/OpenSans-Bold.woff) format("woff");
+  font-weight: 600;
+  src: url(../css/webfonts/Geist-SemiBold.woff2) format("woff2");
 }
 
 body {
   background-color: #34353B;
   color: #DDDDDD;
-  font-family: "Open Sans", arial, sans-serif;
+  font-family: "Geist", arial, sans-serif;
   height: 100%;
   text-align: center;
   padding: 2px;
@@ -247,7 +247,7 @@ tr.gtr1 {
   border: 0 none;
   border-radius: 3px;
   color: #FFFFFF;
-  font-family: "Open Sans", arial, sans-serif;
+  font-family: "Geist", arial, sans-serif;
   font-size: 9pt;
   height: 28px;
   margin: 1px;
@@ -277,7 +277,7 @@ tr.gtr1 {
 
 .stdinput {
   background: none repeat scroll 0 0 #ECF0F1;
-  font-family: "Open Sans", arial, sans-serif;
+  font-family: "Geist", arial, sans-serif;
   border: medium none;
   color: #34353B;
   font-size: 9pt;
@@ -289,7 +289,7 @@ tr.gtr1 {
 
 .tagger {
   background: none repeat scroll 0 0 #ECF0F1;
-  font-family: "Open Sans", arial, sans-serif;
+  font-family: "Geist", arial, sans-serif;
   border: medium none;
   color: #34353B;
   max-width: 768px;
@@ -505,7 +505,7 @@ div#toppane {
 
 /* Tag Cloud */
 div.jqcloud {
-  font-family: "Open Sans", arial, sans-serif !important;
+  font-family: "Geist", arial, sans-serif !important;
 }
 
 div.jqcloud span.w1 {

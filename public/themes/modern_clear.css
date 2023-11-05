@@ -13,14 +13,14 @@ img {
     font-family: 'Inter UI';
     font-style: normal;
     font-weight: 400;
-    src: local('Inter'), local('Inter'), url(../css/webfonts/Inter-Regular.woff) format('woff');
+    src: url(../css/webfonts/Inter-Regular.woff) format('woff');
 }
 
 @font-face {
     font-family: 'Inter UI';
     font-style: normal;
     font-weight: 700;
-    src: local('Inter'), local('Inter-Bold'), url(../css/webfonts/Inter-Bold.woff) format('woff');
+    src: url(../css/webfonts/Inter-Bold.woff) format('woff');
 }
 
 body {
