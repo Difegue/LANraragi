@@ -37,7 +37,7 @@ sub startup {
     my $descstr = $packagejson->{description};
 
     my $secret          = "";
-    my $secretfile_path = $ENV{LRR_DATA_DIRECTORY} ? $ENV{LRR_DATA_DIRECTORY} . "/oshino" : "oshino";
+    my $secretfile_path = get_temp . "/oshino";
     if ( -e $secretfile_path ) {
         $secret = Mojo::File->new($secretfile_path)->slurp;
     } else {
