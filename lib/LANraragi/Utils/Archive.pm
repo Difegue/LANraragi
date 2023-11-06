@@ -223,7 +223,7 @@ sub get_filelist($archive) {
 
         # For pdfs, extraction returns images from 1.jpg to x.jpg, where x is the pdf pagecount.
         # Using -dNOSAFER or --permit-file-read is required since GS 9.50, see https://github.com/doxygen/doxygen/issues/7290
-        my $pages = `gs -q -dNOSAFER -c "($archive) (r) file runpdfbegin pdfpagecount = quit"`;
+        my $pages = `gs -q -dNOSAFER -sDEVICE=jpeg -c "($archive) (r) file runpdfbegin pdfpagecount = quit"`;
         for my $num ( 1 .. $pages ) {
             push @files, "$num.jpg";
             push @sizes, 0;
