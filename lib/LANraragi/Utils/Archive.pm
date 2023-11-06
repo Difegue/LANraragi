@@ -25,8 +25,8 @@ use Archive::Libarchive::Peek;
 use File::Temp qw(tempdir);
 
 use LANraragi::Utils::TempFolder qw(get_temp);
-use LANraragi::Utils::Logging qw(get_logger);
-use LANraragi::Utils::Generic qw(is_image shasum);
+use LANraragi::Utils::Logging    qw(get_logger);
+use LANraragi::Utils::Generic    qw(is_image shasum);
 
 # Utilitary functions for handling Archives.
 # Relies on Libarchive, ImageMagick and GhostScript for PDFs.
@@ -51,25 +51,25 @@ sub generate_thumbnail ( $orig_path, $thumb_path, $use_hq, $use_jxl ) {
     # For JPEG, the size option (or jpeg:size option) provides a hint to the JPEG decoder
     # that it can reduce the size on-the-fly during decoding. This saves memory because
     # it never has to allocate memory for the full-sized image
-    if ($format eq 'jpg') {
-        $img->Set(option => 'jpeg:size=500x');
+    if ( $format eq 'jpg' ) {
+        $img->Set( option => 'jpeg:size=500x' );
     }
 
     # If the image is a gif, only take the first frame
-    if ($orig_path =~ /\.gif$/) {
-        $img->Read($orig_path . "[0]");
+    if ( $orig_path =~ /\.gif$/ ) {
+        $img->Read( $orig_path . "[0]" );
     } else {
         $img->Read($orig_path);
     }
 
     # The "-scale" resize operator is a simplified, faster form of the resize command.
     if ($use_hq) {
-        $img->Scale(geometry => '500x1000');
-    } else { # Sample is very fast due to not applying filters.
-        $img->Sample(geometry => '500x1000');
+        $img->Scale( geometry => '500x1000' );
+    } else {    # Sample is very fast due to not applying filters.
+        $img->Sample( geometry => '500x1000' );
     }
 
-    $img->Set(quality => "50", magick => $format);
+    $img->Set( quality => "50", magick => $format );
     $img->Write($thumb_path);
     undef $img;
 }
@@ -158,7 +158,7 @@ sub extract_thumbnail ( $thumbdir, $id, $page, $use_hq ) {
 
     # JPG is used for thumbnails by default
     my $use_jxl = LANraragi::Model::Config->get_jxlthumbpages;
-    my $format = $use_jxl ? 'jxl' : 'jpg';
+    my $format  = $use_jxl ? 'jxl' : 'jpg';
 
     # Another subfolder with the first two characters of the id is used for FS optimization.
     my $subfolder = substr( $id, 0, 2 );
@@ -167,14 +167,14 @@ sub extract_thumbnail ( $thumbdir, $id, $page, $use_hq ) {
 
     my $redis = LANraragi::Model::Config->get_redis;
 
-    my $file = $redis->hget( $id, "file" );
+    my $file     = $redis->hget( $id, "file" );
     my $temppath = tempdir();
 
     # Get first image from archive using filelist
     my ( $images, $sizes ) = get_filelist($file);
 
     # Dereference arrays
-    my @filelist = @$images;
+    my @filelist        = @$images;
     my $requested_image = $filelist[ $page > 0 ? $page - 1 : 0 ];
 
     die "Requested image not found: $id page $page" unless $requested_image;
@@ -214,7 +214,7 @@ sub expand {
 }
 
 # Returns a list of all the files contained in the given archive.
-sub get_filelist($archive) {
+sub get_filelist ($archive) {
 
     my @files = ();
     my @sizes = ();
@@ -255,11 +255,11 @@ sub get_filelist($archive) {
 
     # Move front cover pages to the start of a gallery, and miscellaneous pages such as translator credits to the end.
     my @cover_pages  = grep { /^(?!.*(back|end|rear|recover|discover)).*cover.*/i } @files;
-    my @credit_pages = grep { /^end_card_save_file|notes\.[^\.]*$|note\.[^\.]*$|^artist_info|credit|999nhnl\./i } @files;
+    my @credit_pages = grep { /^end_card_save_file|notes\.[^\.]*$|note\.[^\.]*$|^artist_info|credit|^999.*/i } @files;
 
     # Get all the leftover pages
-    my %credit_hash = map { $_ => 1 } @credit_pages;
-    my %cover_hash  = map { $_ => 1 } @cover_pages;
+    my %credit_hash = map  { $_ => 1 } @credit_pages;
+    my %cover_hash  = map  { $_ => 1 } @cover_pages;
     my @other_pages = grep { !$credit_hash{$_} && !$cover_hash{$_} } @files;
     @files = ( @cover_pages, @other_pages, @credit_pages );
 
