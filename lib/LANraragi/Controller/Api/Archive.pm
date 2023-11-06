@@ -174,6 +174,37 @@ sub update_metadata {
     }
 }
 
+sub update_toc {
+    my $self = shift;
+    my $id = check_id_parameter( $self, "update_toc" ) || return;
+
+    my $page = $self->req->param('page');
+    my $title  = $self->req->param('title');
+
+    my $res = LANraragi::Model::Archive::update_toc( $id, $page, $title);
+
+    if ( $res eq "" ) {
+        render_api_response( $self, "update_toc" );
+    } else {
+        render_api_response( $self, "update_toc", $res );
+    }
+}
+
+sub remove_toc {
+    my $self = shift;
+    my $id = check_id_parameter( $self, "remove_toc" ) || return;
+
+    my $page = $self->req->param('page');
+
+    my $res = LANraragi::Model::Archive::remove_toc( $id, $page);
+
+    if ( $res eq "" ) {
+        render_api_response( $self, "remove_toc" );
+    } else {
+        render_api_response( $self, "remove_toc", $res );
+    }
+}
+
 sub update_progress {
     my $self = shift;
     my $id   = check_id_parameter( $self, "update_progress" ) || return;

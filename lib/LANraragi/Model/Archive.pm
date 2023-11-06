@@ -9,6 +9,7 @@ no warnings 'experimental::signatures';
 
 use Cwd 'abs_path';
 use Redis;
+use Mojo::JSON qw(decode_json encode_json);
 use Time::HiRes qw(usleep);
 use File::Basename;
 use File::Copy "cp";
@@ -267,6 +268,59 @@ sub update_metadata {
     invalidate_cache();
 
     # No errors.
+    return "";
+}
+
+sub update_toc {
+    my ( $id, $page, $title ) = @_;
+
+    my $redis   = LANraragi::Model::Config->get_redis;
+    my $logger = get_logger( "File Serving", "lanraragi" );
+
+    unless ( defined $page and defined $title ) {
+        return "Data incomplete";
+    }
+
+    my $toc = $redis->hget( $id, "toc" );
+
+    if ( defined $toc ) {
+        eval { $toc = decode_json( $toc ) };
+        $toc->{$page} = $title;
+        $toc = encode_json( $toc );
+        $redis->hset( $id, "toc", $toc );
+    } else {
+        $redis->hset( $id, "toc", "{}" );
+    }
+
+    $redis->quit();
+
+    return "";
+}
+
+sub remove_toc {
+    my ( $id, $page ) = @_;
+
+    my $redis   = LANraragi::Model::Config->get_redis;
+    my $logger = get_logger( "File Serving", "lanraragi" );
+
+    unless ( defined $page ) {
+        return "Please especify a page to remove";
+    }
+
+    my $toc = $redis->hget( $id, "toc" );
+
+    if ( defined $toc ) {
+        eval { $toc = decode_json( $toc ) };
+        delete $toc->{$page};
+        $toc = encode_json( $toc );
+        $redis->hset( $id, "toc", $toc );
+    } else {
+        $logger->info( "ToC no defined, Creating..." );
+        $redis->hset( $id, "toc", "{}" );
+    }
+
+    $redis->quit();
+
     return "";
 }
 

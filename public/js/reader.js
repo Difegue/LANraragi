@@ -713,7 +713,7 @@ Reader.initializeArchiveOverlay = function () {
 
         const thumbCss = (localStorage.cropthumbs === "true") ? "id3" : "id3 nocrop";
         const thumbnail = `
-            <div class='${thumbCss} quick-thumbnail' page='${index}' style='display: inline-block; cursor: pointer'>
+            <div class='${thumbCss} quick-thumbnail context-menu' page='${index}' style='display: inline-block; cursor: pointer'>
                 <span class='page-number'>Page ${page}</span>
                 <img src="./img/wait_warmly.jpg" id="${index}_thumb" />
                 <i id="${index}_spinner" class="fa fa-4x fa-circle-notch fa-spin ttspinner" style="display:flex;justify-content: center; align-items: center;"></i>
@@ -755,6 +755,39 @@ Reader.initializeArchiveOverlay = function () {
         $("#archivePagesOverlay").append(thumbnail);
     }
     $("#archivePagesOverlay").attr("loaded", "true");
+};
+
+Reader.handleContextMenu = function (option, page) {
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const id = urlParams.get('id');
+
+    switch (option) {
+    case "setpage":
+        var name = prompt("Enter title of the section:");
+
+        Server.callAPI(`/api/archives/${id}/toc?page=${page}&title=${name}`, "PUT", `Bookmark created!`, "Error creating element:",
+            (data) => {
+            },
+        );
+        break;
+    case "editpage":
+        var name = prompt("Enter title of the section:");
+
+        Server.callAPI(`/api/archives/${id}/toc?page=${page}&title=${name}`, "PUT", `Bookmark created!`, "Error creating element:",
+            (data) => {
+            },
+        );
+        break;
+    case "unsetpage":
+        Server.callAPI(`/api/archives/${id}/rtoc?page=${page}`, "DELETE", `Bookmark removed!`, "Error removing element:",
+            (data) => {
+            },
+        );
+        break;
+    default:
+        break;
+    }
 };
 
 Reader.changePage = function (targetPage) {

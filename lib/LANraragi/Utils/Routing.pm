@@ -118,7 +118,9 @@ sub apply_routes {
     $public_api->get('/api/archives/:id/metadata')->to('api-archive#serve_metadata');
     $logged_in_api->put('/api/archives/:id/thumbnail')->to('api-archive#update_thumbnail');
     $logged_in_api->put('/api/archives/:id/metadata')->to('api-archive#update_metadata');
+    $logged_in_api->put('/api/archives/:id/toc')->to('api-archive#update_toc');
     $logged_in_api->delete('/api/archives/:id')->to('api-archive#delete_archive');
+    $logged_in_api->delete('/api/archives/:id/rtoc')->to('api-archive#remove_toc');
 
     # Search API
     $public_api->get('/search')->to('api-search#handle_datatables');
