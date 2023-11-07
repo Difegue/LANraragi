@@ -11,7 +11,6 @@ use Digest::SHA qw(sha256_hex);
 use Mojo::JSON  qw(decode_json);
 use Encode;
 use File::Basename;
-use File::Path qw(remove_tree);
 use Redis;
 use Cwd;
 use Unicode::Normalize;
@@ -26,7 +25,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 # Functions for interacting with the DB Model.
 use Exporter 'import';
 our @EXPORT_OK =
-  qw(redis_encode redis_decode invalidate_cache compute_id set_tags set_title set_isnew get_computed_tagrules save_computed_tagrules get_archive_json get_archive_json_multi get_tankoubons_by_file);
+  qw(redis_encode redis_decode invalidate_cache compute_id change_archive_id set_tags set_title set_isnew get_computed_tagrules save_computed_tagrules get_archive_json get_archive_json_multi get_tankoubons_by_file);
 
 # Creates a DB entry for a file path with the given ID.
 # This function doesn't actually require the file to exist at its given location.
@@ -180,8 +179,8 @@ sub build_json ( $id, %hash ) {
 
     # It's not a new archive, but it might have never been clicked on yet,
     # so grab the value for $isnew stored in redis.
-    my ( $name, $title, $tags, $file, $isnew, $progress, $pagecount, $lastreadtime ) =
-      @hash{qw(name title tags file isnew progress pagecount lastreadtime)};
+    my ( $name, $title, $tags, $file, $isnew, $progress, $pagecount, $lastreadtime, $arcsize ) =
+      @hash{qw(name title tags file isnew progress pagecount lastreadtime arcsize)};
 
     # Return undef if the file doesn't exist.
     return unless ( defined($file) && -e $file );
@@ -197,17 +196,18 @@ sub build_json ( $id, %hash ) {
     my $arcdata = {
         arcid        => $id,
         title        => $title,
+        filename     => $name,
         tags         => $tags,
         isnew        => $isnew ? $isnew : "false",
         extension    => lc( ( split( /\./, $file ) )[-1] ),
         progress     => $progress     ? int($progress)     : 0,
         pagecount    => $pagecount    ? int($pagecount)    : 0,
-        lastreadtime => $lastreadtime ? int($lastreadtime) : 0
+        lastreadtime => $lastreadtime ? int($lastreadtime) : 0,
+        size         => $arcsize      ? int($arcsize)      : 0
     };
 
     return $arcdata;
 }
-
 
 # drop_database()
 # Drops the entire database. Hella dangerous
