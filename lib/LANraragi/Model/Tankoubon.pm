@@ -330,13 +330,35 @@ sub remove_from_tankoubon ( $tank_id, $arcid ) {
     return ( 0, $err );
 }
 
-# get_tankoubons_file(arcid)
+# get_tankoubons_containing_archive(arcid)
 #   Gets a list of Tankoubons where archive ID is contained.
 #   Returns an array of tank IDs.
-sub get_tankoubons_file ($arcid) {
+sub get_tankoubons_containing_archive ($arcid) {
 
-    return get_tankoubons_by_file($arcid);
+    my $redis = LANraragi::Model::Config->get_redis;
+    my @tankoubons;
 
+    my $logger = get_logger( "Tankoubon", "lanraragi" );
+    my $err    = "";
+
+    unless ( $redis->exists($arcid) ) {
+        $err = "$arcid does not exist in the database.";
+        $logger->error($err);
+        $redis->quit;
+        return ();
+    }
+
+    my @tanks = $redis->keys('TANK_??????????');
+
+    foreach my $key ( sort @tanks ) {
+
+        if ( $redis->zscore( $key, $arcid ) ) {
+            push( @tankoubons, $key );
+        }
+    }
+
+    $redis->quit;
+    return @tankoubons;
 }
 
 1;

@@ -71,12 +71,12 @@ sub change_archive_id ( $old_id, $new_id ) {
         $redis->rename( $old_id, $new_id );
     }
 
+    # Update archive size
     my $file = $redis->hget( $new_id, "file" );
     set_arcsize( $redis, $new_id, -s $file );
     $redis->quit;
 
-    # We also need to update categories that contain the ID.
-    # TODO: When meta-archives are implemented, this will need to be updated.
+    # Update categories that contain the ID.
     $logger->debug("Updating categories that contained $old_id to $new_id.");
     my @categories = LANraragi::Model::Category::get_categories_containing_archive($old_id);
 
@@ -85,6 +85,16 @@ sub change_archive_id ( $old_id, $new_id ) {
         $logger->warn("Updating category $catid");
         LANraragi::Model::Category::remove_from_category( $catid, $old_id );
         LANraragi::Model::Category::add_to_category( $catid, $new_id );
+    }
+
+    # Update tanks that contain the ID
+    $logger->debug("Updating tankoubons that contained $old_id to $new_id.");
+    my @tanks = LANraragi::Model::Tankoubon::get_tankoubons_containing_archive($old_id);
+
+    foreach my $tank (@tanks) {
+        $logger->warn("Updating tankoubon $tank");
+        LANraragi::Model::Tankoubon::remove_from_tankoubon( $tank, $old_id );
+        LANraragi::Model::Tankoubon::add_to_tankoubon( $tank, $new_id );
     }
 }
 
@@ -524,33 +534,6 @@ sub get_computed_tagrules {
 
     $redis->quit();
     return @tagrules;
-}
-
-sub get_tankoubons_by_file ($arcid) {
-    my $redis = LANraragi::Model::Config->get_redis;
-    my @tankoubons;
-
-    my $logger = get_logger( "Tankoubon", "lanraragi" );
-    my $err    = "";
-
-    unless ( $redis->exists($arcid) ) {
-        $err = "$arcid does not exist in the database.";
-        $logger->error($err);
-        $redis->quit;
-        return ();
-    }
-
-    my @tanks = $redis->keys('TANK_??????????');
-
-    foreach my $key ( sort @tanks ) {
-
-        if ( $redis->zscore( $key, $arcid ) ) {
-            push( @tankoubons, $key );
-        }
-    }
-
-    $redis->quit;
-    return @tankoubons;
 }
 
 sub add_arcsize ( $redis, $id ) {
