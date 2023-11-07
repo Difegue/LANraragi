@@ -129,6 +129,7 @@ sub socket {
 
                 $logger->debug("Applying tag rules to $id...");
                 my $tags = $redis->hget( $id, "tags" );
+                $tags = redis_decode($tags);
 
                 my @tagarray = split_tags_to_array($tags);
                 my @rules    = get_computed_tagrules();
