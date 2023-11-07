@@ -69,16 +69,13 @@ sub get_redis_internal {
 
     # Default redis server location is localhost:6379.
     # Auto-reconnect on, one attempt every 2ms up to 3 seconds. Die after that.
+    # Auth if password is set
     my $redis = Redis->new(
         server    => &get_redisad,
         debug     => $ENV{LRR_DEVSERVER} ? "1" : "0",
-        reconnect => 3
+        reconnect => 3,
+        &get_redispassword ? (password => &get_redispassword) : ()
     );
-
-    # Auth if password is set
-    if ( &get_redispassword ne "" ) {
-        $redis->auth(&get_redispassword);
-    }
 
     # Switch to specced database
     $redis->select($db);
