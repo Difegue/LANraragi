@@ -157,7 +157,7 @@ sub socket {
             if ( $operation eq "delete" ) {
                 $logger->debug("Deleting $id...");
 
-                my $delStatus = LANraragi::Utils::Database::delete_archive($id);
+                my $delStatus = LANraragi::Model::Archive::delete_archive($id);
 
                 $client->send(
                     {   json => {

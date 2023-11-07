@@ -10,22 +10,23 @@ no warnings 'experimental::signatures';
 use Cwd 'abs_path';
 use Redis;
 use Time::HiRes qw(usleep);
+use File::Path  qw(remove_tree);
 use File::Basename;
 use File::Copy "cp";
 use File::Path qw(make_path);
 
-use LANraragi::Utils::Generic qw(render_api_response);
-use LANraragi::Utils::String qw(trim trim_CRLF);
+use LANraragi::Utils::Generic    qw(render_api_response);
+use LANraragi::Utils::String     qw(trim trim_CRLF);
 use LANraragi::Utils::TempFolder qw(get_temp);
-use LANraragi::Utils::Logging qw(get_logger);
-use LANraragi::Utils::Archive qw(extract_single_file extract_thumbnail);
+use LANraragi::Utils::Logging    qw(get_logger);
+use LANraragi::Utils::Archive    qw(extract_single_file extract_thumbnail);
 use LANraragi::Utils::Database
   qw(redis_encode redis_decode invalidate_cache set_title set_tags get_archive_json get_archive_json_multi);
 
-# get_archive(id)
+# get_title(id)
 #   Returns the title for the archive matching the given id.
 #   Returns undef if the id doesn't exist.
-sub get_title($id) {
+sub get_title ($id) {
 
     my $logger = get_logger( "Archives", "lanraragi" );
     my $redis  = LANraragi::Model::Config->get_redis;
@@ -103,7 +104,7 @@ sub serve_thumbnail {
 
     my $thumbdir        = LANraragi::Model::Config->get_thumbdir;
     my $use_jxl         = LANraragi::Model::Config->get_jxlthumbpages;
-    my $format          = $use_jxl ? 'jxl' : 'jpg';
+    my $format          = $use_jxl         ? 'jxl' : 'jpg';
     my $fallback_format = $format eq 'jxl' ? 'jpg' : 'jxl';
 
     # Thumbnails are stored in the content directory, thumb subfolder.
@@ -165,8 +166,8 @@ sub serve_page {
         my $timeout   = 0;
         while (1) {
             $logger->debug("Waiting for file to be fully written ($size, previously $last_size)");
-            usleep(10000);    # 10ms
-            $timeout += 10;   # Sanity check in case the file remains at 0 bytes forever
+            usleep(10000);     # 10ms
+            $timeout += 10;    # Sanity check in case the file remains at 0 bytes forever
             $last_size = $size;
             $size      = -s $file;
 
@@ -268,6 +269,52 @@ sub update_metadata {
 
     # No errors.
     return "";
+}
+
+# Deletes the archive with the given id from redis, and the matching archive file/thumbnail.
+sub delete_archive ($id) {
+
+    my $redis    = LANraragi::Model::Config->get_redis;
+    my $filename = $redis->hget( $id, "file" );
+    my $oldtags  = $redis->hget( $id, "tags" );
+    $oldtags = redis_decode($oldtags);
+
+    my $oldtitle = lc( redis_decode( $redis->hget( $id, "title" ) ) );
+    $oldtitle = trim($oldtitle);
+    $oldtitle = trim_CRLF($oldtitle);
+    $oldtitle = redis_encode($oldtitle);
+
+    $redis->del($id);
+    $redis->quit();
+
+    # Remove matching data from the search indexes
+    my $redis_search = LANraragi::Model::Config->get_redis_search;
+    $redis_search->zrem( "LRR_TITLES", "$oldtitle\0$id" );
+    $redis_search->srem( "LRR_NEW",      $id );
+    $redis_search->srem( "LRR_UNTAGGED", $id );
+    $redis_search->quit();
+
+    LANraragi::Utils::Database::update_indexes( $id, $oldtags, "" );
+
+    if ( -e $filename ) {
+        my $status = unlink $filename;
+
+        my $thumbdir  = LANraragi::Model::Config->get_thumbdir;
+        my $subfolder = substr( $id, 0, 2 );
+
+        my $jpg_thumbname = "$thumbdir/$subfolder/$id.jpg";
+        unlink $jpg_thumbname;
+
+        my $jxl_thumbname = "$thumbdir/$subfolder/$id.jxl";
+        unlink $jxl_thumbname;
+
+        # Delete the thumbpages folder
+        remove_tree("$thumbdir/$subfolder/$id/");
+
+        return $status ? $filename : "0";
+    }
+
+    return "0";
 }
 
 1;

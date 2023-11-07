@@ -208,51 +208,6 @@ sub build_json ( $id, %hash ) {
     return $arcdata;
 }
 
-# Deletes the archive with the given id from redis, and the matching archive file/thumbnail.
-sub delete_archive ($id) {
-
-    my $redis    = LANraragi::Model::Config->get_redis;
-    my $filename = $redis->hget( $id, "file" );
-    my $oldtags  = $redis->hget( $id, "tags" );
-    $oldtags = redis_decode($oldtags);
-
-    my $oldtitle = lc( redis_decode( $redis->hget( $id, "title" ) ) );
-    $oldtitle = trim($oldtitle);
-    $oldtitle = trim_CRLF($oldtitle);
-    $oldtitle = redis_encode($oldtitle);
-
-    $redis->del($id);
-    $redis->quit();
-
-    # Remove matching data from the search indexes
-    my $redis_search = LANraragi::Model::Config->get_redis_search;
-    $redis_search->zrem( "LRR_TITLES", "$oldtitle\0$id" );
-    $redis_search->srem( "LRR_NEW",      $id );
-    $redis_search->srem( "LRR_UNTAGGED", $id );
-    $redis_search->quit();
-
-    update_indexes( $id, $oldtags, "" );
-
-    if ( -e $filename ) {
-        my $status = unlink $filename;
-
-        my $thumbdir  = LANraragi::Model::Config->get_thumbdir;
-        my $subfolder = substr( $id, 0, 2 );
-
-        my $jpg_thumbname = "$thumbdir/$subfolder/$id.jpg";
-        unlink $jpg_thumbname;
-
-        my $jxl_thumbname = "$thumbdir/$subfolder/$id.jxl";
-        unlink $jxl_thumbname;
-
-        # Delete the thumbpages folder
-        remove_tree("$thumbdir/$subfolder/$id/");
-
-        return $status ? $filename : "0";
-    }
-
-    return "0";
-}
 
 # drop_database()
 # Drops the entire database. Hella dangerous

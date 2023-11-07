@@ -146,7 +146,7 @@ sub delete_archive {
     my $self = shift;
     my $id   = check_id_parameter( $self, "delete_archive" ) || return;
 
-    my $delStatus = LANraragi::Utils::Database::delete_archive($id);
+    my $delStatus = LANraragi::Model::Archive::delete_archive($id);
 
     $self->render(
         json => {
