@@ -16,6 +16,7 @@ Edit.initializeAll = function () {
     $(document).on("click.delete-archive", "#delete-archive", Edit.deleteArchive);
     $(document).on("click.tagger", ".tagger", Edit.focusTagInput);
     $(document).on("click.goback", "#goback", () => { window.location.href = "/"; });
+    $(document).on("paste.tagger", ".tagger-new", Edit.handlePaste);
 
     Edit.updateOneShotArg();
 
@@ -50,6 +51,22 @@ Edit.initializeAll = function () {
                 });
             }
         });
+};
+
+Edit.handlePaste = function (event) {
+    // Stop data actually being pasted into div
+    event.stopPropagation();
+    event.preventDefault();
+
+    // Get pasted data via clipboard API
+    const pastedData = event.originalEvent.clipboardData.getData("Text");
+
+    if (pastedData !== "") {
+        pastedData.split(/,\s?/).forEach((tag) => {
+            // Remove trailing/leading spaces from tag before adding it
+            Edit.tagInput.add_tag(tag.trim());
+        });
+    }
 };
 
 Edit.hideTags = function () {
