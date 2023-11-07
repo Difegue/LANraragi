@@ -27,10 +27,19 @@ Config.initializeAll = function () {
     $(document).on("click.genthumb-button", "#genthumb-button", () => Server.regenerateThumbnails(false));
     $(document).on("click.forcethumb-button", "#forcethumb-button", () => Server.regenerateThumbnails(true));
 
+    $(document).on("click.modern", "#modern", () => Config.switch_style("Hachikuji"));
     $(document).on("click.modern-div", "#modern-div", () => Config.switch_style("Hachikuji"));
+
+    $(document).on("click.modern_clear", "#modern_clear", () => Config.switch_style("Yotsugi"));
     $(document).on("click.modern-clear-div", "#modern-clear-div", () => Config.switch_style("Yotsugi"));
+
+    $(document).on("click.modern_red", "#modern_red", () => Config.switch_style("Nadeko"));
     $(document).on("click.modern-red-div", "#modern-red-div", () => Config.switch_style("Nadeko"));
+
+    $(document).on("click.ex", "#ex", () => Config.switch_style("Sad Panda"));
     $(document).on("click.ex-div", "#ex-div", () => Config.switch_style("Sad Panda"));
+
+    $(document).on("click.g", "#g", () => Config.switch_style("H-Verse"));
     $(document).on("click.g-div", "#g-div", () => Config.switch_style("H-Verse"));
 
     Config.enable_pass();
