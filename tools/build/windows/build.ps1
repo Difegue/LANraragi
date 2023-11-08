@@ -19,7 +19,7 @@ rm .\redis.tar.gz
 mv .\Redis-7.0.14-Windows-x64 .\Redis
 
 # Copy redis.conf to redis folder
-cp ..\..\..\docker\redis.conf .\Redis\redis.conf
+cp ..\..\redis.conf .\Redis\redis.conf
 
 # Use Karen master
 cd ..
