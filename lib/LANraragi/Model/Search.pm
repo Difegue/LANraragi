@@ -175,7 +175,10 @@ sub search_uncached {
                 # Go through all IDs in @filtered and check if they have the right pagecount
                 # This could be sped up with an index, but it's probably not worth it.
                 foreach my $id (@filtered) {
-                    my $count = $redis_db->hget( $id, $col );
+
+                    # Default to 0 if null.
+                    my $count = $redis_db->hget( $id, $col ) || 0;
+
                     if (   ( $operator eq "=" && $count == $pagecount )
                         || ( $operator eq ">"  && $count > $pagecount )
                         || ( $operator eq ">=" && $count >= $pagecount )
