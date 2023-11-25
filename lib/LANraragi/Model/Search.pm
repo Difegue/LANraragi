@@ -9,10 +9,10 @@ use Redis;
 use Storable qw/ nfreeze thaw /;
 use Sort::Naturally;
 
-use LANraragi::Utils::Generic qw(split_workload_by_cpu);
-use LANraragi::Utils::String qw(trim);
+use LANraragi::Utils::Generic  qw(split_workload_by_cpu);
+use LANraragi::Utils::String   qw(trim);
 use LANraragi::Utils::Database qw(redis_decode redis_encode);
-use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Logging  qw(get_logger);
 
 use LANraragi::Model::Archive;
 use LANraragi::Model::Category;
@@ -156,19 +156,26 @@ sub search_uncached {
 
            # Specific case for pagecount searches
            # You can search for galleries with a specific number of pages with pages:20, or with a page range: pages:>20 pages:<=30.
-            if ( $tag =~ /^pages:(>|<|>=|<=)?(\d+)$/ ) {
-                my $operator  = $1;
-                my $pagecount = $2;
+           # Or you can search for galleries with a specific number of pages read with read:20, or any pages read: read:>0
+            if ( $tag =~ /^(read|pages):(>|<|>=|<=)?(\d+)$/ ) {
+                my $col       = $1;
+                my $operator  = $2;
+                my $pagecount = $3;
 
-                $logger->debug("Searching for IDs with pages $operator $pagecount");
+                $logger->debug("Searching for IDs with $operator $pagecount $col");
 
                 # If no operator is specified, we assume it's an exact match
                 $operator = "=" if !$operator;
 
+                # Change the column based off the tag searched.
+                # "pages" -> "pagecount"
+                # "read" -> "progress"
+                $col = $col eq "pages" ? "pagecount" : "progress";
+
                 # Go through all IDs in @filtered and check if they have the right pagecount
                 # This could be sped up with an index, but it's probably not worth it.
                 foreach my $id (@filtered) {
-                    my $count = $redis_db->hget( $id, "pagecount" );
+                    my $count = $redis_db->hget( $id, $col );
                     if (   ( $operator eq "=" && $count == $pagecount )
                         || ( $operator eq ">"  && $count > $pagecount )
                         || ( $operator eq ">=" && $count >= $pagecount )
@@ -406,10 +413,10 @@ sub sort_results {
    # (If no tag, defaults to "zzzz")
     my %tmpfilter = map { $_ => ( $redis->hget( $_, "tags" ) =~ m/.*${re}:(.*)(\,.*|$)/ ) ? $1 : "zzzz" } @filtered;
 
-    my @sorted = map { $_->[0] }                         # Map back to only having the ID
-      sort           { ncmp( $a->[1], $b->[1] ) }        # Sort by the tag
-      map            { [ $_, lc( $tmpfilter{$_} ) ] }    # Map to an array containing the ID and the lowercased tag
-      keys %tmpfilter;                                   # List of IDs
+    my @sorted = map { $_->[0] }               # Map back to only having the ID
+      sort { ncmp( $a->[1], $b->[1] ) }        # Sort by the tag
+      map  { [ $_, lc( $tmpfilter{$_} ) ] }    # Map to an array containing the ID and the lowercased tag
+      keys %tmpfilter;                         # List of IDs
 
     if ($sortorder) {
         @sorted = reverse @sorted;
