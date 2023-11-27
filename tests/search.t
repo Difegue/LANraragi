@@ -115,4 +115,12 @@ $search = qq(pages:>150);
 do_test_search();
 is( $ids[0], "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg", qq(Pagecount search ($search)) );
 
+$search = qq(read:10);
+do_test_search();
+is( $ids[0], "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf", qq(Read search ($search)) );
+
+$search = qq(read:<11, read:>9);
+do_test_search();
+is( $ids[0], "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf", qq(Read search ($search)) );
+
 done_testing();
