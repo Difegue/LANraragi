@@ -157,7 +157,7 @@ sub add_tasks {
 
             # Keep a clean copy of the url for display and tagging
             my $og_url = $url;
-            trim_url($og_url);
+            $og_url = trim_url($og_url);
 
             # If the URL is already recorded, abort the download
             my $recorded_id = LANraragi::Model::Stats::is_url_recorded($og_url);
