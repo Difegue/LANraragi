@@ -268,7 +268,7 @@ Reader.initInfiniteScrollView = function () {
                 Reader.updateProgress();
             }
         }
-    }, { threshold: 0.8 });
+    }, { threshold: 0.5 });
 
     Reader.pages.slice(1).forEach((source) => {
         const img = new Image();
