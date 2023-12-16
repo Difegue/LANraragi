@@ -580,10 +580,10 @@ Index.loadTagSuggestions = function () {
 Index.loadCategories = function () {
     Server.callAPI("/api/categories", "GET", null, "Couldn't load categories",
         (data) => {
-            // Sort by LastUsed + pinned
+            // Sort by pinned + alpha
             // Pinned categories are shown at the beginning
-            data.sort((a, b) => parseFloat(b.last_used) - parseFloat(a.last_used));
-            data.sort((a, b) => parseFloat(b.pinned) - parseFloat(a.pinned));
+            data.sort((b, a) => a.name > b.name);
+            data.sort((a, b) => a.pinned < b.pinned);
             let html = "";
 
             const iteration = (data.length > 10 ? 10 : data.length);

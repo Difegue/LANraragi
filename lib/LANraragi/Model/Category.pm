@@ -139,7 +139,6 @@ sub create_category {
 
         # Default values for new category
         $redis->hset( $cat_id, "archives",  "[]" );
-        $redis->hset( $cat_id, "last_used", time() );
     }
 
     # Set/update name, pin status and favtag

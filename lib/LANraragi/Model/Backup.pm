@@ -9,9 +9,9 @@ use Mojo::JSON qw(decode_json encode_json);
 
 use LANraragi::Model::Category;
 use LANraragi::Utils::Database;
-use LANraragi::Utils::String qw(trim_CRLF);
+use LANraragi::Utils::String   qw(trim_CRLF);
 use LANraragi::Utils::Database qw(redis_encode redis_decode invalidate_cache set_title set_tags);
-use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Logging  qw(get_logger);
 
 #build_backup_JSON()
 #Goes through the Redis archive IDs and builds a JSON string containing their metadata.
@@ -113,8 +113,7 @@ sub restore_from_JSON {
 
         # Explicitly set "new category" values to avoid them being absent from the DB entry
         # (which likely breaks a bunch of things)
-        $redis->hset( $cat_id, "archives",  "[]" );
-        $redis->hset( $cat_id, "last_used", time() );
+        $redis->hset( $cat_id, "archives", "[]" );
 
         foreach my $arcid (@archives) {
             LANraragi::Model::Category::add_to_category( $cat_id, $arcid );

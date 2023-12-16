@@ -114,9 +114,6 @@ sub search_uncached {
 
     if (%category) {
 
-        # We're using a category! Update its lastused value.
-        $redis->hset( $category_id, "last_used", time() );
-
         # If the category is dynamic, get its search predicate and add it to the tokens.
         # If it's static however, we can use its ID list as the base for our result array.
         if ( $category{search} ne "" ) {
