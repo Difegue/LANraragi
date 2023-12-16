@@ -49,7 +49,8 @@ sub add_archive_to_redis ( $id, $file, $redis ) {
     $redis->hset( $id, "file", $file );
 
     # Set title so that index is updated
-    set_title( $id, $name );
+    # Throw a decode in there just in case the filename is already UTF8
+    set_title( $id, redis_decode($name) );
 
     # New file in collection, so this flag is set.
     set_isnew( $id, "true" );
