@@ -3,8 +3,11 @@
 <head>
     <title>[% title %]</title>
 
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="apple-mobile-web-status-bar-style" content="black" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
 
     <link type="image/png" rel="icon" href="favicon.ico" />
     <link rel="stylesheet" type="text/css" href="/css/lrr.css?[% version %]" />
@@ -29,7 +32,7 @@
     <script src="./js/reader.js?[% version %]" type="text/javascript"></script>
 
     <script type="module">
-        import('./js/vendor/fscreen.esm.js').then( r => {
+        import('./js/vendor/fscreen.esm.js').then(r => {
             window.fscreen = r.default;
             Reader.initializeAll();
         })

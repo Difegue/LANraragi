@@ -1,5 +1,9 @@
 /* Global LANraragi CSS. Don't mess !*/
 
+body {
+  touch-action: manipulation;
+}
+
 td.itd {
   overflow: hidden;
   text-overflow: ellipsis;
