@@ -407,6 +407,11 @@ li {
   background-color: transparent !important;
 }
 
+/* Center checkbox contextmenuitems */
+.context-menu-input>label>* {
+  vertical-align: unset !important;
+}
+
 .artist-tag {
   color: #22a7f0;
 }

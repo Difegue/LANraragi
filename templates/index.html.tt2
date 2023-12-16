@@ -203,6 +203,19 @@
 			});
 			[% END %]
 
+			const catList = [];
+			[% IF categories.size > 0 %]
+			[% FOREACH categories %]
+			// Push a tuple into catList
+			catList.push({
+				name: "[% name %]",
+				id: "[% id %]",
+			});
+			[% END %]
+			[% ELSE %]
+			catList.push("No Categories yet...");
+			[% END %]
+
 			// Initialize context menu
 			$.contextMenu({
 				selector: '.context-menu',
@@ -218,21 +231,10 @@
 							"sep1": "---------",
 							"edit": { name: "Edit Metadata", icon: "fas fa-pencil-alt" },
 							"delete": { name: "Delete", icon: "fas fa-trash-alt" },
-							"category": {
+							"collections": {
 								"name": "Add to Category",
 								"icon": "fas fa-search-plus",
-								"items": {
-									[% IF categories.size > 0 %][% FOREACH categories %]
-									"category-[% id %]": { "name": "[% name %]", "icon": "fas fa-stream" },
-									[% END %][% ELSE %]
-								"noop": { "name": "No Categories yet...", "icon": "fas fa-ghost" }
-									[% END %]
-								}
-							},
-							"categoryremove": {
-								"name": "Remove from Category",
-								"icon": "fas fa-search-minus",
-								"items": Index.loadContextMenuCategories($trigger.attr("id"))
+								"items": Index.loadContextMenuCategories(catList, $trigger.attr("id"))
 							}
 							[% END %]
 						}

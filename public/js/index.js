@@ -482,24 +482,46 @@ Index.loadContextMenuCategories = function (id) {
 };
 
 /**
+ * Build category list for contextMenu and checkoff the ones the given ID belongs to.
+ * @param {*} catList The list of categories, obtained statically
+ * @param {*} id The ID of the archive to check
+ * @returns Categories
+ */
+Index.loadContextMenuCategories = (catList, id) => Server.callAPI(`/api/archives/${id}/categories`, "GET", null, `Error finding categories for ${id}!`,
+    (data) => {
+        const items = {};
+
+        for (let i = 0; i < catList.length; i++) {
+            const catId = catList[i].id;
+
+            // If the category is also in the API results,
+            // we can pre-check it when creating the checkbox
+            const isSelected = data.categories.map((x) => x.id).includes(catId);
+            items[catId] = { name: catList[i].name, type: "checkbox" };
+            if (isSelected) { items[catId].selected = true; }
+
+            items[catId].events = {
+                click() {
+                    if ($(this).is(":checked")) {
+                        Server.addArchiveToCategory(id, catId);
+                    } else {
+                        Server.removeArchiveFromCategory(id, catId);
+                    }
+                },
+            };
+        }
+
+        return items;
+    },
+);
+
+/**
  * Handle context menu clicks.
  * @param {*} option The clicked option
  * @param {*} id The Archive ID
  * @returns
  */
 Index.handleContextMenu = function (option, id) {
-    if (option.startsWith("category-")) {
-        const catId = option.replace("category-", "");
-        Server.addArchiveToCategory(id, catId);
-        return;
-    }
-
-    if (option.startsWith("delcat-")) {
-        const catId = option.replace("delcat-", "");
-        Server.removeArchiveFromCategory(id, catId);
-        return;
-    }
-
     switch (option) {
     case "edit":
         LRR.openInNewTab(`./edit?id=${id}`);
