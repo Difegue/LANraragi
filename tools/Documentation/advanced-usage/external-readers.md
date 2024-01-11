@@ -45,7 +45,7 @@ Here are some existing clients:
 ![Tachiyomi](<../.screenshots/tachiyomi.jpg>)
 
 The open-source [Tachiyomi](https://tachiyomi.org) Android reader has a readymade plugin to consume the LANraragi API.  
-You can download it [here.](https://github.com/tachiyomiorg/tachiyomi-extensions/blob/repo/apk/tachiyomi-all.lanraragi-v1.4.14.apk)  
+You can download it [here.](https://github.com/tachiyomiorg/extensions/blob/repo/apk/tachiyomi-all.lanraragi-v1.4.15.apk)  
 
 ### LRR React Web
 
