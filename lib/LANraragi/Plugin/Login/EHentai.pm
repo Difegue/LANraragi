@@ -145,6 +145,16 @@ sub get_user_agent {
             )
         );
 
+        $ua->cookie_jar->add(
+            Mojo::Cookie::Response->new(
+                name   => 'nw',
+                value  => '1',
+                domain => 'e-hentai.org',
+                path   => '/'
+            )
+        );
+
+
     } else {
         $logger->info("No cookies provided, returning blank UserAgent.");
     }
