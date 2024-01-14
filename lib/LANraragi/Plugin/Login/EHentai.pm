@@ -134,6 +134,27 @@ sub get_user_agent {
                 path   => '/'
             )
         );
+
+        #Skips the "offensive warning" screen so that such galleries archive gIDs can be easily retrieved by Download script.
+        $ua->cookie_jar->add(
+            Mojo::Cookie::Response->new(
+                name   => 'nw',
+                value  => '1',
+                domain => 'exhentai.org',
+                path   => '/'
+            )
+        );
+
+        $ua->cookie_jar->add(
+            Mojo::Cookie::Response->new(
+                name   => 'nw',
+                value  => '1',
+                domain => 'e-hentai.org',
+                path   => '/'
+            )
+        );
+
+
     } else {
         $logger->info("No cookies provided, returning blank UserAgent.");
     }
