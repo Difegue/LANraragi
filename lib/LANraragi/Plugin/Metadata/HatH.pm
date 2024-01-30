@@ -1,4 +1,4 @@
-package LANraragi::Plugin::Metadata::hentaiathome;
+package LANraragi::Plugin::Metadata::HatH;
 
 use strict;
 use warnings;
