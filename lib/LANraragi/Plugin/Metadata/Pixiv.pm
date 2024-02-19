@@ -119,23 +119,21 @@ sub get_hash_metadata_from_json {
     # get illustration type.
     my $illust_type = $illust_metadata{"illustType"};
 
-    # illustration-specific metadata.
-    if ( $illust_type == 0 ) {
-        
-    }
-
     # manga-specific metadata.
-    if ( $illust_type == 1 ) {
+    if ( exists $illust_metadata{"seriesNavData"} && defined $illust_metadata{"seriesNavData"} ) {
         my %series_nav_data = %{ $illust_metadata{"seriesNavData"} };
+
         my $series_id = $series_nav_data{"seriesId"};
         my $series_title = $series_nav_data{"title"};
         my $series_order = $series_nav_data{"order"};
 
-        push @tags, (
-            "series_id:$series_id",
-            "series_title:$series_title",
-            "series_order:$series_order",
-        )
+        if ( defined $series_id && defined $series_title && defined $series_order ) {
+            push @tags, (
+                "series_id:$series_id",
+                "series_title:$series_title",
+                "series_order:$series_order",
+            )
+        }
     }
 
     # add tag data.
@@ -214,7 +212,6 @@ sub get_html_from_illust_id {
 
     # illustration ID to URL.
     my $URL = "https://www.pixiv.net/en/artworks/$illust_id/";
-    $logger -> info("URL = $URL");
 
     while (1) {
 
@@ -224,18 +221,18 @@ sub get_html_from_illust_id {
             }
         ) -> result;
         my $code = $res -> code;
-        $logger -> info("Received code $code.");
+        $logger -> debug("Received code $code.");
 
         # handle 3xx.
         if ( $code == 301 ) {
             $URL = $res -> headers -> location;
-            $logger -> info("Redirecting to $URL");
+            $logger -> debug("Redirecting to $URL");
             next;
         }
         if ( $code == 302 ) {
             my $location = $res -> headers -> location;
             $URL = "pixiv.net$location";
-            $logger -> info("Redirecting to $URL");
+            $logger -> debug("Redirecting to $URL");
             next;
         }
 
