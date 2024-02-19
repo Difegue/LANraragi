@@ -212,7 +212,6 @@ sub get_html_from_illust_id {
 
     # illustration ID to URL.
     my $URL = "https://www.pixiv.net/en/artworks/$illust_id/";
-    $logger -> info("URL = $URL");
 
     while (1) {
 
@@ -222,18 +221,18 @@ sub get_html_from_illust_id {
             }
         ) -> result;
         my $code = $res -> code;
-        $logger -> info("Received code $code.");
+        $logger -> debug("Received code $code.");
 
         # handle 3xx.
         if ( $code == 301 ) {
             $URL = $res -> headers -> location;
-            $logger -> info("Redirecting to $URL");
+            $logger -> debug("Redirecting to $URL");
             next;
         }
         if ( $code == 302 ) {
             my $location = $res -> headers -> location;
             $URL = "pixiv.net$location";
-            $logger -> info("Redirecting to $URL");
+            $logger -> debug("Redirecting to $URL");
             next;
         }
 
