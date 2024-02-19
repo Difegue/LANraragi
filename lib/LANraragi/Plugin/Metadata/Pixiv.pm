@@ -119,23 +119,21 @@ sub get_hash_metadata_from_json {
     # get illustration type.
     my $illust_type = $illust_metadata{"illustType"};
 
-    # illustration-specific metadata.
-    if ( $illust_type == 0 ) {
-        
-    }
-
     # manga-specific metadata.
-    if ( $illust_type == 1 ) {
+    if ( exists $illust_metadata{"seriesNavData"} && defined $illust_metadata{"seriesNavData"} ) {
         my %series_nav_data = %{ $illust_metadata{"seriesNavData"} };
+
         my $series_id = $series_nav_data{"seriesId"};
         my $series_title = $series_nav_data{"title"};
         my $series_order = $series_nav_data{"order"};
 
-        push @tags, (
-            "series_id:$series_id",
-            "series_title:$series_title",
-            "series_order:$series_order",
-        )
+        if ( defined $series_id && defined $series_title && defined $series_order ) {
+            push @tags, (
+                "series_id:$series_id",
+                "series_title:$series_title",
+                "series_order:$series_order",
+            )
+        }
     }
 
     # add tag data.
