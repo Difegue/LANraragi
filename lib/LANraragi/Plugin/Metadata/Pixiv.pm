@@ -78,8 +78,11 @@ sub sanitize {
     # replace nonseparator characters with empty str.
     $sanitized_text =~ s/["?*%\$:]//g;
 
-    # replace separator characters with space.
-    $sanitized_text =~ s/[_-]/ /g;
+    # replace underscore with space.
+    $sanitized_text =~ s/[_]/ /g;
+
+    # if a dash is preceded by space, remove; otherwise keep.
+    $sanitized_text =~ s/ -/ /g;
 
     if ( $sanitized_text ne $text ) {
         my $logger = get_plugin_logger();
