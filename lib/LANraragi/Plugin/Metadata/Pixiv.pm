@@ -69,6 +69,27 @@ sub get_tags {
 ## Pixiv Specific Methods
 ######
 
+# sanitize the text according to the search syntax: https://sugoi.gitbook.io/lanraragi/basic-operations/searching
+sub sanitize {
+
+    my ( $text ) = @_;
+    my $sanitized_text = $text;
+
+    # replace nonseparator characters with empty str.
+    $sanitized_text =~ s/["?*%\$:]//g;
+
+    # replace separator characters with space.
+    $sanitized_text =~ s/[_-]/ /g;
+
+    if ( $sanitized_text ne $text ) {
+        my $logger = get_plugin_logger();
+        $logger -> info("\"$text\" was sanitized.");
+    }
+
+    return $sanitized_text;
+
+}
+
 sub find_illust_id {
 
     my ( $lrr_info ) = @_;
@@ -82,7 +103,7 @@ sub find_illust_id {
         return $oneshot_param;
     }
     # case 2: URL-based embedding
-    if ($oneshot_param =~ m{(?:pixiv\.net|www\.pixiv\.net)/.*/artworks/(\d+)}) {
+    if ($oneshot_param =~ m{.*\.pixiv\.net/.*/artworks/(\d+)}) {
         return $1;
     }
     # case 3: no oneshot param, get id by title.
@@ -127,6 +148,8 @@ sub get_hash_metadata_from_json {
         my $series_title = $series_nav_data{"title"};
         my $series_order = $series_nav_data{"order"};
 
+        $series_title = sanitize($series_title);
+
         if ( defined $series_id && defined $series_title && defined $series_order ) {
             push @tags, (
                 "series_id:$series_id",
@@ -145,12 +168,14 @@ sub get_hash_metadata_from_json {
             if ($tag_language eq 'jp') {
                 # add original/jp tags.
                 my $orig_tag = $item -> {"tag"};
+                $orig_tag = sanitize($orig_tag);
                 push @tags, $orig_tag;
 
             } 
             else {
                 # add translated tags.
                 my $translated_tag = $item -> {"translation"} -> { $tag_language };
+                $translated_tag = sanitize($translated_tag);
                 push @tags, $translated_tag;
             }
         }
@@ -165,6 +190,7 @@ sub get_hash_metadata_from_json {
     
     my $user_id = $illust_metadata{"userId"};
     my $user_name = $illust_metadata{"userName"};
+    $user_name = sanitize($user_name);
 
     push @tags, ("user_id:$user_id", "artist:$user_name");
 
@@ -182,6 +208,7 @@ sub get_hash_metadata_from_json {
 
     # change title.
     my $illust_title = $illust_metadata{"illustTitle"};
+    $illust_title = sanitize($illust_title);
     $hashdata{title} = $illust_title;
 
     return %hashdata;
