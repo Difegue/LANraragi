@@ -28,14 +28,19 @@ sub plugin_info {
         login_from  => "pixivlogin",
         author      => "psilabs-dev",
         version     => "0.1",
-        description => "Retrieve metadata of a Pixiv artwork by its artwork ID.",
+        description => "Retrieve metadata of a Pixiv artwork by its artwork ID.
+            <br>Supports ID extraction from these file formats: \"{Id} Title\" or \"pixiv_{Id} Title\".
+            <br>
+            <br><i class='fa fa-exclamation-circle'></i> Pixiv enforces a rate limit on API requests, and may suspend/ban your account for overuse.
+        ",
         icon        => "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/2wBDAQMDAwQDBAgEBAgQCwkLEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBD/wAARCAAUABQDAREAAhEBAxEB/8QAGQAAAgMBAAAAAAAAAAAAAAAAAwYABAUH/8QAJBAAAgICAgICAgMAAAAAAAAAAQIDBAUGABESIQcxImETQVH/xAAZAQACAwEAAAAAAAAAAAAAAAADBgACCAX/xAAoEQABBAEDAgYDAQAAAAAAAAABAgMEEQAFITESUQYTFEFhkTJxocH/2gAMAwEAAhEDEQA/ANfRvi3MbpRvZxrlfG4jHQT2J7U35PIsKB5FhjHuRgpHf0B5DsjvmrNV15nTHERwkrcWQABwOo0Co8AE/smjQzIWkeHn9VbXIKghpAUSTyekWQkckgV2G4s4fXNI1LeMkuuarsuQizVgEUYsnTSKG5IB2Iw6SN/GzdevIEE+uxwc3VJmlteqltJLQ/IoUSUjvRAsD3rf4wkHSYOru+khOqDp/ELSAFHtYUaJ9rFfOJFmtPTsy07UTRTQO0ciMOirKeiD+wRzvIWl1IWg2DuP1i642ppZbWKINEfIzpnwOHt5LaaE14QVzqeV/OTyMcRaNQXIUE/0O+gT64q+LKbajuJTZ85virNE7b/6cbvB9uPSWlKpPkO83QsDfa/4MFoFHVNE2jH7tsm54u5Dhplu16OLaSaxbmT2ie0VY18gO2Yj19A8Jq7szVYi4EVhSS4OkqXQSkHk8kk1wB95XRmYWjzG9QlyEqDZ6glFlSiNwOAAL5JPHtiHn8vNsGdyOesoqS5G3LbdV+laRyxA/XvjBEjJhx0R07hAA+hWLU2SqbJckrFFair7N4ClksjjWkbHX7NUzRmKQwyshdD9qej7B/w8u6y09QdSDW4sXR74Np91iy0opsUaJFjtt7ZX4XBZOTJn/9k=",
         #If your plugin uses/needs custom arguments, input their name here. 
         #This name will be displayed in plugin configuration next to an input box for global arguments, and in archive edition for one-shot arguments.
-        oneshot_arg => "Pixiv artwork URL (e.g. pixiv.net/en/artworks/123456.)",
+        oneshot_arg => "Pixiv artwork URL or illustration ID (e.g. pixiv.net/en/artworks/123456 or 123456.)",
         parameters  => [
             { type => 'string', desc => 'Comma-separated list of languages to support. Options: jp, en. Empty string defaults to original tags (jp) only.' }
-        ]
+        ],
+        cooldown    => 1
     );
 
 }
