@@ -109,7 +109,14 @@ sub find_illust_id {
     if ($oneshot_param =~ m{.*\.pixiv\.net/.*/artworks/(\d+)}) {
         return $1;
     }
-    # case 3: no oneshot param, get id by title.
+
+    # case 3: archive title extraction (strong pattern matching)
+    # use strong pattern matching if using multiple metadata plugins and archive title needs to exclusively call the pixiv plugin.
+    if ($archive_title =~ /pixiv_\{(\d*)\}.*$/) {
+        return $1;
+    }
+
+    # case 4: archive title extraction (weak pattern matching)
     if ($archive_title =~ /\{(\d*)\}.*$/) {
         return $1;
     }
