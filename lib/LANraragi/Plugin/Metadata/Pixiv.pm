@@ -56,13 +56,13 @@ sub get_tags {
 
     my $illust_id = find_illust_id( $lrr_info );
     if ($illust_id ne '') {
-        $logger -> info("Pixiv illustration ID = $illust_id");
+        $logger -> debug("Retrieved Pixiv illustration ID = $illust_id");
 
         #Work your magic here - You can create subroutines below to organize the code better
         my %metadata = get_metadata_from_illust_id( $illust_id, $ua , $tag_languages_str );
 
         #Otherwise, return the tags you've harvested.
-        $logger->info( "Sending the following tags to LRR: " . $metadata{tags} );
+        $logger -> info( "Sending the following tags to LRR: " . $metadata{tags} );
         return %metadata;
     } else {
         $logger -> error( "Failed to extract Pixiv ID!" );

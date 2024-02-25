@@ -50,7 +50,6 @@ sub get_user_agent {
 
     my $logger  = get_logger( "Pixiv Login", "plugins" );
     my $ua      = Mojo::UserAgent -> new;
-    # $logger -> info("Useragent = \"($useragent)\"; PHP Cookie = \"($php_session_id_cookie)\".")
 
     if ( $useragent ne "" && $php_session_id ne "") {
 
@@ -68,7 +67,7 @@ sub get_user_agent {
         )
 
     } else {
-        $logger->info("No cookies provided, returning blank UserAgent.");
+        $logger -> info("No cookies provided, returning blank UserAgent.");
     }
 
     return $ua;
