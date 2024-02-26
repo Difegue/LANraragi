@@ -146,8 +146,8 @@ sub get_manga_data_from_dto {
     my ( $dto ) = @_;
     my @manga_data;
 
-    if ( exists $dto{"seriesNavData"} && defined $dto{"seriesNavData"} ) {
-        my %series_nav_data = %{ $dto{"seriesNavData"} };
+    if ( exists $dto -> {"seriesNavData"} && defined $dto -> {"seriesNavData"} ) {
+        my %series_nav_data = %{ $dto -> {"seriesNavData"} };
 
         my $series_id = $series_nav_data{"seriesId"};
         my $series_title = $series_nav_data{"title"};
@@ -156,7 +156,7 @@ sub get_manga_data_from_dto {
         $series_title = sanitize($series_title);
 
         if ( defined $series_id && defined $series_title && defined $series_order ) {
-            push @manga_tags, (
+            push @manga_data, (
                 "series_id:$series_id",
                 "series_title:$series_title",
                 "series_order:$series_order",
@@ -172,7 +172,7 @@ sub get_pixiv_tags_from_dto {
     my ( $dto, $tag_languages_str ) = @_;
     my @tags;
 
-    foreach my $item ( @{$dto{"tags"}{"tags"}} ) {
+    foreach my $item ( @{$dto -> {"tags"} -> {"tags"}} ) {
             
         # iterate over tagging language.
         foreach my $tag_language ( @tag_languages ) {
@@ -218,8 +218,8 @@ sub get_hash_metadata_from_json {
     my %illust_dto = get_illustration_dto_from_json($json, $illust_id);
     my @lrr_tags;
 
-    my @manga_data = get_manga_data_from_dto( $illust_dto );
-    my @pixiv_tags = get_pixiv_tags_from_dto( $illust_dto, $tag_languages_str );
+    my @manga_data = get_manga_data_from_dto( \$illust_dto );
+    my @pixiv_tags = get_pixiv_tags_from_dto( \$illust_dto, $tag_languages_str );
     push (@lrr_tags, @manga_data);
     push (@lrr_tags, @pixiv_tags);
 
