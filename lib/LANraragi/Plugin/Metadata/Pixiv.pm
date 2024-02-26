@@ -145,11 +145,11 @@ sub get_hash_metadata_from_json {
     if ( $tag_languages_str eq "" ) {
         push @tag_languages, "jp";
     } else {
-        @tag_languages = map {
+        @tag_languages = split(/,/, $tag_languages_str);
+        for (@tag_languages) {
             s/^\s+//;
             s/\s+$//;
-            $_
-        } split(/,/, $tag_languages_str);
+        }
     }
 
     # get illustration metadata.
