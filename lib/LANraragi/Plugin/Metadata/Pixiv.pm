@@ -218,8 +218,8 @@ sub get_hash_metadata_from_json {
     my %illust_dto = get_illustration_dto_from_json($json, $illust_id);
     my @lrr_tags;
 
-    my @manga_data = get_manga_data_from_dto( \$illust_dto );
-    my @pixiv_tags = get_pixiv_tags_from_dto( \$illust_dto, $tag_languages_str );
+    my @manga_data = get_manga_data_from_dto( \%illust_dto );
+    my @pixiv_tags = get_pixiv_tags_from_dto( \%illust_dto, $tag_languages_str );
     push (@lrr_tags, @manga_data);
     push (@lrr_tags, @pixiv_tags);
 
