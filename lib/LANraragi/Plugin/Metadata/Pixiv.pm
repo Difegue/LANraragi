@@ -106,24 +106,28 @@ sub find_illust_id {
     my $archive_title = $lrr_info -> {"archive_title"};
     my $logger = get_plugin_logger();
 
-    # case 1: "$illust_id" i.e. string of digits.
-    if ($oneshot_param =~ /^\d+$/) {
-        return $oneshot_param;
-    }
-    # case 2: URL-based embedding
-    if ($oneshot_param =~ m{.*pixiv\.net/.*/artworks/(\d+)}) {
-        return $1;
-    }
-
-    # case 3: archive title extraction (strong pattern matching)
-    # use strong pattern matching if using multiple metadata plugins and archive title needs to exclusively call the pixiv plugin.
-    if ($archive_title =~ /pixiv_\{(\d*)\}.*$/) {
-        return $1;
+    if (defined $oneshot_param) {
+        # case 1: "$illust_id" i.e. string of digits.
+        if ($oneshot_param =~ /^\d+$/) {
+            return $oneshot_param;
+        }
+        # case 2: URL-based embedding
+        if ($oneshot_param =~ m{.*pixiv\.net/.*artworks/(\d+)}) {
+            return $1;
+        }
     }
 
-    # case 4: archive title extraction (weak pattern matching)
-    if ($archive_title =~ /\{(\d*)\}.*$/) {
-        return $1;
+    if (defined $archive_title) {
+        # case 3: archive title extraction (strong pattern matching)
+        # use strong pattern matching if using multiple metadata plugins and archive title needs to exclusively call the pixiv plugin.
+        if ($archive_title =~ /pixiv_\{(\d*)\}.*$/) {
+            return $1;
+        }
+
+        # case 4: archive title extraction (weak pattern matching)
+        if ($archive_title =~ /^\{(\d*)\}.*$/) {
+            return $1;
+        }
     }
 
     return "";
