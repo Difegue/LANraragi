@@ -5,6 +5,7 @@ use warnings;
 
 # Plugins can freely use all Perl packages already installed on the system 
 # Try however to restrain yourself to the ones already installed for LRR (see tools/cpanfile) to avoid extra installations by the end-user.
+use Mojo::DOM;
 use Mojo::JSON qw(decode_json);
 use Mojo::UserAgent;
 
@@ -240,10 +241,13 @@ sub get_json_from_html {
     my $logger = get_plugin_logger();
 
     # get 'content' body.
-    my $jsonstring = "{}";
-    if ( $html =~ /<meta name="preload-data" id="meta-preload-data" content='(.*?)'>/ ) {
-        $jsonstring = $1;
-    }
+    my $dom = Mojo::DOM -> new($html);
+    my $jsonstring = $dom -> at('meta#meta-preload-data') -> attr('content');
+    
+    # my $jsonstring = "{}";
+    # if ( $html =~ /<meta name="preload-data" id="meta-preload-data" content='(.*?)'>/ ) {
+    #     $jsonstring = $1;
+    # }
     
     $logger -> debug("Tentative JSON: $jsonstring");
     my $json = decode_json $jsonstring;
