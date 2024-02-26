@@ -111,7 +111,7 @@ sub find_illust_id {
         return $oneshot_param;
     }
     # case 2: URL-based embedding
-    if ($oneshot_param =~ m{.*\.pixiv\.net/.*/artworks/(\d+)}) {
+    if ($oneshot_param =~ m{.*pixiv\.net/.*/artworks/(\d+)}) {
         return $1;
     }
 
