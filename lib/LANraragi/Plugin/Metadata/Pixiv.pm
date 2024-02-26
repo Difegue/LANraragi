@@ -251,7 +251,7 @@ sub get_hash_metadata_from_json {
 
     push @lrr_tags, ("date_created:$create_date_epoch", "date_uploaded:$upload_date_epoch");
 
-    $hashdata{lrr_tags} = join( ', ', @lrr_tags );
+    $hashdata{tags} = join( ', ', @lrr_tags );
 
     # change title.
     my $illust_title = $illust_dto{"illustTitle"};
