@@ -135,34 +135,19 @@ sub find_illust_id {
 
 }
 
-sub get_hash_metadata_from_json {
+sub get_illustration_dto_from_json {
+    # retrieve relevant data obj from json obj
+    my ( $json, $illust_id ) = @_;
+    return %{$json -> {'illust'} -> { $illust_id }};
+}
 
-    my ( $json, $illust_id, $tag_languages_str ) = @_;
-    my $logger = get_plugin_logger();
-    my %hashdata;
+sub get_manga_data_from_dto {
+    # get manga-based data and return as an array.
+    my ( $dto ) = @_;
+    my @manga_data;
 
-    # extract tag languages.
-    my @tag_languages;
-    if ( $tag_languages_str eq "" ) {
-        push @tag_languages, "jp";
-    } else {
-        @tag_languages = split(/,/, $tag_languages_str);
-        for (@tag_languages) {
-            s/^\s+//;
-            s/\s+$//;
-        }
-    }
-
-    # get illustration metadata.
-    my %illust_metadata = %{$json -> {"illust"} -> { $illust_id }};
-    my @tags;
-
-    # get illustration type.
-    my $illust_type = $illust_metadata{"illustType"};
-
-    # manga-specific metadata.
-    if ( exists $illust_metadata{"seriesNavData"} && defined $illust_metadata{"seriesNavData"} ) {
-        my %series_nav_data = %{ $illust_metadata{"seriesNavData"} };
+    if ( exists $dto{"seriesNavData"} && defined $dto{"seriesNavData"} ) {
+        my %series_nav_data = %{ $dto{"seriesNavData"} };
 
         my $series_id = $series_nav_data{"seriesId"};
         my $series_title = $series_nav_data{"title"};
@@ -171,7 +156,7 @@ sub get_hash_metadata_from_json {
         $series_title = sanitize($series_title);
 
         if ( defined $series_id && defined $series_title && defined $series_order ) {
-            push @tags, (
+            push @manga_tags, (
                 "series_id:$series_id",
                 "series_title:$series_title",
                 "series_order:$series_order",
@@ -179,9 +164,16 @@ sub get_hash_metadata_from_json {
         }
     }
 
-    # add tag data.
-    foreach my $item ( @{$illust_metadata{"tags"}{"tags"}} ) {
-        
+    return @manga_data;
+}
+
+sub get_pixiv_tags_from_dto {
+
+    my ( $dto, $tag_languages_str ) = @_;
+    my @tags;
+
+    foreach my $item ( @{$dto{"tags"}{"tags"}} ) {
+            
         # iterate over tagging language.
         foreach my $tag_language ( @tag_languages ) {
 
@@ -201,33 +193,62 @@ sub get_hash_metadata_from_json {
         }
     }
 
+    return @tags;
+}
+
+sub get_hash_metadata_from_json {
+
+    my ( $json, $illust_id, $tag_languages_str ) = @_;
+    my $logger = get_plugin_logger();
+    my %hashdata;
+
+    # extract tag languages.
+    my @tag_languages;
+    if ( $tag_languages_str eq "" ) {
+        push @tag_languages, "jp";
+    } else {
+        @tag_languages = split(/,/, $tag_languages_str);
+        for (@tag_languages) {
+            s/^\s+//;
+            s/\s+$//;
+        }
+    }
+
+    # get illustration metadata.
+    my %illust_dto = get_illustration_dto_from_json($json, $illust_id);
+    my @lrr_tags;
+
+    my @manga_data = get_manga_data_from_dto( $illust_dto );
+    my @pixiv_tags = get_pixiv_tags_from_dto( $illust_dto, $tag_languages_str );
+    push (@lrr_tags, @manga_data);
+    push (@lrr_tags, @pixiv_tags);
+
     # add source
     my $source = "https://pixiv.net/artworks/$illust_id";
 
-    push @tags, "source:$source";
+    push @lrr_tags, "source:$source";
 
     # add general metadata.
-    
-    my $user_id = $illust_metadata{"userId"};
-    my $user_name = $illust_metadata{"userName"};
+    my $user_id = $illust_dto{"userId"};
+    my $user_name = $illust_dto{"userName"};
     $user_name = sanitize($user_name);
 
-    push @tags, ("user_id:$user_id", "artist:$user_name");
+    push @lrr_tags, ("user_id:$user_id", "artist:$user_name");
 
     # add time-based metadata.
-    my $create_date = $illust_metadata{"createDate"};
-    my $upload_date = $illust_metadata{"uploadDate"};
+    my $create_date = $illust_dto{"createDate"};
+    my $upload_date = $illust_dto{"uploadDate"};
     $create_date =~ s/(\+\d{2}:\d{2})$//;
     $upload_date =~ s/(\+\d{2}:\d{2})$//;
     my $create_date_epoch = Time::Piece -> strptime( $create_date, "%Y-%m-%dT%H:%M:%S" ) -> epoch;
     my $upload_date_epoch = Time::Piece -> strptime( $upload_date, "%Y-%m-%dT%H:%M:%S" ) -> epoch;
 
-    push @tags, ("date_created:$create_date_epoch", "date_uploaded:$upload_date_epoch");
+    push @lrr_tags, ("date_created:$create_date_epoch", "date_uploaded:$upload_date_epoch");
 
-    $hashdata{tags} = join( ', ', @tags );
+    $hashdata{lrr_tags} = join( ', ', @lrr_tags );
 
     # change title.
-    my $illust_title = $illust_metadata{"illustTitle"};
+    my $illust_title = $illust_dto{"illustTitle"};
     $illust_title = sanitize($illust_title);
     $hashdata{title} = $illust_title;
 
