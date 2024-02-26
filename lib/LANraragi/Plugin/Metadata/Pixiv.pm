@@ -172,6 +172,18 @@ sub get_pixiv_tags_from_dto {
     my ( $dto, $tag_languages_str ) = @_;
     my @tags;
 
+    # extract tag languages.
+    my @tag_languages;
+    if ( $tag_languages_str eq "" ) {
+        push @tag_languages, "jp";
+    } else {
+        @tag_languages = split(/,/, $tag_languages_str);
+        for (@tag_languages) {
+            s/^\s+//;
+            s/\s+$//;
+        }
+    }
+
     foreach my $item ( @{$dto -> {"tags"} -> {"tags"}} ) {
             
         # iterate over tagging language.
@@ -201,18 +213,6 @@ sub get_hash_metadata_from_json {
     my ( $json, $illust_id, $tag_languages_str ) = @_;
     my $logger = get_plugin_logger();
     my %hashdata;
-
-    # extract tag languages.
-    my @tag_languages;
-    if ( $tag_languages_str eq "" ) {
-        push @tag_languages, "jp";
-    } else {
-        @tag_languages = split(/,/, $tag_languages_str);
-        for (@tag_languages) {
-            s/^\s+//;
-            s/\s+$//;
-        }
-    }
 
     # get illustration metadata.
     my %illust_dto = get_illustration_dto_from_json($json, $illust_id);
