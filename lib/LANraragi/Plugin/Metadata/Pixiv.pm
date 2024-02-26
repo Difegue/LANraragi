@@ -153,9 +153,8 @@ sub get_manga_data_from_dto {
         my $series_title = $series_nav_data{"title"};
         my $series_order = $series_nav_data{"order"};
 
-        $series_title = sanitize($series_title);
-
         if ( defined $series_id && defined $series_title && defined $series_order ) {
+            $series_title = sanitize($series_title);
             push @manga_data, (
                 "series_id:$series_id",
                 "series_title:$series_title",
@@ -192,15 +191,19 @@ sub get_pixiv_tags_from_dto {
             if ($tag_language eq 'jp') {
                 # add original/jp tags.
                 my $orig_tag = $item -> {"tag"};
-                $orig_tag = sanitize($orig_tag);
-                push @tags, $orig_tag;
+                if (defined $orig_tag) {
+                    $orig_tag = sanitize($orig_tag);
+                    push @tags, $orig_tag;
+                }
 
             } 
             else {
                 # add translated tags.
                 my $translated_tag = $item -> {"translation"} -> { $tag_language };
-                $translated_tag = sanitize($translated_tag);
-                push @tags, $translated_tag;
+                if (defined $translated_tag) {
+                    $translated_tag = sanitize($translated_tag);
+                    push @tags, $translated_tag;
+                }
             }
         }
     }
@@ -231,9 +234,12 @@ sub get_hash_metadata_from_json {
     # add general metadata.
     my $user_id = $illust_dto{"userId"};
     my $user_name = $illust_dto{"userName"};
-    $user_name = sanitize($user_name);
-
-    push @lrr_tags, ("user_id:$user_id", "artist:$user_name");
+    if (defined $user_id && defined $user_name) {
+        $user_name = sanitize($user_name);
+        push @lrr_tags, ("user_id:$user_id", "artist:$user_name");
+    } else {
+        $logger -> error("Failed to extract username or user ID from json file: " . Dumper($json));
+    }
 
     # add time-based metadata.
     my $create_date = $illust_dto{"createDate"};
@@ -249,8 +255,13 @@ sub get_hash_metadata_from_json {
 
     # change title.
     my $illust_title = $illust_dto{"illustTitle"};
-    $illust_title = sanitize($illust_title);
-    $hashdata{title} = $illust_title;
+    if (defined $illust_title) {
+        $illust_title = sanitize($illust_title);
+        $hashdata{title} = $illust_title;
+    } else {
+        $logger -> error("Failed to extract illustration title from json file: " . Dumper($json));
+    }
+
 
     return %hashdata;
 
