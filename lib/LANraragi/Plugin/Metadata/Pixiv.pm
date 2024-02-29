@@ -75,6 +75,15 @@ sub get_tags {
 ## Pixiv Specific Methods
 ######
 
+# convert formatted date to epoch time in seconds.
+sub _convert_epoch_seconds {
+    my ( $formattedDate ) = @_;
+
+    $formattedDate =~ s/(\+\d{2}:\d{2})$//; 
+    my $epoch_seconds = Time::Piece -> strptime( $formattedDate, "%Y-%m-%dT%H:%M:%S" ) -> epoch;
+    return $epoch_seconds;
+}
+
 # sanitize the text according to the search syntax: https://sugoi.gitbook.io/lanraragi/basic-operations/searching
 sub sanitize {
 
@@ -211,6 +220,55 @@ sub get_pixiv_tags_from_dto {
     return @tags;
 }
 
+sub get_user_id_from_dto {
+    my ( $dto ) = @_;
+    my @tags;
+    my $user_id = $dto -> {"userId"};
+
+    if ( defined $user_id ) {
+        push @tags, "user_id:$user_id";
+    }
+
+    return @tags;
+}
+
+sub get_artist_from_dto {
+    my ( $dto ) = @_;
+    my @tags;
+    my $user_name = $dto -> {"userName"};
+
+    if ( defined $user_name ) {
+        $user_name = sanitize($user_name);
+        push @tags, "artist:$user_name";
+    }
+
+    return @tags;
+}
+
+sub get_create_date_from_dto {
+    my ( $dto ) = @_;
+    my @tags;
+
+    my $formattedDate = $dto -> {"createDate"};
+    my $epoch_seconds = _convert_epoch_seconds($formattedDate);
+    if ( defined $epoch_seconds ) {
+        push @tags, "date_created:$epoch_seconds";
+    }
+    return @tags;
+}
+
+sub get_upload_date_from_dto {
+    my ( $dto ) = @_;
+    my @tags;
+
+    my $formattedDate = $dto -> {"uploadDate"};
+    my $epoch_seconds = _convert_epoch_seconds($formattedDate);
+    if ( defined $epoch_seconds ) {
+        push @tags, "date_uploaded:$epoch_seconds";
+    }
+    return @tags;
+}
+
 sub get_hash_metadata_from_json {
 
     my ( $json, $illust_id, $tag_languages_str ) = @_;
@@ -228,28 +286,19 @@ sub get_hash_metadata_from_json {
 
     # add source
     my $source = "https://pixiv.net/artworks/$illust_id";
-
     push @lrr_tags, "source:$source";
 
     # add general metadata.
-    my $user_id = $illust_dto{"userId"};
-    my $user_name = $illust_dto{"userName"};
-    if (defined $user_id && defined $user_name) {
-        $user_name = sanitize($user_name);
-        push @lrr_tags, ("user_id:$user_id", "artist:$user_name");
-    } else {
-        $logger -> error("Failed to extract username or user ID from json file: " . Dumper($json));
-    }
+    my @user_id_data = get_user_id_from_dto( \%illust_dto );
+    my @user_name_data = get_artist_from_dto( \%illust_dto );
+    push (@lrr_tags, @user_id_data);
+    push (@lrr_tags, @user_name_data);
 
     # add time-based metadata.
-    my $create_date = $illust_dto{"createDate"};
-    my $upload_date = $illust_dto{"uploadDate"};
-    $create_date =~ s/(\+\d{2}:\d{2})$//;
-    $upload_date =~ s/(\+\d{2}:\d{2})$//;
-    my $create_date_epoch = Time::Piece -> strptime( $create_date, "%Y-%m-%dT%H:%M:%S" ) -> epoch;
-    my $upload_date_epoch = Time::Piece -> strptime( $upload_date, "%Y-%m-%dT%H:%M:%S" ) -> epoch;
-
-    push @lrr_tags, ("date_created:$create_date_epoch", "date_uploaded:$upload_date_epoch");
+    my @create_date_epoch_data = get_create_date_from_dto( \%illust_dto );
+    my @upload_date_epoch_data = get_upload_date_from_dto( \%illust_dto );
+    push (@lrr_tags, @create_date_epoch_data);
+    push (@lrr_tags, @upload_date_epoch_data);
 
     $hashdata{tags} = join( ', ', @lrr_tags );
 
@@ -261,7 +310,6 @@ sub get_hash_metadata_from_json {
     } else {
         $logger -> error("Failed to extract illustration title from json file: " . Dumper($json));
     }
-
 
     return %hashdata;
 
@@ -275,11 +323,6 @@ sub get_json_from_html {
     # get 'content' body.
     my $dom = Mojo::DOM -> new($html);
     my $jsonstring = $dom -> at('meta#meta-preload-data') -> attr('content');
-    
-    # my $jsonstring = "{}";
-    # if ( $html =~ /<meta name="preload-data" id="meta-preload-data" content='(.*?)'>/ ) {
-    #     $jsonstring = $1;
-    # }
     
     $logger -> debug("Tentative JSON: $jsonstring");
     my $json = decode_json $jsonstring;

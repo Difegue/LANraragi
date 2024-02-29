@@ -121,15 +121,26 @@ note("testing metadata extraction from JSON object (Illust)");
     my %dto = LANraragi::Plugin::Metadata::Pixiv::get_illustration_dto_from_json( $json, "114245433" );
     
     my $expected_title = 'HATSUNE MIKU EXPO 10th イラコン開催！';
-    my $expected_artist = 'pixiv事務局';
     my @expected_pixiv_tags = ('公式企画', '企画目録', 'MIKU', '初音ミク', 'HatsuneMiku', 'mikuexpo10th');
     my @expected_manga_data = ();
+    my @expected_user_id = ('user_id:11');
+    my @expected_artist = ('artist:pixiv事務局');
+    my @expected_create_date = ('date_created:1702628640');
+    my @expected_upload_date = ('date_uploaded:1702628640');
 
     my @actual_pixiv_tags = LANraragi::Plugin::Metadata::Pixiv::get_pixiv_tags_from_dto( \%dto, $tag_languages_str );
     my @actual_manga_data = LANraragi::Plugin::Metadata::Pixiv::get_manga_data_from_dto( \%dto );
+    my @actual_user_id = LANraragi::Plugin::Metadata::Pixiv::get_user_id_from_dto( \%dto );
+    my @actual_artist = LANraragi::Plugin::Metadata::Pixiv::get_artist_from_dto( \%dto );
+    my @actual_create_date = LANraragi::Plugin::Metadata::Pixiv::get_create_date_from_dto( \%dto );
+    my @actual_upload_date = LANraragi::Plugin::Metadata::Pixiv::get_upload_date_from_dto( \%dto );
 
     cmp_deeply(\@actual_pixiv_tags, \@expected_pixiv_tags , 'pixiv tags equal illust');
     cmp_deeply(\@actual_manga_data, \@expected_manga_data , 'No manga data in illust');
+    cmp_deeply(\@actual_user_id, \@expected_user_id, 'user ID equal');
+    cmp_deeply(\@actual_artist, \@expected_artist, 'artists equal');
+    cmp_deeply(\@actual_create_date, \@expected_create_date, 'create dates equal');
+    cmp_deeply(\@actual_upload_date, \@expected_upload_date, 'upload dates equal');
 
 }
 
@@ -139,13 +150,35 @@ note("testing metadata extraction from JSON object (Manga)");
     no warnings 'once', 'redefine';
     local *LANraragi::Plugin::Metadata::Pixiv::get_plugin_logger        = sub { return get_logger_mock(); };
 
-    my $body = Mojo::File -> new("$SAMPLES/pixiv/manga.html") -> slurp;
+    my $body = Mojo::File -> new("$SAMPLES/pixiv/manga_1.html") -> slurp;
     my $tag_languages_str = '';
     my $json = LANraragi::Plugin::Metadata::Pixiv::get_json_from_html($body);
     my %dto = LANraragi::Plugin::Metadata::Pixiv::get_illustration_dto_from_json( $json, "116253902" );
 
     my @expected_pixiv_tags = ('漫画', 'pixivコミック', 'コミックELMO', 'なつめとなつめ');
     my @expected_manga_data = ();
+
+    my @actual_pixiv_tags = LANraragi::Plugin::Metadata::Pixiv::get_pixiv_tags_from_dto( \%dto, $tag_languages_str );
+    my @actual_manga_data = LANraragi::Plugin::Metadata::Pixiv::get_manga_data_from_dto( \%dto );
+
+    cmp_deeply(\@actual_pixiv_tags, \@expected_pixiv_tags , 'pixiv tags equal manga');
+    cmp_deeply(\@actual_manga_data, \@expected_manga_data , 'No manga data in manga');
+
+}
+
+note("testing metadata extraction from JSON object (Manga with manga data)");
+
+{
+    no warnings 'once', 'redefine';
+    local *LANraragi::Plugin::Metadata::Pixiv::get_plugin_logger        = sub { return get_logger_mock(); };
+
+    my $body = Mojo::File -> new("$SAMPLES/pixiv/manga_2.html") -> slurp;
+    my $tag_languages_str = '';
+    my $json = LANraragi::Plugin::Metadata::Pixiv::get_json_from_html($body);
+    my %dto = LANraragi::Plugin::Metadata::Pixiv::get_illustration_dto_from_json( $json, "103301948" );
+
+    my @expected_pixiv_tags = ('漫画', '創作', 'オリジナル', '安定の森のおかん力', '愛すべき馬鹿達', '作者の生存確認', 'ラブの波動', '第三話参照', 'オリジナル20000users入り', 'ラブコメの波動を感じる');
+    my @expected_manga_data = ("series_id:90972", "series_title:不穏そうな学校", "series_order:13");
 
     my @actual_pixiv_tags = LANraragi::Plugin::Metadata::Pixiv::get_pixiv_tags_from_dto( \%dto, $tag_languages_str );
     my @actual_manga_data = LANraragi::Plugin::Metadata::Pixiv::get_manga_data_from_dto( \%dto );
