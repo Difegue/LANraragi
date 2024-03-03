@@ -123,7 +123,7 @@ note("testing metadata extraction from JSON object (Illust)");
     my $expected_title = 'HATSUNE MIKU EXPO 10th イラコン開催！';
     my @expected_pixiv_tags = ('公式企画', '企画目録', 'MIKU', '初音ミク', 'HatsuneMiku', 'mikuexpo10th');
     my @expected_manga_data = ();
-    my @expected_user_id = ('user_id:11');
+    my @expected_user_id = ('pixiv_user_id:11');
     my @expected_artist = ('artist:pixiv事務局');
     my @expected_create_date = ('date_created:1702628640');
     my @expected_upload_date = ('date_uploaded:1702628640');
@@ -178,7 +178,7 @@ note("testing metadata extraction from JSON object (Manga with manga data)");
     my %dto = LANraragi::Plugin::Metadata::Pixiv::get_illustration_dto_from_json( $json, "103301948" );
 
     my @expected_pixiv_tags = ('漫画', '創作', 'オリジナル', '安定の森のおかん力', '愛すべき馬鹿達', '作者の生存確認', 'ラブの波動', '第三話参照', 'オリジナル20000users入り', 'ラブコメの波動を感じる');
-    my @expected_manga_data = ("series_id:90972", "series_title:不穏そうな学校", "series_order:13");
+    my @expected_manga_data = ("pixiv_series_id:90972", "pixiv_series_title:不穏そうな学校", "pixiv_series_order:13");
 
     my @actual_pixiv_tags = LANraragi::Plugin::Metadata::Pixiv::get_pixiv_tags_from_dto( \%dto, $tag_languages_str );
     my @actual_manga_data = LANraragi::Plugin::Metadata::Pixiv::get_manga_data_from_dto( \%dto );

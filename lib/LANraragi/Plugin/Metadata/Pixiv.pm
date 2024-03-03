@@ -165,9 +165,9 @@ sub get_manga_data_from_dto {
         if ( defined $series_id && defined $series_title && defined $series_order ) {
             $series_title = sanitize($series_title);
             push @manga_data, (
-                "series_id:$series_id",
-                "series_title:$series_title",
-                "series_order:$series_order",
+                "pixiv_series_id:$series_id",
+                "pixiv_series_title:$series_title",
+                "pixiv_series_order:$series_order",
             )
         }
     }
@@ -226,7 +226,7 @@ sub get_user_id_from_dto {
     my $user_id = $dto -> {"userId"};
 
     if ( defined $user_id ) {
-        push @tags, "user_id:$user_id";
+        push @tags, "pixiv_user_id:$user_id";
     }
 
     return @tags;
