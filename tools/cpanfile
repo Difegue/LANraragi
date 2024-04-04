@@ -42,6 +42,7 @@ requires 'Mojolicious',                          9.34;
 requires 'Mojolicious::Plugin::TemplateToolkit', 0.005;
 requires 'Mojolicious::Plugin::RenderFile',      0.12;
 requires 'Mojolicious::Plugin::Status',          1.15;
+requires 'IO::Socket::Socks',                    0.74;
 requires 'IO::Socket::SSL',                      2.067;
 requires 'Cpanel::JSON::XS',                     4.06;
 
