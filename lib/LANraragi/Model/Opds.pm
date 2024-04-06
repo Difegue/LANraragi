@@ -35,6 +35,8 @@ sub generate_opds_catalog {
 
     foreach my $cat (@cats) {
 
+        for ( values %{$cat} ) { $_ = xml_escape($_); }
+
         # If the category doesn't have a search string, we can add the total count of archives to the entry.
         if ( $cat->{search} eq "" ) {
             $cat->{count} = scalar @{ $cat->{archives} };
