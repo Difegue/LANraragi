@@ -1,5 +1,5 @@
 # DOCKER-VERSION 0.3.4
-FROM        alpine:3.18
+FROM        alpine:3.19.1
 
 #Default mojo server port
 EXPOSE 3000

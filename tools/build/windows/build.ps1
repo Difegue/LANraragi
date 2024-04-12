@@ -11,18 +11,8 @@ $env:LRR_VERSION_NUM=$version
 # Use Docker image
 mv .\package\package.tar .\tools\build\windows\Karen\External\package.tar 
 
-# Download and unpack Redis
-cd .\tools\build\windows\Karen\External
-Invoke-WebRequest -Uri https://github.com/redis-windows/redis-windows/releases/download/7.0.14/Redis-7.0.14-Windows-x64.tar.gz -OutFile .\redis.tar.gz
-tar -xzf .\redis.tar.gz
-rm .\redis.tar.gz
-mv .\Redis-7.0.14-Windows-x64 .\Redis
-
-# Copy redis.conf to redis folder
-cp ..\..\..\docker\redis.conf .\Redis\redis.conf
-
 # Use Karen master
-cd ..
+cd .\tools\build\windows\Karen
 echo (Resolve-Path .\).Path
 nuget restore
 
@@ -30,3 +20,14 @@ nuget restore
 msbuild /p:Configuration=Release
 
 Get-FileHash .\Setup\bin\LANraragi.msi | Format-List
+
+mv .\Setup\bin\LANraragi.msi .\LRR_WSL2.msi
+
+# Do it again for legacy image
+cd ..\..\..\..
+mv .\package-legacy\package.tar .\tools\build\windows\Karen\External\package.tar 
+cd .\tools\build\windows\Karen
+msbuild /p:Configuration=Release /p:DefineConstants=WSL1_LEGACY
+
+Get-FileHash .\Setup\bin\LANraragi.msi | Format-List
+mv .\Setup\bin\LANraragi.msi .\LRR_WSL1.msi

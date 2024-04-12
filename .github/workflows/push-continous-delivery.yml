@@ -38,13 +38,13 @@ jobs:
           --file ./tools/build/docker/Dockerfile .
 
   exportDockerRootFS:
-    name: Build and export Docker rootfs for Windows build
+    name: Build and export Docker rootfs for Windows build (WSL2)
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
     - name: Docker Build and export
       run: |
-        docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile --build-arg INSTALL_PARAMETER=-w .
+        docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile .
         docker create --name rootfs difegue/lanraragi 
         docker export --output=package.tar rootfs
     - name: Upload rootfs
@@ -53,8 +53,24 @@ jobs:
         name: package
         path: package.tar 
 
+  exportDockerRootFSLegacy:
+    name: Build and export Docker rootfs for Windows build (WSL1)
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Docker Build and export
+      run: |
+        docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile-legacy --build-arg INSTALL_PARAMETER=-w .
+        docker create --name rootfs difegue/lanraragi 
+        docker export --output=package.tar rootfs
+    - name: Upload rootfs
+      uses: actions/upload-artifact@v1
+      with:
+        name: package-legacy
+        path: package.tar 
+
   buildNightlyWSL:
-    name: Build Nightly Windows Package
+    name: Build Nightly Windows Packages
     needs: exportDockerRootFS
     runs-on: windows-latest
     steps:
@@ -63,6 +79,10 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: package
+    - name: Download package
+      uses: actions/download-artifact@v1
+      with:
+        name: package-legacy
     - name: Build MSI Installer
       shell: powershell
       run: |
@@ -80,4 +100,9 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: LANraragi.msi
-        path: ./tools/build/windows/Karen/Setup/bin/LANraragi.msi
+        path: ./tools/build/windows/Karen/LRR_WSL2.msi
+    - name: Upload Installer
+      uses: actions/upload-artifact@v1
+      with:
+        name: LANraragi_legacy.msi
+        path: ./tools/build/windows/Karen/LRR_WSL1.msi
