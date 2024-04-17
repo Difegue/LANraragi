@@ -115,13 +115,18 @@ Reader.initializeAll = function () {
                 title = `${title} by ${artist[1]}`;
             }
 
-            $("#archive-title").html(title);
-            $("#archive-title-overlay").html(title);
-            if (data.pagecount) { $(".max-page").html(data.pagecount); }
+            $("#archive-title").text(title);
+            $("#archive-title-overlay").text(title);
+            if (data.pagecount) { $(".max-page").text(data.pagecount); }
             document.title = title;
 
             Reader.tags = data.tags;
             $("#tagContainer").append(LRR.buildTagsDiv(Reader.tags));
+
+            if (data.summary) {
+                $("#tagContainer").append(`<div class="archive-summary"/>`);
+                $(".archive-summary").text(data.summary);
+            }
 
             // Use localStorage progress value instead of the server one if needed
             if (Reader.trackProgressLocally) {

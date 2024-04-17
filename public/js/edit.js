@@ -121,6 +121,7 @@ Edit.saveMetadata = function () {
     const formData = new FormData();
     formData.append("tags", $("#tagText").val());
     formData.append("title", $("#title").val());
+    formData.append("summary", $("#summary").val());
 
     return fetch(`api/archives/${id}/metadata`, { method: "PUT", body: formData })
         .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))

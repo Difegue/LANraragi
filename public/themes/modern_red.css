@@ -706,3 +706,7 @@ div.id4 a:hover {
   border-color: #D83B66;
   color: #BE234B;
 }
+
+.archive-summary {
+  border-top: 2px dotted;
+}

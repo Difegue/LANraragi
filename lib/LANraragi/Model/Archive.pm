@@ -21,7 +21,7 @@ use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Archive    qw(extract_single_file extract_thumbnail);
 use LANraragi::Utils::Database
-  qw(redis_encode redis_decode invalidate_cache set_title set_tags get_archive_json get_archive_json_multi);
+  qw(redis_encode redis_decode invalidate_cache set_title set_tags set_summary get_archive_json get_archive_json_multi);
 
 # get_title(id)
 #   Returns the title for the archive matching the given id.
@@ -246,10 +246,10 @@ sub serve_page {
 }
 
 sub update_metadata {
-    my ( $id, $title, $tags ) = @_;
+    my ( $id, $title, $tags, $summary ) = @_;
 
     unless ( defined $title || defined $tags ) {
-        return "No metadata parameters (Please supply title, tags or both)";
+        return "No metadata parameters (Please supply title, tags or summary)";
     }
 
     # Clean up the user's inputs and encode them.
@@ -262,6 +262,10 @@ sub update_metadata {
 
     if ( defined $tags ) {
         set_tags( $id, $tags );
+    }
+
+    if ( defined $summary ) {
+        set_summary( $id, $summary );
     }
 
     # Bust cache

@@ -164,8 +164,9 @@ sub update_metadata {
 
     my $title = $self->req->param('title');
     my $tags  = $self->req->param('tags');
+    my $summary = $self->req->param('summary');
 
-    my $res = LANraragi::Model::Archive::update_metadata( $id, $title, $tags );
+    my $res = LANraragi::Model::Archive::update_metadata( $id, $title, $tags, $summary);
 
     if ( $res eq "" ) {
         render_api_response( $self, "update_metadata" );

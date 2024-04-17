@@ -25,7 +25,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 # Functions for interacting with the DB Model.
 use Exporter 'import';
 our @EXPORT_OK =
-  qw(redis_encode redis_decode invalidate_cache compute_id change_archive_id set_tags set_title set_isnew get_computed_tagrules save_computed_tagrules get_archive_json get_archive_json_multi get_tankoubons_by_file);
+  qw(redis_encode redis_decode invalidate_cache compute_id change_archive_id set_tags set_title set_summary set_isnew get_computed_tagrules save_computed_tagrules get_archive_json get_archive_json_multi get_tankoubons_by_file);
 
 # Creates a DB entry for a file path with the given ID.
 # This function doesn't actually require the file to exist at its given location.
@@ -41,6 +41,8 @@ sub add_archive_to_redis ( $id, $file, $redis ) {
 
     $redis->hset( $id, "name", redis_encode($name) );
     $redis->hset( $id, "tags", "" );
+    $redis->hset( $id, "summary", "" );
+
     if ( defined($file) && -e $file ) {
         $redis->hset( $id, "arcsize", -s $file );
     }
@@ -188,16 +190,15 @@ sub get_archive_json_multi (@ids) {
 # Internal function for building an archive JSON.
 sub build_json ( $id, %hash ) {
 
-    # It's not a new archive, but it might have never been clicked on yet,
-    # so grab the value for $isnew stored in redis.
-    my ( $name, $title, $tags, $file, $isnew, $progress, $pagecount, $lastreadtime, $arcsize ) =
-      @hash{qw(name title tags file isnew progress pagecount lastreadtime arcsize)};
+    # Grab all metadata from the hash
+    my ( $name, $title, $tags, $summary, $file, $isnew, $progress, $pagecount, $lastreadtime, $arcsize ) =
+      @hash{qw(name title tags summary file isnew progress pagecount lastreadtime arcsize)};
 
     # Return undef if the file doesn't exist.
     return unless ( defined($file) && -e $file );
 
     # Parameters have been obtained, let's decode them.
-    ( $_ = redis_decode($_) ) for ( $name, $title, $tags );
+    ( $_ = redis_decode($_) ) for ( $name, $title, $tags, $summary );
 
     # Workaround if title was incorrectly parsed as blank
     if ( !defined($title) || $title =~ /^\s*$/ ) {
@@ -209,6 +210,7 @@ sub build_json ( $id, %hash ) {
         title        => $title,
         filename     => $name,
         tags         => $tags,
+        summary      => $summary,
         isnew        => $isnew ? $isnew : "false",
         extension    => lc( ( split( /\./, $file ) )[-1] ),
         progress     => $progress     ? int($progress)     : 0,
@@ -372,6 +374,13 @@ sub set_tags ( $id, $newtags, $append = 0 ) {
     $redis->quit;
 
     invalidate_cache();
+}
+
+sub set_summary ($id, $summary) {
+
+    my $redis = LANraragi::Model::Config->get_redis;
+    $redis->hset( $id, "summary", redis_encode($summary) );
+    $redis->quit;
 }
 
 # Set $isnew for the archive with id $id.

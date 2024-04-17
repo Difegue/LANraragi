@@ -450,6 +450,10 @@ New Title of the Archive.
 New Tags of the Archive.
 {% endswagger-parameter %}
 
+{% swagger-parameter name="summary" type="string" required="false" in="query" %}
+New Summary of the Archive.
+{% endswagger-parameter %}
+
 {% swagger-response status="200" description="" %}
 ```javascript
 {

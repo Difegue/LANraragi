@@ -62,16 +62,17 @@ sub build_backup_JSON {
 
         eval {
             my %hash = $redis->hgetall($id);
-            my ( $name, $title, $tags, $thumbhash ) = @hash{qw(name title tags thumbhash)};
+            my ( $name, $title, $tags, $summary, $thumbhash ) = @hash{qw(name title tags summary thumbhash)};
 
-            ( $_ = redis_decode($_) ) for ( $name, $title, $tags );
-            ( $_ = trim_CRLF($_) )    for ( $name, $title, $tags );
+            ( $_ = redis_decode($_) ) for ( $name, $title, $tags, $summary );
+            ( $_ = trim_CRLF($_) )    for ( $name, $title, $tags, $summary );
 
             # Backup all user-generated metadata, alongside the unique ID.
             my %arc = (
                 arcid     => $id,
                 title     => $title,
                 tags      => $tags,
+                summary   => $summary,
                 thumbhash => $thumbhash,
                 filename  => $name
             );
@@ -131,6 +132,7 @@ sub restore_from_JSON {
 
             set_title( $id, $archive->{"title"} );
             set_tags( $id, $archive->{"tags"} );
+            set_summary( $id, $archive->{"summary"} );
 
             if (   $redis->hexists( $id, "thumbhash" )
                 && $redis->hget( $id, "thumbhash" ) ne "" ) {
