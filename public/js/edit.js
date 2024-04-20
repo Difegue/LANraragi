@@ -174,6 +174,15 @@ Edit.getTags = function () {
                 });
             }
 
+            if (result.data.summary && result.data.summary !=="") {
+                $("#summary").val(result.data.summary);
+                LRR.toast({
+                    heading: "Archive summary changed to :",
+                    text: result.data.summary,
+                    icon: "info",
+                });
+            }
+
             if (result.data.new_tags !== "") {
                 result.data.new_tags.split(/,\s?/).forEach((tag) => {
                     // Remove trailing/leading spaces from tag before adding it
