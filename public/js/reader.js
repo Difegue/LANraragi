@@ -125,7 +125,7 @@ Reader.initializeAll = function () {
 
             if (data.summary) {
                 $("#tagContainer").append(`<div class="archive-summary"/>`);
-                $(".archive-summary").html(data.summary);
+                $(".archive-summary").text(data.summary);
             }
 
             // Use localStorage progress value instead of the server one if needed
