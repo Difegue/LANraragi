@@ -177,8 +177,7 @@ Edit.getTags = function () {
             if (result.data.summary && result.data.summary !=="") {
                 $("#summary").val(result.data.summary);
                 LRR.toast({
-                    heading: "Archive summary changed to :",
-                    text: result.data.summary,
+                    heading: "Archive summary updated!",
                     icon: "info",
                 });
             }
