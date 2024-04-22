@@ -283,6 +283,12 @@ sub exec_metadata_plugin {
             $newtitle = trim($newtitle);
             $returnhash{title} = $newtitle;
         }
+
+        # Include updated summary data in response
+        if ( exists $newmetadata{summary} ) {
+            $returnhash{summary} = $newmetadata{summary};
+        }
+
         return %returnhash;
     }
     return ( error => "Plugin doesn't implement get_tags despite having a 'metadata' type." );
