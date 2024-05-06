@@ -76,8 +76,9 @@ Server.callAPIBody = function (endpoint, method, body, successMessage, errorMess
  *            This requires the user to be logged in.
  * @param {*} callback Execute a callback on successful job completion.
  * @param {*} failureCallback Execute a callback on unsuccessful job completion.
+ * @param {*} progressCallback Execute a callback if the job reports progress. (aka, if there's anything in notes)
  */
-Server.checkJobStatus = function (jobId, useDetail, callback, failureCallback) {
+Server.checkJobStatus = function (jobId, useDetail, callback, failureCallback, progressCallback = null) {
     fetch(useDetail ? `/api/minion/${jobId}/detail` : `/api/minion/${jobId}`, { method: "GET" })
         .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))
         .then((data) => {
@@ -90,17 +91,24 @@ Server.checkJobStatus = function (jobId, useDetail, callback, failureCallback) {
             if (data.state === "inactive") {
                 // Job isn't even running yet, wait longer
                 setTimeout(() => {
-                    Server.checkJobStatus(jobId, useDetail, callback, failureCallback);
-                }, 7000);
+                    Server.checkJobStatus(jobId, useDetail, callback, failureCallback, progressCallback);
+                }, 5000);
                 return;
             }
 
             if (data.state === "active") {
+
+                if (progressCallback !== null) {
+                    progressCallback(data.notes);
+                }
+
                 // Job is in progress, check again in a bit
                 setTimeout(() => {
-                    Server.checkJobStatus(jobId, useDetail, callback, failureCallback);
+                    Server.checkJobStatus(jobId, useDetail, callback, failureCallback, progressCallback);
                 }, 1000);
-            } else {
+            } 
+            
+            if (data.state === "finished") { 
                 // Update UI with info
                 callback(data);
             }
