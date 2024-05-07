@@ -223,6 +223,51 @@ This parameter does nothing if the image already exists. (You will get the image
 {% endswagger-response %}
 {% endswagger %}
 
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/archives/:id/files/thumbnails" method="post" summary="Queue extraction of page thumbnails" %}
+{% swagger-description %}
+Create thumbnails for every page of a given Archive. This endpoint will queue generation of the thumbnails in the background.  
+If all thumbnails are detected as already existing, the call will return HTTP code 200.  
+This endpoint can be called multiple times -- If a thumbnailing job is already in progress for the given ID, it'll just give you the ID for that ongoing job.
+{% endswagger-description %}
+
+{% swagger-parameter name="id" type="string" required="true" in="path" %}
+ID of the Archive to process.
+{% endswagger-parameter %}
+{% swagger-parameter name="force" type="boolean" required="false" in="query" %}
+Whether to force regeneration of all thumbnails even if they already exist.  
+{% endswagger-parameter %}
+
+{% swagger-response status="202" description="The thumbnails are queued for extraction. You can use `/api/minion/:jobid` to track progress, by looking at `notes->progress` and `notes->pages`." %}
+```javascript
+{
+  "job": 2429,
+  "operation": "generate_page_thumbnails",
+  "success": 1
+}
+```
+{% endswagger-response %}
+
+{% swagger-response status="200" description="If the thumbnails were already extracted and force=0." %}
+```javascript
+{
+  "message": "No job queued, all thumbnails already exist.",
+  "operation": "generate_page_thumbnails",
+  "success": 1
+}
+```
+{% endswagger-response %}
+
+{% swagger-response status="400" description="" %}
+```javascript
+{
+    "operation": "generate_page_thumbnails",
+    "error": "No archive ID specified.",
+    "success": 0
+}
+```
+{% endswagger-response %}
+{% endswagger %}
+
 {% swagger baseUrl="http://lrr.tvc-16.science" path="/api/archives/:id/download" method="get" summary="Download an Archive" %}
 {% swagger-description %}
 Download an Archive from the server.

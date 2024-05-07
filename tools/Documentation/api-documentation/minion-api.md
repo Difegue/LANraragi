@@ -8,6 +8,7 @@ description: Control the built-in Minion Job Queue.
 {% swagger-description %}
 For a given Minion job ID, check whether it succeeded or failed.  
 Minion jobs are ran for various occasions like thumbnails, cache warmup and handling incoming files.  
+For some jobs, you can check the `notes` field for progress information. Look at https://docs.mojolicious.org/Minion/Guide#Job-progress for more information.  
 {% endswagger-description %}
 
 {% swagger-parameter name="id" type="string" required="true" in="path" %}
@@ -19,6 +20,9 @@ ID of the Job.
 {
   "state": "finished",
   "task": "handle_upload",
+  "notes": {
+    "example_note": "This note could contain the name of the upload, for example."
+  },
   "error": null
 }
 
