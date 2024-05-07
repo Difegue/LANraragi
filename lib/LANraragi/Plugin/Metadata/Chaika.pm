@@ -32,6 +32,9 @@ sub plugin_info {
             },
             {   type => "string",
                 desc => "Add a custom 'source:' tag to your archive. Example: chaika. Will NOT add a tag if blank"
+            },
+            {   type => "bool",
+                desc => "Save the original title when available instead of the English or romanised title"
             }
         ],
         oneshot_arg => "Chaika Gallery or Archive URL (Will attach matching tags to your archive)"
@@ -43,8 +46,8 @@ sub plugin_info {
 sub get_tags {
 
     shift;
-    my $lrr_info = shift;                            # Global info hash
-    my ( $addextra, $addother, $addsource ) = @_;    # Plugin parameters
+    my $lrr_info = shift;                                       # Global info hash
+    my ( $addextra, $addother, $addsource, $jpntitle ) = @_;    # Plugin parameters
 
     my $logger   = get_plugin_logger();
     my $newtags  = "";
@@ -53,18 +56,18 @@ sub get_tags {
     # Parse the given link to see if we can extract type and ID
     my $oneshotarg = $lrr_info->{oneshot_param};
     if ( $oneshotarg =~ /https?:\/\/panda\.chaika\.moe\/(gallery|archive)\/([0-9]*)\/?.*/ ) {
-        ( $newtags, $newtitle ) = tags_from_chaika_id( $1, $2, $addextra, $addother, $addsource );
+        ( $newtags, $newtitle ) = tags_from_chaika_id( $1, $2, $addextra, $addother, $addsource, $jpntitle );
     } else {
 
         # Try SHA-1 reverse search first
         $logger->info( "Using thumbnail hash " . $lrr_info->{thumbnail_hash} );
-        ( $newtags, $newtitle ) = tags_from_sha1( $lrr_info->{thumbnail_hash}, $addextra, $addother, $addsource );
+        ( $newtags, $newtitle ) = tags_from_sha1( $lrr_info->{thumbnail_hash}, $addextra, $addother, $addsource, $jpntitle );
 
         # Try text search if it fails
         if ( $newtags eq "" ) {
             $logger->info("No results, falling back to text search.");
             ( $newtags, $newtitle ) =
-              search_for_archive( $lrr_info->{archive_title}, $lrr_info->{existing_tags}, $addextra, $addother, $addsource );
+              search_for_archive( $lrr_info->{archive_title}, $lrr_info->{existing_tags}, $addextra, $addother, $addsource, $jpntitle );
         }
     }
 
@@ -89,7 +92,7 @@ sub get_tags {
 sub search_for_archive {
 
     my $logger = get_plugin_logger();
-    my ( $title, $tags, $addextra, $addother, $addsource ) = @_;
+    my ( $title, $tags, $addextra, $addother, $addsource, $jpntitle ) = @_;
 
     #Auto-lowercase the title for better results
     $title = lc($title);
@@ -112,7 +115,7 @@ sub search_for_archive {
     my $textrep = $res->body;
     $logger->debug("Chaika API returned this JSON: $textrep");
 
-    my ( $chaitags, $chaititle ) = parse_chaika_json( $res->json->{"galleries"}->[0], $addextra, $addother, $addsource );
+    my ( $chaitags, $chaititle ) = parse_chaika_json( $res->json->{"galleries"}->[0], $addextra, $addother, $addsource, $jpntitle );
 
     return ( $chaitags, $chaititle );
 }
@@ -120,17 +123,17 @@ sub search_for_archive {
 # Uses the jsearch API to get the best json for a file.
 sub tags_from_chaika_id {
 
-    my ( $type, $ID, $addextra, $addother, $addsource ) = @_;
+    my ( $type, $ID, $addextra, $addother, $addsource, $jpntitle ) = @_;
 
     my $json = get_json_from_chaika( $type, $ID );
-    return parse_chaika_json( $json, $addextra, $addother, $addsource );
+    return parse_chaika_json( $json, $addextra, $addother, $addsource, $jpntitle );
 }
 
 # tags_from_sha1
 # Uses chaika's SHA-1 search with the first page hash we have.
 sub tags_from_sha1 {
 
-    my ( $sha1, $addextra, $addother, $addsource ) = @_;
+    my ( $sha1, $addextra, $addother, $addsource, $jpntitle ) = @_;
 
     my $logger = get_plugin_logger();
 
@@ -138,7 +141,7 @@ sub tags_from_sha1 {
     # Said JSON is an array containing multiple archive objects.
     # We just take the first one.
     my $json_by_sha1 = get_json_from_chaika( 'sha1', $sha1 );
-    return parse_chaika_json( $json_by_sha1->[0], $addextra, $addother, $addsource );
+    return parse_chaika_json( $json_by_sha1->[0], $addextra, $addother, $addsource, $jpntitle );
 }
 
 # Calls chaika's API
@@ -163,8 +166,7 @@ sub get_json_from_chaika {
 # Parses the JSON obtained from the Chaika API to get the tags.
 sub parse_chaika_json {
 
-    my ( $json, $addextra, $addother, $addsource ) = @_;
-
+    my ( $json, $addextra, $addother, $addsource, $jpntitle ) = @_;
     my $tags = $json->{"tags"} || ();
     foreach my $tag (@$tags) {
 
@@ -202,7 +204,12 @@ sub parse_chaika_json {
         if ( $addsource && $addsource ne "" ) {
             push( @$tags, "source:" . $addsource );
         }
-        return ( join( ', ', @$tags ), $json->{"title"} );
+
+        my $title = $jpntitle ? $json->{"title_jpn"} : $json->{"title"};
+        if ( $title eq "" && $jpntitle ) {
+            $title = $json->{"title"};
+        }
+        return ( join( ', ', @$tags ), $title );
     } else {
         return "";
     }
