@@ -730,7 +730,7 @@ Reader.initializeArchiveOverlay = function () {
 
             const page = index + 1;
             // If the spinner is still visible, update the thumbnail
-            if ($(`#${index}_spinner`).attr("loaded") !== true) {
+            if ($(`#${index}_spinner`).attr("loaded") !== "true") {
                 
                 // Set image source to the thumbnail
                 const thumbnailUrl = `./api/archives/${Reader.id}/thumbnail?page=${page}&cachebust=${Date.now()}`;
