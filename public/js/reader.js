@@ -186,14 +186,7 @@ Reader.loadImages = function () {
             }
 
             if (Reader.showOverlayByDefault) { Reader.toggleArchiveOverlay(); }
-
-            // Wait for the extraction job to conclude before getting thumbnails
-            Server.checkJobStatus(
-                data.job,
-                false,
-                () => Reader.initializeArchiveOverlay(),
-                () => LRR.showErrorToast("The extraction job didn't conclude properly. Your archive might be corrupted."),
-            );
+            Reader.initializeArchiveOverlay();
         },
     ).finally(() => {
         if (Reader.pages === undefined) {
