@@ -21,7 +21,7 @@ use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Archive    qw(extract_single_file extract_thumbnail);
 use LANraragi::Utils::Database
-  qw(redis_encode redis_decode invalidate_cache set_title set_tags get_archive_json get_archive_json_multi);
+  qw(redis_encode redis_decode invalidate_cache set_title set_tags set_summary get_archive_json get_archive_json_multi);
 
 # get_title(id)
 #   Returns the title for the archive matching the given id.
@@ -92,6 +92,88 @@ sub update_thumbnail {
 
 }
 
+sub generate_page_thumbnails {
+
+    my ( $self, $id ) = @_;
+
+    my $force = $self->req->param('force');
+    $force = ( $force && $force eq "true" ) || "0";    # Prevent undef warnings by checking the variable first
+
+    my $logger   = get_logger( "Archives", "lanraragi" );
+    my $thumbdir = LANraragi::Model::Config->get_thumbdir;
+    my $use_hq   = LANraragi::Model::Config->get_hqthumbpages;
+    my $use_jxl  = LANraragi::Model::Config->get_jxlthumbpages;
+    my $format   = $use_jxl ? 'jxl' : 'jpg';
+
+    # Get the number of pages in the archive
+    my $redis = LANraragi::Model::Config->get_redis;
+    my $pages = $redis->hget( $id, "pagecount" );
+
+    my $subfolder = substr( $id, 0, 2 );
+    my $thumbname = "$thumbdir/$subfolder/$id.$format";
+
+    my $should_queue_job = 0;
+
+    for ( my $page = 1; $page <= $pages; $page++ ) {
+        my $thumbname = ( $page - 1 > 0 ) ? "$thumbdir/$subfolder/$id/$page.$format" : "$thumbdir/$subfolder/$id.$format";
+
+        unless ( $force == 0 && -e $thumbname ) {
+            $logger->debug("Thumbnail for page $page doesn't exist (path: $thumbname or force=$force), queueing job.");
+            $should_queue_job = 1;
+            last;
+        }
+    }
+
+    if ($should_queue_job) {
+
+        # Check if a job is already queued for this archive
+        if ( $redis->hexists( $id, "thumbjob" ) ) {
+
+            my $job_id = $redis->hget( $id, "thumbjob" );
+
+            # If the job is pending or running, don't queue a new job and just return this one
+            my $job_state = $self->minion->job($job_id)->info->{state};
+            if ( $job_state eq "active" || $job_state eq "inactive" ) {
+                $self->render(
+                    json => {
+                        operation => "generate_page_thumbnails",
+                        success   => 1,
+                        job       => $job_id
+                    },
+                    status => 202    # 202 Accepted
+                );
+                $redis->quit;
+                return;
+            }
+        }
+
+        # Queue a minion job to generate the thumbnails. Clients can check on its progress through the job ID.
+        my $job_id = $self->minion->enqueue( page_thumbnails => [ $id, $force ] => { priority => 0, attempts => 3 } );
+
+        # Save job in Redis so we can check on it if this endpoint is called again
+        $redis->hset( $id, "thumbjob", $job_id );
+        $self->render(
+            json => {
+                operation => "generate_page_thumbnails",
+                success   => 1,
+                job       => $job_id
+            },
+            status => 202    # 202 Accepted
+        );
+    } else {
+        $self->render(
+            json => {
+                operation => "generate_page_thumbnails",
+                success   => 1,
+                message   => "No job queued, all thumbnails already exist."
+            },
+            status => 200    # 200 OK
+        );
+    }
+
+    $redis->quit;
+}
+
 sub serve_thumbnail {
 
     my ( $self, $id ) = @_;
@@ -121,11 +203,12 @@ sub serve_thumbnail {
         $thumbname = $fallback_thumbname;
     }
 
-    # Queue a minion job to generate the thumbnail. Thumbnail jobs have the lowest priority.
     unless ( -e $thumbname ) {
-        my $job_id = $self->minion->enqueue( thumbnail_task => [ $thumbdir, $id, $page ] => { priority => 0, attempts => 3 } );
 
         if ($no_fallback) {
+
+            # Queue a minion job to generate the thumbnail. Thumbnail jobs have the lowest priority.
+            my $job_id = $self->minion->enqueue( thumbnail_task => [ $thumbdir, $id, $page ] => { priority => 0, attempts => 3 } );
             $self->render(
                 json => {
                     operation => "serve_thumbnail",
@@ -246,10 +329,10 @@ sub serve_page {
 }
 
 sub update_metadata {
-    my ( $id, $title, $tags ) = @_;
+    my ( $id, $title, $tags, $summary ) = @_;
 
     unless ( defined $title || defined $tags ) {
-        return "No metadata parameters (Please supply title, tags or both)";
+        return "No metadata parameters (Please supply title, tags or summary)";
     }
 
     # Clean up the user's inputs and encode them.
@@ -262,6 +345,10 @@ sub update_metadata {
 
     if ( defined $tags ) {
         set_tags( $id, $tags );
+    }
+
+    if ( defined $summary ) {
+        set_summary( $id, $summary );
     }
 
     # Bust cache

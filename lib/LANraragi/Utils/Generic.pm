@@ -9,6 +9,7 @@ no warnings 'experimental';
 use Storable qw(store);
 use Digest::SHA qw(sha256_hex);
 use Mojo::Log;
+use Mojo::Util qw(xml_escape);
 use Mojo::IOLoop;
 use Logfile::Rotate;
 use Proc::Simple;
@@ -43,9 +44,9 @@ sub render_api_response {
     $mojo->render(
         json => {
             operation      => $operation,
-            error          => $failed ? $errormessage : "",
+            error          => $failed ? xml_escape($errormessage) : "",
             success        => $failed ? 0 : 1,
-            successMessage => $failed ? "" : $successMessage,
+            successMessage => $failed ? "" : xml_escape($successMessage),
         },
         status => $failed ? 400 : 200
     );

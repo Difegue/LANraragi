@@ -40,12 +40,17 @@ Here are some existing clients:
 * Multiple servers/profiles.
 * Manage your server from within the app.
 
-### Tachiyomi reader
+### Mihon / Tachiyomi (Android)
 
-![Tachiyomi](<../.screenshots/tachiyomi.jpg>)
+![Mihon / Tachiyomi](<../.screenshots/tachiyomi.jpg>)
 
-The open-source [Tachiyomi](https://tachiyomi.org) Android reader has a readymade plugin to consume the LANraragi API.  
-You can download it [here.](https://github.com/tachiyomiorg/extensions/blob/repo/apk/tachiyomi-all.lanraragi-v1.4.15.apk)  
+[Mihon](https://mihon.app), formerly Tachiyomi, and [its forks](https://mihon.app/forks/) use extensions that provide sources.  
+The LANraragi extension is part of the [Keiyoushi](https://github.com/keiyoushi) repository.
+
+For automated updates add the repository by following [these instructions.](https://keiyoushi.github.io/docs/guides/getting-started#adding-the-extension-repo) (recommended)  
+For manual updates search for LANraragi on Keiyoushi's [Extensions page.](https://keiyoushi.github.io/extensions/)
+
+There may be additional repositories not linked here that provide the extension but support is not guaranteed.
 
 ### LRR React Web
 

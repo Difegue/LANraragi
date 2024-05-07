@@ -26,12 +26,21 @@ apk add perl perl-io-socket-ssl perl-dev redis libarchive-dev libbz2 openssl-dev
 apk add imagemagick imagemagick-perlmagick libwebp-tools libheif
 apk add g++ make pkgconf gnupg wget curl file
 apk add shadow s6 s6-portable-utils 
-apk add nodejs npm s6-overlay libjxl
+
+# Check for alpine version
+if [ -f /etc/alpine-release ]; then
+  alpine_version=$(cat /etc/alpine-release)
+  if [ "$alpine_version" = "3.12.12" ]; then
+      apk add nodejs-npm
+    else # Those packages don't exist on 3.12
+      apk add nodejs npm s6-overlay libjxl
+  fi
+fi
 
 # Install cpanm
 curl -L https://cpanmin.us | perl - App::cpanminus
 
-# Check for windows to install specific versions of packages
+# Check for WSL1 to install specific versions of packages
 if [ $WSL -eq 1 ]; then
     # Install Linux::Inotify 2.2 explicitly as 2.3 doesn't work properly on WSL:
     # WSL2 literally doesn't work for any form of filewatching,

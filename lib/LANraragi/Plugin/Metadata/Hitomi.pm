@@ -8,6 +8,7 @@ use warnings;
 use URI::Escape;
 use Mojo::UserAgent;
 use Mojo::JSON qw(decode_json);
+use File::Basename;
 
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
@@ -57,7 +58,7 @@ sub get_tags {
     } else {
 
         #Get Gallery ID by hand if the user didn't specify a URL
-        $galleryID = get_gallery_id_from_title( $lrr_info->{archive_title} );
+        $galleryID = get_gallery_id_from_title( $lrr_info->{file_path} );
     }
 
     # Did we detect a Hitomi gallery?
@@ -89,7 +90,8 @@ sub get_tags {
 
 sub get_gallery_id_from_title {
 
-    my ($title) = @_;
+    my $file = shift;
+    my ( $title, $filepath, $suffix ) = fileparse( $file, qr/\.[^.]*/ ); 
 
     my $logger = get_plugin_logger();
 

@@ -19,11 +19,12 @@ sub minion_job_status {
 
         my %info = %{ $job->info };
 
-        # Render a basic json containing only task, state and error
+        # Render a basic json containing the minion job info
         $self->render(
             json => {
                 task  => $info{task},
                 state => $info{state},
+                notes => $info{notes},
                 error => $info{error}
             }
         );

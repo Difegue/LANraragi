@@ -173,6 +173,7 @@ The base architecture is as follows:
 |
 |- **************************************** <- 40-character long ID for every logged archive
 |  |- tags <- Saved tags
+|  |- summary <- Summary of the archive, as set by the User
 |  |- name <- Name of the archive file, kept for filesystem checks
 |  |- title <- Title of the archive, as set by the User
 |  |- file <- Filesystem path to archive

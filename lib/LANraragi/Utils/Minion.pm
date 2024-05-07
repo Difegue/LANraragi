@@ -7,12 +7,12 @@ use Encode;
 use Mojo::UserAgent;
 use Parallel::Loops;
 
-use LANraragi::Utils::Logging qw(get_logger);
-use LANraragi::Utils::Database qw(redis_decode);
-use LANraragi::Utils::Archive qw(extract_thumbnail extract_archive);
-use LANraragi::Utils::Plugins qw(get_downloader_for_url get_plugin get_plugin_parameters use_plugin);
-use LANraragi::Utils::Generic qw(split_workload_by_cpu);
-use LANraragi::Utils::String qw(trim_url);
+use LANraragi::Utils::Logging    qw(get_logger);
+use LANraragi::Utils::Database   qw(redis_decode);
+use LANraragi::Utils::Archive    qw(extract_thumbnail extract_archive);
+use LANraragi::Utils::Plugins    qw(get_downloader_for_url get_plugin get_plugin_parameters use_plugin);
+use LANraragi::Utils::Generic    qw(split_workload_by_cpu);
+use LANraragi::Utils::String     qw(trim_url);
 use LANraragi::Utils::TempFolder qw(get_temp);
 
 use LANraragi::Model::Upload;
@@ -43,6 +43,48 @@ sub add_tasks {
                 $job->finish($thumbname);
             }
 
+        }
+    );
+
+    $minion->add_task(
+        page_thumbnails => sub {
+
+            my ( $job, @args )  = @_;
+            my ( $id,  $force ) = @args;
+
+            my $logger = get_logger( "Minion", "minion" );
+            $logger->debug("Generating page thumbnails for archive $id...");
+
+            # Get the number of pages in the archive
+            my $redis = LANraragi::Model::Config->get_redis;
+            my $pages = $redis->hget( $id, "pagecount" );
+
+            my $use_hq   = LANraragi::Model::Config->get_hqthumbpages;
+            my $thumbdir = LANraragi::Model::Config->get_thumbdir;
+
+            my $use_jxl   = LANraragi::Model::Config->get_jxlthumbpages;
+            my $format    = $use_jxl ? 'jxl' : 'jpg';
+            my $subfolder = substr( $id, 0, 2 );
+
+            # Generate thumbnails for all pages -- Cover should already be handled
+            for ( my $i = 2; $i <= $pages; $i++ ) {
+
+                my $thumbname = "$thumbdir/$subfolder/$id/$i.$format";
+                unless ( $force == 0 && -e $thumbname ) {
+                    $logger->debug("Generating thumbnail for page $i... ($thumbname)");
+                    eval { $thumbname = extract_thumbnail( $thumbdir, $id, $i, $use_hq ); };
+                    if ($@) {
+                        $logger->warn("Error while generating thumbnail: $@");
+                    }
+                }
+
+                # Notify progress so it can be checked via API
+                $job->note( progress => $i, pages => $pages );
+            }
+
+            $redis->hdel( $id, "thumbjob" );
+            $redis->quit;
+            $job->finish;
         }
     );
 

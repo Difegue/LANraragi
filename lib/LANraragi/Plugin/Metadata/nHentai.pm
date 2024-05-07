@@ -8,6 +8,7 @@ use warnings;
 use URI::Escape;
 use Mojo::JSON qw(decode_json);
 use Mojo::UserAgent;
+use File::Basename;
 
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
@@ -23,7 +24,7 @@ sub plugin_info {
         namespace   => "nhplugin",
         login_from  => "nhentaicfbypass",
         author      => "Difegue and others",
-        version     => "1.7.3",
+        version     => "1.8.0",
         description => "Searches nHentai for tags matching your archive. 
           <br>Supports reading the ID from files formatted as \"{Id} Title\" and if not, tries to search for a matching gallery.
           <br><i class='fa fa-exclamation-circle'></i> This plugin will use the source: tag of the archive if it exists.",
@@ -59,7 +60,7 @@ sub get_tags {
     } else {
 
         #Get Gallery ID by hand if the user didn't specify a URL
-        $galleryID = get_gallery_id_from_title( $lrr_info->{archive_title}, $ua );
+        $galleryID = get_gallery_id_from_title( $lrr_info->{file_path}, $ua );
     }
 
     # Did we detect a nHentai gallery?
@@ -115,7 +116,8 @@ sub get_gallery_dom_by_title {
 
 sub get_gallery_id_from_title {
 
-    my ( $title, $ua ) = @_;
+    my ( $file, $ua ) = @_;
+    my ( $title, $filepath, $suffix ) = fileparse( $file, qr/\.[^.]*/ ); 
 
     my $logger = get_plugin_logger();
 

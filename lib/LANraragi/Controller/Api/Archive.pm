@@ -89,6 +89,12 @@ sub update_thumbnail {
     LANraragi::Model::Archive::update_thumbnail( $self, $id );
 }
 
+sub generate_page_thumbnails {
+    my $self = shift;
+    my $id   = check_id_parameter( $self, "generate_page_thumbnails" ) || return;
+    LANraragi::Model::Archive::generate_page_thumbnails( $self, $id );
+}
+
 # Use RenderFile to get the file of the provided id to the client.
 sub serve_file {
 
@@ -162,10 +168,11 @@ sub update_metadata {
     my $self = shift;
     my $id   = check_id_parameter( $self, "update_metadata" ) || return;
 
-    my $title = $self->req->param('title');
-    my $tags  = $self->req->param('tags');
+    my $title   = $self->req->param('title');
+    my $tags    = $self->req->param('tags');
+    my $summary = $self->req->param('summary');
 
-    my $res = LANraragi::Model::Archive::update_metadata( $id, $title, $tags );
+    my $res = LANraragi::Model::Archive::update_metadata( $id, $title, $tags, $summary );
 
     if ( $res eq "" ) {
         render_api_response( $self, "update_metadata" );
