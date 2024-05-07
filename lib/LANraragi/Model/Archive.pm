@@ -121,11 +121,12 @@ sub serve_thumbnail {
         $thumbname = $fallback_thumbname;
     }
 
-    # Queue a minion job to generate the thumbnail. Thumbnail jobs have the lowest priority.
     unless ( -e $thumbname ) {
-        my $job_id = $self->minion->enqueue( thumbnail_task => [ $thumbdir, $id, $page ] => { priority => 0, attempts => 3 } );
 
         if ($no_fallback) {
+
+            # Queue a minion job to generate the thumbnail. Thumbnail jobs have the lowest priority.
+            my $job_id = $self->minion->enqueue( thumbnail_task => [ $thumbdir, $id, $page ] => { priority => 0, attempts => 3 } );
             $self->render(
                 json => {
                     operation => "serve_thumbnail",
