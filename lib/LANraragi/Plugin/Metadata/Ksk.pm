@@ -7,7 +7,7 @@ use LANraragi::Model::Plugins;
 use LANraragi::Utils::Logging qw(get_plugin_logger);
 use LANraragi::Utils::Archive qw(is_file_in_archive extract_file_from_archive);
 
-use YAML::Syck qw(LoadFile);
+use YAML::PP qw(LoadFile);
 
 sub plugin_info {
 

@@ -63,7 +63,7 @@ requires 'Module::Pluggable', 5.2;
 requires 'Time::Local', 1.30;
 
 # Ksk plugin/YAML Support
-requires 'YAML::Syck', 1.34;
+requires 'YAML::PP', 0.38.0;
 
 # Hentag plugin
 requires 'String::Similarity', 1.04
