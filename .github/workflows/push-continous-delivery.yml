@@ -7,8 +7,8 @@ on:
 name: Continuous Delivery 
 jobs:
 
-  buildx86Docker:
-    name: Build Docker Image (x86)
+  buildDocker32:
+    name: Build Docker Images (32bit)
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
@@ -25,15 +25,15 @@ jobs:
     - name: Build x86/x64 images
       run: |
         docker buildx build \
-          --platform linux/386,linux/amd64 \
+          --platform linux/386,linux/arm/v6 \
           --output "type=image,push=false" \
           --tag difegue/lanraragi:nightly \
           --cache-from "type=local,src=/tmp/buildxcache" \
           --cache-to "type=local,dest=/tmp/buildxcache" \
           --file ./tools/build/docker/Dockerfile .
 
-  buildARMDocker:
-    name: Build Docker Image (ARM)
+  buildDocker64:
+    name: Build Docker Images (64bit)
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
@@ -50,7 +50,7 @@ jobs:
     - name: Build ARM v6/v8 images
       run: |
         docker buildx build \
-          --platform linux/arm/v6,linux/arm64 \
+          --platform linux/amd64,linux/arm64 \
           --output "type=image,push=false" \
           --tag difegue/lanraragi:nightly \
           --cache-from "type=local,src=/tmp/buildxcache" \
@@ -59,7 +59,7 @@ jobs:
 
   buildNightlyDocker:
     name: Bundle and Push Docker Image
-    needs: [buildx86Docker, buildARMDocker]
+    needs: [buildDocker32, buildDocker64]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
