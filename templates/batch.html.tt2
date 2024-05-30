@@ -12,6 +12,7 @@
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 
 	<link type="image/png" rel="icon" href="favicon.ico" />
+	<link rel="manifest" href="app.webmanifest" />
 	<link rel="stylesheet" type="text/css" href="/css/lrr.css?[% version%]" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/ReactToastify.min.css" />
