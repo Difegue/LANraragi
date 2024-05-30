@@ -22,10 +22,10 @@ jobs:
         key: ${{ runner.os }}-docker-buildx-${{ github.sha }}
         restore-keys: |
           ${{ runner.os }}-docker-buildx-
-    - name: Build x86/x64 images
+    - name: Build x86/ARMv7 images
       run: |
         docker buildx build \
-          --platform linux/386,linux/arm/v6 \
+          --platform linux/386,linux/arm/v7 \
           --output "type=image,push=false" \
           --tag difegue/lanraragi:nightly \
           --cache-from "type=local,src=/tmp/buildxcache" \
@@ -47,7 +47,7 @@ jobs:
         key: ${{ runner.os }}-docker-buildx-${{ github.sha }}
         restore-keys: |
           ${{ runner.os }}-docker-buildx-
-    - name: Build ARM v6/v8 images
+    - name: Build x64/ARM64 images
       run: |
         docker buildx build \
           --platform linux/amd64,linux/arm64 \
