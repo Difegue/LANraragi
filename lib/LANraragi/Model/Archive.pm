@@ -291,17 +291,20 @@ sub serve_page {
         # Apply resizing transformation if set in Settings
         if ( LANraragi::Model::Config->enable_resize ) {
 
-            # Store resized files in a subfolder of the ID's temp folder
-            my $resized_file = "$tempfldr/$id/resized/$path";
-            my ( $n, $resized_folder, $e ) = fileparse( $resized_file, qr/\.[^.]*/ );
-            make_path($resized_folder);
+            # Store resized files in a subfolder of the ID's temp folder, keyed by quality
+            my $threshold    = LANraragi::Model::Config->get_threshold;
+            my $quality      = LANraragi::Model::Config->get_readquality;
+            my $resized_file = "$tempfldr/$id/resized/$quality/$path";
 
-            $logger->debug("Copying file to $resized_folder for resize transformation");
-            cp( $file, $resized_file );
+            unless ( -e $resized_file ) {
+                my ( $n, $resized_folder, $e ) = fileparse( $resized_file, qr/\.[^.]*/ );
+                make_path($resized_folder);
 
-            my $threshold = LANraragi::Model::Config->get_threshold;
-            my $quality   = LANraragi::Model::Config->get_readquality;
-            LANraragi::Model::Reader::resize_image( $resized_file, $quality, $threshold );
+                $logger->debug("Copying file to $resized_folder for resize transformation");
+                cp( $file, $resized_file );
+
+                LANraragi::Model::Reader::resize_image( $resized_file, $quality, $threshold );
+            }
 
             # resize_image always converts the image to jpg
             $self->render_file(
