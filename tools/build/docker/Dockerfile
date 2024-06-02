@@ -1,5 +1,5 @@
 # DOCKER-VERSION 0.3.4
-FROM        alpine:3.19.1
+FROM        alpine:3.20
 LABEL       git="https://github.com/Difegue/LANraragi"
 ARG INSTALL_PARAMETER
 
