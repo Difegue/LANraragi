@@ -9,6 +9,8 @@
 
     <link rel="self" href="/api/opds" type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
     <link rel="start" href="/api/opds" type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
+    
+    <link rel="next" href="/api/opds?start=6" type="application/atom+xml;profile=opds-catalog;kind=navigation"/>
 
     <title>LANraragi</title>
     <updated>2010-01-10T10:03:10Z</updated>
