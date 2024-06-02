@@ -40,8 +40,9 @@ sub do_search {
     my $cachekey_inv  = redis_encode("$category_id-$filter-$sortkey-$sortorder_inv-$newonly-$untaggedonly");
     my ( $cachehit, @filtered ) = check_cache( $cachekey, $cachekey_inv );
 
-    unless ($cachehit) {
-        $logger->debug("No cache available, doing a full DB parse.");
+    # Don't use cache for history searches since setting lastreadtime doesn't (and shouldn't) cachebust
+    unless ( $cachehit && $sortkey ne "lastread" ) {
+        $logger->debug("No cache available (or history-sorted search), doing a full DB parse.");
         @filtered = search_uncached( $category_id, $filter, $sortkey, $sortorder, $newonly, $untaggedonly );
 
         # Cache this query in the search database
@@ -408,6 +409,7 @@ sub sort_results {
     my $redis = LANraragi::Model::Config->get_redis;
 
     my %tmpfilter = ();
+    my @sorted    = ();
 
     # Map our archives to a hash, where the key is the ID and the value is what we want to sort by.
     # For lastreadtime, we just get the value directly.
@@ -415,7 +417,11 @@ sub sort_results {
         %tmpfilter = map { $_ => $redis->hget( $_, "lastreadtime" ) } @filtered;
 
         # Invert sort order for lastreadtime, biggest timestamps come first
-        $sortorder = !$sortorder;
+        @sorted = map { $_->[0] }                    # Map back to only having the ID
+          sort { $b->[1] <=> $a->[1] }               # Sort by the timestamp
+          grep { defined $_->[1] && $_->[1] > 0 }    # Remove nil timestamps
+          map  { [ $_, $tmpfilter{$_} ] }            # Map to an array containing the ID and the timestamp
+          @filtered;                                 # List of IDs
     } else {
 
         my $re = qr/$sortkey/;
@@ -423,12 +429,13 @@ sub sort_results {
         # For other tags, we use the first tag we found that matches the sortkey/namespace.
         # (If no tag, defaults to "zzzz")
         %tmpfilter = map { $_ => ( $redis->hget( $_, "tags" ) =~ m/.*${re}:(.*)(\,.*|$)/ ) ? $1 : "zzzz" } @filtered;
-    }
 
-    my @sorted = map { $_->[0] }               # Map back to only having the ID
-      sort { ncmp( $a->[1], $b->[1] ) }        # Sort by the tag
-      map  { [ $_, lc( $tmpfilter{$_} ) ] }    # Map to an array containing the ID and the lowercased tag
-      keys %tmpfilter;                         # List of IDs
+        # Read comments from the bottom up for a better understanding of this sort algorithm.
+        @sorted = map { $_->[0] }                  # Map back to only having the ID
+          sort { ncmp( $a->[1], $b->[1] ) }        # Sort by the tag
+          map  { [ $_, lc( $tmpfilter{$_} ) ] }    # Map to an array containing the ID and the lowercased tag
+          @filtered;                               # List of IDs
+    }
 
     if ($sortorder) {
         @sorted = reverse @sorted;

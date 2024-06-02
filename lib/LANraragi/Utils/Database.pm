@@ -507,7 +507,6 @@ sub invalidate_cache ( $rebuild_indexes = 0 ) {
     $redis->hset( "LRR_SEARCHCACHE", "created", time );
     $redis->quit();
 
-    # Re-warm the cache to ensure sufficient speed on the main index
     if ($rebuild_indexes) {
         LANraragi::Model::Config->get_minion->enqueue( build_stat_hashes => [] => { priority => 3 } );
     }

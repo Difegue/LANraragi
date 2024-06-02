@@ -46,9 +46,9 @@ Index.initializeAll = function () {
         localStorage.customColumn2 = "series";
     }
 
-    // Default to randomly picked for carousel
+    // Default to on deck for carousel
     if (localStorage.getItem("carouselType") === null) {
-        localStorage.carouselType = "random";
+        localStorage.carouselType = "ondeck";
     }
 
     // Default to opened carousel
@@ -74,10 +74,10 @@ Index.initializeAll = function () {
                 Index.updateCarousel();
             },
             items: {
+                ondeck: { name: "On Deck", icon: "fas fa-book-reader" },
                 random: { name: "Randomly Picked", icon: "fas fa-random" },
                 inbox: { name: "New Archives", icon: "fas fa-envelope-open-text" },
                 untagged: { name: "Untagged Archives", icon: "fas fa-edit" },
-                // ondeck: { name: "On Deck", icon: "fas fa-book-reader" },
             },
         }),
     });
@@ -334,6 +334,11 @@ Index.updateCarousel = function (e) {
         $("#carousel-icon")[0].classList = "fas fa-edit";
         $("#carousel-title").text("Untagged Archives");
         endpoint = `/api/search?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}&untaggedonly=true&sortby=date_added&order=desc&start=-1`;
+        break;
+    case "ondeck":
+        $("#carousel-icon")[0].classList = "fas fa-book-reader";
+        $("#carousel-title").text("On Deck");
+        endpoint = `/api/search?filter=${IndexTable.currentSearch}&sortby=lastread`;
         break;
     default:
         $("#carousel-icon")[0].classList = "fas fa-pastafarianism";
