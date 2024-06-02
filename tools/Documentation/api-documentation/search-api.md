@@ -41,7 +41,7 @@ From 0.8.2 onwards, you can use "-1" here to get the full, unpaged data.
 Namespace by which you want to sort the results. There are specific sort keys you can use:  
 - _title_ if you want to sort by title  
 - _lastread_ if you want to sort by last read time. (If **Server-side Progress Tracking** is enabled)   
-(Default value is title.)
+(Default value is title. If you sort by lastread, IDs that have never been read will be removed from the search.)  
 {% endswagger-parameter %}
 
 {% swagger-parameter name="order" type="string" required="false" in="query" %}
