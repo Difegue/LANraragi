@@ -38,7 +38,10 @@ From 0.8.2 onwards, you can use "-1" here to get the full, unpaged data.
 {% endswagger-parameter %}
 
 {% swagger-parameter name="sortby" type="string" required="false" in="query" %}
-Namespace by which you want to sort the results, or _title_ if you want to sort by title. (Default value is title.)
+Namespace by which you want to sort the results. There are specific sort keys you can use:  
+- _title_ if you want to sort by title  
+- _lastread_ if you want to sort by last read time. (If **Server-side Progress Tracking** is enabled)   
+(Default value is title.)
 {% endswagger-parameter %}
 
 {% swagger-parameter name="order" type="string" required="false" in="query" %}

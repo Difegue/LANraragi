@@ -407,11 +407,23 @@ sub sort_results {
     my ( $sortkey, $sortorder, @filtered ) = @_;
     my $redis = LANraragi::Model::Config->get_redis;
 
-    my $re = qr/$sortkey/;
+    my %tmpfilter = ();
 
-   # Map our archives to a hash, where the key is the ID and the value is the first tag we found that matches the sortkey/namespace.
-   # (If no tag, defaults to "zzzz")
-    my %tmpfilter = map { $_ => ( $redis->hget( $_, "tags" ) =~ m/.*${re}:(.*)(\,.*|$)/ ) ? $1 : "zzzz" } @filtered;
+    # Map our archives to a hash, where the key is the ID and the value is what we want to sort by.
+    # For lastreadtime, we just get the value directly.
+    if ( $sortkey eq "lastread" ) {
+        %tmpfilter = map { $_ => $redis->hget( $_, "lastreadtime" ) } @filtered;
+
+        # Invert sort order for lastreadtime, biggest timestamps come first
+        $sortorder = !$sortorder;
+    } else {
+
+        my $re = qr/$sortkey/;
+
+        # For other tags, we use the first tag we found that matches the sortkey/namespace.
+        # (If no tag, defaults to "zzzz")
+        %tmpfilter = map { $_ => ( $redis->hget( $_, "tags" ) =~ m/.*${re}:(.*)(\,.*|$)/ ) ? $1 : "zzzz" } @filtered;
+    }
 
     my @sorted = map { $_->[0] }               # Map back to only having the ID
       sort { ncmp( $a->[1], $b->[1] ) }        # Sort by the tag

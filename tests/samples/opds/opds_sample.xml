@@ -186,7 +186,7 @@
         <link rel="http://opds-spec.org/acquisition" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebg/download" title="Download/Read"
             type="application/x-cbz" />
         <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
-            href="/api/opds/e69e43e1355267f7d32a4f9b7f2fe108d2401ebg/pse?page={pageNumber}" pse:count="200"  pse:lastRead="34" pse:lastReadDate="2020-05-09T15:31:20Z" />
+            href="/api/opds/e69e43e1355267f7d32a4f9b7f2fe108d2401ebg/pse?page={pageNumber}" pse:count="200"  pse:lastRead="34" pse:lastReadDate="2020-05-09T15:31:21Z" />
         <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=e69e43e1355267f7d32a4f9b7f2fe108d2401ebg" />
     </entry>
     

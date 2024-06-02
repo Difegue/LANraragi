@@ -50,7 +50,7 @@ sub setup_redis_mock {
             "tags": "character:segata, female:very cool too",
             "title": "Saturn Backup Cartridge - American Manual",
             "file": "package.json",
-            "lastreadtime": 1589038280
+            "lastreadtime": 1589038281
         },
         "e4c422fd10943dc169e3489a38cdbf57101a5f7e": {
             "isnew": "true",
@@ -115,14 +115,14 @@ sub setup_redis_mock {
             return grep { /$expr/ } keys %datamodel;
         }
     );
-    $redis->mock( 'exists', sub { shift; return $_[0] eq "LRR_SEARCHCACHE" ? 0 : 1 } );
+    $redis->mock( 'exists',  sub { shift; return $_[0] eq "LRR_SEARCHCACHE" ? 0 : 1 } );
     $redis->mock( 'hexists', sub { 1 } );
     $redis->mock( 'hset',    sub { 1 } );
     $redis->mock( 'quit',    sub { 1 } );
     $redis->mock( 'select',  sub { 1 } );
     $redis->mock( 'flushdb', sub { 1 } );
     $redis->mock( 'zincrby', sub { 1 } );
-    $redis->mock( 'zrem',   sub { 1 } );
+    $redis->mock( 'zrem',    sub { 1 } );
     $redis->mock( 'watch',   sub { 1 } );
     $redis->mock( 'hlen',    sub { 1337 } );
     $redis->mock( 'dbsize',  sub { 1337 } );
@@ -212,7 +212,7 @@ sub setup_redis_mock {
 
     #         for my $i ( 0 .. $#results ) {
     #             if ($element == $value) {
-    #                 return 
+    #                 return
     #             }
     #         }
 

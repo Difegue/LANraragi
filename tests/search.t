@@ -123,4 +123,8 @@ $search = qq(read:<11, read:>9);
 do_test_search();
 is( $ids[0], "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf", qq(Read search ($search)) );
 
+$search = "";
+( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", 0, "lastreadtime", 0, 0, 0 );
+is( $ids[0], "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg", qq(Last read time sort) );
+
 done_testing();
