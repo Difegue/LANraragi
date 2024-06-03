@@ -105,9 +105,11 @@ say("OK!");
 
 #Check for GhostScript
 say("Checking for GhostScript...");
-can_run('gs')
-  or warn 'NOT FOUND! PDF support will not work properly. Please install the "gs" tool.';
-say("OK!");
+if ( can_run('gs') ) {
+    say("OK!");
+} else {
+    warn 'NOT FOUND! PDF support will not work properly. Please install the "gs" tool.';
+}
 
 #Check for libarchive
 say("Checking for libarchive...");
