@@ -216,6 +216,8 @@ sub expand {
 # Returns a list of all the files contained in the given archive.
 sub get_filelist ($archive) {
 
+    my $logger = get_logger( "Archive", "lanraragi" );
+
     my @files = ();
     my @sizes = ();
 
@@ -235,7 +237,10 @@ sub get_filelist ($archive) {
         $r->support_format_all;
 
         my $ret = $r->open_filename( $archive, 10240 );
-        die unless ( $ret == ARCHIVE_OK );
+        if ($ret != ARCHIVE_OK) {
+            $logger->error("Couldn't open archive, libarchive says:" . $r->error_string);
+            die $r->error_string;
+        }
 
         my $e = Archive::Libarchive::Entry->new;
         while ( $r->next_header($e) == ARCHIVE_OK ) {
