@@ -24,8 +24,8 @@ sub plugin_info {
         type        => "metadata",
         namespace   => "fakkumetadata",
         login_from  => "fakkulogin",
-        author      => "Difegue, Nodja",
-        version     => "0.9",
+        author      => "Difegue, Nodja, Nixis198",
+        version     => "0.91",
         description =>
           "Searches FAKKU for tags matching your archive. If you have an account, don't forget to enter the matching cookie in the login plugin to be able to access controversial content. <br/><br/>  
            <i class='fa fa-exclamation-circle'></i> <b>This plugin can and will return invalid results depending on what you're searching for!</b> <br/>The FAKKU search API isn't very precise and I recommend you use the Chaika.moe plugin when possible.",
@@ -170,7 +170,7 @@ sub get_tags_from_fakku {
 
     # find the "suggest more tags" link and use parent div
     # this is not ideal, but the divs don't have named classes anymore
-    my $tags_parent = $dom->at('a[data-tippy-content="Suggest More Tags"]')->parent;
+    my $tags_parent = $dom->at('[data-tippy-content="Suggest More Tags"]')->parent;
 
     # div that contains other divs with title, namespaced tags (artist, magazine, etc.) and misc tags
     my $metadata_parent = $tags_parent->parent->parent;
