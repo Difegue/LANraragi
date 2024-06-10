@@ -25,7 +25,7 @@ sub plugin_info {
         namespace   => "fakkumetadata",
         login_from  => "fakkulogin",
         author      => "Difegue, Nodja, Nixis198",
-        version     => "0.91",
+        version     => "0.92",
         description =>
           "Searches FAKKU for tags matching your archive. If you have an account, don't forget to enter the matching cookie in the login plugin to be able to access controversial content. <br/><br/>  
            <i class='fa fa-exclamation-circle'></i> <b>This plugin can and will return invalid results depending on what you're searching for!</b> <br/>The FAKKU search API isn't very precise and I recommend you use the Chaika.moe plugin when possible.",
@@ -94,8 +94,8 @@ sub search_for_fakku_url {
 
     my $dom = get_search_result_dom( $title, $ua );
 
-    # Get the first link on the page that starts with '/hentai/' if we have a span that says "search results" in the page
-    my $path = ( $dom->at('span:text(Search Results)') ) ? $dom->at('a[href^="/hentai/"]')->attr('href') : "";
+    # Get the first link on the page that starts with '/hentai/'
+    my $path = $dom->at('[href^="/hentai/"]')->attr('href');
 
     if ( $path ne "" ) {
         return $fakku_host . $path;
