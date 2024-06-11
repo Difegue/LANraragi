@@ -77,3 +77,4 @@ COPY /tools/build/docker/s6/cont-init.d/01-lrr-setup /etc/s6-overlay/s6-rc.d/ini
 # Persistent volumes
 VOLUME [ "/home/koyomi/lanraragi/content" ]
 VOLUME [ "/home/koyomi/lanraragi/database"]
+VOLUME [ "/home/koyomi/lanraragi/lib/LANraragi/Plugin" ]
