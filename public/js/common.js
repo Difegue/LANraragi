@@ -111,7 +111,7 @@ LRR.colorCodeTags = function (tags) {
     if (tags === "") return line;
 
     const tagsByNamespace = LRR.splitTagsByNamespace(tags);
-    const filteredTags = Object.keys(tagsByNamespace).filter((tag) => tag !== "date_added" && tag !== "timestamp");
+    const filteredTags = Object.keys(tagsByNamespace).filter((tag) => ! /^(date|time)/.test(tag));
     let tagsToEncode;
 
     if (filteredTags.length) {
@@ -123,7 +123,7 @@ LRR.colorCodeTags = function (tags) {
     tagsToEncode.sort().forEach((key) => {
         tagsByNamespace[key].forEach((tag) => {
             const encodedK = LRR.encodeHTML(key.toLowerCase());
-            const encodedVal = LRR.encodeHTML(key === "date_added" || key === "timestamp" ? LRR.convertTimestamp(tag) : tag);
+            const encodedVal = LRR.encodeHTML(/^(date|time)/.test(key) ? LRR.convertTimestamp(tag) : tag);
             line += `<span class='${encodedK}-tag'>${encodedVal}</span>, `;
         });
     });
@@ -190,7 +190,7 @@ LRR.buildTagsDiv = function (tags) {
             const url = LRR.getTagSearchURL(key, tag);
             const searchTag = LRR.buildNamespacedTag(key, tag);
 
-            const tagText = LRR.encodeHTML(key === "date_added" || key === "timestamp" ? LRR.convertTimestamp(tag) : tag);
+            const tagText = LRR.encodeHTML(/^(date|time)/.test(key) ? LRR.convertTimestamp(tag) : tag);
 
             line += `<div class="gt">
                         <a href="${url}" search="${LRR.encodeHTML(searchTag)}">
