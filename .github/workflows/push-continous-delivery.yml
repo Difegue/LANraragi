@@ -8,7 +8,7 @@ name: Continuous Delivery
 jobs:
 
   buildDockerARM:
-    name: Build Docker Images (ARMtest)
+    name: Build Docker Images (ARM)
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
@@ -34,6 +34,7 @@ jobs:
 
   buildNightlyDocker:
     name: Bundle and Push Docker Image
+    needs: buildDockerARM
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
@@ -56,7 +57,7 @@ jobs:
     - name: Build/Push Nightly Docker
       run: |
         docker buildx build \
-          --platform linux/386,linux/amd64,linux/arm64 \
+          --platform linux/386,linux/amd64,linux/arm64,linux/arm/v6,linux/arm/v7 \
           --output "type=image,push=true" \
           --tag difegue/lanraragi:nightly \
           --cache-from "type=local,src=/tmp/buildxcache" \
