@@ -25,7 +25,7 @@ sub plugin_info {
         namespace   => "fakkumetadata",
         login_from  => "fakkulogin",
         author      => "Difegue, Nodja, Nixis198",
-        version     => "0.93",
+        version     => "0.94",
         description =>
           "Searches FAKKU for tags matching your archive. If you have an account, don't forget to enter the matching cookie in the login plugin to be able to access controversial content. <br/><br/>  
            <i class='fa fa-exclamation-circle'></i> <b>This plugin can and will return invalid results depending on what you're searching for!</b> <br/>The FAKKU search API isn't very precise and I recommend you use the Chaika.moe plugin when possible.",
@@ -201,7 +201,7 @@ sub get_tags_from_fakku {
         $value = trim($value);
         $value = trim_CRLF($value);
 
-        next if ( $value = " in  this month.");
+        next if ( $value eq " in  this month.");
 
         $logger->debug("Parsed row: $namespace");
         $logger->debug("Matching tag: $value");
