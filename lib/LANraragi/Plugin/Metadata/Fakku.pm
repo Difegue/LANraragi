@@ -59,6 +59,30 @@ sub get_tags {
         $fakku_URL = search_for_fakku_url( $lrr_info->{archive_title}, $ua );
     }
 
+    my $cookie_jar = $ua->cookie_jar;
+    my $cookies    = $cookie_jar->all;
+
+    if (@$cookies) {
+        $logger->debug("Checking Cookies");
+
+        my $neededCookie = 0;
+
+        for my $cookie (@$cookies) {
+            if ( $cookie->name eq "fakku_sid" ) {
+                $neededCookie = 1;
+                $logger->debug("Found fakku_sid");
+                last;    # Exit the loop if the cookie is found
+            }
+        }
+
+        if ($neededCookie) {
+            $logger->debug("The needed cookie was found.");
+        } else {
+            $logger->debug("The needed cookie was not found.");
+            return ( error => "Not logged in to FAKKU! Set your FAKKU SID in the plugin settings page!" );
+        }
+    }
+
     # Do we have a URL to grab data from?
     if ( $fakku_URL ne "" ) {
         $logger->debug("Detected FAKKU URL: $fakku_URL");
@@ -135,7 +159,8 @@ sub get_search_result_dom {
     $logger->debug("Using URL $URL to search on FAKKU.");
 
     my $res = $ua->max_redirects(5)->get($URL)->result;
-    $logger->debug( "Got this HTML: " . $res->body );
+
+    # $logger->debug( "Got this HTML: " . $res->body );
 
     return $res->dom;
 }
@@ -149,7 +174,8 @@ sub get_dom_from_fakku {
     my $res = $ua->max_redirects(5)->get($url)->result;
 
     my $html = $res->body;
-    $logger->debug( "Got this HTML: " . $html );
+
+    # $logger->debug( "Got this HTML: " . $html );
     if ( $html =~ /.*error code: (\d*).*/gim ) {
         $logger->debug("Blocked by Cloudflare, aborting for now. (Error code $1)");
         die "The plugin has been blocked by Cloudflare. (Error code $1) Try opening FAKKU in your browser to bypass this.";
@@ -201,7 +227,7 @@ sub get_tags_from_fakku {
         $value = trim($value);
         $value = trim_CRLF($value);
 
-        next if ( $value eq " in  this month.");
+        next if ( $value eq " in  this month." );
 
         $logger->debug("Parsed row: $namespace");
         $logger->debug("Matching tag: $value");
