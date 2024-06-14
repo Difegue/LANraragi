@@ -160,7 +160,7 @@ sub get_search_result_dom {
 
     my $res = $ua->max_redirects(5)->get($URL)->result;
 
-    # $logger->debug( "Got this HTML: " . $res->body );
+    $logger->debug( "Got this HTML: " . $res->body );
 
     return $res->dom;
 }
@@ -175,7 +175,7 @@ sub get_dom_from_fakku {
 
     my $html = $res->body;
 
-    # $logger->debug( "Got this HTML: " . $html );
+    $logger->debug( "Got this HTML: " . $html );
     if ( $html =~ /.*error code: (\d*).*/gim ) {
         $logger->debug("Blocked by Cloudflare, aborting for now. (Error code $1)");
         die "The plugin has been blocked by Cloudflare. (Error code $1) Try opening FAKKU in your browser to bypass this.";
@@ -227,7 +227,10 @@ sub get_tags_from_fakku {
         $value = trim($value);
         $value = trim_CRLF($value);
 
-        next if ( $value eq " in  this month." );
+        # for the edgecase if the gallery is in the top 10 of 2 categories
+        if ( $value eq "in  this month." || $value eq " in  this month." ) {
+            next;
+        }
 
         $logger->debug("Parsed row: $namespace");
         $logger->debug("Matching tag: $value");
