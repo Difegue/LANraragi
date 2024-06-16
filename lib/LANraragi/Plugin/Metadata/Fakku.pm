@@ -24,8 +24,8 @@ sub plugin_info {
         type        => "metadata",
         namespace   => "fakkumetadata",
         login_from  => "fakkulogin",
-        author      => "Difegue, Nodja",
-        version     => "0.9",
+        author      => "Difegue, Nodja, Nixis198",
+        version     => "0.94",
         description =>
           "Searches FAKKU for tags matching your archive. If you have an account, don't forget to enter the matching cookie in the login plugin to be able to access controversial content. <br/><br/>  
            <i class='fa fa-exclamation-circle'></i> <b>This plugin can and will return invalid results depending on what you're searching for!</b> <br/>The FAKKU search API isn't very precise and I recommend you use the Chaika.moe plugin when possible.",
@@ -47,6 +47,34 @@ sub get_tags {
     my $logger = get_plugin_logger();
 
     # Work your magic here - You can create subs below to organize the code better
+
+    my $cookie_jar = $ua->cookie_jar;
+    my $cookies    = $cookie_jar->all;
+
+    $logger->debug("Checking Cookies");
+    if (@$cookies) {
+
+        my $neededCookie = 0;
+
+        for my $cookie (@$cookies) {
+            if ( $cookie->name eq "fakku_sid" ) {
+                $neededCookie = 1;
+                $logger->debug("Found fakku_sid");
+                last;    # Exit the loop if the cookie is found
+            }
+        }
+
+        if ($neededCookie) {
+            $logger->debug("The needed cookie was found.");
+        } else {
+            $logger->debug("The needed cookie was not found.");
+            return ( error => "Not logged in to FAKKU! Set your FAKKU SID in the plugin settings page!" );
+        }
+    } else {
+        $logger->debug("No Cookies were found!");
+        return ( error => "Not logged in to FAKKU! Set your FAKKU SID in the plugin settings page!" );
+    }
+
     my $fakku_URL = "";
 
     # If the user specified a oneshot argument, use it as-is.
@@ -94,8 +122,8 @@ sub search_for_fakku_url {
 
     my $dom = get_search_result_dom( $title, $ua );
 
-    # Get the first link on the page that starts with '/hentai/' if we have a span that says "search results" in the page
-    my $path = ( $dom->at('span:text(Search Results)') ) ? $dom->at('a[href^="/hentai/"]')->attr('href') : "";
+    # Get the first link on the page that starts with '/hentai/'
+    my $path = $dom->at('[href^="/hentai/"]')->attr('href');
 
     if ( $path ne "" ) {
         return $fakku_host . $path;
@@ -135,7 +163,8 @@ sub get_search_result_dom {
     $logger->debug("Using URL $URL to search on FAKKU.");
 
     my $res = $ua->max_redirects(5)->get($URL)->result;
-    $logger->debug( "Got this HTML: " . $res->body );
+
+    # $logger->debug( "Got this HTML: " . $res->body );
 
     return $res->dom;
 }
@@ -149,7 +178,8 @@ sub get_dom_from_fakku {
     my $res = $ua->max_redirects(5)->get($url)->result;
 
     my $html = $res->body;
-    $logger->debug( "Got this HTML: " . $html );
+
+    # $logger->debug( "Got this HTML: " . $html );
     if ( $html =~ /.*error code: (\d*).*/gim ) {
         $logger->debug("Blocked by Cloudflare, aborting for now. (Error code $1)");
         die "The plugin has been blocked by Cloudflare. (Error code $1) Try opening FAKKU in your browser to bypass this.";
@@ -170,7 +200,7 @@ sub get_tags_from_fakku {
 
     # find the "suggest more tags" link and use parent div
     # this is not ideal, but the divs don't have named classes anymore
-    my $tags_parent = $dom->at('a[data-tippy-content="Suggest More Tags"]')->parent;
+    my $tags_parent = $dom->at('[data-tippy-content="Suggest More Tags"]')->parent;
 
     # div that contains other divs with title, namespaced tags (artist, magazine, etc.) and misc tags
     my $metadata_parent = $tags_parent->parent->parent;
@@ -200,6 +230,11 @@ sub get_tags_from_fakku {
 
         $value = trim($value);
         $value = trim_CRLF($value);
+
+        # for the edgecase if the gallery is in the top 10 of 2 categories
+        if ( $value eq "in  this month." || $value eq " in  this month." ) {
+            next;
+        }
 
         $logger->debug("Parsed row: $namespace");
         $logger->debug("Matching tag: $value");
