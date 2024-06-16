@@ -51,7 +51,7 @@ note("test assuming language");
 
     my %ko_tags = LANraragi::Plugin::Metadata::Ksk::get_tags( "", \%dummyhash, 1, 1 );
     my $expected_tags =
-      "Harry Potter, Ebony Dark'ness Dementia Raven Way, Draco Malfoy, artist:xXMidnightEssenceXx, artist:bloodytearz666, series:Harry Potter, magazine:My Immortal - Genesis, language:english, Released:6942069, source:https://www.fanfiction.net/s/6829556/1/My-Immortal";
+      "Harry Potter, Ebony Dark'ness Dementia Raven Way, Draco Malfoy, artist:xXMidnightEssenceXx, artist:bloodytearz666, series:Harry Potter, magazine:My Immortal - Genesis, language:english, date Released:6942069, source:https://www.fanfiction.net/s/6829556/1/My-Immortal";
     is( $ko_tags{title}, "My Immortal",  "Title is overwritten" );
     is( $ko_tags{tags},  $expected_tags, "Language is present" );
 }

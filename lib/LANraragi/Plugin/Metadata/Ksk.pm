@@ -91,7 +91,7 @@ sub tags_from_ksk_yaml {
         push( @found_tags, "language:english" );
     }
     if ( $add_released && $released ne "" ) {
-        push( @found_tags, "Released:" . $released );
+        push( @found_tags, "date Released:" . $released );
     }
 
     push( @found_tags, "source:" . $url ) unless !$url;
