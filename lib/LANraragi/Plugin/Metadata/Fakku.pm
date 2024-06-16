@@ -47,23 +47,12 @@ sub get_tags {
     my $logger = get_plugin_logger();
 
     # Work your magic here - You can create subs below to organize the code better
-    my $fakku_URL = "";
-
-    # If the user specified a oneshot argument, use it as-is.
-    # We could stand to pre-check it to see if it really is a FAKKU URL but meh
-    if ( $lrr_info->{oneshot_param} ) {
-        $fakku_URL = $lrr_info->{oneshot_param};
-    } else {
-
-        # Search for a FAKKU URL if the user didn't specify one
-        $fakku_URL = search_for_fakku_url( $lrr_info->{archive_title}, $ua );
-    }
 
     my $cookie_jar = $ua->cookie_jar;
     my $cookies    = $cookie_jar->all;
 
+    $logger->debug("Checking Cookies");
     if (@$cookies) {
-        $logger->debug("Checking Cookies");
 
         my $neededCookie = 0;
 
@@ -81,6 +70,21 @@ sub get_tags {
             $logger->debug("The needed cookie was not found.");
             return ( error => "Not logged in to FAKKU! Set your FAKKU SID in the plugin settings page!" );
         }
+    } else {
+        $logger->debug("No Cookies were found!");
+        return ( error => "Not logged in to FAKKU! Set your FAKKU SID in the plugin settings page!" );
+    }
+
+    my $fakku_URL = "";
+
+    # If the user specified a oneshot argument, use it as-is.
+    # We could stand to pre-check it to see if it really is a FAKKU URL but meh
+    if ( $lrr_info->{oneshot_param} ) {
+        $fakku_URL = $lrr_info->{oneshot_param};
+    } else {
+
+        # Search for a FAKKU URL if the user didn't specify one
+        $fakku_URL = search_for_fakku_url( $lrr_info->{archive_title}, $ua );
     }
 
     # Do we have a URL to grab data from?
@@ -160,7 +164,7 @@ sub get_search_result_dom {
 
     my $res = $ua->max_redirects(5)->get($URL)->result;
 
-    $logger->debug( "Got this HTML: " . $res->body );
+    # $logger->debug( "Got this HTML: " . $res->body );
 
     return $res->dom;
 }
@@ -175,7 +179,7 @@ sub get_dom_from_fakku {
 
     my $html = $res->body;
 
-    $logger->debug( "Got this HTML: " . $html );
+    # $logger->debug( "Got this HTML: " . $html );
     if ( $html =~ /.*error code: (\d*).*/gim ) {
         $logger->debug("Blocked by Cloudflare, aborting for now. (Error code $1)");
         die "The plugin has been blocked by Cloudflare. (Error code $1) Try opening FAKKU in your browser to bypass this.";
