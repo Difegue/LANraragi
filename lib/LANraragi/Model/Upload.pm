@@ -113,8 +113,12 @@ sub handle_incoming_file {
     move( $tempfile, $output_file . ".upload" );
 
     # Then rename inside the content folder itself to proc Shinobu.
-    move( $output_file . ".upload", $output_file );
+    if (move( $output_file . ".upload", $output_file ) == 0) {
+        return ( 0, $id, $name, "The file couldn't be moved to your content folder: $!" );
+    }
 
+    # If the move didn't signal an error, but still doesn't exist, something is quite spooky indeed!
+    # Really funky permissions that prevents viewing folder contents?
     unless ( -e $output_file ) {
         return ( 0, $id, $name, "The file couldn't be moved to your content folder!" );
     }
