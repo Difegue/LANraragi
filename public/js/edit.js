@@ -16,6 +16,7 @@ Edit.initializeAll = function () {
     $(document).on("click.delete-archive", "#delete-archive", Edit.deleteArchive);
     $(document).on("click.tagger", ".tagger", Edit.focusTagInput);
     $(document).on("click.goback", "#goback", () => { window.location.href = "/"; });
+    $(document).on("paste.tagger", ".tagger-new", Edit.handlePaste);
 
     Edit.updateOneShotArg();
 
@@ -50,6 +51,22 @@ Edit.initializeAll = function () {
                 });
             }
         });
+};
+
+Edit.handlePaste = function (event) {
+    // Stop data actually being pasted into div
+    event.stopPropagation();
+    event.preventDefault();
+
+    // Get pasted data via clipboard API
+    const pastedData = event.originalEvent.clipboardData.getData("Text");
+
+    if (pastedData !== "") {
+        pastedData.split(/,\s?/).forEach((tag) => {
+            // Remove trailing/leading spaces from tag before adding it
+            Edit.tagInput.add_tag(tag.trim());
+        });
+    }
 };
 
 Edit.hideTags = function () {
@@ -104,6 +121,7 @@ Edit.saveMetadata = function () {
     const formData = new FormData();
     formData.append("tags", $("#tagText").val());
     formData.append("title", $("#title").val());
+    formData.append("summary", $("#summary").val());
 
     return fetch(`api/archives/${id}/metadata`, { method: "PUT", body: formData })
         .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))
@@ -152,6 +170,14 @@ Edit.getTags = function () {
                 LRR.toast({
                     heading: "Archive title changed to :",
                     text: result.data.title,
+                    icon: "info",
+                });
+            }
+
+            if (result.data.summary && result.data.summary !=="") {
+                $("#summary").val(result.data.summary);
+                LRR.toast({
+                    heading: "Archive summary updated!",
                     icon: "info",
                 });
             }

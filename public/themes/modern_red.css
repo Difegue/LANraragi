@@ -8,23 +8,16 @@ img {
 }
 
 @font-face {
-  font-family: "Roboto";
+  font-family: "Geist";
   font-style: normal;
   font-weight: 400;
-  src: local("Roboto"), local("Roboto-Regular"), url(../css/webfonts/Roboto-Regular.woff) format("woff");
-}
-
-@font-face {
-  font-family: "Roboto";
-  font-style: normal;
-  font-weight: 700;
-  src: local("Roboto Bold"), local("Roboto-Bold"), url(../css/webfonts/Roboto-Bold.woff) format("woff");
+  src: url(../css/webfonts/Geist-Regular.woff2) format("woff2");
 }
 
 body {
   background-color: #E9BBC5;
   color: #EFEAEA;
-  font-family: "Roboto", arial, sans-serif;
+  font-family: "Geist", arial, sans-serif;
   font-size: 8pt;
   height: 100%;
   margin: 0;
@@ -202,7 +195,7 @@ table.itc {
   border: 0 none;
   border-radius: 3px 3px 3px 3px;
   color: #F1F1F1;
-  font-family: "Roboto", arial, sans-serif;
+  font-family: "Geist", arial, sans-serif;
   margin: 1px;
   outline: 0 none;
   padding: 0 4px 1px;
@@ -255,7 +248,7 @@ tr.gtr1 {
   border-radius: 3px;
   color: #F1F1F1;
   cursor: pointer;
-  font-family: "Roboto", arial, sans-serif;
+  font-family: "Geist", arial, sans-serif;
   font-size: 9pt;
   height: 28px;
   margin: 1px;
@@ -276,7 +269,7 @@ tr.gtr1 {
   background: none repeat scroll 0 0 #FCFCFC;
   border: medium none;
   color: #ED2553;
-  font-family: "Roboto", arial, sans-serif;
+  font-family: "Geist", arial, sans-serif;
   font-size: 9pt;
   height: 21px;
   margin: 4px 1px 0;
@@ -289,7 +282,7 @@ tr.gtr1 {
   background: none repeat scroll 0 0 #FCFCFC;
   border: medium none;
   color: #ED2553;
-  font-family: "Roboto", arial, sans-serif;
+  font-family: "Geist", arial, sans-serif;
   max-width: 768px;
   margin: 4px 4px 0;
   font-size: 9pt;
@@ -565,12 +558,12 @@ input[type='checkbox']:checked::before {
 /* Toasts */
 .jq-toast-single,
 .jq-toast-single h2 {
-  font-family: "Roboto", arial, sans-serif !important;
+  font-family: "Geist", arial, sans-serif !important;
 }
 
 /* Tag Cloud */
 div.jqcloud {
-  font-family: "Roboto", arial, sans-serif !important;
+  font-family: "Geist", arial, sans-serif !important;
 }
 
 div.jqcloud span.w1 {
@@ -688,7 +681,7 @@ div.id4 a:hover {
 
 /** Toasts **/
 .Toastify {
-  --toastify-font-family: "Roboto", arial, sans-serif;
+  --toastify-font-family: "Geist", arial, sans-serif;
   --toastify-text-color-light: #414135;
   --toastify-color-light: #d7d4c5;
 }
@@ -712,4 +705,8 @@ div.id4 a:hover {
 .swal2-icon.swal2-warning {
   border-color: #D83B66;
   color: #BE234B;
+}
+
+.archive-summary {
+  border-top: 2px dotted;
 }

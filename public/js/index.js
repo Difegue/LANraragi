@@ -46,9 +46,9 @@ Index.initializeAll = function () {
         localStorage.customColumn2 = "series";
     }
 
-    // Default to randomly picked for carousel
+    // Default to on deck for carousel
     if (localStorage.getItem("carouselType") === null) {
-        localStorage.carouselType = "random";
+        localStorage.carouselType = "ondeck";
     }
 
     // Default to opened carousel
@@ -74,10 +74,10 @@ Index.initializeAll = function () {
                 Index.updateCarousel();
             },
             items: {
+                ondeck: { name: "On Deck", icon: "fas fa-book-reader" },
                 random: { name: "Randomly Picked", icon: "fas fa-random" },
                 inbox: { name: "New Archives", icon: "fas fa-envelope-open-text" },
                 untagged: { name: "Untagged Archives", icon: "fas fa-edit" },
-                // ondeck: { name: "On Deck", icon: "fas fa-book-reader" },
             },
         }),
     });
@@ -335,6 +335,11 @@ Index.updateCarousel = function (e) {
         $("#carousel-title").text("Untagged Archives");
         endpoint = `/api/search?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}&untaggedonly=true&sortby=date_added&order=desc&start=-1`;
         break;
+    case "ondeck":
+        $("#carousel-icon")[0].classList = "fas fa-book-reader";
+        $("#carousel-title").text("On Deck");
+        endpoint = `/api/search?filter=${IndexTable.currentSearch}&sortby=lastread`;
+        break;
     default:
         $("#carousel-icon")[0].classList = "fas fa-pastafarianism";
         $("#carousel-title").text("What???");
@@ -482,24 +487,46 @@ Index.loadContextMenuCategories = function (id) {
 };
 
 /**
+ * Build category list for contextMenu and checkoff the ones the given ID belongs to.
+ * @param {*} catList The list of categories, obtained statically
+ * @param {*} id The ID of the archive to check
+ * @returns Categories
+ */
+Index.loadContextMenuCategories = (catList, id) => Server.callAPI(`/api/archives/${id}/categories`, "GET", null, `Error finding categories for ${id}!`,
+    (data) => {
+        const items = {};
+
+        for (let i = 0; i < catList.length; i++) {
+            const catId = catList[i].id;
+
+            // If the category is also in the API results,
+            // we can pre-check it when creating the checkbox
+            const isSelected = data.categories.map((x) => x.id).includes(catId);
+            items[catId] = { name: catList[i].name, type: "checkbox" };
+            if (isSelected) { items[catId].selected = true; }
+
+            items[catId].events = {
+                click() {
+                    if ($(this).is(":checked")) {
+                        Server.addArchiveToCategory(id, catId);
+                    } else {
+                        Server.removeArchiveFromCategory(id, catId);
+                    }
+                },
+            };
+        }
+
+        return items;
+    },
+);
+
+/**
  * Handle context menu clicks.
  * @param {*} option The clicked option
  * @param {*} id The Archive ID
  * @returns
  */
 Index.handleContextMenu = function (option, id) {
-    if (option.startsWith("category-")) {
-        const catId = option.replace("category-", "");
-        Server.addArchiveToCategory(id, catId);
-        return;
-    }
-
-    if (option.startsWith("delcat-")) {
-        const catId = option.replace("delcat-", "");
-        Server.removeArchiveFromCategory(id, catId);
-        return;
-    }
-
     switch (option) {
     case "edit":
         LRR.openInNewTab(`./edit?id=${id}`);
@@ -580,10 +607,10 @@ Index.loadTagSuggestions = function () {
 Index.loadCategories = function () {
     Server.callAPI("/api/categories", "GET", null, "Couldn't load categories",
         (data) => {
-            // Sort by LastUsed + pinned
+            // Sort by pinned + alpha
             // Pinned categories are shown at the beginning
-            data.sort((a, b) => parseFloat(b.last_used) - parseFloat(a.last_used));
-            data.sort((a, b) => parseFloat(b.pinned) - parseFloat(a.pinned));
+            data.sort((b, a) => a.name > b.name);
+            data.sort((a, b) => a.pinned < b.pinned);
             let html = "";
 
             const iteration = (data.length > 10 ? 10 : data.length);

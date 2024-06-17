@@ -42,11 +42,12 @@ requires 'Mojolicious',                          9.34;
 requires 'Mojolicious::Plugin::TemplateToolkit', 0.005;
 requires 'Mojolicious::Plugin::RenderFile',      0.12;
 requires 'Mojolicious::Plugin::Status',          1.15;
+requires 'IO::Socket::Socks',                    0.74;
 requires 'IO::Socket::SSL',                      2.067;
 requires 'Cpanel::JSON::XS',                     4.06;
 
 # Job Queue (Minion)
-requires 'Minion',                 10.25;
+requires 'Minion',                 10.29;
 requires 'Minion::Backend::Redis', 0.002;
 
 # Background Worker (Shinobu)
@@ -62,7 +63,7 @@ requires 'Module::Pluggable', 5.2;
 requires 'Time::Local', 1.30;
 
 # Ksk plugin/YAML Support
-requires 'YAML::Syck', 1.34;
+requires 'YAML::PP', 0.38.0;
 
 # Hentag plugin
 requires 'String::Similarity', 1.04

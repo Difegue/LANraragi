@@ -20,3 +20,14 @@ nuget restore
 msbuild /p:Configuration=Release
 
 Get-FileHash .\Setup\bin\LANraragi.msi | Format-List
+
+mv .\Setup\bin\LANraragi.msi .\LRR_WSL2.msi
+
+# Do it again for legacy image
+cd ..\..\..\..
+mv .\package-legacy\package.tar .\tools\build\windows\Karen\External\package.tar 
+cd .\tools\build\windows\Karen
+msbuild /p:Configuration=Release /p:DefineConstants=WSL1_LEGACY
+
+Get-FileHash .\Setup\bin\LANraragi.msi | Format-List
+mv .\Setup\bin\LANraragi.msi .\LRR_WSL1.msi

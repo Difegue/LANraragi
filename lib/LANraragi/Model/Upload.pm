@@ -76,7 +76,7 @@ sub handle_incoming_file {
     # If we are replacing an existing one, just remove the old one first.
     if ($replace_dupe) {
         $logger->debug("Delete archive $id before replacing it.");
-        LANraragi::Utils::Database::delete_archive($id);
+        LANraragi::Model::Archive::delete_archive($id);
     }
 
     # Add the file to the database ourselves so Shinobu doesn't do it

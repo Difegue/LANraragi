@@ -5,10 +5,14 @@
 <head>
 	<title>[% title %] - Batch Operations</title>
 
-	<meta name="viewport" content="width=device-width" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="apple-mobile-web-status-bar-style" content="black" />
+	<meta name="mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
 
 	<link type="image/png" rel="icon" href="favicon.ico" />
+	<link rel="manifest" href="app.webmanifest" />
 	<link rel="stylesheet" type="text/css" href="/css/lrr.css?[% version%]" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/ReactToastify.min.css" />

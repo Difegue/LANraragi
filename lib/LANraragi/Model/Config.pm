@@ -6,6 +6,7 @@ use utf8;
 use Cwd 'abs_path';
 use Redis;
 use Encode;
+use Mojo::Util qw(xml_escape);
 use Minion;
 use Mojolicious::Plugin::Config;
 use Mojo::Home;
@@ -69,16 +70,13 @@ sub get_redis_internal {
 
     # Default redis server location is localhost:6379.
     # Auto-reconnect on, one attempt every 2ms up to 3 seconds. Die after that.
+    # Auth if password is set
     my $redis = Redis->new(
         server    => &get_redisad,
         debug     => $ENV{LRR_DEVSERVER} ? "1" : "0",
-        reconnect => 3
+        reconnect => 3,
+        &get_redispassword ? (password => &get_redispassword) : ()
     );
-
-    # Auth if password is set
-    if ( &get_redispassword ne "" ) {
-        $redis->auth(&get_redispassword);
-    }
 
     # Switch to specced database
     $redis->select($db);
@@ -167,8 +165,8 @@ sub get_tagrules {
     );
 }
 
-sub get_htmltitle        { return &get_redis_conf( "htmltitle",       "LANraragi" ) }
-sub get_motd             { return &get_redis_conf( "motd",            "Welcome to this Library running LANraragi!" ) }
+sub get_htmltitle        { return xml_escape(&get_redis_conf( "htmltitle",       "LANraragi" )) }
+sub get_motd             { return xml_escape(&get_redis_conf( "motd",            "Welcome to this Library running LANraragi!" )) }
 sub get_tempmaxsize      { return &get_redis_conf( "tempmaxsize",     "500" ) }
 sub get_pagesize         { return &get_redis_conf( "pagesize",        "100" ) }
 sub enable_pass          { return &get_redis_conf( "enablepass",      "1" ) }

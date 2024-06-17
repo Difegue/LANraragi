@@ -9,10 +9,10 @@ use Redis;
 use Storable qw/ nfreeze thaw /;
 use Sort::Naturally;
 
-use LANraragi::Utils::Generic qw(split_workload_by_cpu);
-use LANraragi::Utils::String qw(trim);
+use LANraragi::Utils::Generic  qw(split_workload_by_cpu);
+use LANraragi::Utils::String   qw(trim);
 use LANraragi::Utils::Database qw(redis_decode redis_encode);
-use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Logging  qw(get_logger);
 
 use LANraragi::Model::Archive;
 use LANraragi::Model::Category;
@@ -40,8 +40,9 @@ sub do_search {
     my $cachekey_inv  = redis_encode("$category_id-$filter-$sortkey-$sortorder_inv-$newonly-$untaggedonly");
     my ( $cachehit, @filtered ) = check_cache( $cachekey, $cachekey_inv );
 
-    unless ($cachehit) {
-        $logger->debug("No cache available, doing a full DB parse.");
+    # Don't use cache for history searches since setting lastreadtime doesn't (and shouldn't) cachebust
+    unless ( $cachehit && $sortkey ne "lastread" ) {
+        $logger->debug("No cache available (or history-sorted search), doing a full DB parse.");
         @filtered = search_uncached( $category_id, $filter, $sortkey, $sortorder, $newonly, $untaggedonly );
 
         # Cache this query in the search database
@@ -114,9 +115,6 @@ sub search_uncached {
 
     if (%category) {
 
-        # We're using a category! Update its lastused value.
-        $redis->hset( $category_id, "last_used", time() );
-
         # If the category is dynamic, get its search predicate and add it to the tokens.
         # If it's static however, we can use its ID list as the base for our result array.
         if ( $category{search} ne "" ) {
@@ -156,19 +154,29 @@ sub search_uncached {
 
            # Specific case for pagecount searches
            # You can search for galleries with a specific number of pages with pages:20, or with a page range: pages:>20 pages:<=30.
-            if ( $tag =~ /^pages:(>|<|>=|<=)?(\d+)$/ ) {
-                my $operator  = $1;
-                my $pagecount = $2;
+           # Or you can search for galleries with a specific number of pages read with read:20, or any pages read: read:>0
+            if ( $tag =~ /^(read|pages):(>|<|>=|<=)?(\d+)$/ ) {
+                my $col       = $1;
+                my $operator  = $2;
+                my $pagecount = $3;
 
-                $logger->debug("Searching for IDs with pages $operator $pagecount");
+                $logger->debug("Searching for IDs with $operator $pagecount $col");
 
                 # If no operator is specified, we assume it's an exact match
                 $operator = "=" if !$operator;
 
+                # Change the column based off the tag searched.
+                # "pages" -> "pagecount"
+                # "read" -> "progress"
+                $col = $col eq "pages" ? "pagecount" : "progress";
+
                 # Go through all IDs in @filtered and check if they have the right pagecount
                 # This could be sped up with an index, but it's probably not worth it.
                 foreach my $id (@filtered) {
-                    my $count = $redis_db->hget( $id, "pagecount" );
+
+                    # Default to 0 if null.
+                    my $count = $redis_db->hget( $id, $col ) || 0;
+
                     if (   ( $operator eq "=" && $count == $pagecount )
                         || ( $operator eq ">"  && $count > $pagecount )
                         || ( $operator eq ">=" && $count >= $pagecount )
@@ -400,16 +408,34 @@ sub sort_results {
     my ( $sortkey, $sortorder, @filtered ) = @_;
     my $redis = LANraragi::Model::Config->get_redis;
 
-    my $re = qr/$sortkey/;
+    my %tmpfilter = ();
+    my @sorted    = ();
 
-   # Map our archives to a hash, where the key is the ID and the value is the first tag we found that matches the sortkey/namespace.
-   # (If no tag, defaults to "zzzz")
-    my %tmpfilter = map { $_ => ( $redis->hget( $_, "tags" ) =~ m/.*${re}:(.*)(\,.*|$)/ ) ? $1 : "zzzz" } @filtered;
+    # Map our archives to a hash, where the key is the ID and the value is what we want to sort by.
+    # For lastreadtime, we just get the value directly.
+    if ( $sortkey eq "lastread" ) {
+        %tmpfilter = map { $_ => $redis->hget( $_, "lastreadtime" ) } @filtered;
 
-    my @sorted = map { $_->[0] }                         # Map back to only having the ID
-      sort           { ncmp( $a->[1], $b->[1] ) }        # Sort by the tag
-      map            { [ $_, lc( $tmpfilter{$_} ) ] }    # Map to an array containing the ID and the lowercased tag
-      keys %tmpfilter;                                   # List of IDs
+        # Invert sort order for lastreadtime, biggest timestamps come first
+        @sorted = map { $_->[0] }                    # Map back to only having the ID
+          sort { $b->[1] <=> $a->[1] }               # Sort by the timestamp
+          grep { defined $_->[1] && $_->[1] > 0 }    # Remove nil timestamps
+          map  { [ $_, $tmpfilter{$_} ] }            # Map to an array containing the ID and the timestamp
+          @filtered;                                 # List of IDs
+    } else {
+
+        my $re = qr/$sortkey/;
+
+        # For other tags, we use the first tag we found that matches the sortkey/namespace.
+        # (If no tag, defaults to "zzzz")
+        %tmpfilter = map { $_ => ( $redis->hget( $_, "tags" ) =~ m/.*${re}:(.*)(\,.*|$)/ ) ? $1 : "zzzz" } @filtered;
+
+        # Read comments from the bottom up for a better understanding of this sort algorithm.
+        @sorted = map { $_->[0] }                  # Map back to only having the ID
+          sort { ncmp( $a->[1], $b->[1] ) }        # Sort by the tag
+          map  { [ $_, lc( $tmpfilter{$_} ) ] }    # Map to an array containing the ID and the lowercased tag
+          @filtered;                               # List of IDs
+    }
 
     if ($sortorder) {
         @sorted = reverse @sorted;

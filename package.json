@@ -1,7 +1,7 @@
 {
     "name": "lanraragi",
-    "version": "0.9.0",
-    "version_name": "Hallo Spaceboy",
+    "version": "0.9.10",
+    "version_name": "Dead Man Walking",
     "description": "I'm under Japanese influence and my honor's at stake!",
     "scripts": {
         "test": "prove -r -l -v tests/",
@@ -35,15 +35,14 @@
         "clsx": "^1.1.1",
         "datatables.net": "^1.11.5",
         "fscreen": "^1.2.0",
+        "geist": "^1.0.0",
         "inter-ui": "^3.19.3",
         "jqcloud2": "^2.0.3",
         "jquery": "^3.6.0",
         "jquery-contextmenu": "^2.9.2",
         "marked": "^4.0.14",
-        "open-sans-fontface": "^1.4.0",
         "preact": "^10.7.1",
         "react-toastify": "^9.0.0-rc-2",
-        "roboto-fontface": "^0.8.0",
         "sweetalert2": "^11.6.14",
         "swiper": "^8.4.5",
         "tippy.js": "^6.3.7"

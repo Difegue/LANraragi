@@ -16,8 +16,6 @@ my $cwd     = getcwd();
 my $SAMPLES = "$cwd/tests/samples";
 require "$cwd/tests/mocks.pl";
 
-use_ok('LANraragi::Plugin::Metadata::ChaikaFile');
-
 my @tags_list = (
     'full censorship',  'female:sole female', 'male:sole male',     'artist:kemuri haku',
     'female:tall girl', 'female:cunnilingus', 'male:shotacon',      'female:defloration',

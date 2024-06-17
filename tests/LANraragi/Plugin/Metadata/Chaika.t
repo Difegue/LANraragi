@@ -42,6 +42,21 @@ note ( 'testing retrieving tags by ID ...' );
     cmp_bag( [ split( ', ', $tags ) ] , \@tags_list, 'gallery tag list');
 }
 
+note ( 'testing retrieving tags with original title...' );
+{
+    my $json = decode_json( Mojo::File->new("$SAMPLES/chaika/001_gid_27240.json")->slurp );
+
+    no warnings 'once', 'redefine';
+    local *LANraragi::Plugin::Metadata::Chaika::get_json_from_chaika = sub { return $json; };
+
+    my $jpntitle = 1;
+
+    my ( $tags, $title ) = LANraragi::Plugin::Metadata::Chaika::tags_from_chaika_id( "my-type", 123, 0, 0, '', $jpntitle );
+
+    is($title, $json->{title_jpn}, 'gallery original title');
+    cmp_bag( [ split( ', ', $tags ) ] , \@tags_list, 'gallery tag list');
+}
+
 note ( 'testing retrieving tags by SHA1 ...' );
 
 {

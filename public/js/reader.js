@@ -115,13 +115,18 @@ Reader.initializeAll = function () {
                 title = `${title} by ${artist[1]}`;
             }
 
-            $("#archive-title").html(title);
-            $("#archive-title-overlay").html(title);
-            if (data.pagecount) { $(".max-page").html(data.pagecount); }
+            $("#archive-title").text(title);
+            $("#archive-title-overlay").text(title);
+            if (data.pagecount) { $(".max-page").text(data.pagecount); }
             document.title = title;
 
             Reader.tags = data.tags;
             $("#tagContainer").append(LRR.buildTagsDiv(Reader.tags));
+
+            if (data.summary) {
+                $("#tagContainer").append(`<div class="archive-summary"/>`);
+                $(".archive-summary").text(data.summary);
+            }
 
             // Use localStorage progress value instead of the server one if needed
             if (Reader.trackProgressLocally) {
@@ -181,14 +186,7 @@ Reader.loadImages = function () {
             }
 
             if (Reader.showOverlayByDefault) { Reader.toggleArchiveOverlay(); }
-
-            // Wait for the extraction job to conclude before getting thumbnails
-            Server.checkJobStatus(
-                data.job,
-                false,
-                () => Reader.initializeArchiveOverlay(),
-                () => LRR.showErrorToast("The extraction job didn't conclude properly. Your archive might be corrupted."),
-            );
+            Reader.initializeArchiveOverlay();
         },
     ).finally(() => {
         if (Reader.pages === undefined) {
@@ -268,7 +266,7 @@ Reader.initInfiniteScrollView = function () {
                 Reader.updateProgress();
             }
         }
-    }, { threshold: 0.8 });
+    }, { threshold: 0.5 });
 
     Reader.pages.slice(1).forEach((source) => {
         const img = new Image();
@@ -712,49 +710,56 @@ Reader.initializeArchiveOverlay = function () {
         const page = index + 1;
 
         const thumbCss = (localStorage.cropthumbs === "true") ? "id3" : "id3 nocrop";
+        const thumbnailUrl = `./api/archives/${Reader.id}/thumbnail?page=${page}`;
         const thumbnail = `
             <div class='${thumbCss} quick-thumbnail' page='${index}' style='display: inline-block; cursor: pointer'>
                 <span class='page-number'>Page ${page}</span>
-                <img src="./img/wait_warmly.jpg" id="${index}_thumb" />
+                <img src="${thumbnailUrl}" id="${index}_thumb" />
                 <i id="${index}_spinner" class="fa fa-4x fa-circle-notch fa-spin ttspinner" style="display:flex;justify-content: center; align-items: center;"></i>
             </div>`;
-
-        // Try to load the thumbnail and see if we have to wait for a Minion job (202 vs 200)
-        const thumbnailUrl = `/api/archives/${Reader.id}/thumbnail?page=${page}`;
-
-        const thumbSuccess = function () {
-            // Set image source to the thumbnail
-            $(`#${index}_thumb`).attr("src", thumbnailUrl);
-            $(`#${index}_spinner`).hide();
-        };
-
-        const thumbFail = function () {
-            // If we fail to load the thumbnail, then we'll just show a placeholder
-            $(`#${index}_thumb`).attr("src", "/img/noThumb.png");
-            $(`#${index}_spinner`).hide();
-        };
-
-        fetch(`${thumbnailUrl}&no_fallback=true`, { method: "GET" })
-            .then((response) => {
-                if (response.status === 200) {
-                    thumbSuccess();
-                } else if (response.status === 202) {
-                    // Wait for Minion job to finish
-                    response.json().then((data) => Server.checkJobStatus(
-                        data.job,
-                        false,
-                        () => thumbSuccess(),
-                        () => thumbFail(),
-                    ));
-                } else {
-                    // We don't have a thumbnail for this page
-                    thumbFail();
-                }
-            });
 
         $("#archivePagesOverlay").append(thumbnail);
     }
     $("#archivePagesOverlay").attr("loaded", "true");
+
+    // Queue a single minion job for thumbnails and check on its progress regularly
+    const thumbProgress = function (notes) {
+
+        if (notes.progress === undefined) { return; }
+        for (let index = 0; index < notes.progress; ++index) {
+
+            const page = index + 1;
+            // If the spinner is still visible, update the thumbnail
+            if ($(`#${index}_spinner`).attr("loaded") !== "true") {
+                
+                // Set image source to the thumbnail
+                const thumbnailUrl = `./api/archives/${Reader.id}/thumbnail?page=${page}&cachebust=${Date.now()}`;
+                $(`#${index}_thumb`).attr("src", thumbnailUrl);
+                $(`#${index}_spinner`).attr("loaded", true);
+                $(`#${index}_spinner`).hide();
+            }
+        }
+
+    };
+
+    fetch(`/api/archives/${Reader.id}/files/thumbnails`, { method: "POST" })
+        .then((response) => {
+            if (response.status === 200) {
+                // Thumbnails are already generated, there's nothing to do. Very nice!
+                $(".ttspinner").hide();
+                return;
+            }
+            if (response.status === 202) { 
+                // Check status and update progress 
+                response.json().then((data) => Server.checkJobStatus(
+                    data.job,
+                    false,
+                    (data) => thumbProgress(data.notes), // call progress callback one last time to ensure all thumbs are loaded
+                    () => LRR.showErrorToast("The page thumbnailing job didn't conclude properly. Your archive might be corrupted."),
+                    thumbProgress
+                ));
+            }
+        });
 };
 
 Reader.changePage = function (targetPage) {

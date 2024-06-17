@@ -43,6 +43,8 @@ my @modules = (
     "LANraragi::Plugin::Metadata::Hitomi",       "LANraragi::Plugin::Metadata::Hentag",
     "LANraragi::Plugin::Metadata::HentagOnline", "LANraragi::Plugin::Metadata::ComicInfo",
     "LANraragi::Plugin::Metadata::ChaikaFile",   "LANraragi::Plugin::Metadata::Ksk",
+    "LANraragi::Plugin::Metadata::HatH",
+    "LANraragi::Plugin::Login::Pixiv",           "LANraragi::Plugin::Metadata::Pixiv",
 );
 
 # Test all modules load properly

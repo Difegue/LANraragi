@@ -1,5 +1,9 @@
 /* Global LANraragi CSS. Don't mess !*/
 
+body {
+  touch-action: manipulation;
+}
+
 td.itd {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -407,6 +411,11 @@ li {
   background-color: transparent !important;
 }
 
+/* Center checkbox contextmenuitems */
+.context-menu-input>label>* {
+  vertical-align: unset !important;
+}
+
 .artist-tag {
   color: #22a7f0;
 }
@@ -688,6 +697,12 @@ body.swal2-shown>[aria-hidden="true"] {
 
 #archivePagesOverlay {
   height: 90vh;
+}
+
+.archive-summary {
+  text-align: left;
+  margin: 18px 12px 8px 12px;
+  font-size: 9pt;
 }
 
 #settingsOverlay {

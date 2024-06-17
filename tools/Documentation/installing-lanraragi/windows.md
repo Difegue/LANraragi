@@ -2,14 +2,7 @@
 
 ## Download a Release
 
-You can directly install LANraragi from the Microsoft Store, using either this link: (paste in a browser window)  
-ms-windows-store://pdp/?productid=XP9K4NMNPDMH6L  
-
-Or through winget:  
-
-```
-winget install lanraragi
-```
+You can download the latest Windows MSI Installer on the [Release Page](https://github.com/Difegue/LANraragi/releases).
 
 {% hint style="warning" %}
 The installer will tell you about this anyways, but LRR for Windows **requires** the Windows Subsystem for Linux to function properly.  
@@ -19,22 +12,16 @@ WSL defaults to WSL2, so if the installer doesn't work properly make sure you ha
 You don't need to install a distribution through the Windows Store, as that is handled by the LRR installer package.
 {% endhint %}
 
-As an alternative, you can always download the latest Windows MSI Installer on the [Release Page](https://github.com/Difegue/LANraragi/releases).
-
 {% hint style="info" %}
 Windows Nightlies are available [here](https://nightly.link/Difegue/LANraragi/workflows/push-continous-delivery/dev).
 {% endhint %}
 
 ## Installation
 
-Simply execute the installer package. (The MS Store will do this for you if you went that way)
+Simply execute the installer package.
 
 You might get a SmartScreen prompt from Windows (doesn't seem to happen with the Store) as the installer isn't signed; These are perfectly normal.  
 (If you're wondering why I don't sign installers, [this](https://gaby.dev/posts/code-signing) article is a good read.)
-
-{% hint style="info" %}
-MS Store/winget installs will be installed to the default location. If you don't want the app to install in _%AppData%_, consider downloading the installer and running it manually.
-{% endhint %}
 
 Once the install completes properly, you'll be able to launch the GUI from the shortcut in your Start Menu:
 
@@ -67,7 +54,6 @@ Once the program is running, you can open the Web Client through the shortcut bu
 ## Updating
 
 Updates have to be done manually by downloading and running the latest installer.  
-If you're using the MS Store, you can also update through it -- Keep in mind releases take usually a day or so to land on the store compared to direct downloads off GitHub.
 
 ## Uninstallation
 

@@ -11,7 +11,6 @@ use Digest::SHA qw(sha256_hex);
 use Mojo::JSON  qw(decode_json);
 use Encode;
 use File::Basename;
-use File::Path qw(remove_tree);
 use Redis;
 use Cwd;
 use Unicode::Normalize;
@@ -26,7 +25,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 # Functions for interacting with the DB Model.
 use Exporter 'import';
 our @EXPORT_OK =
-  qw(redis_encode redis_decode invalidate_cache compute_id set_tags set_title set_isnew get_computed_tagrules save_computed_tagrules get_archive_json get_archive_json_multi get_tankoubons_by_file);
+  qw(redis_encode redis_decode invalidate_cache compute_id change_archive_id set_tags set_title set_summary set_isnew get_computed_tagrules save_computed_tagrules get_archive_json get_archive_json_multi get_tankoubons_by_file);
 
 # Creates a DB entry for a file path with the given ID.
 # This function doesn't actually require the file to exist at its given location.
@@ -42,15 +41,18 @@ sub add_archive_to_redis ( $id, $file, $redis ) {
 
     $redis->hset( $id, "name", redis_encode($name) );
     $redis->hset( $id, "tags", "" );
+    $redis->hset( $id, "summary", "" );
+
     if ( defined($file) && -e $file ) {
-        set_arcsize( $redis, $id, -s $file );
+        $redis->hset( $id, "arcsize", -s $file );
     }
 
     # Don't encode filenames.
     $redis->hset( $id, "file", $file );
 
     # Set title so that index is updated
-    set_title( $id, $name );
+    # Throw a decode in there just in case the filename is already UTF8
+    set_title( $id, redis_decode($name) );
 
     # New file in collection, so this flag is set.
     set_isnew( $id, "true" );
@@ -72,12 +74,12 @@ sub change_archive_id ( $old_id, $new_id ) {
         $redis->rename( $old_id, $new_id );
     }
 
+    # Update archive size
     my $file = $redis->hget( $new_id, "file" );
-    set_arcsize( $redis, $new_id, -s $file );
+    $redis->hset( $new_id, "arcsize", -s $file );
     $redis->quit;
 
-    # We also need to update categories that contain the ID.
-    # TODO: When meta-archives are implemented, this will need to be updated.
+    # Update categories that contain the ID.
     $logger->debug("Updating categories that contained $old_id to $new_id.");
     my @categories = LANraragi::Model::Category::get_categories_containing_archive($old_id);
 
@@ -86,6 +88,16 @@ sub change_archive_id ( $old_id, $new_id ) {
         $logger->warn("Updating category $catid");
         LANraragi::Model::Category::remove_from_category( $catid, $old_id );
         LANraragi::Model::Category::add_to_category( $catid, $new_id );
+    }
+
+    # Update tanks that contain the ID
+    $logger->debug("Updating tankoubons that contained $old_id to $new_id.");
+    my @tanks = LANraragi::Model::Tankoubon::get_tankoubons_containing_archive($old_id);
+
+    foreach my $tank (@tanks) {
+        $logger->warn("Updating tankoubon $tank");
+        LANraragi::Model::Tankoubon::remove_from_tankoubon( $tank, $old_id );
+        LANraragi::Model::Tankoubon::add_to_tankoubon( $tank, $new_id );
     }
 }
 
@@ -101,10 +113,10 @@ sub add_timestamp_tag ( $redis, $id ) {
         my $date;
 
         if ( LANraragi::Model::Config->use_lastmodified eq "1" ) {
-            $logger->info("Using file date");
+            $logger->debug("Using file date");
             $date = ( stat( $redis->hget( $id, "file" ) ) )[9];    #9 is the unix time stamp for date modified.
         } else {
-            $logger->info("Using current date");
+            $logger->debug("Using current date");
             $date = time();
         }
 
@@ -178,16 +190,15 @@ sub get_archive_json_multi (@ids) {
 # Internal function for building an archive JSON.
 sub build_json ( $id, %hash ) {
 
-    # It's not a new archive, but it might have never been clicked on yet,
-    # so grab the value for $isnew stored in redis.
-    my ( $name, $title, $tags, $file, $isnew, $progress, $pagecount, $lastreadtime ) =
-      @hash{qw(name title tags file isnew progress pagecount lastreadtime)};
+    # Grab all metadata from the hash
+    my ( $name, $title, $tags, $summary, $file, $isnew, $progress, $pagecount, $lastreadtime, $arcsize ) =
+      @hash{qw(name title tags summary file isnew progress pagecount lastreadtime arcsize)};
 
     # Return undef if the file doesn't exist.
     return unless ( defined($file) && -e $file );
 
     # Parameters have been obtained, let's decode them.
-    ( $_ = redis_decode($_) ) for ( $name, $title, $tags );
+    ( $_ = redis_decode($_) ) for ( $name, $title, $tags, $summary );
 
     # Workaround if title was incorrectly parsed as blank
     if ( !defined($title) || $title =~ /^\s*$/ ) {
@@ -197,61 +208,18 @@ sub build_json ( $id, %hash ) {
     my $arcdata = {
         arcid        => $id,
         title        => $title,
+        filename     => $name,
         tags         => $tags,
+        summary      => $summary,
         isnew        => $isnew ? $isnew : "false",
         extension    => lc( ( split( /\./, $file ) )[-1] ),
         progress     => $progress     ? int($progress)     : 0,
         pagecount    => $pagecount    ? int($pagecount)    : 0,
-        lastreadtime => $lastreadtime ? int($lastreadtime) : 0
+        lastreadtime => $lastreadtime ? int($lastreadtime) : 0,
+        size         => $arcsize      ? int($arcsize)      : 0
     };
 
     return $arcdata;
-}
-
-# Deletes the archive with the given id from redis, and the matching archive file/thumbnail.
-sub delete_archive ($id) {
-
-    my $redis    = LANraragi::Model::Config->get_redis;
-    my $filename = $redis->hget( $id, "file" );
-    my $oldtags  = $redis->hget( $id, "tags" );
-    $oldtags = redis_decode($oldtags);
-
-    my $oldtitle = lc( redis_decode( $redis->hget( $id, "title" ) ) );
-    $oldtitle = trim($oldtitle);
-    $oldtitle = trim_CRLF($oldtitle);
-    $oldtitle = redis_encode($oldtitle);
-
-    $redis->del($id);
-    $redis->quit();
-
-    # Remove matching data from the search indexes
-    my $redis_search = LANraragi::Model::Config->get_redis_search;
-    $redis_search->zrem( "LRR_TITLES", "$oldtitle\0$id" );
-    $redis_search->srem( "LRR_NEW",      $id );
-    $redis_search->srem( "LRR_UNTAGGED", $id );
-    $redis_search->quit();
-
-    update_indexes( $id, $oldtags, "" );
-
-    if ( -e $filename ) {
-        unlink $filename;
-
-        my $thumbdir  = LANraragi::Model::Config->get_thumbdir;
-        my $subfolder = substr( $id, 0, 2 );
-
-        my $jpg_thumbname = "$thumbdir/$subfolder/$id.jpg";
-        unlink $jpg_thumbname;
-
-        my $jxl_thumbname = "$thumbdir/$subfolder/$id.jxl";
-        unlink $jxl_thumbname;
-
-        # Delete the thumbpages folder
-        remove_tree("$thumbdir/$subfolder/$id/");
-
-        return $filename;
-    }
-
-    return "0";
 }
 
 # drop_database()
@@ -408,6 +376,13 @@ sub set_tags ( $id, $newtags, $append = 0 ) {
     invalidate_cache();
 }
 
+sub set_summary ($id, $summary) {
+
+    my $redis = LANraragi::Model::Config->get_redis;
+    $redis->hset( $id, "summary", redis_encode($summary) );
+    $redis->quit;
+}
+
 # Set $isnew for the archive with id $id.
 sub set_isnew ( $id, $isnew ) {
 
@@ -532,7 +507,6 @@ sub invalidate_cache ( $rebuild_indexes = 0 ) {
     $redis->hset( "LRR_SEARCHCACHE", "created", time );
     $redis->quit();
 
-    # Re-warm the cache to ensure sufficient speed on the main index
     if ($rebuild_indexes) {
         LANraragi::Model::Config->get_minion->enqueue( build_stat_hashes => [] => { priority => 3 } );
     }
@@ -571,41 +545,9 @@ sub get_computed_tagrules {
     return @tagrules;
 }
 
-sub get_tankoubons_by_file ($arcid) {
-    my $redis = LANraragi::Model::Config->get_redis;
-    my @tankoubons;
-
-    my $logger = get_logger( "Tankoubon", "lanraragi" );
-    my $err    = "";
-
-    unless ( $redis->exists($arcid) ) {
-        $err = "$arcid does not exist in the database.";
-        $logger->error($err);
-        $redis->quit;
-        return ();
-    }
-
-    my @tanks = $redis->keys('TANK_??????????');
-
-    foreach my $key ( sort @tanks ) {
-
-        if ( $redis->zscore( $key, $arcid ) ) {
-            push( @tankoubons, $key );
-        }
-    }
-
-    $redis->quit;
-    return @tankoubons;
-}
-
 sub add_arcsize ( $redis, $id ) {
-    my $file    = $redis->hget( $id, "file" );
-    my $arcsize = -s $file;
-    set_arcsize( $redis, $id, $arcsize );
-}
-
-sub set_arcsize ( $redis, $id, $arcsize ) {
-    $redis->hset( $id, "arcsize", $arcsize );
+    my $file = $redis->hget( $id, "file" );
+    $redis->hset( $id, "arcsize", -s $file );
 }
 
 sub get_arcsize ( $redis, $id ) {

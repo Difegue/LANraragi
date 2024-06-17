@@ -12,7 +12,7 @@ use Mojo::UserAgent;
 use Data::Dumper;
 
 use LANraragi::Utils::String   qw(trim);
-use LANraragi::Utils::Database qw(set_tags set_title);
+use LANraragi::Utils::Database qw(set_tags set_title set_summary);
 use LANraragi::Utils::Archive  qw(extract_thumbnail);
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Tags     qw(rewrite_tags split_tags_to_array);
@@ -82,6 +82,11 @@ sub exec_enabled_plugins_on_file {
 
                 $newtitle = $plugin_result{title};
                 $logger->debug("Changing title to $newtitle. (Will do nothing if title is blank)");
+            }
+
+            if ( exists $plugin_result{summary} ) {
+                set_summary( $id, $plugin_result{summary} );
+                $logger->debug("Summary has been changed."); # don't put the new summary in logs, it can be huge
             }
 
         }
@@ -278,6 +283,12 @@ sub exec_metadata_plugin {
             $newtitle = trim($newtitle);
             $returnhash{title} = $newtitle;
         }
+
+        # Include updated summary data in response
+        if ( exists $newmetadata{summary} ) {
+            $returnhash{summary} = $newmetadata{summary};
+        }
+
         return %returnhash;
     }
     return ( error => "Plugin doesn't implement get_tags despite having a 'metadata' type." );

@@ -30,6 +30,11 @@ sub clean_title ($title) {
 
 # Remove spaces before and after a word
 sub trim ($s) {
+    
+    unless ( defined $s ) {
+        return "";
+    }
+
     $s =~ s/^\s+|\s+$//g;
     return $s;
 }

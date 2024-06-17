@@ -22,9 +22,9 @@ sub index {
     if ( $redis->exists($id) ) {
         my %hash = $redis->hgetall($id);
 
-        my ( $name, $title, $tags, $file, $thumbhash ) = @hash{qw(name title tags file thumbhash)};
+        my ( $name, $title, $tags, $summary, $file, $thumbhash ) = @hash{qw(name title tags summary file thumbhash)};
 
-        ( $_ = redis_decode($_) ) for ( $name, $title, $tags );
+        ( $_ = redis_decode($_) ) for ( $name, $title, $tags, $summary );
 
         #Build plugin listing
         my @pluginlist = get_plugins("metadata");
@@ -37,6 +37,7 @@ sub index {
             name      => $name,
             arctitle  => xml_escape($title),
             tags      => xml_escape($tags),
+            summary   => xml_escape($summary),
             file      => decode_utf8($file),
             thumbhash => $thumbhash,
             plugins   => \@pluginlist,

@@ -17,7 +17,7 @@ no warnings 'experimental::signatures';
 use FindBin;
 use Parallel::Loops;
 use Sys::CpuAffinity;
-use Storable qw(lock_store);
+use Storable   qw(lock_store);
 use Mojo::JSON qw(to_json);
 
 #As this is a new process, reloading the LRR libs into INC is needed.
@@ -29,10 +29,10 @@ use File::Find;
 use File::Basename;
 use Encode;
 
-use LANraragi::Utils::Database qw(redis_encode invalidate_cache compute_id);
+use LANraragi::Utils::Database   qw(redis_encode invalidate_cache compute_id change_archive_id);
 use LANraragi::Utils::TempFolder qw(get_temp clean_temp_partial);
-use LANraragi::Utils::Logging qw(get_logger);
-use LANraragi::Utils::Generic qw(is_archive split_workload_by_cpu);
+use LANraragi::Utils::Logging    qw(get_logger);
+use LANraragi::Utils::Generic    qw(is_archive split_workload_by_cpu);
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
@@ -226,7 +226,7 @@ sub add_to_filemap ( $redis_cfg, $file ) {
                 $logger->debug("$file has a different ID than the one in the filemap! ($filemap_id)");
                 $logger->info("$file has been modified, updating its ID from $filemap_id to $id.");
 
-                LANraragi::Utils::Database::change_archive_id( $filemap_id, $id );
+                change_archive_id( $filemap_id, $id );
 
                 # Don't forget to update the filemap, later operations will behave incorrectly otherwise
                 $redis_cfg->hset( "LRR_FILEMAP", $file, $id );
@@ -285,7 +285,7 @@ sub add_to_filemap ( $redis_cfg, $file ) {
 
 # Only handle new files. As per the ChangeNotify doc, it
 # "handles the addition of new subdirectories by adding them to the watch list"
-sub new_file_callback($name) {
+sub new_file_callback ($name) {
 
     $logger->debug("New file detected: $name");
     unless ( -d $name ) {
@@ -302,7 +302,7 @@ sub new_file_callback($name) {
 
 # Deleted files are simply dropped from the filemap.
 # Deleted subdirectories trigger deleted events for every file deleted.
-sub deleted_file_callback($name) {
+sub deleted_file_callback ($name) {
 
     $logger->info("$name was deleted from the content folder!");
     unless ( -d $name ) {

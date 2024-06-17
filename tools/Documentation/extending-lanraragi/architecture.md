@@ -169,11 +169,11 @@ The base architecture is as follows:
 |  |- archives <- Serialized array of IDs this category holds (if static)
 |  |- search <- Search predicate of this category (if dynamic)
 |  |- name <- Name of the Category, as set by the User
-|  |- last_used <- Timestamp of the last time the category was used in a search
 |  |- pinned <- Whether the category is pinned in the index or not
 |
 |- **************************************** <- 40-character long ID for every logged archive
 |  |- tags <- Saved tags
+|  |- summary <- Summary of the archive, as set by the User
 |  |- name <- Name of the archive file, kept for filesystem checks
 |  |- title <- Title of the archive, as set by the User
 |  |- file <- Filesystem path to archive

@@ -9,9 +9,9 @@ use Mojo::JSON qw(decode_json encode_json);
 
 use LANraragi::Model::Category;
 use LANraragi::Utils::Database;
-use LANraragi::Utils::String qw(trim_CRLF);
+use LANraragi::Utils::String   qw(trim_CRLF);
 use LANraragi::Utils::Database qw(redis_encode redis_decode invalidate_cache set_title set_tags);
-use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Logging  qw(get_logger);
 
 #build_backup_JSON()
 #Goes through the Redis archive IDs and builds a JSON string containing their metadata.
@@ -62,16 +62,17 @@ sub build_backup_JSON {
 
         eval {
             my %hash = $redis->hgetall($id);
-            my ( $name, $title, $tags, $thumbhash ) = @hash{qw(name title tags thumbhash)};
+            my ( $name, $title, $tags, $summary, $thumbhash ) = @hash{qw(name title tags summary thumbhash)};
 
-            ( $_ = redis_decode($_) ) for ( $name, $title, $tags );
-            ( $_ = trim_CRLF($_) )    for ( $name, $title, $tags );
+            ( $_ = redis_decode($_) ) for ( $name, $title, $tags, $summary );
+            ( $_ = trim_CRLF($_) )    for ( $name, $title, $tags, $summary );
 
             # Backup all user-generated metadata, alongside the unique ID.
             my %arc = (
                 arcid     => $id,
                 title     => $title,
                 tags      => $tags,
+                summary   => $summary,
                 thumbhash => $thumbhash,
                 filename  => $name
             );
@@ -113,8 +114,7 @@ sub restore_from_JSON {
 
         # Explicitly set "new category" values to avoid them being absent from the DB entry
         # (which likely breaks a bunch of things)
-        $redis->hset( $cat_id, "archives",  "[]" );
-        $redis->hset( $cat_id, "last_used", time() );
+        $redis->hset( $cat_id, "archives", "[]" );
 
         foreach my $arcid (@archives) {
             LANraragi::Model::Category::add_to_category( $cat_id, $arcid );
@@ -132,6 +132,7 @@ sub restore_from_JSON {
 
             set_title( $id, $archive->{"title"} );
             set_tags( $id, $archive->{"tags"} );
+            set_summary( $id, $archive->{"summary"} );
 
             if (   $redis->hexists( $id, "thumbhash" )
                 && $redis->hget( $id, "thumbhash" ) ne "" ) {

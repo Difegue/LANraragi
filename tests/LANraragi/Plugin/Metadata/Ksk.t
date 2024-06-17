@@ -30,7 +30,7 @@ note("test not assuming language");
 
     my %dummyhash = ( file_path => "test" );
 
-    my %ko_tags = LANraragi::Plugin::Metadata::Ksk::get_tags( "", \%dummyhash, 0 );
+    my %ko_tags = LANraragi::Plugin::Metadata::Ksk::get_tags( "", \%dummyhash, 0, 0 );
     my $expected_tags =
       "Harry Potter, Ebony Dark'ness Dementia Raven Way, Draco Malfoy, artist:xXMidnightEssenceXx, artist:bloodytearz666, series:Harry Potter, magazine:My Immortal - Genesis, source:https://www.fanfiction.net/s/6829556/1/My-Immortal";
     is( $ko_tags{title}, "My Immortal",  "Title is overwritten" );
@@ -49,9 +49,9 @@ note("test assuming language");
 
     my %dummyhash = ( file_path => "test" );
 
-    my %ko_tags = LANraragi::Plugin::Metadata::Ksk::get_tags( "", \%dummyhash, 1 );
+    my %ko_tags = LANraragi::Plugin::Metadata::Ksk::get_tags( "", \%dummyhash, 1, 1 );
     my $expected_tags =
-      "Harry Potter, Ebony Dark'ness Dementia Raven Way, Draco Malfoy, artist:xXMidnightEssenceXx, artist:bloodytearz666, series:Harry Potter, magazine:My Immortal - Genesis, language:english, source:https://www.fanfiction.net/s/6829556/1/My-Immortal";
+      "Harry Potter, Ebony Dark'ness Dementia Raven Way, Draco Malfoy, artist:xXMidnightEssenceXx, artist:bloodytearz666, series:Harry Potter, magazine:My Immortal - Genesis, language:english, date_released:6942069, source:https://www.fanfiction.net/s/6829556/1/My-Immortal";
     is( $ko_tags{title}, "My Immortal",  "Title is overwritten" );
     is( $ko_tags{tags},  $expected_tags, "Language is present" );
 }
