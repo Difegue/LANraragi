@@ -110,12 +110,10 @@ sub handle_incoming_file {
 
     # Move the file to the content folder.
     # Move to a .upload first in case copy to the content folder takes a while...
-    move( $tempfile, $output_file . ".upload" );
+    move( $tempfile, $output_file . ".upload" ) or return ( 0, $id, $name, "The file couldn't be moved to your content folder: $!" );
 
     # Then rename inside the content folder itself to proc Shinobu.
-    if (move( $output_file . ".upload", $output_file ) == 0) {
-        return ( 0, $id, $name, "The file couldn't be moved to your content folder: $!" );
-    }
+    move( $output_file . ".upload", $output_file ) or  return ( 0, $id, $name, "The file couldn't be renamed in your content folder: $!" );
 
     # If the move didn't signal an error, but still doesn't exist, something is quite spooky indeed!
     # Really funky permissions that prevents viewing folder contents?
