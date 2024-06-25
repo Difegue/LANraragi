@@ -8,13 +8,13 @@ use Redis;
 use File::Find;
 use Mojo::JSON qw(encode_json);
 
-use LANraragi::Utils::Generic qw(is_archive);
-use LANraragi::Utils::String qw(trim trim_CRLF trim_url);
+use LANraragi::Utils::Generic  qw(is_archive);
+use LANraragi::Utils::String   qw(trim trim_CRLF trim_url);
 use LANraragi::Utils::Database qw(redis_decode redis_encode);
-use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Logging  qw(get_logger);
 
 sub get_archive_count {
-    my $redis  = LANraragi::Model::Config->get_redis_search;
+    my $redis = LANraragi::Model::Config->get_redis_search;
     return $redis->zcard("LRR_TITLES") + 0;    # Total number of archives (as int)
 }
 
@@ -74,7 +74,7 @@ sub build_stat_hashes {
                 $t = trim_CRLF($t);
 
                 # The following are basic and therefore don't count as "tagged"
-                $has_tags = 1 unless $t =~ /(artist|parody|series|language|event|group|date_added|timestamp):.*/;
+                $has_tags = 1 unless $t =~ /(artist|parody|series|language|event|group|date_added|timestamp|source):.*/;
 
                 # If the tag is a source: tag, add it to the URL index
                 if ( $t =~ /source:(.*)/i ) {
@@ -187,14 +187,14 @@ sub compute_content_size {
 
     $redis_db->multi;
     foreach my $id (@keys) {
-        LANraragi::Utils::Database::get_arcsize($redis_db, $id);
+        LANraragi::Utils::Database::get_arcsize( $redis_db, $id );
     }
     my @result = $redis_db->exec;
     $redis_db->quit;
 
     my $size = 0;
     foreach my $row (@result) {
-        if (defined($row)) {
+        if ( defined($row) ) {
             $size = $size + $row;
         }
     }
