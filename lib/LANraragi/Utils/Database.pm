@@ -39,8 +39,8 @@ sub add_archive_to_redis ( $id, $file, $redis ) {
     $logger->debug("File Name: $name");
     $logger->debug("Filesystem Path: $file");
 
-    $redis->hset( $id, "name", redis_encode($name) );
-    $redis->hset( $id, "tags", "" );
+    $redis->hset( $id, "name",    redis_encode($name) );
+    $redis->hset( $id, "tags",    "" );
     $redis->hset( $id, "summary", "" );
 
     if ( defined($file) && -e $file ) {
@@ -376,7 +376,7 @@ sub set_tags ( $id, $newtags, $append = 0 ) {
     invalidate_cache();
 }
 
-sub set_summary ($id, $summary) {
+sub set_summary ( $id, $summary ) {
 
     my $redis = LANraragi::Model::Config->get_redis;
     $redis->hset( $id, "summary", redis_encode($summary) );
@@ -432,7 +432,7 @@ sub update_indexes ( $id, $oldtags, $newtags ) {
     foreach my $tag (@newtags) {
 
         # The following are basic and therefore don't count as "tagged"
-        $has_tags = 1 unless $tag =~ /(artist|parody|series|language|event|group|date_added|timestamp):.*/;
+        $has_tags = 1 unless $tag =~ /(artist|parody|series|language|event|group|date_added|timestamp|source):.*/;
 
         # If the tag is a source: tag, add it to the URL index
         if ( $tag =~ /source:(.*)/i ) {
