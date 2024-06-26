@@ -124,7 +124,7 @@ Reader.initializeAll = function () {
             $("#tagContainer").append(LRR.buildTagsDiv(Reader.tags));
 
             if (data.summary) {
-                $("#tagContainer").append(`<div class="archive-summary"/>`);
+                $("#tagContainer").append("<div class=\"archive-summary\"/>");
                 $(".archive-summary").text(data.summary);
             }
 
@@ -551,6 +551,12 @@ Reader.loadImage = function (index) {
         const img = new Image();
         img.src = src;
         Reader.preloadedImg[src] = img;
+        if (!Reader.preloadedSizes[index]) {
+            LRR.getImgSizeAsync(src).done((data, textStatus, request) => {
+                const size = parseInt(request.getResponseHeader("Content-Length") / 1024, 10);
+                Reader.preloadedSizes[index] = size;
+            });
+        }
     }
 
     return Reader.preloadedImg[src];
@@ -724,14 +730,11 @@ Reader.initializeArchiveOverlay = function () {
 
     // Queue a single minion job for thumbnails and check on its progress regularly
     const thumbProgress = function (notes) {
-
         if (notes.progress === undefined) { return; }
         for (let index = 0; index < notes.progress; ++index) {
-
             const page = index + 1;
             // If the spinner is still visible, update the thumbnail
             if ($(`#${index}_spinner`).attr("loaded") !== "true") {
-                
                 // Set image source to the thumbnail
                 const thumbnailUrl = `./api/archives/${Reader.id}/thumbnail?page=${page}&cachebust=${Date.now()}`;
                 $(`#${index}_thumb`).attr("src", thumbnailUrl);
@@ -739,7 +742,6 @@ Reader.initializeArchiveOverlay = function () {
                 $(`#${index}_spinner`).hide();
             }
         }
-
     };
 
     fetch(`/api/archives/${Reader.id}/files/thumbnails`, { method: "POST" })
@@ -749,14 +751,14 @@ Reader.initializeArchiveOverlay = function () {
                 $(".ttspinner").hide();
                 return;
             }
-            if (response.status === 202) { 
-                // Check status and update progress 
+            if (response.status === 202) {
+                // Check status and update progress
                 response.json().then((data) => Server.checkJobStatus(
                     data.job,
                     false,
                     (data) => thumbProgress(data.notes), // call progress callback one last time to ensure all thumbs are loaded
                     () => LRR.showErrorToast("The page thumbnailing job didn't conclude properly. Your archive might be corrupted."),
-                    thumbProgress
+                    thumbProgress,
                 ));
             }
         });
