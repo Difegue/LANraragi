@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 usage() { echo "Usage: $0 [-d (devmode) -w (wsl cpan packages)]" 1>&2; exit 1; }
 
 DEV=0
