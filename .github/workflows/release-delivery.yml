@@ -11,7 +11,7 @@ jobs:
     - uses: actions/checkout@master
     - name: Docker Build and export
       run: |
-        docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile --build-arg INSTALL_PARAMETER=-w .
+        docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile .
         docker create --name rootfs difegue/lanraragi 
         docker export --output=package.tar rootfs
     - name: Upload rootfs
@@ -47,7 +47,7 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: wsl
-        path: ./tools/build/windows/Karen/Setup/bin/LANraragi.msi
+        path: ./tools/build/windows/Karen/LRR_WSL2.msi
   uploadWSLRelease:
     name: Add Windows Installer to release
     needs: buildReleaseWSL
@@ -75,10 +75,10 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Set up QEMU
-      uses: docker/setup-qemu-action@v2
+      uses: docker/setup-qemu-action@v3
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-    - uses: actions/cache@v3
+      uses: docker/setup-buildx-action@v3
+    - uses: actions/cache@v4
       with: 
         path: /tmp/buildxcache
         key: ${{ runner.os }}-docker-buildx-${{ github.sha }}
