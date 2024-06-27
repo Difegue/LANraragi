@@ -41,6 +41,8 @@ jobs:
         $ErrorActionPreference = 'Continue'
         git submodule init
         git submodule update
+        choco uninstall wixtoolset
+        choco install wixtoolset --version 3.14.0 --allow-downgrade --force
         choco install nuget.commandline
         ./tools/build/windows/build.ps1
     - name: Upload Installer
