@@ -76,9 +76,10 @@ unless ( @ARGV > 0 ) {
     exit;
 }
 
-my $front = $ARGV[0] eq "install-front";
-my $back  = $ARGV[0] eq "install-back";
-my $full  = $ARGV[0] eq "install-full";
+my $front  = $ARGV[0] eq "install-front";
+my $back   = $ARGV[0] eq "install-back";
+my $full   = $ARGV[0] eq "install-full";
+my $legacy = $ARGV[1] eq "legacy";
 
 say( "Working Directory: " . getcwd );
 say("");
@@ -156,7 +157,8 @@ if ( $front || $full ) {
 
     say("\r\nObtaining remote Web dependencies...\r\n");
 
-    if ( system("npm ci") != 0 ) {
+    my $npmcmd = $legacy ? "npm install" : "npm ci";
+    if ( system($npmcmd) != 0 ) {
         die "Something went wrong while obtaining node modules - Bailing out.";
     }
 

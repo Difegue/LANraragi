@@ -30,6 +30,24 @@ difegue/lanraragi
 You can tell Docker to auto-restart the LRR container on boot by adding the `--restart always` flag to this command.
 {% endhint %}
 
+{% hint style="info" %}
+Alternatively, if you prefer a `docker-compose.yml` file, use:
+```yaml
+---
+services:
+  lanraragi:
+    image: difegue/lanraragi
+    container_name: lanraragi
+    ports:
+      - "3000:3000"
+    volumes:
+      - [YOUR_CONTENT_DIRECTORY]:/home/koyomi/lanraragi/content
+      - [YOUR_THUMBNAIL_DIRECTORY]:/home/koyomi/lanraragi/content/thumb
+      - [YOUR_DATABASE_DIRECTORY]:/home/koyomi/lanraragi/database
+    restart: unless-stopped
+```
+{% endhint %}
+
 The content directory you have to specify in the command above will contain archives you either upload through the software or directly drop in, alongside generated thumbnails.  
 The database directory houses the LANraragi database(As database.rdb), allowing you to hotswap containers without losing any data.
 

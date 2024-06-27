@@ -130,7 +130,6 @@ ID of the Archive to process.
                 "7f03b8b1f337e1e42b2c2890533c0de7479d41ca"
             ],
             "id": "SET_1613080290",
-            "last_used": "1614298062",
             "name": "My great category",
             "pinned": "0",
             "search": ""

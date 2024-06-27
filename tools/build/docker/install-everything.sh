@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 usage() { echo "Usage: $0 [-d (devmode) -w (wsl cpan packages)]" 1>&2; exit 1; }
 
 DEV=0
@@ -68,7 +70,11 @@ fi
 
 #Install the LRR dependencies proper
 cd tools && cpanm --notest --installdeps . -M https://cpan.metacpan.org && cd ..
+if [ $WSL -eq 1 ]; then
+npm run lanraragi-installer install-full legacy
+else
 npm run lanraragi-installer install-full
+fi
 
 if [ $DEV -eq 0 ]; then
   #Cleanup to lighten the image
