@@ -91,7 +91,7 @@ jobs:
         docker create --name rootfs difegue/lanraragi 
         docker export --output=package.tar rootfs
     - name: Upload rootfs
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: package-legacy
         path: package.tar 
@@ -103,11 +103,11 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Download package
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: package
     - name: Download package
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: package-legacy
     - name: Build MSI Installer
@@ -126,12 +126,12 @@ jobs:
         choco install nuget.commandline
         ./tools/build/windows/build.ps1
     - name: Upload Installer
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: LANraragi.msi
         path: ./tools/build/windows/Karen/LRR_WSL2.msi
     - name: Upload Installer
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: LANraragi_legacy.msi
         path: ./tools/build/windows/Karen/LRR_WSL1.msi
