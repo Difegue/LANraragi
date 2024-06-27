@@ -21,7 +21,6 @@ sub setup_redis_mock {
         },
         "SET_1589141306": {
             "archives": "[\\\"e69e43e1355267f7d32a4f9b7f2fe108d2401ebf\\\",\\\"e69e43e1355267f7d32a4f9b7f2fe108d2401ebg\\\"]",
-            "last_used": "1589141306",
             "name": "Segata Sanshiro",
             "pinned": "1",
             "search": ""
@@ -29,7 +28,6 @@ sub setup_redis_mock {
         "SET_1589138380":{
             "archives": "[]",
             "id": "SET_1589138380",
-            "last_used": "1589138380",
             "name": "AMERICA ONRY",
             "pinned": "0",
             "search": "American"

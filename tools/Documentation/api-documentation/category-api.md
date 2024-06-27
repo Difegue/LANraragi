@@ -11,7 +11,6 @@ Get all the categories saved on the server.
   {
     "archives": [],
     "id": "SET_1589227137",
-    "last_used": "1589487499",
     "name": "doujinshi 💦💦💦",
     "pinned": "1",
     "search": "doujinshi"
@@ -19,7 +18,6 @@ Get all the categories saved on the server.
   {
     "archives": [],
     "id": "SET_1589291510",
-    "last_used": "1589487501",
     "name": "All archives by uo denim",
     "pinned": "0",
     "search": "artist:uo denim"
@@ -33,7 +31,6 @@ Get all the categories saved on the server.
       "32f0edeb5d5b3cf71a02b39279a69d0a903e4aed"
     ],
     "id": "SET_1589493021",
-    "last_used": "1589493776",
     "name": "The very best",
     "pinned": "0",
     "search": ""
@@ -57,7 +54,6 @@ ID of the Category desired.
 {
   "archives": [],
   "id": "SET_1613080290",
-  "last_used": "1613080930",
   "name": "My great category",
   "pinned": "0",
   "search": ""
