@@ -216,8 +216,6 @@
 				id: "[% id %]",
 			});
 			[% END %]
-			[% ELSE %]
-			catList.push("No Categories yet...");
 			[% END %]
 
 			// Initialize context menu

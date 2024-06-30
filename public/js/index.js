@@ -516,6 +516,10 @@ Index.loadContextMenuCategories = (catList, id) => Server.callAPI(`/api/archives
             };
         }
 
+        if (Object.keys(items).length === 0) {
+            items.noop = { name: "No Categories yet...", icon: "far fa-sad-cry" };
+        }
+
         return items;
     },
 );
