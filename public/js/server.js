@@ -23,7 +23,7 @@ Server.callAPI = function (endpoint, method, successMessage, errorMessage, succe
                 throw new Error(data.error);
             } else {
                 let message = successMessage;
-                if ("successMessage" in data && data.successMessage !== null) {
+                if ("successMessage" in data && data.successMessage) {
                     message = data.successMessage;
                 }
                 if (message !== null) {
@@ -50,7 +50,7 @@ Server.callAPIBody = function (endpoint, method, body, successMessage, errorMess
                 throw new Error(data.error);
             } else {
                 let message = successMessage;
-                if ("successMessage" in data && data.successMessage !== null) {
+                if ("successMessage" in data && data.successMessage) {
                     message = data.successMessage;
                 }
                 if (message !== null) {
