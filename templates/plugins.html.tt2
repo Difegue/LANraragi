@@ -10,7 +10,7 @@
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 
 	<link type="image/png" rel="icon" href="/favicon.ico" />
-	<link rel="manifest" href="app.webmanifest" />
+	<link rel="manifest" href="app.webappmanifest" />
 	<link rel="stylesheet" type="text/css" href="/css/lrr.css?[% version%]" />
 	<link rel="stylesheet" type="text/css" href="/css/config.css" />
 
