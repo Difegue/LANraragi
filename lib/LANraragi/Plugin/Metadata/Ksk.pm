@@ -75,18 +75,11 @@ sub tags_from_ksk_yaml {
     my $url      = $hash->{"URL"};
     my $released = $hash->{"Released"};
 
-    foreach my $tag (@$tags) {
-        push( @found_tags, $tag );
-    }
-    foreach my $tag (@$artists) {
-        push( @found_tags, "artist:" . $tag );
-    }
-    foreach my $tag (@$parody) {
-        push( @found_tags, "series:" . $tag );
-    }
-    foreach my $tag (@$magazine) {
-        push( @found_tags, "magazine:" . $tag );
-    }
+    handle_tag_yaml( "",          $tags,     \@found_tags );
+    handle_tag_yaml( "artist:",   $artists,  \@found_tags );
+    handle_tag_yaml( "series:",   $parody,   \@found_tags );
+    handle_tag_yaml( "magazine:", $magazine, \@found_tags );
+
     if ($assume_english) {
         push( @found_tags, "language:english" );
     }
@@ -99,6 +92,21 @@ sub tags_from_ksk_yaml {
     #Done-o
     my $concat_tags = join( ", ", @found_tags );
     return ( $concat_tags, $title );
+
+}
+
+sub handle_tag_yaml {
+    my $namespace = $_[0];
+    my $yamldata  = $_[1];
+
+    # Check if array or string, don't iterate if string
+    if ( ref $yamldata eq 'ARRAY' ) {
+        foreach my $tag (@$yamldata) {
+            push( @{ $_[2] }, "$namespace$tag" );
+        }
+    } else {
+        push( @{ $_[2] }, "$namespace$yamldata" );
+    }
 
 }
 
