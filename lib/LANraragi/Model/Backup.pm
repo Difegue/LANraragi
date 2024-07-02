@@ -10,7 +10,7 @@ use Mojo::JSON qw(decode_json encode_json);
 use LANraragi::Model::Category;
 use LANraragi::Utils::Database;
 use LANraragi::Utils::String   qw(trim_CRLF);
-use LANraragi::Utils::Database qw(redis_encode redis_decode invalidate_cache set_title set_tags);
+use LANraragi::Utils::Database qw(redis_encode redis_decode invalidate_cache set_title set_tags set_summary);
 use LANraragi::Utils::Logging  qw(get_logger);
 
 #build_backup_JSON()
