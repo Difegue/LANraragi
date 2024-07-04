@@ -235,7 +235,7 @@ sub get_tags_from_fakku {
 
     # If the Summary DIV doesn't exist, return a blank string.
     if ( defined $summ_div ) {
-        $summary = $summ_div->text;
+        $summary = $summ_div->all_text;
     } else {
         $summary = "";
     }
