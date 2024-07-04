@@ -25,7 +25,7 @@ sub plugin_info {
         namespace   => "fakkumetadata",
         login_from  => "fakkulogin",
         author      => "Difegue, Nodja, Nixis198",
-        version     => "0.96",
+        version     => "0.97",
         description =>
           "Searches FAKKU for tags matching your archive. If you have an account, don't forget to enter the matching cookie in the login plugin to be able to access controversial content. <br/><br/>  
            <i class='fa fa-exclamation-circle'></i> <b>This plugin can and will return invalid results depending on what you're searching for!</b> <br/>The FAKKU search API isn't very precise and I recommend you use the Chaika.moe plugin when possible.",
