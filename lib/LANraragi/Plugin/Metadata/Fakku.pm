@@ -95,12 +95,11 @@ sub get_tags {
     # We could stand to pre-check it to see if it really is a FAKKU URL but meh
     if ( $lrr_info->{oneshot_param} ) {
         $fakku_URL = $lrr_info->{oneshot_param};
-    } else {
-        if ( $fakku_URL eq "" ) {
+    }
+    if ( $fakku_URL eq "" ) {
 
-            # Search for a FAKKU URL if the user didn't specify one or none found in the tags.
-            $fakku_URL = search_for_fakku_url( $lrr_info->{archive_title}, $ua );
-        }
+        # Search for a FAKKU URL if the user didn't specify one or none found in the tags.
+        $fakku_URL = search_for_fakku_url( $lrr_info->{archive_title}, $ua );
     }
 
     # Do we have a URL to grab data from?
@@ -297,7 +296,10 @@ sub get_tags_from_fakku {
     }
 
     # Adds the source tag is enabled.
-    push( @tags, "source:" . $url ) unless !$add_url;
+    if ($add_url) {
+        $url =~ s{^https://www\.}{}i;
+        push( @tags, "source:" . $url );
+    }
 
     return ( join( ', ', @tags ), $title, $summary );
 
