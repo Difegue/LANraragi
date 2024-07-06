@@ -108,6 +108,7 @@
         <br><b>-namespace:*</b> : removes all tags within this namespace
         <br><b>~namespace</b> : strips the namespace from the tags
         <br><b>tag -> new-tag</b> : replaces one tag
+        <br><b>tag => new-tag</b> : replaces one tag, but use a hash table internally for faster performance
         <br><b>namespace:* -> new-namespace:*</b> : replaces the namespace with the new one
     </td>
 </tr>

@@ -14,6 +14,7 @@ The format is as follows:
 * `-namespace:*` : removes all tags within this namespace
 * `~namespace` : strips the namespace from the tags
 * `tag -> new-tag` : replaces one tag
+* `tag => new-tag` : replaces one tag, but uses a hash table internally for faster performance. This will be executed __once__ after all other rules.
 * `namespace:* -> new-namespace:*` : replaces the namespace in all tags that contain it
 
 Also note that _the match is case insensitive_, but the replacement will keep the case specified in the rule, so you can write this rule
