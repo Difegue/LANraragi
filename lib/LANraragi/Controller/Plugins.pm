@@ -179,7 +179,11 @@ sub process_upload {
             return;
         }
 
-        my $dir         = getcwd() . ("/lib/LANraragi/Plugin/$plugintype/");
+        my $dir = getcwd() . ("/lib/LANraragi/Plugin/Sideloaded/");
+        unless ( -e $dir ) {
+            mkdir $dir;
+        }
+        
         my $output_file = $dir . $filename;
 
         $logger->info("Uploading new plugin $filename to $output_file ...");
