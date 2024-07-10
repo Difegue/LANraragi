@@ -22,8 +22,9 @@ jobs:
         key: ${{ runner.os }}-docker-buildx-${{ github.sha }}
         restore-keys: |
           ${{ runner.os }}-docker-buildx-
-    - name: Build x86/ARMv7 images
+    - name: Build ARMv6/ARMv7 images
       run: |
+        apt-get update && apt-get upgrade 
         docker buildx build \
           --platform linux/arm/v6,linux/arm/v7 \
           --output "type=image,push=false" \
