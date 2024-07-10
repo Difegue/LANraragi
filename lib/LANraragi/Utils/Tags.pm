@@ -10,7 +10,7 @@ use LANraragi::Utils::String qw(trim trim_CRLF);
 
 # Functions related to the Tag system.
 use Exporter 'import';
-our @EXPORT_OK = qw(unflat_tagrules replace_CRLF restore_CRLF tags_rules_to_array rewrite_tags build_tag_replace_hash split_tags_to_array join_tags_to_string);
+our @EXPORT_OK = qw( unflat_tagrules replace_CRLF restore_CRLF tags_rules_to_array rewrite_tags build_tag_replace_hash split_tags_to_array join_tags_to_string );
 
 sub is_null_or_empty {
     return !length(shift);
@@ -65,21 +65,17 @@ sub tags_rules_to_array {
             if ( !$value && $match =~ m/^-.*:\*$/ ) {
                 $rule_type = 'remove_ns';
                 $match     = substr( $match, 1, length($match) - 3 );
-            }
-            elsif ( !$value && $match =~ m/^-/ ) {
+            } elsif ( !$value && $match =~ m/^-/ ) {
                 $rule_type = 'remove';
                 $match     = substr( $match, 1 );
-            }
-            elsif ( !$value && $match =~ m/^~/ ) {
+            } elsif ( !$value && $match =~ m/^~/ ) {
                 $rule_type = 'strip_ns';
                 $match     = substr( $match, 1 );
-            }
-            elsif ( $match =~ m/:\*$/ && $value =~ m/:\*$/ ) {
+            } elsif ( $match =~ m/:\*$/ && $value =~ m/:\*$/ ) {
                 $rule_type = 'replace_ns';
                 $match     = substr( $match, 0, length($match) - 2 );
                 $value     = substr( $value, 0, length($value) - 2 );
-            }
-            elsif ( $line =~ m/=>/ ) {
+            } elsif ( $line =~ m/=>/ ) {
                 # process hash_replace rule
                 ( $match, $value ) = split( '=>', $line );
                 $rule_type = 'hash_replace';
@@ -88,8 +84,7 @@ sub tags_rules_to_array {
             }
             elsif ( !$value ) {
                 $rule_type = 'remove';    # blacklist mode
-            }
-            else {
+            } else {
                 $rule_type = 'replace';
             }
 
