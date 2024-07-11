@@ -307,8 +307,14 @@ sub setup_redis_mock {
 }
 
 sub get_logger_mock {
+    my ($args) = @_;
     my $mock = Test::MockObject->new();
-    $mock->mock( 'debug', sub { }, 'info', sub { }, 'trace', sub { } );
+    $mock->mock(
+        'error', sub { push( @{$args}, [ 'error', @_ ] ) if ($args); },
+        'info',  sub { push( @{$args}, [ 'info',  @_ ] ) if ($args); },
+        'debug', sub { push( @{$args}, [ 'debug', @_ ] ) if ($args); },
+        'trace', sub { push( @{$args}, [ 'trace', @_ ] ) if ($args); }
+    );
     return $mock;
 }
 

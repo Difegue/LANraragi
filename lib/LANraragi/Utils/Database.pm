@@ -24,8 +24,9 @@ use LANraragi::Utils::Logging qw(get_logger);
 
 # Functions for interacting with the DB Model.
 use Exporter 'import';
-our @EXPORT_OK =
-  qw(redis_encode redis_decode invalidate_cache compute_id change_archive_id set_tags set_title set_summary set_isnew get_computed_tagrules save_computed_tagrules get_archive_json get_archive_json_multi get_tankoubons_by_file);
+our @EXPORT_OK = qw(
+  redis_encode redis_decode invalidate_cache compute_id change_archive_id set_tags set_title set_summary set_isnew get_computed_tagrules save_computed_tagrules get_tankoubons_by_file
+  get_archive get_archive_json get_archive_json_multi get_archive_tags);
 
 # Creates a DB entry for a file path with the given ID.
 # This function doesn't actually require the file to exist at its given location.
@@ -135,21 +136,23 @@ sub add_pagecount ( $redis, $id ) {
     $redis->hset( $id, "pagecount", scalar @images );
 }
 
+# Retrieves the archive's info as hash (empty if not found)
+sub get_archive ($id) {
+    my $redis = LANraragi::Model::Config->get_redis;
+    my %hash  = h_get_archive( $redis, $id );
+    $redis->quit();
+    return %hash;
+}
+
+sub h_get_archive ( $redis, $id ) {
+    return $redis->hgetall($id);
+}
+
 # Builds a JSON object for an archive registered in the database and returns it.
 # If you need to get many JSONs at once, use the multi variant.
 sub get_archive_json ( $redis, $id ) {
-
-    my $arcdata;
-
-    eval {
-        #Extra check in case we've been given a bogus ID
-        die unless $redis->exists($id);
-
-        my %hash = $redis->hgetall($id);
-        $arcdata = build_json( $id, %hash );
-    };
-
-    return $arcdata;
+    my %hash = h_get_archive( $redis, $id );
+    return build_json( $id, %hash );
 }
 
 # Uses Redis' MULTI to get an archive JSON for each ID.
@@ -163,7 +166,7 @@ sub get_archive_json_multi (@ids) {
     eval {
         $redis->multi;
         foreach my $id (@ids) {
-            $redis->hgetall($id);
+            h_get_archive( $redis, $id );
         }
         @results = $redis->exec;
         $redis->quit;
@@ -185,6 +188,14 @@ sub get_archive_json_multi (@ids) {
     }
 
     return @archives;
+}
+
+sub get_archive_tags ($id) {
+    my %archive_info = get_archive($id);
+    return undef if ( !%archive_info );
+    return wantarray
+      ? split_tags_to_array( $archive_info{tags} )
+      : $archive_info{tags};
 }
 
 # Internal function for building an archive JSON.
