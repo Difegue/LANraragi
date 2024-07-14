@@ -10,7 +10,7 @@ use LANraragi::Utils::String qw(trim trim_CRLF);
 
 # Functions related to the Tag system.
 use Exporter 'import';
-our @EXPORT_OK = qw( unflat_tagrules replace_CRLF restore_CRLF tags_rules_to_array rewrite_tags split_tags_to_array join_tags_to_string );
+our @EXPORT_OK = qw( unflat_tagrules replace_CRLF restore_CRLF tags_rules_to_array rewrite_tags build_tag_replace_hash split_tags_to_array join_tags_to_string );
 
 sub is_null_or_empty {
     return !length(shift);
@@ -75,7 +75,14 @@ sub tags_rules_to_array {
                 $rule_type = 'replace_ns';
                 $match     = substr( $match, 0, length($match) - 2 );
                 $value     = substr( $value, 0, length($value) - 2 );
-            } elsif ( !$value ) {
+            } elsif ( $line =~ m/=>/ ) {
+                # process hash_replace rule
+                ( $match, $value ) = split( '=>', $line );
+                $rule_type = 'hash_replace';
+                $match     = trim($match);
+                $value     = trim($value);
+            }
+            elsif ( !$value ) {
                 $rule_type = 'remove';    # blacklist mode
             } else {
                 $rule_type = 'replace';
@@ -87,21 +94,42 @@ sub tags_rules_to_array {
     return @rules;
 }
 
+# build hash_replace rules and return the remaining rules
+sub build_tag_replace_hash {
+    my ($rules) = @_;
+    my %hash_replace_rules;
+    my @other_rules;
+
+    foreach my $rule (@$rules) {
+        if ( $rule->[0] eq 'hash_replace' ) {
+            $hash_replace_rules{ lc $rule->[1] } = $rule->[2];
+        }
+        else {
+            push( @other_rules, $rule );
+        }
+    }
+
+    return ( \@other_rules, \%hash_replace_rules );
+}
+
 sub rewrite_tags {
-    my ( $tags, $rules ) = @_;
+    my ( $tags, $rules, $hash_replace_rules ) = @_;
     return @$tags if ( !@$rules );
+
+    unless ( defined $hash_replace_rules ) {
+        ( $rules, $hash_replace_rules ) = build_tag_replace_hash($rules);
+    }
 
     my @parsed_tags;
     foreach my $tag (@$tags) {
-        my $new_tag = apply_rules( $tag, $rules );
-        push( @parsed_tags, $new_tag ) if ($new_tag);
+        my $new_tag = apply_rules( $tag, $rules, $hash_replace_rules );
+        push( @parsed_tags, $new_tag ) if defined $new_tag;
     }
     return @parsed_tags;
 }
 
 sub apply_rules {
-    my ( $tag, $rules ) = @_;
-
+    my ( $tag, $rules, $replace_hash ) = @_;
     foreach my $rule (@$rules) {
         my $match = $rule->[1];
         my $value = $rule->[2];
@@ -113,7 +141,9 @@ sub apply_rules {
             default             { $tag = $value if ( lc $tag eq $match ); }
         }
     }
-
+    if ( exists $replace_hash->{ lc $tag } ) {
+        $tag = $replace_hash->{ lc $tag };
+    }
     return $tag;
 }
 
