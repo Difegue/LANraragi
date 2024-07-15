@@ -190,7 +190,7 @@ sub get_archive_json_multi (@ids) {
     return @archives;
 }
 
-sub get_archive_tags ($id) {
+sub get_tags ($id) {
     my %archive_info = get_archive($id);
     return undef if ( !%archive_info );
     return wantarray
