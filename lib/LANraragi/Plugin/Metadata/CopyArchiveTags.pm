@@ -25,7 +25,7 @@ sub plugin_info {
                 desc => "Enable to also copy the date (but it's up to you to remove the old one)"
             }
         ],
-        oneshot_arg => "LRR Gallery URI or ID:"
+        oneshot_arg => "LRR Gallery URL or ID:"
     );
 
 }
