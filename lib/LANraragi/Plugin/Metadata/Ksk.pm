@@ -80,6 +80,19 @@ sub tags_from_ksk_yaml {
     handle_tag_yaml( "series:",   $parody,   \@found_tags );
     handle_tag_yaml( "magazine:", $magazine, \@found_tags );
 
+    # Koharu-version tags. Uses namespaces, and keys are lowercase
+    if (!defined($title)) {
+        $title = $hash->{"title"};
+    }
+    handle_tag_yaml( "",          $hash->{"general"},  \@found_tags );
+    handle_tag_yaml( "male:",     $hash->{"male"},     \@found_tags );
+    handle_tag_yaml( "female:",   $hash->{"female"},   \@found_tags );
+    handle_tag_yaml( "mixed:",    $hash->{"mixed"},    \@found_tags );
+    handle_tag_yaml( "other:",    $hash->{"other"},    \@found_tags );
+    handle_tag_yaml( "artist:",   $hash->{"artist"},   \@found_tags );
+    handle_tag_yaml( "language:", $hash->{"language"}, \@found_tags );
+    handle_tag_yaml( "source:",   $hash->{"source"},   \@found_tags );
+
     if ($assume_english) {
         push( @found_tags, "language:english" );
     }
@@ -104,7 +117,7 @@ sub handle_tag_yaml {
         foreach my $tag (@$yamldata) {
             push( @{ $_[2] }, "$namespace$tag" );
         }
-    } else {
+    } elsif ( defined($yamldata) ) {
         push( @{ $_[2] }, "$namespace$yamldata" );
     }
 
