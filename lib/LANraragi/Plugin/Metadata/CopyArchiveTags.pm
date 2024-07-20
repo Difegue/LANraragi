@@ -1,5 +1,8 @@
 package LANraragi::Plugin::Metadata::CopyArchiveTags;
 
+use v5.36;
+use experimental 'try';
+
 use strict;
 use warnings;
 
@@ -36,10 +39,12 @@ sub get_tags {
     my $logger = get_plugin_logger();
 
     # should be handled in the caller
-    my %hashdata = eval { internal_get_tags( $logger, $params ); };
-    if ($@) {
-        $logger->error($@);
-        return ( error => $@ );
+    my %hashdata;
+    try {
+        %hashdata = internal_get_tags( $logger, $params );
+    } catch ($e) {
+        $logger->error($e);
+        return ( error => $e );
     }
 
     $logger->info( "Sending the following tags to LRR: " . ( $hashdata{tags} || '-' ) );
