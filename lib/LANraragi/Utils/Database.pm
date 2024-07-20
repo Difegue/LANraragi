@@ -26,7 +26,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 use Exporter 'import';
 our @EXPORT_OK = qw(
   redis_encode redis_decode invalidate_cache compute_id change_archive_id set_tags set_title set_summary set_isnew get_computed_tagrules save_computed_tagrules get_tankoubons_by_file
-  get_archive get_archive_json get_archive_json_multi get_archive_tags);
+  get_archive get_archive_json get_archive_json_multi get_tags);
 
 # Creates a DB entry for a file path with the given ID.
 # This function doesn't actually require the file to exist at its given location.
@@ -193,9 +193,7 @@ sub get_archive_json_multi (@ids) {
 sub get_tags ($id) {
     my %archive_info = get_archive($id);
     return undef if ( !%archive_info );
-    return wantarray
-      ? split_tags_to_array( $archive_info{tags} )
-      : $archive_info{tags};
+    return $archive_info{tags};
 }
 
 # Internal function for building an archive JSON.
