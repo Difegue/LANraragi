@@ -6,7 +6,7 @@ use Encode;
 use Mojo::JSON qw(decode_json);
 
 use LANraragi::Utils::Generic  qw(generate_themes_header);
-use LANraragi::Utils::Tags     qw(rewrite_tags split_tags_to_array restore_CRLF);
+use LANraragi::Utils::Tags     qw(rewrite_tags build_tag_replace_hash split_tags_to_array restore_CRLF);
 use LANraragi::Utils::Database qw(redis_decode get_computed_tagrules set_tags set_title set_summary set_isnew invalidate_cache);
 use LANraragi::Utils::Plugins  qw(get_plugins get_plugin get_plugin_parameters);
 use LANraragi::Utils::Logging  qw(get_logger);
@@ -48,6 +48,8 @@ sub socket {
     # Increase inactivity timeout for connection a bit to account for clientside timeouts
     $self->inactivity_timeout(80);
 
+    my @rules = get_computed_tagrules();
+    my ( $rules, $hash_replace_rules ) = build_tag_replace_hash( \@rules );
     $self->on(
         message => sub {
             my ( $self, $msg ) = @_;
@@ -132,8 +134,7 @@ sub socket {
                 $tags = redis_decode($tags);
 
                 my @tagarray = split_tags_to_array($tags);
-                my @rules    = get_computed_tagrules();
-                @tagarray = rewrite_tags( \@tagarray, \@rules );
+                @tagarray = rewrite_tags(\@tagarray, $rules, $hash_replace_rules);
 
                 # Merge array with commas
                 my $newtags = join( ', ', @tagarray );
