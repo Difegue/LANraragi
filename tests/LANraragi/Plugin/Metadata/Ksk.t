@@ -88,7 +88,7 @@ note("test support for koharu info.yaml");
     is( $ko_tags{title}, "[Marcus Aurelius] Meditations", "Didn't handle title" );
 
     my $expected_tags =
-        "first, second, third, male:emperor, male:philosopher, male:stoic, female:ass, female:titties, mixed:group, other:philosophy, artist:marcus aurelius, language:greek, source:SchaleNetwork:/g/1337/b00b1e5";
+        "first, second, third, male:emperor, male:philosopher, male:stoic, female:ass, female:titties, mixed:group, other:philosophy, artist:marcus aurelius, circle:square, parody:original, magazine:daily philosophy, language:greek, source:SchaleNetwork:/g/1337/b00b1e5";
     is( $ko_tags{tags}, $expected_tags, "Didn't handle tags" );
 }
 

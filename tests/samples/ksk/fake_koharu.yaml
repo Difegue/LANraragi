@@ -6,6 +6,12 @@ general:
   - third
 artist:
   - marcus aurelius
+circle:
+  - square
+parody:
+  - original
+magazine:
+  - daily philosophy
 male:
   - emperor
   - philosopher

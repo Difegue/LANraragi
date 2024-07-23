@@ -90,6 +90,9 @@ sub tags_from_ksk_yaml {
     handle_tag_yaml( "mixed:",    $hash->{"mixed"},    \@found_tags );
     handle_tag_yaml( "other:",    $hash->{"other"},    \@found_tags );
     handle_tag_yaml( "artist:",   $hash->{"artist"},   \@found_tags );
+    handle_tag_yaml( "circle:",   $hash->{"circle"},   \@found_tags );
+    handle_tag_yaml( "parody:",   $hash->{"parody"},   \@found_tags );
+    handle_tag_yaml( "magazine:", $hash->{"magazine"}, \@found_tags );
     handle_tag_yaml( "language:", $hash->{"language"}, \@found_tags );
     handle_tag_yaml( "source:",   $hash->{"source"},   \@found_tags );
 
