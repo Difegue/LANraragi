@@ -3,7 +3,6 @@ package LANraragi::Utils::String;
 use strict;
 use warnings;
 use utf8;
-use feature "switch";
 no warnings 'experimental';
 use feature qw(signatures);
 
