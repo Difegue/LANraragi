@@ -3,7 +3,6 @@ package LANraragi::Utils::Generic;
 use strict;
 use warnings;
 use utf8;
-use feature "switch";
 no warnings 'experimental';
 
 use Storable qw(store);
