@@ -217,14 +217,12 @@ sub generate_themes_header {
 # Note: CSS files added to the /themes folder will ALWAYS be pickable by the users no matter what.
 # All this sub does is give .css files prettier names in the dropdown. Files without a name here will simply show as their filename to the users.
 sub css_default_data {
-    given ( $_[0] ) {
-        when ("g.css")            { return ( "H-Verse",   "#5F0D1F" ) }
-        when ("modern.css")       { return ( "Hachikuji", "#34353B" ) }
-        when ("modern_clear.css") { return ( "Yotsugi",   "#34495E" ) }
-        when ("modern_red.css")   { return ( "Nadeko",    "#D83B66" ) }
-        when ("ex.css")           { return ( "Sad Panda", "#43464E" ) }
-        default                   { return ( $_[0],       "#34353B" ) }
-    }
+    if ($_[0] eq "g.css")               { return ( "H-Verse",   "#5F0D1F" ) }
+    elsif ($_[0] eq "modern.css")       { return ( "Hachikuji", "#34353B" ) }
+    elsif ($_[0] eq "modern_clear.css") { return ( "Yotsugi",   "#34495E" ) }
+    elsif ($_[0] eq "modern_red.css")   { return ( "Nadeko",    "#D83B66" ) }
+    elsif ($_[0] eq "ex.css")           { return ( "Sad Panda", "#43464E"  )}
+    else { return ( $_[0], "#34353B") }
 }
 
 sub flat {

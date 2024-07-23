@@ -131,15 +131,14 @@ sub rewrite_tags {
 sub apply_rules {
     my ( $tag, $rules, $replace_hash ) = @_;
     foreach my $rule (@$rules) {
+        my $name  = $rule->[0];
         my $match = $rule->[1];
         my $value = $rule->[2];
-        given ( $rule->[0] ) {
-            when ('remove')     { return if ( lc $tag eq $match ); }
-            when ('remove_ns')  { return if ( $tag =~ m/^$match:/i ); }
-            when ('replace_ns') { $tag =~ s/^\Q$match:/$value\:/i; }
-            when ('strip_ns')   { $tag =~ s/^\Q$match://i; }
-            default             { $tag = $value if ( lc $tag eq $match ); }
-        }
+        if ( $name eq 'remove' )        { return if ( lc $tag eq $match ); }
+        elsif ( $name eq 'remove_ns' )  { return if ( $tag =~ m/^$match:/i ); }
+        elsif ( $name eq 'replace_ns' ) { $tag =~ s/^\Q$match:/$value\:/i; }
+        elsif ( $name eq 'strip_ns' )   { $tag =~ s/^\Q$match://i; }
+        else { $tag = $value if ( lc $tag eq $match ); }
     }
     if ( exists $replace_hash->{ lc $tag } ) {
         $tag = $replace_hash->{ lc $tag };
