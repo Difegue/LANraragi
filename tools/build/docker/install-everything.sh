@@ -35,7 +35,12 @@ if [ -f /etc/alpine-release ]; then
   if [ "$alpine_version" = "3.12.12" ]; then
       apk add nodejs-npm
     else # Those packages don't exist on 3.12
-      apk add nodejs npm s6-overlay libjxl
+      apk add s6-overlay libjxl
+
+      # Install node v18 as v20 breaks with QEMU (https://github.com/nodejs/docker-node/issues/1798)
+      echo 'http://dl-cdn.alpinelinux.org/alpine/v3.18/main' >> /etc/apk/repositories
+      apk update
+      apk add nodejs=18.20.1-r0 npm=18.20.1-r0 
   fi
 fi
 
