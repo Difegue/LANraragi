@@ -145,9 +145,9 @@ if ( $back || $full ) {
         install_package( "Linux::Inotify2", $cpanopt );
     }
 
-    #if ( system( "cpanm --installdeps ./tools/. --notest" . $cpanopt ) != 0 ) {
-    #    die "Something went wrong while installing Perl modules - Bailing out.";
-    #}
+    if ( system( "cpanm --installdeps ./tools/. --notest" . $cpanopt ) != 0 ) {
+        die "Something went wrong while installing Perl modules - Bailing out.";
+    }
 }
 
 #Clientside Dependencies with Provisioning
