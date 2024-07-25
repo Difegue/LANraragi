@@ -169,12 +169,6 @@ sub build_tag_stats {
         # detect the : symbol and only use what's after it
         my $ns = "";
         my $t  = redis_decode($_);
-
-        #  Ignore tags that start with "source:" or "date_added:"
-        if ($t =~ /^source:/ || $t =~ /^date_added:/) {
-            next;
-        }
-
         if ( $t =~ /([^:]*):(.*)/ ) { $ns = $1; $t = $2; }
 
         if ( $_ ne "" ) {

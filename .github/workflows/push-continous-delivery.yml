@@ -90,12 +90,12 @@ jobs:
       run: |
         docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile-legacy --build-arg INSTALL_PARAMETER=-w .
         docker create --name rootfs difegue/lanraragi 
-        docker export --output=package.tar rootfs
+        docker export --output=package-legacy.tar rootfs
     - name: Upload rootfs
       uses: actions/upload-artifact@v4
       with:
         name: package-legacy
-        path: package.tar 
+        path: package-legacy.tar 
 
   buildNightlyWSL:
     name: Build Nightly Windows Packages
@@ -111,6 +111,8 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: package-legacy
+    - name: Display structure of downloaded files
+      run: ls -R
     - name: Build MSI Installer
       shell: powershell
       run: |
@@ -131,8 +133,10 @@ jobs:
       with:
         name: LANraragi.msi
         path: ./tools/build/windows/Karen/LRR_WSL2.msi
+        if-no-files-found: error
     - name: Upload Installer
       uses: actions/upload-artifact@v4
       with:
         name: LANraragi_legacy.msi
         path: ./tools/build/windows/Karen/LRR_WSL1.msi
+        if-no-files-found: error

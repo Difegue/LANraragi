@@ -50,6 +50,7 @@ jobs:
       with:
         name: LANraragi.msi
         path: ./tools/build/windows/Karen/LRR_WSL2.msi
+        if-no-files-found: error
   uploadWSLRelease:
     name: Add Windows Installer to release
     needs: buildReleaseWSL
@@ -58,13 +59,13 @@ jobs:
     - name: Download package
       uses: actions/download-artifact@v4
       with:
-        name: wsl
+        name: LANraragi.msi
     - name: Upload Installer to release
       uses: JasonEtco/upload-to-release@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        args: wsl/LRR_WSL2.msi application/octet-stream
+        args: ./LRR_WSL2.msi application/octet-stream
     - uses: Ilshidur/action-discord@master
       env:
         DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
