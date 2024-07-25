@@ -131,7 +131,7 @@ sub get_tankoubon ( $tank_id, $fulldata = 0, $page = 0 ) {
     }
 
     # Sort and add IDs to archives array
-    foreach my $i ( sort { $tankoubon{$a} <=> $tankoubon{$b} } keys %tankoubon ) {
+    foreach my $i ( sort { $tankoubon{$a} cmp $tankoubon{$b} } keys %tankoubon ) {
         push( @archives, $i );
     }
 
