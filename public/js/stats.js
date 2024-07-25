@@ -21,7 +21,7 @@ Stats.initializeAll = function () {
             // Buildup detailed stats
             const tagList = $("#tagList");
             data.forEach((tag) => {
-                // Client side version of https://github.com/Difegue/LANraragi/pull/1013
+                // Ignore tags that start with "source:" or "date_added:"
                 if (tag.namespace === 'source' || tag.namespace === 'date_added')
                     return;
                 const namespacedTag = LRR.buildNamespacedTag(tag.namespace, tag.text);
