@@ -118,6 +118,61 @@ note("testing tag rules conversion...");
     cmp_deeply( \@rules, [ [ 'strip_ns', 'namespace', '' ] ], 'strips namespace' );
 }
 
+{
+    my $text_rules = '     ping    =>   pong
+
+    no-space   =>         keep     spaces
+    ';
+
+    my @rules = LANraragi::Utils::Tags::tags_rules_to_array($text_rules);
+
+    cmp_deeply(
+        \@rules,
+        [ [ 'hash_replace', 'ping', 'pong' ], [ 'hash_replace', 'no-space', 'keep     spaces' ] ],
+        'hash_replace: skips empty lines and removes surrounding spaces'
+    );
+}
+
+{
+    my $text_rules = 'SCREAM => Be Quite';
+
+    my @rules = LANraragi::Utils::Tags::tags_rules_to_array($text_rules);
+
+    cmp_deeply( \@rules, [ [ 'hash_replace', 'scream', 'Be Quite' ] ], 'hash_replace: always converts the match term to lowercase' );
+}
+
+{
+    my $text_rules = "\r\n ping => pong\r\n -cat";
+
+    my @rules = LANraragi::Utils::Tags::tags_rules_to_array($text_rules);
+
+    cmp_deeply( \@rules, [ [ 'hash_replace', 'ping', 'pong' ], [ 'remove', 'cat', '' ] ], 'hash_replace: handles CRLF' );
+}
+
+{
+    my $text_rules = 'ping => おはよう';
+
+    my @rules = LANraragi::Utils::Tags::tags_rules_to_array($text_rules);
+
+    cmp_deeply( \@rules, [ [ 'hash_replace', 'ping', 'おはよう' ] ], 'hash_replace: handles non-ASCII characters' );
+}
+
+{
+    my $text_rules = 'ping => pong';
+
+    my @rules = LANraragi::Utils::Tags::tags_rules_to_array($text_rules);
+
+    cmp_deeply( \@rules, [ [ 'hash_replace', 'ping', 'pong' ] ], 'hash_replace: simple substitution' );
+}
+
+{
+    my $text_rules = 'group:alpha => lone wolf';
+
+    my @rules = LANraragi::Utils::Tags::tags_rules_to_array($text_rules);
+
+    cmp_deeply( \@rules, [ [ 'hash_replace', 'group:alpha', 'lone wolf' ] ], 'hash_replace: simple substitution with namespace' );
+}
+
 note("testing tags manipulation ...");
 
 {
@@ -202,8 +257,26 @@ note("testing tags manipulation ...");
 }
 
 {
+    my $text_rules = 'flip => flop
+    cat => dog';
+    my @rules = LANraragi::Utils::Tags::tags_rules_to_array($text_rules);
+
+    my @tags = LANraragi::Utils::Tags::rewrite_tags( \@incoming_tags, \@rules );
+
+    cmp_deeply(
+        \@tags,
+        [   'group:alpha',    'group:beta', 'namespace:ONE', 'namespace:Two and Three',
+            'namespace-fake', 'flop',       'ping',          'dog',
+            'with space',     'SCREAM'
+        ],
+        'simple hash_replace substitution'
+    );
+}
+
+{
     my $text_rules = '~NameSpace
     scream -> Please Stop
+    one => Hello
     -PING';
     my @rules = LANraragi::Utils::Tags::tags_rules_to_array($text_rules);
 
@@ -211,7 +284,7 @@ note("testing tags manipulation ...");
 
     cmp_deeply(
         \@tags,
-        [ 'group:alpha', 'group:beta', 'ONE', 'Two and Three', 'namespace-fake', 'flip', 'cat', 'with space', 'Please Stop' ],
+        [ 'group:alpha', 'group:beta', 'Hello', 'Two and Three', 'namespace-fake', 'flip', 'cat', 'with space', 'Please Stop' ],
         'rules matching is case insensitive'
     );
 }
@@ -233,6 +306,34 @@ note('testing rules unflattening...');
     cmp_deeply( \@rules, [], 'unflattened empty rules' );
     my @rules = LANraragi::Utils::Tags::unflat_tagrules(undef);
     cmp_deeply( \@rules, [], 'unflattened undef array' );
+}
+
+note('testing tag rules hash building...');
+
+{
+    my $text_rules = 'bug
+    -bugs
+    ~namespace
+    demo:bad -> demo:good
+    animal:dog -> animal:cat
+    animal:dog => animal:cat
+    animal:ant => animal:bird
+    animal:ant => animal:penguin';
+    my @rules      = LANraragi::Utils::Tags::tags_rules_to_array($text_rules);
+
+    my ( $other_rules, $hash_replace_rules ) = LANraragi::Utils::Tags::build_tag_replace_hash( \@rules );
+
+
+    cmp_deeply(
+        $other_rules,
+        [[ 'remove', 'bug', '' ], [ 'remove', 'bugs', '' ], [ 'strip_ns', 'namespace', '' ], [ 'replace', 'demo:bad', 'demo:good' ], [ 'replace', 'animal:dog', 'animal:cat' ]],
+        'return rules other than the hash_replace type'
+    );
+    cmp_deeply(
+        $hash_replace_rules,
+        { 'animal:dog' => 'animal:cat', 'animal:ant' => 'animal:penguin' },
+        'return a hash containing rules of hash_replace'
+    );
 }
 
 done_testing();

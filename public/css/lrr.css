@@ -703,6 +703,7 @@ body.swal2-shown>[aria-hidden="true"] {
   text-align: left;
   margin: 18px 12px 8px 12px;
   font-size: 9pt;
+  white-space: pre-wrap;
 }
 
 #settingsOverlay {

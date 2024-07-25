@@ -49,5 +49,11 @@ note('testing string similarity detection...');
     is( LANraragi::Utils::String::most_similar( "orange", () ),                           undef, "Empty set" );
 }
 
+note('testing trim_crlf...');
+{
+    is( LANraragi::Utils::String::trim_CRLF( undef ), undef, "Undef should return undef");
+    is( LANraragi::Utils::String::trim_CRLF( "a\nb" ), "ab", "newline should go bye");
+}
+
 done_testing();
 

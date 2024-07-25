@@ -1,5 +1,5 @@
 # DOCKER-VERSION 0.3.4
-FROM        alpine:3.18
+FROM        alpine:3.20
 LABEL       git="https://github.com/Difegue/LANraragi"
 ARG INSTALL_PARAMETER
 
@@ -78,3 +78,4 @@ COPY /tools/build/docker/s6/cont-init.d/01-lrr-setup /etc/s6-overlay/s6-rc.d/ini
 VOLUME [ "/home/koyomi/lanraragi/content" ]
 VOLUME [ "/home/koyomi/lanraragi/content/thumb" ]
 VOLUME [ "/home/koyomi/lanraragi/database"]
+VOLUME [ "/home/koyomi/lanraragi/lib/LANraragi/Plugin/Sideloaded" ]
