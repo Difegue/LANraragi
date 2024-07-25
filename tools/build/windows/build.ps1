@@ -30,7 +30,7 @@ if (Test-Path .\package-legacy.tar) {
     echo "No WSL1 package found, skipping legacy build..."
     exit 0
 }
-mv .\package-legacy.tar .\tools\build\windows\Karen\External\package.tar 
+mv .\package-legacy.tar .\tools\build\windows\Karen\External\package.tar -Force
 cd .\tools\build\windows\Karen
 msbuild /p:Configuration=Release /p:DefineConstants=WSL1_LEGACY
 
