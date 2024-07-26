@@ -28,7 +28,9 @@ docker run --name=lanraragi -p 3000:3000 \
 difegue/lanraragi
 ```
 {% hint style="info" %}
-You can tell Docker to auto-restart the LRR container on boot by adding the `--restart always` flag to this command.
+You can tell Docker to auto-restart the LRR container on boot by adding the `--restart always` flag to this command.  
+
+If you need to sideload plugins, consider adding an additional bind mount for the `/home/koyomi/lanraragi/lib/LANraragi/Plugin/Sideloaded` folder.  
 {% endhint %}
 
 {% hint style="info" %}
