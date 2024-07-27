@@ -3,7 +3,6 @@ package LANraragi::Utils::String;
 use strict;
 use warnings;
 use utf8;
-use feature "switch";
 no warnings 'experimental';
 use feature qw(signatures);
 
@@ -41,8 +40,11 @@ sub trim ($s) {
 
 # Remove all newlines in a string
 sub trim_CRLF ($s) {
-    $s =~ s/\R//g;
-    return $s;
+    if (defined($s)) {
+        $s =~ s/\R//g;
+        return $s;
+    }
+    return;
 }
 
 # Fixes up a URL string for use in the DL system.

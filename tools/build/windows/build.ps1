@@ -9,7 +9,7 @@ echo "Version is $version"
 $env:LRR_VERSION_NUM=$version
 
 # Use Docker image
-mv .\package\package.tar .\tools\build\windows\Karen\External\package.tar 
+mv .\package.tar .\tools\build\windows\Karen\External\package.tar 
 
 # Use Karen master
 cd .\tools\build\windows\Karen
@@ -24,13 +24,13 @@ mv .\Setup\bin\LANraragi.msi .\LRR_WSL2.msi
 
 # Do it again for legacy image if it exists
 cd ..\..\..\..
-if (Test-Path .\package-legacy\package.tar) {
+if (Test-Path .\package-legacy.tar) {
     echo "WSL1 package found, building legacy version..."
 } else {
     echo "No WSL1 package found, skipping legacy build..."
     exit 0
 }
-mv .\package-legacy\package.tar .\tools\build\windows\Karen\External\package.tar 
+mv .\package-legacy.tar .\tools\build\windows\Karen\External\package.tar -Force
 cd .\tools\build\windows\Karen
 msbuild /p:Configuration=Release /p:DefineConstants=WSL1_LEGACY
 

@@ -21,6 +21,9 @@ Stats.initializeAll = function () {
             // Buildup detailed stats
             const tagList = $("#tagList");
             data.forEach((tag) => {
+                // Ignore tags that start with "source:" or "date_added:"
+                if (tag.namespace === 'source' || tag.namespace === 'date_added')
+                    return;
                 const namespacedTag = LRR.buildNamespacedTag(tag.namespace, tag.text);
                 const url = LRR.getTagSearchURL(tag.namespace, tag.text);
 
