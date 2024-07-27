@@ -139,20 +139,26 @@ sub add_pagecount ( $redis, $id ) {
 # Retrieves the archive's info as hash (empty if not found)
 sub get_archive ($id) {
     my $redis = LANraragi::Model::Config->get_redis;
-    my %hash  = h_get_archive( $redis, $id );
+    my %hash  = $redis->hgetall($id);
     $redis->quit();
     return %hash;
-}
-
-sub h_get_archive ( $redis, $id ) {
-    return $redis->hgetall($id);
 }
 
 # Builds a JSON object for an archive registered in the database and returns it.
 # If you need to get many JSONs at once, use the multi variant.
 sub get_archive_json ( $redis, $id ) {
-    my %hash = h_get_archive( $redis, $id );
-    return build_json( $id, %hash );
+
+    my $arcdata;
+
+    eval {
+        #Extra check in case we've been given a bogus ID
+        die unless $redis->exists($id);
+
+        my %hash = $redis->hgetall($id);
+        $arcdata = build_json( $id, %hash );
+    };
+
+    return $arcdata;
 }
 
 # Uses Redis' MULTI to get an archive JSON for each ID.
@@ -166,7 +172,7 @@ sub get_archive_json_multi (@ids) {
     eval {
         $redis->multi;
         foreach my $id (@ids) {
-            h_get_archive( $redis, $id );
+            $redis->hgetall($id);
         }
         @results = $redis->exec;
         $redis->quit;
