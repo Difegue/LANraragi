@@ -4,9 +4,9 @@ use strict;
 use warnings;
 use utf8;
 
-use Mojo::JSON qw(decode_json);
+use Mojo::JSON                 qw(decode_json);
 use LANraragi::Utils::Database qw(redis_decode);
-use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Logging  qw(get_logger);
 
 # Plugin system ahoy - this makes the LANraragi::Utils::Plugins::plugins method available
 # Don't call this method directly - Rely on LANraragi::Utils::Plugins::get_plugins instead
@@ -163,10 +163,8 @@ sub use_plugin {
         # Execute the plugin, appending the custom args at the end
         if ( $pluginfo{type} eq "script" ) {
             eval { %plugin_result = LANraragi::Model::Plugins::exec_script_plugin( $plugin, $input, @settings ); };
-        }
-
-        if ( $pluginfo{type} eq "metadata" ) {
-            eval { %plugin_result = LANraragi::Model::Plugins::exec_metadata_plugin( $plugin, $id, $input, @settings ); };
+        } elsif ( $pluginfo{type} eq "metadata" ) {
+            %plugin_result = LANraragi::Model::Plugins::exec_metadata_plugin( $plugin, $id, $input, @settings );
         }
 
         if ($@) {
