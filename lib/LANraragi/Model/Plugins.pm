@@ -1,5 +1,9 @@
 package LANraragi::Model::Plugins;
 
+use v5.36;
+use experimental 'try';
+no warnings 'experimental::try';
+
 use strict;
 use warnings;
 use utf8;
@@ -53,42 +57,36 @@ sub exec_enabled_plugins_on_file {
 
         my %pluginfo = $plugin->plugin_info();
 
-        #Every plugin execution is eval'd separately
-        eval { %plugin_result = exec_metadata_plugin( $plugin, $id, "", @args ); };
+        %plugin_result = exec_metadata_plugin( $plugin, $id, "", @args );
 
-        if ($@) {
-            $failures++;
-            $logger->error("$@");
-        } elsif ( exists $plugin_result{error} ) {
+        if ( exists $plugin_result{error} ) {
             $failures++;
             $logger->error( $plugin_result{error} );
-        } else {
-            $successes++;
+            next;
         }
 
+        $successes++;
+
         #If the plugin exec returned metadata, add it
-        unless ( exists $plugin_result{error} ) {
-            set_tags( $id, $plugin_result{new_tags}, 1 );
+        set_tags( $id, $plugin_result{new_tags}, 1 );
 
-            # Sum up all the added tags for later reporting.
-            # This doesn't take into account tags that are added twice
-            # (e.g by different plugins), but since this is more meant to show
-            # if the plugins added any data at all it's fine.
-            my @added_tags = split( ',', $plugin_result{new_tags} );
-            $addedtags += @added_tags;
+        # Sum up all the added tags for later reporting.
+        # This doesn't take into account tags that are added twice
+        # (e.g by different plugins), but since this is more meant to show
+        # if the plugins added any data at all it's fine.
+        my @added_tags = split( ',', $plugin_result{new_tags} );
+        $addedtags += @added_tags;
 
-            if ( exists $plugin_result{title} ) {
-                set_title( $id, $plugin_result{title} );
+        if ( exists $plugin_result{title} ) {
+            set_title( $id, $plugin_result{title} );
 
-                $newtitle = $plugin_result{title};
-                $logger->debug("Changing title to $newtitle. (Will do nothing if title is blank)");
-            }
+            $newtitle = $plugin_result{title};
+            $logger->debug("Changing title to $newtitle. (Will do nothing if title is blank)");
+        }
 
-            if ( exists $plugin_result{summary} ) {
-                set_summary( $id, $plugin_result{summary} );
-                $logger->debug("Summary has been changed."); # don't put the new summary in logs, it can be huge
-            }
-
+        if ( exists $plugin_result{summary} ) {
+            set_summary( $id, $plugin_result{summary} );
+            $logger->debug("Summary has been changed.");    # don't put the new summary in logs, it can be huge
         }
     }
 
@@ -195,42 +193,43 @@ sub exec_metadata_plugin {
     my ( $plugin, $id, $oneshotarg, @args ) = @_;
     my $logger = get_logger( "Plugin System", "lanraragi" );
 
-    if ( $id eq 0 ) {
+    if ( !$id ) {
         return ( error => "Tried to call a metadata plugin without providing an id." );
     }
 
-    #If the plugin has the method "get_tags",
-    #catch all the required data and feed it to the plugin
-    if ( $plugin->can('get_tags') ) {
+    if ( !$plugin->can('get_tags') ) {
+        return ( error => "Plugin doesn't implement get_tags despite having a 'metadata' type." );
+    }
 
-        my $redis = LANraragi::Model::Config->get_redis;
-        my %hash  = $redis->hgetall($id);
+    my $redis = LANraragi::Model::Config->get_redis;
+    my %hash  = $redis->hgetall($id);
 
-        my ( $name, $title, $tags, $file, $thumbhash ) = @hash{qw(name title tags file thumbhash)};
+    my ( $name, $title, $tags, $file, $thumbhash ) = @hash{qw(name title tags file thumbhash)};
 
-        ( $_ = LANraragi::Utils::Database::redis_decode($_) ) for ( $name, $title, $tags );
+    ( $_ = LANraragi::Utils::Database::redis_decode($_) ) for ( $name, $title, $tags );
 
-        # If the thumbnail hash is empty or undefined, we'll generate it here.
-        unless ( length $thumbhash ) {
-            $logger->info("Thumbnail hash invalid, regenerating.");
-            my $thumbdir = LANraragi::Model::Config->get_thumbdir;
+    # If the thumbnail hash is empty or undefined, we'll generate it here.
+    unless ( length $thumbhash ) {
+        $logger->info("Thumbnail hash invalid, regenerating.");
+        my $thumbdir = LANraragi::Model::Config->get_thumbdir;
+        $thumbhash = "";
 
-            # Eval the thumbnail extraction, as it can error out and die
-            eval { extract_thumbnail( $thumbdir, $id, 0, 1 ) };
-            if ($@) {
-                $logger->warn("Error building thumbnail: $@");
-                $thumbhash = "";
-            } else {
-                $thumbhash = $redis->hget( $id, "thumbhash" );
-                $thumbhash = LANraragi::Utils::Database::redis_decode($thumbhash);
-            }
+        try {
+            extract_thumbnail( $thumbdir, $id, 0, 1 );
+            $thumbhash = $redis->hget( $id, "thumbhash" );
+            $thumbhash = LANraragi::Utils::Database::redis_decode($thumbhash);
+        } catch ($e) {
+            $logger->warn("Error building thumbnail: $e");
         }
-        $redis->quit();
+    }
+    $redis->quit();
 
+    my %returnhash;
+    try {
         # Hand it off to the plugin here.
         # If the plugin requires a login, execute that first to get a UserAgent
         my %pluginfo = $plugin->plugin_info();
-        my $ua       = exec_login_plugin( $pluginfo{login_from} );
+        my $ua       = exec_login_plugin( $pluginfo{login_from} ) if ( exists $pluginfo{login_from} );
 
         # Bundle all the potentially interesting info in a hash
         my %infohash = (
@@ -243,8 +242,11 @@ sub exec_metadata_plugin {
             oneshot_param  => $oneshotarg
         );
 
-        my %newmetadata = $plugin->get_tags( \%infohash, @args );
+        my %newmetadata;
 
+        %newmetadata = $plugin->get_tags( \%infohash, @args );
+
+        # TODO: remove this block after changing all the metadata plugins
         #Error checking
         if ( exists $newmetadata{error} ) {
 
@@ -274,11 +276,10 @@ sub exec_metadata_plugin {
 
         # Strip last comma and return processed tags in a hash
         chop($newtags);
-        my %returnhash = ( new_tags => $newtags );
+        %returnhash = ( new_tags => $newtags );
 
         # Indicate a title change, if the plugin reports one
         if ( exists $newmetadata{title} && LANraragi::Model::Config->can_replacetitles ) {
-
             my $newtitle = $newmetadata{title};
             $newtitle = trim($newtitle);
             $returnhash{title} = $newtitle;
@@ -289,9 +290,11 @@ sub exec_metadata_plugin {
             $returnhash{summary} = $newmetadata{summary};
         }
 
-        return %returnhash;
+    } catch ($e) {
+        return ( error => $e );
     }
-    return ( error => "Plugin doesn't implement get_tags despite having a 'metadata' type." );
+
+    return %returnhash;
 }
 
 1;

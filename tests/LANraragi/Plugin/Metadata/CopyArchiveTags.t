@@ -12,7 +12,12 @@ use Test::Trap;
 my $cwd = getcwd();
 require "$cwd/tests/mocks.pl";
 
+require_ok('LANraragi::Plugin::Metadata::CopyArchiveTags');
 use_ok('LANraragi::Plugin::Metadata::CopyArchiveTags');
+
+my @log_messages;
+no warnings 'once', 'redefine';
+local *LANraragi::Plugin::Metadata::CopyArchiveTags::get_plugin_logger = sub { return get_logger_mock( \@log_messages ) };
 
 sub _random_archive_id {
     my $rnd = '';
@@ -20,66 +25,77 @@ sub _random_archive_id {
     return $rnd;
 }
 
-note('testing that get_tags doesn\'t die ...');
+note('get_tags when archive tags is undef returns an empty tag list ...');
 {
-
-    my $lrr_info = { 'oneshot_param' => _random_archive_id() };
-    my @log_messages;
-    my $log_mock = get_logger_mock( \@log_messages );
+    @log_messages = ();
+    my $archive_id = _random_archive_id();
+    my $lrr_info   = { 'oneshot_param' => $archive_id, 'archive_id' => 'dummy' };
 
     no warnings 'once', 'redefine';
-    local *LANraragi::Plugin::Metadata::CopyArchiveTags::get_plugin_logger = sub { return $log_mock };
-    local *LANraragi::Plugin::Metadata::CopyArchiveTags::internal_get_tags = sub { die "Eep!\n"; };
+    local *LANraragi::Utils::Database::get_tags = sub { return; };
 
     # Act
-    my @error = LANraragi::Plugin::Metadata::CopyArchiveTags::get_tags( 'dummy', $lrr_info, 'dummy', 0, 'dummy' );
+    my @rdata = LANraragi::Plugin::Metadata::CopyArchiveTags::get_tags( 'dummy', $lrr_info, 0 );
 
-    cmp_deeply( \@error, [ 'error', "Eep!\n" ], 'returned error' );
+    cmp_deeply( \@rdata, [ tags => '' ], 'returned data' );
 
-    cmp_deeply( \@log_messages, [ [ 'error', $log_mock, "Eep!\n" ] ], 'log messages' );
+    cmp_deeply(
+        \@log_messages,
+        [   [ 'info', ignore, "Copying tags from archive \"${archive_id}\"" ],
+            [ 'info', ignore, 'Sending the following tags to LRR: -' ]
+        ],
+        'log messages'
+    );
 
 }
 
-note('testing get_tags returning an empty tag list ...');
+note('get_tags when archive tags is empty returns an empty tag list ...');
 {
-
-    my $lrr_info = { 'oneshot_param' => _random_archive_id() };
-    my @log_messages;
+    @log_messages = ();
+    my $archive_id = _random_archive_id();
+    my $lrr_info   = { 'oneshot_param' => $archive_id, 'archive_id' => 'dummy' };
 
     no warnings 'once', 'redefine';
-    local *LANraragi::Plugin::Metadata::CopyArchiveTags::get_plugin_logger = sub { return get_logger_mock( \@log_messages ) };
-    local *LANraragi::Plugin::Metadata::CopyArchiveTags::internal_get_tags = sub { return (); };
-    local *LANraragi::Plugin::Metadata::CopyArchiveTags::read_params       = sub { return {}; };
+    local *LANraragi::Utils::Database::get_tags = sub { return ''; };
 
     # Act
-    my @rdata = LANraragi::Plugin::Metadata::CopyArchiveTags::get_tags( 'dummy', $lrr_info, 'dummy', 0, 'dummy' );
+    my @rdata = LANraragi::Plugin::Metadata::CopyArchiveTags::get_tags( 'dummy', $lrr_info, 0 );
 
-    cmp_deeply( \@rdata, [], 'returned data' );
+    cmp_deeply( \@rdata, [ tags => '' ], 'returned data' );
 
-    cmp_deeply( \@log_messages, [ [ 'info', ignore, 'Sending the following tags to LRR: -' ] ], 'log messages' );
-
+    cmp_deeply(
+        \@log_messages,
+        [   [ 'info', ignore, "Copying tags from archive \"${archive_id}\"" ],
+            [ 'info', ignore, 'Sending the following tags to LRR: -' ]
+        ],
+        'log messages'
+    );
 }
 
-note('testing get_tags returning a list of tags ...');
+note('get_tags when archive has tags returns the list of tags ...');
 {
-
-    my $lrr_info = { 'oneshot_param' => _random_archive_id() };
-    my @log_messages;
+    @log_messages = ();
+    my $archive_id = _random_archive_id();
+    my $lrr_info   = { 'oneshot_param' => $archive_id, 'archive_id' => 'dummy' };
 
     no warnings 'once', 'redefine';
-    local *LANraragi::Plugin::Metadata::CopyArchiveTags::get_plugin_logger = sub { return get_logger_mock( \@log_messages ) };
-    local *LANraragi::Plugin::Metadata::CopyArchiveTags::internal_get_tags = sub { return ( 'tags' => 'one, two' ); };
-    local *LANraragi::Plugin::Metadata::CopyArchiveTags::read_params       = sub { return {}; };
+    local *LANraragi::Utils::Database::get_tags = sub { return ( 'tags' => 'one, two' ); };
 
     # Act
-    my @rdata = LANraragi::Plugin::Metadata::CopyArchiveTags::get_tags( 'dummy', $lrr_info, 'dummy', 0, 'dummy' );
+    my @rdata = LANraragi::Plugin::Metadata::CopyArchiveTags::get_tags( 'dummy', $lrr_info, 0 );
 
-    cmp_deeply( \@rdata, [ tags => 'one, two' ], 'returned data' );
+    cmp_deeply( \@rdata, [ tags => 'one,two' ], 'returned data' );
 
-    cmp_deeply( \@log_messages, [ [ 'info', ignore, 'Sending the following tags to LRR: one, two' ] ], 'log messages' );
+    cmp_deeply(
+        \@log_messages,
+        [   [ 'info', ignore, "Copying tags from archive \"${archive_id}\"" ],
+            [ 'info', ignore, 'Sending the following tags to LRR: one,two' ]
+        ],
+        'log messages'
+    );
 }
 
-note('extract_archive_id returns undef if param doesn\'t contain a valid archive ID ...');
+note('extract_archive_id when param doesn\'t contain a valid archive ID returns undef ...');
 {
     is( LANraragi::Plugin::Metadata::CopyArchiveTags::extract_archive_id(undef), undef, 'param was undef' );
 
@@ -94,7 +110,6 @@ note('extract_archive_id returns undef if param doesn\'t contain a valid archive
 
     is( LANraragi::Plugin::Metadata::CopyArchiveTags::extract_archive_id("http://127.0.0.1:3000/reader?id=${long_hex}"),
         undef, 'invalid id: too long hex number' );
-
 }
 
 note('extract_archive_id returns the ID in lowercase ...');
@@ -137,10 +152,9 @@ note('extract_archive_id parses oneshot_param ...');
 
 }
 
-note('internal_get_tags dies when oneshot_param is undefined ...');
+note('get_tags dies when oneshot_param is undefined ...');
 {
-
-    my $log_mock = get_logger_mock();
+    my $lrr_info = { 'archive_id' => 'dummy' };
     my $params   = {
         'oneshot'         => undef,
         'copy_date_added' => undef,
@@ -148,7 +162,7 @@ note('internal_get_tags dies when oneshot_param is undefined ...');
     };
 
     # Act
-    trap { LANraragi::Plugin::Metadata::CopyArchiveTags::internal_get_tags( $log_mock, $params ); };
+    trap { LANraragi::Plugin::Metadata::CopyArchiveTags::get_tags( 'dummy', $lrr_info, 0 ); };
 
     is( $trap->exit,   undef, 'no exit code' );
     is( $trap->stdout, '',    'no STDOUT' );
@@ -156,18 +170,12 @@ note('internal_get_tags dies when oneshot_param is undefined ...');
     like( $trap->die, qr/^oneshot_param doesn't contain a valid archive ID/, 'die message' );
 }
 
-note('internal_get_tags dies when oneshot_param is empty ...');
+note('get_tags dies when oneshot_param is empty ...');
 {
-
-    my $log_mock = get_logger_mock();
-    my $params   = {
-        'oneshot'         => '',
-        'copy_date_added' => undef,
-        'lrr_info'        => { 'archive_id' => 'dummy' }
-    };
+    my $lrr_info = { 'oneshot_param' => '', 'archive_id' => 'dummy' };
 
     # Act
-    trap { LANraragi::Plugin::Metadata::CopyArchiveTags::internal_get_tags( $log_mock, $params ); };
+    trap { LANraragi::Plugin::Metadata::CopyArchiveTags::get_tags( 'dummy', $lrr_info, 0 ); };
 
     is( $trap->exit,   undef, 'no exit code' );
     is( $trap->stdout, '',    'no STDOUT' );
@@ -175,18 +183,12 @@ note('internal_get_tags dies when oneshot_param is empty ...');
     like( $trap->die, qr/^oneshot_param doesn't contain a valid archive ID/, 'die message' );
 }
 
-note('internal_get_tags dies when oneshot_param doesn\'t contain a valid archive ID ...');
+note('get_tags dies when oneshot_param doesn\'t contain a valid archive ID ...');
 {
-
-    my $log_mock = get_logger_mock();
-    my $params   = {
-        'oneshot'         => 'xpto',
-        'copy_date_added' => undef,
-        'lrr_info'        => { 'archive_id' => 'dummy' }
-    };
+    my $lrr_info = { 'oneshot_param' => 'xpto', 'archive_id' => 'dummy' };
 
     # Act
-    trap { LANraragi::Plugin::Metadata::CopyArchiveTags::internal_get_tags( $log_mock, $params ); };
+    trap { LANraragi::Plugin::Metadata::CopyArchiveTags::get_tags( 'dummy', $lrr_info, 0 ); };
 
     is( $trap->exit,   undef, 'no exit code' );
     is( $trap->stdout, '',    'no STDOUT' );
@@ -194,19 +196,13 @@ note('internal_get_tags dies when oneshot_param doesn\'t contain a valid archive
     like( $trap->die, qr/^oneshot_param doesn't contain a valid archive ID/, 'die message' );
 }
 
-note('internal_get_tags dies when search ID matches the current archive ID ...');
+note('get_tags dies when search ID matches the current archive ID ...');
 {
-
-    my $log_mock    = get_logger_mock();
     my $the_only_id = _random_archive_id();
-    my $params      = {
-        'oneshot'         => $the_only_id,
-        'copy_date_added' => undef,
-        'lrr_info'        => { 'archive_id' => $the_only_id }
-    };
+    my $lrr_info    = { 'oneshot_param' => $the_only_id, 'archive_id' => $the_only_id };
 
     # Act
-    trap { LANraragi::Plugin::Metadata::CopyArchiveTags::internal_get_tags( $log_mock, $params ); };
+    trap { LANraragi::Plugin::Metadata::CopyArchiveTags::get_tags( 'dummy', $lrr_info, 0 ); };
 
     is( $trap->exit,   undef, 'no exit code' );
     is( $trap->stdout, '',    'no STDOUT' );
@@ -214,15 +210,12 @@ note('internal_get_tags dies when search ID matches the current archive ID ...')
     like( $trap->die, qr/^You are using the current archive ID/, 'die message' );
 }
 
-note('internal_get_tags does not return date_added by default ...');
+note('get_tags does not return date_added by default ...');
 {
-    my @log_messages;
-    my $log_mock = get_logger_mock( \@log_messages );
-    my $input_id = _random_archive_id();
-    my $params   = {
-        'oneshot'  => $input_id,
-        'lrr_info' => { 'archive_id' => _random_archive_id() }
-    };
+    @log_messages = ();
+    my $input_id        = _random_archive_id();
+    my $lrr_info        = { 'oneshot_param' => $input_id, 'archive_id' => 'dummy' };
+    my $copy_date_added = undef;
 
     no warnings 'once', 'redefine';
     local *LANraragi::Utils::Database::get_tags = sub {
@@ -230,23 +223,25 @@ note('internal_get_tags does not return date_added by default ...');
     };
 
     # Act
-    my %data = LANraragi::Plugin::Metadata::CopyArchiveTags::internal_get_tags( $log_mock, $params );
+    my %data = LANraragi::Plugin::Metadata::CopyArchiveTags::get_tags( 'dummy', $lrr_info, $copy_date_added );
 
     cmp_deeply( \%data, { 'tags' => 'tag1,tag2' }, 'returned tags list' );
 
-    cmp_deeply( \@log_messages, [ [ 'info', ignore, "Copying tags from archive \"${input_id}\"" ] ], 'log messages' );
+    cmp_deeply(
+        \@log_messages,
+        [   [ 'info', ignore, "Copying tags from archive \"${input_id}\"" ],
+            [ 'info', ignore, 'Sending the following tags to LRR: tag1,tag2' ]
+        ],
+        'log messages'
+    );
 }
 
-note('internal_get_tags returns date_added if asked ...');
+note('get_tags returns date_added if asked ...');
 {
-    my @log_messages;
-    my $log_mock = get_logger_mock( \@log_messages );
-    my $input_id = _random_archive_id();
-    my $params   = {
-        'oneshot'         => $input_id,
-        'copy_date_added' => 1,
-        'lrr_info'        => { 'archive_id' => _random_archive_id() }
-    };
+    @log_messages = ();
+    my $input_id        = _random_archive_id();
+    my $lrr_info        = { 'oneshot_param' => $input_id, 'archive_id' => 'dummy' };
+    my $copy_date_added = 1;
 
     no warnings 'once', 'redefine';
     local *LANraragi::Utils::Database::get_tags = sub {
@@ -254,11 +249,17 @@ note('internal_get_tags returns date_added if asked ...');
     };
 
     # Act
-    my %data = LANraragi::Plugin::Metadata::CopyArchiveTags::internal_get_tags( $log_mock, $params );
+    my %data = LANraragi::Plugin::Metadata::CopyArchiveTags::get_tags( 'dummy', $lrr_info, $copy_date_added );
 
     cmp_deeply( \%data, { 'tags' => 'date_added:321,tag3,tag4' }, 'returned tags list' );
 
-    cmp_deeply( \@log_messages, [ [ 'info', ignore, "Copying tags from archive \"${input_id}\"" ] ], 'log messages' );
+    cmp_deeply(
+        \@log_messages,
+        [   [ 'info', ignore, "Copying tags from archive \"${input_id}\"" ],
+            [ 'info', ignore, 'Sending the following tags to LRR: date_added:321,tag3,tag4' ]
+        ],
+        'log messages'
+    );
 }
 
 done_testing();
