@@ -13,8 +13,9 @@ sub get_tankoubon_list {
     my $req  = $self->req;
 
     my $page = $req->param('page');
+    my $name = $req->param('name') || "";
 
-    my ( $total, $filtered, @rgs ) = LANraragi::Model::Tankoubon::get_tankoubon_list($page);
+    my ( $total, $filtered, @rgs ) = LANraragi::Model::Tankoubon::get_tankoubon_list($page, $name);
     $self->render( json => { result => \@rgs, total => $total, filtered => $filtered } );
 
 }
@@ -89,6 +90,24 @@ sub update_archive_list {
         render_api_response( $self, "update_archive_list", undef, $successMessage );
     } else {
         render_api_response( $self, "update_archive_list", $err );
+    }
+}
+
+sub update_metadata {
+
+    my $self   = shift;
+    my $tankid = $self->stash('id');
+    my $data   = $self->req->json;
+
+    my ( $result, $err ) = LANraragi::Model::Tankoubon::update_metadata( $tankid, $data );
+
+    if ($result) {
+        my %tankoubon      = LANraragi::Model::Tankoubon::get_tankoubon($tankid);
+        my $successMessage = "Updated metadata of tankoubon \"$tankoubon{name}\"!";
+
+        render_api_response( $self, "update_metadata", undef, $successMessage );
+    } else {
+        render_api_response( $self, "update_metadata", $err );
     }
 }
 

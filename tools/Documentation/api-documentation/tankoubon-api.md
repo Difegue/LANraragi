@@ -9,6 +9,10 @@ Get list of Tankoubons paginated.
 Page of the list of Tankoubons.
 {% endswagger-parameter %}
 
+{% swagger-parameter name="name" type="string" required="false" in="query" %}
+Filter for the name of the Tankoubon(Works as icontains).
+{% endswagger-parameter %}
+
 {% swagger-response status="200" description="" %}
 ```javascript
 {
@@ -160,6 +164,45 @@ Name of the Category.
 {
   "error": "Tankoubon name not specified.",
   "operation": "create_tankoubon",
+  "success": 0
+}
+```
+{% endswagger-response %}
+{% endswagger %}
+
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/tankoubons/:id" method="put" summary="Update metadata on a Tankoubon" %}
+{% swagger-description %}
+Update metadata on a Tankoubon.
+{% endswagger-description %}
+
+{% swagger-parameter name="id" type="string" required="true" in="path" %}
+ID of the Tankoubon to update.
+{% endswagger-parameter %}
+
+{% swagger-parameter name="archives" type="json" required="true" in="body" %}
+Json with the metadata parameters(Requires all the fields defined):
+- name
+- summary
+- thumbhash
+- tags
+{% endswagger-parameter %}
+
+{% swagger-response status="200" description="" %}
+```javascript
+{
+    "error": "",
+    "operation": "update_metadata",
+    "success": 1,
+    "successMessage": "Updated metadata of tankoubon \"Test 1\"!"
+}
+```
+{% endswagger-response %}
+
+{% swagger-response status="400" description="" %}
+```javascript
+{
+  "error": "rr doesn't exist in the database!",
+  "operation": "update_metadata",
   "success": 0
 }
 ```
