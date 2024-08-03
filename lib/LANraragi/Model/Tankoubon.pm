@@ -73,6 +73,7 @@ sub get_tankoubon_list ( $page = 0, $name = "" ) {
 #   Returns the ID of the created/updated Tankoubon.
 sub create_tankoubon ( $name, $tank_id ) {
 
+    my $logger          = get_logger( "Tankoubon", "lanraragi" );
     my $redis = LANraragi::Model::Config->get_redis;
 
     # Set all fields of the group object
@@ -100,10 +101,11 @@ sub create_tankoubon ( $name, $tank_id ) {
 
     # Default values for new group
     # Score 0 will be reserved for the name of the tank
-    $redis->zadd( $tank_id, $TANK_METADATA{"name"}, redis_encode($name) );
-    $redis->zadd( $tank_id, $TANK_METADATA{"summary"}, "" );
-    $redis->zadd( $tank_id, $TANK_METADATA{"thumbhash"}, "" );
-    $redis->zadd( $tank_id, $TANK_METADATA{"tags"}, "" );
+    $redis->zadd( $tank_id, $TANK_METADATA{"name"}, redis_encode("name_${name}") );
+    $redis->zadd( $tank_id, $TANK_METADATA{"summary"}, "summary_" );
+    $redis->zadd( $tank_id, $TANK_METADATA{"thumbhash"}, "thumbhash_" );
+    $redis->zadd( $tank_id, $TANK_METADATA{"tags"}, "tags_" );
+    $redis->zadd( $tank_id, $TANK_METADATA{"alias"}, "alias_" );
 
     $redis->quit;
 
@@ -122,19 +124,23 @@ sub update_metadata( $tank_id, $data ) {
     my $summary         = $data->{"summary"};
     my $thumbhash       = $data->{"thumbhash"};
     my $tags            = $data->{"tags"};
+    my $alias           = $data->{"alias"};
 
     if ( $redis->exists($tank_id) ) {
         $redis->zremrangebyscore( $tank_id, $TANK_METADATA{"name"}, $TANK_METADATA{"name"} );
-        $redis->zadd( $tank_id, $TANK_METADATA{"name"}, redis_encode($name) );
+        $redis->zadd( $tank_id, $TANK_METADATA{"name"}, redis_encode("name_${name}") );
 
         $redis->zremrangebyscore( $tank_id, $TANK_METADATA{"summary"}, $TANK_METADATA{"summary"} );
-        $redis->zadd( $tank_id, $TANK_METADATA{"summary"}, redis_encode($summary) );
+        $redis->zadd( $tank_id, $TANK_METADATA{"summary"}, redis_encode("summary_${summary}") );
 
         $redis->zremrangebyscore( $tank_id, $TANK_METADATA{"thumbhash"}, $TANK_METADATA{"thumbhash"} );
-        $redis->zadd( $tank_id, $TANK_METADATA{"thumbhash"}, redis_encode($thumbhash) );
+        $redis->zadd( $tank_id, $TANK_METADATA{"thumbhash"}, redis_encode("thumbhash_${thumbhash}") );
 
         $redis->zremrangebyscore( $tank_id, $TANK_METADATA{"tags"}, $TANK_METADATA{"tags"} );
-        $redis->zadd( $tank_id, $TANK_METADATA{"tags"}, redis_encode($tags) );
+        $redis->zadd( $tank_id, $TANK_METADATA{"tags"}, redis_encode("tags_${tags}") );
+
+        $redis->zremrangebyscore( $tank_id, $TANK_METADATA{"alias"}, $TANK_METADATA{"alias"} );
+        $redis->zadd( $tank_id, $TANK_METADATA{"alias"}, redis_encode("alias_${alias}") );
 
         $redis->quit;
         return ( 1, $err );
@@ -177,18 +183,27 @@ sub get_tankoubon ( $tank_id, $fulldata = 0, $page = 0 ) {
     # Get name
     my @name = $redis->zrangebyscore( $tank_id, $TANK_METADATA{"name"}, $TANK_METADATA{"name"}, qw{LIMIT 0 1} );
     $tank{name} = redis_decode( $name[0] ) || "";
+    $tank{name} =~ s/^name_//;
 
     # Get summary
     my @summary = $redis->zrangebyscore( $tank_id, $TANK_METADATA{"summary"}, $TANK_METADATA{"summary"}, qw{LIMIT 0 1} );
     $tank{summary} = redis_decode( $summary[0] ) || "";
+    $tank{summary} =~ s/^summary_//;
 
     # Get thumbhash
     my @thumbhash = $redis->zrangebyscore( $tank_id, $TANK_METADATA{"thumbhash"}, $TANK_METADATA{"thumbhash"}, qw{LIMIT 0 1} );
     $tank{thumbhash} = redis_decode( $thumbhash[0] ) || "";
+    $tank{thumbhash} =~ s/^thumbhash_//;
 
     # Get tags
     my @tags = $redis->zrangebyscore( $tank_id, $TANK_METADATA{"tags"}, $TANK_METADATA{"tags"}, qw{LIMIT 0 1} );
     $tank{tags} = redis_decode( $tags[0] ) || "";
+    $tank{tags} =~ s/^tags_//;
+
+    # Get alias
+    my @alias = $redis->zrangebyscore( $tank_id, $TANK_METADATA{"alias"}, $TANK_METADATA{"alias"}, qw{LIMIT 0 1} );
+    $tank{alias} = redis_decode( $alias[0] ) || "";
+    $tank{alias} =~ s/^alias_//;
 
     my %tankoubon;
 
@@ -292,6 +307,8 @@ sub update_archive_list ( $tank_id, $data ) {
 
         # Update
         $redis->zadd( $tank_id, @update );
+
+        # Update Tags and Aliases | TODO
 
         $redis->quit;
         return ( 1, $err );
