@@ -9,7 +9,7 @@ use Redis;
 use Storable qw/ nfreeze thaw /;
 use Sort::Naturally;
 
-use LANraragi::Utils::Generic  qw(split_workload_by_cpu);
+use LANraragi::Utils::Generic  qw(split_workload_by_cpu intersect_arrays);
 use LANraragi::Utils::String   qw(trim);
 use LANraragi::Utils::Database qw(redis_decode redis_encode);
 use LANraragi::Utils::Logging  qw(get_logger);
@@ -284,34 +284,6 @@ sub search_uncached {
     $redis->quit();
     $redis_db->quit();
     return @filtered;
-}
-
-# intersect_arrays(@array1, @array2, $isneg)
-# Intersect two arrays and return the result. If $isneg is true, return the difference instead.
-sub intersect_arrays {
-
-    my ( $array1, $array2, $isneg ) = @_;
-
-    # If array1 is empty, just return an empty array or the second array if $isneg is true
-    if ( scalar @$array1 == 0 ) {
-        return $isneg ? @$array2 : ();
-    }
-
-    # If array2 is empty, die since this sub shouldn't even be used in that case
-    if ( scalar @$array2 == 0 ) {
-        die "intersect_arrays called with an empty array2";
-    }
-
-    my %hash = map { $_ => 1 } @$array1;
-    my @result;
-
-    if ($isneg) {
-        @result = grep { !exists $hash{$_} } @$array2;
-    } else {
-        @result = grep { exists $hash{$_} } @$array2;
-    }
-
-    return @result;
 }
 
 # compute_search_filter($filter)
