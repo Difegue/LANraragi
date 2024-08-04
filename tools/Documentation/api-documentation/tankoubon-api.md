@@ -25,14 +25,22 @@ Filter for the name of the Tankoubon(Works as icontains).
                 "fa74bc15e7dd2b6ec0dc2e10cc7cd4942867318a"
             ],
             "id": "TANK_1688616437",
-            "name": "Test 1"
+            "name": "Test 1",
+            "summary": "",
+            "tags": "",
+            "thumbhash": "",
+            "alias": ""
         },
         {
             "archives": [
                 "fa74bc15e7dd2b6ec0dc2e10cc7cd4942867318a"
             ],
             "id": "TANK_1688693913",
-            "name": "Test 2"
+            "name": "Test 2",
+            "summary": "",
+            "tags": "",
+            "thumbhash": "",
+            "alias": ""
         }
     ],
     "total": 2
@@ -69,7 +77,11 @@ Page of the Archives list.
             "4857fd2e7c00db8b0af0337b94055d8445118630"
         ],
         "id": "TANK_1688616437",
-        "name": "Test 1"
+        "name": "Test 1",
+        "summary": "",
+        "tags": "",
+        "thumbhash": "",
+        "alias": ""
     },
     "total": 3
 }
@@ -122,7 +134,11 @@ Page of the Archives list.
             }
         ],
         "id": "TANK_1688616437",
-        "name": "Test 1"
+        "name": "Test 1",
+        "summary": "",
+        "tags": "",
+        "thumbhash": "",
+        "alias": ""
     },
     "total": 3
 }
@@ -185,6 +201,7 @@ Json with the metadata parameters(Requires all the fields defined):
 - summary
 - thumbhash
 - tags
+- alias
 {% endswagger-parameter %}
 
 {% swagger-response status="200" description="" %}
