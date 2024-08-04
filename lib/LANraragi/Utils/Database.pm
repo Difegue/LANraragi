@@ -284,7 +284,7 @@ sub clean_database {
         eval { $redis->hgetall($id); };
 
         if ($@) {
-            $redis->del($id);
+            LANraragi::Model::Archive::delete_archive($id);
             $deleted_arcs++;
             next;
         }
@@ -292,7 +292,7 @@ sub clean_database {
         # Check if the linked file exists
         my $file = $redis->hget( $id, "file" );
         unless ( -e $file ) {
-            $redis->del($id);
+            LANraragi::Model::Archive::delete_archive($id);
             $deleted_arcs++;
             next;
         }
