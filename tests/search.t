@@ -32,7 +32,7 @@ my $search = "";
 my ( $total, $filtered, @ids );
 
 sub do_test_search {
-    ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, "", 0, 0, 0, 0, 0 );
+    ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, "", 0, 0, 0, 0, 0, 0 );
 }
 
 do_test_search();
@@ -98,17 +98,17 @@ $search = qq("Saturn Backup Cartridge - *"\$);
 do_test_search();
 is( $filtered, 2, qq(Exact search with quotes and wildcard ($search)) );
 
-( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", qq(SET_1589141306), 0, 0, 0, 0, 0 );
+( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", qq(SET_1589141306), 0, 0, 0, 0, 0, 0 );
 is( $filtered, 2, qq(Search in category (SET_1589141306: Segata Sanshiro)) );
 
 $search = qq("character:segata");
-( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, qq(SET_1589138380), 0, 0, 0, 0, 0 );
+( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, qq(SET_1589138380), 0, 0, 0, 0, 0, 0 );
 is( $filtered, 1, qq(Search with favorite search category applied ($search) + (SET_1589138380: American)) );
 
-( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", 0, 0, 0, 1, 0 );
+( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", 0, 0, 0, 1, 0, 0 );
 ok( $filtered eq 1 && $ids[0] eq "e4c422fd10943dc169e3489a38cdbf57101a5f7e", qq(Search with new filter applied) );
 
-( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", 0, 0, 0, 0, 1 );
+( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", 0, 0, 0, 0, 1, 0 );
 ok( $filtered eq 2 && $ids[0] eq "4857fd2e7c00db8b0af0337b94055d8445118630", qq(Search with untagged filter applied) );
 
 $search = qq(pages:>150);
@@ -124,7 +124,7 @@ do_test_search();
 is( $ids[0], "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf", qq(Read search ($search)) );
 
 $search = "";
-( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", 0, "lastread", 0, 0, 0 );
+( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", 0, "lastread", 0, 0, 0, 0 );
 is( $ids[0], "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg", qq(Last read time sort) );
 
 done_testing();

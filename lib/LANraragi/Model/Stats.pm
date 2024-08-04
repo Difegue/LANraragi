@@ -18,7 +18,10 @@ use LANraragi::Utils::Logging  qw(get_logger);
 
 sub get_archive_count {
     my $redis = LANraragi::Model::Config->get_redis_search;
-    return $redis->zcard("LRR_TITLES") + 0;    # Total number of archives (as int)
+    my $tankcount = $redis->scard("LRR_TANKGROUPED") + 0;
+
+    return $redis->zcard("LRR_TITLES") - $tankcount;   
+    # Total number of archives (as int) -- Tanks are included and replace the archives they contain. 
 }
 
 sub get_page_stat {
@@ -35,7 +38,8 @@ sub get_page_stat {
 # - LRR_STATS, which is a sorted set used to build the statistics/tag cloud JSON
 # - LRR_UNTAGGED, which is a set used by the untagged archives API
 # - LRR_NEW, which contains all archives that have isnew=true
-# - LRR_TITLES, which is a lexicographically sorted set containing all titles in the DB, alongside their ID. (In the "title\0ID" format)
+# - LRR_TITLES, which is a lexicographically sorted set containing all (archive + tank) titles in the DB, alongside their ID. (In the "title\0ID" format)
+# - LRR_TANKGROUPED, which is a set containing all tank IDs in the DB, and the archive IDs that aren't in any tanks. 
 # * It also builds index sets for each distinct tag.
 sub build_stat_hashes {
 
@@ -53,7 +57,7 @@ sub build_stat_hashes {
 
     # Cancel the transaction if the hashes have been modified by another job in the meantime.
     # This also allows for the previous stats/map to still be readable until we're done.
-    $redistx->watch( "LRR_STATS", "LRR_URLMAP", "LRR_UNTAGGED", "LRR_TITLES", "LRR_NEW" );
+    $redistx->watch( "LRR_STATS", "LRR_URLMAP", "LRR_UNTAGGED", "LRR_TITLES", "LRR_NEW", "LRR_TANKGROUPED" );
     $redistx->multi;
 
     # Hose the entire index DB since we're rebuilding it
@@ -65,15 +69,17 @@ sub build_stat_hashes {
     # Go through tanks first
     foreach my %tank (@tanks) {
 
-        my $tank_id = $tank{archives}
+        my $tank_id = $tank{archives};
         my $tank_title = lc($tank{name});
         my @tank_archives = @{ $tank{archives} };
+
+        $redistx->sadd( "LRR_TANKGROUPED",  $tank_id );
 
         # Remove IDs contained in the tank from @keys
         @keys = intersect_arrays( \@tank_archives, \@keys, 1 );
 
         foreach my $arcid (@tank_archives) {
-            index_tags_for_id($redistx, $tank_id, $arcid); 
+            index_tags_for_id($redis, $redistx, $tank_id, $arcid); 
         }
 
         # Decode and lowercase the title
@@ -81,31 +87,19 @@ sub build_stat_hashes {
         $tank_title = trim_CRLF($tank_title);
         $tank_title = redis_encode($tank_title);
 
-        # Add the tank name to LRR_TITLES so it shows up in tagless searches. 
+        # Add the tank name to LRR_TITLES so it shows up in tagless searches when tank grouping is enabled. 
         $redistx->zadd( "LRR_TITLES", 0, "$tank_title\0$tank_id" );
     }
 
     foreach my $id (@keys) {
-        
-        my $has_tags = index_tags_for_id($redistx, $id, $id); 
+
+        $redistx->sadd( "LRR_TANKGROUPED",  $id );
+        my $has_tags = index_tags_for_id($redis, $redistx, $id, $id); 
 
         # Flag the ID as untagged if it had no tags
         unless ($has_tags) {
             $logger->trace("Adding $id to LRR_UNTAGGED");
             $redistx->sadd( "LRR_UNTAGGED", $id );
-        }
-
-        if ( $redis->hexists( $id, "title" ) ) {
-            my $title = $redis->hget( $id, "title" );
-
-            # Decode and lowercase the title
-            $title = lc( redis_decode($title) );
-            $title = trim($title);
-            $title = trim_CRLF($title);
-            $title = redis_encode($title);
-
-            # The LRR_TITLES lexicographically sorted set contains both the title and the id under the form $title\x00$id.
-            $redistx->zadd( "LRR_TITLES", 0, "$title\0$id" );
         }
 
         my $isnew = $redis->hget( $id, "isnew" );
@@ -126,7 +120,7 @@ sub build_stat_hashes {
 
 # Parse the tags of the given archive_id, 
 # and add the given index_id to all the search indexes that contain said tags. 
-sub index_tags_for_id($redistx, $index_id, $archive_id) {
+sub index_tags_for_id($redis, $redistx, $index_id, $archive_id) {
     my $logger  = get_logger( "Tag Stats", "lanraragi" );
     my $has_tags = 0;
 
@@ -158,9 +152,27 @@ sub index_tags_for_id($redistx, $index_id, $archive_id) {
         # Increment tag in stats
         $redistx->zincrby( "LRR_STATS", 1, $redis_tag );
 
-        # Add the archive ID to the set for this tag
+        # Add the archive ID and index ID to the set for this tag
         $logger->trace("Adding $index_id to the index for tag $redis_tag");
         $redistx->sadd( "INDEX_" . $redis_tag, $index_id );
+        
+        if ($index_id ne $archive_id) {
+            $logger->trace("Adding $archive_id to the index for tag $redis_tag");
+            $redistx->sadd( "INDEX_" . $redis_tag, $archive_id );
+        }
+    }
+
+    if ( $redis->hexists( $archive_id, "title" ) ) {
+        my $title = $redis->hget( $archive_id, "title" );
+
+        # Decode and lowercase the title
+        $title = lc( redis_decode($title) );
+        $title = trim($title);
+        $title = trim_CRLF($title);
+        $title = redis_encode($title);
+
+        # The LRR_TITLES lexicographically sorted set contains both the title and the id under the form $title\x00$id.
+        $redistx->zadd( "LRR_TITLES", 0, "$title\0$archive_id" );
     }
 
     return $has_tags;

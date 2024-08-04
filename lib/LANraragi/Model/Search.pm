@@ -1,5 +1,8 @@
 package LANraragi::Model::Search;
 
+use feature qw(signatures);
+no warnings 'experimental::signatures';
+
 use strict;
 use warnings;
 use utf8;
@@ -19,9 +22,7 @@ use LANraragi::Model::Category;
 
 # do_search (filter, category_id, page, key, order, newonly, untaggedonly)
 # Performs a search on the database.
-sub do_search {
-
-    my ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $untaggedonly ) = @_;
+sub do_search( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks ) {
 
     my $redis  = LANraragi::Model::Config->get_redis_search;
     my $logger = get_logger( "Search Engine", "lanraragi" );
@@ -31,19 +32,20 @@ sub do_search {
         return ( -1, -1, () );
     }
 
-    # Search filter results
-    my $total = $redis->zcard("LRR_TITLES") + 0;    # Total number of archives (as int)
+    my $tankcount = $redis->scard("LRR_TANKGROUPED") + 0;
+    # Total number of archives (as int)
+    my $total = $grouptanks ? $tankcount : $redis->zcard("LRR_TITLES") - $tankcount; 
 
     # Look in searchcache first
     my $sortorder_inv = $sortorder ? 0 : 1;
-    my $cachekey      = redis_encode("$category_id-$filter-$sortkey-$sortorder-$newonly-$untaggedonly");
-    my $cachekey_inv  = redis_encode("$category_id-$filter-$sortkey-$sortorder_inv-$newonly-$untaggedonly");
+    my $cachekey      = redis_encode("$category_id-$filter-$sortkey-$sortorder-$newonly-$untaggedonly-$grouptanks");
+    my $cachekey_inv  = redis_encode("$category_id-$filter-$sortkey-$sortorder_inv-$newonly-$untaggedonly-$grouptanks");
     my ( $cachehit, @filtered ) = check_cache( $cachekey, $cachekey_inv );
 
     # Don't use cache for history searches since setting lastreadtime doesn't (and shouldn't) cachebust
     unless ( $cachehit && $sortkey ne "lastread" ) {
         $logger->debug("No cache available (or history-sorted search), doing a full DB parse.");
-        @filtered = search_uncached( $category_id, $filter, $sortkey, $sortorder, $newonly, $untaggedonly );
+        @filtered = search_uncached( $category_id, $filter, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks );
 
         # Cache this query in the search database
         eval { $redis->hset( "LRR_SEARCHCACHE", $cachekey, nfreeze \@filtered ); };
@@ -63,9 +65,8 @@ sub do_search {
     return ( $total, $#filtered + 1, @filtered[ $start .. $end ] );
 }
 
-sub check_cache {
+sub check_cache( $cachekey, $cachekey_inv ) {
 
-    my ( $cachekey, $cachekey_inv ) = @_;
     my $redis  = LANraragi::Model::Config->get_redis_search;
     my $logger = get_logger( "Search Cache", "lanraragi" );
 
@@ -95,9 +96,8 @@ sub check_cache {
 }
 
 # Grab all our IDs, then filter them down according to the following filters and tokens' ID groups.
-sub search_uncached {
+sub search_uncached( $category_id, $filter, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks ) {
 
-    my ( $category_id, $filter, $sortkey, $sortorder, $newonly, $untaggedonly ) = @_;
     my $redis    = LANraragi::Model::Config->get_redis_search;
     my $redis_db = LANraragi::Model::Config->get_redis;
     my $logger   = get_logger( "Search Core", "lanraragi" );
@@ -107,8 +107,14 @@ sub search_uncached {
 
     # Prepare array: For each token, we'll have a list of matching archive IDs.
     # We intersect those lists as we proceed to get the final result.
-    # Start with all our IDs.
-    my @filtered = $redis_db->keys('????????????????????????????????????????');
+    my @filtered;
+    if ($grouptanks) {
+        # Start with our tank IDs, and all other archive IDs that aren't in tanks
+        @filtered = $redis->smembers("LRR_TANKGROUPED");
+    } else {
+        # Start with all our archive IDs. Tank IDs won't be present in this search. 
+        @filtered = $redis_db->keys('????????????????????????????????????????');
+    }
 
     # If we're using a category, we'll need to get its source data first.
     my %category = LANraragi::Model::Category::get_category($category_id);
@@ -286,12 +292,10 @@ sub search_uncached {
     return @filtered;
 }
 
-# compute_search_filter($filter)
 # Transform the search engine syntax into a list of tokens.
 # A token object contains the tag, whether it must be an exact match, and whether it must be absent.
-sub compute_search_filter {
+sub compute_search_filter($filter) {
 
-    my $filter = shift;
     my $logger = get_logger( "Search Core", "lanraragi" );
     my @tokens = ();
     if ( !$filter ) { $filter = ""; }
@@ -375,9 +379,8 @@ sub compute_search_filter {
     return @tokens;
 }
 
-sub sort_results {
+sub sort_results( $sortkey, $sortorder, @filtered ) {
 
-    my ( $sortkey, $sortorder, @filtered ) = @_;
     my $redis = LANraragi::Model::Config->get_redis;
 
     my %tmpfilter = ();

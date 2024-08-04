@@ -50,8 +50,9 @@ sub handle_datatables {
 
     $sortorder = ( $sortorder && $sortorder eq 'desc' ) ? 1 : 0;
 
+    # TODO add a parameter to datatables for grouptanks? Not really essential rn tho
     my ( $total, $filtered, @ids ) =
-      LANraragi::Model::Search::do_search( $filter, $categoryfilter, $start, $sortkey, $sortorder, $newfilter, $untaggedfilter );
+      LANraragi::Model::Search::do_search( $filter, $categoryfilter, $start, $sortkey, $sortorder, $newfilter, $untaggedfilter, 1);
 
     $self->render( json => get_datatables_object( $draw, $total, $filtered, @ids ) );
 }
@@ -62,20 +63,22 @@ sub handle_api {
     my $self = shift;
     my $req  = $self->req;
 
-    my $filter    = $req->param('filter');
-    my $category  = $req->param('category') || "";
-    my $start     = $req->param('start');
-    my $sortkey   = $req->param('sortby');
-    my $sortorder = $req->param('order');
-    my $newfilter = $req->param('newonly') || "false";
-    my $untaggedf = $req->param('untaggedonly') || "false";
+    my $filter     = $req->param('filter');
+    my $category   = $req->param('category') || "";
+    my $start      = $req->param('start');
+    my $sortkey    = $req->param('sortby');
+    my $sortorder  = $req->param('order');
+    my $newfilter  = $req->param('newonly') || "false";
+    my $untaggedf  = $req->param('untaggedonly') || "false";
+    my $grouptanks = $req->param('groupby_tanks') || "true";
 
     $sortorder = ( $sortorder && $sortorder eq 'desc' ) ? 1 : 0;
 
     my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search(
         $filter, $category, $start, $sortkey, $sortorder,
         $newfilter eq "true",
-        $untaggedf eq "true"
+        $untaggedf eq "true",
+        $grouptanks eq "true"
     );
 
     $self->render( json => get_datatables_object( 0, $total, $filtered, @ids ) );
@@ -96,11 +99,12 @@ sub get_random_archives {
     my $category     = $req->param('category') || "";
     my $newfilter    = $req->param('newonly') || "false";
     my $untaggedf    = $req->param('untaggedonly') || "false";
+    my $grouptanks   = $req->param('groupby_tanks') || "true";
     my $random_count = $req->param('count') || 5;
 
     # Use the search engine to get IDs matching the filter/category selection, with start=-1 to get all data
     my ( $total, $filtered, @ids ) =
-      LANraragi::Model::Search::do_search( $filter, $category, -1, "title", 0, $newfilter eq "true", $untaggedf eq "true" );
+      LANraragi::Model::Search::do_search( $filter, $category, -1, "title", 0, $newfilter eq "true", $untaggedf eq "true", $grouptanks eq "true" );
     my @random_ids;
 
     $random_count = min( $random_count, scalar(@ids) );
