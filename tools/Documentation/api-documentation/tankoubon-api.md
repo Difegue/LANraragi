@@ -9,6 +9,10 @@ Get list of Tankoubons paginated.
 Page of the list of Tankoubons.
 {% endswagger-parameter %}
 
+{% swagger-parameter name="name" type="string" required="false" in="query" %}
+Filter for the name of the Tankoubon(Works as icontains).
+{% endswagger-parameter %}
+
 {% swagger-response status="200" description="" %}
 ```javascript
 {
@@ -21,14 +25,22 @@ Page of the list of Tankoubons.
                 "fa74bc15e7dd2b6ec0dc2e10cc7cd4942867318a"
             ],
             "id": "TANK_1688616437",
-            "name": "Test 1"
+            "name": "Test 1",
+            "summary": "",
+            "tags": "",
+            "thumbhash": "",
+            "alias": ""
         },
         {
             "archives": [
                 "fa74bc15e7dd2b6ec0dc2e10cc7cd4942867318a"
             ],
             "id": "TANK_1688693913",
-            "name": "Test 2"
+            "name": "Test 2",
+            "summary": "",
+            "tags": "",
+            "thumbhash": "",
+            "alias": ""
         }
     ],
     "total": 2
@@ -65,7 +77,11 @@ Page of the Archives list.
             "4857fd2e7c00db8b0af0337b94055d8445118630"
         ],
         "id": "TANK_1688616437",
-        "name": "Test 1"
+        "name": "Test 1",
+        "summary": "",
+        "tags": "",
+        "thumbhash": "",
+        "alias": ""
     },
     "total": 3
 }
@@ -118,7 +134,11 @@ Page of the Archives list.
             }
         ],
         "id": "TANK_1688616437",
-        "name": "Test 1"
+        "name": "Test 1",
+        "summary": "",
+        "tags": "",
+        "thumbhash": "",
+        "alias": ""
     },
     "total": 3
 }
@@ -160,6 +180,46 @@ Name of the Category.
 {
   "error": "Tankoubon name not specified.",
   "operation": "create_tankoubon",
+  "success": 0
+}
+```
+{% endswagger-response %}
+{% endswagger %}
+
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/tankoubons/:id" method="put" summary="Update metadata on a Tankoubon" %}
+{% swagger-description %}
+Update metadata on a Tankoubon.
+{% endswagger-description %}
+
+{% swagger-parameter name="id" type="string" required="true" in="path" %}
+ID of the Tankoubon to update.
+{% endswagger-parameter %}
+
+{% swagger-parameter name="archives" type="json" required="true" in="body" %}
+Json with the metadata parameters(Requires all the fields defined):
+- name
+- summary
+- thumbhash
+- tags
+- alias
+{% endswagger-parameter %}
+
+{% swagger-response status="200" description="" %}
+```javascript
+{
+    "error": "",
+    "operation": "update_metadata",
+    "success": 1,
+    "successMessage": "Updated metadata of tankoubon \"Test 1\"!"
+}
+```
+{% endswagger-response %}
+
+{% swagger-response status="400" description="" %}
+```javascript
+{
+  "error": "rr doesn't exist in the database!",
+  "operation": "update_metadata",
   "success": 0
 }
 ```
