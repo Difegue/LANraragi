@@ -25,7 +25,7 @@ sub plugin_info {
         type        => "metadata",
         namespace   => "ezeplugin",
         author      => "Difegue",
-        version     => "2.3.1",
+        version     => "2.3.2",
         description =>
           "Collects metadata from eze-style info.json files ({'gallery_info': {xxx} } syntax), either embedded in your archive or in the same folder with the same name. ({archive_name}.json)",
         icon =>
@@ -152,9 +152,11 @@ sub tags_from_eze_json {
         $timestamp = $timestamp / 1000;
     } else {
         my $upload_date = $hash->{"gallery_info"}->{"upload_date"};
-        my $time = timegm_modern( $$upload_date[5], $$upload_date[4], $$upload_date[3], $$upload_date[2], $$upload_date[1] - 1,
-            $$upload_date[0] );
-        $timestamp = $time;
+        if ($upload_date) {
+            my $time = timegm_modern( $$upload_date[5], $$upload_date[4], $$upload_date[3], $$upload_date[2], $$upload_date[1] - 1,
+                $$upload_date[0] );
+            $timestamp = $time;
+        }
     }
 
     if ($category) {
