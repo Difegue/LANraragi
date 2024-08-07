@@ -216,6 +216,7 @@ sub update_archive_list ( $tank_id, $data ) {
         if (@diff) {
             $redis->zrem( $tank_id, @diff );
 
+            # Make removed archives visible in search again unless other tanks contain them
             foreach my $arc_id (@diff) {
                 unless (get_tankoubons_containing_archive($arc_id)) {
                     $redis_search->sadd( "LRR_TANKGROUPED",  $arc_id );
@@ -348,7 +349,7 @@ sub remove_from_tankoubon ( $tank_id, $arcid ) {
         # Removing an archive from a tank might have it show up in main search again
         unless (get_tankoubons_containing_archive($arcid)) {
             $redis = LANraragi::Model::Config->get_redis_search;
-            $redis->sadd( "LRR_TANKGROUPED",  $arc_id );
+            $redis->sadd( "LRR_TANKGROUPED",  $arcid );
             $redis->quit;
         }
         invalidate_cache();

@@ -10,6 +10,7 @@ use utf8;
 use Redis;
 use File::Find;
 use Mojo::JSON qw(encode_json);
+use LANraragi::Model::Tankoubon;
 
 use LANraragi::Utils::Generic  qw(is_archive intersect_arrays);
 use LANraragi::Utils::String   qw(trim trim_CRLF trim_url);
@@ -67,11 +68,11 @@ sub build_stat_hashes {
     $logger->info("Building stat indexes... ($archive_count archives, $total tankoubons)");
 
     # Go through tanks first
-    foreach my %tank (@tanks) {
+    foreach my $tank (@tanks) {
 
-        my $tank_id = $tank{archives};
-        my $tank_title = lc($tank{name});
-        my @tank_archives = @{ $tank{archives} };
+        my $tank_id = %$tank{id};
+        my $tank_title = lc(%$tank{name});
+        my @tank_archives = @{ %$tank{archives} };
 
         $redistx->sadd( "LRR_TANKGROUPED",  $tank_id );
 

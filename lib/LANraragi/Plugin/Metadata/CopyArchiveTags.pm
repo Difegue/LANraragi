@@ -2,6 +2,7 @@ package LANraragi::Plugin::Metadata::CopyArchiveTags;
 
 use v5.36;
 use experimental 'try';
+no warnings 'experimental::try';
 
 use strict;
 use warnings;
