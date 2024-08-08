@@ -320,11 +320,12 @@ sub deleted_file_callback ($name) {
 
 sub add_new_file ( $id, $file ) {
 
-    my $redis = LANraragi::Model::Config->get_redis;
+    my $redis        = LANraragi::Model::Config->get_redis;
+    my $redis_search = LANraragi::Model::Config->get_redis_search;
     $logger->info("Adding new file $file with ID $id");
 
     eval {
-        LANraragi::Utils::Database::add_archive_to_redis( $id, $file, $redis );
+        LANraragi::Utils::Database::add_archive_to_redis( $id, $file, $redis, $redis_search );
         LANraragi::Utils::Database::add_timestamp_tag( $redis, $id );
         LANraragi::Utils::Database::add_pagecount( $redis, $id );
 
@@ -336,6 +337,7 @@ sub add_new_file ( $id, $file ) {
         $logger->error("Error while adding file: $@");
     }
     $redis->quit;
+    $redis_search->quit;
 }
 
 __PACKAGE__->initialize_from_new_process unless caller;

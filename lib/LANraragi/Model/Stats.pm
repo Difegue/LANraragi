@@ -74,6 +74,15 @@ sub build_stat_hashes {
         my $tank_title = lc(%$tank{name});
         my @tank_archives = @{ %$tank{archives} };
 
+        # Add the tank name to LRR_TITLES so it shows up in tagless searches when tank grouping is enabled.
+        # (This does nothing if the tank is empty, as it won't be in LRR_TANKGROUPED) 
+        $redistx->zadd( "LRR_TITLES", 0, "$tank_title\0$tank_id" );
+
+        if (scalar @tank_archives == 0) {
+            $logger->warn("Tank $tank_id has no archives in it. Skipping.");
+            next;
+        }
+
         $redistx->sadd( "LRR_TANKGROUPED",  $tank_id );
 
         # Remove IDs contained in the tank from @keys
@@ -87,9 +96,6 @@ sub build_stat_hashes {
         $tank_title = trim($tank_title);
         $tank_title = trim_CRLF($tank_title);
         $tank_title = redis_encode($tank_title);
-
-        # Add the tank name to LRR_TITLES so it shows up in tagless searches when tank grouping is enabled. 
-        $redistx->zadd( "LRR_TITLES", 0, "$tank_title\0$tank_id" );
     }
 
     foreach my $id (@keys) {
