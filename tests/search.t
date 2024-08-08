@@ -32,11 +32,13 @@ my $search = "";
 my ( $total, $filtered, @ids );
 
 sub do_test_search {
-    ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, "", 0, 0, 0, 0, 0, 0 );
+    ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, "", 0, 0, 0, 0, 0, 1 );
 }
 
 do_test_search();
-is( $filtered, 6, qq(Empty search(full index)) );
+is( $filtered, 8, qq(Empty search(full index)) );
+( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search($search, "", 0, 0, 0, 0, 0, 0 );
+is( $filtered, 8, qq(Empty search(tank grouping off)) );
 
 $search = qq(Ghost in the Shell);
 do_test_search();
@@ -124,7 +126,19 @@ do_test_search();
 is( $ids[0], "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf", qq(Read search ($search)) );
 
 $search = "";
-( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", 0, "lastread", 0, 0, 0, 0 );
+( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, "", 0, "lastread", 0, 0, 0, 0 );
 is( $ids[0], "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg", qq(Last read time sort) );
+
+$search = qq(medjed);
+do_test_search();
+is( $ids[0], "TANK_1589141306", qq(Tankoubon grouping search (1/2)) );
+$search = qq(vector);
+do_test_search();
+is( $ids[0], "TANK_1589141306", qq(Tankoubon grouping search (2/2)) );
+is( $filtered, 2, qq(Tankoubon grouping count));
+
+( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search($search, "", 0, 0, 0, 0, 0, 0 );
+is( $filtered, 1, qq(No tank grouping count));
+is( $ids[0], "28697b96f0ac5777be2614ed10ca47742c9522fa", qq(Tank grouping disabled) );
 
 done_testing();

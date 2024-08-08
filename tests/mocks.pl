@@ -86,14 +86,32 @@ sub setup_redis_mock {
             "file": "package.json",
             "lastreadtime": 0
         },
+        "28697b96f0ac5777be2614ed10ca47742c9522fa": {
+            "isnew": "false",
+            "pagecount": 128,
+            "progress": 0,
+            "tags": "year of shadow, character:vector the crocodile",
+            "title": "Find the Computer Room",
+            "file": "package.json",
+            "lastreadtime": 0
+        },
+        "28697b96f0ac5858be2666ed10ca47742c955555": {
+            "isnew": "false",
+            "pagecount": 22,
+            "progress": 0,
+            "tags": "medjed, character:doubles guy, character:king of GETs, check this 5",
+            "title": "All about Egypt",
+            "file": "package.json",
+            "lastreadtime": 0
+        },
         "TANK_1589141306": [
             "Hello",
-            "2810d5e0a8d027ecefebca6237031a0fa7b91eb3",
-            "28697b96f0ac5858be2614ed10ca47742c9522fd"
+            "28697b96f0ac5858be2666ed10ca47742c955555",
+            "28697b96f0ac5777be2614ed10ca47742c9522fa"
         ],
         "TANK_1589138380":[
             "World",
-            "28697b96f0ac5858be2614ed10ca47742c9522fd"
+            "28697b96f0ac5777be2614ed10ca47742c9522fa"
         ]
     })
       };
@@ -166,6 +184,10 @@ sub setup_redis_mock {
                 $datamodel{$key} = [];
             }
 
+            if ( !grep { $_ eq $value } @{ $datamodel{$key} } ) {
+                push @{ $datamodel{$key} }, $value;
+            }
+
             push @{ $datamodel{$key} }, $value;
         }
     );
@@ -180,12 +202,29 @@ sub setup_redis_mock {
                 $datamodel{$key} = [];
             }
 
-            push @{ $datamodel{$key} }, $value;
+            # Don't push value if it's already in the array
+            if ( !grep { $_ eq $value } @{ $datamodel{$key} } ) {
+                push @{ $datamodel{$key} }, $value;
+            }
         }
     );
 
     $redis->mock(
         'zcard',    # $redis->zcard => number of values in list named by key in datamodel
+        sub {
+            my $self = shift;
+            my ($key) = @_;
+
+            if ( !exists $datamodel{$key} ) {
+                $datamodel{$key} = [];
+            }
+
+            return scalar @{ $datamodel{$key} };
+        }
+    );
+
+    $redis->mock(
+        'scard',    # $redis->scard => number of values in list named by key in datamodel
         sub {
             my $self = shift;
             my ($key) = @_;
@@ -243,8 +282,25 @@ sub setup_redis_mock {
                 $datamodel{$key} = [];
             }
 
-            # Return array, ordered alphabetically
-            return @{ $datamodel{$key} };
+            if ($end eq "+inf") {
+                $end = scalar @{ $datamodel{$key} };
+            }
+
+            # Skip $start amount of elements
+            my @res = @{ $datamodel{$key} }[ $start .. $end ];
+            # Add index after each element to simulate zrangebyscore behavior
+            my @indexed_res;
+            my $ind = $start;
+            foreach my $val (@res) {
+                unless ($val) {
+                    next;
+                }
+                push @indexed_res, $val;
+                push @indexed_res, $ind;
+                $ind++;
+            }
+
+            return @indexed_res;
         }
     );
 
