@@ -217,7 +217,7 @@ sub get_archive_json_multi (@ids) {
 
 sub get_tags ($id) {
     my %archive_info = get_archive($id);
-    return undef if ( !%archive_info );
+    return "" if ( !%archive_info );
     return $archive_info{tags};
 }
 
