@@ -104,7 +104,6 @@ sub search_uncached( $category_id, $filter, $sortkey, $sortorder, $newonly, $unt
 
     # Compute search filters
     my @tokens = compute_search_filter($filter);
-
     # Prepare array: For each token, we'll have a list of matching archive IDs.
     # We intersect those lists as we proceed to get the final result.
     my @filtered;
@@ -180,6 +179,12 @@ sub search_uncached( $category_id, $filter, $sortkey, $sortorder, $newonly, $unt
                 # This could be sped up with an index, but it's probably not worth it.
                 foreach my $id (@filtered) {
 
+                    # Tanks don't have a set pagecount property, so they're not included here for now.
+                    # TODO Maybe an index would be good actually.. 
+                    if ($id =~ /^TANK/) {
+                        next;
+                    }
+
                     # Default to 0 if null.
                     my $count = $redis_db->hget( $id, $col ) || 0;
 
@@ -253,8 +258,8 @@ sub search_uncached( $category_id, $filter, $sortkey, $sortorder, $newonly, $unt
         }
     }
 
-    if ( $#filtered > 0 ) {
-        $logger->debug( "Found " . $#filtered . " results after filtering." );
+    if ( scalar @filtered > 0 ) {
+        $logger->debug( "Found " . scalar @filtered . " results after filtering." );
 
         if ( !$sortkey ) {
             $sortkey = "title";

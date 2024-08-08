@@ -120,7 +120,8 @@ sub build_stat_hashes {
     $redistx->set( "LAST_JOB_TIME", time() );
 
     $redistx->exec;
-    $logger->info("Stat indexes built! ($archive_count archives)");
+    my $total_visible_archives = scalar @keys;
+    $logger->info("Stat indexes built! ($total_visible_archives archives, $total tankoubons)");
     $redis->quit;
     $redistx->quit;
 }
