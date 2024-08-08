@@ -95,7 +95,29 @@ note("02 - よつばと！ 第01巻");
     is( $returned_tags,  $expected_tags, "correct tags" );
 }
 
+note("03 - 異種姦オーガズム");
+{
+    my ( $fh, $filename ) = tempfile();
+    cp( $SAMPLES . "/comicinfo/03_sample.xml", $fh );
 
+    no warnings 'once', 'redefine';
+    local *LANraragi::Plugin::Metadata::ComicInfo::get_plugin_logger         = sub { return get_logger_mock(); };
+    local *LANraragi::Plugin::Metadata::ComicInfo::extract_file_from_archive = sub { $filename };
+    local *LANraragi::Plugin::Metadata::ComicInfo::is_file_in_archive        = sub { 1 };
+
+    my %dummyhash = ( file_path => "test" );
+
+    # Since this is calling the sub directly and not in an object context,
+    # we pass a dummy string as first parameter to replace the object.
+    my $returned_tags = LANraragi::Plugin::Metadata::ComicInfo::get_tags( "", \%dummyhash);
+
+    my $expected_group_tag = "group:7zu7";
+    my $expected_lang_tag = "language:zh";
+    my $expected_genre_tags = "translated, artist:7zu7, male:monster, Manga, Uploaded";
+    my @tag_array = ($expected_group_tag, $expected_lang_tag, $expected_genre_tags);
+    my $expected_tags = join( ", ", @tag_array );
+    is( $returned_tags,  $expected_tags, "correct tags" );
+}
 
 
 done_testing();
