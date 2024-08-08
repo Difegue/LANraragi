@@ -80,7 +80,9 @@ sub create_tankoubon ( $name, $tank_id ) {
         my @old_name = $redis->zrangebyscore( $tank_id, 0, 0, qw{LIMIT 0 1} );
         my $n        = redis_decode( $old_name[0] );
 
-        $redis->zrem( $tank_id, $n );
+        if ($redis->exists($tank_id)) {
+            $redis->zrem( $tank_id, $n );
+        }
     }
 
     # Default values for new group
