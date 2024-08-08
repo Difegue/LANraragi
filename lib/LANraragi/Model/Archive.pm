@@ -385,7 +385,15 @@ sub delete_archive ($id) {
     $redis_search->srem( "LRR_TANKGROUPED",  $id );
     $redis_search->quit();
 
-    # TODO TANKS: remove from tanks/collections?
+    # Remove from tanks/collections
+    foreach my $tank_id (LANraragi::Model::Tankoubon::get_tankoubons_containing_archive($id)) {
+        LANraragi::Model::Tankoubon::remove_from_tankoubon( $tank_id, $id );
+    }
+
+    foreach my $cat (LANraragi::Model::Category::get_categories_containing_archive($id)) {
+        my $catid = %{$cat}{"id"};
+        LANraragi::Model::Category::remove_from_category( $catid, $id );
+    }
 
     LANraragi::Utils::Database::update_indexes( $id, $oldtags, "" );
 
