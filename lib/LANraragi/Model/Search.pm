@@ -180,7 +180,7 @@ sub search_uncached( $category_id, $filter, $sortkey, $sortorder, $newonly, $unt
                 foreach my $id (@filtered) {
 
                     # Tanks don't have a set pagecount property, so they're not included here for now.
-                    # TODO Maybe an index would be good actually.. 
+                    # TODO TANKS: Maybe an index would be good actually.. 
                     if ($id =~ /^TANK/) {
                         next;
                     }

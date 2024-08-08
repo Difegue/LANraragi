@@ -385,6 +385,8 @@ sub delete_archive ($id) {
     $redis_search->srem( "LRR_TANKGROUPED",  $id );
     $redis_search->quit();
 
+    # TODO TANKS: remove from tanks/collections?
+
     LANraragi::Utils::Database::update_indexes( $id, $oldtags, "" );
 
     if ( -e $filename ) {
