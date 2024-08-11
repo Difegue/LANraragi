@@ -110,47 +110,37 @@ sub tags_from_koromo_json {
     my $type       = $hash->{"Types"};
     my $url        = $hash->{"URL"};
 
-    foreach my $tag (@$tags) {
-        push( @found_tags, $tag );
-    }
+    handle_tag_yaml("", $tags, \@found_tags);
+    handle_tag_yaml("character:", $characters, \@found_tags);
+    handle_tag_yaml("series:", $series, \@found_tags);
+    handle_tag_yaml("group:", $groups);
+    handle_tag_yaml("artist:", $artists, \@found_tags);
 
-    foreach my $tag (@$characters) {
-        push( @found_tags, "character:" . $tag );
-    }
-
-    foreach my $tag (@$series) {
-        push( @found_tags, "series:" . $tag );
-    }
-
-    foreach my $tag (@$groups) {
-        push( @found_tags, "group:" . $tag );
-    }
-
-    foreach my $tag (@$artists) {
-        push( @found_tags, "artist:" . $tag );
-    }
-
-    push( @found_tags, "series:" . $parody ) unless !$parody;
-
-    # Don't add bogus artist:ARRAYblabla if artist is an array
-    if ($artist) {
-        if ( ref $artist eq 'ARRAY' ) {
-            foreach my $tag (@$artist) {
-                push( @found_tags, "artist:" . $tag );
-            }
-        } else {
-            push( @found_tags, "artist:" . $artist ) unless !$artist;
-        }
-    }
-
-    push( @found_tags, "magazine:" . $magazine ) unless !$magazine;
-    push( @found_tags, "language:" . $language ) unless !$language;
-    push( @found_tags, "category:" . $type )     unless !$type;
-    push( @found_tags, "source:" . $url )        unless !$url;
+    handle_tag_yaml("series:", $parody, \@found_tags);
+    handle_tag_yaml("artist:", $artist, \@found_tags);
+    handle_tag_yaml("magazine:", $magazine, \@found_tags );
+    handle_tag_yaml("language:", $language, \@found_tags );
+    handle_tag_yaml("category:", $type, \@found_tags );
+    handle_tag_yaml("source:", $url, \@found_tags );
 
     #Done-o
     my $concat_tags = join( ", ", @found_tags );
     return ( $concat_tags, $title );
+
+}
+
+sub handle_tag_yaml {
+    my $namespace = $_[0];
+    my $yamldata  = $_[1];
+
+    # Check if array or string, don't iterate if string
+    if ( ref $yamldata eq 'ARRAY' ) {
+        foreach my $tag (@$yamldata) {
+            push( @{ $_[2] }, "$namespace$tag" );
+        }
+    } elsif ( defined($yamldata) ) {
+        push( @{ $_[2] }, "$namespace$yamldata" );
+    }
 
 }
 
