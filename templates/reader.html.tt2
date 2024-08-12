@@ -11,29 +11,29 @@
 
     <link type="image/png" rel="icon" href="favicon.ico" />
     <link rel="manifest" href="app.webappmanifest" />
-    <link rel="stylesheet" type="text/css" href="/css/lrr.css?[% version %]" />
-    <link rel="stylesheet" type="text/css" href="/css/config.css?[% version %]" />
+    <link rel="stylesheet" type="text/css" href="[% c.url_for("/css/lrr.css?$version") %]" />
+    <link rel="stylesheet" type="text/css" href="[% c.url_for("/css/config.css?$version") %]" />
 
-    <link rel="stylesheet" type="text/css" href="./css/vendor/fontawesome-all.min.css" />
-    <link rel="stylesheet" type="text/css" href="/css/vendor/ReactToastify.min.css" />
-    <link rel="stylesheet" type="text/css" href="/css/vendor/sweetalert2.min.css" />
+    <link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/fontawesome-all.min.css") %]" />
+    <link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/ReactToastify.min.css") %]" />
+    <link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/sweetalert2.min.css") %]" />
     [% csshead %]
 
-    <script src="./js/vendor/jquery.min.js" type="text/javascript"></script>
-    <script src="/js/vendor/preact.umd.js" type="text/JAVASCRIPT"></script>
-    <script src="/js/vendor/hooks.umd.js" type="text/JAVASCRIPT"></script>
-    <script src="/js/vendor/compat.umd.js" type="text/JAVASCRIPT"></script>
+    <script src="[% c.url_for("/js/vendor/jquery.min.js") %]" type="text/javascript"></script>
+    <script src="[% c.url_for("/js/vendor/preact.umd.js") %]" type="text/JAVASCRIPT"></script>
+    <script src="[% c.url_for("/js/vendor/hooks.umd.js") %]" type="text/JAVASCRIPT"></script>
+    <script src="[% c.url_for("/js/vendor/compat.umd.js") %]" type="text/JAVASCRIPT"></script>
     <script>window.React = window.preactCompat; window.react = window.preactCompat;</script>
-    <script src="/js/vendor/clsx.min.js" type="text/JAVASCRIPT"></script>
-    <script src="/js/vendor/react-toastify.umd.js" type="text/JAVASCRIPT"></script>
-    <script src="/js/vendor/sweetalert2.min.js" type="text/JAVASCRIPT"></script>
+    <script src="[% c.url_for("/js/vendor/clsx.min.js") %]" type="text/JAVASCRIPT"></script>
+    <script src="[% c.url_for("/js/vendor/react-toastify.umd.js") %]" type="text/JAVASCRIPT"></script>
+    <script src="[% c.url_for("/js/vendor/sweetalert2.min.js") %]" type="text/JAVASCRIPT"></script>
 
-    <script src="./js/common.js?[% version %]" type="text/javascript"></script>
-    <script src="./js/server.js?[% version %]" type="text/javascript"></script>
-    <script src="./js/reader.js?[% version %]" type="text/javascript"></script>
+    <script src="[% c.url_for("/js/common.js?$version") %]" type="text/javascript"></script>
+    <script src="[% c.url_for("/js/server.js?$version") %]" type="text/javascript"></script>
+    <script src="[% c.url_for("/js/reader.js?$version") %]" type="text/javascript"></script>
 
     <script type="module">
-        import('./js/vendor/fscreen.esm.js').then(r => {
+        import('[% c.url_for("/js/vendor/fscreen.esm.js") %]').then(r => {
             window.fscreen = r.default;
             Reader.initializeAll();
         })
@@ -68,7 +68,7 @@
 
         <div id="i5">
             <div class="sb">
-                <a href="./?[% ref_query %]" id="return-to-index" title="Done reading? Go back to Archive Index">
+                <a href="[% c.url_for("/").query(ref_query) %]" id="return-to-index" title="Done reading? Go back to Archive Index">
                     <i class="fa fa-angle-down fa-3x"></i>
                 </a>
             </div>
@@ -78,7 +78,7 @@
             <i class="fa fa-caret-right fa-lg"></i>
             <a id="imgLink" style="cursor:pointer;">View full-size image</a>
             <i class="fa fa-caret-right fa-lg"></i>
-            <a href="./random">Switch to another random archive</a>
+            <a href="[% c.url_for("/random") %]">Switch to another random archive</a>
         </div>
 
     </div>
@@ -95,7 +95,7 @@
             <br>
             <div style="margin-bottom:16px;">
                 <div class="id3 nocrop reader-thumbnail">
-                    <img src="./api/archives/[% id %]/thumbnail" />
+                    <img src="[% c.url_for("/api/archives/$id/thumbnail") %]" />
                 </div>
 
                 [% IF userlogged %]
@@ -118,7 +118,7 @@
                     <div id="archive-categories" style="display:inline-block">
                         [% FOREACH arc_categories %]
                         <div class="gt" style="font-size:14px; padding:4px">
-                            <a href="/?c=[% id %]">
+                            <a href="[% c.url_for("/").query("c=$id") %]">
                                 <span class="label">[% name %]</span>
                                 <a href="#" class="remove-category" data-id="[% id %]"
                                     style="margin-left:4px; margin-right:2px">×</a>

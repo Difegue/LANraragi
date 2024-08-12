@@ -18,7 +18,7 @@
                 %]>
             <label for="modern">
                 <div id="modern-div" style="cursor:pointer">
-                    <img title="Hachikuji" src="img/theme_preview/hachikuji.png" class="theme-preview">
+                    <img title="Hachikuji" src="[% c.url_for("/img/theme_preview/hachikuji.png") %]" class="theme-preview">
                     <h3>Hachikuji</h3>
                 </div>
 
@@ -30,7 +30,7 @@
                 %]checked[% END %]>
             <label for="modern_clear">
                 <div id="modern-clear-div" style="cursor:pointer">
-                    <img title="Yotsugi" src="img/theme_preview/yotsugi.png" class="theme-preview">
+                    <img title="Yotsugi" src="[% c.url_for("/img/theme_preview/yotsugi.png") %]" class="theme-preview">
                     <h3>Yotsugi</h3>
                 </div>
             </label>
@@ -41,7 +41,7 @@
                 %]checked[% END %]>
             <label for="modern_red">
                 <div id="modern-red-div" style="cursor:pointer">
-                    <img title="Nadeko" src="img/theme_preview/nadeko.png" class="theme-preview">
+                    <img title="Nadeko" src="[% c.url_for("/img/theme_preview/nadeko.png") %]" class="theme-preview">
                     <h3>Nadeko</h3>
                 </div>
             </label>
@@ -51,7 +51,7 @@
             <input type="radio" id="ex" name="theme" value="ex.css" [% IF theme=="ex.css" %]checked[% END %]>
             <label for="ex">
                 <div id="ex-div" style="cursor:pointer">
-                    <img title="Sad Panda" src="img/theme_preview/sadpanda.png" class="theme-preview">
+                    <img title="Sad Panda" src="[% c.url_for("/img/theme_preview/sadpanda.png") %]" class="theme-preview">
                     <h3>Sad Panda</h3>
                 </div>
             </label>
@@ -61,7 +61,7 @@
             <input type="radio" id="g" name="theme" value="g.css" [% IF theme=="g.css" %]checked[% END %]>
             <label for="g">
                 <div id="g-div" style="cursor:pointer">
-                    <img title="H-Verse" src="img/theme_preview/hverse.png" class="theme-preview">
+                    <img title="H-Verse" src="[% c.url_for("/img/theme_preview/hverse.png") %]" class="theme-preview">
                     <h3>H-Verse</h3>
                 </div>
             </label>
