@@ -179,7 +179,18 @@ sub startup {
     # (https://stackoverflow.com/questions/60814220/how-to-manage-myself-sigint-and-sigterm-signals)
     $self->hook(
         before_dispatch => sub {
+            my $c = shift;
             state $unused = add_sigint_handler();
+
+            my $prefix = $self->LRR_CONF->get_baseurl;
+            if ($prefix) {
+                if (!$prefix =~ m|^/.*[^/]$|) {
+                    say "Warning: configured URL prefix '$prefix' invalid, ignoring";
+                }
+                else {
+                    $c->req->url->base->path($prefix);
+                }
+            }
         }
     );
 
