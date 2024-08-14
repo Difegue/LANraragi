@@ -47,7 +47,7 @@ Edit.initializeAll = function () {
                     completion: {
                         list: Edit.suggestions,
                     },
-                    link: (name) => `/?q=${name}`,
+                    link: (name) => new LRR.apiURL(`/?q=${name}`),
                 });
             }
         });
