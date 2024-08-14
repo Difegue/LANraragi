@@ -26,6 +26,7 @@ Stats.initializeAll = function () {
                     return;
                 const namespacedTag = LRR.buildNamespacedTag(tag.namespace, tag.text);
                 const url = LRR.getTagSearchURL(tag.namespace, tag.text);
+                
 
                 const ocss = "max-width: 95%; display: flex;";
                 const icss = "text-overflow: ellipsis; white-space: nowrap; overflow: hidden; min-width: 0; max-width: 100%;";

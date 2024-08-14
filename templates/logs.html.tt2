@@ -25,6 +25,7 @@
 	<script src="[% c.url_for("/js/vendor/clsx.min.js") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/vendor/react-toastify.umd.js") %]" type="text/JAVASCRIPT"></script>
 
+        <script>window.LRR_BASEURL = "[% c.LRR_BASEURL %]";</script>
 	<script src="[% c.url_for("/js/common.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/logs.js?$version") %]" type="text/JAVASCRIPT"></script>
 </head>

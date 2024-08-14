@@ -61,7 +61,7 @@ IndexTable.initializeAll = function () {
         dom: "<\"top\"ip>rt<\"bottom\"p><\"clear\">",
         language: {
             info: "Showing _START_ to _END_ of _TOTAL_ ancient chinese lithographies.",
-            infoEmpty: "<h1><br/><i class=\"fas fa-4x fa-toilet-paper-slash\"></i><br/><br/>No archives to show you! Try <a href=\"upload\">uploading some</a>?</h1><br/>",
+            infoEmpty: `<h1><br/><i class=\"fas fa-4x fa-toilet-paper-slash\"></i><br/><br/>No archives to show you! Try <a href="${new LRR.apiURL("/upload")}">uploading some</a>?</h1><br/>`,
             processing: "<div id=\"progress\" class=\"indeterminate\"\"><div class=\"bar-container\"><div class=\"bar\" style=\" width: 80%; \"></div></div></div>",
         },
         preDrawCallback: IndexTable.initializeThumbView, // callbacks for thumbnail view
@@ -158,11 +158,11 @@ IndexTable.renderColumn = function (namespace, type, data) {
 IndexTable.renderTitle = function (data, type) {
     if (type === "display") {
         return `${LRR.buildProgressDiv(data)} 
-                <a class="context-menu" id="${data.arcid}" onmouseover="IndexTable.buildImageTooltip(this)" href="reader?id=${data.arcid}"> 
+                <a class="context-menu" id="${data.arcid}" onmouseover="IndexTable.buildImageTooltip(this)" href="${new LRR.apiURL(`reader?id=${data.arcid}`)}"> 
                     ${LRR.encodeHTML(data.title)}
                 </a>
                 <div class="caption" style="display: none;">
-                    <img style="height:300px" src="./api/archives/${data.arcid}/thumbnail" onerror="this.src='./img/noThumb.png'">
+                    <img style="height:300px" src="${new LRR.apiURL(`/api/archives/${data.arcid}/thumbnail`)}" onerror="this.src='${new LRR.apiURL('/img/noThumb.png')}'">
                 </div>`;
     }
 

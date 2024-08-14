@@ -40,7 +40,7 @@ Reader.initializeAll = function () {
     $(document).on("click.toggle-settings-overlay", "#toggle-settings-overlay", Reader.toggleSettingsOverlay);
     $(document).on("click.toggle-help", "#toggle-help", Reader.toggleHelp);
     $(document).on("click.regenerate-archive-cache", "#regenerate-cache", () => {
-        window.location.href = `./reader?id=${Reader.id}&force_reload`;
+        window.location.href = new LRR.apiURL(`/reader?id=${Reader.id}&force_reload`);
     });
     $(document).on("click.edit-metadata", "#edit-archive", () => LRR.openInNewTab(`./edit?id=${Reader.id}`));
     $(document).on("click.delete-archive", "#delete-archive", () => {
@@ -62,9 +62,10 @@ Reader.initializeAll = function () {
     $(document).on("click.add-category", "#add-category", () => {
         if ($("#category").val() === "" || $(`#archive-categories a[data-id="${$("#category").val()}"]`).length !== 0) { return; }
         Server.addArchiveToCategory(Reader.id, $("#category").val());
-
+        let url = new LRR.apiURL(`/?c=${$("#category").val()}`);
+        
         const html = `<div class="gt" style="font-size:14px; padding:4px">
-            <a href="/?c=${$("#category").val()}">
+            <a href="${url}">
             <span class="label">${$("#category option:selected").text()}</span>
             <a href="#" class="remove-category" data-id="${$("#category").val()}"
                 style="margin-left:4px; margin-right:2px">×</a>
@@ -190,7 +191,7 @@ Reader.loadImages = function () {
         },
     ).finally(() => {
         if (Reader.pages === undefined) {
-            $("#img").attr("src", "img/flubbed.gif");
+            $("#img").attr("src", new LRR.apiURL("/img/flubbed.gif").toString());
             $("#display").append("<h2>I flubbed it while trying to open the archive.</h2>");
         }
     });
@@ -352,7 +353,7 @@ Reader.handleShortcuts = function (e) {
         break;
     case 82: // r
         if (e.ctrlKey || e.shiftKey || e.metaKey) { break; }
-        document.location.href = "/random";
+        document.location.href = new LRR.apiURL("/random");
         break;
     default:
         break;
@@ -524,7 +525,7 @@ Reader.updateProgress = function () {
     if (Reader.trackProgressLocally) {
         localStorage.setItem(`${Reader.id}-reader`, Reader.currentPage + 1);
     } else {
-        Server.callAPI(`api/archives/${Reader.id}/progress/${Reader.currentPage + 1}`, "PUT", null, "Error updating reading progress!", null);
+        Server.callAPI(`/api/archives/${Reader.id}/progress/${Reader.currentPage + 1}`, "PUT", null, "Error updating reading progress!", null);
     }
 };
 
@@ -716,7 +717,7 @@ Reader.initializeArchiveOverlay = function () {
         const page = index + 1;
 
         const thumbCss = (localStorage.cropthumbs === "true") ? "id3" : "id3 nocrop";
-        const thumbnailUrl = `./api/archives/${Reader.id}/thumbnail?page=${page}`;
+        const thumbnailUrl = new LRR.apiURL(`/api/archives/${Reader.id}/thumbnail?page=${page}`);
         const thumbnail = `
             <div class='${thumbCss} quick-thumbnail' page='${index}' style='display: inline-block; cursor: pointer'>
                 <span class='page-number'>Page ${page}</span>
@@ -736,7 +737,7 @@ Reader.initializeArchiveOverlay = function () {
             // If the spinner is still visible, update the thumbnail
             if ($(`#${index}_spinner`).attr("loaded") !== "true") {
                 // Set image source to the thumbnail
-                const thumbnailUrl = `./api/archives/${Reader.id}/thumbnail?page=${page}&cachebust=${Date.now()}`;
+                const thumbnailUrl = new LRR.apiURL(`/api/archives/${Reader.id}/thumbnail?page=${page}&cachebust=${Date.now()}`);
                 $(`#${index}_thumb`).attr("src", thumbnailUrl);
                 $(`#${index}_spinner`).attr("loaded", true);
                 $(`#${index}_spinner`).hide();
@@ -744,7 +745,7 @@ Reader.initializeArchiveOverlay = function () {
         }
     };
 
-    fetch(`/api/archives/${Reader.id}/files/thumbnails`, { method: "POST" })
+    fetch(new LRR.apiURL(`/api/archives/${Reader.id}/files/thumbnails`), { method: "POST" })
         .then((response) => {
             if (response.status === 200) {
                 // Thumbnails are already generated, there's nothing to do. Very nice!

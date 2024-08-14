@@ -6,7 +6,7 @@ const Plugins = {};
 Plugins.initializeAll = function () {
     // bind events to DOM
     $(document).on("click.save", "#save", () => Server.saveFormData("#editPluginForm"));
-    $(document).on("click.return", "#return", () => { window.location.href = "/"; });
+    $(document).on("click.return", "#return", () => { window.location.href = new LRR.apiURL("/"); });
 
     // Handler for file uploading.
     $("#fileupload").fileupload({

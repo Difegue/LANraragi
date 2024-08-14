@@ -20,7 +20,7 @@ Batch.initializeAll = function () {
     $(document).on("click.cancel-job", "#cancel-job", Batch.cancelBatch);
     $(document).on("click.server-config", "#server-config", () => LRR.openInNewTab("./config"));
     $(document).on("click.plugin-config", "#plugin-config", () => LRR.openInNewTab("./config/plugins"));
-    $(document).on("click.return", "#return", () => { window.location.href = "/"; });
+    $(document).on("click.return", "#return", () => { window.location.href = new LRR.apiURL("/"); });
 
     Batch.selectOperation();
     Batch.showOverride();
@@ -75,7 +75,7 @@ Batch.showOverride = function () {
  * Check untagged archives, using the matching API endpoint.
  */
 Batch.checkUntagged = function () {
-    Server.callAPI("api/archives/untagged", "GET", null, "Error getting untagged archives!",
+    Server.callAPI("/api/archives/untagged", "GET", null, "Error getting untagged archives!",
         (data) => {
             // Check untagged archives
             data.forEach((id) => {
@@ -292,7 +292,7 @@ Batch.endBatch = function (event) {
     });
 
     // Delete the search cache after a finished session
-    Server.callAPI("api/search/cache", "DELETE", null, "Error while deleting cache! Check Logs.", null);
+    Server.callAPI("/api/search/cache", "DELETE", null, "Error while deleting cache! Check Logs.", null);
 
     $("#cancel-job").hide();
 

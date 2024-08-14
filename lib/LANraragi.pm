@@ -72,6 +72,11 @@ sub startup {
         }
     );
 
+    # for some reason I can't call the one under LRR_CONF from the
+    # templates, so create a separate helper here
+    my $prefix = $self->LRR_CONF->get_baseurl();
+    $self->helper( LRR_BASEURL => sub { return $prefix } );
+
     #Check if a Redis server is running on the provided address/port
     eval { $self->LRR_CONF->get_redis->ping(); };
     if ($@) {
@@ -184,7 +189,7 @@ sub startup {
 
             my $prefix = $self->LRR_CONF->get_baseurl;
             if ($prefix) {
-                if (!$prefix =~ m|^/.*[^/]$|) {
+                if (!$prefix =~ m|^/[^"]*[^/"]$|) {
                     say "Warning: configured URL prefix '$prefix' invalid, ignoring";
                 }
                 else {
