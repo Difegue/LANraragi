@@ -29,7 +29,7 @@
  
     [% FOREACH cat IN catlist %]
     <link rel="http://opds-spec.org/facet" 
-        href="[% c.url_for("/api/opds?category=$cat->{id}$api_key_and") %]"
+        href="[% c.url_for("/api/opds?category=$cat.id$api_key_and") %]"
         title="[% cat.name %]"  
         opds:facetGroup="Categories" 
         [% IF cat.count %]thr:count="[% cat.count %]" [% END %][% IF cat.active %]opds:activeFacet="true" [% END %]/>
