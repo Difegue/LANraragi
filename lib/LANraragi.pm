@@ -191,6 +191,8 @@ sub startup {
             if ($prefix) {
                 if (!$prefix =~ m|^/[^"]*[^/"]$|) {
                     say "Warning: configured URL prefix '$prefix' invalid, ignoring";
+                    # if prefix is invalid, then set it to empty for the cookie
+                    $prefix = "";
                 }
                 else {
                     $c->req->url->base->path($prefix);
