@@ -18,8 +18,8 @@ Batch.initializeAll = function () {
     $(document).on("click.start-batch", "#start-batch", Batch.startBatchCheck);
     $(document).on("click.restart-job", "#restart-job", Batch.restartBatchUI);
     $(document).on("click.cancel-job", "#cancel-job", Batch.cancelBatch);
-    $(document).on("click.server-config", "#server-config", () => LRR.openInNewTab("./config"));
-    $(document).on("click.plugin-config", "#plugin-config", () => LRR.openInNewTab("./config/plugins"));
+    $(document).on("click.server-config", "#server-config", () => LRR.openInNewTab(new LRR.apiURL("/config")));
+    $(document).on("click.plugin-config", "#plugin-config", () => LRR.openInNewTab(new LRR.apiURL("/config/plugins")));
     $(document).on("click.return", "#return", () => { window.location.href = new LRR.apiURL("/"); });
 
     Batch.selectOperation();

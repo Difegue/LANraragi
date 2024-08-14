@@ -22,7 +22,7 @@ Config.initializeAll = function () {
     $(document).on("click.drop-db", "#drop-db", Server.dropDatabase);
 
     $(document).on("click.restart-button", "#restart-button", Config.rebootShinobu);
-    $(document).on("click.open-minion", "#open-minion", () => LRR.openInNewTab("/minion"));
+    $(document).on("click.open-minion", "#open-minion", () => LRR.openInNewTab(new LRR.apiURL("/minion")));
 
     $(document).on("click.genthumb-button", "#genthumb-button", () => Server.regenerateThumbnails(false));
     $(document).on("click.forcethumb-button", "#forcethumb-button", () => Server.regenerateThumbnails(true));

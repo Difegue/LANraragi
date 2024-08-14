@@ -42,7 +42,7 @@ Reader.initializeAll = function () {
     $(document).on("click.regenerate-archive-cache", "#regenerate-cache", () => {
         window.location.href = new LRR.apiURL(`/reader?id=${Reader.id}&force_reload`);
     });
-    $(document).on("click.edit-metadata", "#edit-archive", () => LRR.openInNewTab(`./edit?id=${Reader.id}`));
+    $(document).on("click.edit-metadata", "#edit-archive", () => LRR.openInNewTab(new LRR.apiURL(`/edit?id=${Reader.id}`)));
     $(document).on("click.delete-archive", "#delete-archive", () => {
         LRR.closeOverlay();
         LRR.showPopUp({

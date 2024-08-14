@@ -533,7 +533,7 @@ Index.loadContextMenuCategories = (catList, id) => Server.callAPI(`/api/archives
 Index.handleContextMenu = function (option, id) {
     switch (option) {
     case "edit":
-        LRR.openInNewTab(`./edit?id=${id}`);
+        LRR.openInNewTab(new LRR.apiURL(`/edit?id=${id}`));
         break;
     case "delete":
         LRR.showPopUp({
@@ -551,10 +551,10 @@ Index.handleContextMenu = function (option, id) {
         });
         break;
     case "read":
-        LRR.openInNewTab(new LRR.apiURL(`/reader?id=${id}`).toString());
+        LRR.openInNewTab(new LRR.apiURL(`/reader?id=${id}`));
         break;
     case "download":
-        LRR.openInNewTab(new LRR.apiURL(`/api/archives/${id}/download`).toString());
+        LRR.openInNewTab(new LRR.apiURL(`/api/archives/${id}/download`));
         break;
     default:
         break;
