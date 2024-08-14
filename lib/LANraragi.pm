@@ -196,6 +196,9 @@ sub startup {
                     $c->req->url->base->path($prefix);
                 }
             }
+            # SameSite=Lax is the default behavior here; I set it
+            # explicitly to get rid of a warning in the browser
+            $c->cookie("lrr_baseurl" => $prefix, { samesite => "lax" });
         }
     );
 

@@ -3,6 +3,16 @@
  */
 const LRR = {};
 
+function _get_baseurl_cookie() {
+    let cookies = document.cookie;
+    val = cookies.split('; ').find((r) => r.startsWith("lrr_baseurl="))?.split("=")[1];
+    if (val === undefined) {
+        console.warn("lrr_baseurl cookie undefined, must be set by backend");
+        val = "";
+    }
+    return val;
+}
+
 // This class is used to wrap URLs that point into the app, including
 // API endpoints and browser targets. It reads the configured base URL
 // from the template, then prepends it to the provided URL in the
@@ -13,6 +23,8 @@ const LRR = {};
 // URL, and can be wrapped around another instance of itself without a
 // change.
 LRR.apiURL = class {
+    static base_url = _get_baseurl_cookie();
+
     constructor(load_url) {
         // accept instances of self as well, to make wrapping
         // idempotent
@@ -29,12 +41,7 @@ LRR.apiURL = class {
     toString() {
         // in the default case, this will be empty string and will
         // leave the load URL unchanged
-        let base_url = window.LRR_BASEURL;
-        if (base_url === undefined) {
-            console.trace("LRR_BASEURL undefined, template must set this variable");
-            base_url = "";
-        }
-        return base_url + this.load_url;
+        return LRR.apiURL.base_url + this.load_url;
     }
 };
 
