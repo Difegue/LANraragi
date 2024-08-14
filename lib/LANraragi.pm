@@ -187,7 +187,7 @@ sub startup {
             my $c = shift;
             state $unused = add_sigint_handler();
 
-            my $prefix = $self->LRR_CONF->get_baseurl;
+            my $prefix = $self->LRR_BASEURL;
             if ($prefix) {
                 if (!$prefix =~ m|^/[^"]*[^/"]$|) {
                     say "Warning: configured URL prefix '$prefix' invalid, ignoring";
