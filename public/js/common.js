@@ -251,7 +251,7 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
     const thumbCss = (localStorage.cropthumbs === "true") ? "id3" : "id3 nocrop";
     // The ID can be in a different field depending on the archive object...
     const id = data.arcid || data.id;
-    let reader_url = new LRR.apiURL(`reader?id=${id}`);
+    let reader_url = new LRR.apiURL(`/reader?id=${id}`);
 
     return `<div class="id1 context-menu swiper-slide" id="${id}">
                 <div class="id2">

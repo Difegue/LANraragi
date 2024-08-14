@@ -158,7 +158,7 @@ IndexTable.renderColumn = function (namespace, type, data) {
 IndexTable.renderTitle = function (data, type) {
     if (type === "display") {
         return `${LRR.buildProgressDiv(data)} 
-                <a class="context-menu" id="${data.arcid}" onmouseover="IndexTable.buildImageTooltip(this)" href="${new LRR.apiURL(`reader?id=${data.arcid}`)}"> 
+                <a class="context-menu" id="${data.arcid}" onmouseover="IndexTable.buildImageTooltip(this)" href="${new LRR.apiURL(`/reader?id=${data.arcid}`)}"> 
                     ${LRR.encodeHTML(data.title)}
                 </a>
                 <div class="caption" style="display: none;">
