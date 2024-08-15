@@ -13,8 +13,7 @@ our %TANK_METADATA = (
         "name", 0,
         "summary", -1,
         "thumbhash", -2,
-        "tags", -3,
-        "alias", -4
+        "tags", -3
     );
 
 1;

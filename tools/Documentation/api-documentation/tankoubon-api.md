@@ -9,10 +9,6 @@ Get list of Tankoubons paginated.
 Page of the list of Tankoubons.
 {% endswagger-parameter %}
 
-{% swagger-parameter name="name" type="string" required="false" in="query" %}
-Filter for the name of the Tankoubon(Works as icontains).
-{% endswagger-parameter %}
-
 {% swagger-response status="200" description="" %}
 ```javascript
 {
@@ -186,9 +182,9 @@ Name of the Category.
 {% endswagger-response %}
 {% endswagger %}
 
-{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/tankoubons/:id" method="put" summary="Update metadata on a Tankoubon" %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/tankoubons/:id" method="put" summary="Update a Tankoubon" %}
 {% swagger-description %}
-Update metadata on a Tankoubon.
+Update a Tankoubon.
 {% endswagger-description %}
 
 {% swagger-parameter name="id" type="string" required="true" in="path" %}
@@ -196,21 +192,19 @@ ID of the Tankoubon to update.
 {% endswagger-parameter %}
 
 {% swagger-parameter name="archives" type="json" required="true" in="body" %}
-Json with the metadata parameters(Requires all the fields defined):
-- name
-- summary
-- thumbhash
-- tags
-- alias
+Json with 2 keys "archives" and "metadata" defining:
+
+- archives: Ordered array with the IDs of the archives.
+- metadata: Json with the metadata parameters(Requires all the fields defined): name, summary, thumbhash, tags.
 {% endswagger-parameter %}
 
 {% swagger-response status="200" description="" %}
 ```javascript
 {
     "error": "",
-    "operation": "update_metadata",
+    "operation": "update_tankoubon",
     "success": 1,
-    "successMessage": "Updated metadata of tankoubon \"Test 1\"!"
+    "successMessage": "Updated tankoubon \"Test 1\"!"
 }
 ```
 {% endswagger-response %}
@@ -219,42 +213,7 @@ Json with the metadata parameters(Requires all the fields defined):
 ```javascript
 {
   "error": "rr doesn't exist in the database!",
-  "operation": "update_metadata",
-  "success": 0
-}
-```
-{% endswagger-response %}
-{% endswagger %}
-
-{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/tankoubons/:id/archive" method="put" summary="🔑Update a Tankoubon" %}
-{% swagger-description %}
-Modify a Tankoubon using an ordered array that can add new files, remove files, and update order.
-{% endswagger-description %}
-
-{% swagger-parameter name="id" type="string" required="true" in="path" %}
-ID of the Tankoubon to update.
-{% endswagger-parameter %}
-
-{% swagger-parameter name="archives" type="array" required="true" in="body" %}
-Ordered array with the IDs of the archives.
-{% endswagger-parameter %}
-
-{% swagger-response status="200" description="" %}
-```javascript
-{
-    "error": "",
-    "operation": "update_archive_list",
-    "success": 1,
-    "successMessage": "Updated archives of tankoubon \"Test 1\"!"
-}
-```
-{% endswagger-response %}
-
-{% swagger-response status="400" description="" %}
-```javascript
-{
-  "error": "rr doesn't exist in the database!",
-  "operation": "update_archive_list",
+  "operation": "update_tankoubon",
   "success": 0
 }
 ```
