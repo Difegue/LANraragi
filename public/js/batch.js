@@ -167,7 +167,8 @@ Batch.startBatch = function () {
 
     let wsProto = "ws://";
     if (document.location.protocol === "https:") wsProto = "wss://";
-    Batch.socket = new WebSocket(`${wsProto + window.location.host}/batch/socket`);
+    let socket_path = new LRR.apiURL("/batch/socket");
+    Batch.socket = new WebSocket(`${wsProto + window.location.host}${socket_path}`);
 
     Batch.socket.onopen = function () {
         const command = commandBase;
