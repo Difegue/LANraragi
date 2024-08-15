@@ -4,7 +4,6 @@
  */
 const Index = {};
 Index.selectedCategory = "";
-Index.awesomplete = {};
 Index.carouselInitialized = false;
 Index.swiper = {};
 Index.serverVersion = "";
@@ -115,7 +114,7 @@ Index.initializeAll = function () {
             }
 
             Index.migrateProgress();
-            Index.loadTagSuggestions();
+            LRR.setupTagSearchAutocomplete('#search-input');
             Index.loadCategories();
 
             // Initialize DataTables
@@ -559,50 +558,6 @@ Index.handleContextMenu = function (option, id) {
     default:
         break;
     }
-};
-
-/**
- * Load tag suggestions for the tag search bar.
- */
-Index.loadTagSuggestions = function () {
-    // Query the tag cloud API to get the most used tags.
-    Server.callAPI("/api/database/stats?minweight=2", "GET", null, "Couldn't load tag suggestions",
-        (data) => {
-            // Get namespaces objects in the data array to fill the namespace-sortby combobox
-            const namespacesSet = new Set(data.map((element) => (element.namespace === "parody" ? "series" : element.namespace)));
-            namespacesSet.forEach((element) => {
-                if (element !== "" && element !== "date_added") {
-                    $("#namespace-sortby").append(`<option value="${element}">${element.charAt(0).toUpperCase() + element.slice(1)}</option>`);
-                }
-            });
-
-            // Setup awesomplete for the tag search bar
-            Index.awesomplete = new Awesomplete("#search-input", {
-                list: data,
-                data(tag) {
-                    // Format tag objects from the API into a format awesomplete likes.
-                    let label = tag.text;
-                    if (tag.namespace !== "") label = `${tag.namespace}:${tag.text}`;
-
-                    return { label, value: tag.weight };
-                },
-                // Sort by weight
-                sort(a, b) {
-                    return b.value - a.value;
-                },
-                filter(text, input) {
-                    return Awesomplete.FILTER_CONTAINS(text, input.match(/[^, -]*$/)[0]);
-                },
-                item(text, input) {
-                    return Awesomplete.ITEM(text, input.match(/[^, -]*$/)[0]);
-                },
-                replace(text) {
-                    const before = this.input.value.match(/^.*(,|-)\s*-*|/)[0];
-                    this.input.value = `${before + text}$, `;
-                },
-            });
-        },
-    );
 };
 
 /**

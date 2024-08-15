@@ -21,14 +21,42 @@ Batch.initializeAll = function () {
     $(document).on("click.server-config", "#server-config", () => LRR.openInNewTab("./config"));
     $(document).on("click.plugin-config", "#plugin-config", () => LRR.openInNewTab("./config/plugins"));
     $(document).on("click.return", "#return", () => { window.location.href = "/"; });
+    $(document).on("click.use-search", "#use-search", Batch.getSearchResults);
+    $(document).on("click.use-all", "#use-all", Batch.getAllArchives);
+    $(document).on("keypress.use-search", "#search-input", (e) => { if (e.which == 13) { Batch.getSearchResults(); } });
 
     Batch.selectOperation();
     Batch.showOverride();
 
+    LRR.setupTagSearchAutocomplete('#search-input');
+};
+
+Batch.getSearchResults = function () {
+    $("#arclist").hide();
+    $("#loading-placeholder").show();
+
+    let search_filter = $("#search-input").val();
+    Server.callAPI(`/api/search?filter=${search_filter}`, "GET", null, "Couldn't load search results!",
+                   (resp) => {
+                       let data = resp.data;
+                       data.forEach((archive) => {
+                           const escapedTitle = LRR.encodeHTML(archive.title) + (archive.isnew === "true" ? " 🆕" : "");
+                           const html = `<li><input type='checkbox' name='archive' id='${archive.arcid}' class='archive' ><label for='${archive.arcid}'>${escapedTitle}</label></li>`;
+                           $("#arclist").append(html);
+                       });
+                   })
+        .finally(() => {
+            $("#arclist").show();
+            $("#loading-placeholder").hide();
+        });
+};
+
+Batch.getAllArchives = function () {
     // Load all archives, showing a spinner while doing so
     $("#arclist").hide();
+    $("#loading-placeholder").show();
 
-    Server.callAPI("/api/archives", "GET", null, "Couldn't load the complete archive list! Please reload the page.",
+    Server.callAPI("/api/archives", "GET", null, "Couldn't load the complete archive list!",
         (data) => {
             // Parse the archive list and add <li> elements to arclist
             data.forEach((archive) => {
