@@ -36,9 +36,10 @@ Batch.getSearchResults = function () {
     $("#loading-placeholder").show();
 
     let search_filter = $("#search-input").val();
-    Server.callAPI(`/api/search?filter=${search_filter}`, "GET", null, "Couldn't load search results!",
+    Server.callAPI(`/api/search?filter=${search_filter}&start=-1`, "GET", null, "Couldn't load search results!",
                    (resp) => {
                        let data = resp.data;
+                       $("#arclist").empty();
                        data.forEach((archive) => {
                            const escapedTitle = LRR.encodeHTML(archive.title) + (archive.isnew === "true" ? " 🆕" : "");
                            const html = `<li><input type='checkbox' name='archive' id='${archive.arcid}' class='archive' ><label for='${archive.arcid}'>${escapedTitle}</label></li>`;
@@ -58,6 +59,7 @@ Batch.getAllArchives = function () {
 
     Server.callAPI("/api/archives", "GET", null, "Couldn't load the complete archive list!",
         (data) => {
+            $("#arclist").empty();
             // Parse the archive list and add <li> elements to arclist
             data.forEach((archive) => {
                 const escapedTitle = LRR.encodeHTML(archive.title) + (archive.isnew === "true" ? " 🆕" : "");
