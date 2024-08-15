@@ -60,9 +60,12 @@ LRR.getTagSearchURL = function (namespace, tag) {
 };
 
 /**
- * Load tag suggestions for the tag search bar.
+ * Load tag suggestions for the tag search bar. input_tag is the
+ * selector to pass to the Awesomeplete constructor. instance_cb, if
+ * provided, will be invoked after construction with the Awesomeplete
+ * instance as argument.
  */
-LRR.setupTagSearchAutocomplete = function (input_tag) {
+LRR.setupTagSearchAutocomplete = function (input_tag, instance_cb) {
     // Query the tag cloud API to get the most used tags.
     Server.callAPI("/api/database/stats?minweight=2", "GET", null, "Couldn't load tag suggestions",
         (data) => {
@@ -75,8 +78,7 @@ LRR.setupTagSearchAutocomplete = function (input_tag) {
             });
 
             // Setup awesomplete for the tag search bar
-            // Index.awesomplete =
-            new Awesomplete(input_tag, {
+            let inst = new Awesomplete(input_tag, {
                 list: data,
                 data(tag) {
                     // Format tag objects from the API into a format awesomplete likes.
@@ -100,6 +102,10 @@ LRR.setupTagSearchAutocomplete = function (input_tag) {
                     this.input.value = `${before + text}$, `;
                 },
             });
+
+            if (instance_cb) {
+                instance_cb(inst);
+            }
         },
     );
 };

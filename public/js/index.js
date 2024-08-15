@@ -4,6 +4,7 @@
  */
 const Index = {};
 Index.selectedCategory = "";
+Index.awesomplete = {};
 Index.carouselInitialized = false;
 Index.swiper = {};
 Index.serverVersion = "";
@@ -114,7 +115,7 @@ Index.initializeAll = function () {
             }
 
             Index.migrateProgress();
-            LRR.setupTagSearchAutocomplete('#search-input');
+            LRR.setupTagSearchAutocomplete('#search-input', (inst) => { Index.awesomplete = inst; });
             Index.loadCategories();
 
             // Initialize DataTables
