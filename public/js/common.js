@@ -60,6 +60,57 @@ LRR.getTagSearchURL = function (namespace, tag) {
 };
 
 /**
+ * Load tag suggestions for the tag search bar. input_tag is the
+ * selector to pass to the Awesomeplete constructor. instance_cb, if
+ * provided, will be invoked after construction with the Awesomeplete
+ * instance as argument.
+ */
+LRR.setupTagSearchAutocomplete = function (input_tag, instance_cb) {
+    // Query the tag cloud API to get the most used tags.
+    Server.callAPI("/api/database/stats?minweight=2", "GET", null, "Couldn't load tag suggestions",
+        (data) => {
+            // Get namespaces objects in the data array to fill the namespace-sortby combobox
+            const namespacesSet = new Set(data.map((element) => (element.namespace === "parody" ? "series" : element.namespace)));
+            namespacesSet.forEach((element) => {
+                if (element !== "" && element !== "date_added") {
+                    $("#namespace-sortby").append(`<option value="${element}">${element.charAt(0).toUpperCase() + element.slice(1)}</option>`);
+                }
+            });
+
+            // Setup awesomplete for the tag search bar
+            let inst = new Awesomplete(input_tag, {
+                list: data,
+                data(tag) {
+                    // Format tag objects from the API into a format awesomplete likes.
+                    let label = tag.text;
+                    if (tag.namespace !== "") label = `${tag.namespace}:${tag.text}`;
+
+                    return { label, value: tag.weight };
+                },
+                // Sort by weight
+                sort(a, b) {
+                    return b.value - a.value;
+                },
+                filter(text, input) {
+                    return Awesomplete.FILTER_CONTAINS(text, input.match(/[^, -]*$/)[0]);
+                },
+                item(text, input) {
+                    return Awesomplete.ITEM(text, input.match(/[^, -]*$/)[0]);
+                },
+                replace(text) {
+                    const before = this.input.value.match(/^.*(,|-)\s*-*|/)[0];
+                    this.input.value = `${before + text}$, `;
+                },
+            });
+
+            if (instance_cb) {
+                instance_cb(inst);
+            }
+        },
+    );
+};
+
+/**
  * Open the given URL in a new browser tab.
  * @param {*} url The URL
  */

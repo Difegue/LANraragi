@@ -17,6 +17,7 @@
 	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/ReactToastify.min.css" />
 	<link rel="stylesheet" type="text/css" href="/css/vendor/sweetalert2.min.css" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/awesomplete.css") %]" />
 	[% csshead %]
 
 	<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
@@ -27,6 +28,7 @@
 	<script src="/js/vendor/clsx.min.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/react-toastify.umd.js" type="text/JAVASCRIPT"></script>
 	<script src="/js/vendor/sweetalert2.min.js" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/awesomplete.min.js") %]" type="text/JAVASCRIPT"></script>
 
 	<script src="/js/common.js?[% version%]" type="text/JAVASCRIPT"></script>
 	<script src="/js/server.js?[% version%]" type="text/JAVASCRIPT"></script>
@@ -42,6 +44,17 @@
 		You can apply modifications to multiple archives in one go here.<br><br>
 		Select what you'd like to do, check archives you want to use it on, and get rolling! <br>
 		Archives with no tags have been pre-checked.<br><br>
+
+		<div class='idi'>
+			<div id="category-container">
+				<!-- Categories go here -->
+			</div>
+			<input type='text' id='search-input' class='search stdinput' size='90' style='width:95%'
+			       placeholder='Search Title, Artist, Series, Language or Tags' />
+			<input id='use-search' class='searchbtn stdbtn' type='button' value='Use Search Results' />
+			<input id='use-all' class='searchbtn stdbtn' type='button' value='Use All Archives' />
+		</div>
+
 
 		<div style='margin-left:auto; margin-right:auto;'>
 			<div style='text-align:left; width:400px !important' class='left-column'>
@@ -204,11 +217,11 @@
 
 			<div class="id1 right-column"
 				style='text-align:center; min-width:400px; width: 60% !important; height:500px;'>
-				<ul class='checklist' id="arclist">
+				<ul class='checklist' id="arclist" style="display: none">
 				</ul>
 
 				<div id="loading-placeholder"
-					style="align-content: center;top: 150px; position: relative; margin-left: auto; margin-right: auto; width: 90%;">
+					style="align-content: center;top: 150px; position: relative; margin-left: auto; margin-right: auto; width: 90%; display: none">
 					<i class="fas fa-8x fa-spin fa-compact-disc"></i><br><br>
 					<h2>Preparing your data.</h2>
 				</div>
