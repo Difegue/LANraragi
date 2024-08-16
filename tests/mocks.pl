@@ -39,6 +39,7 @@ sub setup_redis_mock {
             "tags": "character:segata sanshiro, male:very cool",
             "title": "Saturn Backup Cartridge - Japanese Manual",
             "file": "package.json",
+            "summary": "",
             "lastreadtime": 1589038280
         },
         "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg": {
@@ -48,6 +49,7 @@ sub setup_redis_mock {
             "tags": "character:segata, female:very cool too",
             "title": "Saturn Backup Cartridge - American Manual",
             "file": "package.json",
+            "summary": "",
             "lastreadtime": 1589038281
         },
         "e4c422fd10943dc169e3489a38cdbf57101a5f7e": {
@@ -57,6 +59,7 @@ sub setup_redis_mock {
             "tags": "parody: jojo's bizarre adventure",
             "title": "Rohan Kishibe goes to Gucci",
             "file": "package.json",
+            "summary": "",
             "lastreadtime": 0
         },
         "4857fd2e7c00db8b0af0337b94055d8445118630": {
@@ -66,6 +69,7 @@ sub setup_redis_mock {
             "tags": "artist:shirow masamune",
             "title": "Ghost in the Shell 1.5 - Human-Error Processor vol01ch01",
             "file": "package.json",
+            "summary": "",
             "lastreadtime": 1589038280
         },
         "2810d5e0a8d027ecefebca6237031a0fa7b91eb3": {
@@ -75,6 +79,7 @@ sub setup_redis_mock {
             "tags": "parody:fate grand order,  character:abigail williams,  character:artoria pendragon alter,  character:asterios,  character:ereshkigal,  character:gilgamesh,  character:hans christian andersen,  character:hassan of serenity,  character:hector,  character:helena blavatsky,  character:irisviel von einzbern,  character:jeanne alter,  character:jeanne darc,  character:kiara sessyoin,  character:kiyohime,  character:lancer,  character:martha,  character:minamoto no raikou,  character:mochizuki chiyome,  character:mordred pendragon,  character:nitocris,  character:oda nobunaga,  character:osakabehime,  character:penthesilea,  character:queen of sheba,  character:rin tosaka,  character:saber,  character:sakata kintoki,  character:scheherazade,  character:sherlock holmes,  character:suzuka gozen,  character:tamamo no mae,  character:ushiwakamaru,  character:waver velvet,  character:xuanzang,  character:zhuge liang,  group:wadamemo,  artist:wada rco,  artbook,  full color",
             "title": "Fate GO MEMO 2",
             "file": "package.json",
+            "summary": "",
             "lastreadtime": 1589038280
         },
         "28697b96f0ac5858be2614ed10ca47742c9522fd": {
@@ -84,6 +89,7 @@ sub setup_redis_mock {
             "tags": "parody:fate grand order,  group:wadamemo,  artist:wada rco,  artbook,  full color, male:very cool too",
             "title": "Fate GO MEMO",
             "file": "package.json",
+            "summary": "",
             "lastreadtime": 0
         },
         "28697b96f0ac5777be2614ed10ca47742c9522fa": {
@@ -93,6 +99,7 @@ sub setup_redis_mock {
             "tags": "year of shadow, character:vector the crocodile",
             "title": "Find the Computer Room",
             "file": "package.json",
+            "summary": "",
             "lastreadtime": 0
         },
         "28697b96f0ac5858be2666ed10ca47742c955555": {
@@ -102,6 +109,7 @@ sub setup_redis_mock {
             "tags": "medjed, character:doubles guy, character:king of GETs, check this 5",
             "title": "All about Egypt",
             "file": "package.json",
+            "summary": "CURSE OF RA",
             "lastreadtime": 0
         },
         "TANK_1589141306": [
@@ -282,12 +290,13 @@ sub setup_redis_mock {
                 $datamodel{$key} = [];
             }
 
-            if ($end eq "+inf") {
+            if ( $end eq "+inf" ) {
                 $end = scalar @{ $datamodel{$key} };
             }
 
             # Skip $start amount of elements
             my @res = @{ $datamodel{$key} }[ $start .. $end ];
+
             # Add index after each element to simulate zrangebyscore behavior
             my @indexed_res;
             my $ind = $start;
