@@ -14,7 +14,12 @@ use List::Util qw(min);
 use LANraragi::Utils::Database  qw(redis_encode redis_decode invalidate_cache get_archive_json_multi get_tankoubons_by_file);
 use LANraragi::Utils::Generic   qw(array_difference);
 use LANraragi::Utils::Logging   qw(get_logger);
-use LANraragi::Utils::Constants qw(%TANK_METADATA);
+
+my %TANK_METADATA = (
+        "name", 0,
+        "summary", -1,
+        "tags", -2
+    );
 
 # get_tankoubon_list(page)
 #   Returns a list of all the Tankoubon objects.
@@ -97,7 +102,6 @@ sub create_tankoubon ( $name, $tank_id ) {
     # Init metadata
     $redis->zadd( $tank_id, $TANK_METADATA{"name"}, redis_encode("name_${tank_title}") );
     $redis->zadd( $tank_id, $TANK_METADATA{"summary"}, "summary_" );
-    $redis->zadd( $tank_id, $TANK_METADATA{"thumbhash"}, "thumbhash_" );
     $redis->zadd( $tank_id, $TANK_METADATA{"tags"}, "tags_" );
 
     $redis->quit;
@@ -114,8 +118,6 @@ sub get_tankoubon ( $tank_id, $fulldata = 0, $page = 0 ) {
     my $logger      = get_logger( "Tankoubon", "lanraragi" );
     my $redis       = LANraragi::Model::Config->get_redis;
     my $keysperpage = LANraragi::Model::Config->get_pagesize;
-
-    tankoubon_tools( "fetch_data", $tank_id, "name", "efwefwef" );
 
     $page //= 0;
 
@@ -145,11 +147,6 @@ sub get_tankoubon ( $tank_id, $fulldata = 0, $page = 0 ) {
     my @summary = $redis->zrangebyscore( $tank_id, $TANK_METADATA{"summary"}, $TANK_METADATA{"summary"}, qw{LIMIT 0 1} );
     $tank{summary} = redis_decode( $summary[0] ) || "";
     $tank{summary} =~ s/^summary_//;
-
-    # Get thumbhash
-    my @thumbhash = $redis->zrangebyscore( $tank_id, $TANK_METADATA{"thumbhash"}, $TANK_METADATA{"thumbhash"}, qw{LIMIT 0 1} );
-    $tank{thumbhash} = redis_decode( $thumbhash[0] ) || "";
-    $tank{thumbhash} =~ s/^thumbhash_//;
 
     # Get tags
     my @tags = $redis->zrangebyscore( $tank_id, $TANK_METADATA{"tags"}, $TANK_METADATA{"tags"}, qw{LIMIT 0 1} );
@@ -241,19 +238,29 @@ sub update_tankoubon ( $tank_id, $data ) {
 #   Returns 1 on success, 0 on failure alongside an error message.
 sub update_metadata( $tank_id, $data ) {
 
+    if ( not defined $data->{"metadata"} ) {
+        return ( 1, "" );
+    }
+
     my $logger          = get_logger( "Tankoubon", "lanraragi" );
     my $redis           = LANraragi::Model::Config->get_redis;
     my $err             = "";
-    my $name            = $data->{"metadata"}->{"name"};
-    my $summary         = $data->{"metadata"}->{"summary"};
-    my $thumbhash       = $data->{"metadata"}->{"thumbhash"};
-    my $tags            = $data->{"metadata"}->{"tags"};
+    my $name            = $data->{"metadata"}->{"name"} || undef;
+    my $summary         = $data->{"metadata"}->{"summary"} || undef;
+    my $tags            = $data->{"metadata"}->{"tags"} || undef;
 
     if ( $redis->exists($tank_id) ) {
-        tankoubon_tools( "update_meta", $tank_id, "name", $name );
-        tankoubon_tools( "update_meta", $tank_id, "summary", $summary );
-        tankoubon_tools( "update_meta", $tank_id, "thumbhash", $thumbhash );
-        tankoubon_tools( "update_meta", $tank_id, "tags", $tags );
+        if ( defined $name ) {
+            update_metadata_field( $tank_id, "name", $name );
+        }
+
+        if ( defined $summary ) {
+            update_metadata_field( $tank_id, "summary", $summary );
+        }
+
+        if ( defined $tags ) {
+            update_metadata_field( $tank_id, "tags", $tags );
+        }
 
         $redis->quit;
         return ( 1, $err );
@@ -271,6 +278,10 @@ sub update_metadata( $tank_id, $data ) {
 #   Updates the archives list in a Tankoubon.
 #   Returns 1 on success, 0 on failure alongside an error message.
 sub update_archive_list ( $tank_id, $data ) {
+
+    if ( not defined $data->{"archives"} ) {
+        return ( 1, "" );
+    }
 
     my $logger        = get_logger( "Tankoubon", "lanraragi" );
     my $redis         = LANraragi::Model::Config->get_redis;
@@ -325,11 +336,11 @@ sub update_archive_list ( $tank_id, $data ) {
         }
 
         # Update
-        $redis->zadd( $tank_id, @update );
+        if ( $len > 0 ) { # Move this line and the previous for inside the previous else?
+            $redis->zadd( $tank_id, @update );
+        }
         $redis->exec;
         $redis_search->exec;
-
-        # Update Tags and Aliases | TODO
 
         $redis->quit;
         $redis_search->quit;
@@ -493,41 +504,36 @@ sub get_tankoubons_containing_archive ($arcid) {
     return @tankoubons;
 }
 
-sub tankoubon_tools ( $action, $tank_id, $field, $value ) {
-
+sub update_metadata_field ( $tank_id, $field, $value ) {
     my $redis        = LANraragi::Model::Config->get_redis;
     my $logger       = get_logger( "Tankoubon", "lanraragi" );
     my $err          = "";
 
-    if ($action eq "update_meta") {
-        $redis->zremrangebyscore( $tank_id, $TANK_METADATA{$field}, $TANK_METADATA{$field} );
-        $redis->zadd( $tank_id, $TANK_METADATA{$field}, redis_encode("${field}_${value}") );
+    $redis->zremrangebyscore( $tank_id, $TANK_METADATA{$field}, $TANK_METADATA{$field} );
+    $redis->zadd( $tank_id, $TANK_METADATA{$field}, redis_encode("${field}_${value}") );
 
-        return ( 1, $err );
+    return ( 1, $err );
+}
+
+sub fetch_metadata_fields ( $tank_id, $field, $value ) {
+    my $redis        = LANraragi::Model::Config->get_redis;
+    my $logger       = get_logger( "Tankoubon", "lanraragi" );
+    my $err          = "";
+
+    # Fetch from DB
+    my @keys = sort { $TANK_METADATA{$a} <=> $TANK_METADATA{$b} } keys(%TANK_METADATA);
+    my @values = $redis->zrangebyscore( $tank_id, $TANK_METADATA{$keys[0]}, 0 );
+
+    # Clean the data
+    my %metadata;
+    for my $i (0..$#keys) {
+        my $key = $keys[$i];
+        my $value = redis_decode( $values[$i] ) || "";
+        $value =~ s/^$key\_//;
+        $metadata{$key} = $value;
     }
-    elsif($action eq "fetch_data") {
-        # This function has so many ways to fail | Experimental
 
-        # Fetch from DB
-        my @keys = sort { $TANK_METADATA{$a} <=> $TANK_METADATA{$b} } keys(%TANK_METADATA);
-        my @values = $redis->zrangebyscore( $tank_id, $TANK_METADATA{$keys[0]}, 0 );
-
-        # Clean the data
-        my %metadata;
-        for my $i (0..$#keys) {
-            my $key = $keys[$i];
-            my $value = redis_decode( $values[$i] ) || "";
-            $value =~ s/^$key\_//;
-            $metadata{$key} = $value;
-        }
-
-        return ( \%metadata, $err );
-    }
-    else {
-
-        $err = "action unknown.";
-        return ( 0, $err );
-    }
+    return ( \%metadata, $err );
 }
 
 1;
