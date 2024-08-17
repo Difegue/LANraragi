@@ -19,7 +19,7 @@ sub plugin_info {
         # Standard metadata
         name        => "HDoujin",
         type        => "metadata",
-        namespace   => "hdoujinplugin",
+        namespace   => "Hdoujinplugin",
         author      => "Pao, Squidy",
         version     => "0.6",
         description => "Collects metadata embedded into your archives by HDoujin Downloader's JSON or TXT files.",
@@ -42,13 +42,13 @@ sub get_tags {
 
     my $path_in_archive = is_file_in_archive($archive_file_path, "info.json");
 
-    if($path_in_archive) {
+    if ($path_in_archive) {
         return get_tags_from_hdoujin_json_file($archive_file_path, $path_in_archive);
     }
 
     $path_in_archive = is_file_in_archive($archive_file_path, "info.txt");
 
-    if($path_in_archive) {
+    if ($path_in_archive) {
         return get_tags_from_hdoujin_txt_file($archive_file_path, $path_in_archive);
     }
 
@@ -63,10 +63,8 @@ sub get_tags_from_hdoujin_txt_file {
 
     my $logger = get_plugin_logger();
 
-    # Extract info.txt
     my $file_path = extract_file_from_archive($archive_file_path, $path_in_archive);
 
-    # Open it
     open(my $file_handle, '<:encoding(UTF-8)', $file_path)
         or return (error => "Could not open $file_path!");
 
@@ -75,25 +73,18 @@ sub get_tags_from_hdoujin_txt_file {
 
     while (my $line = <$file_handle>) {
 
-        if ($line =~ m/(ARTIST|AUTHOR|CIRCLE|CHARACTERS|DESCRIPTION|LANGUAGE|PARODY|SERIES|TAGS): (.*)/) {
+        if ($line =~ m/(?i)^(artist|author|circle|characters?|description|language|parody|series|tags): (.*)/) {
 
-            my $namespace = $1;
+            my $namespace = normalize_namespace($1);
             my $value = $2;
 
             $value =~ s/^\s+|\s+$//g;
 
-            if($value eq "") {
+            if ($value eq "") {
                 next;
             }
 
-            if($namespace eq "CHARACTERS") {
-                $namespace = "CHARACTER";
-            } 
-            elsif($namespace eq "TAGS") {
-                $namespace = "";
-            }
-
-            if($namespace eq "DESCRIPTION") {
+            if (lc($namespace) eq "description") {
                 $summary = $value;
             }
             else {
@@ -104,14 +95,12 @@ sub get_tags_from_hdoujin_txt_file {
 
     }
 
-    # Delete it
     unlink $file_path;
 
     if ($tags eq "") {
         return (error => "No tags were found in info.txt!");
     }
 
-    # Return tags
     $logger->info("Sending the following tags to LRR: $tags");
 
     return (tags => remove_duplicates($tags), summary => $summary);
@@ -125,140 +114,94 @@ sub get_tags_from_hdoujin_json_file {
 
     my $logger = get_plugin_logger();
 
-    # Extract info.json
     my $file_path = extract_file_from_archive($archive_file_path, $path_in_archive);
-
     my $json_str = "";
 
-    # Open it
     open(my $file_handle, '<:encoding(UTF-8)', $file_path)
         or return (error => "Could not open $file_path!");
 
     while (my $row = <$file_handle>) {
 
         chomp $row;
-
         $json_str .= $row;
 
     }
 
-    #Use Mojo::JSON to decode the string into a hash
     my $json_hash = from_json $json_str;
 
     $logger->debug("Found and loaded the following JSON: $json_str");
 
-    #Parse it
-    my $tags = get_tags_from_hdoujin_json_hash($json_hash);
+    # Note that fields may be encapsulated in an outer "manga_info" object if the user has enabled this.
+    # Each field can contain either a single tag or an array of tags.
 
-    #Delete it
+    if (exists $json_hash->{"manga_info"}) {
+        $json_hash = $json_hash->{"manga_info"};
+    }
+
+    my $tags = get_tags_from_hdoujin_json_file_hash($json_hash);
+    my $summary = $json_hash->{"description"};
+
     unlink $file_path;
 
-    #Return tags
+    if ($tags eq "") {
+        return (error => "No tags were found in info.json!");
+    }
+
     $logger->info("Sending the following tags to LRR: $tags");
 
-    return (tags => $tags);
+    return (tags => remove_duplicates($tags), summary => $summary);
 
 }
 
-#get_tags_from_hdoujin_json(decodedjson)
-#Goes through the JSON hash obtained from an info.json file and return the contained tags.
-sub get_tags_from_hdoujin_json_hash {
+sub get_tags_from_hdoujin_json_file_hash {
 
-    my $hash = $_[0];
-    my $return = "";
+    my $json_obj = $_[0];
+    my $tags = "";
 
-    #HDoujin jsons are composed of a main manga_info object, containing fields for every metadata.
-    #Those fields can contain either a single tag or an array of tags.
+    my $logger = get_plugin_logger();
 
-    my $tags = $hash->{"manga_info"};
+    my @filtered_keys = grep { /(?i)^(?:artist|author|circle|characters?|language|parody|series|tags)/ } keys(%$json_obj);
 
-    #Take every key in the manga_info hash, except for title which we're already processing
+    foreach my $key (@filtered_keys) {
 
-    my @filtered_keys = grep { $_ ne "tags" and $_ ne "title" } keys(%$tags);
+        my $namespace = normalize_namespace($key);
+        my $values = $json_obj->{$key};
 
-    foreach my $namespace (@filtered_keys) {
+        if (ref($values) eq 'ARRAY') {
 
-        my $members = $tags->{$namespace};
+            # We have an array of values (e.g. author, artist, language, and character fields).
 
-        if ( ref($members) eq 'ARRAY' ) {
-
-            foreach my $tag (@$members) {
-
-                $return .= ", " unless $return eq "";
-                $return .= $namespace . ":" . $tag unless $members eq "";
-
-            }
-
-        } else {
-
-            $return .= ", " unless $return eq "";
-            $return .= $namespace . ":" . $members unless $members eq "";
-
-        }
-
-    }
-
-    my $tagsobj = $hash->{"manga_info"}->{"tags"};
-
-    if ( ref($tagsobj) eq 'HASH' ) {
-
-        return $return . "," . tags_from_wRespect($hash);
-
-    } else {
-
-        return $return . "," . tags_from_noRespect($hash);
-
-    }
-
-}
-
-sub tags_from_wRespect {
-
-    my $hash   = $_[0];
-    my $return = "";
-    my $tags   = $hash->{"manga_info"}->{"tags"};
-
-    foreach my $namespace ( keys(%$tags) ) {
-
-        my $members = $tags->{$namespace};
-        foreach my $tag (@$members) {
-
-            $return .= ", " unless $return eq "";
-            $return .= $namespace . ":" . $tag;
-
-        }
-    }
-
-    return $return;
-
-}
-
-sub tags_from_noRespect {
-
-    my $hash   = $_[0];
-    my $return = "";
-    my $tags   = $hash->{"manga_info"};
-
-    my @filtered_keys = grep { /^tags/ } keys(%$tags);
-
-    foreach my $namespace (@filtered_keys) {
-
-        my $members = $tags->{$namespace};
-
-        if ( ref($members) eq 'ARRAY' ) {
-
-            foreach my $tag (@$members) {
-
-                $return .= ", " unless $return eq "";
-                $return .= $namespace . ":" . $tag;
-
+            foreach my $tag (@$values) {
+                $tags = append_tags($tags, $namespace, $tag);
             }
 
         }
+        elsif (ref($values) eq 'HASH') {
+
+            # We have a map of keyed values (e.g. tags with namespace arrays enabled).
+
+            foreach my $nestedNamespace (keys(%$values)) {
+
+                my $nestedValues = $values->{$nestedNamespace};
+
+                foreach my $tag (@$nestedValues) {
+                    $tags = append_tags($tags, normalize_namespace($nestedNamespace), $tag);
+                }
+
+            }
+
+        } 
+        else {
+
+            # We have a basic string value (e.g. series).
+
+            $tags = append_tags($tags, $namespace, $values);
+
+        }
 
     }
 
-    return $return;
+    return $tags;
 
 }
 
@@ -274,11 +217,11 @@ sub append_tags {
 
         $tag =~ s/^\s+|\s+$//g;
 
-        if($tag eq "") {
+        if ($tag eq "") {
             next;
         }
 
-        if($namespace ne "") {
+        if ($namespace ne "") {
             $tag = lc($namespace) . ":" . $tag;
         }
 
@@ -312,6 +255,24 @@ sub remove_duplicates {
     }
 
     return join(", ", @uniqueTags);
+
+}
+
+sub normalize_namespace {
+
+    my $namespace = lc($_[0]);
+    
+    if ($namespace eq "characters") {
+        return "character";
+    } 
+    elsif ($namespace eq "misc") {
+        return "other";
+    }
+    elsif ($namespace eq "tags") {
+        return "";
+    }
+
+    return $namespace;
 
 }
 
