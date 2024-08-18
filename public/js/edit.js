@@ -15,7 +15,7 @@ Edit.initializeAll = function () {
     $(document).on("click.save-metadata", "#save-metadata", Edit.saveMetadata);
     $(document).on("click.delete-archive", "#delete-archive", Edit.deleteArchive);
     $(document).on("click.tagger", ".tagger", Edit.focusTagInput);
-    $(document).on("click.goback", "#goback", () => { window.location.href = "/"; });
+    $(document).on("click.goback", "#goback", () => { window.location.href = new LRR.apiURL("/"); });
     $(document).on("paste.tagger", ".tagger-new", Edit.handlePaste);
 
     Edit.updateOneShotArg();
@@ -47,7 +47,7 @@ Edit.initializeAll = function () {
                     completion: {
                         list: Edit.suggestions,
                     },
-                    link: (name) => `/?q=${name}`,
+                    link: (name) => new LRR.apiURL(`/?q=${name}`),
                 });
             }
         });
@@ -123,7 +123,7 @@ Edit.saveMetadata = function () {
     formData.append("title", $("#title").val());
     formData.append("summary", $("#summary").val());
 
-    return fetch(`api/archives/${id}/metadata`, { method: "PUT", body: formData })
+    return fetch(new LRR.apiURL(`/api/archives/${id}/metadata`), { method: "PUT", body: formData })
         .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))
         .then((data) => {
             if (data.success) {
@@ -163,7 +163,7 @@ Edit.getTags = function () {
     const pluginID = $("select#plugin option:checked").val();
     const archivID = $("#archiveID").val();
     const pluginArg = $("#arg").val();
-    Server.callAPI(`../api/plugins/use?plugin=${pluginID}&id=${archivID}&arg=${pluginArg}`, "POST", null, "Error while fetching tags :",
+    Server.callAPI(`/api/plugins/use?plugin=${pluginID}&id=${archivID}&arg=${pluginArg}`, "POST", null, "Error while fetching tags :",
         (result) => {
             if (result.data.title && result.data.title !== "") {
                 $("#title").val(result.data.title);

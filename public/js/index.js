@@ -109,7 +109,7 @@ Index.initializeAll = function () {
             } else {
                 LRR.toast({
                     heading: "<i class=\"fas fa-bug\"></i> You're running in Debug Mode!",
-                    text: "Advanced server statistics can be viewed <a href=\"./debug\">here.</a>",
+                    text: `Advanced server statistics can be viewed <a href="${new LRR.apiURL("/debug")}">here.</a>`,
                     icon: "warning",
                 });
             }
@@ -533,7 +533,7 @@ Index.loadContextMenuCategories = (catList, id) => Server.callAPI(`/api/archives
 Index.handleContextMenu = function (option, id) {
     switch (option) {
     case "edit":
-        LRR.openInNewTab(`./edit?id=${id}`);
+        LRR.openInNewTab(new LRR.apiURL(`/edit?id=${id}`));
         break;
     case "delete":
         LRR.showPopUp({
@@ -551,10 +551,10 @@ Index.handleContextMenu = function (option, id) {
         });
         break;
     case "read":
-        LRR.openInNewTab(`./reader?id=${id}`);
+        LRR.openInNewTab(new LRR.apiURL(`/reader?id=${id}`));
         break;
     case "download":
-        LRR.openInNewTab(`./api/archives/${id}/download`);
+        LRR.openInNewTab(new LRR.apiURL(`/api/archives/${id}/download`));
         break;
     default:
         break;
@@ -680,7 +680,7 @@ Index.migrateProgress = function () {
         localProgressKeys.forEach((id) => {
             const progress = localStorage.getItem(`${id}-reader`);
 
-            promises.push(fetch(`api/archives/${id}/metadata`, { method: "GET" })
+            promises.push(fetch(new LRR.apiURL(`api/archives/${id}/metadata`), { method: "GET" })
                 .then((response) => response.json())
                 .then((data) => {
                     // Don't migrate if the server progress is already further

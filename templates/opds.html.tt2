@@ -7,10 +7,10 @@
 
     <id>urn:lrr:0</id>
 
-    <link rel="self" href="/api/opds[% api_key_query %]" type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
-    <link rel="start" href="/api/opds[% api_key_query %]" type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
+    <link rel="self" href="[% c.url_for("/api/opds$api_key_query") %]" type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
+    <link rel="start" href="[% c.url_for("/api/opds$api_key_query") %]" type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
 
-    <link rel="next" href="/api/opds?start=[% nextpage %][% api_key_and %]" type="application/atom+xml;profile=opds-catalog;kind=navigation" />
+    <link rel="next" href="[% c.url_for("/api/opds?start=$nextpage$api_key_and") %]" type="application/atom+xml;profile=opds-catalog;kind=navigation" />
 
     <title>[% title %]</title>
     <updated>2010-01-10T10:03:10Z</updated>
@@ -22,14 +22,14 @@
     </author>
 
     <link rel="http://opds-spec.org/facet" 
-        href="/api/opds[% api_key_query %]" 
+        href="[% c.url_for("/api/opds$api_key_query") %]"
         title="All Archives" 
         opds:facetGroup="Categories" 
         [% IF nocat %]opds:activeFacet="true" [% END %]/>
  
     [% FOREACH cat IN catlist %]
     <link rel="http://opds-spec.org/facet" 
-        href="/api/opds?category=[% cat.id %][% api_key_and %]" 
+        href="[% c.url_for("/api/opds?category=$cat.id$api_key_and") %]"
         title="[% cat.name %]"  
         opds:facetGroup="Categories" 
         [% IF cat.count %]thr:count="[% cat.count %]" [% END %][% IF cat.active %]opds:activeFacet="true" [% END %]/>
@@ -55,19 +55,19 @@
         [% END %]
         <summary>[% arc.tags %]</summary>
 
-        <link rel="alternate" href="/api/opds/[% arc.arcid %][% api_key_query %]"
+        <link rel="alternate" href="[% c.url_for("/api/opds/$arc.arcid$api_key_query") %]"
             type="application/atom+xml;type=entry;profile=opds-catalog" />
 
-        <link rel="http://opds-spec.org/image" href="/api/archives/[% arc.arcid %]/thumbnail[% api_key_query %]" type="image/jpeg" />
-        <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/[% arc.arcid %]/thumbnail[% api_key_query %]"
+        <link rel="http://opds-spec.org/image" href="[% c.url_for("/api/archives/$arc.arcid/thumbnail$api_key_query") %]" type="image/jpeg" />
+        <link rel="http://opds-spec.org/image/thumbnail" href="[% c.url_for("/api/archives/$arc.arcid/thumbnail$api_key_query") %]"
             type="image/jpeg" />
-        <link rel="http://opds-spec.org/acquisition" href="/api/archives/[% arc.arcid %]/download[% api_key_query %]" title="Download/Read"
+        <link rel="http://opds-spec.org/acquisition" href="[% c.url_for("/api/archives/$arc.arcid/download$api_key_query") %]" title="Download/Read"
             type="[% arc.mimetype %]" />
         <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
-            href="/api/opds/[% arc.arcid %]/pse?page={pageNumber}[% api_key_and %]" pse:count="[% arc.pagecount %]" 
+            href="[% c.url_for("/api/opds/$arc.arcid/pse?page={pageNumber}$api_key_and") %]" pse:count="[% arc.pagecount %]"
             [% IF arc.progress %] pse:lastRead="[% arc.progress %]" [% END %] 
             [% IF arc.lastreaddate %] pse:lastReadDate="[% arc.lastreaddate %]" [% END %]/>
-        <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=[% arc.arcid %][% api_key_and %]" />
+        <link type="text/html" rel="alternate" title="Open in LANraragi" href="[% c.url_for("/reader?id=$arc.arcid$api_key_and") %]" />
     </entry>
     [% END %]
 

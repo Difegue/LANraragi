@@ -37,6 +37,38 @@ server {
 }
 ```
 
+By default, LRR runs at the server root,
+e.g. https://lanraragi.example.com/. You may wish to instead run it under a
+specific URL subdirectory, e.g. https://example.com/lanraragi/.
+
+This configuration requires that the reverse proxy be configured to strip the
+URL prefix from requests before forwarding it. For nginx, this is:
+
+```
+server {
+    # ...
+
+    location /lanraragi {
+        rewrite ^/lanraragi(.*)$ $1 last;
+        # ...rest of the block here
+    }
+}
+```
+
+After this is done, you need to configure LANraragi to use the new prefix. This
+is set under `lrr.conf` in the app root directory. Set the variable
+`base_url_path` as desired, e.g.:
+
+```
+{
+  # other directives...
+  base_url_path => "/lanraragi",
+}
+```
+
+Make sure to restart the server after editing `lrr.conf`. This will make the app
+available under `/lanraragi`.
+
 ## Setting up LANraragi to use a proxy for outbound network requests
 
 This is a less common scenario, but you might want to have downloads or metadata requests to external services go through a proxy, in case said external services are blocked by your friendly local totalitarian regime.  

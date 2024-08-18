@@ -196,16 +196,17 @@ sub generate_themes_header {
 
         my $css_file = $css[$i];
         my ( $css_name, $css_color ) = css_default_data($css_file);
+        my $css_url = $self->url_for("/themes/$css_file?$version");
 
         # If this is the default sheet, set it up as so.
         if ( $css[$i] eq LANraragi::Model::Config->get_style ) {
 
-            $html .= qq(<link rel="stylesheet" type="text/css" title="$css_name" href="/themes/$css_file?$version">);
+            $html .= qq(<link rel="stylesheet" type="text/css" title="$css_name" href="$css_url">);
 
             # Add the main color as a them-color meta tag
             $html .= qq(<meta name="theme-color" content="$css_color">);
         } else {
-            $html .= qq(<link rel="alternate stylesheet" type="text/css" title="$css_name" href="/themes/$css_file?$version">);
+            $html .= qq(<link rel="alternate stylesheet" type="text/css" title="$css_name" href="$css_url">);
         }
     }
 
