@@ -5,14 +5,14 @@ use warnings;
 
 #Plugins can freely use all Perl packages already installed on the system
 #Try however to restrain yourself to the ones already installed for LRR (see tools/cpanfile) to avoid extra installations by the end-user.
-use Mojo::JSON qw(from_json);
 use File::Basename;
 use Scalar::Util qw(looks_like_number);
 
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
 use LANraragi::Utils::Database qw(redis_encode redis_decode);
-use LANraragi::Utils::Logging  qw(get_logger);
+use LANraragi::Utils::Logging qw(get_plugin_logger);
+use LANraragi::Utils::String qw(trim);
 
 #Meta-information about your plugin.
 sub plugin_info {
@@ -39,7 +39,7 @@ sub get_tags {
     shift;
     my $lrr_info = shift;    # Global info hash
 
-    my $logger = get_logger( "regexparse", "plugins" );
+    my $logger = get_plugin_logger();
     my $file   = $lrr_info->{file_path};
 
     # lrr_info's file_path is taken straight from the filesystem, which might not be proper UTF-8.
@@ -61,7 +61,7 @@ sub get_tags {
     #Take variables from the regex selection
     if ( defined $2 ) { $event    = $2; }
     if ( defined $4 ) { $artist   = $4; }
-    if ( defined $5 ) { $title    = $5; }
+    if ( defined $5 ) { $title    = trim($5); }
     if ( defined $7 ) { $series   = $7; }
     if ( defined $9 ) { $language = $9; }
 
