@@ -12,7 +12,7 @@ use Mojo::JSON qw(decode_json encode_json);
 use List::Util qw(min);
 
 use LANraragi::Utils::Database  qw(redis_encode redis_decode invalidate_cache get_archive_json_multi get_tankoubons_by_file);
-use LANraragi::Utils::Generic   qw(array_difference);
+use LANraragi::Utils::Generic   qw(array_difference filter_hash_by_keys);
 use LANraragi::Utils::Logging   qw(get_logger);
 
 my %TANK_METADATA = (
@@ -36,7 +36,7 @@ sub get_tankoubon_list ( $page = 0 ) {
     # Jam tanks into an array of hashes
     my @result;
     foreach my $key ( sort @tanks ) {
-        my %data = get_tankoubon($key);
+        my ( $total, $filtered, %data ) = get_tankoubon($key);
         push( @result, \%data );
     }
 
@@ -132,26 +132,10 @@ sub get_tankoubon ( $tank_id, $fulldata = 0, $page = 0 ) {
     }
 
     # Declare some needed variables
-    my %tank;
+    my @allowed_keys = ('name', 'summary', 'tags', 'archives', 'full_data', 'id');
     my @archives;
     my @limit = split( ' ', "LIMIT " . ( $keysperpage * $page ) . " $keysperpage" );
-
-    # Replace for the fetch_data one | TODO
-
-    # Get name
-    my @name = $redis->zrangebyscore( $tank_id, $TANK_METADATA{"name"}, $TANK_METADATA{"name"}, qw{LIMIT 0 1} );
-    $tank{name} = redis_decode( $name[0] ) || "";
-    $tank{name} =~ s/^name_//;
-
-    # Get summary
-    my @summary = $redis->zrangebyscore( $tank_id, $TANK_METADATA{"summary"}, $TANK_METADATA{"summary"}, qw{LIMIT 0 1} );
-    $tank{summary} = redis_decode( $summary[0] ) || "";
-    $tank{summary} =~ s/^summary_//;
-
-    # Get tags
-    my @tags = $redis->zrangebyscore( $tank_id, $TANK_METADATA{"tags"}, $TANK_METADATA{"tags"}, qw{LIMIT 0 1} );
-    $tank{tags} = redis_decode( $tags[0] ) || "";
-    $tank{tags} =~ s/^tags_//;
+    my ( %tank, $error ) = fetch_metadata_fields($tank_id);
 
     my %tankoubon;
 
@@ -182,6 +166,8 @@ sub get_tankoubon ( $tank_id, $fulldata = 0, $page = 0 ) {
 
     # Add the key as well
     $tank{id} = $tank_id;
+
+    %tank = filter_hash_by_keys(\@allowed_keys, %tank);
 
     my $total = $redis->zcard($tank_id) - 1;
 
@@ -515,25 +501,29 @@ sub update_metadata_field ( $tank_id, $field, $value ) {
     return ( 1, $err );
 }
 
-sub fetch_metadata_fields ( $tank_id, $field, $value ) {
+sub fetch_metadata_fields ( $tank_id ) {
     my $redis        = LANraragi::Model::Config->get_redis;
-    my $logger       = get_logger( "Tankoubon", "lanraragi" );
     my $err          = "";
 
     # Fetch from DB
     my @keys = sort { $TANK_METADATA{$a} <=> $TANK_METADATA{$b} } keys(%TANK_METADATA);
-    my @values = $redis->zrangebyscore( $tank_id, $TANK_METADATA{$keys[0]}, 0 );
+    my @raw_values = $redis->zrangebyscore( $tank_id, $TANK_METADATA{$keys[0]}, 0 );
 
     # Clean the data
     my %metadata;
-    for my $i (0..$#keys) {
-        my $key = $keys[$i];
-        my $value = redis_decode( $values[$i] ) || "";
-        $value =~ s/^$key\_//;
-        $metadata{$key} = $value;
+    foreach my $raw_value (@raw_values) {
+        foreach my $key (@keys) {
+            if ($raw_value =~ /^$key\_/) {
+                my $clean_value = redis_decode($raw_value) || "";
+                $clean_value =~ s/^$key\_//;
+                $metadata{$key} = $clean_value;
+                last;  # Exit the loop once the key is matched
+            }
+        }
     }
 
-    return ( \%metadata, $err );
+    return ( %metadata, $err );
 }
+
 
 1;
