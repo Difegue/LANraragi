@@ -513,7 +513,7 @@ sub fetch_metadata_fields ( $tank_id ) {
     my %metadata;
     foreach my $raw_value (@raw_values) {
         foreach my $key (@keys) {
-            if ($raw_value =~ /^$key\_/) {
+            if ( $raw_value =~ /^$key\_/ ) {
                 my $clean_value = redis_decode($raw_value) || "";
                 $clean_value =~ s/^$key\_//;
                 $metadata{$key} = $clean_value;

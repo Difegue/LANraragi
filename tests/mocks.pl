@@ -289,8 +289,8 @@ sub setup_redis_mock {
             if ( !exists $datamodel{$key} ) {
                 $datamodel{$key} = [];
             }
-            
-            if ($start eq "-inf") {
+
+            if ( $start eq "-inf" ) {
                 $start = 0;
             }
 
@@ -299,7 +299,7 @@ sub setup_redis_mock {
             }
 
             my @indexed_res;
-            if ($start < 0) {
+            if ( $start < 0 ) {
                 # From -start to 0 or -end insert ""
                 push @indexed_res, "tags_test";
                 push @indexed_res, -2;
@@ -318,8 +318,7 @@ sub setup_redis_mock {
 
             # Add index after each element to simulate zrangebyscore behavior
             my $ind = $start;
-
-            # Fill with "" for negative indexes
+            
             foreach my $val (@res) {
                 unless ($val) {
                     next;

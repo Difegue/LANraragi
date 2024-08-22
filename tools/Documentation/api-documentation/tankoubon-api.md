@@ -23,9 +23,7 @@ Page of the list of Tankoubons.
             "id": "TANK_1688616437",
             "name": "Test 1",
             "summary": "",
-            "tags": "",
-            "thumbhash": "",
-            "alias": ""
+            "tags": ""
         },
         {
             "archives": [
@@ -34,9 +32,7 @@ Page of the list of Tankoubons.
             "id": "TANK_1688693913",
             "name": "Test 2",
             "summary": "",
-            "tags": "",
-            "thumbhash": "",
-            "alias": ""
+            "tags": ""
         }
     ],
     "total": 2
@@ -75,9 +71,7 @@ Page of the Archives list.
         "id": "TANK_1688616437",
         "name": "Test 1",
         "summary": "",
-        "tags": "",
-        "thumbhash": "",
-        "alias": ""
+        "tags": ""
     },
     "total": 3
 }
@@ -132,9 +126,7 @@ Page of the Archives list.
         "id": "TANK_1688616437",
         "name": "Test 1",
         "summary": "",
-        "tags": "",
-        "thumbhash": "",
-        "alias": ""
+        "tags": ""
     },
     "total": 3
 }
