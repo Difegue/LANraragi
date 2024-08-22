@@ -135,7 +135,7 @@ sub get_tankoubon ( $tank_id, $fulldata = 0, $page = 0 ) {
     my @allowed_keys = ('name', 'summary', 'tags', 'archives', 'full_data', 'id');
     my @archives;
     my @limit = split( ' ', "LIMIT " . ( $keysperpage * $page ) . " $keysperpage" );
-    my ( %tank, $error ) = fetch_metadata_fields($tank_id);
+    my ( $error, %tank ) = fetch_metadata_fields($tank_id);
 
     my %tankoubon;
 
@@ -522,7 +522,7 @@ sub fetch_metadata_fields ( $tank_id ) {
         }
     }
 
-    return ( %metadata, $err );
+    return ( $err, %metadata );
 }
 
 

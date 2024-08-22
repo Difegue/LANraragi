@@ -113,12 +113,12 @@ sub setup_redis_mock {
             "lastreadtime": 0
         },
         "TANK_1589141306": [
-            "Hello",
+            "name_Hello",
             "28697b96f0ac5858be2666ed10ca47742c955555",
             "28697b96f0ac5777be2614ed10ca47742c9522fa"
         ],
         "TANK_1589138380":[
-            "World",
+            "name_World",
             "28697b96f0ac5777be2614ed10ca47742c9522fa"
         ]
     })
@@ -284,22 +284,42 @@ sub setup_redis_mock {
         'zrangebyscore',    # $redis->zrangebyscore => get all values of key in datamodel
         sub {
             my $self = shift;
-            my ( $key, $start, $end ) = @_;
+            my ( $key, $start, $end, $word ) = @_;
 
             if ( !exists $datamodel{$key} ) {
                 $datamodel{$key} = [];
+            }
+            
+            if ($start eq "-inf") {
+                $start = 0;
             }
 
             if ( $end eq "+inf" ) {
                 $end = scalar @{ $datamodel{$key} };
             }
 
+            my @indexed_res;
+            if ($start < 0) {
+                # From -start to 0 or -end insert ""
+                push @indexed_res, "tags_test";
+                push @indexed_res, -2;
+
+                push @indexed_res, "summary_test";
+                push @indexed_res, -1;
+
+                push @indexed_res, $datamodel{$key}[0];
+                push @indexed_res, 0;
+
+                return @indexed_res;
+            }
+
             # Skip $start amount of elements
             my @res = @{ $datamodel{$key} }[ $start .. $end ];
 
             # Add index after each element to simulate zrangebyscore behavior
-            my @indexed_res;
             my $ind = $start;
+
+            # Fill with "" for negative indexes
             foreach my $val (@res) {
                 unless ($val) {
                     next;
