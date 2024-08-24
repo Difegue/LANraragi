@@ -229,7 +229,7 @@ sub exec_metadata_plugin {
         # Hand it off to the plugin here.
         # If the plugin requires a login, execute that first to get a UserAgent
         my %pluginfo = $plugin->plugin_info();
-        my $ua       = exec_login_plugin( $pluginfo{login_from} ) if ( exists $pluginfo{login_from} );
+        my $ua       = exec_login_plugin( $pluginfo{login_from} );
 
         # Bundle all the potentially interesting info in a hash
         my %infohash = (
