@@ -25,7 +25,7 @@ sub plugin_info {
         type        => "metadata",
         namespace   => "ezeplugin",
         author      => "Difegue",
-        version     => "2.3.1",
+        version     => "2.4",
         description =>
           "Collects metadata from eze-style info.json files ({'gallery_info': {xxx} } syntax), either embedded in your archive or in the same folder with the same name. ({archive_name}.json)",
         icon =>
@@ -67,14 +67,14 @@ sub get_tags {
         $logger->debug("Found file nearby at $filepath");
         $delete_after_parse = 0;
     } else {
-        return ( error => "No in-archive info.json or {archive_name}.json file found!" );
+        die "No in-archive info.json or {archive_name}.json file found!\n";
     }
 
     #Open it
     my $stringjson = "";
 
     open( my $fh, '<:encoding(UTF-8)', $filepath )
-      or return ( error => "Could not open $filepath!" );
+      or die "Could not open $filepath!\n";
 
     while ( my $row = <$fh> ) {
         chomp $row;
