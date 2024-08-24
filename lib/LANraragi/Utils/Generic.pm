@@ -21,7 +21,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 # Generic Utility Functions.
 use Exporter 'import';
 our @EXPORT_OK = qw(is_image is_archive render_api_response get_tag_with_namespace shasum start_shinobu
-  split_workload_by_cpu start_minion get_css_list generate_themes_header flat get_bytelength array_difference 
+  split_workload_by_cpu start_minion get_css_list generate_themes_header flat get_bytelength array_difference
   intersect_arrays);
 
 # Checks if the provided file is an image.
@@ -32,7 +32,7 @@ sub is_image {
 
 # Checks if the provided file is an archive.
 sub is_archive {
-    return $_[0] =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|cb7|cbt|pdf|epub|)$/i;
+    return $_[0] =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|cb7|cbt|pdf|epub|tar\.zst|zst)$/i;
 }
 
 # Renders the basic success API JSON template.

@@ -72,7 +72,7 @@ sub initialize_from_new_process {
     # Add watcher to content directory
     my $contentwatcher = File::ChangeNotify->instantiate_watcher(
         directories     => [$userdir],
-        filter          => qr/\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|cb7|cbt|pdf|epub)$/i,
+        filter          => qr/\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|cb7|cbt|pdf|epub|tar\.zst|zst)$/i,
         follow_symlinks => 1,
         exclude         => [ 'thumb', '.' ],                                                      #excluded subdirs
     );
