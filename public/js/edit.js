@@ -4,7 +4,7 @@
  */
 const Edit = {};
 
-Edit.tagInput = {};
+Edit.tagInput = null;
 Edit.suggestions = [];
 
 Edit.initializeAll = function () {
@@ -53,6 +53,23 @@ Edit.initializeAll = function () {
         });
 };
 
+// this checks whether the rich-text tag editor is in use (initialized
+// on tagInput); if so, call its method to add the tag; if not, edit
+// the string directly
+Edit.addTag = function (tag) {
+    tag = tag.trim();
+    if (Edit.tagInput) {
+        Edit.tagInput.add_tag(tag);
+    } else {
+        let val = $("#tagText").val().trim();
+        if (val == "") {
+            $("#tagText").val(tag);
+        } else {
+            $("#tagText").val(`${val}, ${tag}`);
+        }
+    }
+};
+
 Edit.handlePaste = function (event) {
     // Stop data actually being pasted into div
     event.stopPropagation();
@@ -63,8 +80,7 @@ Edit.handlePaste = function (event) {
 
     if (pastedData !== "") {
         pastedData.split(/,\s?/).forEach((tag) => {
-            // Remove trailing/leading spaces from tag before adding it
-            Edit.tagInput.add_tag(tag.trim());
+            Edit.addTag(tag);
         });
     }
 };
@@ -184,8 +200,7 @@ Edit.getTags = function () {
 
             if (result.data.new_tags !== "") {
                 result.data.new_tags.split(/,\s?/).forEach((tag) => {
-                    // Remove trailing/leading spaces from tag before adding it
-                    Edit.tagInput.add_tag(tag.trim());
+                    Edit.addTag(tag);
                 });
 
                 LRR.toast({
