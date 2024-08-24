@@ -2,7 +2,6 @@ package LANraragi::Plugin::Metadata::CopyArchiveTags;
 
 use strict;
 use warnings;
-use Data::Dumper;
 
 use LANraragi::Model::Plugins;
 use LANraragi::Utils::Database;
