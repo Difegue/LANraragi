@@ -77,7 +77,7 @@ note('exec_metadata_plugin returns the tags');
     $plugin_mock->mock( 'get_tags'    => sub { return ( tags => 'tag1,tag2' ); } );
 
     my $redis_mock = Test::MockObject->new();
-    $redis_mock->mock( 'hgetall' => sub { return ( 'thumbhash' => 'dummy' ); } );
+    $redis_mock->mock( 'hgetall' => sub { return ( 'thumbhash' => 'dummy', 'tags' => '' ); } );
     $redis_mock->mock( 'quit'    => sub { return 1; } );
 
     no warnings 'once', 'redefine';
@@ -98,7 +98,7 @@ note('exec_metadata_plugin returns the tags and the title');
     $plugin_mock->mock( 'get_tags'    => sub { return ( tags => 'tag1,tag2', title => '  The Best Manga  ' ); } );
 
     my $redis_mock = Test::MockObject->new();
-    $redis_mock->mock( 'hgetall' => sub { return ( 'thumbhash' => 'dummy' ); } );
+    $redis_mock->mock( 'hgetall' => sub { return ( 'thumbhash' => 'dummy', 'tags' => '' ); } );
     $redis_mock->mock( 'quit'    => sub { return 1; } );
 
     no warnings 'once', 'redefine';
@@ -111,6 +111,21 @@ note('exec_metadata_plugin returns the tags and the title');
     my %rdata = LANraragi::Model::Plugins::exec_metadata_plugin( $plugin_mock, 'dummy', undef, undef );
 
     cmp_deeply( \%rdata, { 'new_tags' => ' tag1, tag2', title => 'The Best Manga' }, 'returned tags' );
+}
+
+note('exec_script_plugin doesn\'t die when run_script fails');
+{
+    my $plugin_mock = Test::MockObject->new();
+    $plugin_mock->mock( 'plugin_info' => sub { return (); } );
+    $plugin_mock->mock( 'run_script'  => sub { die "Ooops!\n"; } );
+
+    no warnings 'once', 'redefine';
+    local *LANraragi::Model::Plugins::exec_login_plugin = sub { return; };
+
+    # Act
+    my %rdata = LANraragi::Model::Plugins::exec_script_plugin( $plugin_mock, 'dummy', undef );
+
+    cmp_deeply( \%rdata, { 'error' => re('Ooops!') }, 'returned error' );
 }
 
 done_testing();

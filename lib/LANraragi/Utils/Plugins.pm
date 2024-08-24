@@ -95,7 +95,7 @@ sub get_plugin {
     return 0;
 }
 
-# Get the parameters for thespecified plugin, either default values or input by the user in the settings page.
+# Get the parameters for the specified plugin, either default values or input by the user in the settings page.
 # Returns an array of values.
 sub get_plugin_parameters {
 
@@ -162,13 +162,9 @@ sub use_plugin {
 
         # Execute the plugin, appending the custom args at the end
         if ( $pluginfo{type} eq "script" ) {
-            eval { %plugin_result = LANraragi::Model::Plugins::exec_script_plugin( $plugin, $input, @settings ); };
+            %plugin_result = LANraragi::Model::Plugins::exec_script_plugin( $plugin, $input, @settings );
         } elsif ( $pluginfo{type} eq "metadata" ) {
             %plugin_result = LANraragi::Model::Plugins::exec_metadata_plugin( $plugin, $id, $input, @settings );
-        }
-
-        if ($@) {
-            $plugin_result{error} = $@;
         }
 
         # Decode the error value if there's one to avoid garbled characters

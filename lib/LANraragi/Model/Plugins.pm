@@ -2,7 +2,6 @@ package LANraragi::Model::Plugins;
 
 use v5.36;
 use experimental 'try';
-no warnings 'experimental::try';
 
 use strict;
 use warnings;
@@ -126,25 +125,29 @@ sub exec_login_plugin {
 sub exec_script_plugin {
 
     my ( $plugin, $input, @settings ) = @_;
-    my $logger = get_logger( "Plugin System", "lanraragi" );
+
+    no warnings 'experimental::try';
 
     #If the plugin has the method "run_script",
     #catch all the required data and feed it to the plugin
     if ( $plugin->can('run_script') ) {
 
-        my %pluginfo = $plugin->plugin_info();
-        my $ua       = exec_login_plugin( $pluginfo{login_from} );
+        try {
+            my %pluginfo = $plugin->plugin_info();
+            my $ua       = exec_login_plugin( $pluginfo{login_from} );
 
-        # Bundle all the potentially interesting info in a hash
-        my %infohash = (
-            user_agent    => $ua,
-            oneshot_param => $input
-        );
+            # Bundle all the potentially interesting info in a hash
+            my %infohash = (
+                user_agent    => $ua,
+                oneshot_param => $input
+            );
 
-        # Scripts don't have any predefined metadata in their spec so they're just ran as-is.
-        # They can return whatever the heck they want in their hash as well, they'll just be shown as-is in the API output.
-        my %result = $plugin->run_script( \%infohash, @settings );
-        return %result;
+            # Scripts don't have any predefined metadata in their spec so they're just ran as-is.
+            # They can return whatever the heck they want in their hash as well, they'll just be shown as-is in the API output.
+            return $plugin->run_script( \%infohash, @settings );
+        } catch ($e) {
+            return ( error => $e );
+        }
     }
     return ( error => "Plugin doesn't implement run_script despite having a 'script' type." );
 }
@@ -191,6 +194,9 @@ sub exec_download_plugin {
 sub exec_metadata_plugin {
 
     my ( $plugin, $id, $oneshotarg, @args ) = @_;
+
+    no warnings 'experimental::try';
+
     my $logger = get_logger( "Plugin System", "lanraragi" );
 
     if ( !$id ) {
