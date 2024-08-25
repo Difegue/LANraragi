@@ -14,7 +14,7 @@ sub plugin_info {
         namespace   => 'memsplugin',
         login_from  => "ehlogin",
         author      => 'Mayriad',
-        version     => '1.1.1',
+        version     => '1.2',
         description => 'Accurately retrieves metadata from e-hentai.org using the identifiers appeneded to the '
           . 'filenames of archives downloaded by Mayriad\'s EH Master Script.',
         icon => 'data:image/png;base64,AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAQAAAAAAAAAAAAAA'
@@ -75,7 +75,7 @@ sub get_tags {
             my $file_error = 'Skipping archive without connecting to EH, because the archive title does not have valid '
               . 'gallery identifiers from Mayriad\'s EH Master Script.';
             $logger->error($file_error);
-            return ( error => $file_error );
+            die "${file_error}\n";
         }
     }
 
@@ -101,7 +101,7 @@ sub get_tags {
     } else {
         my $source_error = 'No matching EH gallery found. The archive title may have incorrect gallery identifiers.';
         $logger->error($source_error);
-        return ( error => $source_error );
+        die "${source_error}\n";
     }
 
 }
