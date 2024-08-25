@@ -27,7 +27,7 @@ sub plugin_info {
         type        => "metadata",
         namespace   => "hentagonlineplugin",
         author      => "siliconfeces",
-        version     => "0.2",
+        version     => "0.3",
         description => "Searches hentag.com for tags matching your archive",
         parameters  => [
             {   type => "string",
@@ -79,7 +79,7 @@ sub get_tags {
             $logger->info("Failed parsing URL $oneshot_param");
 
             # Don't continue execution if the oneshot URL was invalid. Raise an error instead to avoid surprises
-            return ( error => "Did not recognize the URL, is it a proper vault URL?" );
+            die "Did not recognize the URL, is it a proper vault URL?\n";
         }
     } elsif ( my $hentag_source = get_existing_hentag_source_url(@existing_tags) ) {
 
@@ -133,7 +133,7 @@ sub get_tags {
         }
     }
 
-    return ( error => "No matching Hentag Archive Found!" );
+    die "No matching Hentag Archive Found!\n";
 }
 
 # Returns the ID from a hentag URL, or undef if invalid.
