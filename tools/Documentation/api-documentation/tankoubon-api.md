@@ -187,7 +187,7 @@ ID of the Tankoubon to update.
 Json with 2 keys "archives" and "metadata" defining:
 
 - archives: Ordered array with the IDs of the archives.
-- metadata: Json with the metadata parameters(Requires all the fields defined): name, summary, thumbhash, tags.
+- metadata: Json with the metadata parameters: name, summary, tags.
 {% endswagger-parameter %}
 
 {% swagger-response status="200" description="" %}
