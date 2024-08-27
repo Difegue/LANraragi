@@ -2,7 +2,7 @@
 
 <head>
     <title>[% title %]</title>
-
+    <input type="hidden" id="currentLanguage" value="[% language %]">
     <meta name="viewport" content="width=device-width" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="apple-mobile-web-status-bar-style" content="black" />

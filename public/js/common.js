@@ -332,11 +332,14 @@ LRR.showPopUp = function (c) {
         c.customClass = {
             cancelButton: "stdbtn",
             confirmButton: "stdbtn",
+            title: "swal2-title-center" // 添加自定义类
         };
+    } else {
+        c.customClass.title = "swal2-title-center"; // 确保自定义类被添加
     }
 
     if (c.icon === "warning" && !c.title) {
-        c.title = "This is a destructive operation!";
+        c.title = i18next.t('destructiveOperation');
     }
     return window.Swal.fire(c);
 };

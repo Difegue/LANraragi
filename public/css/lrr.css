@@ -783,3 +783,7 @@ div.fullscreen img {
 body.infinite-scroll .fullscreen-infinite img {
   margin: 0 auto !important;
 }
+
+#swal2-title.swal2-title-center {
+  text-align: center !important;
+}

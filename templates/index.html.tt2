@@ -2,7 +2,7 @@
 
 <head>
 	<title>[% title %]</title>
-
+	<input type="hidden" id="currentLanguage" value="[% language %]">
 	<meta name="viewport" content="width=device-width" />
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<meta name="apple-mobile-web-status-bar-style" content="black" />
@@ -22,6 +22,10 @@
 	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/ReactToastify.min.css") %]" />
 	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/sweetalert2.min.css") %]" />
 	[% csshead %]
+
+	<script src="[% c.url_for("/js/vendor/i18next.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/i18nextHttpBackend.min.js") %]" type="text/JAVASCRIPT"></script>
+    <script src="[% c.url_for("/js/i18n.js?$version") %]" type="text/JAVASCRIPT"></script>
 
 	<script src="[% c.url_for("/js/vendor/jquery.min.js") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/vendor/jquery.dataTables.min.js") %]" type="text/JAVASCRIPT"></script>
@@ -45,38 +49,37 @@
 	<script src="[% c.url_for("/js/common.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/server.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/index_datatables.js?$version") %]" type="text/JAVASCRIPT"></script>
-
 </head>
 
 <body>
 
 	[% IF userlogged %]
-	<p id="nb">
-		<i class="fa fa-caret-right"></i>
-		<a href="[% c.url_for("/upload") %]">Add Archives</a>
-		<span style="margin-left:5px"></span>
-		<i class="fa fa-caret-right"></i>
-		<a href="[% c.url_for("/batch") %]">Batch Operations</a>
-		<span style="margin-left:5px"></span>
-		<i class="fa fa-caret-right"></i>
-		<a href="[% c.url_for("/config") %]">Settings</a>
-		<span style="margin-left:5px"></span>
-		<i class="fa fa-caret-right"></i>
-		<a href="[% c.url_for("/config/categories") %]">Modify Categories</a>
-		<span style="margin-left:5px"></span>
-		<i class="fa fa-caret-right"></i>
-		<a href="[% c.url_for("/stats") %]">Statistics</a>
-		<i class="fa fa-caret-right"></i>
-		<a href="[% c.url_for("/logs") %]">Logs</a>
-	</p>
+    <p id="nb">
+        <i class="fa fa-caret-right"></i>
+        <a href="[% c.url_for("/upload") %]" data-i18n="add-archives">Add Archives</a>
+        <span style="margin-left:5px"></span>
+        <i class="fa fa-caret-right"></i>
+        <a href="[% c.url_for("/batch") %]" data-i18n="batch-operations">Batch Operations</a>
+        <span style="margin-left:5px"></span>
+        <i class="fa fa-caret-right"></i>
+        <a href="[% c.url_for("/config") %]" data-i18n="settings">Settings</a>
+        <span style="margin-left:5px"></span>
+        <i class="fa fa-caret-right"></i>
+        <a href="[% c.url_for("/config/categories") %]" data-i18n="modify-categories">Modify Categories</a>
+        <span style="margin-left:5px"></span>
+        <i class="fa fa-caret-right"></i>
+        <a href="[% c.url_for("/stats") %]" data-i18n="statistics">Statistics</a>
+        <i class="fa fa-caret-right"></i>
+        <a href="[% c.url_for("/logs") %]" data-i18n="logs">Logs</a>
+    </p>
 	[% ELSE %]
-	<p id="nb">
-		<i class="fa fa-caret-right"></i>
-		<a href="[% c.url_for("/login") %]">Admin Login</a>
-		<span style="margin-left:5px"></span>
-		<i class="fa fa-caret-right"></i>
-		<a href="[% c.url_for("/stats") %]">Statistics</a>
-	</p>
+    <p id="nb">
+        <i class="fa fa-caret-right"></i>
+        <a href="[% c.url_for("/login") %]" data-i18n="admin-login">Admin Login</a>
+        <span style="margin-left:5px"></span>
+        <i class="fa fa-caret-right"></i>
+        <a href="[% c.url_for("/stats") %]" data-i18n="statistics">Statistics</a>
+    </p>
 	[% END %]
 
 	<div class='ido'>
@@ -87,9 +90,15 @@
 					<!-- Categories go here -->
 				</div>
 				<input type='text' id='search-input' class='search stdinput' size='90' style='width:95%'
-					placeholder='Search Title, Artist, Series, Language or Tags' />
-				<input id='apply-search' class='searchbtn stdbtn' type='button' value='Apply Filter' />
-				<input id='clear-search' class='searchbtn stdbtn' type='button' value='Clear Filter' />
+					placeholder='Search Title, Artist, Series, Language or Tags'
+					data-i18n="search-placeholder"
+					data-i18n-attr="placeholder" />
+				<input id='apply-search' class='searchbtn stdbtn' type='button' value='Apply Filter' 
+					data-i18n="apply-filter"
+					data-i18n-attr="value" />
+				<input id='clear-search' class='searchbtn stdbtn' type='button' value='Clear Filter' 
+					data-i18n="clear-filter"
+					data-i18n-attr="value" />
 			</div>
 
 			<ul class="collapsible index-carousel with-right-caret">
@@ -99,13 +108,13 @@
 						<i id="carousel-icon" class="fa"></i>
 						<div id="carousel-title"
 							style="display:inline;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-left: 8px;"
-							title="Click to show archives from the current search with the specified filter">...</div>
+							data-i18n="carousel-title" data-i18n-attr="title">...</div>
 					</div>
 					<div class="collapsible-right">
 						<a class="fa fa-2x fa-sync-alt" style="margin-bottom: -4px; display:none" id="reload-carousel"
-							href="#" title="Refresh Selection"></a>
+							href="#" data-i18n="reload-carousel" data-i18n-attr="title"></a>
 						<a class="fa fa-2x fa-ellipsis-h" style="margin-bottom: -4px; margin-left: 12px"
-							id="carousel-mode-menu" href="#" title="Carousel Options"></a>
+							id="carousel-mode-menu" href="#" data-i18n="carousel-mode-menu" data-i18n-attr="title"></a>
 					</div>
 
 					<div class="collapsible-body" style="flex: 1 0 100%;overflow: hidden;box-sizing: border-box;">
@@ -120,8 +129,7 @@
 							<div id="carousel-empty"
 								style="height: 344px; display: flex; justify-content: center; align-items: center; flex-direction: column;">
 								<i class="fa fa-4x fa-sad-cry"></i>
-								<span style="margin-top: 12px;">No
-									results here.</span>
+								<span style="margin-top: 12px;" data-i18n="carousel-empty-text">No results here.</span>
 							</div>
 						</div>
 					</div>
@@ -131,23 +139,22 @@
 			<div class="table-options" style="display: none;">
 				<div class="thumbnail-options">Sort by:
 					<select class="favtag-btn" id="namespace-sortby">
-						<option selected value="title">Title</option>
-						<option selected value="date_added">Date</option>
+						<option selected value="title" data-i18n="sort-title">Title</option>
+						<option selected value="date_added" data-i18n="sort-date">Date</option>
 					</select>
-					<a class="fa fa-sort-alpha-down fa-2x table-option" id="order-sortby" href="#"
-						title="Sort Order"></a>
+					<a class="fa fa-sort-alpha-down fa-2x table-option" id="order-sortby" href="#" title="Sort Order" data-i18n="sort-order" data-i18n-attr="title"></a>
 
 					<input id="thumbnail-crop" class="fa table-option" type="checkbox"
-						title="If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the left side.">
-					<label for="thumbnail-crop" style="vertical-align: middle; padding-top:6px">Crop thumbnails</label>
+						title="If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the left side." data-i18n="thumbnail-crop" data-i18n-attr="title">
+					<label for="thumbnail-crop" style="vertical-align: middle; padding-top:6px" data-i18n="crop-thumbnails">Crop thumbnails</label>
 				</div>
 				<div style="margin-left:auto">Go to Page:
 					<select class="favtag-btn" id="page-select">
 					</select>
 					<a class="fa fa-list fa-2x mode-toggle thumbnail-toggle table-option" href="#"
-						title="Switch to Compact Mode"></a>
+						title="Switch to Compact Mode" data-i18n="switch-compact-mode" data-i18n-attr="title"></a>
 					<a class="fa fa-table fa-2x mode-toggle compact-toggle table-option" href="#"
-						title="Switch to Thumbnail Mode"></a>
+						title="Switch to Thumbnail Mode" data-i18n="switch-thumbnail-mode" data-i18n-attr="title"></a>
 				</div>
 			</div>
 
@@ -155,20 +162,20 @@
 				<thead class="list" style="display: none;">
 					<tr>
 						<th id="titleheader">
-							<a>Title</a>
+							<a data-i18n="title">Title</a>
 						</th>
 						<th id="customheader1">
 							<i id="edit-header-1" class="fas fa-pencil-alt edit-header-btn"
 								title="Edit this column"></i>
-							<a id="header-1">Artist</a>
+							<a id="header-1" data-i18n="artist">Artist</a>
 						</th>
 						<th id="customheader2">
 							<i id="edit-header-2" class="fas fa-pencil-alt edit-header-btn"
 								title="Edit this column"></i>
-							<a id="header-2">Series</a>
+							<a id="header-2" data-i18n="series">Series</a>
 						</th>
 						<th id="tagsheader">
-							<a>Tags</a>
+							<a data-i18n="tags">Tags</a>
 						</th>
 					</tr>
 				</thead>
@@ -191,22 +198,20 @@
 	[% INCLUDE footer %]
 
 	<script>
-
-		// Last few remains of JS using server-provided data
 		jQuery(() => {
-
-			[% IF usingdefpass %]
-			//If the json has the "default password" flag, flash a friendly notification inviting the user to change his password
-			LRR.toast({
-				heading: 'You\'re using the default password and that\'s super baka of you',
-				text: '<a href="[% c.url_for("/login") %]">Login</a> with password "kamimamita" and <a href="[% c.url_for("/config") %]">change that shit</a> on the double.<br/>...Or just disable it! <br/>Why not check the configuration options afterwards, while you\'re at it? ',
-				icon: 'warning',
-				hideAfter: 25000,
-				closeOnClick: false,
-				draggable: false,
+			document.addEventListener('i18nextInitialized', () => {
+				[% IF usingdefpass %]
+				LRR.toast({
+					heading: i18next.t('default_password_warning.heading'),
+					text: i18next.t('default_password_warning.text', {loginUrl: '[% c.url_for("/login") %]', configUrl: '[% c.url_for("/config") %]'}),
+					icon: 'warning',
+					hideAfter: 25000,
+					closeOnClick: false,
+					draggable: false,
+				});
+				[% END %]
 			});
-			[% END %]
-
+		
 			const catList = [];
 			[% IF categories.size > 0 %]
 			[% FOREACH categories %]
@@ -217,8 +222,7 @@
 			});
 			[% END %]
 			[% END %]
-
-			// Initialize context menu
+		
 			$.contextMenu({
 				selector: '.context-menu',
 				build: ($trigger, e) => {
@@ -227,16 +231,16 @@
 							Index.handleContextMenu(key, $(this).attr("id"));
 						},
 						items: {
-							"read": { name: "Read", icon: "fas fa-book" },
-							"download": { name: "Download", icon: "fas fa-save" },
+							"read": { name: i18next.t('contextMenu.read'), icon: "fas fa-book" },
+							"download": { name: i18next.t('contextMenu.download'), icon: "fas fa-save" },
 							[% IF userlogged %]
 							"sep1": "---------",
-							"edit": { name: "Edit Metadata", icon: "fas fa-pencil-alt" },
-							"delete": { name: "Delete", icon: "fas fa-trash-alt" },
+							"edit": { name: i18next.t('contextMenu.editMetadata'), icon: "fas fa-pencil-alt" },
+							"delete": { name: i18next.t('contextMenu.delete'), icon: "fas fa-trash-alt" },
 							"collections": {
-								"name": "Add to Category",
-								"icon": "fas fa-search-plus",
-								"items": Index.loadContextMenuCategories(catList, $trigger.attr("id"))
+								name: i18next.t('contextMenu.addToCategory'),
+								icon: "fas fa-search-plus",
+								items: Index.loadContextMenuCategories(catList, $trigger.attr("id"))
 							}
 							[% END %]
 						}
@@ -245,6 +249,7 @@
 			});
 		});
 	</script>
+		
 
 	<div id="overlay-shade"> </div>
 

@@ -45,7 +45,9 @@
         "react-toastify": "^9.0.0-rc-2",
         "sweetalert2": "^11.6.14",
         "swiper": "^8.4.5",
-        "tippy.js": "^6.3.7"
+        "tippy.js": "^6.3.7",
+        "i18next": "^21.6.0",
+        "i18next-http-backend": "^2.6.0"
     },
     "devDependencies": {
         "eslint": "^7.32.0",

@@ -30,6 +30,7 @@ sub index {
             template       => "reader",
             title          => $self->LRR_CONF->get_htmltitle,
             use_local      => $self->LRR_CONF->enable_localprogress,
+            language       => $self->LRR_CONF->get_language,
             id             => $self->req->param('id'),
             arc_categories => \@arc_categories,
             categories     => \@categories,

@@ -21,6 +21,7 @@ sub index {
         vername         => $self->LRR_VERNAME,
         descstr         => $self->LRR_DESC,
         motd            => $self->LRR_CONF->get_motd,
+        language        => $self->LRR_CONF->get_language,
         dirname         => $self->LRR_CONF->get_userdir,
         thumbdir        => $self->LRR_CONF->get_thumbdir,
         forceddirname   => ( defined $ENV{LRR_DATA_DIRECTORY}  ? 1 : 0 ),
@@ -73,6 +74,7 @@ sub save_config {
         readerquality => scalar $self->req->param('readerquality'),
         sizethreshold => scalar $self->req->param('sizethreshold'),
         theme         => scalar $self->req->param('theme'),
+        language      => scalar $self->req->param('language'),
 
         # For checkboxes,
         # we check if the parameter exists in the POST to return either 1 or 0.

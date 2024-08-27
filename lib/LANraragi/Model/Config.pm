@@ -91,7 +91,7 @@ sub get_redis_internal {
 sub get_redis_conf {
     my $param   = $_[0];
     my $default = $_[1];
-
+    
     my $redis = get_redis_config();
 
     if ( $redis->hexists( "LRR_CONFIG", $param ) ) {
@@ -189,5 +189,6 @@ sub get_hqthumbpages     { return &get_redis_conf( "hqthumbpages",    "0" ) }
 sub get_jxlthumbpages    { return &get_redis_conf( "jxlthumbpages",   "0" ) }
 sub get_replacedupe      { return &get_redis_conf( "replacedupe",     "0" ) }
 sub can_replacetitles    { return &get_redis_conf( "replacetitles",   "1" ) }
+sub get_language         { return xml_escape(&get_redis_conf( "language",       "en" )) }
 
 1;
