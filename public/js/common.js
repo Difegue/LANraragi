@@ -332,10 +332,10 @@ LRR.showPopUp = function (c) {
         c.customClass = {
             cancelButton: "stdbtn",
             confirmButton: "stdbtn",
-            title: "swal2-title-center" // 添加自定义类
+            title: "swal2-title-center"
         };
     } else {
-        c.customClass.title = "swal2-title-center"; // 确保自定义类被添加
+        c.customClass.title = "swal2-title-center";
     }
 
     if (c.icon === "warning" && !c.title) {
