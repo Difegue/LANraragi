@@ -21,7 +21,8 @@ use LANraragi::Utils::Logging qw(get_logger);
 # Generic Utility Functions.
 use Exporter 'import';
 our @EXPORT_OK = qw(is_image is_archive render_api_response get_tag_with_namespace shasum start_shinobu
-  split_workload_by_cpu start_minion get_css_list generate_themes_header flat get_bytelength array_difference);
+  split_workload_by_cpu start_minion get_css_list generate_themes_header flat get_bytelength array_difference
+  intersect_arrays);
 
 # Checks if the provided file is an image.
 # Uses non-capturing groups (?:) to avoid modifying the incoming argument.
@@ -31,7 +32,7 @@ sub is_image {
 
 # Checks if the provided file is an archive.
 sub is_archive {
-    return $_[0] =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|cb7|cbt|pdf|epub|)$/i;
+    return $_[0] =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|cb7|cbt|pdf|epub|tar\.zst|zst)$/i;
 }
 
 # Renders the basic success API JSON template.
@@ -195,16 +196,17 @@ sub generate_themes_header {
 
         my $css_file = $css[$i];
         my ( $css_name, $css_color ) = css_default_data($css_file);
+        my $css_url = $self->url_for("/themes/$css_file?$version");
 
         # If this is the default sheet, set it up as so.
         if ( $css[$i] eq LANraragi::Model::Config->get_style ) {
 
-            $html .= qq(<link rel="stylesheet" type="text/css" title="$css_name" href="/themes/$css_file?$version">);
+            $html .= qq(<link rel="stylesheet" type="text/css" title="$css_name" href="$css_url">);
 
             # Add the main color as a them-color meta tag
             $html .= qq(<meta name="theme-color" content="$css_color">);
         } else {
-            $html .= qq(<link rel="alternate stylesheet" type="text/css" title="$css_name" href="/themes/$css_file?$version">);
+            $html .= qq(<link rel="alternate stylesheet" type="text/css" title="$css_name" href="$css_url">);
         }
     }
 
@@ -250,6 +252,34 @@ sub array_difference {
     }
 
     return @difference;
+}
+
+# intersect_arrays(@array1, @array2, $isneg)
+# Intersect two arrays and return the result. If $isneg is true, return the difference instead.
+sub intersect_arrays {
+
+    my ( $array1, $array2, $isneg ) = @_;
+
+    # If array1 is empty, just return an empty array or the second array if $isneg is true
+    if ( scalar @$array1 == 0 ) {
+        return $isneg ? @$array2 : ();
+    }
+
+    # If array2 is empty, die since this sub shouldn't even be used in that case
+    if ( scalar @$array2 == 0 ) {
+        die "intersect_arrays called with an empty array2";
+    }
+
+    my %hash = map { $_ => 1 } @$array1;
+    my @result;
+
+    if ($isneg) {
+        @result = grep { !exists $hash{$_} } @$array2;
+    } else {
+        @result = grep { exists $hash{$_} } @$array2;
+    }
+
+    return @result;
 }
 
 1;

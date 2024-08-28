@@ -10,7 +10,7 @@ let totalUploads = 0;
 Upload.initializeAll = function () {
     // bind events to DOM
     $(document).on("click.download-url", "#download-url", Upload.downloadUrl);
-    $(document).on("click.return", "#return", () => { window.location.href = "/"; });
+    $(document).on("click.return", "#return", () => { window.location.href = new LRR.apiURL("/"); });
 
     $("#fileupload").fileupload({
         dataType: "json",
@@ -94,8 +94,8 @@ Upload.handleCompletedUpload = function (jobID, d) {
     $(`#${jobID}-name`).html(d.result.title);
 
     if (d.result.id) {
-        $(`#${jobID}-name`).attr("href", `reader?id=${d.result.id}`);
-        $(`#${jobID}-link`).attr("href", `edit?id=${d.result.id}`);
+        $(`#${jobID}-name`).attr("href", new LRR.apiURL(`/reader?id=${d.result.id}`));
+        $(`#${jobID}-link`).attr("href", new LRR.apiURL(`/edit?id=${d.result.id}`));
     }
 
     if (d.result.success) {
@@ -136,7 +136,7 @@ Upload.downloadUrl = function () {
             formData.append("catid", categoryID);
         }
 
-        fetch("/api/download_url", {
+        fetch(new LRR.apiURL("/api/download_url"), {
             method: "POST",
             body: formData,
         })

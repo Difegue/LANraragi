@@ -15,7 +15,7 @@ Category.initializeAll = function () {
     $(document).on("click.new-dynamic", "#new-dynamic", () => Category.addNewCategory(true));
     $(document).on("click.predicate-help", "#predicate-help", Category.predicateHelp);
     $(document).on("click.delete", "#delete", Category.deleteSelectedCategory);
-    $(document).on("click.return", "#return", () => { window.location.href = "/"; });
+    $(document).on("click.return", "#return", () => { window.location.href = new LRR.apiURL("/"); });
 
     Category.loadCategories();
 };
@@ -53,7 +53,7 @@ Category.addNewCategory = function (isDynamic) {
 };
 
 Category.loadCategories = function (selectedID) {
-    fetch("/api/categories")
+    fetch(new LRR.apiURL("/api/categories"))
         .then((response) => response.json())
         .then((data) => {
             // Save data clientside for reference in later functions

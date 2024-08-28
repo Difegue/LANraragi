@@ -11,40 +11,40 @@
 
 	<link type="image/png" rel="icon" href="favicon.ico" />
 	<link rel="manifest" href="app.webappmanifest" />
-	<link rel="stylesheet" type="text/css" href="/css/lrr.css?[% version %]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/lrr.css?$version") %]" />
 
-	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
-	<link rel="stylesheet" type="text/css" href="/css/vendor/jquery.contextMenu.min.css" />
-	<link rel="stylesheet" type="text/css" href="/css/vendor/awesomplete.css" />
-	<link rel="stylesheet" type="text/css" href="/css/vendor/tippy.css" />
-	<link rel="stylesheet" type="text/css" href="/css/vendor/allcollapsible.min.css" />
-	<link rel="stylesheet" type="text/css" href="/css/vendor/swiper-bundle.min.css" />
-	<link rel="stylesheet" type="text/css" href="/css/vendor/ReactToastify.min.css" />
-	<link rel="stylesheet" type="text/css" href="/css/vendor/sweetalert2.min.css" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/fontawesome-all.min.css") %]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/jquery.contextMenu.min.css") %]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/awesomplete.css") %]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/tippy.css") %]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/allcollapsible.min.css") %]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/swiper-bundle.min.css") %]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/ReactToastify.min.css") %]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/sweetalert2.min.css") %]" />
 	[% csshead %]
 
-	<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/jquery.dataTables.min.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/preact.umd.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/hooks.umd.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/compat.umd.js" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/jquery.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/jquery.dataTables.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/preact.umd.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/hooks.umd.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/compat.umd.js") %]" type="text/JAVASCRIPT"></script>
 	<script>window.React = window.preactCompat; window.react = window.preactCompat;</script>
-	<script src="/js/vendor/clsx.min.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/react-toastify.umd.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/jquery.ui.position.min.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/jquery.contextMenu.min.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/awesomplete.min.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/popper.min.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/tippy-bundle.umd.min.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/marked.min.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/allcollapsible.min.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/swiper-bundle.min.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/sweetalert2.min.js" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/clsx.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/react-toastify.umd.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/jquery.ui.position.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/jquery.contextMenu.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/awesomplete.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/popper.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/tippy-bundle.umd.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/marked.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/allcollapsible.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/swiper-bundle.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/sweetalert2.min.js") %]" type="text/JAVASCRIPT"></script>
 
-	<script src="/js/index.js?[% version %]" type="text/JAVASCRIPT"></script>
-	<script src="/js/common.js?[% version %]" type="text/JAVASCRIPT"></script>
-	<script src="/js/server.js?[% version %]" type="text/JAVASCRIPT"></script>
-	<script src="/js/index_datatables.js?[% version %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/index.js?$version") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/common.js?$version") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/server.js?$version") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/index_datatables.js?$version") %]" type="text/JAVASCRIPT"></script>
 
 </head>
 
@@ -53,29 +53,29 @@
 	[% IF userlogged %]
 	<p id="nb">
 		<i class="fa fa-caret-right"></i>
-		<a href="./upload">Add Archives</a>
+		<a href="[% c.url_for("/upload") %]">Add Archives</a>
 		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
-		<a href="./batch">Batch Operations</a>
+		<a href="[% c.url_for("/batch") %]">Batch Operations</a>
 		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
-		<a href="./config">Settings</a>
+		<a href="[% c.url_for("/config") %]">Settings</a>
 		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
-		<a href="./config/categories">Modify Categories</a>
+		<a href="[% c.url_for("/config/categories") %]">Modify Categories</a>
 		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
-		<a href="./stats">Statistics</a>
+		<a href="[% c.url_for("/stats") %]">Statistics</a>
 		<i class="fa fa-caret-right"></i>
-		<a href="./logs">Logs</a>
+		<a href="[% c.url_for("/logs") %]">Logs</a>
 	</p>
 	[% ELSE %]
 	<p id="nb">
 		<i class="fa fa-caret-right"></i>
-		<a href="./login">Admin Login</a>
+		<a href="[% c.url_for("/login") %]">Admin Login</a>
 		<span style="margin-left:5px"></span>
 		<i class="fa fa-caret-right"></i>
-		<a href="./stats">Statistics</a>
+		<a href="[% c.url_for("/stats") %]">Statistics</a>
 	</p>
 	[% END %]
 
@@ -199,7 +199,7 @@
 			//If the json has the "default password" flag, flash a friendly notification inviting the user to change his password
 			LRR.toast({
 				heading: 'You\'re using the default password and that\'s super baka of you',
-				text: '<a href="login">Login</a> with password "kamimamita" and <a href="config">change that shit</a> on the double.<br/>...Or just disable it! <br/>Why not check the configuration options afterwards, while you\'re at it? ',
+				text: '<a href="[% c.url_for("/login") %]">Login</a> with password "kamimamita" and <a href="[% c.url_for("/config") %]">change that shit</a> on the double.<br/>...Or just disable it! <br/>Why not check the configuration options afterwards, while you\'re at it? ',
 				icon: 'warning',
 				hideAfter: 25000,
 				closeOnClick: false,

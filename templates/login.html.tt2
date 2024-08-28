@@ -11,12 +11,12 @@
 
 	<link type="image/png" rel="icon" href="favicon.ico" />
 	<link rel="manifest" href="app.webappmanifest" />
-	<link rel="stylesheet" type="text/css" href="/css/lrr.css?[% version%]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/lrr.css?$version") %]" />
 
-	<link rel="stylesheet" type="text/css" href="./css/vendor/fontawesome-all.min.css" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/fontawesome-all.min.css") %]" />
 	[% csshead %]
 
-	<script src="./js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/jquery.min.js") %]" type="text/JAVASCRIPT"></script>
 </head>
 
 <body>

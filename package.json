@@ -1,7 +1,7 @@
 {
     "name": "lanraragi",
-    "version": "0.9.21",
-    "version_name": "Telling Lies (Paradox mix)",
+    "version": "0.9.30",
+    "version_name": "Law (Earthlings On Fire)",
     "description": "I'm under Japanese influence and my honor's at stake!",
     "scripts": {
         "test": "prove -r -l -v tests/",

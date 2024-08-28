@@ -72,6 +72,11 @@ sub startup {
         }
     );
 
+    # for some reason I can't call the one under LRR_CONF from the
+    # templates, so create a separate helper here
+    my $prefix = $self->LRR_CONF->get_baseurl();
+    $self->helper( LRR_BASEURL => sub { return $prefix } );
+
     #Check if a Redis server is running on the provided address/port
     eval { $self->LRR_CONF->get_redis->ping(); };
     if ($@) {
@@ -179,7 +184,23 @@ sub startup {
     # (https://stackoverflow.com/questions/60814220/how-to-manage-myself-sigint-and-sigterm-signals)
     $self->hook(
         before_dispatch => sub {
+            my $c = shift;
             state $unused = add_sigint_handler();
+
+            my $prefix = $self->LRR_BASEURL;
+            if ($prefix) {
+                if (!$prefix =~ m|^/[^"]*[^/"]$|) {
+                    say "Warning: configured URL prefix '$prefix' invalid, ignoring";
+                    # if prefix is invalid, then set it to empty for the cookie
+                    $prefix = "";
+                }
+                else {
+                    $c->req->url->base->path($prefix);
+                }
+            }
+            # SameSite=Lax is the default behavior here; I set it
+            # explicitly to get rid of a warning in the browser
+            $c->cookie("lrr_baseurl" => $prefix, { samesite => "lax" });
         }
     );
 

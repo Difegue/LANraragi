@@ -11,28 +11,28 @@
 
 	<link type="image/png" rel="icon" href="favicon.ico" />
 	<link rel="manifest" href="app.webappmanifest" />
-	<link rel="stylesheet" type="text/css" href="/css/lrr.css?[% version%]" />
-	<link rel="stylesheet" type="text/css" href="/css/config.css" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/lrr.css?$version") %]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/config.css") %]" />
 
-	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
-	<link rel="stylesheet" type="text/css" href="/css/vendor/allcollapsible.min.css" />
-	<link rel="stylesheet" type="text/css" href="/css/vendor/ReactToastify.min.css" />
-	<link rel="stylesheet" type="text/css" href="/css/vendor/sweetalert2.min.css" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/fontawesome-all.min.css") %]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/allcollapsible.min.css") %]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/ReactToastify.min.css") %]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/sweetalert2.min.css") %]" />
 	[% csshead %]
 
-	<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/preact.umd.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/hooks.umd.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/compat.umd.js" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/jquery.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/preact.umd.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/hooks.umd.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/compat.umd.js") %]" type="text/JAVASCRIPT"></script>
 	<script>window.React = window.preactCompat; window.react = window.preactCompat;</script>
-	<script src="/js/vendor/clsx.min.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/react-toastify.umd.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/allcollapsible.min.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/sweetalert2.min.js" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/clsx.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/react-toastify.umd.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/allcollapsible.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/sweetalert2.min.js") %]" type="text/JAVASCRIPT"></script>
 
-	<script src="/js/common.js?[% version %]" type="text/JAVASCRIPT"></script>
-	<script src="/js/server.js?[% version %]" type="text/JAVASCRIPT"></script>
-	<script src="/js/config.js?[% version %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/common.js?$version") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/server.js?$version") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/config.js?$version") %]" type="text/JAVASCRIPT"></script>
 
 </head>
 
@@ -43,7 +43,7 @@
 		<br>
 		<div class="left-column">
 
-			<img class="logo-container" src="./img/logo.png">
+			<img class="logo-container" src="[% c.url_for("/img/logo.png") %]">
 			<br>
 			<h1 style="margin-bottom: 2px">LANraragi</h1>
 			Version [% version %], "[% vername %]"

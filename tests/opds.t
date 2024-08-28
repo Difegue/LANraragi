@@ -49,6 +49,11 @@ $mojo->mock(
         my $tt = Template->new( { INCLUDE_PATH => $cwd . "/templates" } ) || die "$Template::ERROR\n";
         my $output;
 
+        # this mocks the Mojo url_for helper function, which is now
+        # used in the templates
+        $vars{c} = {
+            url_for => sub { return $_[0]; }
+        };
         $tt->process( $vars{template} . ".html.tt2", \%vars, \$output ) || die $tt->error(), "\n";
         return $output;
     }

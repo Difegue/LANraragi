@@ -41,6 +41,9 @@ sub get_configdb { return $config->{redis_database_config} }
 # Database used to store search index and cache
 sub get_searchdb { return $config->{redis_database_search} }
 
+# Base URL for deployment under a path prefix
+sub get_baseurl { return "$config->{base_url_path}" }
+
 # Create a Minion object connected to the Minion database.
 sub get_minion {
     my $miniondb = get_redisad . "/" . get_miniondb;

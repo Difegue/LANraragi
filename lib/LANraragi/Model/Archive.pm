@@ -379,10 +379,21 @@ sub delete_archive ($id) {
 
     # Remove matching data from the search indexes
     my $redis_search = LANraragi::Model::Config->get_redis_search;
-    $redis_search->zrem( "LRR_TITLES", "$oldtitle\0$id" );
-    $redis_search->srem( "LRR_NEW",      $id );
-    $redis_search->srem( "LRR_UNTAGGED", $id );
+    $redis_search->zrem( "LRR_TITLES",       "$oldtitle\0$id" );
+    $redis_search->srem( "LRR_NEW",          $id );
+    $redis_search->srem( "LRR_UNTAGGED",     $id );
+    $redis_search->srem( "LRR_TANKGROUPED",  $id );
     $redis_search->quit();
+
+    # Remove from tanks/collections
+    foreach my $tank_id (LANraragi::Model::Tankoubon::get_tankoubons_containing_archive($id)) {
+        LANraragi::Model::Tankoubon::remove_from_tankoubon( $tank_id, $id );
+    }
+
+    foreach my $cat (LANraragi::Model::Category::get_categories_containing_archive($id)) {
+        my $catid = %{$cat}{"id"};
+        LANraragi::Model::Category::remove_from_category( $catid, $id );
+    }
 
     LANraragi::Utils::Database::update_indexes( $id, $oldtags, "" );
 

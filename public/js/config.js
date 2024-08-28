@@ -6,9 +6,9 @@ const Config = {};
 Config.initializeAll = function () {
     // bind events to DOM
     $(document).on("click.save", "#save", () => { Server.saveFormData("#editConfigForm"); });
-    $(document).on("click.plugin-config", "#plugin-config", () => { window.location.href = "/config/plugins"; });
-    $(document).on("click.backup", "#backup", () => { window.location.href = "/backup"; });
-    $(document).on("click.return", "#return", () => { window.location.href = "/"; });
+    $(document).on("click.plugin-config", "#plugin-config", () => { window.location.href = new LRR.apiURL("/config/plugins"); });
+    $(document).on("click.backup", "#backup", () => { window.location.href = new LRR.apiURL("/backup"); });
+    $(document).on("click.return", "#return", () => { window.location.href = new LRR.apiURL("/"); });
     $(document).on("click.enablepass", "#enablepass", Config.enable_pass);
     $(document).on("click.enableresize", "#enableresize", Config.enable_resize);
     $(document).on("click.usedateadded", "#usedateadded", Config.enable_timemodified);
@@ -22,7 +22,7 @@ Config.initializeAll = function () {
     $(document).on("click.drop-db", "#drop-db", Server.dropDatabase);
 
     $(document).on("click.restart-button", "#restart-button", Config.rebootShinobu);
-    $(document).on("click.open-minion", "#open-minion", () => LRR.openInNewTab("/minion"));
+    $(document).on("click.open-minion", "#open-minion", () => LRR.openInNewTab(new LRR.apiURL("/minion")));
 
     $(document).on("click.genthumb-button", "#genthumb-button", () => Server.regenerateThumbnails(false));
     $(document).on("click.forcethumb-button", "#forcethumb-button", () => Server.regenerateThumbnails(true));

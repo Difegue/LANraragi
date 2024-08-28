@@ -9,8 +9,8 @@
 
     <link rel="self" href="/api/opds" type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
     <link rel="start" href="/api/opds" type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
-    
-    <link rel="next" href="/api/opds?start=6" type="application/atom+xml;profile=opds-catalog;kind=navigation"/>
+
+    <link rel="next" href="/api/opds?start=8" type="application/atom+xml;profile=opds-catalog;kind=navigation" />
 
     <title>LANraragi</title>
     <updated>2010-01-10T10:03:10Z</updated>
@@ -26,7 +26,7 @@
         title="All Archives" 
         opds:facetGroup="Categories" 
         opds:activeFacet="true" />
-
+ 
     
     <link rel="http://opds-spec.org/facet" 
         href="/api/opds?category=SET_1589138380" 
@@ -41,6 +41,38 @@
         thr:count="2" />
     
 
+    
+    <entry>
+        <title>All about Egypt</title>
+        <id>urn:lrr:28697b96f0ac5858be2666ed10ca47742c955555</id>
+        <updated>1970-01-01T00:00:00Z</updated>
+        <published>1970-01-01T00:00:00Z</published>
+        <author>
+            <name></name>
+        </author>
+        <rights></rights>
+        <dcterms:language></dcterms:language>
+        <dcterms:publisher></dcterms:publisher>
+        <dcterms:issued></dcterms:issued>
+        
+        <category term="Archive" />
+        
+        <summary>medjed, character:doubles guy, character:king of GETs, check this 5</summary>
+
+        <link rel="alternate" href="/api/opds/28697b96f0ac5858be2666ed10ca47742c955555"
+            type="application/atom+xml;type=entry;profile=opds-catalog" />
+
+        <link rel="http://opds-spec.org/image" href="/api/archives/28697b96f0ac5858be2666ed10ca47742c955555/thumbnail" type="image/jpeg" />
+        <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/28697b96f0ac5858be2666ed10ca47742c955555/thumbnail"
+            type="image/jpeg" />
+        <link rel="http://opds-spec.org/acquisition" href="/api/archives/28697b96f0ac5858be2666ed10ca47742c955555/download" title="Download/Read"
+            type="application/x-cbz" />
+        <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
+            href="/api/opds/28697b96f0ac5858be2666ed10ca47742c955555/pse?page={pageNumber}" pse:count="22" 
+             
+            />
+        <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=28697b96f0ac5858be2666ed10ca47742c955555" />
+    </entry>
     
     <entry>
         <title>Fate GO MEMO</title>
@@ -68,7 +100,9 @@
         <link rel="http://opds-spec.org/acquisition" href="/api/archives/28697b96f0ac5858be2614ed10ca47742c9522fd/download" title="Download/Read"
             type="application/x-cbz" />
         <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
-            href="/api/opds/28697b96f0ac5858be2614ed10ca47742c9522fd/pse?page={pageNumber}" pse:count="1" />
+            href="/api/opds/28697b96f0ac5858be2614ed10ca47742c9522fd/pse?page={pageNumber}" pse:count="1" 
+             
+            />
         <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=28697b96f0ac5858be2614ed10ca47742c9522fd" />
     </entry>
     
@@ -98,8 +132,42 @@
         <link rel="http://opds-spec.org/acquisition" href="/api/archives/2810d5e0a8d027ecefebca6237031a0fa7b91eb3/download" title="Download/Read"
             type="application/x-cbz" />
         <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
-            href="/api/opds/2810d5e0a8d027ecefebca6237031a0fa7b91eb3/pse?page={pageNumber}" pse:count="34"  pse:lastRead="34" pse:lastReadDate="2020-05-09T15:31:20Z" />
+            href="/api/opds/2810d5e0a8d027ecefebca6237031a0fa7b91eb3/pse?page={pageNumber}" pse:count="34" 
+             pse:lastRead="34"  
+             pse:lastReadDate="2020-05-09T15:31:20Z" />
         <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=2810d5e0a8d027ecefebca6237031a0fa7b91eb3" />
+    </entry>
+    
+    <entry>
+        <title>Find the Computer Room</title>
+        <id>urn:lrr:28697b96f0ac5777be2614ed10ca47742c9522fa</id>
+        <updated>1970-01-01T00:00:00Z</updated>
+        <published>1970-01-01T00:00:00Z</published>
+        <author>
+            <name></name>
+        </author>
+        <rights></rights>
+        <dcterms:language></dcterms:language>
+        <dcterms:publisher></dcterms:publisher>
+        <dcterms:issued></dcterms:issued>
+        
+        <category term="Archive" />
+        
+        <summary>year of shadow, character:vector the crocodile</summary>
+
+        <link rel="alternate" href="/api/opds/28697b96f0ac5777be2614ed10ca47742c9522fa"
+            type="application/atom+xml;type=entry;profile=opds-catalog" />
+
+        <link rel="http://opds-spec.org/image" href="/api/archives/28697b96f0ac5777be2614ed10ca47742c9522fa/thumbnail" type="image/jpeg" />
+        <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/28697b96f0ac5777be2614ed10ca47742c9522fa/thumbnail"
+            type="image/jpeg" />
+        <link rel="http://opds-spec.org/acquisition" href="/api/archives/28697b96f0ac5777be2614ed10ca47742c9522fa/download" title="Download/Read"
+            type="application/x-cbz" />
+        <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
+            href="/api/opds/28697b96f0ac5777be2614ed10ca47742c9522fa/pse?page={pageNumber}" pse:count="128" 
+             
+            />
+        <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=28697b96f0ac5777be2614ed10ca47742c9522fa" />
     </entry>
     
     <entry>
@@ -128,7 +196,9 @@
         <link rel="http://opds-spec.org/acquisition" href="/api/archives/4857fd2e7c00db8b0af0337b94055d8445118630/download" title="Download/Read"
             type="application/x-cbz" />
         <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
-            href="/api/opds/4857fd2e7c00db8b0af0337b94055d8445118630/pse?page={pageNumber}" pse:count="34"  pse:lastRead="34" pse:lastReadDate="2020-05-09T15:31:20Z" />
+            href="/api/opds/4857fd2e7c00db8b0af0337b94055d8445118630/pse?page={pageNumber}" pse:count="34" 
+             pse:lastRead="34"  
+             pse:lastReadDate="2020-05-09T15:31:20Z" />
         <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=4857fd2e7c00db8b0af0337b94055d8445118630" />
     </entry>
     
@@ -158,7 +228,9 @@
         <link rel="http://opds-spec.org/acquisition" href="/api/archives/e4c422fd10943dc169e3489a38cdbf57101a5f7e/download" title="Download/Read"
             type="application/x-cbz" />
         <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
-            href="/api/opds/e4c422fd10943dc169e3489a38cdbf57101a5f7e/pse?page={pageNumber}" pse:count="10" />
+            href="/api/opds/e4c422fd10943dc169e3489a38cdbf57101a5f7e/pse?page={pageNumber}" pse:count="10" 
+             
+            />
         <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=e4c422fd10943dc169e3489a38cdbf57101a5f7e" />
     </entry>
     
@@ -188,7 +260,9 @@
         <link rel="http://opds-spec.org/acquisition" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebg/download" title="Download/Read"
             type="application/x-cbz" />
         <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
-            href="/api/opds/e69e43e1355267f7d32a4f9b7f2fe108d2401ebg/pse?page={pageNumber}" pse:count="200"  pse:lastRead="34" pse:lastReadDate="2020-05-09T15:31:21Z" />
+            href="/api/opds/e69e43e1355267f7d32a4f9b7f2fe108d2401ebg/pse?page={pageNumber}" pse:count="200" 
+             pse:lastRead="34"  
+             pse:lastReadDate="2020-05-09T15:31:21Z" />
         <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=e69e43e1355267f7d32a4f9b7f2fe108d2401ebg" />
     </entry>
     
@@ -218,9 +292,10 @@
         <link rel="http://opds-spec.org/acquisition" href="/api/archives/e69e43e1355267f7d32a4f9b7f2fe108d2401ebf/download" title="Download/Read"
             type="application/x-cbz" />
         <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
-            href="/api/opds/e69e43e1355267f7d32a4f9b7f2fe108d2401ebf/pse?page={pageNumber}" pse:count="2"  pse:lastRead="10" pse:lastReadDate="2020-05-09T15:31:20Z" />
+            href="/api/opds/e69e43e1355267f7d32a4f9b7f2fe108d2401ebf/pse?page={pageNumber}" pse:count="2" 
+             pse:lastRead="10"  
+             pse:lastReadDate="2020-05-09T15:31:20Z" />
         <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=e69e43e1355267f7d32a4f9b7f2fe108d2401ebf" />
     </entry>
     
-
 </feed>

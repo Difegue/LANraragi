@@ -14,7 +14,7 @@ Logs.initializeAll = function () {
     $(document).on("click.show-plugins", "#show-plugins", () => Logs.showLog("plugins"));
     $(document).on("click.show-mojo", "#show-mojo", () => Logs.showLog("mojo"));
     $(document).on("click.show-redis", "#show-redis", () => Logs.showLog("redis"));
-    $(document).on("click.return", "#return", () => { window.location.href = "/"; });
+    $(document).on("click.return", "#return", () => { window.location.href = new LRR.apiURL("/"); });
 
     Logs.showLog("general");
 };

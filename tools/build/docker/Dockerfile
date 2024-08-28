@@ -18,7 +18,7 @@ ENTRYPOINT ["//init"]
 
 # Check application health
 HEALTHCHECK --interval=1m --timeout=10s --retries=3 \
-  CMD wget --quiet --tries=1 --no-check-certificate --spider \
+  CMD wget --quiet --tries=1 --no-check-certificate --spider -Y off \
   http://localhost:3000 || exit 1
 
 #Default mojo server port

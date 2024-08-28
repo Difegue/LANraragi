@@ -11,28 +11,28 @@
 
 	<link type="image/png" rel="icon" href="favicon.ico" />
 	<link rel="manifest" href="app.webappmanifest" />
-	<link rel="stylesheet" type="text/css" href="/css/lrr.css?[% version%]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/lrr.css?$version") %]" />
 
-	<link rel="stylesheet" type="text/css" href="./css/vendor/jquery.fileupload.css" />
-	<link rel="stylesheet" type="text/css" href="./css/vendor/fontawesome-all.min.css" />
-	<link rel="stylesheet" type="text/css" href="/css/vendor/ReactToastify.min.css" />
-	<link rel="stylesheet" type="text/css" href="/css/vendor/sweetalert2.min.css" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/jquery.fileupload.css") %]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/fontawesome-all.min.css") %]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/ReactToastify.min.css") %]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/sweetalert2.min.css") %]" />
 	[% csshead %]
 
-	<script src="./js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/preact.umd.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/hooks.umd.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/compat.umd.js" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/jquery.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/preact.umd.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/hooks.umd.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/compat.umd.js") %]" type="text/JAVASCRIPT"></script>
 	<script>window.React = window.preactCompat; window.react = window.preactCompat;</script>
-	<script src="/js/vendor/clsx.min.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/react-toastify.umd.js" type="text/JAVASCRIPT"></script>
-	<script src="./js/vendor/jquery.ui.widget.js" type="text/JAVASCRIPT"></script>
-	<script src="./js/vendor/jquery.fileupload.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/sweetalert2.min.js" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/clsx.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/react-toastify.umd.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/jquery.ui.widget.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/jquery.fileupload.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/sweetalert2.min.js") %]" type="text/JAVASCRIPT"></script>
 
-	<script src="./js/common.js?[% version%]" type="text/JAVASCRIPT"></script>
-	<script src="./js/server.js?[% version%]" type="text/JAVASCRIPT"></script>
-	<script src="./js/upload.js?[% version%]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/common.js?$version") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/server.js?$version") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/upload.js?$version") %]" type="text/JAVASCRIPT"></script>
 </head>
 
 <body>
@@ -72,7 +72,7 @@
 				Download jobs will keep going even if you close this window!<br><br>
 
 				Type in your URLs (separated by a newline), and click the download button. <br>
-				If a <a href="/config/plugins">Downloader plugin</a> is compatible with the URL, it'll be automatically
+				If a <a href="[% c.url_for("/config/plugins") %]>Downloader plugin</a> is compatible with the URL, it'll be automatically
 				used.<br><br>
 
 				<label for="download_url">URL(s) to download:</label>

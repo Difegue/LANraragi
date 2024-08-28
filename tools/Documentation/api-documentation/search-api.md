@@ -48,6 +48,19 @@ Namespace by which you want to sort the results. There are specific sort keys yo
 Order of the sort, either `asc` or `desc`.
 {% endswagger-parameter %}
 
+{% swagger-parameter name="newonly" type="bool" required="false" in="query" %}
+Limit search to new archives only.
+{% endswagger-parameter %}
+
+{% swagger-parameter name="untaggedonly" type="bool" required="false" in="query" %}
+Limit search to untagged archives only.
+{% endswagger-parameter %}
+
+{% swagger-parameter name="group_tanks" type="bool" required="false" in="query" %}
+Enable or disable Tankoubon grouping. Defaults to true.  
+When enabled, Tankoubons will show in search results, replacing all the archive IDs they contain. 
+{% endswagger-parameter %}
+
 {% swagger-response status="200" description="" %}
 ```javascript
 {
@@ -112,6 +125,19 @@ Search query. This follows the same rules as the queries in `/api/search`.
 How many archives you want to pull randomly. Defaults to 5.  
 
 If the search doesn't return enough data to match your count, you will get the full search shuffled randomly.
+{% endswagger-parameter %}
+
+{% swagger-parameter name="newonly" type="bool" required="false" in="query" %}
+Limit search to new archives only.
+{% endswagger-parameter %}
+
+{% swagger-parameter name="untaggedonly" type="bool" required="false" in="query" %}
+Limit search to untagged archives only.
+{% endswagger-parameter %}
+
+{% swagger-parameter name="group_tanks" type="bool" required="false" in="query" %}
+Enable or disable Tankoubon grouping. Defaults to true.  
+When enabled, Tankoubons will show in search results, replacing all the archive IDs they contain. 
 {% endswagger-parameter %}
 
 {% swagger-response status="200" description="" %}

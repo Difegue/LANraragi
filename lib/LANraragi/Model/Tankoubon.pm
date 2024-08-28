@@ -57,7 +57,8 @@ sub get_tankoubon_list ( $page = 0 ) {
 #   Returns the ID of the created/updated Tankoubon.
 sub create_tankoubon ( $name, $tank_id ) {
 
-    my $redis = LANraragi::Model::Config->get_redis;
+    my $redis        = LANraragi::Model::Config->get_redis;
+    my $redis_search = LANraragi::Model::Config->get_redis_search;
 
     # Set all fields of the group object
     unless ( length($tank_id) ) {
@@ -79,14 +80,21 @@ sub create_tankoubon ( $name, $tank_id ) {
         my @old_name = $redis->zrangebyscore( $tank_id, 0, 0, qw{LIMIT 0 1} );
         my $n        = redis_decode( $old_name[0] );
 
-        $redis->zrem( $tank_id, $n );
+        if ($redis->exists($tank_id)) {
+            $redis->zrem( $tank_id, $n );
+        }
     }
 
     # Default values for new group
     # Score 0 will be reserved for the name of the tank
-    $redis->zadd( $tank_id, 0, redis_encode($name) );
+    my $tank_title = redis_encode($name);
+    $redis->zadd( $tank_id, 0, $tank_title );
+
+    # Add the tank name to LRR_TITLES so it shows up in tagless searches when tank grouping is enabled. 
+    $redis_search->zadd( "LRR_TITLES", 0, "$tank_title\0$tank_id" );
 
     $redis->quit;
+    $redis_search->quit;
 
     return $tank_id;
 }
@@ -161,8 +169,9 @@ sub get_tankoubon ( $tank_id, $fulldata = 0, $page = 0 ) {
 #   Returns 0 if the given ID isn't a Tankoubon ID, 1 otherwise
 sub delete_tankoubon ($tank_id) {
 
-    my $logger = get_logger( "Tankoubon", "lanraragi" );
-    my $redis  = LANraragi::Model::Config->get_redis;
+    my $logger       = get_logger( "Tankoubon", "lanraragi" );
+    my $redis        = LANraragi::Model::Config->get_redis;
+    my $redis_search = LANraragi::Model::Config->get_redis_search;
 
     if ( length($tank_id) != 15 ) {
 
@@ -174,7 +183,11 @@ sub delete_tankoubon ($tank_id) {
 
     if ( $redis->exists($tank_id) ) {
         $redis->del($tank_id);
+        # The ID will remain in LRR_TITLES until the next stats compute, but this'll prevent it from appearing in search.
+        $redis_search->srem( "LRR_TANKGROUPED",  $tank_id ); 
+
         $redis->quit;
+        $redis_search->quit;
         return 1;
     } else {
         $logger->warn("$tank_id doesn't exist in the database!");
@@ -190,6 +203,7 @@ sub update_archive_list ( $tank_id, $data ) {
 
     my $logger        = get_logger( "Tankoubon", "lanraragi" );
     my $redis         = LANraragi::Model::Config->get_redis;
+    my $redis_search  = LANraragi::Model::Config->get_redis_search;
     my $err           = "";
     my @tank_archives = @{ $data->{"archives"} };
 
@@ -208,23 +222,46 @@ sub update_archive_list ( $tank_id, $data ) {
         my @diff  = array_difference( \@tank_archives, \@origs );
         my @update;
 
+        $redis->multi;
+        $redis_search->multi;
+
         # Remove the ones not in the order
         if (@diff) {
             $redis->zrem( $tank_id, @diff );
+
+            # Make removed archives visible in search again unless other tanks contain them
+            foreach my $arc_id (@diff) {
+                unless (get_tankoubons_containing_archive($arc_id)) {
+                    $redis_search->sadd( "LRR_TANKGROUPED",  $arc_id );
+                }
+            }
         }
 
         # Prepare zadd array
         my $len = @tank_archives;
 
+        if ( $len == 0 ) {
+            $redis_search->srem( "LRR_TANKGROUPED", $tank_id );
+        } else {
+            $redis_search->sadd( "LRR_TANKGROUPED", $tank_id );
+        }
+
         for ( my $i = 0; $i < $len; $i = $i + 1 ) {
             push @update, $i + 1;
             push @update, $tank_archives[$i];
+            # Remove the ID if present, as it's been absorbed into the tank
+            $redis_search->srem( "LRR_TANKGROUPED",  $tank_archives[$i] );
         }
 
         # Update
         $redis->zadd( $tank_id, @update );
-
+        $redis->exec;
+        $redis_search->exec;
         $redis->quit;
+        $redis_search->quit;
+
+        invalidate_cache();
+
         return ( 1, $err );
     }
 
@@ -262,8 +299,15 @@ sub add_to_tankoubon ( $tank_id, $arc_id ) {
         my $score = $redis->zcard($tank_id);
 
         $redis->zadd( $tank_id, $score, $arc_id );
-
         $redis->quit;
+
+        # Adding an archive to the tank will always hide it from main search, and show the tank instead
+        $redis = LANraragi::Model::Config->get_redis_search;
+        $redis->srem( "LRR_TANKGROUPED",  $arc_id );
+        $redis->sadd( "LRR_TANKGROUPED",  $tank_id ); # Set elements are unique so no problem if the tank is already added here
+        $redis->quit;
+        invalidate_cache();
+
         return ( 1, $err );
     }
 
@@ -320,7 +364,21 @@ sub remove_from_tankoubon ( $tank_id, $arcid ) {
             $redis->zadd( $tank_id, @update );
         }
 
+        if ($redis->zcard($tank_id) == 1) {
+            # No elements in tank, remove it from search
+            $redis->srem( "LRR_TANKGROUPED", $tank_id );
+        }
+
         $redis->quit;
+
+        # Removing an archive from a tank might have it show up in main search again
+        unless (get_tankoubons_containing_archive($arcid)) {
+            $redis = LANraragi::Model::Config->get_redis_search;
+            $redis->sadd( "LRR_TANKGROUPED", $arcid );
+            $redis->quit;
+        }
+        invalidate_cache();
+
         return ( 1, $err );
     }
 
