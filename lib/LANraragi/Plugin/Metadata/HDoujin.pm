@@ -21,7 +21,7 @@ sub plugin_info {
         type        => "metadata",
         namespace   => "Hdoujinplugin",
         author      => "Pao, Squidy",
-        version     => "0.6",
+        version     => "0.7",
         description => "Collects metadata embedded into your archives by HDoujin Downloader's JSON or TXT files.",
         icon =>
           "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAABmJLR0QA/wD/AP+gvaeTAAAACXBI\nWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4wYDFB0m9797jwAAAB1pVFh0Q29tbWVudAAAAAAAQ3Jl\nYXRlZCB3aXRoIEdJTVBkLmUHAAAEbklEQVQ4y1WUPW/TUBSGn3uvHdv5cBqSOrQJgQ4ghqhCAgQM\nIIRAjF2Y2JhA/Q0g8R9YmJAqNoZKTAwMSAwdQEQUypeQEBEkTdtUbdzYiW1sM1RY4m5Hunp1znmf\n94jnz5+nAGmakiQJu7u7KKWwbRspJWma0m63+fHjB9PpFM/z6Ha7FAoFDMNga2uLx48fkyQJ29vb\nyCRJSNMUz/PY2dnBtm0qlQpKKZIkIQgCer0eW1tbDIdDJpMJc3NzuK5Lt9tF13WWl5dJkoRyuYyU\nUrK3t0ccx9TrdQzD4F/HSilM08Q0TWzbplqtUqvVKBaLKKVoNpt8/vyZKIq4fv064/EY2ev1KBQK\n2LadCQkhEEJkteu6+L6P7/tMJhOm0ylKKarVKjdu3GA6nXL+/HmSJEHWajV0Xf9P7N8TQhDHMWEY\nIoRgOBzieR4At2/f5uTJk0RRRLFYZHZ2liNHjqBFUcRoNKJarSKlRAiRmfPr1y/SNMVxHI4dO8aF\nCxfI5/O4rotSirdv33L16lV+//7Nly9fUEqh5XI5dF0nTdPMaSEEtm3TaDSwLAvLstB1nd3dXUql\nEqZpYlkW6+vrdLtdHjx4wPb2NmEYHgpalkUQBBwcHLC2tsbx48cpFos4jkMQBIRhyGQyYTgcsrGx\nQavVot1uc+LECcbjMcPhkFKpRC6XQ0vTlDAMieOYQqGA4zhcu3YNwzDQdR3DMA4/ahpCCPL5fEbC\nvXv3WFlZ4c+fP7TbbZaWlpBRFGXjpmnK/Pw8QRAwnU6RUqJpGp7nMRqNcF0XwzCQUqKUolwus7y8\njO/7lMtlFhcX0YQQeJ6XMXfq1Cn29/epVCrouk4QBNi2TalUIoqizLg0TQEYjUbU63VmZmYOsdE0\nDd/3s5HH4zG6rtNsNrEsi0qlQqFQYH19nVevXjEej/8Tm0wmlMtlhBAMBgOkaZo0Gg329vbY2dkh\nCIJsZ0oplFK8efOGp0+fcvHiRfL5PAAHBweEYcj8/HxGydevX5FxHDMajajVanz69Ik4jkmSBF3X\n0TSNzc1N7t69S6vV4vXr10gp8X2f4XBIpVLJghDHMRsbG2jT6TRLxuLiIr1eDwBN09A0jYcPHyKE\n4OjRo8RxTBRF9Pt95ubmMud93+f79+80m03k/v4+UspDKDWNRqPBu3fvSNOUtbU16vU6ly5dwnEc\ncrkcrutimib5fD4zxzRNVldXWVpaQqysrKSdTofLly8zmUwoFAoIIfjXuW3bnD17NkuJlBLHcdA0\nDYAgCHj27BmO47C6uopM05RyucyLFy/QNA3XdRFCYBgGQRCwubnJhw8fGAwGANRqNTRNI0kSXr58\nyc2bN6nX64RhyP379xFPnjxJlVJIKTl37hydTocoiuh0OszOzmJZFv1+n8FgwJ07d7hy5Qrj8ZiP\nHz/S7/c5ffo0CwsL9Ho9ZmZmEI8ePUoNwyBJEs6cOcPCwgLfvn3j/fv35PN5bNtGKZUdjp8/f3Lr\n1q3svLVaLTzPI4oiLMviL7opJdyaltNwAAAAAElFTkSuQmCC",
@@ -68,12 +68,13 @@ sub get_tags_from_hdoujin_txt_file {
     open(my $file_handle, '<:encoding(UTF-8)', $file_path)
         or return (error => "Could not open $file_path!");
 
+    my $title = "";
     my $tags = "";
     my $summary = "";
 
     while (my $line = <$file_handle>) {
 
-        if ($line =~ m/(?i)^(artist|author|circle|characters?|description|language|parody|series|tags): (.*)/) {
+        if ($line =~ m/(?i)^(artist|author|circle|characters?|description|language|parody|series|tags|title|url): (.*)/) {
 
             my $namespace = normalize_namespace($1);
             my $value = $2;
@@ -84,8 +85,15 @@ sub get_tags_from_hdoujin_txt_file {
                 next;
             }
 
+            if(lc($namespace) eq "source") {
+                $value = format_source($value);
+            }
+
             if (lc($namespace) eq "description") {
                 $summary = $value;
+            }
+            elsif(lc($namespace) eq "title") {
+                $title = $value;
             }
             else {
                 $tags = append_tags($tags, $namespace, $value);
@@ -103,7 +111,7 @@ sub get_tags_from_hdoujin_txt_file {
 
     $logger->info("Sending the following tags to LRR: $tags");
 
-    return (tags => remove_duplicates($tags), summary => $summary);
+    return (title => $title, tags => remove_duplicates($tags), summary => $summary);
 
 }
 
@@ -138,6 +146,7 @@ sub get_tags_from_hdoujin_json_file {
         $json_hash = $json_hash->{"manga_info"};
     }
 
+    my $title = $json_hash->{"title"};
     my $tags = get_tags_from_hdoujin_json_file_hash($json_hash);
     my $summary = $json_hash->{"description"};
 
@@ -149,7 +158,7 @@ sub get_tags_from_hdoujin_json_file {
 
     $logger->info("Sending the following tags to LRR: $tags");
 
-    return (tags => remove_duplicates($tags), summary => $summary);
+    return (title => $title, tags => remove_duplicates($tags), summary => $summary);
 
 }
 
@@ -160,12 +169,16 @@ sub get_tags_from_hdoujin_json_file_hash {
 
     my $logger = get_plugin_logger();
 
-    my @filtered_keys = grep { /(?i)^(?:artist|author|circle|characters?|language|parody|series|tags)/ } keys(%$json_obj);
+    my @filtered_keys = grep { /(?i)^(?:artist|author|circle|characters?|language|parody|series|tags|url)/ } keys(%$json_obj);
 
     foreach my $key (@filtered_keys) {
 
         my $namespace = normalize_namespace($key);
         my $values = $json_obj->{$key};
+
+        if(lc($namespace) eq "source") {
+            $values = format_source($values);
+        }
 
         if (ref($values) eq 'ARRAY') {
 
@@ -271,8 +284,26 @@ sub normalize_namespace {
     elsif ($namespace eq "tags") {
         return "";
     }
+    elsif ($namespace eq "url") {
+        return "source";
+    }
 
     return $namespace;
+
+}
+
+sub format_source {
+
+    # Strip extra information from the URL.
+    # e.g. "https://www.example.com/page/" -> "example.com/page"
+
+    my $source = $_[0];
+
+    if($source =~ m/\/\/(?:www\.)?([^#?]+?)\/?$/) {
+        return $1;
+    }
+
+    return $source;
 
 }
 
