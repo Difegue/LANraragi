@@ -9,8 +9,9 @@ use Mojo::JSON qw(from_json);
 
 # You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
-use LANraragi::Utils::Logging qw(get_plugin_logger);
 use LANraragi::Utils::Archive qw(is_file_in_archive extract_file_from_archive);
+use LANraragi::Utils::Logging qw(get_plugin_logger);
+use LANraragi::Utils::String qw(trim_url);
 
 # Meta-information about your plugin.
 sub plugin_info {
@@ -86,7 +87,7 @@ sub get_tags_from_hdoujin_txt_file {
             }
 
             if(lc($namespace) eq "source") {
-                $value = format_source($value);
+                $value = trim_url($value);
             }
 
             if (lc($namespace) eq "description") {
@@ -177,7 +178,7 @@ sub get_tags_from_hdoujin_json_file_hash {
         my $values = $json_obj->{$key};
 
         if(lc($namespace) eq "source") {
-            $values = format_source($values);
+            $values = trim_url($values);
         }
 
         if (ref($values) eq 'ARRAY') {
@@ -289,21 +290,6 @@ sub normalize_namespace {
     }
 
     return $namespace;
-
-}
-
-sub format_source {
-
-    # Strip extra information from the URL.
-    # e.g. "https://www.example.com/page/" -> "example.com/page"
-
-    my $source = $_[0];
-
-    if($source =~ m/\/\/(?:www\.)?([^#?]+?)\/?$/) {
-        return $1;
-    }
-
-    return $source;
 
 }
 
