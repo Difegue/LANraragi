@@ -135,7 +135,7 @@ sub get_tankoubon ( $tank_id, $fulldata = 0, $page = 0 ) {
     my @allowed_keys = ('name', 'summary', 'tags', 'archives', 'full_data', 'id');
     my @archives;
     my @limit = split( ' ', "LIMIT " . ( $keysperpage * $page ) . " $keysperpage" );
-    my ( $error, %tank ) = fetch_metadata_fields($tank_id);
+    my %tank = fetch_metadata_fields($tank_id);
 
     my %tankoubon;
 
@@ -312,17 +312,15 @@ sub update_archive_list ( $tank_id, $data ) {
             $redis_search->srem( "LRR_TANKGROUPED", $tank_id );
         } else {
             $redis_search->sadd( "LRR_TANKGROUPED", $tank_id );
-        }
 
-        for ( my $i = 0; $i < $len; $i = $i + 1 ) {
-            push @update, $i + 1;
-            push @update, $tank_archives[$i];
-            # Remove the ID if present, as it's been absorbed into the tank
-            $redis_search->srem( "LRR_TANKGROUPED",  $tank_archives[$i] );
-        }
+            for ( my $i = 0; $i < $len; $i = $i + 1 ) {
+                push @update, $i + 1;
+                push @update, $tank_archives[$i];
+                # Remove the ID if present, as it's been absorbed into the tank
+                $redis_search->srem( "LRR_TANKGROUPED",  $tank_archives[$i] );
+            }
 
-        # Update
-        if ( $len > 0 ) { # Move this line and the previous for inside the previous else?
+            # Update
             $redis->zadd( $tank_id, @update );
         }
         $redis->exec;
@@ -492,18 +490,15 @@ sub get_tankoubons_containing_archive ($arcid) {
 
 sub update_metadata_field ( $tank_id, $field, $value ) {
     my $redis        = LANraragi::Model::Config->get_redis;
-    my $logger       = get_logger( "Tankoubon", "lanraragi" );
-    my $err          = "";
 
     $redis->zremrangebyscore( $tank_id, $TANK_METADATA{$field}, $TANK_METADATA{$field} );
     $redis->zadd( $tank_id, $TANK_METADATA{$field}, redis_encode("${field}_${value}") );
 
-    return ( 1, $err );
+    return 1;
 }
 
 sub fetch_metadata_fields ( $tank_id ) {
     my $redis        = LANraragi::Model::Config->get_redis;
-    my $err          = "";
 
     # Fetch from DB
     my @keys = sort { $TANK_METADATA{$a} <=> $TANK_METADATA{$b} } keys(%TANK_METADATA);
@@ -522,7 +517,7 @@ sub fetch_metadata_fields ( $tank_id ) {
         }
     }
 
-    return ( $err, %metadata );
+    return %metadata;
 }
 
 

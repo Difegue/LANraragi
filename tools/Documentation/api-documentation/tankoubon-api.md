@@ -174,7 +174,7 @@ Name of the Category.
 {% endswagger-response %}
 {% endswagger %}
 
-{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/tankoubons/:id" method="put" summary="Update a Tankoubon" %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/tankoubons/:id" method="put" summary="🔑Update a Tankoubon" %}
 {% swagger-description %}
 Update a Tankoubon.
 {% endswagger-description %}
@@ -184,10 +184,12 @@ ID of the Tankoubon to update.
 {% endswagger-parameter %}
 
 {% swagger-parameter name="archives" type="json" required="true" in="body" %}
-Json with 2 keys "archives" and "metadata" defining:
+Json with 2 optional keys "archives" and "metadata" defining:
 
 - archives: Ordered array with the IDs of the archives.
 - metadata: Json with the metadata parameters: name, summary, tags.
+
+Note: If there is no need to update something in one of the keys, do not send the key, otherwise can result on unwanted results.
 {% endswagger-parameter %}
 
 {% swagger-response status="200" description="" %}
