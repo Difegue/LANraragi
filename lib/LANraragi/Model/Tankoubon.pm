@@ -1,6 +1,6 @@
 package LANraragi::Model::Tankoubon;
 
-use feature qw(signatures);
+use feature qw(signatures fc);
 no warnings 'experimental::signatures';
 
 use strict;
@@ -11,9 +11,15 @@ use Redis;
 use Mojo::JSON qw(decode_json encode_json);
 use List::Util qw(min);
 
-use LANraragi::Utils::Database qw(redis_encode redis_decode invalidate_cache get_archive_json_multi get_tankoubons_by_file);
-use LANraragi::Utils::Generic  qw(array_difference);
-use LANraragi::Utils::Logging  qw(get_logger);
+use LANraragi::Utils::Database  qw(redis_encode redis_decode invalidate_cache get_archive_json_multi get_tankoubons_by_file);
+use LANraragi::Utils::Generic   qw(array_difference filter_hash_by_keys);
+use LANraragi::Utils::Logging   qw(get_logger);
+
+my %TANK_METADATA = (
+        "name", 0,
+        "summary", -1,
+        "tags", -2
+    );
 
 # get_tankoubon_list(page)
 #   Returns a list of all the Tankoubon objects.
@@ -30,7 +36,7 @@ sub get_tankoubon_list ( $page = 0 ) {
     # Jam tanks into an array of hashes
     my @result;
     foreach my $key ( sort @tanks ) {
-        my %data = get_tankoubon($key);
+        my ( $total, $filtered, %data ) = get_tankoubon($key);
         push( @result, \%data );
     }
 
@@ -59,6 +65,7 @@ sub create_tankoubon ( $name, $tank_id ) {
 
     my $redis        = LANraragi::Model::Config->get_redis;
     my $redis_search = LANraragi::Model::Config->get_redis_search;
+    my $logger       = get_logger( "Tankoubon", "lanraragi" );
 
     # Set all fields of the group object
     unless ( length($tank_id) ) {
@@ -88,10 +95,14 @@ sub create_tankoubon ( $name, $tank_id ) {
     # Default values for new group
     # Score 0 will be reserved for the name of the tank
     my $tank_title = redis_encode($name);
-    $redis->zadd( $tank_id, 0, $tank_title );
 
     # Add the tank name to LRR_TITLES so it shows up in tagless searches when tank grouping is enabled. 
     $redis_search->zadd( "LRR_TITLES", 0, "$tank_title\0$tank_id" );
+
+    # Init metadata
+    $redis->zadd( $tank_id, $TANK_METADATA{"name"}, redis_encode("name_${tank_title}") );
+    $redis->zadd( $tank_id, $TANK_METADATA{"summary"}, "summary_" );
+    $redis->zadd( $tank_id, $TANK_METADATA{"tags"}, "tags_" );
 
     $redis->quit;
     $redis_search->quit;
@@ -121,13 +132,10 @@ sub get_tankoubon ( $tank_id, $fulldata = 0, $page = 0 ) {
     }
 
     # Declare some needed variables
-    my %tank;
+    my @allowed_keys = ('name', 'summary', 'tags', 'archives', 'full_data', 'id');
     my @archives;
     my @limit = split( ' ', "LIMIT " . ( $keysperpage * $page ) . " $keysperpage" );
-
-    # Get name
-    my @name = $redis->zrangebyscore( $tank_id, 0, 0, qw{LIMIT 0 1} );
-    $tank{name} = redis_decode( $name[0] );
+    my %tank = fetch_metadata_fields($tank_id);
 
     my %tankoubon;
 
@@ -158,6 +166,8 @@ sub get_tankoubon ( $tank_id, $fulldata = 0, $page = 0 ) {
 
     # Add the key as well
     $tank{id} = $tank_id;
+
+    %tank = filter_hash_by_keys(\@allowed_keys, %tank);
 
     my $total = $redis->zcard($tank_id) - 1;
 
@@ -196,10 +206,68 @@ sub delete_tankoubon ($tank_id) {
     }
 }
 
+# update_tankoubon(name, data)
+#   Updates metadata and archive list.
+#   Returns 1 on success, 0 on failure alongside an error message.
+sub update_tankoubon ( $tank_id, $data ) {
+
+    my ( $result, $err ) = update_metadata( $tank_id, $data );
+    if ($result) {
+        my ( $result, $err ) = update_archive_list( $tank_id, $data );
+    }
+
+    return ( $result, $err);
+}
+
+# update_metadata(tankoubonid, data)
+#   Updates the metadata in the Tankoubon.
+#   Returns 1 on success, 0 on failure alongside an error message.
+sub update_metadata( $tank_id, $data ) {
+
+    if ( not defined $data->{"metadata"} ) {
+        return ( 1, "" );
+    }
+
+    my $logger          = get_logger( "Tankoubon", "lanraragi" );
+    my $redis           = LANraragi::Model::Config->get_redis;
+    my $err             = "";
+    my $name            = $data->{"metadata"}->{"name"} || undef;
+    my $summary         = $data->{"metadata"}->{"summary"} || undef;
+    my $tags            = $data->{"metadata"}->{"tags"} || undef;
+
+    if ( $redis->exists($tank_id) ) {
+        if ( defined $name ) {
+            update_metadata_field( $tank_id, "name", $name );
+        }
+
+        if ( defined $summary ) {
+            update_metadata_field( $tank_id, "summary", $summary );
+        }
+
+        if ( defined $tags ) {
+            update_metadata_field( $tank_id, "tags", $tags );
+        }
+
+        $redis->quit;
+        return ( 1, $err );
+    }
+
+    $redis->quit;
+
+    $err = "$tank_id doesn't exist in the database!";
+    $logger->warn($err);
+    $redis->quit;
+    return ( 0, $err );
+}
+
 # update_archive_list(tankoubonid, arcid)
 #   Updates the archives list in a Tankoubon.
 #   Returns 1 on success, 0 on failure alongside an error message.
 sub update_archive_list ( $tank_id, $data ) {
+
+    if ( not defined $data->{"archives"} ) {
+        return ( 1, "" );
+    }
 
     my $logger        = get_logger( "Tankoubon", "lanraragi" );
     my $redis         = LANraragi::Model::Config->get_redis;
@@ -244,19 +312,20 @@ sub update_archive_list ( $tank_id, $data ) {
             $redis_search->srem( "LRR_TANKGROUPED", $tank_id );
         } else {
             $redis_search->sadd( "LRR_TANKGROUPED", $tank_id );
-        }
 
-        for ( my $i = 0; $i < $len; $i = $i + 1 ) {
-            push @update, $i + 1;
-            push @update, $tank_archives[$i];
-            # Remove the ID if present, as it's been absorbed into the tank
-            $redis_search->srem( "LRR_TANKGROUPED",  $tank_archives[$i] );
-        }
+            for ( my $i = 0; $i < $len; $i = $i + 1 ) {
+                push @update, $i + 1;
+                push @update, $tank_archives[$i];
+                # Remove the ID if present, as it's been absorbed into the tank
+                $redis_search->srem( "LRR_TANKGROUPED",  $tank_archives[$i] );
+            }
 
-        # Update
-        $redis->zadd( $tank_id, @update );
+            # Update
+            $redis->zadd( $tank_id, @update );
+        }
         $redis->exec;
         $redis_search->exec;
+
         $redis->quit;
         $redis_search->quit;
 
@@ -418,5 +487,38 @@ sub get_tankoubons_containing_archive ($arcid) {
     $redis->quit;
     return @tankoubons;
 }
+
+sub update_metadata_field ( $tank_id, $field, $value ) {
+    my $redis        = LANraragi::Model::Config->get_redis;
+
+    $redis->zremrangebyscore( $tank_id, $TANK_METADATA{$field}, $TANK_METADATA{$field} );
+    $redis->zadd( $tank_id, $TANK_METADATA{$field}, redis_encode("${field}_${value}") );
+
+    return 1;
+}
+
+sub fetch_metadata_fields ( $tank_id ) {
+    my $redis        = LANraragi::Model::Config->get_redis;
+
+    # Fetch from DB
+    my @keys = sort { $TANK_METADATA{$a} <=> $TANK_METADATA{$b} } keys(%TANK_METADATA);
+    my @raw_values = $redis->zrangebyscore( $tank_id, $TANK_METADATA{$keys[0]}, 0 );
+
+    # Clean the data
+    my %metadata;
+    foreach my $raw_value (@raw_values) {
+        foreach my $key (@keys) {
+            if ( $raw_value =~ /^$key\_/ ) {
+                my $clean_value = redis_decode($raw_value) || "";
+                $clean_value =~ s/^$key\_//;
+                $metadata{$key} = $clean_value;
+                last;  # Exit the loop once the key is matched
+            }
+        }
+    }
+
+    return %metadata;
+}
+
 
 1;
