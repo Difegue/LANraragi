@@ -141,7 +141,7 @@ sub lookup_gallery {
         my ( $gId, $gToken ) = &ehentai_parse( $URL, $ua );
 
         if ( $gId ne "" && $gToken ne "" ) {
-            die "Reverse Image Search failed\n";
+            return ( $gId, $gToken );
         }
     }
 
@@ -155,7 +155,7 @@ sub lookup_gallery {
         my ( $gId, $gToken ) = &ehentai_parse( $URL, $ua );
 
         if ( $gId ne "" && $gToken ne "" ) {
-            die "The archive title doesn't contain a valid gID\n";
+            return ( $gId, $gToken );
         }
     }
 
