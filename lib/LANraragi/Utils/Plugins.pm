@@ -29,6 +29,12 @@ sub get_plugins {
         # Check that the metadata sub is there before invoking it
         if ( $plugin->can('plugin_info') ) {
             my %pluginfo = $plugin->plugin_info();
+
+            if    ( $type eq 'script' )   { next if ( !$plugin->can('run_script') ); }
+            elsif ( $type eq 'metadata' ) { next if ( !$plugin->can('get_tags') ); }
+            elsif ( $type eq 'download' ) { next if ( !$plugin->can('provide_url') ); }
+            elsif ( $type eq 'login' )    { next if ( !$plugin->can('do_login') ); }
+
             if ( $pluginfo{type} eq $type || $type eq "all" ) { push( @validplugins, \%pluginfo ); }
         }
     }

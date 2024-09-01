@@ -36,19 +36,6 @@ note('calling exec_metadata_plugin without providing an ID');
     cmp_deeply( \%rdata, { 'error' => re('without providing an id') }, 'returned error' );
 }
 
-note('calling exec_metadata_plugin with a plugin without get_tags sub');
-{
-    no warnings 'once', 'redefine';
-    local *LANraragi::Model::Plugins::get_logger = sub { return get_logger_mock() };
-
-    my $plugin_mock = Test::MockObject->new();
-
-    my %rdata = LANraragi::Model::Plugins::exec_metadata_plugin( $plugin_mock, 'dummy', undef, undef );
-
-    cmp_deeply( \%rdata, { 'error' => re('get_tags') }, 'returned error' );
-
-}
-
 note('exec_metadata_plugin doesn\'t die when get_tags fails');
 {
     my $plugin_mock = Test::MockObject->new();
