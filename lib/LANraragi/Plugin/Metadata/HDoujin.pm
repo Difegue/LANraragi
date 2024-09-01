@@ -9,8 +9,9 @@ use Mojo::JSON qw(from_json);
 
 # You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
-use LANraragi::Utils::Logging qw(get_plugin_logger);
 use LANraragi::Utils::Archive qw(is_file_in_archive extract_file_from_archive);
+use LANraragi::Utils::Logging qw(get_plugin_logger);
+use LANraragi::Utils::String  qw(trim_url);
 
 # Meta-information about your plugin.
 sub plugin_info {
@@ -68,12 +69,13 @@ sub get_tags_from_hdoujin_txt_file {
     open( my $file_handle, '<:encoding(UTF-8)', $file_path )
       or die "Could not open $file_path!\n";
 
+    my $title   = "";
     my $tags    = "";
     my $summary = "";
 
     while ( my $line = <$file_handle> ) {
 
-        if ( $line =~ m/(?i)^(artist|author|circle|characters?|description|language|parody|series|tags): (.*)/ ) {
+        if ( $line =~ m/(?i)^(artist|author|circle|characters?|description|language|parody|series|tags|title|url): (.*)/ ) {
 
             my $namespace = normalize_namespace($1);
             my $value     = $2;
@@ -84,8 +86,14 @@ sub get_tags_from_hdoujin_txt_file {
                 next;
             }
 
+            if ( lc($namespace) eq "source" ) {
+                $value = trim_url($value);
+            }
+
             if ( lc($namespace) eq "description" ) {
                 $summary = $value;
+            } elsif ( lc($namespace) eq "title" ) {
+                $title = $value;
             } else {
                 $tags = append_tags( $tags, $namespace, $value );
             }
@@ -102,7 +110,7 @@ sub get_tags_from_hdoujin_txt_file {
 
     $logger->info("Sending the following tags to LRR: $tags");
 
-    return ( tags => remove_duplicates($tags), summary => $summary );
+    return ( title => $title, tags => remove_duplicates($tags), summary => $summary );
 
 }
 
@@ -137,6 +145,7 @@ sub get_tags_from_hdoujin_json_file {
         $json_hash = $json_hash->{"manga_info"};
     }
 
+    my $title   = $json_hash->{"title"};
     my $tags    = get_tags_from_hdoujin_json_file_hash($json_hash);
     my $summary = $json_hash->{"description"};
 
@@ -148,7 +157,7 @@ sub get_tags_from_hdoujin_json_file {
 
     $logger->info("Sending the following tags to LRR: $tags");
 
-    return ( tags => remove_duplicates($tags), summary => $summary );
+    return ( title => $title, tags => remove_duplicates($tags), summary => $summary );
 
 }
 
@@ -159,12 +168,16 @@ sub get_tags_from_hdoujin_json_file_hash {
 
     my $logger = get_plugin_logger();
 
-    my @filtered_keys = grep { /(?i)^(?:artist|author|circle|characters?|language|parody|series|tags)/ } keys(%$json_obj);
+    my @filtered_keys = grep { /(?i)^(?:artist|author|circle|characters?|language|parody|series|tags|url)/ } keys(%$json_obj);
 
     foreach my $key (@filtered_keys) {
 
         my $namespace = normalize_namespace($key);
         my $values    = $json_obj->{$key};
+
+        if ( lc($namespace) eq "source" ) {
+            $values = trim_url($values);
+        }
 
         if ( ref($values) eq 'ARRAY' ) {
 
@@ -265,6 +278,8 @@ sub normalize_namespace {
         return "other";
     } elsif ( $namespace eq "tags" ) {
         return "";
+    } elsif ( $namespace eq "url" ) {
+        return "source";
     }
 
     return $namespace;
