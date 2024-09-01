@@ -8,7 +8,7 @@ Only one subroutine needs to be implemented for the module to be recognized: `ge
 
 ### Expected Input
 
-The following section deals with writing the `get_tags` subroutine.  
+The following section deals with writing the `get_tags` subroutine.
 When executing your Plugin, LRR will call this subroutine and pass it the following variables:
 
 ```perl
@@ -25,7 +25,7 @@ The variables match the parameters you've entered in the `plugin_info` subroutin
 The `$lrr_info` hash contains various variables you can use in your plugin:
 
 * _$lrr\_info->{archive\_id}_: The internal ID of the archive.
-* _$lrr\_info->{archive\_title}_: The title of the archive, as entered by the User. 
+* _$lrr\_info->{archive\_title}_: The title of the archive, as entered by the User.
 * _$lrr\_info->{existing\_tags}_: The tags that are already in LRR for this archive, if there are any.
 * _$lrr\_info->{thumbnail\_hash}_: A SHA-1 hash of the first image of the archive.
 * _$lrr\_info->{file\_path}_: The filesystem path to the archive.
@@ -34,8 +34,8 @@ The `$lrr_info` hash contains various variables you can use in your plugin:
 
 #### One-Shot Arguments
 
-The **One-Shot Argument** can be set by the user every time he uses your Plugin on a specific file, through LRR's Edit Menu.  
-It's more meant for special overrides you'd want to use for this specific file:  
+The **One-Shot Argument** can be set by the user every time he uses your Plugin on a specific file, through LRR's Edit Menu.
+It's more meant for special overrides you'd want to use for this specific file:
 For example, in E-Hentai and nHentai plugins, it can be used to set a specific Gallery URL you want to pull tags from.
 
 If you want the user to be able to enter this override, the `oneshot_arg` field must be present in `plugin_info`, and contain a brief description of what your argument is for.
@@ -44,17 +44,21 @@ One-Shot Arguments can only be strings.
 
 ### Expected Output
 
-Once you're done and obtained your tags, all that's needed for LRR to handle them is to return a hash containg said tags.  
+Once you're done and obtained your tags, all that's needed for LRR to handle them is to return a hash containg said tags.
 Tags are expected to be separated by commas, like this:
 
 `return ( tags => "my:new, tags:here, look ma no namespace" );`
 
-Plugins can also modify the title or the summary of the archive:  
-`return ( tags => "some:tags", title=>"My new epic archive title", summary=>"Phenomenal! Wheres that David Lynch clip where he says phenomenal" );`  
+Plugins can also modify the title or the summary of the archive:
+`return ( tags => "some:tags", title=>"My new epic archive title", summary=>"Phenomenal! Wheres that David Lynch clip where he says phenomenal" );`
 Those two parameters are completely optional. \(The tags one isn't, but it can very well be empty.\)
 If the Plugin's user has disabled "Plugins can modify archive titles" in their settings, you can still pass a new title - It'll simply do nothing.
 
-If you couldn't obtain tags for some reason, you can tell LRR that an error occurred by returning a hash containing an "error" field:
+If you couldn't obtain tags for some reason, you can tell LRR that an error occurred by throwing an exception:
+
+`die "my error :(\n";`
+
+The old error handling still exists, but it's **deprecated**:
 
 `return ( error => "my error :(" );`
 
@@ -68,7 +72,7 @@ package LANraragi::Plugin::Metadata::MyNewPlugin;
 use strict;
 use warnings;
 
-# Plugins can freely use all Perl packages already installed on the system 
+# Plugins can freely use all Perl packages already installed on the system
 # Try however to restrain yourself to the ones already installed for LRR (see tools/cpanfile) to avoid extra installations by the end-user.
 use Mojo::UserAgent;
 
@@ -91,7 +95,7 @@ sub plugin_info {
         version      => "0.001",
         description  => "This is base boilerplate for writing LRR plugins.",
         icon         => "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAABmJLR0QAAAAAAAD5Q7t/AAAACXBI\nWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4wYDFCYzptBwXAAAAB1pVFh0Q29tbWVudAAAAAAAQ3Jl\nYXRlZCB3aXRoIEdJTVBkLmUHAAAAjUlEQVQ4y82UwQ7AIAhDqeH/f7k7kRgmiozDPKppyisAkpTG\nM6T5vAQBCIAeQQBCUkiWRTV68KJZ1FuG5vY/oazYGdcWh7diy1Bml5We1yiMW4dmQr+W65mPjFjU\n5PMg2P9jKKvUdxWMU8neqYUW4cBpffnxi8TsXk/Qs8GkGGaWhmes1ZmNmr8kuMPwAJzzZSoHwxbF\nAAAAAElFTkSuQmCC",
-        #If your plugin uses/needs custom arguments, input their name here. 
+        #If your plugin uses/needs custom arguments, input their name here.
         #This name will be displayed in plugin configuration next to an input box for global arguments, and in archive edition for one-shot arguments.
         oneshot_arg => "This is a one-shot argument that can be entered by the user when executing this plugin on a file",
         parameters  => [
@@ -110,25 +114,21 @@ sub get_tags {
     my ($doomsday, $iterations) = @_; # Plugin parameters
 
     if ($lrr_info->{oneshot_param}) {
-        return ( error => "Yaaaaaaaaa gomen gomen the oneshot argument isn't implemented -- You entered ".$lrr_info->{oneshot_param}.", right ?");
+        die "Yaaaaaaaaa gomen gomen the oneshot argument isn't implemented -- You entered ".$lrr_info->{oneshot_param}.", right ?\n";
     }
 
     #Use the logger to output status - they'll be passed to a specialized logfile and written to STDOUT.
     my $logger = get_logger("My Cool Plugin","plugins");
 
-    if ($doomsday) {
-        return ( error => "You fools! You've messed with the natural order!");
-    }
-
     #Work your magic here - You can create subroutines below to organize the code better
     $logger->info("Gettin' tags");
-    my $newtags = get_tags_from_somewhere($iterations); #To be implemented
+    my $newtags = get_tags_from_somewhere($iterations, $doomsday); #To be implemented
     my $error = 0;
 
     #Something went wrong? Return an error.
     if ($error) {
         $logger->error("Oh no");
-        return ( error => "Error Text Here");
+        die "Error Text Here\n";
     }
 
     #Otherwise, return the tags you've harvested.
@@ -137,15 +137,18 @@ sub get_tags {
 
 sub get_tags_from_somewhere {
 
-    my $iterations = shift;
+    my ($iterations, $doomsday) = @_;
     my $logger = get_logger("My Cool Plugin","plugins");
+
+    if ($doomsday) {
+        die "You fools! You've messed with the natural order!\n";
+    }
 
     $logger->info("I'm supposed to be iterating $iterations times but I don't give a damn my man");
 
     #Tags are expected to be submitted as a single string, containing tags split up by commas. Namespaces are optional.
-    return "my:new, tags:here, look ma no namespace"; 
+    return "my:new, tags:here, look ma no namespace";
 }
 
 1;
 ```
-

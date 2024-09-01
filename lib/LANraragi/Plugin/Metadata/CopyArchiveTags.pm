@@ -1,9 +1,5 @@
 package LANraragi::Plugin::Metadata::CopyArchiveTags;
 
-use v5.36;
-use experimental 'try';
-no warnings 'experimental::try';
-
 use strict;
 use warnings;
 
@@ -22,7 +18,7 @@ sub plugin_info {
         type        => "metadata",
         namespace   => "copy-archive-tags",
         author      => "IceBreeze",
-        version     => "1.0",
+        version     => "1.1",
         description => "Copy tags from another LRR archive given either the URI or the ID.",
         parameters  => [
             {   type => "bool",
@@ -39,22 +35,6 @@ sub get_tags {
     my $params = read_params(@_);
     my $logger = get_plugin_logger();
 
-    # should be handled in the caller
-    my %hashdata;
-    try {
-        %hashdata = internal_get_tags( $logger, $params );
-    } catch ($e) {
-        $logger->error($e);
-        return ( error => $e );
-    }
-
-    $logger->info( "Sending the following tags to LRR: " . ( $hashdata{tags} || '-' ) );
-    return %hashdata;
-}
-
-sub internal_get_tags {
-    my ( $logger, $params ) = @_;
-
     my $lrr_gid = extract_archive_id( $params->{'oneshot'} );
     if ( !$lrr_gid ) {
         die "oneshot_param doesn't contain a valid archive ID\n";
@@ -66,16 +46,16 @@ sub internal_get_tags {
 
     $logger->info("Copying tags from archive \"${lrr_gid}\"");
 
-    my $tags = LANraragi::Utils::Database::get_tags($lrr_gid);
+    my $tags = LANraragi::Utils::Database::get_tags($lrr_gid) || '';
 
     if ( !$params->{'copy_date_added'} ) {
         my @tags = split_tags_to_array($tags);
         $tags = join_tags_to_string( grep( !m/date_added/, @tags ) );
     }
 
-    my %hashdata = ( tags => $tags );
+    $logger->info( "Sending the following tags to LRR: " . ( $tags || '-' ) );
 
-    return %hashdata;
+    return ( tags => $tags || '' );
 }
 
 sub extract_archive_id {

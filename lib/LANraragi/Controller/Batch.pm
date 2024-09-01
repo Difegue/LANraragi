@@ -134,7 +134,7 @@ sub socket {
                 $tags = redis_decode($tags);
 
                 my @tagarray = split_tags_to_array($tags);
-                @tagarray = rewrite_tags(\@tagarray, $rules, $hash_replace_rules);
+                @tagarray = rewrite_tags( \@tagarray, $rules, $hash_replace_rules );
 
                 # Merge array with commas
                 my $newtags = join( ', ', @tagarray );
@@ -200,12 +200,7 @@ sub batch_plugin {
     my ( $id, $plugin, @args ) = @_;
 
     # Run plugin with args on id
-    my %plugin_result;
-    eval { %plugin_result = LANraragi::Model::Plugins::exec_metadata_plugin( $plugin, $id, "", @args ); };
-
-    if ($@) {
-        $plugin_result{error} = $@;
-    }
+    my %plugin_result = LANraragi::Model::Plugins::exec_metadata_plugin( $plugin, $id, "", @args );
 
     # If the plugin exec returned tags, add them
     unless ( exists $plugin_result{error} ) {
