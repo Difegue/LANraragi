@@ -28,7 +28,7 @@
 	<script src="[% c.url_for("/js/common.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/logs.js?$version") %]" type="text/JAVASCRIPT"></script>
 </head>
-
+<!-- -->
 <body>
 
 	<div class='ido' style='text-align:center'>

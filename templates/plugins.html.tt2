@@ -38,7 +38,7 @@
 	<script src="[% c.url_for("/js/plugins.js?$version") %]" type="text/JAVASCRIPT"></script>
 
 </head>
-
+<!-- -->
 <body>
 
 	<div class="ido" style="text-align:center;">

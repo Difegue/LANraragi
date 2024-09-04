@@ -34,7 +34,7 @@
 	<script src="[% c.url_for("/js/server.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/upload.js?$version") %]" type="text/JAVASCRIPT"></script>
 </head>
-
+<!-- -->
 <body>
 
 	<div class='ido' style='text-align:center; font-size:8pt'>

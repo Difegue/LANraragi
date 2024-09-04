@@ -18,7 +18,7 @@
 
 	<script src="[% c.url_for("/js/vendor/jquery.min.js") %]" type="text/JAVASCRIPT"></script>
 </head>
-
+<!-- -->
 <body>
 
 	<div class='ido' style='text-align:center'>
