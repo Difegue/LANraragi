@@ -13,6 +13,7 @@ use File::Basename;
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
 use LANraragi::Utils::Logging qw(get_plugin_logger);
+use LANraragi::Utils::Database qw(redis_decode);
 
 #Meta-information about your plugin.
 sub plugin_info {
@@ -60,8 +61,11 @@ sub get_tags {
     } else {
         $logger->debug("Searching gallery by title (filename)");
 
+        # lrr_info's file_path is taken straight from the filesystem, which might not be proper UTF-8.
+        my $file_path = redis_decode($lrr_info->{file_path});
+
         #Get Gallery ID by hand if the user didn't specify a URL
-        $galleryID = get_gallery_id_from_title( $lrr_info->{file_path}, $ua );
+        $galleryID = get_gallery_id_from_title( $file_path, $ua );
     }
 
     # Did we detect a nHentai gallery?
