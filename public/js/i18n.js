@@ -79,12 +79,22 @@ function updateSelectOptions(selectEl) {
  * @param {string} translation - The translated text
  */
 function updateElementContent(el, i18nAttr, translation) {
+    if (!translation) {
+        const i18nKey = el.getAttribute('data-i18n');
+        translation = i18next.t(i18nKey, { lng: 'en' });
+
+        if (!translation) {
+            console.error(`Translation missing for key: ${i18nKey}`);
+            translation = 'Translation missing';
+        }
+    }
+
     if (i18nAttr) {
         el.setAttribute(i18nAttr, translation);
         return;
     }
 
-    if (el.tagName.toLowerCase() === 'input' && el.type === 'button') {
+    if (el.tagName.toLowerCase() === 'input' && (el.type === 'button' || el.type === 'submit')) {
         el.value = translation;
         return;
     }
@@ -103,7 +113,7 @@ function updateElementContent(el, i18nAttr, translation) {
  * @param {string} html - The HTML content to set
  */
 function sanitizeAndSetInnerHTML(el, html) {
-    const allowedTags = ['div', 'td', 'span'];
+    const allowedTags = ['div', 'td', 'span', 'label', 'table'];
     if (allowedTags.includes(el.tagName.toLowerCase())) {
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = html;
