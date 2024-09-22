@@ -525,6 +525,70 @@ Index.loadContextMenuCategories = (catList, id) => Server.callAPI(`/api/archives
 );
 
 /**
+ * Build rating options for contextMenu and select the one for the current ID.
+ * @param {*} id The ID of the archive to check
+ * @returns Ratings
+ */
+Index.loadContextMenuRatings = (id) => Server.callAPI(`/api/archives/${id}/metadata`, "GET", null, `Error finding metadata for ${id}!`,
+    (data) => {
+        const items = {};
+        const ratings = [{
+            id: 0,
+            name: "★"
+        }, {
+            id: 1,
+            name: "⭐",
+        }, {
+            id: 2,
+            name: "⭐⭐",
+        }, {
+            id: 3,
+            name: "⭐⭐⭐",
+        }, {
+            id: 4,
+            name: "⭐⭐⭐⭐",
+        }, {
+            id: 5,
+            name: "⭐⭐⭐⭐⭐",
+        }];
+
+        const isRating = (x) => x[0] === "rating";
+        const isNotRating = (x) => x[0] !== "rating";
+        const separate = (x) => x.split(",").map((x) => x.split(":"));
+        const join = (x) => x.map((x) => x.join(":")).join(",");
+
+        const tags = separate(data.tags);
+        const ratingIndex = tags.findIndex(isRating);
+
+        for (let i = 0; i < ratings.length; i++) {
+            items[`rat-${i}`] = { name: ratings[i].name, type: 'checkbox' };
+            items[`rat-${i}`].events = {
+                click() {
+                    if (ratingIndex !== -1) {
+                        tags[ratingIndex][1] = ratings[i].name;
+                    } else {
+                        tags.push(["rating", ratings[i].name]);
+                    }
+
+                    Server.updateTagsFromArchive(id, join(tags));
+                },
+            };
+
+            items[`rat-${i}`].selected = ratingIndex !== -1 && tags[ratingIndex][1] === ratings[i].name;
+        }
+
+        items['rat-0'].selected = ratingIndex === -1;
+        items['rat-0'].events = {
+            click() {
+                Server.updateTagsFromArchive(id, join(tags.filter(isNotRating)));
+            }
+        };
+
+        return items;
+    },
+);
+
+/**
  * Handle context menu clicks.
  * @param {*} option The clicked option
  * @param {*} id The Archive ID

@@ -106,9 +106,9 @@ Server.checkJobStatus = function (jobId, useDetail, callback, failureCallback, p
                 setTimeout(() => {
                     Server.checkJobStatus(jobId, useDetail, callback, failureCallback, progressCallback);
                 }, 1000);
-            } 
-            
-            if (data.state === "finished") { 
+            }
+
+            if (data.state === "finished") {
                 // Update UI with info
                 callback(data);
             }
@@ -320,4 +320,15 @@ Server.deleteArchive = function (arcId, callback) {
             }
         })
         .catch((error) => LRR.showErrorToast("Error while deleting archive", error));
+};
+
+/**
+ * Sends a UPDATE request for the metadata of the archive ID
+ * @param {*} arcId Archive ID
+ * @param {string} tags Tags in string form
+ */
+Server.updateTagsFromArchive = function (arcId, tags) {
+    const formData = new FormData();
+    formData.append("tags", tags);
+    Server.callAPIBody(`/api/archives/${arcId}/metadata`, "PUT", formData, `Updated tags from Archive ${arcId}!`, "Error updating tags from archive", null);
 };
