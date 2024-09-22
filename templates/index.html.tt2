@@ -233,6 +233,11 @@
 							"sep1": "---------",
 							"edit": { name: "Edit Metadata", icon: "fas fa-pencil-alt" },
 							"delete": { name: "Delete", icon: "fas fa-trash-alt" },
+							"rating": {
+							    "name": "Add Rating",
+							    "icon": "",
+							    "items": Index.loadContextMenuRatings($trigger.attr("id"))
+							},
 							"collections": {
 								"name": "Add to Category",
 								"icon": "fas fa-search-plus",
