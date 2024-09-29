@@ -22,6 +22,7 @@ Returns some basic information about the LRR instance this server is running.
     "debug_mode":"1",
     "nofun_mode":"0",
     "archives_per_page":"100",
+    "total_archives":"255",
     "server_resizes_images":"0",
     "server_tracks_progress":"1",
     "cache_last_cleared":"1601474241"
