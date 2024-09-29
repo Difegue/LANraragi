@@ -19,16 +19,16 @@ use LANraragi::Utils::Logging  qw(get_logger);
 
 sub get_archive_count {
     my $redis = LANraragi::Model::Config->get_redis_search;
-    my $tankcount = $redis->scard("LRR_TANKGROUPED") + 0;
 
-    return $redis->zcard("LRR_TITLES") - $tankcount;   
-    # Total number of archives (as int) -- Tanks are included and replace the archives they contain. 
+    return $redis->scard("LRR_TANKGROUPED") + 0;
+
+    # Total number of archives (as int) -- Tanks are included and replace the archives they contain.
 }
 
 sub get_page_stat {
 
     my $redis = LANraragi::Model::Config->get_redis_config;
-    my $stat  = $redis->get("LRR_TOTALPAGESTAT") || 0;
+    my $stat  = $redis->get("LRR_TOTALPAGESTAT") + 0 || 0;
     $redis->quit();
 
     return $stat;
@@ -40,7 +40,7 @@ sub get_page_stat {
 # - LRR_UNTAGGED, which is a set used by the untagged archives API
 # - LRR_NEW, which contains all archives that have isnew=true
 # - LRR_TITLES, which is a lexicographically sorted set containing all (archive + tank) titles in the DB, alongside their ID. (In the "title\0ID" format)
-# - LRR_TANKGROUPED, which is a set containing all tank IDs in the DB, and the archive IDs that aren't in any tanks. 
+# - LRR_TANKGROUPED, which is a set containing all tank IDs in the DB, and the archive IDs that aren't in any tanks.
 # * It also builds index sets for each distinct tag.
 sub build_stat_hashes {
 
@@ -70,26 +70,26 @@ sub build_stat_hashes {
     # Go through tanks first
     foreach my $tank (@tanks) {
 
-        my $tank_id = %$tank{id};
-        my $tank_title = lc(%$tank{name});
+        my $tank_id       = %$tank{id};
+        my $tank_title    = lc( %$tank{name} );
         my @tank_archives = @{ %$tank{archives} };
 
         # Add the tank name to LRR_TITLES so it shows up in tagless searches when tank grouping is enabled.
-        # (This does nothing if the tank is empty, as it won't be in LRR_TANKGROUPED) 
+        # (This does nothing if the tank is empty, as it won't be in LRR_TANKGROUPED)
         $redistx->zadd( "LRR_TITLES", 0, "$tank_title\0$tank_id" );
 
-        if (scalar @tank_archives == 0) {
+        if ( scalar @tank_archives == 0 ) {
             $logger->warn("Tank $tank_id has no archives in it. Skipping.");
             next;
         }
 
-        $redistx->sadd( "LRR_TANKGROUPED",  $tank_id );
+        $redistx->sadd( "LRR_TANKGROUPED", $tank_id );
 
         # Remove IDs contained in the tank from @keys
         @keys = intersect_arrays( \@tank_archives, \@keys, 1 );
 
         foreach my $arcid (@tank_archives) {
-            index_tags_for_id($redis, $redistx, $tank_id, $arcid); 
+            index_tags_for_id( $redis, $redistx, $tank_id, $arcid );
         }
 
         # Decode and lowercase the title
@@ -100,8 +100,8 @@ sub build_stat_hashes {
 
     foreach my $id (@keys) {
 
-        $redistx->sadd( "LRR_TANKGROUPED",  $id );
-        my $has_tags = index_tags_for_id($redis, $redistx, $id, $id); 
+        $redistx->sadd( "LRR_TANKGROUPED", $id );
+        my $has_tags = index_tags_for_id( $redis, $redistx, $id, $id );
 
         # Flag the ID as untagged if it had no tags
         unless ($has_tags) {
@@ -126,19 +126,19 @@ sub build_stat_hashes {
     $redistx->quit;
 }
 
-# Parse the tags of the given archive_id, 
-# and add the given index_id to all the search indexes that contain said tags. 
-sub index_tags_for_id($redis, $redistx, $index_id, $archive_id) {
-    my $logger  = get_logger( "Tag Stats", "lanraragi" );
+# Parse the tags of the given archive_id,
+# and add the given index_id to all the search indexes that contain said tags.
+sub index_tags_for_id ( $redis, $redistx, $index_id, $archive_id ) {
+    my $logger   = get_logger( "Tag Stats", "lanraragi" );
     my $has_tags = 0;
 
     unless ( $redis->hexists( $archive_id, "tags" ) ) {
         return 0;
     }
 
-    # Split tags by comma and index them    
+    # Split tags by comma and index them
     my $rawtags = $redis->hget( $archive_id, "tags" );
-    my @tags = split( /,\s?/, redis_decode($rawtags) );
+    my @tags    = split( /,\s?/, redis_decode($rawtags) );
 
     foreach my $t (@tags) {
         $t = trim($t);
@@ -147,7 +147,7 @@ sub index_tags_for_id($redis, $redistx, $index_id, $archive_id) {
         # The following are basic and therefore don't count as "tagged"
         $has_tags = 1 unless $t =~ /(artist|parody|series|language|event|group|date_added|timestamp|source):.*/;
 
-        # If the tag is a source: tag, add it to the URL index. This always uses the original archive ID. 
+        # If the tag is a source: tag, add it to the URL index. This always uses the original archive ID.
         if ( $t =~ /source:(.*)/i ) {
             my $url = trim_url($1);
             $logger->trace("Adding $url as an URL for $archive_id");
@@ -163,8 +163,8 @@ sub index_tags_for_id($redis, $redistx, $index_id, $archive_id) {
         # Add the archive ID and index ID to the set for this tag
         $logger->trace("Adding $index_id to the index for tag $redis_tag");
         $redistx->sadd( "INDEX_" . $redis_tag, $index_id );
-        
-        if ($index_id ne $archive_id) {
+
+        if ( $index_id ne $archive_id ) {
             $logger->trace("Adding $archive_id to the index for tag $redis_tag");
             $redistx->sadd( "INDEX_" . $redis_tag, $archive_id );
         }
@@ -186,7 +186,7 @@ sub index_tags_for_id($redis, $redistx, $index_id, $archive_id) {
     return $has_tags;
 }
 
-sub is_url_recorded($url) {
+sub is_url_recorded ($url) {
 
     my $logger = get_logger( "Tag Stats", "lanraragi" );
     my $redis  = LANraragi::Model::Config->get_redis_search;
