@@ -235,7 +235,7 @@
 							"delete": { name: "Delete", icon: "fas fa-trash-alt" },
 							"rating": {
 							    "name": "Add Rating",
-							    "icon": "",
+							    "icon": "fas fa-star",
 							    "items": Index.loadContextMenuRatings($trigger.attr("id"))
 							},
 							"collections": {

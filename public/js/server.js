@@ -331,5 +331,8 @@ Server.deleteArchive = function (arcId, callback) {
  * @param {*} arcId Archive ID
  */
 Server.updateTagsFromArchive = function (arcId, tags) {
-    Server.callAPIBody(`/api/archives/${arcId}/metadata`, "PUT", { tags }, `Updated tags from Archive ${arcId}!`, "Error updating tags from archive", null);
+    const formData = new FormData();
+    formData.append("tags", tags);
+
+    Server.callAPIBody(`/api/archives/${arcId}/metadata`, "PUT", formData, `Updated tags from Archive ${arcId}!`, "Error updating tags from archive", null);
 };

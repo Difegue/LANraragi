@@ -533,45 +533,38 @@ Index.loadContextMenuRatings = (id) => Server.callAPI(`/api/archives/${id}/metad
     (data) => {
         const items = {};
         const ratings = [{
-            id: 1,
+            name: "☆"
+        }, {
             name: "⭐",
         }, {
-            id: 2,
             name: "⭐⭐",
         }, {
-            id: 3,
             name: "⭐⭐⭐",
         }, {
-            id: 4,
             name: "⭐⭐⭐⭐",
         }, {
-            id: 5,
             name: "⭐⭐⭐⭐⭐",
         }];
-        const tags = data.tags.split(",").map((x) => x.split(":"));
-        const hasRating = tags.some((x) => x[0] === "rating");
-
-        items.push({
-            name: "",
-            events: {
-                click() {
-                    Server.updateTagsFromArchive(id, tags.filter((x) => x[0] !== "rating").map((x) => x.join(":")).join(","));
-                },
-            },
-        });
+        const tags = LRR.splitTagsByNamespace(data.tags);
+        const hasRating = Object.keys(tags).some(x => x === "rating");
+        const ratingValue = hasRating ? tags["rating"] : [0];
 
         for (let i = 0; i < ratings.length; i++) {
             items[i] = ratings[i];
+            items[i].type = "checkbox";
+
+            if (items[i].name === ratingValue[0]) { items[i].selected = true; }
             items[i].events = {
                 click() {
-                    if (hasRating) {
-                        const ratingIndex = tags.findIndex((x) => x[0] === "rating");
-                        tags[ratingIndex][1] = ratings[i].name;
-                    } else {
-                        tags.push(["rating", ratings[i]]);
-                    }
+                    if(i === 0) delete tags["rating"];
+                    else tags["rating"] = [ratings[i].name];
 
-                    Server.updateTagsFromArchive(id, tags.map((x) => x.join(":")).join(","));
+                    Server.updateTagsFromArchive(id, Object.entries(tags).map(([namespace, tag]) => LRR.buildNamespacedTag(namespace, tag)));
+
+                    // Update the rating info without reload but have to refresh everything.
+                    IndexTable.dataTable.ajax.reload();
+                    Index.updateCarousel();
+                    $(this).parents("ul.context-menu-list").find("input[type='checkbox']").toArray().filter((x) => x !== this).forEach(x => x.checked = false);
                 },
             };
         }
