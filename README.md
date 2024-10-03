@@ -49,7 +49,7 @@ Open source server for archival of comics/manga, running on Mojolicious + Redis.
 
 * Full Tag support with Namespaces: Add your own or import them from other sources using Plugins.  
 
-* Store archives in either arbitary or dynamic Categories to sort your Library easily
+* Store archives in either arbitrary or dynamic Categories to sort your Library easily
 
 * Import metadata using Plugins automatically when archives are added to LANraragi.
 
