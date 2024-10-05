@@ -107,6 +107,20 @@ sub serve_file {
     $self->render_file( filepath => $file );
 }
 
+# TODO
+# Upload a file archive along with any metadata.
+sub upload_archive {
+    my $self            = shift;
+    my $create_status   = LANraragi::Model::Archive::create_archive();
+
+    $self->render(
+        json => {
+            operation       => "upload_archive",
+            success         => $create_status eq "0" ? 0 : 1
+        }
+    )
+}
+
 # Serve an archive page from the temporary folder, using RenderFile.
 sub serve_page {
     my $self = shift;

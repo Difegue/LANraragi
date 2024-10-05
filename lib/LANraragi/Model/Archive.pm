@@ -361,6 +361,12 @@ sub update_metadata {
     return "";
 }
 
+# TODO
+sub create_archive() {
+    my $logger = get_logger( "Archive Create", "lanraragi" );
+    return "0";
+}
+
 # Deletes the archive with the given id from redis, and the matching archive file/thumbnail.
 sub delete_archive ($id) {
 
