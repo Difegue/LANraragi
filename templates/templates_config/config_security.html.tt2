@@ -1,20 +1,21 @@
 <tr>
     <td class="option-td">
-        <h2 class="ih"> Enable Password </h2>
+        <h2 class="ih" data-i18n="enable_password"> Enable Password </h2>
     </td>
     <td class="config-td">
         [% IF enablepass %]
         <input id="enablepass" name="enablepass" class="fa" type="checkbox" checked> [% ELSE %]
         <input id="enablepass" name="enablepass" class="fa" type="checkbox"> [% END %]
         <label for="enablepass">
-            <br>If enabled, everything that isn't reading will require a password.
+            <br/>
+            <span data-i18n="passwordDescription">If enabled, everything that isn't reading will require a password.</span>
         </label>
     </td>
 </tr>
 
 <tr class="passwordfields">
     <td class="option-td">
-        <h2 class="ih"> New Password </h2>
+        <h2 class="ih" data-i18n="new_password"> New Password </h2>
     </td>
     <td class="config-td">
         <input class="stdinput" style="width:100%" maxlength="255" size="20" name="newpassword" type="password">
@@ -23,56 +24,59 @@
 
 <tr class="passwordfields">
     <td class="option-td">
-        <h2 class="ih"> New Password Confirmation </h2>
+        <h2 class="ih" data-i18n="new_password_confirmation"> New Password Confirmation </h2>
     </td>
     <td class="config-td">
         <input class="stdinput" style="width:100%" maxlength="255" size="20" name="newpassword2" type="password">
-        <br> Only edit these fields if you want to change your password. <br />
-        The one already stored will be used otherwise.
+        <br/>
+        <span data-i18n="passwordfields1"> Only edit these fields if you want to change your password. </span>
+        <br/>
+        <span data-i18n="passwordfields2"> The one already stored will be used otherwise. </span>
     </td>
 </tr>
 
 <tr class="passwordfields">
     <td class="option-td">
-        <h2 class="ih"> No-Fun Mode </h2>
+        <h2 class="ih" data-i18n="nofun-mode"> No-Fun Mode </h2>
     </td>
     <td class="config-td">
         [% IF nofunmode %]
         <input id="nofunmode" name="nofunmode" class="fa" type="checkbox" checked> [% ELSE %]
         <input id="nofunmode" name="nofunmode" class="fa" type="checkbox"> [% END %]
         <label for="nofunmode">
-            <br>Enabling No-Fun Mode will lock reading archives behind the password as well. <br />
-            Fully effective after restarting LANraragi.
+            <br/>
+            <span data-i18n="nofunmodefields1"> Enabling No-Fun Mode will lock reading archives behind the password as well. </span>
+            <br/>
+            <span data-i18n="nofunmodefields2"> Fully effective after restarting LANraragi. </span>
         </label>
     </td>
 </tr>
 
 <tr class="passwordfields">
     <td class="option-td">
-        <h2 class="ih"> API Key </h2>
+        <h2 class="ih" data-i18n="api-key"> API Key </h2>
     </td>
     <td class="config-td">
-        <input id="apikey" class="stdinput" style="width:100%" maxlength="255" size="20" value="[% apikey %]"
-            name="apikey" type="text">
-        <br>If you wish to use the Client API and have a password, you'll have to set a key here.<br />
-        Empty keys will <b>not</b> work!
-        <br>This key will need to be provided in every protected API call as the <i>Authorization</i> header.
+        <input id="apikey" class="stdinput" style="width:100%" maxlength="255" size="20" value="[% apikey %]" name="apikey" type="text">
+        <span data-i18n="config_apikey" data-i18n-html></span>
     </td>
 </tr>
 
 <tr>
     <td class="option-td">
-        <h2 class="ih"> Enable CORS for the Client API </h2>
+        <h2 class="ih" data-i18n="enable_cors"> Enable CORS for the Client API </h2>
     </td>
     <td class="config-td">
         [% IF enablecors %]
         <input id="enablecors" name="enablecors" class="fa" type="checkbox" checked> [% ELSE %]
         <input id="enablecors" name="enablecors" class="fa" type="checkbox"> [% END %]
         <label for="enablecors">
-            <br>Have API requests support Cross-Origin Resource Sharing, which allows web browsers to access it off
-            other domains.
-            <br>Turn this on if you want to access this service through a web-based wrapper (e.g. a userscript)
-            used/hosted on another domain.
+            <br/>
+            <span data-i18n="enablecorsfields1"> Have API requests support Cross-Origin Resource Sharing, which allows web browsers to access it off
+                other domains. </span>
+            <br/>
+            <span data-i18n="enablecorsfields2"> Turn this on if you want to access this service through a web-based wrapper (e.g. a userscript)
+                used/hosted on another domain. </span>
         </label>
     </td>
 </tr>

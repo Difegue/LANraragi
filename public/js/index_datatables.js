@@ -61,7 +61,7 @@ IndexTable.initializeAll = function () {
         dom: "<\"top\"ip>rt<\"bottom\"p><\"clear\">",
         language: {
             info: "Showing _START_ to _END_ of _TOTAL_ ancient chinese lithographies.",
-            infoEmpty: `<h1><br/><i class=\"fas fa-4x fa-toilet-paper-slash\"></i><br/><br/>No archives to show you! Try <a href="${new LRR.apiURL("/upload")}">uploading some</a>?</h1><br/>`,
+            infoEmpty: i18next.t('dataTable.infoEmpty', { uploadUrl: new LRR.apiURL("/upload") }),
             processing: "<div id=\"progress\" class=\"indeterminate\"\"><div class=\"bar-container\"><div class=\"bar\" style=\" width: 80%; \"></div></div></div>",
         },
         preDrawCallback: IndexTable.initializeThumbView, // callbacks for thumbnail view

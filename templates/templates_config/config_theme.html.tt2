@@ -1,10 +1,12 @@
 <tr>
     <td></td>
-    <td class="config-td"><br>
-        The selected theme will apply to the entire application and be shown to all users.<br>
-        If you're using a browser that supports "theme-color", the theme's primary color will also be applied
-        there.<br><br>
-        Click on a theme to preview it before saving!
+    <td class="config-td">
+        <br/>
+        <span data-i18n="config-theme-1"> The selected theme will apply to the entire application and be shown to all users.</span>
+        <br/>
+        <span data-i18n="config-theme-2"> If you're using a browser that supports "theme-color", the theme's primary color will also be applied there.</span>
+        <br/>
+        <span data-i18n="config-theme-3"> Click on a theme to preview it before saving!</span>
     </td>
 
 </tr>

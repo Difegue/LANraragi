@@ -332,11 +332,14 @@ LRR.showPopUp = function (c) {
         c.customClass = {
             cancelButton: "stdbtn",
             confirmButton: "stdbtn",
+            title: "swal2-title-center"
         };
+    } else {
+        c.customClass.title = "swal2-title-center";
     }
 
     if (c.icon === "warning" && !c.title) {
-        c.title = "This is a destructive operation!";
+        c.title = i18next.t('destructiveOperation');
     }
     return window.Swal.fire(c);
 };

@@ -33,7 +33,7 @@
     <script src="[% c.url_for("/js/category.js?$version") %]" type="text/JAVASCRIPT"></script>
 
 </head>
-
+<!-- -->
 <body>
 
     <div class='ido' style='text-align:center'>

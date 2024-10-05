@@ -1,11 +1,11 @@
 <tr>
     <td class="option-td">
-        <h2 class="ih"> Site Title </h2>
+        <h2 class="ih" data-i18n="siteTitle"> Site Title </h2>
     </td>
     <td class="config-td">
         <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% title %]" name="htmltitle"
             type="text">
-        <br>The site title appears on most pages as...their title.
+        <br/><span data-i18n="siteDescription">The site title appears on most pages as...their title.</span>
     </td>
 </tr>
 
@@ -16,86 +16,100 @@
     <td class="config-td">
         <input id="motd" class="stdinput" style="width:100%" maxlength="255" size="20" value="[% motd %]" name="motd"
             type="text">
-        <br>Slang for Message of the Day. Appears on top of the main Library view.
+        <br/><span data-i18n="motdDescription">Slang for Message of the Day. Appears on top of the main Library view.</span>
     </td>
 </tr>
 
 <tr>
     <td class="option-td">
-        <h2 class="ih"> Archives per page </h2>
+        <h2 class="ih" data-i18n="language"> Language </h2>
+    </td>
+    <td class="config-td">
+        <select id="language" class="stdinput" name="language" style="width:100%; height: 27px;">
+            <option value="en" [% IF language == 'en' %]selected[% END %]>English</option>
+            <option value="zh" [% IF language == 'zh' %]selected[% END %]>简体中文</option>
+        </select>
+        <br/><span data-i18n="languageDescription">Choose the language for the user interface.</span>
+    </td>
+</tr>
+
+<tr>
+    <td class="option-td">
+        <h2 class="ih" data-i18n="archives_per_page"> Archives per page </h2>
     </td>
     <td class="config-td">
         <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% pagesize %]" name="pagesize"
             type="number">
-        <br> Number of archives shown on a page in the main list.
+        <br/><span data-i18n="archivesPerPageDescription">Number of archives shown on a page in the main list.</span>
     </td>
 </tr>
 
 <tr>
     <td class="option-td">
-        <h2 class="ih"> Resize Images in Reader </h2>
+        <h2 class="ih" data-i18n="resize_images"> Resize Images in Reader </h2>
     </td>
     <td class="config-td">
         [% IF enableresize %]
         <input id="enableresize" name="enableresize" class="fa" type="checkbox" checked> [% ELSE %]
         <input id="enableresize" name="enableresize" class="fa" type="checkbox"> [% END %]
         <label for="enableresize">
-            <br> If enabled, pages exceeding a certain size will be resized when viewed to save bandwidth.
-            <br> <i class="fas fa-exclamation-triangle" style="color:red"></i> This option can potentially consume a lot
-            of RAM if enabled and used on large images! Use with caution.
+            <br/> 
+            <span data-i18n="resizeImagesDescription">Number of archives shown on a page in the main list.</span>
+            <br/> <i class="fas fa-exclamation-triangle" style="color:red"></i>
+            <span data-i18n="resizeImagesWarning">Number of archives shown on a page in the main list.</span>
         </label>
     </td>
 </tr>
 
 <tr class="resizefields">
     <td class="option-td">
-        <h2 class="ih"> Image Size Threshold </h2>
+        <h2 class="ih" data-i18n="image_size_threshold"> Image Size Threshold </h2>
     </td>
     <td class="config-td">
         <input id="sizethreshold" class="stdinput" type="number" style="width:100%" maxlength="255" size="20"
             value="[% sizethreshold %]" name="sizethreshold">
-        <br>(in KBs.) Maximum size an image can reach before being resized.
+        <br/><span data-i18n="imageSizeThresholdDescription">(in KBs.) Maximum size an image can reach before being resized.</span>
     </td>
 </tr>
 
 <tr class="resizefields">
     <td class="option-td">
-        <h2 class="ih"> Resize Quality </h2>
+        <h2 class="ih" data-i18n="resize_quality"> Resize Quality </h2>
     </td>
     <td class="config-td">
         <input id="readerquality" class="stdinput" type="number" min="0" max="100" style="width:100%" maxlength="255"
             size="20" value="[% readerquality %]" name="readerquality">
-        <br> Quality of the resized images. Less quality = Smaller image. (0-100)
+        <br/><span data-i18n="resizeQualityDescription">(in KBs.) Maximum size an image can reach before being resized.</span>
     </td>
 </tr>
 
 <tr>
     <td class="option-td">
-        <h2 class="ih"> Clientside Progress Tracking </h2>
+        <h2 class="ih" data-i18n="clientside_tracking"> Clientside Progress Tracking </h2>
     </td>
     <td class="config-td">
         [% IF localprogress %]
         <input id="localprogress" name="localprogress" class="fa" type="checkbox" checked> [% ELSE %]
         <input id="localprogress" name="localprogress" class="fa" type="checkbox"> [% END %]
         <label for="localprogress">
-            <br>Enabling this option will save reading progression on the browser (through localStorage) instead of the
-            server. <br />
-            Consider toggling this option if you're sharing the LANraragi instance with multiple users!
+            <br/> 
+            <span data-i18n="clientsideProgress1">Enabling this option will save reading progression on the browser (through localStorage) instead of the server. </span>
+            <br/>
+            <span data-i18n="clientsideProgress2">Consider toggling this option if you're sharing the LANraragi instance with multiple users!</span>
         </label>
     </td>
 </tr>
 
 <tr>
     <td class="option-td">
-        <h2 class="ih"> Debug Mode </h2>
+        <h2 class="ih" data-i18n="debug_mode"> Debug Mode </h2>
     </td>
     <td class="config-td">
         [% IF devmode %]
         <input id="devmode" name="devmode" class="fa" type="checkbox" checked> [% ELSE %]
         <input id="devmode" name="devmode" class="fa" type="checkbox"> [% END %]
         <label for="devmode">
-            <br>Enabling Debug Mode will show more logs and disable update nagging. <br />Fully effective after
-            restarting LANraragi.
+            <br/><span data-i18n="debugModeDescription">Enabling Debug Mode will show more logs and disable update nagging.Fully effective after restarting LANraragi.</span>
         </label>
     </td>
 </tr>
@@ -103,19 +117,19 @@
 
 <tr>
     <td class="option-td">
-        <input id='clean-db' class='stdbtn' type='button' value='Clean Database' />
+        <input id='clean-db' class='stdbtn' type='button' value='Clean Database' data-i18n="cleanDatabaseButton" />
     </td>
-    <td class="config-td">
+    <td class="config-td" data-i18n="cleanDatabaseDescription">
         Cleaning the database will remove entries that aren't on your filesystem.
     </td>
 </tr>
 
 <tr>
     <td class="option-td">
-        <input id='drop-db' class='stdbtn' type='button' value='Reset Database' />
+        <input id='drop-db' class='stdbtn' type='button' value='Reset Database' data-i18n="resetDatabaseButton" />
     </td>
     <td class="config-td">
-        <span style="color:red"><i class="fas fa-exclamation-triangle"></i> Danger zone!</span> <br>
-        Clicking this button will reset the entire database and delete all settings and metadata. <br>
+        <i class="fas fa-exclamation-triangle" style="color:red"></i><span style="color:red" data-i18n="resetDatabaseWarning1"> Danger zone! </span> <br/>
+        <span data-i18n="resetDatabaseWarning2"> Clicking this button will reset the entire database and delete all settings and metadata. </span>
     </td>
 </tr>

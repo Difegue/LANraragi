@@ -1,61 +1,60 @@
 <tr>
     <td class="option-td">
-        <h2 class="ih"> Thumbnail Directory </h2>
+        <h2 class="ih" data-i18n="thumbnailDirectory"> Thumbnail Directory </h2>
     </td>
     <td class="config-td">
         <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% thumbdir %]" name="thumbdir"
             type="text" [% IF forcedthumbdir %] disabled title="This option is enforced by an environment variable." [%
             END %]>
-        <br> Directory where the archive thumbnails will be located. It will be created if it doesn't exist.
-        <br>Make sure the OS user running LANraragi has read/write access to this directory. <br>
+        <br/> 
+        <span data-i18n="thumbnailDirectoryDescription"> Directory where the archive thumbnails will be located. It will be created if it doesn't exist. Make sure the OS user running LANraragi has read/write access to this directory. </span>
     </td>
 </tr>
 
 <tr>
     <td class="option-td">
-        <h2 class="ih"> Use high-quality thumbnails for pages </h2>
+        <h2 class="ih" data-i18n="useHighQualityThumbnails"> Use high-quality thumbnails for pages </h2>
     </td>
     <td class="config-td">
         [% IF hqthumbpages %]
         <input id="hqthumbpages" name="hqthumbpages" class="fa" type="checkbox" checked> [% ELSE %]
         <input id="hqthumbpages" name="hqthumbpages" class="fa" type="checkbox"> [% END %]
         <label for="hqthumbpages">
-            <br>LANraragi generates lower-quality thumbnails for archive pages for performance reasons.
-            <br>If this option is checked, it will instead generate page thumbnails at the same quality as cover
-            thumbnails.
+            <br/> 
+            <span data-i18n="useHighQualityThumbnailsDescription"> LANraragi generates lower-quality thumbnails for archive pages for performance reasons. If this option is checked, it will instead generate page thumbnails at the same quality as cover thumbnails. </span>
         </label>
     </td>
 </tr>
 
 <tr>
     <td class="option-td">
-        <h2 class="ih"> Use JPEG XL for thumbnails </h2>
+        <h2 class="ih" data-i18n="useJPEGXLForThumbnails"> Use JPEG XL for thumbnails </h2>
     </td>
     <td class="config-td">
         [% IF jxlthumbpages %]
         <input id="jxlthumbpages" name="jxlthumbpages" class="fa" type="checkbox" checked> [% ELSE %]
         <input id="jxlthumbpages" name="jxlthumbpages" class="fa" type="checkbox"> [% END %]
         <label for="jxlthumbpages">
-            <br>LANraragi generates JPEG thumbnails for compatibility and performance reasons.
-            <br>If this option is checked, it will instead generate thumbnails using JPEG XL.
+            <br/> 
+            <span data-i18n="useJPEGXLForThumbnailsDescription"> LANraragi generates JPEG thumbnails for compatibility and performance reasons. If this option is checked, it will instead generate thumbnails using JPEG XL. </span>
         </label>
     </td>
 </tr>
 
 <tr>
     <td class="option-td">
-        <input id="genthumb-button" class='stdbtn' type='button' value='Generate Missing Thumbnails' />
+        <input id="genthumb-button" class='stdbtn' type='button' value='Generate Missing Thumbnails' data-i18n="generateMissingThumbnailsButton" />
     </td>
-    <td class="config-td">
+    <td class="config-td" data-i18n="generateMissingThumbnailsButtonDescription">
         Generate Thumbnails for all archives that don't have one yet.
     </td>
 </tr>
 
 <tr>
     <td class="option-td">
-        <input id="forcethumb-button" class='stdbtn' type='button' value='Regenerate all Thumbnails' />
+        <input id="forcethumb-button" class='stdbtn' type='button' value='Regenerate all Thumbnails' data-i18n="regenerateAllThumbnailsButton" />
     </td>
-    <td class="config-td">
+    <td class="config-td" data-i18n="regenerateAllThumbnailsButtonDescription">
         Regenerate all thumbnails. This might take a while!
     </td>
 </tr>
@@ -64,29 +63,30 @@
 
 <tr>
     <td class="option-td">
-        <h2 class="ih"> Add Timestamp Tag </h2>
+        <h2 class="ih" data-i18n="addTimestampTag"> Add Timestamp Tag </h2>
     </td>
     <td class="config-td">
         [% IF usedateadded %]
         <input id="usedateadded" name="usedateadded" class="fa" type="checkbox" checked> [% ELSE %]
         <input id="usedateadded" name="usedateadded" class="fa" type="checkbox"> [% END %]
         <label for="usedateadded">
-            <br>If enabled, LANraragi will add the UNIX timestamp of the current time as a tag under the
-            "date_added" namespace to newly added archives.
+            <br/>
+            <span data-i18n="addTimestampTagDescription"> If enabled, LANraragi will add the UNIX timestamp of the current time as a tag under the "date_added" namespace to newly added archives. </span>
         </label>
     </td>
 </tr>
 
 <tr class="datemodified">
     <td class="option-td">
-        <h2 class="ih"> Use "Last modified" Time </h2>
+        <h2 class="ih" data-i18n="useLastModifiedTime"> Use "Last modified" Time </h2>
     </td>
     <td class="config-td">
         [% IF usedatemodified %]
         <input id="usedatemodified" name="usedatemodified" class="fa" type="checkbox" checked> [% ELSE %]
         <input id="usedatemodified" name="usedatemodified" class="fa" type="checkbox"> [% END %]
         <label for="usedatemodified">
-            <br>Enabling this will use file modified time instead of current time when setting "date_added" timestamps.
+            <br/>
+            <span data-i18n="useLastModifiedTimeDescription"> Enabling this will use file modified time instead of current time when setting "date_added" timestamps. </span>
         </label>
     </td>
 </tr>
@@ -95,20 +95,13 @@
 
 <tr>
     <td class="option-td">
-        <h2 class="ih"> Tag Rules </h2>
+        <h2 class="ih" data-i18n="tagRules"> Tag Rules </h2>
     </td>
     <td class="config-td">
         <input id="tagruleson" name="tagruleson" class="fa" type="checkbox" [% IF tagruleson %]checked[% END %]>
         <br>
         <textarea class="stdinput" size="20" style='width:100%; height:196px' name="tagrules">[% tagrules %]</textarea>
-        <br>When tagging archives using Plugins, the rules specified here will be applied to the tags before saving them
-        to the database.
-        <br>Split rules with linebreaks.
-        <br><b>-tag | tag</b> : removes the tag (like a blacklist)
-        <br><b>-namespace:*</b> : removes all tags within this namespace
-        <br><b>~namespace</b> : strips the namespace from the tags
-        <br><b>tag -> new-tag</b> : replaces one tag
-        <br><b>tag => new-tag</b> : replaces one tag, but use a hash table internally for faster performance. These rules will be executed <i>once</i> after all other rules.
-        <br><b>namespace:* -> new-namespace:*</b> : replaces the namespace with the new one
+        <span data-i18n="tagRulesDescription"> When tagging archives using Plugins, the rules specified here will be applied to the tags before saving them
+            to the database. Split rules with linebreaks.</span>
     </td>
 </tr>
