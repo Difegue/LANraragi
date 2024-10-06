@@ -123,6 +123,7 @@ sub upload_archive {
     my $uploadMime      = $file->headers->content_type;
 
     # metadata extraction
+    my $catid           = $self->req->param('category_id');
     my $tags            = $self->req->param('tags');
     my $title           = $self->req->param('title');
     my $summary         = $self->req->param('summary');
@@ -183,7 +184,7 @@ sub upload_archive {
             )
         };
 
-        my ( $success_status, $id, $title, $message ) = LANraragi::Model::Upload::handle_incoming_file( $tempfile, 0, $tags, $title, $summary );
+        my ( $success_status, $id, $title, $message ) = LANraragi::Model::Upload::handle_incoming_file( $tempfile, $catid, $tags, $title, $summary );
         my $status = 200;
 
         if ( $success_status==0 ) {
