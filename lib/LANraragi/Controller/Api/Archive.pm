@@ -7,7 +7,11 @@ use Storable;
 use Mojo::JSON   qw(decode_json);
 use Scalar::Util qw(looks_like_number);
 
-use LANraragi::Utils::Generic  qw(render_api_response);
+use File::Temp qw(tempdir);
+use File::Basename;
+use File::Find;
+
+use LANraragi::Utils::Generic  qw(render_api_response is_archive get_bytelength);
 use LANraragi::Utils::Database qw(get_archive_json set_isnew);
 
 use LANraragi::Model::Archive;
@@ -109,16 +113,115 @@ sub serve_file {
 
 # TODO
 # Upload a file archive along with any metadata.
+# adapted from Upload.pm
 sub upload_archive {
-    my $self            = shift;
-    my $create_status   = LANraragi::Model::Archive::create_archive();
+    my $self = shift;
 
-    $self->render(
-        json => {
-            operation       => "upload_archive",
-            success         => $create_status eq "0" ? 0 : 1
+    # receive uploaded file
+    my $file            = $self->req->upload('file');
+    my $filename        = $file->filename;
+    my $uploadMime      = $file->headers->content_type;
+
+    # metadata extraction
+    my $tags            = $self->req->param('tags');
+
+    if ( is_archive($filename) ) {
+        
+        # Move file to a temp folder (not the default LRR one)
+        my $tempdir                 = tempdir();
+
+        my ( $fn, $path, $ext )     = fileparse( $filename, qr/\.[^.]*/ );
+        my $byte_limit              = LANraragi::Model::Config->enable_cryptofs ? 143 : 255;
+
+        $filename = $fn;
+        while ( get_bytelength( $filename . $ext . ".upload") > $byte_limit ) {
+            $filename = substr( $filename, 0, -1 );
         }
-    )
+        $filename = $filename . $ext;
+
+        my $tempfile = $tempdir . '/' . $filename;
+        if ( !$file->move_to($tempfile) ) {
+            return $self->render(
+                json => {
+                    operation   => "upload",
+                    success     => 0,
+                    error       => "Couldn't move uploaded file to $tempfile."
+                },
+                status => 500
+            );
+        }
+
+        # TODO: check for filename and ID conflicts.
+
+        # Update $tempfile to the exact reference created by the host filesystem
+        # This is done by finding the first (and only) file in $tempdir.
+        find(
+            sub {
+                return if -d $_;
+                $tempfile = $File::Find::name;
+                $filename = $_;
+            },
+            $tempdir
+        );
+
+        # TODO: tag extraction
+
+        # utf downgrade (see LANraragi::Utils::Minion)
+        unless (utf8::downgrade($filename, 1)) {
+            return $self->render(
+                json => {
+                    operation   => "upload",
+                    name        => $file->filename,
+                    debug_name  => $filename,
+                    type        => $uploadMime,
+                    success     => 0,
+                    error       => "Bullshit! File path could not be converted back to a byte sequence!"
+                },
+                status => 500
+            )
+        };
+
+        my ( $success_status, $id, $title, $message ) = LANraragi::Model::Upload::handle_incoming_file( $tempfile, 0, $tags );
+        my $status = 200;
+
+        if ( $success_status==0 ) {
+            $status = 500;
+            if ( index($message, "Unsupported File Extension") != -1 ) {
+                $status = 415;
+            } elsif ( index($message, "Enable replace duplicated archive in config to replace old ones") != -1 ) {
+                $status = 409;
+            } elsif ( index($message, "The file couldn't be moved to your content folder") != -1 ) {
+                $status = 500;
+            }
+        }
+
+        return $self->render(
+            json => {
+                operation   => "upload",
+                name        => $file->filename,
+                debug_name  => $filename,
+                title       => $title,
+                success     => $success_status,
+                message     => $message
+            },
+            status => $status
+        );
+
+    } else {
+
+        return $self->render(
+            json => {
+                operation   => "upload",
+                name        => $file->filename,
+                type        => $uploadMime,
+                success     => 0,
+                error       => "Unsupported File Extension. (" . $uploadMime . ")"
+            },
+            status => 415
+        );
+
+    }
+
 }
 
 # Serve an archive page from the temporary folder, using RenderFile.
