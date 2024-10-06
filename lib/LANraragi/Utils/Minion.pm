@@ -175,7 +175,7 @@ sub add_tasks {
             $logger->info("Processing uploaded file $file...");
 
             # Since we already have a file, this goes straight to handle_incoming_file.
-            my ( $status, $id, $title, $message ) = LANraragi::Model::Upload::handle_incoming_file( $file, $catid, "" );
+            my ( $status, $id, $title, $message ) = LANraragi::Model::Upload::handle_incoming_file( $file, $catid, "", "", "" );
 
             $job->finish(
                 {   success  => $status,
@@ -253,7 +253,7 @@ sub add_tasks {
                 my $tag = "source:$og_url";
 
                 # Hand off the result to handle_incoming_file
-                my ( $status, $id, $title, $message ) = LANraragi::Model::Upload::handle_incoming_file( $tempfile, $catid, $tag );
+                my ( $status, $id, $title, $message ) = LANraragi::Model::Upload::handle_incoming_file( $tempfile, $catid, $tag, "", "" );
 
                 $job->finish(
                     {   success  => $status,
