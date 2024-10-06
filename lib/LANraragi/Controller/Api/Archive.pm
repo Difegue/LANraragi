@@ -118,17 +118,9 @@ sub create_archive {
 
     # receive uploaded file
     my $file            = $self->req->upload('file');
-    my $filename        = $file->filename;
-    my $uploadMime      = $file->headers->content_type;
-
-    # metadata extraction
-    my $catid           = $self->req->param('category_id');
-    my $tags            = $self->req->param('tags');
-    my $title           = $self->req->param('title');
-    my $summary         = $self->req->param('summary');
 
     # require file
-    if ( !file ) {
+    if ( ! defined $file || !$file ) {
         return $self->render(
             json => {
                 operation   => "upload",
@@ -139,17 +131,14 @@ sub create_archive {
         );
     }
 
-    # require filename
-    if ( !filename ) {
-        return $self->render(
-            json => {
-                operation   => "upload",
-                success     => 0,
-                error       => "No filename."
-            },
-            status => 400
-        );
-    }
+    my $filename        = $file->filename;
+    my $uploadMime      = $file->headers->content_type;
+
+    # metadata extraction
+    my $catid           = $self->req->param('category_id');
+    my $tags            = $self->req->param('tags');
+    my $title           = $self->req->param('title');
+    my $summary         = $self->req->param('summary');
 
     # return error if archive is not supported.
     if ( !is_archive($filename) ) {
