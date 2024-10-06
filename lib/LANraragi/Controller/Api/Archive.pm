@@ -118,11 +118,11 @@ sub create_archive {
     my $self = shift;
 
     # receive uploaded file
-    my $file                = $self->req->upload('file');
+    my $upload              = $self->req->upload('file');
     my $expected_checksum   = $self->req->param('file_checksum'); # optional
 
     # require file
-    if ( ! defined $file || !$file ) {
+    if ( ! defined $upload || !$upload ) {
         return $self->render(
             json => {
                 operation   => "upload",
@@ -135,7 +135,7 @@ sub create_archive {
 
     # checksum verification stage.
     if ( $expected_checksum ) {
-        my $file_content        = $file->slurp;
+        my $file_content        = $upload->slurp;
         my $actual_checksum     = sha1_hex($file_content);
         if ( $expected_checksum ne $actual_checksum ) {
             return $self->render(
@@ -149,8 +149,8 @@ sub create_archive {
         };
     }
 
-    my $filename        = $file->filename;
-    my $uploadMime      = $file->headers->content_type;
+    my $filename        = $upload->filename;
+    my $uploadMime      = $upload->headers->content_type;
 
     # metadata extraction
     my $catid           = $self->req->param('category_id');
@@ -183,7 +183,7 @@ sub create_archive {
     $filename = $filename . $ext;
 
     my $tempfile = $tempdir . '/' . $filename;
-    if ( !$file->move_to($tempfile) ) {
+    if ( !$upload->move_to($tempfile) ) {
         return $self->render(
             json => {
                 operation   => "upload",
@@ -210,7 +210,7 @@ sub create_archive {
         return $self->render(
             json => {
                 operation   => "upload",
-                name        => $file->filename,
+                name        => $upload->filename,
                 debug_name  => $filename,
                 type        => $uploadMime,
                 success     => 0,
@@ -237,7 +237,7 @@ sub create_archive {
         return $self->render(
             json => {
                 operation   => "upload",
-                name        => $file->filename,
+                name        => $upload->filename,
                 debug_name  => $filename,
                 title       => $response_title,
                 success     => $success_status,
@@ -251,7 +251,7 @@ sub create_archive {
     return $self->render(
         json => {
             operation   => "upload",
-            name        => $file->filename,
+            name        => $upload->filename,
             debug_name  => $filename,
             title       => $response_title,
             success     => $success_status,
