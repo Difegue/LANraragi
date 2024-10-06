@@ -111,9 +111,9 @@ sub serve_file {
     $self->render_file( filepath => $file );
 }
 
-# Upload a file archive along with any metadata.
+# Create a file archive along with any metadata.
 # adapted from Upload.pm
-sub upload_archive {
+sub create_archive {
     my $self = shift;
 
     # receive uploaded file
