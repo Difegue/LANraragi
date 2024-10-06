@@ -1,6 +1,7 @@
 package LANraragi::Controller::Api::Archive;
 use Mojo::Base 'Mojolicious::Controller';
 
+use Digest::SHA qw(sha1_hex);
 use Redis;
 use Encode;
 use Storable;
@@ -117,7 +118,8 @@ sub create_archive {
     my $self = shift;
 
     # receive uploaded file
-    my $file            = $self->req->upload('file');
+    my $file                = $self->req->upload('file');
+    my $expected_checksum   = $self->req->param('file_checksum'); # optional
 
     # require file
     if ( ! defined $file || !$file ) {
@@ -129,6 +131,22 @@ sub create_archive {
             },
             status => 400
         );
+    }
+
+    # checksum verification stage.
+    if ( $expected_checksum ) {
+        my $file_content        = $file->slurp;
+        my $actual_checksum     = sha1_hex($file_content);
+        if ( $expected_checksum ne $actual_checksum ) {
+            return $self->render(
+                json => {
+                    operation   => "upload",
+                    success     => 0,
+                    error       => "Checksum mismatch: expected $expected_checksum, got $actual_checksum."
+                }
+            ),
+            status => 422
+        };
     }
 
     my $filename        = $file->filename;
