@@ -127,6 +127,30 @@ sub create_archive {
     my $title           = $self->req->param('title');
     my $summary         = $self->req->param('summary');
 
+    # require file
+    if ( !file ) {
+        return $self->render(
+            json => {
+                operation   => "upload",
+                success     => 0,
+                error       => "No file attached."
+            },
+            status => 400
+        );
+    }
+
+    # require filename
+    if ( !filename ) {
+        return $self->render(
+            json => {
+                operation   => "upload",
+                success     => 0,
+                error       => "No filename."
+            },
+            status => 400
+        );
+    }
+
     # return error if archive is not supported.
     if ( !is_archive($filename) ) {
         return $self->render(
