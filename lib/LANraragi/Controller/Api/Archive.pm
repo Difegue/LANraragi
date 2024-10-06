@@ -124,6 +124,8 @@ sub upload_archive {
 
     # metadata extraction
     my $tags            = $self->req->param('tags');
+    my $title           = $self->req->param('title');
+    my $summary         = $self->req->param('summary');
 
     if ( is_archive($filename) ) {
         
@@ -181,7 +183,7 @@ sub upload_archive {
             )
         };
 
-        my ( $success_status, $id, $title, $message ) = LANraragi::Model::Upload::handle_incoming_file( $tempfile, 0, $tags );
+        my ( $success_status, $id, $title, $message ) = LANraragi::Model::Upload::handle_incoming_file( $tempfile, 0, $tags, $title, $summary );
         my $status = 200;
 
         if ( $success_status==0 ) {
