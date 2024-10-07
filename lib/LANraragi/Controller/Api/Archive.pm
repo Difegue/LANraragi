@@ -12,8 +12,10 @@ use File::Temp qw(tempdir);
 use File::Basename;
 use File::Find;
 
+use LANraragi::Utils::Archive  qw(extract_thumbnail);
 use LANraragi::Utils::Generic  qw(render_api_response is_archive get_bytelength);
 use LANraragi::Utils::Database qw(get_archive_json set_isnew);
+use LANraragi::Utils::Logging  qw(get_logger);
 
 use LANraragi::Model::Archive;
 use LANraragi::Model::Category;
@@ -116,6 +118,8 @@ sub serve_file {
 # adapted from Upload.pm
 sub create_archive {
     my $self = shift;
+
+    my $logger = get_logger( "Archive API ", "lanraragi");
 
     # receive uploaded file
     my $upload              = $self->req->upload('file');
@@ -222,6 +226,20 @@ sub create_archive {
 
     my ( $success_status, $id, $response_title, $message ) = LANraragi::Model::Upload::handle_incoming_file( $tempfile, $catid, $tags, $title, $summary );
     my $status = 200;
+
+    # post-processing thumbnail generation
+    my $redis   = LANraragi::Model::Config->get_redis;
+    my %hash    = $redis->hgetall($id);
+    my ( $thumbhash ) = @hash{qw(thumbhash)};
+    unless ( length $thumbhash ) {
+        $logger->info("Thumbnail hash invalid, regenerating.");
+        my $thumbdir = LANraragi::Model::Config->get_thumbdir;
+        $thumbhash = "";
+        extract_thumbnail( $thumbdir, $id, 0, 1 );
+        $thumbhash = $redis->hget( $id, "thumbhash" );
+        $thumbhash = LANraragi::Utils::Database::redis_decode($thumbhash);
+    }
+    $redis->quit();
 
     # modify status based on handler's return message.
     if ( $success_status==0 ) {
