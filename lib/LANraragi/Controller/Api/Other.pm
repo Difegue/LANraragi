@@ -8,7 +8,7 @@ use LANraragi::Model::Stats;
 use LANraragi::Model::Opds;
 use LANraragi::Utils::TempFolder qw(get_tempsize clean_temp_full);
 use LANraragi::Utils::Generic    qw(render_api_response);
-use LANraragi::Utils::Plugins    qw(get_plugin get_plugins get_plugin_parameters use_plugin);
+use LANraragi::Utils::Plugins    qw(get_plugin get_plugins use_plugin);
 
 sub serve_serverinfo {
     my $self = shift;

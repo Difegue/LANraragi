@@ -1,10 +1,12 @@
 package LANraragi::Controller::Plugins;
 use Mojo::Base 'Mojolicious::Controller';
 
+use v5.36;
+use experimental 'try';
+
 use Redis;
 use Encode;
 use Mojo::JSON qw(encode_json);
-no warnings 'experimental';
 use Cwd;
 
 use LANraragi::Utils::Generic qw(generate_themes_header);
@@ -41,8 +43,8 @@ sub craft_plugin_array {
 
     my @pluginarray = ();
     foreach my $pluginfo (@_) {
-        my $namespace   = $pluginfo->{namespace};
-        my @redisparams = get_plugin_parameters($namespace);
+        my $namespace  = $pluginfo->{namespace};
+        my %paramsconf = get_plugin_parameters($namespace);
 
         if ( $pluginfo->{type} ne "login" ) {
 
@@ -53,10 +55,21 @@ sub craft_plugin_array {
         # Add redis values to the members of the parameters array
         my @paramhashes = ();
         my $counter     = 0;
-        foreach my $param ( @{ $pluginfo->{parameters} } ) {
-            $param->{value} = $redisparams[$counter];
-            push @paramhashes, $param;
-            $counter++;
+
+        if ( ref( $pluginfo->{parameters} ) eq 'ARRAY' ) {
+            my @redisparams = @{ $paramsconf{'customargs'} };
+            foreach my $param ( @{ $pluginfo->{parameters} } ) {
+                $param->{value} = $redisparams[$counter];
+                push @paramhashes, $param;
+                $counter++;
+            }
+        } elsif ( ref( $pluginfo->{parameters} ) eq 'HASH' ) {
+            foreach my $key ( sort keys %{ $pluginfo->{parameters} } ) {
+                my $param = $pluginfo->{parameters}{$key};
+                $param->{name}  = $key;
+                $param->{value} = $paramsconf{$key};
+                push @paramhashes, $param;
+            }
         }
 
         #Add the parameter hashes to the plugin info for the template to parse
@@ -70,18 +83,18 @@ sub craft_plugin_array {
 
 sub save_config {
 
-    my $self  = shift;
-    my $redis = $self->LRR_CONF->get_redis_config;
+    my $self     = shift;
+    my $redis    = $self->LRR_CONF->get_redis_config;
+    my %response = ( operation => 'plugins', success => 1, message => '' );
 
     # Update settings for every plugin.
     my @plugins = get_plugins("all");
 
     #Plugin list is an array of hashes
     my @pluginlist = ();
-    my $success    = 1;
-    my $errormess  = "";
 
-    eval {
+    no warnings 'experimental::try';
+    try {
 
         # Save title preference first
         my $replacetitles = ( scalar $self->req->param('replacetitles') ? '1' : '0' );
@@ -89,60 +102,69 @@ sub save_config {
 
         # Save each plugin's settings
         foreach my $pluginfo (@plugins) {
-
             my $namespace = $pluginfo->{namespace};
             my $namerds   = "LRR_PLUGIN_" . uc($namespace);
 
             # Get whether the plugin is enabled for auto-plugin or not
             my $enabled = ( scalar $self->req->param($namespace) ? '1' : '0' );
 
-            #Get expected number of custom arguments from the plugin itself
-            my $argcount = 0;
-            if ( length $pluginfo->{parameters} ) {
-                $argcount = scalar @{ $pluginfo->{parameters} };
-            }
+            if ( ref( $pluginfo->{parameters} ) eq 'ARRAY' ) {
 
-            my @customargs = ();
+                #Get expected number of custom arguments from the plugin itself
+                my $argcount = scalar @{ $pluginfo->{parameters} };
 
-            #Loop through the namespaced request parameters
-            #Start at 1 because that's where TT2's loop.count starts
-            for ( my $i = 1; $i <= $argcount; $i++ ) {
-                my $param = $namespace . "_CFG_" . $i;
+                my @customargs = ();
 
-                my $value = $self->req->param($param);
+                #Loop through the namespaced request parameters
+                #Start at 1 because that's where TT2's loop.count starts
+                for ( my $i = 1; $i <= $argcount; $i++ ) {
+                    my $param = $namespace . "_CFG_" . $i;
 
-                # Check if the parameter exists in the request
-                if ($value) {
-                    push( @customargs, $value );
-                } else {
+                    my $value = $self->req->param($param);
 
-                    # Checkboxes don't exist in the parameter list if they're not checked.
-                    push( @customargs, "" );
+                    # Check if the parameter exists in the request
+                    if ($value) {
+                        push( @customargs, $value );
+                    } else {
+
+                        # Checkboxes don't exist in the parameter list if they're not checked.
+                        push( @customargs, "" );
+                    }
+
                 }
 
-            }
+                my $encodedargs = encode_json( \@customargs );
 
-            my $encodedargs = encode_json( \@customargs );
+                $redis->hset( $namerds, "enabled",    $enabled );
+                $redis->hset( $namerds, "customargs", $encodedargs );
 
-            $redis->hset( $namerds, "enabled",    $enabled );
-            $redis->hset( $namerds, "customargs", $encodedargs );
+            } elsif ( ref( $pluginfo->{parameters} ) eq 'HASH' ) {
+
+                # TODO: remove this line ofter the termination of the support
+                # of the array parameters
+                $redis->del($namerds);
+
+                #Loop through the namespaced request parameters
+                foreach my $key ( keys %{ $pluginfo->{parameters} } ) {
+
+                    my $value = $self->req->param("${namespace}_CFG_${key}");
+
+                    # Checkboxes don't exist in the parameter list if they're not checked.
+                    $redis->hset( $namerds, $key, ( ($value) ? $value : "" ) );
+                }
+
+                $redis->hset( $namerds, "enabled", $enabled );
+
+            }    # else { # no parameters }
 
         }
-    };
-
-    if ($@) {
-        $success   = 0;
-        $errormess = $@;
+    } catch ($e) {
+        $response{success} = 0;
+        $response{message} = $e;
     }
 
     $redis->quit();
-    $self->render(
-        json => {
-            operation => "plugins",
-            success   => $success,
-            message   => $errormess
-        }
-    );
+    $self->render( json => \%response );
 }
 
 sub process_upload {
@@ -183,7 +205,7 @@ sub process_upload {
         unless ( -e $dir ) {
             mkdir $dir;
         }
-        
+
         my $output_file = $dir . $filename;
 
         $logger->info("Uploading new plugin $filename to $output_file ...");

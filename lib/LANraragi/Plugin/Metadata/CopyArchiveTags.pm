@@ -18,29 +18,30 @@ sub plugin_info {
         type        => "metadata",
         namespace   => "copy-archive-tags",
         author      => "IceBreeze",
-        version     => "1.1",
+        version     => "1.2",
         description => "Copy tags from another LRR archive given either the URI or the ID.",
-        parameters  => [
-            {   type => "bool",
-                name => 'copy_date_added',
+        parameters  => {
+            'copy_date_added' => {
+                type => "bool",
                 desc => "Enable to also copy the date (but it's up to you to remove the old one)"
             }
-        ],
+        },
         oneshot_arg => "LRR Gallery URL or ID:"
     );
 
 }
 
 sub get_tags {
-    my $params = read_params(@_);
+    my ( undef, $lrr_info, %params ) = @_;
+
     my $logger = get_plugin_logger();
 
-    my $lrr_gid = extract_archive_id( $params->{'oneshot'} );
+    my $lrr_gid = extract_archive_id( $params{oneshot} );
     if ( !$lrr_gid ) {
         die "oneshot_param doesn't contain a valid archive ID\n";
     }
 
-    if ( $lrr_gid eq $params->{'lrr_info'}{'archive_id'} ) {
+    if ( $lrr_gid eq $lrr_info->{'archive_id'} ) {
         die "You are using the current archive ID\n";
     }
 
@@ -48,7 +49,7 @@ sub get_tags {
 
     my $tags = LANraragi::Utils::Database::get_tags($lrr_gid) || '';
 
-    if ( !$params->{'copy_date_added'} ) {
+    if ( !$params{'copy_date_added'} ) {
         my @tags = split_tags_to_array($tags);
         $tags = join_tags_to_string( grep( !m/date_added/, @tags ) );
     }
@@ -65,21 +66,6 @@ sub extract_archive_id {
         return $1 if length($1) == 40;
     }
     return;
-}
-
-sub read_params {
-    my %plugin_info = plugin_info();
-    my $lrr_info    = $_[1];
-    my @param_cfg   = @{ $plugin_info{parameters} };
-
-    my %params;
-    $params{lrr_info} = $lrr_info;
-    $params{oneshot}  = $lrr_info->{oneshot_param};
-    for ( my $i = 0; $i < scalar @param_cfg; $i++ ) {
-        my $value = $_[ $i + 2 ] || $param_cfg[$i]->{default};
-        $params{ $param_cfg[$i]->{name} } = $value;
-    }
-    return \%params;
 }
 
 1;
