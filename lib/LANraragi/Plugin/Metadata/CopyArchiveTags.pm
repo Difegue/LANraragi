@@ -14,13 +14,14 @@ sub plugin_info {
 
     return (
         #Standard metadata
-        name        => "Copy Archive Tags",
-        type        => "metadata",
-        namespace   => "copy-archive-tags",
-        author      => "IceBreeze",
-        version     => "1.2",
-        description => "Copy tags from another LRR archive given either the URI or the ID.",
-        parameters  => {
+        name            => "Copy Archive Tags",
+        type            => "metadata",
+        namespace       => "copy-archive-tags",
+        author          => "IceBreeze",
+        version         => "1.2",
+        description     => "Copy tags from another LRR archive given either the URI or the ID.",
+        to_named_params => ['copy_date_added'],
+        parameters      => {
             'copy_date_added' => {
                 type => "bool",
                 desc => "Enable to also copy the date (but it's up to you to remove the old one)"

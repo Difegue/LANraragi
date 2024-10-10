@@ -140,6 +140,12 @@ sub get_plugin_parameters {
     } elsif ( ref( $pluginfo{parameters} ) eq 'HASH' ) {
 
         my %params = $redis->hgetall($namerds);
+
+        # TODO: param conversion block, remove after deprecation period
+        if ( $pluginfo{to_named_params} && exists $params{customargs} ) {
+            %params = convert_to_named_params_and_persist( $redis, $namerds, $pluginfo{to_named_params}, %params );
+        }
+
         %args = map { $_ => redis_decode( $params{$_} ) } keys %params;
 
     }    # else { # should we die here? }
@@ -194,6 +200,28 @@ sub use_plugin {
     }
 
     return ( \%pluginfo, \%plugin_result );
+}
+
+sub convert_to_named_params_and_persist {
+    my ( $redis, $namerds, $old_params_order, %params ) = @_;
+    my $customargs = redis_decode( $params{customargs} );
+    my $logger     = get_logger( "Plugin System", "lanraragi" );
+
+    $logger->info("converting $namerds to named parameters ...");
+
+    #Decode it to an array for proper use
+    if ($customargs) {
+        my @args = @{ decode_json($customargs) };
+        while ( my ( $idx, $key ) = each @{$old_params_order} ) {
+            $params{$key} = $args[$idx];
+            $redis->hset( $namerds, $key, $params{$key} );
+        }
+        $logger->info("conversion completed: removing 'customargs' value");
+        $redis->hdel( $namerds, 'customargs' );
+        delete $params{customargs};
+    }
+
+    return %params;
 }
 
 1;
