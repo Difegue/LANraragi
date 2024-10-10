@@ -36,7 +36,7 @@ note('get_tags when archive tags is undef returns an empty tag list ...');
     local *LANraragi::Utils::Database::get_tags = sub { return; };
 
     # Act
-    my @rdata = LANraragi::Plugin::Metadata::CopyArchiveTags::get_tags( 'dummy', $lrr_info, %params );
+    my @rdata = LANraragi::Plugin::Metadata::CopyArchiveTags::get_tags( 'dummy', $lrr_info, \%params );
 
     cmp_deeply( \@rdata, [ tags => '' ], 'returned data' );
 
@@ -61,7 +61,7 @@ note('get_tags when archive tags is empty returns an empty tag list ...');
     local *LANraragi::Utils::Database::get_tags = sub { return ''; };
 
     # Act
-    my @rdata = LANraragi::Plugin::Metadata::CopyArchiveTags::get_tags( 'dummy', $lrr_info, %params );
+    my @rdata = LANraragi::Plugin::Metadata::CopyArchiveTags::get_tags( 'dummy', $lrr_info, \%params );
 
     cmp_deeply( \@rdata, [ tags => '' ], 'returned data' );
 
@@ -85,7 +85,7 @@ note('get_tags when archive has tags returns the list of tags ...');
     local *LANraragi::Utils::Database::get_tags = sub { return ( 'tags' => 'one, two' ); };
 
     # Act
-    my @rdata = LANraragi::Plugin::Metadata::CopyArchiveTags::get_tags( 'dummy', $lrr_info, %params );
+    my @rdata = LANraragi::Plugin::Metadata::CopyArchiveTags::get_tags( 'dummy', $lrr_info, \%params );
 
     cmp_deeply( \@rdata, [ tags => 'one,two' ], 'returned data' );
 
@@ -161,7 +161,7 @@ note('get_tags dies when oneshot_param is undefined ...');
     my %params   = ( 'copy_date_added' => undef, );
 
     # Act
-    trap { LANraragi::Plugin::Metadata::CopyArchiveTags::get_tags( 'dummy', $lrr_info, %params ); };
+    trap { LANraragi::Plugin::Metadata::CopyArchiveTags::get_tags( 'dummy', $lrr_info, \%params ); };
 
     is( $trap->exit,   undef, 'no exit code' );
     is( $trap->stdout, '',    'no STDOUT' );
@@ -178,7 +178,7 @@ note('get_tags dies when oneshot_param is empty ...');
     );
 
     # Act
-    trap { LANraragi::Plugin::Metadata::CopyArchiveTags::get_tags( 'dummy', $lrr_info, %params ); };
+    trap { LANraragi::Plugin::Metadata::CopyArchiveTags::get_tags( 'dummy', $lrr_info, \%params ); };
 
     is( $trap->exit,   undef, 'no exit code' );
     is( $trap->stdout, '',    'no STDOUT' );
@@ -195,7 +195,7 @@ note('get_tags dies when oneshot_param doesn\'t contain a valid archive ID ...')
     );
 
     # Act
-    trap { LANraragi::Plugin::Metadata::CopyArchiveTags::get_tags( 'dummy', $lrr_info, %params ); };
+    trap { LANraragi::Plugin::Metadata::CopyArchiveTags::get_tags( 'dummy', $lrr_info, \%params ); };
 
     is( $trap->exit,   undef, 'no exit code' );
     is( $trap->stdout, '',    'no STDOUT' );
@@ -213,7 +213,7 @@ note('get_tags dies when search ID matches the current archive ID ...');
     );
 
     # Act
-    trap { LANraragi::Plugin::Metadata::CopyArchiveTags::get_tags( 'dummy', $lrr_info, %params ); };
+    trap { LANraragi::Plugin::Metadata::CopyArchiveTags::get_tags( 'dummy', $lrr_info, \%params ); };
 
     is( $trap->exit,   undef, 'no exit code' );
     is( $trap->stdout, '',    'no STDOUT' );
@@ -237,7 +237,7 @@ note('get_tags does not return date_added by default ...');
     };
 
     # Act
-    my %data = LANraragi::Plugin::Metadata::CopyArchiveTags::get_tags( 'dummy', $lrr_info, %params );
+    my %data = LANraragi::Plugin::Metadata::CopyArchiveTags::get_tags( 'dummy', $lrr_info, \%params );
 
     cmp_deeply( \%data, { 'tags' => 'tag1,tag2' }, 'returned tags list' );
 
@@ -266,7 +266,7 @@ note('get_tags returns date_added if asked ...');
     };
 
     # Act
-    my %data = LANraragi::Plugin::Metadata::CopyArchiveTags::get_tags( 'dummy', $lrr_info, %params );
+    my %data = LANraragi::Plugin::Metadata::CopyArchiveTags::get_tags( 'dummy', $lrr_info, \%params );
 
     cmp_deeply( \%data, { 'tags' => 'date_added:321,tag3,tag4' }, 'returned tags list' );
 

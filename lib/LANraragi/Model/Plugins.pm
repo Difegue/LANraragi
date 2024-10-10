@@ -109,7 +109,7 @@ sub exec_login_plugin {
         if ( has_old_style_params(%loginargs) ) {
             $loggedinua = $loginplugin->do_login( @{ $loginargs{customargs} } );
         } else {
-            $loggedinua = $loginplugin->do_login(%loginargs);
+            $loggedinua = $loginplugin->do_login( \%loginargs );
         }
 
         if ( ref($loggedinua) eq "Mojo::UserAgent" ) {
@@ -146,7 +146,7 @@ sub exec_script_plugin {
         if ( has_old_style_params(%settings) ) {
             return $plugin->run_script( \%infohash, @{ $settings{customargs} } );
         } else {
-            return $plugin->run_script( \%infohash, %settings );
+            return $plugin->run_script( \%infohash, \%settings );
         }
     } catch ($e) {
         return ( error => $e );
@@ -244,7 +244,7 @@ sub exec_metadata_plugin {
         if ( has_old_style_params(%args) ) {
             %newmetadata = $plugin->get_tags( \%infohash, @{ $args{customargs} } );
         } else {
-            %newmetadata = $plugin->get_tags( \%infohash, %args );
+            %newmetadata = $plugin->get_tags( \%infohash, \%args );
         }
 
         # TODO: remove this block after changing all the metadata plugins

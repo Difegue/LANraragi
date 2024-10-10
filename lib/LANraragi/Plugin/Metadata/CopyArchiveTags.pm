@@ -33,11 +33,11 @@ sub plugin_info {
 }
 
 sub get_tags {
-    my ( undef, $lrr_info, %params ) = @_;
+    my ( undef, $lrr_info, $params ) = @_;
 
     my $logger = get_plugin_logger();
 
-    my $lrr_gid = extract_archive_id( $params{oneshot} );
+    my $lrr_gid = extract_archive_id( $params->{oneshot} );
     if ( !$lrr_gid ) {
         die "oneshot_param doesn't contain a valid archive ID\n";
     }
@@ -50,7 +50,7 @@ sub get_tags {
 
     my $tags = LANraragi::Utils::Database::get_tags($lrr_gid) || '';
 
-    if ( !$params{'copy_date_added'} ) {
+    if ( !$params->{'copy_date_added'} ) {
         my @tags = split_tags_to_array($tags);
         $tags = join_tags_to_string( grep( !m/date_added/, @tags ) );
     }
