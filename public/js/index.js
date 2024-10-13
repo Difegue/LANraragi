@@ -533,7 +533,7 @@ Index.loadContextMenuRatings = (id) => Server.callAPI(`/api/archives/${id}/metad
     (data) => {
         const items = {};
         const ratings = [{
-            name: "☆"
+            name: "Remove rating"
         }, {
             name: "⭐",
         }, {
