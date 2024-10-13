@@ -114,25 +114,44 @@ sub get_plugin_parameters {
     my $plugin   = get_plugin($namespace);
     my %pluginfo = $plugin->plugin_info();
 
-    my @args = ();
+    my %args;
 
-    # Fill with default values first
-    foreach my $param ( @{ $pluginfo{parameters} } ) {
-        push( @args, $param->{default_value} );
-    }
+    if ( ref( $pluginfo{parameters} ) eq 'ARRAY' ) {
 
-    # Replace with saved values if they exist
-    if ( $redis->hexists( $namerds, "enabled" ) ) {
-        my $argsjson = $redis->hget( $namerds, "customargs" );
-        $argsjson = redis_decode($argsjson);
+        my @args;
 
-        #Decode it to an array for proper use
-        if ($argsjson) {
-            @args = @{ decode_json($argsjson) };
+        # Fill with default values first
+        foreach my $param ( @{ $pluginfo{parameters} } ) {
+            push( @args, $param->{default_value} );
         }
-    }
+
+        # Replace with saved values if they exist
+        if ( $redis->hexists( $namerds, "enabled" ) ) {
+            my $argsjson = $redis->hget( $namerds, "customargs" );
+            $argsjson = redis_decode($argsjson);
+
+            #Decode it to an array for proper use
+            if ($argsjson) {
+                @args = @{ decode_json($argsjson) };
+            }
+        }
+        $args{customargs} = \@args;
+
+    } elsif ( ref( $pluginfo{parameters} ) eq 'HASH' ) {
+
+        my %params = $redis->hgetall($namerds);
+
+        # TODO: param conversion block, remove after deprecation period
+        if ( $pluginfo{to_named_params} && exists $params{customargs} ) {
+            %params = convert_to_named_params_and_persist( $redis, $namerds, $pluginfo{to_named_params}, %params );
+        }
+
+        %args = map { $_ => redis_decode( $params{$_} ) } keys %params;
+
+    }    # else { # should we die here? }
+
     $redis->quit();
-    return @args;
+    return %args;
 }
 
 sub is_plugin_enabled {
@@ -164,13 +183,14 @@ sub use_plugin {
         %pluginfo = $plugin->plugin_info();
 
         # Get the plugin settings in Redis
-        my @settings = get_plugin_parameters($plugname);
+        my %settings = get_plugin_parameters($plugname);
+        $settings{oneshot} = $input;
 
         # Execute the plugin, appending the custom args at the end
         if ( $pluginfo{type} eq "script" ) {
-            %plugin_result = LANraragi::Model::Plugins::exec_script_plugin( $plugin, $input, @settings );
+            %plugin_result = LANraragi::Model::Plugins::exec_script_plugin( $plugin, %settings );
         } elsif ( $pluginfo{type} eq "metadata" ) {
-            %plugin_result = LANraragi::Model::Plugins::exec_metadata_plugin( $plugin, $id, $input, @settings );
+            %plugin_result = LANraragi::Model::Plugins::exec_metadata_plugin( $plugin, $id, %settings );
         }
 
         # Decode the error value if there's one to avoid garbled characters
@@ -180,6 +200,28 @@ sub use_plugin {
     }
 
     return ( \%pluginfo, \%plugin_result );
+}
+
+sub convert_to_named_params_and_persist {
+    my ( $redis, $namerds, $old_params_order, %params ) = @_;
+    my $customargs = redis_decode( $params{customargs} );
+    my $logger     = get_logger( "Plugin System", "lanraragi" );
+
+    $logger->info("converting $namerds to named parameters ...");
+
+    #Decode it to an array for proper use
+    if ($customargs) {
+        my @args = @{ decode_json($customargs) };
+        while ( my ( $idx, $key ) = each @{$old_params_order} ) {
+            $params{$key} = $args[$idx];
+            $redis->hset( $namerds, $key, $params{$key} );
+        }
+        $logger->info("conversion completed: removing 'customargs' value");
+        $redis->hdel( $namerds, 'customargs' );
+        delete $params{customargs};
+    }
+
+    return %params;
 }
 
 1;

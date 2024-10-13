@@ -133,7 +133,7 @@
 [% FOREACH plugin IN plugins %]
 <span style="display:inline-block; text-align: left; width:80%; border-bottom-width: 1px;border-bottom-style: solid">
 	[% IF plugin.icon %]
-        [%# the plugin.icon attr is always a data: URI, so we don't need to worry about the base URL %]
+	[%# the plugin.icon attr is always a data: URI, so we don't need to worry about the base URL %]
 	<img height=20 width=20 src="[% plugin.icon %]" />
 	[% ELSE %]
 	<i class="fa fa-puzzle-piece" style="font-size:20px"></i>
@@ -204,7 +204,7 @@
 						<b> [% param.desc %] : </b>
 					</td>
 					<td>
-						<input style="max-width:200px" size="20" name="[% plugin.namespace %]_CFG_[% loop.count %]"
+						<input style="max-width:200px" size="20" name="[% plugin.namespace %]_CFG_[% IF param.exists('name') %][% param.name %][% ELSE %][% loop.count %][% END %]"
 							type=[% SWITCH param.type %] # time for some real-ass typage [% CASE 'string' %] "text"
 							value="[% param.value %]" class="stdinput" [% CASE 'bool' %] "checkbox" value="1" class="fa"
 							[% IF param.value %] checked [% END %] [% CASE 'int' %] "number" value="[% param.value %]"
