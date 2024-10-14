@@ -10,7 +10,7 @@ use File::Temp qw(tempdir);
 use File::Find qw(find);
 use File::Copy qw(move);
 
-use LANraragi::Utils::Database qw(invalidate_cache compute_id);
+use LANraragi::Utils::Database qw(invalidate_cache compute_id set_title set_summary);
 use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Utils::Database qw(redis_encode);
 use LANraragi::Utils::Generic qw(is_archive get_bytelength);
@@ -32,7 +32,7 @@ use LANraragi::Model::Category;
 # Returns a status value, the ID and title of the file, and a status message.
 sub handle_incoming_file {
 
-    my ( $tempfile, $catid, $tags )   = @_;
+    my ( $tempfile, $catid, $tags, $title, $summary )   = @_;
     my ( $filename, $dirs,  $suffix ) = fileparse( $tempfile, qr/\.[^.]*/ );
     $filename = $filename . $suffix;
     my $logger = get_logger( "File Upload/Download", "lanraragi" );
@@ -106,6 +106,16 @@ sub handle_incoming_file {
                 $redis_search->hset( "LRR_URLMAP", $url, $id );
             }
         }
+    }
+
+    # Set title
+    if ($title) {
+        set_title( $id, $title );
+    }
+
+    # Set summary
+    if ($summary) {
+        set_summary( $id, $summary );
     }
 
     # Move the file to the content folder.
