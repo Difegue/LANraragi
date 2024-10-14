@@ -20,24 +20,25 @@ sub serve_serverinfo {
     $redis->quit();
 
     # A simple endpoint that forwards some info from LRR_CONF.
-    # TODO: This API renders every parameter as strings for compat, but at some point we could change it to actual JSON types:
-    # eg enable_pass ? \1 : \0, get_pagesize + 0, removing the quotes around numbers that force them to strings
     $self->render(
         json => {
-            name                   => $self->LRR_CONF->get_htmltitle,
-            motd                   => $self->LRR_CONF->get_motd,
-            version                => $self->LRR_VERSION,
-            version_name           => $self->LRR_VERNAME,
-            version_desc           => $self->LRR_DESC,
-            has_password           => $self->LRR_CONF->enable_pass,
-            debug_mode             => $self->LRR_CONF->enable_devmode,
-            nofun_mode             => $self->LRR_CONF->enable_nofun,
-            archives_per_page      => $self->LRR_CONF->get_pagesize,
-            server_resizes_images  => $self->LRR_CONF->enable_resize,
-            server_tracks_progress => $self->LRR_CONF->enable_localprogress ? "0" : "1",
-            total_pages_read       => "$page_stat",
-            total_archives         => "$arc_stat",
-            cache_last_cleared     => "$last_clear"
+            name         => $self->LRR_CONF->get_htmltitle,
+            motd         => $self->LRR_CONF->get_motd,
+            version      => $self->LRR_VERSION,
+            version_name => $self->LRR_VERNAME,
+            version_desc => $self->LRR_DESC,
+            has_password => $self->LRR_CONF->enable_pass    ? \1 : \0,
+            debug_mode   => $self->LRR_CONF->enable_devmode ? \1 : \0,
+            ,
+            nofun_mode => $self->LRR_CONF->enable_nofun ? \1 : \0,
+            ,
+            archives_per_page     => $self->LRR_CONF->get_pagesize + 0,
+            server_resizes_images => $self->LRR_CONF->enable_resize ? \1 : \0,
+            ,
+            server_tracks_progress => $self->LRR_CONF->enable_localprogress ? \0 : \1,
+            total_pages_read       => $page_stat,
+            total_archives         => $arc_stat,
+            cache_last_cleared     => $last_clear
         }
     );
 }

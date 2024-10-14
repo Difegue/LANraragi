@@ -344,12 +344,15 @@ sub update_metadata {
     my $tags    = $self->req->param('tags');
     my $summary = $self->req->param('summary');
 
-    my $res = LANraragi::Model::Archive::update_metadata( $id, $title, $tags, $summary );
+    my $err = LANraragi::Model::Archive::update_metadata( $id, $title, $tags, $summary );
 
-    if ( $res eq "" ) {
-        render_api_response( $self, "update_metadata" );
+    if ( $err eq "" ) {
+        my $title          = LANraragi::Model::Archive::get_title($id);
+        my $successMessage = "Updated metadata for \"$title\"!";
+
+        render_api_response( $self, "update_metadata", undef, $successMessage );
     } else {
-        render_api_response( $self, "update_metadata", $res );
+        render_api_response( $self, "update_metadata", $err );
     }
 }
 

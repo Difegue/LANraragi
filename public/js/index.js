@@ -525,6 +525,55 @@ Index.loadContextMenuCategories = (catList, id) => Server.callAPI(`/api/archives
 );
 
 /**
+ * Build rating options for contextMenu and select the one for the current ID.
+ * @param {*} id The ID of the archive to check
+ * @returns Ratings
+ */
+Index.loadContextMenuRatings = (id) => Server.callAPI(`/api/archives/${id}/metadata`, "GET", null, `Error finding metadata for ${id}!`,
+    (data) => {
+        const items = {};
+        const ratings = [{
+            name: "Remove rating"
+        }, {
+            name: "⭐",
+        }, {
+            name: "⭐⭐",
+        }, {
+            name: "⭐⭐⭐",
+        }, {
+            name: "⭐⭐⭐⭐",
+        }, {
+            name: "⭐⭐⭐⭐⭐",
+        }];
+        const tags = LRR.splitTagsByNamespace(data.tags);
+        const hasRating = Object.keys(tags).some(x => x === "rating");
+        const ratingValue = hasRating ? tags["rating"] : [0];
+
+        for (let i = 0; i < ratings.length; i++) {
+            items[i] = ratings[i];
+            items[i].type = "checkbox";
+
+            if (items[i].name === ratingValue[0]) { items[i].selected = true; }
+            items[i].events = {
+                click() {
+                    if(i === 0) delete tags["rating"];
+                    else tags["rating"] = [ratings[i].name];
+
+                    Server.updateTagsFromArchive(id, Object.entries(tags).map(([namespace, tag]) => LRR.buildNamespacedTag(namespace, tag)));
+
+                    // Update the rating info without reload but have to refresh everything.
+                    IndexTable.dataTable.ajax.reload();
+                    Index.updateCarousel();
+                    $(this).parents("ul.context-menu-list").find("input[type='checkbox']").toArray().filter((x) => x !== this).forEach(x => x.checked = false);
+                },
+            };
+        }
+
+        return items;
+    },
+);
+
+/**
  * Handle context menu clicks.
  * @param {*} option The clicked option
  * @param {*} id The Archive ID
