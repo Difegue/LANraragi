@@ -106,4 +106,17 @@ note("eze-full Tests, origin_title on, additional_tags off");
     );
 }
 
+
+note("eze no gallery_info file");
+{
+    my $origin_title    = 1;
+    my $additional_tags = 0;
+
+    my %ezetags = eve_test( "/eze/eze_broken.json", $origin_title, $additional_tags );
+
+    is( $ezetags{title}, undef, "no title returned");
+    is( $ezetags{tags}, undef, "no tags returned");
+    isnt( $ezetags{error}, undef, "Proper error returned");
+}
+
 done_testing();
