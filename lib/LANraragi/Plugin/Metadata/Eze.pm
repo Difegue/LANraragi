@@ -86,6 +86,10 @@ sub get_tags {
 
     $logger->debug("Loaded the following JSON: $stringjson");
 
+    if ($hashjson->{gallery_info} == undef) {
+        return (error => "The info.json file could not be parsed as an eze file!");
+    }
+
     #Parse it
     my ( $tags, $title ) = tags_from_eze_json( $origin_title, $additional_tags, $hashjson );
 
