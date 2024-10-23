@@ -237,7 +237,7 @@ sub create_archive {
         }
 
         # add archive ID for non-server-side errors.
-        if ( !status==500 ) {
+        if ( !$status==500 ) {
             return $self->render(
                 json => {
                     operation   => "upload",
