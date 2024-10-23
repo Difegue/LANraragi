@@ -147,10 +147,10 @@ sub create_archive {
                     operation   => "upload",
                     success     => 0,
                     error       => "Checksum mismatch: expected $expected_checksum, got $actual_checksum."
-                }
-            ),
-            status => 422
-        };
+                },
+                status => 422
+            );
+        }
     }
 
     my $filename        = $upload->filename;
