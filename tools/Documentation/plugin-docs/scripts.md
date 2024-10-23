@@ -1,6 +1,6 @@
 # Generic Plugins \("Scripts"\)
 
-Script Plugins are meant for generic workflows that aren't explicitly supported.  
+Script Plugins are meant for generic workflows that aren't explicitly supported.
 The main usecase is essentially for users to script their own API endpoints, since those plugins can easily be invoked through the [Client API.](../extending-lanraragi/client-api.md)
 
 ## Required subroutines
@@ -9,16 +9,16 @@ Only one subroutine needs to be implemented for the module to be recognized: `ru
 
 ### Expected Input
 
-The following section deals with writing the `run_script` subroutine.  
+The following section deals with writing the `run_script` subroutine.
 When executing your Plugin, LRR will call this subroutine and pass it the following variables:
 
 ```perl
 sub run_script {
 
     #First lines you should have in the subroutine
-    shift;
-    my $lrr_info = shift; # Global info hash
-    my ($param1, $param2) = @_; # Plugin parameters
+    # $lrr_info: global info hash, contains various metadata provided by LRR
+    # %params  : plugin parameters
+    my ( undef, $lrr_info, $params ) = @_;
 ```
 
 The variables match the parameters you've entered in the `plugin_info` subroutine.
@@ -28,6 +28,8 @@ The `$lrr_info` hash contains two variables you can use in your plugin:
 * _$lrr\_info->{oneshot\_param}_: Value of your one-shot argument, if it's been set by the User. See below.
 * _$lrr\_info->{user\_agent}_: [Mojo::UserAgent](https://mojolicious.org/perldoc/Mojo/UserAgent) object you can use for web requests. If this plugin depends on a Login plugin, this UserAgent will be pre-configured with the cookies from the Login.
 
+The `$params` hash contains the values of the user defined parameters.
+
 #### One-Shot/Runtime Arguments
 
 Scripts can have one string argument given to them when executed.
@@ -36,7 +38,7 @@ If you want the user to be able to enter this override, the `oneshot_arg` field 
 
 ### Expected Output
 
-LRR expects Scripts to return a hash, containing the results of whatever operations they ran.  
+LRR expects Scripts to return a hash, containing the results of whatever operations they ran.
 This hash is then projected back to the user.
 
 `return (total => $filtered, partial_ids => \@ids );`
@@ -55,7 +57,7 @@ package LANraragi::Plugin::Scripts::MyNewPlugin;
 use strict;
 use warnings;
 
-# Plugins can freely use all Perl packages already installed on the system 
+# Plugins can freely use all Perl packages already installed on the system
 # Try however to restrain yourself to the ones already installed for LRR (see tools/cpanfile) to avoid extra installations by the end-user.
 use Mojo::UserAgent;
 
@@ -78,9 +80,9 @@ sub plugin_info {
         description => "This is base boilerplate for writing LRR scripts. Uses JSONPlaceholder to return bogus data.",
         icon        => "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAIAAAAC64paAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABZSURBVDhPzY5JCgAhDATzSl+e/2irOUjQSFzQog5hhqIl3uBEHPxIXK7oFXwVE+Hj5IYX4lYVtN6MUW4tGw5jNdjdt5bLkwX1q2rFU0/EIJ9OUEm8xquYOQFEhr9vvu2U8gAAAABJRU5ErkJggg==",
         oneshot_arg => "ID argument for https://jsonplaceholder.typicode.com/",
-        parameters  => [
-            {type => "bool", desc => "Use posts instead of todos (jsonplaceholder)"}
-        ]
+        parameters  => {
+            'useposts' => {type => "bool", desc => "Use posts instead of todos (jsonplaceholder)"}
+        }
 
     );
 
@@ -88,9 +90,10 @@ sub plugin_info {
 
 ## Mandatory function to be implemented by your script
 sub run_script {
-    shift;
-    my $lrr_info = shift; # Global info hash 
-    my ($useposts) = @_; # Plugin parameters
+
+    # $lrr_info: global info hash, contains various metadata provided by LRR
+    # %params  : plugin parameters
+    my ( undef, $lrr_info, $params ) = @_;
 
     my $logger = get_logger( "Source Finder", "plugins" );
 
@@ -98,8 +101,8 @@ sub run_script {
     my $id = $lrr_info->{oneshot_param};
 
     my $url = "";
-    $logger->debug("useposts =  " . $useposts );
-    if ($useposts) {
+    $logger->debug("useposts =  " . $param->{useposts} );
+    if ($param->{useposts}) {
         $url = "https://jsonplaceholder.typicode.com/posts/$id";
     } else {
         $url = "https://jsonplaceholder.typicode.com/todos/$id";
@@ -108,7 +111,7 @@ sub run_script {
     $logger->debug("Loading  " . $url );
 
     if ($id eq "") {
-        return ( error => "No ID specified!"); 
+        return ( error => "No ID specified!");
     }
 
     # Use the provided useragent
@@ -118,10 +121,10 @@ sub run_script {
 
     if ($res->is_success)  {
         # Return the response JSON directly.
-         return %{$res->json}; 
+         return %{$res->json};
     }
-    elsif ($res->is_error) { 
-        return ( error => $res->message );  
+    elsif ($res->is_error) {
+        return ( error => $res->message );
     }
 
 }
@@ -129,3 +132,6 @@ sub run_script {
 1;
 ```
 
+### Converting existing plugins to named parameters
+
+If you have a plugin that you want to convert to using named parameters check [Converting existing plugins to named parameters](metadata.md#converting-existing-plugins-to-named-parameters) in the [Metadata](./metadata.md) section.

@@ -14,10 +14,10 @@ When executing your Plugin, LRR will call this subroutine and pass it the follow
 ```perl
 sub get_tags {
 
-    #First lines you should have in the subroutine
-    shift;
-    my $lrr_info = shift; # Global info hash
-    my ($lang, $savetitle, $usethumbs, $enablepanda) = @_; # Plugin parameters
+    #First line you should have in the subroutine
+    # $lrr_info: global info hash, contains various metadata provided by LRR
+    # $params  : plugin parameters
+    my ( undef, $lrr_info, $params ) = @_;
 ```
 
 The variables match the parameters you've entered in the `plugin_info` subroutine. \(Example here is for E-H.  )
@@ -31,6 +31,8 @@ The `$lrr_info` hash contains various variables you can use in your plugin:
 * _$lrr\_info->{file\_path}_: The filesystem path to the archive.
 * _$lrr\_info->{oneshot\_param}_: Value of your one-shot argument, if it's been set by the User. See below.
 * _$lrr\_info->{user\_agent}_: [Mojo::UserAgent](https://mojolicious.org/perldoc/Mojo/UserAgent) object you can use for web requests. If this plugin depends on a Login plugin, this UserAgent will be pre-configured with the cookies from the Login.
+
+The `$params` hash contains the values of the user defined parameters.
 
 #### One-Shot Arguments
 
@@ -99,8 +101,8 @@ sub plugin_info {
         #This name will be displayed in plugin configuration next to an input box for global arguments, and in archive edition for one-shot arguments.
         oneshot_arg => "This is a one-shot argument that can be entered by the user when executing this plugin on a file",
         parameters  => [
-            {type => "bool", desc => "Enable the DOOMSDAY DEVICE"},
-            {type => "int",  desc => "Number of iterations", default_value => "9001"}
+            'doomsday'   => {type => "bool", desc => "Enable the DOOMSDAY DEVICE"},
+            'iterations' => {type => "int",  desc => "Number of iterations", default_value => "9001"}
         ]
     );
 
@@ -109,9 +111,9 @@ sub plugin_info {
 #Mandatory function to be implemented by your plugin
 sub get_tags {
 
-    shift;
-    my $lrr_info = shift; # Global info hash, contains various metadata provided by LRR
-    my ($doomsday, $iterations) = @_; # Plugin parameters
+    # $lrr_info: global info hash, contains various metadata provided by LRR
+    # $params  : plugin parameters
+    my ( undef, $lrr_info, $params ) = @_;
 
     if ($lrr_info->{oneshot_param}) {
         die "Yaaaaaaaaa gomen gomen the oneshot argument isn't implemented -- You entered ".$lrr_info->{oneshot_param}.", right ?\n";
@@ -122,7 +124,7 @@ sub get_tags {
 
     #Work your magic here - You can create subroutines below to organize the code better
     $logger->info("Gettin' tags");
-    my $newtags = get_tags_from_somewhere($iterations, $doomsday); #To be implemented
+    my $newtags = get_tags_from_somewhere($params->{iterations}, $params->{doomsday}); #To be implemented
     my $error = 0;
 
     #Something went wrong? Return an error.
@@ -152,3 +154,37 @@ sub get_tags_from_somewhere {
 
 1;
 ```
+
+### Converting existing plugins to named parameters
+
+If you have a plugin that you want to convert to using named parameters without losing the existing configuration, you can add new key called `to_named_params` to the `plugin_info`.
+The new key must contain an array of the names assigned to the old parameters in the exact sequence in which they were present before the conversion.
+If you have added new parameters in the meantime, you don't have to specify them in the `to_named_params` key.
+
+The following example shows how to convert from the old parameter structure:
+
+```perl
+    # [...]
+    parameters  => [
+        {type => "bool", desc => "Enable the DOOMSDAY DEVICE"},
+        {type => "int",  desc => "Number of iterations", default_value => "9001"}
+    ]
+    # [...]
+```
+
+to the new structure:
+
+```perl
+    # [...]
+    to_named_params => ['doomsday', 'iterations'],
+    parameters  => {
+        'iterations' => {type => "int",  desc => "Number of iterations", default_value => "9001"},
+        'doomsday'   => {type => "bool", desc => "Enable the DOOMSDAY DEVICE"},
+        'salvation'  => {type => "bool", desc => "Now you can be saved"}
+    }
+    # [...]
+```
+
+Note that `salvation` is not included in the conversion and the order of the items inside `to_named_params` corresponds to the sequence of the parameters in the old format.
+
+The `to_named_params` key must be present the first time you load the plugin with the new parameter structure, otherwise the existing configuration will be lost. After the first use, however, it is no longer needed and you can remove it from a future version of the plugin.

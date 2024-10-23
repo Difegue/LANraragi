@@ -224,9 +224,9 @@ sub add_tasks {
                 # Use the downloader to transform the URL
                 my $plugname = $downloader->{namespace};
                 my $plugin   = get_plugin($plugname);
-                my @settings = get_plugin_parameters($plugname);
+                my %settings = get_plugin_parameters($plugname);
 
-                my $plugin_result = LANraragi::Model::Plugins::exec_download_plugin( $plugin, $url, @settings );
+                my $plugin_result = LANraragi::Model::Plugins::exec_download_plugin( $plugin, $url, %settings );
 
                 if ( exists $plugin_result->{error} ) {
                     $job->finish(
