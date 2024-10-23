@@ -253,8 +253,9 @@ sub create_archive {
                     operation   => "upload",
                     success     => $success_status,
                     error       => $error
-                }
-            )
+                },
+                status => $status
+            );
         }
     }
 
