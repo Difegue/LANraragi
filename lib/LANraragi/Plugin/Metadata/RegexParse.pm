@@ -6,13 +6,64 @@ use warnings;
 #Plugins can freely use all Perl packages already installed on the system
 #Try however to restrain yourself to the ones already installed for LRR (see tools/cpanfile) to avoid extra installations by the end-user.
 use File::Basename;
-use Scalar::Util qw(looks_like_number);
 
-#You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
 use LANraragi::Utils::Database qw(redis_encode redis_decode);
-use LANraragi::Utils::Logging qw(get_plugin_logger);
-use LANraragi::Utils::String qw(trim);
+use LANraragi::Utils::Logging  qw(get_plugin_logger);
+use LANraragi::Utils::String   qw(trim);
+use Scalar::Util               qw(looks_like_number);
+
+my $PLUGIN_TAG_NS = 'parsed:';
+
+# consider using Locale::Language / Locale::Script
+my %VALID_LANGUAGES = (
+    'chi'      => 'chinese',    # ?
+    'chinese'  => 'chinese',
+    'de'       => 'german',
+    'deu'      => 'german',
+    'en'       => 'english',
+    'eng'      => 'english',
+    'english'  => 'english',
+    'es'       => 'spanish',
+    'fr'       => 'french',
+    'fra'      => 'french',
+    'fre'      => 'french',
+    'french'   => 'french',
+    'ger'      => 'german',     # ?
+    'german'   => 'german',
+    'it'       => 'italian',
+    'ita'      => 'italian',
+    'italian'  => 'italian',
+    'ja'       => 'japanese',
+    'japanese' => 'japanese',
+    'jpn'      => 'japanese',
+    'ko'       => 'korean',
+    'kor'      => 'korean',
+    'korean'   => 'korean',
+    'pl'       => 'polish',
+    'pol'      => 'polish',
+    'polish'   => 'polish',
+    'ru'       => 'russian',
+    'rus'      => 'russian',
+    'russian'  => 'russian',
+    'spa'      => 'spanish',
+    'spanish'  => 'spanish',
+    'zh'       => 'chinese',
+    'zh'       => 'chinese',
+    'zho'      => 'chinese',
+    'textless' => 'textless'
+);
+
+my %COMMON_EXTRANEOUS_VALUES = (
+    'uncensored' => 1,
+    'decensored' => 1,
+    'ongoing'    => 1,
+    'pixiv'      => 1,
+    'twitter'    => 1,
+    'fanbox'     => 1,
+    'cosplay'    => 1,
+    'digital'    => 1
+);
 
 #Meta-information about your plugin.
 sub plugin_info {
@@ -23,34 +74,49 @@ sub plugin_info {
         type        => "metadata",
         namespace   => "regexplugin",
         author      => "Difegue",
-        version     => "1.0",
+        version     => "1.0.1",
         description =>
           "Derive tags from the filename of the given archive. <br>Follows the doujinshi naming standard (Release) [Artist] TITLE (Series) [Language].",
         icon =>
           "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAL1JREFUOI1jZMABpNbH/sclx8DAwPAscDEjNnEMQUIGETIYhUOqYdgMhTPINQzdUEZqGIZsKBM1DEIGTOiuexqwCKdidDl0vtT62P9kuZCJEWuKYWBgYGBgRHbh04BFDNIb4jAUbbSrZTARUkURg6lD10OUC/0PNaMYgs1Skgwk1jCSDCQWoBg46dYmhite0+D8pwGLCMY6uotRDOy8toZBkI2HIhcO/pxCm8KBUkOxFl/kGoq3gCXFYFxVAACeoU/8xSNybwAAAABJRU5ErkJggg==",
-        parameters => [ ]
+        parameters => [
+            { type => "bool", desc => "Capture trailing tags in curly brackets" },
+            {   type => "bool",
+                desc => "Keep everything you catch as tags in the namespace \"${PLUGIN_TAG_NS}\"<BR />"
+                  . "(this should be used in conjunction with Tag Rules)"
+            }
+        ],
     );
 
 }
 
 #Mandatory function to be implemented by your plugin
 sub get_tags {
-
-    shift;
-    my $lrr_info = shift;    # Global info hash
-
-    my $logger = get_plugin_logger();
-    my $file   = $lrr_info->{file_path};
+    my ( undef, $lrr_info, $check_trailing_tags, $keep_all_captures ) = @_;
 
     # lrr_info's file_path is taken straight from the filesystem, which might not be proper UTF-8.
     # Run a decode to make sure we can derive tags with the proper encoding.
-    $file = redis_decode($file);
+    my $file     = Mojo::File->new( redis_decode( $lrr_info->{'file_path'} ) );
+    my $filename = $file->basename( $file->extname );
 
-    # Get the filename from the file_path info field
-    my ( $filename, $filepath, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
+    my ( $tags, $title ) = parse_filename(
+        $filename,
+        {   'check_trailing_tags' => $check_trailing_tags,
+            'keep_all_captures'   => $keep_all_captures
+        }
+    );
 
-    my ( $event, $artist, $title, $series, $language );
-    $event = $artist = $title = $series = $language = "";
+    my $logger = get_plugin_logger();
+    $logger->info("Sending the following tags to LRR: $tags");
+    $logger->info("Parsed title is $title");
+
+    return ( tags => $tags, title => $title );
+}
+
+sub parse_filename {
+    my ( $filename, $params ) = @_;
+
+    my ( $event, $artist, $title, $series, $language, $trailing_tags );
 
     #Replace underscores with spaces
     $filename =~ s/_/ /g;
@@ -65,41 +131,74 @@ sub get_tags {
     if ( defined $7 ) { $series   = $7; }
     if ( defined $9 ) { $language = $9; }
 
-    my @tags = ();
-
-    if ( $event ne "" ) {
-        push @tags, "event:$event";
+    # match trailing_tags (...{Tags}.ext)
+    if ( $params->{'check_trailing_tags'} ) {
+        $filename =~ /\{(?<ttags>.*?)}$/;
+        $trailing_tags = $+{ttags};
     }
 
-    if ( $artist ne "" ) {
+    my @tags;
 
-        #Special case for circle/artist sets:
-        #If the string contains parenthesis, what's inside those is the artist name
-        #the rest is the circle.
-        if ( $artist =~ /(.*) \((.*)\)/ ) {
-            push @tags, "group:$1";
-            push @tags, "artist:$2";
+    push @tags, parse_artist_value($artist)                              if ($artist);
+    push @tags, "event:$event"                                           if ($event);
+    push @tags, parse_language_value($language)                          if ($language);
+    push @tags, parse_captured_value_for_namespace( $series, 'series:' ) if ($series);
+    push @tags, parse_captured_value_for_namespace( $trailing_tags, '' ) if ($trailing_tags);
+
+    if ( !$params->{'keep_all_captures'} ) {
+        @tags = grep { !m/^\Q$PLUGIN_TAG_NS/ } @tags;
+    }
+
+    return ( join( ", ", sort @tags ), trim($title) );
+}
+
+sub parse_language_value {
+    my ($language) = @_;
+    my @tags;
+    my @maybe_languages = map { trim( lc $_ ) } split( m/,/, $language );
+    foreach my $item (@maybe_languages) {
+        next if ( !$item );
+        my $lang = $VALID_LANGUAGES{$item};
+        if ($lang) {
+            push @tags, "language:$lang";
         } else {
-            push @tags, "artist:$artist";
+            push @tags, "${PLUGIN_TAG_NS}${item}";
         }
     }
+    return @tags;
+}
 
-    if ( $series ne "" ) {
-        push @tags, "series:$series";
+sub parse_artist_value {
+    my ($artist) = @_;
+
+    my @tags;
+
+    #Special case for circle/artist sets:
+    #If the string contains parenthesis, what's inside those is the artist name
+    #the rest is the circle.
+    if ( $artist =~ /(.*) \((.*)\)/ ) {
+        push @tags, "group:$1";    # split group?
+        $artist = $2;
     }
+    push @tags, parse_captured_value_for_namespace( $artist, 'artist:' );
 
-    # Don't push numbers as tags for language.
-    unless ( $language eq "" || looks_like_number($language) ) {
-        push @tags, "language:$language";
+    return @tags;
+}
+
+sub parse_captured_value_for_namespace {
+    my ( $capture, $namespace ) = @_;
+    return map { _classify_item( trim($_), $namespace ) } split( m/,/, $capture );
+}
+
+sub _classify_item {
+    my ( $item, $namespace ) = @_;
+
+    # if the namespace is specified, we are able to exclude some common words,
+    # otherwise we are dealing with simple tags
+    if ( $namespace && $COMMON_EXTRANEOUS_VALUES{ lc $item } || looks_like_number($item) ) {
+        return $PLUGIN_TAG_NS . lc $item;
     }
-
-    my $tagstring = join( ", ", @tags );
-
-    $logger->info("Sending the following tags to LRR: $tagstring");
-
-    $logger->info("Parsed title is $title");
-    return ( tags => $tagstring, title => $title );
-
+    return "${namespace}${item}";
 }
 
 #Regular Expression matching the E-Hentai standard: (Release) [Artist] TITLE (Series) [Language]
