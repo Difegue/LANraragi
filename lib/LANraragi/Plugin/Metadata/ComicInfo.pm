@@ -60,6 +60,7 @@ sub get_tags {
     my $url;
     my $artist;
     my $lang;
+    my $title;
     my $result = Mojo::DOM->new->xml(1)->parse($stringxml)->at('Genre');
 
     if ( defined $result ) {
@@ -85,6 +86,10 @@ sub get_tags {
     if ( defined $result ) {
         $lang = $result->text;
     }
+    $result = Mojo::DOM->new->xml(1)->parse($stringxml)->at('Title');
+    if ( defined $result ) {
+        $title = $result->text;
+    }
 
     #Delete local file
     unlink $filepath;
@@ -105,7 +110,7 @@ sub get_tags {
     my $tags = join( ", ", @found_tags );
 
     $logger->info("Sending the following tags to LRR: $tags");
-    return ( tags => $tags );
+    return ( tags => $tags, title => $title );
 }
 
 sub try_add_tags {
