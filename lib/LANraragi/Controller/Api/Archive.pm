@@ -131,7 +131,7 @@ sub create_archive {
             json => {
                 operation   => "upload",
                 success     => 0,
-                error       => "No file attached."
+                error       => "No file attached"
             },
             status => 400
         );
@@ -147,10 +147,10 @@ sub create_archive {
                     operation   => "upload",
                     success     => 0,
                     error       => "Checksum mismatch: expected $expected_checksum, got $actual_checksum."
-                }
-            ),
-            status => 422
-        };
+                },
+                status => 422
+            );
+        }
     }
 
     my $filename        = $upload->filename;
@@ -168,7 +168,7 @@ sub create_archive {
             json => {
                 operation   => "upload",
                 success     => 0,
-                error       => "Unsupported File Extension ($filename)"
+                error       => "Unsupported file extension ($filename)"
             },
             status => 415
         );
@@ -188,11 +188,12 @@ sub create_archive {
 
     my $tempfile = $tempdir . '/' . $filename;
     if ( !$upload->move_to($tempfile) ) {
+        $logger->error("Could not move uploaded file $filename to $tempfile");
         return $self->render(
             json => {
                 operation   => "upload",
                 success     => 0,
-                error       => "Couldn't move uploaded file to $tempfile."
+                error       => "Server Error"
             },
             status => 500
         );
@@ -226,39 +227,44 @@ sub create_archive {
     }
     $redis->quit();
 
-    # modify status based on handler's return message.
+    # handle all post-upload errors, setting a server-side error status by default.
     if ( $success_status==0 ) {
         $status = 500;
-        if ( index($message, "Unsupported File Extension") != -1 ) {
-            $status = 415;
-        } elsif ( index($message, "Enable replace duplicated archive in config to replace old ones") != -1 ) {
-            $status = 409;
-        } elsif ( index($message, "The file couldn't be moved to your content folder") != -1 ) {
-            $status = 500;
+        my $error = "Server Error";
+        if ( index($message, "Enable replace duplicated archive in config to replace old ones") != -1 ) {
+            $status     = 409;
+            $error      = "Duplicate archive"
         }
 
-        return $self->render(
-            json => {
-                operation   => "upload",
-                name        => $upload->filename,
-                debug_name  => $filename,
-                title       => $response_title,
-                success     => $success_status,
-                error       => $message
-            },
-            status => $status
-        );
+        # add archive ID for non-server-side errors.
+        if ( !$status==500 ) {
+            return $self->render(
+                json => {
+                    operation   => "upload",
+                    success     => $success_status,
+                    error       => $message,
+                    id          => $id
+                },
+                status => $status
+            );
+        } else {
+            return $self->render(
+                json => {
+                    operation   => "upload",
+                    success     => $success_status,
+                    error       => $error
+                },
+                status => $status
+            );
+        }
     }
 
     # successful response
     return $self->render(
         json => {
             operation   => "upload",
-            name        => $upload->filename,
-            debug_name  => $filename,
-            title       => $response_title,
             success     => $success_status,
-            message     => $message
+            id          => $id
         },
         status => $status
     );
