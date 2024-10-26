@@ -149,13 +149,26 @@ sub create_archive {
                     success     => 0,
                     error       => "Checksum mismatch: expected $expected_checksum, got $actual_checksum."
                 },
-                status => 422
+                status => 417
             );
         }
     }
 
     my $filename        = $upload->filename;
     my $uploadMime      = $upload->headers->content_type;
+
+    # utf downgrade (see LANraragi::Utils::Minion)
+    unless (utf8::downgrade($filename, 1)) {
+        $logger->error("Bullshit! File path \"$filename\" could not be converted back to a byte sequence!");
+        return $self->render(
+            json => {
+                operation   => "upload",
+                success     => 0,
+                error       => "\"$filename\" could not be converted back to a byte sequence!"
+            },
+            status => 422
+        )
+    };
 
     # lock resource
     my $lock            = $redis->setnx( "upload:$filename", 1 );
