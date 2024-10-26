@@ -507,11 +507,21 @@ SHA1 checksum of the Archive.
 ```
 {% endswagger-response %}
 
-{% swagger-response status="422" description="checksum mismatch" %}
+{% swagger-response status="417" description="checksum mismatch" %}
 ```javascript
 {
   "operation": "upload",
   "error": "Checksum mismatch: expected 92cfceb39d57d914ed8b14d0e37643de0797ae56, got 0286dd552c9bea9a69ecb3759e7b94777635514b",
+  "success": 0
+}
+```
+{% endswagger-response %}
+
+{% swagger-response status="422" description="unprocessable entity" %}
+```javascript
+{
+  "operation": "upload",
+  "error": "Filename \"quirky-symbols～☆.cbz\" could not be converted back to a byte sequence!",
   "success": 0
 }
 ```

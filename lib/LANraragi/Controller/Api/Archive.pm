@@ -120,6 +120,7 @@ sub create_archive {
     my $self = shift;
 
     my $logger = get_logger( "Archive API ", "lanraragi");
+    my $redis   = LANraragi::Model::Config->get_redis;
 
     # receive uploaded file
     my $upload              = $self->req->upload('file');
@@ -148,13 +149,40 @@ sub create_archive {
                     success     => 0,
                     error       => "Checksum mismatch: expected $expected_checksum, got $actual_checksum."
                 },
-                status => 422
+                status => 417
             );
         }
     }
 
     my $filename        = $upload->filename;
     my $uploadMime      = $upload->headers->content_type;
+
+    # utf downgrade (see LANraragi::Utils::Minion)
+    unless (utf8::downgrade($filename, 1)) {
+        $logger->error("Bullshit! File path \"$filename\" could not be converted back to a byte sequence!");
+        return $self->render(
+            json => {
+                operation   => "upload",
+                success     => 0,
+                error       => "\"$filename\" could not be converted back to a byte sequence!"
+            },
+            status => 422
+        )
+    };
+
+    # lock resource
+    my $lock            = $redis->setnx( "upload:$filename", 1 );
+    if ( !$lock ) {
+        return $self->render(
+            json => {
+                operation   => "upload",
+                success     => 0,
+                error       => "Locked resource: $filename."
+            },
+            status => 423
+        );
+    }
+    $redis->expire( "upload:$filename", 10 );
 
     # metadata extraction
     my $catid           = $self->req->param('category_id');
@@ -164,6 +192,8 @@ sub create_archive {
 
     # return error if archive is not supported.
     if ( !is_archive($filename) ) {
+        $redis->del("upload:$filename");
+        $redis->quit();
         return $self->render(
             json => {
                 operation   => "upload",
@@ -189,6 +219,8 @@ sub create_archive {
     my $tempfile = $tempdir . '/' . $filename;
     if ( !$upload->move_to($tempfile) ) {
         $logger->error("Could not move uploaded file $filename to $tempfile");
+        $redis->del("upload:$filename");
+        $redis->quit();
         return $self->render(
             json => {
                 operation   => "upload",
@@ -214,7 +246,6 @@ sub create_archive {
     my $status = 200;
 
     # post-processing thumbnail generation
-    my $redis   = LANraragi::Model::Config->get_redis;
     my %hash    = $redis->hgetall($id);
     my ( $thumbhash ) = @hash{qw(thumbhash)};
     unless ( length $thumbhash ) {
@@ -225,6 +256,7 @@ sub create_archive {
         $thumbhash = $redis->hget( $id, "thumbhash" );
         $thumbhash = LANraragi::Utils::Database::redis_decode($thumbhash);
     }
+    $redis->del("upload:$filename");
     $redis->quit();
 
     # handle all post-upload errors, setting a server-side error status by default.
