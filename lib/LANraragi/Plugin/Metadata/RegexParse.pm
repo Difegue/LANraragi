@@ -116,7 +116,7 @@ sub get_tags {
 sub parse_filename {
     my ( $filename, $params ) = @_;
 
-    my ( $event, $artist, $title, $series, $language, $trailing_tags );
+    my ( $event, $artist, $title, $series, $language, $trailing_tags, $other_captures );
 
     #Replace underscores with spaces
     $filename =~ s/_/ /g;
@@ -130,20 +130,32 @@ sub parse_filename {
     if ( defined $5 ) { $title    = trim($5); }
     if ( defined $7 ) { $series   = $7; }
     if ( defined $9 ) { $language = $9; }
+    my $tail = trim( $+{'tail'} );
 
-    # match trailing_tags (...{Tags}.ext)
-    if ( $params->{'check_trailing_tags'} ) {
-        $filename =~ /\{(?<ttags>.*?)}$/;
-        $trailing_tags = $+{ttags};
+    if ($tail) {
+
+        # match trailing_tags (...{Tags}.ext)
+        if ( $params->{'check_trailing_tags'} ) {
+            $tail =~ /(?<head>.*)\{(?<ttags>[^\}]*)\}$/;
+            $trailing_tags = $+{'ttags'};
+            $tail          = $+{'head'};
+        }
+
+        # match any remaining parenthesis
+        if ( $tail && $params->{'keep_all_captures'} ) {
+            my @items = ( $tail =~ /\(([^\)]+)\)|\{([^}]+)\}|\[([^\]]+)\]/g );
+            $other_captures = join( ',', grep { trim($_) } @items );
+        }
     }
 
     my @tags;
 
-    push @tags, parse_artist_value($artist)                              if ($artist);
-    push @tags, "event:$event"                                           if ($event);
-    push @tags, parse_language_value($language)                          if ($language);
-    push @tags, parse_captured_value_for_namespace( $series, 'series:' ) if ($series);
-    push @tags, parse_captured_value_for_namespace( $trailing_tags, '' ) if ($trailing_tags);
+    push @tags, parse_artist_value($artist)                                           if ($artist);
+    push @tags, "event:$event"                                                        if ($event);
+    push @tags, parse_language_value($language)                                       if ($language);
+    push @tags, parse_captured_value_for_namespace( $series, 'series:' )              if ($series);
+    push @tags, parse_captured_value_for_namespace( $other_captures, $PLUGIN_TAG_NS ) if ($other_captures);
+    push @tags, parse_captured_value_for_namespace( $trailing_tags, '' )              if ($trailing_tags);
 
     if ( !$params->{'keep_all_captures'} ) {
         @tags = grep { !m/^\Q$PLUGIN_TAG_NS/ } @tags;
@@ -214,7 +226,7 @@ sub _classify_item {
 #(\(([^([)]+)\))? returns the content of (Series). Optional.
 #(\[([^]]+)\])? returns the content of [Language]. Optional.
 #\s* indicates zero or more whitespaces.
-my $regex = qr/(\(([^([]+)\))?\s*(\[([^]]+)\])?\s*([^([]+)\s*(\(([^([)]+)\))?\s*(\[([^]]+)\])?/;
+my $regex = qr/(\(([^([]+)\))?\s*(\[([^]]+)\])?\s*([^([]+)\s*(\(([^([)]+)\))?\s*(\[([^]]+)\])?(?<tail>.*)?/;
 sub get_regex { return $regex }
 
 1;

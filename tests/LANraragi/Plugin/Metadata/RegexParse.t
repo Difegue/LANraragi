@@ -10,6 +10,10 @@ require "$cwd/tests/mocks.pl";
 
 use_ok('LANraragi::Plugin::Metadata::RegexParse');
 
+my %PARAMS_EH_STANDARD = (
+    'check_trailing_tags' => 0,
+    'keep_all_captures'   => 0,
+);
 my %PARAMS_KEEP_ALL = (
     'check_trailing_tags' => 1,
     'keep_all_captures'   => 1,
@@ -82,16 +86,24 @@ note("parsing filename > $filename ...");
     is( $title, 'Reijo no Rei no...',             'title' );
 }
 
-$filename = '[Yanyo] Reijo no Rei no... [english] {big breasts, sole female}';
+$filename = '[Yanyo] Reijo no Rei no... [english] {Team} Cap.01 (Digital) [Ongoing] [ ] () { } {big breasts, sole female}';
 note("parsing filename > $filename ...");
 {
     my ( $tags, $title ) = LANraragi::Plugin::Metadata::RegexParse::parse_filename( $filename, \%PARAMS_KEEP_ALL );
-    is( $tags,  'artist:Yanyo, big breasts, language:english, sole female', 'tag list' );
-    is( $title, 'Reijo no Rei no...',                                       'title' );
+    is( $tags,
+        'artist:Yanyo, big breasts, language:english, parsed:Team, parsed:digital, parsed:ongoing, sole female',
+        'tag list with all captures and the last curly brackets as simple tags'
+    );
 
     ( $tags, $title ) =
       LANraragi::Plugin::Metadata::RegexParse::parse_filename( $filename, { %PARAMS_KEEP_ALL, %SKIP_TRAILING_TAGS } );
-    is( $tags, 'artist:Yanyo, language:english', 'tag list without trailing tags' );
+    is( $tags,
+        'artist:Yanyo, language:english, parsed:Team, parsed:big breasts, parsed:digital, parsed:ongoing, parsed:sole female',
+        'tag list with all captures'
+    );
+
+    ( $tags, $title ) = LANraragi::Plugin::Metadata::RegexParse::parse_filename( $filename, \%PARAMS_EH_STANDARD );
+    is( $tags, 'artist:Yanyo, language:english', 'tag list with only EH standard tags' );
 }
 
 $filename = '[黒ねずみいぬ, 市川和秀, 猪去バンセ, カサイこーめい, きしぐま, ＳＵＶ, 重丸しげる, ちんぱん☆Mk-Ⅱ, ばんじゃく, 英, ふぁい, 水樹 凱, やさごり] So many artists!';
