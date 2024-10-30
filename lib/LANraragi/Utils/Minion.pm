@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use Encode;
+use Mojo::JSON qw(encode_json);
 use Mojo::UserAgent;
 use Parallel::Loops;
 
@@ -137,6 +138,100 @@ sub add_tasks {
             };
 
             $job->finish( { errors => \@errors } );
+        }
+    );
+
+    $minion->add_task(
+        find_duplicates => sub {
+            my ( $job,      @args )  = @_;
+            my ( $threshold ) = @args;
+
+            my $logger = get_logger( "Minion", "minion" );
+            my $redis  = LANraragi::Model::Config->get_redis;
+            my @keys   = $redis->keys('????????????????????????????????????????');
+            $redis->quit();
+
+            $logger->info("Starting find duplicate job (threshold = $threshold)");
+
+            my $numCpus = Sys::CpuAffinity::getNumCpus();
+            my $pl      = Parallel::Loops->new($numCpus);
+
+            $logger->debug("Number of available cores for processing: $numCpus");
+
+            # Gather thumbhashes
+            my %thumbhashes;
+            foreach my $id (@keys) {
+                my $thumbhash = $redis->hget( $id, "thumbhash" );
+                $thumbhashes{$id} = $thumbhash if $thumbhash;
+            }
+
+            # Prepare to track visited nodes
+            my %visited :shared;
+            my @ids = keys %thumbhashes; # List of IDs to check
+
+            # Share the %visited hash across threads
+            $pl->share( \%visited );
+
+            my @sections = split_workload_by_cpu( $numCpus, @ids );
+            eval {
+                $pl->foreach(
+                    \@sections,
+                    sub {
+                        my $redis = LANraragi::Model::Config->get_redis;
+
+                        foreach my $id (@$_) {
+                            # Skip if this ID has already been processed in another thread
+                            next if $visited{$id};
+                            my @stack = ($id);
+                            my @group;
+
+                            while (@stack) {
+                                my $node = pop @stack;
+                                next if $visited{$node};
+
+                                # Mark the node as visited
+                                {
+                                    lock(%visited);
+                                    $visited{$node} = 1;
+                                }
+                                push @group, $node;
+
+                                # Find all potential duplicates for this node
+                                foreach my $other_id (keys %thumbhashes) {
+                                    next if $node eq $other_id || $visited{$other_id};
+
+                                    # Calculate Hamming distance
+                                    my $distance = 0;
+                                    for (my $i = 0; $i < length($thumbhashes{$node}); $i++) {
+                                        $distance++ if substr($thumbhashes{$node}, $i, 1) ne substr($thumbhashes{$other_id}, $i, 1);
+                                        last if $distance > $threshold;  # Early exit if threshold exceeded
+                                    }
+
+                                    # If within threshold, add to stack for further exploration
+                                    if ($distance <= $threshold) {
+                                        $logger->debug("Found potential duplicate: $node and $other_id with distance $distance");
+                                        push @stack, $other_id;
+                                    }
+                                }
+                            }
+
+                            # Add the discovered group to redis
+                            # to avoid redudnant groups in different orders - sort and composite key
+                            if (@group && scalar @group >= 2) {
+                                @group = sort @group;
+                                my $composite_key = join '', map { substr($_, 0, 10) } @group;
+                                my $group_json = encode_json(\@group);
+                                $logger->debug("duplicate group '$composite_key': $group_json");
+                                $redis->hset("duplicate_groups", "dupgp_$composite_key", $group_json);
+                            }
+                        }
+
+                        $redis->quit();
+                    }
+                );
+            };
+
+            $job->finish( { } );
         }
     );
 
