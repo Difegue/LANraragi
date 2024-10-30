@@ -8,6 +8,7 @@ use warnings;
 use Mojo::DOM;
 use Mojo::JSON qw(decode_json);
 use Mojo::UserAgent;
+use Mojo::Util qw(html_unescape);
 
 use Time::Piece;
 use Time::Local;
