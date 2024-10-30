@@ -72,7 +72,8 @@
 				Download jobs will keep going even if you close this window!<br><br>
 
 				Type in your URLs (separated by a newline), and click the download button. <br>
-				If a <a href="[% c.url_for("/config/plugins") %]>Downloader plugin</a> is compatible with the URL, it'll be automatically
+				If a <a href="[% c.url_for("/config/plugins") %]">Downloader plugin</a> is compatible with the URL,
+				it'll be automatically
 				used.<br><br>
 
 				<label for="download_url">URL(s) to download:</label>
