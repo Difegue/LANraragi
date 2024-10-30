@@ -28,7 +28,7 @@ sub plugin_info {
         namespace   => "pixivmetadata",
         login_from  => "pixivlogin",
         author      => "psilabs-dev",
-        version     => "0.2",
+        version     => "0.3",
         description => "Retrieve metadata of a Pixiv artwork by its artwork ID.
             <br>Supports ID extraction from these file formats: \"{Id} Title\" or \"pixiv_{Id} Title\".
             <br>
@@ -279,6 +279,19 @@ sub get_upload_date_from_dto {
     return @tags;
 }
 
+sub get_summary_from_dto {
+    my ( $dto ) = @_;
+    my $summary = $dto -> {"illustComment"};
+    $summary = html_unescape($summary); # summary is html escaped by default and requires unescape to render.
+
+    # remove scripts
+    my $dom = Mojo::DOM -> new ($summary);
+    $dom -> find('script') -> each( sub { shift -> remove});
+    $summary = $dom -> to_string;
+
+    return $summary;
+}
+
 sub get_hash_metadata_from_json {
 
     my ( $json, $illust_id, $tag_languages_str ) = @_;
@@ -319,6 +332,12 @@ sub get_hash_metadata_from_json {
         $hashdata{title} = $illust_title;
     } else {
         $logger->error( "Failed to extract illustration title from json file: " . Dumper($json) );
+    }
+
+    # add summary.
+    my $summary = get_summary_from_dto( \%illust_dto );
+    if ( defined $summary ) {
+        $hashdata{summary} = $summary;
     }
 
     return %hashdata;
