@@ -284,7 +284,7 @@ sub sanitize_summary {
     my ($html_summary) = @_;
     my ($dom) = Mojo::Dom -> new ($html_summary);
     $dom -> find('script') -> each( sub { shift -> remove });
-    $summary = $dom -> to_string;
+    my $summary = $dom -> to_string;
     return $summary;
 }
 
