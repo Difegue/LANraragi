@@ -8,7 +8,7 @@ use warnings;
 use Mojo::DOM;
 use Mojo::JSON qw(decode_json);
 use Mojo::UserAgent;
-use Mojo::Util qw(html_unescape);
+use Mojo::Util qw(decode html_unescape);
 
 use Time::Piece;
 use Time::Local;
@@ -290,7 +290,7 @@ sub sanitize_summary {
 
 sub get_summary_from_dto {
     my ( $dto ) = @_;
-    my $summary = $dto -> {"illustComment"};
+    my $summary = decode('UTF-8', $dto -> {"illustComment"});
     $summary = html_unescape($summary); # summary is html escaped by default and requires unescape to render.
     $summary = sanitize_summary($summary);
     return $summary;
