@@ -213,7 +213,7 @@ note("testing summary extraction from illust");
     local *LANraragi::Plugin::Metadata::Pixiv::get_plugin_logger        = sub { return get_logger_mock(); };
 
     my $body = Mojo::File -> new("$SAMPLES/pixiv/illust.html") -> slurp;
-    my $json = LANraragi::Plugin::Metadata::Pixiv::get_json_from_html($illust_body);
+    my $json = LANraragi::Plugin::Metadata::Pixiv::get_json_from_html($body);
     my %dto = LANraragi::Plugin::Metadata::Pixiv::get_illustration_dto_from_json( $json, "114245433" );
 
     my $expected_pixiv_summary = Mojo::File -> new("$SAMPLES/pixiv/illust_pixiv_comment_unescaped.txt") -> slurp;
@@ -230,7 +230,7 @@ note("testing summary extraction from manga 1");
     local *LANraragi::Plugin::Metadata::Pixiv::get_plugin_logger        = sub { return get_logger_mock(); };
 
     my $body = Mojo::File -> new("$SAMPLES/pixiv/illust.html") -> slurp;
-    my $json = LANraragi::Plugin::Metadata::Pixiv::get_json_from_html($illust_body);
+    my $json = LANraragi::Plugin::Metadata::Pixiv::get_json_from_html($body);
     my %dto = LANraragi::Plugin::Metadata::Pixiv::get_illustration_dto_from_json( $json, "116253902" );
 
     my $expected_pixiv_summary = Mojo::File -> new("$SAMPLES/pixiv/manga_1_pixiv_comment_unescaped.txt") -> slurp;
@@ -247,7 +247,7 @@ note("testing summary extraction from manga 2");
     local *LANraragi::Plugin::Metadata::Pixiv::get_plugin_logger        = sub { return get_logger_mock(); };
 
     my $body = Mojo::File -> new("$SAMPLES/pixiv/illust.html") -> slurp;
-    my $json = LANraragi::Plugin::Metadata::Pixiv::get_json_from_html($illust_body);
+    my $json = LANraragi::Plugin::Metadata::Pixiv::get_json_from_html($body);
     my %dto = LANraragi::Plugin::Metadata::Pixiv::get_illustration_dto_from_json( $json, "103301948" );
 
     my $expected_pixiv_summary = Mojo::File -> new("$SAMPLES/pixiv/manga_2_pixiv_comment_unescaped.txt") -> slurp;
