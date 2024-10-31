@@ -219,7 +219,7 @@ note("testing summary extraction from illust");
     my $expected_pixiv_summary = Mojo::File -> new("$SAMPLES/pixiv/illust_pixiv_comment_unescaped.txt") -> slurp;
     my $actual_pixiv_summary = LANraragi::Plugin::Metadata::Pixiv::get_summary_from_dto( \%dto );
 
-    is( $expected_pixiv_summary, $actual_pixiv_summary, "illust pixiv summary equal" );
+    is( $actual_pixiv_summary, $expected_pixiv_summary, "illust pixiv summary equal" );
 
 }
 
@@ -236,7 +236,7 @@ note("testing summary extraction from manga 1");
     my $expected_pixiv_summary = Mojo::File -> new("$SAMPLES/pixiv/manga_1_pixiv_comment_unescaped.txt") -> slurp;
     my $actual_pixiv_summary = LANraragi::Plugin::Metadata::Pixiv::get_summary_from_dto( \%dto );
 
-    is( $expected_pixiv_summary, $actual_pixiv_summary, "manga 1 pixiv summary equal" );
+    is( $actual_pixiv_summary, $expected_pixiv_summary, "manga 1 pixiv summary equal" );
 
 }
 
@@ -253,7 +253,7 @@ note("testing summary extraction from manga 2");
     my $expected_pixiv_summary = Mojo::File -> new("$SAMPLES/pixiv/manga_2_pixiv_comment_unescaped.txt") -> slurp;
     my $actual_pixiv_summary = LANraragi::Plugin::Metadata::Pixiv::get_summary_from_dto( \%dto );
 
-    is( $expected_pixiv_summary, $actual_pixiv_summary, "manga 2 pixiv summary equal" );
+    is( $actual_pixiv_summary, $expected_pixiv_summary, "manga 2 pixiv summary equal" );
 
 }
 
@@ -267,7 +267,7 @@ note("testing summary sanitization");
     my $expected_pixiv_summary = Mojo::File -> new("$SAMPLES/pixiv/manga_2_pixiv_comment_unescaped.txt") -> slurp;
     my $actual_pixiv_summary = LANraragi::Plugin::Metadata::Pixiv::sanitize_summary( $summary_with_script );
 
-    is( $expected_pixiv_summary, $actual_pixiv_summary, "manga 2 pixiv summary sanitized" );
+    is( $actual_pixiv_summary, $expected_pixiv_summary, "manga 2 pixiv summary sanitized" );
 
 }
 
