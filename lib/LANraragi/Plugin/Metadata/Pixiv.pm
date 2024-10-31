@@ -280,16 +280,19 @@ sub get_upload_date_from_dto {
     return @tags;
 }
 
+sub sanitize_summary {
+    my ($html_summary) = @_;
+    my ($dom) = Mojo::Dom -> new ($summary);
+    $dom -> find('script') -> each( sub { shift -> remove });
+    $summary = $dom -> to_string;
+    return $summary;
+}
+
 sub get_summary_from_dto {
     my ( $dto ) = @_;
     my $summary = $dto -> {"illustComment"};
     $summary = html_unescape($summary); # summary is html escaped by default and requires unescape to render.
-
-    # remove scripts
-    my $dom = Mojo::DOM -> new ($summary);
-    $dom -> find('script') -> each( sub { shift -> remove});
-    $summary = $dom -> to_string;
-
+    $summary = sanitize_summary($summary);
     return $summary;
 }
 
