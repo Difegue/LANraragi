@@ -282,7 +282,7 @@ sub get_upload_date_from_dto {
 
 sub sanitize_summary {
     my ($html_summary) = @_;
-    my ($dom) = Mojo::Dom -> new ($html_summary);
+    my ($dom) = Mojo::DOM -> new ($html_summary);
     $dom -> find('script') -> each( sub { shift -> remove });
     my $summary = $dom -> to_string;
     return $summary;
