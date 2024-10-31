@@ -257,7 +257,7 @@ note("testing summary extraction from manga 2");
 
 }
 
-note("testing summary sanitization")
+note("testing summary sanitization");
 
 {
     no warnings 'once', 'redefine';
@@ -268,6 +268,7 @@ note("testing summary sanitization")
     my $actual_pixiv_summary = LANraragi::Plugin::Metadata::Pixiv::sanitize_summary( $summary_with_script );
 
     is( $expected_pixiv_summary, $actual_pixiv_summary, "manga 2 pixiv summary sanitized" );
+
 }
 
 done_testing();
