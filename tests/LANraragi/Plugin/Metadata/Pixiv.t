@@ -229,7 +229,7 @@ note("testing summary extraction from manga 1");
     no warnings 'once', 'redefine';
     local *LANraragi::Plugin::Metadata::Pixiv::get_plugin_logger        = sub { return get_logger_mock(); };
 
-    my $body = Mojo::File -> new("$SAMPLES/pixiv/illust.html") -> slurp;
+    my $body = Mojo::File -> new("$SAMPLES/pixiv/manga_1.html") -> slurp;
     my $json = LANraragi::Plugin::Metadata::Pixiv::get_json_from_html($body);
     my %dto = LANraragi::Plugin::Metadata::Pixiv::get_illustration_dto_from_json( $json, "116253902" );
 
@@ -246,7 +246,7 @@ note("testing summary extraction from manga 2");
     no warnings 'once', 'redefine';
     local *LANraragi::Plugin::Metadata::Pixiv::get_plugin_logger        = sub { return get_logger_mock(); };
 
-    my $body = Mojo::File -> new("$SAMPLES/pixiv/illust.html") -> slurp;
+    my $body = Mojo::File -> new("$SAMPLES/pixiv/manga_2.html") -> slurp;
     my $json = LANraragi::Plugin::Metadata::Pixiv::get_json_from_html($body);
     my %dto = LANraragi::Plugin::Metadata::Pixiv::get_illustration_dto_from_json( $json, "103301948" );
 
