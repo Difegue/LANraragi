@@ -216,7 +216,7 @@ note("testing summary extraction from illust");
     my $json = LANraragi::Plugin::Metadata::Pixiv::get_json_from_html($body);
     my %dto = LANraragi::Plugin::Metadata::Pixiv::get_illustration_dto_from_json( $json, "114245433" );
 
-    my $expected_pixiv_summary = Mojo::File -> new("$SAMPLES/pixiv/illust_pixiv_comment_unescaped.txt") -> slurp;
+    my $expected_pixiv_summary = Mojo::File -> new("$SAMPLES/pixiv/illust_pixiv_comment_unescaped.txt") -> slurp('UTF-8');
     my $actual_pixiv_summary = LANraragi::Plugin::Metadata::Pixiv::get_summary_from_dto( \%dto );
 
     is( $actual_pixiv_summary, $expected_pixiv_summary, "illust pixiv summary equal" );
@@ -233,7 +233,7 @@ note("testing summary extraction from manga 1");
     my $json = LANraragi::Plugin::Metadata::Pixiv::get_json_from_html($body);
     my %dto = LANraragi::Plugin::Metadata::Pixiv::get_illustration_dto_from_json( $json, "116253902" );
 
-    my $expected_pixiv_summary = Mojo::File -> new("$SAMPLES/pixiv/manga_1_pixiv_comment_unescaped.txt") -> slurp;
+    my $expected_pixiv_summary = Mojo::File -> new("$SAMPLES/pixiv/manga_1_pixiv_comment_unescaped.txt") -> slurp('UTF-8');
     my $actual_pixiv_summary = LANraragi::Plugin::Metadata::Pixiv::get_summary_from_dto( \%dto );
 
     is( $actual_pixiv_summary, $expected_pixiv_summary, "manga 1 pixiv summary equal" );
@@ -250,7 +250,7 @@ note("testing summary extraction from manga 2");
     my $json = LANraragi::Plugin::Metadata::Pixiv::get_json_from_html($body);
     my %dto = LANraragi::Plugin::Metadata::Pixiv::get_illustration_dto_from_json( $json, "103301948" );
 
-    my $expected_pixiv_summary = Mojo::File -> new("$SAMPLES/pixiv/manga_2_pixiv_comment_unescaped.txt") -> slurp;
+    my $expected_pixiv_summary = Mojo::File -> new("$SAMPLES/pixiv/manga_2_pixiv_comment_unescaped.txt") -> slurp('UTF-8');
     my $actual_pixiv_summary = LANraragi::Plugin::Metadata::Pixiv::get_summary_from_dto( \%dto );
 
     is( $actual_pixiv_summary, $expected_pixiv_summary, "manga 2 pixiv summary equal" );
@@ -263,8 +263,8 @@ note("testing summary sanitization");
     no warnings 'once', 'redefine';
     local *LANraragi::Plugin::Metadata::Pixiv::get_plugin_logger        = sub { return get_logger_mock(); };
 
-    my $summary_with_script = Mojo::File -> new("$SAMPLES/pixiv/manga_2_pixiv_comment_with_script.txt");
-    my $expected_pixiv_summary = Mojo::File -> new("$SAMPLES/pixiv/manga_2_pixiv_comment_unescaped.txt") -> slurp;
+    my $summary_with_script = Mojo::File -> new("$SAMPLES/pixiv/manga_2_pixiv_comment_with_script.txt") -> slurp('UTF-8');
+    my $expected_pixiv_summary = Mojo::File -> new("$SAMPLES/pixiv/manga_2_pixiv_comment_unescaped.txt") -> slurp('UTF-8');
     my $actual_pixiv_summary = LANraragi::Plugin::Metadata::Pixiv::sanitize_summary( $summary_with_script );
 
     is( $actual_pixiv_summary, $expected_pixiv_summary, "manga 2 pixiv summary sanitized" );
