@@ -29,7 +29,7 @@ use LANraragi::Model::Category;
 # The file will be added to a category, if its ID is specified.
 # You can also specify tags to add to the metadata for the processed file before autoplugin is ran. (if it's enabled)
 #
-# Returns a status value, the ID and title of the file, and a status message.
+# Returns an HTTP status code, the ID and title of the file, and a status message.
 sub handle_incoming_file {
 
     my ( $tempfile, $catid, $tags, $title, $summary )   = @_;
@@ -39,7 +39,7 @@ sub handle_incoming_file {
 
     # Check if file is an archive
     unless ( is_archive($filename) ) {
-        return ( 0, "deadbeef", $filename, "Unsupported File Extension ($filename)" );
+        return ( 415, "deadbeef", $filename, "Unsupported File Extension ($filename)" );
     }
 
     # Compute an ID here
@@ -70,7 +70,7 @@ sub handle_incoming_file {
           ? "This file already exists in the Library." . $suffix
           : "A file with the same name is present in the Library." . $suffix;
 
-        return ( 0, $id, $filename, $msg );
+        return ( 409, $id, $filename, $msg );
     }
 
     # If we are replacing an existing one, just remove the old one first.
@@ -120,15 +120,15 @@ sub handle_incoming_file {
 
     # Move the file to the content folder.
     # Move to a .upload first in case copy to the content folder takes a while...
-    move( $tempfile, $output_file . ".upload" ) or return ( 0, $id, $name, "The file couldn't be moved to your content folder: $!" );
+    move( $tempfile, $output_file . ".upload" ) or return ( 500, $id, $name, "The file couldn't be moved to your content folder: $!" );
 
     # Then rename inside the content folder itself to proc Shinobu.
-    move( $output_file . ".upload", $output_file ) or  return ( 0, $id, $name, "The file couldn't be renamed in your content folder: $!" );
+    move( $output_file . ".upload", $output_file ) or  return ( 500, $id, $name, "The file couldn't be renamed in your content folder: $!" );
 
     # If the move didn't signal an error, but still doesn't exist, something is quite spooky indeed!
     # Really funky permissions that prevents viewing folder contents?
     unless ( -e $output_file ) {
-        return ( 0, $id, $name, "The file couldn't be moved to your content folder!" );
+        return ( 500, $id, $name, "The file couldn't be moved to your content folder!" );
     }
 
     # Now that the file has been copied, we can add the timestamp tag and calculate pagecount.
@@ -164,7 +164,7 @@ sub handle_incoming_file {
     # Invalidate search cache ourselves, Shinobu won't do it since the file is already in the database
     invalidate_cache();
 
-    return ( 1, $id, $name, $successmsg );
+    return ( 200, $id, $name, $successmsg );
 }
 
 # Download the given URL, using the given Mojo::UserAgent object.

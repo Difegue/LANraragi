@@ -242,8 +242,8 @@ sub create_archive {
         $tempdir
     );
 
-    my ( $success_status, $id, $response_title, $message ) = LANraragi::Model::Upload::handle_incoming_file( $tempfile, $catid, $tags, $title, $summary );
-    my $status = 200;
+    my ( $status_code, $id, $response_title, $message ) = LANraragi::Model::Upload::handle_incoming_file( $tempfile, $catid, $tags, $title, $summary );
+    my $success_status = $status_code == 200 ? 1 : 0;
 
     # post-processing thumbnail generation
     my %hash    = $redis->hgetall($id);
@@ -259,46 +259,25 @@ sub create_archive {
     $redis->del("upload:$filename");
     $redis->quit();
 
-    # handle all post-upload errors, setting a server-side error status by default.
-    if ( $success_status==0 ) {
-        $status = 500;
-        my $error = "Server Error";
-        if ( index($message, "Enable replace duplicated archive in config to replace old ones") != -1 ) {
-            $status     = 409;
-            $error      = "Duplicate archive"
-        }
-
-        # add archive ID for non-server-side errors.
-        if ( !$status==500 ) {
-            return $self->render(
-                json => {
-                    operation   => "upload",
-                    success     => $success_status,
-                    error       => $message,
-                    id          => $id
-                },
-                status => $status
-            );
-        } else {
-            return $self->render(
-                json => {
-                    operation   => "upload",
-                    success     => $success_status,
-                    error       => $error
-                },
-                status => $status
-            );
-        }
+    unless ( $success_status ) {
+        return $self->render(
+            json => {
+                operation   => "upload",
+                success     => 0,
+                error       => $message,
+                id          => $id
+            },
+            status => $status_code
+        );
     }
 
-    # successful response
     return $self->render(
         json => {
             operation   => "upload",
             success     => $success_status,
             id          => $id
         },
-        status => $status
+        status => 200
     );
 }
 
