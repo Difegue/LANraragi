@@ -1,7 +1,7 @@
 {
     "name": "lanraragi",
-    "version": "0.9.21",
-    "version_name": "Telling Lies (Paradox mix)",
+    "version": "0.9.22",
+    "version_name": "Telling Lies (Adam F mix)",
     "description": "I'm under Japanese influence and my honor's at stake!",
     "scripts": {
         "test": "prove -r -l -v tests/",
