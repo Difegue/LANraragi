@@ -19,7 +19,7 @@ sub plugin_info {
         namespace   => "ehdl",
         login_from  => "ehlogin",
         author      => "Difegue",
-        version     => "1.0",
+        version     => "1.1",
         description =>
           "Downloads the given e*hentai URL and adds it to LANraragi. This uses GP to call the archiver, so make sure you have enough!",
 
@@ -54,34 +54,6 @@ sub provide_url {
     $logger->debug("gID: $gID, gToken: $gToken");
 
     my $archiverurl = "$domain\/archiver.php?gid=$gID&token=$gToken";
-    my $content, my $response;
-
-    # E-H downloads still require an archiver key for the time being.
-    if ( $domain eq 'https://e-hentai.org' ) {
-
-        # The API can give us archiver keys, but they seem to be invalid...
-        # Which means it's time for some ol' DOM parsing.
-        $response = $lrr_info->{user_agent}->max_redirects(5)->get($url)->result;
-        $content  = $response->body;
-        my $dom = Mojo::DOM->new($content);
-
-        eval {
-            # Archiver key is stuck in an onclick in the "Archive Download" link.
-            my $onclick = $dom->at(".g2")->at("a")->attr('onclick');
-            if ( $onclick =~ /.*or=(.*)'.*/gim ) {
-                $archKey = $1;
-            }
-        };
-
-        if ( $archKey eq "" ) {
-            return ( error => "Couldn't retrieve archiver key for gID $gID gToken $gToken" );
-        }
-
-        # Use archiver key in archiver.php
-        # https://e-hentai.org/archiver.php?gid=xxxxxxx&token=yyyyyyy&or=441617--08433a31606bc6c730e260c7fcbb2e71699949ce
-        $archiverurl = "$domain\/archiver.php?gid=$gID&token=$gToken&or=$archKey";
-    }
-
     $logger->info("Archiver URL: $archiverurl");
 
     # Do a quick GET to check for potential errors
@@ -95,14 +67,14 @@ sub provide_url {
 
     # We only use original downloads, so we POST directly to the archiver form with dltype="org"
     # and dlcheck ="Download+Original+Archive"
-    $response = $lrr_info->{user_agent}->max_redirects(5)->post(
+    my $response = $lrr_info->{user_agent}->max_redirects(5)->post(
         $archiverurl => form => {
             dltype  => 'org',
             dlcheck => 'Download+Original+Archive'
         }
     )->result;
 
-    $content = $response->body;
+    my $content = $response->body;
     $logger->debug("/archiver.php result: $content");
 
     if ( $content =~ /.*Insufficient funds.*/gim ) {
