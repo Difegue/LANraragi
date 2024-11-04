@@ -67,14 +67,14 @@ sub provide_url {
 
     # We only use original downloads, so we POST directly to the archiver form with dltype="org"
     # and dlcheck ="Download+Original+Archive"
-    $response = $lrr_info->{user_agent}->max_redirects(5)->post(
+    my $response = $lrr_info->{user_agent}->max_redirects(5)->post(
         $archiverurl => form => {
             dltype  => 'org',
             dlcheck => 'Download+Original+Archive'
         }
     )->result;
 
-    $content = $response->body;
+    my $content = $response->body;
     $logger->debug("/archiver.php result: $content");
 
     if ($content =~ /.*Insufficient funds.*/gim) {
