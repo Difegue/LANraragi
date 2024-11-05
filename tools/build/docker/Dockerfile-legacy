@@ -74,5 +74,5 @@ COPY /tools/build/docker/s6/legacy-services.d/ /etc/services.d/
 
 # Persistent volumes
 VOLUME [ "/home/koyomi/lanraragi/content" ]
-VOLUME [ "/home/koyomi/lanraragi/content/thumb" ]
+VOLUME [ "/home/koyomi/lanraragi/thumb" ]
 VOLUME [ "/home/koyomi/lanraragi/database"]
