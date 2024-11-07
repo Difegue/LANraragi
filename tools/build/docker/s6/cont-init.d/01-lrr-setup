@@ -24,10 +24,11 @@ chmod -R u+rwx /home/koyomi/lanraragi/database
 
 if [ "$FIX_PERMS" -eq 1 ]; then
   echo "Fixing permissions, hold on!"
+  
   #Ensure thumbnail folder is writable
-  chown -R koyomi /home/koyomi/lanraragi/content/thumb
-  find /home/koyomi/lanraragi/content/thumb -type f -exec chmod u+rw  {} \;
-  find /home/koyomi/lanraragi/content/thumb -type d -exec chmod u+rwx {} \;
+  chown -R koyomi /home/koyomi/lanraragi/thumb
+  find /home/koyomi/lanraragi/thumb -type f -exec chmod u+rw  {} \;
+  find /home/koyomi/lanraragi/thumb -type d -exec chmod u+rwx {} \;
 
   chown -R koyomi /home/koyomi/lanraragi/lib/LANraragi/Plugin/Sideloaded
   chmod u+rwx /home/koyomi/lanraragi/lib/LANraragi/Plugin/Sideloaded

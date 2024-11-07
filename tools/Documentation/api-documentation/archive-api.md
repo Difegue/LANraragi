@@ -557,7 +557,7 @@ Page you want to make the thumbnail out of. Defaults to 1.
 {
   "operation": "update_thumbnail",
   "success": 1,
-  "new_thumbnail": "/mnt//lrr/content/thumb/95/9595845d952e8141feeba375767248b960979bc2.jpg"
+  "new_thumbnail": "/mnt/lrr/thumb/95/9595845d952e8141feeba375767248b960979bc2.jpg"
 }
 ```
 {% endswagger-response %}
