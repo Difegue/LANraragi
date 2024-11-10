@@ -243,7 +243,6 @@ sub create_archive {
     );
 
     my ( $status_code, $id, $response_title, $message ) = LANraragi::Model::Upload::handle_incoming_file( $tempfile, $catid, $tags, $title, $summary );
-    my $success_status = $status_code == 200 ? 1 : 0;
 
     # post-processing thumbnail generation
     my %hash    = $redis->hgetall($id);
@@ -274,7 +273,7 @@ sub create_archive {
     return $self->render(
         json => {
             operation   => "upload",
-            success     => $success_status,
+            success     => 1,
             id          => $id
         },
         status => 200
