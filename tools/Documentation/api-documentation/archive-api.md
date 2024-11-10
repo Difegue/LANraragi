@@ -490,7 +490,7 @@ SHA1 checksum of the Archive.
 ```javascript
 {
   "operation": "upload",
-  "error": "Duplicate archive",
+  "error": "This file already exists in the Library. Enable replace duplicated archive in config to replace old ones.",
   "success": 0,
   "id": "0b91b546850e881034833c73375558928ddcec7c"
 }
@@ -502,7 +502,8 @@ SHA1 checksum of the Archive.
 {
   "operation": "upload",
   "error": "Unsupported File Extension (Spirited Away.mkv)",
-  "success": 0
+  "success": 0,
+  "id": "deadbeef"
 }
 ```
 {% endswagger-response %}
@@ -531,7 +532,7 @@ SHA1 checksum of the Archive.
 ```javascript
 {
   "operation": "upload",
-  "error": "Server Error",
+  "error": "The file couldn't be moved to your content folder!",
   "success": 0
 }
 ```
