@@ -225,7 +225,7 @@ sub create_archive {
             json => {
                 operation   => "upload",
                 success     => 0,
-                error       => "Couldn't move uploaded file to $tempfile"
+                error       => "Couldn't move uploaded file to temporary location."
             },
             status => 500
         );
