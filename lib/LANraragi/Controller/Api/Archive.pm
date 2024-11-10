@@ -259,7 +259,7 @@ sub create_archive {
     $redis->del("upload:$filename");
     $redis->quit();
 
-    unless ( $success_status ) {
+    unless ( $status_code == 200 ) {
         return $self->render(
             json => {
                 operation   => "upload",
