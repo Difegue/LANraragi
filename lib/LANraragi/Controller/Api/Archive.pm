@@ -158,6 +158,7 @@ sub create_archive {
     my $uploadMime      = $upload->headers->content_type;
 
     # utf downgrade (see LANraragi::Utils::Minion)
+    $filename = encode('UTF-8', $filename);
     unless (utf8::downgrade($filename, 1)) {
         $logger->error("Bullshit! File path \"$filename\" could not be converted back to a byte sequence!");
         return $self->render(
