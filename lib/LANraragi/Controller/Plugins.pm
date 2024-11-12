@@ -155,7 +155,7 @@ sub save_config {
 
                 $redis->hset( $namerds, "enabled", $enabled );
 
-            }    # else { # no parameters }
+            }    
 
         }
     } catch ($e) {
