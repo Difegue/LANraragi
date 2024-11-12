@@ -140,8 +140,8 @@ sub save_config {
 
             } elsif ( ref( $pluginfo->{parameters} ) eq 'HASH' ) {
 
-                # TODO: remove this line ofter the termination of the support
-                # of the array parameters
+                # TODO: remove this line (and the ARRAY check above) 
+                # after plugins with array parameters are deprecated
                 $redis->del($namerds);
 
                 #Loop through the namespaced request parameters
