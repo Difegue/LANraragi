@@ -127,28 +127,39 @@ sub get_plugin_parameters {
 
         # Replace with saved values if they exist
         if ( $redis->hexists( $namerds, "enabled" ) ) {
-            my $argsjson = $redis->hget( $namerds, "customargs" );
-            $argsjson = redis_decode($argsjson);
+            my $saved_config = redis_decode( $redis->hget( $namerds, "customargs" ) );
 
             #Decode it to an array for proper use
-            if ($argsjson) {
-                @args = @{ decode_json($argsjson) };
+            if ($saved_config) {
+                @args = @{ decode_json($saved_config) };
             }
         }
         $args{customargs} = \@args;
 
     } elsif ( ref( $pluginfo{parameters} ) eq 'HASH' ) {
 
+        # Fill with default values first
+        %args = map { $_ => $pluginfo{parameters}{$_}{default_value} } keys %{ $pluginfo{parameters} };
+
         my %params = $redis->hgetall($namerds);
 
         # TODO: param conversion block, remove after deprecation period
         if ( $pluginfo{to_named_params} && exists $params{customargs} ) {
             %params = convert_to_named_params_and_persist( $redis, $namerds, $pluginfo{to_named_params}, %params );
+        } elsif ( exists $params{customargs} && !$pluginfo{to_named_params} ) {
+            my $logger = get_logger( "Plugin System", "lanraragi" );
+            $logger->warn( 'An old configuration for the plugin "'
+                  . $pluginfo{name}
+                  . '" was detected, but the plugin version you are using does not specify the conversion key "to_named_params"'
+                  . ' required for the upgrade. This will cause the old configuration to be lost when saving.' );
+            $logger->warn( 'customargs => ' . redis_decode( $redis->hget( $namerds, "customargs" ) ) );
         }
 
-        %args = map { $_ => redis_decode( $params{$_} ) } keys %params;
+        while ( my ( $key, $value ) = each %params ) {
+            $args{$key} = redis_decode($value);
+        }
 
-    }    # else { # should we die here? }
+    }
 
     $redis->quit();
     return %args;
