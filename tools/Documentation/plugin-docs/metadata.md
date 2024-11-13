@@ -14,10 +14,11 @@ When executing your Plugin, LRR will call this subroutine and pass it the follow
 ```perl
 sub get_tags {
 
-    #First line you should have in the subroutine
+    #First lines you should have in the subroutine
     # $lrr_info: global info hash, contains various metadata provided by LRR
     # $params  : plugin parameters
-    my ( undef, $lrr_info, $params ) = @_;
+    shift;
+    my ( $lrr_info, $params ) = @_;
 ```
 
 The variables match the parameters you've entered in the `plugin_info` subroutine. \(Example here is for E-H.  )
@@ -111,9 +112,10 @@ sub plugin_info {
 #Mandatory function to be implemented by your plugin
 sub get_tags {
 
+    shift;
     # $lrr_info: global info hash, contains various metadata provided by LRR
     # $params  : plugin parameters
-    my ( undef, $lrr_info, $params ) = @_;
+    my ( $lrr_info, $params ) = @_;
 
     if ($lrr_info->{oneshot_param}) {
         die "Yaaaaaaaaa gomen gomen the oneshot argument isn't implemented -- You entered ".$lrr_info->{oneshot_param}.", right ?\n";

@@ -18,7 +18,8 @@ sub run_script {
     #First lines you should have in the subroutine
     # $lrr_info: global info hash, contains various metadata provided by LRR
     # %params  : plugin parameters
-    my ( undef, $lrr_info, $params ) = @_;
+    shift;
+    my ( $lrr_info, $params ) = @_;
 ```
 
 The variables match the parameters you've entered in the `plugin_info` subroutine.
@@ -91,9 +92,10 @@ sub plugin_info {
 ## Mandatory function to be implemented by your script
 sub run_script {
 
+    shift;
     # $lrr_info: global info hash, contains various metadata provided by LRR
     # %params  : plugin parameters
-    my ( undef, $lrr_info, $params ) = @_;
+    my ( $lrr_info, $params ) = @_;
 
     my $logger = get_logger( "Source Finder", "plugins" );
 

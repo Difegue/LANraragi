@@ -14,8 +14,9 @@ When executing your Plugin, LRR will call the `do_login` subroutine and give it 
 ```perl
 sub do_login {
 
-    #First line you should have in the subroutine
-    my (undef, $params) = @_; # Plugin parameters
+    #First lines you should have in the subroutine
+    shift;
+    my ($params) = @_; # Plugin parameters
 ```
 
 The `$params` hash contains the values of the user defined parameters.
@@ -74,7 +75,7 @@ sub do_login {
         $ua->cookie_jar->add(
             Mojo::Cookie::Response->new(
                 name   => 'userID',
-                value  => $params->{uID},
+                value  => $params->{uid},
                 domain => 'example.com',
                 path   => '/'
             )

@@ -33,7 +33,8 @@ sub plugin_info {
 }
 
 sub get_tags {
-    my ( undef, $lrr_info, $params ) = @_;
+    shift;
+    my ( $lrr_info, $params ) = @_;
 
     my $logger = get_plugin_logger();
 
