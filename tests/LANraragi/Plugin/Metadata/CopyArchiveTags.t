@@ -101,18 +101,6 @@ note('get_tags when archive has tags returns the list of tags ...');
 note('extract_archive_id when param doesn\'t contain a valid archive ID returns undef ...');
 {
     is( LANraragi::Plugin::Metadata::CopyArchiveTags::extract_archive_id(undef), undef, 'param was undef' );
-
-    # is( LANraragi::Plugin::Metadata::CopyArchiveTags::extract_archive_id(''), undef, 'param was empty' );
-
-    # my $short_hex = substr( _random_archive_id(), 1 );
-
-    # is( LANraragi::Plugin::Metadata::CopyArchiveTags::extract_archive_id("http://127.0.0.1:3000/reader?id=${short_hex}"),
-    #     undef, 'invalid id: too short hex number' );
-
-    # my $long_hex = 'fff' . _random_archive_id();
-
-    # is( LANraragi::Plugin::Metadata::CopyArchiveTags::extract_archive_id("http://127.0.0.1:3000/reader?id=${long_hex}"),
-    #     undef, 'invalid id: too long hex number' );
 }
 
 note('extract_archive_id returns the ID in lowercase ...');
