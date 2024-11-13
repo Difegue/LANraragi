@@ -528,6 +528,16 @@ SHA1 checksum of the Archive.
 ```
 {% endswagger-response %}
 
+{% swagger-response status="423" description="locked resource" %}
+```javascript
+{
+  "operation": "upload",
+  "error": "Locked resource: Monster-01.cbz",
+  "success": 0
+}
+```
+{% endswagger-response %}
+
 {% swagger-response status="500" description="" %}
 ```javascript
 {
