@@ -56,6 +56,7 @@ sub craft_plugin_array {
         my @paramhashes = ();
         my $counter     = 0;
 
+        # For backwards compatibility, we can return either an array or a hash for plugin parameters
         if ( ref( $pluginfo->{parameters} ) eq 'ARRAY' ) {
             my @redisparams = @{ $paramsconf{'customargs'} };
             foreach my $param ( @{ $pluginfo->{parameters} } ) {
