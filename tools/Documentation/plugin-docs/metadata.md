@@ -159,7 +159,13 @@ sub get_tags_from_somewhere {
 
 ### Converting existing plugins to named parameters
 
-If you have a plugin that you want to convert to using named parameters without losing the existing configuration, you can add new key called `to_named_params` to the `plugin_info`.
+With the release of version **0.9.3** of LANraragi, **named parameters** for plugins have been introduced.
+
+Compared to previous versions, where plugin parameters were based on an _ordered array_, _named parameters_ should make it easier to understand the source code and write new plugins, especially if they make use of many parameters.
+
+_For the time being LANraragi will continue to support the plugins based on ordered array parameters_ so there is no need to rush to update your plugin. But if you still want to upgrade, the following information should help you.
+
+If you have a plugin that you want to convert to using named parameters without losing the existing configuration, you can add a new key called `to_named_params` to the `plugin_info` hash.
 The new key must contain an array of the names assigned to the old parameters in the exact sequence in which they were present before the conversion.
 If you have added new parameters in the meantime, you don't have to specify them in the `to_named_params` key.
 
