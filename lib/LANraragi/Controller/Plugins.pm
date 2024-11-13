@@ -54,10 +54,10 @@ sub craft_plugin_array {
 
         # Add redis values to the members of the parameters array
         my @paramhashes = ();
-        my $counter     = 0;
 
         # For backwards compatibility, we can return either an array or a hash for plugin parameters
         if ( ref( $pluginfo->{parameters} ) eq 'ARRAY' ) {
+            my $counter     = 0;
             my @redisparams = @{ $paramsconf{'customargs'} };
             foreach my $param ( @{ $pluginfo->{parameters} } ) {
                 $param->{value} = $redisparams[$counter];
@@ -141,7 +141,7 @@ sub save_config {
 
             } elsif ( ref( $pluginfo->{parameters} ) eq 'HASH' ) {
 
-                # TODO: remove this line (and the ARRAY check above) 
+                # TODO: remove this line (and the ARRAY check above)
                 # after plugins with array parameters are deprecated
                 $redis->del($namerds);
 
@@ -156,7 +156,7 @@ sub save_config {
 
                 $redis->hset( $namerds, "enabled", $enabled );
 
-            }    
+            }
 
         }
     } catch ($e) {
