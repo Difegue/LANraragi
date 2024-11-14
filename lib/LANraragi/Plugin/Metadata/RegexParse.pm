@@ -74,16 +74,25 @@ sub plugin_info {
         type        => "metadata",
         namespace   => "regexplugin",
         author      => "Difegue",
-        version     => "1.0.1",
-        description =>
-          "Derive tags from the filename of the given archive. <br>Follows the doujinshi naming standard (Release) [Artist] TITLE (Series) [Language].",
+        version     => "1.2",
+        description => "Derive tags from the filename of the given archive.<br><br>"
+          . "By default it follows the doujinshi naming standard \"(Release) [Artist] TITLE (Series) [Language]\".<br><br>"
+          . "Instead, by activating the plugin settings below, you can extend the capture to the content of each bracket in"
+          . " the filename, even if it does not belong to the standard naming format.<br>"
+          . "Non-standard tags will be made available to you associated with the \"<i>${PLUGIN_TAG_NS}</i>\" namespace so"
+          . " you can manage them as you please by creating your own set of Tag Rules.<br>"
+          . "My only suggestion is that you should place the rule \"<i>-${PLUGIN_TAG_NS}*</i>\" as your last rule to cleanup all the unnecessary elements.",
         icon =>
           "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAL1JREFUOI1jZMABpNbH/sclx8DAwPAscDEjNnEMQUIGETIYhUOqYdgMhTPINQzdUEZqGIZsKBM1DEIGTOiuexqwCKdidDl0vtT62P9kuZCJEWuKYWBgYGBgRHbh04BFDNIb4jAUbbSrZTARUkURg6lD10OUC/0PNaMYgs1Skgwk1jCSDCQWoBg46dYmhite0+D8pwGLCMY6uotRDOy8toZBkI2HIhcO/pxCm8KBUkOxFl/kGoq3gCXFYFxVAACeoU/8xSNybwAAAABJRU5ErkJggg==",
         parameters => [
-            { type => "bool", desc => "Capture trailing tags in curly brackets" },
             {   type => "bool",
-                desc => "Keep everything you catch as tags in the namespace \"${PLUGIN_TAG_NS}\"<BR />"
-                  . "(this should be used in conjunction with Tag Rules)"
+                desc =>
+                  "If the filename ends with a pair of curly braces, return the contents inside them as a list of simple tags, without the \"${PLUGIN_TAG_NS}\" namespace"
+            },
+            {   type => "bool",
+                desc =>
+                  "Capture everything you find between a pair of parentheses and make it available under the \"${PLUGIN_TAG_NS}\" namespace<BR />"
+                  . "(use this in conjunction with Tag Rules)"
             }
         ],
     );
