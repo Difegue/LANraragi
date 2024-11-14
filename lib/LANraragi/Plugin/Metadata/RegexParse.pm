@@ -97,7 +97,7 @@ sub get_tags {
     # lrr_info's file_path is taken straight from the filesystem, which might not be proper UTF-8.
     # Run a decode to make sure we can derive tags with the proper encoding.
     my $file     = Mojo::File->new( redis_decode( $lrr_info->{'file_path'} ) );
-    my $filename = $file->basename( $file->extname );
+    my $filename = $file->basename( '.' . $file->extname );
 
     my ( $tags, $title ) = parse_filename(
         $filename,
@@ -136,9 +136,9 @@ sub parse_filename {
 
         # match trailing_tags (...{Tags}.ext)
         if ( $params->{'check_trailing_tags'} ) {
-            $tail =~ /(?<head>.*)\{(?<ttags>[^\}]*)\}$/;
+            $tail =~ /(?<head>.*)(\{(?<ttags>[^\}]*)\})$/;
             $trailing_tags = $+{'ttags'};
-            $tail          = $+{'head'};
+            $tail          = $+{'head'} if ($trailing_tags);
         }
 
         # match any remaining parenthesis
@@ -225,6 +225,7 @@ sub _classify_item {
 #([^([]+) returns the title. Mandatory.
 #(\(([^([)]+)\))? returns the content of (Series). Optional.
 #(\[([^]]+)\])? returns the content of [Language]. Optional.
+#(?<tail>.*)? returns everything that is out of E-Hentai standard for further processing. Optional.
 #\s* indicates zero or more whitespaces.
 my $regex = qr/(\(([^([]+)\))?\s*(\[([^]]+)\])?\s*([^([]+)\s*(\(([^([)]+)\))?\s*(\[([^]]+)\])?(?<tail>.*)?/;
 sub get_regex { return $regex }

@@ -28,10 +28,11 @@ note("testing basic example");
     my %response =
       LANraragi::Plugin::Metadata::RegexParse::get_tags( "",
         { file_path => "/poopoo/peepee/(NoNe) [Yanyanyo (Yanyo)] Reijo no Rei no... (Blue Archive) [English] [Digital].zip" },
-        1, 0 );
+        1, 1 );
 
-    is( $response{title}, "Reijo no Rei no...",                                                              'title' );
-    is( $response{tags},  "artist:Yanyo, event:NoNe, group:Yanyanyo, language:english, series:Blue Archive", 'tag list' );
+    is( $response{title}, "Reijo no Rei no...", 'title' );
+    is( $response{tags}, "artist:Yanyo, event:NoNe, group:Yanyanyo, language:english, parsed:digital, series:Blue Archive",
+        'tag list' );
 }
 
 my $filename = '(NoNe) [Yanyanyo (Yanyo)] Reijo no Rei no... (ongoing) [Decensored]';
@@ -50,8 +51,8 @@ $filename = '(NoNe) [Yanyanyo (Yanyo)] Reijo no Rei no... (Blue Archive) [Englis
 note("parsing filename > $filename ...");
 {
     my ( $tags, $title ) = LANraragi::Plugin::Metadata::RegexParse::parse_filename( $filename, \%PARAMS_KEEP_ALL );
-    is( $tags,  'artist:Yanyo, event:NoNe, group:Yanyanyo, language:english, series:Blue Archive', 'tag list' );
-    is( $title, 'Reijo no Rei no...',                                                              'title' );
+    is( $tags,  'artist:Yanyo, event:NoNe, group:Yanyanyo, language:english, parsed:digital, series:Blue Archive', 'tag list' );
+    is( $title, 'Reijo no Rei no...',                                                                              'title' );
 }
 
 $filename = '(NoNe) [Yanyanyo (Yanyo)] Reijo no Rei no... (Blue Archive) [Decensored]';
@@ -66,8 +67,8 @@ $filename = '(NoNe) [Yanyanyo (Yanyo)] Reijo no Rei no... (Blue Archive) [Eng] [
 note("parsing filename > $filename ...");
 {
     my ( $tags, $title ) = LANraragi::Plugin::Metadata::RegexParse::parse_filename( $filename, \%PARAMS_KEEP_ALL );
-    is( $tags,  'artist:Yanyo, event:NoNe, group:Yanyanyo, language:english, series:Blue Archive', 'tag list' );
-    is( $title, 'Reijo no Rei no...',                                                              'title' );
+    is( $tags,  'artist:Yanyo, event:NoNe, group:Yanyanyo, language:english, parsed:uncensored, series:Blue Archive', 'tag list' );
+    is( $title, 'Reijo no Rei no...',                                                                                 'title' );
 }
 
 $filename = '(NoNe) [Yanyo] Reijo no Rei no... (Blue Archive) [En]';
