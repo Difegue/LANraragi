@@ -460,7 +460,7 @@ Set of tags you want to insert in the database alongside the archive.
 summary
 {% endswagger-parameter %}
 {% swagger-parameter name="category_id" type="int" required="false" in="query" %}
-Category ID of the Archive.
+Category ID you'd want the archive to be added to.
 {% endswagger-parameter %}
 {% swagger-parameter name="file_checksum" type="string" required="false" in="query" %}
 SHA1 checksum of the archive for in-transit validation.
