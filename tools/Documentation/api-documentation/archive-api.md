@@ -463,7 +463,7 @@ summary
 Category ID of the Archive.
 {% endswagger-parameter %}
 {% swagger-parameter name="file_checksum" type="string" required="false" in="query" %}
-SHA1 checksum of the Archive.
+SHA1 checksum of the archive for in-transit validation.
 {% endswagger-parameter %}
 
 {% swagger-response status="200" description="" %}
