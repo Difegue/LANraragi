@@ -454,7 +454,7 @@ If a SHA1 checksum of the Archive is included, the server will perform an option
 Title of the Archive.
 {% endswagger-parameter %}
 {% swagger-parameter name="tags" type="string" required="false" in="query" %}
-Tags of the Archive.
+Set of tags you want to insert in the database alongside the archive.
 {% endswagger-parameter %}
 {% swagger-parameter name="summary" type="string" required="false" in="query" %}
 summary
