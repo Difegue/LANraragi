@@ -15,45 +15,6 @@ use Scalar::Util               qw(looks_like_number);
 
 my $PLUGIN_TAG_NS = 'parsed:';
 
-# consider using Locale::Language / Locale::Script
-my %VALID_LANGUAGES = (
-    'chi'      => 'chinese',    # ?
-    'chinese'  => 'chinese',
-    'de'       => 'german',
-    'deu'      => 'german',
-    'en'       => 'english',
-    'eng'      => 'english',
-    'english'  => 'english',
-    'es'       => 'spanish',
-    'fr'       => 'french',
-    'fra'      => 'french',
-    'fre'      => 'french',
-    'french'   => 'french',
-    'ger'      => 'german',     # ?
-    'german'   => 'german',
-    'it'       => 'italian',
-    'ita'      => 'italian',
-    'italian'  => 'italian',
-    'ja'       => 'japanese',
-    'japanese' => 'japanese',
-    'jpn'      => 'japanese',
-    'ko'       => 'korean',
-    'kor'      => 'korean',
-    'korean'   => 'korean',
-    'pl'       => 'polish',
-    'pol'      => 'polish',
-    'polish'   => 'polish',
-    'ru'       => 'russian',
-    'rus'      => 'russian',
-    'russian'  => 'russian',
-    'spa'      => 'spanish',
-    'spanish'  => 'spanish',
-    'zh'       => 'chinese',
-    'zh'       => 'chinese',
-    'zho'      => 'chinese',
-    'textless' => 'textless'
-);
-
 my %COMMON_EXTRANEOUS_VALUES = (
     'uncensored' => 1,
     'decensored' => 1,
@@ -161,7 +122,7 @@ sub parse_filename {
 
     push @tags, parse_artist_value($artist)                                           if ($artist);
     push @tags, "event:$event"                                                        if ($event);
-    push @tags, parse_language_value($language)                                       if ($language);
+    push @tags, parse_captured_value_for_namespace( $language, 'language:' )          if ($language);
     push @tags, parse_captured_value_for_namespace( $series, 'series:' )              if ($series);
     push @tags, parse_captured_value_for_namespace( $other_captures, $PLUGIN_TAG_NS ) if ($other_captures);
     push @tags, parse_captured_value_for_namespace( $trailing_tags, '' )              if ($trailing_tags);
@@ -171,22 +132,6 @@ sub parse_filename {
     }
 
     return ( join( ", ", sort @tags ), trim($title) );
-}
-
-sub parse_language_value {
-    my ($language) = @_;
-    my @tags;
-    my @maybe_languages = map { trim( lc $_ ) } split( m/,/, $language );
-    foreach my $item (@maybe_languages) {
-        next if ( !$item );
-        my $lang = $VALID_LANGUAGES{$item};
-        if ($lang) {
-            push @tags, "language:$lang";
-        } else {
-            push @tags, "${PLUGIN_TAG_NS}${item}";
-        }
-    }
-    return @tags;
 }
 
 sub parse_artist_value {
