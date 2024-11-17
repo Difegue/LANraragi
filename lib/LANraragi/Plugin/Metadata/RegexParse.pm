@@ -162,7 +162,7 @@ sub _classify_item {
     # if the namespace is specified, we are able to exclude some common words,
     # otherwise we are dealing with simple tags
     if ( $namespace && $COMMON_EXTRANEOUS_VALUES{ lc $item } || looks_like_number($item) ) {
-        return $PLUGIN_TAG_NS . lc $item;
+        return $PLUGIN_TAG_NS . $item;
     }
     return "${namespace}${item}";
 }
