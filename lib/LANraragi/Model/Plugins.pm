@@ -19,6 +19,7 @@ use LANraragi::Utils::Database qw(set_tags set_title set_summary);
 use LANraragi::Utils::Archive  qw(extract_thumbnail);
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Tags     qw(rewrite_tags split_tags_to_array);
+use LANraragi::Utils::Plugins  qw(get_plugin_parameters get_plugin);
 
 # Sub used by Auto-Plugin.
 sub exec_enabled_plugins_on_file {
@@ -50,13 +51,13 @@ sub exec_enabled_plugins_on_file {
 
     foreach my $pluginfo (@plugins) {
         my $name   = $pluginfo->{namespace};
-        my @args   = LANraragi::Utils::Plugins::get_plugin_parameters($name);
-        my $plugin = LANraragi::Utils::Plugins::get_plugin($name);
+        my %args   = get_plugin_parameters($name);
+        my $plugin = get_plugin($name);
         my %plugin_result;
 
         my %pluginfo = $plugin->plugin_info();
 
-        %plugin_result = exec_metadata_plugin( $plugin, $id, "", @args );
+        %plugin_result = exec_metadata_plugin( $plugin, $id, %args );
 
         if ( exists $plugin_result{error} ) {
             $failures++;
@@ -101,10 +102,15 @@ sub exec_login_plugin {
 
     if ($plugname) {
         $logger->debug("Calling matching login plugin $plugname.");
-        my $loginplugin = LANraragi::Utils::Plugins::get_plugin($plugname);
-        my @loginargs   = LANraragi::Utils::Plugins::get_plugin_parameters($plugname);
+        my $loginplugin = get_plugin($plugname);
+        my %loginargs   = get_plugin_parameters($plugname);
 
-        my $loggedinua = $loginplugin->do_login(@loginargs);
+        my $loggedinua;
+        if ( has_old_style_params(%loginargs) ) {
+            $loggedinua = $loginplugin->do_login( @{ $loginargs{customargs} } );
+        } else {
+            $loggedinua = $loginplugin->do_login( \%loginargs );
+        }
 
         if ( ref($loggedinua) eq "Mojo::UserAgent" ) {
             return $loggedinua;
@@ -121,7 +127,7 @@ sub exec_login_plugin {
 
 sub exec_script_plugin {
 
-    my ( $plugin, $input, @settings ) = @_;
+    my ( $plugin, %settings ) = @_;
 
     no warnings 'experimental::try';
 
@@ -132,12 +138,16 @@ sub exec_script_plugin {
         # Bundle all the potentially interesting info in a hash
         my %infohash = (
             user_agent    => $ua,
-            oneshot_param => $input
+            oneshot_param => $settings{'oneshot'}    # for old style plugins compatibility
         );
 
         # Scripts don't have any predefined metadata in their spec so they're just ran as-is.
         # They can return whatever the heck they want in their hash as well, they'll just be shown as-is in the API output.
-        return $plugin->run_script( \%infohash, @settings );
+        if ( has_old_style_params(%settings) ) {
+            return $plugin->run_script( \%infohash, @{ $settings{customargs} } );
+        } else {
+            return $plugin->run_script( \%infohash, \%settings );
+        }
     } catch ($e) {
         return ( error => $e );
     }
@@ -178,7 +188,7 @@ sub exec_download_plugin {
 # Execute a specified plugin on a file, described through its Redis ID.
 sub exec_metadata_plugin {
 
-    my ( $plugin, $id, $oneshotarg, @args ) = @_;
+    my ( $plugin, $id, %args ) = @_;
 
     no warnings 'experimental::try';
 
@@ -226,12 +236,16 @@ sub exec_metadata_plugin {
             thumbnail_hash => $thumbhash,
             file_path      => $file,
             user_agent     => $ua,
-            oneshot_param  => $oneshotarg
+            oneshot_param  => $args{'oneshot'}    # for old style plugins compatibility
         );
 
         my %newmetadata;
 
-        %newmetadata = $plugin->get_tags( \%infohash, @args );
+        if ( has_old_style_params(%args) ) {
+            %newmetadata = $plugin->get_tags( \%infohash, @{ $args{customargs} } );
+        } else {
+            %newmetadata = $plugin->get_tags( \%infohash, \%args );
+        }
 
         # TODO: remove this block after changing all the metadata plugins
         #Error checking
@@ -282,6 +296,12 @@ sub exec_metadata_plugin {
     }
 
     return %returnhash;
+}
+
+# TODO: remove after the deprecation period
+sub has_old_style_params {
+    my (%params) = @_;
+    return ( exists $params{'customargs'} );
 }
 
 1;
