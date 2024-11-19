@@ -87,6 +87,17 @@ sub list_plugins {
     my $type = $self->stash('type');
 
     my @plugins = get_plugins($type);
+
+    foreach my $plugin (@plugins) {
+        if ( ref( $plugin->{parameters} ) eq 'HASH' ) {
+            my @parameters_array;
+            while ( my ( $name, $value ) = each %{ $plugin->{parameters} } ) {
+                push @parameters_array, { %{$value}, 'name' => $name };
+            }
+            $plugin->{parameters} = \@parameters_array;
+        }
+    }
+
     $self->render( json => \@plugins );
 }
 
