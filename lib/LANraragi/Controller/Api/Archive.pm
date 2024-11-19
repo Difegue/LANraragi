@@ -1,14 +1,21 @@
 package LANraragi::Controller::Api::Archive;
 use Mojo::Base 'Mojolicious::Controller';
 
+use Digest::SHA qw(sha1_hex);
 use Redis;
 use Encode;
 use Storable;
 use Mojo::JSON   qw(decode_json);
 use Scalar::Util qw(looks_like_number);
 
-use LANraragi::Utils::Generic  qw(render_api_response);
+use File::Temp qw(tempdir);
+use File::Basename;
+use File::Find;
+
+use LANraragi::Utils::Archive  qw(extract_thumbnail);
+use LANraragi::Utils::Generic  qw(render_api_response is_archive get_bytelength);
 use LANraragi::Utils::Database qw(get_archive_json set_isnew);
+use LANraragi::Utils::Logging  qw(get_logger);
 
 use LANraragi::Model::Archive;
 use LANraragi::Model::Category;
@@ -105,6 +112,160 @@ sub serve_file {
     my $file = $redis->hget( $id, "file" );
     $redis->quit();
     $self->render_file( filepath => $file );
+}
+
+# Create a file archive along with any metadata.
+# adapted from Upload.pm
+sub create_archive {
+    my $self = shift;
+
+    my $logger = get_logger( "Archive API ", "lanraragi");
+    my $redis   = LANraragi::Model::Config->get_redis;
+
+    # receive uploaded file
+    my $upload              = $self->req->upload('file');
+    my $expected_checksum   = $self->req->param('file_checksum'); # optional
+
+    # require file
+    if ( ! defined $upload || !$upload ) {
+        return $self->render(
+            json => {
+                operation   => "upload",
+                success     => 0,
+                error       => "No file attached"
+            },
+            status => 400
+        );
+    }
+
+    # checksum verification stage.
+    if ( $expected_checksum ) {
+        my $file_content        = $upload->slurp;
+        my $actual_checksum     = sha1_hex($file_content);
+        if ( $expected_checksum ne $actual_checksum ) {
+            return $self->render(
+                json => {
+                    operation   => "upload",
+                    success     => 0,
+                    error       => "Checksum mismatch: expected $expected_checksum, got $actual_checksum."
+                },
+                status => 417
+            );
+        }
+    }
+
+    my $filename        = $upload->filename;
+    my $uploadMime      = $upload->headers->content_type;
+    $filename = LANraragi::Utils::Database::redis_encode( $filename );
+
+    # lock resource
+    my $lock            = $redis->setnx( "upload:$filename", 1 );
+    if ( !$lock ) {
+        return $self->render(
+            json => {
+                operation   => "upload",
+                success     => 0,
+                error       => "Locked resource: $filename."
+            },
+            status => 423
+        );
+    }
+    $redis->expire( "upload:$filename", 10 );
+
+    # metadata extraction
+    my $catid           = $self->req->param('category_id');
+    my $tags            = $self->req->param('tags');
+    my $title           = $self->req->param('title');
+    my $summary         = $self->req->param('summary');
+
+    # return error if archive is not supported.
+    if ( !is_archive($filename) ) {
+        $redis->del("upload:$filename");
+        $redis->quit();
+        return $self->render(
+            json => {
+                operation   => "upload",
+                success     => 0,
+                error       => "Unsupported file extension ($filename)"
+            },
+            status => 415
+        );
+    }
+
+    # Move file to a temp folder (not the default LRR one)
+    my $tempdir                 = tempdir();
+
+    my ( $fn, $path, $ext )     = fileparse( $filename, qr/\.[^.]*/ );
+    my $byte_limit              = LANraragi::Model::Config->enable_cryptofs ? 143 : 255;
+
+    $filename = $fn;
+    while ( get_bytelength( $filename . $ext . ".upload") > $byte_limit ) {
+        $filename = substr( $filename, 0, -1 );
+    }
+    $filename = $filename . $ext;
+
+    my $tempfile = $tempdir . '/' . $filename;
+    if ( !$upload->move_to($tempfile) ) {
+        $logger->error("Could not move uploaded file $filename to $tempfile");
+        $redis->del("upload:$filename");
+        $redis->quit();
+        return $self->render(
+            json => {
+                operation   => "upload",
+                success     => 0,
+                error       => "Couldn't move uploaded file to temporary location."
+            },
+            status => 500
+        );
+    }
+
+    # Update $tempfile to the exact reference created by the host filesystem
+    # This is done by finding the first (and only) file in $tempdir.
+    find(
+        sub {
+            return if -d $_;
+            $tempfile = $File::Find::name;
+            $filename = $_;
+        },
+        $tempdir
+    );
+
+    my ( $status_code, $id, $response_title, $message ) = LANraragi::Model::Upload::handle_incoming_file( $tempfile, $catid, $tags, $title, $summary );
+
+    # post-processing thumbnail generation
+    my %hash    = $redis->hgetall($id);
+    my ( $thumbhash ) = @hash{qw(thumbhash)};
+    unless ( length $thumbhash ) {
+        $logger->info("Thumbnail hash invalid, regenerating.");
+        my $thumbdir = LANraragi::Model::Config->get_thumbdir;
+        $thumbhash = "";
+        extract_thumbnail( $thumbdir, $id, 0, 1 );
+        $thumbhash = $redis->hget( $id, "thumbhash" );
+        $thumbhash = LANraragi::Utils::Database::redis_decode($thumbhash);
+    }
+    $redis->del("upload:$filename");
+    $redis->quit();
+
+    unless ( $status_code == 200 ) {
+        return $self->render(
+            json => {
+                operation   => "upload",
+                success     => 0,
+                error       => $message,
+                id          => $id
+            },
+            status => $status_code
+        );
+    }
+
+    return $self->render(
+        json => {
+            operation   => "upload",
+            success     => 1,
+            id          => $id
+        },
+        status => 200
+    );
 }
 
 # Serve an archive page from the temporary folder, using RenderFile.
