@@ -65,7 +65,7 @@ sub handle_api {
 
     my $filter     = $req->param('filter');
     my $category   = $req->param('category') || "";
-    my $start      = $req->param('start');
+    my $start      = $req->param('start') || 0;
     my $sortkey    = $req->param('sortby');
     my $sortorder  = $req->param('order');
     my $newfilter  = $req->param('newonly') || "false";
