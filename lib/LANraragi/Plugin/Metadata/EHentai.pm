@@ -203,7 +203,7 @@ sub ehentai_parse {
     my $firstgal = $dom->at(".glink")->parent->attr('href');
 
     # A EH link looks like xhentai.org/g/{gallery id}/{gallery token}
-    my $url = ( split( 'hentai.org/g/', $firstgal ) )[1];
+    $url = ( split( 'hentai.org/g/', $firstgal ) )[1];
     my ( $gID, $gToken ) = ( split( '/', $url ) );
 
     if ( index( $dom->to_string, "You are opening" ) != -1 ) {
