@@ -408,7 +408,7 @@ sub sort_results( $sortkey, $sortorder, @filtered ) {
 
         # For other tags, we use the first tag we found that matches the sortkey/namespace.
         # (If no tag, defaults to "zzzz")
-        %tmpfilter = map { $_ => ( $redis->hget( $_, "tags" ) =~ m/.*${re}:(.*)(\,.*|$)/ ) ? $1 : "zzzz" } @filtered;
+        %tmpfilter = map { $_ => ( $redis->hget( $_, "tags" ) =~ m/.*${re}:(.*?)(\,.*|$)/ ) ? $1 : "zzzz" } @filtered;
 
         # Read comments from the bottom up for a better understanding of this sort algorithm.
         @sorted = map { $_->[0] }                  # Map back to only having the ID
