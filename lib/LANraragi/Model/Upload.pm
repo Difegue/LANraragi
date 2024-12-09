@@ -11,7 +11,7 @@ use File::Find qw(find);
 use File::Copy qw(move);
 
 use LANraragi::Utils::Database qw(invalidate_cache compute_id set_title set_summary);
-use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Database qw(redis_encode);
 use LANraragi::Utils::Generic  qw(is_archive get_bytelength);
 use LANraragi::Utils::String   qw(trim trim_CRLF trim_url);
@@ -32,8 +32,8 @@ use LANraragi::Model::Category;
 # Returns an HTTP status code, the ID and title of the file, and a status message.
 sub handle_incoming_file {
 
-    my ( $tempfile, $catid, $tags, $title, $summary )   = @_;
-    my ( $filename, $dirs,  $suffix ) = fileparse( $tempfile, qr/\.[^.]*/ );
+    my ( $tempfile, $catid, $tags, $title, $summary ) = @_;
+    my ( $filename, $dirs, $suffix ) = fileparse( $tempfile, qr/\.[^.]*/ );
     $filename = $filename . $suffix;
     my $logger = get_logger( "File Upload/Download", "lanraragi" );
 
@@ -185,9 +185,22 @@ sub download_url {
     my $tempdir = tempdir();
 
     # Download the URL, with 5 maximum redirects and unlimited response size.
-    my $tx           = $ua->max_response_size(0)->max_redirects(5)->get($url);
-    my $content_disp = $tx->result->headers->content_disposition;
-    my $filename     = "Not_an_archive";                                         #placeholder;
+    my $filename = "Not_an_archive";
+    my ( $tx, $content_disp );
+
+    my $attempts = 0;
+
+    while ( !$content_disp || $attempts < 5 ) {
+        $tx           = $ua->max_response_size(0)->max_redirects(5)->get($url);
+        $content_disp = $tx->result->headers->content_disposition;
+
+        unless ($content_disp) {
+            $logger->warn("No valid Content-Disposition header received, waiting and retrying...");
+            sleep 1;
+            $attempts++;
+        }
+
+    }
 
     $logger->debug("Content-Disposition Header: $content_disp");
     if ( $content_disp =~ /.*filename=\"(.*)\".*/gim ) {
@@ -201,6 +214,7 @@ sub download_url {
     } elsif ( $url =~ /([^\/]+)\/?$/gm ) {
 
         # Fallback to the last element of the URL as the filename.
+        $logger->debug("No filename found in header, using URL as filename.");
         $filename = $1;
     }
 
