@@ -19,8 +19,6 @@ use LANraragi::Model::Upload;
 use LANraragi::Model::Config;
 use LANraragi::Model::Stats;
 
-use Data::Dumper;
-
 # Add Tasks to the Minion instance.
 sub add_tasks {
     my $minion = shift;
@@ -76,7 +74,7 @@ sub add_tasks {
 
             $logger->debug("Number of available cores for processing: $numCpus");
 
-            # Generate thumbnails for all pages -- Cover should already be handled
+            # Generate thumbnails for all pages -- Cover should already be handled in higher resolution
             my @keys = ();
             for ( my $i = 2; $i <= $pages; $i++ ) {
                 push @keys, $i;
