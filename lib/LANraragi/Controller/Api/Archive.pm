@@ -232,21 +232,9 @@ sub create_archive {
 
     my ( $status_code, $id, $response_title, $message ) = LANraragi::Model::Upload::handle_incoming_file( $tempfile, $catid, $tags, $title, $summary );
 
-    # post-processing thumbnail generation
-    my %hash    = $redis->hgetall($id);
-    my ( $thumbhash ) = @hash{qw(thumbhash)};
-    unless ( length $thumbhash ) {
-        $logger->info("Thumbnail hash invalid, regenerating.");
-        my $thumbdir = LANraragi::Model::Config->get_thumbdir;
-        $thumbhash = "";
-        extract_thumbnail( $thumbdir, $id, 0, 1 );
-        $thumbhash = $redis->hget( $id, "thumbhash" );
-        $thumbhash = LANraragi::Utils::Database::redis_decode($thumbhash);
-    }
-    $redis->del("upload:$filename");
-    $redis->quit();
-
     unless ( $status_code == 200 ) {
+        $redis->del("upload:$filename");
+        $redis->quit();
         return $self->render(
             json => {
                 operation   => "upload",
@@ -257,6 +245,19 @@ sub create_archive {
             status => $status_code
         );
     }
+
+    # post-processing thumbnail generation
+    my %hash    = $redis->hgetall($id);
+    my ( $thumbhash ) = @hash{qw(thumbhash)};
+    unless ( length $thumbhash ) {
+        my $thumbdir = LANraragi::Model::Config->get_thumbdir;
+        $thumbhash = "";
+        extract_thumbnail( $thumbdir, $id, 0, 1 );
+        $thumbhash = $redis->hget( $id, "thumbhash" );
+        $thumbhash = LANraragi::Utils::Database::redis_decode($thumbhash);
+    }
+    $redis->del("upload:$filename");
+    $redis->quit();
 
     return $self->render(
         json => {
