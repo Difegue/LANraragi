@@ -178,8 +178,13 @@ note("07 - no allowed language");
 
     my %get_tags_params = ( archive_title => $archive_title );
 
-    my %response = LANraragi::Plugin::Metadata::HentagOnline::get_tags( "", \%get_tags_params, "florp, flarp" );
-    ok( exists( $response{error} ), "got an error" );
+    # Act
+    trap { LANraragi::Plugin::Metadata::HentagOnline::get_tags( "", \%get_tags_params, "florp, flarp" ); };
+
+    is( $trap->exit,   undef, 'no exit code' );
+    is( $trap->stdout, '',    'no STDOUT' );
+    is( $trap->stderr, '',    'no STDERR' );
+    like( $trap->die, qr/^No matching Hentag Archive Found!/, 'die message' );
 }
 
 note("08 - multiple hits in same language");

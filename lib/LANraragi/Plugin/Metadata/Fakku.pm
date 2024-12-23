@@ -25,14 +25,16 @@ sub plugin_info {
         namespace   => "fakkumetadata",
         login_from  => "fakkulogin",
         author      => "Difegue, Nodja, Nixis198",
-        version     => "0.97",
+        version     => "1.0.1",
         description =>
-          "Searches FAKKU for tags matching your archive. If you have an account, don't forget to enter the matching cookie in the login plugin to be able to access controversial content. <br/><br/>  
-           <i class='fa fa-exclamation-circle'></i> <b>This plugin can and will return invalid results depending on what you're searching for!</b> <br/>The FAKKU search API isn't very precise and I recommend you use the Chaika.moe plugin when possible.",
+          "Searches FAKKU for tags matching your archive. If you have an account, don't forget to enter the matching cookie in the login plugin to be able to access controversial content. <br/><br/>
+           <i class='fa fa-exclamation-circle'></i> <b>This plugin can and will return invalid results depending on what you're searching for!</b> <br/>The FAKKU search API isn't very precise and I recommend you either enable 'Only use current title for exact matches', or use the Chaika.moe plugin when possible.",
         icon =>
           "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAFiUAABYlAUlSJPAAAACZSURBVDhPlY+xDYQwDEWvZgRGYA22Y4frqJDSZhFugiuuo4cqPGT0iTjAYL3C+fGzktc3hEcsQvJq6HtjE2Jdv4viH4a4pWnL8q4A6g+ET9P8YhS2/kqwIZXWnwqChDxPfCFfD76wOzJ2IOR/0DSwnuRKYAKUW3gq2OsJTYM0jr7QVRVwlabJEaw3ARYBcmFXeomxphIeEMIMmh3lOLQR+QQAAAAASUVORK5CYII=",
         oneshot_arg => "FAKKU Gallery URL (Will attach tags matching this exact gallery to your archive)",
-        parameters  => [ { type => "bool", desc => "Add 'Source' tag" } ]
+        parameters  => [
+            { type => "bool", desc => "Add 'Source' tag" }, { type => "bool", desc => "Only use current title for exact matches" }
+        ]
     );
 
 }
@@ -41,80 +43,46 @@ sub plugin_info {
 sub get_tags {
 
     shift;
-    my $lrr_info     = shift;                     # Global info hash
-    my $ua           = $lrr_info->{user_agent};
-    my ($add_source) = @_;
+    my $lrr_info = shift;                     # Global info hash
+    my $ua       = $lrr_info->{user_agent};
+    my ( $add_source, $safe_mode ) = @_;
 
     my $logger = get_plugin_logger();
 
     # Work your magic here - You can create subs below to organize the code better
 
-    my $cookie_jar = $ua->cookie_jar;
-    my $cookies    = $cookie_jar->all;
-
-    $logger->debug("Checking Cookies");
-    if (@$cookies) {
-
-        my $neededCookie = 0;
-
-        for my $cookie (@$cookies) {
-            if ( $cookie->name eq "fakku_sid" ) {
-                $neededCookie = 1;
-                $logger->debug("Found fakku_sid");
-                last;    # Exit the loop if the cookie is found
-            }
-        }
-
-        if ($neededCookie) {
-            $logger->debug("The needed cookie was found.");
-        } else {
-            $logger->debug("The needed cookie was not found.");
-            return ( error => "Not logged in to FAKKU! Set your FAKKU SID in the plugin settings page!" );
-        }
-    } else {
-        $logger->debug("No Cookies were found!");
-        return ( error => "Not logged in to FAKKU! Set your FAKKU SID in the plugin settings page!" );
-    }
-
-    my $fakku_URL = "";
-
-    # Looks for the "source:" in the existing tags.
-    my @oldTags = split( ',', $lrr_info->{existing_tags} );
-    my $pattern = qr/^source:(.+)$/;
-
-    foreach my $oldtag (@oldTags) {
-        if ( $oldtag =~ $pattern ) {
-            my $foundURL = $1;
-            if ( $foundURL =~ /fakku\.net/ ) {    #Makes sure the found url is a fakku.net url.
-                $fakku_URL = $foundURL;
-            }
-        }
+    if ( !fakku_cookie_exists( $ua->cookie_jar ) ) {
+        die "Not logged in to FAKKU! Set your FAKKU SID in the plugin settings page!\n";
     }
 
     # If the user specified a oneshot argument, use it as-is.
     # We could stand to pre-check it to see if it really is a FAKKU URL but meh
-    if ( $lrr_info->{oneshot_param} ) {
-        $fakku_URL = $lrr_info->{oneshot_param};
-    }
-    if ( $fakku_URL eq "" ) {
+    my $fakku_URL = $lrr_info->{oneshot_param};
 
-        # Search for a FAKKU URL if the user didn't specify one or none found in the tags.
-        $fakku_URL = search_for_fakku_url( $lrr_info->{archive_title}, $ua );
-    }
+    # No URL? Looks for the "source:" in the existing tags.
+    $fakku_URL = get_url_from_tags( $lrr_info->{existing_tags} ) if ( !$fakku_URL );
+
+    # Assume URLs coming from the one-shot parameter or tags are reliable.
+    my $URL_safe = !!$fakku_URL;
+
+    # Still nothing? Search for a FAKKU URL using the title
+    $fakku_URL = search_for_fakku_url( $lrr_info->{archive_title}, $ua ) if ( !$fakku_URL );
 
     # Do we have a URL to grab data from?
-    if ( $fakku_URL ne "" ) {
-        $logger->debug("Detected FAKKU URL: $fakku_URL");
-    } else {
-        $logger->info("No matching FAKKU Gallery Found!");
-        return ( error => "No matching FAKKU Gallery Found!" );
+    if ( !$fakku_URL ) {
+        my $message = "No matching FAKKU Gallery Found!";
+        $logger->info($message);
+        die "${message}\n";
     }
+    $logger->debug("Detected FAKKU URL: $fakku_URL");
 
-    my ( $newtags, $newtitle, $newSummary );
-    eval { ( $newtags, $newtitle, $newSummary ) = get_tags_from_fakku( $fakku_URL, $ua, $add_source ); };
+    my ( $newtags, $newtitle, $newSummary ) = get_tags_from_fakku( $fakku_URL, $ua, $add_source );
 
-    if ($@) {
-        return ( error => $@ );
+    my $current_title = $lrr_info->{archive_title};
+
+    if ( $safe_mode && !$URL_safe && $newtitle ne $current_title ) {
+        $logger->info("Found FAKKU Gallery '$newtitle', but it does not match current title '$current_title' exactly");
+        die "Exact title match not found\n";
     }
 
     $logger->info("Sending the following tags to LRR: $newtags");
@@ -227,14 +195,13 @@ sub get_tags_from_fakku {
     my @tags = ();
 
     # Finds the DIV for the Summary.
-    my $summ_selector =
-      '.table-cell.w-full.align-top.text-left.space-y-2.leading-relaxed.link\:text-blue-700.dark\:link\:text-white';
-    my $summ_div = $dom->at($summ_selector);
+    my $summ_selector = 'meta[name="description"]';
+    my $summ_div      = $dom->at($summ_selector);
     my $summary;
 
-    # If the Summary DIV doesn't exist, return a blank string.
-    if ( defined $summ_div ) {
-        $summary = $summ_div->all_text;
+    # # If the Summary DIV doesn't exist, return a blank string.
+    if ($summ_div) {
+        $summary = $summ_div->{content};
     } else {
         $summary = "";
     }
@@ -303,6 +270,48 @@ sub get_tags_from_fakku {
 
     return ( join( ', ', @tags ), $title, $summary );
 
+}
+
+sub fakku_cookie_exists {
+    my ($cookie_jar) = @_;
+
+    my $logger = get_plugin_logger();
+    $logger->debug("Checking Cookies");
+
+    my $cookies = $cookie_jar->all;
+    if (@$cookies) {
+
+        for my $cookie (@$cookies) {
+            if ( $cookie->name eq "fakku_sid" ) {
+                $logger->debug("The needed cookie was found.");
+                return 1;
+            }
+        }
+
+        $logger->debug("The needed cookie was not found.");
+
+    } else {
+        $logger->debug("No Cookies were found!");
+    }
+    return;
+}
+
+sub get_url_from_tags {
+    my ($actual_tags) = @_;
+    if ($actual_tags) {
+        my @tags    = split( ',', $actual_tags );
+        my $pattern = qr/^source:(.+)$/;
+
+        foreach my $tag (@tags) {
+            if ( $tag =~ $pattern ) {
+                my $foundURL = $1;
+                if ( $foundURL =~ /fakku\.net/ ) {    #Makes sure the found url is a fakku.net url.
+                    return $foundURL;
+                }
+            }
+        }
+    }
+    return;
 }
 
 1;

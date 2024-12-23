@@ -235,8 +235,13 @@
 							"download": { name: i18next.t('contextMenu.download'), icon: "fas fa-save" },
 							[% IF userlogged %]
 							"sep1": "---------",
-							"edit": { name: i18next.t('contextMenu.editMetadata'), icon: "fas fa-pencil-alt" },
-							"delete": { name: i18next.t('contextMenu.delete'), icon: "fas fa-trash-alt" },
+							"edit": { name: "Edit Metadata", icon: "fas fa-pencil-alt" },
+							"delete": { name: "Delete", icon: "fas fa-trash-alt" },
+							"rating": {
+							    "name": "Add Rating",
+							    "icon": "fas fa-star",
+							    "items": Index.loadContextMenuRatings($trigger.attr("id"))
+							},
 							"collections": {
 								name: i18next.t('contextMenu.addToCategory'),
 								icon: "fas fa-search-plus",

@@ -114,7 +114,7 @@ sub generate_page_thumbnails {
 
     my $should_queue_job = 0;
 
-    for ( my $page = 1; $page <= $pages; $page++ ) {
+    for ( my $page = 2; $page <= $pages; $page++ ) {
         my $thumbname = ( $page - 1 > 0 ) ? "$thumbdir/$subfolder/$id/$page.$format" : "$thumbdir/$subfolder/$id.$format";
 
         unless ( $force == 0 && -e $thumbname ) {
@@ -379,18 +379,18 @@ sub delete_archive ($id) {
 
     # Remove matching data from the search indexes
     my $redis_search = LANraragi::Model::Config->get_redis_search;
-    $redis_search->zrem( "LRR_TITLES",       "$oldtitle\0$id" );
-    $redis_search->srem( "LRR_NEW",          $id );
-    $redis_search->srem( "LRR_UNTAGGED",     $id );
-    $redis_search->srem( "LRR_TANKGROUPED",  $id );
+    $redis_search->zrem( "LRR_TITLES", "$oldtitle\0$id" );
+    $redis_search->srem( "LRR_NEW",         $id );
+    $redis_search->srem( "LRR_UNTAGGED",    $id );
+    $redis_search->srem( "LRR_TANKGROUPED", $id );
     $redis_search->quit();
 
     # Remove from tanks/collections
-    foreach my $tank_id (LANraragi::Model::Tankoubon::get_tankoubons_containing_archive($id)) {
+    foreach my $tank_id ( LANraragi::Model::Tankoubon::get_tankoubons_containing_archive($id) ) {
         LANraragi::Model::Tankoubon::remove_from_tankoubon( $tank_id, $id );
     }
 
-    foreach my $cat (LANraragi::Model::Category::get_categories_containing_archive($id)) {
+    foreach my $cat ( LANraragi::Model::Category::get_categories_containing_archive($id) ) {
         my $catid = %{$cat}{"id"};
         LANraragi::Model::Category::remove_from_category( $catid, $id );
     }

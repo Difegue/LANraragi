@@ -20,7 +20,7 @@ sub plugin_info {
         type        => "metadata",
         namespace   => "hentagplugin",
         author      => "siliconfeces",
-        version     => "0.2",
+        version     => "0.3",
         description => "Parses Hentag info.json files embedded in archives. Achtung, no API calls!",
         parameters  => [],
         icon        =>
@@ -40,44 +40,41 @@ sub get_tags {
 
     my $path_in_archive = is_file_in_archive( $file, "info.json" );
 
-    if ($path_in_archive) {
+    die "No hentag info.json file found in this archive!\n" if ( !$path_in_archive );
 
-        #Extract info.json
-        my $filepath = extract_file_from_archive( $file, $path_in_archive );
+    #Extract info.json
+    my $filepath = extract_file_from_archive( $file, $path_in_archive );
 
-        #Open it
-        my $stringjson = "";
+    #Open it
+    my $stringjson = "";
 
-        open( my $fh, '<:encoding(UTF-8)', $filepath )
-          or return ( error => "Could not open $filepath!" );
+    open( my $fh, '<:encoding(UTF-8)', $filepath )
+      or die "Could not open $filepath!\n";
 
-        while ( my $row = <$fh> ) {
-            chomp $row;
-            $stringjson .= $row;
-        }
-
-        #Use Mojo::JSON to decode the string into a hash
-        my $hashjson = from_json $stringjson;
-
-        $logger->debug("Found and loaded the following JSON: $stringjson");
-
-        #Parse it
-        my ( $tags, $title ) = tags_from_hentag_json($hashjson);
-
-        #Delete it
-        unlink $filepath;
-
-        #Return tags
-        $logger->info("Sending the following tags to LRR: $tags");
-        if ($title) {
-            $logger->info("Parsed title is $title");
-            return ( tags => $tags, title => $title );
-        } elsif ( $tags ne "" ) {
-            return ( tags => $tags );
-        }
+    while ( my $row = <$fh> ) {
+        chomp $row;
+        $stringjson .= $row;
     }
 
-    return ( error => "No hentag info.json file found in this archive!" );
+    #Use Mojo::JSON to decode the string into a hash
+    my $hashjson = from_json $stringjson;
+
+    $logger->debug("Found and loaded the following JSON: $stringjson");
+
+    #Parse it
+    my ( $tags, $title ) = tags_from_hentag_json($hashjson);
+
+    #Delete it
+    unlink $filepath;
+
+    #Return tags
+    $logger->info("Sending the following tags to LRR: $tags");
+    if ($title) {
+        $logger->info("Parsed title is $title");
+        return ( tags => $tags, title => $title );
+    } elsif ( $tags ne "" ) {
+        return ( tags => $tags );
+    }
 }
 
 #tags_from_hentag_json(decodedjson)

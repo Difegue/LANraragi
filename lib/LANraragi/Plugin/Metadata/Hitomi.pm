@@ -23,8 +23,8 @@ sub plugin_info {
         type        => "metadata",
         namespace   => "hitomiplugin",
         author      => "doublewelp",
-        version     => "0.2",
-        description => "Searches Hitomi.la for tags matching your archive. 
+        version     => "0.3",
+        description => "Searches Hitomi.la for tags matching your archive.
           <br>Supports reading the ID from files formatted as \"{Id} Title\" (curly brackets optional)
 		  <br><i class='fa fa-exclamation-circle'></i> This plugin will use the source: tag of the archive if it exists (ex.: source:https://hitomi.la/XXXXX/XXXXX).",
         parameters => [],
@@ -62,19 +62,12 @@ sub get_tags {
     }
 
     # Did we detect a Hitomi gallery?
-    if ( defined $galleryID ) {
-        $logger->debug("Detected Hitomi gallery id is $galleryID");
-    } else {
-        $logger->info("No matching Hitomi Gallery Found!");
-        return ( error => "No matching Hitomi Gallery Found!" );
+    if ( !$galleryID ) {
+        my $message = "No matching Hitomi Gallery Found!";
+        $logger->info($message);
+        die "${message}\n";
     }
-
-    #If no tokens were found, return a hash containing an error message.
-    #LRR will display that error to the client.
-    if ( $galleryID eq "" ) {
-        $logger->info("No matching Hitomi Gallery Found!");
-        return ( error => "No matching Hitomi Gallery Found!" );
-    }
+    $logger->debug("Detected Hitomi gallery id is $galleryID");
 
     my %hashdata = get_tags_from_Hitomi($galleryID);
 
@@ -91,7 +84,7 @@ sub get_tags {
 sub get_gallery_id_from_title {
 
     my $file = shift;
-    my ( $title, $filepath, $suffix ) = fileparse( $file, qr/\.[^.]*/ ); 
+    my ( $title, $filepath, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
 
     my $logger = get_plugin_logger();
 
@@ -222,9 +215,9 @@ sub get_tags_from_Hitomi {
     my $logger = get_plugin_logger();
 
     my $json = get_js_from_hitomi($gID);
-    $logger->debug("Got fully formed JS from Hitomi");
 
     if ($json) {
+        $logger->debug("Got fully formed JS from Hitomi");
         my @tags = get_tags_from_taglist($json);
         push( @tags, "source:https://hitomi.la/galleries/$gID.html" ) if ( @tags > 0 );
         $hashdata{tags}  = join( ', ', @tags );

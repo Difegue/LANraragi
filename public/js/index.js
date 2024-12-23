@@ -100,8 +100,8 @@ Index.initializeAll = function () {
     Server.callAPI("/api/info", "GET", null, i18next.t('error_getting_info'),
         (data) => {
             Index.serverVersion = data.version;
-            Index.debugMode = data.debug_mode === "1";
-            Index.isProgressLocal = data.server_tracks_progress !== "1";
+            Index.debugMode = !!data.debug_mode;
+            Index.isProgressLocal = !data.server_tracks_progress;
             Index.pageSize = data.archives_per_page;
 
             // Check version if not in debug mode
@@ -522,6 +522,55 @@ Index.loadContextMenuCategories = (catList, id) => Server.callAPI(`/api/archives
 
         if (Object.keys(items).length === 0) {
             items.noop = { name: i18next.t('noCategoriesYet'), icon: "far fa-sad-cry" };
+        }
+
+        return items;
+    },
+);
+
+/**
+ * Build rating options for contextMenu and select the one for the current ID.
+ * @param {*} id The ID of the archive to check
+ * @returns Ratings
+ */
+Index.loadContextMenuRatings = (id) => Server.callAPI(`/api/archives/${id}/metadata`, "GET", null, `Error finding metadata for ${id}!`,
+    (data) => {
+        const items = {};
+        const ratings = [{
+            name: "Remove rating"
+        }, {
+            name: "⭐",
+        }, {
+            name: "⭐⭐",
+        }, {
+            name: "⭐⭐⭐",
+        }, {
+            name: "⭐⭐⭐⭐",
+        }, {
+            name: "⭐⭐⭐⭐⭐",
+        }];
+        const tags = LRR.splitTagsByNamespace(data.tags);
+        const hasRating = Object.keys(tags).some(x => x === "rating");
+        const ratingValue = hasRating ? tags["rating"] : [0];
+
+        for (let i = 0; i < ratings.length; i++) {
+            items[i] = ratings[i];
+            items[i].type = "checkbox";
+
+            if (items[i].name === ratingValue[0]) { items[i].selected = true; }
+            items[i].events = {
+                click() {
+                    if(i === 0) delete tags["rating"];
+                    else tags["rating"] = [ratings[i].name];
+
+                    Server.updateTagsFromArchive(id, Object.entries(tags).map(([namespace, tag]) => LRR.buildNamespacedTag(namespace, tag)));
+
+                    // Update the rating info without reload but have to refresh everything.
+                    IndexTable.dataTable.ajax.reload();
+                    Index.updateCarousel();
+                    $(this).parents("ul.context-menu-list").find("input[type='checkbox']").toArray().filter((x) => x !== this).forEach(x => x.checked = false);
+                },
+            };
         }
 
         return items;

@@ -18,6 +18,19 @@ sub index {
     #Build plugin listing
     my @pluginlist = get_plugins("metadata");
 
+    for ( my $i = 0; $i < scalar @pluginlist; $i++ ) {
+        my $plugin = $pluginlist[$i];
+        if ( ref( $plugin->{parameters} ) eq 'HASH' ) {
+            my @params;
+            foreach my $key ( sort keys %{ $plugin->{parameters} } ) {
+                my $param = $plugin->{parameters}{$key};
+                $param->{name} = $key;
+                push( @params, $param );
+            }
+            $pluginlist[$i]->{parameters} = \@params;
+        }
+    }
+
     # Get static category list
     my @categories = LANraragi::Model::Category->get_static_category_list;
 
@@ -80,21 +93,28 @@ sub socket {
                 }
 
                 # Global arguments can come from the database or the user override
-                my @args = @{ $command->{"args"} };
+                my @args_override = @{ $command->{"args"} };
 
-                if ( !@args ) {
-                    $logger->debug("No user overrides given.");
+                # get the saved defaults
+                my %args = get_plugin_parameters($pluginname);
+                if (@args_override) {
 
-                    # Try getting the saved defaults
-                    @args = get_plugin_parameters($pluginname);
-                } else {
+                    $logger->debug("Overriding configured parameters");
+                    if ( exists $args{customargs} ) {
 
-                    # Decode user overrides
-                    @args = map { redis_decode($_) } @args;
+                        # Decode user overrides
+                        $args{customargs} = [ map { redis_decode($_) } @args_override ];
+                    } else {
+                        my @keys = sort grep { $_ !~ m/^enabled$/ } keys %args;
+                        while ( my ( $idx, $key ) = each @keys ) {
+                            $args{customargs}{$key} = redis_decode( $args_override[$idx] );
+                        }
+                    }
+
                 }
 
                 # Send reply message for completed archive
-                $client->send( { json => batch_plugin( $id, $plugin, @args ) } );
+                $client->send( { json => batch_plugin( $id, $plugin, %args ) } );
                 return;
             }
 
@@ -134,7 +154,7 @@ sub socket {
                 $tags = redis_decode($tags);
 
                 my @tagarray = split_tags_to_array($tags);
-                @tagarray = rewrite_tags(\@tagarray, $rules, $hash_replace_rules);
+                @tagarray = rewrite_tags( \@tagarray, $rules, $hash_replace_rules );
 
                 # Merge array with commas
                 my $newtags = join( ', ', @tagarray );
@@ -197,15 +217,10 @@ sub socket {
 }
 
 sub batch_plugin {
-    my ( $id, $plugin, @args ) = @_;
+    my ( $id, $plugin, %args ) = @_;
 
     # Run plugin with args on id
-    my %plugin_result;
-    eval { %plugin_result = LANraragi::Model::Plugins::exec_metadata_plugin( $plugin, $id, "", @args ); };
-
-    if ($@) {
-        $plugin_result{error} = $@;
-    }
+    my %plugin_result = LANraragi::Model::Plugins::exec_metadata_plugin( $plugin, $id, %args );
 
     # If the plugin exec returned tags, add them
     unless ( exists $plugin_result{error} ) {

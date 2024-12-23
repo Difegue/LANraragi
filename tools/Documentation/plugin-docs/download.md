@@ -1,21 +1,21 @@
-# Downloader Plugins  
+# Downloader Plugins
 
-Downloader Plugins are used as part of LANraragi's built-in downloading feature.  
+Downloader Plugins are used as part of LANraragi's built-in downloading feature.
 
 ## Required subroutines
 
-Only one subroutine needs to be implemented for the module to be recognized: `provide_url`, which contains your working code. You're free to implement other subroutines for cleaner code, of course.  
+Only one subroutine needs to be implemented for the module to be recognized: `provide_url`, which contains your working code. You're free to implement other subroutines for cleaner code, of course.
 
-Your plugin also needs an extra field in its metadata: `url_regex`, which contains a Regular Expression that'll be used by LANraragi to know if your Downloader should be used.  
-For example, if your regex is `https?:\/\/example.com.*`, LANraragi will invoke your plugin if the user wants to download an URL that comes from `example.com`.  
+Your plugin also needs an extra field in its metadata: `url_regex`, which contains a Regular Expression that'll be used by LANraragi to know if your Downloader should be used.
+For example, if your regex is `https?:\/\/example.com.*`, LANraragi will invoke your plugin if the user wants to download an URL that comes from `example.com`.
 
 {% hint style="info" %}
-In case of multiple Downloaders matching the given URL, the server will invoke the first plugin that matches.  
+In case of multiple Downloaders matching the given URL, the server will invoke the first plugin that matches.
 {% endhint %}
 
 ### Expected Input
 
-The following section deals with writing the `provide_url` subroutine.  
+The following section deals with writing the `provide_url` subroutine.
 When executing your Plugin, LRR will call this subroutine and pass it the following variables:
 
 ```perl
@@ -36,12 +36,16 @@ The `$lrr_info` hash contains two variables you can use in your plugin:
 
 ### Expected Output
 
-LRR expects Downloaders to return a hash, containing a new URL that can be downloaded directly.  
-Said URL should **directly** point to a file -- Any form of HTML will trigger a failed download.  
+LRR expects Downloaders to return a hash, containing a new URL that can be downloaded directly.
+Said URL should **directly** point to a file -- Any form of HTML will trigger a failed download.
 
 `return ( download_url => "http://my.remote.service/download/secret-archive.zip" );`
 
-If your script errored out, you can tell LRR that an error occurred by returning a hash containing an "error" field:
+If your script errored out, you can immediately stop the plugin execution and tell LRR that an error occurred by throwing an exception:
+
+`die "my error :(\n";`
+
+or by returning a hash containing an "error" field (**this method is deprecated**):
 
 `return ( error => "my error :(" );`
 
@@ -55,7 +59,7 @@ package LANraragi::Plugin::Download::MyNewDownloader;
 use strict;
 use warnings;
 
-# Plugins can freely use all Perl packages already installed on the system 
+# Plugins can freely use all Perl packages already installed on the system
 # Try however to restrain yourself to the ones already installed for LRR (see tools/cpanfile) to avoid extra installations by the end-user.
 use Mojo::UserAgent;
 
@@ -77,7 +81,7 @@ sub plugin_info {
         version     => "0.1",
         description => "This is base boilerplate for writing LRR downloaders. Returns a static URL if you try to download a URL from http://example.com.",
         icon        => "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAIAAAAC64paAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABZSURBVDhPzY5JCgAhDATzSl+e/2irOUjQSFzQog5hhqIl3uBEHPxIXK7oFXwVE+Hj5IYX4lYVtN6MUW4tGw5jNdjdt5bLkwX1q2rFU0/EIJ9OUEm8xquYOQFEhr9vvu2U8gAAAABJRU5ErkJggg==",
-        
+
         # Downloader-specific metadata
         url_regex => "https?:\/\/example.com.*"
     );
@@ -85,7 +89,7 @@ sub plugin_info {
 }
 
 ## Mandatory function to be implemented by your script
-sub run_script {
+sub provide_url {
     shift;
     my $lrr_info = shift; # Global info hash
     my ($useposts) = @_; # Plugin parameters
@@ -106,12 +110,11 @@ sub run_script {
     if ($res->is_success) {
          return ( download_url => $reply );
     }
-    elsif ($res->is_error) {  
-        return ( error => "Dingus! ".$res->message );  
+    elsif ($res->is_error) {
+        die "Dingus! ".$res->message;
     }
 
 }
 
 1;
 ```
-

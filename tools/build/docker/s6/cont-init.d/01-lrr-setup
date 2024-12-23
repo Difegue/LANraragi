@@ -24,10 +24,11 @@ chmod -R u+rwx /home/koyomi/lanraragi/database
 
 if [ "$FIX_PERMS" -eq 1 ]; then
   echo "Fixing permissions, hold on!"
+  
   #Ensure thumbnail folder is writable
-  chown -R koyomi /home/koyomi/lanraragi/content/thumb
-  find /home/koyomi/lanraragi/content/thumb -type f -exec chmod u+rw  {} \;
-  find /home/koyomi/lanraragi/content/thumb -type d -exec chmod u+rwx {} \;
+  chown -R koyomi /home/koyomi/lanraragi/thumb
+  find /home/koyomi/lanraragi/thumb -type f -exec chmod u+rw  {} \;
+  find /home/koyomi/lanraragi/thumb -type d -exec chmod u+rwx {} \;
 
   chown -R koyomi /home/koyomi/lanraragi/lib/LANraragi/Plugin/Sideloaded
   chmod u+rwx /home/koyomi/lanraragi/lib/LANraragi/Plugin/Sideloaded
@@ -51,11 +52,21 @@ chown -R koyomi /home/koyomi/lanraragi/public/temp
 chmod u+rwx /home/koyomi/lanraragi/public/temp
 
 #Remove mojo, minion and shinobu pid files
-rm /home/koyomi/lanraragi/public/temp/server.pid
-rm /home/koyomi/lanraragi/public/temp/shinobu.pid
-rm /home/koyomi/lanraragi/public/temp/shinobu.pid-s6
-rm /home/koyomi/lanraragi/public/temp/minion.pid
-rm /home/koyomi/lanraragi/public/temp/minion.pid-s6
+if [ -f /home/koyomi/lanraragi/public/temp/server.pid ]; then
+    rm /home/koyomi/lanraragi/public/temp/server.pid
+fi
+if [ -f /home/koyomi/lanraragi/public/temp/shinobu.pid ]; then
+    rm /home/koyomi/lanraragi/public/temp/shinobu.pid
+fi
+if [ -f /home/koyomi/lanraragi/public/temp/shinobu.pid-s6 ]; then
+    rm /home/koyomi/lanraragi/public/temp/shinobu.pid-s6
+fi
+if [ -f /home/koyomi/lanraragi/public/temp/minion.pid ]; then
+    rm /home/koyomi/lanraragi/public/temp/minion.pid
+fi
+if [ -f /home/koyomi/lanraragi/public/temp/minion.pid-s6 ]; then
+  rm /home/koyomi/lanraragi/public/temp/minion.pid-s6
+fi
 
 # https://redis.io/topics/faq#background-saving-fails-with-a-fork-error-under-linux-even-if-i-have-a-lot-of-free-ram
 OVERCOMMIT=$(cat /proc/sys/vm/overcommit_memory)

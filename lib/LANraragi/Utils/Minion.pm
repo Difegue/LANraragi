@@ -66,25 +66,49 @@ sub add_tasks {
             my $format    = $use_jxl ? 'jxl' : 'jpg';
             my $subfolder = substr( $id, 0, 2 );
 
-            # Generate thumbnails for all pages -- Cover should already be handled
+            my @errors = ();
+
+            my $numCpus = Sys::CpuAffinity::getNumCpus();
+            my $pl      = Parallel::Loops->new($numCpus);
+            $pl->share( \@errors );
+
+            $logger->debug("Number of available cores for processing: $numCpus");
+
+            # Generate thumbnails for all pages -- Cover should already be handled in higher resolution
+            my @keys = ();
             for ( my $i = 2; $i <= $pages; $i++ ) {
-
-                my $thumbname = "$thumbdir/$subfolder/$id/$i.$format";
-                unless ( $force == 0 && -e $thumbname ) {
-                    $logger->debug("Generating thumbnail for page $i... ($thumbname)");
-                    eval { $thumbname = extract_thumbnail( $thumbdir, $id, $i, $use_hq ); };
-                    if ($@) {
-                        $logger->warn("Error while generating thumbnail: $@");
-                    }
-                }
-
-                # Notify progress so it can be checked via API
-                $job->note( progress => $i, pages => $pages );
+                push @keys, $i;
             }
+            my @sections = split_workload_by_cpu( $numCpus, @keys );
+
+            # Regen thumbnails for errythang if $force = 1, only missing thumbs otherwise
+            eval {
+                $pl->foreach(
+                    \@sections,
+                    sub {
+                        foreach my $i (@$_) {
+
+                            my $thumbname = "$thumbdir/$subfolder/$id/$i.$format";
+                            unless ( $force == 0 && -e $thumbname ) {
+                                $logger->debug("Generating thumbnail for page $i... ($thumbname)");
+                                eval { $thumbname = extract_thumbnail( $thumbdir, $id, $i, $use_hq ); };
+                                if ($@) {
+                                    $logger->warn("Error while generating thumbnail: $@");
+                                    push @errors, $@;
+                                }
+                            }
+
+                            # Add page number to note field so it can be fetched by the API
+                            $job->note( $i => "processed", total_pages => $pages );
+
+                        }
+                    }
+                );
+            };
 
             $redis->hdel( $id, "thumbjob" );
             $redis->quit;
-            $job->finish;
+            $job->finish( { errors => \@errors } );
         }
     );
 
@@ -175,8 +199,9 @@ sub add_tasks {
             $logger->info("Processing uploaded file $file...");
 
             # Since we already have a file, this goes straight to handle_incoming_file.
-            my ( $status, $id, $title, $message ) = LANraragi::Model::Upload::handle_incoming_file( $file, $catid, "" );
-
+            my ( $status_code, $id, $title, $message ) =
+              LANraragi::Model::Upload::handle_incoming_file( $file, $catid, "", "", "" );
+            my $status = $status_code == 200 ? 1 : 0;
             $job->finish(
                 {   success  => $status,
                     id       => $id,
@@ -224,9 +249,9 @@ sub add_tasks {
                 # Use the downloader to transform the URL
                 my $plugname = $downloader->{namespace};
                 my $plugin   = get_plugin($plugname);
-                my @settings = get_plugin_parameters($plugname);
+                my %settings = get_plugin_parameters($plugname);
 
-                my $plugin_result = LANraragi::Model::Plugins::exec_download_plugin( $plugin, $url, @settings );
+                my $plugin_result = LANraragi::Model::Plugins::exec_download_plugin( $plugin, $url, %settings );
 
                 if ( exists $plugin_result->{error} ) {
                     $job->finish(
@@ -253,7 +278,9 @@ sub add_tasks {
                 my $tag = "source:$og_url";
 
                 # Hand off the result to handle_incoming_file
-                my ( $status, $id, $title, $message ) = LANraragi::Model::Upload::handle_incoming_file( $tempfile, $catid, $tag );
+                my ( $status_code, $id, $title, $message ) =
+                  LANraragi::Model::Upload::handle_incoming_file( $tempfile, $catid, $tag, "", "" );
+                my $status = $status_code == 200 ? 1 : 0;
 
                 $job->finish(
                     {   success  => $status,

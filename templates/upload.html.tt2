@@ -85,24 +85,49 @@
                 <h2 class="ih" id="progressCount" data-i18n="upload.progress_count"></h2>
                 <h2 class="ih" id="progressTotal" data-i18n="upload.progress_total"></h2>
 
-                <table style='margin:auto; font-size:9pt; width: 80%; text-align:center;'>
-                    <tbody id='files'>
-                        <tr>
-                            <td colspan=2>
-                                <div id='progress' style='padding-top:6px; padding-bottom:6px'>
-                                    <div class='bar' style='width: 0%;'></div>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <br><br>
-        <input id='return' class='stdbtn' type='button' data-i18n="upload.return_to_library" value='Return to Library'/>
-    </div>
-    [% INCLUDE footer %]
-</body>
+				Type in your URLs (separated by a newline), and click the download button. <br>
+				If a <a href="[% c.url_for("/config/plugins") %]">Downloader plugin</a> is compatible with the URL,
+				it'll be automatically
+				used.<br><br>
 
+				<label for="download_url">URL(s) to download:</label>
+				<textarea type="text" name="urls" id="urlForm"
+					style="width: 400px; height: 100px; white-space: pre;"></textarea>
+				<br><br>
+
+
+				<span id="download-url" class='stdbtn fileinput-button' style="height:50px;">
+					<i class='fas fa-cloud-download-alt fa-2x' style='padding-top:6px; padding-bottom: 5px'></i><br>
+					<span>Add from URL(s)</span>
+				</span>
+
+			</div>
+
+			<div class="right-column">
+
+				<h2 class="ih" id="progressCount"></h2>
+				<h2 class="ih" id="progressTotal"></h2>
+
+				<table style='margin:auto; font-size:9pt; width: 80%; text-align:center;'>
+					<tbody id='files'>
+						<tr>
+							<td colspan=2>
+								<div id='progress' style='padding-top:6px; padding-bottom:6px'>
+									<div class='bar' style='width: 0%;'></div>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+
+			</div>
+		</div>
+
+		<br><br>
+		<input id='return' class='stdbtn' type='button' value='Return to Library' />
+	</div>
+
+	[% INCLUDE footer %]
+</body>
 
 </html>

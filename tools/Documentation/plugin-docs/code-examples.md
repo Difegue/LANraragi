@@ -72,7 +72,7 @@ if ($info_path) {
 
         #Do whatever you need with the extracted file
         open( my $fh, '<:encoding(UTF-8)', $filepath )
-          or return ( error => "Could not open $filepath!" );
+          or die "Could not open $filepath!\n";
 
         while ( my $row = <$fh> ) {
             #...
@@ -82,4 +82,3 @@ if ($info_path) {
         unlink $filepath;
 }
 ```
-

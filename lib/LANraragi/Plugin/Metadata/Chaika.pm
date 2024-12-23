@@ -19,7 +19,7 @@ sub plugin_info {
         type        => "metadata",
         namespace   => "trabant",
         author      => "Difegue",
-        version     => "2.3.1",
+        version     => "2.4",
         description =>
           "Searches chaika.moe for tags matching your archive. This will try to use the thumbnail first, and fallback to a default text search.",
         icon =>
@@ -66,14 +66,18 @@ sub get_tags {
         # Try text search if it fails
         if ( $newtags eq "" ) {
             $logger->info("No results, falling back to text search.");
-            ( $newtags, $newtitle ) =
-              search_for_archive( $lrr_info->{archive_title}, $lrr_info->{existing_tags}, $addextra, $addother, $addsource, $jpntitle );
+            ( $newtags, $newtitle ) = search_for_archive(
+                $lrr_info->{archive_title},
+                $lrr_info->{existing_tags},
+                $addextra, $addother, $addsource, $jpntitle
+            );
         }
     }
 
     if ( $newtags eq "" ) {
-        $logger->info("No matching Chaika Archive Found!");
-        return ( error => "No matching Chaika Archive Found!" );
+        my $message = "No matching Chaika Archive Found!";
+        $logger->info($message);
+        die "${message}\n";
     } else {
         $logger->info("Sending the following tags to LRR: $newtags");
 

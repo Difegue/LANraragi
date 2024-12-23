@@ -4,9 +4,9 @@ use strict;
 use warnings;
 use utf8;
 
-use Mojo::JSON qw(decode_json);
+use Mojo::JSON                 qw(decode_json);
 use LANraragi::Utils::Database qw(redis_decode);
-use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Logging  qw(get_logger);
 
 # Plugin system ahoy - this makes the LANraragi::Utils::Plugins::plugins method available
 # Don't call this method directly - Rely on LANraragi::Utils::Plugins::get_plugins instead
@@ -29,6 +29,12 @@ sub get_plugins {
         # Check that the metadata sub is there before invoking it
         if ( $plugin->can('plugin_info') ) {
             my %pluginfo = $plugin->plugin_info();
+
+            if    ( $type eq 'script' )   { next if ( !$plugin->can('run_script') ); }
+            elsif ( $type eq 'metadata' ) { next if ( !$plugin->can('get_tags') ); }
+            elsif ( $type eq 'download' ) { next if ( !$plugin->can('provide_url') ); }
+            elsif ( $type eq 'login' )    { next if ( !$plugin->can('do_login') ); }
+
             if ( $pluginfo{type} eq $type || $type eq "all" ) { push( @validplugins, \%pluginfo ); }
         }
     }
@@ -95,7 +101,7 @@ sub get_plugin {
     return 0;
 }
 
-# Get the parameters for thespecified plugin, either default values or input by the user in the settings page.
+# Get the parameters for the specified plugin, either default values or input by the user in the settings page.
 # Returns an array of values.
 sub get_plugin_parameters {
 
@@ -108,25 +114,55 @@ sub get_plugin_parameters {
     my $plugin   = get_plugin($namespace);
     my %pluginfo = $plugin->plugin_info();
 
-    my @args = ();
+    my %args;
 
-    # Fill with default values first
-    foreach my $param ( @{ $pluginfo{parameters} } ) {
-        push( @args, $param->{default_value} );
-    }
+    if ( ref( $pluginfo{parameters} ) eq 'ARRAY' ) {
 
-    # Replace with saved values if they exist
-    if ( $redis->hexists( $namerds, "enabled" ) ) {
-        my $argsjson = $redis->hget( $namerds, "customargs" );
-        $argsjson = redis_decode($argsjson);
+        my @args;
 
-        #Decode it to an array for proper use
-        if ($argsjson) {
-            @args = @{ decode_json($argsjson) };
+        # Fill with default values first
+        foreach my $param ( @{ $pluginfo{parameters} } ) {
+            push( @args, $param->{default_value} );
         }
+
+        # Replace with saved values if they exist
+        if ( $redis->hexists( $namerds, "enabled" ) ) {
+            my $saved_config = redis_decode( $redis->hget( $namerds, "customargs" ) );
+
+            #Decode it to an array for proper use
+            if ($saved_config) {
+                @args = @{ decode_json($saved_config) };
+            }
+        }
+        $args{customargs} = \@args;
+
+    } elsif ( ref( $pluginfo{parameters} ) eq 'HASH' ) {
+
+        # Fill with default values first
+        %args = map { $_ => $pluginfo{parameters}{$_}{default_value} } keys %{ $pluginfo{parameters} };
+
+        my %params = $redis->hgetall($namerds);
+
+        # TODO: param conversion block, remove after deprecation period
+        if ( $pluginfo{to_named_params} && exists $params{customargs} ) {
+            %params = convert_to_named_params_and_persist( $redis, $namerds, $pluginfo{to_named_params}, %params );
+        } elsif ( exists $params{customargs} && !$pluginfo{to_named_params} ) {
+            my $logger = get_logger( "Plugin System", "lanraragi" );
+            $logger->warn( 'An old configuration for the plugin "'
+                  . $pluginfo{name}
+                  . '" was detected, but the plugin version you are using does not specify the conversion key "to_named_params"'
+                  . ' required for the upgrade. This will cause the old configuration to be lost when saving.' );
+            $logger->warn( 'customargs => ' . redis_decode( $redis->hget( $namerds, "customargs" ) ) );
+        }
+
+        while ( my ( $key, $value ) = each %params ) {
+            $args{$key} = redis_decode($value);
+        }
+
     }
+
     $redis->quit();
-    return @args;
+    return %args;
 }
 
 sub is_plugin_enabled {
@@ -158,19 +194,14 @@ sub use_plugin {
         %pluginfo = $plugin->plugin_info();
 
         # Get the plugin settings in Redis
-        my @settings = get_plugin_parameters($plugname);
+        my %settings = get_plugin_parameters($plugname);
+        $settings{oneshot} = $input;
 
         # Execute the plugin, appending the custom args at the end
         if ( $pluginfo{type} eq "script" ) {
-            eval { %plugin_result = LANraragi::Model::Plugins::exec_script_plugin( $plugin, $input, @settings ); };
-        }
-
-        if ( $pluginfo{type} eq "metadata" ) {
-            eval { %plugin_result = LANraragi::Model::Plugins::exec_metadata_plugin( $plugin, $id, $input, @settings ); };
-        }
-
-        if ($@) {
-            $plugin_result{error} = $@;
+            %plugin_result = LANraragi::Model::Plugins::exec_script_plugin( $plugin, %settings );
+        } elsif ( $pluginfo{type} eq "metadata" ) {
+            %plugin_result = LANraragi::Model::Plugins::exec_metadata_plugin( $plugin, $id, %settings );
         }
 
         # Decode the error value if there's one to avoid garbled characters
@@ -180,6 +211,28 @@ sub use_plugin {
     }
 
     return ( \%pluginfo, \%plugin_result );
+}
+
+sub convert_to_named_params_and_persist {
+    my ( $redis, $namerds, $old_params_order, %params ) = @_;
+    my $customargs = redis_decode( $params{customargs} );
+    my $logger     = get_logger( "Plugin System", "lanraragi" );
+
+    $logger->info("converting $namerds to named parameters ...");
+
+    #Decode it to an array for proper use
+    if ($customargs) {
+        my @args = @{ decode_json($customargs) };
+        while ( my ( $idx, $key ) = each @{$old_params_order} ) {
+            $params{$key} = $args[$idx];
+            $redis->hset( $namerds, $key, $params{$key} );
+        }
+        $logger->info("conversion completed: removing 'customargs' value");
+        $redis->hdel( $namerds, 'customargs' );
+        delete $params{customargs};
+    }
+
+    return %params;
 }
 
 1;

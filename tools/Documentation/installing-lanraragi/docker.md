@@ -24,7 +24,7 @@ Once you're done, execute:
 docker run --name=lanraragi -p 3000:3000 \
 --mount type=bind,source=[YOUR_CONTENT_DIRECTORY],target=/home/koyomi/lanraragi/content \
 --mount type=bind,source=[YOUR_DATABASE_DIRECTORY],target=/home/koyomi/lanraragi/database \
---mount type=bind,source=[YOUR_THUMBNAIL_DIRECTORY],target=/home/koyomi/lanraragi/content/thumb
+--mount type=bind,source=[YOUR_THUMBNAIL_DIRECTORY],target=/home/koyomi/lanraragi/thumb
 difegue/lanraragi
 ```
 {% hint style="info" %}
@@ -45,7 +45,7 @@ services:
       - "3000:3000"
     volumes:
       - [YOUR_CONTENT_DIRECTORY]:/home/koyomi/lanraragi/content
-      - [YOUR_THUMBNAIL_DIRECTORY]:/home/koyomi/lanraragi/content/thumb
+      - [YOUR_THUMBNAIL_DIRECTORY]:/home/koyomi/lanraragi/thumb
       - [YOUR_DATABASE_DIRECTORY]:/home/koyomi/lanraragi/database
     restart: unless-stopped
 ```
@@ -63,7 +63,7 @@ docker volume create lrr-thumbnails
 docker run --name=lanraragi -p 3000:3000 \
 --mount type=bind,source=[YOUR_CONTENT_DIRECTORY],target=/home/koyomi/lanraragi/content \
 --mount source=lrr-database,target=/home/koyomi/lanraragi/database \
---mount source=lrr-thumbnails,target=/home/koyomi/lanraragi/content/thumb \
+--mount source=lrr-thumbnails,target=/home/koyomi/lanraragi/thumb \
 difegue/lanraragi
 ```
 
@@ -141,7 +141,7 @@ docker rm lanraragi
 docker run --name=lanraragi -p 3000:3000 \
            --mount type=bind,source=[YOUR_CONTENT_DIRECTORY],target=/home/koyomi/lanraragi/content \
            --mount type=bind,source=[YOUR_DATABASE_DIRECTORY],target=/home/koyomi/lanraragi/database \
-           --mount type=bind,source=[YOUR_THUMBNAIL_DIRECTORY],target=/home/koyomi/lanraragi/content/thumb
+           --mount type=bind,source=[YOUR_THUMBNAIL_DIRECTORY],target=/home/koyomi/lanraragi/thumb
            difegue/lanraragi
 ```
 

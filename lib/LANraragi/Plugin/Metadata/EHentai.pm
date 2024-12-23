@@ -1,5 +1,8 @@
 package LANraragi::Plugin::Metadata::EHentai;
 
+use v5.36;
+use experimental 'try';
+
 use strict;
 use warnings;
 no warnings 'uninitialized';
@@ -25,7 +28,7 @@ sub plugin_info {
         namespace   => "ehplugin",
         login_from  => "ehlogin",
         author      => "Difegue and others",
-        version     => "2.5.2",
+        version     => "2.6",
         description =>
           "Searches g.e-hentai for tags matching your archive. <br/><i class='fa fa-exclamation-circle'></i> This plugin will use the source: tag of the archive if it exists.",
         icon =>
@@ -50,6 +53,8 @@ sub plugin_info {
 
 #Mandatory function to be implemented by your plugin
 sub get_tags {
+
+    no warnings 'experimental::try';
 
     shift;
     my $lrr_info = shift;                                                                               # Global info hash
@@ -78,26 +83,23 @@ sub get_tags {
     } else {
 
         # Craft URL for Text Search on EH if there's no user argument
-        ( $gID, $gToken ) = &lookup_gallery(
-            $lrr_info->{archive_title},
-            $lrr_info->{existing_tags},
-            $lrr_info->{thumbnail_hash},
-            $ua, $domain, $lang, $usethumbs, $search_gid, $expunged
-        );
+        try {
+            ( $gID, $gToken ) = &lookup_gallery(
+                $lrr_info->{archive_title},
+                $lrr_info->{existing_tags},
+                $lrr_info->{thumbnail_hash},
+                $ua, $domain, $lang, $usethumbs, $search_gid, $expunged
+            );
+        } catch ($e) {
+            $logger->error($e);
+            die $e;
+        }
     }
 
-    # If an error occured, return a hash containing an error message.
-    # LRR will display that error to the client.
-    # Using the GToken to store error codes - not the cleanest but it's convenient
     if ( $gID eq "" ) {
-
-        if ( $gToken ne "" ) {
-            $logger->error($gToken);
-            return ( error => $gToken );
-        }
-
-        $logger->info("No matching EH Gallery Found!");
-        return ( error => "No matching EH Gallery Found!" );
+        my $message = "No matching EH Gallery Found!";
+        $logger->info($message);
+        die "${message}\n";
     } else {
         $logger->debug("EH API Tokens are $gID / $gToken");
     }
@@ -187,33 +189,22 @@ sub lookup_gallery {
 
 # ehentai_parse(URL, UA)
 # Performs a remote search on e- or exhentai, and returns the ID/token matching the found gallery.
-sub ehentai_parse() {
+sub ehentai_parse {
 
     my ( $url, $ua ) = @_;
 
     my $logger = get_plugin_logger();
 
-    my ( $dom, $error ) = search_gallery( $url, $ua );
-    if ($error) {
-        return ( "", $error );
-    }
+    my $dom = search_gallery( $url, $ua );
 
-    my $gID    = "";
-    my $gToken = "";
+    # Get the first row of the search results
+    # The "glink" class is parented by a <a> tag containing the gallery link in href.
+    # This works in Minimal, Minimal+ and Compact modes, which should be enough.
+    my $firstgal = $dom->at(".glink")->parent->attr('href');
 
-    eval {
-        # Get the first row of the search results
-        # The "glink" class is parented by a <a> tag containing the gallery link in href.
-        # This works in Minimal, Minimal+ and Compact modes, which should be enough.
-        my $firstgal = $dom->at(".glink")->parent->attr('href');
-
-        # A EH link looks like xhentai.org/g/{gallery id}/{gallery token}
-        my $url    = ( split( 'hentai.org/g/', $firstgal ) )[1];
-        my @values = ( split( '/',             $url ) );
-
-        $gID    = $values[0];
-        $gToken = $values[1];
-    };
+    # A EH link looks like xhentai.org/g/{gallery id}/{gallery token}
+    $url = ( split( 'hentai.org/g/', $firstgal ) )[1];
+    my ( $gID, $gToken ) = ( split( '/', $url ) );
 
     if ( index( $dom->to_string, "You are opening" ) != -1 ) {
         my $rand = 15 + int( rand( 51 - 15 ) );
@@ -233,10 +224,10 @@ sub search_gallery {
     my $res = $ua->max_redirects(5)->get($url)->result;
 
     if ( index( $res->body, "Your IP address has been" ) != -1 ) {
-        return ( "", "Temporarily banned from EH for excessive pageloads." );
+        die "Temporarily banned from EH for excessive pageloads.\n";
     }
 
-    return ( $res->dom, undef );
+    return $res->dom;
 }
 
 # get_tags_from_EH(userAgent, gID, gToken, jpntitle, additionaltags)
@@ -249,11 +240,6 @@ sub get_tags_from_EH {
     my $logger = get_plugin_logger();
 
     my $jsonresponse = get_json_from_EH( $ua, $gID, $gToken );
-
-    #if an error occurs(no response) return empty strings.
-    if ( !$jsonresponse ) {
-        return ( "", "" );
-    }
 
     my $data    = $jsonresponse->{"gmetadata"};
     my @tags    = @{ @$data[0]->{"tags"} };
@@ -301,7 +287,8 @@ sub get_json_from_EH {
 
     my $jsonresponse = $rep->json;
     if ( exists $jsonresponse->{"error"} ) {
-        return;
+        $logger->error( $jsonresponse->{"error"} );
+        die "E-H API returned an error.\n";
     }
 
     return $jsonresponse;

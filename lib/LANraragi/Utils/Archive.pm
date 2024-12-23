@@ -162,13 +162,10 @@ sub extract_thumbnail ( $thumbdir, $id, $page, $use_hq ) {
 
     # Another subfolder with the first two characters of the id is used for FS optimization.
     my $subfolder = substr( $id, 0, 2 );
-    my $thumbname = "$thumbdir/$subfolder/$id.$format";
     make_path("$thumbdir/$subfolder");
 
     my $redis = LANraragi::Model::Config->get_redis;
-
-    my $file     = $redis->hget( $id, "file" );
-    my $temppath = tempdir();
+    my $file  = $redis->hget( $id, "file" );
 
     # Get first image from archive using filelist
     my ( $images, $sizes ) = get_filelist($file);
@@ -180,15 +177,24 @@ sub extract_thumbnail ( $thumbdir, $id, $page, $use_hq ) {
     die "Requested image not found: $id page $page" unless $requested_image;
     $logger->debug("Extracting thumbnail for $id page $page from $requested_image");
 
-    # Extract first image to temp dir
-    my $arcimg = extract_single_file( $file, $requested_image, $temppath );
+    # Extract requested image to temp dir if it doesn't already exist
+    my $temppath     = tempdir();
+    my $archive_temp = get_temp();
+    my $arcimg       = "$archive_temp/$id/$requested_image";
 
+    unless ( -e $arcimg ) {
+        $arcimg = extract_single_file( $file, $requested_image, $temppath );
+    }
+
+    my $thumbname;
     if ( $page - 1 > 0 ) {
 
         # Non-cover thumbnails land in a dedicated folder.
         $thumbname = "$thumbdir/$subfolder/$id/$page.$format";
         make_path("$thumbdir/$subfolder/$id");
     } else {
+
+        $thumbname = "$thumbdir/$subfolder/$id.$format";
 
         # For cover thumbnails, grab the SHA-1 hash for tag research.
         # That way, no need to repeat a costly extraction later.
@@ -237,8 +243,8 @@ sub get_filelist ($archive) {
         $r->support_format_all;
 
         my $ret = $r->open_filename( $archive, 10240 );
-        if ($ret != ARCHIVE_OK) {
-            $logger->error("Couldn't open archive, libarchive says:" . $r->error_string);
+        if ( $ret != ARCHIVE_OK ) {
+            $logger->error( "Couldn't open archive, libarchive says:" . $r->error_string );
             die $r->error_string;
         }
 

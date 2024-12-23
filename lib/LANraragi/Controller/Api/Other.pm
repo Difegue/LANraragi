@@ -7,33 +7,38 @@ use Redis;
 use LANraragi::Model::Stats;
 use LANraragi::Model::Opds;
 use LANraragi::Utils::TempFolder qw(get_tempsize clean_temp_full);
-use LANraragi::Utils::Generic qw(render_api_response);
-use LANraragi::Utils::Plugins qw(get_plugin get_plugins get_plugin_parameters use_plugin);
+use LANraragi::Utils::Generic    qw(render_api_response);
+use LANraragi::Utils::Plugins    qw(get_plugin get_plugins use_plugin);
 
 sub serve_serverinfo {
     my $self = shift;
 
     my $redis      = $self->LRR_CONF->get_redis_config;
     my $last_clear = $redis->hget( "LRR_SEARCHCACHE", "created" ) || time;
+    my $arc_stat   = LANraragi::Model::Stats::get_archive_count;
     my $page_stat  = LANraragi::Model::Stats::get_page_stat;
     $redis->quit();
 
     # A simple endpoint that forwards some info from LRR_CONF.
     $self->render(
         json => {
-            name                   => $self->LRR_CONF->get_htmltitle,
-            motd                   => $self->LRR_CONF->get_motd,
-            version                => $self->LRR_VERSION,
-            version_name           => $self->LRR_VERNAME,
-            version_desc           => $self->LRR_DESC,
-            has_password           => $self->LRR_CONF->enable_pass,
-            debug_mode             => $self->LRR_CONF->enable_devmode,
-            nofun_mode             => $self->LRR_CONF->enable_nofun,
-            archives_per_page      => $self->LRR_CONF->get_pagesize,
-            server_resizes_images  => $self->LRR_CONF->enable_resize,
-            server_tracks_progress => $self->LRR_CONF->enable_localprogress ? "0" : "1",
+            name         => $self->LRR_CONF->get_htmltitle,
+            motd         => $self->LRR_CONF->get_motd,
+            version      => $self->LRR_VERSION,
+            version_name => $self->LRR_VERNAME,
+            version_desc => $self->LRR_DESC,
+            has_password => $self->LRR_CONF->enable_pass    ? \1 : \0,
+            debug_mode   => $self->LRR_CONF->enable_devmode ? \1 : \0,
+            ,
+            nofun_mode => $self->LRR_CONF->enable_nofun ? \1 : \0,
+            ,
+            archives_per_page     => $self->LRR_CONF->get_pagesize + 0,
+            server_resizes_images => $self->LRR_CONF->enable_resize ? \1 : \0,
+            ,
+            server_tracks_progress => $self->LRR_CONF->enable_localprogress ? \0 : \1,
             total_pages_read       => $page_stat,
-            cache_last_cleared     => "$last_clear"
+            total_archives         => $arc_stat,
+            cache_last_cleared     => $last_clear
         }
     );
 }
@@ -82,6 +87,17 @@ sub list_plugins {
     my $type = $self->stash('type');
 
     my @plugins = get_plugins($type);
+
+    foreach my $plugin (@plugins) {
+        if ( ref( $plugin->{parameters} ) eq 'HASH' ) {
+            my @parameters_array;
+            while ( my ( $name, $value ) = each %{ $plugin->{parameters} } ) {
+                push @parameters_array, { %{$value}, 'name' => $name };
+            }
+            $plugin->{parameters} = \@parameters_array;
+        }
+    }
+
     $self->render( json => \@plugins );
 }
 
@@ -130,7 +146,7 @@ sub download_url {
 
 # Uses a plugin, with the standard global arguments and a provided oneshot argument.
 sub use_plugin_sync {
-    my ($self) = shift;
+    my ($self)   = shift;
     my $id       = $self->req->param('id') || 0;
     my $plugname = $self->req->param('plugin');
     my $input    = $self->req->param('arg');
@@ -152,7 +168,7 @@ sub use_plugin_sync {
 
 # Queues a plugin execution into Minion.
 sub use_plugin_async {
-    my ($self) = shift;
+    my ($self)   = shift;
     my $id       = $self->req->param('id')       || 0;
     my $priority = $self->req->param('priority') || 0;
     my $plugname = $self->req->param('plugin');

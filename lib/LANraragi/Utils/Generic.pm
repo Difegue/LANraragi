@@ -22,7 +22,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 use Exporter 'import';
 our @EXPORT_OK = qw(is_image is_archive render_api_response get_tag_with_namespace shasum start_shinobu
   split_workload_by_cpu start_minion get_css_list generate_themes_header flat get_bytelength array_difference
-  intersect_arrays);
+  intersect_arrays filter_hash_by_keys);
 
 # Checks if the provided file is an image.
 # Uses non-capturing groups (?:) to avoid modifying the incoming argument.
@@ -280,6 +280,21 @@ sub intersect_arrays {
     }
 
     return @result;
+}
+
+sub filter_hash_by_keys {
+
+    my ( $allowed_keys, %hash ) = @_;
+
+    # Convert the array of allowed keys into a hash for quick lookup
+    my %allowed_keys_hash = map { $_ => 1 } @$allowed_keys;
+
+    # Iterate over the keys in the hash and delete those not in the allowed keys
+    foreach my $key ( keys %hash ) {
+        delete $hash{$key} unless exists $allowed_keys_hash{$key};
+    }
+
+    return %hash;
 }
 
 1;
