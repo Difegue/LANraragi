@@ -196,8 +196,8 @@
 			[% IF usingdefpass %]
 			//If the json has the "default password" flag, flash a friendly notification inviting the user to change his password
 			LRR.toast({
-				heading: [% c.lh("You're using the default password and that's super baka of you") %],
-				text: [% c.lh("Login with password \"kamimamita\" and change that shit on the double. ...Or just disable it! Why not check the configuration options afterwards, while you're at it?") %],
+				heading: "[% c.lh('You\'re using the default password and that\'s super baka of you') %]",
+				text: '[% c.lh("Login with password \"kamimamita\" and change that shit on the double. ...Or just disable it! Why not check the configuration options afterwards, while you\'re at it?") %]',
 				icon: 'warning',
 				hideAfter: 25000,
 				closeOnClick: false,

@@ -706,11 +706,11 @@ msgstr "Add to Category"
 msgid "New Version Release Notes"
 msgstr "New Version Release Notes"
 
-msgid "You're using the default password and that's super baka of you"
-msgstr "'You're using the default password and that's super baka of you'"
+msgid "You\'re using the default password and that\'s super baka of you"
+msgstr "You\'re using the default password and that\'s super baka of you"
 
-msgid "Login with password \"kamimamita\" and change that shit on the double. ...Or just disable it! Why not check the configuration options afterwards, while you're at it?"
-msgstr "'<a href="[% c.url_for("/login") %]">Login</a> with password "kamimamita" and <a href="[% c.url_for("/config") %]">change that shit</a> on the double.<br/>...Or just disable it! <br/>Why not check the configuration options afterwards, while you\'re at it?'"
+msgid "Login with password \"kamimamita\" and change that shit on the double. ...Or just disable it! Why not check the configuration options afterwards, while you\'re at it?"
+msgstr "<a href="/login">Login</a> with password "kamimamita" and <a href="/config">change that shit</a> on the double.<br/>...Or just disable it! <br/>Why not check the configuration options afterwards, while you&#39;re at it? "
 
 # ------End of Index.html.tt2------
 

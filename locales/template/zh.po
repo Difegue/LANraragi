@@ -706,11 +706,11 @@ msgstr "添加到类别"
 msgid "New Version Release Notes"
 msgstr "新版本发布说明"
 
-msgid "You're using the default password and that's super baka of you"
-msgstr "'你这个超级大笨蛋竟然在用默认密码。'"
+msgid "You\'re using the default password and that\'s super baka of you"
+msgstr "你这个超级大笨蛋竟然在用默认密码。"
 
-msgid "Login with password \"kamimamita\" and change that shit on the double. ...Or just disable it! Why not check the configuration options afterwards, while you're at it?"
-msgstr "'使用默认密码"kamimamita"<a href="[% c.url_for("/login") %]">登录</a><br/>然后立刻<a href="[% c.url_for("/config") %]">改掉这坨史一样的密码</a>。<br/>...或者干脆禁用掉! <br/>为什么不顺便检查一下配置选项呢？'"
+msgid "Login with password \"kamimamita\" and change that shit on the double. ...Or just disable it! Why not check the configuration options afterwards, while you\'re at it?"
+msgstr "使用默认密码"kamimamita"<a href="/login">登录</a><br/>然后立刻<a href="/config">改掉这坨史一样的密码</a>。<br/>...或者干脆禁用掉! <br/>为什么不顺便检查一下配置选项呢？"
 
 # ------End of Index.html.tt2------
 
