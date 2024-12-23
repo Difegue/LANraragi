@@ -663,7 +663,7 @@ Index.loadCategories = function () {
             // Sort by pinned + alpha
             // Pinned categories are shown at the beginning
             data.sort((b, a) => b.name.localeCompare(a.name));
-            data.sort((a, b) => a.pinned < b.pinned);
+            data.sort((a, b) => b.pinned - a.pinned);
             let html = "";
 
             const iteration = (data.length > 10 ? 10 : data.length);
