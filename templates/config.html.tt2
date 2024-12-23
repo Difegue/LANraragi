@@ -46,7 +46,7 @@
 			<img class="logo-container" src="[% c.url_for("/img/logo.png") %]">
 			<br>
 			<h1 style="margin-bottom: 2px">LANraragi</h1>
-			[% c.lh("Version") %] [% version %], "[% vername %]"
+			[% c.lh("Version [_1] [_2]", version, vername) %]
 			<br>
 			<h2>[% c.lh("Select a category to show the matching settings.") %]</h2>
 			<br />

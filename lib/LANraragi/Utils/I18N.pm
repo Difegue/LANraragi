@@ -6,8 +6,8 @@ use utf8;
 use base 'Locale::Maketext';
 
 use Locale::Maketext::Lexicon {
-    en => [ Gettext => "lib/LANraragi/I18N/en.po"],
-    zh => [ Gettext => "lib/LANraragi/I18N/zh.po"],
+    en => [ Gettext => "../../locales/template/en.po"],
+    zh => [ Gettext => "../../locales/template/zh.po"],
     _auto => 0,
 };
 
