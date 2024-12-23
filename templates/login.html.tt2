@@ -16,44 +16,43 @@
 	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/fontawesome-all.min.css") %]" />
 	[% csshead %]
 
-	<script src="[% c.url_for("/js/vendor/i18next.min.js") %]" type="text/JAVASCRIPT"></script>
-	<script src="[% c.url_for("/js/vendor/i18nextHttpBackend.min.js") %]" type="text/JAVASCRIPT"></script>
-    <script src="[% c.url_for("/js/i18n.js?$version") %]" type="text/JAVASCRIPT"></script>
-
 	<script src="[% c.url_for("/js/vendor/jquery.min.js") %]" type="text/JAVASCRIPT"></script>
 </head>
 
 <body>
-    <div class='ido' style='text-align:center'>
-        <p data-i18n="login.page-requires-login">This page requires you to log on.</p>
 
-        <form name='loginForm' method='post'>
-            <table style='margin:auto; text-align:left; font-size:8pt;'>
-                <tbody>
-                    <tr>
-                        <td data-i18n="login.admin-password">Admin Password:</td>
-                        <td>
-                            <input autofocus id='pw_field' class='stdinput' type='password' style='width:90%' value=''
-                                maxlength='255' size='20' name='password'>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style='padding-top:5px; text-align:center; vertical-align:middle' colspan='2'>
-                            <input class='stdbtn' type='submit' value='Login' style='width:60px' data-i18n="login.login-button" data-i18n-attr="value">
-                        </td>
-                    </tr>
+	<div class='ido' style='text-align:center'>
+		<p>[% c.lh("This page requires you to log on.") %]</p>
 
-                    [% IF wrongpass %]
-                    <tr style='font-size:23px'>
-                        <td colspan='2' style='padding-top:5px; text-align:center; vertical-align:middle' data-i18n="login.wrong-password">Wrong
-                            Password.</td>
-                    </tr>
-                    [% END %]
-                </tbody>
-            </table>
-        </form>
-    </div>
-    [% INCLUDE footer %]
+		<form name='loginForm' method='post'>
+			<table style='margin:auto; text-align:left; font-size:8pt;'>
+				<tbody>
+
+					<tr>
+						<td>[% c.lh("Admin Password:") %]</td>
+						<td>
+							<input autofocus id='pw_field' class='stdinput' type='password' style='width:90%' value=''
+								maxlength='255' size='20' name='password'>
+						</td>
+					</tr>
+					<tr>
+						<td style='padding-top:5px; text-align:center; vertical-align:middle' colspan='2'>
+							<input class='stdbtn' type='submit' value='[% c.lh("Login") %]' style='width:60px'>
+						</td>
+					</tr>
+
+					[% IF wrongpass %]
+					<tr style='font-size:23px'>
+						<td colspan='2' style='padding-top:5px; text-align:center; vertical-align:middle '>[% c.lh("Wrong Password.") %]</td>
+					</tr>
+					[% END %]
+				</tbody>
+			</table>
+		</form>
+
+	</div>
+
+	[% INCLUDE footer %]
 </body>
 
 </html>

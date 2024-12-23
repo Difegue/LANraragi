@@ -64,7 +64,6 @@ sub index {
         userlogged   => $userlogged,
         categories   => \@categories,
         motd         => $self->LRR_CONF->get_motd,
-        language     => $self->LRR_CONF->get_language,
         csshead      => generate_themes_header($self),
         usingdefpass => $passcheck
     );

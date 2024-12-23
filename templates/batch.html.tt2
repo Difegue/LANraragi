@@ -33,15 +33,15 @@
 	<script src="[% c.url_for("/js/batch.js?$version") %]" type="text/JAVASCRIPT"></script>
 
 </head>
-<!-- -->
+
 <body>
 
 	<div class='ido' style='text-align:center'>
-		<h2 class='ih' style='text-align:center'>Batch Operations</h2>
+		<h2 class='ih' style='text-align:center'>[% c.lh("Batch Operations") %]</h2>
 
-		You can apply modifications to multiple archives in one go here.<br><br>
-		Select what you'd like to do, check archives you want to use it on, and get rolling! <br>
-		Archives with no tags have been pre-checked.<br><br>
+		[% c.lh("You can apply modifications to multiple archives in one go here.") %]<br><br>
+		[% c.lh("Select what you'd like to do, check archives you want to use it on, and get rolling!") %]<br>
+		[% c.lh("Archives with no tags have been pre-checked.") %]<br><br>
 
 		<div style='margin-left:auto; margin-right:auto;'>
 			<div style='text-align:left; width:400px !important' class='left-column'>
@@ -51,15 +51,15 @@
 					<tbody>
 						<tr>
 							<td>
-								<h2>Task :</h2>
+								<h2>[% c.lh("Task :") %]</h2>
 							</td>
 							<td>
 								<select id="batch-operation" class="favtag-btn" style="font-size:20px; height:30px">
-									<option value="plugin">🧩 Use Plugin</option>
-									<option value="clearnew">🆕 Remove New Flag</option>
-									<option value="tagrules">📏 Apply Tag Rules</option>
-									<option value="addcat">📚 Add To Category</option>
-									<option value="delete">🗑️ Delete Archive</option>
+									<option value="plugin">🧩 [% c.lh("Use Plugin") %]</option>
+									<option value="clearnew">🆕 [% c.lh("Remove New Flag") %]</option>
+									<option value="tagrules">📏 [% c.lh("Apply Tag Rules") %]</option>
+									<option value="addcat">📚 [% c.lh("Add To Category") %]</option>
+									<option value="delete">🗑️ [% c.lh("Delete Archive") %]</option>
 								</select>
 							</td>
 						</tr>
@@ -71,7 +71,7 @@
 					<table>
 						<tbody>
 							<tr class="operation plugin-operation">
-								<td>Use plugin :</td>
+								<td>[% c.lh("Use plugin :") %]</td>
 								<td>
 									<select id="plugin" class="favtag-btn">
 										[% FOREACH plugins %]
@@ -81,20 +81,18 @@
 								</td>
 							</tr>
 							<tr class="operation plugin-operation">
-								<td>Timeout (max 20s):</td>
+								<td>[% c.lh("Timeout (max 20s):") %]</td>
 								<td>
 									<input type="number" id="timeout" min="0" max="20" value="0"> seconds
 								</td>
 							</tr>
 							<tr class="operation plugin-operation">
 								<td colspan="2">
-									<h3>This plugin recommends a cooldown of <span id="cooldown">-1</span> seconds.
+									<h3>[% c.lh("This plugin recommends a cooldown of <span id=\"cooldown\">-1</span> seconds.") %]
 									</h3>
-									<i class="fas fa-exclamation-triangle"></i> Some external services may temporarily
-									ban
-									your machine for excessive loads if you call a plugin too many times! <br>
-									Make sure to set a suitable <b>timeout</b> between archives using this picker if
-									the plugin you want to use is concerned. <br><br>
+									<i class="fas fa-exclamation-triangle"></i> 
+									[% c.lh("Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!") %]<br>
+									[% c.lh("Make sure to set a suitable <b>timeout</b> between archives using this picker if the plugin you want to use is concerned.") %]<br><br>
 
 								</td>
 							</tr>
@@ -102,17 +100,15 @@
 							<tr class="operation plugin-operation">
 								<td colspan="2">
 									<input type="checkbox" id="override">
-									<label for="override">Override Plugin Global Arguments</label>
+									<label for="override">[% c.lh("Override Plugin Global Arguments") %]</label>
 								</td>
 							</tr>
 
 							<tr class="operation tagrules-operation">
-								<td style="vertical-align: top;">This will apply the following Tag Rules to the selected
-									Archives.<br><br>
-									You can edit your Tag Rules in Server Configuration.<br><br>
-
+								<td style="vertical-align: top;">[% c.lh("This will apply the following Tag Rules to the selected Archives.") %]<br><br>
+									[% c.lh("You can edit your Tag Rules in Server Configuration.") %]<br><br>
 									<input id='server-config' class='stdbtn' type='button'
-										value='Server Configuration' />
+										value='[% c.lh("Server Configuration") %]' />
 								</td>
 								<td>
 									<textarea class="stdinput" size="20" style='height:196px'
@@ -122,14 +118,13 @@
 
 							<tr class="operation clearnew-operation">
 								<td colspan="2" style="text-align: center;">
-
-									This removes the "new" flag from the selected archives.
+									[% c.lh("This removes the \"new\" flag from the selected archives.") %]
 									<br>
 								</td>
 							</tr>
 
 							<tr class="operation addcat-operation">
-								<td>Add to Category :</td>
+								<td>[% c.lh("Add to Category :") %]</td>
 								<td>
 									<select id="category" class="favtag-btn">
 										[% FOREACH categories %]
@@ -147,9 +142,7 @@
 							</tr>
 							<tr class="operation delete-operation">
 								<td colspan="2" style="text-align: center;">
-
-									<h3>This will delete both metadata and matching files from your system!
-										Please use with caution.
+									<h3>[% c.lh("This will delete both metadata and matching files from your system! Please use with caution.") %]
 									</h3>
 									<br>
 								</td>
@@ -181,19 +174,19 @@
 
 				<div class="tag-options" style="text-align:center">
 					<br /><br />
-					<input type='button' id="check-uncheck" value='Check/Uncheck all' class='stdbtn' checked='false'>
-					<input type='button' id="start-batch" value='Start Task' class='stdbtn'>
+					<input type='button' id="check-uncheck" value='[% c.lh("Check/Uncheck all") %]' class='stdbtn' checked='false'>
+					<input type='button' id="start-batch" value='[% c.lh("Start Task") %]' class='stdbtn'>
 
 				</div>
 
 				<div class="job-status" style="display:none; text-align:center">
 
-					<input id="cancel-job" type='button' value='Cancel' class='stdbtn'>
-					<input id="restart-job" type='button' value='Start another job' class='stdbtn'>
+					<input id="cancel-job" type='button' value='[% c.lh("Cancel") %]' class='stdbtn'>
+					<input id="restart-job" type='button' value='[% c.lh("Start another job") %]' class='stdbtn'>
 
 					<div id="progress" style="padding-top:6px; padding-bottom:6px">
 						<div class="bar"></div>
-						Processed <span id="arcs"></span> out of <span id="totalarcs"></span>
+						[% c.lh("Processed <span id=\"arcs\"></span> out of <span id=\"totalarcs\"></span>") %]
 					</div>
 					<div class="id1" style="padding:4px; height:auto; width:97%;">
 						<pre id="log-container" class="log-panel" />
@@ -210,14 +203,14 @@
 				<div id="loading-placeholder"
 					style="align-content: center;top: 150px; position: relative; margin-left: auto; margin-right: auto; width: 90%;">
 					<i class="fas fa-8x fa-spin fa-compact-disc"></i><br><br>
-					<h2>Preparing your data.</h2>
+					<h2>[% c.lh("Preparing your data.") %]</h2>
 				</div>
 			</div>
 			<br><br>
 		</div>
 
-		<input id='plugin-config' class='stdbtn' type='button' value='Plugin Configuration' />
-		<input id='return' class='stdbtn' type='button' value='Return to Library' />
+		<input id='plugin-config' class='stdbtn' type='button' value='[% c.lh("Plugin Configuration") %]' />
+		<input id='return' class='stdbtn' type='button' value='[% c.lh("Return to Library") %]' />
 
 	</div>
 	[% INCLUDE footer %]

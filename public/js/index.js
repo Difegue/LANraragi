@@ -74,10 +74,10 @@ Index.initializeAll = function () {
                 Index.updateCarousel();
             },
             items: {
-                ondeck: { name: i18next.t('carouselMode.ondeck'), icon: "fas fa-book-reader" },
-                random: { name: i18next.t('carouselMode.random'), icon: "fas fa-random" },
-                inbox: { name: i18next.t('carouselMode.inbox'), icon: "fas fa-envelope-open-text" },
-                untagged: { name: i18next.t('carouselMode.untagged'), icon: "fas fa-edit" },
+                ondeck: { name: "On Deck", icon: "fas fa-book-reader" },
+                random: { name: "Randomly Picked", icon: "fas fa-random" },
+                inbox: { name: "New Archives", icon: "fas fa-envelope-open-text" },
+                untagged: { name: "Untagged Archives", icon: "fas fa-edit" },
             },
         }),
     });
@@ -85,19 +85,17 @@ Index.initializeAll = function () {
     // Tell user about the context menu
     if (localStorage.getItem("sawContextMenuToast") === null) {
         localStorage.sawContextMenuToast = true;
-        
-        document.addEventListener('i18nextInitialized', () => {
-            LRR.toast({
-                heading: i18next.t('welcomeMessage', { version: Index.serverVersion }),
-                text: i18next.t('contextMenuHelp'),
-                icon: "info",
-                hideAfter: 13000,
-            });
+
+        LRR.toast({
+            heading: `Welcome to LANraragi ${Index.serverVersion}!`,
+            text: "If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!",
+            icon: "info",
+            hideAfter: 13000,
         });
     }
 
     // Get some info from the server: version, debug mode, local progress
-    Server.callAPI("/api/info", "GET", null, i18next.t('error_getting_info'),
+    Server.callAPI("/api/info", "GET", null, "Error getting basic server info!",
         (data) => {
             Index.serverVersion = data.version;
             Index.debugMode = !!data.debug_mode;
@@ -110,8 +108,8 @@ Index.initializeAll = function () {
                 Index.fetchChangelog();
             } else {
                 LRR.toast({
-                    heading: i18next.t('debug_mode_message.heading'),
-                    text: i18next.t('debug_mode_message.text', { url: new LRR.apiURL("/debug") }),
+                    heading: "<i class=\"fas fa-bug\"></i> You're running in Debug Mode!",
+                    text: `Advanced server statistics can be viewed <a href="${new LRR.apiURL("/debug")}">here.</a>`,
                     icon: "warning",
                 });
             }
@@ -223,21 +221,19 @@ Index.toggleCategory = function (button) {
  */
 Index.promptCustomColumn = function (column) {
     LRR.showPopUp({
-        title: i18next.t('CustomColumn.Title'),
-        text: i18next.t('CustomColumn.Text'),
+        title: "Enter a tag namespace for this column",
+        text: "Enter a full namespace without the colon, e.g \"artist\".\nIf you have multiple tags with the same namespace, only the last one will be shown in the column.",
         input: "text",
         inputValue: localStorage.getItem(`customColumn${column}`),
-        inputPlaceholder: i18next.t('CustomColumn.Placeholder'),
+        inputPlaceholder: "Tag namespace",
         inputAttributes: {
             autocapitalize: "off",
         },
         showCancelButton: true,
         reverseButtons: true,
-        confirmButtonText: i18next.t('CustomColumn.ConfirmButton'),
-        cancelButtonText: i18next.t('CustomColumn.CancelButton'),
         inputValidator: (value) => {
             if (!value) {
-                return i18next.t('CustomColumn.Validator');
+                return "Please enter a namespace.";
             }
             return undefined;
         },
@@ -326,33 +322,33 @@ Index.updateCarousel = function (e) {
     switch (localStorage.carouselType) {
     case "random":
         $("#carousel-icon")[0].classList = "fas fa-random";
-        $("#carousel-title").text(i18next.t('carouselMode.random') || "Random Picked");
+        $("#carousel-title").text("Randomly Picked");
         endpoint = `/api/search/random?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}&count=15`;
         break;
     case "inbox":
         $("#carousel-icon")[0].classList = "fas fa-envelope-open-text";
-        $("#carousel-title").text(i18next.t('carouselMode.inbox') || "New Archives");
+        $("#carousel-title").text("New Archives");
         endpoint = `/api/search?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}&newonly=true&sortby=date_added&order=desc&start=-1`;
         break;
     case "untagged":
         $("#carousel-icon")[0].classList = "fas fa-edit";
-        $("#carousel-title").text(i18next.t('carouselMode.untagged') || "Untagged Archives");
+        $("#carousel-title").text("Untagged Archives");
         endpoint = `/api/search?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}&untaggedonly=true&sortby=date_added&order=desc&start=-1`;
         break;
     case "ondeck":
         $("#carousel-icon")[0].classList = "fas fa-book-reader";
-        $("#carousel-title").text(i18next.t('carouselMode.ondeck') || "On Deck");
+        $("#carousel-title").text("On Deck");
         endpoint = `/api/search?filter=${IndexTable.currentSearch}&sortby=lastread`;
         break;
     default:
         $("#carousel-icon")[0].classList = "fas fa-pastafarianism";
-        $("#carousel-title").text(i18next.t('carouselMode.default') || "What???");
+        $("#carousel-title").text("What???");
         endpoint = `/api/search?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}`;
         break;
     }
 
     if (Index.carouselInitialized) {
-        Server.callAPI(endpoint, "GET", null, i18next.t('errorGettingCarouselData'),
+        Server.callAPI(endpoint, "GET", null, "Error getting carousel data!",
             (results) => {
                 Index.swiper.virtual.removeAllSlides();
                 const slides = results.data
@@ -420,8 +416,8 @@ Index.checkVersion = function () {
 
             if (latestVersion > currentVersion) {
                 LRR.toast({
-                    heading: i18next.t('new_version.heading', { tag_name: data.tag_name }),
-                    text: `<a href="${data.html_url}">${i18next.t('new_version.text')}</a>`,
+                    heading: `A new version of LANraragi (${data.tag_name}) is available !`,
+                    text: `<a href="${data.html_url}">Click here to check it out.</a>`,
                     icon: "info",
                     closeOnClick: false,
                     draggable: false,
@@ -462,7 +458,7 @@ Index.fetchChangelog = function () {
                     $("#updateOverlay").css("display", "block");
                 });
             })
-            .catch((error) => { LRR.showErrorToast(i18next.t('errorGettingChangelog'), error); });
+            .catch((error) => { LRR.showErrorToast("Error getting changelog for new version", error); });
     }
 };
 
@@ -472,7 +468,7 @@ Index.fetchChangelog = function () {
  * @returns Categories
  */
 Index.loadContextMenuCategories = function (id) {
-    return Server.callAPI(`/api/archives/${id}/categories`, "GET", null, i18next.t('errorFindingCategories', { id }),
+    return Server.callAPI(`/api/archives/${id}/categories`, "GET", null, `Error finding categories for ${id}!`,
         (data) => {
             const items = {};
 
@@ -482,7 +478,7 @@ Index.loadContextMenuCategories = function (id) {
             }
 
             if (Object.keys(items).length === 0) {
-                items.noop = { name: i18next.t('noCategory'), icon: "far fa-sad-cry" };
+                items.noop = { name: "This archive isn't in any category.", icon: "far fa-sad-cry" };
             }
 
             return items;
@@ -496,7 +492,7 @@ Index.loadContextMenuCategories = function (id) {
  * @param {*} id The ID of the archive to check
  * @returns Categories
  */
-Index.loadContextMenuCategories = (catList, id) => Server.callAPI(`/api/archives/${id}/categories`, "GET", null, i18next.t('errorFindingCategories', { id }),
+Index.loadContextMenuCategories = (catList, id) => Server.callAPI(`/api/archives/${id}/categories`, "GET", null, `Error finding categories for ${id}!`,
     (data) => {
         const items = {};
 
@@ -521,7 +517,7 @@ Index.loadContextMenuCategories = (catList, id) => Server.callAPI(`/api/archives
         }
 
         if (Object.keys(items).length === 0) {
-            items.noop = { name: i18next.t('noCategoriesYet'), icon: "far fa-sad-cry" };
+            items.noop = { name: "No Categories yet...", icon: "far fa-sad-cry" };
         }
 
         return items;
@@ -590,12 +586,11 @@ Index.handleContextMenu = function (option, id) {
         break;
     case "delete":
         LRR.showPopUp({
-            text: i18next.t('ContextMenu.Text'),
+            text: "Are you sure you want to delete this archive?",
             icon: "warning",
             showCancelButton: true,
             focusConfirm: false,
-            confirmButtonText: i18next.t('ContextMenu.ConfirmButton'),
-            cancelButtonText: i18next.t('CustomColumn.CancelButton'),
+            confirmButtonText: "Yes, delete it!",
             reverseButtons: true,
             confirmButtonColor: "#d33",
         }).then((result) => {
@@ -620,7 +615,7 @@ Index.handleContextMenu = function (option, id) {
  */
 Index.loadTagSuggestions = function () {
     // Query the tag cloud API to get the most used tags.
-    Server.callAPI("/api/database/stats?minweight=2", "GET", null, i18next.t('couldntLoadTagSuggestions'),
+    Server.callAPI("/api/database/stats?minweight=2", "GET", null, "Couldn't load tag suggestions",
         (data) => {
             // Get namespaces objects in the data array to fill the namespace-sortby combobox
             const namespacesSet = new Set(data.map((element) => (element.namespace === "parody" ? "series" : element.namespace)));
@@ -663,7 +658,7 @@ Index.loadTagSuggestions = function () {
  * Query the category API to build the filter buttons.
  */
 Index.loadCategories = function () {
-    Server.callAPI("/api/categories", "GET", null, i18next.t('couldntLoadCategories'),
+    Server.callAPI("/api/categories", "GET", null, "Couldn't load categories",
         (data) => {
             // Sort by pinned + alpha
             // Pinned categories are shown at the beginning
@@ -683,7 +678,7 @@ Index.loadCategories = function () {
                 const div = `<div style='display:inline-block'>
                     <input class='favtag-btn ${((category.id === Index.selectedCategory) ? "toggled" : "")}' 
                             type='button' id='${category.id}' value='${catName}' 
-                            onclick='Index.toggleCategory(this)' title='${i18next.t('clickHereToDisplay')}'/>
+                            onclick='Index.toggleCategory(this)' title='Click here to display the archives contained in this category.'/>
                 </div>`;
 
                 html += div;
@@ -724,8 +719,8 @@ Index.migrateProgress = function () {
     const localProgressKeys = Object.keys(localStorage).filter((x) => x.endsWith("-reader")).map((x) => x.slice(0, -7));
     if (localProgressKeys.length > 0) {
         LRR.toast({
-            heading: i18next.t("migration_heading"),
-            text: i18next.t("migration_text"),
+            heading: "Your Reading Progression is now saved on the server!",
+            text: "You seem to have some local progression hanging around -- Please wait warmly while we migrate it to the server for you. ☕",
             icon: "info",
             hideAfter: 23000,
         });
@@ -752,8 +747,8 @@ Index.migrateProgress = function () {
         });
 
         Promise.all(promises).then(() => LRR.toast({
-            heading: i18next.t("migration_success_heading"),
-            text: i18next.t("migration_success_text"),
+            heading: "Reading Progression has been fully migrated! 🎉",
+            text: "You'll have to reopen archives in the Reader to see the migrated progression values.",
             icon: "success",
             hideAfter: 13000,
         }));
