@@ -247,10 +247,6 @@ sub create_archive {
         );
     }
 
-    # post-processing thumbnail generation
-    my $thumbdir = LANraragi::Model::Config->get_thumbdir;
-    extract_thumbnail( $thumbdir, $id, 0, 1 );
-
     $redis->del("upload:$filename");
     $redis->quit();
 

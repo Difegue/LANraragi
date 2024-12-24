@@ -10,6 +10,7 @@ use File::Temp qw(tempdir);
 use File::Find qw(find);
 use File::Copy qw(move);
 
+use LANraragi::Utils::Archive  qw(extract_thumbnail);
 use LANraragi::Utils::Database qw(invalidate_cache compute_id set_title set_summary);
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Database qw(redis_encode);
@@ -124,7 +125,7 @@ sub handle_incoming_file {
     move( $tempfile, $output_file . ".upload" )
       or return ( 500, $id, $name, "The file couldn't be moved to your content folder: $!" );
 
-    # Then rename inside the content folder itself to proc Shinobu.
+    # Then rename inside the content folder itself to proc Shinobu's filemap update.
     move( $output_file . ".upload", $output_file )
       or return ( 500, $id, $name, "The file couldn't be renamed in your content folder: $!" );
 
@@ -141,6 +142,10 @@ sub handle_incoming_file {
     LANraragi::Utils::Database::add_arcsize( $redis, $id );
     $redis->quit();
     $redis_search->quit();
+
+    # Generate thumbnail
+    my $thumbdir = LANraragi::Model::Config->get_thumbdir;
+    extract_thumbnail( $thumbdir, $id, 0, 1 );
 
     $logger->debug("Running autoplugin on newly uploaded file $id...");
 
