@@ -180,6 +180,7 @@ sub serve_thumbnail {
 
     my $page = $self->req->param('page');
     $page = 0 unless $page;
+    my $is_first_page = $page == 0;
 
     my $no_fallback = $self->req->param('no_fallback');
     $no_fallback = ( $no_fallback && $no_fallback eq "true" ) || "0";    # Prevent undef warnings by checking the variable first
@@ -194,7 +195,7 @@ sub serve_thumbnail {
     my $subfolder = substr( $id, 0, 2 );
 
     # Check for the page and set the appropriate thumbnail name and fallback thumbnail name
-    my $thumbbase          = ( $page - 1 > 0 ) ? "$thumbdir/$subfolder/$id/$page" : "$thumbdir/$subfolder/$id";
+    my $thumbbase          = ($is_first_page) ? "$thumbdir/$subfolder/$id" : "$thumbdir/$subfolder/$id/$page";
     my $thumbname          = "$thumbbase.$format";
     my $fallback_thumbname = "$thumbbase.$fallback_format";
 
