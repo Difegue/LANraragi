@@ -17,6 +17,8 @@ use LANraragi::Utils::Plugins    qw(get_plugins);
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Routing;
 use LANraragi::Utils::Minion;
+use LANraragi::Utils::I18N;
+use LANraragi::Utils::I18NInitializer;
 
 use LANraragi::Model::Search;
 use LANraragi::Model::Config;
@@ -50,6 +52,9 @@ sub startup {
     # Use the hostname alongside the random secret
     $self->secrets( [ $secret . hostname() ] );
     $self->plugin('RenderFile');
+
+    # Load i18n
+    LANraragi::Utils::I18NInitializer::initialize($self);
 
     # Set Template::Toolkit as default renderer so we can use the LRR templates
     $self->plugin('TemplateToolkit');

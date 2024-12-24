@@ -1,10 +1,9 @@
 <tr>
     <td></td>
     <td class="config-td"><br>
-        The selected theme will apply to the entire application and be shown to all users.<br>
-        If you're using a browser that supports "theme-color", the theme's primary color will also be applied
-        there.<br><br>
-        Click on a theme to preview it before saving!
+        [% c.lh("The selected theme will apply to the entire application and be shown to all users.") %]<br>
+        [% c.lh("If you're using a browser that supports \"theme-color\", the theme's primary color will also be applied there.") %]<br><br>
+        [% c.lh("Click on a theme to preview it before saving!") %]
     </td>
 
 </tr>

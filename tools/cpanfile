@@ -66,4 +66,8 @@ requires 'Time::Local', 1.30;
 requires 'YAML::PP', 0.38.0;
 
 # Hentag plugin
-requires 'String::Similarity', 1.04
+requires 'String::Similarity', 1.04;
+
+# I18n
+requires 'Locale::Maketext', 1.33;
+requires 'Locale::Maketext::Lexicon', 1.00
