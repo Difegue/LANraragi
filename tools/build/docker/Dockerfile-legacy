@@ -64,6 +64,7 @@ COPY --chown=koyomi:koyomi /lib lib
 COPY --chown=koyomi:koyomi /public public
 COPY --chown=koyomi:koyomi /script script
 COPY --chown=koyomi:koyomi /templates templates
+COPY --chown=koyomi:koyomi /locales locales
 COPY --chown=koyomi:koyomi /tests tests
 COPY --chown=koyomi:koyomi /lrr.conf lrr.conf
 COPY --chown=koyomi:koyomi /tools/build/docker/redis.conf tools/build/docker/
