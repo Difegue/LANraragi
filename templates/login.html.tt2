@@ -22,14 +22,14 @@
 <body>
 
 	<div class='ido' style='text-align:center'>
-		<p>This page requires you to log on.</p>
+		<p>[% c.lh("This page requires you to log on.") %]</p>
 
 		<form name='loginForm' method='post'>
 			<table style='margin:auto; text-align:left; font-size:8pt;'>
 				<tbody>
 
 					<tr>
-						<td>Admin Password:</td>
+						<td>[% c.lh("Admin Password:") %]</td>
 						<td>
 							<input autofocus id='pw_field' class='stdinput' type='password' style='width:90%' value=''
 								maxlength='255' size='20' name='password'>
@@ -37,14 +37,13 @@
 					</tr>
 					<tr>
 						<td style='padding-top:5px; text-align:center; vertical-align:middle' colspan='2'>
-							<input class='stdbtn' type='submit' value='Login' style='width:60px'>
+							<input class='stdbtn' type='submit' value='[% c.lh("Login") %]' style='width:60px'>
 						</td>
 					</tr>
 
 					[% IF wrongpass %]
 					<tr style='font-size:23px'>
-						<td colspan='2' style='padding-top:5px; text-align:center; vertical-align:middle '>Wrong
-							Password. </td>
+						<td colspan='2' style='padding-top:5px; text-align:center; vertical-align:middle '>[% c.lh("Wrong Password.") %]</td>
 					</tr>
 					[% END %]
 				</tbody>

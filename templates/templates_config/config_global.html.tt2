@@ -1,101 +1,99 @@
 <tr>
     <td class="option-td">
-        <h2 class="ih"> Site Title </h2>
+        <h2 class="ih"> [% c.lh("Site Title") %] </h2>
     </td>
     <td class="config-td">
         <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% title %]" name="htmltitle"
             type="text">
-        <br>The site title appears on most pages as...their title.
+        <br>[% c.lh("The site title appears on most pages as...their title.") %]
     </td>
 </tr>
 
 <tr>
     <td class="option-td">
-        <h2 class="ih"> MOTD </h2>
+        <h2 class="ih"> [% c.lh("MOTD") %] </h2>
     </td>
     <td class="config-td">
         <input id="motd" class="stdinput" style="width:100%" maxlength="255" size="20" value="[% motd %]" name="motd"
             type="text">
-        <br>Slang for Message of the Day. Appears on top of the main Library view.
+        <br>[% c.lh("Slang for Message of the Day. Appears on top of the main Library view.") %]
     </td>
 </tr>
 
 <tr>
     <td class="option-td">
-        <h2 class="ih"> Archives per page </h2>
+        <h2 class="ih"> [% c.lh("Archives per page") %] </h2>
     </td>
     <td class="config-td">
         <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% pagesize %]" name="pagesize"
             type="number">
-        <br> Number of archives shown on a page in the main list.
+        <br> [% c.lh("Number of archives shown on a page in the main list.") %]
     </td>
 </tr>
 
 <tr>
     <td class="option-td">
-        <h2 class="ih"> Resize Images in Reader </h2>
+        <h2 class="ih"> [% c.lh("Resize Images in Reader") %] </h2>
     </td>
     <td class="config-td">
         [% IF enableresize %]
         <input id="enableresize" name="enableresize" class="fa" type="checkbox" checked> [% ELSE %]
         <input id="enableresize" name="enableresize" class="fa" type="checkbox"> [% END %]
         <label for="enableresize">
-            <br> If enabled, pages exceeding a certain size will be resized when viewed to save bandwidth.
-            <br> <i class="fas fa-exclamation-triangle" style="color:red"></i> This option can potentially consume a lot
-            of RAM if enabled and used on large images! Use with caution.
+            <br> [% c.lh("If enabled, pages exceeding a certain size will be resized when viewed to save bandwidth.") %]
+            <br> <i class="fas fa-exclamation-triangle" style="color:red"></i> [% c.lh("This option can potentially consume a lot of RAM if enabled and used on large images! Use with caution.") %]
         </label>
     </td>
 </tr>
 
 <tr class="resizefields">
     <td class="option-td">
-        <h2 class="ih"> Image Size Threshold </h2>
+        <h2 class="ih"> [% c.lh("Image Size Threshold") %] </h2>
     </td>
     <td class="config-td">
         <input id="sizethreshold" class="stdinput" type="number" style="width:100%" maxlength="255" size="20"
             value="[% sizethreshold %]" name="sizethreshold">
-        <br>(in KBs.) Maximum size an image can reach before being resized.
+        <br>[% c.lh("(in KBs.) Maximum size an image can reach before being resized.") %]
     </td>
 </tr>
 
 <tr class="resizefields">
     <td class="option-td">
-        <h2 class="ih"> Resize Quality </h2>
+        <h2 class="ih"> [% c.lh("Resize Quality") %] </h2>
     </td>
     <td class="config-td">
         <input id="readerquality" class="stdinput" type="number" min="0" max="100" style="width:100%" maxlength="255"
             size="20" value="[% readerquality %]" name="readerquality">
-        <br> Quality of the resized images. Less quality = Smaller image. (0-100)
+        <br> [% c.lh("Quality of the resized images. Less quality = Smaller image. (0-100)") %]
     </td>
 </tr>
 
 <tr>
     <td class="option-td">
-        <h2 class="ih"> Clientside Progress Tracking </h2>
+        <h2 class="ih"> [% c.lh("Clientside Progress Tracking") %] </h2>
     </td>
     <td class="config-td">
         [% IF localprogress %]
         <input id="localprogress" name="localprogress" class="fa" type="checkbox" checked> [% ELSE %]
         <input id="localprogress" name="localprogress" class="fa" type="checkbox"> [% END %]
         <label for="localprogress">
-            <br>Enabling this option will save reading progression on the browser (through localStorage) instead of the
-            server. <br />
-            Consider toggling this option if you're sharing the LANraragi instance with multiple users!
+            <br>[% c.lh("Enabling this option will save reading progression on the browser (through localStorage) instead of the server.") %] <br />
+            [% c.lh("Consider toggling this option if you're sharing the LANraragi instance with multiple users!") %]
         </label>
     </td>
 </tr>
 
 <tr>
     <td class="option-td">
-        <h2 class="ih"> Debug Mode </h2>
+        <h2 class="ih"> [% c.lh("Debug Mode") %] </h2>
     </td>
     <td class="config-td">
         [% IF devmode %]
         <input id="devmode" name="devmode" class="fa" type="checkbox" checked> [% ELSE %]
         <input id="devmode" name="devmode" class="fa" type="checkbox"> [% END %]
         <label for="devmode">
-            <br>Enabling Debug Mode will show more logs and disable update nagging. <br />Fully effective after
-            restarting LANraragi.
+            <br>[% c.lh("Enabling Debug Mode will show more logs and disable update nagging.") %] <br />
+            [% c.lh("Fully effective after restarting LANraragi.") %]
         </label>
     </td>
 </tr>
@@ -103,19 +101,19 @@
 
 <tr>
     <td class="option-td">
-        <input id='clean-db' class='stdbtn' type='button' value='Clean Database' />
+        <input id='clean-db' class='stdbtn' type='button' value='[% c.lh("Clean Database") %]' />
     </td>
     <td class="config-td">
-        Cleaning the database will remove entries that aren't on your filesystem.
+        [% c.lh("Cleaning the database will remove entries that aren't on your filesystem.") %]
     </td>
 </tr>
 
 <tr>
     <td class="option-td">
-        <input id='drop-db' class='stdbtn' type='button' value='Reset Database' />
+        <input id='drop-db' class='stdbtn' type='button' value='[% c.lh("Reset Database") %]' />
     </td>
     <td class="config-td">
-        <span style="color:red"><i class="fas fa-exclamation-triangle"></i> Danger zone!</span> <br>
-        Clicking this button will reset the entire database and delete all settings and metadata. <br>
+        <span style="color:red"><i class="fas fa-exclamation-triangle"></i> [% c.lh("Danger zone!") %] </span> <br>
+        [% c.lh("Clicking this button will reset the entire database and delete all settings and metadata.") %] <br>
     </td>
 </tr>
