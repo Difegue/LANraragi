@@ -22,19 +22,22 @@ use LANraragi::Model::Category;
 
 # do_search (filter, category_id, page, key, order, newonly, untaggedonly)
 # Performs a search on the database.
-sub do_search( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks ) {
+sub do_search ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks ) {
 
     my $redis  = LANraragi::Model::Config->get_redis_search;
     my $logger = get_logger( "Search Engine", "lanraragi" );
 
-    unless ( $redis->exists("LAST_JOB_TIME") ) {
+    unless ( $redis->exists("LAST_JOB_TIME") && ( $redis->exists("LRR_TANKGROUPED") || !$grouptanks ) ) {
         $logger->error("Search engine is not initialized yet. Please wait a few seconds.");
+
+        # TODO - This is the only case where the API returns -1, but it's not really handled well clientside at the moment.
         return ( -1, -1, () );
     }
 
     my $tankcount = $redis->scard("LRR_TANKGROUPED") + 0;
+
     # Total number of archives (as int)
-    my $total = $grouptanks ? $tankcount : $redis->zcard("LRR_TITLES") - $tankcount; 
+    my $total = $grouptanks ? $tankcount : $redis->zcard("LRR_TITLES") - $tankcount;
 
     # Look in searchcache first
     my $sortorder_inv = $sortorder ? 0 : 1;
@@ -65,7 +68,7 @@ sub do_search( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $u
     return ( $total, $#filtered + 1, @filtered[ $start .. $end ] );
 }
 
-sub check_cache( $cachekey, $cachekey_inv ) {
+sub check_cache ( $cachekey, $cachekey_inv ) {
 
     my $redis  = LANraragi::Model::Config->get_redis_search;
     my $logger = get_logger( "Search Cache", "lanraragi" );
@@ -96,7 +99,7 @@ sub check_cache( $cachekey, $cachekey_inv ) {
 }
 
 # Grab all our IDs, then filter them down according to the following filters and tokens' ID groups.
-sub search_uncached( $category_id, $filter, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks ) {
+sub search_uncached ( $category_id, $filter, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks ) {
 
     my $redis    = LANraragi::Model::Config->get_redis_search;
     my $redis_db = LANraragi::Model::Config->get_redis;
@@ -104,14 +107,17 @@ sub search_uncached( $category_id, $filter, $sortkey, $sortorder, $newonly, $unt
 
     # Compute search filters
     my @tokens = compute_search_filter($filter);
+
     # Prepare array: For each token, we'll have a list of matching archive IDs.
     # We intersect those lists as we proceed to get the final result.
     my @filtered;
     if ($grouptanks) {
+
         # Start with our tank IDs, and all other archive IDs that aren't in tanks
         @filtered = $redis->smembers("LRR_TANKGROUPED");
     } else {
-        # Start with all our archive IDs. Tank IDs won't be present in this search. 
+
+        # Start with all our archive IDs. Tank IDs won't be present in this search.
         @filtered = $redis_db->keys('????????????????????????????????????????');
     }
 
@@ -180,8 +186,8 @@ sub search_uncached( $category_id, $filter, $sortkey, $sortorder, $newonly, $unt
                 foreach my $id (@filtered) {
 
                     # Tanks don't have a set pagecount property, so they're not included here for now.
-                    # TODO TANKS: Maybe an index would be good actually.. 
-                    if ($id =~ /^TANK/) {
+                    # TODO TANKS: Maybe an index would be good actually..
+                    if ( $id =~ /^TANK/ ) {
                         next;
                     }
 
@@ -299,7 +305,7 @@ sub search_uncached( $category_id, $filter, $sortkey, $sortorder, $newonly, $unt
 
 # Transform the search engine syntax into a list of tokens.
 # A token object contains the tag, whether it must be an exact match, and whether it must be absent.
-sub compute_search_filter($filter) {
+sub compute_search_filter ($filter) {
 
     my $logger = get_logger( "Search Core", "lanraragi" );
     my @tokens = ();
@@ -384,7 +390,7 @@ sub compute_search_filter($filter) {
     return @tokens;
 }
 
-sub sort_results( $sortkey, $sortorder, @filtered ) {
+sub sort_results ( $sortkey, $sortorder, @filtered ) {
 
     my $redis = LANraragi::Model::Config->get_redis;
 
