@@ -183,7 +183,7 @@ msgid "LANraragi"
 msgstr "LANraragi"
 
 msgid "Version %1 %2"
-msgstr "Version %1 %2"
+msgstr "Version %1 - %2"
 
 msgid "Select a category to show the matching settings."
 msgstr "Select a category to show the matching settings."
