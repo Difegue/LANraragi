@@ -33,7 +33,7 @@ my @modules = (
     "LANraragi::Model::Upload",                  "LANraragi::Model::Opds",
     "LANraragi::Plugin::Metadata::Chaika",       "LANraragi::Plugin::Metadata::CopyTags",
     "LANraragi::Plugin::Metadata::DateAdded",    "LANraragi::Plugin::Metadata::EHentai",
-    "LANraragi::Plugin::Metadata::Eze",          "LANraragi::Plugin::Metadata::Hdoujin",
+    "LANraragi::Plugin::Metadata::Eze",          "LANraragi::Plugin::Metadata::HDoujin",
     "LANraragi::Plugin::Metadata::Koromo",       "LANraragi::Plugin::Metadata::MEMS",
     "LANraragi::Plugin::Metadata::nHentai",      "LANraragi::Plugin::Metadata::RegexParse",
     "LANraragi::Plugin::Metadata::Fakku",        "LANraragi::Plugin::Login::EHentai",
@@ -43,7 +43,7 @@ my @modules = (
     "LANraragi::Plugin::Metadata::Hitomi",       "LANraragi::Plugin::Metadata::Hentag",
     "LANraragi::Plugin::Metadata::HentagOnline", "LANraragi::Plugin::Metadata::ComicInfo",
     "LANraragi::Plugin::Metadata::ChaikaFile",   "LANraragi::Plugin::Metadata::Ksk",
-    "LANraragi::Plugin::Metadata::HatH",
+    "LANraragi::Plugin::Metadata::HatH",         "LANraragi::Plugin::Metadata::CopyArchiveTags",
     "LANraragi::Plugin::Login::Pixiv",           "LANraragi::Plugin::Metadata::Pixiv",
 );
 

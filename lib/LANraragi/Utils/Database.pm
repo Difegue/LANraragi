@@ -14,6 +14,7 @@ use File::Basename;
 use Redis;
 use Cwd;
 use Unicode::Normalize;
+use List::Util qw(max);
 use List::MoreUtils qw(uniq);
 
 use LANraragi::Utils::Generic qw(flat);
@@ -24,12 +25,13 @@ use LANraragi::Utils::Logging qw(get_logger);
 
 # Functions for interacting with the DB Model.
 use Exporter 'import';
-our @EXPORT_OK =
-  qw(redis_encode redis_decode invalidate_cache compute_id change_archive_id set_tags set_title set_summary set_isnew get_computed_tagrules save_computed_tagrules get_archive_json get_archive_json_multi get_tankoubons_by_file);
+our @EXPORT_OK = qw(
+  redis_encode redis_decode invalidate_cache compute_id change_archive_id set_tags set_title set_summary set_isnew get_computed_tagrules save_computed_tagrules get_tankoubons_by_file
+  get_archive get_archive_json get_archive_json_multi get_tags);
 
 # Creates a DB entry for a file path with the given ID.
 # This function doesn't actually require the file to exist at its given location.
-sub add_archive_to_redis ( $id, $file, $redis ) {
+sub add_archive_to_redis ( $id, $file, $redis, $redis_search ) {
 
     my $logger = get_logger( "Archive", "lanraragi" );
     my ( $name, $path, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
@@ -54,10 +56,12 @@ sub add_archive_to_redis ( $id, $file, $redis ) {
     # Throw a decode in there just in case the filename is already UTF8
     set_title( $id, redis_decode($name) );
 
+    # New archives can't be in a tank, so add them to the search set by default
+    $redis_search->sadd( "LRR_TANKGROUPED",  $id );
+
     # New file in collection, so this flag is set.
     set_isnew( $id, "true" );
 
-    $redis->quit;
     return $name;
 }
 
@@ -135,6 +139,14 @@ sub add_pagecount ( $redis, $id ) {
     $redis->hset( $id, "pagecount", scalar @images );
 }
 
+# Retrieves the archive's info as hash (empty if not found)
+sub get_archive ($id) {
+    my $redis = LANraragi::Model::Config->get_redis;
+    my %hash  = $redis->hgetall($id);
+    $redis->quit();
+    return %hash;
+}
+
 # Builds a JSON object for an archive registered in the database and returns it.
 # If you need to get many JSONs at once, use the multi variant.
 sub get_archive_json ( $redis, $id ) {
@@ -145,8 +157,13 @@ sub get_archive_json ( $redis, $id ) {
         #Extra check in case we've been given a bogus ID
         die unless $redis->exists($id);
 
-        my %hash = $redis->hgetall($id);
-        $arcdata = build_json( $id, %hash );
+        if ($id =~ /^TANK/) {
+
+            $arcdata = build_tank_json($id);
+        } else {
+            my %hash = $redis->hgetall($id);
+            $arcdata = build_json( $id, %hash );
+        }
     };
 
     return $arcdata;
@@ -163,7 +180,13 @@ sub get_archive_json_multi (@ids) {
     eval {
         $redis->multi;
         foreach my $id (@ids) {
-            $redis->hgetall($id);
+            # Tanks can be mixed in with search results, and need to be handled differently than archive hashes.
+            if ($id =~ /^TANK/) {
+                # Just get the name -- We'll have to call the tank API afterwards to get full data anyway.
+                $redis->zrangebyscore( $id, 0, 0, qw{LIMIT 0 1} );
+            } else {
+                $redis->hgetall($id);
+            }
         }
         @results = $redis->exec;
         $redis->quit;
@@ -176,8 +199,13 @@ sub get_archive_json_multi (@ids) {
         next unless ( $results[$i] );
         my %hash = @{ $results[$i] };
         my $id   = $ids[$i];
+        my $arcdata; 
 
-        my $arcdata = build_json( $id, %hash );
+        if ($id =~ /^TANK/) {
+            $arcdata = build_tank_json($id);
+        } else {
+            $arcdata = build_json( $id, %hash );
+        }
 
         if ($arcdata) {
             push @archives, $arcdata;
@@ -185,6 +213,12 @@ sub get_archive_json_multi (@ids) {
     }
 
     return @archives;
+}
+
+sub get_tags ($id) {
+    my %archive_info = get_archive($id);
+    return "" if ( !%archive_info );
+    return $archive_info{tags};
 }
 
 # Internal function for building an archive JSON.
@@ -217,6 +251,49 @@ sub build_json ( $id, %hash ) {
         pagecount    => $pagecount    ? int($pagecount)    : 0,
         lastreadtime => $lastreadtime ? int($lastreadtime) : 0,
         size         => $arcsize      ? int($arcsize)      : 0
+    };
+
+    return $arcdata;
+}
+
+# Ditto for Tank IDs.
+sub build_tank_json($id) {
+    my %tank = LANraragi::Model::Tankoubon::get_tankoubon($id, 1);
+
+    # Aggregate data of all archives in the tank 
+    my $aggregate_tags = "";
+    my $aggregate_names = "";
+    my $aggregate_isnew = 0;
+    my $aggregate_progress = 0;
+    my $aggregate_pagecount = 0;
+    my $latest_readtime = 0;
+    my $aggregate_size = 0;
+
+    foreach my $archive_info (@{$tank{full_data}}) {
+        $aggregate_tags .= %$archive_info{tags} . ",";
+        $aggregate_names .= %$archive_info{title} . ",";
+        $aggregate_isnew = $aggregate_isnew || %$archive_info{isnew};
+        $aggregate_progress = $aggregate_progress + %$archive_info{progress};
+        $aggregate_pagecount = $aggregate_pagecount + %$archive_info{pagecount};
+        $aggregate_size = $aggregate_size + %$archive_info{size};
+        $latest_readtime = max($latest_readtime, %$archive_info{lastreadtime});
+    }
+
+    chop $aggregate_tags;
+    chop $aggregate_names;
+
+    my $arcdata = {
+        arcid        => $id,
+        title        => $tank{name},
+        filename     => "",
+        tags         => $aggregate_tags,
+        summary      => "Tankoubon containing: $aggregate_names",
+        isnew        => $aggregate_isnew ? $aggregate_isnew : "false",
+        extension    => ".tank",
+        progress     => $aggregate_progress,
+        pagecount    => $aggregate_pagecount,
+        lastreadtime => $latest_readtime,
+        size         => $aggregate_size
     };
 
     return $arcdata;
@@ -269,7 +346,7 @@ sub clean_database {
         eval { $redis->hgetall($id); };
 
         if ($@) {
-            $redis->del($id);
+            LANraragi::Model::Archive::delete_archive($id);
             $deleted_arcs++;
             next;
         }
@@ -277,7 +354,7 @@ sub clean_database {
         # Check if the linked file exists
         my $file = $redis->hget( $id, "file" );
         unless ( -e $file ) {
-            $redis->del($id);
+            LANraragi::Model::Archive::delete_archive($id);
             $deleted_arcs++;
             next;
         }

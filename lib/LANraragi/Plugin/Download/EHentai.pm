@@ -14,12 +14,12 @@ sub plugin_info {
 
     return (
         # Standard metadata
-        name       => "E*Hentai Downloader",
-        type       => "download",
-        namespace  => "ehdl",
-        login_from => "ehlogin",
-        author     => "Difegue",
-        version    => "1.1",
+        name        => "E*Hentai Downloader",
+        type        => "download",
+        namespace   => "ehdl",
+        login_from  => "ehlogin",
+        author      => "Difegue",
+        version     => "1.1",
         description =>
           "Downloads the given e*hentai URL and adds it to LANraragi. This uses GP to call the archiver, so make sure you have enough!",
 
@@ -77,7 +77,7 @@ sub provide_url {
     my $content = $response->body;
     $logger->debug("/archiver.php result: $content");
 
-    if ($content =~ /.*Insufficient funds.*/gim) {
+    if ( $content =~ /.*Insufficient funds.*/gim ) {
         $logger->debug("Not enough GP, aborting download.");
         return ( error => "You do not have enough GP to download this URL." );
     }

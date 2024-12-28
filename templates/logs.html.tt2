@@ -11,42 +11,42 @@
 
 	<link type="image/png" rel="icon" href="favicon.ico" />
 	<link rel="manifest" href="app.webappmanifest" />
-	<link rel="stylesheet" type="text/css" href="/css/lrr.css?[% version%]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/lrr.css?$version") %]" />
 
-	<link rel="stylesheet" type="text/css" href="./css/vendor/fontawesome-all.min.css" />
-	<link rel="stylesheet" type="text/css" href="/css/vendor/ReactToastify.min.css" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/fontawesome-all.min.css") %]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/ReactToastify.min.css") %]" />
 	[% csshead %]
 
-	<script src="./js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/preact.umd.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/hooks.umd.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/compat.umd.js" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/jquery.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/preact.umd.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/hooks.umd.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/compat.umd.js") %]" type="text/JAVASCRIPT"></script>
 	<script>window.React = window.preactCompat; window.react = window.preactCompat;</script>
-	<script src="/js/vendor/clsx.min.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/react-toastify.umd.js" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/clsx.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/react-toastify.umd.js") %]" type="text/JAVASCRIPT"></script>
 
-	<script src="./js/common.js?[% version%]" type="text/JAVASCRIPT"></script>
-	<script src="./js/logs.js?[% version%]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/common.js?$version") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/logs.js?$version") %]" type="text/JAVASCRIPT"></script>
 </head>
 
 <body>
 
 	<div class='ido' style='text-align:center'>
-		<h2 class='ih' style='text-align:center'>Application Logs</h2>
+		<h2 class='ih' style='text-align:center'>[% c.lh("Application Logs") %]</h2>
 
 		<br>
-		You can check LANraragi logs here for debugging purposes.<br>
-		By default, this view only shows the last 100 lines of each logfile, newest lines last. <br><br>
+		[% c.lh("You can check LANraragi logs here for debugging purposes.") %]<br>
+		[% c.lh("By default, this view only shows the last 100 lines of each logfile, newest lines last.") %] <br><br>
 		<ul>
-			<li>General Logs pertain to the main application. </li>
-			<li>Shinobu Logs correspond to the Background Worker.</li>
-			<li>Plugin Logs are reserved for metadata plugins only. </li>
-			<li>Mojolicious logs won't tell much unless you're running Debug Mode. </li>
-			<li>Redis logs won't be available from here if you're running from source! </li>
+			<li>[% c.lh("General Logs pertain to the main application.") %]</li>
+			<li>[% c.lh("Shinobu Logs correspond to the Background Worker.") %]</li>
+			<li>[% c.lh("Plugin Logs are reserved for metadata plugins only.") %]</li>
+			<li>[% c.lh("Mojolicious logs won't tell much unless you're running Debug Mode.") %]</li>
+			<li>[% c.lh("Redis logs won't be available from here if you're running from source!") %]</li>
 		</ul>
 		<br><br>
 
-		<h1 class='ih' style='float:left; margin-left: 5%;'>Currently Viewing: <span id="indicator">general</span></h1>
+		<h1 class='ih' style='float:left; margin-left: 5%;'>[% c.lh("Currently Viewing:") %] <span id="indicator">[% c.lh("general") %]</span></h1>
 
 		<div style="margin-right: 5%;float: right;">
 
@@ -54,7 +54,7 @@
 				<i style="padding-right: 10px;" class="fa fa-sync-alt fa-2x"></i>
 			</a>
 
-			Lines: <input type="number" min="0" value="100" id="loglines" style="width: 60px;">
+			[% c.lh("Lines:") %] <input type="number" min="0" value="100" id="loglines" style="width: 60px;">
 
 		</div>
 
@@ -72,18 +72,18 @@
 
 		<br><br>
 		<span id='buttonstagging'>
-			<input id="show-general" type='button' value='View LANraragi Logs' class='stdbtn'>
+			<input id="show-general" type='button' value='[% c.lh("View LANraragi Logs") %]' class='stdbtn'>
 
-			<input id="show-shinobu" type='button' value='View Shinobu Logs' class='stdbtn'>
+			<input id="show-shinobu" type='button' value='[% c.lh("View Shinobu Logs") %]' class='stdbtn'>
 
-			<input id="show-plugins" type='button' value='View Plugin Logs' class='stdbtn'>
+			<input id="show-plugins" type='button' value='[% c.lh("View Plugin Logs") %]' class='stdbtn'>
 
-			<input id="show-mojo" type='button' value='View Mojolicious Logs' class='stdbtn'>
+			<input id="show-mojo" type='button' value='[% c.lh("View Mojolicious Logs") %]' class='stdbtn'>
 
-			<input id="show-redis" type='button' value='View Redis Logs' class='stdbtn'>
+			<input id="show-redis" type='button' value='[% c.lh("View Redis Logs") %]' class='stdbtn'>
 
 			<br><br>
-			<input id='return' class='stdbtn' type='button' value='Return to Library' />
+			<input id='return' class='stdbtn' type='button' value='[% c.lh("Return to Library") %]' />
 
 		</span>
 

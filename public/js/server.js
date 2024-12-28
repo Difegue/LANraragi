@@ -16,6 +16,7 @@ Server.isScriptRunning = false;
  * @returns The result of the callback, or NULL.
  */
 Server.callAPI = function (endpoint, method, successMessage, errorMessage, successCallback) {
+    endpoint = new LRR.apiURL(endpoint);
     return fetch(endpoint, { method })
         .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))
         .then((data) => {
@@ -43,6 +44,7 @@ Server.callAPI = function (endpoint, method, successMessage, errorMessage, succe
 };
 
 Server.callAPIBody = function (endpoint, method, body, successMessage, errorMessage, successCallback) {
+    endpoint = new LRR.apiURL(endpoint);
     return fetch(endpoint, { method, body })
         .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))
         .then((data) => {
@@ -79,7 +81,8 @@ Server.callAPIBody = function (endpoint, method, body, successMessage, errorMess
  * @param {*} progressCallback Execute a callback if the job reports progress. (aka, if there's anything in notes)
  */
 Server.checkJobStatus = function (jobId, useDetail, callback, failureCallback, progressCallback = null) {
-    fetch(useDetail ? `/api/minion/${jobId}/detail` : `/api/minion/${jobId}`, { method: "GET" })
+    let endpoint = new LRR.apiURL(useDetail ? `/api/minion/${jobId}/detail` : `/api/minion/${jobId}`);
+    fetch(endpoint, { method: "GET" })
         .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))
         .then((data) => {
             if (data.error) throw new Error(data.error);
@@ -106,9 +109,9 @@ Server.checkJobStatus = function (jobId, useDetail, callback, failureCallback, p
                 setTimeout(() => {
                     Server.checkJobStatus(jobId, useDetail, callback, failureCallback, progressCallback);
                 }, 1000);
-            } 
-            
-            if (data.state === "finished") { 
+            }
+
+            if (data.state === "finished") {
                 // Update UI with info
                 callback(data);
             }
@@ -297,7 +300,8 @@ Server.removeArchiveFromCategory = function (arcId, catId) {
  * @param {*} callback Callback to execute once the archive is deleted (usually a redirection)
  */
 Server.deleteArchive = function (arcId, callback) {
-    fetch(`/api/archives/${arcId}`, { method: "DELETE" })
+    let endpoint = new LRR.apiURL(`/api/archives/${arcId}`);
+    fetch(endpoint, { method: "DELETE" })
         .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))
         .then((data) => {
             if (!data.success) {
@@ -320,4 +324,15 @@ Server.deleteArchive = function (arcId, callback) {
             }
         })
         .catch((error) => LRR.showErrorToast("Error while deleting archive", error));
+};
+
+/**
+ * Sends a UPDATE request for the metadata of the archive ID
+ * @param {*} arcId Archive ID
+ */
+Server.updateTagsFromArchive = function (arcId, tags) {
+    const formData = new FormData();
+    formData.append("tags", tags);
+
+    Server.callAPIBody(`/api/archives/${arcId}/metadata`, "PUT", formData, `Updated tags from Archive ${arcId}!`, "Error updating tags from archive", null);
 };

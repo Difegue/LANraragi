@@ -8,6 +8,7 @@ use Redis;
 use Mojo::JSON qw(decode_json encode_json);
 
 use LANraragi::Model::Category;
+use LANraragi::Model::Tankoubon;
 use LANraragi::Utils::Database;
 use LANraragi::Utils::String   qw(trim_CRLF);
 use LANraragi::Utils::Database qw(redis_encode redis_decode invalidate_cache set_title set_tags set_summary);
@@ -52,6 +53,23 @@ sub build_backup_JSON {
 
         $logger->trace("Backing up category $key: $@");
 
+    }
+
+    # Backup tanks
+    my ( $total, $filtered, @tanks ) = LANraragi::Model::Tankoubon::get_tankoubon_list(-1);
+    foreach my $tank (@tanks) {
+
+        my $tank_id       = %$tank{id};
+        my $tank_title    = %$tank{name};
+        my @tank_archives = @{ %$tank{archives} };
+
+        my %tank = (
+            tankid   => $tank_id,
+            name     => $tank_title,
+            archives => \@tank_archives
+        );
+
+        push @{ $backup{tankoubons} }, \%tank;
     }
 
     # Backup archives themselves next
@@ -119,6 +137,20 @@ sub restore_from_JSON {
         foreach my $arcid (@archives) {
             LANraragi::Model::Category::add_to_category( $cat_id, $arcid );
         }
+    }
+
+    foreach my $tank ( @{ $json->{tankoubons} } ) {
+
+        my $tank_id = $tank->{"tankid"};
+        $logger->info("Restoring Tankoubon $tank_id...");
+
+        my $name     = redis_encode( $tank->{"name"} );
+        my @archives = @{ $tank->{"archives"} };
+
+        LANraragi::Model::Tankoubon::create_tankoubon( $name, $tank_id );
+
+        # Backups use the same data structure as tank updates, so we can just pass the data object as-is.
+        LANraragi::Model::Tankoubon::update_archive_list( $tank_id, $tank );
     }
 
     foreach my $archive ( @{ $json->{archives} } ) {

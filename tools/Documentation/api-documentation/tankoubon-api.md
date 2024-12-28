@@ -21,14 +21,18 @@ Page of the list of Tankoubons.
                 "fa74bc15e7dd2b6ec0dc2e10cc7cd4942867318a"
             ],
             "id": "TANK_1688616437",
-            "name": "Test 1"
+            "name": "Test 1",
+            "summary": "",
+            "tags": ""
         },
         {
             "archives": [
                 "fa74bc15e7dd2b6ec0dc2e10cc7cd4942867318a"
             ],
             "id": "TANK_1688693913",
-            "name": "Test 2"
+            "name": "Test 2",
+            "summary": "",
+            "tags": ""
         }
     ],
     "total": 2
@@ -65,7 +69,9 @@ Page of the Archives list.
             "4857fd2e7c00db8b0af0337b94055d8445118630"
         ],
         "id": "TANK_1688616437",
-        "name": "Test 1"
+        "name": "Test 1",
+        "summary": "",
+        "tags": ""
     },
     "total": 3
 }
@@ -118,7 +124,9 @@ Page of the Archives list.
             }
         ],
         "id": "TANK_1688616437",
-        "name": "Test 1"
+        "name": "Test 1",
+        "summary": "",
+        "tags": ""
     },
     "total": 3
 }
@@ -166,26 +174,31 @@ Name of the Category.
 {% endswagger-response %}
 {% endswagger %}
 
-{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/tankoubons/:id/archive" method="put" summary="🔑Update a Tankoubon" %}
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/tankoubons/:id" method="put" summary="🔑Update a Tankoubon" %}
 {% swagger-description %}
-Modify a Tankoubon using an ordered array that can add new files, remove files, and update order.
+Update a Tankoubon.
 {% endswagger-description %}
 
 {% swagger-parameter name="id" type="string" required="true" in="path" %}
 ID of the Tankoubon to update.
 {% endswagger-parameter %}
 
-{% swagger-parameter name="archives" type="array" required="true" in="body" %}
-Ordered array with the IDs of the archives.
+{% swagger-parameter name="archives" type="json" required="true" in="body" %}
+Json with 2 optional keys "archives" and "metadata" defining:
+
+- archives: Ordered array with the IDs of the archives.
+- metadata: Json with the metadata parameters: name, summary, tags.
+
+Note: If there is no need to update something in one of the keys, do not send the key, otherwise can result on unwanted results.
 {% endswagger-parameter %}
 
 {% swagger-response status="200" description="" %}
 ```javascript
 {
     "error": "",
-    "operation": "update_archive_list",
+    "operation": "update_tankoubon",
     "success": 1,
-    "successMessage": "Updated archives of tankoubon \"Test 1\"!"
+    "successMessage": "Updated tankoubon \"Test 1\"!"
 }
 ```
 {% endswagger-response %}
@@ -194,7 +207,7 @@ Ordered array with the IDs of the archives.
 ```javascript
 {
   "error": "rr doesn't exist in the database!",
-  "operation": "update_archive_list",
+  "operation": "update_tankoubon",
   "success": 0
 }
 ```

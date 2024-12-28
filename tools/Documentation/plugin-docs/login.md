@@ -1,6 +1,6 @@
 # Login Plugins
 
-Login Plugins mostly play a support role: They can be called by all other plugins: Metadata, Downloader and Script Plugins.  
+Login Plugins mostly play a support role: They can be called by all other plugins: Metadata, Downloader and Script Plugins.
 Their role is to provide a configured [Mojo::UserAgent](https://mojolicious.org/perldoc/Mojo/UserAgent) object that can be used to perform authenticated operations on a remote Web service.
 
 ## Required subroutines
@@ -16,10 +16,10 @@ sub do_login {
 
     #First lines you should have in the subroutine
     shift;
-    my ($param1, $param2, $param3) = @_; # Plugin parameters
+    my ($params) = @_; # Plugin parameters
 ```
 
-The variables match the parameters you've entered in the `plugin_info` subroutine.
+The `$params` hash contains the values of the user defined parameters.
 
 ### Expected Output
 
@@ -49,13 +49,13 @@ sub plugin_info {
         author => "Hackerman",
         version  => "0.001",
         description => "This is base boilerplate for writing LRR plugins.",
-        #If your plugin uses/needs custom arguments, input their name here. 
+        #If your plugin uses/needs custom arguments, input their name here.
         #This name will be displayed in plugin configuration next to an input box.
-        parameters  => [
-            {type => "bool",   desc => "Enable logging in to service X", default_value => "1"},
-            {type => "int",    desc => "User ID"},
-            {type => "string", desc => "Password"}
-        ]
+        parameters  => {
+            'loginenabled' => {type => "bool",   desc => "Enable logging in to service X", default_value => "1"},
+            'uid'          => {type => "int",    desc => "User ID"},
+            'password'     => {type => "string", desc => "Password"}
+        }
     );
 
 }
@@ -65,18 +65,17 @@ sub plugin_info {
 sub do_login {
 
     # Login plugins only receive the parameters entered by the user.
-    shift;
-    my ( $loginenabled, $uID, $password) = @_;
+    my ( undef, $params ) = @_;
 
     my $logger = get_logger( "Undernet Login", "plugins" );
     my $ua = Mojo::UserAgent->new;
 
-    if ($loginenabled) {
+    if ($params->{loginenabled}) {
 
         $ua->cookie_jar->add(
             Mojo::Cookie::Response->new(
                 name   => 'userID',
-                value  => $uID,
+                value  => $params->{uid},
                 domain => 'example.com',
                 path   => '/'
             )
@@ -85,7 +84,7 @@ sub do_login {
         $ua->cookie_jar->add(
             Mojo::Cookie::Response->new(
                 name   => 'password',
-                value  => $password,
+                value  => $params->{password},
                 domain => 'example.com',
                 path   => '/'
             )
@@ -101,3 +100,6 @@ sub do_login {
 1;
 ```
 
+### Converting existing plugins to named parameters
+
+If you have a plugin that you want to convert to using named parameters check [Converting existing plugins to named parameters](metadata.md#converting-existing-plugins-to-named-parameters) in the [Metadata](./metadata.md) section.

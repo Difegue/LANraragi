@@ -114,7 +114,7 @@ sub generate_page_thumbnails {
 
     my $should_queue_job = 0;
 
-    for ( my $page = 1; $page <= $pages; $page++ ) {
+    for ( my $page = 2; $page <= $pages; $page++ ) {
         my $thumbname = ( $page - 1 > 0 ) ? "$thumbdir/$subfolder/$id/$page.$format" : "$thumbdir/$subfolder/$id.$format";
 
         unless ( $force == 0 && -e $thumbname ) {
@@ -180,6 +180,7 @@ sub serve_thumbnail {
 
     my $page = $self->req->param('page');
     $page = 0 unless $page;
+    my $is_first_page = $page == 0;
 
     my $no_fallback = $self->req->param('no_fallback');
     $no_fallback = ( $no_fallback && $no_fallback eq "true" ) || "0";    # Prevent undef warnings by checking the variable first
@@ -194,7 +195,7 @@ sub serve_thumbnail {
     my $subfolder = substr( $id, 0, 2 );
 
     # Check for the page and set the appropriate thumbnail name and fallback thumbnail name
-    my $thumbbase          = ( $page - 1 > 0 ) ? "$thumbdir/$subfolder/$id/$page" : "$thumbdir/$subfolder/$id";
+    my $thumbbase          = ($is_first_page) ? "$thumbdir/$subfolder/$id" : "$thumbdir/$subfolder/$id/$page";
     my $thumbname          = "$thumbbase.$format";
     my $fallback_thumbname = "$thumbbase.$fallback_format";
 
@@ -380,9 +381,20 @@ sub delete_archive ($id) {
     # Remove matching data from the search indexes
     my $redis_search = LANraragi::Model::Config->get_redis_search;
     $redis_search->zrem( "LRR_TITLES", "$oldtitle\0$id" );
-    $redis_search->srem( "LRR_NEW",      $id );
-    $redis_search->srem( "LRR_UNTAGGED", $id );
+    $redis_search->srem( "LRR_NEW",         $id );
+    $redis_search->srem( "LRR_UNTAGGED",    $id );
+    $redis_search->srem( "LRR_TANKGROUPED", $id );
     $redis_search->quit();
+
+    # Remove from tanks/collections
+    foreach my $tank_id ( LANraragi::Model::Tankoubon::get_tankoubons_containing_archive($id) ) {
+        LANraragi::Model::Tankoubon::remove_from_tankoubon( $tank_id, $id );
+    }
+
+    foreach my $cat ( LANraragi::Model::Category::get_categories_containing_archive($id) ) {
+        my $catid = %{$cat}{"id"};
+        LANraragi::Model::Category::remove_from_category( $catid, $id );
+    }
 
     LANraragi::Utils::Database::update_indexes( $id, $oldtags, "" );
 

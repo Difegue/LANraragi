@@ -29,6 +29,7 @@ use File::Find;
 use File::Basename;
 use Encode;
 
+use LANraragi::Utils::Archive    qw(extract_thumbnail);
 use LANraragi::Utils::Database   qw(redis_encode invalidate_cache compute_id change_archive_id);
 use LANraragi::Utils::TempFolder qw(get_temp clean_temp_partial);
 use LANraragi::Utils::Logging    qw(get_logger);
@@ -72,9 +73,9 @@ sub initialize_from_new_process {
     # Add watcher to content directory
     my $contentwatcher = File::ChangeNotify->instantiate_watcher(
         directories     => [$userdir],
-        filter          => qr/\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|cb7|cbt|pdf|epub)$/i,
+        filter          => qr/\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|cb7|cbt|pdf|epub|tar\.zst|zst)$/i,
         follow_symlinks => 1,
-        exclude         => [ 'thumb', '.' ],                                                      #excluded subdirs
+        exclude         => [ 'thumb', '.' ],                                                                   #excluded subdirs
     );
 
     my $class = ref($contentwatcher);
@@ -320,15 +321,20 @@ sub deleted_file_callback ($name) {
 
 sub add_new_file ( $id, $file ) {
 
-    my $redis = LANraragi::Model::Config->get_redis;
+    my $redis        = LANraragi::Model::Config->get_redis;
+    my $redis_search = LANraragi::Model::Config->get_redis_search;
     $logger->info("Adding new file $file with ID $id");
 
     eval {
-        LANraragi::Utils::Database::add_archive_to_redis( $id, $file, $redis );
+        LANraragi::Utils::Database::add_archive_to_redis( $id, $file, $redis, $redis_search );
         LANraragi::Utils::Database::add_timestamp_tag( $redis, $id );
         LANraragi::Utils::Database::add_pagecount( $redis, $id );
 
-        #AutoTagging using enabled plugins goes here!
+        # Generate thumbnail
+        my $thumbdir = LANraragi::Model::Config->get_thumbdir;
+        extract_thumbnail( $thumbdir, $id, 0, 1 );
+
+        # AutoTagging using enabled plugins goes here!
         LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
     };
 
@@ -336,6 +342,7 @@ sub add_new_file ( $id, $file ) {
         $logger->error("Error while adding file: $@");
     }
     $redis->quit;
+    $redis_search->quit;
 }
 
 __PACKAGE__->initialize_from_new_process unless caller;

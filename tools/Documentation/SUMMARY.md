@@ -36,6 +36,7 @@
 
 * [🏗 Setup a Development Environment](extending-lanraragi/index.md)
 * [🏛 Architecture & Style](extending-lanraragi/architecture.md)
+* [🈁 Translating LANraragi to other languages](extending-lanraragi/translations.md)
 
 ## API Documentation
 

@@ -444,6 +444,112 @@ Current page to update the reading progress to. **Must** be a positive integer, 
 {% endswagger-response %}
 {% endswagger %}
 
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/archives/upload" method="put" summary="🔑Upload Archive" %}
+{% swagger-description %}
+Upload an Archive to the server.
+If a SHA1 checksum of the Archive is included, the server will perform an optional in-transit, file integrity validation, and reject the upload if the server-side checksum does not match.
+{% endswagger-description %}
+
+{% swagger-parameter name="title" type="string" required="false" in="query" %}
+Title of the Archive.
+{% endswagger-parameter %}
+{% swagger-parameter name="tags" type="string" required="false" in="query" %}
+Set of tags you want to insert in the database alongside the archive.
+{% endswagger-parameter %}
+{% swagger-parameter name="summary" type="string" required="false" in="query" %}
+summary
+{% endswagger-parameter %}
+{% swagger-parameter name="category_id" type="int" required="false" in="query" %}
+Category ID you'd want the archive to be added to.
+{% endswagger-parameter %}
+{% swagger-parameter name="file_checksum" type="string" required="false" in="query" %}
+SHA1 checksum of the archive for in-transit validation.
+{% endswagger-parameter %}
+
+{% swagger-response status="200" description="" %}
+```javascript
+{
+  "operation": "upload",
+  "success": 1,
+  "id": "7ffb78b32abfb679e4824db9f1e3addf335d0f70"
+}
+```
+{% endswagger-response %}
+
+{% swagger-response status="400" description="" %}
+```javascript
+{
+  "operation": "upload",
+  "error": "No file attached",
+  "success": 0
+}
+```
+{% endswagger-response %}
+
+{% swagger-response status="409" description="duplicate archive" %}
+```javascript
+{
+  "operation": "upload",
+  "error": "This file already exists in the Library. Enable replace duplicated archive in config to replace old ones.",
+  "success": 0,
+  "id": "0b91b546850e881034833c73375558928ddcec7c"
+}
+```
+{% endswagger-response %}
+
+{% swagger-response status="415" description="unsupported file" %}
+```javascript
+{
+  "operation": "upload",
+  "error": "Unsupported File Extension (Spirited Away.mkv)",
+  "success": 0,
+  "id": "deadbeef"
+}
+```
+{% endswagger-response %}
+
+{% swagger-response status="417" description="checksum mismatch" %}
+```javascript
+{
+  "operation": "upload",
+  "error": "Checksum mismatch: expected 92cfceb39d57d914ed8b14d0e37643de0797ae56, got 0286dd552c9bea9a69ecb3759e7b94777635514b",
+  "success": 0
+}
+```
+{% endswagger-response %}
+
+{% swagger-response status="422" description="unprocessable entity" %}
+```javascript
+{
+  "operation": "upload",
+  "error": "Filename \"quirky-symbols～☆.cbz\" could not be converted back to a byte sequence!",
+  "success": 0
+}
+```
+{% endswagger-response %}
+
+{% swagger-response status="423" description="locked resource" %}
+```javascript
+{
+  "operation": "upload",
+  "error": "Locked resource: Monster-01.cbz",
+  "success": 0
+}
+```
+{% endswagger-response %}
+
+{% swagger-response status="500" description="" %}
+```javascript
+{
+  "operation": "upload",
+  "error": "The file couldn't be moved to your content folder!",
+  "success": 0
+}
+```
+{% endswagger-response %}
+
+{% endswagger %}
+
 {% swagger baseUrl="http://lrr.tvc-16.science" path="/api/archives/:id/thumbnail" method="put" summary="🔑Update Thumbnail" %}
 {% swagger-description %}
 Update the cover thumbnail for the given Archive.
@@ -462,7 +568,7 @@ Page you want to make the thumbnail out of. Defaults to 1.
 {
   "operation": "update_thumbnail",
   "success": 1,
-  "new_thumbnail": "/mnt//lrr/content/thumb/95/9595845d952e8141feeba375767248b960979bc2.jpg"
+  "new_thumbnail": "/mnt/lrr/thumb/95/9595845d952e8141feeba375767248b960979bc2.jpg"
 }
 ```
 {% endswagger-response %}

@@ -3,6 +3,48 @@
  */
 const LRR = {};
 
+function _get_baseurl_cookie() {
+    let cookies = document.cookie;
+    val = cookies.split('; ').find((r) => r.startsWith("lrr_baseurl="))?.split("=")[1];
+    if (val === undefined) {
+        console.warn("lrr_baseurl cookie undefined, must be set by backend");
+        val = "";
+    }
+    return val;
+}
+
+// This class is used to wrap URLs that point into the app, including
+// API endpoints and browser targets. It reads the configured base URL
+// from the template, then prepends it to the provided URL in the
+// toString() method.
+
+// Every operation involving an app-internal URL should be wrapped in
+// this class before use. It can be passed to any API that expects a
+// URL, and can be wrapped around another instance of itself without a
+// change.
+LRR.apiURL = class {
+    static base_url = _get_baseurl_cookie();
+
+    constructor(load_url) {
+        // accept instances of self as well, to make wrapping
+        // idempotent
+        if (load_url instanceof LRR.apiURL) {
+            load_url = load_url.load_url;
+        }
+        this.load_url = load_url;
+        if (!this.load_url.startsWith("/")) {
+            console.trace("passed non-absolute URL to apiURL");
+            this.load_url = "/" + this.load_url;
+        }
+    }
+
+    toString() {
+        // in the default case, this will be empty string and will
+        // leave the load URL unchanged
+        return LRR.apiURL.base_url + this.load_url;
+    }
+};
+
 /**
  * Quick HTML encoding function.
  * @param {*} r The HTML to encode
@@ -51,7 +93,7 @@ LRR.isNullOrWhitespace = function (input) {
 LRR.getTagSearchURL = function (namespace, tag) {
     const namespacedTag = this.buildNamespacedTag(namespace, tag);
     if (namespace !== "source") {
-        return `/?q=${encodeURIComponent(namespacedTag)}`;
+        return new LRR.apiURL(`/?q=${encodeURIComponent(namespacedTag)}`);
     } else if (/https?:\/\//.test(tag)) {
         return `${tag}`;
     } else {
@@ -216,19 +258,21 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
     const thumbCss = (localStorage.cropthumbs === "true") ? "id3" : "id3 nocrop";
     // The ID can be in a different field depending on the archive object...
     const id = data.arcid || data.id;
+    let reader_url = new LRR.apiURL(`/reader?id=${id}`);
 
+    // Don't enforce no_fallback=true here, we don't want those divs to trigger Minion jobs 
     return `<div class="id1 context-menu swiper-slide" id="${id}">
                 <div class="id2">
                     ${LRR.buildProgressDiv(data)}
-                    <a href="reader?id=${id}" title="${LRR.encodeHTML(data.title)}">${LRR.encodeHTML(data.title)}</a>
+                    <a href="${reader_url}" title="${LRR.encodeHTML(data.title)}">${LRR.encodeHTML(data.title)}</a>
                 </div>
                 <div class="${thumbCss}">
-                    <a href="reader?id=${id}" title="${LRR.encodeHTML(data.title)}">
-                        <img style="position:relative;" id="${id}_thumb" src="./img/wait_warmly.jpg"/>
+                    <a href="${reader_url}" title="${LRR.encodeHTML(data.title)}">
+                        <img style="position:relative;" id="${id}_thumb" src="${new LRR.apiURL('/img/wait_warmly.jpg')}"/>
                         <i id="${id}_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>
-                        <img src="./api/archives/${id}/thumbnail" 
+                        <img src="${new LRR.apiURL(`/api/archives/${id}/thumbnail`)}" 
                                 onload="$('#${id}_thumb').remove(); $('#${id}_spinner').remove();" 
-                                onerror="this.src='./img/noThumb.png'"/>
+                                onerror="this.src='${new LRR.apiURL("/img/noThumb.png")}'"/>
                     </a>
                 </div>
                 <div class="id4">

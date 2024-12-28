@@ -13,64 +13,62 @@
 
     <link type="image/png" rel="icon" href="/favicon.ico" />
     <link rel="manifest" href="app.webappmanifest" />
-    <link rel="stylesheet" type="text/css" href="/css/lrr.css?[% version%]" />
-    <link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
-    <link rel="stylesheet" type="text/css" href="/css/vendor/ReactToastify.min.css" />
-    <link rel="stylesheet" type="text/css" href="/css/vendor/sweetalert2.min.css" />
+    <link rel="stylesheet" type="text/css" href="[% c.url_for("/css/lrr.css?$version") %]" />
+    <link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/fontawesome-all.min.css") %]" />
+    <link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/ReactToastify.min.css") %]" />
+    <link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/sweetalert2.min.css") %]" />
     [% csshead %]
 
-    <script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
-    <script src="/js/vendor/preact.umd.js" type="text/JAVASCRIPT"></script>
-    <script src="/js/vendor/hooks.umd.js" type="text/JAVASCRIPT"></script>
-    <script src="/js/vendor/compat.umd.js" type="text/JAVASCRIPT"></script>
+    <script src="[% c.url_for("/js/vendor/jquery.min.js") %]" type="text/JAVASCRIPT"></script>
+    <script src="[% c.url_for("/js/vendor/preact.umd.js") %]" type="text/JAVASCRIPT"></script>
+    <script src="[% c.url_for("/js/vendor/hooks.umd.js") %]" type="text/JAVASCRIPT"></script>
+    <script src="[% c.url_for("/js/vendor/compat.umd.js") %]" type="text/JAVASCRIPT"></script>
     <script>window.React = window.preactCompat; window.react = window.preactCompat;</script>
-    <script src="/js/vendor/clsx.min.js" type="text/JAVASCRIPT"></script>
-    <script src="/js/vendor/react-toastify.umd.js" type="text/JAVASCRIPT"></script>
-    <script src="/js/vendor/sweetalert2.min.js" type="text/JAVASCRIPT"></script>
+    <script src="[% c.url_for("/js/vendor/clsx.min.js") %]" type="text/JAVASCRIPT"></script>
+    <script src="[% c.url_for("/js/vendor/react-toastify.umd.js") %]" type="text/JAVASCRIPT"></script>
+    <script src="[% c.url_for("/js/vendor/sweetalert2.min.js") %]" type="text/JAVASCRIPT"></script>
 
-    <script src="/js/common.js?[% version%]" type="text/JAVASCRIPT"></script>
-    <script src="/js/server.js?[% version%]" type="text/JAVASCRIPT"></script>
-    <script src="/js/category.js?[% version%]" type="text/JAVASCRIPT"></script>
+    <script src="[% c.url_for("/js/common.js?$version") %]" type="text/JAVASCRIPT"></script>
+    <script src="[% c.url_for("/js/server.js?$version") %]" type="text/JAVASCRIPT"></script>
+    <script src="[% c.url_for("/js/category.js?$version") %]" type="text/JAVASCRIPT"></script>
 
 </head>
 
 <body>
 
     <div class='ido' style='text-align:center'>
-        <h2 class='ih' style='text-align:center'>Categories</h2>
+        <h2 class='ih' style='text-align:center'>[% c.lh("Categories") %]</h2>
         <br><br>
         <div style='margin-left:auto; margin-right:auto;'>
             <div style='text-align:left; font-size: 9pt; width:400px !important ' class='left-column'>
 
-                Categories appear at the top of your window when browsing the Library.<br>
-                There are two distinct kinds:
+                [% c.lh("Categories appear at the top of your window when browsing the Library.") %]<br>
+                [% c.lh("There are two distinct kinds:") %]
 
                 <ul>
                     <li><i class="fas fa-2x fa-folder-open" style="margin-left: -30px; width:30px"></i>
-                        Static Categories are arbitrary collections of
-                        Archives, where you can add as many items as you want.
+                        [% c.lh("Static Categories are arbitrary collections of Archives, where you can add as many items as you want.") %]
                     </li>
                     <li><i class="fas fa-2x fa-bolt" style="margin-left: -25px; width:25px"></i>
-                        Dynamic Categories contain all archives matching a given predicate, and
-                        automatically update alongside your library.
+                        [% c.lh("Dynamic Categories contain all archives matching a given predicate, and automatically update alongside your library.") %]
                     </li>
                 </ul>
 
-                You can create new categories here or edit existing ones. </br></br>
+                [% c.lh("You can create new categories here or edit existing ones.") %] </br></br>
 
                 <div style="text-align:center">
                     <input id='new-static' type='button' value='New Static Category' class='stdbtn'>
                     <input id='new-dynamic' type='button' value='New Dynamic Category' class='stdbtn'>
                 </div> <br>
 
-                Select a category in the combobox below to edit its name, the archives it contains, or its predicate.
-                <br> <b>All your modifications are saved automatically.</b> <br></br>
+                [% c.lh("Select a category in the combobox below to edit its name, the archives it contains, or its predicate.") %]
+                <br> <b>[% c.lh("All your modifications are saved automatically.") %]</b> <br></br>
 
                 <table>
                     <tbody>
                         <tr>
                             <td>
-                                <h2>Category:</h2>
+                                <h2>[% c.lh("Category:") %]</h2>
                             </td>
                             <td>
                                 <select id="category" class="favtag-btn" style="font-size:20px; height:30px">
@@ -79,13 +77,13 @@
                             </td>
                         </tr>
                         <tr class="tag-options">
-                            <td style="text-align: right;">Name:</td>
+                            <td style="text-align: right;">[% c.lh("Name:") %]</td>
                             <td>
                                 <input id="catname" value="" />
                             </td>
                         </tr>
                         <tr id="predicatefield" class="tag-options">
-                            <td style="text-align: right;">Predicate:</td>
+                            <td style="text-align: right;">[% c.lh("Predicate:") %]</td>
                             <td>
                                 <input id="catsearch" value="" />
                                 <i id="predicate-help" style="cursor:pointer" class="fas fa-question-circle"></i>
@@ -95,12 +93,12 @@
                             <td></td>
                             <td>
                                 <input id="pinned" name="pinned" class="fa" type="checkbox">
-                                <label for="pinned">Pin this Category</label>
+                                <label for="pinned">[% c.lh("Pin this Category") %]</label>
                             </td>
                         </tr>
                         <tr class="tag-options">
                             <td></td>
-                            <td><input id="delete" type='button' value='Delete Category' class='stdbtn'>
+                            <td><input id="delete" type='button' value='[% c.lh("Delete Category") %]' class='stdbtn'>
                             </td>
                         </tr>
                         <tr class="tag-options">
@@ -119,8 +117,7 @@
                 <div id="dynamicplaceholder"
                     style="align-content: center;top: 150px; position: relative; margin-left: auto; margin-right: auto; width: 90%;">
                     <i class="fas fa-8x fa-air-freshener"></i><br><br>
-                    <h2>If you select a Static Category, your archives will appear here so you can add/remove them from
-                        the category.</h2>
+                    <h2>[% c.lh("If you select a Static Category, your archives will appear here so you can add/remove them from the category.") %]</h2>
                 </div>
 
                 <ul id="archivelist" class='checklist' style="display:none">
@@ -130,7 +127,7 @@
             <br><br>
         </div>
 
-        <input id='return' class='stdbtn' type='button' value='Return to Library' />
+        <input id='return' class='stdbtn' type='button' value='[% c.lh("Return to Library") %]' />
 
     </div>
     [% INCLUDE footer %]

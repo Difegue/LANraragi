@@ -41,6 +41,9 @@ sub get_configdb { return $config->{redis_database_config} }
 # Database used to store search index and cache
 sub get_searchdb { return $config->{redis_database_search} }
 
+# Base URL for deployment under a path prefix
+sub get_baseurl { return "$config->{base_url_path}" }
+
 # Create a Minion object connected to the Minion database.
 sub get_minion {
     my $miniondb = get_redisad . "/" . get_miniondb;
@@ -75,7 +78,7 @@ sub get_redis_internal {
         server    => &get_redisad,
         debug     => $ENV{LRR_DEVSERVER} ? "1" : "0",
         reconnect => 3,
-        &get_redispassword ? (password => &get_redispassword) : ()
+        &get_redispassword ? ( password => &get_redispassword ) : ()
     );
 
     # Switch to specced database
@@ -129,7 +132,7 @@ sub get_userdir {
 sub get_thumbdir {
 
     # Content path can be overriden by LRR_THUMB_DIRECTORY
-    my $dir = &get_redis_conf( "thumbdir", get_userdir() . "/thumb" );
+    my $dir = &get_redis_conf( "thumbdir", "./thumb" );
 
     if ( $ENV{LRR_THUMB_DIRECTORY} ) {
         $dir = $ENV{LRR_THUMB_DIRECTORY};
@@ -165,8 +168,8 @@ sub get_tagrules {
     );
 }
 
-sub get_htmltitle        { return xml_escape(&get_redis_conf( "htmltitle",       "LANraragi" )) }
-sub get_motd             { return xml_escape(&get_redis_conf( "motd",            "Welcome to this Library running LANraragi!" )) }
+sub get_htmltitle        { return xml_escape( &get_redis_conf( "htmltitle", "LANraragi" ) ) }
+sub get_motd             { return xml_escape( &get_redis_conf( "motd",      "Welcome to this Library running LANraragi!" ) ) }
 sub get_tempmaxsize      { return &get_redis_conf( "tempmaxsize",     "500" ) }
 sub get_pagesize         { return &get_redis_conf( "pagesize",        "100" ) }
 sub enable_pass          { return &get_redis_conf( "enablepass",      "1" ) }

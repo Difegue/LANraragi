@@ -17,6 +17,8 @@ use LANraragi::Utils::Plugins    qw(get_plugins);
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Routing;
 use LANraragi::Utils::Minion;
+use LANraragi::Utils::I18N;
+use LANraragi::Utils::I18NInitializer;
 
 use LANraragi::Model::Search;
 use LANraragi::Model::Config;
@@ -51,6 +53,9 @@ sub startup {
     $self->secrets( [ $secret . hostname() ] );
     $self->plugin('RenderFile');
 
+    # Load i18n
+    LANraragi::Utils::I18NInitializer::initialize($self);
+
     # Set Template::Toolkit as default renderer so we can use the LRR templates
     $self->plugin('TemplateToolkit');
     $self->renderer->default_handler('tt2');
@@ -71,6 +76,11 @@ sub startup {
             return get_logger( "LANraragi", "lanraragi" );
         }
     );
+
+    # for some reason I can't call the one under LRR_CONF from the
+    # templates, so create a separate helper here
+    my $prefix = $self->LRR_CONF->get_baseurl();
+    $self->helper( LRR_BASEURL => sub { return $prefix } );
 
     #Check if a Redis server is running on the provided address/port
     eval { $self->LRR_CONF->get_redis->ping(); };
@@ -179,7 +189,23 @@ sub startup {
     # (https://stackoverflow.com/questions/60814220/how-to-manage-myself-sigint-and-sigterm-signals)
     $self->hook(
         before_dispatch => sub {
+            my $c = shift;
             state $unused = add_sigint_handler();
+
+            my $prefix = $self->LRR_BASEURL;
+            if ($prefix) {
+                if (!$prefix =~ m|^/[^"]*[^/"]$|) {
+                    say "Warning: configured URL prefix '$prefix' invalid, ignoring";
+                    # if prefix is invalid, then set it to empty for the cookie
+                    $prefix = "";
+                }
+                else {
+                    $c->req->url->base->path($prefix);
+                }
+            }
+            # SameSite=Lax is the default behavior here; I set it
+            # explicitly to get rid of a warning in the browser
+            $c->cookie("lrr_baseurl" => $prefix, { samesite => "lax" });
         }
     );
 

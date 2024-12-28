@@ -40,7 +40,7 @@ if [ -f /etc/alpine-release ]; then
       # Install node v18 as v20 breaks with QEMU (https://github.com/nodejs/docker-node/issues/1798)
       echo 'http://dl-cdn.alpinelinux.org/alpine/v3.18/main' >> /etc/apk/repositories
       apk update
-      apk add nodejs=18.20.1-r0 npm=10.8.0-r0
+      apk add nodejs=18.20.1-r0 npm=10.9.1-r0
   fi
 fi
 

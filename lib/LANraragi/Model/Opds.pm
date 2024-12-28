@@ -25,7 +25,8 @@ sub generate_opds_catalog {
     my @cats    = LANraragi::Model::Category->get_category_list;
 
     # Use the search engine to get the list of archives to show in the catalog.
-    my ( $total, $filtered, @keys ) = LANraragi::Model::Search::do_search( "", $cat_id, $start, "title", 0, 0, 0 );
+    # TODO Add tankgroup support to opds?
+    my ( $total, $filtered, @keys ) = LANraragi::Model::Search::do_search( "", $cat_id, $start, "title", 0, 0, 0, 0 );
 
     my @list = ();
 

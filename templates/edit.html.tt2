@@ -11,28 +11,28 @@
 
 	<link type="image/png" rel="icon" href="favicon.ico" />
 	<link rel="manifest" href="app.webappmanifest" />
-	<link rel="stylesheet" type="text/css" href="/css/lrr.css?[% version%]" />
-	<link rel="stylesheet" type="text/css" href="/css/config.css" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/lrr.css?$version") %]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/config.css") %]" />
 
-	<link rel="stylesheet" type="text/css" href="/css/vendor/fontawesome-all.min.css" />
-	<link rel="stylesheet" type="text/css" href="/css/vendor/tagger.css" />
-	<link rel="stylesheet" type="text/css" href="/css/vendor/ReactToastify.min.css" />
-	<link rel="stylesheet" type="text/css" href="/css/vendor/sweetalert2.min.css" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/fontawesome-all.min.css") %]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/tagger.css") %]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/ReactToastify.min.css") %]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/sweetalert2.min.css") %]" />
 	[% csshead %]
 
-	<script src="/js/vendor/jquery.min.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/preact.umd.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/hooks.umd.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/compat.umd.js" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/jquery.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/preact.umd.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/hooks.umd.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/compat.umd.js") %]" type="text/JAVASCRIPT"></script>
 	<script>window.React = window.preactCompat; window.react = window.preactCompat;</script>
-	<script src="/js/vendor/clsx.min.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/react-toastify.umd.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/tagger.js" type="text/JAVASCRIPT"></script>
-	<script src="/js/vendor/sweetalert2.min.js" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/clsx.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/react-toastify.umd.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/tagger.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/sweetalert2.min.js") %]" type="text/JAVASCRIPT"></script>
 
-	<script src="/js/common.js?[% version%]" type="text/JAVASCRIPT"></script>
-	<script src="/js/server.js?[% version%]" type="text/JAVASCRIPT"></script>
-	<script src="/js/edit.js?[% version%]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/common.js?$version") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/server.js?$version") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/edit.js?$version") %]" type="text/JAVASCRIPT"></script>
 
 </head>
 
@@ -41,9 +41,9 @@
 	<div class='ido' style='text-align:center'>
 
 		[% IF artist %]
-		<h2 class='ih' style='text-align:center'>Editing [% arctitle %] by [% artist %] </h2>
+		<h2 class='ih' style='text-align:center'>[% c.lh("Editing [_1] by [_2]", arctitle, artist) %]</h2>
 		[% ELSE %]
-		<h2 class='ih' style='text-align:center'>Editing [% arctitle %]</h2>
+		<h2 class='ih' style='text-align:center'>[% c.lh("Editing [_1]", arctitle) %]</h2>
 		[% END %]
 
 		<form name='editArchiveForm' id='editArchiveForm' enctype='multipart/form-data' method='post' autocomplete="off"
@@ -51,7 +51,7 @@
 			<table style='margin:auto; font-size:8pt;'>
 				<tbody>
 					<tr>
-						<td style='text-align:left; width:100px'>Current File Name:</td>
+						<td style='text-align:left; width:100px'>[% c.lh("Current File Name:") %]</td>
 						<td>
 							<input class='stdinput edit-mode-stdinput' type='text' readonly='' size='20'
 								value="[% file %]" name='filename'>
@@ -59,7 +59,7 @@
 					</tr>
 
 					<tr>
-						<td style='text-align:left; width:100px'>ID:</td>
+						<td style='text-align:left; width:100px'>[% c.lh("ID:") %]</td>
 						<td>
 							<input id='archiveID' class='stdinput edit-mode-stdinput' type='text' readonly=''
 								maxlength='255' size='20' value="[% id %]" name='id'>
@@ -67,7 +67,7 @@
 					</tr>
 
 					<tr>
-						<td style='text-align:left; width:100px'>Title:</td>
+						<td style='text-align:left; width:100px'>[% c.lh("Title:") %]</td>
 						<td>
 							<input id='title' class='stdinput edit-mode-stdinput' type='text' maxlength='255' size='20'
 								value="[% arctitle %]" name='title'>
@@ -75,7 +75,7 @@
 					</tr>
 
 					<tr>
-						<td style='text-align:left; width:100px'>Summary:</td>
+						<td style='text-align:left; width:100px'>[% c.lh("Summary:") %]</td>
 						<td>
 							<textarea id='summary' class='stdinput edit-mode-stdinput' type='text'
 								style="min-height:72px;" name='summary'>[% summary %]</textarea>
@@ -83,9 +83,8 @@
 					</tr>
 
 					<tr>
-						<td style='text-align:left; width:100px; vertical-align:top'>Tags <span
-								style="font-size:6pt">(separated by
-								hyphens, i.e : tag1, tag2)</span> :
+						<td style='text-align:left; width:100px; vertical-align:top'>[% c.lh("Tags") %] <span
+								style="font-size:6pt">[% c.lh("(separated by hyphens, i.e : tag1, tag2)") %]</span> :
 						</td>
 						<td>
 							<textarea id='tagText' class='stdinput' name='tags' autocomplete="off"
@@ -97,8 +96,8 @@
 					</tr>
 
 					<tr>
-						<td style='text-align:left; width:100px; vertical-align:top'>Import Tags from Plugin : <br />
-							<input type='button' name='tag_import' value='Help' id="show-help" class='stdbtn'
+						<td style='text-align:left; width:100px; vertical-align:top'>[% c.lh("Import Tags from Plugin :") %] <br />
+							<input type='button' name='tag_import' value='[% c.lh("Help") %]' id="show-help" class='stdbtn'
 								style='min-width:90px;'></input>
 						</td>
 						<td id="plugin_table" style="text-align: left">
@@ -110,7 +109,7 @@
 								[% END %]
 							</select>
 
-							<input class='stdbtn' type='button' style="min-width:90px;" id="run-plugin" value='Go!' />
+							<input class='stdbtn' type='button' style="min-width:90px;" id="run-plugin" value='[% c.lh("Go!") %]' />
 							<br />
 
 							<span id="arg_label">[% plugins.first.oneshot_arg %] :</span> <br />
@@ -119,18 +118,15 @@
 
 							<br />
 
-							<i class='fa fa-2x fa-exclamation-circle' style='margin-top:4px'></i> Using a Plugin will
-							save any modifications to
-							archive metadata
-							you might have made !
+							<i class='fa fa-2x fa-exclamation-circle' style='margin-top:4px'></i> [% c.lh("Using a Plugin will save any modifications to archive metadata you might have made !") %]
 						</td>
 					</tr>
 
 					<tr>
 						<td colspan='2' style='text-align:center'> <br />
-							<input class='stdbtn' type='button' id="save-metadata" value='Save Metadata' />
-							<input class='stdbtn' type='button' id="delete-archive" value='Delete Archive' />
-							<input id='goback' class='stdbtn' type='button' value='Return to Library' />
+							<input class='stdbtn' type='button' id="save-metadata" value='[% c.lh("Save Metadata") %]' />
+							<input class='stdbtn' type='button' id="delete-archive" value='[% c.lh("Delete Archive") %]' />
+							<input id='goback' class='stdbtn' type='button' value='[% c.lh("Return to Library") %]' />
 							<br />
 						</td>
 					</tr>

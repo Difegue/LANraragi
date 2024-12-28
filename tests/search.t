@@ -32,11 +32,13 @@ my $search = "";
 my ( $total, $filtered, @ids );
 
 sub do_test_search {
-    ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, "", 0, 0, 0, 0, 0 );
+    ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, "", 0, 0, 0, 0, 0, 1 );
 }
 
 do_test_search();
-is( $filtered, 6, qq(Empty search(full index)) );
+is( $filtered, 8, qq(Empty search(full index)) );
+( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, "", 0, 0, 0, 0, 0, 0 );
+is( $filtered, 8, qq(Empty search(tank grouping off)) );
 
 $search = qq(Ghost in the Shell);
 do_test_search();
@@ -61,6 +63,10 @@ is( $filtered, 1, qq(Wildcard search ($search)) );
 $search = qq("Fate GO MEMO _");
 do_test_search();
 is( $filtered, 1, qq(Wildcard search ($search)) );
+
+$search = qq(artist:shirow masamune, full color, artbook);
+do_test_search();
+is( $filtered, 0, qq(Multiple tag search with spaces halting at second token ($search)) );
 
 $search = qq("Saturn*Cartridge*Japanese Manual");
 do_test_search();
@@ -98,17 +104,17 @@ $search = qq("Saturn Backup Cartridge - *"\$);
 do_test_search();
 is( $filtered, 2, qq(Exact search with quotes and wildcard ($search)) );
 
-( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", qq(SET_1589141306), 0, 0, 0, 0, 0 );
+( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", qq(SET_1589141306), 0, 0, 0, 0, 0, 0 );
 is( $filtered, 2, qq(Search in category (SET_1589141306: Segata Sanshiro)) );
 
 $search = qq("character:segata");
-( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, qq(SET_1589138380), 0, 0, 0, 0, 0 );
+( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, qq(SET_1589138380), 0, 0, 0, 0, 0, 0 );
 is( $filtered, 1, qq(Search with favorite search category applied ($search) + (SET_1589138380: American)) );
 
-( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", 0, 0, 0, 1, 0 );
+( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", 0, 0, 0, 1, 0, 0 );
 ok( $filtered eq 1 && $ids[0] eq "e4c422fd10943dc169e3489a38cdbf57101a5f7e", qq(Search with new filter applied) );
 
-( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", 0, 0, 0, 0, 1 );
+( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", 0, 0, 0, 0, 1, 0 );
 ok( $filtered eq 2 && $ids[0] eq "4857fd2e7c00db8b0af0337b94055d8445118630", qq(Search with untagged filter applied) );
 
 $search = qq(pages:>150);
@@ -124,7 +130,19 @@ do_test_search();
 is( $ids[0], "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf", qq(Read search ($search)) );
 
 $search = "";
-( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", 0, "lastread", 0, 0, 0 );
+( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, "", 0, "lastread", 0, 0, 0, 0 );
 is( $ids[0], "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg", qq(Last read time sort) );
+
+$search = qq(medjed);
+do_test_search();
+is( $ids[0], "TANK_1589141306", qq(Tankoubon grouping search (1/2)) );
+$search = qq(vector);
+do_test_search();
+is( $ids[0],   "TANK_1589141306", qq(Tankoubon grouping search (2/2)) );
+is( $filtered, 2,                 qq(Tankoubon grouping count) );
+
+( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, "", 0, 0, 0, 0, 0, 0 );
+is( $filtered, 1,                                          qq(No tank grouping count) );
+is( $ids[0],   "28697b96f0ac5777be2614ed10ca47742c9522fa", qq(Tank grouping disabled) );
 
 done_testing();

@@ -4,7 +4,7 @@
  */
 const Edit = {};
 
-Edit.tagInput = {};
+Edit.tagInput = null;
 Edit.suggestions = [];
 
 Edit.initializeAll = function () {
@@ -15,7 +15,7 @@ Edit.initializeAll = function () {
     $(document).on("click.save-metadata", "#save-metadata", Edit.saveMetadata);
     $(document).on("click.delete-archive", "#delete-archive", Edit.deleteArchive);
     $(document).on("click.tagger", ".tagger", Edit.focusTagInput);
-    $(document).on("click.goback", "#goback", () => { window.location.href = "/"; });
+    $(document).on("click.goback", "#goback", () => { window.location.href = new LRR.apiURL("/"); });
     $(document).on("paste.tagger", ".tagger-new", Edit.handlePaste);
 
     Edit.updateOneShotArg();
@@ -47,10 +47,27 @@ Edit.initializeAll = function () {
                     completion: {
                         list: Edit.suggestions,
                     },
-                    link: (name) => `/?q=${name}`,
+                    link: (name) => new LRR.apiURL(`/?q=${name}`),
                 });
             }
         });
+};
+
+// this checks whether the rich-text tag editor is in use (initialized
+// on tagInput); if so, call its method to add the tag; if not, edit
+// the string directly
+Edit.addTag = function (tag) {
+    tag = tag.trim();
+    if (Edit.tagInput) {
+        Edit.tagInput.add_tag(tag);
+    } else {
+        let val = $("#tagText").val().trim();
+        if (val == "") {
+            $("#tagText").val(tag);
+        } else {
+            $("#tagText").val(`${val}, ${tag}`);
+        }
+    }
 };
 
 Edit.handlePaste = function (event) {
@@ -63,8 +80,7 @@ Edit.handlePaste = function (event) {
 
     if (pastedData !== "") {
         pastedData.split(/,\s?/).forEach((tag) => {
-            // Remove trailing/leading spaces from tag before adding it
-            Edit.tagInput.add_tag(tag.trim());
+            Edit.addTag(tag);
         });
     }
 };
@@ -123,7 +139,7 @@ Edit.saveMetadata = function () {
     formData.append("title", $("#title").val());
     formData.append("summary", $("#summary").val());
 
-    return fetch(`api/archives/${id}/metadata`, { method: "PUT", body: formData })
+    return fetch(new LRR.apiURL(`/api/archives/${id}/metadata`), { method: "PUT", body: formData })
         .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))
         .then((data) => {
             if (data.success) {
@@ -163,7 +179,7 @@ Edit.getTags = function () {
     const pluginID = $("select#plugin option:checked").val();
     const archivID = $("#archiveID").val();
     const pluginArg = $("#arg").val();
-    Server.callAPI(`../api/plugins/use?plugin=${pluginID}&id=${archivID}&arg=${pluginArg}`, "POST", null, "Error while fetching tags :",
+    Server.callAPI(`/api/plugins/use?plugin=${pluginID}&id=${archivID}&arg=${pluginArg}`, "POST", null, "Error while fetching tags :",
         (result) => {
             if (result.data.title && result.data.title !== "") {
                 $("#title").val(result.data.title);
@@ -184,8 +200,7 @@ Edit.getTags = function () {
 
             if (result.data.new_tags !== "") {
                 result.data.new_tags.split(/,\s?/).forEach((tag) => {
-                    // Remove trailing/leading spaces from tag before adding it
-                    Edit.tagInput.add_tag(tag.trim());
+                    Edit.addTag(tag);
                 });
 
                 LRR.toast({
