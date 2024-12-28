@@ -37,7 +37,7 @@ sub do_test_search {
 
 do_test_search();
 is( $filtered, 8, qq(Empty search(full index)) );
-( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search($search, "", 0, 0, 0, 0, 0, 0 );
+( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, "", 0, 0, 0, 0, 0, 0 );
 is( $filtered, 8, qq(Empty search(tank grouping off)) );
 
 $search = qq(Ghost in the Shell);
@@ -63,6 +63,10 @@ is( $filtered, 1, qq(Wildcard search ($search)) );
 $search = qq("Fate GO MEMO _");
 do_test_search();
 is( $filtered, 1, qq(Wildcard search ($search)) );
+
+$search = qq(artist:shirow masamune, full color, artbook);
+do_test_search();
+is( $filtered, 0, qq(Multiple tag search with spaces halting at second token ($search)) );
 
 $search = qq("Saturn*Cartridge*Japanese Manual");
 do_test_search();
@@ -134,11 +138,11 @@ do_test_search();
 is( $ids[0], "TANK_1589141306", qq(Tankoubon grouping search (1/2)) );
 $search = qq(vector);
 do_test_search();
-is( $ids[0], "TANK_1589141306", qq(Tankoubon grouping search (2/2)) );
-is( $filtered, 2, qq(Tankoubon grouping count));
+is( $ids[0],   "TANK_1589141306", qq(Tankoubon grouping search (2/2)) );
+is( $filtered, 2,                 qq(Tankoubon grouping count) );
 
-( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search($search, "", 0, 0, 0, 0, 0, 0 );
-is( $filtered, 1, qq(No tank grouping count));
-is( $ids[0], "28697b96f0ac5777be2614ed10ca47742c9522fa", qq(Tank grouping disabled) );
+( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, "", 0, 0, 0, 0, 0, 0 );
+is( $filtered, 1,                                          qq(No tank grouping count) );
+is( $ids[0],   "28697b96f0ac5777be2614ed10ca47742c9522fa", qq(Tank grouping disabled) );
 
 done_testing();

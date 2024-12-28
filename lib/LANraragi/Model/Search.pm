@@ -260,6 +260,11 @@ sub search_uncached ( $category_id, $filter, $sortkey, $sortorder, $newonly, $un
 
                 # Intersect the new list with the previous ones
                 @filtered = intersect_arrays( \@ids, \@filtered, $isneg );
+
+                if ( scalar @filtered == 0 ) {
+                    $logger->trace("No more results after intersection, halting search.");
+                    last;
+                }
             }
         }
     }
