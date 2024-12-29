@@ -35,6 +35,7 @@ if [ -f /etc/alpine-release ]; then
   if [ "$alpine_version" = "3.12.12" ]; then
       apk add nodejs-npm tar gcc build-base zlib openssl
       mkdir -p /usr/src/perl
+      cd /usr/src/perl
 
       # Install Perl 5.36 at the very least to maintain compat with LRR requirements
       curl -SLO https://www.cpan.org/src/5.0/perl-5.36.0.tar.gz \
