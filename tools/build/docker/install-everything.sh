@@ -35,6 +35,11 @@ if [ -f /etc/alpine-release ]; then
   if [ "$alpine_version" = "3.12.12" ]; then
       apk add nodejs-npm
 
+      # Install Perl 5.36 at the very least to maintain compat with LRR requirements
+      echo 'http://dl-cdn.alpinelinux.org/alpine/v3.18/main' >> /etc/apk/repositories
+      apk update
+      apk add perl=5.36.2-r0 
+
     else # Those packages don't exist on 3.12
       apk add s6-overlay libjxl
 
@@ -59,7 +64,7 @@ if [ $WSL -eq 1 ]; then
 fi
 
 #Alpine's libffi build comes with AVX instructions enabled
-#Rebuild our own libffi with those disabled - Unless we're on legacy WSL1/oldalpine where the backport situation is fucked
+#Rebuild our own libffi with those disabled
 if [ $(uname -m) == 'x86_64' ]; then
 
   #Install deps only
@@ -80,18 +85,6 @@ if [ $WSL -eq 1 ]; then
 npm run lanraragi-installer install-full legacy
 else
 npm run lanraragi-installer install-full
-fi
-
-# Backport hell special for legacy Dockerfile
-if [ -f /etc/alpine-release ]; then
-  if [ "$alpine_version" = "3.12.12" ]; then
-      apk add nodejs-npm
-
-      # Install Perl 5.36 at the very least to maintain compat with LRR requirements
-      echo 'http://dl-cdn.alpinelinux.org/alpine/v3.18/main' >> /etc/apk/repositories
-      apk update
-      apk add perl=5.36.2-r0 
-  fi
 fi
 
 if [ $DEV -eq 0 ]; then
