@@ -24,7 +24,7 @@ done
 #Just do everything
 apk update
 apk add tzdata
-apk add perl perl-io-socket-ssl perl-dev redis libarchive-dev libbz2 openssl-dev zlib-dev linux-headers
+apk add redis libarchive-dev libbz2 openssl-dev zlib-dev linux-headers
 apk add imagemagick imagemagick-perlmagick libwebp-tools libheif
 apk add g++ make pkgconf gnupg wget curl file
 apk add shadow s6 s6-portable-utils ghostscript
@@ -33,15 +33,34 @@ apk add shadow s6 s6-portable-utils ghostscript
 if [ -f /etc/alpine-release ]; then
   alpine_version=$(cat /etc/alpine-release)
   if [ "$alpine_version" = "3.12.12" ]; then
-      apk add nodejs-npm
+      apk add nodejs-npm tar gcc build-base zlib openssl
 
       # Install Perl 5.36 at the very least to maintain compat with LRR requirements
-      echo 'http://dl-cdn.alpinelinux.org/alpine/v3.18/main' >> /etc/apk/repositories
-      apk update
-      apk add perl=5.36.2-r0 
+      curl -SLO https://www.cpan.org/src/5.0/perl-5.36.0.tar.gz \
+      && echo 'e26085af8ac396f62add8a533c3a0ea8c8497d836f0689347ac5abd7b7a4e00a *perl-5.36.0.tar.gz' | sha256sum -c - \
+      && tar --strip-components=1 -xaf perl-5.36.0.tar.gz -C /usr/src/perl \
+      && rm perl-5.36.0.tar.gz \
+      && ./Configure -des \
+          -Duse64bitall \
+          -Dcccdlflags='-fPIC' \
+          -Dcccdlflags='-fPIC' \
+          -Dccdlflags='-rdynamic' \
+          -Dlocincpth=' ' \
+          -Duselargefiles \
+          -Dusethreads \
+          -Duseshrplib \
+          -Dd_semctl_semun \
+          -Dusenm \
+          -Dprefix='/opt/perl' \
+      && make -j$(nproc) \
+      && make install \
+      && rm -fr /usr/src/perl /var/cache/apk
+
+      curl -L https://cpanmin.us | perl - App::cpanminus
+      cpanm IO::Socket::SSL 
 
     else # Those packages don't exist on 3.12
-      apk add s6-overlay libjxl
+      apk add perl perl-io-socket-ssl perl-dev s6-overlay libjxl
 
       # Install node v18 as v20 breaks with QEMU (https://github.com/nodejs/docker-node/issues/1798)
       echo 'http://dl-cdn.alpinelinux.org/alpine/v3.18/main' >> /etc/apk/repositories
