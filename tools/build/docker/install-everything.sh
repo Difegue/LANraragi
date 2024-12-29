@@ -58,6 +58,8 @@ if [ -f /etc/alpine-release ]; then
       && make install \
       && rm -fr /usr/src/perl /var/cache/apk
 
+      ln -s /opt/perl/bin/perl5.36.0 /usr/bin/perl
+
       curl -L https://cpanmin.us | perl - App::cpanminus
       cpanm IO::Socket::SSL 
 
