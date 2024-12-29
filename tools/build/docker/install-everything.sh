@@ -38,7 +38,7 @@ if [ -f /etc/alpine-release ]; then
       # Install Perl 5.36 at the very least to maintain compat with LRR requirements
       echo 'http://dl-cdn.alpinelinux.org/alpine/v3.18/main' >> /etc/apk/repositories
       apk update
-      apk add perl=5.36.2-r0
+      apk add perl perl-io-socket-ssl perl-dev
 
     else # Those packages don't exist on 3.12
       apk add s6-overlay libjxl
@@ -60,7 +60,7 @@ if [ $WSL -eq 1 ]; then
     # WSL1 works with both default watcher and inotify 2.2, but crashes with inotify 2.3 ("can't open fd 4 as perl handle")
 
     # Doing the install here allows us to use 2.3 on non-WSL builds. 
-    cpanm https://cpan.metacpan.org/authors/id/M/ML/MLEHMANN/Linux-Inotify2-2.2.tar.gz --reinstall
+    cpanm https://cpan.metacpan.org/authors/id/M/ML/MLEHMANN/Linux-Inotify2-2.2.tar.gz --reinstall --force
 fi
 
 #Alpine's libffi build comes with AVX instructions enabled
