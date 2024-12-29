@@ -38,7 +38,7 @@ if [ -f /etc/alpine-release ]; then
       # Install Perl 5.36 at the very least to maintain compat with LRR requirements
       echo 'http://dl-cdn.alpinelinux.org/alpine/v3.18/main' >> /etc/apk/repositories
       apk update
-      apk add perl perl-io-socket-ssl perl-dev
+      apk add perl=5.36.2-r0 perl-dev=5.36.2-r0
 
     else # Those packages don't exist on 3.12
       apk add s6-overlay libjxl
