@@ -60,8 +60,7 @@ if [ -f /etc/alpine-release ]; then
       ln -s /opt/perl/bin/perl5.36.0 /usr/bin/perl
 
       # Install cpanm
-      curl -L https://cpanmin.us | perl - App::cpanminus
-      ln -s /opt/perl/bin/cpanm /usr/bin/cpanm
+      curl -L https://cpanmin.us | perl - --sudo App::cpanminus
       cpanm IO::Socket::SSL 
 
     else # Those packages don't exist on 3.12
