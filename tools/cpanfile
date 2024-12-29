@@ -1,5 +1,5 @@
 
-requires 'perl',       '5.20.2';
+requires 'perl',       '5.36.2';
 requires 'local::lib', 2.000024;
 
 # LRR Core

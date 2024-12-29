@@ -34,6 +34,12 @@ if [ -f /etc/alpine-release ]; then
   alpine_version=$(cat /etc/alpine-release)
   if [ "$alpine_version" = "3.12.12" ]; then
       apk add nodejs-npm
+
+      # Install Perl 5.36 at the very least to maintain compat with LRR requirements
+      echo 'http://dl-cdn.alpinelinux.org/alpine/v3.18/main' >> /etc/apk/repositories
+      apk update
+      apk add perl=5.36.2-r0
+
     else # Those packages don't exist on 3.12
       apk add s6-overlay libjxl
 
