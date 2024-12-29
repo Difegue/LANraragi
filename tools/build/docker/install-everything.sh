@@ -38,7 +38,7 @@ if [ -f /etc/alpine-release ]; then
       # Install Perl 5.36 at the very least to maintain compat with LRR requirements
       echo 'http://dl-cdn.alpinelinux.org/alpine/v3.18/main' >> /etc/apk/repositories
       apk update
-      apk add perl=5.36.2-r0 perl-dev=5.36.2-r0
+      apk add perl=5.36.2-r0 perl-dev=5.36.2-r0 imagemagick-perlmagick=7.1.1.13-r1 libffi=3.4.4-r2
 
     else # Those packages don't exist on 3.12
       apk add s6-overlay libjxl
@@ -65,7 +65,7 @@ fi
 
 #Alpine's libffi build comes with AVX instructions enabled
 #Rebuild our own libffi with those disabled - Unless we're on legacy WSL1/oldalpine where the backport situation is fucked
-if [ $(uname -m) == 'x86_64' && $WSL -eq 0]; then
+if [ $(uname -m) == 'x86_64' && $WSL -eq 0 ]; then
 
   #Install deps only
   cpanm --notest --installdeps Alien::FFI
