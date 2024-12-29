@@ -99,7 +99,9 @@ jobs:
 
   buildNightlyWSL:
     name: Build Nightly Windows Packages
-    needs: exportDockerRootFS, exportDockerRootFSLegacy
+    needs: 
+    - exportDockerRootFS
+    - exportDockerRootFSLegacy
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@master
