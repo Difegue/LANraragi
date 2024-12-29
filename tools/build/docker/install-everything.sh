@@ -104,7 +104,7 @@ if [ $(uname -m) == 'x86_64' ]; then
 fi
 
 #Install the LRR dependencies proper
-cd tools && cpanm --notest --installdeps . -M https://cpan.metacpan.org && cd ..
+cd /home/koyomi/lanraragi/tools && cpanm --notest --installdeps . -M https://cpan.metacpan.org && cd ..
 if [ $WSL -eq 1 ]; then
 npm run lanraragi-installer install-full legacy
 else
