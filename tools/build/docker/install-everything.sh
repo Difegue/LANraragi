@@ -56,10 +56,10 @@ if [ -f /etc/alpine-release ]; then
           -Dprefix='/opt/perl' \
       && make -j$(nproc) \
       && make install \
-      && rm -fr /usr/src/perl /var/cache/apk
 
       ln -s /opt/perl/bin/perl5.36.0 /usr/bin/perl
 
+      # Install cpanm
       curl -L https://cpanmin.us | perl - App::cpanminus
       cpanm IO::Socket::SSL 
 
@@ -70,11 +70,11 @@ if [ -f /etc/alpine-release ]; then
       echo 'http://dl-cdn.alpinelinux.org/alpine/v3.18/main' >> /etc/apk/repositories
       apk update
       apk add nodejs=18.20.1-r0 npm=10.9.1-r0
+
+      # Install cpanm
+      curl -L https://cpanmin.us | perl - App::cpanminus
   fi
 fi
-
-# Install cpanm
-curl -L https://cpanmin.us | perl - App::cpanminus
 
 # Check for WSL1 to install specific versions of packages
 if [ $WSL -eq 1 ]; then
