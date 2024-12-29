@@ -38,10 +38,10 @@ if [ -f /etc/alpine-release ]; then
       cd /usr/src/perl
 
       # Install Perl 5.36 at the very least to maintain compat with LRR requirements
-      curl -SLO https://www.cpan.org/src/5.0/perl-5.36.0.tar.gz \
-      && echo 'e26085af8ac396f62add8a533c3a0ea8c8497d836f0689347ac5abd7b7a4e00a *perl-5.36.0.tar.gz' | sha256sum -c - \
-      && tar --strip-components=1 -xaf perl-5.36.0.tar.gz -C /usr/src/perl \
-      && rm perl-5.36.0.tar.gz \
+      curl -SLO https://www.cpan.org/src/5.0/perl-5.38.0.tar.gz \
+      && echo '5c4dea06509959fedcccaada8d129518487399b7  perl-5.38.0.tar.gz' | sha1sum -c - \
+      && tar --strip-components=1 -xaf perl-5.38.0.tar.gz -C /usr/src/perl \
+      && rm perl-5.38.0.tar.gz \
       && ./Configure -des \
           -Duse64bitall \
           -Dcccdlflags='-fPIC' \
@@ -57,7 +57,7 @@ if [ -f /etc/alpine-release ]; then
       && make -j$(nproc) \
       && make install \
 
-      ln -s /opt/perl/bin/perl5.36.0 /usr/bin/perl
+      ln -s /opt/perl/bin/perl5.38.0 /usr/bin/perl
 
       # Install cpanm
       curl -L https://cpanmin.us | perl - App::cpanminus
