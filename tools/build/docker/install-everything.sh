@@ -64,8 +64,8 @@ if [ $WSL -eq 1 ]; then
 fi
 
 #Alpine's libffi build comes with AVX instructions enabled
-#Rebuild our own libffi with those disabled
-if [ $(uname -m) == 'x86_64' ]; then
+#Rebuild our own libffi with those disabled - Unless we're on legacy WSL1/oldalpine where the backport situation is fucked
+if [ $(uname -m) == 'x86_64' && $WSL -eq 0]; then
 
   #Install deps only
   cpanm --notest --installdeps Alien::FFI
