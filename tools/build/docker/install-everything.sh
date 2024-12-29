@@ -63,6 +63,7 @@ if [ -f /etc/alpine-release ]; then
       curl -L https://cpanmin.us | perl - App::cpanminus
       ln -s /opt/perl/bin/cpanm /usr/bin/cpanm
       cpanm IO::Socket::SSL --notest
+      cpanm Image::Magick --notest
 
     else # Those packages don't exist on 3.12
       apk add perl perl-io-socket-ssl perl-dev s6-overlay libjxl
