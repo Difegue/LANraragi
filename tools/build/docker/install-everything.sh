@@ -60,7 +60,7 @@ if [ -f /etc/alpine-release ]; then
       ln -s /opt/perl/bin/perl5.38.0 /usr/bin/perl
 
       # unhinged copy of the vendor perlmagick to the v5.38 @INC
-      cp -r /usr/lib/perl5/vendor_perl/* /opt/perl/lib/5.36.0/
+      cp -r /usr/lib/perl5/vendor_perl/* /opt/perl/lib/5.38.0/
 
       # Install cpanm
       curl -L https://cpanmin.us | perl - App::cpanminus
