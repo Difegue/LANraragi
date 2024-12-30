@@ -46,6 +46,20 @@ IndexTable.initializeAll = function () {
     $.fn.dataTableExt.oStdClasses.sStripeOdd = "gtr0";
     $.fn.dataTableExt.oStdClasses.sStripeEven = "gtr1";
 
+    // set custom columns
+    let columns = [];
+    let columnCount = localStorage.columnCount ? parseInt(localStorage.columnCount) : 2;
+    for (let i = 1; i <= columnCount; i++) {
+        columns.push({
+            data: "tags",
+            className: `customheader${i} itd`,
+            name: localStorage[`customColumn${i}`] || `defaultCol${i}`,
+            render: (data, type) => IndexTable.renderColumn(localStorage[`customColumn${i}`], type, data)
+        });
+    }
+    columns.unshift({ data: null, className: "title itd", name: "title", render: IndexTable.renderTitle });
+    columns.push({ data: "tags", className: "tags itd", name: "tags", orderable: false, render: IndexTable.renderTags });
+
     // Datatables configuration
     IndexTable.dataTable = $(".datatables").DataTable({
         serverSide: true,
@@ -67,13 +81,7 @@ IndexTable.initializeAll = function () {
         preDrawCallback: IndexTable.initializeThumbView, // callbacks for thumbnail view
         drawCallback: IndexTable.drawCallback,
         rowCallback: IndexTable.buildThumbnailCell,
-        columns: [
-            /* eslint-disable object-curly-newline */
-            { data: null, className: "title itd", name: "title", render: IndexTable.renderTitle },
-            { data: "tags", className: "custom1 itd", name: localStorage.customColumn1, render: (data, type) => IndexTable.renderColumn(localStorage.customColumn1, type, data) },
-            { data: "tags", className: "custom2 itd", name: localStorage.customColumn2, render: (data, type) => IndexTable.renderColumn(localStorage.customColumn2, type, data) },
-            { data: "tags", className: "tags itd", name: "tags", orderable: false, render: IndexTable.renderTags },
-        ],
+        columns: columns,
     });
 
     // If the url has parameters, handle them now by doing the matching search.

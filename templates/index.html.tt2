@@ -143,6 +143,14 @@
 				<div style="margin-left:auto">[% c.lh("Go to Page:") %]
 					<select class="favtag-btn" id="page-select">
 					</select>
+					<label for="columnCount">[% c.lh("Select Columns:") %]</label>
+					<select class="favtag-btn" id="columnCount">
+						<script>  
+							for (let i = 1; i <= 20; i++) {  
+								document.write(`<option value="${i}">${i}</option>`);  
+							}  
+						</script> 
+					</select>
 					<a class="fa fa-list fa-2x mode-toggle thumbnail-toggle table-option" href="#"
 						title="[% c.lh('Switch to Compact Mode') %]"></a>
 					<a class="fa fa-table fa-2x mode-toggle compact-toggle table-option" href="#"
@@ -152,23 +160,8 @@
 
 			<table class="itg datatables">
 				<thead class="list" style="display: none;">
-					<tr>
-						<th id="titleheader">
-							<a>[% c.lh("Title") %]</a>
-						</th>
-						<th id="customheader1">
-							<i id="edit-header-1" class="fas fa-pencil-alt edit-header-btn"
-								title="[% c.lh('Edit this column') %]"></i>
-							<a id="header-1">[% c.lh("Artist") %]</a>
-						</th>
-						<th id="customheader2">
-							<i id="edit-header-2" class="fas fa-pencil-alt edit-header-btn"
-								title="[% c.lh('Edit this column') %]"></i>
-							<a id="header-2">[% c.lh("Series") %]</a>
-						</th>
-						<th id="tagsheader">
-							<a>[% c.lh("Tags") %]</a>
-						</th>
+					<tr id="header-row">
+						<!--dynamic row-->
 					</tr>
 				</thead>
 				<tbody class="list" style="display: none;">
