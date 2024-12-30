@@ -277,11 +277,14 @@ IndexTable.drawCallback = function () {
 
         // Using double equals here since the sort column can be either a string or an int
         // eslint-disable-next-line eqeqeq
-        if (currentSort == 1) {
-            currentSort = localStorage.customColumn1;
-            // eslint-disable-next-line eqeqeq
-        } else if (currentSort == 2) {
-            currentSort = localStorage.customColumn2;
+        // get current columns count, except title and tags 
+        const currentCustomColumnCount = IndexTable.dataTable.columns().count() - 2;
+        // check currentSort, if out of range, back to use title
+        if (currentSort > currentCustomColumnCount) {
+            localStorage.indexSort = 0;
+        }
+        if (currentSort >= 1 && currentSort <= columnCount) {
+            currentSort = localStorage[`customColumn${currentSort}`] || `Header ${currentSort}`;
         } else {
             currentSort = "title";
         }
@@ -326,6 +329,13 @@ IndexTable.consumeURLParameters = function () {
     if (params.has("sort")) {
         order[0][0] = params.get("sort");
     } else if (localStorage.indexSort) {
+        order[0][0] = localStorage.indexSort;
+    }
+    // get current columns count, except title and tags 
+    const currentCustomColumnCount = IndexTable.dataTable.columns().count() - 2;
+    // check currentSort, if out of range, back to use title
+    if (localStorage.indexSort > currentCustomColumnCount) {
+        localStorage.indexSort = 0;
         order[0][0] = localStorage.indexSort;
     }
 

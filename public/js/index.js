@@ -127,9 +127,8 @@ Index.initializeAll = function () {
 
     const columnCountSelect = document.getElementById("columnCount");
     const storedColumnCount = localStorage.getItem("columnCount");
-    if (storedColumnCount) {
-        columnCountSelect.value = storedColumnCount;
-    }
+    columnCountSelect.value = storedColumnCount ? storedColumnCount : 2;
+    
     Index.updateTableHeaders();
     Index.resizableColumns();
 };
