@@ -25,7 +25,7 @@ done
 apk update
 apk add tzdata
 apk add redis libarchive-dev libbz2 openssl-dev zlib-dev linux-headers
-apk add imagemagick imagemagick-perlmagick libwebp-tools libheif
+apk add imagemagick libwebp-tools libheif
 apk add g++ make pkgconf gnupg wget curl file
 apk add shadow s6 s6-portable-utils ghostscript
 
@@ -59,16 +59,13 @@ if [ -f /etc/alpine-release ]; then
 
       ln -s /opt/perl/bin/perl5.38.0 /usr/bin/perl
 
-      # unhinged copy of the vendor perlmagick to the v5.38 @INC
-      cp -r /usr/lib/perl5/vendor_perl/* /opt/perl/lib/5.38.0/
-
       # Install cpanm
       curl -L https://cpanmin.us | perl - App::cpanminus
       ln -s /opt/perl/bin/cpanm /usr/bin/cpanm
       cpanm IO::Socket::SSL --notest
 
-    else # Those packages don't exist on 3.12
-      apk add perl perl-io-socket-ssl perl-dev s6-overlay libjxl 
+    else # Those packages either don't exist on 3.12 or aren't necessary with the local perl rebuild
+      apk add perl perl-io-socket-ssl perl-dev s6-overlay libjxl imagemagick-perlmagick 
 
       # Install node v18 as v20 breaks with QEMU (https://github.com/nodejs/docker-node/issues/1798)
       echo 'http://dl-cdn.alpinelinux.org/alpine/v3.18/main' >> /etc/apk/repositories
