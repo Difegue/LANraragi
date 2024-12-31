@@ -48,6 +48,7 @@ IndexTable.initializeAll = function () {
 
     // set custom columns
     let columns = [];
+    columns.push({ data: null, className: "title itd", name: "title", render: IndexTable.renderTitle });
     let columnCount = localStorage.columnCount ? parseInt(localStorage.columnCount) : 2;
     for (let i = 1; i <= columnCount; i++) {
         columns.push({
@@ -57,7 +58,6 @@ IndexTable.initializeAll = function () {
             render: (data, type) => IndexTable.renderColumn(localStorage[`customColumn${i}`], type, data)
         });
     }
-    columns.unshift({ data: null, className: "title itd", name: "title", render: IndexTable.renderTitle });
     columns.push({ data: "tags", className: "tags itd", name: "tags", orderable: false, render: IndexTable.renderTags });
 
     // Datatables configuration
