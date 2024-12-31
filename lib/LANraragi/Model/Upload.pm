@@ -195,16 +195,20 @@ sub download_url {
 
     my $attempts = 0;
 
-    while ( !$content_disp || $attempts < 5 ) {
+    while ( !$content_disp && $attempts < 5 ) {
         $tx           = $ua->max_response_size(0)->max_redirects(5)->get($url);
         $content_disp = $tx->result->headers->content_disposition;
 
         unless ($content_disp) {
-            $logger->warn("No valid Content-Disposition header received, waiting and retrying...");
+            $logger->warn("No valid Content-Disposition header received, waiting and retrying... (attempt $attempts / 5)");
+            $logger->debug( "Result of this attempt: " . $tx->result->body );
             sleep 1;
             $attempts++;
         }
+    }
 
+    if ( !$content_disp ) {
+        die( "No valid Content-Disposition header received after 5 attempts, aborting. (Last result: " . $tx->result->body . ")" );
     }
 
     $logger->debug("Content-Disposition Header: $content_disp");
