@@ -1,5 +1,7 @@
 package LANraragi::Model::Upload;
 
+use v5.36;
+
 use strict;
 use warnings;
 
@@ -31,9 +33,8 @@ use LANraragi::Model::Category;
 # You can also specify tags to add to the metadata for the processed file before autoplugin is ran. (if it's enabled)
 #
 # Returns an HTTP status code, the ID and title of the file, and a status message.
-sub handle_incoming_file {
+sub handle_incoming_file ( $tempfile, $catid, $tags, $title, $summary ) {
 
-    my ( $tempfile, $catid, $tags, $title, $summary ) = @_;
     my ( $filename, $dirs, $suffix ) = fileparse( $tempfile, qr/\.[^.]*/ );
     $filename = $filename . $suffix;
     my $logger = get_logger( "File Upload/Download", "lanraragi" );
@@ -145,7 +146,7 @@ sub handle_incoming_file {
 
     # Generate thumbnail
     my $thumbdir = LANraragi::Model::Config->get_thumbdir;
-    extract_thumbnail( $thumbdir, $id, 0, 1 );
+    extract_thumbnail( $thumbdir, $id, 1, 1, 1 );
 
     $logger->debug("Running autoplugin on newly uploaded file $id...");
 
@@ -177,9 +178,7 @@ sub handle_incoming_file {
 
 # Download the given URL, using the given Mojo::UserAgent object.
 # This downloads the URL to a temporaryfolder and returns the full path to the downloaded file.
-sub download_url {
-
-    my ( $url, $ua ) = @_;
+sub download_url ( $url, $ua ) {
 
     my $logger = get_logger( "File Upload/Download", "lanraragi" );
 

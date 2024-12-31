@@ -206,7 +206,7 @@ sub exec_metadata_plugin ( $plugin, $id, %args ) {
         $thumbhash = "";
 
         try {
-            extract_thumbnail( $thumbdir, $id, 0, 1 );
+            extract_thumbnail( $thumbdir, $id, 1, 1, 1 );
             $thumbhash = $redis->hget( $id, "thumbhash" );
             $thumbhash = LANraragi::Utils::Database::redis_decode($thumbhash);
         } catch ($e) {

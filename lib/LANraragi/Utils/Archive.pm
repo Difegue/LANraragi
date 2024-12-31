@@ -157,9 +157,10 @@ sub extract_pdf ( $destination, $to_extract ) {
 }
 
 # Extracts a thumbnail from the specified archive ID and page. Returns the path to the thumbnail.
-# Non-cover thumbnails land in a folder named after the ID. Specify page=0 if you want the cover.
+# Non-cover thumbnails land in a folder named after the ID.
+# Specify $set_cover if you want the given to page to be placed as the cover thumbnail instead.
 # Thumbnails will be generated at low quality by default unless you specify use_hq=1.
-sub extract_thumbnail ( $thumbdir, $id, $page, $use_hq ) {
+sub extract_thumbnail ( $thumbdir, $id, $page, $set_cover, $use_hq ) {
 
     my $logger = get_logger( "Archive", "lanraragi" );
 
@@ -194,7 +195,7 @@ sub extract_thumbnail ( $thumbdir, $id, $page, $use_hq ) {
     }
 
     my $thumbname;
-    if ( $page - 1 > 0 ) {
+    unless ($set_cover) {
 
         # Non-cover thumbnails land in a dedicated folder.
         $thumbname = "$thumbdir/$subfolder/$id/$page.$format";

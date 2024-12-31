@@ -34,7 +34,8 @@ sub add_tasks {
             my $use_hq    = $page eq 0 || LANraragi::Model::Config->get_hqthumbpages;
             my $thumbname = "";
 
-            eval { $thumbname = extract_thumbnail( $thumbdir, $id, $page, $use_hq ); };
+            # Take a shortcut here - Minion jobs can keep the old basic behavior of page 0 = cover.
+            eval { $thumbname = extract_thumbnail( $thumbdir, $id, $page, $page eq 0, $use_hq ); };
             if ($@) {
                 my $msg = "Error building thumbnail: $@";
                 $logger->error($msg);
@@ -76,7 +77,7 @@ sub add_tasks {
 
             # Generate thumbnails for all pages -- Cover should already be handled in higher resolution
             my @keys = ();
-            for ( my $i = 2; $i <= $pages; $i++ ) {
+            for ( my $i = 1; $i <= $pages; $i++ ) {
                 push @keys, $i;
             }
             my @sections = split_workload_by_cpu( $numCpus, @keys );
@@ -91,7 +92,7 @@ sub add_tasks {
                             my $thumbname = "$thumbdir/$subfolder/$id/$i.$format";
                             unless ( $force == 0 && -e $thumbname ) {
                                 $logger->debug("Generating thumbnail for page $i... ($thumbname)");
-                                eval { $thumbname = extract_thumbnail( $thumbdir, $id, $i, $use_hq ); };
+                                eval { $thumbname = extract_thumbnail( $thumbdir, $id, $i, 0, $use_hq ); };
                                 if ($@) {
                                     $logger->warn("Error while generating thumbnail: $@");
                                     push @errors, $@;
