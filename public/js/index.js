@@ -277,10 +277,12 @@ Index.updateTableControls = function (currentSort, currentOrder, totalPages, cur
     if (localStorage.indexViewMode === "1") {
         $(".thumbnail-options").show();
         $(".thumbnail-toggle").show();
+        $(".compact-options").hide();
         $(".compact-toggle").hide();
     } else {
         $(".thumbnail-options").hide();
         $(".thumbnail-toggle").hide();
+        $(".compact-options").show();
         $(".compact-toggle").show();
     }
 

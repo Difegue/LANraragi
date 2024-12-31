@@ -140,16 +140,17 @@
 						title="If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the left side.">
 					<label for="thumbnail-crop" style="vertical-align: middle; padding-top:6px">[% c.lh("Crop thumbnails") %]</label>
 				</div>
-				<div style="margin-left:auto">[% c.lh("Go to Page:") %]
-					<select class="favtag-btn" id="page-select">
-					</select>
-					<label for="columnCount">[% c.lh("Columns:") %]</label>
+				<div class="compact-options">[% c.lh("Columns:") %]
 					<select class="favtag-btn" id="columnCount">
 						<script>  
 							for (let i = 1; i <= 20; i++) {  
 								document.write(`<option value="${i}">${i}</option>`);  
 							}  
 						</script> 
+					</select>
+				</div>
+				<div style="margin-left:auto">[% c.lh("Go to Page:") %]
+					<select class="favtag-btn" id="page-select">
 					</select>
 					<a class="fa fa-list fa-2x mode-toggle thumbnail-toggle table-option" href="#"
 						title="[% c.lh('Switch to Compact Mode') %]"></a>
