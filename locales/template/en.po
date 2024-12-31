@@ -1103,7 +1103,7 @@ msgid "URL(s) to download:"
 msgstr "URL(s) to download:"
 
 msgid "Add from URL(s)"
-msgstr "Add from URL(s)""
+msgstr "Add from URL(s)"
 
 msgid "Return to Library"
 msgstr "Return to Library"
