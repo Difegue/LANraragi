@@ -658,8 +658,8 @@ msgstr "裁剪缩略图"
 msgid "Go to Page:"
 msgstr "跳转到页面："
 
-msgid "Select Columns:"
-msgstr "选择列数："
+msgid "Columns:"
+msgstr "列数："
 
 msgid "Switch to Compact Mode"
 msgstr "切换到紧凑模式"
