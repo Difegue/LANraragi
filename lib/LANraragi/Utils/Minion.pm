@@ -148,7 +148,7 @@ sub add_tasks {
                             unless ( $force == 0 && -e $thumbname ) {
                                 eval {
                                     $logger->debug("Regenerating for $id...");
-                                    extract_thumbnail( $thumbdir, $id, 0, 1 );
+                                    extract_thumbnail( $thumbdir, $id, 0, 1, 1 );
                                 };
 
                                 if ($@) {
