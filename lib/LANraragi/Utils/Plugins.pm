@@ -5,7 +5,7 @@ use warnings;
 use utf8;
 
 use Mojo::JSON                 qw(decode_json);
-use LANraragi::Utils::Database qw(redis_decode);
+use LANraragi::Utils::Database qw(redis_encode redis_decode);
 use LANraragi::Utils::Logging  qw(get_logger);
 
 # Plugin system ahoy - this makes the LANraragi::Utils::Plugins::plugins method available
@@ -131,6 +131,8 @@ sub get_plugin_parameters {
 
             #Decode it to an array for proper use
             if ($saved_config) {
+                # encode before json-decoding it in case it has UTF8 characters in plugin config
+                $saved_config = redis_encode($saved_config);
                 @args = @{ decode_json($saved_config) };
             }
         }
