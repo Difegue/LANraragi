@@ -19,11 +19,11 @@ use LANraragi::Utils::Database qw(set_tags set_title set_summary);
 use LANraragi::Utils::Archive  qw(extract_thumbnail);
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Tags     qw(rewrite_tags split_tags_to_array);
+use LANraragi::Utils::Plugins  qw(get_plugin_parameters get_plugin);
 
 # Sub used by Auto-Plugin.
-sub exec_enabled_plugins_on_file {
+sub exec_enabled_plugins_on_file ($id) {
 
-    my $id     = shift;
     my $logger = get_logger( "Auto-Plugin", "lanraragi" );
 
     $logger->info("Executing enabled metadata plugins on archive with id $id.");
@@ -50,13 +50,13 @@ sub exec_enabled_plugins_on_file {
 
     foreach my $pluginfo (@plugins) {
         my $name   = $pluginfo->{namespace};
-        my @args   = LANraragi::Utils::Plugins::get_plugin_parameters($name);
-        my $plugin = LANraragi::Utils::Plugins::get_plugin($name);
+        my %args   = get_plugin_parameters($name);
+        my $plugin = get_plugin($name);
         my %plugin_result;
 
         my %pluginfo = $plugin->plugin_info();
 
-        %plugin_result = exec_metadata_plugin( $plugin, $id, "", @args );
+        %plugin_result = exec_metadata_plugin( $plugin, $id, %args );
 
         if ( exists $plugin_result{error} ) {
             $failures++;
@@ -94,27 +94,29 @@ sub exec_enabled_plugins_on_file {
 
 # Unlike the two other methods, exec_login_plugin takes a plugin name and does the Redis lookup itself.
 # Might be worth consolidating this later.
-sub exec_login_plugin {
-    my $plugname = shift;
-    my $ua       = Mojo::UserAgent->new;
-    my $logger   = get_logger( "Plugin System", "lanraragi" );
+sub exec_login_plugin ($plugname) {
+
+    my $ua     = Mojo::UserAgent->new;
+    my $logger = get_logger( "Plugin System", "lanraragi" );
 
     if ($plugname) {
         $logger->debug("Calling matching login plugin $plugname.");
-        my $loginplugin = LANraragi::Utils::Plugins::get_plugin($plugname);
-        my @loginargs   = LANraragi::Utils::Plugins::get_plugin_parameters($plugname);
+        my $loginplugin = get_plugin($plugname);
+        my %loginargs   = get_plugin_parameters($plugname);
 
-        if ( $loginplugin->can('do_login') ) {
-            my $loggedinua = $loginplugin->do_login(@loginargs);
-
-            if ( ref($loggedinua) eq "Mojo::UserAgent" ) {
-                return $loggedinua;
-            } else {
-                $logger->error("Plugin did not return a Mojo::UserAgent object!");
-            }
+        my $loggedinua;
+        if ( has_old_style_params(%loginargs) ) {
+            $loggedinua = $loginplugin->do_login( @{ $loginargs{customargs} } );
         } else {
-            $logger->error("Plugin doesn't implement do_login!");
+            $loggedinua = $loginplugin->do_login( \%loginargs );
         }
+
+        if ( ref($loggedinua) eq "Mojo::UserAgent" ) {
+            return $loggedinua;
+        } else {
+            $logger->error("Plugin did not return a Mojo::UserAgent object!");
+        }
+
     } else {
         $logger->debug("No login plugin specified, returning empty UserAgent.");
     }
@@ -122,78 +124,65 @@ sub exec_login_plugin {
     return $ua;
 }
 
-sub exec_script_plugin {
-
-    my ( $plugin, $input, @settings ) = @_;
+sub exec_script_plugin ( $plugin, %settings ) {
 
     no warnings 'experimental::try';
 
-    #If the plugin has the method "run_script",
-    #catch all the required data and feed it to the plugin
-    if ( $plugin->can('run_script') ) {
-
-        try {
-            my %pluginfo = $plugin->plugin_info();
-            my $ua       = exec_login_plugin( $pluginfo{login_from} );
-
-            # Bundle all the potentially interesting info in a hash
-            my %infohash = (
-                user_agent    => $ua,
-                oneshot_param => $input
-            );
-
-            # Scripts don't have any predefined metadata in their spec so they're just ran as-is.
-            # They can return whatever the heck they want in their hash as well, they'll just be shown as-is in the API output.
-            return $plugin->run_script( \%infohash, @settings );
-        } catch ($e) {
-            return ( error => $e );
-        }
-    }
-    return ( error => "Plugin doesn't implement run_script despite having a 'script' type." );
-}
-
-sub exec_download_plugin {
-
-    my ( $plugin, $input, @settings ) = @_;
-    my $logger = get_logger( "Plugin System", "lanraragi" );
-
-    #If the plugin has the method "provide_url",
-    #catch all the required data and feed it to the plugin
-    if ( $plugin->can('provide_url') ) {
-
+    try {
         my %pluginfo = $plugin->plugin_info();
         my $ua       = exec_login_plugin( $pluginfo{login_from} );
 
         # Bundle all the potentially interesting info in a hash
         my %infohash = (
-            user_agent => $ua,
-            url        => $input
+            user_agent    => $ua,
+            oneshot_param => $settings{'oneshot'}    # for old style plugins compatibility
         );
 
-        # Downloader plugins take an URL, and return...another URL, which we can download through the user-agent.
-        my %result = $plugin->provide_url( \%infohash, @settings );
-
-        if ( exists $result{error} ) {
-            $logger->info( "Downloader plugin failed to provide an URL, aborting now. Error: " . $result{error} );
-            return \%result;
+        # Scripts don't have any predefined metadata in their spec so they're just ran as-is.
+        # They can return whatever the heck they want in their hash as well, they'll just be shown as-is in the API output.
+        if ( has_old_style_params(%settings) ) {
+            return $plugin->run_script( \%infohash, @{ $settings{customargs} } );
+        } else {
+            return $plugin->run_script( \%infohash, \%settings );
         }
-
-        if ( exists $result{download_url} ) {
-
-            # Add the result URL to the infohash and return that.
-            $infohash{download_url} = $result{download_url};
-            return \%infohash;
-        }
-
-        return ( error => "Plugin ran to completion but didn't provide a final URL for us to download." );
+    } catch ($e) {
+        return ( error => $e );
     }
-    return ( error => "Plugin doesn't implement provide_url despite having a 'download' type." );
+}
+
+sub exec_download_plugin ( $plugin, $input, @settings ) {
+
+    my $logger = get_logger( "Plugin System", "lanraragi" );
+
+    my %pluginfo = $plugin->plugin_info();
+    my $ua       = exec_login_plugin( $pluginfo{login_from} );
+
+    # Bundle all the potentially interesting info in a hash
+    my %infohash = (
+        user_agent => $ua,
+        url        => $input
+    );
+
+    # Downloader plugins take an URL, and return...another URL, which we can download through the user-agent.
+    my %result = $plugin->provide_url( \%infohash, @settings );
+
+    if ( exists $result{error} ) {
+        $logger->info( "Downloader plugin failed to provide an URL, aborting now. Error: " . $result{error} );
+        return \%result;
+    }
+
+    if ( exists $result{download_url} ) {
+
+        # Add the result URL to the infohash and return that.
+        $infohash{download_url} = $result{download_url};
+        return \%infohash;
+    }
+
+    return ( error => "Plugin ran to completion but didn't provide a final URL for us to download." );
 }
 
 # Execute a specified plugin on a file, described through its Redis ID.
-sub exec_metadata_plugin {
-
-    my ( $plugin, $id, $oneshotarg, @args ) = @_;
+sub exec_metadata_plugin ( $plugin, $id, %args ) {
 
     no warnings 'experimental::try';
 
@@ -201,10 +190,6 @@ sub exec_metadata_plugin {
 
     if ( !$id ) {
         return ( error => "Tried to call a metadata plugin without providing an id." );
-    }
-
-    if ( !$plugin->can('get_tags') ) {
-        return ( error => "Plugin doesn't implement get_tags despite having a 'metadata' type." );
     }
 
     my $redis = LANraragi::Model::Config->get_redis;
@@ -221,7 +206,7 @@ sub exec_metadata_plugin {
         $thumbhash = "";
 
         try {
-            extract_thumbnail( $thumbdir, $id, 0, 1 );
+            extract_thumbnail( $thumbdir, $id, 1, 1, 1 );
             $thumbhash = $redis->hget( $id, "thumbhash" );
             $thumbhash = LANraragi::Utils::Database::redis_decode($thumbhash);
         } catch ($e) {
@@ -245,12 +230,16 @@ sub exec_metadata_plugin {
             thumbnail_hash => $thumbhash,
             file_path      => $file,
             user_agent     => $ua,
-            oneshot_param  => $oneshotarg
+            oneshot_param  => $args{'oneshot'}    # for old style plugins compatibility
         );
 
         my %newmetadata;
 
-        %newmetadata = $plugin->get_tags( \%infohash, @args );
+        if ( has_old_style_params(%args) ) {
+            %newmetadata = $plugin->get_tags( \%infohash, @{ $args{customargs} } );
+        } else {
+            %newmetadata = $plugin->get_tags( \%infohash, \%args );
+        }
 
         # TODO: remove this block after changing all the metadata plugins
         #Error checking
@@ -301,6 +290,11 @@ sub exec_metadata_plugin {
     }
 
     return %returnhash;
+}
+
+# TODO: remove after the deprecation period
+sub has_old_style_params (%params) {
+    return ( exists $params{'customargs'} );
 }
 
 1;

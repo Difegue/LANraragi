@@ -89,7 +89,7 @@ sub plugin_info {
 }
 
 ## Mandatory function to be implemented by your script
-sub run_script {
+sub provide_url {
     shift;
     my $lrr_info = shift; # Global info hash
     my ($useposts) = @_; # Plugin parameters

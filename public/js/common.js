@@ -260,6 +260,7 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
     const id = data.arcid || data.id;
     let reader_url = new LRR.apiURL(`/reader?id=${id}`);
 
+    // Don't enforce no_fallback=true here, we don't want those divs to trigger Minion jobs 
     return `<div class="id1 context-menu swiper-slide" id="${id}">
                 <div class="id2">
                     ${LRR.buildProgressDiv(data)}

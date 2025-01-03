@@ -24,8 +24,8 @@ done
 #Just do everything
 apk update
 apk add tzdata
-apk add perl perl-io-socket-ssl perl-dev redis libarchive-dev libbz2 openssl-dev zlib-dev linux-headers
-apk add imagemagick imagemagick-perlmagick libwebp-tools libheif
+apk add redis libarchive-dev libbz2 openssl-dev zlib-dev linux-headers
+apk add imagemagick libwebp-tools libheif
 apk add g++ make pkgconf gnupg wget curl file
 apk add shadow s6 s6-portable-utils ghostscript
 
@@ -33,19 +33,49 @@ apk add shadow s6 s6-portable-utils ghostscript
 if [ -f /etc/alpine-release ]; then
   alpine_version=$(cat /etc/alpine-release)
   if [ "$alpine_version" = "3.12.12" ]; then
-      apk add nodejs-npm
-    else # Those packages don't exist on 3.12
-      apk add s6-overlay libjxl
+      apk add nodejs-npm tar gcc build-base zlib openssl
+      mkdir -p /usr/src/perl
+      cd /usr/src/perl
+
+      # Install Perl 5.36 at the very least to maintain compat with LRR requirements
+      curl -SLO https://www.cpan.org/src/5.0/perl-5.38.0.tar.gz \
+      && echo '5c4dea06509959fedcccaada8d129518487399b7  perl-5.38.0.tar.gz' | sha1sum -c - \
+      && tar --strip-components=1 -xaf perl-5.38.0.tar.gz -C /usr/src/perl \
+      && rm perl-5.38.0.tar.gz \
+      && ./Configure -des \
+          -Duse64bitall \
+          -Dcccdlflags='-fPIC' \
+          -Dcccdlflags='-fPIC' \
+          -Dccdlflags='-rdynamic' \
+          -Dlocincpth=' ' \
+          -Duselargefiles \
+          -Dusethreads \
+          -Duseshrplib \
+          -Dd_semctl_semun \
+          -Dusenm \
+          -Dprefix='/opt/perl' \
+      && make -j$(nproc) \
+      && make install \
+
+      ln -s /opt/perl/bin/perl5.38.0 /usr/bin/perl
+
+      # Install cpanm
+      curl -L https://cpanmin.us | perl - App::cpanminus
+      ln -s /opt/perl/bin/cpanm /usr/bin/cpanm
+      cpanm IO::Socket::SSL --notest
+
+    else # Those packages either don't exist on 3.12 or aren't necessary with the local perl rebuild
+      apk add perl perl-io-socket-ssl perl-dev s6-overlay libjxl imagemagick-perlmagick 
 
       # Install node v18 as v20 breaks with QEMU (https://github.com/nodejs/docker-node/issues/1798)
       echo 'http://dl-cdn.alpinelinux.org/alpine/v3.18/main' >> /etc/apk/repositories
       apk update
-      apk add nodejs=18.20.1-r0 npm=10.8.0-r0
+      apk add nodejs=18.20.1-r0 npm=10.9.1-r0
+
+      # Install cpanm
+      curl -L https://cpanmin.us | perl - App::cpanminus
   fi
 fi
-
-# Install cpanm
-curl -L https://cpanmin.us | perl - App::cpanminus
 
 # Check for WSL1 to install specific versions of packages
 if [ $WSL -eq 1 ]; then
@@ -54,7 +84,7 @@ if [ $WSL -eq 1 ]; then
     # WSL1 works with both default watcher and inotify 2.2, but crashes with inotify 2.3 ("can't open fd 4 as perl handle")
 
     # Doing the install here allows us to use 2.3 on non-WSL builds. 
-    cpanm https://cpan.metacpan.org/authors/id/M/ML/MLEHMANN/Linux-Inotify2-2.2.tar.gz --reinstall
+    cpanm https://cpan.metacpan.org/authors/id/M/ML/MLEHMANN/Linux-Inotify2-2.2.tar.gz --reinstall --force
 fi
 
 #Alpine's libffi build comes with AVX instructions enabled
@@ -74,7 +104,7 @@ if [ $(uname -m) == 'x86_64' ]; then
 fi
 
 #Install the LRR dependencies proper
-cd tools && cpanm --notest --installdeps . -M https://cpan.metacpan.org && cd ..
+cd /home/koyomi/lanraragi/tools && cpanm --notest --installdeps . -M https://cpan.metacpan.org && cd ..
 if [ $WSL -eq 1 ]; then
 npm run lanraragi-installer install-full legacy
 else

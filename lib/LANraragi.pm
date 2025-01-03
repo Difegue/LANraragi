@@ -17,6 +17,8 @@ use LANraragi::Utils::Plugins    qw(get_plugins);
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Routing;
 use LANraragi::Utils::Minion;
+use LANraragi::Utils::I18N;
+use LANraragi::Utils::I18NInitializer;
 
 use LANraragi::Model::Search;
 use LANraragi::Model::Config;
@@ -85,6 +87,9 @@ sub startup {
         say "The program will cease functioning now.";
         die;
     }
+
+    # Load i18n
+    LANraragi::Utils::I18NInitializer::initialize($self);
 
     # Catch Redis errors on our first connection. This is useful in case of temporary LOADING errors,
     # Where Redis lets us send commands but doesn't necessarily reply to them properly.
@@ -189,18 +194,19 @@ sub startup {
 
             my $prefix = $self->LRR_BASEURL;
             if ($prefix) {
-                if (!$prefix =~ m|^/[^"]*[^/"]$|) {
+                if ( !$prefix =~ m|^/[^"]*[^/"]$| ) {
                     say "Warning: configured URL prefix '$prefix' invalid, ignoring";
+
                     # if prefix is invalid, then set it to empty for the cookie
                     $prefix = "";
-                }
-                else {
+                } else {
                     $c->req->url->base->path($prefix);
                 }
             }
+
             # SameSite=Lax is the default behavior here; I set it
             # explicitly to get rid of a warning in the browser
-            $c->cookie("lrr_baseurl" => $prefix, { samesite => "lax" });
+            $c->cookie( "lrr_baseurl" => $prefix, { samesite => "lax" } );
         }
     );
 

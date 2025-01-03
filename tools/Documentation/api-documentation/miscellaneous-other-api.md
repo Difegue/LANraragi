@@ -12,19 +12,20 @@ Returns some basic information about the LRR instance this server is running.
 {% swagger-response status="200" description="" %}
 ```javascript
 {
-    "name":"LANraragi",
-    "motd":"Welcome to this Library running LANraragi !",
-    "version":"0.7.0",
-    "version_name":"Cat People (Putting Out Fire)",
-    "version_desc":"aye lads time to read some manga",
-    "total_pages_read":"13",
-    "has_password": "1",
-    "debug_mode":"1",
-    "nofun_mode":"0",
-    "archives_per_page":"100",
-    "server_resizes_images":"0",
-    "server_tracks_progress":"1",
-    "cache_last_cleared":"1601474241"
+    "archives_per_page": 100,
+    "cache_last_cleared": 1728852701,
+    "debug_mode": true,
+    "has_password": false,
+    "motd": "aye lads time to read some manga",
+    "name": "LANraragi",
+    "nofun_mode": false,
+    "server_resizes_images": false,
+    "server_tracks_progress": true,
+    "total_archives": 104,
+    "total_pages_read": 252,
+    "version": "0.9.30",
+    "version_desc": "I'm under Japanese influence and my honor's at stake!",
+    "version_name": "Law (Earthlings On Fire)"
 }
 ```
 {% endswagger-response %}

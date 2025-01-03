@@ -25,14 +25,16 @@ sub plugin_info {
         namespace   => "fakkumetadata",
         login_from  => "fakkulogin",
         author      => "Difegue, Nodja, Nixis198",
-        version     => "0.98",
+        version     => "1.0.1",
         description =>
           "Searches FAKKU for tags matching your archive. If you have an account, don't forget to enter the matching cookie in the login plugin to be able to access controversial content. <br/><br/>
-           <i class='fa fa-exclamation-circle'></i> <b>This plugin can and will return invalid results depending on what you're searching for!</b> <br/>The FAKKU search API isn't very precise and I recommend you use the Chaika.moe plugin when possible.",
+           <i class='fa fa-exclamation-circle'></i> <b>This plugin can and will return invalid results depending on what you're searching for!</b> <br/>The FAKKU search API isn't very precise and I recommend you either enable 'Only use current title for exact matches', or use the Chaika.moe plugin when possible.",
         icon =>
           "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAFiUAABYlAUlSJPAAAACZSURBVDhPlY+xDYQwDEWvZgRGYA22Y4frqJDSZhFugiuuo4cqPGT0iTjAYL3C+fGzktc3hEcsQvJq6HtjE2Jdv4viH4a4pWnL8q4A6g+ET9P8YhS2/kqwIZXWnwqChDxPfCFfD76wOzJ2IOR/0DSwnuRKYAKUW3gq2OsJTYM0jr7QVRVwlabJEaw3ARYBcmFXeomxphIeEMIMmh3lOLQR+QQAAAAASUVORK5CYII=",
         oneshot_arg => "FAKKU Gallery URL (Will attach tags matching this exact gallery to your archive)",
-        parameters  => [ { type => "bool", desc => "Add 'Source' tag" } ]
+        parameters  => [
+            { type => "bool", desc => "Add 'Source' tag" }, { type => "bool", desc => "Only use current title for exact matches" }
+        ]
     );
 
 }
@@ -41,9 +43,9 @@ sub plugin_info {
 sub get_tags {
 
     shift;
-    my $lrr_info     = shift;                     # Global info hash
-    my $ua           = $lrr_info->{user_agent};
-    my ($add_source) = @_;
+    my $lrr_info = shift;                     # Global info hash
+    my $ua       = $lrr_info->{user_agent};
+    my ( $add_source, $safe_mode ) = @_;
 
     my $logger = get_plugin_logger();
 
@@ -60,6 +62,9 @@ sub get_tags {
     # No URL? Looks for the "source:" in the existing tags.
     $fakku_URL = get_url_from_tags( $lrr_info->{existing_tags} ) if ( !$fakku_URL );
 
+    # Assume URLs coming from the one-shot parameter or tags are reliable.
+    my $URL_safe = !!$fakku_URL;
+
     # Still nothing? Search for a FAKKU URL using the title
     $fakku_URL = search_for_fakku_url( $lrr_info->{archive_title}, $ua ) if ( !$fakku_URL );
 
@@ -72,6 +77,13 @@ sub get_tags {
     $logger->debug("Detected FAKKU URL: $fakku_URL");
 
     my ( $newtags, $newtitle, $newSummary ) = get_tags_from_fakku( $fakku_URL, $ua, $add_source );
+
+    my $current_title = $lrr_info->{archive_title};
+
+    if ( $safe_mode && !$URL_safe && $newtitle ne $current_title ) {
+        $logger->info("Found FAKKU Gallery '$newtitle', but it does not match current title '$current_title' exactly");
+        die "Exact title match not found\n";
+    }
 
     $logger->info("Sending the following tags to LRR: $newtags");
 
@@ -183,14 +195,13 @@ sub get_tags_from_fakku {
     my @tags = ();
 
     # Finds the DIV for the Summary.
-    my $summ_selector =
-      '.table-cell.w-full.align-top.text-left.space-y-2.leading-relaxed.link\:text-blue-700.dark\:link\:text-white';
-    my $summ_div = $dom->at($summ_selector);
+    my $summ_selector = 'meta[name="description"]';
+    my $summ_div      = $dom->at($summ_selector);
     my $summary;
 
-    # If the Summary DIV doesn't exist, return a blank string.
-    if ( defined $summ_div ) {
-        $summary = $summ_div->all_text;
+    # # If the Summary DIV doesn't exist, return a blank string.
+    if ($summ_div) {
+        $summary = $summ_div->{content};
     } else {
         $summary = "";
     }

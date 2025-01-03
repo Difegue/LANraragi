@@ -42,11 +42,11 @@
 <body>
 
 	<div class="ido" style="text-align:center;">
-		<h1 class="ih" style="text-align:center">Plugin Configuration</h1>
-		<br /> Enable/Disable Auto-Plugin on metadata plugins by checking the toggles.
-		<br /> Plugins will be automatically used on new archives if they're toggled here.
-		<br /> If they have configuration variables, you can set them here as well.
-		<br /> You can also trigger Scripts here. Triggering a script will save your Plugin settings beforehand.
+		<h1 class="ih" style="text-align:center">[% c.lh("Plugin Configuration") %]</h1>
+		<br /> [% c.lh("Enable/Disable Auto-Plugin on metadata plugins by checking the toggles.") %]
+		<br /> [% c.lh("Plugins will be automatically used on new archives if they're toggled here.") %]
+		<br /> [% c.lh("If they have configuration variables, you can set them here as well.") %]
+		<br /> [% c.lh("You can also trigger Scripts here. Triggering a script will save your Plugin settings beforehand.") %]
 		<br />
 
 		<form name="editPluginForm" id="editPluginForm" enctype="multipart/form-data" method="post">
@@ -55,7 +55,7 @@
 				<ul class="collapsible extensible with-right-caret">
 					<li class="option-flyout">
 						<div class="collapsible-title caret-right">
-							<i class="fa fa-plug" aria-hidden="true"></i> Login Plugins
+							<i class="fa fa-plug" aria-hidden="true"></i> [% c.lh("Login Plugins") %]
 						</div>
 						<div class="collapsible-body">
 							[% INCLUDE pluginlist plugins = logins %]
@@ -63,7 +63,7 @@
 					</li>
 					<li class="option-flyout">
 						<div class="collapsible-title caret-right">
-							<i class="fas fa-cloud-download-alt" aria-hidden="true"></i> Downloaders
+							<i class="fas fa-cloud-download-alt" aria-hidden="true"></i> [% c.lh("Downloaders") %]
 						</div>
 						<div class="collapsible-body">
 							[% INCLUDE pluginlist plugins = downloaders %]
@@ -71,7 +71,7 @@
 					</li>
 					<li class="option-flyout">
 						<div class="collapsible-title caret-right">
-							<i class="fa fa-scroll" aria-hidden="true"></i> Scripts
+							<i class="fa fa-scroll" aria-hidden="true"></i> [% c.lh("Scripts") %]
 						</div>
 						<div class="collapsible-body">
 							[% INCLUDE pluginlist plugins = scripts %]
@@ -84,19 +84,17 @@
 				<ul class="collapsible extensible with-right-caret">
 					<li class="option-flyout">
 						<div class="collapsible-title caret-right">
-							<i class="fa fa-digital-tachograph" aria-hidden="true"></i> Metadata Plugins
+							<i class="fa fa-digital-tachograph" aria-hidden="true"></i> [% c.lh("Metadata Plugins") %]
 						</div>
 						<div class="collapsible-body">
 
-							<h1 class="ih" style="display:inline">Allow Plugins to replace archive titles: </h1>
+							<h1 class="ih" style="display:inline">[% c.lh("Allow Plugins to replace archive titles:") %] </h1>
 							[% IF replacetitles %]
 							<input id="replacetitles" name="replacetitles" class="fa" type="checkbox" checked> [% ELSE
 							%]
 							<input id="replacetitles" name="replacetitles" class="fa" type="checkbox"> [% END %]
 							<label for="replacetitles">
-								<br> If enabled, metadata plugins will be able to change the title of your archives
-								alongside
-								adding tags to them.
+								<br> [% c.lh("If enabled, metadata plugins will be able to change the title of your archives alongside adding tags to them.") %]
 							</label>
 							<br />
 							<br />
@@ -110,15 +108,15 @@
 			<h1 style="text-align:center">
 				<span class="script-running" style="display:none">
 					<i aria-hidden="true" class="fa fa-3x fa-atom fa-spin"></i> <br>
-					A script is running...
+					[% c.lh("A script is running...") %]
 				</span>
-				<input id='save' class='stdbtn' type='button' value='Save Plugin Configuration' />
+				<input id='save' class='stdbtn' type='button' value='[% c.lh("Save Plugin Configuration") %]' />
 				<span id="plugin-upload" class='stdbtn fileinput-button'
 					style="margin-bottom: -10px; font-weight:normal">
-					<span style="position:absolute; top:5px; left:25%">Upload Plugin</span>
+					<span style="position:absolute; top:5px; left:25%">[% c.lh("Upload Plugin") %]</span>
 					<input type='file' name='file' multiple id='fileupload'>
 				</span>
-				<input id='return' class='stdbtn' type='button' value='Return to Library' />
+				<input id='return' class='stdbtn' type='button' value='[% c.lh("Return to Library") %]' />
 			</h1>
 		</form>
 	</div>
@@ -133,7 +131,7 @@
 [% FOREACH plugin IN plugins %]
 <span style="display:inline-block; text-align: left; width:80%; border-bottom-width: 1px;border-bottom-style: solid">
 	[% IF plugin.icon %]
-        [%# the plugin.icon attr is always a data: URI, so we don't need to worry about the base URL %]
+	[%# the plugin.icon attr is always a data: URI, so we don't need to worry about the base URL %]
 	<img height=20 width=20 src="[% plugin.icon %]" />
 	[% ELSE %]
 	<i class="fa fa-puzzle-piece" style="font-size:20px"></i>
@@ -204,7 +202,7 @@
 						<b> [% param.desc %] : </b>
 					</td>
 					<td>
-						<input style="max-width:200px" size="20" name="[% plugin.namespace %]_CFG_[% loop.count %]"
+						<input style="max-width:200px" size="20" name="[% plugin.namespace %]_CFG_[% IF param.exists('name') %][% param.name %][% ELSE %][% loop.count %][% END %]"
 							type=[% SWITCH param.type %] # time for some real-ass typage [% CASE 'string' %] "text"
 							value="[% param.value %]" class="stdinput" [% CASE 'bool' %] "checkbox" value="1" class="fa"
 							[% IF param.value %] checked [% END %] [% CASE 'int' %] "number" value="[% param.value %]"
