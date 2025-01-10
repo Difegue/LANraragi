@@ -166,7 +166,7 @@ sub get_tankoubon ( $tank_id, $fulldata = 0, $page = 0 ) {
 
     %tank = filter_hash_by_keys( \@allowed_keys, %tank );
 
-    my $total = $redis->zcard($tank_id) - 1;
+    my $total = $redis->zcount($tank_id, 1, "+inf");
 
     return ( $total, $#archives + 1, %tank );
 }
@@ -232,8 +232,8 @@ sub update_metadata ( $tank_id, $data ) {
     my $redis   = LANraragi::Model::Config->get_redis;
     my $err     = "";
     my $name    = $data->{"metadata"}->{"name"}    || undef;
-    my $summary = $data->{"metadata"}->{"summary"} || undef;
-    my $tags    = $data->{"metadata"}->{"tags"}    || undef;
+    my $summary = exists $data->{"metadata"}->{"summary"} ? $data->{"metadata"}->{"summary"} : undef;
+    my $tags = exists $data->{"metadata"}->{"tags"} ? $data->{"metadata"}->{"tags"} : undef;
 
     if ( $redis->exists($tank_id) ) {
         if ( defined $name ) {

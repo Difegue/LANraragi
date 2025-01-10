@@ -219,6 +219,20 @@ sub setup_redis_mock {
     );
 
     $redis->mock(
+        'zcount',    # $redis->zcard => number of values in list named by key in datamodel
+        sub {
+            my $self = shift;
+            my ( $key, $weight, $value ) = @_;
+
+            if ( !exists $datamodel{$key} ) {
+                $datamodel{$key} = [];
+            }
+
+            return scalar @{ $datamodel{$key} } - 1;
+        }
+    );
+
+    $redis->mock(
         'zcard',    # $redis->zcard => number of values in list named by key in datamodel
         sub {
             my $self = shift;
