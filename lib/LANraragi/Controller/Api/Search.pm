@@ -34,16 +34,19 @@ sub handle_datatables {
         # Collection (tags column)
         if ( $req->param("columns[$i][name]") eq "tags" ) {
             $categoryfilter = $req->param("columns[$i][search][value]");
-        }
 
-        # New filter (isnew column)
-        if ( $req->param("columns[$i][name]") eq "isnew" ) {
-            $newfilter = $req->param("columns[$i][search][value]") eq "true";
-        }
+            # Specific hacks for the buily-in newonly/untagged selectors
+            # Those have hardcoded 'category' IDs
+            if ( $categoryfilter eq "NEW_ONLY" ) {
+                $newfilter      = 1;
+                $categoryfilter = "";
+            }
 
-        # Untagged filter (untagged column)
-        if ( $req->param("columns[$i][name]") eq "untagged" ) {
-            $untaggedfilter = $req->param("columns[$i][search][value]") eq "true";
+            if ( $categoryfilter eq "UNTAGGED_ONLY" ) {
+                $untaggedfilter = 1;
+                $categoryfilter = "";
+            }
+
         }
         $i++;
     }
