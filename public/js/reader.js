@@ -319,7 +319,7 @@ Reader.handleShortcuts = function (e) {
         if ($(".page-overlay").is(":visible")) { break; }
         if (e.originalEvent.getModifierState("Shift") && (window.scrollY) === 0) {
             (Reader.mangaMode) ? Reader.changePage(1) : Reader.changePage(-1);
-        } else if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+        } else if (($(window).height() + $(window).scrollTop()) >= LRR.getDocHeight()) {
             (Reader.mangaMode) ? Reader.changePage(-1) : Reader.changePage(1);
         }
         // spacebar is always forward regardless of reading direction, so it needs to be flipped

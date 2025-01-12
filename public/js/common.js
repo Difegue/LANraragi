@@ -369,6 +369,15 @@ LRR.getImgSizeAsync = function (target) {
     });
 };
 
+LRR.getDocHeight = function() {
+    var D = document;
+    return Math.max(
+        D.body.scrollHeight, D.documentElement.scrollHeight,
+        D.body.offsetHeight, D.documentElement.offsetHeight,
+        D.body.clientHeight, D.documentElement.clientHeight
+    );
+}
+
 /**
  * Show a generic toast with a given header and message.
  * This is a compatibility layer to migrate jquery-toast-plugin to react-toastify.
