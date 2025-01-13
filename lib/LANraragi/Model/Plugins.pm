@@ -22,9 +22,8 @@ use LANraragi::Utils::Tags     qw(rewrite_tags split_tags_to_array);
 use LANraragi::Utils::Plugins  qw(get_plugin_parameters get_plugin);
 
 # Sub used by Auto-Plugin.
-sub exec_enabled_plugins_on_file {
+sub exec_enabled_plugins_on_file ($id) {
 
-    my $id     = shift;
     my $logger = get_logger( "Auto-Plugin", "lanraragi" );
 
     $logger->info("Executing enabled metadata plugins on archive with id $id.");
@@ -95,10 +94,10 @@ sub exec_enabled_plugins_on_file {
 
 # Unlike the two other methods, exec_login_plugin takes a plugin name and does the Redis lookup itself.
 # Might be worth consolidating this later.
-sub exec_login_plugin {
-    my $plugname = shift;
-    my $ua       = Mojo::UserAgent->new;
-    my $logger   = get_logger( "Plugin System", "lanraragi" );
+sub exec_login_plugin ($plugname) {
+
+    my $ua     = Mojo::UserAgent->new;
+    my $logger = get_logger( "Plugin System", "lanraragi" );
 
     if ($plugname) {
         $logger->debug("Calling matching login plugin $plugname.");
@@ -125,9 +124,7 @@ sub exec_login_plugin {
     return $ua;
 }
 
-sub exec_script_plugin {
-
-    my ( $plugin, %settings ) = @_;
+sub exec_script_plugin ( $plugin, %settings ) {
 
     no warnings 'experimental::try';
 
@@ -153,9 +150,8 @@ sub exec_script_plugin {
     }
 }
 
-sub exec_download_plugin {
+sub exec_download_plugin ( $plugin, $input, @settings ) {
 
-    my ( $plugin, $input, @settings ) = @_;
     my $logger = get_logger( "Plugin System", "lanraragi" );
 
     my %pluginfo = $plugin->plugin_info();
@@ -186,9 +182,7 @@ sub exec_download_plugin {
 }
 
 # Execute a specified plugin on a file, described through its Redis ID.
-sub exec_metadata_plugin {
-
-    my ( $plugin, $id, %args ) = @_;
+sub exec_metadata_plugin ( $plugin, $id, %args ) {
 
     no warnings 'experimental::try';
 
@@ -212,7 +206,7 @@ sub exec_metadata_plugin {
         $thumbhash = "";
 
         try {
-            extract_thumbnail( $thumbdir, $id, 0, 1 );
+            extract_thumbnail( $thumbdir, $id, 1, 1, 1 );
             $thumbhash = $redis->hget( $id, "thumbhash" );
             $thumbhash = LANraragi::Utils::Database::redis_decode($thumbhash);
         } catch ($e) {
@@ -299,8 +293,7 @@ sub exec_metadata_plugin {
 }
 
 # TODO: remove after the deprecation period
-sub has_old_style_params {
-    my (%params) = @_;
+sub has_old_style_params (%params) {
     return ( exists $params{'customargs'} );
 }
 

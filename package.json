@@ -1,7 +1,7 @@
 {
     "name": "lanraragi",
-    "version": "0.9.30",
-    "version_name": "Law (Earthlings On Fire)",
+    "version": "0.9.31",
+    "version_name": "Earthlings On Fire (January 1997 pre-show)",
     "description": "I'm under Japanese influence and my honor's at stake!",
     "scripts": {
         "test": "prove -r -l -v tests/",

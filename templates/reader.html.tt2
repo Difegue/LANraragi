@@ -267,16 +267,16 @@
 <!-- -->
 [% BLOCK arrows %]
 <div class="sn paginator">
-    <a class="fa fa-angle-double-left page-link" style="font-size: 1.5em;" value="[% c.lh('outer-left') %]"></a>
-    <a class="fa fa-angle-left page-link" style="font-size: 1.5em;" value="[% c.lh('left') %]"></a>
+    <a class="fa fa-angle-double-left page-link" style="font-size: 1.5em;" value="outer-left"></a>
+    <a class="fa fa-angle-left page-link" style="font-size: 1.5em;" value="left"></a>
 
     <div class="pagecount">
         <span class="current-page">...</span> /
         <span class="max-page">...</span>
     </div>
 
-    <a class="fa fa-angle-right page-link" style="font-size: 1.5em;" value="[% c.lh('right') %]"></a>
-    <a class="fa fa-angle-double-right page-link" style="font-size: 1.5em;" value="[% c.lh('outer-right') %]"></a>
+    <a class="fa fa-angle-right page-link" style="font-size: 1.5em;" value="right"></a>
+    <a class="fa fa-angle-double-right page-link" style="font-size: 1.5em;" value="outer-right"></a>
 </div>
 [% END %]
 <!-- -->

@@ -664,7 +664,16 @@ Index.loadCategories = function () {
             // Pinned categories are shown at the beginning
             data.sort((b, a) => b.name.localeCompare(a.name));
             data.sort((a, b) => b.pinned - a.pinned);
-            let html = "";
+            // Queue some hardcoded categories at the beginning - those are special-cased in the DataTables variant of the search endpoint. 
+            let html = `<div style='display:inline-block'>
+                            <input class='favtag-btn ${(("NEW_ONLY" === Index.selectedCategory) ? "toggled" : "")}' 
+                            type='button' id='NEW_ONLY' value='🆕 New only' 
+                            onclick='Index.toggleCategory(this)' title='Click here to display new archives only.'/>
+                        </div><div style='display:inline-block'>
+                            <input class='favtag-btn ${(("UNTAGGED_ONLY" === Index.selectedCategory) ? "toggled" : "")}' 
+                            type='button' id='UNTAGGED_ONLY' value='🏷️ Untagged only' 
+                            onclick='Index.toggleCategory(this)' title='Click here to display untagged archives only.'/>
+                        </div>`;
 
             const iteration = (data.length > 10 ? 10 : data.length);
 

@@ -12,7 +12,6 @@ use File::Temp qw(tempdir);
 use File::Basename;
 use File::Find;
 
-use LANraragi::Utils::Archive  qw(extract_thumbnail);
 use LANraragi::Utils::Generic  qw(render_api_response is_archive get_bytelength);
 use LANraragi::Utils::Database qw(get_archive_json set_isnew);
 use LANraragi::Utils::Logging  qw(get_logger);

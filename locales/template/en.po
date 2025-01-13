@@ -1010,18 +1010,6 @@ msgstr "Infinite Scrolling"
 msgid "Display all images in a vertical view in the same page."
 msgstr "Display all images in a vertical view in the same page."
 
-msgid "outer-left"
-msgstr "outer-left"
-
-msgid "left"
-msgstr "left"
-
-msgid "right"
-msgstr "right"
-
-msgid "outer-right"
-msgstr "outer-right"
-
 msgid "Reader Settings"
 msgstr "Reader Settings"
 
@@ -1115,7 +1103,7 @@ msgid "URL(s) to download:"
 msgstr "URL(s) to download:"
 
 msgid "Add from URL(s)"
-msgstr "Add from URL(s)""
+msgstr "Add from URL(s)"
 
 msgid "Return to Library"
 msgstr "Return to Library"

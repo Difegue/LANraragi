@@ -332,7 +332,7 @@ sub add_new_file ( $id, $file ) {
 
         # Generate thumbnail
         my $thumbdir = LANraragi::Model::Config->get_thumbdir;
-        extract_thumbnail( $thumbdir, $id, 0, 1 );
+        extract_thumbnail( $thumbdir, $id, 1, 1, 1 );
 
         # AutoTagging using enabled plugins goes here!
         LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);

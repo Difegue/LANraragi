@@ -1,11 +1,11 @@
 package LANraragi::Model::Archive;
 
+use v5.36;
+use experimental 'try';
+
 use strict;
 use warnings;
 use utf8;
-
-use feature qw(signatures);
-no warnings 'experimental::signatures';
 
 use Cwd 'abs_path';
 use Redis;
@@ -70,17 +70,17 @@ sub update_thumbnail {
     my $newthumb = "";
 
     # Get the required thumbnail we want to make the main one
-    eval { $newthumb = extract_thumbnail( $thumbdir, $id, $page, 1 ) };
+    no warnings 'experimental::try';
+    try {
+        $newthumb = extract_thumbnail( $thumbdir, $id, $page, 1, 1 )
+    } catch ($e) {
+        render_api_response( $self, "update_thumbnail", $e );
+        return;
+    }
 
-    if ( $@ || !$newthumb ) {
-        render_api_response( $self, "update_thumbnail", $@ );
+    if ( !$newthumb ) {
+        render_api_response( $self, "update_thumbnail", "Thumbnail not generated." );
     } else {
-        if ( $newthumb ne $thumbname && $newthumb ne "" ) {
-
-            # Copy the thumbnail to the main thumbnail location
-            cp( $newthumb, $thumbname );
-        }
-
         $self->render(
             json => {
                 operation     => "update_thumbnail",
@@ -114,8 +114,8 @@ sub generate_page_thumbnails {
 
     my $should_queue_job = 0;
 
-    for ( my $page = 2; $page <= $pages; $page++ ) {
-        my $thumbname = ( $page - 1 > 0 ) ? "$thumbdir/$subfolder/$id/$page.$format" : "$thumbdir/$subfolder/$id.$format";
+    for ( my $page = 1; $page <= $pages; $page++ ) {
+        my $thumbname = "$thumbdir/$subfolder/$id/$page.$format";
 
         unless ( $force == 0 && -e $thumbname ) {
             $logger->debug("Thumbnail for page $page doesn't exist (path: $thumbname or force=$force), queueing job.");

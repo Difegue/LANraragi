@@ -1,12 +1,11 @@
 package LANraragi::Utils::Archive;
 
+use v5.36;
+use experimental 'try';
+
 use strict;
 use warnings;
 use utf8;
-
-use feature qw(say);
-use feature qw(signatures);
-no warnings 'experimental::signatures';
 
 use Time::HiRes qw(gettimeofday);
 use File::Basename;
@@ -18,7 +17,6 @@ use Encode::Guess qw/euc-jp shiftjis 7bit-jis/;
 use Redis;
 use Cwd;
 use Data::Dumper;
-use Image::Magick;
 use Archive::Libarchive qw( ARCHIVE_OK );
 use Archive::Libarchive::Extract;
 use Archive::Libarchive::Peek;
@@ -44,34 +42,43 @@ sub is_pdf {
 # If use_jxl is true, JPEG XL will be used instead of JPEG.
 sub generate_thumbnail ( $orig_path, $thumb_path, $use_hq, $use_jxl ) {
 
-    my $img = Image::Magick->new;
+    no warnings 'experimental::try';
+    try {
+        require Image::Magick;
+        my $img = Image::Magick->new;
 
-    my $format = $use_jxl ? 'jxl' : 'jpg';
+        my $format = $use_jxl ? 'jxl' : 'jpg';
 
-    # For JPEG, the size option (or jpeg:size option) provides a hint to the JPEG decoder
-    # that it can reduce the size on-the-fly during decoding. This saves memory because
-    # it never has to allocate memory for the full-sized image
-    if ( $format eq 'jpg' ) {
-        $img->Set( option => 'jpeg:size=500x' );
+        # For JPEG, the size option (or jpeg:size option) provides a hint to the JPEG decoder
+        # that it can reduce the size on-the-fly during decoding. This saves memory because
+        # it never has to allocate memory for the full-sized image
+        if ( $format eq 'jpg' ) {
+            $img->Set( option => 'jpeg:size=500x' );
+        }
+
+        # If the image is a gif, only take the first frame
+        if ( $orig_path =~ /\.gif$/ ) {
+            $img->Read( $orig_path . "[0]" );
+        } else {
+            $img->Read($orig_path);
+        }
+
+        # The "-scale" resize operator is a simplified, faster form of the resize command.
+        if ($use_hq) {
+            $img->Scale( geometry => '500x1000' );
+        } else {    # Sample is very fast due to not applying filters.
+            $img->Sample( geometry => '500x1000' );
+        }
+
+        $img->Set( quality => "50", magick => $format );
+        $img->Write($thumb_path);
+        undef $img;
+    } catch ($e) {
+
+        # Magick is unavailable, do nothing
+        my $logger = get_logger( "Archive", "lanraragi" );
+        $logger->debug("ImageMagick is not available , skipping thumbnail generation: $e");
     }
-
-    # If the image is a gif, only take the first frame
-    if ( $orig_path =~ /\.gif$/ ) {
-        $img->Read( $orig_path . "[0]" );
-    } else {
-        $img->Read($orig_path);
-    }
-
-    # The "-scale" resize operator is a simplified, faster form of the resize command.
-    if ($use_hq) {
-        $img->Scale( geometry => '500x1000' );
-    } else {    # Sample is very fast due to not applying filters.
-        $img->Sample( geometry => '500x1000' );
-    }
-
-    $img->Set( quality => "50", magick => $format );
-    $img->Write($thumb_path);
-    undef $img;
 }
 
 # Extract the given archive to the given path.
@@ -150,9 +157,10 @@ sub extract_pdf ( $destination, $to_extract ) {
 }
 
 # Extracts a thumbnail from the specified archive ID and page. Returns the path to the thumbnail.
-# Non-cover thumbnails land in a folder named after the ID. Specify page=0 if you want the cover.
+# Non-cover thumbnails land in a folder named after the ID.
+# Specify $set_cover if you want the given to page to be placed as the cover thumbnail instead.
 # Thumbnails will be generated at low quality by default unless you specify use_hq=1.
-sub extract_thumbnail ( $thumbdir, $id, $page, $use_hq ) {
+sub extract_thumbnail ( $thumbdir, $id, $page, $set_cover, $use_hq ) {
 
     my $logger = get_logger( "Archive", "lanraragi" );
 
@@ -187,7 +195,7 @@ sub extract_thumbnail ( $thumbdir, $id, $page, $use_hq ) {
     }
 
     my $thumbname;
-    if ( $page - 1 > 0 ) {
+    unless ($set_cover) {
 
         # Non-cover thumbnails land in a dedicated folder.
         $thumbname = "$thumbdir/$subfolder/$id/$page.$format";

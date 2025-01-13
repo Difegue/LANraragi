@@ -20,17 +20,17 @@ sub initialize {
             if ($accept_language) {
                 ($lang) = split /,/, $accept_language;
                 $lang =~ s/-.*//;
-                $c->log->trace("Detected language: $lang");
+                $c->LRR_LOGGER->trace("Detected language: $lang");
             }
 
             my $handle = LANraragi::Utils::I18N->get_handle($lang);
             unless ($handle) {
-                $c->log->trace("No handle for language: $lang, fallback to en");
+                $c->LRR_LOGGER->trace("No handle for language: $lang, fallback to en");
                 $handle = LANraragi::Utils::I18N->get_handle('en');
                 return $key unless $handle;
             }
 
-            $c->log->trace( "Key: $key, Args: " . join( ", ", map { defined($_) ? $_ : 'undef' } @args ) );
+            $c->LRR_LOGGER->trace( "Key: $key, Args: " . join( ", ", map { defined($_) ? $_ : 'undef' } @args ) );
 
             # make sure all args are encoded in UTF-8
             my @encoded_args = map { Encode::encode( 'UTF-8', $_ ) } @args;
@@ -38,7 +38,7 @@ sub initialize {
             my $translated;
             eval { $translated = $handle->maketext( $key, @encoded_args ); };
             if ($@) {
-                $c->log->error("Maketext error: $@");
+                $c->LRR_LOGGER->error("Maketext error: $@");
                 return $key;
             }
 
@@ -47,12 +47,12 @@ sub initialize {
                 $translated = Encode::decode_utf8($translated);
             }
 
-            $c->log->trace("Translated result: $translated");
+            $c->LRR_LOGGER->trace("Translated result: $translated");
             return $translated;
         }
     );
 
-    $app->log->debug("I18N system initialized.");
+    $app->LRR_LOGGER->debug("I18N system initialized.");
 }
 
 1;

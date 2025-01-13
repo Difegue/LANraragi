@@ -1,5 +1,7 @@
 package LANraragi::Model::Upload;
 
+use v5.36;
+
 use strict;
 use warnings;
 
@@ -31,9 +33,8 @@ use LANraragi::Model::Category;
 # You can also specify tags to add to the metadata for the processed file before autoplugin is ran. (if it's enabled)
 #
 # Returns an HTTP status code, the ID and title of the file, and a status message.
-sub handle_incoming_file {
+sub handle_incoming_file ( $tempfile, $catid, $tags, $title, $summary ) {
 
-    my ( $tempfile, $catid, $tags, $title, $summary ) = @_;
     my ( $filename, $dirs, $suffix ) = fileparse( $tempfile, qr/\.[^.]*/ );
     $filename = $filename . $suffix;
     my $logger = get_logger( "File Upload/Download", "lanraragi" );
@@ -145,7 +146,7 @@ sub handle_incoming_file {
 
     # Generate thumbnail
     my $thumbdir = LANraragi::Model::Config->get_thumbdir;
-    extract_thumbnail( $thumbdir, $id, 0, 1 );
+    extract_thumbnail( $thumbdir, $id, 1, 1, 1 );
 
     $logger->debug("Running autoplugin on newly uploaded file $id...");
 
@@ -177,9 +178,7 @@ sub handle_incoming_file {
 
 # Download the given URL, using the given Mojo::UserAgent object.
 # This downloads the URL to a temporaryfolder and returns the full path to the downloaded file.
-sub download_url {
-
-    my ( $url, $ua ) = @_;
+sub download_url ( $url, $ua ) {
 
     my $logger = get_logger( "File Upload/Download", "lanraragi" );
 
@@ -195,16 +194,20 @@ sub download_url {
 
     my $attempts = 0;
 
-    while ( !$content_disp || $attempts < 5 ) {
+    while ( !$content_disp && $attempts < 5 ) {
         $tx           = $ua->max_response_size(0)->max_redirects(5)->get($url);
         $content_disp = $tx->result->headers->content_disposition;
 
         unless ($content_disp) {
-            $logger->warn("No valid Content-Disposition header received, waiting and retrying...");
+            $logger->warn("No valid Content-Disposition header received, waiting and retrying... (attempt $attempts / 5)");
+            $logger->debug( "Result of this attempt: " . $tx->result->body );
             sleep 1;
             $attempts++;
         }
+    }
 
+    if ( !$content_disp ) {
+        die( "No valid Content-Disposition header received after 5 attempts, aborting. (Last result: " . $tx->result->body . ")" );
     }
 
     $logger->debug("Content-Disposition Header: $content_disp");
