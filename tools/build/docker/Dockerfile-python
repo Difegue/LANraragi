@@ -1,0 +1,6 @@
+FROM python:3.8
+
+COPY requirements.txt /tests/
+RUN pip install -r /tests/requirements.txt
+
+WORKDIR /tests

@@ -13,3 +13,7 @@ config.log
 autobackup.json
 Makefile
 oshino
+
+__pycache__/
+.pytest_cache/
+*.py[cod]

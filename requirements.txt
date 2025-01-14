@@ -1,0 +1,4 @@
+pytest
+pytest-redis
+requests
+factory_boy
