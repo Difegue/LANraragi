@@ -4,21 +4,6 @@ import zipfile
 
 from factories.models.archives import Archive
 
-def generate_file(obj):
-    logo_path = "/lanraragi/public/img/logo.png"
-    content_path = "/lanraragi/content/test"
-    
-    if not os.path.exists(content_path):
-        os.makedirs(content_path)
-
-    zip_path = os.path.join(content_path, f"{obj.name}.zip")
-
-    with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-        file_name = os.path.basename(logo_path)
-        zipf.write(logo_path, file_name)
-
-    return "/home/koyomi"+zip_path
-
 class ArchiveFactory(factory.Factory):
     class Meta:
         model = Archive
