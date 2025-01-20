@@ -392,14 +392,17 @@ Index.handleColumnNum = function () {
 Index.generateTableHeaders = function (columnCount) {
     const headerRow = $("#header-row");
     headerRow.empty();
-    headerRow.append(`<th id="titleheader">
+    const headerWidth = localStorage.getItem(`resizeColumn0`) || "";
+    headerRow.append(`<th id="titleheader" width="${headerWidth}">
 							<a>Title</a>
 						</th>`);
 
     for (let i = 1; i <= columnCount; i++) {
         const customColumn = localStorage[`customColumn${i}`] || `Header ${i}`;
+        const colWidth = localStorage.getItem(`resizeColumn${i}`) || "";
+
         const headerHtml = `  
-            <th id="customheader${i}">  
+            <th id="customheader${i}" width="${colWidth}">  
                 <i id="edit-header-${i}" class="fas fa-pencil-alt edit-header-btn" title="Edit this column"></i>  
                 <a id="header-${i}">${customColumn.charAt(0).toUpperCase() + customColumn.slice(1)}</a>  
             </th>`;
@@ -811,11 +814,7 @@ Index.resizableColumns = function () {
 
     const headers = document.querySelectorAll("#header-row th");
     headers.forEach((header, index) => {
-        // restore Column Width
-        const savedWidth = localStorage.getItem(`resizeColumn${index}`);
-        if (savedWidth) {
-            header.style.width = savedWidth;
-        }
+        
         // init
         header.addEventListener('mousedown', function (event) {
             if (event.offsetX > header.offsetWidth - 10) {
@@ -858,8 +857,6 @@ Index.resizableColumns = function () {
         document.removeEventListener('mousemove', resizeColumn);
         document.removeEventListener('mouseup', stopResize);
         document.body.style.cursor = 'default';
-
-        document.location.reload(true);
     }
 };
 
