@@ -1,0 +1,138 @@
+{
+	"id": 5136689,
+	"created_at": "2024-10-24T16:40:59.816-04:00",
+	"updated_at": "2024-11-03T18:59:07.545-05:00",
+	"file": {
+		"width": 1131,
+		"height": 1600,
+		"ext": "png",
+		"size": 1846897,
+		"md5": "de797deb3aba4011e008bc644a2135e3",
+		"url": "https://static1.e621.net/data/de/79/de797deb3aba4011e008bc644a2135e3.png"
+	},
+	"preview": {
+		"width": 106,
+		"height": 150,
+		"url": "https://static1.e621.net/data/preview/de/79/de797deb3aba4011e008bc644a2135e3.jpg"
+	},
+	"sample": {
+		"has": true,
+		"height": 1202,
+		"width": 850,
+		"url": "https://static1.e621.net/data/sample/de/79/de797deb3aba4011e008bc644a2135e3.jpg",
+		"alternates": {}
+	},
+	"score": {
+		"up": 46,
+		"down": 0,
+		"total": 46
+	},
+	"tags": {
+		"general": [
+			"anthro",
+			"big_breasts",
+			"blood",
+			"blood_from_wound",
+			"bodily_fluids",
+			"breasts",
+			"bruised",
+			"bruised_belly",
+			"cave",
+			"cavern",
+			"colored_fire",
+			"duo",
+			"female",
+			"fire",
+			"laser",
+			"male",
+			"muscular",
+			"muscular_anthro",
+			"muscular_male",
+			"navel",
+			"plant",
+			"purple_fire",
+			"smoke",
+			"snow",
+			"snowing",
+			"snowstorm",
+			"tree",
+			"wide_hips",
+			"wounded"
+		],
+		"artist": [
+			"zummeng"
+		],
+		"copyright": [],
+		"character": [
+			"leopold_(zummeng)",
+			"miralle"
+		],
+		"species": [
+			"domestic_cat",
+			"felid",
+			"feline",
+			"felis",
+			"lion",
+			"mammal",
+			"pantherine"
+		],
+		"invalid": [],
+		"meta": [
+			"2024",
+			"comic",
+			"hi_res"
+		],
+		"lore": []
+	},
+	"locked_tags": [],
+	"change_seq": 62141285,
+	"flags": {
+		"pending": false,
+		"flagged": false,
+		"note_locked": false,
+		"status_locked": false,
+		"rating_locked": false,
+		"deleted": false
+	},
+	"rating": "s",
+	"fav_count": 31,
+	"sources": [
+		"https://www.deviantart.com/zummeng/art/Tree-of-Life-Book-1-pg-112-1113800719"
+	],
+	"pools": [
+		19303
+	],
+	"relationships": {
+		"parent_id": null,
+		"has_children": false,
+		"has_active_children": false,
+		"children": []
+	},
+	"approver_id": 95927,
+	"uploader_id": 1350368,
+	"description": "",
+	"comment_count": 10,
+	"is_favorited": false,
+	"has_notes": false,
+	"duration": null,
+	"num": 202,
+	"filename": "de797deb3aba4011e008bc644a2135e3",
+	"extension": "png",
+	"date": "2024-10-24 20:40:59",
+	"pool": {
+		"id": 19303,
+		"name": "Tree of Life [Zummeng]",
+		"created_at": "2019-12-30T20:14:06.771-05:00",
+		"updated_at": "2024-10-24T16:42:10.090-04:00",
+		"creator_id": 169756,
+		"description": "Fantasy Adventure Comic by [[Zummeng]]",
+		"is_active": true,
+		"category": "series",
+		"creator_name": "Millcore",
+		"post_count": 202
+	},
+	"category": "e621",
+	"subcategory": "pool",
+	"source": "https://e621.net/pools/19303",
+	"title": "Tree of Life [Zummeng]"
+}

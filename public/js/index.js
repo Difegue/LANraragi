@@ -98,8 +98,8 @@ Index.initializeAll = function () {
     Server.callAPI("/api/info", "GET", null, "Error getting basic server info!",
         (data) => {
             Index.serverVersion = data.version;
-            Index.debugMode = data.debug_mode === "1";
-            Index.isProgressLocal = data.server_tracks_progress !== "1";
+            Index.debugMode = !!data.debug_mode;
+            Index.isProgressLocal = !data.server_tracks_progress;
             Index.pageSize = data.archives_per_page;
 
             // Check version if not in debug mode
@@ -559,10 +559,10 @@ Index.loadContextMenuRatings = (id) => Server.callAPI(`/api/archives/${id}/metad
                     if(i === 0) delete tags["rating"];
                     else tags["rating"] = [ratings[i].name];
 
-                    Server.updateTagsFromArchive(id, Object.entries(tags).map(([namespace, tag]) => LRR.buildNamespacedTag(namespace, tag)));
+                    Server.updateTagsFromArchive(id, Object.entries(tags).flatMap(([namespace, tagArray]) => tagArray.map(tag => LRR.buildNamespacedTag(namespace, tag))));
 
                     // Update the rating info without reload but have to refresh everything.
-                    IndexTable.dataTable.ajax.reload();
+                    IndexTable.dataTable.ajax.reload(null, false);
                     Index.updateCarousel();
                     $(this).parents("ul.context-menu-list").find("input[type='checkbox']").toArray().filter((x) => x !== this).forEach(x => x.checked = false);
                 },
@@ -663,8 +663,17 @@ Index.loadCategories = function () {
             // Sort by pinned + alpha
             // Pinned categories are shown at the beginning
             data.sort((b, a) => b.name.localeCompare(a.name));
-            data.sort((a, b) => a.pinned < b.pinned);
-            let html = "";
+            data.sort((a, b) => b.pinned - a.pinned);
+            // Queue some hardcoded categories at the beginning - those are special-cased in the DataTables variant of the search endpoint. 
+            let html = `<div style='display:inline-block'>
+                            <input class='favtag-btn ${(("NEW_ONLY" === Index.selectedCategory) ? "toggled" : "")}' 
+                            type='button' id='NEW_ONLY' value='🆕 New only' 
+                            onclick='Index.toggleCategory(this)' title='Click here to display new archives only.'/>
+                        </div><div style='display:inline-block'>
+                            <input class='favtag-btn ${(("UNTAGGED_ONLY" === Index.selectedCategory) ? "toggled" : "")}' 
+                            type='button' id='UNTAGGED_ONLY' value='🏷️ Untagged only' 
+                            onclick='Index.toggleCategory(this)' title='Click here to display untagged archives only.'/>
+                        </div>`;
 
             const iteration = (data.length > 10 ? 10 : data.length);
 

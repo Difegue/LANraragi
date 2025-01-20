@@ -4,7 +4,7 @@ use Mojo::Base 'Mojolicious::Controller';
 use List::Util qw(min);
 
 use LANraragi::Model::Search;
-use LANraragi::Utils::Generic qw(render_api_response);
+use LANraragi::Utils::Generic  qw(render_api_response);
 use LANraragi::Utils::Database qw(invalidate_cache get_archive_json_multi);
 
 # Undocumented API matching the Datatables spec.
@@ -34,16 +34,19 @@ sub handle_datatables {
         # Collection (tags column)
         if ( $req->param("columns[$i][name]") eq "tags" ) {
             $categoryfilter = $req->param("columns[$i][search][value]");
-        }
 
-        # New filter (isnew column)
-        if ( $req->param("columns[$i][name]") eq "isnew" ) {
-            $newfilter = $req->param("columns[$i][search][value]") eq "true";
-        }
+            # Specific hacks for the buily-in newonly/untagged selectors
+            # Those have hardcoded 'category' IDs
+            if ( $categoryfilter eq "NEW_ONLY" ) {
+                $newfilter      = 1;
+                $categoryfilter = "";
+            }
 
-        # Untagged filter (untagged column)
-        if ( $req->param("columns[$i][name]") eq "untagged" ) {
-            $untaggedfilter = $req->param("columns[$i][search][value]") eq "true";
+            if ( $categoryfilter eq "UNTAGGED_ONLY" ) {
+                $untaggedfilter = 1;
+                $categoryfilter = "";
+            }
+
         }
         $i++;
     }
@@ -52,7 +55,7 @@ sub handle_datatables {
 
     # TODO add a parameter to datatables for grouptanks? Not really essential rn tho
     my ( $total, $filtered, @ids ) =
-      LANraragi::Model::Search::do_search( $filter, $categoryfilter, $start, $sortkey, $sortorder, $newfilter, $untaggedfilter, 1);
+      LANraragi::Model::Search::do_search( $filter, $categoryfilter, $start, $sortkey, $sortorder, $newfilter, $untaggedfilter, 0 );
 
     $self->render( json => get_datatables_object( $draw, $total, $filtered, @ids ) );
 }
@@ -65,12 +68,12 @@ sub handle_api {
 
     my $filter     = $req->param('filter');
     my $category   = $req->param('category') || "";
-    my $start      = $req->param('start');
+    my $start      = $req->param('start')    || 0;
     my $sortkey    = $req->param('sortby');
     my $sortorder  = $req->param('order');
-    my $newfilter  = $req->param('newonly') || "false";
-    my $untaggedf  = $req->param('untaggedonly') || "false";
-    my $grouptanks = $req->param('groupby_tanks') || "true";
+    my $newfilter  = $req->param('newonly')       || "false";
+    my $untaggedf  = $req->param('untaggedonly')  || "false";
+    my $grouptanks = $req->param('groupby_tanks') || "false";
 
     $sortorder = ( $sortorder && $sortorder eq 'desc' ) ? 1 : 0;
 
@@ -96,15 +99,19 @@ sub get_random_archives {
     my $req  = $self->req;
 
     my $filter       = $req->param('filter');
-    my $category     = $req->param('category') || "";
-    my $newfilter    = $req->param('newonly') || "false";
-    my $untaggedf    = $req->param('untaggedonly') || "false";
-    my $grouptanks   = $req->param('groupby_tanks') || "true";
-    my $random_count = $req->param('count') || 5;
+    my $category     = $req->param('category')      || "";
+    my $newfilter    = $req->param('newonly')       || "false";
+    my $untaggedf    = $req->param('untaggedonly')  || "false";
+    my $grouptanks   = $req->param('groupby_tanks') || "false";
+    my $random_count = $req->param('count')         || 5;
 
     # Use the search engine to get IDs matching the filter/category selection, with start=-1 to get all data
-    my ( $total, $filtered, @ids ) =
-      LANraragi::Model::Search::do_search( $filter, $category, -1, "title", 0, $newfilter eq "true", $untaggedf eq "true", $grouptanks eq "true" );
+    my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search(
+        $filter, $category, -1, "title", 0,
+        $newfilter eq "true",
+        $untaggedf eq "true",
+        $grouptanks eq "true"
+    );
     my @random_ids;
 
     $random_count = min( $random_count, scalar(@ids) );
@@ -116,7 +123,12 @@ sub get_random_archives {
     }
 
     my @data = get_archive_json_multi(@random_ids);
-    $self->render( json => { data => \@data } );
+    $self->render(
+        json => {
+            data         => \@data,
+            recordsTotal => $random_count
+        }
+    );
 }
 
 # get_datatables_object($draw, $total, $totalsearched, @pagedkeys)

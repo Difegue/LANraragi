@@ -1,11 +1,11 @@
 package LANraragi::Model::Archive;
 
+use v5.36;
+use experimental 'try';
+
 use strict;
 use warnings;
 use utf8;
-
-use feature qw(signatures);
-no warnings 'experimental::signatures';
 
 use Cwd 'abs_path';
 use Redis;
@@ -70,17 +70,17 @@ sub update_thumbnail {
     my $newthumb = "";
 
     # Get the required thumbnail we want to make the main one
-    eval { $newthumb = extract_thumbnail( $thumbdir, $id, $page, 1 ) };
+    no warnings 'experimental::try';
+    try {
+        $newthumb = extract_thumbnail( $thumbdir, $id, $page, 1, 1 )
+    } catch ($e) {
+        render_api_response( $self, "update_thumbnail", $e );
+        return;
+    }
 
-    if ( $@ || !$newthumb ) {
-        render_api_response( $self, "update_thumbnail", $@ );
+    if ( !$newthumb ) {
+        render_api_response( $self, "update_thumbnail", "Thumbnail not generated." );
     } else {
-        if ( $newthumb ne $thumbname && $newthumb ne "" ) {
-
-            # Copy the thumbnail to the main thumbnail location
-            cp( $newthumb, $thumbname );
-        }
-
         $self->render(
             json => {
                 operation     => "update_thumbnail",
@@ -115,7 +115,7 @@ sub generate_page_thumbnails {
     my $should_queue_job = 0;
 
     for ( my $page = 1; $page <= $pages; $page++ ) {
-        my $thumbname = ( $page - 1 > 0 ) ? "$thumbdir/$subfolder/$id/$page.$format" : "$thumbdir/$subfolder/$id.$format";
+        my $thumbname = "$thumbdir/$subfolder/$id/$page.$format";
 
         unless ( $force == 0 && -e $thumbname ) {
             $logger->debug("Thumbnail for page $page doesn't exist (path: $thumbname or force=$force), queueing job.");
@@ -180,6 +180,7 @@ sub serve_thumbnail {
 
     my $page = $self->req->param('page');
     $page = 0 unless $page;
+    my $is_first_page = $page == 0;
 
     my $no_fallback = $self->req->param('no_fallback');
     $no_fallback = ( $no_fallback && $no_fallback eq "true" ) || "0";    # Prevent undef warnings by checking the variable first
@@ -194,7 +195,7 @@ sub serve_thumbnail {
     my $subfolder = substr( $id, 0, 2 );
 
     # Check for the page and set the appropriate thumbnail name and fallback thumbnail name
-    my $thumbbase          = ( $page - 1 > 0 ) ? "$thumbdir/$subfolder/$id/$page" : "$thumbdir/$subfolder/$id";
+    my $thumbbase          = ($is_first_page) ? "$thumbdir/$subfolder/$id" : "$thumbdir/$subfolder/$id/$page";
     my $thumbname          = "$thumbbase.$format";
     my $fallback_thumbname = "$thumbbase.$fallback_format";
 
@@ -379,18 +380,18 @@ sub delete_archive ($id) {
 
     # Remove matching data from the search indexes
     my $redis_search = LANraragi::Model::Config->get_redis_search;
-    $redis_search->zrem( "LRR_TITLES",       "$oldtitle\0$id" );
-    $redis_search->srem( "LRR_NEW",          $id );
-    $redis_search->srem( "LRR_UNTAGGED",     $id );
-    $redis_search->srem( "LRR_TANKGROUPED",  $id );
+    $redis_search->zrem( "LRR_TITLES", "$oldtitle\0$id" );
+    $redis_search->srem( "LRR_NEW",         $id );
+    $redis_search->srem( "LRR_UNTAGGED",    $id );
+    $redis_search->srem( "LRR_TANKGROUPED", $id );
     $redis_search->quit();
 
     # Remove from tanks/collections
-    foreach my $tank_id (LANraragi::Model::Tankoubon::get_tankoubons_containing_archive($id)) {
+    foreach my $tank_id ( LANraragi::Model::Tankoubon::get_tankoubons_containing_archive($id) ) {
         LANraragi::Model::Tankoubon::remove_from_tankoubon( $tank_id, $id );
     }
 
-    foreach my $cat (LANraragi::Model::Category::get_categories_containing_archive($id)) {
+    foreach my $cat ( LANraragi::Model::Category::get_categories_containing_archive($id) ) {
         my $catid = %{$cat}{"id"};
         LANraragi::Model::Category::remove_from_category( $catid, $id );
     }

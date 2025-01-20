@@ -19,7 +19,7 @@ ENTRYPOINT ["//init"]
 # Check application health
 HEALTHCHECK --interval=1m --timeout=10s --retries=3 \
   CMD wget --quiet --tries=1 --no-check-certificate --spider -Y off \
-  http://localhost:3000 || exit 1
+  http://127.0.0.1:3000 || exit 1
 
 #Default mojo server port
 EXPOSE 3000
@@ -63,6 +63,7 @@ COPY --chown=koyomi:koyomi /lib lib
 COPY --chown=koyomi:koyomi /public public
 COPY --chown=koyomi:koyomi /script script
 COPY --chown=koyomi:koyomi /templates templates
+COPY --chown=koyomi:koyomi /locales locales
 COPY --chown=koyomi:koyomi /tests tests
 COPY --chown=koyomi:koyomi /lrr.conf lrr.conf
 COPY --chown=koyomi:koyomi /tools/build/docker/redis.conf tools/build/docker/
@@ -76,6 +77,6 @@ COPY /tools/build/docker/s6/cont-init.d/01-lrr-setup /etc/s6-overlay/s6-rc.d/ini
 
 # Persistent volumes
 VOLUME [ "/home/koyomi/lanraragi/content" ]
-VOLUME [ "/home/koyomi/lanraragi/content/thumb" ]
+VOLUME [ "/home/koyomi/lanraragi/thumb" ]
 VOLUME [ "/home/koyomi/lanraragi/database"]
 VOLUME [ "/home/koyomi/lanraragi/lib/LANraragi/Plugin/Sideloaded" ]

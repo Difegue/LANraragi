@@ -28,13 +28,14 @@ setup_redis_mock();
 note("E-Hentai Tests");
 
 {
+
     my $ua        = trap { LANraragi::Plugin::Login::EHentai::do_login( "", "", "" ); };
     my $domain    = "e-hentai.org";
     my $eH_gID    = "618395";
     my $eH_gToken = "0439fa3666";
 
     my ( $test_eH_gID, $test_eH_gToken ) =
-      trap { LANraragi::Plugin::Metadata::EHentai::lookup_gallery( "TOUHOU GUNMANIA", "", "", $ua, $domain, "", 0, 0 ); };
+      trap { LANraragi::Plugin::Metadata::EHentai::lookup_gallery( "TOUHOU GUNMANIA", "", "", $ua, $domain, "", 0, 0, 0 ); };
 
     is( $test_eH_gID,    $eH_gID,    'eHentai search test 1/2' );
     is( $test_eH_gToken, $eH_gToken, 'eHentai search test 2/2' );

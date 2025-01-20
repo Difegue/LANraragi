@@ -39,21 +39,21 @@
 <body>
 
 	<div class="ido">
-		<h2 class="ih" style="text-align:center">Admin Settings</h2>
+		<h2 class="ih" style="text-align:center">[% c.lh("Admin Settings") %]</h2>
 		<br>
 		<div class="left-column">
 
 			<img class="logo-container" src="[% c.url_for("/img/logo.png") %]">
 			<br>
 			<h1 style="margin-bottom: 2px">LANraragi</h1>
-			Version [% version %], "[% vername %]"
+			[% c.lh("Version [_1] [_2]", version, vername) %]
 			<br>
-			<h2>Select a category to show the matching settings.</h2>
+			<h2>[% c.lh("Select a category to show the matching settings.") %]</h2>
 			<br />
-			<input id='save' class='stdbtn' type='button' value='Save Settings' /><br />
-			<input id='plugin-config' class='stdbtn' type='button' value='Plugin Configuration' />
-			<input id='backup' class='stdbtn' type='button' value='Database Backup/Restore' />
-			<input id='return' class='stdbtn' type='button' value='Return to Library' />
+			<input id='save' class='stdbtn' type='button' value='[% c.lh("Save Settings") %]' /><br />
+			<input id='plugin-config' class='stdbtn' type='button' value='[% c.lh("Plugin Configuration") %]' />
+			<input id='backup' class='stdbtn' type='button' value='[% c.lh("Database Backup/Restore") %]' />
+			<input id='return' class='stdbtn' type='button' value='[% c.lh("Return to Library") %]' />
 
 		</div>
 		<form class="right-column" name="editConfigForm" id="editConfigForm" enctype="multipart/form-data" method="post"
@@ -62,7 +62,7 @@
 			<ul class="collapsible extensible with-right-caret">
 				<li class="option-flyout">
 					<div class="collapsible-title caret-right">
-						<i class="fa fa-cubes" aria-hidden="true"></i> Global Settings
+						<i class="fa fa-cubes" aria-hidden="true"></i> [% c.lh("Global Settings") %]
 					</div>
 					<div class="collapsible-body">
 						<table style="margin:auto; font-size:9pt;">
@@ -74,7 +74,7 @@
 				</li>
 				<li class="option-flyout">
 					<div class="collapsible-title caret-right">
-						<i class="fa fa-paint-brush" aria-hidden="true"></i> Theme
+						<i class="fa fa-paint-brush" aria-hidden="true"></i> [% c.lh("Theme") %]
 					</div>
 					<div class="collapsible-body">
 						<table style="margin:auto; font-size:9pt;">
@@ -86,7 +86,7 @@
 				</li>
 				<li class="option-flyout">
 					<div class="collapsible-title caret-right">
-						<i class="fa fa-shield-alt" aria-hidden="true"></i> Security
+						<i class="fa fa-shield-alt" aria-hidden="true"></i> [% c.lh("Security") %]
 					</div>
 					<div class="collapsible-body">
 						<table style="margin:auto; font-size:9pt;">
@@ -98,7 +98,7 @@
 				</li>
 				<li class="option-flyout">
 					<div class="collapsible-title caret-right">
-						<i class="fa fa-file-archive" aria-hidden="true"></i> Archive Files
+						<i class="fa fa-file-archive" aria-hidden="true"></i> [% c.lh("Archive Files") %]
 					</div>
 					<div class="collapsible-body">
 						<table style="margin:auto; font-size:9pt;">
@@ -110,7 +110,7 @@
 				</li>
 				<li class="option-flyout">
 					<div class="collapsible-title caret-right">
-						<i class="fa fa-tags" aria-hidden="true"></i> Tags and Thumbnails
+						<i class="fa fa-tags" aria-hidden="true"></i> [% c.lh("Tags and Thumbnails") %]
 					</div>
 					<div class="collapsible-body">
 						<table style="margin:auto; font-size:9pt;">
@@ -122,7 +122,7 @@
 				</li>
 				<li class="option-flyout">
 					<div class="collapsible-title caret-right">
-						<i class="fa fa-satellite" aria-hidden="true"></i> Background Workers
+						<i class="fa fa-satellite" aria-hidden="true"></i> [% c.lh("Background Workers") %]
 					</div>
 					<div class="collapsible-body">
 						<table style="margin:auto; font-size:9pt;">

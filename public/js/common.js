@@ -260,6 +260,7 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
     const id = data.arcid || data.id;
     let reader_url = new LRR.apiURL(`/reader?id=${id}`);
 
+    // Don't enforce no_fallback=true here, we don't want those divs to trigger Minion jobs 
     return `<div class="id1 context-menu swiper-slide" id="${id}">
                 <div class="id2">
                     ${LRR.buildProgressDiv(data)}
@@ -367,6 +368,15 @@ LRR.getImgSizeAsync = function (target) {
         type: "HEAD",
     });
 };
+
+LRR.getDocHeight = function() {
+    var D = document;
+    return Math.max(
+        D.body.scrollHeight, D.documentElement.scrollHeight,
+        D.body.offsetHeight, D.documentElement.offsetHeight,
+        D.body.clientHeight, D.documentElement.clientHeight
+    );
+}
 
 /**
  * Show a generic toast with a given header and message.

@@ -143,6 +143,7 @@ When enabled, Tankoubons will show in search results, replacing all the archive 
 {% swagger-response status="200" description="" %}
 ```javascript
 {
+    "recordsTotal": 4, 
     "data": [
         {
         "arcid": "2810d5e0a8d027ecefebca6237031a0fa7b91eb3",

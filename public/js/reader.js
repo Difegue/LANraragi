@@ -319,7 +319,7 @@ Reader.handleShortcuts = function (e) {
         if ($(".page-overlay").is(":visible")) { break; }
         if (e.originalEvent.getModifierState("Shift") && (window.scrollY) === 0) {
             (Reader.mangaMode) ? Reader.changePage(1) : Reader.changePage(-1);
-        } else if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+        } else if (($(window).height() + $(window).scrollTop()) >= LRR.getDocHeight()) {
             (Reader.mangaMode) ? Reader.changePage(-1) : Reader.changePage(1);
         }
         // spacebar is always forward regardless of reading direction, so it needs to be flipped
@@ -731,16 +731,21 @@ Reader.initializeArchiveOverlay = function () {
 
     // Queue a single minion job for thumbnails and check on its progress regularly
     const thumbProgress = function (notes) {
-        if (notes.progress === undefined) { return; }
-        for (let index = 0; index < notes.progress; ++index) {
-            const page = index + 1;
-            // If the spinner is still visible, update the thumbnail
-            if ($(`#${index}_spinner`).attr("loaded") !== "true") {
-                // Set image source to the thumbnail
-                const thumbnailUrl = new LRR.apiURL(`/api/archives/${Reader.id}/thumbnail?page=${page}&cachebust=${Date.now()}`);
-                $(`#${index}_thumb`).attr("src", thumbnailUrl);
-                $(`#${index}_spinner`).attr("loaded", true);
-                $(`#${index}_spinner`).hide();
+        if (notes.total_pages === undefined) { return; }
+
+        // Look at all the numbered keys in notes, aka notes.1, notes.2..
+        for (let i = 1; i <= notes.total_pages; i++) {
+
+            if (notes.hasOwnProperty(i) && notes[i] === "processed") {
+                const index = i - 1;
+                // If the spinner is still visible, update the thumbnail
+                if ($(`#${index}_spinner`).attr("loaded") !== "true") {
+                    // Set image source to the thumbnail
+                    const thumbnailUrl = new LRR.apiURL(`/api/archives/${Reader.id}/thumbnail?page=${i}&cachebust=${Date.now()}`);
+                    $(`#${index}_thumb`).attr("src", thumbnailUrl);
+                    $(`#${index}_spinner`).attr("loaded", true);
+                    $(`#${index}_spinner`).hide();
+                }
             }
         }
     };

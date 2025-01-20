@@ -148,6 +148,7 @@ sub setup_redis_mock {
     $redis->mock( 'zincrby', sub { 1 } );
     $redis->mock( 'zrem',    sub { 1 } );
     $redis->mock( 'watch',   sub { 1 } );
+    $redis->mock( 'set',     sub { 1 } );
     $redis->mock( 'hlen',    sub { 1337 } );
     $redis->mock( 'dbsize',  sub { 1337 } );
 
@@ -214,6 +215,20 @@ sub setup_redis_mock {
             if ( !grep { $_ eq $value } @{ $datamodel{$key} } ) {
                 push @{ $datamodel{$key} }, $value;
             }
+        }
+    );
+
+    $redis->mock(
+        'zcount',    # $redis->zcard => number of values in list named by key in datamodel
+        sub {
+            my $self = shift;
+            my ( $key, $weight, $value ) = @_;
+
+            if ( !exists $datamodel{$key} ) {
+                $datamodel{$key} = [];
+            }
+
+            return scalar @{ $datamodel{$key} } - 1;
         }
     );
 
@@ -300,6 +315,7 @@ sub setup_redis_mock {
 
             my @indexed_res;
             if ( $start < 0 ) {
+
                 # From -start to 0 or -end insert ""
                 push @indexed_res, "tags_test";
                 push @indexed_res, -2;
@@ -318,7 +334,7 @@ sub setup_redis_mock {
 
             # Add index after each element to simulate zrangebyscore behavior
             my $ind = $start;
-            
+
             foreach my $val (@res) {
                 unless ($val) {
                     next;
