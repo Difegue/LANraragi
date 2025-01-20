@@ -559,7 +559,7 @@ Index.loadContextMenuRatings = (id) => Server.callAPI(`/api/archives/${id}/metad
                     if(i === 0) delete tags["rating"];
                     else tags["rating"] = [ratings[i].name];
 
-                    Server.updateTagsFromArchive(id, Object.entries(tags).map(([namespace, tag]) => LRR.buildNamespacedTag(namespace, tag)));
+                    Server.updateTagsFromArchive(id, Object.entries(tags).flatMap(([namespace, tagArray]) => tagArray.map(tag => LRR.buildNamespacedTag(namespace, tag))));
 
                     // Update the rating info without reload but have to refresh everything.
                     IndexTable.dataTable.ajax.reload();
