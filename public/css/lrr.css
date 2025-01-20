@@ -19,13 +19,8 @@ td.title {
   max-width: 400px;
 }
 
-#customheader1,
-td.customheader1 {
-  max-width: 200px;
-}
-
 [id^="customheader"],
-td[id^="customheader"] {
+td[class^="customheader"] {
   max-width: 100px;
 }
 
@@ -567,7 +562,7 @@ body.swal2-shown>[aria-hidden="true"] {
 
   #tagsheader,
   [id^="customheader"],
-  td[id^="customheader"],
+  td[class^="customheader"],
   td.tags {
     max-width: 50px;
   }
@@ -638,7 +633,7 @@ body.swal2-shown>[aria-hidden="true"] {
   #i2,
   [id^="customheader"],
   #tagsheader,
-  td[id^="customheader"],
+  td[class^=" customheader"],
   td.tags {
     display: none;
   }
