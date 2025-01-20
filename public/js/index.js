@@ -809,22 +809,31 @@ Index.migrateProgress = function () {
  */
 Index.resizableColumns = function () {
     let currentHeader;
+    let currentIndex;
     let startX;
     let startWidth;
 
     const headers = document.querySelectorAll("#header-row th");
-    headers.forEach((header, index) => {
+    headers.forEach((header, i) => {
         
         // init
         header.addEventListener('mousedown', function (event) {
             if (event.offsetX > header.offsetWidth - 10) {
-                event.preventDefault();
+                
                 currentHeader = header;
+                currentIndex = Array.from(headers).indexOf(currentHeader);
                 startX = event.clientX;
-                startWidth = header.offsetWidth;
+
+                startWidth = localStorage.getItem(`resizeColumn${currentIndex}`) || header.width || header.offsetWidth;
+                if (!Number.isInteger(startWidth))
+                    startWidth = parseInt(startWidth.replace('px', ''));
 
                 document.addEventListener('mousemove', resizeColumn);
                 document.addEventListener('mouseup', stopResize);
+
+                // Disable DataTables sorting while resizing
+                // (Unfortunately, sorting is perma-disabled after this..)
+                $('th').unbind('click.DT');
 
                 document.body.style.cursor = 'col-resize';
             }
@@ -853,18 +862,18 @@ Index.resizableColumns = function () {
             
             if (newWidth > 0) {
                 currentHeader.style.width = newWidth + 'px';
+                localStorage.setItem(`resizeColumn${currentIndex}`, newWidth + 'px');
             }
         }
     }
 
     function stopResize() {
         if (currentHeader) {
-            const index = Array.from(headers).indexOf(currentHeader);
-            localStorage.setItem(`resizeColumn${index}`, currentHeader.style.width);
             currentHeader = null;
         }
         document.removeEventListener('mousemove', resizeColumn);
         document.removeEventListener('mouseup', stopResize);
+
         document.body.style.cursor = 'default';
     }
 };
