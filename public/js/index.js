@@ -562,7 +562,7 @@ Index.loadContextMenuRatings = (id) => Server.callAPI(`/api/archives/${id}/metad
                     Server.updateTagsFromArchive(id, Object.entries(tags).flatMap(([namespace, tagArray]) => tagArray.map(tag => LRR.buildNamespacedTag(namespace, tag))));
 
                     // Update the rating info without reload but have to refresh everything.
-                    IndexTable.dataTable.ajax.reload();
+                    IndexTable.dataTable.ajax.reload(null, false);
                     Index.updateCarousel();
                     $(this).parents("ul.context-menu-list").find("input[type='checkbox']").toArray().filter((x) => x !== this).forEach(x => x.checked = false);
                 },
