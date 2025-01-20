@@ -46,6 +46,20 @@ IndexTable.initializeAll = function () {
     $.fn.dataTableExt.oStdClasses.sStripeOdd = "gtr0";
     $.fn.dataTableExt.oStdClasses.sStripeEven = "gtr1";
 
+    // set custom columns
+    let columns = [];
+    columns.push({ data: null, className: "title itd", name: "title", render: IndexTable.renderTitle });
+    let columnCount = localStorage.columnCount ? parseInt(localStorage.columnCount) : 2;
+    for (let i = 1; i <= columnCount; i++) {
+        columns.push({
+            data: "tags",
+            className: `customheader${i} itd`,
+            name: localStorage[`customColumn${i}`] || `defaultCol${i}`,
+            render: (data, type) => IndexTable.renderColumn(localStorage[`customColumn${i}`], type, data)
+        });
+    }
+    columns.push({ data: "tags", className: "tags itd", name: "tags", orderable: false, render: IndexTable.renderTags });
+
     // Datatables configuration
     IndexTable.dataTable = $(".datatables").DataTable({
         serverSide: true,
@@ -67,13 +81,7 @@ IndexTable.initializeAll = function () {
         preDrawCallback: IndexTable.initializeThumbView, // callbacks for thumbnail view
         drawCallback: IndexTable.drawCallback,
         rowCallback: IndexTable.buildThumbnailCell,
-        columns: [
-            /* eslint-disable object-curly-newline */
-            { data: null, className: "title itd", name: "title", render: IndexTable.renderTitle },
-            { data: "tags", className: "custom1 itd", name: localStorage.customColumn1, render: (data, type) => IndexTable.renderColumn(localStorage.customColumn1, type, data) },
-            { data: "tags", className: "custom2 itd", name: localStorage.customColumn2, render: (data, type) => IndexTable.renderColumn(localStorage.customColumn2, type, data) },
-            { data: "tags", className: "tags itd", name: "tags", orderable: false, render: IndexTable.renderTags },
-        ],
+        columns: columns,
     });
 
     // If the url has parameters, handle them now by doing the matching search.
@@ -269,11 +277,14 @@ IndexTable.drawCallback = function () {
 
         // Using double equals here since the sort column can be either a string or an int
         // eslint-disable-next-line eqeqeq
-        if (currentSort == 1) {
-            currentSort = localStorage.customColumn1;
-            // eslint-disable-next-line eqeqeq
-        } else if (currentSort == 2) {
-            currentSort = localStorage.customColumn2;
+        // get current columns count, except title and tags 
+        const currentCustomColumnCount = IndexTable.dataTable.columns().count() - 2;
+        // check currentSort, if out of range, back to use title
+        if (currentSort > currentCustomColumnCount) {
+            localStorage.indexSort = 0;
+        }
+        if (currentSort >= 1 && currentSort <= columnCount) {
+            currentSort = localStorage[`customColumn${currentSort}`] || `Header ${currentSort}`;
         } else {
             currentSort = "title";
         }
@@ -318,6 +329,13 @@ IndexTable.consumeURLParameters = function () {
     if (params.has("sort")) {
         order[0][0] = params.get("sort");
     } else if (localStorage.indexSort) {
+        order[0][0] = localStorage.indexSort;
+    }
+    // get current columns count, except title and tags 
+    const currentCustomColumnCount = IndexTable.dataTable.columns().count() - 2;
+    // check currentSort, if out of range, back to use title
+    if (localStorage.indexSort > currentCustomColumnCount) {
+        localStorage.indexSort = 0;
         order[0][0] = localStorage.indexSort;
     }
 

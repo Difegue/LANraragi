@@ -17,12 +17,15 @@ Index.pageSize = 100;
  */
 Index.initializeAll = function () {
     // Bind events to DOM
-    $(document).on("click.edit-header-1", "#edit-header-1", () => Index.promptCustomColumn(1));
-    $(document).on("click.edit-header-2", "#edit-header-2", () => Index.promptCustomColumn(2));
+    $(document).on("click", "[id^=edit-header-]", function () {
+        const headerIndex = $(this).attr("id").split("-")[2];
+        Index.promptCustomColumn(headerIndex);
+    });
     $(document).on("click.mode-toggle", ".mode-toggle", Index.toggleMode);
     $(document).on("change.page-select", "#page-select", () => IndexTable.dataTable.page($("#page-select").val() - 1).draw("page"));
     $(document).on("change.thumbnail-crop", "#thumbnail-crop", Index.toggleCrop);
     $(document).on("change.namespace-sortby", "#namespace-sortby", Index.handleCustomSort);
+    $(document).on("change.columnCount", "#columnCount", Index.handleColumnNum);
     $(document).on("click.order-sortby", "#order-sortby", Index.toggleOrder);
     $(document).on("click.open-carousel", ".collapsible-title", Index.toggleCarousel);
     $(document).on("click.reload-carousel", "#reload-carousel", Index.updateCarousel);
@@ -122,7 +125,12 @@ Index.initializeAll = function () {
             IndexTable.initializeAll();
         });
 
+    const columnCountSelect = document.getElementById("columnCount");
+    const storedColumnCount = localStorage.getItem("columnCount");
+    columnCountSelect.value = storedColumnCount ? storedColumnCount : 2;
+    
     Index.updateTableHeaders();
+    Index.resizableColumns();
 };
 
 Index.toggleMode = function () {
@@ -269,10 +277,12 @@ Index.updateTableControls = function (currentSort, currentOrder, totalPages, cur
     if (localStorage.indexViewMode === "1") {
         $(".thumbnail-options").show();
         $(".thumbnail-toggle").show();
+        $(".compact-options").hide();
         $(".compact-toggle").hide();
     } else {
         $(".thumbnail-options").hide();
         $(".thumbnail-toggle").hide();
+        $(".compact-options").show();
         $(".compact-toggle").show();
     }
 
@@ -368,19 +378,55 @@ Index.updateCarousel = function (e) {
     }
 };
 
+Index.handleColumnNum = function () {
+    const columnCountSelect = document.getElementById("columnCount");
+    const selectedCount = columnCountSelect.value;
+    localStorage.setItem("columnCount", selectedCount);
+    Index.updateTableHeaders();
+    document.location.reload(true);
+};
+
+/**
+ * Generate the Table Headers based on the custom namespaces set in localStorage.
+ */
+Index.generateTableHeaders = function (columnCount) {
+    const headerRow = $("#header-row");
+    headerRow.empty();
+    const headerWidth = localStorage.getItem(`resizeColumn0`) || "";
+    headerRow.append(`<th id="titleheader" width="${headerWidth}">
+							<a>Title</a>
+						</th>`);
+
+    for (let i = 1; i <= columnCount; i++) {
+        const customColumn = localStorage[`customColumn${i}`] || `Header ${i}`;
+        const colWidth = localStorage.getItem(`resizeColumn${i}`) || "";
+
+        const headerHtml = `  
+            <th id="customheader${i}" width="${colWidth}">  
+                <i id="edit-header-${i}" class="fas fa-pencil-alt edit-header-btn" title="Edit this column"></i>  
+                <a id="header-${i}">${customColumn.charAt(0).toUpperCase() + customColumn.slice(1)}</a>  
+            </th>`;
+        headerRow.append(headerHtml);
+    }
+    headerRow.append(`<th id="tagsheader">
+							<a>Tags</a>
+						</th>`);
+};
+
+
 /**
  * Update the Table Headers based on the custom namespaces set in localStorage.
  */
 Index.updateTableHeaders = function () {
-    const cc1 = localStorage.customColumn1;
-    const cc2 = localStorage.customColumn2;
+    let columnCount = localStorage.columnCount ? parseInt(localStorage.columnCount) : 2;
+    Index.generateTableHeaders(columnCount);
 
-    $("#customcol1").val(cc1);
-    $("#customcol2").val(cc2);
+    for (let i = 1; i <= columnCount; i++) {
+        const customColumn = localStorage[`customColumn${i}`] || `Header ${i}`;
+        $(`#customcol${i}`).val(customColumn);
 
-    // Modify text of <a> in headers
-    $("#header-1").html(cc1.charAt(0).toUpperCase() + cc1.slice(1));
-    $("#header-2").html(cc2.charAt(0).toUpperCase() + cc2.slice(1));
+        $(`#header-${i}`).html(customColumn.charAt(0).toUpperCase() + customColumn.slice(1) || `Header ${i}`);
+    }
 };
 
 /**
@@ -764,6 +810,80 @@ Index.migrateProgress = function () {
     } else {
         // eslint-disable-next-line no-console
         console.log("No local reading progression to migrate");
+    }
+};
+
+/**
+ * Restore and update column width, data store in localstorge.
+ */
+Index.resizableColumns = function () {
+    let currentHeader;
+    let currentIndex;
+    let startX;
+    let startWidth;
+
+    const headers = document.querySelectorAll("#header-row th");
+    headers.forEach((header, i) => {
+        
+        // init
+        header.addEventListener('mousedown', function (event) {
+            if (event.offsetX > header.offsetWidth - 10) {
+                
+                currentHeader = header;
+                currentIndex = Array.from(headers).indexOf(currentHeader);
+                startX = event.clientX;
+
+                startWidth = localStorage.getItem(`resizeColumn${currentIndex}`) || header.width || header.offsetWidth;
+                if (!Number.isInteger(startWidth))
+                    startWidth = parseInt(startWidth.replace('px', ''));
+
+                document.addEventListener('mousemove', resizeColumn);
+                document.addEventListener('mouseup', stopResize);
+
+                // Disable DataTables sorting while resizing
+                // (Unfortunately, sorting is perma-disabled after this..)
+                $('th').unbind('click.DT');
+
+                document.body.style.cursor = 'col-resize';
+            }
+        });
+        header.addEventListener('mousemove', function (event) {
+            if (event.offsetX > header.offsetWidth - 10) {
+                header.style.cursor = 'col-resize';
+            } else {
+                header.style.cursor = 'default';
+            }
+        });
+    });
+
+    function resizeColumn(event) {
+        if (currentHeader) {
+            currentHeader.style.cursor = 'col-resize';
+            const newWidth = startWidth + (event.clientX - startX);
+            const minWidth = parseInt(window.getComputedStyle(currentHeader).minWidth.replace('px', ''));
+            const maxWidth = parseInt(window.getComputedStyle(currentHeader).maxWidth.replace('px', ''));
+
+            if (newWidth > maxWidth) 
+                newWidth = maxWidth;
+            
+            if (newWidth < minWidth) 
+                newWidth = minWidth;
+            
+            if (newWidth > 0) {
+                currentHeader.style.width = newWidth + 'px';
+                localStorage.setItem(`resizeColumn${currentIndex}`, newWidth + 'px');
+            }
+        }
+    }
+
+    function stopResize() {
+        if (currentHeader) {
+            currentHeader = null;
+        }
+        document.removeEventListener('mousemove', resizeColumn);
+        document.removeEventListener('mouseup', stopResize);
+
+        document.body.style.cursor = 'default';
     }
 };
 

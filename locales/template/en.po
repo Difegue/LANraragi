@@ -658,6 +658,9 @@ msgstr "Crop thumbnails"
 msgid "Go to Page:"
 msgstr "Go to Page:"
 
+msgid "Columns:"
+msgstr "Columns:"
+
 msgid "Switch to Compact Mode"
 msgstr "Switch to Compact Mode"
 
