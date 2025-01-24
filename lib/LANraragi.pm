@@ -20,6 +20,7 @@ use LANraragi::Utils::Minion;
 use LANraragi::Utils::I18N;
 use LANraragi::Utils::I18NInitializer;
 
+use LANraragi::Model::Category;
 use LANraragi::Model::Search;
 use LANraragi::Model::Config;
 
@@ -183,6 +184,17 @@ sub startup {
     # Start File Watcher
     shutdown_from_pid( get_temp . "/shinobu.pid" );
     start_shinobu($self);
+
+    # First-install actions: check if redis LRR_CONFIG is updated.
+    unless ( $self->LRR_CONF->get_redis_config->hexists('LRR_CONFIG', 'htmltitle') ) {
+        $self->LRR_LOGGER->info("First-time installation detected!");
+        $self->LRR_CONF->get_redis_config->hset('LRR_CONFIG', 'htmltitle', 'LANraragi');
+
+        $self->LRR_LOGGER->debug("Creating first category...");
+        my $default_category_id = LANraragi::Model::Category::create_category("Favorites", "", 0, "");
+        LANraragi::Model::Category::update_highlight_category($default_category_id);
+        $self->LRR_LOGGER->info("Created default Favorites category.");
+    }
 
     # Hook to SIGTERM to cleanly kill minion+shinobu on server shutdown
     # As this is executed during before_dispatch, this code won't work if you SIGTERM without loading a single page!

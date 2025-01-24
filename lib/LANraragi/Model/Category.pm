@@ -153,6 +153,7 @@ sub create_category {
 
 # delete_category(id)
 #   Deletes the category with the given ID.
+#   If category is also highlighed, remove the ID from highlight.
 #   Returns 0 if the given ID isn't a category ID, 1 otherwise
 sub delete_category {
 
@@ -169,6 +170,10 @@ sub delete_category {
     }
 
     if ( $redis->exists($cat_id) ) {
+        if ( $redis->hget('LRR_CONFIG', 'highlight') eq $cat_id ) {
+            $logger->info("$cat_id is a highlight, removing.");
+            $redis->hdel('LRR_CONFIG', 'highlight');
+        }
         $redis->del($cat_id);
         $redis->quit;
         return 1;
@@ -285,6 +290,54 @@ sub remove_from_category {
     $logger->warn($err);
     $redis->quit;
     return 0;
+}
+
+# get_highlight_category()
+#   Gets the category ID with highlighted flag.
+#   If no such category exists, returns an empty string.
+sub get_highlight_category {
+
+    my $redis = LANraragi::Model::Config->get_redis;
+    my $catid = $redis->hget('LRR_CONFIG', 'highlight') || "";
+    $redis->quit();
+    return $catid;
+
+}
+
+# update_highlight_category(cat_id)
+#   Moves the highlighted flag to a different category ID.
+#   The category ID must be a valid, static category ID.
+sub update_highlight_category {
+
+    my $cat_id = shift;
+    unless (defined $cat_id && $cat_id =~ /^SET_\d{10}$/) {
+        return (400, $cat_id, "Input category ID is invalid.");
+    }
+    my $redis = LANraragi::Model::Config->get_redis;
+    unless ( $redis->exists($cat_id) ) {
+        $redis->quit();
+        return (404, $cat_id, "Category does not exist!");
+    }
+    unless ( $redis->hget( $cat_id, "search" ) eq "" ) {
+        $redis->quit();
+        return (400, $cat_id, "Cannot assign highlight property to a dynamic category.");
+    }
+    $redis->hset('LRR_CONFIG', 'highlight', $cat_id);
+    $redis->quit();
+    return (200, $cat_id, "success");
+
+}
+
+# delete_highlight_category()
+#   Remove highlight status from highlighted category.
+#   Returns the category ID which had this highlight status, otherwise
+#   return empty string.
+sub delete_highlight_category {
+    my $redis = LANraragi::Model::Config->get_redis;
+    my $cat_id = $redis->hget('LRR_CONFIG', 'highlight') || "";
+    $redis->hdel('LRR_CONFIG', 'highlight');
+    $redis->quit();
+    return $cat_id;
 }
 
 1;
