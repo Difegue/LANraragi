@@ -148,7 +148,7 @@ sub apply_routes {
 
     # Category API
     $public_api->get('/api/categories')->to('api-category#get_category_list');
-    $public_api->get('/api/categories/highlight')->to('api-category#get_highlight_category');
+    $public_api->get('/api/categories/highlighted')->to('api-category#get_highlighted_category');
     $public_api->get('/api/categories/:id')->to('api-category#get_category');
     $logged_in_api->put('/api/categories/highlight/:id')->to('api-category#update_highlight_category');
     $logged_in_api->put('/api/categories')->to('api-category#create_category');
