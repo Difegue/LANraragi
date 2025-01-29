@@ -139,7 +139,7 @@ sub remove_from_category {
     }
 }
 
-sub get_highlight_category {
+sub get_highlighted_category {
 
     my $self = shift;
     my $catid = LANraragi::Model::Category::get_highlight_category();
