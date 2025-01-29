@@ -171,7 +171,7 @@ sub delete_category {
 
     if ( $redis->exists($cat_id) ) {
         if ( $redis->hget('LRR_CONFIG', 'highlight') eq $cat_id ) {
-            $logger->info("$cat_id is a highlight, removing.");
+            $logger->info("$cat_id is the highlighted category, removing it.");
             $redis->hdel('LRR_CONFIG', 'highlight');
         }
         $redis->del($cat_id);
