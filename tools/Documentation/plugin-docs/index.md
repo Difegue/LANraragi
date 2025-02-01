@@ -92,7 +92,7 @@ Once this is done, you can test your plugin by simply using it:
 * Login plugins can't be tested directly for now.
 
 {% hint style="info" %}
-It is also possible to execute plugins through the [Client API](../extending-lanraragi/client-api.md).
+It is also possible to execute plugins through the [Client API](../api-documentation/getting-started.md).
 {% endhint %}
 
 If LANraragi is running in Debug Mode, debug messages from your plugin will be logged.
