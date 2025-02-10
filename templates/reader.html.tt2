@@ -120,8 +120,9 @@
                         <div class="gt" style="font-size:14px; padding:4px">
                             <a href="[% c.url_for("/").query("c=$id") %]">
                                 <span class="label">[% name %]</span>
-                                <a href="#" class="remove-category" data-id="[% id %]"
-                                    style="margin-left:4px; margin-right:2px">×</a>
+                            </a>
+                            <a href="#" class="remove-category" data-id="[% id %]"
+                                style="margin-left:4px; margin-right:2px">×</a>
                             </a>
                         </div>
                         [% END %]

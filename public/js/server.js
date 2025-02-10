@@ -336,3 +336,13 @@ Server.updateTagsFromArchive = function (arcId, tags) {
 
     Server.callAPIBody(`/api/archives/${arcId}/metadata`, "PUT", formData, `Updated tags from Archive ${arcId}!`, "Error updating tags from archive", null);
 };
+
+/**
+ * Updates local storage with the category ID corresponding to the bookmark icon.
+ * @returns a promise containing the category ID if exists or an empty string.
+ */
+Server.loadBookmarkCategoryId = function () {
+    return Server.callAPI("/api/categories/bookmark_link", "GET", null, "Error getting bookmark category: ", (data) => {
+        return localStorage.bookmarkCategoryId = data.category_id || "";
+    });
+}

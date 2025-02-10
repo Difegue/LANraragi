@@ -14,6 +14,11 @@ td.itd {
   min-width: 35px;
 }
 
+#bookmarkheader,
+td.bookmark {
+  max-width: 70px;
+}
+
 #titleheader,
 td.title {
   max-width: 400px;
@@ -397,6 +402,10 @@ li {
   border-radius: 34px;
 }
 
+.context-menu {
+  z-index: 10;
+}
+
 .context-menu-list {
   border: none !important;
   border-radius: 0 !important;
@@ -612,6 +621,7 @@ body.swal2-shown>[aria-hidden="true"] {
 
   div.id3 {
     height: 196px !important;
+    position: relative;
   }
 
   div.id3 img {
@@ -769,6 +779,25 @@ div.fullscreen img {
 
 .fullscreen-infinite {
   overflow-y: scroll;
+}
+
+.thumbnail-bookmark-icon {
+  cursor: pointer;
+  position: absolute;
+  left: 10px;
+  bottom: 20px;
+  z-index: 2;
+  font-size: 24px;
+  color: white;
+  text-shadow: 0 0 3px rgba(0, 50, 116, 0.9);
+}
+
+.thumbnail-bookmark-icon:hover {
+  opacity: 0.8;
+}
+
+.thumbnail-bookmark-icon:active {
+  opacity: 0.6;
 }
 
 body.infinite-scroll .fullscreen-infinite img {
