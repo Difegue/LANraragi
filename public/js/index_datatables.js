@@ -48,8 +48,9 @@ IndexTable.initializeAll = function () {
 
     // set custom columns
     let columns = [];
+    columns.push({ data: null, className: "bookmark itd", name: "bookmark", render: IndexTable.renderBookmark });
     columns.push({ data: null, className: "title itd", name: "title", render: IndexTable.renderTitle });
-    let columnCount = localStorage.columnCount ? parseInt(localStorage.columnCount) : 2;
+    let columnCount = Index.getColumnCount();
     for (let i = 1; i <= columnCount; i++) {
         columns.push({
             data: "tags",
@@ -156,6 +157,24 @@ IndexTable.renderColumn = function (namespace, type, data) {
     }
     return data;
 };
+
+/**
+ * TODO: I'm just copying the bottom for now
+ */
+IndexTable.renderBookmark = function (data, type) {
+    if ( LRR.bookmarkLinkConfigured() ) {
+        const isBookmarked = localStorage.bookmarkedArchives.includes(data.arcid);
+        if (type === "display") {
+            return `<input class="bookmark-checkbox" id="${data.arcid}" type="checkbox" ${isBookmarked ? 'checked' : ''}>`;
+        }
+        return isBookmarked;
+    }
+
+    if (type === "display") {
+        return `<input class="bookmark-checkbox" id="${data.arcid}" type="checkbox" disabled title="Link bookmark to category to use the checkbox.">`;
+    }
+    return false;
+}
 
 /**
  * Render the title column.

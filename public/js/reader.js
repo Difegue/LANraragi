@@ -39,6 +39,7 @@ Reader.initializeAll = function () {
     $(document).on("click.toggle-archive-overlay", "#toggle-archive-overlay", Reader.toggleArchiveOverlay);
     $(document).on("click.toggle-settings-overlay", "#toggle-settings-overlay", Reader.toggleSettingsOverlay);
     $(document).on("click.toggle-help", "#toggle-help", Reader.toggleHelp);
+    $(document).on("click.toggle-bookmark", ".toggle-bookmark", Reader.toggleBookmark);
     $(document).on("click.regenerate-archive-cache", "#regenerate-cache", () => {
         window.location.href = new LRR.apiURL(`/reader?id=${Reader.id}&force_reload`);
     });
@@ -72,10 +73,24 @@ Reader.initializeAll = function () {
         </a>`;
 
         $("#archive-categories").append(html);
+        // Turn ON bookmark icon.
+        if ($("#category").val() == localStorage.bookmarkCategoryId) {
+            $(".toggle-bookmark")
+                .removeClass("far fa-bookmark")
+                .addClass("fas fa-bookmark");
+        }
     });
     $(document).on("click.remove-category", ".remove-category", (e) => {
+        e.preventDefault();
+        const catId = $(e.target).attr("data-id");
         Server.removeArchiveFromCategory(Reader.id, $(e.target).attr("data-id"));
-        $(e.target).parent().remove();
+        $(e.target).closest(".gt").remove();
+        // Turn OFF the bookmark icon
+        if (catId == localStorage.bookmarkCategoryId) {
+            $(".toggle-bookmark")
+                .removeClass("fas fa-bookmark")
+                .addClass("far fa-bookmark");
+        }
     });
     $(document).on("click.set-thumbnail", "#set-thumbnail", () => Server.callAPI(`/api/archives/${Reader.id}/thumbnail?page=${Reader.currentPage + 1}`,
         "PUT", `Successfully set page ${Reader.currentPage + 1} as the thumbnail!`, "Error updating thumbnail!", null));
@@ -143,6 +158,9 @@ Reader.initializeAll = function () {
             Reader.loadImages();
         },
     );
+
+    // Fetch "bookmark" category ID and setup icon
+    Reader.loadBookmarkStatus();
 };
 
 Reader.loadImages = function () {
@@ -405,6 +423,59 @@ Reader.toggleHelp = function () {
     return false;
     // all toggable panes need to return false to avoid scrolling to top
 };
+
+Reader.toggleBookmark = function(e) {
+    e.preventDefault();
+    if ( !localStorage.bookmarkCategoryId ) {
+        return;
+    };
+
+    if ($(".toggle-bookmark").hasClass("fas fa-bookmark")) {
+        // Remove from category
+        Server.removeArchiveFromCategory(Reader.id, localStorage.bookmarkCategoryId);
+        $(`#archive-categories a.remove-category[data-id="${localStorage.bookmarkCategoryId}"]`).closest(".gt").remove();
+        $(".toggle-bookmark")
+            .removeClass("fas fa-bookmark")
+            .addClass("far fa-bookmark");
+    } else {
+        // Add to category
+        Server.addArchiveToCategory(Reader.id, localStorage.bookmarkCategoryId);
+        const url = new LRR.apiURL(`/?c=${localStorage.bookmarkCategoryId}`);
+        const html = `
+            <div class="gt" style="font-size:14px; padding:4px">
+                <a href="#" class="remove-category" data-id="${localStorage.bookmarkCategoryId}" style="margin-left:4px; margin-right:2px">×</a>
+            </div>`;
+        $("#archive-categories").append(html);
+        $(".toggle-bookmark")
+            .removeClass("far fa-bookmark")
+            .addClass("fas fa-bookmark");
+    }
+}
+
+// dynamically add bookmark icon if bookmark link is configured.
+Reader.loadBookmarkStatus = function() {
+    Server.loadBookmarkCategoryId().then(
+        category_id => {
+            console.log(category_id);
+            if ( !LRR.bookmarkLinkConfigured() ) {
+                return;
+            }
+            fetch(new LRR.apiURL(`/api/categories/${category_id}`))
+                .then(response => response.json()).then(categoryData => {
+                    const isBookmarked = categoryData.archives.includes(Reader.id);
+                    const bookmarkState = isBookmarked ? "fas" : "far";
+                    const leftOptionsList = document.querySelectorAll(".absolute-options.absolute-left");
+                    leftOptionsList.forEach(leftOption => {
+                        let bookmark = document.createElement("a");
+                        bookmark.className = `${bookmarkState} fa-bookmark fa-2x toggle-bookmark`;
+                        bookmark.href = "#";
+                        bookmark.title = "[% c.lh('Bookmark') %]";
+                        leftOption.appendChild(bookmark);
+                    })
+                })
+        }
+    )
+}
 
 Reader.updateMetadata = function () {
     const img = $("#img")[0];

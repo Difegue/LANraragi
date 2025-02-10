@@ -96,6 +96,13 @@
                                 <label for="pinned">[% c.lh("Pin this Category") %]</label>
                             </td>
                         </tr>
+                        <tr id="bookmarklinkfield" class="tag-options">
+                            <td></td>
+                            <td>
+                                <input id="bookmark-link" name="bookmark-link" class="fa" type="checkbox">
+                                <label for="bookmark-link">[% c.lh("Link Bookmark Icon to this Category") %]</label>
+                            </td>
+                        </tr>
                         <tr class="tag-options">
                             <td></td>
                             <td><input id="delete" type='button' value='[% c.lh("Delete Category") %]' class='stdbtn'>

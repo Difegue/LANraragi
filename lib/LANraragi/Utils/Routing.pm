@@ -148,12 +148,12 @@ sub apply_routes {
 
     # Category API
     $public_api->get('/api/categories')->to('api-category#get_category_list');
-    $public_api->get('/api/categories/highlighted')->to('api-category#get_highlighted_category');
+    $public_api->get('/api/categories/bookmark_link')->to('api-category#get_bookmark_link');
     $public_api->get('/api/categories/:id')->to('api-category#get_category');
-    $logged_in_api->put('/api/categories/highlight/:id')->to('api-category#update_highlight_category');
+    $logged_in_api->put('/api/categories/bookmark_link/:id')->to('api-category#update_bookmark_link');
     $logged_in_api->put('/api/categories')->to('api-category#create_category');
     $logged_in_api->put('/api/categories/:id')->to('api-category#update_category');
-    $logged_in_api->delete('/api/categories/highlight')->to('api-category#delete_highlight_category');
+    $logged_in_api->delete('/api/categories/bookmark_link')->to('api-category#remove_bookmark_link');
     $logged_in_api->delete('/api/categories/:id')->to('api-category#delete_category');
     $logged_in_api->put('/api/categories/:id/:archive')->to('api-category#add_to_category');
     $logged_in_api->delete('/api/categories/:id/:archive')->to('api-category#remove_from_category');

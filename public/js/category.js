@@ -6,18 +6,23 @@ const Category = {};
 Category.categories = [];
 
 Category.initializeAll = function () {
+
+    Server.loadBookmarkCategoryId().then(_ => {
+        Category.loadCategories();
+    })
+
     // bind events to DOM
     $(document).on("change.category", "#category", Category.updateCategoryDetails);
     $(document).on("change.catname", "#catname", Category.saveCurrentCategoryDetails);
     $(document).on("change.catsearch", "#catsearch", Category.saveCurrentCategoryDetails);
     $(document).on("change.pinned", "#pinned", Category.saveCurrentCategoryDetails);
+    $(document).on("change.bookmark-link", "#bookmark-link", Category.saveCurrentCategoryDetails);
     $(document).on("click.new-static", "#new-static", () => Category.addNewCategory(false));
     $(document).on("click.new-dynamic", "#new-dynamic", () => Category.addNewCategory(true));
     $(document).on("click.predicate-help", "#predicate-help", Category.predicateHelp);
     $(document).on("click.delete", "#delete", Category.deleteSelectedCategory);
     $(document).on("click.return", "#return", () => { window.location.href = new LRR.apiURL("/"); });
 
-    Category.loadCategories();
 };
 
 Category.addNewCategory = function (isDynamic) {
@@ -82,6 +87,7 @@ Category.updateCategoryDetails = function () {
     const category = Category.categories.find((x) => x.id === categoryID);
 
     $("#archivelist").hide();
+    $("#bookmarklinkfield").hide();
     $("#dynamicplaceholder").show();
 
     $(".tag-options").hide();
@@ -94,7 +100,9 @@ Category.updateCategoryDetails = function () {
 
     if (category.search === "") {
         // Show archives if static and check the matching IDs
+        document.getElementById("bookmark-link").checked = (localStorage.bookmarkCategoryId === category.id);
         $("#archivelist").show();
+        $("#bookmarklinkfield").show();
         $("#dynamicplaceholder").hide();
         $("#predicatefield").hide();
 
@@ -126,6 +134,7 @@ Category.updateCategoryDetails = function () {
     } else {
         // Show predicate field if dynamic
         $("#predicatefield").show();
+        $("#bookmarklinkfield").hide();
     }
 };
 
@@ -139,11 +148,41 @@ Category.saveCurrentCategoryDetails = function () {
     Category.indicateSaving();
 
     // PUT update with name and search (search is empty if this is a static category)
+    // Indicate saved and load categories are placed inside the API call to avoid race conditions.
     Server.callAPI(`/api/categories/${categoryID}?name=${catName}&search=${searchtag}&pinned=${pinned}`, "PUT", null, "Error updating category:",
         (data) => {
-            // Reload categories and select the newly created ID
-            Category.indicateSaved();
-            Category.loadCategories(data.category_id);
+            if (searchtag === "") {
+                const isChecked     = document.getElementById("bookmark-link").checked;
+                const wasChecked    = (localStorage.bookmarkCategoryId === categoryID);
+                if (isChecked && !wasChecked) {
+                    Server.callAPI(
+                        `/api/categories/bookmark_link/${categoryID}`,
+                        "PUT",
+                        null,
+                        "Error linking bookmark button:",
+                        () => {
+                            localStorage.bookmarkCategoryId = categoryID;
+                            Category.indicateSaved();
+                            Category.loadCategories(data.category_id);
+                        }
+                    );
+                } else if (!isChecked && wasChecked) {
+                    Server.callAPI(
+                        "/api/categories/bookmark_link",
+                        "DELETE",
+                        null,
+                        "Error unlinking bookmark button:",
+                        () => {
+                            localStorage.bookmarkCategoryId = "";
+                            Category.indicateSaved();
+                            Category.loadCategories(data.category_id);
+                        }
+                    );
+                } else {
+                    Category.indicateSaved();
+                    Category.loadCategories(data.category_id);
+                }
+            }
         },
     );
 };

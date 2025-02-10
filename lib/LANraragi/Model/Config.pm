@@ -173,8 +173,8 @@ sub get_tagrules {
 
 # first_install_actions()
 # Setup tasks for first-time installations. New installs are checked by confirming updated
-# user settings. On first installation, create default 'Favorites' category and set it as
-# highlighted. Returns 1 if is first-time installation, else 0.
+# user settings. On first installation, create default 'Favorites' category link it to the bookmark
+# button. Returns 1 if is first-time installation, else 0.
 sub first_install_actions {
     my $redis = get_redis_config();
     my $logger = get_logger( "Config", "lanraragi" );
@@ -184,7 +184,7 @@ sub first_install_actions {
 
         $logger->debug("Creating first category...");
         my $default_category_id = LANraragi::Model::Category::create_category("Favorites", "", 0, "");
-        LANraragi::Model::Category::update_highlight_category($default_category_id);
+        LANraragi::Model::Category::update_bookmark_link($default_category_id);
         $logger->info("Created default Favorites category.");
         $redis->quit();
         return 1;

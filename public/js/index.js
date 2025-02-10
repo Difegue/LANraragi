@@ -30,6 +30,8 @@ Index.initializeAll = function () {
     $(document).on("click.open-carousel", ".collapsible-title", Index.toggleCarousel);
     $(document).on("click.reload-carousel", "#reload-carousel", Index.updateCarousel);
     $(document).on("click.close-overlay", "#overlay-shade", LRR.closeOverlay);
+    $(document).on("click.thumbnail-bookmark-icon", ".thumbnail-bookmark-icon", Index.toggleBookmarkStatusByIcon);
+    $(document).on("click.bookmark-checkbox", ".bookmark-checkbox" , Index.toggleBookmarkStatusByCheckbox);
 
     // 0 = List view
     // 1 = Thumbnail view
@@ -58,6 +60,10 @@ Index.initializeAll = function () {
     if (localStorage.getItem("carouselOpen") === null) {
         localStorage.carouselOpen = 1;
     }
+
+    // Default to no bookmark
+    localStorage.bookmarkCategoryId = "";
+    localStorage.bookmarkedArchives = [];
 
     // Force-open the collapsible if carouselOpen = true
     if (localStorage.carouselOpen === "1") {
@@ -119,18 +125,70 @@ Index.initializeAll = function () {
 
             Index.migrateProgress();
             Index.loadTagSuggestions();
-            Index.loadCategories();
 
-            // Initialize DataTables
-            IndexTable.initializeAll();
+            // TODO: I don't like how this looks but this has to be synchronous somehow.
+            Server.loadBookmarkCategoryId().then(
+                _ => Index.loadCategories().then(
+                    _ => IndexTable.initializeAll()
+                )
+            );
         });
 
     const columnCountSelect = document.getElementById("columnCount");
-    const storedColumnCount = localStorage.getItem("columnCount");
-    columnCountSelect.value = storedColumnCount ? storedColumnCount : 2;
+    columnCountSelect.value = Index.getColumnCount();
     
     Index.updateTableHeaders();
     Index.resizableColumns();
+};
+
+// Turn bookmark icons and checkboxes to OFF for all archives.
+Index.bookmarkIconOff = function(arcid) {
+    const icons = document.querySelectorAll(`.thumbnail-bookmark-icon[id='${arcid}']`);
+    icons.forEach(el => {
+        el.classList.remove("fas");
+        el.classList.add("far");
+    })
+    const checkboxes = document.querySelectorAll(`.bookmark-checkbox[id='${arcid}']`);
+    checkboxes.forEach(cb => {
+        cb.checked = false;
+    })
+}
+
+// Turn bookmark icons and checkboxes to ON for all archives.
+Index.bookmarkIconOn = function(arcid) {
+    const icons = document.querySelectorAll(`.thumbnail-bookmark-icon[id='${arcid}']`);
+    icons.forEach(el => {
+        el.classList.remove("far");
+        el.classList.add("fas");
+    })
+    const checkboxes = document.querySelectorAll(`.bookmark-checkbox[id='${arcid}']`);
+    checkboxes.forEach(cb => {
+        cb.checked = true;
+    })
+}
+
+Index.toggleBookmarkStatusByCheckbox = function (e) {
+    const checkbox = e.currentTarget;
+    const id = checkbox.id;
+    if (checkbox.checked) {
+        Server.addArchiveToCategory(id, localStorage.bookmarkCategoryId);
+        Index.bookmarkIconOn(id);
+    } else {
+        Server.removeArchiveFromCategory(id, localStorage.bookmarkCategoryId);
+        Index.bookmarkIconOff(id);
+    }
+}
+
+Index.toggleBookmarkStatusByIcon = function (e) {
+    const icon = e.currentTarget;
+    const id = icon.id;
+    if (icon.classList.contains("far")) {
+        Server.addArchiveToCategory(id, localStorage.bookmarkCategoryId);
+        Index.bookmarkIconOn(id);
+    } else if (icon.classList.contains("fas")) {
+        Server.removeArchiveFromCategory(id, localStorage.bookmarkCategoryId);
+        Index.bookmarkIconOff(id);
+    }
 };
 
 Index.toggleMode = function () {
@@ -392,14 +450,18 @@ Index.handleColumnNum = function () {
 Index.generateTableHeaders = function (columnCount) {
     const headerRow = $("#header-row");
     headerRow.empty();
-    const headerWidth = localStorage.getItem(`resizeColumn0`) || "";
-    headerRow.append(`<th id="titleheader" width="${headerWidth}">
+    const bookmarkHeaderWidth = localStorage.getItem(`resizeColumn0`) || "";
+    headerRow.append(`<th id="bookmarkheader" width="${bookmarkHeaderWidth}">
+                            <a>Bookmarked</a>
+                        </th>`);
+    const titleHeaderWidth = localStorage.getItem(`resizeColumn1`) || "";
+    headerRow.append(`<th id="titleheader" width="${titleHeaderWidth}">
 							<a>Title</a>
 						</th>`);
 
     for (let i = 1; i <= columnCount; i++) {
         const customColumn = localStorage[`customColumn${i}`] || `Header ${i}`;
-        const colWidth = localStorage.getItem(`resizeColumn${i}`) || "";
+        const colWidth = localStorage.getItem(`resizeColumn${i+1}`) || "";
 
         const headerHtml = `  
             <th id="customheader${i}" width="${colWidth}">  
@@ -418,7 +480,7 @@ Index.generateTableHeaders = function (columnCount) {
  * Update the Table Headers based on the custom namespaces set in localStorage.
  */
 Index.updateTableHeaders = function () {
-    let columnCount = localStorage.columnCount ? parseInt(localStorage.columnCount) : 2;
+    let columnCount = Index.getColumnCount();
     Index.generateTableHeaders(columnCount);
 
     for (let i = 1; i <= columnCount; i++) {
@@ -555,8 +617,10 @@ Index.loadContextMenuCategories = (catList, id) => Server.callAPI(`/api/archives
                 click() {
                     if ($(this).is(":checked")) {
                         Server.addArchiveToCategory(id, catId);
+                        Index.bookmarkIconOn(id);
                     } else {
                         Server.removeArchiveFromCategory(id, catId);
+                        Index.bookmarkIconOff(id);
                     }
                 },
             };
@@ -704,7 +768,7 @@ Index.loadTagSuggestions = function () {
  * Query the category API to build the filter buttons.
  */
 Index.loadCategories = function () {
-    Server.callAPI("/api/categories", "GET", null, "Couldn't load categories",
+    return Server.callAPI("/api/categories", "GET", null, "Couldn't load categories",
         (data) => {
             // Sort by pinned + alpha
             // Pinned categories are shown at the beginning
@@ -735,6 +799,11 @@ Index.loadCategories = function () {
                             type='button' id='${category.id}' value='${catName}' 
                             onclick='Index.toggleCategory(this)' title='Click here to display the archives contained in this category.'/>
                 </div>`;
+
+                // Take this opportunity to update the bookmark
+                if (category.id === localStorage.bookmarkCategoryId) {
+                    localStorage.bookmarkedArchives = category.archives;
+                }
 
                 html += div;
             }
@@ -886,6 +955,10 @@ Index.resizableColumns = function () {
         document.body.style.cursor = 'default';
     }
 };
+
+Index.getColumnCount = function () {
+    return localStorage.columnCount ? parseInt(localStorage.columnCount) : 2;
+}
 
 jQuery(() => {
     Index.initializeAll();

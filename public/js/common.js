@@ -46,6 +46,13 @@ LRR.apiURL = class {
 };
 
 /**
+ * @returns true if bookmark icon is linked to a category, else false.
+ */
+LRR.bookmarkLinkConfigured = function () {
+    return localStorage.bookmarkCategoryId.startsWith("SET_");
+}
+
+/**
  * Quick HTML encoding function.
  * @param {*} r The HTML to encode
  * @returns Encoded string
@@ -260,6 +267,15 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
     const id = data.arcid || data.id;
     let reader_url = new LRR.apiURL(`/reader?id=${id}`);
 
+    let bookmarkIcon;
+    if ( LRR.bookmarkLinkConfigured() ) {
+        const isBookmarked = localStorage.bookmarkedArchives.includes(id);
+        const bookmarkClass = isBookmarked ? "fas fa-bookmark" : "far fa-bookmark";
+        bookmarkIcon = `<i id="${id}" class="${bookmarkClass} thumbnail-bookmark-icon"></i>`;
+    } else {
+        bookmarkIcon = ``;
+    }
+
     // Don't enforce no_fallback=true here, we don't want those divs to trigger Minion jobs 
     return `<div class="id1 context-menu swiper-slide" id="${id}">
                 <div class="id2">
@@ -274,6 +290,7 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
                                 onload="$('#${id}_thumb').remove(); $('#${id}_spinner').remove();" 
                                 onerror="this.src='${new LRR.apiURL("/img/noThumb.png")}'"/>
                     </a>
+                    ${bookmarkIcon}
                 </div>
                 <div class="id4">
                         <span class="tags tag-tooltip" ${tagTooltip === true ? "onmouseover=\"IndexTable.buildTagTooltip(this)\"" : ""}>${LRR.colorCodeTags(data.tags)}</span>
