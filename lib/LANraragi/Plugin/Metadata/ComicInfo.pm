@@ -63,6 +63,7 @@ sub get_tags {
     my $title;
     my $series;
     my $character;
+    my $publisher;
 
     my $result = Mojo::DOM->new->xml(1)->parse($stringxml)->at('Genre');
     if ( defined $result ) {
@@ -100,6 +101,10 @@ sub get_tags {
     if ( defined $result ) {
         $series = $result->text;
     }
+    $result = Mojo::DOM->new->xml(1)->parse($stringxml)->at('Publisher');
+    if ( defined $result ) {
+        $publisher = $result->text;
+    }
 
     #Delete local file
     unlink $filepath;
@@ -111,6 +116,7 @@ sub get_tags {
     @found_tags = try_add_tags( \@found_tags, "source:", $url );
     @found_tags = try_add_tags( \@found_tags, "series:", $series );
     @found_tags = try_add_tags( \@found_tags, "character:", $character );
+    @found_tags = try_add_tags( \@found_tags, "publisher:", $publisher );
     push( @found_tags, "language:" . $lang ) unless !$lang;
     my @genres = split( ',', $genre // "" );
 
