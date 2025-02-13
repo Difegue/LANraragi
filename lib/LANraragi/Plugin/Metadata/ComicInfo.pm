@@ -20,7 +20,7 @@ sub plugin_info {
         type        => "metadata",
         namespace   => "comicinfo",
         author      => "Gin-no-kami",
-        version     => "1.1",
+        version     => "1.2",
         description => "Parses metadata from ComicInfo.xml embedded in the archive",
         parameters  => []
     );
@@ -61,14 +61,20 @@ sub get_tags {
     my $artist;
     my $lang;
     my $title;
-    my $result = Mojo::DOM->new->xml(1)->parse($stringxml)->at('Genre');
+    my $series;
+    my $character;
 
+    my $result = Mojo::DOM->new->xml(1)->parse($stringxml)->at('Genre');
     if ( defined $result ) {
         $genre = $result->text;
     }
     $result = Mojo::DOM->new->xml(1)->parse($stringxml)->at('Tags');
     if ( defined $result ) {
         $calibretags = $result->text;
+    }
+    $result = Mojo::DOM->new->xml(1)->parse($stringxml)->at('Characters');
+    if ( defined $result ) {
+        $character = $result->text;
     }
     $result = Mojo::DOM->new->xml(1)->parse($stringxml)->at('Web');
     if ( defined $result ) {
@@ -90,6 +96,10 @@ sub get_tags {
     if ( defined $result ) {
         $title = $result->text;
     }
+    $result = Mojo::DOM->new->xml(1)->parse($stringxml)->at('Series');
+    if ( defined $result ) {
+        $series = $result->text;
+    }
 
     #Delete local file
     unlink $filepath;
@@ -99,8 +109,11 @@ sub get_tags {
     @found_tags = try_add_tags( \@found_tags, "group:",  $group );
     @found_tags = try_add_tags( \@found_tags, "artist:", $artist );
     @found_tags = try_add_tags( \@found_tags, "source:", $url );
+    @found_tags = try_add_tags( \@found_tags, "series:", $series );
+    @found_tags = try_add_tags( \@found_tags, "character:", $character );
     push( @found_tags, "language:" . $lang ) unless !$lang;
     my @genres = split( ',', $genre // "" );
+
     if ($calibretags) {
         push @genres, split( ',', $calibretags );
     }
