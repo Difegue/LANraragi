@@ -344,10 +344,17 @@ Reader.handleShortcuts = function (e) {
         // to always result in a positive offset when it reaches the changePage() logic
         break;
     case 37: // left arrow
-    case 65: // a
         Reader.changePage(-1);
         break;
     case 39: // right arrow
+        Reader.changePage(1);
+        break;
+    case 65: // a
+        Reader.changePage(-1);
+        break;
+    case 66: // b
+        Reader.toggleBookmark(e);
+        break;
     case 68: // d
         Reader.changePage(1);
         break;
