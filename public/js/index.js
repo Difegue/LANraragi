@@ -617,10 +617,14 @@ Index.loadContextMenuCategories = (catList, id) => Server.callAPI(`/api/archives
                 click() {
                     if ($(this).is(":checked")) {
                         Server.addArchiveToCategory(id, catId);
-                        Index.bookmarkIconOn(id);
+                        if ( catId === localStorage.bookmarkCategoryId ) {
+                            Index.bookmarkIconOn(id);
+                        }
                     } else {
                         Server.removeArchiveFromCategory(id, catId);
-                        Index.bookmarkIconOff(id);
+                        if ( catId === localStorage.bookmarkCategoryId ) {
+                            Index.bookmarkIconOff(id);
+                        }
                     }
                 },
             };
