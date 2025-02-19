@@ -65,7 +65,7 @@ if [ -f /etc/alpine-release ]; then
       cpanm IO::Socket::SSL --notest
 
     else # Those packages either don't exist on 3.12 or aren't necessary with the local perl rebuild
-      apk add perl perl-io-socket-ssl perl-dev s6-overlay libjxl imagemagick-perlmagick 
+      apk add perl perl-io-socket-ssl perl-dev s6-overlay libjxl imagemagick-perlmagick nodejs npm
 
       # Install node v18 as v20 breaks with QEMU (https://github.com/nodejs/docker-node/issues/1798)
       #echo 'http://dl-cdn.alpinelinux.org/alpine/v3.18/main' >> /etc/apk/repositories
