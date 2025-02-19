@@ -63,16 +63,9 @@ Reader.initializeAll = function () {
     $(document).on("click.add-category", "#add-category", () => {
         if ($("#category").val() === "" || $(`#archive-categories a[data-id="${$("#category").val()}"]`).length !== 0) { return; }
         Server.addArchiveToCategory(Reader.id, $("#category").val());
-        let url = new LRR.apiURL(`/?c=${$("#category").val()}`);
-        
-        const html = `<div class="gt" style="font-size:14px; padding:4px">
-            <a href="${url}">
-            <span class="label">${$("#category option:selected").text()}</span>
-            <a href="#" class="remove-category" data-id="${$("#category").val()}"
-                style="margin-left:4px; margin-right:2px">×</a>
-        </a>`;
+        const categoryId = $("#category").val();
+        Reader.addCategoryFlag( categoryId );
 
-        $("#archive-categories").append(html);
         // Turn ON bookmark icon.
         if ($("#category").val() == localStorage.bookmarkCategoryId) {
             $(".toggle-bookmark")
@@ -162,6 +155,21 @@ Reader.initializeAll = function () {
     // Fetch "bookmark" category ID and setup icon
     Reader.loadBookmarkStatus();
 };
+
+/**
+ * Adds a removable category flag to the categories section within archive overview.
+ */
+Reader.addCategoryFlag = function ( categoryId ) {
+    const categoryName = $(`#category option[value="${categoryId}"]`).text();
+    const url = new LRR.apiURL(`/?c=${categoryId}`);
+    const html = `<div class="gt" style="font-size:14px; padding:4px">
+        <a href="${url}">
+        <span class="label">${categoryName}</span>
+        <a href="#" class="remove-category" data-id="${categoryId}"
+            style="margin-left:4px; margin-right:2px">×</a>
+    </a>`;
+    $("#archive-categories").append(html);
+}
 
 Reader.loadImages = function () {
     Server.callAPI(`/api/archives/${Reader.id}/files?force=${Reader.force}`, "GET", null, "Error getting the archive's imagelist!",
@@ -447,12 +455,7 @@ Reader.toggleBookmark = function(e) {
     } else {
         // Add to category
         Server.addArchiveToCategory(Reader.id, localStorage.bookmarkCategoryId);
-        const url = new LRR.apiURL(`/?c=${localStorage.bookmarkCategoryId}`);
-        const html = `
-            <div class="gt" style="font-size:14px; padding:4px">
-                <a href="#" class="remove-category" data-id="${localStorage.bookmarkCategoryId}" style="margin-left:4px; margin-right:2px">×</a>
-            </div>`;
-        $("#archive-categories").append(html);
+        Reader.addCategoryFlag( localStorage.bookmarkCategoryId );
         $(".toggle-bookmark")
             .removeClass("far fa-bookmark")
             .addClass("fas fa-bookmark");
