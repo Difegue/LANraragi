@@ -36,8 +36,11 @@ sub do_search ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $
 
     my $tankcount = $redis->scard("LRR_TANKGROUPED") + 0;
 
+    # Get tank ids count
+    my $tankidscount = scalar(LANraragi::Model::Config->get_redis->keys('TANK_??????????'));
+
     # Total number of archives (as int)
-    my $total = $grouptanks ? $tankcount : $redis->zcard("LRR_TITLES") - $tankcount;
+    my $total = $grouptanks ? $tankcount : $redis->zcard("LRR_TITLES") - $tankidscount;
 
     # Look in searchcache first
     my $sortorder_inv = $sortorder ? 0 : 1;
