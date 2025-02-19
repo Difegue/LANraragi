@@ -3,7 +3,7 @@
 <html>
 
 <head>
-	<title>[% title %] - Batch Operations</title>
+	<title>[% title %] - [% c.lh("Batch Operations") %]</title>
 
 	<meta name="viewport" content="width=device-width" />
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />

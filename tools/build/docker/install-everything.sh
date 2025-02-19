@@ -68,9 +68,9 @@ if [ -f /etc/alpine-release ]; then
       apk add perl perl-io-socket-ssl perl-dev s6-overlay libjxl imagemagick-perlmagick 
 
       # Install node v18 as v20 breaks with QEMU (https://github.com/nodejs/docker-node/issues/1798)
-      echo 'http://dl-cdn.alpinelinux.org/alpine/v3.18/main' >> /etc/apk/repositories
-      apk update
-      apk add nodejs=18.20.1-r0 npm=10.9.1-r0
+      #echo 'http://dl-cdn.alpinelinux.org/alpine/v3.18/main' >> /etc/apk/repositories
+      #apk update
+      #apk add nodejs=18.20.1-r0 npm=10.9.1-r0
 
       # Install cpanm
       curl -L https://cpanmin.us | perl - App::cpanminus
