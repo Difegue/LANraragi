@@ -37,7 +37,7 @@ sub do_search ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $
     my $tankcount = $redis->scard("LRR_TANKGROUPED") + 0;
 
     # Get tank ids count
-    my $tankidscount = scalar(LANraragi::Model::Config->get_redis->keys('TANK_??????????'));
+    my $tankidscount = scalar( LANraragi::Model::Config->get_redis->keys('TANK_??????????') );
 
     # Total number of archives (as int)
     my $total = $grouptanks ? $tankcount : $redis->zcard("LRR_TITLES") - $tankidscount;
@@ -389,11 +389,14 @@ sub compute_search_filter ($filter) {
         # * or % => *
         $tag =~ s/\%/\*/g;
 
-        push @tokens,
-          { tag     => lc($tag),
-            isneg   => $isneg,
-            isexact => $isexact
-          };
+        if ( $tag ne "" ) {    # Blank tokens shouldn't be added as theyll slow down search
+            push @tokens,
+              { tag     => lc($tag),
+                isneg   => $isneg,
+                isexact => $isexact
+              };
+        }
+
     }
     return @tokens;
 }
