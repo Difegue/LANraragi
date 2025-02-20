@@ -56,7 +56,7 @@ Limit search to new archives only.
 Limit search to untagged archives only.
 {% endswagger-parameter %}
 
-{% swagger-parameter name="group_tanks" type="bool" required="false" in="query" %}
+{% swagger-parameter name="groupby_tanks" type="bool" required="false" in="query" %}
 Enable or disable Tankoubon grouping. Defaults to true.  
 When enabled, Tankoubons will show in search results, replacing all the archive IDs they contain. 
 {% endswagger-parameter %}
@@ -135,7 +135,7 @@ Limit search to new archives only.
 Limit search to untagged archives only.
 {% endswagger-parameter %}
 
-{% swagger-parameter name="group_tanks" type="bool" required="false" in="query" %}
+{% swagger-parameter name="groupby_tanks" type="bool" required="false" in="query" %}
 Enable or disable Tankoubon grouping. Defaults to true.  
 When enabled, Tankoubons will show in search results, replacing all the archive IDs they contain. 
 {% endswagger-parameter %}
