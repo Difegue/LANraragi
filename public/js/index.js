@@ -932,7 +932,7 @@ Index.resizableColumns = function () {
     function resizeColumn(event) {
         if (currentHeader) {
             currentHeader.style.cursor = 'col-resize';
-            const newWidth = startWidth + (event.clientX - startX);
+            let newWidth = startWidth + (event.clientX - startX);
             const minWidth = parseInt(window.getComputedStyle(currentHeader).minWidth.replace('px', ''));
             const maxWidth = parseInt(window.getComputedStyle(currentHeader).maxWidth.replace('px', ''));
 
