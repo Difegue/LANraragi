@@ -362,14 +362,14 @@ Index.handleCustomSort = function () {
     const namespace = $("#namespace-sortby").val();
     const order = IndexTable.dataTable.order();
 
-    // Special case for title sorting, as that uses column 0
+    // Special case for title sorting, as that uses column 1
     if (namespace === "title") {
-        order[0][0] = 0;
-    } else {
-        // The order set in the combobox uses customColumn1
         order[0][0] = 1;
+    } else {
+        // The order set in the combobox uses is offset by 1: customColumn1 is index 2
+        order[0][0] = 2;
         localStorage.customColumn1 = namespace;
-        IndexTable.dataTable.settings()[0].aoColumns[1].sName = namespace;
+        IndexTable.dataTable.settings()[0].aoColumns[2].sName = namespace;
         Index.updateTableHeaders();
     }
 

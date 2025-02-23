@@ -287,28 +287,34 @@ IndexTable.drawCallback = function () {
             window.history.pushState(null, null, params);
         }
 
-        let currentSort = IndexTable.dataTable.order()[0][0];
+        const currentSort = IndexTable.dataTable.order()[0][0];
         const currentOrder = IndexTable.dataTable.order()[0][1];
 
         // Save sort/order/page to localStorage
         localStorage.indexSort = currentSort;
         localStorage.indexOrder = currentOrder;
 
-        // Using double equals here since the sort column can be either a string or an int
-        // eslint-disable-next-line eqeqeq
-        // get current columns count, except title and tags 
-        const currentCustomColumnCount = IndexTable.dataTable.columns().count() - 2;
-        // check currentSort, if out of range, back to use title
-        if (currentSort > currentCustomColumnCount) {
-            localStorage.indexSort = 0;
-        }
-        if (currentSort >= 1 && currentSort <= columnCount.value) {
-            currentSort = localStorage[`customColumn${currentSort}`] || `Header ${currentSort}`;
+        /**
+         * Resolve sorting namespace based on index to column mapping:
+         * 0 => bookmark
+         * 1 => title
+         * 2 => customColumn1
+         * 3 => customColumn2
+         * ...
+         */
+        let sortNamespace;
+        if (currentSort === 1) {
+            sortNamespace = "title";
+        } else if (currentSort >= 2 && currentSort < (2 + Index.getColumnCount())) {
+            const customIndex = currentSort - 1;
+            sortNamespace = localStorage[`customColumn${customIndex}`] || `Header ${customIndex}`;
+        } else if (currentSort === 0) {
+            sortNamespace = "bookmark";
         } else {
-            currentSort = "title";
+            sortNamespace = "title";
         }
 
-        Index.updateTableControls(currentSort, currentOrder, pageInfo.pages, pageInfo.page + 1);
+        Index.updateTableControls(sortNamespace, currentOrder, pageInfo.pages, pageInfo.page + 1);
 
         // Clear potential leftover tooltips
         tippy.hideAll();
@@ -343,7 +349,7 @@ IndexTable.consumeURLParameters = function () {
     if (params.has("q")) { IndexTable.currentSearch = decodeURIComponent(params.get("q")); }
 
     // Get order from URL, fallback to localstorage if available
-    const order = [[0, "asc"]];
+    const order = [[1, "asc"]];
 
     if (params.has("sort")) {
         order[0][0] = params.get("sort");
