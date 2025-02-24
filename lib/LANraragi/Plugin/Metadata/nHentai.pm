@@ -25,13 +25,16 @@ sub plugin_info {
         namespace   => "nhplugin",
         login_from  => "nhentaicfbypass",
         author      => "Difegue and others",
-        version     => "1.9",
+        version     => "1.10",
         description => "Searches nHentai for tags matching your archive.
           <br>Supports reading the ID from files formatted as \"{Id} Title\" and if not, tries to search for a matching gallery.
           <br><i class='fa fa-exclamation-circle'></i> This plugin will use the source: tag of the archive if it exists.",
         icon =>
           "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAIAAAAC64paAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA\nB3RJTUUH4wYCFA8s1yKFJwAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUH\nAAACL0lEQVQ4y6XTz0tUURQH8O+59773nLFcaGWTk4UUVCBFiJs27VxEQRH0AyRo4x8Q/Qtt2rhr\nU6soaCG0KYKSwIhMa9Ah+yEhZM/5oZMG88N59717T4sxM8eZCM/ycD6Xwznn0pWhG34mh/+PA8mk\n8jO5heziP0sFYwfgMDFQJg4IUjmquSFGG+OIlb1G9li5kykgTgvzSoUCaIYlo8/Igcjpj5wOkARp\n8AupP0uzJLijCY4zzoXOxdBLshAgABr8VOp7bpAXDEI7IBrhdksnjNr3WzI4LaIRV9fk2iAaYV/y\nA1dPiYjBAALgpQxnhV2XzTCAGWGeq7ACBvCdzKQyTH+voAm2hGlpcmQt2Bc2K+ymAhWPxTzPDQLt\nOKo1FiNBQaArq9WNRQwEgKl7XQ1duzSRSn/88vX0qf7DPQddx1nI5UfHxt+m0sLYPiP3shRAG8MD\nok1XEEXR/EI2ly94nrNYWG6Nx0/2Hp2b94dv34mlZge1e4hVCJ4jc6tl9ZP803n3/i4lpdyzq2N0\n7M3DkSeF5ZVYS8v1qxcGz5+5eey4nPDbmGdE9FpGeWErVNe2tTabX3r0+Nk3PwOgXFkdfz99+exA\nMtFZITEt9F23mpLG0hYTVQCKpfKPlZ/rqWKpYoAPcTmpginW76QBbb0OBaBaDdjaDbNlJmQE3/d0\nMYoaybU9126oPkrEhpr+U2wjtoVVGBowkslEsVSupRKdu0Mduq7q7kqExjSS3V2dvwDLavx0eczM\neAAAAABJRU5ErkJggg==",
-        parameters  => [ { type => "bool", desc => "Fetch date uploaded and set timestamp tag" } ],
+        parameters  => [
+            { type => "bool", desc => "Fetch date uploaded and set timestamp tag" },
+            { type => "bool", desc => "Fetch number of favorites and set nhentai_favorites tag" }
+        ],
         oneshot_arg => "nHentai Gallery URL (Will attach tags matching this exact gallery to your archive)"
     );
 
@@ -43,7 +46,7 @@ sub get_tags {
     shift;
     my $lrr_info = shift;                      # Global info hash
     my $ua       = $lrr_info->{user_agent};    # UserAgent from login plugin
-    my ($add_uploaded) = @_;                   # Parameters
+    my ($add_uploaded, $add_num_favorites) = @_;                   # Parameters
 
     my $logger = get_plugin_logger();
 
@@ -78,7 +81,7 @@ sub get_tags {
 
     $logger->debug("Detected nHentai gallery ID is $galleryID");
 
-    my %hashdata = get_tags_from_NH( $galleryID, $ua, $add_uploaded );
+    my %hashdata = get_tags_from_NH( $galleryID, $ua, $add_uploaded, $add_num_favorites );
 
     $logger->info( "Sending the following tags to LRR: " . $hashdata{tags} );
 
@@ -219,9 +222,14 @@ sub get_upload_from_json {
     return $json->{"upload_date"};
 }
 
+sub get_favorites_from_json {
+    my ($json) = @_;
+    return $json->{"num_favorites"};
+}
+
 sub get_tags_from_NH {
 
-    my ( $gID, $ua, $add_uploaded ) = @_;
+    my ( $gID, $ua, $add_uploaded, $add_num_favorites ) = @_;
 
     my %hashdata = ( tags => "" );
 
@@ -233,6 +241,10 @@ sub get_tags_from_NH {
         if ($add_uploaded) {
             my @upload = get_upload_from_json($json);
             push( @tags, "timestamp:@upload");
+        }
+        if ($add_num_favorites) {
+            my @favorites = get_favorites_from_json($json);
+            push ( @tags, "nhentai_favorites:@favorites");
         }
         push( @tags, "source:nhentai.net/g/$gID" ) if ( @tags > 0 );
 

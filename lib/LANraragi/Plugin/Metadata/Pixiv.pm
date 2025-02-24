@@ -29,7 +29,7 @@ sub plugin_info {
         namespace   => "pixivmetadata",
         login_from  => "pixivlogin",
         author      => "psilabs-dev",
-        version     => "0.3",
+        version     => "0.4",
         description => "Retrieve metadata of a Pixiv artwork by its artwork ID.
             <br>Supports ID extraction from these file formats: \"{Id} Title\" or \"pixiv_{Id} Title\".
             <br>
@@ -45,7 +45,8 @@ sub plugin_info {
             {   type => 'string',
                 desc =>
                   'Comma-separated list of languages to support. Options: jp, en. Empty string defaults to original tags (jp) only.'
-            }
+            },
+            { type => "bool", desc => "Fetch number of bookmarks and set pixiv_bookmarks tag" }
         ],
         cooldown => 1
     );
@@ -59,7 +60,7 @@ sub get_tags {
     my $lrr_info            = shift;                     # Global info hash, contains various metadata provided by LRR
     my $ua                  = $lrr_info->{user_agent};
     my $logger              = get_plugin_logger();
-    my ($tag_languages_str) = @_;
+    my ($tag_languages_str, $add_num_bookmarks) = @_;
 
     my $illust_id = find_illust_id($lrr_info);
     if ( !$illust_id ) {
@@ -71,7 +72,7 @@ sub get_tags {
     $logger->debug("Retrieved Pixiv illustration ID = $illust_id");
 
     #Work your magic here - You can create subroutines below to organize the code better
-    my %metadata = get_metadata_from_illust_id( $illust_id, $ua, $tag_languages_str );
+    my %metadata = get_metadata_from_illust_id( $illust_id, $ua, $tag_languages_str, $add_num_bookmarks );
 
     #Otherwise, return the tags you've harvested.
     $logger->info( "Sending the following tags to LRR: " . $metadata{tags} );
@@ -296,9 +297,20 @@ sub get_summary_from_dto {
     return $summary;
 }
 
+sub get_bookmark_count_from_dto {
+    my ( $dto ) = @_;
+    my @tags;
+
+    my $bookmarks = $dto -> {"bookmarkCount"};
+    if ( defined $bookmarks ) {
+        push @tags, "pixiv_bookmarks:$bookmarks";
+    }
+    return @tags;
+}
+
 sub get_hash_metadata_from_json {
 
-    my ( $json, $illust_id, $tag_languages_str ) = @_;
+    my ( $json, $illust_id, $tag_languages_str, $add_num_bookmarks ) = @_;
     my $logger = get_plugin_logger();
     my %hashdata;
 
@@ -326,6 +338,12 @@ sub get_hash_metadata_from_json {
     my @upload_date_epoch_data = get_upload_date_from_dto( \%illust_dto );
     push( @lrr_tags, @create_date_epoch_data );
     push( @lrr_tags, @upload_date_epoch_data );
+
+    # add pixiv bookmark count
+    if ( $add_num_bookmarks ) {
+        my @bookmarks_data = get_bookmark_count_from_dto( \%illust_dto );
+        push ( @lrr_tags, @bookmarks_data );
+    }
 
     $hashdata{tags} = join( ', ', @lrr_tags );
 
@@ -404,7 +422,7 @@ sub get_html_from_illust_id {
 }
 
 sub get_metadata_from_illust_id {
-    my ( $illust_id, $ua, $tag_languages_str ) = @_;
+    my ( $illust_id, $ua, $tag_languages_str, $add_num_bookmarks ) = @_;
     my $logger = get_plugin_logger();
 
     # initialize hash.
@@ -418,7 +436,7 @@ sub get_metadata_from_illust_id {
 
     my $json = get_json_from_html($html);
     if ($json) {
-        %hashdata = get_hash_metadata_from_json( $json, $illust_id, $tag_languages_str );
+        %hashdata = get_hash_metadata_from_json( $json, $illust_id, $tag_languages_str, $add_num_bookmarks );
     }
 
     return %hashdata;
