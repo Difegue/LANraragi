@@ -88,9 +88,6 @@ sub startup {
         die;
     }
 
-    # Load i18n
-    LANraragi::Utils::I18NInitializer::initialize($self);
-
     # Catch Redis errors on our first connection. This is useful in case of temporary LOADING errors,
     # Where Redis lets us send commands but doesn't necessarily reply to them properly.
     # (https://github.com/redis/redis/issues/4624)
@@ -103,6 +100,9 @@ sub startup {
         say "Trying again in 2 seconds...";
         sleep 2;
     }
+
+    # Load i18n
+    LANraragi::Utils::I18NInitializer::initialize($self);
 
     # Check old settings and migrate them if needed
     if ( $self->LRR_CONF->get_redis->keys('LRR_*') ) {
