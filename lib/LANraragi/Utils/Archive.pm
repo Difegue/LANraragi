@@ -12,6 +12,7 @@ use File::Basename;
 use File::Path qw(remove_tree make_path);
 use File::Find qw(finddepth);
 use File::Copy qw(move);
+use File::Temp qw(tempfile);
 use Encode;
 use Encode::Guess qw/euc-jp shiftjis 7bit-jis/;
 use Redis;
@@ -24,13 +25,13 @@ use File::Temp qw(tempdir);
 
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging    qw(get_logger);
-use LANraragi::Utils::Generic    qw(is_image shasum);
+use LANraragi::Utils::Generic    qw(is_image shasum shasum_str);
 
 # Utilitary functions for handling Archives.
 # Relies on Libarchive, ImageMagick and GhostScript for PDFs.
 use Exporter 'import';
 our @EXPORT_OK =
-  qw(is_file_in_archive extract_file_from_archive extract_single_file extract_archive extract_thumbnail generate_thumbnail get_filelist);
+  qw(is_file_in_archive extract_file_from_archive extract_single_file extract_single_file_to_ram extract_archive extract_thumbnail extract_thumbnail_to_ram generate_thumbnail get_filelist);
 
 sub is_pdf {
     my ( $filename, $dirs, $suffix ) = fileparse( $_[0], qr/\.[^.]*/ );
@@ -40,7 +41,7 @@ sub is_pdf {
 # use ImageMagick to make a thumbnail, height = 500px (view in index is 280px tall)
 # If use_hq is true, the scale algorithm will be used instead of sample.
 # If use_jxl is true, JPEG XL will be used instead of JPEG.
-sub generate_thumbnail ( $orig_path, $thumb_path, $use_hq, $use_jxl ) {
+sub generate_thumbnail ( $data, $use_hq, $use_jxl ) {
 
     no warnings 'experimental::try';
     try {
@@ -56,12 +57,14 @@ sub generate_thumbnail ( $orig_path, $thumb_path, $use_hq, $use_jxl ) {
             $img->Set( option => 'jpeg:size=500x' );
         }
 
+        # TODO: Figure out if this is possible with BlobToImage
         # If the image is a gif, only take the first frame
-        if ( $orig_path =~ /\.gif$/ ) {
-            $img->Read( $orig_path . "[0]" );
-        } else {
-            $img->Read($orig_path);
-        }
+        #if ( $orig_path =~ /\.gif$/ ) {
+        #    $img->Read( $orig_path . "[0]" );
+        #} else {
+        #    $img->Read($orig_path);
+        #}
+        $img->BlobToImage($data);
 
         # The "-scale" resize operator is a simplified, faster form of the resize command.
         if ($use_hq) {
@@ -71,8 +74,7 @@ sub generate_thumbnail ( $orig_path, $thumb_path, $use_hq, $use_jxl ) {
         }
 
         $img->Set( quality => "50", magick => $format );
-        $img->Write($thumb_path);
-        undef $img;
+        return $img->ImageToBlob();
     } catch ($e) {
 
         # Magick is unavailable, do nothing
@@ -161,16 +163,17 @@ sub extract_pdf ( $destination, $to_extract ) {
 # Specify $set_cover if you want the given to page to be placed as the cover thumbnail instead.
 # Thumbnails will be generated at low quality by default unless you specify use_hq=1.
 sub extract_thumbnail ( $thumbdir, $id, $page, $set_cover, $use_hq ) {
+    my $data = extract_thumbnail_to_ram($id, $page, $set_cover, $use_hq);
+    # TODO: Remove or reimplement (save to disk, etc). Mainly for preloading I guess?
+    return;
+}
+
+sub extract_thumbnail_to_ram ( $id, $page, $set_cover, $use_hq ) {
 
     my $logger = get_logger( "Archive", "lanraragi" );
 
     # JPG is used for thumbnails by default
     my $use_jxl = LANraragi::Model::Config->get_jxlthumbpages;
-    my $format  = $use_jxl ? 'jxl' : 'jpg';
-
-    # Another subfolder with the first two characters of the id is used for FS optimization.
-    my $subfolder = substr( $id, 0, 2 );
-    make_path("$thumbdir/$subfolder");
 
     my $redis = LANraragi::Model::Config->get_redis;
     my $file  = $redis->hget( $id, "file" );
@@ -186,38 +189,21 @@ sub extract_thumbnail ( $thumbdir, $id, $page, $set_cover, $use_hq ) {
     $logger->debug("Extracting thumbnail for $id page $page from $requested_image");
 
     # Extract requested image to temp dir if it doesn't already exist
-    my $temppath     = tempdir();
-    my $archive_temp = get_temp();
-    my $arcimg       = "$archive_temp/$id/$requested_image";
+    my $arcimg = extract_single_file_to_ram( $file, $requested_image );
 
-    unless ( -e $arcimg ) {
-        $arcimg = extract_single_file( $file, $requested_image, $temppath );
-    }
-
-    my $thumbname;
-    unless ($set_cover) {
-
-        # Non-cover thumbnails land in a dedicated folder.
-        $thumbname = "$thumbdir/$subfolder/$id/$page.$format";
-        make_path("$thumbdir/$subfolder/$id");
-    } else {
-
-        $thumbname = "$thumbdir/$subfolder/$id.$format";
-
+    if ($set_cover) {
         # For cover thumbnails, grab the SHA-1 hash for tag research.
         # That way, no need to repeat a costly extraction later.
-        my $shasum = shasum( $arcimg, 1 );
+        my $shasum = shasum_str( $arcimg, 1 );
         $logger->debug("Setting thumbnail hash: $shasum");
         $redis->hset( $id, "thumbhash", $shasum );
         $redis->quit();
     }
 
     # Thumbnail generation
-    generate_thumbnail( $arcimg, $thumbname, $use_hq, $use_jxl );
+    my $data = generate_thumbnail( $arcimg, $use_hq, $use_jxl );
 
-    # Clean up safe folder
-    remove_tree($temppath);
-    return $thumbname;
+    return $data;
 }
 
 #magical sort function used below
@@ -367,6 +353,44 @@ sub extract_single_file ( $archive, $filepath, $destination ) {
     }
 
     return $outfile;
+}
+
+sub extract_single_file_to_ram ( $archive, $filepath ) {
+
+    my $logger = get_logger( "Archive", "lanraragi" );
+
+    # Remove file from $outfile and hand the full directory to make_path
+    if ( is_pdf($archive) ) {
+
+        # For pdfs the filenames are always x.jpg, so we pull the page number from that
+        my $page = $filepath;
+        $page =~ s/^(\d+).jpg$/$1/;
+
+        my ( $fh, $outfile ) = tempfile();
+        my $gscmd = "gs -dNOPAUSE -dFirstPage=$page -dLastPage=$page -sDEVICE=jpeg -r200 -o '$outfile' '$archive'";
+        $logger->debug("Extracting page $filepath from PDF $archive");
+        $logger->debug($gscmd);
+
+        `$gscmd`;
+        return Mojo::File->new($outfile)->slurp;
+    } else {
+
+        my $contents = "";
+        my $peek     = Archive::Libarchive::Peek->new( filename => $archive );
+        my @files    = $peek->files;
+
+        for my $name (@files) {
+            my $decoded_name = LANraragi::Utils::Database::redis_decode($name);
+
+            # This sub can receive either encoded or raw filenames, so we have to test for both.
+            if ( $decoded_name eq $filepath || $name eq $filepath ) {
+                $logger->debug("Found file $filepath in archive $archive");
+                $contents = $peek->file($name);
+                last;
+            }
+        }
+        return $contents;
+    }
 }
 
 # Variant for plugins.

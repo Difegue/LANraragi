@@ -18,6 +18,8 @@ services:
     image: "docker.io/redis:7"
     volumes:
       - redis_data:/data
+    command: [ "redis-server", "--maxmemory", "500mb", "--maxmemory-policy", "volatile-lru" ]
+
     networks:
       - lrr
 
