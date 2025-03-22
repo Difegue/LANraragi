@@ -1,5 +1,9 @@
 /* Global LANraragi CSS. Don't mess !*/
 
+html {
+  scroll-snap-type: y mandatory;
+}
+
 body {
   touch-action: manipulation;
 }
@@ -287,6 +291,7 @@ p#nb {
   user-select: none;
   align-self: center;
   cursor: pointer;
+  scroll-snap-align: end; /* Snap to the bottom of the current image */
 }
 
 .caption-reader {
