@@ -315,16 +315,76 @@ Reader.handleShortcuts = function (e) {
     case 27: // escape
         LRR.closeOverlay();
         break;
-    case 32: // spacebar
-        if ($(".page-overlay").is(":visible")) { break; }
-        if (e.originalEvent.getModifierState("Shift") && (window.scrollY) === 0) {
-            (Reader.mangaMode) ? Reader.changePage(1) : Reader.changePage(-1);
-        } else if (($(window).height() + $(window).scrollTop()) >= LRR.getDocHeight()) {
-            (Reader.mangaMode) ? Reader.changePage(-1) : Reader.changePage(1);
+case 32: // Spacebar
+    if ($(".page-overlay").is(":visible")) break; // Skip if overlay is visible
+
+    const isShift = e.originalEvent.getModifierState("Shift");
+    const windowHeight = window.innerHeight;
+    const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+    const images = Array.from(document.querySelectorAll(".reader-image"));
+    const currentImageIndex = images.findIndex((img) => {
+        const rect = img.getBoundingClientRect();
+        return rect.top <= windowHeight / 2 && rect.bottom >= windowHeight / 2;
+    });
+
+    if (currentImageIndex !== -1) {
+        const currentImage = images[currentImageIndex];
+        const rect = currentImage.getBoundingClientRect();
+        const imageTop = rect.top + scrollTop; // Absolute top of the current image
+        const imageBottom = rect.bottom + scrollTop; // Absolute bottom of the current image
+
+        if (isShift) {
+            // Shift + Space: Scroll up
+            const scrollUpAmount = windowHeight;
+            const newScrollTop = scrollTop - scrollUpAmount;
+
+            // Check if already at the top of the image
+            if (scrollTop <= imageTop) {
+                // Scroll to the bottom of the previous image
+                if (!Reader.infiniteScroll) {
+                    Reader.changePage(-1); // Switch Page normally if not in inf scroll
+                } else if (currentImageIndex > 0) {
+                    const prevImage = images[currentImageIndex - 1];
+                    const prevImageBottom = prevImage.getBoundingClientRect().bottom + scrollTop;
+                    window.scrollTo({ top: prevImageBottom - windowHeight, behavior: "smooth" });
+                }
+            } else if (newScrollTop < imageTop) {
+                // Snap to the top of the current image
+                window.scrollTo({ top: imageTop, behavior: "smooth" });
+            } else if (scrollTop - imageTop <= windowHeight * 0.15) {
+                // If within 15% of the top, snap to the top
+                window.scrollTo({ top: imageTop, behavior: "smooth" });
+            } else {
+                // Scroll up normally
+                window.scrollTo({ top: newScrollTop, behavior: "smooth" });
+            }
+        } else {
+            // Space: Scroll down
+            const scrollDownAmount = windowHeight;
+            const newScrollTop = scrollTop + scrollDownAmount;
+
+            // If already at bottom of page, go to next
+            if (scrollTop >= imageBottom - windowHeight) {
+                if (!Reader.infiniteScroll) {
+                    Reader.changePage(1); // Switch Page normally if not in inf scroll
+                } else if (currentImageIndex < images.length - 1) {
+                    const nextImage = images[currentImageIndex + 1];
+                    const nextImageTop = nextImage.getBoundingClientRect().top + scrollTop;
+                    window.scrollTo({ top: nextImageTop, behavior: "smooth" });
+                }
+            } else if (newScrollTop > imageBottom - windowHeight) {
+                // Snap to the bottom of the current image
+                window.scrollTo({ top: imageBottom - windowHeight, behavior: "smooth" });
+            } else if (imageBottom - (scrollTop + windowHeight) <= windowHeight * 0.15) {
+                // If within 15% of the bottom, snap to the bottom
+                window.scrollTo({ top: imageBottom - windowHeight, behavior: "smooth" });
+            } else {
+                // Scroll down normally
+                window.scrollTo({ top: newScrollTop, behavior: "smooth" });
+            }
         }
-        // spacebar is always forward regardless of reading direction, so it needs to be flipped
-        // to always result in a positive offset when it reaches the changePage() logic
-        break;
+    }
+    break;
     case 37: // left arrow
     case 65: // a
         Reader.changePage(-1);
