@@ -445,6 +445,16 @@ Reader.toggleBookmark = function(e) {
         return;
     };
 
+    if (!LRR.isUserLogged()) {
+        LRR.toast({
+            heading: "Login Required",
+            text: "Login to toggle bookmark feature.",
+            icon: "warning",
+            hideAfter: 5000,
+        });
+        return;
+    }
+
     if ($(".toggle-bookmark").hasClass("fas fa-bookmark")) {
         // Remove from category
         Server.removeArchiveFromCategory(Reader.id, localStorage.bookmarkCategoryId);
@@ -474,12 +484,16 @@ Reader.loadBookmarkStatus = function() {
                 .then(response => response.json()).then(categoryData => {
                     const isBookmarked = categoryData.archives.includes(Reader.id);
                     const bookmarkState = isBookmarked ? "fas" : "far";
+                    const disabledClass = LRR.isUserLogged() ? "" : " disabled";
                     const leftOptionsList = document.querySelectorAll(".absolute-options.absolute-left");
                     leftOptionsList.forEach(leftOption => {
                         let bookmark = document.createElement("a");
-                        bookmark.className = `${bookmarkState} fa-bookmark fa-2x toggle-bookmark`;
+                        bookmark.className = `${bookmarkState} fa-bookmark fa-2x toggle-bookmark${disabledClass}`;
                         bookmark.href = "#";
-                        bookmark.title = "[% c.lh('Bookmark') %]";
+                        bookmark.title = "Toggle Bookmark";
+                        if (!LRR.isUserLogged()) {
+                            bookmark.setAttribute("style", "opacity: 0.5; cursor: not-allowed;");
+                        }
                         leftOption.appendChild(bookmark);
                     })
                 })

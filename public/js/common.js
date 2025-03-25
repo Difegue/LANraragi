@@ -13,6 +13,15 @@ function _get_baseurl_cookie() {
     return val;
 }
 
+/**
+ * Helper function to get user logged status based on tt2 userLogged attribute.
+ * @returns true if user is logged in, else false.
+ */
+LRR.isUserLogged = function() {
+    const value = document.body.dataset.userLogged;
+    return value === '1';
+};
+
 // This class is used to wrap URLs that point into the app, including
 // API endpoints and browser targets. It reads the configured base URL
 // from the template, then prepends it to the provided URL in the
@@ -271,7 +280,8 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
     if ( LRR.bookmarkLinkConfigured() ) {
         const isBookmarked = localStorage.bookmarkedArchives.includes(id);
         const bookmarkClass = isBookmarked ? "fas fa-bookmark" : "far fa-bookmark";
-        bookmarkIcon = `<i id="${id}" class="${bookmarkClass} thumbnail-bookmark-icon"></i>`;
+        const disabledClass = LRR.isUserLogged() ? "" : " disabled";
+        bookmarkIcon = `<i id="${id}" class="${bookmarkClass} thumbnail-bookmark-icon${disabledClass}" title="Toggle Bookmark" ${!LRR.isUserLogged() ? 'style="opacity: 0.5; cursor: not-allowed;"' : ''}></i>`;
     } else {
         bookmarkIcon = ``;
     }

@@ -165,7 +165,9 @@ IndexTable.renderBookmark = function (data, type) {
     if ( LRR.bookmarkLinkConfigured() ) {
         const isBookmarked = localStorage.bookmarkedArchives.includes(data.arcid);
         if (type === "display") {
-            return `<input class="bookmark-checkbox" id="${data.arcid}" type="checkbox" ${isBookmarked ? 'checked' : ''}>`;
+            const disabledAttr = LRR.isUserLogged() ? '' : 'disabled';
+            const disabledStyle = LRR.isUserLogged() ? '' : 'style="opacity: 0.5; cursor: not-allowed;"';
+            return `<input class="bookmark-checkbox" id="${data.arcid}" type="checkbox" title="Toggle Bookmark" ${isBookmarked ? 'checked' : ''} ${disabledAttr} ${disabledStyle}>`;
         }
         return isBookmarked;
     }

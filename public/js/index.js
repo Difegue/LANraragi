@@ -182,6 +182,17 @@ Index.toggleBookmarkStatusByCheckbox = function (e) {
 Index.toggleBookmarkStatusByIcon = function (e) {
     const icon = e.currentTarget;
     const id = icon.id;
+
+    if (!LRR.isUserLogged()) {
+        LRR.toast({
+            heading: "Login Required",
+            text: "Login to toggle bookmark feature.",
+            icon: "warning",
+            hideAfter: 5000,
+        });
+        return;
+    }
+
     if (icon.classList.contains("far")) {
         Server.addArchiveToCategory(id, localStorage.bookmarkCategoryId);
         Index.bookmarkIconOn(id);

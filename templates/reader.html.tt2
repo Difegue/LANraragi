@@ -40,7 +40,7 @@
     </script>
 </head>
 
-<body>
+<body data-user-logged="[% userlogged %]">
 
     <div id="i1" class="sni">
         <div id="i2">
