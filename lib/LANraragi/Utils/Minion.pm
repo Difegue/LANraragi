@@ -35,7 +35,7 @@ sub add_tasks {
             my $thumbname = "";
 
             # Take a shortcut here - Minion jobs can keep the old basic behavior of page 0 = cover.
-            eval { $thumbname = extract_thumbnail( $thumbdir, $id, $page, $page eq 0, $use_hq ); };
+            eval { $thumbname = extract_thumbnail( $id, $page, $page eq 0, $use_hq ); };
             if ($@) {
                 my $msg = "Error building thumbnail: $@";
                 $logger->error($msg);
@@ -92,7 +92,7 @@ sub add_tasks {
                             my $thumbname = "$thumbdir/$subfolder/$id/$i.$format";
                             unless ( $force == 0 && -e $thumbname ) {
                                 $logger->debug("Generating thumbnail for page $i... ($thumbname)");
-                                eval { $thumbname = extract_thumbnail( $thumbdir, $id, $i, 0, $use_hq ); };
+                                eval { $thumbname = extract_thumbnail( $id, $i, 0, $use_hq ); };
                                 if ($@) {
                                     $logger->warn("Error while generating thumbnail: $@");
                                     push @errors, $@;
@@ -148,7 +148,7 @@ sub add_tasks {
                             unless ( $force == 0 && -e $thumbname ) {
                                 eval {
                                     $logger->debug("Regenerating for $id...");
-                                    extract_thumbnail( $thumbdir, $id, 0, 1, 1 );
+                                    extract_thumbnail( $id, 0, 1, 1 );
                                 };
 
                                 if ($@) {

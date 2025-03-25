@@ -146,7 +146,7 @@ sub handle_incoming_file ( $tempfile, $catid, $tags, $title, $summary ) {
 
     # Generate thumbnail
     my $thumbdir = LANraragi::Model::Config->get_thumbdir;
-    extract_thumbnail( $thumbdir, $id, 1, 1, 1 );
+    extract_thumbnail( $id, 1, 1, 1 );
 
     $logger->debug("Running autoplugin on newly uploaded file $id...");
 

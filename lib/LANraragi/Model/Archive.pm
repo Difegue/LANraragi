@@ -19,7 +19,7 @@ use LANraragi::Utils::Generic    qw(render_api_response);
 use LANraragi::Utils::String     qw(trim trim_CRLF);
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging    qw(get_logger);
-use LANraragi::Utils::Archive    qw(extract_single_file extract_single_file_to_ram extract_thumbnail extract_thumbnail_to_ram);
+use LANraragi::Utils::Archive    qw(extract_single_file extract_single_file extract_thumbnail);
 use LANraragi::Utils::Database
   qw(redis_encode redis_decode invalidate_cache set_title set_tags set_summary get_archive_json get_archive_json_multi);
 use LANraragi::Utils::PageCache;
@@ -73,7 +73,7 @@ sub update_thumbnail {
     # Get the required thumbnail we want to make the main one
     no warnings 'experimental::try';
     try {
-        $newthumb = extract_thumbnail( $thumbdir, $id, $page, 1, 1 )
+        $newthumb = extract_thumbnail( $id, $page, 1, 1 )
     } catch ($e) {
         render_api_response( $self, "update_thumbnail", $e );
         return;
@@ -203,7 +203,7 @@ sub serve_thumbnail {
 
     my $thumbnail = LANraragi::Utils::PageCache::fetch($cachekey);
     if (!defined($thumbnail)) {
-        $thumbnail = extract_thumbnail_to_ram($id, $page, $page eq 0, $use_hq);
+        $thumbnail = extract_thumbnail($id, $page, $page eq 0, $use_hq);
         if (defined($thumbnail)) {
             LANraragi::Utils::PageCache::put($cachekey, $thumbnail);
 
@@ -222,7 +222,7 @@ sub get_page_data ($id, $path) {
         my $redis = LANraragi::Model::Config->get_redis;
         my $archive = $redis->hget($id, "file");
         $redis->quit();
-        $content = extract_single_file_to_ram($archive, $path);
+        $content = extract_single_file($archive, $path);
         LANraragi::Utils::PageCache::put($cachekey, $content);
     }
     return $content;

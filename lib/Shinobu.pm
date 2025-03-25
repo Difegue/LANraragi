@@ -331,8 +331,8 @@ sub add_new_file ( $id, $file ) {
         LANraragi::Utils::Database::add_pagecount( $redis, $id );
 
         # Generate thumbnail
-        my $thumbdir = LANraragi::Model::Config->get_thumbdir;
-        extract_thumbnail( $thumbdir, $id, 1, 1, 1 );
+        # TODO: This might not be a good idea. Might just end up evicting stuff from PageCache
+        extract_thumbnail( $id, 1, 1, 1 );
 
         # AutoTagging using enabled plugins goes here!
         LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
