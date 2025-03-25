@@ -13,6 +13,11 @@ function _get_baseurl_cookie() {
     return val;
 }
 
+// Shared i18n strings across client-side code.
+LRR.i18n = {
+    toggleBookmark: "Toggle Bookmark"
+};
+
 // This class is used to wrap URLs that point into the app, including
 // API endpoints and browser targets. It reads the configured base URL
 // from the template, then prepends it to the provided URL in the
@@ -281,7 +286,8 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
         const isBookmarked = localStorage.bookmarkedArchives.includes(id);
         const bookmarkClass = isBookmarked ? "fas fa-bookmark" : "far fa-bookmark";
         const disabledClass = LRR.isUserLogged() ? "" : " disabled";
-        bookmarkIcon = `<i id="${id}" class="${bookmarkClass} thumbnail-bookmark-icon${disabledClass}" title="Toggle Bookmark" ${!LRR.isUserLogged() ? 'style="opacity: 0.5; cursor: not-allowed;"' : ''}></i>`;
+        const bookmarkTitle = LRR.i18n.toggleBookmark;
+        bookmarkIcon = `<i id="${id}" class="${bookmarkClass} thumbnail-bookmark-icon${disabledClass}" title="${bookmarkTitle}" ${!LRR.isUserLogged() ? 'style="opacity: 0.5; cursor: not-allowed;"' : ''}></i>`;
     } else {
         bookmarkIcon = ``;
     }
