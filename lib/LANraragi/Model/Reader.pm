@@ -18,7 +18,7 @@ use URI::Escape;
 
 use LANraragi::Utils::Generic  qw(is_image shasum);
 use LANraragi::Utils::Logging  qw(get_logger);
-use LANraragi::Utils::Archive  qw(extract_archive get_filelist);
+use LANraragi::Utils::Archive  qw(get_filelist);
 use LANraragi::Utils::Database qw(redis_decode);
 
 # resize_image(image,quality, size_threshold)
@@ -71,14 +71,6 @@ sub resize_image ( $content, $quality, $threshold ) {
 # build_reader_JSON(mojo, id, forceReload)
 # Opens the archive specified by its ID, and returns a json containing the page names.
 sub build_reader_JSON ( $self, $id, $force ) {
-
-    # Queue a full extract job into Minion.
-    # This'll fill in the missing pages (or regen everything if force = 1)
-    my $jobid = $self->minion->enqueue(
-        extract_archive => [ $id, $force ],
-        { priority => 4 }
-    );
-
     # Get the path from Redis.
     # Filenames are stored as they are on the OS, so no decoding!
     my $redis   = LANraragi::Model::Config->get_redis;
@@ -121,9 +113,6 @@ sub build_reader_JSON ( $self, $id, $force ) {
 
     return {
         pages => \@images_browser,
-
-        # filesizes => \@sizes,
-        job => $jobid
     };
 }
 

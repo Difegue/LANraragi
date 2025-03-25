@@ -31,7 +31,7 @@ use LANraragi::Utils::Generic    qw(is_image shasum shasum_str);
 # Relies on Libarchive, ImageMagick and GhostScript for PDFs.
 use Exporter 'import';
 our @EXPORT_OK =
-  qw(is_file_in_archive extract_file_from_archive extract_single_file extract_archive extract_thumbnail generate_thumbnail get_filelist);
+  qw(is_file_in_archive extract_file_from_archive extract_single_file extract_thumbnail generate_thumbnail get_filelist);
 
 sub is_pdf {
     my ( $filename, $dirs, $suffix ) = fileparse( $_[0], qr/\.[^.]*/ );
@@ -81,55 +81,6 @@ sub generate_thumbnail ( $data, $use_hq, $use_jxl ) {
         my $logger = get_logger( "Archive", "lanraragi" );
         $logger->debug("ImageMagick is not available , skipping thumbnail generation: $e");
     }
-}
-
-# Extract the given archive to the given path.
-# This sub won't re-extract files already present in the destination unless force = 1.
-sub extract_archive ( $destination, $to_extract, $force_extract ) {
-
-    my $logger = get_logger( "Archive", "lanraragi" );
-    $logger->debug("Fully extracting archive $to_extract");
-
-    # PDFs are handled by Ghostscript (alas)
-    if ( is_pdf($to_extract) ) {
-        return extract_pdf( $destination, $to_extract );
-    }
-
-    # Prepare libarchive with a callback to skip over existing files (unless force=1)
-    my $ae = Archive::Libarchive::Extract->new(
-        filename => $to_extract,
-        entry    => sub {
-            my $e = shift;
-            if ($force_extract) { return 1; }
-
-            my $filename = $e->pathname;
-            if ( -e "$destination/$filename" ) {
-                $logger->debug("$filename already exists in $destination");
-                return 0;
-            }
-            $logger->debug("Extracting $filename");
-
-            # Pre-emptively create the file to signal we're working on it
-            open( my $fh, ">", "$destination/$filename" )
-              or
-              $logger->error("Couldn't create placeholder file $destination/$filename (might be a folder?), moving on nonetheless");
-            close $fh;
-            return 1;
-        }
-    );
-
-    # Extract to $destination. This method throws if extraction fails.
-    $ae->extract( to => $destination );
-
-    # Get extraction folder
-    my $result_dir = $ae->to;
-    my $cwd        = getcwd();
-
-    # chdir back to the base cwd in case finddepth died midway
-    chdir $cwd;
-
-    # Return the directory we extracted the files to.
-    return $result_dir;
 }
 
 sub extract_pdf ( $destination, $to_extract ) {
