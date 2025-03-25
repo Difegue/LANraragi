@@ -13,15 +13,6 @@ function _get_baseurl_cookie() {
     return val;
 }
 
-/**
- * Helper function to get user logged status based on tt2 userLogged attribute.
- * @returns true if user is logged in, else false.
- */
-LRR.isUserLogged = function() {
-    const value = document.body.dataset.userLogged;
-    return value === '1';
-};
-
 // This class is used to wrap URLs that point into the app, including
 // API endpoints and browser targets. It reads the configured base URL
 // from the template, then prepends it to the provided URL in the
@@ -52,6 +43,15 @@ LRR.apiURL = class {
         // leave the load URL unchanged
         return LRR.apiURL.base_url + this.load_url;
     }
+};
+
+/**
+ * Helper function to get user logged status based on tt2 userLogged attribute.
+ * @returns true if user is logged in, else false.
+ */
+LRR.isUserLogged = function() {
+    const value = document.body.dataset.userLogged;
+    return value === '1';
 };
 
 /**
