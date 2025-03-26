@@ -7,19 +7,33 @@ use warnings;
 use utf8;
 
 use LANraragi::Utils::Logging  qw(get_logger);
+use CHI;
+use LANraragi::Utils::TempFolder qw(get_temp);
 
 # Contains all functions related to caching entire pages
 use Exporter 'import';
 our @EXPORT_OK = qw(fetch put);
 
+my $cache = undef;
+
+sub initialize() {
+    $cache = CHI->new(
+        driver     => 'FastMmap',
+        cache_size => LANraragi::Model::Config->get_tempmaxsize,
+        root_dir => get_temp,
+        l1_cache => { driver => 'Memory', global => 1, max_size => 1024*1024 }
+    );
+}
+
 # Fetches data from cache if available. Returns undef if nothing is there
 sub fetch( $key ) {
+    if (!defined($cache)) {
+        initialize;
+    }
     my $logger = get_logger( "PageCache", "lanraragi" );
     $logger->debug("Fetch $key");
 
-    # TODO: Implement filesystem caching, if that's needed!
-    my $redis  = LANraragi::Model::Config->get_redis;
-    my $content = $redis->get($key);
+    my $content = $cache->get($key);
     if (defined $content) {
         $logger->debug("Cache HIT for $key");
     } else {
@@ -30,14 +44,13 @@ sub fetch( $key ) {
 
 # Attempts to store data in the cache. Do not assume that fetch will work immediately after, cache may be disabled etc
 sub put( $key, $content ) {
+    if (!defined($cache)) {
+        initialize;
+    }
     my $logger = get_logger( "PageCache", "lanraragi" );
     $logger->debug("Put $key");
 
-    # TODO: Implement filesystem caching, if that's needed!
-    my $redis  = LANraragi::Model::Config->get_redis;
-
-    # Some random long expiry
-    $redis->set($key,  $content, 'EX', 999999);
+    $cache->set($key, $content);
 }
 
 1;
