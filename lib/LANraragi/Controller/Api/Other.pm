@@ -118,6 +118,26 @@ sub regen_thumbnails {
     );
 }
 
+# Queue the find_duplicates Minion job.
+sub find_duplicates {
+    my $self      = shift;
+    my $threshold = 5;
+
+    if ($self->req->param('threshold')) {
+        $threshold = int($self->req->param('threshold'));
+    }
+
+    my $jobid = $self->minion->enqueue( find_duplicates => [ $threshold ] => { priority => 0 } );
+
+    $self->render(
+        json => {
+            operation => "find_duplicates",
+            success   => 1,
+            job       => $jobid
+        }
+    );
+}
+
 sub download_url {
     my ($self) = shift;
     my $url    = $self->req->param('url');
