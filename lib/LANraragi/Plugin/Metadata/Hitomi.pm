@@ -104,7 +104,7 @@ sub get_js_from_hitomi {
 
     my $logger = get_plugin_logger();
 
-    my $gJS = "https://ltn.hitomi.la/galleries/$gID.js";
+    my $gJS = "https://ltn.gold-usergeneratedcontent.net/galleries/$gID.js";
 
     $logger->debug("Hitomi JS: $gJS");
 
