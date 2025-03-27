@@ -1159,6 +1159,9 @@ Reader.handlePaginator = function () {
 };
 
 Reader.readPreviousArchive = function () {
+    if (window.fscreen.inFullscreen()) {
+        return;
+    }
     if (Reader.previousArchiveId !== null) {
         const newUrl = new LRR.apiURL(`/reader?id=${Reader.previousArchiveId}`).toString();
         history.replaceState(null, '', newUrl);
@@ -1169,6 +1172,9 @@ Reader.readPreviousArchive = function () {
 }
 
 Reader.readNextArchive = function () {
+    if (window.fscreen.inFullscreen()) {
+        return;
+    }
     if (Reader.nextArchiveId !== null) {
         const newUrl = new LRR.apiURL(`/reader?id=${Reader.nextArchiveId}`).toString();
         history.replaceState(null, '', newUrl);
