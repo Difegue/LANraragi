@@ -490,7 +490,7 @@ Reader.loadBookmarkStatus = function() {
                         let bookmark = document.createElement("a");
                         bookmark.className = `${bookmarkState} fa-bookmark fa-2x toggle-bookmark${disabledClass}`;
                         bookmark.href = "#";
-                        bookmark.title = "Toggle Bookmark";
+                        bookmark.title = LRR.i18n.toggleBookmark;
                         if (!LRR.isUserLogged()) {
                             bookmark.setAttribute("style", "opacity: 0.5; cursor: not-allowed;");
                         }

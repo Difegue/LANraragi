@@ -7,3 +7,10 @@
     [% END %]
     Powered by <a href="https://github.com/Difegue/LANraragi"> LANraragi.</a>
 </p>
+
+<!-- i18n client-side access -->
+<script>
+    if (typeof LRR !== 'undefined' && LRR.i18n) {
+        LRR.i18n.toggleBookmark = "[% c.lh('Toggle Bookmark') %]";
+    }
+</script>

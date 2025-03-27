@@ -172,6 +172,9 @@ msgstr "If you select a Static Category, your archives will appear here so you c
 msgid "Return to Library"
 msgstr "Return to Library"
 
+msgid "Link Bookmark Icon to this Category"
+msgstr "Link Bookmark Icon to this Category"
+
 # ------End of Category.html.tt2------
 
 # ------Start of Config.html.tt2------
@@ -1028,6 +1031,8 @@ msgstr "Archive Overview"
 msgid "FullScreen"
 msgstr "FullScreen"
 
+msgid "Toggle Bookmark"
+msgstr "Toggle Bookmark"
 # ------End of Reader.html.tt2------
 
 # ------Start of Stats.html.tt2------
