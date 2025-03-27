@@ -37,7 +37,11 @@ Reader.initializeAll = function () {
     $(document).on("click.pagination-change-pages", ".page-link", Reader.handlePaginator);
 
     $(document).on("click.close-overlay", "#overlay-shade", LRR.closeOverlay);
-    $(document).on("click.toggle-full-screen", "#toggle-full-screen", () => Reader.handleFullScreen(true));
+    $(document).on("click.toggle-full-screen", "#toggle-full-screen", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        Reader.handleFullScreen(true);
+    });
     $(document).on("click.toggle-archive-overlay", "#toggle-archive-overlay", Reader.toggleArchiveOverlay);
     $(document).on("click.toggle-settings-overlay", "#toggle-settings-overlay", Reader.toggleSettingsOverlay);
     $(document).on("click.toggle-help", "#toggle-help", Reader.toggleHelp);
@@ -351,10 +355,22 @@ Reader.handleShortcuts = function (e) {
         // to always result in a positive offset when it reaches the changePage() logic
         break;
     case 37: // left arrow
+        if (e.shiftKey) {
+            Reader.changePage("first");
+        } else {
+            Reader.changePage(-1);
+        }
+        break;
+    case 39: // right arrow
+        if (e.shiftKey) {
+            Reader.changePage("last");
+        } else {
+            Reader.changePage(1);
+        }
+        break;
     case 65: // a
         Reader.changePage(-1);
         break;
-    case 39: // right arrow
     case 68: // d
         Reader.changePage(1);
         break;
@@ -379,6 +395,12 @@ Reader.handleShortcuts = function (e) {
     case 82: // r
         if (e.ctrlKey || e.shiftKey || e.metaKey) { break; }
         document.location.href = new LRR.apiURL("/random");
+        break;
+    case 219: // [
+        Reader.readPreviousArchive();
+        break;
+    case 221: // ]
+        Reader.readNextArchive();
         break;
     default:
         break;
