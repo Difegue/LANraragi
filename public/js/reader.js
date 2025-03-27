@@ -137,7 +137,6 @@ Reader.initializeAll = function () {
     // Set up archive navigation state
     const navigationState = sessionStorage.getItem('navigationState');
     const archiveIdsJson = localStorage.getItem('archiveIds');
-    sessionStorage.removeItem('navigationState');
     if (navigationState === 'datatables' && archiveIdsJson) {
         try {
             const archiveIds = JSON.parse(archiveIdsJson);
@@ -1143,7 +1142,6 @@ Reader.handlePaginator = function () {
 
 Reader.readPreviousArchive = function () {
     if (Reader.previousArchiveId !== null) {
-        sessionStorage.setItem("navigationState", "datatables");
         const newUrl = new LRR.apiURL(`/reader?id=${Reader.previousArchiveId}`).toString();
         history.replaceState(null, '', newUrl);
         window.location.href = newUrl;
@@ -1154,7 +1152,6 @@ Reader.readPreviousArchive = function () {
 
 Reader.readNextArchive = function () {
     if (Reader.nextArchiveId !== null) {
-        sessionStorage.setItem("navigationState", "datatables");
         const newUrl = new LRR.apiURL(`/reader?id=${Reader.nextArchiveId}`).toString();
         history.replaceState(null, '', newUrl);
         window.location.href = newUrl;
