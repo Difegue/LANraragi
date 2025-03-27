@@ -1,0 +1,11 @@
+const I18N = {};
+
+I18N.BackupRestored = "[% c.lh("Backup restored!") %]";
+I18N.BackupFailed = "[% c.lh("An error occured server-side. woops.<br/> Maybe your JSON is badly formatted ?") %]";
+I18N.ArchiveListLoadFailure = "[% c.lh("Couldn't load the complete archive list! Please reload the page.") %]";
+I18N.UntaggedLoadFailure = "[% c.lh("Error getting untagged archives!") %]";
+I18N.ConfirmArchivesDeletion = "[% c.lh("Are you sure you want to delete the selected archives?") %]";
+I18N.ConfirmYes = "[% c.lh("Yes, delete it!") %]";
+I18N.ConfirmNo = "[% c.lh("No, keep it!") %]";
+I18N.BatchOperationStart = `[% c.lh("Started Batch Operation...\r\n************\r\n") %]`;
+I18N.BatchOperationEnd = "[% c.lh("Batch Operation complete!") %]";

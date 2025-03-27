@@ -49,6 +49,7 @@ sub apply_routes {
     $public_routes->get('/random')->to('index#random_archive');
     $public_routes->get('/reader')->to('reader#index');
     $public_routes->get('/stats')->to('stats#index');
+    $public_routes->get('/js/i18n.js')->to('i18n#index');
 
     # Minion Admin UI
     $self->plugin( 'Minion::Admin' => { route => $logged_in->get('/minion') } );
