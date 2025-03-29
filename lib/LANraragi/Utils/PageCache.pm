@@ -17,9 +17,14 @@ our @EXPORT_OK = qw(fetch put);
 my $cache = undef;
 
 sub initialize() {
+    my $logger = get_logger( "PageCache", "lanraragi" );
+    my $disk_size = LANraragi::Model::Config->get_tempmaxsize."m";
+    $logger->debug("Initializing cache, disk size: ".$disk_size);
+
+    # TODO: Make memory cache size configurable
     $cache = CHI->new(
         driver     => 'FastMmap',
-        cache_size => LANraragi::Model::Config->get_tempmaxsize,
+        cache_size => $disk_size,
         root_dir => get_temp,
     );
 }
@@ -50,6 +55,16 @@ sub put( $key, $content ) {
     $logger->debug("Put $key");
 
     $cache->set($key, $content);
+}
+
+sub clear() {
+    if (!defined($cache)) {
+        initialize;
+    }
+
+    my $logger = get_logger( "PageCache", "lanraragi" );
+    $logger->debug("Clearing cache");
+    $cache->clear();
 }
 
 1;
