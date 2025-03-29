@@ -838,7 +838,11 @@ Reader.initializeArchiveOverlay = function () {
         }
     };
 
-    fetch(new LRR.apiURL(`/api/archives/${Reader.id}/files/thumbnails`), { method: "POST" })
+    fetch(new LRR.apiURL(`/api/archives/${Reader.id}/files/thumbnails`), { 
+        method: "POST",
+        mode: 'same-origin',
+        credentials: 'same-origin'
+    })
         .then((response) => {
             if (response.status === 200) {
                 // Thumbnails are already generated, there's nothing to do. Very nice!
