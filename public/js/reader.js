@@ -592,6 +592,7 @@ Reader.handleShortcuts = function (e) {
         break;
     case 82: // r
         if (e.ctrlKey || e.shiftKey || e.metaKey) { break; }
+        sessionStorage.removeItem('navigationState');
         document.location.href = new LRR.apiURL("/random");
         break;
     case 219: // [
