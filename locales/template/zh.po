@@ -172,6 +172,9 @@ msgstr "如果您选择一个静态分类，您的档案将出现在这里，您
 msgid "Return to Library"
 msgstr "返回库"
 
+msgid "Link Bookmark Icon to this Category"
+msgstr "设置书签"
+
 # ------End of Category.html.tt2------
 
 # ------Start of Config.html.tt2------
@@ -1028,6 +1031,8 @@ msgstr "档案概览"
 msgid "FullScreen"
 msgstr "全屏"
 
+msgid "Toggle Bookmark"
+msgstr "切换书签"
 # ------End of Reader.html.tt2------
 
 # ------Start of Stats.html.tt2------
