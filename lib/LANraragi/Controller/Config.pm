@@ -4,7 +4,6 @@ use Mojo::Base 'Mojolicious::Controller';
 use LANraragi::Utils::Generic    qw(generate_themes_header);
 use LANraragi::Utils::String     qw(trim trim_CRLF);
 use LANraragi::Utils::Database   qw(redis_encode save_computed_tagrules);
-use LANraragi::Utils::TempFolder qw(get_tempsize);
 use LANraragi::Utils::Tags       qw(tags_rules_to_array replace_CRLF restore_CRLF);
 use Mojo::JSON                   qw(encode_json);
 
@@ -47,7 +46,7 @@ sub index {
         hqthumbpages    => $self->LRR_CONF->get_hqthumbpages,
         jxlthumbpages   => $self->LRR_CONF->get_jxlthumbpages,
         csshead         => generate_themes_header($self),
-        tempsize        => get_tempsize,
+        tempsize        => 0,
         replacedupe     => $self->LRR_CONF->get_replacedupe
     );
 }
