@@ -1,11 +1,26 @@
 const I18N = {};
 
 I18N.BackupRestored = "[% c.lh("Backup restored!") %]";
-I18N.BackupFailed = "[% c.lh("An error occured server-side. woops.<br/> Maybe your JSON is badly formatted ?") %]";
+I18N.BackupFailed = "[% c.lh("An error occured while restoring the backup.<br/> Please check the server logs and that your JSON is correctly formatted.") %]";
 I18N.ArchiveListLoadFailure = "[% c.lh("Couldn't load the complete archive list! Please reload the page.") %]";
 I18N.UntaggedLoadFailure = "[% c.lh("Error getting untagged archives!") %]";
 I18N.ConfirmArchivesDeletion = "[% c.lh("Are you sure you want to delete the selected archives?") %]";
 I18N.ConfirmYes = "[% c.lh("Yes, delete it!") %]";
 I18N.ConfirmNo = "[% c.lh("No, keep it!") %]";
-I18N.BatchOperationStart = `[% c.lh("Started Batch Operation...\r\n************\r\n") %]`;
+I18N.ErrorDeletingCache = "[% c.lh("Error while deleting cache! Check application logs.") %]";
+I18N.BatchOperationStart = "[% c.lh("Started Batch Operation...") %]";
 I18N.BatchOperationEnd = "[% c.lh("Batch Operation complete!") %]";
+I18N.BatchFailHeader = "[% c.lh("An error occured during batch tagging!") %]";
+I18N.BatchFailBody = "[% c.lh("Please check application logs.") %]";
+I18N.BatchOperationFailed = "[% c.lh("Error! Terminating session.") %]";
+I18N.BatchSleeping = (x) => `[% c.lh("Sleeping for ${x} seconds.") %]`;
+I18N.BatchOperationError = (id,msg) => `[% c.lh("Error while processing ID ${id} (${msg})") %]`;
+I18N.BatchSuccessPlugin = (id, plug, tags) => `[% c.lh("Processed ID ${id} with "${plug}" (Added tags: ${tags})") %]`;
+I18N.BatchSuccessDelete = (id, filename) => `[% c.lh("Deleted ID ${id} (Filename: ${filename})") %]`;
+I18N.BatchSuccessTagRul = (id, tags) => `[% c.lh("Replaced tags for ID ${id} (New tags: ${tags})") %]`;
+I18N.BatchSuccessCategr = (id, categor, msg) => `[% c.lh("Added ID ${id} to category ${category}! (${msg})") %]`;
+I18N.BatchSuccessClrNew = (id) => `[% c.lh("Cleared new flag for ID ${id}!") %]`;
+I18N.BatchUnknownOperat = (id, msg) => `[% c.lh("Unknown operation ${oper} (${msg})") %]`;
+I18N.BatchChangedTitle = (title) => `[% c.lh("Changed title to: ${title}") %]`;
+I18N.BatchReloadingPage = "[% c.lh("Reloading page in 5 seconds to account for deleted archives...") %]";
+I18N.BatchCancelling = "[% c.lh("Cancelling batch operation...") %]";
