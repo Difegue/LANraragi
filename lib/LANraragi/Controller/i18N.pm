@@ -1,4 +1,4 @@
-package LANraragi::Controller::I18n;
+package LANraragi::Controller::i18n;
 use Mojo::Base 'Mojolicious::Controller';
 
 # This action will render a template.. as a JS file.
