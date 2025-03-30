@@ -4,7 +4,9 @@ I18N.BackupRestored = "[% c.lh("Backup restored!") %]";
 I18N.BackupFailed = "[% c.lh("An error occured while restoring the backup.<br/> Please check the server logs and that your JSON is correctly formatted.") %]";
 
 I18N.ArchiveListLoadFailure = "[% c.lh("Couldn't load the complete archive list! Please reload the page.") %]";
+I18N.TagStatsLoadFailure = "[% c.lh("Couldn't load the tag statistics! Please reload the page.") %]";
 I18N.UntaggedLoadFailure = "[% c.lh("Error getting untagged archives!") %]";
+I18N.ConfirmArchiveDeletion = "[% c.lh("Are you sure you want to delete this archive?") %]";
 I18N.ConfirmArchivesDeletion = "[% c.lh("Are you sure you want to delete the selected archives?") %]";
 I18N.ConfirmDestructive = "[% c.lh("This action cannot be undone!") %]";
 I18N.ConfirmYes = "[% c.lh("Yes, delete it!") %]";
@@ -21,7 +23,7 @@ I18N.BatchOperationError = (id, msg) => `[% c.lh("Error while processing ID \${i
 I18N.BatchSuccessPlugin = (id, plug, tags) => `[% c.lh("Processed ID \${id} with \"\${plug}\" (Added tags: \${tags})") %]`;
 I18N.BatchSuccessDelete = (id, filename) => `[% c.lh("Deleted ID \${id} (Filename: \${filename})") %]`;
 I18N.BatchSuccessTagRul = (id, tags) => `[% c.lh("Replaced tags for ID \${id} (New tags: \${tags})") %]`;
-I18N.BatchSuccessCategr = (id, categor, msg) => `[% c.lh("Added ID \${id} to category \${category}! (\${msg})") %]`;
+I18N.BatchSuccessCategr = (id, category, msg) => `[% c.lh("Added ID \${id} to category \${category}! (\${msg})") %]`;
 I18N.BatchSuccessClrNew = (id) => `[% c.lh("Cleared new flag for ID \${id}!") %]`;
 I18N.BatchUnknownOperat = (id, msg) => `[% c.lh("Unknown operation \${oper} (\${msg})") %]`;
 I18N.BatchChangedTitle = (title) => `[% c.lh("Changed title to: \${title}") %]`;
@@ -45,3 +47,13 @@ I18N.ShinobuRestartError = "[% c.lh("Error restarting Worker:") %]";
 I18N.ContentRescanStarted = "[% c.lh("Content folder rescan started!") %]";
 I18N.ContentRescanError = "[% c.lh("Error starting content folder rescan:") %]";
 I18N.ShinobuStatusError = "[% c.lh("Error while querying Shinobu status:") %]";
+
+I18N.EditHelpTitle = "[% c.lh("About Plugins") %]";
+I18N.EditHelp = "[% c.lh("You can use plugins to automatically fetch metadata for this archive. <br/> Just select a plugin from the dropdown and hit Go! <br/> Some plugins might provide an optional argument for you to specify. If that's the case, a textbox will be available to input said argument.") %]";
+I18N.EditMetadataSaved = "[% c.lh("Metadata saved!") %]";
+I18N.EditMetadataError = "[% c.lh("Error saving archive metadata") %]";
+I18N.EditFetchTagError = "[% c.lh("Error while fetching tags") %]";
+I18N.EditTitleChangedTo = "[% c.lh("Archive title changed to") %]";
+I18N.EditSummaryUpdated = "[% c.lh("Archive summary updated!") %]";
+I18N.EditTagsAdded = "[% c.lh("Added the following tags") %]";
+I18N.EditNoNewTags = "[% c.lh("No new tags added!") %]";

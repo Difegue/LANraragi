@@ -23,7 +23,7 @@ Edit.initializeAll = function () {
     // Hide tag input while statistics load
     Edit.hideTags();
 
-    Server.callAPI("/api/database/stats?minweight=2", "GET", null, "Couldn't load tag statistics",
+    Server.callAPI("/api/database/stats?minweight=2", "GET", null, I18N.TagStatsLoadFailure,
         (data) => {
             Edit.suggestions = data.reduce((res, tag) => {
                 let label = tag.text;
@@ -107,8 +107,8 @@ Edit.focusTagInput = function () {
 Edit.showHelp = function () {
     LRR.toast({
         toastId: "pluginHelp",
-        heading: "About Plugins",
-        text: "You can use plugins to automatically fetch metadata for this archive. <br/> Just select a plugin from the dropdown and hit Go! <br/> Some plugins might provide an optional argument for you to specify. If that's the case, a textbox will be available to input said argument.",
+        heading: I18N.EditHelpTitle,
+        text: I18N.EditHelp,
         icon: "info",
         hideAfter: 33000,
     });
@@ -144,14 +144,14 @@ Edit.saveMetadata = function () {
         .then((data) => {
             if (data.success) {
                 LRR.toast({
-                    heading: "Metadata saved!",
+                    heading: I18N.EditMetadataSaved,
                     icon: "success",
                 });
             } else {
                 throw new Error(data.message);
             }
         })
-        .catch((error) => LRR.showErrorToast("Error while saving archive data :", error))
+        .catch((error) => LRR.showErrorToast(I18N.EditMetadataError, error))
         .finally(() => {
             Edit.showTags();
         });
@@ -159,11 +159,11 @@ Edit.saveMetadata = function () {
 
 Edit.deleteArchive = function () {
     LRR.showPopUp({
-        text: "Are you sure you want to delete this archive?",
+        text: I18N.ConfirmArchiveDeletion,
         icon: "warning",
         showCancelButton: true,
         focusConfirm: false,
-        confirmButtonText: "Yes, delete it!",
+        confirmButtonText: I18N.ConfirmYes,
         reverseButtons: true,
         confirmButtonColor: "#d33",
     }).then((result) => {
@@ -179,12 +179,12 @@ Edit.getTags = function () {
     const pluginID = $("select#plugin option:checked").val();
     const archivID = $("#archiveID").val();
     const pluginArg = $("#arg").val();
-    Server.callAPI(`/api/plugins/use?plugin=${pluginID}&id=${archivID}&arg=${pluginArg}`, "POST", null, "Error while fetching tags :",
+    Server.callAPI(`/api/plugins/use?plugin=${pluginID}&id=${archivID}&arg=${pluginArg}`, "POST", null, I18N.EditFetchTagError,
         (result) => {
             if (result.data.title && result.data.title !== "") {
                 $("#title").val(result.data.title);
                 LRR.toast({
-                    heading: "Archive title changed to :",
+                    heading: I18N.EditTitleChangedTo,
                     text: result.data.title,
                     icon: "info",
                 });
@@ -193,7 +193,7 @@ Edit.getTags = function () {
             if (result.data.summary && result.data.summary !=="") {
                 $("#summary").val(result.data.summary);
                 LRR.toast({
-                    heading: "Archive summary updated!",
+                    heading: I18N.EditSummaryUpdated,
                     icon: "info",
                 });
             }
@@ -204,14 +204,14 @@ Edit.getTags = function () {
                 });
 
                 LRR.toast({
-                    heading: "Added the following tags :",
+                    heading: I18N.EditTagsAdded,
                     text: result.data.new_tags,
                     icon: "info",
                     hideAfter: 7000,
                 });
             } else {
                 LRR.toast({
-                    heading: "No new tags added!",
+                    heading: I18N.EditNoNewTags,
                     text: result.data.new_tags,
                     icon: "info",
                 });

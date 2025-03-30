@@ -1130,8 +1130,14 @@ msgstr "An error occured while restoring the backup.<br/> Please check the serve
 msgid "Couldn't load the complete archive list! Please reload the page."
 msgstr "Couldn't load the complete archive list! Please reload the page."
 
+msgid "Couldn't load the tag statistics! Please reload the page."
+msgstr "Couldn't load the tag statistics! Please reload the page."
+
 msgid "Error getting untagged archives!"
 msgstr "Error getting untagged archives!"
+
+msgid "Are you sure you want to delete this archive?"
+msgstr "Are you sure you want to delete this archive?"
 
 msgid "Are you sure you want to delete the selected archives?"
 msgstr "Are you sure you want to delete the selected archives?"
@@ -1243,5 +1249,32 @@ msgstr "Error starting content folder rescan:"
 
 msgid "Error while querying Shinobu status:"
 msgstr "Error while querying Shinobu status:"
+
+msgid "About Plugins"
+msgstr "About Plugins"
+
+msgid "You can use plugins to automatically fetch metadata for this archive. <br/> Just select a plugin from the dropdown and hit Go! <br/> Some plugins might provide an optional argument for you to specify. If that's the case, a textbox will be available to input said argument."
+msgstr "You can use plugins to automatically fetch metadata for this archive. <br/> Just select a plugin from the dropdown and hit Go! <br/> Some plugins might provide an optional argument for you to specify. If that's the case, a textbox will be available to input said argument."
+
+msgid "Metadata saved!"
+msgstr "Metadata saved!"
+
+msgid "Error saving archive metadata"
+msgstr "Error saving archive metadata"
+
+msgid "Error while fetching tags"
+msgstr "Error while fetching tags"
+
+msgid "Archive title changed to"
+msgstr "Archive title changed to"
+
+msgid "Archive summary updated!"
+msgstr "Archive summary updated!"
+
+msgid "Added the following tags"
+msgstr "Added the following tags"
+
+msgid "No new tags added!"
+msgstr "No new tags added!"
 
 # ------End of i18n.html.tt2------
