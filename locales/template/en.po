@@ -1136,6 +1136,9 @@ msgstr "Error getting untagged archives!"
 msgid "Are you sure you want to delete the selected archives?"
 msgstr "Are you sure you want to delete the selected archives?"
 
+msgid "This action cannot be undone!"
+msgstr "This action cannot be undone!"
+
 msgid "Yes, delete it!"
 msgstr "Yes, delete it!"
 
@@ -1226,6 +1229,19 @@ msgstr "Writing a Predicate"
 msgid "Predicates follow the same syntax as searches in the Archive Index. Check the Documentation for more information."
 msgstr "Predicates follow the same syntax as searches in the Archive Index. Check the <a href="https://sugoi.gitbook.io/lanraragi/basic-operations/searching\">Documentation</a> for more information."
 
+msgid "Background Worker restarted!"
+msgstr "Background Worker restarted!"
 
+msgid "Error restarting Worker:"
+msgstr "Error restarting Worker:"
+
+msgid "Content folder rescan started!"
+msgstr "Content folder rescan started!"
+
+msgid "Error starting content folder rescan:"
+msgstr "Error starting content folder rescan:"
+
+msgid "Error while querying Shinobu status:"
+msgstr "Error while querying Shinobu status:"
 
 # ------End of i18n.html.tt2------

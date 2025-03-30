@@ -6,6 +6,7 @@ I18N.BackupFailed = "[% c.lh("An error occured while restoring the backup.<br/> 
 I18N.ArchiveListLoadFailure = "[% c.lh("Couldn't load the complete archive list! Please reload the page.") %]";
 I18N.UntaggedLoadFailure = "[% c.lh("Error getting untagged archives!") %]";
 I18N.ConfirmArchivesDeletion = "[% c.lh("Are you sure you want to delete the selected archives?") %]";
+I18N.ConfirmDestructive = "[% c.lh("This action cannot be undone!") %]";
 I18N.ConfirmYes = "[% c.lh("Yes, delete it!") %]";
 I18N.ConfirmNo = "[% c.lh("No, keep it!") %]";
 I18N.ErrorDeletingCache = "[% c.lh("Error while deleting cache! Check application logs.") %]";
@@ -38,3 +39,9 @@ I18N.CategoryDeleted = "[% c.lh("Category deleted!") %]";
 I18N.CategoryDeleteError = "[% c.lh("Error deleting category") %]";
 I18N.CategoryPredicateHelp = `[% c.lh("Predicates follow the same syntax as searches in the Archive Index. Check the Documentation for more information.") %]`;
 I18N.CategoryPredicateTitle = "[% c.lh("Writing a Predicate") %]";
+
+I18N.ShinobuRestarted = "[% c.lh("Background Worker restarted!") %]";
+I18N.ShinobuRestartError = "[% c.lh("Error restarting Worker:") %]";
+I18N.ContentRescanStarted = "[% c.lh("Content folder rescan started!") %]";
+I18N.ContentRescanError = "[% c.lh("Error starting content folder rescan:") %]";
+I18N.ShinobuStatusError = "[% c.lh("Error while querying Shinobu status:") %]";
