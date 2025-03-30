@@ -25,3 +25,16 @@ I18N.BatchSuccessClrNew = (id) => `[% c.lh("Cleared new flag for ID \${id}!") %]
 I18N.BatchUnknownOperat = (id, msg) => `[% c.lh("Unknown operation \${oper} (\${msg})") %]`;
 I18N.BatchChangedTitle = (title) => `[% c.lh("Changed title to: \${title}") %]`;
 I18N.BatchReloadingPage = "[% c.lh("Reloading page in 5 seconds to account for deleted archives...") %]";
+I18N.BatchCancelling = "[% c.lh("Cancelling Batch Operation...") %]";
+
+I18N.NewCategory = "[% c.lh("Enter a name for the new category") %]";
+I18N.CategoryDefaultName = "[% c.lh("My Category") %]";
+I18N.MissingCatName = "[% c.lh("Please enter a category name.") %]";
+I18N.NoCategory = "[% c.lh("No category") %]";
+I18N.CategoryFetchError = "[% c.lh("Error getting categories from server") %]";
+I18N.CategoryEditError = "[% c.lh("Error adding/removing archive to category") %]";
+I18N.CategoryDeleteConfirm = "[% c.lh("The category will be deleted permanently.") %]";
+I18N.CategoryDeleted = "[% c.lh("Category deleted!") %]";
+I18N.CategoryDeleteError = "[% c.lh("Error deleting category") %]";
+I18N.CategoryPredicateHelp = `[% c.lh("Predicates follow the same syntax as searches in the Archive Index. Check the Documentation for more information.") %]`;
+I18N.CategoryPredicateTitle = "[% c.lh("Writing a Predicate") %]";

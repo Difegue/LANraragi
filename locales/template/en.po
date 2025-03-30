@@ -1193,4 +1193,39 @@ msgstr "Reloading page in 5 seconds to account for deleted archives..."
 msgid "Cancelling Batch Operation..."
 msgstr "Cancelling Batch Operation..."
 
+msgid "Enter a name for the new category"
+msgstr "Enter a name for the new category"
+
+msgid "My Category"
+msgstr "My Category"
+
+msgid "Please enter a category name."
+msgstr "Please enter a category name."
+
+msgid "No category"
+msgstr "No category"
+
+msgid "Error getting categories from server"
+msgstr "Error getting categories from server"
+
+msgid "Error adding/removing archive to category"
+msgstr "Error adding/removing archive to category"
+
+msgid "The category will be deleted permanently."
+msgstr "The category will be deleted permanently."
+
+msgid "Category deleted!"
+msgstr "Category deleted!"
+
+msgid "Error deleting category"
+msgstr "Error deleting category"
+
+msgid "Writing a Predicate"
+msgstr "Writing a Predicate"
+
+msgid "Predicates follow the same syntax as searches in the Archive Index. Check the Documentation for more information."
+msgstr "Predicates follow the same syntax as searches in the Archive Index. Check the <a href="https://sugoi.gitbook.io/lanraragi/basic-operations/searching\">Documentation</a> for more information."
+
+
+
 # ------End of i18n.html.tt2------
