@@ -1277,4 +1277,112 @@ msgstr "Added the following tags"
 msgid "No new tags added!"
 msgstr "No new tags added!"
 
+# Do not translate _START_, _END_ or _TOTAL_.
+msgid "Showing _START_ to _END_ of _TOTAL_ ancient chinese lithographies."
+msgstr "Showing _START_ to _END_ of _TOTAL_ ancient chinese lithographies."
+
+msgid "No archives to show you! Try <a href=\"\${url}\")>uploading some</a>?"
+msgstr "No archives to show you! Try <a href=\"${url}\")>uploading some</a>?"
+
+msgid "Welcome to LANraragi \${version}!"
+msgstr "Welcome to LANraragi ${version}!"
+
+msgid "If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!"
+msgstr "If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!"
+
+msgid "Error getting basic server info."
+msgstr "Error getting basic server info."
+
+msgid "You're running in Debug Mode!"
+msgstr "You're running in Debug Mode!"
+msgid "Advanced server statistics can be viewed <a href=\"\${url}\")>here</a>."
+msgstr "Advanced server statistics can be viewed <a href=\"${url}\")>here</a>."
+
+msgid "Enter a tag namespace for this column"
+msgstr "Enter a tag namespace for this column"
+
+msgid "Enter a full namespace without the colon, e.g \"artist\"."
+msgstr "Enter a full namespace without the colon, e.g "artist"."
+
+msgid "If you have multiple tags with the same namespace, only the last one will be shown in the column."
+msgstr "If you have multiple tags with the same namespace, only the last one will be shown in the column."
+
+msgid "Tag namespace"
+msgstr "Tag namespace"
+
+msgid "Please enter a tag namespace."
+msgstr "Please enter a tag namespace."
+
+msgid "Randomly Picked"
+msgstr "Randomly Picked"
+
+msgid "New Archives"
+msgstr "New Archives"
+
+msgid "Untagged Archives"
+msgstr "Untagged Archives"
+
+msgid "On Deck"
+msgstr "On Deck"
+
+msgid "Error getting carousel data!"
+msgstr "Error getting carousel data!"
+
+msgid "Edit this column"
+msgstr "Edit this column"
+
+msgid "Title"
+msgstr "Title"
+
+msgid "Tags"
+msgstr "Tags"
+
+msgid "Header"
+msgstr "Header"
+
+msgid "A new version of LANraragi (\${version}) is available!"
+msgstr "A new version of LANraragi (${version}) is available!"
+
+msgid "Click here to check it out."
+msgstr "Click here to check it out."
+
+msgid "Error getting changelog for new version"
+msgstr "Error getting changelog for new version"
+
+msgid Couldn't load data for \${id}!"
+msgstr "Couldn't load data for ${id}!"
+
+msgid "This archive isn't in any category."
+msgstr "This archive isn't in any category."
+
+msgid "No Categories yet..."
+msgstr "No Categories yet..."
+
+msgid "Remove rating"
+msgstr "Remove rating"
+
+msgid "Click here to display new archives only."
+msgstr "Click here to display new archives only."
+
+msgid "Click here to display untagged archives only."
+msgstr "Click here to display untagged archives only."
+
+msgid "Click here to display archives in this category only."
+msgstr "Click here to display archives in this category only."
+
+msgid "Your Reading Progression is now saved on the server!"
+msgstr "Your Reading Progression is now saved on the server!"
+
+msgid "You seem to have some local progression hanging around -- Please wait warmly while we migrate it to the server for you."
+msgstr "You seem to have some local progression hanging around -- Please wait warmly while we migrate it to the server for you."
+
+msgid "Error while migrating local progression to server"
+msgstr "Error while migrating local progression to server"
+
+msgid "Reading Progression has been fully migrated"
+msgstr "Reading Progression has been fully migrated"
+
+msgid "You'll have to reopen archives in the Reader to see the migrated progression values."
+msgstr "You'll have to reopen archives in the Reader to see the migrated progression values."
+
 # ------End of i18n.html.tt2------
