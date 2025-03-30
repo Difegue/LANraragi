@@ -929,6 +929,9 @@ msgstr "R: open a random archive.""
 msgid "F: toggle fullscreen mode"
 msgstr "F: toggle fullscreen mode"
 
+msgid "B: toggle bookmark"
+msgstr "B: toggle bookmark"
+
 msgid "To return to the archive index, touch the arrow pointing down or use Backspace."
 msgstr "To return to the archive index, touch the arrow pointing down or use Backspace."
 

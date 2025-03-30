@@ -929,6 +929,9 @@ msgstr "R：打开一个随机档案。"
 msgid "F: toggle fullscreen mode"
 msgstr "F：切换全屏模式"
 
+msgid "B: toggle bookmark"
+msgstr "B：切换书签"
+
 msgid "To return to the archive index, touch the arrow pointing down or use Backspace."
 msgstr "要返回档案索引，请点击向下的箭头或使用退格键。"
 
