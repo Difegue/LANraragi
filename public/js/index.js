@@ -437,7 +437,17 @@ Index.checkVersion = function () {
     const githubAPI = "https://api.github.com/repos/difegue/lanraragi/releases/latest";
 
     fetch(githubAPI)
-        .then((response) => response.json())
+        .then((response) => {
+            if (response.ok) {
+                return response.json();
+            }
+            if (response.status === 403) {
+                console.error("API rate limit exceeded: ", response);
+                throw new Error("API rate limit exceeded");
+            }
+            console.error("GitHub API returned: ", response);
+            throw new Error(`GitHub API returned ${response.status}`);
+        })
         .then((data) => {
             const expr = /(\d+)/g;
             const latestVersionArr = Array.from(data.tag_name.match(expr));
@@ -483,7 +493,17 @@ Index.fetchChangelog = function () {
         localStorage.lrrVersion = Index.serverVersion;
 
         fetch("https://api.github.com/repos/difegue/lanraragi/releases/latest", { method: "GET" })
-            .then((response) => (response.ok ? response.json() : { error: "Response was not OK" }))
+            .then((response) => {
+                if (response.ok) {
+                    return response.json();
+                }
+                if (response.status === 403) {
+                    console.error("API rate limit exceeded: ", response);
+                    throw new Error("API rate limit exceeded");
+                }
+                console.error("GitHub API returned: ", response);
+                throw new Error(`GitHub API returned ${response.status}`);
+            })
             .then((data) => {
                 if (data.error) throw new Error(data.error);
 
