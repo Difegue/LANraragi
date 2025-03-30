@@ -1118,3 +1118,79 @@ msgstr "Rescan Archive Directory"
 
 msgid "Click this button to trigger a rescan of the Archive Directory in case you're missing files, or some data such as total page counts."
 msgstr "Click this button to trigger a rescan of the Archive Directory in case you're missing files, or some data such as total page counts."
+
+# ------Stary of i18n.html.tt2------
+
+msgid "Backup restored!"
+msgstr "Backup restored!"
+
+msgid "An error occured while restoring the backup.<br/> Please check the server logs and that your JSON is correctly formatted."
+msgstr "An error occured while restoring the backup.<br/> Please check the server logs and that your JSON is correctly formatted."
+
+msgid "Couldn't load the complete archive list! Please reload the page."
+msgstr "Couldn't load the complete archive list! Please reload the page."
+
+msgid "Error getting untagged archives!"
+msgstr "Error getting untagged archives!"
+
+msgid "Are you sure you want to delete the selected archives?"
+msgstr "Are you sure you want to delete the selected archives?"
+
+msgid "Yes, delete it!"
+msgstr "Yes, delete it!"
+
+msgid "No, keep it!"
+msgstr "No, keep it!"
+
+msgid "Error while deleting cache! Check application logs."
+msgstr "Error while deleting cache! Check application logs."
+
+msgid "Started Batch Operation..."
+msgstr "Started Batch Operation..."
+
+msgid "Batch Operation complete!"
+msgstr "Batch Operation complete!"
+
+msgid "An error occured during batch tagging!"
+msgstr "An error occured during batch tagging!"
+
+msgid "Please check application logs."
+msgstr "Please check application logs."
+
+msgid "Error! Terminating session."
+msgstr "Error! Terminating session."
+
+msgid "Sleeping for \${x} seconds."
+msgstr "Sleeping for ${x} seconds."
+
+msgid "Error while processing ID \${id} (\${msg})"
+msgstr "Error while processing ID ${id} (${msg})"
+
+msgid "Processed ID \${id} with \"\${plug}\" (Added tags: \${tags})"
+msgstr "Processed ID ${id} with "${plug}" (Added tags: ${tags})"
+
+msgid "Deleted ID \${id} (Filename: \${filename})"
+msgstr "Deleted ID ${id} (Filename: ${filename})"
+
+msgid "Replaced tags for ID \${id} (New tags: \${tags})"
+msgstr "Replaced tags for ID ${id} (New tags: ${tags})"
+
+msgid "Added ID \${id} to category \${category}! (\${msg})"
+msgstr "Added ID ${id} to category ${category}! (${msg})"
+
+msgid "Cleared new flag for ID \${id}!"
+msgstr "Cleared new flag for ID ${id}!"
+
+msgid "Unknown operation \${oper} (\${msg})"
+msgstr "Unknown operation ${oper} (${msg})"
+
+msgid "Changed title to: \${title}"
+msgstr "Changed title to: ${title}"
+
+msgid "Reloading page in 5 seconds to account for deleted archives..."
+msgstr "Reloading page in 5 seconds to account for deleted archives..."
+
+msgid "Cancelling Batch Operation..."
+msgstr "Cancelling Batch Operation..."
+
+# ------End of i18n.html.tt2------
