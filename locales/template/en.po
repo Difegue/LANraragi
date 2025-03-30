@@ -1385,4 +1385,13 @@ msgstr "Reading Progression has been fully migrated"
 msgid "You'll have to reopen archives in the Reader to see the migrated progression values."
 msgstr "You'll have to reopen archives in the Reader to see the migrated progression values."
 
+msgid "Plugin uploaded successfully!"
+msgstr "Plugin uploaded successfully!"
+
+msgid "The plugin \${name} has been successfully added. Refresh the page to see it."
+msgstr "The plugin ${name} has been successfully added. Refresh the page to see it."
+
+msgid "Error uploading plugin"
+msgstr "Error uploading plugin"
+
 # ------End of i18n.html.tt2------
