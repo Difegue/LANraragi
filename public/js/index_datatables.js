@@ -46,14 +46,19 @@ IndexTable.initializeAll = function () {
     $.fn.dataTableExt.oStdClasses.sStripeOdd = "gtr0";
     $.fn.dataTableExt.oStdClasses.sStripeEven = "gtr1";
 
+    // Make sure we have the correct table headers before initializing
+    const columnCount = Index.getColumnCount();
+    Index.generateTableHeaders(columnCount);
+
     let columns = [];
 
     // bookmark column is not sortable because it is not derived from server
-    columns.push({ data: null, className: "bookmark itd", name: "bookmark", orderable: false, render: IndexTable.renderBookmark });
+    if (LRR.bookmarkLinkConfigured()) {
+        columns.push({ data: null, className: "bookmark itd", name: "bookmark", orderable: false, render: IndexTable.renderBookmark });
+    }
     columns.push({ data: null, className: "title itd", name: "title", render: IndexTable.renderTitle });
 
     // set custom columns
-    let columnCount = Index.getColumnCount();
     for (let i = 1; i <= columnCount; i++) {
         columns.push({
             data: "tags",
@@ -75,7 +80,7 @@ IndexTable.initializeAll = function () {
         deferRender: true,
         lengthChange: false,
         pageLength: Index.pageSize,
-        order: [[0, "asc"]],
+        order: [[IndexTable.getTitleIndex(), "asc"]],
         dom: "<\"top\"ip>rt<\"bottom\"p><\"clear\">",
         language: {
             info: "Showing _START_ to _END_ of _TOTAL_ ancient chinese lithographies.",
@@ -301,22 +306,11 @@ IndexTable.drawCallback = function () {
         localStorage.indexSort = currentSort;
         localStorage.indexOrder = currentOrder;
 
-        /**
-         * Resolve sorting namespace based on index to column mapping:
-         * 0 => bookmark
-         * 1 => title
-         * 2 => customColumn1
-         * 3 => customColumn2
-         * ...
-         */
+        let titleIndex = IndexTable.getTitleIndex();
         let sortNamespace;
-        if (currentSort === 1) {
-            sortNamespace = "title";
-        } else if (currentSort >= 2 && currentSort < (2 + Index.getColumnCount())) {
+        if (currentSort >= titleIndex + 1 && currentSort < (titleIndex + 1 + Index.getColumnCount())) {
             const customIndex = currentSort - 1;
             sortNamespace = localStorage[`customColumn${customIndex}`] || `Header ${customIndex}`;
-        } else if (currentSort === 0) {
-            sortNamespace = "bookmark";
         } else {
             sortNamespace = "title";
         }
@@ -355,20 +349,20 @@ IndexTable.consumeURLParameters = function () {
 
     if (params.has("q")) { IndexTable.currentSearch = decodeURIComponent(params.get("q")); }
 
-    // Get order from URL (1 => title), fallback to localstorage if available
-    const order = [[1, "asc"]];
+    const titleIndex = IndexTable.getTitleIndex();
+    const order = [[titleIndex, "asc"]];
 
     if (params.has("sort")) {
-        order[0][0] = params.get("sort");
+        order[0][0] = parseInt(params.get("sort"), 10);
     } else if (localStorage.indexSort) {
-        order[0][0] = localStorage.indexSort;
+        order[0][0] = parseInt(localStorage.indexSort, 10);
     }
-    // get current columns count, except title and tags 
-    const currentCustomColumnCount = IndexTable.dataTable.columns().count() - 2;
-    // check currentSort, if out of range, back to use title
-    if (localStorage.indexSort > currentCustomColumnCount) {
-        localStorage.indexSort = 0;
-        order[0][0] = localStorage.indexSort;
+
+    // Validate column count and fallback to title.
+    const columnCount = IndexTable.dataTable.columns().count();
+    if (order[0][0] >= columnCount) {
+        console.warn(`Invalid sort index ${order[0][0]} >= ${columnCount}, fallback to title.`);
+        order[0][0] = titleIndex;
     }
 
     if (params.has("sortdir")) {
@@ -424,4 +418,12 @@ IndexTable.buildTagTooltip = function (target) {
     }).show(); // Call show() so that the tooltip shows now
 
     $(target).attr("onmouseover", "");
+};
+
+/**
+ * When bookmark is configured, the title column is the second column, otherwise it's the first column
+ * @returns index of title column in compact mode
+ */
+IndexTable.getTitleIndex = function () {
+    return LRR.bookmarkLinkConfigured() ? 1 : 0;
 };

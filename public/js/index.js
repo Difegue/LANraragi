@@ -61,10 +61,6 @@ Index.initializeAll = function () {
         localStorage.carouselOpen = 1;
     }
 
-    // Default to no bookmark
-    localStorage.removeItem("bookmarkCategoryId");
-    localStorage.removeItem("bookmarkedArchives");
-
     // Force-open the collapsible if carouselOpen = true
     if (localStorage.carouselOpen === "1") {
         $(".collapsible-title").trigger("click", [false]);
@@ -373,14 +369,15 @@ Index.handleCustomSort = function () {
     const namespace = $("#namespace-sortby").val();
     const order = IndexTable.dataTable.order();
 
-    // Special case for title sorting, as that uses column 1
+    // Special case for title sorting
     if (namespace === "title") {
-        order[0][0] = 1;
+        order[0][0] = IndexTable.getTitleIndex();
     } else {
-        // The order set in the combobox uses is offset by 1: customColumn1 is index 2
-        order[0][0] = 2;
+        // The order set in the combobox uses is offset from title by 1; 
+        // e.g. customColumn1 is offset from title by 1.
+        order[0][0] = IndexTable.getTitleIndex() + 1;
         localStorage.customColumn1 = namespace;
-        IndexTable.dataTable.settings()[0].aoColumns[2].sName = namespace;
+        IndexTable.dataTable.settings()[0].aoColumns[order[0][0]].sName = namespace;
         Index.updateTableHeaders();
     }
 
@@ -461,18 +458,21 @@ Index.handleColumnNum = function () {
 Index.generateTableHeaders = function (columnCount) {
     const headerRow = $("#header-row");
     headerRow.empty();
-    const bookmarkHeaderWidth = localStorage.getItem(`resizeColumn0`) || "";
-    headerRow.append(`<th id="bookmarkheader" width="${bookmarkHeaderWidth}">
+    const titleIndex = IndexTable.getTitleIndex();
+    if (LRR.bookmarkLinkConfigured()) {
+        const bookmarkHeaderWidth = localStorage.getItem(`resizeColumn${titleIndex}`) || "";
+        headerRow.append(`<th id="bookmarkheader" width="${bookmarkHeaderWidth}">
                             <a>Bookmarked</a>
                         </th>`);
-    const titleHeaderWidth = localStorage.getItem(`resizeColumn1`) || "";
+    }
+    const titleHeaderWidth = localStorage.getItem(`resizeColumn${titleIndex}`) || "";
     headerRow.append(`<th id="titleheader" width="${titleHeaderWidth}">
 							<a>Title</a>
 						</th>`);
 
     for (let i = 1; i <= columnCount; i++) {
         const customColumn = localStorage[`customColumn${i}`] || `Header ${i}`;
-        const colWidth = localStorage.getItem(`resizeColumn${i+1}`) || "";
+        const colWidth = localStorage.getItem(`resizeColumn${i + titleIndex}`) || "";
 
         const headerHtml = `  
             <th id="customheader${i}" width="${colWidth}">  
