@@ -46,11 +46,11 @@ Reader.initializeAll = function () {
     $(document).on("click.delete-archive", "#delete-archive", () => {
         LRR.closeOverlay();
         LRR.showPopUp({
-            text: "Are you sure you want to delete this archive?",
+            text: I18N.ConfirmArchiveDeletion,
             icon: "warning",
             showCancelButton: true,
             focusConfirm: false,
-            confirmButtonText: "Yes, delete it!",
+            confirmButtonText: I18N.ConfirmYes,
             reverseButtons: true,
             confirmButtonColor: "#d33",
         }).then((result) => {
@@ -78,7 +78,7 @@ Reader.initializeAll = function () {
         $(e.target).parent().remove();
     });
     $(document).on("click.set-thumbnail", "#set-thumbnail", () => Server.callAPI(`/api/archives/${Reader.id}/thumbnail?page=${Reader.currentPage + 1}`,
-        "PUT", `Successfully set page ${Reader.currentPage + 1} as the thumbnail!`, "Error updating thumbnail!", null));
+        "PUT", I18N.ReaderUpdateThumbnail(Reader.currentPage), I18N.ReaderUpdateThumbnailError, null));
 
     $(document).on("click.thumbnail", ".quick-thumbnail", (e) => {
         LRR.closeOverlay();
@@ -103,10 +103,10 @@ Reader.initializeAll = function () {
     Reader.currentPage = (+params.get("p") || 1) - 1;
 
     // Remove the "new" tag with an api call
-    Server.callAPI(`/api/archives/${Reader.id}/isnew`, "DELETE", null, "Error clearing new flag! Check Logs.", null);
+    Server.callAPI(`/api/archives/${Reader.id}/isnew`, "DELETE", null, I18N.ReaderErrorClearingNew, null);
 
     // Get basic metadata
-    Server.callAPI(`/api/archives/${Reader.id}/metadata`, "GET", null, "Error getting basic archive info!",
+    Server.callAPI(`/api/archives/${Reader.id}/metadata`, "GET", null, I18N.ServerInfoError,
         (data) => {
             let { title } = data;
 
@@ -146,7 +146,7 @@ Reader.initializeAll = function () {
 };
 
 Reader.loadImages = function () {
-    Server.callAPI(`/api/archives/${Reader.id}/files?force=${Reader.force}`, "GET", null, "Error getting the archive's imagelist!",
+    Server.callAPI(`/api/archives/${Reader.id}/files?force=${Reader.force}`, "GET", null, I18N.ReaderArchiveError,
         (data) => {
             Reader.pages = data.pages;
             Reader.maxPage = Reader.pages.length - 1;
@@ -192,7 +192,7 @@ Reader.loadImages = function () {
     ).finally(() => {
         if (Reader.pages === undefined) {
             $("#img").attr("src", new LRR.apiURL("/img/flubbed.gif").toString());
-            $("#display").append("<h2>I flubbed it while trying to open the archive.</h2>");
+            $("#display").append("<h2>"+I18N.ReaderArchiveError+"</h2>");
         }
     });
 };
@@ -375,16 +375,16 @@ Reader.checkFiletypeSupport = function (extension) {
     if ((extension === "rar" || extension === "cbr") && !localStorage.rarWarningShown) {
         localStorage.rarWarningShown = true;
         LRR.toast({
-            heading: "This archive seems to be in RAR format!",
-            text: "RAR archives might not work properly in LANraragi depending on how they were made. If you encounter errors while reading, consider converting your archive to zip.",
+            heading: I18N.ReaderRarWarning,
+            text: I18N.ReaderRarWarningDesc,
             icon: "warning",
             hideAfter: 23000,
         });
     } else if (extension === "epub" && !localStorage.epubWarningShown) {
         localStorage.epubWarningShown = true;
         LRR.toast({
-            heading: "EPUB support in LANraragi is minimal",
-            text: "EPUB books will only show images in the Web Reader, and potentially out of order. If you want text support, consider pairing LANraragi with an <a href='https://sugoi.gitbook.io/lanraragi/advanced-usage/external-readers#generic-opds-readers'>OPDS reader.</a>",
+            heading: I18N.ReaderEpubWarning,
+            text: I18N.ReaderEpubWarningDesc,
             icon: "warning",
             hideAfter: 20000,
             closeOnClick: false,
@@ -396,7 +396,7 @@ Reader.checkFiletypeSupport = function (extension) {
 Reader.toggleHelp = function () {
     LRR.toast({
         toastId: "readerHelp",
-        heading: "Navigation Help",
+        heading: I18N.ReaderNavHelp,
         text: $("#reader-help").children().first().html(),
         icon: "info",
         hideAfter: 60000,
@@ -525,7 +525,7 @@ Reader.updateProgress = function () {
     if (Reader.trackProgressLocally) {
         localStorage.setItem(`${Reader.id}-reader`, Reader.currentPage + 1);
     } else {
-        Server.callAPI(`/api/archives/${Reader.id}/progress/${Reader.currentPage + 1}`, "PUT", null, "Error updating reading progress!", null);
+        Server.callAPI(`/api/archives/${Reader.id}/progress/${Reader.currentPage + 1}`, "PUT", null, I18N.ReaderErrorProgress, null);
     }
 };
 
@@ -720,7 +720,7 @@ Reader.initializeArchiveOverlay = function () {
         const thumbnailUrl = new LRR.apiURL(`/api/archives/${Reader.id}/thumbnail?page=${page}`);
         const thumbnail = `
             <div class='${thumbCss} quick-thumbnail' page='${index}' style='display: inline-block; cursor: pointer'>
-                <span class='page-number'>Page ${page}</span>
+                <span class='page-number'>${I18N.ReaderPage(page)}</span>
                 <img src="${thumbnailUrl}" id="${index}_thumb" />
                 <i id="${index}_spinner" class="fa fa-4x fa-circle-notch fa-spin ttspinner" style="display:flex;justify-content: center; align-items: center;"></i>
             </div>`;
@@ -763,7 +763,7 @@ Reader.initializeArchiveOverlay = function () {
                     data.job,
                     false,
                     (data) => thumbProgress(data.notes), // call progress callback one last time to ensure all thumbs are loaded
-                    () => LRR.showErrorToast("The page thumbnailing job didn't conclude properly. Your archive might be corrupted."),
+                    () => LRR.showErrorToast(I18N.ThumbJobError),
                     thumbProgress,
                 ));
             }

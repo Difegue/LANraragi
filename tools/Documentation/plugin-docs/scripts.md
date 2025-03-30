@@ -1,7 +1,7 @@
 # Generic Plugins \("Scripts"\)
 
 Script Plugins are meant for generic workflows that aren't explicitly supported.
-The main usecase is essentially for users to script their own API endpoints, since those plugins can easily be invoked through the [Client API.](../extending-lanraragi/client-api.md)
+The main usecase is essentially for users to script their own API endpoints, since those plugins can easily be invoked through the [Client API](../api-documentation/getting-started.md).
 
 ## Required subroutines
 

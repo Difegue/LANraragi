@@ -337,7 +337,7 @@ LRR.showPopUp = function (c) {
     }
 
     if (c.icon === "warning" && !c.title) {
-        c.title = "This is a destructive operation!";
+        c.title = I18N.ConfirmDestructive;
     }
     return window.Swal.fire(c);
 };
