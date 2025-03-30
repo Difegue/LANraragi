@@ -483,7 +483,7 @@ Index.fetchChangelog = function () {
         localStorage.lrrVersion = Index.serverVersion;
 
         fetch("https://api.github.com/repos/difegue/lanraragi/releases/latest", { method: "GET" })
-            .then((response) => (response.ok ? response.json() : { error: "Response was not OK" }))
+            .then((response) => (response.ok ? response.json() : { error: I18N.GenericReponseError }))
             .then((data) => {
                 if (data.error) throw new Error(data.error);
 

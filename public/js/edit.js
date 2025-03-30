@@ -140,7 +140,7 @@ Edit.saveMetadata = function () {
     formData.append("summary", $("#summary").val());
 
     return fetch(new LRR.apiURL(`/api/archives/${id}/metadata`), { method: "PUT", body: formData })
-        .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))
+        .then((response) => (response.ok ? response.json() : { success: 0, error: I18N.GenericReponseError }))
         .then((data) => {
             if (data.success) {
                 LRR.toast({
