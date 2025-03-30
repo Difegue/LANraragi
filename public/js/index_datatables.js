@@ -46,10 +46,13 @@ IndexTable.initializeAll = function () {
     $.fn.dataTableExt.oStdClasses.sStripeOdd = "gtr0";
     $.fn.dataTableExt.oStdClasses.sStripeEven = "gtr1";
 
-    // set custom columns
     let columns = [];
-    columns.push({ data: null, className: "bookmark itd", name: "bookmark", render: IndexTable.renderBookmark });
+
+    // bookmark column is not sortable because it is not derived from server
+    columns.push({ data: null, className: "bookmark itd", name: "bookmark", orderable: false, render: IndexTable.renderBookmark });
     columns.push({ data: null, className: "title itd", name: "title", render: IndexTable.renderTitle });
+
+    // set custom columns
     let columnCount = Index.getColumnCount();
     for (let i = 1; i <= columnCount; i++) {
         columns.push({
