@@ -159,11 +159,14 @@ IndexTable.renderColumn = function (namespace, type, data) {
 };
 
 /**
- * TODO: I'm just copying the bottom for now
+ * Render the bookmark column. Checkbox is enabled only if the user is logged in.
+ * @param {*} data Archive data
+ * @param {*} type Whether this is a displayed column (html) or just a data request
+ * @returns The table HTML, or raw data if type is data
  */
 IndexTable.renderBookmark = function (data, type) {
     if ( LRR.bookmarkLinkConfigured() ) {
-        const isBookmarked = localStorage.bookmarkedArchives.includes(data.arcid);
+        const isBookmarked = JSON.parse(localStorage.getItem("bookmarkedArchives") || "[]").includes(data.arcid);
         if (type === "display") {
             const disabledAttr = LRR.isUserLogged() ? '' : 'disabled';
             const disabledStyle = LRR.isUserLogged() ? '' : 'style="opacity: 0.5; cursor: not-allowed;"';
@@ -171,7 +174,6 @@ IndexTable.renderBookmark = function (data, type) {
         }
         return isBookmarked;
     }
-
     if (type === "display") {
         return `<input class="bookmark-checkbox" id="${data.arcid}" type="checkbox" disabled title="Link bookmark to category to use the checkbox.">`;
     }
@@ -350,7 +352,7 @@ IndexTable.consumeURLParameters = function () {
 
     if (params.has("q")) { IndexTable.currentSearch = decodeURIComponent(params.get("q")); }
 
-    // Get order from URL, fallback to localstorage if available
+    // Get order from URL (1 => title), fallback to localstorage if available
     const order = [[1, "asc"]];
 
     if (params.has("sort")) {

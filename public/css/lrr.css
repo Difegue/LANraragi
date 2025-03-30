@@ -402,6 +402,7 @@ li {
   border-radius: 34px;
 }
 
+/* Position context menu above thumbnail-bookmark-icon */
 .context-menu {
   z-index: 10;
 }

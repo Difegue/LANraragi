@@ -100,7 +100,7 @@ Category.updateCategoryDetails = function () {
 
     if (category.search === "") {
         // Show archives if static and check the matching IDs
-        document.getElementById("bookmark-link").checked = (localStorage.bookmarkCategoryId === category.id);
+        document.getElementById("bookmark-link").checked = (localStorage.getItem("bookmarkCategoryId") === category.id);
         $("#archivelist").show();
         $("#bookmarklinkfield").show();
         $("#dynamicplaceholder").hide();
@@ -153,27 +153,30 @@ Category.saveCurrentCategoryDetails = function () {
         (data) => {
             if (searchtag === "") {
                 const isChecked     = document.getElementById("bookmark-link").checked;
-                const wasChecked    = (localStorage.bookmarkCategoryId === categoryID);
-                if (isChecked && !wasChecked) {
+                const wasChecked    = (localStorage.getItem("bookmarkCategoryId") === categoryID);
+                const linkBookmark = isChecked && !wasChecked;
+                const unlinkBookmark = !isChecked && wasChecked;
+
+                if (linkBookmark) {
                     Server.callAPI(
                         `/api/categories/bookmark_link/${categoryID}`,
                         "PUT",
                         null,
                         "Error linking bookmark button:",
                         () => {
-                            localStorage.bookmarkCategoryId = categoryID;
+                            localStorage.setItem("bookmarkCategoryId", categoryID);
                             Category.indicateSaved();
                             Category.loadCategories(data.category_id);
                         }
                     );
-                } else if (!isChecked && wasChecked) {
+                } else if (unlinkBookmark) {
                     Server.callAPI(
                         "/api/categories/bookmark_link",
                         "DELETE",
                         null,
                         "Error unlinking bookmark button:",
                         () => {
-                            localStorage.bookmarkCategoryId = "";
+                            localStorage.removeItem("bookmarkCategoryId");
                             Category.indicateSaved();
                             Category.loadCategories(data.category_id);
                         }

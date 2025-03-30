@@ -62,8 +62,8 @@ Index.initializeAll = function () {
     }
 
     // Default to no bookmark
-    localStorage.bookmarkCategoryId = "";
-    localStorage.bookmarkedArchives = [];
+    localStorage.removeItem("bookmarkCategoryId");
+    localStorage.removeItem("bookmarkedArchives");
 
     // Force-open the collapsible if carouselOpen = true
     if (localStorage.carouselOpen === "1") {
@@ -126,12 +126,11 @@ Index.initializeAll = function () {
             Index.migrateProgress();
             Index.loadTagSuggestions();
 
-            // TODO: I don't like how this looks but this has to be synchronous somehow.
-            Server.loadBookmarkCategoryId().then(
-                _ => Index.loadCategories().then(
-                    _ => IndexTable.initializeAll()
-                )
-            );
+            // Make bookmark category ID available to index and indextable
+            Server.loadBookmarkCategoryId()
+                .then(() => Index.loadCategories())
+                .then(() => IndexTable.initializeAll())
+                .catch(error => console.error("Error initializing index:", error));
         });
 
     const columnCountSelect = document.getElementById("columnCount");
@@ -171,10 +170,10 @@ Index.toggleBookmarkStatusByCheckbox = function (e) {
     const checkbox = e.currentTarget;
     const id = checkbox.id;
     if (checkbox.checked) {
-        Server.addArchiveToCategory(id, localStorage.bookmarkCategoryId);
+        Server.addArchiveToCategory(id, localStorage.getItem("bookmarkCategoryId"));
         Index.bookmarkIconOn(id);
     } else {
-        Server.removeArchiveFromCategory(id, localStorage.bookmarkCategoryId);
+        Server.removeArchiveFromCategory(id, localStorage.getItem("bookmarkCategoryId"));
         Index.bookmarkIconOff(id);
     }
 }
@@ -183,6 +182,7 @@ Index.toggleBookmarkStatusByIcon = function (e) {
     const icon = e.currentTarget;
     const id = icon.id;
 
+    // TODO: Considering removing this toast
     if (!LRR.isUserLogged()) {
         LRR.toast({
             heading: "Login Required",
@@ -194,10 +194,10 @@ Index.toggleBookmarkStatusByIcon = function (e) {
     }
 
     if (icon.classList.contains("far")) {
-        Server.addArchiveToCategory(id, localStorage.bookmarkCategoryId);
+        Server.addArchiveToCategory(id, localStorage.getItem("bookmarkCategoryId"));
         Index.bookmarkIconOn(id);
     } else if (icon.classList.contains("fas")) {
-        Server.removeArchiveFromCategory(id, localStorage.bookmarkCategoryId);
+        Server.removeArchiveFromCategory(id, localStorage.getItem("bookmarkCategoryId"));
         Index.bookmarkIconOff(id);
     }
 };
@@ -628,12 +628,12 @@ Index.loadContextMenuCategories = (catList, id) => Server.callAPI(`/api/archives
                 click() {
                     if ($(this).is(":checked")) {
                         Server.addArchiveToCategory(id, catId);
-                        if ( catId === localStorage.bookmarkCategoryId ) {
+                        if ( catId === localStorage.getItem("bookmarkCategoryId") ) {
                             Index.bookmarkIconOn(id);
                         }
                     } else {
                         Server.removeArchiveFromCategory(id, catId);
-                        if ( catId === localStorage.bookmarkCategoryId ) {
+                        if ( catId === localStorage.getItem("bookmarkCategoryId") ) {
                             Index.bookmarkIconOff(id);
                         }
                     }
@@ -816,8 +816,8 @@ Index.loadCategories = function () {
                 </div>`;
 
                 // Take this opportunity to update the bookmark
-                if (category.id === localStorage.bookmarkCategoryId) {
-                    localStorage.bookmarkedArchives = category.archives;
+                if (category.id === localStorage.getItem("bookmarkCategoryId")) {
+                    localStorage.setItem("bookmarkedArchives", JSON.stringify(category.archives));
                 }
 
                 html += div;
@@ -971,8 +971,11 @@ Index.resizableColumns = function () {
     }
 };
 
+/**
+ * @returns number of custom columns in compact mode
+ */
 Index.getColumnCount = function () {
-    return localStorage.columnCount ? parseInt(localStorage.columnCount) : 2;
+    return localStorage.getItem("columnCount") ? parseInt(localStorage.getItem("columnCount")) : 2;
 }
 
 jQuery(() => {

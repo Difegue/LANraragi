@@ -343,6 +343,7 @@ Server.updateTagsFromArchive = function (arcId, tags) {
  */
 Server.loadBookmarkCategoryId = function () {
     return Server.callAPI("/api/categories/bookmark_link", "GET", null, "Error getting bookmark category: ", (data) => {
-        return localStorage.bookmarkCategoryId = data.category_id || "";
+        localStorage.setItem("bookmarkCategoryId", data.category_id);
+        return data.category_id;
     });
 }

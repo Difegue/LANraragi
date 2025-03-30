@@ -171,6 +171,10 @@ Reader.addCategoryFlag = function ( categoryId ) {
     $("#archive-categories").append(html);
 }
 
+Reader.removeCategoryFlag = function ( categoryId ) {
+    $(`#archive-categories a.remove-category[data-id="${categoryId}"]`).closest(".gt").remove();
+}
+
 Reader.loadImages = function () {
     Server.callAPI(`/api/archives/${Reader.id}/files?force=${Reader.force}`, "GET", null, "Error getting the archive's imagelist!",
         (data) => {
@@ -441,10 +445,11 @@ Reader.toggleHelp = function () {
 
 Reader.toggleBookmark = function(e) {
     e.preventDefault();
-    if ( !localStorage.bookmarkCategoryId ) {
+    if ( !localStorage.getItem("bookmarkCategoryId") ) {
         return;
     };
 
+    // TODO: considering removing this toast
     if (!LRR.isUserLogged()) {
         LRR.toast({
             heading: "Login Required",
@@ -457,15 +462,15 @@ Reader.toggleBookmark = function(e) {
 
     if ($(".toggle-bookmark").hasClass("fas fa-bookmark")) {
         // Remove from category
-        Server.removeArchiveFromCategory(Reader.id, localStorage.bookmarkCategoryId);
-        $(`#archive-categories a.remove-category[data-id="${localStorage.bookmarkCategoryId}"]`).closest(".gt").remove();
+        Server.removeArchiveFromCategory(Reader.id, localStorage.getItem("bookmarkCategoryId"));
+        Reader.removeCategoryFlag( localStorage.getItem("bookmarkCategoryId") );
         $(".toggle-bookmark")
             .removeClass("fas fa-bookmark")
             .addClass("far fa-bookmark");
     } else {
         // Add to category
-        Server.addArchiveToCategory(Reader.id, localStorage.bookmarkCategoryId);
-        Reader.addCategoryFlag( localStorage.bookmarkCategoryId );
+        Server.addArchiveToCategory(Reader.id, localStorage.getItem("bookmarkCategoryId"));
+        Reader.addCategoryFlag( localStorage.getItem("bookmarkCategoryId") );
         $(".toggle-bookmark")
             .removeClass("far fa-bookmark")
             .addClass("fas fa-bookmark");
@@ -476,7 +481,6 @@ Reader.toggleBookmark = function(e) {
 Reader.loadBookmarkStatus = function() {
     Server.loadBookmarkCategoryId().then(
         category_id => {
-            console.log(category_id);
             if ( !LRR.bookmarkLinkConfigured() ) {
                 return;
             }

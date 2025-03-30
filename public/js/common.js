@@ -58,7 +58,7 @@ LRR.isUserLogged = function() {
  * @returns true if bookmark icon is linked to a category, else false.
  */
 LRR.bookmarkLinkConfigured = function () {
-    return localStorage.bookmarkCategoryId.startsWith("SET_");
+    return localStorage.getItem("bookmarkCategoryId") !== null && localStorage.getItem("bookmarkCategoryId").startsWith("SET_");
 }
 
 /**
@@ -265,7 +265,8 @@ LRR.buildTagsDiv = function (tags) {
 };
 
 /**
- * Build a thumbnail div for the given archive data.
+ * Build a thumbnail div for the given archive data. Dynamically generates a bookmark icon,
+ * such that the toggleability depends on whether the user is logged in.
  * @param {*} data The archive data
  * @param {boolean} tagTooltip Option to build TagTooltip on mouseover
  * @returns HTML component string
@@ -276,14 +277,12 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
     const id = data.arcid || data.id;
     let reader_url = new LRR.apiURL(`/reader?id=${id}`);
 
-    let bookmarkIcon;
+    let bookmarkIcon = ``;
     if ( LRR.bookmarkLinkConfigured() ) {
-        const isBookmarked = localStorage.bookmarkedArchives.includes(id);
+        const isBookmarked = JSON.parse(localStorage.getItem("bookmarkedArchives") || "[]").includes(id);
         const bookmarkClass = isBookmarked ? "fas fa-bookmark" : "far fa-bookmark";
         const disabledClass = LRR.isUserLogged() ? "" : " disabled";
         bookmarkIcon = `<i id="${id}" class="${bookmarkClass} thumbnail-bookmark-icon${disabledClass}" title="Toggle Bookmark" ${!LRR.isUserLogged() ? 'style="opacity: 0.5; cursor: not-allowed;"' : ''}></i>`;
-    } else {
-        bookmarkIcon = ``;
     }
 
     // Don't enforce no_fallback=true here, we don't want those divs to trigger Minion jobs 
