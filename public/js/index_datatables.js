@@ -76,7 +76,7 @@ IndexTable.initializeAll = function () {
         language: {
             info: I18N.IndexPageCount,
             infoEmpty: `<h1><br/><i class="fas fa-4x fa-toilet-paper-slash"></i><br/><br/>
-                        ${I18N.IndexNoArcsFound(new LRR.apiURL("/upload"))}"?</h1><br/>`,
+                        ${I18N.IndexNoArcsFound(new LRR.apiURL("/upload"))}</h1><br/>`,
             processing: `<div id="progress" class="indeterminate"><div class="bar-container"><div class="bar" style=" width: 80%; "></div></div></div>`,
         },
         preDrawCallback: IndexTable.initializeThumbView, // callbacks for thumbnail view
