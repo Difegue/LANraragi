@@ -70,6 +70,7 @@ sub clean_tempfolder {
     #Run a full clean, errors are dumped into $@ if they occur
     eval { LANraragi::Utils::PageCache::clear(); };
 
+    # TODO: New cache thing doesn't support showing total size, maybe just remove all size display?
     $self->render(
         json => {
             operation => "cleantemp",

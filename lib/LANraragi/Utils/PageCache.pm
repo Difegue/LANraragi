@@ -19,14 +19,14 @@ my $cache = undef;
 sub initialize() {
     my $logger = get_logger( "PageCache", "lanraragi" );
     my $disk_size = LANraragi::Model::Config->get_tempmaxsize."m";
-    $logger->debug("Initializing cache, disk size: ".$disk_size);
+    my $memory_size = LANraragi::Model::Config->get_cachemaxsize."m";
+    $logger->debug("Initializing cache, disk size: ".$disk_size.", mem cache size: ".$memory_size);
 
-    # TODO: Make memory cache size configurable
     $cache = CHI->new(
         driver     => 'FastMmap',
         cache_size => $disk_size,
         root_dir => get_temp,
-        l1_cache => { driver => 'Memory', global => 1, max_size => 1024*1024*128 }
+        l1_cache => { driver => 'Memory', global => 1, max_size => $memory_size }
     );
 }
 

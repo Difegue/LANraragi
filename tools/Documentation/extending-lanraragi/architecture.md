@@ -198,6 +198,7 @@ The base architecture is as follows:
 |  |- dirname  <- Content directory
 |  |- thumbdir <- Thumbnail directory  
 |  |- tempmaxsize <- Temp folder max size 
+|  |- cachemaxsize <- Memory cache max size 
 |  |- enableresize <- Whether automatic image resizing is enabled  
 |  |- sizethreshold <- Auto-resizing threshold
 |  |- readerquality <- Auto-resizing quality
