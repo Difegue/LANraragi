@@ -442,8 +442,8 @@ Index.checkVersion = function () {
                 return response.json();
             }
             if (response.status === 403) {
-                console.error("API rate limit exceeded: ", response);
-                throw new Error("API rate limit exceeded");
+                console.error("Github API rate limit exceeded: ", response);
+                throw new Error("Github API rate limit exceeded");
             }
             console.error("GitHub API returned: ", response);
             throw new Error(`GitHub API returned ${response.status}`);
@@ -498,8 +498,8 @@ Index.fetchChangelog = function () {
                     return response.json();
                 }
                 if (response.status === 403) {
-                    console.error("API rate limit exceeded: ", response);
-                    throw new Error("API rate limit exceeded");
+                    console.error("Github API rate limit exceeded: ", response);
+                    throw new Error("Github API rate limit exceeded");
                 }
                 console.error("GitHub API returned: ", response);
                 throw new Error(`GitHub API returned ${response.status}`);
