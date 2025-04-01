@@ -410,10 +410,18 @@ Reader.handleShortcuts = function (e) {
         }
         break;
     case 65: // a
-        Reader.changePage(-1);
+        if (e.shiftKey) {
+            Reader.changePage("first");
+        } else {
+            Reader.changePage(-1);
+        }
         break;
     case 68: // d
-        Reader.changePage(1);
+        if (e.shiftKey) {
+            Reader.changePage("last");
+        } else {
+            Reader.changePage(1);
+        }
         break;
     case 70: // f
         Reader.toggleFullScreen();
