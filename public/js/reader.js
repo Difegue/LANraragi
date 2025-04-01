@@ -318,7 +318,7 @@ Reader.handleShortcuts = function (e) {
         break;
     case 32: { // spacebar
     //Break if overlay is open, browser detects repeatkey but not held, or webtoon gallery and in infinite scroll
-    if ($(".page-overlay").is(":visible") || e.repeat || (Reader.infiniteScroll && Reader.tags?.includes("other:webtoon"))) break;
+    if ($(".page-overlay").is(":visible") || e.repeat || (Reader.infiniteScroll && Reader.tags?.includes("webtoon"))) break;
     e.preventDefault();
 
     const scrollDown = !e.shiftKey;
