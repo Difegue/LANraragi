@@ -59,6 +59,15 @@
     </td>
 </tr>
 
+<tr>
+    <td class="option-td">
+        <input id='clean-temp' class='stdbtn' type='button' value='[% c.lh("Clean Cache") %]' />
+    </td>
+    <td class="config-td">
+        <br>[% c.lh("Empty the cache manually by clicking this button.") %]
+    </td>
+</tr>
+
 <tr></tr>
 
 <tr>
