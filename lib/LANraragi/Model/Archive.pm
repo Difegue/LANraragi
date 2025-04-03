@@ -242,7 +242,6 @@ sub serve_page {
         my $threshold    = LANraragi::Model::Config->get_threshold;
         my $quality      = LANraragi::Model::Config->get_readquality;
 
-        # TODO: This is inefficient, doesn't reuse non-resized image cache
         my $cachekey = "resize_page/$id/$path/$threshold/$quality";
         my $content = LANraragi::Utils::PageCache::fetch($cachekey);
         if ( !defined($content)) {
