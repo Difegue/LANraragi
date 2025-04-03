@@ -57,14 +57,12 @@ sub generate_thumbnail ( $data, $use_hq, $use_jxl ) {
             $img->Set( option => 'jpeg:size=500x' );
         }
 
-        # TODO: Figure out if this is possible with BlobToImage
-        # If the image is a gif, only take the first frame
-        #if ( $orig_path =~ /\.gif$/ ) {
-        #    $img->Read( $orig_path . "[0]" );
-        #} else {
-        #    $img->Read($orig_path);
-        #}
         $img->BlobToImage($data);
+
+        # If the image is a gif, only take the first frame
+        if ($img->Get('magick') eq 'GIF' ) {
+            $img = $img->[0];
+        }
 
         # The "-scale" resize operator is a simplified, faster form of the resize command.
         if ($use_hq) {
