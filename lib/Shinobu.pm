@@ -81,9 +81,6 @@ sub initialize_from_new_process {
     my $class = ref($contentwatcher);
     $logger->debug("Watcher class is $class");
 
-    # Add watcher to tempfolder
-    my $tempwatcher = File::ChangeNotify->instantiate_watcher( directories => [ get_temp() ] );
-
     # manual event loop
     $logger->info("All done! Now dutifully watching your files. ");
 
@@ -92,11 +89,6 @@ sub initialize_from_new_process {
         # Check events on files
         for my $event ( $contentwatcher->new_events ) {
             $inotifysub->($event);
-        }
-
-        # Check the current temp folder size and clean it if necessary
-        for my $event ( $tempwatcher->new_events ) {
-            clean_temp_partial();
         }
 
         sleep 2;
