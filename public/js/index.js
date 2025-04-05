@@ -443,10 +443,10 @@ Index.checkVersion = function () {
             }
             if (response.status === 403) {
                 console.error("Github API rate limit exceeded: ", response);
-                throw new Error("Github API rate limit exceeded");
+                throw new Error(I18N.IndexGithubRateLimitError);
             }
             console.error("GitHub API returned: ", response);
-            throw new Error(`GitHub API returned ${response.status}`);
+            throw new Error(I18N.IndexGithubAPIError(response.status));
         })
         .then((data) => {
             const expr = /(\d+)/g;
@@ -493,7 +493,17 @@ Index.fetchChangelog = function () {
         localStorage.lrrVersion = Index.serverVersion;
 
         fetch("https://api.github.com/repos/difegue/lanraragi/releases/latest", { method: "GET" })
-            .then((response) => (response.ok ? response.json() : { error: I18N.GenericReponseError }))
+            .then((response) => {
+                if (response.ok) {
+                    return response.json();
+                }
+                if (response.status === 403) {
+                    console.error("Github API rate limit exceeded: ", response);
+                    throw new Error(I18N.IndexGithubRateLimitError);
+                }
+                console.error("GitHub API returned: ", response);
+                throw new Error(I18N.IndexGithubAPIError(response.status));
+            })
             .then((data) => {
                 if (data.error) throw new Error(data.error);
 
