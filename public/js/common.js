@@ -337,7 +337,7 @@ LRR.showPopUp = function (c) {
     }
 
     if (c.icon === "warning" && !c.title) {
-        c.title = "This is a destructive operation!";
+        c.title = I18N.ConfirmDestructive;
     }
     return window.Swal.fire(c);
 };
@@ -368,15 +368,6 @@ LRR.getImgSizeAsync = function (target) {
         type: "HEAD",
     });
 };
-
-LRR.getDocHeight = function() {
-    var D = document;
-    return Math.max(
-        D.body.scrollHeight, D.documentElement.scrollHeight,
-        D.body.offsetHeight, D.documentElement.offsetHeight,
-        D.body.clientHeight, D.documentElement.clientHeight
-    );
-}
 
 /**
  * Show a generic toast with a given header and message.

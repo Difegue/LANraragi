@@ -90,15 +90,15 @@ Index.initializeAll = function () {
         localStorage.sawContextMenuToast = true;
 
         LRR.toast({
-            heading: `Welcome to LANraragi ${Index.serverVersion}!`,
-            text: "If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!",
+            heading: I18N.IndexWelcome(Index.serverVersion),
+            text: I18N.IndexWelcome2,
             icon: "info",
             hideAfter: 13000,
         });
     }
 
     // Get some info from the server: version, debug mode, local progress
-    Server.callAPI("/api/info", "GET", null, "Error getting basic server info!",
+    Server.callAPI("/api/info", "GET", null, I18N.ServerInfoError,
         (data) => {
             Index.serverVersion = data.version;
             Index.debugMode = !!data.debug_mode;
@@ -111,8 +111,8 @@ Index.initializeAll = function () {
                 Index.fetchChangelog();
             } else {
                 LRR.toast({
-                    heading: "<i class=\"fas fa-bug\"></i> You're running in Debug Mode!",
-                    text: `Advanced server statistics can be viewed <a href="${new LRR.apiURL("/debug")}">here.</a>`,
+                    heading: "<i class=\"fas fa-bug\"></i> " + I18N.DebugModeHeader,
+                    text: I18N.DebugModeDesc(new LRR.apiURL("/debug")),
                     icon: "warning",
                 });
             }
@@ -229,11 +229,11 @@ Index.toggleCategory = function (button) {
  */
 Index.promptCustomColumn = function (column) {
     LRR.showPopUp({
-        title: "Enter a tag namespace for this column",
-        text: "Enter a full namespace without the colon, e.g \"artist\".\nIf you have multiple tags with the same namespace, only the last one will be shown in the column.",
+        title: I18N.CustomColumn,
+        text: I18N.CustomColumnDesc + "\n" + I18N.CustomColumnDesc2,
         input: "text",
         inputValue: localStorage.getItem(`customColumn${column}`),
-        inputPlaceholder: "Tag namespace",
+        inputPlaceholder: I18N.TagNamespace,
         inputAttributes: {
             autocapitalize: "off",
         },
@@ -241,7 +241,7 @@ Index.promptCustomColumn = function (column) {
         reverseButtons: true,
         inputValidator: (value) => {
             if (!value) {
-                return "Please enter a namespace.";
+                return I18N.TagNamespaceError;
             }
             return undefined;
         },
@@ -332,22 +332,22 @@ Index.updateCarousel = function (e) {
     switch (localStorage.carouselType) {
     case "random":
         $("#carousel-icon")[0].classList = "fas fa-random";
-        $("#carousel-title").text("Randomly Picked");
+        $("#carousel-title").text(I18N.CarouselRandom);
         endpoint = `/api/search/random?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}&count=15`;
         break;
     case "inbox":
         $("#carousel-icon")[0].classList = "fas fa-envelope-open-text";
-        $("#carousel-title").text("New Archives");
+        $("#carousel-title").text(I18N.NewArchives);
         endpoint = `/api/search?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}&newonly=true&sortby=date_added&order=desc&start=-1`;
         break;
     case "untagged":
         $("#carousel-icon")[0].classList = "fas fa-edit";
-        $("#carousel-title").text("Untagged Archives");
+        $("#carousel-title").text(I18N.UntaggedArchives);
         endpoint = `/api/search?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}&untaggedonly=true&sortby=date_added&order=desc&start=-1`;
         break;
     case "ondeck":
         $("#carousel-icon")[0].classList = "fas fa-book-reader";
-        $("#carousel-title").text("On Deck");
+        $("#carousel-title").text(I18N.CarouselOnDeck);
         endpoint = `/api/search?filter=${IndexTable.currentSearch}&sortby=lastread`;
         break;
     default:
@@ -358,7 +358,7 @@ Index.updateCarousel = function (e) {
     }
 
     if (Index.carouselInitialized) {
-        Server.callAPI(endpoint, "GET", null, "Error getting carousel data!",
+        Server.callAPI(endpoint, "GET", null, I18N.CarouselError,
             (results) => {
                 Index.swiper.virtual.removeAllSlides();
                 const slides = results.data
@@ -394,7 +394,7 @@ Index.generateTableHeaders = function (columnCount) {
     headerRow.empty();
     const headerWidth = localStorage.getItem(`resizeColumn0`) || "";
     headerRow.append(`<th id="titleheader" width="${headerWidth}">
-							<a>Title</a>
+							<a>${I18N.IndexTitle}</a>
 						</th>`);
 
     for (let i = 1; i <= columnCount; i++) {
@@ -403,13 +403,13 @@ Index.generateTableHeaders = function (columnCount) {
 
         const headerHtml = `  
             <th id="customheader${i}" width="${colWidth}">  
-                <i id="edit-header-${i}" class="fas fa-pencil-alt edit-header-btn" title="Edit this column"></i>  
+                <i id="edit-header-${i}" class="fas fa-pencil-alt edit-header-btn" title="${I18N.IndexEditColumn}"></i>  
                 <a id="header-${i}">${customColumn.charAt(0).toUpperCase() + customColumn.slice(1)}</a>  
             </th>`;
         headerRow.append(headerHtml);
     }
     headerRow.append(`<th id="tagsheader">
-							<a>Tags</a>
+							<a>${I18N.IndexTags}</a>
 						</th>`);
 };
 
@@ -422,10 +422,10 @@ Index.updateTableHeaders = function () {
     Index.generateTableHeaders(columnCount);
 
     for (let i = 1; i <= columnCount; i++) {
-        const customColumn = localStorage[`customColumn${i}`] || `Header ${i}`;
+        const customColumn = localStorage[`customColumn${i}`] || `${I18N.IndexHeader} ${i}`;
         $(`#customcol${i}`).val(customColumn);
 
-        $(`#header-${i}`).html(customColumn.charAt(0).toUpperCase() + customColumn.slice(1) || `Header ${i}`);
+        $(`#header-${i}`).html(customColumn.charAt(0).toUpperCase() + customColumn.slice(1) || `${I18N.IndexHeader} ${i}`);
     }
 };
 
@@ -472,8 +472,8 @@ Index.checkVersion = function () {
 
             if (latestVersion > currentVersion) {
                 LRR.toast({
-                    heading: `A new version of LANraragi (${data.tag_name}) is available !`,
-                    text: `<a href="${data.html_url}">Click here to check it out.</a>`,
+                    heading: I18N.IndexUpdateNotif(data.tag_name),
+                    text: `<a href="${data.html_url}">${I18N.IndexUpdateNotif2}</a>`,
                     icon: "info",
                     closeOnClick: false,
                     draggable: false,
@@ -493,17 +493,7 @@ Index.fetchChangelog = function () {
         localStorage.lrrVersion = Index.serverVersion;
 
         fetch("https://api.github.com/repos/difegue/lanraragi/releases/latest", { method: "GET" })
-            .then((response) => {
-                if (response.ok) {
-                    return response.json();
-                }
-                if (response.status === 403) {
-                    console.error("Github API rate limit exceeded: ", response);
-                    throw new Error("Github API rate limit exceeded");
-                }
-                console.error("GitHub API returned: ", response);
-                throw new Error(`GitHub API returned ${response.status}`);
-            })
+            .then((response) => (response.ok ? response.json() : { error: I18N.GenericReponseError }))
             .then((data) => {
                 if (data.error) throw new Error(data.error);
 
@@ -524,7 +514,7 @@ Index.fetchChangelog = function () {
                     $("#updateOverlay").css("display", "block");
                 });
             })
-            .catch((error) => { LRR.showErrorToast("Error getting changelog for new version", error); });
+            .catch((error) => { LRR.showErrorToast(I18N.IndexUpdateError, error); });
     }
 };
 
@@ -534,7 +524,7 @@ Index.fetchChangelog = function () {
  * @returns Categories
  */
 Index.loadContextMenuCategories = function (id) {
-    return Server.callAPI(`/api/archives/${id}/categories`, "GET", null, `Error finding categories for ${id}!`,
+    return Server.callAPI(`/api/archives/${id}/categories`, "GET", null, I18N.IndexIdLoadError(id),
         (data) => {
             const items = {};
 
@@ -544,7 +534,7 @@ Index.loadContextMenuCategories = function (id) {
             }
 
             if (Object.keys(items).length === 0) {
-                items.noop = { name: "This archive isn't in any category.", icon: "far fa-sad-cry" };
+                items.noop = { name: I18N.IndexArcInNoCats, icon: "far fa-sad-cry" };
             }
 
             return items;
@@ -558,7 +548,7 @@ Index.loadContextMenuCategories = function (id) {
  * @param {*} id The ID of the archive to check
  * @returns Categories
  */
-Index.loadContextMenuCategories = (catList, id) => Server.callAPI(`/api/archives/${id}/categories`, "GET", null, `Error finding categories for ${id}!`,
+Index.loadContextMenuCategories = (catList, id) => Server.callAPI(`/api/archives/${id}/categories`, "GET", null, I18N.IndexIdLoadError(id),
     (data) => {
         const items = {};
 
@@ -583,7 +573,7 @@ Index.loadContextMenuCategories = (catList, id) => Server.callAPI(`/api/archives
         }
 
         if (Object.keys(items).length === 0) {
-            items.noop = { name: "No Categories yet...", icon: "far fa-sad-cry" };
+            items.noop = { name: I18N.IndexNoCategories, icon: "far fa-sad-cry" };
         }
 
         return items;
@@ -595,11 +585,11 @@ Index.loadContextMenuCategories = (catList, id) => Server.callAPI(`/api/archives
  * @param {*} id The ID of the archive to check
  * @returns Ratings
  */
-Index.loadContextMenuRatings = (id) => Server.callAPI(`/api/archives/${id}/metadata`, "GET", null, `Error finding metadata for ${id}!`,
+Index.loadContextMenuRatings = (id) => Server.callAPI(`/api/archives/${id}/metadata`, "GET", null, I18N.IndexIdLoadError(id),
     (data) => {
         const items = {};
         const ratings = [{
-            name: "Remove rating"
+            name: I18N.IndexRemoveRating
         }, {
             name: "⭐",
         }, {
@@ -652,11 +642,11 @@ Index.handleContextMenu = function (option, id) {
         break;
     case "delete":
         LRR.showPopUp({
-            text: "Are you sure you want to delete this archive?",
+            text: I18N.ConfirmArchiveDeletion,
             icon: "warning",
             showCancelButton: true,
             focusConfirm: false,
-            confirmButtonText: "Yes, delete it!",
+            confirmButtonText: I18N.ConfirmYes,
             reverseButtons: true,
             confirmButtonColor: "#d33",
         }).then((result) => {
@@ -681,7 +671,7 @@ Index.handleContextMenu = function (option, id) {
  */
 Index.loadTagSuggestions = function () {
     // Query the tag cloud API to get the most used tags.
-    Server.callAPI("/api/database/stats?minweight=2", "GET", null, "Couldn't load tag suggestions",
+    Server.callAPI("/api/database/stats?minweight=2", "GET", null, I18N.TagStatsLoadFailure,
         (data) => {
             // Get namespaces objects in the data array to fill the namespace-sortby combobox
             const namespacesSet = new Set(data.map((element) => (element.namespace === "parody" ? "series" : element.namespace)));
@@ -724,7 +714,7 @@ Index.loadTagSuggestions = function () {
  * Query the category API to build the filter buttons.
  */
 Index.loadCategories = function () {
-    Server.callAPI("/api/categories", "GET", null, "Couldn't load categories",
+    Server.callAPI("/api/categories", "GET", null, I18N.CategoryFetchError,
         (data) => {
             // Sort by pinned + alpha
             // Pinned categories are shown at the beginning
@@ -733,12 +723,12 @@ Index.loadCategories = function () {
             // Queue some hardcoded categories at the beginning - those are special-cased in the DataTables variant of the search endpoint. 
             let html = `<div style='display:inline-block'>
                             <input class='favtag-btn ${(("NEW_ONLY" === Index.selectedCategory) ? "toggled" : "")}' 
-                            type='button' id='NEW_ONLY' value='🆕 New only' 
-                            onclick='Index.toggleCategory(this)' title='Click here to display new archives only.'/>
+                            type='button' id='NEW_ONLY' value='🆕 ${I18N.NewArchives}' 
+                            onclick='Index.toggleCategory(this)' title='${I18N.NewArchiveDesc}'/>
                         </div><div style='display:inline-block'>
                             <input class='favtag-btn ${(("UNTAGGED_ONLY" === Index.selectedCategory) ? "toggled" : "")}' 
-                            type='button' id='UNTAGGED_ONLY' value='🏷️ Untagged only' 
-                            onclick='Index.toggleCategory(this)' title='Click here to display untagged archives only.'/>
+                            type='button' id='UNTAGGED_ONLY' value='🏷️ ${I18N.UntaggedArchives}' 
+                            onclick='Index.toggleCategory(this)' title='${I18N.UntaggedArcDesc}'/>
                         </div>`;
 
             const iteration = (data.length > 10 ? 10 : data.length);
@@ -753,7 +743,7 @@ Index.loadCategories = function () {
                 const div = `<div style='display:inline-block'>
                     <input class='favtag-btn ${((category.id === Index.selectedCategory) ? "toggled" : "")}' 
                             type='button' id='${category.id}' value='${catName}' 
-                            onclick='Index.toggleCategory(this)' title='Click here to display the archives contained in this category.'/>
+                            onclick='Index.toggleCategory(this)' title='${I18N.CategoryDesc}'/>
                 </div>`;
 
                 html += div;
@@ -794,8 +784,8 @@ Index.migrateProgress = function () {
     const localProgressKeys = Object.keys(localStorage).filter((x) => x.endsWith("-reader")).map((x) => x.slice(0, -7));
     if (localProgressKeys.length > 0) {
         LRR.toast({
-            heading: "Your Reading Progression is now saved on the server!",
-            text: "You seem to have some local progression hanging around -- Please wait warmly while we migrate it to the server for you. ☕",
+            heading: I18N.LocalProgression,
+            text: I18N.LocalProgressionDesc + " ☕",
             icon: "info",
             hideAfter: 23000,
         });
@@ -812,7 +802,7 @@ Index.migrateProgress = function () {
                         && data !== undefined
                         && data !== null
                         && progress > data.progress) {
-                        Server.callAPI(`api/archives/${id}/progress/${progress}?force=1`, "PUT", null, "Error updating reading progress!", null);
+                        Server.callAPI(`api/archives/${id}/progress/${progress}?force=1`, "PUT", null, I18N.LocalProgressionError, null);
                     }
 
                     // Clear out localStorage'd progress
@@ -822,8 +812,8 @@ Index.migrateProgress = function () {
         });
 
         Promise.all(promises).then(() => LRR.toast({
-            heading: "Reading Progression has been fully migrated! 🎉",
-            text: "You'll have to reopen archives in the Reader to see the migrated progression values.",
+            heading: I18N.LocalProgressionComplete + " 🎉",
+            text: I18N.LocalProgressionCompleteDesc,
             icon: "success",
             hideAfter: 13000,
         }));
