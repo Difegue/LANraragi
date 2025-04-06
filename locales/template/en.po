@@ -1551,4 +1551,17 @@ msgstr "Error while processing file."
 msgid "Error while downloading file."
 msgstr "Error while downloading file."
 
+msgid "Error sending job to Minion"
+msgstr "Error sending job to Minion"
+
 # ------End of i18n.html.tt2------
+
+# ------Start of Duplicates.html.tt2------
+
+msgid "Duplicates"
+msgstr "Duplicates"
+
+msgid "Found %1 duplicate groups"
+msgstr "Found %1 duplicate groups"
+
+# ------End of Duplicates.html.tt2------

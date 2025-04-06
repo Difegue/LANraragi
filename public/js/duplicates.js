@@ -187,11 +187,11 @@ Duplicates.conditionChange = function (event) {
 
 Duplicates.deleteArchive = function (event) {
     LRR.showPopUp({
-        text: "Are you sure you want to delete this archive?",
+        text: I18N.ConfirmArchiveDeletion,
         icon: "warning",
         showCancelButton: true,
         focusConfirm: false,
-        confirmButtonText: "Yes, delete it!",
+        confirmButtonText: I18N.ConfirmYes,
         reverseButtons: true,
         confirmButtonColor: "#d33",
     }).then((result) => {
@@ -204,11 +204,11 @@ Duplicates.deleteArchive = function (event) {
 
 Duplicates.deleteArchives = function () {
     LRR.showPopUp({
-        text: "Are you sure you want to delete all selected archives?",
+        text: I18N.ConfirmArchivesDeletion,
         icon: "warning",
         showCancelButton: true,
         focusConfirm: false,
-        confirmButtonText: "Yes, delete all!",
+        confirmButtonText: I18N.ConfirmYes,
         reverseButtons: true,
         confirmButtonColor: "#d33",
     }).then((result) => {
