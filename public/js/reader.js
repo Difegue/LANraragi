@@ -16,6 +16,7 @@ Reader.initializeAll = function () {
     Reader.initializeSettings();
     Reader.applyContainerWidth();
     Reader.registerPreload();
+    document.documentElement.style.scrollBehavior = 'smooth';
 
     // Bind events to DOM
     $(document).on("keyup", Reader.handleShortcuts);
@@ -315,16 +316,44 @@ Reader.handleShortcuts = function (e) {
     case 27: // escape
         LRR.closeOverlay();
         break;
-    case 32: // spacebar
-        if ($(".page-overlay").is(":visible")) { break; }
-        if (e.originalEvent.getModifierState("Shift") && (window.scrollY) === 0) {
-            (Reader.mangaMode) ? Reader.changePage(1) : Reader.changePage(-1);
-        } else if (($(window).height() + $(window).scrollTop()) >= LRR.getDocHeight()) {
-            (Reader.mangaMode) ? Reader.changePage(-1) : Reader.changePage(1);
-        }
-        // spacebar is always forward regardless of reading direction, so it needs to be flipped
-        // to always result in a positive offset when it reaches the changePage() logic
+    case 32: { // spacebar
+    //Break if overlay is open, browser detects repeatkey but not held, or webtoon gallery and in infinite scroll
+    if ($(".page-overlay").is(":visible") || e.repeat || (Reader.infiniteScroll && Reader.tags?.includes("webtoon"))) break;
+    e.preventDefault();
+
+    const scrollDown = !e.shiftKey;
+    const h = window.innerHeight;
+    const scrollTop = window.scrollY;
+    const images = document.querySelectorAll(".reader-image");
+    const img = [...images].find(i => {
+        const r = i.getBoundingClientRect();
+        return r.top <= h && r.bottom >= 0;
+    });
+
+    if (!img) {
+        (images[scrollDown ? 0 : images.length - 1] || images[0])?.scrollIntoView();
         break;
+    }
+
+    const r = img.getBoundingClientRect();
+    const imgBottom = r.bottom + scrollTop;
+    const newPos = scrollTop + (scrollDown ? h : -h);
+
+    if ((scrollDown && scrollTop + h > imgBottom - h * 0.2) ||
+        (!scrollDown && scrollTop < r.top + scrollTop + h * 0.2)) {
+        const imgIndex = [...images].indexOf(img);
+        const nextImg = images[imgIndex + (scrollDown ? 1 : -1)];
+        nextImg?.scrollIntoView() || 
+        (!Reader.infiniteScroll && Reader.changePage(scrollDown ? 1 : -1));
+    } else {
+        window.scrollTo({
+            top: scrollDown ? 
+                Math.min(newPos, imgBottom - h) : 
+                Math.max(newPos, r.top + scrollTop)
+        });
+    }
+    break;
+}
     case 37: // left arrow
     case 65: // a
         Reader.changePage(-1);
@@ -470,7 +499,7 @@ Reader.goToPage = function (page) {
     Reader.showingSinglePage = false;
 
     if (Reader.infiniteScroll) {
-        $("#display img").get(Reader.currentPage).scrollIntoView({ behavior: "smooth" });
+        $("#display img").get(Reader.currentPage).scrollIntoView();
     } else {
         $("#img_doublepage").attr("src", "");
         $("#display").removeClass("double-mode");
@@ -770,7 +799,19 @@ Reader.initializeArchiveOverlay = function () {
         });
 };
 
-Reader.changePage = function (targetPage) {
+Reader.changePage = function(targetPage) {
+    // Sync position if in infinite scroll mode
+    if (Reader.infiniteScroll) {
+        const images = [...document.querySelectorAll('.reader-image')];
+        const midViewport = window.innerHeight / 2;
+        for (let i = 0; i < images.length; i++) {
+            const rect = images[i].getBoundingClientRect();
+            if (rect.top <= midViewport && rect.bottom >= midViewport) {
+                Reader.currentPage = i;
+                break;
+            }
+        }
+    }
     let destination;
     if (targetPage === "first") {
         destination = Reader.mangaMode ? Reader.maxPage : 0;
