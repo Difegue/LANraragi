@@ -983,6 +983,12 @@ msgstr "默认是两张图片。"
 msgid "Header"
 msgstr "页眉"
 
+msgid "Github API rate limit exceeded."
+msgstr "Github API 已超请求限制。"
+
+msgid "Github API returned status: \${status}"
+msgstr "Github API 返回状态：${status}"
+
 msgid "Visible"
 msgstr "可见"
 

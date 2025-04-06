@@ -88,6 +88,8 @@ I18N.IndexUpdateNotif = (version) => `[% c.lh("A new version of LANraragi (\${ve
 I18N.IndexUpdateNotif2 = "[% c.lh("Click here to check it out.") %]";
 I18N.IndexUpdateError = "[% c.lh("Error getting changelog for new version") %]";
 I18N.IndexIdLoadError = (id) => `[% c.lh("Couldn't load data for \${id}!") %]`;
+I18N.IndexGithubRateLimitError = "[% c.lh("Github API rate limit exceeded.") %]";
+I18N.IndexGithubAPIError = (status) => `[% c.lh("Github API returned status: \${status}") %]`;
 I18N.IndexArcInNoCats = "[% c.lh("This archive isn't in any category.") %]";
 I18N.IndexNoCategories = "[% c.lh("No Categories yet...") %]";
 I18N.IndexRemoveRating = "[% c.lh("Remove rating") %]";

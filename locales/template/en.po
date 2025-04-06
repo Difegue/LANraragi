@@ -1367,6 +1367,12 @@ msgstr "Error getting changelog for new version"
 msgid Couldn't load data for \${id}!"
 msgstr "Couldn't load data for ${id}!"
 
+msgid "Github API rate limit exceeded."
+msgstr "Github API rate limit exceeded."
+
+msgid "Github API returned status: \${status}"
+msgstr "Github API returned status: ${status}"
+
 msgid "This archive isn't in any category."
 msgstr "This archive isn't in any category."
 
