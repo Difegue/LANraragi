@@ -52,8 +52,9 @@
 			<h2>[% c.lh("Select a category to show the matching settings.") %]</h2>
 			<br />
 			<input id='save' class='stdbtn' type='button' value='[% c.lh("Save Settings") %]' /><br />
-			<input id='plugin-config' class='stdbtn' type='button' value='[% c.lh("Plugin Configuration") %]' />
-			<input id='backup' class='stdbtn' type='button' value='[% c.lh("Database Backup/Restore") %]' />
+			<input id='plugin-config' class='stdbtn' type='button' value='[% c.lh("Plugin Configuration") %]' /> 
+			<input id='backup' class='stdbtn' type='button' value='[% c.lh("Database Backup/Restore") %]' /> 
+			<input id='duplicate' class='stdbtn' type='button' value='[% c.lh("Duplicate Detection") %]' /><br><br>
 			<input id='return' class='stdbtn' type='button' value='[% c.lh("Return to Library") %]' />
 
 		</div>

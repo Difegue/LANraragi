@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <head>
-	<title>[% title %] - [% c.lh("Duplicates") %]</title>
+	<title>[% title %] - [% c.lh("Duplicate Detection") %]</title>
 
 	<meta name="viewport" content="width=device-width" />
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -150,7 +150,7 @@
 
 <body>
 	<div class='ido' style='text-align:center; overflow-x:auto;'>
-		<h2 class="ih" style="text-align:center">Duplicates</h2>
+		<h2 class="ih" style="text-align:center">[% c.lh("Duplicate Detection") %]</h2>
         <p>[% c.lh("Found [_1] duplicate groups", duplicates.size) %]</p>
 
         <div class="control-btn-group">
