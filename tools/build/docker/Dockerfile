@@ -3,14 +3,14 @@ FROM        alpine:3.20
 LABEL       git="https://github.com/Difegue/LANraragi"
 ARG INSTALL_PARAMETER
 
-ENV S6_KEEP_ENV 1
+ENV S6_KEEP_ENV=1
 
 # warn if we can't run stage2 (fix-attrs/cont-init)
-ENV S6_BEHAVIOUR_IF_STAGE2_FAILS 1
+ENV S6_BEHAVIOUR_IF_STAGE2_FAILS=1
 
 # wait 10s before KILLing
-ENV S6_KILL_GRACETIME 10000
-ENV S6_CMD_WAIT_FOR_SERVICES_MAXTIME 0
+ENV S6_KILL_GRACETIME=10000
+ENV S6_CMD_WAIT_FOR_SERVICES_MAXTIME=0
 
 # s6: The init is provided by alpine's s6-overlay package, hence the double slash.
 # See https://pkgs.alpinelinux.org/contents?branch=v3.14&name=s6-overlay&arch=x86&repo=community
