@@ -12,14 +12,54 @@ Duplicates.initializeAll = function () {
     $(document).on("mouseenter.thumbnail-wrapper", ".thumbnail-wrapper", (e) => $(e.currentTarget).find(".thumbnail-popover").show());
     $(document).on("mouseleave.thumbnail-wrapper", ".thumbnail-wrapper", (e) => $(e.currentTarget).find(".thumbnail-popover").hide());
 
-    $(document).on("click.find-duplicates", ".find-duplicates", Server.findDuplicates);
+    $(document).on("click.find-duplicates", ".find-duplicates", Duplicates.findDuplicates);
     $(document).on("click.clear-duplicates", ".clear-duplicates", () => { window.location.href = new LRR.apiURL("/duplicates?delete=1"); });
     $(document).on("click.delete-archive", ".delete-archive", Duplicates.deleteArchive);
     $(document).on("click.delete-selected", ".delete-selected", Duplicates.deleteArchives);
 
     $(document).on("change.duplicate-select-condition", ".duplicate-select-condition", Duplicates.conditionChange);
-    Duplicates.inizializeDataTable();
+    Duplicates.initializeDataTable();
 }
+
+/**
+ * Sends a POST request to queue a find_duplicates job,
+ * detecting archive duplicates based on their thumbnail hashes.
+ */
+Duplicates.findDuplicates = function () {
+
+    let formData = new FormData();
+    formData.append("args", "[5]"); // threshold
+    formData.append("priority", 0);
+
+    Server.callAPIBody(`/api/minion/find_duplicates/queue`, "POST", formData,
+        "Queued up a job to find duplicates! Stay tuned for updates or check the Minion console.",
+        I18N.MinionSendError,
+        (data) => {
+            // Disable the buttons to avoid accidental double-clicks.
+            $(".find-duplicates").prop("disabled", true);
+
+            // Check minion job state periodically while we're on this page
+            Server.checkJobStatus(
+                data.job,
+                true,
+                (d) => {
+                    // Refresh the window so that the newly found duplicates are shown.
+                    // Make sure the URL doesn't contain delete=1 so we don't instantly delete them.
+                    if (window.location.href.includes("delete=1")) {
+                        window.location.href = window.location.href.replace(/delete=1/, "");
+                    }
+                    else {
+                        window.location.reload();
+                    }
+                },
+                (error) => {
+                    $(".find-duplicates").prop("disabled", false);
+                    LRR.showErrorToast(I18N.MinionCheckError, error);
+                },
+            );
+        },
+    );
+};
 
 Duplicates.drawCallbackDataTable = function (settings) {
     var groupColumn = 0;
@@ -40,7 +80,7 @@ Duplicates.drawCallbackDataTable = function (settings) {
         });
 }
 
-Duplicates.inizializeDataTable = function () {
+Duplicates.initializeDataTable = function () {
     Duplicates.dt = $('#ds').DataTable({
         dom: '<"table-control-wrapper" <"search-box" f><"length-box" l>><t><p>',
         // avoid sorting columns as it messes with the grouping

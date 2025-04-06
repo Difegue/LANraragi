@@ -327,42 +327,6 @@ Server.deleteArchive = function (arcId, callback) {
 };
 
 /**
- * Sends a POST request to queue a find_duplicates job,
- * detecting archive duplicates based on their thumbnail hashes.
- */
-Server.findDuplicates = function () {
-    Server.callAPI(`/api/find_dupes`, "POST",
-        "Queued up a job to find duplicates! Stay tuned for updates or check the Minion console.",
-        "Error while sending job to Minion:",
-        (data) => {
-            // Disable the buttons to avoid accidental double-clicks.
-            $(".find-duplicates").prop("disabled", true);
-
-            // Check minion job state periodically while we're on this page
-            Server.checkJobStatus(
-                data.job,
-                true,
-                (d) => {
-                    $(".find-duplicates").prop("disabled", false);
-                    LRR.toast({
-                        heading: "All duplicates found! Encountered the following errors:",
-                        text: d.result.errors,
-                        icon: "success",
-                        hideAfter: 15000,
-                        closeOnClick: false,
-                        draggable: false,
-                    });
-                },
-                (error) => {
-                    $(".find-duplicates").prop("disabled", false);
-                    LRR.showErrorToast("The Find Duplicates job failed!", error);
-                },
-            );
-        },
-    );
-};
-
-/**
  * Sends a UPDATE request for the metadata of the archive ID
  * @param {*} arcId Archive ID
  */
