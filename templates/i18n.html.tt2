@@ -67,7 +67,7 @@ I18N.IndexPageCount = "[% c.lh("Showing _START_ to _END_ of _TOTAL_ ancient chin
 I18N.IndexNoArcsFound = (url) => `[% c.lh("No archives to show you! Try <a href=\"\${url}\")>uploading some</a>?") %]`;
 I18N.IndexWelcome = (version) => `[% c.lh("Welcome to LANraragi \${version}!") %]`;
 I18N.IndexWelcome2 = "[% c.lh("If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!") %]";
-I18N.ServerInfoError = "[% c.lh("Error getting server info.") %]";
+I18N.ServerInfoError = "[% c.lh("Error getting basic server info.") %]";
 I18N.DebugModeHeader = "[% c.lh("You're running in Debug Mode!") %]";
 I18N.DebugModeDesc = (url) => `[% c.lh("Advanced server statistics can be viewed <a href=\"\${url}\")>here</a>.") %]`;
 I18N.CustomColumn = "[% c.lh("Enter a tag namespace for this column") %]";
