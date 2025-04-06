@@ -1072,6 +1072,9 @@ msgstr "返回库"
 
 # ------Start of Upload.html.tt2------
 
+msgid "Upload Center"
+msgstr "Upload Center"
+
 msgid "Adding Archives to the Library"
 msgstr "将档案添加到库"
 

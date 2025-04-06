@@ -1066,6 +1066,9 @@ msgstr "Return to Library"
 
 # ------Start of Upload.html.tt2------
 
+msgid "Upload Center"
+msgstr "Upload Center"
+
 msgid "Adding Archives to the Library"
 msgstr "Adding Archives to the Library"
 
