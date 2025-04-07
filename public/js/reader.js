@@ -16,6 +16,7 @@ Reader.initializeAll = function () {
     Reader.initializeSettings();
     Reader.applyContainerWidth();
     Reader.registerPreload();
+    document.documentElement.style.scrollBehavior = 'smooth';
 
     // Bind events to DOM
     $(document).on("keyup", Reader.handleShortcuts);
@@ -47,11 +48,11 @@ Reader.initializeAll = function () {
     $(document).on("click.delete-archive", "#delete-archive", () => {
         LRR.closeOverlay();
         LRR.showPopUp({
-            text: "Are you sure you want to delete this archive?",
+            text: I18N.ConfirmArchiveDeletion,
             icon: "warning",
             showCancelButton: true,
             focusConfirm: false,
-            confirmButtonText: "Yes, delete it!",
+            confirmButtonText: I18N.ConfirmYes,
             reverseButtons: true,
             confirmButtonColor: "#d33",
         }).then((result) => {
@@ -86,7 +87,7 @@ Reader.initializeAll = function () {
         }
     });
     $(document).on("click.set-thumbnail", "#set-thumbnail", () => Server.callAPI(`/api/archives/${Reader.id}/thumbnail?page=${Reader.currentPage + 1}`,
-        "PUT", `Successfully set page ${Reader.currentPage + 1} as the thumbnail!`, "Error updating thumbnail!", null));
+        "PUT", I18N.ReaderUpdateThumbnail(Reader.currentPage), I18N.ReaderUpdateThumbnailError, null));
 
     $(document).on("click.thumbnail", ".quick-thumbnail", (e) => {
         LRR.closeOverlay();
@@ -111,10 +112,10 @@ Reader.initializeAll = function () {
     Reader.currentPage = (+params.get("p") || 1) - 1;
 
     // Remove the "new" tag with an api call
-    Server.callAPI(`/api/archives/${Reader.id}/isnew`, "DELETE", null, "Error clearing new flag! Check Logs.", null);
+    Server.callAPI(`/api/archives/${Reader.id}/isnew`, "DELETE", null, I18N.ReaderErrorClearingNew, null);
 
     // Get basic metadata
-    Server.callAPI(`/api/archives/${Reader.id}/metadata`, "GET", null, "Error getting basic archive info!",
+    Server.callAPI(`/api/archives/${Reader.id}/metadata`, "GET", null, I18N.ServerInfoError,
         (data) => {
             let { title } = data;
 
@@ -176,7 +177,7 @@ Reader.removeCategoryFlag = function ( categoryId ) {
 }
 
 Reader.loadImages = function () {
-    Server.callAPI(`/api/archives/${Reader.id}/files?force=${Reader.force}`, "GET", null, "Error getting the archive's imagelist!",
+    Server.callAPI(`/api/archives/${Reader.id}/files?force=${Reader.force}`, "GET", null, I18N.ReaderArchiveError,
         (data) => {
             Reader.pages = data.pages;
             Reader.maxPage = Reader.pages.length - 1;
@@ -222,7 +223,7 @@ Reader.loadImages = function () {
     ).finally(() => {
         if (Reader.pages === undefined) {
             $("#img").attr("src", new LRR.apiURL("/img/flubbed.gif").toString());
-            $("#display").append("<h2>I flubbed it while trying to open the archive.</h2>");
+            $("#display").append("<h2>"+I18N.ReaderArchiveError+"</h2>");
         }
     });
 };
@@ -345,16 +346,44 @@ Reader.handleShortcuts = function (e) {
     case 27: // escape
         LRR.closeOverlay();
         break;
-    case 32: // spacebar
-        if ($(".page-overlay").is(":visible")) { break; }
-        if (e.originalEvent.getModifierState("Shift") && (window.scrollY) === 0) {
-            (Reader.mangaMode) ? Reader.changePage(1) : Reader.changePage(-1);
-        } else if (($(window).height() + $(window).scrollTop()) >= LRR.getDocHeight()) {
-            (Reader.mangaMode) ? Reader.changePage(-1) : Reader.changePage(1);
-        }
-        // spacebar is always forward regardless of reading direction, so it needs to be flipped
-        // to always result in a positive offset when it reaches the changePage() logic
+    case 32: { // spacebar
+    //Break if overlay is open, browser detects repeatkey but not held, or webtoon gallery and in infinite scroll
+    if ($(".page-overlay").is(":visible") || e.repeat || (Reader.infiniteScroll && Reader.tags?.includes("webtoon"))) break;
+    e.preventDefault();
+
+    const scrollDown = !e.shiftKey;
+    const h = window.innerHeight;
+    const scrollTop = window.scrollY;
+    const images = document.querySelectorAll(".reader-image");
+    const img = [...images].find(i => {
+        const r = i.getBoundingClientRect();
+        return r.top <= h && r.bottom >= 0;
+    });
+
+    if (!img) {
+        (images[scrollDown ? 0 : images.length - 1] || images[0])?.scrollIntoView();
         break;
+    }
+
+    const r = img.getBoundingClientRect();
+    const imgBottom = r.bottom + scrollTop;
+    const newPos = scrollTop + (scrollDown ? h : -h);
+
+    if ((scrollDown && scrollTop + h > imgBottom - h * 0.2) ||
+        (!scrollDown && scrollTop < r.top + scrollTop + h * 0.2)) {
+        const imgIndex = [...images].indexOf(img);
+        const nextImg = images[imgIndex + (scrollDown ? 1 : -1)];
+        nextImg?.scrollIntoView() || 
+        (!Reader.infiniteScroll && Reader.changePage(scrollDown ? 1 : -1));
+    } else {
+        window.scrollTo({
+            top: scrollDown ? 
+                Math.min(newPos, imgBottom - h) : 
+                Math.max(newPos, r.top + scrollTop)
+        });
+    }
+    break;
+}
     case 37: // left arrow
         Reader.changePage(-1);
         break;
@@ -412,16 +441,16 @@ Reader.checkFiletypeSupport = function (extension) {
     if ((extension === "rar" || extension === "cbr") && !localStorage.rarWarningShown) {
         localStorage.rarWarningShown = true;
         LRR.toast({
-            heading: "This archive seems to be in RAR format!",
-            text: "RAR archives might not work properly in LANraragi depending on how they were made. If you encounter errors while reading, consider converting your archive to zip.",
+            heading: I18N.ReaderRarWarning,
+            text: I18N.ReaderRarWarningDesc,
             icon: "warning",
             hideAfter: 23000,
         });
     } else if (extension === "epub" && !localStorage.epubWarningShown) {
         localStorage.epubWarningShown = true;
         LRR.toast({
-            heading: "EPUB support in LANraragi is minimal",
-            text: "EPUB books will only show images in the Web Reader, and potentially out of order. If you want text support, consider pairing LANraragi with an <a href='https://sugoi.gitbook.io/lanraragi/advanced-usage/external-readers#generic-opds-readers'>OPDS reader.</a>",
+            heading: I18N.ReaderEpubWarning,
+            text: I18N.ReaderEpubWarningDesc,
             icon: "warning",
             hideAfter: 20000,
             closeOnClick: false,
@@ -433,7 +462,7 @@ Reader.checkFiletypeSupport = function (extension) {
 Reader.toggleHelp = function () {
     LRR.toast({
         toastId: "readerHelp",
-        heading: "Navigation Help",
+        heading: I18N.ReaderNavHelp,
         text: $("#reader-help").children().first().html(),
         icon: "info",
         hideAfter: 60000,
@@ -569,7 +598,7 @@ Reader.goToPage = function (page) {
     Reader.showingSinglePage = false;
 
     if (Reader.infiniteScroll) {
-        $("#display img").get(Reader.currentPage).scrollIntoView({ behavior: "smooth" });
+        $("#display img").get(Reader.currentPage).scrollIntoView();
     } else {
         $("#img_doublepage").attr("src", "");
         $("#display").removeClass("double-mode");
@@ -624,7 +653,7 @@ Reader.updateProgress = function () {
     if (Reader.trackProgressLocally) {
         localStorage.setItem(`${Reader.id}-reader`, Reader.currentPage + 1);
     } else {
-        Server.callAPI(`/api/archives/${Reader.id}/progress/${Reader.currentPage + 1}`, "PUT", null, "Error updating reading progress!", null);
+        Server.callAPI(`/api/archives/${Reader.id}/progress/${Reader.currentPage + 1}`, "PUT", null, I18N.ReaderErrorProgress, null);
     }
 };
 
@@ -819,7 +848,7 @@ Reader.initializeArchiveOverlay = function () {
         const thumbnailUrl = new LRR.apiURL(`/api/archives/${Reader.id}/thumbnail?page=${page}`);
         const thumbnail = `
             <div class='${thumbCss} quick-thumbnail' page='${index}' style='display: inline-block; cursor: pointer'>
-                <span class='page-number'>Page ${page}</span>
+                <span class='page-number'>${I18N.ReaderPage(page)}</span>
                 <img src="${thumbnailUrl}" id="${index}_thumb" />
                 <i id="${index}_spinner" class="fa fa-4x fa-circle-notch fa-spin ttspinner" style="display:flex;justify-content: center; align-items: center;"></i>
             </div>`;
@@ -862,14 +891,26 @@ Reader.initializeArchiveOverlay = function () {
                     data.job,
                     false,
                     (data) => thumbProgress(data.notes), // call progress callback one last time to ensure all thumbs are loaded
-                    () => LRR.showErrorToast("The page thumbnailing job didn't conclude properly. Your archive might be corrupted."),
+                    () => LRR.showErrorToast(I18N.ThumbJobError),
                     thumbProgress,
                 ));
             }
         });
 };
 
-Reader.changePage = function (targetPage) {
+Reader.changePage = function(targetPage) {
+    // Sync position if in infinite scroll mode
+    if (Reader.infiniteScroll) {
+        const images = [...document.querySelectorAll('.reader-image')];
+        const midViewport = window.innerHeight / 2;
+        for (let i = 0; i < images.length; i++) {
+            const rect = images[i].getBoundingClientRect();
+            if (rect.top <= midViewport && rect.bottom >= midViewport) {
+                Reader.currentPage = i;
+                break;
+            }
+        }
+    }
     let destination;
     if (targetPage === "first") {
         destination = Reader.mangaMode ? Reader.maxPage : 0;

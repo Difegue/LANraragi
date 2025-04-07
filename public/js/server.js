@@ -18,7 +18,7 @@ Server.isScriptRunning = false;
 Server.callAPI = function (endpoint, method, successMessage, errorMessage, successCallback) {
     endpoint = new LRR.apiURL(endpoint);
     return fetch(endpoint, { method })
-        .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))
+        .then((response) => (response.ok ? response.json() : { success: 0, error: I18N.GenericReponseError }))
         .then((data) => {
             if (Object.prototype.hasOwnProperty.call(data, "success") && !data.success) {
                 throw new Error(data.error);
@@ -46,7 +46,7 @@ Server.callAPI = function (endpoint, method, successMessage, errorMessage, succe
 Server.callAPIBody = function (endpoint, method, body, successMessage, errorMessage, successCallback) {
     endpoint = new LRR.apiURL(endpoint);
     return fetch(endpoint, { method, body })
-        .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))
+        .then((response) => (response.ok ? response.json() : { success: 0, error: I18N.GenericReponseError }))
         .then((data) => {
             if (Object.prototype.hasOwnProperty.call(data, "success") && !data.success) {
                 throw new Error(data.error);
@@ -83,7 +83,7 @@ Server.callAPIBody = function (endpoint, method, body, successMessage, errorMess
 Server.checkJobStatus = function (jobId, useDetail, callback, failureCallback, progressCallback = null) {
     let endpoint = new LRR.apiURL(useDetail ? `/api/minion/${jobId}/detail` : `/api/minion/${jobId}`);
     fetch(endpoint, { method: "GET" })
-        .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))
+        .then((response) => (response.ok ? response.json() : { success: 0, error: I18N.GenericReponseError }))
         .then((data) => {
             if (data.error) throw new Error(data.error);
 
@@ -116,7 +116,7 @@ Server.checkJobStatus = function (jobId, useDetail, callback, failureCallback, p
                 callback(data);
             }
         })
-        .catch((error) => { LRR.showErrorToast("Error checking Minion job status", error); failureCallback(error); });
+        .catch((error) => { LRR.showErrorToast(I18N.MinionCheckError, error); failureCallback(error); });
 };
 
 /**
@@ -129,25 +129,25 @@ Server.saveFormData = function (formSelector) {
     const postData = new FormData($(formSelector)[0]);
 
     return fetch(window.location.href, { method: "POST", body: postData })
-        .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))
+        .then((response) => (response.ok ? response.json() : { success: 0, error: I18N.GenericReponseError }))
         .then((data) => {
             if (data.success) {
                 LRR.toast({
-                    heading: "Saved Successfully!",
+                    heading: I18N.SaveSuccess,
                     icon: "success",
                 });
             } else {
                 throw new Error(data.message);
             }
         })
-        .catch((error) => LRR.showErrorToast("Error while saving", error));
+        .catch((error) => LRR.showErrorToast(I18N.SaveError, error));
 };
 
 Server.triggerScript = function (namespace) {
     const scriptArg = $(`#${namespace}_ARG`).val();
 
     if (Server.isScriptRunning) {
-        LRR.showErrorToast("A script is already running.", "Please wait for it to terminate.");
+        LRR.showErrorToast(I18N.ScriptRunning, I18N.ScriptRunningDesc);
         return;
     }
 
@@ -157,7 +157,7 @@ Server.triggerScript = function (namespace) {
 
     // Save data before triggering script
     Server.saveFormData("#editPluginForm")
-        .then(Server.callAPI(`/api/plugins/queue?plugin=${namespace}&arg=${scriptArg}`, "POST", null, "Error while executing Script :",
+        .then(Server.callAPI(`/api/plugins/queue?plugin=${namespace}&arg=${scriptArg}`, "POST", null, I18N.ScriptError,
             (data) => {
                 // Check minion job state periodically while we're on this page
                 Server.checkJobStatus(
@@ -170,14 +170,14 @@ Server.triggerScript = function (namespace) {
 
                         if (d.result.success === 1) {
                             LRR.toast({
-                                heading: "Script result",
+                                heading: I18N.ScriptResult,
                                 text: `<pre>${JSON.stringify(d.result.data, null, 4)}</pre>`,
                                 icon: "info",
                                 hideAfter: 10000,
                                 closeOnClick: false,
                                 draggable: false,
                             });
-                        } else LRR.showErrorToast(`Script failed: ${d.result.error}`);
+                        } else LRR.showErrorToast(I18N.ScriptResultFail(d.result.error));
                     },
                     () => {
                         Server.isScriptRunning = false;
@@ -190,7 +190,7 @@ Server.triggerScript = function (namespace) {
 };
 
 Server.cleanTemporaryFolder = function () {
-    Server.callAPI("/api/tempfolder", "DELETE", "Temporary Folder Cleaned!", "Error while cleaning Temporary Folder :",
+    Server.callAPI("/api/tempfolder", "DELETE", I18N.CleanedTempFolder, I18N.CleanedTempFolderError,
         (data) => {
             $("#tempsize").html(data.newsize);
         },
@@ -198,26 +198,26 @@ Server.cleanTemporaryFolder = function () {
 };
 
 Server.invalidateCache = function () {
-    Server.callAPI("/api/search/cache", "DELETE", "Threw away the Search Cache!", "Error while deleting cache! Check Logs.", null);
+    Server.callAPI("/api/search/cache", "DELETE", I18N.CleanedCacheFolder, I18N.ErrorDeletingCache, null);
 };
 
 Server.clearAllNewFlags = function () {
-    Server.callAPI("/api/database/isnew", "DELETE", "All archives are no longer new!", "Error while clearing flags! Check Logs.", null);
+    Server.callAPI("/api/database/isnew", "DELETE", I18N.CleanedNewStats, I18N.CleanedError, null);
 };
 
 Server.dropDatabase = function () {
     LRR.showPopUp({
-        title: "This is a (very) destructive operation! ",
-        text: "Are you sure you want to wipe the database?",
+        title: I18N.ConfirmVeryDestructive,
+        text: I18N.DropDatabaseMsg,
         icon: "warning",
         showCancelButton: true,
         focusConfirm: false,
-        confirmButtonText: "Yes, do it!",
+        confirmButtonText: I18N.ConfirmYes,
         reverseButtons: true,
         confirmButtonColor: "#d33",
     }).then((result) => {
         if (result.isConfirmed) {
-            Server.callAPI("/api/database/drop", "POST", "Sayonara! Redirecting you...", "Error while resetting the database? Check Logs.",
+            Server.callAPI("/api/database/drop", "POST", I18N.DropDatabaseConfirm, I18N.GenericReponseError,
                 () => {
                     setTimeout(() => { document.location.href = "./"; }, 1500);
                 },
@@ -227,18 +227,18 @@ Server.dropDatabase = function () {
 };
 
 Server.cleanDatabase = function () {
-    Server.callAPI("/api/database/clean", "POST", null, "Error while cleaning the database! Check Logs.",
+    Server.callAPI("/api/database/clean", "POST", null, I18N.CleanedError,
         (data) => {
             LRR.toast({
-                heading: `Successfully cleaned the database and removed ${data.deleted} entries!`,
+                heading: I18N.CleanDatabaseMsg(data.deleted),
                 icon: "success",
                 hideAfter: 7000,
             });
 
             if (data.unlinked > 0) {
                 LRR.toast({
-                    heading: `${data.unlinked} other entries have been unlinked from the database and will be deleted on the next cleanup!`,
-                    text: "Do a backup now if some files disappeared from your archive index.",
+                    heading: I18N.DatabaseUnlinkedWarning(data.unlinked),
+                    text: I18N.DatabaseUnlinkedDesc,
                     icon: "warning",
                     hideAfter: 16000,
                 });
@@ -250,8 +250,8 @@ Server.cleanDatabase = function () {
 Server.regenerateThumbnails = function (force) {
     const forceparam = force ? 1 : 0;
     Server.callAPI(`/api/regen_thumbs?force=${forceparam}`, "POST",
-        "Queued up a job to regenerate thumbnails! Stay tuned for updates or check the Minion console.",
-        "Error while sending job to Minion:",
+        I18N.RegenThumbnailStarted,
+        I18N.GenericReponseError,
         (data) => {
             // Disable the buttons to avoid accidental double-clicks.
             $("#genthumb-button").prop("disabled", true);
@@ -265,7 +265,7 @@ Server.regenerateThumbnails = function (force) {
                     $("#genthumb-button").prop("disabled", false);
                     $("#forcethumb-button").prop("disabled", false);
                     LRR.toast({
-                        heading: "All thumbnails generated! Encountered the following errors:",
+                        heading: I18N.RegenThumbnailSuccess,
                         text: d.result.errors,
                         icon: "success",
                         hideAfter: 15000,
@@ -276,7 +276,7 @@ Server.regenerateThumbnails = function (force) {
                 (error) => {
                     $("#genthumb-button").prop("disabled", false);
                     $("#forcethumb-button").prop("disabled", false);
-                    LRR.showErrorToast("The thumbnail regen job failed!", error);
+                    LRR.showErrorToast(I18N.MinionCheckError, error);
                 },
             );
         },
@@ -285,12 +285,12 @@ Server.regenerateThumbnails = function (force) {
 
 // Adds an archive to a category. Basic implementation to use everywhere.
 Server.addArchiveToCategory = function (arcId, catId) {
-    Server.callAPI(`/api/categories/${catId}/${arcId}`, "PUT", `Added ${arcId} to Category ${catId}!`, "Error adding/removing archive to category", null);
+    Server.callAPI(`/api/categories/${catId}/${arcId}`, "PUT", I18N.AddedToCategory(arcId,catId), I18N.CategoryEditError, null);
 };
 
 // Ditto, but for removing.
 Server.removeArchiveFromCategory = function (arcId, catId) {
-    Server.callAPI(`/api/categories/${catId}/${arcId}`, "DELETE", `Removed ${arcId} from Category ${catId}!`, "Error adding/removing archive to category", null);
+    Server.callAPI(`/api/categories/${catId}/${arcId}`, "DELETE", I18N.RemovedFromCategory(arcId,catId), I18N.CategoryEditError, null);
 };
 
 /**
@@ -302,12 +302,12 @@ Server.removeArchiveFromCategory = function (arcId, catId) {
 Server.deleteArchive = function (arcId, callback) {
     let endpoint = new LRR.apiURL(`/api/archives/${arcId}`);
     fetch(endpoint, { method: "DELETE" })
-        .then((response) => (response.ok ? response.json() : { success: 0, error: "Response was not OK" }))
+        .then((response) => (response.ok ? response.json() : { success: 0, error: I18N.GenericReponseError }))
         .then((data) => {
             if (!data.success) {
                 LRR.toast({
-                    heading: "Couldn't delete archive file. <br> (Maybe it has already been deleted beforehand?)",
-                    text: "Archive metadata has been deleted properly. <br> Please delete the file manually before returning to Library View.",
+                    heading: I18N.MissingFileDeletion,
+                    text: I18N.MissingFileDeletionError,
                     icon: "warning",
                     hideAfter: 20000,
                 });
@@ -315,15 +315,15 @@ Server.deleteArchive = function (arcId, callback) {
                 $("#goback").show();
             } else {
                 LRR.toast({
-                    heading: "Archive successfully deleted. Redirecting you ...",
-                    text: `File name : ${data.filename}`,
+                    heading: I18N.ArchiveDeleted,
+                    text: data.filename,
                     icon: "success",
                     hideAfter: 7000,
                 });
                 setTimeout(callback, 1500);
             }
         })
-        .catch((error) => LRR.showErrorToast("Error while deleting archive", error));
+        .catch((error) => LRR.showErrorToast(I18N.ArchiveDeletedError, error));
 };
 
 /**
@@ -334,7 +334,7 @@ Server.updateTagsFromArchive = function (arcId, tags) {
     const formData = new FormData();
     formData.append("tags", tags);
 
-    Server.callAPIBody(`/api/archives/${arcId}/metadata`, "PUT", formData, `Updated tags from Archive ${arcId}!`, "Error updating tags from archive", null);
+    Server.callAPIBody(`/api/archives/${arcId}/metadata`, "PUT", formData, I18N.EditMetadataSaved, I18N.EditMetadataError, null);
 };
 
 /**

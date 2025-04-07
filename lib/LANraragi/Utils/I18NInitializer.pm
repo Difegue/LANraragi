@@ -36,9 +36,11 @@ sub initialize {
             my @encoded_args = map { Encode::encode( 'UTF-8', $_ ) } @args;
 
             my $translated;
+            my $error;
             eval { $translated = $handle->maketext( $key, @encoded_args ); };
-            if ($@) {
-                $c->LRR_LOGGER->error("Maketext error: $@");
+            $error = $@;
+            if ($error) {
+                $c->LRR_LOGGER->error("Maketext error: [$error]");
                 return $key;
             }
 
