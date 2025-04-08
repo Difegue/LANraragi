@@ -175,6 +175,15 @@ msgstr "Return to Library"
 msgid "Link Bookmark Icon to this Category"
 msgstr "Link Bookmark Icon to this Category"
 
+msgid "Error linking bookmark button:"
+msgstr "Error linking bookmark button:"
+
+msgid "Error unlinking bookmark button:"
+msgstr "Error unlinking bookmark button:"
+
+msgid "Error getting bookmark category:"
+msgstr "Error getting bookmark category:"
+
 # ------End of Category.html.tt2------
 
 # ------Start of Config.html.tt2------

@@ -342,7 +342,7 @@ Server.updateTagsFromArchive = function (arcId, tags) {
  * @returns a promise containing the category ID if exists or an empty string.
  */
 Server.loadBookmarkCategoryId = function () {
-    return Server.callAPI("/api/categories/bookmark_link", "GET", null, "Error getting bookmark category: ", (data) => {
+    return Server.callAPI("/api/categories/bookmark_link", "GET", null, I18N.GetBookmarkError, (data) => {
         localStorage.setItem("bookmarkCategoryId", data.category_id);
         return data.category_id;
     });

@@ -162,7 +162,7 @@ Category.saveCurrentCategoryDetails = function () {
                         `/api/categories/bookmark_link/${categoryID}`,
                         "PUT",
                         null,
-                        "Error linking bookmark button:",
+                        I18N.BookmarkLinkError,
                         () => {
                             localStorage.setItem("bookmarkCategoryId", categoryID);
                             Category.indicateSaved();
@@ -174,7 +174,7 @@ Category.saveCurrentCategoryDetails = function () {
                         "/api/categories/bookmark_link",
                         "DELETE",
                         null,
-                        "Error unlinking bookmark button:",
+                        I18N.BookmarkUnlinkError,
                         () => {
                             localStorage.removeItem("bookmarkCategoryId");
                             Category.indicateSaved();
