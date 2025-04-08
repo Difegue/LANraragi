@@ -22,9 +22,9 @@ Category.initializeAll = function () {
 
 Category.addNewCategory = function (isDynamic) {
     LRR.showPopUp({
-        title: "Enter a name for the new category",
+        title: I18N.NewCategory,
         input: "text",
-        inputPlaceholder: "My Category",
+        inputPlaceholder: I18N.CategoryDefaultName,
         inputAttributes: {
             autocapitalize: "off",
         },
@@ -32,7 +32,7 @@ Category.addNewCategory = function (isDynamic) {
         reverseButtons: true,
         inputValidator: (value) => {
             if (!value) {
-                return "Please enter a category name.";
+                return I18N.MissingCatName;
             }
             return undefined;
         },
@@ -63,7 +63,7 @@ Category.loadCategories = function (selectedID) {
             const catCombobox = document.getElementById("category");
             catCombobox.options.length = 0;
             // Add default
-            catCombobox.options[catCombobox.options.length] = new Option("-- No Category --", "", true, false);
+            catCombobox.options[catCombobox.options.length] = new Option("-- "+ I18N.NoCategory + " --", "", true, false);
 
             // Add categories, select if the ID matches the optional argument
             data.forEach((c) => {
@@ -73,7 +73,7 @@ Category.loadCategories = function (selectedID) {
             // Update form with selected category details
             Category.updateCategoryDetails();
         })
-        .catch((error) => LRR.showErrorToast("Error getting categories from server", error));
+        .catch((error) => LRR.showErrorToast(I18N.CategoryFetchError, error));
 };
 
 Category.updateCategoryDetails = function () {
@@ -152,7 +152,7 @@ Category.updateArchiveInCategory = function (id, checked) {
     const categoryID = document.getElementById("category").value;
     Category.indicateSaving();
     // PUT/DELETE api/categories/catID/archiveID
-    Server.callAPI(`/api/categories/${categoryID}/${id}`, checked ? "PUT" : "DELETE", null, "Error adding/removing archive to category",
+    Server.callAPI(`/api/categories/${categoryID}/${id}`, checked ? "PUT" : "DELETE", null, I18N.CategoryEditError,
         () => {
             // Reload categories and select the archive list properly
             Category.indicateSaved();
@@ -164,16 +164,16 @@ Category.updateArchiveInCategory = function (id, checked) {
 Category.deleteSelectedCategory = function () {
     const categoryID = document.getElementById("category").value;
     LRR.showPopUp({
-        text: "The category will be deleted permanently.",
+        text: I18N.CategoryDeleteConfirm,
         icon: "warning",
         showCancelButton: true,
         focusConfirm: false,
-        confirmButtonText: "Yes, delete it!",
+        confirmButtonText: I18N.ConfirmYes,
         reverseButtons: true,
         confirmButtonColor: "#d33",
     }).then((result) => {
         if (result.isConfirmed) {
-            Server.callAPI(`/api/categories/${categoryID}`, "DELETE", "Category deleted!", "Error deleting category",
+            Server.callAPI(`/api/categories/${categoryID}`, "DELETE", I18N.CategoryDeleted , I18N.CategoryDeleteError,
                 () => {
                 // Reload categories to show the archive list properly
                     Category.loadCategories();
@@ -194,8 +194,8 @@ Category.indicateSaved = function () {
 Category.predicateHelp = function () {
     LRR.toast({
         toastId: "predicateHelp",
-        heading: "Writing a Predicate",
-        text: "Predicates follow the same syntax as searches in the Archive Index. Check the <a href=\"https://sugoi.gitbook.io/lanraragi/basic-operations/searching\">Documentation</a> for more information.",
+        heading: I18N.CategoryPredicateTitle,
+        text: I18N.CategoryPredicateHelp,
         icon: "info",
         hideAfter: 20000,
     });

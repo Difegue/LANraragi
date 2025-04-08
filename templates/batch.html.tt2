@@ -28,6 +28,7 @@
 	<script src="[% c.url_for("/js/vendor/react-toastify.umd.js") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/vendor/sweetalert2.min.js") %]" type="text/JAVASCRIPT"></script>
 
+	<script src="[% c.url_for("/js/i18n.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/common.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/server.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/batch.js?$version") %]" type="text/JAVASCRIPT"></script>
