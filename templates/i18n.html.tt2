@@ -17,6 +17,7 @@ I18N.GenericReponseError = "[% c.lh("Error while processing request") %]";
 I18N.MinionCheckError = "[% c.lh("Error checking Minion job status") %]";
 I18N.SaveSuccess = "[% c.lh("Saved!") %]";
 I18N.SaveError = "[% c.lh("Error saving data") %]";
+I18N.LoginRequired = (url) => `[% c.lh("<a href='\${url}'>Login</a> to toggle bookmark feature.") %]`;
 
 I18N.BatchOperationStart = "[% c.lh("Started Batch Operation...") %]";
 I18N.BatchOperationEnd = "[% c.lh("Batch Operation complete!") %]";

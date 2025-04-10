@@ -743,6 +743,9 @@ msgstr "Login"
 msgid "Wrong Password."
 msgstr "Wrong Password."
 
+msgid "<a href='\${url}'>Login</a> to toggle bookmark feature."
+msgstr "<a href='${url}'>Login</a> to toggle bookmark feature."
+
 # ------End of Login.html.tt2------
 
 # ------Start of Logs.html.tt2------

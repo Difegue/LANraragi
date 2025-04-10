@@ -478,11 +478,9 @@ Reader.toggleBookmark = function(e) {
         return;
     };
 
-    // TODO: considering removing this toast
     if (!LRR.isUserLogged()) {
         LRR.toast({
-            heading: "Login Required",
-            text: "Login to toggle bookmark feature.",
+            text: I18N.LoginRequired(new LRR.apiURL("/login")),
             icon: "warning",
             hideAfter: 5000,
         });
