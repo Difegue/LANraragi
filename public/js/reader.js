@@ -480,7 +480,7 @@ Reader.toggleBookmark = function(e) {
 
     if (!LRR.isUserLogged()) {
         LRR.toast({
-            text: I18N.LoginRequired(new LRR.apiURL("/login")),
+            heading: I18N.LoginRequired(new LRR.apiURL("/login")),
             icon: "warning",
             hideAfter: 5000,
         });
