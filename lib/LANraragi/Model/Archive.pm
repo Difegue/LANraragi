@@ -19,9 +19,10 @@ use LANraragi::Utils::Generic    qw(render_api_response);
 use LANraragi::Utils::String     qw(trim trim_CRLF);
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging    qw(get_logger);
-use LANraragi::Utils::Archive    qw(extract_single_file extract_thumbnail);
+use LANraragi::Utils::Archive    qw(extract_single_file extract_single_file_to_ram extract_thumbnail);
 use LANraragi::Utils::Database
   qw(redis_encode redis_decode invalidate_cache set_title set_tags set_summary get_archive_json get_archive_json_multi);
+use LANraragi::Utils::PageCache;
 
 # get_title(id)
 #   Returns the title for the archive matching the given id.
@@ -230,6 +231,19 @@ sub serve_thumbnail {
         $self->render_file( filepath => $thumbname );
     }
 }
+sub get_page_data ($id, $path) {
+    my $cachekey     = "page/$id/$path";
+    my $content = LANraragi::Utils::PageCache::fetch($cachekey);
+    if ( !defined($content) ) {
+        # Extract the file from the parent archive if it doesn't exist
+        my $redis = LANraragi::Model::Config->get_redis;
+        my $archive = $redis->hget($id, "file");
+        $redis->quit();
+        $content = extract_single_file_to_ram($archive, $path);
+        LANraragi::Utils::PageCache::put($cachekey, $content);
+    }
+    return $content;
+}
 
 sub serve_page {
     my ( $self, $id, $path ) = @_;
@@ -238,97 +252,35 @@ sub serve_page {
 
     $logger->debug("Page /$id/$path was requested");
 
-    my $tempfldr = get_temp();
-    my $file     = $tempfldr . "/$id/$path";
+    # Apply resizing transformation if set in Settings
+    if ( LANraragi::Model::Config->enable_resize ) {
 
-    if ( -e $file ) {
+        # Store resized files in a subfolder of the ID's temp folder, keyed by quality
+        my $threshold    = LANraragi::Model::Config->get_threshold;
+        my $quality      = LANraragi::Model::Config->get_readquality;
 
-        # Freshly created files might not be complete yet.
-        # We have to wait before trying to serve them out...
-        my $last_size = 0;
-        my $size      = -s $file;
-        my $timeout   = 0;
-        while (1) {
-            $logger->debug("Waiting for file to be fully written ($size, previously $last_size)");
-            usleep(10000);     # 10ms
-            $timeout += 10;    # Sanity check in case the file remains at 0 bytes forever
-            $last_size = $size;
-            $size      = -s $file;
-
-            # If the size hasn't changed since the last loop, it's likely the file is ready.
-            last
-              if ( $last_size eq $size && ( $size ne 0 || $timeout > 1000 ) );
+        my $cachekey = "resize_page/$id/$path/$threshold/$quality";
+        my $content = LANraragi::Utils::PageCache::fetch($cachekey);
+        if ( !defined($content)) {
+            $content = LANraragi::Model::Reader::resize_image(get_page_data($id, $path), $quality, $threshold);
+            LANraragi::Utils::PageCache::put($cachekey, $content);
         }
 
+        # resize_image always converts the image to jpg
+        $self->render_file(
+            data => $content
+        );
     } else {
 
-        # Extract the file from the parent archive if it doesn't exist
-        $logger->debug("Extracting missing file");
-        my $redis   = LANraragi::Model::Config->get_redis;
-        my $archive = $redis->hget( $id, "file" );
-        $redis->quit();
-
-        # Check again just in case
-        unless ( -e $file ) {
-            my $outfile = extract_single_file( $archive, $path, $tempfldr . "/$id" );
-            die "mismatched filenames $file and $outfile" unless $file eq $outfile;    # sanity check
-        }
-    }
-
-    # abs_path returns null if the path is invalid or doesn't exist.
-    my $abspath = abs_path($file);
-
-    if ( !$abspath ) {
-        $logger->debug("abs_path returned null with $file as input");
-        render_api_response( $self, "serve_page", "Invalid path $path." );
-        return;
-    }
-
-    $logger->debug("Path to requested file is $abspath");
-
-    # This API can only serve files from the temp folder
-    if ( index( $abspath, $tempfldr ) != -1 ) {
-
-        # Apply resizing transformation if set in Settings
-        if ( LANraragi::Model::Config->enable_resize ) {
-
-            # Store resized files in a subfolder of the ID's temp folder, keyed by quality
-            my $threshold    = LANraragi::Model::Config->get_threshold;
-            my $quality      = LANraragi::Model::Config->get_readquality;
-            my $resized_file = "$tempfldr/$id/resized/$quality/$path";
-
-            unless ( -e $resized_file ) {
-                my ( $n, $resized_folder, $e ) = fileparse( $resized_file, qr/\.[^.]*/ );
-                make_path($resized_folder);
-
-                $logger->debug("Copying file to $resized_folder for resize transformation");
-                cp( $file, $resized_file );
-
-                LANraragi::Model::Reader::resize_image( $resized_file, $quality, $threshold );
-            }
-
-            # resize_image always converts the image to jpg
-            $self->render_file(
-                filepath            => $resized_file,
-                content_disposition => "inline",
-                format              => "jpg"
-            );
-
-        } else {
-
-            # Get the file extension to report content-type properly
-            my ( $n, $p, $file_ext ) = fileparse( $file, qr/\.[^.]*/ );
-
-            # Serve extracted file directly
-            $self->render_file(
-                filepath            => $file,
-                content_disposition => "inline",
-                format              => substr( $file_ext, 1 )
-            );
-        }
-
-    } else {
-        render_api_response( $self, "serve_page", "This API cannot render files outside of the temporary folder." );
+     # Get the file extension to report content-type properly
+        my ( $n, $p, $file_ext ) = fileparse( $path, qr/\.[^.]*/ );
+        my $content = get_page_data($id, $path);
+        $logger->debug("Data size:".length($content));
+        # Serve extracted file directly
+        $self->render_file(
+            data   => $content,
+            format => substr( $file_ext, 1 )
+        );
     }
 }
 

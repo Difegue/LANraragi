@@ -20,7 +20,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 
 # Generic Utility Functions.
 use Exporter 'import';
-our @EXPORT_OK = qw(is_image is_archive render_api_response get_tag_with_namespace shasum start_shinobu
+our @EXPORT_OK = qw(is_image is_archive render_api_response get_tag_with_namespace shasum shasum_str start_shinobu
   split_workload_by_cpu start_minion get_css_list generate_themes_header flat get_bytelength array_difference
   intersect_arrays filter_hash_by_keys);
 
@@ -156,6 +156,26 @@ sub shasum {
     eval {
         my $ctx = Digest::SHA->new( $_[1] );
         $ctx->addfile( $_[0] );
+        $digest = $ctx->hexdigest;
+    };
+
+    if ($@) {
+        $logger->error( "Error building hash for " . $_[0] . " -- " . $@ );
+
+        return "";
+    }
+
+    return $digest;
+}
+
+sub shasum_str {
+
+    my $digest = "";
+    my $logger = get_logger( "Hash Computation", "lanraragi" );
+
+    eval {
+        my $ctx = Digest::SHA->new( $_[1] );
+        $ctx->add( $_[0] );
         $digest = $ctx->hexdigest;
     };
 
