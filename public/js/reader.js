@@ -65,7 +65,7 @@ Reader.initializeAll = function () {
         if ($("#category").val() === "" || $(`#archive-categories a[data-id="${$("#category").val()}"]`).length !== 0) { return; }
         Server.addArchiveToCategory(Reader.id, $("#category").val());
         const categoryId = $("#category").val();
-        Reader.addCategoryFlag( categoryId );
+        Reader.addCategoryBadge( categoryId );
 
         // Turn ON bookmark icon.
         if ($("#category").val() == localStorage.bookmarkCategoryId) {
@@ -160,7 +160,7 @@ Reader.initializeAll = function () {
 /**
  * Adds a removable category flag to the categories section within archive overview.
  */
-Reader.addCategoryFlag = function ( categoryId ) {
+Reader.addCategoryBadge = function ( categoryId ) {
     const categoryName = $(`#category option[value="${categoryId}"]`).text();
     const url = new LRR.apiURL(`/?c=${categoryId}`);
     const html = `<div class="gt" style="font-size:14px; padding:4px">
@@ -172,7 +172,7 @@ Reader.addCategoryFlag = function ( categoryId ) {
     $("#archive-categories").append(html);
 }
 
-Reader.removeCategoryFlag = function ( categoryId ) {
+Reader.removeCategoryBadge = function ( categoryId ) {
     $(`#archive-categories a.remove-category[data-id="${categoryId}"]`).closest(".gt").remove();
 }
 
@@ -490,14 +490,14 @@ Reader.toggleBookmark = function(e) {
     if ($(".toggle-bookmark").hasClass("fas fa-bookmark")) {
         // Remove from category
         Server.removeArchiveFromCategory(Reader.id, localStorage.getItem("bookmarkCategoryId"));
-        Reader.removeCategoryFlag( localStorage.getItem("bookmarkCategoryId") );
+        Reader.removeCategoryBadge( localStorage.getItem("bookmarkCategoryId") );
         $(".toggle-bookmark")
             .removeClass("fas fa-bookmark")
             .addClass("far fa-bookmark");
     } else {
         // Add to category
         Server.addArchiveToCategory(Reader.id, localStorage.getItem("bookmarkCategoryId"));
-        Reader.addCategoryFlag( localStorage.getItem("bookmarkCategoryId") );
+        Reader.addCategoryBadge( localStorage.getItem("bookmarkCategoryId") );
         $(".toggle-bookmark")
             .removeClass("far fa-bookmark")
             .addClass("fas fa-bookmark");
