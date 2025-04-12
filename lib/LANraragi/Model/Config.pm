@@ -183,7 +183,7 @@ sub first_install_actions {
         $redis->hset('LRR_CONFIG', 'htmltitle', 'LANraragi');
 
         $logger->debug("Creating first category...");
-        my $default_category_id = LANraragi::Model::Category::create_category("Favorites", "", 0, "");
+        my $default_category_id = LANraragi::Model::Category::create_category("🔖 Favorites", "", 0, "");
         LANraragi::Model::Category::update_bookmark_link($default_category_id);
         $logger->info("Created default Favorites category.");
         $redis->quit();
