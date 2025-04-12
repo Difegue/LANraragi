@@ -19,7 +19,7 @@ use LANraragi::Utils::Generic    qw(render_api_response);
 use LANraragi::Utils::String     qw(trim trim_CRLF);
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging    qw(get_logger);
-use LANraragi::Utils::Archive    qw(extract_single_file extract_single_file_to_ram extract_thumbnail);
+use LANraragi::Utils::Archive    qw(extract_single_file extract_single_file extract_thumbnail);
 use LANraragi::Utils::Database
   qw(redis_encode redis_decode invalidate_cache set_title set_tags set_summary get_archive_json get_archive_json_multi);
 use LANraragi::Utils::PageCache;
@@ -239,7 +239,7 @@ sub get_page_data ($id, $path) {
         my $redis = LANraragi::Model::Config->get_redis;
         my $archive = $redis->hget($id, "file");
         $redis->quit();
-        $content = extract_single_file_to_ram($archive, $path);
+        $content = extract_single_file($archive, $path);
         LANraragi::Utils::PageCache::put($cachekey, $content);
     }
     return $content;

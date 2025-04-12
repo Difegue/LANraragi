@@ -31,7 +31,7 @@ use LANraragi::Utils::Generic    qw(is_image shasum shasum_str);
 # Relies on Libarchive, ImageMagick and GhostScript for PDFs.
 use Exporter 'import';
 our @EXPORT_OK =
-  qw(is_file_in_archive extract_file_from_archive extract_single_file extract_single_file_to_ram extract_archive extract_thumbnail generate_thumbnail get_filelist);
+  qw(is_file_in_archive extract_file_from_archive extract_single_file extract_archive extract_thumbnail generate_thumbnail get_filelist);
 
 sub is_pdf {
     my ( $filename, $dirs, $suffix ) = fileparse( $_[0], qr/\.[^.]*/ );
@@ -193,7 +193,7 @@ sub extract_thumbnail ( $thumbdir, $id, $page, $set_cover, $use_hq ) {
     $logger->debug("Extracting thumbnail for $id page $page from $requested_image");
 
     # Extract requested image to temp dir if it doesn't already exist
-    my $arcimg       = extract_single_file_to_ram( $file, $requested_image );
+    my $arcimg       = extract_single_file( $file, $requested_image );
 
     my $thumbname;
     unless ($set_cover) {
@@ -320,7 +320,7 @@ sub is_file_in_archive ( $archive, $wantedname ) {
 
 # Extract $file from $archive to $destination and returns the filesystem path it's extracted to.
 # If the file doesn't exist in the archive, this will still create a file, but empty.
-sub extract_single_file ( $archive, $filepath, $destination ) {
+sub extract_single_file_to_file ( $archive, $filepath, $destination ) {
 
     my $logger = get_logger( "Archive", "lanraragi" );
 
@@ -331,44 +331,17 @@ sub extract_single_file ( $archive, $filepath, $destination ) {
     my ( $name, $path, $suffix ) = fileparse( $outfile, qr/\.[^.]*/ );
     make_path($path);
 
-    if ( is_pdf($archive) ) {
+    my $contents = extract_single_file( $archive, $filepath );
 
-        # For pdfs the filenames are always x.jpg, so we pull the page number from that
-        my $page = $filepath;
-        $page =~ s/^(\d+).jpg$/$1/;
-
-        my $gscmd = "gs -dNOPAUSE -dFirstPage=$page -dLastPage=$page -sDEVICE=jpeg -r200 -o '$outfile' '$archive'";
-        $logger->debug("Extracting page $filepath from PDF $archive");
-        $logger->debug($gscmd);
-
-        `$gscmd`;
-    } else {
-
-        my $contents = "";
-        my $peek     = Archive::Libarchive::Peek->new( filename => $archive );
-        my @files    = $peek->files;
-
-        for my $name (@files) {
-            my $decoded_name = LANraragi::Utils::Database::redis_decode($name);
-
-            # This sub can receive either encoded or raw filenames, so we have to test for both.
-            if ( $decoded_name eq $filepath || $name eq $filepath ) {
-                $logger->debug("Found file $filepath in archive $archive");
-                $contents = $peek->file($name);
-                last;
-            }
-        }
-
-        open( my $fh, '>', $outfile )
-          or die "Could not open file '$outfile' $!";
-        print $fh $contents;
-        close $fh;
-    }
+    open( my $fh, '>', $outfile )
+      or die "Could not open file '$outfile' $!";
+    print $fh $contents;
+    close $fh;
 
     return $outfile;
 }
 
-sub extract_single_file_to_ram ( $archive, $filepath ) {
+sub extract_single_file ( $archive, $filepath ) {
 
     my $logger = get_logger( "Archive", "lanraragi" );
 
@@ -414,7 +387,7 @@ sub extract_file_from_archive ( $archive, $filename ) {
     mkdir $path;
 
     my $tmp = tempdir( DIR => $path, CLEANUP => 1 );
-    return extract_single_file( $archive, $filename, $tmp );
+    return extract_single_file_to_file( $archive, $filename, $tmp );
 }
 
 1;
