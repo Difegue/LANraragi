@@ -101,7 +101,7 @@
                             <td></td>
                             <td>
                                 <input id="bookmark-link" name="bookmark-link" class="fa" type="checkbox">
-                                <label for="bookmark-link">[% c.lh("Link Bookmark Icon to this Category") %]</label>
+                                <label for="bookmark-link">[% c.lh("Store Bookmarks in this Category") %]</label>
                             </td>
                         </tr>
                         <tr class="tag-options">

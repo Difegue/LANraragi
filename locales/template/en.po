@@ -172,8 +172,8 @@ msgstr "If you select a Static Category, your archives will appear here so you c
 msgid "Return to Library"
 msgstr "Return to Library"
 
-msgid "Link Bookmark Icon to this Category"
-msgstr "Link Bookmark Icon to this Category"
+msgid "Store Bookmarks in this Category"
+msgstr "Store Bookmarks in this Category"
 
 msgid "Error linking bookmark button:"
 msgstr "Error linking bookmark button:"
