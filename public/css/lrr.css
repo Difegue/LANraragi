@@ -62,6 +62,13 @@ div.id3.nocrop img {
   max-width: 95%;
 }
 
+div.id3:not(.nocrop) img {
+  object-fit: cover;
+  object-position: top;
+  width: 95%;
+  height: 100%;
+}
+
 div.id4 {
   white-space: nowrap;
 }
