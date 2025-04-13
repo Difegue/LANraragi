@@ -792,6 +792,17 @@ div.fullscreen img {
   text-shadow: 0 0 3px rgba(0, 50, 116, 0.9);
 }
 
+.title-bookmark-icon {
+  cursor: pointer;
+  position: relative;
+  right: auto;
+  bottom: auto;
+  font-size: inherit;
+  text-shadow: none;
+  vertical-align: middle;
+  margin-right: 5px;
+}
+
 .thumbnail-bookmark-icon:hover {
   opacity: 0.8;
 }

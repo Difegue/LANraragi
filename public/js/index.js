@@ -31,7 +31,7 @@ Index.initializeAll = function () {
     $(document).on("click.reload-carousel", "#reload-carousel", Index.updateCarousel);
     $(document).on("click.close-overlay", "#overlay-shade", LRR.closeOverlay);
     $(document).on("click.thumbnail-bookmark-icon", ".thumbnail-bookmark-icon", Index.toggleBookmarkStatusByIcon);
-    $(document).on("click.bookmark-checkbox", ".bookmark-checkbox" , Index.toggleBookmarkStatusByCheckbox);
+    $(document).on("click.title-bookmark-icon", ".title-bookmark-icon", Index.toggleBookmarkStatusByIcon);
 
     // 0 = List view
     // 1 = Thumbnail view
@@ -136,42 +136,22 @@ Index.initializeAll = function () {
     Index.resizableColumns();
 };
 
-// Turn bookmark icons and checkboxes to OFF for all archives.
+// Turn bookmark icons to OFF for all archives.
 Index.bookmarkIconOff = function(arcid) {
-    const icons = document.querySelectorAll(`.thumbnail-bookmark-icon[id='${arcid}']`);
+    const icons = document.querySelectorAll(`.title-bookmark-icon[id='${arcid}'], .thumbnail-bookmark-icon[id='${arcid}']`);
     icons.forEach(el => {
         el.classList.remove("fas");
         el.classList.add("far");
     })
-    const checkboxes = document.querySelectorAll(`.bookmark-checkbox[id='${arcid}']`);
-    checkboxes.forEach(cb => {
-        cb.checked = false;
-    })
 }
 
-// Turn bookmark icons and checkboxes to ON for all archives.
+// Turn bookmark icons to ON for all archives.
 Index.bookmarkIconOn = function(arcid) {
-    const icons = document.querySelectorAll(`.thumbnail-bookmark-icon[id='${arcid}']`);
+    const icons = document.querySelectorAll(`.title-bookmark-icon[id='${arcid}'], .thumbnail-bookmark-icon[id='${arcid}']`);
     icons.forEach(el => {
         el.classList.remove("far");
         el.classList.add("fas");
     })
-    const checkboxes = document.querySelectorAll(`.bookmark-checkbox[id='${arcid}']`);
-    checkboxes.forEach(cb => {
-        cb.checked = true;
-    })
-}
-
-Index.toggleBookmarkStatusByCheckbox = function (e) {
-    const checkbox = e.currentTarget;
-    const id = checkbox.id;
-    if (checkbox.checked) {
-        Server.addArchiveToCategory(id, localStorage.getItem("bookmarkCategoryId"));
-        Index.bookmarkIconOn(id);
-    } else {
-        Server.removeArchiveFromCategory(id, localStorage.getItem("bookmarkCategoryId"));
-        Index.bookmarkIconOff(id);
-    }
 }
 
 Index.toggleBookmarkStatusByIcon = function (e) {

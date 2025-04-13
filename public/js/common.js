@@ -265,6 +265,23 @@ LRR.buildTagsDiv = function (tags) {
 };
 
 /**
+ * Build bookmark icon for an archive.
+ * @param {*} id 
+ * @param {*} bookmark_class Either "thumbnail-bookmark-icon" or "title-bookmark-icon".
+ * @returns HTML component string
+ */
+LRR.buildBookmarkIconElement = function (id, bookmark_class) {
+    if ( !LRR.bookmarkLinkConfigured() ) {
+        return "";
+    }
+    const isBookmarked = JSON.parse(localStorage.getItem("bookmarkedArchives") || "[]").includes(id);
+    const bookmarkClass = isBookmarked ? "fas fa-bookmark" : "far fa-bookmark";
+    const disabledClass = LRR.isUserLogged() ? "" : " disabled";
+    const style = !LRR.isUserLogged() ? 'style="opacity: 0.5; cursor: not-allowed;"' : '';
+    return `<i id="${id}" class="${bookmarkClass} ${bookmark_class}${disabledClass}" title="Toggle Bookmark" ${style}></i>`;
+};
+
+/**
  * Build a thumbnail div for the given archive data. Dynamically generates a bookmark icon,
  * such that the toggleability depends on whether the user is logged in.
  * @param {*} data The archive data
@@ -276,15 +293,7 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
     // The ID can be in a different field depending on the archive object...
     const id = data.arcid || data.id;
     let reader_url = new LRR.apiURL(`/reader?id=${id}`);
-
-    let bookmarkIcon = ``;
-    if ( LRR.bookmarkLinkConfigured() ) {
-        const isBookmarked = JSON.parse(localStorage.getItem("bookmarkedArchives") || "[]").includes(id);
-        const bookmarkClass = isBookmarked ? "fas fa-bookmark" : "far fa-bookmark";
-        const disabledClass = LRR.isUserLogged() ? "" : " disabled";
-        const style = !LRR.isUserLogged() ? 'style="opacity: 0.5; cursor: not-allowed;"' : '';
-        bookmarkIcon = `<i id="${id}" class="${bookmarkClass} thumbnail-bookmark-icon${disabledClass}" title="Toggle Bookmark" ${style}></i>`;
-    }
+    const bookmarkIcon = LRR.buildBookmarkIconElement(id, "thumbnail-bookmark-icon");
 
     // Don't enforce no_fallback=true here, we don't want those divs to trigger Minion jobs 
     return `<div class="id1 context-menu swiper-slide" id="${id}">
