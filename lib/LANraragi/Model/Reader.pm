@@ -16,7 +16,7 @@ use Mojo::JSON qw(encode_json);
 use Data::Dumper;
 use URI::Escape;
 
-use LANraragi::Utils::Generic  qw(is_image shasum);
+use LANraragi::Utils::Generic  qw(is_image);
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Archive  qw(get_filelist);
 use LANraragi::Utils::Database qw(redis_decode);

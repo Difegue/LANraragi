@@ -25,7 +25,7 @@ use File::Temp qw(tempdir);
 
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging    qw(get_logger);
-use LANraragi::Utils::Generic    qw(is_image shasum shasum_str);
+use LANraragi::Utils::Generic    qw(is_image shasum_str);
 
 # Utilitary functions for handling Archives.
 # Relies on Libarchive, ImageMagick and GhostScript for PDFs.
