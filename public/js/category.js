@@ -16,7 +16,7 @@ Category.initializeAll = function () {
     $(document).on("change.catname", "#catname", Category.saveCurrentCategoryDetails);
     $(document).on("change.catsearch", "#catsearch", Category.saveCurrentCategoryDetails);
     $(document).on("change.pinned", "#pinned", Category.saveCurrentCategoryDetails);
-    $(document).on("change.bookmark-link", "#bookmark-link", Category.saveCurrentCategoryDetails);
+    $(document).on("change.bookmark-link", "#bookmark-link", Category.updateBookmarkLink);
     $(document).on("click.new-static", "#new-static", () => Category.addNewCategory(false));
     $(document).on("click.new-dynamic", "#new-dynamic", () => Category.addNewCategory(true));
     $(document).on("click.predicate-help", "#predicate-help", Category.predicateHelp);
@@ -151,43 +151,48 @@ Category.saveCurrentCategoryDetails = function () {
     // Indicate saved and load categories are placed inside the API call to avoid race conditions.
     Server.callAPI(`/api/categories/${categoryID}?name=${catName}&search=${searchtag}&pinned=${pinned}`, "PUT", null, "Error updating category:",
         (data) => {
-            if (searchtag === "") {
-                const isChecked     = document.getElementById("bookmark-link").checked;
-                const wasChecked    = (localStorage.getItem("bookmarkCategoryId") === categoryID);
-                const linkBookmark = isChecked && !wasChecked;
-                const unlinkBookmark = !isChecked && wasChecked;
-
-                if (linkBookmark) {
-                    Server.callAPI(
-                        `/api/categories/bookmark_link/${categoryID}`,
-                        "PUT",
-                        null,
-                        I18N.BookmarkLinkError,
-                        () => {
-                            localStorage.setItem("bookmarkCategoryId", categoryID);
-                            Category.indicateSaved();
-                            Category.loadCategories(data.category_id);
-                        }
-                    );
-                } else if (unlinkBookmark) {
-                    Server.callAPI(
-                        "/api/categories/bookmark_link",
-                        "DELETE",
-                        null,
-                        I18N.BookmarkUnlinkError,
-                        () => {
-                            localStorage.removeItem("bookmarkCategoryId");
-                            Category.indicateSaved();
-                            Category.loadCategories(data.category_id);
-                        }
-                    );
-                } else {
-                    Category.indicateSaved();
-                    Category.loadCategories(data.category_id);
-                }
-            }
+            Category.indicateSaved();
+            Category.loadCategories(data.category_id);
         },
     );
+};
+
+Category.updateBookmarkLink = function () {
+    const categoryID = document.getElementById("category").value;
+    const isChecked = document.getElementById("bookmark-link").checked;
+    const wasChecked = (localStorage.getItem("bookmarkCategoryId") === categoryID);
+    
+    if (!categoryID) {
+        return;
+    }
+    
+    Category.indicateSaving();
+    
+    if (isChecked && !wasChecked) {
+        Server.callAPI(
+            `/api/categories/bookmark_link/${categoryID}`,
+            "PUT",
+            null,
+            I18N.BookmarkLinkError,
+            () => {
+                localStorage.setItem("bookmarkCategoryId", categoryID);
+                Category.indicateSaved();
+            }
+        );
+    } else if (!isChecked && wasChecked) {
+        Server.callAPI(
+            "/api/categories/bookmark_link",
+            "DELETE",
+            null,
+            I18N.BookmarkUnlinkError,
+            () => {
+                localStorage.removeItem("bookmarkCategoryId");
+                Category.indicateSaved();
+            }
+        );
+    } else {
+        Category.indicateSaved();
+    }
 };
 
 Category.updateArchiveInCategory = function (id, checked) {
