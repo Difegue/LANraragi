@@ -475,6 +475,7 @@ Reader.toggleHelp = function () {
 Reader.toggleBookmark = function(e) {
     e.preventDefault();
     if ( !localStorage.getItem("bookmarkCategoryId") ) {
+        console.error("No bookmark category ID found!");
         return;
     };
 
