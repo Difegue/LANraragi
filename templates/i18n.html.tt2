@@ -17,6 +17,7 @@ I18N.GenericReponseError = "[% c.lh("Error while processing request") %]";
 I18N.MinionCheckError = "[% c.lh("Error checking Minion job status") %]";
 I18N.SaveSuccess = "[% c.lh("Saved!") %]";
 I18N.SaveError = "[% c.lh("Error saving data") %]";
+I18N.LoginRequired = (url) => `[% c.lh("<a href='\${url}'>Login</a> to toggle bookmark feature.") %]`;
 
 I18N.BatchOperationStart = "[% c.lh("Started Batch Operation...") %]";
 I18N.BatchOperationEnd = "[% c.lh("Batch Operation complete!") %]";
@@ -46,6 +47,9 @@ I18N.CategoryDeleted = "[% c.lh("Category deleted!") %]";
 I18N.CategoryDeleteError = "[% c.lh("Error deleting category") %]";
 I18N.CategoryPredicateHelp = `[% c.lh("Predicates follow the same syntax as searches in the Archive Index. Check the Documentation for more information.") %]`;
 I18N.CategoryPredicateTitle = "[% c.lh("Writing a Predicate") %]";
+I18N.BookmarkLinkError = "[% c.lh("Error linking bookmark button:") %]";
+I18N.BookmarkUnlinkError = "[% c.lh("Error unlinking bookmark button:") %]";
+I18N.GetBookmarkError = "[% c.lh("Error getting bookmark category:") %]";
 
 I18N.ShinobuRestarted = "[% c.lh("Background Worker restarted!") %]";
 I18N.ShinobuRestartError = "[% c.lh("Error restarting Worker:") %]";
@@ -118,6 +122,7 @@ I18N.ReaderNavHelp = "[% c.lh("Navigation Help") %]";
 I18N.ReaderErrorProgress = "[% c.lh("Error updating reading progression") %]";
 I18N.ReaderPage = (page) => `[% c.lh("Page \${page}") %]`;
 I18N.ThumbJobError = "[% c.lh("The page thumbnailing job didn't conclude properly. Your archive might be corrupted.") %]";
+I18N.ToggleBookmark = "[% c.lh("Toggle Bookmark") %]";
 
 I18N.ScriptRunning = "[% c.lh("A script is already running.") %]";
 I18N.ScriptRunningDesc = "[% c.lh("Please wait for it to finish before starting a new one.") %]";

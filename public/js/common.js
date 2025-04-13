@@ -46,6 +46,22 @@ LRR.apiURL = class {
 };
 
 /**
+ * Helper function to get user logged status based on tt2 userLogged attribute.
+ * @returns true if user is logged in, else false.
+ */
+LRR.isUserLogged = function() {
+    const value = document.body.dataset.userLogged;
+    return value === '1';
+};
+
+/**
+ * @returns true if bookmark icon is linked to a category, else false.
+ */
+LRR.bookmarkLinkConfigured = function () {
+    return localStorage.getItem("bookmarkCategoryId") !== null && localStorage.getItem("bookmarkCategoryId").startsWith("SET_");
+}
+
+/**
  * Quick HTML encoding function.
  * @param {*} r The HTML to encode
  * @returns Encoded string
@@ -249,7 +265,25 @@ LRR.buildTagsDiv = function (tags) {
 };
 
 /**
- * Build a thumbnail div for the given archive data.
+ * Build bookmark icon for an archive.
+ * @param {*} id 
+ * @param {*} bookmark_class Either "thumbnail-bookmark-icon" or "title-bookmark-icon".
+ * @returns HTML component string
+ */
+LRR.buildBookmarkIconElement = function (id, bookmark_class) {
+    if ( !LRR.bookmarkLinkConfigured() ) {
+        return "";
+    }
+    const isBookmarked = JSON.parse(localStorage.getItem("bookmarkedArchives") || "[]").includes(id);
+    const bookmarkClass = isBookmarked ? "fas fa-bookmark" : "far fa-bookmark";
+    const disabledClass = LRR.isUserLogged() ? "" : " disabled";
+    const style = !LRR.isUserLogged() ? 'style="opacity: 0.5; cursor: not-allowed;"' : '';
+    return `<i id="${id}" class="${bookmarkClass} ${bookmark_class}${disabledClass}" title="${I18N.ToggleBookmark}" ${style}></i>`;
+};
+
+/**
+ * Build a thumbnail div for the given archive data. Dynamically generates a bookmark icon,
+ * such that the toggleability depends on whether the user is logged in.
  * @param {*} data The archive data
  * @param {boolean} tagTooltip Option to build TagTooltip on mouseover
  * @returns HTML component string
@@ -259,6 +293,7 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
     // The ID can be in a different field depending on the archive object...
     const id = data.arcid || data.id;
     let reader_url = new LRR.apiURL(`/reader?id=${id}`);
+    const bookmarkIcon = LRR.buildBookmarkIconElement(id, "thumbnail-bookmark-icon");
 
     // Don't enforce no_fallback=true here, we don't want those divs to trigger Minion jobs 
     return `<div class="id1 context-menu swiper-slide" id="${id}">
@@ -274,6 +309,7 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
                                 onload="$('#${id}_thumb').remove(); $('#${id}_spinner').remove();" 
                                 onerror="this.src='${new LRR.apiURL("/img/noThumb.png")}'"/>
                     </a>
+                    ${bookmarkIcon}
                 </div>
                 <div class="id4">
                         <span class="tags tag-tooltip" ${tagTooltip === true ? "onmouseover=\"IndexTable.buildTagTooltip(this)\"" : ""}>${LRR.colorCodeTags(data.tags)}</span>

@@ -49,7 +49,7 @@
 
 </head>
 
-<body>
+<body data-user-logged="[% userlogged %]">
 
 	[% IF userlogged %]
 	<p id="nb">
