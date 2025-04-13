@@ -85,6 +85,12 @@ root/
 |        |- *.pm 
 |        +- Minion.pm <- Minion jobs are implemented here
 |
+|- locales       <- Internationalization/Localization files
+|  +- template    
+|     |- en.po      <- English translations in .po (gettext) format
+|     |- zh.po      <- Chinese translations in .po format
+|     |- ...
+|
 |- log           <- Application Logs end up here
 |
 |- public        <- Files available to Web Clients
