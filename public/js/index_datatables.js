@@ -46,18 +46,10 @@ IndexTable.initializeAll = function () {
     $.fn.dataTableExt.oStdClasses.sStripeOdd = "gtr0";
     $.fn.dataTableExt.oStdClasses.sStripeEven = "gtr1";
 
-    // Make sure we have the correct table headers before initializing
-    const columnCount = Index.getColumnCount();
-    Index.generateTableHeaders(columnCount);
-
+    // set custom columns
     let columns = [];
-
-    // bookmark column is not sortable because it is not derived from server
-    if (LRR.bookmarkLinkConfigured()) {
-        columns.push({ data: null, className: "bookmark itd", name: "bookmark", orderable: false, render: IndexTable.renderBookmark });
-    }
     columns.push({ data: null, className: "title itd", name: "title", render: IndexTable.renderTitle });
-
+    const columnCount = Index.getColumnCount();
     // set custom columns
     for (let i = 1; i <= columnCount; i++) {
         columns.push({
@@ -80,7 +72,7 @@ IndexTable.initializeAll = function () {
         deferRender: true,
         lengthChange: false,
         pageLength: Index.pageSize,
-        order: [[IndexTable.getTitleIndex(), "asc"]],
+        order: [[0, "asc"]],
         dom: "<\"top\"ip>rt<\"bottom\"p><\"clear\">",
         language: {
             info: I18N.IndexPageCount,
@@ -166,28 +158,6 @@ IndexTable.renderColumn = function (namespace, type, data) {
     }
     return data;
 };
-
-/**
- * Render the bookmark column. Checkbox is enabled only if the user is logged in.
- * @param {*} data Archive data
- * @param {*} type Whether this is a displayed column (html) or just a data request
- * @returns The table HTML, or raw data if type is data
- */
-IndexTable.renderBookmark = function (data, type) {
-    if ( LRR.bookmarkLinkConfigured() ) {
-        const isBookmarked = JSON.parse(localStorage.getItem("bookmarkedArchives") || "[]").includes(data.arcid);
-        if (type === "display") {
-            const disabledAttr = LRR.isUserLogged() ? '' : 'disabled';
-            const disabledStyle = LRR.isUserLogged() ? '' : 'style="opacity: 0.5; cursor: not-allowed;"';
-            return `<input class="bookmark-checkbox" id="${data.arcid}" type="checkbox" title="Toggle Bookmark" ${isBookmarked ? 'checked' : ''} ${disabledAttr} ${disabledStyle}>`;
-        }
-        return isBookmarked;
-    }
-    if (type === "display") {
-        return `<input class="bookmark-checkbox" id="${data.arcid}" type="checkbox" disabled title="Link bookmark to category to use the checkbox.">`;
-    }
-    return false;
-}
 
 /**
  * Render the title column.
@@ -300,23 +270,28 @@ IndexTable.drawCallback = function () {
             window.history.pushState(null, null, params);
         }
 
-        const currentSort = IndexTable.dataTable.order()[0][0];
+        let currentSort = IndexTable.dataTable.order()[0][0];
         const currentOrder = IndexTable.dataTable.order()[0][1];
 
         // Save sort/order/page to localStorage
         localStorage.indexSort = currentSort;
         localStorage.indexOrder = currentOrder;
 
-        let titleIndex = IndexTable.getTitleIndex();
-        let sortNamespace;
-        if (currentSort >= titleIndex + 1 && currentSort < (titleIndex + 1 + Index.getColumnCount())) {
-            const customIndex = currentSort - 1;
-            sortNamespace = localStorage[`customColumn${customIndex}`] || `Header ${customIndex}`;
+        // Using double equals here since the sort column can be either a string or an int
+        // eslint-disable-next-line eqeqeq
+        // get current columns count, except title and tags 
+        const currentCustomColumnCount = IndexTable.dataTable.columns().count() - 2;
+        // check currentSort, if out of range, back to use title
+        if (currentSort > currentCustomColumnCount) {
+            localStorage.indexSort = 0;
+        }
+        if (currentSort >= 1 && currentSort <= columnCount.value) {
+            currentSort = localStorage[`customColumn${currentSort}`] || `Header ${currentSort}`;
         } else {
-            sortNamespace = "title";
+            currentSort = "title";
         }
 
-        Index.updateTableControls(sortNamespace, currentOrder, pageInfo.pages, pageInfo.page + 1);
+        Index.updateTableControls(currentSort, currentOrder, pageInfo.pages, pageInfo.page + 1);
 
         // Clear potential leftover tooltips
         tippy.hideAll();
@@ -350,20 +325,20 @@ IndexTable.consumeURLParameters = function () {
 
     if (params.has("q")) { IndexTable.currentSearch = decodeURIComponent(params.get("q")); }
 
-    const titleIndex = IndexTable.getTitleIndex();
-    const order = [[titleIndex, "asc"]];
+    // Get order from URL, fallback to localstorage if available
+    const order = [[0, "asc"]];
 
     if (params.has("sort")) {
-        order[0][0] = parseInt(params.get("sort"), 10);
+        order[0][0] = params.get("sort");
     } else if (localStorage.indexSort) {
-        order[0][0] = parseInt(localStorage.indexSort, 10);
+        order[0][0] = localStorage.indexSort;
     }
-
-    // Validate column count and fallback to title.
-    const columnCount = IndexTable.dataTable.columns().count();
-    if (order[0][0] >= columnCount) {
-        console.warn(`Invalid sort index ${order[0][0]} >= ${columnCount}, fallback to title.`);
-        order[0][0] = titleIndex;
+    // get current columns count, except title and tags 
+    const currentCustomColumnCount = IndexTable.dataTable.columns().count() - 2;
+    // check currentSort, if out of range, back to use title
+    if (localStorage.indexSort > currentCustomColumnCount) {
+        localStorage.indexSort = 0;
+        order[0][0] = localStorage.indexSort;
     }
 
     if (params.has("sortdir")) {
@@ -419,12 +394,4 @@ IndexTable.buildTagTooltip = function (target) {
     }).show(); // Call show() so that the tooltip shows now
 
     $(target).attr("onmouseover", "");
-};
-
-/**
- * When bookmark is configured, the title column is the second column, otherwise it's the first column
- * @returns index of title column in compact mode
- */
-IndexTable.getTitleIndex = function () {
-    return LRR.bookmarkLinkConfigured() ? 1 : 0;
 };
