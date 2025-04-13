@@ -785,7 +785,7 @@ div.fullscreen img {
 .thumbnail-bookmark-icon {
   cursor: pointer;
   position: absolute;
-  left: 10px;
+  right: 24px;
   bottom: 20px;
   z-index: 2;
   font-size: 24px;
