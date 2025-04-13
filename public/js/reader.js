@@ -40,6 +40,7 @@ Reader.initializeAll = function () {
     $(document).on("click.toggle-archive-overlay", "#toggle-archive-overlay", Reader.toggleArchiveOverlay);
     $(document).on("click.toggle-settings-overlay", "#toggle-settings-overlay", Reader.toggleSettingsOverlay);
     $(document).on("click.toggle-help", "#toggle-help", Reader.toggleHelp);
+    $(document).on("click.toggle-bookmark", ".toggle-bookmark", Reader.toggleBookmark);
     $(document).on("click.regenerate-archive-cache", "#regenerate-cache", () => {
         window.location.href = new LRR.apiURL(`/reader?id=${Reader.id}&force_reload`);
     });
@@ -63,20 +64,27 @@ Reader.initializeAll = function () {
     $(document).on("click.add-category", "#add-category", () => {
         if ($("#category").val() === "" || $(`#archive-categories a[data-id="${$("#category").val()}"]`).length !== 0) { return; }
         Server.addArchiveToCategory(Reader.id, $("#category").val());
-        let url = new LRR.apiURL(`/?c=${$("#category").val()}`);
-        
-        const html = `<div class="gt" style="font-size:14px; padding:4px">
-            <a href="${url}">
-            <span class="label">${$("#category option:selected").text()}</span>
-            <a href="#" class="remove-category" data-id="${$("#category").val()}"
-                style="margin-left:4px; margin-right:2px">×</a>
-        </a>`;
+        const categoryId = $("#category").val();
+        Reader.addCategoryBadge( categoryId );
 
-        $("#archive-categories").append(html);
+        // Turn ON bookmark icon.
+        if ($("#category").val() == localStorage.bookmarkCategoryId) {
+            $(".toggle-bookmark")
+                .removeClass("far fa-bookmark")
+                .addClass("fas fa-bookmark");
+        }
     });
     $(document).on("click.remove-category", ".remove-category", (e) => {
+        e.preventDefault();
+        const catId = $(e.target).attr("data-id");
         Server.removeArchiveFromCategory(Reader.id, $(e.target).attr("data-id"));
-        $(e.target).parent().remove();
+        $(e.target).closest(".gt").remove();
+        // Turn OFF the bookmark icon
+        if (catId == localStorage.bookmarkCategoryId) {
+            $(".toggle-bookmark")
+                .removeClass("fas fa-bookmark")
+                .addClass("far fa-bookmark");
+        }
     });
     $(document).on("click.set-thumbnail", "#set-thumbnail", () => Server.callAPI(`/api/archives/${Reader.id}/thumbnail?page=${Reader.currentPage + 1}`,
         "PUT", I18N.ReaderUpdateThumbnail(Reader.currentPage), I18N.ReaderUpdateThumbnailError, null));
@@ -144,7 +152,29 @@ Reader.initializeAll = function () {
             Reader.loadImages();
         },
     );
+
+    // Fetch "bookmark" category ID and setup icon
+    Reader.loadBookmarkStatus();
 };
+
+/**
+ * Adds a removable category flag to the categories section within archive overview.
+ */
+Reader.addCategoryBadge = function ( categoryId ) {
+    const categoryName = $(`#category option[value="${categoryId}"]`).text();
+    const url = new LRR.apiURL(`/?c=${categoryId}`);
+    const html = `<div class="gt" style="font-size:14px; padding:4px">
+        <a href="${url}">
+        <span class="label">${categoryName}</span>
+        <a href="#" class="remove-category" data-id="${categoryId}"
+            style="margin-left:4px; margin-right:2px">×</a>
+    </a>`;
+    $("#archive-categories").append(html);
+}
+
+Reader.removeCategoryBadge = function ( categoryId ) {
+    $(`#archive-categories a.remove-category[data-id="${categoryId}"]`).closest(".gt").remove();
+}
 
 Reader.loadImages = function () {
     Server.callAPI(`/api/archives/${Reader.id}/files?force=${Reader.force}`, "GET", null, I18N.ReaderArchiveError,
@@ -355,10 +385,17 @@ Reader.handleShortcuts = function (e) {
     break;
 }
     case 37: // left arrow
-    case 65: // a
         Reader.changePage(-1);
         break;
     case 39: // right arrow
+        Reader.changePage(1);
+        break;
+    case 65: // a
+        Reader.changePage(-1);
+        break;
+    case 66: // b
+        Reader.toggleBookmark(e);
+        break;
     case 68: // d
         Reader.changePage(1);
         break;
@@ -434,6 +471,67 @@ Reader.toggleHelp = function () {
     return false;
     // all toggable panes need to return false to avoid scrolling to top
 };
+
+Reader.toggleBookmark = function(e) {
+    e.preventDefault();
+    if ( !localStorage.getItem("bookmarkCategoryId") ) {
+        console.error("No bookmark category ID found!");
+        return;
+    };
+
+    if (!LRR.isUserLogged()) {
+        LRR.toast({
+            heading: I18N.LoginRequired(new LRR.apiURL("/login")),
+            icon: "warning",
+            hideAfter: 5000,
+        });
+        return;
+    }
+
+    if ($(".toggle-bookmark").hasClass("fas fa-bookmark")) {
+        // Remove from category
+        Server.removeArchiveFromCategory(Reader.id, localStorage.getItem("bookmarkCategoryId"));
+        Reader.removeCategoryBadge( localStorage.getItem("bookmarkCategoryId") );
+        $(".toggle-bookmark")
+            .removeClass("fas fa-bookmark")
+            .addClass("far fa-bookmark");
+    } else {
+        // Add to category
+        Server.addArchiveToCategory(Reader.id, localStorage.getItem("bookmarkCategoryId"));
+        Reader.addCategoryBadge( localStorage.getItem("bookmarkCategoryId") );
+        $(".toggle-bookmark")
+            .removeClass("far fa-bookmark")
+            .addClass("fas fa-bookmark");
+    }
+}
+
+// dynamically add bookmark icon if bookmark link is configured.
+Reader.loadBookmarkStatus = function() {
+    Server.loadBookmarkCategoryId().then(
+        category_id => {
+            if ( !LRR.bookmarkLinkConfigured() ) {
+                return;
+            }
+            fetch(new LRR.apiURL(`/api/categories/${category_id}`))
+                .then(response => response.json()).then(categoryData => {
+                    const isBookmarked = categoryData.archives.includes(Reader.id);
+                    const bookmarkState = isBookmarked ? "fas" : "far";
+                    const disabledClass = LRR.isUserLogged() ? "" : " disabled";
+                    const leftOptionsList = document.querySelectorAll(".absolute-options.absolute-left");
+                    leftOptionsList.forEach(leftOption => {
+                        let bookmark = document.createElement("a");
+                        bookmark.className = `${bookmarkState} fa-bookmark fa-2x toggle-bookmark${disabledClass}`;
+                        bookmark.href = "#";
+                        bookmark.title = I18N.ToggleBookmark;
+                        if (!LRR.isUserLogged()) {
+                            bookmark.setAttribute("style", "opacity: 0.5; cursor: not-allowed;");
+                        }
+                        leftOption.appendChild(bookmark);
+                    })
+                })
+        }
+    )
+}
 
 Reader.updateMetadata = function () {
     const img = $("#img")[0];

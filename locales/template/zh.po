@@ -172,6 +172,18 @@ msgstr "如果您选择一个静态分类，您的档案将出现在这里，您
 msgid "Return to Library"
 msgstr "返回库"
 
+msgid "Store Bookmarks in this Category"
+msgstr "设置书签"
+
+msgid "Error linking bookmark button:"
+msgstr "Error linking bookmark button:"
+
+msgid "Error unlinking bookmark button:"
+msgstr "Error unlinking bookmark button:"
+
+msgid "Error getting bookmark category:"
+msgstr "Error getting bookmark category:"
+
 # ------End of Category.html.tt2------
 
 # ------Start of Config.html.tt2------
@@ -731,6 +743,9 @@ msgstr "登录"
 msgid "Wrong Password."
 msgstr "密码错误。"
 
+msgid "<a href='\${url}'>Login</a> to toggle bookmark feature."
+msgstr "<a href='${url}'>Login</a> to toggle bookmark feature."
+
 # ------End of Login.html.tt2------
 
 # ------Start of Logs.html.tt2------
@@ -926,6 +941,9 @@ msgstr "R：打开一个随机档案。"
 msgid "F: toggle fullscreen mode"
 msgstr "F：切换全屏模式"
 
+msgid "B: toggle bookmark"
+msgstr "B：切换书签"
+
 msgid "To return to the archive index, touch the arrow pointing down or use Backspace."
 msgstr "要返回档案索引，请点击向下的箭头或使用退格键。"
 
@@ -1034,6 +1052,8 @@ msgstr "档案概览"
 msgid "FullScreen"
 msgstr "全屏"
 
+msgid "Toggle Bookmark"
+msgstr "切换书签"
 # ------End of Reader.html.tt2------
 
 # ------Start of Stats.html.tt2------

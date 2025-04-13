@@ -172,6 +172,18 @@ msgstr "If you select a Static Category, your archives will appear here so you c
 msgid "Return to Library"
 msgstr "Return to Library"
 
+msgid "Store Bookmarks in this Category"
+msgstr "Store Bookmarks in this Category"
+
+msgid "Error linking bookmark button:"
+msgstr "Error linking bookmark button:"
+
+msgid "Error unlinking bookmark button:"
+msgstr "Error unlinking bookmark button:"
+
+msgid "Error getting bookmark category:"
+msgstr "Error getting bookmark category:"
+
 # ------End of Category.html.tt2------
 
 # ------Start of Config.html.tt2------
@@ -731,6 +743,9 @@ msgstr "Login"
 msgid "Wrong Password."
 msgstr "Wrong Password."
 
+msgid "<a href='\${url}'>Login</a> to toggle bookmark feature."
+msgstr "<a href='${url}'>Login</a> to toggle bookmark feature."
+
 # ------End of Login.html.tt2------
 
 # ------Start of Logs.html.tt2------
@@ -926,6 +941,9 @@ msgstr "R: open a random archive.""
 msgid "F: toggle fullscreen mode"
 msgstr "F: toggle fullscreen mode"
 
+msgid "B: toggle bookmark"
+msgstr "B: toggle bookmark"
+
 msgid "To return to the archive index, touch the arrow pointing down or use Backspace."
 msgstr "To return to the archive index, touch the arrow pointing down or use Backspace."
 
@@ -1028,6 +1046,8 @@ msgstr "Archive Overview"
 msgid "FullScreen"
 msgstr "FullScreen"
 
+msgid "Toggle Bookmark"
+msgstr "Toggle Bookmark"
 # ------End of Reader.html.tt2------
 
 # ------Start of Stats.html.tt2------

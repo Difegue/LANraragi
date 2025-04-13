@@ -184,6 +184,9 @@ sub startup {
     shutdown_from_pid( get_temp . "/shinobu.pid" );
     start_shinobu($self);
 
+    # Check if this is a first-time installation.
+    LANraragi::Model::Config::first_install_actions();
+
     # Hook to SIGTERM to cleanly kill minion+shinobu on server shutdown
     # As this is executed during before_dispatch, this code won't work if you SIGTERM without loading a single page!
     # (https://stackoverflow.com/questions/60814220/how-to-manage-myself-sigint-and-sigterm-signals)

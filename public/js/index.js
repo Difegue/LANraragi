@@ -30,6 +30,8 @@ Index.initializeAll = function () {
     $(document).on("click.open-carousel", ".collapsible-title", Index.toggleCarousel);
     $(document).on("click.reload-carousel", "#reload-carousel", Index.updateCarousel);
     $(document).on("click.close-overlay", "#overlay-shade", LRR.closeOverlay);
+    $(document).on("click.thumbnail-bookmark-icon", ".thumbnail-bookmark-icon", Index.toggleBookmarkStatusByIcon);
+    $(document).on("click.title-bookmark-icon", ".title-bookmark-icon", Index.toggleBookmarkStatusByIcon);
 
     // 0 = List view
     // 1 = Thumbnail view
@@ -119,18 +121,59 @@ Index.initializeAll = function () {
 
             Index.migrateProgress();
             Index.loadTagSuggestions();
-            Index.loadCategories();
 
-            // Initialize DataTables
-            IndexTable.initializeAll();
+            // Make bookmark category ID available to index and indextable
+            Server.loadBookmarkCategoryId()
+                .then(() => Index.loadCategories())
+                .then(() => IndexTable.initializeAll())
+                .catch(error => console.error("Error initializing index:", error));
         });
 
     const columnCountSelect = document.getElementById("columnCount");
-    const storedColumnCount = localStorage.getItem("columnCount");
-    columnCountSelect.value = storedColumnCount ? storedColumnCount : 2;
+    columnCountSelect.value = Index.getColumnCount();
     
     Index.updateTableHeaders();
     Index.resizableColumns();
+};
+
+// Turn bookmark icons to OFF for all archives.
+Index.bookmarkIconOff = function(arcid) {
+    const icons = document.querySelectorAll(`.title-bookmark-icon[id='${arcid}'], .thumbnail-bookmark-icon[id='${arcid}']`);
+    icons.forEach(el => {
+        el.classList.remove("fas");
+        el.classList.add("far");
+    })
+}
+
+// Turn bookmark icons to ON for all archives.
+Index.bookmarkIconOn = function(arcid) {
+    const icons = document.querySelectorAll(`.title-bookmark-icon[id='${arcid}'], .thumbnail-bookmark-icon[id='${arcid}']`);
+    icons.forEach(el => {
+        el.classList.remove("far");
+        el.classList.add("fas");
+    })
+}
+
+Index.toggleBookmarkStatusByIcon = function (e) {
+    const icon = e.currentTarget;
+    const id = icon.id;
+
+    if (!LRR.isUserLogged()) {
+        LRR.toast({
+            heading: I18N.LoginRequired(new LRR.apiURL("/login")),
+            icon: "warning",
+            hideAfter: 5000,
+        });
+        return;
+    }
+
+    if (icon.classList.contains("far")) {
+        Server.addArchiveToCategory(id, localStorage.getItem("bookmarkCategoryId"));
+        Index.bookmarkIconOn(id);
+    } else if (icon.classList.contains("fas")) {
+        Server.removeArchiveFromCategory(id, localStorage.getItem("bookmarkCategoryId"));
+        Index.bookmarkIconOff(id);
+    }
 };
 
 Index.toggleMode = function () {
@@ -308,7 +351,8 @@ Index.handleCustomSort = function () {
     if (namespace === "title") {
         order[0][0] = 0;
     } else {
-        // The order set in the combobox uses customColumn1
+        // The order set in the combobox uses is offset from title by 1; 
+        // e.g. customColumn1 is offset from title by 1.
         order[0][0] = 1;
         localStorage.customColumn1 = namespace;
         IndexTable.dataTable.settings()[0].aoColumns[1].sName = namespace;
@@ -394,8 +438,8 @@ Index.generateTableHeaders = function (columnCount) {
     headerRow.empty();
     const headerWidth = localStorage.getItem(`resizeColumn0`) || "";
     headerRow.append(`<th id="titleheader" width="${headerWidth}">
-							<a>${I18N.IndexTitle}</a>
-						</th>`);
+                        <a>${I18N.IndexTitle}</a>
+                    </th>`);
 
     for (let i = 1; i <= columnCount; i++) {
         const customColumn = localStorage[`customColumn${i}`] || `Header ${i}`;
@@ -418,7 +462,7 @@ Index.generateTableHeaders = function (columnCount) {
  * Update the Table Headers based on the custom namespaces set in localStorage.
  */
 Index.updateTableHeaders = function () {
-    let columnCount = localStorage.columnCount ? parseInt(localStorage.columnCount) : 2;
+    let columnCount = Index.getColumnCount();
     Index.generateTableHeaders(columnCount);
 
     for (let i = 1; i <= columnCount; i++) {
@@ -575,8 +619,14 @@ Index.loadContextMenuCategories = (catList, id) => Server.callAPI(`/api/archives
                 click() {
                     if ($(this).is(":checked")) {
                         Server.addArchiveToCategory(id, catId);
+                        if ( catId === localStorage.getItem("bookmarkCategoryId") ) {
+                            Index.bookmarkIconOn(id);
+                        }
                     } else {
                         Server.removeArchiveFromCategory(id, catId);
+                        if ( catId === localStorage.getItem("bookmarkCategoryId") ) {
+                            Index.bookmarkIconOff(id);
+                        }
                     }
                 },
             };
@@ -724,7 +774,7 @@ Index.loadTagSuggestions = function () {
  * Query the category API to build the filter buttons.
  */
 Index.loadCategories = function () {
-    Server.callAPI("/api/categories", "GET", null, I18N.CategoryFetchError,
+    return Server.callAPI("/api/categories", "GET", null, I18N.CategoryFetchError,
         (data) => {
             // Sort by pinned + alpha
             // Pinned categories are shown at the beginning
@@ -755,6 +805,11 @@ Index.loadCategories = function () {
                             type='button' id='${category.id}' value='${catName}' 
                             onclick='Index.toggleCategory(this)' title='${I18N.CategoryDesc}'/>
                 </div>`;
+
+                // Take this opportunity to update the bookmark
+                if (category.id === localStorage.getItem("bookmarkCategoryId")) {
+                    localStorage.setItem("bookmarkedArchives", JSON.stringify(category.archives));
+                }
 
                 html += div;
             }
@@ -906,6 +961,13 @@ Index.resizableColumns = function () {
         document.body.style.cursor = 'default';
     }
 };
+
+/**
+ * @returns number of custom columns in compact mode
+ */
+Index.getColumnCount = function () {
+    return localStorage.getItem("columnCount") ? parseInt(localStorage.getItem("columnCount")) : 2;
+}
 
 jQuery(() => {
     Index.initializeAll();

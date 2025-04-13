@@ -41,7 +41,7 @@
     </script>
 </head>
 
-<body>
+<body data-user-logged="[% userlogged %]">
 
     <div id="i1" class="sni">
         <div id="i2">
@@ -121,8 +121,9 @@
                         <div class="gt" style="font-size:14px; padding:4px">
                             <a href="[% c.url_for("/").query("c=$id") %]">
                                 <span class="label">[% name %]</span>
-                                <a href="#" class="remove-category" data-id="[% id %]"
-                                    style="margin-left:4px; margin-right:2px">×</a>
+                            </a>
+                            <a href="#" class="remove-category" data-id="[% id %]"
+                                style="margin-left:4px; margin-right:2px">×</a>
                             </a>
                         </div>
                         [% END %]
@@ -179,6 +180,7 @@
                 <li>[% c.lh("Q: bring up the thumbnail index and archive options.") %]</li>
                 <li>[% c.lh("R: open a random archive.") %]</li>
                 <li>[% c.lh("F: toggle fullscreen mode") %]</li>
+                <li>[% c.lh("B: toggle bookmark") %]</li>
             </ul>
             <br>[% c.lh("To return to the archive index, touch the arrow pointing down or use Backspace.") %]
         </div>
