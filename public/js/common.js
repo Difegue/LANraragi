@@ -278,7 +278,7 @@ LRR.buildBookmarkIconElement = function (id, bookmark_class) {
     const bookmarkClass = isBookmarked ? "fas fa-bookmark" : "far fa-bookmark";
     const disabledClass = LRR.isUserLogged() ? "" : " disabled";
     const style = !LRR.isUserLogged() ? 'style="opacity: 0.5; cursor: not-allowed;"' : '';
-    return `<i id="${id}" class="${bookmarkClass} ${bookmark_class}${disabledClass}" title="Toggle Bookmark" ${style}></i>`;
+    return `<i id="${id}" class="${bookmarkClass} ${bookmark_class}${disabledClass}" title="${I18N.ToggleBookmark}" ${style}></i>`;
 };
 
 /**
