@@ -282,7 +282,8 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
         const isBookmarked = JSON.parse(localStorage.getItem("bookmarkedArchives") || "[]").includes(id);
         const bookmarkClass = isBookmarked ? "fas fa-bookmark" : "far fa-bookmark";
         const disabledClass = LRR.isUserLogged() ? "" : " disabled";
-        bookmarkIcon = `<i id="${id}" class="${bookmarkClass} thumbnail-bookmark-icon${disabledClass}" title="Toggle Bookmark" ${!LRR.isUserLogged() ? 'style="opacity: 0.5; cursor: not-allowed;"' : ''}></i>`;
+        const style = !LRR.isUserLogged() ? 'style="opacity: 0.5; cursor: not-allowed;"' : '';
+        bookmarkIcon = `<i id="${id}" class="${bookmarkClass} thumbnail-bookmark-icon${disabledClass}" title="Toggle Bookmark" ${style}></i>`;
     }
 
     // Don't enforce no_fallback=true here, we don't want those divs to trigger Minion jobs 
