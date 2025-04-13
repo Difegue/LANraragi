@@ -811,6 +811,14 @@ div.fullscreen img {
   opacity: 0.6;
 }
 
+.title-bookmark-icon:hover {
+  opacity: 0.8;
+}
+
+.title-bookmark-icon:active {
+  opacity: 0.6;
+}
+
 body.infinite-scroll .fullscreen-infinite img {
   margin: 0 auto !important;
 }
