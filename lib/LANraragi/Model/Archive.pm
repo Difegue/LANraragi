@@ -22,7 +22,7 @@ use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Archive    qw(extract_single_file extract_single_file extract_thumbnail);
 use LANraragi::Utils::Database
   qw(redis_encode redis_decode invalidate_cache set_title set_tags set_summary get_archive_json get_archive_json_multi);
-use LANraragi::Utils::PageCache;
+use LANraragi::Utils::PageCache  qw(fetch put);
 
 # get_title(id)
 #   Returns the title for the archive matching the given id.
@@ -233,14 +233,14 @@ sub serve_thumbnail {
 }
 sub get_page_data ($id, $path) {
     my $cachekey     = "page/$id/$path";
-    my $content = LANraragi::Utils::PageCache::fetch($cachekey);
+    my $content = fetch($cachekey);
     if ( !defined($content) ) {
         # Extract the file from the parent archive if it doesn't exist
         my $redis = LANraragi::Model::Config->get_redis;
         my $archive = $redis->hget($id, "file");
         $redis->quit();
         $content = extract_single_file($archive, $path);
-        LANraragi::Utils::PageCache::put($cachekey, $content);
+        put($cachekey, $content);
     }
     return $content;
 }
@@ -260,10 +260,10 @@ sub serve_page {
         my $quality      = LANraragi::Model::Config->get_readquality;
 
         my $cachekey = "resize_page/$id/$path/$threshold/$quality";
-        my $content = LANraragi::Utils::PageCache::fetch($cachekey);
+        my $content = fetch($cachekey);
         if ( !defined($content)) {
             $content = LANraragi::Model::Reader::resize_image(get_page_data($id, $path), $quality, $threshold);
-            LANraragi::Utils::PageCache::put($cachekey, $content);
+            put($cachekey, $content);
         }
 
         # resize_image always converts the image to jpg

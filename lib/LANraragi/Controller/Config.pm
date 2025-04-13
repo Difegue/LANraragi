@@ -46,7 +46,6 @@ sub index {
         hqthumbpages    => $self->LRR_CONF->get_hqthumbpages,
         jxlthumbpages   => $self->LRR_CONF->get_jxlthumbpages,
         csshead         => generate_themes_header($self),
-        tempsize        => 0,
         replacedupe     => $self->LRR_CONF->get_replacedupe
     );
 }

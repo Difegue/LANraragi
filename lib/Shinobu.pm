@@ -5,7 +5,6 @@ package Shinobu;
 #  My main tasks are:
 #
 #    Tracking all files in the content folder and making sure they're sync'ed with the database
-#    Automatically cleaning the temporary folder when it reaches a certain size
 #
 
 use strict;
@@ -31,7 +30,6 @@ use Encode;
 
 use LANraragi::Utils::Archive    qw(extract_thumbnail);
 use LANraragi::Utils::Database   qw(redis_encode invalidate_cache compute_id change_archive_id);
-use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Generic    qw(is_archive split_workload_by_cpu);
 

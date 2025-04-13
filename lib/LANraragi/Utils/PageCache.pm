@@ -21,7 +21,6 @@ sub initialize() {
     my $disk_size = LANraragi::Model::Config->get_tempmaxsize."m";
     $logger->debug("Initializing cache, disk size: ".$disk_size);
 
-    # TODO: Make memory cache size configurable
     $cache = CHI->new(
         driver     => 'FastMmap',
         cache_size => $disk_size,
