@@ -436,16 +436,10 @@ Index.handleColumnNum = function () {
 Index.generateTableHeaders = function (columnCount) {
     const headerRow = $("#header-row");
     headerRow.empty();
-    // if (LRR.bookmarkLinkConfigured()) {
-    //     const bookmarkHeaderWidth = localStorage.getItem(`resizeColumn0`) || "";
-    //     headerRow.append(`<th id="bookmarkheader" width="${bookmarkHeaderWidth}">
-    //                         <a>Bookmarked</a>
-    //                     </th>`);
-    // }
-    const titleHeaderWidth = localStorage.getItem(`resizeColumn0`) || "";
-    headerRow.append(`<th id="titleheader" width="${titleHeaderWidth}">
-							<a>${I18N.IndexTitle}</a>
-						</th>`);
+    const headerWidth = localStorage.getItem(`resizeColumn0`) || "";
+    headerRow.append(`<th id="titleheader" width="${headerWidth}">
+                        <a>${I18N.IndexTitle}</a>
+                    </th>`);
 
     for (let i = 1; i <= columnCount; i++) {
         const customColumn = localStorage[`customColumn${i}`] || `Header ${i}`;
