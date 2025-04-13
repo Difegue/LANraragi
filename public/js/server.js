@@ -190,11 +190,7 @@ Server.triggerScript = function (namespace) {
 };
 
 Server.cleanTemporaryFolder = function () {
-    Server.callAPI("/api/tempfolder", "DELETE", I18N.CleanedTempFolder, I18N.CleanedTempFolderError,
-        (data) => {
-            $("#tempsize").html(data.newsize);
-        },
-    );
+    Server.callAPI("/api/tempfolder", "DELETE", I18N.CleanedTempFolder, I18N.CleanedTempFolderError, null);
 };
 
 Server.invalidateCache = function () {

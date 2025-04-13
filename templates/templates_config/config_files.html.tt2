@@ -54,8 +54,6 @@
         <input id='clean-temp' class='stdbtn' type='button' value='[% c.lh("Clean Temporary Folder") %]' />
     </td>
     <td class="config-td">
-        [% c.lh("Current Size:") %]
-        <h2 style="display:inline"><span id="tempsize"> [%tempsize%] </span> MBs </h2>
         <br>[% c.lh("Empty the temporary folder manually by clicking this button.") %]
     </td>
 </tr>
