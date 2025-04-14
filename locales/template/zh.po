@@ -757,7 +757,7 @@ msgid "You can check LANraragi logs here for debugging purposes."
 msgstr "您可以在此处查看LANraragi日志以进行调试。"
 
 msgid "By default, this view only shows the last 100 lines of each logfile, newest lines last."
-msgstr "默认情况下，此视图仅显示每个日志文件的最后100行，最新的日记在最后。"
+msgstr "默认情况下，此视图仅显示每个日志文件的最后100行，最新的日志在最后。"
 
 msgid "General Logs pertain to the main application."
 msgstr "常规日志与主应用程序有关。"
@@ -1166,7 +1166,7 @@ msgid "Are you sure you want to delete this archive?"
 msgstr "您确定要删除此文档吗？"
 
 msgid "Are you sure you want to delete the selected archives?"
-msgstr "您确定要删除一下文档吗？"
+msgstr "您确定要删除以下文档吗？"
 
 msgid "This action cannot be undone!"
 msgstr "此操作无法撤销！"
