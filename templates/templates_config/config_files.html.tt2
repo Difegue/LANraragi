@@ -51,10 +51,10 @@
 
 <tr>
     <td class="option-td">
-        <input id='clean-temp' class='stdbtn' type='button' value='[% c.lh("Clean Temporary Folder") %]' />
+        <input id='clean-temp' class='stdbtn' type='button' value='[% c.lh("Clear Cache") %]' />
     </td>
     <td class="config-td">
-        <br>[% c.lh("Empty the temporary folder manually by clicking this button.") %]
+        <br>[% c.lh("Clear the cache manually by clicking this button.") %]
     </td>
 </tr>
 
