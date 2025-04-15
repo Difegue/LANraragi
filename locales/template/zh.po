@@ -725,7 +725,7 @@ msgid "You\'re using the default password and that\'s super baka of you"
 msgstr "你这个超级大笨蛋竟然在用默认密码。"
 
 msgid "Login with password \"kamimamita\" and change that shit on the double. ...Or just disable it! Why not check the configuration options afterwards, while you\'re at it?"
-msgstr "使用默认密码"kamimamita"<a href="/login">登录</a><br/>然后立刻<a href="/config">改掉这坨史一样的密码</a>。<br/>...或者干脆禁用掉! <br/>为什么不顺便检查一下配置选项呢？"
+msgstr "使用默认密码\"kamimamita\"<a href=\"/login\">登录</a><br/>然后立刻<a href=\"/config\">改掉这坨史一样的密码</a>。<br/>...或者干脆禁用掉! <br/>为什么不顺便检查一下配置选项呢？"
 
 # ------End of Index.html.tt2------
 
@@ -1126,7 +1126,7 @@ msgid "Type in your URLs (separated by a newline), and click the download button
 msgstr "输入您的URL（以换行分隔），然后单击下载按钮。"
 
 msgid "If a Downloader plugin is compatible with the URL, it'll be automatically used."
-msgstr "如果<a href="[% c.url_for("/config/plugins") %]">下载器插件</a>与相应的URL兼容，它将被自动使用。"
+msgstr "如果<a href=\"[% c.url_for(\"/config/plugins\") %]\">下载器插件</a>与相应的URL兼容，它将被自动使用。"
 
 msgid "URL(s) to download:"
 msgstr "要下载的URL："
@@ -1217,7 +1217,7 @@ msgid "Error while processing ID \${id} (\${msg})"
 msgstr "处理文档 ${id} 出错：(${msg})"
 
 msgid "Processed ID \${id} with \"\${plug}\" (Added tags: \${tags})"
-msgstr "已处理文档 ${id}，调用插件 "${plug}"（新增标签: ${tags}）"
+msgstr "已处理文档 ${id}，调用插件 \"${plug}\"（新增标签: ${tags}）"
 
 msgid "Deleted ID \${id} (Filename: \${filename})"
 msgstr "已删除文档 ${id} (文件名：${filename})"
@@ -1274,7 +1274,7 @@ msgid "Writing a Predicate"
 msgstr "Writing a Predicate"
 
 msgid "Predicates follow the same syntax as searches in the Archive Index. Check the Documentation for more information."
-msgstr "Predicates follow the same syntax as searches in the Archive Index. Check the <a href="https://sugoi.gitbook.io/lanraragi/basic-operations/searching\">Documentation</a> for more information."
+msgstr "Predicates follow the same syntax as searches in the Archive Index. Check the <a href=\"https://sugoi.gitbook.io/lanraragi/basic-operations/searching\">Documentation</a> for more information."
 
 msgid "Background Worker restarted!"
 msgstr "Background Worker restarted!"
@@ -1344,7 +1344,7 @@ msgid "Enter a tag namespace for this column"
 msgstr "Enter a tag namespace for this column"
 
 msgid "Enter a full namespace without the colon, e.g \"artist\"."
-msgstr "Enter a full namespace without the colon, e.g "artist"."
+msgstr "Enter a full namespace without the colon, e.g \"artist\"."
 
 msgid "If you have multiple tags with the same namespace, only the last one will be shown in the column."
 msgstr "If you have multiple tags with the same namespace, only the last one will be shown in the column."
