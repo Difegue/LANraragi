@@ -13,17 +13,18 @@ use LANraragi::Utils::Generic qw(generate_themes_header);
 # Go through the archives in the content directory and build the template at the end.
 sub index {
 
-    my $self  = shift;
-    my $redis = $self->LRR_CONF->get_redis_config;
+    my $self      = shift;
+    my $redis_cfg = $self->LRR_CONF->get_redis_config;
+    my $redis     = $self->LRR_CONF->get_redis;
 
     my $userlogged = $self->LRR_CONF->enable_pass == 0 || $self->session('is_logged');
 
     if ( $userlogged && $self->req->param('delete') ) {
         $self->LRR_LOGGER->debug("Cleared all detected duplicates!");
-        $redis->del("duplicate_groups");
+        $redis_cfg->del("duplicate_groups");
     }
 
-    my %duplicate_groups = $redis->hgetall("duplicate_groups");
+    my %duplicate_groups = $redis_cfg->hgetall("duplicate_groups");
     my @duplicates;
 
     foreach my $key ( keys %duplicate_groups ) {
@@ -52,13 +53,13 @@ sub index {
                 if ( scalar @ids <= 2 ) {
                     my $size = scalar @ids;
                     $self->LRR_LOGGER->debug("group $key: too small ($size) - removing key");
-                    $redis->hdel( "duplicate_groups", $key );
+                    $redis_cfg->hdel( "duplicate_groups", $key );
                 } else {
 
                     # archive vanished -> remove from dupes
                     @ids = grep { $_ ne $id } @ids;
-                    $$self->LRR_LOGGER->debug("group $key: archive $id vanished - removing from group");
-                    $redis->hset( "duplicate_groups", $key, encode_json( \@ids ) );
+                    $self->LRR_LOGGER->debug("group $key: archive $id vanished - removing from group");
+                    $redis_cfg->hset( "duplicate_groups", $key, encode_json( \@ids ) );
                 }
             }
         }
