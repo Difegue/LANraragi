@@ -14,8 +14,7 @@
 	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/lrr.css?$version") %]" />
 
 	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/fontawesome-all.min.css") %]" />
-	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/jqcloud.min.css") %]">
-	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/allcollapsible.min.css") %]" />
+    <link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/tippy.css") %]" />
 	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/ReactToastify.min.css") %]" />
 	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/sweetalert2.min.css") %]" />
 	[% csshead %]
@@ -28,11 +27,14 @@
 	<script>window.React = window.preactCompat; window.react = window.preactCompat;</script>
 	<script src="[% c.url_for("/js/vendor/clsx.min.js") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/vendor/react-toastify.umd.js") %]" type="text/JAVASCRIPT"></script>
+    <script src="[% c.url_for("/js/vendor/popper.min.js") %]" type="text/JAVASCRIPT"></script>
+    <script src="[% c.url_for("/js/vendor/tippy-bundle.umd.min.js") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/vendor/sweetalert2.min.js") %]" type="text/JAVASCRIPT"></script>
 
     <script src="[% c.url_for("/js/i18n.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/common.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/server.js?$version") %]" type="text/JAVASCRIPT"></script>
+    <script src="[% c.url_for("/js/index_datatables.js?$version") %]" type="text/JAVASCRIPT"></script>
     <script src="[% c.url_for("/js/duplicates.js?$version") %]" type="text/JAVASCRIPT"></script>
 </head>
 
@@ -59,21 +61,18 @@
             </div>
         </div>
 
-        <table id="ds" class="ds">
+        <table id="ds" class="ds itg">
             <thead>
                 <tr>
                     <td>group-key</th>
                     <th>check</th>
-                    <th>thumb</th>
                     <th>Title</th>
                     <th>Pages</th>
                     <th>Filename</th>
                     <th>Filesize</th>
                     <th>Date</th>
                     <th>Tags</th>
-                    [% IF userlogged %]
                     <th>Action</th>
-                    [% END %]
                 </tr>
             </thead>
             <tbody>
@@ -87,18 +86,15 @@
                                     <input type="checkbox" class="form-check-input">
                                 </div>
                             </td>
-                            <td>
-                                <div class="thumbnail-wrapper">
-                                    <a onmouseover="IndexTable.buildImageTooltip(this)" href="${new LRR.apiURL('/reader?id=[% archive.arcid %]')}" title="[% archive.title %]">
-                                        <img class="thumbnail" src="${new LRR.apiURL(`/api/archives/[% archive.arcid %]/thumbnail`)}" width="100"/>
-                                    </a>
-                                    <div class="caption" style="display: none;">
-                                        <img style="height:300px" src="${new LRR.apiURL('/api/archives/${data.arcid}/thumbnail')}" 
-                                                  onerror="this.src='${new LRR.apiURL('/img/noThumb.png')}'">
-                                    </div>
+                            <td><div class="thumbnail-wrapper">
+                                <a href="[% c.url_for("/reader?id=$archive.arcid") %]" onmouseover="IndexTable.buildImageTooltip(this)" title="[% archive.title %]">
+                                    [% archive.title %]
+                                </a>
+                                <div class="caption" style="display: none;">
+                                    <img style="height:300px" src="[% c.url_for("/api/archives/$archive.arcid/thumbnail") %]" 
+                                              onerror="this.src='[% c.url_for("/img/noThumb.png") %]'">
                                 </div>
-                            </td>
-                            <td>[% archive.title %]</td>
+                            </div></td>
                             <td class="page-count">[% archive.pagecount %]</td>
                             <td>[% archive.name %]</td>
                             <td class="file-size">
@@ -113,9 +109,7 @@
                             <div class="caption caption-tags" style="display: none;" >
                                     ${LRR.buildTagsDiv("[% archive.tags %]")}
                             </div>
-                            [% IF userlogged %]
-                            <td><button type="button" data-id="[% archive.arcid %]" class="stdbtn delete-archive action-button btn-danger">Delete</button></td>
-                            [% END %]
+                            <td><button type="button" data-id="[% archive.arcid %]" class="stdbtn delete-archive action-button btn-danger">[% c.lh("Delete")%]</button></td>
                         </tr>
                         [% first_archive = 0 %]
                     [% END %]

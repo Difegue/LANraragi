@@ -17,9 +17,7 @@ sub index {
     my $redis_cfg = $self->LRR_CONF->get_redis_config;
     my $redis     = $self->LRR_CONF->get_redis;
 
-    my $userlogged = $self->LRR_CONF->enable_pass == 0 || $self->session('is_logged');
-
-    if ( $userlogged && $self->req->param('delete') ) {
+    if ( $self->req->param('delete') ) {
         $self->LRR_LOGGER->debug("Cleared all detected duplicates!");
         $redis_cfg->del("duplicate_groups");
     }
