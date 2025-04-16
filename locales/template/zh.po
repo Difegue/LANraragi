@@ -255,22 +255,22 @@ msgstr "重新扫描档案目录"
 msgid "Click this button to trigger a rescan of the Archive Directory in case you're missing files, or some data such as total page counts."
 msgstr "点击此按钮以触发档案目录的重新扫描，以防丢失文件或某些数据<br>例如总页数。"
 
-msgid "Maximum <br>Temporary Folder Size"
+msgid "Maximum <br>Cache Size"
 msgstr "最大<br>临时文件夹大小"
 
-msgid "In MBs. The temporary folder contains recently opened archives, for faster subsequent reading."
+msgid "In MBs. The cache contains recently viewed pages, for faster subsequent reading."
 msgstr "以MB为单位。临时文件夹包含最近打开的档案，以便更快地进行后续读取。"
 
 msgid "It is automatically emptied when it grows past this specified size."
 msgstr "当其大小超过指定大小时，将自动清空。"
 
-msgid "Clean Temporary Folder"
+msgid "Clean Cache"
 msgstr "清理临时文件夹"
 
 msgid "Current Size:"
 msgstr "当前大小："
 
-msgid "Empty the temporary folder manually by clicking this button."
+msgid "Empty the cache manually by clicking this button."
 msgstr "点击此按钮手动清空临时文件夹。"
 
 msgid "Reset Search Cache"
@@ -1492,6 +1492,12 @@ msgstr "Temporary folder cleaned!"
 
 msgid "Error cleaning temporary folder"
 msgstr "Error cleaning temporary folder"
+
+msgid "Threw away the cache!"
+msgstr "Threw away the cache!"
+
+msgid "Error clearing the cache"
+msgstr "Error clearing the cache"
 
 msgid "Threw away the search cache!"
 msgstr "Threw away the search cache!"
