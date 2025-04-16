@@ -172,6 +172,18 @@ msgstr "If you select a Static Category, your archives will appear here so you c
 msgid "Return to Library"
 msgstr "Return to Library"
 
+msgid "Store Bookmarks in this Category"
+msgstr "Store Bookmarks in this Category"
+
+msgid "Error linking bookmark button:"
+msgstr "Error linking bookmark button:"
+
+msgid "Error unlinking bookmark button:"
+msgstr "Error unlinking bookmark button:"
+
+msgid "Error getting bookmark category:"
+msgstr "Error getting bookmark category:"
+
 # ------End of Category.html.tt2------
 
 # ------Start of Config.html.tt2------
@@ -243,23 +255,23 @@ msgstr "Rescan Archive Directory"
 msgid "Click this button to trigger a rescan of the Archive Directory in case you're missing files, or some data such as total page counts."
 msgstr "Click this button to trigger a rescan of the Archive Directory in case you're missing files, <br>or some data such as total page counts. <br>"
 
-msgid "Maximum <br>Temporary Folder Size"
-msgstr "Maximum <br>Temporary Folder Size"
+msgid "Maximum <br>Cache Size"
+msgstr "Maximum <br>Cache Size"
 
-msgid "In MBs. The temporary folder contains recently opened archives, for faster subsequent reading."
-msgstr "In MBs. The temporary folder contains recently opened archives, for faster subsequent reading."
+msgid "In MBs. The cache contains recently viewed pages, for faster subsequent reading."
+msgstr "In MBs. The cache contains recently viewed pages, for faster subsequent reading."
 
 msgid "It is automatically emptied when it grows past this specified size."
 msgstr "It is automatically emptied when it grows past this specified size."
 
-msgid "Clean Temporary Folder"
-msgstr "Clean Temporary Folder"
+msgid "Clear Cache"
+msgstr "Clear Cache"
 
 msgid "Current Size:"
 msgstr "Current Size:"
 
-msgid "Empty the temporary folder manually by clicking this button."
-msgstr "Empty the temporary folder manually by clicking this button."
+msgid "Clear the cache manually by clicking this button."
+msgstr "Clear the cache manually by clicking this button."
 
 msgid "Reset Search Cache"
 msgstr "Reset Search Cache"
@@ -713,7 +725,7 @@ msgid "You\'re using the default password and that\'s super baka of you"
 msgstr "You\'re using the default password and that\'s super baka of you"
 
 msgid "Login with password \"kamimamita\" and change that shit on the double. ...Or just disable it! Why not check the configuration options afterwards, while you\'re at it?"
-msgstr "<a href="/login">Login</a> with password "kamimamita" and <a href="/config">change that shit</a> on the double.<br/>...Or just disable it! <br/>Why not check the configuration options afterwards, while you&#39;re at it? "
+msgstr "<a href=\"/login\">Login</a> with password \"kamimamita\" and <a href=\"/config\">change that shit</a> on the double.<br/>...Or just disable it! <br/>Why not check the configuration options afterwards, while you&#39;re at it? "
 
 # ------End of Index.html.tt2------
 
@@ -730,6 +742,9 @@ msgstr "Login"
 
 msgid "Wrong Password."
 msgstr "Wrong Password."
+
+msgid "<a href='\${url}'>Login</a> to toggle bookmark feature."
+msgstr "<a href='${url}'>Login</a> to toggle bookmark feature."
 
 # ------End of Login.html.tt2------
 
@@ -921,10 +936,13 @@ msgid "Q: bring up the thumbnail index and archive options."
 msgstr "Q: bring up the thumbnail index and archive options."
 
 msgid "R: open a random archive."
-msgstr "R: open a random archive.""
+msgstr "R: open a random archive."
 
 msgid "F: toggle fullscreen mode"
 msgstr "F: toggle fullscreen mode"
+
+msgid "B: toggle bookmark"
+msgstr "B: toggle bookmark"
 
 msgid "To return to the archive index, touch the arrow pointing down or use Backspace."
 msgstr "To return to the archive index, touch the arrow pointing down or use Backspace."
@@ -1028,6 +1046,8 @@ msgstr "Archive Overview"
 msgid "FullScreen"
 msgstr "FullScreen"
 
+msgid "Toggle Bookmark"
+msgstr "Toggle Bookmark"
 # ------End of Reader.html.tt2------
 
 # ------Start of Stats.html.tt2------
@@ -1103,7 +1123,7 @@ msgid "Type in your URLs (separated by a newline), and click the download button
 msgstr "Type in your URLs (separated by a newline), and click the download button."
 
 msgid "If a Downloader plugin is compatible with the URL, it'll be automatically used."
-msgstr "If a <a href="[% c.url_for("/config/plugins") %]">Downloader plugin</a> is compatible with the URL, it'll be automatically used."
+msgstr "If a <a href=\"[% c.url_for(\"/config/plugins\") %]\">Downloader plugin</a> is compatible with the URL, it'll be automatically used."
 
 msgid "URL(s) to download:"
 msgstr "URL(s) to download:"
@@ -1194,7 +1214,7 @@ msgid "Error while processing ID \${id} (\${msg})"
 msgstr "Error while processing ID ${id} (${msg})"
 
 msgid "Processed ID \${id} with \"\${plug}\" (Added tags: \${tags})"
-msgstr "Processed ID ${id} with "${plug}" (Added tags: ${tags})"
+msgstr "Processed ID ${id} with \"${plug}\" (Added tags: ${tags})"
 
 msgid "Deleted ID \${id} (Filename: \${filename})"
 msgstr "Deleted ID ${id} (Filename: ${filename})"
@@ -1251,7 +1271,7 @@ msgid "Writing a Predicate"
 msgstr "Writing a Predicate"
 
 msgid "Predicates follow the same syntax as searches in the Archive Index. Check the Documentation for more information."
-msgstr "Predicates follow the same syntax as searches in the Archive Index. Check the <a href="https://sugoi.gitbook.io/lanraragi/basic-operations/searching\">Documentation</a> for more information."
+msgstr "Predicates follow the same syntax as searches in the Archive Index. Check the <a href=\"https://sugoi.gitbook.io/lanraragi/basic-operations/searching\">Documentation</a> for more information."
 
 msgid "Background Worker restarted!"
 msgstr "Background Worker restarted!"
@@ -1321,7 +1341,7 @@ msgid "Enter a tag namespace for this column"
 msgstr "Enter a tag namespace for this column"
 
 msgid "Enter a full namespace without the colon, e.g \"artist\"."
-msgstr "Enter a full namespace without the colon, e.g "artist"."
+msgstr "Enter a full namespace without the colon, e.g \"artist\"."
 
 msgid "If you have multiple tags with the same namespace, only the last one will be shown in the column."
 msgstr "If you have multiple tags with the same namespace, only the last one will be shown in the column."
@@ -1475,6 +1495,12 @@ msgstr "Temporary folder cleaned!"
 
 msgid "Error cleaning temporary folder"
 msgstr "Error cleaning temporary folder"
+
+msgid "Threw away the cache!"
+msgstr "Threw away the cache!"
+
+msgid "Error clearing the cache"
+msgstr "Error clearing the cache"
 
 msgid "Threw away the search cache!"
 msgstr "Threw away the search cache!"

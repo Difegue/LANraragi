@@ -5,4 +5,4 @@
 /home/koyomi/lanraragi/database      true    koyomi,9001:9001 0777  0777
 /home/koyomi/lanraragi/content/thumb true    koyomi,9001:9001 0644  0744
 /home/koyomi/lanraragi/log           false   koyomi,9001:9001 0644  0744
-/home/koyomi/lanraragi/public/temp   false   koyomi,9001:9001 0644  0744
+/home/koyomi/lanraragi/temp   false   koyomi,9001:9001 0644  0744

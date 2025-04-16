@@ -101,6 +101,9 @@ sub startup {
         sleep 2;
     }
 
+    # Initialize cache
+    LANraragi::Utils::PageCache::initialize();
+
     # Load i18n
     LANraragi::Utils::I18NInitializer::initialize($self);
 
@@ -183,6 +186,9 @@ sub startup {
     # Start File Watcher
     shutdown_from_pid( get_temp . "/shinobu.pid" );
     start_shinobu($self);
+
+    # Check if this is a first-time installation.
+    LANraragi::Model::Config::first_install_actions();
 
     # Hook to SIGTERM to cleanly kill minion+shinobu on server shutdown
     # As this is executed during before_dispatch, this code won't work if you SIGTERM without loading a single page!

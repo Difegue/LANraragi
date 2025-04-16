@@ -5,6 +5,7 @@ use Redis;
 use Encode;
 
 use LANraragi::Model::Category;
+use LANraragi::Model::Config;
 use LANraragi::Utils::Generic qw(render_api_response);
 
 sub get_category_list {
@@ -136,6 +137,62 @@ sub remove_from_category {
     } else {
         render_api_response( $self, "remove_from_category", $err );
     }
+}
+
+sub get_bookmark_link {
+
+    my $self = shift;
+    my $catid = LANraragi::Model::Category::get_bookmark_link();
+    return $self->render(
+        json => {
+            operation   => "get_bookmark_link",
+            success     => 1,
+            category_id => $catid
+        }
+    );
+
+}
+
+sub update_bookmark_link {
+
+    my $self = shift;
+    my $catid = $self->stash('id');
+    my ($status_code, $message);
+    ($status_code, $catid, $message) = LANraragi::Model::Category::update_bookmark_link($catid);
+    unless ( $status_code == 200 ) {
+        return $self->render(
+            json => {
+                operation   => "update_bookmark_link",
+                success     => 0,
+                category_id => $catid,
+                error       => $message
+            },
+            status => $status_code
+        );
+    }
+    return $self->render(
+        json => {
+            operation   => "update_bookmark_link",
+            category_id => $catid,
+            success     => 1
+        },
+        status => 200
+    );
+
+}
+
+sub remove_bookmark_link {
+
+    my $self = shift;
+    my $catid = LANraragi::Model::Category::remove_bookmark_link();
+    return $self->render(
+        json => {
+            operation   => "remove_bookmark_link",
+            category_id => $catid,
+            success     => 1
+        }
+    );
+
 }
 
 1;
