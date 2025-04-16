@@ -130,6 +130,8 @@ I18N.ScriptError = "[% c.lh("An error occured while running the script") %]";
 I18N.ScriptResult = "[% c.lh("Script result") %]";
 I18N.ScriptResultFail = (error) => `[% c.lh("Script failed with error: \${error}") %]`;
 
+I18N.ClearCache = "[% c.lh("Threw away the cache!") %]";
+I18N.ClearCacheError = "[% c.lh("Error clearing the cache") %]";
 I18N.CleanedTempFolder = "[% c.lh("Temporary folder cleaned!") %]";
 I18N.CleanedTempFolderError = "[% c.lh("Error cleaning temporary folder") %]";
 I18N.CleanedCacheFolder = "[% c.lh("Threw away the search cache!") %]";
