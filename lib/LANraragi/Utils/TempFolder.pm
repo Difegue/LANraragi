@@ -13,7 +13,7 @@ our @EXPORT_OK = qw(get_temp);
 #Get the current tempfolder.
 #This can be called from any process safely as it uses FindBin.
 sub get_temp {
-    my $temp_folder = "$FindBin::Bin/../public/temp";
+    my $temp_folder = "$FindBin::Bin/../temp";
 
     # Folder location can be overriden by LRR_TEMP_DIRECTORY
     if ( $ENV{LRR_TEMP_DIRECTORY} ) {
