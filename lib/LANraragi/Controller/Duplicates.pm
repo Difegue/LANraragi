@@ -20,10 +20,10 @@ sub index {
 
     if ( $self->req->param('delete') ) {
         $self->LRR_LOGGER->debug("Cleared all detected duplicates!");
-        $redis_cfg->del("duplicate_groups");
+        $redis_cfg->del("LRR_DUPLICATE_GROUPS");
     }
 
-    my %duplicate_groups = $redis_cfg->hgetall("duplicate_groups");
+    my %duplicate_groups = $redis_cfg->hgetall("LRR_DUPLICATE_GROUPS");
     my @duplicates;
 
     foreach my $key ( keys %duplicate_groups ) {
@@ -58,13 +58,13 @@ sub index {
                 if ( scalar @ids <= 2 ) {
                     my $size = scalar @ids;
                     $self->LRR_LOGGER->debug("group $key: too small ($size) - removing key");
-                    $redis_cfg->hdel( "duplicate_groups", $key );
+                    $redis_cfg->hdel( "LRR_DUPLICATE_GROUPS", $key );
                 } else {
 
                     # archive vanished -> remove from dupes
                     @ids = grep { $_ ne $id } @ids;
                     $self->LRR_LOGGER->debug("group $key: archive $id vanished - removing from group");
-                    $redis_cfg->hset( "duplicate_groups", $key, encode_json( \@ids ) );
+                    $redis_cfg->hset( "LRR_DUPLICATE_GROUPS", $key, encode_json( \@ids ) );
                 }
             }
         }

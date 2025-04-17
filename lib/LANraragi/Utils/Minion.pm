@@ -249,7 +249,7 @@ sub add_tasks {
                                 my $composite_key = join '', map { substr( $_, 0, 10 ) } @group;
                                 my $group_json    = encode_json( \@group );
                                 $logger->debug("duplicate group '$composite_key': $group_json");
-                                $redis->hset( "duplicate_groups", "dupgp_$composite_key", $group_json );
+                                $redis->hset( "LRR_DUPLICATE_GROUPS", "dupgp_$composite_key", $group_json );
                             }
                         }
 
