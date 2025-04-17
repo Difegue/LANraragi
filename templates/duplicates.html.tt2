@@ -58,10 +58,11 @@
 		<h2 class="ih" style="text-align:center">[% c.lh("Duplicate Detection") %]</h2>
 
         [% IF duplicates.size %]
+        <!-- Dupes were found, we can just clear the localStorage pref if it was still there -->
+        <script>localStorage.removeItem("dupeMinionJob");</script>
         <p>
             [% c.lh("Found [_1] duplicate group(s).", duplicates.size) %]<br>
             [% c.lh("You can use the rules dropdown below to pre-select archives for deletion.") %]<br>
-            
         </p>
 
         <div class="control-btn-group">
@@ -151,6 +152,10 @@
             [% c.lh("After which, you can select which archives to delete, and then delete them in bulk.") %]<br>
         </p>
         <br>
+        <div id='processing' style='display:none'>
+            <i class='fa fa-3x fa-compact-disc fa-spin' style='margin-top:8px' id='tag-spinner'></i>
+            <h3>[% c.lh("Searching for duplicates...") %]</h3>
+        </div>
         <button type="button" class="stdbtn find-duplicates">[% c.lh("Start searching for duplicates")%]</button>
         [% END %]
         

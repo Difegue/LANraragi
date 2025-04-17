@@ -1629,8 +1629,8 @@ msgstr "Start searching for duplicates"
 msgid "Search for duplicates again"
 msgstr "Search for duplicates again"
 
-msgid "Delete selection"
-msgstr "Delete selection"
+msgid "Delete all selected items"
+msgstr "Delete all selected items"
 
 msgid "Filename"
 msgstr "Filename"
@@ -1640,5 +1640,8 @@ msgstr "Filesize"
 
 msgid "Action"
 msgstr "Action"
+
+msgid "Searching for duplicates..."
+msgstr "Searching for duplicates..."
 
 # ------End of Duplicates.html.tt2------

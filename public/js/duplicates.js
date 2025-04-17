@@ -17,6 +17,14 @@ Duplicates.initializeAll = function () {
     $(document).on("click.delete-archive", ".delete-archive", Duplicates.deleteArchive);
     $(document).on("click.delete-selected", ".delete-selected", Duplicates.deleteArchives);
 
+    if (localStorage.hasOwnProperty("dupeMinionJob")) {
+        // If we are searching for duplicates, show the processing message
+        $(".find-duplicates").hide();
+        $("#processing").show();
+
+        Duplicates.pollMinionJob(localStorage.dupeMinionJob);
+    } 
+
     $(document).on("change.duplicate-select-condition", ".duplicate-select-condition", Duplicates.conditionChange);
     Duplicates.initializeDataTable();
 }
@@ -31,35 +39,43 @@ Duplicates.findDuplicates = function () {
     formData.append("args", "[5]"); // threshold
     formData.append("priority", 0);
 
+    $(".find-duplicates").hide();
+    $("#processing").show();
+
     Server.callAPIBody(`/api/minion/find_duplicates/queue`, "POST", formData,
         "Queued up a job to find duplicates! Stay tuned for updates or check the Minion console.",
         I18N.MinionSendError,
         (data) => {
             // Disable the buttons to avoid accidental double-clicks.
             $(".find-duplicates").prop("disabled", true);
+            localStorage.dupeMinionJob = data.job;
 
-            // Check minion job state periodically while we're on this page
-            Server.checkJobStatus(
-                data.job,
-                true,
-                (d) => {
-                    // Refresh the window so that the newly found duplicates are shown.
-                    // Make sure the URL doesn't contain delete=1 so we don't instantly delete them.
-                    if (window.location.href.includes("delete=1")) {
-                        window.location.href = window.location.href.replace(/delete=1/, "");
-                    }
-                    else {
-                        window.location.reload();
-                    }
-                },
-                (error) => {
-                    $(".find-duplicates").prop("disabled", false);
-                    LRR.showErrorToast(I18N.MinionCheckError, error);
-                },
-            );
+            Duplicates.pollMinionJob(data.job);
         },
     );
 };
+
+Duplicates.pollMinionJob = function (job) {
+    // Check minion job state periodically while we're on this page
+    Server.checkJobStatus(
+        job,
+        true,
+        (d) => {
+            // Refresh the window so that the newly found duplicates are shown.
+            // Make sure the URL doesn't contain delete=1 so we don't instantly delete them.
+            if (window.location.href.includes("delete=1")) {
+                window.location.href = window.location.href.replace(/delete=1/, "");
+            }
+            else {
+                window.location.reload();
+            }
+        },
+        (error) => {
+            $(".find-duplicates").prop("disabled", false);
+            LRR.showErrorToast(I18N.MinionCheckError, error);
+        },
+    );
+}
 
 Duplicates.drawCallbackDataTable = function (settings) {
     var groupColumn = 0;
