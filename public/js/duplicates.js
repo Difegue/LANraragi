@@ -86,10 +86,9 @@ Duplicates.initializeDataTable = function () {
         // avoid sorting columns as it messes with the grouping
         columns: [
             { title: 'Group-Key', visible: false },
-            { title: '', orderable: false },
-            { title: '', orderable: false },
-            { title: 'Title', orderable: false },
-            { title: 'Pages', orderable: false },
+            { title: '', orderable: false, width:"20px" },
+            { title: 'Title', orderable: false},
+            { title: 'Pages', orderable: false, width:"52px" },
             { title: 'Filename', orderable: false },
             { title: 'Filesize', orderable: false },
             { title: 'Date', orderable: false },

@@ -114,13 +114,16 @@
                                 [% arcsize_mb FILTER format('%.2f') %] MB
                             </td>
                             <td class="date-added">[% archive.date_added %]</td>
-                            <td class="tag-count tag-tooltip" onmouseover="IndexTable.buildTagTooltip(this)" >
-                                <i class="fa-solid fa-tag"></i>
-                                [% archive.tags.split(",").size %]
+
+                            <td>
+                                <span class="tag-tooltip" onmouseover="this.nextElementSibling.innerHTML = LRR.buildTagsDiv('[% archive.tags %]'); IndexTable.buildTagTooltip(this)" 
+                                      style="text-overflow:ellipsis;">
+                                    <i class="fa-solid fa-tag"></i>
+                                    [% archive.tags.split(",").size %]
+                                </span>
+                                <div class="caption caption-tags" style="display: none;">
+                                </div>
                             </td>
-                            <div class="caption caption-tags" style="display: none;" >
-                                    ${LRR.buildTagsDiv("[% archive.tags %]")}
-                            </div>
                             <td><button type="button" data-id="[% archive.arcid %]" class="stdbtn delete-archive action-button btn-danger">[% c.lh("Delete")%]</button></td>
                         </tr>
                         [% first_archive = 0 %]
