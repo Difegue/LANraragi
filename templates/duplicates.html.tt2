@@ -41,38 +41,50 @@
 <body>
 	<div class='ido' style='text-align:center; overflow-x:auto;'>
 		<h2 class="ih" style="text-align:center">[% c.lh("Duplicate Detection") %]</h2>
-        <p>[% c.lh("Found [_1] duplicate groups", duplicates.size) %]</p>
+        [% IF duplicates.size %]
+        <p>
+            [% c.lh("Found [_1] duplicate group(s).", duplicates.size) %]<br>
+            [% c.lh("You can use the rules dropdown below to pre-select archives for deletion.") %]<br>
+            
+        </p>
+        [% ELSE %]
+        <p>
+            [% c.lh("This page allows you to search for potential duplicates in your library.") %]<br>
+            [% c.lh("Clicking \"Start searching\" will start a background job to scan the entire library for dupes.") %]<br>
+            [% c.lh("After which, you can select which archives to delete, and then delete them in bulk.") %]<br>
+        </p>
+        [% END %]
 
         <div class="control-btn-group">
-            <div class="duplicate-control-btn-group">
-                <button type="button" class="stdbtn find-duplicates">Find Duplicates</button>
-                <button type="button" class="stdbtn clear-duplicates">Clear Duplicates</button>
-            </div>
+            
+            <h2>[% c.lh("For every duplicate group...")%]</h2>
             <div class="select-btn-group">
                 <select class="duplicate-select-condition" name="duplicate-select-condition" id="duplicate-select">
-                    <option value="none">Select none</option>
-                    <option value="less-tags">Select every file in each duplicate group, except the file with the most tags</option>
-                    <option value="less-size">Select every file in each duplicate group, except the file with largest size</option>
-                    <option value="less-pages">Select every file in each duplicate group, except the file with most pages</option>
-                    <option value="not-old">Select every file in each duplicate group, except the youngest file</option>
-                    <option value="not-young"> Select every file in each duplicate group, except the oldest file</option>
+                    <option value="none">[% c.lh("Keep all files")%]</option>
+                    <option value="less-tags">[% c.lh("Keep the file with the most tags")%]</option>
+                    <option value="less-size">[% c.lh("Keep the largest file")%]</option>
+                    <option value="less-pages">[% c.lh("Keep the file with the most pages")%]</option>
+                    <option value="not-old">[% c.lh("Keep the youngest file")%]</option>
+                    <option value="not-young"> [% c.lh("Keep the oldest file")%]</option>
                 </select>
-                <button type="button" class="stdbtn delete-selected btn-danger">Delete Selected</button>
+                <button type="button" class="stdbtn delete-selected btn-danger">[% c.lh("Delete selection")%]</button>
             </div>
         </div>
+
+        <br>
 
         <table id="ds" class="ds itg">
             <thead>
                 <tr>
                     <td>group-key</th>
                     <th>check</th>
-                    <th>Title</th>
-                    <th>Pages</th>
-                    <th>Filename</th>
-                    <th>Filesize</th>
-                    <th>Date</th>
-                    <th>Tags</th>
-                    <th>Action</th>
+                    <th>[% c.lh("Title")%]</th>
+                    <th>[% c.lh("Pages")%]</th>
+                    <th>[% c.lh("Filename")%]</th>
+                    <th>[% c.lh("Filesize")%]</th>
+                    <th>[% c.lh("Date")%]</th>
+                    <th>[% c.lh("Tags")%]</th>
+                    <th>[% c.lh("Action")%]</th>
                 </tr>
             </thead>
             <tbody>
@@ -117,7 +129,14 @@
             </tbody>
         </table>
 		<br>
-		<input id="goback" type="button" value="Return to Library" class="stdbtn">
+
+        [% IF duplicates.size %]
+        <button type="button" class="stdbtn clear-duplicates">[% c.lh("Clear found duplicates")%]</button>
+        [% ELSE %]
+        <button type="button" class="stdbtn find-duplicates">[% c.lh("Start searching for duplicates")%]</button>
+        [% END %]
+        
+		<input id="goback" type="button" value="[% c.lh("Return to Library")%]" class="stdbtn">
 	</div>
 	[% INCLUDE footer %]
 
