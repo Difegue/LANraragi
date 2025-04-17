@@ -8,7 +8,8 @@ use Encode;
 
 use Mojo::JSON qw(decode_json encode_json);
 
-use LANraragi::Utils::Generic qw(generate_themes_header);
+use LANraragi::Utils::Database qw(redis_decode);
+use LANraragi::Utils::Generic  qw(generate_themes_header);
 
 # Go through the archives in the content directory and build the template at the end.
 sub index {
@@ -35,12 +36,18 @@ sub index {
         foreach my $id (@ids) {
             my %archive = $redis->hgetall($id);
 
+            my ( $name, $title, $tags ) = @archive{qw(name title tags)};
+            ( $_ = redis_decode($_) ) for ( $name, $title, $tags );
+
             # Check if archive still exists
             if (%archive) {
                 $archive{'arcid'}     = $id;
                 $archive{'group_key'} = $key;
+                $archive{'name'}      = $name;
+                $archive{'title'}     = $title;
+                $archive{'tags'}      = $tags;
 
-                if ( $archive{'tags'} =~ /date_added:(\d+)/ ) {
+                if ( $tags =~ /date_added:(\d+)/ ) {
                     $archive{'date_added'} = strftime( "%Y-%m-%d %H:%M:%S", localtime($1) );
                 }
 
