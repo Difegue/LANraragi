@@ -38,22 +38,31 @@
     <script src="[% c.url_for("/js/duplicates.js?$version") %]" type="text/JAVASCRIPT"></script>
 </head>
 
+<style>
+    .search-box {
+        float:left;
+        margin-left: 84px;
+        margin-bottom: 4px;
+    }
+
+    .length-box {
+        float: right;
+        margin-right: 84px;
+        margin-bottom: 4px;
+    }
+    
+</style>
+
 <body>
 	<div class='ido' style='text-align:center; overflow-x:auto;'>
 		<h2 class="ih" style="text-align:center">[% c.lh("Duplicate Detection") %]</h2>
+
         [% IF duplicates.size %]
         <p>
             [% c.lh("Found [_1] duplicate group(s).", duplicates.size) %]<br>
             [% c.lh("You can use the rules dropdown below to pre-select archives for deletion.") %]<br>
             
         </p>
-        [% ELSE %]
-        <p>
-            [% c.lh("This page allows you to search for potential duplicates in your library.") %]<br>
-            [% c.lh("Clicking \"Start searching\" will start a background job to scan the entire library for dupes.") %]<br>
-            [% c.lh("After which, you can select which archives to delete, and then delete them in bulk.") %]<br>
-        </p>
-        [% END %]
 
         <div class="control-btn-group">
             
@@ -67,7 +76,7 @@
                     <option value="not-old">[% c.lh("Keep the youngest file")%]</option>
                     <option value="not-young"> [% c.lh("Keep the oldest file")%]</option>
                 </select>
-                <button type="button" class="stdbtn delete-selected btn-danger">[% c.lh("Delete selection")%]</button>
+                <button type="button" class="stdbtn delete-selected">[% c.lh("Apply")%]</button>
             </div>
         </div>
 
@@ -124,7 +133,7 @@
                                 <div class="caption caption-tags" style="display: none;">
                                 </div>
                             </td>
-                            <td><button type="button" data-id="[% archive.arcid %]" class="stdbtn delete-archive action-button btn-danger">[% c.lh("Delete")%]</button></td>
+                            <td><button type="button" data-id="[% archive.arcid %]" class="stdbtn delete-archive action-button">[% c.lh("Delete")%]</button></td>
                         </tr>
                         [% first_archive = 0 %]
                     [% END %]
@@ -133,9 +142,15 @@
         </table>
 		<br>
 
-        [% IF duplicates.size %]
-        <button type="button" class="stdbtn clear-duplicates">[% c.lh("Clear found duplicates")%]</button>
+        <button type="button" class="stdbtn clear-duplicates">[% c.lh("Search for duplicates again")%]</button>
+
         [% ELSE %]
+        <p>
+            [% c.lh("This page allows you to search for potential duplicates in your library.") %]<br>
+            [% c.lh("Clicking \"Start searching\" will start a background job to scan the entire library for dupes.") %]<br>
+            [% c.lh("After which, you can select which archives to delete, and then delete them in bulk.") %]<br>
+        </p>
+        <br>
         <button type="button" class="stdbtn find-duplicates">[% c.lh("Start searching for duplicates")%]</button>
         [% END %]
         

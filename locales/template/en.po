@@ -1626,8 +1626,8 @@ msgstr "Keep the oldest file"
 msgid "Start searching for duplicates"
 msgstr "Start searching for duplicates"
 
-msgid "Clear found duplicates"
-msgstr "Clear found duplicates"
+msgid "Search for duplicates again"
+msgstr "Search for duplicates again"
 
 msgid "Delete selection"
 msgstr "Delete selection"

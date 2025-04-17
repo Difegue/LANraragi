@@ -81,6 +81,11 @@ Duplicates.drawCallbackDataTable = function (settings) {
 }
 
 Duplicates.initializeDataTable = function () {
+
+    // Classes for even/odd lines
+    $.fn.dataTableExt.oStdClasses.sStripeOdd = "gtr0";
+    $.fn.dataTableExt.oStdClasses.sStripeEven = "gtr1";
+
     Duplicates.dt = $('#ds').DataTable({
         dom: '<"table-control-wrapper" <"search-box" f><"length-box" l>><t><p>',
         // avoid sorting columns as it messes with the grouping
