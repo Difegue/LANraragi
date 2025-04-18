@@ -89,6 +89,8 @@ sub apply_routes {
 
     $logged_in->get('/tankoubons')->to('tankoubon#index');
 
+    $logged_in->get('/duplicates')->to('duplicates#index');
+
     # OPDS API
     $public_api->get('/api/opds')->to('api-other#serve_opds_catalog');
     $public_api->get('/api/opds/:id')->to('api-other#serve_opds_item');

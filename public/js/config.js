@@ -8,6 +8,7 @@ Config.initializeAll = function () {
     $(document).on("click.save", "#save", () => { Server.saveFormData("#editConfigForm"); });
     $(document).on("click.plugin-config", "#plugin-config", () => { window.location.href = new LRR.apiURL("/config/plugins"); });
     $(document).on("click.backup", "#backup", () => { window.location.href = new LRR.apiURL("/backup"); });
+    $(document).on("click.duplicate", "#duplicate", () => { window.location.href = new LRR.apiURL("/duplicates"); });
     $(document).on("click.return", "#return", () => { window.location.href = new LRR.apiURL("/"); });
     $(document).on("click.enablepass", "#enablepass", Config.enable_pass);
     $(document).on("click.enableresize", "#enableresize", Config.enable_resize);

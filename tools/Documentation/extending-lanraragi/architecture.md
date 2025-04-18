@@ -216,6 +216,8 @@ The base architecture is as follows:
 |  |- pagesize <- Amount of archives per Index page 
 |  +- apikey <- Key for API requests
 |
+|- LRR_DUPLICATE_GROUPS <- Duplicate groups found by duplicate detection
+|  +- dupgp_xxxxxx <- A group of dupe IDs, as a JSON list
 +- LRR_TAGRULES <- Computed Tag Rules, as a Redis list
 
 
