@@ -1577,4 +1577,71 @@ msgstr "Error while processing file."
 msgid "Error while downloading file."
 msgstr "Error while downloading file."
 
+msgid "Error sending job to Minion"
+msgstr "Error sending job to Minion"
+
 # ------End of i18n.html.tt2------
+
+# ------Start of Duplicates.html.tt2------
+
+msgid "Duplicate Detection"
+msgstr "Duplicate Detection"
+
+msgid "This page allows you to search for potential duplicates in your library."
+msgstr "This page allows you to search for potential duplicates in your library."
+
+msgid "Clicking \"Start searching\" will start a background job to scan the entire library for dupes."
+msgstr "Clicking \"Start searching\" will start a background job to scan the entire library for dupes."
+
+msgid "After which, you can select which archives to delete, and then delete them in bulk."
+msgstr "After which, you can select which archives to delete, and then delete them in bulk."
+
+msgid "Found %1 duplicate group(s)."
+msgstr "Found %1 duplicate group(s)."
+
+msgid "You can use the rules dropdown below to pre-select archives for deletion."
+msgstr "You can use the rules dropdown below to pre-select archives for deletion."
+
+msgid "For every duplicate group..."
+msgstr "For every duplicate group..."
+
+msgid "Keep all files"
+msgstr "Keep all files"
+
+msgid "Keep the file with the most tags"
+msgstr "Keep the file with the most tags"
+
+msgid "Keep the file with the most pages"
+msgstr "Keep the file with the most pages"
+
+msgid "Keep the largest file"
+msgstr "Keep the largest file"
+
+msgid "Keep the youngest file"
+msgstr "Keep the youngest file"
+
+msgid "Keep the oldest file"
+msgstr "Keep the oldest file"
+
+msgid "Start searching for duplicates"
+msgstr "Start searching for duplicates"
+
+msgid "Search for duplicates again"
+msgstr "Search for duplicates again"
+
+msgid "Delete all selected items"
+msgstr "Delete all selected items"
+
+msgid "Filename"
+msgstr "Filename"
+
+msgid "Filesize"
+msgstr "Filesize"
+
+msgid "Action"
+msgstr "Action"
+
+msgid "Searching for duplicates..."
+msgstr "Searching for duplicates..."
+
+# ------End of Duplicates.html.tt2------
