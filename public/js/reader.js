@@ -1235,8 +1235,11 @@ Reader.loadNextDatatablesArchives = function () {
 // but also it might be fine as is for readability
 // when at start or end of list, perform list shifting
 // if no previous/next list is available, this means we're at the first or last archive
+// iPhone doesn't support fullscreen API (actually ios doesn't in general but iPhone is where
+// it really breaks down).
 Reader.readPreviousArchive = function () {
-    if (window.fscreen.inFullscreen()) {
+    const isIphone = /iPhone/.test(navigator.userAgent);
+    if (!isIphone && window.fscreen.inFullscreen()) {
         return;
     }
     if (Reader.archiveIds.length > 0) {
@@ -1268,7 +1271,8 @@ Reader.readPreviousArchive = function () {
 }
 
 Reader.readNextArchive = function () {
-    if (window.fscreen.inFullscreen()) {
+    const isIphone = /iPhone/.test(navigator.userAgent);
+    if (!isIphone && window.fscreen.inFullscreen()) {
         return;
     }
     if (Reader.archiveIds.length > 0) {
