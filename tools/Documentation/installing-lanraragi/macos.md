@@ -12,7 +12,7 @@ cd <LRR folder>
 mkdir -p "${lrr}"
 mv content "${lrr}/content"
 mv log "${lrr}/log"
-mv public/temp "${lrr}/temp"
+mv temp "${lrr}/temp"
 mv database.rdb "${lrr}/database/database.rdb"
 ```
 

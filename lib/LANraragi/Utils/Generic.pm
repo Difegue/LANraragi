@@ -20,7 +20,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 
 # Generic Utility Functions.
 use Exporter 'import';
-our @EXPORT_OK = qw(is_image is_archive render_api_response get_tag_with_namespace shasum start_shinobu
+our @EXPORT_OK = qw(is_image is_archive render_api_response get_tag_with_namespace shasum_str start_shinobu
   split_workload_by_cpu start_minion get_css_list generate_themes_header flat get_bytelength array_difference
   intersect_arrays filter_hash_by_keys);
 
@@ -145,17 +145,17 @@ sub start_shinobu {
     return $proc;
 }
 
-#This function gives us a SHA hash for the passed file, which is used for thumbnail reverse search on E-H.
-#First argument is the file, second is the algorithm to use. (1, 224, 256, 384, 512, 512224, or 512256)
+#This function gives us a SHA hash for the passed data, which is used for thumbnail reverse search on E-H.
+#First argument is the data, second is the algorithm to use. (1, 224, 256, 384, 512, 512224, or 512256)
 #E-H only uses SHA-1 hashes.
-sub shasum {
+sub shasum_str {
 
     my $digest = "";
     my $logger = get_logger( "Hash Computation", "lanraragi" );
 
     eval {
         my $ctx = Digest::SHA->new( $_[1] );
-        $ctx->addfile( $_[0] );
+        $ctx->add( $_[0] );
         $digest = $ctx->hexdigest;
     };
 

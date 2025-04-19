@@ -1,7 +1,8 @@
 package LANraragi::Controller::Backup;
 use Mojo::Base 'Mojolicious::Controller';
+use File::Temp qw(tempfile);
 
-use LANraragi::Utils::Generic qw(generate_themes_header);
+use LANraragi::Utils::Generic    qw(generate_themes_header);
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Model::Backup;
 
@@ -13,18 +14,13 @@ sub index {
     if ( $self->req->param('dobackup') ) {
         my $json = LANraragi::Model::Backup::build_backup_JSON();
 
-        # Write json to file in the user directory and serve that file through render_static
-        my $file = get_temp() . '/backup.json';
+        # Write json to file in temp and serve that file through render_static
+        my ( $fh, $outfile ) = tempfile();
 
-        if ( -e $file ) { unlink $file }
+        print {$fh} $json;
+        close $fh;
 
-        my $OUTFILE;
-
-        open $OUTFILE, '>>', $file;
-        print {$OUTFILE} $json;
-        close $OUTFILE;
-
-        $self->render_file( filepath => $file );
+        $self->render_file( filepath => $outfile, filename => "backup.json", cleanup => 1 );
 
     } else {    #Get with no parameters => Regular HTML printout
         $self->render(

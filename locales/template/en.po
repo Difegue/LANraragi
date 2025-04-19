@@ -255,23 +255,23 @@ msgstr "Rescan Archive Directory"
 msgid "Click this button to trigger a rescan of the Archive Directory in case you're missing files, or some data such as total page counts."
 msgstr "Click this button to trigger a rescan of the Archive Directory in case you're missing files, <br>or some data such as total page counts. <br>"
 
-msgid "Maximum <br>Temporary Folder Size"
-msgstr "Maximum <br>Temporary Folder Size"
+msgid "Maximum <br>Cache Size"
+msgstr "Maximum <br>Cache Size"
 
-msgid "In MBs. The temporary folder contains recently opened archives, for faster subsequent reading."
-msgstr "In MBs. The temporary folder contains recently opened archives, for faster subsequent reading."
+msgid "In MBs. The cache contains recently viewed pages, for faster subsequent reading."
+msgstr "In MBs. The cache contains recently viewed pages, for faster subsequent reading."
 
 msgid "It is automatically emptied when it grows past this specified size."
 msgstr "It is automatically emptied when it grows past this specified size."
 
-msgid "Clean Temporary Folder"
-msgstr "Clean Temporary Folder"
+msgid "Clear Cache"
+msgstr "Clear Cache"
 
 msgid "Current Size:"
 msgstr "Current Size:"
 
-msgid "Empty the temporary folder manually by clicking this button."
-msgstr "Empty the temporary folder manually by clicking this button."
+msgid "Clear the cache manually by clicking this button."
+msgstr "Clear the cache manually by clicking this button."
 
 msgid "Reset Search Cache"
 msgstr "Reset Search Cache"
@@ -725,7 +725,7 @@ msgid "You\'re using the default password and that\'s super baka of you"
 msgstr "You\'re using the default password and that\'s super baka of you"
 
 msgid "Login with password \"kamimamita\" and change that shit on the double. ...Or just disable it! Why not check the configuration options afterwards, while you\'re at it?"
-msgstr "<a href="/login">Login</a> with password "kamimamita" and <a href="/config">change that shit</a> on the double.<br/>...Or just disable it! <br/>Why not check the configuration options afterwards, while you&#39;re at it? "
+msgstr "<a href=\"/login\">Login</a> with password \"kamimamita\" and <a href=\"/config\">change that shit</a> on the double.<br/>...Or just disable it! <br/>Why not check the configuration options afterwards, while you&#39;re at it? "
 
 # ------End of Index.html.tt2------
 
@@ -945,7 +945,7 @@ msgid "Q: bring up the thumbnail index and archive options."
 msgstr "Q: bring up the thumbnail index and archive options."
 
 msgid "R: open a random archive."
-msgstr "R: open a random archive.""
+msgstr "R: open a random archive."
 
 msgid "F: toggle fullscreen mode"
 msgstr "F: toggle fullscreen mode"
@@ -1098,6 +1098,9 @@ msgstr "Return to Library"
 
 # ------Start of Upload.html.tt2------
 
+msgid "Upload Center"
+msgstr "Upload Center"
+
 msgid "Adding Archives to the Library"
 msgstr "Adding Archives to the Library"
 
@@ -1132,7 +1135,7 @@ msgid "Type in your URLs (separated by a newline), and click the download button
 msgstr "Type in your URLs (separated by a newline), and click the download button."
 
 msgid "If a Downloader plugin is compatible with the URL, it'll be automatically used."
-msgstr "If a <a href="[% c.url_for("/config/plugins") %]">Downloader plugin</a> is compatible with the URL, it'll be automatically used."
+msgstr "If a <a href=\"[% c.url_for(\"/config/plugins\") %]\">Downloader plugin</a> is compatible with the URL, it'll be automatically used."
 
 msgid "URL(s) to download:"
 msgstr "URL(s) to download:"
@@ -1223,7 +1226,7 @@ msgid "Error while processing ID \${id} (\${msg})"
 msgstr "Error while processing ID ${id} (${msg})"
 
 msgid "Processed ID \${id} with \"\${plug}\" (Added tags: \${tags})"
-msgstr "Processed ID ${id} with "${plug}" (Added tags: ${tags})"
+msgstr "Processed ID ${id} with \"${plug}\" (Added tags: ${tags})"
 
 msgid "Deleted ID \${id} (Filename: \${filename})"
 msgstr "Deleted ID ${id} (Filename: ${filename})"
@@ -1280,7 +1283,7 @@ msgid "Writing a Predicate"
 msgstr "Writing a Predicate"
 
 msgid "Predicates follow the same syntax as searches in the Archive Index. Check the Documentation for more information."
-msgstr "Predicates follow the same syntax as searches in the Archive Index. Check the <a href="https://sugoi.gitbook.io/lanraragi/basic-operations/searching\">Documentation</a> for more information."
+msgstr "Predicates follow the same syntax as searches in the Archive Index. Check the <a href=\"https://sugoi.gitbook.io/lanraragi/basic-operations/searching\">Documentation</a> for more information."
 
 msgid "Background Worker restarted!"
 msgstr "Background Worker restarted!"
@@ -1350,7 +1353,7 @@ msgid "Enter a tag namespace for this column"
 msgstr "Enter a tag namespace for this column"
 
 msgid "Enter a full namespace without the colon, e.g \"artist\"."
-msgstr "Enter a full namespace without the colon, e.g "artist"."
+msgstr "Enter a full namespace without the colon, e.g \"artist\"."
 
 msgid "If you have multiple tags with the same namespace, only the last one will be shown in the column."
 msgstr "If you have multiple tags with the same namespace, only the last one will be shown in the column."
@@ -1505,6 +1508,12 @@ msgstr "Temporary folder cleaned!"
 msgid "Error cleaning temporary folder"
 msgstr "Error cleaning temporary folder"
 
+msgid "Threw away the cache!"
+msgstr "Threw away the cache!"
+
+msgid "Error clearing the cache"
+msgstr "Error clearing the cache"
+
 msgid "Threw away the search cache!"
 msgstr "Threw away the search cache!"
 
@@ -1580,4 +1589,71 @@ msgstr "Error while processing file."
 msgid "Error while downloading file."
 msgstr "Error while downloading file."
 
+msgid "Error sending job to Minion"
+msgstr "Error sending job to Minion"
+
 # ------End of i18n.html.tt2------
+
+# ------Start of Duplicates.html.tt2------
+
+msgid "Duplicate Detection"
+msgstr "Duplicate Detection"
+
+msgid "This page allows you to search for potential duplicates in your library."
+msgstr "This page allows you to search for potential duplicates in your library."
+
+msgid "Clicking \"Start searching\" will start a background job to scan the entire library for dupes."
+msgstr "Clicking \"Start searching\" will start a background job to scan the entire library for dupes."
+
+msgid "After which, you can select which archives to delete, and then delete them in bulk."
+msgstr "After which, you can select which archives to delete, and then delete them in bulk."
+
+msgid "Found %1 duplicate group(s)."
+msgstr "Found %1 duplicate group(s)."
+
+msgid "You can use the rules dropdown below to pre-select archives for deletion."
+msgstr "You can use the rules dropdown below to pre-select archives for deletion."
+
+msgid "For every duplicate group..."
+msgstr "For every duplicate group..."
+
+msgid "Keep all files"
+msgstr "Keep all files"
+
+msgid "Keep the file with the most tags"
+msgstr "Keep the file with the most tags"
+
+msgid "Keep the file with the most pages"
+msgstr "Keep the file with the most pages"
+
+msgid "Keep the largest file"
+msgstr "Keep the largest file"
+
+msgid "Keep the youngest file"
+msgstr "Keep the youngest file"
+
+msgid "Keep the oldest file"
+msgstr "Keep the oldest file"
+
+msgid "Start searching for duplicates"
+msgstr "Start searching for duplicates"
+
+msgid "Search for duplicates again"
+msgstr "Search for duplicates again"
+
+msgid "Delete all selected items"
+msgstr "Delete all selected items"
+
+msgid "Filename"
+msgstr "Filename"
+
+msgid "Filesize"
+msgstr "Filesize"
+
+msgid "Action"
+msgstr "Action"
+
+msgid "Searching for duplicates..."
+msgstr "Searching for duplicates..."
+
+# ------End of Duplicates.html.tt2------

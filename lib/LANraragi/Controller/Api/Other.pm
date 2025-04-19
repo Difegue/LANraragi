@@ -6,7 +6,6 @@ use Redis;
 
 use LANraragi::Model::Stats;
 use LANraragi::Model::Opds;
-use LANraragi::Utils::TempFolder qw(get_tempsize clean_temp_full);
 use LANraragi::Utils::Generic    qw(render_api_response);
 use LANraragi::Utils::Plugins    qw(get_plugin get_plugins use_plugin);
 
@@ -69,14 +68,14 @@ sub clean_tempfolder {
     my $self = shift;
 
     #Run a full clean, errors are dumped into $@ if they occur
-    eval { clean_temp_full() };
+    eval { LANraragi::Utils::PageCache::clear(); };
 
     $self->render(
         json => {
             operation => "cleantemp",
             success   => $@ eq "",
             error     => $@,
-            newsize   => get_tempsize()
+            newsize   => 0,
         }
     );
 }

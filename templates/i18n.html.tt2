@@ -14,6 +14,7 @@ I18N.ConfirmYes = "[% c.lh("Yes, delete it!") %]";
 I18N.ConfirmNo = "[% c.lh("No, keep it!") %]";
 I18N.ErrorDeletingCache = "[% c.lh("Error while deleting cache! Check application logs.") %]";
 I18N.GenericReponseError = "[% c.lh("Error while processing request") %]";
+I18N.MinionSendError = "[% c.lh("Error sending job to Minion") %]";
 I18N.MinionCheckError = "[% c.lh("Error checking Minion job status") %]";
 I18N.SaveSuccess = "[% c.lh("Saved!") %]";
 I18N.SaveError = "[% c.lh("Error saving data") %]";
@@ -130,6 +131,8 @@ I18N.ScriptError = "[% c.lh("An error occured while running the script") %]";
 I18N.ScriptResult = "[% c.lh("Script result") %]";
 I18N.ScriptResultFail = (error) => `[% c.lh("Script failed with error: \${error}") %]`;
 
+I18N.ClearCache = "[% c.lh("Threw away the cache!") %]";
+I18N.ClearCacheError = "[% c.lh("Error clearing the cache") %]";
 I18N.CleanedTempFolder = "[% c.lh("Temporary folder cleaned!") %]";
 I18N.CleanedTempFolderError = "[% c.lh("Error cleaning temporary folder") %]";
 I18N.CleanedCacheFolder = "[% c.lh("Threw away the search cache!") %]";

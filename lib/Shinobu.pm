@@ -5,7 +5,6 @@ package Shinobu;
 #  My main tasks are:
 #
 #    Tracking all files in the content folder and making sure they're sync'ed with the database
-#    Automatically cleaning the temporary folder when it reaches a certain size
 #
 
 use strict;
@@ -31,7 +30,6 @@ use Encode;
 
 use LANraragi::Utils::Archive    qw(extract_thumbnail);
 use LANraragi::Utils::Database   qw(redis_encode invalidate_cache compute_id change_archive_id);
-use LANraragi::Utils::TempFolder qw(get_temp clean_temp_partial);
 use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Generic    qw(is_archive split_workload_by_cpu);
 
@@ -81,9 +79,6 @@ sub initialize_from_new_process {
     my $class = ref($contentwatcher);
     $logger->debug("Watcher class is $class");
 
-    # Add watcher to tempfolder
-    my $tempwatcher = File::ChangeNotify->instantiate_watcher( directories => [ get_temp() ] );
-
     # manual event loop
     $logger->info("All done! Now dutifully watching your files. ");
 
@@ -92,11 +87,6 @@ sub initialize_from_new_process {
         # Check events on files
         for my $event ( $contentwatcher->new_events ) {
             $inotifysub->($event);
-        }
-
-        # Check the current temp folder size and clean it if necessary
-        for my $event ( $tempwatcher->new_events ) {
-            clean_temp_partial();
         }
 
         sleep 2;

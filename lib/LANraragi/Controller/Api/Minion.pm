@@ -5,7 +5,6 @@ use Mojo::JSON qw(encode_json decode_json);
 use Redis;
 
 use LANraragi::Model::Stats;
-use LANraragi::Utils::TempFolder qw(get_tempsize clean_temp_full);
 use LANraragi::Utils::Generic    qw(render_api_response);
 use LANraragi::Utils::Plugins    qw(get_plugin get_plugins use_plugin);
 

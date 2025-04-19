@@ -39,24 +39,22 @@
 
 <tr>
     <td class="option-td">
-        <h2 class="ih"> [% c.lh("Maximum <br>Temporary Folder Size") %] </h2>
+        <h2 class="ih"> [% c.lh("Maximum <br>Cache Size") %] </h2>
     </td>
     <td class="config-td">
         <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% tempmaxsize %]"
             name="tempmaxsize" type="text">
-        <br>[% c.lh("In MBs. The temporary folder contains recently opened archives, for faster subsequent reading.") %] <br>
+        <br>[% c.lh("In MBs. The cache contains recently viewed pages, for faster subsequent reading.") %] <br>
         [% c.lh("It is automatically emptied when it grows past this specified size.") %]
     </td>
 </tr>
 
 <tr>
     <td class="option-td">
-        <input id='clean-temp' class='stdbtn' type='button' value='[% c.lh("Clean Temporary Folder") %]' />
+        <input id='clean-temp' class='stdbtn' type='button' value='[% c.lh("Clear Cache") %]' />
     </td>
     <td class="config-td">
-        [% c.lh("Current Size:") %]
-        <h2 style="display:inline"><span id="tempsize"> [%tempsize%] </span> MBs </h2>
-        <br>[% c.lh("Empty the temporary folder manually by clicking this button.") %]
+        <br>[% c.lh("Clear the cache manually by clicking this button.") %]
     </td>
 </tr>
 

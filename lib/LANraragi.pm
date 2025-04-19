@@ -101,6 +101,9 @@ sub startup {
         sleep 2;
     }
 
+    # Initialize cache
+    LANraragi::Utils::PageCache::initialize();
+
     # Load i18n
     LANraragi::Utils::I18NInitializer::initialize($self);
 

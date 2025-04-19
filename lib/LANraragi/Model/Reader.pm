@@ -16,46 +16,54 @@ use Mojo::JSON qw(encode_json);
 use Data::Dumper;
 use URI::Escape;
 
-use LANraragi::Utils::Generic  qw(is_image shasum);
+use LANraragi::Utils::Generic  qw(is_image);
 use LANraragi::Utils::Logging  qw(get_logger);
-use LANraragi::Utils::Archive  qw(extract_archive get_filelist);
+use LANraragi::Utils::Archive  qw(get_filelist);
 use LANraragi::Utils::Database qw(redis_decode);
 
 # resize_image(image,quality, size_threshold)
 # Convert an image to a cheaper on bandwidth format through ImageMagick.
 # This will no-op if the ImageMagick bindings are unavailable.
-sub resize_image ( $imgpath, $quality, $threshold ) {
+sub resize_image ( $content, $quality, $threshold ) {
 
     no warnings 'experimental::try';
+    my $img = undef;
+
     try {
         require Image::Magick;
-        my $img = Image::Magick->new;
+        $img = Image::Magick->new;
 
         #Is the file size higher than the threshold?
-        if ( ( int( ( -s $imgpath ) / 1024 * 10 ) / 10 ) > $threshold ) {
+        if ( ( (length($content) / 1024 * 10 ) / 10 ) > $threshold ) {
 
             # For JPEG, the size option (or jpeg:size option) provides a hint to the JPEG decoder
             # that it can reduce the size on-the-fly during decoding. This saves memory because
             # it never has to allocate memory for the full-sized image
             $img->Set( option => 'jpeg:size=1064x' );
 
-            $img->Read($imgpath);
+            $img->BlobToImage($content);
 
             my ( $origw, $origh ) = $img->Get( 'width', 'height' );
             if ( $origw > 1064 ) {
                 $img->Resize( geometry => '1064x' );
             }
 
+
             # Set format to jpeg and quality
-            $img->Set( quality => $quality, magick => "jpg" );
-            $img->Write($imgpath);
+            return $img->ImageToBlob(magick => "jpg", quality => $quality);
+        } else {
+            return $content;
         }
-        undef $img;
     } catch ($e) {
 
         # Magick is unavailable, do nothing
         my $logger = get_logger( "Reader", "lanraragi" );
         $logger->debug("ImageMagick is not available , skipping image resizing: $e");
+        return $content;
+    } finally {
+        if (defined($img)) {
+            undef $img;
+        }
     }
 
 }
@@ -63,14 +71,6 @@ sub resize_image ( $imgpath, $quality, $threshold ) {
 # build_reader_JSON(mojo, id, forceReload)
 # Opens the archive specified by its ID, and returns a json containing the page names.
 sub build_reader_JSON ( $self, $id, $force ) {
-
-    # Queue a full extract job into Minion.
-    # This'll fill in the missing pages (or regen everything if force = 1)
-    my $jobid = $self->minion->enqueue(
-        extract_archive => [ $id, $force ],
-        { priority => 4 }
-    );
-
     # Get the path from Redis.
     # Filenames are stored as they are on the OS, so no decoding!
     my $redis   = LANraragi::Model::Config->get_redis;
@@ -113,9 +113,6 @@ sub build_reader_JSON ( $self, $id, $force ) {
 
     return {
         pages => \@images_browser,
-
-        # filesizes => \@sizes,
-        job => $jobid
     };
 }
 
