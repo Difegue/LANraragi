@@ -6,6 +6,7 @@ use Data::Dumper;
 use Cwd qw( getcwd );
 use Mojo::JSON qw(decode_json encode_json);
 use Mojo::File;
+use Mojo::JSON qw(decode_json);
 
 use Test::More;
 use Test::Deep;
@@ -91,13 +92,13 @@ note("testing illustration ID extraction from file");
 
 }
 
-note("testing JSON body extraction from HTML file");
+note("SSR - testing JSON body extraction from HTML file");
 
 {
     no warnings 'once', 'redefine';
     local *LANraragi::Plugin::Metadata::Pixiv::get_plugin_logger        = sub { return get_logger_mock(); };
 
-    my $body = Mojo::File -> new("$SAMPLES/pixiv/illust.html") -> slurp;
+    my $body = Mojo::File -> new("$SAMPLES/pixiv/ssr/illust.html") -> slurp;
     my $json = LANraragi::Plugin::Metadata::Pixiv::get_json_from_html($body);
 
     isa_ok( $json, 'HASH', 'json' );
@@ -109,13 +110,48 @@ note("testing JSON body extraction from HTML file");
 
 }
 
-note("testing metadata extraction from JSON object (Illust)");
+note("Ajax - testing metadata extraction from JSON object (Illust)");
 
 {
     no warnings 'once', 'redefine';
     local *LANraragi::Plugin::Metadata::Pixiv::get_plugin_logger        = sub { return get_logger_mock(); };
 
-    my $body = Mojo::File -> new("$SAMPLES/pixiv/illust.html") -> slurp;
+    my $body = Mojo::File -> new("$SAMPLES/pixiv/ajax/illust.json") -> slurp;
+    my $tag_languages_str = '';
+    my $json = decode_json $body;
+    my $formatted_json = LANraragi::Plugin::Metadata::Pixiv::format_ajax_json($json, "114245433");
+    my %dto = LANraragi::Plugin::Metadata::Pixiv::get_illustration_dto_from_json( $formatted_json, "114245433" );
+    
+    my $expected_title = 'HATSUNE MIKU EXPO 10th イラコン開催！';
+    my @expected_pixiv_tags = ('公式企画', '企画目録', 'MIKU', '初音ミク', 'HatsuneMiku', 'mikuexpo10th');
+    my @expected_manga_data = ();
+    my @expected_user_id = ('pixiv_user_id:11');
+    my @expected_artist = ('artist:pixiv事務局');
+    my @expected_create_date = ('date_created:1702628640');
+    my @expected_upload_date = ('date_uploaded:1702628640');
+
+    my @actual_pixiv_tags = LANraragi::Plugin::Metadata::Pixiv::get_pixiv_tags_from_dto( \%dto, $tag_languages_str );
+    my @actual_manga_data = LANraragi::Plugin::Metadata::Pixiv::get_manga_data_from_dto( \%dto );
+    my @actual_user_id = LANraragi::Plugin::Metadata::Pixiv::get_user_id_from_dto( \%dto );
+    my @actual_artist = LANraragi::Plugin::Metadata::Pixiv::get_artist_from_dto( \%dto );
+    my @actual_create_date = LANraragi::Plugin::Metadata::Pixiv::get_create_date_from_dto( \%dto );
+    my @actual_upload_date = LANraragi::Plugin::Metadata::Pixiv::get_upload_date_from_dto( \%dto );
+
+    cmp_deeply(\@actual_pixiv_tags, \@expected_pixiv_tags , 'pixiv tags equal illust');
+    cmp_deeply(\@actual_manga_data, \@expected_manga_data , 'No manga data in illust');
+    cmp_deeply(\@actual_user_id, \@expected_user_id, 'user ID equal');
+    cmp_deeply(\@actual_artist, \@expected_artist, 'artists equal');
+    cmp_deeply(\@actual_create_date, \@expected_create_date, 'create dates equal');
+    cmp_deeply(\@actual_upload_date, \@expected_upload_date, 'upload dates equal');
+}
+
+note("SSR - testing metadata extraction from JSON object (Illust)");
+
+{
+    no warnings 'once', 'redefine';
+    local *LANraragi::Plugin::Metadata::Pixiv::get_plugin_logger        = sub { return get_logger_mock(); };
+
+    my $body = Mojo::File -> new("$SAMPLES/pixiv/ssr/illust.html") -> slurp;
     my $tag_languages_str = '';
     my $json = LANraragi::Plugin::Metadata::Pixiv::get_json_from_html($body);
     my %dto = LANraragi::Plugin::Metadata::Pixiv::get_illustration_dto_from_json( $json, "114245433" );
@@ -144,13 +180,35 @@ note("testing metadata extraction from JSON object (Illust)");
 
 }
 
-note("testing metadata extraction from JSON object (Manga)");
+note("Ajax - testing metadata extraction from JSON object (Manga)");
 
 {
     no warnings 'once', 'redefine';
     local *LANraragi::Plugin::Metadata::Pixiv::get_plugin_logger        = sub { return get_logger_mock(); };
 
-    my $body = Mojo::File -> new("$SAMPLES/pixiv/manga_1.html") -> slurp;
+    my $body = Mojo::File -> new("$SAMPLES/pixiv/ajax/manga_1.json") -> slurp;
+    my $tag_languages_str = '';
+    my $json = decode_json $body;
+    my $formatted_json = LANraragi::Plugin::Metadata::Pixiv::format_ajax_json($json, "116253902");
+    my %dto = LANraragi::Plugin::Metadata::Pixiv::get_illustration_dto_from_json( $formatted_json, "116253902" );
+    
+    my @expected_pixiv_tags = ('漫画', 'pixivコミック', 'コミックELMO', 'なつめとなつめ');
+    my @expected_manga_data = ();
+
+    my @actual_pixiv_tags = LANraragi::Plugin::Metadata::Pixiv::get_pixiv_tags_from_dto( \%dto, $tag_languages_str );
+    my @actual_manga_data = LANraragi::Plugin::Metadata::Pixiv::get_manga_data_from_dto( \%dto );
+
+    cmp_deeply(\@actual_pixiv_tags, \@expected_pixiv_tags , 'pixiv tags equal manga');
+    cmp_deeply(\@actual_manga_data, \@expected_manga_data , 'No manga data in manga');
+}
+
+note("SSR - testing metadata extraction from JSON object (Manga)");
+
+{
+    no warnings 'once', 'redefine';
+    local *LANraragi::Plugin::Metadata::Pixiv::get_plugin_logger        = sub { return get_logger_mock(); };
+
+    my $body = Mojo::File -> new("$SAMPLES/pixiv/ssr/manga_1.html") -> slurp;
     my $tag_languages_str = '';
     my $json = LANraragi::Plugin::Metadata::Pixiv::get_json_from_html($body);
     my %dto = LANraragi::Plugin::Metadata::Pixiv::get_illustration_dto_from_json( $json, "116253902" );
@@ -166,13 +224,35 @@ note("testing metadata extraction from JSON object (Manga)");
 
 }
 
-note("testing metadata extraction from JSON object (Manga with manga data)");
+note("Ajax - testing metadata extraction from JSON object (Manga with manga data)");
 
 {
     no warnings 'once', 'redefine';
     local *LANraragi::Plugin::Metadata::Pixiv::get_plugin_logger        = sub { return get_logger_mock(); };
 
-    my $body = Mojo::File -> new("$SAMPLES/pixiv/manga_2.html") -> slurp;
+    my $body = Mojo::File -> new("$SAMPLES/pixiv/ajax/manga_2.json") -> slurp;
+    my $tag_languages_str = '';
+    my $json = decode_json $body;
+    my $formatted_json = LANraragi::Plugin::Metadata::Pixiv::format_ajax_json($json, "103301948");
+    my %dto = LANraragi::Plugin::Metadata::Pixiv::get_illustration_dto_from_json( $formatted_json, "103301948" );
+    
+    my @expected_pixiv_tags = ('漫画', '創作', 'オリジナル', '安定の森のおかん力', '愛すべき馬鹿達', '作者の生存確認', 'ラブの波動', '第三話参照', 'ラブコメの波動を感じる', 'オリジナル30000users入り');
+    my @expected_manga_data = ("pixiv_series_id:90972", "pixiv_series_title:不穏そうな学校", "pixiv_series_order:13");
+
+    my @actual_pixiv_tags = LANraragi::Plugin::Metadata::Pixiv::get_pixiv_tags_from_dto( \%dto, $tag_languages_str );
+    my @actual_manga_data = LANraragi::Plugin::Metadata::Pixiv::get_manga_data_from_dto( \%dto );
+
+    cmp_deeply(\@actual_pixiv_tags, \@expected_pixiv_tags , 'pixiv tags equal manga');
+    cmp_deeply(\@actual_manga_data, \@expected_manga_data , 'manga data equal');
+}
+
+note("SSR - testing metadata extraction from JSON object (Manga with manga data)");
+
+{
+    no warnings 'once', 'redefine';
+    local *LANraragi::Plugin::Metadata::Pixiv::get_plugin_logger        = sub { return get_logger_mock(); };
+
+    my $body = Mojo::File -> new("$SAMPLES/pixiv/ssr/manga_2.html") -> slurp;
     my $tag_languages_str = '';
     my $json = LANraragi::Plugin::Metadata::Pixiv::get_json_from_html($body);
     my %dto = LANraragi::Plugin::Metadata::Pixiv::get_illustration_dto_from_json( $json, "103301948" );
@@ -188,13 +268,13 @@ note("testing metadata extraction from JSON object (Manga with manga data)");
 
 }
 
-note("testing language-specific metadata extraction (en+jp)");
+note("SSR - testing language-specific metadata extraction (en+jp)");
 
 {
     no warnings 'once', 'redefine';
     local *LANraragi::Plugin::Metadata::Pixiv::get_plugin_logger        = sub { return get_logger_mock(); };
 
-    my $body = Mojo::File -> new("$SAMPLES/pixiv/illust.html") -> slurp;
+    my $body = Mojo::File -> new("$SAMPLES/pixiv/ssr/illust.html") -> slurp;
     my $tag_languages_str = 'jp, en';
     my $json = LANraragi::Plugin::Metadata::Pixiv::get_json_from_html($body);
     my %dto = LANraragi::Plugin::Metadata::Pixiv::get_illustration_dto_from_json( $json, "114245433" );
@@ -206,13 +286,31 @@ note("testing language-specific metadata extraction (en+jp)");
 
 }
 
-note("testing summary extraction from illust");
+note("Ajax - testing summary extraction from illust");
 
 {
     no warnings 'once', 'redefine';
     local *LANraragi::Plugin::Metadata::Pixiv::get_plugin_logger        = sub { return get_logger_mock(); };
 
-    my $body = Mojo::File -> new("$SAMPLES/pixiv/illust.html") -> slurp;
+    my $body = Mojo::File -> new("$SAMPLES/pixiv/ajax/illust.json") -> slurp;
+    my $json = decode_json $body;
+    my $formatted_json = LANraragi::Plugin::Metadata::Pixiv::format_ajax_json($json, "114245433");
+    my %dto = LANraragi::Plugin::Metadata::Pixiv::get_illustration_dto_from_json( $formatted_json, "114245433" );
+
+    my $expected_pixiv_summary = Mojo::File -> new("$SAMPLES/pixiv/illust_pixiv_comment_unescaped.txt") -> slurp('UTF-8');
+    my $actual_pixiv_summary = LANraragi::Plugin::Metadata::Pixiv::get_summary_from_dto( \%dto );
+
+    is( $actual_pixiv_summary, $expected_pixiv_summary, "illust pixiv summary equal" );
+
+}
+
+note("SSR - testing summary extraction from illust");
+
+{
+    no warnings 'once', 'redefine';
+    local *LANraragi::Plugin::Metadata::Pixiv::get_plugin_logger        = sub { return get_logger_mock(); };
+
+    my $body = Mojo::File -> new("$SAMPLES/pixiv/ssr/illust.html") -> slurp;
     my $json = LANraragi::Plugin::Metadata::Pixiv::get_json_from_html($body);
     my %dto = LANraragi::Plugin::Metadata::Pixiv::get_illustration_dto_from_json( $json, "114245433" );
 
@@ -223,13 +321,31 @@ note("testing summary extraction from illust");
 
 }
 
-note("testing summary extraction from manga 1");
+note("Ajax - testing summary extraction from manga 1");
 
 {
     no warnings 'once', 'redefine';
     local *LANraragi::Plugin::Metadata::Pixiv::get_plugin_logger        = sub { return get_logger_mock(); };
 
-    my $body = Mojo::File -> new("$SAMPLES/pixiv/manga_1.html") -> slurp;
+    my $body = Mojo::File -> new("$SAMPLES/pixiv/ajax/manga_1.json") -> slurp;
+    my $json = decode_json $body;
+    my $formatted_json = LANraragi::Plugin::Metadata::Pixiv::format_ajax_json($json, "116253902");
+    my %dto = LANraragi::Plugin::Metadata::Pixiv::get_illustration_dto_from_json( $formatted_json, "116253902" );
+
+    my $expected_pixiv_summary = Mojo::File -> new("$SAMPLES/pixiv/manga_1_pixiv_comment_unescaped.txt") -> slurp('UTF-8');
+    my $actual_pixiv_summary = LANraragi::Plugin::Metadata::Pixiv::get_summary_from_dto( \%dto );
+
+    is( $actual_pixiv_summary, $expected_pixiv_summary, "manga 1 pixiv summary equal" );
+
+}
+
+note("SSR - testing summary extraction from manga 1");
+
+{
+    no warnings 'once', 'redefine';
+    local *LANraragi::Plugin::Metadata::Pixiv::get_plugin_logger        = sub { return get_logger_mock(); };
+
+    my $body = Mojo::File -> new("$SAMPLES/pixiv/ssr/manga_1.html") -> slurp;
     my $json = LANraragi::Plugin::Metadata::Pixiv::get_json_from_html($body);
     my %dto = LANraragi::Plugin::Metadata::Pixiv::get_illustration_dto_from_json( $json, "116253902" );
 
@@ -240,13 +356,31 @@ note("testing summary extraction from manga 1");
 
 }
 
-note("testing summary extraction from manga 2");
+note("Ajax - testing summary extraction from manga 2");
 
 {
     no warnings 'once', 'redefine';
     local *LANraragi::Plugin::Metadata::Pixiv::get_plugin_logger        = sub { return get_logger_mock(); };
 
-    my $body = Mojo::File -> new("$SAMPLES/pixiv/manga_2.html") -> slurp;
+    my $body = Mojo::File -> new("$SAMPLES/pixiv/ajax/manga_2.json") -> slurp;
+    my $json = decode_json $body;
+    my $formatted_json = LANraragi::Plugin::Metadata::Pixiv::format_ajax_json($json, "103301948");
+    my %dto = LANraragi::Plugin::Metadata::Pixiv::get_illustration_dto_from_json( $formatted_json, "103301948" );
+
+    my $expected_pixiv_summary = Mojo::File -> new("$SAMPLES/pixiv/manga_2_pixiv_comment_unescaped.txt") -> slurp('UTF-8');
+    my $actual_pixiv_summary = LANraragi::Plugin::Metadata::Pixiv::get_summary_from_dto( \%dto );
+
+    is( $actual_pixiv_summary, $expected_pixiv_summary, "manga 2 pixiv summary equal" );
+
+}
+
+note("SSR - testing summary extraction from manga 2");
+
+{
+    no warnings 'once', 'redefine';
+    local *LANraragi::Plugin::Metadata::Pixiv::get_plugin_logger        = sub { return get_logger_mock(); };
+
+    my $body = Mojo::File -> new("$SAMPLES/pixiv/ssr/manga_2.html") -> slurp;
     my $json = LANraragi::Plugin::Metadata::Pixiv::get_json_from_html($body);
     my %dto = LANraragi::Plugin::Metadata::Pixiv::get_illustration_dto_from_json( $json, "103301948" );
 
@@ -257,7 +391,7 @@ note("testing summary extraction from manga 2");
 
 }
 
-note("testing summary sanitization");
+note("SSR - testing summary sanitization");
 
 {
     no warnings 'once', 'redefine';

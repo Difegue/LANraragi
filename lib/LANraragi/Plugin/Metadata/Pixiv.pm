@@ -29,7 +29,7 @@ sub plugin_info {
         namespace   => "pixivmetadata",
         login_from  => "pixivlogin",
         author      => "psilabs-dev",
-        version     => "0.3",
+        version     => "0.4",
         description => "Retrieve metadata of a Pixiv artwork by its artwork ID.
             <br>Supports ID extraction from these file formats: \"{Id} Title\" or \"pixiv_{Id} Title\".
             <br>
@@ -363,6 +363,66 @@ sub get_json_from_html {
 
 }
 
+# Fetch JSON directly from Pixiv's Ajax API
+sub get_json_from_ajax {
+    my ($illust_id, $ua) = @_;
+    my $logger = get_plugin_logger();
+    my $ajax_url = "https://www.pixiv.net/ajax/illust/$illust_id";
+    $logger->debug("Attempting to fetch JSON from AJAX endpoint: $ajax_url");
+    my $res = $ua->get($ajax_url => { Referer => "https://www.pixiv.net" })->result;
+    if ($res->is_error) {
+        my $code = $res->code;
+        $logger->debug("Failed to fetch from AJAX endpoint: error ($code)");
+        return undef;
+    }
+    my $content = $res->body;
+    $logger->debug("AJAX response received, processing JSON");
+    my $json;
+    eval {
+        $json = decode_json($content);
+    };
+    if ($@) {
+        $logger->error("Failed to decode JSON from AJAX response: $@");
+        return undef;
+    }
+    if ($json->{error}) {
+        $logger->error("Pixiv AJAX API returned an error: " . $json->{message});
+        return undef;
+    }
+    my $formatted_json = format_ajax_json($json, $illust_id);
+    return $formatted_json;
+}
+
+sub format_ajax_json {
+    my ($ajax_json, $illust_id) = @_;
+    my $logger = get_plugin_logger();
+    my $body = $ajax_json->{body};
+    if (!defined $body) {
+        $logger->error("Unexpected AJAX response format, missing 'body' key");
+        return undef;
+    }
+    my $formatted_json = {
+        'illust' => {
+            $illust_id => {
+                'illustId' => $body->{illustId},
+                'illustTitle' => $body->{title},
+                'userId' => $body->{userId},
+                'userName' => $body->{userName},
+                'illustComment' => $body->{description},
+                'createDate' => $body->{createDate},
+                'uploadDate' => $body->{uploadDate},
+                'tags' => {
+                    'tags' => $body->{tags}->{tags}
+                }
+            }
+        }
+    };
+    if (exists $body->{seriesNavData} && defined $body->{seriesNavData}) {
+        $formatted_json->{illust}->{$illust_id}->{seriesNavData} = $body->{seriesNavData};
+    }
+    return $formatted_json;
+}
+
 sub get_html_from_illust_id {
 
     my ( $illust_id, $ua ) = @_;
@@ -410,15 +470,24 @@ sub get_metadata_from_illust_id {
     # initialize hash.
     my %hashdata = ( tags => "" );
 
-    my $html = get_html_from_illust_id( $illust_id, $ua );
-
-    if ( $html =~ /^error/ ) {
-        die "Error retrieving HTML from Pixiv Illustration: $html\n";
+    # Try nextjs ajax endpoint with server-side rendering fallback
+    $logger->debug("Attempting to get metadata using Next.js AJAX endpoint for illustration ID: $illust_id");
+    my $json = get_json_from_ajax($illust_id, $ua);
+    if (!$json) {
+        $logger->debug("Next.js method failed, falling back to HTML parsing for illustration ID: $illust_id");
+        my $html = get_html_from_illust_id($illust_id, $ua);
+        
+        if ($html =~ /^error/) {
+            die "Error retrieving HTML from Pixiv Illustration: $html\n";
+        }
+        
+        $json = get_json_from_html($html);
     }
-
-    my $json = get_json_from_html($html);
+    
     if ($json) {
-        %hashdata = get_hash_metadata_from_json( $json, $illust_id, $tag_languages_str );
+        %hashdata = get_hash_metadata_from_json($json, $illust_id, $tag_languages_str);
+    } else {
+        $logger->error("Failed to retrieve metadata for illustration ID: $illust_id");
     }
 
     return %hashdata;
