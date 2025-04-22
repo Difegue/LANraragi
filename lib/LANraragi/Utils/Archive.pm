@@ -27,6 +27,7 @@ use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Generic    qw(is_image shasum_str);
 use LANraragi::Utils::Redis      qw(redis_decode);
+use LANraragi::Utils::ImageMagick qw(resize_thumbnail);
 
 # Utilitary functions for handling Archives.
 # Relies on Libarchive, ImageMagick and GhostScript for PDFs.
@@ -44,44 +45,14 @@ sub is_pdf {
 # If use_jxl is true, JPEG XL will be used instead of JPEG.
 sub generate_thumbnail ( $data, $thumb_path, $use_hq, $use_jxl ) {
 
-    no warnings 'experimental::try';
-    my $img = undef;
-    try {
-        require Image::Magick;
-        $img = Image::Magick->new;
-
-        my $format = $use_jxl ? 'jxl' : 'jpg';
-
-        # For JPEG, the size option (or jpeg:size option) provides a hint to the JPEG decoder
-        # that it can reduce the size on-the-fly during decoding. This saves memory because
-        # it never has to allocate memory for the full-sized image
-        if ( $format eq 'jpg' ) {
-            $img->Set( option => 'jpeg:size=500x' );
-        }
-
-        $img->BlobToImage($data);
-
-        # Only use the first frame (relevant for animated gif/webp/whatever)
-        $img = $img->[0];
-
-        # The "-scale" resize operator is a simplified, faster form of the resize command.
-        if ($use_hq) {
-            $img->Scale( geometry => '500x1000' );
-        } else {    # Sample is very fast due to not applying filters.
-            $img->Sample( geometry => '500x1000' );
-        }
-
-        $img->Set( quality => "50", magick => $format );
-        $img->Write($thumb_path);
-    } catch ($e) {
-
-        # Magick is unavailable, do nothing
+    my $resized = resize_thumbnail( $data, 80, $use_hq, $use_jxl?"jxl":"jpg");
+    if (defined($resized)) {
+        open my $fh, '>:raw', $thumb_path or die;
+        print $fh $resized;
+        close($resized);
+    } else {
         my $logger = get_logger( "Archive", "lanraragi" );
-        $logger->debug("ImageMagick is not available , skipping thumbnail generation: $e");
-    } finally {
-        if (defined($img)) {
-            undef $img;
-        }
+        $logger->debug("Couldn't create thumbnail!");
     }
 }
 
