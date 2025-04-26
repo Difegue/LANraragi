@@ -57,6 +57,8 @@ Open source server for archival of comics/manga, running on Mojolicious + Redis.
 
 * Download archives from the Internet directly to the server, while using the aforementioned automatic metadata import
 
+* Scan for duplicates within your saved archives 
+
 * Backup your database as JSON to carry your tags over to another LANraragi instance.
 
 ## Make a PR, get stickers™  
