@@ -164,6 +164,7 @@ sub exec_download_plugin ( $plugin, $input, @settings ) {
     );
 
     # Downloader plugins take an URL, and return...another URL, which we can download through the user-agent.
+    # OR they can directly return a file path to a file they've already downloaded.
     my %result = $plugin->provide_url( \%infohash, @settings );
 
     if ( exists $result{error} ) {
@@ -172,13 +173,20 @@ sub exec_download_plugin ( $plugin, $input, @settings ) {
     }
 
     if ( exists $result{download_url} ) {
-
         # Add the result URL to the infohash and return that.
         $infohash{download_url} = $result{download_url};
         return \%infohash;
     }
 
-    return ( error => "Plugin ran to completion but didn't provide a final URL for us to download." );
+    if ( exists $result{file_path} ) {
+        # Plugin has already downloaded the file to a path
+        $logger->info( "Downloader plugin directly provided file at: " . $result{file_path} );
+        # Add the file path to the infohash and return that
+        $infohash{file_path} = $result{file_path};
+        return \%infohash;
+    }
+
+    return ( error => "Plugin ran to completion but didn't provide a final URL or file path for us to use." );
 }
 
 # Execute a specified plugin on a file, described through its Redis ID.

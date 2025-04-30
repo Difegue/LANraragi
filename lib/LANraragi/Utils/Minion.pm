@@ -358,11 +358,39 @@ sub add_tasks {
                             message => $plugin_result->{error}
                         }
                     );
+                    return;
                 }
 
-                $ua  = $plugin_result->{user_agent};
-                $url = $plugin_result->{download_url};
-                $logger->info("URL transformed by plugin to $url");
+                $ua = $plugin_result->{user_agent};
+                
+                # Check if the plugin provided a direct file path instead of a URL to download
+                if ( exists $plugin_result->{file_path} ) {
+                    my $tempfile = $plugin_result->{file_path};
+                    $logger->info("Plugin directly provided file at: $tempfile");
+                    
+                    # Add the url as a source: tag
+                    my $tag = "source:$og_url";
+                    
+                    # Hand off the result to handle_incoming_file
+                    my ( $status_code, $id, $title, $message ) =
+                      LANraragi::Model::Upload::handle_incoming_file( $tempfile, $catid, $tag, "", "" );
+                    my $status = $status_code == 200 ? 1 : 0;
+                    
+                    $job->finish(
+                        {   success  => $status,
+                            url      => $og_url,
+                            id       => $id,
+                            category => $catid,
+                            title    => $title,
+                            message  => $message
+                        }
+                    );
+                    return;
+                } else {
+                    # Plugin provided a URL to download
+                    $url = $plugin_result->{download_url};
+                    $logger->info("URL transformed by plugin to $url");
+                }
             } else {
                 $logger->debug("No downloader found, trying direct URL.");
             }
