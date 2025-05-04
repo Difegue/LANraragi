@@ -106,12 +106,12 @@
 
                     <input class="stdbtn" type='button' id="set-thumbnail" value="[% c.lh('Set this Page as Thumbnail') %]"
                         style="width:160px" title="[% c.lh('Set the currently opened page as the thumbnail for this archive.') %]" />
-                    <input id="regenerate-cache" class='stdbtn' type='button' value='[% c.lh("Clean Archive Cache") %]'
+                    <input id="regenerate-cache" class='stdbtn' type='button' value="[% c.lh("Clean Archive Cache") %]"
                         style="width:160px" />
                     <br>
-                    <input id="edit-archive" class='stdbtn' type='button' value='[% c.lh("Edit Archive Metadata") %]'
+                    <input id="edit-archive" class='stdbtn' type='button' value="[% c.lh("Edit Archive Metadata") %]"
                         style="width:160px" />
-                    <input id="delete-archive" class='stdbtn' type='button' value='[% c.lh("Delete Archive") %]'
+                    <input id="delete-archive" class='stdbtn' type='button' value="[% c.lh("Delete Archive") %]"
                         style="width:160px" />
 
                     <h2>[% c.lh("Categories") %]</h2>

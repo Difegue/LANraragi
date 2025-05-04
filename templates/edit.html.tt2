@@ -110,7 +110,7 @@
 								[% END %]
 							</select>
 
-							<input class='stdbtn' type='button' style="min-width:90px;" id="run-plugin" value='[% c.lh("Go!") %]' />
+							<input class='stdbtn' type='button' style="min-width:90px;" id="run-plugin" value="[% c.lh("Go!") %]" />
 							<br />
 
 							<span id="arg_label">[% plugins.first.oneshot_arg %] :</span> <br />
