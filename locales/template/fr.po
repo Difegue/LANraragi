@@ -1,22 +1,20 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-04 20:02+0200\n"
-"PO-Revision-Date: 2025-05-04 18:02+0000\n"
-"Last-Translator: Difegue <sugoi@cock.li>\n"
+"PO-Revision-Date: 2025-05-04 18:21+0000\n"
+"Last-Translator: Difegue <8237712+Difegue@users.noreply.github.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/fr/>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: ENCODING\n"
+"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
 "X-Generator: Weblate 5.12-dev\n"
 
 # Sample Data
-
 # ------Start of Backup.html.tt2------
 msgid "Database Backup/Restore"
 msgstr "Database Backup/Restore"
@@ -64,7 +62,7 @@ msgstr ""
 msgid "Select what you'd like to do, check archives you want to use it on, and get rolling!"
 msgstr ""
 "Choisissez ce que vous voulez faire, les archives sur lesquelles opérer, et "
-"c'est parti!"
+"c'est parti !"
 
 msgid "Archives with no tags have been pre-checked."
 msgstr "Les archives sans tags ont été pré-selectionnées."
@@ -91,7 +89,7 @@ msgid "Use plugin :"
 msgstr "Utiliser le plugin :"
 
 msgid "Timeout (max 20s):"
-msgstr "Intervalle d'exécution (max 20s):"
+msgstr "Intervalle d'exécution (max 20s) :"
 
 msgid "This plugin recommends a cooldown of <span id=\"cooldown\">-1</span> seconds."
 msgstr ""
@@ -101,7 +99,7 @@ msgstr ""
 msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
 msgstr ""
 "Certains services externes peuvent temporairement bannir votre machine pour "
-"abus si vous utilisez un plugin trop de fois!"
+"abus si vous utilisez un plugin trop de fois !"
 
 msgid "Make sure to set a suitable <b>timeout</b> between archives using this picker if the plugin you want to use is concerned."
 msgstr ""
@@ -114,7 +112,7 @@ msgstr "Remplacer les paramètres globaux du plugin"
 msgid "This will apply the following Tag Rules to the selected Archives."
 msgstr ""
 "Les règles de conversion de tags suivantes seront appliquées aux archives "
-"selectionnées:"
+"selectionnées."
 
 msgid "You can edit your Tag Rules in Server Configuration."
 msgstr ""
@@ -132,7 +130,7 @@ msgstr "Ajouter à la catégorie :"
 
 msgid "This will delete both metadata and matching files from your system! Please use with caution."
 msgstr ""
-"Ceci supprimera les métadonnées et les fichiers associés de votre machine! "
+"Ceci supprimera les métadonnées et les fichiers associés de votre machine ! "
 "Utilisez avec précaution."
 
 msgid "Check/Uncheck all"
@@ -149,7 +147,7 @@ msgstr "Démarrer une autre tâche"
 
 msgid "Processed <span id=\"arcs\"></span> out of <span id=\"totalarcs\"></span>"
 msgstr ""
-"Traité <span id=\"arcs\"></span> archives sur un total de  <span id="
+"Traité <span id=\"arcs\"></span> archives sur un total de <span id="
 "\"totalarcs\"></span>"
 
 msgid "Preparing your data."
@@ -171,7 +169,7 @@ msgstr ""
 "Les catégories apparaissent en haut de votre fenêtre dans la Bibliothèque."
 
 msgid "There are two distinct kinds:"
-msgstr "Il en existe deux sortes:"
+msgstr "Il en existe deux sortes :"
 
 msgid "Static Categories are arbitrary collections of Archives, where you can add as many items as you want."
 msgstr ""
@@ -197,13 +195,13 @@ msgid "All your modifications are saved automatically."
 msgstr "Toute modification est sauvegardée automatiquement."
 
 msgid "Category:"
-msgstr "Catégorie:"
+msgstr "Catégorie :"
 
 msgid "Name:"
-msgstr "Nom:"
+msgstr "Nom :"
 
 msgid "Predicate:"
-msgstr "Prédicat:"
+msgstr "Prédicat :"
 
 msgid "Pin this Category"
 msgstr "Épingler cette catégorie"
@@ -223,10 +221,10 @@ msgid "Store Bookmarks in this Category"
 msgstr "Stocker les marque-pages dans cette catégorie"
 
 msgid "Error linking bookmark button:"
-msgstr "Erreur lors de l'association des marque-pages:"
+msgstr "Erreur lors de l'association des marque-pages :"
 
 msgid "Error unlinking bookmark button:"
-msgstr "Erreur lors de l'association des marque-pages:"
+msgstr "Erreur lors de l'association des marque-pages :"
 
 msgid "Error getting bookmark category:"
 msgstr "Erreur lors de la récupération de la catégorie des marque-pages"
@@ -318,7 +316,7 @@ msgid "Clear Cache"
 msgstr "Vider le cache"
 
 msgid "Current Size:"
-msgstr "Taille actuelle:"
+msgstr "Taille actuelle :"
 
 msgid "Clear the cache manually by clicking this button."
 msgstr "Videz le cache manuellement en cliquant ce bouton."
@@ -359,7 +357,7 @@ msgstr ""
 msgid "This will delete metadata for old files when they're replaced! Use with caution."
 msgstr ""
 "Les métadonnées des anciens fichiers seront supprimées lorsqu'ils seront "
-"remplacés! Utilisez avec précaution."
+"remplacés ! Utilisez avec précaution."
 
 # ------End of Config_Files.html.tt2------
 # ------Start of Config_Global.html.tt2------
@@ -393,7 +391,7 @@ msgstr ""
 msgid "This option can potentially consume a lot of RAM if enabled and used on large images! Use with caution."
 msgstr ""
 "Cette option peut consommer beaucoup de RAM si activée et utilisée avec de "
-"gros fichiers! Utilisez avec précaution."
+"gros fichiers ! Utilisez avec précaution."
 
 msgid "Image Size Threshold"
 msgstr "Limite de taille d'image"
@@ -420,7 +418,7 @@ msgstr ""
 msgid "Consider toggling this option if you're sharing the LANraragi instance with multiple users!"
 msgstr ""
 "Envisagez d'activer cette option si vous partagez l'instance de LANraragi "
-"avec plusieurs utilisateurs!"
+"avec plusieurs utilisateurs !"
 
 msgid "Debug Mode"
 msgstr "Mode debug"
@@ -445,7 +443,7 @@ msgid "Reset Database"
 msgstr "Réinitialiser la BDD"
 
 msgid "Danger zone!"
-msgstr "Zone dangereuse!"
+msgstr "Zone dangereuse !"
 
 msgid "Clicking this button will reset the entire database and delete all settings and metadata."
 msgstr ""
@@ -493,12 +491,12 @@ msgstr ""
 "définir une clé ici."
 
 msgid "Empty keys will <b>not</b> work!"
-msgstr "Une clé vide ne sera <b>pas</b> acceptée!"
+msgstr "Une clé vide ne sera <b>pas</b> acceptée !"
 
 msgid "This key will need to be provided in every protected API call as the <i>Authorization</i> header."
 msgstr ""
 "Cette clé devra être fournie dans chaque appel d'API protégé en tant que "
-"Header  <i>Authorization</i>."
+"Header <i>Authorization</i>."
 
 msgid "Enable CORS for the Client API"
 msgstr "Activer CORS pour l'API Client"
@@ -523,10 +521,10 @@ msgid "The Shinobu File Watcher is currently"
 msgstr "L'observateur de fichiers Shinobu est actuellement"
 
 msgid "OK!"
-msgstr "OK!"
+msgstr "OK !"
 
 msgid "Kaput!"
-msgstr "Kaput!"
+msgstr "Kaput !"
 
 msgid "This File Watcher is responsible for monitoring your content directory and automatically handling new archives as they come."
 msgstr ""
@@ -604,7 +602,7 @@ msgid "Regenerate all Thumbnails"
 msgstr "Régénérer toutes les miniatures"
 
 msgid "Regenerate all thumbnails. This might take a while!"
-msgstr "Régénère toutes les miniatures. Ceci peut prendre un peu de temps!"
+msgstr "Régénère toutes les miniatures. Ceci peut prendre un peu de temps !"
 
 msgid "Add Timestamp Tag"
 msgstr "Ajouter un marqueur de temps"
@@ -648,7 +646,7 @@ msgstr "<b>tag -> new-tag</b> : Remplace le tag"
 msgid "<b>tag => new-tag</b> : replaces one tag, but use a hash table internally for faster performance. These rules will be executed <i>once</i> after all other rules."
 msgstr ""
 "<b>tag => new-tag</b> : Remplace un tag, but en utilisant une table hash "
-"pour plus de rapidité. Ces règles seront exécutées  <i>une fois</i> après "
+"pour plus de rapidité. Ces règles seront exécutées <i>une fois</i> après "
 "toutes les autres règles."
 
 msgid "<b>namespace:* -> new-namespace:*</b> : replaces the namespace with the new one"
@@ -668,7 +666,7 @@ msgstr ""
 "primaire du thème y sera appliquée."
 
 msgid "Click on a theme to preview it before saving!"
-msgstr "Sélectionnez un thème pour l'essayer avant de sauvegarder!"
+msgstr "Sélectionnez un thème pour l'essayer avant de sauvegarder !"
 
 # ------End of Config_Theme.html.tt2------
 # ------Start of Edit.html.tt2------
@@ -679,16 +677,16 @@ msgid "Editing %1"
 msgstr "Modification de %1"
 
 msgid "Current File Name:"
-msgstr "Nom de fichier actuel:"
+msgstr "Nom de fichier actuel :"
 
 msgid "ID:"
-msgstr "ID:"
+msgstr "ID :"
 
 msgid "Title:"
-msgstr "Titre:"
+msgstr "Titre :"
 
 msgid "Summary:"
-msgstr "Résumé:"
+msgstr "Résumé :"
 
 msgid "Tags"
 msgstr "Tags"
@@ -703,12 +701,12 @@ msgid "Help"
 msgstr "Help"
 
 msgid "Go!"
-msgstr "C'est parti!"
+msgstr "C'est parti !"
 
 msgid "Using a Plugin will save any modifications to archive metadata you might have made !"
 msgstr ""
 "Utiliser un plugin sauvegardera toutes les modifications de métadonnées que "
-"vous avez fait!"
+"vous avez fait !"
 
 msgid "Save Metadata"
 msgstr "Sauvegarder les métadonnées"
@@ -752,7 +750,7 @@ msgid "Clear Filter"
 msgstr "Supprimer le filtre"
 
 msgid "Click to show archives from the current search with the specified filter"
-msgstr "Montrez les archives de la recherche actuelle avec le filtre spécifié."
+msgstr "Montrez les archives de la recherche actuelle avec le filtre spécifié"
 
 msgid "Refresh Selection"
 msgstr "Rafraîchir la sélection"
@@ -764,7 +762,7 @@ msgid "No results here."
 msgstr "Aucun résultat ici."
 
 msgid "Sort by:"
-msgstr "Trier par:"
+msgstr "Trier par :"
 
 msgid "Title"
 msgstr "Title"
@@ -779,10 +777,10 @@ msgid "Crop thumbnails"
 msgstr "Couper les miniatures"
 
 msgid "Go to Page:"
-msgstr "Aller à la page:"
+msgstr "Aller à la page :"
 
 msgid "Columns:"
-msgstr "Colonnes:"
+msgstr "Colonnes :"
 
 msgid "Switch to Compact Mode"
 msgstr "Mode compact"
@@ -810,7 +808,7 @@ msgstr "Cette base de données me semble explosée chef"
 
 msgid "The database cache is corrupt, and as such LANraragi is unable to display your archive list."
 msgstr ""
-"Le cache de la base de données est corrompu; LANraragi ne peut donc pas "
+"Le cache de la base de données est corrompu ; LANraragi ne peut donc pas "
 "afficher votre bibliothèque."
 
 msgid "Read"
@@ -850,7 +848,7 @@ msgid "This page requires you to log on."
 msgstr "Cette page nécessite de vous connecter."
 
 msgid "Admin Password:"
-msgstr "Mot de passe administrateur:"
+msgstr "Mot de passe administrateur :"
 
 msgid "Login"
 msgstr "Connexion"
@@ -895,7 +893,7 @@ msgstr ""
 "Windows."
 
 msgid "Currently Viewing:"
-msgstr "En train de lire:"
+msgstr "En train de lire :"
 
 msgid "general"
 msgstr "général"
@@ -904,7 +902,7 @@ msgid "Refresh"
 msgstr "Rafraîchir"
 
 msgid "Lines:"
-msgstr "Lignes:"
+msgstr "Lignes :"
 
 msgid "View LANraragi Logs"
 msgstr "Voir les Logs LANraragi"
@@ -962,7 +960,7 @@ msgid "Metadata Plugins"
 msgstr "Plugins de métadonnées"
 
 msgid "Allow Plugins to replace archive titles:"
-msgstr "Permettre aux plugins de remplacer les titres des archives:"
+msgstr "Permettre aux plugins de remplacer les titres des archives :"
 
 msgid "If enabled, metadata plugins will be able to change the title of your archives alongside adding tags to them."
 msgstr ""
@@ -984,7 +982,7 @@ msgstr "Return to Library"
 # ------End of Plugins.html.tt2------
 # ------Start of Reader.html.tt2------
 msgid "Done reading? Go back to Archive Index"
-msgstr "Fini de lire? Revenir à la bibliothèque"
+msgstr "Fini de lire ? Revenir à la bibliothèque"
 
 msgid "View full-size image"
 msgstr "Voir l'image d'origine"
@@ -1033,7 +1031,7 @@ msgid "Working on it..."
 msgstr "On y travaille..."
 
 msgid "You can navigate between pages using:"
-msgstr "Vous pouvez naviguer entre les pages en utilisant:"
+msgstr "Vous pouvez naviguer entre les pages en utilisant :"
 
 msgid "The arrow icons"
 msgstr "Les icônes flèches"
@@ -1048,28 +1046,28 @@ msgid "Touching the left/right side of the image."
 msgstr "Cliquer le côté gauche/droit de l'image."
 
 msgid "Other keyboard shortcuts:"
-msgstr "Autres raccourcis clavier:"
+msgstr "Autres raccourcis clavier :"
 
 msgid "M: toggle manga mode (right-to-left reading)"
-msgstr "M: activer le mode manga (lecture de droite à gauche)"
+msgstr "M : activer le mode manga (lecture de droite à gauche)"
 
 msgid "O: show advanced reader options."
-msgstr "O: Montrer les options avancées de la liseuse."
+msgstr "O : Montrer les options avancées de la liseuse."
 
 msgid "P: toggle double page mode"
-msgstr "P: Activer le mode double page"
+msgstr "P : Activer le mode double page"
 
 msgid "Q: bring up the thumbnail index and archive options."
-msgstr "Q: Afficher les options d'archive et les miniatures."
+msgstr "Q : Afficher les options d'archive et les miniatures."
 
 msgid "R: open a random archive."
-msgstr "R: Ouvrir une archive au hasard."
+msgstr "R : Ouvrir une archive au hasard."
 
 msgid "F: toggle fullscreen mode"
-msgstr "F: Activer le mode plein écran"
+msgstr "F : Activer le mode plein écran"
 
 msgid "B: toggle bookmark"
-msgstr "B: Poser/retirer un marque-page"
+msgstr "B : Poser/retirer un marque-page"
 
 msgid "To return to the archive index, touch the arrow pointing down or use Backspace."
 msgstr ""
@@ -1080,7 +1078,7 @@ msgid "Reader Options"
 msgstr "Options de la liseuse"
 
 msgid "Those options save automatically -- Click around and find out!"
-msgstr "Ces options s'appliquent automatiquement -- Cliquez et regardez!"
+msgstr "Ces options s'appliquent automatiquement -- Cliquez et regardez !"
 
 msgid "Fit display to"
 msgstr "Forcer la page dans"
@@ -1230,7 +1228,7 @@ msgstr ""
 "directement depuis Internet."
 
 msgid "Add uploaded files to category:"
-msgstr "Ajouter les nouveaux fichiers à la catégorie:"
+msgstr "Ajouter les nouveaux fichiers à la catégorie :"
 
 msgid " -- No Category -- "
 msgstr " -- Pas de catégorie -- "
@@ -1255,7 +1253,7 @@ msgstr ""
 "dans LANraragi ici."
 
 msgid "Download jobs will keep going even if you close this window!"
-msgstr "Les téléchargements continueront même si cette fenêtre est fermée!"
+msgstr "Les téléchargements continueront même si cette fenêtre est fermée !"
 
 msgid "Type in your URLs (separated by a newline), and click the download button."
 msgstr ""
@@ -1269,7 +1267,7 @@ msgstr ""
 "automatiquement."
 
 msgid "URL(s) to download:"
-msgstr "URL(s) à télécharger:"
+msgstr "URL(s) à télécharger :"
 
 msgid "Add from URL(s)"
 msgstr "Ajouter via URL(s)"
@@ -1288,7 +1286,7 @@ msgstr ""
 
 # ------Stary of i18n.html.tt2------
 msgid "Backup restored!"
-msgstr "Sauvegarde restaurée!"
+msgstr "Sauvegarde restaurée !"
 
 msgid "An error occured while restoring the backup.<br/> Please check the server logs and that your JSON is correctly formatted."
 msgstr ""
@@ -1296,13 +1294,13 @@ msgstr ""
 "les logs serveur et votre JSON."
 
 msgid "Couldn't load the complete archive list! Please reload the page."
-msgstr "Impossible de charger la liste d'archives! Veuillez recharger la page."
+msgstr "Impossible de charger la liste d'archives ! Veuillez recharger la page."
 
 msgid "Couldn't load the tag statistics! Please reload the page."
-msgstr "Impossible de charger les statistiques! Veuillez recharger la page."
+msgstr "Impossible de charger les statistiques ! Veuillez recharger la page."
 
 msgid "Error getting untagged archives!"
-msgstr "Impossible d'obtenir les archives sans métadonnées!"
+msgstr "Impossible d'obtenir les archives sans métadonnées !"
 
 msgid "Are you sure you want to delete this archive?"
 msgstr "Voulez-vous vraiment supprimer cette archive ?"
@@ -1338,7 +1336,7 @@ msgid "Error saving data"
 msgstr "Erreur lors de la sauvegarde"
 
 msgid "Started Batch Operation..."
-msgstr "Début de l'opération en série"
+msgstr "Début de l'opération en série..."
 
 msgid "Batch Operation complete!"
 msgstr "Opération en série terminée !"
@@ -1359,16 +1357,16 @@ msgid "Error while processing ID \${id} (\${msg})"
 msgstr "Erreur lors du traitement de l'ID ${id} (${msg})"
 
 msgid "Processed ID \${id} with \"\${plug}\" (Added tags: \${tags})"
-msgstr "Traité l'ID ${id} avec \"${plug}\" (Tags ajoutés: ${tags})"
+msgstr "Traité l'ID ${id} avec \"${plug}\" (Tags ajoutés : ${tags})"
 
 msgid "Deleted ID \${id} (Filename: \${filename})"
-msgstr "Supprimé l'ID ${id} (Nom: ${filename})"
+msgstr "Supprimé l'ID ${id} (Nom : ${filename})"
 
 msgid "Replaced tags for ID \${id} (New tags: \${tags})"
-msgstr "Remplacé les tags de l'ID ${id} (Nouveaux tags: ${tags})"
+msgstr "Remplacé les tags de l'ID ${id} (Nouveaux tags : ${tags})"
 
 msgid "Added ID \${id} to category \${category}! (\${msg})"
-msgstr "L'ID ${id} a été ajouté à la catégorie ${category}! (${msg})"
+msgstr "L'ID ${id} a été ajouté à la catégorie ${category} ! (${msg})"
 
 msgid "Cleared new flag for ID \${id}!"
 msgstr "L'ID ${id} a eu son indicateur \"New\" retiré !"
@@ -1377,7 +1375,7 @@ msgid "Unknown operation \${oper} (\${msg})"
 msgstr "Opération inconnue ${oper} (${msg})"
 
 msgid "Changed title to: \${title}"
-msgstr "Le titre a été changé en: ${title}"
+msgstr "Le titre a été changé en : ${title}"
 
 msgid "Reloading page in 5 seconds to account for deleted archives..."
 msgstr ""
@@ -1434,10 +1432,10 @@ msgid "Content folder rescan started!"
 msgstr "Relecture du dossier de contenu lancée !"
 
 msgid "Error starting content folder rescan:"
-msgstr "Erreur lors du démarrage de la relecture du dossier:"
+msgstr "Erreur lors du démarrage de la relecture du dossier :"
 
 msgid "Error while querying Shinobu status:"
-msgstr "Erreur lors de la vérification du statut de Shinobu:"
+msgstr "Erreur lors de la vérification du statut de Shinobu :"
 
 msgid "About Plugins"
 msgstr "A propos des plugins"
@@ -1481,7 +1479,7 @@ msgstr ""
 "quelques unes</a> ?"
 
 msgid "Welcome to LANraragi \${version}!"
-msgstr "Bienvenue sur LANraragi ${version}!"
+msgstr "Bienvenue sur LANraragi ${version} !"
 
 msgid "If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!"
 msgstr ""
@@ -1553,13 +1551,13 @@ msgid "Error getting changelog for new version"
 msgstr "Erreur lors de la récupération des notes de la nouvelle version"
 
 msgid "Couldn't load data for \${id}!"
-msgstr "Impossible de charger les données de ${id}!"
+msgstr "Impossible de charger les données de ${id} !"
 
 msgid "Github API rate limit exceeded."
 msgstr "Limite de l'API Github dépassée."
 
 msgid "Github API returned status: \${status}"
-msgstr "L'API Github a renvoyé le statut: ${status}"
+msgstr "L'API Github a renvoyé le statut : ${status}"
 
 msgid "This archive isn't in any category."
 msgstr "Cette archive n'est dans aucune catégorie."
@@ -1620,7 +1618,7 @@ msgid "Error clearing new flag"
 msgstr "Erreur lors du retrait de l'indicateur \"New\""
 
 msgid "Error getting the archive's imagelist."
-msgstr "Erreur lors de la récupération des images de l'archive"
+msgstr "Erreur lors de la récupération des images de l'archive."
 
 msgid "This archive seems to be in RAR format!"
 msgstr "Cette archive semble être au format RAR !"
@@ -1669,7 +1667,7 @@ msgid "Script result"
 msgstr "Résultat du script"
 
 msgid "Script failed with error: \${error}"
-msgstr "Le script a échoué avec l'erreur: ${error}"
+msgstr "Le script a échoué avec l'erreur : ${error}"
 
 msgid "Temporary folder cleaned!"
 msgstr "Dossier temporaire nettoyé !"
@@ -1696,7 +1694,7 @@ msgid "Are you sure you want to wipe the database?"
 msgstr "Voulez-vous vraiment supprimer la base de données ?"
 
 msgid "Sayonara! Redirecting you..."
-msgstr "Sayonara! Redirection..."
+msgstr "Sayonara ! Redirection..."
 
 msgid "Successfully cleaned the database and removed \${entries} entries."
 msgstr "Nettoyé la base de données. ${entries} éléments ont été retirés."
@@ -1722,7 +1720,7 @@ msgstr ""
 "seront mentionées ci-dessous."
 
 msgid "Added \${id} to category \${cat}!"
-msgstr "${id} a été ajouté à la catégorie ${cat}!"
+msgstr "${id} a été ajouté à la catégorie ${cat} !"
 
 msgid "Removed \${id} from category \${cat}!"
 msgstr "${id} a été supprimé de la catégorie ${cat} !"
@@ -1762,7 +1760,7 @@ msgid "Total"
 msgstr "Total"
 
 msgid "Click here to edit metadata."
-msgstr "Cliquez ici pour modifier les métadonnées"
+msgstr "Cliquez ici pour modifier les métadonnées."
 
 msgid "Error while processing file."
 msgstr "Erreur lors du traitement du fichier."
