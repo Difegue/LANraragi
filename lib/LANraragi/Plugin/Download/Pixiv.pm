@@ -41,7 +41,7 @@ sub provide_url {
     my $url = $lrr_info->{url};
     my $artwork_id = extract_artwork_id($url);
     unless ( $artwork_id ) {
-        return (error => "Invalid Pixiv URL. Expected format: https://www.pixiv.net/artworks/12345678, got $url");
+        die "Invalid Pixiv URL. Expected format: https://www.pixiv.net/artworks/12345678, got $url\n";
     }
     $logger->info("Processing Pixiv artwork ID: $artwork_id");
 
@@ -50,11 +50,11 @@ sub provide_url {
     my $referer         = "https://www.pixiv.net/artworks/$artwork_id";
     my %metadata_result = fetch_artwork_metadata($ua, $artwork_id, $referer);
     if ( exists $metadata_result{error} ) {
-        return (error => $metadata_result{error});
+        die $metadata_result{error} . "\n";
     }
     my $metadata = $metadata_result{metadata};
     unless ( $metadata && $metadata->{body} ) {
-        return (error => "Got invalid metadata response from artwork with ID $artwork_id");
+        die "Got invalid metadata response from artwork with ID $artwork_id\n";
     }
     my $artwork         = $metadata->{body};
     my $title           = $artwork->{title}; # TODO: we should probably avoid naming zip file after title.
@@ -73,15 +73,15 @@ sub provide_url {
         $inner_result   = add_multi_page_artwork_to_zip($zip, $ua, $tempdir, $artwork_id, $referer);
         $download_count = $inner_result->{download_count};
     } else {
-        return (error => "Invalid page count for artwork with ID $artwork_id: $pages_count");
+        die "Invalid page count for artwork with ID $artwork_id: $pages_count\n";
     }
     if ( exists $inner_result->{error} ) {
-        return (error => "Failed to add artwork to ZIP archive for artwork with ID $artwork_id: " . $inner_result->{error});
+        die "Failed to add artwork to ZIP archive for artwork with ID $artwork_id: " . $inner_result->{error} . "\n";
     }
 
     my $zip_status = $zip->writeToFileNamed($zip_path);
     unless ( $zip_status == AZ_OK ) {
-        return (error => "Failed to create ZIP archive for artwork with ID $artwork_id. ZIP status: $zip_status");
+        die "Failed to create ZIP archive for artwork with ID $artwork_id. ZIP status: $zip_status\n";
     }
     $logger->info("Created ZIP archive with $download_count images: $zip_filename");
     return (
