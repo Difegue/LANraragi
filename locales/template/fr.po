@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-04 20:02+0200\n"
-"PO-Revision-Date: 2025-05-04 18:25+0000\n"
-"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"PO-Revision-Date: 2025-05-04 18:31+0000\n"
+"Last-Translator: Difegue <8237712+Difegue@users.noreply.github.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/fr/>\n"
 "Language: fr\n"
@@ -227,7 +227,7 @@ msgid "Error unlinking bookmark button:"
 msgstr "Erreur lors de l'association des marque-pages :"
 
 msgid "Error getting bookmark category:"
-msgstr "Erreur lors de la récupération de la catégorie des marque-pages"
+msgstr "Erreur lors de la récupération de la catégorie des marque-pages :"
 
 # ------End of Category.html.tt2------
 # ------Start of Config.html.tt2------
@@ -893,7 +893,7 @@ msgstr ""
 "Windows."
 
 msgid "Currently Viewing:"
-msgstr "En train de lire :"
+msgstr "En train de lire : "
 
 msgid "general"
 msgstr "général"
@@ -902,7 +902,7 @@ msgid "Refresh"
 msgstr "Rafraîchir"
 
 msgid "Lines:"
-msgstr "Lignes :"
+msgstr "Lignes : "
 
 msgid "View LANraragi Logs"
 msgstr "Voir les Logs LANraragi"
