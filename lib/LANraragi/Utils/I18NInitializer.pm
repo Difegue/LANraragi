@@ -41,7 +41,7 @@ sub initialize {
             $error = $@;
             if ($error) {
                 $c->LRR_LOGGER->error("Maketext error: [$error]");
-                return $key;
+                $translated = LANraragi::Utils::I18N->get_handle('en')->maketext( $key, @encoded_args );
             }
 
             # make sure the result is decoded in UTF-8
