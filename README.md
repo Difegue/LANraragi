@@ -19,8 +19,9 @@ Open source server for archival of comics/manga, running on Mojolicious + Redis.
 ####  [📄 Documentation](https://sugoi.gitbook.io/lanraragi/v/dev) | [⏬ Download](https://github.com/Difegue/LANraragi/releases/latest) | [🎞 Demo](https://lrr.tvc-16.science) | [🪟🌃 Windows Nightlies](https://nightly.link/Difegue/LANraragi/workflows/push-continous-delivery/dev) | [💵 Sponsor Development](https://ko-fi.com/T6T2UP5N)  
 
 <a href="https://hosted.weblate.org/engage/lanraragi/">
-<img src="https://hosted.weblate.org/widget/lanraragi/multi-auto.svg" alt="État de la traduction" />
+<img src="https://hosted.weblate.org/widget/lanraragi/multi-auto.svg" alt="Translation status" />
 </a>  
+<sub>LANraragi uses Weblate for translation hosting.</sub>  
 
 ## Screenshots  
  
