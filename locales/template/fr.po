@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-04 20:02+0200\n"
-"PO-Revision-Date: 2025-05-04 19:06+0000\n"
+"PO-Revision-Date: 2025-05-04 19:17+0000\n"
 "Last-Translator: Difegue <8237712+Difegue@users.noreply.github.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/fr/>\n"
@@ -840,7 +840,7 @@ msgstr ""
 "<a href=\"/login\">Connectez-vous</a> avec le mot de passe \"kamimamita\" "
 "and <a href=\"/config\">changez</a> le immédiatement !<br/>...Ou vous pouvez "
 "juste le désactiver. <br/>Pourquoi ne pas jeter un oeil aux paramètres tant "
-"que vous y êtes ?"
+"que vous y êtes ? "
 
 # ------End of Index.html.tt2------
 # ------Start of Login.html.tt2------
@@ -1282,7 +1282,7 @@ msgstr "Rescanner le dossier de stockage des archives"
 msgid "Click this button to trigger a rescan of the Archive Directory in case you're missing files, or some data such as total page counts."
 msgstr ""
 "Cliquez ce bouton pour rescanner le dossier de stockage au cas ou il vous "
-"manque des fichiers, <br>ou certaines données comme le total de pages."
+"manque des fichiers, <br>ou certaines données comme le total de pages. <br>"
 
 # ------Stary of i18n.html.tt2------
 msgid "Backup restored!"
@@ -1841,3 +1841,12 @@ msgid "Searching for duplicates..."
 msgstr "Recherche de doublons..."
 
 # ------End of Duplicates.html.tt2------
+
+msgid "Trigger Script"
+msgstr "Déclencher le script"
+
+msgid "This plugin will trigger on URLs matching this regex!"
+msgstr "Ce plugin s'activera sur les URLs correspondant à cette regex !"
+
+msgid "This plugin depends on the login plugin"
+msgstr "Ce plugin dépend du plugin de connexion"
