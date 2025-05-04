@@ -85,7 +85,7 @@
 			style="display: none; width:80%; margin-left: auto; margin-right: auto">
 			<li class="option-flyout">
 				<div class="collapsible-title caret-right">
-					<i class="fa fa-chart-bar" aria-hidden="true"></i> Detailed Stats
+					<i class="fa fa-chart-bar" aria-hidden="true"></i> [% c.lh("Detailed Stats") %]
 				</div>
 				<div class="collapsible-body">
 					<div id="tagList"

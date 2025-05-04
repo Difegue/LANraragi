@@ -184,6 +184,12 @@ msgstr "Error unlinking bookmark button:"
 msgid "Error getting bookmark category:"
 msgstr "Error getting bookmark category:"
 
+msgid "New Static Category"
+msgstr "New Static Category"
+
+msgid "New Dynamic Category"
+msgstr "New Dynamic Category"
+
 # ------End of Category.html.tt2------
 
 # ------Start of Config.html.tt2------

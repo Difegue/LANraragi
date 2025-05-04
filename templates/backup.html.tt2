@@ -72,7 +72,7 @@
 
 			<div id='processing' style='display:none'>
 				<i class='fa fa-3x fa-compact-disc fa-spin' style='margin-top:20px' id='tag-spinner'></i>
-				<h3>[% c.lh("Restoring your backup ... ") %]</h3>
+				<h3>[% c.lh("Restoring your backup ...") %]</h3>
 			</div>
 
 			<h3 id='result'></h3>
