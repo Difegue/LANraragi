@@ -11,6 +11,15 @@ Reader.currentPage = -1;
 Reader.showingSinglePage = true;
 Reader.preloadedImg = {};
 Reader.preloadedSizes = {};
+Reader.spaceScroll = { timeout: null, animationId: null };
+//Spacebar Scroll Config
+Reader.scrollConfig = {   
+    scrollDist: 75,      // Viewport % distance to scroll
+    underSnap: 13,       // Distance % for snapping to edge of current image
+    overSnap: 40,        // Distance % for snapping back to current image after continuous scroll
+    holdDelay: 350,      // Delay time in ms before continuous scroll starts on keydown
+    scrollSpeed: 22      // Speed % to scroll when spacebar is held
+};
 
 Reader.initializeAll = function () {
     Reader.initializeSettings();
@@ -20,6 +29,8 @@ Reader.initializeAll = function () {
 
     // Bind events to DOM
     $(document).on("keyup", Reader.handleShortcuts);
+    // Restrict keydown to only function for spacebar
+    $(document).on("keydown", (e) => { if (e.keyCode === 32) Reader.handleShortcuts(e); });
     $(document).on("wheel", Reader.handleWheel);
 
     $(document).on("click.toggle-fit-mode", "#fit-mode input", Reader.toggleFitMode);
@@ -197,6 +208,16 @@ Reader.loadImages = function () {
 
             if (Reader.infiniteScroll) {
                 Reader.initInfiniteScrollView();
+                if (Reader.tags?.includes("webtoon")) {
+                    $("head").append(`
+                        <style id="webtoon-css">
+                            .reader-image {
+                                margin-bottom: 0 !important;
+                                margin-top: 0 !important;
+                            }
+                        </style>
+                    `);
+                }
             } else {
                 $("#img").on("load", Reader.updateMetadata);
 
@@ -346,44 +367,98 @@ Reader.handleShortcuts = function (e) {
     case 27: // escape
         LRR.closeOverlay();
         break;
-    case 32: { // spacebar
-    //Break if overlay is open, browser detects repeatkey but not held, or webtoon gallery and in infinite scroll
+    case 32: // spacebar
+    //Break early and go back to browser default behaviour if overlay is open or gallery has webtoon tag and in infiniteScroll
     if ($(".page-overlay").is(":visible") || e.repeat || (Reader.infiniteScroll && Reader.tags?.includes("webtoon"))) break;
     e.preventDefault();
 
-    const scrollDown = !e.shiftKey;
-    const h = window.innerHeight;
-    const scrollTop = window.scrollY;
-    const images = document.querySelectorAll(".reader-image");
-    const img = [...images].find(i => {
-        const r = i.getBoundingClientRect();
-        return r.top <= h && r.bottom >= 0;
-    });
+    // Capture direction now so we dont lose it if shift state changes while held
+    const direction = e.shiftKey ? -1 : 1;
+    const cfg = Reader.scrollConfig;
 
-    if (!img) {
-        (images[scrollDown ? 0 : images.length - 1] || images[0])?.scrollIntoView();
-        break;
+    if (e.type === "keydown") {
+        if (!Reader.spaceScroll.timeout) {
+            Reader.spaceScroll.timeout = setTimeout(() => {
+                const scrollFn = () => {
+                    window.scrollBy({ 
+                        top: direction * (cfg.scrollSpeed/100 * window.innerHeight) 
+                    });
+                    Reader.spaceScroll.animationId = requestAnimationFrame(scrollFn);
+                };
+                Reader.spaceScroll.animationId = requestAnimationFrame(scrollFn);
+            }, cfg.holdDelay);
+        }
+        behavior: 'instant'
+        behavior: 'smooth'
+        return;
     }
 
-    const r = img.getBoundingClientRect();
-    const imgBottom = r.bottom + scrollTop;
-    const newPos = scrollTop + (scrollDown ? h : -h);
+    if (e.type === "keyup") {
+        clearTimeout(Reader.spaceScroll.timeout);
+        const wasContinuousScroll = Reader.spaceScroll.animationId;
+        cancelAnimationFrame(Reader.spaceScroll.animationId);
+        Reader.spaceScroll = { timeout: null, animationId: null };
+        const st = window.scrollY;
+        const h = window.innerHeight;
 
-    if ((scrollDown && scrollTop + h > imgBottom - h * 0.2) ||
-        (!scrollDown && scrollTop < r.top + scrollTop + h * 0.2)) {
-        const imgIndex = [...images].indexOf(img);
-        const nextImg = images[imgIndex + (scrollDown ? 1 : -1)];
-        nextImg?.scrollIntoView() || 
-        (!Reader.infiniteScroll && Reader.changePage(scrollDown ? 1 : -1));
-    } else {
-        window.scrollTo({
-            top: scrollDown ? 
-                Math.min(newPos, imgBottom - h) : 
-                Math.max(newPos, r.top + scrollTop)
-        });
+        const currentImg = [...document.querySelectorAll(".reader-image")].find(img => {
+            const rect = img.getBoundingClientRect();
+            return rect.top <= h/2 && rect.bottom >= h/2;
+        }) || document.querySelector(direction > 0 ? ".reader-image:first-child" : ".reader-image:last-child");
+
+        if (!currentImg) return;
+
+        const imgTop = currentImg.getBoundingClientRect().top + st;
+        const imgBottom = currentImg.getBoundingClientRect().bottom + st;
+        const directionEdge = direction > 0 ? imgBottom : imgTop;
+
+        // Convert to percentage of pixels compared to window height
+        const scrollDistPx = (cfg.scrollDist/100) * h;
+        const overSnapPx = (cfg.overSnap/100) * h;
+        const underSnapPx = (cfg.underSnap/100) * h;
+        // Calculate active thresholds based on direction
+        const directionDist = (directionEdge - (direction > 0 ? st + h : st)) * direction;
+
+        // Go to next direction page if already at edge
+        if ((direction > 0 ? st + h >= directionEdge - 3 : st <= directionEdge + 3) && !wasContinuousScroll) {
+            console.log(`PAGE TURN: ${cfg.scrollDist}% threshold reached`);
+            Reader.changePage(direction);
+            return;
+        }
+
+        // 2. Continuous scroll overshoot check
+        if (wasContinuousScroll) {
+            // Calculate actual overshoot distance (positive value)
+            const overshootDistance = Math.abs(directionDist) - scrollDistPx;
+
+            if (overshootDistance > overSnapPx) {
+                console.log(`CONTINUOUS SNAP: ${overshootDistance.toFixed(1)}px > ${overSnapPx.toFixed(1)}px threshold`);
+                const adjImg = direction > 0 ? currentImg.nextElementSibling : currentImg.previousElementSibling;
+                if (adjImg) {
+                    const adjRect = adjImg.getBoundingClientRect();
+                    // Snap to 5px before the edge for better visibility
+                    const snapPosition = direction > 0 
+                        ? adjRect.top + st + 5 
+                        : adjRect.bottom + st - h - 5;
+                    window.scrollTo({ top: snapPosition });
+                }
+                return;
+            }
+        }
+
+        // 3. Undershoot prevention
+        if (directionDist <= scrollDistPx + underSnapPx) {
+            console.log(`UNDERSHOOT SNAP: ${cfg.underSnap}% (${Math.round(directionDist)}px <= ${Math.round(scrollDistPx + underSnapPx)}px)`);
+            window.scrollTo({ top: directionEdge - (direction > 0 ? h : 0)});
+            return;
+        }
+
+        // 4. Default scroll
+        console.log(`DEFAULT SCROLL (${Math.abs(directionDist).toFixed(1)}px)`);
+        const scrollAmount = direction * scrollDistPx;
+        window.scrollBy({ top: scrollAmount });
     }
     break;
-}
     case 37: // left arrow
         Reader.changePage(-1);
         break;
