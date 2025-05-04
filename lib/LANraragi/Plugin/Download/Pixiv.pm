@@ -32,7 +32,6 @@ sub plugin_info {
 }
 
 # Mandatory function to be implemented by your downloader
-# TODO: maybe rename this to "provide_resource" instead?
 sub provide_url {
     shift;
     my $lrr_info        = shift;
@@ -57,10 +56,10 @@ sub provide_url {
         die "Got invalid metadata response from artwork with ID $artwork_id\n";
     }
     my $artwork         = $metadata->{body};
-    my $title           = $artwork->{title}; # TODO: we should probably avoid naming zip file after title.
+    my $title           = $artwork->{title};
     my $pages_count     = $artwork->{pageCount};
     $logger->debug("Artwork title: $title, Pages: $pages_count");
-    my $zip_filename    = "pixiv_${artwork_id}.zip"; # TODO: maybe also add support for pixiv_$artwork_id.zip format in pixivmetadata.
+    my $zip_filename    = "pixiv_${artwork_id}.zip";
     my $zip_path        = "$tempdir/$zip_filename";
     my $zip             = Archive::Zip->new();
 
