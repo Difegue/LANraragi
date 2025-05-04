@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-04 20:02+0200\n"
-"PO-Revision-Date: 2025-05-04 19:17+0000\n"
+"PO-Revision-Date: 2025-05-04 23:27+0000\n"
 "Last-Translator: Difegue <8237712+Difegue@users.noreply.github.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/fr/>\n"
@@ -532,7 +532,7 @@ msgstr ""
 "fichiers automatiquement lorsqu'ils sont ajoutés."
 
 msgid "Restart File Watcher"
-msgstr "Redémarrer l'observateur"
+msgstr "Redémarrer l\\'observateur"
 
 msgid "If Shinobu is dead or unresponsive, you can reboot her by clicking this button."
 msgstr ""
@@ -701,7 +701,7 @@ msgid "Help"
 msgstr "Help"
 
 msgid "Go!"
-msgstr "C'est parti !"
+msgstr "C\\'est parti !"
 
 msgid "Using a Plugin will save any modifications to archive metadata you might have made !"
 msgstr ""
@@ -1004,19 +1004,19 @@ msgstr ""
 "Définir la page actuelle comme miniature de couverture pour cette archive."
 
 msgid "Clean Archive Cache"
-msgstr "Nettoyer le cache d'archive"
+msgstr "Nettoyer le cache d\\'archive"
 
 msgid "Edit Archive Metadata"
-msgstr "Modifier les métadonnées de l'archive"
+msgstr "Modifier les métadonnées"
 
 msgid "Delete Archive"
-msgstr "Supprimer l'archive"
+msgstr "Supprimer l\\'archive"
 
 msgid "Categories"
 msgstr "Catégories"
 
 msgid "Add to : "
-msgstr "AJouter à : "
+msgstr "Ajouter à : "
 
 msgid " -- No Category -- "
 msgstr " -- No Category -- "
@@ -1217,7 +1217,7 @@ msgstr "Return to Library"
 # ------End of Stats.html.tt2------
 # ------Start of Upload.html.tt2------
 msgid "Upload Center"
-msgstr "Centre d'ajout"
+msgstr "Centre d'upload"
 
 msgid "Adding Archives to the Library"
 msgstr "Ajouter des archives à la bibliothèque"
@@ -1841,7 +1841,6 @@ msgid "Searching for duplicates..."
 msgstr "Recherche de doublons..."
 
 # ------End of Duplicates.html.tt2------
-
 msgid "Trigger Script"
 msgstr "Déclencher le script"
 
