@@ -351,7 +351,9 @@ Reader.initInfiniteScrollView = function () {
         loaded += 1;
         if (loaded === images.length) {
             allImagesLoaded = true;
-            Reader.goToPage(Reader.currentPage);
+            if (window.scrollY === 0) {
+                Reader.goToPage(Reader.currentPage);
+            }
         }
     });
 };
@@ -672,7 +674,7 @@ Reader.goToPage = function (page) {
     Reader.showingSinglePage = false;
 
     if (Reader.infiniteScroll) {
-        $("#display img").get(Reader.currentPage).scrollIntoView();
+        $("#display img").get(Reader.currentPage).scrollIntoView({ block: 'nearest' });
     } else {
         $("#img_doublepage").attr("src", "");
         $("#display").removeClass("double-mode");
