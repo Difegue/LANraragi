@@ -853,6 +853,15 @@ msgstr "Upload Plugin"
 msgid "Return to Library"
 msgstr "Return to Library"
 
+msgid "This plugin will trigger on URLs matching this regex!"
+msgstr "This plugin will trigger on URLs matching this regex!"
+
+msgid "This plugin depends on the login plugin"
+msgstr "This plugin depends on the login plugin"
+
+msgid "Trigger Script"
+msgstr "Trigger Script"
+
 # ------End of Plugins.html.tt2------
 
 # ------Start of Reader.html.tt2------

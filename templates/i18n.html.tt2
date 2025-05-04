@@ -113,7 +113,7 @@ I18N.PluginUploadError = "[% c.lh("Error uploading plugin") %]";
 
 I18N.ReaderUpdateThumbnail = (page) => `[% c.lh("Successfully set page \${page} as the thumbnail!") %]`;
 I18N.ReaderUpdateThumbnailError = "[% c.lh("Error updating thumbnail") %]";
-I18N.ReaderErrorClearingNew = "[% c.lh("Error clearing new flag") %]";
+I18N.ReaderErrorClearingNew = `[% c.lh("Error clearing new flag") %]`;
 I18N.ReaderArchiveError = "[% c.lh("Error getting the archive's imagelist.") %]";
 I18N.ReaderRarWarning = "[% c.lh("This archive seems to be in RAR format!") %]";
 I18N.ReaderRarWarningDesc = "[% c.lh("RAR archives might not work properly in LANraragi depending on how they were made. If you encounter errors while reading, consider converting your archive to zip.") %]";
@@ -136,7 +136,7 @@ I18N.ClearCacheError = "[% c.lh("Error clearing the cache") %]";
 I18N.CleanedTempFolder = "[% c.lh("Temporary folder cleaned!") %]";
 I18N.CleanedTempFolderError = "[% c.lh("Error cleaning temporary folder") %]";
 I18N.CleanedCacheFolder = "[% c.lh("Threw away the search cache!") %]";
-I18N.CleanedNewStats = "[% c.lh("All archives are no longer new!") %]";
+I18N.CleanedNewStats = `[% c.lh("All archives are no longer new!") %]`;
 I18N.CleanedError = "[% c.lh("Error during cleanup procedure") %]";
 I18N.DropDatabaseMsg = "[% c.lh("Are you sure you want to wipe the database?") %]";
 I18N.DropDatabaseConfirm = "[% c.lh("Sayonara! Redirecting you...") %]";
