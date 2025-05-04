@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use Encode;
+use File::Temp qw(tempdir);
 use Mojo::JSON qw(encode_json);
 use Mojo::UserAgent;
 use Parallel::Loops;
@@ -343,13 +344,14 @@ sub add_tasks {
             if ($downloader) {
 
                 $logger->info( "Found downloader " . $downloader->{namespace} );
+                my $tempdir = tempdir(CLEANUP => 1);
 
                 # Use the downloader to transform the URL
                 my $plugname = $downloader->{namespace};
                 my $plugin   = get_plugin($plugname);
                 my %settings = get_plugin_parameters($plugname);
 
-                my $plugin_result = LANraragi::Model::Plugins::exec_download_plugin( $plugin, $url, %settings );
+                my $plugin_result = LANraragi::Model::Plugins::exec_download_plugin( $plugin, $url, $tempdir, %settings );
 
                 if ( exists $plugin_result->{error} ) {
                     $job->finish(
@@ -360,8 +362,6 @@ sub add_tasks {
                     );
                     return;
                 }
-
-                $ua = $plugin_result->{user_agent};
                 
                 # Check if the plugin provided a direct file path instead of a URL to download
                 if ( exists $plugin_result->{file_path} ) {
@@ -387,8 +387,9 @@ sub add_tasks {
                     );
                     return;
                 } else {
-                    # Plugin provided a URL to download
+                    # Plugin provided a URL and User-Agent to download
                     $url = $plugin_result->{download_url};
+                    $ua = $plugin_result->{user_agent};
                     $logger->info("URL transformed by plugin to $url");
                 }
             } else {

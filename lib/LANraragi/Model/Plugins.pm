@@ -150,7 +150,7 @@ sub exec_script_plugin ( $plugin, %settings ) {
     }
 }
 
-sub exec_download_plugin ( $plugin, $input, @settings ) {
+sub exec_download_plugin ( $plugin, $input, $tempdir, @settings ) {
 
     my $logger = get_logger( "Plugin System", "lanraragi" );
 
@@ -159,8 +159,9 @@ sub exec_download_plugin ( $plugin, $input, @settings ) {
 
     # Bundle all the potentially interesting info in a hash
     my %infohash = (
-        user_agent => $ua,
-        url        => $input
+        user_agent       => $ua,
+        url              => $input,
+        tempdir          => $tempdir
     );
 
     # Downloader plugins take an URL, and return...another URL, which we can download through the user-agent.
@@ -176,9 +177,7 @@ sub exec_download_plugin ( $plugin, $input, @settings ) {
         # Add the result URL to the infohash and return that.
         $infohash{download_url} = $result{download_url};
         return \%infohash;
-    }
-
-    if ( exists $result{file_path} ) {
+    } elsif ( exists $result{file_path} ) {
         # Plugin has already downloaded the file to a path
         $logger->info( "Downloader plugin directly provided file at: " . $result{file_path} );
         # Add the file path to the infohash and return that

@@ -5,7 +5,6 @@ use warnings;
 no warnings 'uninitialized';
 
 use Mojo::UserAgent;
-use File::Temp qw(tempdir);
 use File::Basename;
 use Archive::Zip qw(:ERROR_CODES :CONSTANTS);
 
@@ -32,6 +31,7 @@ sub plugin_info {
 }
 
 # Mandatory function to be implemented by your downloader
+# TODO: maybe rename this to "provide_resource" instead?
 sub provide_url {
     shift;
     my $lrr_info = shift;
@@ -45,9 +45,8 @@ sub provide_url {
     }
     $logger->info("Processing Pixiv artwork ID: $artwork_id");
     
-    # Create a temporary directory for downloading images
-    my $temp_dir = tempdir(CLEANUP => 0); # We need to keep this dir until LANraragi processes the file
-    $logger->debug("Created temporary directory: $temp_dir");
+    my $tempdir = $lrr_info->{tempdir};
+    $logger->debug("Using work directory: $tempdir");
     my $ua = $lrr_info->{user_agent};
     my $referer = "https://www.pixiv.net/artworks/$artwork_id";
     my $api_url = "https://www.pixiv.net/ajax/illust/$artwork_id";
@@ -73,7 +72,7 @@ sub provide_url {
             return (error => "Could not find image URL in artwork metadata");
         }        
         my $filename = basename($img_url);
-        my $local_path = "$temp_dir/$filename";
+        my $local_path = "$tempdir/$filename";
         $logger->info("Downloading single image: $img_url");
         my $img_res = $ua->get($img_url => { Referer => $referer })->result;
         if ($img_res->is_success) {
@@ -100,7 +99,7 @@ sub provide_url {
         for my $i (0..$#pages) {
             my $img_url = $pages[$i]->{urls}->{original};
             my $filename = sprintf("%03d_%s", $i, basename($img_url));
-            my $local_path = "$temp_dir/$filename";
+            my $local_path = "$tempdir/$filename";
             $logger->info("Downloading page $i: $img_url");
             my $img_res = $ua->get($img_url => { Referer => $referer })->result;
             if ($img_res->is_success) {
@@ -120,7 +119,7 @@ sub provide_url {
     # Create a sanitized title for the ZIP file
     $title =~ s/[^\w\s\-\.]/_/g;
     my $zip_filename = "pixiv_${artwork_id}.zip";
-    my $zip_path = "$temp_dir/$zip_filename";
+    my $zip_path = "$tempdir/$zip_filename";
     if ($zip->writeToFileNamed($zip_path) != AZ_OK) {
         return (error => "Failed to create ZIP archive");
     }
