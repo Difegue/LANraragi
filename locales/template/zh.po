@@ -4,7 +4,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-04 20:25+0200\n"
 "PO-Revision-Date: 2025-05-05 16:10+0000\n"
-"Last-Translator: gustaavv <gustaavv.git@yahoo.com>\n"
+"Last-Translator: Ftbom <lz490070@gmail.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
 "projects/lanraragi/lanraragi-source/zh_Hans/>\n"
 "Language: zh\n"
@@ -1137,7 +1137,8 @@ msgid "Rescan Archive Directory"
 msgstr "重新扫描指定文件夹"
 
 msgid "Click this button to trigger a rescan of the Archive Directory in case you're missing files, or some data such as total page counts."
-msgstr "Click this button to trigger a rescan of the Archive Directory in case you're missing files, or some data such as total page counts."
+msgstr "当文件缺失，或某些数据（如总页数）异常，<br>点击此按钮重新扫描档案文件夹。<br"
+">"
 
 # ------Stary of i18n.html.tt2------
 msgid "Backup restored!"
@@ -1231,7 +1232,7 @@ msgid "Changed title to: \${title}"
 msgstr "文档改名为：${title}"
 
 msgid "Reloading page in 5 seconds to account for deleted archives..."
-msgstr ""
+msgstr "5秒后页面将刷新，被删除的档案不再显示..."
 
 msgid "Cancelling Batch Operation..."
 msgstr "取消批量操作中。。。"
@@ -1264,10 +1265,13 @@ msgid "Error deleting category"
 msgstr "删除分类时出错"
 
 msgid "Writing a Predicate"
-msgstr ""
+msgstr "编写筛选条件"
 
 msgid "Predicates follow the same syntax as searches in the Archive Index. Check the Documentation for more information."
 msgstr ""
+"筛选条件和搜索遵循相同的规则。查看 <a href="
+"\"https://sugoi.gitbook.io/lanraragi/basic-operations/searching\">文档</a>以 "
+"获取更多信息。"
 
 msgid "Background Worker restarted!"
 msgstr "后台工作程序已重启！"
@@ -1289,6 +1293,8 @@ msgstr "关于插件"
 
 msgid "You can use plugins to automatically fetch metadata for this archive. <br/> Just select a plugin from the dropdown and hit Go! <br/> Some plugins might provide an optional argument for you to specify. If that's the case, a textbox will be available to input said argument."
 msgstr ""
+"可以通过插件自动获取此档案的元数据。<br/>从下拉框中选择插件并点击开始！<br/"
+">有些插件可能需要设置额外的参数。这种情况下，会有一个文本框用于输入参数。"
 
 msgid "Metadata saved!"
 msgstr "元数据已保存！"
@@ -1313,7 +1319,7 @@ msgstr "未添加新标签！"
 
 # Do not translate _START_, _END_ or _TOTAL_.
 msgid "Showing _START_ to _END_ of _TOTAL_ ancient chinese lithographies."
-msgstr ""
+msgstr "展示第_START_到_END_号，共_TOTAL_件瑰宝。"
 
 msgid "No archives to show you! Try <a href=\"\${url}\")>uploading some</a>?"
 msgstr "没有档案可供显示！不妨先<a href=\"${url}\")>上传一些</a>？"
@@ -1322,7 +1328,7 @@ msgid "Welcome to LANraragi \${version}!"
 msgstr "欢迎来到 LANraragi ${version}！"
 
 msgid "If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!"
-msgstr ""
+msgstr "如果想要对档案进行高级操作，右键点击档案名即可。阅读愉快！"
 
 msgid "Error getting basic server info."
 msgstr "获取服务器基本信息时出错。"
@@ -1331,7 +1337,7 @@ msgid "You're running in Debug Mode!"
 msgstr "您正在调试模式中运行！"
 
 msgid "Advanced server statistics can be viewed <a href=\"\${url}\")>here</a>."
-msgstr ""
+msgstr "服务器高级数据可<a href=\"${url}\")>在此</a>查看。"
 
 msgid "Enter a tag namespace for this column"
 msgstr "为此栏输入标签命名空间"
@@ -1358,7 +1364,7 @@ msgid "Untagged Archives"
 msgstr "无标签档案"
 
 msgid "On Deck"
-msgstr ""
+msgstr "展板"
 
 msgid "Error getting carousel data!"
 msgstr "获取轮播数据时出错！"
@@ -1409,7 +1415,7 @@ msgid "Your Reading Progression is now saved on the server!"
 msgstr "您的阅读进度已经保存到服务器！"
 
 msgid "You seem to have some local progression hanging around -- Please wait warmly while we migrate it to the server for you."
-msgstr ""
+msgstr "一些本地操作似乎正在进行，请耐心等待将其合并到服务端。"
 
 msgid "Error while migrating local progression to server"
 msgstr "迁移本地进度到服务器时出错"
@@ -1418,7 +1424,7 @@ msgid "Reading Progression has been fully migrated"
 msgstr "阅读进度已经完全迁移"
 
 msgid "You'll have to reopen archives in the Reader to see the migrated progression values."
-msgstr ""
+msgstr "在阅读器中重新打开档案来查看合并进度。"
 
 msgid "Plugin uploaded successfully!"
 msgstr "成功上传插件！"
@@ -1445,13 +1451,17 @@ msgid "This archive seems to be in RAR format!"
 msgstr "此档案似乎是 RAR 格式！"
 
 msgid "RAR archives might not work properly in LANraragi depending on how they were made. If you encounter errors while reading, consider converting your archive to zip."
-msgstr ""
+msgstr "由于RAR档案的创建方式，在LANraragi中可能无法正常工作。如果在阅读过程中遇到错"
+"误，可以考虑将档案转换到ZIP。"
 
 msgid "EPUB support in LANraragi is minimal"
 msgstr "LANraragi 对 EPUB 的支持非常有限"
 
 msgid "EPUB books will only show images in the Web Reader, and potentially out of order. If you want text support, consider pairing LANraragi with an OPDS reader."
 msgstr ""
+"在WEB阅读器中EPUB书籍仅显示图片，且可能会图片顺序错乱。如果想要显示文本，"
+"考虑配合 <a href='https://sugoi.gitbook.io/lanraragi/advanced-usage/external-"
+"readers#generic-opds-readers'>OPDS阅读器</a>使用LANraragi"
 
 msgid "Navigation Help"
 msgstr "Navigation Help"
@@ -1463,13 +1473,13 @@ msgid "Page \${page}"
 msgstr "Page ${page}"
 
 msgid "The page thumbnailing job didn't conclude properly. Your archive might be corrupted."
-msgstr ""
+msgstr "生成页面缩略图出错，档案可能已损坏。"
 
 msgid "A script is already running."
 msgstr "一个脚本已经在运行了。"
 
 msgid "Please wait for it to finish before starting a new one."
-msgstr ""
+msgstr "请等待完成后再次运行。"
 
 msgid "An error occured while running the script"
 msgstr "运行脚本时出错"
@@ -1496,7 +1506,7 @@ msgid "Threw away the search cache!"
 msgstr "搜索缓存已清空！"
 
 msgid "All archives are no longer new!"
-msgstr ""
+msgstr "所有档案都不再会被视为新档案！"
 
 msgid "Error during cleanup procedure"
 msgstr "清理过程中出错"
@@ -1508,16 +1518,16 @@ msgid "Sayonara! Redirecting you..."
 msgstr "再见！正在为您跳转..."
 
 msgid "Successfully cleaned the database and removed \${entries} entries."
-msgstr ""
+msgstr "数据库清理成功，删除了${entries}个条目。"
 
 msgid "\${entries} other entries have been unlinked from the database and will be deleted on the next cleanup!"
-msgstr ""
+msgstr "${entries}个条目从数据库中移出，并将在下次清理时被删除！"
 
 msgid "Do a backup now if some files disappeared from your archive index."
-msgstr ""
+msgstr "如果某些文件从档案列表中消失，请立即备份。"
 
 msgid "Queued up a job to regenerate thumbnails! Stay tuned for updates or check the Minion console."
-msgstr ""
+msgstr "重新生成缩略图的任务已添加！关注更新或查看Minion控制台。"
 
 msgid "All thumbnails generated! Errors will be listed below if there were any."
 msgstr "所有缩略图已生成！如果有错误的话会在下面列出。"
@@ -1532,7 +1542,7 @@ msgid "Couldn't delete archive file. <br/> (Maybe it has already been deleted be
 msgstr "无法删除档案文件。<br/>（可能它之前已被删除？）"
 
 msgid "Archive metadata has been deleted properly. <br> Please delete the file manually before returning to the archive index."
-msgstr ""
+msgstr "档案元数据已删除。<br>在返回档案列表前请手动删除文件。"
 
 msgid "Archive successfully deleted. Redirecting you..."
 msgstr "档案已成功删除，正在为您跳转..."
@@ -1576,22 +1586,22 @@ msgid "Duplicate Detection"
 msgstr "重复档案检测"
 
 msgid "This page allows you to search for potential duplicates in your library."
-msgstr ""
+msgstr "此界面可搜索库中潜在的重复项。"
 
 msgid "Clicking \"Start searching\" will start a background job to scan the entire library for dupes."
-msgstr ""
+msgstr "点击“开始搜索”将启动查找库中重复项的后台任务。"
 
 msgid "After which, you can select which archives to delete, and then delete them in bulk."
-msgstr ""
+msgstr "之后，可以选择要删除的档案，然后批量删除。"
 
 msgid "Found %1 duplicate group(s)."
 msgstr "已找到 %1 组重复档案。"
 
 msgid "You can use the rules dropdown below to pre-select archives for deletion."
-msgstr ""
+msgstr "可选择下拉框中的规则来预选中要删除的档案。"
 
 msgid "For every duplicate group..."
-msgstr ""
+msgstr "对每个重复项..."
 
 msgid "Keep all files"
 msgstr "保留所有文件"
@@ -1618,7 +1628,7 @@ msgid "Search for duplicates again"
 msgstr "重新搜索重复档案"
 
 msgid "Delete all selected items"
-msgstr ""
+msgstr "删除所有选中的项目"
 
 msgid "Filename"
 msgstr "文件名"
