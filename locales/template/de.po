@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 03:27+0200\n"
-"PO-Revision-Date: 2025-05-05 16:10+0000\n"
-"Last-Translator: Saetron <github@login.saetron.eu>\n"
+"PO-Revision-Date: 2025-05-06 15:24+0000\n"
+"Last-Translator: M I <neq6sgn@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/de/>\n"
 "Language: de\n"
@@ -21,19 +21,18 @@ msgstr ""
 
 msgid "You can backup your existing database here, or restore an existing backup."
 msgstr ""
-"Du kannst hier deine bestehende Datenbank sichern oder eine bestehende "
+"Hier kannst du deine bestehende Datenbank sichern oder eine bestehende "
 "Sicherung wiederherstellen."
 
 msgid "Backuping allows you to download a JSON file containing all your categories and archive IDs, and their matching metadata."
 msgstr ""
-"Beim Sichern kannst du eine JSON-Datei herunterladen, die alle deine "
+"Das Sichern erlaubt dir eine JSON-Datei herunterladen, die alle deine "
 "Kategorien und Archiv-IDs sowie die dazugehörigen Metadaten enthält."
 
 msgid "Restoring from a backup will restore this metadata, <b>for IDs which already exist in your database.</b>"
 msgstr ""
-"Bei der Wiederherstellung von einem Backup werden diese Metadaten "
-"wiederhergestellt, <b>für IDs, die bereits in deiner Datenbank "
-"existieren.</b>"
+"Bei der Wiederherstellung von einem Backup werden diese Metadaten, <b>für "
+"IDs, die bereits in deiner Datenbank existieren,</b> wiederhergestellt."
 
 msgid "(Categories will always be restored)"
 msgstr "(Kategorien werden immer wiederhergestellt)"
@@ -42,11 +41,10 @@ msgid "Backup Database"
 msgstr "Datenbank sichern"
 
 msgid "Restore Backup"
-msgstr "Sicherung wiederherstellen"
+msgstr "Backup wiederherstellen"
 
-#, fuzzy
 msgid "Restoring your backup ..."
-msgstr "Wiederherstellung der Sicherung ..."
+msgstr "Wiederherstellung des Backups ..."
 
 msgid "Return to Library"
 msgstr ""
@@ -58,24 +56,27 @@ msgstr ""
 
 msgid "You can apply modifications to multiple archives in one go here."
 msgstr ""
+"Hier kannst du Veränderungen von mehreren Archiven zugleich durchführen."
 
 msgid "Select what you'd like to do, check archives you want to use it on, and get rolling!"
 msgstr ""
+"Wähle aus, was du machen möchtest, wähle die Archive aus, die du verändern "
+"möchtest und leg los!"
 
 msgid "Archives with no tags have been pre-checked."
-msgstr ""
+msgstr "Archive ohne Genres sind bereits ausgewählt."
 
 msgid "Task :"
-msgstr ""
+msgstr "Genre:"
 
 msgid "Use Plugin"
-msgstr ""
+msgstr "Nutze Erweiterungen"
 
 msgid "Remove New Flag"
-msgstr ""
+msgstr "Entferne \"Neu\" Vermerk"
 
 msgid "Apply Tag Rules"
-msgstr ""
+msgstr "Wende Gerne-Regeln an"
 
 msgid "Add To Category"
 msgstr ""
@@ -84,10 +85,10 @@ msgid "Delete Archive"
 msgstr ""
 
 msgid "Use plugin :"
-msgstr ""
+msgstr "Nutze Erweiterungen:"
 
 msgid "Timeout (max 20s):"
-msgstr ""
+msgstr "Zeitüberschreitung (max 20s):"
 
 msgid "This plugin recommends a cooldown of <span id=\"cooldown\">-1</span> seconds."
 msgstr ""
@@ -97,24 +98,27 @@ msgstr ""
 
 msgid "Make sure to set a suitable <b>timeout</b> between archives using this picker if the plugin you want to use is concerned."
 msgstr ""
+"Stelle über das Eingabefeld eine genügend lange <b>Pause</b> ein, falls "
+"dieses Problem die gewählte Erweiterung betrifft."
 
 msgid "Override Plugin Global Arguments"
-msgstr ""
+msgstr "Überschreibe allgemeine Erweiterungsargumente"
 
 msgid "This will apply the following Tag Rules to the selected Archives."
 msgstr ""
+"Dies wird die folgenden Genre-Regeln auf die ausgewählten Archive anwenden."
 
 msgid "You can edit your Tag Rules in Server Configuration."
-msgstr ""
+msgstr "Du kannst die Genre-Regeln in den Servereinstellungen ändern."
 
 msgid "Server Configuration"
-msgstr ""
+msgstr "Servereinstellungen"
 
 msgid "This removes the \"new\" flag from the selected archives."
-msgstr ""
+msgstr "Dies wird den Vermerk \"neu\" von den ausgewählten Archiven entfernen."
 
 msgid "Add to Category :"
-msgstr ""
+msgstr "Füge zu einer Kategorie hinzu:"
 
 msgid "This will delete both metadata and matching files from your system! Please use with caution."
 msgstr ""
@@ -123,16 +127,17 @@ msgid "Check/Uncheck all"
 msgstr ""
 
 msgid "Start Task"
-msgstr ""
+msgstr "Starte Aufgabe"
 
 msgid "Cancel"
-msgstr ""
+msgstr "Abbrechen"
 
 msgid "Start another job"
-msgstr ""
+msgstr "Starte eine andere Aufgabe"
 
 msgid "Processed <span id=\"arcs\"></span> out of <span id=\"totalarcs\"></span>"
 msgstr ""
+"<span id=\"arcs\"></span> von <span id=\"totalarcs\"></span> bearbeitet."
 
 msgid "Preparing your data."
 msgstr ""
@@ -150,101 +155,111 @@ msgstr ""
 
 msgid "Categories appear at the top of your window when browsing the Library."
 msgstr ""
+"Kategorien erscheinen am Anfang des Fensters, wenn die Bibliothek durchsucht "
+"wird."
 
 msgid "There are two distinct kinds:"
-msgstr ""
+msgstr "Es gibt zwei unterschiedliche Arten:"
 
 msgid "Static Categories are arbitrary collections of Archives, where you can add as many items as you want."
 msgstr ""
+"Statische Kategorien sind beliebige Sammlungen von Archiven, von denen "
+"beliebig viele hinzugefügt werden können."
 
 msgid "Dynamic Categories contain all archives matching a given predicate, and automatically update alongside your library."
 msgstr ""
+"Dynamische Kategorien beinhalten alle Archive mit einem übereinstimmenden "
+"Auswahlkriterium und werden automatisch erweitert."
 
 msgid "You can create new categories here or edit existing ones."
 msgstr ""
 
 msgid "Select a category in the combobox below to edit its name, the archives it contains, or its predicate."
 msgstr ""
+"Wähle eine Kategorie in der Kombobox unten aus, um ihren Namen, die "
+"zugehörigen Archive und ihre Auswahlkriterium zu verändern."
 
 msgid "All your modifications are saved automatically."
-msgstr ""
+msgstr "Alle deine Veränderungen werden automatisch gesichert."
 
 msgid "Category:"
-msgstr ""
+msgstr "Kategorie:"
 
 msgid "Name:"
-msgstr ""
+msgstr "Name:"
 
 msgid "Predicate:"
-msgstr ""
+msgstr "Auswahlkriterium:"
 
 msgid "Pin this Category"
 msgstr ""
 
 msgid "Delete Category"
-msgstr ""
+msgstr "Lösche diese Kategorie"
 
 msgid "If you select a Static Category, your archives will appear here so you can add/remove them from the category."
 msgstr ""
+"Wenn eine statische Kategorie ausgewählt wird erscheinen die Archive hier "
+"und du kannst sie entfernen oder andere hinzufügen."
 
 msgid "Return to Library"
 msgstr ""
 
 msgid "Store Bookmarks in this Category"
-msgstr ""
+msgstr "Speichere Lesezeichen in dieser Kategorie"
 
 msgid "Error linking bookmark button:"
-msgstr ""
+msgstr "Fehler beim Verbinden des Lesezeichenbuttons:"
 
 msgid "Error unlinking bookmark button:"
-msgstr ""
+msgstr "Fehler beim Trennen des Lesezeichenbuttons:"
 
 msgid "Error getting bookmark category:"
-msgstr ""
+msgstr "Fehler beim Anfragen der Lesezeichen Kategorie:"
 
 msgid "New Static Category"
-msgstr ""
+msgstr "Neue statische Kategorie"
 
 msgid "New Dynamic Category"
-msgstr ""
+msgstr "Neue dynamische Kategorie"
 
 # ------End of Category.html.tt2------
 # ------Start of Config.html.tt2------
 msgid "Admin Settings"
-msgstr ""
+msgstr "Admin Einstellungen"
 
 msgid "LANraragi"
-msgstr ""
+msgstr "LANraragi"
 
 msgid "Version %1 %2"
-msgstr ""
+msgstr "Version %1 - %2"
 
 msgid "Select a category to show the matching settings."
-msgstr ""
+msgstr "Wähle eine Kategorie aus um die relevanten Einstellungen anzuzeigen."
 
 msgid "Save Settings"
-msgstr ""
+msgstr "Speiche Einstellungen"
 
 msgid "Plugin Configuration"
 msgstr ""
 
 msgid "Database Backup/Restore"
-msgstr "Datenbank-Sicherung/Wiederherstellung"
+msgstr "Datenbank sichern/wiederherstellen"
 
 msgid "Return to Library"
 msgstr ""
 
 msgid "Global Settings"
-msgstr ""
+msgstr "Allgemeine Einstellungen"
 
 msgid "Theme"
-msgstr ""
+msgstr "Aussehen"
 
 msgid "Security"
-msgstr ""
+msgstr "Sicherheit"
 
 msgid "Archive Files"
-msgstr ""
+msgstr "Archiv Dateien"
 
 msgid "Tags and Thumbnails"
 msgstr ""
@@ -255,7 +270,7 @@ msgstr ""
 # ------End of Config.html.tt2------
 # ------Start of Config_Files.html.tt2------
 msgid "Archive Directory"
-msgstr ""
+msgstr "Archivverzeichnis"
 
 msgid "Directory where the archives will be located. It will be created if it doesn't exist."
 msgstr ""
@@ -809,7 +824,7 @@ msgstr ""
 # ------End of Logs.html.tt2------
 # ------Start of Plugins.html.tt2------
 msgid "Plugin Configuration"
-msgstr ""
+msgstr "Erweiterungseinstellungen"
 
 msgid "Enable/Disable Auto-Plugin on metadata plugins by checking the toggles."
 msgstr ""
@@ -892,10 +907,10 @@ msgid "Edit Archive Metadata"
 msgstr ""
 
 msgid "Delete Archive"
-msgstr ""
+msgstr "Lösche das Archiv"
 
 msgid "Categories"
-msgstr ""
+msgstr "Kategorien"
 
 msgid "Add to : "
 msgstr ""
