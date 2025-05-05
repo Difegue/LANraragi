@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 05:28+0200\n"
-"PO-Revision-Date: 2025-05-05 07:11+0000\n"
+"PO-Revision-Date: 2025-05-06 15:24+0000\n"
 "Last-Translator: Guerra24 <lili@guerra24.net>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/es/>\n"
@@ -141,7 +141,7 @@ msgid "Cancel"
 msgstr "Cancelar"
 
 msgid "Start another job"
-msgstr ""
+msgstr "Iniciar otra tarea"
 
 msgid "Processed <span id=\"arcs\"></span> out of <span id=\"totalarcs\"></span>"
 msgstr "Procesados <span id=\"arcs\"></span> de <span id=\"totalarcs\"></span>"
@@ -213,7 +213,7 @@ msgid "Return to Library"
 msgstr ""
 
 msgid "Store Bookmarks in this Category"
-msgstr ""
+msgstr "Guardar marcadores en esta categoría"
 
 msgid "Error linking bookmark button:"
 msgstr ""
@@ -222,7 +222,7 @@ msgid "Error unlinking bookmark button:"
 msgstr ""
 
 msgid "Error getting bookmark category:"
-msgstr ""
+msgstr "Error al obtener categoría de marcadores:"
 
 msgid "New Static Category"
 msgstr "Nueva categoría estática"
@@ -236,13 +236,13 @@ msgid "Admin Settings"
 msgstr "Configuración de administrador"
 
 msgid "LANraragi"
-msgstr ""
+msgstr "LANraragi"
 
 msgid "Version %1 %2"
 msgstr "Versión %1 - %2"
 
 msgid "Select a category to show the matching settings."
-msgstr ""
+msgstr "Selecciona una opción para visualizar su configuración."
 
 msgid "Save Settings"
 msgstr "Guardar configuración"
@@ -288,7 +288,7 @@ msgstr ""
 "acceso de lectura a esta carpeta."
 
 msgid "Synology eCryptFS Compatibility Mode"
-msgstr ""
+msgstr "Modo de compatibilidad para Synology eCryptFS"
 
 msgid "If enabled, LANraragi will cutoff archive filenames to 143 bytes, which is the max accepted by eCryptFS."
 msgstr ""
@@ -323,7 +323,7 @@ msgid "Clear the cache manually by clicking this button."
 msgstr "Vacía la caché manualmente utilizando este botón."
 
 msgid "Reset Search Cache"
-msgstr ""
+msgstr "Reiniciar caché de búsqueda"
 
 msgid "The last searches done in the archive index are cached for faster loads."
 msgstr ""
