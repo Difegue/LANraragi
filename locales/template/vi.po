@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 03:32+0200\n"
-"PO-Revision-Date: 2025-05-05 07:11+0000\n"
+"PO-Revision-Date: 2025-05-05 16:10+0000\n"
 "Last-Translator: Vinh Phạm <drkhanhvinh@gmail.com>\n"
 "Language-Team: Vietnamese <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/vi/>\n"
@@ -59,6 +59,8 @@ msgstr "Bạn có thể sửa nhiều truyền cùng lúc tại đây."
 
 msgid "Select what you'd like to do, check archives you want to use it on, and get rolling!"
 msgstr ""
+"Chọn hành động bạn muốn thực hiện, đánh dấu các truyện bạn muốn áp dụng, rồi "
+"bắt đầu thôi!"
 
 msgid "Archives with no tags have been pre-checked."
 msgstr "Các truyện không có thẻ đã được kiểm tra trước."
@@ -98,9 +100,11 @@ msgstr ""
 
 msgid "Make sure to set a suitable <b>timeout</b> between archives using this picker if the plugin you want to use is concerned."
 msgstr ""
+"Nếu plugin bạn muốn dùng có liên quan, hãy đảm bảo đặt <b>thời gian chờ</b> "
+"hợp lý giữa các truyện khi dùng trình chọn này."
 
 msgid "Override Plugin Global Arguments"
-msgstr ""
+msgstr "Ghi đè tham số chung của Plugin"
 
 msgid "This will apply the following Tag Rules to the selected Archives."
 msgstr "Thao tác này sẽ áp dụng các Quy tắc thẻ sau vào các Truyện đã chọn."
@@ -132,7 +136,7 @@ msgid "Cancel"
 msgstr "Huỷ"
 
 msgid "Start another job"
-msgstr ""
+msgstr "Bắt đầu tiến trình khác"
 
 msgid "Processed <span id=\"arcs\"></span> out of <span id=\"totalarcs\"></span>"
 msgstr ""
@@ -174,6 +178,8 @@ msgstr "Bạn có thể tạo danh mục mới tại đây hoặc sửa danh m�
 
 msgid "Select a category in the combobox below to edit its name, the archives it contains, or its predicate."
 msgstr ""
+"Chọn danh mục trong menu thả xuống để sửa tên, truyện chứa trong đó hoặc "
+"tiêu chí lọc."
 
 msgid "All your modifications are saved automatically."
 msgstr "Mọi sửa đổi của bạn sẽ được lưu tự động."
@@ -185,7 +191,7 @@ msgid "Name:"
 msgstr "Tên:"
 
 msgid "Predicate:"
-msgstr ""
+msgstr "Tiêu chí lọc:"
 
 msgid "Pin this Category"
 msgstr "Ghim Danh mục này"
@@ -249,7 +255,7 @@ msgid "Global Settings"
 msgstr "Cài đặt chung"
 
 msgid "Theme"
-msgstr ""
+msgstr "Giao diện"
 
 msgid "Security"
 msgstr "Bảo mật"
@@ -261,7 +267,7 @@ msgid "Tags and Thumbnails"
 msgstr "Thẻ và Hình thu nhỏ"
 
 msgid "Background Workers"
-msgstr ""
+msgstr "Công việc nền"
 
 # ------End of Config.html.tt2------
 # ------Start of Config_Files.html.tt2------
@@ -289,7 +295,7 @@ msgid "Click this button to trigger a rescan of the Archive Directory in case yo
 msgstr ""
 
 msgid "Maximum <br>Cache Size"
-msgstr ""
+msgstr "Kích thước <br>bộ nhớ đệm tối đa"
 
 msgid "In MBs. The cache contains recently viewed pages, for faster subsequent reading."
 msgstr ""
@@ -302,93 +308,114 @@ msgid "Clear Cache"
 msgstr "Xóa bộ nhớ đệm"
 
 msgid "Current Size:"
-msgstr ""
+msgstr "Kích cỡ hiện tại:"
 
 msgid "Clear the cache manually by clicking this button."
-msgstr ""
+msgstr "Xóa bộ nhớ đệm thủ công bằng cách nhấn nút này."
 
 msgid "Reset Search Cache"
-msgstr ""
+msgstr "Đặt lại bộ nhớ đệm tìm kiếm"
 
 msgid "The last searches done in the archive index are cached for faster loads."
 msgstr ""
+"Các tìm kiếm gần đây trong chỉ mục truyện được lưu vào bộ nhớ đệm để tải "
+"nhanh hơn."
 
 msgid "If something went wrong with said cache, you can reset it by clicking this button."
 msgstr ""
+"Nếu có vấn đề gì xảy ra với bộ nhớ đệm, bạn có thể đặt lại bằng cách nhấp "
+"vào nút này."
 
 msgid "Clear NEW flags"
-msgstr ""
+msgstr "Xóa cờ MỚI"
 
 msgid "Newly uploaded archives are marked as \"new\" in the index until you\'ve opened them."
 msgstr ""
+"Các truyện mới tải lên sẽ được đánh dấu là \"mới\" trong chỉ mục cho đến khi "
+"bạn mở chúng."
 
 msgid "If you want to clear those flags, click this button."
-msgstr ""
+msgstr "Nếu bạn muốn xóa những cờ đó, nhấp vào nút này."
 
 msgid "Replace duplicated archives"
-msgstr ""
+msgstr "Thay thế các truyện bị trùng"
 
 msgid "If enabled, LANraragi will overwrite old archives when a newer one (with the same name) is uploaded through the Web Uploader or the Download System."
 msgstr ""
+"Nếu được bật, LANraragi sẽ ghi đè lên các truyện cũ khi có truyện mới hơn ("
+"có cùng tên) được tải lên thông qua Web Uploader hoặc Download System."
 
 msgid "This will delete metadata for old files when they're replaced! Use with caution."
 msgstr ""
+"Thao tác này sẽ xóa metadata cho các file cũ khi chúng được thay thế! Hãy "
+"thận trọng khi sử dụng."
 
 # ------End of Config_Files.html.tt2------
 # ------Start of Config_Global.html.tt2------
 msgid "Site Title"
-msgstr ""
+msgstr "Tiêu đề trang"
 
 msgid "The site title appears on most pages as...their title."
 msgstr ""
+"Tiêu đề trang web xuất hiện trên hầu hết các trang dưới dạng...tiêu đề của "
+"trang."
 
 msgid "MOTD"
-msgstr ""
+msgstr "TNTN"
 
 msgid "Slang for Message of the Day. Appears on top of the main Library view."
-msgstr ""
+msgstr "Tin nhắn trong ngày – hiển thị ở đầu trang Thư viện."
 
 msgid "Archives per page"
-msgstr ""
+msgstr "Số truyện mỗi trang"
 
 msgid "Number of archives shown on a page in the main list."
-msgstr ""
+msgstr "Số truyện hiển thị mỗi trang trong danh sách chính."
 
 msgid "Resize Images in Reader"
-msgstr ""
+msgstr "Thay đổi kích thước ảnh trong trình đọc"
 
 msgid "If enabled, pages exceeding a certain size will be resized when viewed to save bandwidth."
 msgstr ""
+"Nếu được bật, các trang vượt quá kích thước nhất định sẽ được thay đổi kích "
+"thước khi xem để tiết kiệm băng thông."
 
 msgid "This option can potentially consume a lot of RAM if enabled and used on large images! Use with caution."
 msgstr ""
+"Tùy chọn này có thể ngốn nhiều RAM khi bật và sử dụng với ảnh lớn! Cẩn thận "
+"khi sử dụng."
 
 msgid "Image Size Threshold"
-msgstr ""
+msgstr "Giới hạn kích thước ảnh"
 
 msgid "(in KBs.) Maximum size an image can reach before being resized."
 msgstr ""
+"(tính bằng KB) Kích thước tối đa của ảnh trước khi bị thay đổi kích thước."
 
 msgid "Resize Quality"
-msgstr ""
+msgstr "Chất lượng thay đổi kích thước"
 
 msgid "Quality of the resized images. Less quality = Smaller image. (0-100)"
 msgstr ""
+"Chất lượng ảnh đã thay đổi kích thước. Chất lượng thấp = ảnh nhỏ hơn. (0-100)"
 
 msgid "Clientside Progress Tracking"
-msgstr ""
+msgstr "Theo dõi Tiến độ phía Client"
 
 msgid "Enabling this option will save reading progression on the browser (through localStorage) instead of the server."
 msgstr ""
+"Bật tùy chọn này sẽ lưu tiến độ đọc trên trình duyệt (thông qua localStorage)"
+" thay vì trên máy chủ."
 
 msgid "Consider toggling this option if you're sharing the LANraragi instance with multiple users!"
 msgstr ""
+"Cân nhắc bật/tắt tùy chọn này nếu bạn chia sẻ LANraragi với nhiều người dùng!"
 
 msgid "Debug Mode"
-msgstr ""
+msgstr "Chế độ gỡ lỗi"
 
 msgid "Enabling Debug Mode will show more logs and disable update nagging."
-msgstr ""
+msgstr "Bật chế độ gỡ lỗi sẽ hiển thị thêm nhật ký và tắt thông báo cập nhật."
 
 msgid "Fully effective after restarting LANraragi."
 msgstr ""
@@ -594,25 +621,25 @@ msgid "Editing %1"
 msgstr ""
 
 msgid "Current File Name:"
-msgstr ""
+msgstr "Tên File hiện tại:"
 
 msgid "ID:"
-msgstr ""
+msgstr "ID:"
 
 msgid "Title:"
-msgstr ""
+msgstr "Tiêu đề:"
 
 msgid "Summary:"
-msgstr ""
+msgstr "Tóm tắt:"
 
 msgid "Tags"
 msgstr ""
 
 msgid "(separated by hyphens, i.e : tag1, tag2)"
-msgstr ""
+msgstr "(cách nhau bằng dấu phẩy, ví dụ: thẻ1, thẻ2)"
 
 msgid "Import Tags from Plugin :"
-msgstr ""
+msgstr "Thêm Thẻ từ Plugin:"
 
 msgid "Help"
 msgstr ""
@@ -622,9 +649,11 @@ msgstr "Đi!"
 
 msgid "Using a Plugin will save any modifications to archive metadata you might have made !"
 msgstr ""
+"Sử dụng Plugin sẽ lưu lại mọi thay đổi bạn đã thực hiện với metadata của "
+"truyện!"
 
 msgid "Save Metadata"
-msgstr ""
+msgstr "Lưu Metadata"
 
 msgid "Delete Archive"
 msgstr ""
@@ -635,10 +664,10 @@ msgstr ""
 # ------End of Edit.html.tt2------
 # ------Start of Index.html.tt2------
 msgid "Add Archives"
-msgstr ""
+msgstr "Thêm Truyện"
 
 msgid "Batch Operations"
-msgstr ""
+msgstr "Các tác vụ theo nhóm"
 
 msgid "Settings"
 msgstr "Cài đặt"
@@ -650,7 +679,7 @@ msgid "Statistics"
 msgstr "Thống kê"
 
 msgid "Logs"
-msgstr "Logs"
+msgstr "Nhật ký"
 
 msgid "Admin Login"
 msgstr "Đăng nhập Admin"
@@ -707,10 +736,10 @@ msgid "Title"
 msgstr ""
 
 msgid "Artist"
-msgstr ""
+msgstr "Tác giả"
 
 msgid "Series"
-msgstr ""
+msgstr "Series truyện"
 
 msgid "Tags"
 msgstr ""
@@ -725,28 +754,28 @@ msgid "The database cache is corrupt, and as such LANraragi is unable to display
 msgstr ""
 
 msgid "Read"
-msgstr ""
+msgstr "Đọc"
 
 msgid "Download"
-msgstr ""
+msgstr "Tải"
 
 msgid "Edit Metadata"
-msgstr ""
+msgstr "Sửa Metadata"
 
 msgid "Delete"
-msgstr ""
+msgstr "Xoá"
 
 msgid "Add Rating"
-msgstr ""
+msgstr "Thêm Đánh giá"
 
 msgid "Add to Category"
-msgstr ""
+msgstr "Thêm vào Danh mục"
 
 msgid "New Version Release Notes"
 msgstr ""
 
 msgid "You\'re using the default password and that\'s super baka of you"
-msgstr ""
+msgstr "Bạn đang dùng mật khẩu mặc định và nó đần vcl"
 
 msgid "Login with password \"kamimamita\" and change that shit on the double. ...Or just disable it! Why not check the configuration options afterwards, while you\'re at it?"
 msgstr ""
@@ -754,16 +783,16 @@ msgstr ""
 # ------End of Index.html.tt2------
 # ------Start of Login.html.tt2------
 msgid "This page requires you to log on."
-msgstr ""
+msgstr "Trang này yêu cầu bạn đăng nhập."
 
 msgid "Admin Password:"
-msgstr ""
+msgstr "Mật khẩu Admin:"
 
 msgid "Login"
 msgstr "Đăng nhập"
 
 msgid "Wrong Password."
-msgstr ""
+msgstr "Sai Mật khẩu."
 
 msgid "<a href='\${url}'>Login</a> to toggle bookmark feature."
 msgstr ""
@@ -827,7 +856,7 @@ msgstr ""
 # ------End of Logs.html.tt2------
 # ------Start of Plugins.html.tt2------
 msgid "Plugin Configuration"
-msgstr ""
+msgstr "Cấu hình Plugin"
 
 msgid "Enable/Disable Auto-Plugin on metadata plugins by checking the toggles."
 msgstr ""
@@ -997,16 +1026,16 @@ msgid "The default value is 1200px, or 90% in Double Page Mode."
 msgstr ""
 
 msgid "Apply"
-msgstr ""
+msgstr "Áp dụng"
 
 msgid "Page Rendering"
-msgstr ""
+msgstr "Hiển thị trang"
 
 msgid "Single"
-msgstr ""
+msgstr "Một trang"
 
 msgid "Double"
-msgstr ""
+msgstr "Hai trang"
 
 msgid "Reading Direction"
 msgstr ""
@@ -1018,61 +1047,63 @@ msgid "Right to Left"
 msgstr "Phải sang Trái"
 
 msgid "How many images to preload"
-msgstr ""
+msgstr "Tải trước bao nhiêu hình ảnh"
 
 msgid "The default is two images."
-msgstr ""
+msgstr "Mặc định là hai hình ảnh."
 
 msgid "Header"
 msgstr ""
 
 msgid "Visible"
-msgstr ""
+msgstr "Hiển thị"
 
 msgid "Hidden"
-msgstr ""
+msgstr "Ẩn"
 
 msgid "Show Archive Overlay by default"
-msgstr ""
+msgstr "Hiển thị Overlay Truyện mặc định"
 
 msgid "This will show the overlay with thumbnails every time you open a new Reader page."
 msgstr ""
+"Overlay và hình thu nhỏ sẽ luôn hiển thị khi bạn mở một trang mới trong "
+"trình đọc."
 
 msgid "Enabled"
-msgstr ""
+msgstr "Bật"
 
 msgid "Disabled"
-msgstr ""
+msgstr "Tắt"
 
 msgid "Progression Tracking"
-msgstr ""
+msgstr "Theo dõi tiến trình"
 
 msgid "Disabling tracking will restart reading from page one every time you reopen the reader."
-msgstr ""
+msgstr "Khi tắt theo dõi, truyện sẽ luôn mở từ trang đầu mỗi lần đọc lại."
 
 msgid "Infinite Scrolling"
-msgstr ""
+msgstr "Cuộn vô hạn"
 
 msgid "Display all images in a vertical view in the same page."
-msgstr ""
+msgstr "Hiển thị tất cả hình ảnh theo chiều dọc trên cùng một trang."
 
 msgid "Reader Settings"
-msgstr ""
+msgstr "Cài đặt Trình đọc"
 
 msgid "Help"
-msgstr ""
+msgstr "Trợ giúp"
 
 msgid "Reading Direction"
-msgstr ""
+msgstr "Hướng đọc"
 
 msgid "Archive Overview"
 msgstr "Tổng quan Truyện"
 
 msgid "FullScreen"
-msgstr ""
+msgstr "Toàn màn hình"
 
 msgid "Toggle Bookmark"
-msgstr ""
+msgstr "Bật/Tắt dấu trang"
 
 # ------End of Reader.html.tt2------
 # ------Start of Stats.html.tt2------
@@ -1080,28 +1111,30 @@ msgid "Library Statistics"
 msgstr "Thống kê Thư viện"
 
 msgid "Archives on record"
-msgstr ""
+msgstr "Truyện đã lưu"
 
 msgid "Different tags existing"
 msgstr ""
 
 msgid "in content folder"
-msgstr ""
+msgstr "trong thư mục truyện"
 
 msgid "pages read"
-msgstr ""
+msgstr "trang đọc"
 
 msgid "Tag Cloud"
 msgstr ""
 
 msgid "Asking the great powers that be for your tag statistics..."
-msgstr ""
+msgstr "Đang hỏi các thế lực vĩ đại để lấy thống kê thẻ của bạn..."
 
 msgid "Detailed Stats"
-msgstr ""
+msgstr "Thống kê chi tiết"
 
 msgid "(These statistics only show tags that appear at least twice in your database.)"
 msgstr ""
+"(Những số liệu thống kê này chỉ hiển thị những thẻ xuất hiện ít nhất hai lần "
+"trong cơ sở dữ liệu của bạn.)"
 
 msgid "Return to Library"
 msgstr ""
@@ -1109,10 +1142,10 @@ msgstr ""
 # ------End of Stats.html.tt2------
 # ------Start of Upload.html.tt2------
 msgid "Upload Center"
-msgstr ""
+msgstr "Trung tâm Tải lên"
 
 msgid "Adding Archives to the Library"
-msgstr ""
+msgstr "Thêm Truyện vào Thư viện"
 
 msgid "Add files to your LANraragi instance from your computer, or the Internet directly."
 msgstr "Thêm file vào LANraragi từ máy tính hoặc trực tiếp từ Internet."
@@ -1202,7 +1235,7 @@ msgid "No, keep it!"
 msgstr "Không, giữ nó!"
 
 msgid "Error while deleting cache! Check application logs."
-msgstr ""
+msgstr "Lỗi khi xóa bộ nhớ đệm! Vui lòng kiểm tra log của ứng dụng."
 
 msgid "Error while processing request"
 msgstr ""
@@ -1392,13 +1425,13 @@ msgid "Error getting carousel data!"
 msgstr ""
 
 msgid "Edit this column"
-msgstr ""
+msgstr "Sửa cột này"
 
 msgid "Title"
 msgstr ""
 
 msgid "Tags"
-msgstr ""
+msgstr "Thẻ"
 
 msgid "Header"
 msgstr ""
@@ -1667,7 +1700,6 @@ msgid "Searching for duplicates..."
 msgstr ""
 
 # ------End of Duplicates.html.tt2------
-
 msgid "Plugin Settings"
 msgstr "Cài đặt Plugin"
 
