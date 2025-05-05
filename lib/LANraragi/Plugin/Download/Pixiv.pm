@@ -26,7 +26,7 @@ sub plugin_info {
             <br><i class='fa fa-exclamation-circle'></i> Pixiv enforces a rate limit on API requests, and may suspend/ban your account for overuse.",
 
         # Downloader-specific metadata
-        url_regex => "https?:\/\/(?:www\.)?pixiv\.net\/(?:en\/)?artworks\/([0-9]+)"
+        url_regex => "https?:\/\/(?:www\.)?pixiv\.net\/(?:[a-z]{2}\/)?artworks\/([0-9]+)"
     );
 
 }
