@@ -3,41 +3,48 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 03:32+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2025-05-05 03:28+0000\n"
+"Last-Translator: Vinh Phạm <drkhanhvinh@gmail.com>\n"
+"Language-Team: Vietnamese <https://hosted.weblate.org/projects/lanraragi/"
+"lanraragi-source/vi/>\n"
 "Language: vi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Translate Toolkit 3.15.2\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.12-dev\n"
 
 # Sample Data
-
 # ------Start of Backup.html.tt2------
 msgid "Database Backup/Restore"
 msgstr ""
 
 msgid "You can backup your existing database here, or restore an existing backup."
 msgstr ""
+"Bạn có thể sao lưu cơ sở dữ liệu hiện tại của mình tại đây, hoặc khôi phục "
+"bản sao lưu hiện có."
 
 msgid "Backuping allows you to download a JSON file containing all your categories and archive IDs, and their matching metadata."
 msgstr ""
+"Sao lưu cho phép bạn tải xuống file JSON chứa tất cả các danh mục và ID "
+"truyện của bạn cùng metadata phù hợp."
 
 msgid "Restoring from a backup will restore this metadata, <b>for IDs which already exist in your database.</b>"
 msgstr ""
+"Khôi phục từ bản sao lưu sẽ khôi phục metadata này, <b>đối với các ID đã tồn "
+"tại trong cơ sở dữ liệu của bạn.</b>"
 
 msgid "(Categories will always be restored)"
-msgstr ""
+msgstr "(Các danh mục sẽ luôn được khôi phục)"
 
 msgid "Backup Database"
-msgstr ""
+msgstr "Sao lưu cơ sở dữ liệu"
 
 msgid "Restore Backup"
-msgstr ""
+msgstr "Khôi phục bản sao lưu"
 
 msgid "Restoring your backup ..."
-msgstr ""
+msgstr "Đang khôi phục bản sao lưu của bạn ..."
 
 msgid "Return to Library"
 msgstr ""
@@ -48,43 +55,46 @@ msgid "Batch Operations"
 msgstr ""
 
 msgid "You can apply modifications to multiple archives in one go here."
-msgstr ""
+msgstr "Bạn có thể sửa nhiều truyền cùng lúc tại đây."
 
 msgid "Select what you'd like to do, check archives you want to use it on, and get rolling!"
 msgstr ""
 
 msgid "Archives with no tags have been pre-checked."
-msgstr ""
+msgstr "Các truyện không có thẻ đã được kiểm tra trước."
 
 msgid "Task :"
-msgstr ""
+msgstr "Tác vụ :"
 
 msgid "Use Plugin"
-msgstr ""
+msgstr "Dùng Plugin"
 
 msgid "Remove New Flag"
-msgstr ""
+msgstr "Xoá Cờ Mới"
 
 msgid "Apply Tag Rules"
-msgstr ""
+msgstr "Áp dụng quy tắc thẻ"
 
 msgid "Add To Category"
-msgstr ""
+msgstr "Thêm vào danh mục"
 
 msgid "Delete Archive"
 msgstr ""
 
 msgid "Use plugin :"
-msgstr ""
+msgstr "Dùng plugin :"
 
 msgid "Timeout (max 20s):"
-msgstr ""
+msgstr "Thời gian chờ (tối đa 20 giây):"
 
 msgid "This plugin recommends a cooldown of <span id=\"cooldown\">-1</span> seconds."
 msgstr ""
+"Plugin này đề xuất thời gian chờ là <span id=\"cooldown\">-1</span> giây."
 
 msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
 msgstr ""
+"Một số dịch vụ bên ngoài có thể tạm thời cấm máy của bạn vì tải quá mức nếu "
+"bạn gọi một plugin quá nhiều lần!"
 
 msgid "Make sure to set a suitable <b>timeout</b> between archives using this picker if the plugin you want to use is concerned."
 msgstr ""
@@ -93,31 +103,33 @@ msgid "Override Plugin Global Arguments"
 msgstr ""
 
 msgid "This will apply the following Tag Rules to the selected Archives."
-msgstr ""
+msgstr "Thao tác này sẽ áp dụng các Quy tắc thẻ sau vào các Truyện đã chọn."
 
 msgid "You can edit your Tag Rules in Server Configuration."
-msgstr ""
+msgstr "Bạn có thể chỉnh sửa Quy tắc Thẻ trong Cấu hình Máy chủ."
 
 msgid "Server Configuration"
-msgstr ""
+msgstr "Cấu hình Máy chủ"
 
 msgid "This removes the \"new\" flag from the selected archives."
-msgstr ""
+msgstr "Thao tác này sẽ xóa cờ \"mới\" khỏi các truyện đã chọn."
 
 msgid "Add to Category :"
-msgstr ""
+msgstr "Thêm vào Danh mục:"
 
 msgid "This will delete both metadata and matching files from your system! Please use with caution."
 msgstr ""
+"Thao tác này sẽ xóa cả metadata và các file trùng khớp khỏi hệ thống của "
+"bạn! Hãy sử dụng thận trọng."
 
 msgid "Check/Uncheck all"
-msgstr ""
+msgstr "Chọn/Bỏ chọn tất cả"
 
 msgid "Start Task"
-msgstr ""
+msgstr "Bắt đầu Tác vụ"
 
 msgid "Cancel"
-msgstr ""
+msgstr "Huỷ"
 
 msgid "Start another job"
 msgstr ""
@@ -220,7 +232,7 @@ msgid "Plugin Configuration"
 msgstr ""
 
 msgid "Database Backup/Restore"
-msgstr ""
+msgstr "Sao lưu/Khôi phục cơ sở dữ liệu"
 
 msgid "Return to Library"
 msgstr ""
@@ -614,13 +626,13 @@ msgid "Batch Operations"
 msgstr ""
 
 msgid "Settings"
-msgstr ""
+msgstr "Cài đặt"
 
 msgid "Modify Categories"
-msgstr ""
+msgstr "Sửa đổi Danh mục"
 
 msgid "Statistics"
-msgstr ""
+msgstr "Thống kê"
 
 msgid "Logs"
 msgstr ""
@@ -883,7 +895,7 @@ msgid "Edit Archive Metadata"
 msgstr ""
 
 msgid "Delete Archive"
-msgstr ""
+msgstr "Xoá truyện"
 
 msgid "Categories"
 msgstr ""
@@ -1127,7 +1139,7 @@ msgid "Add from URL(s)"
 msgstr ""
 
 msgid "Return to Library"
-msgstr ""
+msgstr "Quay lại Thư viện"
 
 # ------End of Upload.html.tt2------
 msgid "Rescan Archive Directory"
