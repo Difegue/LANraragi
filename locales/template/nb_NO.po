@@ -3,41 +3,48 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 18:10+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2025-05-06 15:24+0000\n"
+"Last-Translator: scentedtiger <something95@tutanota.com>\n"
+"Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
+"lanraragi/lanraragi-source/nb_NO/>\n"
 "Language: nb_NO\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Translate Toolkit 3.15.2\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.12-dev\n"
 
 # Sample Data
-
 # ------Start of Backup.html.tt2------
 msgid "Database Backup/Restore"
 msgstr ""
 
 msgid "You can backup your existing database here, or restore an existing backup."
 msgstr ""
+"Du kan sikkerhetskopiere din eksisterende database her, eller gjenopprette "
+"en eksisterende sikkerhetskopi."
 
 msgid "Backuping allows you to download a JSON file containing all your categories and archive IDs, and their matching metadata."
 msgstr ""
+"Sikkerhetskopiering tillater deg å laste ned en JSON fil som inneholder alle "
+"kategoriene og arkiv ID'ene dine, og den matchende metadataen."
 
 msgid "Restoring from a backup will restore this metadata, <b>for IDs which already exist in your database.</b>"
 msgstr ""
+"Gjenopprettning fra en sikkerhetskopi vil gjenopprette denne metadataen, "
+"<b>for ID'er som allerede eksisterer i databasen din.</b>"
 
 msgid "(Categories will always be restored)"
-msgstr ""
+msgstr "(Kategorier vil alltid bli gjenopprettet)"
 
 msgid "Backup Database"
-msgstr ""
+msgstr "Sikkerhetskopier database"
 
 msgid "Restore Backup"
-msgstr ""
+msgstr "Gjenopprett database"
 
 msgid "Restoring your backup ..."
-msgstr ""
+msgstr "Gjenoppretter din database ..."
 
 msgid "Return to Library"
 msgstr ""
@@ -48,67 +55,76 @@ msgid "Batch Operations"
 msgstr ""
 
 msgid "You can apply modifications to multiple archives in one go here."
-msgstr ""
+msgstr "Du kan ta i bruk endringer av flere arkiver på en gang her."
 
 msgid "Select what you'd like to do, check archives you want to use it on, and get rolling!"
 msgstr ""
+"Velg hva du ønsker å gjøre, sjekk arkivene du vil bruke det på, og kjør på!"
 
 msgid "Archives with no tags have been pre-checked."
-msgstr ""
+msgstr "Arkiver uten tagger har blitt forhåndsvalgt."
 
 msgid "Task :"
-msgstr ""
+msgstr "Oppgave :"
 
 msgid "Use Plugin"
-msgstr ""
+msgstr "Bruk programtillegg"
 
 msgid "Remove New Flag"
-msgstr ""
+msgstr "Fjern Nytt Flagg"
 
 msgid "Apply Tag Rules"
-msgstr ""
+msgstr "Bruk taggregler"
 
 msgid "Add To Category"
-msgstr ""
+msgstr "Legg Til i Kategori"
 
 msgid "Delete Archive"
 msgstr ""
 
 msgid "Use plugin :"
-msgstr ""
+msgstr "Bruk programtillegg :"
 
 msgid "Timeout (max 20s):"
-msgstr ""
+msgstr "Tidsavbrudd (maks 20s):"
 
 msgid "This plugin recommends a cooldown of <span id=\"cooldown\">-1</span> seconds."
 msgstr ""
+"Dette programtillegget annbefaler en nedkjølingstid på <span id=\"cooldown\""
+">-1</span> sekunder."
 
 msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
 msgstr ""
+"Noen eksterne tjenester kan midlertidig blokkere maskinen din ved for høy "
+"belastning hvis du bruker et programtillegg for mange ganger!"
 
 msgid "Make sure to set a suitable <b>timeout</b> between archives using this picker if the plugin you want to use is concerned."
 msgstr ""
+"Sørg for å angi et passende <b>tidsavbrudd</b> mellom arkiver når du bruker "
+"denne velgeren, hvis programtillegget du vil bruke er relevant."
 
 msgid "Override Plugin Global Arguments"
-msgstr ""
+msgstr "Overstyr globale argumenter for programtillegg"
 
 msgid "This will apply the following Tag Rules to the selected Archives."
-msgstr ""
+msgstr "Dette vil bruke følgende taggregler på de valgte arkivene."
 
 msgid "You can edit your Tag Rules in Server Configuration."
-msgstr ""
+msgstr "Du kan redigere dine Taggregler i serverkonfigurasjon."
 
 msgid "Server Configuration"
-msgstr ""
+msgstr "Serverkonfigurasjon"
 
 msgid "This removes the \"new\" flag from the selected archives."
-msgstr ""
+msgstr "Dette fjerner \"ny\" flagget fra de valgte arkiver."
 
 msgid "Add to Category :"
-msgstr ""
+msgstr "Legg til i Kategori :"
 
 msgid "This will delete both metadata and matching files from your system! Please use with caution."
 msgstr ""
+"Dette vil slette både metadata og matchende filer fra systemet! Venligst "
+"bruk med forsiktighet."
 
 msgid "Check/Uncheck all"
 msgstr ""
@@ -220,7 +236,7 @@ msgid "Plugin Configuration"
 msgstr ""
 
 msgid "Database Backup/Restore"
-msgstr ""
+msgstr "Sikkerhetskopier/Gjenopprett Database"
 
 msgid "Return to Library"
 msgstr ""
@@ -610,8 +626,9 @@ msgstr ""
 msgid "Add Archives"
 msgstr ""
 
+#, fuzzy
 msgid "Batch Operations"
-msgstr ""
+msgstr "Gjengangsoperasjoner"
 
 msgid "Settings"
 msgstr ""
@@ -889,7 +906,7 @@ msgid "Edit Archive Metadata"
 msgstr ""
 
 msgid "Delete Archive"
-msgstr ""
+msgstr "Slett arkiv"
 
 msgid "Categories"
 msgstr ""
@@ -1133,7 +1150,7 @@ msgid "Add from URL(s)"
 msgstr ""
 
 msgid "Return to Library"
-msgstr ""
+msgstr "Tilbake til Bibliotek"
 
 # ------End of Upload.html.tt2------
 msgid "Rescan Archive Directory"
