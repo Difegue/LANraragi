@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 05:28+0200\n"
-"PO-Revision-Date: 2025-05-05 04:08+0000\n"
+"PO-Revision-Date: 2025-05-05 07:11+0000\n"
 "Last-Translator: Guerra24 <lili@guerra24.net>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/es/>\n"
@@ -80,64 +80,74 @@ msgid "Apply Tag Rules"
 msgstr "Aplicar reglas de etiquetas"
 
 msgid "Add To Category"
-msgstr ""
+msgstr "Agregar a categoría"
 
 msgid "Delete Archive"
 msgstr ""
 
 msgid "Use plugin :"
-msgstr ""
+msgstr "Utilizar complemento:"
 
 msgid "Timeout (max 20s):"
-msgstr ""
+msgstr "Tiempo de espera (máximo 20 segundos):"
 
 msgid "This plugin recommends a cooldown of <span id=\"cooldown\">-1</span> seconds."
 msgstr ""
+"Este complemento recomienda un tiempo de enfriamiento de <span id="
+"\"cooldown\">-1</span> segundos."
 
 msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
 msgstr ""
+"¡Algunos servicios externos pueden bloquear temporalmente tu dispositivo por "
+"carga excesiva si ejecutas un complemento demasiadas veces!"
 
 msgid "Make sure to set a suitable <b>timeout</b> between archives using this picker if the plugin you want to use is concerned."
 msgstr ""
+"Asegúrate de asignar un <b>tiempo de espera</b> entre archivos usando este "
+"selector si el complemento que deseas utilizar presenta este problema."
 
 msgid "Override Plugin Global Arguments"
-msgstr ""
+msgstr "Sobrescribir argumentos globales del complemento"
 
 msgid "This will apply the following Tag Rules to the selected Archives."
 msgstr ""
+"Esto aplicará las siguientes reglas de etiquetas a los archivos "
+"seleccionados."
 
 msgid "You can edit your Tag Rules in Server Configuration."
-msgstr ""
+msgstr "Puedes editar las reglas de etiquetas en la configuración del servidor."
 
 msgid "Server Configuration"
-msgstr ""
+msgstr "Configuración del servidor"
 
 msgid "This removes the \"new\" flag from the selected archives."
 msgstr ""
 
 msgid "Add to Category :"
-msgstr ""
+msgstr "Agregar a categoría:"
 
 msgid "This will delete both metadata and matching files from your system! Please use with caution."
 msgstr ""
+"¡Esto eliminará los metadatos y los archivos correspondientes de tu sistema! "
+"Por favor utilízalo con cuidado."
 
 msgid "Check/Uncheck all"
-msgstr ""
+msgstr "Marcar/Desmarcar todo"
 
 msgid "Start Task"
-msgstr ""
+msgstr "Iniciar tarea"
 
 msgid "Cancel"
-msgstr ""
+msgstr "Cancelar"
 
 msgid "Start another job"
 msgstr ""
 
 msgid "Processed <span id=\"arcs\"></span> out of <span id=\"totalarcs\"></span>"
-msgstr ""
+msgstr "Procesados <span id=\"arcs\"></span> de <span id=\"totalarcs\"></span>"
 
 msgid "Preparing your data."
-msgstr ""
+msgstr "Preparando tus datos."
 
 msgid "Plugin Configuration"
 msgstr ""
@@ -152,42 +162,52 @@ msgstr ""
 
 msgid "Categories appear at the top of your window when browsing the Library."
 msgstr ""
+"Las categorías aparecen en la parte superior de la ventana cuando navegas la "
+"biblioteca."
 
 msgid "There are two distinct kinds:"
-msgstr ""
+msgstr "Existen dos tipos distintos:"
 
 msgid "Static Categories are arbitrary collections of Archives, where you can add as many items as you want."
 msgstr ""
+"Categorías estáticas son un grupo de archivos donde puedes agregar tantos "
+"elementos como quieras."
 
 msgid "Dynamic Categories contain all archives matching a given predicate, and automatically update alongside your library."
 msgstr ""
+"Categorías dinámicas contienen todos los archivos que coinciden con un texto "
+"de búsqueda y se actualizan automáticamente."
 
 msgid "You can create new categories here or edit existing ones."
-msgstr ""
+msgstr "Acá puedes crear nuevas categorías o modificar alguna existente."
 
 msgid "Select a category in the combobox below to edit its name, the archives it contains, or its predicate."
 msgstr ""
+"Selecciona una categoría para modificar su nombre, archivos que contiene o "
+"su texto de búsqueda."
 
 msgid "All your modifications are saved automatically."
-msgstr ""
+msgstr "Todas las modificaciones se guardan automáticamente."
 
 msgid "Category:"
-msgstr ""
+msgstr "Categoría:"
 
 msgid "Name:"
-msgstr ""
+msgstr "Nombre:"
 
 msgid "Predicate:"
-msgstr ""
+msgstr "Texto de búsqueda:"
 
 msgid "Pin this Category"
-msgstr ""
+msgstr "Anclar esta categoría"
 
 msgid "Delete Category"
-msgstr ""
+msgstr "Eliminar categoría"
 
 msgid "If you select a Static Category, your archives will appear here so you can add/remove them from the category."
 msgstr ""
+"Si seleccionas una categoría estática, tus archivos aparecerán acá para que "
+"puedas agregar o eliminarlos de la categoría."
 
 msgid "Return to Library"
 msgstr ""
@@ -205,27 +225,27 @@ msgid "Error getting bookmark category:"
 msgstr ""
 
 msgid "New Static Category"
-msgstr ""
+msgstr "Nueva categoría estática"
 
 msgid "New Dynamic Category"
-msgstr ""
+msgstr "Nueva categoría dinámica"
 
 # ------End of Category.html.tt2------
 # ------Start of Config.html.tt2------
 msgid "Admin Settings"
-msgstr ""
+msgstr "Configuración de administrador"
 
 msgid "LANraragi"
 msgstr ""
 
 msgid "Version %1 %2"
-msgstr ""
+msgstr "Versión %1 - %2"
 
 msgid "Select a category to show the matching settings."
 msgstr ""
 
 msgid "Save Settings"
-msgstr ""
+msgstr "Guardar configuración"
 
 msgid "Plugin Configuration"
 msgstr ""
@@ -237,39 +257,43 @@ msgid "Return to Library"
 msgstr ""
 
 msgid "Global Settings"
-msgstr ""
+msgstr "Configuración global"
 
 msgid "Theme"
-msgstr ""
+msgstr "Tema"
 
 msgid "Security"
-msgstr ""
+msgstr "Seguridad"
 
 msgid "Archive Files"
-msgstr ""
+msgstr "Archivos"
 
 msgid "Tags and Thumbnails"
-msgstr ""
+msgstr "Etiquetas y miniaturas"
 
 msgid "Background Workers"
-msgstr ""
+msgstr "Trabajadores de fondo"
 
 # ------End of Config.html.tt2------
 # ------Start of Config_Files.html.tt2------
 msgid "Archive Directory"
-msgstr ""
+msgstr "Carpeta de archivos"
 
 msgid "Directory where the archives will be located. It will be created if it doesn't exist."
-msgstr ""
+msgstr "Carpeta donde se almacenaran los archivos. Se creará si no existe."
 
 msgid "Make sure the OS user running LANraragi has read access to this directory."
 msgstr ""
+"Asegúrate que el usuario del sistema operativo que ejecuta LANraragi tiene "
+"acceso de lectura a esta carpeta."
 
 msgid "Synology eCryptFS Compatibility Mode"
 msgstr ""
 
 msgid "If enabled, LANraragi will cutoff archive filenames to 143 bytes, which is the max accepted by eCryptFS."
 msgstr ""
+"Si se habilita, LANraragi limitará los nombres de archivos a 143 bytes, que "
+"es el máximo soportado por eCryptFS."
 
 msgid "Rescan Archive Directory"
 msgstr ""
@@ -278,22 +302,25 @@ msgid "Click this button to trigger a rescan of the Archive Directory in case yo
 msgstr ""
 
 msgid "Maximum <br>Cache Size"
-msgstr ""
+msgstr "Tamaño máximo<br>de la caché"
 
 msgid "In MBs. The cache contains recently viewed pages, for faster subsequent reading."
 msgstr ""
+"En MBs. La caché almacena las páginas recientemente vistas para una lectura "
+"más rápida."
 
 msgid "It is automatically emptied when it grows past this specified size."
 msgstr ""
+"Se vacía automáticamente cuando es más grande que el tamaño especificado."
 
 msgid "Clear Cache"
-msgstr ""
+msgstr "Vaciar caché"
 
 msgid "Current Size:"
-msgstr ""
+msgstr "Tamaño actual:"
 
 msgid "Clear the cache manually by clicking this button."
-msgstr ""
+msgstr "Vacía la caché manualmente utilizando este botón."
 
 msgid "Reset Search Cache"
 msgstr ""
@@ -811,7 +838,7 @@ msgstr ""
 # ------End of Logs.html.tt2------
 # ------Start of Plugins.html.tt2------
 msgid "Plugin Configuration"
-msgstr ""
+msgstr "Configuración de complementos"
 
 msgid "Enable/Disable Auto-Plugin on metadata plugins by checking the toggles."
 msgstr ""
@@ -900,10 +927,10 @@ msgid "Edit Archive Metadata"
 msgstr ""
 
 msgid "Delete Archive"
-msgstr ""
+msgstr "Eliminar archivo"
 
 msgid "Categories"
-msgstr ""
+msgstr "Categorías"
 
 msgid "Add to : "
 msgstr ""
@@ -1148,10 +1175,13 @@ msgstr "Regresar a la biblioteca"
 
 # ------End of Upload.html.tt2------
 msgid "Rescan Archive Directory"
-msgstr ""
+msgstr "Escanear carpeta de archivos"
 
 msgid "Click this button to trigger a rescan of the Archive Directory in case you're missing files, or some data such as total page counts."
 msgstr ""
+"Utiliza este botón para ejecutar un escaneo de la carpeta de archivos en "
+"caso haya alguno faltante <br>o alguna información como el total de páginas. "
+"<br>"
 
 # ------Stary of i18n.html.tt2------
 msgid "Backup restored!"
