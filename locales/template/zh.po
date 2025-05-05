@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-04 20:25+0200\n"
-"PO-Revision-Date: 2025-05-05 07:11+0000\n"
+"PO-Revision-Date: 2025-05-05 16:10+0000\n"
 "Last-Translator: gustaavv <gustaavv.git@yahoo.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
 "projects/lanraragi/lanraragi-source/zh_Hans/>\n"
@@ -71,7 +71,7 @@ msgid "Apply Tag Rules"
 msgstr "应用标签规则"
 
 msgid "Add To Category"
-msgstr "添加到类别"
+msgstr "添加到分类"
 
 msgid "Delete Archive"
 msgstr "删除档案"
@@ -107,7 +107,7 @@ msgid "This removes the \"new\" flag from the selected archives."
 msgstr "这将移除选定档案的“新”标记。"
 
 msgid "Add to Category :"
-msgstr "添加到类别："
+msgstr "添加到分类："
 
 msgid "This will delete both metadata and matching files from your system! Please use with caution."
 msgstr "这将从您的系统中删除元数据和匹配的文件！请谨慎使用。"
@@ -207,7 +207,7 @@ msgid "Version %1 %2"
 msgstr "版本 %1 %2"
 
 msgid "Select a category to show the matching settings."
-msgstr "选择一个类别以显示匹配的设置。"
+msgstr "选择一个分类以显示匹配的设置。"
 
 msgid "Save Settings"
 msgstr "保存设置"
@@ -714,7 +714,7 @@ msgid "Add Rating"
 msgstr "添加评分"
 
 msgid "Add to Category"
-msgstr "添加到类别"
+msgstr "添加到分类"
 
 msgid "New Version Release Notes"
 msgstr "新版本发布说明"
@@ -1092,10 +1092,10 @@ msgid "Add files to your LANraragi instance from your computer, or the Internet 
 msgstr "从您的计算机或直接从互联网将文件添加到您的LANraragi。"
 
 msgid "Add uploaded files to category:"
-msgstr "将上传的文件添加到类别："
+msgstr "将上传的文件添加到分类："
 
 msgid " -- No Category -- "
-msgstr " -- 无类别 -- "
+msgstr " -- 无分类 -- "
 
 msgid "From your computer"
 msgstr "从您的计算机"
@@ -1303,13 +1303,13 @@ msgid "Archive title changed to"
 msgstr "档案标题更改为"
 
 msgid "Archive summary updated!"
-msgstr ""
+msgstr "档案摘要已更新！"
 
 msgid "Added the following tags"
-msgstr ""
+msgstr "添加了如下标签"
 
 msgid "No new tags added!"
-msgstr ""
+msgstr "未添加新标签！"
 
 # Do not translate _START_, _END_ or _TOTAL_.
 msgid "Showing _START_ to _END_ of _TOTAL_ ancient chinese lithographies."
@@ -1337,7 +1337,7 @@ msgid "Enter a tag namespace for this column"
 msgstr "为此栏输入标签命名空间"
 
 msgid "Enter a full namespace without the colon, e.g \"artist\"."
-msgstr ""
+msgstr "请输入完整的命名空间（不带冒号），例如“artist”。"
 
 msgid "If you have multiple tags with the same namespace, only the last one will be shown in the column."
 msgstr "如果同一命名空间有多个标签，此栏只会显示最后一个标签。"
@@ -1376,19 +1376,19 @@ msgid "Header"
 msgstr "头"
 
 msgid "A new version of LANraragi (\${version}) is available!"
-msgstr ""
+msgstr "LANraragi 有新版本可用（${version}）！"
 
 msgid "Click here to check it out."
-msgstr ""
+msgstr "点击此处查看。"
 
 msgid "Error getting changelog for new version"
-msgstr ""
+msgstr "获取新版本的变更日志时出错"
 
 msgid "Couldn't load data for \${id}!"
 msgstr "无法加载 ${id} 的数据！"
 
 msgid "This archive isn't in any category."
-msgstr ""
+msgstr "此档案未分类。"
 
 msgid "No Categories yet..."
 msgstr "还没有分类..."
@@ -1397,25 +1397,25 @@ msgid "Remove rating"
 msgstr "移除评分"
 
 msgid "Click here to display new archives only."
-msgstr ""
+msgstr "点击此处仅显示新档案。"
 
 msgid "Click here to display untagged archives only."
-msgstr ""
+msgstr "点击此处仅显示无标签档案。"
 
 msgid "Click here to display archives in this category only."
-msgstr ""
+msgstr "点击此处仅显示此分类中的档案。"
 
 msgid "Your Reading Progression is now saved on the server!"
-msgstr ""
+msgstr "您的阅读进度已经保存到服务器！"
 
 msgid "You seem to have some local progression hanging around -- Please wait warmly while we migrate it to the server for you."
 msgstr ""
 
 msgid "Error while migrating local progression to server"
-msgstr ""
+msgstr "迁移本地进度到服务器时出错"
 
 msgid "Reading Progression has been fully migrated"
-msgstr ""
+msgstr "阅读进度已经完全迁移"
 
 msgid "You'll have to reopen archives in the Reader to see the migrated progression values."
 msgstr ""
@@ -1424,13 +1424,13 @@ msgid "Plugin uploaded successfully!"
 msgstr "成功上传插件！"
 
 msgid "The plugin \${name} has been successfully added. Refresh the page to see it."
-msgstr ""
+msgstr "已成功添加插件 ${name} ，请刷新页面查看。"
 
 msgid "Error uploading plugin"
 msgstr "上传插件时出错"
 
 msgid "Successfully set page \${page} as the thumbnail!"
-msgstr ""
+msgstr "成功将页面 ${page} 设为缩略图！"
 
 msgid "Error updating thumbnail"
 msgstr "更新缩略图时出错"
@@ -1439,7 +1439,7 @@ msgid "Error clearing new flag"
 msgstr "清除新标记时出错"
 
 msgid "Error getting the archive's imagelist."
-msgstr ""
+msgstr "获取档案的图片列表时出错。"
 
 msgid "This archive seems to be in RAR format!"
 msgstr "此档案似乎是 RAR 格式！"
@@ -1448,7 +1448,7 @@ msgid "RAR archives might not work properly in LANraragi depending on how they w
 msgstr ""
 
 msgid "EPUB support in LANraragi is minimal"
-msgstr ""
+msgstr "LANraragi 对 EPUB 的支持非常有限"
 
 msgid "EPUB books will only show images in the Web Reader, and potentially out of order. If you want text support, consider pairing LANraragi with an OPDS reader."
 msgstr ""
@@ -1457,7 +1457,7 @@ msgid "Navigation Help"
 msgstr "Navigation Help"
 
 msgid "Error updating reading progression"
-msgstr ""
+msgstr "更新阅读进度时出错"
 
 msgid "Page \${page}"
 msgstr "Page ${page}"
@@ -1478,7 +1478,7 @@ msgid "Script result"
 msgstr "脚本运行结果"
 
 msgid "Script failed with error: \${error}"
-msgstr ""
+msgstr "脚本运行失败，错误信息：${error}"
 
 msgid "Temporary folder cleaned!"
 msgstr "临时文件夹已清理！"
@@ -1487,25 +1487,25 @@ msgid "Error cleaning temporary folder"
 msgstr "清理临时文件夹时出错"
 
 msgid "Threw away the cache!"
-msgstr ""
+msgstr "缓存已清空！"
 
 msgid "Error clearing the cache"
 msgstr "清除缓存时出错"
 
 msgid "Threw away the search cache!"
-msgstr ""
+msgstr "搜索缓存已清空！"
 
 msgid "All archives are no longer new!"
 msgstr ""
 
 msgid "Error during cleanup procedure"
-msgstr ""
+msgstr "清理过程中出错"
 
 msgid "Are you sure you want to wipe the database?"
-msgstr ""
+msgstr "您确定要清空数据库吗？"
 
 msgid "Sayonara! Redirecting you..."
-msgstr ""
+msgstr "再见！正在为您跳转..."
 
 msgid "Successfully cleaned the database and removed \${entries} entries."
 msgstr ""
@@ -1520,22 +1520,22 @@ msgid "Queued up a job to regenerate thumbnails! Stay tuned for updates or check
 msgstr ""
 
 msgid "All thumbnails generated! Errors will be listed below if there were any."
-msgstr ""
+msgstr "所有缩略图已生成！如果有错误的话会在下面列出。"
 
 msgid "Added \${id} to category \${cat}!"
-msgstr ""
+msgstr "${id} 已添加到分类 ${cat}！"
 
 msgid "Removed \${id} from category \${cat}!"
-msgstr ""
+msgstr "${id} 已移出分类 ${cat}！"
 
 msgid "Couldn't delete archive file. <br/> (Maybe it has already been deleted beforehand?)"
-msgstr ""
+msgstr "无法删除档案文件。<br/>（可能它之前已被删除？）"
 
 msgid "Archive metadata has been deleted properly. <br> Please delete the file manually before returning to the archive index."
 msgstr ""
 
 msgid "Archive successfully deleted. Redirecting you..."
-msgstr ""
+msgstr "档案已成功删除，正在为您跳转..."
 
 msgid "Error while deleting archive"
 msgstr "删除档案时出错"
@@ -1573,7 +1573,7 @@ msgstr "给 Minion 发送任务时出错"
 # ------End of i18n.html.tt2------
 # ------Start of Duplicates.html.tt2------
 msgid "Duplicate Detection"
-msgstr ""
+msgstr "重复档案检测"
 
 msgid "This page allows you to search for potential duplicates in your library."
 msgstr ""
@@ -1585,7 +1585,7 @@ msgid "After which, you can select which archives to delete, and then delete the
 msgstr ""
 
 msgid "Found %1 duplicate group(s)."
-msgstr ""
+msgstr "已找到 %1 组重复档案。"
 
 msgid "You can use the rules dropdown below to pre-select archives for deletion."
 msgstr ""
@@ -1612,10 +1612,10 @@ msgid "Keep the oldest file"
 msgstr "保留最久的文件"
 
 msgid "Start searching for duplicates"
-msgstr ""
+msgstr "开始搜索重复档案"
 
 msgid "Search for duplicates again"
-msgstr ""
+msgstr "重新搜索重复档案"
 
 msgid "Delete all selected items"
 msgstr ""
@@ -1630,7 +1630,7 @@ msgid "Action"
 msgstr "Action"
 
 msgid "Searching for duplicates..."
-msgstr ""
+msgstr "正在搜索重复档案..."
 
 # ------End of Duplicates.html.tt2------
 msgid "New Static Category"
