@@ -4,7 +4,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-04 20:25+0200\n"
 "PO-Revision-Date: 2025-05-05 03:28+0000\n"
-"Last-Translator: Ftbom <lz490070@gmail.com>\n"
+"Last-Translator: gustaavv <gustaavv.git@yahoo.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
 "projects/lanraragi/lanraragi-source/zh_Hans/>\n"
 "Language: zh\n"
@@ -1147,7 +1147,7 @@ msgid "An error occured while restoring the backup.<br/> Please check the server
 msgstr ""
 
 msgid "Couldn't load the complete archive list! Please reload the page."
-msgstr ""
+msgstr "无法加载完整档案列表！请刷新页面。"
 
 msgid "Couldn't load the tag statistics! Please reload the page."
 msgstr "无法加载标签统计！请刷新页面。"
@@ -1246,22 +1246,22 @@ msgid "Please enter a category name."
 msgstr "请输入分类名称"
 
 msgid "No category"
-msgstr ""
+msgstr "没有分类"
 
 msgid "Error getting categories from server"
-msgstr ""
+msgstr "从服务器获取分类时出错"
 
 msgid "Error modifying category"
-msgstr ""
+msgstr "修改分类时出错"
 
 msgid "The category will be deleted permanently."
-msgstr ""
+msgstr "该分类将会被永久删除。"
 
 msgid "Category deleted!"
-msgstr ""
+msgstr "分类已删除！"
 
 msgid "Error deleting category"
-msgstr ""
+msgstr "删除分类时出错"
 
 msgid "Writing a Predicate"
 msgstr ""
@@ -1282,7 +1282,7 @@ msgid "Error starting content folder rescan:"
 msgstr ""
 
 msgid "Error while querying Shinobu status:"
-msgstr ""
+msgstr "查询 Shinobu 状态时出错："
 
 msgid "About Plugins"
 msgstr ""
@@ -1291,13 +1291,13 @@ msgid "You can use plugins to automatically fetch metadata for this archive. <br
 msgstr ""
 
 msgid "Metadata saved!"
-msgstr ""
+msgstr "元数据已保存！"
 
 msgid "Error saving archive metadata"
-msgstr ""
+msgstr "保存档案元数据时出错"
 
 msgid "Error while fetching tags"
-msgstr ""
+msgstr "获取标签时出错"
 
 msgid "Archive title changed to"
 msgstr ""
@@ -1319,13 +1319,13 @@ msgid "No archives to show you! Try <a href=\"\${url}\")>uploading some</a>?"
 msgstr ""
 
 msgid "Welcome to LANraragi \${version}!"
-msgstr ""
+msgstr "欢迎来到 LANraragi ${version}！"
 
 msgid "If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!"
 msgstr ""
 
 msgid "Error getting basic server info."
-msgstr ""
+msgstr "获取服务器基本信息时出错。"
 
 msgid "You're running in Debug Mode!"
 msgstr ""
@@ -1349,7 +1349,7 @@ msgid "Please enter a tag namespace."
 msgstr ""
 
 msgid "Randomly Picked"
-msgstr "随即精选"
+msgstr "随机精选"
 
 msgid "New Archives"
 msgstr "新文档"
@@ -1559,7 +1559,7 @@ msgid "Total"
 msgstr "Total"
 
 msgid "Click here to edit metadata."
-msgstr ""
+msgstr "点击这里编辑元数据。"
 
 msgid "Error while processing file."
 msgstr ""
