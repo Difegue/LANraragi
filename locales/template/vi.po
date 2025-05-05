@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 03:32+0200\n"
-"PO-Revision-Date: 2025-05-05 03:28+0000\n"
+"PO-Revision-Date: 2025-05-05 04:08+0000\n"
 "Last-Translator: Vinh Phạm <drkhanhvinh@gmail.com>\n"
 "Language-Team: Vietnamese <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/vi/>\n"
@@ -136,9 +136,11 @@ msgstr ""
 
 msgid "Processed <span id=\"arcs\"></span> out of <span id=\"totalarcs\"></span>"
 msgstr ""
+"Đã hoàn tất <span id=\"arcs\"></span>trên tổng số <span id=\"totalarcs\""
+"></span>"
 
 msgid "Preparing your data."
-msgstr ""
+msgstr "Đang chuẩn bị dữ liệu của bạn."
 
 msgid "Plugin Configuration"
 msgstr ""
@@ -152,55 +154,61 @@ msgid "Categories"
 msgstr ""
 
 msgid "Categories appear at the top of your window when browsing the Library."
-msgstr ""
+msgstr "Các danh mục sẽ hiển thị ở đầu cửa sổ khi bạn duyệt Thư viện."
 
 msgid "There are two distinct kinds:"
-msgstr ""
+msgstr "Có hai loại riêng biệt:"
 
 msgid "Static Categories are arbitrary collections of Archives, where you can add as many items as you want."
 msgstr ""
+"Danh mục Tĩnh là các bộ sưu tập tùy ý của các Truyện, nơi bạn có thể thêm "
+"bao nhiêu mục tùy thích."
 
 msgid "Dynamic Categories contain all archives matching a given predicate, and automatically update alongside your library."
 msgstr ""
+"Danh mục động chứa tất cả Truyện khớp với điều kiện đã đặt và sẽ tự động cập "
+"nhật cùng với Thư viện."
 
 msgid "You can create new categories here or edit existing ones."
-msgstr ""
+msgstr "Bạn có thể tạo danh mục mới tại đây hoặc chỉnh sửa danh mục hiện có."
 
 msgid "Select a category in the combobox below to edit its name, the archives it contains, or its predicate."
 msgstr ""
 
 msgid "All your modifications are saved automatically."
-msgstr ""
+msgstr "Mọi sửa đổi của bạn sẽ được lưu tự động."
 
 msgid "Category:"
-msgstr ""
+msgstr "Danh mục:"
 
 msgid "Name:"
-msgstr ""
+msgstr "Tên:"
 
 msgid "Predicate:"
 msgstr ""
 
 msgid "Pin this Category"
-msgstr ""
+msgstr "Ghim Danh mục này"
 
 msgid "Delete Category"
-msgstr ""
+msgstr "Xoá Danh mục"
 
 msgid "If you select a Static Category, your archives will appear here so you can add/remove them from the category."
 msgstr ""
+"Nếu bạn chọn Danh mục Tĩnh, truyện của bạn sẽ xuất hiện ở đây để bạn có thể "
+"thêm/xóa chúng khỏi danh mục."
 
 msgid "Return to Library"
 msgstr ""
 
 msgid "Store Bookmarks in this Category"
-msgstr ""
+msgstr "Lưu Dấu trang trong Danh mục này"
 
 msgid "Error linking bookmark button:"
-msgstr ""
+msgstr "Lỗi khi liên kết nút đánh dấu:"
 
 msgid "Error unlinking bookmark button:"
-msgstr ""
+msgstr "Lỗi khi hủy liên kết nút đánh dấu:"
 
 msgid "Error getting bookmark category:"
 msgstr ""
@@ -217,7 +225,7 @@ msgid "Admin Settings"
 msgstr ""
 
 msgid "LANraragi"
-msgstr ""
+msgstr "LANraragi"
 
 msgid "Version %1 %2"
 msgstr ""
@@ -406,7 +414,7 @@ msgid "If enabled, everything that isn't reading will require a password."
 msgstr ""
 
 msgid "New Password"
-msgstr ""
+msgstr "Mật khẩu Mới"
 
 msgid "New Password Confirmation"
 msgstr ""
@@ -456,7 +464,7 @@ msgid "The Shinobu File Watcher is currently"
 msgstr ""
 
 msgid "OK!"
-msgstr ""
+msgstr "OK!"
 
 msgid "Kaput!"
 msgstr ""
@@ -495,6 +503,8 @@ msgstr ""
 
 msgid "LANraragi generates lower-quality thumbnails for archive pages for performance reasons."
 msgstr ""
+"LANraragi tạo hình thu nhỏ chất lượng thấp hơn cho các trang truyện để cải "
+"thiện hiệu suất."
 
 msgid "If this option is checked, it will instead generate page thumbnails at the same quality as cover thumbnails."
 msgstr ""
@@ -504,6 +514,8 @@ msgstr ""
 
 msgid "LANraragi generates JPEG thumbnails for compatibility and performance reasons."
 msgstr ""
+"LANraragi tạo hình thu nhỏ định dạng JPEG để tăng tính tương thích và cải "
+"thiện hiệu suất."
 
 msgid "If this option is checked, it will instead generate thumbnails using JPEG XL."
 msgstr ""
@@ -635,10 +647,10 @@ msgid "Statistics"
 msgstr "Thống kê"
 
 msgid "Logs"
-msgstr ""
+msgstr "Logs"
 
 msgid "Admin Login"
-msgstr ""
+msgstr "Đăng nhập Admin"
 
 msgid "Search Title, Artist, Series, Language or Tags"
 msgstr ""
@@ -745,7 +757,7 @@ msgid "Admin Password:"
 msgstr ""
 
 msgid "Login"
-msgstr ""
+msgstr "Đăng nhập"
 
 msgid "Wrong Password."
 msgstr ""
@@ -789,7 +801,7 @@ msgid "Refresh"
 msgstr ""
 
 msgid "Lines:"
-msgstr ""
+msgstr "Dòng: "
 
 msgid "View LANraragi Logs"
 msgstr ""
@@ -898,7 +910,7 @@ msgid "Delete Archive"
 msgstr "Xoá truyện"
 
 msgid "Categories"
-msgstr ""
+msgstr "Danh mục"
 
 msgid "Add to : "
 msgstr ""
@@ -997,10 +1009,10 @@ msgid "Reading Direction"
 msgstr ""
 
 msgid "Left to Right"
-msgstr ""
+msgstr "Trái sang Phải"
 
 msgid "Right to Left"
-msgstr ""
+msgstr "Phải sang Trái"
 
 msgid "How many images to preload"
 msgstr ""
@@ -1062,7 +1074,7 @@ msgstr ""
 # ------End of Reader.html.tt2------
 # ------Start of Stats.html.tt2------
 msgid "Library Statistics"
-msgstr ""
+msgstr "Thống kê Thư viện"
 
 msgid "Archives on record"
 msgstr ""
@@ -1300,7 +1312,7 @@ msgid "You can use plugins to automatically fetch metadata for this archive. <br
 msgstr ""
 
 msgid "Metadata saved!"
-msgstr ""
+msgstr "Đã lưu Metadata!"
 
 msgid "Error saving archive metadata"
 msgstr ""
@@ -1609,22 +1621,22 @@ msgid "For every duplicate group..."
 msgstr ""
 
 msgid "Keep all files"
-msgstr ""
+msgstr "Giữ toàn bộ file"
 
 msgid "Keep the file with the most tags"
-msgstr ""
+msgstr "Giữ file có nhiều thẻ nhất"
 
 msgid "Keep the file with the most pages"
-msgstr ""
+msgstr "Giữ file có nhiều trang nhất"
 
 msgid "Keep the largest file"
-msgstr ""
+msgstr "Giữ file lớn nhất"
 
 msgid "Keep the youngest file"
-msgstr ""
+msgstr "Giữ file mới nhất"
 
 msgid "Keep the oldest file"
-msgstr ""
+msgstr "Giữ file cũ nhất"
 
 msgid "Start searching for duplicates"
 msgstr ""
