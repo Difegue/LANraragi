@@ -868,6 +868,12 @@ msgstr "This plugin depends on the login plugin"
 msgid "Trigger Script"
 msgstr "Trigger Script"
 
+msgid "Run Automatically"
+msgstr "Run Automatically" 
+
+msgid "Plugin Settings"
+msgstr "Plugin Settings"
+
 # ------End of Plugins.html.tt2------
 
 # ------Start of Reader.html.tt2------
