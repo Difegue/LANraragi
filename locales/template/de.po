@@ -3,41 +3,50 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 03:27+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2025-05-05 16:10+0000\n"
+"Last-Translator: Saetron <github@login.saetron.eu>\n"
+"Language-Team: German <https://hosted.weblate.org/projects/lanraragi/"
+"lanraragi-source/de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Translate Toolkit 3.15.2\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.12-dev\n"
 
 # Sample Data
-
 # ------Start of Backup.html.tt2------
 msgid "Database Backup/Restore"
 msgstr ""
 
 msgid "You can backup your existing database here, or restore an existing backup."
 msgstr ""
+"Du kannst hier deine bestehende Datenbank sichern oder eine bestehende "
+"Sicherung wiederherstellen."
 
 msgid "Backuping allows you to download a JSON file containing all your categories and archive IDs, and their matching metadata."
 msgstr ""
+"Beim Sichern kannst du eine JSON-Datei herunterladen, die alle deine "
+"Kategorien und Archiv-IDs sowie die dazugehörigen Metadaten enthält."
 
 msgid "Restoring from a backup will restore this metadata, <b>for IDs which already exist in your database.</b>"
 msgstr ""
+"Bei der Wiederherstellung von einem Backup werden diese Metadaten "
+"wiederhergestellt, <b>für IDs, die bereits in deiner Datenbank "
+"existieren.</b>"
 
 msgid "(Categories will always be restored)"
-msgstr ""
+msgstr "(Kategorien werden immer wiederhergestellt)"
 
 msgid "Backup Database"
-msgstr ""
+msgstr "Datenbank sichern"
 
 msgid "Restore Backup"
-msgstr ""
+msgstr "Sicherung wiederherstellen"
 
+#, fuzzy
 msgid "Restoring your backup ..."
-msgstr ""
+msgstr "Wiederherstellung der Sicherung ..."
 
 msgid "Return to Library"
 msgstr ""
@@ -220,7 +229,7 @@ msgid "Plugin Configuration"
 msgstr ""
 
 msgid "Database Backup/Restore"
-msgstr ""
+msgstr "Datenbank-Sicherung/Wiederherstellung"
 
 msgid "Return to Library"
 msgstr ""
@@ -1127,7 +1136,7 @@ msgid "Add from URL(s)"
 msgstr ""
 
 msgid "Return to Library"
-msgstr ""
+msgstr "Zurück zur Bibliothek"
 
 # ------End of Upload.html.tt2------
 msgid "Rescan Archive Directory"
