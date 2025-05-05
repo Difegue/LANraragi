@@ -4,7 +4,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-04 20:25+0200\n"
 "PO-Revision-Date: 2025-05-05 04:07+0000\n"
-"Last-Translator: Ftbom <lz490070@gmail.com>\n"
+"Last-Translator: gustaavv <gustaavv.git@yahoo.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
 "projects/lanraragi/lanraragi-source/zh_Hans/>\n"
 "Language: zh\n"
@@ -1328,7 +1328,7 @@ msgid "Error getting basic server info."
 msgstr "获取服务器基本信息时出错。"
 
 msgid "You're running in Debug Mode!"
-msgstr ""
+msgstr "您正在调试模式中运行！"
 
 msgid "Advanced server statistics can be viewed <a href=\"\${url}\")>here</a>."
 msgstr ""
@@ -1466,16 +1466,16 @@ msgid "The page thumbnailing job didn't conclude properly. Your archive might be
 msgstr ""
 
 msgid "A script is already running."
-msgstr ""
+msgstr "一个脚本已经在运行了。"
 
 msgid "Please wait for it to finish before starting a new one."
 msgstr ""
 
 msgid "An error occured while running the script"
-msgstr ""
+msgstr "运行脚本时出错"
 
 msgid "Script result"
-msgstr ""
+msgstr "脚本运行结果"
 
 msgid "Script failed with error: \${error}"
 msgstr ""
