@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-04 20:25+0200\n"
-"PO-Revision-Date: 2025-05-05 04:07+0000\n"
+"PO-Revision-Date: 2025-05-05 07:11+0000\n"
 "Last-Translator: gustaavv <gustaavv.git@yahoo.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
 "projects/lanraragi/lanraragi-source/zh_Hans/>\n"
@@ -720,7 +720,7 @@ msgid "New Version Release Notes"
 msgstr "新版本发布说明"
 
 msgid "You\'re using the default password and that\'s super baka of you"
-msgstr "你这个超级大笨蛋竟然在用默认密码。"
+msgstr "你这个超级大笨蛋竟然在用默认密码"
 
 msgid "Login with password \"kamimamita\" and change that shit on the double. ...Or just disable it! Why not check the configuration options afterwards, while you\'re at it?"
 msgstr ""
@@ -1153,13 +1153,13 @@ msgid "Couldn't load the tag statistics! Please reload the page."
 msgstr "无法加载标签统计！请刷新页面。"
 
 msgid "Error getting untagged archives!"
-msgstr "无标签文档获取失败！"
+msgstr "无标签档案获取失败！"
 
 msgid "Are you sure you want to delete this archive?"
-msgstr "您确定要删除此文档吗？"
+msgstr "您确定要删除此档案吗？"
 
 msgid "Are you sure you want to delete the selected archives?"
-msgstr "您确定要删除以下文档吗？"
+msgstr "您确定要删除选定的档案吗？"
 
 msgid "This action cannot be undone!"
 msgstr "此操作无法撤销！"
@@ -1243,7 +1243,7 @@ msgid "My Category"
 msgstr "我的分类"
 
 msgid "Please enter a category name."
-msgstr "请输入分类名称"
+msgstr "请输入分类名称。"
 
 msgid "No category"
 msgstr "没有分类"
@@ -1270,22 +1270,22 @@ msgid "Predicates follow the same syntax as searches in the Archive Index. Check
 msgstr ""
 
 msgid "Background Worker restarted!"
-msgstr ""
+msgstr "后台工作程序已重启！"
 
 msgid "Error restarting Worker:"
-msgstr ""
+msgstr "工作程序重启时出错："
 
 msgid "Content folder rescan started!"
-msgstr ""
+msgstr "开始重新扫描内容文件夹！"
 
 msgid "Error starting content folder rescan:"
-msgstr ""
+msgstr "重新扫描内容文件夹时出错："
 
 msgid "Error while querying Shinobu status:"
 msgstr "查询 Shinobu 状态时出错："
 
 msgid "About Plugins"
-msgstr ""
+msgstr "关于插件"
 
 msgid "You can use plugins to automatically fetch metadata for this archive. <br/> Just select a plugin from the dropdown and hit Go! <br/> Some plugins might provide an optional argument for you to specify. If that's the case, a textbox will be available to input said argument."
 msgstr ""
@@ -1300,7 +1300,7 @@ msgid "Error while fetching tags"
 msgstr "获取标签时出错"
 
 msgid "Archive title changed to"
-msgstr ""
+msgstr "档案标题更改为"
 
 msgid "Archive summary updated!"
 msgstr ""
@@ -1316,7 +1316,7 @@ msgid "Showing _START_ to _END_ of _TOTAL_ ancient chinese lithographies."
 msgstr ""
 
 msgid "No archives to show you! Try <a href=\"\${url}\")>uploading some</a>?"
-msgstr ""
+msgstr "没有档案可供显示！不妨先<a href=\"${url}\")>上传一些</a>？"
 
 msgid "Welcome to LANraragi \${version}!"
 msgstr "欢迎来到 LANraragi ${version}！"
@@ -1334,34 +1334,34 @@ msgid "Advanced server statistics can be viewed <a href=\"\${url}\")>here</a>."
 msgstr ""
 
 msgid "Enter a tag namespace for this column"
-msgstr ""
+msgstr "为此栏输入标签命名空间"
 
 msgid "Enter a full namespace without the colon, e.g \"artist\"."
 msgstr ""
 
 msgid "If you have multiple tags with the same namespace, only the last one will be shown in the column."
-msgstr ""
+msgstr "如果同一命名空间有多个标签，此栏只会显示最后一个标签。"
 
 msgid "Tag namespace"
-msgstr ""
+msgstr "标签命名空间"
 
 msgid "Please enter a tag namespace."
-msgstr ""
+msgstr "请输入标签命名空间。"
 
 msgid "Randomly Picked"
 msgstr "随机精选"
 
 msgid "New Archives"
-msgstr "新文档"
+msgstr "新档案"
 
 msgid "Untagged Archives"
-msgstr "无标签文档"
+msgstr "无标签档案"
 
 msgid "On Deck"
 msgstr ""
 
 msgid "Error getting carousel data!"
-msgstr ""
+msgstr "获取轮播数据时出错！"
 
 msgid "Edit this column"
 msgstr "编辑此栏"
@@ -1385,16 +1385,16 @@ msgid "Error getting changelog for new version"
 msgstr ""
 
 msgid "Couldn't load data for \${id}!"
-msgstr ""
+msgstr "无法加载 ${id} 的数据！"
 
 msgid "This archive isn't in any category."
 msgstr ""
 
 msgid "No Categories yet..."
-msgstr ""
+msgstr "还没有分类..."
 
 msgid "Remove rating"
-msgstr ""
+msgstr "移除评分"
 
 msgid "Click here to display new archives only."
 msgstr ""
@@ -1421,28 +1421,28 @@ msgid "You'll have to reopen archives in the Reader to see the migrated progress
 msgstr ""
 
 msgid "Plugin uploaded successfully!"
-msgstr ""
+msgstr "成功上传插件！"
 
 msgid "The plugin \${name} has been successfully added. Refresh the page to see it."
 msgstr ""
 
 msgid "Error uploading plugin"
-msgstr ""
+msgstr "上传插件时出错"
 
 msgid "Successfully set page \${page} as the thumbnail!"
 msgstr ""
 
 msgid "Error updating thumbnail"
-msgstr ""
+msgstr "更新缩略图时出错"
 
 msgid "Error clearing new flag"
-msgstr ""
+msgstr "清除新标记时出错"
 
 msgid "Error getting the archive's imagelist."
 msgstr ""
 
 msgid "This archive seems to be in RAR format!"
-msgstr ""
+msgstr "此档案似乎是 RAR 格式！"
 
 msgid "RAR archives might not work properly in LANraragi depending on how they were made. If you encounter errors while reading, consider converting your archive to zip."
 msgstr ""
@@ -1481,16 +1481,16 @@ msgid "Script failed with error: \${error}"
 msgstr ""
 
 msgid "Temporary folder cleaned!"
-msgstr ""
+msgstr "临时文件夹已清理！"
 
 msgid "Error cleaning temporary folder"
-msgstr ""
+msgstr "清理临时文件夹时出错"
 
 msgid "Threw away the cache!"
 msgstr ""
 
 msgid "Error clearing the cache"
-msgstr ""
+msgstr "清除缓存时出错"
 
 msgid "Threw away the search cache!"
 msgstr ""
@@ -1538,22 +1538,22 @@ msgid "Archive successfully deleted. Redirecting you..."
 msgstr ""
 
 msgid "Error while deleting archive"
-msgstr ""
+msgstr "删除档案时出错"
 
 msgid "Processing your upload... (Job #\${jobid})"
-msgstr ""
+msgstr "正在处理您的上传...（任务 #${jobid}）"
 
 msgid "Downloading file... (Job #\${jobid})"
-msgstr ""
+msgstr "正在下载文件...（任务 #${jobid}）"
 
 msgid "Processing"
 msgstr "Processing"
 
 msgid "Completed"
-msgstr ""
+msgstr "已完成"
 
 msgid "Failed"
-msgstr ""
+msgstr "失败"
 
 msgid "Total"
 msgstr "Total"
@@ -1562,13 +1562,13 @@ msgid "Click here to edit metadata."
 msgstr "点击这里编辑元数据。"
 
 msgid "Error while processing file."
-msgstr ""
+msgstr "处理文件时失败。"
 
 msgid "Error while downloading file."
-msgstr ""
+msgstr "下载文件时失败。"
 
 msgid "Error sending job to Minion"
-msgstr ""
+msgstr "给 Minion 发送任务时出错"
 
 # ------End of i18n.html.tt2------
 # ------Start of Duplicates.html.tt2------
@@ -1594,22 +1594,22 @@ msgid "For every duplicate group..."
 msgstr ""
 
 msgid "Keep all files"
-msgstr ""
+msgstr "保留所有文件"
 
 msgid "Keep the file with the most tags"
-msgstr ""
+msgstr "保留有最多标签的文件"
 
 msgid "Keep the file with the most pages"
-msgstr ""
+msgstr "保留页数最多的文件"
 
 msgid "Keep the largest file"
-msgstr ""
+msgstr "保留最大的文件"
 
 msgid "Keep the youngest file"
-msgstr ""
+msgstr "保留最新的文件"
 
 msgid "Keep the oldest file"
-msgstr ""
+msgstr "保留最久的文件"
 
 msgid "Start searching for duplicates"
 msgstr ""
@@ -1621,10 +1621,10 @@ msgid "Delete all selected items"
 msgstr ""
 
 msgid "Filename"
-msgstr ""
+msgstr "文件名"
 
 msgid "Filesize"
-msgstr ""
+msgstr "文件大小"
 
 msgid "Action"
 msgstr "Action"
