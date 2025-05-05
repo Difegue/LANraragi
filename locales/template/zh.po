@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-04 20:25+0200\n"
-"PO-Revision-Date: 2025-05-04 18:31+0000\n"
-"Last-Translator: Difegue <8237712+Difegue@users.noreply.github.com>\n"
+"PO-Revision-Date: 2025-05-05 03:28+0000\n"
+"Last-Translator: Ftbom <lz490070@gmail.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
 "projects/lanraragi/lanraragi-source/zh_Hans/>\n"
 "Language: zh\n"
@@ -187,13 +187,13 @@ msgid "Store Bookmarks in this Category"
 msgstr "设置书签"
 
 msgid "Error linking bookmark button:"
-msgstr ""
+msgstr "关联书签时按钮出错："
 
 msgid "Error unlinking bookmark button:"
-msgstr ""
+msgstr "取消关联书签按钮时出错："
 
 msgid "Error getting bookmark category:"
-msgstr ""
+msgstr "获取书签分类时出错："
 
 # ------End of Category.html.tt2------
 # ------Start of Config.html.tt2------
@@ -743,7 +743,7 @@ msgid "Wrong Password."
 msgstr "密码错误。"
 
 msgid "<a href='\${url}'>Login</a> to toggle bookmark feature."
-msgstr ""
+msgstr "<a href='${url}'>登录</a> 以启用书签功能。"
 
 # ------End of Login.html.tt2------
 # ------Start of Logs.html.tt2------
@@ -1364,16 +1364,16 @@ msgid "Error getting carousel data!"
 msgstr ""
 
 msgid "Edit this column"
-msgstr ""
+msgstr "编辑此栏"
 
 msgid "Title"
-msgstr ""
+msgstr "标题"
 
 msgid "Tags"
 msgstr "Tags"
 
 msgid "Header"
-msgstr ""
+msgstr "头"
 
 msgid "A new version of LANraragi (\${version}) is available!"
 msgstr ""
@@ -1633,3 +1633,30 @@ msgid "Searching for duplicates..."
 msgstr ""
 
 # ------End of Duplicates.html.tt2------
+
+msgid "New Static Category"
+msgstr "新建静态分类"
+
+msgid "New Dynamic Category"
+msgstr "新建动态分类"
+
+msgid "Plugin Settings"
+msgstr "插件设置"
+
+msgid "Run Automatically"
+msgstr "自动运行"
+
+msgid "Clear Cache"
+msgstr "清除缓存"
+
+msgid "Clear the cache manually by clicking this button."
+msgstr "点击此按钮手动清除缓存。"
+
+msgid "This plugin will trigger on URLs matching this regex!"
+msgstr "此插件将在URLs匹配正则表达式时触发！"
+
+msgid "This plugin depends on the login plugin"
+msgstr "此插件依赖登录插件"
+
+msgid "Trigger Script"
+msgstr "触发脚本"
