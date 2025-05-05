@@ -127,7 +127,8 @@ sub get_plugin_parameters {
 
         # Replace with saved values if they exist
         if ( $redis->hexists( $namerds, "enabled" ) ) {
-            my $saved_config = redis_decode( $redis->hget( $namerds, "customargs" ) );
+            # We don't decode this value in case there's UTF8 characters in plugin config.
+            my $saved_config = $redis->hget( $namerds, "customargs" );
 
             #Decode it to an array for proper use
             if ($saved_config) {

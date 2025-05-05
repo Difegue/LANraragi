@@ -14,18 +14,18 @@ td.itd {
   min-width: 35px;
 }
 
+#bookmarkheader,
+td.bookmark {
+  max-width: 70px;
+}
+
 #titleheader,
 td.title {
   max-width: 400px;
 }
 
-#customheader1,
-td.custom1 {
-  max-width: 150px;
-}
-
-#customheader2,
-td.custom2 {
+[id^="customheader"],
+td[class^="customheader"] {
   max-width: 100px;
 }
 
@@ -65,6 +65,13 @@ div.id3 img {
 
 div.id3.nocrop img {
   max-width: 95%;
+}
+
+div.id3:not(.nocrop) img {
+  object-fit: cover;
+  object-position: top;
+  width: 95%;
+  height: 100%;
 }
 
 div.id4 {
@@ -402,6 +409,11 @@ li {
   border-radius: 34px;
 }
 
+/* Position context menu above thumbnail-bookmark-icon */
+.context-menu {
+  z-index: 10;
+}
+
 .context-menu-list {
   border: none !important;
   border-radius: 0 !important;
@@ -565,11 +577,9 @@ body.swal2-shown>[aria-hidden="true"] {
     padding: 2px;
   }
 
-  #customheader1,
-  #customheader2,
   #tagsheader,
-  td.custom1,
-  td.custom2,
+  [id^="customheader"],
+  td[class^="customheader"],
   td.tags {
     max-width: 50px;
   }
@@ -619,6 +629,7 @@ body.swal2-shown>[aria-hidden="true"] {
 
   div.id3 {
     height: 196px !important;
+    position: relative;
   }
 
   div.id3 img {
@@ -638,11 +649,9 @@ body.swal2-shown>[aria-hidden="true"] {
   }
 
   #i2,
-  #customheader1,
-  #customheader2,
+  [id^="customheader"],
   #tagsheader,
-  td.custom1,
-  td.custom2,
+  td[class^=" customheader"],
   td.tags {
     display: none;
   }
@@ -778,6 +787,43 @@ div.fullscreen img {
 
 .fullscreen-infinite {
   overflow-y: scroll;
+}
+
+.thumbnail-bookmark-icon {
+  cursor: pointer;
+  position: absolute;
+  right: 24px;
+  bottom: 20px;
+  z-index: 2;
+  font-size: 24px;
+  text-shadow: 0 0 3px rgba(0, 50, 116, 0.9);
+}
+
+.title-bookmark-icon {
+  cursor: pointer;
+  position: relative;
+  right: auto;
+  bottom: auto;
+  font-size: inherit;
+  text-shadow: none;
+  vertical-align: middle;
+  margin-right: 5px;
+}
+
+.thumbnail-bookmark-icon:hover {
+  opacity: 0.8;
+}
+
+.thumbnail-bookmark-icon:active {
+  opacity: 0.6;
+}
+
+.title-bookmark-icon:hover {
+  opacity: 0.8;
+}
+
+.title-bookmark-icon:active {
+  opacity: 0.6;
 }
 
 body.infinite-scroll .fullscreen-infinite img {

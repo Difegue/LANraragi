@@ -47,25 +47,25 @@ chown -R koyomi /home/koyomi/lanraragi/log
 chmod u+rwx /home/koyomi/lanraragi/log
 
 #Ensure temp folder is writable
-mkdir /home/koyomi/lanraragi/public/temp
-chown -R koyomi /home/koyomi/lanraragi/public/temp
-chmod u+rwx /home/koyomi/lanraragi/public/temp
+mkdir /home/koyomi/lanraragi/temp
+chown -R koyomi /home/koyomi/lanraragi/temp
+chmod u+rwx /home/koyomi/lanraragi/temp
 
 #Remove mojo, minion and shinobu pid files
-if [ -f /home/koyomi/lanraragi/public/temp/server.pid ]; then
-    rm /home/koyomi/lanraragi/public/temp/server.pid
+if [ -f /home/koyomi/lanraragi/temp/server.pid ]; then
+    rm /home/koyomi/lanraragi/temp/server.pid
 fi
-if [ -f /home/koyomi/lanraragi/public/temp/shinobu.pid ]; then
-    rm /home/koyomi/lanraragi/public/temp/shinobu.pid
+if [ -f /home/koyomi/lanraragi/temp/shinobu.pid ]; then
+    rm /home/koyomi/lanraragi/temp/shinobu.pid
 fi
-if [ -f /home/koyomi/lanraragi/public/temp/shinobu.pid-s6 ]; then
-    rm /home/koyomi/lanraragi/public/temp/shinobu.pid-s6
+if [ -f /home/koyomi/lanraragi/temp/shinobu.pid-s6 ]; then
+    rm /home/koyomi/lanraragi/temp/shinobu.pid-s6
 fi
-if [ -f /home/koyomi/lanraragi/public/temp/minion.pid ]; then
-    rm /home/koyomi/lanraragi/public/temp/minion.pid
+if [ -f /home/koyomi/lanraragi/temp/minion.pid ]; then
+    rm /home/koyomi/lanraragi/temp/minion.pid
 fi
-if [ -f /home/koyomi/lanraragi/public/temp/minion.pid-s6 ]; then
-  rm /home/koyomi/lanraragi/public/temp/minion.pid-s6
+if [ -f /home/koyomi/lanraragi/temp/minion.pid-s6 ]; then
+  rm /home/koyomi/lanraragi/temp/minion.pid-s6
 fi
 
 # https://redis.io/topics/faq#background-saving-fails-with-a-fork-error-under-linux-even-if-i-have-a-lot-of-free-ram

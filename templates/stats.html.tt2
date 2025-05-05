@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <head>
-	<title>[% title %] - Library Statistics</title>
+	<title>[% title %] - [% c.lh("Library Statistics") %]</title>
 
 	<meta name="viewport" content="width=device-width" />
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -31,6 +31,7 @@
 	<script src="[% c.url_for("/js/vendor/allcollapsible.min.js") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/vendor/sweetalert2.min.js") %]" type="text/JAVASCRIPT"></script>
 
+	<script src="[% c.url_for("/js/i18n.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/common.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/server.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/stats.js?$version") %]" type="text/JAVASCRIPT"></script>
@@ -84,7 +85,7 @@
 			style="display: none; width:80%; margin-left: auto; margin-right: auto">
 			<li class="option-flyout">
 				<div class="collapsible-title caret-right">
-					<i class="fa fa-chart-bar" aria-hidden="true"></i> Detailed Stats
+					<i class="fa fa-chart-bar" aria-hidden="true"></i> [% c.lh("Detailed Stats") %]
 				</div>
 				<div class="collapsible-body">
 					<div id="tagList"

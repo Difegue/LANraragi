@@ -222,3 +222,85 @@ Archive ID
 ```
 {% endswagger-response %}
 {% endswagger %}
+
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/categories/bookmark_link" method="get" summary="Get bookmark link" %}
+{% swagger-description %}
+Retrieves the ID of the category currently linked to the bookmark feature. Returns an empty string if no category is linked.
+{% endswagger-description %}
+
+{% swagger-response status="200" description="" %}
+```
+{
+  "category_id": "SET_1744272066",
+  "operation": "get_bookmark_link",
+  "success": 1
+}
+```
+{% endswagger-response %}
+{% endswagger %}
+
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/categories/bookmark_link/:id" method="put" summary="🔑Update bookmark link" %}
+{% swagger-description %}
+Links the bookmark feature to the specified static category. This determines which category archives are added to when using the bookmark button.
+{% endswagger-description %}
+
+{% swagger-parameter name="id" type="string" required="true" in="path" %}
+ID of the static category to link with the bookmark feature.
+{% endswagger-parameter %}
+
+{% swagger-response status="200" description="" %}
+```
+{
+  "category_id": "SET_1744272066",
+  "operation": "update_bookmark_link",
+  "success": 1
+}
+```
+{% endswagger-response %}
+{% swagger-response status="400" description="Invalid category ID." %}
+```
+{
+  "category_id": "SET_1744272066",
+  "operation": "update_bookmark_link",
+  "success": 0,
+  "error": "Input category ID is invalid."
+}
+```
+{% endswagger-response %}
+{% swagger-response status="400" description="Attempted to link bookmark to a dynamic category" %}
+```
+{
+  "category_id": "SET_1744272066",
+  "operation": "update_bookmark_link",
+  "success": 0,
+  "error": "Cannot link bookmark to a dynamic category."
+}
+```
+{% endswagger-response %}
+{% swagger-response status="404" description="Category with specified ID does not exist" %}
+```
+{
+  "category_id": "SET_1744272066",
+  "operation": "update_bookmark_link",
+  "success": 0,
+  "error": "Category does not exist!"
+}
+```
+{% endswagger-response %}
+{% endswagger %}
+
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/categories/bookmark_link" method="delete" summary="🔑Disable bookmark feature" %}
+{% swagger-description %}
+Disables the bookmark feature by removing the link to any category. Returns the ID of the previously linked category.
+{% endswagger-description %}
+
+{% swagger-response status="200" description="" %}
+```
+{
+  "category_id": "SET_1744272332",
+  "operation": "remove_bookmark_link",
+  "success": 1
+}
+```
+{% endswagger-response %}
+{% endswagger %}

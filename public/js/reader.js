@@ -11,14 +11,26 @@ Reader.currentPage = -1;
 Reader.showingSinglePage = true;
 Reader.preloadedImg = {};
 Reader.preloadedSizes = {};
+Reader.spaceScroll = { timeout: null, animationId: null };
+//Spacebar Scroll Config
+Reader.scrollConfig = {   
+    scrollDist: 75,      // Viewport % distance to scroll
+    underSnap: 13,       // Distance % for snapping to edge of current image
+    overSnap: 40,        // Distance % for snapping back to current image after continuous scroll
+    holdDelay: 350,      // Delay time in ms before continuous scroll starts on keydown
+    scrollSpeed: 22      // Speed % to scroll when spacebar is held
+};
 
 Reader.initializeAll = function () {
     Reader.initializeSettings();
     Reader.applyContainerWidth();
     Reader.registerPreload();
+    document.documentElement.style.scrollBehavior = 'smooth';
 
     // Bind events to DOM
     $(document).on("keyup", Reader.handleShortcuts);
+    // Restrict keydown to only function for spacebar
+    $(document).on("keydown", (e) => { if (e.keyCode === 32) Reader.handleShortcuts(e); });
     $(document).on("wheel", Reader.handleWheel);
 
     $(document).on("click.toggle-fit-mode", "#fit-mode input", Reader.toggleFitMode);
@@ -39,6 +51,7 @@ Reader.initializeAll = function () {
     $(document).on("click.toggle-archive-overlay", "#toggle-archive-overlay", Reader.toggleArchiveOverlay);
     $(document).on("click.toggle-settings-overlay", "#toggle-settings-overlay", Reader.toggleSettingsOverlay);
     $(document).on("click.toggle-help", "#toggle-help", Reader.toggleHelp);
+    $(document).on("click.toggle-bookmark", ".toggle-bookmark", Reader.toggleBookmark);
     $(document).on("click.regenerate-archive-cache", "#regenerate-cache", () => {
         window.location.href = new LRR.apiURL(`/reader?id=${Reader.id}&force_reload`);
     });
@@ -46,11 +59,11 @@ Reader.initializeAll = function () {
     $(document).on("click.delete-archive", "#delete-archive", () => {
         LRR.closeOverlay();
         LRR.showPopUp({
-            text: "Are you sure you want to delete this archive?",
+            text: I18N.ConfirmArchiveDeletion,
             icon: "warning",
             showCancelButton: true,
             focusConfirm: false,
-            confirmButtonText: "Yes, delete it!",
+            confirmButtonText: I18N.ConfirmYes,
             reverseButtons: true,
             confirmButtonColor: "#d33",
         }).then((result) => {
@@ -62,23 +75,30 @@ Reader.initializeAll = function () {
     $(document).on("click.add-category", "#add-category", () => {
         if ($("#category").val() === "" || $(`#archive-categories a[data-id="${$("#category").val()}"]`).length !== 0) { return; }
         Server.addArchiveToCategory(Reader.id, $("#category").val());
-        let url = new LRR.apiURL(`/?c=${$("#category").val()}`);
-        
-        const html = `<div class="gt" style="font-size:14px; padding:4px">
-            <a href="${url}">
-            <span class="label">${$("#category option:selected").text()}</span>
-            <a href="#" class="remove-category" data-id="${$("#category").val()}"
-                style="margin-left:4px; margin-right:2px">×</a>
-        </a>`;
+        const categoryId = $("#category").val();
+        Reader.addCategoryBadge( categoryId );
 
-        $("#archive-categories").append(html);
+        // Turn ON bookmark icon.
+        if ($("#category").val() == localStorage.bookmarkCategoryId) {
+            $(".toggle-bookmark")
+                .removeClass("far fa-bookmark")
+                .addClass("fas fa-bookmark");
+        }
     });
     $(document).on("click.remove-category", ".remove-category", (e) => {
+        e.preventDefault();
+        const catId = $(e.target).attr("data-id");
         Server.removeArchiveFromCategory(Reader.id, $(e.target).attr("data-id"));
-        $(e.target).parent().remove();
+        $(e.target).closest(".gt").remove();
+        // Turn OFF the bookmark icon
+        if (catId == localStorage.bookmarkCategoryId) {
+            $(".toggle-bookmark")
+                .removeClass("fas fa-bookmark")
+                .addClass("far fa-bookmark");
+        }
     });
     $(document).on("click.set-thumbnail", "#set-thumbnail", () => Server.callAPI(`/api/archives/${Reader.id}/thumbnail?page=${Reader.currentPage + 1}`,
-        "PUT", `Successfully set page ${Reader.currentPage + 1} as the thumbnail!`, "Error updating thumbnail!", null));
+        "PUT", I18N.ReaderUpdateThumbnail(Reader.currentPage), I18N.ReaderUpdateThumbnailError, null));
 
     $(document).on("click.thumbnail", ".quick-thumbnail", (e) => {
         LRR.closeOverlay();
@@ -103,10 +123,10 @@ Reader.initializeAll = function () {
     Reader.currentPage = (+params.get("p") || 1) - 1;
 
     // Remove the "new" tag with an api call
-    Server.callAPI(`/api/archives/${Reader.id}/isnew`, "DELETE", null, "Error clearing new flag! Check Logs.", null);
+    Server.callAPI(`/api/archives/${Reader.id}/isnew`, "DELETE", null, I18N.ReaderErrorClearingNew, null);
 
     // Get basic metadata
-    Server.callAPI(`/api/archives/${Reader.id}/metadata`, "GET", null, "Error getting basic archive info!",
+    Server.callAPI(`/api/archives/${Reader.id}/metadata`, "GET", null, I18N.ServerInfoError,
         (data) => {
             let { title } = data;
 
@@ -143,10 +163,32 @@ Reader.initializeAll = function () {
             Reader.loadImages();
         },
     );
+
+    // Fetch "bookmark" category ID and setup icon
+    Reader.loadBookmarkStatus();
 };
 
+/**
+ * Adds a removable category flag to the categories section within archive overview.
+ */
+Reader.addCategoryBadge = function ( categoryId ) {
+    const categoryName = $(`#category option[value="${categoryId}"]`).text();
+    const url = new LRR.apiURL(`/?c=${categoryId}`);
+    const html = `<div class="gt" style="font-size:14px; padding:4px">
+        <a href="${url}">
+        <span class="label">${categoryName}</span>
+        <a href="#" class="remove-category" data-id="${categoryId}"
+            style="margin-left:4px; margin-right:2px">×</a>
+    </a>`;
+    $("#archive-categories").append(html);
+}
+
+Reader.removeCategoryBadge = function ( categoryId ) {
+    $(`#archive-categories a.remove-category[data-id="${categoryId}"]`).closest(".gt").remove();
+}
+
 Reader.loadImages = function () {
-    Server.callAPI(`/api/archives/${Reader.id}/files?force=${Reader.force}`, "GET", null, "Error getting the archive's imagelist!",
+    Server.callAPI(`/api/archives/${Reader.id}/files?force=${Reader.force}`, "GET", null, I18N.ReaderArchiveError,
         (data) => {
             Reader.pages = data.pages;
             Reader.maxPage = Reader.pages.length - 1;
@@ -166,6 +208,16 @@ Reader.loadImages = function () {
 
             if (Reader.infiniteScroll) {
                 Reader.initInfiniteScrollView();
+                if (Reader.tags?.includes("webtoon")) {
+                    $("head").append(`
+                        <style id="webtoon-css">
+                            .reader-image {
+                                margin-bottom: 0 !important;
+                                margin-top: 0 !important;
+                            }
+                        </style>
+                    `);
+                }
             } else {
                 $("#img").on("load", Reader.updateMetadata);
 
@@ -192,7 +244,7 @@ Reader.loadImages = function () {
     ).finally(() => {
         if (Reader.pages === undefined) {
             $("#img").attr("src", new LRR.apiURL("/img/flubbed.gif").toString());
-            $("#display").append("<h2>I flubbed it while trying to open the archive.</h2>");
+            $("#display").append("<h2>"+I18N.ReaderArchiveError+"</h2>");
         }
     });
 };
@@ -299,7 +351,9 @@ Reader.initInfiniteScrollView = function () {
         loaded += 1;
         if (loaded === images.length) {
             allImagesLoaded = true;
-            Reader.goToPage(Reader.currentPage);
+            if (window.scrollY === 0) {
+                Reader.goToPage(Reader.currentPage);
+            }
         }
     });
 };
@@ -316,20 +370,109 @@ Reader.handleShortcuts = function (e) {
         LRR.closeOverlay();
         break;
     case 32: // spacebar
-        if ($(".page-overlay").is(":visible")) { break; }
-        if (e.originalEvent.getModifierState("Shift") && (window.scrollY) === 0) {
-            (Reader.mangaMode) ? Reader.changePage(1) : Reader.changePage(-1);
-        } else if (($(window).height() + $(window).scrollTop()) >= LRR.getDocHeight()) {
-            (Reader.mangaMode) ? Reader.changePage(-1) : Reader.changePage(1);
+    //Break early and go back to browser default behaviour if overlay is open or gallery has webtoon tag and in infiniteScroll
+    if ($(".page-overlay").is(":visible") || e.repeat || (Reader.infiniteScroll && Reader.tags?.includes("webtoon"))) break;
+    e.preventDefault();
+
+    // Capture direction now so we dont lose it if shift state changes while held
+    const direction = e.shiftKey ? -1 : 1;
+    const cfg = Reader.scrollConfig;
+
+    if (e.type === "keydown") {
+        if (!Reader.spaceScroll.timeout) {
+            Reader.spaceScroll.timeout = setTimeout(() => {
+                const scrollFn = () => {
+                    window.scrollBy({ 
+                        top: direction * (cfg.scrollSpeed/100 * window.innerHeight) 
+                    });
+                    Reader.spaceScroll.animationId = requestAnimationFrame(scrollFn);
+                };
+                Reader.spaceScroll.animationId = requestAnimationFrame(scrollFn);
+            }, cfg.holdDelay);
         }
-        // spacebar is always forward regardless of reading direction, so it needs to be flipped
-        // to always result in a positive offset when it reaches the changePage() logic
-        break;
+        behavior: 'instant'
+        behavior: 'smooth'
+        return;
+    }
+
+    if (e.type === "keyup") {
+        clearTimeout(Reader.spaceScroll.timeout);
+        const wasContinuousScroll = Reader.spaceScroll.animationId;
+        cancelAnimationFrame(Reader.spaceScroll.animationId);
+        Reader.spaceScroll = { timeout: null, animationId: null };
+        const st = window.scrollY;
+        const h = window.innerHeight;
+
+        const currentImg = [...document.querySelectorAll(".reader-image")].find(img => {
+            const rect = img.getBoundingClientRect();
+            return rect.top <= h/2 && rect.bottom >= h/2;
+        }) || document.querySelector(direction > 0 ? ".reader-image:first-child" : ".reader-image:last-child");
+
+        if (!currentImg) return;
+
+        const imgTop = currentImg.getBoundingClientRect().top + st;
+        const imgBottom = currentImg.getBoundingClientRect().bottom + st;
+        const directionEdge = direction > 0 ? imgBottom : imgTop;
+
+        // Convert to percentage of pixels compared to window height
+        const scrollDistPx = (cfg.scrollDist/100) * h;
+        const overSnapPx = (cfg.overSnap/100) * h;
+        const underSnapPx = (cfg.underSnap/100) * h;
+        // Calculate active thresholds based on direction
+        const directionDist = (directionEdge - (direction > 0 ? st + h : st)) * direction;
+
+        // Go to next direction page if already at edge
+        if ((direction > 0 ? st + h >= directionEdge - 3 : st <= directionEdge + 3) && !wasContinuousScroll) {
+            console.log(`PAGE TURN: ${cfg.scrollDist}% threshold reached`);
+            Reader.changePage(direction);
+            return;
+        }
+
+        // 2. Continuous scroll overshoot check
+        if (wasContinuousScroll) {
+            // Calculate actual overshoot distance (positive value)
+            const overshootDistance = Math.abs(directionDist) - scrollDistPx;
+
+            if (overshootDistance > overSnapPx) {
+                console.log(`CONTINUOUS SNAP: ${overshootDistance.toFixed(1)}px > ${overSnapPx.toFixed(1)}px threshold`);
+                const adjImg = direction > 0 ? currentImg.nextElementSibling : currentImg.previousElementSibling;
+                if (adjImg) {
+                    const adjRect = adjImg.getBoundingClientRect();
+                    // Snap to 5px before the edge for better visibility
+                    const snapPosition = direction > 0 
+                        ? adjRect.top + st + 5 
+                        : adjRect.bottom + st - h - 5;
+                    window.scrollTo({ top: snapPosition });
+                }
+                return;
+            }
+        }
+
+        // 3. Undershoot prevention
+        if (directionDist <= scrollDistPx + underSnapPx) {
+            console.log(`UNDERSHOOT SNAP: ${cfg.underSnap}% (${Math.round(directionDist)}px <= ${Math.round(scrollDistPx + underSnapPx)}px)`);
+            window.scrollTo({ top: directionEdge - (direction > 0 ? h : 0)});
+            return;
+        }
+
+        // 4. Default scroll
+        console.log(`DEFAULT SCROLL (${Math.abs(directionDist).toFixed(1)}px)`);
+        const scrollAmount = direction * scrollDistPx;
+        window.scrollBy({ top: scrollAmount });
+    }
+    break;
     case 37: // left arrow
-    case 65: // a
         Reader.changePage(-1);
         break;
     case 39: // right arrow
+        Reader.changePage(1);
+        break;
+    case 65: // a
+        Reader.changePage(-1);
+        break;
+    case 66: // b
+        Reader.toggleBookmark(e);
+        break;
     case 68: // d
         Reader.changePage(1);
         break;
@@ -375,16 +518,16 @@ Reader.checkFiletypeSupport = function (extension) {
     if ((extension === "rar" || extension === "cbr") && !localStorage.rarWarningShown) {
         localStorage.rarWarningShown = true;
         LRR.toast({
-            heading: "This archive seems to be in RAR format!",
-            text: "RAR archives might not work properly in LANraragi depending on how they were made. If you encounter errors while reading, consider converting your archive to zip.",
+            heading: I18N.ReaderRarWarning,
+            text: I18N.ReaderRarWarningDesc,
             icon: "warning",
             hideAfter: 23000,
         });
     } else if (extension === "epub" && !localStorage.epubWarningShown) {
         localStorage.epubWarningShown = true;
         LRR.toast({
-            heading: "EPUB support in LANraragi is minimal",
-            text: "EPUB books will only show images in the Web Reader, and potentially out of order. If you want text support, consider pairing LANraragi with an <a href='https://sugoi.gitbook.io/lanraragi/advanced-usage/external-readers#generic-opds-readers'>OPDS reader.</a>",
+            heading: I18N.ReaderEpubWarning,
+            text: I18N.ReaderEpubWarningDesc,
             icon: "warning",
             hideAfter: 20000,
             closeOnClick: false,
@@ -396,7 +539,7 @@ Reader.checkFiletypeSupport = function (extension) {
 Reader.toggleHelp = function () {
     LRR.toast({
         toastId: "readerHelp",
-        heading: "Navigation Help",
+        heading: I18N.ReaderNavHelp,
         text: $("#reader-help").children().first().html(),
         icon: "info",
         hideAfter: 60000,
@@ -405,6 +548,67 @@ Reader.toggleHelp = function () {
     return false;
     // all toggable panes need to return false to avoid scrolling to top
 };
+
+Reader.toggleBookmark = function(e) {
+    e.preventDefault();
+    if ( !localStorage.getItem("bookmarkCategoryId") ) {
+        console.error("No bookmark category ID found!");
+        return;
+    };
+
+    if (!LRR.isUserLogged()) {
+        LRR.toast({
+            heading: I18N.LoginRequired(new LRR.apiURL("/login")),
+            icon: "warning",
+            hideAfter: 5000,
+        });
+        return;
+    }
+
+    if ($(".toggle-bookmark").hasClass("fas fa-bookmark")) {
+        // Remove from category
+        Server.removeArchiveFromCategory(Reader.id, localStorage.getItem("bookmarkCategoryId"));
+        Reader.removeCategoryBadge( localStorage.getItem("bookmarkCategoryId") );
+        $(".toggle-bookmark")
+            .removeClass("fas fa-bookmark")
+            .addClass("far fa-bookmark");
+    } else {
+        // Add to category
+        Server.addArchiveToCategory(Reader.id, localStorage.getItem("bookmarkCategoryId"));
+        Reader.addCategoryBadge( localStorage.getItem("bookmarkCategoryId") );
+        $(".toggle-bookmark")
+            .removeClass("far fa-bookmark")
+            .addClass("fas fa-bookmark");
+    }
+}
+
+// dynamically add bookmark icon if bookmark link is configured.
+Reader.loadBookmarkStatus = function() {
+    Server.loadBookmarkCategoryId().then(
+        category_id => {
+            if ( !LRR.bookmarkLinkConfigured() ) {
+                return;
+            }
+            fetch(new LRR.apiURL(`/api/categories/${category_id}`))
+                .then(response => response.json()).then(categoryData => {
+                    const isBookmarked = categoryData.archives.includes(Reader.id);
+                    const bookmarkState = isBookmarked ? "fas" : "far";
+                    const disabledClass = LRR.isUserLogged() ? "" : " disabled";
+                    const leftOptionsList = document.querySelectorAll(".absolute-options.absolute-left");
+                    leftOptionsList.forEach(leftOption => {
+                        let bookmark = document.createElement("a");
+                        bookmark.className = `${bookmarkState} fa-bookmark fa-2x toggle-bookmark${disabledClass}`;
+                        bookmark.href = "#";
+                        bookmark.title = I18N.ToggleBookmark;
+                        if (!LRR.isUserLogged()) {
+                            bookmark.setAttribute("style", "opacity: 0.5; cursor: not-allowed;");
+                        }
+                        leftOption.appendChild(bookmark);
+                    })
+                })
+        }
+    )
+}
 
 Reader.updateMetadata = function () {
     const img = $("#img")[0];
@@ -470,7 +674,7 @@ Reader.goToPage = function (page) {
     Reader.showingSinglePage = false;
 
     if (Reader.infiniteScroll) {
-        $("#display img").get(Reader.currentPage).scrollIntoView({ behavior: "smooth" });
+        $("#display img").get(Reader.currentPage).scrollIntoView({ block: 'nearest' });
     } else {
         $("#img_doublepage").attr("src", "");
         $("#display").removeClass("double-mode");
@@ -525,7 +729,7 @@ Reader.updateProgress = function () {
     if (Reader.trackProgressLocally) {
         localStorage.setItem(`${Reader.id}-reader`, Reader.currentPage + 1);
     } else {
-        Server.callAPI(`/api/archives/${Reader.id}/progress/${Reader.currentPage + 1}`, "PUT", null, "Error updating reading progress!", null);
+        Server.callAPI(`/api/archives/${Reader.id}/progress/${Reader.currentPage + 1}`, "PUT", null, I18N.ReaderErrorProgress, null);
     }
 };
 
@@ -720,7 +924,7 @@ Reader.initializeArchiveOverlay = function () {
         const thumbnailUrl = new LRR.apiURL(`/api/archives/${Reader.id}/thumbnail?page=${page}`);
         const thumbnail = `
             <div class='${thumbCss} quick-thumbnail' page='${index}' style='display: inline-block; cursor: pointer'>
-                <span class='page-number'>Page ${page}</span>
+                <span class='page-number'>${I18N.ReaderPage(page)}</span>
                 <img src="${thumbnailUrl}" id="${index}_thumb" />
                 <i id="${index}_spinner" class="fa fa-4x fa-circle-notch fa-spin ttspinner" style="display:flex;justify-content: center; align-items: center;"></i>
             </div>`;
@@ -763,14 +967,26 @@ Reader.initializeArchiveOverlay = function () {
                     data.job,
                     false,
                     (data) => thumbProgress(data.notes), // call progress callback one last time to ensure all thumbs are loaded
-                    () => LRR.showErrorToast("The page thumbnailing job didn't conclude properly. Your archive might be corrupted."),
+                    () => LRR.showErrorToast(I18N.ThumbJobError),
                     thumbProgress,
                 ));
             }
         });
 };
 
-Reader.changePage = function (targetPage) {
+Reader.changePage = function(targetPage) {
+    // Sync position if in infinite scroll mode
+    if (Reader.infiniteScroll) {
+        const images = [...document.querySelectorAll('.reader-image')];
+        const midViewport = window.innerHeight / 2;
+        for (let i = 0; i < images.length; i++) {
+            const rect = images[i].getBoundingClientRect();
+            if (rect.top <= midViewport && rect.bottom >= midViewport) {
+                Reader.currentPage = i;
+                break;
+            }
+        }
+    }
     let destination;
     if (targetPage === "first") {
         destination = Reader.mangaMode ? Reader.maxPage : 0;

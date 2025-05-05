@@ -3,7 +3,7 @@
 <html>
 
 <head>
-    <title>[% title %] - Categories </title>
+    <title>[% title %] - [% c.lh("Categories") %]</title>
 
     <meta name="viewport" content="width=device-width" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -28,6 +28,7 @@
     <script src="[% c.url_for("/js/vendor/react-toastify.umd.js") %]" type="text/JAVASCRIPT"></script>
     <script src="[% c.url_for("/js/vendor/sweetalert2.min.js") %]" type="text/JAVASCRIPT"></script>
 
+    <script src="[% c.url_for("/js/i18n.js?$version") %]" type="text/JAVASCRIPT"></script>
     <script src="[% c.url_for("/js/common.js?$version") %]" type="text/JAVASCRIPT"></script>
     <script src="[% c.url_for("/js/server.js?$version") %]" type="text/JAVASCRIPT"></script>
     <script src="[% c.url_for("/js/category.js?$version") %]" type="text/JAVASCRIPT"></script>
@@ -57,8 +58,8 @@
                 [% c.lh("You can create new categories here or edit existing ones.") %] </br></br>
 
                 <div style="text-align:center">
-                    <input id='new-static' type='button' value='New Static Category' class='stdbtn'>
-                    <input id='new-dynamic' type='button' value='New Dynamic Category' class='stdbtn'>
+                    <input id='new-static' type='button' value='[% c.lh("New Static Category") %]' class='stdbtn'>
+                    <input id='new-dynamic' type='button' value='[% c.lh("New Dynamic Category") %]' class='stdbtn'>
                 </div> <br>
 
                 [% c.lh("Select a category in the combobox below to edit its name, the archives it contains, or its predicate.") %]
@@ -94,6 +95,13 @@
                             <td>
                                 <input id="pinned" name="pinned" class="fa" type="checkbox">
                                 <label for="pinned">[% c.lh("Pin this Category") %]</label>
+                            </td>
+                        </tr>
+                        <tr id="bookmarklinkfield" class="tag-options">
+                            <td></td>
+                            <td>
+                                <input id="bookmark-link" name="bookmark-link" class="fa" type="checkbox">
+                                <label for="bookmark-link">[% c.lh("Store Bookmarks in this Category") %]</label>
                             </td>
                         </tr>
                         <tr class="tag-options">

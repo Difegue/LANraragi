@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <head>
-	<title>[% title %] - Settings</title>
+	<title>[% title %] - [% c.lh("Admin Settings") %]</title>
 
 	<meta name="viewport" content="width=device-width" />
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -30,6 +30,7 @@
 	<script src="[% c.url_for("/js/vendor/allcollapsible.min.js") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/vendor/sweetalert2.min.js") %]" type="text/JAVASCRIPT"></script>
 
+	<script src="[% c.url_for("/js/i18n.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/common.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/server.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/config.js?$version") %]" type="text/JAVASCRIPT"></script>
@@ -51,8 +52,9 @@
 			<h2>[% c.lh("Select a category to show the matching settings.") %]</h2>
 			<br />
 			<input id='save' class='stdbtn' type='button' value='[% c.lh("Save Settings") %]' /><br />
-			<input id='plugin-config' class='stdbtn' type='button' value='[% c.lh("Plugin Configuration") %]' />
-			<input id='backup' class='stdbtn' type='button' value='[% c.lh("Database Backup/Restore") %]' />
+			<input id='plugin-config' class='stdbtn' type='button' value='[% c.lh("Plugin Configuration") %]' /> 
+			<input id='backup' class='stdbtn' type='button' value='[% c.lh("Database Backup/Restore") %]' /> 
+			<input id='duplicate' class='stdbtn' type='button' value='[% c.lh("Duplicate Detection") %]' /><br><br>
 			<input id='return' class='stdbtn' type='button' value='[% c.lh("Return to Library") %]' />
 
 		</div>

@@ -8,6 +8,7 @@ Config.initializeAll = function () {
     $(document).on("click.save", "#save", () => { Server.saveFormData("#editConfigForm"); });
     $(document).on("click.plugin-config", "#plugin-config", () => { window.location.href = new LRR.apiURL("/config/plugins"); });
     $(document).on("click.backup", "#backup", () => { window.location.href = new LRR.apiURL("/backup"); });
+    $(document).on("click.duplicate", "#duplicate", () => { window.location.href = new LRR.apiURL("/duplicates"); });
     $(document).on("click.return", "#return", () => { window.location.href = new LRR.apiURL("/"); });
     $(document).on("click.enablepass", "#enablepass", Config.enable_pass);
     $(document).on("click.enableresize", "#enableresize", Config.enable_resize);
@@ -51,7 +52,7 @@ Config.initializeAll = function () {
 
 Config.rebootShinobu = function () {
     $("#restart-button").prop("disabled", true);
-    Server.callAPI("/api/shinobu/restart", "POST", "Background Worker restarted!", "Error while restarting Worker:",
+    Server.callAPI("/api/shinobu/restart", "POST", I18N.ShinobuRestarted, I18N.ShinobuRestartError,
         () => {
             $("#restart-button").prop("disabled", false);
             Config.shinobuStatus();
@@ -61,7 +62,7 @@ Config.rebootShinobu = function () {
 
 Config.rescanContentFolder = function () {
     $("#rescan-button").prop("disabled", true);
-    Server.callAPI("/api/shinobu/rescan", "POST", "Content folder rescan started!", "Error while restarting Worker:",
+    Server.callAPI("/api/shinobu/rescan", "POST", I18N.ContentRescanStarted, I18N.ContentRescanError,
         () => {
             $("#rescan-button").prop("disabled", false);
             Config.shinobuStatus();
@@ -71,7 +72,7 @@ Config.rescanContentFolder = function () {
 
 // Update the status of the background worker.
 Config.shinobuStatus = function () {
-    Server.callAPI("/api/shinobu", "GET", null, "Error while querying Shinobu status:",
+    Server.callAPI("/api/shinobu", "GET", null, I18N.ShinobuStatusError,
         (data) => {
             if (data.is_alive) {
                 $("#shinobu-ok").show();

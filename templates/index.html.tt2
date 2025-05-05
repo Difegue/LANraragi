@@ -41,6 +41,7 @@
 	<script src="[% c.url_for("/js/vendor/swiper-bundle.min.js") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/vendor/sweetalert2.min.js") %]" type="text/JAVASCRIPT"></script>
 
+	<script src="[% c.url_for("/js/i18n.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/index.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/common.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/server.js?$version") %]" type="text/JAVASCRIPT"></script>
@@ -48,7 +49,7 @@
 
 </head>
 
-<body>
+<body data-user-logged="[% userlogged %]">
 
 	[% IF userlogged %]
 	<p id="nb">
@@ -140,6 +141,15 @@
 						title="If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the left side.">
 					<label for="thumbnail-crop" style="vertical-align: middle; padding-top:6px">[% c.lh("Crop thumbnails") %]</label>
 				</div>
+				<div class="compact-options">[% c.lh("Columns:") %]
+					<select class="favtag-btn" id="columnCount">
+						<script>  
+							for (let i = 1; i <= 20; i++) {  
+								document.write(`<option value="${i}">${i}</option>`);  
+							}  
+						</script> 
+					</select>
+				</div>
 				<div style="margin-left:auto">[% c.lh("Go to Page:") %]
 					<select class="favtag-btn" id="page-select">
 					</select>
@@ -152,23 +162,8 @@
 
 			<table class="itg datatables">
 				<thead class="list" style="display: none;">
-					<tr>
-						<th id="titleheader">
-							<a>[% c.lh("Title") %]</a>
-						</th>
-						<th id="customheader1">
-							<i id="edit-header-1" class="fas fa-pencil-alt edit-header-btn"
-								title="[% c.lh('Edit this column') %]"></i>
-							<a id="header-1">[% c.lh("Artist") %]</a>
-						</th>
-						<th id="customheader2">
-							<i id="edit-header-2" class="fas fa-pencil-alt edit-header-btn"
-								title="[% c.lh('Edit this column') %]"></i>
-							<a id="header-2">[% c.lh("Series") %]</a>
-						</th>
-						<th id="tagsheader">
-							<a>[% c.lh("Tags") %]</a>
-						</th>
+					<tr id="header-row">
+						<!--dynamic row-->
 					</tr>
 				</thead>
 				<tbody class="list" style="display: none;">

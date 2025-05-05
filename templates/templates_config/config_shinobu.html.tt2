@@ -16,7 +16,7 @@
 
 <tr>
     <td class="option-td">
-        <input id="restart-button" class='stdbtn' type='button' value='[% c.lh("Restart File Watcher") %]' />
+        <input id="restart-button" class='stdbtn' type='button' value="[% c.lh("Restart File Watcher") %]" />
     </td>
     <td class="config-td">
         [% c.lh("If Shinobu is dead or unresponsive, you can reboot her by clicking this button.") %]
@@ -25,7 +25,7 @@
 
 <tr>
     <td class="option-td">
-        <input id='open-minion' class='stdbtn' type='button' value='[% c.lh("Open Minion Console") %]' />
+        <input id='open-minion' class='stdbtn' type='button' value="[% c.lh("Open Minion Console") %]" />
     </td>
     <td class="config-td">
         [% c.lh("The Minion Worker handles spare tasks that are too long to execute within the request/response lifecycle of web applications.") %]<br>

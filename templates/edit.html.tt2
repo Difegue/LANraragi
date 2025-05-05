@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <head>
-	<title>[% title %] - Edit Mode</title>
+	<title>[% title %] - [% c.lh("Editing [_1]", arctitle) %]</title>
 
 	<meta name="viewport" content="width=device-width" />
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -30,6 +30,7 @@
 	<script src="[% c.url_for("/js/vendor/tagger.js") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/vendor/sweetalert2.min.js") %]" type="text/JAVASCRIPT"></script>
 
+	<script src="[% c.url_for("/js/i18n.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/common.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/server.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/edit.js?$version") %]" type="text/JAVASCRIPT"></script>
@@ -109,7 +110,7 @@
 								[% END %]
 							</select>
 
-							<input class='stdbtn' type='button' style="min-width:90px;" id="run-plugin" value='[% c.lh("Go!") %]' />
+							<input class='stdbtn' type='button' style="min-width:90px;" id="run-plugin" value="[% c.lh("Go!") %]" />
 							<br />
 
 							<span id="arg_label">[% plugins.first.oneshot_arg %] :</span> <br />

@@ -1,7 +1,7 @@
 {
     "name": "lanraragi",
-    "version": "0.9.31",
-    "version_name": "Earthlings On Fire (January 1997 pre-show)",
+    "version": "0.9.40",
+    "version_name": "Brilliant Adventure",
     "description": "I'm under Japanese influence and my honor's at stake!",
     "scripts": {
         "test": "prove -r -l -v tests/",
@@ -10,7 +10,7 @@
         "start": "perl ./script/launcher.pl -f ./script/lanraragi",
         "dev-server": "perl ./script/launcher.pl -m -v ./script/lanraragi",
         "dev-server-verbose": "export LRR_DEVSERVER=1 && perl ./script/launcher.pl -m -v ./script/lanraragi",
-        "kill-workers": "(kill -15 `cat ./public/temp/shinobu.pid-s6` || true) && (kill -15 `cat ./public/temp/minion.pid-s6` || true) && (pkill -9 -f ./script/lanraragi || true)",
+        "kill-workers": "(kill -15 `cat ./temp/shinobu.pid-s6` || true) && (kill -15 `cat ./temp/minion.pid-s6` || true) && (pkill -9 -f ./script/lanraragi || true)",
         "docker-build": "docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile .",
         "critic": "perlcritic ./lib/* ./script/* ./tools/install.pl",
         "backup-db": "perl ./script/backup",
