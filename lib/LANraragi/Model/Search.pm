@@ -101,14 +101,29 @@ sub check_cache ( $cachekey, $cachekey_inv ) {
     return ( $cachehit, @filtered );
 }
 
+sub search_uncached( $category_id, $filter, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks ) {
+
+    my $category_id_dnf     = defined $category_id ? [[$category_id]] : [[undef]];
+    my $filter_dnf          = defined $filter ? [$filter] : [undef];
+
+    return search_uncached_composite( $category_id_dnf, $filter_dnf, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks );
+    # Keeping the old singleton implementation for backwards compatibility if needed
+    # return search_uncached_singleton( $category_id_dnf, $filter_dnf, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks );
+
+}
+
 # Grab all our IDs, then filter them down according to the following filters and tokens' ID groups.
-sub search_uncached ( $category_id, $filter, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks ) {
+sub search_uncached_singleton ( $category_id_dnf, $filter_dnf, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks ) {
 
     my $redis    = LANraragi::Model::Config->get_redis_search;
     my $redis_db = LANraragi::Model::Config->get_redis;
     my $logger   = get_logger( "Search Core", "lanraragi" );
 
     # Compute search filters
+    # Take only the first item from each array for backwards compatibility
+    # Future implementation will handle the full OR/AND logic
+    my $category_id = $category_id_dnf->[0][0];
+    my $filter = $filter_dnf->[0];
     my @tokens = compute_search_filter($filter);
 
     # Prepare array: For each token, we'll have a list of matching archive IDs.
@@ -308,6 +323,334 @@ sub search_uncached ( $category_id, $filter, $sortkey, $sortorder, $newonly, $un
 
     $redis->quit();
     $redis_db->quit();
+    return @filtered;
+}
+
+# Perform a search using OR/AND logic via disjunctive normal forms
+# Logic is generalization of search_uncached_singleton, except we will reduce
+# the category DNF and filter DNF to a tokens DNF, then apply tokens DNF to list of filtered IDs.
+sub search_uncached_composite ( $category_id_dnf, $filter_dnf, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks ) {
+    my $redis    = LANraragi::Model::Config->get_redis_search;
+    my $redis_db = LANraragi::Model::Config->get_redis;
+    my $logger   = get_logger( "Search Core", "lanraragi" );
+
+    # Start with all archive IDs
+    my @filtered;
+    if ($grouptanks) {
+        # Start with our tank IDs, and all other archive IDs that aren't in tanks
+        @filtered = $redis->smembers("LRR_TANKGROUPED");
+    } else {
+        # Start with all our archive IDs. Tank IDs won't be present in this search.
+        @filtered = $redis_db->keys('????????????????????????????????????????');
+    }
+
+    # Apply the category DNF filter first
+    my @category_filtered = process_category_dnf($category_id_dnf, \@filtered, $redis, $redis_db, $logger);
+
+    # Early return if no results after category filtering
+    if (scalar @category_filtered == 0) {
+        $logger->debug("No results after category filtering, halting search.");
+        $redis->quit();
+        $redis_db->quit();
+        return ();
+    }
+
+    # Apply the untagged and new filters
+    @category_filtered = apply_common_filters(\@category_filtered, $newonly, $untaggedonly, $redis);
+
+    # Early return if no results after common filtering
+    if (scalar @category_filtered == 0) {
+        $logger->debug("No results after applying common filters, halting search.");
+        $redis->quit();
+        $redis_db->quit();
+        return ();
+    }
+
+    # Process the filter DNF
+    my @final_filtered = process_filter_dnf($filter_dnf, \@category_filtered, $redis, $redis_db, $logger);
+
+    # Apply sorting if we have results
+    if (scalar @final_filtered > 0) {
+        $logger->debug("Found " . scalar @final_filtered . " results after filtering.");
+
+        if (!$sortkey) {
+            $sortkey = "title";
+        }
+
+        @final_filtered = apply_sorting(\@final_filtered, $sortkey, $sortorder, $redis, $redis_db);
+    }
+
+    $redis->quit();
+    $redis_db->quit();
+    return @final_filtered;
+}
+
+# Process the category DNF (list of lists of category IDs)
+# Each outer list element is combined with OR
+# Each inner list element is combined with AND
+sub process_category_dnf {
+    my ($category_id_dnf, $filtered_ref, $redis, $redis_db, $logger) = @_;
+    my @result = ();
+
+    $logger->debug("Processing category DNF with " . scalar @$category_id_dnf . " OR terms");
+
+    # Process each OR term (outer list)
+    for my $and_categories (@$category_id_dnf) {
+        # Skip empty category lists
+        next if !defined $and_categories || scalar @$and_categories == 0;
+
+        $logger->debug("Processing AND term with " . scalar @$and_categories . " categories");
+
+        # Start with the full list for each OR term
+        my @current_term_result = @$filtered_ref;
+
+        # Process each category in this AND term
+        for my $category_id (@$and_categories) {
+            # Skip undefined categories
+            next if !defined $category_id;
+
+            # Get the category data
+            my %category = LANraragi::Model::Category::get_category($category_id);
+
+            if (%category) {
+                if ($category{search} ne "") {
+                    # For dynamic categories, apply their search tokens to the current result
+                    my @cat_tokens = compute_search_filter($category{search});
+                    @current_term_result = apply_tokens_to_ids(\@cat_tokens, \@current_term_result, $redis, $redis_db, $logger);
+
+                    # Early exit if this AND term has no results
+                    if (scalar @current_term_result == 0) {
+                        $logger->debug("No results for this AND term, skipping to next OR term");
+                        last;
+                    }
+                } else {
+                    # For static categories, intersect with the category's archive list
+                    @current_term_result = intersect_arrays($category{archives}, \@current_term_result, 0);
+                    
+                    # Early exit if this AND term has no results
+                    if (scalar @current_term_result == 0) {
+                        $logger->debug("No results for this AND term after intersecting with static category, skipping to next OR term");
+                        last;
+                    }
+                }
+            }
+        }
+
+        # Add this OR term's results to the final result
+        push @result, @current_term_result;
+    }
+
+    # Remove duplicates
+    my %seen;
+    @result = grep { !$seen{$_}++ } @result;
+
+    $logger->debug("Category DNF processing yielded " . scalar @result . " results");
+    return @result;
+}
+
+# Process the filter DNF (list of filters)
+# Each filter is combined with OR
+sub process_filter_dnf {
+    my ($filter_dnf, $filtered_ref, $redis, $redis_db, $logger) = @_;
+
+    # If there are no filters, return the input as is
+    return @$filtered_ref if !defined $filter_dnf || scalar @$filter_dnf == 0;
+
+    $logger->debug("Processing filter DNF with " . scalar @$filter_dnf . " filters");
+
+    my @result = ();
+
+    # Process each filter (OR term)
+    for my $filter (@$filter_dnf) {
+        # Skip undefined filters
+        next if !defined $filter;
+
+        # Convert filter to tokens
+        my @tokens = compute_search_filter($filter);
+
+        # Apply tokens to the current filtered IDs
+        my @filter_result = apply_tokens_to_ids(\@tokens, $filtered_ref, $redis, $redis_db, $logger);
+
+        # Add results from this filter to overall results
+        push @result, @filter_result;
+    }
+
+    # Remove duplicates
+    my %seen;
+    @result = grep { !$seen{$_}++ } @result;
+
+    $logger->debug("Filter DNF processing yielded " . scalar @result . " results");
+    return @result;
+}
+
+# Apply a list of tokens to a list of IDs
+# All tokens are combined with AND
+sub apply_tokens_to_ids {
+    my ($tokens, $ids_ref, $redis, $redis_db, $logger) = @_;
+
+    # Return the original IDs if there are no tokens
+    return @$ids_ref if scalar @$tokens == 0;
+
+    # Start with the full list
+    my @filtered = @$ids_ref;
+
+    # Return empty if nothing to filter
+    return () if scalar @filtered == 0;
+
+    # Iterate through each token and intersect the results with the previous ones
+    foreach my $token (@$tokens) {
+        my $tag     = $token->{tag};
+        my $isneg   = $token->{isneg};
+        my $isexact = $token->{isexact};
+
+        $logger->debug("Searching for $tag, isneg=$isneg, isexact=$isexact");
+
+        # Encode tag as we'll use it in redis operations
+        $tag = redis_encode($tag);
+
+        my @ids = ();
+
+        # Specific case for pagecount searches
+        if ($tag =~ /^(read|pages):(>|<|>=|<=)?(\d+)$/) {
+            my $col       = $1;
+            my $operator  = $2;
+            my $pagecount = $3;
+
+            $logger->debug("Searching for IDs with $operator $pagecount $col");
+
+            # If no operator is specified, we assume it's an exact match
+            $operator = "=" if !$operator;
+
+            # Change the column based off the tag searched.
+            # "pages" -> "pagecount"
+            # "read" -> "progress"
+            $col = $col eq "pages" ? "pagecount" : "progress";
+
+            # Go through all IDs in @filtered and check if they have the right pagecount
+            foreach my $id (@filtered) {
+                # Tanks don't have a set pagecount property
+                if ($id =~ /^TANK/) {
+                    next;
+                }
+
+                # Default to 0 if null.
+                my $count = $redis_db->hget($id, $col) || 0;
+
+                if (($operator eq "=" && $count == $pagecount)
+                    || ($operator eq ">"  && $count > $pagecount)
+                    || ($operator eq ">=" && $count >= $pagecount)
+                    || ($operator eq "<"  && $count < $pagecount)
+                    || ($operator eq "<=" && $count <= $pagecount)) {
+                    push @ids, $id;
+                }
+            }
+        } 
+        # For exact tag searches, just check if an index for it exists
+        elsif ($isexact && $redis->exists("INDEX_$tag")) {
+            # Get the list of IDs for this tag
+            @ids = $redis->smembers("INDEX_$tag");
+            $logger->debug("Found tag index for $tag, containing " . scalar @ids . " IDs");
+        } 
+        else {
+            # Get index keys that match this tag
+            my $indexkey = $tag =~ /:/ ? "INDEX_$tag*" : "INDEX_*$tag*";
+            my @keys = $redis->keys($indexkey);
+
+            # Get the list of IDs for each key
+            foreach my $key (@keys) {
+                my @keyids = $redis->smembers($key);
+                $logger->trace("Found index $key for $tag, containing " . scalar @keyids . " IDs");
+                push @ids, @keyids;
+            }
+
+            # Append fuzzy title search
+            my $namesearch = $isexact ? "$tag\x00*" : "*$tag*";
+            my $scan = -1;
+
+            while ($scan != 0) {
+                # First iteration
+                if ($scan == -1) { $scan = 0; }
+                $logger->trace("Scanning for $namesearch, cursor=$scan");
+
+                my @result = $redis->zscan("LRR_TITLES", $scan, "MATCH", $namesearch, "COUNT", 100);
+                $scan = $result[0];
+
+                foreach my $title (@{$result[1]}) {
+                    if ($title eq "0") { next; }  # Skip scores
+                    $logger->trace("Found title match: $title");
+
+                    # Strip everything before \x00 to get the ID out of the key
+                    my $id = substr($title, index($title, "\x00") + 1);
+                    push @ids, $id;
+                }
+            }
+        }
+        
+        if (scalar @ids == 0 && !$isneg) {
+            # No more results, we can end search here
+            $logger->trace("No results for this token, halting search.");
+            @filtered = ();
+            last;
+        } else {
+            $logger->trace("Found " . scalar @ids . " results for this token.");
+
+            # Intersect the new list with the previous ones
+            @filtered = intersect_arrays(\@ids, \@filtered, $isneg);
+
+            if (scalar @filtered == 0) {
+                $logger->trace("No more results after intersection, halting search.");
+                last;
+            }
+        }
+    }
+    
+    return @filtered;
+}
+
+# Apply the untagged and new filters
+sub apply_common_filters {
+    my ($filtered_ref, $newonly, $untaggedonly, $redis) = @_;
+    my @filtered = @$filtered_ref;
+
+    # If the untagged filter is enabled, call the untagged files API
+    if ($untaggedonly) {
+        my @untagged = $redis->smembers("LRR_UNTAGGED");
+        @filtered = intersect_arrays(\@untagged, \@filtered, 0);
+    }
+
+    # Check new filter
+    if ($newonly) {
+        my @new = $redis->smembers("LRR_NEW");
+        @filtered = intersect_arrays(\@new, \@filtered, 0);
+    }
+
+    return @filtered;
+}
+
+# Apply sorting to the filtered results
+sub apply_sorting {
+    my ($filtered_ref, $sortkey, $sortorder, $redis, $redis_db) = @_;
+    my @filtered = @$filtered_ref;
+
+    if ($sortkey eq "title") {
+        my @ordered = ();
+
+        # For title sorting, we can just use the LRR_TITLES set, which is sorted lexicographically (but not naturally).
+        @ordered = nsort($redis->zrangebylex("LRR_TITLES", "-", "+"));
+        if ($sortorder) {
+            @ordered = reverse(@ordered);
+        }
+
+        # Remove the titles from the keys, which are stored as "title\x00id"
+        @ordered = map { substr($_, index($_, "\x00") + 1) } @ordered;
+
+        # Just intersect the ordered list with the filtered one to get the final result
+        @filtered = intersect_arrays(\@filtered, \@ordered, 0);
+    } else {
+        # For other sorting, we need to get the metadata for each archive and sort it manually.
+        @filtered = sort_results($sortkey, $sortorder, @filtered);
+    }
+
     return @filtered;
 }
 
