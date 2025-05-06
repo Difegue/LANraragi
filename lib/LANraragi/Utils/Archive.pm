@@ -60,10 +60,8 @@ sub generate_thumbnail ( $data, $thumb_path, $use_hq, $use_jxl ) {
 
         $img->BlobToImage($data);
 
-        # If the image is a gif, only take the first frame
-        if ($img->Get('magick') eq 'GIF' ) {
-            $img = $img->[0];
-        }
+        # Only use the first frame (relevant for animated gif/webp/whatever)
+        $img = $img->[0];
 
         # The "-scale" resize operator is a simplified, faster form of the resize command.
         if ($use_hq) {
