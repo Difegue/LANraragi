@@ -2,1670 +2,1672 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-04 20:25+0200\n"
-"PO-Revision-Date: 2025-05-05 16:10+0000\n"
-"Last-Translator: Ftbom <lz490070@gmail.com>\n"
-"Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
-"projects/lanraragi/lanraragi-source/zh_Hans/>\n"
-"Language: zh\n"
+"POT-Creation-Date: 2025-05-05 18:10+0200\n"
+"PO-Revision-Date: 2025-05-06 20:28+0000\n"
+"Last-Translator: scentedtiger <something95@tutanota.com>\n"
+"Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
+"lanraragi/lanraragi-source/nb_NO/>\n"
+"Language: nb_NO\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 5.12-dev\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
 msgid "Database Backup/Restore"
-msgstr "数据库备份/恢复"
+msgstr ""
 
 msgid "You can backup your existing database here, or restore an existing backup."
-msgstr "您可以在此备份现有数据库，或恢复现有的备份。"
+msgstr ""
+"Du kan sikkerhetskopiere din eksisterende database her, eller gjenopprette "
+"en eksisterende sikkerhetskopi."
 
 msgid "Backuping allows you to download a JSON file containing all your categories and archive IDs, and their matching metadata."
-msgstr "备份会生成一个 JSON 文件，其中包含所有分类和档案 "
-"ID，以及它们的匹配元数据，供您下载。"
+msgstr ""
+"Sikkerhetskopiering tillater deg å laste ned en JSON fil som inneholder alle "
+"kategoriene og arkiv ID'ene dine, og den matchende metadataen."
 
 msgid "Restoring from a backup will restore this metadata, <b>for IDs which already exist in your database.</b>"
-msgstr "从备份恢复时，将恢复这些元数据，<b>但仅限于数据库中已存在的 ID。</b>"
+msgstr ""
+"Gjenopprettning fra en sikkerhetskopi vil gjenopprette denne metadataen, "
+"<b>for ID'er som allerede eksisterer i databasen din.</b>"
 
 msgid "(Categories will always be restored)"
-msgstr "（分类将始终被恢复）"
+msgstr "(Kategorier vil alltid bli gjenopprettet)"
 
 msgid "Backup Database"
-msgstr "备份数据库"
+msgstr "Sikkerhetskopier database"
 
 msgid "Restore Backup"
-msgstr "恢复备份"
+msgstr "Gjenopprett database"
 
 msgid "Restoring your backup ..."
-msgstr "正在恢复您的备份……"
+msgstr "Gjenoppretter din database ..."
 
 msgid "Return to Library"
-msgstr "返回库"
+msgstr ""
 
 # ------End of Backup.html.tt2------
 # ------Start of Batch.html.tt2------
 msgid "Batch Operations"
-msgstr "批量操作"
+msgstr ""
 
 msgid "You can apply modifications to multiple archives in one go here."
-msgstr "您可以在此一次性对多个档案进行修改。"
+msgstr "Du kan ta i bruk endringer av flere arkiver på en gang her."
 
 msgid "Select what you'd like to do, check archives you want to use it on, and get rolling!"
-msgstr "选择您想要执行的操作，勾选您想要使用的档案，然后开始吧！"
+msgstr ""
+"Velg hva du ønsker å gjøre, sjekk arkivene du vil bruke det på, og kjør på!"
 
 msgid "Archives with no tags have been pre-checked."
-msgstr "没有标签的档案已被预先勾选。"
+msgstr "Arkiver uten tagger har blitt forhåndsvalgt."
 
 msgid "Task :"
-msgstr "任务："
+msgstr "Oppgave :"
 
 msgid "Use Plugin"
-msgstr "使用插件"
+msgstr "Bruk programtillegg"
 
 msgid "Remove New Flag"
-msgstr "移除新标记"
+msgstr "Fjern Nytt Flagg"
 
 msgid "Apply Tag Rules"
-msgstr "应用标签规则"
+msgstr "Bruk taggregler"
 
 msgid "Add To Category"
-msgstr "添加到分类"
+msgstr "Legg Til i Kategori"
 
 msgid "Delete Archive"
-msgstr "删除档案"
+msgstr ""
 
 msgid "Use plugin :"
-msgstr "使用插件："
+msgstr "Bruk programtillegg :"
 
 msgid "Timeout (max 20s):"
-msgstr "超时（最多20秒）："
+msgstr "Tidsavbrudd (maks 20s):"
 
 msgid "This plugin recommends a cooldown of <span id=\"cooldown\">-1</span> seconds."
-msgstr "此插件建议冷却时间为<span id=\"cooldown\">-1</span>秒。"
+msgstr ""
+"Dette programtillegget annbefaler en nedkjølingstid på <span id=\"cooldown\""
+">-1</span> sekunder."
 
 msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
-msgstr "如果您多次调用插件，一些外部服务可能会因过载而暂时禁止您的机器！"
+msgstr ""
+"Noen eksterne tjenester kan midlertidig blokkere maskinen din ved for høy "
+"belastning hvis du bruker et programtillegg for mange ganger!"
 
 msgid "Make sure to set a suitable <b>timeout</b> between archives using this picker if the plugin you want to use is concerned."
-msgstr "如果您要使用的插件涉及，请确保在档案之间设置合适的<b>超时</b>。"
+msgstr ""
+"Sørg for å angi et passende <b>tidsavbrudd</b> mellom arkiver når du bruker "
+"denne velgeren, hvis programtillegget du vil bruke er relevant."
 
 msgid "Override Plugin Global Arguments"
-msgstr "覆盖插件全局参数"
+msgstr "Overstyr globale argumenter for programtillegg"
 
 msgid "This will apply the following Tag Rules to the selected Archives."
-msgstr "这将对选定的档案应用以下标签规则。"
+msgstr "Dette vil bruke følgende taggregler på de valgte arkivene."
 
 msgid "You can edit your Tag Rules in Server Configuration."
-msgstr "您可以在服务器配置中编辑您的标签规则。"
+msgstr "Du kan redigere dine Taggregler i serverkonfigurasjon."
 
 msgid "Server Configuration"
-msgstr "服务器配置"
+msgstr "Serverkonfigurasjon"
 
 msgid "This removes the \"new\" flag from the selected archives."
-msgstr "这将移除选定档案的“新”标记。"
+msgstr "Dette fjerner \"ny\" flagget fra de valgte arkiver."
 
 msgid "Add to Category :"
-msgstr "添加到分类："
+msgstr "Legg til i Kategori :"
 
 msgid "This will delete both metadata and matching files from your system! Please use with caution."
-msgstr "这将从您的系统中删除元数据和匹配的文件！请谨慎使用。"
+msgstr ""
+"Dette vil slette både metadata og matchende filer fra systemet! Venligst "
+"bruk med forsiktighet."
 
 msgid "Check/Uncheck all"
-msgstr "全选/取消全选"
+msgstr "Merk/Avmerk alle"
 
 msgid "Start Task"
-msgstr "开始任务"
+msgstr "Start Oppgave"
 
 msgid "Cancel"
-msgstr "取消"
+msgstr "Avbryt"
 
 msgid "Start another job"
-msgstr "开始另一个任务"
+msgstr "Start en ny jobb"
 
 msgid "Processed <span id=\"arcs\"></span> out of <span id=\"totalarcs\"></span>"
-msgstr "已处理<span id=\"arcs\"></span>个，共<span id=\"totalarcs\"></span>个"
+msgstr "Behandlet <span id=\"arcs\"></span>av<span id=\"totalarcs\"></span>"
 
 msgid "Preparing your data."
-msgstr "正在准备您的数据。"
+msgstr "Forbereder dataene dine."
 
 msgid "Plugin Configuration"
-msgstr "插件配置"
+msgstr ""
 
 msgid "Return to Library"
-msgstr "返回库"
+msgstr ""
 
 # ------End of Batch.html.tt2------
 # ------Start of Category.html.tt2------
 msgid "Categories"
-msgstr "分类"
+msgstr ""
 
 msgid "Categories appear at the top of your window when browsing the Library."
-msgstr "浏览库时，分类会出现在窗口顶部。"
+msgstr "Kategorier vises øverst i vinduet når du blar gjennom biblioteket."
 
 msgid "There are two distinct kinds:"
-msgstr "有两种不同的类型："
+msgstr "Det finnes to unike typer:"
 
 msgid "Static Categories are arbitrary collections of Archives, where you can add as many items as you want."
-msgstr "静态分类是任意的档案集合，您可以添加任意数量的项目。"
+msgstr ""
+"Statiske kategorier er vilkårlige samlinger av arkiver, hvor du kan legge "
+"til så mange elementer du ønsker."
 
 msgid "Dynamic Categories contain all archives matching a given predicate, and automatically update alongside your library."
-msgstr "动态分类包含所有符合给定谓词的档案，并会随您的库自动更新。"
+msgstr ""
+"Dynamiske Kategorier inneholder alle arkiver som samsvarer med et gitt "
+"kriterium, og oppdateres automatisk sammen med biblioteket ditt."
 
 msgid "You can create new categories here or edit existing ones."
-msgstr "您可以在这里创建新分类或编辑现有分类。"
+msgstr "Du kan lage nye kategorier her eller redigere eksisterende."
 
 msgid "Select a category in the combobox below to edit its name, the archives it contains, or its predicate."
-msgstr "在下面的组合框中选择一个分类以编辑其名称、包含的档案或其谓词。"
+msgstr ""
+"Velg en kategori i rullegardinmenyen nedenfor for å redigere navnet dens, "
+"arkivene den inneholder, eller kriteriet dens."
 
 msgid "All your modifications are saved automatically."
-msgstr "您的所有修改都会自动保存。"
+msgstr "Alle modifikasjonene dine lagres automatisk."
 
 msgid "Category:"
-msgstr "分类："
+msgstr "Kategori:"
 
 msgid "Name:"
-msgstr "名称："
+msgstr "Navn:"
 
 msgid "Predicate:"
-msgstr "谓词："
+msgstr "Kriterie:"
 
 msgid "Pin this Category"
-msgstr "固定此分类"
+msgstr "Fest denne Kategorien"
 
 msgid "Delete Category"
-msgstr "删除分类"
+msgstr "Slett Kategori"
 
 msgid "If you select a Static Category, your archives will appear here so you can add/remove them from the category."
-msgstr "如果您选择一个静态分类，您的档案将出现在这里，您可以从分类中添加/删除它们。"
+msgstr ""
+"Hvis du velger en Statisk Kategori, vil arkivene dine vises her, så du kan "
+"legge de til eller fjerne de fra kategorien."
 
 msgid "Return to Library"
-msgstr "返回库"
+msgstr ""
 
 msgid "Store Bookmarks in this Category"
-msgstr "设置书签"
+msgstr "Lagre Bokmerker i denne Kategorien"
 
 msgid "Error linking bookmark button:"
-msgstr "关联书签时按钮出错："
+msgstr "Feil ved kobling av bokmerkeknapp:"
 
 msgid "Error unlinking bookmark button:"
-msgstr "取消关联书签按钮时出错："
+msgstr "Feil ved fjerning av bokmerkeknapp:"
 
 msgid "Error getting bookmark category:"
-msgstr "获取书签分类时出错："
+msgstr "Feil ved henting av bokmerkekategori:"
+
+msgid "New Static Category"
+msgstr "Ny Statisk Kategori"
+
+msgid "New Dynamic Category"
+msgstr "Ny Dynamisk Kategori"
 
 # ------End of Category.html.tt2------
 # ------Start of Config.html.tt2------
 msgid "Admin Settings"
-msgstr "管理员设置"
+msgstr "Administrasjonsinnstillinger"
 
 msgid "LANraragi"
 msgstr "LANraragi"
 
 msgid "Version %1 %2"
-msgstr "版本 %1 %2"
+msgstr "Versjon %1 - %2"
 
 msgid "Select a category to show the matching settings."
-msgstr "选择一个分类以显示匹配的设置。"
+msgstr "Velg en kategori for å vise de matchende innstillingene."
 
 msgid "Save Settings"
-msgstr "保存设置"
+msgstr "Lagre Instillinger"
 
 msgid "Plugin Configuration"
-msgstr "插件配置"
+msgstr ""
 
 msgid "Database Backup/Restore"
-msgstr "数据库备份/恢复"
+msgstr "Sikkerhetskopier/Gjenopprett Database"
 
 msgid "Return to Library"
-msgstr "返回库"
+msgstr ""
 
 msgid "Global Settings"
-msgstr "全局设置"
+msgstr "Globale Instillinger"
 
 msgid "Theme"
-msgstr "主题"
+msgstr "Tema"
 
 msgid "Security"
-msgstr "安全"
+msgstr "Sikkerhet"
 
 msgid "Archive Files"
-msgstr "档案文件"
+msgstr "Arkiver Filer"
 
 msgid "Tags and Thumbnails"
-msgstr "标签和缩略图"
+msgstr "Tagger og miniatyrbilder"
 
 msgid "Background Workers"
-msgstr "后台程序"
+msgstr "Bakgrunnsarbeidere"
 
 # ------End of Config.html.tt2------
 # ------Start of Config_Files.html.tt2------
 msgid "Archive Directory"
-msgstr "档案目录"
+msgstr "Arkivmappe"
 
 msgid "Directory where the archives will be located. It will be created if it doesn't exist."
-msgstr "档案将存放在此目录中。如果目录不存在，将会创建它。"
+msgstr ""
+"Mappen der arkivene vil bli plassert. Den vil bli opprettet hvis den ikke "
+"finnes."
 
 msgid "Make sure the OS user running LANraragi has read access to this directory."
-msgstr "确保运行LANraragi的操作系统用户对该目录具有读取权限。"
+msgstr ""
+"Sørg for at OS brukeren som kjører LANraragi har lesetilgang til denne "
+"mappen."
 
 msgid "Synology eCryptFS Compatibility Mode"
-msgstr "群晖 eCryptFS 兼容模式"
+msgstr ""
 
 msgid "If enabled, LANraragi will cutoff archive filenames to 143 bytes, which is the max accepted by eCryptFS."
-msgstr "如果启用，LANraragi将把档案文件名截断为143字节，这是eCryptFS接受的最大值。"
+msgstr ""
 
 msgid "Rescan Archive Directory"
-msgstr "重新扫描档案目录"
+msgstr ""
 
 msgid "Click this button to trigger a rescan of the Archive Directory in case you're missing files, or some data such as total page counts."
-msgstr "点击此按钮以触发档案目录的重新扫描，以防丢失文件或某些数据<br>例如总页数。"
+msgstr ""
 
 msgid "Maximum <br>Cache Size"
-msgstr "最大<br>临时文件夹大小"
+msgstr ""
 
 msgid "In MBs. The cache contains recently viewed pages, for faster subsequent reading."
-msgstr "以MB为单位。临时文件夹包含最近打开的档案，以便更快地进行后续读取。"
+msgstr ""
 
 msgid "It is automatically emptied when it grows past this specified size."
-msgstr "当其大小超过指定大小时，将自动清空。"
+msgstr ""
 
-msgid "Clean Cache"
-msgstr "清理临时文件夹"
+msgid "Clear Cache"
+msgstr ""
 
 msgid "Current Size:"
-msgstr "当前大小："
+msgstr ""
 
-msgid "Empty the cache manually by clicking this button."
-msgstr "点击此按钮手动清空临时文件夹。"
+msgid "Clear the cache manually by clicking this button."
+msgstr ""
 
 msgid "Reset Search Cache"
-msgstr "重置搜索缓存"
+msgstr ""
 
 msgid "The last searches done in the archive index are cached for faster loads."
-msgstr "档案索引中进行的最后搜索会被缓存，以便更快加载。"
+msgstr ""
 
 msgid "If something went wrong with said cache, you can reset it by clicking this button."
-msgstr "如果缓存出现问题，可以点击此按钮重置。"
+msgstr ""
 
 msgid "Clear NEW flags"
-msgstr "清除NEW标记"
+msgstr ""
 
 msgid "Newly uploaded archives are marked as \"new\" in the index until you\'ve opened them."
-msgstr "新上传的档案在索引中标记为“新”状态，直到您打开它们。"
+msgstr ""
 
 msgid "If you want to clear those flags, click this button."
-msgstr "如果要清除这些标记，请点击此按钮。"
+msgstr ""
 
 msgid "Replace duplicated archives"
-msgstr "替换重复的档案"
+msgstr ""
 
 msgid "If enabled, LANraragi will overwrite old archives when a newer one (with the same name) is uploaded through the Web Uploader or the Download System."
-msgstr "如果启用，当通过Web上传器或下载系统上传较新的档案（具有相同名称）时，LANrarag"
-"i将覆盖旧档案。"
+msgstr ""
 
 msgid "This will delete metadata for old files when they're replaced! Use with caution."
-msgstr "这将删除旧文件的元数据！请谨慎使用。"
+msgstr ""
 
 # ------End of Config_Files.html.tt2------
 # ------Start of Config_Global.html.tt2------
 msgid "Site Title"
-msgstr "站点标题"
+msgstr ""
 
 msgid "The site title appears on most pages as...their title."
-msgstr "站点标题会出现在大多数页面上作为它们的标题。"
+msgstr ""
 
 msgid "MOTD"
-msgstr "每日消息"
+msgstr ""
 
 msgid "Slang for Message of the Day. Appears on top of the main Library view."
-msgstr "每日消息的俚语。出现在主库视图的顶部。"
+msgstr ""
 
 msgid "Archives per page"
-msgstr "每页档案数"
+msgstr ""
 
 msgid "Number of archives shown on a page in the main list."
-msgstr "主列表中每页显示的档案数量。"
+msgstr ""
 
 msgid "Resize Images in Reader"
-msgstr "在阅读器中调整图像大小"
+msgstr ""
 
 msgid "If enabled, pages exceeding a certain size will be resized when viewed to save bandwidth."
-msgstr "如果启用，超过一定大小的页面在查看时将调整大小以节省带宽。"
+msgstr ""
 
 msgid "This option can potentially consume a lot of RAM if enabled and used on large images! Use with caution."
-msgstr "如果启用并在大图像上使用，此选项可能会消耗大量内存！请谨慎使用。"
+msgstr ""
 
 msgid "Image Size Threshold"
-msgstr "图像大小阈值"
+msgstr ""
 
 msgid "(in KBs.) Maximum size an image can reach before being resized."
-msgstr "（以KB为单位。）图像在调整大小之前可以达到的最大大小。"
+msgstr ""
 
 msgid "Resize Quality"
-msgstr "调整大小质量"
+msgstr ""
 
 msgid "Quality of the resized images. Less quality = Smaller image. (0-100)"
-msgstr "调整大小后的图像质量。质量越低=图像越小。（0-100）"
+msgstr ""
 
 msgid "Clientside Progress Tracking"
-msgstr "客户端进度跟踪"
+msgstr ""
 
 msgid "Enabling this option will save reading progression on the browser (through localStorage) instead of the server."
-msgstr "启用此选项将通过浏览器（通过localStorage）而不是服务器保存阅读进度。"
+msgstr ""
 
 msgid "Consider toggling this option if you're sharing the LANraragi instance with multiple users!"
-msgstr "如果您与多个用户共享LANraragi实例，请考虑切换此选项！"
+msgstr ""
 
 msgid "Debug Mode"
-msgstr "调试模式"
+msgstr ""
 
 msgid "Enabling Debug Mode will show more logs and disable update nagging."
-msgstr "启用调试模式将显示更多日志并禁用更新提示。"
+msgstr ""
 
 msgid "Fully effective after restarting LANraragi."
-msgstr "重新启动LANraragi后完全生效。"
+msgstr ""
 
 msgid "Clean Database"
-msgstr "清理数据库"
+msgstr ""
 
 msgid "Cleaning the database will remove entries that aren't on your filesystem."
-msgstr "清理数据库将删除不在您的文件系统中的条目。"
+msgstr ""
 
 msgid "Reset Database"
-msgstr "重置数据库"
+msgstr ""
 
 msgid "Danger zone!"
-msgstr "危险区域！"
+msgstr ""
 
 msgid "Clicking this button will reset the entire database and delete all settings and metadata."
-msgstr "点击此按钮将重置整个数据库并删除所有设置和元数据。"
+msgstr ""
 
 # ------End of Config_Global.html.tt2------
 # ------Start of Config_Security.html.tt2------
 msgid "Enable Password"
-msgstr "启用密码"
+msgstr ""
 
 msgid "If enabled, everything that isn't reading will require a password."
-msgstr "如果启用，除阅读外的所有操作都需要密码。"
+msgstr ""
 
 msgid "New Password"
-msgstr "新密码"
+msgstr ""
 
 msgid "New Password Confirmation"
-msgstr "确认新密码"
+msgstr ""
 
 msgid "Only edit these fields if you want to change your password."
-msgstr "只有在您想更改密码时才编辑这些字段。"
+msgstr ""
 
 msgid "The one already stored will be used otherwise."
-msgstr "否则将使用已存储的密码。"
+msgstr ""
 
 msgid "No-Fun Mode"
-msgstr "No-Fun 模式"
+msgstr ""
 
 msgid "Enabling No-Fun Mode will lock reading archives behind the password as well."
-msgstr "启用 No-Fun 模式将使阅读档案也需要密码。"
+msgstr ""
 
 msgid "Fully effective after restarting LANraragi."
-msgstr "重新启动LANraragi后完全生效。"
+msgstr ""
 
 msgid "API Key"
-msgstr "API密钥"
+msgstr ""
 
 msgid "If you wish to use the Client API and have a password, you'll have to set a key here."
-msgstr "如果您希望使用客户端API并且有密码，您必须在此处设置密钥。"
+msgstr ""
 
 msgid "Empty keys will <b>not</b> work!"
-msgstr "空密钥将<b>不会</b>起作用！"
+msgstr ""
 
 msgid "This key will need to be provided in every protected API call as the <i>Authorization</i> header."
-msgstr "此密钥需要在每个受保护的API调用中作为<i>Authorization</i>头提供。"
+msgstr ""
 
 msgid "Enable CORS for the Client API"
-msgstr "为客户端API启用CORS"
+msgstr ""
 
 msgid "Have API requests support Cross-Origin Resource Sharing, which allows web browsers to access it off other domains."
-msgstr "使API请求支持跨域资源共享，这允许Web浏览器从其他域访问它。"
+msgstr ""
 
 msgid "Turn this on if you want to access this service through a web-based wrapper (e.g. a userscript) used/hosted on another domain."
-msgstr "如果您希望通过基于Web的包装器（例如用户脚本）访问此服务，请启用此选项。"
+msgstr ""
 
 # ------End of Config_Security.html.tt2------
 # ------Start of Config_Shinobu.html.tt2------
 msgid "Shinobu Status"
-msgstr "Shinobu 状态"
+msgstr ""
 
 msgid "The Shinobu File Watcher is currently"
-msgstr "Shinobu 文件监视器当前"
+msgstr ""
 
 msgid "OK!"
-msgstr "正常!"
+msgstr ""
 
 msgid "Kaput!"
-msgstr "爆炸咯!"
+msgstr ""
 
 msgid "This File Watcher is responsible for monitoring your content directory and automatically handling new archives as they come."
-msgstr "此文件监视器负责监视您的内容目录并自动处理新档案文件。"
+msgstr ""
 
 msgid "Restart File Watcher"
-msgstr "重启文件监视器"
+msgstr ""
 
 msgid "If Shinobu is dead or unresponsive, you can reboot her by clicking this button."
-msgstr "如果 Shinobu 挂了或无响应，您可以通过点击此按钮重新启动她。"
+msgstr ""
 
 msgid "Open Minion Console"
-msgstr "打开 Minion 控制台"
+msgstr ""
 
 msgid "The Minion Worker handles spare tasks that are too long to execute within the request/response lifecycle of web applications."
-msgstr "Minion Worker 处理在 Web "
-"应用程序的请求/响应生命周期内执行时间过长的备用任务。"
+msgstr ""
 
 msgid "The console shows currently running and concluded tasks."
-msgstr "控制台显示当前运行和已完成的任务。"
+msgstr ""
 
 # ------End of Config_Shinobu.html.tt2------
 # ------Start of Config_Tags.html.tt2------
 msgid "Thumbnail Directory"
-msgstr "缩略图目录"
+msgstr ""
 
 msgid "Directory where the archive thumbnails will be located. It will be created if it doesn't exist."
-msgstr "存档缩略图将存放在此目录中。如果目录不存在，将会创建它。"
+msgstr ""
 
 msgid "Make sure the OS user running LANraragi has read/write access to this directory."
-msgstr "确保运行 LANraragi 的操作系统用户对该目录具有读/写权限。"
+msgstr ""
 
 msgid "Use high-quality thumbnails for pages"
-msgstr "为页面使用高质量缩略图"
+msgstr ""
 
 msgid "LANraragi generates lower-quality thumbnails for archive pages for performance reasons."
-msgstr "出于性能原因，LANraragi 为存档页面生成较低质量的缩略图。"
+msgstr ""
 
 msgid "If this option is checked, it will instead generate page thumbnails at the same quality as cover thumbnails."
-msgstr "如果选中此选项，它将生成与封面缩略图相同质量的页面缩略图。"
+msgstr ""
 
 msgid "Use JPEG XL for thumbnails"
-msgstr "为缩略图使用 JPEG XL"
+msgstr ""
 
 msgid "LANraragi generates JPEG thumbnails for compatibility and performance reasons."
-msgstr "出于兼容性和性能原因，LANraragi 生成 JPEG 缩略图。"
+msgstr ""
 
 msgid "If this option is checked, it will instead generate thumbnails using JPEG XL."
-msgstr "如果选中此选项，它将使用 JPEG XL 生成缩略图。"
+msgstr ""
 
 msgid "Generate Missing Thumbnails"
-msgstr "生成缺失的缩略图"
+msgstr ""
 
 msgid "Generate Thumbnails for all archives that don't have one yet."
-msgstr "为所有尚未生成缩略图的存档生成缩略图。"
+msgstr ""
 
 msgid "Regenerate all Thumbnails"
-msgstr "重新生成所有缩略图"
+msgstr ""
 
 msgid "Regenerate all thumbnails. This might take a while!"
-msgstr "重新生成所有缩略图。这可能需要一些时间！"
+msgstr ""
 
 msgid "Add Timestamp Tag"
-msgstr "添加时间戳标签"
+msgstr ""
 
 msgid "If enabled, LANraragi will add the UNIX timestamp of the current time as a tag under the \"date_added\" namespace to newly added archives."
-msgstr "如果启用，LANraragi 将在 \"date_added\" 命名空间下将当前时间的 UNIX "
-"时间戳作为标签添加到新添加的存档中。"
+msgstr ""
 
 msgid "Use \"Last modified\" Time"
-msgstr "使用“最后修改”时间"
+msgstr ""
 
 msgid "Enabling this will use file modified time instead of current time when setting \"date_added\" timestamps."
-msgstr "启用此选项将在设置 \"date_added\" 时间戳时使用文件修改时间而不是当前时间。"
+msgstr ""
 
 msgid "Tag Rules"
-msgstr "标签规则"
+msgstr ""
 
 msgid "When tagging archives using Plugins, the rules specified here will be applied to the tags before saving them to the database."
-msgstr "使用插件标记存档时，这里指定的规则将在将标签保存到数据库之前应用于标签。"
+msgstr ""
 
 msgid "Split rules with linebreaks."
-msgstr "用换行符分隔规则。"
+msgstr ""
 
 msgid "<b>-tag | tag</b> : removes the tag (like a blacklist)"
-msgstr "<b>-tag | tag</b> : 删除标签（类似于黑名单）"
+msgstr ""
 
 msgid "<b>-namespace:*</b> : removes all tags within this namespace"
-msgstr "<b>-namespace:*</b> : 删除此命名空间内的所有标签"
+msgstr ""
 
 msgid "namespace : strips the namespace from the tags"
-msgstr "<b>~namespace</b> : 从标签中去除命名空间"
+msgstr ""
 
 msgid "<b>tag -> new-tag</b> : replaces one tag"
-msgstr "<b>tag -> new-tag</b> : 替换一个标签"
+msgstr ""
 
 msgid "<b>tag => new-tag</b> : replaces one tag, but use a hash table internally for faster performance. These rules will be executed <i>once</i> after all other rules."
-msgstr "<b>tag => new-tag</b> : "
-"替换一个标签，但内部使用哈希表以提高性能。这些规则将在所有其他规则之后执行<i>"
-"一次</i>。"
+msgstr ""
 
 msgid "<b>namespace:* -> new-namespace:*</b> : replaces the namespace with the new one"
-msgstr "<b>namespace:* -> new-namespace:*</b> : 用新的命名空间替换旧的命名空间"
+msgstr ""
 
 # ------End of Config_Tags.html.tt2------
 # ------Start of Config_Theme.html.tt2------
 msgid "The selected theme will apply to the entire application and be shown to all users."
-msgstr "所选主题将应用于整个程序，并显示给所有用户。"
+msgstr ""
 
 msgid "If you're using a browser that supports \"theme-color\", the theme's primary color will also be applied there."
-msgstr "如果您使用支持“主题颜色”的浏览器，主题的首要颜色也会应用。"
+msgstr ""
 
 msgid "Click on a theme to preview it before saving!"
-msgstr "在保存之前，点击相应的主题来进行预览！"
+msgstr ""
 
 # ------End of Config_Theme.html.tt2------
 # ------Start of Edit.html.tt2------
 msgid "Editing %1 by %2"
-msgstr "编辑 %1 由 %2"
+msgstr ""
 
 msgid "Editing %1"
-msgstr "编辑 %1"
+msgstr ""
 
 msgid "Current File Name:"
-msgstr "当前文件名："
+msgstr ""
 
 msgid "ID:"
-msgstr "ID："
+msgstr ""
 
 msgid "Title:"
-msgstr "标题："
+msgstr ""
 
 msgid "Summary:"
-msgstr "摘要："
+msgstr ""
 
 msgid "Tags"
-msgstr "标签"
+msgstr ""
 
 msgid "(separated by hyphens, i.e : tag1, tag2)"
-msgstr "（用半角逗号分隔，例如：标签1，标签2）"
+msgstr ""
 
 msgid "Import Tags from Plugin :"
-msgstr "从插件导入标签："
+msgstr ""
 
 msgid "Help"
-msgstr "帮助"
+msgstr ""
 
 msgid "Go!"
-msgstr "执行！"
+msgstr ""
 
 msgid "Using a Plugin will save any modifications to archive metadata you might have made !"
-msgstr "使用插件将保存您可能对档案元数据所做的任何修改！"
+msgstr ""
 
 msgid "Save Metadata"
-msgstr "保存元数据"
+msgstr ""
 
 msgid "Delete Archive"
-msgstr "删除档案"
+msgstr ""
 
 msgid "Return to Library"
-msgstr "返回库"
+msgstr ""
 
 # ------End of Edit.html.tt2------
 # ------Start of Index.html.tt2------
 msgid "Add Archives"
-msgstr "添加档案"
+msgstr ""
 
+#, fuzzy
 msgid "Batch Operations"
-msgstr "批量操作"
+msgstr "Gjengangsoperasjoner"
 
 msgid "Settings"
-msgstr "设置"
+msgstr ""
 
 msgid "Modify Categories"
-msgstr "修改分类"
+msgstr ""
 
 msgid "Statistics"
-msgstr "统计"
+msgstr ""
 
 msgid "Logs"
-msgstr "日志"
+msgstr ""
 
 msgid "Admin Login"
-msgstr "管理员登录"
+msgstr ""
 
 msgid "Search Title, Artist, Series, Language or Tags"
-msgstr "以标题、艺术家、系列、语言或标签来搜索"
+msgstr ""
 
 msgid "Apply Filter"
-msgstr "应用过滤器"
+msgstr ""
 
 msgid "Clear Filter"
-msgstr "清除过滤器"
+msgstr ""
 
 msgid "Click to show archives from the current search with the specified filter"
-msgstr "点击以显示当前搜索中指定过滤器的档案"
+msgstr ""
 
 msgid "Refresh Selection"
-msgstr "刷新选择"
+msgstr ""
 
 msgid "Carousel Options"
-msgstr "轮播选项"
+msgstr ""
 
 msgid "No results here."
-msgstr "这里没有结果。"
+msgstr ""
 
 msgid "Sort by:"
-msgstr "排序方式："
+msgstr ""
 
 msgid "Title"
-msgstr "标题"
+msgstr ""
 
 msgid "Date"
-msgstr "日期"
+msgstr ""
 
 msgid "Sort Order"
-msgstr "排序顺序"
+msgstr ""
 
 msgid "Crop thumbnails"
-msgstr "裁剪缩略图"
+msgstr ""
 
 msgid "Go to Page:"
-msgstr "跳转到页面："
+msgstr ""
 
 msgid "Columns:"
-msgstr "列数："
+msgstr ""
 
 msgid "Switch to Compact Mode"
-msgstr "切换到紧凑模式"
+msgstr ""
 
 msgid "Switch to Thumbnail Mode"
-msgstr "切换到缩略图模式"
+msgstr ""
 
 msgid "Title"
-msgstr "标题"
+msgstr ""
 
 msgid "Artist"
-msgstr "艺术家"
+msgstr ""
 
 msgid "Series"
-msgstr "系列"
+msgstr ""
 
 msgid "Tags"
-msgstr "标签"
+msgstr ""
 
 msgid "Edit this column"
-msgstr "编辑此列"
+msgstr ""
 
 msgid "I don't know everything, but I sure as hell know this database's busted lads"
-msgstr "我虽然不是无所不知，但我肯定知道这个数据库坏了，伙计"
+msgstr ""
 
 msgid "The database cache is corrupt, and as such LANraragi is unable to display your archive list."
-msgstr "数据库缓存已损坏，因此 LANraragi 无法显示您的档案列表。"
+msgstr ""
 
 msgid "Read"
-msgstr "阅读"
+msgstr ""
 
 msgid "Download"
-msgstr "下载"
+msgstr ""
 
 msgid "Edit Metadata"
-msgstr "编辑元数据"
+msgstr ""
 
 msgid "Delete"
-msgstr "删除"
+msgstr ""
 
 msgid "Add Rating"
-msgstr "添加评分"
+msgstr ""
 
 msgid "Add to Category"
-msgstr "添加到分类"
+msgstr ""
 
 msgid "New Version Release Notes"
-msgstr "新版本发布说明"
+msgstr ""
 
 msgid "You\'re using the default password and that\'s super baka of you"
-msgstr "你这个超级大笨蛋竟然在用默认密码"
+msgstr ""
 
 msgid "Login with password \"kamimamita\" and change that shit on the double. ...Or just disable it! Why not check the configuration options afterwards, while you\'re at it?"
 msgstr ""
-"使用默认密码\"kamimamita\"<a href=\"/login\">登录</a><br/>然后立刻<a href="
-"\"/config\">改掉这坨史一样的密码</a>。<br/>...或者干脆禁用掉! <br/"
-">为什么不顺便检查一下配置选项呢？"
 
 # ------End of Index.html.tt2------
 # ------Start of Login.html.tt2------
 msgid "This page requires you to log on."
-msgstr "此页面需要您登录。"
+msgstr ""
 
 msgid "Admin Password:"
-msgstr "管理员密码："
+msgstr ""
 
 msgid "Login"
-msgstr "登录"
+msgstr ""
 
 msgid "Wrong Password."
-msgstr "密码错误。"
+msgstr ""
 
 msgid "<a href='\${url}'>Login</a> to toggle bookmark feature."
-msgstr "<a href='${url}'>登录</a> 以启用书签功能。"
+msgstr ""
 
 # ------End of Login.html.tt2------
 # ------Start of Logs.html.tt2------
 msgid "Application Logs"
-msgstr "应用日志"
+msgstr ""
 
 msgid "You can check LANraragi logs here for debugging purposes."
-msgstr "您可以在此处查看LANraragi日志以进行调试。"
+msgstr ""
 
 msgid "By default, this view only shows the last 100 lines of each logfile, newest lines last."
-msgstr "默认情况下，此视图仅显示每个日志文件的最后100行，最新的日志在最后。"
+msgstr ""
 
 msgid "General Logs pertain to the main application."
-msgstr "常规日志与主应用程序有关。"
+msgstr ""
 
 msgid "Shinobu Logs correspond to the Background Worker."
-msgstr "Shinobu日志对应后台工作程序。"
+msgstr ""
 
 msgid "Plugin Logs are reserved for metadata plugins only."
-msgstr "插件日志仅保留给元数据插件。"
+msgstr ""
 
 msgid "Mojolicious logs won't tell much unless you're running Debug Mode."
-msgstr "除非您运行调试模式，否则Mojolicious日志不会提供太多信息。"
+msgstr ""
 
 msgid "Redis logs won't be available from here if you're running from source!"
-msgstr "如果您从源代码运行，Redis日志将无法从这里获取！"
+msgstr ""
 
 msgid "Currently Viewing:"
-msgstr "当前查看："
+msgstr ""
 
 msgid "general"
-msgstr "常规"
+msgstr ""
 
 msgid "Refresh"
-msgstr "刷新"
+msgstr ""
 
 msgid "Lines:"
-msgstr "行数："
+msgstr ""
 
 msgid "View LANraragi Logs"
-msgstr "查看LANraragi日志"
+msgstr ""
 
 msgid "View Shinobu Logs"
-msgstr "查看Shinobu日志"
+msgstr ""
 
 msgid "View Plugin Logs"
-msgstr "查看插件日志"
+msgstr ""
 
 msgid "View Mojolicious Logs"
-msgstr "查看Mojolicious日志"
+msgstr ""
 
 msgid "View Redis Logs"
-msgstr "查看Redis日志"
+msgstr ""
 
 msgid "Return to Library"
-msgstr "返回库"
+msgstr ""
 
 # ------End of Logs.html.tt2------
 # ------Start of Plugins.html.tt2------
 msgid "Plugin Configuration"
-msgstr "插件配置"
+msgstr "Programtilleggskonfigurasjon"
 
 msgid "Enable/Disable Auto-Plugin on metadata plugins by checking the toggles."
-msgstr "通过勾选开关启用/禁用元数据插件的自动执行插件。"
+msgstr ""
 
 msgid "Plugins will be automatically used on new archives if they're toggled here."
-msgstr "如果在此处切换，插件将自动用于新档案。"
+msgstr ""
 
 msgid "If they have configuration variables, you can set them here as well."
-msgstr "如果它们有配置变量，您也可以在这里设置它们。"
+msgstr ""
 
 msgid "You can also trigger Scripts here. Triggering a script will save your Plugin settings beforehand."
-msgstr "您也可以在这里触发脚本。触发脚本将预先保存您的插件设置。"
+msgstr ""
 
 msgid "Login Plugins"
-msgstr "登录插件"
+msgstr ""
 
 msgid "Downloaders"
-msgstr "下载器"
+msgstr ""
 
 msgid "Scripts"
-msgstr "脚本"
+msgstr ""
 
 msgid "Metadata Plugins"
-msgstr "元数据插件"
+msgstr ""
 
 msgid "Allow Plugins to replace archive titles:"
-msgstr "允许插件替换档案标题："
+msgstr ""
 
 msgid "If enabled, metadata plugins will be able to change the title of your archives alongside adding tags to them."
-msgstr "如果启用，元数据插件将能够更改档案的标题并为其添加标签。"
+msgstr ""
 
 msgid "A script is running..."
-msgstr "脚本正在运行..."
+msgstr ""
 
 msgid "Save Plugin Configuration"
-msgstr "保存插件配置"
+msgstr ""
 
 msgid "Upload Plugin"
-msgstr "上传插件"
+msgstr ""
 
 msgid "Return to Library"
-msgstr "返回库"
+msgstr ""
+
+msgid "This plugin will trigger on URLs matching this regex!"
+msgstr ""
+
+msgid "This plugin depends on the login plugin"
+msgstr ""
+
+msgid "Trigger Script"
+msgstr ""
+
+msgid "Run Automatically"
+msgstr ""
+
+msgid "Plugin Settings"
+msgstr ""
 
 # ------End of Plugins.html.tt2------
 # ------Start of Reader.html.tt2------
 msgid "Done reading? Go back to Archive Index"
-msgstr "阅读完毕？返回档案索引"
+msgstr ""
 
 msgid "View full-size image"
-msgstr "查看全尺寸图像"
+msgstr ""
 
 msgid "Switch to another random archive"
-msgstr "切换到另一个随机档案"
+msgstr ""
 
 msgid "Archive Overview"
-msgstr "档案概览"
+msgstr ""
 
 msgid "Admin Options"
-msgstr "管理员选项"
+msgstr ""
 
 msgid "Set this Page as Thumbnail"
-msgstr "将当前页面设为缩略图"
+msgstr ""
 
 msgid "Set the currently opened page as the thumbnail for this archive."
-msgstr "将当前打开的页面设为此档案的缩略图。"
+msgstr ""
 
 msgid "Clean Archive Cache"
-msgstr "清理档案缓存"
+msgstr ""
 
 msgid "Edit Archive Metadata"
-msgstr "编辑档案元数据"
+msgstr ""
 
 msgid "Delete Archive"
-msgstr "删除档案"
+msgstr "Slett arkiv"
 
 msgid "Categories"
-msgstr "分类"
+msgstr "Kategorier"
 
 msgid "Add to : "
-msgstr "添加到："
+msgstr ""
 
 msgid " -- No Category -- "
-msgstr " -- 无分类 -- "
+msgstr ""
 
 msgid "Add Archive to Category"
-msgstr "将档案添加到分类"
+msgstr ""
 
 msgid "Pages"
-msgstr "页面"
+msgstr ""
 
 msgid "Working on it..."
-msgstr "处理中..."
+msgstr ""
 
 msgid "You can navigate between pages using:"
-msgstr "您可以使用以下方式在页面之间切换："
+msgstr ""
 
 msgid "The arrow icons"
-msgstr "箭头图标"
+msgstr ""
 
 msgid "The a/d keys"
-msgstr "A/D 键"
+msgstr ""
 
 msgid "Your keyboard arrows (and the spacebar)"
-msgstr "键盘方向键（和空格键）"
+msgstr ""
 
 msgid "Touching the left/right side of the image."
-msgstr "点击图像的左/右侧。"
+msgstr ""
 
 msgid "Other keyboard shortcuts:"
-msgstr "其他键盘快捷键："
+msgstr ""
 
 msgid "M: toggle manga mode (right-to-left reading)"
-msgstr "M：切换为漫画模式（从右到左阅读）"
+msgstr ""
 
 msgid "O: show advanced reader options."
-msgstr "O：显示高级阅读器选项。"
+msgstr ""
 
 msgid "P: toggle double page mode"
-msgstr "P：切换为双页模式"
+msgstr ""
 
 msgid "Q: bring up the thumbnail index and archive options."
-msgstr "Q：调出缩略图索引和档案选项。"
+msgstr ""
 
 msgid "R: open a random archive."
-msgstr "R：打开一个随机档案。"
+msgstr ""
 
 msgid "F: toggle fullscreen mode"
-msgstr "F：切换全屏模式"
+msgstr ""
 
 msgid "B: toggle bookmark"
-msgstr "B：切换书签"
+msgstr ""
 
 msgid "To return to the archive index, touch the arrow pointing down or use Backspace."
-msgstr "要返回档案索引，请点击向下的箭头或使用退格键。"
+msgstr ""
 
 msgid "Reader Options"
-msgstr "阅读器选项"
+msgstr ""
 
 msgid "Those options save automatically -- Click around and find out!"
-msgstr "这些选项会自动保存 -- 点击查看效果！"
+msgstr ""
 
 msgid "Fit display to"
-msgstr "适应显示"
+msgstr ""
 
 msgid "Container"
-msgstr "容器"
+msgstr ""
 
 msgid "Width"
-msgstr "宽度"
+msgstr ""
 
 msgid "Height"
-msgstr "高度"
+msgstr ""
 
 msgid "Container Width (in pixels or percentage)"
-msgstr "容器宽度（像素或百分比）"
+msgstr ""
 
 msgid "The default value is 1200px, or 90% in Double Page Mode."
-msgstr "默认值为1200像素，或双页模式下为90%。"
+msgstr ""
 
 msgid "Apply"
-msgstr "应用"
+msgstr ""
 
 msgid "Page Rendering"
-msgstr "页面渲染"
+msgstr ""
 
 msgid "Single"
-msgstr "单页"
+msgstr ""
 
 msgid "Double"
-msgstr "双页"
+msgstr ""
 
 msgid "Reading Direction"
-msgstr "阅读方向"
+msgstr ""
 
 msgid "Left to Right"
-msgstr "从左到右"
+msgstr ""
 
 msgid "Right to Left"
-msgstr "从右到左"
+msgstr ""
 
 msgid "How many images to preload"
-msgstr "预加载图片数量"
+msgstr ""
 
 msgid "The default is two images."
-msgstr "默认是两张图片。"
+msgstr ""
 
 msgid "Header"
-msgstr "页眉"
-
-msgid "Github API rate limit exceeded."
-msgstr "Github API 已超请求限制。"
-
-msgid "Github API returned status: \${status}"
-msgstr "Github API 返回状态：${status}"
+msgstr ""
 
 msgid "Visible"
-msgstr "可见"
+msgstr ""
 
 msgid "Hidden"
-msgstr "隐藏"
+msgstr ""
 
 msgid "Show Archive Overlay by default"
-msgstr "默认显示档案覆盖层"
+msgstr ""
 
 msgid "This will show the overlay with thumbnails every time you open a new Reader page."
-msgstr "每次打开新的阅读器页面时，这将显示带有缩略图的覆盖层。"
+msgstr ""
 
 msgid "Enabled"
-msgstr "启用"
+msgstr ""
 
 msgid "Disabled"
-msgstr "禁用"
+msgstr ""
 
 msgid "Progression Tracking"
-msgstr "进度跟踪"
+msgstr ""
 
 msgid "Disabling tracking will restart reading from page one every time you reopen the reader."
-msgstr "禁用进度跟踪的话，每次打开阅读器时从第一页重新开始阅读。"
+msgstr ""
 
 msgid "Infinite Scrolling"
-msgstr "无极滚动"
+msgstr ""
 
 msgid "Display all images in a vertical view in the same page."
-msgstr "在同一页面中以垂直视图显示所有图片。"
+msgstr ""
 
 msgid "Reader Settings"
-msgstr "阅读器设置"
+msgstr ""
 
 msgid "Help"
-msgstr "帮助"
+msgstr ""
 
 msgid "Reading Direction"
-msgstr "阅读方向"
+msgstr ""
 
 msgid "Archive Overview"
-msgstr "档案概览"
+msgstr ""
 
 msgid "FullScreen"
-msgstr "全屏"
+msgstr ""
 
 msgid "Toggle Bookmark"
-msgstr "切换书签"
+msgstr ""
 
 # ------End of Reader.html.tt2------
 # ------Start of Stats.html.tt2------
 msgid "Library Statistics"
-msgstr "库统计"
+msgstr ""
 
 msgid "Archives on record"
-msgstr "记录中的档案"
+msgstr ""
 
 msgid "Different tags existing"
-msgstr "存在的不同标签"
+msgstr ""
 
 msgid "in content folder"
-msgstr "在内容文件夹中"
+msgstr ""
 
 msgid "pages read"
-msgstr "已阅读的页面"
+msgstr ""
 
 msgid "Tag Cloud"
-msgstr "标签云"
+msgstr ""
 
 msgid "Asking the great powers that be for your tag statistics..."
-msgstr "正在向伟大的力量请求您的标签统计数据..."
+msgstr ""
 
 msgid "Detailed Stats"
-msgstr "详细统计"
+msgstr ""
 
 msgid "(These statistics only show tags that appear at least twice in your database.)"
-msgstr "（这些统计数据仅显示在您的数据库中至少出现两次的标签。）"
+msgstr ""
 
 msgid "Return to Library"
-msgstr "返回库"
+msgstr ""
 
 # ------End of Stats.html.tt2------
 # ------Start of Upload.html.tt2------
 msgid "Upload Center"
-msgstr "上传区"
+msgstr ""
 
 msgid "Adding Archives to the Library"
-msgstr "将档案添加到库"
+msgstr ""
 
 msgid "Add files to your LANraragi instance from your computer, or the Internet directly."
-msgstr "从您的计算机或直接从互联网将文件添加到您的LANraragi。"
+msgstr ""
 
 msgid "Add uploaded files to category:"
-msgstr "将上传的文件添加到分类："
+msgstr ""
 
 msgid " -- No Category -- "
-msgstr " -- 无分类 -- "
+msgstr ""
 
 msgid "From your computer"
-msgstr "从您的计算机"
+msgstr ""
 
 msgid "You can drag and drop files into this window, or click the upload button."
-msgstr "您可以将文件拖放到此窗口中，或点击上传按钮。"
+msgstr ""
 
 msgid "Add from your computer"
-msgstr "从您的计算机添加"
+msgstr ""
 
 msgid "From the Internet"
-msgstr "从互联网"
+msgstr ""
 
 msgid "You can download files from remote URLs directly into LANraragi from here."
-msgstr "您可以从这里将远程URL的文件直接下载到LANraragi中。"
+msgstr ""
 
 msgid "Download jobs will keep going even if you close this window!"
-msgstr "即使您关闭此窗口，下载任务也会继续进行！"
+msgstr ""
 
 msgid "Type in your URLs (separated by a newline), and click the download button."
-msgstr "输入您的URL（以换行分隔），然后单击下载按钮。"
+msgstr ""
 
 msgid "If a Downloader plugin is compatible with the URL, it'll be automatically used."
 msgstr ""
-"如果<a href=\"[% c.url_for(\"/config/plugins\") %]\""
-">下载器插件</a>与相应的URL兼容，它将被自动使用。"
 
 msgid "URL(s) to download:"
-msgstr "要下载的URL："
+msgstr ""
 
 msgid "Add from URL(s)"
-msgstr "从URL添加"
+msgstr ""
 
 msgid "Return to Library"
-msgstr "返回库"
+msgstr "Tilbake til Bibliotek"
 
 # ------End of Upload.html.tt2------
 msgid "Rescan Archive Directory"
-msgstr "重新扫描指定文件夹"
+msgstr ""
 
 msgid "Click this button to trigger a rescan of the Archive Directory in case you're missing files, or some data such as total page counts."
-msgstr "当文件缺失，或某些数据（如总页数）异常，<br>点击此按钮重新扫描档案文件夹。<br"
-">"
+msgstr ""
 
 # ------Stary of i18n.html.tt2------
 msgid "Backup restored!"
-msgstr "还原备份成功！"
+msgstr ""
 
 msgid "An error occured while restoring the backup.<br/> Please check the server logs and that your JSON is correctly formatted."
-msgstr "恢复备份时出错。<br/>请查看服务器日志并检查JSON格式是否正确。"
+msgstr ""
 
 msgid "Couldn't load the complete archive list! Please reload the page."
-msgstr "无法加载完整档案列表！请刷新页面。"
+msgstr ""
 
 msgid "Couldn't load the tag statistics! Please reload the page."
-msgstr "无法加载标签统计！请刷新页面。"
+msgstr ""
 
 msgid "Error getting untagged archives!"
-msgstr "无标签档案获取失败！"
+msgstr ""
 
 msgid "Are you sure you want to delete this archive?"
-msgstr "您确定要删除此档案吗？"
+msgstr ""
 
 msgid "Are you sure you want to delete the selected archives?"
-msgstr "您确定要删除选定的档案吗？"
+msgstr ""
 
 msgid "This action cannot be undone!"
-msgstr "此操作无法撤销！"
+msgstr ""
 
 msgid "This action (truly) cannot be undone!"
-msgstr "此操作（真的）无法撤销！"
+msgstr ""
 
 msgid "Yes, delete it!"
-msgstr "确定删除！"
+msgstr ""
 
 msgid "No, keep it!"
-msgstr "保留！"
+msgstr ""
 
 msgid "Error while deleting cache! Check application logs."
-msgstr "删除缓存失败！请查看应用日志。"
+msgstr ""
 
 msgid "Error while processing request"
-msgstr "处理请求失败"
+msgstr ""
 
 msgid "Error checking Minion job status"
-msgstr "Minion 任务状态查看失败"
+msgstr ""
 
 msgid "Saved!"
-msgstr "已保存！"
+msgstr ""
 
 msgid "Error saving data"
-msgstr "保存失败"
+msgstr ""
 
 msgid "Started Batch Operation..."
-msgstr "批量操作已启动。。。"
+msgstr ""
 
 msgid "Batch Operation complete!"
-msgstr "批量操作已完成！"
+msgstr ""
 
 msgid "An error occured during batch tagging!"
-msgstr "批量添加标签时出错！"
+msgstr ""
 
 msgid "Please check application logs."
-msgstr "请查看应用日志。"
+msgstr ""
 
 msgid "Error! Terminating session."
-msgstr "批量操作发生错误，正在中止。"
+msgstr ""
 
 msgid "Sleeping for \${x} seconds."
-msgstr "等待${x}秒."
+msgstr ""
 
 msgid "Error while processing ID \${id} (\${msg})"
-msgstr "处理文档 ${id} 出错：(${msg})"
+msgstr ""
 
 msgid "Processed ID \${id} with \"\${plug}\" (Added tags: \${tags})"
-msgstr "已处理文档 ${id}，调用插件 \"${plug}\"（新增标签: ${tags}）"
+msgstr ""
 
 msgid "Deleted ID \${id} (Filename: \${filename})"
-msgstr "已删除文档 ${id} (文件名：${filename})"
+msgstr ""
 
 msgid "Replaced tags for ID \${id} (New tags: \${tags})"
-msgstr "已更新文档 ${id}（新增标签：${tags}）"
+msgstr ""
 
 msgid "Added ID \${id} to category \${category}! (\${msg})"
-msgstr "已将文档 ${id} 添加到分类 ${category}！（${msg}）"
+msgstr ""
 
 msgid "Cleared new flag for ID \${id}!"
-msgstr "清楚了文档 ${id} 的未读标签!"
+msgstr ""
 
 msgid "Unknown operation \${oper} (\${msg})"
-msgstr "未知操作：${oper} (${msg})"
+msgstr ""
 
 msgid "Changed title to: \${title}"
-msgstr "文档改名为：${title}"
+msgstr ""
 
 msgid "Reloading page in 5 seconds to account for deleted archives..."
-msgstr "5秒后页面将刷新，被删除的档案不再显示..."
+msgstr ""
 
 msgid "Cancelling Batch Operation..."
-msgstr "取消批量操作中。。。"
+msgstr ""
 
 msgid "Enter a name for the new category"
-msgstr "请输入新分类的名称"
+msgstr ""
 
 msgid "My Category"
-msgstr "我的分类"
+msgstr ""
 
 msgid "Please enter a category name."
-msgstr "请输入分类名称。"
+msgstr ""
 
 msgid "No category"
-msgstr "没有分类"
+msgstr ""
 
 msgid "Error getting categories from server"
-msgstr "从服务器获取分类时出错"
+msgstr ""
 
 msgid "Error modifying category"
-msgstr "修改分类时出错"
+msgstr ""
 
 msgid "The category will be deleted permanently."
-msgstr "该分类将会被永久删除。"
+msgstr ""
 
 msgid "Category deleted!"
-msgstr "分类已删除！"
+msgstr ""
 
 msgid "Error deleting category"
-msgstr "删除分类时出错"
+msgstr ""
 
 msgid "Writing a Predicate"
-msgstr "编写筛选条件"
+msgstr ""
 
 msgid "Predicates follow the same syntax as searches in the Archive Index. Check the Documentation for more information."
 msgstr ""
-"筛选条件和搜索遵循相同的规则。查看 <a href="
-"\"https://sugoi.gitbook.io/lanraragi/basic-operations/searching\">文档</a>以 "
-"获取更多信息。"
 
 msgid "Background Worker restarted!"
-msgstr "后台工作程序已重启！"
+msgstr ""
 
 msgid "Error restarting Worker:"
-msgstr "工作程序重启时出错："
+msgstr ""
 
 msgid "Content folder rescan started!"
-msgstr "开始重新扫描内容文件夹！"
+msgstr ""
 
 msgid "Error starting content folder rescan:"
-msgstr "重新扫描内容文件夹时出错："
+msgstr ""
 
 msgid "Error while querying Shinobu status:"
-msgstr "查询 Shinobu 状态时出错："
+msgstr ""
 
 msgid "About Plugins"
-msgstr "关于插件"
+msgstr ""
 
 msgid "You can use plugins to automatically fetch metadata for this archive. <br/> Just select a plugin from the dropdown and hit Go! <br/> Some plugins might provide an optional argument for you to specify. If that's the case, a textbox will be available to input said argument."
 msgstr ""
-"可以通过插件自动获取此档案的元数据。<br/>从下拉框中选择插件并点击开始！<br/"
-">有些插件可能需要设置额外的参数。这种情况下，会有一个文本框用于输入参数。"
 
 msgid "Metadata saved!"
-msgstr "元数据已保存！"
+msgstr ""
 
 msgid "Error saving archive metadata"
-msgstr "保存档案元数据时出错"
+msgstr ""
 
 msgid "Error while fetching tags"
-msgstr "获取标签时出错"
+msgstr ""
 
 msgid "Archive title changed to"
-msgstr "档案标题更改为"
+msgstr ""
 
 msgid "Archive summary updated!"
-msgstr "档案摘要已更新！"
+msgstr ""
 
 msgid "Added the following tags"
-msgstr "添加了如下标签"
+msgstr ""
 
 msgid "No new tags added!"
-msgstr "未添加新标签！"
+msgstr ""
 
 # Do not translate _START_, _END_ or _TOTAL_.
 msgid "Showing _START_ to _END_ of _TOTAL_ ancient chinese lithographies."
-msgstr "展示第_START_到_END_号，共_TOTAL_件瑰宝。"
+msgstr ""
 
 msgid "No archives to show you! Try <a href=\"\${url}\")>uploading some</a>?"
-msgstr "没有档案可供显示！不妨先<a href=\"${url}\")>上传一些</a>？"
+msgstr ""
 
 msgid "Welcome to LANraragi \${version}!"
-msgstr "欢迎来到 LANraragi ${version}！"
+msgstr ""
 
 msgid "If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!"
-msgstr "如果想要对档案进行高级操作，右键点击档案名即可。阅读愉快！"
+msgstr ""
 
 msgid "Error getting basic server info."
-msgstr "获取服务器基本信息时出错。"
+msgstr ""
 
 msgid "You're running in Debug Mode!"
-msgstr "您正在调试模式中运行！"
+msgstr ""
 
 msgid "Advanced server statistics can be viewed <a href=\"\${url}\")>here</a>."
-msgstr "服务器高级数据可<a href=\"${url}\")>在此</a>查看。"
+msgstr ""
 
 msgid "Enter a tag namespace for this column"
-msgstr "为此栏输入标签命名空间"
+msgstr ""
 
 msgid "Enter a full namespace without the colon, e.g \"artist\"."
-msgstr "请输入完整的命名空间（不带冒号），例如“artist”。"
+msgstr ""
 
 msgid "If you have multiple tags with the same namespace, only the last one will be shown in the column."
-msgstr "如果同一命名空间有多个标签，此栏只会显示最后一个标签。"
+msgstr ""
 
 msgid "Tag namespace"
-msgstr "标签命名空间"
+msgstr ""
 
 msgid "Please enter a tag namespace."
-msgstr "请输入标签命名空间。"
+msgstr ""
 
 msgid "Randomly Picked"
-msgstr "随机精选"
+msgstr ""
 
 msgid "New Archives"
-msgstr "新档案"
+msgstr ""
 
 msgid "Untagged Archives"
-msgstr "无标签档案"
+msgstr ""
 
 msgid "On Deck"
-msgstr "展板"
+msgstr ""
 
 msgid "Error getting carousel data!"
-msgstr "获取轮播数据时出错！"
+msgstr ""
 
 msgid "Edit this column"
-msgstr "编辑此栏"
+msgstr ""
 
 msgid "Title"
-msgstr "标题"
+msgstr ""
 
 msgid "Tags"
-msgstr "Tags"
+msgstr ""
 
 msgid "Header"
-msgstr "头"
+msgstr ""
 
 msgid "A new version of LANraragi (\${version}) is available!"
-msgstr "LANraragi 有新版本可用（${version}）！"
+msgstr ""
 
 msgid "Click here to check it out."
-msgstr "点击此处查看。"
+msgstr ""
 
 msgid "Error getting changelog for new version"
-msgstr "获取新版本的变更日志时出错"
+msgstr ""
 
 msgid "Couldn't load data for \${id}!"
-msgstr "无法加载 ${id} 的数据！"
+msgstr ""
+
+msgid "Github API rate limit exceeded."
+msgstr ""
+
+msgid "Github API returned status: \${status}"
+msgstr ""
 
 msgid "This archive isn't in any category."
-msgstr "此档案未分类。"
+msgstr ""
 
 msgid "No Categories yet..."
-msgstr "还没有分类..."
+msgstr ""
 
 msgid "Remove rating"
-msgstr "移除评分"
+msgstr ""
 
 msgid "Click here to display new archives only."
-msgstr "点击此处仅显示新档案。"
+msgstr ""
 
 msgid "Click here to display untagged archives only."
-msgstr "点击此处仅显示无标签档案。"
+msgstr ""
 
 msgid "Click here to display archives in this category only."
-msgstr "点击此处仅显示此分类中的档案。"
+msgstr ""
 
 msgid "Your Reading Progression is now saved on the server!"
-msgstr "您的阅读进度已经保存到服务器！"
+msgstr ""
 
 msgid "You seem to have some local progression hanging around -- Please wait warmly while we migrate it to the server for you."
-msgstr "一些本地操作似乎正在进行，请耐心等待将其合并到服务端。"
+msgstr ""
 
 msgid "Error while migrating local progression to server"
-msgstr "迁移本地进度到服务器时出错"
+msgstr ""
 
 msgid "Reading Progression has been fully migrated"
-msgstr "阅读进度已经完全迁移"
+msgstr ""
 
 msgid "You'll have to reopen archives in the Reader to see the migrated progression values."
-msgstr "在阅读器中重新打开档案来查看合并进度。"
+msgstr ""
 
 msgid "Plugin uploaded successfully!"
-msgstr "成功上传插件！"
+msgstr ""
 
 msgid "The plugin \${name} has been successfully added. Refresh the page to see it."
-msgstr "已成功添加插件 ${name} ，请刷新页面查看。"
+msgstr ""
 
 msgid "Error uploading plugin"
-msgstr "上传插件时出错"
+msgstr ""
 
 msgid "Successfully set page \${page} as the thumbnail!"
-msgstr "成功将页面 ${page} 设为缩略图！"
+msgstr ""
 
 msgid "Error updating thumbnail"
-msgstr "更新缩略图时出错"
+msgstr ""
 
 msgid "Error clearing new flag"
-msgstr "清除新标记时出错"
+msgstr ""
 
 msgid "Error getting the archive's imagelist."
-msgstr "获取档案的图片列表时出错。"
+msgstr ""
 
 msgid "This archive seems to be in RAR format!"
-msgstr "此档案似乎是 RAR 格式！"
+msgstr ""
 
 msgid "RAR archives might not work properly in LANraragi depending on how they were made. If you encounter errors while reading, consider converting your archive to zip."
-msgstr "由于RAR档案的创建方式，在LANraragi中可能无法正常工作。如果在阅读过程中遇到错"
-"误，可以考虑将档案转换到ZIP。"
+msgstr ""
 
 msgid "EPUB support in LANraragi is minimal"
-msgstr "LANraragi 对 EPUB 的支持非常有限"
+msgstr ""
 
 msgid "EPUB books will only show images in the Web Reader, and potentially out of order. If you want text support, consider pairing LANraragi with an OPDS reader."
 msgstr ""
-"在WEB阅读器中EPUB书籍仅显示图片，且可能会图片顺序错乱。如果想要显示文本，"
-"考虑配合 <a href='https://sugoi.gitbook.io/lanraragi/advanced-usage/external-"
-"readers#generic-opds-readers'>OPDS阅读器</a>使用LANraragi"
 
 msgid "Navigation Help"
-msgstr "Navigation Help"
+msgstr ""
 
 msgid "Error updating reading progression"
-msgstr "更新阅读进度时出错"
+msgstr ""
 
 msgid "Page \${page}"
-msgstr "Page ${page}"
+msgstr ""
 
 msgid "The page thumbnailing job didn't conclude properly. Your archive might be corrupted."
-msgstr "生成页面缩略图出错，档案可能已损坏。"
+msgstr ""
 
 msgid "A script is already running."
-msgstr "一个脚本已经在运行了。"
+msgstr ""
 
 msgid "Please wait for it to finish before starting a new one."
-msgstr "请等待完成后再次运行。"
+msgstr ""
 
 msgid "An error occured while running the script"
-msgstr "运行脚本时出错"
+msgstr ""
 
 msgid "Script result"
-msgstr "脚本运行结果"
+msgstr ""
 
 msgid "Script failed with error: \${error}"
-msgstr "脚本运行失败，错误信息：${error}"
+msgstr ""
 
 msgid "Temporary folder cleaned!"
-msgstr "临时文件夹已清理！"
+msgstr ""
 
 msgid "Error cleaning temporary folder"
-msgstr "清理临时文件夹时出错"
+msgstr ""
 
 msgid "Threw away the cache!"
-msgstr "缓存已清空！"
+msgstr ""
 
 msgid "Error clearing the cache"
-msgstr "清除缓存时出错"
+msgstr ""
 
 msgid "Threw away the search cache!"
-msgstr "搜索缓存已清空！"
+msgstr ""
 
 msgid "All archives are no longer new!"
-msgstr "所有档案都不再会被视为新档案！"
+msgstr ""
 
 msgid "Error during cleanup procedure"
-msgstr "清理过程中出错"
+msgstr ""
 
 msgid "Are you sure you want to wipe the database?"
-msgstr "您确定要清空数据库吗？"
+msgstr ""
 
 msgid "Sayonara! Redirecting you..."
-msgstr "再见！正在为您跳转..."
+msgstr ""
 
 msgid "Successfully cleaned the database and removed \${entries} entries."
-msgstr "数据库清理成功，删除了${entries}个条目。"
+msgstr ""
 
 msgid "\${entries} other entries have been unlinked from the database and will be deleted on the next cleanup!"
-msgstr "${entries}个条目从数据库中移出，并将在下次清理时被删除！"
+msgstr ""
 
 msgid "Do a backup now if some files disappeared from your archive index."
-msgstr "如果某些文件从档案列表中消失，请立即备份。"
+msgstr ""
 
 msgid "Queued up a job to regenerate thumbnails! Stay tuned for updates or check the Minion console."
-msgstr "重新生成缩略图的任务已添加！关注更新或查看Minion控制台。"
+msgstr ""
 
 msgid "All thumbnails generated! Errors will be listed below if there were any."
-msgstr "所有缩略图已生成！如果有错误的话会在下面列出。"
+msgstr ""
 
 msgid "Added \${id} to category \${cat}!"
-msgstr "${id} 已添加到分类 ${cat}！"
+msgstr ""
 
 msgid "Removed \${id} from category \${cat}!"
-msgstr "${id} 已移出分类 ${cat}！"
+msgstr ""
 
 msgid "Couldn't delete archive file. <br/> (Maybe it has already been deleted beforehand?)"
-msgstr "无法删除档案文件。<br/>（可能它之前已被删除？）"
+msgstr ""
 
 msgid "Archive metadata has been deleted properly. <br> Please delete the file manually before returning to the archive index."
-msgstr "档案元数据已删除。<br>在返回档案列表前请手动删除文件。"
+msgstr ""
 
 msgid "Archive successfully deleted. Redirecting you..."
-msgstr "档案已成功删除，正在为您跳转..."
+msgstr ""
 
 msgid "Error while deleting archive"
-msgstr "删除档案时出错"
+msgstr ""
 
 msgid "Processing your upload... (Job #\${jobid})"
-msgstr "正在处理您的上传...（任务 #${jobid}）"
+msgstr ""
 
 msgid "Downloading file... (Job #\${jobid})"
-msgstr "正在下载文件...（任务 #${jobid}）"
+msgstr ""
 
 msgid "Processing"
-msgstr "Processing"
+msgstr ""
 
 msgid "Completed"
-msgstr "已完成"
+msgstr ""
 
 msgid "Failed"
-msgstr "失败"
+msgstr ""
 
 msgid "Total"
-msgstr "Total"
+msgstr ""
 
 msgid "Click here to edit metadata."
-msgstr "点击这里编辑元数据。"
+msgstr ""
 
 msgid "Error while processing file."
-msgstr "处理文件时失败。"
+msgstr ""
 
 msgid "Error while downloading file."
-msgstr "下载文件时失败。"
+msgstr ""
 
 msgid "Error sending job to Minion"
-msgstr "给 Minion 发送任务时出错"
+msgstr ""
 
 # ------End of i18n.html.tt2------
 # ------Start of Duplicates.html.tt2------
 msgid "Duplicate Detection"
-msgstr "重复档案检测"
+msgstr ""
 
 msgid "This page allows you to search for potential duplicates in your library."
-msgstr "此界面可搜索库中潜在的重复项。"
+msgstr ""
 
 msgid "Clicking \"Start searching\" will start a background job to scan the entire library for dupes."
-msgstr "点击“开始搜索”将启动查找库中重复项的后台任务。"
+msgstr ""
 
 msgid "After which, you can select which archives to delete, and then delete them in bulk."
-msgstr "之后，可以选择要删除的档案，然后批量删除。"
+msgstr ""
 
 msgid "Found %1 duplicate group(s)."
-msgstr "已找到 %1 组重复档案。"
+msgstr ""
 
 msgid "You can use the rules dropdown below to pre-select archives for deletion."
-msgstr "可选择下拉框中的规则来预选中要删除的档案。"
+msgstr ""
 
 msgid "For every duplicate group..."
-msgstr "对每个重复项..."
+msgstr ""
 
 msgid "Keep all files"
-msgstr "保留所有文件"
+msgstr ""
 
 msgid "Keep the file with the most tags"
-msgstr "保留有最多标签的文件"
+msgstr ""
 
 msgid "Keep the file with the most pages"
-msgstr "保留页数最多的文件"
+msgstr ""
 
 msgid "Keep the largest file"
-msgstr "保留最大的文件"
+msgstr ""
 
 msgid "Keep the youngest file"
-msgstr "保留最新的文件"
+msgstr ""
 
 msgid "Keep the oldest file"
-msgstr "保留最久的文件"
+msgstr ""
 
 msgid "Start searching for duplicates"
-msgstr "开始搜索重复档案"
+msgstr ""
 
 msgid "Search for duplicates again"
-msgstr "重新搜索重复档案"
+msgstr ""
 
 msgid "Delete all selected items"
-msgstr "删除所有选中的项目"
+msgstr ""
 
 msgid "Filename"
-msgstr "文件名"
+msgstr ""
 
 msgid "Filesize"
-msgstr "文件大小"
+msgstr ""
 
 msgid "Action"
-msgstr "Action"
+msgstr ""
 
 msgid "Searching for duplicates..."
-msgstr "正在搜索重复档案..."
+msgstr ""
 
 # ------End of Duplicates.html.tt2------
-msgid "New Static Category"
-msgstr "新建静态分类"
-
-msgid "New Dynamic Category"
-msgstr "新建动态分类"
-
-msgid "Plugin Settings"
-msgstr "插件设置"
-
-msgid "Run Automatically"
-msgstr "自动运行"
-
-msgid "Clear Cache"
-msgstr "清除缓存"
-
-msgid "Clear the cache manually by clicking this button."
-msgstr "点击此按钮手动清除缓存。"
-
-msgid "This plugin will trigger on URLs matching this regex!"
-msgstr "此插件将在URLs匹配正则表达式时触发！"
-
-msgid "This plugin depends on the login plugin"
-msgstr "此插件依赖登录插件"
-
-msgid "Trigger Script"
-msgstr "触发脚本"

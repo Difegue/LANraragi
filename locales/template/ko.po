@@ -1,0 +1,1712 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-05-06 17:24+0200\n"
+"PO-Revision-Date: 2025-05-06 20:28+0000\n"
+"Last-Translator: Haytsir <alswo7310@naver.com>\n"
+"Language-Team: Korean <https://hosted.weblate.org/projects/lanraragi/"
+"lanraragi-source/ko/>\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.12-dev\n"
+
+# Sample Data
+# ------Start of Backup.html.tt2------
+msgid "Database Backup/Restore"
+msgstr ""
+
+msgid "You can backup your existing database here, or restore an existing backup."
+msgstr "여기서 현재 데이터베이스를 백업하거나, 백업한 내용을 복원할 수 있습니다."
+
+msgid "Backuping allows you to download a JSON file containing all your categories and archive IDs, and their matching metadata."
+msgstr "백업을 통해 모든 카테고리와 아카이브 ID 및 일치하는 메타데이터가 포함된 JSON "
+"파일을 다운로드할 수 있습니다."
+
+msgid "Restoring from a backup will restore this metadata, <b>for IDs which already exist in your database.</b>"
+msgstr "<b>현재 데이터베이스에 존재하는 ID의 경우,</b>백업 내용을 복원하면 이 "
+"메타데이터를 복원하게 됩니다."
+
+msgid "(Categories will always be restored)"
+msgstr "(카테고리는 항상 복원됨)"
+
+msgid "Backup Database"
+msgstr "데이터베이스 백업"
+
+msgid "Restore Backup"
+msgstr "백업 내용 복원"
+
+msgid "Restoring your backup ..."
+msgstr "백업 내용을 복원하는 중 ..."
+
+msgid "Return to Library"
+msgstr ""
+
+# ------End of Backup.html.tt2------
+# ------Start of Batch.html.tt2------
+msgid "Batch Operations"
+msgstr ""
+
+msgid "You can apply modifications to multiple archives in one go here."
+msgstr "여기에서 여러 아카이브에 대한 수정 사항을 한 번에 적용할 수 있습니다."
+
+msgid "Select what you'd like to do, check archives you want to use it on, and get rolling!"
+msgstr "수행할 작업을 선택하고, 사용할 아카이브를 확인한 후 시작하세요!"
+
+msgid "Archives with no tags have been pre-checked."
+msgstr "태그가 없는 아카이브가 미리 확인되었습니다."
+
+msgid "Task :"
+msgstr "작업:"
+
+msgid "Use Plugin"
+msgstr "플러그인용"
+
+msgid "Remove New Flag"
+msgstr "New 플래그 제거"
+
+msgid "Apply Tag Rules"
+msgstr "태그 규칙 적용"
+
+msgid "Add To Category"
+msgstr "카테고리에 추가"
+
+msgid "Delete Archive"
+msgstr ""
+
+msgid "Use plugin :"
+msgstr "사용 플러그인 :"
+
+msgid "Timeout (max 20s):"
+msgstr "시간 초과 (최대 20초):"
+
+msgid "This plugin recommends a cooldown of <span id=\"cooldown\">-1</span> seconds."
+msgstr "이 플러그인은 <span id=\"cooldown\">-1</span> 초의 쿨타임을 추천합니다."
+
+msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
+msgstr "너무 많은 플러그인을 호출하면 외부 서비스가 임시적으로 당신의 요청을 차단할 "
+"수 있습니다!"
+
+msgid "Make sure to set a suitable <b>timeout</b> between archives using this picker if the plugin you want to use is concerned."
+msgstr "사용하려는 플러그인이 중요한 경우, 이 선택기를 사용하여 아카이브 간에 적절한 "
+"<b>타임아웃</b>을 설정하세요."
+
+msgid "Override Plugin Global Arguments"
+msgstr "플러그인 전역 인수 재정의"
+
+msgid "This will apply the following Tag Rules to the selected Archives."
+msgstr "이 선택기를 사용하여 선택한 아카이브에 다음 태그 규칙을 적용합니다."
+
+msgid "You can edit your Tag Rules in Server Configuration."
+msgstr "서버 설정에서 태그 규칙을 편집할 수 있습니다."
+
+msgid "Server Configuration"
+msgstr "서버 설정"
+
+msgid "This removes the \"new\" flag from the selected archives."
+msgstr "이 작업은 선택한 아카이브의 \\\"new\\\" 플래그를 제거합니다."
+
+msgid "Add to Category :"
+msgstr "카테고리에 추가 :"
+
+msgid "This will delete both metadata and matching files from your system! Please use with caution."
+msgstr "이 작업은 메타데이터와 일치하는 파일을 모두 삭제합니다! 사용 시 주의하세요."
+
+msgid "Check/Uncheck all"
+msgstr "모두 체크/해제"
+
+msgid "Start Task"
+msgstr "작업 시작"
+
+msgid "Cancel"
+msgstr "취소"
+
+msgid "Start another job"
+msgstr "다른 작업 시작"
+
+msgid "Processed <span id=\"arcs\"></span> out of <span id=\"totalarcs\"></span>"
+msgstr "처리된 아카이브: <span id=\"arcs\"></span> / <span id=\"totalarcs\"></span>"
+
+msgid "Preparing your data."
+msgstr "데이터를 준비하는 중입니다."
+
+msgid "Plugin Configuration"
+msgstr ""
+
+msgid "Return to Library"
+msgstr ""
+
+# ------End of Batch.html.tt2------
+# ------Start of Category.html.tt2------
+msgid "Categories"
+msgstr ""
+
+msgid "Categories appear at the top of your window when browsing the Library."
+msgstr "라이브러리를 탐색할 때 창 상단에 나타납니다."
+
+msgid "There are two distinct kinds:"
+msgstr "두 가지 구분되는 종류가 있습니다:"
+
+msgid "Static Categories are arbitrary collections of Archives, where you can add as many items as you want."
+msgstr "정적 카테고리는 아카이브를 임의로 수집하는 임의의 컬렉션입니다. 원하는 만큼 "
+"많은 항목을 추가할 수 있습니다."
+
+msgid "Dynamic Categories contain all archives matching a given predicate, and automatically update alongside your library."
+msgstr "동적 카테고리는 주어진 조건에 일치하는 모든 아카이브를 포함하며, "
+"라이브러리와 함께 자동으로 업데이트됩니다."
+
+msgid "You can create new categories here or edit existing ones."
+msgstr "여기에서 새 카테고리를 만들거나 생성한 카테고리를 편집할 수 있습니다."
+
+msgid "Select a category in the combobox below to edit its name, the archives it contains, or its predicate."
+msgstr "아래 콤보 상자에서 카테고리를 선택하여 이름, 포함된 아카이브 또는 조건을 "
+"편집할 수 있습니다."
+
+msgid "All your modifications are saved automatically."
+msgstr "모든 수정 사항은 자동으로 저장됩니다."
+
+msgid "Category:"
+msgstr "카테고리:"
+
+msgid "Name:"
+msgstr "이름:"
+
+msgid "Predicate:"
+msgstr "조건:"
+
+msgid "Pin this Category"
+msgstr "이 카테고리 고정"
+
+msgid "Delete Category"
+msgstr "카테고리 삭제"
+
+msgid "If you select a Static Category, your archives will appear here so you can add/remove them from the category."
+msgstr "정적 카테고리를 선택하면 여기에 아카이브가 표시되어 카테고리에 추가/제거할 "
+"수 있습니다."
+
+msgid "Return to Library"
+msgstr ""
+
+msgid "Store Bookmarks in this Category"
+msgstr "이 카테고리에 북마크 저장"
+
+msgid "Error linking bookmark button:"
+msgstr "북마크 버튼 연결 오류:"
+
+msgid "Error unlinking bookmark button:"
+msgstr "북마크 버튼 연결 해제 오류:"
+
+msgid "Error getting bookmark category:"
+msgstr "북마크 카테고리 조회 오류:"
+
+msgid "New Static Category"
+msgstr "새 정적 카테고리"
+
+msgid "New Dynamic Category"
+msgstr "새 동적 카테고리"
+
+# ------End of Category.html.tt2------
+# ------Start of Config.html.tt2------
+msgid "Admin Settings"
+msgstr "관리자 설정"
+
+msgid "LANraragi"
+msgstr "LANraragi"
+
+msgid "Version %1 %2"
+msgstr "버전 %1 - %2"
+
+msgid "Select a category to show the matching settings."
+msgstr "일치하는 설정을 표시할 카테고리를 선택하세요."
+
+msgid "Save Settings"
+msgstr "설정 저장"
+
+msgid "Plugin Configuration"
+msgstr ""
+
+msgid "Database Backup/Restore"
+msgstr "데이터베이스 백업/복원"
+
+msgid "Return to Library"
+msgstr ""
+
+msgid "Global Settings"
+msgstr "전역 설정"
+
+msgid "Theme"
+msgstr "테마"
+
+msgid "Security"
+msgstr "보안"
+
+msgid "Archive Files"
+msgstr "아카이브 파일"
+
+msgid "Tags and Thumbnails"
+msgstr "태그 및 썸네일"
+
+msgid "Background Workers"
+msgstr "백그라운드 워커"
+
+# ------End of Config.html.tt2------
+# ------Start of Config_Files.html.tt2------
+msgid "Archive Directory"
+msgstr "아카이브 디렉토리"
+
+msgid "Directory where the archives will be located. It will be created if it doesn't exist."
+msgstr "아카이브가 위치할 디렉토리입니다. 해당 디렉토리가 없으면 생성됩니다."
+
+msgid "Make sure the OS user running LANraragi has read access to this directory."
+msgstr "LANraragi를 실행하는 운영 체제 사용자가 이 디렉토리에 대한 읽기 권한을 "
+"가져야 합니다."
+
+msgid "Synology eCryptFS Compatibility Mode"
+msgstr "Synology eCryptFS 호환 모드"
+
+msgid "If enabled, LANraragi will cutoff archive filenames to 143 bytes, which is the max accepted by eCryptFS."
+msgstr "활성화되면 LANraragi는 아카이브 파일 이름을 143바이트로 자르며, 이는 "
+"eCryptFS에서 허용하는 최대 길이입니다."
+
+msgid "Rescan Archive Directory"
+msgstr ""
+
+msgid "Click this button to trigger a rescan of the Archive Directory in case you're missing files, or some data such as total page counts."
+msgstr ""
+
+msgid "Maximum <br>Cache Size"
+msgstr "최대 <br>캐시 크기"
+
+msgid "In MBs. The cache contains recently viewed pages, for faster subsequent reading."
+msgstr "MBs. 캐시는 최근 본 페이지를 포함하며, 더 빠른 후속 읽기를 위해 사용됩니다."
+
+msgid "It is automatically emptied when it grows past this specified size."
+msgstr "이 크기를 초과하면 자동으로 비워집니다."
+
+msgid "Clear Cache"
+msgstr "캐시 지우기"
+
+msgid "Current Size:"
+msgstr "현재 크기:"
+
+msgid "Clear the cache manually by clicking this button."
+msgstr "이 버튼을 클릭하여 수동으로 캐시를 지울 수 있습니다."
+
+msgid "Reset Search Cache"
+msgstr "검색 캐시 초기화"
+
+msgid "The last searches done in the archive index are cached for faster loads."
+msgstr "아카이브 인덱스에서 수행된 마지막 검색은 더 빠른 로드를 위해 캐시됩니다."
+
+msgid "If something went wrong with said cache, you can reset it by clicking this button."
+msgstr "만약 해당 캐시에 문제가 있었다면, 이 버튼을 클릭하여 초기화할 수 있습니다."
+
+msgid "Clear NEW flags"
+msgstr "NEW 플래그 지우기"
+
+msgid "Newly uploaded archives are marked as \"new\" in the index until you\'ve opened them."
+msgstr "새로 업로드된 아카이브는 한 번 열기 전까지 \"new\"로 표시됩니다."
+
+msgid "If you want to clear those flags, click this button."
+msgstr "만약 해당 플래그를 지우고 싶다면, 이 버튼을 클릭하세요."
+
+msgid "Replace duplicated archives"
+msgstr "중복 아카이브 대체"
+
+msgid "If enabled, LANraragi will overwrite old archives when a newer one (with the same name) is uploaded through the Web Uploader or the Download System."
+msgstr "활성화되면 웹 업로더 또는 다운로드 시스템을 통해 업로드된 새로운 아카이브가 "
+"동일한 이름을 가진 이전 아카이브를 대체합니다."
+
+msgid "This will delete metadata for old files when they're replaced! Use with caution."
+msgstr "이 작업은 대체된 파일의 메타데이터를 삭제합니다! 사용 시 주의하세요."
+
+# ------End of Config_Files.html.tt2------
+# ------Start of Config_Global.html.tt2------
+msgid "Site Title"
+msgstr "사이트 제목"
+
+msgid "The site title appears on most pages as...their title."
+msgstr "사이트 제목은 대부분의 페이지에서 제목으로 표시됩니다."
+
+msgid "MOTD"
+msgstr "MOTD"
+
+msgid "Slang for Message of the Day. Appears on top of the main Library view."
+msgstr "Message of the Day의 줄임말입니다. 메인 라이브러리 뷰의 상단에 표시됩니다."
+
+msgid "Archives per page"
+msgstr "페이지당 아카이브 수"
+
+msgid "Number of archives shown on a page in the main list."
+msgstr "메인 목록에서 페이지당 표시할 아카이브 수를 지정합니다."
+
+msgid "Resize Images in Reader"
+msgstr "리더에서 이미지 크기 조정"
+
+msgid "If enabled, pages exceeding a certain size will be resized when viewed to save bandwidth."
+msgstr "활성화되면, 페이지가 특정 크기를 초과할 경우 뷰어에서 크기를 조정하여 "
+"대역폭을 절약합니다."
+
+msgid "This option can potentially consume a lot of RAM if enabled and used on large images! Use with caution."
+msgstr "이 옵션이 활성화되면 큰 이미지에 사용될 경우 많은 메모리를 소모할 수 "
+"있습니다! 사용 시 주의하세요."
+
+msgid "Image Size Threshold"
+msgstr "이미지 크기 임계값"
+
+msgid "(in KBs.) Maximum size an image can reach before being resized."
+msgstr "(KB 단위) 이미지가 리사이즈되기 전에 도달할 수 있는 최대 크기입니다."
+
+msgid "Resize Quality"
+msgstr "리사이즈 품질"
+
+msgid "Quality of the resized images. Less quality = Smaller image. (0-100)"
+msgstr "리사이즈된 이미지의 품질. 품질이 낮을수록 이미지가 작아집니다. (0-100)"
+
+msgid "Clientside Progress Tracking"
+msgstr "클라이언트 측 진행 추적"
+
+msgid "Enabling this option will save reading progression on the browser (through localStorage) instead of the server."
+msgstr "이 옵션을 활성화하면 서버 대신 브라우저에서 읽기 진행 상황을 저장합니다."
+
+msgid "Consider toggling this option if you're sharing the LANraragi instance with multiple users!"
+msgstr "여러 사용자와 함께 LANraragi 인스턴스를 공유하는 경우 이 옵션을 고려하세요!"
+
+msgid "Debug Mode"
+msgstr "디버그 모드"
+
+msgid "Enabling Debug Mode will show more logs and disable update nagging."
+msgstr "디버그 모드를 활성화하면 더 많은 로그를 표시하고 업데이트 관련 메시지를 "
+"표시하지 않습니다."
+
+msgid "Fully effective after restarting LANraragi."
+msgstr ""
+
+msgid "Clean Database"
+msgstr "데이터베이스 정리"
+
+msgid "Cleaning the database will remove entries that aren't on your filesystem."
+msgstr "데이터베이스 정리는 파일 시스템에 없는 항목을 제거합니다."
+
+msgid "Reset Database"
+msgstr "데이터베이스 초기화"
+
+msgid "Danger zone!"
+msgstr "위험 영역!"
+
+msgid "Clicking this button will reset the entire database and delete all settings and metadata."
+msgstr "이 버튼을 클릭하면 전체 데이터베이스를 초기화하고 모든 설정과 메타데이터를 "
+"삭제합니다."
+
+# ------End of Config_Global.html.tt2------
+# ------Start of Config_Security.html.tt2------
+msgid "Enable Password"
+msgstr "비밀번호 활성화"
+
+msgid "If enabled, everything that isn't reading will require a password."
+msgstr "활성화되면 읽기 작업이 아닌 모든 작업에 비밀번호가 필요합니다."
+
+msgid "New Password"
+msgstr "새 비밀번호"
+
+msgid "New Password Confirmation"
+msgstr "새 비밀번호 확인"
+
+msgid "Only edit these fields if you want to change your password."
+msgstr "비밀번호를 변경하려면 이 필드만 편집하세요."
+
+msgid "The one already stored will be used otherwise."
+msgstr "이미 저장된 비밀번호가 있으면 사용됩니다."
+
+msgid "No-Fun Mode"
+msgstr "No-Fun 모드"
+
+msgid "Enabling No-Fun Mode will lock reading archives behind the password as well."
+msgstr "No-Fun 모드를 활성화하면 비밀번호로 보호된 아카이브 읽기도 잠금 상태가 "
+"됩니다."
+
+msgid "Fully effective after restarting LANraragi."
+msgstr "완전하게 기능하려면 LANraragi를 다시 시작해야 합니다."
+
+msgid "API Key"
+msgstr "API 키"
+
+msgid "If you wish to use the Client API and have a password, you'll have to set a key here."
+msgstr "클라이언트 API를 사용하거나 비밀번호를 설정하길 원한다면, 여기에 키를 "
+"설정해야 합니다."
+
+msgid "Empty keys will <b>not</b> work!"
+msgstr "빈 키는 작동하지 <b>않</b>습니다!"
+
+msgid "This key will need to be provided in every protected API call as the <i>Authorization</i> header."
+msgstr "이 키는 모든 보호된 API 호출에서 <i>Authorization</i> 헤더로 제공되어야 "
+"합니다."
+
+msgid "Enable CORS for the Client API"
+msgstr "클라이언트 API에 대한 CORS 활성화"
+
+msgid "Have API requests support Cross-Origin Resource Sharing, which allows web browsers to access it off other domains."
+msgstr ""
+"API 요청은 웹 브라우저가 다른 도메인에서 액세스할 수 있도록 하는 Cross-"
+"Origin Resource Sharing(CORS)를 지원합니다."
+
+msgid "Turn this on if you want to access this service through a web-based wrapper (e.g. a userscript) used/hosted on another domain."
+msgstr "웹 기반 래퍼(예: 사용자 스크립트)를 사용/호스팅하는 다른 도메인에서 이 "
+"서비스에 액세스하려면 이 옵션을 켜세요."
+
+# ------End of Config_Security.html.tt2------
+# ------Start of Config_Shinobu.html.tt2------
+msgid "Shinobu Status"
+msgstr "Shinobu 상태"
+
+msgid "The Shinobu File Watcher is currently"
+msgstr "Shinobu 파일 감시자는 현재"
+
+msgid "OK!"
+msgstr "좋아요!"
+
+msgid "Kaput!"
+msgstr "종료됨!"
+
+msgid "This File Watcher is responsible for monitoring your content directory and automatically handling new archives as they come."
+msgstr "이 파일 감시자는 콘텐츠 디렉토리를 모니터링하고 새로운 아카이브가 도착할 때 "
+"자동으로 처리합니다."
+
+msgid "Restart File Watcher"
+msgstr "파일 감시자 재시작"
+
+msgid "If Shinobu is dead or unresponsive, you can reboot her by clicking this button."
+msgstr "Shinobu가 죽었거나 응답하지 않으면 이 버튼을 클릭하여 재부팅할 수 있습니다."
+
+msgid "Open Minion Console"
+msgstr "Minion 콘솔 열기"
+
+msgid "The Minion Worker handles spare tasks that are too long to execute within the request/response lifecycle of web applications."
+msgstr "Minion 작업자는 웹 애플리케이션의 요청/응답 수명 주기 내에서 실행할 수 없는 "
+"작업을 처리합니다."
+
+msgid "The console shows currently running and concluded tasks."
+msgstr "콘솔은 현재 실행 중인 작업과 완료된 작업을 표시합니다."
+
+# ------End of Config_Shinobu.html.tt2------
+# ------Start of Config_Tags.html.tt2------
+msgid "Thumbnail Directory"
+msgstr "썸네일 디렉토리"
+
+msgid "Directory where the archive thumbnails will be located. It will be created if it doesn't exist."
+msgstr "아카이브 썸네일이 위치할 디렉토리입니다. 해당 디렉토리가 없으면 생성됩니다."
+
+msgid "Make sure the OS user running LANraragi has read/write access to this directory."
+msgstr "LANraragi를 실행하는 운영 체제 사용자가 이 디렉토리에 대한 읽기/쓰기 권한을 "
+"가져야 합니다."
+
+msgid "Use high-quality thumbnails for pages"
+msgstr "페이지에 대해 고품질 썸네일 사용"
+
+msgid "LANraragi generates lower-quality thumbnails for archive pages for performance reasons."
+msgstr "LANraragi는 성능 이유로 아카이브 페이지에 대해 낮은 품질의 썸네일을 "
+"생성합니다."
+
+msgid "If this option is checked, it will instead generate page thumbnails at the same quality as cover thumbnails."
+msgstr "이 옵션을 확인하면 커버 썸네일과 동일한 품질로 페이지 썸네일을 생성합니다."
+
+msgid "Use JPEG XL for thumbnails"
+msgstr "썸네일에 JPEG XL 사용"
+
+msgid "LANraragi generates JPEG thumbnails for compatibility and performance reasons."
+msgstr "LANraragi는 호환성과 성능 이유로 JPEG 썸네일을 생성합니다."
+
+msgid "If this option is checked, it will instead generate thumbnails using JPEG XL."
+msgstr "이 옵션을 확인하면 JPEG XL을 사용하여 썸네일을 생성합니다."
+
+msgid "Generate Missing Thumbnails"
+msgstr "누락된 썸네일 생성"
+
+msgid "Generate Thumbnails for all archives that don't have one yet."
+msgstr "아직 썸네일이 없는 모든 아카이브에 대한 썸네일을 생성합니다."
+
+msgid "Regenerate all Thumbnails"
+msgstr "모든 썸네일 재생성"
+
+msgid "Regenerate all thumbnails. This might take a while!"
+msgstr "모든 썸네일을 재생성합니다. 이 작업은 시간이 조금 걸릴 수 있습니다!"
+
+msgid "Add Timestamp Tag"
+msgstr "타임스탬프 태그 추가"
+
+msgid "If enabled, LANraragi will add the UNIX timestamp of the current time as a tag under the \"date_added\" namespace to newly added archives."
+msgstr ""
+"활성화되면 LANraragi는 새로 추가된 아카이브의 \"date_added\" 태그의 값으로 "
+"현재 시간의 UNIX 타임스탬프를 추가합니다."
+
+msgid "Use \"Last modified\" Time"
+msgstr "\"마지막 수정 시간\" 사용"
+
+msgid "Enabling this will use file modified time instead of current time when setting \"date_added\" timestamps."
+msgstr "이 옵션을 활성화하면 \"date_added\" 타임스탬프를 설정할 때 현재 시간 대신 "
+"파일 수정 시간을 사용합니다."
+
+msgid "Tag Rules"
+msgstr "태그 규칙"
+
+msgid "When tagging archives using Plugins, the rules specified here will be applied to the tags before saving them to the database."
+msgstr "플러그인을 사용하여 아카이브에 태그를 지정할 때 여기에 지정된 규칙이 "
+"데이터베이스에 저장하기 전에 태그에 적용됩니다."
+
+msgid "Split rules with linebreaks."
+msgstr "줄바꿈으로 규칙을 분리합니다."
+
+msgid "<b>-tag | tag</b> : removes the tag (like a blacklist)"
+msgstr "<b>-tag | tag</b> : 태그 제거 (블랙리스트 형식)"
+
+msgid "<b>-namespace:*</b> : removes all tags within this namespace"
+msgstr "\"<b>-namespace:*</b> : 이 네임스페이스 내의 모든 태그 제거"
+
+msgid "namespace : strips the namespace from the tags"
+msgstr "<b>~namespace</b> : 태그에서 네임스페이스 제거"
+
+msgid "<b>tag -> new-tag</b> : replaces one tag"
+msgstr "<b>tag -> new-tag</b> : 하나의 태그 교체"
+
+msgid "<b>tag => new-tag</b> : replaces one tag, but use a hash table internally for faster performance. These rules will be executed <i>once</i> after all other rules."
+msgstr ""
+"<b>tag => new-tag</b> : 하나의 태그 교체, 내부적으로 해시 테이블을 사용하여 "
+"더 빠른 성능을 유지. 모든 다른 규칙 후 이 규칙이 <i>한 번</i> 실행됩니다."
+
+msgid "<b>namespace:* -> new-namespace:*</b> : replaces the namespace with the new one"
+msgstr "<b>namespace:* -> new-namespace:*</b> : 네임스페이스를 새로운 네임스페이스로 "
+"교체"
+
+# ------End of Config_Tags.html.tt2------
+# ------Start of Config_Theme.html.tt2------
+msgid "The selected theme will apply to the entire application and be shown to all users."
+msgstr "선택한 테마는 전체 애플리케이션에 적용되고 모든 사용자에게 표시됩니다."
+
+msgid "If you're using a browser that supports \"theme-color\", the theme's primary color will also be applied there."
+msgstr "브라우저가 \"theme-color\"를 지원하는 경우 테마의 기본 색상도 해당 위치에 "
+"적용됩니다."
+
+msgid "Click on a theme to preview it before saving!"
+msgstr "저장하기 전에 테마를 미리 보려면 테마를 클릭하세요!"
+
+# ------End of Config_Theme.html.tt2------
+# ------Start of Edit.html.tt2------
+msgid "Editing %1 by %2"
+msgstr "%1 by %2 편집 중"
+
+msgid "Editing %1"
+msgstr "%1 편집 중"
+
+msgid "Current File Name:"
+msgstr "현재 파일 이름:"
+
+msgid "ID:"
+msgstr "ID:"
+
+msgid "Title:"
+msgstr "제목:"
+
+msgid "Summary:"
+msgstr "요약:"
+
+msgid "Tags"
+msgstr ""
+
+msgid "(separated by hyphens, i.e : tag1, tag2)"
+msgstr "(하이픈으로 구분, 예: tag1, tag2)"
+
+msgid "Import Tags from Plugin :"
+msgstr "플러그인으로 가져온 태그:"
+
+msgid "Help"
+msgstr ""
+
+msgid "Go!"
+msgstr "실행!"
+
+msgid "Using a Plugin will save any modifications to archive metadata you might have made !"
+msgstr "플러그인을 사용하면 아카이브 메타데이터에 대한 모든 수정 사항이 저장됩니다 !"
+
+msgid "Save Metadata"
+msgstr "메타데이터 저장"
+
+msgid "Delete Archive"
+msgstr ""
+
+msgid "Return to Library"
+msgstr ""
+
+# ------End of Edit.html.tt2------
+# ------Start of Index.html.tt2------
+msgid "Add Archives"
+msgstr "아카이브 추가"
+
+msgid "Batch Operations"
+msgstr "일괄 작업"
+
+msgid "Settings"
+msgstr "설정"
+
+msgid "Modify Categories"
+msgstr "카테고리 수정"
+
+msgid "Statistics"
+msgstr "통계"
+
+msgid "Logs"
+msgstr "로그"
+
+msgid "Admin Login"
+msgstr "관리자 로그인"
+
+msgid "Search Title, Artist, Series, Language or Tags"
+msgstr "제목, 작가, 시리즈, 언어 또는 태그 검색"
+
+msgid "Apply Filter"
+msgstr "필터 적용"
+
+msgid "Clear Filter"
+msgstr "필터 초기화"
+
+msgid "Click to show archives from the current search with the specified filter"
+msgstr "현재 검색에 지정된 필터를 사용하여 아카이브 표시"
+
+msgid "Refresh Selection"
+msgstr "선택 항목 새로고침"
+
+msgid "Carousel Options"
+msgstr "캐러셀 옵션"
+
+msgid "No results here."
+msgstr "결과가 없습니다."
+
+msgid "Sort by:"
+msgstr "정렬 기준:"
+
+msgid "Title"
+msgstr ""
+
+msgid "Date"
+msgstr "날짜"
+
+msgid "Sort Order"
+msgstr "정렬 순서"
+
+msgid "Crop thumbnails"
+msgstr "썸네일 자르기"
+
+msgid "Go to Page:"
+msgstr "페이지로 이동:"
+
+msgid "Columns:"
+msgstr "열:"
+
+msgid "Switch to Compact Mode"
+msgstr "컴팩트 모드로 전환"
+
+msgid "Switch to Thumbnail Mode"
+msgstr "썸네일 모드로 전환"
+
+msgid "Title"
+msgstr ""
+
+msgid "Artist"
+msgstr "작가"
+
+msgid "Series"
+msgstr "시리즈"
+
+msgid "Tags"
+msgstr ""
+
+msgid "Edit this column"
+msgstr ""
+
+msgid "I don't know everything, but I sure as hell know this database's busted lads"
+msgstr "제가 아는 건 없지만, 이 데이터베이스가 망가졌다는 건 확실히 알겠네요"
+
+msgid "The database cache is corrupt, and as such LANraragi is unable to display your archive list."
+msgstr "데이터베이스 캐시가 손상되어 LANraragi가 아카이브 목록을 표시할 수 없습니다."
+
+msgid "Read"
+msgstr "읽기"
+
+msgid "Download"
+msgstr "다운로드"
+
+msgid "Edit Metadata"
+msgstr "메타데이터 편집"
+
+msgid "Delete"
+msgstr "삭제"
+
+msgid "Add Rating"
+msgstr "평점 추가"
+
+msgid "Add to Category"
+msgstr "카테고리 추가"
+
+msgid "New Version Release Notes"
+msgstr "새 버전 릴리스 노트"
+
+msgid "You\'re using the default password and that\'s super baka of you"
+msgstr "기본 비밀번호를 사용하고 있다니 완전 바카로군요"
+
+msgid "Login with password \"kamimamita\" and change that shit on the double. ...Or just disable it! Why not check the configuration options afterwards, while you\'re at it?"
+msgstr ""
+"비밀번호 \"kamimamita\"로 <a href=\"/login\">로그인</a>하고 비밀번호 <a href="
+"\"/config\">좀 바꾸세요</a>.<br/> ...아니면 그냥 비활성화 하세요! <br/"
+">비밀번호를 바꾸고 이왕 하는 김에 설정 옵션도 확인해 보는 것은 어때요? "
+
+# ------End of Index.html.tt2------
+# ------Start of Login.html.tt2------
+msgid "This page requires you to log on."
+msgstr "이 페이지는 로그인이 필요합니다."
+
+msgid "Admin Password:"
+msgstr "관리자 비밀번호:"
+
+msgid "Login"
+msgstr "로그인"
+
+msgid "Wrong Password."
+msgstr "잘못된 비밀번호입니다."
+
+msgid "<a href='\${url}'>Login</a> to toggle bookmark feature."
+msgstr "북마크 기능을 토글하려면 <a href='${url}'>로그인</a>하세요."
+
+# ------End of Login.html.tt2------
+# ------Start of Logs.html.tt2------
+msgid "Application Logs"
+msgstr "애플리케이션 로그"
+
+msgid "You can check LANraragi logs here for debugging purposes."
+msgstr "디버깅 목적으로 LANraragi 로그를 확인할 수 있습니다."
+
+msgid "By default, this view only shows the last 100 lines of each logfile, newest lines last."
+msgstr "기본적으로 이 뷰는 각 로그 파일의 마지막 100줄만 표시하며, 마지막 줄이 가장 "
+"최근의 기록입니다."
+
+msgid "General Logs pertain to the main application."
+msgstr "일반 로그는 주요 애플리케이션에 관련된 내용이 나타납니다."
+
+msgid "Shinobu Logs correspond to the Background Worker."
+msgstr "Shinobu 로그는 백그라운드 워커에 관련된 내용이 나타납니다."
+
+msgid "Plugin Logs are reserved for metadata plugins only."
+msgstr "플러그인 로그는 메타데이터 플러그인에만 제한됩니다."
+
+msgid "Mojolicious logs won't tell much unless you're running Debug Mode."
+msgstr "Mojolicious 로그는 디버그 모드를 실행하지 않으면 많은 것을 알려주지 않습니다."
+
+msgid "Redis logs won't be available from here if you're running from source!"
+msgstr "소스에서 바로 실행하는 경우 Redis 로그는 여기에서 사용할 수 없습니다!"
+
+msgid "Currently Viewing:"
+msgstr "현재 보고 있는 로그: "
+
+msgid "general"
+msgstr "일반"
+
+msgid "Refresh"
+msgstr "새로고침"
+
+msgid "Lines:"
+msgstr "줄: "
+
+msgid "View LANraragi Logs"
+msgstr "LANraragi 로그 보기"
+
+msgid "View Shinobu Logs"
+msgstr "Shinobu 로그 보기"
+
+msgid "View Plugin Logs"
+msgstr "플러그인 로그 보기"
+
+msgid "View Mojolicious Logs"
+msgstr "Mojolicious 로그 보기"
+
+msgid "View Redis Logs"
+msgstr "Redis 로그 보기"
+
+msgid "Return to Library"
+msgstr ""
+
+# ------End of Logs.html.tt2------
+# ------Start of Plugins.html.tt2------
+msgid "Plugin Configuration"
+msgstr "플러그인 설정"
+
+msgid "Enable/Disable Auto-Plugin on metadata plugins by checking the toggles."
+msgstr "토글을 체크하여 메타데이터 플러그인에 대한 자동 플러그인 활성화/비활성화 "
+"가능합니다."
+
+msgid "Plugins will be automatically used on new archives if they're toggled here."
+msgstr "플러그인이 여기에서 활성화되면 새 아카이브에 자동으로 사용됩니다."
+
+msgid "If they have configuration variables, you can set them here as well."
+msgstr "구성 변수가 있는 경우 여기에서도 설정할 수 있습니다."
+
+msgid "You can also trigger Scripts here. Triggering a script will save your Plugin settings beforehand."
+msgstr "여기서도 스크립트를 트리거할 수 있습니다. 스크립트를 트리거하면 플러그인 "
+"설정을 저장합니다."
+
+msgid "Login Plugins"
+msgstr "로그인 플러그인"
+
+msgid "Downloaders"
+msgstr "다운로더"
+
+msgid "Scripts"
+msgstr "스크립트"
+
+msgid "Metadata Plugins"
+msgstr "메타데이터 플러그인"
+
+msgid "Allow Plugins to replace archive titles:"
+msgstr "플러그인이 아카이브 제목을 대체할 수 있도록 허용:"
+
+msgid "If enabled, metadata plugins will be able to change the title of your archives alongside adding tags to them."
+msgstr "활성화되면 메타데이터 플러그인이 아카이브 제목을 변경하고 태그를 추가할 수 "
+"있습니다."
+
+msgid "A script is running..."
+msgstr "스크립트가 실행 중입니다..."
+
+msgid "Save Plugin Configuration"
+msgstr "플러그인 설정 저장"
+
+msgid "Upload Plugin"
+msgstr "플러그인 업로드"
+
+msgid "Return to Library"
+msgstr ""
+
+msgid "This plugin will trigger on URLs matching this regex!"
+msgstr "이 플러그인은 이 정규식과 일치하는 URL에 대해 동작합니다!"
+
+msgid "This plugin depends on the login plugin"
+msgstr "이 플러그인은 로그인 플러그인에 의존합니다"
+
+msgid "Trigger Script"
+msgstr "스크립트 트리거"
+
+msgid "Run Automatically"
+msgstr "자동 실행"
+
+msgid "Plugin Settings"
+msgstr "플러그인 설정"
+
+# ------End of Plugins.html.tt2------
+# ------Start of Reader.html.tt2------
+msgid "Done reading? Go back to Archive Index"
+msgstr "다 읽었나요? 아카이브 인덱스로 돌아가기"
+
+msgid "View full-size image"
+msgstr "전체 크기 이미지 보기"
+
+msgid "Switch to another random archive"
+msgstr "다른 랜덤 아카이브로 전환"
+
+msgid "Archive Overview"
+msgstr ""
+
+msgid "Admin Options"
+msgstr "관리자 옵션"
+
+msgid "Set this Page as Thumbnail"
+msgstr "이 페이지를 썸네일로 설정"
+
+msgid "Set the currently opened page as the thumbnail for this archive."
+msgstr "현재 열린 페이지를 이 아카이브의 썸네일로 설정합니다."
+
+msgid "Clean Archive Cache"
+msgstr "아카이브 캐시 정리"
+
+msgid "Edit Archive Metadata"
+msgstr "아카이브 메타데이터 편집"
+
+msgid "Delete Archive"
+msgstr "아카이브 제"
+
+msgid "Categories"
+msgstr "카테고리"
+
+msgid "Add to : "
+msgstr "추가: "
+
+msgid " -- No Category -- "
+msgstr ""
+
+msgid "Add Archive to Category"
+msgstr "아카이브 카테고리 추가"
+
+msgid "Pages"
+msgstr "페이지"
+
+msgid "Working on it..."
+msgstr "작업 중..."
+
+msgid "You can navigate between pages using:"
+msgstr "다음을 이용해 페이지를 이동할 수 있습니다:"
+
+msgid "The arrow icons"
+msgstr "화살표 아이콘"
+
+msgid "The a/d keys"
+msgstr "a/d 키"
+
+msgid "Your keyboard arrows (and the spacebar)"
+msgstr "키보드 화살표(및 스페이스바)"
+
+msgid "Touching the left/right side of the image."
+msgstr "이미지의 왼쪽/오른쪽 영역 터치."
+
+msgid "Other keyboard shortcuts:"
+msgstr "기타 키보드 단축키:"
+
+msgid "M: toggle manga mode (right-to-left reading)"
+msgstr "M: 만화 모드 전환 (오른쪽에서 왼쪽 읽기)"
+
+msgid "O: show advanced reader options."
+msgstr "O: 고급 리더 옵션 표시."
+
+msgid "P: toggle double page mode"
+msgstr "P: 이중 페이지 모드 전환"
+
+msgid "Q: bring up the thumbnail index and archive options."
+msgstr "Q: 썸네일 인덱스 및 아카이브 옵션 표시."
+
+msgid "R: open a random archive."
+msgstr "\"R: 랜덤 아카이브 열기."
+
+msgid "F: toggle fullscreen mode"
+msgstr "F: 전체 화면 모드 전환"
+
+msgid "B: toggle bookmark"
+msgstr "B: 북마크 토글"
+
+msgid "To return to the archive index, touch the arrow pointing down or use Backspace."
+msgstr "아카이브 인덱스로 돌아가려면, 아래 화살표를 터치하거나 Backspace를 "
+"사용하세요."
+
+msgid "Reader Options"
+msgstr "리더 옵션"
+
+msgid "Those options save automatically -- Click around and find out!"
+msgstr "이 옵션은 자동으로 저장됩니다 -- 클릭하고 찾아보세요!"
+
+msgid "Fit display to"
+msgstr "표시 크기 맞추기"
+
+msgid "Container"
+msgstr "컨테이너"
+
+msgid "Width"
+msgstr "너비"
+
+msgid "Height"
+msgstr "높이"
+
+msgid "Container Width (in pixels or percentage)"
+msgstr "컨테이너 너비 (픽셀 또는 백분율 단위)"
+
+msgid "The default value is 1200px, or 90% in Double Page Mode."
+msgstr "기본값은 1200px이며, 이중 페이지 모드에서는 90%입니다."
+
+msgid "Apply"
+msgstr "적용"
+
+msgid "Page Rendering"
+msgstr "페이지 렌더링"
+
+msgid "Single"
+msgstr "단일"
+
+msgid "Double"
+msgstr "이중"
+
+msgid "Reading Direction"
+msgstr ""
+
+msgid "Left to Right"
+msgstr "왼쪽에서 오른쪽으로"
+
+msgid "Right to Left"
+msgstr "오른쪽에서 왼쪽으로"
+
+msgid "How many images to preload"
+msgstr "미리 로드할 이미지 수"
+
+msgid "The default is two images."
+msgstr "기본값은 이미지 두 장입니다."
+
+msgid "Header"
+msgstr ""
+
+msgid "Visible"
+msgstr "표시됨"
+
+msgid "Hidden"
+msgstr "숨김"
+
+msgid "Show Archive Overlay by default"
+msgstr "기본적으로 아카이브 오버레이 표시"
+
+msgid "This will show the overlay with thumbnails every time you open a new Reader page."
+msgstr "이 옵션은 새로운 리더 페이지를 열 때마다 썸네일 오버레이를 표시합니다."
+
+msgid "Enabled"
+msgstr "활성화"
+
+msgid "Disabled"
+msgstr "비활성화"
+
+msgid "Progression Tracking"
+msgstr "진행 추적"
+
+msgid "Disabling tracking will restart reading from page one every time you reopen the reader."
+msgstr "추적을 비활성화하면 리더를 다시 열 때마다 첫 페이지에서 읽기를 시작합니다."
+
+msgid "Infinite Scrolling"
+msgstr "무한 스크롤"
+
+msgid "Display all images in a vertical view in the same page."
+msgstr "모든 이미지를 동일한 페이지에서 세로 뷰로 표시합니다."
+
+msgid "Reader Settings"
+msgstr "리더 설정"
+
+msgid "Help"
+msgstr "도움말"
+
+msgid "Reading Direction"
+msgstr "읽기 방향"
+
+msgid "Archive Overview"
+msgstr "아카이브 개요"
+
+msgid "FullScreen"
+msgstr "전체 화면"
+
+msgid "Toggle Bookmark"
+msgstr "북마크 토글"
+
+# ------End of Reader.html.tt2------
+# ------Start of Stats.html.tt2------
+msgid "Library Statistics"
+msgstr "라이브러리 통계"
+
+msgid "Archives on record"
+msgstr "기록된 아카이브"
+
+msgid "Different tags existing"
+msgstr "존재하는 태그"
+
+msgid "in content folder"
+msgstr "콘텐츠 폴더"
+
+msgid "pages read"
+msgstr "읽은 페이지"
+
+msgid "Tag Cloud"
+msgstr "태그 클라우드"
+
+msgid "Asking the great powers that be for your tag statistics..."
+msgstr "태그 통계를 위해 천재들에게 물어보고 있습니다..."
+
+msgid "Detailed Stats"
+msgstr "상세 통계"
+
+msgid "(These statistics only show tags that appear at least twice in your database.)"
+msgstr "(이 통계는 데이터베이스에서 최소 두 번 이상 나타나는 태그만 표시합니다.)"
+
+msgid "Return to Library"
+msgstr ""
+
+# ------End of Stats.html.tt2------
+# ------Start of Upload.html.tt2------
+msgid "Upload Center"
+msgstr "업로드 센터"
+
+msgid "Adding Archives to the Library"
+msgstr "아카이브를 라이브러리에 추가"
+
+msgid "Add files to your LANraragi instance from your computer, or the Internet directly."
+msgstr "컴퓨터 또는 인터넷으로부터 LANraragi 인스턴스에 파일을 추가합니다."
+
+msgid "Add uploaded files to category:"
+msgstr "업로드된 파일을 카테고리에 추가:"
+
+msgid " -- No Category -- "
+msgstr " -- 카테고리 없음 -- "
+
+msgid "From your computer"
+msgstr "컴퓨터에서"
+
+msgid "You can drag and drop files into this window, or click the upload button."
+msgstr "이 창에 파일을 끌어서 놓거나 업로드 버튼을 클릭할 수 있습니다."
+
+msgid "Add from your computer"
+msgstr "컴퓨터에서 추가"
+
+msgid "From the Internet"
+msgstr "인터넷에서"
+
+msgid "You can download files from remote URLs directly into LANraragi from here."
+msgstr "여기에서 LANraragi에 원격 URL에서 직접 파일을 다운로드할 수 있습니다."
+
+msgid "Download jobs will keep going even if you close this window!"
+msgstr "다운로드 작업은 이 창을 닫아도 계속 진행됩니다!"
+
+msgid "Type in your URLs (separated by a newline), and click the download button."
+msgstr "URL을 입력하고 다운로드 버튼을 클릭하세요 (줄바꿈으로 구분)."
+
+msgid "If a Downloader plugin is compatible with the URL, it'll be automatically used."
+msgstr ""
+"URL이 호환되는 <a href=\"[% c.url_for(\"/config/plugins\") %]\">다운로더 "
+"플러그인</a>이 있으면, 자동으로 사용됩니다."
+
+msgid "URL(s) to download:"
+msgstr "다운로드할 URL(s):"
+
+msgid "Add from URL(s)"
+msgstr "URL(s)에서 추가"
+
+msgid "Return to Library"
+msgstr "라이브러리로 돌아가기"
+
+# ------End of Upload.html.tt2------
+msgid "Rescan Archive Directory"
+msgstr "아카이브 디렉토리 재검색"
+
+msgid "Click this button to trigger a rescan of the Archive Directory in case you're missing files, or some data such as total page counts."
+msgstr ""
+"이 버튼을 클릭하여 아카이브 디렉토리를 재검색하여 파일이 누락되었거나, <br> "
+"총 페이지 수와 같은 데이터가 누락되었을 경우를 처리합니다. <br>"
+
+# ------Stary of i18n.html.tt2------
+msgid "Backup restored!"
+msgstr "백업 복원됨!"
+
+msgid "An error occured while restoring the backup.<br/> Please check the server logs and that your JSON is correctly formatted."
+msgstr "백업 복원 중 오류가 발생했습니다.<br/> 서버 로그를 확인하고 JSON 형식이 "
+"올바른지 확인하세요."
+
+msgid "Couldn't load the complete archive list! Please reload the page."
+msgstr "완전한 아카이브 목록을 로드할 수 없습니다! 페이지를 새로고침하세요."
+
+msgid "Couldn't load the tag statistics! Please reload the page."
+msgstr "태그 통계를 로드할 수 없습니다! 페이지를 새로고침하세요."
+
+msgid "Error getting untagged archives!"
+msgstr "태그 없는 아카이브를 가져오는 중 오류가 발생했습니다!"
+
+msgid "Are you sure you want to delete this archive?"
+msgstr "이 아카이브를 삭제하시겠습니까?"
+
+msgid "Are you sure you want to delete the selected archives?"
+msgstr "선택한 아카이브를 삭제하시겠습니까?"
+
+msgid "This action cannot be undone!"
+msgstr "이 작업은 취소할 수 없습니다!"
+
+msgid "This action (truly) cannot be undone!"
+msgstr "이 작업은 (진짜 진짜) 취소할 수 없습니다!"
+
+msgid "Yes, delete it!"
+msgstr "예, 삭제하세요!"
+
+msgid "No, keep it!"
+msgstr "아니오, 유지하세요!"
+
+msgid "Error while deleting cache! Check application logs."
+msgstr "캐시 삭제 중 오류가 발생했습니다! 애플리케이션 로그를 확인하세요."
+
+msgid "Error while processing request"
+msgstr "요청 처리 중 오류가 발생했습니다"
+
+msgid "Error checking Minion job status"
+msgstr "Minion 작업 상태 확인 중 오류가 발생했습니다"
+
+msgid "Saved!"
+msgstr "저장됨!"
+
+msgid "Error saving data"
+msgstr "데이터 저장 중 오류가 발생했습니다"
+
+msgid "Started Batch Operation..."
+msgstr "배치 작업 시작..."
+
+msgid "Batch Operation complete!"
+msgstr "배치 작업 완료!"
+
+msgid "An error occured during batch tagging!"
+msgstr "배치 태그 작업 중 오류가 발생했습니다!"
+
+msgid "Please check application logs."
+msgstr "애플리케이션 로그를 확인하세요."
+
+msgid "Error! Terminating session."
+msgstr "오류! 세션 종료."
+
+msgid "Sleeping for \${x} seconds."
+msgstr "${x}초 동안 대기..."
+
+msgid "Error while processing ID \${id} (\${msg})"
+msgstr "ID ${id} 처리 중 오류가 발생했습니다 (${msg})"
+
+msgid "Processed ID \${id} with \"\${plug}\" (Added tags: \${tags})"
+msgstr "ID ${id}를 \"${plug}\"으로 처리했습니다 (태그: ${tags})"
+
+msgid "Deleted ID \${id} (Filename: \${filename})"
+msgstr "ID ${id} 삭제됨 (파일명: ${filename})"
+
+msgid "Replaced tags for ID \${id} (New tags: \${tags})"
+msgstr "ID ${id}의 태그 교체됨 (새 태그: ${tags})"
+
+msgid "Added ID \${id} to category \${category}! (\${msg})"
+msgstr "ID ${id}를 카테고리 ${category}에 추가했습니다! (${msg})"
+
+msgid "Cleared new flag for ID \${id}!"
+msgstr "ID ${id}의 신규 플래그 초기화됨!"
+
+msgid "Unknown operation \${oper} (\${msg})"
+msgstr "알 수 없는 작업 ${oper} (${msg})"
+
+msgid "Changed title to: \${title}"
+msgstr "제목 변경됨: ${title}"
+
+msgid "Reloading page in 5 seconds to account for deleted archives..."
+msgstr "삭제된 아카이브를 고려하여 5초 후에 페이지를 다시 로드합니다..."
+
+msgid "Cancelling Batch Operation..."
+msgstr "배치 작업 취소..."
+
+msgid "Enter a name for the new category"
+msgstr "새 카테고리 이름 입력"
+
+msgid "My Category"
+msgstr "내 카테고리"
+
+msgid "Please enter a category name."
+msgstr "카테고리 이름을 입력하세요."
+
+msgid "No category"
+msgstr "카테고리 없음"
+
+msgid "Error getting categories from server"
+msgstr "서버에서 카테고리를 가져오는 중 오류가 발생했습니다"
+
+msgid "Error modifying category"
+msgstr "카테고리 수정 중 오류가 발생했습니다"
+
+msgid "The category will be deleted permanently."
+msgstr "카테고리는 영구적으로 삭제될 것입니다."
+
+msgid "Category deleted!"
+msgstr "카테고리 삭제됨!"
+
+msgid "Error deleting category"
+msgstr "카테고리 삭제 중 오류가 발생했습니다"
+
+msgid "Writing a Predicate"
+msgstr "조건 작성"
+
+msgid "Predicates follow the same syntax as searches in the Archive Index. Check the Documentation for more information."
+msgstr ""
+"조건은 아카이브 인덱스에서 검색과 동일한 구문을 따릅니다. 자세한 내용은 <a "
+"href=\"https://sugoi.gitbook.io/lanraragi/basic-operations/searching\">문서</"
+"a>를 참조하세요."
+
+msgid "Background Worker restarted!"
+msgstr "백그라운드 워커 재시작!"
+
+msgid "Error restarting Worker:"
+msgstr "워커 재시작 중 오류가 발생했습니다:"
+
+msgid "Content folder rescan started!"
+msgstr "콘텐츠 폴더 재검색 시작!"
+
+msgid "Error starting content folder rescan:"
+msgstr "콘텐츠 폴더 재검색 시작 중 오류가 발생했습니다:"
+
+msgid "Error while querying Shinobu status:"
+msgstr "Shinobu 상태 조회 중 오류가 발생했습니다:"
+
+msgid "About Plugins"
+msgstr "플러그인 정보"
+
+msgid "You can use plugins to automatically fetch metadata for this archive. <br/> Just select a plugin from the dropdown and hit Go! <br/> Some plugins might provide an optional argument for you to specify. If that's the case, a textbox will be available to input said argument."
+msgstr ""
+"플러그인을 사용하여 이 아카이브에 대한 메타데이터를 자동으로 가져올 수 "
+"있습니다. <br/> 드롭다운에서 플러그인을 선택하고 시작! 을 클릭하세요. <br/> "
+"일부 플러그인은 선택적 인수를 제공할 수 있습니다. 그런 경우 텍스트 상자가 "
+"있어 해당 인수를 입력할 수 있습니다."
+
+msgid "Metadata saved!"
+msgstr "메타데이터 저장됨!"
+
+msgid "Error saving archive metadata"
+msgstr "아카이브 메타데이터 저장 중 오류가 발생했습니다"
+
+msgid "Error while fetching tags"
+msgstr "태그 가져오기 중 오류가 발생했습니다"
+
+msgid "Archive title changed to"
+msgstr "아카이브 제목이 변경됨"
+
+msgid "Archive summary updated!"
+msgstr "아카이브 요약이 업데이트됨!"
+
+msgid "Added the following tags"
+msgstr "다음 태그가 추가됨"
+
+msgid "No new tags added!"
+msgstr "새 태그가 추가되지 않았습니다!"
+
+# Do not translate _START_, _END_ or _TOTAL_.
+msgid "Showing _START_ to _END_ of _TOTAL_ ancient chinese lithographies."
+msgstr "총 _TOTAL_개의 고대 중국 석판 중 _START_에서 _END_까지 표시됩니다."
+
+msgid "No archives to show you! Try <a href=\"\${url}\")>uploading some</a>?"
+msgstr "보여줄 아카이브가 없습니다! <a href=\"${url}\">업로드</a>해볼까요?"
+
+msgid "Welcome to LANraragi \${version}!"
+msgstr "LANraragi ${version}에 오신 것을 환영합니다!"
+
+msgid "If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!"
+msgstr "아카이브에 대해 고급 작업을 수행하려면 이름을 마우스 오른쪽 버튼으로 "
+"클릭하세요. 재밌게 읽으세요!"
+
+msgid "Error getting basic server info."
+msgstr "기본 서버 정보 가져오기 중 오류가 발생했습니다."
+
+msgid "You're running in Debug Mode!"
+msgstr "디버그 모드로 실행 중입니다!"
+
+msgid "Advanced server statistics can be viewed <a href=\"\${url}\")>here</a>."
+msgstr "고급 서버 통계는 <a href=\"${url}\">여기</a>에서 볼 수 있습니다."
+
+msgid "Enter a tag namespace for this column"
+msgstr "이 열에 대한 태그 네임스페이스 입력"
+
+msgid "Enter a full namespace without the colon, e.g \"artist\"."
+msgstr "콜론 없이 전체 네임스페이스 입력, 예: \"artist\"."
+
+msgid "If you have multiple tags with the same namespace, only the last one will be shown in the column."
+msgstr "동일한 네임스페이스를 가진 여러 태그가 있으면 마지막 태그만 열에 표시됩니다."
+
+msgid "Tag namespace"
+msgstr "태그 네임스페이스"
+
+msgid "Please enter a tag namespace."
+msgstr "태그 네임스페이스를 입력하세요."
+
+msgid "Randomly Picked"
+msgstr "랜덤으로 선택됨"
+
+msgid "New Archives"
+msgstr "새로운 아카이브"
+
+msgid "Untagged Archives"
+msgstr "태그 없는 아카이브"
+
+msgid "On Deck"
+msgstr "온 데크"
+
+msgid "Error getting carousel data!"
+msgstr "캐러셀 데이터 가져오기 중 오류가 발생했습니다!"
+
+msgid "Edit this column"
+msgstr "이 열 편집"
+
+msgid "Title"
+msgstr "제목"
+
+msgid "Tags"
+msgstr "태그"
+
+msgid "Header"
+msgstr "헤더"
+
+msgid "A new version of LANraragi (\${version}) is available!"
+msgstr "LANraragi (${version})의 새로운 버전이 있습니다!"
+
+msgid "Click here to check it out."
+msgstr "클릭하여 확인하세요."
+
+msgid "Error getting changelog for new version"
+msgstr "새 버전의 변경 로그 가져오기 중 오류가 발생했습니다"
+
+msgid "Couldn't load data for \${id}!"
+msgstr "${id}에 대한 데이터를 로드할 수 없습니다!"
+
+msgid "Github API rate limit exceeded."
+msgstr "Github API 요청 제한을 초과했습니다."
+
+msgid "Github API returned status: \${status}"
+msgstr "Github API 반환 상태: ${status}"
+
+msgid "This archive isn't in any category."
+msgstr "이 아카이브는 어떤 카테고리에도 속하지 않습니다."
+
+msgid "No Categories yet..."
+msgstr "아직 카테고리가 없습니다..."
+
+msgid "Remove rating"
+msgstr "평점 제거"
+
+msgid "Click here to display new archives only."
+msgstr "새 아카이브만 표시하려면 클릭하세요."
+
+msgid "Click here to display untagged archives only."
+msgstr "태그 없는 아카이브만 표시하려면 클릭하세요."
+
+msgid "Click here to display archives in this category only."
+msgstr "이 카테고리의 아카이브만 표시하려면 클릭하세요."
+
+msgid "Your Reading Progression is now saved on the server!"
+msgstr "이제 읽기 진행 상황이 서버에 저장되었습니다!"
+
+msgid "You seem to have some local progression hanging around -- Please wait warmly while we migrate it to the server for you."
+msgstr "로컬 진행 상황이 남아 있는 것 같습니다 -- 서버로 마이그레이션하는 동안 "
+"조금만 기다려주세요."
+
+msgid "Error while migrating local progression to server"
+msgstr "로컬 진행 상황을 서버로 마이그레이션하는 중 오류가 발생했습니다"
+
+msgid "Reading Progression has been fully migrated"
+msgstr "읽기 진행 상황이 완전히 마이그레이션되었습니다"
+
+msgid "You'll have to reopen archives in the Reader to see the migrated progression values."
+msgstr "읽기 진행 상황을 보려면 리더에서 아카이브를 다시 열어야 합니다."
+
+msgid "Plugin uploaded successfully!"
+msgstr "플러그인 업로드 성공!"
+
+msgid "The plugin \${name} has been successfully added. Refresh the page to see it."
+msgstr "플러그인 ${name}이 성공적으로 추가되었습니다. 페이지를 새로고침하세요."
+
+msgid "Error uploading plugin"
+msgstr "플러그인 업로드 중 오류가 발생했습니다"
+
+msgid "Successfully set page \${page} as the thumbnail!"
+msgstr "페이지 ${page}가 썸네일로 설정되었습니다!"
+
+msgid "Error updating thumbnail"
+msgstr "썸네일 업데이트 중 오류가 발생했습니다"
+
+msgid "Error clearing new flag"
+msgstr "신규 플래그 초기화 중 오류가 발생했습니다"
+
+msgid "Error getting the archive's imagelist."
+msgstr "아카이브의 이미지 목록을 가져오는 중 오류가 발생했습니다."
+
+msgid "This archive seems to be in RAR format!"
+msgstr "이 아카이브는 RAR 형식인 것 같습니다!"
+
+msgid "RAR archives might not work properly in LANraragi depending on how they were made. If you encounter errors while reading, consider converting your archive to zip."
+msgstr ""
+"RAR 아카이브는 만들어진 방식에 따라 LANraragi에서 제대로 작동하지 않을 수 "
+"있습니다. 읽기 중 오류가 발생하면 아카이브를 zip으로 변환하는 것을 "
+"고려해보세요."
+
+msgid "EPUB support in LANraragi is minimal"
+msgstr "LANraragi에서 EPUB 형식은 최소한으로만 지원합니다"
+
+msgid "EPUB books will only show images in the Web Reader, and potentially out of order. If you want text support, consider pairing LANraragi with an OPDS reader."
+msgstr ""
+"EPUB 책은 웹 리더에서 이미지만 표시될 수 있으며, 순서가 바뀔 수 있습니다. "
+"텍스트 지원이 필요하다면, LANraragi와 <a href='https://sugoi.gitbook.io/"
+"lanraragi/advanced-usage/external-readers#generic-opds-readers'>OPDS 리더</"
+"a>를 함께 사용하는 것을 고려해보세요."
+
+msgid "Navigation Help"
+msgstr "탐색 도움말"
+
+msgid "Error updating reading progression"
+msgstr "읽기 진행 상황 업데이트 중 오류가 발생했습니다"
+
+msgid "Page \${page}"
+msgstr "페이지 ${page}"
+
+msgid "The page thumbnailing job didn't conclude properly. Your archive might be corrupted."
+msgstr "페이지 썸네일 작업이 제대로 완료되지 않았습니다. 아카이브가 손상되었을 수 "
+"있습니다."
+
+msgid "A script is already running."
+msgstr "이미 스크립트가 실행 중입니다."
+
+msgid "Please wait for it to finish before starting a new one."
+msgstr "새로운 스크립트를 시작하기 전에 완료될 때까지 기다리세요."
+
+msgid "An error occured while running the script"
+msgstr "스크립트 실행 중 오류가 발생했습니다"
+
+msgid "Script result"
+msgstr "스크립트 결과"
+
+msgid "Script failed with error: \${error}"
+msgstr "스크립트 실행 중 오류가 발생했습니다: ${error}"
+
+msgid "Temporary folder cleaned!"
+msgstr "임시 폴더가 정리되었습니다!"
+
+msgid "Error cleaning temporary folder"
+msgstr "임시 폴더 정리 중 오류가 발생했습니다"
+
+msgid "Threw away the cache!"
+msgstr "캐시를 버렸습니다!"
+
+msgid "Error clearing the cache"
+msgstr "캐시 정리 중 오류가 발생했습니다"
+
+msgid "Threw away the search cache!"
+msgstr "검색 캐시를 버렸습니다!"
+
+msgid "All archives are no longer new!"
+msgstr "모든 아카이브는 더 이상 새롭지 않습니다!"
+
+msgid "Error during cleanup procedure"
+msgstr "정리 중 오류가 발생했습니다"
+
+msgid "Are you sure you want to wipe the database?"
+msgstr "데이터베이스를 초기화하시겠습니까?"
+
+msgid "Sayonara! Redirecting you..."
+msgstr "사요나라! 리디렉션 중..."
+
+msgid "Successfully cleaned the database and removed \${entries} entries."
+msgstr "데이터베이스가 성공적으로 정리되었고 ${entries}개의 항목이 제거되었습니다."
+
+msgid "\${entries} other entries have been unlinked from the database and will be deleted on the next cleanup!"
+msgstr "${entries}개의 다른 항목이 데이터베이스에서 분리되었고 다음 정리 시 삭제될 "
+"것입니다!"
+
+msgid "Do a backup now if some files disappeared from your archive index."
+msgstr "일부 파일이 아카이브 인덱스에서 사라졌다면 지금 백업하세요."
+
+msgid "Queued up a job to regenerate thumbnails! Stay tuned for updates or check the Minion console."
+msgstr "썸네일 재생성 작업이 예약되었습니다! 업데이트를 기다리거나 Minion 콘솔을 "
+"확인하세요."
+
+msgid "All thumbnails generated! Errors will be listed below if there were any."
+msgstr "모든 썸네일이 생성되었습니다! 오류가 있었다면 아래에 나열됩니다."
+
+msgid "Added \${id} to category \${cat}!"
+msgstr "${id}를 ${cat} 카테고리에 추가했습니다!"
+
+msgid "Removed \${id} from category \${cat}!"
+msgstr "${id}를 ${cat} 카테고리에서 제거했습니다!"
+
+msgid "Couldn't delete archive file. <br/> (Maybe it has already been deleted beforehand?)"
+msgstr "아카이브 파일을 삭제할 수 없습니다. <br/> (이미 삭제되었을 지도?)"
+
+msgid "Archive metadata has been deleted properly. <br> Please delete the file manually before returning to the archive index."
+msgstr "아카이브 메타데이터가 제대로 삭제되었습니다. <br> 아카이브 인덱스로 돌아가기 "
+"전에 파일을 수동으로 삭제하세요."
+
+msgid "Archive successfully deleted. Redirecting you..."
+msgstr "아카이브가 성공적으로 삭제되었습니다. 리디렉션 중..."
+
+msgid "Error while deleting archive"
+msgstr "아카이브 삭제 중 오류가 발생했습니다"
+
+msgid "Processing your upload... (Job #\${jobid})"
+msgstr "업로드 처리 중... (작업 #${jobid})"
+
+msgid "Downloading file... (Job #\${jobid})"
+msgstr "파일 다운로드 중... (작업 #${jobid})"
+
+msgid "Processing"
+msgstr "처리 중"
+
+msgid "Completed"
+msgstr "완료"
+
+msgid "Failed"
+msgstr "실패"
+
+msgid "Total"
+msgstr "총"
+
+msgid "Click here to edit metadata."
+msgstr "클릭하여 메타데이터 편집."
+
+msgid "Error while processing file."
+msgstr "파일 처리 중 오류가 발생했습니다."
+
+msgid "Error while downloading file."
+msgstr "파일 다운로드 중 오류가 발생했습니다."
+
+msgid "Error sending job to Minion"
+msgstr "작업을 Minion으로 보내는 중 오류가 발생했습니다"
+
+# ------End of i18n.html.tt2------
+# ------Start of Duplicates.html.tt2------
+msgid "Duplicate Detection"
+msgstr "중복 검색"
+
+msgid "This page allows you to search for potential duplicates in your library."
+msgstr "이 페이지는 라이브러리에서 잠재적인 중복을 검색할 수 있도록 합니다."
+
+msgid "Clicking \"Start searching\" will start a background job to scan the entire library for dupes."
+msgstr "\"중복 검색 시작\"을 누르면 전체 라이브러리를 검색하는 백그라운드 작업이 "
+"시작됩니다."
+
+msgid "After which, you can select which archives to delete, and then delete them in bulk."
+msgstr "중복을 검색한 후에, 삭제할 아카이브를 선택하고 대량으로 삭제할 수 있습니다."
+
+msgid "Found %1 duplicate group(s)."
+msgstr "총 %1개의 중복 그룹이 발견되었습니다."
+
+msgid "You can use the rules dropdown below to pre-select archives for deletion."
+msgstr "아래의 드롭다운을 사용하여 삭제할 아카이브를 미리 선택할 수 있습니다."
+
+msgid "For every duplicate group..."
+msgstr "각 중복 그룹에 대해..."
+
+msgid "Keep all files"
+msgstr "모든 파일 유지"
+
+msgid "Keep the file with the most tags"
+msgstr "가장 많은 태그가 있는 파일 유지"
+
+msgid "Keep the file with the most pages"
+msgstr "가장 많은 페이지가 있는 파일 유지"
+
+msgid "Keep the largest file"
+msgstr "가장 큰 파일 유지"
+
+msgid "Keep the youngest file"
+msgstr "가장 최근 파일 유지"
+
+msgid "Keep the oldest file"
+msgstr "가장 오래된 파일 유지"
+
+msgid "Start searching for duplicates"
+msgstr "중복 검색 시작"
+
+msgid "Search for duplicates again"
+msgstr "중복 검색 다시 시작"
+
+msgid "Delete all selected items"
+msgstr "모든 선택 항목 삭제"
+
+msgid "Filename"
+msgstr "파일명"
+
+msgid "Filesize"
+msgstr "파일 크기"
+
+msgid "Action"
+msgstr "작업"
+
+msgid "Searching for duplicates..."
+msgstr "중복 검색 중..."
+
+# ------End of Duplicates.html.tt2------
