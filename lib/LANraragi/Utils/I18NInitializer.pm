@@ -17,16 +17,22 @@ sub initialize {
             # default language
             my $lang = 'en';
 
+            # TODO handle fallbacks, ie Accept-Language zh-TW,zh-CN;q=0.8,fr;q=0.7,fr-FR;q=0.5,en-US;q=0.3,en;q=0.2
             if ($accept_language) {
                 ($lang) = split /,/, $accept_language;
-                $lang =~ s/-.*//;
+                $lang =~ s/;.*//; # remove any quality value
                 $c->LRR_LOGGER->trace("Detected language: $lang");
             }
 
             my $handle = LANraragi::Utils::I18N->get_handle($lang);
             unless ($handle) {
-                $c->LRR_LOGGER->trace("No handle for language: $lang, fallback to en");
-                $handle = LANraragi::Utils::I18N->get_handle('en');
+                $c->LRR_LOGGER->trace("No handle for language: $lang, trying without region");
+                $lang =~ s/-.*//;
+                $handle = LANraragi::Utils::I18N->get_handle($lang);
+                unless ($handle) {
+                    $c->LRR_LOGGER->trace("No handle for $lang, falling back to English");
+                    $handle = LANraragi::Utils::I18N->get_handle('en');
+                }
                 return $key unless $handle;
             }
 
