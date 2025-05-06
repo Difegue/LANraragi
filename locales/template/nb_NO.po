@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 18:10+0200\n"
-"PO-Revision-Date: 2025-05-06 15:24+0000\n"
+"PO-Revision-Date: 2025-05-06 20:28+0000\n"
 "Last-Translator: scentedtiger <something95@tutanota.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "lanraragi/lanraragi-source/nb_NO/>\n"
@@ -127,22 +127,22 @@ msgstr ""
 "bruk med forsiktighet."
 
 msgid "Check/Uncheck all"
-msgstr ""
+msgstr "Merk/Avmerk alle"
 
 msgid "Start Task"
-msgstr ""
+msgstr "Start Oppgave"
 
 msgid "Cancel"
-msgstr ""
+msgstr "Avbryt"
 
 msgid "Start another job"
-msgstr ""
+msgstr "Start en ny jobb"
 
 msgid "Processed <span id=\"arcs\"></span> out of <span id=\"totalarcs\"></span>"
-msgstr ""
+msgstr "Behandlet <span id=\"arcs\"></span>av<span id=\"totalarcs\"></span>"
 
 msgid "Preparing your data."
-msgstr ""
+msgstr "Forbereder dataene dine."
 
 msgid "Plugin Configuration"
 msgstr ""
@@ -156,81 +156,89 @@ msgid "Categories"
 msgstr ""
 
 msgid "Categories appear at the top of your window when browsing the Library."
-msgstr ""
+msgstr "Kategorier vises øverst i vinduet når du blar gjennom biblioteket."
 
 msgid "There are two distinct kinds:"
-msgstr ""
+msgstr "Det finnes to unike typer:"
 
 msgid "Static Categories are arbitrary collections of Archives, where you can add as many items as you want."
 msgstr ""
+"Statiske kategorier er vilkårlige samlinger av arkiver, hvor du kan legge "
+"til så mange elementer du ønsker."
 
 msgid "Dynamic Categories contain all archives matching a given predicate, and automatically update alongside your library."
 msgstr ""
+"Dynamiske Kategorier inneholder alle arkiver som samsvarer med et gitt "
+"kriterium, og oppdateres automatisk sammen med biblioteket ditt."
 
 msgid "You can create new categories here or edit existing ones."
-msgstr ""
+msgstr "Du kan lage nye kategorier her eller redigere eksisterende."
 
 msgid "Select a category in the combobox below to edit its name, the archives it contains, or its predicate."
 msgstr ""
+"Velg en kategori i rullegardinmenyen nedenfor for å redigere navnet dens, "
+"arkivene den inneholder, eller kriteriet dens."
 
 msgid "All your modifications are saved automatically."
-msgstr ""
+msgstr "Alle modifikasjonene dine lagres automatisk."
 
 msgid "Category:"
-msgstr ""
+msgstr "Kategori:"
 
 msgid "Name:"
-msgstr ""
+msgstr "Navn:"
 
 msgid "Predicate:"
-msgstr ""
+msgstr "Kriterie:"
 
 msgid "Pin this Category"
-msgstr ""
+msgstr "Fest denne Kategorien"
 
 msgid "Delete Category"
-msgstr ""
+msgstr "Slett Kategori"
 
 msgid "If you select a Static Category, your archives will appear here so you can add/remove them from the category."
 msgstr ""
+"Hvis du velger en Statisk Kategori, vil arkivene dine vises her, så du kan "
+"legge de til eller fjerne de fra kategorien."
 
 msgid "Return to Library"
 msgstr ""
 
 msgid "Store Bookmarks in this Category"
-msgstr ""
+msgstr "Lagre Bokmerker i denne Kategorien"
 
 msgid "Error linking bookmark button:"
-msgstr ""
+msgstr "Feil ved kobling av bokmerkeknapp:"
 
 msgid "Error unlinking bookmark button:"
-msgstr ""
+msgstr "Feil ved fjerning av bokmerkeknapp:"
 
 msgid "Error getting bookmark category:"
-msgstr ""
+msgstr "Feil ved henting av bokmerkekategori:"
 
 msgid "New Static Category"
-msgstr ""
+msgstr "Ny Statisk Kategori"
 
 msgid "New Dynamic Category"
-msgstr ""
+msgstr "Ny Dynamisk Kategori"
 
 # ------End of Category.html.tt2------
 # ------Start of Config.html.tt2------
 msgid "Admin Settings"
-msgstr ""
+msgstr "Administrasjonsinnstillinger"
 
 msgid "LANraragi"
-msgstr ""
+msgstr "LANraragi"
 
 msgid "Version %1 %2"
-msgstr ""
+msgstr "Versjon %1 - %2"
 
 msgid "Select a category to show the matching settings."
-msgstr ""
+msgstr "Velg en kategori for å vise de matchende innstillingene."
 
 msgid "Save Settings"
-msgstr ""
+msgstr "Lagre Instillinger"
 
 msgid "Plugin Configuration"
 msgstr ""
@@ -242,33 +250,37 @@ msgid "Return to Library"
 msgstr ""
 
 msgid "Global Settings"
-msgstr ""
+msgstr "Globale Instillinger"
 
 msgid "Theme"
-msgstr ""
+msgstr "Tema"
 
 msgid "Security"
-msgstr ""
+msgstr "Sikkerhet"
 
 msgid "Archive Files"
-msgstr ""
+msgstr "Arkiver Filer"
 
 msgid "Tags and Thumbnails"
-msgstr ""
+msgstr "Tagger og miniatyrbilder"
 
 msgid "Background Workers"
-msgstr ""
+msgstr "Bakgrunnsarbeidere"
 
 # ------End of Config.html.tt2------
 # ------Start of Config_Files.html.tt2------
 msgid "Archive Directory"
-msgstr ""
+msgstr "Arkivmappe"
 
 msgid "Directory where the archives will be located. It will be created if it doesn't exist."
 msgstr ""
+"Mappen der arkivene vil bli plassert. Den vil bli opprettet hvis den ikke "
+"finnes."
 
 msgid "Make sure the OS user running LANraragi has read access to this directory."
 msgstr ""
+"Sørg for at OS brukeren som kjører LANraragi har lesetilgang til denne "
+"mappen."
 
 msgid "Synology eCryptFS Compatibility Mode"
 msgstr ""
@@ -817,7 +829,7 @@ msgstr ""
 # ------End of Logs.html.tt2------
 # ------Start of Plugins.html.tt2------
 msgid "Plugin Configuration"
-msgstr ""
+msgstr "Programtilleggskonfigurasjon"
 
 msgid "Enable/Disable Auto-Plugin on metadata plugins by checking the toggles."
 msgstr ""
@@ -909,7 +921,7 @@ msgid "Delete Archive"
 msgstr "Slett arkiv"
 
 msgid "Categories"
-msgstr ""
+msgstr "Kategorier"
 
 msgid "Add to : "
 msgstr ""
