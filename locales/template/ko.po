@@ -3,41 +3,44 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-06 17:24+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2025-05-06 15:37+0000\n"
+"Last-Translator: Haytsir <alswo7310@naver.com>\n"
+"Language-Team: Korean <https://hosted.weblate.org/projects/lanraragi/"
+"lanraragi-source/ko/>\n"
 "Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Translate Toolkit 3.15.2\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.12-dev\n"
 
 # Sample Data
-
 # ------Start of Backup.html.tt2------
 msgid "Database Backup/Restore"
 msgstr ""
 
 msgid "You can backup your existing database here, or restore an existing backup."
-msgstr ""
+msgstr "여기서 현재 데이터베이스를 백업하거나, 백업한 내용을 복원할 수 있습니다."
 
 msgid "Backuping allows you to download a JSON file containing all your categories and archive IDs, and their matching metadata."
-msgstr ""
+msgstr "백업을 통해 모든 카테고리와 아카이브 ID 및 일치하는 메타데이터가 포함된 JSON "
+"파일을 다운로드할 수 있습니다."
 
 msgid "Restoring from a backup will restore this metadata, <b>for IDs which already exist in your database.</b>"
-msgstr ""
+msgstr "백업 내용을 복원하면, <b>현재 데이터베이스에 존재하는 ID의 경우</b> 이 "
+"메타데이터를 복원하게 됩니다."
 
 msgid "(Categories will always be restored)"
-msgstr ""
+msgstr "(카테고리는 항상 복원됨)"
 
 msgid "Backup Database"
-msgstr ""
+msgstr "데이터베이스 백업"
 
 msgid "Restore Backup"
-msgstr ""
+msgstr "백업 내용 복원"
 
 msgid "Restoring your backup ..."
-msgstr ""
+msgstr "백업 내용을 복원하는 중 ..."
 
 msgid "Return to Library"
 msgstr ""
@@ -48,28 +51,28 @@ msgid "Batch Operations"
 msgstr ""
 
 msgid "You can apply modifications to multiple archives in one go here."
-msgstr ""
+msgstr "여기에서 여러 아카이브에 대한 수정 사항을 한 번에 적용할 수 있습니다."
 
 msgid "Select what you'd like to do, check archives you want to use it on, and get rolling!"
 msgstr ""
 
 msgid "Archives with no tags have been pre-checked."
-msgstr ""
+msgstr "태그가 없는 아카이브가 미리 확인되었습니다."
 
 msgid "Task :"
-msgstr ""
+msgstr "작업:"
 
 msgid "Use Plugin"
-msgstr ""
+msgstr "플러그인용"
 
 msgid "Remove New Flag"
-msgstr ""
+msgstr "New 플래그 제거"
 
 msgid "Apply Tag Rules"
-msgstr ""
+msgstr "태그 규칙 적용"
 
 msgid "Add To Category"
-msgstr ""
+msgstr "카테고리에 추가"
 
 msgid "Delete Archive"
 msgstr ""
@@ -220,7 +223,7 @@ msgid "Plugin Configuration"
 msgstr ""
 
 msgid "Database Backup/Restore"
-msgstr ""
+msgstr "데이터베이스 백업/복원"
 
 msgid "Return to Library"
 msgstr ""
@@ -611,7 +614,7 @@ msgid "Add Archives"
 msgstr ""
 
 msgid "Batch Operations"
-msgstr ""
+msgstr "일괄 업"
 
 msgid "Settings"
 msgstr ""
@@ -889,7 +892,7 @@ msgid "Edit Archive Metadata"
 msgstr ""
 
 msgid "Delete Archive"
-msgstr ""
+msgstr "아카이브 제"
 
 msgid "Categories"
 msgstr ""
@@ -1133,7 +1136,7 @@ msgid "Add from URL(s)"
 msgstr ""
 
 msgid "Return to Library"
-msgstr ""
+msgstr "라이브러리로 돌아기"
 
 # ------End of Upload.html.tt2------
 msgid "Rescan Archive Directory"
