@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 18:10+0200\n"
-"PO-Revision-Date: 2025-05-06 20:28+0000\n"
+"PO-Revision-Date: 2025-05-08 03:02+0000\n"
 "Last-Translator: scentedtiger <something95@tutanota.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "lanraragi/lanraragi-source/nb_NO/>\n"
@@ -283,10 +283,12 @@ msgstr ""
 "mappen."
 
 msgid "Synology eCryptFS Compatibility Mode"
-msgstr ""
+msgstr "Synology eCryptFS-kompatibilitetsmodus"
 
 msgid "If enabled, LANraragi will cutoff archive filenames to 143 bytes, which is the max accepted by eCryptFS."
 msgstr ""
+"Hvis aktivert, vil LANraragi kutte arkivfilnavn til 143 byte, som er "
+"maksimum tillatt av eCryptFS."
 
 msgid "Rescan Archive Directory"
 msgstr ""
@@ -295,87 +297,101 @@ msgid "Click this button to trigger a rescan of the Archive Directory in case yo
 msgstr ""
 
 msgid "Maximum <br>Cache Size"
-msgstr ""
+msgstr "Maksimum <br>Cachestørrelse"
 
 msgid "In MBs. The cache contains recently viewed pages, for faster subsequent reading."
-msgstr ""
+msgstr "I MB. Cachen inneholder nylig viste sider for raskere senere lesing."
 
 msgid "It is automatically emptied when it grows past this specified size."
 msgstr ""
+"Den blir automatisk tømt når den vokser over den spesifiserte størrelsen."
 
 msgid "Clear Cache"
-msgstr ""
+msgstr "Tøm cachen"
 
 msgid "Current Size:"
-msgstr ""
+msgstr "Nåværende Størrelse:"
 
 msgid "Clear the cache manually by clicking this button."
-msgstr ""
+msgstr "Tøm cachen manuelt ved å trykke på denne knappen."
 
 msgid "Reset Search Cache"
-msgstr ""
+msgstr "Tilbakestill Søkecache"
 
 msgid "The last searches done in the archive index are cached for faster loads."
 msgstr ""
+"De siste søkene gjort i arkivindeksen lagres i cache for raskere lasting."
 
 msgid "If something went wrong with said cache, you can reset it by clicking this button."
 msgstr ""
+"Om noe gikk galt med cachen kan du tilbakestille den ved å klikke på denne "
+"knappen."
 
 msgid "Clear NEW flags"
-msgstr ""
+msgstr "Fjern NY-flagg"
 
 msgid "Newly uploaded archives are marked as \"new\" in the index until you\'ve opened them."
 msgstr ""
+"Nylig oppdaterte arkiv markered som \"ny\" i indeksen til du har åpnet dem."
 
 msgid "If you want to clear those flags, click this button."
-msgstr ""
+msgstr "Om du vil fjerne de flaggene, klikk på denne knappen."
 
 msgid "Replace duplicated archives"
-msgstr ""
+msgstr "Erstatt dupliserte arkiver"
 
 msgid "If enabled, LANraragi will overwrite old archives when a newer one (with the same name) is uploaded through the Web Uploader or the Download System."
 msgstr ""
+"Hvis aktivert, vil LANraragi overskrive gamle arkiver når et nyere (med "
+"samme navn) lastes opp gjennom Web Opplasteren eller Nedlastingssystemet."
 
 msgid "This will delete metadata for old files when they're replaced! Use with caution."
 msgstr ""
+"Dette vil slette metadata for gamle filer når de erstattes! Bruk med "
+"forsiktighet."
 
 # ------End of Config_Files.html.tt2------
 # ------Start of Config_Global.html.tt2------
 msgid "Site Title"
-msgstr ""
+msgstr "Nettside Tittel"
 
 msgid "The site title appears on most pages as...their title."
-msgstr ""
+msgstr "Nettside tittelen vises på de fleste sider som...nettsidens tittel."
 
 msgid "MOTD"
-msgstr ""
+msgstr "MOTD"
 
 msgid "Slang for Message of the Day. Appears on top of the main Library view."
 msgstr ""
+"Slang for \"Message of the Day\". Visas øverst i hovedbibliotekvisningen."
 
 msgid "Archives per page"
-msgstr ""
+msgstr "Arkiver pr side"
 
 msgid "Number of archives shown on a page in the main list."
-msgstr ""
+msgstr "Antall arkiver som vises på en side i hovedlisten."
 
 msgid "Resize Images in Reader"
-msgstr ""
+msgstr "Skaler bilder i leseren"
 
 msgid "If enabled, pages exceeding a certain size will be resized when viewed to save bandwidth."
 msgstr ""
+"Hvis aktivert, vil sider som overskrider en viss størrelse bli skalert når "
+"de vises for å spare båndbredde."
 
 msgid "This option can potentially consume a lot of RAM if enabled and used on large images! Use with caution."
 msgstr ""
+"Denne valgmuligheten kan potensielt bruke mye RAM om aktivert og brukes på "
+"store bilder! Bruk med forsiktighet."
 
 msgid "Image Size Threshold"
-msgstr ""
+msgstr "Bilderstørrelsesterskel"
 
 msgid "(in KBs.) Maximum size an image can reach before being resized."
-msgstr ""
+msgstr "(i KBs.) Maksimum størrelse ett bilde kan nå før det blir skalert."
 
 msgid "Resize Quality"
-msgstr ""
+msgstr "Skaleringskvalitet"
 
 msgid "Quality of the resized images. Less quality = Smaller image. (0-100)"
 msgstr ""
@@ -1166,10 +1182,12 @@ msgstr "Tilbake til Bibliotek"
 
 # ------End of Upload.html.tt2------
 msgid "Rescan Archive Directory"
-msgstr ""
+msgstr "Søk gjennom arkivmappe på nytt"
 
 msgid "Click this button to trigger a rescan of the Archive Directory in case you're missing files, or some data such as total page counts."
 msgstr ""
+"Klikk på denne knappen for å starte et nytt søk gjennom arkivkatalogen hvis "
+"du mangler filer, <br>eller data som totalt antall sider. <br>"
 
 # ------Stary of i18n.html.tt2------
 msgid "Backup restored!"
