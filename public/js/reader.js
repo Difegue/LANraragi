@@ -120,11 +120,10 @@ Reader.initializeAll = function () {
         Reader.goToPage(pageNumber);
     });
 
-    // Set previous page to index when reading multiple archives
-    window.addEventListener("popstate", () => {
-        // Don't clear archive navigation state when using the back button
-        // as it breaks navigation between archives
-        window.location.href = "./";
+    // When user hits browser back, return to index.
+    window.addEventListener("popstate", (event) => {
+        event.preventDefault();
+        Reader.returnToIndex();
     });
 
     // Apply full-screen utility
