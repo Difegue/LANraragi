@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 03:32+0200\n"
-"PO-Revision-Date: 2025-05-06 15:24+0000\n"
+"PO-Revision-Date: 2025-05-08 03:02+0000\n"
 "Last-Translator: Vinh Phạm <drkhanhvinh@gmail.com>\n"
 "Language-Team: Vietnamese <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/vi/>\n"
@@ -308,7 +308,7 @@ msgid "Clear Cache"
 msgstr "Xóa bộ nhớ đệm"
 
 msgid "Current Size:"
-msgstr "Kích cỡ hiện tại:"
+msgstr "Kích thước hiện tại:"
 
 msgid "Clear the cache manually by clicking this button."
 msgstr "Xóa bộ nhớ đệm thủ công bằng cách nhấn nút này."
@@ -1276,7 +1276,7 @@ msgid "Couldn't load the tag statistics! Please reload the page."
 msgstr "Không thể tải thống kê thẻ! Vui lòng tải lại trang."
 
 msgid "Error getting untagged archives!"
-msgstr "Lỗi khi tải truyện không có thẻ!"
+msgstr "Lỗi khi tải truyện chưa có thẻ!"
 
 msgid "Are you sure you want to delete this archive?"
 msgstr "Bạn có chắc chắn muốn xóa truyện này không?"
@@ -1470,21 +1470,23 @@ msgstr ""
 
 msgid "If you have multiple tags with the same namespace, only the last one will be shown in the column."
 msgstr ""
+"Nếu bạn có nhiều thẻ cùng thuộc một không gian tên, chỉ thẻ cuối cùng được "
+"hiển thị trong cột."
 
 msgid "Tag namespace"
-msgstr ""
+msgstr "Thẻ không gian tên"
 
 msgid "Please enter a tag namespace."
-msgstr ""
+msgstr "Vui lòng nhập thẻ không gian tên."
 
 msgid "Randomly Picked"
-msgstr ""
+msgstr "Được chọn ngẫu nhiên"
 
 msgid "New Archives"
 msgstr "Truyện Mới"
 
 msgid "Untagged Archives"
-msgstr ""
+msgstr "Truyện chưa có thẻ"
 
 msgid "On Deck"
 msgstr ""
@@ -1508,10 +1510,10 @@ msgid "A new version of LANraragi (\${version}) is available!"
 msgstr "Đã có phiên bản LANraragi mới (${version})!"
 
 msgid "Click here to check it out."
-msgstr ""
+msgstr "Nhấn vào đây để xem chi tiết."
 
 msgid "Error getting changelog for new version"
-msgstr ""
+msgstr "Lỗi khi lấy nhật ký thay đổi cho phiên bản mới"
 
 msgid "Couldn't load data for \${id}!"
 msgstr "Không thể tải dữ liệu cho ${id}!"
@@ -1535,7 +1537,7 @@ msgid "Click here to display new archives only."
 msgstr "Nhấn vào đây để chỉ hiển thị truyện mới."
 
 msgid "Click here to display untagged archives only."
-msgstr "Nhấn vào đây để chỉ hiển thị truyện không có thẻ."
+msgstr "Nhấn vào đây để chỉ hiển thị truyện chưa có thẻ."
 
 msgid "Click here to display archives in this category only."
 msgstr "Nhấn vào đây để chỉ hiển thị truyện thuộc danh mục này."
@@ -1549,22 +1551,24 @@ msgstr ""
 "lát trong khi chúng tôi chuyển nó lên máy chủ cho bạn."
 
 msgid "Error while migrating local progression to server"
-msgstr ""
+msgstr "Lỗi khi chuyển tiến độ đọc cục bộ lên máy chủ"
 
 msgid "Reading Progression has been fully migrated"
-msgstr ""
+msgstr "Tiến độ đọc đã được chuyển hoàn toàn lên máy chủ"
 
 msgid "You'll have to reopen archives in the Reader to see the migrated progression values."
 msgstr ""
+"Bạn sẽ phải mở lại các truyện trong Trình đọc để xem các giá trị tiến độ đã "
+"được cập nhập."
 
 msgid "Plugin uploaded successfully!"
-msgstr ""
+msgstr "Plugin đã được tải lên thành công!"
 
 msgid "The plugin \${name} has been successfully added. Refresh the page to see it."
-msgstr ""
+msgstr "Plugin ${name} đã được thêm thành công. Hãy làm mới trang để thấy nó."
 
 msgid "Error uploading plugin"
-msgstr ""
+msgstr "Lỗi khi tải lên plugin"
 
 msgid "Successfully set page \${page} as the thumbnail!"
 msgstr "Đã đặt thành công trang ${page} làm ảnh thu nhỏ!"
@@ -1608,21 +1612,24 @@ msgstr "Trang ${page}"
 
 msgid "The page thumbnailing job didn't conclude properly. Your archive might be corrupted."
 msgstr ""
+"Tác vụ tạo ảnh thu nhỏ của trang không kết thúc đúng cách. Có thể truyện của "
+"bạn đã bị hỏng."
 
 msgid "A script is already running."
-msgstr ""
+msgstr "Đã có một script đang chạy."
 
 msgid "Please wait for it to finish before starting a new one."
 msgstr ""
+"Vui lòng chờ script hiện tại hoàn thành trước khi bắt đầu một script mới."
 
 msgid "An error occured while running the script"
-msgstr ""
+msgstr "Đã có lỗi khi chạy script"
 
 msgid "Script result"
-msgstr ""
+msgstr "Kết quả chạy script"
 
 msgid "Script failed with error: \${error}"
-msgstr ""
+msgstr "Script thất bại với lỗi: ${error}"
 
 msgid "Temporary folder cleaned!"
 msgstr "Đã dọn sạch thư mục tạm!"
@@ -1631,25 +1638,25 @@ msgid "Error cleaning temporary folder"
 msgstr "Lỗi khi dọn dẹp thư mục tạm"
 
 msgid "Threw away the cache!"
-msgstr ""
+msgstr "Đã xóa bộ nhớ đệm!"
 
 msgid "Error clearing the cache"
-msgstr ""
+msgstr "Lỗi khi xoá bộ nhớ đệm"
 
 msgid "Threw away the search cache!"
-msgstr ""
+msgstr "Đã xóa bộ nhớ đệm tìm kiếm!"
 
 msgid "All archives are no longer new!"
-msgstr ""
+msgstr "Tất cả các truyện không còn mới nữa!"
 
 msgid "Error during cleanup procedure"
 msgstr "Lỗi trong quá trình dọn dẹp"
 
 msgid "Are you sure you want to wipe the database?"
-msgstr ""
+msgstr "Bạn có chắc chắn muốn xóa cơ sở dữ liệu không?"
 
 msgid "Sayonara! Redirecting you..."
-msgstr ""
+msgstr "Sayonara! Đang chuyển hướng bạn..."
 
 msgid "Successfully cleaned the database and removed \${entries} entries."
 msgstr "Đã dọn dẹp cơ sở dữ liệu thành công và xóa ${entries} mục."
@@ -1660,7 +1667,7 @@ msgstr ""
 "trong lần dọn dẹp tiếp theo!"
 
 msgid "Do a backup now if some files disappeared from your archive index."
-msgstr ""
+msgstr "Sao lưu ngay nếu một số file bị mất khỏi chỉ mục truyện của bạn."
 
 msgid "Queued up a job to regenerate thumbnails! Stay tuned for updates or check the Minion console."
 msgstr ""
@@ -1770,7 +1777,7 @@ msgid "Filename"
 msgstr ""
 
 msgid "Filesize"
-msgstr ""
+msgstr "Kích thước file"
 
 msgid "Action"
 msgstr "Hành động"
