@@ -448,7 +448,8 @@ Reader.handleShortcuts = function (e) {
     }
     switch (e.keyCode) {
     case 8: // backspace
-        document.location.href = $("#return-to-index").attr("href");
+        e.preventDefault();
+        Reader.returnToIndex();
         break;
     case 27: // escape
         LRR.closeOverlay();
