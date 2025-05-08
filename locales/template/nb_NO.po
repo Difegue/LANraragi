@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 18:10+0200\n"
-"PO-Revision-Date: 2025-05-08 03:02+0000\n"
+"PO-Revision-Date: 2025-05-09 07:03+0000\n"
 "Last-Translator: scentedtiger <something95@tutanota.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "lanraragi/lanraragi-source/nb_NO/>\n"
@@ -395,103 +395,125 @@ msgstr "Skaleringskvalitet"
 
 msgid "Quality of the resized images. Less quality = Smaller image. (0-100)"
 msgstr ""
+"Kvalitet på de skalerte bildene. Lavere kvalitet = Mindre bilde. (0–100)"
 
 msgid "Clientside Progress Tracking"
-msgstr ""
+msgstr "Klientside fremdriftssporing"
 
 msgid "Enabling this option will save reading progression on the browser (through localStorage) instead of the server."
 msgstr ""
+"Aktivering av dette alternativet vil lagre lesefremdrift i nettleseren (via "
+"lokalLagring) i stedet for på serveren."
 
 msgid "Consider toggling this option if you're sharing the LANraragi instance with multiple users!"
 msgstr ""
+"Vurder å slå på dette alternativet hvis du deler LANraragi-instansen med "
+"flere brukere!"
 
 msgid "Debug Mode"
-msgstr ""
+msgstr "Feilsøkingsmodus"
 
 msgid "Enabling Debug Mode will show more logs and disable update nagging."
 msgstr ""
+"Aktivering av Feilsøkingsmodus vil vise flere logger og skru av "
+"oppdateringspåminnelser."
 
 msgid "Fully effective after restarting LANraragi."
 msgstr ""
 
 msgid "Clean Database"
-msgstr ""
+msgstr "Rens database"
 
 msgid "Cleaning the database will remove entries that aren't on your filesystem."
 msgstr ""
+"Å rense databasen vil fjerne innlegg som ikke er lagret i filsystemet ditt."
 
 msgid "Reset Database"
-msgstr ""
+msgstr "Tilbakestill Database"
 
 msgid "Danger zone!"
-msgstr ""
+msgstr "Faresone!"
 
 msgid "Clicking this button will reset the entire database and delete all settings and metadata."
 msgstr ""
+"Ved å klikke på denne knappen tilbakestilles hele databasen og alle "
+"innstillinger og metadata slettes."
 
 # ------End of Config_Global.html.tt2------
 # ------Start of Config_Security.html.tt2------
 msgid "Enable Password"
-msgstr ""
+msgstr "Aktiver Passord"
 
 msgid "If enabled, everything that isn't reading will require a password."
-msgstr ""
+msgstr "Hvis aktivert, vil alt som ikke er lesing kreve ett passord."
 
 msgid "New Password"
-msgstr ""
+msgstr "Nytt Passord"
 
 msgid "New Password Confirmation"
-msgstr ""
+msgstr "Bekreft Nytt Passord"
 
 msgid "Only edit these fields if you want to change your password."
-msgstr ""
+msgstr "Endre kun disse feltene om du ønsker å endre passordet ditt."
 
 msgid "The one already stored will be used otherwise."
-msgstr ""
+msgstr "Det som allerede er lagret vil bli brukt ellers."
 
 msgid "No-Fun Mode"
-msgstr ""
+msgstr "Ingen-moro-modus"
 
 msgid "Enabling No-Fun Mode will lock reading archives behind the password as well."
 msgstr ""
+"Aktivering av Ingen-Morro-Modus vil også låse lesing av arkiver bak "
+"passordet."
 
 msgid "Fully effective after restarting LANraragi."
-msgstr ""
+msgstr "Trer i kraft fullt ut etter omstart av LANraragi."
 
 msgid "API Key"
-msgstr ""
+msgstr "API Nøkkel"
 
 msgid "If you wish to use the Client API and have a password, you'll have to set a key here."
 msgstr ""
+"Om du ønsker å bruke Klient APIen og har ett passord må du sette en nøkkel "
+"her."
 
 msgid "Empty keys will <b>not</b> work!"
-msgstr ""
+msgstr "Tomme nøkkler vil <b>ikke</b> virke!"
 
 msgid "This key will need to be provided in every protected API call as the <i>Authorization</i> header."
 msgstr ""
+"Denne nøkkelen må oppgis i hver beskyttet API-anrop som "
+"<i>Authorization</i>-header."
 
 msgid "Enable CORS for the Client API"
-msgstr ""
+msgstr "Aktiver CORS for Klient APIen"
 
 msgid "Have API requests support Cross-Origin Resource Sharing, which allows web browsers to access it off other domains."
 msgstr ""
+"La API-forespørsler støtte Cross-Origin Resource Sharing (CORS), som lar "
+"nettlesere få tilgang til den fra andre domener."
 
 msgid "Turn this on if you want to access this service through a web-based wrapper (e.g. a userscript) used/hosted on another domain."
 msgstr ""
+"Slå dette på hvis du ønsker å få tilgang til denne tjenesten gjennom en web-"
+"basert wrapper (f.eks. et userscript) som brukes/hostes på et annet domene."
 
 # ------End of Config_Security.html.tt2------
 # ------Start of Config_Shinobu.html.tt2------
 msgid "Shinobu Status"
-msgstr ""
+msgstr "Shinobu Status"
 
 msgid "The Shinobu File Watcher is currently"
-msgstr ""
+msgstr "Shinobu-filovervåkeren er for øyeblikket"
 
+#, fuzzy
 msgid "OK!"
-msgstr ""
+msgstr "OK!"
 
+#, fuzzy
 msgid "Kaput!"
-msgstr ""
+msgstr "Kaput!"
 
 msgid "This File Watcher is responsible for monitoring your content directory and automatically handling new archives as they come."
 msgstr ""
