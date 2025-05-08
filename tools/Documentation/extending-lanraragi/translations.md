@@ -10,10 +10,13 @@ Unsupported languages will fallback to English.
 Here are some pointers on contributing additional translations to LANraragi.  
 LRR uses standard `.po` files to contain its localizations.  
 
-## Translate client-side text (JavaScript messages)
-Coming soon! 🏗️
+## Using Weblate 
+You can easily contribute to translations to existing or new languages through LRR's Weblate project:  
+https://hosted.weblate.org/projects/lanraragi/lanraragi-source/  
 
-## Translate server-side text (HTML templates)
+Strings submitted to Weblate will be automatically commited to a PR against the base LANraragi GitHub repository.  
+
+## Translate text in-source 
 First, open the `locales\template` folder where you will see the current translation files.  
 It's recommended to use the `en.po` file as your base for translation.
 
@@ -52,30 +55,54 @@ Here are a few points you might need to pay attention to:
    `msgstr "<b>~namespace</b> : strips the namespace from the tags"`
    Make sure not to discard the `~` when you see the `msgid` for `msgid "namespace : strips the namespace from the tags"`, because `~` is recognized as an escape character in `Locale::Maketext` (though attempts to use `~~` haven't been successfully recognized).
 
-### Handling Missing Translations in templates
 
-If you notice that some texts are missing translations in the relevant `template` files, here is a step-by-step example of how to address this, using an example with missing translation text found in `index.html.tt2`.
+## Handling missing translations 
 
-For instance, the following code in your template:
+If you notice that some texts are missing translations in the relevant `template` files,  
+here is a step-by-step example of how to address this:  
 
+### HTML 
+
+For instance, see the following code in your `index.html.tt2` template:  
 ```html
 <a href="[% c.url_for("/upload") %]">Add Archives</a>
 ```
 
 To handle the missing translation, wrap the text with `[% c.lh("...text to be handled...") %]` like this:
-
 ```html
 <a href="[% c.url_for("/upload") %]">[% c.lh("Add Archives") %]</a>
 ```
 
-Then, locate `# ------Start of Index.html.tt2------` in the `en.po` file, which marks where the corresponding text in the template begins. Add the following entries:
+### Javascript 
+
+For JS text, you need to replace your hard-coded string with a `I18N.xxxxx` variable/function. For example:  
+
+```javascript
+   $("#result").html("Backup failed!");
+```
+will become  
+```javascript
+   $("#result").html(I18N.BackupFailed);
+```  
+Then, modify the `i18n.html.tt2` file to include your new variable/function.  
+```
+I18N.BackupFailed = "[% c.lh("Backup failed!") %]";  
+```  
+
+### Modifying the .po file  
+
+Locate `# ------Start of xxxxx.html.tt2------` in the `en.po` file (with xxxxx being either index or i18n in this example), 
+which marks where the corresponding text in the template begins. Add the following entries:  
 
 ```
 msgid "Add Archives"
 msgstr "Add Archives"
-```
 
-Here, `msgid` is used to match the text, and `msgstr` contains the translated text.
+msgid "Backup failed!"
+msgid "Backup failed!"
+```  
+
+Here, `msgid` is used to match the text, and `msgstr` contains the translated text.  
 
 It is crucial to ensure that the text in `msgid` is exactly as it appears post-modification in your template to ensure proper matching. For example, the code below includes an extra space, causing a mismatch which prevents it from being replaced correctly:
 
@@ -83,13 +110,15 @@ It is crucial to ensure that the text in `msgid` is exactly as it appears post-m
 <a href="[% c.url_for("/upload") %]">[% c.lh("Add Archives ") %]</a>
 ```
 
+### Placeholders (HTML)  
+
 For special cases, like in `config.html.tt2`, which looks like this:
 
 ```html
 <h1 style="margin-bottom: 2px">LANraragi</h1>
 Version [% version %], "[% vername %]"
 <br>
-```
+```  
 
 You'll need to use placeholders:
 
@@ -99,12 +128,33 @@ You'll need to use placeholders:
 <br>
 ```
 
-In translation files, placeholders should be written as `%number` instead of `[_number]` used in templates. Therefore, it should be:
+In translation files, HTML placeholders should be written as `%number` instead of `[_number]` used in templates. Therefore, it should be:
 
 ```
 msgid "Version %1 %2"
 msgstr "Version %1 %2"
 ```
+
+### Placeholders (Javascript)
+
+For **Javascript**, placeholders instead need to be written like the following:  
+
+```
+msgid "Changed title to: \${title}"
+msgstr "Changed title to: ${title}"
+```  
+Pay attention to the slash only being present in the msgid.  
+
+Then, your entry in `i18n.html.tt2` needs to be modified to accomodate for the placeholders being passed at runtime by using a function instead of a constant:  
+```javascript
+I18N.BatchChangedTitle = (title) => `[% c.lh("Changed title to: \${title}") %]`;
+```  
+and is used like so:  
+```javascript
+$("#log-container").append(I18N.BatchChangedTitle(msg.title));
+```
+
+### Special cases  
 
 There are also peculiar cases such as the following found in `config_tags.html.tt2`:
 

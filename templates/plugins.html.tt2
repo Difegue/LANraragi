@@ -143,14 +143,14 @@
 	<div style="float:right; text-align: right;">
 
 		[% IF plugin.type == "metadata" %]
-		<h1 class="ih" style="display:inline"> Run Automatically: </h1>
+		<h1 class="ih" style="display:inline"> [% c.lh("Run Automatically") %]: </h1>
 		<input id="[% plugin.namespace %]" name="[% plugin.namespace %]" class="fa" type="checkbox" [% IF plugin.enabled
 			%] checked [% END %]>
 		<br />
 		[% END %]
 
 		[% IF plugin.login_from %]
-		<i class="fa fa-plug" aria-hidden="true"></i> This plugin depends on the login plugin "[% plugin.login_from %]".
+		<i class="fa fa-plug" aria-hidden="true"></i> [% c.lh("This plugin depends on the login plugin") %] "[% plugin.login_from %]".
 		[% END %]
 
 	</div>
@@ -158,7 +158,7 @@
 	<br />
 
 	[% IF plugin.type == "download" %]
-	<pre title="This plugin will trigger on URLs matching this regex!">	[% plugin.url_regex %]</pre>
+	<pre title="[% c.lh("This plugin will trigger on URLs matching this regex!") %]">	[% plugin.url_regex %]</pre>
 	[% END %]
 	[% plugin.description %]
 	<br />
@@ -180,7 +180,7 @@
 			<tr>
 				<td colspan="2">
 					<input class='stdbtn' type='button' onclick="Server.triggerScript('[% plugin.namespace %]');"
-						value='Trigger Script' />
+						value='[% c.lh("Trigger Script") %]' />
 				</td>
 			</tr>
 		</tbody>
@@ -191,7 +191,7 @@
 	<div class="collapsible-title" style="padding: 5px 0 0 5px">
 		<a>
 			<i class="fas fa-sliders-h fa-2x" style="margin-right: 4px" aria-hidden="true"></i>
-			<b style="vertical-align: super;">Plugin Settings</b>
+			<b style="vertical-align: super;">[% c.lh("Plugin Settings") %]</b>
 		</a>
 	</div>
 	<div class="collapsible-body" style="padding:5px 0 0 0">

@@ -18,6 +18,11 @@ Open source server for archival of comics/manga, running on Mojolicious + Redis.
 
 ####  [📄 Documentation](https://sugoi.gitbook.io/lanraragi/v/dev) | [⏬ Download](https://github.com/Difegue/LANraragi/releases/latest) | [🎞 Demo](https://lrr.tvc-16.science) | [🪟🌃 Windows Nightlies](https://nightly.link/Difegue/LANraragi/workflows/push-continous-delivery/dev) | [💵 Sponsor Development](https://ko-fi.com/T6T2UP5N)  
 
+<a href="https://hosted.weblate.org/engage/lanraragi/">
+<img src="https://hosted.weblate.org/widget/lanraragi/multi-auto.svg" alt="Translation status" />
+</a>  
+<sub>LANraragi uses Weblate for translation hosting.</sub>  
+
 ## Screenshots  
  
 |Main Page, Thumbnail View | Main Page, List View |
@@ -56,6 +61,8 @@ Open source server for archival of comics/manga, running on Mojolicious + Redis.
 * Import metadata using Plugins automatically when archives are added to LANraragi.
 
 * Download archives from the Internet directly to the server, while using the aforementioned automatic metadata import
+
+* Scan for duplicates within your saved archives 
 
 * Backup your database as JSON to carry your tags over to another LANraragi instance.
 
