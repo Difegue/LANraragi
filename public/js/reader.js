@@ -1194,6 +1194,9 @@ Reader.changePage = function(targetPage) {
 
 Reader.handlePaginator = function () {
     switch (this.getAttribute("value")) {
+    case "outermost-left":
+        Reader.readPreviousArchive();
+        break;
     case "outer-left":
         Reader.changePage("first");
         break;
@@ -1205,6 +1208,9 @@ Reader.handlePaginator = function () {
         break;
     case "outer-right":
         Reader.changePage("last");
+        break;
+    case "outermost-right":
+        Reader.readNextArchive();
         break;
     default:
         break;
