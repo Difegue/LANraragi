@@ -1110,7 +1110,7 @@ Reader.readPreviousArchive = function () {
         }
         const newUrl = new LRR.apiURL(`/reader?id=${previousArchiveId}`).toString();
         history.pushState({navigation: 'archive'}, '', newUrl);
-        window.location.reload();
+        window.location.href = newUrl;
     } else {
         LRR.toast({"text": "This is the first archive"});
     }
@@ -1143,7 +1143,7 @@ Reader.readNextArchive = function () {
         }
         const newUrl = new LRR.apiURL(`/reader?id=${nextArchiveId}`).toString();
         history.pushState({navigation: 'archive'}, '', newUrl);
-        window.location.reload();
+        window.location.href = newUrl;
     } else {
         LRR.toast({"text": "This is the last archive"});
     }
@@ -1236,5 +1236,5 @@ Reader.returnToIndex = function () {
     }
     const indexUrl = new LRR.apiURL(returnUrl).toString();
     history.pushState({navigation: 'index'}, '', indexUrl);
-    window.location.reload();
+    window.location.href = indexUrl;
 }
