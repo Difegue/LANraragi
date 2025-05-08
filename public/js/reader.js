@@ -1262,8 +1262,8 @@ Reader.readPreviousArchive = function () {
             previousArchiveId = Reader.archiveIds[Reader.archiveIndex - 1];
         }
         const newUrl = new LRR.apiURL(`/reader?id=${previousArchiveId}`).toString();
-        history.replaceState(null, '', newUrl);
-        window.location.href = newUrl;
+        history.pushState({navigation: 'archive'}, '', newUrl);
+        window.location.reload();
     } else {
         LRR.toast({"text": "This is the first archive"});
     }
@@ -1295,14 +1295,13 @@ Reader.readNextArchive = function () {
             nextArchiveId = Reader.archiveIds[Reader.archiveIndex + 1];
         }
         const newUrl = new LRR.apiURL(`/reader?id=${nextArchiveId}`).toString();
-        history.replaceState(null, '', newUrl);
-        window.location.href = newUrl;
+        history.pushState({navigation: 'archive'}, '', newUrl);
+        window.location.reload();
     } else {
         LRR.toast({"text": "This is the last archive"});
     }
 }
 
-// TODO: this needs to be checked.
 /**
  * Loads the archives for the given datatables page.
  * This is to support archive navigation between datatables pages; in order to do that 
@@ -1357,8 +1356,21 @@ Reader.loadDatatablesArchives = function (datatablesPage) {
     return archives;
 }
 
-// TODO: this needs to be checked too.
+/**
+ * Return to the index page, preserving the search filter from when 
+ * the user went from index to reader.
+ * 
+ * If for some reason history is unavailable, fall back with search
+ * parameters.
+ */
 Reader.returnToIndex = function () {
+    // Check if we have more than one entry in the history stack
+    // This checks if we can go back in browser history
+    if (window.history.length > 1) {
+        history.back();
+        return;
+    }
+    // Fallback logic
     const indexSearchQuery = localStorage.getItem('currentSearch') || '';
     const indexSelectedCategory = localStorage.getItem('selectedCategory') || '';
     const indexSort = localStorage.getItem('indexSort') || 0;
@@ -1366,17 +1378,16 @@ Reader.returnToIndex = function () {
     const currentPage = localStorage.getItem('currDatatablesPage') || '1';
     let returnUrl = '/';
     const params = new URLSearchParams();
-    
     if (indexSearchQuery) params.append('q', indexSearchQuery);
     if (indexSelectedCategory) params.append('c', indexSelectedCategory);
     if (indexSort) params.append('sort', indexSort);
     if (indexOrder !== 'asc') params.append('sortdir', indexOrder);
     if (currentPage !== '1') params.append('p', currentPage);
-    
     const queryString = params.toString();
     if (queryString) {
         returnUrl += '?' + queryString;
     }
-    
-    window.location.href = new LRR.apiURL(returnUrl).toString();
+    const indexUrl = new LRR.apiURL(returnUrl).toString();
+    history.pushState({navigation: 'index'}, '', indexUrl);
+    window.location.reload();
 }
