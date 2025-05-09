@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 18:10+0200\n"
-"PO-Revision-Date: 2025-05-09 07:03+0000\n"
+"PO-Revision-Date: 2025-05-09 20:26+0000\n"
 "Last-Translator: scentedtiger <something95@tutanota.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "lanraragi/lanraragi-source/nb_NO/>\n"
@@ -517,98 +517,126 @@ msgstr "Kaput!"
 
 msgid "This File Watcher is responsible for monitoring your content directory and automatically handling new archives as they come."
 msgstr ""
+"Denne Filovervåkeren er ansvarlig for å monitorere innholdsmappen din og "
+"automatisk håndtere nye arkiver ettersom de legges til."
 
 msgid "Restart File Watcher"
-msgstr ""
+msgstr "Restart Filovervåkeren"
 
 msgid "If Shinobu is dead or unresponsive, you can reboot her by clicking this button."
 msgstr ""
+"Hvis Shinobu er død eller ikke svarer kan du starte henne på nytt ved å "
+"klikke på denne knappen."
 
 msgid "Open Minion Console"
-msgstr ""
+msgstr "Åpne Tjener-Konsoll"
 
 msgid "The Minion Worker handles spare tasks that are too long to execute within the request/response lifecycle of web applications."
 msgstr ""
+"Tjener Arbeideren håndterer ekstra oppgaver som tar for lang tid å utføre "
+"innen forespørsel/svar-syklusen til nettapplikasjoner."
 
 msgid "The console shows currently running and concluded tasks."
-msgstr ""
+msgstr "Konsollen viser nåværende og fullførte oppgaver."
 
 # ------End of Config_Shinobu.html.tt2------
 # ------Start of Config_Tags.html.tt2------
+#, fuzzy
 msgid "Thumbnail Directory"
-msgstr ""
+msgstr "Miniatyrbildemappe"
 
 msgid "Directory where the archive thumbnails will be located. It will be created if it doesn't exist."
 msgstr ""
+"Mappen hvor arkiv miniatyrbildene plasseres. Mappen skapes om den ikke "
+"eksisterer."
 
 msgid "Make sure the OS user running LANraragi has read/write access to this directory."
 msgstr ""
+"Sørg for at OS brukeren som kjører LANraragi har lese- og skrivetilgang til "
+"denne mappen."
 
 msgid "Use high-quality thumbnails for pages"
-msgstr ""
+msgstr "Bruk høykvalitets miniatyrbilder for sider"
 
 msgid "LANraragi generates lower-quality thumbnails for archive pages for performance reasons."
 msgstr ""
+"LANraragi genererer miniatyrbilder av lavere kvalitet for arkivsider av "
+"ytelseshensyn."
 
 msgid "If this option is checked, it will instead generate page thumbnails at the same quality as cover thumbnails."
 msgstr ""
+"Hvis dette alternativet er valgt, vil det i stedet generere "
+"sideminiatyrbilder med samme kvalitet som omslagsminiatyrene."
 
 msgid "Use JPEG XL for thumbnails"
-msgstr ""
+msgstr "Bruk JPEG XL for miniatyrbilder"
 
 msgid "LANraragi generates JPEG thumbnails for compatibility and performance reasons."
 msgstr ""
+"LANraragi genererer JPEG-miniatyrbilder av hensyn til kompatibilitet og "
+"ytelse."
 
 msgid "If this option is checked, it will instead generate thumbnails using JPEG XL."
 msgstr ""
+"Hvis dette alternativet er valgt, vil det i stedet generere miniatyrbilder "
+"som JPEG XL."
 
 msgid "Generate Missing Thumbnails"
-msgstr ""
+msgstr "Generer Manglende Miniatyrbilder"
 
 msgid "Generate Thumbnails for all archives that don't have one yet."
-msgstr ""
+msgstr "Generer Miniatyrbilder for alle arkivene som ikke har et enda."
 
 msgid "Regenerate all Thumbnails"
-msgstr ""
+msgstr "Generer alle miniatyrbilder på nytt"
 
 msgid "Regenerate all thumbnails. This might take a while!"
-msgstr ""
+msgstr "Generer alle miniatyrbilder på nytt. Dette kan ta en stund!"
 
 msgid "Add Timestamp Tag"
-msgstr ""
+msgstr "Legg til tidsstempel-tagg"
 
 msgid "If enabled, LANraragi will add the UNIX timestamp of the current time as a tag under the \"date_added\" namespace to newly added archives."
 msgstr ""
+"Hvis aktivert, vil LANraragi legge til UNIX-tidsstempelet for den nåværende "
+"tiden som en tagg under \"date_added\"-navnerommet til nylig lagde arkiver."
 
 msgid "Use \"Last modified\" Time"
-msgstr ""
+msgstr "Bruk \"Sist Endret\"-tidspunkt"
 
 msgid "Enabling this will use file modified time instead of current time when setting \"date_added\" timestamps."
 msgstr ""
+"Å aktivere dette vil bruke filens endringstidspunkt i stedet for nåværende "
+"tid når \"date_added\"-tidsstempler settes."
 
 msgid "Tag Rules"
-msgstr ""
+msgstr "Tagg Regler"
 
 msgid "When tagging archives using Plugins, the rules specified here will be applied to the tags before saving them to the database."
 msgstr ""
+"Når arkiver merkes ved hjelp av plugins, vil reglene som er spesifisert her "
+"bli brukt på taggene før de lagres i databasen."
 
 msgid "Split rules with linebreaks."
-msgstr ""
+msgstr "Del reglene med linjeskift."
 
 msgid "<b>-tag | tag</b> : removes the tag (like a blacklist)"
-msgstr ""
+msgstr "<b>-tagg | tagg</b> : fjerner taggen (som en svarteliste)"
 
 msgid "<b>-namespace:*</b> : removes all tags within this namespace"
-msgstr ""
+msgstr "<b>-navnerom:*</b> : fjerner alle tagger innenfor dette navnerommet"
 
 msgid "namespace : strips the namespace from the tags"
-msgstr ""
+msgstr "<b>~navnerom</b> : fjerner navnerommet fra taggene"
 
 msgid "<b>tag -> new-tag</b> : replaces one tag"
-msgstr ""
+msgstr "<b>tagg -> new-tagg</b> : erstatter en tagg"
 
 msgid "<b>tag => new-tag</b> : replaces one tag, but use a hash table internally for faster performance. These rules will be executed <i>once</i> after all other rules."
 msgstr ""
+"<b>tagg => new-tagg</b> : erstatter en tagg, men bruker en hash-tabell "
+"internt for raskere ytelse. Disse reglene vil bli utført <i>én gang</i> "
+"etter alle andre regler."
 
 msgid "<b>namespace:* -> new-namespace:*</b> : replaces the namespace with the new one"
 msgstr ""
