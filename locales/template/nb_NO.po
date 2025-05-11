@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 18:10+0200\n"
-"PO-Revision-Date: 2025-05-09 20:26+0000\n"
+"PO-Revision-Date: 2025-05-12 00:55+0000\n"
 "Last-Translator: scentedtiger <something95@tutanota.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "lanraragi/lanraragi-source/nb_NO/>\n"
@@ -640,58 +640,67 @@ msgstr ""
 
 msgid "<b>namespace:* -> new-namespace:*</b> : replaces the namespace with the new one"
 msgstr ""
+"<b>navnerom :* -> nytt-navnerom:*</b> : erstatter navnerom med det nye "
+"navnerommet"
 
 # ------End of Config_Tags.html.tt2------
 # ------Start of Config_Theme.html.tt2------
 msgid "The selected theme will apply to the entire application and be shown to all users."
 msgstr ""
+"Det valgte temaet vil gjelde for hele applikasjonen og vises for alle "
+"brukere."
 
 msgid "If you're using a browser that supports \"theme-color\", the theme's primary color will also be applied there."
 msgstr ""
+"Hvis du bruker en nettleser som støtter \"tema-farger\", vil temaets "
+"primærfarge også bli brukt der."
 
 msgid "Click on a theme to preview it before saving!"
-msgstr ""
+msgstr "Klikk på ett tema for å forhåndsvise det før du lagrer!"
 
 # ------End of Config_Theme.html.tt2------
 # ------Start of Edit.html.tt2------
 msgid "Editing %1 by %2"
-msgstr ""
+msgstr "Redigerer %1 av %2"
 
 msgid "Editing %1"
-msgstr ""
+msgstr "Redigerer %1"
 
 msgid "Current File Name:"
-msgstr ""
+msgstr "Nåværende Filnavn:"
 
+#, fuzzy
 msgid "ID:"
-msgstr ""
+msgstr "ID:"
 
 msgid "Title:"
-msgstr ""
+msgstr "Tittel:"
 
 msgid "Summary:"
-msgstr ""
+msgstr "Sammendrag:"
 
 msgid "Tags"
 msgstr ""
 
 msgid "(separated by hyphens, i.e : tag1, tag2)"
-msgstr ""
+msgstr "(separert med komma, f.eks: tagg1, tagg2)"
 
 msgid "Import Tags from Plugin :"
-msgstr ""
+msgstr "Importer Tagger fra Programtillegg :"
 
 msgid "Help"
 msgstr ""
 
 msgid "Go!"
-msgstr ""
+msgstr "Kjør!"
 
 msgid "Using a Plugin will save any modifications to archive metadata you might have made !"
 msgstr ""
+"Å bruke et programtillegg vil lagre eventuelle endringer du måtte ha gjort i "
+"arkivmetadata !"
 
 msgid "Save Metadata"
-msgstr ""
+msgstr "Lagre Metadata"
 
 msgid "Delete Archive"
 msgstr ""
@@ -702,83 +711,86 @@ msgstr ""
 # ------End of Edit.html.tt2------
 # ------Start of Index.html.tt2------
 msgid "Add Archives"
-msgstr ""
+msgstr "Legg til Arkiver"
 
 #, fuzzy
 msgid "Batch Operations"
 msgstr "Gjengangsoperasjoner"
 
 msgid "Settings"
-msgstr ""
+msgstr "Instillinger"
 
 msgid "Modify Categories"
-msgstr ""
+msgstr "Endre Kategorier"
 
 msgid "Statistics"
-msgstr ""
+msgstr "Statistikk"
 
 msgid "Logs"
-msgstr ""
+msgstr "Logger"
 
 msgid "Admin Login"
-msgstr ""
+msgstr "Admin-pålogging"
 
 msgid "Search Title, Artist, Series, Language or Tags"
-msgstr ""
+msgstr "Søk etter Tittel, Artist, Serie, Språk eller Tagger"
 
 msgid "Apply Filter"
-msgstr ""
+msgstr "Bruk Filter"
 
 msgid "Clear Filter"
-msgstr ""
+msgstr "Fjern Filter"
 
 msgid "Click to show archives from the current search with the specified filter"
 msgstr ""
+"Klikk for å vise arkiver fra det nåværende søket med det spesifiserte "
+"filteret"
 
 msgid "Refresh Selection"
-msgstr ""
+msgstr "Oppdater Valg"
 
 msgid "Carousel Options"
-msgstr ""
+msgstr "Karusellinnstillinger"
 
 msgid "No results here."
-msgstr ""
+msgstr "Ingen resultater her."
 
 msgid "Sort by:"
-msgstr ""
+msgstr "Sorter etter:"
 
 msgid "Title"
 msgstr ""
 
 msgid "Date"
-msgstr ""
+msgstr "Dato"
 
 msgid "Sort Order"
-msgstr ""
+msgstr "Sorter Rekkefølge"
 
 msgid "Crop thumbnails"
-msgstr ""
+msgstr "Beskjær miniatyrbilder"
 
 msgid "Go to Page:"
-msgstr ""
+msgstr "Gå til Side:"
 
 msgid "Columns:"
-msgstr ""
+msgstr "Kolonner:"
 
 msgid "Switch to Compact Mode"
-msgstr ""
+msgstr "Bytt til Kompaktmodus"
 
 msgid "Switch to Thumbnail Mode"
-msgstr ""
+msgstr "Bytt til Miniatyrbilde-modus"
 
 msgid "Title"
 msgstr ""
 
+#, fuzzy
 msgid "Artist"
-msgstr ""
+msgstr "Artist"
 
 msgid "Series"
-msgstr ""
+msgstr "Serier"
 
 msgid "Tags"
 msgstr ""
@@ -788,61 +800,69 @@ msgstr ""
 
 msgid "I don't know everything, but I sure as hell know this database's busted lads"
 msgstr ""
+"Jeg vet ikke alt, meg jeg er sikker som fjell på at denne databasen er "
+"ødelagt, folkens"
 
 msgid "The database cache is corrupt, and as such LANraragi is unable to display your archive list."
 msgstr ""
+"Database-cachen er ødelagt, og derfor kan ikke LANraragi vise arkivlisten "
+"din."
 
 msgid "Read"
-msgstr ""
+msgstr "Les"
 
 msgid "Download"
-msgstr ""
+msgstr "Last ned"
 
 msgid "Edit Metadata"
-msgstr ""
+msgstr "Rediger Metadata"
 
 msgid "Delete"
-msgstr ""
+msgstr "Slett"
 
 msgid "Add Rating"
-msgstr ""
+msgstr "Legg til Vurdering"
 
 msgid "Add to Category"
-msgstr ""
+msgstr "Legg til i Kategori"
 
 msgid "New Version Release Notes"
-msgstr ""
+msgstr "Nye versjonsutgivelsesnotater"
 
 msgid "You\'re using the default password and that\'s super baka of you"
-msgstr ""
+msgstr "Du bruker standardpassordet, og det er skikkelig baka av deg"
 
 msgid "Login with password \"kamimamita\" and change that shit on the double. ...Or just disable it! Why not check the configuration options afterwards, while you\'re at it?"
 msgstr ""
+"<a href=\"/login\">Logg inn</a> med passordet \"kamimamita\" og <a href="
+"\"/config\">endre den skitten</a> med en eneste gang.<br/>...Eller bare skru "
+"det av! <br/>Hvorfor ikke sjekke konfigurasjonsalternativene etterpå, mens "
+"du er i gang? "
 
 # ------End of Index.html.tt2------
 # ------Start of Login.html.tt2------
 msgid "This page requires you to log on."
-msgstr ""
+msgstr "Denne sider krever at du logger inn."
 
 msgid "Admin Password:"
-msgstr ""
+msgstr "Admin-passord:"
 
 msgid "Login"
-msgstr ""
+msgstr "Logg inn"
 
 msgid "Wrong Password."
-msgstr ""
+msgstr "Feil Passord."
 
 msgid "<a href='\${url}'>Login</a> to toggle bookmark feature."
-msgstr ""
+msgstr "<a href='${url}'>Logg inn</a> for å aktivere bokmerke-funksjonen."
 
 # ------End of Login.html.tt2------
 # ------Start of Logs.html.tt2------
 msgid "Application Logs"
-msgstr ""
+msgstr "Applikasjonslogger"
 
 msgid "You can check LANraragi logs here for debugging purposes."
-msgstr ""
+msgstr "De kan sjekke LANraragi-loggene her for feilsøking."
 
 msgid "By default, this view only shows the last 100 lines of each logfile, newest lines last."
 msgstr ""
@@ -1134,7 +1154,7 @@ msgid "Reader Settings"
 msgstr ""
 
 msgid "Help"
-msgstr ""
+msgstr "Hjelp"
 
 msgid "Reading Direction"
 msgstr ""
@@ -1464,13 +1484,13 @@ msgid "Error getting carousel data!"
 msgstr ""
 
 msgid "Edit this column"
-msgstr ""
+msgstr "Rediger denne kolonnen"
 
 msgid "Title"
-msgstr ""
+msgstr "Tittel"
 
 msgid "Tags"
-msgstr ""
+msgstr "Tagger"
 
 msgid "Header"
 msgstr ""
