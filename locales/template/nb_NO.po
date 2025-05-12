@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 18:10+0200\n"
-"PO-Revision-Date: 2025-05-12 00:55+0000\n"
+"PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: scentedtiger <something95@tutanota.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "lanraragi/lanraragi-source/nb_NO/>\n"
@@ -866,48 +866,52 @@ msgstr "De kan sjekke LANraragi-loggene her for feilsøking."
 
 msgid "By default, this view only shows the last 100 lines of each logfile, newest lines last."
 msgstr ""
+"Som standard viser denne visningen kun de siste 100 linjene i hver loggfil, "
+"med de nyeste linjene til slutt."
 
 msgid "General Logs pertain to the main application."
-msgstr ""
+msgstr "Generelle Logger gjelder hovedapplikasjonen."
 
+#, fuzzy
 msgid "Shinobu Logs correspond to the Background Worker."
-msgstr ""
+msgstr "Shinobu-loggeene sammenstemmer med Bakgrundsarbeideren."
 
 msgid "Plugin Logs are reserved for metadata plugins only."
-msgstr ""
+msgstr "Programtillegg-loggene er kun forbeholdt metadata programtillegg."
 
 msgid "Mojolicious logs won't tell much unless you're running Debug Mode."
-msgstr ""
+msgstr "Mojolicious-loggene sier ikke mye med mindre du er i Feilsøkingsmodus."
 
 msgid "Redis logs won't be available from here if you're running from source!"
-msgstr ""
+msgstr "Redis-loggene er ikke tilgjengelige her dersom du kjører fra kildekode!"
 
+#, fuzzy
 msgid "Currently Viewing:"
-msgstr ""
+msgstr "Viser nå: "
 
 msgid "general"
-msgstr ""
+msgstr "Generelt"
 
 msgid "Refresh"
-msgstr ""
+msgstr "Oppdater"
 
 msgid "Lines:"
-msgstr ""
+msgstr "Linjer: "
 
 msgid "View LANraragi Logs"
-msgstr ""
+msgstr "Se LANraragi-loggene"
 
 msgid "View Shinobu Logs"
-msgstr ""
+msgstr "Se Shinobu-loggene"
 
 msgid "View Plugin Logs"
-msgstr ""
+msgstr "Se Programtillegg-loggene"
 
 msgid "View Mojolicious Logs"
-msgstr ""
+msgstr "Se Mojolicious-loggene"
 
 msgid "View Redis Logs"
-msgstr ""
+msgstr "Se Redis-loggene"
 
 msgid "Return to Library"
 msgstr ""
@@ -919,80 +923,91 @@ msgstr "Programtilleggskonfigurasjon"
 
 msgid "Enable/Disable Auto-Plugin on metadata plugins by checking the toggles."
 msgstr ""
+"Aktiver/deaktiver Auto-Programtillegg på metadata-programvaretillegg ved å "
+"bruke bryterne."
 
 msgid "Plugins will be automatically used on new archives if they're toggled here."
 msgstr ""
+"Programtillegg vil automatisk bli brukt på nye arkiver om de er skrudd på "
+"her."
 
 msgid "If they have configuration variables, you can set them here as well."
-msgstr ""
+msgstr "Om de har konfigurasjonsvariabler kan du sette de her også."
 
 msgid "You can also trigger Scripts here. Triggering a script will save your Plugin settings beforehand."
 msgstr ""
+"Du kan også kjøre skript herfra. Når du kjører et skript, vil programtillegg-"
+"innstillingene dine lagres på forhånd."
 
 msgid "Login Plugins"
-msgstr ""
+msgstr "Programvaretillegg for Pålogging"
 
 msgid "Downloaders"
-msgstr ""
+msgstr "Nedlastere"
 
 msgid "Scripts"
-msgstr ""
+msgstr "Skripts"
 
 msgid "Metadata Plugins"
-msgstr ""
+msgstr "Programvaretillegg for Metadata"
 
 msgid "Allow Plugins to replace archive titles:"
-msgstr ""
+msgstr "Tillat Programtillegg å erstatte arkiv tittler:"
 
 msgid "If enabled, metadata plugins will be able to change the title of your archives alongside adding tags to them."
 msgstr ""
+"Hvis aktivert, vil programvaretillegg for metadata kunne endre tittelen på "
+"arkivene dine i tillegg til å legge til tagger."
 
 msgid "A script is running..."
-msgstr ""
+msgstr "Ett skript kjører..."
 
 msgid "Save Plugin Configuration"
-msgstr ""
+msgstr "Lagre Konfigurasjon for Programvaretillegg"
 
 msgid "Upload Plugin"
-msgstr ""
+msgstr "Opplastningsprogramvaretillegg"
 
 msgid "Return to Library"
 msgstr ""
 
 msgid "This plugin will trigger on URLs matching this regex!"
 msgstr ""
+"Dette programvaretillegget vil utløses på URL-er som samsvarer med dette "
+"regex-mønsteret!"
 
 msgid "This plugin depends on the login plugin"
 msgstr ""
+"Dette programvaretillegget er avhengig av påloggingsprogramvaretillegget"
 
 msgid "Trigger Script"
-msgstr ""
+msgstr "Kjør Skript"
 
 msgid "Run Automatically"
-msgstr ""
+msgstr "Kjør Automatisk"
 
 msgid "Plugin Settings"
-msgstr ""
+msgstr "Programvaretillegginstillinger"
 
 # ------End of Plugins.html.tt2------
 # ------Start of Reader.html.tt2------
 msgid "Done reading? Go back to Archive Index"
-msgstr ""
+msgstr "Ferdig med å lese? Gå tilbake til Arkivindeksen"
 
 msgid "View full-size image"
-msgstr ""
+msgstr "Se fullstørrelse bilde"
 
 msgid "Switch to another random archive"
-msgstr ""
+msgstr "Bytt til ett annet tilfeldig arkiv"
 
 msgid "Archive Overview"
 msgstr ""
 
 msgid "Admin Options"
-msgstr ""
+msgstr "Admin-instillinger"
 
 msgid "Set this Page as Thumbnail"
-msgstr ""
+msgstr "Set denne Siden som Miniatyrbilde"
 
 msgid "Set the currently opened page as the thumbnail for this archive."
 msgstr ""
@@ -1160,7 +1175,7 @@ msgid "Reading Direction"
 msgstr ""
 
 msgid "Archive Overview"
-msgstr ""
+msgstr "Arkiv Oversikt"
 
 msgid "FullScreen"
 msgstr ""
