@@ -1,0 +1,1644 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-05-13 21:13+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Translate Toolkit 3.15.2\n"
+
+# Sample Data
+
+# ------Start of Backup.html.tt2------
+msgid "Database Backup/Restore"
+msgstr ""
+
+msgid "You can backup your existing database here, or restore an existing backup."
+msgstr ""
+
+msgid "Backuping allows you to download a JSON file containing all your categories and archive IDs, and their matching metadata."
+msgstr ""
+
+msgid "Restoring from a backup will restore this metadata, <b>for IDs which already exist in your database.</b>"
+msgstr ""
+
+msgid "(Categories will always be restored)"
+msgstr ""
+
+msgid "Backup Database"
+msgstr ""
+
+msgid "Restore Backup"
+msgstr ""
+
+msgid "Restoring your backup ..."
+msgstr ""
+
+msgid "Return to Library"
+msgstr ""
+
+# ------End of Backup.html.tt2------
+# ------Start of Batch.html.tt2------
+msgid "Batch Operations"
+msgstr ""
+
+msgid "You can apply modifications to multiple archives in one go here."
+msgstr ""
+
+msgid "Select what you'd like to do, check archives you want to use it on, and get rolling!"
+msgstr ""
+
+msgid "Archives with no tags have been pre-checked."
+msgstr ""
+
+msgid "Task :"
+msgstr ""
+
+msgid "Use Plugin"
+msgstr ""
+
+msgid "Remove New Flag"
+msgstr ""
+
+msgid "Apply Tag Rules"
+msgstr ""
+
+msgid "Add To Category"
+msgstr ""
+
+msgid "Delete Archive"
+msgstr ""
+
+msgid "Use plugin :"
+msgstr ""
+
+msgid "Timeout (max 20s):"
+msgstr ""
+
+msgid "This plugin recommends a cooldown of <span id=\"cooldown\">-1</span> seconds."
+msgstr ""
+
+msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
+msgstr ""
+
+msgid "Make sure to set a suitable <b>timeout</b> between archives using this picker if the plugin you want to use is concerned."
+msgstr ""
+
+msgid "Override Plugin Global Arguments"
+msgstr ""
+
+msgid "This will apply the following Tag Rules to the selected Archives."
+msgstr ""
+
+msgid "You can edit your Tag Rules in Server Configuration."
+msgstr ""
+
+msgid "Server Configuration"
+msgstr ""
+
+msgid "This removes the \"new\" flag from the selected archives."
+msgstr ""
+
+msgid "Add to Category :"
+msgstr ""
+
+msgid "This will delete both metadata and matching files from your system! Please use with caution."
+msgstr ""
+
+msgid "Check/Uncheck all"
+msgstr ""
+
+msgid "Start Task"
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
+msgid "Start another job"
+msgstr ""
+
+msgid "Processed <span id=\"arcs\"></span> out of <span id=\"totalarcs\"></span>"
+msgstr ""
+
+msgid "Preparing your data."
+msgstr ""
+
+msgid "Plugin Configuration"
+msgstr ""
+
+msgid "Return to Library"
+msgstr ""
+
+# ------End of Batch.html.tt2------
+# ------Start of Category.html.tt2------
+msgid "Categories"
+msgstr ""
+
+msgid "Categories appear at the top of your window when browsing the Library."
+msgstr ""
+
+msgid "There are two distinct kinds:"
+msgstr ""
+
+msgid "Static Categories are arbitrary collections of Archives, where you can add as many items as you want."
+msgstr ""
+
+msgid "Dynamic Categories contain all archives matching a given predicate, and automatically update alongside your library."
+msgstr ""
+
+msgid "You can create new categories here or edit existing ones."
+msgstr ""
+
+msgid "Select a category in the combobox below to edit its name, the archives it contains, or its predicate."
+msgstr ""
+
+msgid "All your modifications are saved automatically."
+msgstr ""
+
+msgid "Category:"
+msgstr ""
+
+msgid "Name:"
+msgstr ""
+
+msgid "Predicate:"
+msgstr ""
+
+msgid "Pin this Category"
+msgstr ""
+
+msgid "Delete Category"
+msgstr ""
+
+msgid "If you select a Static Category, your archives will appear here so you can add/remove them from the category."
+msgstr ""
+
+msgid "Return to Library"
+msgstr ""
+
+msgid "Store Bookmarks in this Category"
+msgstr ""
+
+msgid "Error linking bookmark button:"
+msgstr ""
+
+msgid "Error unlinking bookmark button:"
+msgstr ""
+
+msgid "Error getting bookmark category:"
+msgstr ""
+
+msgid "New Static Category"
+msgstr ""
+
+msgid "New Dynamic Category"
+msgstr ""
+
+# ------End of Category.html.tt2------
+# ------Start of Config.html.tt2------
+msgid "Admin Settings"
+msgstr ""
+
+msgid "LANraragi"
+msgstr ""
+
+msgid "Version %1 %2"
+msgstr ""
+
+msgid "Select a category to show the matching settings."
+msgstr ""
+
+msgid "Save Settings"
+msgstr ""
+
+msgid "Plugin Configuration"
+msgstr ""
+
+msgid "Database Backup/Restore"
+msgstr ""
+
+msgid "Return to Library"
+msgstr ""
+
+msgid "Global Settings"
+msgstr ""
+
+msgid "Theme"
+msgstr ""
+
+msgid "Security"
+msgstr ""
+
+msgid "Archive Files"
+msgstr ""
+
+msgid "Tags and Thumbnails"
+msgstr ""
+
+msgid "Background Workers"
+msgstr ""
+
+# ------End of Config.html.tt2------
+# ------Start of Config_Files.html.tt2------
+msgid "Archive Directory"
+msgstr ""
+
+msgid "Directory where the archives will be located. It will be created if it doesn't exist."
+msgstr ""
+
+msgid "Make sure the OS user running LANraragi has read access to this directory."
+msgstr ""
+
+msgid "Synology eCryptFS Compatibility Mode"
+msgstr ""
+
+msgid "If enabled, LANraragi will cutoff archive filenames to 143 bytes, which is the max accepted by eCryptFS."
+msgstr ""
+
+msgid "Rescan Archive Directory"
+msgstr ""
+
+msgid "Click this button to trigger a rescan of the Archive Directory in case you're missing files, or some data such as total page counts."
+msgstr ""
+
+msgid "Maximum <br>Cache Size"
+msgstr ""
+
+msgid "In MBs. The cache contains recently viewed pages, for faster subsequent reading."
+msgstr ""
+
+msgid "It is automatically emptied when it grows past this specified size."
+msgstr ""
+
+msgid "Clear Cache"
+msgstr ""
+
+msgid "Current Size:"
+msgstr ""
+
+msgid "Clear the cache manually by clicking this button."
+msgstr ""
+
+msgid "Reset Search Cache"
+msgstr ""
+
+msgid "The last searches done in the archive index are cached for faster loads."
+msgstr ""
+
+msgid "If something went wrong with said cache, you can reset it by clicking this button."
+msgstr ""
+
+msgid "Clear NEW flags"
+msgstr ""
+
+msgid "Newly uploaded archives are marked as \"new\" in the index until you\'ve opened them."
+msgstr ""
+
+msgid "If you want to clear those flags, click this button."
+msgstr ""
+
+msgid "Replace duplicated archives"
+msgstr ""
+
+msgid "If enabled, LANraragi will overwrite old archives when a newer one (with the same name) is uploaded through the Web Uploader or the Download System."
+msgstr ""
+
+msgid "This will delete metadata for old files when they're replaced! Use with caution."
+msgstr ""
+
+# ------End of Config_Files.html.tt2------
+# ------Start of Config_Global.html.tt2------
+msgid "Site Title"
+msgstr ""
+
+msgid "The site title appears on most pages as...their title."
+msgstr ""
+
+msgid "MOTD"
+msgstr ""
+
+msgid "Slang for Message of the Day. Appears on top of the main Library view."
+msgstr ""
+
+msgid "Archives per page"
+msgstr ""
+
+msgid "Number of archives shown on a page in the main list."
+msgstr ""
+
+msgid "Resize Images in Reader"
+msgstr ""
+
+msgid "If enabled, pages exceeding a certain size will be resized when viewed to save bandwidth."
+msgstr ""
+
+msgid "This option can potentially consume a lot of RAM if enabled and used on large images! Use with caution."
+msgstr ""
+
+msgid "Image Size Threshold"
+msgstr ""
+
+msgid "(in KBs.) Maximum size an image can reach before being resized."
+msgstr ""
+
+msgid "Resize Quality"
+msgstr ""
+
+msgid "Quality of the resized images. Less quality = Smaller image. (0-100)"
+msgstr ""
+
+msgid "Clientside Progress Tracking"
+msgstr ""
+
+msgid "Enabling this option will save reading progression on the browser (through localStorage) instead of the server."
+msgstr ""
+
+msgid "Consider toggling this option if you're sharing the LANraragi instance with multiple users!"
+msgstr ""
+
+msgid "Debug Mode"
+msgstr ""
+
+msgid "Enabling Debug Mode will show more logs and disable update nagging."
+msgstr ""
+
+msgid "Fully effective after restarting LANraragi."
+msgstr ""
+
+msgid "Clean Database"
+msgstr ""
+
+msgid "Cleaning the database will remove entries that aren't on your filesystem."
+msgstr ""
+
+msgid "Reset Database"
+msgstr ""
+
+msgid "Danger zone!"
+msgstr ""
+
+msgid "Clicking this button will reset the entire database and delete all settings and metadata."
+msgstr ""
+
+# ------End of Config_Global.html.tt2------
+# ------Start of Config_Security.html.tt2------
+msgid "Enable Password"
+msgstr ""
+
+msgid "If enabled, everything that isn't reading will require a password."
+msgstr ""
+
+msgid "New Password"
+msgstr ""
+
+msgid "New Password Confirmation"
+msgstr ""
+
+msgid "Only edit these fields if you want to change your password."
+msgstr ""
+
+msgid "The one already stored will be used otherwise."
+msgstr ""
+
+msgid "No-Fun Mode"
+msgstr ""
+
+msgid "Enabling No-Fun Mode will lock reading archives behind the password as well."
+msgstr ""
+
+msgid "Fully effective after restarting LANraragi."
+msgstr ""
+
+msgid "API Key"
+msgstr ""
+
+msgid "If you wish to use the Client API and have a password, you'll have to set a key here."
+msgstr ""
+
+msgid "Empty keys will <b>not</b> work!"
+msgstr ""
+
+msgid "This key will need to be provided in every protected API call as the <i>Authorization</i> header."
+msgstr ""
+
+msgid "Enable CORS for the Client API"
+msgstr ""
+
+msgid "Have API requests support Cross-Origin Resource Sharing, which allows web browsers to access it off other domains."
+msgstr ""
+
+msgid "Turn this on if you want to access this service through a web-based wrapper (e.g. a userscript) used/hosted on another domain."
+msgstr ""
+
+# ------End of Config_Security.html.tt2------
+# ------Start of Config_Shinobu.html.tt2------
+msgid "Shinobu Status"
+msgstr ""
+
+msgid "The Shinobu File Watcher is currently"
+msgstr ""
+
+msgid "OK!"
+msgstr ""
+
+msgid "Kaput!"
+msgstr ""
+
+msgid "This File Watcher is responsible for monitoring your content directory and automatically handling new archives as they come."
+msgstr ""
+
+msgid "Restart File Watcher"
+msgstr ""
+
+msgid "If Shinobu is dead or unresponsive, you can reboot her by clicking this button."
+msgstr ""
+
+msgid "Open Minion Console"
+msgstr ""
+
+msgid "The Minion Worker handles spare tasks that are too long to execute within the request/response lifecycle of web applications."
+msgstr ""
+
+msgid "The console shows currently running and concluded tasks."
+msgstr ""
+
+# ------End of Config_Shinobu.html.tt2------
+# ------Start of Config_Tags.html.tt2------
+msgid "Thumbnail Directory"
+msgstr ""
+
+msgid "Directory where the archive thumbnails will be located. It will be created if it doesn't exist."
+msgstr ""
+
+msgid "Make sure the OS user running LANraragi has read/write access to this directory."
+msgstr ""
+
+msgid "Use high-quality thumbnails for pages"
+msgstr ""
+
+msgid "LANraragi generates lower-quality thumbnails for archive pages for performance reasons."
+msgstr ""
+
+msgid "If this option is checked, it will instead generate page thumbnails at the same quality as cover thumbnails."
+msgstr ""
+
+msgid "Use JPEG XL for thumbnails"
+msgstr ""
+
+msgid "LANraragi generates JPEG thumbnails for compatibility and performance reasons."
+msgstr ""
+
+msgid "If this option is checked, it will instead generate thumbnails using JPEG XL."
+msgstr ""
+
+msgid "Generate Missing Thumbnails"
+msgstr ""
+
+msgid "Generate Thumbnails for all archives that don't have one yet."
+msgstr ""
+
+msgid "Regenerate all Thumbnails"
+msgstr ""
+
+msgid "Regenerate all thumbnails. This might take a while!"
+msgstr ""
+
+msgid "Add Timestamp Tag"
+msgstr ""
+
+msgid "If enabled, LANraragi will add the UNIX timestamp of the current time as a tag under the \"date_added\" namespace to newly added archives."
+msgstr ""
+
+msgid "Use \"Last modified\" Time"
+msgstr ""
+
+msgid "Enabling this will use file modified time instead of current time when setting \"date_added\" timestamps."
+msgstr ""
+
+msgid "Tag Rules"
+msgstr ""
+
+msgid "When tagging archives using Plugins, the rules specified here will be applied to the tags before saving them to the database."
+msgstr ""
+
+msgid "Split rules with linebreaks."
+msgstr ""
+
+msgid "<b>-tag | tag</b> : removes the tag (like a blacklist)"
+msgstr ""
+
+msgid "<b>-namespace:*</b> : removes all tags within this namespace"
+msgstr ""
+
+msgid "namespace : strips the namespace from the tags"
+msgstr ""
+
+msgid "<b>tag -> new-tag</b> : replaces one tag"
+msgstr ""
+
+msgid "<b>tag => new-tag</b> : replaces one tag, but use a hash table internally for faster performance. These rules will be executed <i>once</i> after all other rules."
+msgstr ""
+
+msgid "<b>namespace:* -> new-namespace:*</b> : replaces the namespace with the new one"
+msgstr ""
+
+# ------End of Config_Tags.html.tt2------
+# ------Start of Config_Theme.html.tt2------
+msgid "The selected theme will apply to the entire application and be shown to all users."
+msgstr ""
+
+msgid "If you're using a browser that supports \"theme-color\", the theme's primary color will also be applied there."
+msgstr ""
+
+msgid "Click on a theme to preview it before saving!"
+msgstr ""
+
+# ------End of Config_Theme.html.tt2------
+# ------Start of Edit.html.tt2------
+msgid "Editing %1 by %2"
+msgstr ""
+
+msgid "Editing %1"
+msgstr ""
+
+msgid "Current File Name:"
+msgstr ""
+
+msgid "ID:"
+msgstr ""
+
+msgid "Title:"
+msgstr ""
+
+msgid "Summary:"
+msgstr ""
+
+msgid "Tags"
+msgstr ""
+
+msgid "(separated by hyphens, i.e : tag1, tag2)"
+msgstr ""
+
+msgid "Import Tags from Plugin :"
+msgstr ""
+
+msgid "Help"
+msgstr ""
+
+msgid "Go!"
+msgstr ""
+
+msgid "Using a Plugin will save any modifications to archive metadata you might have made !"
+msgstr ""
+
+msgid "Save Metadata"
+msgstr ""
+
+msgid "Delete Archive"
+msgstr ""
+
+msgid "Return to Library"
+msgstr ""
+
+# ------End of Edit.html.tt2------
+# ------Start of Index.html.tt2------
+msgid "Add Archives"
+msgstr ""
+
+msgid "Batch Operations"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Modify Categories"
+msgstr ""
+
+msgid "Statistics"
+msgstr ""
+
+msgid "Logs"
+msgstr ""
+
+msgid "Admin Login"
+msgstr ""
+
+msgid "Search Title, Artist, Series, Language or Tags"
+msgstr ""
+
+msgid "Apply Filter"
+msgstr ""
+
+msgid "Clear Filter"
+msgstr ""
+
+msgid "Click to show archives from the current search with the specified filter"
+msgstr ""
+
+msgid "Refresh Selection"
+msgstr ""
+
+msgid "Carousel Options"
+msgstr ""
+
+msgid "No results here."
+msgstr ""
+
+msgid "Sort by:"
+msgstr ""
+
+msgid "Title"
+msgstr ""
+
+msgid "Date"
+msgstr ""
+
+msgid "Sort Order"
+msgstr ""
+
+msgid "Crop thumbnails"
+msgstr ""
+
+msgid "Go to Page:"
+msgstr ""
+
+msgid "Columns:"
+msgstr ""
+
+msgid "Switch to Compact Mode"
+msgstr ""
+
+msgid "Switch to Thumbnail Mode"
+msgstr ""
+
+msgid "Title"
+msgstr ""
+
+msgid "Artist"
+msgstr ""
+
+msgid "Series"
+msgstr ""
+
+msgid "Tags"
+msgstr ""
+
+msgid "Edit this column"
+msgstr ""
+
+msgid "I don't know everything, but I sure as hell know this database's busted lads"
+msgstr ""
+
+msgid "The database cache is corrupt, and as such LANraragi is unable to display your archive list."
+msgstr ""
+
+msgid "Read"
+msgstr ""
+
+msgid "Download"
+msgstr ""
+
+msgid "Edit Metadata"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Add Rating"
+msgstr ""
+
+msgid "Add to Category"
+msgstr ""
+
+msgid "New Version Release Notes"
+msgstr ""
+
+msgid "You\'re using the default password and that\'s super baka of you"
+msgstr ""
+
+msgid "Login with password \"kamimamita\" and change that shit on the double. ...Or just disable it! Why not check the configuration options afterwards, while you\'re at it?"
+msgstr ""
+
+# ------End of Index.html.tt2------
+# ------Start of Login.html.tt2------
+msgid "This page requires you to log on."
+msgstr ""
+
+msgid "Admin Password:"
+msgstr ""
+
+msgid "Login"
+msgstr ""
+
+msgid "Wrong Password."
+msgstr ""
+
+msgid "<a href='\${url}'>Login</a> to toggle bookmark feature."
+msgstr ""
+
+# ------End of Login.html.tt2------
+# ------Start of Logs.html.tt2------
+msgid "Application Logs"
+msgstr ""
+
+msgid "You can check LANraragi logs here for debugging purposes."
+msgstr ""
+
+msgid "By default, this view only shows the last 100 lines of each logfile, newest lines last."
+msgstr ""
+
+msgid "General Logs pertain to the main application."
+msgstr ""
+
+msgid "Shinobu Logs correspond to the Background Worker."
+msgstr ""
+
+msgid "Plugin Logs are reserved for metadata plugins only."
+msgstr ""
+
+msgid "Mojolicious logs won't tell much unless you're running Debug Mode."
+msgstr ""
+
+msgid "Redis logs won't be available from here if you're running from source!"
+msgstr ""
+
+msgid "Currently Viewing:"
+msgstr ""
+
+msgid "general"
+msgstr ""
+
+msgid "Refresh"
+msgstr ""
+
+msgid "Lines:"
+msgstr ""
+
+msgid "View LANraragi Logs"
+msgstr ""
+
+msgid "View Shinobu Logs"
+msgstr ""
+
+msgid "View Plugin Logs"
+msgstr ""
+
+msgid "View Mojolicious Logs"
+msgstr ""
+
+msgid "View Redis Logs"
+msgstr ""
+
+msgid "Return to Library"
+msgstr ""
+
+# ------End of Logs.html.tt2------
+# ------Start of Plugins.html.tt2------
+msgid "Plugin Configuration"
+msgstr ""
+
+msgid "Enable/Disable Auto-Plugin on metadata plugins by checking the toggles."
+msgstr ""
+
+msgid "Plugins will be automatically used on new archives if they're toggled here."
+msgstr ""
+
+msgid "If they have configuration variables, you can set them here as well."
+msgstr ""
+
+msgid "You can also trigger Scripts here. Triggering a script will save your Plugin settings beforehand."
+msgstr ""
+
+msgid "Login Plugins"
+msgstr ""
+
+msgid "Downloaders"
+msgstr ""
+
+msgid "Scripts"
+msgstr ""
+
+msgid "Metadata Plugins"
+msgstr ""
+
+msgid "Allow Plugins to replace archive titles:"
+msgstr ""
+
+msgid "If enabled, metadata plugins will be able to change the title of your archives alongside adding tags to them."
+msgstr ""
+
+msgid "A script is running..."
+msgstr ""
+
+msgid "Save Plugin Configuration"
+msgstr ""
+
+msgid "Upload Plugin"
+msgstr ""
+
+msgid "Return to Library"
+msgstr ""
+
+msgid "This plugin will trigger on URLs matching this regex!"
+msgstr ""
+
+msgid "This plugin depends on the login plugin"
+msgstr ""
+
+msgid "Trigger Script"
+msgstr ""
+
+msgid "Run Automatically"
+msgstr ""
+
+msgid "Plugin Settings"
+msgstr ""
+
+# ------End of Plugins.html.tt2------
+# ------Start of Reader.html.tt2------
+msgid "Done reading? Go back to Archive Index"
+msgstr ""
+
+msgid "View full-size image"
+msgstr ""
+
+msgid "Switch to another random archive"
+msgstr ""
+
+msgid "Archive Overview"
+msgstr ""
+
+msgid "Admin Options"
+msgstr ""
+
+msgid "Set this Page as Thumbnail"
+msgstr ""
+
+msgid "Set the currently opened page as the thumbnail for this archive."
+msgstr ""
+
+msgid "Clean Archive Cache"
+msgstr ""
+
+msgid "Edit Archive Metadata"
+msgstr ""
+
+msgid "Delete Archive"
+msgstr ""
+
+msgid "Categories"
+msgstr ""
+
+msgid "Add to : "
+msgstr ""
+
+msgid " -- No Category -- "
+msgstr ""
+
+msgid "Add Archive to Category"
+msgstr ""
+
+msgid "Pages"
+msgstr ""
+
+msgid "Working on it..."
+msgstr ""
+
+msgid "You can navigate between pages using:"
+msgstr ""
+
+msgid "The arrow icons"
+msgstr ""
+
+msgid "The a/d keys"
+msgstr ""
+
+msgid "Your keyboard arrows (and the spacebar)"
+msgstr ""
+
+msgid "Touching the left/right side of the image."
+msgstr ""
+
+msgid "Other keyboard shortcuts:"
+msgstr ""
+
+msgid "M: toggle manga mode (right-to-left reading)"
+msgstr ""
+
+msgid "O: show advanced reader options."
+msgstr ""
+
+msgid "P: toggle double page mode"
+msgstr ""
+
+msgid "Q: bring up the thumbnail index and archive options."
+msgstr ""
+
+msgid "R: open a random archive."
+msgstr ""
+
+msgid "F: toggle fullscreen mode"
+msgstr ""
+
+msgid "B: toggle bookmark"
+msgstr ""
+
+msgid "To return to the archive index, touch the arrow pointing down or use Backspace."
+msgstr ""
+
+msgid "Reader Options"
+msgstr ""
+
+msgid "Those options save automatically -- Click around and find out!"
+msgstr ""
+
+msgid "Fit display to"
+msgstr ""
+
+msgid "Container"
+msgstr ""
+
+msgid "Width"
+msgstr ""
+
+msgid "Height"
+msgstr ""
+
+msgid "Container Width (in pixels or percentage)"
+msgstr ""
+
+msgid "The default value is 1200px, or 90% in Double Page Mode."
+msgstr ""
+
+msgid "Apply"
+msgstr ""
+
+msgid "Page Rendering"
+msgstr ""
+
+msgid "Single"
+msgstr ""
+
+msgid "Double"
+msgstr ""
+
+msgid "Reading Direction"
+msgstr ""
+
+msgid "Left to Right"
+msgstr ""
+
+msgid "Right to Left"
+msgstr ""
+
+msgid "How many images to preload"
+msgstr ""
+
+msgid "The default is two images."
+msgstr ""
+
+msgid "Header"
+msgstr ""
+
+msgid "Visible"
+msgstr ""
+
+msgid "Hidden"
+msgstr ""
+
+msgid "Show Archive Overlay by default"
+msgstr ""
+
+msgid "This will show the overlay with thumbnails every time you open a new Reader page."
+msgstr ""
+
+msgid "Enabled"
+msgstr ""
+
+msgid "Disabled"
+msgstr ""
+
+msgid "Progression Tracking"
+msgstr ""
+
+msgid "Disabling tracking will restart reading from page one every time you reopen the reader."
+msgstr ""
+
+msgid "Infinite Scrolling"
+msgstr ""
+
+msgid "Display all images in a vertical view in the same page."
+msgstr ""
+
+msgid "Reader Settings"
+msgstr ""
+
+msgid "Help"
+msgstr ""
+
+msgid "Reading Direction"
+msgstr ""
+
+msgid "Archive Overview"
+msgstr ""
+
+msgid "FullScreen"
+msgstr ""
+
+msgid "Toggle Bookmark"
+msgstr ""
+
+# ------End of Reader.html.tt2------
+# ------Start of Stats.html.tt2------
+msgid "Library Statistics"
+msgstr ""
+
+msgid "Archives on record"
+msgstr ""
+
+msgid "Different tags existing"
+msgstr ""
+
+msgid "in content folder"
+msgstr ""
+
+msgid "pages read"
+msgstr ""
+
+msgid "Tag Cloud"
+msgstr ""
+
+msgid "Asking the great powers that be for your tag statistics..."
+msgstr ""
+
+msgid "Detailed Stats"
+msgstr ""
+
+msgid "(These statistics only show tags that appear at least twice in your database.)"
+msgstr ""
+
+msgid "Return to Library"
+msgstr ""
+
+# ------End of Stats.html.tt2------
+# ------Start of Upload.html.tt2------
+msgid "Upload Center"
+msgstr ""
+
+msgid "Adding Archives to the Library"
+msgstr ""
+
+msgid "Add files to your LANraragi instance from your computer, or the Internet directly."
+msgstr ""
+
+msgid "Add uploaded files to category:"
+msgstr ""
+
+msgid " -- No Category -- "
+msgstr ""
+
+msgid "From your computer"
+msgstr ""
+
+msgid "You can drag and drop files into this window, or click the upload button."
+msgstr ""
+
+msgid "Add from your computer"
+msgstr ""
+
+msgid "From the Internet"
+msgstr ""
+
+msgid "You can download files from remote URLs directly into LANraragi from here."
+msgstr ""
+
+msgid "Download jobs will keep going even if you close this window!"
+msgstr ""
+
+msgid "Type in your URLs (separated by a newline), and click the download button."
+msgstr ""
+
+msgid "If a Downloader plugin is compatible with the URL, it'll be automatically used."
+msgstr ""
+
+msgid "URL(s) to download:"
+msgstr ""
+
+msgid "Add from URL(s)"
+msgstr ""
+
+msgid "Return to Library"
+msgstr ""
+
+# ------End of Upload.html.tt2------
+msgid "Rescan Archive Directory"
+msgstr ""
+
+msgid "Click this button to trigger a rescan of the Archive Directory in case you're missing files, or some data such as total page counts."
+msgstr ""
+
+# ------Stary of i18n.html.tt2------
+msgid "Backup restored!"
+msgstr ""
+
+msgid "An error occured while restoring the backup.<br/> Please check the server logs and that your JSON is correctly formatted."
+msgstr ""
+
+msgid "Couldn't load the complete archive list! Please reload the page."
+msgstr ""
+
+msgid "Couldn't load the tag statistics! Please reload the page."
+msgstr ""
+
+msgid "Error getting untagged archives!"
+msgstr ""
+
+msgid "Are you sure you want to delete this archive?"
+msgstr ""
+
+msgid "Are you sure you want to delete the selected archives?"
+msgstr ""
+
+msgid "This action cannot be undone!"
+msgstr ""
+
+msgid "This action (truly) cannot be undone!"
+msgstr ""
+
+msgid "Yes, delete it!"
+msgstr ""
+
+msgid "No, keep it!"
+msgstr ""
+
+msgid "Error while deleting cache! Check application logs."
+msgstr ""
+
+msgid "Error while processing request"
+msgstr ""
+
+msgid "Error checking Minion job status"
+msgstr ""
+
+msgid "Saved!"
+msgstr ""
+
+msgid "Error saving data"
+msgstr ""
+
+msgid "Started Batch Operation..."
+msgstr ""
+
+msgid "Batch Operation complete!"
+msgstr ""
+
+msgid "An error occured during batch tagging!"
+msgstr ""
+
+msgid "Please check application logs."
+msgstr ""
+
+msgid "Error! Terminating session."
+msgstr ""
+
+msgid "Sleeping for \${x} seconds."
+msgstr ""
+
+msgid "Error while processing ID \${id} (\${msg})"
+msgstr ""
+
+msgid "Processed ID \${id} with \"\${plug}\" (Added tags: \${tags})"
+msgstr ""
+
+msgid "Deleted ID \${id} (Filename: \${filename})"
+msgstr ""
+
+msgid "Replaced tags for ID \${id} (New tags: \${tags})"
+msgstr ""
+
+msgid "Added ID \${id} to category \${category}! (\${msg})"
+msgstr ""
+
+msgid "Cleared new flag for ID \${id}!"
+msgstr ""
+
+msgid "Unknown operation \${oper} (\${msg})"
+msgstr ""
+
+msgid "Changed title to: \${title}"
+msgstr ""
+
+msgid "Reloading page in 5 seconds to account for deleted archives..."
+msgstr ""
+
+msgid "Cancelling Batch Operation..."
+msgstr ""
+
+msgid "Enter a name for the new category"
+msgstr ""
+
+msgid "My Category"
+msgstr ""
+
+msgid "Please enter a category name."
+msgstr ""
+
+msgid "No category"
+msgstr ""
+
+msgid "Error getting categories from server"
+msgstr ""
+
+msgid "Error modifying category"
+msgstr ""
+
+msgid "The category will be deleted permanently."
+msgstr ""
+
+msgid "Category deleted!"
+msgstr ""
+
+msgid "Error deleting category"
+msgstr ""
+
+msgid "Writing a Predicate"
+msgstr ""
+
+msgid "Predicates follow the same syntax as searches in the Archive Index. Check the Documentation for more information."
+msgstr ""
+
+msgid "Background Worker restarted!"
+msgstr ""
+
+msgid "Error restarting Worker:"
+msgstr ""
+
+msgid "Content folder rescan started!"
+msgstr ""
+
+msgid "Error starting content folder rescan:"
+msgstr ""
+
+msgid "Error while querying Shinobu status:"
+msgstr ""
+
+msgid "About Plugins"
+msgstr ""
+
+msgid "You can use plugins to automatically fetch metadata for this archive. <br/> Just select a plugin from the dropdown and hit Go! <br/> Some plugins might provide an optional argument for you to specify. If that's the case, a textbox will be available to input said argument."
+msgstr ""
+
+msgid "Metadata saved!"
+msgstr ""
+
+msgid "Error saving archive metadata"
+msgstr ""
+
+msgid "Error while fetching tags"
+msgstr ""
+
+msgid "Archive title changed to"
+msgstr ""
+
+msgid "Archive summary updated!"
+msgstr ""
+
+msgid "Added the following tags"
+msgstr ""
+
+msgid "No new tags added!"
+msgstr ""
+
+# Do not translate _START_, _END_ or _TOTAL_.
+msgid "Showing _START_ to _END_ of _TOTAL_ ancient chinese lithographies."
+msgstr ""
+
+msgid "No archives to show you! Try <a href=\"\${url}\")>uploading some</a>?"
+msgstr ""
+
+msgid "Welcome to LANraragi \${version}!"
+msgstr ""
+
+msgid "If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!"
+msgstr ""
+
+msgid "Error getting basic server info."
+msgstr ""
+
+msgid "You're running in Debug Mode!"
+msgstr ""
+
+msgid "Advanced server statistics can be viewed <a href=\"\${url}\")>here</a>."
+msgstr ""
+
+msgid "Enter a tag namespace for this column"
+msgstr ""
+
+msgid "Enter a full namespace without the colon, e.g \"artist\"."
+msgstr ""
+
+msgid "If you have multiple tags with the same namespace, only the last one will be shown in the column."
+msgstr ""
+
+msgid "Tag namespace"
+msgstr ""
+
+msgid "Please enter a tag namespace."
+msgstr ""
+
+msgid "Randomly Picked"
+msgstr ""
+
+msgid "New Archives"
+msgstr ""
+
+msgid "Untagged Archives"
+msgstr ""
+
+msgid "On Deck"
+msgstr ""
+
+msgid "Error getting carousel data!"
+msgstr ""
+
+msgid "Edit this column"
+msgstr ""
+
+msgid "Title"
+msgstr ""
+
+msgid "Tags"
+msgstr ""
+
+msgid "Header"
+msgstr ""
+
+msgid "A new version of LANraragi (\${version}) is available!"
+msgstr ""
+
+msgid "Click here to check it out."
+msgstr ""
+
+msgid "Error getting changelog for new version"
+msgstr ""
+
+msgid "Couldn't load data for \${id}!"
+msgstr ""
+
+msgid "Github API rate limit exceeded."
+msgstr ""
+
+msgid "Github API returned status: \${status}"
+msgstr ""
+
+msgid "This archive isn't in any category."
+msgstr ""
+
+msgid "No Categories yet..."
+msgstr ""
+
+msgid "Remove rating"
+msgstr ""
+
+msgid "Click here to display new archives only."
+msgstr ""
+
+msgid "Click here to display untagged archives only."
+msgstr ""
+
+msgid "Click here to display archives in this category only."
+msgstr ""
+
+msgid "Your Reading Progression is now saved on the server!"
+msgstr ""
+
+msgid "You seem to have some local progression hanging around -- Please wait warmly while we migrate it to the server for you."
+msgstr ""
+
+msgid "Error while migrating local progression to server"
+msgstr ""
+
+msgid "Reading Progression has been fully migrated"
+msgstr ""
+
+msgid "You'll have to reopen archives in the Reader to see the migrated progression values."
+msgstr ""
+
+msgid "Plugin uploaded successfully!"
+msgstr ""
+
+msgid "The plugin \${name} has been successfully added. Refresh the page to see it."
+msgstr ""
+
+msgid "Error uploading plugin"
+msgstr ""
+
+msgid "Successfully set page \${page} as the thumbnail!"
+msgstr ""
+
+msgid "Error updating thumbnail"
+msgstr ""
+
+msgid "Error clearing new flag"
+msgstr ""
+
+msgid "Error getting the archive's imagelist."
+msgstr ""
+
+msgid "This archive seems to be in RAR format!"
+msgstr ""
+
+msgid "RAR archives might not work properly in LANraragi depending on how they were made. If you encounter errors while reading, consider converting your archive to zip."
+msgstr ""
+
+msgid "EPUB support in LANraragi is minimal"
+msgstr ""
+
+msgid "EPUB books will only show images in the Web Reader, and potentially out of order. If you want text support, consider pairing LANraragi with an OPDS reader."
+msgstr ""
+
+msgid "Navigation Help"
+msgstr ""
+
+msgid "Error updating reading progression"
+msgstr ""
+
+msgid "Page \${page}"
+msgstr ""
+
+msgid "The page thumbnailing job didn't conclude properly. Your archive might be corrupted."
+msgstr ""
+
+msgid "A script is already running."
+msgstr ""
+
+msgid "Please wait for it to finish before starting a new one."
+msgstr ""
+
+msgid "An error occured while running the script"
+msgstr ""
+
+msgid "Script result"
+msgstr ""
+
+msgid "Script failed with error: \${error}"
+msgstr ""
+
+msgid "Temporary folder cleaned!"
+msgstr ""
+
+msgid "Error cleaning temporary folder"
+msgstr ""
+
+msgid "Threw away the cache!"
+msgstr ""
+
+msgid "Error clearing the cache"
+msgstr ""
+
+msgid "Threw away the search cache!"
+msgstr ""
+
+msgid "All archives are no longer new!"
+msgstr ""
+
+msgid "Error during cleanup procedure"
+msgstr ""
+
+msgid "Are you sure you want to wipe the database?"
+msgstr ""
+
+msgid "Sayonara! Redirecting you..."
+msgstr ""
+
+msgid "Successfully cleaned the database and removed \${entries} entries."
+msgstr ""
+
+msgid "\${entries} other entries have been unlinked from the database and will be deleted on the next cleanup!"
+msgstr ""
+
+msgid "Do a backup now if some files disappeared from your archive index."
+msgstr ""
+
+msgid "Queued up a job to regenerate thumbnails! Stay tuned for updates or check the Minion console."
+msgstr ""
+
+msgid "All thumbnails generated! Errors will be listed below if there were any."
+msgstr ""
+
+msgid "Added \${id} to category \${cat}!"
+msgstr ""
+
+msgid "Removed \${id} from category \${cat}!"
+msgstr ""
+
+msgid "Couldn't delete archive file. <br/> (Maybe it has already been deleted beforehand?)"
+msgstr ""
+
+msgid "Archive metadata has been deleted properly. <br> Please delete the file manually before returning to the archive index."
+msgstr ""
+
+msgid "Archive successfully deleted. Redirecting you..."
+msgstr ""
+
+msgid "Error while deleting archive"
+msgstr ""
+
+msgid "Processing your upload... (Job #\${jobid})"
+msgstr ""
+
+msgid "Downloading file... (Job #\${jobid})"
+msgstr ""
+
+msgid "Processing"
+msgstr ""
+
+msgid "Completed"
+msgstr ""
+
+msgid "Failed"
+msgstr ""
+
+msgid "Total"
+msgstr ""
+
+msgid "Click here to edit metadata."
+msgstr ""
+
+msgid "Error while processing file."
+msgstr ""
+
+msgid "Error while downloading file."
+msgstr ""
+
+msgid "Error sending job to Minion"
+msgstr ""
+
+# ------End of i18n.html.tt2------
+# ------Start of Duplicates.html.tt2------
+msgid "Duplicate Detection"
+msgstr ""
+
+msgid "This page allows you to search for potential duplicates in your library."
+msgstr ""
+
+msgid "Clicking \"Start searching\" will start a background job to scan the entire library for dupes."
+msgstr ""
+
+msgid "After which, you can select which archives to delete, and then delete them in bulk."
+msgstr ""
+
+msgid "Found %1 duplicate group(s)."
+msgstr ""
+
+msgid "You can use the rules dropdown below to pre-select archives for deletion."
+msgstr ""
+
+msgid "For every duplicate group..."
+msgstr ""
+
+msgid "Keep all files"
+msgstr ""
+
+msgid "Keep the file with the most tags"
+msgstr ""
+
+msgid "Keep the file with the most pages"
+msgstr ""
+
+msgid "Keep the largest file"
+msgstr ""
+
+msgid "Keep the youngest file"
+msgstr ""
+
+msgid "Keep the oldest file"
+msgstr ""
+
+msgid "Start searching for duplicates"
+msgstr ""
+
+msgid "Search for duplicates again"
+msgstr ""
+
+msgid "Delete all selected items"
+msgstr ""
+
+msgid "Filename"
+msgstr ""
+
+msgid "Filesize"
+msgstr ""
+
+msgid "Action"
+msgstr ""
+
+msgid "Searching for duplicates..."
+msgstr ""
+
+# ------End of Duplicates.html.tt2------
