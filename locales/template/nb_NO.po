@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 18:10+0200\n"
-"PO-Revision-Date: 2025-05-13 17:01+0000\n"
+"PO-Revision-Date: 2025-05-14 20:02+0000\n"
 "Last-Translator: scentedtiger <something95@tutanota.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "lanraragi/lanraragi-source/nb_NO/>\n"
@@ -1010,13 +1010,13 @@ msgid "Set this Page as Thumbnail"
 msgstr "Set denne Siden som Miniatyrbilde"
 
 msgid "Set the currently opened page as the thumbnail for this archive."
-msgstr ""
+msgstr "Sett den åpnede siden som miniatyrbilde for dette arkivet."
 
 msgid "Clean Archive Cache"
-msgstr ""
+msgstr "Rens Arkiv Cachen"
 
 msgid "Edit Archive Metadata"
-msgstr ""
+msgstr "Rediger Arkiv Metadata"
 
 msgid "Delete Archive"
 msgstr "Slett arkiv"
@@ -1025,112 +1025,115 @@ msgid "Categories"
 msgstr "Kategorier"
 
 msgid "Add to : "
-msgstr ""
+msgstr "Legg til: "
 
 msgid " -- No Category -- "
 msgstr ""
 
 msgid "Add Archive to Category"
-msgstr ""
+msgstr "Legg Arkiv til i Kategori"
 
 msgid "Pages"
-msgstr ""
+msgstr "Sider"
 
 msgid "Working on it..."
-msgstr ""
+msgstr "Jobber med det..."
 
 msgid "You can navigate between pages using:"
-msgstr ""
+msgstr "Du kan navigere mellom sider med:"
 
 msgid "The arrow icons"
-msgstr ""
+msgstr "Pil ikonene"
 
 msgid "The a/d keys"
-msgstr ""
+msgstr "a/d tastene"
 
 msgid "Your keyboard arrows (and the spacebar)"
-msgstr ""
+msgstr "Piltastene (og mellomrom)"
 
 msgid "Touching the left/right side of the image."
-msgstr ""
+msgstr "Klikke på venstre/høyre side av bildet."
 
 msgid "Other keyboard shortcuts:"
-msgstr ""
+msgstr "Andre hurtigtaster:"
 
 msgid "M: toggle manga mode (right-to-left reading)"
-msgstr ""
+msgstr "M: Aktiver manga modus (høyre til venstre leserettning)"
 
 msgid "O: show advanced reader options."
-msgstr ""
+msgstr "O: Vis avanserte leser instillinger."
 
 msgid "P: toggle double page mode"
-msgstr ""
+msgstr "P: Aktiver dobbelt side modus"
 
 msgid "Q: bring up the thumbnail index and archive options."
-msgstr ""
+msgstr "Q: Hent opp miniatyrbilde indeks og arkiv instillinger."
 
 msgid "R: open a random archive."
-msgstr ""
+msgstr "R: Åpne ett tilfeldig arkiv."
 
 msgid "F: toggle fullscreen mode"
-msgstr ""
+msgstr "F: Aktiver fullskjerm modus"
 
 msgid "B: toggle bookmark"
-msgstr ""
+msgstr "B: Aktiver bokmerke"
 
 msgid "To return to the archive index, touch the arrow pointing down or use Backspace."
 msgstr ""
+"For å gå tilbake til arkivoversikten, trykk på pilen som peker nedover eller "
+"bruk Tilbake-tasten (Backspace)."
 
 msgid "Reader Options"
-msgstr ""
+msgstr "Leser Instillinger"
 
 msgid "Those options save automatically -- Click around and find out!"
 msgstr ""
+"Disse instillingene lagres automatisk -- Klikk rundt og ta konsekvensene!"
 
 msgid "Fit display to"
-msgstr ""
+msgstr "Tilpass visning til"
 
 msgid "Container"
-msgstr ""
+msgstr "Konteiner"
 
 msgid "Width"
-msgstr ""
+msgstr "Bredde"
 
 msgid "Height"
-msgstr ""
+msgstr "Høyde"
 
 msgid "Container Width (in pixels or percentage)"
-msgstr ""
+msgstr "Konteiner Bredde (I piksler og prosent)"
 
 msgid "The default value is 1200px, or 90% in Double Page Mode."
-msgstr ""
+msgstr "Standardverdien er 1200 piksler, eller 90 % i dobbelsidemodus."
 
 msgid "Apply"
-msgstr ""
+msgstr "Bruk"
 
 msgid "Page Rendering"
-msgstr ""
+msgstr "Sidegjengivelse"
 
 msgid "Single"
-msgstr ""
+msgstr "Singel"
 
 msgid "Double"
-msgstr ""
+msgstr "Dobbel"
 
 msgid "Reading Direction"
 msgstr ""
 
 msgid "Left to Right"
-msgstr ""
+msgstr "Venstre til Høyre"
 
 msgid "Right to Left"
-msgstr ""
+msgstr "Høyre til Venstre"
 
 msgid "How many images to preload"
-msgstr ""
+msgstr "Hvor mange bilder å forhåndslaste"
 
 msgid "The default is two images."
-msgstr ""
+msgstr "Standardverdien er to bilder."
 
 msgid "Header"
 msgstr ""
@@ -1172,7 +1175,7 @@ msgid "Help"
 msgstr "Hjelp"
 
 msgid "Reading Direction"
-msgstr ""
+msgstr "Leserettning"
 
 msgid "Archive Overview"
 msgstr "Arkiv Oversikt"
@@ -1230,7 +1233,7 @@ msgid "Add uploaded files to category:"
 msgstr ""
 
 msgid " -- No Category -- "
-msgstr ""
+msgstr " --Ingen Kategori-- "
 
 msgid "From your computer"
 msgstr ""
