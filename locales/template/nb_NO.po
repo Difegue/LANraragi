@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 18:10+0200\n"
-"PO-Revision-Date: 2025-05-08 03:02+0000\n"
+"PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: scentedtiger <something95@tutanota.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "lanraragi/lanraragi-source/nb_NO/>\n"
@@ -395,253 +395,312 @@ msgstr "Skaleringskvalitet"
 
 msgid "Quality of the resized images. Less quality = Smaller image. (0-100)"
 msgstr ""
+"Kvalitet på de skalerte bildene. Lavere kvalitet = Mindre bilde. (0–100)"
 
 msgid "Clientside Progress Tracking"
-msgstr ""
+msgstr "Klientside fremdriftssporing"
 
 msgid "Enabling this option will save reading progression on the browser (through localStorage) instead of the server."
 msgstr ""
+"Aktivering av dette alternativet vil lagre lesefremdrift i nettleseren (via "
+"lokalLagring) i stedet for på serveren."
 
 msgid "Consider toggling this option if you're sharing the LANraragi instance with multiple users!"
 msgstr ""
+"Vurder å slå på dette alternativet hvis du deler LANraragi-instansen med "
+"flere brukere!"
 
 msgid "Debug Mode"
-msgstr ""
+msgstr "Feilsøkingsmodus"
 
 msgid "Enabling Debug Mode will show more logs and disable update nagging."
 msgstr ""
+"Aktivering av Feilsøkingsmodus vil vise flere logger og skru av "
+"oppdateringspåminnelser."
 
 msgid "Fully effective after restarting LANraragi."
 msgstr ""
 
 msgid "Clean Database"
-msgstr ""
+msgstr "Rens database"
 
 msgid "Cleaning the database will remove entries that aren't on your filesystem."
 msgstr ""
+"Å rense databasen vil fjerne innlegg som ikke er lagret i filsystemet ditt."
 
 msgid "Reset Database"
-msgstr ""
+msgstr "Tilbakestill Database"
 
 msgid "Danger zone!"
-msgstr ""
+msgstr "Faresone!"
 
 msgid "Clicking this button will reset the entire database and delete all settings and metadata."
 msgstr ""
+"Ved å klikke på denne knappen tilbakestilles hele databasen og alle "
+"innstillinger og metadata slettes."
 
 # ------End of Config_Global.html.tt2------
 # ------Start of Config_Security.html.tt2------
 msgid "Enable Password"
-msgstr ""
+msgstr "Aktiver Passord"
 
 msgid "If enabled, everything that isn't reading will require a password."
-msgstr ""
+msgstr "Hvis aktivert, vil alt som ikke er lesing kreve ett passord."
 
 msgid "New Password"
-msgstr ""
+msgstr "Nytt Passord"
 
 msgid "New Password Confirmation"
-msgstr ""
+msgstr "Bekreft Nytt Passord"
 
 msgid "Only edit these fields if you want to change your password."
-msgstr ""
+msgstr "Endre kun disse feltene om du ønsker å endre passordet ditt."
 
 msgid "The one already stored will be used otherwise."
-msgstr ""
+msgstr "Det som allerede er lagret vil bli brukt ellers."
 
 msgid "No-Fun Mode"
-msgstr ""
+msgstr "Ingen-moro-modus"
 
 msgid "Enabling No-Fun Mode will lock reading archives behind the password as well."
 msgstr ""
+"Aktivering av Ingen-Morro-Modus vil også låse lesing av arkiver bak "
+"passordet."
 
 msgid "Fully effective after restarting LANraragi."
-msgstr ""
+msgstr "Trer i kraft fullt ut etter omstart av LANraragi."
 
 msgid "API Key"
-msgstr ""
+msgstr "API Nøkkel"
 
 msgid "If you wish to use the Client API and have a password, you'll have to set a key here."
 msgstr ""
+"Om du ønsker å bruke Klient APIen og har ett passord må du sette en nøkkel "
+"her."
 
 msgid "Empty keys will <b>not</b> work!"
-msgstr ""
+msgstr "Tomme nøkkler vil <b>ikke</b> virke!"
 
 msgid "This key will need to be provided in every protected API call as the <i>Authorization</i> header."
 msgstr ""
+"Denne nøkkelen må oppgis i hver beskyttet API-anrop som "
+"<i>Authorization</i>-header."
 
 msgid "Enable CORS for the Client API"
-msgstr ""
+msgstr "Aktiver CORS for Klient APIen"
 
 msgid "Have API requests support Cross-Origin Resource Sharing, which allows web browsers to access it off other domains."
 msgstr ""
+"La API-forespørsler støtte Cross-Origin Resource Sharing (CORS), som lar "
+"nettlesere få tilgang til den fra andre domener."
 
 msgid "Turn this on if you want to access this service through a web-based wrapper (e.g. a userscript) used/hosted on another domain."
 msgstr ""
+"Slå dette på hvis du ønsker å få tilgang til denne tjenesten gjennom en web-"
+"basert wrapper (f.eks. et userscript) som brukes/hostes på et annet domene."
 
 # ------End of Config_Security.html.tt2------
 # ------Start of Config_Shinobu.html.tt2------
 msgid "Shinobu Status"
-msgstr ""
+msgstr "Shinobu Status"
 
 msgid "The Shinobu File Watcher is currently"
-msgstr ""
+msgstr "Shinobu-filovervåkeren er for øyeblikket"
 
+#, fuzzy
 msgid "OK!"
-msgstr ""
+msgstr "OK!"
 
+#, fuzzy
 msgid "Kaput!"
-msgstr ""
+msgstr "Kaput!"
 
 msgid "This File Watcher is responsible for monitoring your content directory and automatically handling new archives as they come."
 msgstr ""
+"Denne Filovervåkeren er ansvarlig for å monitorere innholdsmappen din og "
+"automatisk håndtere nye arkiver ettersom de legges til."
 
 msgid "Restart File Watcher"
-msgstr ""
+msgstr "Restart Filovervåkeren"
 
 msgid "If Shinobu is dead or unresponsive, you can reboot her by clicking this button."
 msgstr ""
+"Hvis Shinobu er død eller ikke svarer kan du starte henne på nytt ved å "
+"klikke på denne knappen."
 
 msgid "Open Minion Console"
-msgstr ""
+msgstr "Åpne Tjener-Konsoll"
 
 msgid "The Minion Worker handles spare tasks that are too long to execute within the request/response lifecycle of web applications."
 msgstr ""
+"Tjener Arbeideren håndterer ekstra oppgaver som tar for lang tid å utføre "
+"innen forespørsel/svar-syklusen til nettapplikasjoner."
 
 msgid "The console shows currently running and concluded tasks."
-msgstr ""
+msgstr "Konsollen viser nåværende og fullførte oppgaver."
 
 # ------End of Config_Shinobu.html.tt2------
 # ------Start of Config_Tags.html.tt2------
+#, fuzzy
 msgid "Thumbnail Directory"
-msgstr ""
+msgstr "Miniatyrbildemappe"
 
 msgid "Directory where the archive thumbnails will be located. It will be created if it doesn't exist."
 msgstr ""
+"Mappen hvor arkiv miniatyrbildene plasseres. Mappen skapes om den ikke "
+"eksisterer."
 
 msgid "Make sure the OS user running LANraragi has read/write access to this directory."
 msgstr ""
+"Sørg for at OS brukeren som kjører LANraragi har lese- og skrivetilgang til "
+"denne mappen."
 
 msgid "Use high-quality thumbnails for pages"
-msgstr ""
+msgstr "Bruk høykvalitets miniatyrbilder for sider"
 
 msgid "LANraragi generates lower-quality thumbnails for archive pages for performance reasons."
 msgstr ""
+"LANraragi genererer miniatyrbilder av lavere kvalitet for arkivsider av "
+"ytelseshensyn."
 
 msgid "If this option is checked, it will instead generate page thumbnails at the same quality as cover thumbnails."
 msgstr ""
+"Hvis dette alternativet er valgt, vil det i stedet generere "
+"sideminiatyrbilder med samme kvalitet som omslagsminiatyrene."
 
 msgid "Use JPEG XL for thumbnails"
-msgstr ""
+msgstr "Bruk JPEG XL for miniatyrbilder"
 
 msgid "LANraragi generates JPEG thumbnails for compatibility and performance reasons."
 msgstr ""
+"LANraragi genererer JPEG-miniatyrbilder av hensyn til kompatibilitet og "
+"ytelse."
 
 msgid "If this option is checked, it will instead generate thumbnails using JPEG XL."
 msgstr ""
+"Hvis dette alternativet er valgt, vil det i stedet generere miniatyrbilder "
+"som JPEG XL."
 
 msgid "Generate Missing Thumbnails"
-msgstr ""
+msgstr "Generer Manglende Miniatyrbilder"
 
 msgid "Generate Thumbnails for all archives that don't have one yet."
-msgstr ""
+msgstr "Generer Miniatyrbilder for alle arkivene som ikke har et enda."
 
 msgid "Regenerate all Thumbnails"
-msgstr ""
+msgstr "Generer alle miniatyrbilder på nytt"
 
 msgid "Regenerate all thumbnails. This might take a while!"
-msgstr ""
+msgstr "Generer alle miniatyrbilder på nytt. Dette kan ta en stund!"
 
 msgid "Add Timestamp Tag"
-msgstr ""
+msgstr "Legg til tidsstempel-tagg"
 
 msgid "If enabled, LANraragi will add the UNIX timestamp of the current time as a tag under the \"date_added\" namespace to newly added archives."
 msgstr ""
+"Hvis aktivert, vil LANraragi legge til UNIX-tidsstempelet for den nåværende "
+"tiden som en tagg under \"date_added\"-navnerommet til nylig lagde arkiver."
 
 msgid "Use \"Last modified\" Time"
-msgstr ""
+msgstr "Bruk \"Sist Endret\"-tidspunkt"
 
 msgid "Enabling this will use file modified time instead of current time when setting \"date_added\" timestamps."
 msgstr ""
+"Å aktivere dette vil bruke filens endringstidspunkt i stedet for nåværende "
+"tid når \"date_added\"-tidsstempler settes."
 
 msgid "Tag Rules"
-msgstr ""
+msgstr "Tagg Regler"
 
 msgid "When tagging archives using Plugins, the rules specified here will be applied to the tags before saving them to the database."
 msgstr ""
+"Når arkiver merkes ved hjelp av plugins, vil reglene som er spesifisert her "
+"bli brukt på taggene før de lagres i databasen."
 
 msgid "Split rules with linebreaks."
-msgstr ""
+msgstr "Del reglene med linjeskift."
 
 msgid "<b>-tag | tag</b> : removes the tag (like a blacklist)"
-msgstr ""
+msgstr "<b>-tagg | tagg</b> : fjerner taggen (som en svarteliste)"
 
 msgid "<b>-namespace:*</b> : removes all tags within this namespace"
-msgstr ""
+msgstr "<b>-navnerom:*</b> : fjerner alle tagger innenfor dette navnerommet"
 
 msgid "namespace : strips the namespace from the tags"
-msgstr ""
+msgstr "<b>~navnerom</b> : fjerner navnerommet fra taggene"
 
 msgid "<b>tag -> new-tag</b> : replaces one tag"
-msgstr ""
+msgstr "<b>tagg -> new-tagg</b> : erstatter en tagg"
 
 msgid "<b>tag => new-tag</b> : replaces one tag, but use a hash table internally for faster performance. These rules will be executed <i>once</i> after all other rules."
 msgstr ""
+"<b>tagg => new-tagg</b> : erstatter en tagg, men bruker en hash-tabell "
+"internt for raskere ytelse. Disse reglene vil bli utført <i>én gang</i> "
+"etter alle andre regler."
 
 msgid "<b>namespace:* -> new-namespace:*</b> : replaces the namespace with the new one"
 msgstr ""
+"<b>navnerom :* -> nytt-navnerom:*</b> : erstatter navnerom med det nye "
+"navnerommet"
 
 # ------End of Config_Tags.html.tt2------
 # ------Start of Config_Theme.html.tt2------
 msgid "The selected theme will apply to the entire application and be shown to all users."
 msgstr ""
+"Det valgte temaet vil gjelde for hele applikasjonen og vises for alle "
+"brukere."
 
 msgid "If you're using a browser that supports \"theme-color\", the theme's primary color will also be applied there."
 msgstr ""
+"Hvis du bruker en nettleser som støtter \"tema-farger\", vil temaets "
+"primærfarge også bli brukt der."
 
 msgid "Click on a theme to preview it before saving!"
-msgstr ""
+msgstr "Klikk på ett tema for å forhåndsvise det før du lagrer!"
 
 # ------End of Config_Theme.html.tt2------
 # ------Start of Edit.html.tt2------
 msgid "Editing %1 by %2"
-msgstr ""
+msgstr "Redigerer %1 av %2"
 
 msgid "Editing %1"
-msgstr ""
+msgstr "Redigerer %1"
 
 msgid "Current File Name:"
-msgstr ""
+msgstr "Nåværende Filnavn:"
 
+#, fuzzy
 msgid "ID:"
-msgstr ""
+msgstr "ID:"
 
 msgid "Title:"
-msgstr ""
+msgstr "Tittel:"
 
 msgid "Summary:"
-msgstr ""
+msgstr "Sammendrag:"
 
 msgid "Tags"
 msgstr ""
 
 msgid "(separated by hyphens, i.e : tag1, tag2)"
-msgstr ""
+msgstr "(separert med komma, f.eks: tagg1, tagg2)"
 
 msgid "Import Tags from Plugin :"
-msgstr ""
+msgstr "Importer Tagger fra Programtillegg :"
 
 msgid "Help"
 msgstr ""
 
 msgid "Go!"
-msgstr ""
+msgstr "Kjør!"
 
 msgid "Using a Plugin will save any modifications to archive metadata you might have made !"
 msgstr ""
+"Å bruke et programtillegg vil lagre eventuelle endringer du måtte ha gjort i "
+"arkivmetadata !"
 
 msgid "Save Metadata"
-msgstr ""
+msgstr "Lagre Metadata"
 
 msgid "Delete Archive"
 msgstr ""
@@ -652,83 +711,86 @@ msgstr ""
 # ------End of Edit.html.tt2------
 # ------Start of Index.html.tt2------
 msgid "Add Archives"
-msgstr ""
+msgstr "Legg til Arkiver"
 
 #, fuzzy
 msgid "Batch Operations"
 msgstr "Gjengangsoperasjoner"
 
 msgid "Settings"
-msgstr ""
+msgstr "Instillinger"
 
 msgid "Modify Categories"
-msgstr ""
+msgstr "Endre Kategorier"
 
 msgid "Statistics"
-msgstr ""
+msgstr "Statistikk"
 
 msgid "Logs"
-msgstr ""
+msgstr "Logger"
 
 msgid "Admin Login"
-msgstr ""
+msgstr "Admin-pålogging"
 
 msgid "Search Title, Artist, Series, Language or Tags"
-msgstr ""
+msgstr "Søk etter Tittel, Artist, Serie, Språk eller Tagger"
 
 msgid "Apply Filter"
-msgstr ""
+msgstr "Bruk Filter"
 
 msgid "Clear Filter"
-msgstr ""
+msgstr "Fjern Filter"
 
 msgid "Click to show archives from the current search with the specified filter"
 msgstr ""
+"Klikk for å vise arkiver fra det nåværende søket med det spesifiserte "
+"filteret"
 
 msgid "Refresh Selection"
-msgstr ""
+msgstr "Oppdater Valg"
 
 msgid "Carousel Options"
-msgstr ""
+msgstr "Karusellinnstillinger"
 
 msgid "No results here."
-msgstr ""
+msgstr "Ingen resultater her."
 
 msgid "Sort by:"
-msgstr ""
+msgstr "Sorter etter:"
 
 msgid "Title"
 msgstr ""
 
 msgid "Date"
-msgstr ""
+msgstr "Dato"
 
 msgid "Sort Order"
-msgstr ""
+msgstr "Sorter Rekkefølge"
 
 msgid "Crop thumbnails"
-msgstr ""
+msgstr "Beskjær miniatyrbilder"
 
 msgid "Go to Page:"
-msgstr ""
+msgstr "Gå til Side:"
 
 msgid "Columns:"
-msgstr ""
+msgstr "Kolonner:"
 
 msgid "Switch to Compact Mode"
-msgstr ""
+msgstr "Bytt til Kompaktmodus"
 
 msgid "Switch to Thumbnail Mode"
-msgstr ""
+msgstr "Bytt til Miniatyrbilde-modus"
 
 msgid "Title"
 msgstr ""
 
+#, fuzzy
 msgid "Artist"
-msgstr ""
+msgstr "Artist"
 
 msgid "Series"
-msgstr ""
+msgstr "Serier"
 
 msgid "Tags"
 msgstr ""
@@ -738,106 +800,118 @@ msgstr ""
 
 msgid "I don't know everything, but I sure as hell know this database's busted lads"
 msgstr ""
+"Jeg vet ikke alt, meg jeg er sikker som fjell på at denne databasen er "
+"ødelagt, folkens"
 
 msgid "The database cache is corrupt, and as such LANraragi is unable to display your archive list."
 msgstr ""
+"Database-cachen er ødelagt, og derfor kan ikke LANraragi vise arkivlisten "
+"din."
 
 msgid "Read"
-msgstr ""
+msgstr "Les"
 
 msgid "Download"
-msgstr ""
+msgstr "Last ned"
 
 msgid "Edit Metadata"
-msgstr ""
+msgstr "Rediger Metadata"
 
 msgid "Delete"
-msgstr ""
+msgstr "Slett"
 
 msgid "Add Rating"
-msgstr ""
+msgstr "Legg til Vurdering"
 
 msgid "Add to Category"
-msgstr ""
+msgstr "Legg til i Kategori"
 
 msgid "New Version Release Notes"
-msgstr ""
+msgstr "Nye versjonsutgivelsesnotater"
 
 msgid "You\'re using the default password and that\'s super baka of you"
-msgstr ""
+msgstr "Du bruker standardpassordet, og det er skikkelig baka av deg"
 
 msgid "Login with password \"kamimamita\" and change that shit on the double. ...Or just disable it! Why not check the configuration options afterwards, while you\'re at it?"
 msgstr ""
+"<a href=\"/login\">Logg inn</a> med passordet \"kamimamita\" og <a href="
+"\"/config\">endre den skitten</a> med en eneste gang.<br/>...Eller bare skru "
+"det av! <br/>Hvorfor ikke sjekke konfigurasjonsalternativene etterpå, mens "
+"du er i gang? "
 
 # ------End of Index.html.tt2------
 # ------Start of Login.html.tt2------
 msgid "This page requires you to log on."
-msgstr ""
+msgstr "Denne sider krever at du logger inn."
 
 msgid "Admin Password:"
-msgstr ""
+msgstr "Admin-passord:"
 
 msgid "Login"
-msgstr ""
+msgstr "Logg inn"
 
 msgid "Wrong Password."
-msgstr ""
+msgstr "Feil Passord."
 
 msgid "<a href='\${url}'>Login</a> to toggle bookmark feature."
-msgstr ""
+msgstr "<a href='${url}'>Logg inn</a> for å aktivere bokmerke-funksjonen."
 
 # ------End of Login.html.tt2------
 # ------Start of Logs.html.tt2------
 msgid "Application Logs"
-msgstr ""
+msgstr "Applikasjonslogger"
 
 msgid "You can check LANraragi logs here for debugging purposes."
-msgstr ""
+msgstr "De kan sjekke LANraragi-loggene her for feilsøking."
 
 msgid "By default, this view only shows the last 100 lines of each logfile, newest lines last."
 msgstr ""
+"Som standard viser denne visningen kun de siste 100 linjene i hver loggfil, "
+"med de nyeste linjene til slutt."
 
 msgid "General Logs pertain to the main application."
-msgstr ""
+msgstr "Generelle Logger gjelder hovedapplikasjonen."
 
+#, fuzzy
 msgid "Shinobu Logs correspond to the Background Worker."
-msgstr ""
+msgstr "Shinobu-loggeene sammenstemmer med Bakgrundsarbeideren."
 
 msgid "Plugin Logs are reserved for metadata plugins only."
-msgstr ""
+msgstr "Programtillegg-loggene er kun forbeholdt metadata programtillegg."
 
 msgid "Mojolicious logs won't tell much unless you're running Debug Mode."
-msgstr ""
+msgstr "Mojolicious-loggene sier ikke mye med mindre du er i Feilsøkingsmodus."
 
 msgid "Redis logs won't be available from here if you're running from source!"
-msgstr ""
+msgstr "Redis-loggene er ikke tilgjengelige her dersom du kjører fra kildekode!"
 
+#, fuzzy
 msgid "Currently Viewing:"
-msgstr ""
+msgstr "Viser nå: "
 
 msgid "general"
-msgstr ""
+msgstr "Generelt"
 
 msgid "Refresh"
-msgstr ""
+msgstr "Oppdater"
 
 msgid "Lines:"
-msgstr ""
+msgstr "Linjer: "
 
 msgid "View LANraragi Logs"
-msgstr ""
+msgstr "Se LANraragi-loggene"
 
 msgid "View Shinobu Logs"
-msgstr ""
+msgstr "Se Shinobu-loggene"
 
 msgid "View Plugin Logs"
-msgstr ""
+msgstr "Se Programtillegg-loggene"
 
 msgid "View Mojolicious Logs"
-msgstr ""
+msgstr "Se Mojolicious-loggene"
 
 msgid "View Redis Logs"
-msgstr ""
+msgstr "Se Redis-loggene"
 
 msgid "Return to Library"
 msgstr ""
@@ -849,80 +923,91 @@ msgstr "Programtilleggskonfigurasjon"
 
 msgid "Enable/Disable Auto-Plugin on metadata plugins by checking the toggles."
 msgstr ""
+"Aktiver/deaktiver Auto-Programtillegg på metadata-programvaretillegg ved å "
+"bruke bryterne."
 
 msgid "Plugins will be automatically used on new archives if they're toggled here."
 msgstr ""
+"Programtillegg vil automatisk bli brukt på nye arkiver om de er skrudd på "
+"her."
 
 msgid "If they have configuration variables, you can set them here as well."
-msgstr ""
+msgstr "Om de har konfigurasjonsvariabler kan du sette de her også."
 
 msgid "You can also trigger Scripts here. Triggering a script will save your Plugin settings beforehand."
 msgstr ""
+"Du kan også kjøre skript herfra. Når du kjører et skript, vil programtillegg-"
+"innstillingene dine lagres på forhånd."
 
 msgid "Login Plugins"
-msgstr ""
+msgstr "Programvaretillegg for Pålogging"
 
 msgid "Downloaders"
-msgstr ""
+msgstr "Nedlastere"
 
 msgid "Scripts"
-msgstr ""
+msgstr "Skripts"
 
 msgid "Metadata Plugins"
-msgstr ""
+msgstr "Programvaretillegg for Metadata"
 
 msgid "Allow Plugins to replace archive titles:"
-msgstr ""
+msgstr "Tillat Programtillegg å erstatte arkiv tittler:"
 
 msgid "If enabled, metadata plugins will be able to change the title of your archives alongside adding tags to them."
 msgstr ""
+"Hvis aktivert, vil programvaretillegg for metadata kunne endre tittelen på "
+"arkivene dine i tillegg til å legge til tagger."
 
 msgid "A script is running..."
-msgstr ""
+msgstr "Ett skript kjører..."
 
 msgid "Save Plugin Configuration"
-msgstr ""
+msgstr "Lagre Konfigurasjon for Programvaretillegg"
 
 msgid "Upload Plugin"
-msgstr ""
+msgstr "Opplastningsprogramvaretillegg"
 
 msgid "Return to Library"
 msgstr ""
 
 msgid "This plugin will trigger on URLs matching this regex!"
 msgstr ""
+"Dette programvaretillegget vil utløses på URL-er som samsvarer med dette "
+"regex-mønsteret!"
 
 msgid "This plugin depends on the login plugin"
 msgstr ""
+"Dette programvaretillegget er avhengig av påloggingsprogramvaretillegget"
 
 msgid "Trigger Script"
-msgstr ""
+msgstr "Kjør Skript"
 
 msgid "Run Automatically"
-msgstr ""
+msgstr "Kjør Automatisk"
 
 msgid "Plugin Settings"
-msgstr ""
+msgstr "Programvaretillegginstillinger"
 
 # ------End of Plugins.html.tt2------
 # ------Start of Reader.html.tt2------
 msgid "Done reading? Go back to Archive Index"
-msgstr ""
+msgstr "Ferdig med å lese? Gå tilbake til Arkivindeksen"
 
 msgid "View full-size image"
-msgstr ""
+msgstr "Se fullstørrelse bilde"
 
 msgid "Switch to another random archive"
-msgstr ""
+msgstr "Bytt til ett annet tilfeldig arkiv"
 
 msgid "Archive Overview"
 msgstr ""
 
 msgid "Admin Options"
-msgstr ""
+msgstr "Admin-instillinger"
 
 msgid "Set this Page as Thumbnail"
-msgstr ""
+msgstr "Set denne Siden som Miniatyrbilde"
 
 msgid "Set the currently opened page as the thumbnail for this archive."
 msgstr ""
@@ -1084,13 +1169,13 @@ msgid "Reader Settings"
 msgstr ""
 
 msgid "Help"
-msgstr ""
+msgstr "Hjelp"
 
 msgid "Reading Direction"
 msgstr ""
 
 msgid "Archive Overview"
-msgstr ""
+msgstr "Arkiv Oversikt"
 
 msgid "FullScreen"
 msgstr ""
@@ -1414,13 +1499,13 @@ msgid "Error getting carousel data!"
 msgstr ""
 
 msgid "Edit this column"
-msgstr ""
+msgstr "Rediger denne kolonnen"
 
 msgid "Title"
-msgstr ""
+msgstr "Tittel"
 
 msgid "Tags"
-msgstr ""
+msgstr "Tagger"
 
 msgid "Header"
 msgstr ""
