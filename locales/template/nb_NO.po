@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 18:10+0200\n"
-"PO-Revision-Date: 2025-05-14 20:02+0000\n"
+"PO-Revision-Date: 2025-05-15 22:12+0000\n"
 "Last-Translator: scentedtiger <something95@tutanota.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "lanraragi/lanraragi-source/nb_NO/>\n"
@@ -1139,37 +1139,41 @@ msgid "Header"
 msgstr ""
 
 msgid "Visible"
-msgstr ""
+msgstr "Synlig"
 
 msgid "Hidden"
-msgstr ""
+msgstr "Skjult"
 
 msgid "Show Archive Overlay by default"
-msgstr ""
+msgstr "Vis Arkivoverlegg som standard"
 
 msgid "This will show the overlay with thumbnails every time you open a new Reader page."
 msgstr ""
+"Dette vil vise ett overlegg med miniatyrbilder hver gang du åpner en ny "
+"Leser side."
 
 msgid "Enabled"
-msgstr ""
+msgstr "Aktivert"
 
 msgid "Disabled"
-msgstr ""
+msgstr "Deaktivert"
 
 msgid "Progression Tracking"
-msgstr ""
+msgstr "Progresjonssporing"
 
 msgid "Disabling tracking will restart reading from page one every time you reopen the reader."
 msgstr ""
+"Hvis sporing deaktiveres, vil lesingen starte fra side én hver gang du åpner "
+"leseren på nytt."
 
 msgid "Infinite Scrolling"
-msgstr ""
+msgstr "Uendelig rulling"
 
 msgid "Display all images in a vertical view in the same page."
-msgstr ""
+msgstr "Vis alle bilder i en vertikal visning på samme side."
 
 msgid "Reader Settings"
-msgstr ""
+msgstr "Leserinstillinger"
 
 msgid "Help"
 msgstr "Hjelp"
@@ -1181,39 +1185,41 @@ msgid "Archive Overview"
 msgstr "Arkiv Oversikt"
 
 msgid "FullScreen"
-msgstr ""
+msgstr "Fullskjerm"
 
 msgid "Toggle Bookmark"
-msgstr ""
+msgstr "Slå av/på bokmerke"
 
 # ------End of Reader.html.tt2------
 # ------Start of Stats.html.tt2------
 msgid "Library Statistics"
-msgstr ""
+msgstr "Bibliotekstatistikk"
 
 msgid "Archives on record"
-msgstr ""
+msgstr "Registrerte arkiver"
 
 msgid "Different tags existing"
-msgstr ""
+msgstr "Ulike eksisterende tagger"
 
 msgid "in content folder"
-msgstr ""
+msgstr "i innholdsmappen"
 
 msgid "pages read"
-msgstr ""
+msgstr "sider lest"
 
 msgid "Tag Cloud"
-msgstr ""
+msgstr "Tagg Sky"
 
 msgid "Asking the great powers that be for your tag statistics..."
-msgstr ""
+msgstr "Spør de hellige makter om taggstatistikken din..."
 
 msgid "Detailed Stats"
-msgstr ""
+msgstr "Detaljert statistikk"
 
 msgid "(These statistics only show tags that appear at least twice in your database.)"
 msgstr ""
+"(Disse statistikkene viser kun tagger som forekommer minst to ganger i "
+"databasen din.)"
 
 msgid "Return to Library"
 msgstr ""
@@ -1221,31 +1227,35 @@ msgstr ""
 # ------End of Stats.html.tt2------
 # ------Start of Upload.html.tt2------
 msgid "Upload Center"
-msgstr ""
+msgstr "Opplastingssenter"
 
 msgid "Adding Archives to the Library"
-msgstr ""
+msgstr "Legge til Arkiver i Biblioteket"
 
 msgid "Add files to your LANraragi instance from your computer, or the Internet directly."
 msgstr ""
+"Legg til filer i LANraragi-instansen din fra datamaskinen din, eller direkte "
+"fra Internett."
 
 msgid "Add uploaded files to category:"
-msgstr ""
+msgstr "Legg opplastede filer til i kategori:"
 
 msgid " -- No Category -- "
 msgstr " --Ingen Kategori-- "
 
 msgid "From your computer"
-msgstr ""
+msgstr "Fra din datamaskin"
 
 msgid "You can drag and drop files into this window, or click the upload button."
 msgstr ""
+"Du kan dra og slippe filer inn i dette vinduet, eller klikke på "
+"opplastingsknappen."
 
 msgid "Add from your computer"
-msgstr ""
+msgstr "Legg til fra datamaskinen din"
 
 msgid "From the Internet"
-msgstr ""
+msgstr "Fra Internett"
 
 msgid "You can download files from remote URLs directly into LANraragi from here."
 msgstr ""
@@ -1511,7 +1521,7 @@ msgid "Tags"
 msgstr "Tagger"
 
 msgid "Header"
-msgstr ""
+msgstr "Topptekst"
 
 msgid "A new version of LANraragi (\${version}) is available!"
 msgstr ""
