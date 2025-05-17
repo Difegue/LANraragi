@@ -4,7 +4,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 03:27+0200\n"
 "PO-Revision-Date: 2025-05-17 10:17+0000\n"
-"Last-Translator: SgtWalking <jacob.hesse99@gmail.com>\n"
+"Last-Translator: M I <neq6sgn@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/de/>\n"
 "Language: de\n"
@@ -179,7 +179,7 @@ msgstr ""
 "Auswahlkriterium und werden automatisch erweitert."
 
 msgid "You can create new categories here or edit existing ones."
-msgstr ""
+msgstr "Hier können neue Kategorien erstellt oder Bestehende verändert werden."
 
 msgid "Select a category in the combobox below to edit its name, the archives it contains, or its predicate."
 msgstr ""
@@ -199,7 +199,7 @@ msgid "Predicate:"
 msgstr "Auswahlkriterium:"
 
 msgid "Pin this Category"
-msgstr ""
+msgstr "Verankere diese Kategorie"
 
 msgid "Delete Category"
 msgstr "Lösche diese Kategorie"
@@ -269,10 +269,10 @@ msgid "Archive Files"
 msgstr "Archiv Dateien"
 
 msgid "Tags and Thumbnails"
-msgstr ""
+msgstr "Genres und Miniaturbilder"
 
 msgid "Background Workers"
-msgstr ""
+msgstr "Hintergrund Arbeiter"
 
 # ------End of Config.html.tt2------
 # ------Start of Config_Files.html.tt2------
