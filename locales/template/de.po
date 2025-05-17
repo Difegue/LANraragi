@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 03:27+0200\n"
-"PO-Revision-Date: 2025-05-12 00:55+0000\n"
-"Last-Translator: \"\\\\xKirby\" <svenw1612@gmail.com>\n"
+"PO-Revision-Date: 2025-05-17 10:12+0000\n"
+"Last-Translator: SgtWalking <jacob.hesse99@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/de/>\n"
 "Language: de\n"
@@ -76,25 +76,29 @@ msgid "Remove New Flag"
 msgstr "Entferne \"Neu\" Vermerk"
 
 msgid "Apply Tag Rules"
-msgstr "Wende Gerne-Regeln an"
+msgstr "Wende Genre-Regeln an"
 
 msgid "Add To Category"
-msgstr "Zu Kategorie Hizufügen"
+msgstr "Zu Kategorie hinzufügen"
 
 msgid "Delete Archive"
 msgstr ""
 
 msgid "Use plugin :"
-msgstr "Nutze Erweiterungen:"
+msgstr "Nutze Erweiterung :"
 
 msgid "Timeout (max 20s):"
 msgstr "Zeitüberschreitung (max 20s):"
 
 msgid "This plugin recommends a cooldown of <span id=\"cooldown\">-1</span> seconds."
 msgstr ""
+"Diese Erweiterung empfiehlt eine Pause von <span id=\"cooldown\">-1</span> "
+"Sekunden."
 
 msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
 msgstr ""
+"Einige externe Services können deine IP für exzessive Belastungen bannen, "
+"wenn du eine Erweiterung zu häufig ausführst!"
 
 msgid "Make sure to set a suitable <b>timeout</b> between archives using this picker if the plugin you want to use is concerned."
 msgstr ""
@@ -102,11 +106,12 @@ msgstr ""
 "dieses Problem die gewählte Erweiterung betrifft."
 
 msgid "Override Plugin Global Arguments"
-msgstr "Überschreibe allgemeine Erweiterungsargumente"
+msgstr "Überschreibe Globale Erweiterungsargumente"
 
 msgid "This will apply the following Tag Rules to the selected Archives."
 msgstr ""
-"Dies wird die folgenden Genre-Regeln auf die ausgewählten Archive anwenden."
+"Diese Aktion wendet die folgenden Genre-Regeln auf die ausgewählten Archive "
+"an."
 
 msgid "You can edit your Tag Rules in Server Configuration."
 msgstr "Du kannst die Genre-Regeln in den Servereinstellungen ändern."
@@ -115,13 +120,16 @@ msgid "Server Configuration"
 msgstr "Servereinstellungen"
 
 msgid "This removes the \"new\" flag from the selected archives."
-msgstr "Dies wird den Vermerk \"neu\" von den ausgewählten Archiven entfernen."
+msgstr ""
+"Diese Aktion entfernt den Vermerk \"neu\" von den ausgewählten Archiven."
 
 msgid "Add to Category :"
-msgstr "Füge zu einer Kategorie hinzu:"
+msgstr "Füge zu einer Kategorie hinzu :"
 
 msgid "This will delete both metadata and matching files from your system! Please use with caution."
 msgstr ""
+"Achtung! Diese Aktion löscht Metadaten und die dazugehörigen Dateien von "
+"deinem System."
 
 msgid "Check/Uncheck all"
 msgstr ""
