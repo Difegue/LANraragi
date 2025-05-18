@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 03:27+0200\n"
-"PO-Revision-Date: 2025-05-18 11:02+0000\n"
+"PO-Revision-Date: 2025-05-19 16:03+0000\n"
 "Last-Translator: SgtWalking <jacob.hesse99@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/de/>\n"
@@ -503,7 +503,7 @@ msgstr "CORS für die Client API aktivieren"
 msgid "Have API requests support Cross-Origin Resource Sharing, which allows web browsers to access it off other domains."
 msgstr ""
 "API-Anfragen können Cross-Origin Resource Sharing nutzen, um die Client API "
-"von anderen Domänen zu erreichen."
+"auf anderen Domänen zu erreichen."
 
 msgid "Turn this on if you want to access this service through a web-based wrapper (e.g. a userscript) used/hosted on another domain."
 msgstr ""
@@ -565,125 +565,151 @@ msgstr ""
 "Schreibe-Rechte für diesen Ordner hat."
 
 msgid "Use high-quality thumbnails for pages"
-msgstr ""
+msgstr "Hochqualitative Thumbnails nutzen"
 
 msgid "LANraragi generates lower-quality thumbnails for archive pages for performance reasons."
 msgstr ""
+"LANraragi generiert Thumbnails mit niedrigerer Qualität für Archivseiten, um "
+"bessere Leistung zu gewährleisten."
 
 msgid "If this option is checked, it will instead generate page thumbnails at the same quality as cover thumbnails."
 msgstr ""
+"Wenn diese Option aktiviert ist, werden stattdessen Thumbnails in der "
+"gleichen Qualität wie Titelbild-Thumbnails generiert."
 
 msgid "Use JPEG XL for thumbnails"
-msgstr ""
+msgstr "JPEG XL für Thumbnails nutzen"
 
 msgid "LANraragi generates JPEG thumbnails for compatibility and performance reasons."
 msgstr ""
+"LANraragi generiert JPEG Thumbnails aus Kompatibilitäts- und "
+"Leistungsgründen."
 
 msgid "If this option is checked, it will instead generate thumbnails using JPEG XL."
 msgstr ""
+"Wenn diese Option aktiviert ist, werden stattdessen Thumbnails als JPEG XL "
+"generiert."
 
 msgid "Generate Missing Thumbnails"
-msgstr ""
+msgstr "Fehlende Thumbnails generieren"
 
 msgid "Generate Thumbnails for all archives that don't have one yet."
-msgstr ""
+msgstr "Generiere Thumbnails für alle Archive, welche noch keines haben."
 
 msgid "Regenerate all Thumbnails"
-msgstr ""
+msgstr "Alle Thumbnails regenerieren"
 
 msgid "Regenerate all thumbnails. This might take a while!"
-msgstr ""
+msgstr "Regeneriert alle Thumbnails. Dies kann eine Weile dauern!"
 
 msgid "Add Timestamp Tag"
-msgstr ""
+msgstr "Erstellungszeit-Tag hinzufügen"
 
 msgid "If enabled, LANraragi will add the UNIX timestamp of the current time as a tag under the \"date_added\" namespace to newly added archives."
 msgstr ""
+"Wenn diese Option aktiviert ist, fügt LANraragi neu hinzugefügten Archiven "
+"den UNIX Zeitstempel der aktuellen Zeit als Tag unter dem \"date_added\"-"
+"Namespace zu."
 
 msgid "Use \"Last modified\" Time"
-msgstr ""
+msgstr "\"Zuletzt bearbeitet\"-Zeit nutzen"
 
 msgid "Enabling this will use file modified time instead of current time when setting \"date_added\" timestamps."
 msgstr ""
+"Durch diese Option wird statt der aktuellen Zeit die Zeit der letzten "
+"Dateibearbeitung für \"date_added\" verwendet."
 
 msgid "Tag Rules"
-msgstr ""
+msgstr "Tag-Regeln"
 
 msgid "When tagging archives using Plugins, the rules specified here will be applied to the tags before saving them to the database."
 msgstr ""
+"Beim Taggen von Archiven durch Plugins werden die hier angegebenen Regeln "
+"angewandt, bevor die Tags in die Datenbank eingespeichert werden."
 
 msgid "Split rules with linebreaks."
-msgstr ""
+msgstr "Tag-Regeln müssen mit Zeilenumbrüchen separiert sein."
 
 msgid "<b>-tag | tag</b> : removes the tag (like a blacklist)"
-msgstr ""
+msgstr "<b>-tag | tag</b> : entfernt den Tag (wie eine Blacklist)"
 
 msgid "<b>-namespace:*</b> : removes all tags within this namespace"
-msgstr ""
+msgstr "<b>-namespace:*</b> : entfernt alle Tags in diesem Namespace"
 
 msgid "namespace : strips the namespace from the tags"
-msgstr ""
+msgstr "<b>~namespace</b> : entfernt diesen Namespace von den Tags"
 
 msgid "<b>tag -> new-tag</b> : replaces one tag"
-msgstr ""
+msgstr "<b>tag -> new-tag</b>: ersetzt einen Tag"
 
 msgid "<b>tag => new-tag</b> : replaces one tag, but use a hash table internally for faster performance. These rules will be executed <i>once</i> after all other rules."
 msgstr ""
+"<b>tag => new-tag</b> : ersetzt einen Tag, aber nutzt intern eine Hash-"
+"Tabelle für schnellere Ausführung. Diese Tag-Regeln werden <i>ein mal</i> "
+"nach allen anderen Regeln angewandt."
 
 msgid "<b>namespace:* -> new-namespace:*</b> : replaces the namespace with the new one"
 msgstr ""
+"<b>namespace:* -> new-namespace:*</b> : ersetzt den angegeben Namespace mit "
+"dem neuen"
 
 # ------End of Config_Tags.html.tt2------
 # ------Start of Config_Theme.html.tt2------
 msgid "The selected theme will apply to the entire application and be shown to all users."
 msgstr ""
+"Das ausgewählte Farbschema wird auf die gesamte Applikation angewandt und "
+"allen Nutzern angezeigt."
 
 msgid "If you're using a browser that supports \"theme-color\", the theme's primary color will also be applied there."
 msgstr ""
+"Wenn dein Browser \"theme-color\" unterstützt, wird die Primärfarbe des "
+"gewählten Farbschemas auch dort angewandt."
 
 msgid "Click on a theme to preview it before saving!"
-msgstr ""
+msgstr "Klicke auf ein Farbschema, um es vorm Speichern zur Vorschau anzusehen!"
 
 # ------End of Config_Theme.html.tt2------
 # ------Start of Edit.html.tt2------
 msgid "Editing %1 by %2"
-msgstr ""
+msgstr "Bearbeitung von %1 durch %2"
 
 msgid "Editing %1"
-msgstr ""
+msgstr "Bearbeitung von %1"
 
 msgid "Current File Name:"
-msgstr ""
+msgstr "Aktueller Dateiname:"
 
 msgid "ID:"
-msgstr ""
+msgstr "ID:"
 
 msgid "Title:"
-msgstr ""
+msgstr "Titel:"
 
 msgid "Summary:"
-msgstr ""
+msgstr "Zusammenfassung:"
 
 msgid "Tags"
 msgstr ""
 
 msgid "(separated by hyphens, i.e : tag1, tag2)"
-msgstr ""
+msgstr "(durch Kommas getrennt, z.B. tag1, tag2)"
 
 msgid "Import Tags from Plugin :"
-msgstr ""
+msgstr "Tags von diesem Plugin importieren :"
 
 msgid "Help"
 msgstr ""
 
 msgid "Go!"
-msgstr ""
+msgstr "Los!"
 
 msgid "Using a Plugin will save any modifications to archive metadata you might have made !"
 msgstr ""
+"Durch das Nutzen eines Plugins werden manuelle Änderungen an Archivmetadaten "
+"gespeichert!"
 
 msgid "Save Metadata"
-msgstr ""
+msgstr "Metadaten speichern"
 
 msgid "Delete Archive"
 msgstr ""
@@ -694,82 +720,84 @@ msgstr ""
 # ------End of Edit.html.tt2------
 # ------Start of Index.html.tt2------
 msgid "Add Archives"
-msgstr ""
+msgstr "Archive hinzufügen"
 
 msgid "Batch Operations"
 msgstr "Stapeloperationen"
 
 msgid "Settings"
-msgstr ""
+msgstr "Einstellungen"
 
 msgid "Modify Categories"
-msgstr ""
+msgstr "Kategorien bearbeiten"
 
 msgid "Statistics"
-msgstr ""
+msgstr "Statistiken"
 
 msgid "Logs"
-msgstr ""
+msgstr "Logs"
 
 msgid "Admin Login"
-msgstr ""
+msgstr "Admin-Login"
 
 msgid "Search Title, Artist, Series, Language or Tags"
-msgstr ""
+msgstr "Nach Titel, Künstler, Serie, Sprache oder Tags suchen"
 
 msgid "Apply Filter"
-msgstr ""
+msgstr "Filter anwenden"
 
 msgid "Clear Filter"
-msgstr ""
+msgstr "Filter löschen"
 
 msgid "Click to show archives from the current search with the specified filter"
 msgstr ""
+"Drücke diesen Button, um Archive aus der Suche mit den angegebenen Filtern "
+"anzuzeigen"
 
 msgid "Refresh Selection"
-msgstr ""
+msgstr "Auswahl aktualisieren"
 
 msgid "Carousel Options"
-msgstr ""
+msgstr "Karusselloptionen"
 
 msgid "No results here."
-msgstr ""
+msgstr "Keine Ergebnisse."
 
 msgid "Sort by:"
-msgstr ""
+msgstr "Sortieren nach:"
 
 msgid "Title"
 msgstr ""
 
 msgid "Date"
-msgstr ""
+msgstr "Datum"
 
 msgid "Sort Order"
-msgstr ""
+msgstr "Sortierreihenfolge"
 
 msgid "Crop thumbnails"
-msgstr ""
+msgstr "Thumbnails zuschneiden"
 
 msgid "Go to Page:"
-msgstr ""
+msgstr "Zu dieser Seite springen:"
 
 msgid "Columns:"
-msgstr ""
+msgstr "Spalten:"
 
 msgid "Switch to Compact Mode"
-msgstr ""
+msgstr "In den Kompaktmodus wechseln"
 
 msgid "Switch to Thumbnail Mode"
-msgstr ""
+msgstr "In den Thumbnail-Modus wechseln"
 
 msgid "Title"
 msgstr ""
 
 msgid "Artist"
-msgstr ""
+msgstr "Künstler"
 
 msgid "Series"
-msgstr ""
+msgstr "Serie"
 
 msgid "Tags"
 msgstr ""
@@ -779,106 +807,119 @@ msgstr ""
 
 msgid "I don't know everything, but I sure as hell know this database's busted lads"
 msgstr ""
+"Ich weiß nicht alles, aber ich weiß auf jeden Fall, dass diese Datenbank "
+"komplett gefickt ist, Jungs"
 
 msgid "The database cache is corrupt, and as such LANraragi is unable to display your archive list."
 msgstr ""
+"Der Datenbank-Cache ist beschädigt, wodurch LANraragi die Archivliste nicht "
+"anzeigen kann."
 
 msgid "Read"
-msgstr ""
+msgstr "Lesen"
 
 msgid "Download"
-msgstr ""
+msgstr "Herunterladen"
 
 msgid "Edit Metadata"
-msgstr ""
+msgstr "Metadaten bearbeiten"
 
 msgid "Delete"
-msgstr ""
+msgstr "Löschen"
 
 msgid "Add Rating"
-msgstr ""
+msgstr "Bewertung hinzufügen"
 
 msgid "Add to Category"
-msgstr ""
+msgstr "Zu einer Kategorie hinzufügen"
 
 msgid "New Version Release Notes"
-msgstr ""
+msgstr "Neue Versionshinweise"
 
 msgid "You\'re using the default password and that\'s super baka of you"
-msgstr ""
+msgstr "Du nutzt das Standardpasswort, was super baka von dir ist"
 
 msgid "Login with password \"kamimamita\" and change that shit on the double. ...Or just disable it! Why not check the configuration options afterwards, while you\'re at it?"
 msgstr ""
+"<a href=\"/login\">Login</a> mit dem Passwort \"kamimamita\" und <a href="
+"\"/config\">ändere den Scheiß</a> dalli dalli.<br/>...Oder deaktiviere es "
+"einfach!<br/>Warum schaust du dir nicht die Einstellungsoptionen an, wenn du "
+"schon dabei bist? "
 
 # ------End of Index.html.tt2------
 # ------Start of Login.html.tt2------
 msgid "This page requires you to log on."
-msgstr ""
+msgstr "Diese Seite erfordert, dass du angemeldet bist."
 
 msgid "Admin Password:"
-msgstr ""
+msgstr "Admin-Passwort:"
 
 msgid "Login"
-msgstr ""
+msgstr "Login"
 
 msgid "Wrong Password."
-msgstr ""
+msgstr "Falsches Passwort."
 
 msgid "<a href='\${url}'>Login</a> to toggle bookmark feature."
 msgstr ""
+"<a href='${url}'>Melde dich an</a>, um die Nutzung von Lesezeichen zu ändern."
 
 # ------End of Login.html.tt2------
 # ------Start of Logs.html.tt2------
 msgid "Application Logs"
-msgstr ""
+msgstr "Anwendungs-Logs"
 
 msgid "You can check LANraragi logs here for debugging purposes."
-msgstr ""
+msgstr "Hier kannst du Logs von LANraragi zum Debuggen ansehen."
 
 msgid "By default, this view only shows the last 100 lines of each logfile, newest lines last."
 msgstr ""
+"Standardmäßig werden nur die letzten 100 Zeilen der Log-Datei angezeigt. "
+"Neueste Zeilen zuerst."
 
 msgid "General Logs pertain to the main application."
-msgstr ""
+msgstr "Generelle Logs beziehen sich auf die Hauptanwendung."
 
 msgid "Shinobu Logs correspond to the Background Worker."
-msgstr ""
+msgstr "Shinobu-Logs beziehen sich auf den Hintergrundarbeiter."
 
 msgid "Plugin Logs are reserved for metadata plugins only."
-msgstr ""
+msgstr "Plugin-Logs beziehen sich nur auf Metadaten Plugins."
 
 msgid "Mojolicious logs won't tell much unless you're running Debug Mode."
 msgstr ""
+"Mojolicious-Logs sagen nicht viel aus, wenn der Debug-Modus nicht aktiviert "
+"ist."
 
 msgid "Redis logs won't be available from here if you're running from source!"
 msgstr ""
 
 msgid "Currently Viewing:"
-msgstr ""
+msgstr "Aktuelle Ansicht: "
 
 msgid "general"
-msgstr ""
+msgstr "allgemein"
 
 msgid "Refresh"
-msgstr ""
+msgstr "Aktualisieren"
 
 msgid "Lines:"
-msgstr ""
+msgstr "Zeilen: "
 
 msgid "View LANraragi Logs"
-msgstr ""
+msgstr "LANraragi-Logs ansehen"
 
 msgid "View Shinobu Logs"
-msgstr ""
+msgstr "Shinobu-Logs ansehen"
 
 msgid "View Plugin Logs"
-msgstr ""
+msgstr "Plugin-Logs ansehen"
 
 msgid "View Mojolicious Logs"
-msgstr ""
+msgstr "Mojolicious-Logs ansehen"
 
 msgid "View Redis Logs"
-msgstr ""
+msgstr "Redis-Logs ansehen"
 
 msgid "Return to Library"
 msgstr ""
@@ -1119,7 +1160,7 @@ msgid "Reader Settings"
 msgstr ""
 
 msgid "Help"
-msgstr ""
+msgstr "Hilfe"
 
 msgid "Reading Direction"
 msgstr ""
@@ -1449,13 +1490,13 @@ msgid "Error getting carousel data!"
 msgstr ""
 
 msgid "Edit this column"
-msgstr ""
+msgstr "Diese Spalte bearbeiten"
 
 msgid "Title"
-msgstr ""
+msgstr "Titel"
 
 msgid "Tags"
-msgstr ""
+msgstr "Tags"
 
 msgid "Header"
 msgstr ""
