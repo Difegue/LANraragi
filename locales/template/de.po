@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 03:27+0200\n"
-"PO-Revision-Date: 2025-05-12 00:55+0000\n"
-"Last-Translator: \"\\\\xKirby\" <svenw1612@gmail.com>\n"
+"PO-Revision-Date: 2025-05-18 11:02+0000\n"
+"Last-Translator: SgtWalking <jacob.hesse99@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/de/>\n"
 "Language: de\n"
@@ -76,25 +76,29 @@ msgid "Remove New Flag"
 msgstr "Entferne \"Neu\" Vermerk"
 
 msgid "Apply Tag Rules"
-msgstr "Wende Gerne-Regeln an"
+msgstr "Wende Genre-Regeln an"
 
 msgid "Add To Category"
-msgstr "Zu Kategorie Hizufügen"
+msgstr "Zu Kategorie hinzufügen"
 
 msgid "Delete Archive"
 msgstr ""
 
 msgid "Use plugin :"
-msgstr "Nutze Erweiterungen:"
+msgstr "Nutze Erweiterung :"
 
 msgid "Timeout (max 20s):"
 msgstr "Zeitüberschreitung (max 20s):"
 
 msgid "This plugin recommends a cooldown of <span id=\"cooldown\">-1</span> seconds."
 msgstr ""
+"Diese Erweiterung empfiehlt eine Pause von <span id=\"cooldown\">-1</span> "
+"Sekunden."
 
 msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
 msgstr ""
+"Einige externe Services können deine IP für exzessive Belastungen bannen, "
+"wenn du eine Erweiterung zu häufig ausführst!"
 
 msgid "Make sure to set a suitable <b>timeout</b> between archives using this picker if the plugin you want to use is concerned."
 msgstr ""
@@ -102,11 +106,12 @@ msgstr ""
 "dieses Problem die gewählte Erweiterung betrifft."
 
 msgid "Override Plugin Global Arguments"
-msgstr "Überschreibe allgemeine Erweiterungsargumente"
+msgstr "Überschreibe Globale Erweiterungsargumente"
 
 msgid "This will apply the following Tag Rules to the selected Archives."
 msgstr ""
-"Dies wird die folgenden Genre-Regeln auf die ausgewählten Archive anwenden."
+"Diese Aktion wendet die folgenden Genre-Regeln auf die ausgewählten Archive "
+"an."
 
 msgid "You can edit your Tag Rules in Server Configuration."
 msgstr "Du kannst die Genre-Regeln in den Servereinstellungen ändern."
@@ -115,16 +120,19 @@ msgid "Server Configuration"
 msgstr "Servereinstellungen"
 
 msgid "This removes the \"new\" flag from the selected archives."
-msgstr "Dies wird den Vermerk \"neu\" von den ausgewählten Archiven entfernen."
+msgstr ""
+"Diese Aktion entfernt den Vermerk \"neu\" von den ausgewählten Archiven."
 
 msgid "Add to Category :"
-msgstr "Füge zu einer Kategorie hinzu:"
+msgstr "Füge zu einer Kategorie hinzu :"
 
 msgid "This will delete both metadata and matching files from your system! Please use with caution."
 msgstr ""
+"Achtung! Diese Aktion löscht Metadaten und die dazugehörigen Dateien von "
+"deinem System."
 
 msgid "Check/Uncheck all"
-msgstr ""
+msgstr "Alles aus-/abwählen"
 
 msgid "Start Task"
 msgstr "Starte Aufgabe"
@@ -136,11 +144,10 @@ msgid "Start another job"
 msgstr "Starte eine andere Aufgabe"
 
 msgid "Processed <span id=\"arcs\"></span> out of <span id=\"totalarcs\"></span>"
-msgstr ""
-"<span id=\"arcs\"></span> von <span id=\"totalarcs\"></span> bearbeitet."
+msgstr "<span id=\"arcs\"></span> von <span id=\"totalarcs\"></span> bearbeitet"
 
 msgid "Preparing your data."
-msgstr ""
+msgstr "Daten werden vorbereitet."
 
 msgid "Plugin Configuration"
 msgstr ""
@@ -172,12 +179,12 @@ msgstr ""
 "Auswahlkriterium und werden automatisch erweitert."
 
 msgid "You can create new categories here or edit existing ones."
-msgstr ""
+msgstr "Hier können neue Kategorien erstellt oder Bestehende verändert werden."
 
 msgid "Select a category in the combobox below to edit its name, the archives it contains, or its predicate."
 msgstr ""
 "Wähle eine Kategorie in der Kombobox unten aus, um ihren Namen, die "
-"zugehörigen Archive und ihre Auswahlkriterium zu verändern."
+"zugehörigen Archive und ihre Auswahlkriterien zu verändern."
 
 msgid "All your modifications are saved automatically."
 msgstr "Alle deine Veränderungen werden automatisch gesichert."
@@ -192,14 +199,14 @@ msgid "Predicate:"
 msgstr "Auswahlkriterium:"
 
 msgid "Pin this Category"
-msgstr ""
+msgstr "Verankere diese Kategorie"
 
 msgid "Delete Category"
 msgstr "Lösche diese Kategorie"
 
 msgid "If you select a Static Category, your archives will appear here so you can add/remove them from the category."
 msgstr ""
-"Wenn eine statische Kategorie ausgewählt wird erscheinen die Archive hier "
+"Wenn eine statische Kategorie ausgewählt wird, erscheinen die Archive hier "
 "und du kannst sie entfernen oder andere hinzufügen."
 
 msgid "Return to Library"
@@ -262,10 +269,10 @@ msgid "Archive Files"
 msgstr "Archiv Dateien"
 
 msgid "Tags and Thumbnails"
-msgstr ""
+msgstr "Genres und Miniaturbilder"
 
 msgid "Background Workers"
-msgstr ""
+msgstr "Hintergrundarbeiter"
 
 # ------End of Config.html.tt2------
 # ------Start of Config_Files.html.tt2------
@@ -274,15 +281,21 @@ msgstr "Archivverzeichnis"
 
 msgid "Directory where the archives will be located. It will be created if it doesn't exist."
 msgstr ""
+"Name des Ordners, in dem sich die Archive befinden. Dieser wird erstellt, "
+"wenn er nicht existiert."
 
 msgid "Make sure the OS user running LANraragi has read access to this directory."
 msgstr ""
+"Stelle sicher, dass der OS-Benutzer, welcher LANraragi ausführt, Lese-Rechte "
+"für diesen Ordner hat."
 
 msgid "Synology eCryptFS Compatibility Mode"
-msgstr ""
+msgstr "Synology eCryptFS Kompatibilitätsmodus"
 
 msgid "If enabled, LANraragi will cutoff archive filenames to 143 bytes, which is the max accepted by eCryptFS."
 msgstr ""
+"Wenn diese Option aktiviert ist, kürzt LANraragi Archivnamen auf 143 Bytes "
+"ab. Dies ist die maximal von eCryptFS akzeptierte Länge."
 
 msgid "Rescan Archive Directory"
 msgstr ""
@@ -291,102 +304,127 @@ msgid "Click this button to trigger a rescan of the Archive Directory in case yo
 msgstr ""
 
 msgid "Maximum <br>Cache Size"
-msgstr ""
+msgstr "Maximale <br>Speichergröße"
 
 msgid "In MBs. The cache contains recently viewed pages, for faster subsequent reading."
 msgstr ""
+"In MBs. Der Speicher enthält zuletzt angesehen Seiten, damit erneutes Lesen "
+"schneller erfolgt."
 
 msgid "It is automatically emptied when it grows past this specified size."
 msgstr ""
+"Er wird automatisch gelöscht, wenn die angegebene Größe überschritten wird."
 
 msgid "Clear Cache"
-msgstr ""
+msgstr "Speicher leeren"
 
 msgid "Current Size:"
-msgstr ""
+msgstr "Aktuelle Größe:"
 
 msgid "Clear the cache manually by clicking this button."
-msgstr ""
+msgstr "Drücke diesen Button, um den Speicher manuell zu leeren."
 
 msgid "Reset Search Cache"
-msgstr ""
+msgstr "Suchspeicher zurücksetzen"
 
 msgid "The last searches done in the archive index are cached for faster loads."
 msgstr ""
+"Die letzten im Archivindex durchgeführten Suchanfragen werden für "
+"schnelleres Laden gespeichert."
 
 msgid "If something went wrong with said cache, you can reset it by clicking this button."
 msgstr ""
+"Sollte ein Fehler mit diesem Speicher aufgetreten sein, kannst du ihn mit "
+"diesem Button manuell zurücksetzen."
 
 msgid "Clear NEW flags"
-msgstr ""
+msgstr "NEU-Markierungen entfernen"
 
 msgid "Newly uploaded archives are marked as \"new\" in the index until you\'ve opened them."
 msgstr ""
+"Neu hochgeladene Archive werden im Archivindex mit einer \"neu\"-Markierung "
+"versehen, bis sie das erste Mal geöffnet wurden."
 
 msgid "If you want to clear those flags, click this button."
-msgstr ""
+msgstr "Drücke diesen Button, um diese Markierungen zu entfernen."
 
 msgid "Replace duplicated archives"
-msgstr ""
+msgstr "Archivduplikate ersetzen"
 
 msgid "If enabled, LANraragi will overwrite old archives when a newer one (with the same name) is uploaded through the Web Uploader or the Download System."
 msgstr ""
 
 msgid "This will delete metadata for old files when they're replaced! Use with caution."
 msgstr ""
+"Achtung! Diese Aktion löscht Metadaten der alten Archive, wenn diese "
+"überschrieben werden."
 
 # ------End of Config_Files.html.tt2------
 # ------Start of Config_Global.html.tt2------
 msgid "Site Title"
-msgstr ""
+msgstr "Seitentitel"
 
 msgid "The site title appears on most pages as...their title."
-msgstr ""
+msgstr "Der Seitentitel erscheint auf den meisten Seiten als... Titel."
 
 msgid "MOTD"
-msgstr ""
+msgstr "MOTD"
 
 msgid "Slang for Message of the Day. Appears on top of the main Library view."
 msgstr ""
+"Umgangssprache für \"Message of the Day\". Erscheint oben in der Haupt-"
+"Bibliothek-Ansicht."
 
 msgid "Archives per page"
-msgstr ""
+msgstr "Archivanzahl pro Seite"
 
 msgid "Number of archives shown on a page in the main list."
 msgstr ""
+"Anzahl der Archive, die auf einer Seite in der Hauptliste angezeigt werden."
 
 msgid "Resize Images in Reader"
-msgstr ""
+msgstr "Bilder im Reader skalieren"
 
 msgid "If enabled, pages exceeding a certain size will be resized when viewed to save bandwidth."
 msgstr ""
+"Wenn diese Option aktiviert ist, werden Seiten, die eine bestimmte Größe "
+"überschreiten, herunter skaliert, um weniger Bandbreite zu nutzen."
 
 msgid "This option can potentially consume a lot of RAM if enabled and used on large images! Use with caution."
 msgstr ""
+"Achtung! Diese Option kann bei großen Bildern potentiell viel RAM in "
+"Anspruch nehmen."
 
 msgid "Image Size Threshold"
-msgstr ""
+msgstr "Maximale Bildgröße"
 
 msgid "(in KBs.) Maximum size an image can reach before being resized."
 msgstr ""
+"(in KBs.) Maximale Dateigröße, die ein Bild haben kann, bevor es skaliert "
+"wird."
 
 msgid "Resize Quality"
-msgstr ""
+msgstr "Skalierungsqualität"
 
 msgid "Quality of the resized images. Less quality = Smaller image. (0-100)"
 msgstr ""
+"Qualität der skalierten Bilder. Weniger Qualität = Kleinere Bilder. (0-100)"
 
 msgid "Clientside Progress Tracking"
-msgstr ""
+msgstr "Clientseitige Fortschrittsverfolgung"
 
 msgid "Enabling this option will save reading progression on the browser (through localStorage) instead of the server."
 msgstr ""
+"Wenn diese Option aktiviert ist, wird der Lesefortschritt im Browser (durch "
+"localStorage) gespeichert statt auf dem Server."
 
 msgid "Consider toggling this option if you're sharing the LANraragi instance with multiple users!"
 msgstr ""
+"Ziehe diese Option in Erwägung, wenn du die LANraragi-Instanz mit mehreren "
+"Nutzern teilst!"
 
 msgid "Debug Mode"
-msgstr ""
+msgstr "Debug-Modus"
 
 msgid "Enabling Debug Mode will show more logs and disable update nagging."
 msgstr ""
@@ -395,112 +433,136 @@ msgid "Fully effective after restarting LANraragi."
 msgstr ""
 
 msgid "Clean Database"
-msgstr ""
+msgstr "Datenbank bereinigen"
 
 msgid "Cleaning the database will remove entries that aren't on your filesystem."
 msgstr ""
+"Diese Aktion löscht Einträge, die sich nicht in deinem Dateisystem befinden."
 
 msgid "Reset Database"
-msgstr ""
+msgstr "Datenbank zurücksetzen"
 
 msgid "Danger zone!"
-msgstr ""
+msgstr "Gefahrenzone!"
 
 msgid "Clicking this button will reset the entire database and delete all settings and metadata."
 msgstr ""
+"Wenn du diesen Button drückst, wird die gesamte Datenbank zurückgesetzt und "
+"alle Einstellungen und Metadaten gelöscht."
 
 # ------End of Config_Global.html.tt2------
 # ------Start of Config_Security.html.tt2------
 msgid "Enable Password"
-msgstr ""
+msgstr "Passwort nutzen"
 
 msgid "If enabled, everything that isn't reading will require a password."
 msgstr ""
+"Wenn diese Option aktiviert ist, wird für alle Aktionen außer dem Lesen ein "
+"Passwort benötigt."
 
 msgid "New Password"
-msgstr ""
+msgstr "Neues Passwort"
 
 msgid "New Password Confirmation"
-msgstr ""
+msgstr "Neues Passwort bestätigen"
 
 msgid "Only edit these fields if you want to change your password."
-msgstr ""
+msgstr "Bearbeite diese Textfelder nur, wenn du dein Passwort ändern möchtest."
 
 msgid "The one already stored will be used otherwise."
-msgstr ""
+msgstr "Anderweitig wird das aktuell gespeicherte genutzt."
 
 msgid "No-Fun Mode"
-msgstr ""
+msgstr "Kein-Spaß-Modus"
 
 msgid "Enabling No-Fun Mode will lock reading archives behind the password as well."
 msgstr ""
+"Wenn der Kein-Spaß-Modus aktiviert ist, wird auch für das Lesen von Archiven "
+"ein Passwort benötigt."
 
 msgid "Fully effective after restarting LANraragi."
-msgstr ""
+msgstr "Erst nach einem Neustart von LANraragi aktiv."
 
 msgid "API Key"
-msgstr ""
+msgstr "API-Schlüssel"
 
 msgid "If you wish to use the Client API and have a password, you'll have to set a key here."
 msgstr ""
 
 msgid "Empty keys will <b>not</b> work!"
-msgstr ""
+msgstr "Leere Schlüssel funktionieren <b>nicht</b>!"
 
 msgid "This key will need to be provided in every protected API call as the <i>Authorization</i> header."
 msgstr ""
+"Dieser Schlüssel muss bei jedem geschützten API-Call als <i>Authorization</"
+"i> Header geschickt werden."
 
 msgid "Enable CORS for the Client API"
-msgstr ""
+msgstr "CORS für die Client API aktivieren"
 
 msgid "Have API requests support Cross-Origin Resource Sharing, which allows web browsers to access it off other domains."
 msgstr ""
+"API-Anfragen können Cross-Origin Resource Sharing nutzen, um die Client API "
+"von anderen Domänen zu erreichen."
 
 msgid "Turn this on if you want to access this service through a web-based wrapper (e.g. a userscript) used/hosted on another domain."
 msgstr ""
+"Aktiviere diese Option, wenn du diesen Service durch einen web-basierten "
+"Wrapper (z.B. ein UserScript) nutzen möchtest, welcher auf einer anderen "
+"Domäne gehostet wird."
 
 # ------End of Config_Security.html.tt2------
 # ------Start of Config_Shinobu.html.tt2------
 msgid "Shinobu Status"
-msgstr ""
+msgstr "Shinobu-Status"
 
 msgid "The Shinobu File Watcher is currently"
-msgstr ""
+msgstr "Der Shinobu-Dateibeobachter ist aktuell"
 
 msgid "OK!"
-msgstr ""
+msgstr "OK!"
 
 msgid "Kaput!"
-msgstr ""
+msgstr "Kaputt!"
 
 msgid "This File Watcher is responsible for monitoring your content directory and automatically handling new archives as they come."
 msgstr ""
+"Dieser Dateibeobachter ist für das Überprüfen des content-Ordners "
+"verantwortlich und kümmert sich um neue Archive."
 
 msgid "Restart File Watcher"
-msgstr ""
+msgstr "Dateibeobachter neu starten"
 
 msgid "If Shinobu is dead or unresponsive, you can reboot her by clicking this button."
 msgstr ""
+"Wenn Shinobu tot ist oder nicht mehr reagiert, kannst du sie mit diesem "
+"Button neu starten."
 
 msgid "Open Minion Console"
-msgstr ""
+msgstr "Minion-Konsole öffnen"
 
 msgid "The Minion Worker handles spare tasks that are too long to execute within the request/response lifecycle of web applications."
 msgstr ""
+"Der Minion-Arbeiter kümmert sich um Nebenaufgaben, welche zu lang für den "
+"Request/Response-Lebenszyklus von Webanwendungen sind."
 
 msgid "The console shows currently running and concluded tasks."
-msgstr ""
+msgstr "Die Konsole zeigt laufende und abgeschlossene Aufgaben."
 
 # ------End of Config_Shinobu.html.tt2------
 # ------Start of Config_Tags.html.tt2------
 msgid "Thumbnail Directory"
-msgstr ""
+msgstr "Thumbnail-Ordner"
 
 msgid "Directory where the archive thumbnails will be located. It will be created if it doesn't exist."
 msgstr ""
+"Order, in dem Archiv-Thumbnails gespeichert werden. Falls dieses nicht "
+"existiert, wird es erstellt."
 
 msgid "Make sure the OS user running LANraragi has read/write access to this directory."
 msgstr ""
+"Stelle sicher, dass der OS-Nutzer, der LANraragi ausführt, Lese- und "
+"Schreibe-Rechte für diesen Ordner hat."
 
 msgid "Use high-quality thumbnails for pages"
 msgstr ""
@@ -1155,10 +1217,12 @@ msgstr "Zurück zur Bibliothek"
 
 # ------End of Upload.html.tt2------
 msgid "Rescan Archive Directory"
-msgstr ""
+msgstr "Archivordner erneut durchsuchen"
 
 msgid "Click this button to trigger a rescan of the Archive Directory in case you're missing files, or some data such as total page counts."
 msgstr ""
+"Drücke diesen Button, um eine erneute Durchsuchung des Archivordners "
+"durchzuführen, falls Dateien <br> oder Daten wie Seitenanzahlen fehlen. <br>"
 
 # ------Stary of i18n.html.tt2------
 msgid "Backup restored!"
