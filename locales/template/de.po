@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 03:27+0200\n"
-"PO-Revision-Date: 2025-05-19 16:03+0000\n"
+"PO-Revision-Date: 2025-05-20 18:02+0000\n"
 "Last-Translator: SgtWalking <jacob.hesse99@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/de/>\n"
@@ -934,36 +934,44 @@ msgstr ""
 
 msgid "Plugins will be automatically used on new archives if they're toggled here."
 msgstr ""
+"Plugins werden automatisch auf neue Archive angewandt, wenn sie hier "
+"aktiviert sind."
 
 msgid "If they have configuration variables, you can set them here as well."
 msgstr ""
+"Sollten sie Konfigurationsoptionen haben, kannst du diese auch hier "
+"einstellen."
 
 msgid "You can also trigger Scripts here. Triggering a script will save your Plugin settings beforehand."
 msgstr ""
+"Du kannst hier auch Skripts auslösen. Ein Skript auszulösen, speichert "
+"vorher deine Plugin-Einstellungen."
 
 msgid "Login Plugins"
-msgstr ""
+msgstr "Login-Plugins"
 
 msgid "Downloaders"
 msgstr ""
 
 msgid "Scripts"
-msgstr ""
+msgstr "Skripts"
 
 msgid "Metadata Plugins"
-msgstr ""
+msgstr "Metadaten-Plugins"
 
 msgid "Allow Plugins to replace archive titles:"
-msgstr ""
+msgstr "Erlaube, dass Plugins Archivtitel ersetzen können:"
 
 msgid "If enabled, metadata plugins will be able to change the title of your archives alongside adding tags to them."
 msgstr ""
+"Wenn dieses Option aktiviert ist, können Plugins während des Tagging-"
+"Prozesses auch den Archivtitel ändern."
 
 msgid "A script is running..."
-msgstr ""
+msgstr "Ein Skript läuft..."
 
 msgid "Save Plugin Configuration"
-msgstr ""
+msgstr "Plugin-Einstellungen speichern"
 
 msgid "Upload Plugin"
 msgstr ""
