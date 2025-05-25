@@ -159,7 +159,9 @@ sub startup {
     }
 
     # Enable Minion capabilities in the app
-    shutdown_from_pid( get_temp . "/minion.pid" );
+    if ( $Config{osname} ne 'MSWin32') {
+        shutdown_from_pid( get_temp . "/minion.pid" );
+    }
 
     my $miniondb      = $self->LRR_CONF->get_redisad . "/" . $self->LRR_CONF->get_miniondb;
     my $redispassword = $self->LRR_CONF->get_redispassword;
@@ -181,10 +183,20 @@ sub startup {
     $self->minion->enqueue('build_stat_hashes');
 
     # Start a Minion worker in a subprocess
-    start_minion($self);
+    if ( $Config{osname} ne 'MSWin32') {
+        start_minion($self);
+    } else {
+        # my $numcpus = Sys::CpuAffinity::getNumCpus();
+        # for my $num ( 1 .. $numcpus ) {
+        #     start_minion($self);
+        # }
+        start_minion($self);
+    }
 
     # Start File Watcher
-    shutdown_from_pid( get_temp . "/shinobu.pid" );
+    if ( $Config{osname} ne 'MSWin32') {
+        shutdown_from_pid( get_temp . "/shinobu.pid" );
+    }
     start_shinobu($self);
 
     # Check if this is a first-time installation.
@@ -196,7 +208,9 @@ sub startup {
     $self->hook(
         before_dispatch => sub {
             my $c = shift;
-            state $unused = add_sigint_handler();
+            if ( $Config{osname} ne 'MSWin32') {
+                state $unused = add_sigint_handler();
+            }
 
             my $prefix = $self->LRR_BASEURL;
             if ($prefix) {
