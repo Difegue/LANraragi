@@ -18,6 +18,7 @@ use Parallel::Loops;
 use Sys::CpuAffinity;
 use Storable   qw(lock_store);
 use Mojo::JSON qw(to_json);
+use Config;
 
 #As this is a new process, reloading the LRR libs into INC is needed.
 BEGIN { unshift @INC, "$FindBin::Bin/../lib"; }
@@ -135,34 +136,47 @@ sub update_filemap {
         $redis->hdel( "LRR_FILEMAP", $deletedfile ) || $logger->warn("Couldn't delete previous filemap data.");
     }
 
-    $redis->quit();
+    if ( $Config{osname} ne 'MSWin32') {
+        $redis->quit();
 
-    # Now that we have all new files, process them...with multithreading!
-    my $numCpus = Sys::CpuAffinity::getNumCpus();
-    my $pl      = Parallel::Loops->new($numCpus);
+        # Now that we have all new files, process them...with multithreading!
+        my $numCpus = Sys::CpuAffinity::getNumCpus();
+        my $pl      = Parallel::Loops->new($numCpus);
 
-    $logger->debug("Number of available cores for processing: $numCpus");
-    my @sections = split_workload_by_cpu( $numCpus, @newfiles );
+        $logger->debug("Number of available cores for processing: $numCpus");
+        my @sections = split_workload_by_cpu( $numCpus, @newfiles );
 
-    # Eval the parallelized file crawl to avoid taking down the entire process in case one of the forked processes dies
-    eval {
-        $pl->foreach(
-            \@sections,
-            sub {
-                my $redis = LANraragi::Model::Config->get_redis_config;
-                foreach my $file (@$_) {
+        # Eval the parallelized file crawl to avoid taking down the entire process in case one of the forked processes dies
+        eval {
+            $pl->foreach(
+                \@sections,
+                sub {
+                    my $redis = LANraragi::Model::Config->get_redis_config;
+                    foreach my $file (@$_) {
 
-                    # Individual files are also eval'd so we can keep scanning
-                    eval { add_to_filemap( $redis, $file ); };
+                        # Individual files are also eval'd so we can keep scanning
+                        eval { add_to_filemap( $redis, $file ); };
 
-                    if ($@) {
-                        $logger->error("Error scanning $file: $@");
+                        if ($@) {
+                            $logger->error("Error scanning $file: $@");
+                        }
                     }
+                    $redis->quit();
                 }
-                $redis->quit();
+            );
+        };
+    } else {
+        foreach my $file (@newfiles) {
+
+            # Individual files are also eval'd so we can keep scanning
+            eval { add_to_filemap( $redis, $file ); };
+
+            if ($@) {
+                $logger->error("Error scanning $file: $@");
             }
-        );
-    };
+        }
+        $redis->quit();
+    }
 
     if ($@) {
         $logger->error("Error while scanning content folder: $@");
@@ -178,11 +192,13 @@ sub add_to_filemap ( $redis_cfg, $file ) {
 
         #Freshly created files might not be complete yet.
         #We have to wait before doing any form of calculation.
-        while (1) {
-            last unless -e $file;    # Sanity check to avoid sticking in this loop if the file disappears
-            last if open( my $handle, '<', $file );
-            $logger->debug("Waiting for file to be openable");
-            sleep(1);
+        if ( $Config{osname} ne 'MSWin32') {
+            while (1) {
+                last unless -e $file;    # Sanity check to avoid sticking in this loop if the file disappears
+                last if open( my $handle, '<', $file );
+                $logger->debug("Waiting for file to be openable");
+                sleep(1);
+            }
         }
 
         # Wait for file to be more than 512 KBs or bailout after 5s and assume that file is smaller

@@ -3,6 +3,7 @@ package LANraragi::Utils::Generic;
 use strict;
 use warnings;
 use utf8;
+use Cwd 'abs_path';
 no warnings 'experimental';
 
 use Storable qw(store);
@@ -13,6 +14,8 @@ use Mojo::IOLoop;
 use Logfile::Rotate;
 use Proc::Simple;
 use Sys::CpuAffinity;
+use Win32::Process;
+use Config;
 
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::String qw(trim);
@@ -93,31 +96,41 @@ sub start_minion {
     my $mojo   = shift;
     my $logger = get_logger( "Minion", "minion" );
 
-    my $numcpus = Sys::CpuAffinity::getNumCpus();
-    $logger->info("Starting new Minion worker in subprocess with $numcpus parallel jobs.");
+    if ( $Config{osname} ne 'MSWin32') {
+        my $numcpus = Sys::CpuAffinity::getNumCpus();
+        $logger->info("Starting new Minion worker in subprocess with $numcpus parallel jobs.");
 
-    my $worker = $mojo->app->minion->worker;
-    $worker->status->{jobs} = $numcpus;
-    $worker->on( dequeue => sub { pop->once( spawn => \&_spawn ) } );
+        my $worker = $mojo->app->minion->worker;
+        $worker->status->{jobs} = $numcpus;
+        $worker->on( dequeue => sub { pop->once( spawn => \&_spawn ) } );
 
-    # https://github.com/mojolicious/minion/issues/76
-    my $proc = Proc::Simple->new();
-    $proc->start(
-        sub {
-            $logger->info("Minion worker $$ started");
-            $worker->run;
-            $logger->info("Minion worker $$ stopped");
-            return 1;
-        }
-    );
-    $proc->kill_on_destroy(0);
+        # https://github.com/mojolicious/minion/issues/76
+        my $proc = Proc::Simple->new();
+        $proc->start(
+            sub {
+                $logger->info("Minion worker $$ started");
+                $worker->run;
+                $logger->info("Minion worker $$ stopped");
+                return 1;
+            }
+        );
+        $proc->kill_on_destroy(0);
 
-    # Freeze the process object in the PID file
-    store \$proc, get_temp() . "/minion.pid";
-    open( my $fh, ">", get_temp() . "/minion.pid-s6" );
-    print $fh $proc->pid;
-    close($fh);
-    return $proc;
+        # Freeze the process object in the PID file
+        store \$proc, get_temp() . "/minion.pid";
+        open( my $fh, ">", get_temp() . "/minion.pid-s6" );
+        print $fh $proc->pid;
+        close($fh);
+        return $proc;
+    } else {
+        my $proc;
+        Win32::Process::Create($proc, undef, "perl " . abs_path(".") ."/lib/Worker.pm", 0, NORMAL_PRIORITY_CLASS, ".");
+        #open( my $fh, ">", get_temp() . "/minion.pid-s6" );
+        #print $fh $proc->GetProcessID();
+        #close($fh);
+        $logger->info("Starting new Minion worker with PID " . $proc->GetProcessID() . "." );
+        return $proc;
+    }
 }
 
 sub _spawn {
@@ -130,19 +143,28 @@ sub _spawn {
 # Start Shinobu and return its Proc::Background object.
 sub start_shinobu {
     my $mojo = shift;
+    if ( $Config{osname} ne 'MSWin32') {
+        my $proc = Proc::Simple->new();
+        $proc->start( $^X, "./lib/Shinobu.pm" );
+        $proc->kill_on_destroy(0);
 
-    my $proc = Proc::Simple->new();
-    $proc->start( $^X, "./lib/Shinobu.pm" );
-    $proc->kill_on_destroy(0);
+        $mojo->LRR_LOGGER->debug( "Shinobu Worker new PID is " . $proc->pid );
 
-    $mojo->LRR_LOGGER->debug( "Shinobu Worker new PID is " . $proc->pid );
-
-    # Freeze the process object in the PID file
-    store \$proc, get_temp() . "/shinobu.pid";
-    open( my $fh, ">", get_temp() . "/shinobu.pid-s6" );
-    print $fh $proc->pid;
-    close($fh);
-    return $proc;
+        # Freeze the process object in the PID file
+        store \$proc, get_temp() . "/shinobu.pid";
+        open( my $fh, ">", get_temp() . "/shinobu.pid-s6" );
+        print $fh $proc->pid;
+        close($fh);
+        return $proc;
+    } else {
+        my $proc;
+        Win32::Process::Create($proc, undef, "perl " . abs_path(".") ."/lib/Shinobu.pm", 0, NORMAL_PRIORITY_CLASS, ".");
+        open( my $fh, ">", get_temp() . "/shinobu.pid-s6" );
+        print $fh $proc->GetProcessID();
+        close($fh);
+        $mojo->LRR_LOGGER->debug( "Shinobu Worker new PID is " . $proc->GetProcessID() );
+        return $proc;
+    }
 }
 
 #This function gives us a SHA hash for the passed data, which is used for thumbnail reverse search on E-H.

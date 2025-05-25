@@ -99,11 +99,14 @@ require Config::AutoConf;
 
 say("\r\nWill now check if all LRR software dependencies are met. \r\n");
 
-#Check for Redis
-say("Checking for Redis...");
-can_run('redis-server')
-  or die 'NOT FOUND! Please install a Redis server before proceeding.';
-say("OK!");
+#Fails on win even if redis is in the path
+if ( $Config{osname} ne 'MSWin32') {
+    #Check for Redis
+    say("Checking for Redis...");
+    can_run('redis-server')
+    or die 'NOT FOUND! Please install a Redis server before proceeding.';
+    say("OK!");
+}
 
 #Check for GhostScript
 say("Checking for GhostScript...");
@@ -140,10 +143,17 @@ if ($@) {
 if ( $back || $full ) {
     say("\r\nInstalling Perl modules... This might take a while.\r\n");
 
-    if ( $Config{"osname"} ne "darwin" ) {
-        say("Installing Linux::Inotify2 for non-macOS systems... (This will do nothing if the package is there already)");
+    if ( $Config{"osname"} eq "linux" ) {
+        say("Installing Linux::Inotify2 for linux systems... (This will do nothing if the package is there already)");
 
         install_package( "Linux::Inotify2", $cpanopt );
+    }
+
+    if ( $Config{osname} ne 'MSWin32') {
+        say("Installing dependencies for non-windows systems... (This will do nothing if the package is there already)");
+
+        install_package( "Net::DNS::Native", $cpanopt );
+        install_package( "Mojolicious::Plugin::Status", $cpanopt );
     }
 
     if ( system( "cpanm --installdeps ./tools/. --notest" . $cpanopt ) != 0 ) {
