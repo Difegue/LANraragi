@@ -1,11 +1,16 @@
 package LANraragi::Controller::Api::Shinobu;
 use Mojo::Base 'Mojolicious::Controller';
 use Storable;
-use Win32::Process;
 use Config;
 
 use LANraragi::Utils::Generic qw(start_shinobu render_api_response);
 use LANraragi::Utils::TempFolder qw(get_temp);
+
+BEGIN {
+    if ( $Config{osname} eq 'MSWin32') {
+        require Win32::Process;
+    }
+}
 
 sub shinobu_status {
     my $self    = shift;

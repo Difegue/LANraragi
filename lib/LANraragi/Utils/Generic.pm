@@ -14,12 +14,18 @@ use Mojo::IOLoop;
 use Logfile::Rotate;
 use Proc::Simple;
 use Sys::CpuAffinity;
-use Win32::Process;
 use Config;
 
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::String qw(trim);
 use LANraragi::Utils::Logging qw(get_logger);
+
+BEGIN {
+    if ( $Config{osname} eq 'MSWin32') {
+        require Win32::Process;
+        Win32::Process->import( qw(NORMAL_PRIORITY_CLASS) );
+    }
+}
 
 # Generic Utility Functions.
 use Exporter 'import';

@@ -154,6 +154,10 @@ if ( $back || $full ) {
 
         install_package( "Net::DNS::Native", $cpanopt );
         install_package( "Mojolicious::Plugin::Status", $cpanopt );
+    } else {
+        say("Installing dependencies for windows systems... (This will do nothing if the package is there already)");
+
+        install_package( "Win32::Process", $cpanopt );
     }
 
     if ( system( "cpanm --installdeps ./tools/. --notest" . $cpanopt ) != 0 ) {
