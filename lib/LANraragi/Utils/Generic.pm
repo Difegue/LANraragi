@@ -20,8 +20,10 @@ use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::String qw(trim);
 use LANraragi::Utils::Logging qw(get_logger);
 
+use constant IS_WIN => ( $Config{osname} eq 'MSWin32' );
+
 BEGIN {
-    if ( $Config{osname} eq 'MSWin32') {
+    if ( IS_WIN ) {
         require Win32::Process;
         Win32::Process->import( qw(NORMAL_PRIORITY_CLASS) );
     }
@@ -102,7 +104,7 @@ sub start_minion {
     my $mojo   = shift;
     my $logger = get_logger( "Minion", "minion" );
 
-    if ( $Config{osname} ne 'MSWin32') {
+    if ( !IS_WIN ) {
         my $numcpus = Sys::CpuAffinity::getNumCpus();
         $logger->info("Starting new Minion worker in subprocess with $numcpus parallel jobs.");
 
@@ -149,7 +151,7 @@ sub _spawn {
 # Start Shinobu and return its Proc::Background object.
 sub start_shinobu {
     my $mojo = shift;
-    if ( $Config{osname} ne 'MSWin32') {
+    if ( !IS_WIN ) {
         my $proc = Proc::Simple->new();
         $proc->start( $^X, "./lib/Shinobu.pm" );
         $proc->kill_on_destroy(0);

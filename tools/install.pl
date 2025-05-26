@@ -104,7 +104,7 @@ if ( $Config{osname} ne 'MSWin32') {
     #Check for Redis
     say("Checking for Redis...");
     can_run('redis-server')
-    or die 'NOT FOUND! Please install a Redis server before proceeding.';
+      or die 'NOT FOUND! Please install a Redis server before proceeding.';
     say("OK!");
 }
 

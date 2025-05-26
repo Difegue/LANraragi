@@ -2,11 +2,13 @@
 
 set -e
 
-pacman --needed -S mingw-w64-ucrt-x86_64-perl mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-make mingw-w64-ucrt-x86_64-diffutils mingw-w64-ucrt-x86_64-openssl mingw-w64-ucrt-x86_64-imagemagick mingw-w64-ucrt-x86_64-libjxl mingw-w64-ucrt-x86_64-ghostscript mingw-w64-ucrt-x86_64-zlib mingw-w64-ucrt-x86_64-lzo2 mingw-w64-ucrt-x86_64-libarchive make libxcrypt libbz2-devel patch mingw-w64-ucrt-x86_64-nodejs mingw-w64-ucrt-x86_64-tools-git
+pacman --needed -S mingw-w64-ucrt-x86_64-perl mingw-w64-ucrt-x86_64-openssl mingw-w64-ucrt-x86_64-imagemagick mingw-w64-ucrt-x86_64-libjxl mingw-w64-ucrt-x86_64-libheif mingw-w64-ucrt-x86_64-ghostscript mingw-w64-ucrt-x86_64-zlib mingw-w64-ucrt-x86_64-lzo2 mingw-w64-ucrt-x86_64-libarchive mingw-w64-ucrt-x86_64-ca-certificates libxcrypt --noconfirm
+
+pacman --needed -S mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-make make mingw-w64-ucrt-x86_64-diffutils libbz2-devel patch mingw-w64-ucrt-x86_64-nodejs mingw-w64-ucrt-x86_64-tools-git unzip --noconfirm
 
 curl -L https://cpanmin.us | perl - App::cpanminus
 
-cd /home/koyomi/lanraragi/tools
+cd ./tools
 
 cpanm --notest --installdeps Crypt::DES -M https://cpan.metacpan.org
 curl -L -s https://cpan.metacpan.org/authors/id/D/DP/DPARIS/Crypt-DES-2.07.tar.gz | tar -xz
@@ -34,3 +36,6 @@ cd ..
 
 perl ./tools/install.pl install-full
 
+pacman -Rs mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-make make mingw-w64-ucrt-x86_64-diffutils libbz2-devel patch mingw-w64-ucrt-x86_64-nodejs mingw-w64-ucrt-x86_64-tools-git unzip --noconfirm
+
+rm -rf ./public/js/vendor/*.map ./public/css/vendor/*.map

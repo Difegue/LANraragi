@@ -6,16 +6,19 @@ use Config;
 use LANraragi::Utils::Generic qw(start_shinobu render_api_response);
 use LANraragi::Utils::TempFolder qw(get_temp);
 
+use constant IS_WIN => ( $Config{osname} eq 'MSWin32' );
+
 BEGIN {
-    if ( $Config{osname} eq 'MSWin32') {
+    if ( IS_WIN ) {
         require Win32::Process;
+        Win32::Process->import( qw(NORMAL_PRIORITY_CLASS) );
     }
 }
 
 sub shinobu_status {
     my $self    = shift;
 
-    if ( $Config{osname} ne 'MSWin32') {
+    if ( !IS_WIN ) {
         my $shinobu = ${ retrieve( get_temp . "/shinobu.pid" ) };
 
         $self->render(
@@ -32,16 +35,18 @@ sub shinobu_status {
         close($fh);
 
         my $shinobu;
-        Win32::Process::Open($shinobu, $pid, 0);
+        eval {
+            Win32::Process::Open($shinobu, $pid, 0);
 
-        $self->render(
-            json => {
-                operation => "shinobu_status",
-                success   => 1,
-                is_alive  => !$shinobu->Wait(1),
-                pid       => "" . $shinobu->GetProcessID()
-            }
-        );
+            $self->render(
+                json => {
+                    operation => "shinobu_status",
+                    success   => 1,
+                    is_alive  => $shinobu->GetProcessID() != 0,
+                    pid       => "" . $shinobu->GetProcessID()
+                }
+            );
+        };
     }
 }
 
@@ -55,7 +60,7 @@ sub reset_filemap {
     $redis->del("LRR_FILEMAP");
     $redis->quit();
 
-    if ( $Config{osname} ne 'MSWin32') {
+    if ( !IS_WIN ) {
         my $shinobu = ${ retrieve( get_temp . "/shinobu.pid" ) };
 
         #commit sudoku
@@ -70,7 +75,7 @@ sub reset_filemap {
     # Create a new Process, automatically stored in TEMP_FOLDER/shinobu.pid
     my $proc = start_shinobu($self);
 
-    if ( $Config{osname} ne 'MSWin32') {
+    if ( !IS_WIN ) {
         $self->render(
             json => {
                 operation => "shinobu_rescan",
@@ -79,20 +84,22 @@ sub reset_filemap {
             }
         );
     } else {
-        $self->render(
-            json => {
-                operation => "shinobu_rescan",
-                success   => !$proc->Wait(1),
-                new_pid   => "" . $proc->GetProcessID()
-            }
-        );
+        eval {
+            $self->render(
+                json => {
+                    operation => "shinobu_rescan",
+                    success   => $proc->GetProcessID() != 0,
+                    new_pid   => "" . $proc->GetProcessID()
+                }
+            );
+        };
     }
 }
 
 sub stop_shinobu {
     my $self    = shift;
 
-    if ( $Config{osname} ne 'MSWin32') {
+    if ( !IS_WIN ) {
         my $shinobu = ${ retrieve( get_temp . "/shinobu.pid" ) };
 
         #commit sudoku
@@ -110,7 +117,7 @@ sub stop_shinobu {
 sub restart_shinobu {
     my $self    = shift;
 
-    if ( $Config{osname} ne 'MSWin32') {
+    if ( !IS_WIN ) {
         my $shinobu = ${ retrieve( get_temp . "/shinobu.pid" ) };
 
         #commit sudoku
@@ -125,7 +132,7 @@ sub restart_shinobu {
     # Create a new Process, automatically stored in TEMP_FOLDER/shinobu.pid
     my $proc = start_shinobu($self);
 
-    if ( $Config{osname} ne 'MSWin32') {
+    if ( !IS_WIN ) {
         $self->render(
             json => {
                 operation => "shinobu_restart",
@@ -134,13 +141,15 @@ sub restart_shinobu {
             }
         );
     } else {
-        $self->render(
-            json => {
-                operation => "shinobu_restart",
-                success   => !$proc->Wait(1),
-                new_pid   => "" . $proc->GetProcessID()
-            }
-        );
+        eval {
+            $self->render(
+                json => {
+                    operation => "shinobu_restart",
+                    success   => $proc->GetProcessID() != 0,
+                    new_pid   => "" . $proc->GetProcessID()
+                }
+            );
+        };
     }
 }
 
