@@ -24,7 +24,10 @@ $Env:Path = "$PWD\runtime\bin;$PWD\runtime\redis;$($Env:Path)"
 [System.IO.Directory]::CreateDirectory("$PWD\log") | Out-Null
 [System.IO.Directory]::CreateDirectory("$PWD\temp") | Out-Null
 
-Start-Process -FilePath "redis-server" -ArgumentList "--pidfile", "$PWD\temp\redis.pid", "--dir", "$Database", "--logfile", "$PWD\log\redis.log"
+# redis on windows has broken absolute paths to config files so define it as relative instead
+# "$PWD\runtime\redis\redis.conf"
+
+Start-Process -FilePath "redis-server" -ArgumentList "./runtime/redis/redis.conf", "--pidfile", "$PWD\temp\redis.pid", "--dir", "$Database", "--logfile", "$PWD\log\redis.log"
 Start-Process -FilePath "perl" -ArgumentList "script\launcher.pl", "-d", "script\lanraragi"
 
 Pop-Location

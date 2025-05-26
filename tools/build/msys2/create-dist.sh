@@ -36,4 +36,4 @@ mv ./Redis-7.2.8-Windows-x64-msys2/* ./win-dist/runtime/redis
 
 rm -rf ./Redis-7.2.8-Windows-x64-msys2
 
-cp ./tools/build/docker/redis.conf ./win-dist/runtime/redis
+cp ./tools/build/msys2/redis.conf ./win-dist/runtime/redis
