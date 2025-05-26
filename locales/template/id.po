@@ -3,41 +3,48 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-26 06:02+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2025-05-27 05:05+0000\n"
+"Last-Translator: Slasar41 <agungtrianto41@outlook.com>\n"
+"Language-Team: Indonesian <https://hosted.weblate.org/projects/lanraragi/"
+"lanraragi-source/id/>\n"
 "Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Translate Toolkit 3.15.2\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.12-dev\n"
 
 # Sample Data
-
 # ------Start of Backup.html.tt2------
 msgid "Database Backup/Restore"
 msgstr ""
 
 msgid "You can backup your existing database here, or restore an existing backup."
 msgstr ""
+"Anda dapat mencadangkan pangkalan data yang ada di sini atau memulihkan "
+"cadangan yang ada."
 
 msgid "Backuping allows you to download a JSON file containing all your categories and archive IDs, and their matching metadata."
 msgstr ""
+"Pencadangan memungkinkan Anda mengunduh berkas JSON yang berisi semua "
+"kategori dan ID arsip serta metadata yang cocok."
 
 msgid "Restoring from a backup will restore this metadata, <b>for IDs which already exist in your database.</b>"
 msgstr ""
+"Memulihkan dari cadangan akan memulihkan metadata ini, <b>untuk ID yang "
+"sudah ada di pangkalan data Anda.</b>"
 
 msgid "(Categories will always be restored)"
-msgstr ""
+msgstr "(Kategori akan selalu dipulihkan)"
 
 msgid "Backup Database"
-msgstr ""
+msgstr "Cadangkan Pangkalan Data"
 
 msgid "Restore Backup"
-msgstr ""
+msgstr "Pulihkan Cadangan"
 
 msgid "Restoring your backup ..."
-msgstr ""
+msgstr "Memulihkan cadangan Anda ..."
 
 msgid "Return to Library"
 msgstr ""
@@ -48,85 +55,94 @@ msgid "Batch Operations"
 msgstr ""
 
 msgid "You can apply modifications to multiple archives in one go here."
-msgstr ""
+msgstr "Anda dapat menerapkan perubahan ke beberapa arsip sekaligus di sini."
 
 msgid "Select what you'd like to do, check archives you want to use it on, and get rolling!"
 msgstr ""
+"Pilih apa yang ingin Anda lakukan, centang arsip yang ingin digunakan, dan "
+"mulai prosesnya!"
 
 msgid "Archives with no tags have been pre-checked."
-msgstr ""
+msgstr "Arsip tanpa tag telah dicentang terlebih dahulu."
 
 msgid "Task :"
-msgstr ""
+msgstr "Tugas:"
 
 msgid "Use Plugin"
-msgstr ""
+msgstr "Gunakan Plugin"
 
 msgid "Remove New Flag"
-msgstr ""
+msgstr "Hapus Tanda Baru"
 
 msgid "Apply Tag Rules"
-msgstr ""
+msgstr "Terapkan Aturan Tag"
 
 msgid "Add To Category"
-msgstr ""
+msgstr "Tambahkan Ke Kategori"
 
 msgid "Delete Archive"
 msgstr ""
 
 msgid "Use plugin :"
-msgstr ""
+msgstr "Gunakan plugin:"
 
 msgid "Timeout (max 20s):"
-msgstr ""
+msgstr "Batas waktu (maks. 20 detik):"
 
 msgid "This plugin recommends a cooldown of <span id=\"cooldown\">-1</span> seconds."
 msgstr ""
+"Plugin ini menyarankan jeda selama <span id=\"cooldown\">-1</span> detik."
 
 msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
 msgstr ""
+"Beberapa layanan eksternal dapat memblokir sementara perangkat Anda jika "
+"beban berlebihan akibat memanggil plugin terlalu sering!"
 
 msgid "Make sure to set a suitable <b>timeout</b> between archives using this picker if the plugin you want to use is concerned."
 msgstr ""
+"Pastikan untuk mengatur <b>batas waktu</b> yang sesuai antara arsip "
+"menggunakan pemilih ini jika plugin yang ingin Anda gunakan memerlukannya."
 
 msgid "Override Plugin Global Arguments"
-msgstr ""
+msgstr "Timpa Argumen Global Plugin"
 
 msgid "This will apply the following Tag Rules to the selected Archives."
-msgstr ""
+msgstr "Ini akan menerapkan Aturan Tag berikut ke Arsip yang dipilih."
 
 msgid "You can edit your Tag Rules in Server Configuration."
-msgstr ""
+msgstr "Anda dapat menyunting Aturan Tag Anda di Konfigurasi Peladen."
 
 msgid "Server Configuration"
-msgstr ""
+msgstr "Konfigurasi Peladen"
 
 msgid "This removes the \"new\" flag from the selected archives."
-msgstr ""
+msgstr "Ini menghapus tanda \"baru\" dari arsip yang dipilih."
 
 msgid "Add to Category :"
-msgstr ""
+msgstr "Tambahkan ke Kategori:"
 
 msgid "This will delete both metadata and matching files from your system! Please use with caution."
 msgstr ""
+"Ini akan menghapus metadata dan berkas yang sesuai dari sistem Anda! Harap "
+"gunakan dengan hati-hati."
 
 msgid "Check/Uncheck all"
-msgstr ""
+msgstr "Centang/Batal centang semua"
 
 msgid "Start Task"
-msgstr ""
+msgstr "Mulai Tugas"
 
 msgid "Cancel"
-msgstr ""
+msgstr "Batal"
 
 msgid "Start another job"
-msgstr ""
+msgstr "Mulai tugas lain"
 
 msgid "Processed <span id=\"arcs\"></span> out of <span id=\"totalarcs\"></span>"
-msgstr ""
+msgstr "<span id=\"arcs\"></span> diproses dari <span id=\"totalarcs\"></span>"
 
 msgid "Preparing your data."
-msgstr ""
+msgstr "Menyiapkan data Anda."
 
 msgid "Plugin Configuration"
 msgstr ""
@@ -140,125 +156,138 @@ msgid "Categories"
 msgstr ""
 
 msgid "Categories appear at the top of your window when browsing the Library."
-msgstr ""
+msgstr "Kategori muncul di bagian atas jendela Anda saat menjelajahi Pustaka."
 
 msgid "There are two distinct kinds:"
-msgstr ""
+msgstr "Ada dua jenis yang berbeda:"
 
 msgid "Static Categories are arbitrary collections of Archives, where you can add as many items as you want."
 msgstr ""
+"Kategori Statis adalah kumpulan Arsip sebarang, tempat Anda dapat "
+"menambahkan banyak butir sesuai keinginan."
 
 msgid "Dynamic Categories contain all archives matching a given predicate, and automatically update alongside your library."
 msgstr ""
+"Kategori Dinamis berisi semua arsip yang sesuai dengan predikat tertentu dan "
+"dimutakhirkan secara otomatis bersamaan dengan pustaka Anda."
 
 msgid "You can create new categories here or edit existing ones."
 msgstr ""
+"Anda dapat membuat kategori baru di sini atau menyunting yang sudah ada."
 
 msgid "Select a category in the combobox below to edit its name, the archives it contains, or its predicate."
 msgstr ""
+"Pilih kategori dalam daftar tarik-turun di bawah untuk menyunting namanya, "
+"arsip di dalamnya, atau predikatnya."
 
 msgid "All your modifications are saved automatically."
-msgstr ""
+msgstr "Semua perubahan Anda disimpan secara otomatis."
 
 msgid "Category:"
-msgstr ""
+msgstr "Kategori:"
 
 msgid "Name:"
-msgstr ""
+msgstr "Nama:"
 
 msgid "Predicate:"
-msgstr ""
+msgstr "Predikat:"
 
 msgid "Pin this Category"
-msgstr ""
+msgstr "Sematkan Kategori Ini"
 
 msgid "Delete Category"
-msgstr ""
+msgstr "Hapus Kategori"
 
 msgid "If you select a Static Category, your archives will appear here so you can add/remove them from the category."
 msgstr ""
+"Jika Anda memilih Kategori Statis, arsip Anda akan muncul di sini sehingga "
+"Anda dapat menambah/menghapusnya dari kategori."
 
 msgid "Return to Library"
 msgstr ""
 
 msgid "Store Bookmarks in this Category"
-msgstr ""
+msgstr "Simpan Penanda dalam Kategori Ini"
 
 msgid "Error linking bookmark button:"
-msgstr ""
+msgstr "Galat menghubungkan tombol penanda:"
 
 msgid "Error unlinking bookmark button:"
-msgstr ""
+msgstr "Galat memutuskan tombol penanda:"
 
 msgid "Error getting bookmark category:"
-msgstr ""
+msgstr "Galat mengambil kategori penanda:"
 
 msgid "New Static Category"
-msgstr ""
+msgstr "Kategori Statis Baru"
 
 msgid "New Dynamic Category"
-msgstr ""
+msgstr "Kategori Dinamis Baru"
 
 # ------End of Category.html.tt2------
 # ------Start of Config.html.tt2------
 msgid "Admin Settings"
-msgstr ""
+msgstr "Pengaturan Admin"
 
 msgid "LANraragi"
-msgstr ""
+msgstr "LANraragi"
 
 msgid "Version %1 %2"
-msgstr ""
+msgstr "Versi %1 - %2"
 
 msgid "Select a category to show the matching settings."
-msgstr ""
+msgstr "Pilih kategori untuk menampilkan pengaturan yang sesuai."
 
 msgid "Save Settings"
-msgstr ""
+msgstr "Simpan Pengaturan"
 
 msgid "Plugin Configuration"
 msgstr ""
 
 msgid "Database Backup/Restore"
-msgstr ""
+msgstr "Cadangkan/Pulihkan Pangkalan Data"
 
 msgid "Return to Library"
 msgstr ""
 
 msgid "Global Settings"
-msgstr ""
+msgstr "Pengaturan Global"
 
 msgid "Theme"
-msgstr ""
+msgstr "Tema"
 
 msgid "Security"
-msgstr ""
+msgstr "Keamanan"
 
 msgid "Archive Files"
-msgstr ""
+msgstr "Berkas Arsip"
 
 msgid "Tags and Thumbnails"
-msgstr ""
+msgstr "Tag dan Keluku"
 
 msgid "Background Workers"
-msgstr ""
+msgstr "Pekerja Latar Belakang"
 
 # ------End of Config.html.tt2------
 # ------Start of Config_Files.html.tt2------
 msgid "Archive Directory"
-msgstr ""
+msgstr "Direktori Arsip"
 
 msgid "Directory where the archives will be located. It will be created if it doesn't exist."
-msgstr ""
+msgstr "Direktori tempat arsip akan disimpan. Akan dibuat jika belum ada."
 
 msgid "Make sure the OS user running LANraragi has read access to this directory."
 msgstr ""
+"Pastikan pengguna SO yang menjalankan LANraragi memiliki akses baca ke "
+"direktori ini."
 
 msgid "Synology eCryptFS Compatibility Mode"
-msgstr ""
+msgstr "Mode Kompatibilitas Synology eCryptFS"
 
 msgid "If enabled, LANraragi will cutoff archive filenames to 143 bytes, which is the max accepted by eCryptFS."
 msgstr ""
+"Jika diaktifkan, LANraragi akan memotong nama berkas arsip menjadi 143 bita, "
+"yang merupakan batas maksimum yang diterima oleh eCryptFS."
 
 msgid "Rescan Archive Directory"
 msgstr ""
@@ -267,337 +296,413 @@ msgid "Click this button to trigger a rescan of the Archive Directory in case yo
 msgstr ""
 
 msgid "Maximum <br>Cache Size"
-msgstr ""
+msgstr "Ukuran <br>Maksimum Singgahan"
 
 msgid "In MBs. The cache contains recently viewed pages, for faster subsequent reading."
 msgstr ""
+"Dalam MB. Singgahan berisi halaman yang baru saja dilihat, untuk pembacaan "
+"lebih cepat berikutnya."
 
 msgid "It is automatically emptied when it grows past this specified size."
-msgstr ""
+msgstr "Dikosongkan secara otomatis ketika melebihi ukuran yang ditentukan."
 
 msgid "Clear Cache"
-msgstr ""
+msgstr "Bersihkan Singgahan"
 
 msgid "Current Size:"
-msgstr ""
+msgstr "Ukuran Saat Ini:"
 
 msgid "Clear the cache manually by clicking this button."
-msgstr ""
+msgstr "Bersihkan singgahan secara manual dengan mengklik tombol ini."
 
 msgid "Reset Search Cache"
-msgstr ""
+msgstr "Atur Ulang Singgahan Telusur"
 
 msgid "The last searches done in the archive index are cached for faster loads."
 msgstr ""
+"Penelusuran terakhir yang dilakukan dalam indeks arsip akan disinggahankan "
+"untuk pemuatan lebih cepat."
 
 msgid "If something went wrong with said cache, you can reset it by clicking this button."
 msgstr ""
+"Jika terjadi masalah dengan singgahan tersebut, Anda dapat mengatur ulang "
+"dengan mengklik tombol ini."
 
 msgid "Clear NEW flags"
-msgstr ""
+msgstr "Bersihkan tanda BARU"
 
 msgid "Newly uploaded archives are marked as \"new\" in the index until you\'ve opened them."
 msgstr ""
+"Arsip yang baru diunggah akan ditandai sebagai \"baru\" dalam indeks hingga "
+"Anda membukanya."
 
 msgid "If you want to clear those flags, click this button."
-msgstr ""
+msgstr "Jika Anda ingin menghapus tanda tersebut, klik tombol ini."
 
 msgid "Replace duplicated archives"
-msgstr ""
+msgstr "Ganti arsip duplikat"
 
 msgid "If enabled, LANraragi will overwrite old archives when a newer one (with the same name) is uploaded through the Web Uploader or the Download System."
 msgstr ""
+"Jika diaktifkan, LANraragi akan menimpa arsip lama ketika arsip yang lebih "
+"baru (dengan nama yang sama) diunggah melalui Pengunggah Web atau Sistem "
+"Unduhan."
 
 msgid "This will delete metadata for old files when they're replaced! Use with caution."
 msgstr ""
+"Ini akan menghapus metadata untuk berkas lama saat digantikan! Gunakan "
+"dengan hati-hati."
 
 # ------End of Config_Files.html.tt2------
 # ------Start of Config_Global.html.tt2------
 msgid "Site Title"
-msgstr ""
+msgstr "Judul Situs"
 
 msgid "The site title appears on most pages as...their title."
-msgstr ""
+msgstr "Judul situs muncul di sebagian besar halaman sebagai... judulnya."
 
 msgid "MOTD"
-msgstr ""
+msgstr "PHI"
 
 msgid "Slang for Message of the Day. Appears on top of the main Library view."
 msgstr ""
+"Singkatan dari Pesan Hari Ini. Muncul di bagian atas tampilan Pustaka utama."
 
 msgid "Archives per page"
-msgstr ""
+msgstr "Arsip per halaman"
 
 msgid "Number of archives shown on a page in the main list."
-msgstr ""
+msgstr "Jumlah arsip yang ditampilkan per halaman dalam daftar utama."
 
 msgid "Resize Images in Reader"
-msgstr ""
+msgstr "Ubah Ukuran Gambar di Pembaca"
 
 msgid "If enabled, pages exceeding a certain size will be resized when viewed to save bandwidth."
 msgstr ""
+"Jika diaktifkan, halaman yang melebihi ukuran tertentu akan diubah ukurannya "
+"saat dilihat untuk menghemat lebar pita."
 
 msgid "This option can potentially consume a lot of RAM if enabled and used on large images! Use with caution."
 msgstr ""
+"Pilihan ini berpotensi memakan banyak RAM jika diaktifkan dan digunakan pada "
+"gambar berukuran besar! Gunakan dengan hati-hati."
 
 msgid "Image Size Threshold"
-msgstr ""
+msgstr "Ambang Ukuran Gambar"
 
 msgid "(in KBs.) Maximum size an image can reach before being resized."
-msgstr ""
+msgstr "(Dalam KB) Ukuran maksimum gambar sebelum diubah ukurannya."
 
 msgid "Resize Quality"
-msgstr ""
+msgstr "Kualitas Pengubahan Ukuran"
 
 msgid "Quality of the resized images. Less quality = Smaller image. (0-100)"
 msgstr ""
+"Kualitas gambar yang diubah ukurannya. Kualitas lebih rendah = Gambar lebih "
+"kecil. (0-100)"
 
 msgid "Clientside Progress Tracking"
-msgstr ""
+msgstr "Pelacakan Kemajuan Sisi Klien"
 
 msgid "Enabling this option will save reading progression on the browser (through localStorage) instead of the server."
 msgstr ""
+"Mengaktifkan pilihan ini akan menyimpan kemajuan baca di peramban (melalui "
+"localStorage) alih-alih di peladen."
 
 msgid "Consider toggling this option if you're sharing the LANraragi instance with multiple users!"
 msgstr ""
+"Pertimbangkan untuk mengaktifkan pilihan ini jika Anda berbagi instansi "
+"LANraragi dengan banyak pengguna!"
 
 msgid "Debug Mode"
-msgstr ""
+msgstr "Mode Awakutu"
 
 msgid "Enabling Debug Mode will show more logs and disable update nagging."
 msgstr ""
+"Mengaktifkan Mode Awakutu akan menampilkan lebih banyak pencatatan dan "
+"menonaktifkan pemberitahuan pemutakhiran."
 
 msgid "Fully effective after restarting LANraragi."
 msgstr ""
 
 msgid "Clean Database"
-msgstr ""
+msgstr "Bersihkan Pangkalan Data"
 
 msgid "Cleaning the database will remove entries that aren't on your filesystem."
 msgstr ""
+"Membersihkan pangkalan data akan menghapus entri yang tidak ada di sistem "
+"berkas Anda."
 
 msgid "Reset Database"
-msgstr ""
+msgstr "Atur Ulang Pangkalan Data"
 
 msgid "Danger zone!"
-msgstr ""
+msgstr "Zona bahaya!"
 
 msgid "Clicking this button will reset the entire database and delete all settings and metadata."
 msgstr ""
+"Mengklik tombol ini akan mengatur ulang seluruh pangkalan data dan menghapus "
+"semua pengaturan serta metadata."
 
 # ------End of Config_Global.html.tt2------
 # ------Start of Config_Security.html.tt2------
 msgid "Enable Password"
-msgstr ""
+msgstr "Aktifkan Kata Sandi"
 
 msgid "If enabled, everything that isn't reading will require a password."
 msgstr ""
+"Jika diaktifkan, semua yang bukan aktivitas membaca akan memerlukan kata "
+"sandi."
 
 msgid "New Password"
-msgstr ""
+msgstr "Kata Sandi Baru"
 
 msgid "New Password Confirmation"
-msgstr ""
+msgstr "Konfirmasi Kata Sandi Baru"
 
 msgid "Only edit these fields if you want to change your password."
-msgstr ""
+msgstr "Hanya sunting bidang ini jika Anda ingin mengubah kata sandi Anda."
 
 msgid "The one already stored will be used otherwise."
-msgstr ""
+msgstr "Kata sandi yang sudah tersimpan akan digunakan jika tidak diubah."
 
 msgid "No-Fun Mode"
-msgstr ""
+msgstr "Mode Tanpa Kesenangan"
 
 msgid "Enabling No-Fun Mode will lock reading archives behind the password as well."
 msgstr ""
+"Mengaktifkan Mode Tanpa Kesenangan akan mengunci akses membaca arsip di "
+"balik kata sandi juga."
 
 msgid "Fully effective after restarting LANraragi."
-msgstr ""
+msgstr "Berlaku penuh setelah memulai ulang LANraragi."
 
 msgid "API Key"
-msgstr ""
+msgstr "Kunci API"
 
 msgid "If you wish to use the Client API and have a password, you'll have to set a key here."
 msgstr ""
+"Jika Anda ingin menggunakan API Klien dan memiliki kata sandi, Anda harus "
+"mengatur kunci di sini."
 
 msgid "Empty keys will <b>not</b> work!"
-msgstr ""
+msgstr "Kunci kosong <b>tidak</b> akan berfungsi!"
 
 msgid "This key will need to be provided in every protected API call as the <i>Authorization</i> header."
 msgstr ""
+"Kunci ini harus disertakan dalam setiap panggilan API yang dilindungi "
+"sebagai tajuk <i>Authorization</i>."
 
 msgid "Enable CORS for the Client API"
-msgstr ""
+msgstr "Aktifkan CORS untuk API Klien"
 
 msgid "Have API requests support Cross-Origin Resource Sharing, which allows web browsers to access it off other domains."
 msgstr ""
+"Izinkan permintaan API mendukung Cross-Origin Resource Sharing, yang "
+"memungkinkan peramban mengaksesnya dari ranah lain."
 
 msgid "Turn this on if you want to access this service through a web-based wrapper (e.g. a userscript) used/hosted on another domain."
 msgstr ""
+"Aktifkan pilihan ini jika Anda ingin mengakses layanan ini melalui "
+"<i>wrapper</i> berbasis web (misalnya <i>userscript</i>) yang digunakan/"
+"di-<i>hosting</i> di ranah lain."
 
 # ------End of Config_Security.html.tt2------
 # ------Start of Config_Shinobu.html.tt2------
 msgid "Shinobu Status"
-msgstr ""
+msgstr "Status Shinobu"
 
 msgid "The Shinobu File Watcher is currently"
-msgstr ""
+msgstr "Pemantau Berkas Shinobu saat ini"
 
 msgid "OK!"
-msgstr ""
+msgstr "Oke!"
 
 msgid "Kaput!"
-msgstr ""
+msgstr "Matot!"
 
 msgid "This File Watcher is responsible for monitoring your content directory and automatically handling new archives as they come."
 msgstr ""
+"Pemantau Berkas ini bertanggung jawab untuk memantau direktori konten Anda "
+"dan menangani arsip baru secara otomatis saat muncul."
 
 msgid "Restart File Watcher"
-msgstr ""
+msgstr "Mulai Ulang Pemantau Berkas"
 
 msgid "If Shinobu is dead or unresponsive, you can reboot her by clicking this button."
 msgstr ""
+"Jika Shinobu mati atau tidak merespons, Anda dapat memulihkannya dengan "
+"mengklik tombol ini."
 
 msgid "Open Minion Console"
-msgstr ""
+msgstr "Buka Konsol Minion"
 
 msgid "The Minion Worker handles spare tasks that are too long to execute within the request/response lifecycle of web applications."
 msgstr ""
+"Pekerja Minion menangani tugas tambahan yang terlalu panjang untuk "
+"dieksekusi dalam siklus permintaan/respons aplikasi web."
 
 msgid "The console shows currently running and concluded tasks."
-msgstr ""
+msgstr "Konsol menampilkan tugas yang sedang berjalan dan yang telah selesai."
 
 # ------End of Config_Shinobu.html.tt2------
 # ------Start of Config_Tags.html.tt2------
 msgid "Thumbnail Directory"
-msgstr ""
+msgstr "Direktori Keluku"
 
 msgid "Directory where the archive thumbnails will be located. It will be created if it doesn't exist."
 msgstr ""
+"Direktori tempat keluku arsip akan disimpan. Akan dibuat jika belum ada."
 
 msgid "Make sure the OS user running LANraragi has read/write access to this directory."
 msgstr ""
+"Pastikan pengguna SO yang menjalankan LANraragi memiliki akses baca/tulis ke "
+"direktori ini."
 
 msgid "Use high-quality thumbnails for pages"
-msgstr ""
+msgstr "Gunakan keluku berkualitas tinggi untuk halaman"
 
 msgid "LANraragi generates lower-quality thumbnails for archive pages for performance reasons."
 msgstr ""
+"LANraragi menghasilkan keluku kualitas lebih rendah untuk halaman arsip demi "
+"alasan kinerja."
 
 msgid "If this option is checked, it will instead generate page thumbnails at the same quality as cover thumbnails."
 msgstr ""
+"Jika pilihan ini diaktifkan, keluku halaman akan dihasilkan dengan kualitas "
+"yang sama seperti keluku sampul."
 
 msgid "Use JPEG XL for thumbnails"
-msgstr ""
+msgstr "Gunakan JPEG XL untuk keluku"
 
 msgid "LANraragi generates JPEG thumbnails for compatibility and performance reasons."
 msgstr ""
+"LANraragi menghasilkan keluku JPEG demi alasan kompatibilitas dan kinerja."
 
 msgid "If this option is checked, it will instead generate thumbnails using JPEG XL."
 msgstr ""
+"Jika pilihan ini diaktifkan, keluku akan dihasilkan menggunakan JPEG XL."
 
 msgid "Generate Missing Thumbnails"
-msgstr ""
+msgstr "Hasilkan Keluku Yang Hilang"
 
 msgid "Generate Thumbnails for all archives that don't have one yet."
-msgstr ""
+msgstr "Hasilkan keluku untuk semua arsip yang belum ada."
 
 msgid "Regenerate all Thumbnails"
-msgstr ""
+msgstr "Hasilkan Ulang Semua Keluku"
 
 msgid "Regenerate all thumbnails. This might take a while!"
-msgstr ""
+msgstr "Hasilkan ulang semua keluku. Proses ini mungkin memakan waktu!"
 
 msgid "Add Timestamp Tag"
-msgstr ""
+msgstr "Tambahkan Tag Stempel Waktu"
 
 msgid "If enabled, LANraragi will add the UNIX timestamp of the current time as a tag under the \"date_added\" namespace to newly added archives."
 msgstr ""
+"Jika diaktifkan, LANraragi akan menambahkan stempel waktu UNIX dari waktu "
+"saat ini sebagai tag dalam ruang nama \"date_added\" ke arsip yang baru "
+"ditambahkan."
 
 msgid "Use \"Last modified\" Time"
-msgstr ""
+msgstr "Gunakan Waktu \"Terakhir diubah\""
 
 msgid "Enabling this will use file modified time instead of current time when setting \"date_added\" timestamps."
 msgstr ""
+"Jika diaktifkan, waktu perubahan berkas akan digunakan alih-alih waktu saat "
+"ini untuk mengatur stempel waktu \"date_added\"."
 
 msgid "Tag Rules"
-msgstr ""
+msgstr "Aturan Tag"
 
 msgid "When tagging archives using Plugins, the rules specified here will be applied to the tags before saving them to the database."
 msgstr ""
+"Saat menandai arsip menggunakan Plugin, aturan yang ditentukan di sini akan "
+"diterapkan pada tag sebelum menyimpannya ke pangkalan data."
 
 msgid "Split rules with linebreaks."
-msgstr ""
+msgstr "Pisahkan aturan dengan baris baru."
 
 msgid "<b>-tag | tag</b> : removes the tag (like a blacklist)"
-msgstr ""
+msgstr "<b>-tag | tag</b> : menghapus tag (seperti daftar hitam)"
 
 msgid "<b>-namespace:*</b> : removes all tags within this namespace"
-msgstr ""
+msgstr "<b>-ruangnama:*</b> : menghapus semua tag dalam ruang nama ini"
 
 msgid "namespace : strips the namespace from the tags"
-msgstr ""
+msgstr "<b>~ruangnama</b> : menghilangkan ruang nama dari tag"
 
 msgid "<b>tag -> new-tag</b> : replaces one tag"
-msgstr ""
+msgstr "<b>tag -> tag-baru</b> : mengganti suatu tag"
 
 msgid "<b>tag => new-tag</b> : replaces one tag, but use a hash table internally for faster performance. These rules will be executed <i>once</i> after all other rules."
 msgstr ""
+"<b>tag => tag-baru</b> : mengganti suatu tag, tetapi menggunakan tabel hash "
+"secara internal untuk kinerja lebih cepat. Aturan ini akan dieksekusi "
+"<i>sekali</i> setelah semua aturan lainnya selesai."
 
 msgid "<b>namespace:* -> new-namespace:*</b> : replaces the namespace with the new one"
 msgstr ""
+"<b>ruangnama:* -> ruangnama-baru:*</b> : mengganti ruang nama dengan yang "
+"baru"
 
 # ------End of Config_Tags.html.tt2------
 # ------Start of Config_Theme.html.tt2------
 msgid "The selected theme will apply to the entire application and be shown to all users."
 msgstr ""
+"Tema yang dipilih akan diterapkan ke seluruh aplikasi dan ditampilkan untuk "
+"semua pengguna."
 
 msgid "If you're using a browser that supports \"theme-color\", the theme's primary color will also be applied there."
 msgstr ""
+"Jika Anda menggunakan peramban yang mendukung \"theme-color\", warna primer "
+"tema juga akan diterapkan di sana."
 
 msgid "Click on a theme to preview it before saving!"
-msgstr ""
+msgstr "Klik pada tema untuk melihat pratinjaunya sebelum menyimpan!"
 
 # ------End of Config_Theme.html.tt2------
 # ------Start of Edit.html.tt2------
 msgid "Editing %1 by %2"
-msgstr ""
+msgstr "Menyunting %1 dengan %2"
 
 msgid "Editing %1"
-msgstr ""
+msgstr "Menyunting %1"
 
 msgid "Current File Name:"
-msgstr ""
+msgstr "Nama Berkas Saat Ini:"
 
 msgid "ID:"
-msgstr ""
+msgstr "ID:"
 
 msgid "Title:"
-msgstr ""
+msgstr "Judul:"
 
 msgid "Summary:"
-msgstr ""
+msgstr "Ringkasan:"
 
 msgid "Tags"
 msgstr ""
 
 msgid "(separated by hyphens, i.e : tag1, tag2)"
-msgstr ""
+msgstr "(dipisahkan dengan tanda hubung, contoh: tag1, tag2)"
 
 msgid "Import Tags from Plugin :"
-msgstr ""
+msgstr "Impor Tag dari Plugin:"
 
 msgid "Help"
 msgstr ""
 
 msgid "Go!"
-msgstr ""
+msgstr "Mulai!"
 
 msgid "Using a Plugin will save any modifications to archive metadata you might have made !"
 msgstr ""
+"Menggunakan Plugin akan menyimpan semua perubahan yang mungkin telah Anda "
+"buat pada metadata arsip!"
 
 msgid "Save Metadata"
-msgstr ""
+msgstr "Simpan Metadata"
 
 msgid "Delete Archive"
 msgstr ""
@@ -608,82 +713,84 @@ msgstr ""
 # ------End of Edit.html.tt2------
 # ------Start of Index.html.tt2------
 msgid "Add Archives"
-msgstr ""
+msgstr "Tambah Arsip"
 
 msgid "Batch Operations"
-msgstr ""
+msgstr "Operasi Tumpak"
 
 msgid "Settings"
-msgstr ""
+msgstr "Pengaturan"
 
 msgid "Modify Categories"
-msgstr ""
+msgstr "Ubah Kategori"
 
 msgid "Statistics"
-msgstr ""
+msgstr "Statistik"
 
 msgid "Logs"
-msgstr ""
+msgstr "Catatan"
 
 msgid "Admin Login"
-msgstr ""
+msgstr "Log Masuk Admin"
 
 msgid "Search Title, Artist, Series, Language or Tags"
-msgstr ""
+msgstr "Telusuri Judul, Seniman, Seri, Bahasa, atau Tag"
 
 msgid "Apply Filter"
-msgstr ""
+msgstr "Terapkan Saringan"
 
 msgid "Clear Filter"
-msgstr ""
+msgstr "Bersihkan Saringan"
 
 msgid "Click to show archives from the current search with the specified filter"
 msgstr ""
+"Klik untuk menampilkan arsip dari penelusuran saat ini dengan saringan yang "
+"ditentukan"
 
 msgid "Refresh Selection"
-msgstr ""
+msgstr "Segarkan Pilihan"
 
 msgid "Carousel Options"
-msgstr ""
+msgstr "Pengaturan Korsel"
 
 msgid "No results here."
-msgstr ""
+msgstr "Tidak ada hasil di sini."
 
 msgid "Sort by:"
-msgstr ""
+msgstr "Urutkan berdasarkan:"
 
 msgid "Title"
 msgstr ""
 
 msgid "Date"
-msgstr ""
+msgstr "Tanggal"
 
 msgid "Sort Order"
-msgstr ""
+msgstr "Urutan Jenis"
 
 msgid "Crop thumbnails"
-msgstr ""
+msgstr "Pangkas keluku"
 
 msgid "Go to Page:"
-msgstr ""
+msgstr "Pergi ke Halaman:"
 
 msgid "Columns:"
-msgstr ""
+msgstr "Kolom:"
 
 msgid "Switch to Compact Mode"
-msgstr ""
+msgstr "Beralih ke Mode Ringkas"
 
 msgid "Switch to Thumbnail Mode"
-msgstr ""
+msgstr "Beralih ke Mode Keluku"
 
 msgid "Title"
 msgstr ""
 
 msgid "Artist"
-msgstr ""
+msgstr "Seniman"
 
 msgid "Series"
-msgstr ""
+msgstr "Seri"
 
 msgid "Tags"
 msgstr ""
@@ -693,106 +800,120 @@ msgstr ""
 
 msgid "I don't know everything, but I sure as hell know this database's busted lads"
 msgstr ""
+"Saya tidak tahu segalanya, tapi yang pasti pangkalan data ini rusak, kawan"
 
 msgid "The database cache is corrupt, and as such LANraragi is unable to display your archive list."
 msgstr ""
+"Pangkalan data singgahan rusak, sehingga LANraragi tidak dapat menampilkan "
+"daftar arsip Anda."
 
 msgid "Read"
-msgstr ""
+msgstr "Baca"
 
 msgid "Download"
-msgstr ""
+msgstr "Unduh"
 
 msgid "Edit Metadata"
-msgstr ""
+msgstr "Sunting Metadata"
 
 msgid "Delete"
-msgstr ""
+msgstr "Hapus"
 
 msgid "Add Rating"
-msgstr ""
+msgstr "Tambahkan Peringkat"
 
 msgid "Add to Category"
-msgstr ""
+msgstr "Tambahkan ke Kategori"
 
 msgid "New Version Release Notes"
-msgstr ""
+msgstr "Catatan Rilis Versi Baru"
 
 msgid "You\'re using the default password and that\'s super baka of you"
-msgstr ""
+msgstr "Anda menggunakan kata sandi asali dan itu sangat baka"
 
 msgid "Login with password \"kamimamita\" and change that shit on the double. ...Or just disable it! Why not check the configuration options afterwards, while you\'re at it?"
 msgstr ""
+"<a href=\"/login\">Log masuk</a> menggunakan kata sandi \"kamimamita\", lalu "
+"<a href=\"/config\">ganti secepatnya</a>.<br/>... Atau nonaktifkan saja "
+"fiturnya!<br/>Selagi di sana, periksa juga pilihan konfigurasi lainnya. "
 
 # ------End of Index.html.tt2------
 # ------Start of Login.html.tt2------
 msgid "This page requires you to log on."
-msgstr ""
+msgstr "Halaman ini memerlukan Anda untuk log masuk."
 
 msgid "Admin Password:"
-msgstr ""
+msgstr "Kata Sandi Admin:"
 
 msgid "Login"
-msgstr ""
+msgstr "Log Masuk"
 
 msgid "Wrong Password."
-msgstr ""
+msgstr "Kata Sandi Salah."
 
 msgid "<a href='\${url}'>Login</a> to toggle bookmark feature."
-msgstr ""
+msgstr "<a href='${url}'>Log masuk</a> untuk mengaktifkan fitur penanda."
 
 # ------End of Login.html.tt2------
 # ------Start of Logs.html.tt2------
 msgid "Application Logs"
-msgstr ""
+msgstr "Pencatatan Aplikasi"
 
 msgid "You can check LANraragi logs here for debugging purposes."
 msgstr ""
+"Anda dapat memeriksa pencatatan LANraragi di sini untuk keperluan "
+"mengawakutu."
 
 msgid "By default, this view only shows the last 100 lines of each logfile, newest lines last."
 msgstr ""
+"Secara asali, tampilan ini hanya menampilkan 100 baris terakhir dari setiap "
+"berkas pencatatan, dengan baris terbaru di bagian bawah."
 
 msgid "General Logs pertain to the main application."
-msgstr ""
+msgstr "Pencatatan Umum berkaitan dengan aplikasi utama."
 
 msgid "Shinobu Logs correspond to the Background Worker."
-msgstr ""
+msgstr "Pencatatan Shinobu berkaitan dengan Pekerja Latar Belakang."
 
 msgid "Plugin Logs are reserved for metadata plugins only."
-msgstr ""
+msgstr "Pencatatan Plugin khusus untuk plugin metadata saja."
 
 msgid "Mojolicious logs won't tell much unless you're running Debug Mode."
 msgstr ""
+"Pencatatan Mojolicious tidak akan memberikan banyak informasi kecuali Anda "
+"menjalankan Mode Awakutu."
 
 msgid "Redis logs won't be available from here if you're running from source!"
 msgstr ""
+"Pencatatan Redis tidak akan tersedia di sini jika Anda menjalankan langsung "
+"dari sumber!"
 
 msgid "Currently Viewing:"
-msgstr ""
+msgstr "Sedang Melihat: "
 
 msgid "general"
-msgstr ""
+msgstr "umum"
 
 msgid "Refresh"
-msgstr ""
+msgstr "Segarkan"
 
 msgid "Lines:"
-msgstr ""
+msgstr "Baris: "
 
 msgid "View LANraragi Logs"
-msgstr ""
+msgstr "Lihat Pencatatan LANraragi"
 
 msgid "View Shinobu Logs"
-msgstr ""
+msgstr "Lihat Pencatatan Shinobu"
 
 msgid "View Plugin Logs"
-msgstr ""
+msgstr "Lihat Pencatatan Plugin"
 
 msgid "View Mojolicious Logs"
-msgstr ""
+msgstr "Lihat Pencatatan Mojolicious"
 
 msgid "View Redis Logs"
-msgstr ""
+msgstr "Lihat Pencatatan Redis"
 
 msgid "Return to Library"
 msgstr ""
@@ -800,287 +921,304 @@ msgstr ""
 # ------End of Logs.html.tt2------
 # ------Start of Plugins.html.tt2------
 msgid "Plugin Configuration"
-msgstr ""
+msgstr "Konfigurasi Plugin"
 
 msgid "Enable/Disable Auto-Plugin on metadata plugins by checking the toggles."
 msgstr ""
+"Aktifkan/Nonaktifkan Plugin Otomatis pada plugin metadata dengan tombol alih."
 
 msgid "Plugins will be automatically used on new archives if they're toggled here."
 msgstr ""
+"Plugin akan digunakan secara otomatis pada arsip baru jika diaktifkan di "
+"sini."
 
 msgid "If they have configuration variables, you can set them here as well."
 msgstr ""
+"Jika plugin memiliki variabel konfigurasi, Anda juga dapat mengaturnya di "
+"sini."
 
 msgid "You can also trigger Scripts here. Triggering a script will save your Plugin settings beforehand."
 msgstr ""
+"Anda juga dapat menjalankan Skrip di sini. Menjalankan skrip akan menyimpan "
+"pengaturan Plugin terlebih dahulu."
 
 msgid "Login Plugins"
-msgstr ""
+msgstr "Plugin Log Masuk"
 
 msgid "Downloaders"
-msgstr ""
+msgstr "Pengunduh"
 
 msgid "Scripts"
-msgstr ""
+msgstr "Skrip"
 
 msgid "Metadata Plugins"
-msgstr ""
+msgstr "Plugin Metadata"
 
 msgid "Allow Plugins to replace archive titles:"
-msgstr ""
+msgstr "Izinkan plugin untuk mengganti judul arsip:"
 
 msgid "If enabled, metadata plugins will be able to change the title of your archives alongside adding tags to them."
 msgstr ""
+"Jika diaktifkan, plugin metadata dapat mengubah judul arsip selain "
+"menambahkan tag."
 
 msgid "A script is running..."
-msgstr ""
+msgstr "Skrip sedang berjalan ..."
 
 msgid "Save Plugin Configuration"
-msgstr ""
+msgstr "Simpan Konfigurasi Plugin"
 
 msgid "Upload Plugin"
-msgstr ""
+msgstr "Unggah Plugin"
 
 msgid "Return to Library"
 msgstr ""
 
 msgid "This plugin will trigger on URLs matching this regex!"
-msgstr ""
+msgstr "Plugin ini akan berjalan pada URL yang sesuai dengan regex ini!"
 
 msgid "This plugin depends on the login plugin"
-msgstr ""
+msgstr "Plugin ini membutuhkan plugin log masuk untuk berfungsi"
 
 msgid "Trigger Script"
-msgstr ""
+msgstr "Jalankan Skrip"
 
 msgid "Run Automatically"
-msgstr ""
+msgstr "Jalankan Secara Otomatis"
 
 msgid "Plugin Settings"
-msgstr ""
+msgstr "Pengaturan Plugin"
 
 # ------End of Plugins.html.tt2------
 # ------Start of Reader.html.tt2------
 msgid "Done reading? Go back to Archive Index"
-msgstr ""
+msgstr "Sudah selesai membaca? Kembali ke Indeks Arsip"
 
 msgid "View full-size image"
-msgstr ""
+msgstr "Lihat gambar ukuran penuh"
 
 msgid "Switch to another random archive"
-msgstr ""
+msgstr "Beralih ke arsip acak lainnya"
 
 msgid "Archive Overview"
 msgstr ""
 
 msgid "Admin Options"
-msgstr ""
+msgstr "Pengaturan Admin"
 
 msgid "Set this Page as Thumbnail"
-msgstr ""
+msgstr "Tetapkan Halaman Ini sebagai Keluku"
 
 msgid "Set the currently opened page as the thumbnail for this archive."
-msgstr ""
+msgstr "Tetapkan halaman yang sedang dibuka sebagai keluku untuk arsip ini."
 
 msgid "Clean Archive Cache"
-msgstr ""
+msgstr "Bersihkan Singgahan Arsip"
 
 msgid "Edit Archive Metadata"
-msgstr ""
+msgstr "Sunting Metadata Arsip"
 
 msgid "Delete Archive"
-msgstr ""
+msgstr "Hapus Arsip"
 
 msgid "Categories"
-msgstr ""
+msgstr "Kategori"
 
 msgid "Add to : "
-msgstr ""
+msgstr "Tambahkan ke: "
 
 msgid " -- No Category -- "
 msgstr ""
 
 msgid "Add Archive to Category"
-msgstr ""
+msgstr "Tambahkan Arsip ke Kategori"
 
 msgid "Pages"
-msgstr ""
+msgstr "Halaman"
 
 msgid "Working on it..."
-msgstr ""
+msgstr "Sedang diproses ..."
 
 msgid "You can navigate between pages using:"
-msgstr ""
+msgstr "Anda dapat berpindah antar halaman menggunakan:"
 
 msgid "The arrow icons"
-msgstr ""
+msgstr "Ikon panah"
 
 msgid "The a/d keys"
-msgstr ""
+msgstr "Tombol A/D"
 
 msgid "Your keyboard arrows (and the spacebar)"
-msgstr ""
+msgstr "Tombol panah (dan spasi)"
 
 msgid "Touching the left/right side of the image."
-msgstr ""
+msgstr "Menyentuh sisi kiri/kanan gambar"
 
 msgid "Other keyboard shortcuts:"
-msgstr ""
+msgstr "Pintasan tombol lainnya:"
 
 msgid "M: toggle manga mode (right-to-left reading)"
-msgstr ""
+msgstr "M: beralih ke mode komik (membaca dari kanan ke kiri)"
 
 msgid "O: show advanced reader options."
-msgstr ""
+msgstr "O: tampilkan pengaturan pembaca lanjutan"
 
 msgid "P: toggle double page mode"
-msgstr ""
+msgstr "P: beralih ke mode halaman ganda"
 
 msgid "Q: bring up the thumbnail index and archive options."
-msgstr ""
+msgstr "Q: tampilkan indeks keluku dan pengaturan arsip"
 
 msgid "R: open a random archive."
-msgstr ""
+msgstr "R: buka arsip acak"
 
 msgid "F: toggle fullscreen mode"
-msgstr ""
+msgstr "F: beralih ke mode layar penuh"
 
 msgid "B: toggle bookmark"
-msgstr ""
+msgstr "B: tambahkan penanda"
 
 msgid "To return to the archive index, touch the arrow pointing down or use Backspace."
 msgstr ""
+"Untuk kembali ke indeks arsip, sentuh panah bawah atau tekan tombol "
+"<i>backspace</i>."
 
 msgid "Reader Options"
-msgstr ""
+msgstr "Pengaturan Pembaca"
 
 msgid "Those options save automatically -- Click around and find out!"
-msgstr ""
+msgstr "Pengaturan tersimpan secara otomatis — Klik dan coba saja!"
 
 msgid "Fit display to"
-msgstr ""
+msgstr "Sesuaikan tampilan dengan"
 
 msgid "Container"
-msgstr ""
+msgstr "Wadah"
 
 msgid "Width"
-msgstr ""
+msgstr "Lebar"
 
 msgid "Height"
-msgstr ""
+msgstr "Tinggi"
 
 msgid "Container Width (in pixels or percentage)"
-msgstr ""
+msgstr "Ketinggian Wadah (dalam piksel atau persentase)"
 
 msgid "The default value is 1200px, or 90% in Double Page Mode."
-msgstr ""
+msgstr "Nilai asali adalah 1200px, atau 90% dalam Mode Halaman Ganda."
 
 msgid "Apply"
-msgstr ""
+msgstr "Terapkan"
 
 msgid "Page Rendering"
-msgstr ""
+msgstr "Pembuatan Halaman"
 
 msgid "Single"
-msgstr ""
+msgstr "Tunggal"
 
 msgid "Double"
-msgstr ""
+msgstr "Ganda"
 
 msgid "Reading Direction"
 msgstr ""
 
 msgid "Left to Right"
-msgstr ""
+msgstr "Kiri ke Kanan"
 
 msgid "Right to Left"
-msgstr ""
+msgstr "Kanan ke Kiri"
 
 msgid "How many images to preload"
-msgstr ""
+msgstr "Berapa banyak gambar yang akan dipramuat"
 
 msgid "The default is two images."
-msgstr ""
+msgstr "Standarnya adalah dua gambar."
 
 msgid "Header"
 msgstr ""
 
 msgid "Visible"
-msgstr ""
+msgstr "Terlihat"
 
 msgid "Hidden"
-msgstr ""
+msgstr "Tersembunyi"
 
 msgid "Show Archive Overlay by default"
-msgstr ""
+msgstr "Tampilkan Hamparan Arsip secara asali"
 
 msgid "This will show the overlay with thumbnails every time you open a new Reader page."
 msgstr ""
+"Ini akan menampilkan hamparan dengan keluku setiap kali Anda membuka halaman "
+"Pembaca baru."
 
 msgid "Enabled"
-msgstr ""
+msgstr "Aktif"
 
 msgid "Disabled"
-msgstr ""
+msgstr "Nonaktif"
 
 msgid "Progression Tracking"
-msgstr ""
+msgstr "Pelacakan Kemajuan"
 
 msgid "Disabling tracking will restart reading from page one every time you reopen the reader."
 msgstr ""
+"Menonaktifkan pelacakan akan memulai ulang pembacaan dari halaman satu "
+"setiap kali Anda membuka kembali pembaca."
 
 msgid "Infinite Scrolling"
-msgstr ""
+msgstr "Gulir Tanpa Batas"
 
 msgid "Display all images in a vertical view in the same page."
-msgstr ""
+msgstr "Tampilkan semua gambar dalam tampilan vertikal di halaman yang sama."
 
 msgid "Reader Settings"
-msgstr ""
+msgstr "Pengaturan Pembaca"
 
 msgid "Help"
-msgstr ""
+msgstr "Bantuan"
 
 msgid "Reading Direction"
-msgstr ""
+msgstr "Arah Membaca"
 
 msgid "Archive Overview"
-msgstr ""
+msgstr "Ikhtisar Arsip"
 
 msgid "FullScreen"
-msgstr ""
+msgstr "Layar Penuh"
 
 msgid "Toggle Bookmark"
-msgstr ""
+msgstr "Tambahkan Penanda"
 
 # ------End of Reader.html.tt2------
 # ------Start of Stats.html.tt2------
 msgid "Library Statistics"
-msgstr ""
+msgstr "Statistik Pustaka"
 
 msgid "Archives on record"
-msgstr ""
+msgstr "arsip yang tercatat"
 
 msgid "Different tags existing"
-msgstr ""
+msgstr "tag yang berbeda"
 
 msgid "in content folder"
-msgstr ""
+msgstr "di dalam isi folder"
 
 msgid "pages read"
-msgstr ""
+msgstr "halaman dibaca"
 
 msgid "Tag Cloud"
-msgstr ""
+msgstr "Awan Tag"
 
 msgid "Asking the great powers that be for your tag statistics..."
-msgstr ""
+msgstr "Meminta kekuatan besar untuk memberikan statistik tag Anda ..."
 
 msgid "Detailed Stats"
-msgstr ""
+msgstr "Statistik Terperinci"
 
 msgid "(These statistics only show tags that appear at least twice in your database.)"
 msgstr ""
+"(Statistik ini hanya menampilkan tag yang muncul setidaknya dua kali dalam "
+"pangkalan data Anda)"
 
 msgid "Return to Library"
 msgstr ""
@@ -1088,403 +1226,446 @@ msgstr ""
 # ------End of Stats.html.tt2------
 # ------Start of Upload.html.tt2------
 msgid "Upload Center"
-msgstr ""
+msgstr "Pusat Unggahan"
 
 msgid "Adding Archives to the Library"
-msgstr ""
+msgstr "Menambahkan Arsip ke Pustaka"
 
 msgid "Add files to your LANraragi instance from your computer, or the Internet directly."
 msgstr ""
+"Tambahkan berkas ke instansi LANraragi Anda dari komputer atau langsung dari "
+"Internet."
 
 msgid "Add uploaded files to category:"
-msgstr ""
+msgstr "Tambahkan berkas terunggah ke kategori:"
 
 msgid " -- No Category -- "
-msgstr ""
+msgstr " -- Tidak Ada Kategori -- "
 
 msgid "From your computer"
-msgstr ""
+msgstr "Dari komputer"
 
 msgid "You can drag and drop files into this window, or click the upload button."
 msgstr ""
+"Anda dapat menyeret dan menjatuhkan berkas ke jendela ini, atau mengklik "
+"tombol unggah."
 
 msgid "Add from your computer"
-msgstr ""
+msgstr "Tambahkan dari komputer"
 
 msgid "From the Internet"
-msgstr ""
+msgstr "Dari internet"
 
 msgid "You can download files from remote URLs directly into LANraragi from here."
 msgstr ""
+"Anda dapat mengunduh berkas dari URL jarak jauh langsung ke LANraragi dari "
+"sini."
 
 msgid "Download jobs will keep going even if you close this window!"
-msgstr ""
+msgstr "Proses unduhan akan terus berjalan meskipun Anda menutup jendela ini!"
 
 msgid "Type in your URLs (separated by a newline), and click the download button."
-msgstr ""
+msgstr "Ketik URL (dipisahkan dengan baris baru), dan klik tombol unduh."
 
 msgid "If a Downloader plugin is compatible with the URL, it'll be automatically used."
 msgstr ""
+"Jika <a href=\"[% c.url_for(\"/config/plugins\") %]\">plugin pengunduh</a> "
+"cocok dengan URL, plugin tersebut akan digunakan secara otomatis."
 
 msgid "URL(s) to download:"
-msgstr ""
+msgstr "URL yang akan diunduh:"
 
 msgid "Add from URL(s)"
-msgstr ""
+msgstr "Tambahkan dari URL"
 
 msgid "Return to Library"
-msgstr ""
+msgstr "Kembali ke Pustaka"
 
 # ------End of Upload.html.tt2------
 msgid "Rescan Archive Directory"
-msgstr ""
+msgstr "Pindai Ulang Direktori Arsip"
 
 msgid "Click this button to trigger a rescan of the Archive Directory in case you're missing files, or some data such as total page counts."
 msgstr ""
+"Klik tombol ini untuk memicu pemindaian ulang Direktori Arsip apabila Anda "
+"kehilangan berkas, <br>atau beberapa data seperti jumlah total halaman. <br>"
 
 # ------Stary of i18n.html.tt2------
 msgid "Backup restored!"
-msgstr ""
+msgstr "Cadangan dipulihkan!"
 
 msgid "An error occured while restoring the backup.<br/> Please check the server logs and that your JSON is correctly formatted."
 msgstr ""
+"Terjadi galat memulihkan cadangan.<br/> Harap periksa pencatatan peladen dan "
+"pastikan JSON Anda diformat dengan benar."
 
 msgid "Couldn't load the complete archive list! Please reload the page."
-msgstr ""
+msgstr "Tidak dapat memuat daftar arsip lengkap! Harap muat ulang halaman."
 
 msgid "Couldn't load the tag statistics! Please reload the page."
-msgstr ""
+msgstr "Tidak dapat memuat statistik tag! Harap muat ulang halaman."
 
 msgid "Error getting untagged archives!"
-msgstr ""
+msgstr "Galat mengambil arsip yang tidak memiliki tag!"
 
 msgid "Are you sure you want to delete this archive?"
-msgstr ""
+msgstr "Apakah Anda yakin ingin menghapus arsip ini?"
 
 msgid "Are you sure you want to delete the selected archives?"
-msgstr ""
+msgstr "Apakah Anda yakin ingin menghapus arsip yang dipilih?"
 
 msgid "This action cannot be undone!"
-msgstr ""
+msgstr "Tindakan ini tidak dapat dibatalkan!"
 
 msgid "This action (truly) cannot be undone!"
-msgstr ""
+msgstr "Tindakan ini (benar-benar) tidak dapat dibatalkan!"
 
 msgid "Yes, delete it!"
-msgstr ""
+msgstr "Ya, hapus!"
 
 msgid "No, keep it!"
-msgstr ""
+msgstr "Tidak, biarkan saja!"
 
 msgid "Error while deleting cache! Check application logs."
-msgstr ""
+msgstr "Galat menghapus singgahan! Periksa pencatatan aplikasi."
 
 msgid "Error while processing request"
-msgstr ""
+msgstr "Galat memproses permintaan"
 
 msgid "Error checking Minion job status"
-msgstr ""
+msgstr "Galat memeriksa status pekerjaan Minion"
 
 msgid "Saved!"
-msgstr ""
+msgstr "Disimpan!"
 
 msgid "Error saving data"
-msgstr ""
+msgstr "Galat menyimpan data"
 
 msgid "Started Batch Operation..."
-msgstr ""
+msgstr "Memulai Operasi Tumpak ..."
 
 msgid "Batch Operation complete!"
-msgstr ""
+msgstr "Operasi Tumpak selesai!"
 
 msgid "An error occured during batch tagging!"
-msgstr ""
+msgstr "Terjadi galat menambahkan tag tumpak!"
 
 msgid "Please check application logs."
-msgstr ""
+msgstr "Harap periksa pencatatan aplikasi."
 
 msgid "Error! Terminating session."
-msgstr ""
+msgstr "Galat! Mengakhiri sesi."
 
 msgid "Sleeping for \${x} seconds."
-msgstr ""
+msgstr "Tidur selama ${x} detik."
 
 msgid "Error while processing ID \${id} (\${msg})"
-msgstr ""
+msgstr "Galat memproses ID ${id} (${msg})"
 
 msgid "Processed ID \${id} with \"\${plug}\" (Added tags: \${tags})"
-msgstr ""
+msgstr "Memproses ID ${id} dengan \"${plug}\" (Tag yang ditambahkan: ${tags})"
 
 msgid "Deleted ID \${id} (Filename: \${filename})"
-msgstr ""
+msgstr "Menghapus ID ${id} (Nama berkas: ${filename})"
 
 msgid "Replaced tags for ID \${id} (New tags: \${tags})"
-msgstr ""
+msgstr "Mengganti tag untuk ID ${id} (Tag baru: ${tags})"
 
 msgid "Added ID \${id} to category \${category}! (\${msg})"
-msgstr ""
+msgstr "Menambahkan ID ${id} ke kategori ${category}! (${msg})"
 
 msgid "Cleared new flag for ID \${id}!"
-msgstr ""
+msgstr "Menghapus tanda baru untuk ID ${id}!"
 
 msgid "Unknown operation \${oper} (\${msg})"
-msgstr ""
+msgstr "Operasi tidak dikenal ${oper} (${msg})"
 
 msgid "Changed title to: \${title}"
-msgstr ""
+msgstr "Mengubah judul menjadi: ${title}"
 
 msgid "Reloading page in 5 seconds to account for deleted archives..."
 msgstr ""
+"Memuat ulang halaman dalam 5 detik untuk menyesuaikan dengan arsip yang "
+"dihapus ..."
 
 msgid "Cancelling Batch Operation..."
-msgstr ""
+msgstr "Membatalkan Operasi Tumpak ..."
 
 msgid "Enter a name for the new category"
-msgstr ""
+msgstr "Masukkan nama untuk kategori baru"
 
 msgid "My Category"
-msgstr ""
+msgstr "Kategori Saya"
 
 msgid "Please enter a category name."
-msgstr ""
+msgstr "Harap masukkan nama kategori."
 
 msgid "No category"
-msgstr ""
+msgstr "Tidak ada kategori"
 
 msgid "Error getting categories from server"
-msgstr ""
+msgstr "Galat mengambil kategori dari peladen"
 
 msgid "Error modifying category"
-msgstr ""
+msgstr "Galat mengubah kategori"
 
 msgid "The category will be deleted permanently."
-msgstr ""
+msgstr "Kategori akan dihapus secara permanen."
 
 msgid "Category deleted!"
-msgstr ""
+msgstr "Kategori dihapus!"
 
 msgid "Error deleting category"
-msgstr ""
+msgstr "Galat menghapus kategori"
 
 msgid "Writing a Predicate"
-msgstr ""
+msgstr "Menulis Predikat"
 
 msgid "Predicates follow the same syntax as searches in the Archive Index. Check the Documentation for more information."
 msgstr ""
+"Predikat mengikuti sintaks yang sama dengan penelusuran di Indeks Arsip. "
+"Lihat <a href="
+"\"https://sugoi.gitbook.io/lanraragi/basic-operations/searching\""
+">Dokumentasi</a> untuk informasi lebih lanjut."
 
 msgid "Background Worker restarted!"
-msgstr ""
+msgstr "Pekerja Latar Belakang dimulai ulang!"
 
 msgid "Error restarting Worker:"
-msgstr ""
+msgstr "Galat memulai ulang Pekerja:"
 
 msgid "Content folder rescan started!"
-msgstr ""
+msgstr "Pemindaian ulang isi folder dimulai!"
 
 msgid "Error starting content folder rescan:"
-msgstr ""
+msgstr "Galat memulai pemindaian ulang folder:"
 
 msgid "Error while querying Shinobu status:"
-msgstr ""
+msgstr "Galat memeriksa status Shinobu:"
 
 msgid "About Plugins"
-msgstr ""
+msgstr "Tentang Plugin"
 
 msgid "You can use plugins to automatically fetch metadata for this archive. <br/> Just select a plugin from the dropdown and hit Go! <br/> Some plugins might provide an optional argument for you to specify. If that's the case, a textbox will be available to input said argument."
 msgstr ""
+"Anda dapat menggunakan plugin untuk mengambil metadata arsip ini secara "
+"otomatis. <br/> Pilih plugin dalam daftar tarik-turun dan klik Mulai! <br/> "
+"Beberapa plugin mungkin memerlukan argumen tambahan. Jika diperlukan, kotak "
+"teks akan muncul untuk memasukkan argumen tersebut."
 
 msgid "Metadata saved!"
-msgstr ""
+msgstr "Metadata disimpan!"
 
 msgid "Error saving archive metadata"
-msgstr ""
+msgstr "Galat menyimpan metadata arsip"
 
 msgid "Error while fetching tags"
-msgstr ""
+msgstr "Galat mengambil tag"
 
 msgid "Archive title changed to"
-msgstr ""
+msgstr "Judul arsip diubah menjadi"
 
 msgid "Archive summary updated!"
-msgstr ""
+msgstr "Ringkasan arsip dimutakhirkan!"
 
 msgid "Added the following tags"
-msgstr ""
+msgstr "Menambahkan tag berikut"
 
 msgid "No new tags added!"
-msgstr ""
+msgstr "Tidak ada tag baru yang ditambahkan!"
 
 # Do not translate _START_, _END_ or _TOTAL_.
 msgid "Showing _START_ to _END_ of _TOTAL_ ancient chinese lithographies."
-msgstr ""
+msgstr "Menampilkan _START_ hingga _END_ dari _TOTAL_ prasasti Tiongkok kuno."
 
 msgid "No archives to show you! Try <a href=\"\${url}\")>uploading some</a>?"
 msgstr ""
+"Tidak ada arsip untuk ditampilkan! Coba <a href=\"${url}\")>mengunggah "
+"beberapa</a> terlebih dahulu?"
 
 msgid "Welcome to LANraragi \${version}!"
-msgstr ""
+msgstr "Selamat datang di LANraragi ${version}!"
 
 msgid "If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!"
 msgstr ""
+"Jika Anda ingin melakukan operasi lanjutan pada arsip, cukup klik kanan pada "
+"namanya. Selamat membaca!"
 
 msgid "Error getting basic server info."
-msgstr ""
+msgstr "Galat mengambil informasi dasar peladen."
 
 msgid "You're running in Debug Mode!"
-msgstr ""
+msgstr "Anda berjalan dalam Mode Awakutu!"
 
 msgid "Advanced server statistics can be viewed <a href=\"\${url}\")>here</a>."
 msgstr ""
+"Statistik peladen lanjutan dapat dilihat <a href=\"${url}\")>di sini</a>."
 
 msgid "Enter a tag namespace for this column"
-msgstr ""
+msgstr "Masukkan ruang nama tag untuk kolom ini"
 
 msgid "Enter a full namespace without the colon, e.g \"artist\"."
 msgstr ""
+"Masukkan ruang nama lengkap tanpa tanda titik dua, misalnya \"seniman\"."
 
 msgid "If you have multiple tags with the same namespace, only the last one will be shown in the column."
 msgstr ""
+"Jika Anda memiliki beberapa tag dengan ruang nama yang sama, hanya tag "
+"terakhir yang akan ditampilkan di kolom."
 
 msgid "Tag namespace"
-msgstr ""
+msgstr "Tag ruang nama"
 
 msgid "Please enter a tag namespace."
-msgstr ""
+msgstr "Harap masukkan tag ruang nama."
 
 msgid "Randomly Picked"
-msgstr ""
+msgstr "Dipilih Secara Acak"
 
 msgid "New Archives"
-msgstr ""
+msgstr "Arsip Baru"
 
 msgid "Untagged Archives"
-msgstr ""
+msgstr "Arsip Tanpa Tag"
 
 msgid "On Deck"
-msgstr ""
+msgstr "Baru Dibaca"
 
 msgid "Error getting carousel data!"
-msgstr ""
+msgstr "Galat mengambil data korsel!"
 
 msgid "Edit this column"
-msgstr ""
+msgstr "Sunting kolom ini"
 
 msgid "Title"
-msgstr ""
+msgstr "Judul"
 
 msgid "Tags"
-msgstr ""
+msgstr "Tag"
 
 msgid "Header"
-msgstr ""
+msgstr "Tajuk"
 
 msgid "A new version of LANraragi (\${version}) is available!"
-msgstr ""
+msgstr "Versi baru LANraragi (${version}) telah tersedia!"
 
 msgid "Click here to check it out."
-msgstr ""
+msgstr "Klik di sini untuk memeriksanya."
 
 msgid "Error getting changelog for new version"
-msgstr ""
+msgstr "Galat mengambil catatan perubahan versi baru"
 
 msgid "Couldn't load data for \${id}!"
-msgstr ""
+msgstr "Tidak dapat memuat data ${id}!"
 
 msgid "Github API rate limit exceeded."
-msgstr ""
+msgstr "Batas API GitHub terlampaui."
 
 msgid "Github API returned status: \${status}"
-msgstr ""
+msgstr "API GitHub mengembalikan status: ${status}"
 
 msgid "This archive isn't in any category."
-msgstr ""
+msgstr "Arsip ini tidak berada dalam kategori apa pun."
 
 msgid "No Categories yet..."
-msgstr ""
+msgstr "Belum ada Kategori ..."
 
 msgid "Remove rating"
-msgstr ""
+msgstr "Hapus peringkat"
 
 msgid "Click here to display new archives only."
-msgstr ""
+msgstr "Klik di sini untuk menampilkan arsip baru saja."
 
 msgid "Click here to display untagged archives only."
-msgstr ""
+msgstr "Klik di sini untuk menampilkan arsip tanpa tag saja."
 
 msgid "Click here to display archives in this category only."
-msgstr ""
+msgstr "Klik di sini untuk menampilkan arsip di kategori ini saja."
 
 msgid "Your Reading Progression is now saved on the server!"
-msgstr ""
+msgstr "Kemajuan Membaca Anda sekarang disimpan di peladen!"
 
 msgid "You seem to have some local progression hanging around -- Please wait warmly while we migrate it to the server for you."
 msgstr ""
+"Sepertinya Anda memiliki kemajuan lokal yang tertinggal — Harap tunggu "
+"sementara kami memindahkannya ke peladen."
 
 msgid "Error while migrating local progression to server"
-msgstr ""
+msgstr "Galat memindahkan kemajuan lokal ke peladen"
 
 msgid "Reading Progression has been fully migrated"
-msgstr ""
+msgstr "Kemajuan Membaca telah dipindahkan sepenuhnya"
 
 msgid "You'll have to reopen archives in the Reader to see the migrated progression values."
 msgstr ""
+"Anda harus membuka kembali arsip di Pembaca untuk melihat nilai kemajuan "
+"yang telah dipindahkan."
 
 msgid "Plugin uploaded successfully!"
-msgstr ""
+msgstr "Plugin berhasil diunggah!"
 
 msgid "The plugin \${name} has been successfully added. Refresh the page to see it."
-msgstr ""
+msgstr "Plugin ${name} berhasil ditambahkan. Segarkan halaman untuk melihatnya."
 
 msgid "Error uploading plugin"
-msgstr ""
+msgstr "Galat mengunggah plugin"
 
 msgid "Successfully set page \${page} as the thumbnail!"
-msgstr ""
+msgstr "Berhasil mengatur halaman ${page} sebagai keluku!"
 
 msgid "Error updating thumbnail"
-msgstr ""
+msgstr "Galat memutakhirkan keluku"
 
 msgid "Error clearing new flag"
-msgstr ""
+msgstr "Galat menghapus tanda baru"
 
 msgid "Error getting the archive's imagelist."
-msgstr ""
+msgstr "Galat mengambil daftar gambar arsip."
 
 msgid "This archive seems to be in RAR format!"
-msgstr ""
+msgstr "Arsip ini sepertinya dalam format RAR!"
 
 msgid "RAR archives might not work properly in LANraragi depending on how they were made. If you encounter errors while reading, consider converting your archive to zip."
 msgstr ""
+"Arsip RAR mungkin tidak berfungsi dengan baik di LANraragi tergantung pada "
+"cara pembuatannya. Jika Anda menemui kesalahan saat membaca, pertimbangkan "
+"untuk mengonversi arsip Anda ke zip."
 
 msgid "EPUB support in LANraragi is minimal"
-msgstr ""
+msgstr "LANraragi memiliki dukungan EPUB yang terbatas"
 
 msgid "EPUB books will only show images in the Web Reader, and potentially out of order. If you want text support, consider pairing LANraragi with an OPDS reader."
 msgstr ""
+"Buku EPUB hanya akan menampilkan gambar di Pembaca Web, dan mungkin tidak "
+"berurutan. Jika Anda ingin dukungan teks, pertimbangkan untuk memasangkan "
+"LANraragi dengan <a href='https://sugoi.gitbook.io/lanraragi/advanced-usage/"
+"external-readers#generic-opds-readers'>pembaca OPDS.</a>"
 
 msgid "Navigation Help"
-msgstr ""
+msgstr "Bantuan Navigasi"
 
 msgid "Error updating reading progression"
-msgstr ""
+msgstr "Galat memutakhirkan kemajuan membaca"
 
 msgid "Page \${page}"
-msgstr ""
+msgstr "Halaman ${page}"
 
 msgid "The page thumbnailing job didn't conclude properly. Your archive might be corrupted."
 msgstr ""
+"Pembuatan keluku halaman tidak selesai dengan benar. Arsip Anda mungkin "
+"rusak."
 
 msgid "A script is already running."
-msgstr ""
+msgstr "Ada skrip yang berjalan."
 
 msgid "Please wait for it to finish before starting a new one."
-msgstr ""
+msgstr "Harap tunggu hingga selesai sebelum menjalankan yang baru."
 
 msgid "An error occured while running the script"
-msgstr ""
+msgstr "Terjadi galat menjalankan skrip"
 
 msgid "Script result"
-msgstr ""
+msgstr "Hasil skrip"
 
 msgid "Script failed with error: \${error}"
 msgstr ""
