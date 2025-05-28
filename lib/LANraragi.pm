@@ -183,15 +183,7 @@ sub startup {
     $self->minion->enqueue('build_stat_hashes');
 
     # Start a Minion worker in a subprocess
-    if ( $Config{osname} ne 'MSWin32') {
-        start_minion($self);
-    } else {
-        # my $numcpus = Sys::CpuAffinity::getNumCpus();
-        # for my $num ( 1 .. $numcpus ) {
-        #     start_minion($self);
-        # }
-        start_minion($self);
-    }
+    start_minion($self);
 
     # Start File Watcher
     if ( $Config{osname} ne 'MSWin32') {

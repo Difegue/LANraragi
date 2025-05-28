@@ -43,7 +43,7 @@ sub initialize_from_new_process {
     LANraragi::Utils::Minion::add_tasks( $minion );
     $logger->debug("Registered tasks with Minion.");
 
-    my $worker = $minion->worker->register;
+    my $worker = $minion->repair->worker->register;
     my $running = 1;
 
     my $last_heartbeat = 0; 
