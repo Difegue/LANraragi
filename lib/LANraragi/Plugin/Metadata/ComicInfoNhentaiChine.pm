@@ -61,7 +61,7 @@ sub get_tags {
     #新添加
     my $title;
     my $yuanbiaoti;
-    my $yuanzhu;
+    my $yuanzuo;
     my $juese;
     my $zuozhe;
     my $shetuan;
@@ -92,10 +92,10 @@ sub get_tags {
     if ( defined $result ) {
         $yuanbiaoti = $result->text;
     }
-    #原著
+    #原作
     $result = Mojo::DOM->new->xml(1)->parse($stringxml)->at('Series');
     if ( defined $result ) {
-        $yuanzhu = $result->text;
+        $yuanzuo = $result->text;
     }
     #角色
     $result = Mojo::DOM->new->xml(1)->parse($stringxml)->at('Characters');
@@ -150,7 +150,7 @@ sub get_tags {
     #Add prefix and concatenate
     my @found_tags;
     @found_tags = try_add_tags( \@found_tags, "\x{539F}\x{6807}\x{9898}:", $yuanbiaoti );
-    @found_tags = try_add_tags( \@found_tags, "\x{539F}\x{8457}:", $yuanzhu );
+    @found_tags = try_add_tags( \@found_tags, "\x{539F}\x{4F5C}:", $yuanzuo );
     @found_tags = try_add_tags( \@found_tags, "\x{89D2}\x{8272}:", $juese );
     @found_tags = try_add_tags( \@found_tags, "\x{4F5C}\x{8005}:", $zuozhe );
     @found_tags = try_add_tags( \@found_tags, "\x{793E}\x{56E2}:", $shetuan );
@@ -170,7 +170,7 @@ sub get_tags {
         push( @found_tags, trim($genre_tag) );
     }
     my $tags = join( ", ", @found_tags );
-    my $yuanzhu = join( ", ", @found_tags );
+    my $yuanzuo = join( ", ", @found_tags );
     my $juese = join( ", ", @found_tags );
     my $zuozhe = join( ", ", @found_tags );
     my $shetuan = join( ", ", @found_tags );
