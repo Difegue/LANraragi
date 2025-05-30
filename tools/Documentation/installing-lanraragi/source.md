@@ -27,7 +27,9 @@ perlmagick ghostscript npm
 _Base software dependencies._
 
 {% hint style="info" %}
-If your package manager requires you to specify which ImageMagick version to install, choose version 7.
+If your package manager requires you to specify which ImageMagick version to install, choose version 7.  
+If you're using perlbrew, you'll have to install `Alien::ImageMagick` with CPAN in perlbrew's perl lib, which will handle downloading and building the `perlmagick` API bindings for you.  
+(LRR can work without ImageMagick running, but you'll lose out on any thumbnail support)  
 {% endhint %}
 
 {% hint style="info" %}

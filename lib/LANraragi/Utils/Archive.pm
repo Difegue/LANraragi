@@ -1,24 +1,23 @@
 package LANraragi::Utils::Archive;
 
+use v5.36;
+use experimental 'try';
+
 use strict;
 use warnings;
 use utf8;
-
-use feature qw(say);
-use feature qw(signatures);
-no warnings 'experimental::signatures';
 
 use Time::HiRes qw(gettimeofday);
 use File::Basename;
 use File::Path qw(remove_tree make_path);
 use File::Find qw(finddepth);
 use File::Copy qw(move);
+use File::Temp qw(tempfile);
 use Encode;
 use Encode::Guess qw/euc-jp shiftjis 7bit-jis/;
 use Redis;
 use Cwd;
 use Data::Dumper;
-use Image::Magick;
 use Archive::Libarchive qw( ARCHIVE_OK );
 use Archive::Libarchive::Extract;
 use Archive::Libarchive::Peek;
@@ -26,13 +25,13 @@ use File::Temp qw(tempdir);
 
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging    qw(get_logger);
-use LANraragi::Utils::Generic    qw(is_image shasum);
+use LANraragi::Utils::Generic    qw(is_image shasum_str);
 
 # Utilitary functions for handling Archives.
 # Relies on Libarchive, ImageMagick and GhostScript for PDFs.
 use Exporter 'import';
 our @EXPORT_OK =
-  qw(is_file_in_archive extract_file_from_archive extract_single_file extract_archive extract_thumbnail generate_thumbnail get_filelist);
+  qw(is_file_in_archive extract_file_from_archive extract_single_file extract_thumbnail generate_thumbnail get_filelist);
 
 sub is_pdf {
     my ( $filename, $dirs, $suffix ) = fileparse( $_[0], qr/\.[^.]*/ );
@@ -42,85 +41,47 @@ sub is_pdf {
 # use ImageMagick to make a thumbnail, height = 500px (view in index is 280px tall)
 # If use_hq is true, the scale algorithm will be used instead of sample.
 # If use_jxl is true, JPEG XL will be used instead of JPEG.
-sub generate_thumbnail ( $orig_path, $thumb_path, $use_hq, $use_jxl ) {
+sub generate_thumbnail ( $data, $thumb_path, $use_hq, $use_jxl ) {
 
-    my $img = Image::Magick->new;
+    no warnings 'experimental::try';
+    my $img = undef;
+    try {
+        require Image::Magick;
+        $img = Image::Magick->new;
 
-    my $format = $use_jxl ? 'jxl' : 'jpg';
+        my $format = $use_jxl ? 'jxl' : 'jpg';
 
-    # For JPEG, the size option (or jpeg:size option) provides a hint to the JPEG decoder
-    # that it can reduce the size on-the-fly during decoding. This saves memory because
-    # it never has to allocate memory for the full-sized image
-    if ( $format eq 'jpg' ) {
-        $img->Set( option => 'jpeg:size=500x' );
-    }
-
-    # If the image is a gif, only take the first frame
-    if ( $orig_path =~ /\.gif$/ ) {
-        $img->Read( $orig_path . "[0]" );
-    } else {
-        $img->Read($orig_path);
-    }
-
-    # The "-scale" resize operator is a simplified, faster form of the resize command.
-    if ($use_hq) {
-        $img->Scale( geometry => '500x1000' );
-    } else {    # Sample is very fast due to not applying filters.
-        $img->Sample( geometry => '500x1000' );
-    }
-
-    $img->Set( quality => "50", magick => $format );
-    $img->Write($thumb_path);
-    undef $img;
-}
-
-# Extract the given archive to the given path.
-# This sub won't re-extract files already present in the destination unless force = 1.
-sub extract_archive ( $destination, $to_extract, $force_extract ) {
-
-    my $logger = get_logger( "Archive", "lanraragi" );
-    $logger->debug("Fully extracting archive $to_extract");
-
-    # PDFs are handled by Ghostscript (alas)
-    if ( is_pdf($to_extract) ) {
-        return extract_pdf( $destination, $to_extract );
-    }
-
-    # Prepare libarchive with a callback to skip over existing files (unless force=1)
-    my $ae = Archive::Libarchive::Extract->new(
-        filename => $to_extract,
-        entry    => sub {
-            my $e = shift;
-            if ($force_extract) { return 1; }
-
-            my $filename = $e->pathname;
-            if ( -e "$destination/$filename" ) {
-                $logger->debug("$filename already exists in $destination");
-                return 0;
-            }
-            $logger->debug("Extracting $filename");
-
-            # Pre-emptively create the file to signal we're working on it
-            open( my $fh, ">", "$destination/$filename" )
-              or
-              $logger->error("Couldn't create placeholder file $destination/$filename (might be a folder?), moving on nonetheless");
-            close $fh;
-            return 1;
+        # For JPEG, the size option (or jpeg:size option) provides a hint to the JPEG decoder
+        # that it can reduce the size on-the-fly during decoding. This saves memory because
+        # it never has to allocate memory for the full-sized image
+        if ( $format eq 'jpg' ) {
+            $img->Set( option => 'jpeg:size=500x' );
         }
-    );
 
-    # Extract to $destination. This method throws if extraction fails.
-    $ae->extract( to => $destination );
+        $img->BlobToImage($data);
 
-    # Get extraction folder
-    my $result_dir = $ae->to;
-    my $cwd        = getcwd();
+        # Only use the first frame (relevant for animated gif/webp/whatever)
+        $img = $img->[0];
 
-    # chdir back to the base cwd in case finddepth died midway
-    chdir $cwd;
+        # The "-scale" resize operator is a simplified, faster form of the resize command.
+        if ($use_hq) {
+            $img->Scale( geometry => '500x1000' );
+        } else {    # Sample is very fast due to not applying filters.
+            $img->Sample( geometry => '500x1000' );
+        }
 
-    # Return the directory we extracted the files to.
-    return $result_dir;
+        $img->Set( quality => "50", magick => $format );
+        $img->Write($thumb_path);
+    } catch ($e) {
+
+        # Magick is unavailable, do nothing
+        my $logger = get_logger( "Archive", "lanraragi" );
+        $logger->debug("ImageMagick is not available , skipping thumbnail generation: $e");
+    } finally {
+        if (defined($img)) {
+            undef $img;
+        }
+    }
 }
 
 sub extract_pdf ( $destination, $to_extract ) {
@@ -150,9 +111,10 @@ sub extract_pdf ( $destination, $to_extract ) {
 }
 
 # Extracts a thumbnail from the specified archive ID and page. Returns the path to the thumbnail.
-# Non-cover thumbnails land in a folder named after the ID. Specify page=0 if you want the cover.
+# Non-cover thumbnails land in a folder named after the ID.
+# Specify $set_cover if you want the given to page to be placed as the cover thumbnail instead.
 # Thumbnails will be generated at low quality by default unless you specify use_hq=1.
-sub extract_thumbnail ( $thumbdir, $id, $page, $use_hq ) {
+sub extract_thumbnail ( $thumbdir, $id, $page, $set_cover, $use_hq ) {
 
     my $logger = get_logger( "Archive", "lanraragi" );
 
@@ -162,13 +124,10 @@ sub extract_thumbnail ( $thumbdir, $id, $page, $use_hq ) {
 
     # Another subfolder with the first two characters of the id is used for FS optimization.
     my $subfolder = substr( $id, 0, 2 );
-    my $thumbname = "$thumbdir/$subfolder/$id.$format";
     make_path("$thumbdir/$subfolder");
 
     my $redis = LANraragi::Model::Config->get_redis;
-
-    my $file     = $redis->hget( $id, "file" );
-    my $temppath = tempdir();
+    my $file  = $redis->hget( $id, "file" );
 
     # Get first image from archive using filelist
     my ( $images, $sizes ) = get_filelist($file);
@@ -180,19 +139,22 @@ sub extract_thumbnail ( $thumbdir, $id, $page, $use_hq ) {
     die "Requested image not found: $id page $page" unless $requested_image;
     $logger->debug("Extracting thumbnail for $id page $page from $requested_image");
 
-    # Extract first image to temp dir
-    my $arcimg = extract_single_file( $file, $requested_image, $temppath );
+    # Extract requested image to temp dir if it doesn't already exist
+    my $arcimg       = extract_single_file( $file, $requested_image );
 
-    if ( $page - 1 > 0 ) {
+    my $thumbname;
+    unless ($set_cover) {
 
         # Non-cover thumbnails land in a dedicated folder.
         $thumbname = "$thumbdir/$subfolder/$id/$page.$format";
         make_path("$thumbdir/$subfolder/$id");
     } else {
 
+        $thumbname = "$thumbdir/$subfolder/$id.$format";
+
         # For cover thumbnails, grab the SHA-1 hash for tag research.
         # That way, no need to repeat a costly extraction later.
-        my $shasum = shasum( $arcimg, 1 );
+        my $shasum = shasum_str( $arcimg, 1 );
         $logger->debug("Setting thumbnail hash: $shasum");
         $redis->hset( $id, "thumbhash", $shasum );
         $redis->quit();
@@ -201,8 +163,6 @@ sub extract_thumbnail ( $thumbdir, $id, $page, $use_hq ) {
     # Thumbnail generation
     generate_thumbnail( $arcimg, $thumbname, $use_hq, $use_jxl );
 
-    # Clean up safe folder
-    remove_tree($temppath);
     return $thumbname;
 }
 
@@ -237,8 +197,8 @@ sub get_filelist ($archive) {
         $r->support_format_all;
 
         my $ret = $r->open_filename( $archive, 10240 );
-        if ($ret != ARCHIVE_OK) {
-            $logger->error("Couldn't open archive, libarchive says:" . $r->error_string);
+        if ( $ret != ARCHIVE_OK ) {
+            $logger->error( "Couldn't open archive, libarchive says:" . $r->error_string );
             die $r->error_string;
         }
 
@@ -307,7 +267,7 @@ sub is_file_in_archive ( $archive, $wantedname ) {
 
 # Extract $file from $archive to $destination and returns the filesystem path it's extracted to.
 # If the file doesn't exist in the archive, this will still create a file, but empty.
-sub extract_single_file ( $archive, $filepath, $destination ) {
+sub extract_single_file_to_file ( $archive, $filepath, $destination ) {
 
     my $logger = get_logger( "Archive", "lanraragi" );
 
@@ -318,17 +278,34 @@ sub extract_single_file ( $archive, $filepath, $destination ) {
     my ( $name, $path, $suffix ) = fileparse( $outfile, qr/\.[^.]*/ );
     make_path($path);
 
+    my $contents = extract_single_file( $archive, $filepath );
+
+    open( my $fh, '>', $outfile )
+      or die "Could not open file '$outfile' $!";
+    print $fh $contents;
+    close $fh;
+
+    return $outfile;
+}
+
+sub extract_single_file ( $archive, $filepath ) {
+
+    my $logger = get_logger( "Archive", "lanraragi" );
+
+    # Remove file from $outfile and hand the full directory to make_path
     if ( is_pdf($archive) ) {
 
         # For pdfs the filenames are always x.jpg, so we pull the page number from that
         my $page = $filepath;
         $page =~ s/^(\d+).jpg$/$1/;
 
+        my ( $fh, $outfile ) = tempfile();
         my $gscmd = "gs -dNOPAUSE -dFirstPage=$page -dLastPage=$page -sDEVICE=jpeg -r200 -o '$outfile' '$archive'";
         $logger->debug("Extracting page $filepath from PDF $archive");
         $logger->debug($gscmd);
 
         `$gscmd`;
+        return Mojo::File->new($outfile)->slurp;
     } else {
 
         my $contents = "";
@@ -345,14 +322,8 @@ sub extract_single_file ( $archive, $filepath, $destination ) {
                 last;
             }
         }
-
-        open( my $fh, '>', $outfile )
-          or die "Could not open file '$outfile' $!";
-        print $fh $contents;
-        close $fh;
+        return $contents;
     }
-
-    return $outfile;
 }
 
 # Variant for plugins.
@@ -363,7 +334,7 @@ sub extract_file_from_archive ( $archive, $filename ) {
     mkdir $path;
 
     my $tmp = tempdir( DIR => $path, CLEANUP => 1 );
-    return extract_single_file( $archive, $filename, $tmp );
+    return extract_single_file_to_file( $archive, $filename, $tmp );
 }
 
 1;

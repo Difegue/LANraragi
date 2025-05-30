@@ -49,6 +49,7 @@ sub apply_routes {
     $public_routes->get('/random')->to('index#random_archive');
     $public_routes->get('/reader')->to('reader#index');
     $public_routes->get('/stats')->to('stats#index');
+    $public_routes->get('/js/i18n.js')->to('i18_n#index');
 
     # Minion Admin UI
     $self->plugin( 'Minion::Admin' => { route => $logged_in->get('/minion') } );
@@ -88,6 +89,8 @@ sub apply_routes {
 
     $logged_in->get('/tankoubons')->to('tankoubon#index');
 
+    $logged_in->get('/duplicates')->to('duplicates#index');
+
     # OPDS API
     $public_api->get('/api/opds')->to('api-other#serve_opds_catalog');
     $public_api->get('/api/opds/:id')->to('api-other#serve_opds_item');
@@ -117,6 +120,7 @@ sub apply_routes {
     $public_api->get('/api/archives/:id/categories')->to('api-archive#get_categories');
     $public_api->get('/api/archives/:id/tankoubons')->to('api-tankoubon#get_tankoubons_file');
     $public_api->get('/api/archives/:id/metadata')->to('api-archive#serve_metadata');
+    $logged_in_api->put('/api/archives/upload')->to('api-archive#create_archive');
     $logged_in_api->put('/api/archives/:id/thumbnail')->to('api-archive#update_thumbnail');
     $logged_in_api->put('/api/archives/:id/metadata')->to('api-archive#update_metadata');
     $logged_in_api->delete('/api/archives/:id')->to('api-archive#delete_archive');
@@ -147,9 +151,12 @@ sub apply_routes {
 
     # Category API
     $public_api->get('/api/categories')->to('api-category#get_category_list');
+    $public_api->get('/api/categories/bookmark_link')->to('api-category#get_bookmark_link');
     $public_api->get('/api/categories/:id')->to('api-category#get_category');
+    $logged_in_api->put('/api/categories/bookmark_link/:id')->to('api-category#update_bookmark_link');
     $logged_in_api->put('/api/categories')->to('api-category#create_category');
     $logged_in_api->put('/api/categories/:id')->to('api-category#update_category');
+    $logged_in_api->delete('/api/categories/bookmark_link')->to('api-category#remove_bookmark_link');
     $logged_in_api->delete('/api/categories/:id')->to('api-category#delete_category');
     $logged_in_api->put('/api/categories/:id/:archive')->to('api-category#add_to_category');
     $logged_in_api->delete('/api/categories/:id/:archive')->to('api-category#remove_from_category');

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <head>
-	<title>[% title %] - Database Backup/Restore</title>
+	<title>[% title %] - [% c.lh("Database Backup/Restore") %]</title>
 
 	<meta name="viewport" content="width=device-width" />
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -30,6 +30,7 @@
 	<script src="[% c.url_for("/js/vendor/react-toastify.umd.js") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/vendor/sweetalert2.min.js") %]" type="text/JAVASCRIPT"></script>
 
+	<script src="[% c.url_for("/js/i18n.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/common.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/server.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/backup.js?$version") %]" type="text/JAVASCRIPT"></script>
@@ -39,14 +40,13 @@
 <body>
 
 	<div class='ido' style='text-align:center'>
-		<h2 class='ih' style='text-align:center'>Database Backup/Restore</h2>
+		<h2 class='ih' style='text-align:center'>[% c.lh("Database Backup/Restore") %]</h2>
 
 		<br>
-		You can backup your existing database here, or restore an existing backup.<br><br>
-		Backuping allows you to download a JSON file containing all your categories and archive IDs, and their matching
-		metadata.<br>
-		Restoring from a backup will restore this metadata, <b>for IDs which already exist in your database.</b><br>
-		(Categories will always be restored)</br>
+		[% c.lh("You can backup your existing database here, or restore an existing backup.") %]<br><br>
+		[% c.lh("Backuping allows you to download a JSON file containing all your categories and archive IDs, and their matching metadata.") %]<br>
+		[% c.lh("Restoring from a backup will restore this metadata, <b>for IDs which already exist in your database.</b>") %]<br>
+		[% c.lh("(Categories will always be restored)") %]</br>
 
 		<table style='margin:auto; font-size:9pt; margin-top:25px; text-align:center;'>
 			<tbody id='files'>
@@ -54,13 +54,13 @@
 					<td>
 						<span id='do-backup' class="stdbtn" style="height:50px; display:inline-block">
 							<i style="padding-top:6px; padding-bottom: 5px" class="fa fa-download fa-2x"></i><br>
-							<span>Backup Database</span>
+							<span>[% c.lh("Backup Database") %]</span>
 						</span>
 					</td>
 					<td>
 						<span class="stdbtn fileinput-button" style="height:50px; display:inline-block;">
 							<i style="padding-top:6px; padding-bottom: 5px" class="fa fa-upload fa-2x"></i><br>
-							<span>Restore Backup</span>
+							<span>[% c.lh("Restore Backup") %]</span>
 							<input type="file" id="fileupload" multiple="" name="file">
 						</span>
 					</td>
@@ -72,7 +72,7 @@
 
 			<div id='processing' style='display:none'>
 				<i class='fa fa-3x fa-compact-disc fa-spin' style='margin-top:20px' id='tag-spinner'></i>
-				<h3>Restoring your backup ... </h3>
+				<h3>[% c.lh("Restoring your backup ...") %]</h3>
 			</div>
 
 			<h3 id='result'></h3>
@@ -81,7 +81,7 @@
 
 
 		<br><br><br>
-		<input id='return' class='stdbtn' type='button' value='Return to Library' />
+		<input id='return' class='stdbtn' type='button' value='[% c.lh("Return to Library") %]' />
 
 
 		<br><br>

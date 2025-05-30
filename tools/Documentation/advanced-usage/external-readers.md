@@ -21,9 +21,9 @@ Here are some existing clients:
 * Bookmark archives to keep track of your current page
 * Sort archives by date (requires Timestamp tags to be enabled)
 
-### [DuReader (iOS)](https://github.com/Doraemoe/DuReader)
+### [LANreader (iOS)](https://github.com/Doraemoe/LANreader)
 
-[Download it here.](https://github.com/Doraemoe/DuReader)\
+[Download it on the App Store.](https://github.com/Doraemoe/LANreader)\
 ![dureader](../.screenshots/dureader.jpg)
 
 ### [LRReader (Windows 10)](https://github.com/Guerra24/LRReader)

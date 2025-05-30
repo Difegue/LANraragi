@@ -153,6 +153,7 @@ sub create_category {
 
 # delete_category(id)
 #   Deletes the category with the given ID.
+#   If bookmark is linked to the category, remove the link.
 #   Returns 0 if the given ID isn't a category ID, 1 otherwise
 sub delete_category {
 
@@ -169,6 +170,10 @@ sub delete_category {
     }
 
     if ( $redis->exists($cat_id) ) {
+        if ( $redis->hget('LRR_CONFIG', 'bookmark_link') eq $cat_id ) {
+            $redis->hdel('LRR_CONFIG', 'bookmark_link');
+            $logger->info("Removed link from bookmark to category $cat_id.");
+        }
         $redis->del($cat_id);
         $redis->quit;
         return 1;
@@ -285,6 +290,52 @@ sub remove_from_category {
     $logger->warn($err);
     $redis->quit;
     return 0;
+}
+
+# get_bookmark_link()
+#   Gets the ID of the category that is linked to the bookmark button.
+#   If no such ID exists, returns an empty string.
+sub get_bookmark_link {
+
+    my $redis = LANraragi::Model::Config->get_redis;
+    my $catid = $redis->hget('LRR_CONFIG', 'bookmark_link') || "";
+    $redis->quit();
+    return $catid;
+
+}
+
+# update_bookmark_link(cat_id)
+#   Links the bookmark button to a static category.
+#   Returns an HTTP status code, category ID, and response message.
+sub update_bookmark_link {
+
+    my $cat_id = shift;
+    unless (defined $cat_id && $cat_id =~ /^SET_\d{10}$/) {
+        return (400, $cat_id, "Input category ID is invalid.");
+    }
+    my $redis = LANraragi::Model::Config->get_redis;
+    unless ( $redis->exists($cat_id) ) {
+        $redis->quit();
+        return (404, $cat_id, "Category does not exist!");
+    }
+    unless ( $redis->hget( $cat_id, "search" ) eq "" ) {
+        $redis->quit();
+        return (400, $cat_id, "Cannot link bookmark to a dynamic category.");
+    }
+    $redis->hset('LRR_CONFIG', 'bookmark_link', $cat_id);
+    $redis->quit();
+    return (200, $cat_id, "success");
+
+}
+
+# remove_bookmark_link()
+#   Unlinks the bookmark from its current category and returns the category ID.
+sub remove_bookmark_link() {
+    my $redis = LANraragi::Model::Config->get_redis;
+    my $cat_id = $redis->hget('LRR_CONFIG', 'bookmark_link') || "";
+    $redis->hdel('LRR_CONFIG', 'bookmark_link');
+    $redis->quit();
+    return $cat_id;
 }
 
 1;

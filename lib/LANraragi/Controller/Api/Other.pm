@@ -6,9 +6,8 @@ use Redis;
 
 use LANraragi::Model::Stats;
 use LANraragi::Model::Opds;
-use LANraragi::Utils::TempFolder qw(get_tempsize clean_temp_full);
 use LANraragi::Utils::Generic    qw(render_api_response);
-use LANraragi::Utils::Plugins    qw(get_plugin get_plugins get_plugin_parameters use_plugin);
+use LANraragi::Utils::Plugins    qw(get_plugin get_plugins use_plugin);
 
 sub serve_serverinfo {
     my $self = shift;
@@ -69,14 +68,14 @@ sub clean_tempfolder {
     my $self = shift;
 
     #Run a full clean, errors are dumped into $@ if they occur
-    eval { clean_temp_full() };
+    eval { LANraragi::Utils::PageCache::clear(); };
 
     $self->render(
         json => {
             operation => "cleantemp",
             success   => $@ eq "",
             error     => $@,
-            newsize   => get_tempsize()
+            newsize   => 0,
         }
     );
 }
@@ -87,6 +86,17 @@ sub list_plugins {
     my $type = $self->stash('type');
 
     my @plugins = get_plugins($type);
+
+    foreach my $plugin (@plugins) {
+        if ( ref( $plugin->{parameters} ) eq 'HASH' ) {
+            my @parameters_array;
+            while ( my ( $name, $value ) = each %{ $plugin->{parameters} } ) {
+                push @parameters_array, { %{$value}, 'name' => $name };
+            }
+            $plugin->{parameters} = \@parameters_array;
+        }
+    }
+
     $self->render( json => \@plugins );
 }
 

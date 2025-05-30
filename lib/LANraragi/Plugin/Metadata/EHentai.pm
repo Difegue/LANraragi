@@ -122,9 +122,8 @@ sub get_tags {
 ## EH Specific Methods
 ######
 
-sub lookup_gallery {
+sub lookup_gallery ( $title, $tags, $thumbhash, $ua, $domain, $defaultlanguage, $usethumbs, $search_gid, $expunged ) {
 
-    my ( $title, $tags, $thumbhash, $ua, $domain, $defaultlanguage, $usethumbs, $search_gid, $expunged ) = @_;
     my $logger = get_plugin_logger();
     my $URL    = "";
 
@@ -187,15 +186,11 @@ sub lookup_gallery {
     return &ehentai_parse( $URL, $ua );
 }
 
-# ehentai_parse(URL, UA)
 # Performs a remote search on e- or exhentai, and returns the ID/token matching the found gallery.
-sub ehentai_parse {
-
-    my ( $url, $ua ) = @_;
+sub ehentai_parse ( $url, $ua ) {
 
     my $logger = get_plugin_logger();
-
-    my $dom = search_gallery( $url, $ua );
+    my $dom    = search_gallery( $url, $ua );
 
     # Get the first row of the search results
     # The "glink" class is parented by a <a> tag containing the gallery link in href.
@@ -203,7 +198,7 @@ sub ehentai_parse {
     my $firstgal = $dom->at(".glink")->parent->attr('href');
 
     # A EH link looks like xhentai.org/g/{gallery id}/{gallery token}
-    my $url = ( split( 'hentai.org/g/', $firstgal ) )[1];
+    $url = ( split( 'hentai.org/g/', $firstgal ) )[1];
     my ( $gID, $gToken ) = ( split( '/', $url ) );
 
     if ( index( $dom->to_string, "You are opening" ) != -1 ) {
@@ -216,9 +211,8 @@ sub ehentai_parse {
     return ( $gID, $gToken );
 }
 
-sub search_gallery {
+sub search_gallery ( $url, $ua ) {
 
-    my ( $url, $ua ) = @_;
     my $logger = get_plugin_logger();
 
     my $res = $ua->max_redirects(5)->get($url)->result;
@@ -232,9 +226,8 @@ sub search_gallery {
 
 # get_tags_from_EH(userAgent, gID, gToken, jpntitle, additionaltags)
 # Executes an e-hentai API request with the given JSON and returns tags and title.
-sub get_tags_from_EH {
+sub get_tags_from_EH ( $ua, $gID, $gToken, $jpntitle, $additionaltags ) {
 
-    my ( $ua, $gID, $gToken, $jpntitle, $additionaltags ) = @_;
     my $uri = 'https://api.e-hentai.org/api.php';
 
     my $logger = get_plugin_logger();
@@ -266,9 +259,8 @@ sub get_tags_from_EH {
     return ( $ehtags, $ehtitle );
 }
 
-sub get_json_from_EH {
+sub get_json_from_EH ( $ua, $gID, $gToken ) {
 
-    my ( $ua, $gID, $gToken ) = @_;
     my $uri = 'https://api.e-hentai.org/api.php';
 
     my $logger = get_plugin_logger();

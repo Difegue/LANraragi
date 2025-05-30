@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <head>
-	<title>[% title %] - Upload Center</title>
+	<title>[% title %] - [% c.lh("Upload Center") %]</title>
 
 	<meta name="viewport" content="width=device-width" />
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -30,6 +30,7 @@
 	<script src="[% c.url_for("/js/vendor/jquery.fileupload.js") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/vendor/sweetalert2.min.js") %]" type="text/JAVASCRIPT"></script>
 
+	<script src="[% c.url_for("/js/i18n.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/common.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/server.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/upload.js?$version") %]" type="text/JAVASCRIPT"></script>
@@ -38,45 +39,44 @@
 <body>
 
 	<div class='ido' style='text-align:center; font-size:8pt'>
-		<h1 class='ih' style='text-align:center'>Adding Archives to the Library</h1>
+		<h1 class='ih' style='text-align:center'>[% c.lh("Adding Archives to the Library") %]</h1>
 
-		Add files to your LANraragi instance from your computer, or the Internet directly.<br><br>
+		[% c.lh("Add files to your LANraragi instance from your computer, or the Internet directly.") %]<br><br>
 
 		<div style="margin-left:auto; margin-right:auto">
 
 			<div class="left-column">
 
-				Add uploaded files to category:
+				[% c.lh("Add uploaded files to category:") %]
 				<select id="category" class="favtag-btn">
-					<option selected value=""> -- No Category -- </option>
+					<option selected value="">[% c.lh(" -- No Category -- ") %]</option>
 					[% FOREACH categories %]
 					<option value="[% id %]">[% name %]</option>
 					[% END %]
 				</select> <br><br>
 
-				<h1 class='ih'>From your computer</h1>
+				<h1 class='ih'>[% c.lh("From your computer") %]</h1>
 
-				You can drag and drop files into this window, or click the upload button.
+				[% c.lh("You can drag and drop files into this window, or click the upload button.") %]
 				<br><br>
 
 				<span class='stdbtn fileinput-button' style="height:50px;">
 					<i class='fas fa-download fa-2x' style='padding-top:6px; padding-bottom: 5px'></i><br>
-					<span>Add from your computer</span>
+					<span>[% c.lh("Add from your computer") %]</span>
 					<input type='file' name='file' multiple id='fileupload'>
 				</span>
 
 				<br><br>
-				<h1 class='ih'>From the Internet</h1>
+				<h1 class='ih'>[% c.lh("From the Internet") %]</h1>
 
-				You can download files from remote URLs directly into LANraragi from here.<br>
-				Download jobs will keep going even if you close this window!<br><br>
+				[% c.lh("You can download files from remote URLs directly into LANraragi from here.") %]<br>
+				[% c.lh("Download jobs will keep going even if you close this window!") %]<br><br>
 
-				Type in your URLs (separated by a newline), and click the download button. <br>
-				If a <a href="[% c.url_for("/config/plugins") %]">Downloader plugin</a> is compatible with the URL,
-				it'll be automatically
-				used.<br><br>
+				[% c.lh("Type in your URLs (separated by a newline), and click the download button.") %] <br>
+				[% c.lh("If a Downloader plugin is compatible with the URL, it'll be automatically used.") %]
+				<br><br>
 
-				<label for="download_url">URL(s) to download:</label>
+				<label for="download_url">[% c.lh("URL(s) to download:") %]</label>
 				<textarea type="text" name="urls" id="urlForm"
 					style="width: 400px; height: 100px; white-space: pre;"></textarea>
 				<br><br>
@@ -84,7 +84,7 @@
 
 				<span id="download-url" class='stdbtn fileinput-button' style="height:50px;">
 					<i class='fas fa-cloud-download-alt fa-2x' style='padding-top:6px; padding-bottom: 5px'></i><br>
-					<span>Add from URL(s)</span>
+					<span>[% c.lh("Add from URL(s)") %]</span>
 				</span>
 
 			</div>
@@ -110,7 +110,7 @@
 		</div>
 
 		<br><br>
-		<input id='return' class='stdbtn' type='button' value='Return to Library' />
+		<input id='return' class='stdbtn' type='button' value='[% c.lh("Return to Library") %]' />
 	</div>
 
 	[% INCLUDE footer %]

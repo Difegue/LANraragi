@@ -5,7 +5,6 @@ package Shinobu;
 #  My main tasks are:
 #
 #    Tracking all files in the content folder and making sure they're sync'ed with the database
-#    Automatically cleaning the temporary folder when it reaches a certain size
 #
 
 use strict;
@@ -29,8 +28,8 @@ use File::Find;
 use File::Basename;
 use Encode;
 
+use LANraragi::Utils::Archive    qw(extract_thumbnail);
 use LANraragi::Utils::Database   qw(redis_encode invalidate_cache compute_id change_archive_id);
-use LANraragi::Utils::TempFolder qw(get_temp clean_temp_partial);
 use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Generic    qw(is_archive split_workload_by_cpu);
 
@@ -74,14 +73,11 @@ sub initialize_from_new_process {
         directories     => [$userdir],
         filter          => qr/\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|cb7|cbt|pdf|epub|tar\.zst|zst)$/i,
         follow_symlinks => 1,
-        exclude         => [ 'thumb', '.' ],                                                      #excluded subdirs
+        exclude         => [ 'thumb', '.' ],                                                                   #excluded subdirs
     );
 
     my $class = ref($contentwatcher);
     $logger->debug("Watcher class is $class");
-
-    # Add watcher to tempfolder
-    my $tempwatcher = File::ChangeNotify->instantiate_watcher( directories => [ get_temp() ] );
 
     # manual event loop
     $logger->info("All done! Now dutifully watching your files. ");
@@ -91,11 +87,6 @@ sub initialize_from_new_process {
         # Check events on files
         for my $event ( $contentwatcher->new_events ) {
             $inotifysub->($event);
-        }
-
-        # Check the current temp folder size and clean it if necessary
-        for my $event ( $tempwatcher->new_events ) {
-            clean_temp_partial();
         }
 
         sleep 2;
@@ -329,7 +320,11 @@ sub add_new_file ( $id, $file ) {
         LANraragi::Utils::Database::add_timestamp_tag( $redis, $id );
         LANraragi::Utils::Database::add_pagecount( $redis, $id );
 
-        #AutoTagging using enabled plugins goes here!
+        # Generate thumbnail
+        my $thumbdir = LANraragi::Model::Config->get_thumbdir;
+        extract_thumbnail( $thumbdir, $id, 1, 1, 1 );
+
+        # AutoTagging using enabled plugins goes here!
         LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
     };
 

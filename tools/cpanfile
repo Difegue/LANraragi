@@ -1,5 +1,5 @@
 
-requires 'perl',       '5.20.2';
+requires 'perl',       '5.36.0';
 requires 'local::lib', 2.000024;
 
 # LRR Core
@@ -38,7 +38,7 @@ requires 'Test::Trap',       0.3.4;
 requires 'Test::Deep',       1.130;
 
 # Mojo stuff
-requires 'Mojolicious',                          9.34;
+requires 'Mojolicious',                          9.39;
 requires 'Mojolicious::Plugin::TemplateToolkit', 0.005;
 requires 'Mojolicious::Plugin::RenderFile',      0.12;
 requires 'Mojolicious::Plugin::Status',          1.15;
@@ -47,7 +47,7 @@ requires 'IO::Socket::SSL',                      2.067;
 requires 'Cpanel::JSON::XS',                     4.06;
 
 # Job Queue (Minion)
-requires 'Minion',                 10.29;
+requires 'Minion',                 10.31;
 requires 'Minion::Backend::Redis', 0.002;
 
 # Background Worker (Shinobu)
@@ -66,4 +66,13 @@ requires 'Time::Local', 1.30;
 requires 'YAML::PP', 0.38.0;
 
 # Hentag plugin
-requires 'String::Similarity', 1.04
+requires 'String::Similarity', 1.04;
+
+# I18n
+requires 'Locale::Maketext', 1.33;
+requires 'Locale::Maketext::Lexicon', 1.00;
+
+# Cache
+requires 'CHI', 0.61;
+requires 'CHI::Driver::FastMmap', 0.61;
+requires 'Cache::FastMmap', 1.57;

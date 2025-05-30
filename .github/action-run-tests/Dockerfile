@@ -13,6 +13,7 @@ LABEL "com.github.actions.color"="purple"
 USER root
 
 # Re-add devtools
+RUN apk update
 RUN apk add perl-utils perl-dev wget g++ make
 
 COPY entrypoint.sh /entrypoint.sh

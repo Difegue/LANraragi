@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <head>
-	<title>[% title %] - Library Statistics</title>
+	<title>[% title %] - [% c.lh("Library Statistics") %]</title>
 
 	<meta name="viewport" content="width=device-width" />
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -31,6 +31,7 @@
 	<script src="[% c.url_for("/js/vendor/allcollapsible.min.js") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/vendor/sweetalert2.min.js") %]" type="text/JAVASCRIPT"></script>
 
+	<script src="[% c.url_for("/js/i18n.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/common.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/server.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/stats.js?$version") %]" type="text/JAVASCRIPT"></script>
@@ -39,7 +40,7 @@
 <body>
 
 	<div class='ido' style='text-align:center'>
-		<h2 class="ih" style="text-align:center">Library Statistics</h2>
+		<h2 class="ih" style="text-align:center">[% c.lh("Library Statistics") %]</h2>
 		<br>
 		<br>
 
@@ -48,23 +49,22 @@
 			<h1 class="ih">
 				<i class="fa fa-book fa-2x" aria-hidden="true"></i> <span style="font-size: 20px"> [% archivecount %]
 				</span>
-				Archives on record
+				[% c.lh("Archives on record") %]
 				<br><br>
 				<i class="fa fa-tags fa-2x" aria-hidden="true"></i> <span style="font-size: 20px" id="tagcount">
 					<i id="spinner" class="fa fa-virus fa-spin"></i> </span>
-				Different
-				tags existing
+				[% c.lh("Different tags existing") %]
 				<br><br>
 				<i class="fa fa-folder-open fa-2x" aria-hidden="true"></i> <span style="font-size: 20px"> [% arcsize %]
 					GB </span>
-				in content folder
+				[% c.lh("in content folder") %]
 				<br><br>
 				<i class="fa fa-book-reader fa-2x" aria-hidden="true"></i> <span style="font-size: 20px"> [% pagestat %]
 				</span>
-				pages read
+				[% c.lh("pages read") %]
 				<br><br><br>
 
-				Tag Cloud <br>
+				[% c.lh("Tag Cloud") %] <br>
 			</h1>
 
 		</div>
@@ -75,7 +75,7 @@
 			<p class="loading-spinner">
 				<i id="spinner" class="fa fa-dharmachakra fa-4x fa-spin"></i>
 			</p>
-			Asking the great powers that be for your tag statistics...
+			[% c.lh("Asking the great powers that be for your tag statistics...") %]
 		</div>
 
 		<div id="tagCloud" style="width: 80%; height: 500px; margin-left: auto; margin-right: auto">
@@ -85,19 +85,19 @@
 			style="display: none; width:80%; margin-left: auto; margin-right: auto">
 			<li class="option-flyout">
 				<div class="collapsible-title caret-right">
-					<i class="fa fa-chart-bar" aria-hidden="true"></i> Detailed Stats
+					<i class="fa fa-chart-bar" aria-hidden="true"></i> [% c.lh("Detailed Stats") %]
 				</div>
 				<div class="collapsible-body">
 					<div id="tagList"
 						style="max-width: 80vw; display: flex; height:calc(2048px - 25vw); flex-direction: column; flex-wrap:wrap; align-items:flex-start; overflow:auto">
 					</div><br>
-					(These statistics only show tags that appear at least twice in your database.)
+					[% c.lh("(These statistics only show tags that appear at least twice in your database.)") %]
 				</div>
 			</li>
 		</ul>
 
 		<br>
-		<input id="goback" type="button" value="Return to Library" class="stdbtn">
+		<input id="goback" type="button" value="[% c.lh('Return to Library') %]" class="stdbtn">
 
 	</div>
 	[% INCLUDE footer %]

@@ -17,6 +17,8 @@ use LANraragi::Utils::Plugins    qw(get_plugins);
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Routing;
 use LANraragi::Utils::Minion;
+use LANraragi::Utils::I18N;
+use LANraragi::Utils::I18NInitializer;
 
 use LANraragi::Model::Search;
 use LANraragi::Model::Config;
@@ -99,6 +101,12 @@ sub startup {
         sleep 2;
     }
 
+    # Initialize cache
+    LANraragi::Utils::PageCache::initialize();
+
+    # Load i18n
+    LANraragi::Utils::I18NInitializer::initialize($self);
+
     # Check old settings and migrate them if needed
     if ( $self->LRR_CONF->get_redis->keys('LRR_*') ) {
         say "Migrating old settings to new format...";
@@ -179,6 +187,9 @@ sub startup {
     shutdown_from_pid( get_temp . "/shinobu.pid" );
     start_shinobu($self);
 
+    # Check if this is a first-time installation.
+    LANraragi::Model::Config::first_install_actions();
+
     # Hook to SIGTERM to cleanly kill minion+shinobu on server shutdown
     # As this is executed during before_dispatch, this code won't work if you SIGTERM without loading a single page!
     # (https://stackoverflow.com/questions/60814220/how-to-manage-myself-sigint-and-sigterm-signals)
@@ -189,18 +200,19 @@ sub startup {
 
             my $prefix = $self->LRR_BASEURL;
             if ($prefix) {
-                if (!$prefix =~ m|^/[^"]*[^/"]$|) {
+                if ( !$prefix =~ m|^/[^"]*[^/"]$| ) {
                     say "Warning: configured URL prefix '$prefix' invalid, ignoring";
+
                     # if prefix is invalid, then set it to empty for the cookie
                     $prefix = "";
-                }
-                else {
+                } else {
                     $c->req->url->base->path($prefix);
                 }
             }
+
             # SameSite=Lax is the default behavior here; I set it
             # explicitly to get rid of a warning in the browser
-            $c->cookie("lrr_baseurl" => $prefix, { samesite => "lax" });
+            $c->cookie( "lrr_baseurl" => $prefix, { samesite => "lax" } );
         }
     );
 
