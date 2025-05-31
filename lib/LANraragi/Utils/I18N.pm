@@ -11,6 +11,7 @@ use Locale::Maketext::Lexicon {
     zh      => [ Gettext => "../../locales/template/zh.po" ],
     "zh-cn" => [ Gettext => "../../locales/template/zh.po" ],
     fr      => [ Gettext => "../../locales/template/fr.po" ],
+    id      => [ Gettext => "../../locales/template/id.po" ],
     ko      => [ Gettext => "../../locales/template/ko.po" ],
     no      => [ Gettext => "../../locales/template/nb_NO.po" ],
     nb      => [ Gettext => "../../locales/template/nb_NO.po" ],
