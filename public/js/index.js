@@ -378,6 +378,14 @@ Index.updateCarousel = function (e) {
         $("#carousel-icon")[0].classList = "fas fa-random";
         $("#carousel-title").text(I18N.CarouselRandom);
         endpoint = `/api/search/random?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}&count=15`;
+
+        // Special categories that imply additional query params
+        if (Index.selectedCategory === "NEW_ONLY") {
+            endpoint += "&newonly=true";
+        } else if (Index.selectedCategory === "UNTAGGED_ONLY") {
+            endpoint += "&untaggedonly=true";
+        }
+
         break;
     case "inbox":
         $("#carousel-icon")[0].classList = "fas fa-envelope-open-text";
