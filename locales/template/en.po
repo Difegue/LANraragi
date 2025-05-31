@@ -1665,4 +1665,7 @@ msgstr "Action"
 msgid "Searching for duplicates..."
 msgstr "Searching for duplicates..."
 
+msgid "No duplicates found!"
+msgstr "No duplicates found!"
+
 # ------End of Duplicates.html.tt2------

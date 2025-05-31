@@ -152,6 +152,10 @@
             [% c.lh("After which, you can select which archives to delete, and then delete them in bulk.") %]<br>
         </p>
         <br>
+        <div id="nodupes" style="display:none">
+            <i class='fa fa-3x fa-check-circle' style='margin-top:8px'></i>
+            <h3>[% c.lh("No duplicates found!") %]</h3>
+        </div>
         <div id='processing' style='display:none'>
             <i class='fa fa-3x fa-compact-disc fa-spin' style='margin-top:8px' id='tag-spinner'></i>
             <h3>[% c.lh("Searching for duplicates...") %]</h3>
