@@ -14,6 +14,12 @@ sub index {
 
     if ( $self->req->param('id') ) {
 
+        my $id = $self->req->param('id');
+        my $char = chop $id;
+        if ( $char ne "/" ) {
+            $id .= $char;
+        }
+
         # Allow adding to static categories
         my @categories     = LANraragi::Model::Category->get_static_category_list;
         my @arc_categories = LANraragi::Model::Category::get_categories_containing_archive( $self->req->param('id') );
@@ -30,7 +36,7 @@ sub index {
             template       => "reader",
             title          => $self->LRR_CONF->get_htmltitle,
             use_local      => $self->LRR_CONF->enable_localprogress,
-            id             => $self->req->param('id'),
+            id             => $id,
             arc_categories => \@arc_categories,
             categories     => \@categories,
             csshead        => generate_themes_header($self),

@@ -25,6 +25,15 @@ Duplicates.initializeAll = function () {
         Duplicates.pollMinionJob(localStorage.dupeMinionJob);
     } 
 
+    if (localStorage.hasOwnProperty("previousDupeJob")) {
+
+        // Remove the previous job from localStorage
+        localStorage.removeItem("previousDupeJob");
+
+        // We had a previous job, show the "no duplicates" message if there's no dupe data on the page
+        $("#nodupes").show();
+    }
+
     $(document).on("change.duplicate-select-condition", ".duplicate-select-condition", Duplicates.conditionChange);
     Duplicates.initializeDataTable();
 }
@@ -67,6 +76,9 @@ Duplicates.pollMinionJob = function (job) {
                 window.location.href = window.location.href.replace(/delete=1/, "");
             }
             else {
+                // If the job is done, reload the page to show the results.
+                localStorage.previousDupeJob = localStorage.dupeMinionJob;
+                localStorage.removeItem("dupeMinionJob");
                 window.location.reload();
             }
         },

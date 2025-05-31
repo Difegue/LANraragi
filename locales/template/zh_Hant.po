@@ -1,1671 +1,1666 @@
-# Sample Data
 msgid ""
 msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-05-05 03:27+0200\n"
+"PO-Revision-Date: 2025-05-05 07:11+0000\n"
+"Last-Translator: 炙燒鮭魚讚（benny） <bennyz327@gmail.com>\n"
+"Language-Team: Chinese (Traditional Han script) <https://hosted.weblate.org/"
+"projects/lanraragi/lanraragi-source/zh_Hant/>\n"
+"Language: zh_Hant\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.12-dev\n"
 
+# Sample Data
 # ------Start of Backup.html.tt2------
 msgid "Database Backup/Restore"
-msgstr "Database Backup/Restore"
+msgstr ""
 
 msgid "You can backup your existing database here, or restore an existing backup."
-msgstr "You can backup your existing database here, or restore an existing backup."
+msgstr "您可以在此備份現有資料庫，或還原現有的備份。"
 
 msgid "Backuping allows you to download a JSON file containing all your categories and archive IDs, and their matching metadata."
-msgstr "Backuping allows you to download a JSON file containing all your categories and archive IDs, and their matching metadata."
+msgstr "備份功能可讓您下載包含所有分類、檔案 ID 及其對應的中繼資料的 JSON 檔案。"
 
 msgid "Restoring from a backup will restore this metadata, <b>for IDs which already exist in your database.</b>"
-msgstr "Restoring from a backup will restore this metadata, <b>for IDs which already exist in your database.</b>"
+msgstr "從備份還原將恢復這些中繼資料，<b>但僅限於資料庫中已存在的 ID。</b>"
 
 msgid "(Categories will always be restored)"
-msgstr "(Categories will always be restored)"
+msgstr "（分類將會一律還原）"
 
 msgid "Backup Database"
-msgstr "Backup Database"
+msgstr "備份資料庫"
 
 msgid "Restore Backup"
-msgstr "Restore Backup"
+msgstr "還原備份"
 
 msgid "Restoring your backup ..."
-msgstr "Restoring your backup ..."
+msgstr "正在還原您的備份……"
 
 msgid "Return to Library"
-msgstr "Return to Library"
+msgstr ""
+
 # ------End of Backup.html.tt2------
-
 # ------Start of Batch.html.tt2------
-
 msgid "Batch Operations"
-msgstr "Batch Operations"
+msgstr ""
 
 msgid "You can apply modifications to multiple archives in one go here."
-msgstr "You can apply modifications to multiple archives in one go here."
+msgstr "您可以在此一次性對多個檔案進行修改。"
 
 msgid "Select what you'd like to do, check archives you want to use it on, and get rolling!"
-msgstr "Select what you'd like to do, check archives you want to use it on, and get rolling!"
+msgstr "請選擇您要執行的操作，勾選要套用的檔案，然後開始吧！"
 
 msgid "Archives with no tags have been pre-checked."
-msgstr "Archives with no tags have been pre-checked."
+msgstr "沒有標籤的檔案已經被預先勾選。"
 
 msgid "Task :"
-msgstr "Task :"
+msgstr "任務："
 
 msgid "Use Plugin"
-msgstr "Use Plugin"
+msgstr "使用外掛"
 
 msgid "Remove New Flag"
-msgstr "Remove New Flag"
+msgstr "移除 \"新\" 標記"
 
 msgid "Apply Tag Rules"
-msgstr "Apply Tag Rules"
+msgstr "套用標籤規則"
 
 msgid "Add To Category"
-msgstr "Add To Category"
+msgstr "加入分類"
 
 msgid "Delete Archive"
-msgstr "Delete Archive"
+msgstr ""
 
 msgid "Use plugin :"
-msgstr "Use plugin :"
+msgstr "使用外掛："
 
 msgid "Timeout (max 20s):"
-msgstr "Timeout (max 20s):"
+msgstr "逾時 (最多 20 秒）："
 
 msgid "This plugin recommends a cooldown of <span id=\"cooldown\">-1</span> seconds."
-msgstr "This plugin recommends a cooldown of <span id=\"cooldown\">-1</span> seconds."
+msgstr "此外掛建議的冷卻時間為 <span id=\"cooldown\">-1</span> 秒。"
 
 msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
-msgstr "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
+msgstr "如果頻繁呼叫外掛，部分外部服務可能會因負載過高暫時封鎖您的裝置！"
 
 msgid "Make sure to set a suitable <b>timeout</b> between archives using this picker if the plugin you want to use is concerned."
-msgstr "Make sure to set a suitable <b>timeout</b> between archives using this picker if the plugin you want to use is concerned."
+msgstr "若您使用的外掛涉及外部服務，請確保檔案之間設定適當的<b>逾時</b>。"
 
 msgid "Override Plugin Global Arguments"
-msgstr "Override Plugin Global Arguments"
+msgstr "覆蓋外掛全域參數"
 
 msgid "This will apply the following Tag Rules to the selected Archives."
-msgstr "This will apply the following Tag Rules to the selected Archives."
+msgstr "這將會將下列標籤規則套用到已選取的檔案。"
 
 msgid "You can edit your Tag Rules in Server Configuration."
-msgstr "You can edit your Tag Rules in Server Configuration."
+msgstr "您可以在伺服器設定中編輯標籤規則。"
 
 msgid "Server Configuration"
-msgstr "Server Configuration"
+msgstr "伺服器設定"
 
 msgid "This removes the \"new\" flag from the selected archives."
-msgstr "This removes the \"new\" flag from the selected archives."
+msgstr "這將從選取的檔案移除 \"新\" 標記。"
 
 msgid "Add to Category :"
-msgstr "Add to Category :"
+msgstr "加入分類："
 
 msgid "This will delete both metadata and matching files from your system! Please use with caution."
-msgstr "This will delete both metadata and matching files from your system! Please use with caution."
+msgstr "這將會從您的系統刪除中繼資料及相對應的檔案！請謹慎使用。"
 
 msgid "Check/Uncheck all"
-msgstr "Check/Uncheck all"
+msgstr "全選/取消全選"
 
 msgid "Start Task"
-msgstr "Start Task"
+msgstr "開始任務"
 
 msgid "Cancel"
-msgstr "Cancel"
+msgstr "取消"
 
 msgid "Start another job"
-msgstr "Start another job"
+msgstr "開始另一個任務"
 
 msgid "Processed <span id=\"arcs\"></span> out of <span id=\"totalarcs\"></span>"
-msgstr "Processed <span id=\"arcs\"></span> out of <span id=\"totalarcs\"></span>"
+msgstr "已處理 <span id=\"arcs\"></span> 個，共 <span id=\"totalarcs\"></span> 個"
 
 msgid "Preparing your data."
-msgstr "Preparing your data."
+msgstr "正在準備您的資料。"
 
 msgid "Plugin Configuration"
-msgstr "Plugin Configuration"
+msgstr ""
 
 msgid "Return to Library"
-msgstr "Return to Library"
+msgstr ""
 
 # ------End of Batch.html.tt2------
-
 # ------Start of Category.html.tt2------
-
 msgid "Categories"
-msgstr "Categories"
+msgstr ""
 
 msgid "Categories appear at the top of your window when browsing the Library."
-msgstr "Categories appear at the top of your window when browsing the Library."
+msgstr "瀏覽庫時，分類會顯示於視窗頂端。"
 
 msgid "There are two distinct kinds:"
-msgstr "There are two distinct kinds:"
+msgstr "分類有兩種不同的類型："
 
 msgid "Static Categories are arbitrary collections of Archives, where you can add as many items as you want."
-msgstr "Static Categories are arbitrary collections of Archives, where you can add as many items as you want."
+msgstr "靜態分類為任意的檔案集合，您可任意增減集合中的檔案。"
 
 msgid "Dynamic Categories contain all archives matching a given predicate, and automatically update alongside your library."
-msgstr "Dynamic Categories contain all archives matching a given predicate, and automatically update alongside your library."
+msgstr "動態分類包含所有符合特定條件的檔案，並會隨著庫自動更新。"
 
 msgid "You can create new categories here or edit existing ones."
-msgstr "You can create new categories here or edit existing ones."
+msgstr "您可在此建立新分類或編輯現有分類。"
 
 msgid "Select a category in the combobox below to edit its name, the archives it contains, or its predicate."
-msgstr "Select a category in the combobox below to edit its name, the archives it contains, or its predicate."
+msgstr "請從下方的下拉選單選擇一個分類，以編輯其名稱、包含的檔案或條件設定。"
 
 msgid "All your modifications are saved automatically."
-msgstr "All your modifications are saved automatically."
+msgstr "您的所有修改將自動儲存。"
 
 msgid "Category:"
-msgstr "Category:"
+msgstr "分類："
 
 msgid "Name:"
-msgstr "Name:"
+msgstr "名稱："
 
 msgid "Predicate:"
-msgstr "Predicate:"
+msgstr "篩選條件："
 
 msgid "Pin this Category"
-msgstr "Pin this Category"
+msgstr "釘選此分類"
 
 msgid "Delete Category"
-msgstr "Delete Category"
+msgstr "刪除分類"
 
 msgid "If you select a Static Category, your archives will appear here so you can add/remove them from the category."
-msgstr "If you select a Static Category, your archives will appear here so you can add/remove them from the category."
+msgstr "若您選擇靜態分類，該分類內的檔案將顯示於此處，您可自由加入或移除項目。"
 
 msgid "Return to Library"
-msgstr "Return to Library"
+msgstr ""
 
 msgid "Store Bookmarks in this Category"
-msgstr "Store Bookmarks in this Category"
+msgstr "設定書籤"
 
 msgid "Error linking bookmark button:"
-msgstr "Error linking bookmark button:"
+msgstr "關聯書籤按鈕時發生錯誤："
 
 msgid "Error unlinking bookmark button:"
-msgstr "Error unlinking bookmark button:"
+msgstr "取消關聯書籤按鈕時發生錯誤："
 
 msgid "Error getting bookmark category:"
-msgstr "Error getting bookmark category:"
+msgstr "取得書籤分類時發生錯誤："
 
 msgid "New Static Category"
-msgstr "New Static Category"
+msgstr "新增靜態分類"
 
 msgid "New Dynamic Category"
-msgstr "New Dynamic Category"
+msgstr "新增動態分類"
 
 # ------End of Category.html.tt2------
-
 # ------Start of Config.html.tt2------
-
 msgid "Admin Settings"
-msgstr "Admin Settings"
+msgstr "管理員設定"
 
 msgid "LANraragi"
 msgstr "LANraragi"
 
 msgid "Version %1 %2"
-msgstr "Version %1 - %2"
+msgstr "版本 %1 %2"
 
 msgid "Select a category to show the matching settings."
-msgstr "Select a category to show the matching settings."
+msgstr "請選擇一個分類以顯示對應的設定。"
 
 msgid "Save Settings"
-msgstr "Save Settings"
+msgstr "儲存設定"
 
 msgid "Plugin Configuration"
-msgstr "Plugin Configuration"
+msgstr ""
 
 msgid "Database Backup/Restore"
-msgstr "Database Backup/Restore"
+msgstr "資料庫備份/還原"
 
 msgid "Return to Library"
-msgstr "Return to Library"
+msgstr ""
 
 msgid "Global Settings"
-msgstr "Global Settings"
+msgstr "全域設定"
 
 msgid "Theme"
-msgstr "Theme"
+msgstr "佈景主題"
 
 msgid "Security"
-msgstr "Security"
+msgstr "安全性"
 
 msgid "Archive Files"
-msgstr "Archive Files"
+msgstr "檔案資料"
 
 msgid "Tags and Thumbnails"
-msgstr "Tags and Thumbnails"
+msgstr "標籤與縮圖"
 
 msgid "Background Workers"
-msgstr "Background Workers"
+msgstr "背景工作程序"
 
 # ------End of Config.html.tt2------
-
 # ------Start of Config_Files.html.tt2------
-
 msgid "Archive Directory"
-msgstr "Archive Directory"
+msgstr "檔案資料夾"
 
 msgid "Directory where the archives will be located. It will be created if it doesn't exist."
-msgstr "Directory where the archives will be located. It will be created if it doesn't exist."
+msgstr "檔案將儲存在此資料夾中。若資料夾不存在，將會自動建立。"
 
 msgid "Make sure the OS user running LANraragi has read access to this directory."
-msgstr "Make sure the OS user running LANraragi has read access to this directory."
+msgstr "請確保執行 LANraragi 的作業系統使用者具有此資料夾的讀取權限。"
 
 msgid "Synology eCryptFS Compatibility Mode"
-msgstr "Synology eCryptFS Compatibility Mode"
+msgstr "群暉 eCryptFS 相容模式"
 
 msgid "If enabled, LANraragi will cutoff archive filenames to 143 bytes, which is the max accepted by eCryptFS."
-msgstr "If enabled, LANraragi will cutoff archive filenames to 143 bytes, which is the max accepted by eCryptFS."
+msgstr "若啟用，LANraragi 將把檔案名稱截斷為 143 位元組，這是 eCryptFS 所接受的上限。"
 
 msgid "Rescan Archive Directory"
-msgstr "Rescan Archive Directory"
+msgstr ""
 
 msgid "Click this button to trigger a rescan of the Archive Directory in case you're missing files, or some data such as total page counts."
-msgstr "Click this button to trigger a rescan of the Archive Directory in case you're missing files, <br>or some data such as total page counts. <br>"
+msgstr ""
 
 msgid "Maximum <br>Cache Size"
-msgstr "Maximum <br>Cache Size"
+msgstr "最大 <br>快取大小"
 
 msgid "In MBs. The cache contains recently viewed pages, for faster subsequent reading."
-msgstr "In MBs. The cache contains recently viewed pages, for faster subsequent reading."
+msgstr "單位為 MB。快取用於儲存最近檢視的頁面，以加快之後的讀取速度。"
 
 msgid "It is automatically emptied when it grows past this specified size."
-msgstr "It is automatically emptied when it grows past this specified size."
+msgstr "當快取超過此大小時，將會自動清除。"
 
 msgid "Clear Cache"
-msgstr "Clear Cache"
+msgstr "清除快取"
 
 msgid "Current Size:"
-msgstr "Current Size:"
+msgstr "目前大小："
 
 msgid "Clear the cache manually by clicking this button."
-msgstr "Clear the cache manually by clicking this button."
+msgstr "點擊此按鈕可手動清除快取。"
 
 msgid "Reset Search Cache"
-msgstr "Reset Search Cache"
+msgstr "重置搜尋快取"
 
 msgid "The last searches done in the archive index are cached for faster loads."
-msgstr "The last searches done in the archive index are cached for faster loads."
+msgstr "索引中最近的搜尋結果會被快取，以提升載入速度。"
 
 msgid "If something went wrong with said cache, you can reset it by clicking this button."
-msgstr "If something went wrong with said cache, you can reset it by clicking this button."
+msgstr "若快取出現問題，可點擊此按鈕重置。"
 
 msgid "Clear NEW flags"
-msgstr "Clear NEW flags"
+msgstr "清除 \"新\" 標記"
 
 msgid "Newly uploaded archives are marked as \"new\" in the index until you\'ve opened them."
-msgstr "Newly uploaded archives are marked as \"new\" in the index until you\'ve opened them."
+msgstr "新上傳的檔案在索引中會被標記為 \"新\" 狀態，直到您開啟為止。"
 
 msgid "If you want to clear those flags, click this button."
-msgstr "If you want to clear those flags, click this button."
+msgstr "若您想清除這些標記，請點擊此按鈕。"
 
 msgid "Replace duplicated archives"
-msgstr "Replace duplicated archives"
+msgstr "取代重複檔案"
 
 msgid "If enabled, LANraragi will overwrite old archives when a newer one (with the same name) is uploaded through the Web Uploader or the Download System."
-msgstr "If enabled, LANraragi will overwrite old archives when a newer one (with the same name) is uploaded through the Web Uploader or the Download System."
+msgstr "若啟用，當透過 Web 上傳器或下載系統上傳同名且較新的檔案時，LANraragi "
+"將會覆蓋舊檔案。"
 
 msgid "This will delete metadata for old files when they're replaced! Use with caution."
-msgstr "This will delete metadata for old files when they're replaced! Use with caution."
+msgstr "此操作將刪除舊檔案的中繼資料！請小心使用。"
 
 # ------End of Config_Files.html.tt2------
-
 # ------Start of Config_Global.html.tt2------
-
 msgid "Site Title"
-msgstr "Site Title"
+msgstr "網站標題"
 
 msgid "The site title appears on most pages as...their title."
-msgstr "The site title appears on most pages as...their title."
+msgstr "網站標題會出現在大多數頁面上，作為它們的標題。"
 
 msgid "MOTD"
-msgstr "MOTD"
+msgstr "每日訊息"
 
 msgid "Slang for Message of the Day. Appears on top of the main Library view."
-msgstr "Slang for Message of the Day. Appears on top of the main Library view."
+msgstr "每日消息會顯示在主庫畫面的上方。"
 
 msgid "Archives per page"
-msgstr "Archives per page"
+msgstr "每頁檔案數"
 
 msgid "Number of archives shown on a page in the main list."
-msgstr "Number of archives shown on a page in the main list."
+msgstr "主列表中每頁顯示的檔案數量。"
 
 msgid "Resize Images in Reader"
-msgstr "Resize Images in Reader"
+msgstr "在閱讀器中調整圖片大小"
 
 msgid "If enabled, pages exceeding a certain size will be resized when viewed to save bandwidth."
-msgstr "If enabled, pages exceeding a certain size will be resized when viewed to save bandwidth."
+msgstr "若啟用，過大的頁面會在檢視時自動縮放以節省頻寬。"
 
 msgid "This option can potentially consume a lot of RAM if enabled and used on large images! Use with caution."
-msgstr "This option can potentially consume a lot of RAM if enabled and used on large images! Use with caution."
+msgstr "啟用此選項並處理大圖片時，可能會大量占用記憶體！請小心使用。"
 
 msgid "Image Size Threshold"
-msgstr "Image Size Threshold"
+msgstr "圖片大小閾值"
 
 msgid "(in KBs.) Maximum size an image can reach before being resized."
-msgstr "(in KBs.) Maximum size an image can reach before being resized."
+msgstr "（單位：KB）圖片在被自動縮放前允許的最大大小。"
 
 msgid "Resize Quality"
-msgstr "Resize Quality"
+msgstr "縮放品質"
 
 msgid "Quality of the resized images. Less quality = Smaller image. (0-100)"
-msgstr "Quality of the resized images. Less quality = Smaller image. (0-100)"
+msgstr "縮放後圖片的品質。品質越低＝圖像越小。（0–100）"
 
 msgid "Clientside Progress Tracking"
-msgstr "Clientside Progress Tracking"
+msgstr "用戶端進度追蹤"
 
 msgid "Enabling this option will save reading progression on the browser (through localStorage) instead of the server."
-msgstr "Enabling this option will save reading progression on the browser (through localStorage) instead of the server."
+msgstr "啟用此選項後，閱讀進度將儲存在瀏覽器中（透過 localStorage），而非伺服器。"
 
 msgid "Consider toggling this option if you're sharing the LANraragi instance with multiple users!"
-msgstr "Consider toggling this option if you're sharing the LANraragi instance with multiple users!"
+msgstr "若此 LANraragi 實例供多人共用，請考慮啟用此選項！"
 
 msgid "Debug Mode"
-msgstr "Debug Mode"
+msgstr "Debug 模式"
 
 msgid "Enabling Debug Mode will show more logs and disable update nagging."
-msgstr "Enabling Debug Mode will show more logs and disable update nagging."
+msgstr "啟用 Debug 模式會顯示更多日誌，並停用更新提示。"
 
 msgid "Fully effective after restarting LANraragi."
-msgstr "Fully effective after restarting LANraragi."
+msgstr ""
 
 msgid "Clean Database"
-msgstr "Clean Database"
+msgstr "清理資料庫"
 
 msgid "Cleaning the database will remove entries that aren't on your filesystem."
-msgstr "Cleaning the database will remove entries that aren't on your filesystem."
+msgstr "清理資料庫會移除不存在於檔案系統中的紀錄。"
 
 msgid "Reset Database"
-msgstr "Reset Database"
+msgstr "重置資料庫"
 
 msgid "Danger zone!"
-msgstr "Danger zone!"
+msgstr "危險區域！"
 
 msgid "Clicking this button will reset the entire database and delete all settings and metadata."
-msgstr "Clicking this button will reset the entire database and delete all settings and metadata."
+msgstr "點擊此按鈕將會重置整個資料庫，並刪除所有設定與中繼資料。"
 
 # ------End of Config_Global.html.tt2------
-
 # ------Start of Config_Security.html.tt2------
-
 msgid "Enable Password"
-msgstr "Enable Password"
+msgstr "啟用密碼"
 
 msgid "If enabled, everything that isn't reading will require a password."
-msgstr "If enabled, everything that isn't reading will require a password."
+msgstr "若啟用，除閱讀功能外的所有操作都需輸入密碼。"
 
 msgid "New Password"
-msgstr "New Password"
+msgstr "新密碼"
 
 msgid "New Password Confirmation"
-msgstr "New Password Confirmation"
+msgstr "確認新密碼"
 
 msgid "Only edit these fields if you want to change your password."
-msgstr "Only edit these fields if you want to change your password."
+msgstr "僅當您想變更密碼時才需填寫這些欄位。"
 
 msgid "The one already stored will be used otherwise."
-msgstr "The one already stored will be used otherwise."
+msgstr "否則將會使用現有的已儲存密碼。"
 
 msgid "No-Fun Mode"
-msgstr "No-Fun Mode"
+msgstr "No-Fun 模式"
 
 msgid "Enabling No-Fun Mode will lock reading archives behind the password as well."
-msgstr "Enabling No-Fun Mode will lock reading archives behind the password as well."
+msgstr "啟用 No-Fun 模式後，閱讀檔案也將需要輸入密碼。"
 
 msgid "Fully effective after restarting LANraragi."
-msgstr "Fully effective after restarting LANraragi."
+msgstr "重新啟動 LANraragi 後才會完全生效。"
 
 msgid "API Key"
-msgstr "API Key"
+msgstr "API 金鑰"
 
 msgid "If you wish to use the Client API and have a password, you'll have to set a key here."
-msgstr "If you wish to use the Client API and have a password, you'll have to set a key here."
+msgstr "若您希望使用用戶端 API 且有啟用密碼，您必須在此設定一組金鑰。"
 
 msgid "Empty keys will <b>not</b> work!"
-msgstr "Empty keys will <b>not</b> work!"
+msgstr "金鑰不可為空，否則將<b>無法</b>使用！"
 
 msgid "This key will need to be provided in every protected API call as the <i>Authorization</i> header."
-msgstr "This key will need to be provided in every protected API call as the <i>Authorization</i> header."
+msgstr "此金鑰需作為 <i>Authorization</i> 標頭提供於所有受保護的 API 呼叫中。"
 
 msgid "Enable CORS for the Client API"
-msgstr "Enable CORS for the Client API"
+msgstr "啟用用戶端 API 的 CORS 支援"
 
 msgid "Have API requests support Cross-Origin Resource Sharing, which allows web browsers to access it off other domains."
-msgstr "Have API requests support Cross-Origin Resource Sharing, which allows web browsers to access it off other domains."
+msgstr "讓 API 請求支援跨來源資源共享（CORS），允許瀏覽器從其他網域存取。"
 
 msgid "Turn this on if you want to access this service through a web-based wrapper (e.g. a userscript) used/hosted on another domain."
-msgstr "Turn this on if you want to access this service through a web-based wrapper (e.g. a userscript) used/hosted on another domain."
+msgstr "若您希望透過來自其他網域的 Web "
+"包裝器（如使用者腳本）來存取此服務，請啟用此選項。"
 
 # ------End of Config_Security.html.tt2------
-
 # ------Start of Config_Shinobu.html.tt2------
-
 msgid "Shinobu Status"
-msgstr "Shinobu Status"
+msgstr "Shinobu 狀態"
 
 msgid "The Shinobu File Watcher is currently"
-msgstr "The Shinobu File Watcher is currently"
+msgstr "Shinobu 檔案監視器目前狀態"
 
 msgid "OK!"
-msgstr "OK!"
+msgstr "正常！"
 
 msgid "Kaput!"
-msgstr "Kaput!"
+msgstr "爆炸囉！"
 
 msgid "This File Watcher is responsible for monitoring your content directory and automatically handling new archives as they come."
-msgstr "This File Watcher is responsible for monitoring your content directory and automatically handling new archives as they come."
+msgstr "此檔案監視器負責監控您的檔案目錄，並在有新檔案時自動進行處理。"
 
 msgid "Restart File Watcher"
-msgstr "Restart File Watcher"
+msgstr "重新啟動檔案監視器"
 
 msgid "If Shinobu is dead or unresponsive, you can reboot her by clicking this button."
-msgstr "If Shinobu is dead or unresponsive, you can reboot her by clicking this button."
+msgstr "若 Shinobu 當機或無回應，您可以點擊此按鈕重新啟動她。"
 
 msgid "Open Minion Console"
-msgstr "Open Minion Console"
+msgstr "開啟 Minion 控制台"
 
 msgid "The Minion Worker handles spare tasks that are too long to execute within the request/response lifecycle of web applications."
-msgstr "The Minion Worker handles spare tasks that are too long to execute within the request/response lifecycle of web applications."
+msgstr "Minion Worker 用來處理那些在 Web "
+"應用中請求/回應流程內無法即時完成的背景任務。"
 
 msgid "The console shows currently running and concluded tasks."
-msgstr "The console shows currently running and concluded tasks."
+msgstr "控制台會顯示目前執行中與已完成的任務。"
 
 # ------End of Config_Shinobu.html.tt2------
-
 # ------Start of Config_Tags.html.tt2------
-
 msgid "Thumbnail Directory"
-msgstr "Thumbnail Directory"
+msgstr "縮圖資料夾"
 
 msgid "Directory where the archive thumbnails will be located. It will be created if it doesn't exist."
-msgstr "Directory where the archive thumbnails will be located. It will be created if it doesn't exist."
+msgstr "縮圖將儲存在此資料夾，若資料夾不存在將會自動建立。"
 
 msgid "Make sure the OS user running LANraragi has read/write access to this directory."
-msgstr "Make sure the OS user running LANraragi has read/write access to this directory."
+msgstr "請確保執行 LANraragi 的作業系統使用者擁有此資料夾的讀寫權限。"
 
 msgid "Use high-quality thumbnails for pages"
-msgstr "Use high-quality thumbnails for pages"
+msgstr "為頁面使用高品質縮圖"
 
 msgid "LANraragi generates lower-quality thumbnails for archive pages for performance reasons."
-msgstr "LANraragi generates lower-quality thumbnails for archive pages for performance reasons."
+msgstr "LANraragi 為了效能會對頁面縮圖採用較低品質的輸出。"
 
 msgid "If this option is checked, it will instead generate page thumbnails at the same quality as cover thumbnails."
-msgstr "If this option is checked, it will instead generate page thumbnails at the same quality as cover thumbnails."
+msgstr "若啟用此選項，將改為產生與封面縮圖相同品質的頁面縮圖。"
 
 msgid "Use JPEG XL for thumbnails"
-msgstr "Use JPEG XL for thumbnails"
+msgstr "為縮圖使用 JPEG XL"
 
 msgid "LANraragi generates JPEG thumbnails for compatibility and performance reasons."
-msgstr "LANraragi generates JPEG thumbnails for compatibility and performance reasons."
+msgstr "LANraragi 為了相容性與效能會預設產生 JPEG 格式的縮圖。"
 
 msgid "If this option is checked, it will instead generate thumbnails using JPEG XL."
-msgstr "If this option is checked, it will instead generate thumbnails using JPEG XL."
+msgstr "若啟用此選項，將改為使用 JPEG XL 格式產生縮圖。"
 
 msgid "Generate Missing Thumbnails"
-msgstr "Generate Missing Thumbnails"
+msgstr "產生缺失的縮圖"
 
 msgid "Generate Thumbnails for all archives that don't have one yet."
-msgstr "Generate Thumbnails for all archives that don't have one yet."
+msgstr "為尚未擁有縮圖的檔案產生縮圖。"
 
 msgid "Regenerate all Thumbnails"
-msgstr "Regenerate all Thumbnails"
+msgstr "重新產生所有縮圖"
 
 msgid "Regenerate all thumbnails. This might take a while!"
-msgstr "Regenerate all thumbnails. This might take a while!"
+msgstr "重新產生所有縮圖，此操作可能需要一些時間！"
 
 msgid "Add Timestamp Tag"
-msgstr "Add Timestamp Tag"
+msgstr "添加時間戳標籤"
 
 msgid "If enabled, LANraragi will add the UNIX timestamp of the current time as a tag under the \"date_added\" namespace to newly added archives."
-msgstr "If enabled, LANraragi will add the UNIX timestamp of the current time as a tag under the \"date_added\" namespace to newly added archives."
+msgstr "若啟用，LANraragi 會在 \"date_added\" 命名空間中為新加入的檔案添加當前時間的 "
+"UNIX 時間戳標籤。"
 
 msgid "Use \"Last modified\" Time"
-msgstr "Use \"Last modified\" Time"
+msgstr "使用 \"最後修改\" 時間"
 
 msgid "Enabling this will use file modified time instead of current time when setting \"date_added\" timestamps."
-msgstr "Enabling this will use file modified time instead of current time when setting \"date_added\" timestamps."
+msgstr "啟用後，設定 \"date_added\" 標籤時將使用檔案的最後修改時間而非目前時間。"
 
 msgid "Tag Rules"
-msgstr "Tag Rules"
+msgstr "標籤規則"
 
 msgid "When tagging archives using Plugins, the rules specified here will be applied to the tags before saving them to the database."
-msgstr "When tagging archives using Plugins, the rules specified here will be applied to the tags before saving them to the database."
+msgstr "使用外掛為檔案添加標籤時，這裡指定的規則會在儲存到資料庫前套用至所有標籤。"
 
 msgid "Split rules with linebreaks."
-msgstr "Split rules with linebreaks."
+msgstr "用換行符號分隔多條規則。"
 
 msgid "<b>-tag | tag</b> : removes the tag (like a blacklist)"
-msgstr "<b>-tag | tag</b> : removes the tag (like a blacklist)"
+msgstr "<b>-tag | tag</b>：刪除指定標籤（類似黑名單）"
 
 msgid "<b>-namespace:*</b> : removes all tags within this namespace"
-msgstr "<b>-namespace:*</b> : removes all tags within this namespace"
+msgstr "<b>-namespace:*</b>：刪除此命名空間下的所有標籤"
 
 msgid "namespace : strips the namespace from the tags"
-msgstr "<b>~namespace</b> : strips the namespace from the tags"
+msgstr "<b>~namespace</b>：去除標籤的命名空間"
 
 msgid "<b>tag -> new-tag</b> : replaces one tag"
-msgstr "<b>tag -> new-tag</b> : replaces one tag"
+msgstr "<b>tag -> new-tag</b>：將指定標籤替換為另一個標籤"
 
 msgid "<b>tag => new-tag</b> : replaces one tag, but use a hash table internally for faster performance. These rules will be executed <i>once</i> after all other rules."
-msgstr "<b>tag => new-tag</b> : replaces one tag, but use a hash table internally for faster performance. These rules will be executed <i>once</i> after all other rules."
+msgstr "<b>tag => new-"
+"tag</b>：將標籤替換為另一個標籤，內部使用哈希表提升效能，這類規則會在其他規則"
+"之後<i>執行一次</i>。"
 
 msgid "<b>namespace:* -> new-namespace:*</b> : replaces the namespace with the new one"
-msgstr "<b>namespace:* -> new-namespace:*</b> : replaces the namespace with the new one"
+msgstr "<b>namespace:* -> new-namespace:*</b>：將整個命名空間替換為另一個命名空間"
 
 # ------End of Config_Tags.html.tt2------
-
 # ------Start of Config_Theme.html.tt2------
-
 msgid "The selected theme will apply to the entire application and be shown to all users."
-msgstr "The selected theme will apply to the entire application and be shown to all users."
+msgstr "所選佈景主題將套用於整個應用程式，並顯示給所有使用者。"
 
 msgid "If you're using a browser that supports \"theme-color\", the theme's primary color will also be applied there."
-msgstr "If you're using a browser that supports \"theme-color\", the theme's primary color will also be applied there."
+msgstr "若您使用支援 \"theme-color\" 的瀏覽器，主題的主要配色也會一併套用。"
 
 msgid "Click on a theme to preview it before saving!"
-msgstr "Click on a theme to preview it before saving!"
+msgstr "在儲存之前，請點選主題進行預覽！"
 
 # ------End of Config_Theme.html.tt2------
-
 # ------Start of Edit.html.tt2------
-
 msgid "Editing %1 by %2"
-msgstr "Editing %1 by %2"
+msgstr "正在編輯 %1 由 %2"
 
 msgid "Editing %1"
-msgstr "Editing %1"
+msgstr "正在編輯 %1"
 
 msgid "Current File Name:"
-msgstr "Current File Name:"
+msgstr "目前檔案名稱："
 
 msgid "ID:"
-msgstr "ID:"
+msgstr "ID："
 
 msgid "Title:"
-msgstr "Title:"
+msgstr "標題："
 
 msgid "Summary:"
-msgstr "Summary:"
+msgstr "摘要："
 
 msgid "Tags"
-msgstr "Tags"
+msgstr ""
 
 msgid "(separated by hyphens, i.e : tag1, tag2)"
-msgstr "(separated by hyphens, i.e : tag1, tag2)"
+msgstr "（以半形逗號分隔，例如：tag1, tag2）"
 
 msgid "Import Tags from Plugin :"
-msgstr "Import Tags from Plugin :"
+msgstr "從外掛匯入標籤："
 
 msgid "Help"
-msgstr "Help"
+msgstr ""
 
 msgid "Go!"
-msgstr "Go!"
+msgstr "執行！"
 
 msgid "Using a Plugin will save any modifications to archive metadata you might have made !"
-msgstr "Using a Plugin will save any modifications to archive metadata you might have made !"
+msgstr "使用外掛會一併儲存您對檔案中繼資料所做的所有修改！"
 
 msgid "Save Metadata"
-msgstr "Save Metadata"
+msgstr "儲存中繼資料"
 
 msgid "Delete Archive"
-msgstr "Delete Archive"
+msgstr ""
 
 msgid "Return to Library"
-msgstr "Return to Library"
+msgstr ""
 
 # ------End of Edit.html.tt2------
-
 # ------Start of Index.html.tt2------
-
 msgid "Add Archives"
-msgstr "Add Archives"
+msgstr "刪除檔案"
 
 msgid "Batch Operations"
-msgstr "Batch Operations"
+msgstr "批量操作"
 
 msgid "Settings"
-msgstr "Settings"
+msgstr "設定"
 
 msgid "Modify Categories"
-msgstr "Modify Categories"
+msgstr "修改分類"
 
 msgid "Statistics"
-msgstr "Statistics"
+msgstr "統計資訊"
 
 msgid "Logs"
-msgstr "Logs"
+msgstr "日誌"
 
 msgid "Admin Login"
-msgstr "Admin Login"
+msgstr "管理員登入"
 
 msgid "Search Title, Artist, Series, Language or Tags"
-msgstr "Search Title, Artist, Series, Language or Tags"
+msgstr "搜尋標題、作者、系列、語言或標籤"
 
 msgid "Apply Filter"
-msgstr "Apply Filter"
+msgstr "套用篩選器"
 
 msgid "Clear Filter"
-msgstr "Clear Filter"
+msgstr "清除篩選器"
 
 msgid "Click to show archives from the current search with the specified filter"
-msgstr "Click to show archives from the current search with the specified filter"
+msgstr "點擊以顯示目前搜尋中指定篩選器過濾的檔案"
 
 msgid "Refresh Selection"
-msgstr "Refresh Selection"
+msgstr "重新整理選取項目"
 
 msgid "Carousel Options"
-msgstr "Carousel Options"
+msgstr "輪播設定"
 
 msgid "No results here."
-msgstr "No results here."
+msgstr "查無結果。"
 
 msgid "Sort by:"
-msgstr "Sort by:"
+msgstr "排序方式："
 
 msgid "Title"
-msgstr "Title"
+msgstr ""
 
 msgid "Date"
-msgstr "Date"
+msgstr "日期"
 
 msgid "Sort Order"
-msgstr "Sort Order"
+msgstr "排序順序"
 
 msgid "Crop thumbnails"
-msgstr "Crop thumbnails"
+msgstr "裁切縮圖"
 
 msgid "Go to Page:"
-msgstr "Go to Page:"
+msgstr "跳轉至頁面："
 
 msgid "Columns:"
-msgstr "Columns:"
+msgstr "欄數："
 
 msgid "Switch to Compact Mode"
-msgstr "Switch to Compact Mode"
+msgstr "切換至緊湊模式"
 
 msgid "Switch to Thumbnail Mode"
-msgstr "Switch to Thumbnail Mode"
+msgstr "切換至縮圖模式"
 
 msgid "Title"
-msgstr "Title"
+msgstr ""
 
 msgid "Artist"
-msgstr "Artist"
+msgstr "作者"
 
 msgid "Series"
-msgstr "Series"
+msgstr "系列"
 
 msgid "Tags"
-msgstr "Tags"
+msgstr ""
 
 msgid "Edit this column"
-msgstr "Edit this column"
+msgstr ""
 
 msgid "I don't know everything, but I sure as hell know this database's busted lads"
-msgstr "I don't know everything, but I sure as hell know this database's busted lads"
+msgstr "我不是無所不知，但我肯定知道這資料庫壞了，兄弟"
 
 msgid "The database cache is corrupt, and as such LANraragi is unable to display your archive list."
-msgstr "The database cache is corrupt, and as such LANraragi is unable to display your archive list."
+msgstr "資料庫快取已損毀，LANraragi 無法顯示您的檔案清單。"
 
 msgid "Read"
-msgstr "Read"
+msgstr "閱讀"
 
 msgid "Download"
-msgstr "Download"
+msgstr "下載"
 
 msgid "Edit Metadata"
-msgstr "Edit Metadata"
+msgstr "編輯中繼資料"
 
 msgid "Delete"
-msgstr "Delete"
+msgstr "刪除"
 
 msgid "Add Rating"
-msgstr "Add Rating"
+msgstr "新增評分"
 
 msgid "Add to Category"
-msgstr "Add to Category"
+msgstr "加入分類"
 
 msgid "New Version Release Notes"
-msgstr "New Version Release Notes"
+msgstr "新版本發佈說明"
 
 msgid "You\'re using the default password and that\'s super baka of you"
-msgstr "You\'re using the default password and that\'s super baka of you"
+msgstr "你這個大笨蛋竟然還在使用預設密碼"
 
 msgid "Login with password \"kamimamita\" and change that shit on the double. ...Or just disable it! Why not check the configuration options afterwards, while you\'re at it?"
-msgstr "<a href=\"/login\">Login</a> with password \"kamimamita\" and <a href=\"/config\">change that shit</a> on the double.<br/>...Or just disable it! <br/>Why not check the configuration options afterwards, while you&#39;re at it? "
+msgstr ""
+"請使用預設密碼 \"kamimamita\" <a href=\"/login\">登入</a><br/"
+">然後立刻把這密碼<a href=\"/config\">改掉</a>。<br/"
+">...或者乾脆關掉密碼功能！<br/>順便去查看其他設定選項也不錯？ "
 
 # ------End of Index.html.tt2------
-
 # ------Start of Login.html.tt2------
-
 msgid "This page requires you to log on."
-msgstr "This page requires you to log on."
+msgstr "此頁面需要您登入。"
 
 msgid "Admin Password:"
-msgstr "Admin Password:"
+msgstr "管理員密碼："
 
 msgid "Login"
-msgstr "Login"
+msgstr "登入"
 
 msgid "Wrong Password."
-msgstr "Wrong Password."
+msgstr "密碼錯誤。"
 
 msgid "<a href='\${url}'>Login</a> to toggle bookmark feature."
-msgstr "<a href='${url}'>Login</a> to toggle bookmark feature."
+msgstr "<a href='${url}'>登入</a>以啟用書籤功能。"
 
 # ------End of Login.html.tt2------
-
 # ------Start of Logs.html.tt2------
-
 msgid "Application Logs"
-msgstr "Application Logs"
+msgstr "應用程式日誌"
 
 msgid "You can check LANraragi logs here for debugging purposes."
-msgstr "You can check LANraragi logs here for debugging purposes."
+msgstr "您可以在此檢視 LANraragi 的日誌以進行除錯。"
 
 msgid "By default, this view only shows the last 100 lines of each logfile, newest lines last."
-msgstr "By default, this view only shows the last 100 lines of each logfile, newest lines last."
+msgstr "預設僅顯示每個日誌檔案的最後 100 行，最新內容在最後。"
 
 msgid "General Logs pertain to the main application."
-msgstr "General Logs pertain to the main application."
+msgstr "一般日誌與主應用程式相關。"
 
 msgid "Shinobu Logs correspond to the Background Worker."
-msgstr "Shinobu Logs correspond to the Background Worker."
+msgstr "Shinobu 日誌對應背景工作程序。"
 
 msgid "Plugin Logs are reserved for metadata plugins only."
-msgstr "Plugin Logs are reserved for metadata plugins only."
+msgstr "外掛日誌僅用於中繼資料外掛。"
 
 msgid "Mojolicious logs won't tell much unless you're running Debug Mode."
-msgstr "Mojolicious logs won't tell much unless you're running Debug Mode."
+msgstr "除非啟用 Debug 模式，否則 Mojolicious 日誌不會顯示太多資訊。"
 
 msgid "Redis logs won't be available from here if you're running from source!"
-msgstr "Redis logs won't be available from here if you're running from source!"
+msgstr "若您是從原始碼執行，將無法從此處讀取 Redis 日誌！"
 
 msgid "Currently Viewing:"
-msgstr "Currently Viewing: "
+msgstr "目前檢視： "
 
 msgid "general"
-msgstr "general"
+msgstr "一般"
 
 msgid "Refresh"
-msgstr "Refresh"
+msgstr "重新整理"
 
 msgid "Lines:"
-msgstr "Lines: "
+msgstr "行數： "
 
 msgid "View LANraragi Logs"
-msgstr "View LANraragi Logs"
+msgstr "查看 LANraragi 日誌"
 
 msgid "View Shinobu Logs"
-msgstr "View Shinobu Logs"
+msgstr "查看 Shinobu 日誌"
 
 msgid "View Plugin Logs"
-msgstr "View Plugin Logs"
+msgstr "查看外掛日誌"
 
 msgid "View Mojolicious Logs"
-msgstr "View Mojolicious Logs"
+msgstr "查看 Mojolicious 日誌"
 
 msgid "View Redis Logs"
-msgstr "View Redis Logs"
+msgstr "查看 Redis 日誌"
 
 msgid "Return to Library"
-msgstr "Return to Library"
+msgstr ""
 
 # ------End of Logs.html.tt2------
-
 # ------Start of Plugins.html.tt2------
-
 msgid "Plugin Configuration"
-msgstr "Plugin Configuration"
+msgstr "外掛設定"
 
 msgid "Enable/Disable Auto-Plugin on metadata plugins by checking the toggles."
-msgstr "Enable/Disable Auto-Plugin on metadata plugins by checking the toggles."
+msgstr "透過切換開關啟用/停用中繼資料外掛的自動執行功能。"
 
 msgid "Plugins will be automatically used on new archives if they're toggled here."
-msgstr "Plugins will be automatically used on new archives if they're toggled here."
+msgstr "在此啟用的外掛，將自動套用至新加入的檔案。"
 
 msgid "If they have configuration variables, you can set them here as well."
-msgstr "If they have configuration variables, you can set them here as well."
+msgstr "若外掛有可設定的參數，也可在此進行設定。"
 
 msgid "You can also trigger Scripts here. Triggering a script will save your Plugin settings beforehand."
-msgstr "You can also trigger Scripts here. Triggering a script will save your Plugin settings beforehand."
+msgstr "您也可以在此觸發腳本。觸發腳本時會先儲存目前的外掛設定。"
 
 msgid "Login Plugins"
-msgstr "Login Plugins"
+msgstr "登入外掛"
 
 msgid "Downloaders"
-msgstr "Downloaders"
+msgstr "下載器"
 
 msgid "Scripts"
-msgstr "Scripts"
+msgstr "腳本"
 
 msgid "Metadata Plugins"
-msgstr "Metadata Plugins"
+msgstr "中繼資料外掛"
 
 msgid "Allow Plugins to replace archive titles:"
-msgstr "Allow Plugins to replace archive titles:"
+msgstr "允許外掛取代檔案標題："
 
 msgid "If enabled, metadata plugins will be able to change the title of your archives alongside adding tags to them."
-msgstr "If enabled, metadata plugins will be able to change the title of your archives alongside adding tags to them."
+msgstr "若啟用，中繼資料外掛除了添加標籤，也可修改檔案的標題。"
 
 msgid "A script is running..."
-msgstr "A script is running..."
+msgstr "腳本執行中..."
 
 msgid "Save Plugin Configuration"
-msgstr "Save Plugin Configuration"
+msgstr "儲存外掛設定"
 
 msgid "Upload Plugin"
-msgstr "Upload Plugin"
+msgstr "上傳外掛"
 
 msgid "Return to Library"
-msgstr "Return to Library"
+msgstr ""
 
 msgid "This plugin will trigger on URLs matching this regex!"
-msgstr "This plugin will trigger on URLs matching this regex!"
+msgstr "當網址符合此正則表達式時會觸發此腳本！"
 
 msgid "This plugin depends on the login plugin"
-msgstr "This plugin depends on the login plugin"
+msgstr "此外掛依賴於登入外掛"
 
 msgid "Trigger Script"
-msgstr "Trigger Script"
-
-msgid "Run Automatically"
-msgstr "Run Automatically" 
-
-msgid "Plugin Settings"
-msgstr "Plugin Settings"
+msgstr "觸發腳本"
 
 # ------End of Plugins.html.tt2------
-
 # ------Start of Reader.html.tt2------
-
 msgid "Done reading? Go back to Archive Index"
-msgstr "Done reading? Go back to Archive Index"
+msgstr "閱讀完畢？返回檔案列表"
 
 msgid "View full-size image"
-msgstr "View full-size image"
+msgstr "檢視完整尺寸圖片"
 
 msgid "Switch to another random archive"
-msgstr "Switch to another random archive"
+msgstr "切換到另一個隨機檔案"
 
 msgid "Archive Overview"
-msgstr "Archive Overview"
+msgstr ""
 
 msgid "Admin Options"
-msgstr "Admin Options"
+msgstr "管理員設定"
 
 msgid "Set this Page as Thumbnail"
-msgstr "Set this Page as Thumbnail"
+msgstr "將目前頁面設為縮圖"
 
 msgid "Set the currently opened page as the thumbnail for this archive."
-msgstr "Set the currently opened page as the thumbnail for this archive."
+msgstr "將目前開啟的頁面設為此檔案的縮圖。"
 
 msgid "Clean Archive Cache"
-msgstr "Clean Archive Cache"
+msgstr "清除檔案快取"
 
 msgid "Edit Archive Metadata"
-msgstr "Edit Archive Metadata"
+msgstr "編輯檔案中繼資料"
 
 msgid "Delete Archive"
-msgstr "Delete Archive"
+msgstr "刪除檔案"
 
 msgid "Categories"
-msgstr "Categories"
+msgstr "分類"
 
 msgid "Add to : "
-msgstr "Add to : "
+msgstr "加入至： "
 
 msgid " -- No Category -- "
-msgstr " -- No Category -- "
+msgstr ""
 
 msgid "Add Archive to Category"
-msgstr "Add Archive to Category"
+msgstr "將檔案加入分類"
 
 msgid "Pages"
-msgstr "Pages"
+msgstr "頁面"
 
 msgid "Working on it..."
-msgstr "Working on it..."
+msgstr "處理中..."
 
 msgid "You can navigate between pages using:"
-msgstr "You can navigate between pages using:"
+msgstr "您可以透過以下方式切換頁面："
 
 msgid "The arrow icons"
-msgstr "The arrow icons"
+msgstr "箭頭圖示"
 
 msgid "The a/d keys"
-msgstr "The a/d keys"
+msgstr "A/D 鍵"
 
 msgid "Your keyboard arrows (and the spacebar)"
-msgstr "Your keyboard arrows (and the spacebar)"
+msgstr "鍵盤方向鍵（以及空白鍵）"
 
 msgid "Touching the left/right side of the image."
-msgstr "Touching the left/right side of the image."
+msgstr "點擊圖片的左側/右側。"
 
 msgid "Other keyboard shortcuts:"
-msgstr "Other keyboard shortcuts:"
+msgstr "其他鍵盤快捷鍵："
 
 msgid "M: toggle manga mode (right-to-left reading)"
-msgstr "M: toggle manga mode (right-to-left reading)"
+msgstr "M：切換漫畫模式（從右至左閱讀）"
 
 msgid "O: show advanced reader options."
-msgstr "O: show advanced reader options."
+msgstr "O：顯示進階閱讀器選項。"
 
 msgid "P: toggle double page mode"
-msgstr "P: toggle double page mode"
+msgstr "P：切換雙頁模式"
 
 msgid "Q: bring up the thumbnail index and archive options."
-msgstr "Q: bring up the thumbnail index and archive options."
+msgstr "Q：顯示縮圖索引與檔案選項。"
 
 msgid "R: open a random archive."
-msgstr "R: open a random archive."
+msgstr "R：開啟隨機檔案。"
 
 msgid "F: toggle fullscreen mode"
-msgstr "F: toggle fullscreen mode"
+msgstr "F：切換全螢幕模式"
 
 msgid "B: toggle bookmark"
-msgstr "B: toggle bookmark"
+msgstr "B：切換書籤"
 
 msgid "To return to the archive index, touch the arrow pointing down or use Backspace."
-msgstr "To return to the archive index, touch the arrow pointing down or use Backspace."
+msgstr "要返回檔案列表，請點擊向下箭頭或按下 Backspace。"
 
 msgid "Reader Options"
-msgstr "Reader Options"
+msgstr "閱讀器選項"
 
 msgid "Those options save automatically -- Click around and find out!"
-msgstr "Those options save automatically -- Click around and find out!"
+msgstr "這些選項會自動儲存 -- 可以隨意修改來測試效果！"
 
 msgid "Fit display to"
-msgstr "Fit display to"
+msgstr "顯示適應方式"
 
 msgid "Container"
-msgstr "Container"
+msgstr "容器"
 
 msgid "Width"
-msgstr "Width"
+msgstr "寬度"
 
 msgid "Height"
-msgstr "Height"
+msgstr "高度"
 
 msgid "Container Width (in pixels or percentage)"
-msgstr "Container Width (in pixels or percentage)"
+msgstr "容器寬度（單位為像素或百分比）"
 
 msgid "The default value is 1200px, or 90% in Double Page Mode."
-msgstr "The default value is 1200px, or 90% in Double Page Mode."
+msgstr "預設值為 1200px，雙頁模式下為 90%。"
 
 msgid "Apply"
-msgstr "Apply"
+msgstr "套用"
 
 msgid "Page Rendering"
-msgstr "Page Rendering"
+msgstr "頁面渲染"
 
 msgid "Single"
-msgstr "Single"
+msgstr "單頁"
 
 msgid "Double"
-msgstr "Double"
+msgstr "雙頁"
 
 msgid "Reading Direction"
-msgstr "Reading Direction"
+msgstr ""
 
 msgid "Left to Right"
-msgstr "Left to Right"
+msgstr "由左至右"
 
 msgid "Right to Left"
-msgstr "Right to Left"
+msgstr "由右至左"
 
 msgid "How many images to preload"
-msgstr "How many images to preload"
+msgstr "預載圖片數量"
 
 msgid "The default is two images."
-msgstr "The default is two images."
+msgstr "預設為兩張圖片。"
 
 msgid "Header"
-msgstr "Header"
+msgstr ""
 
 msgid "Visible"
-msgstr "Visible"
+msgstr "可見"
 
 msgid "Hidden"
-msgstr "Hidden"
+msgstr "隱藏"
 
 msgid "Show Archive Overlay by default"
-msgstr "Show Archive Overlay by default"
+msgstr "預設顯示檔案縮圖覆蓋層"
 
 msgid "This will show the overlay with thumbnails every time you open a new Reader page."
-msgstr "This will show the overlay with thumbnails every time you open a new Reader page."
+msgstr "每次開啟新閱讀器頁面時，皆顯示包含縮圖的覆蓋層。"
 
 msgid "Enabled"
-msgstr "Enabled"
+msgstr "啟用"
 
 msgid "Disabled"
-msgstr "Disabled"
+msgstr "停用"
 
 msgid "Progression Tracking"
-msgstr "Progression Tracking"
+msgstr "閱讀進度追蹤"
 
 msgid "Disabling tracking will restart reading from page one every time you reopen the reader."
-msgstr "Disabling tracking will restart reading from page one every time you reopen the reader."
+msgstr "停用後每次重新開啟閱讀器都會從第一頁開始。"
 
 msgid "Infinite Scrolling"
-msgstr "Infinite Scrolling"
+msgstr "無限滾動"
 
 msgid "Display all images in a vertical view in the same page."
-msgstr "Display all images in a vertical view in the same page."
+msgstr "在同一頁面中以垂直方式顯示所有圖片。"
 
 msgid "Reader Settings"
-msgstr "Reader Settings"
+msgstr "閱讀器設定"
 
 msgid "Help"
-msgstr "Help"
+msgstr "幫助"
 
 msgid "Reading Direction"
-msgstr "Reading Direction"
+msgstr "閱讀方向"
 
 msgid "Archive Overview"
-msgstr "Archive Overview"
+msgstr "檔案總覽"
 
 msgid "FullScreen"
-msgstr "FullScreen"
+msgstr "全螢幕"
 
 msgid "Toggle Bookmark"
-msgstr "Toggle Bookmark"
+msgstr "切換書籤"
+
 # ------End of Reader.html.tt2------
-
 # ------Start of Stats.html.tt2------
-
 msgid "Library Statistics"
-msgstr "Library Statistics"
+msgstr "庫統計"
 
 msgid "Archives on record"
-msgstr "Archives on record"
+msgstr "已紀錄的檔案數量"
 
 msgid "Different tags existing"
-msgstr "Different tags existing"
+msgstr "已存在的不同標籤數"
 
 msgid "in content folder"
-msgstr "in content folder"
+msgstr "在檔案資料夾中"
 
 msgid "pages read"
-msgstr "pages read"
+msgstr "已閱讀頁數"
 
 msgid "Tag Cloud"
-msgstr "Tag Cloud"
+msgstr "標籤雲"
 
 msgid "Asking the great powers that be for your tag statistics..."
-msgstr "Asking the great powers that be for your tag statistics..."
+msgstr "正在向宇宙之力請求您的標籤統計資料..."
 
 msgid "Detailed Stats"
-msgstr "Detailed Stats"
+msgstr "詳細統計"
 
 msgid "(These statistics only show tags that appear at least twice in your database.)"
-msgstr "(These statistics only show tags that appear at least twice in your database.)"
+msgstr "（僅顯示在資料庫中出現兩次以上的標籤）"
 
 msgid "Return to Library"
-msgstr "Return to Library"
+msgstr ""
 
 # ------End of Stats.html.tt2------
-
 # ------Start of Upload.html.tt2------
-
 msgid "Upload Center"
-msgstr "Upload Center"
+msgstr "上傳中心"
 
 msgid "Adding Archives to the Library"
-msgstr "Adding Archives to the Library"
+msgstr "將檔案加入庫"
 
 msgid "Add files to your LANraragi instance from your computer, or the Internet directly."
-msgstr "Add files to your LANraragi instance from your computer, or the Internet directly."
+msgstr "從您的電腦或網路直接將檔案加入至您的 LANraragi。"
 
 msgid "Add uploaded files to category:"
-msgstr "Add uploaded files to category:"
+msgstr "將上傳的檔案加入分類："
 
 msgid " -- No Category -- "
-msgstr " -- No Category -- "
+msgstr " -- 無分類 -- "
 
 msgid "From your computer"
-msgstr "From your computer"
+msgstr "從您的電腦"
 
 msgid "You can drag and drop files into this window, or click the upload button."
-msgstr "You can drag and drop files into this window, or click the upload button."
+msgstr "您可以將檔案拖曳進此視窗，或點擊上傳按鈕。"
 
 msgid "Add from your computer"
-msgstr "Add from your computer"
+msgstr "從您的電腦新增"
 
 msgid "From the Internet"
-msgstr "From the Internet"
+msgstr "從網路"
 
 msgid "You can download files from remote URLs directly into LANraragi from here."
-msgstr "You can download files from remote URLs directly into LANraragi from here."
+msgstr "您可以在此處直接從遠端 URL 下載檔案至 LANraragi。"
 
 msgid "Download jobs will keep going even if you close this window!"
-msgstr "Download jobs will keep going even if you close this window!"
+msgstr "即使您關閉此視窗，下載任務也會持續進行！"
 
 msgid "Type in your URLs (separated by a newline), and click the download button."
-msgstr "Type in your URLs (separated by a newline), and click the download button."
+msgstr "請輸入 URL（以換行分隔），然後點擊下載按鈕。"
 
 msgid "If a Downloader plugin is compatible with the URL, it'll be automatically used."
-msgstr "If a <a href=\"[% c.url_for(\"/config/plugins\") %]\">Downloader plugin</a> is compatible with the URL, it'll be automatically used."
+msgstr ""
+"若有相容的<a href=\"[% c.url_for(\\\"/config/plugins\\\") %]\""
+">下載器外掛</a>，將會自動套用。"
 
 msgid "URL(s) to download:"
-msgstr "URL(s) to download:"
+msgstr "要下載的 URL："
 
 msgid "Add from URL(s)"
-msgstr "Add from URL(s)"
+msgstr "從 URL 新增"
 
 msgid "Return to Library"
-msgstr "Return to Library"
+msgstr "返回庫"
 
 # ------End of Upload.html.tt2------
-
 msgid "Rescan Archive Directory"
-msgstr "Rescan Archive Directory"
+msgstr "重新掃描檔案資料夾"
 
 msgid "Click this button to trigger a rescan of the Archive Directory in case you're missing files, or some data such as total page counts."
-msgstr "Click this button to trigger a rescan of the Archive Directory in case you're missing files, or some data such as total page counts."
+msgstr "若出現檔案遺失 <br>或某些資料異常（例如總頁數量異常）<br> "
+"，可點擊此按鈕觸發重新掃描"
 
 # ------Stary of i18n.html.tt2------
-
 msgid "Backup restored!"
-msgstr "Backup restored!"
+msgstr "備份還原成功！"
 
 msgid "An error occured while restoring the backup.<br/> Please check the server logs and that your JSON is correctly formatted."
-msgstr "An error occured while restoring the backup.<br/> Please check the server logs and that your JSON is correctly formatted."
+msgstr "還原備份時發生錯誤。<br/>請檢查伺服器日誌，並確認 JSON 格式正確。"
 
 msgid "Couldn't load the complete archive list! Please reload the page."
-msgstr "Couldn't load the complete archive list! Please reload the page."
+msgstr "無法載入完整的檔案清單！請重新整理頁面。"
 
 msgid "Couldn't load the tag statistics! Please reload the page."
-msgstr "Couldn't load the tag statistics! Please reload the page."
+msgstr "無法載入標籤統計資料！請重新整理頁面。"
 
 msgid "Error getting untagged archives!"
-msgstr "Error getting untagged archives!"
+msgstr "取得未加標籤的檔案時發生錯誤！"
 
 msgid "Are you sure you want to delete this archive?"
-msgstr "Are you sure you want to delete this archive?"
+msgstr "你確定要刪除此檔案嗎？"
 
 msgid "Are you sure you want to delete the selected archives?"
-msgstr "Are you sure you want to delete the selected archives?"
+msgstr "你確定要刪除所選的檔案嗎？"
 
 msgid "This action cannot be undone!"
-msgstr "This action cannot be undone!"
+msgstr "此操作無法復原！"
 
 msgid "This action (truly) cannot be undone!"
-msgstr "This action (truly) cannot be undone!"
+msgstr "此操作（真的）無法復原！"
 
 msgid "Yes, delete it!"
-msgstr "Yes, delete it!"
+msgstr "是的，刪除它！"
 
 msgid "No, keep it!"
-msgstr "No, keep it!"
+msgstr "不要，保留它！"
 
 msgid "Error while deleting cache! Check application logs."
-msgstr "Error while deleting cache! Check application logs."
+msgstr "刪除快取時發生錯誤！請查看應用程式日誌。"
 
 msgid "Error while processing request"
-msgstr "Error while processing request"
+msgstr "處理請求時發生錯誤"
 
 msgid "Error checking Minion job status"
-msgstr "Error checking Minion job status"
+msgstr "檢查 Minion 任務狀態時發生錯誤"
 
 msgid "Saved!"
-msgstr "Saved!"
+msgstr "已儲存！"
 
 msgid "Error saving data"
-msgstr "Error saving data"
+msgstr "儲存資料時發生錯誤"
 
 msgid "Started Batch Operation..."
-msgstr "Started Batch Operation..."
+msgstr "已開始批量作業..."
 
 msgid "Batch Operation complete!"
-msgstr "Batch Operation complete!"
+msgstr "批量作業完成！"
 
 msgid "An error occured during batch tagging!"
-msgstr "An error occured during batch tagging!"
+msgstr "批量處理標籤時發生錯誤！"
 
 msgid "Please check application logs."
-msgstr "Please check application logs."
+msgstr "請查看應用程式日誌。"
 
 msgid "Error! Terminating session."
-msgstr "Error! Terminating session."
+msgstr "批量作業發生錯誤！正在中止。"
 
 msgid "Sleeping for \${x} seconds."
-msgstr "Sleeping for ${x} seconds."
+msgstr "等待 ${x} 秒。"
 
 msgid "Error while processing ID \${id} (\${msg})"
-msgstr "Error while processing ID ${id} (${msg})"
+msgstr "處理檔案ID ${id} 時發生錯誤（${msg}）"
 
 msgid "Processed ID \${id} with \"\${plug}\" (Added tags: \${tags})"
-msgstr "Processed ID ${id} with \"${plug}\" (Added tags: ${tags})"
+msgstr "已使用 \"${plug}\" 處理 ID ${id}（新增標籤：${tags}）"
 
 msgid "Deleted ID \${id} (Filename: \${filename})"
-msgstr "Deleted ID ${id} (Filename: ${filename})"
+msgstr "已刪除 ID ${id}（檔案名稱：${filename}）"
 
 msgid "Replaced tags for ID \${id} (New tags: \${tags})"
-msgstr "Replaced tags for ID ${id} (New tags: ${tags})"
+msgstr "已覆蓋更新 ID ${id} 的標籤（新標籤：${tags}）"
 
 msgid "Added ID \${id} to category \${category}! (\${msg})"
-msgstr "Added ID ${id} to category ${category}! (${msg})"
+msgstr "已將 ID ${id} 加入分類 ${category}！（${msg}）"
 
 msgid "Cleared new flag for ID \${id}!"
-msgstr "Cleared new flag for ID ${id}!"
+msgstr "已清除 ID ${id} 的新標記！"
 
 msgid "Unknown operation \${oper} (\${msg})"
-msgstr "Unknown operation ${oper} (${msg})"
+msgstr "未知操作 ${oper}（${msg}）"
 
 msgid "Changed title to: \${title}"
-msgstr "Changed title to: ${title}"
+msgstr "標題已變更為：${title}"
 
 msgid "Reloading page in 5 seconds to account for deleted archives..."
-msgstr "Reloading page in 5 seconds to account for deleted archives..."
+msgstr "5 秒後重新整理頁面以反映已刪除的檔案..."
 
 msgid "Cancelling Batch Operation..."
-msgstr "Cancelling Batch Operation..."
+msgstr "正在取消批量作業..."
 
 msgid "Enter a name for the new category"
-msgstr "Enter a name for the new category"
+msgstr "請輸入新分類的名稱"
 
 msgid "My Category"
-msgstr "My Category"
+msgstr "我的分類"
 
 msgid "Please enter a category name."
-msgstr "Please enter a category name."
+msgstr "請輸入分類名稱。"
 
 msgid "No category"
-msgstr "No category"
+msgstr "無分類"
 
 msgid "Error getting categories from server"
-msgstr "Error getting categories from server"
+msgstr "從伺服器取得分類時發生錯誤"
 
 msgid "Error modifying category"
-msgstr "Error modifying category"
+msgstr "修改分類時發生錯誤"
 
 msgid "The category will be deleted permanently."
-msgstr "The category will be deleted permanently."
+msgstr "此分類將被永久刪除。"
 
 msgid "Category deleted!"
-msgstr "Category deleted!"
+msgstr "分類已刪除！"
 
 msgid "Error deleting category"
-msgstr "Error deleting category"
+msgstr "刪除分類時發生錯誤"
 
 msgid "Writing a Predicate"
-msgstr "Writing a Predicate"
+msgstr "填寫篩選條件"
 
 msgid "Predicates follow the same syntax as searches in the Archive Index. Check the Documentation for more information."
-msgstr "Predicates follow the same syntax as searches in the Archive Index. Check the <a href=\"https://sugoi.gitbook.io/lanraragi/basic-operations/searching\">Documentation</a> for more information."
+msgstr ""
+"篩選條件遵循與檔案列表中搜尋相同的語法。詳情請參閱<a href="
+"\"https://sugoi.gitbook.io/lanraragi/basic-operations/searching\""
+">說明文件</a>。"
 
 msgid "Background Worker restarted!"
-msgstr "Background Worker restarted!"
+msgstr "背景工作程序已重新啟動！"
 
 msgid "Error restarting Worker:"
-msgstr "Error restarting Worker:"
+msgstr "重新啟動背景工作程序時發生錯誤："
 
 msgid "Content folder rescan started!"
-msgstr "Content folder rescan started!"
+msgstr "檔案資料夾重新掃描已啟動！"
 
 msgid "Error starting content folder rescan:"
-msgstr "Error starting content folder rescan:"
+msgstr "啟動檔案資料夾重新掃描時發生錯誤："
 
 msgid "Error while querying Shinobu status:"
-msgstr "Error while querying Shinobu status:"
+msgstr "查詢 Shinobu 狀態時發生錯誤："
 
 msgid "About Plugins"
-msgstr "About Plugins"
+msgstr "關於外掛"
 
 msgid "You can use plugins to automatically fetch metadata for this archive. <br/> Just select a plugin from the dropdown and hit Go! <br/> Some plugins might provide an optional argument for you to specify. If that's the case, a textbox will be available to input said argument."
-msgstr "You can use plugins to automatically fetch metadata for this archive. <br/> Just select a plugin from the dropdown and hit Go! <br/> Some plugins might provide an optional argument for you to specify. If that's the case, a textbox will be available to input said argument."
+msgstr ""
+"您可以使用外掛自動抓取此檔案的中繼資料。<br/"
+">只要從下拉選單中選擇一個外掛並按下 '執行！'<br/"
+">部分外掛可能需要額外參數，屆時會顯示輸入欄位供您填寫。"
 
 msgid "Metadata saved!"
-msgstr "Metadata saved!"
+msgstr "中繼資料已儲存！"
 
 msgid "Error saving archive metadata"
-msgstr "Error saving archive metadata"
+msgstr "儲存檔案中繼資料時發生錯誤"
 
 msgid "Error while fetching tags"
-msgstr "Error while fetching tags"
+msgstr "取得標籤時發生錯誤"
 
 msgid "Archive title changed to"
-msgstr "Archive title changed to"
+msgstr "檔案標題已更改為"
 
 msgid "Archive summary updated!"
-msgstr "Archive summary updated!"
+msgstr "檔案摘要已更新！"
 
 msgid "Added the following tags"
-msgstr "Added the following tags"
+msgstr "新增以下標籤"
 
 msgid "No new tags added!"
-msgstr "No new tags added!"
+msgstr "沒有新增任何新標籤！"
 
 # Do not translate _START_, _END_ or _TOTAL_.
 msgid "Showing _START_ to _END_ of _TOTAL_ ancient chinese lithographies."
-msgstr "Showing _START_ to _END_ of _TOTAL_ ancient chinese lithographies."
+msgstr "顯示第 _START_ 到 _END_ 筆，共 _TOTAL_ 筆遠古遺物資料。"
 
 msgid "No archives to show you! Try <a href=\"\${url}\")>uploading some</a>?"
-msgstr "No archives to show you! Try <a href=\"${url}\")>uploading some</a>?"
+msgstr "沒有可顯示的檔案！要不要試著<a href=\"${url}\")>上傳一些</a>？"
 
 msgid "Welcome to LANraragi \${version}!"
-msgstr "Welcome to LANraragi ${version}!"
+msgstr "歡迎使用 LANraragi ${version}！"
 
 msgid "If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!"
-msgstr "If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!"
+msgstr "只需要右鍵點選檔案名稱即可進行進階操作。祝您閱讀愉快！"
 
 msgid "Error getting basic server info."
-msgstr "Error getting basic server info."
+msgstr "取得伺服器基本資訊時發生錯誤。"
 
 msgid "You're running in Debug Mode!"
-msgstr "You're running in Debug Mode!"
+msgstr "您目前正在使用 Debug 模式！"
 
 msgid "Advanced server statistics can be viewed <a href=\"\${url}\")>here</a>."
-msgstr "Advanced server statistics can be viewed <a href=\"${url}\")>here</a>."
+msgstr "更詳細的伺服器統計資訊可在<a href=\"${url}\")>這裡</a>查看。"
 
 msgid "Enter a tag namespace for this column"
-msgstr "Enter a tag namespace for this column"
+msgstr "請為此欄位輸入一個標籤命名空間"
 
 msgid "Enter a full namespace without the colon, e.g \"artist\"."
-msgstr "Enter a full namespace without the colon, e.g \"artist\"."
+msgstr "請輸入不含冒號的完整命名空間，例如 \"artist\"。"
 
 msgid "If you have multiple tags with the same namespace, only the last one will be shown in the column."
-msgstr "If you have multiple tags with the same namespace, only the last one will be shown in the column."
+msgstr "若有多個相同命名空間的標籤，此欄只會顯示最後一個。"
 
 msgid "Tag namespace"
-msgstr "Tag namespace"
+msgstr "標籤命名空間"
 
 msgid "Please enter a tag namespace."
-msgstr "Please enter a tag namespace."
+msgstr "請輸入標籤命名空間。"
 
 msgid "Randomly Picked"
-msgstr "Randomly Picked"
+msgstr "隨機精選"
 
 msgid "New Archives"
-msgstr "New Archives"
+msgstr "新上架檔案"
 
 msgid "Untagged Archives"
-msgstr "Untagged Archives"
+msgstr "無標籤檔案"
 
 msgid "On Deck"
-msgstr "On Deck"
+msgstr "最近閱讀"
 
 msgid "Error getting carousel data!"
-msgstr "Error getting carousel data!"
+msgstr "取得輪播資料時發生錯誤！"
 
 msgid "Edit this column"
-msgstr "Edit this column"
+msgstr "編輯此欄位"
 
 msgid "Title"
-msgstr "Title"
+msgstr "標題"
 
 msgid "Tags"
-msgstr "Tags"
+msgstr "標籤"
 
 msgid "Header"
-msgstr "Header"
+msgstr "頁眉"
 
 msgid "A new version of LANraragi (\${version}) is available!"
-msgstr "A new version of LANraragi (${version}) is available!"
+msgstr "LANraragi 的新版本（${version}）已釋出！"
 
 msgid "Click here to check it out."
-msgstr "Click here to check it out."
+msgstr "點此查看詳情。"
 
 msgid "Error getting changelog for new version"
-msgstr "Error getting changelog for new version"
+msgstr "取得新版本更新紀錄時發生錯誤"
 
 msgid "Couldn't load data for \${id}!"
-msgstr "Couldn't load data for ${id}!"
+msgstr "無法載入 ID 為 ${id} 的資料！"
 
 msgid "Github API rate limit exceeded."
-msgstr "Github API rate limit exceeded."
+msgstr "已達到 Github API 呼叫速率上限。"
 
 msgid "Github API returned status: \${status}"
-msgstr "Github API returned status: ${status}"
+msgstr "Github API 回應狀態：${status}"
 
 msgid "This archive isn't in any category."
-msgstr "This archive isn't in any category."
+msgstr "此檔案未被歸類到任何分類中。"
 
 msgid "No Categories yet..."
-msgstr "No Categories yet..."
+msgstr "尚未建立任何分類..."
 
 msgid "Remove rating"
-msgstr "Remove rating"
+msgstr "移除評分"
 
 msgid "Click here to display new archives only."
-msgstr "Click here to display new archives only."
+msgstr "點擊這裡僅顯示新上架檔案。"
 
 msgid "Click here to display untagged archives only."
-msgstr "Click here to display untagged archives only."
+msgstr "點擊這裡僅顯示無標籤的檔案。"
 
 msgid "Click here to display archives in this category only."
-msgstr "Click here to display archives in this category only."
+msgstr "點擊這裡僅顯示此分類下的檔案。"
 
 msgid "Your Reading Progression is now saved on the server!"
-msgstr "Your Reading Progression is now saved on the server!"
+msgstr "您的閱讀進度已儲存至伺服器！"
 
 msgid "You seem to have some local progression hanging around -- Please wait warmly while we migrate it to the server for you."
-msgstr "You seem to have some local progression hanging around -- Please wait warmly while we migrate it to the server for you."
+msgstr "偵測到您仍有本地的閱讀進度紀錄 -- 請稍候，我們將為您遷移至伺服器端。"
 
 msgid "Error while migrating local progression to server"
-msgstr "Error while migrating local progression to server"
+msgstr "遷移本地閱讀進度至伺服器時發生錯誤"
 
 msgid "Reading Progression has been fully migrated"
-msgstr "Reading Progression has been fully migrated"
+msgstr "閱讀進度已成功完成遷移"
 
 msgid "You'll have to reopen archives in the Reader to see the migrated progression values."
-msgstr "You'll have to reopen archives in the Reader to see the migrated progression values."
+msgstr "您需要重新開啟檔案才能看到已遷移的進度。"
 
 msgid "Plugin uploaded successfully!"
-msgstr "Plugin uploaded successfully!"
+msgstr "外掛上傳成功！"
 
 msgid "The plugin \${name} has been successfully added. Refresh the page to see it."
-msgstr "The plugin ${name} has been successfully added. Refresh the page to see it."
+msgstr "外掛 ${name} 已成功新增，請重新整理頁面查看。"
 
 msgid "Error uploading plugin"
-msgstr "Error uploading plugin"
+msgstr "上傳外掛時發生錯誤"
 
 msgid "Successfully set page \${page} as the thumbnail!"
-msgstr "Successfully set page ${page} as the thumbnail!"
+msgstr "已成功將第 ${page} 頁設為縮圖！"
 
 msgid "Error updating thumbnail"
-msgstr "Error updating thumbnail"
+msgstr "更新縮圖時發生錯誤"
 
 msgid "Error clearing new flag"
-msgstr "Error clearing new flag"
+msgstr "清除 \"新\" 標記時發生錯誤"
 
 msgid "Error getting the archive's imagelist."
-msgstr "Error getting the archive's imagelist."
+msgstr "取得檔案的圖片列表時發生錯誤。"
 
 msgid "This archive seems to be in RAR format!"
-msgstr "This archive seems to be in RAR format!"
+msgstr "這個檔案似乎是 RAR 格式！"
 
 msgid "RAR archives might not work properly in LANraragi depending on how they were made. If you encounter errors while reading, consider converting your archive to zip."
-msgstr "RAR archives might not work properly in LANraragi depending on how they were made. If you encounter errors while reading, consider converting your archive to zip."
+msgstr "RAR 檔案在 LANraragi 中可能會因製作方式不同而出現問題。若您在閱讀時遇到錯誤，"
+"請考慮將檔案轉換為 zip 格式。"
 
 msgid "EPUB support in LANraragi is minimal"
-msgstr "EPUB support in LANraragi is minimal"
+msgstr "LANraragi 對 EPUB 的支援相當有限"
 
 msgid "EPUB books will only show images in the Web Reader, and potentially out of order. If you want text support, consider pairing LANraragi with an OPDS reader."
-msgstr "EPUB books will only show images in the Web Reader, and potentially out of order. If you want text support, consider pairing LANraragi with an <a href='https://sugoi.gitbook.io/lanraragi/advanced-usage/external-readers#generic-opds-readers'>OPDS reader.</a>"
+msgstr ""
+"EPUB 檔案在網頁閱讀器中僅會顯示圖片，且可能順序錯亂。若您需要閱讀文字內容，"
+"建議搭配 <a href='https://sugoi.gitbook.io/lanraragi/advanced-usage/external-"
+"readers#generic-opds-readers'>OPDS 閱讀器</a>使用"
 
 msgid "Navigation Help"
-msgstr "Navigation Help"
+msgstr "導航幫助"
 
 msgid "Error updating reading progression"
-msgstr "Error updating reading progression"
+msgstr "更新閱讀進度時發生錯誤"
 
 msgid "Page \${page}"
-msgstr "Page ${page}"
+msgstr "第 ${page} 頁"
 
 msgid "The page thumbnailing job didn't conclude properly. Your archive might be corrupted."
-msgstr "The page thumbnailing job didn't conclude properly. Your archive might be corrupted."
+msgstr "頁面縮圖產生作業未正確完成。您的檔案可能已損毀。"
 
 msgid "A script is already running."
-msgstr "A script is already running."
+msgstr "已有腳本正在執行中。"
 
 msgid "Please wait for it to finish before starting a new one."
-msgstr "Please wait for it to finish before starting a new one."
+msgstr "請等待當前腳本執行完畢後再開始新的。"
 
 msgid "An error occured while running the script"
-msgstr "An error occured while running the script"
+msgstr "執行腳本時發生錯誤"
 
 msgid "Script result"
-msgstr "Script result"
+msgstr "腳本結果"
 
 msgid "Script failed with error: \${error}"
-msgstr "Script failed with error: ${error}"
+msgstr "腳本執行失敗，錯誤訊息：${error}"
 
 msgid "Temporary folder cleaned!"
-msgstr "Temporary folder cleaned!"
+msgstr "暫存資料夾已清理！"
 
 msgid "Error cleaning temporary folder"
-msgstr "Error cleaning temporary folder"
+msgstr "清理暫存資料夾時發生錯誤"
 
 msgid "Threw away the cache!"
-msgstr "Threw away the cache!"
+msgstr "快取已清除！"
 
 msgid "Error clearing the cache"
-msgstr "Error clearing the cache"
+msgstr "清除快取時發生錯誤"
 
 msgid "Threw away the search cache!"
-msgstr "Threw away the search cache!"
+msgstr "搜尋快取已清除！"
 
 msgid "All archives are no longer new!"
-msgstr "All archives are no longer new!"
+msgstr "所有檔案已不再標示為新上架！"
 
 msgid "Error during cleanup procedure"
-msgstr "Error during cleanup procedure"
+msgstr "執行清理程序時發生錯誤"
 
 msgid "Are you sure you want to wipe the database?"
-msgstr "Are you sure you want to wipe the database?"
+msgstr "您確定要清除整個資料庫嗎？"
 
 msgid "Sayonara! Redirecting you..."
-msgstr "Sayonara! Redirecting you..."
+msgstr "再見啦！正在重新導向..."
 
 msgid "Successfully cleaned the database and removed \${entries} entries."
-msgstr "Successfully cleaned the database and removed ${entries} entries."
+msgstr "資料庫清理成功，共移除 ${entries} 筆資料。"
 
 msgid "\${entries} other entries have been unlinked from the database and will be deleted on the next cleanup!"
-msgstr "${entries} other entries have been unlinked from the database and will be deleted on the next cleanup!"
+msgstr "${entries} 筆資料已從資料庫解除連結，將於下次清理時刪除！"
 
 msgid "Do a backup now if some files disappeared from your archive index."
-msgstr "Do a backup now if some files disappeared from your archive index."
+msgstr "若有檔案從索引中消失，請立即執行備份。"
 
 msgid "Queued up a job to regenerate thumbnails! Stay tuned for updates or check the Minion console."
-msgstr "Queued up a job to regenerate thumbnails! Stay tuned for updates or check the Minion console."
+msgstr "已排入重新產生縮圖的工作！請留意更新，或查看 Minion 控制台。"
 
 msgid "All thumbnails generated! Errors will be listed below if there were any."
-msgstr "All thumbnails generated! Errors will be listed below if there were any."
+msgstr "所有縮圖已產生完畢！若有錯誤將列於下方。"
 
 msgid "Added \${id} to category \${cat}!"
-msgstr "Added ${id} to category ${cat}!"
+msgstr "已將 ${id} 加入分類 ${cat}！"
 
 msgid "Removed \${id} from category \${cat}!"
-msgstr "Removed ${id} from category ${cat}!"
+msgstr "已從分類 ${cat} 中移除 ${id}！"
 
 msgid "Couldn't delete archive file. <br/> (Maybe it has already been deleted beforehand?)"
-msgstr "Couldn't delete archive file. <br/> (Maybe it has already been deleted beforehand?)"
+msgstr "無法刪除檔案。<br/>（可能已事先被刪除？）"
 
 msgid "Archive metadata has been deleted properly. <br> Please delete the file manually before returning to the archive index."
-msgstr "Archive metadata has been deleted properly. <br> Please delete the file manually before returning to the archive index."
+msgstr "檔案的中繼資料已成功刪除。<br>請在返回列表前手動刪除檔案。"
 
 msgid "Archive successfully deleted. Redirecting you..."
-msgstr "Archive successfully deleted. Redirecting you..."
+msgstr "檔案已成功刪除。正在重新導向..."
 
 msgid "Error while deleting archive"
-msgstr "Error while deleting archive"
+msgstr "刪除檔案時發生錯誤"
 
 msgid "Processing your upload... (Job #\${jobid})"
-msgstr "Processing your upload... (Job #${jobid})"
+msgstr "正在處理您的上傳...（任務 #${jobid}）"
 
 msgid "Downloading file... (Job #\${jobid})"
-msgstr "Downloading file... (Job #${jobid})"
+msgstr "正在下載檔案...（任務 #${jobid}）"
 
 msgid "Processing"
-msgstr "Processing"
+msgstr "處理中"
 
 msgid "Completed"
-msgstr "Completed"
+msgstr "已完成"
 
 msgid "Failed"
-msgstr "Failed"
+msgstr "失敗"
 
 msgid "Total"
-msgstr "Total"
+msgstr "總計"
 
 msgid "Click here to edit metadata."
-msgstr "Click here to edit metadata."
+msgstr "點此編輯中繼資料。"
 
 msgid "Error while processing file."
-msgstr "Error while processing file."
+msgstr "處理檔案時發生錯誤。"
 
 msgid "Error while downloading file."
-msgstr "Error while downloading file."
+msgstr "下載檔案時發生錯誤。"
 
 msgid "Error sending job to Minion"
-msgstr "Error sending job to Minion"
+msgstr "傳送任務至 Minion 時發生錯誤"
 
 # ------End of i18n.html.tt2------
-
 # ------Start of Duplicates.html.tt2------
-
 msgid "Duplicate Detection"
-msgstr "Duplicate Detection"
+msgstr "重複檔案偵測"
 
 msgid "This page allows you to search for potential duplicates in your library."
-msgstr "This page allows you to search for potential duplicates in your library."
+msgstr "這個頁面可讓您在資料庫中搜尋潛在的重複檔案。"
 
 msgid "Clicking \"Start searching\" will start a background job to scan the entire library for dupes."
-msgstr "Clicking \"Start searching\" will start a background job to scan the entire library for dupes."
+msgstr "點擊 \"開始搜尋\" 將啟動背景作業，掃描整個資料庫中的重複項目。"
 
 msgid "After which, you can select which archives to delete, and then delete them in bulk."
-msgstr "After which, you can select which archives to delete, and then delete them in bulk."
+msgstr "完成後，您可以選取要刪除的檔案，並批量刪除它們。"
 
 msgid "Found %1 duplicate group(s)."
-msgstr "Found %1 duplicate group(s)."
+msgstr "已找到 %1 組重複檔案。"
 
 msgid "You can use the rules dropdown below to pre-select archives for deletion."
-msgstr "You can use the rules dropdown below to pre-select archives for deletion."
+msgstr "您可以使用下方的下拉選單選擇規則，預先選取要刪除的檔案。"
 
 msgid "For every duplicate group..."
-msgstr "For every duplicate group..."
+msgstr "對每一組重複檔案執行以下動作..."
 
 msgid "Keep all files"
-msgstr "Keep all files"
+msgstr "保留所有檔案"
 
 msgid "Keep the file with the most tags"
-msgstr "Keep the file with the most tags"
+msgstr "保留標籤最多的檔案"
 
 msgid "Keep the file with the most pages"
-msgstr "Keep the file with the most pages"
+msgstr "保留頁數最多的檔案"
 
 msgid "Keep the largest file"
-msgstr "Keep the largest file"
+msgstr "保留檔案大小最大的檔案"
 
 msgid "Keep the youngest file"
-msgstr "Keep the youngest file"
+msgstr "保留最新的檔案"
 
 msgid "Keep the oldest file"
-msgstr "Keep the oldest file"
+msgstr "保留最舊的檔案"
 
 msgid "Start searching for duplicates"
-msgstr "Start searching for duplicates"
+msgstr "開始搜尋重複檔案"
 
 msgid "Search for duplicates again"
-msgstr "Search for duplicates again"
+msgstr "重新搜尋重複檔案"
 
 msgid "Delete all selected items"
-msgstr "Delete all selected items"
+msgstr "刪除所有選取的項目"
 
 msgid "Filename"
-msgstr "Filename"
+msgstr "檔案名稱"
 
 msgid "Filesize"
-msgstr "Filesize"
+msgstr "檔案大小"
 
 msgid "Action"
-msgstr "Action"
+msgstr "操作"
 
 msgid "Searching for duplicates..."
-msgstr "Searching for duplicates..."
-
-msgid "No duplicates found!"
-msgstr "No duplicates found!"
+msgstr "正在搜尋重複檔案..."
 
 # ------End of Duplicates.html.tt2------
+msgid "Plugin Settings"
+msgstr "外掛設定"
+
+msgid "Run Automatically"
+msgstr "自動運行"

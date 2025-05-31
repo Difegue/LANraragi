@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-04 20:02+0200\n"
-"PO-Revision-Date: 2025-05-04 23:41+0000\n"
+"PO-Revision-Date: 2025-05-05 16:10+0000\n"
 "Last-Translator: Difegue <8237712+Difegue@users.noreply.github.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/fr/>\n"
@@ -1849,3 +1849,15 @@ msgstr "Ce plugin s'activera sur les URLs correspondant à cette regex !"
 
 msgid "This plugin depends on the login plugin"
 msgstr "Ce plugin dépend du plugin de connexion"
+
+msgid "Run Automatically"
+msgstr "Lancer automatiquement"
+
+msgid "Plugin Settings"
+msgstr "Paramètres du plugin"
+
+msgid "New Static Category"
+msgstr "Nouvelle catégorie statique"
+
+msgid "New Dynamic Category"
+msgstr "Nouvelle catégorie dynamique"
