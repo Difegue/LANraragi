@@ -7,6 +7,7 @@ use Encode;
 use Mojo::JSON qw(encode_json);
 use Mojo::UserAgent;
 use Parallel::Loops;
+use Config;
 
 use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Database   qw(redis_decode);
@@ -70,43 +71,62 @@ sub add_tasks {
 
             my @errors = ();
 
-            my $numCpus = Sys::CpuAffinity::getNumCpus();
-            my $pl      = Parallel::Loops->new($numCpus);
-            $pl->share( \@errors );
-
-            $logger->debug("Number of available cores for processing: $numCpus");
-
             # Generate thumbnails for all pages -- Cover should already be handled in higher resolution
             my @keys = ();
             for ( my $i = 1; $i <= $pages; $i++ ) {
                 push @keys, $i;
             }
-            my @sections = split_workload_by_cpu( $numCpus, @keys );
 
-            # Regen thumbnails for errythang if $force = 1, only missing thumbs otherwise
-            eval {
-                $pl->foreach(
-                    \@sections,
-                    sub {
-                        foreach my $i (@$_) {
+            if ( $Config{osname} ne 'MSWin32') {
+                my $numCpus = Sys::CpuAffinity::getNumCpus();
+                my $pl      = Parallel::Loops->new($numCpus);
+                $pl->share( \@errors );
 
-                            my $thumbname = "$thumbdir/$subfolder/$id/$i.$format";
-                            unless ( $force == 0 && -e $thumbname ) {
-                                $logger->debug("Generating thumbnail for page $i... ($thumbname)");
-                                eval { $thumbname = extract_thumbnail( $thumbdir, $id, $i, 0, $use_hq ); };
-                                if ($@) {
-                                    $logger->warn("Error while generating thumbnail: $@");
-                                    push @errors, $@;
+                $logger->debug("Number of available cores for processing: $numCpus");
+
+                my @sections = split_workload_by_cpu( $numCpus, @keys );
+
+                # Regen thumbnails for errythang if $force = 1, only missing thumbs otherwise
+                eval {
+                    $pl->foreach(
+                        \@sections,
+                        sub {
+                            foreach my $i (@$_) {
+
+                                my $thumbname = "$thumbdir/$subfolder/$id/$i.$format";
+                                unless ( $force == 0 && -e $thumbname ) {
+                                    $logger->debug("Generating thumbnail for page $i... ($thumbname)");
+                                    eval { $thumbname = extract_thumbnail( $thumbdir, $id, $i, 0, $use_hq ); };
+                                    if ($@) {
+                                        $logger->warn("Error while generating thumbnail: $@");
+                                        push @errors, $@;
+                                    }
                                 }
+
+                                # Add page number to note field so it can be fetched by the API
+                                $job->note( $i => "processed", total_pages => $pages );
+
                             }
+                        }
+                    );
+                };
+            } else {
+                foreach my $i (@keys) {
 
-                            # Add page number to note field so it can be fetched by the API
-                            $job->note( $i => "processed", total_pages => $pages );
-
+                    my $thumbname = "$thumbdir/$subfolder/$id/$i.$format";
+                    unless ( $force == 0 && -e $thumbname ) {
+                        $logger->debug("Generating thumbnail for page $i... ($thumbname)");
+                        eval { $thumbname = extract_thumbnail( $thumbdir, $id, $i, 0, $use_hq ); };
+                        if ($@) {
+                            $logger->warn("Error while generating thumbnail: $@");
+                            push @errors, $@;
                         }
                     }
-                );
-            };
+
+                    # Add page number to note field so it can be fetched by the API
+                    $job->note( $i => "processed", total_pages => $pages );
+                }
+            }
 
             $redis->hdel( $id, "thumbjob" );
             $redis->quit;
@@ -127,40 +147,62 @@ sub add_tasks {
             $logger->info("Starting thumbnail regen job (force = $force)");
             my @errors = ();
 
-            my $numCpus = Sys::CpuAffinity::getNumCpus();
-            my $pl      = Parallel::Loops->new($numCpus);
-            $pl->share( \@errors );
+            if ( $Config{osname} ne 'MSWin32') {
+                my $numCpus = Sys::CpuAffinity::getNumCpus();
+                my $pl      = Parallel::Loops->new($numCpus);
+                $pl->share( \@errors );
 
-            $logger->debug("Number of available cores for processing: $numCpus");
-            my @sections = split_workload_by_cpu( $numCpus, @keys );
+                $logger->debug("Number of available cores for processing: $numCpus");
+                my @sections = split_workload_by_cpu( $numCpus, @keys );
 
-            # Regen thumbnails for errythang if $force = 1, only missing thumbs otherwise
-            eval {
-                $pl->foreach(
-                    \@sections,
-                    sub {
-                        foreach my $id (@$_) {
+                # Regen thumbnails for errythang if $force = 1, only missing thumbs otherwise
+                eval {
+                    $pl->foreach(
+                        \@sections,
+                        sub {
+                            foreach my $id (@$_) {
 
-                            my $use_jxl   = LANraragi::Model::Config->get_jxlthumbpages;
-                            my $format    = $use_jxl ? 'jxl' : 'jpg';
-                            my $subfolder = substr( $id, 0, 2 );
-                            my $thumbname = "$thumbdir/$subfolder/$id.$format";
+                                my $use_jxl   = LANraragi::Model::Config->get_jxlthumbpages;
+                                my $format    = $use_jxl ? 'jxl' : 'jpg';
+                                my $subfolder = substr( $id, 0, 2 );
+                                my $thumbname = "$thumbdir/$subfolder/$id.$format";
 
-                            unless ( $force == 0 && -e $thumbname ) {
-                                eval {
-                                    $logger->debug("Regenerating for $id...");
-                                    extract_thumbnail( $thumbdir, $id, 0, 1, 1 );
-                                };
+                                unless ( $force == 0 && -e $thumbname ) {
+                                    eval {
+                                        $logger->debug("Regenerating for $id...");
+                                        extract_thumbnail( $thumbdir, $id, 0, 1, 1 );
+                                    };
 
-                                if ($@) {
-                                    $logger->warn("Error while generating thumbnail: $@");
-                                    push @errors, $@;
+                                    if ($@) {
+                                        $logger->warn("Error while generating thumbnail: $@");
+                                        push @errors, $@;
+                                    }
                                 }
                             }
                         }
+                    );
+                };
+            } else {
+                foreach my $id (@keys) {
+
+                    my $use_jxl   = LANraragi::Model::Config->get_jxlthumbpages;
+                    my $format    = $use_jxl ? 'jxl' : 'jpg';
+                    my $subfolder = substr( $id, 0, 2 );
+                    my $thumbname = "$thumbdir/$subfolder/$id.$format";
+
+                    unless ( $force == 0 && -e $thumbname ) {
+                        eval {
+                            $logger->debug("Regenerating for $id...");
+                            extract_thumbnail( $thumbdir, $id, 0, 1, 1 );
+                        };
+
+                        if ($@) {
+                            $logger->warn("Error while generating thumbnail: $@");
+                            push @errors, $@;
+                        }
                     }
-                );
-            };
+                }
+            }
 
             $job->finish( { errors => \@errors } );
         }
@@ -177,11 +219,6 @@ sub add_tasks {
 
             $logger->info("Starting find duplicate job (threshold = $threshold)");
 
-            my $numCpus = Sys::CpuAffinity::getNumCpus();
-            my $pl      = Parallel::Loops->new($numCpus);
-
-            $logger->debug("Number of available cores for processing: $numCpus");
-
             # Gather thumbhashes
             my %thumbhashes;
             foreach my $id (@keys) {
@@ -194,69 +231,129 @@ sub add_tasks {
             my %visited : shared;
             my @ids = keys %thumbhashes;    # List of IDs to check
 
-            # Share the %visited hash across threads
-            $pl->share( \%visited );
+            if ( $Config{osname} ne 'MSWin32') {
+                my $numCpus = Sys::CpuAffinity::getNumCpus();
+                my $pl      = Parallel::Loops->new($numCpus);
 
-            my @sections = split_workload_by_cpu( $numCpus, @ids );
-            eval {
-                $pl->foreach(
-                    \@sections,
-                    sub {
-                        my $redis = LANraragi::Model::Config->get_redis_config;
+                $logger->debug("Number of available cores for processing: $numCpus");
 
-                        foreach my $id (@$_) {
+                # Share the %visited hash across threads
+                $pl->share( \%visited );
 
-                            # Skip if this ID has already been processed in another thread
-                            next if $visited{$id};
-                            my @stack = ($id);
-                            my @group;
+                my @sections = split_workload_by_cpu( $numCpus, @ids );
+                eval {
+                    $pl->foreach(
+                        \@sections,
+                        sub {
+                            my $redis = LANraragi::Model::Config->get_redis_config;
 
-                            while (@stack) {
-                                my $node = pop @stack;
-                                next if $visited{$node};
+                            foreach my $id (@$_) {
 
-                                # Mark the node as visited
-                                {
-                                    lock(%visited);
-                                    $visited{$node} = 1;
+                                # Skip if this ID has already been processed in another thread
+                                next if $visited{$id};
+                                my @stack = ($id);
+                                my @group;
+
+                                while (@stack) {
+                                    my $node = pop @stack;
+                                    next if $visited{$node};
+
+                                    # Mark the node as visited
+                                    {
+                                        lock(%visited);
+                                        $visited{$node} = 1;
+                                    }
+                                    push @group, $node;
+
+                                    # Find all potential duplicates for this node
+                                    foreach my $other_id ( keys %thumbhashes ) {
+                                        next if $node eq $other_id || $visited{$other_id};
+
+                                        # Calculate Hamming distance
+                                        my $distance = 0;
+                                        for ( my $i = 0; $i < length( $thumbhashes{$node} ); $i++ ) {
+                                            $distance++
+                                            if substr( $thumbhashes{$node}, $i, 1 ) ne substr( $thumbhashes{$other_id}, $i, 1 );
+                                            last if $distance > $threshold;    # Early exit if threshold exceeded
+                                        }
+
+                                        # If within threshold, add to stack for further exploration
+                                        if ( $distance <= $threshold ) {
+                                            $logger->debug("Found potential duplicate: $node and $other_id with distance $distance");
+                                            push @stack, $other_id;
+                                        }
+                                    }
                                 }
-                                push @group, $node;
 
-                                # Find all potential duplicates for this node
-                                foreach my $other_id ( keys %thumbhashes ) {
-                                    next if $node eq $other_id || $visited{$other_id};
-
-                                    # Calculate Hamming distance
-                                    my $distance = 0;
-                                    for ( my $i = 0; $i < length( $thumbhashes{$node} ); $i++ ) {
-                                        $distance++
-                                          if substr( $thumbhashes{$node}, $i, 1 ) ne substr( $thumbhashes{$other_id}, $i, 1 );
-                                        last if $distance > $threshold;    # Early exit if threshold exceeded
-                                    }
-
-                                    # If within threshold, add to stack for further exploration
-                                    if ( $distance <= $threshold ) {
-                                        $logger->debug("Found potential duplicate: $node and $other_id with distance $distance");
-                                        push @stack, $other_id;
-                                    }
+                                # Add the discovered group to redis
+                                # to avoid redudnant groups in different orders - sort and composite key
+                                if ( @group && scalar @group >= 2 ) {
+                                    @group = sort @group;
+                                    my $composite_key = join '', map { substr( $_, 0, 10 ) } @group;
+                                    my $group_json    = encode_json( \@group );
+                                    $logger->debug("duplicate group '$composite_key': $group_json");
+                                    $redis->hset( "LRR_DUPLICATE_GROUPS", "dupgp_$composite_key", $group_json );
                                 }
                             }
 
-                            # Add the discovered group to redis
-                            # to avoid redudnant groups in different orders - sort and composite key
-                            if ( @group && scalar @group >= 2 ) {
-                                @group = sort @group;
-                                my $composite_key = join '', map { substr( $_, 0, 10 ) } @group;
-                                my $group_json    = encode_json( \@group );
-                                $logger->debug("duplicate group '$composite_key': $group_json");
-                                $redis->hset( "LRR_DUPLICATE_GROUPS", "dupgp_$composite_key", $group_json );
+                            $redis->quit();
+                        }
+                    );
+                };
+            } else {
+                my $redis = LANraragi::Model::Config->get_redis_config;
+
+                foreach my $id (@ids) {
+
+                    # Skip if this ID has already been processed in another thread
+                    next if $visited{$id};
+                    my @stack = ($id);
+                    my @group;
+
+                    while (@stack) {
+                        my $node = pop @stack;
+                        next if $visited{$node};
+
+                        # Mark the node as visited
+                        {
+                            lock(%visited);
+                            $visited{$node} = 1;
+                        }
+                        push @group, $node;
+
+                        # Find all potential duplicates for this node
+                        foreach my $other_id ( keys %thumbhashes ) {
+                            next if $node eq $other_id || $visited{$other_id};
+
+                            # Calculate Hamming distance
+                            my $distance = 0;
+                            for ( my $i = 0; $i < length( $thumbhashes{$node} ); $i++ ) {
+                                $distance++
+                                    if substr( $thumbhashes{$node}, $i, 1 ) ne substr( $thumbhashes{$other_id}, $i, 1 );
+                                last if $distance > $threshold;    # Early exit if threshold exceeded
+                            }
+
+                            # If within threshold, add to stack for further exploration
+                            if ( $distance <= $threshold ) {
+                                $logger->debug("Found potential duplicate: $node and $other_id with distance $distance");
+                                push @stack, $other_id;
                             }
                         }
-
-                        $redis->quit();
                     }
-                );
-            };
+
+                    # Add the discovered group to redis
+                    # to avoid redudnant groups in different orders - sort and composite key
+                    if ( @group && scalar @group >= 2 ) {
+                        @group = sort @group;
+                        my $composite_key = join '', map { substr( $_, 0, 10 ) } @group;
+                        my $group_json    = encode_json( \@group );
+                        $logger->debug("duplicate group '$composite_key': $group_json");
+                        $redis->hset( "LRR_DUPLICATE_GROUPS", "dupgp_$composite_key", $group_json );
+                    }
+                }
+
+                $redis->quit();
+            }
 
             $job->finish( {} );
         }
