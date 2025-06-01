@@ -92,12 +92,6 @@ sub provide_url {
 ## Pixiv Specific Methods
 ######
 
-# sub sanitize_title {
-#     my $title = shift;
-#     $title =~ s/[^\w\s\-\.]/_/g;
-#     return $title;
-# }
-
 sub add_single_page_artwork_to_zip {
     my ($zip, $ua, $tempdir, $artwork, $referer) = @_;
     my $logger              = get_logger( "Pixiv Downloader", "plugins" );
