@@ -14,21 +14,29 @@ sub initialize {
             my ( $c, $key, @args ) = @_;
             my $accept_language = $c->req->headers->accept_language;
 
-            # default language
-            my $lang = 'en';
+            my @langs = ();
 
             if ($accept_language) {
-                ($lang) = split /,/, $accept_language;
-                $lang =~ s/-.*//;
-                $c->LRR_LOGGER->trace("Detected language: $lang");
+
+                # An Accept-Language header looks like: Accept-Language zh-TW,zh-CN;q=0.8,fr;q=0.7,fr-FR;q=0.5,en-US;q=0.3,en;q=0.2
+                # Split the header by commas to get the languages
+                @langs = split /,/, $accept_language;
+
+                # For each language, remove the quality value (aka ;q=0.9)
+                # Browsers usually order the languages by quality already do we don't really need them
+                foreach my $lang (@langs) {
+                    $lang =~ s/;.*//;    # remove any quality value
+                }
+
+                $c->LRR_LOGGER->trace( "Detected languages in order of preference: " . join( ", ", @langs ) );
             }
 
-            my $handle = LANraragi::Utils::I18N->get_handle($lang);
-            unless ($handle) {
-                $c->LRR_LOGGER->trace("No handle for language: $lang, fallback to en");
-                $handle = LANraragi::Utils::I18N->get_handle('en');
-                return $key unless $handle;
+            # Add english to the end of the list if not already present
+            unless ( grep { $_ eq 'en' } @langs ) {
+                push @langs, 'en';
             }
+
+            my $handle = LANraragi::Utils::I18N->get_handle(@langs);
 
             $c->LRR_LOGGER->trace( "Key: $key, Args: " . join( ", ", map { defined($_) ? $_ : 'undef' } @args ) );
 

@@ -79,10 +79,10 @@ Index.initializeAll = function () {
                 Index.updateCarousel();
             },
             items: {
-                ondeck: { name: "On Deck", icon: "fas fa-book-reader" },
-                random: { name: "Randomly Picked", icon: "fas fa-random" },
-                inbox: { name: "New Archives", icon: "fas fa-envelope-open-text" },
-                untagged: { name: "Untagged Archives", icon: "fas fa-edit" },
+                ondeck: { name: I18N.CarouselOnDeck, icon: "fas fa-book-reader" },
+                random: { name: I18N.CarouselRandom, icon: "fas fa-random" },
+                inbox: { name: I18N.NewArchives, icon: "fas fa-envelope-open-text" },
+                untagged: { name: I18N.UntaggedArchives, icon: "fas fa-edit" },
             },
         }),
     });
@@ -378,6 +378,14 @@ Index.updateCarousel = function (e) {
         $("#carousel-icon")[0].classList = "fas fa-random";
         $("#carousel-title").text(I18N.CarouselRandom);
         endpoint = `/api/search/random?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}&count=15`;
+
+        // Special categories that imply additional query params
+        if (Index.selectedCategory === "NEW_ONLY") {
+            endpoint += "&newonly=true";
+        } else if (Index.selectedCategory === "UNTAGGED_ONLY") {
+            endpoint += "&untaggedonly=true";
+        }
+
         break;
     case "inbox":
         $("#carousel-icon")[0].classList = "fas fa-envelope-open-text";

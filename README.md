@@ -21,6 +21,7 @@ Open source server for archival of comics/manga, running on Mojolicious + Redis.
 <a href="https://hosted.weblate.org/engage/lanraragi/">
 <img src="https://hosted.weblate.org/widget/lanraragi/multi-auto.svg" alt="Translation status" />
 </a>  
+
 <sub>LANraragi uses Weblate for translation hosting.</sub>  
 
 ## Screenshots  

@@ -559,7 +559,7 @@ You can specify a page number to use as the thumbnail, or you can use the defaul
 {% swagger-parameter name="id" type="string" required="true" in="path" %}
 ID of the Archive to process.
 {% endswagger-parameter %}
-{% swagger-parameter name="page" type="int" required="false" in="path" %}
+{% swagger-parameter name="page" type="int" required="false" in="query" %}
 Page you want to make the thumbnail out of. Defaults to 1.
 {% endswagger-parameter %}
 
