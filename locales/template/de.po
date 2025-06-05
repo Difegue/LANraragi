@@ -4,7 +4,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 03:27+0200\n"
 "PO-Revision-Date: 2025-06-06 13:46+0000\n"
-"Last-Translator: SgtWalking <jacob.hesse99@gmail.com>\n"
+"Last-Translator: M I <neq6sgn@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/de/>\n"
 "Language: de\n"
@@ -987,9 +987,11 @@ msgstr ""
 
 msgid "This plugin will trigger on URLs matching this regex!"
 msgstr ""
+"Dieses Plugin wird für URLs aktivieren, die diesem Regex Ausdruck "
+"entsprechen!"
 
 msgid "This plugin depends on the login plugin"
-msgstr ""
+msgstr "Dieses Plugin benötigt von dem Login Plugin ab"
 
 msgid "Trigger Script"
 msgstr ""
@@ -1779,3 +1781,6 @@ msgid "Searching for duplicates..."
 msgstr ""
 
 # ------End of Duplicates.html.tt2------
+
+msgid "Run Automatically"
+msgstr "Automatisch Ausführen"
