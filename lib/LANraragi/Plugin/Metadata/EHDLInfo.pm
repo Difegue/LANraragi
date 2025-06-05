@@ -103,7 +103,7 @@ sub read_file {
             elsif ( $line =~ m/^Language: ([a-z]*)/i ) { $tags{'language'} = lc($1); }    # this will be replaced if translated
             elsif ( $line =~ m/^Tags:/ ) { $reading_section = $S_TAGS; }
         } elsif ( $reading_section == $S_TAGS ) {
-            if ( $line =~ /^> ([a-z]*):([a-z,\s]*)/gi ) {
+            if ( $line =~ /^> ([a-z]*):(.*)/gi ) {
                 $tags{$1} = [ split_tags_to_array($2) ];
             } else {
                 last;                                                                     # nothing useful anymore

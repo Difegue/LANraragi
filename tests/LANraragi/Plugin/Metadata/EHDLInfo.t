@@ -88,6 +88,22 @@ note("reading info_original.txt, wanting original title");
     ok( !-e $filename,           'file deleted' );
 }
 
+note("reading info_pipe.txt");
+{
+    my ( $fh, $filename ) = tempfile();
+    cp( "${SAMPLES}/info_pipe.txt", $fh );
+
+    my $params = { japanese_title => 1 };
+    my %res    = LANraragi::Plugin::Metadata::EHDLInfo::read_file->( $filename, $params );
+
+    like( $res{tags}, qr/artist:kemigawa mondo | kemigawa,/,                       'has pipe' );
+    like( $res{tags}, qr/parody:super mario brothers | super mario bros.,/,        'has pipe and dot' );
+    like( $res{tags}, qr/parody:sousou no frieren | frieren beyond journeys end,/, 'has pipe' );
+    like( $res{tags}, qr/parody:ssss.gridman,/,                                    'has dot' );
+    like( $res{tags}, qr/female:swimsuit/,                                         'has last word of the row' );
+
+}
+
 # used the example from issue #319, don't know where to find an original file
 note("reading info_flat.txt");
 {
