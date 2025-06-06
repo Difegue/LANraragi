@@ -82,7 +82,11 @@ Server.callAPIBody = function (endpoint, method, body, successMessage, errorMess
  */
 Server.checkJobStatus = function (jobId, useDetail, callback, failureCallback, progressCallback = null) {
     let endpoint = new LRR.apiURL(useDetail ? `/api/minion/${jobId}/detail` : `/api/minion/${jobId}`);
-    fetch(endpoint, { method: "GET" })
+    fetch(endpoint, { 
+        method: "GET",
+        mode: 'same-origin',
+        credentials: 'same-origin'
+    })
         .then((response) => (response.ok ? response.json() : { success: 0, error: I18N.GenericReponseError }))
         .then((data) => {
             if (data.error) throw new Error(data.error);
