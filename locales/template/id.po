@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-26 06:02+0200\n"
-"PO-Revision-Date: 2025-05-28 06:01+0000\n"
+"PO-Revision-Date: 2025-06-01 13:08+0000\n"
 "Last-Translator: Slasar41 <agungtrianto41@outlook.com>\n"
 "Language-Team: Indonesian <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/id/>\n"
@@ -359,7 +359,7 @@ msgid "Site Title"
 msgstr "Judul Situs"
 
 msgid "The site title appears on most pages as...their title."
-msgstr "Judul situs muncul di sebagian besar halaman sebagai... judulnya."
+msgstr "Judul situs muncul di sebagian besar halaman sebagai ... judulnya."
 
 msgid "MOTD"
 msgstr "PHI"
@@ -728,7 +728,7 @@ msgid "Statistics"
 msgstr "Statistik"
 
 msgid "Logs"
-msgstr "Catatan"
+msgstr "Pencatatan"
 
 msgid "Admin Login"
 msgstr "Log Masuk Admin"
@@ -1476,7 +1476,7 @@ msgstr "Tidak ada tag baru yang ditambahkan!"
 
 # Do not translate _START_, _END_ or _TOTAL_.
 msgid "Showing _START_ to _END_ of _TOTAL_ ancient chinese lithographies."
-msgstr "Menampilkan _START_ hingga _END_ dari _TOTAL_ prasasti Tiongkok kuno."
+msgstr "Menampilkan _START_ sampai _END_ dari _TOTAL_ prasasti Tiongkok kuno."
 
 msgid "No archives to show you! Try <a href=\"\${url}\")>uploading some</a>?"
 msgstr ""
@@ -1840,3 +1840,6 @@ msgid "Searching for duplicates..."
 msgstr "Mencari duplikat ..."
 
 # ------End of Duplicates.html.tt2------
+
+msgid "No duplicates found!"
+msgstr "Tidak ada duplikat yang ditemukan!"
