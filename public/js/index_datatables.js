@@ -47,8 +47,10 @@ IndexTable.initializeAll = function () {
     $.fn.dataTableExt.oStdClasses.sStripeEven = "gtr1";
 
     // set custom columns
-    let columns = [];
-    columns.push({ data: null, className: "title itd", name: "title", render: IndexTable.renderTitle });
+    const columns = [];
+    columns.push({
+        data: null, className: "title itd", name: "title", render: IndexTable.renderTitle,
+    });
     const columnCount = Index.getColumnCount();
     // set custom columns
     for (let i = 1; i <= columnCount; i++) {
@@ -56,18 +58,20 @@ IndexTable.initializeAll = function () {
             data: "tags",
             className: `customheader${i} itd`,
             name: localStorage[`customColumn${i}`] || `defaultCol${i}`,
-            render: (data, type) => IndexTable.renderColumn(localStorage[`customColumn${i}`], type, data)
+            render: (data, type) => IndexTable.renderColumn(localStorage[`customColumn${i}`], type, data),
         });
     }
-    columns.push({ data: "tags", className: "tags itd", name: "tags", orderable: false, render: IndexTable.renderTags });
+    columns.push({
+        data: "tags", className: "tags itd", name: "tags", orderable: false, render: IndexTable.renderTags,
+    });
 
     // Datatables configuration
     IndexTable.dataTable = $(".datatables").DataTable({
         serverSide: true,
         processing: true,
         ajax: {
-        url: "search",
-        cache: true,
+            url: "search",
+            cache: true,
         },
         deferRender: true,
         lengthChange: false,
@@ -78,12 +82,12 @@ IndexTable.initializeAll = function () {
             info: I18N.IndexPageCount,
             infoEmpty: `<h1><br/><i class="fas fa-4x fa-toilet-paper-slash"></i><br/><br/>
                         ${I18N.IndexNoArcsFound(new LRR.apiURL("/upload"))}</h1><br/>`,
-            processing: `<div id="progress" class="indeterminate"><div class="bar-container"><div class="bar" style=" width: 80%; "></div></div></div>`,
+            processing: "<div id=\"progress\" class=\"indeterminate\"><div class=\"bar-container\"><div class=\"bar\" style=\" width: 80%; \"></div></div></div>",
         },
         preDrawCallback: IndexTable.initializeThumbView, // callbacks for thumbnail view
         drawCallback: IndexTable.drawCallback,
         rowCallback: IndexTable.buildThumbnailCell,
-        columns: columns,
+        columns,
     });
 
     // If the url has parameters, handle them now by doing the matching search.
@@ -137,23 +141,28 @@ IndexTable.doSearch = function (page) {
 IndexTable.renderColumn = function (namespace, type, data) {
     if (type === "display") {
         if (data === "") return "";
+        const regex = new RegExp(`${namespace}:([^,]+)`, "gi"); // catch all values associated to the given namespace
+        const matches = [...data.matchAll(regex)];
 
-        let namespaceRegEx = namespace;
-        if (namespace === "series") namespaceRegEx = "(?:series|parody)";
-        const regex = new RegExp(`.*${namespaceRegEx}:\\s?([^,]*),*.*`, "gi"); // Catch last namespace:xxx value in tags
-        const match = regex.exec(data);
+        if (matches != null) {
+            let tagLinks = "";
+            matches.forEach((match) => {
+                let tagText = match[1];
+                // If namespace is a date, consider the contents are a UNIX timestamp
+                if (namespace === "date_added" || namespace === "timestamp") {
+                    tagText = LRR.convertTimestamp(tagText);
+                } else {
+                    tagText = tagText.replace(/\b./g, (m) => m.toUpperCase());
+                }
+                tagLinks += `<a style="cursor:pointer" href="${LRR.getTagSearchURL(namespace, tagText)}">${tagText}</a>, `;
+            });
 
-        if (match != null) {
-            let tagText = match[1].replace(/\b./g, (m) => m.toUpperCase());
-            // If namespace is a date, consider the contents are a UNIX timestamp
-            if (namespace === "date_added" || namespace === "timestamp") {
-                const date = new Date(match[1] * 1000);
-                tagText = date.toLocaleDateString();
-            }
-
-            return `<a style="cursor:pointer" href="${LRR.getTagSearchURL(namespace, match[1])}">
-                        ${tagText}
-                    </a>`;
+            const spanTags = tagLinks.slice(0, -2); // remove the last comma and space
+            const popupTags = matches.map((match) => match[0]).join(","); //
+            return `
+                <span class="tag-tooltip" onmouseover="IndexTable.buildTagTooltip(this)" style="text-overflow:ellipsis;">${spanTags}</span>
+                <div class="caption caption-tags" style="display: none;" >${LRR.buildTagsDiv(popupTags)}</div>
+            `;
         } else return "";
     }
     return data;
@@ -170,12 +179,12 @@ IndexTable.renderTitle = function (data, type) {
         // For compact mode, the thumbnail API call enforces no_fallback=true in order to queue Minion jobs for missing thumbnails.
         // (Since compact mode is the "base", it's always loaded first even if you're in table mode)
         const bookmarkIcon = LRR.buildBookmarkIconElement(data.arcid, "title-bookmark-icon");
-        return `${LRR.buildProgressDiv(data)}${bookmarkIcon}<a class="context-menu" id="${data.arcid}" onmouseover="IndexTable.buildImageTooltip(this)" href="${new LRR.apiURL(`/reader?id=${data.arcid}`)}"> 
+        return `${LRR.buildProgressDiv(data)}${bookmarkIcon}<a class="context-menu" id="${data.arcid}" onmouseover="IndexTable.buildImageTooltip(this)" href="${new LRR.apiURL(`/reader?id=${data.arcid}`)}">
                     ${LRR.encodeHTML(data.title)}
                 </a>
                 <div class="caption" style="display: none;">
-                    <img style="height:300px" src="${new LRR.apiURL(`/api/archives/${data.arcid}/thumbnail?no_fallback=true`)}" 
-                         onerror="this.src='${new LRR.apiURL('/img/noThumb.png')}'">
+                    <img style="height:300px" src="${new LRR.apiURL(`/api/archives/${data.arcid}/thumbnail?no_fallback=true`)}"
+                         onerror="this.src='${new LRR.apiURL("/img/noThumb.png")}'">
                 </div>`;
     }
 
@@ -279,7 +288,7 @@ IndexTable.drawCallback = function () {
 
         // Using double equals here since the sort column can be either a string or an int
         // eslint-disable-next-line eqeqeq
-        // get current columns count, except title and tags 
+        // get current columns count, except title and tags
         const currentCustomColumnCount = IndexTable.dataTable.columns().count() - 2;
         // check currentSort, if out of range, back to use title
         if (currentSort > currentCustomColumnCount) {
@@ -333,7 +342,7 @@ IndexTable.consumeURLParameters = function () {
     } else if (localStorage.indexSort) {
         order[0][0] = localStorage.indexSort;
     }
-    // get current columns count, except title and tags 
+    // get current columns count, except title and tags
     const currentCustomColumnCount = IndexTable.dataTable.columns().count() - 2;
     // check currentSort, if out of range, back to use title
     if (localStorage.indexSort > currentCustomColumnCount) {
