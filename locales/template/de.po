@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 03:27+0200\n"
-"PO-Revision-Date: 2025-05-20 18:02+0000\n"
-"Last-Translator: SgtWalking <jacob.hesse99@gmail.com>\n"
+"PO-Revision-Date: 2025-06-06 13:46+0000\n"
+"Last-Translator: M I <neq6sgn@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/de/>\n"
 "Language: de\n"
@@ -353,6 +353,9 @@ msgstr "Archivduplikate ersetzen"
 
 msgid "If enabled, LANraragi will overwrite old archives when a newer one (with the same name) is uploaded through the Web Uploader or the Download System."
 msgstr ""
+"Wenn diese Option aktiviert ist, überschreibt LANraragi alte Archive mit "
+"neuen (gleichnamigen), die über den Web Uploader oder das Download System "
+"hochgeladen wurden."
 
 msgid "This will delete metadata for old files when they're replaced! Use with caution."
 msgstr ""
@@ -428,6 +431,7 @@ msgstr "Debug-Modus"
 
 msgid "Enabling Debug Mode will show more logs and disable update nagging."
 msgstr ""
+"Im Debug-Modus werden mehr Logs angezeigt und Update-Popups deaktiviert."
 
 msgid "Fully effective after restarting LANraragi."
 msgstr ""
@@ -488,6 +492,8 @@ msgstr "API-Schlüssel"
 
 msgid "If you wish to use the Client API and have a password, you'll have to set a key here."
 msgstr ""
+"Wenn du die Client API benutzen möchtest und ein Passwort dafür verwenden "
+"willst, musst du dieses hier eingeben."
 
 msgid "Empty keys will <b>not</b> work!"
 msgstr "Leere Schlüssel funktionieren <b>nicht</b>!"
@@ -951,7 +957,7 @@ msgid "Login Plugins"
 msgstr "Login-Plugins"
 
 msgid "Downloaders"
-msgstr ""
+msgstr "Herunterladen-Plugins"
 
 msgid "Scripts"
 msgstr "Skripts"
@@ -974,16 +980,18 @@ msgid "Save Plugin Configuration"
 msgstr "Plugin-Einstellungen speichern"
 
 msgid "Upload Plugin"
-msgstr ""
+msgstr "Hochlade-Plugin"
 
 msgid "Return to Library"
 msgstr ""
 
 msgid "This plugin will trigger on URLs matching this regex!"
 msgstr ""
+"Dieses Plugin wird für URLs aktivieren, die diesem Regex Ausdruck "
+"entsprechen!"
 
 msgid "This plugin depends on the login plugin"
-msgstr ""
+msgstr "Dieses Plugin benötigt von dem Login Plugin ab"
 
 msgid "Trigger Script"
 msgstr ""
@@ -1773,3 +1781,6 @@ msgid "Searching for duplicates..."
 msgstr ""
 
 # ------End of Duplicates.html.tt2------
+
+msgid "Run Automatically"
+msgstr "Automatisch Ausführen"
