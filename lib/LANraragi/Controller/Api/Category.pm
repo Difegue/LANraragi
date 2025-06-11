@@ -64,12 +64,28 @@ sub update_category {
         return;
     }
 
+    # lock resource
+    my $redis = LANraragi::Model::Config->get_redis;
+    my $lock = $redis->setnx( "category-write:$catid", 1 );
+    if ( !$lock ) {
+        return $self->render(
+            json => {
+                operation => "update_category",
+                success   => 0,
+                error     => "Locked resource: $catid."
+            },
+            status => 423
+        );
+    }
+    $redis->expire( "category-write:$catid", 10 );
+
     my $name   = $self->req->param('name')   || $category{name};
     my $search = $self->req->param('search') || $category{search};
     my $pinned = ( $self->req->param('pinned') && $self->req->param('pinned') ne "false" ) ? 1 : 0;
 
     my $updated_id = LANraragi::Model::Category::create_category( $name, $search, $pinned, $catid );
-
+    $redis->del( "category-write:$catid" );
+    $redis->quit();
     $self->render(
         json => {
             operation   => "update_category",
@@ -84,7 +100,24 @@ sub delete_category {
     my $self  = shift;
     my $catid = $self->stash('id');
 
+    # lock resource
+    my $redis = LANraragi::Model::Config->get_redis;
+    my $lock = $redis->setnx( "category-write:$catid", 1 );
+    if ( !$lock ) {
+        return $self->render(
+            json => {
+                operation => "delete_category",
+                success   => 0,
+                error     => "Locked resource: $catid."
+            },
+            status => 423
+        );
+    }
+    $redis->expire( "category-write:$catid", 10 );
+
     my $result = LANraragi::Model::Category::delete_category($catid);
+    $redis->del( "category-write:$catid" );
+    $redis->quit();
 
     if ($result) {
         render_api_response( $self, "delete_category" );
@@ -99,7 +132,24 @@ sub add_to_category {
     my $catid = $self->stash('id');
     my $arcid = $self->stash('archive');
 
+    # lock resource
+    my $redis = LANraragi::Model::Config->get_redis;
+    my $lock = $redis->setnx( "category-write:$catid", 1 );
+    if ( !$lock ) {
+        return $self->render(
+            json => {
+                operation => "add_to_category",
+                success   => 0,
+                error     => "Locked resource: $catid."
+            },
+            status => 423
+        );
+    }
+    $redis->expire( "category-write:$catid", 10 );
+
     my ( $result, $err ) = LANraragi::Model::Category::add_to_category( $catid, $arcid );
+    $redis->del( "category-write:$catid" );
+    $redis->quit();
 
     if ($result) {
         my $successMessage = "Added $arcid to Category $catid!";
@@ -122,7 +172,23 @@ sub remove_from_category {
     my $catid = $self->stash('id');
     my $arcid = $self->stash('archive');
 
+    # lock resource
+    my $redis = LANraragi::Model::Config->get_redis;
+    my $lock = $redis->setnx( "category-write:$catid", 1 );
+    if ( !$lock ) {
+        return $self->render(
+            json => {
+                operation => "remove_from_category",
+                success   => 0,
+                error     => "Locked resource: $catid."
+            },
+            status => 423
+        );
+    }
+    $redis->expire( "category-write:$catid", 10 );
     my ( $result, $err ) = LANraragi::Model::Category::remove_from_category( $catid, $arcid );
+    $redis->del( "category-write:$catid" );
+    $redis->quit();
 
     if ($result) {
         my $successMessage = "Removed $arcid from Category $catid!";
