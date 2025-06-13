@@ -212,7 +212,7 @@ sub startup {
 
             # SameSite=Lax is the default behavior here; I set it
             # explicitly to get rid of a warning in the browser
-            $c->cookie( "lrr_baseurl" => $prefix, { samesite => "lax" } );
+            $c->cookie( "lrr_baseurl" => $prefix, { samesite => "lax", path => "/" } );
         }
     );
 
