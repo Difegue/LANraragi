@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use Encode;
+use File::Temp qw(tempdir);
 use Mojo::JSON qw(encode_json);
 use Mojo::UserAgent;
 use Parallel::Loops;
@@ -343,13 +344,14 @@ sub add_tasks {
             if ($downloader) {
 
                 $logger->info( "Found downloader " . $downloader->{namespace} );
+                my $tempdir = tempdir(CLEANUP => 1);
 
                 # Use the downloader to transform the URL
                 my $plugname = $downloader->{namespace};
                 my $plugin   = get_plugin($plugname);
                 my %settings = get_plugin_parameters($plugname);
 
-                my $plugin_result = LANraragi::Model::Plugins::exec_download_plugin( $plugin, $url, %settings );
+                my $plugin_result = LANraragi::Model::Plugins::exec_download_plugin( $plugin, $url, $tempdir, %settings );
 
                 if ( exists $plugin_result->{error} ) {
                     $job->finish(
@@ -358,11 +360,38 @@ sub add_tasks {
                             message => $plugin_result->{error}
                         }
                     );
+                    return;
                 }
-
-                $ua  = $plugin_result->{user_agent};
-                $url = $plugin_result->{download_url};
-                $logger->info("URL transformed by plugin to $url");
+                
+                # Check if the plugin provided a direct file path instead of a URL to download
+                if ( exists $plugin_result->{file_path} ) {
+                    my $tempfile = $plugin_result->{file_path};
+                    $logger->info("Plugin directly provided file at: $tempfile");
+                    
+                    # Add the url as a source: tag
+                    my $tag = "source:$og_url";
+                    
+                    # Hand off the result to handle_incoming_file
+                    my ( $status_code, $id, $title, $message ) =
+                      LANraragi::Model::Upload::handle_incoming_file( $tempfile, $catid, $tag, "", "" );
+                    my $status = $status_code == 200 ? 1 : 0;
+                    
+                    $job->finish(
+                        {   success  => $status,
+                            url      => $og_url,
+                            id       => $id,
+                            category => $catid,
+                            title    => $title,
+                            message  => $message
+                        }
+                    );
+                    return;
+                } else {
+                    # Plugin provided a URL and User-Agent to download
+                    $url = $plugin_result->{download_url};
+                    $ua = $plugin_result->{user_agent};
+                    $logger->info("URL transformed by plugin to $url");
+                }
             } else {
                 $logger->debug("No downloader found, trying direct URL.");
             }

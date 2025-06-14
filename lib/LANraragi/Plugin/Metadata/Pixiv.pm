@@ -31,7 +31,7 @@ sub plugin_info {
         author      => "psilabs-dev",
         version     => "0.4",
         description => "Retrieve metadata of a Pixiv artwork by its artwork ID.
-            <br>Supports ID extraction from these file formats: \"{Id} Title\" or \"pixiv_{Id} Title\".
+            <br>Supports ID extraction from these file formats: \"{{pixiv_id}} Title\", \"pixiv_{pixiv_id}\" or \"{pixiv_id} Title\".
             <br>
             <br><i class='fa fa-exclamation-circle'></i> Pixiv enforces a rate limit on API requests, and may suspend/ban your account for overuse.
         ",
@@ -139,9 +139,14 @@ sub find_illust_id {
 
     if ( defined $archive_title ) {
 
-      # case 3: archive title extraction (strong pattern matching)
-      # use strong pattern matching if using multiple metadata plugins and archive title needs to exclusively call the pixiv plugin.
+        # case 3: archive title extraction (strong pattern matching)
+        # use strong pattern matching if using multiple metadata plugins and archive title needs to exclusively call the pixiv plugin.
         if ( $archive_title =~ /pixiv_\{(\d*)\}.*$/ ) {
+            return $1;
+        }
+
+        # case 3.1: archive title extraction without brackets (for pixivdl compatibility)
+        if ( $archive_title =~ /pixiv_(\d+).*$/ ) {
             return $1;
         }
 
