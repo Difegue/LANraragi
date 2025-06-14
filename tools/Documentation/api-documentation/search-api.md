@@ -70,35 +70,45 @@ When enabled, Tankoubons will show in search results, replacing all the archive 
         "extension": "zip",
         "tags": "parody:fate grand order,  group:wadamemo,  artist:wada rco,  artbook,  full color",
         "lastreadtime": 1337038234,
-        "title": "Fate GO MEMO"
+        "title": "Fate GO MEMO",
+        "pagecount": 40,
+        "progress": 0
     }, {
         "arcid": "2810d5e0a8d027ecefebca6237031a0fa7b91eb3",
         "isnew": "none",
         "extension": "rar",
         "tags": "parody:fate grand order,  character:abigail williams,  character:artoria pendragon alter,  character:asterios,  character:ereshkigal,  character:gilgamesh,  character:hans christian andersen,  character:hassan of serenity,  character:hector,  character:helena blavatsky,  character:irisviel von einzbern,  character:jeanne alter,  character:jeanne darc,  character:kiara sessyoin,  character:kiyohime,  character:lancer,  character:martha,  character:minamoto no raikou,  character:mochizuki chiyome,  character:mordred pendragon,  character:nitocris,  character:oda nobunaga,  character:osakabehime,  character:penthesilea,  character:queen of sheba,  character:rin tosaka,  character:saber,  character:sakata kintoki,  character:scheherazade,  character:sherlock holmes,  character:suzuka gozen,  character:tamamo no mae,  character:ushiwakamaru,  character:waver velvet,  character:xuanzang,  character:zhuge liang,  group:wadamemo,  artist:wada rco,  artbook,  full color",
         "lastreadtime": 1337038234,
-        "title": "Fate GO MEMO 2"
+        "title": "Fate GO MEMO 2",
+        "pagecount": 56,
+        "progress": 50
     }, {
         "arcid": "4857fd2e7c00db8b0af0337b94055d8445118630",
         "isnew": "none",
         "extension": "pdf",
         "tags": "artist:shirow masamune",
         "lastreadtime": 1337038234,
-        "title": "Ghost in the Shell 1.5 - Human-Error Processor vol01ch01"
+        "title": "Ghost in the Shell 1.5 - Human-Error Processor vol01ch01",
+        "pagecount": 14,
+        "progress": 12
     }, {
         "arcid": "e4c422fd10943dc169e3489a38cdbf57101a5f7e",
         "isnew": "none",
         "extension": "epub",
         "tags": "parody: jojo's bizarre adventure",
         "lastreadtime": 0,
-        "title": "Rohan Kishibe goes to Gucci"
+        "title": "Rohan Kishibe goes to Gucci",
+        "pagecount": 103,
+        "progress": 102
     }, {
         "arcid": "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf",
         "isnew": "none",
         "extension": "lzma",
         "tags": "character:segata sanshiro",
         "lastreadtime": 1337038236,
-        "title": "Saturn Backup Cartridge - Japanese Manual"
+        "title": "Saturn Backup Cartridge - Japanese Manual",
+        "pagecount": 12,
+        "progress": 0
     }],
     "draw": 0,
     "recordsFiltered": 5,
@@ -146,33 +156,41 @@ When enabled, Tankoubons will show in search results, replacing all the archive 
     "recordsTotal": 4, 
     "data": [
         {
-        "arcid": "2810d5e0a8d027ecefebca6237031a0fa7b91eb3",
-        "isnew": "none",
-        "extension": "rar",
-        "tags": "parody:fate grand order,  character:abigail williams,  character:artoria pendragon alter,  character:asterios,  character:ereshkigal,  character:gilgamesh,  character:hans christian andersen,  character:hassan of serenity,  character:hector,  character:helena blavatsky,  character:irisviel von einzbern,  character:jeanne alter,  character:jeanne darc,  character:kiara sessyoin,  character:kiyohime,  character:lancer,  character:martha,  character:minamoto no raikou,  character:mochizuki chiyome,  character:mordred pendragon,  character:nitocris,  character:oda nobunaga,  character:osakabehime,  character:penthesilea,  character:queen of sheba,  character:rin tosaka,  character:saber,  character:sakata kintoki,  character:scheherazade,  character:sherlock holmes,  character:suzuka gozen,  character:tamamo no mae,  character:ushiwakamaru,  character:waver velvet,  character:xuanzang,  character:zhuge liang,  group:wadamemo,  artist:wada rco,  artbook,  full color",
-        "lastreadtime": 1337038234,
-        "title": "Fate GO MEMO 2"
+            "arcid": "2810d5e0a8d027ecefebca6237031a0fa7b91eb3",
+            "isnew": "none",
+            "extension": "rar",
+            "tags": "parody:fate grand order,  character:abigail williams,  character:artoria pendragon alter,  character:asterios,  character:ereshkigal,  character:gilgamesh,  character:hans christian andersen,  character:hassan of serenity,  character:hector,  character:helena blavatsky,  character:irisviel von einzbern,  character:jeanne alter,  character:jeanne darc,  character:kiara sessyoin,  character:kiyohime,  character:lancer,  character:martha,  character:minamoto no raikou,  character:mochizuki chiyome,  character:mordred pendragon,  character:nitocris,  character:oda nobunaga,  character:osakabehime,  character:penthesilea,  character:queen of sheba,  character:rin tosaka,  character:saber,  character:sakata kintoki,  character:scheherazade,  character:sherlock holmes,  character:suzuka gozen,  character:tamamo no mae,  character:ushiwakamaru,  character:waver velvet,  character:xuanzang,  character:zhuge liang,  group:wadamemo,  artist:wada rco,  artbook,  full color",
+            "lastreadtime": 1337038234,
+            "title": "Fate GO MEMO 2",
+            "pagecount": 20,
+            "progress": 0
         }, {
             "arcid": "4857fd2e7c00db8b0af0337b94055d8445118630",
             "isnew": "none",
             "extension": "pdf",
             "tags": "artist:shirow masamune",
             "lastreadtime": 1337038234,
-            "title": "Ghost in the Shell 1.5 - Human-Error Processor vol01ch01"
+            "title": "Ghost in the Shell 1.5 - Human-Error Processor vol01ch01",
+            "pagecount": 14,
+            "progress": 10
         }, {
             "arcid": "e4c422fd10943dc169e3489a38cdbf57101a5f7e",
             "isnew": "none",
             "extension": "epub",
             "tags": "parody: jojo's bizarre adventure",
             "lastreadtime": 0,
-            "title": "Rohan Kishibe goes to Gucci"
+            "title": "Rohan Kishibe goes to Gucci",
+            "pagecount": 103,
+            "progress": 102
         }, {
             "arcid": "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf",
             "isnew": "none",
             "extension": "lzma",
             "tags": "character:segata sanshiro",
             "lastreadtime": 1337033234,
-            "title": "Saturn Backup Cartridge - Japanese Manual"
+            "title": "Saturn Backup Cartridge - Japanese Manual",
+            "pagecount": 12,
+            "progress": 0
         }
     ]
 }
