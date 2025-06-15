@@ -6,10 +6,12 @@ use strict;
 use warnings;
 use utf8;
 
-use LANraragi::Utils::Logging  qw(get_logger);
-use CHI;
-use LANraragi::Utils::TempFolder qw(get_temp);
 use List::Util qw(min max);
+use CHI;
+use Config;
+
+use LANraragi::Utils::Logging  qw(get_logger);
+use LANraragi::Utils::TempFolder qw(get_temp);
 
 # Contains all functions related to caching entire pages
 use Exporter 'import';
@@ -26,11 +28,19 @@ sub initialize() {
     my $disk_size = calc_max_size."m";
     $logger->debug("Initializing cache, disk size: ".$disk_size);
 
-    $cache = CHI->new(
-        driver     => 'FastMmap',
-        cache_size => $disk_size,
-        root_dir => get_temp,
-    );
+    if ( $Config{osname} ne 'MSWin32') {
+        $cache = CHI->new(
+            driver     => 'FastMmap',
+            cache_size => $disk_size,
+            root_dir => get_temp,
+        );
+    } else {
+        $cache = CHI->new(
+            driver     => 'Memory',
+            global => 1,
+            max_size => $disk_size,
+        );
+    }
 }
 
 # Fetches data from cache if available. Returns undef if nothing is there

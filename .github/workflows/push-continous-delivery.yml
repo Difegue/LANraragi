@@ -142,3 +142,26 @@ jobs:
         name: LANraragi_legacy.msi
         path: ./tools/build/windows/Karen/LRR_WSL1.msi
         if-no-files-found: error
+
+  buildMSYS2:
+    name: Build and export native Windows version
+    runs-on: windows-2025
+    steps:
+    - uses: actions/checkout@master
+    - name: Setup MSYS2 UCRT64
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: UCRT64
+        update: true
+    - name: Build
+      shell: msys2 {0}
+      run: |
+        ./tools/build/msys2/install-everything.sh
+        ./tools/build/msys2/create-dist.sh
+    - name: Enable UTF-8
+      run: ./tools/build/msys2/utf8-support.ps1
+    - name: Upload vfs
+      uses: actions/upload-artifact@v4
+      with:
+        name: windows-native
+        path: ./win-dist/
