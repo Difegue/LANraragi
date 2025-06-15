@@ -130,6 +130,19 @@ This is good enough for most scenarios, but in case you need to run it as the cu
 
 This uses `id` to automatically fetch your userid/groupid.
 
+## Skip permission fixing
+
+By default, LANraragi will change the permissions for all files and folders in the thumbnail and content folder during startup:
+
+- Everything in the thumbnail folder will be owned by the provided UID/GID (9001/9001 by default)
+- Files and folders in the thumbnail folder can be read and written by the owner
+- Files and folders in the content folder are readable by the owner
+- Folders in the thumbnail/content folder can be executed by the owner
+
+While this can resolve some permission issues, but it will result in a longer start-up time for large library and may even prevent the container from starting on Docker Swarm.
+
+To disable this behaviour, you can set the environment variable `LRR_AUTOFIX_PERMISSIONS=-1`, but make sure you have manually set the permissions beforehand.
+
 ## Updating
 
 As Docker containers are immutable, you need to destroy your existing container and build a new one.
