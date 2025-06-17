@@ -70,6 +70,7 @@ note("testing illustration ID extraction from file");
         "{123456} dummy title",
         "{123456}.zip",
         "pixiv_{123456} dummy title",
+        "pixiv_123456 dummy title"
     );
 
     my @negative_examples = (

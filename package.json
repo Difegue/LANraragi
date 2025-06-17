@@ -1,7 +1,7 @@
 {
     "name": "lanraragi",
-    "version": "0.9.40",
-    "version_name": "Brilliant Adventure",
+    "version": "0.9.42",
+    "version_name": "New Angels of Promise",
     "description": "I'm under Japanese influence and my honor's at stake!",
     "scripts": {
         "test": "prove -r -l -v tests/",
