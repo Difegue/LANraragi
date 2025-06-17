@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 05:28+0200\n"
-"PO-Revision-Date: 2025-05-14 20:02+0000\n"
+"PO-Revision-Date: 2025-06-01 13:08+0000\n"
 "Last-Translator: Guerra24 <lili@guerra24.net>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/es/>\n"
@@ -1854,3 +1854,6 @@ msgid "Searching for duplicates..."
 msgstr "Buscando duplicados..."
 
 # ------End of Duplicates.html.tt2------
+
+msgid "No duplicates found!"
+msgstr "¡No se encontraron archivos duplicados!"

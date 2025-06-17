@@ -280,7 +280,7 @@ Get a list of the available plugins on the server, filtered by type.
 
 {% swagger-parameter name="type" type="string" required="true" in="path" %}
 Type of plugins you want to list.  
-You can either use `login`, `metadata`, `script`, or `all` to get all previous types at once.
+You can either use `download`, `login`, `metadata`, `script`, or `all` to get all previous types at once.
 {% endswagger-parameter %}
 
 {% swagger-response status="200" description="" %}

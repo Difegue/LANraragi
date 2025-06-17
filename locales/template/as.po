@@ -2,50 +2,43 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-05 03:27+0200\n"
-"PO-Revision-Date: 2025-05-31 23:30+0000\n"
-"Last-Translator: DevonDekhran <devondekhran@protonmail.com>\n"
-"Language-Team: Portuguese <https://hosted.weblate.org/projects/lanraragi/"
-"lanraragi-source/pt/>\n"
-"Language: pt\n"
+"POT-Creation-Date: 2025-06-01 17:58+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: as\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.12-dev\n"
+"X-Generator: Translate Toolkit 3.15.2\n"
 
 # Sample Data
+
 # ------Start of Backup.html.tt2------
 msgid "Database Backup/Restore"
 msgstr ""
 
 msgid "You can backup your existing database here, or restore an existing backup."
 msgstr ""
-"Aqui Você pode fazer uma cópia do seu banco de dados atual ou restaurar uma "
-"cópia existente."
 
 msgid "Backuping allows you to download a JSON file containing all your categories and archive IDs, and their matching metadata."
 msgstr ""
-"A cópia de segurança permite que você faça o download de um arquivo JSON que "
-"contém todas as suas categorias e IDs de arquivo, além dos metadados "
-"correspondentes."
 
 msgid "Restoring from a backup will restore this metadata, <b>for IDs which already exist in your database.</b>"
 msgstr ""
-"A restauração a partir de uma cópia de segurança restaurará esses metadados, "
-"<b>para IDs que já existem em seu banco de dados.</b>"
 
 msgid "(Categories will always be restored)"
-msgstr "(As categorias sempre serão restauradas)"
+msgstr ""
 
 msgid "Backup Database"
-msgstr "Cópia de segurança do banco de dados"
+msgstr ""
 
 msgid "Restore Backup"
-msgstr "Restaurar cópia de segurança"
+msgstr ""
 
 msgid "Restoring your backup ..."
-msgstr "Restaurando sua cópia de segurança ..."
+msgstr ""
 
 msgid "Return to Library"
 msgstr ""
@@ -56,30 +49,28 @@ msgid "Batch Operations"
 msgstr ""
 
 msgid "You can apply modifications to multiple archives in one go here."
-msgstr "Aqui você pode aplicar modificações em múltiplos arquivos de uma vez."
+msgstr ""
 
 msgid "Select what you'd like to do, check archives you want to use it on, and get rolling!"
 msgstr ""
-"Selecione o que você gostaria de fazer, verifique os arquivos em que deseja "
-"fazê-lo e simbora!"
 
 msgid "Archives with no tags have been pre-checked."
-msgstr "Arquivos sem categorias foram pre-selecionados"
+msgstr ""
 
 msgid "Task :"
-msgstr "Tarefa:"
+msgstr ""
 
 msgid "Use Plugin"
-msgstr "Usar um plugin"
+msgstr ""
 
 msgid "Remove New Flag"
-msgstr "Remover a etiqueta \"Novo\""
+msgstr ""
 
 msgid "Apply Tag Rules"
-msgstr "Aplicar regras de categoria"
+msgstr ""
 
 msgid "Add To Category"
-msgstr "Adicionar a categoria"
+msgstr ""
 
 msgid "Delete Archive"
 msgstr ""
@@ -621,7 +612,7 @@ msgid "Add Archives"
 msgstr ""
 
 msgid "Batch Operations"
-msgstr "Operações em série"
+msgstr ""
 
 msgid "Settings"
 msgstr ""
@@ -863,6 +854,12 @@ msgstr ""
 msgid "Trigger Script"
 msgstr ""
 
+msgid "Run Automatically"
+msgstr ""
+
+msgid "Plugin Settings"
+msgstr ""
+
 # ------End of Plugins.html.tt2------
 # ------Start of Reader.html.tt2------
 msgid "Done reading? Go back to Archive Index"
@@ -893,7 +890,7 @@ msgid "Edit Archive Metadata"
 msgstr ""
 
 msgid "Delete Archive"
-msgstr "Deletar arquivo"
+msgstr ""
 
 msgid "Categories"
 msgstr ""
@@ -1137,7 +1134,7 @@ msgid "Add from URL(s)"
 msgstr ""
 
 msgid "Return to Library"
-msgstr "Voltar a biblioteca"
+msgstr ""
 
 # ------End of Upload.html.tt2------
 msgid "Rescan Archive Directory"
@@ -1643,6 +1640,9 @@ msgid "Action"
 msgstr ""
 
 msgid "Searching for duplicates..."
+msgstr ""
+
+msgid "No duplicates found!"
 msgstr ""
 
 # ------End of Duplicates.html.tt2------
