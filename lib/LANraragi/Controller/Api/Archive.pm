@@ -289,7 +289,25 @@ sub clear_new {
     my $self = shift;
     my $id   = check_id_parameter( $self, "clear_new" ) || return;
 
+    # lock resource
+    my $redis = LANraragi::Model::Config->get_redis;
+    my $lock = $redis->setnx( "archive-write:$id", 1 );
+    if ( !$lock ) {
+        return $self->render(
+            json => {
+                operation => "clear_new",
+                success   => 0,
+                error     => "Locked resource: $id."
+            },
+            status => 423
+        );
+    }
+    $redis->expire( "archive-write:$id", 10 );
+
     set_isnew( $id, "false" );
+
+    $redis->del( "archive-write:$id" );
+    $redis->quit();
 
     $self->render(
         json => {
@@ -304,7 +322,25 @@ sub delete_archive {
     my $self = shift;
     my $id   = check_id_parameter( $self, "delete_archive" ) || return;
 
+    # lock resource
+    my $redis = LANraragi::Model::Config->get_redis;
+    my $lock = $redis->setnx( "archive-write:$id", 1 );
+    if ( !$lock ) {
+        return $self->render(
+            json => {
+                operation => "delete_archive",
+                success   => 0,
+                error     => "Locked resource: $id."
+            },
+            status => 423
+        );
+    }
+    $redis->expire( "archive-write:$id", 10 );
+
     my $delStatus = LANraragi::Model::Archive::delete_archive($id);
+
+    $redis->del( "archive-write:$id" );
+    $redis->quit();
 
     $self->render(
         json => {
@@ -324,7 +360,25 @@ sub update_metadata {
     my $tags    = $self->req->param('tags');
     my $summary = $self->req->param('summary');
 
+    # lock resource
+    my $redis = LANraragi::Model::Config->get_redis;
+    my $lock = $redis->setnx( "archive-write:$id", 1 );
+    if ( !$lock ) {
+        return $self->render(
+            json => {
+                operation => "update_metadata",
+                success   => 0,
+                error     => "Locked resource: $id."
+            },
+            status => 423
+        );
+    }
+    $redis->expire( "archive-write:$id", 10 );
+
     my $err = LANraragi::Model::Archive::update_metadata( $id, $title, $tags, $summary );
+
+    $redis->del( "archive-write:$id" );
+    $redis->quit();
 
     if ( $err eq "" ) {
         my $title          = LANraragi::Model::Archive::get_title($id);
@@ -367,6 +421,20 @@ sub update_progress {
         return;
     }
 
+    # lock resource
+    my $lock = $redis->setnx( "archive-write:$id", 1 );
+    if ( !$lock ) {
+        return $self->render(
+            json => {
+                operation => "update_progress",
+                success   => 0,
+                error     => "Locked resource: $id."
+            },
+            status => 423
+        );
+    }
+    $redis->expire( "archive-write:$id", 10 );
+
     # Just set the progress value.
     $redis->hset( $id, "progress",     $page );
     $redis->hset( $id, "lastreadtime", $time );
@@ -374,6 +442,7 @@ sub update_progress {
     # Update total pages read statistic
     $redis_cfg->incr("LRR_TOTALPAGESTAT");
 
+    $redis->del( "archive-write:$id" );
     $redis->quit();
     $redis_cfg->quit();
 
