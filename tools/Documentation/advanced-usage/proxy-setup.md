@@ -23,7 +23,8 @@ server {
     index index.php index.html index.htm;
     server_name lanraragi.[REDACTED].net;
 
-    client_max_body_size 0;   <----------------------- And this line here
+    client_max_body_size 0;           <---------- And this line here to disable upload limit
+    proxy_max_temp_file_size 0;       <---------- And this line here to support large downloads
 
     # Cert Stuff Omitted
 
