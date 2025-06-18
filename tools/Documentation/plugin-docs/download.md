@@ -29,17 +29,27 @@ sub provide_url {
 
 The variables match the parameters you've entered in the `plugin_info` subroutine.
 
-The `$lrr_info` hash contains two variables you can use in your plugin:
+The `$lrr_info` hash contains three variables you can use in your plugin:
 
 * _$lrr\_info->{url}_: The URL that needs to be downloaded.
 * _$lrr\_info->{user\_agent}_: [Mojo::UserAgent](https://mojolicious.org/perldoc/Mojo/UserAgent) object you can use for web requests. If this plugin depends on a Login plugin, this UserAgent will be pre-configured with the cookies from the Login.
+* _$lrr\_info->{tempdir}_: A temporary directory path where you can store files. This is useful when you need to download and process multiple images, and are assembling the archive locally.
 
 ### Expected Output
 
-LRR expects Downloaders to return a hash, containing a new URL that can be downloaded directly.
-Said URL should **directly** point to a file -- Any form of HTML will trigger a failed download.
+LRR expects Downloaders to return a hash containing either a new URL that can be downloaded directly, *or* a path to a file that has already been downloaded.
+
+For returning a URL to download:
 
 `return ( download_url => "http://my.remote.service/download/secret-archive.zip" );`
+
+{% hint style="info" %}
+Said URL should **directly** point to a file -- Any form of HTML will trigger a failed download.
+{% endhint %}
+
+For returning a local file path (that you've already downloaded/created):
+
+`return ( file_path => "/path/to/downloaded/file.zip" );`
 
 If your script errored out, you can immediately stop the plugin execution and tell LRR that an error occurred by throwing an exception:
 

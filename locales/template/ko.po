@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-06 17:24+0200\n"
-"PO-Revision-Date: 2025-05-06 20:28+0000\n"
+"PO-Revision-Date: 2025-06-03 06:04+0000\n"
 "Last-Translator: Haytsir <alswo7310@naver.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/ko/>\n"
@@ -909,7 +909,7 @@ msgid "View full-size image"
 msgstr "전체 크기 이미지 보기"
 
 msgid "Switch to another random archive"
-msgstr "다른 랜덤 아카이브로 전환"
+msgstr "다른 랜덤 아카이브 보기"
 
 msgid "Archive Overview"
 msgstr ""
@@ -1710,3 +1710,5 @@ msgid "Searching for duplicates..."
 msgstr "중복 검색 중..."
 
 # ------End of Duplicates.html.tt2------
+msgid "No duplicates found!"
+msgstr "발견된 중복 항목이 없습니다!"

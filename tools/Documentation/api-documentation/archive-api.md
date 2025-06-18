@@ -19,7 +19,9 @@ Get the Archive Index in JSON form. You can use the IDs of this JSON with the ot
     "progress": 0,
     "tags": "",
     "lastreadtime": 1589038280,
-    "title": "Ghost in the Shell 01.5 - Human-Error Processor v01c01"
+    "title": "Ghost in the Shell 01.5 - Human-Error Processor v01c01",
+    "filename": "Ghost in the Shell 01.5 - Human-Error Processor v01c01",
+    "summary": ""
 }, {
     "arcid": "28697b96f0ac5858be2614ed10ca47742c9522fd",
     "isnew": "false",
@@ -28,7 +30,9 @@ Get the Archive Index in JSON form. You can use the IDs of this JSON with the ot
     "progress": 3,
     "tags": "parody:fate grand order,  group:wadamemo,  artist:wada rco,  artbook,  full color",
     "lastreadtime": 1337038281,
-    "title": "Fate GO MEMO"
+    "title": "Fate GO MEMO",
+    "filename": "Fate GO MEMO",
+    "summary": ""
 }, {
     "arcid": "2810d5e0a8d027ecefebca6237031a0fa7b91eb3",
     "isnew": "false",
@@ -37,7 +41,9 @@ Get the Archive Index in JSON form. You can use the IDs of this JSON with the ot
     "progress": 0,
     "tags": "parody:fate grand order,  character:abigail williams,  character:artoria pendragon alter,  character:asterios,  character:ereshkigal,  character:gilgamesh,  character:hans christian andersen,  character:hassan of serenity,  character:hector,  character:helena blavatsky,  character:irisviel von einzbern,  character:jeanne alter,  character:jeanne darc,  character:kiara sessyoin,  character:kiyohime,  character:lancer,  character:martha,  character:minamoto no raikou,  character:mochizuki chiyome,  character:mordred pendragon,  character:nitocris,  character:oda nobunaga,  character:osakabehime,  character:penthesilea,  character:queen of sheba,  character:rin tosaka,  character:saber,  character:sakata kintoki,  character:scheherazade,  character:sherlock holmes,  character:suzuka gozen,  character:tamamo no mae,  character:ushiwakamaru,  character:waver velvet,  character:xuanzang,  character:zhuge liang,  group:wadamemo,  artist:wada rco,  artbook,  full color",
     "lastreadtime": 1337038282,
-    "title": "Fate GO MEMO 2"
+    "title": "Fate GO MEMO 2",
+    "filename": "Fate GO MEMO 2",
+    "summary": ""
 }, {
     "arcid": "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf",
     "isnew": "false",
@@ -46,7 +52,9 @@ Get the Archive Index in JSON form. You can use the IDs of this JSON with the ot
     "progress": 0,
     "tags": "character:segata sanshiro",
     "lastreadtime": 1337038234,
-    "title": "Saturn Backup Cartridge - Japanese Manual"
+    "title": "Saturn Backup Cartridge - Japanese Manual",
+    "filename": "Saturn Backup Cartridge - Japanese Manual",
+    "summary": ""
 }, {
     "arcid": "e4c422fd10943dc169e3489a38cdbf57101a5f7e",
     "isnew": "false",
@@ -55,7 +63,9 @@ Get the Archive Index in JSON form. You can use the IDs of this JSON with the ot
     "progress": 0,
     "tags": "parody: jojo's bizarre adventure",
     "lastreadtime": 0,
-    "title": "Rohan Kishibe goes to Gucci"
+    "title": "Rohan Kishibe goes to Gucci",
+    "filename": "rohan",
+    "summary": ""
 }]
 ```
 {% endswagger-response %}
