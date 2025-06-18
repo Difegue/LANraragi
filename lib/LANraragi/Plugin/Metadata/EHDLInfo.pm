@@ -142,7 +142,8 @@ sub hash_to_array {
         elsif ( ref($value) eq 'ARRAY' ) { push @array, "$ns:$_" for @$value; }
         else                             { push @array, "$ns:$value"; }
     }
-    return sort @array;
+    @array = sort @array;
+    return @array;
 }
 
 sub convert_to_epoch {
