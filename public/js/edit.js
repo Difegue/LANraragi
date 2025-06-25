@@ -17,6 +17,7 @@ Edit.initializeAll = function () {
     $(document).on("click.tagger", ".tagger", Edit.focusTagInput);
     $(document).on("click.goback", "#goback", () => { window.location.href = new LRR.apiURL("/"); });
     $(document).on("paste.tagger", ".tagger-new", Edit.handlePaste);
+    $(document).on("keydown.run-plugin-enter", "#arg", Edit.runPluginByEnter);
 
     Edit.updateOneShotArg();
 
@@ -83,6 +84,16 @@ Edit.handlePaste = function (event) {
             Edit.addTag(tag);
         });
     }
+};
+
+/**
+ * Invoke plugin when Enter is pressed in the plugin argument input field.
+ * @param {KeyboardEvent} e - The keyboard event
+ */
+Edit.runPluginByEnter = function (e) {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    Edit.runPlugin();
 };
 
 Edit.hideTags = function () {
