@@ -92,11 +92,13 @@ msgstr "Tempo restante (max 20s):"
 
 msgid "This plugin recommends a cooldown of <span id=\"cooldown\">-1</span> seconds."
 msgstr ""
-"Esse plugin recomenda um tempo de espera de <span id=\"cooldown\">-1</span>  "
+"Esse plugin recomenda um tempo de espera de <span id=\"cooldown\">-1</span> "
 "segundos."
 
 msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
 msgstr ""
+"Alguns serviços externos podem banir temporariamente sua máquina por excesso "
+"de carga se o plugin for requisitado várias vezes!"
 
 msgid "Make sure to set a suitable <b>timeout</b> between archives using this picker if the plugin you want to use is concerned."
 msgstr ""
