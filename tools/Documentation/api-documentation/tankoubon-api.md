@@ -212,6 +212,16 @@ Note: If there is no need to update something in one of the keys, do not send th
 }
 ```
 {% endswagger-response %}
+
+{% swagger-response status="423" description="locked resource" %}
+```javascript
+{
+  "operation": "upload",
+  "error": "Locked resource: TANK_1750145148",
+  "success": 0
+}
+```
+{% endswagger-response %}
 {% endswagger %}
 
 {% swagger baseUrl="http://lrr.tvc-16.science" path="/api/tankoubons/:id/:archive" method="put" summary="🔑Add an archive to a Tankoubon" %}
@@ -247,6 +257,17 @@ ID of the Archive to append.
 }
 ```
 {% endswagger-response %}
+
+{% swagger-response status="423" description="locked resource" %}
+```javascript
+{
+  "operation": "upload",
+  "error": "Locked resource: TANK_1750145178",
+  "success": 0
+}
+```
+{% endswagger-response %}
+
 {% endswagger %}
 
 {% swagger baseUrl="http://lrr.tvc-16.science" path="/api/tankoubons/:id/:archive" method="delete" summary="🔑Remove an archive from a Tankoubon" %}
@@ -282,6 +303,16 @@ ID of the archive to remove.
 }
 ```
 {% endswagger-response %}
+
+{% swagger-response status="423" description="locked resource" %}
+```javascript
+{
+  "operation": "upload",
+  "error": "Locked resource: TANK_1750145189",
+  "success": 0
+}
+```
+{% endswagger-response %}
 {% endswagger %}
 
 {% swagger baseUrl="http://lrr.tvc-16.science" path="/api/tankoubons/:id" method="delete" summary="🔑Delete a Tankoubon" %}
@@ -303,4 +334,15 @@ ID of the Tankoubon to delete.
 }
 ```
 {% endswagger-response %}
+
+{% swagger-response status="423" description="locked resource" %}
+```javascript
+{
+  "operation": "upload",
+  "error": "Locked resource: TANK_1750145097",
+  "success": 0
+}
+```
+{% endswagger-response %}
+
 {% endswagger %}
