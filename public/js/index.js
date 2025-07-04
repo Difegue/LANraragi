@@ -32,6 +32,8 @@ Index.initializeAll = function () {
     $(document).on("click.close-overlay", "#overlay-shade", LRR.closeOverlay);
     $(document).on("click.thumbnail-bookmark-icon", ".thumbnail-bookmark-icon", Index.toggleBookmarkStatusByIcon);
     $(document).on("click.title-bookmark-icon", ".title-bookmark-icon", Index.toggleBookmarkStatusByIcon);
+    $(document).on("keydown.quick-search", Index.handleQuickSearch);
+    $(document).on("keydown.escape-overlay", Index.handleEscapeKey);
 
     // 0 = List view
     // 1 = Thumbnail view
@@ -174,6 +176,32 @@ Index.toggleBookmarkStatusByIcon = function (e) {
         Server.removeArchiveFromCategory(id, localStorage.getItem("bookmarkCategoryId"));
         Index.bookmarkIconOff(id);
     }
+};
+
+/**
+ * Handle quick search functionality. If user is in index page and
+ * presses "/" key, focus to search input. If the release overlay
+ * is open, closes it before focusing to search input.
+ * 
+ * @param {KeyboardEvent} e - The keyboard event
+ */
+Index.handleQuickSearch = function (e) {
+    if (e.key !== "/") return;
+    if (e.target.tagName === "INPUT") return;
+    if (e.ctrlKey || e.altKey || e.shiftKey || e.metaKey) return;
+    e.preventDefault();
+    if ($("#overlay-shade").is(":visible")) LRR.closeOverlay();
+    $("#search-input")[0].focus();
+};
+
+/**
+ * Handle escape key to close overlays.
+ * @param {KeyboardEvent} e - The keyboard event
+ */
+Index.handleEscapeKey = function (e) {
+    if (e.key !== "Escape") return;
+    if (e.target.tagName === "INPUT") return;
+    LRR.closeOverlay();
 };
 
 Index.toggleMode = function () {
