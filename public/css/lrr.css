@@ -69,7 +69,7 @@ div.id3.nocrop img {
 
 div.id3:not(.nocrop) img {
   object-fit: cover;
-  object-position: top;
+  object-position: left top;
   width: 95%;
   height: 100%;
 }
