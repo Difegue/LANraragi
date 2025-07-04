@@ -11,6 +11,8 @@ use List::Util qw(min);
 use Redis;
 use Storable qw/ nfreeze thaw /;
 use Sort::Naturally;
+use Cpanel::JSON::XS qw(decode_json);
+use Time::HiRes qw(time);
 
 use LANraragi::Utils::Generic  qw(split_workload_by_cpu intersect_arrays);
 use LANraragi::Utils::String   qw(trim);
@@ -402,32 +404,106 @@ sub compute_search_filter ($filter) {
 }
 
 sub sort_results ( $sortkey, $sortorder, @filtered ) {
-
+    
+    my $start_time = time();
     my $redis = LANraragi::Model::Config->get_redis;
-
+    my $logger = get_logger( "Search Sort", "lanraragi" );
     my %tmpfilter = ();
     my @sorted    = ();
 
-    # Map our archives to a hash, where the key is the ID and the value is what we want to sort by.
-    # For lastreadtime, we just get the value directly.
-    if ( $sortkey eq "lastread" ) {
-        %tmpfilter = map { $_ => $redis->hget( $_, "lastreadtime" ) } @filtered;
+    # Should there be no IDs requiring sorting, return an empty array directly
+    if (scalar @filtered == 0) {
+        return @sorted;
+    }
 
-        # Invert sort order for lastreadtime, biggest timestamps come first
+    # Employ Lua scripting to fetch data in bulk, thereby minimizing network request frequency
+    if ( $sortkey eq "lastread" ) {
+        # Prepare a Lua script to retrieve the lastreadtime for all IDs
+        my $script = <<'LUA';
+        local result = {}
+        for i=1,#ARGV do
+            local id = ARGV[i]
+            local value = redis.call('HGET', id, 'lastreadtime')
+            result[i] = {id, value or "0"}
+        end
+        return cjson.encode(result)
+LUA
+
+        # Execute the Lua script
+        my $sha;
+        eval {
+            $sha = $redis->script_load($script);
+            my $total_time = time() - $start_time;
+            $logger->debug("[PERF] Lua script completedin ${total_time}s");
+        };
+        if ($@) {
+            $logger->error("Failed to load Lua script: $@");
+            # Revert to the original methodology
+            %tmpfilter = map { $_ => $redis->hget( $_, "lastreadtime" ) } @filtered;
+        } else {
+            my $result = $redis->evalsha($sha, 0, @filtered);
+            my $data = eval { decode_json($result) };
+            if ($@) {
+                $logger->error("Failed to decode JSON from Lua script: $@");
+                # Revert to the original methodology
+                %tmpfilter = map { $_ => $redis->hget( $_, "lastreadtime" ) } @filtered;
+            } else {
+                # Convert the results into a hash table
+                foreach my $item (@$data) {
+                    $tmpfilter{$item->[0]} = $item->[1];
+                }
+            }
+        }
+
+        # The sorting logic shall remain unaltered
         @sorted = map { $_->[0] }                    # Map back to only having the ID
           sort { $b->[1] <=> $a->[1] }               # Sort by the timestamp
           grep { defined $_->[1] && $_->[1] > 0 }    # Remove nil timestamps
           map  { [ $_, $tmpfilter{$_} ] }            # Map to an array containing the ID and the timestamp
           @filtered;                                 # List of IDs
     } else {
+        # Prepare a Lua script to retrieve all ID-associated tags
+        my $script = <<'LUA';
+        local result = {}
+        for i=1,#ARGV do
+            local id = ARGV[i]
+            local tags = redis.call('HGET', id, 'tags') or ""
+            result[i] = {id, tags}
+        end
+        return cjson.encode(result)
+LUA
 
-        my $re = qr/$sortkey/;
+        # Execute the Lua script
+        my $sha;
+        eval {
+            $sha = $redis->script_load($script);
+            my $total_time = time() - $start_time;
+            $logger->debug("[PERF] another Lua script completed in ${total_time}s");
+        };
+        if ($@) {
+            $logger->error("Failed to load Lua script: $@");
+            # Revert to the original methodology
+            my $re = qr/$sortkey/;
+            %tmpfilter = map { $_ => ( $redis->hget( $_, "tags" ) =~ m/.*${re}:(.*?)(\,.*|$)/ ) ? $1 : "zzzz" } @filtered;
+        } else {
+            my $result = $redis->evalsha($sha, 0, @filtered);
+            my $data = eval { decode_json($result) };
+            if ($@) {
+                $logger->error("Failed to decode JSON from Lua script: $@");
+                # Revert to the original methodology
+                my $re = qr/$sortkey/;
+                %tmpfilter = map { $_ => ( $redis->hget( $_, "tags" ) =~ m/.*${re}:(.*?)(\,.*|$)/ ) ? $1 : "zzzz" } @filtered;
+            } else {
+                my $re = qr/$sortkey/;
+                foreach my $item (@$data) {
+                    my $id = $item->[0];
+                    my $tags = $item->[1];
+                    $tmpfilter{$id} = ($tags =~ m/.*${re}:(.*?)(\,.*|$)/) ? $1 : "zzzz";
+                }
+            }
+        }
 
-        # For other tags, we use the first tag we found that matches the sortkey/namespace.
-        # (If no tag, defaults to "zzzz")
-        %tmpfilter = map { $_ => ( $redis->hget( $_, "tags" ) =~ m/.*${re}:(.*?)(\,.*|$)/ ) ? $1 : "zzzz" } @filtered;
-
-        # Read comments from the bottom up for a better understanding of this sort algorithm.
+        # The sorting logic shall remain unaltered
         @sorted = map { $_->[0] }                  # Map back to only having the ID
           sort { ncmp( $a->[1], $b->[1] ) }        # Sort by the tag
           map  { [ $_, lc( $tmpfilter{$_} ) ] }    # Map to an array containing the ID and the lowercased tag
@@ -437,7 +513,8 @@ sub sort_results ( $sortkey, $sortorder, @filtered ) {
     if ($sortorder) {
         @sorted = reverse @sorted;
     }
-
+    my $total_time = time() - $start_time;
+    $logger->debug("[PERF] sort_results completed in ${total_time}s");
     return @sorted;
 }
 
