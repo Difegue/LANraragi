@@ -12,7 +12,7 @@ use File::Temp qw(tempdir);
 use File::Basename;
 use File::Find;
 
-use LANraragi::Utils::Generic  qw(render_api_response is_archive get_bytelength);
+use LANraragi::Utils::Generic  qw(render_api_response is_archive get_bytelength exec_with_lock);
 use LANraragi::Utils::Database qw(get_archive_json set_isnew);
 use LANraragi::Utils::Logging  qw(get_logger);
 
@@ -157,106 +157,86 @@ sub create_archive {
     my $uploadMime = $upload->headers->content_type;
     $filename = LANraragi::Utils::Database::redis_encode($filename);
 
-    # lock resource
-    my $lock = $redis->setnx( "upload:$filename", 1 );
-    if ( !$lock ) {
-        return $self->render(
-            json => {
-                operation => "upload",
-                success   => 0,
-                error     => "Locked resource: $filename."
+    return unless exec_with_lock( $self, $redis, "upload:$filename", "upload", $filename, sub {
+        
+        # metadata extraction
+        my $catid   = $self->req->param('category_id');
+        my $tags    = $self->req->param('tags');
+        my $title   = $self->req->param('title');
+        my $summary = $self->req->param('summary');
+
+        # return error if archive is not supported.
+        if ( !is_archive($filename) ) {
+            return $self->render(
+                json => {
+                    operation => "upload",
+                    success   => 0,
+                    error     => "Unsupported file extension ($filename)"
+                },
+                status => 415
+            );
+        }
+
+        # Move file to a temp folder (not the default LRR one)
+        my $tempdir = tempdir();
+
+        my ( $fn, $path, $ext ) = fileparse( $filename, qr/\.[^.]*/ );
+        my $byte_limit = LANraragi::Model::Config->enable_cryptofs ? 143 : 255;
+
+        $filename = $fn;
+        while ( get_bytelength( $filename . $ext . ".upload" ) > $byte_limit ) {
+            $filename = substr( $filename, 0, -1 );
+        }
+        $filename = $filename . $ext;
+
+        my $tempfile = $tempdir . '/' . $filename;
+        if ( !$upload->move_to($tempfile) ) {
+            $logger->error("Could not move uploaded file $filename to $tempfile");
+            return $self->render(
+                json => {
+                    operation => "upload",
+                    success   => 0,
+                    error     => "Couldn't move uploaded file to temporary location."
+                },
+                status => 500
+            );
+        }
+
+        # Update $tempfile to the exact reference created by the host filesystem
+        # This is done by finding the first (and only) file in $tempdir.
+        find(
+            sub {
+                return if -d $_;
+                $tempfile = $File::Find::name;
+                $filename = $_;
             },
-            status => 423
+            $tempdir
         );
-    }
-    $redis->expire( "upload:$filename", 10 );
 
-    # metadata extraction
-    my $catid   = $self->req->param('category_id');
-    my $tags    = $self->req->param('tags');
-    my $title   = $self->req->param('title');
-    my $summary = $self->req->param('summary');
+        my ( $status_code, $id, $response_title, $message ) =
+          LANraragi::Model::Upload::handle_incoming_file( $tempfile, $catid, $tags, $title, $summary );
 
-    # return error if archive is not supported.
-    if ( !is_archive($filename) ) {
-        $redis->del("upload:$filename");
-        $redis->quit();
+        unless ( $status_code == 200 ) {
+            return $self->render(
+                json => {
+                    operation => "upload",
+                    success   => 0,
+                    error     => $message,
+                    id        => $id
+                },
+                status => $status_code
+            );
+        }
+
         return $self->render(
             json => {
                 operation => "upload",
-                success   => 0,
-                error     => "Unsupported file extension ($filename)"
-            },
-            status => 415
-        );
-    }
-
-    # Move file to a temp folder (not the default LRR one)
-    my $tempdir = tempdir();
-
-    my ( $fn, $path, $ext ) = fileparse( $filename, qr/\.[^.]*/ );
-    my $byte_limit = LANraragi::Model::Config->enable_cryptofs ? 143 : 255;
-
-    $filename = $fn;
-    while ( get_bytelength( $filename . $ext . ".upload" ) > $byte_limit ) {
-        $filename = substr( $filename, 0, -1 );
-    }
-    $filename = $filename . $ext;
-
-    my $tempfile = $tempdir . '/' . $filename;
-    if ( !$upload->move_to($tempfile) ) {
-        $logger->error("Could not move uploaded file $filename to $tempfile");
-        $redis->del("upload:$filename");
-        $redis->quit();
-        return $self->render(
-            json => {
-                operation => "upload",
-                success   => 0,
-                error     => "Couldn't move uploaded file to temporary location."
-            },
-            status => 500
-        );
-    }
-
-    # Update $tempfile to the exact reference created by the host filesystem
-    # This is done by finding the first (and only) file in $tempdir.
-    find(
-        sub {
-            return if -d $_;
-            $tempfile = $File::Find::name;
-            $filename = $_;
-        },
-        $tempdir
-    );
-
-    my ( $status_code, $id, $response_title, $message ) =
-      LANraragi::Model::Upload::handle_incoming_file( $tempfile, $catid, $tags, $title, $summary );
-
-    unless ( $status_code == 200 ) {
-        $redis->del("upload:$filename");
-        $redis->quit();
-        return $self->render(
-            json => {
-                operation => "upload",
-                success   => 0,
-                error     => $message,
+                success   => 1,
                 id        => $id
             },
-            status => $status_code
+            status => 200
         );
-    }
-
-    $redis->del("upload:$filename");
-    $redis->quit();
-
-    return $self->render(
-        json => {
-            operation => "upload",
-            success   => 1,
-            id        => $id
-        },
-        status => 200
-    );
+    });
 }
 
 # Serve an archive page from the temporary folder, using RenderFile.
@@ -289,67 +269,39 @@ sub clear_new {
     my $self = shift;
     my $id   = check_id_parameter( $self, "clear_new" ) || return;
 
-    # lock resource
     my $redis = LANraragi::Model::Config->get_redis;
-    my $lock = $redis->setnx( "archive-write:$id", 1 );
-    if ( !$lock ) {
-        return $self->render(
+    
+    return unless exec_with_lock( $self, $redis, "archive-write:$id", "clear_new", $id, sub {
+        set_isnew( $id, "false" );
+
+        $self->render(
             json => {
                 operation => "clear_new",
-                success   => 0,
-                error     => "Locked resource: $id."
-            },
-            status => 423
+                id        => $id,
+                success   => 1
+            }
         );
-    }
-    $redis->expire( "archive-write:$id", 10 );
-
-    set_isnew( $id, "false" );
-
-    $redis->del( "archive-write:$id" );
-    $redis->quit();
-
-    $self->render(
-        json => {
-            operation => "clear_new",
-            id        => $id,
-            success   => 1
-        }
-    );
+    });
 }
 
 sub delete_archive {
     my $self = shift;
     my $id   = check_id_parameter( $self, "delete_archive" ) || return;
 
-    # lock resource
     my $redis = LANraragi::Model::Config->get_redis;
-    my $lock = $redis->setnx( "archive-write:$id", 1 );
-    if ( !$lock ) {
-        return $self->render(
+    
+    return unless exec_with_lock( $self, $redis, "archive-write:$id", "delete_archive", $id, sub {
+        my $delStatus = LANraragi::Model::Archive::delete_archive($id);
+
+        $self->render(
             json => {
                 operation => "delete_archive",
-                success   => 0,
-                error     => "Locked resource: $id."
-            },
-            status => 423
+                id        => $id,
+                filename  => $delStatus,
+                success   => $delStatus eq "0" ? 0 : 1
+            }
         );
-    }
-    $redis->expire( "archive-write:$id", 10 );
-
-    my $delStatus = LANraragi::Model::Archive::delete_archive($id);
-
-    $redis->del( "archive-write:$id" );
-    $redis->quit();
-
-    $self->render(
-        json => {
-            operation => "delete_archive",
-            id        => $id,
-            filename  => $delStatus,
-            success   => $delStatus eq "0" ? 0 : 1
-        }
-    );
+    });
 }
 
 sub update_metadata {
@@ -360,34 +312,20 @@ sub update_metadata {
     my $tags    = $self->req->param('tags');
     my $summary = $self->req->param('summary');
 
-    # lock resource
     my $redis = LANraragi::Model::Config->get_redis;
-    my $lock = $redis->setnx( "archive-write:$id", 1 );
-    if ( !$lock ) {
-        return $self->render(
-            json => {
-                operation => "update_metadata",
-                success   => 0,
-                error     => "Locked resource: $id."
-            },
-            status => 423
-        );
-    }
-    $redis->expire( "archive-write:$id", 10 );
+    
+    return unless exec_with_lock( $self, $redis, "archive-write:$id", "update_metadata", $id, sub {
+        my $err = LANraragi::Model::Archive::update_metadata( $id, $title, $tags, $summary );
 
-    my $err = LANraragi::Model::Archive::update_metadata( $id, $title, $tags, $summary );
+        if ( $err eq "" ) {
+            my $title          = LANraragi::Model::Archive::get_title($id);
+            my $successMessage = "Updated metadata for \"$title\"!";
 
-    $redis->del( "archive-write:$id" );
-    $redis->quit();
-
-    if ( $err eq "" ) {
-        my $title          = LANraragi::Model::Archive::get_title($id);
-        my $successMessage = "Updated metadata for \"$title\"!";
-
-        render_api_response( $self, "update_metadata", undef, $successMessage );
-    } else {
-        render_api_response( $self, "update_metadata", $err );
-    }
+            render_api_response( $self, "update_metadata", undef, $successMessage );
+        } else {
+            render_api_response( $self, "update_metadata", $err );
+        }
+    });
 }
 
 sub update_progress {
@@ -421,41 +359,25 @@ sub update_progress {
         return;
     }
 
-    # lock resource
-    my $lock = $redis->setnx( "archive-write:$id", 1 );
-    if ( !$lock ) {
-        return $self->render(
+    return unless exec_with_lock( $self, $redis, "archive-write:$id", "update_progress", $id, sub {
+        # Just set the progress value.
+        $redis->hset( $id, "progress",     $page );
+        $redis->hset( $id, "lastreadtime", $time );
+
+        # Update total pages read statistic
+        $redis_cfg->incr("LRR_TOTALPAGESTAT");
+        $redis_cfg->quit();
+
+        $self->render(
             json => {
-                operation => "update_progress",
-                success   => 0,
-                error     => "Locked resource: $id."
-            },
-            status => 423
+                operation    => "update_progress",
+                id           => $id,
+                page         => $page,
+                lastreadtime => $time,
+                success      => 1
+            }
         );
-    }
-    $redis->expire( "archive-write:$id", 10 );
-
-    # Just set the progress value.
-    $redis->hset( $id, "progress",     $page );
-    $redis->hset( $id, "lastreadtime", $time );
-
-    # Update total pages read statistic
-    $redis_cfg->incr("LRR_TOTALPAGESTAT");
-
-    $redis->del( "archive-write:$id" );
-    $redis->quit();
-    $redis_cfg->quit();
-
-    $self->render(
-        json => {
-            operation    => "update_progress",
-            id           => $id,
-            page         => $page,
-            lastreadtime => $time,
-            success      => 1
-        }
-    );
-
+    });
 }
 
 1;

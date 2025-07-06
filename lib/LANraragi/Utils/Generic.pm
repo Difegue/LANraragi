@@ -22,7 +22,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 use Exporter 'import';
 our @EXPORT_OK = qw(is_image is_archive render_api_response get_tag_with_namespace shasum_str start_shinobu
   split_workload_by_cpu start_minion get_css_list generate_themes_header flat get_bytelength array_difference
-  intersect_arrays filter_hash_by_keys);
+  intersect_arrays filter_hash_by_keys exec_with_lock);
 
 # Checks if the provided file is an image.
 # Uses non-capturing groups (?:) to avoid modifying the incoming argument.
@@ -295,6 +295,37 @@ sub filter_hash_by_keys {
     }
 
     return %hash;
+}
+
+# Execute a function under a redis lock context.
+# If the lock cannot be acquired, renders a 423 error and returns false,
+# otherwise executes the function and returns true (or rethrows error if any).
+# Automatically cleans up the lock and connection after execution.
+sub exec_with_lock {
+    my ( $mojo, $redis, $lock_name, $operation, $resource_id, $func ) = @_;
+    my $lock = $redis->set( $lock_name, 1, 'NX', 'EX', 10 );
+    if ( !$lock ) {
+        $redis->quit();
+        $mojo->render(
+            json => {
+                operation => $operation,
+                success   => 0,
+                error     => "Locked resource: $resource_id."
+            },
+            status => 423
+        );
+        return 0;
+    }
+
+    eval {
+        $func->();
+    };
+    my $err = $@;
+    $redis->del( $lock_name );
+    $redis->quit();
+
+    die $err if $err;
+    return 1;
 }
 
 1;
