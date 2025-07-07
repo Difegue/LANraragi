@@ -28,6 +28,16 @@ sub do_search ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $
 
     my $redis  = LANraragi::Model::Config->get_redis_search;
     my $logger = get_logger( "Search Engine", "lanraragi" );
+    
+    # Ensure all parameters have default values to avoid 'uninitialized value' warnings
+    $filter = "" unless defined $filter;
+    $category_id = "" unless defined $category_id;
+    $start = 0 unless defined $start;
+    $sortkey = "date_added" unless defined $sortkey || $sortkey eq "";
+    $sortorder = 0 unless defined $sortorder;
+    $newonly = 0 unless defined $newonly;
+    $untaggedonly = 0 unless defined $untaggedonly;
+    $grouptanks = 0 unless defined $grouptanks;
 
     unless ( $redis->exists("LAST_JOB_TIME") && ( $redis->exists("LRR_TANKGROUPED") || !$grouptanks ) ) {
         $logger->error("Search engine is not initialized yet. Please wait a few seconds.");
@@ -46,8 +56,10 @@ sub do_search ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $
 
     # Look in searchcache first
     my $sortorder_inv = $sortorder ? 0 : 1;
-    my $cachekey      = redis_encode("$category_id-$filter-$sortkey-$sortorder-$newonly-$untaggedonly-$grouptanks");
-    my $cachekey_inv  = redis_encode("$category_id-$filter-$sortkey-$sortorder_inv-$newonly-$untaggedonly-$grouptanks");
+    # Ensure sortkey has a default value to avoid 'uninitialized value' warnings
+    my $sortkey_safe = (defined $sortkey && $sortkey ne "") ? $sortkey : "date_added";
+    my $cachekey      = redis_encode("$category_id-$filter-$sortkey_safe-$sortorder-$newonly-$untaggedonly-$grouptanks");
+    my $cachekey_inv  = redis_encode("$category_id-$filter-$sortkey_safe-$sortorder_inv-$newonly-$untaggedonly-$grouptanks");
     my ( $cachehit, @filtered ) = check_cache( $cachekey, $cachekey_inv );
 
     # Don't use cache for history searches since setting lastreadtime doesn't (and shouldn't) cachebust
@@ -78,6 +90,10 @@ sub check_cache ( $cachekey, $cachekey_inv ) {
     my $redis  = LANraragi::Model::Config->get_redis_search;
     my $logger = get_logger( "Search Cache", "lanraragi" );
 
+    # Ensure all parameters have default values to avoid 'uninitialized value' warnings
+    $cachekey = "" unless defined $cachekey;
+    $cachekey_inv = "" unless defined $cachekey_inv;
+
     my @filtered = ();
     my $cachehit = 0;
     $logger->debug("Search request: $cachekey");
@@ -106,9 +122,21 @@ sub check_cache ( $cachekey, $cachekey_inv ) {
 # Grab all our IDs, then filter them down according to the following filters and tokens' ID groups.
 sub search_uncached ( $category_id, $filter, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks ) {
 
+    my $start_time = time();
     my $redis    = LANraragi::Model::Config->get_redis_search;
     my $redis_db = LANraragi::Model::Config->get_redis;
     my $logger   = get_logger( "Search Core", "lanraragi" );
+    
+    $logger->debug("Starting search with filter: $filter, category: $category_id, sortkey: $sortkey");
+    
+    # Ensure all parameters have default values to avoid 'uninitialized value' warnings
+    $filter = "" unless defined $filter;
+    $category_id = "" unless defined $category_id;
+    $sortkey = "date_added" unless defined $sortkey || $sortkey eq "";
+    $sortorder = 0 unless defined $sortorder;
+    $newonly = 0 unless defined $newonly;
+    $untaggedonly = 0 unless defined $untaggedonly;
+    $grouptanks = 0 unless defined $grouptanks;
 
     # Compute search filters
     my @tokens = compute_search_filter($filter);
@@ -173,86 +201,144 @@ sub search_uncached ( $category_id, $filter, $sortkey, $sortorder, $newonly, $un
            # Or you can search for galleries with a specific number of pages read with read:20, or any pages read: read:>0
             if ( $tag =~ /^(read|pages):(>|<|>=|<=)?(\d+)$/ ) {
                 my $col       = $1;
-                my $operator  = $2;
+                my $operator  = $2 || "="; # If no operator is specified, we assume it's an exact match
                 my $pagecount = $3;
 
                 $logger->debug("Searching for IDs with $operator $pagecount $col");
-
-                # If no operator is specified, we assume it's an exact match
-                $operator = "=" if !$operator;
 
                 # Change the column based off the tag searched.
                 # "pages" -> "pagecount"
                 # "read" -> "progress"
                 $col = $col eq "pages" ? "pagecount" : "progress";
-
-                # Go through all IDs in @filtered and check if they have the right pagecount
-                # This could be sped up with an index, but it's probably not worth it.
-                foreach my $id (@filtered) {
-
-                    # Tanks don't have a set pagecount property, so they're not included here for now.
-                    # TODO TANKS: Maybe an index would be good actually..
-                    if ( $id =~ /^TANK/ ) {
-                        next;
-                    }
-
-                    # Default to 0 if null.
-                    my $count = $redis_db->hget( $id, $col ) || 0;
-
-                    if (   ( $operator eq "=" && $count == $pagecount )
-                        || ( $operator eq ">"  && $count > $pagecount )
-                        || ( $operator eq ">=" && $count >= $pagecount )
-                        || ( $operator eq "<"  && $count < $pagecount )
-                        || ( $operator eq "<=" && $count <= $pagecount ) ) {
-                        push @ids, $id;
-                    }
-                }
+                
+                # Use Lua script to batch process pagecount/progress filtering
+                my $script = <<'LUA';
+                local ids = ARGV[1]
+                local col = ARGV[2]
+                local operator = ARGV[3]
+                local pagecount = tonumber(ARGV[4])
+                local result = {}
+                
+                -- Convert comma-separated IDs string to table
+                local id_table = {}
+                for id in string.gmatch(ids, "[^,]+") do
+                    table.insert(id_table, id)
+                end
+                
+                for i, id in ipairs(id_table) do
+                    -- Skip tank IDs
+                    if not string.match(id, "^TANK") then
+                        -- Default to 0 if null
+                        local count = tonumber(redis.call('HGET', id, col) or 0)
+                        
+                        local match = false
+                        if operator == "=" and count == pagecount then
+                            match = true
+                        elseif operator == ">" and count > pagecount then
+                            match = true
+                        elseif operator == ">=" and count >= pagecount then
+                            match = true
+                        elseif operator == "<" and count < pagecount then
+                            match = true
+                        elseif operator == "<=" and count <= pagecount then
+                            match = true
+                        end
+                        
+                        if match then
+                            table.insert(result, id)
+                        end
+                    end
+                end
+                
+                return result
+LUA
+                
+                # Convert filtered array to comma-separated string for Lua
+                my $ids_str = join(",", @filtered);
+                my @result = $redis_db->eval($script, 0, $ids_str, $col, $operator, $pagecount);
+                @ids = @result;
+                $logger->debug("Found " . scalar @ids . " IDs matching $operator $pagecount $col");
             }
 
-            # For exact tag searches, just check if an index for it exists
-            if ( $isexact && $redis->exists("INDEX_$tag") ) {
-
-                # Get the list of IDs for this tag
-                @ids = $redis->smembers("INDEX_$tag");
-                $logger->debug( "Found tag index for $tag, containing " . scalar @ids . " IDs" );
+            # Use Lua script to batch process tag search for better performance
+            my $script;
+            if ($isexact) {
+                # For exact tag searches, just check if an index for it exists and get its members
+                $script = <<'LUA';
+                local tag = ARGV[1]
+                local key = "INDEX_"..tag
+                if redis.call('EXISTS', key) == 1 then
+                    return redis.call('SMEMBERS', key)
+                else
+                    return {}
+                end
+LUA
+                my @result = $redis->eval($script, 0, $tag);
+                @ids = @result;
+                $logger->debug("Found tag index for $tag, containing " . scalar @ids . " IDs");
             } else {
-
-                # Get index keys that match this tag.
-                # If the tag has a namespace, We don't add a wildcard at the start of the tag to keep it intact.
-                # Otherwise, we add a wildcard at the start to match all namespaces.
-                my $indexkey = $tag =~ /:/ ? "INDEX_$tag*" : "INDEX_*$tag*";
-                my @keys     = $redis->keys($indexkey);
-
-                # Get the list of IDs for each key
-                foreach my $key (@keys) {
-                    my @keyids = $redis->smembers($key);
-                    $logger->trace( "Found index $key for $tag, containing " . scalar @ids . " IDs" );
-                    push @ids, @keyids;
-                }
+                # For fuzzy tag searches, get all matching keys and their members in one go
+                $script = <<'LUA';
+                local tag = ARGV[1]
+                local has_namespace = string.find(tag, ":") ~= nil
+                local pattern = has_namespace and "INDEX_"..tag.."*" or "INDEX_*"..tag.."*"
+                local keys = redis.call('KEYS', pattern)
+                local result = {}
+                
+                for i, key in ipairs(keys) do
+                    local members = redis.call('SMEMBERS', key)
+                    for j, member in ipairs(members) do
+                        table.insert(result, member)
+                    end
+                end
+                
+                return result
+LUA
+                my @result = $redis->eval($script, 0, $tag);
+                @ids = @result;
+                $logger->debug("Found " . scalar @ids . " IDs for fuzzy tag search: $tag");
             }
 
-            # Append fuzzy title search
+            # Append fuzzy title search using Lua script for better performance
             my $namesearch = $isexact ? "$tag\x00*" : "*$tag*";
-            my $scan       = -1;
-            while ( $scan != 0 ) {
-
-                # First iteration
-                if ( $scan == -1 ) { $scan = 0; }
-                $logger->trace("Scanning for $namesearch, cursor=$scan");
-
-                my @result = $redis->zscan( "LRR_TITLES", $scan, "MATCH", $namesearch, "COUNT", 100 );
-                $scan = $result[0];
-
-                foreach my $title ( @{ $result[1] } ) {
-
-                    if ( $title eq "0" ) { next; }    # Skip scores
-                    $logger->trace("Found title match: $title");
-
-                    # Strip everything before \x00 to get the ID out of the key
-                    my $id = substr( $title, index( $title, "\x00" ) + 1 );
-                    push @ids, $id;
-                }
-            }
+            $logger->trace("Scanning for title matches: $namesearch");
+            
+            # Use Lua script to perform the entire zscan operation in one go
+            my $script = <<'LUA';
+            local pattern = ARGV[1]
+            local result = {}
+            local cursor = 0
+            local done = false
+            
+            while not done do
+                local scan_result = redis.call('ZSCAN', 'LRR_TITLES', cursor, 'MATCH', pattern, 'COUNT', 1000)
+                cursor = tonumber(scan_result[1])
+                
+                -- Process the results, skipping scores (every other element)
+                for i = 1, #scan_result[2], 2 do
+                    local title = scan_result[2][i]
+                    if title ~= "0" then
+                        -- Find the position of the null byte and extract the ID
+                        local pos = string.find(title, string.char(0))
+                        if pos then
+                            local id = string.sub(title, pos + 1)
+                            table.insert(result, id)
+                        end
+                    end
+                end
+                
+                -- Check if we're done scanning
+                if cursor == 0 then
+                    done = true
+                end
+            end
+            
+            return result
+LUA
+            
+            my @title_ids = $redis->eval($script, 0, $namesearch);
+            $logger->debug("Found " . scalar @title_ids . " title matches for: $tag");
+            push @ids, @title_ids;
 
             if ( scalar @ids == 0 && !$isneg ) {
 
@@ -277,8 +363,8 @@ sub search_uncached ( $category_id, $filter, $sortkey, $sortorder, $newonly, $un
     if ( scalar @filtered > 0 ) {
         $logger->debug( "Found " . scalar @filtered . " results after filtering." );
 
-        if ( !$sortkey ) {
-            $sortkey = "title";
+        if ( !$sortkey || $sortkey eq "" ) {
+            $sortkey = "date_added";
         }
 
         if ( $sortkey eq "title" ) {
@@ -310,6 +396,10 @@ sub search_uncached ( $category_id, $filter, $sortkey, $sortorder, $newonly, $un
 
     $redis->quit();
     $redis_db->quit();
+    
+    my $end_time = time();
+    $logger->debug("Search completed in " . ($end_time - $start_time) . " seconds, found " . scalar(@filtered) . " results");
+    
     return @filtered;
 }
 
@@ -319,7 +409,9 @@ sub compute_search_filter ($filter) {
 
     my $logger = get_logger( "Search Core", "lanraragi" );
     my @tokens = ();
-    if ( !$filter ) { $filter = ""; }
+    
+    # Ensure filter has a default value
+    $filter = "" unless defined $filter;
 
     # Special characters:
     # "" for exact search (or $, but is that one really useful now?)
@@ -327,7 +419,7 @@ sub compute_search_filter ($filter) {
     # * % for multiple characters
     # - to exclude the next tag
 
-    $b = reverse($filter);
+    my $b = reverse($filter);
     while ( $b ne "" ) {
 
         my $char  = chop $b;
@@ -415,6 +507,10 @@ sub sort_results ( $sortkey, $sortorder, @filtered ) {
     if (scalar @filtered == 0) {
         return @sorted;
     }
+
+    # Ensure all parameters have default values to avoid 'uninitialized value' warnings
+    $sortkey = "" unless defined $sortkey;
+    $sortorder = 0 unless defined $sortorder;
 
     # Employ Lua scripting to fetch data in bulk, thereby minimizing network request frequency
     if ( $sortkey eq "lastread" ) {
