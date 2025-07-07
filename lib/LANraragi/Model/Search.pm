@@ -29,15 +29,25 @@ sub do_search ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $
     my $redis  = LANraragi::Model::Config->get_redis_search;
     my $logger = get_logger( "Search Engine", "lanraragi" );
     
+    $logger->debug("Starting do_search with filter: $filter, category: $category_id, sortkey: $sortkey, sortorder: $sortorder");
     # Ensure all parameters have default values to avoid 'uninitialized value' warnings
     $filter = "" unless defined $filter;
     $category_id = "" unless defined $category_id;
     $start = 0 unless defined $start;
-    $sortkey = "date_added" unless defined $sortkey;
-    $sortorder = 0 unless defined $sortorder;
+    $sortkey = "" unless defined $sortkey;
+    #$sortkey = "date_added" unless (defined $sortkey && $sortkey ne "") || $sortkey eq "title";
+
+    if ($sortkey eq "date_added") {
+    $sortorder = 1;
+    } else {
+    # 当 sortkey 不是 "date_added" 时，检查 sortorder 是否未定义
+    $sortorder = 1 unless defined $sortorder;
+    }
+
     $newonly = 0 unless defined $newonly;
     $untaggedonly = 0 unless defined $untaggedonly;
     $grouptanks = 0 unless defined $grouptanks;
+    $logger->debug("ending do_search with filter: $filter, category: $category_id, sortkey: $sortkey, sortorder: $sortorder");
 
     unless ( $redis->exists("LAST_JOB_TIME") && ( $redis->exists("LRR_TANKGROUPED") || !$grouptanks ) ) {
         $logger->error("Search engine is not initialized yet. Please wait a few seconds.");
@@ -127,16 +137,26 @@ sub search_uncached ( $category_id, $filter, $sortkey, $sortorder, $newonly, $un
     my $redis_db = LANraragi::Model::Config->get_redis;
     my $logger   = get_logger( "Search Core", "lanraragi" );
     
-    $logger->debug("Starting search with filter: $filter, category: $category_id, sortkey: $sortkey");
+    $logger->debug("Starting search_uncached with filter: $filter, category: $category_id, sortkey: $sortkey, sortorder: $sortorder");
     
     # Ensure all parameters have default values to avoid 'uninitialized value' warnings
     $filter = "" unless defined $filter;
     $category_id = "" unless defined $category_id;
-    $sortkey = "" unless defined $sortkey;
-    $sortorder = 0 unless defined $sortorder;
+    #$sortkey = "" unless defined $sortkey;
+    $sortkey = "date_added" unless (defined $sortkey && $sortkey ne "") || $sortkey eq "title";
+
+    if ($sortkey eq "date_added") {
+    $sortorder = 1;
+    } else {
+    # 当 sortkey 不是 "date_added" 时，检查 sortorder 是否未定义
+    $sortorder = 1 unless defined $sortorder;
+    }
+    
     $newonly = 0 unless defined $newonly;
     $untaggedonly = 0 unless defined $untaggedonly;
     $grouptanks = 0 unless defined $grouptanks;
+
+    $logger->debug("ending search_uncached with filter: $filter, category: $category_id, sortkey: $sortkey, sortorder: $sortorder");
 
     # Compute search filters
     my @tokens = compute_search_filter($filter);
@@ -364,7 +384,7 @@ LUA
         $logger->debug( "Found " . scalar @filtered . " results after filtering." );
 
         if ( !$sortkey ) {
-            $sortkey = "title";
+            $sortkey = "date_added";
         }
 
         if ( $sortkey eq "title" ) {
