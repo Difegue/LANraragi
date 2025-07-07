@@ -33,7 +33,7 @@ sub do_search ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $
     $filter = "" unless defined $filter;
     $category_id = "" unless defined $category_id;
     $start = 0 unless defined $start;
-    $sortkey = "date_added" unless defined $sortkey || $sortkey eq "";
+    $sortkey = "date_added" unless defined $sortkey;
     $sortorder = 0 unless defined $sortorder;
     $newonly = 0 unless defined $newonly;
     $untaggedonly = 0 unless defined $untaggedonly;
@@ -57,7 +57,7 @@ sub do_search ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $
     # Look in searchcache first
     my $sortorder_inv = $sortorder ? 0 : 1;
     # Ensure sortkey has a default value to avoid 'uninitialized value' warnings
-    my $sortkey_safe = (defined $sortkey && $sortkey ne "") ? $sortkey : "date_added";
+    my $sortkey_safe = defined $sortkey ? $sortkey : "";
     my $cachekey      = redis_encode("$category_id-$filter-$sortkey_safe-$sortorder-$newonly-$untaggedonly-$grouptanks");
     my $cachekey_inv  = redis_encode("$category_id-$filter-$sortkey_safe-$sortorder_inv-$newonly-$untaggedonly-$grouptanks");
     my ( $cachehit, @filtered ) = check_cache( $cachekey, $cachekey_inv );
@@ -132,7 +132,7 @@ sub search_uncached ( $category_id, $filter, $sortkey, $sortorder, $newonly, $un
     # Ensure all parameters have default values to avoid 'uninitialized value' warnings
     $filter = "" unless defined $filter;
     $category_id = "" unless defined $category_id;
-    $sortkey = "date_added" unless defined $sortkey || $sortkey eq "";
+    $sortkey = "" unless defined $sortkey;
     $sortorder = 0 unless defined $sortorder;
     $newonly = 0 unless defined $newonly;
     $untaggedonly = 0 unless defined $untaggedonly;
@@ -363,8 +363,8 @@ LUA
     if ( scalar @filtered > 0 ) {
         $logger->debug( "Found " . scalar @filtered . " results after filtering." );
 
-        if ( !$sortkey || $sortkey eq "" ) {
-            $sortkey = "date_added";
+        if ( !$sortkey ) {
+            $sortkey = "title";
         }
 
         if ( $sortkey eq "title" ) {
