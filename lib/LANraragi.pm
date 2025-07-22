@@ -224,16 +224,19 @@ sub startup {
             # SameSite=Lax is the default behavior here; I set it
             # explicitly to get rid of a warning in the browser
             $c->cookie( "lrr_baseurl" => $prefix, { samesite => "lax", path => "/" } );
-
-            # Start metrics timing only if metrics are enabled
-            if (LANraragi::Model::Config->enable_metrics) {
-                $c->stash('metrics.start_time' => [gettimeofday]);
-            }
         }
     );
 
     # Enable metrics collection if configured
     if (LANraragi::Model::Config->enable_metrics) {
+
+        # Hook to start metrics timing
+        $self->hook(
+            before_dispatch => sub {
+                my $c = shift;
+                $c->stash('metrics.start_time' => [gettimeofday]);
+            }
+        );
 
         # Hook to collect API metrics
         $self->hook(
