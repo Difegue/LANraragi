@@ -104,6 +104,11 @@ sub apply_routes {
 
     $logged_in->get('/duplicates')->to('duplicates#index');
 
+    # Metrics API
+    if ( $self->LRR_CONF->enable_metrics ) {
+        $public_api->get('/metrics')->to('api-metrics#serve_metrics');
+    }
+
     # OPDS API
     $public_api->get('/api/opds')->to('api-other#serve_opds_catalog');
     $public_api->get('/api/opds/:id')->to('api-other#serve_opds_item');

@@ -10,6 +10,7 @@ use Mojo::JSON qw(decode_json encode_json);
 use Storable;
 use Sys::Hostname;
 use Config;
+use Time::HiRes qw(gettimeofday);
 
 use LANraragi::Utils::Generic    qw(start_shinobu start_minion);
 use LANraragi::Utils::Logging    qw(get_logger get_logdir);
@@ -17,6 +18,7 @@ use LANraragi::Utils::Plugins    qw(get_plugins);
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Routing;
 use LANraragi::Utils::Minion;
+use LANraragi::Utils::Metrics    qw(record_api_metrics record_process_metrics);
 use LANraragi::Utils::I18N;
 use LANraragi::Utils::I18NInitializer;
 
@@ -222,8 +224,33 @@ sub startup {
             # SameSite=Lax is the default behavior here; I set it
             # explicitly to get rid of a warning in the browser
             $c->cookie( "lrr_baseurl" => $prefix, { samesite => "lax", path => "/" } );
+
+            # Start metrics timing only if metrics are enabled
+            if (LANraragi::Model::Config->enable_metrics) {
+                $c->stash('metrics.start_time' => [gettimeofday]);
+            }
         }
     );
+
+    # Enable metrics collection if configured
+    if (LANraragi::Model::Config->enable_metrics) {
+
+        # Hook to collect API metrics
+        $self->hook(
+            after_dispatch => sub {
+                my $c = shift;
+                record_api_metrics($c);
+            }
+        );
+
+        # Periodically collect process metrics
+        Mojo::IOLoop->recurring(30 => sub {
+            record_process_metrics();
+        });
+
+        $self->LRR_LOGGER->info("Metrics collection is enabled.");
+
+    }
 
     LANraragi::Utils::Routing::apply_routes($self);
     $self->LRR_LOGGER->info("Routing done! Ready to receive requests.");

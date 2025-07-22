@@ -207,6 +207,7 @@ The base architecture is as follows:
 |  |- sizethreshold <- Auto-resizing threshold
 |  |- readerquality <- Auto-resizing quality
 |  |- enablecors <- Whether CORS headers are enabled 
+|  |- enablemetrics <- Whether metrics exporting is enabled
 |  |- tagruleson <- Whether tag rules are enabled
 |  |- tagrules <- Tag rules, saved as a big ol' string
 |  |- devmode  <- Whether debug mode is enabled

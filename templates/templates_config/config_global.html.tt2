@@ -98,6 +98,20 @@
     </td>
 </tr>
 
+<tr>
+    <td class="option-td">
+        <h2 class="ih"> [% c.lh("Enable Metrics") %] </h2>
+    </td>
+    <td class="config-td">
+        [% IF enablemetrics %]
+        <input id="enablemetrics" name="enablemetrics" class="fa" type="checkbox" checked> [% ELSE %]
+        <input id="enablemetrics" name="enablemetrics" class="fa" type="checkbox"> [% END %]
+        <label for="enablemetrics">
+            <br>[% c.lh("Expose the /metrics endpoint for monitoring. Metrics are exposed in the Prometheus exposition format.") %]
+            [% c.lh("Fully effective after restarting LANraragi.") %]
+        </label>
+    </td>
+</tr>
 
 <tr>
     <td class="option-td">
