@@ -217,6 +217,7 @@ The base architecture is as follows:
 |  |- readerquality <- Auto-resizing quality
 |  |- enablecors <- Whether CORS headers are enabled
 |  |- disableopenapi <- Whether OpenAPI API schema validation is disabled
+|  |- enablemetrics <- Whether metrics exporting is enabled
 |  |- tagruleson <- Whether tag rules are enabled
 |  |- tagrules <- Tag rules, saved as a big ol' string
 |  |- devmode  <- Whether debug mode is enabled
