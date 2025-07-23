@@ -176,8 +176,8 @@ sub get_prometheus_metrics {
         $stats_metrics{"lanraragi_server_resizes_images"}{""} = LANraragi::Model::Config->enable_resize ? 1 : 0;
 
         # Archive and page statistics
-        $stats_metrics{"lanraragi_total_archives"}{""} = $arc_stat;
-        $stats_metrics{"lanraragi_total_pages_read"}{""} = $page_stat;
+        $stats_metrics{"lanraragi_archives_total"}{""} = $arc_stat;
+        $stats_metrics{"lanraragi_pages_read_total"}{""} = $page_stat;
         $stats_metrics{"lanraragi_cache_last_cleared_timestamp"}{""} = $last_clear;
     };
 
@@ -237,10 +237,10 @@ sub get_prometheus_metrics {
             my %process_data = $metrics_redis->hgetall($key);
             next unless %process_data;
 
-            # Store by metric type
-            foreach my $metric_name (qw(cpu_user_seconds cpu_system_seconds cpu_total_seconds 
-                                       virtual_memory_bytes resident_memory_bytes 
-                                       open_fds max_fds start_time_seconds)) {
+                    # Store by metric type
+        foreach my $metric_name (qw(cpu_user_seconds_total cpu_system_seconds_total cpu_seconds_total 
+                                   virtual_memory_bytes resident_memory_bytes 
+                                   open_fds max_fds start_time_seconds)) {
                 if (defined $process_data{$metric_name}) {
                     my $labels = qq{worker_pid="$worker_pid"};
                     $process_metrics{$metric_name}{$labels} = $process_data{$metric_name};
@@ -252,13 +252,13 @@ sub get_prometheus_metrics {
     # Output process metrics
     if (%process_metrics) {
         # CPU metrics (counters)
-        foreach my $metric_name (qw(cpu_user_seconds cpu_system_seconds cpu_total_seconds)) {
+        foreach my $metric_name (qw(cpu_user_seconds_total cpu_system_seconds_total cpu_seconds_total)) {
             next unless $process_metrics{$metric_name};
 
             my $help_text = {
-                cpu_user_seconds   => "Total user CPU time spent by worker process in seconds",
-                cpu_system_seconds => "Total system CPU time spent by worker process in seconds", 
-                cpu_total_seconds  => "Total user and system CPU time spent by worker process in seconds",
+                cpu_user_seconds_total   => "Total user CPU time spent by worker process in seconds",
+                cpu_system_seconds_total => "Total system CPU time spent by worker process in seconds", 
+                cpu_seconds_total        => "Total user and system CPU time spent by worker process in seconds",
             }->{$metric_name};
 
             push @output, "# HELP lanraragi_process_$metric_name $help_text";
@@ -328,18 +328,18 @@ sub get_prometheus_metrics {
         }
 
         # Archive and page statistics
-        if (defined $stats_metrics{"lanraragi_total_archives"}) {
-            push @output, "# HELP lanraragi_total_archives Total number of archives in the library";
-            push @output, "# TYPE lanraragi_total_archives gauge";
-            my $value = $stats_metrics{"lanraragi_total_archives"}{""};
-            push @output, "lanraragi_total_archives $value";
+        if (defined $stats_metrics{"lanraragi_archives_total"}) {
+            push @output, "# HELP lanraragi_archives_total Current number of archives in the library";
+            push @output, "# TYPE lanraragi_archives_total gauge";
+            my $value = $stats_metrics{"lanraragi_archives_total"}{""};
+            push @output, "lanraragi_archives_total $value";
         }
 
-        if (defined $stats_metrics{"lanraragi_total_pages_read"}) {
-            push @output, "# HELP lanraragi_total_pages_read Total number of pages read across all archives";
-            push @output, "# TYPE lanraragi_total_pages_read counter";
-            my $value = $stats_metrics{"lanraragi_total_pages_read"}{""};
-            push @output, "lanraragi_total_pages_read $value";
+        if (defined $stats_metrics{"lanraragi_pages_read_total"}) {
+            push @output, "# HELP lanraragi_pages_read_total Total number of pages read across all archives";
+            push @output, "# TYPE lanraragi_pages_read_total counter";
+            my $value = $stats_metrics{"lanraragi_pages_read_total"}{""};
+            push @output, "lanraragi_pages_read_total $value";
         }
 
         if (defined $stats_metrics{"lanraragi_cache_last_cleared_timestamp"}) {
@@ -383,9 +383,9 @@ sub record_process_metrics {
             my $process_key = "metrics:process:$worker_pid";
 
             # CPU metrics (counters)
-            $metrics_redis->hset($process_key, "cpu_user_seconds", $proc_stat->{utime});
-            $metrics_redis->hset($process_key, "cpu_system_seconds", $proc_stat->{stime});
-            $metrics_redis->hset($process_key, "cpu_total_seconds", $proc_stat->{utime} + $proc_stat->{stime});
+            $metrics_redis->hset($process_key, "cpu_user_seconds_total", $proc_stat->{utime});
+            $metrics_redis->hset($process_key, "cpu_system_seconds_total", $proc_stat->{stime});
+            $metrics_redis->hset($process_key, "cpu_seconds_total", $proc_stat->{utime} + $proc_stat->{stime});
 
             # Memory metrics (gauges)
             $metrics_redis->hset($process_key, "virtual_memory_bytes", $proc_statm->{vsize});
