@@ -7,6 +7,7 @@ use utf8;
 use Time::HiRes qw(gettimeofday tv_interval);
 use Mojo::JSON qw(encode_json decode_json);
 use LANraragi::Model::Config;
+use LANraragi::Model::Stats;
 
 use Exporter 'import';
 our @EXPORT_OK = qw(record_api_metrics get_prometheus_metrics record_process_metrics);
@@ -84,16 +85,17 @@ sub extract_endpoint {
 
 # Get all metrics in Prometheus format
 sub get_prometheus_metrics {
-    my $redis = get_redis_metrics();
+    my ($controller) = @_;
+    my $metrics_redis = get_redis_metrics();
 
     # Return basic metrics if Redis is unavailable
-    unless ($redis) {
+    unless ($metrics_redis) {
         return "# HELP lanraragi_metrics_error Metrics collection error\n" .
                "# TYPE lanraragi_metrics_error gauge\n" .
                "lanraragi_metrics_error 1\n";
     }
 
-    my @metric_keys = $redis->keys("metrics:worker:*");
+    my @metric_keys = $metrics_redis->keys("metrics:worker:*");
     my %aggregated_metrics;
     my %active_workers;
     
@@ -112,7 +114,7 @@ sub get_prometheus_metrics {
             my $endpoint = $endpoint_encoded;
             $endpoint =~ s/_/\//g;
 
-            my %metric_data = $redis->hgetall($key);
+            my %metric_data = $metrics_redis->hgetall($key);
             next unless %metric_data;
 
             my $labels = qq{endpoint="$endpoint",method="$method"};
@@ -130,7 +132,58 @@ sub get_prometheus_metrics {
         }
     }
 
-    $redis->quit();
+    $metrics_redis->quit();
+
+    # Collect stats metrics
+    my %stats_metrics;
+    eval {
+        # Get Redis connection for cache info
+        my $config_redis = LANraragi::Model::Config->get_redis_config;
+        my $last_clear = $config_redis->hget("LRR_SEARCHCACHE", "created") || time;
+        $config_redis->quit();
+
+        # Get archive and page stats
+        my $arc_stat = LANraragi::Model::Stats::get_archive_count;
+        my $page_stat = LANraragi::Model::Stats::get_page_stat;
+
+        # Server info metrics (as labels on a gauge set to 1)
+        # Use controller helpers if available, otherwise fall back to direct config access
+        my ($name, $motd, $version, $version_name, $version_desc);
+        if ($controller) {
+            $name = $controller->LRR_CONF->get_htmltitle || "";
+            $motd = $controller->LRR_CONF->get_motd || "";
+            $version = $controller->LRR_VERSION || "";
+            $version_name = $controller->LRR_VERNAME || "";
+            $version_desc = $controller->LRR_DESC || "";
+        } else {
+            $name = LANraragi::Model::Config->get_htmltitle || "";
+            $motd = LANraragi::Model::Config->get_motd || "";
+            $version = "";
+            $version_name = "";
+            $version_desc = "";
+        }
+
+        my $server_labels = sprintf('name="%s",motd="%s",version="%s",version_name="%s",version_desc="%s"',
+            $name, $motd, $version, $version_name, $version_desc
+        );
+        $stats_metrics{"lanraragi_server_info"}{$server_labels} = 1;
+
+        # Individual configuration metrics
+        $stats_metrics{"lanraragi_has_password"}{""} = LANraragi::Model::Config->enable_pass ? 1 : 0;
+        $stats_metrics{"lanraragi_debug_mode"}{""} = LANraragi::Model::Config->enable_devmode ? 1 : 0;
+        $stats_metrics{"lanraragi_nofun_mode"}{""} = LANraragi::Model::Config->enable_nofun ? 1 : 0;
+        $stats_metrics{"lanraragi_archives_per_page"}{""} = LANraragi::Model::Config->get_pagesize;
+        $stats_metrics{"lanraragi_server_resizes_images"}{""} = LANraragi::Model::Config->enable_resize ? 1 : 0;
+
+        # Archive and page statistics
+        $stats_metrics{"lanraragi_total_archives"}{""} = $arc_stat;
+        $stats_metrics{"lanraragi_total_pages_read"}{""} = $page_stat;
+        $stats_metrics{"lanraragi_cache_last_cleared_timestamp"}{""} = $last_clear;
+    };
+
+    if ($@) {
+        warn "Stats metrics collection error: $@";
+    }
 
     # Format as Prometheus exposition format
     my @output;
@@ -174,14 +227,14 @@ sub get_prometheus_metrics {
     push @output, "lanraragi_active_workers $worker_count";
 
     # Get process metrics for all workers
-    my @process_keys = $redis->keys("metrics:process:*");
+    my @process_keys = $metrics_redis->keys("metrics:process:*");
     my %process_metrics;
 
     foreach my $key (@process_keys) {
         # Parse key: metrics:process:{PID}
         if ($key =~ /^metrics:process:(\d+)$/) {
             my $worker_pid = $1;
-            my %process_data = $redis->hgetall($key);
+            my %process_data = $metrics_redis->hgetall($key);
             next unless %process_data;
 
             # Store by metric type
@@ -237,6 +290,66 @@ sub get_prometheus_metrics {
         }
     }
 
+    # Output stats metrics
+    if (%stats_metrics) {
+        # Server info gauge (with labels)
+        if ($stats_metrics{"lanraragi_server_info"}) {
+            push @output, "# HELP lanraragi_server_info Server information with version and configuration details";
+            push @output, "# TYPE lanraragi_server_info gauge";
+            foreach my $labels (sort keys %{$stats_metrics{"lanraragi_server_info"}}) {
+                my $value = $stats_metrics{"lanraragi_server_info"}{$labels};
+                push @output, "lanraragi_server_info{$labels} $value";
+            }
+        }
+
+        # Configuration gauges
+        foreach my $metric_name (qw(has_password debug_mode nofun_mode server_resizes_images)) {
+            next unless defined $stats_metrics{"lanraragi_$metric_name"};
+
+            my $help_text = {
+                has_password => "Whether the server has password protection enabled",
+                debug_mode => "Whether the server is running in debug mode",
+                nofun_mode => "Whether the server is running in no-fun mode",
+                server_resizes_images => "Whether the server resizes images for bandwidth optimization"
+            }->{$metric_name};
+
+            push @output, "# HELP lanraragi_$metric_name $help_text";
+            push @output, "# TYPE lanraragi_$metric_name gauge";
+            my $value = $stats_metrics{"lanraragi_$metric_name"}{""};
+            push @output, "lanraragi_$metric_name $value";
+        }
+
+        # Archives per page gauge
+        if (defined $stats_metrics{"lanraragi_archives_per_page"}) {
+            push @output, "# HELP lanraragi_archives_per_page Number of archives displayed per page";
+            push @output, "# TYPE lanraragi_archives_per_page gauge";
+            my $value = $stats_metrics{"lanraragi_archives_per_page"}{""};
+            push @output, "lanraragi_archives_per_page $value";
+        }
+
+        # Archive and page statistics
+        if (defined $stats_metrics{"lanraragi_total_archives"}) {
+            push @output, "# HELP lanraragi_total_archives Total number of archives in the library";
+            push @output, "# TYPE lanraragi_total_archives gauge";
+            my $value = $stats_metrics{"lanraragi_total_archives"}{""};
+            push @output, "lanraragi_total_archives $value";
+        }
+
+        if (defined $stats_metrics{"lanraragi_total_pages_read"}) {
+            push @output, "# HELP lanraragi_total_pages_read Total number of pages read across all archives";
+            push @output, "# TYPE lanraragi_total_pages_read counter";
+            my $value = $stats_metrics{"lanraragi_total_pages_read"}{""};
+            push @output, "lanraragi_total_pages_read $value";
+        }
+
+        if (defined $stats_metrics{"lanraragi_cache_last_cleared_timestamp"}) {
+            push @output, "# HELP lanraragi_cache_last_cleared_timestamp Unix timestamp when the search cache was last cleared";
+            push @output, "# TYPE lanraragi_cache_last_cleared_timestamp gauge";
+            my $value = $stats_metrics{"lanraragi_cache_last_cleared_timestamp"}{""};
+            push @output, "lanraragi_cache_last_cleared_timestamp $value";
+        }
+    }
+
     return join("\n", @output) . "\n";
 }
 
@@ -254,8 +367,8 @@ sub record_process_metrics {
     eval {
 
         if ($^O eq 'linux') {
-            my $redis = get_redis_metrics();
-            return unless $redis; # Skip if Redis connection failed
+            my $metrics_redis = get_redis_metrics();
+            return unless $metrics_redis; # Skip if Redis connection failed
 
             # Read process information from /proc/self/stat and /proc/self/statm
             my $proc_stat = read_proc_stat();
@@ -270,28 +383,28 @@ sub record_process_metrics {
             my $process_key = "metrics:process:$worker_pid";
 
             # CPU metrics (counters)
-            $redis->hset($process_key, "cpu_user_seconds", $proc_stat->{utime});
-            $redis->hset($process_key, "cpu_system_seconds", $proc_stat->{stime});
-            $redis->hset($process_key, "cpu_total_seconds", $proc_stat->{utime} + $proc_stat->{stime});
+            $metrics_redis->hset($process_key, "cpu_user_seconds", $proc_stat->{utime});
+            $metrics_redis->hset($process_key, "cpu_system_seconds", $proc_stat->{stime});
+            $metrics_redis->hset($process_key, "cpu_total_seconds", $proc_stat->{utime} + $proc_stat->{stime});
 
             # Memory metrics (gauges)
-            $redis->hset($process_key, "virtual_memory_bytes", $proc_statm->{vsize});
-            $redis->hset($process_key, "resident_memory_bytes", $proc_statm->{rss});
+            $metrics_redis->hset($process_key, "virtual_memory_bytes", $proc_statm->{vsize});
+            $metrics_redis->hset($process_key, "resident_memory_bytes", $proc_statm->{rss});
 
             # File descriptor metrics (gauges)
-            $redis->hset($process_key, "open_fds", $proc_fds->{open}) if defined $proc_fds->{open};
-            $redis->hset($process_key, "max_fds", $proc_fds->{max}) if defined $proc_fds->{max};
+            $metrics_redis->hset($process_key, "open_fds", $proc_fds->{open}) if defined $proc_fds->{open};
+            $metrics_redis->hset($process_key, "max_fds", $proc_fds->{max}) if defined $proc_fds->{max};
 
             # Process start time (gauge)
-            $redis->hset($process_key, "start_time_seconds", $proc_stat->{starttime});
+            $metrics_redis->hset($process_key, "start_time_seconds", $proc_stat->{starttime});
 
             # Timestamp for cleanup
-            $redis->hset($process_key, "last_update", $timestamp);
+            $metrics_redis->hset($process_key, "last_update", $timestamp);
 
             # Set TTL for cleanup
-            $redis->expire($process_key, 300); # 5 minute TTL for worker cleanup
+            $metrics_redis->expire($process_key, 300); # 5 minute TTL for worker cleanup
 
-            $redis->quit();
+            $metrics_redis->quit();
         } elsif ($^O eq 'darwin') {
             # TODO: macos
         } elsif ($^O eq 'MSWin32') {
