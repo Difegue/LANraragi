@@ -5,9 +5,11 @@ use warnings;
 use utf8;
 
 use Exporter 'import';
-our @EXPORT_OK = qw(extract_endpoint read_proc_stat read_proc_statm count_open_fds get_clock_ticks get_page_size get_boot_time);
+our @EXPORT_OK = qw(extract_endpoint read_proc_stat read_proc_statm read_fd_stats);
 
-# Extract endpoint path from request and normalize to route templates
+# Extract endpoint path from request and normalize to route templates to prevent cardinality explosion.
+# During normalization, query parameters are removed and path parameters are replaced with router placeholders.
+# If a path is undefined, return "/unknown".
 sub extract_endpoint {
     my ($path) = @_;
 
@@ -19,11 +21,7 @@ sub extract_endpoint {
     # Handle root path
     return "/" if $path eq "" || $path eq "/";
 
-    # Normalize paths to route templates to prevent cardinality explosion
-    # Replace actual IDs/values with parameter placeholders
-    # Handle more specific patterns first, then general ones
-
-    # Archive endpoints (SHA-1 specific)
+    # Archive endpoints
     $path =~ s{/api/archives/[a-f0-9]{40}(/|$)}{/api/archives/:id$1}g;
     $path =~ s{/api/archives/:id/progress/\d+}{/api/archives/:id/progress/:page};
 
@@ -65,7 +63,9 @@ sub extract_endpoint {
     return $path;
 }
 
-# Read and parse /proc/self/stat
+# Read and parse /proc/self/stat to return user/system CPU time and process start time.
+# https://man7.org/linux/man-pages/man5/proc_pid_stat.5.html （note the starting index difference)
+# https://man7.org/linux/man-pages/man3/sysconf.3.html
 sub read_proc_stat {
     return undef unless -r "/proc/self/stat";
 
@@ -74,28 +74,24 @@ sub read_proc_stat {
     close $fh;
 
     return undef unless $stat_line;
-
-    # Parse /proc/self/stat format
-    # Fields we care about: utime(14), stime(15), starttime(22)
-    # Note: The fields are 1-indexed in documentation but 0-indexed in split
     my @fields = split /\s+/, $stat_line;
-
-    # Get clock ticks per second (usually 100)
-    my $ticks_per_sec = get_clock_ticks();
+    my $ticks_per_sec = eval { require POSIX; POSIX::sysconf(POSIX::_SC_CLK_TCK()) };
     return undef unless $ticks_per_sec;
 
-    # Get system boot time for calculating absolute start time
     my $boot_time = get_boot_time();
     return undef unless defined $boot_time;
 
     return {
-        utime     => ($fields[13] || 0) / $ticks_per_sec,  # User CPU time in seconds
-        stime     => ($fields[14] || 0) / $ticks_per_sec,  # System CPU time in seconds  
-        starttime => $boot_time + (($fields[21] || 0) / $ticks_per_sec), # Process start time (absolute)
+        utime     => ($fields[13] || 0) / $ticks_per_sec,                   # User CPU time in seconds
+        stime     => ($fields[14] || 0) / $ticks_per_sec,                   # System CPU time in seconds
+        starttime => $boot_time + (($fields[21] || 0) / $ticks_per_sec),    # Process start time (absolute)
     };
 }
 
-# Read and parse /proc/self/statm
+# Read and parse /proc/self/statm to return virtual and resident memory size
+# Must have valid page size in order to return memory stats.
+# https://man7.org/linux/man-pages/man5/proc_pid_statm.5.html
+# https://man7.org/linux/man-pages/man3/sysconf.3.html
 sub read_proc_statm {
     return undef unless -r "/proc/self/statm";
 
@@ -104,12 +100,8 @@ sub read_proc_statm {
     close $fh;
 
     return undef unless $statm_line;
-
-    # Parse /proc/self/statm format: size resident shared text lib data dt
     my @fields = split /\s+/, $statm_line;
-
-    # Get page size (usually 4096 bytes)
-    my $page_size = get_page_size();
+    my $page_size = eval { require POSIX; POSIX::sysconf(POSIX::_SC_PAGESIZE()) };
     return undef unless $page_size;
 
     return {
@@ -118,21 +110,21 @@ sub read_proc_statm {
     };
 }
 
-# Count open file descriptors
-sub count_open_fds {
+# Get max file descriptors and number of open file descriptors as map
+# if max fd is unlimited, return map value as undef.
+# https://man7.org/linux/man-pages/man5/proc_pid_fd.5.html
+sub read_fd_stats {
     my $open_fds = 0;
     my $max_fds = undef;
 
-    # Count open file descriptors by reading /proc/self/fd
-    if (opendir my $fd_dir, "/proc/self/fd") {
+    if ( opendir my $fd_dir, "/proc/self/fd" ) {
         $open_fds = grep { /^\d+$/ } readdir($fd_dir);
         closedir $fd_dir;
     }
 
-    # Get max file descriptors from /proc/self/limits
-    if (open my $fh, '<', "/proc/self/limits") {
-        while (my $line = <$fh>) {
-            if ($line =~ /^Max open files\s+\S+\s+(\S+)/) {
+    if ( open my $fh, '<', "/proc/self/limits" ) {
+        while ( my $line = <$fh> ) {
+            if ( $line =~ /^Max open files\s+\S+\s+(\S+)/ ) {
                 $max_fds = $1 eq 'unlimited' ? undef : int($1);
                 last;
             }
@@ -146,27 +138,15 @@ sub count_open_fds {
     };
 }
 
-# Get system clock ticks per second
-sub get_clock_ticks {
-    # Try to get from sysconf, fallback to common value
-    my $ticks = eval { require POSIX; POSIX::sysconf(POSIX::_SC_CLK_TCK()) };
-    return $ticks || 100;
-}
-
-# Get system page size
-sub get_page_size {
-    # Try to get from sysconf, fallback to common value  
-    my $page_size = eval { require POSIX; POSIX::sysconf(POSIX::_SC_PAGESIZE()) };
-    return $page_size || 4096;
-}
-
 # Get system boot time from /proc/stat
+# Adapted from Net::Prometheus::ProcessCollector::linux to return boot time as a variable.
+# https://metacpan.org/release/PEVANS/Net-Prometheus-0.14/source/lib/Net/Prometheus/ProcessCollector/linux.pm
+# https://man7.org/linux/man-pages/man5/proc_stat.5.html
 sub get_boot_time {
     return undef unless -r "/proc/stat";
-
     open my $fh, '<', "/proc/stat" or return undef;
-    while (my $line = <$fh>) {
-        if ($line =~ /^btime (\d+)/) {
+    while ( my $line = <$fh> ) {
+        if ( $line =~ /^btime (\d+)/ ) {
             close $fh;
             return int($1);
         }
