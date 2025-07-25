@@ -8,7 +8,7 @@ use Time::HiRes qw(gettimeofday tv_interval);
 use Mojo::JSON qw(encode_json decode_json);
 use LANraragi::Model::Config;
 use LANraragi::Model::Stats;
-use LANraragi::Utils::Metrics qw(extract_endpoint read_proc_stat read_proc_statm count_open_fds get_clock_ticks get_page_size get_boot_time);
+use LANraragi::Utils::Metrics qw(extract_endpoint read_proc_stat read_proc_statm read_fd_stats);
 
 use Exporter 'import';
 our @EXPORT_OK = qw(record_api_metrics get_prometheus_metrics record_process_metrics);
@@ -348,7 +348,7 @@ sub record_process_metrics {
             # Read process information from /proc/self/stat and /proc/self/statm
             my $proc_stat = read_proc_stat();
             my $proc_statm = read_proc_statm();
-            my $proc_fds = count_open_fds();
+            my $proc_fds = read_fd_stats();
 
             return unless $proc_stat && $proc_statm; # Skip if couldn't read proc files
 
