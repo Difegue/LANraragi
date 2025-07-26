@@ -5,7 +5,7 @@ use Redis;
 use Encode;
 
 use LANraragi::Model::Tankoubon;
-use LANraragi::Utils::Generic qw(render_api_response);
+use LANraragi::Utils::Generic qw(render_api_response exec_with_lock);
 
 sub get_tankoubon_list {
 
@@ -65,31 +65,17 @@ sub delete_tankoubon {
     my $self   = shift;
     my $tankid = $self->stash('id');
 
-    # lock resource
     my $redis = LANraragi::Model::Config->get_redis;
-    my $lock = $redis->setnx( "tankoubon-write:$tankid", 1 );
-    if ( !$lock ) {
-        return $self->render(
-            json => {
-                operation => "delete_tankoubon",
-                success   => 0,
-                error     => "Locked resource: $tankid."
-            },
-            status => 423
-        );
-    }
-    $redis->expire( "tankoubon-write:$tankid", 10 );
+    
+    return unless exec_with_lock( $self, $redis, "tankoubon-write:$tankid", "delete_tankoubon", $tankid, sub {
+        my $result = LANraragi::Model::Tankoubon::delete_tankoubon($tankid);
 
-    my $result = LANraragi::Model::Tankoubon::delete_tankoubon($tankid);
-
-    $redis->del( "tankoubon-write:$tankid" );
-    $redis->quit();
-
-    if ($result) {
-        render_api_response( $self, "delete_tankoubon" );
-    } else {
-        render_api_response( $self, "delete_tankoubon", "The given tankoubon does not exist." );
-    }
+        if ($result) {
+            render_api_response( $self, "delete_tankoubon" );
+        } else {
+            render_api_response( $self, "delete_tankoubon", "The given tankoubon does not exist." );
+        }
+    });
 }
 
 sub update_tankoubon {
@@ -98,34 +84,20 @@ sub update_tankoubon {
     my $tankid = $self->stash('id');
     my $data   = $self->req->json;
 
-    # lock resource
     my $redis = LANraragi::Model::Config->get_redis;
-    my $lock = $redis->setnx( "tankoubon-write:$tankid", 1 );
-    if ( !$lock ) {
-        return $self->render(
-            json => {
-                operation => "update_tankoubon",
-                success   => 0,
-                error     => "Locked resource: $tankid."
-            },
-            status => 423
-        );
-    }
-    $redis->expire( "tankoubon-write:$tankid", 10 );
+    
+    return unless exec_with_lock( $self, $redis, "tankoubon-write:$tankid", "update_tankoubon", $tankid, sub {
+        my ( $result, $err ) = LANraragi::Model::Tankoubon::update_tankoubon( $tankid, $data );
 
-    my ( $result, $err ) = LANraragi::Model::Tankoubon::update_tankoubon( $tankid, $data );
+        if ($result) {
+            my %tankoubon      = LANraragi::Model::Tankoubon::get_tankoubon($tankid);
+            my $successMessage = "Updated tankoubon \"$tankoubon{name}\"!";
 
-    $redis->del( "tankoubon-write:$tankid" );
-    $redis->quit();
-
-    if ($result) {
-        my %tankoubon      = LANraragi::Model::Tankoubon::get_tankoubon($tankid);
-        my $successMessage = "Updated tankoubon \"$tankoubon{name}\"!";
-
-        render_api_response( $self, "update_tankoubon", undef, $successMessage );
-    } else {
-        render_api_response( $self, "update_tankoubon", $err );
-    }
+            render_api_response( $self, "update_tankoubon", undef, $successMessage );
+        } else {
+            render_api_response( $self, "update_tankoubon", $err );
+        }
+    });
 }
 
 sub add_to_tankoubon {
@@ -134,39 +106,25 @@ sub add_to_tankoubon {
     my $tankid = $self->stash('id');
     my $arcid  = $self->stash('archive');
 
-    # lock resource
     my $redis = LANraragi::Model::Config->get_redis;
-    my $lock = $redis->setnx( "tankoubon-write:$tankid", 1 );
-    if ( !$lock ) {
-        return $self->render(
-            json => {
-                operation => "add_to_tankoubon",
-                success   => 0,
-                error     => "Locked resource: $tankid."
-            },
-            status => 423
-        );
-    }
-    $redis->expire( "tankoubon-write:$tankid", 10 );
+    
+    return unless exec_with_lock( $self, $redis, "tankoubon-write:$tankid", "add_to_tankoubon", $tankid, sub {
+        my ( $result, $err ) = LANraragi::Model::Tankoubon::add_to_tankoubon( $tankid, $arcid );
 
-    my ( $result, $err ) = LANraragi::Model::Tankoubon::add_to_tankoubon( $tankid, $arcid );
+        if ($result) {
+            my $successMessage = "Added $arcid to tankoubon $tankid!";
+            my %tankoubon      = LANraragi::Model::Tankoubon::get_tankoubon($tankid);
+            my $title          = LANraragi::Model::Archive::get_title($arcid);
 
-    $redis->del( "tankoubon-write:$tankid" );
-    $redis->quit();
+            if ( %tankoubon && defined($title) ) {
+                $successMessage = "Added \"$title\" to tankoubon \"$tankoubon{name}\"!";
+            }
 
-    if ($result) {
-        my $successMessage = "Added $arcid to tankoubon $tankid!";
-        my %tankoubon      = LANraragi::Model::Tankoubon::get_tankoubon($tankid);
-        my $title          = LANraragi::Model::Archive::get_title($arcid);
-
-        if ( %tankoubon && defined($title) ) {
-            $successMessage = "Added \"$title\" to tankoubon \"$tankoubon{name}\"!";
+            render_api_response( $self, "add_to_tankoubon", undef, $successMessage );
+        } else {
+            render_api_response( $self, "add_to_tankoubon", $err );
         }
-
-        render_api_response( $self, "add_to_tankoubon", undef, $successMessage );
-    } else {
-        render_api_response( $self, "add_to_tankoubon", $err );
-    }
+    });
 }
 
 sub remove_from_tankoubon {
@@ -175,39 +133,25 @@ sub remove_from_tankoubon {
     my $tankid = $self->stash('id');
     my $arcid  = $self->stash('archive');
 
-    # lock resource
     my $redis = LANraragi::Model::Config->get_redis;
-    my $lock = $redis->setnx( "tankoubon-write:$tankid", 1 );
-    if ( !$lock ) {
-        return $self->render(
-            json => {
-                operation => "remove_from_tankoubon",
-                success   => 0,
-                error     => "Locked resource: $tankid."
-            },
-            status => 423
-        );
-    }
-    $redis->expire( "tankoubon-write:$tankid", 10 );
+    
+    return unless exec_with_lock( $self, $redis, "tankoubon-write:$tankid", "remove_from_tankoubon", $tankid, sub {
+        my ( $result, $err ) = LANraragi::Model::Tankoubon::remove_from_tankoubon( $tankid, $arcid );
 
-    my ( $result, $err ) = LANraragi::Model::Tankoubon::remove_from_tankoubon( $tankid, $arcid );
+        if ($result) {
+            my $successMessage = "Removed $arcid from tankoubon $tankid!";
+            my %tankoubon      = LANraragi::Model::Tankoubon::get_tankoubon($tankid);
+            my $title          = LANraragi::Model::Archive::get_title($arcid);
 
-    $redis->del( "tankoubon-write:$tankid" );
-    $redis->quit();
+            if ( %tankoubon && defined($title) ) {
+                $successMessage = "Removed \"$title\" from tankoubon \"$tankoubon{name}\"!";
+            }
 
-    if ($result) {
-        my $successMessage = "Removed $arcid from tankoubon $tankid!";
-        my %tankoubon      = LANraragi::Model::Tankoubon::get_tankoubon($tankid);
-        my $title          = LANraragi::Model::Archive::get_title($arcid);
-
-        if ( %tankoubon && defined($title) ) {
-            $successMessage = "Removed \"$title\" from tankoubon \"$tankoubon{name}\"!";
+            render_api_response( $self, "remove_from_tankoubon", undef, $successMessage );
+        } else {
+            render_api_response( $self, "remove_from_tankoubon", $err );
         }
-
-        render_api_response( $self, "remove_from_tankoubon", undef, $successMessage );
-    } else {
-        render_api_response( $self, "remove_from_tankoubon", $err );
-    }
+    });
 }
 
 sub get_tankoubons_file {
