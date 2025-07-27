@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 03:32+0200\n"
-"PO-Revision-Date: 2025-05-09 07:03+0000\n"
-"Last-Translator: Vinh Phạm <drkhanhvinh@gmail.com>\n"
+"PO-Revision-Date: 2025-07-28 23:36+0000\n"
+"Last-Translator: Reptalica <reptalica20@gmail.com>\n"
 "Language-Team: Vietnamese <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/vi/>\n"
 "Language: vi\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12-dev\n"
+"X-Generator: Weblate 5.13-dev\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -1810,3 +1810,6 @@ msgstr "Cài đặt Plugin"
 
 msgid "Run Automatically"
 msgstr "Chạy tự động"
+
+msgid "No duplicates found!"
+msgstr "Không tìm thấy bản sao nào!"
