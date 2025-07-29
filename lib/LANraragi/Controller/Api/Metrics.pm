@@ -9,8 +9,8 @@ sub serve_metrics {
     $self->render(
         text    => $metrics_output,
         format  => 'txt',
-        headers => { 'Content-Type' => 'text/plain; charset=utf-8' }
+        headers => { 'Content-Type' => 'application/openmetrics-text; version=1.0.0; charset=utf-8' }
     );
 }
 
-1; 
+1;
