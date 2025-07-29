@@ -11,13 +11,14 @@ use LANraragi::Model::Stats;
 use LANraragi::Utils::Logging   qw(get_logger);
 use LANraragi::Utils::Metrics;
 
-# Get all metrics in Prometheus format
+# Get all metrics in OpenMetrics format
 sub get_prometheus_metrics {
     my $controller          = shift;
     my @api_metrics         = get_prometheus_api_metrics();
     my @process_metrics     = get_prometheus_process_metrics();
     my @stats_metrics       = get_prometheus_stats_metrics($controller);
     my @output              = (@api_metrics, @process_metrics, @stats_metrics);
+    push @output, "# EOF";
     return join("\n", @output) . "\n";
 }
 
