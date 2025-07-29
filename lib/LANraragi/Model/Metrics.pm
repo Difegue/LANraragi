@@ -52,9 +52,9 @@ sub get_prometheus_api_metrics {
 
             # Aggregate metrics
             $aggregated_api_metrics{"lanraragi_api_requests_total"}{$labels} += $metric_data{count} || 0;
-            $aggregated_api_metrics{"lanraragi_api_duration_seconds_sum"}{$labels} += $metric_data{duration_sum} || 0;
-            $aggregated_api_metrics{"lanraragi_http_request_size_bytes_sum"}{$labels} += $metric_data{request_size_sum} || 0;
-            $aggregated_api_metrics{"lanraragi_http_response_size_bytes_sum"}{$labels} += $metric_data{response_size_sum} || 0;
+            $aggregated_api_metrics{"lanraragi_api_duration_seconds_total"}{$labels} += $metric_data{duration_sum} || 0;
+            $aggregated_api_metrics{"lanraragi_http_request_size_bytes_total"}{$labels} += $metric_data{request_size_sum} || 0;
+            $aggregated_api_metrics{"lanraragi_http_response_size_bytes_total"}{$labels} += $metric_data{response_size_sum} || 0;
         }
     }
 
@@ -66,25 +66,25 @@ sub get_prometheus_api_metrics {
         push @output, "lanraragi_api_requests_total{$labels} $value";
     }
 
-    push @output, "# HELP lanraragi_api_duration_seconds_sum Total time spent processing API requests";
-    push @output, "# TYPE lanraragi_api_duration_seconds_sum counter";
-    foreach my $labels ( sort keys %{ $aggregated_api_metrics{"lanraragi_api_duration_seconds_sum"} || {} } ) {
-        my $value = $aggregated_api_metrics{"lanraragi_api_duration_seconds_sum"}{$labels};
-        push @output, "lanraragi_api_duration_seconds_sum{$labels} $value";
+    push @output, "# HELP lanraragi_api_duration_seconds_total Total time spent processing API requests";
+    push @output, "# TYPE lanraragi_api_duration_seconds_total counter";
+    foreach my $labels ( sort keys %{ $aggregated_api_metrics{"lanraragi_api_duration_seconds_total"} || {} } ) {
+        my $value = $aggregated_api_metrics{"lanraragi_api_duration_seconds_total"}{$labels};
+        push @output, "lanraragi_api_duration_seconds_total{$labels} $value";
     }
 
-    push @output, "# HELP lanraragi_http_request_size_bytes_sum Total bytes received in HTTP requests";
-    push @output, "# TYPE lanraragi_http_request_size_bytes_sum counter";
-    foreach my $labels ( sort keys %{ $aggregated_api_metrics{"lanraragi_http_request_size_bytes_sum"} || {} } ) {
-        my $value = $aggregated_api_metrics{"lanraragi_http_request_size_bytes_sum"}{$labels};
-        push @output, "lanraragi_http_request_size_bytes_sum{$labels} $value";
+    push @output, "# HELP lanraragi_http_request_size_bytes_total Total bytes received in HTTP requests";
+    push @output, "# TYPE lanraragi_http_request_size_bytes_total counter";
+    foreach my $labels ( sort keys %{ $aggregated_api_metrics{"lanraragi_http_request_size_bytes_total"} || {} } ) {
+        my $value = $aggregated_api_metrics{"lanraragi_http_request_size_bytes_total"}{$labels};
+        push @output, "lanraragi_http_request_size_bytes_total{$labels} $value";
     }
 
-    push @output, "# HELP lanraragi_http_response_size_bytes_sum Total bytes sent in HTTP responses";
-    push @output, "# TYPE lanraragi_http_response_size_bytes_sum counter";
-    foreach my $labels ( sort keys %{ $aggregated_api_metrics{"lanraragi_http_response_size_bytes_sum"} || {} } ) {
-        my $value = $aggregated_api_metrics{"lanraragi_http_response_size_bytes_sum"}{$labels};
-        push @output, "lanraragi_http_response_size_bytes_sum{$labels} $value";
+    push @output, "# HELP lanraragi_http_response_size_bytes_total Total bytes sent in HTTP responses";
+    push @output, "# TYPE lanraragi_http_response_size_bytes_total counter";
+    foreach my $labels ( sort keys %{ $aggregated_api_metrics{"lanraragi_http_response_size_bytes_total"} || {} } ) {
+        my $value = $aggregated_api_metrics{"lanraragi_http_response_size_bytes_total"}{$labels};
+        push @output, "lanraragi_http_response_size_bytes_total{$labels} $value";
     }
 
     # Worker count metric
@@ -194,7 +194,7 @@ sub get_prometheus_stats_metrics {
     );
 
     push @output, "# HELP lanraragi_server_info Server information with version and configuration details";
-    push @output, "# TYPE lanraragi_server_info gauge";
+    push @output, "# TYPE lanraragi_server_info info";
     push @output, "lanraragi_server_info{$server_labels} 1";
 
     # Configuration metrics
@@ -227,9 +227,10 @@ sub get_prometheus_stats_metrics {
     push @output, "# TYPE lanraragi_pages_read_total counter";
     push @output, "lanraragi_pages_read_total $page_stat";
 
-    push @output, "# HELP lanraragi_cache_last_cleared_timestamp Unix timestamp when the search cache was last cleared";
-    push @output, "# TYPE lanraragi_cache_last_cleared_timestamp gauge";
-    push @output, "lanraragi_cache_last_cleared_timestamp $last_clear";
+    push @output, "# HELP lanraragi_cache_last_cleared_timestamp_seconds Unix timestamp when the search cache was last cleared";
+    push @output, "# TYPE lanraragi_cache_last_cleared_timestamp_seconds gauge";
+    push @output, "# UNIT lanraragi_cache_last_cleared_timestamp_seconds seconds";
+    push @output, "lanraragi_cache_last_cleared_timestamp_seconds $last_clear";
 
     return @output;
 }
