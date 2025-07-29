@@ -3,15 +3,13 @@ package LANraragi::Model::Metrics;
 use strict;
 use warnings;
 use utf8;
-use Time::HiRes qw(gettimeofday tv_interval);
-use Mojo::JSON qw(encode_json decode_json);
+use Time::HiRes                 qw(gettimeofday tv_interval);
+use Mojo::JSON                  qw(encode_json decode_json);
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Stats;
-use LANraragi::Utils::Metrics qw(extract_endpoint read_proc_stat read_proc_statm read_fd_stats);
-
-use Exporter 'import';
-our @EXPORT_OK = qw(collect_api_metrics get_prometheus_metrics collect_process_metrics);
+use LANraragi::Utils::Logging   qw(get_logger);
+use LANraragi::Utils::Metrics;
 
 # Get all metrics in Prometheus format
 sub get_prometheus_metrics {
@@ -252,7 +250,7 @@ sub collect_api_metrics {
         my $request_size    = $controller->req->content->body_size || 0;
         my $response_size   = $controller->res->content->body_size || 0;
 
-        my $endpoint = extract_endpoint($path);
+        my $endpoint = LANraragi::Utils::Metrics::extract_endpoint($path);
 
         my $redis = LANraragi::Model::Config->get_redis_metrics;
 
@@ -266,10 +264,6 @@ sub collect_api_metrics {
         $redis->hincrbyfloat($metric_base, "duration_sum", $duration);
         $redis->hincrby($metric_base, "request_size_sum", $request_size);
         $redis->hincrby($metric_base, "response_size_sum", $response_size);
-
-        # Set TTL for cleanup
-        $redis->expire($metric_base, 300);
-
         $redis->quit();
     };
 
@@ -286,9 +280,9 @@ sub collect_process_metrics {
             my $metrics_redis = LANraragi::Model::Config->get_redis_metrics;
 
             # Read process information from /proc/self/stat and /proc/self/statm
-            my $proc_stat = read_proc_stat();
-            my $proc_statm = read_proc_statm();
-            my $proc_fds = read_fd_stats();
+            my $proc_stat = LANraragi::Utils::Metrics::read_proc_stat();
+            my $proc_statm = LANraragi::Utils::Metrics::read_proc_statm();
+            my $proc_fds = LANraragi::Utils::Metrics::read_fd_stats();
 
             return unless $proc_stat && $proc_statm; # Skip if couldn't read proc files
 
@@ -313,8 +307,7 @@ sub collect_process_metrics {
             # Process start time (gauge)
             $metrics_redis->hset($process_key, "start_time_seconds", $proc_stat->{starttime});
 
-            # Set TTL for cleanup
-            $metrics_redis->expire($process_key, 300); # 5 minute TTL for worker cleanup
+            # No TTL - process metrics persist until server restart
 
             $metrics_redis->quit();
         } elsif ($^O eq 'darwin') {
@@ -328,6 +321,33 @@ sub collect_process_metrics {
 
     if ( $@ ) {
         warn "Process metrics collection error: $@";
+    }
+}
+
+# Clean up all existing metrics data on startup
+sub cleanup_metrics {
+    eval {
+        my $metrics_redis = LANraragi::Model::Config->get_redis_metrics;
+        return unless $metrics_redis;
+        my $logger = get_logger( "Metrics", "lanraragi" );
+
+        # Get all metrics keys
+        my @api_keys = $metrics_redis->keys("metrics:worker:*");
+        my @process_keys = $metrics_redis->keys("metrics:process:*");
+        my @all_keys = (@api_keys, @process_keys);
+
+        if (@all_keys) {
+            # Delete all metrics keys in a single operation
+            $metrics_redis->del(@all_keys);
+            my $count = scalar(@all_keys);
+            $logger->info("Cleaned up $count metrics keys from previous session");
+        }
+
+        $metrics_redis->quit();
+    };
+
+    if ( $@ ) {
+        warn "Metrics cleanup error: $@";
     }
 }
 
