@@ -48,7 +48,9 @@ sub get_prometheus_api_metrics {
             my %metric_data = $metrics_redis->hgetall($key);
             next unless %metric_data;
 
-            my $labels = qq{endpoint="$endpoint",method="$method"};
+            my $escaped_endpoint = LANraragi::Utils::Metrics::escape_label_value($endpoint);
+            my $escaped_method = LANraragi::Utils::Metrics::escape_label_value($method);
+            my $labels = qq{endpoint="$escaped_endpoint",method="$escaped_method"};
 
             # Aggregate metrics
             $aggregated_api_metrics{"lanraragi_api_requests_total"}{$labels} += $metric_data{count} || 0;
@@ -113,7 +115,7 @@ sub get_prometheus_process_metrics {
             my %process_data = $metrics_redis->hgetall($key);
             next unless %process_data;
 
-            my $labels = qq{worker_pid="$worker_pid"};
+            my $labels = qq{worker_pid="$worker_pid"}; # worker_pid is numeric, escaping not needed
             foreach my $metric_name ( qw(
                 cpu_user_seconds_total cpu_system_seconds_total cpu_seconds_total 
                 virtual_memory_bytes resident_memory_bytes 
@@ -190,7 +192,11 @@ sub get_prometheus_stats_metrics {
 
     my $server_labels = sprintf(
         'name="%s",motd="%s",version="%s",version_name="%s",version_desc="%s"',
-        $name, $motd, $version, $version_name, $version_desc
+        LANraragi::Utils::Metrics::escape_label_value($name), 
+        LANraragi::Utils::Metrics::escape_label_value($motd), 
+        LANraragi::Utils::Metrics::escape_label_value($version), 
+        LANraragi::Utils::Metrics::escape_label_value($version_name), 
+        LANraragi::Utils::Metrics::escape_label_value($version_desc)
     );
 
     push @output, "# HELP lanraragi_server_info Server information with version and configuration details";
