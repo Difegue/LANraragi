@@ -11,7 +11,7 @@ use LANraragi::Model::Stats;
 use LANraragi::Utils::Metrics qw(extract_endpoint read_proc_stat read_proc_statm read_fd_stats);
 
 use Exporter 'import';
-our @EXPORT_OK = qw(collect_api_metrics get_prometheus_metrics get_prometheus_api_metrics get_prometheus_process_metrics get_prometheus_stats_metrics collect_process_metrics);
+our @EXPORT_OK = qw(collect_api_metrics get_prometheus_metrics collect_process_metrics);
 
 # Get all metrics in Prometheus format
 sub get_prometheus_metrics {
