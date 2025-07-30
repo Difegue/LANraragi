@@ -4,7 +4,10 @@ use utf8;
 
 use Test::More;
 
-BEGIN { use_ok('LANraragi::Utils::Metrics', 'extract_endpoint'); }
+BEGIN { 
+    use_ok('LANraragi::Utils::Metrics'); 
+    LANraragi::Utils::Metrics->import('extract_endpoint', 'escape_label_value');
+}
 
 note('testing basic functionality...');
 {
@@ -160,6 +163,48 @@ note('testing regression case from issue...');
 
     is(LANraragi::Utils::Metrics::extract_endpoint($problematic_path), 
         $expected, "The specific case from the issue is now fixed");
+}
+
+note('testing OpenMetrics label value escaping...');
+{
+    # Test basic cases
+    is(LANraragi::Utils::Metrics::escape_label_value(undef), "", "undefined value returns empty string");
+    is(LANraragi::Utils::Metrics::escape_label_value(""), "", "empty string returns empty string");
+    is(LANraragi::Utils::Metrics::escape_label_value("simple"), "simple", "simple string unchanged");
+    
+    # Test escaping rules
+    is(LANraragi::Utils::Metrics::escape_label_value("quote\"test"), "quote\\\"test", "double quotes escaped");
+    is(LANraragi::Utils::Metrics::escape_label_value("backslash\\test"), "backslash\\\\test", "backslashes escaped");
+    is(LANraragi::Utils::Metrics::escape_label_value("newline\ntest"), "newline\\ntest", "newlines escaped");
+    
+    # Test multiple escapes in same string
+    is(LANraragi::Utils::Metrics::escape_label_value("mixed\"test\\with\nnewline"), 
+        "mixed\\\"test\\\\with\\nnewline", "multiple escape types handled correctly");
+    
+    # Test realistic LANraragi data
+    is(LANraragi::Utils::Metrics::escape_label_value("LANraragi v.0.8.9 \"Shinobu\""), 
+        "LANraragi v.0.8.9 \\\"Shinobu\\\"", "version name with quotes");
+    is(LANraragi::Utils::Metrics::escape_label_value("My \"awesome\" library\nWith description"), 
+        "My \\\"awesome\\\" library\\nWith description", "server name with quotes and newlines");
+    is(LANraragi::Utils::Metrics::escape_label_value("Windows\\path\\to\\file"), 
+        "Windows\\\\path\\\\to\\\\file", "Windows paths with backslashes");
+    
+    # Test HTTP methods and endpoints (these shouldn't need escaping but test anyway)
+    is(LANraragi::Utils::Metrics::escape_label_value("GET"), "GET", "HTTP method unchanged");
+    is(LANraragi::Utils::Metrics::escape_label_value("POST"), "POST", "HTTP method unchanged");
+    is(LANraragi::Utils::Metrics::escape_label_value("/api/archives/:id"), "/api/archives/:id", "endpoint path unchanged");
+    
+    # Test edge cases
+    is(LANraragi::Utils::Metrics::escape_label_value("\""), "\\\"", "single quote escaped");
+    is(LANraragi::Utils::Metrics::escape_label_value("\\"), "\\\\", "single backslash escaped");  
+    is(LANraragi::Utils::Metrics::escape_label_value("\n"), "\\n", "single newline escaped");
+    is(LANraragi::Utils::Metrics::escape_label_value("\"\\\n"), "\\\"\\\\\\n", "all special chars together");
+    
+    # Test realistic server configuration values
+    is(LANraragi::Utils::Metrics::escape_label_value("Welcome to my \"collection\"!\nEnjoy browsing."), 
+        "Welcome to my \\\"collection\\\"!\\nEnjoy browsing.", "MOTD with quotes and newlines");
+    is(LANraragi::Utils::Metrics::escape_label_value("C:\\Program Files\\LANraragi"), 
+        "C:\\\\Program Files\\\\LANraragi", "Windows installation path");
 }
 
 done_testing();
