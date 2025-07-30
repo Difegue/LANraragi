@@ -11,7 +11,7 @@ use LANraragi::Model::Stats;
 use LANraragi::Utils::Logging   qw(get_logger);
 use LANraragi::Utils::Metrics;
 
-# Get all metrics in OpenMetrics format
+# Get all metrics in Prometheus exposition format.
 sub get_prometheus_metrics {
     my $controller          = shift;
     my @api_metrics         = get_prometheus_api_metrics();
@@ -209,7 +209,9 @@ sub get_prometheus_stats_metrics {
         LANraragi::Utils::Metrics::escape_label_value($version_desc)
     );
 
-    push @output, "# TYPE lanraragi_server_info info";
+    # "info" metadata type is OpenMetrics 1.0 format, currently not supported by Prometheus.
+    # push @output, "# TYPE lanraragi_server_info info";
+    push @output, "# TYPE lanraragi_server_info gauge";
     push @output, "# HELP lanraragi_server_info Server information with version and configuration details";
     push @output, "lanraragi_server_info{$server_labels} 1";
 
