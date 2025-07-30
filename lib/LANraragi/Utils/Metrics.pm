@@ -60,6 +60,23 @@ sub extract_endpoint {
     return $path;
 }
 
+# Escape label values according to OpenMetrics specification
+# https://prometheus.io/docs/specs/om/open_metrics_spec/#escaping
+sub escape_label_value {
+    my $value = shift;
+    return "" unless defined $value;
+    
+    # OpenMetrics escaping rules:
+    # Line feed \n (0x0A) -> literally \\n
+    # Double quotes -> \"  
+    # Backslash -> \\\\
+    $value =~ s/\\/\\\\/g;    # Escape backslashes first
+    $value =~ s/"/\\"/g;      # Escape double quotes
+    $value =~ s/\n/\\n/g;     # Escape newlines
+    
+    return $value;
+}
+
 # Read and parse /proc/self/stat to return user/system CPU time and process start time.
 # https://man7.org/linux/man-pages/man5/proc_pid_stat.5.html （note the starting index difference)
 # https://man7.org/linux/man-pages/man3/sysconf.3.html
