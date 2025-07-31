@@ -434,11 +434,11 @@ LUA
         eval {
             $sha = $redis->script_load($script);
             my $total_time = time() - $start_time;
-            $logger->debug("[PERF] Lua script completedin ${total_time}s");
+            $logger->debug("[PERF] lastreadtime Lua script completed in ${total_time}s");
         };
         if ($@) {
             $logger->error("Failed to load Lua script: $@");
-            # Revert to the original methodology
+            # Fallback to running individual hget operations for each ID 
             %tmpfilter = map { $_ => $redis->hget( $_, "lastreadtime" ) } @filtered;
         } else {
             my $result = $redis->evalsha($sha, 0, @filtered);
@@ -455,7 +455,7 @@ LUA
             }
         }
 
-        # The sorting logic shall remain unaltered
+        # Sorting remains done in Perl -- Invert sort order for lastreadtime, biggest timestamps come first
         @sorted = map { $_->[0] }                    # Map back to only having the ID
           sort { $b->[1] <=> $a->[1] }               # Sort by the timestamp
           grep { defined $_->[1] && $_->[1] > 0 }    # Remove nil timestamps
@@ -478,7 +478,7 @@ LUA
         eval {
             $sha = $redis->script_load($script);
             my $total_time = time() - $start_time;
-            $logger->debug("[PERF] another Lua script completed in ${total_time}s");
+            $logger->debug("[PERF] Tag retrieval Lua script completed in ${total_time}s");
         };
         if ($@) {
             $logger->error("Failed to load Lua script: $@");
@@ -498,12 +498,14 @@ LUA
                 foreach my $item (@$data) {
                     my $id = $item->[0];
                     my $tags = $item->[1];
+                    # Find and use the first tag that matches the sortkey/namespace.
+                    # (If no tag, defaults to "zzzz")
                     $tmpfilter{$id} = ($tags =~ m/.*${re}:(.*?)(\,.*|$)/) ? $1 : "zzzz";
                 }
             }
         }
 
-        # The sorting logic shall remain unaltered
+        # Read comments from the bottom up for a better understanding of this sort algorithm.
         @sorted = map { $_->[0] }                  # Map back to only having the ID
           sort { ncmp( $a->[1], $b->[1] ) }        # Sort by the tag
           map  { [ $_, lc( $tmpfilter{$_} ) ] }    # Map to an array containing the ID and the lowercased tag
