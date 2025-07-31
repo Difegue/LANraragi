@@ -238,7 +238,9 @@ LRR.buildTagsDiv = function (tags) {
 
     // Go through resolved namespaces and print tag divs
     Object.keys(tagsByNamespace).sort().forEach((key) => {
-        let ucKey = key.charAt(0).toUpperCase() + key.slice(1);
+        let ucKey = (key === "date_added")
+            ? "Date Added"
+            : key.charAt(0).toUpperCase() + key.slice(1);
         ucKey = LRR.encodeHTML(ucKey);
 
         const encodedK = LRR.encodeHTML(key.toLowerCase());
@@ -266,7 +268,7 @@ LRR.buildTagsDiv = function (tags) {
 
 /**
  * Build bookmark icon for an archive.
- * @param {*} id 
+ * @param {*} id
  * @param {*} bookmark_class Either "thumbnail-bookmark-icon" or "title-bookmark-icon".
  * @returns HTML component string
  */
@@ -295,7 +297,7 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
     let reader_url = new LRR.apiURL(`/reader?id=${id}`);
     const bookmarkIcon = LRR.buildBookmarkIconElement(id, "thumbnail-bookmark-icon");
 
-    // Don't enforce no_fallback=true here, we don't want those divs to trigger Minion jobs 
+    // Don't enforce no_fallback=true here, we don't want those divs to trigger Minion jobs
     return `<div class="id1 context-menu swiper-slide" id="${id}">
                 <div class="id2">
                     ${LRR.buildProgressDiv(data)}
@@ -305,8 +307,8 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
                     <a href="${reader_url}" title="${LRR.encodeHTML(data.title)}">
                         <img style="position:relative;" id="${id}_thumb" src="${new LRR.apiURL('/img/wait_warmly.jpg')}"/>
                         <i id="${id}_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>
-                        <img src="${new LRR.apiURL(`/api/archives/${id}/thumbnail`)}" 
-                                onload="$('#${id}_thumb').remove(); $('#${id}_spinner').remove();" 
+                        <img src="${new LRR.apiURL(`/api/archives/${id}/thumbnail`)}"
+                                onload="$('#${id}_thumb').remove(); $('#${id}_spinner').remove();"
                                 onerror="this.src='${new LRR.apiURL("/img/noThumb.png")}'"/>
                     </a>
                     ${bookmarkIcon}
