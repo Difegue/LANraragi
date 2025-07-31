@@ -155,6 +155,15 @@ If you don't, the category will be unpinned on update.
 }
 ```
 {% endswagger-response %}
+{% swagger-response status="423" description="Locked resource" %}
+```
+{
+  "operation": "update_category",
+  "success": 0,
+  "error": "Locked resource: SET_1749366470"
+}
+```
+{% endswagger-response %}
 {% endswagger %}
 
 {% swagger baseUrl="http://lrr.tvc-16.science" path="/api/categories/:id" method="delete" summary="🔑Delete a Category" %}
@@ -171,6 +180,15 @@ ID of the Category to delete.
 {
   "operation": "delete_category",
   "success": 1
+}
+```
+{% endswagger-response %}
+{% swagger-response status="423" description="Locked resource" %}
+```
+{
+  "operation": "delete_category",
+  "success": 0,
+  "error": "Locked resource: SET_1749366464"
 }
 ```
 {% endswagger-response %}
@@ -198,6 +216,15 @@ Archive ID to add.
 }
 ```
 {% endswagger-response %}
+{% swagger-response status="423" description="Locked resource" %}
+```
+{
+  "operation": "delete_category",
+  "success": 0,
+  "error": "Locked resource: SET_1749366457"
+}
+```
+{% endswagger-response %}
 {% endswagger %}
 
 {% swagger baseUrl="http://lrr.tvc-16.science" path="/api/categories/:id/:archive" method="delete" summary="🔑Remove an Archive from a Category" %}
@@ -218,6 +245,15 @@ Archive ID
 {
   "operation": "remove_from_category",
   "success": 1
+}
+```
+{% endswagger-response %}
+{% swagger-response status="423" description="Locked resource" %}
+```
+{
+  "operation": "delete_category",
+  "success": 0,
+  "error": "Locked resource: SET_1749366450"
 }
 ```
 {% endswagger-response %}
