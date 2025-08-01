@@ -1,13 +1,36 @@
-[<img src="https://img.shields.io/docker/pulls/difegue/lanraragi.svg">](https://hub.docker.com/r/difegue/lanraragi/)
-[<img src="https://img.shields.io/github/downloads/difegue/lanraragi/total.svg">](https://github.com/Difegue/LANraragi/releases)
-[<img src="https://img.shields.io/github/release/difegue/lanraragi.svg?label=latest%20release">](https://github.com/Difegue/LANraragi/releases/latest)
-[<img src="https://img.shields.io/homebrew/v/lanraragi.svg">](https://formulae.brew.sh/formula/lanraragi)  
-[<img src="https://img.shields.io/website/https/lrr.tvc-16.science.svg?label=demo%20website&up_message=online">](https://lrr.tvc-16.science/)
-[<img src="https://github.com/Difegue/LANraragi/actions/workflows/push-continuous-integration.yml/badge.svg">](https://github.com/Difegue/LANraragi/actions)
-[<img src="https://img.shields.io/discord/612709831744290847">](https://discord.gg/aRQxtbg)
-
-
-<img src="public/favicon.ico" width="128">  
+<!-- Logo -->
+<div align=center>
+<img src="public/favicon.ico" width="128">
+</br>
+<!-- Docker pull -->
+<a href="https://hub.docker.com/r/difegue/lanraragi/">
+<img src="https://img.shields.io/docker/pulls/difegue/lanraragi.svg">
+</a>
+<!-- Releases -->
+<a href="https://github.com/Difegue/LANraragi/releases">
+<img src="https://img.shields.io/github/downloads/difegue/lanraragi/total.svg">
+</a>
+<!-- Lastest releases -->
+<a href="https://github.com/Difegue/LANraragi/releases/latest">
+<img src="https://img.shields.io/github/release/difegue/lanraragi.svg?label=latest%20release">
+</a>
+<!--formulae -->
+<a href="https://formulae.brew.sh/formula/lanraragi">
+<img src="https://img.shields.io/homebrew/v/lanraragi.svg">
+</a>
+<!-- Website -->
+<a href="https://lrr.tvc-16.science/">
+<img src="https://img.shields.io/website/https/lrr.tvc-16.science.svg?label=demo%20website&up_message=online">
+</a>
+<!-- Actions -->
+<a href="https://github.com/Difegue/LANraragi/actions">
+<img src="https://github.com/Difegue/LANraragi/actions/workflows/push-continuous-integration.yml/badge.svg">
+</a>
+<!-- Discord -->
+<a href="https://discord.gg/aRQxtbg">
+<img src="https://img.shields.io/discord/612709831744290847">
+</a>
+</div>
   
 LANraragi
 ===========
