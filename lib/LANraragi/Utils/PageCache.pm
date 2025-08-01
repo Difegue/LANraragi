@@ -13,6 +13,8 @@ use Config;
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::TempFolder qw(get_temp);
 
+use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
+
 # Contains all functions related to caching entire pages
 use Exporter 'import';
 our @EXPORT_OK = qw(fetch put);
@@ -28,7 +30,7 @@ sub initialize() {
     my $disk_size = calc_max_size."m";
     $logger->debug("Initializing cache, disk size: ".$disk_size);
 
-    if ( $Config{osname} ne 'MSWin32') {
+    if ( IS_UNIX ) {
         $cache = CHI->new(
             driver     => 'FastMmap',
             cache_size => $disk_size,

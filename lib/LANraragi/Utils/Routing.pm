@@ -55,6 +55,7 @@ sub apply_routes {
 
     # Mojo Status UI
     if ( $self->mode eq 'development' ) {
+        # Not supported on Windows
         eval {
             require Mojolicious::Plugin::Status;
             $self->plugin( 'Status' => { route => $logged_in->get('/debug') } );

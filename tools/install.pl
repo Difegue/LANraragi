@@ -10,6 +10,8 @@ use Config;
 use feature    qw(say);
 use File::Path qw(make_path);
 
+use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
+
 #Vendor dependencies
 my @vendor_css = (
     "/blueimp-file-upload/css/jquery.fileupload.css",      "/\@fortawesome/fontawesome-free/css/all.min.css",
@@ -100,7 +102,7 @@ require Config::AutoConf;
 say("\r\nWill now check if all LRR software dependencies are met. \r\n");
 
 #Fails on win even if redis is in the path
-if ( $Config{osname} ne 'MSWin32') {
+if ( IS_UNIX ) {
     #Check for Redis
     say("Checking for Redis...");
     can_run('redis-server')
@@ -149,8 +151,8 @@ if ( $back || $full ) {
         install_package( "Linux::Inotify2", $cpanopt );
     }
 
-    if ( $Config{osname} ne 'MSWin32') {
-        say("Installing dependencies for non-windows systems... (This will do nothing if the package is there already)");
+    if ( IS_UNIX ) {
+        say("Installing dependencies for unix-like systems... (This will do nothing if the package is there already)");
 
         install_package( "Net::DNS::Native", $cpanopt );
         install_package( "Mojolicious::Plugin::Status", $cpanopt );

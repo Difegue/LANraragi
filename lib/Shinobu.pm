@@ -39,6 +39,8 @@ use LANraragi::Model::Plugins;
 use LANraragi::Utils::Plugins;    # Needed here since Shinobu doesn't inherit from the main LRR package
 use LANraragi::Model::Search;     # idem
 
+use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
+
 # Logger and Database objects
 my $logger = get_logger( "Shinobu", "shinobu" );
 
@@ -136,7 +138,7 @@ sub update_filemap {
         $redis->hdel( "LRR_FILEMAP", $deletedfile ) || $logger->warn("Couldn't delete previous filemap data.");
     }
 
-    if ( $Config{osname} ne 'MSWin32') {
+    if ( IS_UNIX ) {
         $redis->quit();
 
         # Now that we have all new files, process them...with multithreading!
@@ -192,13 +194,11 @@ sub add_to_filemap ( $redis_cfg, $file ) {
 
         #Freshly created files might not be complete yet.
         #We have to wait before doing any form of calculation.
-        if ( $Config{osname} ne 'MSWin32') {
-            while (1) {
-                last unless -e $file;    # Sanity check to avoid sticking in this loop if the file disappears
-                last if open( my $handle, '<', $file );
-                $logger->debug("Waiting for file to be openable");
-                sleep(1);
-            }
+        while (1) {
+            last unless -e $file;    # Sanity check to avoid sticking in this loop if the file disappears
+            last if open( my $handle, '<', $file );
+            $logger->debug("Waiting for file to be openable");
+            sleep(1);
         }
 
         # Wait for file to be more than 512 KBs or bailout after 5s and assume that file is smaller

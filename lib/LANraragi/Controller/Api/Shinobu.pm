@@ -6,10 +6,10 @@ use Config;
 use LANraragi::Utils::Generic qw(start_shinobu render_api_response);
 use LANraragi::Utils::TempFolder qw(get_temp);
 
-use constant IS_WIN => ( $Config{osname} eq 'MSWin32' );
+use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 
 BEGIN {
-    if ( IS_WIN ) {
+    if ( !IS_UNIX ) {
         require Win32::Process;
         Win32::Process->import( qw(NORMAL_PRIORITY_CLASS) );
     }
@@ -18,7 +18,7 @@ BEGIN {
 sub shinobu_status {
     my $self    = shift;
 
-    if ( !IS_WIN ) {
+    if ( IS_UNIX ) {
         my $shinobu = ${ retrieve( get_temp . "/shinobu.pid" ) };
 
         $self->render(
@@ -60,7 +60,7 @@ sub reset_filemap {
     $redis->del("LRR_FILEMAP");
     $redis->quit();
 
-    if ( !IS_WIN ) {
+    if ( IS_UNIX ) {
         my $shinobu = ${ retrieve( get_temp . "/shinobu.pid" ) };
 
         #commit sudoku
@@ -75,7 +75,7 @@ sub reset_filemap {
     # Create a new Process, automatically stored in TEMP_FOLDER/shinobu.pid
     my $proc = start_shinobu($self);
 
-    if ( !IS_WIN ) {
+    if ( IS_UNIX ) {
         $self->render(
             json => {
                 operation => "shinobu_rescan",
@@ -99,7 +99,7 @@ sub reset_filemap {
 sub stop_shinobu {
     my $self    = shift;
 
-    if ( !IS_WIN ) {
+    if ( IS_UNIX ) {
         my $shinobu = ${ retrieve( get_temp . "/shinobu.pid" ) };
 
         #commit sudoku
@@ -117,7 +117,7 @@ sub stop_shinobu {
 sub restart_shinobu {
     my $self    = shift;
 
-    if ( !IS_WIN ) {
+    if ( IS_UNIX ) {
         my $shinobu = ${ retrieve( get_temp . "/shinobu.pid" ) };
 
         #commit sudoku
@@ -132,7 +132,7 @@ sub restart_shinobu {
     # Create a new Process, automatically stored in TEMP_FOLDER/shinobu.pid
     my $proc = start_shinobu($self);
 
-    if ( !IS_WIN ) {
+    if ( IS_UNIX ) {
         $self->render(
             json => {
                 operation => "shinobu_restart",

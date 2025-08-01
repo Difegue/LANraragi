@@ -23,6 +23,8 @@ use LANraragi::Utils::I18NInitializer;
 use LANraragi::Model::Search;
 use LANraragi::Model::Config;
 
+use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
+
 # This method will run once at server start
 sub startup {
     my $self = shift;
@@ -159,7 +161,7 @@ sub startup {
     }
 
     # Enable Minion capabilities in the app
-    if ( $Config{osname} ne 'MSWin32') {
+    if ( IS_UNIX ) {
         shutdown_from_pid( get_temp . "/minion.pid" );
     }
 
@@ -186,7 +188,7 @@ sub startup {
     start_minion($self);
 
     # Start File Watcher
-    if ( $Config{osname} ne 'MSWin32') {
+    if ( IS_UNIX ) {
         shutdown_from_pid( get_temp . "/shinobu.pid" );
     }
     start_shinobu($self);
@@ -200,7 +202,7 @@ sub startup {
     $self->hook(
         before_dispatch => sub {
             my $c = shift;
-            if ( $Config{osname} ne 'MSWin32') {
+            if ( IS_UNIX ) {
                 state $unused = add_sigint_handler();
             }
 

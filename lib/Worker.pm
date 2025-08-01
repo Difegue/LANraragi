@@ -23,7 +23,7 @@ use LANraragi::Model::Config;
 # Logger and Database objects
 my $logger = get_logger( "Minion Worker", "minion" );
 
-
+# Windows-only worker. Single threaded and non-forking.
 sub initialize_from_new_process {
 
     $logger->info("Minion Worker started.");

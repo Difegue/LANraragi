@@ -21,6 +21,8 @@ use LANraragi::Model::Upload;
 use LANraragi::Model::Config;
 use LANraragi::Model::Stats;
 
+use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
+
 # Add Tasks to the Minion instance.
 sub add_tasks {
     my $minion = shift;
@@ -77,7 +79,7 @@ sub add_tasks {
                 push @keys, $i;
             }
 
-            if ( $Config{osname} ne 'MSWin32') {
+            if ( IS_UNIX ) {
                 my $numCpus = Sys::CpuAffinity::getNumCpus();
                 my $pl      = Parallel::Loops->new($numCpus);
                 $pl->share( \@errors );
@@ -147,7 +149,7 @@ sub add_tasks {
             $logger->info("Starting thumbnail regen job (force = $force)");
             my @errors = ();
 
-            if ( $Config{osname} ne 'MSWin32') {
+            if ( IS_UNIX ) {
                 my $numCpus = Sys::CpuAffinity::getNumCpus();
                 my $pl      = Parallel::Loops->new($numCpus);
                 $pl->share( \@errors );
@@ -231,7 +233,7 @@ sub add_tasks {
             my %visited : shared;
             my @ids = keys %thumbhashes;    # List of IDs to check
 
-            if ( $Config{osname} ne 'MSWin32') {
+            if ( IS_UNIX ) {
                 my $numCpus = Sys::CpuAffinity::getNumCpus();
                 my $pl      = Parallel::Loops->new($numCpus);
 

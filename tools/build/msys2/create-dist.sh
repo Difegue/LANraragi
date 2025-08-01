@@ -16,10 +16,10 @@ mkdir -p ./win-dist/runtime/lib
 
 cp -R /ucrt64/lib/perl5 ./win-dist/runtime/lib
 cp -R /ucrt64/lib/p11-kit ./win-dist/runtime/lib
-cp -R /ucrt64/lib/ImageMagick-7.1.1 ./win-dist/runtime/lib
+cp -R /ucrt64/lib/ImageMagick-7.1.2 ./win-dist/runtime/lib
 
 # We don't need .a files, they are used only during compilation
-find ./win-dist/runtime/lib/ImageMagick-7.1.1/ -name "*.a" -type f -delete
+find ./win-dist/runtime/lib/ImageMagick-7.1.2/ -name "*.a" -type f -delete
 
 # Copy more openssl stuff
 mkdir -p ./win-dist/runtime/share
