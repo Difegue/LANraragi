@@ -107,7 +107,7 @@
         <input id="enablemetrics" name="enablemetrics" class="fa" type="checkbox" checked> [% ELSE %]
         <input id="enablemetrics" name="enablemetrics" class="fa" type="checkbox"> [% END %]
         <label for="enablemetrics">
-            <br>[% c.lh("Expose the /metrics endpoint for monitoring. Metrics are exposed in the Prometheus exposition format.") %]
+            <br>[% c.lh("Enable metrics collection and serve them through the metrics endpoint in the Prometheus exposition format.") %]
             [% c.lh("Fully effective after restarting LANraragi.") %]
         </label>
     </td>
