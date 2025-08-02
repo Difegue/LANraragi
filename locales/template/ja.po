@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-13 21:13+0200\n"
-"PO-Revision-Date: 2025-05-14 20:02+0000\n"
-"Last-Translator: ボンク!Bonk! <alp@kibaroglu.net>\n"
+"PO-Revision-Date: 2025-07-18 08:06+0000\n"
+"Last-Translator: shii <shii@ymail.ne.jp>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/ja/>\n"
 "Language: ja\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12-dev\n"
+"X-Generator: Weblate 5.13-dev\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -33,13 +33,13 @@ msgid "(Categories will always be restored)"
 msgstr ""
 
 msgid "Backup Database"
-msgstr ""
+msgstr "データベースの保存"
 
 msgid "Restore Backup"
-msgstr ""
+msgstr "バックアップの復元"
 
 msgid "Restoring your backup ..."
-msgstr ""
+msgstr "バックアップからの復元 ..."
 
 msgid "Return to Library"
 msgstr ""
@@ -50,58 +50,60 @@ msgid "Batch Operations"
 msgstr ""
 
 msgid "You can apply modifications to multiple archives in one go here."
-msgstr ""
+msgstr "複数のアーカイブを一括して修正を行うことができます。"
 
 msgid "Select what you'd like to do, check archives you want to use it on, and get rolling!"
-msgstr ""
+msgstr "やりたいことを選び、変更したいアーカイブを選択し、始めましょう！"
 
 msgid "Archives with no tags have been pre-checked."
-msgstr ""
+msgstr "タグのないアーカイブは事前にチェックされます。"
 
 msgid "Task :"
 msgstr "タスク："
 
 msgid "Use Plugin"
-msgstr ""
+msgstr "プラグインの使用"
 
 msgid "Remove New Flag"
-msgstr ""
+msgstr "新しいフラグを削除"
 
 msgid "Apply Tag Rules"
-msgstr ""
+msgstr "タグルールの適用"
 
 msgid "Add To Category"
-msgstr ""
+msgstr "カテゴリーの追加"
 
 msgid "Delete Archive"
 msgstr ""
 
 msgid "Use plugin :"
-msgstr ""
+msgstr "使用するプラグイン："
 
 msgid "Timeout (max 20s):"
 msgstr "タイムアウト（最大20秒）："
 
 msgid "This plugin recommends a cooldown of <span id=\"cooldown\">-1</span> seconds."
-msgstr ""
+msgstr "このプラグインでは、 <span id=\"cooldown\">-1</span> "
+"秒の待機時間を推奨しています。"
 
 msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
-msgstr ""
+msgstr "外部サービスの中には、プラグインを何度も使用すると高負担で一時的にマシンを使"
+"用禁止にするものがあります！"
 
 msgid "Make sure to set a suitable <b>timeout</b> between archives using this picker if the plugin you want to use is concerned."
 msgstr ""
 
 msgid "Override Plugin Global Arguments"
-msgstr ""
+msgstr "プラグインのグローバル引数を上書きする"
 
 msgid "This will apply the following Tag Rules to the selected Archives."
-msgstr ""
+msgstr "これにより、選択したアーカイブに次のタグ ルールが適用されます。"
 
 msgid "You can edit your Tag Rules in Server Configuration."
-msgstr ""
+msgstr "タグルールはサーバー設定で編集できます。"
 
 msgid "Server Configuration"
-msgstr ""
+msgstr "サーバー設定"
 
 msgid "This removes the \"new\" flag from the selected archives."
 msgstr ""
@@ -142,7 +144,7 @@ msgid "Categories"
 msgstr ""
 
 msgid "Categories appear at the top of your window when browsing the Library."
-msgstr ""
+msgstr "ライブラリーを閲覧する際、ウィンドウの上部にカテゴリーが表示されます。"
 
 msgid "There are two distinct kinds:"
 msgstr ""
@@ -613,7 +615,7 @@ msgid "Add Archives"
 msgstr ""
 
 msgid "Batch Operations"
-msgstr ""
+msgstr "バッチ操作"
 
 msgid "Settings"
 msgstr ""
@@ -891,7 +893,7 @@ msgid "Edit Archive Metadata"
 msgstr ""
 
 msgid "Delete Archive"
-msgstr ""
+msgstr "アーカイブの削除"
 
 msgid "Categories"
 msgstr ""
@@ -1135,7 +1137,7 @@ msgid "Add from URL(s)"
 msgstr ""
 
 msgid "Return to Library"
-msgstr ""
+msgstr "ライブラリーに戻る"
 
 # ------End of Upload.html.tt2------
 msgid "Rescan Archive Directory"

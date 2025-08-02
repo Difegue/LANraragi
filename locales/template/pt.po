@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 03:27+0200\n"
-"PO-Revision-Date: 2025-05-31 23:30+0000\n"
-"Last-Translator: DevonDekhran <devondekhran@protonmail.com>\n"
+"PO-Revision-Date: 2025-07-05 02:01+0000\n"
+"Last-Translator: Mayanna Oliveira <mayannait@gmail.com>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/pt/>\n"
 "Language: pt\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.12-dev\n"
+"X-Generator: Weblate 5.13-dev\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -85,16 +85,20 @@ msgid "Delete Archive"
 msgstr ""
 
 msgid "Use plugin :"
-msgstr ""
+msgstr "Usar plugin:"
 
 msgid "Timeout (max 20s):"
-msgstr ""
+msgstr "Tempo restante (max 20s):"
 
 msgid "This plugin recommends a cooldown of <span id=\"cooldown\">-1</span> seconds."
 msgstr ""
+"Esse plugin recomenda um tempo de espera de <span id=\"cooldown\">-1</span> "
+"segundos."
 
 msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
 msgstr ""
+"Alguns serviços externos podem banir temporariamente sua máquina por excesso "
+"de carga se o plugin for requisitado várias vezes!"
 
 msgid "Make sure to set a suitable <b>timeout</b> between archives using this picker if the plugin you want to use is concerned."
 msgstr ""
@@ -230,7 +234,7 @@ msgid "Plugin Configuration"
 msgstr ""
 
 msgid "Database Backup/Restore"
-msgstr ""
+msgstr "Banco de Dados Backup/Restaurar"
 
 msgid "Return to Library"
 msgstr ""

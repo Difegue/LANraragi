@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-06 17:24+0200\n"
-"PO-Revision-Date: 2025-06-03 06:04+0000\n"
+"PO-Revision-Date: 2025-06-28 17:04+0000\n"
 "Last-Translator: Haytsir <alswo7310@naver.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/ko/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12-dev\n"
+"X-Generator: Weblate 5.13-dev\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -60,10 +60,10 @@ msgid "Archives with no tags have been pre-checked."
 msgstr "태그가 없는 아카이브가 미리 확인되었습니다."
 
 msgid "Task :"
-msgstr "작업:"
+msgstr "작업 :"
 
 msgid "Use Plugin"
-msgstr "플러그인용"
+msgstr "플러그인 사용"
 
 msgid "Remove New Flag"
 msgstr "New 플래그 제거"
@@ -930,7 +930,7 @@ msgid "Edit Archive Metadata"
 msgstr "아카이브 메타데이터 편집"
 
 msgid "Delete Archive"
-msgstr "아카이브 제"
+msgstr "아카이브 제거"
 
 msgid "Categories"
 msgstr "카테고리"
