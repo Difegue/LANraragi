@@ -35,6 +35,7 @@ use LANraragi::Utils::Generic    qw(is_archive split_workload_by_cpu);
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
+use LANraragi::Model::Metrics;
 use LANraragi::Utils::Plugins;    # Needed here since Shinobu doesn't inherit from the main LRR package
 use LANraragi::Model::Search;     # idem
 
@@ -61,6 +62,7 @@ my $inotifysub = sub {
 sub initialize_from_new_process {
 
     my $userdir = LANraragi::Model::Config->get_userdir;
+    my $metrics_enabled = LANraragi::Model::Config->enable_metrics;
 
     $logger->info("Shinobu File Watcher started.");
     $logger->info("Content folder is $userdir.");
@@ -82,11 +84,18 @@ sub initialize_from_new_process {
     # manual event loop
     $logger->info("All done! Now dutifully watching your files. ");
 
+    my $metrics_counter = 0;
     while (1) {
 
         # Check events on files
         for my $event ( $contentwatcher->new_events ) {
             $inotifysub->($event);
+        }
+
+        # Collect metrics every 30 seconds (15 * 2 second intervals)
+        if ( $metrics_enabled && ++$metrics_counter >= 15 ) {
+            LANraragi::Model::Metrics::collect_process_metrics( "shinobu" );
+            $metrics_counter = 0;
         }
 
         sleep 2;
