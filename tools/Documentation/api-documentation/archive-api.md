@@ -388,6 +388,15 @@ ID of the Archive to process
 }
 ```
 {% endswagger-response %}
+{% swagger-response status="423" description="locked resource" %}
+```javascript
+{
+  "operation": "upload",
+  "error": "Locked resource: f3fc480a97f1afcd81c8e3392a3bcc66fe6c0809",
+  "success": 0
+}
+```
+{% endswagger-response %}
 {% endswagger %}
 
 {% swagger baseUrl="http://lrr.tvc-16.science" path="/api/archives/:id/progress/:page" method="put" summary="Update Reading Progression" %}
@@ -449,6 +458,16 @@ Current page to update the reading progress to. **Must** be a positive integer, 
     "operation": "update_progress",
     "error": "Archive doesn't have a total page count recorded yet.",
     "success": 0
+}
+```
+{% endswagger-response %}
+
+{% swagger-response status="423" description="locked resource" %}
+```javascript
+{
+  "operation": "upload",
+  "error": "Locked resource: 75d18ce470dc99f83dc355bdad66319d1f33c82b",
+  "success": 0
 }
 ```
 {% endswagger-response %}
@@ -633,6 +652,17 @@ New Summary of the Archive.
 }
 ```
 {% endswagger-response %}
+
+{% swagger-response status="423" description="locked resource" %}
+```javascript
+{
+  "operation": "upload",
+  "error": "Locked resource: 9595845d952e8141feeba375767248b960979bc2",
+  "success": 0
+}
+```
+{% endswagger-response %}
+
 {% endswagger %}
 
 {% swagger baseUrl="http://lrr.tvc-16.science" path="/api/archives/:id" method="delete" summary="🔑Delete Archive" %}
@@ -662,6 +692,16 @@ ID of the Archive to process.
     "operation": "delete_archive",
     "error": "No archive ID specified.",
     "success": 0
+}
+```
+{% endswagger-response %}
+
+{% swagger-response status="423" description="locked resource" %}
+```javascript
+{
+  "operation": "upload",
+  "error": "Locked resource: 75d18ce470dc99f83dc355bdad66319d1f33c82b",
+  "success": 0
 }
 ```
 {% endswagger-response %}
