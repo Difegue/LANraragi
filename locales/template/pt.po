@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 03:27+0200\n"
-"PO-Revision-Date: 2025-07-05 02:01+0000\n"
+"PO-Revision-Date: 2025-08-03 19:02+0000\n"
 "Last-Translator: Mayanna Oliveira <mayannait@gmail.com>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/pt/>\n"
@@ -102,45 +102,50 @@ msgstr ""
 
 msgid "Make sure to set a suitable <b>timeout</b> between archives using this picker if the plugin you want to use is concerned."
 msgstr ""
+"Certifique-se de definir um <b>tempo limite</b> adequado entre os arquivos "
+"usando este seletor, caso o plugin que você deseja usar esteja em questão."
 
 msgid "Override Plugin Global Arguments"
-msgstr ""
+msgstr "Substituir Argumentos Globais do Plugin"
 
 msgid "This will apply the following Tag Rules to the selected Archives."
-msgstr ""
+msgstr "Isso aplicará as seguintes Regras da Tag aos Arquivos selecionados."
 
 msgid "You can edit your Tag Rules in Server Configuration."
-msgstr ""
+msgstr "Você pode editar sua Tag de Regras na Configuração do Servidor."
 
 msgid "Server Configuration"
-msgstr ""
+msgstr "Configuração do Servidor"
 
 msgid "This removes the \"new\" flag from the selected archives."
-msgstr ""
+msgstr "Isso remove o sinal de \"novo\" dos arquivos selecionados."
 
 msgid "Add to Category :"
-msgstr ""
+msgstr "Adicionar a Categoria:"
 
 msgid "This will delete both metadata and matching files from your system! Please use with caution."
 msgstr ""
+"Isso irá excluir os metadados e os arquivos correspondentes do seu sistema! "
+"Use com cautela."
 
 msgid "Check/Uncheck all"
-msgstr ""
+msgstr "Marcar/Desmarcar tudo"
 
 msgid "Start Task"
-msgstr ""
+msgstr "Iniciar a Tarefa"
 
 msgid "Cancel"
-msgstr ""
+msgstr "Cancelar"
 
 msgid "Start another job"
-msgstr ""
+msgstr "Iniciar um outro serviço"
 
 msgid "Processed <span id=\"arcs\"></span> out of <span id=\"totalarcs\"></span>"
 msgstr ""
+"Processado <span id=\"arcs\"></span> fora de <span id=\"totalarcs\"></span>"
 
 msgid "Preparing your data."
-msgstr ""
+msgstr "Preparando seus dados."
 
 msgid "Plugin Configuration"
 msgstr ""
@@ -155,39 +160,44 @@ msgstr ""
 
 msgid "Categories appear at the top of your window when browsing the Library."
 msgstr ""
+"As categorias aparecem na parte superior da janela ao navegar na Biblioteca."
 
 msgid "There are two distinct kinds:"
-msgstr ""
+msgstr "Existem dois tipos distintos:"
 
 msgid "Static Categories are arbitrary collections of Archives, where you can add as many items as you want."
 msgstr ""
+"Categorias estáticas são coleções aleatórias de arquivos, onde você pode "
+"adicionar quantos itens quiser."
 
 msgid "Dynamic Categories contain all archives matching a given predicate, and automatically update alongside your library."
 msgstr ""
+"Categorias Dinâmicas incluem todos os arquivos que atendem a uma condição "
+"específica e são atualizadas automaticamente conforme sua biblioteca muda."
 
 msgid "You can create new categories here or edit existing ones."
-msgstr ""
+msgstr "Você pode criar aqui uma nova categoria ou editar uma existente."
 
 msgid "Select a category in the combobox below to edit its name, the archives it contains, or its predicate."
 msgstr ""
 
 msgid "All your modifications are saved automatically."
-msgstr ""
+msgstr "Todas as modificações serão salvas automaticamente."
 
 msgid "Category:"
-msgstr ""
+msgstr "Categoria:"
 
 msgid "Name:"
-msgstr ""
+msgstr "Nome:"
 
 msgid "Predicate:"
-msgstr ""
+msgstr "Regra:"
 
 msgid "Pin this Category"
-msgstr ""
+msgstr "Fixar essa Categoria"
 
 msgid "Delete Category"
-msgstr ""
+msgstr "Excluir Categoria"
 
 msgid "If you select a Static Category, your archives will appear here so you can add/remove them from the category."
 msgstr ""
@@ -208,10 +218,10 @@ msgid "Error getting bookmark category:"
 msgstr ""
 
 msgid "New Static Category"
-msgstr ""
+msgstr "Nova Categoria Estática"
 
 msgid "New Dynamic Category"
-msgstr ""
+msgstr "Nova Categoria Dinâmica"
 
 # ------End of Category.html.tt2------
 # ------Start of Config.html.tt2------
@@ -219,16 +229,16 @@ msgid "Admin Settings"
 msgstr ""
 
 msgid "LANraragi"
-msgstr ""
+msgstr "LANraragi"
 
 msgid "Version %1 %2"
-msgstr ""
+msgstr "Versão %1 - %2"
 
 msgid "Select a category to show the matching settings."
-msgstr ""
+msgstr "Selecione uma categoria para exibir as configurações correspondentes."
 
 msgid "Save Settings"
-msgstr ""
+msgstr "Salvar Configurações"
 
 msgid "Plugin Configuration"
 msgstr ""
@@ -240,10 +250,10 @@ msgid "Return to Library"
 msgstr ""
 
 msgid "Global Settings"
-msgstr ""
+msgstr "Configurações Globais"
 
 msgid "Theme"
-msgstr ""
+msgstr "Tema"
 
 msgid "Security"
 msgstr ""
@@ -288,18 +298,19 @@ msgstr ""
 
 msgid "It is automatically emptied when it grows past this specified size."
 msgstr ""
+"Ele é esvaziado automaticamente quando ultrapassa o tamanho especificado."
 
 msgid "Clear Cache"
-msgstr ""
+msgstr "Limpar o Cache"
 
 msgid "Current Size:"
-msgstr ""
+msgstr "Tamanho Atual:"
 
 msgid "Clear the cache manually by clicking this button."
-msgstr ""
+msgstr "Limpar o cache manualmente ao clicar nesse botão."
 
 msgid "Reset Search Cache"
-msgstr ""
+msgstr "Redefinir Cache de Pesquisa"
 
 msgid "The last searches done in the archive index are cached for faster loads."
 msgstr ""
@@ -314,24 +325,26 @@ msgid "Newly uploaded archives are marked as \"new\" in the index until you\'ve 
 msgstr ""
 
 msgid "If you want to clear those flags, click this button."
-msgstr ""
+msgstr "Se você quer limpar esses sinalizadores, clique nesse botão."
 
 msgid "Replace duplicated archives"
-msgstr ""
+msgstr "Substituir arquivos duplicados"
 
 msgid "If enabled, LANraragi will overwrite old archives when a newer one (with the same name) is uploaded through the Web Uploader or the Download System."
 msgstr ""
 
 msgid "This will delete metadata for old files when they're replaced! Use with caution."
 msgstr ""
+"Isso irá excluir os metadados dos arquivos antigos quando eles forem "
+"substituídos! Use com cautela."
 
 # ------End of Config_Files.html.tt2------
 # ------Start of Config_Global.html.tt2------
 msgid "Site Title"
-msgstr ""
+msgstr "Título do Site"
 
 msgid "The site title appears on most pages as...their title."
-msgstr ""
+msgstr "O título do site aparece na maioria das páginas como...seu título."
 
 msgid "MOTD"
 msgstr ""
@@ -340,10 +353,10 @@ msgid "Slang for Message of the Day. Appears on top of the main Library view."
 msgstr ""
 
 msgid "Archives per page"
-msgstr ""
+msgstr "Arquivos por página"
 
 msgid "Number of archives shown on a page in the main list."
-msgstr ""
+msgstr "Número de arquivos exibidos em uma página na lista principal."
 
 msgid "Resize Images in Reader"
 msgstr ""
