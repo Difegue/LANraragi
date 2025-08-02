@@ -130,7 +130,8 @@ sub get_prometheus_process_metrics {
                 foreach my $metric_name ( qw(
                     cpu_user_seconds_total cpu_system_seconds_total cpu_seconds_total 
                     virtual_memory_bytes resident_memory_bytes 
-                    open_fds max_fds start_time_seconds) ) {
+                    open_fds max_fds start_time_seconds
+                    read_bytes_total write_bytes_total) ) {
                     if ( defined $process_data{$metric_name} ) {
                         $all_metrics_by_name{$metric_name}{$labels} = $process_data{$metric_name};
                     }
@@ -139,18 +140,26 @@ sub get_prometheus_process_metrics {
         }
     }
 
-    # Output CPU metrics (counters)
-    foreach my $metric_name ( qw(cpu_user_seconds_total cpu_system_seconds_total cpu_seconds_total) ) {
+    # Output CPU and I/O metrics (counters)
+    foreach my $metric_name ( qw(cpu_user_seconds_total cpu_system_seconds_total cpu_seconds_total read_bytes_total write_bytes_total) ) {
         next unless $all_metrics_by_name{$metric_name};
 
         my $help_text = {
             cpu_user_seconds_total   => "Total user CPU time spent by process in seconds",
             cpu_system_seconds_total => "Total system CPU time spent by process in seconds", 
             cpu_seconds_total        => "Total user and system CPU time spent by process in seconds",
+            read_bytes_total         => "Total bytes read from storage by process",
+            write_bytes_total        => "Total bytes written to storage by process",
         }->{$metric_name};
 
         push @output, "# TYPE lanraragi_process_$metric_name counter";
-        push @output, "# UNIT lanraragi_process_$metric_name seconds";
+        
+        if ( $metric_name =~ /_bytes_total$/ ) {
+            push @output, "# UNIT lanraragi_process_$metric_name bytes";
+        } elsif ( $metric_name =~ /_seconds_total$/ ) {
+            push @output, "# UNIT lanraragi_process_$metric_name seconds";
+        }
+        
         push @output, "# HELP lanraragi_process_$metric_name $help_text";
         foreach my $labels ( sort keys %{$all_metrics_by_name{$metric_name}} ) {
             my $value = $all_metrics_by_name{$metric_name}{$labels};
@@ -311,10 +320,11 @@ sub collect_process_metrics {
         if ($^O eq 'linux') {
             my $metrics_redis = LANraragi::Model::Config->get_redis_metrics;
 
-            # Read process information from /proc/self/stat and /proc/self/statm
+            # Read process information from /proc/self/stat, /proc/self/statm, and /proc/self/io
             my $proc_stat = LANraragi::Utils::Metrics::read_proc_stat();
             my $proc_statm = LANraragi::Utils::Metrics::read_proc_statm();
             my $proc_fds = LANraragi::Utils::Metrics::read_fd_stats();
+            my $proc_io = LANraragi::Utils::Metrics::read_proc_io_bytes();
 
             return unless $proc_stat && $proc_statm; # Skip if couldn't read proc files
 
@@ -336,6 +346,10 @@ sub collect_process_metrics {
 
             # Process start time (gauge)
             $metrics_redis->hset($process_key, "start_time_seconds", $proc_stat->{starttime});
+
+            # I/O metrics (counters)
+            $metrics_redis->hset($process_key, "read_bytes_total", $proc_io->{read_bytes});
+            $metrics_redis->hset($process_key, "write_bytes_total", $proc_io->{write_bytes});
 
             # No TTL - process metrics persist until server restart
 

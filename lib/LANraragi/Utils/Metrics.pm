@@ -152,6 +152,30 @@ sub read_fd_stats {
     };
 }
 
+# Get IO stats from /proc/self/io
+# https://man7.org/linux/man-pages/man5/proc_pid_io.5.html
+sub read_proc_io_bytes {
+    return undef unless -r "/proc/self/io";
+    my $read_bytes  = 0;
+    my $write_bytes = 0;
+
+    if ( open my $fh, '<', "/proc/self/io" ) {
+        while ( my $line = <$fh> ) {
+            if ( $line =~ /^(read_bytes):\s*(\d+)$/ ) {
+                $read_bytes = int($2);
+            } elsif ( $line =~ /^(write_bytes):\s*(\d+)$/ ) {
+                $write_bytes = int($2);
+            }
+        }
+        close $fh;
+    }
+
+    return {
+        read_bytes  => $read_bytes,   # Bytes read from storage
+        write_bytes => $write_bytes,  # Bytes written to storage
+    };
+}
+
 # Get system boot time from /proc/stat
 # Adapted from Net::Prometheus::ProcessCollector::linux to return boot time as a variable.
 # https://metacpan.org/release/PEVANS/Net-Prometheus-0.14/source/lib/Net/Prometheus/ProcessCollector/linux.pm
