@@ -108,91 +108,80 @@ sub get_prometheus_process_metrics {
 
     my @output;
     
-    # Define process types and their configurations
+    # Define process types and their Redis key patterns
     my %process_types = (
-        'process' => {
-            keys => [$metrics_redis->keys("metrics:process:*")],
-            description => 'Minion worker process'
-        },
-        'shinobu' => {
-            keys => [$metrics_redis->keys("metrics:shinobu:*")],
-            description => 'Shinobu background process'
-        }
+        'process' => 'minion',
+        'shinobu' => 'shinobu'
     );
 
-    # Group metrics by type for each process type
-    my %all_metrics_by_type;
-    foreach my $process_type (keys %process_types) {
-        my $keys = $process_types{$process_type}{keys};
+    # Group all metrics by metric name, collecting from both process types
+    my %all_metrics_by_name;
+    foreach my $redis_prefix (keys %process_types) {
+        my $process_type = $process_types{$redis_prefix};
+        my @keys = $metrics_redis->keys("metrics:$redis_prefix:*");
         
-        foreach my $key (@$keys) {
-            if ( $key =~ /^metrics:$process_type:(\d+)$/ ) {
+        foreach my $key (@keys) {
+            if ( $key =~ /^metrics:$redis_prefix:(\d+)$/ ) {
                 my $worker_pid = $1;
                 my %process_data = $metrics_redis->hgetall($key);
                 next unless %process_data;
 
-                my $labels = qq{worker_pid="$worker_pid"};
+                my $labels = qq{worker_pid="$worker_pid",process_type="$process_type"};
                 foreach my $metric_name ( qw(
                     cpu_user_seconds_total cpu_system_seconds_total cpu_seconds_total 
                     virtual_memory_bytes resident_memory_bytes 
                     open_fds max_fds start_time_seconds) ) {
                     if ( defined $process_data{$metric_name} ) {
-                        $all_metrics_by_type{$process_type}{$metric_name}{$labels} = $process_data{$metric_name};
+                        $all_metrics_by_name{$metric_name}{$labels} = $process_data{$metric_name};
                     }
                 }
             }
         }
     }
 
-    # Output metrics for each process type
-    foreach my $process_type ('process', 'shinobu') {
-        my $description = $process_types{$process_type}{description};
-        my $metrics_by_type = $all_metrics_by_type{$process_type} || {};
+    # Output CPU metrics (counters)
+    foreach my $metric_name ( qw(cpu_user_seconds_total cpu_system_seconds_total cpu_seconds_total) ) {
+        next unless $all_metrics_by_name{$metric_name};
 
-        # Output CPU metrics (counters)
-        foreach my $metric_name ( qw(cpu_user_seconds_total cpu_system_seconds_total cpu_seconds_total) ) {
-            next unless $metrics_by_type->{$metric_name};
+        my $help_text = {
+            cpu_user_seconds_total   => "Total user CPU time spent by process in seconds",
+            cpu_system_seconds_total => "Total system CPU time spent by process in seconds", 
+            cpu_seconds_total        => "Total user and system CPU time spent by process in seconds",
+        }->{$metric_name};
 
-            my $help_text = {
-                cpu_user_seconds_total   => "Total user CPU time spent by $description in seconds",
-                cpu_system_seconds_total => "Total system CPU time spent by $description in seconds", 
-                cpu_seconds_total        => "Total user and system CPU time spent by $description in seconds",
-            }->{$metric_name};
+        push @output, "# TYPE lanraragi_process_$metric_name counter";
+        push @output, "# UNIT lanraragi_process_$metric_name seconds";
+        push @output, "# HELP lanraragi_process_$metric_name $help_text";
+        foreach my $labels ( sort keys %{$all_metrics_by_name{$metric_name}} ) {
+            my $value = $all_metrics_by_name{$metric_name}{$labels};
+            push @output, "lanraragi_process_$metric_name\{$labels\} $value";
+        }
+    }
 
-            push @output, "# TYPE lanraragi_${process_type}_$metric_name counter";
-            push @output, "# UNIT lanraragi_${process_type}_$metric_name seconds";
-            push @output, "# HELP lanraragi_${process_type}_$metric_name $help_text";
-            foreach my $labels ( sort keys %{$metrics_by_type->{$metric_name}} ) {
-                my $value = $metrics_by_type->{$metric_name}{$labels};
-                push @output, "lanraragi_${process_type}_$metric_name\{$labels\} $value";
-            }
+    # Output memory and FD metrics (gauges)
+    foreach my $metric_name ( qw(virtual_memory_bytes resident_memory_bytes open_fds max_fds start_time_seconds) ) {
+        next unless $all_metrics_by_name{$metric_name};
+
+        my $help_text = {
+            virtual_memory_bytes => "Virtual memory size of process in bytes",
+            resident_memory_bytes => "Resident memory size of process in bytes",
+            open_fds => "Number of open file handles in process",
+            max_fds => "Maximum number of file handles allowed for process",
+            start_time_seconds => "Unix epoch time when process started",
+        }->{$metric_name};
+
+        push @output, "# TYPE lanraragi_process_$metric_name gauge";
+
+        if ( $metric_name =~ /_bytes$/ ) {
+            push @output, "# UNIT lanraragi_process_$metric_name bytes";
+        } elsif ( $metric_name =~ /_seconds$/ ) {
+            push @output, "# UNIT lanraragi_process_$metric_name seconds";
         }
 
-        # Output memory and FD metrics (gauges)
-        foreach my $metric_name ( qw(virtual_memory_bytes resident_memory_bytes open_fds max_fds start_time_seconds) ) {
-            next unless $metrics_by_type->{$metric_name};
-
-            my $help_text = {
-                virtual_memory_bytes => "Virtual memory size of $description in bytes",
-                resident_memory_bytes => "Resident memory size of $description in bytes",
-                open_fds => "Number of open file handles in $description",
-                max_fds => "Maximum number of file handles allowed for $description",
-                start_time_seconds => "Unix epoch time when $description started",
-            }->{$metric_name};
-
-            push @output, "# TYPE lanraragi_${process_type}_$metric_name gauge";
-
-            if ( $metric_name =~ /_bytes$/ ) {
-                push @output, "# UNIT lanraragi_${process_type}_$metric_name bytes";
-            } elsif ( $metric_name =~ /_seconds$/ ) {
-                push @output, "# UNIT lanraragi_${process_type}_$metric_name seconds";
-            }
-
-            push @output, "# HELP lanraragi_${process_type}_$metric_name $help_text";
-            foreach my $labels ( sort keys %{$metrics_by_type->{$metric_name}} ) {
-                my $value = $metrics_by_type->{$metric_name}{$labels};
-                push @output, "lanraragi_${process_type}_$metric_name\{$labels\} $value";
-            }
+        push @output, "# HELP lanraragi_process_$metric_name $help_text";
+        foreach my $labels ( sort keys %{$all_metrics_by_name{$metric_name}} ) {
+            my $value = $all_metrics_by_name{$metric_name}{$labels};
+            push @output, "lanraragi_process_$metric_name\{$labels\} $value";
         }
     }
 
