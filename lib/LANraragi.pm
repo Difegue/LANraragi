@@ -254,7 +254,7 @@ sub startup {
 
         # Periodically collect process metrics
         Mojo::IOLoop->recurring(30 => sub {
-            LANraragi::Model::Metrics::collect_process_metrics( "process" );
+            LANraragi::Model::Metrics::collect_process_metrics( "minion" );
         });
 
         $self->LRR_LOGGER->info("Metrics collection is enabled.");

@@ -108,20 +108,13 @@ sub get_prometheus_process_metrics {
 
     my @output;
     
-    # Define process types and their Redis key patterns
-    my %process_types = (
-        'process' => 'minion',
-        'shinobu' => 'shinobu'
-    );
-
     # Group all metrics by metric name, collecting from both process types
     my %all_metrics_by_name;
-    foreach my $redis_prefix (keys %process_types) {
-        my $process_type = $process_types{$redis_prefix};
-        my @keys = $metrics_redis->keys("metrics:$redis_prefix:*");
+    foreach my $process_type (qw(minion shinobu)) {
+        my @keys = $metrics_redis->keys("metrics:$process_type:*");
         
         foreach my $key (@keys) {
-            if ( $key =~ /^metrics:$redis_prefix:(\d+)$/ ) {
+            if ( $key =~ /^metrics:$process_type:(\d+)$/ ) {
                 my $worker_pid = $1;
                 my %process_data = $metrics_redis->hgetall($key);
                 next unless %process_data;
@@ -312,7 +305,7 @@ sub collect_api_metrics {
 }
 
 # Record process-level metrics to Redis with the specified key prefix
-# Accepted key prefixes are "process" or "shinobu"
+# Accepted key prefixes are "minion" or "shinobu"
 sub collect_process_metrics {
     my $key_prefix = shift;
     
@@ -377,9 +370,9 @@ sub cleanup_metrics {
 
         # Get all metrics keys
         my @api_keys = $metrics_redis->keys("metrics:worker:*");
-        my @process_keys = $metrics_redis->keys("metrics:process:*");
+        my @minion_keys = $metrics_redis->keys("metrics:minion:*");
         my @shinobu_keys = $metrics_redis->keys("metrics:shinobu:*");
-        my @all_keys = (@api_keys, @process_keys, @shinobu_keys);
+        my @all_keys = (@api_keys, @minion_keys, @shinobu_keys);
 
         if (@all_keys) {
             # Delete all metrics keys in a single operation
