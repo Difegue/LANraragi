@@ -14,7 +14,7 @@ use feature qw(say signatures);
 no warnings 'experimental::signatures';
 
 use FindBin;
-use Parallel::Loops;
+use MCE::Loop;
 use Sys::CpuAffinity;
 use Storable   qw(lock_store);
 use Mojo::JSON qw(to_json);
@@ -138,47 +138,18 @@ sub update_filemap {
         $redis->hdel( "LRR_FILEMAP", $deletedfile ) || $logger->warn("Couldn't delete previous filemap data.");
     }
 
-    if ( IS_UNIX ) {
-        $redis->quit();
+    $redis->quit();
 
-        # Now that we have all new files, process them...with multithreading!
-        my $numCpus = Sys::CpuAffinity::getNumCpus();
-        my $pl      = Parallel::Loops->new($numCpus);
-
-        $logger->debug("Number of available cores for processing: $numCpus");
-        my @sections = split_workload_by_cpu( $numCpus, @newfiles );
-
-        # Eval the parallelized file crawl to avoid taking down the entire process in case one of the forked processes dies
-        eval {
-            $pl->foreach(
-                \@sections,
-                sub {
-                    my $redis = LANraragi::Model::Config->get_redis_config;
-                    foreach my $file (@$_) {
-
-                        # Individual files are also eval'd so we can keep scanning
-                        eval { add_to_filemap( $redis, $file ); };
-
-                        if ($@) {
-                            $logger->error("Error scanning $file: $@");
-                        }
-                    }
-                    $redis->quit();
-                }
-            );
-        };
-    } else {
-        foreach my $file (@newfiles) {
-
-            # Individual files are also eval'd so we can keep scanning
-            eval { add_to_filemap( $redis, $file ); };
-
-            if ($@) {
-                $logger->error("Error scanning $file: $@");
-            }
+    eval {
+        if ( IS_UNIX ) {
+            # Now that we have all new files, process them...with multithreading!
+            mce_loop {
+                add_new_files(@{ $_ });
+            } \@newfiles;
+        } else {
+            add_new_files(@newfiles);
         }
-        $redis->quit();
-    }
+    };
 
     if ($@) {
         $logger->error("Error while scanning content folder: $@");
@@ -324,6 +295,24 @@ sub deleted_file_callback ($name) {
         $redis->quit();
     }
 }
+
+sub add_new_files (@files) {
+    my $redis = LANraragi::Model::Config->get_redis_config;
+
+    foreach my $file (@files) {
+        $logger->debug("Processing $file");
+
+        # Individual files are also eval'd so we can keep scanning
+        eval { add_to_filemap( $redis, $file ); };
+
+        if ($@) {
+            $logger->error("Error scanning $file: $@");
+        }
+    }
+
+    $redis->quit();
+}
+
 
 sub add_new_file ( $id, $file ) {
 
