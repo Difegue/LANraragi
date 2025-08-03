@@ -7,11 +7,13 @@ use Cwd 'abs_path';
 use Mojo::Base -strict;
 use Mojo::Server::Morbo;
 use Mojo::Server::Prefork;
+use Mojo::Server::Daemon;
 use Mojo::Util qw(extract_usage getopt);
 use File::Path qw(make_path);
 
 getopt
   'm|morbo'      => \my $morbo,
+  'd|daemon'     => \my $daemon,
   'f|foreground' => \$ENV{HYPNOTOAD_FOREGROUND},
   'h|help'       => \my $help,
   'v|verbose'    => \$ENV{MORBO_VERBOSE};
@@ -54,6 +56,15 @@ if ($morbo) {
     $ENV{MOJO_MODE} = "development";
     $backend->daemon->listen(@listen);
     $backend->run($app);
+} elsif ($daemon) {
+    $backend = Mojo::Server::Daemon->new( keep_alive_timeout => 30 );
+    $backend->listen(@listen);
+
+    $backend->load_app($app);
+
+    $backend->start;
+
+    $backend->run;
 } else {
     print "Server PID will be at " . $hypno_pid . "\n";
 
