@@ -32,7 +32,7 @@ use Encode;
 use LANraragi::Utils::Archive    qw(extract_thumbnail);
 use LANraragi::Utils::Database   qw(redis_encode invalidate_cache compute_id change_archive_id);
 use LANraragi::Utils::Logging    qw(get_logger);
-use LANraragi::Utils::Generic    qw(is_archive split_workload_by_cpu);
+use LANraragi::Utils::Generic    qw(is_archive);
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
@@ -147,6 +147,7 @@ sub update_filemap {
                 add_new_files(@{ $_ });
             } \@newfiles;
         } else {
+            # libarchive does not support threading on Windows
             add_new_files(@newfiles);
         }
     };

@@ -12,7 +12,7 @@ use Redis;
 use Storable qw/ nfreeze thaw /;
 use Sort::Naturally;
 
-use LANraragi::Utils::Generic  qw(split_workload_by_cpu intersect_arrays);
+use LANraragi::Utils::Generic  qw(intersect_arrays);
 use LANraragi::Utils::String   qw(trim);
 use LANraragi::Utils::Database qw(redis_decode redis_encode);
 use LANraragi::Utils::Logging  qw(get_logger);

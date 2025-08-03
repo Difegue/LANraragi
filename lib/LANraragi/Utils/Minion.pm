@@ -14,7 +14,6 @@ use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Database   qw(redis_decode);
 use LANraragi::Utils::Archive    qw(extract_thumbnail);
 use LANraragi::Utils::Plugins    qw(get_downloader_for_url get_plugin get_plugin_parameters use_plugin);
-use LANraragi::Utils::Generic    qw(split_workload_by_cpu);
 use LANraragi::Utils::String     qw(trim_url);
 use LANraragi::Utils::TempFolder qw(get_temp);
 
@@ -108,6 +107,7 @@ sub add_tasks {
                         $sub->(@{ $_ });
                     } \@keys;
                 } else {
+                    # libarchive does not support threading on Windows
                     $sub->(@keys);
                 }
             };
@@ -164,6 +164,7 @@ sub add_tasks {
                         $sub->(@{ $_ });
                     } \@keys;
                 } else {
+                    # libarchive does not support threading on Windows
                     $sub->(@keys);
                 }
             };
