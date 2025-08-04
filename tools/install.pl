@@ -240,7 +240,7 @@ sub install_package {
 
     if ($@) {
         say("$package not installed! Trying to install now using cpanm$cpanopt");
-        system("cpanm $package $cpanopt");
+        system("cpanm --notest $package $cpanopt");
     } else {
         say("$package package installed, proceeding...");
     }
