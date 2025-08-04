@@ -74,6 +74,4 @@ requires 'Locale::Maketext::Lexicon', 1.00;
 # Cache
 requires 'CHI',                   0.61;
 requires 'CHI::Driver::FastMmap', 0.61;
-requires 'Cache::FastMmap',       '>= 1.57, < 1.59';
-
-# 1.59 locks up in preforking environments (https://github.com/robmueller/cache-fastmmap/issues/28)
+requires 'Cache::FastMmap',       1.60;
