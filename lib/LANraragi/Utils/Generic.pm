@@ -11,7 +11,6 @@ use Digest::SHA qw(sha256_hex);
 use Mojo::Log;
 use Mojo::Util qw(xml_escape);
 use Mojo::IOLoop;
-use Logfile::Rotate;
 use Proc::Simple;
 use Sys::CpuAffinity;
 use Config;

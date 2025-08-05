@@ -49,6 +49,12 @@ my $inotifysub = sub {
     my $e    = shift;
     my $name = $e->path;
     my $type = $e->type;
+
+    # Filewatcher on Windows returns backward slashes, convert them to forward slash to match everything else
+    if ( !IS_UNIX ) {
+        $name =~ s/\\/\//g;
+    }
+
     $logger->debug("Received inotify event $type on $name");
 
     if ( $type eq "create" || $type eq "modify" ) {
