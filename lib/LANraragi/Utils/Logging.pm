@@ -7,9 +7,11 @@ use utf8;
 use feature 'say';
 use POSIX;
 use FindBin;
+use Cwd 'abs_path';
 
 use Encode;
 use File::ReadBackwards;
+use Compress::Zlib;
 
 # Contains all functions related to logging.
 use Exporter 'import';
@@ -35,13 +37,34 @@ sub get_logger {
     my $pgname  = $_[0];
     my $logfile = $_[1];
 
-    my $logpath = get_logdir . "/$logfile.log";
+    my $logpath = abs_path( get_logdir . "/$logfile.log" );
 
     if ( -e $logpath && -s $logpath > 1048576 ) {
 
         # Rotate log if it's > 1MB
         say "Rotating logfile $logfile";
-        new Logfile::Rotate( File => $logpath, Gzip => 'lib' )->rotate();
+
+        # Based on Logfile::Rotate
+        # Rotate existing logs
+        for ( my $i = 7; $i > 1; $i-- ) {
+            my $j = $i - 1;
+            my $next = "$logpath.$i.gz";
+            my $prev = "$logpath.$j.gz";
+            if ( -r $prev && -f $prev ) {
+                rename( $prev, $next ) or die "error: rename failed: ($prev,$next)";
+            }
+        }
+
+        # Rotate current log and Gzip-it
+        my $gz = gzopen( "$logpath.1.gz", "wb" ) or die "error: could not gzopen $logpath: $!";
+
+        open( my $handle, '<', $logpath ) or die "Couldn't open $logpath :" . $!;
+        my $buffer;
+        $gz->gzwrite($buffer) while read( $handle, $buffer, 4096 ) > 0;
+        $gz->gzclose();
+        close $handle;
+
+        unlink $logpath or die "error: could not delete $logpath: $!";
     }
 
     my $log = Mojo::Log->new(
