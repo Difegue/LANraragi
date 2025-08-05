@@ -536,7 +536,7 @@ sub update_indexes ( $id, $oldtags, $newtags ) {
 sub compute_id ($file) {
 
     #Read the first 512 KBs only (allows for faster disk speeds )
-    open( my $handle, '<', $file ) or die "Couldn't open $file :" . $!;
+    open( my $handle, '<:raw', $file ) or die "Couldn't open $file :" . $!;
     my $data;
     my $len = read $handle, $data, 512000;
     close $handle;
