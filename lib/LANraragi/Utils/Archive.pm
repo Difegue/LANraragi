@@ -101,7 +101,7 @@ sub extract_pdf ( $destination, $to_extract ) {
 
     make_path($destination);
 
-    my $gscmd = "gs -dNOPAUSE -sDEVICE=jpeg -r200 -o '$destination/\%d.jpg' '$to_extract'";
+    my $gscmd = "gs -dNOPAUSE -sDEVICE=jpeg -r200 -o \"$destination/\%d.jpg\" \"$to_extract\"";
     $logger->debug("Sending PDF $to_extract to GhostScript...");
     $logger->debug($gscmd);
 
@@ -300,7 +300,7 @@ sub extract_single_file ( $archive, $filepath ) {
         $page =~ s/^(\d+).jpg$/$1/;
 
         my ( $fh, $outfile ) = tempfile();
-        my $gscmd = "gs -dNOPAUSE -dFirstPage=$page -dLastPage=$page -sDEVICE=jpeg -r200 -o '$outfile' '$archive'";
+        my $gscmd = "gs -dNOPAUSE -dFirstPage=$page -dLastPage=$page -sDEVICE=jpeg -r200 -o \"$outfile\" \"$archive\"";
         $logger->debug("Extracting page $filepath from PDF $archive");
         $logger->debug($gscmd);
 
