@@ -7,7 +7,6 @@ use utf8;
 use feature 'say';
 use POSIX;
 use FindBin;
-use Cwd 'abs_path';
 
 use Encode;
 use File::ReadBackwards;
@@ -37,7 +36,7 @@ sub get_logger {
     my $pgname  = $_[0];
     my $logfile = $_[1];
 
-    my $logpath = abs_path( get_logdir . "/$logfile.log" );
+    my $logpath = get_logdir . "/$logfile.log";
 
     if ( -e $logpath && -s $logpath > 1048576 ) {
 
