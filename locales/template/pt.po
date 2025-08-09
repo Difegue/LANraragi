@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 03:27+0200\n"
-"PO-Revision-Date: 2025-08-09 21:02+0000\n"
+"PO-Revision-Date: 2025-08-09 23:57+0000\n"
 "Last-Translator: Mayanna Oliveira <mayannait@gmail.com>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/pt/>\n"
@@ -39,13 +39,13 @@ msgid "(Categories will always be restored)"
 msgstr "(As categorias sempre serão restauradas)"
 
 msgid "Backup Database"
-msgstr "Cópia de segurança do banco de dados"
+msgstr "Backup do Banco de Dados"
 
 msgid "Restore Backup"
-msgstr "Restaurar cópia de segurança"
+msgstr "Restaurar o Backup"
 
 msgid "Restoring your backup ..."
-msgstr "Restaurando sua cópia de segurança ..."
+msgstr "Restaurando seu backup ..."
 
 msgid "Return to Library"
 msgstr ""
@@ -64,13 +64,13 @@ msgstr ""
 "fazê-lo e simbora!"
 
 msgid "Archives with no tags have been pre-checked."
-msgstr "Arquivos sem etiquetas foram pré-selecionados"
+msgstr "Arquivos sem etiquetas foram pré-selecionados."
 
 msgid "Task :"
 msgstr "Tarefa:"
 
 msgid "Use Plugin"
-msgstr "Usar um plugin"
+msgstr "Utilizar um Plugin"
 
 msgid "Remove New Flag"
 msgstr "Remover a Nova Flag"
@@ -85,10 +85,10 @@ msgid "Delete Archive"
 msgstr ""
 
 msgid "Use plugin :"
-msgstr "Usar plugin:"
+msgstr "Utilizar o plugin:"
 
 msgid "Timeout (max 20s):"
-msgstr "Tempo restante (max 20s):"
+msgstr "Tempo restante de no (máximo 20s):"
 
 msgid "This plugin recommends a cooldown of <span id=\"cooldown\">-1</span> seconds."
 msgstr ""
@@ -98,7 +98,7 @@ msgstr ""
 msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
 msgstr ""
 "Alguns serviços externos podem banir temporariamente sua máquina por excesso "
-"de carga se o plugin for requisitado várias vezes!"
+"de carga caso o plugin seja requisitado várias vezes!"
 
 msgid "Make sure to set a suitable <b>timeout</b> between archives using this picker if the plugin you want to use is concerned."
 msgstr ""
@@ -119,7 +119,7 @@ msgid "Server Configuration"
 msgstr "Configuração do Servidor"
 
 msgid "This removes the \"new\" flag from the selected archives."
-msgstr "Isso remove o sinal de \"novo\" dos arquivos selecionados."
+msgstr "Isso remove a flag de \"novo\" dos arquivos selecionados."
 
 msgid "Add to Category :"
 msgstr "Adicionar a Categoria:"
@@ -382,7 +382,7 @@ msgid "Number of archives shown on a page in the main list."
 msgstr "Número de arquivos exibidos em uma página na lista principal."
 
 msgid "Resize Images in Reader"
-msgstr "Redimensionar imagens no Reader"
+msgstr "Redimensionar imagens no Leitor"
 
 msgid "If enabled, pages exceeding a certain size will be resized when viewed to save bandwidth."
 msgstr ""
@@ -439,7 +439,7 @@ msgstr "Limpar Banco de Dados"
 
 msgid "Cleaning the database will remove entries that aren't on your filesystem."
 msgstr ""
-"Ao limpar o banco de dados as entradas  que não estão no seu sistema de "
+"Ao limpar o banco de dados as entradas que não estão no seu sistema de "
 "arquivos serão removidas."
 
 msgid "Reset Database"
@@ -501,13 +501,13 @@ msgstr ""
 "<i>Autorização</i> no cabeçalho."
 
 msgid "Enable CORS for the Client API"
-msgstr "Habilitar CORS para a API do Cliente"
+msgstr "Habilitar o CORS para a API do Cliente"
 
 msgid "Have API requests support Cross-Origin Resource Sharing, which allows web browsers to access it off other domains."
 msgstr ""
-"Faça com que as solicitações de API ofereçam suporte ao Compartilhamento de "
-"Recursos entre Origens, o que permite que navegadores da web acessem esses "
-"recursos de outros domínios."
+"Faça com que as solicitações de API ofereçam suporte ao CORS ("
+"Compartilhamento de Recursos entre Origens), o que permite que os "
+"navegadores da internet acessem esses recursos de outros domínios."
 
 msgid "Turn this on if you want to access this service through a web-based wrapper (e.g. a userscript) used/hosted on another domain."
 msgstr ""
@@ -724,7 +724,7 @@ msgid "Add Archives"
 msgstr "Adicione Arquivos"
 
 msgid "Batch Operations"
-msgstr "Operações em série"
+msgstr "Operações em Lotes"
 
 msgid "Settings"
 msgstr "Ajustes"
@@ -848,7 +848,7 @@ msgstr ""
 # ------End of Index.html.tt2------
 # ------Start of Login.html.tt2------
 msgid "This page requires you to log on."
-msgstr ""
+msgstr "Essar página requer um log ativo."
 
 msgid "Admin Password:"
 msgstr "Senha do Administrador:"
@@ -953,7 +953,7 @@ msgid "Login Plugins"
 msgstr "Plugins de Acesso"
 
 msgid "Downloaders"
-msgstr "Downloaders"
+msgstr "Baixados"
 
 msgid "Scripts"
 msgstr "Scripts"
@@ -1021,7 +1021,7 @@ msgid "Edit Archive Metadata"
 msgstr "Editar Metadados do Arquivo"
 
 msgid "Delete Archive"
-msgstr "Apagar Arquivo"
+msgstr "Apagar o Arquivo"
 
 msgid "Categories"
 msgstr "Categorias"
@@ -1164,17 +1164,18 @@ msgstr "Acompanhamento da Progressão"
 
 msgid "Disabling tracking will restart reading from page one every time you reopen the reader."
 msgstr ""
-"Desabilitar o rastreamento vai reiniciar a leitura da primeira página sempre "
+"Desabilitar a progressão vai reiniciar a leitura da primeira página sempre "
 "que você reabrir o leitor."
 
 msgid "Infinite Scrolling"
-msgstr ""
+msgstr "Rolagem Infinita"
 
 msgid "Display all images in a vertical view in the same page."
 msgstr ""
+"Exibir todas as imagens em uma visualização vertical nessa mesma página."
 
 msgid "Reader Settings"
-msgstr ""
+msgstr "Ajustes do Leitor"
 
 msgid "Help"
 msgstr "Ajuda"
@@ -1186,39 +1187,43 @@ msgid "Archive Overview"
 msgstr "Visão Geral do Arquivo"
 
 msgid "FullScreen"
-msgstr ""
+msgstr "Tela Cheia"
 
 msgid "Toggle Bookmark"
-msgstr ""
+msgstr "Alterar o Marcador"
 
 # ------End of Reader.html.tt2------
 # ------Start of Stats.html.tt2------
 msgid "Library Statistics"
-msgstr ""
+msgstr "Estatísticas da Biblioteca"
 
 msgid "Archives on record"
-msgstr ""
+msgstr "Arquivos registrados"
 
 msgid "Different tags existing"
-msgstr ""
+msgstr "Diferentes etiquetas existentes"
 
 msgid "in content folder"
-msgstr ""
+msgstr "na pasta do conteúdo"
 
 msgid "pages read"
-msgstr ""
+msgstr "ler páginas"
 
 msgid "Tag Cloud"
 msgstr "Etiqueta da Nuvem"
 
 msgid "Asking the great powers that be for your tag statistics..."
 msgstr ""
+"Pedindo aos grandes poderes que foram constituídos com as suas estatísticas "
+"das etiquetas..."
 
 msgid "Detailed Stats"
-msgstr ""
+msgstr "Estatísticas Detalhadas"
 
 msgid "(These statistics only show tags that appear at least twice in your database.)"
 msgstr ""
+"(Essas estatísticas mostram apenas a etiqueta que aparece pelo menos duas "
+"vezes no seu banco de dados.)"
 
 msgid "Return to Library"
 msgstr ""
@@ -1226,52 +1231,62 @@ msgstr ""
 # ------End of Stats.html.tt2------
 # ------Start of Upload.html.tt2------
 msgid "Upload Center"
-msgstr ""
+msgstr "Centro de Upload"
 
 msgid "Adding Archives to the Library"
-msgstr ""
+msgstr "Adicionando os Arquivos à Biblioteca"
 
 msgid "Add files to your LANraragi instance from your computer, or the Internet directly."
 msgstr ""
+"Adicione arquivos à sua instância no LANraragi do seu computador ou "
+"diretamente na Internet."
 
 msgid "Add uploaded files to category:"
-msgstr ""
+msgstr "Adicionar arquivos enviados à categoria:"
 
 msgid " -- No Category -- "
 msgstr " -- Sem Categoria -- "
 
 msgid "From your computer"
-msgstr ""
+msgstr "Do seu computador"
 
 msgid "You can drag and drop files into this window, or click the upload button."
 msgstr ""
+"Você pode arrastar e soltar arquivos nesta janela, ou clicar no botão de "
+"upload."
 
 msgid "Add from your computer"
-msgstr ""
+msgstr "Adicione do seu computador"
 
 msgid "From the Internet"
-msgstr ""
+msgstr "Da Internet"
 
 msgid "You can download files from remote URLs directly into LANraragi from here."
 msgstr ""
+"Você pode baixar os arquivos de URLs remotas diretamente para o LANraragi a "
+"partir daqui."
 
 msgid "Download jobs will keep going even if you close this window!"
-msgstr ""
+msgstr "Os serviços de download continuarão mesmo que você feche essa janela!"
 
 msgid "Type in your URLs (separated by a newline), and click the download button."
 msgstr ""
+"Digite suas URLs (separadas por uma nova linha) e clique no botão de "
+"download."
 
 msgid "If a Downloader plugin is compatible with the URL, it'll be automatically used."
 msgstr ""
+"Se um <a href=\"[% c.url_for(\"/config/plugins\") %]\">plugin baixados</a> "
+"forem compatíveis com a URL, ele será utilizado automaticamente."
 
 msgid "URL(s) to download:"
-msgstr ""
+msgstr "URL(s) para download:"
 
 msgid "Add from URL(s)"
-msgstr ""
+msgstr "Adicionar a partir da URL(s)"
 
 msgid "Return to Library"
-msgstr "Voltar a biblioteca"
+msgstr "Voltar a Biblioteca"
 
 # ------End of Upload.html.tt2------
 msgid "Rescan Archive Directory"
@@ -1285,227 +1300,250 @@ msgstr ""
 
 # ------Stary of i18n.html.tt2------
 msgid "Backup restored!"
-msgstr ""
+msgstr "Backup restaurado!"
 
 msgid "An error occured while restoring the backup.<br/> Please check the server logs and that your JSON is correctly formatted."
 msgstr ""
+"Ocorreu um erro ao restaurar o backup.<br/> Por favor verifique os logs do "
+"servidor e se o seu JSON está formatado corretamente."
 
 msgid "Couldn't load the complete archive list! Please reload the page."
 msgstr ""
+"Não foi possível carregar a lista completa do arquivo! Recarregue a página."
 
 msgid "Couldn't load the tag statistics! Please reload the page."
 msgstr ""
+"Não foi possível carregar as estatísticas das etiquetas! Recarregue a página."
 
 msgid "Error getting untagged archives!"
-msgstr ""
+msgstr "Erro ao obter arquivos sem etiquetas!"
 
 msgid "Are you sure you want to delete this archive?"
-msgstr ""
+msgstr "Tem certeza de que deseja excluir esse arquivo?"
 
 msgid "Are you sure you want to delete the selected archives?"
-msgstr ""
+msgstr "Tem certeza de que deseja excluir os arquivos selecionados?"
 
 msgid "This action cannot be undone!"
-msgstr ""
+msgstr "Esta ação não pode ser desfeita!"
 
 msgid "This action (truly) cannot be undone!"
-msgstr ""
+msgstr "Esta ação (verdadeiramente) não pode ser desfeita!"
 
 msgid "Yes, delete it!"
-msgstr ""
+msgstr "Sim, exclua isso!"
 
 msgid "No, keep it!"
-msgstr ""
+msgstr "Não, fique com ele!"
 
 msgid "Error while deleting cache! Check application logs."
-msgstr ""
+msgstr "Erro ao excluir o cache! Verifique os logs do aplicativo."
 
 msgid "Error while processing request"
-msgstr ""
+msgstr "Erro ao processar a solicitação"
 
 msgid "Error checking Minion job status"
-msgstr ""
+msgstr "Erro ao verificar o status de serviço do Minion"
 
 msgid "Saved!"
-msgstr ""
+msgstr "Salvo!"
 
 msgid "Error saving data"
-msgstr ""
+msgstr "Erro ao salvar dados"
 
 msgid "Started Batch Operation..."
-msgstr ""
+msgstr "Iniciada a Operação em Lote..."
 
 msgid "Batch Operation complete!"
-msgstr ""
+msgstr "Operação em Lote concluída!"
 
 msgid "An error occured during batch tagging!"
-msgstr ""
+msgstr "Ocorreu um erro durante a etiquetagem em lote!"
 
 msgid "Please check application logs."
-msgstr ""
+msgstr "Por favor, verifique os registros do aplicativo."
 
 msgid "Error! Terminating session."
-msgstr ""
+msgstr "Erro! Encerrando a sessão."
 
 msgid "Sleeping for \${x} seconds."
-msgstr ""
+msgstr "Dormindo por ${x} segundos."
 
 msgid "Error while processing ID \${id} (\${msg})"
-msgstr ""
+msgstr "Erro ao processar o ID ${id} (${msg})"
 
 msgid "Processed ID \${id} with \"\${plug}\" (Added tags: \${tags})"
-msgstr ""
+msgstr "ID processado ${id} com \"${plug}\" (Tags adicionadas: ${tags})"
 
 msgid "Deleted ID \${id} (Filename: \${filename})"
-msgstr ""
+msgstr "ID excluído ${id} (Nome do arquivo: ${filename})"
 
 msgid "Replaced tags for ID \${id} (New tags: \${tags})"
-msgstr ""
+msgstr "Etiquetas trocadas para o ID ${id} (Novas etiquetas: ${tags})"
 
 msgid "Added ID \${id} to category \${category}! (\${msg})"
-msgstr ""
+msgstr "O ID ${id} adicionado à categoria ${category}! (${msg})"
 
 msgid "Cleared new flag for ID \${id}!"
-msgstr ""
+msgstr "Nova flag renovadas para o ID ${id}!"
 
 msgid "Unknown operation \${oper} (\${msg})"
-msgstr ""
+msgstr "Operação desconhecida ${oper} (${msg})"
 
 msgid "Changed title to: \${title}"
-msgstr ""
+msgstr "Título alterado para: ${title}"
 
 msgid "Reloading page in 5 seconds to account for deleted archives..."
 msgstr ""
+"Recarregando a página em 5 segundos para contabilizar os arquivos "
+"excluídos..."
 
 msgid "Cancelling Batch Operation..."
-msgstr ""
+msgstr "Cancelando a operação em Lote..."
 
 msgid "Enter a name for the new category"
-msgstr ""
+msgstr "Digite um nome para a nova categoria"
 
 msgid "My Category"
-msgstr ""
+msgstr "Minha Categoria"
 
 msgid "Please enter a category name."
-msgstr ""
+msgstr "Por favor, insira um nome da categoria."
 
 msgid "No category"
-msgstr ""
+msgstr "Nenhuma categoria"
 
 msgid "Error getting categories from server"
-msgstr ""
+msgstr "Erro ao obter as categorias do servidor"
 
 msgid "Error modifying category"
-msgstr ""
+msgstr "Erro ao modificar a categoria"
 
 msgid "The category will be deleted permanently."
-msgstr ""
+msgstr "A categoria será excluída permanentemente."
 
 msgid "Category deleted!"
-msgstr ""
+msgstr "Categoria apagada!"
 
 msgid "Error deleting category"
-msgstr ""
+msgstr "Erro ao excluir categoria"
 
 msgid "Writing a Predicate"
-msgstr ""
+msgstr "Escrevendo um Atributo"
 
 msgid "Predicates follow the same syntax as searches in the Archive Index. Check the Documentation for more information."
 msgstr ""
+"Os atributos seguem a mesma sintaxe das pesquisas no Índice do Arquivo. "
+"Consulte a <a href="
+"\"https://sugoi.gitbook.io/lanraragi/basic-operations/searching\""
+">Documentação</a> para obter mais informações."
 
 msgid "Background Worker restarted!"
-msgstr ""
+msgstr "Background Worker reiniciado!"
 
 msgid "Error restarting Worker:"
-msgstr ""
+msgstr "Error ao reiniciar Worker:"
 
 msgid "Content folder rescan started!"
-msgstr ""
+msgstr "Nova verificação na pasta do conteúdo foi iniciada!"
 
 msgid "Error starting content folder rescan:"
-msgstr ""
+msgstr "Erro ao iniciar uma nova verificação da pasta de conteúdo:"
 
 msgid "Error while querying Shinobu status:"
-msgstr ""
+msgstr "Erro ao consultar o status do Shinobu:"
 
 msgid "About Plugins"
-msgstr ""
+msgstr "Sobre os Plugins"
 
 msgid "You can use plugins to automatically fetch metadata for this archive. <br/> Just select a plugin from the dropdown and hit Go! <br/> Some plugins might provide an optional argument for you to specify. If that's the case, a textbox will be available to input said argument."
 msgstr ""
+"Você pode utilizar os plugins para buscar os metadados automaticamente para "
+"esse arquivo. <br/> Basta selecionar um plugin no menu suspenso e clicar em "
+"Ir! <br/> Alguns plugins podem fornecer um argumento opcional para você "
+"especificar. Nesse caso, uma caixa de texto estará disponível para inserir o "
+"argumento."
 
 msgid "Metadata saved!"
-msgstr ""
+msgstr "Metadados salvos!"
 
 msgid "Error saving archive metadata"
-msgstr ""
+msgstr "Error ao salvar o arquivo de metadado"
 
 msgid "Error while fetching tags"
-msgstr ""
+msgstr "Erro ao buscar as etiquetas"
 
 msgid "Archive title changed to"
-msgstr ""
+msgstr "Título do arquivo alterado para"
 
 msgid "Archive summary updated!"
-msgstr ""
+msgstr "Resumo do arquivo atualizado!"
 
 msgid "Added the following tags"
-msgstr ""
+msgstr "Adicionadas as seguintes tags"
 
 msgid "No new tags added!"
-msgstr ""
+msgstr "Nenhuma nova tag adicionada!"
 
 # Do not translate _START_, _END_ or _TOTAL_.
 msgid "Showing _START_ to _END_ of _TOTAL_ ancient chinese lithographies."
-msgstr ""
+msgstr "Exibindo _START_ to _END_ of _TOTAL_ litografias chinesas antigas."
 
 msgid "No archives to show you! Try <a href=\"\${url}\")>uploading some</a>?"
 msgstr ""
+"Nenhum arquivo para mostrar! Tente <a href=\"${url}\")>envio de alguns</a>?"
 
 msgid "Welcome to LANraragi \${version}!"
-msgstr ""
+msgstr "Bem-vindo ao LANraragi ${version}!"
 
 msgid "If you want to perform advanced operations on an archive, remember to just right-click its name. Happy reading!"
 msgstr ""
+"Se você quiser realizar as operações avançadas em um arquivo, lembre-se de "
+"clicar com o botão direito do mouse no nome dele. Boa leitura!"
 
 msgid "Error getting basic server info."
-msgstr ""
+msgstr "Erro ao obter informações básicas do servidor."
 
 msgid "You're running in Debug Mode!"
-msgstr ""
+msgstr "Você está executando o Modo de Depuração!"
 
 msgid "Advanced server statistics can be viewed <a href=\"\${url}\")>here</a>."
 msgstr ""
+"Estatísticas avançadas do servidor podem ser visualizadas <a href=\"${url}\""
+")>aqui</a>."
 
 msgid "Enter a tag namespace for this column"
-msgstr ""
+msgstr "Insira um namespace da etiqueta para essa coluna"
 
 msgid "Enter a full namespace without the colon, e.g \"artist\"."
 msgstr ""
+"Digite um namespace completo sem os dois pontos, por exemplo \"artista\"."
 
 msgid "If you have multiple tags with the same namespace, only the last one will be shown in the column."
 msgstr ""
+"Se você tiver várias etiquetas com o mesmo namespace, somente a última será "
+"exibida na coluna."
 
 msgid "Tag namespace"
 msgstr "Etiqueta do namespace"
 
 msgid "Please enter a tag namespace."
-msgstr ""
+msgstr "Por favor insira o namespace da etiqueta."
 
 msgid "Randomly Picked"
-msgstr ""
+msgstr "Selecionado Aleatoriamente"
 
 msgid "New Archives"
-msgstr ""
+msgstr "Novos Arquivos"
 
 msgid "Untagged Archives"
-msgstr ""
+msgstr "Arquivos não etiquetados"
 
 msgid "On Deck"
-msgstr ""
+msgstr "No Ponto"
 
 msgid "Error getting carousel data!"
-msgstr ""
+msgstr "Erro ao obter os dados do carrossel!"
 
 msgid "Edit this column"
 msgstr "Editar essa coluna"
@@ -1520,272 +1558,308 @@ msgid "Header"
 msgstr "Cabeçalho"
 
 msgid "A new version of LANraragi (\${version}) is available!"
-msgstr ""
+msgstr "A nova versão do LANraragi (${version}) está disponível!"
 
 msgid "Click here to check it out."
-msgstr ""
+msgstr "Clique aqui para conferir."
 
 msgid "Error getting changelog for new version"
-msgstr ""
+msgstr "Erro ao obter o changelog para a nova versão"
 
 msgid "Couldn't load data for \${id}!"
-msgstr ""
+msgstr "Não foi possível carregar dados para o ${id}!"
 
 msgid "Github API rate limit exceeded."
-msgstr ""
+msgstr "Limite de taxa da API do Github foi excedido."
 
 msgid "Github API returned status: \${status}"
-msgstr ""
+msgstr "Status de retorno da API do Github: ${status}"
 
 msgid "This archive isn't in any category."
-msgstr ""
+msgstr "Este arquivo não está em nenhuma categoria."
 
 msgid "No Categories yet..."
-msgstr ""
+msgstr "Sem Categorias ainda..."
 
 msgid "Remove rating"
-msgstr ""
+msgstr "Remover a classificação"
 
 msgid "Click here to display new archives only."
-msgstr ""
+msgstr "Clique aqui para exibir apenas novos arquivos."
 
 msgid "Click here to display untagged archives only."
-msgstr ""
+msgstr "Clique aqui para exibir somentes arquivos sem etiquetas."
 
 msgid "Click here to display archives in this category only."
-msgstr ""
+msgstr "Clique aqui para exibir somente os arquivos dessa categoria."
 
 msgid "Your Reading Progression is now saved on the server!"
-msgstr ""
+msgstr "A Progressão de Sua Leitura foi salva no servidor!"
 
 msgid "You seem to have some local progression hanging around -- Please wait warmly while we migrate it to the server for you."
 msgstr ""
+"Parece que você tem algo em progresso localmente por aí. Aguarde enquanto "
+"fazemos a migração do servidor para você."
 
 msgid "Error while migrating local progression to server"
-msgstr ""
+msgstr "Erro ao migrar o progresso local para o servidor"
 
 msgid "Reading Progression has been fully migrated"
-msgstr ""
+msgstr "O progresso de leitura foi totalmente migrada"
 
 msgid "You'll have to reopen archives in the Reader to see the migrated progression values."
 msgstr ""
+"Você terá que reabrir os arquivos no Leitor para ver os valores migrados no "
+"progresso."
 
 msgid "Plugin uploaded successfully!"
-msgstr ""
+msgstr "Plugin carregado com sucesso!"
 
 msgid "The plugin \${name} has been successfully added. Refresh the page to see it."
 msgstr ""
+"O plugin ${name} foi adicionado com sucesso. Atualize a página para vê-lo."
 
 msgid "Error uploading plugin"
-msgstr ""
+msgstr "Erro ao carregar o plugin"
 
 msgid "Successfully set page \${page} as the thumbnail!"
-msgstr ""
+msgstr "A página ${page} foi definida com sucesso assim como a miniatura!"
 
 msgid "Error updating thumbnail"
-msgstr ""
+msgstr "Erro ao atualizar a miniatura"
 
 msgid "Error clearing new flag"
-msgstr ""
+msgstr "Error ao limpar a nova flag"
 
 msgid "Error getting the archive's imagelist."
-msgstr ""
+msgstr "Erro ao obter a lista de imagens do arquivo."
 
 msgid "This archive seems to be in RAR format!"
-msgstr ""
+msgstr "Esse arquivo parece estar no formato RAR!"
 
 msgid "RAR archives might not work properly in LANraragi depending on how they were made. If you encounter errors while reading, consider converting your archive to zip."
 msgstr ""
+"Arquivos RAR podem não funcionar corretamente no LANraragi, dependendo de "
+"como foram criados. Se encontrar erros durante a leitura, considere "
+"converter seu arquivo para zip."
 
 msgid "EPUB support in LANraragi is minimal"
-msgstr ""
+msgstr "O suporte a EPUB no LANraragi é mínimo"
 
 msgid "EPUB books will only show images in the Web Reader, and potentially out of order. If you want text support, consider pairing LANraragi with an OPDS reader."
 msgstr ""
+"Livros en EPUB exibirão apenas imagens no Leitor Web e, potencialmente, fora "
+"de ordem. Se você deseja suporte a texto, considere emparelhar o LANraragi "
+"com um <a href='https://sugoi.gitbook.io/lanraragi/advanced-usage/external-"
+"readers#generic-opds-readers'>leitor OPDS.</a>"
 
 msgid "Navigation Help"
-msgstr ""
+msgstr "Ajuda de Navegação"
 
 msgid "Error updating reading progression"
-msgstr ""
+msgstr "Erro ao atualizar a progresso da leitura"
 
 msgid "Page \${page}"
-msgstr ""
+msgstr "Páginas ${page}"
 
 msgid "The page thumbnailing job didn't conclude properly. Your archive might be corrupted."
 msgstr ""
+"O serviço da miniatura da página não foi concluída corretamente. Seu arquivo "
+"pode estar corrompido."
 
 msgid "A script is already running."
-msgstr ""
+msgstr "Um script já está em execução."
 
 msgid "Please wait for it to finish before starting a new one."
-msgstr ""
+msgstr "Por favor, aguarde a finalização desse antes de iniciar uma nova."
 
 msgid "An error occured while running the script"
-msgstr ""
+msgstr "Um error ocorreu enquanto o script está em execução"
 
 msgid "Script result"
-msgstr ""
+msgstr "Resultado do Script"
 
 msgid "Script failed with error: \${error}"
-msgstr ""
+msgstr "Script falhou com error: ${error}"
 
 msgid "Temporary folder cleaned!"
-msgstr ""
+msgstr "Pasta temporária limpa!"
 
 msgid "Error cleaning temporary folder"
-msgstr ""
+msgstr "Erro ao limpar a pasta temporária"
 
 msgid "Threw away the cache!"
-msgstr ""
+msgstr "Joguei o cache fora!"
 
 msgid "Error clearing the cache"
-msgstr ""
+msgstr "Erro ao limpar o cache"
 
 msgid "Threw away the search cache!"
-msgstr ""
+msgstr "Joguei fora o cache da pesquisa!"
 
 msgid "All archives are no longer new!"
-msgstr ""
+msgstr "Todos os arquivos não são mais novos!"
 
 msgid "Error during cleanup procedure"
-msgstr ""
+msgstr "Erro durante o procedimento de limpeza"
 
 msgid "Are you sure you want to wipe the database?"
-msgstr ""
+msgstr "Tem certeza de que deseja limpar o banco de dados?"
 
 msgid "Sayonara! Redirecting you..."
-msgstr ""
+msgstr "Sayonara! Redirecionando você..."
 
 msgid "Successfully cleaned the database and removed \${entries} entries."
 msgstr ""
+"O banco de dados foi limpo com sucesso e as entradas ${entries} foram "
+"removidas."
 
 msgid "\${entries} other entries have been unlinked from the database and will be deleted on the next cleanup!"
 msgstr ""
+"Outras entradas ${entries} foram desvinculadas do banco de dados e serão "
+"excluídas na próxima limpeza!"
 
 msgid "Do a backup now if some files disappeared from your archive index."
 msgstr ""
+"Faça um backup agora caso alguns arquivos desapareçam do seu índice de "
+"arquivamento."
 
 msgid "Queued up a job to regenerate thumbnails! Stay tuned for updates or check the Minion console."
 msgstr ""
+"Enfileiramos um serviço para regenerar as miniaturas! Fique ligado nas "
+"atualizações ou confira o console do Minion."
 
 msgid "All thumbnails generated! Errors will be listed below if there were any."
 msgstr ""
+"Todas as miniaturas foram geradas! Os erros serão listados abaixo, se houver."
 
 msgid "Added \${id} to category \${cat}!"
-msgstr ""
+msgstr "Adicionado o ${id} à categoria ${cat}!"
 
 msgid "Removed \${id} from category \${cat}!"
-msgstr ""
+msgstr "Removido o ${id} da categoria ${cat}!"
 
 msgid "Couldn't delete archive file. <br/> (Maybe it has already been deleted beforehand?)"
 msgstr ""
+"Não foi possível excluir o arquivo compactado. <br/> (Talvez ele já tenha "
+"sido excluído anteriormente?)"
 
 msgid "Archive metadata has been deleted properly. <br> Please delete the file manually before returning to the archive index."
 msgstr ""
+"Os metadados do arquivo foram excluídos corretamente. <br> Exclua o arquivo "
+"manualmente antes de retornar ao índice do arquivo."
 
 msgid "Archive successfully deleted. Redirecting you..."
-msgstr ""
+msgstr "Arquivo deletado com sucesso. Redirecionando você..."
 
 msgid "Error while deleting archive"
-msgstr ""
+msgstr "Error quando excluía o arquivo"
 
 msgid "Processing your upload... (Job #\${jobid})"
-msgstr ""
+msgstr "Processando seu upload... (Serviço de #${jobid})"
 
 msgid "Downloading file... (Job #\${jobid})"
-msgstr ""
+msgstr "Baixando o arquivo... (Serviço de #${jobid})"
 
 msgid "Processing"
-msgstr ""
+msgstr "Processando"
 
 msgid "Completed"
-msgstr ""
+msgstr "Completado"
 
 msgid "Failed"
-msgstr ""
+msgstr "Falhou"
 
 msgid "Total"
-msgstr ""
+msgstr "Total"
 
 msgid "Click here to edit metadata."
-msgstr ""
+msgstr "Clique aqui para editar o metadados."
 
 msgid "Error while processing file."
-msgstr ""
+msgstr "Error enquanto está processando o arquivo."
 
 msgid "Error while downloading file."
-msgstr ""
+msgstr "Error enquando faz o download do arquivo."
 
 msgid "Error sending job to Minion"
-msgstr ""
+msgstr "Error enviando serviço para o Minion"
 
 # ------End of i18n.html.tt2------
 # ------Start of Duplicates.html.tt2------
 msgid "Duplicate Detection"
-msgstr ""
+msgstr "Detecção Duplicada"
 
 msgid "This page allows you to search for potential duplicates in your library."
 msgstr ""
+"Esta página permite que você pesquise possíveis duplicatas em sua biblioteca."
 
 msgid "Clicking \"Start searching\" will start a background job to scan the entire library for dupes."
 msgstr ""
+"Clicar em \"Iniciar pesquisa\" iniciará um serviço em segundo plano para "
+"verificar toda a biblioteca em busca de arquivos duplicados."
 
 msgid "After which, you can select which archives to delete, and then delete them in bulk."
 msgstr ""
+"Depois disso, você pode selecionar quais arquivos deseja excluir e excluí-"
+"los em massa."
 
 msgid "Found %1 duplicate group(s)."
-msgstr ""
+msgstr "Encontrado(s) %1 do(s) grupo(s) duplicado(s)."
 
 msgid "You can use the rules dropdown below to pre-select archives for deletion."
 msgstr ""
+"Você pode usar o menu suspenso de regras abaixo para pré-selecionar arquivos "
+"para exclusão."
 
 msgid "For every duplicate group..."
-msgstr ""
+msgstr "Para cada grupo duplicado..."
 
 msgid "Keep all files"
-msgstr ""
+msgstr "Matenha todos os aquivos"
 
 msgid "Keep the file with the most tags"
-msgstr ""
+msgstr "Matenha todos os arquivos com mais etiquetas"
 
 msgid "Keep the file with the most pages"
-msgstr ""
+msgstr "Mantenha o arquivo com mais páginas"
 
 msgid "Keep the largest file"
-msgstr ""
+msgstr "Mantenha o maior arquivo"
 
 msgid "Keep the youngest file"
-msgstr ""
+msgstr "Mantenha o arquivo mais novo"
 
 msgid "Keep the oldest file"
-msgstr ""
+msgstr "Mantenha o arquivo mais antigo"
 
 msgid "Start searching for duplicates"
-msgstr ""
+msgstr "Começe buscando por arquivos duplicados"
 
 msgid "Search for duplicates again"
-msgstr ""
+msgstr "Buscar novamente arquivos duplicados"
 
 msgid "Delete all selected items"
-msgstr ""
+msgstr "Apagar todos os itens selecionados"
 
 msgid "Filename"
-msgstr ""
+msgstr "Nome do Arquivo"
 
 msgid "Filesize"
-msgstr ""
+msgstr "Tamanho do Arquivo"
 
 msgid "Action"
-msgstr ""
+msgstr "Ação"
 
 msgid "Searching for duplicates..."
-msgstr ""
+msgstr "Buscando por arquivos duplicados..."
 
 # ------End of Duplicates.html.tt2------
-
 msgid "Run Automatically"
 msgstr "Executa Automaticamente"
 
 msgid "Plugin Settings"
 msgstr "Ajustes do Plugin"
+
+msgid "No duplicates found!"
+msgstr "Não encontradou arquivos duplicados!"
