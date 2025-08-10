@@ -121,9 +121,10 @@ root/
 |  |- _screenshots  <- Screenshots
 |  |- Documentation <- What you're reading right now
 |  |- build         <- Build tools and scrpits
-|     |- windows          <- Windows build script and submodule link to the Karen WPF Bootstrapper
+|     |- windows          <- Legacy WSL build script
 |     |- docker           <- Dockerfile and configuration files for LRR Docker Container
 |     |- homebrew         <- Script and configuration files for the LRR Homebrew cask
+|     |- msys2            <- MSYS2 Windows build scripts, patches and submodule link to the Karen WPF Bootstrapper
 |  |- cpanfile      <- Perl dependencies description
 |  |- install.pl    <- LANraragi Installer
 |  +- lanraragi-systemd.service <- Example SystemD service
