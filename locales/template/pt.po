@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 03:27+0200\n"
-"PO-Revision-Date: 2025-08-09 23:57+0000\n"
+"PO-Revision-Date: 2025-08-10 00:06+0000\n"
 "Last-Translator: Mayanna Oliveira <mayannait@gmail.com>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/pt/>\n"
@@ -181,8 +181,8 @@ msgstr "Você pode criar aqui uma nova categoria ou editar uma existente."
 
 msgid "Select a category in the combobox below to edit its name, the archives it contains, or its predicate."
 msgstr ""
-"Selecione uma categoria na caixa de seleção abaixo para editar seu nome, os "
-"arquivos que ela contém ou seu predicado."
+"Selecione uma categoria na lista abaixo para editar seu nome, os arquivos "
+"incluídos ou sua regra."
 
 msgid "All your modifications are saved automatically."
 msgstr "Todas as modificações serão salvas automaticamente."
@@ -214,10 +214,10 @@ msgid "Store Bookmarks in this Category"
 msgstr "Marcadores da Loja nessa Categoria"
 
 msgid "Error linking bookmark button:"
-msgstr "Erro ao vincular o botão de marcação:"
+msgstr "Error na conexão do botão de marcação:"
 
 msgid "Error unlinking bookmark button:"
-msgstr "Erro ao desvincular o botão de marcação:"
+msgstr "Erro ao desvincular o botão de favoritos:"
 
 msgid "Error getting bookmark category:"
 msgstr "Erro ao obter categoria do marcador:"
@@ -279,8 +279,8 @@ msgstr "Diretório de Arquivos"
 
 msgid "Directory where the archives will be located. It will be created if it doesn't exist."
 msgstr ""
-"Diretório onde os arquivos estarão localizados. Ele será criado caso não "
-"exista."
+"Diretório onde os arquivos serão localizados. Será criado se ainda não "
+"existir."
 
 msgid "Make sure the OS user running LANraragi has read access to this directory."
 msgstr ""
@@ -328,14 +328,14 @@ msgstr "Redefinir Cache de Pesquisa"
 msgid "The last searches done in the archive index are cached for faster loads."
 msgstr ""
 "As últimas pesquisas feitas no índice do arquivo são armazenadas em cache "
-"para serem carregadas mais rápido."
+"para carregamento mais rápidos."
 
 msgid "If something went wrong with said cache, you can reset it by clicking this button."
 msgstr ""
 "Se algo der errado com o cache, você pode redefini-lo clicando nesse botão."
 
 msgid "Clear NEW flags"
-msgstr "Limpar NOVAS flags"
+msgstr "Limpar NOVO sinalizador"
 
 msgid "Newly uploaded archives are marked as \"new\" in the index until you\'ve opened them."
 msgstr ""
@@ -350,7 +350,7 @@ msgstr "Substituir arquivos duplicados"
 
 msgid "If enabled, LANraragi will overwrite old archives when a newer one (with the same name) is uploaded through the Web Uploader or the Download System."
 msgstr ""
-"Se ativado, o LANraragi substituirá os arquivos antigos quando um mais novo ("
+"Se ativado, o LANraragi substituirá arquivos antigos quando um mais novo ("
 "com o mesmo nome) for carregado através do Web Uploader ou do Sistema de "
 "Download."
 
@@ -368,7 +368,7 @@ msgid "The site title appears on most pages as...their title."
 msgstr "O título do site aparece na maioria das páginas como...seu título."
 
 msgid "MOTD"
-msgstr "Mensagem do Dia"
+msgstr "MOTD (Mensagem do Dia)"
 
 msgid "Slang for Message of the Day. Appears on top of the main Library view."
 msgstr ""
@@ -474,7 +474,7 @@ msgid "The one already stored will be used otherwise."
 msgstr "O que já está armazenado será utilizado de outra forma."
 
 msgid "No-Fun Mode"
-msgstr "Sem Modo Divertido"
+msgstr "Modo Sem Diversão"
 
 msgid "Enabling No-Fun Mode will lock reading archives behind the password as well."
 msgstr ""
@@ -501,7 +501,7 @@ msgstr ""
 "<i>Autorização</i> no cabeçalho."
 
 msgid "Enable CORS for the Client API"
-msgstr "Habilitar o CORS para a API do Cliente"
+msgstr "Habilitar CORS para a API do cliente"
 
 msgid "Have API requests support Cross-Origin Resource Sharing, which allows web browsers to access it off other domains."
 msgstr ""
@@ -520,7 +520,7 @@ msgid "Shinobu Status"
 msgstr "Estado do Shinobu"
 
 msgid "The Shinobu File Watcher is currently"
-msgstr "O Arquivo de Observação do Shinobu é atual"
+msgstr "O Arquivo de Observação (File Watcher) do Shinobu é o atual"
 
 msgid "OK!"
 msgstr "OK!"
@@ -561,8 +561,8 @@ msgstr "Diretório de Miniaturas"
 
 msgid "Directory where the archive thumbnails will be located. It will be created if it doesn't exist."
 msgstr ""
-"Diretório onde as miniaturas do arquivo estarão localizadas. Ele será criado "
-"caso não exista."
+"O diretório onde armazena as miniaturas dos arquivos localizados. Ele é "
+"criado caso não tenha um."
 
 msgid "Make sure the OS user running LANraragi has read/write access to this directory."
 msgstr ""
@@ -1290,7 +1290,7 @@ msgstr "Voltar a Biblioteca"
 
 # ------End of Upload.html.tt2------
 msgid "Rescan Archive Directory"
-msgstr "Verificar Novamente o Diretório do Arquivo"
+msgstr "Verificar novamente o diretório de arquivos"
 
 msgid "Click this button to trigger a rescan of the Archive Directory in case you're missing files, or some data such as total page counts."
 msgstr ""
