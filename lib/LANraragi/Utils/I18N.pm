@@ -15,6 +15,7 @@ use Locale::Maketext::Lexicon {
     ko      => [ Gettext => "../../locales/template/ko.po" ],
     no      => [ Gettext => "../../locales/template/nb_NO.po" ],
     nb      => [ Gettext => "../../locales/template/nb_NO.po" ],
+    pt      => [ Gettext => "../../locales/template/pt.po" ],
     "zh-tw" => [ Gettext => "../../locales/template/zh_Hant.po" ],
     vi      => [ Gettext => "../../locales/template/vi.po" ],
     _auto   => 0,
