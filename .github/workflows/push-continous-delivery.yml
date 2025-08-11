@@ -65,89 +65,13 @@ jobs:
           --cache-to "type=local,dest=/tmp/buildxcache" \
           --file ./tools/build/docker/Dockerfile .
 
-  exportDockerRootFS:
-    name: Build and export Docker rootfs for Windows build (WSL2)
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@master
-    - name: Docker Build and export
-      run: |
-        docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile .
-        docker create --name rootfs difegue/lanraragi 
-        docker export --output=package.tar rootfs
-    - name: Upload rootfs
-      uses: actions/upload-artifact@v4
-      with:
-        name: package
-        path: package.tar 
-
-  exportDockerRootFSLegacy:
-    name: Build and export Docker rootfs for Windows build (WSL1)
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@master
-    - name: Docker Build and export
-      run: |
-        docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile-legacy --build-arg INSTALL_PARAMETER=-w .
-        docker create --name rootfs difegue/lanraragi 
-        docker export --output=package-legacy.tar rootfs
-    - name: Upload rootfs
-      uses: actions/upload-artifact@v4
-      with:
-        name: package-legacy
-        path: package-legacy.tar 
-
-  buildNightlyWSL:
-    name: Build Nightly Windows Packages
-    needs: 
-    - exportDockerRootFS
-    - exportDockerRootFSLegacy
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@master
-    - name: Download package
-      uses: actions/download-artifact@v4
-      with:
-        name: package
-    - name: Download package
-      uses: actions/download-artifact@v4
-      with:
-        name: package-legacy
-    - name: Display structure of downloaded files
-      run: ls -R
-    - name: Build MSI Installer
-      shell: powershell
-      run: |
-        [array]$installPath = &"C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -property installationpath
-        # Get first line of installPath in case we have multiple VS installs
-        Import-Module (Join-Path $installPath[0] "Common7\Tools\Microsoft.VisualStudio.DevShell.dll")
-        # Import the VS shell module 
-        Enter-VsDevShell -VsInstallPath $installPath[0] -SkipAutomaticLocation
-        $ErrorActionPreference = 'Continue'
-        git submodule init
-        git submodule update
-        choco uninstall wixtoolset
-        choco install wixtoolset --version 3.14.0 --allow-downgrade --force
-        choco install nuget.commandline
-        ./tools/build/windows/build.ps1
-    - name: Upload Installer
-      uses: actions/upload-artifact@v4
-      with:
-        name: LANraragi.msi
-        path: ./tools/build/windows/Karen/LRR_WSL2.msi
-        if-no-files-found: error
-    - name: Upload Installer
-      uses: actions/upload-artifact@v4
-      with:
-        name: LANraragi_legacy.msi
-        path: ./tools/build/windows/Karen/LRR_WSL1.msi
-        if-no-files-found: error
-
-  buildMSYS2:
+  buildNightlyMSYS2:
     name: Build and export native Windows version
     runs-on: windows-2025
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
     - name: Setup MSYS2 UCRT64
       uses: msys2/setup-msys2@v2
       with:
@@ -165,8 +89,16 @@ jobs:
         ./tools/build/msys2/create-dist.sh
     - name: Enable UTF-8
       run: ./tools/build/msys2/utf8-support.ps1
-    - name: Upload vfs
+    - name: Find MSBuild
+      uses: microsoft/setup-msbuild@v2
+    - name: Build MSI Installer
+      run: |
+        choco uninstall wixtoolset
+        choco install wixtoolset --version 3.14.0 --allow-downgrade --force
+        ./tools/build/msys2/build-installer.ps1
+    - name: Upload Installer
       uses: actions/upload-artifact@v4
       with:
-        name: windows-native
-        path: ./win-dist/
+        name: LANraragi.msi
+        path: ./tools/build/msys2/Karen/Setup/bin/LANraragi.msi
+        if-no-files-found: error
