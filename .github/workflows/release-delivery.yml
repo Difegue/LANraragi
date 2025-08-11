@@ -19,41 +19,48 @@ jobs:
       with:
         name: package
         path: package.tar 
-        
-  buildReleaseWSL:
+
+  buildReleaseMSYS2:
     name: Build Windows Installer
-    needs: exportDockerRootFS
-    runs-on: windows-latest
+    runs-on: windows-2025
     steps:
-    - uses: actions/checkout@master
-    - name: Download package
-      uses: actions/download-artifact@v4
+    - uses: actions/checkout@v4
       with:
-        name: package
-    - name: Build MSI Installer
-      shell: powershell
+        submodules: true
+    - name: Setup MSYS2 UCRT64
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: UCRT64
+        update: true
+    - name: Install deps
+      shell: msys2 {0}
       run: |
-        [array]$installPath = &"C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -property installationpath
-        # Get first line of installPath in case we have multiple VS installs
-        Import-Module (Join-Path $installPath[0] "Common7\Tools\Microsoft.VisualStudio.DevShell.dll")
-        # Import the VS shell module 
-        Enter-VsDevShell -VsInstallPath $installPath[0] -SkipAutomaticLocation
-        $ErrorActionPreference = 'Continue'
-        git submodule init
-        git submodule update
+        ./tools/build/windows/install-deps.sh
+    - name: Build
+      shell: msys2 {0}
+      run: |
+        ./tools/build/windows/install.sh
+        ./tools/build/windows/cleanup.sh
+        ./tools/build/windows/create-dist.sh
+    - name: Enable UTF-8
+      run: ./tools/build/windows/utf8-support.ps1
+    - name: Find MSBuild
+      uses: microsoft/setup-msbuild@v2
+    - name: Build MSI Installer
+      run: |
         choco uninstall wixtoolset
         choco install wixtoolset --version 3.14.0 --allow-downgrade --force
-        choco install nuget.commandline
-        ./tools/build/windows/build.ps1
+        ./tools/build/windows/build-installer.ps1
     - name: Upload Installer
       uses: actions/upload-artifact@v4
       with:
         name: LANraragi.msi
-        path: ./tools/build/windows/Karen/LRR_WSL2.msi
+        path: ./tools/build/windows/Karen/Setup/bin/LANraragi.msi
         if-no-files-found: error
-  uploadWSLRelease:
+
+  uploadMSYS2Release:
     name: Add Windows Installer to release
-    needs: buildReleaseWSL
+    needs: buildReleaseMSYS2
     runs-on: ubuntu-latest
     steps:
     - name: Download package
@@ -65,7 +72,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        args: ./LRR_WSL2.msi application/octet-stream
+        args: ./LANraragi.msi application/octet-stream
     - uses: Ilshidur/action-discord@master
       env:
         DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
