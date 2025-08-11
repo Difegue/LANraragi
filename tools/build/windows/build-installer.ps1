@@ -9,10 +9,10 @@ echo "Version is $version"
 $env:LRR_VERSION_NUM=$version
 
 # Copy vfs
-Copy-Item -Path "./win-dist" -Destination "./tools/build/msys2/Karen/Karen/bin/win-x64/publish/lanraragi" -Recurse -Container
+Copy-Item -Path "./win-dist" -Destination "./tools/build/windows/Karen/Karen/bin/win-x64/publish/lanraragi" -Recurse -Container
 
 # Build Karen
-Set-Location "./tools/build/msys2/Karen"
+Set-Location "./tools/build/windows/Karen"
 dotnet publish --nologo -r win-x64 -o Karen\bin\win-x64\publish Karen\Karen.csproj
 
 # Build Setup

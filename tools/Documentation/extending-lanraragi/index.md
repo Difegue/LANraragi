@@ -33,9 +33,9 @@ To setup an environment that can be used for development you need to do the foll
 
 1. Update the environment with the `pacman -Syu` command.
 2. cd into the LRR directory.
-3. Run the script for installing native dependencies `./tools/build/msys2/install-deps.sh`
+3. Run the script for installing native dependencies `./tools/build/windows/install-deps.sh`
 4. Restart the environment (close and open the shell).
-5. Run the script for installing perl dependencies `./tools/build/msys2/install.sh`
+5. Run the script for installing perl dependencies `./tools/build/windows/install.sh`
 
 Finally you can launch LRR with the `perl ./script/launcher.pl -d -v ./script/lanraragi` command.
 

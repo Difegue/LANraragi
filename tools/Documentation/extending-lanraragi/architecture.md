@@ -120,8 +120,7 @@ root/
 |- tools         <- Contains scripts for building and installing LRR.
 |  |- _screenshots  <- Screenshots
 |  |- Documentation <- What you're reading right now
-|  |- build         <- Build tools and scrpits
-|     |- windows          <- Legacy WSL build script
+|  |- build         <- Build tools and scripts
 |     |- docker           <- Dockerfile and configuration files for LRR Docker Container
 |     |- homebrew         <- Script and configuration files for the LRR Homebrew cask
 |     |- msys2            <- MSYS2 Windows build scripts, patches and submodule link to the Karen WPF Bootstrapper

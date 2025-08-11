@@ -80,25 +80,25 @@ jobs:
     - name: Install deps
       shell: msys2 {0}
       run: |
-        ./tools/build/msys2/install-deps.sh
+        ./tools/build/windows/install-deps.sh
     - name: Build
       shell: msys2 {0}
       run: |
-        ./tools/build/msys2/install.sh
-        ./tools/build/msys2/cleanup.sh
-        ./tools/build/msys2/create-dist.sh
+        ./tools/build/windows/install.sh
+        ./tools/build/windows/cleanup.sh
+        ./tools/build/windows/create-dist.sh
     - name: Enable UTF-8
-      run: ./tools/build/msys2/utf8-support.ps1
+      run: ./tools/build/windows/utf8-support.ps1
     - name: Find MSBuild
       uses: microsoft/setup-msbuild@v2
     - name: Build MSI Installer
       run: |
         choco uninstall wixtoolset
         choco install wixtoolset --version 3.14.0 --allow-downgrade --force
-        ./tools/build/msys2/build-installer.ps1
+        ./tools/build/windows/build-installer.ps1
     - name: Upload Installer
       uses: actions/upload-artifact@v4
       with:
         name: LANraragi.msi
-        path: ./tools/build/msys2/Karen/Setup/bin/LANraragi.msi
+        path: ./tools/build/windows/Karen/Setup/bin/LANraragi.msi
         if-no-files-found: error

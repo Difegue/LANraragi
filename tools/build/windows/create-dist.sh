@@ -46,6 +46,6 @@ cp -R ./script ./win-dist
 cp -R ./templates ./win-dist
 cp -R ./locales ./win-dist
 
-cp ./tools/build/msys2/run.ps1 ./win-dist
+cp ./tools/build/windows/run.ps1 ./win-dist
 
-cp ./tools/build/msys2/redis.conf ./win-dist/runtime/redis
+cp ./tools/build/windows/redis.conf ./win-dist/runtime/redis
