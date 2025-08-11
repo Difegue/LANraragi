@@ -7,7 +7,7 @@ You can download the latest Windows MSI Installer on the [Release Page](https://
 Windows 10 1809 is the minimum supported version. Windows 10 2004 and newer are recommended.
 
 {% hint style="warning" %}
-If you're using Windows 10 1809, UTF-8 support needs to be enabled. You can find instructions [here](#Mangled-filenames-when-running-on-Windows-10-1809).
+If you're using Windows 10 1809, UTF-8 support needs to be enabled. You can find instructions [here](#mangled-filenames-when-running-on-windows-10-1809).
 {% endhint %}
 
 {% hint style="info" %}
