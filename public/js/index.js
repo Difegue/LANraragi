@@ -11,6 +11,7 @@ Index.serverVersion = "";
 Index.debugMode = false;
 Index.isProgressLocal = true;
 Index.pageSize = 100;
+Index.pseudoCopyBtn = undefined;
 
 /**
  * Initialize the Archive Index.
@@ -136,6 +137,26 @@ Index.initializeAll = function () {
     
     Index.updateTableHeaders();
     Index.resizableColumns();
+
+    Index.pseudoCopyBtn = $("#pseudo-copy-btn")
+    Index.clipboard = new window.ClipboardJS("#pseudo-copy-btn");
+
+    Index.clipboard.on("success", function(e) {
+        LRR.toast({
+            heading: I18N.IndexCopyLinkSuccess,
+            icon: "info",
+            hideAfter: 3000,
+        });
+        e.clearSelection();
+    });
+
+    Index.clipboard.on("error", function(e) {
+        LRR.toast({
+            heading: I18N.IndexCopyLinkFail ,
+            icon: "error",
+            hideAfter: false,
+        });
+    });
 };
 
 // Turn bookmark icons to OFF for all archives.
@@ -756,6 +777,11 @@ Index.handleContextMenu = function (option, id) {
         break;
     case "download":
         LRR.openInNewTab(new LRR.apiURL(`/api/archives/${id}/download`));
+        break;
+    case "copy link":
+        const link = `${window.location.origin}/reader?id=${id}`;
+        Index.pseudoCopyBtn.attr('data-clipboard-text', link);
+        Index.pseudoCopyBtn.click()
         break;
     default:
         break;
