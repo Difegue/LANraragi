@@ -15,11 +15,11 @@ use File::Copy qw(move);
 use LANraragi::Utils::Archive  qw(extract_thumbnail);
 use LANraragi::Utils::Database qw(invalidate_cache compute_id set_title set_summary);
 use LANraragi::Utils::Logging  qw(get_logger);
-use LANraragi::Utils::Database qw(redis_encode);
+use LANraragi::Utils::Redis    qw(redis_encode);
 use LANraragi::Utils::Generic  qw(is_archive get_bytelength);
 use LANraragi::Utils::String   qw(trim trim_CRLF trim_url);
 
-use LANraragi::Model::Config;
+use LANraragi::Model::Config   qw(get_userdir);
 use LANraragi::Model::Plugins;
 use LANraragi::Model::Category;
 

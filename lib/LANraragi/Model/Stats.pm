@@ -14,7 +14,7 @@ use LANraragi::Model::Tankoubon;
 
 use LANraragi::Utils::Generic  qw(is_archive intersect_arrays);
 use LANraragi::Utils::String   qw(trim trim_CRLF trim_url);
-use LANraragi::Utils::Database qw(redis_decode redis_encode);
+use LANraragi::Utils::Redis    qw(redis_decode redis_encode);
 use LANraragi::Utils::Logging  qw(get_logger);
 
 sub get_archive_count {

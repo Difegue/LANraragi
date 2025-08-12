@@ -30,12 +30,12 @@ use File::Basename;
 use Encode;
 
 use LANraragi::Utils::Archive    qw(extract_thumbnail);
-use LANraragi::Utils::Database   qw(redis_encode invalidate_cache compute_id change_archive_id);
+use LANraragi::Utils::Database   qw(invalidate_cache compute_id change_archive_id get_arcsize add_timestamp_tag add_archive_to_redis add_arcsize add_pagecount);
 use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Generic    qw(is_archive);
+use LANraragi::Utils::Redis      qw(redis_encode);
 
 use LANraragi::Model::Config;
-use LANraragi::Model::Plugins;
 use LANraragi::Utils::Plugins;    # Needed here since Shinobu doesn't inherit from the main LRR package
 use LANraragi::Model::Search;     # idem
 
@@ -271,15 +271,15 @@ sub add_to_filemap ( $redis_cfg, $file ) {
                 invalidate_cache();
             }
 
-            unless ( LANraragi::Utils::Database::get_arcsize( $redis_arc, $id ) ) {
+            unless ( get_arcsize( $redis_arc, $id ) ) {
                 $logger->debug("arcsize is not set for $id, storing now!");
-                LANraragi::Utils::Database::add_arcsize( $redis_arc, $id );
+                add_arcsize( $redis_arc, $id );
             }
 
             # Set pagecount in case it's not already there
             unless ( $redis_arc->hget( $id, "pagecount" ) ) {
                 $logger->debug("Pagecount not calculated for $id, doing it now!");
-                LANraragi::Utils::Database::add_pagecount( $redis_arc, $id );
+                add_pagecount( $redis_arc, $id );
             }
 
         } else {
@@ -358,9 +358,9 @@ sub add_new_file ( $id, $file_fs ) {
         if ( !IS_UNIX ) {
             $file = Win32::FileSystemHelper::get_full_path($file);
         }
-        LANraragi::Utils::Database::add_archive_to_redis( $id, $file, $file_fs, $redis, $redis_search );
-        LANraragi::Utils::Database::add_timestamp_tag( $redis, $id );
-        LANraragi::Utils::Database::add_pagecount( $redis, $id );
+        add_archive_to_redis( $id, $file, $file_fs, $redis, $redis_search );
+        add_timestamp_tag( $redis, $id );
+        add_pagecount( $redis, $id );
 
         # Generate thumbnail
         my $thumbdir = LANraragi::Model::Config->get_thumbdir;

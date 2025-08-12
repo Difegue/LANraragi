@@ -22,12 +22,14 @@ use LANraragi::Utils::String  qw(trim trim_CRLF trim_url);
 use LANraragi::Utils::Tags    qw(unflat_tagrules tags_rules_to_array restore_CRLF join_tags_to_string split_tags_to_array );
 use LANraragi::Utils::Archive qw(get_filelist);
 use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Redis   qw(redis_decode redis_encode);
+use LANraragi::Model::Config;
 
 # Functions for interacting with the DB Model.
 use Exporter 'import';
 our @EXPORT_OK = qw(
-  redis_encode redis_decode invalidate_cache compute_id change_archive_id set_tags set_title set_summary set_isnew get_computed_tagrules save_computed_tagrules get_tankoubons_by_file
-  get_archive get_archive_json get_archive_json_multi get_tags);
+  invalidate_cache compute_id change_archive_id set_tags set_title set_summary set_isnew get_computed_tagrules save_computed_tagrules get_tankoubons_by_file
+  get_archive get_archive_json get_archive_json_multi get_tags get_arcsize add_arcsize add_pagecount add_timestamp_tag add_archive_to_redis);
 
 # Creates a DB entry for a file path with the given ID.
 # This function doesn't actually require the file to exist at its given location.
@@ -202,7 +204,7 @@ sub get_archive_json_multi (@ids) {
         next unless ( $results[$i] );
         my %hash = @{ $results[$i] };
         my $id   = $ids[$i];
-        my $arcdata; 
+        my $arcdata;
 
         if ($id =~ /^TANK/) {
             $arcdata = build_tank_json($id);
@@ -263,7 +265,7 @@ sub build_json ( $id, %hash ) {
 sub build_tank_json($id) {
     my %tank = LANraragi::Model::Tankoubon::get_tankoubon($id, 1);
 
-    # Aggregate data of all archives in the tank 
+    # Aggregate data of all archives in the tank
     my $aggregate_tags = "";
     my $aggregate_names = "";
     my $aggregate_isnew = 0;
@@ -555,27 +557,6 @@ sub compute_id ($file) {
 
     return $digest;
 
-}
-
-# Normalize the string to Unicode NFC, then layer on redis_encode for Redis-safe serialization.
-sub redis_encode ($data) {
-
-    my $NFC_data = NFC($data);
-    return encode_utf8($NFC_data);
-}
-
-# Final Solution to the Unicode glitches -- Eval'd double-decode for data obtained from Redis.
-# This should be a one size fits-all function.
-sub redis_decode ($data) {
-
-    # Setting FB_CROAK tells encode to die instantly if it encounters any errors.
-    # Without this setting, it typically tries to replace characters... which might already be valid UTF8!
-    eval { $data = decode_utf8( $data, Encode::FB_CROAK ) };
-
-    # Do another UTF-8 decode just in case the data was double-encoded
-    eval { $data = decode_utf8( $data, Encode::FB_CROAK ) };
-
-    return $data;
 }
 
 # Bust the current search cache key in Redis.
