@@ -83,7 +83,7 @@
 
         <br>
 
-        <table id="ds" class="ds itg">
+        <table id="ds" class="ds itg" style="table-layout: auto">
             <thead>
                 <tr>
                     <td>group-key</th>
