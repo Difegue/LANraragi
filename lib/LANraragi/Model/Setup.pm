@@ -13,7 +13,7 @@ use LANraragi::Model::Category;
 # button. Returns 1 if is first-time installation, else 0.
 sub first_install_actions {
     my $redis = LANraragi::Model::Config::get_redis_config();
-    my $logger = LANraragi::Utils::Logging::get_logger( "Config", "lanraragi" );
+    my $logger = get_logger( "Config", "lanraragi" );
     unless ( $redis->hexists('LRR_CONFIG', 'htmltitle') ) {
         $logger->info("First-time installation detected!");
         $redis->hset('LRR_CONFIG', 'htmltitle', 'LANraragi');

@@ -8,7 +8,6 @@ use warnings;
 use utf8;
 
 use Cwd 'abs_path';
-use Redis;
 use Time::HiRes qw(usleep);
 use File::Path  qw(remove_tree);
 use File::Basename;
