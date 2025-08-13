@@ -33,7 +33,7 @@ my @vendor_js = (
     "/swiper/swiper-bundle.min.js",                       "/preact/dist/preact.umd.js",
     "/clsx/dist/clsx.min.js",                             "/preact/compat/dist/compat.umd.js",
     "/preact/hooks/dist/hooks.umd.js",                    "/sweetalert2/dist/sweetalert2.min.js",
-    "/fscreen/dist/fscreen.esm.js"
+    "/fscreen/dist/fscreen.esm.js",                       "/clipboard/dist/clipboard.min.js"
 );
 
 my @vendor_woff = (

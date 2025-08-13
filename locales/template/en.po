@@ -712,6 +712,9 @@ msgstr "Read"
 msgid "Download"
 msgstr "Download"
 
+msgid "Copy link"
+msgstr "Copy link"
+
 msgid "Edit Metadata"
 msgstr "Edit Metadata"
 
@@ -1417,6 +1420,12 @@ msgstr "Github API rate limit exceeded."
 
 msgid "Github API returned status: \${status}"
 msgstr "Github API returned status: ${status}"
+
+msgid "Link copied successfully."
+msgstr "Link copied successfully."
+
+msgid "Copy failed."
+msgstr "Copy failed."
 
 msgid "This archive isn't in any category."
 msgstr "This archive isn't in any category."
