@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-26 06:02+0200\n"
-"PO-Revision-Date: 2025-06-01 13:08+0000\n"
+"PO-Revision-Date: 2025-08-14 01:02+0000\n"
 "Last-Translator: Slasar41 <agungtrianto41@outlook.com>\n"
 "Language-Team: Indonesian <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/id/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12-dev\n"
+"X-Generator: Weblate 5.13-dev\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -1840,6 +1840,14 @@ msgid "Searching for duplicates..."
 msgstr "Mencari duplikat ..."
 
 # ------End of Duplicates.html.tt2------
-
 msgid "No duplicates found!"
 msgstr "Tidak ada duplikat yang ditemukan!"
+
+msgid "Copy link"
+msgstr "Salin tautan"
+
+msgid "Link copied successfully."
+msgstr "Tautan berhasil disalin."
+
+msgid "Copy failed."
+msgstr "Gagal menyalin."
