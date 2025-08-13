@@ -125,7 +125,8 @@ I18N.ReaderNavHelp = "[% c.lh("Navigation Help") %]";
 I18N.ReaderErrorProgress = "[% c.lh("Error updating reading progression") %]";
 I18N.ReaderPage = (page) => `[% c.lh("Page \${page}") %]`;
 I18N.ThumbJobError = "[% c.lh("The page thumbnailing job didn't conclude properly. Your archive might be corrupted.") %]";
-I18N.ToggleBookmark = "[% c.lh("Toggle Bookmark") %]";
+I18N.AutoNextPageFailHeader = "[% c.lh("Starting auto next page failed!") %]";
+I18N.AutoNextPageFailBody = "[% c.lh("Please set the auto next page interval to a positive number.") %]";
 
 I18N.ScriptRunning = "[% c.lh("A script is already running.") %]";
 I18N.ScriptRunningDesc = "[% c.lh("Please wait for it to finish before starting a new one.") %]";
