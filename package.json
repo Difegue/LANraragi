@@ -44,7 +44,7 @@
         "marked": "^4.0.14",
         "preact": "^10.7.1",
         "react-toastify": "^9.0.0-rc-2",
-        "sweetalert2": "^11.6.14",
+        "sweetalert2": "^11.22.4",
         "swiper": "^8.4.5",
         "tippy.js": "^6.3.7"
     },
