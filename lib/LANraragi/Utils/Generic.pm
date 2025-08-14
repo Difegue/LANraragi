@@ -3,6 +3,7 @@ package LANraragi::Utils::Generic;
 use strict;
 use warnings;
 use utf8;
+use Cwd 'abs_path';
 no warnings 'experimental';
 
 use Storable qw(store);
@@ -10,19 +11,28 @@ use Digest::SHA qw(sha256_hex);
 use Mojo::Log;
 use Mojo::Util qw(xml_escape);
 use Mojo::IOLoop;
-use Logfile::Rotate;
 use Proc::Simple;
 use Sys::CpuAffinity;
+use Config;
 
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::String qw(trim);
 use LANraragi::Utils::Logging qw(get_logger);
 
+use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
+
+BEGIN {
+    if ( !IS_UNIX ) {
+        require Win32::Process;
+        Win32::Process->import( qw(NORMAL_PRIORITY_CLASS) );
+    }
+}
+
 # Generic Utility Functions.
 use Exporter 'import';
 our @EXPORT_OK = qw(is_image is_archive render_api_response get_tag_with_namespace shasum_str start_shinobu
   split_workload_by_cpu start_minion get_css_list generate_themes_header flat get_bytelength array_difference
-  intersect_arrays filter_hash_by_keys);
+  intersect_arrays filter_hash_by_keys exec_with_lock);
 
 # Checks if the provided file is an image.
 # Uses non-capturing groups (?:) to avoid modifying the incoming argument.
@@ -93,31 +103,38 @@ sub start_minion {
     my $mojo   = shift;
     my $logger = get_logger( "Minion", "minion" );
 
-    my $numcpus = Sys::CpuAffinity::getNumCpus();
-    $logger->info("Starting new Minion worker in subprocess with $numcpus parallel jobs.");
+    if ( IS_UNIX ) {
+        my $numcpus = Sys::CpuAffinity::getNumCpus();
+        $logger->info("Starting new Minion worker in subprocess with $numcpus parallel jobs.");
 
-    my $worker = $mojo->app->minion->worker;
-    $worker->status->{jobs} = $numcpus;
-    $worker->on( dequeue => sub { pop->once( spawn => \&_spawn ) } );
+        my $worker = $mojo->app->minion->worker;
+        $worker->status->{jobs} = $numcpus;
+        $worker->on( dequeue => sub { pop->once( spawn => \&_spawn ) } );
 
-    # https://github.com/mojolicious/minion/issues/76
-    my $proc = Proc::Simple->new();
-    $proc->start(
-        sub {
-            $logger->info("Minion worker $$ started");
-            $worker->run;
-            $logger->info("Minion worker $$ stopped");
-            return 1;
-        }
-    );
-    $proc->kill_on_destroy(0);
+        # https://github.com/mojolicious/minion/issues/76
+        my $proc = Proc::Simple->new();
+        $proc->start(
+            sub {
+                $logger->info("Minion worker $$ started");
+                $worker->run;
+                $logger->info("Minion worker $$ stopped");
+                return 1;
+            }
+        );
+        $proc->kill_on_destroy(0);
 
-    # Freeze the process object in the PID file
-    store \$proc, get_temp() . "/minion.pid";
-    open( my $fh, ">", get_temp() . "/minion.pid-s6" );
-    print $fh $proc->pid;
-    close($fh);
-    return $proc;
+        # Freeze the process object in the PID file
+        store \$proc, get_temp() . "/minion.pid";
+        open( my $fh, ">", get_temp() . "/minion.pid-s6" );
+        print $fh $proc->pid;
+        close($fh);
+        return $proc;
+    } else {
+        my $proc;
+        Win32::Process::Create($proc, undef, "perl " . abs_path(".") ."/lib/Worker.pm", 0, NORMAL_PRIORITY_CLASS, ".");
+        $logger->info("Starting new Minion worker with PID " . $proc->GetProcessID() . "." );
+        return $proc;
+    }
 }
 
 sub _spawn {
@@ -130,19 +147,28 @@ sub _spawn {
 # Start Shinobu and return its Proc::Background object.
 sub start_shinobu {
     my $mojo = shift;
+    if ( IS_UNIX ) {
+        my $proc = Proc::Simple->new();
+        $proc->start( $^X, "./lib/Shinobu.pm" );
+        $proc->kill_on_destroy(0);
 
-    my $proc = Proc::Simple->new();
-    $proc->start( $^X, "./lib/Shinobu.pm" );
-    $proc->kill_on_destroy(0);
+        $mojo->LRR_LOGGER->debug( "Shinobu Worker new PID is " . $proc->pid );
 
-    $mojo->LRR_LOGGER->debug( "Shinobu Worker new PID is " . $proc->pid );
-
-    # Freeze the process object in the PID file
-    store \$proc, get_temp() . "/shinobu.pid";
-    open( my $fh, ">", get_temp() . "/shinobu.pid-s6" );
-    print $fh $proc->pid;
-    close($fh);
-    return $proc;
+        # Freeze the process object in the PID file
+        store \$proc, get_temp() . "/shinobu.pid";
+        open( my $fh, ">", get_temp() . "/shinobu.pid-s6" );
+        print $fh $proc->pid;
+        close($fh);
+        return $proc;
+    } else {
+        my $proc;
+        Win32::Process::Create($proc, undef, "perl " . abs_path(".") ."/lib/Shinobu.pm", 0, NORMAL_PRIORITY_CLASS, ".");
+        open( my $fh, ">", get_temp() . "/shinobu.pid-s6" );
+        print $fh $proc->GetProcessID();
+        close($fh);
+        $mojo->LRR_LOGGER->debug( "Shinobu Worker new PID is " . $proc->GetProcessID() );
+        return $proc;
+    }
 }
 
 #This function gives us a SHA hash for the passed data, which is used for thumbnail reverse search on E-H.
@@ -295,6 +321,37 @@ sub filter_hash_by_keys {
     }
 
     return %hash;
+}
+
+# Execute a function under a redis lock context.
+# If the lock cannot be acquired, renders a 423 error and returns false,
+# otherwise executes the function and returns true (or rethrows error if any).
+# Automatically cleans up the lock and connection after execution.
+sub exec_with_lock {
+    my ( $mojo, $redis, $lock_name, $operation, $resource_id, $func ) = @_;
+    my $lock = $redis->set( $lock_name, 1, 'NX', 'EX', 10 );
+    if ( !$lock ) {
+        $redis->quit();
+        $mojo->render(
+            json => {
+                operation => $operation,
+                success   => 0,
+                error     => "Locked resource: $resource_id."
+            },
+            status => 423
+        );
+        return 0;
+    }
+
+    eval {
+        $func->();
+    };
+    my $err = $@;
+    $redis->del( $lock_name );
+    $redis->quit();
+
+    die $err if $err;
+    return 1;
 }
 
 1;

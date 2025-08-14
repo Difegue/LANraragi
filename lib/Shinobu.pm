@@ -14,10 +14,11 @@ use feature qw(say signatures);
 no warnings 'experimental::signatures';
 
 use FindBin;
-use Parallel::Loops;
+use MCE::Loop;
 use Sys::CpuAffinity;
 use Storable   qw(lock_store);
 use Mojo::JSON qw(to_json);
+use Config;
 
 #As this is a new process, reloading the LRR libs into INC is needed.
 BEGIN { unshift @INC, "$FindBin::Bin/../lib"; }
@@ -31,12 +32,14 @@ use Encode;
 use LANraragi::Utils::Archive    qw(extract_thumbnail);
 use LANraragi::Utils::Database   qw(redis_encode invalidate_cache compute_id change_archive_id);
 use LANraragi::Utils::Logging    qw(get_logger);
-use LANraragi::Utils::Generic    qw(is_archive split_workload_by_cpu);
+use LANraragi::Utils::Generic    qw(is_archive);
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
 use LANraragi::Utils::Plugins;    # Needed here since Shinobu doesn't inherit from the main LRR package
 use LANraragi::Model::Search;     # idem
+
+use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 
 # Logger and Database objects
 my $logger = get_logger( "Shinobu", "shinobu" );
@@ -46,6 +49,12 @@ my $inotifysub = sub {
     my $e    = shift;
     my $name = $e->path;
     my $type = $e->type;
+
+    # Filewatcher on Windows returns backward slashes, convert them to forward slash to match everything else
+    if ( !IS_UNIX ) {
+        $name =~ s/\\/\//g;
+    }
+
     $logger->debug("Received inotify event $type on $name");
 
     if ( $type eq "create" || $type eq "modify" ) {
@@ -137,31 +146,16 @@ sub update_filemap {
 
     $redis->quit();
 
-    # Now that we have all new files, process them...with multithreading!
-    my $numCpus = Sys::CpuAffinity::getNumCpus();
-    my $pl      = Parallel::Loops->new($numCpus);
-
-    $logger->debug("Number of available cores for processing: $numCpus");
-    my @sections = split_workload_by_cpu( $numCpus, @newfiles );
-
-    # Eval the parallelized file crawl to avoid taking down the entire process in case one of the forked processes dies
     eval {
-        $pl->foreach(
-            \@sections,
-            sub {
-                my $redis = LANraragi::Model::Config->get_redis_config;
-                foreach my $file (@$_) {
-
-                    # Individual files are also eval'd so we can keep scanning
-                    eval { add_to_filemap( $redis, $file ); };
-
-                    if ($@) {
-                        $logger->error("Error scanning $file: $@");
-                    }
-                }
-                $redis->quit();
-            }
-        );
+        if ( IS_UNIX ) {
+            # Now that we have all new files, process them...with multithreading!
+            mce_loop {
+                add_new_files(@{ $_ });
+            } \@newfiles;
+        } else {
+            # libarchive does not support threading on Windows
+            add_new_files(@newfiles);
+        }
     };
 
     if ($@) {
@@ -308,6 +302,24 @@ sub deleted_file_callback ($name) {
         $redis->quit();
     }
 }
+
+sub add_new_files (@files) {
+    my $redis = LANraragi::Model::Config->get_redis_config;
+
+    foreach my $file (@files) {
+        $logger->debug("Processing $file");
+
+        # Individual files are also eval'd so we can keep scanning
+        eval { add_to_filemap( $redis, $file ); };
+
+        if ($@) {
+            $logger->error("Error scanning $file: $@");
+        }
+    }
+
+    $redis->quit();
+}
+
 
 sub add_new_file ( $id, $file ) {
 

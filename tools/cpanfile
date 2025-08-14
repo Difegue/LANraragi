@@ -7,14 +7,12 @@ requires 'Redis',                        1.995;
 requires 'Encode',                       3.01;
 requires 'Archive::Libarchive::Extract', 0.03;
 requires 'Archive::Libarchive::Peek',    0.04;
+requires 'Archive::Zip',                 1.68;
 requires 'Digest::SHA',                  6.02;
 requires 'List::MoreUtils',              0.430;
 
 # Not required by LRR itself but needs this version for Alpine support
 requires 'Crypt::Rijndael', 1.14;
-
-# Specifically use native DNS resolver to fix issues on WSL1+Alpine
-requires 'Net::DNS::Native', 0.22;
 
 # Web UI
 requires 'Sort::Naturally',     1.03;
@@ -27,7 +25,6 @@ requires 'URI',                 5.09;
 requires 'IPC::Cmd', 1.02;
 
 # Logfile rotation and compression
-requires 'Logfile::Rotate', 1.04;
 requires 'Compress::Zlib',  2.087;
 
 # Test Utils
@@ -41,7 +38,6 @@ requires 'Test::Deep',       1.130;
 requires 'Mojolicious',                          9.39;
 requires 'Mojolicious::Plugin::TemplateToolkit', 0.005;
 requires 'Mojolicious::Plugin::RenderFile',      0.12;
-requires 'Mojolicious::Plugin::Status',          1.15;
 requires 'IO::Socket::Socks',                    0.74;
 requires 'IO::Socket::SSL',                      2.067;
 requires 'Cpanel::JSON::XS',                     4.06;
@@ -53,6 +49,8 @@ requires 'Minion::Backend::Redis', 0.002;
 # Background Worker (Shinobu)
 requires 'Proc::Simple',       1.32;
 requires 'Parallel::Loops',    0.10;
+requires 'MCE::Loop',          1.901;
+requires 'MCE::Shared',        1.893;
 requires 'Sys::CpuAffinity',   1.12;
 requires 'File::ChangeNotify', 0.31;
 
@@ -69,10 +67,10 @@ requires 'YAML::PP', 0.38.0;
 requires 'String::Similarity', 1.04;
 
 # I18n
-requires 'Locale::Maketext', 1.33;
+requires 'Locale::Maketext',          1.33;
 requires 'Locale::Maketext::Lexicon', 1.00;
 
 # Cache
-requires 'CHI', 0.61;
+requires 'CHI',                   0.61;
 requires 'CHI::Driver::FastMmap', 0.61;
-requires 'Cache::FastMmap', 1.57;
+requires 'Cache::FastMmap',       1.60;

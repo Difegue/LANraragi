@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 18:10+0200\n"
-"PO-Revision-Date: 2025-05-19 16:03+0000\n"
+"PO-Revision-Date: 2025-06-03 06:04+0000\n"
 "Last-Translator: scentedtiger <something95@tutanota.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "lanraragi/lanraragi-source/nb_NO/>\n"
@@ -1826,3 +1826,6 @@ msgid "Searching for duplicates..."
 msgstr "Søker etter duplikater..."
 
 # ------End of Duplicates.html.tt2------
+
+msgid "No duplicates found!"
+msgstr "Ingen duplikater funnet!"

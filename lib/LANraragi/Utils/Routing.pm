@@ -4,7 +4,6 @@ use strict;
 use warnings;
 use utf8;
 
-use Mojolicious::Plugin::Status;
 use Mojolicious::Plugin::Minion::Admin;
 
 #Contains all the routes used by the app, and applies them on boot.
@@ -56,7 +55,11 @@ sub apply_routes {
 
     # Mojo Status UI
     if ( $self->mode eq 'development' ) {
-        $self->plugin( 'Status' => { route => $logged_in->get('/debug') } );
+        # Not supported on Windows
+        eval {
+            require Mojolicious::Plugin::Status;
+            $self->plugin( 'Status' => { route => $logged_in->get('/debug') } );
+        };
     }
 
     # Those routes are only accessible if user is logged in

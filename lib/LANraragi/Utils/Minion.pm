@@ -4,21 +4,25 @@ use strict;
 use warnings;
 
 use Encode;
+use File::Temp qw(tempdir);
 use Mojo::JSON qw(encode_json);
 use Mojo::UserAgent;
-use Parallel::Loops;
+use MCE::Loop;
+use MCE::Shared;
+use Config;
 
 use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Database   qw(redis_decode);
 use LANraragi::Utils::Archive    qw(extract_thumbnail);
 use LANraragi::Utils::Plugins    qw(get_downloader_for_url get_plugin get_plugin_parameters use_plugin);
-use LANraragi::Utils::Generic    qw(split_workload_by_cpu);
 use LANraragi::Utils::String     qw(trim_url);
 use LANraragi::Utils::TempFolder qw(get_temp);
 
 use LANraragi::Model::Upload;
 use LANraragi::Model::Config;
 use LANraragi::Model::Stats;
+
+use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 
 # Add Tasks to the Minion instance.
 sub add_tasks {
@@ -68,49 +72,52 @@ sub add_tasks {
             my $format    = $use_jxl ? 'jxl' : 'jpg';
             my $subfolder = substr( $id, 0, 2 );
 
-            my @errors = ();
-
-            my $numCpus = Sys::CpuAffinity::getNumCpus();
-            my $pl      = Parallel::Loops->new($numCpus);
-            $pl->share( \@errors );
-
-            $logger->debug("Number of available cores for processing: $numCpus");
+            my $errors = MCE::Shared->array;
 
             # Generate thumbnails for all pages -- Cover should already be handled in higher resolution
             my @keys = ();
             for ( my $i = 1; $i <= $pages; $i++ ) {
                 push @keys, $i;
             }
-            my @sections = split_workload_by_cpu( $numCpus, @keys );
 
             # Regen thumbnails for errythang if $force = 1, only missing thumbs otherwise
-            eval {
-                $pl->foreach(
-                    \@sections,
-                    sub {
-                        foreach my $i (@$_) {
+            my $sub = sub {
+                my (@keys) = @_;
 
-                            my $thumbname = "$thumbdir/$subfolder/$id/$i.$format";
-                            unless ( $force == 0 && -e $thumbname ) {
-                                $logger->debug("Generating thumbnail for page $i... ($thumbname)");
-                                eval { $thumbname = extract_thumbnail( $thumbdir, $id, $i, 0, $use_hq ); };
-                                if ($@) {
-                                    $logger->warn("Error while generating thumbnail: $@");
-                                    push @errors, $@;
-                                }
-                            }
+                foreach my $i (@keys) {
 
-                            # Add page number to note field so it can be fetched by the API
-                            $job->note( $i => "processed", total_pages => $pages );
-
+                    my $thumbname = "$thumbdir/$subfolder/$id/$i.$format";
+                    unless ( $force == 0 && -e $thumbname ) {
+                        $logger->debug("Generating thumbnail for page $i... ($thumbname)");
+                        eval { $thumbname = extract_thumbnail( $thumbdir, $id, $i, 0, $use_hq ); };
+                        if ($@) {
+                            $logger->warn("Error while generating thumbnail: $@");
+                            $errors->push($@);
                         }
                     }
-                );
+
+                    # Add page number to note field so it can be fetched by the API
+                    $job->note( $i => "processed", total_pages => $pages );
+
+                }
+            };
+
+            eval {
+                if ( IS_UNIX ) {
+                    mce_loop {
+                        $sub->(@{ $_ });
+                    } \@keys;
+                } else {
+                    # libarchive does not support threading on Windows
+                    $sub->(@keys);
+                }
             };
 
             $redis->hdel( $id, "thumbjob" );
             $redis->quit;
-            $job->finish( { errors => \@errors } );
+
+            my @err = $errors->values;
+            $job->finish( { errors => \@err } );
         }
     );
 
@@ -125,44 +132,46 @@ sub add_tasks {
             $redis->quit();
 
             $logger->info("Starting thumbnail regen job (force = $force)");
-            my @errors = ();
+            my $errors = MCE::Shared->array;
 
-            my $numCpus = Sys::CpuAffinity::getNumCpus();
-            my $pl      = Parallel::Loops->new($numCpus);
-            $pl->share( \@errors );
+            # Regen thumbnails for errythang if $force = 1, only missing thumbs o therwise
+            my $sub = sub {
+                my (@keys) = @_;
 
-            $logger->debug("Number of available cores for processing: $numCpus");
-            my @sections = split_workload_by_cpu( $numCpus, @keys );
+                foreach my $id (@keys) {
 
-            # Regen thumbnails for errythang if $force = 1, only missing thumbs otherwise
-            eval {
-                $pl->foreach(
-                    \@sections,
-                    sub {
-                        foreach my $id (@$_) {
+                    my $use_jxl   = LANraragi::Model::Config->get_jxlthumbpages;
+                    my $format    = $use_jxl ? 'jxl' : 'jpg';
+                    my $subfolder = substr( $id, 0, 2 );
+                    my $thumbname = "$thumbdir/$subfolder/$id.$format";
 
-                            my $use_jxl   = LANraragi::Model::Config->get_jxlthumbpages;
-                            my $format    = $use_jxl ? 'jxl' : 'jpg';
-                            my $subfolder = substr( $id, 0, 2 );
-                            my $thumbname = "$thumbdir/$subfolder/$id.$format";
+                    unless ( $force == 0 && -e $thumbname ) {
+                        eval {
+                            $logger->debug("Regenerating for $id...");
+                            extract_thumbnail( $thumbdir, $id, 0, 1, 1 );
+                        };
 
-                            unless ( $force == 0 && -e $thumbname ) {
-                                eval {
-                                    $logger->debug("Regenerating for $id...");
-                                    extract_thumbnail( $thumbdir, $id, 0, 1, 1 );
-                                };
-
-                                if ($@) {
-                                    $logger->warn("Error while generating thumbnail: $@");
-                                    push @errors, $@;
-                                }
-                            }
+                        if ($@) {
+                            $logger->warn("Error while generating thumbnail: $@");
+                            $errors->push($@);
                         }
                     }
-                );
+                }
             };
 
-            $job->finish( { errors => \@errors } );
+            eval {
+                if ( IS_UNIX ) {
+                    mce_loop {
+                        $sub->(@{ $_ });
+                    } \@keys;
+                } else {
+                    # libarchive does not support threading on Windows
+                    $sub->(@keys);
+                }
+            };
+
+            my @err = $errors->values;
+            $job->finish( { errors => \@err } );
         }
     );
 
@@ -177,11 +186,6 @@ sub add_tasks {
 
             $logger->info("Starting find duplicate job (threshold = $threshold)");
 
-            my $numCpus = Sys::CpuAffinity::getNumCpus();
-            my $pl      = Parallel::Loops->new($numCpus);
-
-            $logger->debug("Number of available cores for processing: $numCpus");
-
             # Gather thumbhashes
             my %thumbhashes;
             foreach my $id (@keys) {
@@ -191,71 +195,63 @@ sub add_tasks {
             $redis->quit();
 
             # Prepare to track visited nodes
-            my %visited : shared;
+            my $visited = MCE::Shared->hash;
             my @ids = keys %thumbhashes;    # List of IDs to check
 
-            # Share the %visited hash across threads
-            $pl->share( \%visited );
-
-            my @sections = split_workload_by_cpu( $numCpus, @ids );
             eval {
-                $pl->foreach(
-                    \@sections,
-                    sub {
-                        my $redis = LANraragi::Model::Config->get_redis_config;
+                mce_loop {
 
-                        foreach my $id (@$_) {
+                    my $redis = LANraragi::Model::Config->get_redis_config;
 
-                            # Skip if this ID has already been processed in another thread
-                            next if $visited{$id};
-                            my @stack = ($id);
-                            my @group;
+                    foreach my $id (@{ $_ }) {
 
-                            while (@stack) {
-                                my $node = pop @stack;
-                                next if $visited{$node};
+                        # Skip if this ID has already been processed in another thread
+                        next if $visited->get( $id );
+                        my @stack = ($id);
+                        my @group;
 
-                                # Mark the node as visited
-                                {
-                                    lock(%visited);
-                                    $visited{$node} = 1;
+                        while (@stack) {
+                            my $node = pop @stack;
+                            next if $visited->get( $node );
+
+                            # Mark the node as visited   
+                            $visited->set( $node, 1 );
+                            push @group, $node;
+
+                            # Find all potential duplicates for this node
+                            foreach my $other_id ( keys %thumbhashes ) {
+                                next if $node eq $other_id || $visited->get( $other_id );
+
+                                # Calculate Hamming distance
+                                my $distance = 0;
+                                for ( my $i = 0; $i < length( $thumbhashes{$node} ); $i++ ) {
+                                    $distance++
+                                    if substr( $thumbhashes{$node}, $i, 1 ) ne substr( $thumbhashes{$other_id}, $i, 1 );
+                                    last if $distance > $threshold;    # Early exit if threshold exceeded
                                 }
-                                push @group, $node;
 
-                                # Find all potential duplicates for this node
-                                foreach my $other_id ( keys %thumbhashes ) {
-                                    next if $node eq $other_id || $visited{$other_id};
-
-                                    # Calculate Hamming distance
-                                    my $distance = 0;
-                                    for ( my $i = 0; $i < length( $thumbhashes{$node} ); $i++ ) {
-                                        $distance++
-                                          if substr( $thumbhashes{$node}, $i, 1 ) ne substr( $thumbhashes{$other_id}, $i, 1 );
-                                        last if $distance > $threshold;    # Early exit if threshold exceeded
-                                    }
-
-                                    # If within threshold, add to stack for further exploration
-                                    if ( $distance <= $threshold ) {
-                                        $logger->debug("Found potential duplicate: $node and $other_id with distance $distance");
-                                        push @stack, $other_id;
-                                    }
+                                # If within threshold, add to stack for further exploration
+                                if ( $distance <= $threshold ) {
+                                    $logger->debug("Found potential duplicate: $node and $other_id with distance $distance");
+                                    push @stack, $other_id;
                                 }
-                            }
-
-                            # Add the discovered group to redis
-                            # to avoid redudnant groups in different orders - sort and composite key
-                            if ( @group && scalar @group >= 2 ) {
-                                @group = sort @group;
-                                my $composite_key = join '', map { substr( $_, 0, 10 ) } @group;
-                                my $group_json    = encode_json( \@group );
-                                $logger->debug("duplicate group '$composite_key': $group_json");
-                                $redis->hset( "LRR_DUPLICATE_GROUPS", "dupgp_$composite_key", $group_json );
                             }
                         }
 
-                        $redis->quit();
+                        # Add the discovered group to redis
+                        # to avoid redudnant groups in different orders - sort and composite key
+                        if ( @group && scalar @group >= 2 ) {
+                            @group = sort @group;
+                            my $composite_key = join '', map { substr( $_, 0, 10 ) } @group;
+                            my $group_json    = encode_json( \@group );
+                            $logger->debug("duplicate group '$composite_key': $group_json");
+                            $redis->hset( "LRR_DUPLICATE_GROUPS", "dupgp_$composite_key", $group_json );
+                        }
                     }
-                );
+
+                    $redis->quit();
+
+                } \@ids;
             };
 
             $job->finish( {} );
@@ -343,13 +339,14 @@ sub add_tasks {
             if ($downloader) {
 
                 $logger->info( "Found downloader " . $downloader->{namespace} );
+                my $tempdir = tempdir(CLEANUP => 1);
 
                 # Use the downloader to transform the URL
                 my $plugname = $downloader->{namespace};
                 my $plugin   = get_plugin($plugname);
                 my %settings = get_plugin_parameters($plugname);
 
-                my $plugin_result = LANraragi::Model::Plugins::exec_download_plugin( $plugin, $url, %settings );
+                my $plugin_result = LANraragi::Model::Plugins::exec_download_plugin( $plugin, $url, $tempdir, %settings );
 
                 if ( exists $plugin_result->{error} ) {
                     $job->finish(
@@ -358,11 +355,38 @@ sub add_tasks {
                             message => $plugin_result->{error}
                         }
                     );
+                    return;
                 }
-
-                $ua  = $plugin_result->{user_agent};
-                $url = $plugin_result->{download_url};
-                $logger->info("URL transformed by plugin to $url");
+                
+                # Check if the plugin provided a direct file path instead of a URL to download
+                if ( exists $plugin_result->{file_path} ) {
+                    my $tempfile = $plugin_result->{file_path};
+                    $logger->info("Plugin directly provided file at: $tempfile");
+                    
+                    # Add the url as a source: tag
+                    my $tag = "source:$og_url";
+                    
+                    # Hand off the result to handle_incoming_file
+                    my ( $status_code, $id, $title, $message ) =
+                      LANraragi::Model::Upload::handle_incoming_file( $tempfile, $catid, $tag, "", "" );
+                    my $status = $status_code == 200 ? 1 : 0;
+                    
+                    $job->finish(
+                        {   success  => $status,
+                            url      => $og_url,
+                            id       => $id,
+                            category => $catid,
+                            title    => $title,
+                            message  => $message
+                        }
+                    );
+                    return;
+                } else {
+                    # Plugin provided a URL and User-Agent to download
+                    $url = $plugin_result->{download_url};
+                    $ua = $plugin_result->{user_agent};
+                    $logger->info("URL transformed by plugin to $url");
+                }
             } else {
                 $logger->debug("No downloader found, trying direct URL.");
             }

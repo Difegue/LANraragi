@@ -1,7 +1,7 @@
 {
     "name": "lanraragi",
-    "version": "0.9.41",
-    "version_name": "Brilliant Adventure (Omikron Beta Mix)",
+    "version": "0.9.50",
+    "version_name": "New Angels of Promise",
     "description": "I'm under Japanese influence and my honor's at stake!",
     "scripts": {
         "test": "prove -r -l -v tests/",
@@ -32,6 +32,7 @@
         "allcollapsible": "^1.1.0",
         "awesomplete": "^1.1.5",
         "blueimp-file-upload": "^10.32.0",
+        "clipboard": "^2.0.11",
         "clsx": "^1.1.1",
         "datatables.net": "^1.11.5",
         "fscreen": "^1.2.0",

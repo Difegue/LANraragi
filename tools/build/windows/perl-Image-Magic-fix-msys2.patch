@@ -1,0 +1,64 @@
+--- a/Makefile.PL
++++ b/Makefile.PL
+@@ -63,35 +63,35 @@
+
+       # try to detect 'include' dir
+       push @i, catfile($dirpath,'include');
+-      push @i, catfile($dirpath,'include','ImageMagick');
++      push @i, catfile($dirpath,'include','ImageMagick-7');
+       push @i, catfile($dirpath,'..','include');
+-      push @i, catfile($dirpath,'..','include','ImageMagick');
++      push @i, catfile($dirpath,'..','include','ImageMagick-7');
+       push @i, catfile($dirpath,'..','..','include');
+-      push @i, catfile($dirpath,'..','..','include','ImageMagick');
++      push @i, catfile($dirpath,'..','..','include','ImageMagick-7');
+       push @i, catfile($dirpath,'..','..','..','include');
+-      push @i, catfile($dirpath,'..','..','..','include','ImageMagick');
++      push @i, catfile($dirpath,'..','..','..','include','ImageMagick-7');
+       foreach (@i) { push @incdir, $_ if (-e "$_/MagickCore/MagickCore.h") };
+     }
+   };
+
+   foreach my $bin (@bindir) {
+     opendir(my $bindir, $bin) or die qq{Cannot opendir $bin: $!};
+-    my @dlls = map {catfile($bin, $_)} grep /^\S*magick[^\+]\S*?\.dll$/i, readdir $bindir;
++    my @dlls = map {catfile($bin, $_)} grep /^\S*magickc[^\+]\S*?\.dll$/i, readdir $bindir;
+     foreach my $d (@dlls) {
+-      unlink "$wrkdir/libMagickCore.def", "$wrkdir/libMagickCore.a";
+-      system("pexports \"$d\" >\"$wrkdir/libMagickCore.def\" 2>$devnull");
+-      open(DEF, "<$wrkdir/libMagickCore.def");
++      unlink "$wrkdir/libMagickCore-7.Q16HDRI-10.def", "$wrkdir/libMagickCore-7.Q16HDRI-10.a";
++      system("gendef \"$d\"");
++      open(DEF, "<$wrkdir/libMagickCore-7.Q16HDRI-10.def");
+       my @found = grep(/MagickCoreGenesis/, <DEF>); #checking if we have taken the right DLL
+       close(DEF);
+       next unless(@found);
+-      print STDERR "Gonna create 'libMagickCore.a' from '$d'\n";
+-      system("dlltool -D \"$d\" -d \"$wrkdir/libMagickCore.def\" -l \"$wrkdir/libMagickCore.a\" 2>$devnull");
+-      last if -s "$wrkdir/libMagickCore.a";
++      print STDERR "Gonna create 'libMagickCore-7.Q16HDRI-10.a' from '$d'\n";
++      system("dlltool -D \"$d\" -d \"$wrkdir/libMagickCore-7.Q16HDRI-10.def\" -l \"$wrkdir/libMagickCore-7.Q16HDRI-10.a\" 2>$devnull");
++      last if -s "$wrkdir/libMagickCore-7.Q16HDRI-10.a";
+     }
+-    last if -s "$wrkdir/libMagickCore.a";
++    last if -s "$wrkdir/libMagickCore-7.Q16HDRI-10.a";
+   }
+
+-  unless(@incdir && @libdir && @bindir && (-s "$wrkdir/libMagickCore.a")) {
++  unless(@incdir && @libdir && @bindir && (-s "$wrkdir/libMagickCore-7.Q16HDRI-10.a")) {
+     print STDERR <<EOF
+ ################################### WARNING! ###################################
+ # It seems that you are trying to install Perl::Magick on a MS Windows box with
+@@ -173,9 +173,9 @@
+   #
+   # Setup for strawberry perl.
+   #
+-  $INC_magick       = "$Ipaths";
+-  $LIBS_magick      = "-lMagickCore"; # use here just plain 'MagickCore' no version info
+-  $CCFLAGS_magick   = "$Config{'ccflags'}";
++  $INC_magick       = "$Ipaths  -DMAGICKCORE_HDRI_ENABLE=1 -DMAGICKCORE_QUANTUM_DEPTH=16";
++  $LIBS_magick      = "-lMagickCore-7.Q16HDRI-10"; # use here just plain 'MagickCore' no version info
++  $CCFLAGS_magick   = "$Config{'ccflags'} -O2 -Wall -pthread -DMAGICKCORE_HDRI_ENABLE=1 -DMAGICKCORE_QUANTUM_DEPTH=16";
+   $LDFLAGS_magick   = "$Config{'ldflags'} $Lpaths ";
+   $LDDLFLAGS_magick = "$Config{'lddlflags'} $Lpaths ";
+ }

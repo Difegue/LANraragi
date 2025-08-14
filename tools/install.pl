@@ -10,6 +10,8 @@ use Config;
 use feature    qw(say);
 use File::Path qw(make_path);
 
+use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
+
 #Vendor dependencies
 my @vendor_css = (
     "/blueimp-file-upload/css/jquery.fileupload.css",      "/\@fortawesome/fontawesome-free/css/all.min.css",
@@ -31,7 +33,7 @@ my @vendor_js = (
     "/swiper/swiper-bundle.min.js",                       "/preact/dist/preact.umd.js",
     "/clsx/dist/clsx.min.js",                             "/preact/compat/dist/compat.umd.js",
     "/preact/hooks/dist/hooks.umd.js",                    "/sweetalert2/dist/sweetalert2.min.js",
-    "/fscreen/dist/fscreen.esm.js"
+    "/fscreen/dist/fscreen.esm.js",                       "/clipboard/dist/clipboard.min.js"
 );
 
 my @vendor_woff = (
@@ -99,11 +101,14 @@ require Config::AutoConf;
 
 say("\r\nWill now check if all LRR software dependencies are met. \r\n");
 
-#Check for Redis
-say("Checking for Redis...");
-can_run('redis-server')
-  or die 'NOT FOUND! Please install a Redis server before proceeding.';
-say("OK!");
+#Fails on win even if redis is in the path
+if ( IS_UNIX ) {
+    #Check for Redis
+    say("Checking for Redis...");
+    can_run('redis-server')
+      or die 'NOT FOUND! Please install a Redis server before proceeding.';
+    say("OK!");
+}
 
 #Check for GhostScript
 say("Checking for GhostScript...");
@@ -140,10 +145,21 @@ if ($@) {
 if ( $back || $full ) {
     say("\r\nInstalling Perl modules... This might take a while.\r\n");
 
-    if ( $Config{"osname"} ne "darwin" ) {
-        say("Installing Linux::Inotify2 for non-macOS systems... (This will do nothing if the package is there already)");
+    if ( $Config{"osname"} eq "linux" ) {
+        say("Installing Linux::Inotify2 for linux systems... (This will do nothing if the package is there already)");
 
         install_package( "Linux::Inotify2", $cpanopt );
+    }
+
+    if ( IS_UNIX ) {
+        say("Installing dependencies for unix-like systems... (This will do nothing if the package is there already)");
+
+        install_package( "Net::DNS::Native", $cpanopt );
+        install_package( "Mojolicious::Plugin::Status", $cpanopt );
+    } else {
+        say("Installing dependencies for windows systems... (This will do nothing if the package is there already)");
+
+        install_package( "Win32::Process", $cpanopt );
     }
 
     if ( system( "cpanm --installdeps ./tools/. --notest" . $cpanopt ) != 0 ) {
@@ -224,7 +240,7 @@ sub install_package {
 
     if ($@) {
         say("$package not installed! Trying to install now using cpanm$cpanopt");
-        system("cpanm $package $cpanopt");
+        system("cpanm --notest $package $cpanopt");
     } else {
         say("$package package installed, proceeding...");
     }
