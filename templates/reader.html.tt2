@@ -298,7 +298,7 @@
 
 <div class="absolute-options absolute-right">
     <a class="fa fa-arrow-right fa-2x reading-direction" href="#" title="[% c.lh('Reading Direction') %]"></a>
-    <a class="fa fa-arrows-rotate fa-2x toggle-auto-next-page" href="#" title="[% c.lh('Auto Next Page') %]"></a>
+    <a class="fa fa-stopwatch fa-2x toggle-auto-next-page" href="#" title="[% c.lh('Auto Next Page') %]"></a>
     <a class="fa fa-th fa-2x" id="toggle-archive-overlay" href="#" title="[% c.lh('Archive Overview') %]"></a>
     <a class="fa fa-compress fa-2x" id="toggle-full-screen" href="#" title="[% c.lh('FullScreen') %]"></a>
 </div>

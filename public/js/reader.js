@@ -902,7 +902,7 @@ Reader.startAutoNextPage = function() {
     Reader.autoNextPage = true;
     
     const aEls = $(".toggle-auto-next-page");
-    aEls.removeClass('fa-arrows-rotate');
+    aEls.removeClass('fa-stopwatch');
     aEls.text(Reader.autoNextPageCountdown);
 
     Reader.autoNextPageCountdownTaskId = setInterval(() => {
@@ -924,7 +924,7 @@ Reader.startAutoNextPage = function() {
 Reader.stopAutoNextPage = function() {
     Reader.autoNextPage = false;
     clearInterval(Reader.autoNextPageCountdownTaskId);
-    $(".toggle-auto-next-page").addClass('fa-arrows-rotate');
+    $(".toggle-auto-next-page").addClass('fa-stopwatch');
     $(".toggle-auto-next-page").text('');
 }
 
