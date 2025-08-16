@@ -7,6 +7,9 @@ use LANraragi::Model::Config qw(get_redis_config);
 use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Model::Category;
 
+use Exporter 'import';
+our @EXPORT_OK = qw(first_install_actions);
+
 # first_install_actions()
 # Setup tasks for first-time installations. New installs are checked by confirming updated
 # user settings. On first installation, create default 'Favorites' category link it to the bookmark

@@ -195,7 +195,7 @@ sub startup {
     start_shinobu($self);
 
     # Check if this is a first-time installation.
-    LANraragi::Model::Setup::first_install_actions();
+    first_install_actions();
 
     # Hook to SIGTERM to cleanly kill minion+shinobu on server shutdown
     # As this is executed during before_dispatch, this code won't work if you SIGTERM without loading a single page!
