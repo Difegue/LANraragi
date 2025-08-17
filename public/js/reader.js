@@ -131,7 +131,7 @@ Reader.initializeAll = function () {
             let { title } = data;
 
             // Regex look in tags for artist
-            const artist = data.tags.match(/.*artist:([^,]*),.*/i);
+            const artist = data.tags.match(/artist:([^,]+)(?:,|$)/i);
             if (artist) {
                 title = `${title} by ${artist[1]}`;
             }
