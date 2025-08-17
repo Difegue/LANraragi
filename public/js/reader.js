@@ -135,9 +135,15 @@ Reader.initializeAll = function () {
             if (artist) {
                 const artistName = artist[1];
                 const artistSearchUrl = `/?sort=0&q=artist%3A${encodeURIComponent(artistName)}&`;
-                const titleWithArtist = `${title} by <a href="${artistSearchUrl}" style="color: inherit; text-decoration: underline;">${artistName}</a>`;
-                $("#archive-title").html(titleWithArtist);
-                $("#archive-title-overlay").html(titleWithArtist);
+                const link = $('<a></a>')
+                    .attr('href', artistSearchUrl)
+                    .attr('style', 'color: inherit; text-decoration: underline;')
+                    .text(artistName);
+                const titleContainer = $('<span></span>')
+                    .text(`${title} by `)
+                    .append(link);
+                $("#archive-title").empty().append(titleContainer);
+                $("#archive-title-overlay").empty().append(titleContainer.clone());
             } else {
                 $("#archive-title").text(title);
                 $("#archive-title-overlay").text(title);
