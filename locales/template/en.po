@@ -968,6 +968,9 @@ msgstr "F: toggle fullscreen mode"
 msgid "B: toggle bookmark"
 msgstr "B: toggle bookmark"
 
+msgid "N: toggle auto next page"
+msgstr "N: toggle auto next page"
+
 msgid "To return to the archive index, touch the arrow pointing down or use Backspace."
 msgstr "To return to the archive index, touch the arrow pointing down or use Backspace."
 
@@ -1055,6 +1058,12 @@ msgstr "Infinite Scrolling"
 msgid "Display all images in a vertical view in the same page."
 msgstr "Display all images in a vertical view in the same page."
 
+msgid "Auto next page interval in seconds"
+msgstr "Auto next page interval in seconds"
+
+msgid "The default is 10 seconds."
+msgstr "The default is 10 seconds."
+
 msgid "Reader Settings"
 msgstr "Reader Settings"
 
@@ -1063,6 +1072,9 @@ msgstr "Help"
 
 msgid "Reading Direction"
 msgstr "Reading Direction"
+
+msgid "Auto Next Page"
+msgstr "Auto Next Page"
 
 msgid "Archive Overview"
 msgstr "Archive Overview"
@@ -1504,6 +1516,12 @@ msgstr "Page ${page}"
 
 msgid "The page thumbnailing job didn't conclude properly. Your archive might be corrupted."
 msgstr "The page thumbnailing job didn't conclude properly. Your archive might be corrupted."
+
+msgid "Starting auto next page failed!"
+msgstr "Starting auto next page failed!"
+
+msgid "Please set the auto next page interval to a positive number."
+msgstr "Please set the auto next page interval to a positive number."
 
 msgid "A script is already running."
 msgstr "A script is already running."
