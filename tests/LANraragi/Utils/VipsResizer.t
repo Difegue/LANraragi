@@ -4,16 +4,21 @@ use v5.36;
 
 use Test::More;
 
-use LANraragi::Utils::VipsResizer;
+use LANraragi::Utils::Vips;
+
+if (!LANraragi::Utils::Vips::is_vips_loaded) {
+    plan skip_all => "libvips is not installed";
+};
+
 use Image::Magick;
-use Cwd qw( getcwd );
+use Cwd qw(getcwd);
 my $cwd = getcwd();
 
 require "$cwd/tests/mocks.pl";
 
 setup_redis_mock();
 
-BEGIN { use_ok('LANraragi::Utils::VipsResizer'); }
+use_ok('LANraragi::Utils::VipsResizer');
 
 my $image_path = "$cwd/tests/samples/reader.jpg";
 open my $fh, '<:raw', $image_path or die "Cannot open $image_path: $!";
@@ -22,7 +27,6 @@ my $image_data = do {
     <$fh>
 };
 close $fh;
-
 
 note("testing page resizing");
 {
