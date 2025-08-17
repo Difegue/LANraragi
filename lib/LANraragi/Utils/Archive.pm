@@ -185,6 +185,9 @@ sub get_filelist ($archive) {
 
         # For pdfs, extraction returns images from 1.jpg to x.jpg, where x is the pdf pagecount.
         # Using -dNOSAFER or --permit-file-read is required since GS 9.50, see https://github.com/doxygen/doxygen/issues/7290
+
+        $archive = decode_utf8( $archive ); # Decode path before passing it to GhostScript
+
         my $pages = `gs -q -dNOSAFER -sDEVICE=jpeg -c "($archive) (r) file runpdfbegin pdfpagecount = quit"`;
         for my $num ( 1 .. $pages ) {
             push @files, "$num.jpg";
@@ -300,6 +303,9 @@ sub extract_single_file ( $archive, $filepath ) {
         $page =~ s/^(\d+).jpg$/$1/;
 
         my ( $fh, $outfile ) = tempfile();
+
+        $archive = decode_utf8( $archive ); # Decode path before passing it to GhostScript
+
         my $gscmd = "gs -dNOPAUSE -dFirstPage=$page -dLastPage=$page -sDEVICE=jpeg -r200 -o \"$outfile\" \"$archive\"";
         $logger->debug("Extracting page $filepath from PDF $archive");
         $logger->debug($gscmd);
