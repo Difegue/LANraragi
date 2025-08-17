@@ -133,11 +133,15 @@ Reader.initializeAll = function () {
             // Regex look in tags for artist
             const artist = data.tags.match(/.*artist:([^,]*),.*/i);
             if (artist) {
-                title = `${title} by ${artist[1]}`;
+                const artistName = artist[1];
+                const artistSearchUrl = `/?sort=0&q=artist%3A${encodeURIComponent(artistName)}&`;
+                const titleWithArtist = `${title} by <a href="${artistSearchUrl}" style="color: inherit; text-decoration: underline;">${artistName}</a>`;
+                $("#archive-title").html(titleWithArtist);
+                $("#archive-title-overlay").html(titleWithArtist);
+            } else {
+                $("#archive-title").text(title);
+                $("#archive-title-overlay").text(title);
             }
-
-            $("#archive-title").text(title);
-            $("#archive-title-overlay").text(title);
             if (data.pagecount) { $(".max-page").text(data.pagecount); }
             document.title = title;
 
