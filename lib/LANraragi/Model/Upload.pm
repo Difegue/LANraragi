@@ -84,7 +84,7 @@ sub handle_incoming_file ( $tempfile, $catid, $tags, $title, $summary ) {
 
     # Add the file to the database ourselves so Shinobu doesn't do it
     # This allows autoplugin to be ran ASAP.
-    my $name = LANraragi::Utils::Database::add_archive_to_redis( $id, $output_file, $redis, $redis_search );
+    my $name = LANraragi::Utils::Database::add_archive_to_redis( $id, $output_file, $output_file, $redis, $redis_search );
 
     # If additional tags were given to the sub, add them now.
     if ($tags) {

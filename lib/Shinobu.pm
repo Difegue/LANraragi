@@ -41,6 +41,13 @@ use LANraragi::Model::Search;     # idem
 
 use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 
+BEGIN {
+    if ( !IS_UNIX ) {
+        require Win32;
+        require Win32::FileSystemHelper;
+    }
+}
+
 # Logger and Database objects
 my $logger = get_logger( "Shinobu", "shinobu" );
 
@@ -53,6 +60,11 @@ my $inotifysub = sub {
     # Filewatcher on Windows returns backward slashes, convert them to forward slash to match everything else
     if ( !IS_UNIX ) {
         $name =~ s/\\/\//g;
+
+        # If this is a super long file convert it to short name
+        if ( length($name) > 260 ) {
+            $name = Win32::GetShortPathName($name);
+        }
     }
 
     $logger->debug("Received inotify event $type on $name");
@@ -91,14 +103,22 @@ sub initialize_from_new_process {
     # manual event loop
     $logger->info("All done! Now dutifully watching your files. ");
 
-    while (1) {
+    my $running = 1;
+
+    while ($running) {
+        local $SIG{INT} = sub { $running = 0 };
 
         # Check events on files
         for my $event ( $contentwatcher->new_events ) {
             $inotifysub->($event);
         }
 
-        sleep 2;
+        sleep 1;
+    }
+
+    if ( !IS_UNIX ) {
+        # Cleanly shutdown filewatcher
+        $contentwatcher->dispose;
     }
 }
 
@@ -118,6 +138,10 @@ sub update_filemap {
         {   wanted => sub {
                 return if -d $_;    #Directories are excluded on the spot
                 return unless is_archive($_);
+                # If this is a super long file convert it to short name
+                if ( length($_) > 260 ) {
+                    $_ = Win32::GetShortPathName($_);
+                }
                 push @files, $_;    #Push files to array
             },
             no_chdir    => 1,
@@ -321,14 +345,18 @@ sub add_new_files (@files) {
 }
 
 
-sub add_new_file ( $id, $file ) {
+sub add_new_file ( $id, $file_fs ) {
 
     my $redis        = LANraragi::Model::Config->get_redis;
     my $redis_search = LANraragi::Model::Config->get_redis_search;
-    $logger->info("Adding new file $file with ID $id");
+    $logger->info("Adding new file $file_fs with ID $id");
 
     eval {
-        LANraragi::Utils::Database::add_archive_to_redis( $id, $file, $redis, $redis_search );
+        my $file = $file_fs;
+        if ( !IS_UNIX ) {
+            $file = Win32::FileSystemHelper::get_full_path($file);
+        }
+        LANraragi::Utils::Database::add_archive_to_redis( $id, $file, $file_fs, $redis, $redis_search );
         LANraragi::Utils::Database::add_timestamp_tag( $redis, $id );
         LANraragi::Utils::Database::add_pagecount( $redis, $id );
 
