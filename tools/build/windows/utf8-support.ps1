@@ -4,3 +4,4 @@ Enter-VsDevShell -VsInstallPath $vsPath -SkipAutomaticLocation
 
 Set-Location .\win-dist\runtime\bin\
 mt.exe -manifest ..\..\..\tools\build\windows\perl.exe.manifest "-outputresource:perl.exe;#1"
+mt.exe -manifest ..\..\..\tools\build\windows\gs.exe.manifest "-outputresource:gs.exe;#1"

@@ -31,7 +31,10 @@ our @EXPORT_OK = qw(
 
 # Creates a DB entry for a file path with the given ID.
 # This function doesn't actually require the file to exist at its given location.
-sub add_archive_to_redis ( $id, $file, $redis, $redis_search ) {
+# On Unix-like $file and $file_fs must the same.
+# On Windows $file should contain the original path and $file_fs the file system
+# path in either long or short form.
+sub add_archive_to_redis ( $id, $file, $file_fs, $redis, $redis_search ) {
 
     my $logger = get_logger( "Archive", "lanraragi" );
     my ( $name, $path, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
@@ -39,18 +42,18 @@ sub add_archive_to_redis ( $id, $file, $redis, $redis_search ) {
     # Initialize Redis hash for the added file
     $logger->debug("Pushing to redis on ID $id:");
     $logger->debug("File Name: $name");
-    $logger->debug("Filesystem Path: $file");
+    $logger->debug("Filesystem Path: $file_fs");
 
     $redis->hset( $id, "name",    redis_encode($name) );
     $redis->hset( $id, "tags",    "" );
     $redis->hset( $id, "summary", "" );
 
-    if ( defined($file) && -e $file ) {
-        $redis->hset( $id, "arcsize", -s $file );
+    if ( defined($file_fs) && -e $file_fs ) {
+        $redis->hset( $id, "arcsize", -s $file_fs );
     }
 
     # Don't encode filenames.
-    $redis->hset( $id, "file", $file );
+    $redis->hset( $id, "file", $file_fs );
 
     # Set title so that index is updated
     # Throw a decode in there just in case the filename is already UTF8
