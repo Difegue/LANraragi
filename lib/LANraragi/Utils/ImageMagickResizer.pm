@@ -7,6 +7,8 @@ use strict;
 use warnings;
 use utf8;
 
+use LANraragi::Utils::Logging qw(get_logger);
+
 sub new {
     my $class = shift;
 
