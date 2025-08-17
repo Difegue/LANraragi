@@ -138,9 +138,11 @@ sub update_filemap {
         {   wanted => sub {
                 return if -d $_;    #Directories are excluded on the spot
                 return unless is_archive($_);
-                # If this is a super long file convert it to short name
-                if ( length($_) > 260 ) {
-                    $_ = Win32::GetShortPathName($_);
+                if ( !IS_UNIX ) {
+                    # If this is a super long file convert it to short name
+                    if ( length($_) > 260 ) {
+                        $_ = Win32::GetShortPathName($_);
+                    }
                 }
                 push @files, $_;    #Push files to array
             },
