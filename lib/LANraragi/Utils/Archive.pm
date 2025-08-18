@@ -304,7 +304,9 @@ sub extract_single_file ( $archive, $filepath ) {
 
         my ( $fh, $outfile ) = tempfile();
 
-        $archive = decode_utf8( $archive ); # Decode path before passing it to GhostScript
+        # Decode path before passing it to GhostScript
+        $archive = decode_utf8( $archive );
+        $outfile = decode_utf8( $outfile );
 
         my $gscmd = "gs -dNOPAUSE -dFirstPage=$page -dLastPage=$page -sDEVICE=jpeg -r200 -o \"$outfile\" \"$archive\"";
         $logger->debug("Extracting page $filepath from PDF $archive");
