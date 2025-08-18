@@ -62,7 +62,7 @@ my $inotifysub = sub {
         $name =~ s/\\/\//g;
 
         # If this is a super long file convert it to short name
-        if ( length($name) > 260 ) {
+        if ( length($name) >= 260 ) {
             $name = Win32::GetShortPathName($name);
         }
     }
@@ -140,7 +140,7 @@ sub update_filemap {
                 return unless is_archive($_);
                 if ( !IS_UNIX ) {
                     # If this is a super long file convert it to short name
-                    if ( length($_) > 260 ) {
+                    if ( length($_) >= 260 ) {
                         $_ = Win32::GetShortPathName($_);
                     }
                 }
