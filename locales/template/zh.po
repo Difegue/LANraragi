@@ -370,6 +370,12 @@ msgstr "重新启动LANraragi后完全生效。"
 msgid "Clean Database"
 msgstr "清理数据库"
 
+msgid "Enable Metrics"
+msgstr ""
+
+msgid "Enable metrics collection and serve them through the metrics endpoint in the Prometheus exposition format."
+msgstr ""
+
 msgid "Cleaning the database will remove entries that aren't on your filesystem."
 msgstr "清理数据库将删除不在您的文件系统中的条目。"
 

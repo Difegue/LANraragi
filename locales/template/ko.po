@@ -388,6 +388,12 @@ msgstr ""
 msgid "Clean Database"
 msgstr "데이터베이스 정리"
 
+msgid "Enable Metrics"
+msgstr ""
+
+msgid "Enable metrics collection and serve them through the metrics endpoint in the Prometheus exposition format."
+msgstr ""
+
 msgid "Cleaning the database will remove entries that aren't on your filesystem."
 msgstr "데이터베이스 정리는 파일 시스템에 없는 항목을 제거합니다."
 

@@ -435,6 +435,12 @@ msgstr ""
 msgid "Clean Database"
 msgstr "Limpiar base de datos"
 
+msgid "Enable Metrics"
+msgstr ""
+
+msgid "Enable metrics collection and serve them through the metrics endpoint in the Prometheus exposition format."
+msgstr ""
+
 msgid "Cleaning the database will remove entries that aren't on your filesystem."
 msgstr ""
 "Al limpiar la base de datos se eliminarán los registros que no se encuentran "
