@@ -3,6 +3,14 @@ use warnings;
 use v5.36;
 
 use Test::More;
+use Test::MockModule qw(strict);
+use Cwd qw(getcwd);
+
+my $cwd = getcwd();
+require "$cwd/tests/mocks.pl";
+
+my $module = Test::MockModule->new('LANraragi::Utils::Logging');
+$module->redefine('get_logger', get_logger_mock());
 
 use LANraragi::Utils::Vips;
 
@@ -11,10 +19,6 @@ if (!LANraragi::Utils::Vips::is_vips_loaded) {
 };
 
 use Image::Magick;
-use Cwd qw(getcwd);
-my $cwd = getcwd();
-
-require "$cwd/tests/mocks.pl";
 
 setup_redis_mock();
 

@@ -6,14 +6,19 @@ use Test::More;
 
 use LANraragi::Utils::ImageMagickResizer;
 use Image::Magick;
-use Cwd qw( getcwd );
-my $cwd = getcwd();
 
+use Test::MockModule qw(strict);
+use Cwd qw(getcwd);
+
+my $cwd = getcwd();
 require "$cwd/tests/mocks.pl";
+
+my $module = Test::MockModule->new('LANraragi::Utils::Logging');
+$module->redefine('get_logger', get_logger_mock());
 
 setup_redis_mock();
 
-BEGIN { use_ok('LANraragi::Utils::ImageMagickResizer'); }
+use_ok('LANraragi::Utils::ImageMagickResizer');
 
 my $image_path = "$cwd/tests/samples/reader.jpg";
 open my $fh, '<:raw', $image_path or die "Cannot open $image_path: $!";
