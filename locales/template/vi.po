@@ -423,6 +423,12 @@ msgstr ""
 msgid "Clean Database"
 msgstr "Dọn dẹp cơ sở dữ liệu"
 
+msgid "Enable Metrics"
+msgstr ""
+
+msgid "Enable metrics collection and serve them through the metrics endpoint in the Prometheus exposition format."
+msgstr ""
+
 msgid "Cleaning the database will remove entries that aren't on your filesystem."
 msgstr ""
 "Dọn dẹp cơ sở dữ liệu sẽ xóa các mục không còn tồn tại trên hệ thống tệp của "
