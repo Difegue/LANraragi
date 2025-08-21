@@ -39,7 +39,6 @@ pkg install libressl
 pkg install npm
 pkg install p5-mojolicious
 pkg install git
-cpan Parallel::Loops
 ```
 
 {% hint style="info" %}
