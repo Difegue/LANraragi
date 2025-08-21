@@ -107,6 +107,7 @@ sub add_tasks {
                     mce_loop {
                         $sub->(@{ $_ });
                     } \@keys;
+                    MCE::Loop->finish;
                 } else {
                     # libarchive does not support threading on Windows
                     $sub->(@keys);
@@ -118,6 +119,8 @@ sub add_tasks {
 
             my @err = $errors->values;
             $job->finish( { errors => \@err } );
+
+            MCE::Shared->stop;
         }
     );
 
@@ -164,6 +167,7 @@ sub add_tasks {
                     mce_loop {
                         $sub->(@{ $_ });
                     } \@keys;
+                    MCE::Loop->finish;
                 } else {
                     # libarchive does not support threading on Windows
                     $sub->(@keys);
@@ -172,6 +176,8 @@ sub add_tasks {
 
             my @err = $errors->values;
             $job->finish( { errors => \@err } );
+
+            MCE::Shared->stop;
         }
     );
 
@@ -255,6 +261,9 @@ sub add_tasks {
             };
 
             $job->finish( {} );
+
+            MCE::Loop->finish;
+            MCE::Shared->stop;
         }
     );
 

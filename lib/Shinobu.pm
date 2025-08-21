@@ -178,6 +178,7 @@ sub update_filemap {
             mce_loop {
                 add_new_files(@{ $_ });
             } \@newfiles;
+            MCE::Loop->finish;
         } else {
             # libarchive does not support threading on Windows
             add_new_files(@newfiles);
