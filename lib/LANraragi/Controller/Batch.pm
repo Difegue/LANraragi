@@ -7,9 +7,10 @@ use Mojo::JSON qw(decode_json);
 
 use LANraragi::Utils::Generic  qw(generate_themes_header);
 use LANraragi::Utils::Tags     qw(rewrite_tags build_tag_replace_hash split_tags_to_array restore_CRLF);
-use LANraragi::Utils::Database qw(redis_decode get_computed_tagrules set_tags set_title set_summary set_isnew invalidate_cache);
+use LANraragi::Utils::Database qw(get_computed_tagrules set_tags set_title set_summary set_isnew invalidate_cache);
 use LANraragi::Utils::Plugins  qw(get_plugins get_plugin get_plugin_parameters);
 use LANraragi::Utils::Logging  qw(get_logger);
+use LANraragi::Utils::Redis    qw(redis_decode);
 
 # This action will render a template
 sub index {
