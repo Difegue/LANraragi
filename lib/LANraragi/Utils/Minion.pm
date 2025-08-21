@@ -120,7 +120,10 @@ sub add_tasks {
             my @err = $errors->values;
             $job->finish( { errors => \@err } );
 
-            MCE::Shared->stop;
+            # Crashes on Windows so don't run it there
+            if ( IS_UNIX ) {
+                MCE::Shared->stop;
+            }
         }
     );
 
@@ -177,7 +180,10 @@ sub add_tasks {
             my @err = $errors->values;
             $job->finish( { errors => \@err } );
 
-            MCE::Shared->stop;
+            # Crashes on Windows so don't run it there
+            if ( IS_UNIX ) {
+                MCE::Shared->stop;
+            }
         }
     );
 
@@ -204,66 +210,77 @@ sub add_tasks {
             my $visited = MCE::Shared->hash;
             my @ids = keys %thumbhashes;    # List of IDs to check
 
-            eval {
-                mce_loop {
+            my $sub = sub {
+                my (@keys) = @_;
 
-                    my $redis = LANraragi::Model::Config->get_redis_config;
+                my $redis = LANraragi::Model::Config->get_redis_config;
 
-                    foreach my $id (@{ $_ }) {
+                foreach my $id (@keys) {
 
-                        # Skip if this ID has already been processed in another thread
-                        next if $visited->get( $id );
-                        my @stack = ($id);
-                        my @group;
+                    # Skip if this ID has already been processed in another thread
+                    next if $visited->get( $id );
+                    my @stack = ($id);
+                    my @group;
 
-                        while (@stack) {
-                            my $node = pop @stack;
-                            next if $visited->get( $node );
+                    while (@stack) {
+                        my $node = pop @stack;
+                        next if $visited->get( $node );
 
-                            # Mark the node as visited   
-                            $visited->set( $node, 1 );
-                            push @group, $node;
+                        # Mark the node as visited
+                        $visited->set( $node, 1 );
+                        push @group, $node;
 
-                            # Find all potential duplicates for this node
-                            foreach my $other_id ( keys %thumbhashes ) {
-                                next if $node eq $other_id || $visited->get( $other_id );
+                        # Find all potential duplicates for this node
+                        foreach my $other_id ( keys %thumbhashes ) {
+                            next if $node eq $other_id || $visited->get( $other_id );
 
-                                # Calculate Hamming distance
-                                my $distance = 0;
-                                for ( my $i = 0; $i < length( $thumbhashes{$node} ); $i++ ) {
-                                    $distance++
-                                    if substr( $thumbhashes{$node}, $i, 1 ) ne substr( $thumbhashes{$other_id}, $i, 1 );
-                                    last if $distance > $threshold;    # Early exit if threshold exceeded
-                                }
-
-                                # If within threshold, add to stack for further exploration
-                                if ( $distance <= $threshold ) {
-                                    $logger->debug("Found potential duplicate: $node and $other_id with distance $distance");
-                                    push @stack, $other_id;
-                                }
+                            # Calculate Hamming distance
+                            my $distance = 0;
+                            for ( my $i = 0; $i < length( $thumbhashes{$node} ); $i++ ) {
+                                $distance++
+                                if substr( $thumbhashes{$node}, $i, 1 ) ne substr( $thumbhashes{$other_id}, $i, 1 );
+                                last if $distance > $threshold;    # Early exit if threshold exceeded
                             }
-                        }
 
-                        # Add the discovered group to redis
-                        # to avoid redudnant groups in different orders - sort and composite key
-                        if ( @group && scalar @group >= 2 ) {
-                            @group = sort @group;
-                            my $composite_key = join '', map { substr( $_, 0, 10 ) } @group;
-                            my $group_json    = encode_json( \@group );
-                            $logger->debug("duplicate group '$composite_key': $group_json");
-                            $redis->hset( "LRR_DUPLICATE_GROUPS", "dupgp_$composite_key", $group_json );
+                            # If within threshold, add to stack for further exploration
+                            if ( $distance <= $threshold ) {
+                                $logger->debug("Found potential duplicate: $node and $other_id with distance $distance");
+                                push @stack, $other_id;
+                            }
                         }
                     }
 
-                    $redis->quit();
+                    # Add the discovered group to redis
+                    # to avoid redudnant groups in different orders - sort and composite key
+                    if ( @group && scalar @group >= 2 ) {
+                        @group = sort @group;
+                        my $composite_key = join '', map { substr( $_, 0, 10 ) } @group;
+                        my $group_json    = encode_json( \@group );
+                        $logger->debug("duplicate group '$composite_key': $group_json");
+                        $redis->hset( "LRR_DUPLICATE_GROUPS", "dupgp_$composite_key", $group_json );
+                    }
+                }
 
-                } \@ids;
+                $redis->quit();
+            };
+
+            eval {
+                if ( IS_UNIX ) {
+                    mce_loop {
+                        $sub->(@{ $_ });
+                    } \@ids;
+                    MCE::Loop->finish;
+                } else {
+                    $sub->(@ids);
+                }
             };
 
             $job->finish( {} );
 
-            MCE::Loop->finish;
-            MCE::Shared->stop;
+            # Crashes on Windows so don't run it there
+            if ( IS_UNIX ) {
+                MCE::Shared->stop;
+            }
         }
     );
 
