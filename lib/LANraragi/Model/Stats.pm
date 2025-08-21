@@ -14,8 +14,9 @@ use LANraragi::Model::Tankoubon;
 
 use LANraragi::Utils::Generic  qw(is_archive intersect_arrays);
 use LANraragi::Utils::String   qw(trim trim_CRLF trim_url);
-use LANraragi::Utils::Database qw(redis_decode redis_encode);
+use LANraragi::Utils::Redis    qw(redis_decode redis_encode);
 use LANraragi::Utils::Logging  qw(get_logger);
+use LANraragi::Utils::Database qw(get_arcsize);
 
 sub get_archive_count {
     my $redis = LANraragi::Model::Config->get_redis_search;
@@ -243,7 +244,7 @@ sub compute_content_size {
 
     $redis_db->multi;
     foreach my $id (@keys) {
-        LANraragi::Utils::Database::get_arcsize( $redis_db, $id );
+        get_arcsize( $redis_db, $id );
     }
     my @result = $redis_db->exec;
     $redis_db->quit;

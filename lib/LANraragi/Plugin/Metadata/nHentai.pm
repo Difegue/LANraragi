@@ -13,7 +13,7 @@ use File::Basename;
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
 use LANraragi::Utils::Logging qw(get_plugin_logger);
-use LANraragi::Utils::Database qw(redis_decode);
+use LANraragi::Utils::Redis qw(redis_decode);
 
 #Meta-information about your plugin.
 sub plugin_info {

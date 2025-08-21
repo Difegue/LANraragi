@@ -12,7 +12,7 @@ use MCE::Shared;
 use Config;
 
 use LANraragi::Utils::Logging    qw(get_logger);
-use LANraragi::Utils::Database   qw(redis_decode);
+use LANraragi::Utils::Redis      qw(redis_decode);
 use LANraragi::Utils::Archive    qw(extract_thumbnail);
 use LANraragi::Utils::Plugins    qw(get_downloader_for_url get_plugin get_plugin_parameters use_plugin);
 use LANraragi::Utils::String     qw(trim_url);
@@ -383,20 +383,20 @@ sub add_tasks {
                     );
                     return;
                 }
-                
+
                 # Check if the plugin provided a direct file path instead of a URL to download
                 if ( exists $plugin_result->{file_path} ) {
                     my $tempfile = $plugin_result->{file_path};
                     $logger->info("Plugin directly provided file at: $tempfile");
-                    
+
                     # Add the url as a source: tag
                     my $tag = "source:$og_url";
-                    
+
                     # Hand off the result to handle_incoming_file
                     my ( $status_code, $id, $title, $message ) =
                       LANraragi::Model::Upload::handle_incoming_file( $tempfile, $catid, $tag, "", "" );
                     my $status = $status_code == 200 ? 1 : 0;
-                    
+
                     $job->finish(
                         {   success  => $status,
                             url      => $og_url,

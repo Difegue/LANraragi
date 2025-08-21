@@ -8,7 +8,7 @@ use Template;
 use Mojo::Util qw(xml_escape);
 
 use LANraragi::Utils::Generic qw(generate_themes_header);
-use LANraragi::Utils::Database qw(redis_decode);
+use LANraragi::Utils::Redis   qw(redis_decode);
 use LANraragi::Utils::Plugins qw(get_plugins);
 
 sub index {

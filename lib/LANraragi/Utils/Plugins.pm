@@ -5,7 +5,7 @@ use warnings;
 use utf8;
 
 use Mojo::JSON                 qw(decode_json);
-use LANraragi::Utils::Database qw(redis_decode);
+use LANraragi::Utils::Redis    qw(redis_decode);
 use LANraragi::Utils::Logging  qw(get_logger);
 
 # Plugin system ahoy - this makes the LANraragi::Utils::Plugins::plugins method available

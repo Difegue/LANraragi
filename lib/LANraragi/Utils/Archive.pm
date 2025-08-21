@@ -26,6 +26,7 @@ use File::Temp qw(tempdir);
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Generic    qw(is_image shasum_str);
+use LANraragi::Utils::Redis      qw(redis_decode);
 
 # Utilitary functions for handling Archives.
 # Relies on Libarchive, ImageMagick and GhostScript for PDFs.
@@ -321,7 +322,7 @@ sub extract_single_file ( $archive, $filepath ) {
         my @files    = $peek->files;
 
         for my $name (@files) {
-            my $decoded_name = LANraragi::Utils::Database::redis_decode($name);
+            my $decoded_name = redis_decode($name);
 
             # This sub can receive either encoded or raw filenames, so we have to test for both.
             if ( $decoded_name eq $filepath || $name eq $filepath ) {
