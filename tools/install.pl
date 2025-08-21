@@ -242,9 +242,7 @@ sub install_package {
 
     if ($@) {
         say("$package not installed! Trying to install now using cpanm$cpanopt");
-        if ( system("cpanm --notest $package $cpanopt") != 0 ) {
-            die "Something went wrong while installing $package - Bailing out.";
-        }
+        system("cpanm --notest $package $cpanopt");
     } else {
         say("$package package installed, proceeding...");
     }
