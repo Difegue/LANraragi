@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-06 17:24+0200\n"
-"PO-Revision-Date: 2025-06-28 17:04+0000\n"
+"PO-Revision-Date: 2025-08-20 01:02+0000\n"
 "Last-Translator: Haytsir <alswo7310@naver.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/ko/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.13-dev\n"
+"X-Generator: Weblate 5.13\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -1712,3 +1712,30 @@ msgstr "중복 검색 중..."
 # ------End of Duplicates.html.tt2------
 msgid "No duplicates found!"
 msgstr "발견된 중복 항목이 없습니다!"
+
+msgid "Copy link"
+msgstr "링크 복사"
+
+msgid "N: toggle auto next page"
+msgstr "N: 자동으로 다음 장으로 넘기기 토글"
+
+msgid "Auto next page interval in seconds"
+msgstr "다음 장으로 넘길 시간(초)"
+
+msgid "The default is 10 seconds."
+msgstr "기본값은 10 초입니다."
+
+msgid "Auto Next Page"
+msgstr "자동으로 페이지 넘기기"
+
+msgid "Link copied successfully."
+msgstr "링크가 성공적으로 복사되었습니다."
+
+msgid "Copy failed."
+msgstr "복사 실패."
+
+msgid "Starting auto next page failed!"
+msgstr "자동 페이지 넘기기를 시작하는 데 실패했습니다!"
+
+msgid "Please set the auto next page interval to a positive number."
+msgstr "자동 페이지 넘김 간격을 양수값으로 설정해주세요."
