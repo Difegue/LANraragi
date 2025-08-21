@@ -22,6 +22,7 @@ use LANraragi::Utils::String   qw(trim trim_CRLF trim_url);
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
 use LANraragi::Model::Category;
+use LANraragi::Model::Archive;
 
 # Handle files uploaded by the user, or downloaded from remote endpoints.
 
