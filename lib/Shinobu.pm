@@ -36,6 +36,7 @@ use LANraragi::Utils::Generic    qw(is_archive);
 use LANraragi::Utils::Redis      qw(redis_encode);
 
 use LANraragi::Model::Config;
+use LANraragi::Model::Plugins;
 use LANraragi::Utils::Plugins;    # Needed here since Shinobu doesn't inherit from the main LRR package
 use LANraragi::Model::Search;     # idem
 
