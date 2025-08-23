@@ -50,6 +50,6 @@ jobs:
         run: |
           cd aio-lanraragi/integration_tests
           export CI=true
-          pytest tests --log-cli-level=INFO --build ../lanraragi --docker-api
+          pytest tests --log-cli-level=INFO --build "$GITHUB_WORKSPACE/lanraragi" --docker-api
         env:
           DOCKER_HOST: unix:///var/run/docker.sock
