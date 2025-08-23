@@ -616,15 +616,13 @@ sub get_arcsize ( $redis, $id ) {
     return $redis->hget( $id, "arcsize" );
 }
 
+# DEPRECATED - Please use LANraragi::Utils::Redis::redis_decode instead, this function will be removed at some point
 sub redis_encode ($data) {
-    my $logger = get_logger("Database", "lanraragi");
-    $logger->info("DEPRECATED - Please use LANraragi::Utils::Redis::redis_encode instead, this function will be removed at some point");
     return LANraragi::Utils::Redis::redis_encode($data);
 }
 
+# DEPRECATED - Please use LANraragi::Utils::Redis::redis_decode instead, this function will be removed at some point
 sub redis_decode ($data) {
-    my $logger = get_logger("Database", "lanraragi");
-    $logger->info("DEPRECATED - Please use LANraragi::Utils::Redis::redis_decode instead, this function will be removed at some point");
     return LANraragi::Utils::Redis::redis_decode($data);
 }
 
