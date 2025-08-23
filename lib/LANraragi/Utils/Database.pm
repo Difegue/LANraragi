@@ -22,14 +22,15 @@ use LANraragi::Utils::String  qw(trim trim_CRLF trim_url);
 use LANraragi::Utils::Tags    qw(unflat_tagrules tags_rules_to_array restore_CRLF join_tags_to_string split_tags_to_array );
 use LANraragi::Utils::Archive qw(get_filelist);
 use LANraragi::Utils::Logging qw(get_logger);
-use LANraragi::Utils::Redis   qw(redis_decode redis_encode);
 use LANraragi::Model::Config;
 
 # Functions for interacting with the DB Model.
 use Exporter 'import';
 our @EXPORT_OK = qw(
   invalidate_cache compute_id change_archive_id set_tags set_title set_summary set_isnew get_computed_tagrules save_computed_tagrules get_tankoubons_by_file
-  get_archive get_archive_json get_archive_json_multi get_tags get_arcsize add_arcsize add_pagecount add_timestamp_tag add_archive_to_redis);
+  get_archive get_archive_json get_archive_json_multi get_tags get_arcsize add_arcsize add_pagecount add_timestamp_tag add_archive_to_redis
+  redis_decode redis_encode
+);
 
 # Creates a DB entry for a file path with the given ID.
 # This function doesn't actually require the file to exist at its given location.
@@ -46,7 +47,7 @@ sub add_archive_to_redis ( $id, $file, $file_fs, $redis, $redis_search ) {
     $logger->debug("File Name: $name");
     $logger->debug("Filesystem Path: $file_fs");
 
-    $redis->hset( $id, "name",    redis_encode($name) );
+    $redis->hset( $id, "name",    LANraragi::Utils::Redis::redis_encode($name) );
     $redis->hset( $id, "tags",    "" );
     $redis->hset( $id, "summary", "" );
 
@@ -59,7 +60,7 @@ sub add_archive_to_redis ( $id, $file, $file_fs, $redis, $redis_search ) {
 
     # Set title so that index is updated
     # Throw a decode in there just in case the filename is already UTF8
-    set_title( $id, redis_decode($name) );
+    set_title( $id, LANraragi::Utils::Redis::redis_decode($name) );
 
     # New archives can't be in a tank, so add them to the search set by default
     $redis_search->sadd( "LRR_TANKGROUPED",  $id );
@@ -237,7 +238,7 @@ sub build_json ( $id, %hash ) {
     return unless ( defined($file) && -e $file );
 
     # Parameters have been obtained, let's decode them.
-    ( $_ = redis_decode($_) ) for ( $name, $title, $tags, $summary );
+    ( $_ = LANraragi::Utils::Redis::redis_decode($_) ) for ( $name, $title, $tags, $summary );
 
     # Workaround if title was incorrectly parsed as blank
     if ( !defined($title) || $title =~ /^\s*$/ ) {
@@ -404,21 +405,21 @@ sub set_title ( $id, $newtitle ) {
 
         # Remove old title from search set
         if ( $redis->hexists( $id, "title" ) ) {
-            my $oldtitle = lc( redis_decode( $redis->hget( $id, "title" ) ) );
+            my $oldtitle = lc( LANraragi::Utils::Redis::redis_decode( $redis->hget( $id, "title" ) ) );
             $oldtitle = trim($oldtitle);
             $oldtitle = trim_CRLF($oldtitle);
-            $oldtitle = redis_encode($oldtitle);
+            $oldtitle = LANraragi::Utils::Redis::redis_encode($oldtitle);
             $redis_search->zrem( "LRR_TITLES", "$oldtitle\0$id" );
         }
 
         # Set actual title in metadata DB
-        $redis->hset( $id, "title", redis_encode($newtitle) );
+        $redis->hset( $id, "title", LANraragi::Utils::Redis::redis_encode($newtitle) );
 
         # Set title/ID key in search set
         $newtitle = lc($newtitle);
         $newtitle = trim($newtitle);
         $newtitle = trim_CRLF($newtitle);
-        $newtitle = redis_encode($newtitle);
+        $newtitle = LANraragi::Utils::Redis::redis_encode($newtitle);
         $redis_search->zadd( "LRR_TITLES", 0, "$newtitle\0$id" );
     }
     $redis->quit;
@@ -431,7 +432,7 @@ sub set_tags ( $id, $newtags, $append = 0 ) {
 
     my $redis   = LANraragi::Model::Config->get_redis;
     my $oldtags = $redis->hget( $id, "tags" );
-    $oldtags = redis_decode($oldtags);
+    $oldtags = LANraragi::Utils::Redis::redis_decode($oldtags);
 
     if ($append) {
 
@@ -452,7 +453,7 @@ sub set_tags ( $id, $newtags, $append = 0 ) {
     # Update sets depending on the added/removed tags
     update_indexes( $id, $oldtags, $newtags );
 
-    $redis->hset( $id, "tags", redis_encode($newtags) );
+    $redis->hset( $id, "tags", LANraragi::Utils::Redis::redis_encode($newtags) );
     $redis->quit;
 
     invalidate_cache();
@@ -461,7 +462,7 @@ sub set_tags ( $id, $newtags, $append = 0 ) {
 sub set_summary ( $id, $summary ) {
 
     my $redis = LANraragi::Model::Config->get_redis;
-    $redis->hset( $id, "summary", redis_encode($summary) );
+    $redis->hset( $id, "summary", LANraragi::Utils::Redis::redis_encode($summary) );
     $redis->quit;
 }
 
@@ -508,7 +509,7 @@ sub update_indexes ( $id, $oldtags, $newtags ) {
         }
 
         # Tag is lowercased here to avoid redundancy/dupes
-        $redis->srem( "INDEX_" . redis_encode( lc($tag) ), $id );
+        $redis->srem( "INDEX_" . LANraragi::Utils::Redis::redis_encode( lc($tag) ), $id );
     }
 
     foreach my $tag (@newtags) {
@@ -522,7 +523,7 @@ sub update_indexes ( $id, $oldtags, $newtags ) {
             $redis->hset( "LRR_URLMAP", $url, $id );
         }
 
-        $redis->sadd( "INDEX_" . redis_encode( lc($tag) ), $id );
+        $redis->sadd( "INDEX_" . LANraragi::Utils::Redis::redis_encode( lc($tag) ), $id );
     }
 
     # Add or remove the ID from the untagged list
@@ -580,7 +581,7 @@ sub save_computed_tagrules ($tagrules) {
 
     if (@$tagrules) {
         my @flat         = reverse flat(@$tagrules);
-        my @encoded_flat = map { redis_encode($_) } @flat;
+        my @encoded_flat = map { LANraragi::Utils::Redis::redis_encode($_) } @flat;
         $redis->lpush( "LRR_TAGRULES", @encoded_flat );
     }
 
@@ -595,7 +596,7 @@ sub get_computed_tagrules {
 
     if ( $redis->exists("LRR_TAGRULES") ) {
         my @flattened_rules = $redis->lrange( "LRR_TAGRULES", 0, -1 );
-        my @decoded_rules   = map { redis_decode($_) } @flattened_rules;
+        my @decoded_rules   = map { LANraragi::Utils::Redis::redis_decode($_) } @flattened_rules;
         @tagrules = unflat_tagrules( \@decoded_rules );
     } else {
         @tagrules = tags_rules_to_array( restore_CRLF( LANraragi::Model::Config->get_tagrules ) );
@@ -613,6 +614,16 @@ sub add_arcsize ( $redis, $id ) {
 
 sub get_arcsize ( $redis, $id ) {
     return $redis->hget( $id, "arcsize" );
+}
+
+# DEPRECATED - Please use LANraragi::Utils::Redis::redis_decode instead, this function will be removed at some point
+sub redis_encode ($data) {
+    return LANraragi::Utils::Redis::redis_encode($data);
+}
+
+# DEPRECATED - Please use LANraragi::Utils::Redis::redis_decode instead, this function will be removed at some point
+sub redis_decode ($data) {
+    return LANraragi::Utils::Redis::redis_decode($data);
 }
 
 1;
