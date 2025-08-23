@@ -17,3 +17,39 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
           args: ./lib/* ./script/* ./tools/install.pl
+
+  integrationTests:
+    name: Run Integration Tests
+    runs-on: ubuntu-latest
+    needs: testSuite
+    steps:
+      - name: Checkout LANraragi repository
+        uses: actions/checkout@v4
+        with:
+          path: lanraragi
+      - name: Checkout aio-lanraragi integration tests
+        uses: actions/checkout@v4
+        with:
+          repository: psilabs-dev/aio-lanraragi
+          ref: a3dc0079f5e0f9c97766dd37208d9dd729589d1b
+          path: aio-lanraragi
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install aio-lanraragi package
+        run: |
+          cd aio-lanraragi
+          python -m pip install --upgrade pip
+          pip install ".[dev]"
+      - name: Install integration test dependencies
+        run: |
+          cd aio-lanraragi/integration_tests
+          pip install .
+      - name: Run integration tests against local LANraragi build
+        run: |
+          cd aio-lanraragi/integration_tests
+          export CI=true
+          pytest tests --log-cli-level=INFO --build ../lanraragi --docker-api
+        env:
+          DOCKER_HOST: unix:///var/run/docker.sock
