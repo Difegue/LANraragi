@@ -15,6 +15,7 @@ use Test::Trap;
 my $cwd = getcwd();
 
 require "$cwd/tests/mocks.pl";
+setup_redis_mock();
 my $SAMPLES = "${cwd}/tests/samples/ehdl";
 
 use_ok('LANraragi::Plugin::Metadata::EHDLInfo');

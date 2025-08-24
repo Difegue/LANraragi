@@ -12,13 +12,13 @@ use Test::MockObject;
 use Mojo::JSON qw(decode_json encode_json);
 use Data::Dumper;
 
-use LANraragi::Model::Config;
-use LANraragi::Model::Backup;
-
 # Mock Redis
 my $cwd = getcwd;
 require $cwd . "/tests/mocks.pl";
 setup_redis_mock();
+
+use LANraragi::Model::Config;
+use LANraragi::Model::Backup;
 
 # Would've liked to compare JSON strings directly here, but since the key order is non-deterministic it's easier to compare the result hashes.
 my %expected_backup =

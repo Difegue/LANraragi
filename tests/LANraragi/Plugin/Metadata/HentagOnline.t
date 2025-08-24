@@ -15,6 +15,8 @@ my $cwd     = getcwd();
 my $SAMPLES = "$cwd/tests/samples";
 require "$cwd/tests/mocks.pl";
 
+setup_redis_mock();
+
 use_ok('LANraragi::Plugin::Metadata::HentagOnline');
 
 note("00 - api response");
