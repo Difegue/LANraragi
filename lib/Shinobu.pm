@@ -44,7 +44,6 @@ use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 
 BEGIN {
     if ( !IS_UNIX ) {
-        require Win32;
         require Win32::FileSystemHelper;
     }
 }
@@ -58,13 +57,10 @@ my $inotifysub = sub {
     my $name = $e->path;
     my $type = $e->type;
 
-    # Filewatcher on Windows returns backward slashes, convert them to forward slash to match everything else
     if ( !IS_UNIX ) {
-        $name =~ s/\\/\//g;
-
-        # If this is a super long file convert it to short name
+        # If this is a super long file or uses a lot of double-wide characters convert it to short name
         if ( length($name) >= 260 ) {
-            $name = Win32::GetShortPathName($name);
+            $name = Win32::FileSystemHelper::get_short_path($name);
         }
     }
 
@@ -140,9 +136,9 @@ sub update_filemap {
                 return if -d $_;    #Directories are excluded on the spot
                 return unless is_archive($_);
                 if ( !IS_UNIX ) {
-                    # If this is a super long file convert it to short name
+                    # If this is a super long file or uses a lot of double-wide characters convert it to short name
                     if ( length($_) >= 260 ) {
-                        $_ = Win32::GetShortPathName($_);
+                        $_ = Win32::FileSystemHelper::get_short_path($_);
                     }
                 }
                 push @files, $_;    #Push files to array
