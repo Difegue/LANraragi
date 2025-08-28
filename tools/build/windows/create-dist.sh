@@ -27,15 +27,15 @@ mkdir -p ./win-dist/runtime/share
 cp -R /ucrt64/share/pki ./win-dist/runtime/share
 
 # Inject redis into the vfs
-wget -q -O redis.zip https://github.com/redis-windows/redis-windows/releases/download/7.2.8/Redis-7.2.8-Windows-x64-msys2.zip
+wget -q -O redis.zip https://github.com/redis-windows/redis-windows/releases/download/7.2.9/Redis-7.2.9-Windows-x64-msys2.zip
 unzip -qq redis.zip
 rm redis.zip
 
 mkdir -p win-dist/runtime/redis
 
-mv ./Redis-7.2.8-Windows-x64-msys2/* ./win-dist/runtime/redis
+mv ./Redis-7.2.9-Windows-x64-msys2/* ./win-dist/runtime/redis
 
-rm -rf ./Redis-7.2.8-Windows-x64-msys2
+rm -rf ./Redis-7.2.9-Windows-x64-msys2
 
 # Copy the actual app
 cp ./package.json ./win-dist
