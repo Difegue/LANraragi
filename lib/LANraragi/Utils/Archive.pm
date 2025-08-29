@@ -26,6 +26,7 @@ use File::Temp qw(tempdir);
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Generic    qw(is_image shasum_str);
+use LANraragi::Utils::Redis      qw(redis_decode);
 
 # Utilitary functions for handling Archives.
 # Relies on Libarchive, ImageMagick and GhostScript for PDFs.
@@ -185,6 +186,9 @@ sub get_filelist ($archive) {
 
         # For pdfs, extraction returns images from 1.jpg to x.jpg, where x is the pdf pagecount.
         # Using -dNOSAFER or --permit-file-read is required since GS 9.50, see https://github.com/doxygen/doxygen/issues/7290
+
+        $archive = decode_utf8( $archive ); # Decode path before passing it to GhostScript
+
         my $pages = `gs -q -dNOSAFER -sDEVICE=jpeg -c "($archive) (r) file runpdfbegin pdfpagecount = quit"`;
         for my $num ( 1 .. $pages ) {
             push @files, "$num.jpg";
@@ -300,6 +304,11 @@ sub extract_single_file ( $archive, $filepath ) {
         $page =~ s/^(\d+).jpg$/$1/;
 
         my ( $fh, $outfile ) = tempfile();
+
+        # Decode path before passing it to GhostScript
+        $archive = decode_utf8( $archive );
+        $outfile = decode_utf8( $outfile );
+
         my $gscmd = "gs -dNOPAUSE -dFirstPage=$page -dLastPage=$page -sDEVICE=jpeg -r200 -o \"$outfile\" \"$archive\"";
         $logger->debug("Extracting page $filepath from PDF $archive");
         $logger->debug($gscmd);
@@ -313,7 +322,7 @@ sub extract_single_file ( $archive, $filepath ) {
         my @files    = $peek->files;
 
         for my $name (@files) {
-            my $decoded_name = LANraragi::Utils::Database::redis_decode($name);
+            my $decoded_name = redis_decode($name);
 
             # This sub can receive either encoded or raw filenames, so we have to test for both.
             if ( $decoded_name eq $filepath || $name eq $filepath ) {

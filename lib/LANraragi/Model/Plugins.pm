@@ -20,6 +20,7 @@ use LANraragi::Utils::Archive  qw(extract_thumbnail);
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Tags     qw(rewrite_tags split_tags_to_array);
 use LANraragi::Utils::Plugins  qw(get_plugin_parameters get_plugin);
+use LANraragi::Utils::Redis    qw(redis_decode);
 
 # Sub used by Auto-Plugin.
 sub exec_enabled_plugins_on_file ($id) {
@@ -204,7 +205,7 @@ sub exec_metadata_plugin ( $plugin, $id, %args ) {
 
     my ( $name, $title, $tags, $file, $thumbhash ) = @hash{qw(name title tags file thumbhash)};
 
-    ( $_ = LANraragi::Utils::Database::redis_decode($_) ) for ( $name, $title, $tags );
+    ( $_ = redis_decode($_) ) for ( $name, $title, $tags );
 
     # If the thumbnail hash is empty or undefined, we'll generate it here.
     unless ( length $thumbhash ) {
@@ -215,7 +216,7 @@ sub exec_metadata_plugin ( $plugin, $id, %args ) {
         try {
             extract_thumbnail( $thumbdir, $id, 1, 1, 1 );
             $thumbhash = $redis->hget( $id, "thumbhash" );
-            $thumbhash = LANraragi::Utils::Database::redis_decode($thumbhash);
+            $thumbhash = redis_decode($thumbhash);
         } catch ($e) {
             $logger->warn("Error building thumbnail: $e");
         }

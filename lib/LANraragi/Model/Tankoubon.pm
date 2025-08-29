@@ -11,9 +11,10 @@ use Redis;
 use Mojo::JSON qw(decode_json encode_json);
 use List::Util qw(min);
 
-use LANraragi::Utils::Database qw(redis_encode redis_decode invalidate_cache get_archive_json_multi get_tankoubons_by_file);
+use LANraragi::Utils::Database qw(invalidate_cache get_archive_json_multi get_tankoubons_by_file);
 use LANraragi::Utils::Generic  qw(array_difference filter_hash_by_keys);
 use LANraragi::Utils::Logging  qw(get_logger);
+use LANraragi::Utils::Redis    qw(redis_decode redis_encode);
 
 my %TANK_METADATA = ( "name", 0, "summary", -1, "tags", -2 );
 

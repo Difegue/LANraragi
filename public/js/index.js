@@ -779,7 +779,8 @@ Index.handleContextMenu = function (option, id) {
         LRR.openInNewTab(new LRR.apiURL(`/api/archives/${id}/download`));
         break;
     case "copy link":
-        const link = `${window.location.origin}/reader?id=${id}`;
+        const relativeUrl = new LRR.apiURL(`/reader?id=${id}`).toString();
+        const link = `${window.location.origin}${relativeUrl}`;
         Index.pseudoCopyBtn.attr('data-clipboard-text', link);
         Index.pseudoCopyBtn.click()
         break;

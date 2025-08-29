@@ -2,6 +2,9 @@
 
 set -e
 
+# Run it with unlimited jobs to improve performance
+export MAKEFLAGS="-j"
+
 # Install cpanm
 curl -L https://cpanmin.us | perl - App::cpanminus
 

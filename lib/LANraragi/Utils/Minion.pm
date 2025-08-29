@@ -12,7 +12,7 @@ use MCE::Shared;
 use Config;
 
 use LANraragi::Utils::Logging    qw(get_logger);
-use LANraragi::Utils::Database   qw(redis_decode);
+use LANraragi::Utils::Redis      qw(redis_decode);
 use LANraragi::Utils::Archive    qw(extract_thumbnail);
 use LANraragi::Utils::Plugins    qw(get_downloader_for_url get_plugin get_plugin_parameters use_plugin);
 use LANraragi::Utils::String     qw(trim_url);
@@ -107,6 +107,7 @@ sub add_tasks {
                     mce_loop {
                         $sub->(@{ $_ });
                     } \@keys;
+                    MCE::Loop->finish;
                 } else {
                     # libarchive does not support threading on Windows
                     $sub->(@keys);
@@ -118,6 +119,11 @@ sub add_tasks {
 
             my @err = $errors->values;
             $job->finish( { errors => \@err } );
+
+            # Crashes on Windows so don't run it there
+            if ( IS_UNIX ) {
+                MCE::Shared->stop;
+            }
         }
     );
 
@@ -164,6 +170,7 @@ sub add_tasks {
                     mce_loop {
                         $sub->(@{ $_ });
                     } \@keys;
+                    MCE::Loop->finish;
                 } else {
                     # libarchive does not support threading on Windows
                     $sub->(@keys);
@@ -172,6 +179,11 @@ sub add_tasks {
 
             my @err = $errors->values;
             $job->finish( { errors => \@err } );
+
+            # Crashes on Windows so don't run it there
+            if ( IS_UNIX ) {
+                MCE::Shared->stop;
+            }
         }
     );
 
@@ -198,63 +210,77 @@ sub add_tasks {
             my $visited = MCE::Shared->hash;
             my @ids = keys %thumbhashes;    # List of IDs to check
 
-            eval {
-                mce_loop {
+            my $sub = sub {
+                my (@keys) = @_;
 
-                    my $redis = LANraragi::Model::Config->get_redis_config;
+                my $redis = LANraragi::Model::Config->get_redis_config;
 
-                    foreach my $id (@{ $_ }) {
+                foreach my $id (@keys) {
 
-                        # Skip if this ID has already been processed in another thread
-                        next if $visited->get( $id );
-                        my @stack = ($id);
-                        my @group;
+                    # Skip if this ID has already been processed in another thread
+                    next if $visited->get( $id );
+                    my @stack = ($id);
+                    my @group;
 
-                        while (@stack) {
-                            my $node = pop @stack;
-                            next if $visited->get( $node );
+                    while (@stack) {
+                        my $node = pop @stack;
+                        next if $visited->get( $node );
 
-                            # Mark the node as visited   
-                            $visited->set( $node, 1 );
-                            push @group, $node;
+                        # Mark the node as visited
+                        $visited->set( $node, 1 );
+                        push @group, $node;
 
-                            # Find all potential duplicates for this node
-                            foreach my $other_id ( keys %thumbhashes ) {
-                                next if $node eq $other_id || $visited->get( $other_id );
+                        # Find all potential duplicates for this node
+                        foreach my $other_id ( keys %thumbhashes ) {
+                            next if $node eq $other_id || $visited->get( $other_id );
 
-                                # Calculate Hamming distance
-                                my $distance = 0;
-                                for ( my $i = 0; $i < length( $thumbhashes{$node} ); $i++ ) {
-                                    $distance++
-                                    if substr( $thumbhashes{$node}, $i, 1 ) ne substr( $thumbhashes{$other_id}, $i, 1 );
-                                    last if $distance > $threshold;    # Early exit if threshold exceeded
-                                }
-
-                                # If within threshold, add to stack for further exploration
-                                if ( $distance <= $threshold ) {
-                                    $logger->debug("Found potential duplicate: $node and $other_id with distance $distance");
-                                    push @stack, $other_id;
-                                }
+                            # Calculate Hamming distance
+                            my $distance = 0;
+                            for ( my $i = 0; $i < length( $thumbhashes{$node} ); $i++ ) {
+                                $distance++
+                                if substr( $thumbhashes{$node}, $i, 1 ) ne substr( $thumbhashes{$other_id}, $i, 1 );
+                                last if $distance > $threshold;    # Early exit if threshold exceeded
                             }
-                        }
 
-                        # Add the discovered group to redis
-                        # to avoid redudnant groups in different orders - sort and composite key
-                        if ( @group && scalar @group >= 2 ) {
-                            @group = sort @group;
-                            my $composite_key = join '', map { substr( $_, 0, 10 ) } @group;
-                            my $group_json    = encode_json( \@group );
-                            $logger->debug("duplicate group '$composite_key': $group_json");
-                            $redis->hset( "LRR_DUPLICATE_GROUPS", "dupgp_$composite_key", $group_json );
+                            # If within threshold, add to stack for further exploration
+                            if ( $distance <= $threshold ) {
+                                $logger->debug("Found potential duplicate: $node and $other_id with distance $distance");
+                                push @stack, $other_id;
+                            }
                         }
                     }
 
-                    $redis->quit();
+                    # Add the discovered group to redis
+                    # to avoid redudnant groups in different orders - sort and composite key
+                    if ( @group && scalar @group >= 2 ) {
+                        @group = sort @group;
+                        my $composite_key = join '', map { substr( $_, 0, 10 ) } @group;
+                        my $group_json    = encode_json( \@group );
+                        $logger->debug("duplicate group '$composite_key': $group_json");
+                        $redis->hset( "LRR_DUPLICATE_GROUPS", "dupgp_$composite_key", $group_json );
+                    }
+                }
 
-                } \@ids;
+                $redis->quit();
+            };
+
+            eval {
+                if ( IS_UNIX ) {
+                    mce_loop {
+                        $sub->(@{ $_ });
+                    } \@ids;
+                    MCE::Loop->finish;
+                } else {
+                    $sub->(@ids);
+                }
             };
 
             $job->finish( {} );
+
+            # Crashes on Windows so don't run it there
+            if ( IS_UNIX ) {
+                MCE::Shared->stop;
+            }
         }
     );
 
@@ -357,20 +383,20 @@ sub add_tasks {
                     );
                     return;
                 }
-                
+
                 # Check if the plugin provided a direct file path instead of a URL to download
                 if ( exists $plugin_result->{file_path} ) {
                     my $tempfile = $plugin_result->{file_path};
                     $logger->info("Plugin directly provided file at: $tempfile");
-                    
+
                     # Add the url as a source: tag
                     my $tag = "source:$og_url";
-                    
+
                     # Hand off the result to handle_incoming_file
                     my ( $status_code, $id, $title, $message ) =
                       LANraragi::Model::Upload::handle_incoming_file( $tempfile, $catid, $tag, "", "" );
                     my $status = $status_code == 200 ? 1 : 0;
-                    
+
                     $job->finish(
                         {   success  => $status,
                             url      => $og_url,

@@ -51,7 +51,7 @@ sub initialize_from_new_process {
     while ($running) {
         local $SIG{INT} = sub { $running = 0 };
 
-        while(my $job = $worker->dequeue(5)) {
+        while(my $job = $worker->dequeue(3)) {
             if (defined(my $err = $job->execute)) {
                 $job->fail($err);
             } else {

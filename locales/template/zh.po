@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-04 20:25+0200\n"
-"PO-Revision-Date: 2025-06-12 08:04+0000\n"
-"Last-Translator: gravemax <gravemax@126.com>\n"
+"PO-Revision-Date: 2025-08-19 00:02+0000\n"
+"Last-Translator: gustaavv <gustaavv.git@yahoo.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
 "projects/lanraragi/lanraragi-source/zh_Hans/>\n"
 "Language: zh\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12-dev\n"
+"X-Generator: Weblate 5.13\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -1672,3 +1672,30 @@ msgstr "触发脚本"
 
 msgid "No duplicates found!"
 msgstr "未找到重复档案！"
+
+msgid "Copy link"
+msgstr "复制链接"
+
+msgid "Link copied successfully."
+msgstr "复制链接成功。"
+
+msgid "Copy failed."
+msgstr "复制失败。"
+
+msgid "Auto next page interval in seconds"
+msgstr "自动翻页间隔（秒）"
+
+msgid "N: toggle auto next page"
+msgstr "N：切换自动翻页"
+
+msgid "The default is 10 seconds."
+msgstr "默认为10秒。"
+
+msgid "Auto Next Page"
+msgstr "自动翻页"
+
+msgid "Starting auto next page failed!"
+msgstr "启动自动翻页时失败！"
+
+msgid "Please set the auto next page interval to a positive number."
+msgstr "请将自动翻页间隔设置为正数。"
