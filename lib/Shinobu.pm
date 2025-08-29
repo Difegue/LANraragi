@@ -14,10 +14,11 @@ use feature qw(say signatures);
 no warnings 'experimental::signatures';
 
 use FindBin;
-use Parallel::Loops;
+use MCE::Loop;
 use Sys::CpuAffinity;
 use Storable   qw(lock_store);
 use Mojo::JSON qw(to_json);
+use Config;
 
 #As this is a new process, reloading the LRR libs into INC is needed.
 BEGIN { unshift @INC, "$FindBin::Bin/../lib"; }
@@ -29,15 +30,25 @@ use File::Basename;
 use Encode;
 
 use LANraragi::Utils::Archive    qw(extract_thumbnail);
-use LANraragi::Utils::Database   qw(redis_encode invalidate_cache compute_id change_archive_id);
+use LANraragi::Utils::Database   qw(invalidate_cache compute_id change_archive_id get_arcsize add_timestamp_tag add_archive_to_redis add_arcsize add_pagecount);
 use LANraragi::Utils::Logging    qw(get_logger);
-use LANraragi::Utils::Generic    qw(is_archive split_workload_by_cpu);
+use LANraragi::Utils::Generic    qw(is_archive);
+use LANraragi::Utils::Redis      qw(redis_encode);
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
 use LANraragi::Model::Metrics;
 use LANraragi::Utils::Plugins;    # Needed here since Shinobu doesn't inherit from the main LRR package
 use LANraragi::Model::Search;     # idem
+
+use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
+
+BEGIN {
+    if ( !IS_UNIX ) {
+        require Win32;
+        require Win32::FileSystemHelper;
+    }
+}
 
 # Logger and Database objects
 my $logger = get_logger( "Shinobu", "shinobu" );
@@ -47,6 +58,17 @@ my $inotifysub = sub {
     my $e    = shift;
     my $name = $e->path;
     my $type = $e->type;
+
+    # Filewatcher on Windows returns backward slashes, convert them to forward slash to match everything else
+    if ( !IS_UNIX ) {
+        $name =~ s/\\/\//g;
+
+        # If this is a super long file convert it to short name
+        if ( length($name) >= 260 ) {
+            $name = Win32::GetShortPathName($name);
+        }
+    }
+
     $logger->debug("Received inotify event $type on $name");
 
     if ( $type eq "create" || $type eq "modify" ) {
@@ -85,20 +107,28 @@ sub initialize_from_new_process {
     $logger->info("All done! Now dutifully watching your files. ");
 
     my $metrics_counter = 0;
-    while (1) {
+    my $running = 1;
+
+    while ($running) {
+        local $SIG{INT} = sub { $running = 0 };
 
         # Check events on files
         for my $event ( $contentwatcher->new_events ) {
             $inotifysub->($event);
         }
 
-        # Collect metrics every 30 seconds (15 * 2 second intervals)
-        if ( $metrics_enabled && ++$metrics_counter >= 15 ) {
+        # Collect metrics every 30 seconds
+        if ( $metrics_enabled && ++$metrics_counter >= 30 ) {
             LANraragi::Model::Metrics::collect_process_metrics( "shinobu" );
             $metrics_counter = 0;
         }
 
-        sleep 2;
+        sleep 1;
+    }
+
+    if ( !IS_UNIX ) {
+        # Cleanly shutdown filewatcher
+        $contentwatcher->dispose;
     }
 }
 
@@ -118,6 +148,12 @@ sub update_filemap {
         {   wanted => sub {
                 return if -d $_;    #Directories are excluded on the spot
                 return unless is_archive($_);
+                if ( !IS_UNIX ) {
+                    # If this is a super long file convert it to short name
+                    if ( length($_) >= 260 ) {
+                        $_ = Win32::GetShortPathName($_);
+                    }
+                }
                 push @files, $_;    #Push files to array
             },
             no_chdir    => 1,
@@ -146,31 +182,17 @@ sub update_filemap {
 
     $redis->quit();
 
-    # Now that we have all new files, process them...with multithreading!
-    my $numCpus = Sys::CpuAffinity::getNumCpus();
-    my $pl      = Parallel::Loops->new($numCpus);
-
-    $logger->debug("Number of available cores for processing: $numCpus");
-    my @sections = split_workload_by_cpu( $numCpus, @newfiles );
-
-    # Eval the parallelized file crawl to avoid taking down the entire process in case one of the forked processes dies
     eval {
-        $pl->foreach(
-            \@sections,
-            sub {
-                my $redis = LANraragi::Model::Config->get_redis_config;
-                foreach my $file (@$_) {
-
-                    # Individual files are also eval'd so we can keep scanning
-                    eval { add_to_filemap( $redis, $file ); };
-
-                    if ($@) {
-                        $logger->error("Error scanning $file: $@");
-                    }
-                }
-                $redis->quit();
-            }
-        );
+        if ( IS_UNIX ) {
+            # Now that we have all new files, process them...with multithreading!
+            mce_loop {
+                add_new_files(@{ $_ });
+            } \@newfiles;
+            MCE::Loop->finish;
+        } else {
+            # libarchive does not support threading on Windows
+            add_new_files(@newfiles);
+        }
     };
 
     if ($@) {
@@ -260,15 +282,15 @@ sub add_to_filemap ( $redis_cfg, $file ) {
                 invalidate_cache();
             }
 
-            unless ( LANraragi::Utils::Database::get_arcsize( $redis_arc, $id ) ) {
+            unless ( get_arcsize( $redis_arc, $id ) ) {
                 $logger->debug("arcsize is not set for $id, storing now!");
-                LANraragi::Utils::Database::add_arcsize( $redis_arc, $id );
+                add_arcsize( $redis_arc, $id );
             }
 
             # Set pagecount in case it's not already there
             unless ( $redis_arc->hget( $id, "pagecount" ) ) {
                 $logger->debug("Pagecount not calculated for $id, doing it now!");
-                LANraragi::Utils::Database::add_pagecount( $redis_arc, $id );
+                add_pagecount( $redis_arc, $id );
             }
 
         } else {
@@ -318,16 +340,38 @@ sub deleted_file_callback ($name) {
     }
 }
 
-sub add_new_file ( $id, $file ) {
+sub add_new_files (@files) {
+    my $redis = LANraragi::Model::Config->get_redis_config;
+
+    foreach my $file (@files) {
+        $logger->debug("Processing $file");
+
+        # Individual files are also eval'd so we can keep scanning
+        eval { add_to_filemap( $redis, $file ); };
+
+        if ($@) {
+            $logger->error("Error scanning $file: $@");
+        }
+    }
+
+    $redis->quit();
+}
+
+
+sub add_new_file ( $id, $file_fs ) {
 
     my $redis        = LANraragi::Model::Config->get_redis;
     my $redis_search = LANraragi::Model::Config->get_redis_search;
-    $logger->info("Adding new file $file with ID $id");
+    $logger->info("Adding new file $file_fs with ID $id");
 
     eval {
-        LANraragi::Utils::Database::add_archive_to_redis( $id, $file, $redis, $redis_search );
-        LANraragi::Utils::Database::add_timestamp_tag( $redis, $id );
-        LANraragi::Utils::Database::add_pagecount( $redis, $id );
+        my $file = $file_fs;
+        if ( !IS_UNIX ) {
+            $file = Win32::FileSystemHelper::get_full_path($file);
+        }
+        add_archive_to_redis( $id, $file, $file_fs, $redis, $redis_search );
+        add_timestamp_tag( $redis, $id );
+        add_pagecount( $redis, $id );
 
         # Generate thumbnail
         my $thumbdir = LANraragi::Model::Config->get_thumbdir;

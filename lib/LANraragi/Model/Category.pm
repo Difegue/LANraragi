@@ -7,8 +7,9 @@ use utf8;
 use Redis;
 use Mojo::JSON qw(decode_json encode_json);
 
-use LANraragi::Utils::Database qw(redis_encode redis_decode invalidate_cache);
-use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Database qw(invalidate_cache);
+use LANraragi::Utils::Logging  qw(get_logger);
+use LANraragi::Utils::Redis    qw(redis_encode redis_decode);
 
 # get_category_list()
 #   Returns a list of all the category objects.

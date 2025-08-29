@@ -10,6 +10,9 @@ use FindBin;
 
 use Encode;
 use File::ReadBackwards;
+use Compress::Zlib;
+use LANraragi::Model::Config;
+use LANraragi::Utils::Redis qw(redis_decode);
 
 # Contains all functions related to logging.
 use Exporter 'import';
@@ -41,7 +44,28 @@ sub get_logger {
 
         # Rotate log if it's > 1MB
         say "Rotating logfile $logfile";
-        new Logfile::Rotate( File => $logpath, Gzip => 'lib' )->rotate();
+
+        # Based on Logfile::Rotate
+        # Rotate existing logs
+        for ( my $i = 7; $i > 1; $i-- ) {
+            my $j = $i - 1;
+            my $next = "$logpath.$i.gz";
+            my $prev = "$logpath.$j.gz";
+            if ( -r $prev && -f $prev ) {
+                rename( $prev, $next ) or die "error: rename failed: ($prev,$next)";
+            }
+        }
+
+        # Rotate current log and Gzip-it
+        my $gz = gzopen( "$logpath.1.gz", "wb" ) or die "error: could not gzopen $logpath: $!";
+
+        open( my $handle, '<', $logpath ) or die "Couldn't open $logpath :" . $!;
+        my $buffer;
+        $gz->gzwrite($buffer) while read( $handle, $buffer, 4096 ) > 0;
+        $gz->gzclose();
+        close $handle;
+
+        unlink $logpath or die "error: could not delete $logpath: $!";
     }
 
     my $log = Mojo::Log->new(
@@ -83,7 +107,7 @@ sub get_logger {
 
             # We'd like to make sure we always show proper UTF-8.
             # redis_decode, while not initially designed for this, does the job.
-            $logstring = LANraragi::Utils::Database::redis_decode($logstring);
+            $logstring = redis_decode($logstring);
 
             return "[$time2] [$pgname] [$level] $logstring\n";
         }

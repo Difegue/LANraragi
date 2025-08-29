@@ -8,7 +8,7 @@ use warnings;
 use File::Basename;
 
 use LANraragi::Model::Plugins;
-use LANraragi::Utils::Database qw(redis_encode redis_decode);
+use LANraragi::Utils::Redis    qw(redis_encode redis_decode);
 use LANraragi::Utils::Logging  qw(get_plugin_logger);
 use LANraragi::Utils::String   qw(trim);
 use Scalar::Util               qw(looks_like_number);

@@ -19,7 +19,7 @@ use URI::Escape;
 use LANraragi::Utils::Generic  qw(is_image);
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Archive  qw(get_filelist);
-use LANraragi::Utils::Database qw(redis_decode);
+use LANraragi::Utils::Redis    qw(redis_decode);
 
 # resize_image(image,quality, size_threshold)
 # Convert an image to a cheaper on bandwidth format through ImageMagick.

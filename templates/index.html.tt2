@@ -40,6 +40,7 @@
 	<script src="[% c.url_for("/js/vendor/allcollapsible.min.js") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/vendor/swiper-bundle.min.js") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/vendor/sweetalert2.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/clipboard.min.js") %]" type="text/JAVASCRIPT"></script>
 
 	<script src="[% c.url_for("/js/i18n.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/index.js?$version") %]" type="text/JAVASCRIPT"></script>
@@ -183,6 +184,8 @@
 
 	[% INCLUDE footer %]
 
+	<button id="pseudo-copy-btn" data-clipboard-text="" style="display: none">click me</button>
+
 	<script>
 
 		// Last few remains of JS using server-provided data
@@ -222,6 +225,7 @@
 						items: {
 							"read": { name: "[% c.lh('Read') %]", icon: "fas fa-book" },
 							"download": { name: "[% c.lh('Download') %]", icon: "fas fa-save" },
+							"copy link": { name: "[% c.lh('Copy link') %]", icon: "fas fa-link" },
 							[% IF userlogged %]
 							"sep1": "---------",
 							"edit": { name: "[% c.lh('Edit Metadata') %]", icon: "fas fa-pencil-alt" },
