@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 03:27+0200\n"
-"PO-Revision-Date: 2025-06-04 15:02+0000\n"
-"Last-Translator: CHO-HSUN-TE <ousi4706@gmail.com>\n"
+"PO-Revision-Date: 2025-08-30 17:01+0000\n"
+"Last-Translator: 炙燒鮭魚讚（benny） <bennyz327@gmail.com>\n"
 "Language-Team: Chinese (Traditional Han script) <https://hosted.weblate.org/"
 "projects/lanraragi/lanraragi-source/zh_Hant/>\n"
 "Language: zh_Hant\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12-dev\n"
+"X-Generator: Weblate 5.13.1-dev\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -1667,3 +1667,30 @@ msgstr "自動運行"
 
 msgid "No duplicates found!"
 msgstr "沒有找到重複項目!"
+
+msgid "Copy link"
+msgstr "複製連結"
+
+msgid "Auto next page interval in seconds"
+msgstr "自動下一頁間隔（以秒為單位）"
+
+msgid "The default is 10 seconds."
+msgstr "預設為10秒。"
+
+msgid "Auto Next Page"
+msgstr "自動翻頁"
+
+msgid "Link copied successfully."
+msgstr "成功複製連結。"
+
+msgid "Copy failed."
+msgstr "複製失敗。"
+
+msgid "Starting auto next page failed!"
+msgstr "啟動自動翻頁失敗!"
+
+msgid "Please set the auto next page interval to a positive number."
+msgstr "請將自動下一頁間隔設定為正數。"
+
+msgid "N: toggle auto next page"
+msgstr "N:切換自動下一頁"
