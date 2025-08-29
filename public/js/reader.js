@@ -141,7 +141,7 @@ Reader.initializeAll = function () {
             const artist = data.tags.match(/artist:([^,]+)(?:,|$)/i);
             if (artist) {
                 const artistName = artist[1];
-                const artistSearchUrl = `/?sort=0&q=artist%3A${encodeURIComponent(artistName)}&`;
+                const artistSearchUrl = `/?sort=0&q=artist%3A${encodeURIComponent(artistName)}%24&`;
                 const link = $('<a></a>')
                     .attr('href', artistSearchUrl)
                     .attr('style', 'color: inherit; text-decoration: underline;')
