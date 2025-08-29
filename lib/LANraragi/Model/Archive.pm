@@ -23,6 +23,7 @@ use LANraragi::Utils::Database
   qw(invalidate_cache set_title set_tags set_summary get_archive_json get_archive_json_multi);
 use LANraragi::Utils::PageCache  qw(fetch put);
 use LANraragi::Utils::Redis      qw(redis_decode redis_encode);
+use LANraragi::Utils::Path       qw(create_path delete_path);
 
 # get_title(id)
 #   Returns the title for the archive matching the given id.
@@ -318,7 +319,7 @@ sub update_metadata {
 sub delete_archive ($id) {
 
     my $redis    = LANraragi::Model::Config->get_redis;
-    my $filename = $redis->hget( $id, "file" );
+    my $filename = create_path( $redis->hget( $id, "file" ) );
     my $oldtags  = $redis->hget( $id, "tags" );
     $oldtags = redis_decode($oldtags);
 
@@ -351,7 +352,7 @@ sub delete_archive ($id) {
     LANraragi::Utils::Database::update_indexes( $id, $oldtags, "" );
 
     if ( -e $filename ) {
-        my $status = unlink $filename;
+        my $status = delete_path( $filename );
 
         my $thumbdir  = LANraragi::Model::Config->get_thumbdir;
         my $subfolder = substr( $id, 0, 2 );

@@ -15,6 +15,7 @@ use LANraragi::Utils::Database;
 use LANraragi::Utils::Logging qw(get_plugin_logger);
 use LANraragi::Utils::String  qw(trim);
 use LANraragi::Utils::Archive qw(is_file_in_archive extract_file_from_archive);
+use LANraragi::Utils::Path    qw(create_path open_path);
 
 #Meta-information about your plugin.
 sub plugin_info {
@@ -52,7 +53,7 @@ sub get_tags {
     my $path_in_archive = is_file_in_archive( $lrr_info->{file_path}, "info.json" );
 
     my ( $name, $path, $suffix ) = fileparse( $lrr_info->{file_path}, qr/\.[^.]*/ );
-    my $path_nearby_json = $path . $name . '.json';
+    my $path_nearby_json = create_path( $path . $name . '.json' );
 
     my $filepath;
     my $delete_after_parse;
@@ -73,7 +74,7 @@ sub get_tags {
     #Open it
     my $stringjson = "";
 
-    open( my $fh, '<:encoding(UTF-8)', $filepath )
+    open_path( my $fh, '<:encoding(UTF-8)', $filepath )
       or die "Could not open $filepath!\n";
 
     while ( my $row = <$fh> ) {

@@ -160,7 +160,7 @@ if ( $back || $full ) {
         say("Installing dependencies for windows systems... (This will do nothing if the package is there already)");
 
         install_package( "Win32::Process", $cpanopt );
-        install_package( "Win32::FileSystemHelper", "https://github.com/Guerra24/Win32-FileSystemHelper/archive/f7843f6b0b4f4e95f308db2ab558445079ec2de6.zip " . $cpanopt );
+        install_package( "Win32::FileSystemHelper", "https://github.com/Guerra24/Win32-FileSystemHelper/archive/57686bcdb33854fa21880988bc4807476f562c1a.zip " . $cpanopt );
         install_package( "File::ChangeNotify::Watcher::Win32", "https://github.com/Guerra24/File-ChangeNotify-Watcher-Win32/archive/7cb4e60823569cca8e7652d19b1ba5b5cac00a16.zip " .$cpanopt );
     }
 

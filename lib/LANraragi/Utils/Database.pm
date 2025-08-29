@@ -22,6 +22,8 @@ use LANraragi::Utils::String  qw(trim trim_CRLF trim_url);
 use LANraragi::Utils::Tags    qw(unflat_tagrules tags_rules_to_array restore_CRLF join_tags_to_string split_tags_to_array );
 use LANraragi::Utils::Archive qw(get_filelist);
 use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Path    qw(create_path open_path date_modified);
+
 use LANraragi::Model::Config;
 
 # Functions for interacting with the DB Model.
@@ -34,10 +36,7 @@ our @EXPORT_OK = qw(
 
 # Creates a DB entry for a file path with the given ID.
 # This function doesn't actually require the file to exist at its given location.
-# On Unix-like $file and $file_fs must the same.
-# On Windows $file should contain the original path and $file_fs the file system
-# path in either long or short form.
-sub add_archive_to_redis ( $id, $file, $file_fs, $redis, $redis_search ) {
+sub add_archive_to_redis ( $id, $file, $redis, $redis_search ) {
 
     my $logger = get_logger( "Archive", "lanraragi" );
     my ( $name, $path, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
@@ -45,18 +44,18 @@ sub add_archive_to_redis ( $id, $file, $file_fs, $redis, $redis_search ) {
     # Initialize Redis hash for the added file
     $logger->debug("Pushing to redis on ID $id:");
     $logger->debug("File Name: $name");
-    $logger->debug("Filesystem Path: $file_fs");
+    $logger->debug("Filesystem Path: $file");
 
     $redis->hset( $id, "name",    LANraragi::Utils::Redis::redis_encode($name) );
     $redis->hset( $id, "tags",    "" );
     $redis->hset( $id, "summary", "" );
 
-    if ( defined($file_fs) && -e $file_fs ) {
-        $redis->hset( $id, "arcsize", -s $file_fs );
+    if ( defined($file) && -e $file ) {
+        $redis->hset( $id, "arcsize", -s $file );
     }
 
     # Don't encode filenames.
-    $redis->hset( $id, "file", $file_fs );
+    $redis->hset( $id, "file", $file );
 
     # Set title so that index is updated
     # Throw a decode in there just in case the filename is already UTF8
@@ -124,7 +123,7 @@ sub add_timestamp_tag ( $redis, $id ) {
 
         if ( LANraragi::Model::Config->use_lastmodified eq "1" ) {
             $logger->debug("Using file date");
-            $date = ( stat( $redis->hget( $id, "file" ) ) )[9];    #9 is the unix time stamp for date modified.
+            $date = date_modified( $redis->hget( $id, "file" ) );
         } else {
             $logger->debug("Using current date");
             $date = time();
@@ -233,6 +232,8 @@ sub build_json ( $id, %hash ) {
     # Grab all metadata from the hash
     my ( $name, $title, $tags, $summary, $file, $isnew, $progress, $pagecount, $lastreadtime, $arcsize ) =
       @hash{qw(name title tags summary file isnew progress pagecount lastreadtime arcsize)};
+
+    $file = create_path( $file );
 
     # Return undef if the file doesn't exist.
     return unless ( defined($file) && -e $file );
@@ -358,7 +359,7 @@ sub clean_database {
         }
 
         # Check if the linked file exists
-        my $file = $redis->hget( $id, "file" );
+        my $file = create_path( $redis->hget( $id, "file" ) );
         unless ( -e $file ) {
             LANraragi::Model::Archive::delete_archive($id);
             $deleted_arcs++;
@@ -542,7 +543,7 @@ sub update_indexes ( $id, $oldtags, $newtags ) {
 sub compute_id ($file) {
 
     #Read the first 512 KBs only (allows for faster disk speeds )
-    open( my $handle, '<:raw', $file ) or die "Couldn't open $file :" . $!;
+    open_path( my $handle, '<:raw', $file ) or die "Couldn't open $file :" . $!;
     my $data;
     my $len = read $handle, $data, 512000;
     close $handle;
@@ -608,7 +609,7 @@ sub get_computed_tagrules {
 }
 
 sub add_arcsize ( $redis, $id ) {
-    my $file = $redis->hget( $id, "file" );
+    my $file = create_path( $redis->hget( $id, "file" ) );
     $redis->hset( $id, "arcsize", -s $file );
 }
 

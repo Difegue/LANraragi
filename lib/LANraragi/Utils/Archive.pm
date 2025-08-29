@@ -27,6 +27,7 @@ use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Generic    qw(is_image shasum_str);
 use LANraragi::Utils::Redis      qw(redis_decode);
+use LANraragi::Utils::Path       qw(create_path);
 
 # Utilitary functions for handling Archives.
 # Relies on Libarchive, ImageMagick and GhostScript for PDFs.
@@ -250,7 +251,7 @@ sub is_file_in_archive ( $archive, $wantedname ) {
     $logger->debug("Iterating files of archive $archive, looking for '$wantedname'");
     $Data::Dumper::Useqq = 1;
 
-    my $peek = Archive::Libarchive::Peek->new( filename => $archive );
+    my $peek = Archive::Libarchive::Peek->new( filename => create_path( $archive ) );
     my $found;
     my @files = $peek->files;
 
@@ -318,7 +319,7 @@ sub extract_single_file ( $archive, $filepath ) {
     } else {
 
         my $contents = "";
-        my $peek     = Archive::Libarchive::Peek->new( filename => $archive );
+        my $peek     = Archive::Libarchive::Peek->new( filename => create_path( $archive ) );
         my @files    = $peek->files;
 
         for my $name (@files) {

@@ -16,6 +16,7 @@ use LANraragi::Utils::Generic  qw(render_api_response is_archive get_bytelength 
 use LANraragi::Utils::Database qw(get_archive_json set_isnew);
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Redis    qw(redis_encode);
+use LANraragi::Utils::Path     qw(compat_path);
 
 use LANraragi::Model::Archive;
 use LANraragi::Model::Category;
@@ -111,7 +112,7 @@ sub serve_file {
 
     my $file = $redis->hget( $id, "file" );
     $redis->quit();
-    $self->render_file( filepath => $file );
+    $self->render_file( filepath => compat_path( $file ), filename => basename( $file ) );
 }
 
 # Create a file archive along with any metadata.
