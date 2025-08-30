@@ -32,3 +32,9 @@ Supported metrics include:
 * Number of requests handled and total request handling duration for a given endpoint and worker
 * CPU, memory and file-descriptor statistics
 * Miscellaneous server info (version, version name)
+
+{% hint style="warning" %}
+Due to the metrics exporter relying on Redis as its shared memory store, the collection process may
+apply a high write pressure to the database which can overwhelm its
+[default persistence configurations](https://redis.io/docs/latest/operate/oss_and_stack/management/persistence/#snapshotting).
+{% endhint %}
