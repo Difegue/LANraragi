@@ -140,11 +140,20 @@ Reader.initializeAll = function () {
             // Regex look in tags for artist
             const artist = data.tags.match(/artist:([^,]+)(?:,|$)/i);
             if (artist) {
-                title = `${title} by ${artist[1]}`;
+                const artistName = artist[1];
+                const artistSearchUrl = `/?sort=0&q=artist%3A${encodeURIComponent(artistName)}%24&`;
+                const link = $('<a></a>')
+                    .attr('href', artistSearchUrl)
+                    .text(artistName);
+                const titleContainer = $('<span></span>')
+                    .text(`${title} by `)
+                    .append(link);
+                $("#archive-title").empty().append(titleContainer);
+                $("#archive-title-overlay").empty().append(titleContainer.clone());
+            } else {
+                $("#archive-title").text(title);
+                $("#archive-title-overlay").text(title);
             }
-
-            $("#archive-title").text(title);
-            $("#archive-title-overlay").text(title);
             if (data.pagecount) { $(".max-page").text(data.pagecount); }
             document.title = title;
 
