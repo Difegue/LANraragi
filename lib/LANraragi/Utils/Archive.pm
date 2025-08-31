@@ -2,6 +2,7 @@ package LANraragi::Utils::Archive;
 
 use v5.36;
 use experimental 'try';
+use feature 'state';
 
 use strict;
 use warnings;
@@ -27,9 +28,11 @@ use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Generic    qw(is_image shasum_str);
 use LANraragi::Utils::Redis      qw(redis_decode);
-use LANraragi::Utils::Resizer    qw(get_resizer);
 
-our $resampler = get_resizer();
+sub get_resizer() {
+    state $resizer = LANraragi::Utils::Resizer::get_resizer();
+    return $resizer;
+}
 
 # Utilitary functions for handling Archives.
 # Relies on Libarchive, ImageMagick and GhostScript for PDFs.
@@ -47,7 +50,7 @@ sub is_pdf {
 # If use_jxl is true, JPEG XL will be used instead of JPEG.
 sub generate_thumbnail ( $data, $thumb_path, $use_hq, $use_jxl ) {
 
-    my $resized = $resampler->resize_thumbnail( $data, 80, $use_hq, $use_jxl?"jxl":"jpg");
+    my $resized = get_resizer()->resize_thumbnail( $data, 80, $use_hq, $use_jxl?"jxl":"jpg");
     if (defined($resized)) {
         open my $fh, '>:raw', $thumb_path or die;
         print $fh $resized;
