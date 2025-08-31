@@ -95,6 +95,8 @@ I18N.IndexUpdateError = "[% c.lh("Error getting changelog for new version") %]";
 I18N.IndexIdLoadError = (id) => `[% c.lh("Couldn't load data for \${id}!") %]`;
 I18N.IndexGithubRateLimitError = "[% c.lh("Github API rate limit exceeded.") %]";
 I18N.IndexGithubAPIError = (status) => `[% c.lh("Github API returned status: \${status}") %]`;
+I18N.IndexCopyLinkSuccess = "[% c.lh("Link copied successfully.") %]";
+I18N.IndexCopyLinkFail = "[% c.lh("Copy failed.") %]";
 I18N.IndexArcInNoCats = "[% c.lh("This archive isn't in any category.") %]";
 I18N.IndexNoCategories = "[% c.lh("No Categories yet...") %]";
 I18N.IndexRemoveRating = "[% c.lh("Remove rating") %]";
@@ -124,6 +126,8 @@ I18N.ReaderErrorProgress = "[% c.lh("Error updating reading progression") %]";
 I18N.ReaderPage = (page) => `[% c.lh("Page \${page}") %]`;
 I18N.ThumbJobError = "[% c.lh("The page thumbnailing job didn't conclude properly. Your archive might be corrupted.") %]";
 I18N.ToggleBookmark = "[% c.lh("Toggle Bookmark") %]";
+I18N.AutoNextPageFailHeader = "[% c.lh("Starting auto next page failed!") %]";
+I18N.AutoNextPageFailBody = "[% c.lh("Please set the auto next page interval to a positive number.") %]";
 
 I18N.ScriptRunning = "[% c.lh("A script is already running.") %]";
 I18N.ScriptRunningDesc = "[% c.lh("Please wait for it to finish before starting a new one.") %]";

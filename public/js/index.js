@@ -11,6 +11,7 @@ Index.serverVersion = "";
 Index.debugMode = false;
 Index.isProgressLocal = true;
 Index.pageSize = 100;
+Index.pseudoCopyBtn = undefined;
 
 /**
  * Initialize the Archive Index.
@@ -32,6 +33,8 @@ Index.initializeAll = function () {
     $(document).on("click.close-overlay", "#overlay-shade", LRR.closeOverlay);
     $(document).on("click.thumbnail-bookmark-icon", ".thumbnail-bookmark-icon", Index.toggleBookmarkStatusByIcon);
     $(document).on("click.title-bookmark-icon", ".title-bookmark-icon", Index.toggleBookmarkStatusByIcon);
+    $(document).on("keydown.quick-search", Index.handleQuickSearch);
+    $(document).on("keydown.escape-overlay", Index.handleEscapeKey);
     $(document).on("click", ".swiper-wrapper .swiper-slide a[href*='/reader?id=']", function() {
         sessionStorage.setItem('navigationState', 'carousel');
     });
@@ -137,6 +140,26 @@ Index.initializeAll = function () {
     
     Index.updateTableHeaders();
     Index.resizableColumns();
+
+    Index.pseudoCopyBtn = $("#pseudo-copy-btn")
+    Index.clipboard = new window.ClipboardJS("#pseudo-copy-btn");
+
+    Index.clipboard.on("success", function(e) {
+        LRR.toast({
+            heading: I18N.IndexCopyLinkSuccess,
+            icon: "info",
+            hideAfter: 3000,
+        });
+        e.clearSelection();
+    });
+
+    Index.clipboard.on("error", function(e) {
+        LRR.toast({
+            heading: I18N.IndexCopyLinkFail ,
+            icon: "error",
+            hideAfter: false,
+        });
+    });
 };
 
 // Turn bookmark icons to OFF for all archives.
@@ -177,6 +200,32 @@ Index.toggleBookmarkStatusByIcon = function (e) {
         Server.removeArchiveFromCategory(id, localStorage.getItem("bookmarkCategoryId"));
         Index.bookmarkIconOff(id);
     }
+};
+
+/**
+ * Handle quick search functionality. If user is in index page and
+ * presses "/" key, focus to search input. If the release overlay
+ * is open, closes it before focusing to search input.
+ * 
+ * @param {KeyboardEvent} e - The keyboard event
+ */
+Index.handleQuickSearch = function (e) {
+    if (e.key !== "/") return;
+    if (e.target.tagName === "INPUT") return;
+    if (e.ctrlKey || e.altKey || e.shiftKey || e.metaKey) return;
+    e.preventDefault();
+    if ($("#overlay-shade").is(":visible")) LRR.closeOverlay();
+    $("#search-input")[0].focus();
+};
+
+/**
+ * Handle escape key to close overlays.
+ * @param {KeyboardEvent} e - The keyboard event
+ */
+Index.handleEscapeKey = function (e) {
+    if (e.key !== "Escape") return;
+    if (e.target.tagName === "INPUT") return;
+    LRR.closeOverlay();
 };
 
 Index.toggleMode = function () {
@@ -738,6 +787,12 @@ Index.handleContextMenu = function (option, id) {
         break;
     case "download":
         LRR.openInNewTab(new LRR.apiURL(`/api/archives/${id}/download`));
+        break;
+    case "copy link":
+        const relativeUrl = new LRR.apiURL(`/reader?id=${id}`).toString();
+        const link = `${window.location.origin}${relativeUrl}`;
+        Index.pseudoCopyBtn.attr('data-clipboard-text', link);
+        Index.pseudoCopyBtn.click()
         break;
     default:
         break;

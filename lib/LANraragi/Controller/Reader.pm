@@ -6,8 +6,6 @@ use Encode;
 
 use LANraragi::Utils::Generic qw(generate_themes_header);
 
-use LANraragi::Model::Reader;
-
 # This action will render a template
 sub index {
     my $self = shift;

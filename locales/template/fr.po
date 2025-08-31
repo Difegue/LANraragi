@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-04 20:02+0200\n"
-"PO-Revision-Date: 2025-06-03 06:04+0000\n"
+"PO-Revision-Date: 2025-08-15 22:33+0000\n"
 "Last-Translator: Difegue <8237712+Difegue@users.noreply.github.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/fr/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.12-dev\n"
+"X-Generator: Weblate 5.13\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -1864,3 +1864,12 @@ msgstr "Nouvelle catégorie dynamique"
 
 msgid "No duplicates found!"
 msgstr "Aucun doublon trouvé !"
+
+msgid "Copy link"
+msgstr "Copier le lien"
+
+msgid "Link copied successfully."
+msgstr "Lien copié avec succès."
+
+msgid "Copy failed."
+msgstr "Échec de la copie."

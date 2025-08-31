@@ -29,7 +29,7 @@ While not a part of the main repo, you can check out the [Nix](community.md) pac
 This method works on **64-bit** editions of Windows 10 only.
 {% endhint %}
 
-![win10](../.screenshots/karen.jpg)
+![win10](../.screenshots/karen.png)
 
 I provide a dedicated installer for Windows machines as of 0.6.0, complete with a GUI and autostart.
 

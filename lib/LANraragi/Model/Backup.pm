@@ -9,10 +9,10 @@ use Mojo::JSON qw(decode_json encode_json);
 
 use LANraragi::Model::Category;
 use LANraragi::Model::Tankoubon;
-use LANraragi::Utils::Database;
 use LANraragi::Utils::String   qw(trim_CRLF);
-use LANraragi::Utils::Database qw(redis_encode redis_decode invalidate_cache set_title set_tags set_summary);
+use LANraragi::Utils::Database qw(invalidate_cache set_title set_tags set_summary);
 use LANraragi::Utils::Logging  qw(get_logger);
+use LANraragi::Utils::Redis    qw(redis_decode redis_encode);
 
 #build_backup_JSON()
 #Goes through the Redis archive IDs and builds a JSON string containing their metadata.

@@ -19,10 +19,12 @@ sub plugin_info {
         namespace   => "ehdl",
         login_from  => "ehlogin",
         author      => "Difegue",
-        version     => "1.1",
+        version     => "1.2",
         description =>
           "Downloads the given e*hentai URL and adds it to LANraragi. This uses GP to call the archiver, so make sure you have enough!",
-
+        parameters  => {
+            'forceresampled' => {type => "bool", desc => "Force resampled archive download", default_value => "0"}
+        },
         # Downloader-specific metadata
         url_regex => "https?:\/\/e(-|x)hentai.org\/g\/.*\/.*"
     );
@@ -32,7 +34,7 @@ sub plugin_info {
 # Mandatory function to be implemented by your downloader
 sub provide_url {
     shift;
-    my $lrr_info = shift;
+    my ( $lrr_info, %params ) = @_;
     my $logger   = get_logger( "EH Downloader", "plugins" );
 
     # Get the URL to download
@@ -65,12 +67,20 @@ sub provide_url {
         return ( error => "Invalid E*Hentai login credentials. Please make sure the login plugin has proper settings set." );
     }
 
-    # We only use original downloads, so we POST directly to the archiver form with dltype="org"
-    # and dlcheck ="Download+Original+Archive"
+    # POST to the archiver form with the corresponding archive quality
+    my $dltype;
+    my $dlcheck;
+    if ($params{forceresampled}) {
+        $dltype = 'res';
+        $dlcheck = 'Download+Resample+Archive';
+    } else {
+        $dltype = 'org';
+        $dlcheck = 'Download+Original+Archive';
+    }
     my $response = $lrr_info->{user_agent}->max_redirects(5)->post(
         $archiverurl => form => {
-            dltype  => 'org',
-            dlcheck => 'Download+Original+Archive'
+            dltype  => $dltype,
+            dlcheck => $dlcheck
         }
     )->result;
 
@@ -91,8 +101,9 @@ sub provide_url {
         }
     };
 
+    my $archivesize = $params{forceresampled} ? "a resampled" : "an original size";
     if ( $@ || $finalURL eq "" ) {
-        return ( error => "Couldn't proceed with an original size download: <pre>$content</pre>" );
+        return ( error => "Couldn't proceed with $archivesize download: <pre>$content</pre>" );
     }
 
     # Set URL query parameters to ?start=1 to automatically trigger the download.

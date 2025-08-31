@@ -8,7 +8,7 @@ use Encode;
 
 use Mojo::JSON qw(decode_json encode_json);
 
-use LANraragi::Utils::Database qw(redis_decode);
+use LANraragi::Utils::Redis    qw(redis_decode);
 use LANraragi::Utils::Generic  qw(generate_themes_header);
 
 # Go through the archives in the content directory and build the template at the end.

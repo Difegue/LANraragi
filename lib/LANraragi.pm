@@ -22,6 +22,9 @@ use LANraragi::Utils::I18NInitializer;
 
 use LANraragi::Model::Search;
 use LANraragi::Model::Config;
+use LANraragi::Model::Setup qw(first_install_actions);
+
+use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 
 # This method will run once at server start
 sub startup {
@@ -159,7 +162,9 @@ sub startup {
     }
 
     # Enable Minion capabilities in the app
-    shutdown_from_pid( get_temp . "/minion.pid" );
+    if ( IS_UNIX ) {
+        shutdown_from_pid( get_temp . "/minion.pid" );
+    }
 
     my $miniondb      = $self->LRR_CONF->get_redisad . "/" . $self->LRR_CONF->get_miniondb;
     my $redispassword = $self->LRR_CONF->get_redispassword;
@@ -184,11 +189,13 @@ sub startup {
     start_minion($self);
 
     # Start File Watcher
-    shutdown_from_pid( get_temp . "/shinobu.pid" );
+    if ( IS_UNIX ) {
+        shutdown_from_pid( get_temp . "/shinobu.pid" );
+    }
     start_shinobu($self);
 
     # Check if this is a first-time installation.
-    LANraragi::Model::Config::first_install_actions();
+    first_install_actions();
 
     # Hook to SIGTERM to cleanly kill minion+shinobu on server shutdown
     # As this is executed during before_dispatch, this code won't work if you SIGTERM without loading a single page!
@@ -196,7 +203,9 @@ sub startup {
     $self->hook(
         before_dispatch => sub {
             my $c = shift;
-            state $unused = add_sigint_handler();
+            if ( IS_UNIX ) {
+                state $unused = add_sigint_handler();
+            }
 
             my $prefix = $self->LRR_BASEURL;
             if ($prefix) {

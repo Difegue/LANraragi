@@ -20,6 +20,9 @@ Reader.scrollConfig = {
     holdDelay: 350,      // Delay time in ms before continuous scroll starts on keydown
     scrollSpeed: 22      // Speed % to scroll when spacebar is held
 };
+Reader.autoNextPage = false;
+Reader.autoNextPageCountdownTaskId = undefined;
+Reader.autoNextPageCountdown = 0;
 
 Reader.archiveIndex = -1;
 Reader.archiveIds = [];
@@ -28,6 +31,7 @@ Reader.initializeAll = function () {
     Reader.initializeSettings();
     Reader.applyContainerWidth();
     Reader.registerPreload();
+    Reader.registerAutoNextPage();
     document.documentElement.style.scrollBehavior = 'smooth';
 
     // Bind events to DOM
@@ -48,6 +52,8 @@ Reader.initializeAll = function () {
     $(document).on("submit.preload", "#preload-input", Reader.registerPreload);
     $(document).on("click.preload", "#preload-apply", Reader.registerPreload);
     $(document).on("click.pagination-change-pages", ".page-link", Reader.handlePaginator);
+    $(document).on("submit.auto-next-page", "#auto-next-page-input", Reader.registerAutoNextPage);
+    $(document).on("click.auto-next-page", "#auto-next-page-apply", Reader.registerAutoNextPage);
 
     $(document).on("click.close-overlay", "#overlay-shade", LRR.closeOverlay);
     $(document).on("click.toggle-full-screen", "#toggle-full-screen", (e) => {
@@ -55,6 +61,7 @@ Reader.initializeAll = function () {
         e.stopPropagation();
         Reader.handleFullScreen(true);
     });
+    $(document).on("click.toggle-auto-next-page", ".toggle-auto-next-page", Reader.toggleAutoNextPage);
     $(document).on("click.toggle-archive-overlay", "#toggle-archive-overlay", Reader.toggleArchiveOverlay);
     $(document).on("click.toggle-settings-overlay", "#toggle-settings-overlay", Reader.toggleSettingsOverlay);
     $(document).on("click.toggle-help", "#toggle-help", Reader.toggleHelp);
@@ -147,7 +154,7 @@ Reader.initializeAll = function () {
             let { title } = data;
 
             // Regex look in tags for artist
-            const artist = data.tags.match(/.*artist:([^,]*),.*/i);
+            const artist = data.tags.match(/artist:([^,]+)(?:,|$)/i);
             if (artist) {
                 title = `${title} by ${artist[1]}`;
             }
@@ -571,6 +578,9 @@ Reader.handleShortcuts = function (e) {
     case 77: // m
         Reader.toggleMangaMode();
         break;
+    case 78: // n
+        Reader.toggleAutoNextPage();
+        break;
     case 79: // o
         Reader.toggleSettingsOverlay();
         break;
@@ -962,16 +972,73 @@ Reader.toggleInfiniteScroll = function () {
     window.location.reload();
 };
 
+Reader.registerAutoNextPage = function () {
+    Reader.AutoNextPageInterval = +$("#auto-next-page-input").val().trim() || +localStorage.AutoNextPageInterval || 10;
+    $("#auto-next-page-input").val(Reader.AutoNextPageInterval);
+    localStorage.AutoNextPageInterval = Reader.AutoNextPageInterval;
+
+    Reader.stopAutoNextPage();
+};
+
+Reader.startAutoNextPage = function() {
+    Reader.autoNextPageCountdown = Math.trunc(Reader.AutoNextPageInterval);
+    if (Reader.autoNextPageCountdown <= 0) {
+        LRR.toast({
+            heading: I18N.AutoNextPageFailHeader,
+            text: I18N.AutoNextPageFailBody,
+            icon: "error",
+            hideAfter: 5000,
+        });
+        return;
+    }
+
+    Reader.autoNextPage = true;
+    
+    const aEls = $(".toggle-auto-next-page");
+    aEls.removeClass('fa-stopwatch');
+    aEls.text(Reader.autoNextPageCountdown);
+
+    Reader.autoNextPageCountdownTaskId = setInterval(() => {
+        if (Reader.autoNextPageCountdown <= 0) {
+            clearInterval(Reader.autoNextPageCountdownTaskId);
+            Reader.changePage(1);
+            const continueNextPage = Reader.mangaMode ? Reader.currentPage > 0 : Reader.currentPage < Reader.maxPage;
+            if (continueNextPage) {
+                Reader.startAutoNextPage();
+            } else {
+                Reader.stopAutoNextPage();
+            }
+            return;
+        }
+        Reader.autoNextPageCountdown--;
+        aEls.text(Reader.autoNextPageCountdown);
+    }, 1000);
+}
+
+Reader.stopAutoNextPage = function() {
+    Reader.autoNextPage = false;
+    clearInterval(Reader.autoNextPageCountdownTaskId);
+    $(".toggle-auto-next-page").addClass('fa-stopwatch');
+    $(".toggle-auto-next-page").text('');
+}
+
+Reader.toggleAutoNextPage = function() {
+    Reader.autoNextPage ? Reader.stopAutoNextPage() : Reader.startAutoNextPage();
+    return false; // prevent scrolling to top
+}
+
 Reader.toggleOverlayByDefault = function () {
     Reader.overlayByDefault = localStorage.showOverlayByDefault = !Reader.showOverlayByDefault;
     $("#toggle-overlay input").toggleClass("toggled");
 };
 
 Reader.toggleSettingsOverlay = function () {
+    Reader.stopAutoNextPage();
     return LRR.toggleOverlay("#settingsOverlay");
 };
 
 Reader.toggleArchiveOverlay = function () {
+    Reader.stopAutoNextPage();
     return LRR.toggleOverlay("#archivePagesOverlay");
 };
 
