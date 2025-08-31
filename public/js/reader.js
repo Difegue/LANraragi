@@ -144,7 +144,6 @@ Reader.initializeAll = function () {
                 const artistSearchUrl = `/?sort=0&q=artist%3A${encodeURIComponent(artistName)}%24&`;
                 const link = $('<a></a>')
                     .attr('href', artistSearchUrl)
-                    .attr('style', 'color: inherit; text-decoration: underline;')
                     .text(artistName);
                 const titleContainer = $('<span></span>')
                     .text(`${title} by `)
