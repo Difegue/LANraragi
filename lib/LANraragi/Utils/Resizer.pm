@@ -13,14 +13,13 @@ use LANraragi::Utils::Logging qw(get_logger);
 use Exporter 'import';
 our @EXPORT_OK = qw(get_resizer);
 
-our $resizer = undef;
+sub get_resizer() {
+    state $resizer = resizer_factory();
+    return $resizer;
+}
 
-sub get_resizer
+sub resizer_factory
 {
-    if (defined $resizer) {
-        return $resizer;
-    }
-
     my $logger = get_logger("Reader", "lanraragi");
     $logger->info("Initializing resizer");
 

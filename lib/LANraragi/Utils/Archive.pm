@@ -28,11 +28,7 @@ use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Generic    qw(is_image shasum_str);
 use LANraragi::Utils::Redis      qw(redis_decode);
-
-sub get_resizer() {
-    state $resizer = LANraragi::Utils::Resizer::get_resizer();
-    return $resizer;
-}
+use LANraragi::Utils::Resizer    qw(get_resizer);
 
 # Utilitary functions for handling Archives.
 # Relies on Libarchive, ImageMagick and GhostScript for PDFs.
