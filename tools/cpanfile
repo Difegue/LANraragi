@@ -74,3 +74,6 @@ requires 'Locale::Maketext::Lexicon', 1.00;
 requires 'CHI',                   0.61;
 requires 'CHI::Driver::FastMmap', 0.61;
 requires 'Cache::FastMmap',       1.60;
+
+# FFI (lipvips)
+requires 'FFI::Platypus', 2.10;

@@ -1,18 +1,28 @@
-package LANraragi::Utils::ImageMagick;
+package LANraragi::Utils::ImageMagickResizer;
 
 use v5.36;
 use experimental 'try';
 
 use strict;
 use warnings;
+use utf8;
 
-use Exporter 'import';
-our @EXPORT_OK = qw(resize_page resize_thumbnail);
+sub new {
+    my $class = shift;
 
-sub resize_page( $content, $quality, $format ) {
+    my $self = {
+        logger => get_logger("ImageMagick", "lanraragi"),
+    };
+
+    return bless $self, $class;
+}
+
+sub resize_page($self, $content, $quality, $format) {
     my $img = undef;
 
     no warnings 'experimental::try';
+
+    $self->{logger}->trace("ImageMagick resize_page");
 
     try {
         require Image::Magick;
@@ -35,13 +45,13 @@ sub resize_page( $content, $quality, $format ) {
     } catch ($e) {
 
         # Magick is unavailable, do nothing
-        my $logger = get_logger("Reader", "lanraragi");
-        $logger->debug("ImageMagick is not available , skipping image resizing: $e");
-        return undef;
+        $self->{logger}->debug("ImageMagick is not available , skipping image resizing: $e");
     }
 }
 
-sub resize_thumbnail( $content, $quality, $use_hq, $format ) {
+sub resize_thumbnail($self, $content, $quality, $use_hq, $format) {
+
+    $self->{logger}->trace("ImageMagick resize_thumbnail");
 
     no warnings 'experimental::try';
     my $img = undef;
@@ -73,15 +83,8 @@ sub resize_thumbnail( $content, $quality, $use_hq, $format ) {
     } catch ($e) {
 
         # Magick is unavailable, do nothing
-        my $logger = get_logger( "Archive", "lanraragi" );
-        $logger->debug("ImageMagick is not available , skipping thumbnail generation: $e");
-    } finally {
-        if (defined($img)) {
-            undef $img;
-        }
+        $self->{logger}->debug("ImageMagick is not available , skipping image resizing: $e");
     }
 }
-
-
 
 1;

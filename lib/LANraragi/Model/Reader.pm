@@ -19,8 +19,11 @@ use URI::Escape;
 use LANraragi::Utils::Generic  qw(is_image);
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Archive  qw(get_filelist);
-use LANraragi::Utils::Database qw(redis_decode);
-use LANraragi::Utils::ImageMagick qw(resize_page);
+use LANraragi::Utils::Redis    qw(redis_decode);
+use LANraragi::Utils::Resizer  qw(get_resizer);
+
+our $resampler = get_resizer();
+
 
 # resize_image(image,quality, size_threshold)
 # Convert an image to a cheaper on bandwidth format through ImageMagick.
@@ -28,7 +31,7 @@ use LANraragi::Utils::ImageMagick qw(resize_page);
 sub resize_image ( $content, $quality, $threshold ) {
     #Is the file size higher than the threshold?
     if ( ( (length($content) / 1024 * 10 ) / 10 ) > $threshold ) {
-        my $resized = resize_page($content, $quality, "jpg");
+        my $resized = $resampler->resize_page($content, $quality, "jpg");
         if (defined($resized)) {
             return $resized;
         }
