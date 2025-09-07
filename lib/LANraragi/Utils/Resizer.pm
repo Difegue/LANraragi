@@ -21,7 +21,7 @@ sub get_resizer() {
 sub resizer_factory
 {
     my $logger = get_logger("Reader", "lanraragi");
-    $logger->info("Initializing resizer");
+    $logger->debug("Initializing resizer");
 
     if (LANraragi::Utils::Vips::is_vips_loaded) {
         return LANraragi::Utils::VipsResizer->new;
