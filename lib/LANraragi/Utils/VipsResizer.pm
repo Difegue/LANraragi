@@ -25,14 +25,18 @@ sub resize_page($self, $content, $quality, $format) {
     my $img = LANraragi::Utils::Vips::resize_to_width($content, 1064);
 
     # Set format to jpeg and quality
-    return LANraragi::Utils::Vips::write_to_buffer($img, ".$format", $quality);
+    my $buffer = LANraragi::Utils::Vips::write_to_buffer($img, ".$format", $quality);
+    LANraragi::Utils::Vips::unref_image($img);
+    return $buffer;
 }
 
 sub resize_thumbnail($self, $content, $quality, $use_hq, $format) {
     $self->{logger}->trace("VIPS: Resizing page");
     my $img = LANraragi::Utils::Vips::fit_resize($content, 500, 1000);
 
-    return LANraragi::Utils::Vips::write_to_buffer($img, ".$format", $quality);
+    my $buffer = LANraragi::Utils::Vips::write_to_buffer($img, ".$format", $quality);
+    LANraragi::Utils::Vips::unref_image($img);
+    return $buffer;
 }
 
 
