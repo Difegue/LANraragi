@@ -160,8 +160,8 @@ if ( $back || $full ) {
         say("Installing dependencies for windows systems... (This will do nothing if the package is there already)");
 
         install_package( "Win32::Process", $cpanopt );
-        install_package( "Win32::FileSystemHelper", "https://github.com/Guerra24/Win32-FileSystemHelper/archive/8aa41c19e9cade280ebdac6dfc021071255b6310.zip " . $cpanopt );
-        install_package( "File::ChangeNotify::Watcher::Win32", "https://github.com/Guerra24/File-ChangeNotify-Watcher-Win32/archive/f5aeedb68d10c9dea02e2b184c7d5c341dbfe8e5.zip " .$cpanopt );
+        install_package( "Win32::FileSystemHelper", "https://github.com/Guerra24/Win32-FileSystemHelper/archive/f7843f6b0b4f4e95f308db2ab558445079ec2de6.zip " . $cpanopt );
+        install_package( "File::ChangeNotify::Watcher::Win32", "https://github.com/Guerra24/File-ChangeNotify-Watcher-Win32/archive/7cb4e60823569cca8e7652d19b1ba5b5cac00a16.zip " .$cpanopt );
     }
 
     if ( system( "cpanm --installdeps ./tools/. --notest" . $cpanopt ) != 0 ) {
