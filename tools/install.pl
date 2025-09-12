@@ -81,7 +81,7 @@ unless ( @ARGV > 0 ) {
 my $front  = $ARGV[0] eq "install-front";
 my $back   = $ARGV[0] eq "install-back";
 my $full   = $ARGV[0] eq "install-full";
-my $legacy = $ARGV[1] eq "legacy";
+my $legacy = defined $ARGV[1] && $ARGV[1] eq "legacy";
 
 say( "Working Directory: " . getcwd );
 say("");
