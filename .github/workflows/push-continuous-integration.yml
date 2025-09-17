@@ -31,7 +31,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: psilabs-dev/aio-lanraragi
-          ref: baf5e6ea37222d5df27abb26a9d4474bba329ae8
+          ref: 9242c3f90a49b9ea8af5eda3ac0c277d526f78a7
           path: aio-lanraragi
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -91,7 +91,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: psilabs-dev/aio-lanraragi
-          ref: dev-interim/main
+          ref: 9242c3f90a49b9ea8af5eda3ac0c277d526f78a7
           path: aio-lanraragi
       - name: Setup Python
         uses: actions/setup-python@v5
