@@ -45,7 +45,7 @@
         <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% tempmaxsize %]"
             name="tempmaxsize" type="text">
         <br>[% c.lh("In MBs. The cache contains recently viewed pages, for faster subsequent reading.") %] <br>
-        [% c.lh("It is automatically emptied when it grows past this specified size.") %]
+        [% c.lh("It is automatically emptied when it grows past this specified size.") %] [% c.lh("The maximum value allowed is 4GB.") %]
     </td>
 </tr>
 
