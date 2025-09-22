@@ -40,7 +40,7 @@ sub open_path {
 
 sub date_modified($file) {
     if ( IS_UNIX ) {
-        return ( CORE::stat( $file) )[9];
+        return ( CORE::stat( $file) )[9]; #9 is the unix time stamp for date modified.
     } else {
         return Win32::LongPath::statL( decode_utf8( $file ) )->{mtime};
     }
