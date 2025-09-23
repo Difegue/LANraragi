@@ -12,7 +12,7 @@ use Config;
 use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 
 use Exporter 'import';
-our @EXPORT_OK = qw(create_path open_path date_modified compat_path delete_path);
+our @EXPORT_OK = qw(create_path open_path date_modified compat_path unlink_path);
 
 BEGIN {
     if ( !IS_UNIX ) {
@@ -55,11 +55,11 @@ sub compat_path($file) {
     return $file;
 }
 
-sub delete_path($file) {
+sub unlink_path($file) {
     if ( IS_UNIX ) {
-        unlink $file;
+        return unlink $file;
     } else {
-        Win32::LongPath::unlinkL( decode_utf8( $file ) );
+        return Win32::LongPath::unlinkL( decode_utf8( $file ) );
     }
 }
 

@@ -299,7 +299,7 @@ sub delete_archive {
             json => {
                 operation => "delete_archive",
                 id        => $id,
-                filename  => $delStatus,
+                filename  => decode_utf8($delStatus),
                 success   => $delStatus eq "0" ? 0 : 1
             }
         );
