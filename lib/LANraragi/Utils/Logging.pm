@@ -14,7 +14,6 @@ use Compress::Zlib;
 use LANraragi::Model::Config;
 use LANraragi::Utils::Redis qw(redis_decode);
 
-
 # Contains all functions related to logging.
 use Exporter 'import';
 our @EXPORT_OK = qw(get_logger get_plugin_logger get_logdir get_lines_from_file);
