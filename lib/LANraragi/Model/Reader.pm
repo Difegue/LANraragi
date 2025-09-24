@@ -26,8 +26,8 @@ our $resampler = get_resizer();
 
 
 # resize_image(image,quality, size_threshold)
-# Convert an image to a cheaper on bandwidth format through ImageMagick.
-# This will no-op if the ImageMagick bindings are unavailable.
+# Convert an image to a cheaper on bandwidth format.
+# This will no-op if no resizer is available.
 sub resize_image ( $content, $quality, $threshold ) {
     #Is the file size higher than the threshold?
     if ( ( (length($content) / 1024 * 10 ) / 10 ) > $threshold ) {

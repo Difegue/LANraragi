@@ -31,7 +31,7 @@ use LANraragi::Utils::Redis      qw(redis_decode);
 use LANraragi::Utils::Resizer    qw(get_resizer);
 
 # Utilitary functions for handling Archives.
-# Relies on Libarchive, ImageMagick and GhostScript for PDFs.
+# Relies on Libarchive (for zip, cbz) and GhostScript (for PDFs).
 use Exporter 'import';
 our @EXPORT_OK =
   qw(is_file_in_archive extract_file_from_archive extract_single_file extract_thumbnail generate_thumbnail get_filelist);
@@ -41,8 +41,8 @@ sub is_pdf {
     return ( $suffix eq ".pdf" );
 }
 
-# use ImageMagick to make a thumbnail, height = 500px (view in index is 280px tall)
-# If use_hq is true, the scale algorithm will be used instead of sample.
+# use a resizer to make a thumbnail, height = 500px (view in index is 280px tall)
+# If use_hq is true, highest-quality resizing will be used (if the resizer support different quality levels).
 # If use_jxl is true, JPEG XL will be used instead of JPEG.
 sub generate_thumbnail ( $data, $thumb_path, $use_hq, $use_jxl ) {
 
