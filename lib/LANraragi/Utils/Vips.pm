@@ -24,7 +24,7 @@ if (@vips_libs) {
 
 # Class-level FFI object
 our $FFI_HANDLE = FFI::Platypus->new(
-    api => 1,
+    api => 2,
     lib => $lib_path,
 );
 
