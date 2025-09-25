@@ -46,7 +46,7 @@ sub is_pdf {
 # If use_jxl is true, JPEG XL will be used instead of JPEG.
 sub generate_thumbnail ( $data, $thumb_path, $use_hq, $use_jxl ) {
 
-    my $resized = get_resizer()->resize_thumbnail( $data, 80, $use_hq, $use_jxl?"jxl":"jpg");
+    my $resized = get_resizer()->resize_thumbnail( $data, 50, $use_hq, $use_jxl?"jxl":"jpg");
     if (defined($resized)) {
         open my $fh, '>:raw', $thumb_path or die;
         print $fh $resized;
