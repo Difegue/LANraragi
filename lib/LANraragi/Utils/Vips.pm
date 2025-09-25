@@ -86,8 +86,6 @@ use constant VIPS_INTERESTING_CENTRE => 1;
 
 my $initialized = 0;
 
-
-
 sub init ($program_name) {
     if (!$VIPS_LOADED) {
         warn "libvips is not loaded. Cannot initialize Vips.\n";
@@ -95,14 +93,16 @@ sub init ($program_name) {
     }
     if (!$initialized) {
         my $ret = vips_init($program_name);
-        if ($ret != 0) {
-            my $error = error_buffer();
-            clear_error();
-            die "Error initializing libvips: $error";
-        }
+        die "Error initializing libvips: ".fetch_and_clear_error() if $ret != 0;
         $initialized = 1;
     }
     return 1;
+}
+
+sub fetch_and_clear_error() {
+    my $error = error_buffer();
+    clear_error();
+    return $error;
 }
 
 sub error_buffer () {
@@ -115,21 +115,13 @@ sub clear_error () {
 
 sub new_from_file ($filename) {
     my $image = vips_image_new_from_file($filename, undef);
-    if (!$image) {
-        my $error = error_buffer();
-        clear_error();
-        die "Error creating image from file: $error";
-    }
+    die "Error creating image from file: ".fetch_and_clear_error() if !$image;
     return $image;
 }
 
 sub new_from_buffer ($buffer) {
     my $image = vips_image_new_from_buffer($buffer, length($buffer), "", undef);
-    if (!$image) {
-        my $error = error_buffer();
-        clear_error();
-        die "Error creating image from buffer: $error";
-    }
+    die "Error creating image from buffer: ".fetch_and_clear_error() if !$image;
     return $image;
 }
 
@@ -148,11 +140,7 @@ sub bands ($image) {
 sub black ($width, $height) {
     my $out;
     my $ret = vips_black(\$out, $width, $height, undef);
-    if ($ret != 0) {
-        my $error = error_buffer();
-        clear_error();
-        die "Error creating black image: $error";
-    }
+    die "Error creating black image: ".fetch_and_clear_error() if $ret != 0;
     return $out;
 }
 
@@ -160,11 +148,7 @@ sub black ($width, $height) {
 sub stretch_resize($buffer, $target_width, $target_height) {
     my $out;
     my $stretchRet = vips_thumbnail_buffer($buffer, length($buffer), \$out, $target_width, "height", int($target_height), "size", VIPS_SIZE_FORCE, undef);
-    if ($stretchRet != 0) {
-        my $error = error_buffer();
-        clear_error();
-        die "Error stretching image: $error";
-    }
+    die "Error stretching image: ".fetch_and_clear_error if ($stretchRet != 0);
     return $out;
 }
 
@@ -172,11 +156,7 @@ sub stretch_resize($buffer, $target_width, $target_height) {
 sub fit_resize($buffer, $target_width, $target_height) {
     my $out;
     my $fitRet = vips_thumbnail_buffer($buffer, length($buffer), \$out, $target_width, "height", int($target_height), undef);
-    if ($fitRet != 0) {
-        my $error = error_buffer();
-        clear_error();
-        die "Error resizing image for fit: $error";
-    }
+    die "Error resizing image for fit: ".fetch_and_clear_error() if ($fitRet != 0);
     return $out;
 }
 
@@ -186,11 +166,7 @@ sub cover_resize($buffer, $target_width, $target_height) {
     my $func = $FFI_HANDLE->function( 'vips_thumbnail_buffer' => ['string', 'uint64', 'VipsImage*', 'int', 'string', 'int', 'string', 'int', 'opaque'] => 'int' );
 
     my $ret = $func->call($buffer, length($buffer), \$out, $target_width, 'height', $target_height, 'crop', VIPS_INTERESTING_CENTRE, undef);
-    if ($ret != 0) {
-        my $error = error_buffer();
-        clear_error();
-        die "Error resizing image to width: $error";
-    }
+    die "Error resizing image to width: ".fetch_and_clear_error() if ($ret != 0);
     return $out;
 }
 
@@ -200,55 +176,35 @@ sub resize_to_width($buffer, $target_width) {
     my $func = $FFI_HANDLE->function( 'vips_thumbnail_buffer' => ['string', 'uint64', 'VipsImage*', 'int', 'opaque'] => 'int' );
 
     my $ret = $func->call($buffer, length($buffer), \$out, $target_width, undef);
-    if ($ret != 0) {
-        my $error = error_buffer();
-        clear_error();
-        die "Error resizing image to width: $error";
-    }
+    die "Error resizing image to width: ".fetch_and_clear_error() if ($ret != 0);
     return $out;
 }
 
 sub crop ($image, $left, $top, $width, $height) {
     my $out;
     my $ret = vips_crop($image, \$out, $left, $top, $width, $height, undef);
-    if ($ret != 0) {
-        my $error = error_buffer();
-        clear_error();
-        die "Error cropping image: $error";
-    }
+    die "Error cropping image: ".fetch_and_clear_error() if ($ret != 0);
     return $out;
 }
 
 sub grayscale ($image) {
     my $out;
     my $ret = vips_colourspace($image, \$out, VIPS_INTERPRETATION_GREY16, undef);
-    if ($ret != 0) {
-        my $error = error_buffer();
-        clear_error();
-        die "Error converting to grayscale: $error";
-    }
+    die "Error converting to grayscale: ".fetch_and_clear_error() if ($ret != 0);
     return $out;
 }
 
 sub jpegsave ($image, $filename) {
     my $c_filename = "$filename\0";
     my $ret = vips_jpegsave($image, $c_filename, undef);
-    if ($ret != 0) {
-        my $error = error_buffer();
-        clear_error();
-        die "Error saving JPEG: $error";
-    }
+    die "Error saving JPEG: ".fetch_and_clear_error() if ($ret != 0);
     return 1;
 }
 
 sub pngsave ($image, $filename) {
     my $c_filename = "$filename\0";
     my $ret = vips_pngsave($image, $c_filename, undef);
-    if ($ret != 0) {
-        my $error = error_buffer();
-        clear_error();
-        die "Error saving PNG: $error";
-    }
+    die "Error saving PNG: ".fetch_and_clear_error() if ($ret != 0);
     return 1;
 }
 
@@ -262,9 +218,7 @@ sub write_to_buffer ($image, $format, $quality) {
         g_free($buf);
         return $image_data;
     } else {
-        my $error = error_buffer();
-        clear_error();
-        die "Error writing to buffer: $error";
+        die "Error writing to buffer: ".fetch_and_clear_error();
     }
 }
 
