@@ -86,6 +86,10 @@ sub resize_thumbnail($self, $content, $quality, $use_hq, $format) {
 
         # Magick is unavailable, do nothing
         $self->{logger}->debug("ImageMagick is not available , skipping image resizing: $e");
+    } finally {
+        if (defined($img)) {
+            undef $img;
+        }
     }
 }
 
