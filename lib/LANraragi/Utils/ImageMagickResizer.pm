@@ -48,6 +48,10 @@ sub resize_page($self, $content, $quality, $format) {
 
         # Magick is unavailable, do nothing
         $self->{logger}->debug("ImageMagick is not available , skipping image resizing: $e");
+    } finally {
+        if (defined($img)) {
+            undef $img;
+        }
     }
 }
 
