@@ -60,10 +60,7 @@ if (IS_UNIX) {
 if ($VIPS_LOADED) {
     # Define custom types
     $vips_ffi->type('opaque' => 'VipsImage');
-    $vips_ffi->type('opaque' => 'GObject');
-    if ($vips_ffi != $gobject_ffi) {
-        $gobject_ffi->type('opaque' => 'GObject');
-    }
+    $gobject_ffi->type('opaque' => 'GObject');
 
     # Attach libvips functions
     $vips_ffi->attach( vips_init => ['string'] => 'int' );
