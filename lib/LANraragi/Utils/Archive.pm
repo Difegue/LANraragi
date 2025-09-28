@@ -45,8 +45,10 @@ sub is_pdf {
 # If use_hq is true, highest-quality resizing will be used (if the resizer support different quality levels).
 # If use_jxl is true, JPEG XL will be used instead of JPEG.
 sub generate_thumbnail ( $data, $thumb_path, $use_hq, $use_jxl ) {
+    my $quality = 50;
+    $quality = 80 if $use_hq;
 
-    my $resized = get_resizer()->resize_thumbnail( $data, 50, $use_hq, $use_jxl?"jxl":"jpg");
+    my $resized = get_resizer()->resize_thumbnail( $data, $quality, $use_hq, $use_jxl?"jxl":"jpg");
     if (defined($resized)) {
         open my $fh, '>:raw', $thumb_path or die;
         print $fh $resized;
