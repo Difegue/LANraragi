@@ -6,54 +6,71 @@ use v5.36;
 use strict;
 use warnings;
 
+use Config;
+
 use FFI::Platypus;
 use FFI::Platypus::Buffer qw( buffer_to_scalar );
 use FFI::CheckLib qw( find_lib );
 
-our $VIPS_LOADED = 0;
-my @vips_libs = find_lib( lib => [ 'vips', 'vips-42' ] );
-my $lib_path;
+use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 
-if (@vips_libs) {
-    $VIPS_LOADED = 1;
-    $lib_path = $vips_libs[0];
+our $VIPS_LOADED = 0;
+my $vips_ffi = undef;
+my $glib_ffi = undef;
+my $gobject_ffi = undef;
+
+if (IS_UNIX) {
+    my @vips_libs = find_lib(lib => [ 'vips', 'vips-42' ]);
+    my $lib_path;
+
+    if (@vips_libs) {
+        $VIPS_LOADED = 1;
+        $lib_path = $vips_libs[0];
+    }
+    else {
+        warn "Could not find libvips. Some functions will not be available.\n";
+        $lib_path = undef;
+    }
+
+    # The required glib/gobject stuff seems to be bundled with libvips
+    $vips_ffi = FFI::Platypus->new(
+        api => 2,
+        lib => $lib_path,
+    );
+    $glib_ffi = $vips_ffi;
+    $gobject_ffi = $vips_ffi;
 } else {
-    warn "Could not find libvips. Some functions will not be available.\n";
-    $lib_path = undef;
+    # Not implemented, hilfe!
 }
 
-# Class-level FFI object
-our $FFI_HANDLE = FFI::Platypus->new(
-    api => 2,
-    lib => $lib_path,
-);
-
-
-# Define custom types
-$FFI_HANDLE->type('opaque' => 'VipsImage');
-$FFI_HANDLE->type('opaque' => 'GObject');
-
 if ($VIPS_LOADED) {
+    # Define custom types
+    $vips_ffi->type('opaque' => 'VipsImage');
+    $vips_ffi->type('opaque' => 'GObject');
+    if ($vips_ffi != $gobject_ffi) {
+        $gobject_ffi->type('opaque' => 'GObject');
+    }
+
     # Attach libvips functions
-    $FFI_HANDLE->attach( vips_init => ['string'] => 'int' );
-    $FFI_HANDLE->attach( vips_error_buffer => [] => 'string' );
-    $FFI_HANDLE->attach( vips_error_clear => [] => 'void' );
-    $FFI_HANDLE->attach( vips_image_new_from_file => ['string', 'opaque'] => 'VipsImage' );
-    $FFI_HANDLE->attach( vips_resize => ['VipsImage', 'VipsImage*', 'double', 'opaque'] => 'int' );
-    $FFI_HANDLE->attach( vips_jpegsave => ['VipsImage', 'string', 'opaque'] => 'int' );
-    $FFI_HANDLE->attach( vips_image_write_to_buffer => ['VipsImage', 'string', 'opaque*', 'size_t*', 'string', 'int', 'opaque'] => 'int' );
-    $FFI_HANDLE->attach( g_object_unref => ['GObject'] => 'void' );
-    $FFI_HANDLE->attach( g_free => ['opaque'] => 'void' );
-    $FFI_HANDLE->attach( vips_image_new_from_buffer => ['string', 'size_t', 'string', 'opaque'] => 'VipsImage' );
-    $FFI_HANDLE->attach( vips_image_get_width => ['VipsImage'] => 'int' );
-    $FFI_HANDLE->attach( vips_image_get_height => ['VipsImage'] => 'int' );
-    $FFI_HANDLE->attach( vips_image_get_bands => ['VipsImage'] => 'int' );
-    $FFI_HANDLE->attach( vips_black => ['VipsImage*', 'int', 'int', 'opaque'] => 'int' );
-    $FFI_HANDLE->attach( vips_crop => ['VipsImage', 'VipsImage*', 'int', 'int', 'int', 'int', 'opaque'] => 'int' );
-    $FFI_HANDLE->attach( vips_colourspace => ['VipsImage', 'VipsImage*', 'int', 'opaque'] => 'int' );
-    $FFI_HANDLE->attach( vips_insert => ['VipsImage', 'VipsImage', 'VipsImage*', 'int', 'int', 'opaque'] => 'int' );
-    $FFI_HANDLE->attach( vips_pngsave => ['VipsImage', 'string', 'opaque'] => 'int' );
-    $FFI_HANDLE->attach( vips_thumbnail_buffer => ['string', 'uint64', 'VipsImage*', 'int', 'string', 'int', 'string', 'int', 'opaque'] => 'int' );
+    $vips_ffi->attach( vips_init => ['string'] => 'int' );
+    $vips_ffi->attach( vips_error_buffer => [] => 'string' );
+    $vips_ffi->attach( vips_error_clear => [] => 'void' );
+    $vips_ffi->attach( vips_image_new_from_file => ['string', 'opaque'] => 'VipsImage' );
+    $vips_ffi->attach( vips_resize => ['VipsImage', 'VipsImage*', 'double', 'opaque'] => 'int' );
+    $vips_ffi->attach( vips_jpegsave => ['VipsImage', 'string', 'opaque'] => 'int' );
+    $vips_ffi->attach( vips_image_write_to_buffer => ['VipsImage', 'string', 'opaque*', 'size_t*', 'string', 'int', 'opaque'] => 'int' );
+    $gobject_ffi->attach( g_object_unref => ['GObject'] => 'void' );
+    $glib_ffi->attach( g_free => ['opaque'] => 'void' );
+    $vips_ffi->attach( vips_image_new_from_buffer => ['string', 'size_t', 'string', 'opaque'] => 'VipsImage' );
+    $vips_ffi->attach( vips_image_get_width => ['VipsImage'] => 'int' );
+    $vips_ffi->attach( vips_image_get_height => ['VipsImage'] => 'int' );
+    $vips_ffi->attach( vips_image_get_bands => ['VipsImage'] => 'int' );
+    $vips_ffi->attach( vips_black => ['VipsImage*', 'int', 'int', 'opaque'] => 'int' );
+    $vips_ffi->attach( vips_crop => ['VipsImage', 'VipsImage*', 'int', 'int', 'int', 'int', 'opaque'] => 'int' );
+    $vips_ffi->attach( vips_colourspace => ['VipsImage', 'VipsImage*', 'int', 'opaque'] => 'int' );
+    $vips_ffi->attach( vips_insert => ['VipsImage', 'VipsImage', 'VipsImage*', 'int', 'int', 'opaque'] => 'int' );
+    $vips_ffi->attach( vips_pngsave => ['VipsImage', 'string', 'opaque'] => 'int' );
+    $vips_ffi->attach( vips_thumbnail_buffer => ['string', 'uint64', 'VipsImage*', 'int', 'string', 'int', 'string', 'int', 'opaque'] => 'int' );
 } else {
     # Dummy functions if libvips is not loaded
     *vips_init = sub { die "libvips is not loaded. Cannot call vips_init." };
@@ -163,7 +180,7 @@ sub fit_resize($buffer, $target_width, $target_height) {
 # Resize the image, respecting aspect ratio and cropping if needed (focus on center)
 sub cover_resize($buffer, $target_width, $target_height) {
     my $out;
-    my $func = $FFI_HANDLE->function( 'vips_thumbnail_buffer' => ['string', 'uint64', 'VipsImage*', 'int', 'string', 'int', 'string', 'int', 'opaque'] => 'int' );
+    my $func = $vips_ffi->function( 'vips_thumbnail_buffer' => ['string', 'uint64', 'VipsImage*', 'int', 'string', 'int', 'string', 'int', 'opaque'] => 'int' );
 
     my $ret = $func->call($buffer, length($buffer), \$out, $target_width, 'height', $target_height, 'crop', VIPS_INTERESTING_CENTRE, undef);
     die "Error resizing image to width: ".fetch_and_clear_error() if ($ret != 0);
@@ -173,7 +190,7 @@ sub cover_resize($buffer, $target_width, $target_height) {
 # Resize the image, respecting aspect ratio
 sub resize_to_width($buffer, $target_width) {
     my $out;
-    my $func = $FFI_HANDLE->function( 'vips_thumbnail_buffer' => ['string', 'uint64', 'VipsImage*', 'int', 'opaque'] => 'int' );
+    my $func = $vips_ffi->function( 'vips_thumbnail_buffer' => ['string', 'uint64', 'VipsImage*', 'int', 'opaque'] => 'int' );
 
     my $ret = $func->call($buffer, length($buffer), \$out, $target_width, undef);
     die "Error resizing image to width: ".fetch_and_clear_error() if ($ret != 0);
