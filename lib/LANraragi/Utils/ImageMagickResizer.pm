@@ -61,6 +61,7 @@ sub resize_thumbnail($self, $content, $quality, $use_hq, $format) {
 
     no warnings 'experimental::try';
     my $img = undef;
+    my $frame = undef;
     try {
         require Image::Magick;
         $img = Image::Magick->new;
@@ -75,17 +76,17 @@ sub resize_thumbnail($self, $content, $quality, $use_hq, $format) {
         $img->BlobToImage($content);
 
         # Only use the first frame (relevant for animated gif/webp/whatever)
-        $img = $img->[0];
+        $frame = $img->[0];
 
         # The "-scale" resize operator is a simplified, faster form of the resize command.
         if ($use_hq) {
-            $img->Scale( geometry => '500x1000' );
+            $frame->Scale( geometry => '500x1000' );
         } else {    # Sample is very fast due to not applying filters.
-            $img->Sample( geometry => '500x1000' );
+            $frame->Sample( geometry => '500x1000' );
         }
 
         # Set format to jpeg and quality
-        return $img->ImageToBlob(magick => $format, quality => $quality);
+        return $frame->ImageToBlob(magick => $format, quality => $quality);
     } catch ($e) {
 
         # Magick is unavailable, do nothing
@@ -93,6 +94,9 @@ sub resize_thumbnail($self, $content, $quality, $use_hq, $format) {
     } finally {
         if (defined($img)) {
             undef $img;
+        }
+        if (defined($frame)) {
+            undef $frame;
         }
     }
 }
