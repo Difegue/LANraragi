@@ -40,7 +40,21 @@ if (IS_UNIX) {
     $glib_ffi = $vips_ffi;
     $gobject_ffi = $vips_ffi;
 } else {
-    # Not implemented, hilfe!
+    $vips_ffi = FFI::Platypus->new(
+        api => 2,
+        lib => find_lib( lib => [ 'vips', 'vips-42' ] ),
+    );
+
+    $gobject_ffi = FFI::Platypus->new(
+        api => 2,
+        lib => find_lib( lib => [ 'gobject' ] ),
+    );
+
+    $glib_ffi = FFI::Platypus->new(
+        api => 2,
+        lib => find_lib( lib => [ 'glib' ] ),
+    );
+    $VIPS_LOADED = 1;
 }
 
 if ($VIPS_LOADED) {
