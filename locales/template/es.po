@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 05:28+0200\n"
-"PO-Revision-Date: 2025-08-20 01:02+0000\n"
+"PO-Revision-Date: 2025-09-24 00:02+0000\n"
 "Last-Translator: Guerra24 <lili@guerra24.net>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/es/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.13\n"
+"X-Generator: Weblate 5.14-dev\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -1491,7 +1491,8 @@ msgstr "Mostrando _START_ a _END_ de _TOTAL_ litografías chinas antiguas."
 
 msgid "No archives to show you! Try <a href=\"\${url}\")>uploading some</a>?"
 msgstr ""
-"¡No hay archivos para mostrar! <a href=\"${url}\")>Intenta cargar alguno</a>"
+"¡No hay archivos para mostrar! ¿<a href=\"${url}\")>Intenta cargar "
+"alguno</a>?"
 
 msgid "Welcome to LANraragi \${version}!"
 msgstr "¡Bienvenido a LANraragi ${version}!"
@@ -1883,3 +1884,6 @@ msgstr "¡Error al iniciar el cambio automático de página!"
 
 msgid "Please set the auto next page interval to a positive number."
 msgstr "Ingresa un número positivo para el intervalo de cambio de página."
+
+msgid "The maximum value allowed is 4GB."
+msgstr "El tamaño máximo permitido es 4GB."
