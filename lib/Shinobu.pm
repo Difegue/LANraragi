@@ -34,6 +34,7 @@ use LANraragi::Utils::Database   qw(invalidate_cache compute_id change_archive_i
 use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Generic    qw(is_archive);
 use LANraragi::Utils::Redis      qw(redis_encode);
+use LANraragi::Utils::Path       qw(create_path open_path);
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
@@ -42,27 +43,14 @@ use LANraragi::Model::Search;     # idem
 
 use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 
-BEGIN {
-    if ( !IS_UNIX ) {
-        require Win32::FileSystemHelper;
-    }
-}
-
 # Logger and Database objects
 my $logger = get_logger( "Shinobu", "shinobu" );
 
 #Subroutine for new and deleted files that takes inotify events
 my $inotifysub = sub {
     my $e    = shift;
-    my $name = $e->path;
+    my $name = create_path( $e->path );
     my $type = $e->type;
-
-    if ( !IS_UNIX ) {
-        # If this is a super long file or uses a lot of double-wide characters convert it to short name
-        if ( length($name) >= 260 ) {
-            $name = Win32::FileSystemHelper::get_short_path($name);
-        }
-    }
 
     $logger->debug("Received inotify event $type on $name");
 
@@ -133,14 +121,9 @@ sub update_filemap {
     # Get all files in content directory and subdirectories.
     find(
         {   wanted => sub {
+                $_ = create_path($_);
                 return if -d $_;    #Directories are excluded on the spot
                 return unless is_archive($_);
-                if ( !IS_UNIX ) {
-                    # If this is a super long file or uses a lot of double-wide characters convert it to short name
-                    if ( length($_) >= 260 ) {
-                        $_ = Win32::FileSystemHelper::get_short_path($_);
-                    }
-                }
                 push @files, $_;    #Push files to array
             },
             no_chdir    => 1,
@@ -198,7 +181,7 @@ sub add_to_filemap ( $redis_cfg, $file ) {
         #We have to wait before doing any form of calculation.
         while (1) {
             last unless -e $file;    # Sanity check to avoid sticking in this loop if the file disappears
-            last if open( my $handle, '<', $file );
+            last if open_path( my $handle, '<', $file );
             $logger->debug("Waiting for file to be openable");
             sleep(1);
         }
@@ -345,18 +328,14 @@ sub add_new_files (@files) {
 }
 
 
-sub add_new_file ( $id, $file_fs ) {
+sub add_new_file ( $id, $file ) {
 
     my $redis        = LANraragi::Model::Config->get_redis;
     my $redis_search = LANraragi::Model::Config->get_redis_search;
-    $logger->info("Adding new file $file_fs with ID $id");
+    $logger->info("Adding new file $file with ID $id");
 
     eval {
-        my $file = $file_fs;
-        if ( !IS_UNIX ) {
-            $file = Win32::FileSystemHelper::get_full_path($file);
-        }
-        add_archive_to_redis( $id, $file, $file_fs, $redis, $redis_search );
+        add_archive_to_redis( $id, $file, $redis, $redis_search );
         add_timestamp_tag( $redis, $id );
         add_pagecount( $redis, $id );
 
