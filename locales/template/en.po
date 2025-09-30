@@ -270,6 +270,9 @@ msgstr "In MBs. The cache contains recently viewed pages, for faster subsequent 
 msgid "It is automatically emptied when it grows past this specified size."
 msgstr "It is automatically emptied when it grows past this specified size."
 
+msgid "The maximum value allowed is 4GB."
+msgstr "The maximum value allowed is 4GB."
+
 msgid "Clear Cache"
 msgstr "Clear Cache"
 

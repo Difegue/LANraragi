@@ -21,6 +21,9 @@ cp -R /ucrt64/lib/ImageMagick-7.1.2 ./win-dist/runtime/lib
 # We don't need .a files, they are used only during compilation
 find ./win-dist/runtime/lib/ImageMagick-7.1.2/ -name "*.a" -type f -delete
 
+# Copy vips modules
+cp -R /ucrt64/lib/vips-modules-8.17 ./win-dist/runtime/lib
+
 # Copy more openssl stuff
 mkdir -p ./win-dist/runtime/share
 

@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 03:27+0200\n"
-"PO-Revision-Date: 2025-06-04 15:02+0000\n"
-"Last-Translator: CHO-HSUN-TE <ousi4706@gmail.com>\n"
+"PO-Revision-Date: 2025-09-24 00:01+0000\n"
+"Last-Translator: 炙燒鮭魚讚（benny） <bennyz327@gmail.com>\n"
 "Language-Team: Chinese (Traditional Han script) <https://hosted.weblate.org/"
 "projects/lanraragi/lanraragi-source/zh_Hant/>\n"
 "Language: zh_Hant\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.12-dev\n"
+"X-Generator: Weblate 5.14-dev\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -730,9 +730,9 @@ msgstr "你這個大笨蛋竟然還在使用預設密碼"
 
 msgid "Login with password \"kamimamita\" and change that shit on the double. ...Or just disable it! Why not check the configuration options afterwards, while you\'re at it?"
 msgstr ""
-"請使用預設密碼 \"kamimamita\" <a href=\"/login\">登入</a><br/"
-">然後立刻把這密碼<a href=\"/config\">改掉</a>。<br/"
-">...或者乾脆關掉密碼功能！<br/>順便去查看其他設定選項也不錯？ "
+"請使用預設密碼 \"kamimamita\" <a href=\"/login\">登入</a>然後立刻把這密碼<a "
+"href=\"/config\">改掉</a>。<br/"
+">...或者乾脆關掉密碼功能！順便去查看其他設定選項也不錯？。 "
 
 # ------End of Index.html.tt2------
 # ------Start of Login.html.tt2------
@@ -1667,3 +1667,33 @@ msgstr "自動運行"
 
 msgid "No duplicates found!"
 msgstr "沒有找到重複項目!"
+
+msgid "Copy link"
+msgstr "複製連結"
+
+msgid "Auto next page interval in seconds"
+msgstr "自動下一頁間隔（以秒為單位）"
+
+msgid "The default is 10 seconds."
+msgstr "預設為10秒。"
+
+msgid "Auto Next Page"
+msgstr "自動翻頁"
+
+msgid "Link copied successfully."
+msgstr "成功複製連結。"
+
+msgid "Copy failed."
+msgstr "複製失敗。"
+
+msgid "Starting auto next page failed!"
+msgstr "啟動自動翻頁失敗!"
+
+msgid "Please set the auto next page interval to a positive number."
+msgstr "請將自動下一頁間隔設定為正數。"
+
+msgid "N: toggle auto next page"
+msgstr "N:切換自動下一頁"
+
+msgid "The maximum value allowed is 4GB."
+msgstr "允許的最大值是 4GB。"

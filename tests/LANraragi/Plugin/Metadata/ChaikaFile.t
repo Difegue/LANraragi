@@ -15,6 +15,7 @@ use Test::Deep;
 my $cwd     = getcwd();
 my $SAMPLES = "$cwd/tests/samples";
 require "$cwd/tests/mocks.pl";
+setup_redis_mock();
 
 my @tags_list = (
     'full censorship',  'female:sole female', 'male:sole male',     'artist:kemuri haku',

@@ -269,7 +269,9 @@ sub serve_page {
 
         # resize_image always converts the image to jpg
         $self->render_file(
-            data => $content
+            data                => $content,
+            content_disposition => "inline",
+            format              => "jpg"
         );
     } else {
 
@@ -279,8 +281,9 @@ sub serve_page {
         $logger->debug("Data size:".length($content));
         # Serve extracted file directly
         $self->render_file(
-            data   => $content,
-            format => substr( $file_ext, 1 )
+            data                => $content,
+            content_disposition => "inline",
+            format              => substr( $file_ext, 1 )
         );
     }
 }

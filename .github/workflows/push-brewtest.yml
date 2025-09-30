@@ -9,7 +9,8 @@ jobs:
     - name: Build and test bundled homebrew formula
       run: |
         cd tools/build/homebrew
+        brew tap-new difegue/lanraragi
         echo "Replacing commit hash in formula with current hash $(git rev-parse --verify HEAD)"
         sed -i.bck "s/COMMIT_HASH/$(git rev-parse --verify HEAD)/" Lanraragi.rb
-        brew install --force --verbose --build-from-source Lanraragi.rb
+        brew install --force --verbose --tap=difegue/lanraragi --build-from-source Lanraragi.rb
         brew test --verbose Lanraragi.rb

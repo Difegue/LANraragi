@@ -15,6 +15,8 @@ my $cwd     = getcwd();
 my $SAMPLES = "$cwd/tests/samples";
 require "$cwd/tests/mocks.pl";
 
+setup_redis_mock();
+
 my @tags_list_from_gallery_no_source = (
     'Artist:Hamao',
     'Parody:Original Work',
