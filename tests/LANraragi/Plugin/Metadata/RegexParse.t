@@ -7,6 +7,7 @@ use Test::More;
 
 my $cwd = getcwd();
 require "$cwd/tests/mocks.pl";
+setup_redis_mock();
 
 use_ok('LANraragi::Plugin::Metadata::RegexParse');
 

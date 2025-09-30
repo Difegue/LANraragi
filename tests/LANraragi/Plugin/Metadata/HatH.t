@@ -16,6 +16,8 @@ my $cwd     = getcwd();
 my $SAMPLES = "$cwd/tests/samples";
 require "$cwd/tests/mocks.pl";
 
+setup_redis_mock();
+
 my @tags_list = (
     'upload_time:2020-11-11 00:00', 'uploader:Katlan', 'language:english', 'language:translated',
     'artist:yyyy', 'male:dark skin', 'female:fox girl'

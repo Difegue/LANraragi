@@ -12,6 +12,7 @@ use Test::MockObject;
 
 my $cwd = getcwd();
 require "$cwd/tests/mocks.pl";
+setup_redis_mock();
 
 my $PKG = 'LANraragi::Model::Plugins';
 

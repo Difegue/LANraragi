@@ -15,12 +15,12 @@ my $SAMPLES = "$cwd/tests/samples";
 require "$cwd/tests/mocks.pl";
 
 my @tags_list= (
-    'full censorship', 'female:sole female', 'male:sole male', 'artist:kemuri haku', 'female:tall girl', 
+    'full censorship', 'female:sole female', 'male:sole male', 'artist:kemuri haku', 'female:tall girl',
     'female:cunnilingus', 'male:shotacon', 'female:defloration', 'female:nakadashi', 'female:x-ray',
     'female:big breasts', 'language:translated', 'language:english'
 );
 my @tags_list_extra= (
-    'other:full censorship', 'female:sole female', 'male:sole male', 'artist:kemuri haku', 'female:tall girl', 
+    'other:full censorship', 'female:sole female', 'male:sole male', 'artist:kemuri haku', 'female:tall girl',
     'female:cunnilingus', 'male:shotacon', 'female:defloration', 'female:nakadashi', 'female:x-ray',
     'female:big breasts', 'language:translated', 'language:english', 'category:manga', 'download:/archive/27240/download/',
     'gallery:23532', 'timestamp:1521357552', 'source:chaika'

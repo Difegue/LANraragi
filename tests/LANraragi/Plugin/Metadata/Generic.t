@@ -3,6 +3,12 @@ use warnings;
 use utf8;
 use Data::Dumper;
 
+use Cwd qw( getcwd );
+my $cwd = getcwd();
+
+require "$cwd/tests/mocks.pl";
+setup_redis_mock();
+
 use Module::Pluggable require => 1, search_path => ['LANraragi::Plugin::Metadata'];
 
 use Test::More;
