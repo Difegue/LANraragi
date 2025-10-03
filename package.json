@@ -1,7 +1,7 @@
 {
     "name": "lanraragi",
-    "version": "0.9.50",
-    "version_name": "New Angels of Promise",
+    "version": "0.9.60",
+    "version_name": "5:15 The Angels Have Gone",
     "description": "I'm under Japanese influence and my honor's at stake!",
     "scripts": {
         "test": "prove -r -l -v tests/",
