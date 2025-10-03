@@ -25,7 +25,6 @@ BEGIN { unshift @INC, "$FindBin::Bin/../lib"; }
 
 use Mojolicious;    # Needed by Model::Config to read the Redis address/port.
 use File::ChangeNotify;
-use File::Find;
 use File::Basename;
 use Encode;
 
@@ -34,7 +33,7 @@ use LANraragi::Utils::Database   qw(invalidate_cache compute_id change_archive_i
 use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Generic    qw(is_archive);
 use LANraragi::Utils::Redis      qw(redis_encode);
-use LANraragi::Utils::Path       qw(create_path open_path);
+use LANraragi::Utils::Path       qw(create_path open_path find_path);
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
@@ -119,15 +118,12 @@ sub update_filemap {
     my @files;
 
     # Get all files in content directory and subdirectories.
-    find(
-        {   wanted => sub {
-                $_ = create_path($_);
-                return if -d $_;    #Directories are excluded on the spot
-                return unless is_archive($_);
-                push @files, $_;    #Push files to array
-            },
-            no_chdir    => 1,
-            follow_fast => 1
+    find_path(
+        sub {
+            $_ = create_path($_);
+            return if -d $_;    #Directories are excluded on the spot
+            return unless is_archive($_);
+            push @files, $_;    #Push files to array
         },
         $dirname
     );
