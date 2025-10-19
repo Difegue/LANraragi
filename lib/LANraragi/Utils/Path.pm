@@ -8,21 +8,23 @@ no warnings 'experimental::signatures';
 
 use Encode;
 use Config;
+use File::Find;
 
 use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 
 use Exporter 'import';
-our @EXPORT_OK = qw(create_path open_path date_modified compat_path unlink_path);
+our @EXPORT_OK = qw(create_path open_path date_modified compat_path unlink_path find_path);
 
 BEGIN {
     if ( !IS_UNIX ) {
         require Win32::LongPath;
         require Win32::LongPath::Path;
+        require Win32::LongPath::Find;
         require Win32::FileSystemHelper;
     }
 }
 
-sub create_path($file) {
+sub create_path( $file ) {
     if ( IS_UNIX ) {
         return $file;
     } else {
@@ -38,7 +40,7 @@ sub open_path {
     }
 }
 
-sub date_modified($file) {
+sub date_modified( $file ) {
     if ( IS_UNIX ) {
         return ( CORE::stat( $file) )[9]; #9 is the unix time stamp for date modified.
     } else {
@@ -46,20 +48,38 @@ sub date_modified($file) {
     }
 }
 
-sub compat_path($file) {
+sub compat_path( $file ) {
     if ( !IS_UNIX ) {
         if ( length($file) >= 260 ) {
-            $file = Win32::FileSystemHelper::get_short_path($file);
+            $file = Win32::FileSystemHelper::get_short_path( $file );
         }
     }
     return $file;
 }
 
-sub unlink_path($file) {
+sub unlink_path( $file ) {
     if ( IS_UNIX ) {
         return unlink $file;
     } else {
         return Win32::LongPath::unlinkL( decode_utf8( $file ) );
+    }
+}
+
+sub find_path( $wanted, $path ) {
+    if ( IS_UNIX ) {
+        find(
+            {   wanted => $wanted,
+                no_chdir    => 1,
+                follow_fast => 1
+            },
+            $path
+        );
+    } else {
+        my @files = Win32::LongPath::Find::find( decode_utf8( Win32::FileSystemHelper::get_full_path( $path ) ) );
+        foreach my $file (@files) {
+            $_ = encode_utf8( $file );
+            { $wanted->(); };
+        }
     }
 }
 
