@@ -398,10 +398,6 @@ If using a metadata plugin, the matching archive will **not** be modified in the
 See more info on Plugins in the matching section of the Docs.
 {% endswagger-description %}
 
-{% swagger-parameter name="key" type="string" required="true" in="query" %}
-API Key, mandatory for this method.
-{% endswagger-parameter %}
-
 {% swagger-parameter name="plugin" type="string" required="true" in="query" %}
 Namespace of the plugin to use.
 {% endswagger-parameter %}
@@ -433,10 +429,6 @@ Optional One-Shot argument to use when executing this Plugin.
 Uses a Plugin and returns a Minion Job ID matching the Plugin run.  
 This endpoint is useful if you want to run longer-lived plugins which might timeout if ran with the standard endpoint.
 {% endswagger-description %}
-
-{% swagger-parameter name="key" type="string" required="true" in="query" %}
-API Key, mandatory for this method.
-{% endswagger-parameter %}
 
 {% swagger-parameter name="plugin" type="string" required="true" in="query" %}
 Namespace of the plugin to use.
