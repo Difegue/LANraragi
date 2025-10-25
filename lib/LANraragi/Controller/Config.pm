@@ -3,9 +3,10 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use LANraragi::Utils::Generic    qw(generate_themes_header);
 use LANraragi::Utils::String     qw(trim trim_CRLF);
-use LANraragi::Utils::Database   qw(redis_encode save_computed_tagrules);
+use LANraragi::Utils::Database   qw(save_computed_tagrules);
 use LANraragi::Utils::Tags       qw(tags_rules_to_array replace_CRLF restore_CRLF);
 use Mojo::JSON                   qw(encode_json);
+use LANraragi::Utils::Redis      qw(redis_encode);
 
 use Authen::Passphrase::BlowfishCrypt;
 

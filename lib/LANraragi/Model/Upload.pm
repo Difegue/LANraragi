@@ -13,15 +13,16 @@ use File::Find qw(find);
 use File::Copy qw(move);
 
 use LANraragi::Utils::Archive  qw(extract_thumbnail);
-use LANraragi::Utils::Database qw(invalidate_cache compute_id set_title set_summary);
+use LANraragi::Utils::Database qw(invalidate_cache compute_id set_title set_summary add_archive_to_redis add_timestamp_tag add_pagecount add_arcsize);
 use LANraragi::Utils::Logging  qw(get_logger);
-use LANraragi::Utils::Database qw(redis_encode);
+use LANraragi::Utils::Redis    qw(redis_encode);
 use LANraragi::Utils::Generic  qw(is_archive get_bytelength);
 use LANraragi::Utils::String   qw(trim trim_CRLF trim_url);
 
-use LANraragi::Model::Config;
+use LANraragi::Model::Config   qw(get_userdir);
 use LANraragi::Model::Plugins;
 use LANraragi::Model::Category;
+use LANraragi::Model::Archive;
 
 # Handle files uploaded by the user, or downloaded from remote endpoints.
 
@@ -84,7 +85,7 @@ sub handle_incoming_file ( $tempfile, $catid, $tags, $title, $summary ) {
 
     # Add the file to the database ourselves so Shinobu doesn't do it
     # This allows autoplugin to be ran ASAP.
-    my $name = LANraragi::Utils::Database::add_archive_to_redis( $id, $output_file, $redis, $redis_search );
+    my $name = add_archive_to_redis( $id, $output_file, $redis, $redis_search );
 
     # If additional tags were given to the sub, add them now.
     if ($tags) {
@@ -138,9 +139,9 @@ sub handle_incoming_file ( $tempfile, $catid, $tags, $title, $summary ) {
 
     # Now that the file has been copied, we can add the timestamp tag and calculate pagecount.
     # (The file being physically present is necessary in case last modified time is used)
-    LANraragi::Utils::Database::add_timestamp_tag( $redis, $id );
-    LANraragi::Utils::Database::add_pagecount( $redis, $id );
-    LANraragi::Utils::Database::add_arcsize( $redis, $id );
+    add_timestamp_tag( $redis, $id );
+    add_pagecount( $redis, $id );
+    add_arcsize( $redis, $id );
     $redis->quit();
     $redis_search->quit();
 

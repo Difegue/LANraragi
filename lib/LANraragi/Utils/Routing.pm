@@ -4,11 +4,21 @@ use strict;
 use warnings;
 use utf8;
 
+use Config;
+use Encode;
+
 use Mojolicious::Plugin::Minion::Admin;
+
+use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 
 #Contains all the routes used by the app, and applies them on boot.
 sub apply_routes {
     my $self = shift;
+
+    if ( !IS_UNIX ) {
+        # If the path to /public contains any special characters we need to decode it and pass it back to mojo
+        @{$self->static->paths}[0] = decode_utf8( @{$self->static->paths}[0] );
+    }
 
     # Routers used for all loginless routes
     my $public_routes = $self->routes;

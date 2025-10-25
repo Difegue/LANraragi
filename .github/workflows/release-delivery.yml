@@ -4,22 +4,6 @@ on:
 name: New Version Release
 jobs:
 
-  exportDockerRootFS:
-    name: Build and export Docker rootfs for Windows build
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@master
-    - name: Docker Build and export
-      run: |
-        docker build -t difegue/lanraragi -f ./tools/build/docker/Dockerfile .
-        docker create --name rootfs difegue/lanraragi 
-        docker export --output=package.tar rootfs
-    - name: Upload rootfs
-      uses: actions/upload-artifact@v4
-      with:
-        name: package
-        path: package.tar 
-
   buildReleaseMSYS2:
     name: Build Windows Installer
     runs-on: windows-2025

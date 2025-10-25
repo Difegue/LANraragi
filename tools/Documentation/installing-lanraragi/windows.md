@@ -18,8 +18,8 @@ Windows Nightlies are available [here](https://nightly.link/Difegue/LANraragi/wo
 
 Simply execute the installer package.
 
-You might get a SmartScreen prompt from Windows (doesn't seem to happen with the Store) as the installer isn't signed; These are perfectly normal.  
-(If you're wondering why I don't sign installers, [this](https://gaby.dev/posts/code-signing) article is a good read.)
+You might get a SmartScreen prompt from Windows as the installer isn't signed; These are perfectly normal.  
+(If you're wondering why I don't sign installers, [this](https://web.archive.org/web/20241204064244/https://gaby.dev/posts/code-signing) article is a good read.)
 
 Once the install completes properly, you'll be able to launch the GUI from the shortcut in your Start Menu:
 
@@ -31,7 +31,8 @@ Starting the GUI for the first time will prompt you to setup your content folder
 
 ![Tray GUI and Settings Window](../.screenshots/karen-light.png)
 
-You can also decide whether to start the GUI alongside Windows, or start LRR alongside the GUI. Combining the two makes it so that LANraragi starts alongside Windows. 🔥🔥🔥
+You can also decide whether to start the GUI alongside Windows, or start LRR alongside the GUI.  
+Combining the two makes it so that LANraragi starts alongside Windows. 🔥🔥🔥
 
 ## Usage
 

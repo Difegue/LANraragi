@@ -15,6 +15,8 @@ my $cwd = getcwd();
 my $SAMPLES = "$cwd/tests/samples";
 require "$cwd/tests/mocks.pl";
 
+setup_redis_mock();
+
 my @all_tags = (
     'artist:yatsuki hiyori',
     'male:business suit',

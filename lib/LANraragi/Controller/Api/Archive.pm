@@ -15,6 +15,8 @@ use File::Find;
 use LANraragi::Utils::Generic  qw(render_api_response is_archive get_bytelength exec_with_lock);
 use LANraragi::Utils::Database qw(get_archive_json set_isnew);
 use LANraragi::Utils::Logging  qw(get_logger);
+use LANraragi::Utils::Redis    qw(redis_encode);
+use LANraragi::Utils::Path     qw(compat_path);
 
 use LANraragi::Model::Archive;
 use LANraragi::Model::Category;
@@ -110,7 +112,7 @@ sub serve_file {
 
     my $file = $redis->hget( $id, "file" );
     $redis->quit();
-    $self->render_file( filepath => $file );
+    $self->render_file( filepath => compat_path( $file ), filename => basename( $file ) );
 }
 
 # Create a file archive along with any metadata.
@@ -155,10 +157,10 @@ sub create_archive {
 
     my $filename   = $upload->filename;
     my $uploadMime = $upload->headers->content_type;
-    $filename = LANraragi::Utils::Database::redis_encode($filename);
+    $filename = redis_encode($filename);
 
     return unless exec_with_lock( $self, $redis, "upload:$filename", "upload", $filename, sub {
-        
+
         # metadata extraction
         my $catid   = $self->req->param('category_id');
         my $tags    = $self->req->param('tags');
@@ -270,7 +272,7 @@ sub clear_new {
     my $id   = check_id_parameter( $self, "clear_new" ) || return;
 
     my $redis = LANraragi::Model::Config->get_redis;
-    
+
     return unless exec_with_lock( $self, $redis, "archive-write:$id", "clear_new", $id, sub {
         set_isnew( $id, "false" );
 
@@ -289,7 +291,7 @@ sub delete_archive {
     my $id   = check_id_parameter( $self, "delete_archive" ) || return;
 
     my $redis = LANraragi::Model::Config->get_redis;
-    
+
     return unless exec_with_lock( $self, $redis, "archive-write:$id", "delete_archive", $id, sub {
         my $delStatus = LANraragi::Model::Archive::delete_archive($id);
 
@@ -297,7 +299,7 @@ sub delete_archive {
             json => {
                 operation => "delete_archive",
                 id        => $id,
-                filename  => $delStatus,
+                filename  => decode_utf8($delStatus),
                 success   => $delStatus eq "0" ? 0 : 1
             }
         );
@@ -313,7 +315,7 @@ sub update_metadata {
     my $summary = $self->req->param('summary');
 
     my $redis = LANraragi::Model::Config->get_redis;
-    
+
     return unless exec_with_lock( $self, $redis, "archive-write:$id", "update_metadata", $id, sub {
         my $err = LANraragi::Model::Archive::update_metadata( $id, $title, $tags, $summary );
 

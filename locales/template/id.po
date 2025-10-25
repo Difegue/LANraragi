@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-26 06:02+0200\n"
-"PO-Revision-Date: 2025-08-14 01:02+0000\n"
+"PO-Revision-Date: 2025-09-24 00:02+0000\n"
 "Last-Translator: Slasar41 <agungtrianto41@outlook.com>\n"
 "Language-Team: Indonesian <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/id/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.13-dev\n"
+"X-Generator: Weblate 5.14-dev\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -1851,3 +1851,24 @@ msgstr "Tautan berhasil disalin."
 
 msgid "Copy failed."
 msgstr "Gagal menyalin."
+
+msgid "N: toggle auto next page"
+msgstr "N: aktifkan halaman berikutnya otomatis"
+
+msgid "Auto next page interval in seconds"
+msgstr "Jeda halaman berikutnya otomatis dalam detik"
+
+msgid "The default is 10 seconds."
+msgstr "Asalinya 10 detik."
+
+msgid "Auto Next Page"
+msgstr "Halaman Berikutnya Otomatis"
+
+msgid "Starting auto next page failed!"
+msgstr "Gagal memulai halaman berikutnya otomatis!"
+
+msgid "Please set the auto next page interval to a positive number."
+msgstr "Harap atur jeda halaman berikutnya otomatis ke angka positif."
+
+msgid "The maximum value allowed is 4GB."
+msgstr "Nilai maksimum yang diizinkan adalah 4GB."

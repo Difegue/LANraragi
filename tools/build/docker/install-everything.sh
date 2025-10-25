@@ -66,7 +66,7 @@ if [ -f /etc/alpine-release ]; then
 
     else 
       # Those packages either don't exist on 3.12 or aren't necessary with the local perl rebuild
-      apk add perl perl-io-socket-ssl perl-dev s6-overlay libjxl imagemagick-perlmagick nodejs npm
+      apk add perl perl-io-socket-ssl perl-dev s6-overlay libjxl imagemagick-perlmagick nodejs npm vips
 
       # Install cpanm
       curl -L https://cpanmin.us | perl - App::cpanminus

@@ -16,6 +16,8 @@ my $cwd     = getcwd();
 my $SAMPLES = "$cwd/tests/samples";
 require "$cwd/tests/mocks.pl";
 
+setup_redis_mock();
+
 use_ok('LANraragi::Plugin::Metadata::Ksk');
 
 note("test not assuming language");

@@ -8,7 +8,6 @@ use warnings;
 use utf8;
 
 use Cwd 'abs_path';
-use Redis;
 use Time::HiRes qw(usleep);
 use File::Path  qw(remove_tree);
 use File::Basename;
@@ -21,8 +20,10 @@ use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Archive    qw(extract_single_file extract_single_file extract_thumbnail);
 use LANraragi::Utils::Database
-  qw(redis_encode redis_decode invalidate_cache set_title set_tags set_summary get_archive_json get_archive_json_multi);
+  qw(invalidate_cache set_title set_tags set_summary get_archive_json get_archive_json_multi);
 use LANraragi::Utils::PageCache  qw(fetch put);
+use LANraragi::Utils::Redis      qw(redis_decode redis_encode);
+use LANraragi::Utils::Path       qw(create_path unlink_path);
 
 # get_title(id)
 #   Returns the title for the archive matching the given id.
@@ -268,7 +269,9 @@ sub serve_page {
 
         # resize_image always converts the image to jpg
         $self->render_file(
-            data => $content
+            data                => $content,
+            content_disposition => "inline",
+            format              => "jpg"
         );
     } else {
 
@@ -278,8 +281,9 @@ sub serve_page {
         $logger->debug("Data size:".length($content));
         # Serve extracted file directly
         $self->render_file(
-            data   => $content,
-            format => substr( $file_ext, 1 )
+            data                => $content,
+            content_disposition => "inline",
+            format              => substr( $file_ext, 1 )
         );
     }
 }
@@ -318,7 +322,7 @@ sub update_metadata {
 sub delete_archive ($id) {
 
     my $redis    = LANraragi::Model::Config->get_redis;
-    my $filename = $redis->hget( $id, "file" );
+    my $filename = create_path( $redis->hget( $id, "file" ) );
     my $oldtags  = $redis->hget( $id, "tags" );
     $oldtags = redis_decode($oldtags);
 
@@ -351,7 +355,7 @@ sub delete_archive ($id) {
     LANraragi::Utils::Database::update_indexes( $id, $oldtags, "" );
 
     if ( -e $filename ) {
-        my $status = unlink $filename;
+        my $status = unlink_path( $filename );
 
         my $thumbdir  = LANraragi::Model::Config->get_thumbdir;
         my $subfolder = substr( $id, 0, 2 );

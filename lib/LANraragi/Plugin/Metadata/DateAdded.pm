@@ -9,6 +9,7 @@ use Mojo::UserAgent;
 
 use LANraragi::Model::Plugins;
 use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Utils::Path    qw(date_modified);
 
 #Meta-information about your plugin.
 sub plugin_info {
@@ -51,7 +52,7 @@ sub get_tags {
 
     if ( $oneshot_file_time || ( $use_filetime && !$oneshot_current_time ) ) {
         $logger->info("Using file date");
-        $newtags = "date_added:" . ( stat( $lrr_info->{file_path} ) )[9];    #9 is the unix time stamp for date modified.
+        $newtags = "date_added:" . date_modified( $lrr_info->{file_path} );
     } else {
         $logger->info("Using current date");
         $newtags = "date_added:" . time();

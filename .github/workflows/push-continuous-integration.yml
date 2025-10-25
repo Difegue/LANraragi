@@ -17,3 +17,105 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
           args: ./lib/* ./script/* ./tools/install.pl
+
+  integrationTestsDocker:
+    name: Run Docker Integration Tests
+    runs-on: ubuntu-latest
+    needs: testSuite
+    steps:
+      - name: Checkout LANraragi repository
+        uses: actions/checkout@v4
+        with:
+          path: lanraragi
+      - name: Checkout aio-lanraragi integration tests
+        uses: actions/checkout@v4
+        with:
+          repository: psilabs-dev/aio-lanraragi
+          ref: a6b6780fe89698a133c0f5561f60a55ab0f75dcb
+          path: aio-lanraragi
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install aio-lanraragi package
+        run: |
+          cd aio-lanraragi
+          python -m pip install --upgrade pip
+          pip install ".[dev]"
+      - name: Install integration test dependencies
+        run: |
+          cd aio-lanraragi/integration_tests
+          pip install .
+      - name: Run integration tests against local LANraragi build
+        run: |
+          cd aio-lanraragi/integration_tests
+          export CI=true
+          pytest tests --log-cli-level=INFO \
+            --build "$GITHUB_WORKSPACE/lanraragi" \
+            --docker-api \
+            --npseed 42
+        env:
+          DOCKER_HOST: unix:///var/run/docker.sock
+
+  integrationTestsWindows:
+    name: Run Windows Integration Tests
+    runs-on: windows-2025
+    needs: testSuite
+    steps:
+      - name: Checkout LANraragi repository
+        uses: actions/checkout@v4
+        with:
+          path: lanraragi
+      - name: Setup MSYS2 UCRT64
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+      - name: Install deps
+        shell: msys2 {0}
+        working-directory: LANraragi
+        run: |
+          ./tools/build/windows/install-deps.sh
+      - name: Build
+        shell: msys2 {0}
+        working-directory: LANraragi
+        run: |
+          ./tools/build/windows/install.sh
+          ./tools/build/windows/cleanup.sh
+          ./tools/build/windows/create-dist.sh
+      - name: Enable UTF-8
+        working-directory: LANraragi
+        run: |
+          ./tools/build/windows/utf8-support.ps1
+      - name: Checkout aio-lanraragi integration tests
+        uses: actions/checkout@v4
+        with:
+          repository: psilabs-dev/aio-lanraragi
+          ref: a6b6780fe89698a133c0f5561f60a55ab0f75dcb
+          path: aio-lanraragi
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install main package (aio-lanraragi)
+        working-directory: aio-lanraragi
+        run: |
+          python -m pip install --upgrade pip
+          pip install ".[dev]"
+      - name: Install integration test dependencies
+        working-directory: aio-lanraragi/integration_tests
+        run: |
+          pip install .
+      - name: Create staging directory
+        run: |
+          New-Item -ItemType Directory -Path "$env:GITHUB_WORKSPACE\staging" -Force | Out-Null
+      - name: Run integration tests against local LANraragi build
+        working-directory: aio-lanraragi/integration_tests
+        timeout-minutes: 30
+        run: |
+          $env:CI='true'
+          pytest tests `
+          --log-cli-level=INFO `
+          --windist "$env:GITHUB_WORKSPACE\LANraragi\win-dist" `
+          --staging "$env:GITHUB_WORKSPACE\staging" `
+          --npseed 42

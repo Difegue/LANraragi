@@ -25,14 +25,15 @@ BEGIN { unshift @INC, "$FindBin::Bin/../lib"; }
 
 use Mojolicious;    # Needed by Model::Config to read the Redis address/port.
 use File::ChangeNotify;
-use File::Find;
 use File::Basename;
 use Encode;
 
 use LANraragi::Utils::Archive    qw(extract_thumbnail);
-use LANraragi::Utils::Database   qw(redis_encode invalidate_cache compute_id change_archive_id);
+use LANraragi::Utils::Database   qw(invalidate_cache compute_id change_archive_id get_arcsize add_timestamp_tag add_archive_to_redis add_arcsize add_pagecount);
 use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Generic    qw(is_archive);
+use LANraragi::Utils::Redis      qw(redis_encode);
+use LANraragi::Utils::Path       qw(create_path open_path find_path);
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
@@ -47,13 +48,8 @@ my $logger = get_logger( "Shinobu", "shinobu" );
 #Subroutine for new and deleted files that takes inotify events
 my $inotifysub = sub {
     my $e    = shift;
-    my $name = $e->path;
+    my $name = create_path( $e->path );
     my $type = $e->type;
-
-    # Filewatcher on Windows returns backward slashes, convert them to forward slash to match everything else
-    if ( !IS_UNIX ) {
-        $name =~ s/\\/\//g;
-    }
 
     $logger->debug("Received inotify event $type on $name");
 
@@ -91,14 +87,22 @@ sub initialize_from_new_process {
     # manual event loop
     $logger->info("All done! Now dutifully watching your files. ");
 
-    while (1) {
+    my $running = 1;
+
+    while ($running) {
+        local $SIG{INT} = sub { $running = 0 };
 
         # Check events on files
         for my $event ( $contentwatcher->new_events ) {
             $inotifysub->($event);
         }
 
-        sleep 2;
+        sleep 1;
+    }
+
+    if ( !IS_UNIX ) {
+        # Cleanly shutdown filewatcher
+        $contentwatcher->dispose;
     }
 }
 
@@ -114,14 +118,12 @@ sub update_filemap {
     my @files;
 
     # Get all files in content directory and subdirectories.
-    find(
-        {   wanted => sub {
-                return if -d $_;    #Directories are excluded on the spot
-                return unless is_archive($_);
-                push @files, $_;    #Push files to array
-            },
-            no_chdir    => 1,
-            follow_fast => 1
+    find_path(
+        sub {
+            $_ = create_path($_);
+            return if -d $_;    #Directories are excluded on the spot
+            return unless is_archive($_);
+            push @files, $_;    #Push files to array
         },
         $dirname
     );
@@ -152,6 +154,7 @@ sub update_filemap {
             mce_loop {
                 add_new_files(@{ $_ });
             } \@newfiles;
+            MCE::Loop->finish;
         } else {
             # libarchive does not support threading on Windows
             add_new_files(@newfiles);
@@ -174,7 +177,7 @@ sub add_to_filemap ( $redis_cfg, $file ) {
         #We have to wait before doing any form of calculation.
         while (1) {
             last unless -e $file;    # Sanity check to avoid sticking in this loop if the file disappears
-            last if open( my $handle, '<', $file );
+            last if open_path( my $handle, '<', $file );
             $logger->debug("Waiting for file to be openable");
             sleep(1);
         }
@@ -245,15 +248,15 @@ sub add_to_filemap ( $redis_cfg, $file ) {
                 invalidate_cache();
             }
 
-            unless ( LANraragi::Utils::Database::get_arcsize( $redis_arc, $id ) ) {
+            unless ( get_arcsize( $redis_arc, $id ) ) {
                 $logger->debug("arcsize is not set for $id, storing now!");
-                LANraragi::Utils::Database::add_arcsize( $redis_arc, $id );
+                add_arcsize( $redis_arc, $id );
             }
 
             # Set pagecount in case it's not already there
             unless ( $redis_arc->hget( $id, "pagecount" ) ) {
                 $logger->debug("Pagecount not calculated for $id, doing it now!");
-                LANraragi::Utils::Database::add_pagecount( $redis_arc, $id );
+                add_pagecount( $redis_arc, $id );
             }
 
         } else {
@@ -328,9 +331,9 @@ sub add_new_file ( $id, $file ) {
     $logger->info("Adding new file $file with ID $id");
 
     eval {
-        LANraragi::Utils::Database::add_archive_to_redis( $id, $file, $redis, $redis_search );
-        LANraragi::Utils::Database::add_timestamp_tag( $redis, $id );
-        LANraragi::Utils::Database::add_pagecount( $redis, $id );
+        add_archive_to_redis( $id, $file, $redis, $redis_search );
+        add_timestamp_tag( $redis, $id );
+        add_pagecount( $redis, $id );
 
         # Generate thumbnail
         my $thumbdir = LANraragi::Model::Config->get_thumbdir;

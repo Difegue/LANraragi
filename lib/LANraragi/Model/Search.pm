@@ -16,7 +16,7 @@ use Time::HiRes qw(time);
 
 use LANraragi::Utils::Generic  qw(intersect_arrays);
 use LANraragi::Utils::String   qw(trim);
-use LANraragi::Utils::Database qw(redis_decode redis_encode);
+use LANraragi::Utils::Redis    qw(redis_decode redis_encode);
 use LANraragi::Utils::Logging  qw(get_logger);
 
 use LANraragi::Model::Archive;
@@ -404,7 +404,7 @@ sub compute_search_filter ($filter) {
 }
 
 sub sort_results ( $sortkey, $sortorder, @filtered ) {
-    
+
     my $start_time = time();
     my $redis = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Search Sort", "lanraragi" );
@@ -438,7 +438,7 @@ LUA
         };
         if ($@) {
             $logger->error("Failed to load Lua script: $@");
-            # Fallback to running individual hget operations for each ID 
+            # Fallback to running individual hget operations for each ID
             %tmpfilter = map { $_ => $redis->hget( $_, "lastreadtime" ) } @filtered;
         } else {
             my $result = $redis->evalsha($sha, 0, @filtered);

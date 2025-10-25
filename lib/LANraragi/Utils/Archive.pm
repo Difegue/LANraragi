@@ -2,6 +2,7 @@ package LANraragi::Utils::Archive;
 
 use v5.36;
 use experimental 'try';
+use feature 'state';
 
 use strict;
 use warnings;
@@ -26,9 +27,12 @@ use File::Temp qw(tempdir);
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Generic    qw(is_image shasum_str);
+use LANraragi::Utils::Redis      qw(redis_decode);
+use LANraragi::Utils::Path       qw(create_path);
+use LANraragi::Utils::Resizer    qw(get_resizer);
 
 # Utilitary functions for handling Archives.
-# Relies on Libarchive, ImageMagick and GhostScript for PDFs.
+# Relies on Libarchive (for zip, cbz) and GhostScript (for PDFs).
 use Exporter 'import';
 our @EXPORT_OK =
   qw(is_file_in_archive extract_file_from_archive extract_single_file extract_thumbnail generate_thumbnail get_filelist);
@@ -38,49 +42,21 @@ sub is_pdf {
     return ( $suffix eq ".pdf" );
 }
 
-# use ImageMagick to make a thumbnail, height = 500px (view in index is 280px tall)
-# If use_hq is true, the scale algorithm will be used instead of sample.
+# use a resizer to make a thumbnail, height = 500px (view in index is 280px tall)
+# If use_hq is true, highest-quality resizing will be used (if the resizer support different quality levels).
 # If use_jxl is true, JPEG XL will be used instead of JPEG.
 sub generate_thumbnail ( $data, $thumb_path, $use_hq, $use_jxl ) {
+    my $quality = 50;
+    $quality = 80 if $use_hq;
 
-    no warnings 'experimental::try';
-    my $img = undef;
-    try {
-        require Image::Magick;
-        $img = Image::Magick->new;
-
-        my $format = $use_jxl ? 'jxl' : 'jpg';
-
-        # For JPEG, the size option (or jpeg:size option) provides a hint to the JPEG decoder
-        # that it can reduce the size on-the-fly during decoding. This saves memory because
-        # it never has to allocate memory for the full-sized image
-        if ( $format eq 'jpg' ) {
-            $img->Set( option => 'jpeg:size=500x' );
-        }
-
-        $img->BlobToImage($data);
-
-        # Only use the first frame (relevant for animated gif/webp/whatever)
-        $img = $img->[0];
-
-        # The "-scale" resize operator is a simplified, faster form of the resize command.
-        if ($use_hq) {
-            $img->Scale( geometry => '500x1000' );
-        } else {    # Sample is very fast due to not applying filters.
-            $img->Sample( geometry => '500x1000' );
-        }
-
-        $img->Set( quality => "50", magick => $format );
-        $img->Write($thumb_path);
-    } catch ($e) {
-
-        # Magick is unavailable, do nothing
+    my $resized = get_resizer()->resize_thumbnail( $data, $quality, $use_hq, $use_jxl?"jxl":"jpg");
+    if (defined($resized)) {
+        open my $fh, '>:raw', $thumb_path or die;
+        print $fh $resized;
+        close($resized);
+    } else {
         my $logger = get_logger( "Archive", "lanraragi" );
-        $logger->debug("ImageMagick is not available , skipping thumbnail generation: $e");
-    } finally {
-        if (defined($img)) {
-            undef $img;
-        }
+        $logger->debug("Couldn't create thumbnail!");
     }
 }
 
@@ -185,6 +161,9 @@ sub get_filelist ($archive) {
 
         # For pdfs, extraction returns images from 1.jpg to x.jpg, where x is the pdf pagecount.
         # Using -dNOSAFER or --permit-file-read is required since GS 9.50, see https://github.com/doxygen/doxygen/issues/7290
+
+        $archive = decode_utf8( $archive ); # Decode path before passing it to GhostScript
+
         my $pages = `gs -q -dNOSAFER -sDEVICE=jpeg -c "($archive) (r) file runpdfbegin pdfpagecount = quit"`;
         for my $num ( 1 .. $pages ) {
             push @files, "$num.jpg";
@@ -246,7 +225,7 @@ sub is_file_in_archive ( $archive, $wantedname ) {
     $logger->debug("Iterating files of archive $archive, looking for '$wantedname'");
     $Data::Dumper::Useqq = 1;
 
-    my $peek = Archive::Libarchive::Peek->new( filename => $archive );
+    my $peek = Archive::Libarchive::Peek->new( filename => create_path( $archive ) );
     my $found;
     my @files = $peek->files;
 
@@ -300,6 +279,11 @@ sub extract_single_file ( $archive, $filepath ) {
         $page =~ s/^(\d+).jpg$/$1/;
 
         my ( $fh, $outfile ) = tempfile();
+
+        # Decode path before passing it to GhostScript
+        $archive = decode_utf8( $archive );
+        $outfile = decode_utf8( $outfile );
+
         my $gscmd = "gs -dNOPAUSE -dFirstPage=$page -dLastPage=$page -sDEVICE=jpeg -r200 -o \"$outfile\" \"$archive\"";
         $logger->debug("Extracting page $filepath from PDF $archive");
         $logger->debug($gscmd);
@@ -309,11 +293,11 @@ sub extract_single_file ( $archive, $filepath ) {
     } else {
 
         my $contents = "";
-        my $peek     = Archive::Libarchive::Peek->new( filename => $archive );
+        my $peek     = Archive::Libarchive::Peek->new( filename => create_path( $archive ) );
         my @files    = $peek->files;
 
         for my $name (@files) {
-            my $decoded_name = LANraragi::Utils::Database::redis_decode($name);
+            my $decoded_name = redis_decode($name);
 
             # This sub can receive either encoded or raw filenames, so we have to test for both.
             if ( $decoded_name eq $filepath || $name eq $filepath ) {

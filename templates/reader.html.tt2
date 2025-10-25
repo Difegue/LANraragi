@@ -181,6 +181,7 @@
                 <li>[% c.lh("R: open a random archive.") %]</li>
                 <li>[% c.lh("F: toggle fullscreen mode") %]</li>
                 <li>[% c.lh("B: toggle bookmark") %]</li>
+                <li>[% c.lh("N: toggle auto next page") %]</li>
             </ul>
             <br>[% c.lh("To return to the archive index, touch the arrow pointing down or use Backspace.") %]
         </div>
@@ -266,6 +267,12 @@
     <input id="infinite-scroll-off" class="favtag-btn config-btn" type="button" value="[% c.lh('Disabled') %]">
 </div>
 
+<div id="auto-next-page">
+    <h2 class="config-panel"> [% c.lh("Auto next page interval in seconds") %]</h2>
+    <input id="auto-next-page-input" class="stdinput" style="display:inline" placeholder="[% c.lh('The default is 10 seconds.') %]">
+    <input id="auto-next-page-apply" class="favtag-btn config-btn" type="button" style="display:inline;" value="[% c.lh('Apply') %]">
+</div>
+
 [% END %]
 <!-- -->
 [% BLOCK arrows %]
@@ -291,6 +298,7 @@
 
 <div class="absolute-options absolute-right">
     <a class="fa fa-arrow-right fa-2x reading-direction" href="#" title="[% c.lh('Reading Direction') %]"></a>
+    <a class="fa fa-stopwatch fa-2x toggle-auto-next-page" href="#" title="[% c.lh('Auto Next Page') %]"></a>
     <a class="fa fa-th fa-2x" id="toggle-archive-overlay" href="#" title="[% c.lh('Archive Overview') %]"></a>
     <a class="fa fa-compress fa-2x" id="toggle-full-screen" href="#" title="[% c.lh('FullScreen') %]"></a>
 </div>

@@ -11,6 +11,11 @@ use Test::MockObject;
 
 use Data::Dumper;
 
+# Mock Redis
+my $cwd = getcwd;
+require $cwd . "/tests/mocks.pl";
+setup_redis_mock();
+
 use LANraragi::Model::Config;
 use LANraragi::Plugin::Login::EHentai;
 use LANraragi::Plugin::Metadata::EHentai;
@@ -20,10 +25,6 @@ use LANraragi::Plugin::Metadata::Eze;
 use LANraragi::Plugin::Metadata::Fakku;
 use LANraragi::Plugin::Metadata::Hitomi;
 
-# Mock Redis
-my $cwd = getcwd;
-require $cwd . "/tests/mocks.pl";
-setup_redis_mock();
 
 note("E-Hentai Tests");
 

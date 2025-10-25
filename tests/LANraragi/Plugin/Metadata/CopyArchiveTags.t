@@ -11,6 +11,7 @@ use Test::Trap;
 
 my $cwd = getcwd();
 require "$cwd/tests/mocks.pl";
+setup_redis_mock();
 
 require_ok('LANraragi::Plugin::Metadata::CopyArchiveTags');
 use_ok('LANraragi::Plugin::Metadata::CopyArchiveTags');

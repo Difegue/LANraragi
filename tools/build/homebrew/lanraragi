@@ -48,6 +48,11 @@ mkdir -p "${LRR_DATABASE_DIRECTORY}"
 mkdir -p "${LRR_LOG_DIRECTORY}"
 mkdir -p "${LRR_TEMP_DIRECTORY}"
 
+# macOS-specific fixes -- unsafe forking needs to be allowed or some metadata plugins crash on creation
+if [[ ${OSTYPE} == "darwin"* ]]; then
+  export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+fi
+
 # @INC export
 export PERL5LIB="${workdir}/lib/perl5"
 
