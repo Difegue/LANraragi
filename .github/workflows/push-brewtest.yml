@@ -10,7 +10,12 @@ jobs:
       run: |
         cd tools/build/homebrew
         brew tap-new difegue/lanraragi
+
         echo "Replacing commit hash in formula with current hash $(git rev-parse --verify HEAD)"
         sed -i.bck "s/COMMIT_HASH/$(git rev-parse --verify HEAD)/" Lanraragi.rb
-        brew install --force --verbose --tap=difegue/lanraragi --build-from-source Lanraragi.rb
-        brew test --verbose Lanraragi.rb
+
+        echo "Copying test formula to custom tap to allow installation"
+        cp Lanraragi.rb $(brew --repository)/Library/Taps/difegue/homebrew-lanraragi/Formula/
+
+        brew install --force --verbose --build-from-source difegue/lanraragi/lanraragi
+        brew test --verbose difegue/lanraragi/lanraragi
