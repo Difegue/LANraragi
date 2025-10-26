@@ -194,7 +194,7 @@ sub get_filelist ($archive) {
             }
 
             if ( is_appledouble_like_path( $filename ) ) {
-                if (is_appledouble_signature($peek_for_signatures, $filename) ) {
+                if (is_applefork_signature($peek_for_signatures, $filename) ) {
                     $r->read_data_skip;
                     next;
                 }
@@ -223,17 +223,17 @@ sub get_filelist ($archive) {
     return ( \@files, \@sizes );
 }
 
-# is_appledouble_signature(peek, path)
-# Uses libarchive::peek to check AppleDouble magic.
-# return 0 if not ignore, 1 if ignore.
-sub is_appledouble_signature ( $peek, $path ) {
+# is_applefork_signature(peek, path)
+# Uses libarchive::peek to check AppleDouble/AppleSingle magic.
+# Returns 1 if the file header matches a known Apple fork format, else 0.
+sub is_applefork_signature ( $peek, $path ) {
     my $logger = get_logger( "Archive", "lanraragi" );
     unless (defined $peek && defined $path) {
         $logger->warn("path or peek are undefined. Skipping.");
         return 0;
     }
 
-    $logger->info("Checking AppleDouble magic for: $path");
+    $logger->info("Checking Apple fork magic for: $path");
     my $data = eval {
         $peek->file($path)
     };
@@ -246,14 +246,24 @@ sub is_appledouble_signature ( $peek, $path ) {
         return 0;
     }
 
-    # is_appledouble_magic(prefix)
-    # AppleDouble header: 00 05 16 07 00 02 00 00
     my $prefix = substr($data, 0, 8);
-    if ( defined $prefix && length($prefix) >= 8 && $prefix eq "\x00\x05\x16\x07\x00\x02\x00\x00" ) {
+    return 0 unless defined $prefix && length($prefix) >= 8;
+
+    # https://ciderpress2.com/formatdoc/AppleSingle-notes.html
+    # AppleSingle: 00 05 16 00, AppleDouble: 00 05 16 07; both big-endian
+    my $is_applesingle = substr($prefix, 0, 4) eq "\x00\x05\x16\x00";
+    my $is_appledouble = substr($prefix, 0, 4) eq "\x00\x05\x16\x07";
+
+    if ($is_appledouble) {
         $logger->info("AppleDouble magic matched for $path");
         return 1;
     }
-    $logger->info("AppleDouble magic not matched for $path");
+    if ($is_applesingle) {
+        $logger->info("AppleSingle magic matched for $path");
+        return 1;
+    }
+
+    $logger->info("Apple fork magic not matched for $path");
     return 0;
 }
 
