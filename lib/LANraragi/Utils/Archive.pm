@@ -193,8 +193,8 @@ sub get_filelist ($archive) {
                 next;
             }
 
-            if ( is_appledouble_like_path( $filename ) ) {
-                if (is_applefork_signature($peek_for_signatures, $filename) ) {
+            if ( is_apple_signature_like_path( $filename ) ) {
+                if (is_apple_signature($peek_for_signatures, $filename) ) {
                     $r->read_data_skip;
                     next;
                 }
@@ -223,26 +223,26 @@ sub get_filelist ($archive) {
     return ( \@files, \@sizes );
 }
 
-# is_applefork_signature(peek, path)
+# is_apple_signature(peek, path)
 # Uses libarchive::peek to check AppleDouble/AppleSingle magic.
 # Returns 1 if the file header matches a known Apple fork format, else 0.
-sub is_applefork_signature ( $peek, $path ) {
+sub is_apple_signature ( $peek, $path ) {
     my $logger = get_logger( "Archive", "lanraragi" );
     unless (defined $peek && defined $path) {
         $logger->warn("path or peek are undefined. Skipping.");
         return 0;
     }
 
-    $logger->info("Checking Apple fork magic for: $path");
+    $logger->debug("Checking Apple fork magic for: $path");
     my $data = eval {
         $peek->file($path)
     };
     if (!$data) {
-        $logger->info("Peek returned no data for $path; not ignoring by signature");
+        $logger->debug("Peek returned no data for $path; not ignoring by signature");
         return 0;
     }
     if ( length($data) < 8 ) {
-        $logger->info("Data too short (<8 bytes) for $path; not ignoring by signature");
+        $logger->debug("Data too short (<8 bytes) for $path; not ignoring by signature");
         return 0;
     }
 
@@ -255,21 +255,21 @@ sub is_applefork_signature ( $peek, $path ) {
     my $is_appledouble = substr($prefix, 0, 4) eq "\x00\x05\x16\x07";
 
     if ($is_appledouble) {
-        $logger->info("AppleDouble magic matched for $path");
+        $logger->debug("AppleDouble magic matched for $path");
         return 1;
     }
     if ($is_applesingle) {
-        $logger->info("AppleSingle magic matched for $path");
+        $logger->debug("AppleSingle magic matched for $path");
         return 1;
     }
 
-    $logger->info("Apple fork magic not matched for $path");
+    $logger->debug("Apple fork magic not matched for $path");
     return 0;
 }
 
 
 # check if image file is garbage or should be ignored.
-sub is_appledouble_like_path ( $path ) {
+sub is_apple_signature_like_path ( $path ) {
     my $p = $path // '';
     return 1 if $p =~ m{(^|/)__MACOSX/};
     my ( $name ) = fileparse( $p );
