@@ -286,6 +286,11 @@ p#nb {
   color: lightskyblue;
 }
 
+.quick-thumbnail {
+    /** This is only intended as a hint to allow loading="lazy" to do it's thing */
+    min-width: 100px;
+}
+
 .quick-thumbnail:hover>.page-number {
   z-index: 300;
   background-color: #000000;
