@@ -182,14 +182,26 @@ sub get_filelist ($archive) {
         }
 
         my $e = Archive::Libarchive::Entry->new;
+        my $peek_for_signatures = Archive::Libarchive::Peek->new( filename => create_path( $archive ) );
         while ( $r->next_header($e) == ARCHIVE_OK ) {
 
             my $filesize = ( $e->size_is_set eq 64 ) ? $e->size : 0;
             my $filename = $e->pathname;
-            if ( is_image($filename) ) {
-                push @files, $filename;
-                push @sizes, $filesize;
+
+            unless ( is_image($filename) ) {
+                $r->read_data_skip;
+                next;
             }
+
+            if ( is_appledouble_like_path( $filename ) ) {
+                if (is_appledouble_signature($peek_for_signatures, $filename) ) {
+                    $r->read_data_skip;
+                    next;
+                }
+            }
+
+            push @files, $filename;
+            push @sizes, $filesize;
             $r->read_data_skip;
         }
 
@@ -209,6 +221,50 @@ sub get_filelist ($archive) {
 
     # Return files and sizes in a hashref
     return ( \@files, \@sizes );
+}
+
+# is_appledouble_signature(peek, path)
+# Uses libarchive::peek to check AppleDouble magic.
+# return 0 if not ignore, 1 if ignore.
+sub is_appledouble_signature ( $peek, $path ) {
+    my $logger = get_logger( "Archive", "lanraragi" );
+    unless (defined $peek && defined $path) {
+        $logger->warn("path or peek are undefined. Skipping.");
+        return 0;
+    }
+
+    $logger->info("Checking AppleDouble magic for: $path");
+    my $data = eval {
+        $peek->file($path)
+    };
+    if (!$data) {
+        $logger->info("Peek returned no data for $path; not ignoring by signature");
+        return 0;
+    }
+    if ( length($data) < 8 ) {
+        $logger->info("Data too short (<8 bytes) for $path; not ignoring by signature");
+        return 0;
+    }
+
+    # is_appledouble_magic(prefix)
+    # AppleDouble header: 00 05 16 07 00 02 00 00
+    my $prefix = substr($data, 0, 8);
+    if ( defined $prefix && length($prefix) >= 8 && $prefix eq "\x00\x05\x16\x07\x00\x02\x00\x00" ) {
+        $logger->info("AppleDouble magic matched for $path");
+        return 1;
+    }
+    $logger->info("AppleDouble magic not matched for $path");
+    return 0;
+}
+
+
+# check if image file is garbage or should be ignored.
+sub is_appledouble_like_path ( $path ) {
+    my $p = $path // '';
+    return 1 if $p =~ m{(^|/)__MACOSX/};
+    my ( $name ) = fileparse( $p );
+    return 1 if defined $name && $name =~ /^\._/;
+    return 0;
 }
 
 # Uses libarchive::peek to figure out if $archive contains $file.
