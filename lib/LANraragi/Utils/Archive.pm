@@ -137,7 +137,13 @@ sub extract_thumbnail ( $thumbdir, $id, $page, $set_cover, $use_hq ) {
     }
 
     # Thumbnail generation
-    generate_thumbnail( $arcimg, $thumbname, $use_hq, $use_jxl );
+    no warnings 'experimental::try';
+    try {
+        generate_thumbnail( $arcimg, $thumbname, $use_hq, $use_jxl );
+    } catch ($e) {
+        $logger->error("Thumbnail generation failed for archive '$file' entry '$requested_image' -> '$thumbname': $e");
+        die $e;
+    }
 
     return $thumbname;
 }
