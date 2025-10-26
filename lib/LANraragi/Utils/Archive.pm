@@ -181,8 +181,8 @@ sub get_filelist ($archive) {
             die $r->error_string;
         }
 
-        my $e = Archive::Libarchive::Entry->new;
-        my $peek_for_signatures = Archive::Libarchive::Peek->new( filename => create_path( $archive ) );
+        my $e       = Archive::Libarchive::Entry->new;
+        my $peek    = Archive::Libarchive::Peek->new( filename => create_path( $archive ) );
         while ( $r->next_header($e) == ARCHIVE_OK ) {
 
             my $filesize = ( $e->size_is_set eq 64 ) ? $e->size : 0;
@@ -194,7 +194,7 @@ sub get_filelist ($archive) {
             }
 
             if ( is_apple_signature_like_path( $filename ) ) {
-                if (is_apple_signature($peek_for_signatures, $filename) ) {
+                if (is_apple_signature($peek, $filename) ) {
                     $r->read_data_skip;
                     next;
                 }
