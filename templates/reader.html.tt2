@@ -58,7 +58,7 @@
             </div>
 
             <a id="display">
-                <img id="img" class="reader-image" src=""><img id="img_doublepage" class="reader-image" src="">
+                <img id="img" class="reader-image" src="" fetchpriority="high"><img id="img_doublepage" class="reader-image" src="" fetchpriority="high">
             </a>
 
         </div>
