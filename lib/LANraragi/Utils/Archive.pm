@@ -49,8 +49,8 @@ sub generate_thumbnail ( $data, $thumb_path, $use_hq, $use_jxl ) {
     my $quality = 50;
     $quality = 80 if $use_hq;
 
-    my $resized = get_resizer()->resize_thumbnail( $data, $quality, $use_hq, $use_jxl?"jxl":"jpg");
-    if (defined($resized)) {
+    my $resized = get_resizer()->resize_thumbnail( $data, $quality, $use_hq, $use_jxl ? "jxl" : "jpg" );
+    if ( defined($resized) ) {
         open my $fh, '>:raw', $thumb_path or die;
         print $fh $resized;
         close($resized);
@@ -106,17 +106,14 @@ sub extract_thumbnail ( $thumbdir, $id, $page, $set_cover, $use_hq ) {
     my $file  = $redis->hget( $id, "file" );
 
     # Get first image from archive using filelist
-    my ( $images, $sizes ) = get_filelist($file);
-
-    # Dereference arrays
-    my @filelist        = @$images;
+    my @filelist        = get_filelist($file);
     my $requested_image = $filelist[ $page > 0 ? $page - 1 : 0 ];
 
     die "Requested image not found: $id page $page" unless $requested_image;
     $logger->debug("Extracting thumbnail for $id page $page from $requested_image");
 
     # Extract requested image to temp dir if it doesn't already exist
-    my $arcimg       = extract_single_file( $file, $requested_image );
+    my $arcimg = extract_single_file( $file, $requested_image );
 
     my $thumbname;
     unless ($set_cover) {
@@ -161,19 +158,17 @@ sub get_filelist ($archive) {
     my $logger = get_logger( "Archive", "lanraragi" );
 
     my @files = ();
-    my @sizes = ();
 
     if ( is_pdf($archive) ) {
 
         # For pdfs, extraction returns images from 1.jpg to x.jpg, where x is the pdf pagecount.
         # Using -dNOSAFER or --permit-file-read is required since GS 9.50, see https://github.com/doxygen/doxygen/issues/7290
 
-        $archive = decode_utf8( $archive ); # Decode path before passing it to GhostScript
+        $archive = decode_utf8($archive);    # Decode path before passing it to GhostScript
 
         my $pages = `gs -q -dNOSAFER -sDEVICE=jpeg -c "($archive) (r) file runpdfbegin pdfpagecount = quit"`;
         for my $num ( 1 .. $pages ) {
             push @files, "$num.jpg";
-            push @sizes, 0;
         }
     } else {
 
@@ -198,16 +193,15 @@ sub get_filelist ($archive) {
                 next;
             }
 
-            if ( is_apple_signature_like_path( $filename ) ) {
-                my $peek = Archive::Libarchive::Peek->new( filename => create_path( $archive ) );
-                if (is_apple_signature($peek, $filename) ) {
+            if ( is_apple_signature_like_path($filename) ) {
+                my $peek = Archive::Libarchive::Peek->new( filename => create_path($archive) );
+                if ( is_apple_signature( $peek, $filename ) ) {
                     $r->read_data_skip;
                     next;
                 }
             }
 
             push @files, $filename;
-            push @sizes, $filesize;
             $r->read_data_skip;
         }
 
@@ -225,8 +219,8 @@ sub get_filelist ($archive) {
     my @other_pages = grep { !$credit_hash{$_} && !$cover_hash{$_} } @files;
     @files = ( @cover_pages, @other_pages, @credit_pages );
 
-    # Return files and sizes in a hashref
-    return ( \@files, \@sizes );
+    # Return files
+    return @files;
 }
 
 # is_apple_signature(peek, path)
@@ -234,16 +228,14 @@ sub get_filelist ($archive) {
 # Returns 1 if the file header matches a known Apple fork format, else 0.
 sub is_apple_signature ( $peek, $path ) {
     my $logger = get_logger( "Archive", "lanraragi" );
-    unless (defined $peek && defined $path) {
+    unless ( defined $peek && defined $path ) {
         $logger->warn("path or peek are undefined. Skipping.");
         return 0;
     }
 
     $logger->debug("Checking Apple fork magic for: $path");
-    my $data = eval {
-        $peek->file($path)
-    };
-    if (!$data) {
+    my $data = eval { $peek->file($path) };
+    if ( !$data ) {
         $logger->debug("Peek returned no data for $path; not ignoring by signature");
         return 0;
     }
@@ -252,13 +244,13 @@ sub is_apple_signature ( $peek, $path ) {
         return 0;
     }
 
-    my $prefix = substr($data, 0, 8);
+    my $prefix = substr( $data, 0, 8 );
     return 0 unless defined $prefix && length($prefix) >= 8;
 
     # https://ciderpress2.com/formatdoc/AppleSingle-notes.html
     # AppleSingle: 00 05 16 00, AppleDouble: 00 05 16 07; both big-endian
-    my $is_applesingle = substr($prefix, 0, 4) eq "\x00\x05\x16\x00";
-    my $is_appledouble = substr($prefix, 0, 4) eq "\x00\x05\x16\x07";
+    my $is_applesingle = substr( $prefix, 0, 4 ) eq "\x00\x05\x16\x00";
+    my $is_appledouble = substr( $prefix, 0, 4 ) eq "\x00\x05\x16\x07";
 
     if ($is_appledouble) {
         $logger->debug("AppleDouble magic matched for $path");
@@ -273,12 +265,11 @@ sub is_apple_signature ( $peek, $path ) {
     return 0;
 }
 
-
 # check if image file is garbage or should be ignored.
-sub is_apple_signature_like_path ( $path ) {
+sub is_apple_signature_like_path ($path) {
     my $p = $path // '';
     return 1 if $p =~ m{(^|/)__MACOSX/};
-    my ( $name ) = fileparse( $p );
+    my ($name) = fileparse($p);
     return 1 if defined $name && $name =~ /^\._/;
     return 0;
 }
@@ -297,7 +288,7 @@ sub is_file_in_archive ( $archive, $wantedname ) {
     $logger->debug("Iterating files of archive $archive, looking for '$wantedname'");
     $Data::Dumper::Useqq = 1;
 
-    my $peek = Archive::Libarchive::Peek->new( filename => create_path( $archive ) );
+    my $peek = Archive::Libarchive::Peek->new( filename => create_path($archive) );
     my $found;
     my @files = $peek->files;
 
@@ -353,8 +344,8 @@ sub extract_single_file ( $archive, $filepath ) {
         my ( $fh, $outfile ) = tempfile();
 
         # Decode path before passing it to GhostScript
-        $archive = decode_utf8( $archive );
-        $outfile = decode_utf8( $outfile );
+        $archive = decode_utf8($archive);
+        $outfile = decode_utf8($outfile);
 
         my $gscmd = "gs -dNOPAUSE -dFirstPage=$page -dLastPage=$page -sDEVICE=jpeg -r200 -o \"$outfile\" \"$archive\"";
         $logger->debug("Extracting page $filepath from PDF $archive");
@@ -365,7 +356,7 @@ sub extract_single_file ( $archive, $filepath ) {
     } else {
 
         my $contents = "";
-        my $peek     = Archive::Libarchive::Peek->new( filename => create_path( $archive ) );
+        my $peek     = Archive::Libarchive::Peek->new( filename => create_path($archive) );
         my @files    = $peek->files;
 
         for my $name (@files) {

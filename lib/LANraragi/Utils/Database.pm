@@ -14,7 +14,7 @@ use File::Basename;
 use Redis;
 use Cwd;
 use Unicode::Normalize;
-use List::Util qw(max);
+use List::Util      qw(max);
 use List::MoreUtils qw(uniq);
 
 use LANraragi::Utils::Generic qw(flat);
@@ -62,7 +62,7 @@ sub add_archive_to_redis ( $id, $file, $redis, $redis_search ) {
     set_title( $id, LANraragi::Utils::Redis::redis_decode($name) );
 
     # New archives can't be in a tank, so add them to the search set by default
-    $redis_search->sadd( "LRR_TANKGROUPED",  $id );
+    $redis_search->sadd( "LRR_TANKGROUPED", $id );
 
     # New file in collection, so this flag is set.
     set_isnew( $id, "true" );
@@ -138,9 +138,8 @@ sub add_pagecount ( $redis, $id ) {
 
     my $logger = get_logger( "Archive", "lanraragi" );
 
-    my $file = $redis->hget( $id, "file" );
-    my ( $images, $sizes ) = get_filelist($file);
-    my @images = @$images;
+    my $file   = $redis->hget( $id, "file" );
+    my @images = get_filelist($file);
     $redis->hset( $id, "pagecount", scalar @images );
 }
 
@@ -162,7 +161,7 @@ sub get_archive_json ( $redis, $id ) {
         #Extra check in case we've been given a bogus ID
         die unless $redis->exists($id);
 
-        if ($id =~ /^TANK/) {
+        if ( $id =~ /^TANK/ ) {
 
             $arcdata = build_tank_json($id);
         } else {
@@ -185,8 +184,10 @@ sub get_archive_json_multi (@ids) {
     eval {
         $redis->multi;
         foreach my $id (@ids) {
+
             # Tanks can be mixed in with search results, and need to be handled differently than archive hashes.
-            if ($id =~ /^TANK/) {
+            if ( $id =~ /^TANK/ ) {
+
                 # Just get the name -- We'll have to call the tank API afterwards to get full data anyway.
                 $redis->zrangebyscore( $id, 0, 0, qw{LIMIT 0 1} );
             } else {
@@ -206,7 +207,7 @@ sub get_archive_json_multi (@ids) {
         my $id   = $ids[$i];
         my $arcdata;
 
-        if ($id =~ /^TANK/) {
+        if ( $id =~ /^TANK/ ) {
             $arcdata = build_tank_json($id);
         } else {
             $arcdata = build_json( $id, %hash );
@@ -233,7 +234,7 @@ sub build_json ( $id, %hash ) {
     my ( $name, $title, $tags, $summary, $file, $isnew, $progress, $pagecount, $lastreadtime, $arcsize ) =
       @hash{qw(name title tags summary file isnew progress pagecount lastreadtime arcsize)};
 
-    $file = create_path( $file );
+    $file = create_path($file);
 
     # Return undef if the file doesn't exist.
     return unless ( defined($file) && -e $file );
@@ -264,26 +265,26 @@ sub build_json ( $id, %hash ) {
 }
 
 # Ditto for Tank IDs.
-sub build_tank_json($id) {
-    my %tank = LANraragi::Model::Tankoubon::get_tankoubon($id, 1);
+sub build_tank_json ($id) {
+    my %tank = LANraragi::Model::Tankoubon::get_tankoubon( $id, 1 );
 
     # Aggregate data of all archives in the tank
-    my $aggregate_tags = "";
-    my $aggregate_names = "";
-    my $aggregate_isnew = 0;
-    my $aggregate_progress = 0;
+    my $aggregate_tags      = "";
+    my $aggregate_names     = "";
+    my $aggregate_isnew     = 0;
+    my $aggregate_progress  = 0;
     my $aggregate_pagecount = 0;
-    my $latest_readtime = 0;
-    my $aggregate_size = 0;
+    my $latest_readtime     = 0;
+    my $aggregate_size      = 0;
 
-    foreach my $archive_info (@{$tank{full_data}}) {
-        $aggregate_tags .= %$archive_info{tags} . ",";
+    foreach my $archive_info ( @{ $tank{full_data} } ) {
+        $aggregate_tags  .= %$archive_info{tags} . ",";
         $aggregate_names .= %$archive_info{title} . ",";
-        $aggregate_isnew = $aggregate_isnew || %$archive_info{isnew};
-        $aggregate_progress = $aggregate_progress + %$archive_info{progress};
+        $aggregate_isnew     = $aggregate_isnew || %$archive_info{isnew};
+        $aggregate_progress  = $aggregate_progress + %$archive_info{progress};
         $aggregate_pagecount = $aggregate_pagecount + %$archive_info{pagecount};
-        $aggregate_size = $aggregate_size + %$archive_info{size};
-        $latest_readtime = max($latest_readtime, %$archive_info{lastreadtime});
+        $aggregate_size      = $aggregate_size + %$archive_info{size};
+        $latest_readtime     = max( $latest_readtime, %$archive_info{lastreadtime} );
     }
 
     chop $aggregate_tags;
