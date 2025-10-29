@@ -31,6 +31,15 @@ IndexTable.initializeAll = function () {
         IndexTable.currentSearch = $(e.target).attr("search");
         IndexTable.doSearch();
     });
+    
+    // Add click handler for datatables items to mark them as datatables navigation
+    // Exclude any elements that are inside .swiper-wrapper (carousel)
+    $(document).on("click", "a[href*='/reader?id=']", function() {
+        if ($(this).closest(".swiper-wrapper").length > 0) {
+            return;
+        }
+        sessionStorage.setItem('navigationState', 'datatables');
+    });
 
     // Add a listen event to window.popstate to update the search accordingly
     // if the user goes back using browser history
@@ -64,6 +73,9 @@ IndexTable.initializeAll = function () {
     columns.push({
         data: "tags", className: "tags itd", name: "tags", orderable: false, render: IndexTable.renderTags,
     });
+
+    // Store the page size in localStorage for use in the reader
+    localStorage.setItem('datatablesPageSize', Index.pageSize.toString());
 
     // Datatables configuration
     IndexTable.dataTable = $(".datatables").DataTable({
@@ -104,6 +116,10 @@ IndexTable.doSearch = function (page) {
     // Add the selected category to the tags column so it's picked up by the search engine
     // This allows for the regular search bar to be used in conjunction with categories.
     IndexTable.dataTable.column(".tags.itd").search(Index.selectedCategory);
+
+    // Store search parameters in localStorage for archive navigation
+    localStorage.setItem('currentSearch', IndexTable.currentSearch);
+    localStorage.setItem('selectedCategory', Index.selectedCategory);
 
     // Update search input field
     $("#search-input").val(IndexTable.currentSearch);
@@ -268,6 +284,20 @@ IndexTable.drawCallback = function () {
         } else {
             $(".itg").show();
         }
+
+        // Store archive IDs in localStorage in the order they appear in the table
+        const archiveIds = [];
+        const archives = IndexTable.dataTable.rows().data();
+        for (let i = 0; i < archives.length; i++) {
+            archiveIds.push(archives[i].arcid);
+        }
+        localStorage.setItem('currArchiveIds', JSON.stringify(archiveIds));
+        localStorage.setItem('currDatatablesPage', pageInfo.page + 1);
+        
+        // Clear previous/next archive IDs when changing pages manually
+        // to avoid navigation issues when using the browser back button
+        localStorage.removeItem('previousArchiveIds');
+        localStorage.removeItem('nextArchiveIds');
 
         // Update url to contain all search parameters, and push it to the history
         if (IndexTable.isComingFromPopstate) {

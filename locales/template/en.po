@@ -947,6 +947,15 @@ msgstr "Your keyboard arrows (and the spacebar)"
 msgid "Touching the left/right side of the image."
 msgstr "Touching the left/right side of the image."
 
+msgid "When reading an archive from search results, you can also navigate between archives using:"
+msgstr "When reading an archive from search results, you can also navigate between archives using:"
+
+msgid "The square bracket keys"
+msgstr "The square bracket keys"
+
+msgid "Reading past the first/last page"
+msgstr "Reading past the first/last page"
+
 msgid "Other keyboard shortcuts:"
 msgstr "Other keyboard shortcuts:"
 
@@ -967,6 +976,9 @@ msgstr "R: open a random archive."
 
 msgid "F: toggle fullscreen mode"
 msgstr "F: toggle fullscreen mode"
+
+msgid "shift+L/R: go to first page/last page"
+msgstr "shift+L/R: go to first page/last page"
 
 msgid "B: toggle bookmark"
 msgstr "B: toggle bookmark"

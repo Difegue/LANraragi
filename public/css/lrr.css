@@ -834,3 +834,28 @@ div.fullscreen img {
 body.infinite-scroll .fullscreen-infinite img {
   margin: 0 auto !important;
 }
+
+/* Prevent absolute options from blocking the paginator */
+@media (max-width: 768px) {
+  .absolute-options {
+    position: fixed !important;
+    z-index: 100;
+  }
+  
+  .absolute-left {
+    bottom: 15px !important;
+    left: 10px !important;
+    top: auto !important;
+  }
+  
+  .absolute-right {
+    bottom: 15px !important;
+    right: 10px !important;
+    top: auto !important;
+  }
+  
+  /* Ensure the paginator isn't blocked */
+  .sn {
+    margin-bottom: 60px !important;
+  }
+}
