@@ -31,7 +31,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: psilabs-dev/aio-lanraragi
-          ref: a6b6780fe89698a133c0f5561f60a55ab0f75dcb
+          ref: 328c792313f24d667c73377fd67aadfa7df72d26
           path: aio-lanraragi
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -46,12 +46,14 @@ jobs:
         run: |
           cd aio-lanraragi/integration_tests
           pip install .
+          playwright install
       - name: Run integration tests against local LANraragi build
         run: |
           cd aio-lanraragi/integration_tests
           export CI=true
           pytest tests --log-cli-level=INFO \
             --build "$GITHUB_WORKSPACE/lanraragi" \
+            --playwright \
             --docker-api \
             --npseed 42
         env:
@@ -91,7 +93,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: psilabs-dev/aio-lanraragi
-          ref: a6b6780fe89698a133c0f5561f60a55ab0f75dcb
+          ref: 328c792313f24d667c73377fd67aadfa7df72d26
           path: aio-lanraragi
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -106,6 +108,7 @@ jobs:
         working-directory: aio-lanraragi/integration_tests
         run: |
           pip install .
+          playwright install
       - name: Create staging directory
         run: |
           New-Item -ItemType Directory -Path "$env:GITHUB_WORKSPACE\staging" -Force | Out-Null
@@ -118,4 +121,5 @@ jobs:
           --log-cli-level=INFO `
           --windist "$env:GITHUB_WORKSPACE\LANraragi\win-dist" `
           --staging "$env:GITHUB_WORKSPACE\staging" `
+          --playwright `
           --npseed 42

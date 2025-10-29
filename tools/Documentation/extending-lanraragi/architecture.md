@@ -184,7 +184,6 @@ The base architecture is as follows:
 |  |- title <- Title of the archive, as set by the User
 |  |- file <- Filesystem path to archive
 |  |- isnew <- Whether the archive has been opened in LRR once or not
-|  |- filesizes <- Size in bytes of each file in the archive, as a serialized JSON array. This value is only present if the archive has been opened once for reading.
 |  |- pagecount <- Number of pages of the archive file
 |  |- progress <- Reading progress, if server-side progress is enabled
 |  +- thumbhash <- SHA-1 hash of the first image of the archive
