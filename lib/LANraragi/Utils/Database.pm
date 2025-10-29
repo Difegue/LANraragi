@@ -84,7 +84,7 @@ sub change_archive_id ( $old_id, $new_id ) {
     }
 
     # Update archive size
-    my $file = $redis->hget( $new_id, "file" );
+    my $file = create_path( $redis->hget( $new_id, "file" ) );
     $redis->hset( $new_id, "arcsize", -s $file );
     $redis->quit;
 
