@@ -1,0 +1,44 @@
+name: 'Docker merge'
+inputs:
+  docker-username:
+    required: true
+  docker-password:
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Download digests
+      uses: actions/download-artifact@v4
+      with:
+        path: ${{ runner.temp }}/digests
+        pattern: digests-*
+        merge-multiple: true
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ inputs.docker-username }}
+        password: ${{ inputs.docker-password }}
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    - name: Docker meta
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY_IMAGE }}
+        flavor: |
+          latest=false
+          prefix=
+          suffix=
+        tags: |
+          type=ref,event=tag
+          ${{ env.TAG }}
+    - name: Create manifest list and push
+      working-directory: ${{ runner.temp }}/digests
+      shell: bash
+      run: |
+        docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+          $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)
+    - name: Inspect image
+      shell: bash
+      run: |
+        docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:${{ steps.meta.outputs.version }}
