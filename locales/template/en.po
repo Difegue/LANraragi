@@ -373,6 +373,12 @@ msgstr "Fully effective after restarting LANraragi."
 msgid "Clean Database"
 msgstr "Clean Database"
 
+msgid "Enable Metrics"
+msgstr "Enable Metrics"
+
+msgid "Enable metrics collection and serve them through the metrics endpoint in the Prometheus exposition format."
+msgstr "Enable metrics collection and serve them through the metrics endpoint in the Prometheus exposition format."
+
 msgid "Cleaning the database will remove entries that aren't on your filesystem."
 msgstr "Cleaning the database will remove entries that aren't on your filesystem."
 

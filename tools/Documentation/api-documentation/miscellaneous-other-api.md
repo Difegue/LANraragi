@@ -273,6 +273,27 @@ ID of an archive. Passing this will show only one `<entry\>` for the given ID in
 {% endswagger-response %}
 {% endswagger %}
 
+{% swagger baseUrl="http://lrr.tvc-16.science" path="/api/metrics" method="get" summary="Get Metrics" %}
+{% swagger-description %}
+Returns metrics in the [Prometheus exposition format](https://prometheus.io/docs/instrumenting/exposition_formats/#text-format-example).
+{% endswagger-description %}
+
+{% swagger-response status="200" description="" %}
+```sh
+# HELP lanraragi_api_requests_total Total number of API requests
+# TYPE lanraragi_api_requests_total counter
+lanraragi_api_requests_total{endpoint="/",method="GET"} 4063
+lanraragi_api_requests_total{endpoint="/api/archives/:id",method="DELETE"} 2
+lanraragi_api_requests_total{endpoint="/api/archives/:id/categories",method="GET"} 1
+lanraragi_api_requests_total{endpoint="/api/archives/:id/files",method="GET"} 7
+lanraragi_api_requests_total{endpoint="/api/archives/:id/files/thumbnails",method="POST"} 5
+lanraragi_api_requests_total{endpoint="/api/archives/:id/isnew",method="DELETE"} 7
+lanraragi_api_requests_total{endpoint="/api/archives/:id/metadata",method="GET"} 8
+# ...
+```
+{% endswagger-response %}
+{% endswagger %}
+
 {% swagger baseUrl="http://lrr.tvc-16.science" path="/api/plugins/:type" method="get" summary="🔑Get available plugins" %}
 {% swagger-description %}
 Get a list of the available plugins on the server, filtered by type.
