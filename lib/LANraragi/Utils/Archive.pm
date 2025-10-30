@@ -27,7 +27,7 @@ use File::Temp qw(tempdir);
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging    qw(get_logger);
 use LANraragi::Utils::Generic    qw(is_image shasum_str);
-use LANraragi::Utils::Redis      qw(redis_decode);
+use LANraragi::Utils::Redis      qw(redis_decode redis_encode);
 use LANraragi::Utils::Path       qw(create_path);
 use LANraragi::Utils::Resizer    qw(get_resizer);
 
@@ -357,18 +357,13 @@ sub extract_single_file ( $archive, $filepath ) {
 
         my $contents = "";
         my $peek     = Archive::Libarchive::Peek->new( filename => create_path($archive) );
-        my @files    = $peek->files;
 
-        for my $name (@files) {
-            my $decoded_name = redis_decode($name);
-
-            # This sub can receive either encoded or raw filenames, so we have to test for both.
-            if ( $decoded_name eq $filepath || $name eq $filepath ) {
-                $logger->debug("Found file $filepath in archive $archive");
-                $contents = $peek->file($name);
-                last;
-            }
+        # This sub can receive either encoded or raw filenames, so we have to test for both.
+        $contents = $peek->file($filepath) // $peek->file(redis_encode($filepath));
+        if (defined($contents)) {
+            $logger->debug("Found file $filepath in archive $archive");
         }
+
         return $contents;
     }
 }
