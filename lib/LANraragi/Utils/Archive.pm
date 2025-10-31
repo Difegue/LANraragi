@@ -23,6 +23,7 @@ use Archive::Libarchive qw( ARCHIVE_OK );
 use Archive::Libarchive::Extract;
 use Archive::Libarchive::Peek;
 use File::Temp qw(tempdir);
+use POSIX qw(strerror);
 
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Logging    qw(get_logger);
@@ -178,8 +179,15 @@ sub get_filelist ($archive) {
 
         my $ret = $r->open_filename( $archive, 10240 );
         if ( $ret != ARCHIVE_OK ) {
-            $logger->error( "Couldn't open archive, libarchive says:" . $r->error_string );
-            die $r->error_string;
+            my $errno               = $r->errno;
+            my $errno_txt           = strerror($errno);
+            my $exists              = -e $archive ? 'yes' : 'no';
+            my $readable            = -r $archive ? 'yes' : 'no';
+            my $size                = -e $archive ? (-s _) : 'NA';
+            my $open_filename_err   = "Couldn't open archive '$archive' (exists:$exists; readable:$readable; size:$size)"
+                . "libarchive: " . $r->error_string . " (errno $errno: $errno_txt)";
+            $logger->error($open_filename_err);
+            die $r->open_filename_err;
         }
 
         my $e = Archive::Libarchive::Entry->new;
