@@ -139,7 +139,7 @@ sub add_pagecount ( $redis, $id ) {
     my $logger = get_logger( "Archive", "lanraragi" );
 
     my $file   = $redis->hget( $id, "file" );
-    my @images = get_filelist($file);
+    my @images = get_filelist($file, $id);
     $redis->hset( $id, "pagecount", scalar @images );
 }
 

@@ -107,7 +107,7 @@ sub extract_thumbnail ( $thumbdir, $id, $page, $set_cover, $use_hq ) {
     my $file  = $redis->hget( $id, "file" );
 
     # Get first image from archive using filelist
-    my @filelist        = get_filelist($file);
+    my @filelist        = get_filelist($file, $id);
     my $requested_image = $filelist[ $page > 0 ? $page - 1 : 0 ];
 
     die "Requested image not found: $id page $page" unless $requested_image;
@@ -153,8 +153,8 @@ sub expand {
     return lc($file);
 }
 
-# Returns a list of all the files contained in the given archive.
-sub get_filelist ($archive) {
+# Returns a list of all the files contained in the given archive with corresponding archive ID.
+sub get_filelist ($archive, $arcid) {
 
     my $logger = get_logger( "Archive", "lanraragi" );
 
@@ -184,7 +184,7 @@ sub get_filelist ($archive) {
             my $archive_exists          = -e $archive ? 'yes' : 'no';
             my $archive_readable        = -r $archive ? 'yes' : 'no';
             my $archive_size            = -e $archive ? (-s _) : 'NA';
-            my $open_filename_err   = "Couldn't open archive '$archive' (exists:$archive_exists; readable:$archive_readable; size:$archive_size)"
+            my $open_filename_err   = "Couldn't open archive '$archive' (id:$arcid, exists:$archive_exists; readable:$archive_readable; size:$archive_size)"
                 . "libarchive: " . $r->error_string . " (errno $open_filename_errno: $open_filename_strerr)";
             $logger->error($open_filename_err);
             die $r->open_filename_err;
