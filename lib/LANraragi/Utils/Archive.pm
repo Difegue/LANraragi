@@ -179,13 +179,13 @@ sub get_filelist ($archive) {
 
         my $ret = $r->open_filename( $archive, 10240 );
         if ( $ret != ARCHIVE_OK ) {
-            my $errno               = $r->errno;
-            my $errno_txt           = strerror($errno);
-            my $exists              = -e $archive ? 'yes' : 'no';
-            my $readable            = -r $archive ? 'yes' : 'no';
-            my $size                = -e $archive ? (-s _) : 'NA';
-            my $open_filename_err   = "Couldn't open archive '$archive' (exists:$exists; readable:$readable; size:$size)"
-                . "libarchive: " . $r->error_string . " (errno $errno: $errno_txt)";
+            my $open_filename_errno     = $r->errno;
+            my $open_filename_strerr    = strerror($open_filename_errno);
+            my $archive_exists          = -e $archive ? 'yes' : 'no';
+            my $archive_readable        = -r $archive ? 'yes' : 'no';
+            my $archive_size            = -e $archive ? (-s _) : 'NA';
+            my $open_filename_err   = "Couldn't open archive '$archive' (exists:$archive_exists; readable:$archive_readable; size:$archive_size)"
+                . "libarchive: " . $r->error_string . " (errno $open_filename_errno: $open_filename_strerr)";
             $logger->error($open_filename_err);
             die $r->open_filename_err;
         }
