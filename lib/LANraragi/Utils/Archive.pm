@@ -177,6 +177,8 @@ sub get_filelist ($archive, $arcid) {
         $r->support_filter_all;
         $r->support_format_all;
 
+        $archive = create_path( $archive );
+
         my $ret = $r->open_filename( $archive, 10240 );
         if ( $ret != ARCHIVE_OK ) {
             my $open_filename_errno     = $r->errno;
@@ -202,7 +204,7 @@ sub get_filelist ($archive, $arcid) {
             }
 
             if ( is_apple_signature_like_path($filename) ) {
-                my $peek = Archive::Libarchive::Peek->new( filename => create_path($archive) );
+                my $peek = Archive::Libarchive::Peek->new( filename => $archive );
                 if ( is_apple_signature( $peek, $filename ) ) {
                     $r->read_data_skip;
                     next;
