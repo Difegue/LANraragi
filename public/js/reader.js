@@ -754,7 +754,7 @@ Reader.updateProgress = function () {
 
 Reader.preloadImages = function () {
     let preloadNext = Reader.preloadCount;
-    let preloadPrev = 1;
+    let preloadPrev = Reader.preloadCount == 0 ? 0 : 1;
 
     if (Reader.doublePageMode) { preloadNext *= 2; preloadPrev *= 2; }
 
@@ -846,7 +846,11 @@ Reader.applyContainerWidth = function () {
 };
 
 Reader.registerPreload = function () {
-    Reader.preloadCount = +$("#preload-input").val().trim() || +localStorage.preloadCount || 2;
+    const rawInputVal = $("#preload-input").val();
+    const inputVal = rawInputVal === "" ? null : rawInputVal;
+    const storageVal = (localStorage.preloadCount === "" ? null : localStorage.preloadCount);
+
+    Reader.preloadCount = inputVal ?? storageVal ?? 2;
     $("#preload-input").val(Reader.preloadCount);
     localStorage.preloadCount = Reader.preloadCount;
 };

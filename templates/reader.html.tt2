@@ -232,7 +232,7 @@
 
 <div id="preload-images">
     <h2 class="config-panel"> [% c.lh("How many images to preload") %]</h2>
-    <input id="preload-input" class="stdinput" style="display:inline" placeholder="[% c.lh('The default is two images.') %]">
+    <input id="preload-input" class="stdinput" style="display:inline" placeholder="[% c.lh('The default is two images.') %]" type="number">
     <input id="preload-apply" class="favtag-btn config-btn" type="button" style="display:inline;" value="[% c.lh('Apply') %]">
 </div>
 
