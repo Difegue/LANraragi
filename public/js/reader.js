@@ -997,6 +997,7 @@ Reader.initializeArchiveOverlay = function () {
     $("#extract-spinner").hide();
 
     // For each link in the pages array, craft a div and jam it in the overlay.
+    let htmlBlob = "";
     for (let index = 0; index < Reader.pages.length; ++index) {
         const page = index + 1;
 
@@ -1009,8 +1010,10 @@ Reader.initializeArchiveOverlay = function () {
                 <i id="${index}_spinner" class="fa fa-4x fa-circle-notch fa-spin ttspinner" style="display:flex;justify-content: center; align-items: center;"></i>
             </div>`;
 
-        $("#archivePagesOverlay").append(thumbnail);
+        htmlBlob += thumbnail;
     }
+    // NOTE: This can be slow on huge archives and on slower devices, due to the huge DOM change.
+    $("#archivePagesOverlay").append(htmlBlob);
     $("#archivePagesOverlay").attr("loaded", "true");
 
     // Queue a single minion job for thumbnails and check on its progress regularly
