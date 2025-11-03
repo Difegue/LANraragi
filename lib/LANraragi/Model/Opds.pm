@@ -141,7 +141,7 @@ sub render_archive_page {
     my $archive = $redis->hget( $id, "file" );
 
     # Parse archive to get its list of images
-    my @images = get_filelist($archive);
+    my @images = get_filelist($archive, $id);
 
     # If the page number is invalid, use the first page.
     if ( $page > scalar @images ) {

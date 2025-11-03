@@ -49,7 +49,7 @@ sub build_reader_JSON ( $self, $id, $force ) {
     my $archive = $redis->hget( $id, "file" );
 
     # Parse archive to get its list of images
-    my @images = get_filelist($archive);
+    my @images = get_filelist($archive, $id);
 
     $self->LRR_LOGGER->debug( "Files found in archive (encoding might be incorrect): \n " . Dumper @images );
 
