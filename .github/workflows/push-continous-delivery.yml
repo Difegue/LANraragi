@@ -4,66 +4,61 @@ on:
     - dev
     - test-builds
     - actions-testing
+env:
+  REGISTRY_IMAGE: difegue/lanraragi
+  TAG: nightly
 name: Continuous Delivery 
 jobs:
 
-  buildDockerARM:
+  buildDockerArm:
     name: Build Docker Images (ARM)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - linux/arm/v6
+          - linux/arm/v7
+          - linux/arm64
     steps:
-    - uses: actions/checkout@master
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v3
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-    - uses: actions/cache@v4
-      with: 
-        path: /tmp/buildxcache
-        key: ${{ runner.os }}-docker-buildx-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-docker-buildx-
-    - name: Build ARMv6/ARMv7 images
-      run: |
-        apt-get update && apt-get upgrade 
-        docker buildx build \
-          --platform linux/arm/v6,linux/arm/v7 \
-          --output "type=image,push=false" \
-          --tag difegue/lanraragi:nightly \
-          --cache-from "type=local,src=/tmp/buildxcache" \
-          --cache-to "type=local,dest=/tmp/buildxcache" \
-          --file ./tools/build/docker/Dockerfile .
+    - uses: actions/checkout@v5
+    - name: Docker builder
+      uses: ./.github/actions/docker-builder
+      with:
+        platform: ${{ matrix.platform }}
+        docker-username: ${{ secrets.DOCKER_USERNAME }}
+        docker-password: ${{ secrets.DOCKER_PASSWORD }}
 
-  buildNightlyDocker:
-    name: Bundle and Push Docker Image
-    needs: buildDockerARM
-    runs-on: ubuntu-latest
+  buildDockerx86:
+    name: Build Docker Images (x86)
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - linux/386
+          - linux/amd64
     steps:
-    - uses: actions/checkout@master
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v3
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-    - uses: actions/cache@v4
-      with: 
-        path: /tmp/buildxcache
-        key: ${{ runner.os }}-docker-buildx-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-docker-buildx-
-    - name: Docker Login
-      env:
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-      run: |
-        echo "${DOCKER_PASSWORD}" | docker login -u ${DOCKER_USERNAME} --password-stdin
-    - name: Build/Push Nightly Docker
-      run: |
-        docker buildx build \
-          --platform linux/386,linux/amd64,linux/arm64,linux/arm/v6,linux/arm/v7 \
-          --output "type=image,push=true" \
-          --tag difegue/lanraragi:nightly \
-          --cache-from "type=local,src=/tmp/buildxcache" \
-          --cache-to "type=local,dest=/tmp/buildxcache" \
-          --file ./tools/build/docker/Dockerfile .
+    - uses: actions/checkout@v5
+    - name: Docker builder
+      uses: ./.github/actions/docker-builder
+      with:
+        platform: ${{ matrix.platform }}
+        docker-username: ${{ secrets.DOCKER_USERNAME }}
+        docker-password: ${{ secrets.DOCKER_PASSWORD }}
+
+  mergeDocker:
+    name: Merge Docker Images
+    runs-on: ubuntu-24.04
+    needs:
+      - buildDockerArm
+      - buildDockerx86
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/docker-merge
+        with:
+          docker-username: ${{ secrets.DOCKER_USERNAME }}
+          docker-password: ${{ secrets.DOCKER_PASSWORD }}
 
   buildNightlyMSYS2:
     name: Build and export native Windows version
