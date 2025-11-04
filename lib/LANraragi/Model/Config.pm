@@ -179,6 +179,7 @@ sub enable_nofun         { return &get_redis_conf( "nofunmode",       "0" ) }
 sub enable_cors          { return &get_redis_conf( "enablecors",      "0" ) }
 sub get_apikey           { return &get_redis_conf( "apikey",          "" ) }
 sub enable_localprogress { return &get_redis_conf( "localprogress",   "0" ) }
+sub enable_authprogress  { return &get_redis_conf( "authprogress",    "0" ) }
 sub enable_tagrules      { return &get_redis_conf( "tagruleson",      "1" ) }
 sub enable_resize        { return &get_redis_conf( "enableresize",    "0" ) }
 sub get_threshold        { return &get_redis_conf( "sizethreshold",   "1000" ) }

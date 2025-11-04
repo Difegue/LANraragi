@@ -747,7 +747,7 @@ Reader.updateProgress = function () {
     // Send an API request to update progress on the server
     if (Reader.trackProgressLocally) {
         localStorage.setItem(`${Reader.id}-reader`, Reader.currentPage + 1);
-    } else {
+    } else if (!Reader.authenticateProgress || LRR.isUserLogged() ) {
         Server.callAPI(`/api/archives/${Reader.id}/progress/${Reader.currentPage + 1}`, "PUT", null, I18N.ReaderErrorProgress, null);
     }
 };

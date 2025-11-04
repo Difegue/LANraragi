@@ -35,6 +35,7 @@ sub serve_serverinfo {
             server_resizes_images => $self->LRR_CONF->enable_resize ? \1 : \0,
             ,
             server_tracks_progress => $self->LRR_CONF->enable_localprogress ? \0 : \1,
+            authenticated_progress => $self->LRR_CONF->enable_authprogress ? \1 : \0,
             total_pages_read       => $page_stat,
             total_archives         => $arc_stat,
             cache_last_cleared     => $last_clear

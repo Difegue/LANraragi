@@ -34,6 +34,7 @@ sub index {
             template       => "reader",
             title          => $self->LRR_CONF->get_htmltitle,
             use_local      => $self->LRR_CONF->enable_localprogress,
+            auth_progress  => $self->LRR_CONF->enable_authprogress,
             id             => $id,
             arc_categories => \@arc_categories,
             categories     => \@categories,

@@ -21,6 +21,7 @@ Returns some basic information about the LRR instance this server is running.
     "nofun_mode": false,
     "server_resizes_images": false,
     "server_tracks_progress": true,
+    "authenticated_progress": false,
     "total_archives": 104,
     "total_pages_read": 252,
     "version": "0.9.30",
