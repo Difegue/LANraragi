@@ -132,6 +132,7 @@ LRR.openInNewTab = function (url) {
  * @returns
  */
 LRR.toggleOverlay = function (selector) {
+    Reader.initializeArchiveOverlay();
     const overlay = $(selector);
     overlay.is(":visible")
         ? LRR.closeOverlay()

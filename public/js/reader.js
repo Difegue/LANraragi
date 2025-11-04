@@ -255,7 +255,6 @@ Reader.loadImages = function () {
             }
 
             if (Reader.showOverlayByDefault) { Reader.toggleArchiveOverlay(); }
-            Reader.initializeArchiveOverlay();
         },
     ).finally(() => {
         if (Reader.pages === undefined) {
