@@ -52,9 +52,9 @@ sub generate_thumbnail ( $data, $thumb_path, $use_hq, $use_jxl ) {
 
     my $resized = get_resizer()->resize_thumbnail( $data, $quality, $use_hq, $use_jxl ? "jxl" : "jpg" );
     if ( defined($resized) ) {
-        open my $fh, '>:raw', $thumb_path or die;
+        open my $fh, '>:raw', $thumb_path or die "Cannot write to '$thumb_path': $!";
         print $fh $resized;
-        close($resized);
+        close($fh);
     } else {
         my $logger = get_logger( "Archive", "lanraragi" );
         $logger->debug("Couldn't create thumbnail!");
