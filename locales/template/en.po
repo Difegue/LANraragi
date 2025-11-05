@@ -364,11 +364,11 @@ msgstr "Consider toggling this option if you're sharing the LANraragi instance w
 msgid "Authenticated Progress Tracking"
 msgstr "Authenticated Progress Tracking"
 
-msgid "If enabled, server-side progress will only be saved if you're logged in with a password."
-msgstr "If enabled, server-side progress will only be saved if you're logged in with a password."
+msgid "If enabled, server-side progress will only be saved if you're logged in with a password, and will override clientside progress. This allows guests to browse without affecting the main user's progress."
+msgstr "If enabled, server-side progress will only be saved if you're logged in with a password, and will override clientside progress. This allows guests to browse without affecting the main user's progress."
 
-msgid "Useful if you want to sync your progress and want your server to be publicly browsable, but don't want guests or scrapers changing your progress."
-msgstr "Useful if you want to sync your progress and want your server to be publicly browsable, but don't want guests or scrapers changing your progress."
+msgid "Combine with clientside progress tracking to allow unauthenticated users to track progress locally."
+msgstr "Combine with clientside progress tracking to allow unauthenticated users to track progress locally."
 
 msgid "Debug Mode"
 msgstr "Debug Mode"

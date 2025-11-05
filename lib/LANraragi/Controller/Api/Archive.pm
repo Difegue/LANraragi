@@ -344,7 +344,7 @@ sub update_progress {
     my $redis_cfg = $self->LRR_CONF->get_redis_config;
     my $pagecount = $redis->hget( $id, "pagecount" );
 
-    if ( LANraragi::Model::Config->enable_localprogress ) {
+    if ( LANraragi::Model::Config->enable_localprogress && !LANraragi::Model::Config->enable_authprogress ) {
         render_api_response( $self, "update_progress", "Server-side Progress Tracking is disabled on this instance." );
         return;
     }

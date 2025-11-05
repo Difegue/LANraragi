@@ -166,7 +166,7 @@ Reader.initializeAll = function () {
             }
 
             // Use localStorage progress value instead of the server one if needed
-            if (Reader.trackProgressLocally) {
+            if (Reader.trackProgressLocally && !(Reader.authenticateProgress && LRR.isUserLogged())) {
                 Reader.progress = localStorage.getItem(`${Reader.id}-reader`) - 1 || 0;
             } else {
                 Reader.progress = data.progress - 1;
@@ -745,9 +745,11 @@ Reader.goToPage = function (page) {
 
 Reader.updateProgress = function () {
     // Send an API request to update progress on the server
-    if (Reader.trackProgressLocally) {
+    if (Reader.authenticateProgress && LRR.isUserLogged()) {
+        Server.callAPI(`/api/archives/${Reader.id}/progress/${Reader.currentPage + 1}`, "PUT", null, I18N.ReaderErrorProgress, null);
+    } else if (Reader.trackProgressLocally) {
         localStorage.setItem(`${Reader.id}-reader`, Reader.currentPage + 1);
-    } else if (!Reader.authenticateProgress || LRR.isUserLogged() ) {
+    } else if (!Reader.authenticateProgress) {
         Server.callAPI(`/api/archives/${Reader.id}/progress/${Reader.currentPage + 1}`, "PUT", null, I18N.ReaderErrorProgress, null);
     }
 };

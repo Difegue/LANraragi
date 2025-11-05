@@ -10,6 +10,7 @@ Index.swiper = {};
 Index.serverVersion = "";
 Index.debugMode = false;
 Index.isProgressLocal = true;
+Index.isProgressAuthenticated = true;
 Index.pageSize = 100;
 Index.pseudoCopyBtn = undefined;
 
@@ -108,6 +109,7 @@ Index.initializeAll = function () {
             Index.serverVersion = data.version;
             Index.debugMode = !!data.debug_mode;
             Index.isProgressLocal = !data.server_tracks_progress;
+            Index.isProgressAuthenticated = data.authenticated_progress;
             Index.pageSize = data.archives_per_page;
 
             // Check version if not in debug mode
@@ -904,8 +906,8 @@ Index.loadCategories = function () {
  * If server-side progress tracking is enabled, migrate local progression to the server.
  */
 Index.migrateProgress = function () {
-    // No migration if local progress is enabled
-    if (Index.isProgressLocal) {
+    // No migration if local progress is enabled, or if progress is authenticated and we're not logged in.
+    if (Index.isProgressLocal || (Index.isProgressAuthenticated && !LRR.isUserLogged())) {
         return;
     }
 

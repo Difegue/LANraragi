@@ -12,7 +12,6 @@ Config.initializeAll = function () {
     $(document).on("click.return", "#return", () => { window.location.href = new LRR.apiURL("/"); });
     $(document).on("click.enablepass", "#enablepass", Config.enable_pass);
     $(document).on("click.enableresize", "#enableresize", Config.enable_resize);
-    $(document).on("click.localprogress", "#localprogress", Config.enable_localprogress);
     $(document).on("click.usedateadded", "#usedateadded", Config.enable_timemodified);
 
     $(document).on("click.rescan-button", "#rescan-button", Config.rescanContentFolder);
@@ -46,7 +45,6 @@ Config.initializeAll = function () {
 
     Config.enable_pass();
     Config.enable_resize();
-    Config.enable_localprogress();
     Config.enable_timemodified();
     Config.shinobuStatus();
     setInterval(Config.shinobuStatus, 5000);
@@ -118,11 +116,6 @@ Config.enable_pass = function () {
 Config.enable_resize = function () {
     if ($("#enableresize").prop("checked")) $(".resizefields").show();
     else $(".resizefields").hide();
-};
-
-Config.enable_localprogress = function () {
-    if ($("#localprogress").prop("checked")) $(".serversideprogressfields").hide();
-    else $(".serversideprogressfields").show();
 };
 
 Config.enable_timemodified = function () {
