@@ -16,7 +16,7 @@ Open source server for archival of comics/manga, running on Mojolicious + Redis.
 
 #### 💬 Talk with other fellow LANraragi Users on [Discord](https://discord.gg/aRQxtbg) or [GitHub Discussions](https://github.com/Difegue/LANraragi/discussions)  
 
-####  [📄 Documentation](https://sugoi.gitbook.io/lanraragi/v/dev) | [⏬ Download](https://github.com/Difegue/LANraragi/releases/latest) | [🎞 Demo](https://lrr.tvc-16.science) | [🪟🌃 Windows Nightlies](https://nightly.link/Difegue/LANraragi/workflows/push-continous-delivery/dev) | [💵 Sponsor Development](https://ko-fi.com/T6T2UP5N)  
+####  [📄 Documentation](https://sugoi.gitbook.io/lanraragi/v/dev) | [⏬ Download](https://github.com/Difegue/LANraragi/releases/latest) | [🎞 Demo](https://lrr.tvc-16.science) | [🪟🌃 Windows Nightlies](https://nightly.link/Difegue/LANraragi/workflows/push-continous-delivery/dev) | [💵 Sponsor Development](https://ko-fi.com/T6T2UP5N)  | [🉐 Buy Stickers!](https://ko-fi.com/s/9e8cf6a479)
 
 <a href="https://hosted.weblate.org/engage/lanraragi/">
 <img src="https://hosted.weblate.org/widget/lanraragi/multi-auto.svg" alt="Translation status" />
@@ -66,7 +66,3 @@ Open source server for archival of comics/manga, running on Mojolicious + Redis.
 * Scan for duplicates within your saved archives 
 
 * Backup your database as JSON to carry your tags over to another LANraragi instance.
-
-## Make a PR, get stickers™  
-
-Merged PRs to this repo(or $5+ donations) are eligible to get a dumb sticker pack [shipped on the house.](https://forms.office.com/Pages/ResponsePage.aspx?id=DQSIkWdsW0yxEjajBLZtrQAAAAAAAAAAAAN__osxt25URTdTUTVBVFRCTjlYWFJLMlEzRTJPUEhEVy4u)  
