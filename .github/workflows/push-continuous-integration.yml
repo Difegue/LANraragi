@@ -10,11 +10,11 @@ on:
       integration_test_ref:
         description: 'Integration testing repository git commit hash or branch'
         required: true
-        default: '328c792313f24d667c73377fd67aadfa7df72d26'
+        default: '41e436b59f605d53307f7e2b420b31fed3d17013'
 
 env:
   INTEGRATION_TEST_REPOSITORY: ${{ github.event.inputs.integration_test_repository || 'psilabs-dev/aio-lanraragi' }}
-  INTEGRATION_TEST_REF: ${{ github.event.inputs.integration_test_ref || '328c792313f24d667c73377fd67aadfa7df72d26' }}
+  INTEGRATION_TEST_REF: ${{ github.event.inputs.integration_test_ref || '41e436b59f605d53307f7e2b420b31fed3d17013' }}
 
 name: "Continuous Integration \U0001F44C\U0001F440"
 jobs:
@@ -64,12 +64,17 @@ jobs:
           cd aio-lanraragi/integration_tests
           pip install .
           playwright install
+      - name: Create staging directory
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/staging"
       - name: Run integration tests against local LANraragi build
         run: |
           cd aio-lanraragi/integration_tests
           export CI=true
+          export DOCKER_BUILDKIT=1
           pytest tests --log-cli-level=INFO \
             --build "$GITHUB_WORKSPACE/lanraragi" \
+            --staging "$GITHUB_WORKSPACE/staging" \
             --playwright \
             --docker-api \
             --npseed 42
