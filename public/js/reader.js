@@ -390,7 +390,8 @@ Reader.handleShortcuts = function (e) {
     e.preventDefault();
 
     // Capture direction now so we dont lose it if shift state changes while held
-    const direction = e.shiftKey ? -1 : 1;
+    let direction = e.shiftKey ? -1 : 1;
+    if (Reader.mangaMode) direction *= -1;
     const cfg = Reader.scrollConfig;
 
     if (e.type === "keydown") {
