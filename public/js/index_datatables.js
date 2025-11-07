@@ -31,6 +31,15 @@ IndexTable.initializeAll = function () {
         IndexTable.currentSearch = $(e.target).attr("search");
         IndexTable.doSearch();
     });
+    
+    // Add click handler for datatables items to mark them as datatables navigation
+    // Exclude any elements that are inside .swiper-wrapper (carousel)
+    $(document).on("click", "a[href*='/reader?id=']", function() {
+        if ($(this).closest(".swiper-wrapper").length > 0) {
+            return;
+        }
+        sessionStorage.setItem('navigationState', 'datatables');
+    });
 
     // Add a listen event to window.popstate to update the search accordingly
     // if the user goes back using browser history
@@ -268,6 +277,14 @@ IndexTable.drawCallback = function () {
         } else {
             $(".itg").show();
         }
+
+        // Store archive IDs in localStorage in the order they appear in the table
+        const archiveIds = [];
+        const archives = IndexTable.dataTable.rows().data();
+        for (let i = 0; i < archives.length; i++) {
+            archiveIds.push(archives[i].arcid);
+        }
+        localStorage.setItem('archiveIds', JSON.stringify(archiveIds));
 
         // Update url to contain all search parameters, and push it to the history
         if (IndexTable.isComingFromPopstate) {

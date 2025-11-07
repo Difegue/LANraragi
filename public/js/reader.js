@@ -11,6 +11,8 @@ Reader.currentPage = -1;
 Reader.showingSinglePage = true;
 Reader.preloadedImg = {};
 Reader.preloadedSizes = {};
+Reader.previousArchiveId = null;
+Reader.nextArchiveId = null;
 Reader.spaceScroll = { timeout: null, animationId: null };
 //Spacebar Scroll Config
 Reader.scrollConfig = {   
@@ -113,6 +115,9 @@ Reader.initializeAll = function () {
         Reader.goToPage(pageNumber);
     });
 
+    // Set previous page to index when reading multiple archives
+    window.addEventListener("popstate", () => {window.location.href = "./";});
+
     // Apply full-screen utility
     // F11 Fullscreen is totally another "Fullscreen", so its support is beyong consideration.
     if (!window.fscreen.fullscreenEnabled) {
@@ -128,6 +133,27 @@ Reader.initializeAll = function () {
     Reader.id = params.get("id");
     Reader.force = params.get("force_reload") !== null;
     Reader.currentPage = (+params.get("p") || 1) - 1;
+
+    // Set up archive navigation state
+    const navigationState = sessionStorage.getItem('navigationState');
+    const archiveIdsJson = localStorage.getItem('archiveIds');
+    sessionStorage.removeItem('navigationState');
+    if (navigationState === 'datatables' && archiveIdsJson) {
+        try {
+            const archiveIds = JSON.parse(archiveIdsJson);
+            const index = archiveIds.indexOf(Reader.id);
+            if (index !== -1) {
+                if (index > 0) {
+                    Reader.previousArchiveId = archiveIds[index - 1];
+                }
+                if (index < archiveIds.length - 1) {
+                    Reader.nextArchiveId = archiveIds[index + 1];
+                }
+            }
+        } catch (error) {
+            console.error("Error setting up archive navigation state:", error);
+        }
+    }
 
     // Remove the "new" tag with an api call
     Server.callAPI(`/api/archives/${Reader.id}/isnew`, "DELETE", null, I18N.ReaderErrorClearingNew, null);
@@ -1071,8 +1097,14 @@ Reader.changePage = function(targetPage) {
     }
     let destination;
     if (targetPage === "first") {
+        if (Reader.currentPage === 0) {
+            return Reader.readPreviousArchive();
+        }
         destination = Reader.mangaMode ? Reader.maxPage : 0;
     } else if (targetPage === "last") {
+        if (Reader.currentPage === Reader.maxPage) {
+            return Reader.readNextArchive();
+        }
         destination = Reader.mangaMode ? 0 : Reader.maxPage;
     } else {
         let offset = targetPage;
@@ -1081,7 +1113,13 @@ Reader.changePage = function(targetPage) {
         }
         destination = Reader.currentPage + (Reader.mangaMode ? -offset : offset);
     }
-    Reader.goToPage(destination);
+    if (destination < 0) {
+        return Reader.readPreviousArchive();
+    } else if (destination > Reader.maxPage) {
+        return Reader.readNextArchive();
+    } else {
+        return Reader.goToPage(destination);
+    }
 };
 
 Reader.handlePaginator = function () {
@@ -1102,3 +1140,25 @@ Reader.handlePaginator = function () {
         break;
     }
 };
+
+Reader.readPreviousArchive = function () {
+    if (Reader.previousArchiveId !== null) {
+        sessionStorage.setItem("navigationState", "datatables");
+        const newUrl = new LRR.apiURL(`/reader?id=${Reader.previousArchiveId}`).toString();
+        history.replaceState(null, '', newUrl);
+        window.location.href = newUrl;
+    } else {
+        LRR.toast({"text": "This is the first archive"});
+    }
+}
+
+Reader.readNextArchive = function () {
+    if (Reader.nextArchiveId !== null) {
+        sessionStorage.setItem("navigationState", "datatables");
+        const newUrl = new LRR.apiURL(`/reader?id=${Reader.nextArchiveId}`).toString();
+        history.replaceState(null, '', newUrl);
+        window.location.href = newUrl;
+    } else {
+        LRR.toast({"text": "This is the last archive"});
+    }
+}

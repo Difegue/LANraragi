@@ -33,6 +33,9 @@ Index.initializeAll = function () {
     $(document).on("click.close-overlay", "#overlay-shade", LRR.closeOverlay);
     $(document).on("click.thumbnail-bookmark-icon", ".thumbnail-bookmark-icon", Index.toggleBookmarkStatusByIcon);
     $(document).on("click.title-bookmark-icon", ".title-bookmark-icon", Index.toggleBookmarkStatusByIcon);
+    $(document).on("click", ".swiper-wrapper .swiper-slide a[href*='/reader?id=']", function() {
+        sessionStorage.setItem('navigationState', 'carousel');
+    });
     $(document).on("keydown.quick-search", Index.handleQuickSearch);
     $(document).on("keydown.escape-overlay", Index.handleEscapeKey);
 
@@ -773,6 +776,13 @@ Index.handleContextMenu = function (option, id) {
         });
         break;
     case "read":
+        // Use the source that was stored when the context menu was opened
+        if (window.contextMenuSource === 'carousel') {
+            sessionStorage.setItem('navigationState', 'carousel');
+        } else {
+            sessionStorage.setItem('navigationState', 'datatables');
+        }
+        
         LRR.openInNewTab(new LRR.apiURL(`/reader?id=${id}`));
         break;
     case "download":
