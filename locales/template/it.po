@@ -3,42 +3,48 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-11-07 13:39+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2025-11-08 12:51+0000\n"
+"Last-Translator: Mattia <mattia.maff03@gmail.com>\n"
+"Language-Team: Italian <https://hosted.weblate.org/projects/lanraragi/"
+"lanraragi-source/it/>\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Translate Toolkit 3.16.3\n"
+"X-Generator: Weblate 5.15-dev\n"
 
 # Sample Data
-
 # ------Start of Backup.html.tt2------
 msgid "Database Backup/Restore"
 msgstr ""
 
 msgid "You can backup your existing database here, or restore an existing backup."
 msgstr ""
+"Qui puoi effettuare il backup del tuo database esistente, oppure "
+"ripristinare un backup esistente."
 
 msgid "Backuping allows you to download a JSON file containing all your categories and archive IDs, and their matching metadata."
 msgstr ""
+"Eseguire un backup ti permette di scaricare un file JSON contenente tutte le "
+"tue categorie, i tuoi ID di archivio e i loro metadati corrispondenti."
 
 msgid "Restoring from a backup will restore this metadata, <b>for IDs which already exist in your database.</b>"
 msgstr ""
+"Il ripristino da un backup ripristinerà questi metadati, <b>per IDs che "
+"esistono già nel tuo database.</b>"
 
 msgid "(Categories will always be restored)"
-msgstr ""
+msgstr "(Le categorie saranno sempre ripristinate)"
 
 msgid "Backup Database"
-msgstr ""
+msgstr "Esegui Backup del Database"
 
 msgid "Restore Backup"
-msgstr ""
+msgstr "Riprostina Backup"
 
 msgid "Restoring your backup ..."
-msgstr ""
+msgstr "Ripristinando il tuo backup …"
 
 msgid "Return to Library"
 msgstr ""
@@ -49,19 +55,19 @@ msgid "Batch Operations"
 msgstr ""
 
 msgid "You can apply modifications to multiple archives in one go here."
-msgstr ""
+msgstr "Qui puoi applicare modifiche ad archivi multipli in una volta."
 
 msgid "Select what you'd like to do, check archives you want to use it on, and get rolling!"
 msgstr ""
 
 msgid "Archives with no tags have been pre-checked."
-msgstr ""
+msgstr "Gli Archivi senza tag sono stati pre-controllati."
 
 msgid "Task :"
 msgstr ""
 
 msgid "Use Plugin"
-msgstr ""
+msgstr "Usa Plugin"
 
 msgid "Remove New Flag"
 msgstr ""
@@ -76,31 +82,38 @@ msgid "Delete Archive"
 msgstr ""
 
 msgid "Use plugin :"
-msgstr ""
+msgstr "Usa plugin :"
 
 msgid "Timeout (max 20s):"
 msgstr ""
 
 msgid "This plugin recommends a cooldown of <span id=\"cooldown\">-1</span> seconds."
 msgstr ""
+"Per questo plugin è raccomandato un timer di <span id=\"cooldown\">-1</span> "
+"secondi."
 
 msgid "Some external services may temporarily ban your machine for excessive loads if you call a plugin too many times!"
 msgstr ""
+"Alcuni servizi esterni potrebbero temporaneamente bloccare la tua macchina "
+"per carichi eccessivi se chiami un plugin troppe volte!"
 
+#, fuzzy
 msgid "Make sure to set a suitable <b>timeout</b> between archives using this picker if the plugin you want to use is concerned."
 msgstr ""
+"Assicurati di impostare un <b>timeout</b> adeguato tra gli archivi "
+"utilizzando questo selettore se {the plugin you want to use is concerned}."
 
 msgid "Override Plugin Global Arguments"
 msgstr ""
 
 msgid "This will apply the following Tag Rules to the selected Archives."
-msgstr ""
+msgstr "Questo applicherà le seguenti Regole Tag agli Archivi selezionati."
 
 msgid "You can edit your Tag Rules in Server Configuration."
-msgstr ""
+msgstr "Puoi modificare le tue Regole Tag in Configurazione Server."
 
 msgid "Server Configuration"
-msgstr ""
+msgstr "Configurazione Server"
 
 msgid "This removes the \"new\" flag from the selected archives."
 msgstr ""
@@ -112,19 +125,19 @@ msgid "This will delete both metadata and matching files from your system! Pleas
 msgstr ""
 
 msgid "Check/Uncheck all"
-msgstr ""
+msgstr "Seleziona/Deseleziona tutto"
 
 msgid "Start Task"
 msgstr ""
 
 msgid "Cancel"
-msgstr ""
+msgstr "Annulla"
 
 msgid "Start another job"
 msgstr ""
 
 msgid "Processed <span id=\"arcs\"></span> out of <span id=\"totalarcs\"></span>"
-msgstr ""
+msgstr "Elaborato <span id=\"arcs\"></span> di <span id=\"totalarcs\"></span>"
 
 msgid "Preparing your data."
 msgstr ""
@@ -142,6 +155,7 @@ msgstr ""
 
 msgid "Categories appear at the top of your window when browsing the Library."
 msgstr ""
+"Le Categorie compaiono in alto nella tua finestra quando navighi la Libreria."
 
 msgid "There are two distinct kinds:"
 msgstr ""
@@ -153,19 +167,19 @@ msgid "Dynamic Categories contain all archives matching a given predicate, and a
 msgstr ""
 
 msgid "You can create new categories here or edit existing ones."
-msgstr ""
+msgstr "Qui puoi creare nuove categorie o modificare quelle esistenti."
 
 msgid "Select a category in the combobox below to edit its name, the archives it contains, or its predicate."
 msgstr ""
 
 msgid "All your modifications are saved automatically."
-msgstr ""
+msgstr "Tutte le tue modifiche sono salvate automaticamente."
 
 msgid "Category:"
-msgstr ""
+msgstr "Categorie:"
 
 msgid "Name:"
-msgstr ""
+msgstr "Nome:"
 
 msgid "Predicate:"
 msgstr ""
@@ -174,16 +188,18 @@ msgid "Pin this Category"
 msgstr ""
 
 msgid "Delete Category"
-msgstr ""
+msgstr "Elimina Categoria"
 
 msgid "If you select a Static Category, your archives will appear here so you can add/remove them from the category."
 msgstr ""
+"Se selezioni una Categoria Statica, i tuoi archivi appariranno qui in modo "
+"che tu possa aggiungerli/rimuoverli dalla categoria."
 
 msgid "Return to Library"
 msgstr ""
 
 msgid "Store Bookmarks in this Category"
-msgstr ""
+msgstr "Salva i Segnalibri in questa Categoria"
 
 msgid "Error linking bookmark button:"
 msgstr ""
@@ -192,27 +208,27 @@ msgid "Error unlinking bookmark button:"
 msgstr ""
 
 msgid "Error getting bookmark category:"
-msgstr ""
+msgstr "Errore nell'ottenimento della categoria dei segnalibri:"
 
 msgid "New Static Category"
-msgstr ""
+msgstr "Nuova Categoria Statica"
 
 msgid "New Dynamic Category"
-msgstr ""
+msgstr "Nuova Categoria Dinamica"
 
 # ------End of Category.html.tt2------
 # ------Start of Config.html.tt2------
 msgid "Admin Settings"
-msgstr ""
+msgstr "Impostazioni Amministratore"
 
 msgid "LANraragi"
-msgstr ""
+msgstr "LANraragi"
 
 msgid "Version %1 %2"
 msgstr ""
 
 msgid "Select a category to show the matching settings."
-msgstr ""
+msgstr "Seleziona una categoria per mostrare le impostazioni corrispondenti."
 
 msgid "Save Settings"
 msgstr ""
@@ -221,19 +237,19 @@ msgid "Plugin Configuration"
 msgstr ""
 
 msgid "Database Backup/Restore"
-msgstr ""
+msgstr "Backup/Ripristino del database"
 
 msgid "Return to Library"
 msgstr ""
 
 msgid "Global Settings"
-msgstr ""
+msgstr "Impostazioni Globali"
 
 msgid "Theme"
-msgstr ""
+msgstr "Tema"
 
 msgid "Security"
-msgstr ""
+msgstr "Sicurezza"
 
 msgid "Archive Files"
 msgstr ""
@@ -251,6 +267,7 @@ msgstr ""
 
 msgid "Directory where the archives will be located. It will be created if it doesn't exist."
 msgstr ""
+"Cartella in cui verranno salvati gli archivi. Se non esiste, verrà creata."
 
 msgid "Make sure the OS user running LANraragi has read access to this directory."
 msgstr ""
@@ -275,45 +292,57 @@ msgstr ""
 
 msgid "It is automatically emptied when it grows past this specified size."
 msgstr ""
+"È svuotata automaticamente quando cresce oltre la sua dimensione specificata."
 
 msgid "The maximum value allowed is 4GB."
-msgstr ""
+msgstr "Il massimo valore consentito è 4GB."
 
 msgid "Clear Cache"
-msgstr ""
+msgstr "Svuota Cache"
 
 msgid "Current Size:"
-msgstr ""
+msgstr "Dimensione Corrente:"
 
 msgid "Clear the cache manually by clicking this button."
-msgstr ""
+msgstr "Svuota la cache manualmente cliccando questo bottone."
 
 msgid "Reset Search Cache"
 msgstr ""
 
 msgid "The last searches done in the archive index are cached for faster loads."
 msgstr ""
+"Le ultime ricerche eseguite nell'indice dell'archivio sono salvate per "
+"caricamenti più rapidi."
 
 msgid "If something went wrong with said cache, you can reset it by clicking this button."
 msgstr ""
+"Se qualcosa andasse storto con la suddetta cache, puoi ripristinarla "
+"premendo questo bottone."
 
 msgid "Clear NEW flags"
 msgstr ""
 
 msgid "Newly uploaded archives are marked as \"new\" in the index until you\'ve opened them."
 msgstr ""
+"Gli archivi appena caricati vengono contrassegnati come \"nuovi\" "
+"nell'indice finché non vengono aperti."
 
 msgid "If you want to clear those flags, click this button."
 msgstr ""
 
 msgid "Replace duplicated archives"
-msgstr ""
+msgstr "Sostituisci archivi duplicati"
 
 msgid "If enabled, LANraragi will overwrite old archives when a newer one (with the same name) is uploaded through the Web Uploader or the Download System."
 msgstr ""
+"Se abilitato, LANraragi sovrascriverà i vecchi archivi quando ne verrà "
+"caricato uno più recente (con lo stesso nome) tramite Web Uploader o "
+"Download System."
 
 msgid "This will delete metadata for old files when they're replaced! Use with caution."
 msgstr ""
+"Questo eliminerà i metadati per vecchi file quando verranno rimpiazzati! "
+"Usare con cautela."
 
 # ------End of Config_Files.html.tt2------
 # ------Start of Config_Global.html.tt2------
@@ -322,6 +351,8 @@ msgstr ""
 
 msgid "The site title appears on most pages as...their title."
 msgstr ""
+"Il titolo del sito appare nella maggior parte delle pagine come...il loro "
+"titolo."
 
 msgid "MOTD"
 msgstr ""
@@ -330,13 +361,13 @@ msgid "Slang for Message of the Day. Appears on top of the main Library view."
 msgstr ""
 
 msgid "Archives per page"
-msgstr ""
+msgstr "Archivi per pagina"
 
 msgid "Number of archives shown on a page in the main list."
-msgstr ""
+msgstr "Numeri di archivi mostrati un una pagina nella lista principale."
 
 msgid "Resize Images in Reader"
-msgstr ""
+msgstr "Ridimensiona immagini nel Reader"
 
 msgid "If enabled, pages exceeding a certain size will be resized when viewed to save bandwidth."
 msgstr ""
@@ -349,24 +380,30 @@ msgstr ""
 
 msgid "(in KBs.) Maximum size an image can reach before being resized."
 msgstr ""
+"(in KBs.) Dimensione massima che può raggiungere un'immagine prima di essere "
+"ridimensionata."
 
 msgid "Resize Quality"
-msgstr ""
+msgstr "Ridimensiona Qualità"
 
 msgid "Quality of the resized images. Less quality = Smaller image. (0-100)"
 msgstr ""
+"Qualità delle immagini ridimensionate. Meno qualità = Immagine più piccola. "
+"(0-100)"
 
 msgid "Clientside Progress Tracking"
-msgstr ""
+msgstr "Monitoraggio dei progressi lato client"
 
 msgid "Enabling this option will save reading progression on the browser (through localStorage) instead of the server."
 msgstr ""
 
 msgid "Consider toggling this option if you're sharing the LANraragi instance with multiple users!"
 msgstr ""
+"Considera la possibilità di attivare questa opzione se condividi l'istanza "
+"LANraragi con più utenti!"
 
 msgid "Debug Mode"
-msgstr ""
+msgstr "Modalità Debug"
 
 msgid "Enabling Debug Mode will show more logs and disable update nagging."
 msgstr ""
@@ -375,10 +412,11 @@ msgid "Fully effective after restarting LANraragi."
 msgstr ""
 
 msgid "Clean Database"
-msgstr ""
+msgstr "Pulisci Database"
 
 msgid "Cleaning the database will remove entries that aren't on your filesystem."
 msgstr ""
+"Pulire il database rimuoverà entrate che non sono presenti sul filesystem."
 
 msgid "Reset Database"
 msgstr ""
@@ -388,23 +426,25 @@ msgstr ""
 
 msgid "Clicking this button will reset the entire database and delete all settings and metadata."
 msgstr ""
+"Cliccare questo bottone eseguirà il reset di tutto il database ed eliminerà "
+"tutte le impostazioni e metadati."
 
 # ------End of Config_Global.html.tt2------
 # ------Start of Config_Security.html.tt2------
 msgid "Enable Password"
-msgstr ""
+msgstr "Abilita Password"
 
 msgid "If enabled, everything that isn't reading will require a password."
-msgstr ""
+msgstr "Se abilitato, tutto ciò che non è in lettura richiederà una password."
 
 msgid "New Password"
-msgstr ""
+msgstr "Nuova Password"
 
 msgid "New Password Confirmation"
-msgstr ""
+msgstr "Conferma nuova password"
 
 msgid "Only edit these fields if you want to change your password."
-msgstr ""
+msgstr "Modifica questi campi solo se desideri cambiare la tua password."
 
 msgid "The one already stored will be used otherwise."
 msgstr ""
@@ -419,10 +459,12 @@ msgid "Fully effective after restarting LANraragi."
 msgstr ""
 
 msgid "API Key"
-msgstr ""
+msgstr "Chiave API"
 
 msgid "If you wish to use the Client API and have a password, you'll have to set a key here."
 msgstr ""
+"Se desideri utilizzare l'API Client e hai una password, dovrai impostare una "
+"chiave qui."
 
 msgid "Empty keys will <b>not</b> work!"
 msgstr ""
@@ -807,7 +849,7 @@ msgstr ""
 # ------End of Logs.html.tt2------
 # ------Start of Plugins.html.tt2------
 msgid "Plugin Configuration"
-msgstr ""
+msgstr "Configurazione Plugin"
 
 msgid "Enable/Disable Auto-Plugin on metadata plugins by checking the toggles."
 msgstr ""
@@ -896,10 +938,10 @@ msgid "Edit Archive Metadata"
 msgstr ""
 
 msgid "Delete Archive"
-msgstr ""
+msgstr "Elimina Archivio"
 
 msgid "Categories"
-msgstr ""
+msgstr "Categorie"
 
 msgid "Add to : "
 msgstr ""
@@ -1152,7 +1194,7 @@ msgid "Add from URL(s)"
 msgstr ""
 
 msgid "Return to Library"
-msgstr ""
+msgstr "Torna alla Libreria"
 
 # ------End of Upload.html.tt2------
 msgid "Rescan Archive Directory"
@@ -1160,6 +1202,9 @@ msgstr ""
 
 msgid "Click this button to trigger a rescan of the Archive Directory in case you're missing files, or some data such as total page counts."
 msgstr ""
+"Clicca questo pulsante per avviare una nuova scansione della directory di "
+"archivio nel caso in cui manchino file <br>o dati come il numero totale di "
+"pagine. <br>"
 
 # ------Stary of i18n.html.tt2------
 msgid "Backup restored!"
