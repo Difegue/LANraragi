@@ -37,6 +37,7 @@ use LANraragi::Utils::Path       qw(create_path open_path find_path);
 
 use LANraragi::Model::Config;
 use LANraragi::Model::Plugins;
+use LANraragi::Model::Metrics;
 use LANraragi::Utils::Plugins;    # Needed here since Shinobu doesn't inherit from the main LRR package
 use LANraragi::Model::Search;     # idem
 
@@ -88,6 +89,7 @@ sub initialize_from_new_process {
     $logger->info("All done! Now dutifully watching your files. ");
 
     my $running = 1;
+    my $metrics_counter = 0;
 
     while ($running) {
         local $SIG{INT} = sub { $running = 0 };
@@ -95,6 +97,12 @@ sub initialize_from_new_process {
         # Check events on files
         for my $event ( $contentwatcher->new_events ) {
             $inotifysub->($event);
+        }
+
+        # Collect metrics every 30 seconds (30 * 1 second intervals)
+        if (LANraragi::Model::Config->enable_metrics && ++$metrics_counter >= 30) {
+            LANraragi::Model::Metrics::collect_process_metrics( "shinobu" );
+            $metrics_counter = 0;
         }
 
         sleep 1;
