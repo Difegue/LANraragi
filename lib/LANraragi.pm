@@ -24,7 +24,7 @@ use LANraragi::Utils::I18NInitializer;
 use LANraragi::Model::Search;
 use LANraragi::Model::Config;
 use LANraragi::Model::Setup      qw(first_install_actions);
-use LANraragi::Model::Metrics    qw(collect_api_metrics collect_process_metrics);
+use LANraragi::Model::Metrics;
 
 use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 
@@ -233,6 +233,9 @@ sub startup {
     # Process metrics collection is done actively on a periodic basis.
     if (LANraragi::Model::Config->enable_metrics) {
 
+        # Clean up metrics from previous server sessions
+        LANraragi::Model::Metrics::cleanup_metrics();
+
         # Hook to start metrics timing (controllers are owned by their request)
         $self->hook(
             before_dispatch => sub {
@@ -245,13 +248,13 @@ sub startup {
         $self->hook(
             after_dispatch => sub {
                 my $c = shift;
-                collect_api_metrics($c);
+                LANraragi::Model::Metrics::collect_api_metrics($c);
             }
         );
 
         # Periodically collect process metrics
         Mojo::IOLoop->recurring(30 => sub {
-            collect_process_metrics();
+            LANraragi::Model::Metrics::collect_process_metrics();
         });
 
         $self->LRR_LOGGER->info("Metrics collection is enabled.");
