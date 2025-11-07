@@ -67,6 +67,7 @@ my $inotifysub = sub {
 sub initialize_from_new_process {
 
     my $userdir = LANraragi::Model::Config->get_userdir;
+    my $metrics_enabled = LANraragi::Model::Config->enable_metrics;
 
     $logger->info("Shinobu File Watcher started.");
     $logger->info("Content folder is $userdir.");
@@ -100,7 +101,7 @@ sub initialize_from_new_process {
         }
 
         # Collect metrics every 30 seconds (30 * 1 second intervals)
-        if (LANraragi::Model::Config->enable_metrics && ++$metrics_counter >= 30) {
+        if ( $metrics_enabled && ++$metrics_counter >= 30 ) {
             LANraragi::Model::Metrics::collect_process_metrics( "shinobu" );
             $metrics_counter = 0;
         }
