@@ -18,13 +18,13 @@ use LANraragi::Utils::Plugins    qw(get_plugins);
 use LANraragi::Utils::TempFolder qw(get_temp);
 use LANraragi::Utils::Routing;
 use LANraragi::Utils::Minion;
-use LANraragi::Utils::Metrics    qw(record_api_metrics record_process_metrics);
 use LANraragi::Utils::I18N;
 use LANraragi::Utils::I18NInitializer;
 
 use LANraragi::Model::Search;
 use LANraragi::Model::Config;
 use LANraragi::Model::Setup qw(first_install_actions);
+use LANraragi::Model::Metrics    qw(record_api_metrics record_process_metrics);
 
 use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 

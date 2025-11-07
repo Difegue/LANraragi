@@ -1,7 +1,7 @@
 package LANraragi::Controller::Api::Metrics;
 use Mojo::Base 'Mojolicious::Controller';
 
-use LANraragi::Utils::Metrics qw(get_prometheus_metrics);
+use LANraragi::Model::Metrics qw(get_prometheus_metrics);
 
 sub serve_metrics {
     my $self = shift;
