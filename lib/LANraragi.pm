@@ -23,8 +23,8 @@ use LANraragi::Utils::I18NInitializer;
 
 use LANraragi::Model::Search;
 use LANraragi::Model::Config;
-use LANraragi::Model::Setup qw(first_install_actions);
-use LANraragi::Model::Metrics    qw(record_api_metrics record_process_metrics);
+use LANraragi::Model::Setup      qw(first_install_actions);
+use LANraragi::Model::Metrics    qw(collect_api_metrics collect_process_metrics);
 
 use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 
@@ -227,14 +227,17 @@ sub startup {
         }
     );
 
-    # Enable metrics collection if configured
+    # Enable metrics collection if configured.
+    # Metrics collection occurs at 2 layers, the API handling layer and the process layer
+    # API metrics collection is done passively whenever an API call is processed.
+    # Process metrics collection is done actively on a periodic basis.
     if (LANraragi::Model::Config->enable_metrics) {
 
-        # Hook to start metrics timing
+        # Hook to start metrics timing (controllers are owned by their request)
         $self->hook(
             before_dispatch => sub {
                 my $c = shift;
-                $c->stash('metrics.start_time' => [gettimeofday]);
+                $c->stash( 'metrics.start_time' => [ gettimeofday ] );
             }
         );
 
@@ -242,13 +245,13 @@ sub startup {
         $self->hook(
             after_dispatch => sub {
                 my $c = shift;
-                record_api_metrics($c);
+                collect_api_metrics($c);
             }
         );
 
         # Periodically collect process metrics
         Mojo::IOLoop->recurring(30 => sub {
-            record_process_metrics();
+            collect_process_metrics();
         });
 
         $self->LRR_LOGGER->info("Metrics collection is enabled.");

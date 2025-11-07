@@ -3,68 +3,23 @@ package LANraragi::Model::Metrics;
 use strict;
 use warnings;
 use utf8;
-
 use Time::HiRes qw(gettimeofday tv_interval);
 use Mojo::JSON qw(encode_json decode_json);
+
 use LANraragi::Model::Config;
 use LANraragi::Model::Stats;
 use LANraragi::Utils::Metrics qw(extract_endpoint read_proc_stat read_proc_statm read_fd_stats);
 
 use Exporter 'import';
-our @EXPORT_OK = qw(record_api_metrics get_prometheus_metrics record_process_metrics);
-
-# Record API request metrics to Redis
-sub record_api_metrics {
-    my ($controller) = @_;
-
-    eval {
-        my $start_time = $controller->stash('metrics.start_time');
-        return unless $start_time; # Skip if no start time recorded
-
-        my $duration = tv_interval($start_time);
-        my $method = $controller->req->method;
-        my $path = $controller->req->url->path->to_string;
-        my $status_code = $controller->res->code || 0;
-
-        my $request_size = $controller->req->content->body_size || 0;
-        my $response_size = $controller->res->content->body_size || 0;
-
-        my $endpoint = extract_endpoint($path);
-
-        my $redis = get_redis_metrics();
-        return unless $redis;
-
-        # Store per-worker metrics using atomic operations to prevent race conditions
-        # Structure: metrics:worker:{PID}:{endpoint}_{method}:count, :duration_sum, etc.
-        # Encode endpoint to avoid Redis key issues with slashes
-        my $endpoint_encoded = $endpoint;
-        $endpoint_encoded =~ s/\//_/g;  # Replace / with _
-        my $metric_base = "metrics:worker:$$:${endpoint_encoded}_${method}";
-        $redis->hincrby($metric_base, "count", 1);
-        $redis->hincrbyfloat($metric_base, "duration_sum", $duration);
-        $redis->hincrby($metric_base, "request_size_sum", $request_size);
-        $redis->hincrby($metric_base, "response_size_sum", $response_size);
-        $redis->hset($metric_base, "last_status", $status_code);
-
-        # Set TTL for cleanup
-        $redis->expire($metric_base, 300);
-
-        $redis->quit();
-    };
-
-    # Silently fail
-    if ($@) {
-        warn "Metrics collection error: $@";
-    }
-}
+our @EXPORT_OK = qw(collect_api_metrics get_prometheus_metrics collect_process_metrics);
 
 # Get all metrics in Prometheus format
 sub get_prometheus_metrics {
-    my ($controller) = @_;
-    my $metrics_redis = get_redis_metrics();
+    my $controller      = shift;
+    my $metrics_redis   = LANraragi::Model::Config->get_redis_metrics;
 
     # Return basic metrics if Redis is unavailable
-    unless ($metrics_redis) {
+    unless ( $metrics_redis ) {
         return "# HELP lanraragi_metrics_error Metrics collection error\n" .
                "# TYPE lanraragi_metrics_error gauge\n" .
                "lanraragi_metrics_error 1\n";
@@ -74,12 +29,12 @@ sub get_prometheus_metrics {
     my %aggregated_metrics;
     my %active_workers;
     
-    foreach my $key (@metric_keys) {
+    foreach my $key ( @metric_keys ) {
         # Skip the active_workers set
         next if $key eq "metrics:active_workers";
         
         # Parse key: metrics:worker:{PID}:{endpoint_encoded}_{method}
-        if ($key =~ /^metrics:worker:(\d+):(.+)_([A-Z]+)$/) {
+        if ( $key =~ /^metrics:worker:(\d+):(.+)_([A-Z]+)$/ ) {
             my ($worker_pid, $endpoint_encoded, $method) = ($1, $2, $3);
             $active_workers{$worker_pid} = 1;
 
@@ -124,7 +79,7 @@ sub get_prometheus_metrics {
         # Server info metrics (as labels on a gauge set to 1)
         # Use controller helpers if available, otherwise fall back to direct config access
         my ($name, $motd, $version, $version_name, $version_desc);
-        if ($controller) {
+        if ( $controller ) {
             $name = $controller->LRR_CONF->get_htmltitle || "";
             $motd = $controller->LRR_CONF->get_motd || "";
             $version = $controller->LRR_VERSION || "";
@@ -166,7 +121,7 @@ sub get_prometheus_metrics {
     # Request counter
     push @output, "# HELP lanraragi_api_requests_total Total number of API requests";
     push @output, "# TYPE lanraragi_api_requests_total counter";
-    foreach my $labels (sort keys %{$aggregated_metrics{"lanraragi_api_requests_total"} || {}}) {
+    foreach my $labels ( sort keys %{ $aggregated_metrics{ "lanraragi_api_requests_total" } || {} } ) {
         my $value = $aggregated_metrics{"lanraragi_api_requests_total"}{$labels};
         push @output, "lanraragi_api_requests_total{$labels} $value";
     }
@@ -174,7 +129,7 @@ sub get_prometheus_metrics {
     # Duration sum
     push @output, "# HELP lanraragi_api_duration_seconds_sum Total time spent processing API requests";
     push @output, "# TYPE lanraragi_api_duration_seconds_sum counter";
-    foreach my $labels (sort keys %{$aggregated_metrics{"lanraragi_api_duration_seconds_sum"} || {}}) {
+    foreach my $labels ( sort keys %{ $aggregated_metrics{ "lanraragi_api_duration_seconds_sum" } || {} } ) {
         my $value = $aggregated_metrics{"lanraragi_api_duration_seconds_sum"}{$labels};
         push @output, "lanraragi_api_duration_seconds_sum{$labels} $value";
     }
@@ -182,7 +137,7 @@ sub get_prometheus_metrics {
     # Request size sum
     push @output, "# HELP lanraragi_http_request_size_bytes_sum Total bytes received in HTTP requests";
     push @output, "# TYPE lanraragi_http_request_size_bytes_sum counter";
-    foreach my $labels (sort keys %{$aggregated_metrics{"lanraragi_http_request_size_bytes_sum"} || {}}) {
+    foreach my $labels ( sort keys %{ $aggregated_metrics{ "lanraragi_http_request_size_bytes_sum" } || {}}  ) {
         my $value = $aggregated_metrics{"lanraragi_http_request_size_bytes_sum"}{$labels};
         push @output, "lanraragi_http_request_size_bytes_sum{$labels} $value";
     }
@@ -190,7 +145,7 @@ sub get_prometheus_metrics {
     # Response size sum  
     push @output, "# HELP lanraragi_http_response_size_bytes_sum Total bytes sent in HTTP responses";
     push @output, "# TYPE lanraragi_http_response_size_bytes_sum counter";
-    foreach my $labels (sort keys %{$aggregated_metrics{"lanraragi_http_response_size_bytes_sum"} || {}}) {
+    foreach my $labels ( sort keys %{ $aggregated_metrics{ "lanraragi_http_response_size_bytes_sum" } || {} } ) {
         my $value = $aggregated_metrics{"lanraragi_http_response_size_bytes_sum"}{$labels};
         push @output, "lanraragi_http_response_size_bytes_sum{$labels} $value";
     }
@@ -205,18 +160,19 @@ sub get_prometheus_metrics {
     my @process_keys = $metrics_redis->keys("metrics:process:*");
     my %process_metrics;
 
-    foreach my $key (@process_keys) {
+    foreach my $key ( @process_keys ) {
         # Parse key: metrics:process:{PID}
-        if ($key =~ /^metrics:process:(\d+)$/) {
+        if ( $key =~ /^metrics:process:(\d+)$/ ) {
             my $worker_pid = $1;
             my %process_data = $metrics_redis->hgetall($key);
             next unless %process_data;
 
             # Store by metric type
-            foreach my $metric_name (qw(cpu_user_seconds_total cpu_system_seconds_total cpu_seconds_total 
-                                       virtual_memory_bytes resident_memory_bytes 
-                                       open_fds max_fds start_time_seconds)) {
-                if (defined $process_data{$metric_name}) {
+            foreach my $metric_name ( qw(
+                cpu_user_seconds_total cpu_system_seconds_total cpu_seconds_total 
+                virtual_memory_bytes resident_memory_bytes 
+                open_fds max_fds start_time_seconds) ) {
+                if ( defined $process_data{$metric_name} ) {
                     my $labels = qq{worker_pid="$worker_pid"};
                     $process_metrics{$metric_name}{$labels} = $process_data{$metric_name};
                 }
@@ -225,9 +181,9 @@ sub get_prometheus_metrics {
     }
 
     # Output process metrics
-    if (%process_metrics) {
+    if ( %process_metrics ) {
         # CPU metrics (counters)
-        foreach my $metric_name (qw(cpu_user_seconds_total cpu_system_seconds_total cpu_seconds_total)) {
+        foreach my $metric_name ( qw(cpu_user_seconds_total cpu_system_seconds_total cpu_seconds_total) ) {
             next unless $process_metrics{$metric_name};
 
             my $help_text = {
@@ -238,14 +194,14 @@ sub get_prometheus_metrics {
 
             push @output, "# HELP lanraragi_process_$metric_name $help_text";
             push @output, "# TYPE lanraragi_process_$metric_name counter";
-            foreach my $labels (sort keys %{$process_metrics{$metric_name}}) {
+            foreach my $labels ( sort keys %{$process_metrics{$metric_name}} ) {
                 my $value = $process_metrics{$metric_name}{$labels};
                 push @output, "lanraragi_process_$metric_name\{$labels\} $value";
             }
         }
 
         # Memory and FD metrics (gauges)
-        foreach my $metric_name (qw(virtual_memory_bytes resident_memory_bytes open_fds max_fds start_time_seconds)) {
+        foreach my $metric_name ( qw(virtual_memory_bytes resident_memory_bytes open_fds max_fds start_time_seconds) ) {
             next unless $process_metrics{$metric_name};
 
             my $help_text = {
@@ -258,7 +214,7 @@ sub get_prometheus_metrics {
 
             push @output, "# HELP lanraragi_process_$metric_name $help_text";
             push @output, "# TYPE lanraragi_process_$metric_name gauge";
-            foreach my $labels (sort keys %{$process_metrics{$metric_name}}) {
+            foreach my $labels ( sort keys %{$process_metrics{$metric_name}} ) {
                 my $value = $process_metrics{$metric_name}{$labels};
                 push @output, "lanraragi_process_$metric_name\{$labels\} $value";
             }
@@ -266,19 +222,19 @@ sub get_prometheus_metrics {
     }
 
     # Output stats metrics
-    if (%stats_metrics) {
+    if ( %stats_metrics ) {
         # Server info gauge (with labels)
-        if ($stats_metrics{"lanraragi_server_info"}) {
+        if ( $stats_metrics{"lanraragi_server_info"} ) {
             push @output, "# HELP lanraragi_server_info Server information with version and configuration details";
             push @output, "# TYPE lanraragi_server_info gauge";
-            foreach my $labels (sort keys %{$stats_metrics{"lanraragi_server_info"}}) {
+            foreach my $labels ( sort keys %{$stats_metrics{"lanraragi_server_info"}} ) {
                 my $value = $stats_metrics{"lanraragi_server_info"}{$labels};
                 push @output, "lanraragi_server_info{$labels} $value";
             }
         }
 
         # Configuration gauges
-        foreach my $metric_name (qw(has_password debug_mode nofun_mode server_resizes_images)) {
+        foreach my $metric_name ( qw(has_password debug_mode nofun_mode server_resizes_images) ) {
             next unless defined $stats_metrics{"lanraragi_$metric_name"};
 
             my $help_text = {
@@ -295,7 +251,7 @@ sub get_prometheus_metrics {
         }
 
         # Archives per page gauge
-        if (defined $stats_metrics{"lanraragi_archives_per_page"}) {
+        if ( defined $stats_metrics{"lanraragi_archives_per_page"} ) {
             push @output, "# HELP lanraragi_archives_per_page Number of archives displayed per page";
             push @output, "# TYPE lanraragi_archives_per_page gauge";
             my $value = $stats_metrics{"lanraragi_archives_per_page"}{""};
@@ -303,21 +259,21 @@ sub get_prometheus_metrics {
         }
 
         # Archive and page statistics
-        if (defined $stats_metrics{"lanraragi_archives_total"}) {
+        if ( defined $stats_metrics{"lanraragi_archives_total"} ) {
             push @output, "# HELP lanraragi_archives_total Current number of archives in the library";
             push @output, "# TYPE lanraragi_archives_total gauge";
             my $value = $stats_metrics{"lanraragi_archives_total"}{""};
             push @output, "lanraragi_archives_total $value";
         }
 
-        if (defined $stats_metrics{"lanraragi_pages_read_total"}) {
+        if ( defined $stats_metrics{"lanraragi_pages_read_total"} ) {
             push @output, "# HELP lanraragi_pages_read_total Total number of pages read across all archives";
             push @output, "# TYPE lanraragi_pages_read_total counter";
             my $value = $stats_metrics{"lanraragi_pages_read_total"}{""};
             push @output, "lanraragi_pages_read_total $value";
         }
 
-        if (defined $stats_metrics{"lanraragi_cache_last_cleared_timestamp"}) {
+        if ( defined $stats_metrics{"lanraragi_cache_last_cleared_timestamp"} ) {
             push @output, "# HELP lanraragi_cache_last_cleared_timestamp Unix timestamp when the search cache was last cleared";
             push @output, "# TYPE lanraragi_cache_last_cleared_timestamp gauge";
             my $value = $stats_metrics{"lanraragi_cache_last_cleared_timestamp"}{""};
@@ -328,21 +284,57 @@ sub get_prometheus_metrics {
     return join("\n", @output) . "\n";
 }
 
-# Get Redis connection for metrics database
-sub get_redis_metrics {
-    my $redis;
+# Record API request metrics to Redis
+# takes a Mojo controller corresponding to the API request being handled.
+sub collect_api_metrics {
+    my $controller          = shift;
+
     eval {
-        $redis = LANraragi::Model::Config->get_redis_metrics;
+        my $start_time = $controller->stash('metrics.start_time');
+        return unless $start_time;
+
+        my $duration        = tv_interval($start_time);
+        my $method          = $controller->req->method;
+        my $path            = $controller->req->url->path->to_string;
+        my $status_code     = $controller->res->code || 0;
+
+        my $request_size    = $controller->req->content->body_size || 0;
+        my $response_size   = $controller->res->content->body_size || 0;
+
+        my $endpoint = extract_endpoint($path);
+
+        my $redis = get_redis_metrics();
+        return unless $redis;
+
+        # Store per-worker metrics using atomic operations to prevent race conditions
+        # Structure: metrics:worker:{PID}:{endpoint}_{method}:count, :duration_sum, etc.
+        # Encode endpoint to avoid Redis key issues with slashes
+        my $endpoint_encoded = $endpoint;
+        $endpoint_encoded =~ s/\//_/g;  # Replace / with _
+        my $metric_base = "metrics:worker:$$:${endpoint_encoded}_${method}";
+        $redis->hincrby($metric_base, "count", 1);
+        $redis->hincrbyfloat($metric_base, "duration_sum", $duration);
+        $redis->hincrby($metric_base, "request_size_sum", $request_size);
+        $redis->hincrby($metric_base, "response_size_sum", $response_size);
+        $redis->hset($metric_base, "last_status", $status_code);
+
+        # Set TTL for cleanup
+        $redis->expire($metric_base, 300);
+
+        $redis->quit();
     };
-    return $redis;
+
+    if ( $@ ) {
+        warn "Metrics collection error: $@";
+    }
 }
 
 # Record process-level metrics for the current worker to Redis
-sub record_process_metrics {
+sub collect_process_metrics {
     eval {
 
         if ($^O eq 'linux') {
-            my $metrics_redis = get_redis_metrics();
+            my $metrics_redis = LANraragi::Model::Config->get_redis_metrics;
             return unless $metrics_redis; # Skip if Redis connection failed
 
             # Read process information from /proc/self/stat and /proc/self/statm
@@ -388,8 +380,8 @@ sub record_process_metrics {
             warn "Unsupported OS: $^O";
         }
     };
-    # Silently ignore any process metrics collection errors
-    if ($@) {
+
+    if ( $@ ) {
         warn "Process metrics collection error: $@";
     }
 }

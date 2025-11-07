@@ -106,7 +106,7 @@ sub apply_routes {
 
     # Metrics API
     if ( $self->LRR_CONF->enable_metrics ) {
-        $public_api->get('/metrics')->to('api-metrics#serve_metrics');
+        $public_api->get('/api/metrics')->to('api-metrics#serve_metrics');
     }
 
     # OPDS API

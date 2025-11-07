@@ -11,7 +11,7 @@ our @EXPORT_OK = qw(extract_endpoint read_proc_stat read_proc_statm read_fd_stat
 # During normalization, query parameters are removed and path parameters are replaced with router placeholders.
 # If a path is undefined, return "/unknown".
 sub extract_endpoint {
-    my ($path) = @_;
+    my $path = shift;
 
     return "/unknown" unless defined $path;
 
@@ -114,8 +114,8 @@ sub read_proc_statm {
 # if max fd is unlimited, return map value as undef.
 # https://man7.org/linux/man-pages/man5/proc_pid_fd.5.html
 sub read_fd_stats {
-    my $open_fds = 0;
-    my $max_fds = undef;
+    my $open_fds    = 0;
+    my $max_fds     = undef;
 
     if ( opendir my $fd_dir, "/proc/self/fd" ) {
         $open_fds = grep { /^\d+$/ } readdir($fd_dir);
