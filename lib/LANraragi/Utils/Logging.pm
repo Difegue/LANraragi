@@ -43,29 +43,52 @@ sub get_logger {
     if ( -e $logpath && -s $logpath > 1048576 ) {
 
         # Rotate log if it's > 1MB
-        say "Rotating logfile $logfile";
+        my $redis       = LANraragi::Model::Config->get_redis_config;
+        my $lock_name   = "log-rotate:$logfile";
+        my $lock        = $redis->set( $lock_name, 1, 'NX', 'EX', 10 );
 
-        # Based on Logfile::Rotate
-        # Rotate existing logs
-        for ( my $i = 7; $i > 1; $i-- ) {
-            my $j = $i - 1;
-            my $next = "$logpath.$i.gz";
-            my $prev = "$logpath.$j.gz";
-            if ( -r $prev && -f $prev ) {
-                rename( $prev, $next ) or die "error: rename failed: ($prev,$next)";
-            }
+        # Only one process gets to rotate logs at any given time
+        my $rotation_error;
+        if ( $lock ) {
+
+            eval {
+                say "Rotating logfile $logfile";
+
+                # Based on Logfile::Rotate
+                # Rotate existing logs
+                for ( my $i = 7; $i > 1; $i-- ) {
+                    my $j = $i - 1;
+                    my $next = "$logpath.$i.gz";
+                    my $prev = "$logpath.$j.gz";
+                    if ( -r $prev && -f $prev ) {
+                        rename( $prev, $next ) or die "error: rename failed: ($prev,$next)";
+                    }
+                }
+
+                # Move current logs to tempfile to stop new writes to it
+                my $tmp = "$logpath.rotate";
+                unlink $tmp if -e $tmp;
+                rename( $logpath, $tmp ) or die "error: could not detach $logpath to $tmp: $!";
+
+                # Gzip the detached tempfile
+                my $gz = gzopen( "$logpath.1.gz", "wb" ) or die "error: could not gzopen $logpath.1.gz: $!";
+                open( my $handle, '<', $tmp ) or die "Couldn't open $tmp: $!";
+                my $buffer;
+                $gz->gzwrite($buffer) while read( $handle, $buffer, 4096 ) > 0;
+                $gz->gzclose();
+                close $handle;
+
+                unlink $tmp or die "error: could not delete $tmp: $!";
+            };
+
+            $rotation_error = $@;
+            $redis->del($lock_name);
+
         }
 
-        # Rotate current log and Gzip-it
-        my $gz = gzopen( "$logpath.1.gz", "wb" ) or die "error: could not gzopen $logpath: $!";
+        $redis->quit();
+        die $rotation_error if $rotation_error;
 
-        open( my $handle, '<', $logpath ) or die "Couldn't open $logpath :" . $!;
-        my $buffer;
-        $gz->gzwrite($buffer) while read( $handle, $buffer, 4096 ) > 0;
-        $gz->gzclose();
-        close $handle;
-
-        unlink $logpath or die "error: could not delete $logpath: $!";
     }
 
     my $log = Mojo::Log->new(
