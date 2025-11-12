@@ -17,6 +17,7 @@ use LANraragi::Utils::Redis qw(redis_decode);
 # Contains all functions related to logging.
 use Exporter 'import';
 our @EXPORT_OK = qw(get_logger get_plugin_logger get_logdir get_lines_from_file);
+our %LOGGER_CACHE;
 
 # Get the Log folder.
 sub get_logdir {
@@ -38,7 +39,15 @@ sub get_logger {
     my $pgname  = $_[0];
     my $logfile = $_[1];
 
-    my $logpath = get_logdir . "/$logfile.log";
+    my $logpath     = get_logdir . "/$logfile.log";
+    my $cache_key   = "$logfile|$pgname";
+    my $is_new      = 0;
+    my $log;
+
+    # Reuse cached logger if exists
+    if ( exists $LOGGER_CACHE{$cache_key} && -e $logpath && -s $logpath <= 1048576 ) {
+        return $LOGGER_CACHE{$cache_key};
+    }
 
     if ( -e $logpath && -s $logpath > 1048576 ) {
 
@@ -79,6 +88,25 @@ sub get_logger {
                 close $handle;
 
                 unlink $tmp or die "error: could not delete $tmp: $!";
+
+                open( my $fh, '>>', $logpath ) or die "Could not create logfile '$logpath': $!";
+                close $fh;
+                my $newlog;
+                eval {
+                    $newlog = Mojo::Log->new(
+                        path  => $logpath,
+                        level => 'info'
+                    );
+                    $newlog->handle;
+                    $newlog->info("Rotated log files.");
+                    1;
+                } or do {
+                    my $e = $@ || 'unknown error';
+                    die "Failed to instantiate Mojo::Log for '$pgname' at '$logpath' (rotation): $e";
+                };
+                $log = $newlog;
+                $LOGGER_CACHE{$cache_key} = $log;
+                $is_new = 1;
             };
 
             $rotation_error = $@;
@@ -91,50 +119,134 @@ sub get_logger {
 
     }
 
-    my $log = Mojo::Log->new(
-        path  => $logpath,
-        level => 'info'
-    );
+    if ( !-e $logpath ) {
+        # handle cases where a logfile doesn't exist.
 
-    my $devmode = LANraragi::Model::Config->enable_devmode;
+        my $redis       = LANraragi::Model::Config->get_redis_config;
+        my $lock_name   = "log-rotate:$logfile";
+        my $lock        = $redis->set( $lock_name, 1, 'NX', 'EX', 10 );
 
-    #Tell logger to store debug logs as well in debug mode
-    if ($devmode) {
-        $log->level('debug');
-    }
-
-    # Step down into trace if we're launched from npm run dev-server-verbose
-    if ( $ENV{LRR_DEVSERVER} ) {
-        $log->level('trace');
-    }
-
-    #Copy logged messages to STDOUT with the matching name
-    $log->on(
-        message => sub {
-            my ( $time, $level, @lines ) = @_;
-
-            #Like with logging to file, debug logs are only printed in debug mode
-            unless ( $devmode == 0 && ( $level eq 'debug' || $level eq 'trace' ) ) {
-                print "[$pgname] [$level] ";
-                say $lines[0];
+        my $logfile_create_error;
+        if ( !$lock ) {
+            # Another worker is rotating/creating the logfile.
+            # Wait up to ~10s for it to appear.
+            my $tries = 0;
+            while ( $tries < 100 && !-e $logpath ) {
+                sleep 0.1;
+                $tries++;
             }
+            if ( -e $logpath ) {
+                my $newlog;
+                eval {
+                    $newlog = Mojo::Log->new(
+                        path  => $logpath,
+                        level => 'info'
+                    );
+                    $newlog->handle;
+                    $newlog->info("Created log file.");
+                    1;
+                } or do {
+                    my $e = $@;
+                    die "Failed to instantiate Mojo::Log for '$pgname' at '$logpath' (wait branch): $@";
+                };
+                $log = $newlog;
+                $LOGGER_CACHE{$cache_key} = $log;
+                $is_new = 1;
+            } else {
+                $logfile_create_error = "Timed out waiting for logfile to be created: $logpath"
+            }
+        } else {
+            # Hold lock and create logfile if not exists.
+            # This happens during start of app (if no logfile exists).
+            eval {
+                say "Creating logfile $logfile.";
+
+                open( my $fh, '>>', $logpath ) or die "Could not create logfile '$logpath': $!";
+                close $fh;
+                my $newlog;
+                eval {
+                    $newlog = Mojo::Log->new(
+                        path  => $logpath,
+                        level => 'info'
+                    );
+                    $newlog->handle;
+                    1;
+                } or do {
+                    my $e = $@ || 'unknown error';
+                    die "Failed to instantiate Mojo::Log for '$pgname' at '$logpath' (create branch): $e";
+                };
+                $log = $newlog;
+                $LOGGER_CACHE{$cache_key} = $log;
+                $is_new = 1;
+                1;
+            };
+
+            $logfile_create_error = $@;
+            $redis->del($lock_name);
         }
-    );
 
-    $log->format(
-        sub {
-            my ( $time, $level, @lines ) = @_;
-            my $time2 = strftime( "%Y-%m-%d %H:%M:%S", localtime($time) );
+        $redis->quit();
+        die $logfile_create_error if $logfile_create_error;
 
-            my $logstring = join( "\n", @lines );
+    } else {
+        my $newlog;
+        eval {
+            $newlog = Mojo::Log->new(
+                path  => $logpath,
+                level => 'info'
+            );
+            $newlog->handle;
+            1;
+        } or do {
+            my $e = $@ || 'unknown error';
+            die "Failed to instantiate Mojo::Log for '$pgname' at '$logpath' (default branch): $e";
+        };
+        $log = $newlog;
+        $LOGGER_CACHE{$cache_key} = $log;
+        $is_new = 1;
+    }
 
-            # We'd like to make sure we always show proper UTF-8.
-            # redis_decode, while not initially designed for this, does the job.
-            $logstring = redis_decode($logstring);
+    if ($is_new) {
+        my $devmode = LANraragi::Model::Config->enable_devmode;
 
-            return "[$time2] [$pgname] [$level] $logstring\n";
+        #Tell logger to store debug logs as well in debug mode
+        if ($devmode) {
+            $log->level('debug');
         }
-    );
+
+        # Step down into trace if we're launched from npm run dev-server-verbose
+        if ( $ENV{LRR_DEVSERVER} ) {
+            $log->level('trace');
+        }
+
+        #Copy logged messages to STDOUT with the matching name
+        $log->on(
+            message => sub {
+                my ( $time, $level, @lines ) = @_;
+
+                #Like with logging to file, debug logs are only printed in debug mode
+                unless ( $devmode == 0 && ( $level eq 'debug' || $level eq 'trace' ) ) {
+                    print "[$pgname] [$level] ";
+                    say $lines[0];
+                }
+            }
+        );
+
+        $log->format(
+            sub {
+                my ( $time, $level, @lines ) = @_;
+                my $time2 = strftime( "%Y-%m-%d %H:%M:%S", localtime($time) );
+
+                my $logstring = join( "\n", @lines );
+
+                # We'd like to make sure we always show proper UTF-8.
+                # redis_decode, while not initially designed for this, does the job.
+                $logstring = redis_decode($logstring);
+
+                return "[$time2] [$pgname] [$level] $logstring\n";
+            }
+        );
+    }
 
     return $log;
 }
