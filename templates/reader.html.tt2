@@ -87,6 +87,7 @@
     <script>
         // This would be better in the reader.js file, but it's faster to source this data from the server template for now.
         Reader.trackProgressLocally = "[% use_local %]" === "1";
+        Reader.authenticateProgress = "[% auth_progress %]" === "1";
     </script>
 
     <div id="overlay-shade"></div>

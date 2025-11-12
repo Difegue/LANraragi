@@ -127,7 +127,11 @@ sub apply_routes {
     $public_api->get('/api/archives/:id/files')->to('api-archive#get_file_list');
     $public_api->post('/api/archives/:id/files/thumbnails')->to('api-archive#generate_page_thumbnails');
     $public_api->post('/api/archives/:id/extract')->to('api-archive#get_file_list');    # Deprecated
-    $public_api->put('/api/archives/:id/progress/:page')->to('api-archive#update_progress');
+    if ( $self->LRR_CONF->enable_authprogress ) {
+        $logged_in_api->put('/api/archives/:id/progress/:page')->to('api-archive#update_progress');
+    } else {
+        $public_api->put('/api/archives/:id/progress/:page')->to('api-archive#update_progress');
+    }
     $public_api->delete('/api/archives/:id/isnew')->to('api-archive#clear_new');
     $public_api->get('/api/archives/:id')->to('api-archive#serve_metadata');
     $public_api->get('/api/archives/:id/categories')->to('api-archive#get_categories');

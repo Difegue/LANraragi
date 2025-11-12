@@ -361,6 +361,15 @@ msgstr "Enabling this option will save reading progression on the browser (throu
 msgid "Consider toggling this option if you're sharing the LANraragi instance with multiple users!"
 msgstr "Consider toggling this option if you're sharing the LANraragi instance with multiple users!"
 
+msgid "Authenticated Progress Tracking"
+msgstr "Authenticated Progress Tracking"
+
+msgid "If enabled, server-side progress will only be saved if you're logged in with a password, and will override clientside progress. This allows guests to browse without affecting the main user's progress."
+msgstr "If enabled, server-side progress will only be saved if you're logged in with a password, and will override clientside progress. This allows guests to browse without affecting the main user's progress."
+
+msgid "Combine with clientside progress tracking to allow unauthenticated users to track progress locally."
+msgstr "Combine with clientside progress tracking to allow unauthenticated users to track progress locally."
+
 msgid "Debug Mode"
 msgstr "Debug Mode"
 

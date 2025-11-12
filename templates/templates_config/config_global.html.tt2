@@ -85,6 +85,22 @@
 
 <tr>
     <td class="option-td">
+        <h2 class="ih"> [% c.lh("Authenticated Progress Tracking") %] </h2>
+    </td>
+    <td class="config-td">
+        [% IF authprogress %]
+        <input id="authprogress" name="authprogress" class="fa" type="checkbox" checked> [% ELSE %]
+        <input id="authprogress" name="authprogress" class="fa" type="checkbox"> [% END %]
+        <label for="authprogress">
+            <br>[% c.lh("If enabled, server-side progress will only be saved if you're logged in with a password, and will override clientside progress. This allows guests to browse without affecting the main user's progress.") %] <br />
+            [% c.lh("Combine with clientside progress tracking to allow unauthenticated users to track progress locally.") %] <br />
+            [% c.lh("Fully effective after restarting LANraragi.") %]
+        </label>
+    </td>
+</tr>
+
+<tr>
+    <td class="option-td">
         <h2 class="ih"> [% c.lh("Debug Mode") %] </h2>
     </td>
     <td class="config-td">
