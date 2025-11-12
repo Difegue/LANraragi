@@ -923,7 +923,12 @@ Reader.startAutoNextPage = function() {
     Reader.autoNextPageCountdownTaskId = setInterval(() => {
         if (Reader.autoNextPageCountdown <= 0) {
             clearInterval(Reader.autoNextPageCountdownTaskId);
-            Reader.changePage(1);
+            
+            if (Reader.mangaMode) 
+                Reader.changePage(-1);
+            else 
+                Reader.changePage(1);
+
             const continueNextPage = Reader.mangaMode ? Reader.currentPage > 0 : Reader.currentPage < Reader.maxPage;
             if (continueNextPage) {
                 Reader.startAutoNextPage();
