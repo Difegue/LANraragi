@@ -44,6 +44,9 @@ sub get_configdb { return $config->{redis_database_config} }
 # Database used to store search index and cache
 sub get_searchdb { return $config->{redis_database_search} }
 
+# Database used to store metrics
+sub get_metricsdb { return $config->{redis_database_metrics} }
+
 # Base URL for deployment under a path prefix
 sub get_baseurl { return "$config->{base_url_path}" }
 
@@ -68,6 +71,10 @@ sub get_redis_config {
 
 sub get_redis_search {
     return get_redis_internal(&get_searchdb);
+}
+
+sub get_redis_metrics {
+    return get_redis_internal(&get_metricsdb);
 }
 
 sub get_redis_internal {
@@ -177,6 +184,7 @@ sub get_pagesize         { return &get_redis_conf( "pagesize",        "100" ) }
 sub enable_pass          { return &get_redis_conf( "enablepass",      "1" ) }
 sub enable_nofun         { return &get_redis_conf( "nofunmode",       "0" ) }
 sub enable_cors          { return &get_redis_conf( "enablecors",      "0" ) }
+sub enable_metrics       { return &get_redis_conf( "enablemetrics",   "0" ) }
 sub get_apikey           { return &get_redis_conf( "apikey",          "" ) }
 sub enable_localprogress { return &get_redis_conf( "localprogress",   "0" ) }
 sub enable_authprogress  { return &get_redis_conf( "authprogress",    "0" ) }

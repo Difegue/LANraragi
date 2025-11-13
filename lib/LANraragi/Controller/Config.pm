@@ -38,6 +38,7 @@ sub index {
         nofunmode       => $self->LRR_CONF->enable_nofun,
         apikey          => $self->LRR_CONF->get_apikey,
         enablecors      => $self->LRR_CONF->enable_cors,
+        enablemetrics   => $self->LRR_CONF->enable_metrics,
         enableresize    => $self->LRR_CONF->enable_resize,
         sizethreshold   => $self->LRR_CONF->get_threshold,
         readerquality   => $self->LRR_CONF->get_readquality,
@@ -78,6 +79,7 @@ sub save_config {
         # we check if the parameter exists in the POST to return either 1 or 0.
         enablepass      => ( scalar $self->req->param('enablepass')      ? '1' : '0' ),
         enablecors      => ( scalar $self->req->param('enablecors')      ? '1' : '0' ),
+        enablemetrics   => ( scalar $self->req->param('enablemetrics')   ? '1' : '0' ),
         localprogress   => ( scalar $self->req->param('localprogress')   ? '1' : '0' ),
         authprogress    => ( scalar $self->req->param('authprogress')    ? '1' : '0' ),
         devmode         => ( scalar $self->req->param('devmode')         ? '1' : '0' ),
