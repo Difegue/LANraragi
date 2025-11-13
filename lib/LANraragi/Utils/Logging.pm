@@ -7,6 +7,7 @@ use utf8;
 use feature 'say';
 use POSIX;
 use FindBin;
+use Time::HiRes;
 
 use Encode;
 use File::ReadBackwards;
@@ -132,7 +133,7 @@ sub get_logger {
             # Wait up to ~10s for it to appear.
             my $tries = 0;
             while ( $tries < 100 && !-e $logpath ) {
-                sleep 0.1;
+                Time::HiRes::sleep(0.1);
                 $tries++;
             }
             if ( -e $logpath ) {
