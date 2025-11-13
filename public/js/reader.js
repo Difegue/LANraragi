@@ -11,6 +11,9 @@ Reader.currentPage = -1;
 Reader.showingSinglePage = true;
 Reader.preloadedImg = {};
 Reader.preloadedSizes = {};
+
+Reader.archiveIndex = -1;
+Reader.archiveIds = [];
 Reader.spaceScroll = { timeout: null, animationId: null };
 //Spacebar Scroll Config
 Reader.scrollConfig = {   
@@ -53,7 +56,11 @@ Reader.initializeAll = function () {
     $(document).on("click.auto-next-page", "#auto-next-page-apply", Reader.registerAutoNextPage);
 
     $(document).on("click.close-overlay", "#overlay-shade", LRR.closeOverlay);
-    $(document).on("click.toggle-full-screen", "#toggle-full-screen", () => Reader.handleFullScreen(true));
+    $(document).on("click.toggle-full-screen", "#toggle-full-screen", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        Reader.handleFullScreen(true);
+    });
     $(document).on("click.toggle-auto-next-page", ".toggle-auto-next-page", Reader.toggleAutoNextPage);
     $(document).on("click.toggle-archive-overlay", "#toggle-archive-overlay", Reader.toggleArchiveOverlay);
     $(document).on("click.toggle-settings-overlay", "#toggle-settings-overlay", Reader.toggleSettingsOverlay);
@@ -113,6 +120,12 @@ Reader.initializeAll = function () {
         Reader.goToPage(pageNumber);
     });
 
+    // When user hits browser back, return to index.
+    window.addEventListener("popstate", (event) => {
+        event.preventDefault();
+        Reader.returnToIndex();
+    });
+
     // Apply full-screen utility
     // F11 Fullscreen is totally another "Fullscreen", so its support is beyong consideration.
     if (!window.fscreen.fullscreenEnabled) {
@@ -128,6 +141,9 @@ Reader.initializeAll = function () {
     Reader.id = params.get("id");
     Reader.force = params.get("force_reload") !== null;
     Reader.currentPage = (+params.get("p") || 1) - 1;
+
+    // Set up archive navigation state
+    Reader.setupArchiveNavigation();
 
     // Remove the "new" tag with an api call
     Server.callAPI(`/api/archives/${Reader.id}/isnew`, "DELETE", null, I18N.ReaderErrorClearingNew, null);
@@ -180,9 +196,62 @@ Reader.initializeAll = function () {
         },
     );
 
+    // Changing archives in reader mode cause datatables search info to be lost, so we need to
+    // get it out from localStorage when calling return to index.
+    $(document).on("click.return-to-index", "#return-to-index", (e) => {
+        e.preventDefault();
+        Reader.returnToIndex();
+    });
+
     // Fetch "bookmark" category ID and setup icon
     Reader.loadBookmarkStatus();
 };
+
+/**
+ * Determine if current page qualifies for, and sets up, archive navigation state.
+ * While in reader mode, navigation state is only supported if user enters reader from index datatables,
+ * or if user is already in reader mode with navigation support and switches to a different archive via
+ * readNextArchive() or readPreviousArchive().
+ * 
+ * If users enters from carousel or by pasting URL, navigation is not supported
+ * 
+ * @returns {boolean} - whether archive navigation state was set up
+ */
+Reader.setupArchiveNavigation = function () {
+    const navigationState = sessionStorage.getItem('navigationState');
+    const currArchiveIdsJson = localStorage.getItem('currArchiveIds');
+    const referrer = document.referrer;
+    const isDirectNavigation = !referrer || !referrer.includes(window.location.host)
+    if (isDirectNavigation) {
+        Reader.archiveIds = [];
+        sessionStorage.removeItem('navigationState');
+        return false;
+    } else if (navigationState === 'datatables' && currArchiveIdsJson) {
+        try {
+            const archiveIds = JSON.parse(currArchiveIdsJson);
+            Reader.archiveIds = archiveIds;
+            Reader.archiveIndex = archiveIds.indexOf(Reader.id);
+            if (Reader.archiveIndex !== -1) {
+                if (Reader.archiveIndex === 0) {
+                    const previousArchives = Reader.loadPreviousDatatablesArchives();
+                    if (previousArchives) {
+                        localStorage.setItem('previousArchiveIds', JSON.stringify(previousArchives));
+                    }
+                }
+                if (Reader.archiveIndex === archiveIds.length - 1) {
+                    const nextArchives = Reader.loadNextDatatablesArchives();
+                    if (nextArchives) {
+                        localStorage.setItem('nextArchiveIds', JSON.stringify(nextArchives));
+                    }
+                }
+            }
+        } catch (error) {
+            console.error("Error setting up archive navigation state:", error);
+            return false;
+        }
+    }
+    return true;
+}
 
 /**
  * Adds a removable category flag to the categories section within archive overview.
@@ -379,7 +448,8 @@ Reader.handleShortcuts = function (e) {
     }
     switch (e.keyCode) {
     case 8: // backspace
-        document.location.href = $("#return-to-index").attr("href");
+        e.preventDefault();
+        Reader.returnToIndex();
         break;
     case 27: // escape
         LRR.closeOverlay();
@@ -478,19 +548,35 @@ Reader.handleShortcuts = function (e) {
     }
     break;
     case 37: // left arrow
-        Reader.changePage(-1);
+        if (e.shiftKey) {
+            Reader.changePage("first");
+        } else {
+            Reader.changePage(-1);
+        }
         break;
     case 39: // right arrow
-        Reader.changePage(1);
+        if (e.shiftKey) {
+            Reader.changePage("last");
+        } else {
+            Reader.changePage(1);
+        }
         break;
     case 65: // a
-        Reader.changePage(-1);
+        if (e.shiftKey) {
+            Reader.changePage("first");
+        } else {
+            Reader.changePage(-1);
+        }
         break;
     case 66: // b
         Reader.toggleBookmark(e);
         break;
     case 68: // d
-        Reader.changePage(1);
+        if (e.shiftKey) {
+            Reader.changePage("last");
+        } else {
+            Reader.changePage(1);
+        }
         break;
     case 70: // f
         Reader.toggleFullScreen();
@@ -515,7 +601,14 @@ Reader.handleShortcuts = function (e) {
         break;
     case 82: // r
         if (e.ctrlKey || e.shiftKey || e.metaKey) { break; }
+        sessionStorage.removeItem('navigationState');
         document.location.href = new LRR.apiURL("/random");
+        break;
+    case 219: // [
+        Reader.readPreviousArchive();
+        break;
+    case 221: // ]
+        Reader.readNextArchive();
         break;
     default:
         break;
@@ -1044,7 +1137,11 @@ Reader.initializeArchiveOverlay = function () {
         }
     };
 
-    fetch(new LRR.apiURL(`/api/archives/${Reader.id}/files/thumbnails`), { method: "POST" })
+    fetch(new LRR.apiURL(`/api/archives/${Reader.id}/files/thumbnails`), { 
+        method: "POST",
+        mode: 'same-origin',
+        credentials: 'same-origin'
+    })
         .then((response) => {
             if (response.status === 200) {
                 // Thumbnails are already generated, there's nothing to do. Very nice!
@@ -1079,8 +1176,14 @@ Reader.changePage = function(targetPage) {
     }
     let destination;
     if (targetPage === "first") {
+        if (Reader.currentPage === 0) {
+            return Reader.readPreviousArchive();
+        }
         destination = Reader.mangaMode ? Reader.maxPage : 0;
     } else if (targetPage === "last") {
+        if (Reader.currentPage === Reader.maxPage) {
+            return Reader.readNextArchive();
+        }
         destination = Reader.mangaMode ? 0 : Reader.maxPage;
     } else {
         let offset = targetPage;
@@ -1089,11 +1192,20 @@ Reader.changePage = function(targetPage) {
         }
         destination = Reader.currentPage + (Reader.mangaMode ? -offset : offset);
     }
-    Reader.goToPage(destination);
+    if (destination < 0) {
+        return Reader.readPreviousArchive();
+    } else if (destination > Reader.maxPage) {
+        return Reader.readNextArchive();
+    } else {
+        return Reader.goToPage(destination);
+    }
 };
 
 Reader.handlePaginator = function () {
     switch (this.getAttribute("value")) {
+    case "outermost-left":
+        Reader.readPreviousArchive();
+        break;
     case "outer-left":
         Reader.changePage("first");
         break;
@@ -1106,7 +1218,191 @@ Reader.handlePaginator = function () {
     case "outer-right":
         Reader.changePage("last");
         break;
+    case "outermost-right":
+        Reader.readNextArchive();
+        break;
     default:
         break;
     }
 };
+
+Reader.loadPreviousDatatablesArchives = function () {
+    if (localStorage.getItem('previousArchiveIds')) {
+        return JSON.parse(localStorage.getItem('previousArchiveIds'));
+    }
+    const currentPage = parseInt(localStorage.getItem('currDatatablesPage') || '1', 10);
+    if (currentPage <= 1) return null;
+    const prevDTPage = currentPage - 1;
+    return Reader.loadDatatablesArchives(prevDTPage);
+}
+
+Reader.loadNextDatatablesArchives = function () {
+    if (localStorage.getItem('nextArchiveIds')) {
+        return JSON.parse(localStorage.getItem('nextArchiveIds'));
+    }
+    const currentPage = parseInt(localStorage.getItem('currDatatablesPage') || '1', 10);
+    const nextDTPage = currentPage + 1;
+    return Reader.loadDatatablesArchives(nextDTPage);
+}
+
+// TODO: this can probably be refactored to Reader.changeArchive like in Reader.changePage
+// but also it might be fine as is for readability
+// when at start or end of list, perform list shifting
+// if no previous/next list is available, this means we're at the first or last archive
+// iPhone doesn't support fullscreen API (actually ios doesn't in general but iPhone is where
+// it really breaks down).
+Reader.readPreviousArchive = function () {
+    const isIphone = /iPhone/.test(navigator.userAgent);
+    if (!isIphone && window.fscreen.inFullscreen()) {
+        return;
+    }
+    if (Reader.archiveIds.length > 0) {
+        let previousArchiveId;
+        if (Reader.archiveIndex === 0) {
+            const previousArchiveIdsJson = localStorage.getItem('previousArchiveIds');
+            const currArchiveIdsJson = localStorage.getItem('currArchiveIds');
+            if (previousArchiveIdsJson && currArchiveIdsJson) {
+                const previousArchiveIds = JSON.parse(previousArchiveIdsJson);
+                localStorage.removeItem('previousArchiveIds');
+                localStorage.setItem('currArchiveIds', previousArchiveIdsJson);
+                localStorage.setItem('nextArchiveIds', currArchiveIdsJson);
+                previousArchiveId = previousArchiveIds[previousArchiveIds.length - 1];
+                const currentPage = parseInt(localStorage.getItem('currDatatablesPage') || '1', 10);
+                localStorage.setItem('currDatatablesPage', currentPage - 1);
+            } else {
+                LRR.toast({"text": "This is the first archive"});
+                return;
+            }
+        } else {
+            previousArchiveId = Reader.archiveIds[Reader.archiveIndex - 1];
+        }
+        const newUrl = new LRR.apiURL(`/reader?id=${previousArchiveId}`).toString();
+        history.pushState({navigation: 'archive'}, '', newUrl);
+        window.location.href = newUrl;
+    } else {
+        LRR.toast({"text": "This is the first archive"});
+    }
+}
+
+Reader.readNextArchive = function () {
+    const isIphone = /iPhone/.test(navigator.userAgent);
+    if (!isIphone && window.fscreen.inFullscreen()) {
+        return;
+    }
+    if (Reader.archiveIds.length > 0) {
+        let nextArchiveId;
+        if (Reader.archiveIndex === Reader.archiveIds.length - 1) {
+            const nextArchiveIdsJson = localStorage.getItem('nextArchiveIds');
+            const currArchiveIdsJson = localStorage.getItem('currArchiveIds');
+            if (nextArchiveIdsJson && currArchiveIdsJson) {
+                const nextArchiveIds = JSON.parse(nextArchiveIdsJson);
+                localStorage.removeItem('nextArchiveIds');
+                localStorage.setItem('currArchiveIds', nextArchiveIdsJson);
+                localStorage.setItem('previousArchiveIds', currArchiveIdsJson);
+                nextArchiveId = nextArchiveIds[0];
+                const currentPage = parseInt(localStorage.getItem('currDatatablesPage') || '1', 10);
+                localStorage.setItem('currDatatablesPage', currentPage + 1);
+            } else {
+                LRR.toast({"text": "This is the last archive"});
+                return;
+            }
+        } else {
+            nextArchiveId = Reader.archiveIds[Reader.archiveIndex + 1];
+        }
+        const newUrl = new LRR.apiURL(`/reader?id=${nextArchiveId}`).toString();
+        history.pushState({navigation: 'archive'}, '', newUrl);
+        window.location.href = newUrl;
+    } else {
+        LRR.toast({"text": "This is the last archive"});
+    }
+}
+
+/**
+ * Loads the archives for the given datatables page.
+ * This is to support archive navigation between datatables pages; in order to do that 
+ * we need to know everything about the filter used to produce the datatables pages.
+ * 
+ * E.g., if we have two filters F, G, then the archives loaded under F on page 3 may be
+ * different from the archives loaded under G on page 3.
+ * 
+ * We would also need to store the filter somewhere (localStorage), so it survives page
+ * changes, history rewrites, etc.
+ * 
+ * @param {number} datatablesPage - The page number to load.
+ * @returns {Array<string>} - The list of archive IDs
+ */
+Reader.loadDatatablesArchives = function (datatablesPage) {
+    const indexSearchQuery = localStorage.getItem('currentSearch') || '';
+    const indexSelectedCategory = localStorage.getItem('selectedCategory') || '';
+    const datatablesPageSize = parseInt(localStorage.getItem('datatablesPageSize') || '100', 10);
+    const indexSort = localStorage.getItem('indexSort') || '0';
+    const indexOrder = localStorage.getItem('indexOrder') || 'asc';
+    let searchUrlStr = `/api/search?start=${(datatablesPage-1) * datatablesPageSize}`;
+    if (indexSearchQuery) searchUrlStr += `&filter=${encodeURIComponent(indexSearchQuery)}`;
+    if (indexSelectedCategory) searchUrlStr += `&category=${encodeURIComponent(indexSelectedCategory)}`;
+
+    // See IndexTable.drawCallback
+    if (indexSort && indexSort !== '0') {
+        const sortby = indexSort >= 1 ? localStorage[`customColumn${indexSort}`] || `Header ${indexSort}` : "title";
+        searchUrlStr += `&sortby=${sortby}`;
+        searchUrlStr += `&order=${indexOrder}`;
+    }
+    const searchUrl = new LRR.apiURL(searchUrlStr);
+    console.debug("Using Search API URL:", searchUrl.toString());
+    let archives = null;
+
+    // See the result of this API here to get an idea of what the response looks like:
+    // tools/Documentation/api-documentation/search-api.md
+    $.ajax({
+        url: searchUrl.toString(),
+        type: 'GET',
+        async: false,
+        dataType: 'json',
+        success: function(data) {
+            if (data && data.data && data.data.length > 0) {
+                archives = data.data.map(archive => archive.arcid);
+            }
+        },
+        error: function(xhr, _status, error) {
+            console.error('Failed to fetch archive list:', error);
+            console.error('Response:', xhr.responseText);
+        }
+    });
+    return archives;
+}
+
+/**
+ * Return to the index page, preserving the search filter from when 
+ * the user went from index to reader.
+ * 
+ * If for some reason history is unavailable, fall back with search
+ * parameters.
+ */
+Reader.returnToIndex = function () {
+    // Check if we have more than one entry in the history stack
+    // This checks if we can go back in browser history
+    if (window.history.length > 1) {
+        history.back();
+        return;
+    }
+    // Fallback logic
+    const indexSearchQuery = localStorage.getItem('currentSearch') || '';
+    const indexSelectedCategory = localStorage.getItem('selectedCategory') || '';
+    const indexSort = localStorage.getItem('indexSort') || 0;
+    const indexOrder = localStorage.getItem('indexOrder') || 'asc';
+    const currentPage = localStorage.getItem('currDatatablesPage') || '1';
+    let returnUrl = '/';
+    const params = new URLSearchParams();
+    if (indexSearchQuery) params.append('q', indexSearchQuery);
+    if (indexSelectedCategory) params.append('c', indexSelectedCategory);
+    if (indexSort) params.append('sort', indexSort);
+    if (indexOrder !== 'asc') params.append('sortdir', indexOrder);
+    if (currentPage !== '1') params.append('p', currentPage);
+    const queryString = params.toString();
+    if (queryString) {
+        returnUrl += '?' + queryString;
+    }
+    const indexUrl = new LRR.apiURL(returnUrl).toString();
+    history.pushState({navigation: 'index'}, '', indexUrl);
+    window.location.href = indexUrl;
+}

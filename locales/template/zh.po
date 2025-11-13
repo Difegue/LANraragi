@@ -913,6 +913,15 @@ msgstr "键盘方向键（和空格键）"
 msgid "Touching the left/right side of the image."
 msgstr "点击图像的左/右侧。"
 
+msgid "When reading an archive from search results, you can also navigate between archives using:"
+msgstr "从搜索结果阅读时，您也可以尝试以下方式读前后档案："
+
+msgid "The square bracket keys"
+msgstr "方括号键"
+
+msgid "Reading past the first/last page"
+msgstr "跨书翻页"
+
 msgid "Other keyboard shortcuts:"
 msgstr "其他键盘快捷键："
 
@@ -936,6 +945,9 @@ msgstr "F：切换全屏模式"
 
 msgid "B: toggle bookmark"
 msgstr "B：切换书签"
+
+msgid "shift+L/R: go to first page/last page"
+msgstr "shift+箭头键：跳到首尾页"
 
 msgid "To return to the archive index, touch the arrow pointing down or use Backspace."
 msgstr "要返回档案索引，请点击向下的箭头或使用退格键。"
