@@ -8,6 +8,7 @@ use feature 'say';
 use POSIX;
 use FindBin;
 use Time::HiRes;
+use Config;
 
 use Encode;
 use File::ReadBackwards;
@@ -18,6 +19,8 @@ use LANraragi::Utils::Redis qw(redis_decode);
 # Contains all functions related to logging.
 use Exporter 'import';
 our @EXPORT_OK = qw(get_logger get_plugin_logger get_logdir get_lines_from_file);
+
+use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 our %LOGGER_CACHE;
 
 # Get the Log folder.
@@ -46,7 +49,19 @@ sub get_logger {
 
     # Reuse cached logger if exists
     if ( exists $LOGGER_CACHE{$cache_key} && -e $logpath && -s $logpath <= 1048576 ) {
-        return $LOGGER_CACHE{$cache_key};
+        my $cached          = $LOGGER_CACHE{$cache_key};
+
+        unless ( IS_UNIX ) {
+            return $cached;
+        }
+
+        my $cached_inode    = ( stat( $cached->handle ) )[1];
+        my $path_inode      = ( stat($logpath) )[1];
+        if ( !defined $cached_inode || !defined $path_inode || $cached_inode != $path_inode ) {
+            open( my $fh, '>>', $logpath ) or die "Could not open logfile '$logpath': $!";
+            $cached->handle($fh);
+        }
+        return $cached;
     }
 
     # Logfile lock owners have exclusive ability to create a logfile.
