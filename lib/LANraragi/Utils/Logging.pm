@@ -7,6 +7,8 @@ use utf8;
 use feature 'say';
 use POSIX;
 use FindBin;
+use Time::HiRes;
+use Config;
 
 use Encode;
 use File::ReadBackwards;
@@ -17,6 +19,9 @@ use LANraragi::Utils::Redis qw(redis_decode);
 # Contains all functions related to logging.
 use Exporter 'import';
 our @EXPORT_OK = qw(get_logger get_plugin_logger get_logdir get_lines_from_file);
+
+use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
+our %LOGGER_CACHE;
 
 # Get the Log folder.
 sub get_logdir {
@@ -38,40 +43,183 @@ sub get_logger {
     my $pgname  = $_[0];
     my $logfile = $_[1];
 
-    my $logpath = get_logdir . "/$logfile.log";
+    my $logpath     = get_logdir . "/$logfile.log";
+    my $cache_key   = "$logfile|$pgname";
+    my $log;
+
+    # Reuse cached logger if exists
+    if ( exists $LOGGER_CACHE{$cache_key} && -e $logpath && -s $logpath <= 1048576 ) {
+        my $cached          = $LOGGER_CACHE{$cache_key};
+
+        unless ( IS_UNIX ) {
+            return $cached;
+        }
+
+        my $cached_inode    = ( stat( $cached->handle ) )[1];
+        my $path_inode      = ( stat($logpath) )[1];
+        if ( !defined $cached_inode || !defined $path_inode || $cached_inode != $path_inode ) {
+            open( my $fh, '>>', $logpath ) or die "Could not open logfile '$logpath': $!";
+            $cached->handle($fh);
+        }
+        return $cached;
+    }
+
+    # Logfile lock owners have exclusive ability to create a logfile.
+    # Non-owners may only append or wait for logfile availability.
+    my $lock_name   = "log-rotate:$logfile";
+    my $lock;
 
     if ( -e $logpath && -s $logpath > 1048576 ) {
 
         # Rotate log if it's > 1MB
-        say "Rotating logfile $logfile";
+        my $redis       = LANraragi::Model::Config->get_redis_config;
+        $lock           = $redis->set( $lock_name, 1, 'NX', 'EX', 10 );
+        my $rotation_error;
 
-        # Based on Logfile::Rotate
-        # Rotate existing logs
-        for ( my $i = 7; $i > 1; $i-- ) {
-            my $j = $i - 1;
-            my $next = "$logpath.$i.gz";
-            my $prev = "$logpath.$j.gz";
-            if ( -r $prev && -f $prev ) {
-                rename( $prev, $next ) or die "error: rename failed: ($prev,$next)";
-            }
+        if ( $lock ) {
+
+            eval {
+                say "Rotating logfile $logfile";
+
+                # Based on Logfile::Rotate
+                # Rotate existing logs
+                for ( my $i = 7; $i > 1; $i-- ) {
+                    my $j = $i - 1;
+                    my $next = "$logpath.$i.gz";
+                    my $prev = "$logpath.$j.gz";
+                    if ( -r $prev && -f $prev ) {
+                        rename( $prev, $next ) or die "error: rename failed: ($prev,$next)";
+                    }
+                }
+
+                # Move current logs to tempfile to stop new writes to it
+                my $tmp = "$logpath.rotate";
+                unlink $tmp if -e $tmp;
+                rename( $logpath, $tmp ) or die "error: could not detach $logpath to $tmp: $!";
+
+                # Gzip the detached tempfile
+                my $gz = gzopen( "$logpath.1.gz", "wb" ) or die "error: could not gzopen $logpath.1.gz: $!";
+                open( my $handle, '<', $tmp ) or die "Couldn't open $tmp: $!";
+                my $buffer;
+                $gz->gzwrite($buffer) while read( $handle, $buffer, 4096 ) > 0;
+                $gz->gzclose();
+                close $handle;
+
+                unlink $tmp or die "error: could not delete $tmp: $!";
+
+                open( my $fh, '>>', $logpath ) or die "Could not create logfile '$logpath': $!";
+                close $fh;
+                my $newlog;
+                eval {
+                    $newlog = Mojo::Log->new(
+                        path  => $logpath,
+                        level => 'info'
+                    );
+                    $newlog->handle;
+                    $newlog->info("Rotated log files.");
+                    1;
+                } or do {
+                    my $e = $@ || 'unknown error';
+                    die "Failed to instantiate Mojo::Log for '$pgname' at '$logpath' (rotation): $e";
+                };
+                $log = $newlog;
+                $LOGGER_CACHE{$cache_key} = $log;
+            };
+
+            $rotation_error = $@;
+            $redis->del($lock_name);
+
         }
 
-        # Rotate current log and Gzip-it
-        my $gz = gzopen( "$logpath.1.gz", "wb" ) or die "error: could not gzopen $logpath: $!";
+        $redis->quit();
+        die $rotation_error if $rotation_error;
 
-        open( my $handle, '<', $logpath ) or die "Couldn't open $logpath :" . $!;
-        my $buffer;
-        $gz->gzwrite($buffer) while read( $handle, $buffer, 4096 ) > 0;
-        $gz->gzclose();
-        close $handle;
-
-        unlink $logpath or die "error: could not delete $logpath: $!";
     }
 
-    my $log = Mojo::Log->new(
-        path  => $logpath,
-        level => 'info'
-    );
+    # handle logpath existence cases.
+    # case 1 (logfile exist):                   no action needed, just get the logfile handle
+    # case 2 (logfile DNE, lock not acquired):  wait 10s logfile to be available
+    # case 3 (logfile DNE, lock acquired):      create new logfile
+    if ( !-e $logpath ) {
+        # handle cases where a logfile doesn't exist.
+
+        my $redis       = LANraragi::Model::Config->get_redis_config;
+        $lock           = $redis->set( $lock_name, 1, 'NX', 'EX', 10 );
+
+        my $logfile_create_error;
+        if ( !$lock ) {
+            # Another worker is rotating/creating the logfile.
+            my $tries = 0;
+            while ( $tries < 100 && !-e $logpath ) {
+                Time::HiRes::sleep(0.1);
+                $tries++;
+            }
+            if ( -e $logpath ) {
+                my $newlog;
+                eval {
+                    $newlog = Mojo::Log->new(
+                        path  => $logpath,
+                        level => 'info'
+                    );
+                    $newlog->handle;
+                    $newlog->info("Created log file.");
+                    1;
+                } or do {
+                    my $e = $@;
+                    die "Failed to instantiate Mojo::Log for '$pgname' at '$logpath' (wait branch): $@";
+                };
+                $log = $newlog;
+                $LOGGER_CACHE{$cache_key} = $log;
+            } else {
+                $logfile_create_error = "Timed out waiting for logfile to be created: $logpath"
+            }
+        } else {
+            # This happens during start of app (if no logfile exists).
+            eval {
+                say "Creating logfile $logfile.";
+
+                open( my $fh, '>>', $logpath ) or die "Could not create logfile '$logpath': $!";
+                close $fh;
+                my $newlog;
+                eval {
+                    $newlog = Mojo::Log->new(
+                        path  => $logpath,
+                        level => 'info'
+                    );
+                    $newlog->handle;
+                    1;
+                } or do {
+                    my $e = $@ || 'unknown error';
+                    die "Failed to instantiate Mojo::Log for '$pgname' at '$logpath' (create branch): $e";
+                };
+                $log = $newlog;
+                $LOGGER_CACHE{$cache_key} = $log;
+                1;
+            };
+
+            $logfile_create_error = $@;
+            $redis->del($lock_name);
+        }
+
+        $redis->quit();
+        die $logfile_create_error if $logfile_create_error;
+
+    } else {
+        my $newlog;
+        eval {
+            $newlog = Mojo::Log->new(
+                path  => $logpath,
+                level => 'info'
+            );
+            $newlog->handle;
+            1;
+        } or do {
+            my $e = $@ || 'unknown error';
+            die "Failed to instantiate Mojo::Log for '$pgname' at '$logpath' (default branch): $e";
+        };
+        $log = $newlog;
+        $LOGGER_CACHE{$cache_key} = $log;
+    }
 
     my $devmode = LANraragi::Model::Config->enable_devmode;
 
