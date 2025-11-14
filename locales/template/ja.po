@@ -76,6 +76,9 @@ msgstr "カテゴリーの追加"
 msgid "Delete Archive"
 msgstr ""
 
+msgid "Read Archive"
+msgstr ""
+
 msgid "Use plugin :"
 msgstr "使用するプラグイン："
 

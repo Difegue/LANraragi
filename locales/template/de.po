@@ -720,6 +720,9 @@ msgstr "Metadaten speichern"
 msgid "Delete Archive"
 msgstr ""
 
+msgid "Read Archive"
+msgstr ""
+
 msgid "Return to Library"
 msgstr ""
 
