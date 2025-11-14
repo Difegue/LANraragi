@@ -42,7 +42,6 @@ sub get_logger {
 
     my $logpath     = get_logdir . "/$logfile.log";
     my $cache_key   = "$logfile|$pgname";
-    my $is_new      = 0;
     my $log;
 
     # Reuse cached logger if exists
@@ -50,15 +49,18 @@ sub get_logger {
         return $LOGGER_CACHE{$cache_key};
     }
 
+    # Logfile lock owners have exclusive ability to create a logfile.
+    # Non-owners may only append or wait for logfile availability.
+    my $lock_name   = "log-rotate:$logfile";
+    my $lock;
+
     if ( -e $logpath && -s $logpath > 1048576 ) {
 
         # Rotate log if it's > 1MB
         my $redis       = LANraragi::Model::Config->get_redis_config;
-        my $lock_name   = "log-rotate:$logfile";
-        my $lock        = $redis->set( $lock_name, 1, 'NX', 'EX', 10 );
-
-        # Only one process gets to rotate logs at any given time
+        $lock           = $redis->set( $lock_name, 1, 'NX', 'EX', 10 );
         my $rotation_error;
+
         if ( $lock ) {
 
             eval {
@@ -107,7 +109,6 @@ sub get_logger {
                 };
                 $log = $newlog;
                 $LOGGER_CACHE{$cache_key} = $log;
-                $is_new = 1;
             };
 
             $rotation_error = $@;
@@ -120,17 +121,19 @@ sub get_logger {
 
     }
 
+    # handle logpath existence cases.
+    # case 1 (logfile exist):                   no action needed, just get the logfile handle
+    # case 2 (logfile DNE, lock not acquired):  wait 10s logfile to be available
+    # case 3 (logfile DNE, lock acquired):      create new logfile
     if ( !-e $logpath ) {
         # handle cases where a logfile doesn't exist.
 
         my $redis       = LANraragi::Model::Config->get_redis_config;
-        my $lock_name   = "log-rotate:$logfile";
-        my $lock        = $redis->set( $lock_name, 1, 'NX', 'EX', 10 );
+        $lock           = $redis->set( $lock_name, 1, 'NX', 'EX', 10 );
 
         my $logfile_create_error;
         if ( !$lock ) {
             # Another worker is rotating/creating the logfile.
-            # Wait up to ~10s for it to appear.
             my $tries = 0;
             while ( $tries < 100 && !-e $logpath ) {
                 Time::HiRes::sleep(0.1);
@@ -152,12 +155,10 @@ sub get_logger {
                 };
                 $log = $newlog;
                 $LOGGER_CACHE{$cache_key} = $log;
-                $is_new = 1;
             } else {
                 $logfile_create_error = "Timed out waiting for logfile to be created: $logpath"
             }
         } else {
-            # Hold lock and create logfile if not exists.
             # This happens during start of app (if no logfile exists).
             eval {
                 say "Creating logfile $logfile.";
@@ -178,7 +179,6 @@ sub get_logger {
                 };
                 $log = $newlog;
                 $LOGGER_CACHE{$cache_key} = $log;
-                $is_new = 1;
                 1;
             };
 
@@ -204,50 +204,47 @@ sub get_logger {
         };
         $log = $newlog;
         $LOGGER_CACHE{$cache_key} = $log;
-        $is_new = 1;
     }
 
-    if ($is_new) {
-        my $devmode = LANraragi::Model::Config->enable_devmode;
+    my $devmode = LANraragi::Model::Config->enable_devmode;
 
-        #Tell logger to store debug logs as well in debug mode
-        if ($devmode) {
-            $log->level('debug');
-        }
-
-        # Step down into trace if we're launched from npm run dev-server-verbose
-        if ( $ENV{LRR_DEVSERVER} ) {
-            $log->level('trace');
-        }
-
-        #Copy logged messages to STDOUT with the matching name
-        $log->on(
-            message => sub {
-                my ( $time, $level, @lines ) = @_;
-
-                #Like with logging to file, debug logs are only printed in debug mode
-                unless ( $devmode == 0 && ( $level eq 'debug' || $level eq 'trace' ) ) {
-                    print "[$pgname] [$level] ";
-                    say $lines[0];
-                }
-            }
-        );
-
-        $log->format(
-            sub {
-                my ( $time, $level, @lines ) = @_;
-                my $time2 = strftime( "%Y-%m-%d %H:%M:%S", localtime($time) );
-
-                my $logstring = join( "\n", @lines );
-
-                # We'd like to make sure we always show proper UTF-8.
-                # redis_decode, while not initially designed for this, does the job.
-                $logstring = redis_decode($logstring);
-
-                return "[$time2] [$pgname] [$level] $logstring\n";
-            }
-        );
+    #Tell logger to store debug logs as well in debug mode
+    if ($devmode) {
+        $log->level('debug');
     }
+
+    # Step down into trace if we're launched from npm run dev-server-verbose
+    if ( $ENV{LRR_DEVSERVER} ) {
+        $log->level('trace');
+    }
+
+    #Copy logged messages to STDOUT with the matching name
+    $log->on(
+        message => sub {
+            my ( $time, $level, @lines ) = @_;
+
+            #Like with logging to file, debug logs are only printed in debug mode
+            unless ( $devmode == 0 && ( $level eq 'debug' || $level eq 'trace' ) ) {
+                print "[$pgname] [$level] ";
+                say $lines[0];
+            }
+        }
+    );
+
+    $log->format(
+        sub {
+            my ( $time, $level, @lines ) = @_;
+            my $time2 = strftime( "%Y-%m-%d %H:%M:%S", localtime($time) );
+
+            my $logstring = join( "\n", @lines );
+
+            # We'd like to make sure we always show proper UTF-8.
+            # redis_decode, while not initially designed for this, does the job.
+            $logstring = redis_decode($logstring);
+
+            return "[$time2] [$pgname] [$level] $logstring\n";
+        }
+    );
 
     return $log;
 }
