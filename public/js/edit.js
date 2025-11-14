@@ -14,7 +14,7 @@ Edit.initializeAll = function () {
     $(document).on("click.run-plugin", "#run-plugin", Edit.runPlugin);
     $(document).on("click.save-metadata", "#save-metadata", Edit.saveMetadata);
     $(document).on("click.delete-archive", "#delete-archive", Edit.deleteArchive);
-    $(document).on("click.read-archive", "#read-archive", () => { window.location.href = `/reader?id=${$("#archiveID").val()}`; });
+    $(document).on("click.read-archive", "#read-archive", () => { window.location.href = new LRR.apiURL(`/reader?id=${$("#archiveID").val()}`); });
     $(document).on("click.tagger", ".tagger", Edit.focusTagInput);
     $(document).on("click.goback", "#goback", () => { window.location.href = new LRR.apiURL("/"); });
     $(document).on("paste.tagger", ".tagger-new", Edit.handlePaste);
