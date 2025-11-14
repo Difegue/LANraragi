@@ -609,6 +609,9 @@ msgstr "儲存中繼資料"
 msgid "Delete Archive"
 msgstr ""
 
+msgid "Read Archive"
+msgstr ""
+
 msgid "Return to Library"
 msgstr ""
 
