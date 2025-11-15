@@ -86,7 +86,7 @@ IndexTable.initializeAll = function () {
         },
         preDrawCallback: IndexTable.initializeThumbView, // callbacks for thumbnail view
         drawCallback: IndexTable.drawCallback,
-        rowCallback: IndexTable.buildThumbnailCell,
+        createdRow: IndexTable.createdRow,
         columns,
     });
 
@@ -179,7 +179,7 @@ IndexTable.renderTitle = function (data, type) {
         // For compact mode, the thumbnail API call enforces no_fallback=true in order to queue Minion jobs for missing thumbnails.
         // (Since compact mode is the "base", it's always loaded first even if you're in table mode)
         const bookmarkIcon = LRR.buildBookmarkIconElement(data.arcid, "title-bookmark-icon");
-        return `${LRR.buildProgressDiv(data)}${bookmarkIcon}<a class="context-menu" id="${data.arcid}" onmouseover="IndexTable.buildImageTooltip(this)" href="${new LRR.apiURL(`/reader?id=${data.arcid}`)}">
+        return `${LRR.buildProgressDiv(data)}${bookmarkIcon}<a id="${data.arcid}" onmouseover="IndexTable.buildImageTooltip(this)" href="${new LRR.apiURL(`/reader?id=${data.arcid}`)}">
                     ${LRR.encodeHTML(data.title)}
                 </a>
                 <div class="caption" style="display: none;">
@@ -241,11 +241,17 @@ IndexTable.initializeThumbView = function () {
 };
 
 /**
- * Builds a id1 class div to jam in the thumb container for the given archive data
- * @param {*} row matching DataTables row
- * @param {*} data raw data
+ * Modifications when a row is created
+ * @param {HTMLElement} row matching DataTables row
+ * @param {[] | object} data raw data
+ * @param {number} dataIndex index of row
+ * @param {Node[]} cells cells for the column
  */
-IndexTable.buildThumbnailCell = function (row, data) {
+IndexTable.createdRow = function (row, data, dataIndex, cells) {
+    // Update row with id and context-menu class
+    row.id = data.arcid || data.id;
+    row.classList.add('context-menu');
+    // Builds a id1 class div to jam in the thumb container for the given archive data
     if (localStorage.indexViewMode === "1") {
         // Build a thumb-like div with the data
         $("#thumbs_container").append(LRR.buildThumbnailDiv(data));
