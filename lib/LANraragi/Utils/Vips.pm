@@ -79,7 +79,6 @@ if ($VIPS_LOADED) {
     $vips_ffi->attach( vips_black => ['VipsImage*', 'int', 'int'] => ['opaque'] => 'int' );
     $vips_ffi->attach( vips_crop => ['VipsImage', 'VipsImage*', 'int', 'int', 'int', 'int'] => ['opaque'] => 'int' );
     $vips_ffi->attach( vips_colourspace => ['VipsImage', 'VipsImage*', 'int'] => ['opaque'] => 'int' );
-    $vips_ffi->attach( vips_insert => ['VipsImage', 'VipsImage', 'VipsImage*', 'int', 'int'] => ['opaque'] => 'int' );
     $vips_ffi->attach( vips_pngsave => ['VipsImage', 'string'] => ['opaque'] => 'int' );
     $vips_ffi->attach( vips_thumbnail_buffer => ['string', 'uint64', 'VipsImage*', 'int'] => ['string', 'int', 'string', 'int', 'opaque'] => 'int' );
 } else {
@@ -99,9 +98,7 @@ if ($VIPS_LOADED) {
     *vips_black = sub { die "libvips is not loaded. Cannot call vips_black." };
     *vips_crop = sub { die "libvips is not loaded. Cannot call vips_crop." };
     *vips_colourspace = sub { die "libvips is not loaded. Cannot call vips_colourspace." };
-    *vips_insert = sub { die "libvips is not loaded. Cannot call vips_insert." };
     *vips_pngsave = sub { die "libvips is not loaded. Cannot call vips_pngsave." };
-    *vips_thumbnail_buffer_plain = sub { die "libvips is not loaded. Cannot call vips_thumbnail_buffer_plain." };
     *vips_thumbnail_buffer = sub { die "libvips is not loaded. Cannot call vips_thumbnail_buffer." };
 }
 
