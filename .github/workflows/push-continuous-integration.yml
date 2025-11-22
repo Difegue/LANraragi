@@ -10,11 +10,11 @@ on:
       integration_test_ref:
         description: 'Integration testing repository git commit hash or branch'
         required: true
-        default: '41e436b59f605d53307f7e2b420b31fed3d17013'
+        default: 'd6db424d1a2fa68ebaea15af915938746f146cad'
 
 env:
   INTEGRATION_TEST_REPOSITORY: ${{ github.event.inputs.integration_test_repository || 'psilabs-dev/aio-lanraragi' }}
-  INTEGRATION_TEST_REF: ${{ github.event.inputs.integration_test_ref || '41e436b59f605d53307f7e2b420b31fed3d17013' }}
+  INTEGRATION_TEST_REF: ${{ github.event.inputs.integration_test_ref || 'd6db424d1a2fa68ebaea15af915938746f146cad' }}
 
 name: "Continuous Integration \U0001F44C\U0001F440"
 jobs:
@@ -68,6 +68,7 @@ jobs:
         run: |
           mkdir -p "$GITHUB_WORKSPACE/staging"
       - name: Run integration tests against local LANraragi build
+        timeout-minutes: 30
         run: |
           cd aio-lanraragi/integration_tests
           export CI=true
@@ -136,7 +137,7 @@ jobs:
           New-Item -ItemType Directory -Path "$env:GITHUB_WORKSPACE\staging" -Force | Out-Null
       - name: Run integration tests against local LANraragi build
         working-directory: aio-lanraragi/integration_tests
-        timeout-minutes: 30
+        timeout-minutes: 50
         run: |
           $env:CI='true'
           pytest tests `
