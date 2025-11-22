@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-04 20:25+0200\n"
-"PO-Revision-Date: 2025-09-30 13:01+0000\n"
+"PO-Revision-Date: 2025-11-22 02:51+0000\n"
 "Last-Translator: gustaavv <gustaavv.git@yahoo.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
 "projects/lanraragi/lanraragi-source/zh_Hans/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.14-dev\n"
+"X-Generator: Weblate 5.15-dev\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -263,7 +263,7 @@ msgid "Click this button to trigger a rescan of the Archive Directory in case yo
 msgstr "点击此按钮以触发档案目录的重新扫描，以防丢失文件或某些数据<br>例如总页数。"
 
 msgid "Maximum <br>Cache Size"
-msgstr "最大<br>临时文件夹大小"
+msgstr "最大<br>缓存大小"
 
 msgid "In MBs. The cache contains recently viewed pages, for faster subsequent reading."
 msgstr "以MB为单位。临时文件夹包含最近打开的档案，以便更快地进行后续读取。"
@@ -1702,3 +1702,13 @@ msgstr "请将自动翻页间隔设置为正数。"
 
 msgid "The maximum value allowed is 4GB."
 msgstr "允许的最大值是4GB。"
+
+msgid "Authenticated Progress Tracking"
+msgstr "已认证进度跟踪"
+
+msgid "If enabled, server-side progress will only be saved if you're logged in with a password, and will override clientside progress. This allows guests to browse without affecting the main user's progress."
+msgstr "启用后，仅当使用密码登录时才会保存服务器端进度，并覆盖客户端进度。这样访客浏"
+"览时就不会影响主用户的进度。"
+
+msgid "Combine with clientside progress tracking to allow unauthenticated users to track progress locally."
+msgstr "可以配合客户端进度跟踪功能，让未认证用户在本地跟踪进度。"
