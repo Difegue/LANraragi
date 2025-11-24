@@ -22,7 +22,7 @@ use LANraragi::Utils::String  qw(trim trim_CRLF trim_url);
 use LANraragi::Utils::Tags    qw(unflat_tagrules tags_rules_to_array restore_CRLF join_tags_to_string split_tags_to_array );
 use LANraragi::Utils::Archive qw(get_filelist);
 use LANraragi::Utils::Logging qw(get_logger);
-use LANraragi::Utils::Path    qw(create_path open_path date_modified);
+use LANraragi::Utils::Path    qw(create_path open_path_or_die date_modified);
 
 use LANraragi::Model::Config;
 
@@ -544,7 +544,7 @@ sub update_indexes ( $id, $oldtags, $newtags ) {
 sub compute_id ($file) {
 
     #Read the first 512 KBs only (allows for faster disk speeds )
-    open_path( my $handle, '<:raw', $file ) or die "Couldn't open $file :" . $!;
+    open_path_or_die( my $handle, '<:raw', $file );
     my $data;
     my $len = read $handle, $data, 512000;
     close $handle;

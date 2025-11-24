@@ -9,11 +9,12 @@ no warnings 'experimental::signatures';
 use Encode;
 use Config;
 use File::Find;
+use POSIX qw(strerror);
 
 use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 
 use Exporter 'import';
-our @EXPORT_OK = qw(create_path open_path date_modified compat_path unlink_path find_path);
+our @EXPORT_OK = qw(create_path create_path_or_die open_path open_path_or_die date_modified compat_path unlink_path find_path);
 
 BEGIN {
     if ( !IS_UNIX ) {
@@ -38,6 +39,12 @@ sub open_path {
     } else {
         return Win32::LongPath::openL( \$_[0], $_[1], decode_utf8( $_[2] ) );
     }
+}
+
+sub open_path_or_die {
+    my $file = $_[2];
+    return 1 if open_path( $_[0], $_[1], $file );
+    die "Failed to open $file: " . _file_error_msg($file);
 }
 
 sub date_modified( $file ) {
@@ -81,6 +88,35 @@ sub find_path( $wanted, $path ) {
             { $wanted->(); };
         }
     }
+}
+
+# Build the error message for a failed file operation containing details about the file's properties
+# including any hidden Windows-side errors.
+# Usage: die "Failed operation for $file: " . _file_error_msg($file);
+sub _file_error_msg {
+    my ( $file ) = @_;
+
+    my $errno_num       = 0 + $!;
+    my $errno_str       = strerror($errno_num);
+    my $winerr_num;
+    my $winerr_str;
+
+    if ( !IS_UNIX ) {
+        $winerr_num     = 0 + $^E;
+        $winerr_str     = "$^E";
+    }
+
+    my $exists          = -e $file ? 'yes' : 'no';
+    my $readable        = -r $file ? 'yes' : 'no';
+    my $size            = -e $file ? (-s _) : 'NA';
+
+    my $err = "(exists:$exists; readable:$readable; size:$size) (errno $errno_num: $errno_str)";
+
+    if ( !IS_UNIX ) {
+        $err .= " (winerr $winerr_num: $winerr_str)";
+    }
+
+    return $err;
 }
 
 1;
