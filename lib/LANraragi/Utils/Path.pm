@@ -102,6 +102,7 @@ sub _file_error_msg {
     my $winerr_str;
 
     if ( !IS_UNIX ) {
+        # This fetches the value of GetLastError() on Win32 as per perldoc: https://perldoc.perl.org/variables/$%5EE
         $winerr_num     = 0 + $^E;
         $winerr_str     = "$^E";
     }
@@ -113,7 +114,7 @@ sub _file_error_msg {
     my $err = "(exists:$exists; readable:$readable; size:$size) (errno $errno_num: $errno_str)";
 
     if ( !IS_UNIX ) {
-        $err .= " (winerr $winerr_num: $winerr_str)";
+        $err .= " (win32 errno $winerr_num: $winerr_str)";
     }
 
     return $err;
