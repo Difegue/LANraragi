@@ -243,9 +243,9 @@ Reader.loadImages = function () {
                     if ($(event.target).closest("#i3").length && !$("#overlay-shade").is(":visible")) {
                         // is click X position is left on screen or right
                         if (event.pageX < $(window).width() / 2) {
-                            Reader.changePage(-1);
+                            Reader.changePage(-1, true);
                         } else {
-                            Reader.changePage(1);
+                            Reader.changePage(1, true);
                         }
                     }
                 });
@@ -351,9 +351,9 @@ Reader.initInfiniteScrollView = function () {
     $(document).on("click.infinite-scroll-map", "#display .reader-image", (event) => {
         // is click X position is left on screen or right
         if (event.pageX < $(window).width() / 2) {
-            Reader.changePage(-1);
+            Reader.changePage(-1, true);
         } else {
-            Reader.changePage(1);
+            Reader.changePage(1, true);
         }
     });
 
@@ -440,7 +440,7 @@ Reader.handleShortcuts = function (e) {
         // Go to next direction page if already at edge
         if ((direction > 0 ? st + h >= directionEdge - 3 : st <= directionEdge + 3) && !wasContinuousScroll) {
             console.log(`PAGE TURN: ${cfg.scrollDist}% threshold reached`);
-            Reader.changePage(direction);
+            Reader.changePage(direction, true);
             return;
         }
 
@@ -478,19 +478,19 @@ Reader.handleShortcuts = function (e) {
     }
     break;
     case 37: // left arrow
-        Reader.changePage(-1);
+        Reader.changePage(-1, true);
         break;
     case 39: // right arrow
-        Reader.changePage(1);
+        Reader.changePage(1, true);
         break;
     case 65: // a
-        Reader.changePage(-1);
+        Reader.changePage(-1, true);
         break;
     case 66: // b
         Reader.toggleBookmark(e);
         break;
     case 68: // d
-        Reader.changePage(1);
+        Reader.changePage(1, true);
         break;
     case 70: // f
         Reader.toggleFullScreen();
@@ -529,7 +529,7 @@ Reader.handleWheel = function (e) {
         // In Manga mode, reverse the changePage variable
         // so that we always move forward
         if (!Reader.mangaMode) changePage *= -1;
-        Reader.changePage(changePage);
+        Reader.changePage(changePage, true);
     }
 };
 
@@ -1064,7 +1064,20 @@ Reader.initializeArchiveOverlay = function () {
         });
 };
 
-Reader.changePage = function(targetPage) {
+/**
+ * Change current page in reader.
+ * 
+ * @param {(-1|1|"first"|"last")} targetPage    One of -1 (previous), 1 (next), "first", or "last" page.
+ * @param {boolean} resetAuto                   Whether to reset current slideshow counter.
+ */
+Reader.changePage = function(targetPage, resetAuto = false) {
+
+    // Reset timer if user manually changes pages during slideshow
+    if (resetAuto && Reader.autoNextPage) {
+        Reader.autoNextPageCountdown = Math.trunc(Reader.AutoNextPageInterval);
+        $(".toggle-auto-next-page").text(Reader.autoNextPageCountdown);
+    }
+
     // Sync position if in infinite scroll mode
     if (Reader.infiniteScroll) {
         const images = [...document.querySelectorAll('.reader-image')];
@@ -1095,16 +1108,16 @@ Reader.changePage = function(targetPage) {
 Reader.handlePaginator = function () {
     switch (this.getAttribute("value")) {
     case "outer-left":
-        Reader.changePage("first");
+        Reader.changePage("first", true);
         break;
     case "left":
-        Reader.changePage(-1);
+        Reader.changePage(-1, true);
         break;
     case "right":
-        Reader.changePage(1);
+        Reader.changePage(1, true);
         break;
     case "outer-right":
-        Reader.changePage("last");
+        Reader.changePage("last", true);
         break;
     default:
         break;
