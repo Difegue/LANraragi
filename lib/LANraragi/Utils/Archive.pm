@@ -189,7 +189,7 @@ sub get_filelist ($archive, $arcid) {
             my $open_filename_err   = "Couldn't open archive '$archive' (id:$arcid, exists:$archive_exists; readable:$archive_readable; size:$archive_size)"
                 . "libarchive: " . $r->error_string . " (errno $open_filename_errno: $open_filename_strerr)";
             $logger->error($open_filename_err);
-            die $r->open_filename_err;
+            die $open_filename_err;
         }
 
         my $e = Archive::Libarchive::Entry->new;
