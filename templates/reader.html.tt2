@@ -139,6 +139,23 @@
                         [% END %]
                     </select>
                     <a class="fas fa-plus" id="add-category" href="#" title="[% c.lh('Add Archive to Category') %]"></a>
+
+                    <h2>[% c.lh("Rating") %]</h2>
+                    <br />
+
+                    <select id="rating" class="favtag-btn" style="width:200px" autocomplete="off">
+                        <option selected value="">[% c.lh(" -- Select Rating -- ") %]</option>
+                        <option value="⭐">⭐</option>
+                        <option value="⭐⭐">⭐⭐</option>
+                        <option value="⭐⭐⭐">⭐⭐⭐</option>
+                        <option value="⭐⭐⭐⭐">⭐⭐⭐⭐</option>
+                        <option value="⭐⭐⭐⭐⭐">⭐⭐⭐⭐⭐</option>
+                    </select>
+                    <input id="set-rating" class="stdbtn" type="button" value="[% c.lh('Set Rating') %]"
+                        style="min-width: fit-content; padding-inline: 15px">
+                    <input id="clear-rating" class="stdbtn" type="button" value="[% c.lh('Clear Rating') %]"
+                        style="min-width: fit-content; padding-inline: 15px">
+
                 </div>
                 [% END %]
             </div>

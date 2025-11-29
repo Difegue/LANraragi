@@ -104,6 +104,23 @@ Reader.initializeAll = function () {
                 .addClass("far fa-bookmark");
         }
     });
+    $(document).on("click.set-rating", "#set-rating", () => {
+        let tags = LRR.splitTagsByNamespace(Reader.tags);
+        let selectedRating = $("#rating").val();
+        if (selectedRating === "") { return };
+        tags.rating = [selectedRating];
+        let tagList = Object.entries(tags).flatMap(([namespace, tagArray]) => tagArray.map(tag => LRR.buildNamespacedTag(namespace, tag)))
+        Server.updateTagsFromArchive(Reader.id, tagList);
+        $("#tagContainer > table").replaceWith(LRR.buildTagsDiv(tagList.join(",")));
+    });
+    $(document).on("click.clear-rating", "#clear-rating", () => {
+        let tags = LRR.splitTagsByNamespace(Reader.tags);
+        delete tags.rating;
+        let tagList = Object.entries(tags).flatMap(([namespace, tagArray]) => tagArray.map(tag => LRR.buildNamespacedTag(namespace, tag)))
+        Server.updateTagsFromArchive(Reader.id, tagList);
+        document.querySelector('#rating').selectedIndex = 0;
+        $("#tagContainer > table").replaceWith(LRR.buildTagsDiv(tagList.join(",")));
+    });
     $(document).on("click.set-thumbnail", "#set-thumbnail", () => Server.callAPI(`/api/archives/${Reader.id}/thumbnail?page=${Reader.currentPage + 1}`,
         "PUT", I18N.ReaderUpdateThumbnail(Reader.currentPage), I18N.ReaderUpdateThumbnailError, null));
 

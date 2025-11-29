@@ -938,6 +938,18 @@ msgstr " -- No Category -- "
 msgid "Add Archive to Category"
 msgstr "Add Archive to Category"
 
+msgid "Rating"
+msgstr "Rating"
+
+msgid "Set Rating"
+msgstr "Set Rating"
+
+msgid "Clear Rating"
+msgstr "Clear Rating"
+
+msgid " -- Select Rating -- "
+msgstr " -- Select Rating -- "
+
 msgid "Pages"
 msgstr "Pages"
 
