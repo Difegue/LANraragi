@@ -226,6 +226,15 @@ LRR.splitTagsByNamespace = function (tags) {
 };
 
 /**
+ * Converts tag dictionary into list of tags.
+ * @param {{ [namespace: string]: string[] }} tagsDict Per-namespace dictionary of arrays containing tags under each namespace.
+ * @returns List of tags prefixed with namespace.
+ */
+LRR.buildTagList = function(tagsDict) {
+    return Object.entries(tagsDict).flatMap(([namespace, tagArray]) => tagArray.map(tag => LRR.buildNamespacedTag(namespace, tag)));
+};
+
+/**
  * Builds a caption div containing clickable tags. Namespaces are resolved on the fly.
  * @param {*} tags string containing all tags, split by commas.
  * @returns the div

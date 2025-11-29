@@ -109,14 +109,14 @@ Reader.initializeAll = function () {
         let selectedRating = $("#rating").val();
         if (selectedRating === "") { return };
         tags.rating = [selectedRating];
-        let tagList = Object.entries(tags).flatMap(([namespace, tagArray]) => tagArray.map(tag => LRR.buildNamespacedTag(namespace, tag)))
+        let tagList = LRR.buildTagList(tags);
         Server.updateTagsFromArchive(Reader.id, tagList);
         $("#tagContainer > table").replaceWith(LRR.buildTagsDiv(tagList.join(",")));
     });
     $(document).on("click.clear-rating", "#clear-rating", () => {
         let tags = LRR.splitTagsByNamespace(Reader.tags);
         delete tags.rating;
-        let tagList = Object.entries(tags).flatMap(([namespace, tagArray]) => tagArray.map(tag => LRR.buildNamespacedTag(namespace, tag)))
+        let tagList = LRR.buildTagList(tags);
         Server.updateTagsFromArchive(Reader.id, tagList);
         document.querySelector('#rating').selectedIndex = 0;
         $("#tagContainer > table").replaceWith(LRR.buildTagsDiv(tagList.join(",")));
