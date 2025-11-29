@@ -9,6 +9,7 @@ use URI::Escape;
 use Mojo::JSON qw(decode_json);
 use Mojo::UserAgent;
 use Mojo::DOM;
+use Mojo::Util qw(html_unescape);
 
 #You can also use the LRR Internal API when fitting.
 use LANraragi::Model::Plugins;
@@ -25,7 +26,7 @@ sub plugin_info {
         namespace   => "fakkumetadata",
         login_from  => "fakkulogin",
         author      => "Difegue, Nodja, Nixis198",
-        version     => "1.0.1",
+        version     => "1.0.2",
         description =>
           "Searches FAKKU for tags matching your archive. If you have an account, don't forget to enter the matching cookie in the login plugin to be able to access controversial content. <br/><br/>
            <i class='fa fa-exclamation-circle'></i> <b>This plugin can and will return invalid results depending on what you're searching for!</b> <br/>The FAKKU search API isn't very precise and I recommend you either enable 'Only use current title for exact matches', or use the Chaika.moe plugin when possible.",
@@ -201,7 +202,12 @@ sub get_tags_from_fakku {
 
     # # If the Summary DIV doesn't exist, return a blank string.
     if ($summ_div) {
-        $summary = $summ_div->{content};
+        $summary = html_unescape( $summ_div->{content} );
+
+        # Sometime if the description has unwanted text.
+        if ( $summary =~ m/Free sample available now!/ ) {
+            $summary = "";
+        }
     } else {
         $summary = "";
     }
