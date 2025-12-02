@@ -11,6 +11,10 @@ use LANraragi::Model::Stats;
 use LANraragi::Utils::Logging   qw(get_logger);
 use LANraragi::Utils::Metrics;
 
+use constant IS_LINUX => ( $^O eq 'linux' );
+use constant IS_MACOS => ( $^O eq 'darwin' );
+use constant IS_WIN32 => ( $^O eq 'MSWin32' );
+
 # Get all metrics in Prometheus exposition format.
 sub get_prometheus_metrics {
     my $controller          = shift;
@@ -193,31 +197,31 @@ sub get_prometheus_process_metrics {
 
 # Get server/configuration metrics
 sub get_prometheus_stats_metrics {
-    my $controller = shift;
+    my $controller      = shift;
     my @output;
 
     # Get Redis connection for cache info
-    my $config_redis = LANraragi::Model::Config->get_redis_config;
-    my $last_clear = $config_redis->hget("LRR_SEARCHCACHE", "created") || time;
+    my $config_redis    = LANraragi::Model::Config->get_redis_config;
+    my $last_clear      = $config_redis->hget("LRR_SEARCHCACHE", "created") || time;
     $config_redis->quit();
 
     # Get archive and page stats
-    my $arc_stat = LANraragi::Model::Stats::get_archive_count;
-    my $page_stat = LANraragi::Model::Stats::get_page_stat;
+    my $arc_stat        = LANraragi::Model::Stats::get_archive_count;
+    my $page_stat       = LANraragi::Model::Stats::get_page_stat;
 
     # Server info metric (with labels)
-    my $name = $controller->LRR_CONF->get_htmltitle || "";
-    my $motd = $controller->LRR_CONF->get_motd || "";
-    my $version = $controller->LRR_VERSION || "";
-    my $version_name = $controller->LRR_VERNAME || "";
-    my $version_desc = $controller->LRR_DESC || "";
+    my $name            = $controller->LRR_CONF->get_htmltitle || "";
+    my $motd            = $controller->LRR_CONF->get_motd || "";
+    my $version         = $controller->LRR_VERSION || "";
+    my $version_name    = $controller->LRR_VERNAME || "";
+    my $version_desc    = $controller->LRR_DESC || "";
 
     my $server_labels = sprintf(
         'name="%s",motd="%s",version="%s",version_name="%s",version_desc="%s"',
-        LANraragi::Utils::Metrics::escape_label_value($name), 
-        LANraragi::Utils::Metrics::escape_label_value($motd), 
-        LANraragi::Utils::Metrics::escape_label_value($version), 
-        LANraragi::Utils::Metrics::escape_label_value($version_name), 
+        LANraragi::Utils::Metrics::escape_label_value($name),
+        LANraragi::Utils::Metrics::escape_label_value($motd),
+        LANraragi::Utils::Metrics::escape_label_value($version),
+        LANraragi::Utils::Metrics::escape_label_value($version_name),
         LANraragi::Utils::Metrics::escape_label_value($version_desc)
     );
 
@@ -267,40 +271,45 @@ sub get_prometheus_stats_metrics {
 
 # Record API request metrics to Redis
 # takes a Mojo controller corresponding to the API request being handled.
+# called on every API request.
 sub collect_api_metrics {
-    my $controller          = shift;
+    my $controller      = shift;
+    my $start_time      = $controller->stash('metrics.start_time');
+    return unless $start_time;
 
+    my $duration        = tv_interval($start_time);
+    my $method          = $controller->req->method;
+    my $path            = $controller->req->url->path->to_string;
+    my $status_code     = $controller->res->code || 0;
+
+    my $request_size    = $controller->req->content->body_size || 0;
+    my $response_size   = $controller->res->content->body_size || 0;
+    my $endpoint        = LANraragi::Utils::Metrics::extract_endpoint($path);
+    return unless $endpoint;
+
+    # Store per-worker metrics with atomic operations
+    # (TODO: cache in-memory for a while before dumping to Redis)
+    # Structure: metrics:worker:{PID}:{endpoint}_{method}:count, :duration_sum, etc.
+    # Encode endpoint to avoid Redis key issues with slashes
+    my $redis = LANraragi::Model::Config->get_redis_metrics;
+    my $endpoint_encoded    = $endpoint;
+    $endpoint_encoded       =~ s/\//_/g;  # Replace / with _
+    my $metric_base         = "metrics:worker:$$:${endpoint_encoded}_${method}";
+
+    my $error;
     eval {
-        my $start_time = $controller->stash('metrics.start_time');
-        return unless $start_time;
-
-        my $duration        = tv_interval($start_time);
-        my $method          = $controller->req->method;
-        my $path            = $controller->req->url->path->to_string;
-        my $status_code     = $controller->res->code || 0;
-
-        my $request_size    = $controller->req->content->body_size || 0;
-        my $response_size   = $controller->res->content->body_size || 0;
-
-        my $endpoint = LANraragi::Utils::Metrics::extract_endpoint($path);
-
-        my $redis = LANraragi::Model::Config->get_redis_metrics;
-
-        # Store per-worker metrics using atomic operations to prevent race conditions
-        # Structure: metrics:worker:{PID}:{endpoint}_{method}:count, :duration_sum, etc.
-        # Encode endpoint to avoid Redis key issues with slashes
-        my $endpoint_encoded = $endpoint;
-        $endpoint_encoded =~ s/\//_/g;  # Replace / with _
-        my $metric_base = "metrics:worker:$$:${endpoint_encoded}_${method}";
         $redis->hincrby($metric_base, "count", 1);
         $redis->hincrbyfloat($metric_base, "duration_sum", $duration);
         $redis->hincrby($metric_base, "request_size_sum", $request_size);
         $redis->hincrby($metric_base, "response_size_sum", $response_size);
-        $redis->quit();
     };
+    $error = $@;
+    $redis->quit();
 
-    if ( $@ ) {
-        warn "Metrics collection error: $@";
+    # Clean-up and report errors if any.
+    if ( $error ) {
+        my $logger = get_logger( "Metrics", "lanraragi" );
+        $logger->error("Failed to update metrics info: $error");
     }
 }
 
@@ -308,22 +317,22 @@ sub collect_api_metrics {
 # Accepted key prefixes are "minion" or "shinobu"
 sub collect_process_metrics {
     my $key_prefix = shift;
-    
-    eval {
-        if ($^O eq 'linux') {
-            my $metrics_redis = LANraragi::Model::Config->get_redis_metrics;
 
-            # Read process information from /proc/self/stat, /proc/self/statm, and /proc/self/io
-            my $proc_stat = LANraragi::Utils::Metrics::read_proc_stat();
-            my $proc_statm = LANraragi::Utils::Metrics::read_proc_statm();
-            my $proc_fds = LANraragi::Utils::Metrics::read_fd_stats();
-            my $proc_io = LANraragi::Utils::Metrics::read_proc_io_bytes();
+    my $metrics_redis = LANraragi::Model::Config->get_redis_metrics;
+    my $error;
+    if ( IS_LINUX ) {
+        # Read process information from /proc/self/stat, /proc/self/statm, and /proc/self/io
+        my $proc_stat   = LANraragi::Utils::Metrics::read_proc_stat();
+        my $proc_statm  = LANraragi::Utils::Metrics::read_proc_statm();
+        my $proc_fds    = LANraragi::Utils::Metrics::read_fd_stats();
+        my $proc_io     = LANraragi::Utils::Metrics::read_proc_io_bytes();
 
-            return unless $proc_stat && $proc_statm; # Skip if couldn't read proc files
+        return unless $proc_stat && $proc_statm; # Skip if couldn't read proc files
 
-            my $worker_pid = $$;
-            my $process_key = "metrics:$key_prefix:$worker_pid";
+        my $worker_pid = $$;
+        my $process_key = "metrics:$key_prefix:$worker_pid";
 
+        eval {
             # CPU metrics (counters)
             $metrics_redis->hset($process_key, "cpu_user_seconds_total", $proc_stat->{utime});
             $metrics_redis->hset($process_key, "cpu_system_seconds_total", $proc_stat->{stime});
@@ -343,49 +352,48 @@ sub collect_process_metrics {
             # I/O metrics (counters)
             $metrics_redis->hset($process_key, "read_bytes_total", $proc_io->{read_bytes});
             $metrics_redis->hset($process_key, "write_bytes_total", $proc_io->{write_bytes});
+        };
+        $error = $@;
 
-            # No TTL - process metrics persist until server restart
+    } elsif ( IS_MACOS ) {
+        # TODO: macos
+    } elsif ( IS_WIN32 ) {
+        # TODO: windows
+    } else {
+        $metrics_redis->quit();
+        die "Unsupported OS: $^O";
+    }
+    $metrics_redis->quit();
 
-            $metrics_redis->quit();
-        } elsif ($^O eq 'darwin') {
-            # TODO: macos
-        } elsif ($^O eq 'MSWin32') {
-            # TODO: windows
-        } else {
-            warn "Unsupported OS: $^O";
-        }
-    };
-
-    if ( $@ ) {
-        warn "Process metrics collection error ($key_prefix): $@";
+    if ( $error ) {
+        my $logger = get_logger( "Metrics", "lanraragi" );
+        $logger->error("Failed to collect metrics processes ($key_prefix): $error");
     }
 }
 
 # Clean up all existing metrics data on startup
 sub cleanup_metrics {
+
+    my $metrics_redis   = LANraragi::Model::Config->get_redis_metrics;
+    my $logger          = get_logger( "Metrics", "lanraragi" );
+
+    # Get all metrics keys
     eval {
-        my $metrics_redis = LANraragi::Model::Config->get_redis_metrics;
-        return unless $metrics_redis;
-        my $logger = get_logger( "Metrics", "lanraragi" );
-
-        # Get all metrics keys
-        my @api_keys = $metrics_redis->keys("metrics:worker:*");
-        my @minion_keys = $metrics_redis->keys("metrics:minion:*");
-        my @shinobu_keys = $metrics_redis->keys("metrics:shinobu:*");
-        my @all_keys = (@api_keys, @minion_keys, @shinobu_keys);
-
-        if (@all_keys) {
-            # Delete all metrics keys in a single operation
+        my @api_keys        = $metrics_redis->keys("metrics:worker:*");
+        my @minion_keys     = $metrics_redis->keys("metrics:minion:*");
+        my @shinobu_keys    = $metrics_redis->keys("metrics:shinobu:*");
+        my @all_keys        = (@api_keys, @minion_keys, @shinobu_keys);
+        if ( @all_keys ) {
             $metrics_redis->del(@all_keys);
             my $count = scalar(@all_keys);
-            $logger->info("Cleaned up $count metrics keys from previous session");
+            $logger->info("Cleaned up $count metrics keys.");
         }
-
-        $metrics_redis->quit();
     };
+    my $error = $@;
+    $metrics_redis->quit();
 
-    if ( $@ ) {
-        warn "Metrics cleanup error: $@";
+    if ( $error ) {
+        $logger->error("Failed to clean up metrics keys: $error");
     }
 }
 

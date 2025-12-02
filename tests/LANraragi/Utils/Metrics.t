@@ -11,7 +11,7 @@ BEGIN {
 
 note('testing basic functionality...');
 {
-    is(LANraragi::Utils::Metrics::extract_endpoint(undef), "/unknown", "undefined path returns /unknown");
+    is(LANraragi::Utils::Metrics::extract_endpoint(undef), undef, "undefined path returns undef");
     is(LANraragi::Utils::Metrics::extract_endpoint(""), "/", "empty string returns /");
     is(LANraragi::Utils::Metrics::extract_endpoint("/"), "/", "root path returns /");
 

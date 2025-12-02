@@ -6,11 +6,10 @@ use utf8;
 
 # Extract endpoint path from request and normalize to route templates to prevent cardinality explosion.
 # During normalization, query parameters are removed and path parameters are replaced with router placeholders.
-# If a path is undefined, return "/unknown".
 sub extract_endpoint {
     my $path = shift;
 
-    return "/unknown" unless defined $path;
+    return unless defined $path;
 
     # Remove query parameters and fragments
     $path =~ s/[?#].*$//;
