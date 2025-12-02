@@ -15,6 +15,13 @@ use constant IS_LINUX => ( $^O eq 'linux' );
 use constant IS_MACOS => ( $^O eq 'darwin' );
 use constant IS_WIN32 => ( $^O eq 'MSWin32' );
 
+use constant API_METRICS_FLUSH_INTERVAL     => 1.0;   # min seconds between flushes
+use constant API_METRICS_FLUSH_MAX_UPDATES  => 1000;  # max buffered updates before forced flush
+
+my %API_METRICS_CACHE            = ();
+my $API_METRICS_LAST_FLUSH       = 0;
+my $API_METRICS_UPDATE_COUNT     = 0;
+
 # Get all metrics in Prometheus exposition format.
 sub get_prometheus_metrics {
     my $controller          = shift;
@@ -114,7 +121,7 @@ sub get_prometheus_process_metrics {
     
     # Group all metrics by metric name, collecting from both process types
     my %all_metrics_by_name;
-    foreach my $process_type (qw(minion shinobu)) {
+    foreach my $process_type (qw(http minion shinobu)) {
         my @keys = $metrics_redis->keys("metrics:$process_type:*");
         
         foreach my $key (@keys) {
@@ -287,34 +294,30 @@ sub collect_api_metrics {
     my $endpoint        = LANraragi::Utils::Metrics::extract_endpoint($path);
     return unless $endpoint;
 
-    # Store per-worker metrics with atomic operations
-    # (TODO: cache in-memory for a while before dumping to Redis)
-    # Structure: metrics:worker:{PID}:{endpoint}_{method}:count, :duration_sum, etc.
     # Encode endpoint to avoid Redis key issues with slashes
-    my $redis = LANraragi::Model::Config->get_redis_metrics;
     my $endpoint_encoded    = $endpoint;
     $endpoint_encoded       =~ s/\//_/g;  # Replace / with _
     my $metric_base         = "metrics:worker:$$:${endpoint_encoded}_${method}";
 
-    my $error;
-    eval {
-        $redis->hincrby($metric_base, "count", 1);
-        $redis->hincrbyfloat($metric_base, "duration_sum", $duration);
-        $redis->hincrby($metric_base, "request_size_sum", $request_size);
-        $redis->hincrby($metric_base, "response_size_sum", $response_size);
-    };
-    $error = $@;
-    $redis->quit();
+    # Update in-process cache
+    my $entry = ( $API_METRICS_CACHE{$metric_base} ||= {
+        count             => 0,
+        duration_sum      => 0.0,
+        request_size_sum  => 0,
+        response_size_sum => 0
+    } );
+    $entry->{count}++;
+    $entry->{duration_sum}      += $duration;
+    $entry->{request_size_sum}  += $request_size;
+    $entry->{response_size_sum} += $response_size;
+    $API_METRICS_UPDATE_COUNT++;
 
-    # Clean-up and report errors if any.
-    if ( $error ) {
-        my $logger = get_logger( "Metrics", "lanraragi" );
-        $logger->error("Failed to update metrics info: $error");
-    }
+    # Conditionally flush to redis
+    flush_api_metrics_to_redis();
 }
 
 # Record process-level metrics to Redis with the specified key prefix
-# Accepted key prefixes are "minion" or "shinobu"
+# Accepted key prefixes are "http", "minion" or "shinobu"
 sub collect_process_metrics {
     my $key_prefix = shift;
 
@@ -395,6 +398,39 @@ sub cleanup_metrics {
     if ( $error ) {
         $logger->error("Failed to clean up metrics keys: $error");
     }
+}
+
+# Flush to Redis if time interval elapsed or update count cap reached.
+sub flush_api_metrics_to_redis {
+    my $now                 = Time::HiRes::time();
+    my $should_flush_time   = ( $now - $API_METRICS_LAST_FLUSH ) >= API_METRICS_FLUSH_INTERVAL;
+    my $should_flush_count  = $API_METRICS_UPDATE_COUNT >= API_METRICS_FLUSH_MAX_UPDATES;
+    return unless ( $should_flush_time || $should_flush_count );
+    return unless %API_METRICS_CACHE;
+
+    my $redis = LANraragi::Model::Config->get_redis_metrics;
+    my $error;
+    eval {
+        foreach my $base ( keys %API_METRICS_CACHE ) {
+            my $fields = $API_METRICS_CACHE{$base} || {};
+            $redis->hincrby($base, "count",               $fields->{count}             || 0);
+            $redis->hincrbyfloat($base, "duration_sum",   $fields->{duration_sum}      || 0);
+            $redis->hincrby($base, "request_size_sum",    $fields->{request_size_sum}  || 0);
+            $redis->hincrby($base, "response_size_sum",   $fields->{response_size_sum} || 0);
+        }
+    };
+    $error = $@;
+    $redis->quit();
+
+    if ( $error ) {
+        my $logger = get_logger( "Metrics", "lanraragi" );
+        $logger->error("Failed to update metrics info (flush): $error");
+        return;
+    }
+
+    %API_METRICS_CACHE        = ();
+    $API_METRICS_UPDATE_COUNT = 0;
+    $API_METRICS_LAST_FLUSH   = $now;
 }
 
 1;
