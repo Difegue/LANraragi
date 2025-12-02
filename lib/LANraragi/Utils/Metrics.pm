@@ -81,19 +81,19 @@ sub escape_label_value {
 # https://man7.org/linux/man-pages/man5/proc_pid_stat.5.html （note the starting index difference)
 # https://man7.org/linux/man-pages/man3/sysconf.3.html
 sub read_proc_stat {
-    return undef unless -r "/proc/self/stat";
+    return unless -r "/proc/self/stat";
 
-    open my $fh, '<', "/proc/self/stat" or return undef;
+    open my $fh, '<', "/proc/self/stat" or return;
     my $stat_line = <$fh>;
     close $fh;
 
-    return undef unless $stat_line;
+    return unless $stat_line;
     my @fields = split /\s+/, $stat_line;
     my $ticks_per_sec = eval { require POSIX; POSIX::sysconf(POSIX::_SC_CLK_TCK()) };
-    return undef unless $ticks_per_sec;
+    return unless $ticks_per_sec;
 
     my $boot_time = get_boot_time();
-    return undef unless defined $boot_time;
+    return unless defined $boot_time;
 
     return {
         utime     => ($fields[13] || 0) / $ticks_per_sec,                   # User CPU time in seconds
@@ -107,16 +107,16 @@ sub read_proc_stat {
 # https://man7.org/linux/man-pages/man5/proc_pid_statm.5.html
 # https://man7.org/linux/man-pages/man3/sysconf.3.html
 sub read_proc_statm {
-    return undef unless -r "/proc/self/statm";
+    return unless -r "/proc/self/statm";
 
-    open my $fh, '<', "/proc/self/statm" or return undef;
+    open my $fh, '<', "/proc/self/statm" or return;
     my $statm_line = <$fh>;
     close $fh;
 
-    return undef unless $statm_line;
+    return unless $statm_line;
     my @fields = split /\s+/, $statm_line;
     my $page_size = eval { require POSIX; POSIX::sysconf(POSIX::_SC_PAGESIZE()) };
-    return undef unless $page_size;
+    return unless $page_size;
 
     return {
         vsize => ($fields[0] || 0) * $page_size, # Virtual memory size in bytes
@@ -155,7 +155,7 @@ sub read_fd_stats {
 # Get IO stats from /proc/self/io
 # https://man7.org/linux/man-pages/man5/proc_pid_io.5.html
 sub read_proc_io_bytes {
-    return undef unless -r "/proc/self/io";
+    return unless -r "/proc/self/io";
     my $read_bytes  = 0;
     my $write_bytes = 0;
 
@@ -181,8 +181,8 @@ sub read_proc_io_bytes {
 # https://metacpan.org/release/PEVANS/Net-Prometheus-0.14/source/lib/Net/Prometheus/ProcessCollector/linux.pm
 # https://man7.org/linux/man-pages/man5/proc_stat.5.html
 sub get_boot_time {
-    return undef unless -r "/proc/stat";
-    open my $fh, '<', "/proc/stat" or return undef;
+    return unless -r "/proc/stat";
+    open my $fh, '<', "/proc/stat" or return;
     while ( my $line = <$fh> ) {
         if ( $line =~ /^btime (\d+)/ ) {
             close $fh;
@@ -190,7 +190,7 @@ sub get_boot_time {
         }
     }
     close $fh;
-    return undef;
+    return;
 }
 
 1;
