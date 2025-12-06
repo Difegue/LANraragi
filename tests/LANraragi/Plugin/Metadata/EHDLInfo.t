@@ -24,6 +24,7 @@ note("reading info_translated.txt, wanting default title");
 {
     my ( $fh, $filename ) = tempfile();
     cp( "${SAMPLES}/info_translated.txt", $fh );
+    close($fh);
 
     my $params = { japanese_title => 0 };
     my %res    = LANraragi::Plugin::Metadata::EHDLInfo::read_file->( $filename, $params );
@@ -46,6 +47,7 @@ note("reading info_translated.txt, wanting original title");
 {
     my ( $fh, $filename ) = tempfile();
     cp( "${SAMPLES}/info_translated.txt", $fh );
+    close($fh);
 
     my $params = { japanese_title => 1 };
     my %res    = LANraragi::Plugin::Metadata::EHDLInfo::read_file->( $filename, $params );
@@ -60,6 +62,7 @@ note("reading info_original.txt, wanting default title");
 {
     my ( $fh, $filename ) = tempfile();
     cp( "${SAMPLES}/info_original.txt", $fh );
+    close($fh);
 
     my $params = { japanese_title => 0 };
     my %res    = LANraragi::Plugin::Metadata::EHDLInfo::read_file->( $filename, $params );
@@ -79,6 +82,7 @@ note("reading info_original.txt, wanting original title");
 {
     my ( $fh, $filename ) = tempfile();
     cp( "${SAMPLES}/info_original.txt", $fh );
+    close($fh);
 
     my $params = { japanese_title => 1 };
     my %res    = LANraragi::Plugin::Metadata::EHDLInfo::read_file->( $filename, $params );
@@ -93,6 +97,7 @@ note("reading info_pipe.txt");
 {
     my ( $fh, $filename ) = tempfile();
     cp( "${SAMPLES}/info_pipe.txt", $fh );
+    close($fh);
 
     my $params = { japanese_title => 1 };
     my %res    = LANraragi::Plugin::Metadata::EHDLInfo::read_file->( $filename, $params );
@@ -110,6 +115,7 @@ note("reading info_flat.txt");
 {
     my ( $fh, $filename ) = tempfile();
     cp( "${SAMPLES}/info_flat.txt", $fh );
+    close($fh);
 
     my $params = { japanese_title => 0 };
     my %res    = LANraragi::Plugin::Metadata::EHDLInfo::read_file->( $filename, $params );
@@ -126,6 +132,7 @@ note("reading info_invalid.txt");
 {
     my ( $fh, $filename ) = tempfile();
     cp( "${SAMPLES}/info_invalid.txt", $fh );
+    close($fh);
 
     trap { LANraragi::Plugin::Metadata::EHDLInfo::read_file->( $filename, {} ); };
 
