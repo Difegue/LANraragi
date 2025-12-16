@@ -141,7 +141,6 @@
                     <a class="fas fa-plus" id="add-category" href="#" title="[% c.lh('Add Archive to Category') %]"></a>
 
                     <h2>[% c.lh("Rating") %]</h2>
-                    <br />
 
                     <select id="rating" class="favtag-btn" style="width:200px" autocomplete="off">
                         <option selected value="">[% c.lh(" -- Select Rating -- ") %]</option>
