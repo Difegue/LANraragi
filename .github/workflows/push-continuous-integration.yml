@@ -119,7 +119,7 @@ jobs:
             libbz2-devel
             patch
             mingw-w64-ucrt-x86_64-nodejs
-            mingw-w64-ucrt-x86_64-tools-git
+            mingw-w64-ucrt-x86_64-tools
       - name: Build
         shell: msys2 {0}
         working-directory: LANraragi
