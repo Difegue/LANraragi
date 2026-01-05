@@ -49,6 +49,14 @@ IndexTable.initializeAll = function () {
 
     // set custom columns
     const columns = [];
+    // Checkbox column for selection
+    columns.push({
+        data: null,
+        className: "selection-checkbox itd",
+        name: "selection",
+        orderable: false,
+        render: IndexTable.renderCheckbox,
+    });
     columns.push({
         data: null, className: "title itd", name: "title", render: IndexTable.renderTitle,
     });
@@ -80,8 +88,8 @@ IndexTable.initializeAll = function () {
         deferRender: true,
         lengthChange: false,
         pageLength: Index.pageSize,
-        order: [[0, "asc"]],
-        dom: `<"top"ip>rt<"bottom"p><"clear">`,
+        order: [[1, "asc"]], // Column 1 is title (0 is checkbox)
+        dom: "<\"top\"ip>rt<\"bottom\"p><\"clear\">",
         language: {
             info: I18N.IndexPageCount,
             infoEmpty: `<h1><br/><i class="fas fa-4x fa-toilet-paper-slash"></i><br/><br/>
@@ -222,6 +230,21 @@ IndexTable.renderTags = function (data, type) {
     return data;
 };
 
+/**
+ * Render the selection checkbox column.
+ * @param {*} data Archive data
+ * @param {*} type Whether this is a displayed column (html) or just a data request
+ * @returns The checkbox HTML
+ */
+IndexTable.renderCheckbox = function (data, type) {
+    if (type === "display") {
+        const id = data.arcid || data.id;
+        const checked = Index.selectedArchives && Index.selectedArchives.has(id) ? "checked" : "";
+        return `<input type="checkbox" class="archive-checkbox" data-id="${id}" ${checked}>`;
+    }
+    return "";
+};
+
 // #endregion
 
 // #region Thumbnail View
@@ -306,14 +329,16 @@ IndexTable.drawCallback = function () {
         localStorage.indexOrder = currentOrder;
 
         // Using double equals here since the sort column can be either a string or an int
-        // get current columns count, except title and tags
-        const currentCustomColumnCount = IndexTable.dataTable.columns().count() - 2;
-        // check currentSort, if out of range, back to use title
-        if (currentSort > currentCustomColumnCount) {
-            localStorage.indexSort = 0;
+        // eslint-disable-next-line eqeqeq
+        // get current columns count, except checkbox, title and tags
+        const currentCustomColumnCount = IndexTable.dataTable.columns().count() - 3;
+        // check currentSort, if out of range, back to use title (column 1)
+        if (currentSort > currentCustomColumnCount + 1 || currentSort < 1) {
+            localStorage.indexSort = 1;
         }
-        if (currentSort >= 1 && currentSort <= Index.getColumnCount()) {
-            currentSort = localStorage.getItem(`customColumn${currentSort}`) || `Header ${currentSort}`;
+        // Custom columns start at index 2 (after checkbox and title)
+        if (currentSort >= 2 && currentSort <= currentCustomColumnCount + 1) {
+            currentSort = localStorage[`customColumn${currentSort - 1}`] || `Header ${currentSort - 1}`;
         } else {
             currentSort = "title";
         }
@@ -357,18 +382,19 @@ IndexTable.consumeURLParameters = function () {
     if (params.has("q")) { IndexTable.currentSearch = decodeURIComponent(params.get("q")); }
 
     // Get order from URL, fallback to localstorage if available
-    const order = [[0, "asc"]];
+    // Column 1 is title (0 is checkbox)
+    const order = [[1, "asc"]];
 
     if (params.has("sort")) {
         order[0][0] = params.get("sort");
     } else if (localStorage.indexSort) {
         order[0][0] = localStorage.indexSort;
     }
-    // get current columns count, except title and tags
-    const currentCustomColumnCount = IndexTable.dataTable.columns().count() - 2;
-    // check currentSort, if out of range, back to use title
-    if (localStorage.indexSort > currentCustomColumnCount) {
-        localStorage.indexSort = 0;
+    // get current columns count, except checkbox, title and tags
+    const currentCustomColumnCount = IndexTable.dataTable.columns().count() - 3;
+    // check currentSort, if out of range, back to use title (column 1)
+    if (localStorage.indexSort > currentCustomColumnCount + 1 || localStorage.indexSort < 1) {
+        localStorage.indexSort = 1;
         order[0][0] = localStorage.indexSort;
     }
 

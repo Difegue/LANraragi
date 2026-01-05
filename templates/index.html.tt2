@@ -129,6 +129,14 @@
 				</li>
 			</ul>
 
+			<div id="selection-bar" style="display:none">
+				<span id="selection-count"></span>
+				<button id="select-page-btn" class="stdbtn">[% c.lh("Select Page") %]</button>
+				<button id="deselect-page-btn" class="stdbtn">[% c.lh("Deselect Page") %]</button>
+				<button id="add-to-tank-btn" class="stdbtn">[% c.lh("Add to Tankoubon") %]</button>
+				<button id="clear-selection-btn" class="stdbtn">[% c.lh("Clear") %]</button>
+			</div>
+
 			<div class="table-options" style="display: none;">
 				<div class="thumbnail-options">[% c.lh("Sort by:") %]
 					<select class="favtag-btn" id="namespace-sortby">
@@ -170,10 +178,10 @@
 						title="[% c.lh('Switch to Compact Mode') %]"></a>
 					<a class="fa fa-table fa-2x mode-toggle compact-toggle table-option" href="#"
 						title="[% c.lh('Switch to Thumbnail Mode') %]"></a>
-				</div>
 			</div>
+		</div>
 
-			<table class="itg datatables">
+		<table class="itg datatables">
 				<thead class="list" style="display: none;">
 					<tr id="header-row">
 						<!--dynamic row-->
@@ -287,6 +295,14 @@
 	<div id="updateOverlay" class="id1 base-overlay small-overlay" style="display:none">
 		<h2 class="ih" style="text-align:center">[% c.lh("New Version Release Notes") %]</h2>
 		<div id="changelog"></div>
+	</div>
+
+	<div id="tank-overlay" class="id1 base-overlay small-overlay" style="display:none">
+		<h2 class="ih" style="text-align:center">[% c.lh("Select Tankoubon") %]</h2>
+		<input id="tank-input" type="text" class="stdinput" placeholder="[% c.lh("Search tankoubons...") %]">
+		<br><br>
+		<button id="create-tank-btn" class="stdbtn">[% c.lh("Create New") %]</button>
+		<button id="cancel-tank-btn" class="stdbtn">[% c.lh("Cancel") %]</button>
 	</div>
 
 

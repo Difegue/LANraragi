@@ -76,6 +76,22 @@ I18N.ConfirmYesTankoubon = "[% c.lh("Yes, delete the tankoubon!") %]";
 I18N.TankoubonDeleted = "[% c.lh("Tankoubon deleted") %]";
 I18N.TankoubonDeleteError = "[% c.lh("Error deleting tankoubon") %]";
 
+I18N.SelectionCount = (n) => `[% c.lh("\${n} selected") %]`;
+I18N.SelectPage = "[% c.lh("Select Page") %]";
+I18N.DeselectPage = "[% c.lh("Deselect Page") %]";
+I18N.AddToTankoubon = "[% c.lh("Add to Tankoubon") %]";
+I18N.ClearSelection = "[% c.lh("Clear") %]";
+I18N.SelectTankoubon = "[% c.lh("Select Tankoubon") %]";
+I18N.SearchTankoubons = "[% c.lh("Search tankoubons...") %]";
+I18N.CreateNewTankoubon = "[% c.lh("Create New") %]";
+I18N.AddedToTankoubon = (count, name) => `[% c.lh("Added \${count} archive(s) to \\\"\${name}\\\"") %]`;
+I18N.TankoubonError = "[% c.lh("Error modifying tankoubon") %]";
+I18N.TankoubonFetchError = "[% c.lh("Error fetching tankoubons") %]";
+I18N.NewTankoubon = "[% c.lh("Enter a name for the new tankoubon") %]";
+I18N.TankoubonDefaultName = "[% c.lh("My Tankoubon") %]";
+I18N.MissingTankName = "[% c.lh("Please enter a tankoubon name.") %]";
+I18N.NoTankoubons = "[% c.lh("No tankoubons yet. Create one!") %]";
+
 I18N.ShinobuRestarted = "[% c.lh("Background Worker restarted!") %]";
 I18N.ShinobuRestartError = "[% c.lh("Error restarting Worker:") %]";
 I18N.ContentRescanStarted = "[% c.lh("Content folder rescan started!") %]";

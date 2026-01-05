@@ -400,6 +400,66 @@ li {
   margin-right: 6px;
 }
 
+/* Selection checkbox in thumbnail view - opposite corner from isnew */
+.thumb-checkbox {
+  float: left;
+  margin: 4px;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+/* Selection checkbox column in table view */
+.selection-checkbox {
+  width: 30px !important;
+  text-align: center;
+}
+
+.selection-checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* Selection bar styling */
+#selection-bar {
+  padding: 8px 4%;
+  margin: -28px 0 36px 0; /* Negative top margin to overlap carousel's margin-bottom, then add our own bottom margin */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+#selection-bar .stdbtn {
+  margin: 0;
+}
+
+#selection-count {
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+/* Tank selector overlay */
+#tank-overlay {
+  padding: 20px;
+}
+
+#tank-overlay h2 {
+  margin-top: 0;
+}
+
+#tank-input {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+}
+
+#tank-overlay .stdbtn {
+  margin-right: 10px;
+}
+
 .log-panel {
   margin-top: 5px;
   margin-left: 5px;

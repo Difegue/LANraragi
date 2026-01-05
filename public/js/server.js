@@ -290,6 +290,35 @@ Server.removeArchiveFromCategory = function (arcId, catId) {
     Server.callAPI(`/api/categories/${catId}/${arcId}`, "DELETE", I18N.RemovedFromCategory(arcId, catId), I18N.CategoryEditError, null);
 };
 
+// Fetches the list of all tankoubons.
+Server.getTankoubonList = function (callback) {
+    Server.callAPI("/api/tankoubons?page=-1", "GET", null, I18N.TankoubonFetchError, callback);
+};
+
+// Creates a new tankoubon with the given name.
+Server.createTankoubon = function (name, callback) {
+    Server.callAPI(`/api/tankoubons?name=${encodeURIComponent(name)}`, "PUT", null, I18N.TankoubonError, callback);
+};
+
+// Adds multiple archives to a tankoubon.
+Server.addArchivesToTankoubon = function (tankId, archiveIds, callback) {
+    const endpoint = new LRR.apiURL(`/api/tankoubons/${tankId}/archives`);
+    fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ archives: archiveIds }),
+    })
+        .then((response) => (response.ok ? response.json() : { success: 0, error: I18N.GenericReponseError }))
+        .then((data) => {
+            if (data.success && callback) {
+                callback(data);
+            } else if (!data.success) {
+                LRR.showErrorToast(I18N.TankoubonError, data.error || I18N.GenericReponseError);
+            }
+        })
+        .catch((error) => LRR.showErrorToast(I18N.TankoubonError, error));
+};
+
 /**
  * Sends a DELETE request for that archive ID,
  * deleting the Redis key and attempting to delete the archive file.

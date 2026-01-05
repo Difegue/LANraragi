@@ -139,7 +139,10 @@ LRR.openInNewTab = function (url) {
  * @returns
  */
 LRR.toggleOverlay = function (selector) {
-    Reader.updateArchiveOverlay();
+    // Only call Reader.updateArchiveOverlay if Reader exists (reader page only)
+    if (typeof Reader !== "undefined" && Reader.updateArchiveOverlay) {
+        Reader.updateArchiveOverlay();
+    }
     const overlay = $(selector);
     overlay.is(":visible")
         ? LRR.closeOverlay()
@@ -352,9 +355,14 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
         ? new LRR.apiURL("/img/noThumb.png")
         : new LRR.apiURL(`/api/archives/${thumbId}/thumbnail`);
 
+    // Selection checkbox for thumbnail view
+    const checked = (typeof Index !== "undefined" && Index.selectedArchives && Index.selectedArchives.has(id)) ? "checked" : "";
+    const checkbox = `<input type="checkbox" class="archive-checkbox thumb-checkbox" data-id="${id}" ${checked}>`;
+
     // Don't enforce no_fallback=true here, we don't want those divs to trigger Minion jobs
     return `<div class="id1 context-menu swiper-slide" id="${id}">
                 <div class="id2">
+                    ${checkbox}
                     ${LRR.buildStatusDiv(data)}
                     <a href="${viewUrl}" title="${LRR.encodeHTML(data.title)}">${LRR.encodeHTML(data.title)}</a>
                 </div>

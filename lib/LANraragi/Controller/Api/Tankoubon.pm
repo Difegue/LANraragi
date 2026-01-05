@@ -139,6 +139,61 @@ sub add_to_tankoubon {
     );
 }
 
+sub add_multiple_to_tankoubon {
+
+    my $self   = shift;
+    my $tankid = $self->stash('id');
+    my $data   = $self->req->json;
+
+    if ( !$data || !$data->{archives} || ref( $data->{archives} ) ne 'ARRAY' ) {
+        render_api_response( $self, "add_multiple_to_tankoubon", "Invalid or missing archives array in request body." );
+        return;
+    }
+
+    my @arcids = @{ $data->{archives} };
+
+    if ( scalar @arcids == 0 ) {
+        render_api_response( $self, "add_multiple_to_tankoubon", "No archives specified." );
+        return;
+    }
+
+    my $redis = LANraragi::Model::Config->get_redis;
+
+    return unless exec_with_lock(
+        $self, $redis,
+        "tankoubon-write:$tankid",
+        "add_multiple_to_tankoubon",
+        $tankid,
+        sub {
+            my $added  = 0;
+            my @errors = ();
+
+            foreach my $arcid (@arcids) {
+                my ( $result, $err ) = LANraragi::Model::Tankoubon::add_to_tankoubon( $tankid, $arcid );
+                if ($result) {
+                    $added++;
+                } else {
+                    push @errors, { id => $arcid, error => $err };
+                }
+            }
+
+            my %tankoubon      = LANraragi::Model::Tankoubon::get_tankoubon($tankid);
+            my $tankName       = $tankoubon{name} || $tankid;
+            my $successMessage = "Added $added archive(s) to tankoubon \"$tankName\"!";
+
+            $self->render(
+                json => {
+                    operation => "add_multiple_to_tankoubon",
+                    success   => 1,
+                    message   => $successMessage,
+                    added     => $added,
+                    errors    => \@errors
+                }
+            );
+        }
+    );
+}
+
 sub remove_from_tankoubon {
 
     my $self   = shift;
