@@ -436,6 +436,11 @@ li {
   margin: 0;
 }
 
+#selection-bar .stdbtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 #selection-count {
   font-weight: bold;
   margin-right: 10px;

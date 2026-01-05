@@ -77,6 +77,8 @@ I18N.TankoubonDeleted = "[% c.lh("Tankoubon deleted") %]";
 I18N.TankoubonDeleteError = "[% c.lh("Error deleting tankoubon") %]";
 
 I18N.SelectionCount = (n) => `[% c.lh("\${n} selected") %]`;
+I18N.SelectionCountMixed = (archives, tanks) => `[% c.lh("\${archives} archive(s), \${tanks} tankoubon(s) selected") %]`;
+I18N.CannotAddTanksToTank = `[% c.lh("Cannot add tankoubons to tankoubons - deselect tankoubons first") %]`;
 I18N.SelectPage = "[% c.lh("Select Page") %]";
 I18N.DeselectPage = "[% c.lh("Deselect Page") %]";
 I18N.AddToTankoubon = "[% c.lh("Add to Tankoubon") %]";
