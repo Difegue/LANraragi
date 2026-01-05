@@ -73,6 +73,9 @@ IndexTable.initializeAll = function () {
         ajax: {
             url: "search",
             cache: true,
+            data: function (d) {
+                d.grouptanks = localStorage.grouptanks === "true" ? "1" : "0";
+            },
         },
         deferRender: true,
         lengthChange: false,

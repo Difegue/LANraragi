@@ -9,12 +9,14 @@ use List::Util qw(min);
 use LANraragi::Model::Search;
 use LANraragi::Utils::Generic  qw(render_api_response);
 use LANraragi::Utils::Database qw(invalidate_cache get_archive_json_multi);
+use LANraragi::Utils::Logging qw(get_logger);
 
 # Undocumented API matching the Datatables spec.
 sub handle_datatables ($self) {
 
     my $req = $self->req;
 
+    my $logger = get_logger( "Search API", "lanraragi" );
     my $draw   = $req->param('draw');
     my $start  = $req->param('start');
     my $length = $req->param('length');
@@ -55,9 +57,11 @@ sub handle_datatables ($self) {
 
     $sortorder = ( $sortorder && $sortorder eq 'desc' ) ? 1 : 0;
 
-    # TODO add a parameter to datatables for grouptanks? Not really essential rn tho
+    my $grouptanks = $req->param('grouptanks') || 0;
+    $logger->debug("grouptanks=$grouptanks");
+
     my ( $total, $filtered, @ids ) =
-      LANraragi::Model::Search::do_search( $filter, $categoryfilter, $start, $sortkey, $sortorder, $newfilter, $untaggedfilter, 0 );
+      LANraragi::Model::Search::do_search( $filter, $categoryfilter, $start, $sortkey, $sortorder, $newfilter, $untaggedfilter, $grouptanks );
 
     $self->render( json => get_datatables_object( $draw, $total, $filtered, @ids ) );
 }

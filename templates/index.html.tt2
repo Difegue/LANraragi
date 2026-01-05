@@ -138,10 +138,14 @@
 					<a class="fa fa-sort-alpha-down fa-2x table-option" id="order-sortby" href="#"
 						title="[% c.lh('Sort Order') %]"></a>
 
-					<input id="thumbnail-crop" class="fa table-option" type="checkbox"
-						title="If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the left side.">
-					<label for="thumbnail-crop" style="vertical-align: middle; padding-top:6px">[% c.lh("Crop thumbnails") %]</label>
-				</div>
+				<input id="thumbnail-crop" class="fa table-option" type="checkbox"
+					title="If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the left side.">
+				<label for="thumbnail-crop" style="vertical-align: middle; padding-top:6px">[% c.lh("Crop thumbnails") %]</label>
+
+				<input id="group-tanks" class="fa table-option" type="checkbox"
+					title="If enabled, archives belonging to a Tankoubon will be grouped together.">
+				<label for="group-tanks" style="vertical-align: middle; padding-top:6px">[% c.lh("Group by Tankoubon") %]</label>
+			</div>
 				<div class="compact-options">[% c.lh("Columns:") %]
 					<select class="favtag-btn" id="columnCount">
 						<script>  

@@ -787,6 +787,9 @@ msgstr "Sortierreihenfolge"
 msgid "Crop thumbnails"
 msgstr "Thumbnails zuschneiden"
 
+msgid "Group by Tankoubon"
+msgstr ""
+
 msgid "Go to Page:"
 msgstr "Zu dieser Seite springen:"
 

@@ -710,6 +710,9 @@ msgstr ""
 msgid "Crop thumbnails"
 msgstr ""
 
+msgid "Group by Tankoubon"
+msgstr ""
+
 msgid "Go to Page:"
 msgstr ""
 

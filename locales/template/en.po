@@ -697,6 +697,9 @@ msgstr "Sort Order"
 msgid "Crop thumbnails"
 msgstr "Crop thumbnails"
 
+msgid "Group by Tankoubon"
+msgstr "Group by Tankoubon"
+
 msgid "Go to Page:"
 msgstr "Go to Page:"
 
