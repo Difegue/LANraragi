@@ -418,7 +418,12 @@ sub sort_results ( $sortkey, $sortorder, @filtered ) {
 
     # Employ Lua scripting to fetch data in bulk, thereby minimizing network request frequency
     if ( $sortkey eq "lastread" ) {
-        # Prepare a Lua script to retrieve the lastreadtime for all IDs
+
+        # Separate tanks from archives - tanks need special handling
+        my @tank_ids = grep { /^TANK/ } @filtered;
+        my @archive_ids = grep { !/^TANK/ } @filtered;
+
+        # Prepare a Lua script to retrieve the lastreadtime for all archive IDs
         my $script = <<'LUA';
         local result = {}
         for i=1,#ARGV do
@@ -429,30 +434,43 @@ sub sort_results ( $sortkey, $sortorder, @filtered ) {
         return cjson.encode(result)
 LUA
 
-        # Execute the Lua script
-        my $sha;
-        eval {
-            $sha = $redis->script_load($script);
-            my $total_time = time() - $start_time;
-            $logger->debug("[PERF] lastreadtime Lua script completed in ${total_time}s");
-        };
-        if ($@) {
-            $logger->error("Failed to load Lua script: $@");
-            # Fallback to running individual hget operations for each ID
-            %tmpfilter = map { $_ => $redis->hget( $_, "lastreadtime" ) } @filtered;
-        } else {
-            my $result = $redis->evalsha($sha, 0, @filtered);
-            my $data = eval { decode_json($result) };
+        # Execute the Lua script for archives only
+        if (scalar @archive_ids > 0) {
+            my $sha;
+            eval {
+                $sha = $redis->script_load($script);
+                my $total_time = time() - $start_time;
+                $logger->debug("[PERF] lastreadtime Lua script completed in ${total_time}s");
+            };
             if ($@) {
-                $logger->error("Failed to decode JSON from Lua script: $@");
-                # Revert to the original methodology
-                %tmpfilter = map { $_ => $redis->hget( $_, "lastreadtime" ) } @filtered;
+                $logger->error("Failed to load Lua script: $@");
+                # Fallback to running individual hget operations for each ID
+                %tmpfilter = map { $_ => $redis->hget( $_, "lastreadtime" ) } @archive_ids;
             } else {
-                # Convert the results into a hash table
-                foreach my $item (@$data) {
-                    $tmpfilter{$item->[0]} = $item->[1];
+                my $result = $redis->evalsha($sha, 0, @archive_ids);
+                my $data = eval { decode_json($result) };
+                if ($@) {
+                    $logger->error("Failed to decode JSON from Lua script: $@");
+                    # Revert to the original methodology
+                    %tmpfilter = map { $_ => $redis->hget( $_, "lastreadtime" ) } @archive_ids;
+                } else {
+                    # Convert the results into a hash table
+                    foreach my $item (@$data) {
+                        $tmpfilter{$item->[0]} = $item->[1];
+                    }
                 }
             }
+        }
+
+        # Handle tanks separately - compute max lastreadtime from contained archives
+        foreach my $tank_id (@tank_ids) {
+            my @members = $redis->zrangebyscore($tank_id, 1, "+inf");
+            my $max_time = 0;
+            foreach my $arc (@members) {
+                my $t = $redis->hget($arc, "lastreadtime") || 0;
+                $max_time = $t if $t > $max_time;
+            }
+            $tmpfilter{$tank_id} = $max_time;
         }
 
         # Sorting remains done in Perl -- Invert sort order for lastreadtime, biggest timestamps come first
@@ -467,7 +485,18 @@ LUA
         local result = {}
         for i=1,#ARGV do
             local id = ARGV[i]
-            local tags = redis.call('HGET', id, 'tags') or ""
+            local tags
+            if string.sub(id, 1, 4) == "TANK" then
+                -- Tank: get tags from ZSET at score -2, strip "tags_" prefix
+                local raw = redis.call('ZRANGEBYSCORE', id, -2, -2)
+                if raw[1] then
+                    tags = string.sub(raw[1], 6)
+                else
+                    tags = ""
+                end
+            else
+                tags = redis.call('HGET', id, 'tags') or ""
+            end
             result[i] = {id, tags}
         end
         return cjson.encode(result)
