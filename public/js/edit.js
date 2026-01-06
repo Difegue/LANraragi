@@ -3,7 +3,6 @@
  * Mostly dealing with plugins.
  * @global
  */
-// eslint-disable-next-line no-redeclare
 const Edit = {};
 
 Edit.tagInput = null;

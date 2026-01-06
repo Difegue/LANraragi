@@ -2,7 +2,6 @@
  * Category Operations
  * @global
  */
-// eslint-disable-next-line no-redeclare
 const Category = {};
 
 Category.categories = [];

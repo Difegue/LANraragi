@@ -2,7 +2,6 @@
  * Batch Operations
  * @global
  */
-// eslint-disable-next-line no-redeclare
 const Batch = {};
 
 Batch.socket = {};

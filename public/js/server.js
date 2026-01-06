@@ -2,7 +2,6 @@
  * Functions for Generic API calls.
  * @global
  */
-// eslint-disable-next-line no-redeclare
 const Server = {};
 
 Server.isScriptRunning = false;

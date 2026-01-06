@@ -2,7 +2,6 @@
  * All the Archive Index functions related to DataTables.
  * @global
  */
-// eslint-disable-next-line no-redeclare
 const IndexTable = {};
 
 IndexTable.dataTable = {};

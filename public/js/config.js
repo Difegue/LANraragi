@@ -2,7 +2,6 @@
  * Config Operations
  * @global
  */
-// eslint-disable-next-line no-redeclare
 const Config = {};
 
 Config.initializeAll = function () {

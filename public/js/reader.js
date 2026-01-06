@@ -3,7 +3,6 @@
  * Also handles the thumbnail archive explorer.
  * @global
  */
-// eslint-disable-next-line no-redeclare
 const Reader = {};
 
 Reader.id = "";

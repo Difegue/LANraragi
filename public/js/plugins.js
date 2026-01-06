@@ -2,7 +2,6 @@
  * Plugins Operations
  * @global
  */
-// eslint-disable-next-line no-redeclare
 const Plugins = {};
 
 Plugins.initializeAll = function () {

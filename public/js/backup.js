@@ -2,7 +2,6 @@
  * Backup Operations
  * @global
  */
-// eslint-disable-next-line no-redeclare
 const Backup = {};
 
 Backup.initializeAll = function () {

@@ -2,7 +2,6 @@
  * Stats Operations
  * @global
  */
-// eslint-disable-next-line no-redeclare
 const Stats = {};
 
 Stats.initializeAll = function () {

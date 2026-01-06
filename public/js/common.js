@@ -2,7 +2,6 @@
  * Functions that get used in multiple pages but don't really depend on networking.
  * @global
  */
-// eslint-disable-next-line no-redeclare
 const LRR = {};
 
 function _get_baseurl_cookie() {

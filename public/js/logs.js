@@ -2,7 +2,6 @@
  * Logs Operations
  * @global
  */
-// eslint-disable-next-line no-redeclare
 const Logs = {};
 
 Logs.lastType = "";

@@ -3,7 +3,6 @@
  * (The split is there to permit easier switch if we ever yeet datatables from the main UI)
  * @global
  */
-// eslint-disable-next-line no-redeclare
 const Index = {};
 Index.selectedCategory = "";
 Index.awesomplete = {};

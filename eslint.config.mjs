@@ -16,7 +16,7 @@ const config = {
 
     languageOptions: {
         ecmaVersion: "latest",
-        sourceType: "script",
+        sourceType: "module",
         globals: {
             ...globals.browser,
             ...globals.jquery,
@@ -52,7 +52,7 @@ const config = {
         "no-alert": "off",
         "no-console": "warn",
         "no-else-return": "off",
-        "no-implicit-globals": "off", // TODO requires a fair bit of cleanup to enable
+        "no-implicit-globals": "error",
         "no-multi-assign": ["error", {
             "ignoreNonDeclaration": true,
         }],
