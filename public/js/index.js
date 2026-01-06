@@ -27,7 +27,7 @@ Index.initializeAll = function () {
     $(document).on("click.mode-toggle", ".mode-toggle", Index.toggleMode);
     $(document).on("change.page-select", "#page-select", () => IndexTable.dataTable.page($("#page-select").val() - 1).draw("page"));
     $(document).on("change.thumbnail-crop", "#thumbnail-crop", Index.toggleCrop);
-    $(document).on("change.group-tanks", "#group-tanks", Index.toggleGroupTanks);
+    $(document).on("change.group-tanks", ".group-tanks", Index.toggleGroupTanks);
     $(document).on("change.namespace-sortby", "#namespace-sortby", Index.handleCustomSort);
     $(document).on("change.columnCount", "#columnCount", Index.handleColumnNum);
     $(document).on("click.order-sortby", "#order-sortby", Index.toggleOrder);
@@ -291,8 +291,11 @@ Index.toggleCrop = function () {
     IndexTable.dataTable.draw();
 };
 
+// Handler for .group-tanks checkboxes (duplicated in thumbnail-options and compact-options).
+// Uses `this.checked` to read from whichever checkbox triggered the event.
+// Both checkboxes are synced via localStorage in updateTableControls() after each table draw.
 Index.toggleGroupTanks = function () {
-    localStorage.grouptanks = $("#group-tanks")[0].checked;
+    localStorage.grouptanks = this.checked;
     IndexTable.dataTable.draw();
 };
 
@@ -370,7 +373,8 @@ Index.promptCustomColumn = function (column) {
 Index.updateTableControls = function (currentSort, currentOrder, totalPages, currentPage) {
     $(".table-options").show();
     $("#thumbnail-crop")[0].checked = localStorage.cropthumbs === "true";
-    $("#group-tanks")[0].checked = localStorage.grouptanks === "true";
+    // Sync both .group-tanks checkboxes (one in thumbnail-options, one in compact-options)
+    $(".group-tanks").prop("checked", localStorage.grouptanks === "true");
 
     $("#namespace-sortby").val(currentSort);
     $("#order-sortby")[0].classList.remove("fa-sort-alpha-down", "fa-sort-alpha-up");

@@ -142,9 +142,12 @@
 					title="If enabled, thumbnails that don't fit a regular A4 page will be cropped to only show the left side.">
 				<label for="thumbnail-crop" style="vertical-align: middle; padding-top:6px">[% c.lh("Crop thumbnails") %]</label>
 
-				<input id="group-tanks" class="fa table-option" type="checkbox"
+				[%# "Group by Tankoubon" is duplicated in both thumbnail-options and compact-options
+				    so it appears in both view modes. The two checkboxes share a class (.group-tanks)
+				    and are kept in sync via localStorage and updateTableControls(). %]
+				<input id="group-tanks-thumb" class="fa table-option group-tanks" type="checkbox"
 					title="If enabled, archives belonging to a Tankoubon will be grouped together.">
-				<label for="group-tanks" style="vertical-align: middle; padding-top:6px">[% c.lh("Group by Tankoubon") %]</label>
+				<label for="group-tanks-thumb" style="vertical-align: middle; padding-top:6px">[% c.lh("Group by Tankoubon") %]</label>
 			</div>
 				<div class="compact-options">[% c.lh("Columns:") %]
 					<select class="favtag-btn" id="columnCount">
@@ -154,6 +157,11 @@
 							}  
 						</script> 
 					</select>
+
+				[%# See comment in thumbnail-options above %]
+				<input id="group-tanks-compact" class="fa table-option group-tanks" type="checkbox"
+					title="If enabled, archives belonging to a Tankoubon will be grouped together.">
+				<label for="group-tanks-compact" style="vertical-align: middle; padding-top:6px">[% c.lh("Group by Tankoubon") %]</label>
 				</div>
 				<div style="margin-left:auto">[% c.lh("Go to Page:") %]
 					<select class="favtag-btn" id="page-select">
