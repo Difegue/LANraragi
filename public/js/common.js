@@ -378,7 +378,7 @@ LRR.buildStatusDiv = function (arcdata) {
     }
 
     if (statuses.length === 0) return "";
-    return `<div class='isnew'>${statuses.join("")}</div>`;
+    return `<div class='isnew status-icons'>${statuses.join("")}</div>`;
 };
 
 LRR.buildPageCountDiv = function (arcdata) {

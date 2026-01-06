@@ -189,7 +189,7 @@ IndexTable.renderTitle = function (data, type) {
             : new LRR.apiURL(`/api/archives/${thumbId}/thumbnail?no_fallback=true`);
 
         const bookmarkIcon = LRR.buildBookmarkIconElement(data.arcid, "title-bookmark-icon");
-        return `${LRR.buildPageCountDiv(data)}${bookmarkIcon}<a id="${data.arcid}" onmouseover="IndexTable.buildImageTooltip(this)" href="${new LRR.apiURL(`/reader?id=${data.arcid}`)}">
+        return `${LRR.buildPageCountDiv(data)}${LRR.buildStatusDiv(data)}${bookmarkIcon}<a id="${data.arcid}" onmouseover="IndexTable.buildImageTooltip(this)" href="${new LRR.apiURL(`/reader?id=${data.arcid}`)}">
                     ${LRR.encodeHTML(data.title)}
                 </a>
                 <div class="caption" style="display: none;">

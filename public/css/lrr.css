@@ -396,6 +396,10 @@ li {
   z-index: -1;
 }
 
+.isnew.status-icons {
+  margin-right: 6px;
+}
+
 .log-panel {
   margin-top: 5px;
   margin-left: 5px;
