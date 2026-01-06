@@ -739,6 +739,15 @@ msgstr "Create New"
 msgid "Cannot add tankoubons to tankoubons - deselect tankoubons first"
 msgstr "Cannot add tankoubons to tankoubons - deselect tankoubons first"
 
+msgid "New archive"
+msgstr "New archive"
+
+msgid "Archive read"
+msgstr "Archive read"
+
+msgid "Tankoubon (collection)"
+msgstr "Tankoubon (collection)"
+
 msgid "Go to Page:"
 msgstr "Go to Page:"
 

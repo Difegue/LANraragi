@@ -828,6 +828,15 @@ msgstr ""
 msgid "Cannot add tankoubons to tankoubons - deselect tankoubons first"
 msgstr ""
 
+msgid "New archive"
+msgstr ""
+
+msgid "Archive read"
+msgstr ""
+
+msgid "Tankoubon (collection)"
+msgstr ""
+
 msgid "Go to Page:"
 msgstr "Aller à la page :"
 

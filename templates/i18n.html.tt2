@@ -94,6 +94,10 @@ I18N.TankoubonDefaultName = "[% c.lh("My Tankoubon") %]";
 I18N.MissingTankName = "[% c.lh("Please enter a tankoubon name.") %]";
 I18N.NoTankoubons = "[% c.lh("No tankoubons yet. Create one!") %]";
 
+I18N.StatusNew = "[% c.lh("New archive") %]";
+I18N.StatusRead = "[% c.lh("Archive read") %]";
+I18N.StatusTankoubon = "[% c.lh("Tankoubon (collection)") %]";
+
 I18N.ShinobuRestarted = "[% c.lh("Background Worker restarted!") %]";
 I18N.ShinobuRestartError = "[% c.lh("Error restarting Worker:") %]";
 I18N.ContentRescanStarted = "[% c.lh("Content folder rescan started!") %]";
