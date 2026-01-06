@@ -11,7 +11,7 @@ Here are some existing clients:
 ### [Ichaival (Android)](https://github.com/Utazukin/Ichaival)
 
 [Download it here.](https://github.com/Utazukin/Ichaival)\
-![ichaival](../.gitbook/assets/ichaival.png)
+![ichaival](<../.gitbook/assets/ichaival (1).png>)
 
 **Features:**
 
@@ -24,7 +24,7 @@ Here are some existing clients:
 ### [LANreader (iOS)](https://github.com/Doraemoe/LANreader)
 
 [Download it on the App Store.](https://github.com/Doraemoe/LANreader)\
-![dureader](../.gitbook/assets/dureader.jpg)
+![dureader](<../.gitbook/assets/dureader (1).jpg>)
 
 ### [LRReader (Windows 10)](https://github.com/Guerra24/LRReader)
 
@@ -42,7 +42,7 @@ Here are some existing clients:
 
 ### Mihon / Tachiyomi (Android)
 
-![Mihon / Tachiyomi](../.gitbook/assets/tachiyomi.jpg)
+![Mihon / Tachiyomi](<../.gitbook/assets/tachiyomi (1).jpg>)
 
 [Mihon](https://mihon.app), formerly Tachiyomi, and [its forks](https://mihon.app/forks/) use extensions that provide sources.\
 The LANraragi extension is part of the [Keiyoushi](https://github.com/keiyoushi) repository.
@@ -61,7 +61,7 @@ Check it out [here.](https://github.com/hibikikuze4dan/lanraragi-react-web)
 
 ## Generic OPDS readers
 
-![Example OPDS reader](../.gitbook/assets/opds.jpg)
+![Example OPDS reader](<../.gitbook/assets/opds (1).jpg>)
 
 Some readers can leverage the [OPDS Catalog](https://opds.io) exposed by LANraragi to visualize and read the available archives.\
 Those programs can't exploit all of LRR's features(Search, Database backup), but they might have reading features you won't find in the current dedicated clients.

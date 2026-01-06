@@ -1,6 +1,6 @@
 ---
-cover: .gitbook/assets/archive_thumb.png
-coverY: -164.01117318435755
+cover: .gitbook/assets/archive_list.png
+coverY: 398.3528320809505
 ---
 
 # LANraragi Documentation

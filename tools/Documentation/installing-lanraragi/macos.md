@@ -42,7 +42,7 @@ While the in-app settings page won't allow you to change the location of the con
 
 Once installed, you can get started by running `lanraragi` and opening [http://localhost:3000](http://localhost:3000).
 
-![brew](../.gitbook/assets/brew.jpg)
+![brew](<../.gitbook/assets/brew (1).jpg>)
 
 To change the default port or add SSL support, see this page:
 

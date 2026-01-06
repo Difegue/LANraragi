@@ -13,7 +13,7 @@ Look at the methods below for something that fits your OS and usage.
 
 [Homebrew](https://brew.sh) allows you to quickly setup LRR on macOS and Linux without relying on containers or modifying your preinstalled system libaries.
 
-![brew](../.gitbook/assets/brew.jpg)
+![brew](<../.gitbook/assets/brew (1).jpg>)
 
 {% content-ref url="macos.md" %}
 [macos.md](macos.md)
@@ -72,6 +72,6 @@ Similar to installing from source with an altered process for FreeBSD compatabil
 
 ## Windows 7 or 8: don't
 
-![I really hope you guys don't do this](../.gitbook/assets/shiggy.png)
+![I really hope you guys don't do this](<../.gitbook/assets/shiggy (1).png>)
 
 Switch to 10 or Linux.

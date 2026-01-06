@@ -2,7 +2,7 @@
 
 The search bar in LANraragi tries to not be too dumb and will actively suggest tags to you as you type.
 
-![Search suggestions](../.gitbook/assets/search.png)
+![Search suggestions](<../.gitbook/assets/search (1).png>)
 
 If you want to queue multiple terms/tags, you have to use **commas** to separate them, much like how tags are entered in the metadata field when editing an archive.\
 You can mix both tags and a specific title in a search if you want.\

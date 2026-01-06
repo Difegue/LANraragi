@@ -15,7 +15,7 @@ For creating the jail on a regular FreeBSD installation, refer to its [documenta
 
 For creating the jail on FreeNAS, simply navigate to the jails tab in the webui and click on 'add'.
 
-![Jail Overview](../.gitbook/assets/jails.jpg)
+![Jail Overview](<../.gitbook/assets/jails (1).jpg>)
 
 After creating the jail enter it, type `pkg` and confirm the next prompt.
 

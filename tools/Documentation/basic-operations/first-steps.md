@@ -2,7 +2,7 @@
 
 ## Quick To-Do List for newcomers
 
-![The default password for a new LRR install is "kamimamita".](../.gitbook/assets/login.png)
+![The default password for a new LRR install is "kamimamita".](<../.gitbook/assets/login (1).png>)
 
 * [ ] Change Security Settings
 * [ ] Enable and configure wanted Plugins to tag your content
@@ -73,7 +73,7 @@ If you have a large number of archives (More than 500), you might want to ignore
 
 Starting with 0.7.7, the thumbnail folder can be dissociated from the Content Folder, if you want to move it to a SSD or keep your Content Folder fully read-only.
 
-![Thumbnail Options](../.gitbook/assets/thumbchange.png)
+![Thumbnail Options](<../.gitbook/assets/thumbchange (1).png>)
 
 {% hint style="warning" %}
 There is no support for moving your thumbnails from the old folder to the new one, so make sure to move them manually once you've switched!
@@ -99,7 +99,7 @@ See the Adding Metadata section for more information.
 
 ## Uploading Archives
 
-![LRR Upload Center](../.gitbook/assets/uploading.png)
+![LRR Upload Center](<../.gitbook/assets/uploading (1).png>)
 
 You can add archives to the application by either copying them to the content folder, or using the built-in uploader tool.\
 They'll be automatically indexed and added to the database.\

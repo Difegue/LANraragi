@@ -36,7 +36,7 @@ Combining the two makes it so that LANraragi starts alongside Windows. 🔥🔥�
 
 ## Usage
 
-![Tray GUI and Log Console. Check that Dark Theme tho ‍](../.gitbook/assets/karen-dark.png)
+![Tray GUI and Log Console. Check that Dark Theme tho ](../.gitbook/assets/karen-dark.png)
 
 Once the program is running, you can open the Web Client through the shortcut button on the user interface. You can also toggle the Log Console on/off to see what's going on behind the scenes.
 
@@ -52,6 +52,8 @@ Presto! Your database is not deleted in case you ever fancy coming back.
 ## Troubleshooting
 
 ### Installer failures
+
+Make sure you have the Windows App SDK runtime installed to ensure the tray GUI app can run. A copy can be downloaded here: [https://aka.ms/windowsappsdk/1.7/1.7.250606001/windowsappruntimeinstall-x64.exe](https://aka.ms/windowsappsdk/1.7/1.7.250606001/windowsappruntimeinstall-x64.exe)
 
 The tray GUI will show the error message it encountered instead of the LRR Version number if it fails to test the runtime - This might help you troubleshoot further. A detailed error can be found in the log console.
 

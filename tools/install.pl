@@ -162,6 +162,7 @@ if ( $back || $full ) {
         install_package( "Win32::Process", $cpanopt );
         install_package( "Win32::FileSystemHelper", "https://github.com/Guerra24/Win32-FileSystemHelper/archive/308b92c958bb4931dfd704cc5025f93e28ef0c8a.zip " . $cpanopt );
         install_package( "File::ChangeNotify::Watcher::Win32", "https://github.com/Guerra24/File-ChangeNotify-Watcher-Win32/archive/7cb4e60823569cca8e7652d19b1ba5b5cac00a16.zip " .$cpanopt );
+        install_package( "Win32API::File", $cpanopt );
     }
 
     if ( system( "cpanm --installdeps ./tools/. --notest" . $cpanopt ) != 0 ) {

@@ -7,7 +7,7 @@ description: Download remote URLs directly to LANraragi.
 Starting with version 0.7.3, LANraragi can directly download URLs to its content folder.\
 This allows you to seamlessly add archives from the Internet to your LRR instance for safekeeping.
 
-![Upload Center with a PDF downloaded](../.gitbook/assets/download.png)
+![Upload Center with a PDF downloaded](<../.gitbook/assets/download (1).png>)
 
 By default, we will try to download any URL you chuck at us! This will mostly work for simple URLs that point directly to a file we support.\
 (For example, something like this very nice Quake booklet: `https://archive.org/download/quake-essays-sep-15-fin-4-graco-l-cl/QUAKE_essays_SEP15_FIN4_GRACoL_CL.pdf` will download without a fuss.)
@@ -30,4 +30,4 @@ Just like with Metadata plugins, Downloaders might require using a matching **Lo
 
 You can also install the [Tsukihi Browser Extension](https://github.com/Difegue/Tsukihi) to automatically verify/download URLs you browse to your server instance.
 
-![Tsukihi Web Extension](../.gitbook/assets/webext.png)
+![Tsukihi Web Extension](<../.gitbook/assets/webext (1).png>)
