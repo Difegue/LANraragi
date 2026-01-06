@@ -3,6 +3,14 @@
     "version": "0.9.60",
     "version_name": "5:15 The Angels Have Gone",
     "description": "I'm under Japanese influence and my honor's at stake!",
+    "devEngines": {
+        "runtime": {
+            "name": "node"
+        },
+        "packageManager": {
+            "name": "npm"
+        }
+    },
     "scripts": {
         "test": "prove -r -l -v tests/",
         "lanraragi-installer": "perl ./tools/install.pl",
@@ -27,30 +35,31 @@
     },
     "homepage": "https://github.com/Difegue/LANraragi#readme",
     "dependencies": {
-        "@fortawesome/fontawesome-free": "^6.2.1",
-        "@jcubic/tagger": "^0.4.2",
-        "allcollapsible": "^1.1.0",
-        "awesomplete": "^1.1.5",
-        "blueimp-file-upload": "^10.32.0",
-        "clipboard": "^2.0.11",
-        "clsx": "^1.1.1",
-        "datatables.net": "^1.11.5",
-        "fscreen": "^1.2.0",
-        "geist": "^1.0.0",
-        "inter-ui": "^3.19.3",
-        "jqcloud2": "^2.0.3",
-        "jquery": "^3.6.0",
-        "jquery-contextmenu": "^2.9.2",
-        "marked": "^4.0.14",
-        "preact": "^10.7.1",
-        "react-toastify": "^9.0.0-rc-2",
-        "sweetalert2": "^11.22.4",
-        "swiper": "^8.4.5",
-        "tippy.js": "^6.3.7"
+        "@fortawesome/fontawesome-free": "6.2.1",
+        "@jcubic/tagger": "0.4.2",
+        "allcollapsible": "1.1.0",
+        "awesomplete": "1.1.5",
+        "blueimp-file-upload": "10.32.0",
+        "clipboard": "2.0.11",
+        "clsx": "1.1.1",
+        "datatables.net": "1.11.5",
+        "fscreen": "1.2.0",
+        "geist": "1.0.0",
+        "inter-ui": "3.19.3",
+        "jqcloud2": "2.0.3",
+        "jquery": "3.6.0",
+        "jquery-contextmenu": "2.9.2",
+        "marked": "4.0.15",
+        "preact": "10.7.1",
+        "react-toastify": "9.0.0-rc-2",
+        "sweetalert2": "11.22.4",
+        "swiper": "8.4.5",
+        "tippy.js": "6.3.7"
     },
     "devDependencies": {
-        "eslint": "^9.39.1",
-        "eslint-config-airbnb-extended": "^2.3.2",
-        "eslint-plugin-import": "^2.32.0"
+        "@eslint/js": "9.39.2",
+        "eslint": "9.39.2",
+        "eslint-plugin-import": "2.32.0",
+        "globals": "16.5.0"
     }
 }

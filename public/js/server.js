@@ -1,6 +1,8 @@
 /**
  * Functions for Generic API calls.
+ * @global
  */
+// eslint-disable-next-line no-redeclare
 const Server = {};
 
 Server.isScriptRunning = false;
@@ -16,8 +18,8 @@ Server.isScriptRunning = false;
  * @returns The result of the callback, or NULL.
  */
 Server.callAPI = function (endpoint, method, successMessage, errorMessage, successCallback) {
-    endpoint = new LRR.apiURL(endpoint);
-    return fetch(endpoint, { method })
+    let endpointUrl = new LRR.apiURL(endpoint);
+    return fetch(endpointUrl, { method })
         .then((response) => (response.ok ? response.json() : { success: 0, error: I18N.GenericReponseError }))
         .then((data) => {
             if (Object.prototype.hasOwnProperty.call(data, "success") && !data.success) {
@@ -44,8 +46,8 @@ Server.callAPI = function (endpoint, method, successMessage, errorMessage, succe
 };
 
 Server.callAPIBody = function (endpoint, method, body, successMessage, errorMessage, successCallback) {
-    endpoint = new LRR.apiURL(endpoint);
-    return fetch(endpoint, { method, body })
+    let endpointUrl = new LRR.apiURL(endpoint);
+    return fetch(endpointUrl, { method, body })
         .then((response) => (response.ok ? response.json() : { success: 0, error: I18N.GenericReponseError }))
         .then((data) => {
             if (Object.prototype.hasOwnProperty.call(data, "success") && !data.success) {
@@ -281,12 +283,12 @@ Server.regenerateThumbnails = function (force) {
 
 // Adds an archive to a category. Basic implementation to use everywhere.
 Server.addArchiveToCategory = function (arcId, catId) {
-    Server.callAPI(`/api/categories/${catId}/${arcId}`, "PUT", I18N.AddedToCategory(arcId,catId), I18N.CategoryEditError, null);
+    Server.callAPI(`/api/categories/${catId}/${arcId}`, "PUT", I18N.AddedToCategory(arcId, catId), I18N.CategoryEditError, null);
 };
 
 // Ditto, but for removing.
 Server.removeArchiveFromCategory = function (arcId, catId) {
-    Server.callAPI(`/api/categories/${catId}/${arcId}`, "DELETE", I18N.RemovedFromCategory(arcId,catId), I18N.CategoryEditError, null);
+    Server.callAPI(`/api/categories/${catId}/${arcId}`, "DELETE", I18N.RemovedFromCategory(arcId, catId), I18N.CategoryEditError, null);
 };
 
 /**

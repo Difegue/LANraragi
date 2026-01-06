@@ -1,6 +1,8 @@
 /**
- * Plugins Operations.
+ * Plugins Operations
+ * @global
  */
+// eslint-disable-next-line no-redeclare
 const Plugins = {};
 
 Plugins.initializeAll = function () {
@@ -22,7 +24,7 @@ Plugins.initializeAll = function () {
                 });
             } else {
                 LRR.toast({
-                    heading: I18N.PluginUploadError ,
+                    heading: I18N.PluginUploadError,
                     text: data.result.error,
                     icon: "error",
                     hideAfter: false,

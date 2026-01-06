@@ -45,7 +45,7 @@ I recommend trying to only use exported functions in your code, and consider the
 
 ## Main App Architecture
 
-```
+```text
 root/
 |- .devcontainer <- VSCode setup files for Codespaces
 |- .github       <- GitHub-specific files
@@ -128,11 +128,11 @@ root/
 |  |- install.pl    <- LANraragi Installer
 |  +- lanraragi-systemd.service <- Example SystemD service
 |
-|- lrr.conf      <- Mojolicious configuration file
-|- .perltidy.rc  <- PerlTidy config file to match the coding style
-|- .eslintrc.json   <- ESLint config file to match the coding style
-|- package.json  <- NPM file, contains front-end dependency listing and shortcuts
-+- package-lock.json <- NPM lockfile used by installer/`npm ci` for reproducible builds
+|- lrr.conf           <- Mojolicious configuration file
+|- .perltidy.rc       <- PerlTidy config file to match the coding style
+|- eslint.config.js   <- ESLint config file for linting of JavaScript files
+|- package.json       <- NPM file, contains front-end dependency listing and shortcuts
++- package-lock.json  <- NPM lockfile used by installer/`npm ci` for reproducible builds
 ```
 
 ## Shinobu Architecture
@@ -168,7 +168,7 @@ LRR uses three databases to store its own data, and a fourth for the Minion Job 
 
 The base architecture is as follows:
 
-```
+```text
 -Redis Database 1 - Archive & category data
 |
 |- SET_xxxxxxxxxx <- A Category.

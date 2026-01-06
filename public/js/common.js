@@ -1,11 +1,13 @@
 /**
  * Functions that get used in multiple pages but don't really depend on networking.
+ * @global
  */
+// eslint-disable-next-line no-redeclare
 const LRR = {};
 
 function _get_baseurl_cookie() {
     let cookies = document.cookie;
-    val = cookies.split('; ').find((r) => r.startsWith("lrr_baseurl="))?.split("=")[1];
+    let val = cookies.split("; ").find((r) => r.startsWith("lrr_baseurl="))?.split("=")[1];
     if (val === undefined) {
         console.warn("lrr_baseurl cookie undefined, must be set by backend");
         val = "";
@@ -24,14 +26,17 @@ function _get_baseurl_cookie() {
 // change.
 LRR.apiURL = class {
     static base_url = _get_baseurl_cookie();
+    load_url = "";
 
     constructor(load_url) {
         // accept instances of self as well, to make wrapping
         // idempotent
         if (load_url instanceof LRR.apiURL) {
-            load_url = load_url.load_url;
+            this.load_url = load_url.load_url;
         }
-        this.load_url = load_url;
+        else {
+            this.load_url = load_url;
+        }
         if (!this.load_url.startsWith("/")) {
             console.trace("passed non-absolute URL to apiURL");
             this.load_url = "/" + this.load_url;
@@ -49,9 +54,9 @@ LRR.apiURL = class {
  * Helper function to get user logged status based on tt2 userLogged attribute.
  * @returns true if user is logged in, else false.
  */
-LRR.isUserLogged = function() {
+LRR.isUserLogged = function () {
     const value = document.body.dataset.userLogged;
-    return value === '1';
+    return value === "1";
 };
 
 /**
@@ -230,7 +235,7 @@ LRR.splitTagsByNamespace = function (tags) {
  * @param {{ [namespace: string]: string[] }} tagsDict Per-namespace dictionary of arrays containing tags under each namespace.
  * @returns List of tags prefixed with namespace.
  */
-LRR.buildTagList = function(tagsDict) {
+LRR.buildTagList = function (tagsDict) {
     return Object.entries(tagsDict).flatMap(([namespace, tagArray]) => tagArray.map(tag => LRR.buildNamespacedTag(namespace, tag)));
 };
 
@@ -244,7 +249,7 @@ LRR.buildTagsDiv = function (tags) {
 
     const tagsByNamespace = LRR.splitTagsByNamespace(tags);
 
-    let line = "<table class=\"itg\" style=\"box-shadow: 0 0 0 0; border: none; border-radius: 0\" ><tbody>";
+    let line = `<table class="itg" style="box-shadow: 0 0 0 0; border: none; border-radius: 0" ><tbody>`;
 
     // Go through resolved namespaces and print tag divs
     Object.keys(tagsByNamespace).sort().forEach((key) => {
@@ -269,10 +274,10 @@ LRR.buildTagsDiv = function (tags) {
                     </div>`;
         });
 
-        line += "</td></tr>";
+        line += `</td></tr>`;
     });
 
-    line += "</tbody></table>";
+    line += `</tbody></table>`;
     return line;
 };
 
@@ -283,13 +288,13 @@ LRR.buildTagsDiv = function (tags) {
  * @returns HTML component string
  */
 LRR.buildBookmarkIconElement = function (id, bookmark_class) {
-    if ( !LRR.bookmarkLinkConfigured() ) {
+    if (!LRR.bookmarkLinkConfigured()) {
         return "";
     }
     const isBookmarked = JSON.parse(localStorage.getItem("bookmarkedArchives") || "[]").includes(id);
     const bookmarkClass = isBookmarked ? "fas fa-bookmark" : "far fa-bookmark";
     const disabledClass = LRR.isUserLogged() ? "" : " disabled";
-    const style = !LRR.isUserLogged() ? 'style="opacity: 0.5; cursor: not-allowed;"' : '';
+    const style = !LRR.isUserLogged() ? `style="opacity: 0.5; cursor: not-allowed;"` : "";
     return `<i id="${id}" class="${bookmarkClass} ${bookmark_class}${disabledClass}" title="${I18N.ToggleBookmark}" ${style}></i>`;
 };
 
@@ -315,7 +320,7 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
                 </div>
                 <div class="${thumbCss}">
                     <a href="${reader_url}" title="${LRR.encodeHTML(data.title)}">
-                        <img style="position:relative;" id="${id}_thumb" src="${new LRR.apiURL('/img/wait_warmly.jpg')}"/>
+                        <img style="position:relative;" id="${id}_thumb" src="${new LRR.apiURL("/img/wait_warmly.jpg")}"/>
                         <i id="${id}_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>
                         <img src="${new LRR.apiURL(`/api/archives/${id}/thumbnail`)}"
                                 onload="$('#${id}_thumb').remove(); $('#${id}_spinner').remove();"

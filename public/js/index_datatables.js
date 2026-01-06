@@ -1,6 +1,8 @@
 /**
  * All the Archive Index functions related to DataTables.
+ * @global
  */
+// eslint-disable-next-line no-redeclare
 const IndexTable = {};
 
 IndexTable.dataTable = {};
@@ -77,12 +79,12 @@ IndexTable.initializeAll = function () {
         lengthChange: false,
         pageLength: Index.pageSize,
         order: [[0, "asc"]],
-        dom: "<\"top\"ip>rt<\"bottom\"p><\"clear\">",
+        dom: `<"top"ip>rt<"bottom"p><"clear">`,
         language: {
             info: I18N.IndexPageCount,
             infoEmpty: `<h1><br/><i class="fas fa-4x fa-toilet-paper-slash"></i><br/><br/>
                         ${I18N.IndexNoArcsFound(new LRR.apiURL("/upload"))}</h1><br/>`,
-            processing: "<div id=\"progress\" class=\"indeterminate\"><div class=\"bar-container\"><div class=\"bar\" style=\" width: 80%; \"></div></div></div>",
+            processing: `<div id="progress" class="indeterminate"><div class="bar-container"><div class="bar" style="width: 80%;"></div></div></div>`,
         },
         preDrawCallback: IndexTable.initializeThumbView, // callbacks for thumbnail view
         drawCallback: IndexTable.drawCallback,
@@ -114,7 +116,6 @@ IndexTable.doSearch = function (page) {
 
     if (page) {
         // Hack the displayStart value to draw at the page we asked
-        // eslint-disable-next-line no-underscore-dangle
         const customDisplayStart = page * IndexTable.dataTable.settings()[0]._iDisplayLength;
         IndexTable.dataTable.settings()[0].iInitDisplayStart = customDisplayStart;
     } else {
@@ -250,7 +251,7 @@ IndexTable.initializeThumbView = function () {
 IndexTable.createdRow = function (row, data, dataIndex, cells) {
     // Update row with id and context-menu class
     row.id = data.arcid || data.id;
-    row.classList.add('context-menu');
+    row.classList.add("context-menu");
     // Builds a id1 class div to jam in the thumb container for the given archive data
     if (localStorage.indexViewMode === "1") {
         // Build a thumb-like div with the data
@@ -293,15 +294,14 @@ IndexTable.drawCallback = function () {
         localStorage.indexOrder = currentOrder;
 
         // Using double equals here since the sort column can be either a string or an int
-        // eslint-disable-next-line eqeqeq
         // get current columns count, except title and tags
         const currentCustomColumnCount = IndexTable.dataTable.columns().count() - 2;
         // check currentSort, if out of range, back to use title
         if (currentSort > currentCustomColumnCount) {
             localStorage.indexSort = 0;
         }
-        if (currentSort >= 1 && currentSort <= columnCount.value) {
-            currentSort = localStorage[`customColumn${currentSort}`] || `Header ${currentSort}`;
+        if (currentSort >= 1 && currentSort <= $("#columnCount").value) {
+            currentSort = localStorage.getItem(`customColumn${currentSort}`) || `Header ${currentSort}`;
         } else {
             currentSort = "title";
         }

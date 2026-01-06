@@ -1,7 +1,9 @@
 /**
  * Non-DataTables Index functions.
  * (The split is there to permit easier switch if we ever yeet datatables from the main UI)
+ * @global
  */
+// eslint-disable-next-line no-redeclare
 const Index = {};
 Index.selectedCategory = "";
 Index.awesomplete = {};
@@ -118,7 +120,7 @@ Index.initializeAll = function () {
                 Index.fetchChangelog();
             } else {
                 LRR.toast({
-                    heading: "<i class=\"fas fa-bug\"></i> " + I18N.DebugModeHeader,
+                    heading: `<i class="fas fa-bug"></i> ` + I18N.DebugModeHeader,
                     text: I18N.DebugModeDesc(new LRR.apiURL("/debug")),
                     icon: "warning",
                 });
@@ -136,14 +138,14 @@ Index.initializeAll = function () {
 
     const columnCountSelect = document.getElementById("columnCount");
     columnCountSelect.value = Index.getColumnCount();
-    
+
     Index.updateTableHeaders();
     Index.resizableColumns();
 
     Index.pseudoCopyBtn = $("#pseudo-copy-btn")
     Index.clipboard = new window.ClipboardJS("#pseudo-copy-btn");
 
-    Index.clipboard.on("success", function(e) {
+    Index.clipboard.on("success", function (e) {
         LRR.toast({
             heading: I18N.IndexCopyLinkSuccess,
             icon: "info",
@@ -152,9 +154,9 @@ Index.initializeAll = function () {
         e.clearSelection();
     });
 
-    Index.clipboard.on("error", function(e) {
+    Index.clipboard.on("error", function (e) {
         LRR.toast({
-            heading: I18N.IndexCopyLinkFail ,
+            heading: I18N.IndexCopyLinkFail,
             icon: "error",
             hideAfter: false,
         });
@@ -162,7 +164,7 @@ Index.initializeAll = function () {
 };
 
 // Turn bookmark icons to OFF for all archives.
-Index.bookmarkIconOff = function(arcid) {
+Index.bookmarkIconOff = function (arcid) {
     const icons = document.querySelectorAll(`.title-bookmark-icon[id='${arcid}'], .thumbnail-bookmark-icon[id='${arcid}']`);
     icons.forEach(el => {
         el.classList.remove("fas");
@@ -171,7 +173,7 @@ Index.bookmarkIconOff = function(arcid) {
 }
 
 // Turn bookmark icons to ON for all archives.
-Index.bookmarkIconOn = function(arcid) {
+Index.bookmarkIconOn = function (arcid) {
     const icons = document.querySelectorAll(`.title-bookmark-icon[id='${arcid}'], .thumbnail-bookmark-icon[id='${arcid}']`);
     icons.forEach(el => {
         el.classList.remove("far");
@@ -425,39 +427,39 @@ Index.updateCarousel = function (e) {
     // Hit a different API endpoint depending on the requested localStorage carousel type
     let endpoint;
     switch (localStorage.carouselType) {
-    case "random":
-        $("#carousel-icon")[0].classList = "fas fa-random";
-        $("#carousel-title").text(I18N.CarouselRandom);
-        endpoint = `/api/search/random?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}&count=15`;
+        case "random":
+            $("#carousel-icon")[0].classList = "fas fa-random";
+            $("#carousel-title").text(I18N.CarouselRandom);
+            endpoint = `/api/search/random?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}&count=15`;
 
-        // Special categories that imply additional query params
-        if (Index.selectedCategory === "NEW_ONLY") {
-            endpoint += "&newonly=true";
-        } else if (Index.selectedCategory === "UNTAGGED_ONLY") {
-            endpoint += "&untaggedonly=true";
-        }
+            // Special categories that imply additional query params
+            if (Index.selectedCategory === "NEW_ONLY") {
+                endpoint += "&newonly=true";
+            } else if (Index.selectedCategory === "UNTAGGED_ONLY") {
+                endpoint += "&untaggedonly=true";
+            }
 
-        break;
-    case "inbox":
-        $("#carousel-icon")[0].classList = "fas fa-envelope-open-text";
-        $("#carousel-title").text(I18N.NewArchives);
-        endpoint = `/api/search?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}&newonly=true&sortby=date_added&order=desc&start=-1`;
-        break;
-    case "untagged":
-        $("#carousel-icon")[0].classList = "fas fa-edit";
-        $("#carousel-title").text(I18N.UntaggedArchives);
-        endpoint = `/api/search?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}&untaggedonly=true&sortby=date_added&order=desc&start=-1`;
-        break;
-    case "ondeck":
-        $("#carousel-icon")[0].classList = "fas fa-book-reader";
-        $("#carousel-title").text(I18N.CarouselOnDeck);
-        endpoint = `/api/search?filter=${IndexTable.currentSearch}&sortby=lastread`;
-        break;
-    default:
-        $("#carousel-icon")[0].classList = "fas fa-pastafarianism";
-        $("#carousel-title").text("What???");
-        endpoint = `/api/search?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}`;
-        break;
+            break;
+        case "inbox":
+            $("#carousel-icon")[0].classList = "fas fa-envelope-open-text";
+            $("#carousel-title").text(I18N.NewArchives);
+            endpoint = `/api/search?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}&newonly=true&sortby=date_added&order=desc&start=-1`;
+            break;
+        case "untagged":
+            $("#carousel-icon")[0].classList = "fas fa-edit";
+            $("#carousel-title").text(I18N.UntaggedArchives);
+            endpoint = `/api/search?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}&untaggedonly=true&sortby=date_added&order=desc&start=-1`;
+            break;
+        case "ondeck":
+            $("#carousel-icon")[0].classList = "fas fa-book-reader";
+            $("#carousel-title").text(I18N.CarouselOnDeck);
+            endpoint = `/api/search?filter=${IndexTable.currentSearch}&sortby=lastread`;
+            break;
+        default:
+            $("#carousel-icon")[0].classList = "fas fa-pastafarianism";
+            $("#carousel-title").text("What???");
+            endpoint = `/api/search?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}`;
+            break;
     }
 
     if (Index.carouselInitialized) {
@@ -496,24 +498,26 @@ Index.generateTableHeaders = function (columnCount) {
     const headerRow = $("#header-row");
     headerRow.empty();
     const headerWidth = localStorage.getItem(`resizeColumn0`) || "";
-    headerRow.append(`<th id="titleheader" width="${headerWidth}">
-                        <a>${I18N.IndexTitle}</a>
-                    </th>`);
+    headerRow.append(`
+        <th id="titleheader" width="${headerWidth}">
+            <a>${I18N.IndexTitle}</a>
+        </th>`);
 
     for (let i = 1; i <= columnCount; i++) {
         const customColumn = localStorage[`customColumn${i}`] || `Header ${i}`;
         const colWidth = localStorage.getItem(`resizeColumn${i}`) || "";
 
-        const headerHtml = `  
-            <th id="customheader${i}" width="${colWidth}">  
-                <i id="edit-header-${i}" class="fas fa-pencil-alt edit-header-btn" title="${I18N.IndexEditColumn}"></i>  
-                <a id="header-${i}">${customColumn.charAt(0).toUpperCase() + customColumn.slice(1)}</a>  
+        const headerHtml = `
+            <th id="customheader${i}" width="${colWidth}">
+                <i id="edit-header-${i}" class="fas fa-pencil-alt edit-header-btn" title="${I18N.IndexEditColumn}"></i>
+                <a id="header-${i}">${customColumn.charAt(0).toUpperCase() + customColumn.slice(1)}</a>
             </th>`;
         headerRow.append(headerHtml);
     }
-    headerRow.append(`<th id="tagsheader">
-							<a>${I18N.IndexTags}</a>
-						</th>`);
+    headerRow.append(`
+        <th id="tagsheader">
+            <a>${I18N.IndexTags}</a>
+        </th>`);
 };
 
 
@@ -584,7 +588,6 @@ Index.checkVersion = function () {
                 });
             }
         })
-        // eslint-disable-next-line no-console
         .catch((error) => console.log("Error checking latest version.", error));
 };
 
@@ -678,12 +681,12 @@ Index.loadContextMenuCategories = (catList, id) => Server.callAPI(`/api/archives
                 click() {
                     if ($(this).is(":checked")) {
                         Server.addArchiveToCategory(id, catId);
-                        if ( catId === localStorage.getItem("bookmarkCategoryId") ) {
+                        if (catId === localStorage.getItem("bookmarkCategoryId")) {
                             Index.bookmarkIconOn(id);
                         }
                     } else {
                         Server.removeArchiveFromCategory(id, catId);
-                        if ( catId === localStorage.getItem("bookmarkCategoryId") ) {
+                        if (catId === localStorage.getItem("bookmarkCategoryId")) {
                             Index.bookmarkIconOff(id);
                         }
                     }
@@ -731,7 +734,7 @@ Index.loadContextMenuRatings = (id) => Server.callAPI(`/api/archives/${id}/metad
             if (items[i].name === ratingValue[0]) { items[i].selected = true; }
             items[i].events = {
                 click() {
-                    if(i === 0) delete tags["rating"];
+                    if (i === 0) delete tags["rating"];
                     else tags["rating"] = [ratings[i].name];
 
                     Server.updateTagsFromArchive(id, LRR.buildTagList(tags));
@@ -756,38 +759,36 @@ Index.loadContextMenuRatings = (id) => Server.callAPI(`/api/archives/${id}/metad
  */
 Index.handleContextMenu = function (option, id) {
     switch (option) {
-    case "edit":
-        LRR.openInNewTab(new LRR.apiURL(`/edit?id=${id}`));
-        break;
-    case "delete":
-        LRR.showPopUp({
-            text: I18N.ConfirmArchiveDeletion,
-            icon: "warning",
-            showCancelButton: true,
-            focusConfirm: false,
-            confirmButtonText: I18N.ConfirmYes,
-            reverseButtons: true,
-            confirmButtonColor: "#d33",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                Server.deleteArchive(id, () => { document.location.reload(true); });
-            }
-        });
-        break;
-    case "read":
-        LRR.openInNewTab(new LRR.apiURL(`/reader?id=${id}`));
-        break;
-    case "download":
-        LRR.openInNewTab(new LRR.apiURL(`/api/archives/${id}/download`));
-        break;
-    case "copy link":
-        const relativeUrl = new LRR.apiURL(`/reader?id=${id}`).toString();
-        const link = `${window.location.origin}${relativeUrl}`;
-        Index.pseudoCopyBtn.attr('data-clipboard-text', link);
-        Index.pseudoCopyBtn.click()
-        break;
-    default:
-        break;
+        case "edit":
+            LRR.openInNewTab(new LRR.apiURL(`/edit?id=${id}`));
+            break;
+        case "delete":
+            LRR.showPopUp({
+                text: I18N.ConfirmArchiveDeletion,
+                icon: "warning",
+                showCancelButton: true,
+                focusConfirm: false,
+                confirmButtonText: I18N.ConfirmYes,
+                reverseButtons: true,
+                confirmButtonColor: "#d33",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Server.deleteArchive(id, () => { document.location.reload(true); });
+                }
+            });
+            break;
+        case "read":
+            LRR.openInNewTab(new LRR.apiURL(`/reader?id=${id}`));
+            break;
+        case "download":
+            LRR.openInNewTab(new LRR.apiURL(`/api/archives/${id}/download`));
+            break;
+        case "copy link":
+            Index.pseudoCopyBtn.attr("data-clipboard-text", `${window.location.origin}${new LRR.apiURL(`/reader?id=${id}`).toString()}`);
+            Index.pseudoCopyBtn.click()
+            break;
+        default:
+            break;
     }
 };
 
@@ -963,55 +964,54 @@ Index.resizableColumns = function () {
     let startWidth;
 
     const headers = document.querySelectorAll("#header-row th");
-    headers.forEach((header, i) => {
-        
+    headers.forEach(header => {
         // init
-        header.addEventListener('mousedown', function (event) {
+        header.addEventListener("mousedown", function (event) {
             if (event.offsetX > header.offsetWidth - 10) {
-                
                 currentHeader = header;
                 currentIndex = Array.from(headers).indexOf(currentHeader);
                 startX = event.clientX;
 
                 startWidth = localStorage.getItem(`resizeColumn${currentIndex}`) || header.width || header.offsetWidth;
                 if (!Number.isInteger(startWidth))
-                    startWidth = parseInt(startWidth.replace('px', ''));
+                    startWidth = parseInt(startWidth.replace("px", ""));
 
-                document.addEventListener('mousemove', resizeColumn);
-                document.addEventListener('mouseup', stopResize);
+                document.addEventListener("mousemove", resizeColumn);
+                document.addEventListener("mouseup", stopResize);
 
                 // Disable DataTables sorting while resizing
                 // (Unfortunately, sorting is perma-disabled after this..)
-                $('th').unbind('click.DT');
+                // TODO fix both deprecated and the broken sorting
+                $("th").unbind("click.DT");
 
-                document.body.style.cursor = 'col-resize';
+                document.body.style.cursor = "col-resize";
             }
         });
-        header.addEventListener('mousemove', function (event) {
+        header.addEventListener("mousemove", function (event) {
             if (event.offsetX > header.offsetWidth - 10) {
-                header.style.cursor = 'col-resize';
+                header.style.cursor = "col-resize";
             } else {
-                header.style.cursor = 'default';
+                header.style.cursor = "default";
             }
         });
     });
 
     function resizeColumn(event) {
         if (currentHeader) {
-            currentHeader.style.cursor = 'col-resize';
+            currentHeader.style.cursor = "col-resize";
             let newWidth = startWidth + (event.clientX - startX);
-            const minWidth = parseInt(window.getComputedStyle(currentHeader).minWidth.replace('px', ''));
-            const maxWidth = parseInt(window.getComputedStyle(currentHeader).maxWidth.replace('px', ''));
+            const minWidth = parseInt(window.getComputedStyle(currentHeader).minWidth.replace("px", ""));
+            const maxWidth = parseInt(window.getComputedStyle(currentHeader).maxWidth.replace("px", ""));
 
-            if (newWidth > maxWidth) 
+            if (newWidth > maxWidth)
                 newWidth = maxWidth;
-            
-            if (newWidth < minWidth) 
+
+            if (newWidth < minWidth)
                 newWidth = minWidth;
-            
+
             if (newWidth > 0) {
-                currentHeader.style.width = newWidth + 'px';
-                localStorage.setItem(`resizeColumn${currentIndex}`, newWidth + 'px');
+                currentHeader.style.width = newWidth + "px";
+                localStorage.setItem(`resizeColumn${currentIndex}`, newWidth + "px");
             }
         }
     }
@@ -1020,10 +1020,10 @@ Index.resizableColumns = function () {
         if (currentHeader) {
             currentHeader = null;
         }
-        document.removeEventListener('mousemove', resizeColumn);
-        document.removeEventListener('mouseup', stopResize);
+        document.removeEventListener("mousemove", resizeColumn);
+        document.removeEventListener("mouseup", stopResize);
 
-        document.body.style.cursor = 'default';
+        document.body.style.cursor = "default";
     }
 };
 
