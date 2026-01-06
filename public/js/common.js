@@ -338,9 +338,10 @@ LRR.getItemViewURL = function (id) {
  * such that the toggleability depends on whether the user is logged in.
  * @param {*} data The archive data
  * @param {boolean} tagTooltip Option to build TagTooltip on mouseover
+ * @param {boolean} showCheckbox Option to show selection checkbox (default true)
  * @returns HTML component string
  */
-LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
+LRR.buildThumbnailDiv = function (data, tagTooltip = true, showCheckbox = true) {
     const thumbCss = (localStorage.cropthumbs === "true") ? "id3" : "id3 nocrop";
     // The ID can be in a different field depending on the archive object...
     const id = data.arcid || data.id;
@@ -355,9 +356,12 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
         ? new LRR.apiURL("/img/noThumb.png")
         : new LRR.apiURL(`/api/archives/${thumbId}/thumbnail`);
 
-    // Selection checkbox for thumbnail view
-    const checked = (typeof Index !== "undefined" && Index.selectedArchives && Index.selectedArchives.has(id)) ? "checked" : "";
-    const checkbox = `<input type="checkbox" class="archive-checkbox thumb-checkbox" data-id="${id}" ${checked}>`;
+    // Selection checkbox for thumbnail view (only if showCheckbox is true)
+    let checkbox = "";
+    if (showCheckbox) {
+        const checked = (typeof Index !== "undefined" && Index.selectedArchives && Index.selectedArchives.has(id)) ? "checked" : "";
+        checkbox = `<input type="checkbox" class="archive-checkbox thumb-checkbox" data-id="${id}" ${checked}>`;
+    }
 
     // Don't enforce no_fallback=true here, we don't want those divs to trigger Minion jobs
     return `<div class="id1 context-menu swiper-slide" id="${id}">
