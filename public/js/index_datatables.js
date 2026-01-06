@@ -163,7 +163,7 @@ IndexTable.renderColumn = function (namespace, type, data) {
             const spanTags = tagLinks.slice(0, -2); // remove the last comma and space
             const popupTags = matches.map((match) => match[0]).join(","); //
             return `
-                <span class="tag-tooltip" onmouseover="IndexTable.buildTagTooltip(this)" style="text-overflow:ellipsis;">${spanTags}</span>
+                <span class="tag-tooltip" onmouseover="LRR.buildTagTooltip(this)" style="text-overflow:ellipsis;">${spanTags}</span>
                 <div class="caption caption-tags" style="display: none;" >${LRR.buildTagsDiv(popupTags)}</div>
             `;
         } else return "";
@@ -189,7 +189,8 @@ IndexTable.renderTitle = function (data, type) {
             : new LRR.apiURL(`/api/archives/${thumbId}/thumbnail?no_fallback=true`);
 
         const bookmarkIcon = LRR.buildBookmarkIconElement(data.arcid, "title-bookmark-icon");
-        return `${LRR.buildPageCountDiv(data)}${LRR.buildStatusDiv(data)}${bookmarkIcon}<a id="${data.arcid}" onmouseover="IndexTable.buildImageTooltip(this)" href="${new LRR.apiURL(`/reader?id=${data.arcid}`)}">
+        const viewUrl = LRR.getItemViewURL(data.arcid);
+        return `${LRR.buildPageCountDiv(data)}${LRR.buildStatusDiv(data)}${bookmarkIcon}<a id="${data.arcid}" onmouseover="IndexTable.buildImageTooltip(this)" href="${viewUrl}">
                     ${LRR.encodeHTML(data.title)}
                 </a>
                 <div class="caption" style="display: none;">
@@ -209,7 +210,7 @@ IndexTable.renderTitle = function (data, type) {
  */
 IndexTable.renderTags = function (data, type) {
     if (type === "display") {
-        return `<span class="tag-tooltip" onmouseover="IndexTable.buildTagTooltip(this)" style="text-overflow:ellipsis;">
+        return `<span class="tag-tooltip" onmouseover="LRR.buildTagTooltip(this)" style="text-overflow:ellipsis;">
                     ${LRR.colorCodeTags(data)}
                 </span>
                 <div class="caption caption-tags" style="display: none;" >
@@ -402,20 +403,5 @@ IndexTable.buildImageTooltip = function (target) {
     $(target).attr("onmouseover", ""); // Don't trigger this function again for this element
 };
 
-/**
- * Build a tooltip when hovering over a tag div, then display it.
- * @param {*} target The target tags div
- */
-IndexTable.buildTagTooltip = function (target) {
-    tippy(target, {
-        content: $(target).next("div").attr("style", "")[0],
-        delay: 0,
-        placement: "auto-start",
-        maxWidth: "none",
-        interactive: true,
-        // Have to be outside so that it is not hidden by other elements.
-        appendTo: document.body,
-    }).show(); // Call show() so that the tooltip shows now
-
-    $(target).attr("onmouseover", "");
-};
+// Alias for backward compatibility
+IndexTable.buildTagTooltip = LRR.buildTagTooltip;

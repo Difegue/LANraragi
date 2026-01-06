@@ -281,6 +281,23 @@ LRR.buildTagsDiv = function (tags) {
 };
 
 /**
+ * Build a tooltip when hovering over a tag div, then display it.
+ * @param {*} target The target tags div
+ */
+LRR.buildTagTooltip = function (target) {
+    tippy(target, {
+        content: $(target).next("div").attr("style", "")[0],
+        delay: 0,
+        placement: "auto-start",
+        maxWidth: "none",
+        interactive: true,
+        appendTo: document.body,
+    }).show();
+
+    $(target).attr("onmouseover", "");
+};
+
+/**
  * Build bookmark icon for an archive.
  * @param {*} id
  * @param {*} bookmark_class Either "thumbnail-bookmark-icon" or "title-bookmark-icon".
@@ -298,6 +315,19 @@ LRR.buildBookmarkIconElement = function (id, bookmark_class) {
 };
 
 /**
+ * Get the appropriate view URL for an archive or tankoubon.
+ * Tankoubons link to /tankoubon?id=..., archives link to /reader?id=...
+ * @param {string} id The archive or tankoubon ID
+ * @returns {LRR.apiURL} The appropriate URL
+ */
+LRR.getItemViewURL = function (id) {
+    if (id.startsWith("TANK_")) {
+        return new LRR.apiURL(`/tankoubon?id=${id}`);
+    }
+    return new LRR.apiURL(`/reader?id=${id}`);
+};
+
+/**
  * Build a thumbnail div for the given archive data. Dynamically generates a bookmark icon,
  * such that the toggleability depends on whether the user is logged in.
  * @param {*} data The archive data
@@ -308,7 +338,7 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
     const thumbCss = (localStorage.cropthumbs === "true") ? "id3" : "id3 nocrop";
     // The ID can be in a different field depending on the archive object...
     const id = data.arcid || data.id;
-    let reader_url = new LRR.apiURL(`/reader?id=${id}`);
+    const viewUrl = LRR.getItemViewURL(id);
     const bookmarkIcon = LRR.buildBookmarkIconElement(id, "thumbnail-bookmark-icon");
 
     // For tankoubons, use the first archive's thumbnail (thumb_archive field)
@@ -323,11 +353,11 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
     return `<div class="id1 context-menu swiper-slide" id="${id}">
                 <div class="id2">
                     ${LRR.buildStatusDiv(data)}
-                    <a href="${reader_url}" title="${LRR.encodeHTML(data.title)}">${LRR.encodeHTML(data.title)}</a>
+                    <a href="${viewUrl}" title="${LRR.encodeHTML(data.title)}">${LRR.encodeHTML(data.title)}</a>
                 </div>
                 <div class="${thumbCss}">
-                    <a href="${reader_url}" title="${LRR.encodeHTML(data.title)}">
-                        <img style="position:relative;" id="${id}_thumb" src="${new LRR.apiURL("/img/wait_warmly.jpg")}"/>
+                    <a href="${viewUrl}" title="${LRR.encodeHTML(data.title)}">
+                        <img style="position:relative;" id="${id}_thumb" src="${new LRR.apiURL('/img/wait_warmly.jpg')}"/>
                         <i id="${id}_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>
                         <img src="${thumbSrc}"
                                 onload="$('#${id}_thumb').remove(); $('#${id}_spinner').remove();"
@@ -337,7 +367,7 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
                 </div>
                 <div class="id4">
                         ${LRR.buildPageCountDiv(data)}
-                        <span class="tags tag-tooltip" ${tagTooltip === true ? "onmouseover=\"IndexTable.buildTagTooltip(this)\"" : ""}>${LRR.colorCodeTags(data.tags)}</span>
+                        <span class="tags tag-tooltip" ${tagTooltip === true ? "onmouseover=\"LRR.buildTagTooltip(this)\"" : ""}>${LRR.colorCodeTags(data.tags)}</span>
                         ${tagTooltip === true ? `<div class="caption caption-tags" style="display: none;" >${LRR.buildTagsDiv(data.tags)}</div>` : ""}
                 </div>
             </div>`;
@@ -447,7 +477,7 @@ LRR.getProgress = function (arcdata) {
     const pagecount = parseInt(arcdata.pagecount || 0, 10);
     let progress = -1;
 
-    if (Index.isProgressLocal && !(Index.isProgressAuthenticated && LRR.isUserLogged())) {
+    if (typeof Index !== "undefined" && Index.isProgressLocal && !(Index.isProgressAuthenticated && LRR.isUserLogged())) {
         progress = parseInt(localStorage.getItem(`${id}-reader`) || 0, 10);
     } else {
         progress = parseInt(arcdata.progress || 0, 10);
@@ -547,6 +577,174 @@ LRR.toast = function (c) {
             };
         })());
 };
+
+// #region Context Menu Functions
+
+/**
+ * Handle context menu clicks.
+ * @param {*} option The clicked option
+ * @param {*} id The Archive ID
+ * @param {*} refreshCallback Optional callback to refresh the view after certain actions
+ */
+LRR.handleContextMenu = function (option, id, refreshCallback) {
+    switch (option) {
+    case "edit":
+        LRR.openInNewTab(new LRR.apiURL(`/edit?id=${id}`));
+        break;
+    case "delete":
+        LRR.showPopUp({
+            text: I18N.ConfirmArchiveDeletion,
+            icon: "warning",
+            showCancelButton: true,
+            focusConfirm: false,
+            confirmButtonText: I18N.ConfirmYes,
+            reverseButtons: true,
+            confirmButtonColor: "#d33",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Server.deleteArchive(id, () => {
+                    if (refreshCallback) {
+                        refreshCallback();
+                    } else {
+                        document.location.reload(true);
+                    }
+                });
+            }
+        });
+        break;
+    case "read":
+        LRR.openInNewTab(new LRR.apiURL(`/reader?id=${id}`));
+        break;
+    case "download":
+        LRR.openInNewTab(new LRR.apiURL(`/api/archives/${id}/download`));
+        break;
+    case "copy link":
+        LRR.copyToClipboard(`${window.location.origin}${new LRR.apiURL(`/reader?id=${id}`)}`);
+        break;
+    default:
+        break;
+    }
+};
+
+/**
+ * Copy text to clipboard and show a toast notification
+ * @param {string} text The text to copy
+ */
+LRR.copyToClipboard = function (text) {
+    navigator.clipboard.writeText(text).then(() => {
+        LRR.toast({
+            heading: I18N.IndexCopyLinkSuccess,
+            icon: "info",
+            hideAfter: 3000,
+        });
+    }).catch(() => {
+        LRR.toast({
+            heading: I18N.IndexCopyLinkFail,
+            icon: "error",
+            hideAfter: false,
+        });
+    });
+};
+
+/**
+ * Build category list for contextMenu and checkoff the ones the given ID belongs to.
+ * @param {*} catList The list of categories, obtained statically
+ * @param {*} id The ID of the archive to check
+ * @returns Categories
+ */
+LRR.loadContextMenuCategories = (catList, id) => Server.callAPI(`/api/archives/${id}/categories`, "GET", null, I18N.IndexIdLoadError(id),
+    (data) => {
+        const items = {};
+
+        for (let i = 0; i < catList.length; i++) {
+            const catId = catList[i].id;
+
+            // If the category is also in the API results,
+            // we can pre-check it when creating the checkbox
+            const isSelected = data.categories.map((x) => x.id).includes(catId);
+            items[catId] = { name: catList[i].name, type: "checkbox" };
+            if (isSelected) { items[catId].selected = true; }
+
+            items[catId].events = {
+                click() {
+                    if ($(this).is(":checked")) {
+                        Server.addArchiveToCategory(id, catId);
+                        if (typeof Index !== "undefined" && catId === localStorage.getItem("bookmarkCategoryId")) {
+                            Index.bookmarkIconOn(id);
+                        }
+                    } else {
+                        Server.removeArchiveFromCategory(id, catId);
+                        if (typeof Index !== "undefined" && catId === localStorage.getItem("bookmarkCategoryId")) {
+                            Index.bookmarkIconOff(id);
+                        }
+                    }
+                },
+            };
+        }
+
+        if (Object.keys(items).length === 0) {
+            items.noop = { name: I18N.IndexNoCategories, icon: "far fa-sad-cry" };
+        }
+
+        return items;
+    },
+);
+
+/**
+ * Build rating options for contextMenu and select the one for the current ID.
+ * @param {*} id The ID of the archive to check
+ * @param {*} refreshCallback Optional callback to refresh the view after rating change
+ * @returns Ratings
+ */
+LRR.loadContextMenuRatings = (id, refreshCallback) => Server.callAPI(`/api/archives/${id}/metadata`, "GET", null, I18N.IndexIdLoadError(id),
+    (data) => {
+        const items = {};
+        const ratings = [{
+            name: I18N.IndexRemoveRating
+        }, {
+            name: "⭐",
+        }, {
+            name: "⭐⭐",
+        }, {
+            name: "⭐⭐⭐",
+        }, {
+            name: "⭐⭐⭐⭐",
+        }, {
+            name: "⭐⭐⭐⭐⭐",
+        }];
+        const tags = LRR.splitTagsByNamespace(data.tags);
+        const hasRating = Object.keys(tags).some(x => x === "rating");
+        const ratingValue = hasRating ? tags["rating"] : [0];
+
+        for (let i = 0; i < ratings.length; i++) {
+            items[i] = ratings[i];
+            items[i].type = "checkbox";
+
+            if (items[i].name === ratingValue[0]) { items[i].selected = true; }
+            items[i].events = {
+                click() {
+                    if(i === 0) delete tags["rating"];
+                    else tags["rating"] = [ratings[i].name];
+
+                    Server.updateTagsFromArchive(id, LRR.buildTagList(tags));
+
+                    // Refresh the view
+                    if (refreshCallback) {
+                        refreshCallback();
+                    } else if (typeof IndexTable !== "undefined" && IndexTable.dataTable) {
+                        IndexTable.dataTable.ajax.reload(null, false);
+                        if (typeof Index !== "undefined") Index.updateCarousel();
+                    }
+                    $(this).parents("ul.context-menu-list").find("input[type='checkbox']").toArray().filter((x) => x !== this).forEach(x => x.checked = false);
+                },
+            };
+        }
+
+        return items;
+    },
+);
+
+// #endregion
 
 jQuery(() => {
     // Initialize toast.

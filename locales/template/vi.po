@@ -1411,6 +1411,21 @@ msgstr ""
 "\"https://sugoi.gitbook.io/lanraragi/basic-operations/searching\">Tài liệu "
 "hướng dẫn</a> để biết thêm chi tiết."
 
+msgid "Tankoubon"
+msgstr ""
+
+msgid "Error loading tankoubon"
+msgstr ""
+
+msgid "${n} archive(s)"
+msgstr ""
+
+msgid "Showing ${start} to ${end} of ${total} archives"
+msgstr ""
+
+msgid "This tankoubon has no archives."
+msgstr ""
+
 msgid "Background Worker restarted!"
 msgstr "Công việc nền đã được khởi động lại!"
 

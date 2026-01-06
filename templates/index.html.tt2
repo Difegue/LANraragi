@@ -232,7 +232,7 @@
 				build: ($trigger, e) => {
 					return {
 						callback: function (key, options) {
-							Index.handleContextMenu(key, $(this).attr("id"));
+							LRR.handleContextMenu(key, $(this).attr("id"));
 						},
 						items: {
 							"read": { name: "[% c.lh('Read') %]", icon: "fas fa-book" },
@@ -245,12 +245,12 @@
 							"rating": {
 							    "name": "[% c.lh('Add Rating') %]",
 							    "icon": "fas fa-star",
-							    "items": Index.loadContextMenuRatings($trigger.attr("id"))
+							    "items": LRR.loadContextMenuRatings($trigger.attr("id"))
 							},
 							"collections": {
 								"name": "[% c.lh('Add to Category') %]",
 								"icon": "fas fa-search-plus",
-								"items": Index.loadContextMenuCategories(catList, $trigger.attr("id"))
+								"items": LRR.loadContextMenuCategories(catList, $trigger.attr("id"))
 							}
 							[% END %]
 						}

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+
+<head>
+	<title>[% title %] - [% c.lh("Tankoubon") %]</title>
+
+	<meta name="viewport" content="width=device-width" />
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="apple-mobile-web-status-bar-style" content="black" />
+	<meta name="mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+
+	<link type="image/png" rel="icon" href="favicon.ico" />
+	<link rel="manifest" href="app.webappmanifest" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/lrr.css?$version") %]" />
+
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/fontawesome-all.min.css") %]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/jquery.contextMenu.min.css") %]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/tippy.css") %]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/ReactToastify.min.css") %]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/sweetalert2.min.css") %]" />
+	[% csshead %]
+
+	<script src="[% c.url_for("/js/vendor/jquery.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/preact.umd.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/hooks.umd.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/compat.umd.js") %]" type="text/JAVASCRIPT"></script>
+	<script>window.React = window.preactCompat; window.react = window.preactCompat;</script>
+	<script src="[% c.url_for("/js/vendor/clsx.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/react-toastify.umd.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/jquery.ui.position.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/jquery.contextMenu.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/popper.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/tippy-bundle.umd.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/sweetalert2.min.js") %]" type="text/JAVASCRIPT"></script>
+
+	<script src="[% c.url_for("/js/i18n.js?$version") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/common.js?$version") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/server.js?$version") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/tankoubon_view.js?$version") %]" type="text/JAVASCRIPT"></script>
+
+</head>
+
+<body data-user-logged="[% userlogged %]">
+
+	<div class='ido' style='text-align:center'>
+		<h2 class='ih' id="tankoubon-title" style='text-align:center'>[% c.lh("Loading...") %]</h2>
+
+		<div id="tankoubon-metadata" style="margin-bottom: 20px;">
+			<div id="tankoubon-summary" style="margin-bottom: 10px; font-style: italic;"></div>
+			<div id="tankoubon-tags" style="margin-bottom: 10px;"></div>
+			<div id="tankoubon-count" style="font-size: 10pt; color: #888;"></div>
+		</div>
+
+		<div class="table-options" style="display: none; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+			<div id="archive-count-info" style="font-size: 10pt;"></div>
+			<div style="display: flex; align-items: center; gap: 10px;">
+				[% c.lh("Go to Page:") %]
+				<select class="favtag-btn" id="page-select"></select>
+				<a class="fa fa-list fa-2x mode-toggle thumbnail-toggle table-option" href="#"
+					title="[% c.lh('Switch to Compact Mode') %]"></a>
+				<a class="fa fa-table fa-2x mode-toggle compact-toggle table-option" href="#"
+					title="[% c.lh('Switch to Thumbnail Mode') %]" style="display:none"></a>
+			</div>
+		</div>
+
+		<div id="paginator-top" class="dataTables_paginate" style="text-align: center; margin-bottom: 10px;"></div>
+
+		<div id="thumbs_container" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;"></div>
+
+		<table id="archive-table" class="itg" style="display:none; width: 100%;">
+			<thead>
+				<tr>
+					<th style="width: 50px;">#</th>
+					<th>[% c.lh("Title") %]</th>
+					<th>[% c.lh("Tags") %]</th>
+				</tr>
+			</thead>
+			<tbody></tbody>
+		</table>
+
+		<div id="empty-message" style="display:none; padding: 50px;">
+			<h2><i class="fas fa-box-open fa-3x"></i></h2>
+			<h2>[% c.lh("This tankoubon has no archives.") %]</h2>
+		</div>
+
+		<div id="paginator-bottom" class="dataTables_paginate" style="text-align: center; margin-top: 10px;"></div>
+
+		<br><br>
+		<a href="[% c.url_for('/').query(ref_query) %]" class="stdbtn">[% c.lh("Return to Library") %]</a>
+	</div>
+
+	[% INCLUDE footer %]
+
+	<script>
+		// Category list for context menu (same pattern as index)
+		const catList = [];
+		[% IF categories.size > 0 %]
+		[% FOREACH categories %]
+		catList.push({ name: "[% name %]", id: "[% id %]" });
+		[% END %]
+		[% END %]
+
+		// Initialize context menu
+		$.contextMenu({
+			selector: '.context-menu',
+			build: ($trigger, e) => {
+				return {
+					callback: function (key, options) {
+						LRR.handleContextMenu(key, $(this).attr("id"), TankoubonView.refreshPage);
+					},
+					items: {
+						"read": { name: "[% c.lh('Read') %]", icon: "fas fa-book" },
+						"download": { name: "[% c.lh('Download') %]", icon: "fas fa-save" },
+						"copy link": { name: "[% c.lh('Copy link') %]", icon: "fas fa-link" },
+						[% IF userlogged %]
+						"sep1": "---------",
+						"edit": { name: "[% c.lh('Edit Metadata') %]", icon: "fas fa-pencil-alt" },
+						"delete": { name: "[% c.lh('Delete') %]", icon: "fas fa-trash-alt" },
+						"rating": {
+							"name": "[% c.lh('Add Rating') %]",
+							"icon": "fas fa-star",
+							"items": LRR.loadContextMenuRatings($trigger.attr("id"), TankoubonView.refreshPage)
+						},
+						"collections": {
+							"name": "[% c.lh('Add to Category') %]",
+							"icon": "fas fa-search-plus",
+							"items": LRR.loadContextMenuCategories(catList, $trigger.attr("id"))
+						}
+						[% END %]
+					}
+				}
+			}
+		});
+
+		// Initialize tankoubon view
+		TankoubonView.init("[% id %]");
+	</script>
+
+</body>
+
+</html>

@@ -1438,6 +1438,21 @@ msgstr ""
 "\"https://sugoi.gitbook.io/lanraragi/basic-operations/searching\""
 ">Dokumentasjonen</a> for mer informasjon."
 
+msgid "Tankoubon"
+msgstr ""
+
+msgid "Error loading tankoubon"
+msgstr ""
+
+msgid "${n} archive(s)"
+msgstr ""
+
+msgid "Showing ${start} to ${end} of ${total} archives"
+msgstr ""
+
+msgid "This tankoubon has no archives."
+msgstr ""
+
 msgid "Background Worker restarted!"
 msgstr "Bakgrunnsarbeideren ble startet på nytt!"
 

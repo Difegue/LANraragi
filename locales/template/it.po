@@ -1348,6 +1348,21 @@ msgstr ""
 msgid "Predicates follow the same syntax as searches in the Archive Index. Check the Documentation for more information."
 msgstr ""
 
+msgid "Tankoubon"
+msgstr ""
+
+msgid "Error loading tankoubon"
+msgstr ""
+
+msgid "${n} archive(s)"
+msgstr ""
+
+msgid "Showing ${start} to ${end} of ${total} archives"
+msgstr ""
+
+msgid "This tankoubon has no archives."
+msgstr ""
+
 msgid "Background Worker restarted!"
 msgstr ""
 

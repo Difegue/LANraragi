@@ -56,6 +56,11 @@ I18N.StatusNew = "[% c.lh("New archive") %]";
 I18N.StatusRead = "[% c.lh("Archive read") %]";
 I18N.StatusTankoubon = "[% c.lh("Tankoubon (collection)") %]";
 
+I18N.Tankoubon = "[% c.lh("Tankoubon") %]";
+I18N.TankoubonLoadError = "[% c.lh("Error loading tankoubon") %]";
+I18N.TankoubonArchiveCount = (n) => `[% c.lh("\${n} archive(s)") %]`;
+I18N.TankoubonShowingCount = (start, end, total) => `[% c.lh("Showing \${start} to \${end} of \${total} archives") %]`;
+
 I18N.ShinobuRestarted = "[% c.lh("Background Worker restarted!") %]";
 I18N.ShinobuRestartError = "[% c.lh("Error restarting Worker:") %]";
 I18N.ContentRescanStarted = "[% c.lh("Content folder rescan started!") %]";

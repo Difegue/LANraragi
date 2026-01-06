@@ -1341,6 +1341,21 @@ msgstr ""
 "href=\"https://sugoi.gitbook.io/lanraragi/basic-operations/searching\">문서</"
 "a>를 참조하세요."
 
+msgid "Tankoubon"
+msgstr ""
+
+msgid "Error loading tankoubon"
+msgstr ""
+
+msgid "${n} archive(s)"
+msgstr ""
+
+msgid "Showing ${start} to ${end} of ${total} archives"
+msgstr ""
+
+msgid "This tankoubon has no archives."
+msgstr ""
+
 msgid "Background Worker restarted!"
 msgstr "백그라운드 워커 재시작!"
 

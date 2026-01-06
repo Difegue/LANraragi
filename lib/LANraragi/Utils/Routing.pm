@@ -103,6 +103,7 @@ sub apply_routes {
     $logged_in->get('/logs/redis')->to('logging#print_redis');
 
     $logged_in->get('/tankoubons')->to('tankoubon#index');
+    $logged_in->get('/tankoubon')->to('tankoubon#view');
 
     $logged_in->get('/duplicates')->to('duplicates#index');
 
