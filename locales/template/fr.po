@@ -782,6 +782,15 @@ msgstr "Couper les miniatures"
 msgid "Group by Tankoubon"
 msgstr ""
 
+msgid "New archive"
+msgstr ""
+
+msgid "Archive read"
+msgstr ""
+
+msgid "Tankoubon (collection)"
+msgstr ""
+
 msgid "Go to Page:"
 msgstr "Aller à la page :"
 

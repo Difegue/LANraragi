@@ -700,6 +700,15 @@ msgstr "Crop thumbnails"
 msgid "Group by Tankoubon"
 msgstr "Group by Tankoubon"
 
+msgid "New archive"
+msgstr "New archive"
+
+msgid "Archive read"
+msgstr "Archive read"
+
+msgid "Tankoubon (collection)"
+msgstr "Tankoubon (collection)"
+
 msgid "Go to Page:"
 msgstr "Go to Page:"
 

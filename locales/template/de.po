@@ -790,6 +790,15 @@ msgstr "Thumbnails zuschneiden"
 msgid "Group by Tankoubon"
 msgstr ""
 
+msgid "New archive"
+msgstr ""
+
+msgid "Archive read"
+msgstr ""
+
+msgid "Tankoubon (collection)"
+msgstr ""
+
 msgid "Go to Page:"
 msgstr "Zu dieser Seite springen:"
 

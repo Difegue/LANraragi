@@ -708,6 +708,15 @@ msgstr "섬네일 자르기"
 msgid "Group by Tankoubon"
 msgstr ""
 
+msgid "New archive"
+msgstr ""
+
+msgid "Archive read"
+msgstr ""
+
+msgid "Tankoubon (collection)"
+msgstr ""
+
 msgid "Go to Page:"
 msgstr "페이지로 이동:"
 

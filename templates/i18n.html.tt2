@@ -52,6 +52,10 @@ I18N.BookmarkLinkError = "[% c.lh("Error linking bookmark button:") %]";
 I18N.BookmarkUnlinkError = "[% c.lh("Error unlinking bookmark button:") %]";
 I18N.GetBookmarkError = "[% c.lh("Error getting bookmark category:") %]";
 
+I18N.StatusNew = "[% c.lh("New archive") %]";
+I18N.StatusRead = "[% c.lh("Archive read") %]";
+I18N.StatusTankoubon = "[% c.lh("Tankoubon (collection)") %]";
+
 I18N.ShinobuRestarted = "[% c.lh("Background Worker restarted!") %]";
 I18N.ShinobuRestartError = "[% c.lh("Error restarting Worker:") %]";
 I18N.ContentRescanStarted = "[% c.lh("Content folder rescan started!") %]";

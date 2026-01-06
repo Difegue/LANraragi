@@ -344,21 +344,41 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
 };
 
 /**
- * Show an emoji for the given archive data.
+ * Show status emoji(s) for the given archive data.
+ * Can show multiple indicators: new (🆕), read (👑), and tankoubon (📚).
+ * For regular archives, new and read are mutually exclusive.
+ * For tankoubons, both can appear (e.g., mostly read but contains a new archive).
  * @param {*} arcdata The archive data object
  * @returns HTML string
  */
 LRR.buildStatusDiv = function (arcdata) {
     const { isnew } = arcdata;
     let { progress, pagecount } = LRR.getProgress(arcdata);
+    const isTank = arcdata.extension === ".tank";
 
+    let statuses = [];
+
+    // New indicator
     if (isnew === "true") {
-        return "<div class='isnew'>🆕</div>";
-    } else if (pagecount > 0 && (progress / pagecount) > 0.85) { // Consider an archive read if progress is past 85% of total
-        return "<div class='isnew'>👑</div>";
+        statuses.push(`<span title="${I18N.StatusNew}">🆕</span>`);
     }
-    // If there wasn't sufficient data, return an empty string
-    return "";
+
+    // Read indicator - consider read if progress is past 85% of total
+    // For archives: only show if not new (mutually exclusive)
+    // For tankoubons: can show alongside new (tank can have new archives AND be mostly read)
+    if (pagecount > 0 && (progress / pagecount) > 0.85) {
+        if (isTank || isnew !== "true") {
+            statuses.push(`<span title="${I18N.StatusRead}">👑</span>`);
+        }
+    }
+
+    // Tankoubon indicator (last)
+    if (isTank) {
+        statuses.push(`<span title="${I18N.StatusTankoubon}">📚</span>`);
+    }
+
+    if (statuses.length === 0) return "";
+    return `<div class='isnew'>${statuses.join("")}</div>`;
 };
 
 LRR.buildPageCountDiv = function (arcdata) {
