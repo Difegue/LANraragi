@@ -304,18 +304,22 @@ sub build_tank_json ($id) {
     chop $aggregate_tags;
     chop $aggregate_names;
 
+    # Use the first archive's thumbnail for the tank thumbnail
+    my $thumb_archive = scalar @{ $tank{archives} } > 0 ? $tank{archives}[0] : "";
+
     my $arcdata = {
-        arcid        => $id,
-        title        => $tank{name},
-        filename     => "",
-        tags         => $aggregate_tags,
-        summary      => "Tankoubon containing: $aggregate_names",
-        isnew        => $aggregate_isnew ? $aggregate_isnew : "false",
-        extension    => ".tank",
-        progress     => $aggregate_progress,
-        pagecount    => $aggregate_pagecount,
-        lastreadtime => $latest_readtime,
-        size         => $aggregate_size
+        arcid         => $id,
+        title         => $tank{name},
+        filename      => "",
+        tags          => $aggregate_tags,
+        summary       => "Tankoubon containing: $aggregate_names",
+        isnew         => $aggregate_isnew ? $aggregate_isnew : "false",
+        extension     => ".tank",
+        progress      => $aggregate_progress,
+        pagecount     => $aggregate_pagecount,
+        lastreadtime  => $latest_readtime,
+        size          => $aggregate_size,
+        thumb_archive => $thumb_archive
     };
 
     return $arcdata;

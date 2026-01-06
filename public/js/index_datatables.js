@@ -181,12 +181,19 @@ IndexTable.renderTitle = function (data, type) {
     if (type === "display") {
         // For compact mode, the thumbnail API call enforces no_fallback=true in order to queue Minion jobs for missing thumbnails.
         // (Since compact mode is the "base", it's always loaded first even if you're in table mode)
+        // For tankoubons, use the first archive's thumbnail (thumb_archive field)
+        // If thumb_archive is empty string (empty tank), show noThumb.png directly to avoid triggering Minion jobs
+        const thumbId = data.thumb_archive || data.arcid;
+        const thumbSrc = data.thumb_archive === ""
+            ? new LRR.apiURL("/img/noThumb.png")
+            : new LRR.apiURL(`/api/archives/${thumbId}/thumbnail?no_fallback=true`);
+
         const bookmarkIcon = LRR.buildBookmarkIconElement(data.arcid, "title-bookmark-icon");
         return `${LRR.buildPageCountDiv(data)}${bookmarkIcon}<a id="${data.arcid}" onmouseover="IndexTable.buildImageTooltip(this)" href="${new LRR.apiURL(`/reader?id=${data.arcid}`)}">
                     ${LRR.encodeHTML(data.title)}
                 </a>
                 <div class="caption" style="display: none;">
-                    <img style="height:300px" src="${new LRR.apiURL(`/api/archives/${data.arcid}/thumbnail?no_fallback=true`)}"
+                    <img style="height:300px" src="${thumbSrc}"
                          onerror="this.src='${new LRR.apiURL("/img/noThumb.png")}'">
                 </div>`;
     }

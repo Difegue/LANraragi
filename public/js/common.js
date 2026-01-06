@@ -311,6 +311,14 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
     let reader_url = new LRR.apiURL(`/reader?id=${id}`);
     const bookmarkIcon = LRR.buildBookmarkIconElement(id, "thumbnail-bookmark-icon");
 
+    // For tankoubons, use the first archive's thumbnail (thumb_archive field)
+    // If thumb_archive is empty string (empty tank), show noThumb.png directly
+    // If thumb_archive is undefined (regular archive), use the item's own ID
+    const thumbId = data.thumb_archive || id;
+    const thumbSrc = data.thumb_archive === ""
+        ? new LRR.apiURL("/img/noThumb.png")
+        : new LRR.apiURL(`/api/archives/${thumbId}/thumbnail`);
+
     // Don't enforce no_fallback=true here, we don't want those divs to trigger Minion jobs
     return `<div class="id1 context-menu swiper-slide" id="${id}">
                 <div class="id2">
@@ -321,7 +329,7 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
                     <a href="${reader_url}" title="${LRR.encodeHTML(data.title)}">
                         <img style="position:relative;" id="${id}_thumb" src="${new LRR.apiURL("/img/wait_warmly.jpg")}"/>
                         <i id="${id}_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>
-                        <img src="${new LRR.apiURL(`/api/archives/${id}/thumbnail`)}"
+                        <img src="${thumbSrc}"
                                 onload="$('#${id}_thumb').remove(); $('#${id}_spinner').remove();"
                                 onerror="this.src='${new LRR.apiURL("/img/noThumb.png")}'"/>
                     </a>
