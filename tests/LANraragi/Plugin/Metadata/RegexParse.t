@@ -183,13 +183,14 @@ note("parsing filename > $filename ...");
     is( $title, 'Padded Title', 'whitespace trimmed from title' );
 }
 
-# NOTE: event and group are not trimmed here - this documents current behavior
-# where event is pushed directly without going through parse_captured_value_for_namespace
+# NOTE: Previously, event and group were not trimmed. Now all named capture groups
+# are trimmed via trim($captures{$name}), and group is trimmed in parse_artist_value().
+# Old expected: 'artist:Inner Artist, event:  Event  , group:  Group , series:Series'
 $filename = '(  Event  ) [  Group  (  Inner Artist  )  ] Title (Series)';
 note("parsing filename > $filename ...");
 {
     my ( $tags, $title ) = LANraragi::Plugin::Metadata::RegexParse::parse_filename( $filename, \%PARAMS_KEEP_ALL );
-    is( $tags,  'artist:Inner Artist, event:  Event  , group:  Group , series:Series', 'event and group retain internal whitespace' );
+    is( $tags,  'artist:Inner Artist, event:Event, group:Group, series:Series', 'whitespace trimmed from all fields including event and group' );
     is( $title, 'Title', 'title parsed correctly' );
 }
 
