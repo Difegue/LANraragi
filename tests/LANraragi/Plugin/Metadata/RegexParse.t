@@ -11,13 +11,19 @@ setup_redis_mock();
 
 use_ok('LANraragi::Plugin::Metadata::RegexParse');
 
+# Extract default regex from plugin_info for testing the default behavior
+my %plugin_info = LANraragi::Plugin::Metadata::RegexParse::plugin_info();
+my $DEFAULT_REGEX = $plugin_info{parameters}[2]{default_value};
+
 my %PARAMS_EH_STANDARD = (
     'check_trailing_tags' => 0,
     'keep_all_captures'   => 0,
+    'regex_string'        => $DEFAULT_REGEX,
 );
 my %PARAMS_KEEP_ALL = (
     'check_trailing_tags' => 1,
     'keep_all_captures'   => 1,
+    'regex_string'        => $DEFAULT_REGEX,
 );
 my %SKIP_TRAILING_TAGS = ( 'check_trailing_tags' => 0 );
 
@@ -29,7 +35,7 @@ note("testing basic example");
     my %response =
       LANraragi::Plugin::Metadata::RegexParse::get_tags( "",
         { file_path => "/poopoo/peepee/(NoNe) [Yanyanyo (Yanyo)] Reijo no Rei no... (Blue Archive) [English] [Digital].zip" },
-        1, 1 );
+        1, 1, $DEFAULT_REGEX );
 
     is( $response{title}, "Reijo no Rei no...", 'title' );
     is( $response{tags}, "artist:Yanyo, event:NoNe, group:Yanyanyo, language:English, parsed:Digital, series:Blue Archive",
