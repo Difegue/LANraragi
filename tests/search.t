@@ -36,9 +36,9 @@ sub do_test_search {
 }
 
 do_test_search();
-is( $filtered, 8, qq(Empty search(full index)) );
+is( $filtered, 12, qq(Empty search(full index)) );
 ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, "", 0, 0, 0, 0, 0, 0 );
-is( $filtered, 8, qq(Empty search(tank grouping off)) );
+is( $filtered, 12, qq(Empty search(tank grouping off)) );
 
 $search = qq(Ghost in the Shell);
 do_test_search();
