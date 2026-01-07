@@ -65,7 +65,7 @@ sub plugin_info {
             {   type => "string",
                 desc =>
                     "Regex to use for parsing",
-                default_value => "(\((?<event>[^([]+)\))?\s*(\[(?<artist>[^]]+)\])?\s*(?<title>[^([]+)\s*(\((?<series>[^([)]+)\))?\s*(\[(?<language>[^]]+)\])?(?<tail>.*)?"
+                default_value => '(\((?<event>[^([]+)\))?\s*(\[(?<artist>[^]]+)\])?\s*(?<title>[^([]+)\s*(\((?<series>[^([)]+)\))?\s*(\[(?<language>[^]]+)\])?(?<tail>.*)?'
             }
         ],
     );
