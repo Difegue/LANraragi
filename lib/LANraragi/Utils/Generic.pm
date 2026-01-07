@@ -30,7 +30,7 @@ BEGIN {
 
 # Generic Utility Functions.
 use Exporter 'import';
-our @EXPORT_OK = qw(is_image is_archive render_api_response get_tag_with_namespace shasum_str start_shinobu
+our @EXPORT_OK = qw(is_image is_archive parse_bool render_api_response get_tag_with_namespace shasum_str start_shinobu
   split_workload_by_cpu start_minion get_css_list generate_themes_header flat get_bytelength array_difference
   intersect_arrays filter_hash_by_keys exec_with_lock);
 
@@ -43,6 +43,35 @@ sub is_image {
 # Checks if the provided file is an archive.
 sub is_archive {
     return $_[0] =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|cb7|cbt|pdf|epub|tar\.zst|zst)$/i;
+}
+
+# Parses a boolean parameter value from an API request.
+# Returns ($value, undef) on success, or (undef, $error_message) on invalid input.
+# Accepts: 1/0, true/false, yes/no, on/off (case-insensitive)
+# Empty or undefined values return the default (0 if not specified).
+sub parse_bool {
+    my ( $value, $param_name, $default ) = @_;
+    $default //= 0;
+
+    # Undefined or empty string returns the default
+    if ( !defined $value || $value eq "" ) {
+        return ( $default, undef );
+    }
+
+    my $lc_value = lc($value);
+
+    # Truthy values
+    if ( $lc_value eq "1" || $lc_value eq "true" || $lc_value eq "yes" || $lc_value eq "on" ) {
+        return ( 1, undef );
+    }
+
+    # Falsy values
+    if ( $lc_value eq "0" || $lc_value eq "false" || $lc_value eq "no" || $lc_value eq "off" ) {
+        return ( 0, undef );
+    }
+
+    # Invalid value
+    return ( undef, "Invalid value '$value' for boolean parameter '$param_name'. Expected: true/false, 1/0, yes/no, on/off" );
 }
 
 # Renders the basic success API JSON template.

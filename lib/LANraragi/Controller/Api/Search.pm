@@ -7,7 +7,7 @@ no warnings 'experimental::signatures';
 use List::Util qw(min);
 
 use LANraragi::Model::Search;
-use LANraragi::Utils::Generic  qw(render_api_response);
+use LANraragi::Utils::Generic  qw(render_api_response parse_bool);
 use LANraragi::Utils::Database qw(invalidate_cache get_archive_json_multi);
 use LANraragi::Utils::Logging qw(get_logger);
 
@@ -71,22 +71,37 @@ sub handle_api ($self) {
 
     my $req = $self->req;
 
-    my $filter     = $req->param('filter');
-    my $category   = $req->param('category') || "";
-    my $start      = $req->param('start')    || 0;
-    my $sortkey    = $req->param('sortby');
-    my $sortorder  = $req->param('order');
-    my $newfilter  = $req->param('newonly')       || "false";
-    my $untaggedf  = $req->param('untaggedonly')  || "false";
-    my $grouptanks = $req->param('groupby_tanks') || "false";
+    my $filter    = $req->param('filter');
+    my $category  = $req->param('category') || "";
+    my $start     = $req->param('start')    || 0;
+    my $sortkey   = $req->param('sortby');
+    my $sortorder = $req->param('order');
+
+    my ( $newfilter, $err ) = parse_bool( $req->param('newonly'), 'newonly' );
+    if ($err) {
+        render_api_response( $self, "search", $err );
+        return;
+    }
+
+    ( my $untaggedf, $err ) = parse_bool( $req->param('untaggedonly'), 'untaggedonly' );
+    if ($err) {
+        render_api_response( $self, "search", $err );
+        return;
+    }
+
+    ( my $grouptanks, $err ) = parse_bool( $req->param('groupby_tanks'), 'groupby_tanks' );
+    if ($err) {
+        render_api_response( $self, "search", $err );
+        return;
+    }
 
     $sortorder = ( $sortorder && $sortorder eq 'desc' ) ? 1 : 0;
 
     my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search(
         $filter, $category, $start, $sortkey, $sortorder,
-        $newfilter eq "true",
-        $untaggedf eq "true",
-        $grouptanks eq "true"
+        $newfilter,
+        $untaggedf,
+        $grouptanks
     );
 
     if ( $total eq -1 && $filtered eq -1 ) {
@@ -116,18 +131,33 @@ sub get_random_archives ($self) {
     my $req = $self->req;
 
     my $filter       = $req->param('filter');
-    my $category     = $req->param('category')      || "";
-    my $newfilter    = $req->param('newonly')       || "false";
-    my $untaggedf    = $req->param('untaggedonly')  || "false";
-    my $grouptanks   = $req->param('groupby_tanks') || "false";
-    my $random_count = $req->param('count')         || 5;
+    my $category     = $req->param('category') || "";
+    my $random_count = $req->param('count')    || 5;
+
+    my ( $newfilter, $err ) = parse_bool( $req->param('newonly'), 'newonly' );
+    if ($err) {
+        render_api_response( $self, "get_random_archives", $err );
+        return;
+    }
+
+    ( my $untaggedf, $err ) = parse_bool( $req->param('untaggedonly'), 'untaggedonly' );
+    if ($err) {
+        render_api_response( $self, "get_random_archives", $err );
+        return;
+    }
+
+    ( my $grouptanks, $err ) = parse_bool( $req->param('groupby_tanks'), 'groupby_tanks' );
+    if ($err) {
+        render_api_response( $self, "get_random_archives", $err );
+        return;
+    }
 
     # Use the search engine to get IDs matching the filter/category selection, with start=-1 to get all data
     my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search(
         $filter, $category, -1, "title", 0,
-        $newfilter eq "true",
-        $untaggedf eq "true",
-        $grouptanks eq "true"
+        $newfilter,
+        $untaggedf,
+        $grouptanks
     );
     my @random_ids;
 
