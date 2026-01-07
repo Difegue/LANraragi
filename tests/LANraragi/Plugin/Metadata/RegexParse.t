@@ -149,4 +149,76 @@ note("parsing filename > $filename ...");
     is( $title, '佐々',                            'not a title, but meh...' );
 }
 
+# === UNDERSCORE REPLACEMENT TESTS ===
+
+$filename = '[Some_Artist]_Title_With_Underscores_(Some_Series)_[English]';
+note("parsing filename > $filename ...");
+{
+    my ( $tags, $title ) = LANraragi::Plugin::Metadata::RegexParse::parse_filename( $filename, \%PARAMS_KEEP_ALL );
+    is( $tags,  'artist:Some Artist, language:English, series:Some Series', 'underscores converted to spaces in all fields' );
+    is( $title, 'Title With Underscores', 'underscores converted in title' );
+}
+
+$filename = '(C_99)_[Circle_Name_(Artist_Name)]_My_Title_(Series_Name)_[Eng]';
+note("parsing filename > $filename ...");
+{
+    my ( $tags, $title ) = LANraragi::Plugin::Metadata::RegexParse::parse_filename( $filename, \%PARAMS_KEEP_ALL );
+    is( $tags,  'artist:Artist Name, event:C 99, group:Circle Name, language:Eng, series:Series Name', 'underscores in event and group/artist' );
+    is( $title, 'My Title', 'title parsed correctly' );
+}
+
+# === WHITESPACE TRIMMING TESTS ===
+
+$filename = '[  Artist  ]   Padded Title   (  Series  ) [  English  ]';
+note("parsing filename > $filename ...");
+{
+    my ( $tags, $title ) = LANraragi::Plugin::Metadata::RegexParse::parse_filename( $filename, \%PARAMS_KEEP_ALL );
+    is( $tags,  'artist:Artist, language:English, series:Series', 'whitespace trimmed from captured values' );
+    is( $title, 'Padded Title', 'whitespace trimmed from title' );
+}
+
+# NOTE: event and group are not trimmed here - this documents current behavior
+# where event is pushed directly without going through parse_captured_value_for_namespace
+$filename = '(  Event  ) [  Group  (  Inner Artist  )  ] Title (Series)';
+note("parsing filename > $filename ...");
+{
+    my ( $tags, $title ) = LANraragi::Plugin::Metadata::RegexParse::parse_filename( $filename, \%PARAMS_KEEP_ALL );
+    is( $tags,  'artist:Inner Artist, event:  Event  , group:  Group , series:Series', 'event and group retain internal whitespace' );
+    is( $title, 'Title', 'title parsed correctly' );
+}
+
+# === NEGATIVE / EDGE CASE TESTS ===
+
+note("testing edge cases");
+{
+    my ( $tags, $title ) = LANraragi::Plugin::Metadata::RegexParse::parse_filename( '', \%PARAMS_KEEP_ALL );
+    is( $tags,  '', 'empty filename returns empty tags' );
+    is( $title, '', 'empty filename returns empty title' );
+}
+
+$filename = 'Just A Plain Title';
+note("parsing filename > $filename ...");
+{
+    my ( $tags, $title ) = LANraragi::Plugin::Metadata::RegexParse::parse_filename( $filename, \%PARAMS_KEEP_ALL );
+    is( $tags,  '', 'plain title returns no tags' );
+    is( $title, 'Just A Plain Title', 'plain title returned as-is' );
+}
+
+# NOTE: malformed input - no title between brackets causes Artist] to leak into title
+$filename = '[Artist](Series)[English]';
+note("parsing filename > $filename ...");
+{
+    my ( $tags, $title ) = LANraragi::Plugin::Metadata::RegexParse::parse_filename( $filename, \%PARAMS_KEEP_ALL );
+    is( $tags,  'language:English, series:Series', 'tags extracted from malformed input' );
+    is( $title, 'Artist]', 'malformed input causes bracket leak into title' );
+}
+
+$filename = '[Artist]   [English]';
+note("parsing filename > $filename ...");
+{
+    my ( $tags, $title ) = LANraragi::Plugin::Metadata::RegexParse::parse_filename( $filename, \%PARAMS_KEEP_ALL );
+    is( $tags,  'artist:Artist, language:English', 'artist and language extracted' );
+    is( $title, '', 'empty title when no title content between brackets' );
+}
+
 done_testing();
