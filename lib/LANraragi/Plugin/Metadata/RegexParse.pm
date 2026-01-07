@@ -181,8 +181,8 @@ sub parse_artist_value {
     #If the string contains parenthesis, what's inside those is the artist name
     #the rest is the circle.
     if ( $artist =~ /(.*) \((.*)\)/ ) {
-        push @tags, "group:$1";    # split group?
-        $artist = $2;
+        push @tags, "group:" . trim($1);
+        $artist = trim($2);
     }
     push @tags, parse_captured_value_for_namespace( $artist, 'artist:' );
 
