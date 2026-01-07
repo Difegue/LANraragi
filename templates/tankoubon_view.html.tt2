@@ -37,6 +37,27 @@
 		.cancel-field-btn { color: red; font-size: 1.5em; }
 		.edit-field-btn { opacity: 0.6; }
 		.edit-field-btn:hover { opacity: 1; }
+
+		/* Reorder mode styles */
+		.sortable-ghost { opacity: 0.4; }
+		.sortable-chosen { box-shadow: 0 0 10px rgba(0, 123, 255, 0.5); }
+		.drag-handle { cursor: grab; opacity: 0.5; display: none; }
+		.drag-handle:hover { opacity: 1; }
+		.reorder-mode .drag-handle { display: inline-block; }
+		/* Full-width drag handle bar for thumbnails */
+		.drag-handle-bar {
+			width: 100%;
+			text-align: center;
+			padding: 4px 0;
+			background: rgba(0, 0, 0, 0.1);
+			border-radius: 4px 4px 0 0;
+		}
+		.drag-handle-bar:hover { background: rgba(0, 123, 255, 0.2); }
+		.reorder-mode .drag-handle-bar { display: block; }
+		/* Table view drag handle */
+		.itd .drag-handle { margin-right: 8px; }
+		.reorder-mode .id2 a, .reorder-mode .itd a { pointer-events: none; color: inherit; }
+		.reorder-toggle.active { color: #007bff; }
 	</style>
 
 	<script src="[% c.url_for("/js/vendor/jquery.min.js") %]" type="text/JAVASCRIPT"></script>
@@ -52,6 +73,7 @@
 	<script src="[% c.url_for("/js/vendor/tippy-bundle.umd.min.js") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/vendor/sweetalert2.min.js") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/vendor/tagger.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/Sortable.min.js") %]" type="text/JAVASCRIPT"></script>
 
 	<script src="[% c.url_for("/js/i18n.js?$version") %]" type="text/JAVASCRIPT"></script>
 	<script src="[% c.url_for("/js/common.js?$version") %]" type="text/JAVASCRIPT"></script>
@@ -127,10 +149,14 @@
 			<div style="display: flex; align-items: center; gap: 10px;">
 				[% c.lh("Go to Page:") %]
 				<select class="favtag-btn" id="page-select"></select>
-				<a class="fa fa-list fa-2x mode-toggle thumbnail-toggle table-option" href="#"
-					title="[% c.lh('Switch to Compact Mode') %]"></a>
-				<a class="fa fa-table fa-2x mode-toggle compact-toggle table-option" href="#"
-					title="[% c.lh('Switch to Thumbnail Mode') %]" style="display:none"></a>
+			<a class="fa fa-list fa-2x mode-toggle thumbnail-toggle table-option" href="#"
+				title="[% c.lh('Switch to Compact Mode') %]"></a>
+			<a class="fa fa-table fa-2x mode-toggle compact-toggle table-option" href="#"
+				title="[% c.lh('Switch to Thumbnail Mode') %]" style="display:none"></a>
+			[% IF userlogged %]
+			<a class="fa fa-arrows-alt fa-2x reorder-toggle table-option" href="#"
+				title="[% c.lh('Reorder Archives') %]" style="display:none"></a>
+			[% END %]
 			</div>
 		</div>
 

@@ -1318,6 +1318,15 @@ msgstr ""
 msgid "Tags:"
 msgstr ""
 
+msgid "Reorder Archives"
+msgstr ""
+
+msgid "Archive order saved!"
+msgstr ""
+
+msgid "Error saving archive order"
+msgstr ""
+
 msgid "Background Worker restarted!"
 msgstr "后台工作程序已重启！"
 

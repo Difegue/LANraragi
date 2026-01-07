@@ -1387,6 +1387,15 @@ msgstr "(No tags)"
 msgid "Tags:"
 msgstr "Tags:"
 
+msgid "Reorder Archives"
+msgstr "Reorder Archives"
+
+msgid "Archive order saved!"
+msgstr "Archive order saved!"
+
+msgid "Error saving archive order"
+msgstr "Error saving archive order"
+
 msgid "Background Worker restarted!"
 msgstr "Background Worker restarted!"
 

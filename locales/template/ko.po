@@ -1371,6 +1371,15 @@ msgstr ""
 msgid "Tags:"
 msgstr ""
 
+msgid "Reorder Archives"
+msgstr ""
+
+msgid "Archive order saved!"
+msgstr ""
+
+msgid "Error saving archive order"
+msgstr ""
+
 msgid "Background Worker restarted!"
 msgstr "백그라운드 워커 재시작!"
 

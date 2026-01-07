@@ -1468,6 +1468,15 @@ msgstr ""
 msgid "Tags:"
 msgstr ""
 
+msgid "Reorder Archives"
+msgstr ""
+
+msgid "Archive order saved!"
+msgstr ""
+
+msgid "Error saving archive order"
+msgstr ""
+
 msgid "Background Worker restarted!"
 msgstr "Bakgrunnsarbeideren ble startet på nytt!"
 

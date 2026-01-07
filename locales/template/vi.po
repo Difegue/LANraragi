@@ -1441,6 +1441,15 @@ msgstr ""
 msgid "Tags:"
 msgstr ""
 
+msgid "Reorder Archives"
+msgstr ""
+
+msgid "Archive order saved!"
+msgstr ""
+
+msgid "Error saving archive order"
+msgstr ""
+
 msgid "Background Worker restarted!"
 msgstr "Công việc nền đã được khởi động lại!"
 

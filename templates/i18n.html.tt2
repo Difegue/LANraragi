@@ -64,6 +64,8 @@ I18N.TankoubonEditSaved = "[% c.lh("Tankoubon saved!") %]";
 I18N.TankoubonEditError = "[% c.lh("Error saving tankoubon") %]";
 I18N.TankoubonNoSummary = "[% c.lh("(No summary)") %]";
 I18N.TankoubonNoTags = "[% c.lh("(No tags)") %]";
+I18N.TankoubonReorderSaved = "[% c.lh("Archive order saved!") %]";
+I18N.TankoubonReorderError = "[% c.lh("Error saving archive order") %]";
 
 I18N.ShinobuRestarted = "[% c.lh("Background Worker restarted!") %]";
 I18N.ShinobuRestartError = "[% c.lh("Error restarting Worker:") %]";

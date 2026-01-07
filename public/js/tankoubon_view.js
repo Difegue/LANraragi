@@ -13,6 +13,9 @@ TankoubonView.isComingFromPopstate = false;
 TankoubonView.tagInput = null;        // Tagger instance for tag editing
 TankoubonView.suggestions = [];       // Tag autocomplete suggestions
 TankoubonView.userLogged = false;     // Whether user is logged in
+TankoubonView.reorderMode = false;    // Whether reorder mode is active
+TankoubonView.sortableInstance = null; // Sortable.js instance
+TankoubonView.saveTimeout = null;     // Debounce timer for saving order
 
 /**
  * Initialize the tankoubon view
@@ -42,6 +45,7 @@ TankoubonView.init = function(id) {
         $(document).on("click.edit-field", ".edit-field-btn", TankoubonView.editField);
         $(document).on("click.save-field", ".save-field-btn", TankoubonView.saveField);
         $(document).on("click.cancel-field", ".cancel-field-btn", TankoubonView.cancelField);
+        $(document).on("click.reorder-toggle", ".reorder-toggle", TankoubonView.toggleReorderMode);
 
         // Keyboard shortcuts: Enter for title, Ctrl+Enter for summary/tags
         $(document).on("keydown.edit-title", "#edit-title", function(e) {
@@ -139,12 +143,21 @@ TankoubonView.renderMetadata = function() {
 };
 
 /**
- * Render the current page of archives
+ * Render archives (current page or all if showAll is true)
+ * @param {boolean} showAll If true, render all archives (for reorder mode)
  */
-TankoubonView.renderPage = function() {
-    const start = TankoubonView.currentPage * TankoubonView.pageSize;
-    const end = Math.min(start + TankoubonView.pageSize, TankoubonView.archives.length);
-    const pageArchives = TankoubonView.archives.slice(start, end);
+TankoubonView.renderPage = function(showAll = false) {
+    let start, end, pageArchives;
+
+    if (showAll) {
+        start = 0;
+        end = TankoubonView.archives.length;
+        pageArchives = TankoubonView.archives;
+    } else {
+        start = TankoubonView.currentPage * TankoubonView.pageSize;
+        end = Math.min(start + TankoubonView.pageSize, TankoubonView.archives.length);
+        pageArchives = TankoubonView.archives.slice(start, end);
+    }
 
     // Handle empty state
     if (TankoubonView.archives.length === 0) {
@@ -158,18 +171,28 @@ TankoubonView.renderPage = function() {
 
     $("#empty-message").hide();
     $(".table-options").show();
-    $("#archive-count-info").text(I18N.TankoubonShowingCount(start + 1, end, TankoubonView.archives.length));
+
+    if (showAll) {
+        $("#archive-count-info").text("");
+    } else {
+        $("#archive-count-info").text(I18N.TankoubonShowingCount(start + 1, end, TankoubonView.archives.length));
+    }
 
     const viewMode = localStorage.tankoubonViewMode || "1";
+    const inReorderMode = TankoubonView.reorderMode;
 
     if (viewMode === "1") {
         // Thumbnail view
         $("#archive-table").hide();
         $("#thumbs_container").show().empty();
 
-        pageArchives.forEach((archive) => {
+        pageArchives.forEach((archive, index) => {
             // Don't show checkboxes in tankoubon view
-            $("#thumbs_container").append(LRR.buildThumbnailDiv(archive, true, false));
+            const $thumb = $(LRR.buildThumbnailDiv(archive, true, false));
+            $thumb.attr("data-id", archive.arcid);
+            // Add drag handle as full-width bar at top (hidden by CSS unless in reorder mode)
+            $thumb.prepend('<div class="drag-handle drag-handle-bar"><i class="fas fa-grip-horizontal"></i></div>');
+            $("#thumbs_container").append($thumb);
         });
     } else {
         // Table view
@@ -179,8 +202,11 @@ TankoubonView.renderPage = function() {
 
         pageArchives.forEach((archive, index) => {
             const globalIndex = start + index + 1;
-            const row = $(`<tr class="context-menu gtr${index % 2}" id="${archive.arcid}">
-                <td class="itd" style="text-align: center;">${globalIndex}</td>
+            const row = $(`<tr class="context-menu gtr${index % 2}" id="${archive.arcid}" data-id="${archive.arcid}">
+                <td class="itd" style="text-align: center;">
+                    <i class="fas fa-grip-vertical drag-handle"></i>
+                    <span class="row-index">${globalIndex}</span>
+                </td>
                 <td class="itd"><a href="${new LRR.apiURL(`/reader?id=${archive.arcid}`)}">${LRR.encodeHTML(archive.title)}</a></td>
                 <td class="itd">${LRR.colorCodeTags(archive.tags)}</td>
             </tr>`);
@@ -188,12 +214,17 @@ TankoubonView.renderPage = function() {
         });
     }
 
-    // Update page selector and paginator
-    $("#page-select").val(TankoubonView.currentPage + 1);
-    TankoubonView.buildPaginator();
+    // Update page selector and paginator (hide in reorder mode)
+    if (showAll) {
+        $("#paginator-top, #paginator-bottom, #page-select").hide();
+        $("#page-select").parent().find("*:contains('Go to Page')").first().hide();
+    } else {
+        $("#page-select").val(TankoubonView.currentPage + 1).show();
+        TankoubonView.buildPaginator();
+    }
 
-    // Push state unless we're responding to popstate
-    if (!TankoubonView.isComingFromPopstate) {
+    // Push state unless we're responding to popstate or in reorder mode
+    if (!TankoubonView.isComingFromPopstate && !showAll) {
         TankoubonView.pushState();
     }
     TankoubonView.isComingFromPopstate = false;
@@ -207,7 +238,15 @@ TankoubonView.toggleMode = function(e) {
     e.preventDefault();
     localStorage.tankoubonViewMode = (localStorage.tankoubonViewMode === "1") ? "0" : "1";
     TankoubonView.updateControls();
-    TankoubonView.renderPage();
+
+    if (TankoubonView.reorderMode) {
+        // Re-initialize sortable when switching views in reorder mode
+        TankoubonView.destroySortable();
+        TankoubonView.renderPage(true);
+        TankoubonView.initSortable();
+    } else {
+        TankoubonView.renderPage();
+    }
 };
 
 /**
@@ -237,6 +276,13 @@ TankoubonView.updateControls = function() {
     const select = $("#page-select").empty();
     for (let i = 1; i <= TankoubonView.totalPages; i++) {
         select.append(`<option value="${i}" ${i === TankoubonView.currentPage + 1 ? "selected" : ""}>${i}</option>`);
+    }
+
+    // Show reorder button when logged in and more than 1 archive
+    if (TankoubonView.userLogged && TankoubonView.archives.length > 1) {
+        $(".reorder-toggle").show();
+    } else {
+        $(".reorder-toggle").hide();
     }
 };
 
@@ -474,4 +520,104 @@ TankoubonView.saveField = function(e) {
         // Restore icon on error
         $btn.removeClass("fa-spin fa-compact-disc").addClass("fa-check");
     });
+};
+
+/**
+ * Toggle reorder mode
+ * @param {Event} e Click event
+ */
+TankoubonView.toggleReorderMode = function(e) {
+    e.preventDefault();
+    TankoubonView.reorderMode = !TankoubonView.reorderMode;
+
+    if (TankoubonView.reorderMode) {
+        // Enter reorder mode
+        $("body").addClass("reorder-mode");
+        $(".reorder-toggle").addClass("active");
+
+        // Render all archives and initialize sortable
+        TankoubonView.renderPage(true);
+        TankoubonView.initSortable();
+    } else {
+        // Exit reorder mode
+        $("body").removeClass("reorder-mode");
+        $(".reorder-toggle").removeClass("active");
+
+        // Destroy sortable and restore pagination
+        TankoubonView.destroySortable();
+        TankoubonView.renderPage();
+    }
+};
+
+/**
+ * Initialize Sortable.js on the current view container
+ */
+TankoubonView.initSortable = function() {
+    const viewMode = localStorage.tankoubonViewMode || "1";
+    const container = viewMode === "1"
+        ? document.getElementById("thumbs_container")
+        : document.querySelector("#archive-table tbody");
+
+    if (!container) return;
+
+    TankoubonView.sortableInstance = new Sortable(container, {
+        animation: 150,
+        handle: ".drag-handle",
+        ghostClass: "sortable-ghost",
+        chosenClass: "sortable-chosen",
+        onEnd: TankoubonView.onReorderEnd
+    });
+};
+
+/**
+ * Destroy Sortable.js instance
+ */
+TankoubonView.destroySortable = function() {
+    if (TankoubonView.sortableInstance) {
+        TankoubonView.sortableInstance.destroy();
+        TankoubonView.sortableInstance = null;
+    }
+};
+
+/**
+ * Handle reorder drag end - update archives array and save
+ * @param {Event} evt Sortable onEnd event
+ */
+TankoubonView.onReorderEnd = function(evt) {
+    const oldIndex = evt.oldIndex;
+    const newIndex = evt.newIndex;
+
+    if (oldIndex === newIndex) return;
+
+    // Move item in the archives array
+    const [moved] = TankoubonView.archives.splice(oldIndex, 1);
+    TankoubonView.archives.splice(newIndex, 0, moved);
+
+    // Update row indices in table view
+    if ((localStorage.tankoubonViewMode || "1") === "0") {
+        $("#archive-table tbody tr").each(function(index) {
+            $(this).find(".row-index").text(index + 1);
+        });
+    }
+
+    // Debounce save to batch rapid changes
+    clearTimeout(TankoubonView.saveTimeout);
+    TankoubonView.saveTimeout = setTimeout(TankoubonView.saveOrder, 500);
+};
+
+/**
+ * Save the current archive order to the server
+ */
+TankoubonView.saveOrder = function() {
+    const archiveIds = TankoubonView.archives.map(a => a.arcid);
+    const body = JSON.stringify({ archives: archiveIds });
+
+    Server.callAPIBody(`/api/tankoubons/${TankoubonView.id}`, "PUT", body, null, I18N.TankoubonReorderError,
+        () => {
+            LRR.toast({
+                heading: I18N.TankoubonReorderSaved,
+                icon: "success",
+            });
+        }
+    );
 };

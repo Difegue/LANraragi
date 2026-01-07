@@ -1327,6 +1327,15 @@ msgstr ""
 msgid "Tags:"
 msgstr ""
 
+msgid "Reorder Archives"
+msgstr ""
+
+msgid "Archive order saved!"
+msgstr ""
+
+msgid "Error saving archive order"
+msgstr ""
+
 msgid "Background Worker restarted!"
 msgstr "背景工作程序已重新啟動！"
 
