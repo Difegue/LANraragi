@@ -112,15 +112,57 @@ sub setup_redis_mock {
             "summary": "CURSE OF RA",
             "lastreadtime": 0
         },
-        "TANK_1589141306": [
-            "name_Hello",
-            "28697b96f0ac5858be2666ed10ca47742c955555",
-            "28697b96f0ac5777be2614ed10ca47742c9522fa"
-        ],
-        "TANK_1589138380":[
-            "name_World",
-            "28697b96f0ac5777be2614ed10ca47742c9522fa"
-        ]
+        "d0be2dc421be4fcd0172e5afceea3970e2f3d940": {
+            "isnew": "false",
+            "pagecount": 10,
+            "progress": 0,
+            "tags": "fruit:apple",
+            "title": "Apple Archive",
+            "file": "package.json",
+            "summary": "",
+            "lastreadtime": 0
+        },
+        "250e77f12a5ab6972a0895d290c4792f0a326ea8": {
+            "isnew": "false",
+            "pagecount": 10,
+            "progress": 0,
+            "tags": "fruit:banana",
+            "title": "Banana Archive",
+            "file": "package.json",
+            "summary": "",
+            "lastreadtime": 0
+        },
+        "7e41c6480852a4a914e48c7a3a4084f193e963d9": {
+            "isnew": "false",
+            "pagecount": 10,
+            "progress": 0,
+            "tags": "fruit:cherry",
+            "title": "Cherry Archive",
+            "file": "package.json",
+            "summary": "",
+            "lastreadtime": 0
+        },
+        "af8978b1797b72acfff9595a5a2a373ec3d9106d": {
+            "isnew": "false",
+            "pagecount": 10,
+            "progress": 0,
+            "tags": "fruit:dragon",
+            "title": "Dragon Fruit Archive",
+            "file": "package.json",
+            "summary": "",
+            "lastreadtime": 0
+        },
+        "TANK_1589141306": {
+            "name_Hello": 0,
+            "28697b96f0ac5858be2666ed10ca47742c955555": 1,
+            "28697b96f0ac5777be2614ed10ca47742c9522fa": 2
+        },
+        "TANK_1589138380": {
+            "name_World": 0,
+            "28697b96f0ac5777be2614ed10ca47742c9522fa": 1
+        },
+        "LAST_JOB_TIME": "1",
+        "LRR_TANKGROUPED": []
     })
       };
 
@@ -139,14 +181,75 @@ sub setup_redis_mock {
             return grep { /$expr/ } keys %datamodel;
         }
     );
-    $redis->mock( 'exists',  sub { shift; return $_[0] eq "LRR_SEARCHCACHE" ? 0 : 1 } );
+    $redis->mock(
+        'exists',    # $redis->exists => check if key exists in datamodel
+        sub {
+            my $self = shift;
+            my $key  = shift;
+            return 0 if $key eq "LRR_SEARCHCACHE";
+            return exists $datamodel{$key} ? 1 : 0;
+        }
+    );
     $redis->mock( 'hexists', sub { 1 } );
     $redis->mock( 'hset',    sub { 1 } );
     $redis->mock( 'quit',    sub { 1 } );
     $redis->mock( 'select',  sub { 1 } );
     $redis->mock( 'flushdb', sub { 1 } );
     $redis->mock( 'zincrby', sub { 1 } );
-    $redis->mock( 'zrem',    sub { 1 } );
+    $redis->mock(
+        'zrem',    # $redis->zrem => remove members from sorted set
+        sub {
+            my $self = shift;
+            my $key  = shift;
+
+            return 0 unless exists $datamodel{$key};
+
+            my $removed = 0;
+            foreach my $member (@_) {
+                if ( exists $datamodel{$key}{$member} ) {
+                    delete $datamodel{$key}{$member};
+                    $removed++;
+                }
+            }
+            return $removed;
+        }
+    );
+    $redis->mock(
+        'del',    # $redis->del => delete key from datamodel
+        sub {
+            my $self = shift;
+            my $key  = shift;
+            return delete $datamodel{$key} ? 1 : 0;
+        }
+    );
+    $redis->mock(
+        'srem',    # $redis->srem => remove member from set
+        sub {
+            my $self = shift;
+            my ( $key, $value ) = @_;
+            return 0 unless exists $datamodel{$key};
+            my @arr = @{ $datamodel{$key} };
+            @{ $datamodel{$key} } = grep { $_ ne $value } @arr;
+            return 1;
+        }
+    );
+    $redis->mock(
+        'zremrangebyscore',    # $redis->zremrangebyscore => remove members in score range
+        sub {
+            my $self = shift;
+            my ( $key, $min, $max ) = @_;
+            return 0 unless exists $datamodel{$key};
+            my $removed = 0;
+            foreach my $member ( keys %{ $datamodel{$key} } ) {
+                my $score = $datamodel{$key}{$member};
+                if ( $score >= $min && $score <= $max ) {
+                    delete $datamodel{$key}{$member};
+                    $removed++;
+                }
+            }
+            return $removed;
+        }
+    );
     $redis->mock( 'watch',   sub { 1 } );
     $redis->mock( 'set',     sub { 1 } );
     $redis->mock( 'hlen',    sub { 1337 } );
@@ -202,47 +305,52 @@ sub setup_redis_mock {
     );
 
     $redis->mock(
-        'zadd',    # $redis->zadd => add value to list named by key in datamodel
+        'zadd',    # $redis->zadd => add member with score to sorted set
         sub {
             my $self = shift;
-            my ( $key, $weight, $value ) = @_;
+            my $key  = shift;
 
             if ( !exists $datamodel{$key} ) {
-                $datamodel{$key} = [];
+                $datamodel{$key} = {};
             }
 
-            # Don't push value if it's already in the array
-            if ( !grep { $_ eq $value } @{ $datamodel{$key} } ) {
-                push @{ $datamodel{$key} }, $value;
+            # Process score/member pairs
+            while ( @_ >= 2 ) {
+                my $score  = shift;
+                my $member = shift;
+                $datamodel{$key}{$member} = $score;
             }
         }
     );
 
     $redis->mock(
-        'zcount',    # $redis->zcard => number of values in list named by key in datamodel
+        'zcount',    # $redis->zcount => count members with scores in range
         sub {
             my $self = shift;
-            my ( $key, $weight, $value ) = @_;
+            my ( $key, $min, $max ) = @_;
 
             if ( !exists $datamodel{$key} ) {
-                $datamodel{$key} = [];
+                $datamodel{$key} = {};
             }
 
-            return scalar @{ $datamodel{$key} } - 1;
+            $min = -999999 if $min eq "-inf";
+            $max = 999999  if $max eq "+inf";
+
+            return scalar grep { $_ >= $min && $_ <= $max } values %{ $datamodel{$key} };
         }
     );
 
     $redis->mock(
-        'zcard',    # $redis->zcard => number of values in list named by key in datamodel
+        'zcard',    # $redis->zcard => total number of members in sorted set
         sub {
             my $self = shift;
             my ($key) = @_;
 
             if ( !exists $datamodel{$key} ) {
-                $datamodel{$key} = [];
+                $datamodel{$key} = {};
             }
 
-            return scalar @{ $datamodel{$key} };
+            return scalar keys %{ $datamodel{$key} };
         }
     );
 
@@ -260,112 +368,101 @@ sub setup_redis_mock {
         }
     );
 
-    # $redis->mock(
-    #     'zscore',    # $redis->zscore => array position in list named by key in datamodel
-    #     sub {
-    #         my $self = shift;
-    #         my ($key, $value) = @_;
+    $redis->mock(
+        'zscore',    # $redis->zscore => get score of member in sorted set
+        sub {
+            my $self = shift;
+            my ( $key, $member ) = @_;
 
-    #         if ( !exists $datamodel{$key} ) {
-    #             $datamodel{$key} = [];
-    #         }
+            if ( !exists $datamodel{$key} ) {
+                return undef;
+            }
 
-    #         for my $i ( 0 .. $#results ) {
-    #             if ($element == $value) {
-    #                 return
-    #             }
-    #         }
-
-    #         return scalar @{ $datamodel{$key} };
-    #     }
-    # );
+            return $datamodel{$key}{$member};
+        }
+    );
 
     $redis->mock(
-        'zrangebylex',    # $redis->zrangebylex => get all values of key in datamodel
+        'zrangebylex',    # $redis->zrangebylex => get members ordered alphabetically
         sub {
             my $self = shift;
             my ( $key, $start, $end ) = @_;
 
             if ( !exists $datamodel{$key} ) {
-                $datamodel{$key} = [];
+                $datamodel{$key} = {};
             }
 
-            # Return array, ordered alphabetically
-            return sort @{ $datamodel{$key} };
+            # Return members ordered alphabetically
+            return sort keys %{ $datamodel{$key} };
         }
     );
 
     $redis->mock(
-        'zrangebyscore',    # $redis->zrangebyscore => get all values of key in datamodel
+        'zrangebyscore',    # $redis->zrangebyscore => get members with scores in range
         sub {
             my $self = shift;
-            my ( $key, $start, $end, $word ) = @_;
+            my ( $key, $min, $max, @options ) = @_;
 
             if ( !exists $datamodel{$key} ) {
-                $datamodel{$key} = [];
+                $datamodel{$key} = {};
             }
 
-            if ( $start eq "-inf" ) {
-                $start = 0;
-            }
+            $min = -999999 if $min eq "-inf";
+            $max = 999999  if $max eq "+inf";
 
-            if ( $end eq "+inf" ) {
-                $end = scalar @{ $datamodel{$key} };
-            }
+            # Get members in score range, sorted by score (numerically)
+            my @members =
+              sort { $datamodel{$key}{$a} <=> $datamodel{$key}{$b} }
+              grep { $datamodel{$key}{$_} >= $min && $datamodel{$key}{$_} <= $max }
+              keys %{ $datamodel{$key} };
 
-            my @indexed_res;
-            if ( $start < 0 ) {
-
-                # From -start to 0 or -end insert ""
-                push @indexed_res, "tags_test";
-                push @indexed_res, -2;
-
-                push @indexed_res, "summary_test";
-                push @indexed_res, -1;
-
-                push @indexed_res, $datamodel{$key}[0];
-                push @indexed_res, 0;
-
-                return @indexed_res;
-            }
-
-            # Skip $start amount of elements
-            my @res = @{ $datamodel{$key} }[ $start .. $end ];
-
-            # Add index after each element to simulate zrangebyscore behavior
-            my $ind = $start;
-
-            foreach my $val (@res) {
-                unless ($val) {
-                    next;
+            # Handle LIMIT option
+            my $limit_offset = 0;
+            my $limit_count  = scalar @members;
+            for ( my $i = 0; $i < @options; $i++ ) {
+                if ( $options[$i] eq "LIMIT" ) {
+                    $limit_offset = $options[ $i + 1 ];
+                    $limit_count  = $options[ $i + 2 ];
+                    last;
                 }
-                push @indexed_res, $val;
-                push @indexed_res, $ind;
-                $ind++;
             }
+            @members = splice( @members, $limit_offset, $limit_count );
 
-            return @indexed_res;
+            # Check if WITHSCORES option is present
+            my $with_scores = grep { $_ eq "WITHSCORES" } @options;
+
+            if ($with_scores) {
+                # Return member, score pairs (as a flat list that becomes a hash)
+                my @result;
+                foreach my $member (@members) {
+                    push @result, $member;
+                    push @result, $datamodel{$key}{$member};
+                }
+                return @result;
+            } else {
+                return @members;
+            }
         }
     );
 
     $redis->mock(
-        'zscan',    # $redis->zscan => get all values of key in datamodel
+        'zscan',    # $redis->zscan => scan sorted set members matching pattern
         sub {
             my $self = shift;
             my ( $key, $cursor, $match, $matchexpr, $count, $countnumber ) = @_;
 
-            if ( !exists $datamodel{LRR_TITLES} ) {
-                $datamodel{LRR_TITLES} = [];
+            if ( !exists $datamodel{$key} ) {
+                $datamodel{$key} = {};
             }
 
-            # Search for the match expression in the list of titles
+            # Search for the match expression in the sorted set keys (members)
             # Replace redis' '?' wildcards with regex '.'s
             my $expr = $matchexpr =~ s/\?/\./gr;
 
             # Replace redis' '*' wildcards with regex '.*'s
             $expr = $expr =~ s/\*/\.\*/gr;
 
-            my @matches = grep { /$expr/i } @{ $datamodel{LRR_TITLES} };
+            my @matches = grep { /$expr/i } keys %{ $datamodel{$key} };
 
             # Return 0 for cursor to indicate we scanned everything, and
             return ( 0, \@matches );
