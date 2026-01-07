@@ -1303,6 +1303,21 @@ msgstr ""
 msgid "This tankoubon has no archives."
 msgstr ""
 
+msgid "Tankoubon saved!"
+msgstr ""
+
+msgid "Error saving tankoubon"
+msgstr ""
+
+msgid "(No summary)"
+msgstr ""
+
+msgid "(No tags)"
+msgstr ""
+
+msgid "Tags:"
+msgstr ""
+
 msgid "Background Worker restarted!"
 msgstr "后台工作程序已重启！"
 

@@ -1372,6 +1372,21 @@ msgstr "Showing ${start} to ${end} of ${total} archives"
 msgid "This tankoubon has no archives."
 msgstr "This tankoubon has no archives."
 
+msgid "Tankoubon saved!"
+msgstr "Tankoubon saved!"
+
+msgid "Error saving tankoubon"
+msgstr "Error saving tankoubon"
+
+msgid "(No summary)"
+msgstr "(No summary)"
+
+msgid "(No tags)"
+msgstr "(No tags)"
+
+msgid "Tags:"
+msgstr "Tags:"
+
 msgid "Background Worker restarted!"
 msgstr "Background Worker restarted!"
 

@@ -10,6 +10,9 @@ TankoubonView.currentPage = 0;        // Current page (0-indexed)
 TankoubonView.pageSize = 100;         // Archives per page (from /api/info)
 TankoubonView.totalPages = 0;         // Total pages
 TankoubonView.isComingFromPopstate = false;
+TankoubonView.tagInput = null;        // Tagger instance for tag editing
+TankoubonView.suggestions = [];       // Tag autocomplete suggestions
+TankoubonView.userLogged = false;     // Whether user is logged in
 
 /**
  * Initialize the tankoubon view
@@ -32,6 +35,37 @@ TankoubonView.init = function(id) {
         TankoubonView.isComingFromPopstate = true;
         TankoubonView.consumeURLParameters();
     });
+
+    // Edit mode handlers (only if logged in)
+    TankoubonView.userLogged = $("body").data("user-logged") === 1;
+    if (TankoubonView.userLogged) {
+        $(document).on("click.edit-field", ".edit-field-btn", TankoubonView.editField);
+        $(document).on("click.save-field", ".save-field-btn", TankoubonView.saveField);
+        $(document).on("click.cancel-field", ".cancel-field-btn", TankoubonView.cancelField);
+
+        // Keyboard shortcuts: Enter for title, Ctrl+Enter for summary/tags
+        $(document).on("keydown.edit-title", "#edit-title", function(e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                $("#title-field .save-field-btn").trigger("click");
+            }
+        });
+        $(document).on("keydown.edit-summary", "#edit-summary", function(e) {
+            if (e.key === "Enter" && e.ctrlKey) {
+                e.preventDefault();
+                $("#summary-field .save-field-btn").trigger("click");
+            }
+        });
+        $(document).on("keydown.edit-tags", "#edit-tags", function(e) {
+            if (e.key === "Enter" && e.ctrlKey) {
+                e.preventDefault();
+                $("#tags-field .save-field-btn").trigger("click");
+            }
+        });
+
+        // Preload tag suggestions for autocomplete
+        TankoubonView.loadTagSuggestions();
+    }
 
     // 0 = List/table view
     // 1 = Thumbnail view (default)
@@ -76,16 +110,20 @@ TankoubonView.renderMetadata = function() {
     $("#tankoubon-title").text(data.name);
     document.title = document.title.replace(I18N.Tankoubon || "Tankoubon", data.name);
 
-    // Summary
+    // Summary - show placeholder if blank and user logged in
     if (data.summary) {
-        $("#tankoubon-summary").html(LRR.encodeHTML(data.summary));
+        $("#tankoubon-summary").html(LRR.encodeHTML(data.summary)).removeClass("field-placeholder").show();
+    } else if (TankoubonView.userLogged) {
+        $("#tankoubon-summary").html(I18N.TankoubonNoSummary).addClass("field-placeholder").show();
     } else {
         $("#tankoubon-summary").hide();
     }
 
-    // Tags
+    // Tags - show placeholder if blank and user logged in
     if (data.tags) {
-        $("#tankoubon-tags").html(LRR.buildTagsDiv(data.tags));
+        $("#tankoubon-tags").html(LRR.buildTagsDiv(data.tags)).removeClass("field-placeholder").show();
+    } else if (TankoubonView.userLogged) {
+        $("#tankoubon-tags").html(I18N.TankoubonNoTags).addClass("field-placeholder").show();
     } else {
         $("#tankoubon-tags").hide();
     }
@@ -93,6 +131,11 @@ TankoubonView.renderMetadata = function() {
     // Count
     const archiveCount = TankoubonView.archives.length;
     $("#tankoubon-count").text(I18N.TankoubonArchiveCount(archiveCount));
+
+    // Show edit buttons for logged-in users
+    if (TankoubonView.userLogged) {
+        $(".edit-field-btn").show();
+    }
 };
 
 /**
@@ -285,4 +328,150 @@ TankoubonView.consumeURLParameters = function() {
     }
 
     TankoubonView.renderPage();
+};
+
+/**
+ * Load tag suggestions for autocomplete
+ */
+TankoubonView.loadTagSuggestions = function() {
+    Server.callAPI("/api/database/stats?minweight=2", "GET", null, I18N.TagStatsLoadFailure,
+        (data) => {
+            TankoubonView.suggestions = data.reduce((res, tag) => {
+                let label = tag.text;
+                if (tag.namespace !== "") { label = `${tag.namespace}:${tag.text}`; }
+                res.push(label);
+                return res;
+            }, []);
+        }
+    );
+};
+
+/**
+ * Enter edit mode for a specific field
+ * @param {Event} e Click event
+ */
+TankoubonView.editField = function(e) {
+    e.preventDefault();
+    const field = $(this).data("field");
+    const $container = $(`#${field}-field`);
+
+    // Populate input with current value
+    switch (field) {
+        case "title":
+            $("#edit-title").val(TankoubonView.data.name);
+            break;
+        case "summary":
+            $("#edit-summary").val(TankoubonView.data.summary || "");
+            break;
+        case "tags":
+            $("#edit-tags").val(TankoubonView.data.tags || "");
+            // Initialize or refresh tagger (skip on mobile)
+            if (!LRR.isMobile()) {
+                if (!TankoubonView.tagInput) {
+                    TankoubonView.tagInput = tagger($("#edit-tags")[0], {
+                        allow_duplicates: false,
+                        allow_spaces: true,
+                        wrap: true,
+                        completion: { list: TankoubonView.suggestions },
+                        link: (name) => new LRR.apiURL(`/?q=${name}`),
+                    });
+                } else {
+                    TankoubonView.tagInput.tags_from_input();
+                }
+            }
+            break;
+    }
+
+    // Toggle visibility
+    $container.find(".field-display").hide();
+    $container.find(".edit-field-btn").hide();
+    $container.find(".field-edit").show();
+
+    // Focus the input
+    $container.find("input, textarea").first().focus();
+};
+
+/**
+ * Cancel editing a field
+ * @param {Event} e Click event
+ */
+TankoubonView.cancelField = function(e) {
+    e.preventDefault();
+    const field = $(this).data("field");
+    const $container = $(`#${field}-field`);
+
+    // Toggle visibility
+    $container.find(".field-edit").hide();
+    $container.find(".field-display").show();
+    $container.find(".edit-field-btn").show();
+};
+
+/**
+ * Save a specific field
+ * @param {Event} e Click event
+ */
+TankoubonView.saveField = function(e) {
+    e.preventDefault();
+    const field = $(this).data("field");
+    const $btn = $(this);
+
+    // Get the new value
+    let value;
+    switch (field) {
+        case "title":
+            value = $("#edit-title").val().trim();
+            if (!value) {
+                LRR.showErrorToast(I18N.MissingTankName);
+                return;
+            }
+            break;
+        case "summary":
+            value = $("#edit-summary").val().trim();
+            break;
+        case "tags":
+            value = $("#edit-tags").val().trim();
+            break;
+    }
+
+    // Show saving indicator
+    const originalClasses = $btn.attr("class");
+    $btn.removeClass("fa-check").addClass("fa-spin fa-compact-disc");
+
+    // Build metadata update - include all fields to preserve unchanged ones
+    const metadata = {
+        name: field === "title" ? value : TankoubonView.data.name,
+        summary: field === "summary" ? value : (TankoubonView.data.summary || ""),
+        tags: field === "tags" ? value : (TankoubonView.data.tags || "")
+    };
+
+    const body = JSON.stringify({ metadata });
+
+    Server.callAPIBody(`/api/tankoubons/${TankoubonView.id}`, "PUT", body, null, I18N.TankoubonEditError,
+        (response) => {
+            // Update local data
+            TankoubonView.data.name = metadata.name;
+            TankoubonView.data.summary = metadata.summary;
+            TankoubonView.data.tags = metadata.tags;
+
+            // Re-render metadata display
+            TankoubonView.renderMetadata();
+
+            // Exit edit mode for this field
+            const $container = $(`#${field}-field`);
+            $container.find(".field-edit").hide();
+            $container.find(".field-display").show();
+            $container.find(".edit-field-btn").show();
+
+            // Restore icon
+            $btn.removeClass("fa-spin fa-compact-disc").addClass("fa-check");
+
+            LRR.toast({
+                heading: I18N.TankoubonEditSaved,
+                icon: "success",
+            });
+        }
+    ).catch(() => {
+        // Restore icon on error
+        $btn.removeClass("fa-spin fa-compact-disc").addClass("fa-check");
+    });
 };
