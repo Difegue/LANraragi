@@ -304,6 +304,15 @@ sub build_tank_json ($id) {
     chop $aggregate_tags;
     chop $aggregate_names;
 
+    # Include tank's own tags and deduplicate
+    my $tank_own_tags = $tank{tags} || "";
+    my $all_tags = $tank_own_tags ne "" ? "$tank_own_tags,$aggregate_tags" : $aggregate_tags;
+
+    # Deduplicate tags: split, trim whitespace, remove empty, keep first occurrence
+    my %seen;
+    my @unique_tags = grep { $_ ne "" && !$seen{$_}++ } map { s/^\s+|\s+$//gr } split( /,/, $all_tags );
+    my $deduped_tags = join( ",", @unique_tags );
+
     # Use the first archive's thumbnail for the tank thumbnail
     my $thumb_archive = scalar @{ $tank{archives} } > 0 ? $tank{archives}[0] : "";
 
@@ -311,7 +320,7 @@ sub build_tank_json ($id) {
         arcid         => $id,
         title         => $tank{name},
         filename      => "",
-        tags          => $aggregate_tags,
+        tags          => $deduped_tags,
         summary       => "Tankoubon containing: $aggregate_names",
         isnew         => $aggregate_isnew ? $aggregate_isnew : "false",
         extension     => ".tank",
