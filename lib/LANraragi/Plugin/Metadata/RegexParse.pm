@@ -37,7 +37,17 @@ sub plugin_info {
         author      => "Difegue",
         version     => "1.2",
         description => "Derive tags from the filename of the given archive.<br><br>"
-          . "By default it follows the doujinshi naming standard \"(Release) [Artist] TITLE (Series) [Language]\".<br><br>"
+        . "By default it follows the doujinshi naming standard \"(Event) [Artist] TITLE (Series) [Language]\".<br><br>"
+        . "The default regex is:<br>"
+        .'<code>(\((?&lt;event&gt;[^([]+)\))?\s*(\[(?&lt;artist&gt;[^]]+)\])?\s*(?&lt;title&gt;[^([]+)\s*(\((?&lt;series&gt;[^([)]+)\))?\s*(\[(?&lt;language&gt;[^]]+)\])?(?&lt;tail&gt;.*)?</code><br><br>'
+        .'<code>()?</code> indicates the field is optional<br>'
+        .'<code>(\((?&lt;event&gt;[^([]+)\))?</code> returns the content of (Event). Optional.<br>'
+        .'<code>(\[(?&lt;artist&gt;[^]]+)\])?</code> returns the content of [Artist]. Optional.<br>'
+        .'<code>(?&lt;title&gt;[^([]+)</code> returns the title. Mandatory.<br>'
+        .'<code>(\((?&lt;series&gt;[^([)]+)\))?</code> returns the content of (Series). Optional.<br>'
+        .'<code>(\[(?&lt;language&gt;[^]]+)\])?</code> returns the content of [Language]. Optional.<br>'
+        .'<code>(?&lt;tail&gt;.*)?</code> returns everything that is out of E-Hentai standard for further processing. Optional.<br>'
+        .'<code>\s*</code> indicates zero or more whitespaces.<br><br>'
           . "You can provide a custom regex using named capture groups. The group name determines the tag namespace:<br>"
           . "&bull; <code>(?&lt;artist&gt;...)</code> &rarr; <code>artist:</code> (also extracts <code>group:</code> from \"Circle (Artist)\" format)<br>"
           . "&bull; <code>(?&lt;series&gt;...)</code> &rarr; <code>series:</code><br>"
@@ -204,22 +214,5 @@ sub _classify_item {
     }
     return "${namespace}${item}";
 }
-
-#Regular Expression matching the E-Hentai standard: (Release) [Artist] TITLE (Series) [Language]
-#Used in parsing.
-#Stuff that's between unescaped ()s is put in a numbered variable: $1,$2,etc
-#Parsing is only done the first time the file is found. The parsed info is then stored into Redis.
-#Change this regex if you wish to use a different parsing for mass-addition of archives.
-
-#()? indicates the field is optional.
-#(\(([^([]+)\))? returns the content of (Release). Optional.
-#(\[([^]]+)\])? returns the content of [Artist]. Optional.
-#([^([]+) returns the title. Mandatory.
-#(\(([^([)]+)\))? returns the content of (Series). Optional.
-#(\[([^]]+)\])? returns the content of [Language]. Optional.
-#(?<tail>.*)? returns everything that is out of E-Hentai standard for further processing. Optional.
-#\s* indicates zero or more whitespaces.
-#my $regex = qr/(\((?<artist>[^([]+)\))?\s*(\[([^]]+)\])?\s*([^([]+)\s*(\(([^([)]+)\))?\s*(\[([^]]+)\])?(?<tail>.*)?/;
-#sub get_regex { return $regex }
 
 1;
