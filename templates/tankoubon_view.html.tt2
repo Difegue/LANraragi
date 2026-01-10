@@ -212,6 +212,7 @@
 						[% IF userlogged %]
 						"sep1": "---------",
 						"edit": { name: "[% c.lh('Edit Metadata') %]", icon: "fas fa-pencil-alt" },
+						"remove from tankoubon": { name: "[% c.lh('Remove from Tankoubon') %]", icon: "fas fa-minus-circle" },
 						"delete": { name: "[% c.lh('Delete') %]", icon: "fas fa-trash-alt" },
 						"rating": {
 							"name": "[% c.lh('Add Rating') %]",

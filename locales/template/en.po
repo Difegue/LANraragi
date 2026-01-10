@@ -708,6 +708,31 @@ msgstr "Archive read"
 
 msgid "Tankoubon (collection)"
 msgstr "Tankoubon (collection)"
+msgstr ""
+
+msgid "Select Page"
+msgstr "Select Page"
+
+msgid "Deselect Page"
+msgstr "Deselect Page"
+
+msgid "Add to Tankoubon"
+msgstr "Add to Tankoubon"
+
+msgid "Clear"
+msgstr "Clear"
+
+msgid "Select Tankoubon"
+msgstr "Select Tankoubon"
+
+msgid "Search tankoubons..."
+msgstr "Search tankoubons..."
+
+msgid "Create New"
+msgstr "Create New"
+
+msgid "Cannot add tankoubons to tankoubons - deselect tankoubons first"
+msgstr "Cannot add tankoubons to tankoubons - deselect tankoubons first"
 
 msgid "Go to Page:"
 msgstr "Go to Page:"
@@ -1395,6 +1420,54 @@ msgstr "Archive order saved!"
 
 msgid "Error saving archive order"
 msgstr "Error saving archive order"
+
+msgid "Remove from Tankoubon"
+msgstr "Remove from Tankoubon"
+
+msgid "Removed from Tankoubon"
+msgstr "Removed from Tankoubon"
+
+msgid "Error removing from tankoubon"
+msgstr "Error removing from tankoubon"
+
+msgid "Are you sure you want to remove this archive from the tankoubon?"
+msgstr "Are you sure you want to remove this archive from the tankoubon?"
+
+msgid "New archive"
+msgstr "New archive"
+
+msgid "Archive read"
+msgstr "Archive read"
+
+msgid "Tankoubon (collection)"
+msgstr "Tankoubon (collection)"
+
+msgid "${n} selected"
+msgstr "${n} selected"
+
+msgid "${archives} archive(s), ${tanks} tankoubon(s) selected"
+msgstr "${archives} archive(s), ${tanks} tankoubon(s) selected"
+
+msgid "Added ${count} archive(s) to \"${name}\""
+msgstr "Added ${count} archive(s) to \"${name}\""
+
+msgid "Error modifying tankoubon"
+msgstr "Error modifying tankoubon"
+
+msgid "Error fetching tankoubons"
+msgstr "Error fetching tankoubons"
+
+msgid "Enter a name for the new tankoubon"
+msgstr "Enter a name for the new tankoubon"
+
+msgid "My Tankoubon"
+msgstr "My Tankoubon"
+
+msgid "Please enter a tankoubon name."
+msgstr "Please enter a tankoubon name."
+
+msgid "No tankoubons yet. Create one!"
+msgstr "No tankoubons yet. Create one!"
 
 msgid "Background Worker restarted!"
 msgstr "Background Worker restarted!"

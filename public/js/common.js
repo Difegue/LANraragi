@@ -612,6 +612,31 @@ LRR.handleContextMenu = function (option, id, refreshCallback) {
             }
         });
         break;
+    case "remove from tankoubon":
+        LRR.showPopUp({
+            text: I18N.ConfirmTankoubonRemove,
+            icon: "warning",
+            showCancelButton: true,
+            focusConfirm: false,
+            confirmButtonText: I18N.ConfirmYes,
+            reverseButtons: true,
+            confirmButtonColor: "#d33",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Server.callAPI(
+                    `/api/tankoubons/${TankoubonView.id}/${id}`,
+                    "DELETE",
+                    I18N.TankoubonRemoved,
+                    I18N.TankoubonRemoveError,
+                    () => {
+                        if (refreshCallback) {
+                            refreshCallback();
+                        }
+                    },
+                );
+            }
+        });
+        break;
     case "read":
         LRR.openInNewTab(new LRR.apiURL(`/reader?id=${id}`));
         break;

@@ -285,6 +285,9 @@ msgstr ""
 msgid "It is automatically emptied when it grows past this specified size."
 msgstr ""
 
+msgid "The maximum value allowed is 4GB."
+msgstr ""
+
 msgid "Clear Cache"
 msgstr ""
 
@@ -369,6 +372,15 @@ msgid "Enabling this option will save reading progression on the browser (throug
 msgstr ""
 
 msgid "Consider toggling this option if you're sharing the LANraragi instance with multiple users!"
+msgstr ""
+
+msgid "Authenticated Progress Tracking"
+msgstr ""
+
+msgid "If enabled, server-side progress will only be saved if you're logged in with a password, and will override clientside progress. This allows guests to browse without affecting the main user's progress."
+msgstr ""
+
+msgid "Combine with clientside progress tracking to allow unauthenticated users to track progress locally."
 msgstr ""
 
 msgid "Debug Mode"
@@ -686,6 +698,33 @@ msgstr ""
 msgid "Tankoubon (collection)"
 msgstr ""
 
+msgid "Select Page"
+msgstr ""
+
+msgid "Deselect Page"
+msgstr ""
+
+msgid "Add to Tankoubon"
+msgstr ""
+
+msgid "Clear"
+msgstr ""
+
+msgid "Select Tankoubon"
+msgstr ""
+
+msgid "Search tankoubons..."
+msgstr ""
+
+msgid "Create New"
+msgstr ""
+
+msgid "%1 archive(s), %2 tankoubon(s) selected"
+msgstr ""
+
+msgid "Cannot add tankoubons to tankoubons - deselect tankoubons first"
+msgstr ""
+
 msgid "Go to Page:"
 msgstr ""
 
@@ -723,6 +762,9 @@ msgid "Read"
 msgstr ""
 
 msgid "Download"
+msgstr ""
+
+msgid "Copy link"
 msgstr ""
 
 msgid "Edit Metadata"
@@ -925,6 +967,18 @@ msgstr ""
 msgid "Add Archive to Category"
 msgstr ""
 
+msgid "Rating"
+msgstr ""
+
+msgid "Set Rating"
+msgstr ""
+
+msgid "Clear Rating"
+msgstr ""
+
+msgid " -- Select Rating -- "
+msgstr ""
+
 msgid "Pages"
 msgstr ""
 
@@ -968,6 +1022,9 @@ msgid "F: toggle fullscreen mode"
 msgstr ""
 
 msgid "B: toggle bookmark"
+msgstr ""
+
+msgid "N: toggle auto next page"
 msgstr ""
 
 msgid "To return to the archive index, touch the arrow pointing down or use Backspace."
@@ -1057,6 +1114,12 @@ msgstr ""
 msgid "Display all images in a vertical view in the same page."
 msgstr ""
 
+msgid "Auto next page interval in seconds"
+msgstr ""
+
+msgid "The default is 10 seconds."
+msgstr ""
+
 msgid "Reader Settings"
 msgstr ""
 
@@ -1064,6 +1127,9 @@ msgid "Help"
 msgstr ""
 
 msgid "Reading Direction"
+msgstr ""
+
+msgid "Auto Next Page"
 msgstr ""
 
 msgid "Archive Overview"
@@ -1333,6 +1399,54 @@ msgstr ""
 msgid "Error saving archive order"
 msgstr ""
 
+msgid "Remove from Tankoubon"
+msgstr ""
+
+msgid "Removed from Tankoubon"
+msgstr ""
+
+msgid "Error removing from tankoubon"
+msgstr ""
+
+msgid "Are you sure you want to remove this archive from the tankoubon?"
+msgstr ""
+
+msgid "New archive"
+msgstr ""
+
+msgid "Archive read"
+msgstr ""
+
+msgid "Tankoubon (collection)"
+msgstr ""
+
+msgid "${n} selected"
+msgstr ""
+
+msgid "${archives} archive(s), ${tanks} tankoubon(s) selected"
+msgstr ""
+
+msgid "Added ${count} archive(s) to \"${name}\""
+msgstr ""
+
+msgid "Error modifying tankoubon"
+msgstr ""
+
+msgid "Error fetching tankoubons"
+msgstr ""
+
+msgid "Enter a name for the new tankoubon"
+msgstr ""
+
+msgid "My Tankoubon"
+msgstr ""
+
+msgid "Please enter a tankoubon name."
+msgstr ""
+
+msgid "No tankoubons yet. Create one!"
+msgstr ""
+
 msgid "Background Worker restarted!"
 msgstr ""
 
@@ -1457,6 +1571,12 @@ msgstr ""
 msgid "Github API returned status: \${status}"
 msgstr ""
 
+msgid "Link copied successfully."
+msgstr ""
+
+msgid "Copy failed."
+msgstr ""
+
 msgid "This archive isn't in any category."
 msgstr ""
 
@@ -1533,6 +1653,12 @@ msgid "Page \${page}"
 msgstr ""
 
 msgid "The page thumbnailing job didn't conclude properly. Your archive might be corrupted."
+msgstr ""
+
+msgid "Starting auto next page failed!"
+msgstr ""
+
+msgid "Please set the auto next page interval to a positive number."
 msgstr ""
 
 msgid "A script is already running."
@@ -1701,5 +1827,9 @@ msgstr ""
 
 msgid "Searching for duplicates..."
 msgstr ""
+
+msgid "No duplicates found!"
+msgstr ""
+
 
 # ------End of Duplicates.html.tt2------

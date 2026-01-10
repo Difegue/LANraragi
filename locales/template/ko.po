@@ -717,6 +717,33 @@ msgstr ""
 msgid "Tankoubon (collection)"
 msgstr ""
 
+msgid "Select Page"
+msgstr ""
+
+msgid "Deselect Page"
+msgstr ""
+
+msgid "Add to Tankoubon"
+msgstr ""
+
+msgid "Clear"
+msgstr ""
+
+msgid "Select Tankoubon"
+msgstr ""
+
+msgid "Search tankoubons..."
+msgstr ""
+
+msgid "Create New"
+msgstr ""
+
+msgid "%1 archive(s), %2 tankoubon(s) selected"
+msgstr ""
+
+msgid "Cannot add tankoubons to tankoubons - deselect tankoubons first"
+msgstr ""
+
 msgid "Go to Page:"
 msgstr "페이지로 이동:"
 
@@ -962,6 +989,18 @@ msgstr ""
 
 msgid "Add Archive to Category"
 msgstr "아카이브 카테고리 추가"
+
+msgid "Rating"
+msgstr ""
+
+msgid "Set Rating"
+msgstr ""
+
+msgid "Clear Rating"
+msgstr ""
+
+msgid " -- Select Rating -- "
+msgstr ""
 
 msgid "Pages"
 msgstr "페이지"
@@ -1378,6 +1417,54 @@ msgid "Archive order saved!"
 msgstr ""
 
 msgid "Error saving archive order"
+msgstr ""
+
+msgid "Remove from Tankoubon"
+msgstr ""
+
+msgid "Removed from Tankoubon"
+msgstr ""
+
+msgid "Error removing from tankoubon"
+msgstr ""
+
+msgid "Are you sure you want to remove this archive from the tankoubon?"
+msgstr ""
+
+msgid "New archive"
+msgstr ""
+
+msgid "Archive read"
+msgstr ""
+
+msgid "Tankoubon (collection)"
+msgstr ""
+
+msgid "${n} selected"
+msgstr ""
+
+msgid "${archives} archive(s), ${tanks} tankoubon(s) selected"
+msgstr ""
+
+msgid "Added ${count} archive(s) to \"${name}\""
+msgstr ""
+
+msgid "Error modifying tankoubon"
+msgstr ""
+
+msgid "Error fetching tankoubons"
+msgstr ""
+
+msgid "Enter a name for the new tankoubon"
+msgstr ""
+
+msgid "My Tankoubon"
+msgstr ""
+
+msgid "Please enter a tankoubon name."
+msgstr ""
+
+msgid "No tankoubons yet. Create one!"
 msgstr ""
 
 msgid "Background Worker restarted!"

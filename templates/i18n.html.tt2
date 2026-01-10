@@ -66,6 +66,10 @@ I18N.TankoubonNoSummary = "[% c.lh("(No summary)") %]";
 I18N.TankoubonNoTags = "[% c.lh("(No tags)") %]";
 I18N.TankoubonReorderSaved = "[% c.lh("Archive order saved!") %]";
 I18N.TankoubonReorderError = "[% c.lh("Error saving archive order") %]";
+I18N.TankoubonRemoveFromMenu = "[% c.lh("Remove from Tankoubon") %]";
+I18N.TankoubonRemoved = "[% c.lh("Removed from Tankoubon") %]";
+I18N.TankoubonRemoveError = "[% c.lh("Error removing from tankoubon") %]";
+I18N.ConfirmTankoubonRemove = "[% c.lh("Are you sure you want to remove this archive from the tankoubon?") %]";
 
 I18N.ShinobuRestarted = "[% c.lh("Background Worker restarted!") %]";
 I18N.ShinobuRestartError = "[% c.lh("Error restarting Worker:") %]";
