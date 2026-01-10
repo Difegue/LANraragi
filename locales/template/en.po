@@ -313,6 +313,15 @@ msgstr "This will delete metadata for old files when they're replaced! Use with 
 
 # ------Start of Config_Global.html.tt2------
 
+msgid "Language"
+msgstr "Language"
+
+msgid "Automatic (browser default)"
+msgstr "Automatic (browser default)"
+
+msgid "Select the language for the user interface. Set to Automatic to use your browser's language preference."
+msgstr "Select the language for the user interface. Set to Automatic to use your browser's language preference."
+
 msgid "Site Title"
 msgstr "Site Title"
 

@@ -192,5 +192,6 @@ sub get_hqthumbpages     { return &get_redis_conf( "hqthumbpages",    "0" ) }
 sub get_jxlthumbpages    { return &get_redis_conf( "jxlthumbpages",   "0" ) }
 sub get_replacedupe      { return &get_redis_conf( "replacedupe",     "0" ) }
 sub can_replacetitles    { return &get_redis_conf( "replacetitles",   "1" ) }
+sub get_language         { return &get_redis_conf( "language",        "auto" ) }
 
 1;

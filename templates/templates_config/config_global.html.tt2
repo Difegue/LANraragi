@@ -1,5 +1,29 @@
 <tr>
     <td class="option-td">
+        <h2 class="ih"> [% c.lh("Language") %] </h2>
+    </td>
+    <td class="config-td">
+        <select class="favtag-btn" name="language" style="width:100%">
+            <option value="auto" [% IF language == 'auto' %]selected[% END %]>[% c.lh("Automatic (browser default)") %]</option>
+            <option value="en" [% IF language == 'en' %]selected[% END %]>English</option>
+            <option value="es" [% IF language == 'es' %]selected[% END %]>Español (Spanish)</option>
+            <option value="zh" [% IF language == 'zh' %]selected[% END %]>简体中文 (Simplified Chinese)</option>
+            <option value="zh-tw" [% IF language == 'zh-tw' %]selected[% END %]>繁體中文 (Traditional Chinese)</option>
+            <option value="fr" [% IF language == 'fr' %]selected[% END %]>Français (French)</option>
+            <option value="id" [% IF language == 'id' %]selected[% END %]>Bahasa Indonesia (Indonesian)</option>
+            <option value="ko" [% IF language == 'ko' %]selected[% END %]>한국어 (Korean)</option>
+            <option value="no" [% IF language == 'no' %]selected[% END %]>Norsk (Norwegian)</option>
+            <option value="pt" [% IF language == 'pt' %]selected[% END %]>Português (Portuguese)</option>
+            <option value="de" [% IF language == 'de' %]selected[% END %]>Deutsch (German)</option>
+            <option value="it" [% IF language == 'it' %]selected[% END %]>Italiano (Italian)</option>
+            <option value="vi" [% IF language == 'vi' %]selected[% END %]>Tiếng Việt (Vietnamese)</option>
+        </select>
+        <br>[% c.lh("Select the language for the user interface. Set to Automatic to use your browser's language preference.") %]
+    </td>
+</tr>
+
+<tr>
+    <td class="option-td">
         <h2 class="ih"> [% c.lh("Site Title") %] </h2>
     </td>
     <td class="config-td">
