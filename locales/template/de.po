@@ -1543,6 +1543,18 @@ msgstr ""
 msgid "Are you sure you want to remove this archive from the tankoubon?"
 msgstr ""
 
+msgid "Are you sure you want to delete this tankoubon? The archives will remain in your library but will no longer be grouped."
+msgstr ""
+
+msgid "Yes, delete the tankoubon!"
+msgstr ""
+
+msgid "Tankoubon deleted"
+msgstr ""
+
+msgid "Error deleting tankoubon"
+msgstr ""
+
 msgid "New archive"
 msgstr ""
 

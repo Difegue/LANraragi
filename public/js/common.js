@@ -592,25 +592,49 @@ LRR.handleContextMenu = function (option, id, refreshCallback) {
         LRR.openInNewTab(new LRR.apiURL(`/edit?id=${id}`));
         break;
     case "delete":
-        LRR.showPopUp({
-            text: I18N.ConfirmArchiveDeletion,
-            icon: "warning",
-            showCancelButton: true,
-            focusConfirm: false,
-            confirmButtonText: I18N.ConfirmYes,
-            reverseButtons: true,
-            confirmButtonColor: "#d33",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                Server.deleteArchive(id, () => {
-                    if (refreshCallback) {
-                        refreshCallback();
-                    } else {
-                        document.location.reload(true);
-                    }
-                });
-            }
-        });
+        if (id.startsWith("TANK_")) {
+            // Handle tankoubon deletion
+            LRR.showPopUp({
+                text: I18N.ConfirmTankoubonDeletion,
+                icon: "warning",
+                showCancelButton: true,
+                focusConfirm: false,
+                confirmButtonText: I18N.ConfirmYesTankoubon,
+                reverseButtons: true,
+                confirmButtonColor: "#d33",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Server.deleteTankoubon(id, () => {
+                        if (refreshCallback) {
+                            refreshCallback();
+                        } else {
+                            document.location.reload(true);
+                        }
+                    });
+                }
+            });
+        } else {
+            // Handle archive deletion
+            LRR.showPopUp({
+                text: I18N.ConfirmArchiveDeletion,
+                icon: "warning",
+                showCancelButton: true,
+                focusConfirm: false,
+                confirmButtonText: I18N.ConfirmYes,
+                reverseButtons: true,
+                confirmButtonColor: "#d33",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Server.deleteArchive(id, () => {
+                        if (refreshCallback) {
+                            refreshCallback();
+                        } else {
+                            document.location.reload(true);
+                        }
+                    });
+                }
+            });
+        }
         break;
     case "remove from tankoubon":
         LRR.showPopUp({
