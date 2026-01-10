@@ -642,7 +642,7 @@ LRR.handleContextMenu = function (option, id, refreshCallback) {
             icon: "warning",
             showCancelButton: true,
             focusConfirm: false,
-            confirmButtonText: I18N.ConfirmYes,
+            confirmButtonText: I18N.ConfirmYesRemove,
             reverseButtons: true,
             confirmButtonColor: "#d33",
         }).then((result) => {
