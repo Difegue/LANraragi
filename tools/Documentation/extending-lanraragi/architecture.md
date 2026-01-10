@@ -207,6 +207,7 @@ The base architecture is as follows:
 |- LRR_CONFIG <- Configuration keys, usually set through the LRR Configuration page.
 |  |- htmltitle
 |  |- motd
+|  |- language <- Forced UI language
 |  |- dirname  <- Content directory
 |  |- thumbdir <- Thumbnail directory  
 |  |- tempmaxsize <- Temp folder max size 
