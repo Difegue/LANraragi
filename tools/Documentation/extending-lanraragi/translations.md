@@ -4,7 +4,7 @@ description: Details on making additional translations for the server's Web UI.
 
 # 🈁 Translating LANraragi to other languages
 
-LRR will automatically render its web UI in the language requested by your web browser's `Accept-Language` header, if it supports it.\
+LRR will automatically render its web UI in the language requested by your web browser's `Accept-Language` header, if it supports it. You can also manually force a specific language in the Configuration page under Global Settings.\
 Unsupported languages will fallback to English.
 
 Here are some pointers on contributing additional translations to LANraragi.\
