@@ -1054,7 +1054,7 @@ Reader.initializeArchiveOverlay = function () {
 
         // Look at all the numbered keys in notes, aka notes.1, notes.2..
         for (let i = 1; i <= notes.total_pages; i++) {
-            if (Object.prototype.hasOwnProperty.call(notes, i) && notes[i] === "processed") {
+            if (Object.hasOwn(notes, i) && notes[i] === "processed") {
                 const index = i - 1;
                 // If the spinner is still visible, update the thumbnail
                 if ($(`#${index}_spinner`).attr("loaded") !== "true") {

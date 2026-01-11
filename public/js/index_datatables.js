@@ -299,7 +299,7 @@ IndexTable.drawCallback = function () {
         if (currentSort > currentCustomColumnCount) {
             localStorage.indexSort = 0;
         }
-        if (currentSort >= 1 && currentSort <= $("#columnCount").value) {
+        if (currentSort >= 1 && currentSort <= Index.getColumnCount()) {
             currentSort = localStorage.getItem(`customColumn${currentSort}`) || `Header ${currentSort}`;
         } else {
             currentSort = "title";

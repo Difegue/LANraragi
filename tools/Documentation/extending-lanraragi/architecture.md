@@ -129,7 +129,7 @@ root/
 |
 |- lrr.conf           <- Mojolicious configuration file
 |- .perltidy.rc       <- PerlTidy config file to match the coding style
-|- eslint.config.js   <- ESLint config file for linting of JavaScript files
+|- eslint.config.mjs   <- ESLint config file for linting of JavaScript files
 |- package.json       <- NPM file, contains front-end dependency listing and shortcuts
 +- package-lock.json  <- NPM lockfile used by installer/`npm ci` for reproducible builds
 ```
