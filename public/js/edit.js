@@ -77,11 +77,28 @@ Edit.handlePaste = function (event) {
     event.stopPropagation();
     event.preventDefault();
 
+    // Get the pending text already typed in the input field
+    const inputElement = $(".tagger-new").children()[0];
+    const pendingText = inputElement ? inputElement.textContent : "";
+
     // Get pasted data via clipboard API
     const pastedData = event.originalEvent.clipboardData.getData("Text");
 
     if (pastedData !== "") {
-        pastedData.split(/,\s?/).forEach((tag) => {
+        // Split by comma to handle multiple pasted tags
+        const tags = pastedData.split(/,\s?/);
+
+        // Prepend pending text to the first tag
+        if (pendingText && tags.length > 0) {
+            tags[0] = pendingText + tags[0];
+
+            // Clear the pending text from the input since we're incorporating it
+            if (inputElement) {
+                inputElement.textContent = "";
+            }
+        }
+
+        tags.forEach((tag) => {
             Edit.addTag(tag);
         });
     }
