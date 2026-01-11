@@ -80,7 +80,7 @@ Edit.handlePaste = function (event) {
 
     // Get the pending text already typed in the input field
     const inputElement = $(".tagger-new").children()[0];
-    const pendingText = inputElement ? inputElement.textContent : "";
+    const pendingText = inputElement ? inputElement.value : "";
 
     // Get pasted data via clipboard API
     const pastedData = event.originalEvent.clipboardData.getData("Text");
@@ -95,7 +95,7 @@ Edit.handlePaste = function (event) {
 
             // Clear the pending text from the input since we're incorporating it
             if (inputElement) {
-                inputElement.textContent = "";
+                inputElement.value = "";
             }
         }
 
