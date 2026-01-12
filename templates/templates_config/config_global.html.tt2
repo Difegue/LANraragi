@@ -40,7 +40,8 @@
             <option value="it" [% IF language == 'it' %]selected[% END %]>Italiano (Italian)</option>
             <option value="vi" [% IF language == 'vi' %]selected[% END %]>Tiếng Việt (Vietnamese)</option>
         </select>
-        <br>[% c.lh("Select the language for the user interface. Set to Automatic to use your browser's language preference.") %]
+        <br>[% c.lh("Select the language for the user interface. Set to Automatic to use your browser's language preference.") %] <br />
+        [% c.lh("Fully effective after restarting LANraragi.") %]
     </td>
 </tr>
 

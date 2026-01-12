@@ -9,14 +9,20 @@ use LANraragi::Utils::I18N;
 sub initialize {
     my ($app) = @_;
 
+    # Load forced language setting at startup to avoid querying Redis on every request
+    my $forced_language = $app->LRR_CONF->get_language;
+    $app->defaults( forced_language => $forced_language );
+    
+    $app->LRR_LOGGER->debug("Forced language setting: $forced_language");
+
     $app->helper(
         lh => sub {
             my ( $c, $key, @args ) = @_;
             
             my @langs = ();
             
-            # Check if there's a forced language setting
-            my $forced_language = $c->LRR_CONF->get_language;
+            # Check if there's a forced language setting (loaded at startup)
+            my $forced_language = $c->stash('forced_language');
             
             if ( $forced_language && $forced_language ne 'auto' ) {
                 # Use the forced language setting
