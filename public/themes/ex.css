@@ -261,10 +261,6 @@ tr.gtr1 {
     box-sizing: border-box;
 }
 
-select.stdinput {
-    height: 25px;
-}
-
 .stdinput:hover {
     color: #f1f1f1;
     background: #43464e

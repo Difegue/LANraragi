@@ -345,10 +345,6 @@ tr.gtr1 {
     box-sizing: border-box;
 }
 
-select.stdinput {
-    height: 25px;
-}
-
 .tagger {
     background: none repeat scroll 0 0 #fcfcfc;
     font-family: 'Inter UI', arial, sans-serif;

@@ -248,10 +248,6 @@ tr.gtr1 {
     box-sizing: border-box;
 }
 
-select.stdinput {
-    height: 25px;
-}
-
 .stdinput:hover {
     background: none repeat scroll 0 0 #F2EFDF;
     color: #9B4E03;
