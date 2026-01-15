@@ -201,16 +201,18 @@ sub get_archive_json_multi (@ids) {
 
     # Build the archive JSONs.
     for my $i ( 0 .. $#results ) {
+        my $id = $ids[$i];
 
         # If we got no results for one ID/hgetall, skip it.
         next unless ( $results[$i] );
-        my %hash = @{ $results[$i] };
-        my $id   = $ids[$i];
-        my $arcdata;
 
+        my $arcdata;
         if ( $id =~ /^TANK/ ) {
+            # For tanks, $results[$i] is just the name array from zrangebyscore, not a hash
+            # build_tank_json will fetch the full data
             $arcdata = build_tank_json($id);
         } else {
+            my %hash = @{ $results[$i] };
             $arcdata = build_json( $id, %hash );
         }
 

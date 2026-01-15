@@ -156,7 +156,7 @@ sub get_tankoubon ( $tank_id, $fulldata = 0, $page = 0 ) {
 
     # Verify if we require fulldata files or just IDs
     if ($fulldata) {
-        my @data = get_archive_json_multi(@archives);
+        my @data = LANraragi::Utils::Database::get_archive_json_multi(@archives);
         eval { $tank{archives}  = \@archives };
         eval { $tank{full_data} = \@data }
     } else {
