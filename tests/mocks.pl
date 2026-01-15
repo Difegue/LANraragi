@@ -191,7 +191,20 @@ sub setup_redis_mock {
         }
     );
     $redis->mock( 'hexists', sub { 1 } );
-    $redis->mock( 'hset',    sub { 1 } );
+    $redis->mock(
+        'hset',    # $redis->hset => set hash field value in datamodel
+        sub {
+            my $self = shift;
+            my ( $key, $field, $value ) = @_;
+
+            if ( !exists $datamodel{$key} ) {
+                $datamodel{$key} = {};
+            }
+
+            $datamodel{$key}{$field} = $value;
+            return 1;
+        }
+    );
     $redis->mock( 'quit',    sub { 1 } );
     $redis->mock( 'select',  sub { 1 } );
     $redis->mock( 'flushdb', sub { 1 } );
@@ -298,9 +311,10 @@ sub setup_redis_mock {
 
             if ( !grep { $_ eq $value } @{ $datamodel{$key} } ) {
                 push @{ $datamodel{$key} }, $value;
+                return 1;
             }
 
-            push @{ $datamodel{$key} }, $value;
+            return 0;
         }
     );
 

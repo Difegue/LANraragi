@@ -14,6 +14,7 @@ use Data::Dumper;
 use LANraragi::Model::Tankoubon;
 use LANraragi::Model::Config;
 use LANraragi::Model::Stats;
+use LANraragi::Utils::Database qw(set_tags);
 
 # Mock Redis
 my $cwd = getcwd;
@@ -135,5 +136,90 @@ ok($del_result, 'Deleted tankoubon');
 
 my ($t_del, $f_del, %tank_del) = LANraragi::Model::Tankoubon::get_tankoubon($new_tank_id);
 ok(!%tank_del, 'Tankoubon no longer exists after deletion');
+
+#################################
+# Imputed Tag Index Tests
+#################################
+
+# Create a fresh tank for index testing
+my $index_tank_id = LANraragi::Model::Tankoubon::create_tankoubon("Index Test Tank", "");
+ok($index_tank_id =~ /^TANK_\d{10}$/, 'Create index test tankoubon');
+
+# Get the search redis for checking indexes
+my $redis_search = LANraragi::Model::Config->get_redis_search;
+
+# Test: Adding archive to tank updates INDEX_* sets
+# Archive "d0be2dc421be4fcd0172e5afceea3970e2f3d940" has tag "fruit:apple"
+my $apple_archive = "d0be2dc421be4fcd0172e5afceea3970e2f3d940";
+my ($add_result, $add_err) = LANraragi::Model::Tankoubon::add_to_tankoubon($index_tank_id, $apple_archive);
+ok($add_result, 'Added apple archive to tank');
+
+# Check that tank is now in INDEX_fruit:apple
+my @apple_index = $redis_search->smembers("INDEX_fruit:apple");
+ok((grep { $_ eq $index_tank_id } @apple_index), 'Tank added to INDEX_fruit:apple after adding archive');
+
+# Test: Adding second archive with different tag updates indexes
+# Archive "250e77f12a5ab6972a0895d290c4792f0a326ea8" has tag "fruit:banana"
+my $banana_archive = "250e77f12a5ab6972a0895d290c4792f0a326ea8";
+($add_result, $add_err) = LANraragi::Model::Tankoubon::add_to_tankoubon($index_tank_id, $banana_archive);
+ok($add_result, 'Added banana archive to tank');
+
+my @banana_index = $redis_search->smembers("INDEX_fruit:banana");
+ok((grep { $_ eq $index_tank_id } @banana_index), 'Tank added to INDEX_fruit:banana after adding archive');
+
+# Tank should still be in apple index
+@apple_index = $redis_search->smembers("INDEX_fruit:apple");
+ok((grep { $_ eq $index_tank_id } @apple_index), 'Tank still in INDEX_fruit:apple');
+
+# Test: Removing archive removes tank from index (if no other archive has that tag)
+my ($rm_result2, $rm_err2) = LANraragi::Model::Tankoubon::remove_from_tankoubon($index_tank_id, $apple_archive);
+ok($rm_result2, 'Removed apple archive from tank');
+
+@apple_index = $redis_search->smembers("INDEX_fruit:apple");
+ok(!(grep { $_ eq $index_tank_id } @apple_index), 'Tank removed from INDEX_fruit:apple after removing archive');
+
+# Tank should still be in banana index
+@banana_index = $redis_search->smembers("INDEX_fruit:banana");
+ok((grep { $_ eq $index_tank_id } @banana_index), 'Tank still in INDEX_fruit:banana');
+
+# Test: Modifying archive tags updates tank indexes
+# Change banana archive's tags to "fruit:elderberry"
+set_tags($banana_archive, "fruit:elderberry");
+
+# Tank should now be in elderberry index
+my @elderberry_index = $redis_search->smembers("INDEX_fruit:elderberry");
+ok((grep { $_ eq $index_tank_id } @elderberry_index), 'Tank added to INDEX_fruit:elderberry after archive tag change');
+
+# Tank should be removed from banana index
+@banana_index = $redis_search->smembers("INDEX_fruit:banana");
+ok(!(grep { $_ eq $index_tank_id } @banana_index), 'Tank removed from INDEX_fruit:banana after archive tag change');
+
+# Test: Tank's own tags are also in indexes
+my ($meta_result2, $meta_err2) = LANraragi::Model::Tankoubon::update_metadata($index_tank_id, {
+    metadata => {
+        tags => "series:test series"
+    }
+});
+ok($meta_result2, 'Updated tank own tags');
+
+my @series_index = $redis_search->smembers("INDEX_series:test series");
+ok((grep { $_ eq $index_tank_id } @series_index), 'Tank in INDEX for its own tags');
+
+# Test: Bulk update_archive_list handles index updates
+# Add cherry archive, remove elderberry (banana) archive
+my $cherry_archive = "7e41c6480852a4a914e48c7a3a4084f193e963d9";
+my ($bulk_result, $bulk_err) = LANraragi::Model::Tankoubon::update_archive_list($index_tank_id, {
+    archives => [$cherry_archive]
+});
+ok($bulk_result, 'Bulk updated archive list');
+
+my @cherry_index = $redis_search->smembers("INDEX_fruit:cherry");
+ok((grep { $_ eq $index_tank_id } @cherry_index), 'Tank in INDEX_fruit:cherry after bulk update');
+
+@elderberry_index = $redis_search->smembers("INDEX_fruit:elderberry");
+ok(!(grep { $_ eq $index_tank_id } @elderberry_index), 'Tank removed from INDEX_fruit:elderberry after bulk update');
+
+# Cleanup
+LANraragi::Model::Tankoubon::delete_tankoubon($index_tank_id);
 
 done_testing();

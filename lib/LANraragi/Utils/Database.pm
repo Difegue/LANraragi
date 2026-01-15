@@ -25,6 +25,7 @@ use LANraragi::Utils::Logging qw(get_logger);
 use LANraragi::Utils::Path    qw(create_path open_path_or_die date_modified get_archive_path);
 
 use LANraragi::Model::Config;
+use LANraragi::Model::Tankoubon;
 
 # Functions for interacting with the DB Model.
 use Exporter 'import';
@@ -457,6 +458,9 @@ sub set_tags ( $id, $newtags, $append = 0 ) {
     my $oldtags = $redis->hget( $id, "tags" );
     $oldtags = LANraragi::Utils::Redis::redis_decode($oldtags);
 
+    # Save original old tags for tank index update (before append modifies $oldtags)
+    my $original_oldtags = $oldtags // "";
+
     if ($append) {
 
         # If the new tags are empty, don't do anything
@@ -478,6 +482,12 @@ sub set_tags ( $id, $newtags, $append = 0 ) {
 
     $redis->hset( $id, "tags", LANraragi::Utils::Redis::redis_encode($newtags) );
     $redis->quit;
+
+    # Update imputed tag indexes for any tanks containing this archive
+    my @old_tags_array = split_tags_to_array($original_oldtags);
+    foreach my $tank_id ( LANraragi::Model::Tankoubon::get_tankoubons_containing_archive($id) ) {
+        LANraragi::Model::Tankoubon::update_tank_imputed_indexes( $tank_id, \@old_tags_array );
+    }
 
     invalidate_cache();
 }
