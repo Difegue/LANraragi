@@ -283,7 +283,6 @@ sub build_tank_json ($id) {
     my %tank = LANraragi::Model::Tankoubon::get_tankoubon( $id, 1 );
 
     # Aggregate data of all archives in the tank
-    my $aggregate_tags      = "";
     my $aggregate_names     = "";
     my $aggregate_isnew     = 0;
     my $aggregate_progress  = 0;
@@ -291,8 +290,9 @@ sub build_tank_json ($id) {
     my $latest_readtime     = 0;
     my $aggregate_size      = 0;
 
+    my @archive_tag_strings;
     foreach my $archive_info ( @{ $tank{full_data} } ) {
-        $aggregate_tags  .= %$archive_info{tags} . ",";
+        push @archive_tag_strings, %$archive_info{tags} // "";
         $aggregate_names .= %$archive_info{title} . ",";
         $aggregate_isnew     = $aggregate_isnew || %$archive_info{isnew};
         $aggregate_progress  = $aggregate_progress + %$archive_info{progress};
@@ -301,17 +301,11 @@ sub build_tank_json ($id) {
         $latest_readtime     = max( $latest_readtime, %$archive_info{lastreadtime} );
     }
 
-    chop $aggregate_tags;
     chop $aggregate_names;
 
-    # Include tank's own tags and deduplicate
-    my $tank_own_tags = $tank{tags} || "";
-    my $all_tags = $tank_own_tags ne "" ? "$tank_own_tags,$aggregate_tags" : $aggregate_tags;
-
-    # Deduplicate tags: split, trim whitespace, remove empty, keep first occurrence
-    my %seen;
-    my @unique_tags = grep { $_ ne "" && !$seen{$_}++ } map { s/^\s+|\s+$//gr } split( /,/, $all_tags );
-    my $deduped_tags = join( ",", @unique_tags );
+    # Get unified tagset using shared function
+    my $tagset = LANraragi::Model::Tankoubon::get_tank_unified_tags( $id, \@archive_tag_strings );
+    my $deduped_tags = join( ",", @{ $tagset->{own_tags} }, @{ $tagset->{imputed_tags} } );
 
     # Use the first archive's thumbnail for the tank thumbnail
     my $thumb_archive = scalar @{ $tank{archives} } > 0 ? $tank{archives}[0] : "";

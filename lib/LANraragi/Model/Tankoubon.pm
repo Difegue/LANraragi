@@ -15,6 +15,7 @@ use LANraragi::Utils::Database qw(invalidate_cache get_archive_json_multi get_ta
 use LANraragi::Utils::Generic  qw(array_difference filter_hash_by_keys);
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Redis    qw(redis_decode redis_encode);
+use LANraragi::Utils::String   qw(trim);
 
 my %TANK_METADATA = ( "name", 0, "summary", -1, "tags", -2 );
 
@@ -534,6 +535,62 @@ sub fetch_metadata_fields ($tank_id) {
     }
 
     return %metadata;
+}
+
+# get_tank_unified_tags(tank_id, archive_tags_list)
+#   Computes the unified tagset for a tank.
+#   Parameters:
+#     $tank_id - The tank ID
+#     $archive_tags_list - Optional arrayref of archive tag strings. If not provided, fetches from DB.
+#   Returns: Hashref with:
+#     own_tags     => arrayref of tank's own tags (trimmed)
+#     imputed_tags => arrayref of archive tags, deduplicated, excluding own_tags
+sub get_tank_unified_tags ( $tank_id, $archive_tags_list = undef ) {
+    my $redis = LANraragi::Model::Config->get_redis;
+
+    # Get tank's own tags from ZSET score -2
+    my @raw_tank_tags = $redis->zrangebyscore( $tank_id, -2, -2 );
+    my $tank_tags_str = "";
+    if ( @raw_tank_tags && $raw_tank_tags[0] =~ /^tags_(.*)/ ) {
+        $tank_tags_str = redis_decode($1) // "";
+    }
+
+    # Parse and trim tank's own tags
+    my @own_tags = grep { $_ ne "" } map { trim($_) } split( /,/, $tank_tags_str );
+
+    # Get archive tags if not provided
+    if ( !defined $archive_tags_list ) {
+        my @archives = $redis->zrangebyscore( $tank_id, 1, "+inf" );
+        $archive_tags_list = [];
+        foreach my $arc_id (@archives) {
+            if ( $redis->hexists( $arc_id, "tags" ) ) {
+                push @$archive_tags_list, redis_decode( $redis->hget( $arc_id, "tags" ) );
+            }
+        }
+    }
+
+    $redis->quit;
+
+    # Build set of own tags for deduplication (case-insensitive)
+    my %own_tags_lc = map { lc($_) => 1 } @own_tags;
+
+    # Parse archive tags, deduplicate, exclude own_tags
+    my %seen;
+    my @imputed_tags;
+    foreach my $tags_str (@$archive_tags_list) {
+        next unless defined $tags_str && $tags_str ne "";
+        foreach my $t ( split( /,/, $tags_str ) ) {
+            $t = trim($t);
+            next if $t eq "";
+            my $t_lc = lc($t);
+            # Skip if already seen or if it's in own_tags
+            next if $seen{$t_lc}++;
+            next if $own_tags_lc{$t_lc};
+            push @imputed_tags, $t;
+        }
+    }
+
+    return { own_tags => \@own_tags, imputed_tags => \@imputed_tags };
 }
 
 1;

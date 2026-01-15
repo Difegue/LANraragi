@@ -72,11 +72,14 @@ sub build_stat_hashes {
     foreach my $tank (@tanks) {
 
         my $tank_id       = %$tank{id};
-        my $tank_title    = lc( %$tank{name} );
         my @tank_archives = @{ %$tank{archives} };
 
-        # Add the tank name to LRR_TITLES so it shows up in tagless searches when tank grouping is enabled.
+        # Normalize and add the tank name to LRR_TITLES so it shows up in tagless searches when tank grouping is enabled.
         # (This does nothing if the tank is empty, as it won't be in LRR_TANKGROUPED)
+        my $tank_title = lc( %$tank{name} );
+        $tank_title = trim($tank_title);
+        $tank_title = trim_CRLF($tank_title);
+        $tank_title = redis_encode($tank_title);
         $redistx->zadd( "LRR_TITLES", 0, "$tank_title\0$tank_id" );
 
         if ( scalar @tank_archives == 0 ) {
@@ -93,10 +96,21 @@ sub build_stat_hashes {
             index_tags_for_id( $redis, $redistx, $tank_id, $arcid );
         }
 
-        # Decode and lowercase the title
-        $tank_title = trim($tank_title);
-        $tank_title = trim_CRLF($tank_title);
-        $tank_title = redis_encode($tank_title);
+        # Index tank's own tags (count in stats and add to tag indexes)
+        my $tagset = LANraragi::Model::Tankoubon::get_tank_unified_tags($tank_id);
+        foreach my $t ( @{ $tagset->{own_tags} } ) {
+            my $redis_tag = redis_encode( lc($t) );
+            $redistx->zincrby( "LRR_STATS", 1, $redis_tag );
+            $logger->trace("Adding $tank_id to the index for tank tag $redis_tag");
+            $redistx->sadd( "INDEX_" . $redis_tag, $tank_id );
+        }
+
+        # Index imputed tags under tank (already counted via archive processing above)
+        foreach my $t ( @{ $tagset->{imputed_tags} } ) {
+            my $redis_tag = redis_encode( lc($t) );
+            $logger->trace("Adding $tank_id to the index for imputed tag $redis_tag");
+            $redistx->sadd( "INDEX_" . $redis_tag, $tank_id );
+        }
     }
 
     foreach my $id (@keys) {
