@@ -69,6 +69,10 @@ TankoubonView.init = function(id) {
 
         // Preload tag suggestions for autocomplete
         TankoubonView.loadTagSuggestions();
+
+        // Category add/remove handlers
+        $(document).on("click.add-category", "#add-category", TankoubonView.addCategory);
+        $(document).on("click.remove-category", ".remove-category", TankoubonView.removeCategory);
     }
 
     // 0 = List/table view
@@ -620,4 +624,48 @@ TankoubonView.saveOrder = function() {
             });
         }
     );
+};
+
+/**
+ * Add tankoubon to a category
+ */
+TankoubonView.addCategory = function(e) {
+    e.preventDefault();
+    const categoryId = $("#add-category-select").val();
+
+    // Don't add if no category selected or already in category
+    if (categoryId === "" || $(`#tankoubon-categories a[data-id="${categoryId}"]`).length !== 0) {
+        return;
+    }
+
+    Server.addArchiveToCategory(TankoubonView.id, categoryId);
+    TankoubonView.addCategoryBadge(categoryId);
+};
+
+/**
+ * Remove tankoubon from a category
+ */
+TankoubonView.removeCategory = function(e) {
+    e.preventDefault();
+    const categoryId = $(e.target).attr("data-id");
+
+    Server.removeArchiveFromCategory(TankoubonView.id, categoryId);
+    $(e.target).closest(".gt").remove();
+};
+
+/**
+ * Add a category badge to the categories display
+ * @param {string} categoryId Category ID
+ */
+TankoubonView.addCategoryBadge = function(categoryId) {
+    const categoryName = $(`#add-category-select option[value="${categoryId}"]`).text();
+    const url = new LRR.apiURL(`/?c=${categoryId}`);
+    const html = `<div class="gt" style="font-size:14px; padding:4px">
+        <a href="${url}">
+            <span class="label">${categoryName}</span>
+        </a>
+        <a href="#" class="remove-category" data-id="${categoryId}"
+            style="margin-left:4px; margin-right:2px">×</a>
+    </div>`;
+    $("#tankoubon-categories").append(html);
 };

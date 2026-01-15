@@ -202,6 +202,13 @@ msgstr "新增動態分類"
 
 # ------End of Category.html.tt2------
 # ------Start of Config.html.tt2------
+
+msgid "Tankoubons"
+msgstr ""
+
+msgid "Archives"
+msgstr ""
+
 msgid "Admin Settings"
 msgstr "管理員設定"
 
@@ -315,6 +322,16 @@ msgstr "此操作將刪除舊檔案的中繼資料！請小心使用。"
 
 # ------End of Config_Files.html.tt2------
 # ------Start of Config_Global.html.tt2------
+
+msgid "Language"
+msgstr ""
+
+msgid "Automatic (browser default)"
+msgstr ""
+
+msgid "Select the language for the user interface. Set to Automatic to use your browser's language preference."
+msgstr ""
+
 msgid "Site Title"
 msgstr "網站標題"
 
@@ -1382,6 +1399,9 @@ msgid "Archive order saved!"
 msgstr ""
 
 msgid "Error saving archive order"
+msgstr ""
+
+msgid "Add Tankoubon to Category"
 msgstr ""
 
 msgid "Remove from Tankoubon"

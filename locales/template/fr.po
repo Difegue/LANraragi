@@ -361,6 +361,16 @@ msgstr ""
 
 # ------End of Config_Files.html.tt2------
 # ------Start of Config_Global.html.tt2------
+
+msgid "Language"
+msgstr ""
+
+msgid "Automatic (browser default)"
+msgstr ""
+
+msgid "Select the language for the user interface. Set to Automatic to use your browser's language preference."
+msgstr ""
+
 msgid "Site Title"
 msgstr "Titre du site"
 
@@ -1515,6 +1525,9 @@ msgstr ""
 msgid "Error saving archive order"
 msgstr ""
 
+msgid "Add Tankoubon to Category"
+msgstr ""
+
 msgid "Remove from Tankoubon"
 msgstr ""
 
@@ -2017,6 +2030,12 @@ msgstr "Nouvelle catégorie statique"
 
 msgid "New Dynamic Category"
 msgstr "Nouvelle catégorie dynamique"
+
+msgid "Tankoubons"
+msgstr ""
+
+msgid "Archives"
+msgstr ""
 
 msgid "No duplicates found!"
 msgstr "Aucun doublon trouvé !"

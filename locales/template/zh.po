@@ -310,6 +310,16 @@ msgstr "这将删除旧文件的元数据！请谨慎使用。"
 
 # ------End of Config_Files.html.tt2------
 # ------Start of Config_Global.html.tt2------
+
+msgid "Language"
+msgstr ""
+
+msgid "Automatic (browser default)"
+msgstr ""
+
+msgid "Select the language for the user interface. Set to Automatic to use your browser's language preference."
+msgstr ""
+
 msgid "Site Title"
 msgstr "站点标题"
 
@@ -1354,6 +1364,9 @@ msgstr ""
 msgid "Error saving archive order"
 msgstr ""
 
+msgid "Add Tankoubon to Category"
+msgstr ""
+
 msgid "Remove from Tankoubon"
 msgstr ""
 
@@ -1792,6 +1805,12 @@ msgstr "新建静态分类"
 
 msgid "New Dynamic Category"
 msgstr "新建动态分类"
+
+msgid "Tankoubons"
+msgstr ""
+
+msgid "Archives"
+msgstr ""
 
 msgid "Plugin Settings"
 msgstr "插件设置"

@@ -700,46 +700,53 @@ LRR.copyToClipboard = function (text) {
 /**
  * Build category list for contextMenu and checkoff the ones the given ID belongs to.
  * @param {*} catList The list of categories, obtained statically
- * @param {*} id The ID of the archive to check
+ * @param {*} id The ID of the archive or tankoubon to check
  * @returns Categories
  */
-LRR.loadContextMenuCategories = (catList, id) => Server.callAPI(`/api/archives/${id}/categories`, "GET", null, I18N.IndexIdLoadError(id),
-    (data) => {
-        const items = {};
+LRR.loadContextMenuCategories = (catList, id) => {
+    // Use different endpoint for tankoubons vs archives
+    const endpoint = id.startsWith("TANK_")
+        ? `/api/tankoubons/${id}/categories`
+        : `/api/archives/${id}/categories`;
 
-        for (let i = 0; i < catList.length; i++) {
-            const catId = catList[i].id;
+    return Server.callAPI(endpoint, "GET", null, I18N.IndexIdLoadError(id),
+        (data) => {
+            const items = {};
 
-            // If the category is also in the API results,
-            // we can pre-check it when creating the checkbox
-            const isSelected = data.categories.map((x) => x.id).includes(catId);
-            items[catId] = { name: catList[i].name, type: "checkbox" };
-            if (isSelected) { items[catId].selected = true; }
+            for (let i = 0; i < catList.length; i++) {
+                const catId = catList[i].id;
 
-            items[catId].events = {
-                click() {
-                    if ($(this).is(":checked")) {
-                        Server.addArchiveToCategory(id, catId);
-                        if (typeof Index !== "undefined" && catId === localStorage.getItem("bookmarkCategoryId")) {
-                            Index.bookmarkIconOn(id);
+                // If the category is also in the API results,
+                // we can pre-check it when creating the checkbox
+                const isSelected = data.categories.map((x) => x.id).includes(catId);
+                items[catId] = { name: catList[i].name, type: "checkbox" };
+                if (isSelected) { items[catId].selected = true; }
+
+                items[catId].events = {
+                    click() {
+                        if ($(this).is(":checked")) {
+                            Server.addArchiveToCategory(id, catId);
+                            if (typeof Index !== "undefined" && catId === localStorage.getItem("bookmarkCategoryId")) {
+                                Index.bookmarkIconOn(id);
+                            }
+                        } else {
+                            Server.removeArchiveFromCategory(id, catId);
+                            if (typeof Index !== "undefined" && catId === localStorage.getItem("bookmarkCategoryId")) {
+                                Index.bookmarkIconOff(id);
+                            }
                         }
-                    } else {
-                        Server.removeArchiveFromCategory(id, catId);
-                        if (typeof Index !== "undefined" && catId === localStorage.getItem("bookmarkCategoryId")) {
-                            Index.bookmarkIconOff(id);
-                        }
-                    }
-                },
-            };
-        }
+                    },
+                };
+            }
 
-        if (Object.keys(items).length === 0) {
-            items.noop = { name: I18N.IndexNoCategories, icon: "far fa-sad-cry" };
-        }
+            if (Object.keys(items).length === 0) {
+                items.noop = { name: I18N.IndexNoCategories, icon: "far fa-sad-cry" };
+            }
 
-        return items;
-    },
-);
+            return items;
+        },
+    );
+};
 
 /**
  * Build rating options for contextMenu and select the one for the current ID.

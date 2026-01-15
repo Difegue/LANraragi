@@ -254,19 +254,21 @@
 
 					items["delete"] = { name: "[% c.lh('Delete') %]", icon: "fas fa-trash-alt" };
 
-					// Rating and Categories only for archives
+					// Rating only for archives
 					if (!isTankoubon) {
 						items["rating"] = {
 							"name": "[% c.lh('Add Rating') %]",
 							"icon": "fas fa-star",
 							"items": LRR.loadContextMenuRatings(id)
 						};
-						items["collections"] = {
-							"name": "[% c.lh('Add to Category') %]",
-							"icon": "fas fa-search-plus",
-							"items": LRR.loadContextMenuCategories(catList, id)
-						};
 					}
+
+					// Categories for both archives and tankoubons
+					items["collections"] = {
+						"name": "[% c.lh('Add to Category') %]",
+						"icon": "fas fa-search-plus",
+						"items": LRR.loadContextMenuCategories(catList, id)
+					};
 					[% END %]
 
 					return {

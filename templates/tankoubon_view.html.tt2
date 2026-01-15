@@ -142,6 +142,37 @@
 
 			<!-- Count (not editable) -->
 			<div id="tankoubon-count" style="font-size: 10pt; color: #888;"></div>
+
+			<!-- Categories section (logged in users only) -->
+			[% IF userlogged %]
+			<div id="categories-section" style="margin-top: 15px;">
+				<div class="field-label" style="font-weight: bold; margin-bottom: 4px;">
+					[% c.lh("Categories:") %]
+				</div>
+
+				<div id="tankoubon-categories" style="display:inline-block">
+					[% FOREACH tank_categories %]
+					<div class="gt" style="font-size:14px; padding:4px">
+						<a href="[% c.url_for("/").query("c=$id") %]">
+							<span class="label">[% name %]</span>
+						</a>
+						<a href="#" class="remove-category" data-id="[% id %]"
+							style="margin-left:4px; margin-right:2px">×</a>
+					</div>
+					[% END %]
+				</div>
+
+				<br />
+				<span>[% c.lh("Add to : ") %]</span>
+				<select id="add-category-select" class="favtag-btn" style="width:200px; margin-right: 8px">
+					<option selected value="">[% c.lh(" -- No Category -- ") %]</option>
+					[% FOREACH categories %]
+					<option value="[% id %]">[% name %]</option>
+					[% END %]
+				</select>
+				<a class="fas fa-plus" id="add-category" href="#" title="[% c.lh('Add Tankoubon to Category') %]"></a>
+			</div>
+			[% END %]
 		</div>
 
 		<div class="table-options" style="display: none; justify-content: space-between; align-items: center; margin-bottom: 10px;">

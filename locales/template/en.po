@@ -190,6 +190,12 @@ msgstr "New Static Category"
 msgid "New Dynamic Category"
 msgstr "New Dynamic Category"
 
+msgid "Tankoubons"
+msgstr "Tankoubons"
+
+msgid "Archives"
+msgstr "Archives"
+
 # ------End of Category.html.tt2------
 
 # ------Start of Config.html.tt2------
@@ -1447,6 +1453,9 @@ msgstr "Tankoubon deleted"
 
 msgid "Error deleting tankoubon"
 msgstr "Error deleting tankoubon"
+
+msgid "Add Tankoubon to Category"
+msgstr "Add Tankoubon to Category"
 
 msgid "New archive"
 msgstr "New archive"

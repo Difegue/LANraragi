@@ -6,7 +6,19 @@ use Encode;
 
 use LANraragi::Model::Category;
 use LANraragi::Model::Config;
+use LANraragi::Model::Tankoubon;
 use LANraragi::Utils::Generic qw(render_api_response exec_with_lock);
+
+# Helper to get title for archive OR tankoubon
+sub _get_item_title {
+    my $id = shift;
+    if ( $id =~ /^TANK_/ ) {
+        my ( $total, $filtered, %tank ) = LANraragi::Model::Tankoubon::get_tankoubon($id);
+        return $tank{name} if %tank;
+        return undef;
+    }
+    return LANraragi::Model::Archive::get_title($id);
+}
 
 sub get_category_list {
 
@@ -126,7 +138,7 @@ sub add_to_category {
             if ($result) {
                 my $successMessage = "Added $arcid to Category $catid!";
                 my %category       = LANraragi::Model::Category::get_category($catid);
-                my $title          = LANraragi::Model::Archive::get_title($arcid);
+                my $title          = _get_item_title($arcid);
 
                 if ( %category && defined($title) ) {
                     $successMessage = "Added \"$title\" to category \"$category{name}\"!";
@@ -157,7 +169,7 @@ sub remove_from_category {
             if ($result) {
                 my $successMessage = "Removed $arcid from Category $catid!";
                 my %category       = LANraragi::Model::Category::get_category($catid);
-                my $title          = LANraragi::Model::Archive::get_title($arcid);
+                my $title          = _get_item_title($arcid);
 
                 if ( %category && defined($title) ) {
                     $successMessage = "Removed \"$title\" from category \"$category{name}\"!";

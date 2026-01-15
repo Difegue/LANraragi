@@ -46,8 +46,11 @@ sub view {
 
     my $userlogged = $self->LRR_CONF->enable_pass == 0 || $self->session('is_logged');
 
-    # Get static category list for the context menu
+    # Get static category list for the add-to-category dropdown and context menu
     my @categories = LANraragi::Model::Category->get_static_category_list;
+
+    # Get categories this tankoubon belongs to
+    my @tank_categories = LANraragi::Model::Category::get_categories_containing_archive($id);
 
     # Get query string from referrer URL for the return link
     my $referrer = $self->req->headers->referrer;
@@ -58,14 +61,15 @@ sub view {
     }
 
     $self->render(
-        template   => "tankoubon_view",
-        title      => $self->LRR_CONF->get_htmltitle,
-        id         => $id,
-        categories => \@categories,
-        csshead    => generate_themes_header($self),
-        version    => $self->LRR_VERSION,
-        ref_query  => $query,
-        userlogged => $userlogged
+        template        => "tankoubon_view",
+        title           => $self->LRR_CONF->get_htmltitle,
+        id              => $id,
+        categories      => \@categories,
+        tank_categories => \@tank_categories,
+        csshead         => generate_themes_header($self),
+        version         => $self->LRR_VERSION,
+        ref_query       => $query,
+        userlogged      => $userlogged
     );
 }
 

@@ -128,9 +128,21 @@
                     <h2>[% c.lh("If you select a Static Category, your archives will appear here so you can add/remove them from the category.") %]</h2>
                 </div>
 
-                <ul id="archivelist" class='checklist' style="display:none">
-                    [% arclist %]
-                </ul>
+                <div id="staticcontent" class="checklist" style="display:none;">
+                    <div id="tankoubonsection" style="margin-bottom: 10px;">
+                        <h3 style="margin-top: 0;">[% c.lh("Tankoubons") %]</h3>
+                        <ul id="tankoubonlist" style="list-style: none; padding-left: 0; margin: 0;">
+                            [% tanklist %]
+                        </ul>
+                    </div>
+
+                    <div id="archivesection">
+                        <h3>[% c.lh("Archives") %]</h3>
+                        <ul id="archivelist" style="list-style: none; padding-left: 0; margin: 0;">
+                            [% arclist %]
+                        </ul>
+                    </div>
+                </div>
             </div>
             <br><br>
         </div>

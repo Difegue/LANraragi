@@ -188,6 +188,7 @@ sub apply_routes {
     # Tankoubon API
     $public_api->get('/api/tankoubons')->to('api-tankoubon#get_tankoubon_list');
     $public_api->get('/api/tankoubons/:id')->to('api-tankoubon#get_tankoubon');
+    $public_api->get('/api/tankoubons/:id/categories')->to('api-tankoubon#get_categories');
     $logged_in_api->put('/api/tankoubons')->to('api-tankoubon#create_tankoubon');
     $logged_in_api->put('/api/tankoubons/:id')->to('api-tankoubon#update_tankoubon');
     $logged_in_api->delete('/api/tankoubons/:id')->to('api-tankoubon#delete_tankoubon');
