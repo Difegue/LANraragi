@@ -230,31 +230,51 @@
 			$.contextMenu({
 				selector: '.context-menu',
 				build: ($trigger, e) => {
+					const id = $trigger.attr("id");
+					const isTankoubon = id.startsWith("TANK_");
+
+					const items = {
+						"read": { name: "[% c.lh('Read') %]", icon: "fas fa-book" },
+					};
+
+					// Download only for archives
+					if (!isTankoubon) {
+						items["download"] = { name: "[% c.lh('Download') %]", icon: "fas fa-save" };
+					}
+
+					items["copy link"] = { name: "[% c.lh('Copy link') %]", icon: "fas fa-link" };
+
+					[% IF userlogged %]
+					items["sep1"] = "---------";
+
+					// Edit Metadata only for archives
+					if (!isTankoubon) {
+						items["edit"] = { name: "[% c.lh('Edit Metadata') %]", icon: "fas fa-pencil-alt" };
+					}
+
+					items["delete"] = { name: "[% c.lh('Delete') %]", icon: "fas fa-trash-alt" };
+
+					// Rating and Categories only for archives
+					if (!isTankoubon) {
+						items["rating"] = {
+							"name": "[% c.lh('Add Rating') %]",
+							"icon": "fas fa-star",
+							"items": LRR.loadContextMenuRatings(id)
+						};
+						items["collections"] = {
+							"name": "[% c.lh('Add to Category') %]",
+							"icon": "fas fa-search-plus",
+							"items": LRR.loadContextMenuCategories(catList, id)
+						};
+					}
+					[% END %]
+
 					return {
 						callback: function (key, options) {
-							LRR.handleContextMenu(key, $(this).attr("id"));
+							LRR.handleContextMenu(key, id);
 						},
-						items: {
-							"read": { name: "[% c.lh('Read') %]", icon: "fas fa-book" },
-							"download": { name: "[% c.lh('Download') %]", icon: "fas fa-save" },
-							"copy link": { name: "[% c.lh('Copy link') %]", icon: "fas fa-link" },
-							[% IF userlogged %]
-							"sep1": "---------",
-							"edit": { name: "[% c.lh('Edit Metadata') %]", icon: "fas fa-pencil-alt" },
-							"delete": { name: "[% c.lh('Delete') %]", icon: "fas fa-trash-alt" },
-							"rating": {
-							    "name": "[% c.lh('Add Rating') %]",
-							    "icon": "fas fa-star",
-							    "items": LRR.loadContextMenuRatings($trigger.attr("id"))
-							},
-							"collections": {
-								"name": "[% c.lh('Add to Category') %]",
-								"icon": "fas fa-search-plus",
-								"items": LRR.loadContextMenuCategories(catList, $trigger.attr("id"))
-							}
-							[% END %]
-						}
-					}
+						items: items
+					};
 				}
 			});
 		});

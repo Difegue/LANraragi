@@ -662,13 +662,15 @@ LRR.handleContextMenu = function (option, id, refreshCallback) {
         });
         break;
     case "read":
-        LRR.openInNewTab(new LRR.apiURL(`/reader?id=${id}`));
+        // TODO: Once reader supports tankoubons, change to /reader?tank_id=${id}
+        LRR.openInNewTab(LRR.getItemViewURL(id));
         break;
     case "download":
         LRR.openInNewTab(new LRR.apiURL(`/api/archives/${id}/download`));
         break;
     case "copy link":
-        LRR.copyToClipboard(`${window.location.origin}${new LRR.apiURL(`/reader?id=${id}`)}`);
+        // TODO: Once reader supports tankoubons, change to use reader URL
+        LRR.copyToClipboard(`${window.location.origin}${LRR.getItemViewURL(id)}`);
         break;
     default:
         break;
