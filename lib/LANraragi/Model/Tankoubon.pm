@@ -9,13 +9,15 @@ use utf8;
 
 use Redis;
 use Mojo::JSON qw(decode_json encode_json);
-use List::Util qw(min);
+use List::Util      qw(min);
+use List::MoreUtils qw(uniq);
 
-use LANraragi::Utils::Database qw(invalidate_cache get_archive_json_multi get_tankoubons_by_file);
+use LANraragi::Utils::Database qw(invalidate_cache get_archive_json_multi get_tankoubons_by_file update_indexes);
 use LANraragi::Utils::Generic  qw(array_difference filter_hash_by_keys);
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Redis    qw(redis_decode redis_encode);
 use LANraragi::Utils::String   qw(trim);
+use LANraragi::Utils::Tags     qw(join_tags_to_string split_tags_to_array);
 
 my %TANK_METADATA = ( "name", 0, "summary", -1, "tags", -2 );
 
@@ -260,10 +262,11 @@ sub update_metadata ( $tank_id, $data ) {
         }
 
         if ( defined $tags ) {
-            update_metadata_field( $tank_id, "tags", $tags );
+            set_tank_tags( $tank_id, $tags );
         }
 
         $redis->quit;
+        invalidate_cache();
         return ( 1, $err );
     }
 
@@ -272,7 +275,6 @@ sub update_metadata ( $tank_id, $data ) {
     $err = "$tank_id doesn't exist in the database!";
     $logger->warn($err);
 
-    invalidate_cache();
     return ( 0, $err );
 }
 
@@ -512,6 +514,53 @@ sub update_metadata_field ( $tank_id, $field, $value ) {
     $redis->zadd( $tank_id, $TANK_METADATA{$field}, redis_encode("${field}_${value}") );
 
     return 1;
+}
+
+# set_tank_tags(tank_id, newtags, append)
+#   Set tags for a tankoubon, updating search indexes.
+#   Set $append to 1 to append tags instead of replacing.
+#   Returns 1 on success, 0 on failure with error message.
+sub set_tank_tags ( $tank_id, $newtags, $append = 0 ) {
+
+    my $logger = get_logger( "Tankoubon", "lanraragi" );
+    my $redis  = LANraragi::Model::Config->get_redis;
+
+    unless ( $redis->exists($tank_id) ) {
+        $redis->quit;
+        my $err = "$tank_id doesn't exist in the database!";
+        $logger->warn($err);
+        return ( 0, $err );
+    }
+
+    # Get old tags from ZSET score -2
+    my @raw = $redis->zrangebyscore( $tank_id, -2, -2 );
+    my $oldtags = "";
+    if ( @raw && $raw[0] =~ /^tags_(.*)/ ) {
+        $oldtags = redis_decode($1) // "";
+    }
+    $redis->quit;
+
+    if ($append) {
+
+        # If the new tags are empty, don't do anything
+        unless ( length $newtags ) { return ( 1, "" ); }
+
+        if ( $oldtags ne "" ) {
+            $newtags = $oldtags . "," . $newtags;
+        }
+    }
+
+    # Deduplicate tags
+    $newtags = join_tags_to_string( uniq( split_tags_to_array($newtags) ) );
+
+    # Update search indexes
+    update_indexes( $tank_id, $oldtags, $newtags );
+
+    # Update the ZSET
+    update_metadata_field( $tank_id, "tags", $newtags );
+
+    invalidate_cache();
+    return ( 1, "" );
 }
 
 sub fetch_metadata_fields ($tank_id) {

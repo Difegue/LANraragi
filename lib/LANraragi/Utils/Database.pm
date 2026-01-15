@@ -31,7 +31,7 @@ use Exporter 'import';
 our @EXPORT_OK = qw(
   invalidate_cache compute_id change_archive_id set_tags set_title set_summary set_isnew get_computed_tagrules save_computed_tagrules get_tankoubons_by_file
   get_archive get_archive_json get_archive_json_multi get_tags get_arcsize add_arcsize add_pagecount add_timestamp_tag add_archive_to_redis
-  redis_decode redis_encode
+  redis_decode redis_encode update_indexes
 );
 
 # Creates a DB entry for a file path with the given ID.
@@ -523,10 +523,12 @@ sub update_indexes ( $id, $oldtags, $newtags ) {
     my @oldtags  = split( /,\s?/, $oldtags // "" );
     my @newtags  = split( /,\s?/, $newtags // "" );
     my $has_tags = 0;
+    my $is_tank  = $id =~ /^TANK/;
 
     foreach my $tag (@oldtags) {
 
-        if ( $tag =~ /source:(.*)/i ) {
+        # Tanks don't participate in URL mapping
+        if ( !$is_tank && $tag =~ /source:(.*)/i ) {
             my $url = trim_url($1);
             $redis->hdel( "LRR_URLMAP", $url );
         }
@@ -544,8 +546,8 @@ sub update_indexes ( $id, $oldtags, $newtags ) {
         # The following are basic and therefore don't count as "tagged"
         $has_tags = 1 unless $tag =~ /(artist|parody|series|language|event|group|date_added|timestamp|source):.*/;
 
-        # If the tag is a source: tag, add it to the URL index
-        if ( $tag =~ /source:(.*)/i ) {
+        # Tanks don't participate in URL mapping
+        if ( !$is_tank && $tag =~ /source:(.*)/i ) {
             my $url = trim_url($1);
             $redis->hset( "LRR_URLMAP", $url, $id );
         }
@@ -557,11 +559,13 @@ sub update_indexes ( $id, $oldtags, $newtags ) {
         $redis->zincrby( "LRR_STATS", 1, $tag );
     }
 
-    # Add or remove the ID from the untagged list
-    if ($has_tags) {
-        $redis->srem( "LRR_UNTAGGED", $id );
-    } else {
-        $redis->sadd( "LRR_UNTAGGED", $id );
+    # Tanks don't participate in the untagged system
+    unless ($is_tank) {
+        if ($has_tags) {
+            $redis->srem( "LRR_UNTAGGED", $id );
+        } else {
+            $redis->sadd( "LRR_UNTAGGED", $id );
+        }
     }
 
     $redis->exec;

@@ -123,7 +123,7 @@ ok($meta_result, 'Updated metadata');
 my ($t_meta, $f_meta, %tank_meta) = LANraragi::Model::Tankoubon::get_tankoubon($new_tank_id);
 is($tank_meta{name}, "Updated Tank Name", 'Name updated correctly');
 is($tank_meta{summary}, "A test summary", 'Summary updated correctly');
-is($tank_meta{tags}, "test, tankoubon", 'Tags updated correctly');
+is($tank_meta{tags}, "test,tankoubon", 'Tags updated correctly');
 
 # Test: Get tankoubons containing archive
 my @containing_tanks = LANraragi::Model::Tankoubon::get_tankoubons_containing_archive($archive_ids[0]);
