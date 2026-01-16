@@ -119,7 +119,12 @@ sub search_uncached ( $category_id, $filter, $sortkey, $sortorder, $newonly, $un
     my @filtered;
     if ($grouptanks) {
 
-        # Start with our tank IDs, and all other archive IDs that aren't in tanks
+        # Start with our tank IDs, and all other archive IDs that aren't in tanks.
+        # NOTE: When searching within a static category with grouptanks enabled, archives that
+        # belong to a tankoubon will only appear if the tankoubon itself is in the category.
+        # If an archive is in the category but its tankoubon is not, the archive will not
+        # appear in results (it's "hidden" by the tank grouping). This is expected behavior -
+        # the archive is grouped under its tank, and the tank isn't in the category.
         @filtered = $redis->smembers("LRR_TANKGROUPED");
     } else {
 

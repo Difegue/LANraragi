@@ -186,9 +186,14 @@ sub delete_category {
 }
 
 # add_to_category(categoryid, arcid)
-#   Adds the given archive ID to the given category.
+#   Adds the given archive ID (or tankoubon ID) to the given category.
 #   Only valid if the category is Static.
 #   Returns 1 on success, 0 on failure alongside an error message.
+#
+#   NOTE: When viewing a category with tank grouping enabled, archives that belong
+#   to a tankoubon will only appear if the tankoubon itself is also in the category.
+#   Consider adding the tankoubon to the category instead of (or in addition to)
+#   individual archives if you want them to appear when tank grouping is active.
 sub add_to_category {
 
     my ( $cat_id, $arc_id ) = @_;
