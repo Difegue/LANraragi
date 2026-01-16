@@ -127,13 +127,18 @@ sub search_uncached ( $category_id, $filter, $sortkey, $sortorder, $newonly, $un
         @filtered = $redis_db->keys('????????????????????????????????????????');
     }
 
-    # If we're using a category, we'll need to get its source data first.
-    my %category = LANraragi::Model::Category::get_category($category_id);
+    # Handle categories (comma-separated for multiple, intersection/AND logic)
+    # Each category either adds search predicates (dynamic) or intersects archive lists (static)
+    my @category_ids = split( /,/, $category_id );
 
-    if (%category) {
+    for my $cat_id (@category_ids) {
+        next if $cat_id eq "";
+
+        my %category = LANraragi::Model::Category::get_category($cat_id);
+        next unless %category;
 
         # If the category is dynamic, get its search predicate and add it to the tokens.
-        # If it's static however, we can use its ID list as the base for our result array.
+        # If it's static however, intersect its ID list with our current filtered results.
         if ( $category{search} ne "" ) {
             my @cat_tokens = compute_search_filter( $category{search} );
             push @tokens, @cat_tokens;

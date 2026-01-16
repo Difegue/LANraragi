@@ -105,9 +105,11 @@ IndexTable.initializeAll = function () {
  * @param {*} page Page to load
  */
 IndexTable.doSearch = function (page) {
-    // Add the selected category to the tags column so it's picked up by the search engine
+    // Add the selected categories to the tags column so they're picked up by the search engine
     // This allows for the regular search bar to be used in conjunction with categories.
-    IndexTable.dataTable.column(".tags.itd").search(Index.selectedCategory);
+    // Multiple categories are comma-separated and ANDed together on the backend.
+    const categories = Index.selectedCategories ? [...Index.selectedCategories].join(",") : "";
+    IndexTable.dataTable.column(".tags.itd").search(categories);
 
     // Update search input field
     $("#search-input").val(IndexTable.currentSearch);
@@ -345,8 +347,12 @@ IndexTable.buildURLParameters = function () {
 IndexTable.consumeURLParameters = function () {
     const params = new URLSearchParams(window.location.search);
 
-    if (params.has("c")) Index.selectedCategory = params.get("c");
-    else Index.selectedCategory = "";
+    // Parse comma-separated category IDs into the Set
+    if (params.has("c") && params.get("c") !== "") {
+        Index.selectedCategories = new Set(params.get("c").split(","));
+    } else {
+        Index.selectedCategories = new Set();
+    }
 
     if (params.has("q")) { IndexTable.currentSearch = decodeURIComponent(params.get("q")); }
 

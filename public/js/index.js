@@ -10,6 +10,8 @@ Index.carouselInitialized = false;
 Index.swiper = {};
 Index.serverVersion = "";
 Index.debugMode = false;
+Index.isProgressLocal = true;
+Index.isProgressAuthenticated = true;
 Index.pageSize = 100;
 Index.pseudoCopyBtn = undefined;
 
@@ -36,6 +38,17 @@ Index.initializeAll = function () {
     $(document).on("click.title-bookmark-icon", ".title-bookmark-icon", Index.toggleBookmarkStatusByIcon);
     $(document).on("keydown.quick-search", Index.handleQuickSearch);
     $(document).on("keydown.escape-overlay", Index.handleEscapeKey);
+
+    // Selection bar and tank selector event handlers
+    $(document).on("change.archive-checkbox", ".archive-checkbox", function () {
+        Index.toggleArchiveSelection($(this).data("id"), this.checked);
+    });
+    $(document).on("click.select-page", "#select-page-btn", Index.selectCurrentPage);
+    $(document).on("click.deselect-page", "#deselect-page-btn", Index.deselectCurrentPage);
+    $(document).on("click.add-to-tank", "#add-to-tank-btn", Index.openTankSelector);
+    $(document).on("click.clear-selection", "#clear-selection-btn", Index.clearSelection);
+    $(document).on("click.create-tank", "#create-tank-btn", Index.openCreateTankDialog);
+    $(document).on("click.cancel-tank", "#cancel-tank-btn", LRR.closeOverlay);
 
     // 0 = List view
     // 1 = Thumbnail view
@@ -108,8 +121,8 @@ Index.initializeAll = function () {
         (data) => {
             Index.serverVersion = data.version;
             Index.debugMode = !!data.debug_mode;
-            LRR.isProgressLocal = !data.server_tracks_progress;
-            LRR.isProgressAuthenticated = data.authenticated_progress;
+            Index.isProgressLocal = !data.server_tracks_progress;
+            Index.isProgressAuthenticated = data.authenticated_progress;
             Index.pageSize = data.archives_per_page;
 
             // Check version if not in debug mode
@@ -297,6 +310,243 @@ Index.toggleGroupTanks = function () {
     IndexTable.dataTable.draw();
 };
 
+// #region Archive Selection for Tankoubon
+
+// Set to store selected archive IDs
+Index.selectedArchives = new Set();
+Index.tankAwesomplete = null;
+Index.tankList = [];
+
+/**
+ * Check if the current selection contains any tankoubons.
+ * @returns {boolean} True if any selected ID starts with "TANK_"
+ */
+Index.selectionContainsTanks = function () {
+    return [...Index.selectedArchives].some(id => id.startsWith("TANK_"));
+};
+
+/**
+ * Count tankoubons and archives in the current selection.
+ * @returns {{archives: number, tanks: number}}
+ */
+Index.getSelectionCounts = function () {
+    let archives = 0;
+    let tanks = 0;
+    Index.selectedArchives.forEach(id => {
+        if (id.startsWith("TANK_")) {
+            tanks++;
+        } else {
+            archives++;
+        }
+    });
+    return { archives, tanks };
+};
+
+/**
+ * Handle checkbox change for archive selection.
+ * @param {string} arcid Archive ID
+ * @param {boolean} checked Whether the checkbox is checked
+ */
+Index.toggleArchiveSelection = function (arcid, checked) {
+    if (checked) {
+        Index.selectedArchives.add(arcid);
+    } else {
+        Index.selectedArchives.delete(arcid);
+    }
+    Index.updateSelectionBar();
+};
+
+/**
+ * Select all archives on the current page.
+ */
+Index.selectCurrentPage = function () {
+    // Get all archive IDs from the current page
+    const pageData = IndexTable.dataTable.rows({ page: "current" }).data();
+    pageData.each((data) => {
+        const id = data.arcid || data.id;
+        Index.selectedArchives.add(id);
+    });
+    // Update all checkboxes on the page
+    $(".archive-checkbox").prop("checked", true);
+    Index.updateSelectionBar();
+};
+
+/**
+ * Deselect all archives on the current page.
+ */
+Index.deselectCurrentPage = function () {
+    // Get all archive IDs from the current page
+    const pageData = IndexTable.dataTable.rows({ page: "current" }).data();
+    pageData.each((data) => {
+        const id = data.arcid || data.id;
+        Index.selectedArchives.delete(id);
+    });
+    // Update all checkboxes on the page
+    $(".archive-checkbox").prop("checked", false);
+    Index.updateSelectionBar();
+};
+
+/**
+ * Clear all selected archives.
+ */
+Index.clearSelection = function () {
+    Index.selectedArchives.clear();
+    $(".archive-checkbox").prop("checked", false);
+    Index.updateSelectionBar();
+};
+
+/**
+ * Update the selection bar visibility and count.
+ */
+Index.updateSelectionBar = function () {
+    const count = Index.selectedArchives.size;
+    const addToTankBtn = document.getElementById("add-to-tank-btn");
+
+    if (count > 0) {
+        const counts = Index.getSelectionCounts();
+
+        // Update display text - show mixed count if tankoubons are selected
+        if (counts.tanks > 0) {
+            $("#selection-count").text(I18N.SelectionCountMixed(counts.archives, counts.tanks));
+        } else {
+            $("#selection-count").text(I18N.SelectionCount(count));
+        }
+
+        // Enable/disable Add to Tankoubon button based on whether tankoubons are selected
+        if (counts.tanks > 0) {
+            addToTankBtn.disabled = true;
+            addToTankBtn.title = I18N.CannotAddTanksToTank;
+        } else {
+            addToTankBtn.disabled = false;
+            addToTankBtn.title = "";
+        }
+
+        $("#selection-bar").show();
+    } else {
+        $("#selection-bar").hide();
+    }
+};
+
+/**
+ * Open the tank selector overlay.
+ */
+Index.openTankSelector = function () {
+    // Fetch tank list and initialize awesomplete
+    Server.getTankoubonList((data) => {
+        Index.tankList = data.result || [];
+        Index.initTankAwesomplete();
+        LRR.toggleOverlay("#tank-overlay");
+        $("#tank-input").val("").focus();
+    });
+};
+
+/**
+ * Initialize Awesomplete for tank selection.
+ */
+Index.initTankAwesomplete = function () {
+    // Destroy previous instance if exists
+    if (Index.tankAwesomplete) {
+        Index.tankAwesomplete.destroy();
+    }
+
+    const input = document.getElementById("tank-input");
+
+    Index.tankAwesomplete = new Awesomplete(input, {
+        list: Index.tankList,
+        data(tank) {
+            return { label: tank.name, value: tank.id };
+        },
+        filter(text, input) {
+            return Awesomplete.FILTER_CONTAINS(text, input);
+        },
+        item(text, input) {
+            return Awesomplete.ITEM(text, input);
+        },
+        replace(text) {
+            this.input.value = text.label;
+        },
+        minChars: 0,
+        maxItems: 10,
+    });
+
+    // Show all items when focusing on empty input
+    input.addEventListener("focus", () => {
+        if (input.value === "") {
+            Index.tankAwesomplete.evaluate();
+        }
+    });
+
+    // Handle selection
+    input.addEventListener("awesomplete-selectcomplete", (e) => {
+        const tankId = e.text.value;
+        const tankName = e.text.label;
+        Index.addSelectedToTank(tankId, tankName);
+    });
+};
+
+/**
+ * Add selected archives to a tankoubon.
+ * @param {string} tankId Tankoubon ID
+ * @param {string} tankName Tankoubon name for display
+ */
+Index.addSelectedToTank = function (tankId, tankName) {
+    const archiveIds = Array.from(Index.selectedArchives);
+
+    Server.addArchivesToTankoubon(tankId, archiveIds, (data) => {
+        LRR.toast({
+            heading: I18N.AddedToTankoubon(data.added, tankName),
+            icon: "success",
+        });
+
+        // Close overlay and clear selection
+        LRR.closeOverlay();
+        Index.clearSelection();
+    });
+};
+
+/**
+ * Open the create new tankoubon dialog.
+ */
+Index.openCreateTankDialog = function () {
+    // Close the tank overlay first so SweetAlert isn't blocked
+    LRR.closeOverlay();
+
+    LRR.showPopUp({
+        title: I18N.NewTankoubon,
+        input: "text",
+        inputPlaceholder: I18N.TankoubonDefaultName,
+        inputAttributes: {
+            autocapitalize: "off",
+        },
+        showCancelButton: true,
+        reverseButtons: true,
+        inputValidator: (value) => {
+            if (!value) {
+                return I18N.MissingTankName;
+            }
+            return undefined;
+        },
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Index.createAndAddToTank(result.value);
+        }
+    });
+};
+
+/**
+ * Create a new tankoubon and add selected archives to it.
+ * @param {string} name Name for the new tankoubon
+ */
+Index.createAndAddToTank = function (name) {
+    Server.createTankoubon(name, (data) => {
+        if (data.tankoubon_id) {
+            Index.addSelectedToTank(data.tankoubon_id, name);
+        }
+    });
+};
+
+// #endregion
+
 Index.toggleOrder = function (e) {
     e.preventDefault();
     const order = IndexTable.dataTable.order();
@@ -307,18 +557,30 @@ Index.toggleOrder = function (e) {
 
 /**
  * Toggles a category filter.
- * Sets the internal selectedCategory variable and changes the button's class.
+ * Adds/removes the category from the selectedCategories Set and updates the button's class.
+ * Multiple categories can be selected simultaneously (intersection/AND logic).
  * @param {*} button Button matching the category.
  */
 Index.toggleCategory = function (button) {
-    // Add/remove class to button depending on the state
     const categoryId = button.id;
-    if (Index.selectedCategory === categoryId) {
+
+    // Initialize Set if not yet done (shouldn't happen, but be defensive)
+    if (!Index.selectedCategories) {
+        Index.selectedCategories = new Set();
+    }
+
+    // Toggle category in the Set
+    if (Index.selectedCategories.has(categoryId)) {
+        Index.selectedCategories.delete(categoryId);
         button.classList.remove("toggled");
-        Index.selectedCategory = "";
     } else {
-        Index.selectedCategory = categoryId;
+        Index.selectedCategories.add(categoryId);
         button.classList.add("toggled");
+    }
+
+    // When TANKOUBONS_ONLY is selected, force grouptanks on since tanks only appear when grouped
+    if (Index.selectedCategories.has("TANKOUBONS_ONLY")) {
+        localStorage.grouptanks = "true";
     }
 
     // Trigger search
@@ -408,15 +670,15 @@ Index.handleCustomSort = function () {
     const namespace = $("#namespace-sortby").val();
     const order = IndexTable.dataTable.order();
 
-    // Special case for title sorting, as that uses column 0
+    // Special case for title sorting, as that uses column 1 (0 is checkbox)
     if (namespace === "title") {
-        order[0][0] = 0;
+        order[0][0] = 1;
     } else {
         // The order set in the combobox uses is offset from title by 1; 
-        // e.g. customColumn1 is offset from title by 1.
-        order[0][0] = 1;
+        // e.g. customColumn1 is offset from title by 2.
+        order[0][0] = 2;
         localStorage.customColumn1 = namespace;
-        IndexTable.dataTable.settings()[0].aoColumns[1].sName = namespace;
+        IndexTable.dataTable.settings()[0].aoColumns[2].sName = namespace;
         Index.updateTableHeaders();
     }
 
@@ -432,31 +694,58 @@ Index.updateCarousel = function (e) {
 
     $("#reload-carousel").addClass("fa-spin");
 
+    // Build category query params from selectedCategories Set
+    // Pseudo-categories become their own params, real categories go into category= (comma-separated)
+    const buildCategoryParams = () => {
+        const params = [];
+        const realCategories = [];
+
+        // Handle case where selectedCategories isn't initialized yet (early carousel init)
+        if (!Index.selectedCategories) {
+            return "";
+        }
+
+        for (const cat of Index.selectedCategories) {
+            if (cat === "NEW_ONLY") {
+                params.push("newonly=true");
+            } else if (cat === "UNTAGGED_ONLY") {
+                params.push("untaggedonly=true");
+            } else if (cat === "TANKOUBONS_ONLY") {
+                params.push("tankoubonsonly=true");
+            } else {
+                realCategories.push(cat);
+            }
+        }
+
+        if (realCategories.length > 0) {
+            params.push(`category=${realCategories.join(",")}`);
+        }
+
+        return params.join("&");
+    };
+
+    const categoryParams = buildCategoryParams();
+
     // Hit a different API endpoint depending on the requested localStorage carousel type
     let endpoint;
     switch (localStorage.carouselType) {
         case "random":
             $("#carousel-icon")[0].classList = "fas fa-random";
             $("#carousel-title").text(I18N.CarouselRandom);
-            endpoint = `/api/search/random?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}&count=15`;
-
-            // Special categories that imply additional query params
-            if (Index.selectedCategory === "NEW_ONLY") {
-                endpoint += "&newonly=true";
-            } else if (Index.selectedCategory === "UNTAGGED_ONLY") {
-                endpoint += "&untaggedonly=true";
-            }
-
+            endpoint = `/api/search/random?filter=${IndexTable.currentSearch}&count=15`;
+            if (categoryParams) endpoint += `&${categoryParams}`;
             break;
         case "inbox":
             $("#carousel-icon")[0].classList = "fas fa-envelope-open-text";
             $("#carousel-title").text(I18N.NewArchives);
-            endpoint = `/api/search?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}&newonly=true&sortby=date_added&order=desc&start=-1`;
+            endpoint = `/api/search?filter=${IndexTable.currentSearch}&newonly=true&sortby=date_added&order=desc&start=-1`;
+            if (categoryParams) endpoint += `&${categoryParams}`;
             break;
         case "untagged":
             $("#carousel-icon")[0].classList = "fas fa-edit";
             $("#carousel-title").text(I18N.UntaggedArchives);
-            endpoint = `/api/search?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}&untaggedonly=true&sortby=date_added&order=desc&start=-1`;
+            endpoint = `/api/search?filter=${IndexTable.currentSearch}&untaggedonly=true&sortby=date_added&order=desc&start=-1`;
+            if (categoryParams) endpoint += `&${categoryParams}`;
             break;
         case "ondeck":
             $("#carousel-icon")[0].classList = "fas fa-book-reader";
@@ -466,7 +755,8 @@ Index.updateCarousel = function (e) {
         default:
             $("#carousel-icon")[0].classList = "fas fa-pastafarianism";
             $("#carousel-title").text("What???");
-            endpoint = `/api/search?filter=${IndexTable.currentSearch}&category=${Index.selectedCategory}`;
+            endpoint = `/api/search?filter=${IndexTable.currentSearch}`;
+            if (categoryParams) endpoint += `&${categoryParams}`;
             break;
     }
 
@@ -475,7 +765,7 @@ Index.updateCarousel = function (e) {
             (results) => {
                 Index.swiper.virtual.removeAllSlides();
                 const slides = results.data
-                    .map((archive) => LRR.buildThumbnailDiv(archive));
+                    .map((archive) => LRR.buildThumbnailDiv(archive, true, false));
                 Index.swiper.virtual.appendSlide(slides);
                 Index.swiper.virtual.update();
 
@@ -505,6 +795,8 @@ Index.handleColumnNum = function () {
 Index.generateTableHeaders = function (columnCount) {
     const headerRow = $("#header-row");
     headerRow.empty();
+    // Checkbox column header (no title, just empty)
+    headerRow.append(`<th id="checkboxheader" class="selection-checkbox"></th>`);
     const headerWidth = localStorage.getItem(`resizeColumn0`) || "";
     headerRow.append(`
         <th id="titleheader" width="${headerWidth}">
@@ -696,15 +988,22 @@ Index.loadCategories = function () {
             // Pinned categories are shown at the beginning
             data.sort((b, a) => b.name.localeCompare(a.name));
             data.sort((a, b) => b.pinned - a.pinned);
+            // Helper to check if a category is selected (handles uninitialized state)
+            const isSelected = (id) => Index.selectedCategories && Index.selectedCategories.has(id);
+
             // Queue some hardcoded categories at the beginning - those are special-cased in the DataTables variant of the search endpoint. 
             let html = `<div style='display:inline-block'>
-                            <input class='favtag-btn ${(("NEW_ONLY" === Index.selectedCategory) ? "toggled" : "")}' 
+                            <input class='favtag-btn ${(isSelected("NEW_ONLY") ? "toggled" : "")}' 
                             type='button' id='NEW_ONLY' value='🆕 ${I18N.NewArchives}' 
                             onclick='Index.toggleCategory(this)' title='${I18N.NewArchiveDesc}'/>
                         </div><div style='display:inline-block'>
-                            <input class='favtag-btn ${(("UNTAGGED_ONLY" === Index.selectedCategory) ? "toggled" : "")}' 
+                            <input class='favtag-btn ${(isSelected("UNTAGGED_ONLY") ? "toggled" : "")}' 
                             type='button' id='UNTAGGED_ONLY' value='🏷️ ${I18N.UntaggedArchives}' 
                             onclick='Index.toggleCategory(this)' title='${I18N.UntaggedArcDesc}'/>
+                        </div><div style='display:inline-block'>
+                            <input class='favtag-btn ${(isSelected("TANKOUBONS_ONLY") ? "toggled" : "")}' 
+                            type='button' id='TANKOUBONS_ONLY' value='📚 ${I18N.TankoubonsOnly}' 
+                            onclick='Index.toggleCategory(this)' title='${I18N.TankoubonsOnlyDesc}'/>
                         </div>`;
 
             const iteration = (data.length > 10 ? 10 : data.length);
@@ -717,7 +1016,7 @@ Index.loadCategories = function () {
                 catName = LRR.encodeHTML(catName);
 
                 const div = `<div style='display:inline-block'>
-                    <input class='favtag-btn ${((category.id === Index.selectedCategory) ? "toggled" : "")}' 
+                    <input class='favtag-btn ${(isSelected(category.id) ? "toggled" : "")}' 
                             type='button' id='${category.id}' value='${catName}' 
                             onclick='Index.toggleCategory(this)' title='${I18N.CategoryDesc}'/>
                 </div>`;
@@ -758,7 +1057,7 @@ Index.loadCategories = function () {
  */
 Index.migrateProgress = function () {
     // No migration if local progress is enabled, or if progress is authenticated and we're not logged in.
-    if (LRR.isProgressLocal || (LRR.isProgressAuthenticated && !LRR.isUserLogged())) {
+    if (Index.isProgressLocal || (Index.isProgressAuthenticated && !LRR.isUserLogged())) {
         return;
     }
 

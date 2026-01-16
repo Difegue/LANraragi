@@ -32,25 +32,30 @@ sub handle_datatables ($self) {
     my $categoryfilter = "";
     my $newfilter      = 0;
     my $untaggedfilter = 0;
+    my $tankoubonsfilter = 0;
 
     while ( $req->param("columns[$i][name]") ) {
 
         # Collection (tags column)
         if ( $req->param("columns[$i][name]") eq "tags" ) {
-            $categoryfilter = $req->param("columns[$i][search][value]");
+            my $raw_filter = $req->param("columns[$i][search][value]") // "";
 
-            # Specific hacks for the built-in newonly/untagged selectors
-            # Those have hardcoded 'category' IDs
-            if ( $categoryfilter eq "NEW_ONLY" ) {
-                $newfilter      = 1;
-                $categoryfilter = "";
+            # Parse comma-separated category filters
+            # Pseudo-categories (NEW_ONLY, UNTAGGED_ONLY, TANKOUBONS_ONLY) become boolean flags
+            # Real category IDs are collected and rejoined
+            my @real_categories;
+            for my $cat ( split /,/, $raw_filter ) {
+                if ( $cat eq "NEW_ONLY" ) {
+                    $newfilter = 1;
+                } elsif ( $cat eq "UNTAGGED_ONLY" ) {
+                    $untaggedfilter = 1;
+                } elsif ( $cat eq "TANKOUBONS_ONLY" ) {
+                    $tankoubonsfilter = 1;
+                } elsif ( $cat ne "" ) {
+                    push @real_categories, $cat;
+                }
             }
-
-            if ( $categoryfilter eq "UNTAGGED_ONLY" ) {
-                $untaggedfilter = 1;
-                $categoryfilter = "";
-            }
-
+            $categoryfilter = join( ",", @real_categories );
         }
         $i++;
     }
@@ -58,10 +63,15 @@ sub handle_datatables ($self) {
     $sortorder = ( $sortorder && $sortorder eq 'desc' ) ? 1 : 0;
 
     my $grouptanks = $req->param('grouptanks') || 0;
-    $logger->debug("grouptanks=$grouptanks");
+
+    # Force grouptanks on when tankoubons filter is enabled, since tanks only appear when grouped
+    if ($tankoubonsfilter) {
+        $grouptanks = 1;
+    }
+    $logger->debug("grouptanks=$grouptanks, tankoubonsfilter=$tankoubonsfilter");
 
     my ( $total, $filtered, @ids ) =
-      LANraragi::Model::Search::do_search( $filter, $categoryfilter, $start, $sortkey, $sortorder, $newfilter, $untaggedfilter, $grouptanks );
+      LANraragi::Model::Search::do_search( $filter, $categoryfilter, $start, $sortkey, $sortorder, $newfilter, $untaggedfilter, $grouptanks, $tankoubonsfilter );
 
     $self->render( json => get_datatables_object( $draw, $total, $filtered, @ids ) );
 }
@@ -95,13 +105,25 @@ sub handle_api ($self) {
         return;
     }
 
+    ( my $tankoubonsonly, $err ) = parse_bool( $req->param('tankoubonsonly'), 'tankoubonsonly' );
+    if ($err) {
+        render_api_response( $self, "search", $err );
+        return;
+    }
+
+    # Force grouptanks on when tankoubonsonly is enabled, since tanks only appear when grouped
+    if ($tankoubonsonly) {
+        $grouptanks = 1;
+    }
+
     $sortorder = ( $sortorder && $sortorder eq 'desc' ) ? 1 : 0;
 
     my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search(
         $filter, $category, $start, $sortkey, $sortorder,
         $newfilter,
         $untaggedf,
-        $grouptanks
+        $grouptanks,
+        $tankoubonsonly
     );
 
     if ( $total eq -1 && $filtered eq -1 ) {
@@ -152,12 +174,24 @@ sub get_random_archives ($self) {
         return;
     }
 
+    ( my $tankoubonsonly, $err ) = parse_bool( $req->param('tankoubonsonly'), 'tankoubonsonly' );
+    if ($err) {
+        render_api_response( $self, "get_random_archives", $err );
+        return;
+    }
+
+    # Force grouptanks on when tankoubonsonly is enabled, since tanks only appear when grouped
+    if ($tankoubonsonly) {
+        $grouptanks = 1;
+    }
+
     # Use the search engine to get IDs matching the filter/category selection, with start=-1 to get all data
     my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search(
         $filter, $category, -1, "title", 0,
         $newfilter,
         $untaggedf,
-        $grouptanks
+        $grouptanks,
+        $tankoubonsonly
     );
     my @random_ids;
 
