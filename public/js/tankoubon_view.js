@@ -81,10 +81,12 @@ TankoubonView.init = function(id) {
         localStorage.tankoubonViewMode = "1";
     }
 
-    // Get page size from server info, then load tankoubon
+    // Get page size and progress settings from server info, then load tankoubon
     Server.callAPI("/api/info", "GET", null, I18N.ServerInfoError,
         (data) => {
             TankoubonView.pageSize = data.archives_per_page;
+            LRR.isProgressLocal = !data.server_tracks_progress;
+            LRR.isProgressAuthenticated = data.authenticated_progress;
             TankoubonView.loadTankoubon();
         }
     );

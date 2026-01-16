@@ -4,6 +4,9 @@
  */
 const LRR = {};
 
+LRR.isProgressLocal = true;          // Whether to use local (localStorage) progress tracking
+LRR.isProgressAuthenticated = true;  // Whether progress requires authentication
+
 function _get_baseurl_cookie() {
     let cookies = document.cookie;
     let val = cookies.split("; ").find((r) => r.startsWith("lrr_baseurl="))?.split("=")[1];
@@ -477,7 +480,7 @@ LRR.getProgress = function (arcdata) {
     const pagecount = parseInt(arcdata.pagecount || 0, 10);
     let progress = -1;
 
-    if (typeof Index !== "undefined" && Index.isProgressLocal && !(Index.isProgressAuthenticated && LRR.isUserLogged())) {
+    if (LRR.isProgressLocal && !(LRR.isProgressAuthenticated && LRR.isUserLogged())) {
         progress = parseInt(localStorage.getItem(`${id}-reader`) || 0, 10);
     } else {
         progress = parseInt(arcdata.progress || 0, 10);
