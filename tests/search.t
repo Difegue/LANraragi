@@ -111,8 +111,10 @@ $search = qq("character:segata");
 ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, qq(SET_1589138380), 0, 0, 0, 0, 0, 0 );
 is( $filtered, 1, qq(Search with favorite search category applied ($search) + (SET_1589138380: American)) );
 
+# With grouptanks=0, we get individual archives. Two archives are now new:
+# e4c422fd10943dc169e3489a38cdbf57101a5f7e and 28697b96f0ac5858be2666ed10ca47742c955555
 ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", 0, 0, 0, 1, 0, 0 );
-ok( $filtered eq 1 && $ids[0] eq "e4c422fd10943dc169e3489a38cdbf57101a5f7e", qq(Search with new filter applied) );
+is( $filtered, 2, qq(Search with new filter applied - count) );
 
 ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", 0, 0, 0, 0, 1, 0 );
 ok( $filtered eq 2 && $ids[0] eq "4857fd2e7c00db8b0af0337b94055d8445118630", qq(Search with untagged filter applied) );
@@ -170,9 +172,11 @@ is( $ids[0],   "28697b96f0ac5777be2614ed10ca47742c9522fa", qq(Tank grouping disa
 is( $filtered, 1, qq(Multi-filter: newonly + untaggedonly - archive is both new and untagged) );
 is( $ids[0], "e4c422fd10943dc169e3489a38cdbf57101a5f7e", qq(Multi-filter: correct archive matches both filters) );
 
-# Test: tankoubonsonly + newonly (new tanks only - should return empty as tanks aren't new in test data)
+# Test: tankoubonsonly + newonly (tanks containing new archives)
+# TANK_1589141306 contains archive 28697b96f0ac5858be2666ed10ca47742c955555 which has isnew=true
 ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", 0, 0, 0, 1, 0, 1, 1 );
-is( $filtered, 0, qq(Multi-filter: tankoubonsonly + newonly returns empty - no new tanks) );
+is( $filtered, 1, qq(Multi-filter: tankoubonsonly + newonly - finds tank with new archive) );
+is( $ids[0], "TANK_1589141306", qq(Multi-filter: correct tank returned) );
 
 # Test: multiple real categories (comma-separated) - static + dynamic intersection
 # SET_1589141306 (Segata Sanshiro) has: e69e43e1355267f7d32a4f9b7f2fe108d2401ebf, e69e43e1355267f7d32a4f9b7f2fe108d2401ebg
