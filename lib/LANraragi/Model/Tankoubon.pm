@@ -12,7 +12,7 @@ use Mojo::JSON qw(decode_json encode_json);
 use List::Util      qw(min);
 use List::MoreUtils qw(uniq);
 
-use LANraragi::Utils::Database qw(invalidate_cache get_archive_json_multi get_tankoubons_by_file update_indexes);
+use LANraragi::Utils::Database;
 use LANraragi::Utils::Generic  qw(array_difference filter_hash_by_keys);
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Redis    qw(redis_decode redis_encode);
@@ -108,7 +108,7 @@ sub create_tankoubon ( $name, $tank_id ) {
 
     $redis->quit;
     $redis_search->quit;
-    invalidate_cache();
+    LANraragi::Utils::Database::invalidate_cache();
 
     return $tank_id;
 }
@@ -213,7 +213,7 @@ sub delete_tankoubon ($tank_id) {
 
         $redis->quit;
         $redis_search->quit;
-        invalidate_cache();
+        LANraragi::Utils::Database::invalidate_cache();
 
         return 1;
     } else {
@@ -266,7 +266,7 @@ sub update_metadata ( $tank_id, $data ) {
         }
 
         $redis->quit;
-        invalidate_cache();
+        LANraragi::Utils::Database::invalidate_cache();
         return ( 1, $err );
     }
 
@@ -358,7 +358,7 @@ sub update_archive_list ( $tank_id, $data ) {
         # Update imputed tag indexes (handles both additions and removals)
         update_tank_imputed_indexes( $tank_id, \@removed_tags );
 
-        invalidate_cache();
+        LANraragi::Utils::Database::invalidate_cache();
         return ( 1, $err );
     }
 
@@ -407,7 +407,7 @@ sub add_to_tankoubon ( $tank_id, $arc_id ) {
         # Update imputed tag indexes for the tank (pure addition, no removed_tags)
         update_tank_imputed_indexes($tank_id);
 
-        invalidate_cache();
+        LANraragi::Utils::Database::invalidate_cache();
         return ( 1, $err );
     }
 
@@ -486,7 +486,7 @@ sub remove_from_tankoubon ( $tank_id, $arcid ) {
         # Update imputed tag indexes for the tank (pass removed archive's tags for cleanup)
         update_tank_imputed_indexes( $tank_id, \@arc_tags );
 
-        invalidate_cache();
+        LANraragi::Utils::Database::invalidate_cache();
         return ( 1, $err );
     }
 
@@ -574,12 +574,12 @@ sub set_tank_tags ( $tank_id, $newtags, $append = 0 ) {
     $newtags = join_tags_to_string( uniq( split_tags_to_array($newtags) ) );
 
     # Update search indexes
-    update_indexes( $tank_id, $oldtags, $newtags );
+    LANraragi::Utils::Database::update_indexes( $tank_id, $oldtags, $newtags );
 
     # Update the ZSET
     update_metadata_field( $tank_id, "tags", $newtags );
 
-    invalidate_cache();
+    LANraragi::Utils::Database::invalidate_cache();
     return ( 1, "" );
 }
 
