@@ -171,7 +171,7 @@ sub search_uncached ( $category_id, $filter, $sortkey, $sortorder, $newonly, $un
            # Specific case for pagecount searches
            # You can search for galleries with a specific number of pages with pages:20, or with a page range: pages:>20 pages:<=30.
            # Or you can search for galleries with a specific number of pages read with read:20, or any pages read: read:>0
-            if ( $tag =~ /^(read|pages):(>|<|>=|<=)?(\d+)$/ ) {
+            if ( $tag =~ /^(read|unread|pages):(>|<|>=|<=)?(\d+)$/ ) {
                 my $col       = $1;
                 my $operator  = $2;
                 my $pagecount = $3;
@@ -181,10 +181,10 @@ sub search_uncached ( $category_id, $filter, $sortkey, $sortorder, $newonly, $un
                 # If no operator is specified, we assume it's an exact match
                 $operator = "=" if !$operator;
 
-                # Change the column based off the tag searched.
+                # Choose the field based off the tag searched.
                 # "pages" -> "pagecount"
                 # "read" -> "progress"
-                $col = $col eq "pages" ? "pagecount" : "progress";
+                my $field = $col eq "pages" ? "pagecount" : "progress";
 
                 # Go through all IDs in @filtered and check if they have the right pagecount
                 # This could be sped up with an index, but it's probably not worth it.
@@ -197,7 +197,12 @@ sub search_uncached ( $category_id, $filter, $sortkey, $sortorder, $newonly, $un
                     }
 
                     # Default to 0 if null.
-                    my $count = $redis_db->hget( $id, $col ) || 0;
+                    my $count = $redis_db->hget( $id, $field ) || 0;
+
+                    if ($col eq "unread") {
+                        my $pages = $redis_db->hget( $id, "pagecount" ) || 0;
+                        $count = $pages - $count
+                    }
 
                     if (   ( $operator eq "=" && $count == $pagecount )
                         || ( $operator eq ">"  && $count > $pagecount )
