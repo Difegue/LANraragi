@@ -94,6 +94,14 @@ sub build_stat_hashes {
 
         foreach my $arcid (@tank_archives) {
             index_tags_for_id( $redis, $redistx, $tank_id, $arcid );
+
+            # Also add tank archives to LRR_NEW if they are new
+            # (needed for tank-aware newonly filter in Search.pm)
+            my $isnew = $redis->hget( $arcid, "isnew" );
+            if ( $isnew && $isnew eq "true" ) {
+                $logger->trace("Adding $arcid (in tank $tank_id) to LRR_NEW");
+                $redistx->sadd( "LRR_NEW", $arcid );
+            }
         }
 
         # Index tank's own tags (count in stats and add to tag indexes)

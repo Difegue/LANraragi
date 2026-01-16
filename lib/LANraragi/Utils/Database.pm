@@ -297,7 +297,7 @@ sub build_tank_json ($id) {
     foreach my $archive_info ( @{ $tank{full_data} } ) {
         push @archive_tag_strings, %$archive_info{tags} // "";
         $aggregate_names .= %$archive_info{title} . ",";
-        $aggregate_isnew     = $aggregate_isnew || %$archive_info{isnew};
+        $aggregate_isnew     = $aggregate_isnew || (%$archive_info{isnew} eq "true");
         $aggregate_progress  = $aggregate_progress + %$archive_info{progress};
         $aggregate_pagecount = $aggregate_pagecount + %$archive_info{pagecount};
         $aggregate_size      = $aggregate_size + %$archive_info{size};
@@ -319,7 +319,7 @@ sub build_tank_json ($id) {
         filename      => "",
         tags          => $deduped_tags,
         summary       => "Tankoubon containing: $aggregate_names",
-        isnew         => $aggregate_isnew ? $aggregate_isnew : "false",
+        isnew         => $aggregate_isnew ? "true" : "false",
         extension     => ".tank",
         progress      => $aggregate_progress,
         pagecount     => $aggregate_pagecount,

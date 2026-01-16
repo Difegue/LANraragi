@@ -149,9 +149,21 @@ sub search_uncached ( $category_id, $filter, $sortkey, $sortorder, $newonly, $un
     }
 
     # Check new filter
+    # For tanks, we check if any archive in the tank is new (consistent with display logic)
     if ($newonly) {
         my @new = $redis->smembers("LRR_NEW");
-        @filtered = intersect_arrays( \@new, \@filtered, 0 );
+        my %new_set = map { $_ => 1 } @new;
+
+        @filtered = grep {
+            if (/^TANK_/) {
+                # For tanks, check if any archive in the tank is new
+                # Note: use $redis_db (main DB) not $redis (search DB) for tank data
+                tank_has_archive_in_set( $redis_db, $_, \%new_set );
+            } else {
+                # For regular archives, check membership directly
+                exists $new_set{$_};
+            }
+        } @filtered;
     }
 
     # Iterate through each token and intersect the results with the previous ones.
@@ -549,6 +561,17 @@ LUA
     my $total_time = time() - $start_time;
     $logger->debug("[PERF] sort_results completed in ${total_time}s");
     return @sorted;
+}
+
+# Check if a tankoubon has any archive that exists in the given set.
+# Used for filters like "newonly" where we want tanks containing new archives.
+sub tank_has_archive_in_set ( $redis, $tank_id, $set_ref ) {
+    # Get archive IDs from the tank (scores > 0 are archive IDs)
+    my @archives = $redis->zrangebyscore( $tank_id, 1, "+inf" );
+    for my $arc (@archives) {
+        return 1 if exists $set_ref->{$arc};
+    }
+    return 0;
 }
 
 1;

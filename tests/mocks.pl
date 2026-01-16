@@ -103,7 +103,7 @@ sub setup_redis_mock {
             "lastreadtime": 0
         },
         "28697b96f0ac5858be2666ed10ca47742c955555": {
-            "isnew": "false",
+            "isnew": "true",
             "pagecount": 22,
             "progress": 0,
             "tags": "medjed, character:doubles guy, character:king of GETs, check this 5",
