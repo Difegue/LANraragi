@@ -4,7 +4,6 @@ use Mojo::Base 'Mojolicious::Controller';
 use Redis;
 use Encode;
 
-use LANraragi::Model::Category;
 use LANraragi::Model::Tankoubon;
 use LANraragi::Utils::Generic qw(render_api_response exec_with_lock);
 
@@ -192,31 +191,7 @@ sub get_tankoubons_file {
     );
 }
 
-# Find which categories this tankoubon is saved in.
-sub get_categories {
 
-    my $self    = shift;
-    my $tank_id = $self->stash('id');
-
-    # Validate tankoubon exists
-    my $redis = LANraragi::Model::Config->get_redis;
-    unless ( $redis->exists($tank_id) ) {
-        $redis->quit();
-        render_api_response( $self, "find_tank_categories", "Tankoubon not found." );
-        return;
-    }
-    $redis->quit();
-
-    my @categories = LANraragi::Model::Category::get_categories_containing_archive($tank_id);
-
-    $self->render(
-        json => {
-            operation  => "find_tank_categories",
-            categories => \@categories,
-            success    => 1
-        }
-    );
-}
 
 1;
 
