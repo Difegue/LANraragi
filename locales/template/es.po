@@ -238,6 +238,9 @@ msgstr "Nueva categoría dinámica"
 msgid "Tankoubons"
 msgstr ""
 
+msgid "Click here to display tankoubons only."
+msgstr ""
+
 msgid "Archives"
 msgstr ""
 

@@ -1809,6 +1809,9 @@ msgstr "新建动态分类"
 msgid "Tankoubons"
 msgstr ""
 
+msgid "Click here to display tankoubons only."
+msgstr ""
+
 msgid "Archives"
 msgstr ""
 

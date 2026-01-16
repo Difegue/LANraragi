@@ -231,6 +231,9 @@ msgstr "Danh mục Động mới"
 msgid "Tankoubons"
 msgstr ""
 
+msgid "Click here to display tankoubons only."
+msgstr ""
+
 msgid "Archives"
 msgstr ""
 

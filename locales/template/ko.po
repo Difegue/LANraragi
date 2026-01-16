@@ -217,6 +217,9 @@ msgstr "새 동적 카테고리"
 msgid "Tankoubons"
 msgstr ""
 
+msgid "Click here to display tankoubons only."
+msgstr ""
+
 msgid "Archives"
 msgstr ""
 

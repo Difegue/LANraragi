@@ -1638,6 +1638,9 @@ msgstr "Click here to display new archives only."
 msgid "Click here to display untagged archives only."
 msgstr "Click here to display untagged archives only."
 
+msgid "Click here to display tankoubons only."
+msgstr "Click here to display tankoubons only."
+
 msgid "Click here to display archives in this category only."
 msgstr "Click here to display archives in this category only."
 
