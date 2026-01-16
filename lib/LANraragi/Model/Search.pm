@@ -21,6 +21,7 @@ use LANraragi::Utils::Logging  qw(get_logger);
 
 use LANraragi::Model::Archive;
 use LANraragi::Model::Category;
+use LANraragi::Model::Tankoubon;
 
 # do_search (filter, category_id, page, key, order, newonly, untaggedonly)
 # Performs a search on the database.
@@ -480,58 +481,59 @@ LUA
           map  { [ $_, $tmpfilter{$_} ] }            # Map to an array containing the ID and the timestamp
           @filtered;                                 # List of IDs
     } else {
-        # Prepare a Lua script to retrieve all ID-associated tags
-        my $script = <<'LUA';
-        local result = {}
-        for i=1,#ARGV do
-            local id = ARGV[i]
-            local tags
-            if string.sub(id, 1, 4) == "TANK" then
-                -- Tank: get tags from ZSET at score -2, strip "tags_" prefix
-                local raw = redis.call('ZRANGEBYSCORE', id, -2, -2)
-                if raw[1] then
-                    tags = string.sub(raw[1], 6)
-                else
-                    tags = ""
-                end
-            else
-                tags = redis.call('HGET', id, 'tags') or ""
+        # Separate tanks from archives - tanks need special handling for imputed tags
+        my @tank_ids    = grep { /^TANK/ } @filtered;
+        my @archive_ids = grep { !/^TANK/ } @filtered;
+
+        my $re = qr/$sortkey/;
+
+        # Handle archives using Lua script for bulk retrieval
+        if ( scalar @archive_ids > 0 ) {
+            my $script = <<'LUA';
+            local result = {}
+            for i=1,#ARGV do
+                local id = ARGV[i]
+                local tags = redis.call('HGET', id, 'tags') or ""
+                result[i] = {id, tags}
             end
-            result[i] = {id, tags}
-        end
-        return cjson.encode(result)
+            return cjson.encode(result)
 LUA
 
-        # Execute the Lua script
-        my $sha;
-        eval {
-            $sha = $redis->script_load($script);
-            my $total_time = time() - $start_time;
-            $logger->debug("[PERF] Tag retrieval Lua script completed in ${total_time}s");
-        };
-        if ($@) {
-            $logger->error("Failed to load Lua script: $@");
-            # Revert to the original methodology
-            my $re = qr/$sortkey/;
-            %tmpfilter = map { $_ => ( $redis->hget( $_, "tags" ) =~ m/.*${re}:(.*?)(\,.*|$)/ ) ? $1 : "zzzz" } @filtered;
-        } else {
-            my $result = $redis->evalsha($sha, 0, @filtered);
-            my $data = eval { decode_json($result) };
+            my $sha;
+            eval {
+                $sha = $redis->script_load($script);
+                my $total_time = time() - $start_time;
+                $logger->debug("[PERF] Tag retrieval Lua script completed in ${total_time}s");
+            };
             if ($@) {
-                $logger->error("Failed to decode JSON from Lua script: $@");
+                $logger->error("Failed to load Lua script: $@");
                 # Revert to the original methodology
-                my $re = qr/$sortkey/;
-                %tmpfilter = map { $_ => ( $redis->hget( $_, "tags" ) =~ m/.*${re}:(.*?)(\,.*|$)/ ) ? $1 : "zzzz" } @filtered;
+                %tmpfilter = map { $_ => ( $redis->hget( $_, "tags" ) =~ m/.*${re}:(.*?)(\,.*|$)/ ) ? $1 : "zzzz" } @archive_ids;
             } else {
-                my $re = qr/$sortkey/;
-                foreach my $item (@$data) {
-                    my $id = $item->[0];
-                    my $tags = $item->[1];
-                    # Find and use the first tag that matches the sortkey/namespace.
-                    # (If no tag, defaults to "zzzz")
-                    $tmpfilter{$id} = ($tags =~ m/.*${re}:(.*?)(\,.*|$)/) ? $1 : "zzzz";
+                my $result = $redis->evalsha( $sha, 0, @archive_ids );
+                my $data = eval { decode_json($result) };
+                if ($@) {
+                    $logger->error("Failed to decode JSON from Lua script: $@");
+                    # Revert to the original methodology
+                    %tmpfilter =
+                      map { $_ => ( $redis->hget( $_, "tags" ) =~ m/.*${re}:(.*?)(\,.*|$)/ ) ? $1 : "zzzz" } @archive_ids;
+                } else {
+                    foreach my $item (@$data) {
+                        my $id   = $item->[0];
+                        my $tags = $item->[1];
+                        # Find and use the first tag that matches the sortkey/namespace.
+                        # (If no tag, defaults to "zzzz")
+                        $tmpfilter{$id} = ( $tags =~ m/.*${re}:(.*?)(\,.*|$)/ ) ? $1 : "zzzz";
+                    }
                 }
             }
+        }
+
+        # Handle tanks separately - use full imputed tagset for sorting
+        foreach my $tank_id (@tank_ids) {
+            my $tagset = LANraragi::Model::Tankoubon::get_tank_unified_tags($tank_id);
+            my $tags   = join( ",", @{ $tagset->{own_tags} }, @{ $tagset->{imputed_tags} } );
+            $tmpfilter{$tank_id} = ( $tags =~ m/.*${re}:(.*?)(\,.*|$)/ ) ? $1 : "zzzz";
         }
 
         # Read comments from the bottom up for a better understanding of this sort algorithm.
