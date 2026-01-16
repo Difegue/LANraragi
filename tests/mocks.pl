@@ -154,11 +154,15 @@ sub setup_redis_mock {
         },
         "TANK_1589141306": {
             "name_Hello": 0,
+            "summary_A test tankoubon": -1,
+            "tags_series:hello world": -2,
             "28697b96f0ac5858be2666ed10ca47742c955555": 1,
             "28697b96f0ac5777be2614ed10ca47742c9522fa": 2
         },
         "TANK_1589138380": {
             "name_World": 0,
+            "summary_": -1,
+            "tags_": -2,
             "28697b96f0ac5777be2614ed10ca47742c9522fa": 1
         },
         "LAST_JOB_TIME": "1",
