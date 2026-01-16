@@ -614,6 +614,9 @@ sub fetch_metadata_fields ($tank_id) {
 #   Returns: Hashref with:
 #     own_tags     => arrayref of tank's own tags (trimmed)
 #     imputed_tags => arrayref of archive tags, deduplicated, excluding own_tags
+#   Note: date_added and timestamp tags are coalesced - only one of each namespace
+#         appears in the result. Tank's own tag takes priority; otherwise the most
+#         recent (highest) value from archives is used.
 sub get_tank_unified_tags ( $tank_id, $archive_tags_list = undef ) {
     my $redis = LANraragi::Model::Config->get_redis;
 
@@ -643,6 +646,18 @@ sub get_tank_unified_tags ( $tank_id, $archive_tags_list = undef ) {
     # Build set of own tags for deduplication (case-insensitive)
     my %own_tags_lc = map { lc($_) => 1 } @own_tags;
 
+    # Track date-type tags for coalescing (date_added and timestamp)
+    # Each namespace should appear at most once in the final result
+    my %own_date_tags;      # namespace => 1 (tank has its own tag for this namespace)
+    my %max_imputed_dates;  # namespace => { value => N, tag => "namespace:N" }
+
+    # Check if tank has its own date_added or timestamp tags
+    foreach my $t (@own_tags) {
+        if ( $t =~ /^(date_added|timestamp):(\d+)$/i ) {
+            $own_date_tags{ lc($1) } = 1;
+        }
+    }
+
     # Parse archive tags, deduplicate, exclude own_tags
     my %seen;
     my @imputed_tags;
@@ -652,10 +667,27 @@ sub get_tank_unified_tags ( $tank_id, $archive_tags_list = undef ) {
             $t = trim($t);
             next if $t eq "";
             my $t_lc = lc($t);
+
+            # Handle date-type tags specially - track max value per namespace
+            if ( $t =~ /^(date_added|timestamp):(\d+)$/i ) {
+                my ( $ns, $val ) = ( lc($1), $2 );
+                if ( !exists $max_imputed_dates{$ns} || $val > $max_imputed_dates{$ns}{value} ) {
+                    $max_imputed_dates{$ns} = { value => $val, tag => $t };
+                }
+                next;    # Don't add to imputed_tags yet
+            }
+
             # Skip if already seen or if it's in own_tags
             next if $seen{$t_lc}++;
             next if $own_tags_lc{$t_lc};
             push @imputed_tags, $t;
+        }
+    }
+
+    # Add winning imputed date tags (only if tank has no own tag for that namespace)
+    foreach my $ns ( keys %max_imputed_dates ) {
+        if ( !exists $own_date_tags{$ns} ) {
+            push @imputed_tags, $max_imputed_dates{$ns}{tag};
         }
     }
 
