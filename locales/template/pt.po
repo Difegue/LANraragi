@@ -1548,9 +1548,6 @@ msgstr ""
 msgid "${n} archive(s)"
 msgstr ""
 
-msgid "Showing ${start} to ${end} of ${total} archives"
-msgstr ""
-
 msgid "This tankoubon has no archives."
 msgstr ""
 

@@ -208,13 +208,27 @@ TankoubonView.renderPage = function(showAll = false) {
 
         pageArchives.forEach((archive, index) => {
             const globalIndex = start + index + 1;
+            const thumbSrc = new LRR.apiURL(`/api/archives/${archive.arcid}/thumbnail`);
             const row = $(`<tr class="context-menu gtr${index % 2}" id="${archive.arcid}" data-id="${archive.arcid}">
                 <td class="itd" style="text-align: center;">
                     <i class="fas fa-grip-vertical drag-handle"></i>
                     <span class="row-index">${globalIndex}</span>
                 </td>
-                <td class="itd"><a href="${new LRR.apiURL(`/reader?id=${archive.arcid}`)}">${LRR.encodeHTML(archive.title)}</a></td>
-                <td class="itd">${LRR.colorCodeTags(archive.tags)}</td>
+                <td class="itd">
+                    ${LRR.buildStatusDiv(archive)}<a onmouseover="TankoubonView.buildImageTooltip(this)" href="${new LRR.apiURL(`/reader?id=${archive.arcid}`)}">${LRR.encodeHTML(archive.title)}</a>
+                    <div class="caption" style="display: none;">
+                        <img style="height:300px" src="${thumbSrc}"
+                             onerror="this.src='${new LRR.apiURL("/img/noThumb.png")}'">
+                    </div>
+                </td>
+                <td class="itd">
+                    <span class="tag-tooltip" onmouseover="LRR.buildTagTooltip(this)" style="text-overflow:ellipsis;">
+                        ${LRR.colorCodeTags(archive.tags)}
+                    </span>
+                    <div class="caption caption-tags" style="display: none;">
+                        ${LRR.buildTagsDiv(archive.tags)}
+                    </div>
+                </td>
             </tr>`);
             tbody.append(row);
         });
@@ -670,4 +684,22 @@ TankoubonView.addCategoryBadge = function(categoryId) {
             style="margin-left:4px; margin-right:2px">×</a>
     </div>`;
     $("#tankoubon-categories").append(html);
+};
+
+/**
+ * Build a tooltip when hovering over an archive title in table view, then display it.
+ * @param {*} target The target archive title link
+ */
+TankoubonView.buildImageTooltip = function(target) {
+    if (target.innerHTML === "") return;
+
+    tippy(target, {
+        content: $(target).next("div").clone().attr("style", "height:300px;")[0],
+        delay: 0,
+        animation: false,
+        maxWidth: "none",
+        followCursor: true,
+    }).show();
+
+    $(target).attr("onmouseover", "");
 };

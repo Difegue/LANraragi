@@ -59,7 +59,7 @@ I18N.StatusTankoubon = "[% c.lh("Tankoubon (collection)") %]";
 I18N.Tankoubon = "[% c.lh("Tankoubon") %]";
 I18N.TankoubonLoadError = "[% c.lh("Error loading tankoubon") %]";
 I18N.TankoubonArchiveCount = (n) => `[% c.lh("\${n} archive(s)") %]`;
-I18N.TankoubonShowingCount = (start, end, total) => `[% c.lh("Showing \${start} to \${end} of \${total} archives") %]`;
+I18N.TankoubonShowingCount = (start, end, total) => `[% c.lh("Showing _START_ to _END_ of _TOTAL_ ancient chinese lithographies.") %]`.replace("_START_", start).replace("_END_", end).replace("_TOTAL_", total);
 I18N.TankoubonEditSaved = "[% c.lh("Tankoubon saved!") %]";
 I18N.TankoubonEditError = "[% c.lh("Error saving tankoubon") %]";
 I18N.TankoubonNoSummary = "[% c.lh("(No summary)") %]";

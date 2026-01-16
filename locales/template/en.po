@@ -1397,9 +1397,6 @@ msgstr "Error loading tankoubon"
 msgid "${n} archive(s)"
 msgstr "${n} archive(s)"
 
-msgid "Showing ${start} to ${end} of ${total} archives"
-msgstr "Showing ${start} to ${end} of ${total} archives"
-
 msgid "This tankoubon has no archives."
 msgstr "This tankoubon has no archives."
 
