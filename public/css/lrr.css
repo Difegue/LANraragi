@@ -831,6 +831,26 @@ div.fullscreen img {
   opacity: 0.6;
 }
 
+.thumbnail-source-icon {
+  cursor: pointer;
+  position: absolute;
+  right: 52px;
+  bottom: 20px;
+  z-index: 2;
+  font-size: 20px;
+  text-shadow: 0 0 3px rgba(0, 50, 116, 0.9);
+  color: inherit;
+  text-decoration: none;
+}
+
+.thumbnail-source-icon:hover {
+  opacity: 0.8;
+}
+
+.thumbnail-source-icon:active {
+  opacity: 0.6;
+}
+
 body.infinite-scroll .fullscreen-infinite img {
   margin: 0 auto !important;
 }

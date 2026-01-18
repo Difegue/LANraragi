@@ -298,6 +298,26 @@ LRR.buildBookmarkIconElement = function (id, bookmark_class) {
 };
 
 /**
+ * Build source link icon for an archive if it has a source tag.
+ * @param {*} tags The tags string
+ * @returns HTML component string
+ */
+LRR.buildSourceLinkElement = function (tags) {
+    if (!tags) return "";
+    
+    const sourceMatch = tags.match(/source:([^,]+)(?:,|$)/i);
+    if (!sourceMatch) return "";
+    
+    const sourceUrl = sourceMatch[1].trim();
+    if (!sourceUrl) return "";
+    
+    // Ensure URL has protocol
+    const fullUrl = /^https?:\/\//.test(sourceUrl) ? sourceUrl : `https://${sourceUrl}`;
+    
+    return `<a href="${fullUrl}" target="_blank" rel="noopener noreferrer" class="thumbnail-source-icon fas fa-external-link-alt" title="Open Source URL" onclick="event.stopPropagation();"></a>`;
+};
+
+/**
  * Build a thumbnail div for the given archive data. Dynamically generates a bookmark icon,
  * such that the toggleability depends on whether the user is logged in.
  * @param {*} data The archive data
@@ -310,6 +330,7 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
     const id = data.arcid || data.id;
     let reader_url = new LRR.apiURL(`/reader?id=${id}`);
     const bookmarkIcon = LRR.buildBookmarkIconElement(id, "thumbnail-bookmark-icon");
+    const sourceIcon = LRR.buildSourceLinkElement(data.tags);
 
     // Don't enforce no_fallback=true here, we don't want those divs to trigger Minion jobs
     return `<div class="id1 context-menu swiper-slide" id="${id}">
@@ -326,6 +347,7 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
                                 onerror="this.src='${new LRR.apiURL("/img/noThumb.png")}'"/>
                     </a>
                     ${bookmarkIcon}
+                    ${sourceIcon}
                 </div>
                 <div class="id4">
                         ${LRR.buildPageCountDiv(data)}
@@ -362,6 +384,9 @@ LRR.buildPageCountDiv = function (arcdata) {
     }
     return "";
 };
+
+// Alias for backward compatibility with older versions
+LRR.buildProgressDiv = LRR.buildPageCountDiv;
 
 /**
  * Get the progress and pagecount for the given archive data, considering localStorage if needed.
