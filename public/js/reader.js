@@ -978,11 +978,11 @@ Reader.startAutoNextPage = function () {
     const aEls = $(".toggle-auto-next-page");
     aEls.removeClass("fa-stopwatch");
     
-    // 格式化显示：整数显示整数，小数保留1位
+    // Format display: integer displays integer, decimal retains 1 decimal place
     const formatCountdown = (val) => Number.isInteger(val) ? val : val.toFixed(1);
     aEls.text(formatCountdown(Reader.autoNextPageCountdown));
 
-    // 定义翻页逻辑
+    // Define page turning logic
     const doPageTurn = () => {
         if (Reader.mangaMode)
             Reader.changePage(-1);
@@ -997,16 +997,16 @@ Reader.startAutoNextPage = function () {
         }
     };
 
-    // 0秒间隔：立即翻页
+    // 0 second interval: turn page immediately
     if (Reader.autoNextPageCountdown <= 0) {
         doPageTurn();
         return;
     }
 
-    // 使用100ms精度的定时器
+    // Use 100ms precision timer
     Reader.autoNextPageCountdownTaskId = setInterval(() => {
         Reader.autoNextPageCountdown -= 0.1;
-        Reader.autoNextPageCountdown = Math.round(Reader.autoNextPageCountdown * 10) / 10; // 避免浮点数精度问题
+        Reader.autoNextPageCountdown = Math.round(Reader.autoNextPageCountdown * 10) / 10; // Avoid floating point precision issues
         
         if (Reader.autoNextPageCountdown <= 0) {
             clearInterval(Reader.autoNextPageCountdownTaskId);
