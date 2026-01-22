@@ -868,11 +868,11 @@ Reader.goToPage = function (page) {
 Reader.updateProgress = function () {
     // Send an API request to update progress on the server
     if (Reader.authenticateProgress && LRR.isUserLogged()) {
-        Server.callAPI(`/api/archives/${Reader.id}/progress/${Reader.currentPage + 1}`, "PUT", null, I18N.ReaderErrorProgress, null);
+        Server.updateServerSideProgress(Reader.id, Reader.currentPage + 1);
     } else if (Reader.trackProgressLocally) {
         localStorage.setItem(`${Reader.id}-reader`, Reader.currentPage + 1);
     } else if (!Reader.authenticateProgress) {
-        Server.callAPI(`/api/archives/${Reader.id}/progress/${Reader.currentPage + 1}`, "PUT", null, I18N.ReaderErrorProgress, null);
+        Server.updateServerSideProgress(Reader.id, Reader.currentPage + 1);
     }
 };
 
