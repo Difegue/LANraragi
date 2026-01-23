@@ -217,6 +217,16 @@
 			// Initialize context menu
 			$.contextMenu({
 				selector: '.context-menu',
+				events: {
+					show: function(options) {
+						const $trigger = $(this);
+						if ($trigger.closest('.swiper-wrapper').length > 0) {
+							window.contextMenuSource = 'carousel';
+						} else {
+							window.contextMenuSource = 'datatables';
+						}
+					}
+				},
 				build: ($trigger, e) => {
 					return {
 						callback: function (key, options) {
