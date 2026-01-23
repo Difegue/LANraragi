@@ -247,8 +247,16 @@ sub build_json ( $id, %hash ) {
     if ( defined $toc ) {
         eval { $toc = decode_json($toc) };
 
-        foreach my $page ( keys %$toc ) {
-            push @chapters, { page => $page + 0, name => $toc->{$page} };
+        if ( my $decode_error = $@ ) {
+            get_logger( "Archive", "lanraragi" )->error("Failed to parse ToC JSON for archive $id: $decode_error");
+            $toc = undef;
+        }
+        if ( defined $toc && ref($toc) eq 'HASH' ) {
+            foreach my $page ( keys %$toc ) {
+                push @chapters, { page => $page + 0, name => $toc->{$page} };
+            }
+        } elsif ( defined $toc ) {
+            get_logger( "Archive", "lanraragi" )->error("ToC is not a hash: $toc");
         }
 
         # Sort chapters by page number
