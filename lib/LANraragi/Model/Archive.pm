@@ -360,11 +360,11 @@ sub remove_toc_entry {
         $toc = decode_json($toc);
         delete $toc->{$page};
         $toc = encode_json($toc);
-        $redis->hset( $id, "toc", $toc );
     } catch ($e) {
         $logger->warn("Error while updating ToC: $e -- Will overwrite with a blank ToC.");
-        $redis->hset( $id, "toc", "{}" );
+        $toc = "{}";
     }
+    $redis->hset( $id, "toc", $toc );
 
     $redis->quit();
     return "";
