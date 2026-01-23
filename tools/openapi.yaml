@@ -1373,7 +1373,7 @@ paths:
       security:
         - api_key: []
       operationId: deleteArchiveToc
-      x-mojo-to: api-archive#delete_toc
+      x-mojo-to: api-archive#remove_toc
       summary: 🔑 Remove entry from Archive Table of Contents
       description: >-
         Delete an entry from the Table of Contents of a given Archive.  
@@ -1402,7 +1402,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
               example:
-                operation: delete_toc
+                operation: remove_toc
                 success: 1
                 successMessage: Removed ToC entry for page 143.
         '400':
