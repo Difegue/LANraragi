@@ -1720,6 +1720,16 @@ paths:
                 operation: update_progress
                 error: Server-side Progress Tracking is disabled on this instance.
                 success: 0
+        '401':
+          description: Authentication required when authprogress is enabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+              example:
+                operation: update_progress
+                error: This operation requires authentication.
+                success: 0
         '423':
           description: Locked resource response
           content:
@@ -3106,11 +3116,16 @@ paths:
                     properties:
                       archives:
                         type: array
-                        description: Paginated list of archive IDs.
+                        description: Paginated list of archive IDs or tankoubon IDs.
                         items:
                           type: string
-                          minLength: 14
-                          maxLength: 14
+                          oneOf:
+                            - minLength: 40
+                              maxLength: 40
+                              pattern: "^[0-9a-f]{40}$"
+                            - minLength: 15
+                              maxLength: 15
+                              pattern: "^TANK_[0-9]{10}$"
                         uniqueItems: true
                       full_data:
                         type: array
@@ -3152,33 +3167,9 @@ paths:
             type: string
       requestBody:
         required: true
-        description: Json with 2 optional keys "archives" and "metadata" 
+        description: Json with 2 optional keys "archives" and "metadata"
         content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                archives:
-                  description: Ordered array with the IDs of the archives.
-                  type: array
-                  items:
-                    type: string
-                    minLength: 40
-                    maxLength: 40
-                metadata:
-                  description: Metadata parameters -- All are optional.
-                  type: object
-                  properties:
-                    name:
-                      type: string
-                      description: Name of the Tankoubon
-                    summary:
-                      type: string
-                      description: Summary of the Tankoubon
-                    tags:
-                      type: string
-                      description: Additional tags for the Tankoubon, in LRR comma-separated format.
-          multipart/form-data:
+          application/json:
             schema:
               type: object
               properties:
@@ -3552,9 +3543,14 @@ components:
       properties:
         arcid:
           type: string
-          minLength: 40
-          maxLength: 40
-          description: Unique identifier for the archive
+          description: Unique identifier for the archive (40-char SHA1) or tankoubon (15-char TANK_* ID)
+          oneOf:
+            - minLength: 40
+              maxLength: 40
+              pattern: "^[0-9a-f]{40}$"
+            - minLength: 15
+              maxLength: 15
+              pattern: "^TANK_[0-9]{10}$"
         title:
           type: string
           description: Title of the archive
@@ -3630,7 +3626,7 @@ components:
           type: string
           description: Name of the category
         pinned:
-          type: int
+          type: integer
           description: Whether this category should be pinned in the UI
           enum:
             - 0

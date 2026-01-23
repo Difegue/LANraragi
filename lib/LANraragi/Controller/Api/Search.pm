@@ -63,9 +63,10 @@ sub handle_datatables ($self) {
 }
 
 # Public search API with saner parameters.
-sub handle_api ($self) {
+sub handle_api {
 
-    my $req = $self->req;
+    my $self = shift->openapi->valid_input or return;
+    my $req  = $self->req;
 
     my $filter     = $req->param('filter');
     my $category   = $req->param('category') || "";
@@ -89,7 +90,7 @@ sub handle_api ($self) {
 
         # Search engine not initialized
         $self->render(
-            json => {
+            openapi => {
                 recordsTotal    => 0,
                 recordsFiltered => 0,
                 data            => []
@@ -97,7 +98,7 @@ sub handle_api ($self) {
             status => 204
         );
     } else {
-        $self->render( json => get_api_object( $total, $filtered, @ids ) );
+        $self->render( openapi => get_api_object( $total, $filtered, @ids ) );
     }
 }
 
@@ -107,9 +108,10 @@ sub clear_cache {
 }
 
 # Pull random archives out of the given search
-sub get_random_archives ($self) {
+sub get_random_archives {
 
-    my $req = $self->req;
+    my $self = shift->openapi->valid_input or return;
+    my $req  = $self->req;
 
     my $filter       = $req->param('filter');
     my $category     = $req->param('category')      || "";
@@ -137,7 +139,7 @@ sub get_random_archives ($self) {
 
     my @data = get_archive_json_multi(@random_ids);
     $self->render(
-        json => {
+        openapi => {
             data         => \@data,
             recordsTotal => $random_count
         }

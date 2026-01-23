@@ -39,6 +39,7 @@ unzip -qq redis.zip
 rm redis.zip
 
 mkdir -p win-dist/runtime/redis
+mkdir -p win-dist/tools/
 
 mv ./Redis-7.2.9-Windows-x64-msys2/* ./win-dist/runtime/redis
 
@@ -47,6 +48,7 @@ rm -rf ./Redis-7.2.9-Windows-x64-msys2
 # Copy the actual app
 cp ./package.json ./win-dist
 cp ./lrr.conf ./win-dist
+cp ./tools/openapi.yaml ./win-dist/tools/
 cp -R ./lib ./win-dist
 cp -R ./public ./win-dist
 cp -R ./script ./win-dist

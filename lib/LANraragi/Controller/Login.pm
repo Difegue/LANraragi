@@ -1,11 +1,11 @@
 package LANraragi::Controller::Login;
 use Mojo::Base 'Mojolicious::Controller';
-use MIME::Base64;
 
 use Redis;
 use Authen::Passphrase;
 
 use LANraragi::Utils::Generic qw(generate_themes_header);
+use LANraragi::Utils::Login qw(is_logged_in_api);
 
 sub check {
     my $self = shift;
@@ -55,21 +55,7 @@ sub logged_in {
 # For APIs, the request can also be authentified with a valid API Key.
 sub logged_in_api {
     my $self = shift;
-
-    # The API key is in the Authentication header.
-    my $expected_key = $self->LRR_CONF->get_apikey;
-    my $expected_header = "Bearer " . encode_base64( $expected_key, "" );
-
-    my $auth_header = $self->req->headers->authorization || "";
-
-    # It can also be passed as a parameter. (Undocumented, mostly just meant for OPDS)
-    my $param_key = $self->req->param('key') || '';
-
-    return 1
-      if ( $expected_key ne "" && $auth_header eq $expected_header )
-      || ( $param_key ne "" && $param_key eq $expected_key )
-      || $self->session('is_logged')
-      || $self->LRR_CONF->enable_pass == 0;
+    return 1 if is_logged_in_api( $self );
     $self->render(
         json   => { error => "This API is protected and requires login or an API Key." },
         status => 401
