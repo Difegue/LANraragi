@@ -288,7 +288,7 @@ sub add_new {
     return unless exec_with_lock(
         $self,
         "archive-write:$id",
-        "clear_new",
+        "add_new",
         $id,
         sub {
             set_isnew( $id, "true" );
