@@ -195,7 +195,7 @@ sub add_to_filemap ( $redis_cfg, $file ) {
         my $id = "";
         eval { $id = compute_id($file); };
 
-        if ($@) {
+        if ($@ && -e $file) {
             $logger->error("Couldn't open $file for ID computation: $@");
             $logger->error("Giving up on adding it to the filemap.");
             return;
