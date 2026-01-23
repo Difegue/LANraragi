@@ -338,7 +338,6 @@ sub add_toc_entry {
         $toc          = decode_json($toc);
         $toc->{$page} = $title;
         $toc          = encode_json($toc);
-        $redis->hset( $id, "toc", $toc );
     } catch ($e) {
         $logger->warn(
             "Error while updating ToC: $e -- Will overwrite with a ToC containing the new data. (This is normal if this ID had no ToC yet.)"
@@ -346,8 +345,8 @@ sub add_toc_entry {
         $toc          = {};
         $toc->{$page} = $title;
         $toc          = encode_json($toc);
-        $redis->hset( $id, "toc", "{}" );
     }
+    $redis->hset( $id, "toc", $toc );
 
     $redis->quit();
     return "";
