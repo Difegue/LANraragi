@@ -325,10 +325,6 @@ sub update_metadata {
 sub add_toc_entry {
     my ( $id, $page, $title ) = @_;
 
-    unless ( defined $page and defined $title ) {
-        return "Missing page and/or title.";
-    }
-
     my $redis  = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Archives", "lanraragi" );
     my $toc    = $redis->hget( $id, "toc" );
@@ -354,10 +350,6 @@ sub add_toc_entry {
 
 sub remove_toc_entry {
     my ( $id, $page ) = @_;
-
-    unless ( defined $page ) {
-        return "Please specify a page to remove";
-    }
 
     my $redis  = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Archives", "lanraragi" );

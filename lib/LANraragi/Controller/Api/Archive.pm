@@ -379,6 +379,10 @@ sub add_toc {
     my $page  = $self->req->param('page');
     my $title = $self->req->param('title');
 
+    unless ( defined $page && defined $title ) {
+        return render_api_response( $self, "add_toc", "Missing page and/or title." );
+    }
+
     return unless exec_with_lock(
         $self,
         "archive-write:$id",
@@ -402,6 +406,10 @@ sub remove_toc {
     my $id   = check_id_parameter( $self, "remove_toc" ) || return;
 
     my $page = $self->req->param('page');
+
+    unless ( defined $page ) {
+        return render_api_response( $self, "remove_toc", "Please specify a page to remove" );
+    }
 
     return unless exec_with_lock(
         $self,
