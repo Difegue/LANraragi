@@ -554,7 +554,7 @@ Reader.handleShortcuts = function (e) {
  */
 Reader.spaceScrollProcessInput = function (e) {
     //Break early and go back to browser default behaviour if overlay is open or gallery has webtoon tag and in infiniteScroll
-    if ($(".page-overlay").is(":visible") || e.repeat || (Reader.infiniteScroll && Reader.tags?.includes("webtoon"))) return;
+    if ($(".page-overlay").is(":visible") || e.repeat || (Reader.infiniteScroll && Reader.content.tags?.includes("webtoon"))) return;
 
     e.preventDefault();
     // Capture direction now so we dont lose it if shift state changes while held
