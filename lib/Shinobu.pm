@@ -194,10 +194,14 @@ sub add_to_filemap ( $redis_cfg, $file ) {
         #Compute the ID of the archive and add it to the hash
         my $id = "";
         eval { $id = compute_id($file); };
+        my $compute_error = $@;
 
-        if ($@ && -e $file) {
-            $logger->error("Couldn't open $file for ID computation: $@");
+        if ($compute_error && -e $file) {
+            $logger->error("Couldn't open $file for ID computation: $compute_error");
             $logger->error("Giving up on adding it to the filemap.");
+            return;
+        } elsif ($compute_error) {
+            $logger->warn("File $file no longer exists; giving up on adding it to the filemap.");
             return;
         }
 
