@@ -201,7 +201,7 @@ sub add_to_filemap ( $redis_cfg, $file ) {
             return;
         }
 
-        # Acquire exclusive metadata and file write access for archive by ID
+        # Acquire exclusive metadata and file write access for archive by ID with 1m timeout
         my $acquired, $_ = exec_with_lock_pure([ "archive-write:$id" ], sub {
 
             $logger->debug("Computed ID is $id.");
@@ -273,7 +273,7 @@ sub add_to_filemap ( $redis_cfg, $file ) {
                 add_new_file( $id, $file );
                 invalidate_cache();
             }
-        }, $redis_arc);
+        }, $redis_arc, 60);
 
         if ( !$acquired ) {
             $logger->warn("Write lock already acquired for archive $file with ID $id, skipping.");

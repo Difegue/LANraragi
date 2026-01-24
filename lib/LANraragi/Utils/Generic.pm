@@ -351,22 +351,23 @@ sub exec_with_lock {
 
 }
 
-# exec_with_lock_pure( \@lock_names, $func, $redis (optional) )
+# exec_with_lock_pure( \@lock_names, $func, $redis (optional), $ttl (optional) )
 # Execute a function under a multi-lock context.
 # Does not implement lock_name sorting,
 # so locks should be passed in a deterministic order to avoid deadlocking.
-# For high-level, fast operations, as the expiry is set to 10s.
+# For high-level, fast operations, as the expiry defaults to 10s.
 # Returns a tuple ($acquired, $response), where $response is 
 # function response (if any) if acquired, or undef if not acquired.
 # Redis connection is optional; if not supplied, a managed connection will be created.
 sub exec_with_lock_pure {
 
-    my ( $lock_names, $func, $redis ) = @_;
+    my $lock_names = shift;
+    my $func       = shift;
+    my $redis      = shift;
+    my $ttl        = shift // 10;
     my $own_redis = 0;
 
-    unless ( scalar(@$lock_names) ) {
-        die "Lock name list cannot be empty";
-    }
+    die "Lock name list cannot be empty" unless scalar(@$lock_names);
 
     # prepare the script for token release
     # tokens demonstrate ownership over a redis lock, and is used to prevent workers 
@@ -389,12 +390,9 @@ LUA
     my @lock_name_stack = ();
     foreach my $lock_name ( @$lock_names ) {
         my $token = sha256_hex( $lock_name . ":" . $$ . ":" . time() . ":" . rand() );
-        my $lock  = $redis->set( $lock_name, $token, 'NX', 'EX', 10 );
-        if ( $lock ) {
-            push( @lock_name_stack, [ $lock_name, $token ] );
-        } else {
-            last;
-        }
+        my $lock  = $redis->set( $lock_name, $token, 'NX', 'EX', $ttl );
+        last unless $lock;
+        push( @lock_name_stack, [ $lock_name, $token ] );
     }
     # if a single lock fails to acquire, stop trying for the rest, and
     # go release all previously acquired locks in the reverse order.
