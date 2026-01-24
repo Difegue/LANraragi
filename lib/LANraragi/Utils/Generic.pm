@@ -361,11 +361,11 @@ sub exec_with_lock {
 # Redis connection is optional; if not supplied, a managed connection will be created.
 sub exec_with_lock_pure {
 
-    my $lock_names = shift;
-    my $func       = shift;
-    my $redis      = shift;
-    my $ttl        = shift // 10;
-    my $own_redis = 0;
+    my $lock_names  = shift;
+    my $func        = shift;
+    my $redis       = shift;
+    my $ttl         = shift // 10;
+    my $own_redis   = 0;
 
     die "Lock name list cannot be empty" unless scalar(@$lock_names);
 
@@ -390,7 +390,12 @@ LUA
     my @lock_name_stack = ();
     foreach my $lock_name ( @$lock_names ) {
         my $token = sha256_hex( $lock_name . ":" . $$ . ":" . time() . ":" . rand() );
-        my $lock  = $redis->set( $lock_name, $token, 'NX', 'EX', $ttl );
+        my $lock = eval { $redis->set( $lock_name, $token, 'NX', 'EX', $ttl ) };
+        if ( my $acquire_error = $@ ) {
+            # If a lock acquisition failure happens, then a problem has occurred with Redis.
+            get_logger( "Concurrency", "lanraragi" )->error("Failed to acquire lock $lock_name: $acquire_error");
+            last;
+        }
         last unless $lock;
         push( @lock_name_stack, [ $lock_name, $token ] );
     }
@@ -399,9 +404,16 @@ LUA
     unless ( scalar(@lock_name_stack) == scalar(@$lock_names) ) {
         while ( @lock_name_stack ) {
             my ( $lock_name, $token ) = @{ pop(@lock_name_stack) };
-            $redis->eval( $release_lua, 1, $lock_name, $token );
+
+            # This should be best effort release, but if failure happens, 
+            # then continue releasing remaining locks and let TTL take over.
+            my $release_error = eval { $redis->eval( $release_lua, 1, $lock_name, $token ); 1 } ? undef : $@;
+            get_logger( "Concurrency", "lanraragi" )->error("Failed to release lock ($lock_name): $release_error") if $release_error;
         }
-        $redis->quit() if $own_redis;
+        if ($own_redis) {
+            my $close_error = eval { $redis->quit(); 1 } ? undef : $@;
+            get_logger( "Concurrency", "lanraragi" )->error("Failed to close Redis connection: $close_error") if $close_error;
+        }
         return 0, undef;
     }
 
@@ -412,11 +424,13 @@ LUA
     # release all previously acquired locks in reverse order.
     while ( @lock_name_stack ) {
         my ( $lock_name, $token ) = @{ pop(@lock_name_stack) };
-        $redis->eval( $release_lua, 1, $lock_name, $token );
+        my $release_error = eval { $redis->eval( $release_lua, 1, $lock_name, $token ); 1 } ? undef : $@;
+        get_logger( "Concurrency", "lanraragi" )->error("Failed to release lock after evaluation ($lock_name): $release_error") if $release_error;
     }
 
     # close managed connection
-    $redis->quit() if $own_redis;
+    my $close_error = eval { $redis->quit() if $own_redis; 1 } ? undef : $@;
+    get_logger( "Concurrency", "lanraragi" )->error("Failed to close Redis connection after evaluation: $close_error") if $close_error;
 
     # throw error if exists
     die $fn_err if $fn_err;
