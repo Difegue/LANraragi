@@ -16,6 +16,7 @@ use Data::Dumper;
 
 use LANraragi::Utils::String   qw(trim);
 use LANraragi::Utils::Database qw(set_tags set_title set_summary);
+use LANraragi::Utils::Generic  qw(exec_with_lock_pure);
 use LANraragi::Utils::Archive  qw(extract_thumbnail);
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Tags     qw(rewrite_tags split_tags_to_array);
@@ -66,28 +67,35 @@ sub exec_enabled_plugins_on_file ($id) {
             next;
         }
 
-        $successes++;
+        # update metadata on lock
+        my $acquired, $_ = exec_with_lock_pure([ "archive-write:$id" ], sub {
+            $successes++;
 
-        #If the plugin exec returned metadata, add it
-        set_tags( $id, $plugin_result{new_tags}, 1 );
+            #If the plugin exec returned metadata, add it
+            set_tags( $id, $plugin_result{new_tags}, 1 );
 
-        # Sum up all the added tags for later reporting.
-        # This doesn't take into account tags that are added twice
-        # (e.g by different plugins), but since this is more meant to show
-        # if the plugins added any data at all it's fine.
-        my @added_tags = split( ',', $plugin_result{new_tags} );
-        $addedtags += @added_tags;
+            # Sum up all the added tags for later reporting.
+            # This doesn't take into account tags that are added twice
+            # (e.g by different plugins), but since this is more meant to show
+            # if the plugins added any data at all it's fine.
+            my @added_tags = split( ',', $plugin_result{new_tags} );
+            $addedtags += @added_tags;
 
-        if ( exists $plugin_result{title} ) {
-            set_title( $id, $plugin_result{title} );
+            if ( exists $plugin_result{title} ) {
+                set_title( $id, $plugin_result{title} );
 
-            $newtitle = $plugin_result{title};
-            $logger->debug("Changing title to $newtitle. (Will do nothing if title is blank)");
-        }
+                $newtitle = $plugin_result{title};
+                $logger->debug("Changing title to $newtitle. (Will do nothing if title is blank)");
+            }
 
-        if ( exists $plugin_result{summary} ) {
-            set_summary( $id, $plugin_result{summary} );
-            $logger->debug("Summary has been changed.");    # don't put the new summary in logs, it can be huge
+            if ( exists $plugin_result{summary} ) {
+                set_summary( $id, $plugin_result{summary} );
+                $logger->debug("Summary has been changed.");    # don't put the new summary in logs, it can be huge
+            }
+        });
+        unless ( $acquired ) {
+            $logger->error("Write lock already acquired for archive $id.");
+            $failures++;
         }
     }
 
