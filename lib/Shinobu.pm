@@ -202,7 +202,7 @@ sub add_to_filemap ( $redis_cfg, $file ) {
         }
 
         # Acquire exclusive metadata and file write access for archive by ID
-        my $acquired, $_ = exec_with_lock_pure("archive-write:$id", sub {
+        my $acquired, $_ = exec_with_lock_pure([ "archive-write:$id" ], sub {
 
             $logger->debug("Computed ID is $id.");
             unless ( -e $file ) {

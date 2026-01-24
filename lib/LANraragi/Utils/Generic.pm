@@ -332,7 +332,7 @@ sub exec_with_lock {
     my ( $mojo, $lock_name, $operation, $resource_id, $func ) = @_;
 
     my ($acquired, $response) = exec_with_lock_pure(
-        $lock_name, $func
+        [ $lock_name ], $func
     );
 
     if ( !$acquired ) {
@@ -351,34 +351,65 @@ sub exec_with_lock {
 
 }
 
-# exec_with_lock_pure( $lock_name, $func, $redis (optional) )
-# Execute a function under a redis lock context.
+# exec_with_lock_pure( \@lock_names, $func, $redis (optional) )
+# Execute a function under a multi-lock context.
+# Does not implement lock_name sorting,
+# so locks should be passed in a deterministic order to avoid deadlocking.
 # For high-level, fast operations, as the expiry is set to 10s.
 # Returns a tuple ($acquired, $response), where $response is 
 # function response (if any) if acquired, or undef if not acquired.
 # Redis connection is optional; if not supplied, a managed connection will be created.
 sub exec_with_lock_pure {
 
-    my ( $lock_name, $func, $redis ) = @_;
+    my ( $lock_names, $func, $redis ) = @_;
     my $own_redis = 0;
 
-    if ( !defined $redis ) {
+    unless ( scalar(@$lock_names) ) {
+        die "Lock name list cannot be empty";
+    }
+
+    # create managed redis connection if not passed
+    unless ( defined $redis ) {
         $redis = LANraragi::Model::Config->get_redis;
         $own_redis = 1;
     }
 
-    my $lock = $redis->set( $lock_name, 1, 'NX', 'EX', 10 );
-    if ( !$lock ) {
-        $redis->quit();
+    # try to acquire all locks, or release all if any lock cannot be acquired.
+    my @lock_name_stack = ();
+    foreach my $lock_name ( @$lock_names ) {
+        my $lock = $redis->set( $lock_name, 1, 'NX', 'EX', 10 );
+        if ( $lock ) {
+            push(@lock_name_stack, $lock_name);
+        } else {
+            last;
+        }
+    }
+    # if a single lock fails to acquire, stop trying for the rest, and
+    # go release all previously acquired locks in the reverse order.
+    unless ( scalar(@lock_name_stack) == scalar(@$lock_names) ) {
+        while ( @lock_name_stack ) {
+            my $lock_name = pop(@lock_name_stack);
+            $redis->del($lock_name);
+        }
+        $redis->quit() if $own_redis;
         return 0, undef;
     }
 
+    # run the actual business logic (and collect response)
     my $response = eval { $func->(); };
-    my $err = $@;
-    $redis->del($lock_name);
+    my $fn_err = $@;
+
+    # release all previously acquired locks in reverse order.
+    while ( @lock_name_stack ) {
+        my $lock_name = pop(@lock_name_stack);
+        $redis->del($lock_name);
+    }
+
+    # close managed connection
     $redis->quit() if $own_redis;
 
-    die $err if $err;
+    # throw error if exists
+    die $fn_err if $fn_err;
     return 1, $response;
 
 }
