@@ -31,7 +31,7 @@ use Encode;
 use LANraragi::Utils::Archive    qw(extract_thumbnail);
 use LANraragi::Utils::Database   qw(invalidate_cache compute_id change_archive_id get_arcsize add_timestamp_tag add_archive_to_redis add_arcsize add_pagecount);
 use LANraragi::Utils::Logging    qw(get_logger);
-use LANraragi::Utils::Generic    qw(is_archive);
+use LANraragi::Utils::Generic    qw(is_archive exec_with_lock_pure);
 use LANraragi::Utils::Redis      qw(redis_encode);
 use LANraragi::Utils::Path       qw(create_path open_path find_path get_archive_path);
 
@@ -201,70 +201,84 @@ sub add_to_filemap ( $redis_cfg, $file ) {
             return;
         }
 
-        $logger->debug("Computed ID is $id.");
+        # Acquire exclusive metadata and file write access for archive by ID
+        my $acquired, $_ = exec_with_lock_pure("archive-write:$id", sub {
 
-        # If the id already exists on the server, throw a warning about duplicates
-        if ( $redis_cfg->hexists( "LRR_FILEMAP", $file ) ) {
+            $logger->debug("Computed ID is $id.");
+            unless ( -e $file ) {
+                # A TOCTOU check, if the file was deleted after ID computation but before a lock was acquired.
+                $logger->warn("File does not exist; giving up on adding it to the filemap: $file");
+                return;
+            }
 
-            my $filemap_id = $redis_cfg->hget( "LRR_FILEMAP", $file );
+            # If the id already exists on the server, throw a warning about duplicates
+            if ( $redis_cfg->hexists( "LRR_FILEMAP", $file ) ) {
 
-            $logger->debug("$file was logged but is already in the filemap!");
+                my $filemap_id = $redis_cfg->hget( "LRR_FILEMAP", $file );
 
-            if ( $filemap_id ne $id ) {
-                $logger->debug("$file has a different ID than the one in the filemap! ($filemap_id)");
-                $logger->info("$file has been modified, updating its ID from $filemap_id to $id.");
+                $logger->debug("$file was logged but is already in the filemap!");
 
-                change_archive_id( $filemap_id, $id );
+                if ( $filemap_id ne $id ) {
+                    $logger->debug("$file has a different ID than the one in the filemap! ($filemap_id)");
+                    $logger->info("$file has been modified, updating its ID from $filemap_id to $id.");
 
-                # Don't forget to update the filemap, later operations will behave incorrectly otherwise
-                $redis_cfg->hset( "LRR_FILEMAP", $file, $id );
+                    change_archive_id( $filemap_id, $id );
+
+                    # Don't forget to update the filemap, later operations will behave incorrectly otherwise
+                    $redis_cfg->hset( "LRR_FILEMAP", $file, $id );
+                } else {
+                    $logger->debug(
+                        "$file has the same ID as the one in the filemap. Duplicate inotify events? Cleaning cache just to make sure");
+                    invalidate_cache();
+                }
+
+                return;
+
             } else {
-                $logger->debug(
-                    "$file has the same ID as the one in the filemap. Duplicate inotify events? Cleaning cache just to make sure");
+                $redis_cfg->hset( "LRR_FILEMAP", $file, $id );    # raw FS path so no encoding/decoding whatsoever
+            }
+
+            # Filename sanity check
+            if ( $redis_arc->exists($id) ) {
+
+                my $filecheck = get_archive_path( $redis_arc, $id );
+
+                #Update the real file path and title if they differ from the saved one
+                #This is meant to always track the current filename for the OS.
+                unless ( $file eq $filecheck ) {
+                    $logger->debug("File name discrepancy detected between DB and filesystem!");
+                    $logger->debug("Filesystem: $file");
+                    $logger->debug("Database: $filecheck");
+                    my ( $name, $path, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
+                    $redis_arc->hset( $id, "file", $file );
+                    $redis_arc->hset( $id, "name", redis_encode($name) );
+                    $redis_arc->wait_all_responses;
+                    invalidate_cache();
+                }
+
+                unless ( get_arcsize( $redis_arc, $id ) ) {
+                    $logger->debug("arcsize is not set for $id, storing now!");
+                    add_arcsize( $redis_arc, $id );
+                }
+
+                # Set pagecount in case it's not already there
+                unless ( $redis_arc->hget( $id, "pagecount" ) ) {
+                    $logger->debug("Pagecount not calculated for $id, doing it now!");
+                    add_pagecount( $redis_arc, $id );
+                }
+
+            } else {
+
+                # Add to Redis if not present beforehand
+                add_new_file( $id, $file );
                 invalidate_cache();
             }
+        }, $redis_arc);
 
-            return;
-
-        } else {
-            $redis_cfg->hset( "LRR_FILEMAP", $file, $id );    # raw FS path so no encoding/decoding whatsoever
+        if ( !$acquired ) {
+            $logger->warn("Write lock already acquired for archive $file with ID $id, skipping.");
         }
 
-        # Filename sanity check
-        if ( $redis_arc->exists($id) ) {
-
-            my $filecheck = get_archive_path( $redis_arc, $id );
-
-            #Update the real file path and title if they differ from the saved one
-            #This is meant to always track the current filename for the OS.
-            unless ( $file eq $filecheck ) {
-                $logger->debug("File name discrepancy detected between DB and filesystem!");
-                $logger->debug("Filesystem: $file");
-                $logger->debug("Database: $filecheck");
-                my ( $name, $path, $suffix ) = fileparse( $file, qr/\.[^.]*/ );
-                $redis_arc->hset( $id, "file", $file );
-                $redis_arc->hset( $id, "name", redis_encode($name) );
-                $redis_arc->wait_all_responses;
-                invalidate_cache();
-            }
-
-            unless ( get_arcsize( $redis_arc, $id ) ) {
-                $logger->debug("arcsize is not set for $id, storing now!");
-                add_arcsize( $redis_arc, $id );
-            }
-
-            # Set pagecount in case it's not already there
-            unless ( $redis_arc->hget( $id, "pagecount" ) ) {
-                $logger->debug("Pagecount not calculated for $id, doing it now!");
-                add_pagecount( $redis_arc, $id );
-            }
-
-        } else {
-
-            # Add to Redis if not present beforehand
-            add_new_file( $id, $file );
-            invalidate_cache();
-        }
     } else {
         $logger->debug("$file not recognized as archive, skipping.");
     }

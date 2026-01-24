@@ -32,7 +32,7 @@ BEGIN {
 use Exporter 'import';
 our @EXPORT_OK = qw(is_image is_archive render_api_response get_tag_with_namespace shasum_str start_shinobu
   split_workload_by_cpu start_minion get_css_list generate_themes_header flat get_bytelength array_difference
-  intersect_arrays filter_hash_by_keys exec_with_lock);
+  intersect_arrays filter_hash_by_keys exec_with_lock exec_with_lock_pure);
 
 # Checks if the provided file is an image.
 # Uses non-capturing groups (?:) to avoid modifying the incoming argument.
@@ -330,11 +330,12 @@ sub filter_hash_by_keys {
 sub exec_with_lock {
 
     my ( $mojo, $lock_name, $operation, $resource_id, $func ) = @_;
-    my $redis = LANraragi::Model::Config->get_redis;
 
-    my $lock = $redis->set( $lock_name, 1, 'NX', 'EX', 10 );
-    if ( !$lock ) {
-        $redis->quit();
+    my ($acquired, $response) = exec_with_lock_pure(
+        $lock_name, $func
+    );
+
+    if ( !$acquired ) {
         $mojo->render(
             json => {
                 operation => $operation,
@@ -346,13 +347,40 @@ sub exec_with_lock {
         return 0;
     }
 
-    eval { $func->(); };
+    return 1;
+
+}
+
+# exec_with_lock_pure( $lock_name, $func, $redis (optional) )
+# Execute a function under a redis lock context.
+# For high-level, fast operations, as the expiry is set to 10s.
+# Returns a tuple ($acquired, $response), where $response is 
+# function response (if any) if acquired, or undef if not acquired.
+# Redis connection is optional; if not supplied, a managed connection will be created.
+sub exec_with_lock_pure {
+
+    my ( $lock_name, $func, $redis ) = @_;
+    my $own_redis = 0;
+
+    if ( !defined $redis ) {
+        $redis = LANraragi::Model::Config->get_redis;
+        $own_redis = 1;
+    }
+
+    my $lock = $redis->set( $lock_name, 1, 'NX', 'EX', 10 );
+    if ( !$lock ) {
+        $redis->quit();
+        return 0, undef;
+    }
+
+    my $response = eval { $func->(); };
     my $err = $@;
     $redis->del($lock_name);
-    $redis->quit();
+    $redis->quit() if $own_redis;
 
     die $err if $err;
-    return 1;
+    return 1, $response;
+
 }
 
 1;
