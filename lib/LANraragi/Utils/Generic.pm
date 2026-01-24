@@ -368,6 +368,17 @@ sub exec_with_lock_pure {
         die "Lock name list cannot be empty";
     }
 
+    # prepare the script for token release
+    # tokens demonstrate ownership over a redis lock, and is used to prevent workers 
+    # from deleting locks that don't belong to them.
+    # https://redis.io/docs/latest/develop/clients/patterns/distributed-locks/#correct-implementation-with-a-single-instance
+    my $release_lua = <<'LUA';
+    if redis.call('GET', KEYS[1]) == ARGV[1] then
+        return redis.call('DEL', KEYS[1])
+    end
+    return 0
+LUA
+
     # create managed redis connection if not passed
     unless ( defined $redis ) {
         $redis = LANraragi::Model::Config->get_redis;
@@ -377,9 +388,10 @@ sub exec_with_lock_pure {
     # try to acquire all locks, or release all if any lock cannot be acquired.
     my @lock_name_stack = ();
     foreach my $lock_name ( @$lock_names ) {
-        my $lock = $redis->set( $lock_name, 1, 'NX', 'EX', 10 );
+        my $token = sha256_hex( $lock_name . ":" . $$ . ":" . time() . ":" . rand() );
+        my $lock  = $redis->set( $lock_name, $token, 'NX', 'EX', 10 );
         if ( $lock ) {
-            push(@lock_name_stack, $lock_name);
+            push( @lock_name_stack, [ $lock_name, $token ] );
         } else {
             last;
         }
@@ -388,8 +400,8 @@ sub exec_with_lock_pure {
     # go release all previously acquired locks in the reverse order.
     unless ( scalar(@lock_name_stack) == scalar(@$lock_names) ) {
         while ( @lock_name_stack ) {
-            my $lock_name = pop(@lock_name_stack);
-            $redis->del($lock_name);
+            my ( $lock_name, $token ) = @{ pop(@lock_name_stack) };
+            $redis->eval( $release_lua, 1, $lock_name, $token );
         }
         $redis->quit() if $own_redis;
         return 0, undef;
@@ -401,8 +413,8 @@ sub exec_with_lock_pure {
 
     # release all previously acquired locks in reverse order.
     while ( @lock_name_stack ) {
-        my $lock_name = pop(@lock_name_stack);
-        $redis->del($lock_name);
+        my ( $lock_name, $token ) = @{ pop(@lock_name_stack) };
+        $redis->eval( $release_lua, 1, $lock_name, $token );
     }
 
     # close managed connection
