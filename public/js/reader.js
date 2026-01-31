@@ -827,7 +827,11 @@ Reader.goToPage = function (page) {
                 // Depending on whether we were going forward or backward, display img1 or img2
                 const wideImg = Reader.previousPage > Reader.currentPage ? img2 : img1;
                 $("#img").replaceWith(wideImg);
-                $(wideImg).attr("id", "img");
+                $(wideImg).attr({
+                    "id": "img",
+                    "class": "reader-image",
+                    "fetchpriority": "high"
+                });
                 $(wideImg).on("load", Reader.updateMetadata);
                 if (wideImg.complete && wideImg.naturalWidth > 0) {
                     setTimeout(() => Reader.updateMetadata(), 0);
@@ -836,14 +840,30 @@ Reader.goToPage = function (page) {
             } else {
                 if (Reader.mangaMode) {
                     $("#img").replaceWith(img2);
-                    $(img2).attr("id", "img");
+                    $(img2).attr({
+                        "id": "img",
+                        "class": "reader-image",
+                        "fetchpriority": "high"
+                    });
                     $("#img_doublepage").replaceWith(img1);
-                    $(img1).attr("id", "img_doublepage");
+                    $(img1).attr({
+                        "id": "img_doublepage",
+                        "class": "reader-image",
+                        "fetchpriority": "high"
+                    });
                 } else {
                     $("#img").replaceWith(img1);
-                    $(img1).attr("id", "img");
+                    $(img1).attr({
+                        "id": "img",
+                        "class": "reader-image",
+                        "fetchpriority": "high"
+                    });
                     $("#img_doublepage").replaceWith(img2);
-                    $(img2).attr("id", "img_doublepage");
+                    $(img2).attr({
+                        "id": "img_doublepage",
+                        "class": "reader-image",
+                        "fetchpriority": "high"
+                    });
                 }
                 $("#img").on("load", Reader.updateMetadata);
                 $("#img_doublepage").on("load", Reader.updateMetadata);
@@ -855,7 +875,11 @@ Reader.goToPage = function (page) {
         } else {
             const img = Reader.loadImage(Reader.currentPage);
             $("#img").replaceWith(img);
-            $(img).attr("id", "img");
+            $(img).attr({
+                "id": "img",
+                "class": "reader-image",
+                "fetchpriority": "high"
+            });
             $(img).on("load", Reader.updateMetadata);
             if (img.complete && img.naturalWidth > 0) {
                 setTimeout(() => Reader.updateMetadata(), 0);
