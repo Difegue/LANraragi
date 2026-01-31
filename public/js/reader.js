@@ -825,22 +825,41 @@ Reader.goToPage = function (page) {
             // If w > h on one of the images(widespread), set canvasdata to the first image only
             if (img1.naturalWidth > img1.naturalHeight || img2.naturalWidth > img2.naturalHeight) {
                 // Depending on whether we were going forward or backward, display img1 or img2
-                const wideSrc = Reader.previousPage > Reader.currentPage ? img2.src : img1.src;
-                $("#img").attr("src", wideSrc);
+                const wideImg = Reader.previousPage > Reader.currentPage ? img2 : img1;
+                $("#img").replaceWith(wideImg);
+                $(wideImg).attr("id", "img");
+                $(wideImg).on("load", Reader.updateMetadata);
+                if (wideImg.complete && wideImg.naturalWidth > 0) {
+                    setTimeout(() => Reader.updateMetadata(), 0);
+                }
                 Reader.showingSinglePage = true;
             } else {
                 if (Reader.mangaMode) {
-                    $("#img").attr("src", img2.src);
-                    $("#img_doublepage").attr("src", img1.src);
+                    $("#img").replaceWith(img2);
+                    $(img2).attr("id", "img");
+                    $("#img_doublepage").replaceWith(img1);
+                    $(img1).attr("id", "img_doublepage");
                 } else {
-                    $("#img").attr("src", img1.src);
-                    $("#img_doublepage").attr("src", img2.src);
+                    $("#img").replaceWith(img1);
+                    $(img1).attr("id", "img");
+                    $("#img_doublepage").replaceWith(img2);
+                    $(img2).attr("id", "img_doublepage");
+                }
+                $("#img").on("load", Reader.updateMetadata);
+                $("#img_doublepage").on("load", Reader.updateMetadata);
+                if (img1.complete && img1.naturalWidth > 0 && img2.complete && img2.naturalWidth > 0) {
+                    setTimeout(() => Reader.updateMetadata(), 0);
                 }
                 $("#display").addClass("double-mode");
             }
         } else {
             const img = Reader.loadImage(Reader.currentPage);
-            $("#img").attr("src", img.src);
+            $("#img").replaceWith(img);
+            $(img).attr("id", "img");
+            $(img).on("load", Reader.updateMetadata);
+            if (img.complete && img.naturalWidth > 0) {
+                setTimeout(() => Reader.updateMetadata(), 0);
+            }
             Reader.showingSinglePage = true;
         }
 
