@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-26 06:02+0200\n"
-"PO-Revision-Date: 2025-12-17 16:00+0000\n"
+"PO-Revision-Date: 2026-02-04 17:01+0000\n"
 "Last-Translator: Slasar41 <agungtrianto41@outlook.com>\n"
 "Language-Team: Indonesian <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/id/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.15.1-dev\n"
+"X-Generator: Weblate 5.16-dev\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -716,7 +716,7 @@ msgstr ""
 # ------End of Edit.html.tt2------
 # ------Start of Index.html.tt2------
 msgid "Add Archives"
-msgstr "Tambah Arsip"
+msgstr "Tambahkan Arsip"
 
 msgid "Batch Operations"
 msgstr "Operasi Tumpak"
@@ -1901,3 +1901,41 @@ msgstr "Bersihkan Penilaian"
 
 msgid " -- Select Rating -- "
 msgstr " -- Pilih Penilaian -- "
+
+msgid "Language"
+msgstr "Bahasa"
+
+msgid "Automatic (browser default)"
+msgstr "Otomatis (peramban asali)"
+
+msgid "Select the language for the user interface. Set to Automatic to use your browser's language preference."
+msgstr ""
+"Pilih bahasa untuk antarmuka pengguna. Atur ke Otomatis untuk menggunakan "
+"preferensi bahasa peramban Anda."
+
+msgid "Chapters"
+msgstr "Bab"
+
+msgid "Add Chapter at this Page"
+msgstr "Tambahkan Bab di Halaman Ini"
+
+msgid "Edit Chapter name"
+msgstr "Sunting nama Bab"
+
+msgid "Delete Chapter"
+msgstr "Hapus Bab"
+
+msgid "Are you sure you want to delete this chapter/section?"
+msgstr "Apakah Anda yakin ingin menghapus bab/bagian ini?"
+
+msgid "Enter a title for this chapter/section:"
+msgstr "Masukkan judul untuk bab/bagian ini:"
+
+msgid "Chapter added!"
+msgstr "Bab ditambahkan!"
+
+msgid "Error adding/removing chapter:"
+msgstr "Galat menambah/menghapus bab:"
+
+msgid "Untitled Chapter"
+msgstr "Bab Tanpa Judul"
