@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 18:10+0200\n"
-"PO-Revision-Date: 2025-06-03 06:04+0000\n"
-"Last-Translator: scentedtiger <something95@tutanota.com>\n"
+"PO-Revision-Date: 2026-02-09 22:09+0000\n"
+"Last-Translator: Are Georg Finstad <are.finstad@gmail.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "lanraragi/lanraragi-source/nb_NO/>\n"
 "Language: nb_NO\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.12-dev\n"
+"X-Generator: Weblate 5.16-dev\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -702,7 +702,7 @@ msgid "Delete Archive"
 msgstr ""
 
 msgid "Read Archive"
-msgstr ""
+msgstr "Les arkivet"
 
 msgid "Return to Library"
 msgstr ""
@@ -1829,6 +1829,97 @@ msgid "Searching for duplicates..."
 msgstr "Søker etter duplikater..."
 
 # ------End of Duplicates.html.tt2------
-
 msgid "No duplicates found!"
 msgstr "Ingen duplikater funnet!"
+
+msgid "The maximum value allowed is 4GB."
+msgstr "Maksimumsverdien som er tillatt er 4 GB."
+
+msgid "Automatic (browser default)"
+msgstr "Automatisk (standard i nettleseren)"
+
+msgid "Select the language for the user interface. Set to Automatic to use your browser's language preference."
+msgstr ""
+"Velg språk for brukergrensesnittet. Sett til Automatisk for å bruke "
+"nettleserens språkinnstillinger."
+
+msgid "Authenticated Progress Tracking"
+msgstr "Autentisert fremdriftssporing"
+
+msgid "If enabled, server-side progress will only be saved if you're logged in with a password, and will override clientside progress. This allows guests to browse without affecting the main user's progress."
+msgstr ""
+"Hvis dette er aktivert, lagres fremdriften på serversiden bare hvis du er "
+"logget inn med et passord, og den overstyrer fremdriften på klientsiden. "
+"Dette lar gjester surfe uten å påvirke hovedbrukerens fremdrift."
+
+msgid "Combine with clientside progress tracking to allow unauthenticated users to track progress locally."
+msgstr ""
+"Kombiner med fremdriftssporing på klientsiden for å tillate at uautoriserte "
+"brukere kan spore fremdriften lokalt."
+
+msgid "Copy link"
+msgstr "Kopier lenke"
+
+msgid "Rating"
+msgstr "Vurdering"
+
+msgid "Set Rating"
+msgstr "Angi vurdering"
+
+msgid "Clear Rating"
+msgstr "Fjern vurdering"
+
+msgid " -- Select Rating -- "
+msgstr " -- Velg vurdering -- "
+
+msgid "N: toggle auto next page"
+msgstr "N: veksle mellom automatisk neste side"
+
+msgid "Auto next page interval in seconds"
+msgstr "Automatisk neste sideintervall i sekunder"
+
+msgid "The default is 10 seconds."
+msgstr "Standardinnstillingen er 10 sekunder."
+
+msgid "Auto Next Page"
+msgstr "Automatisk neste side"
+
+msgid "Link copied successfully."
+msgstr "Lenken er kopiert."
+
+msgid "Copy failed."
+msgstr "Kopieringen mislyktes."
+
+msgid "Starting auto next page failed!"
+msgstr "Mislyktes i å starte automatisk neste side!"
+
+msgid "Please set the auto next page interval to a positive number."
+msgstr ""
+"Vennligst sett intervallet for automatisk neste side til et positivt tall."
+
+msgid "Chapters"
+msgstr "Kapitler"
+
+msgid "Add Chapter at this Page"
+msgstr "Legg til kapittel på denne siden"
+
+msgid "Edit Chapter name"
+msgstr "Rediger kapittelnavn"
+
+msgid "Delete Chapter"
+msgstr "Slett kapittel"
+
+msgid "Are you sure you want to delete this chapter/section?"
+msgstr "Er du sikker på at du vil slette dette kapittelet/denne delen?"
+
+msgid "Enter a title for this chapter/section:"
+msgstr "Skriv inn en tittel for dette kapittelet/denne delen:"
+
+msgid "Chapter added!"
+msgstr "Kapittel lagt til!"
+
+msgid "Error adding/removing chapter:"
+msgstr "Feil ved tilføying/fjerning av kapittel:"
+
+msgid "Untitled Chapter"
+msgstr "Kapittel uten tittel"
