@@ -319,6 +319,12 @@ Server.addArchivesToTankoubon = function (tankId, archiveIds, callback) {
         .catch((error) => LRR.showErrorToast(I18N.TankoubonError, error));
 };
 
+// Deletes a tankoubon. Archives inside are ungrouped but not deleted.
+Server.deleteTankoubon = function (tankId, callback) {
+    Server.callAPI(`/api/tankoubons/${tankId}`, "DELETE",
+        I18N.TankoubonDeleted, I18N.TankoubonDeleteError, callback);
+};
+
 /**
  * Sends a DELETE request for that archive ID,
  * deleting the Redis key and attempting to delete the archive file.
