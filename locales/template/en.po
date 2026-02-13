@@ -714,7 +714,6 @@ msgstr "Archive read"
 
 msgid "Tankoubon (collection)"
 msgstr "Tankoubon (collection)"
-msgstr ""
 
 msgid "Select Page"
 msgstr "Select Page"
@@ -1453,15 +1452,6 @@ msgstr "Error deleting tankoubon"
 
 msgid "Add Tankoubon to Category"
 msgstr "Add Tankoubon to Category"
-
-msgid "New archive"
-msgstr "New archive"
-
-msgid "Archive read"
-msgstr "Archive read"
-
-msgid "Tankoubon (collection)"
-msgstr "Tankoubon (collection)"
 
 msgid "${n} selected"
 msgstr "${n} selected"
