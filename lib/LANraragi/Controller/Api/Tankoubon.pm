@@ -157,10 +157,8 @@ sub add_multiple_to_tankoubon {
         return;
     }
 
-    my $redis = LANraragi::Model::Config->get_redis;
-
     return unless exec_with_lock(
-        $self, $redis,
+        $self,
         "tankoubon-write:$tankid",
         "add_multiple_to_tankoubon",
         $tankid,
