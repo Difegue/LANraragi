@@ -383,9 +383,10 @@ sub cleanup_metrics {
     # Get all metrics keys
     eval {
         my @api_keys        = $metrics_redis->keys("metrics:worker:*");
+        my @http_keys       = $metrics_redis->keys("metrics:http:*");
         my @minion_keys     = $metrics_redis->keys("metrics:minion:*");
         my @shinobu_keys    = $metrics_redis->keys("metrics:shinobu:*");
-        my @all_keys        = (@api_keys, @minion_keys, @shinobu_keys);
+        my @all_keys        = (@api_keys, @http_keys, @minion_keys, @shinobu_keys);
         if ( @all_keys ) {
             $metrics_redis->del(@all_keys);
             my $count = scalar(@all_keys);
