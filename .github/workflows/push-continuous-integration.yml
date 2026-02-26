@@ -10,11 +10,11 @@ on:
       integration_test_ref:
         description: 'Integration testing repository git commit hash or branch'
         required: true
-        default: '4c5ffe9d09042023be65807bc288eda41fd91e59'
+        default: '78fe5fff8926b295120e764d0bd335b9bf47c440'
 
 env:
   INTEGRATION_TEST_REPOSITORY: ${{ github.event.inputs.integration_test_repository || 'psilabs-dev/aio-lanraragi' }}
-  INTEGRATION_TEST_REF: ${{ github.event.inputs.integration_test_ref || '4c5ffe9d09042023be65807bc288eda41fd91e59' }}
+  INTEGRATION_TEST_REF: ${{ github.event.inputs.integration_test_ref || '78fe5fff8926b295120e764d0bd335b9bf47c440' }}
 
 name: "Continuous Integration \U0001F44C\U0001F440"
 jobs:
@@ -54,16 +54,13 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install aio-lanraragi package
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+      - name: Install workspace packages
+        working-directory: aio-lanraragi
         run: |
-          cd aio-lanraragi
-          python -m pip install --upgrade pip
-          pip install ".[dev]"
-      - name: Install integration test dependencies
-        run: |
-          cd aio-lanraragi/integration_tests
-          pip install .
-          playwright install
+          uv sync --all-packages
+          uv run playwright install
       - name: Create staging directory
         run: |
           mkdir -p "$GITHUB_WORKSPACE/staging"
@@ -73,7 +70,7 @@ jobs:
           cd aio-lanraragi/integration_tests
           export CI=true
           export DOCKER_BUILDKIT=1
-          pytest tests --log-cli-level=INFO \
+          uv run pytest tests --log-cli-level=INFO \
             --build "$GITHUB_WORKSPACE/lanraragi" \
             --staging "$GITHUB_WORKSPACE/staging" \
             --playwright \
@@ -141,16 +138,13 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install main package (aio-lanraragi)
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+      - name: Install workspace packages
         working-directory: aio-lanraragi
         run: |
-          python -m pip install --upgrade pip
-          pip install ".[dev]"
-      - name: Install integration test dependencies
-        working-directory: aio-lanraragi/integration_tests
-        run: |
-          pip install .
-          playwright install
+          uv sync --all-packages
+          uv run playwright install
       - name: Create staging directory
         run: |
           New-Item -ItemType Directory -Path "$env:GITHUB_WORKSPACE\staging" -Force | Out-Null
@@ -159,7 +153,7 @@ jobs:
         timeout-minutes: 50
         run: |
           $env:CI='true'
-          pytest tests `
+          uv run pytest tests `
           --log-cli-level=INFO `
           --windist "$env:GITHUB_WORKSPACE\LANraragi\win-dist" `
           --staging "$env:GITHUB_WORKSPACE\staging" `
