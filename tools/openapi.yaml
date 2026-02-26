@@ -3371,6 +3371,9 @@ components:
         server_tracks_progress:
           type: boolean
           description: Whether the instance tracks reading progression server-side
+        authenticated_progress:
+          type: boolean
+          description: Whether the instance requires authentication for server-side progress updates
         total_pages_read:
           type: integer
           description: Total amount of pages read
@@ -3390,6 +3393,7 @@ components:
         nofun_mode: false
         server_resizes_images: false
         server_tracks_progress: true
+        authenticated_progress: false
         total_archives: 104
         total_pages_read: 252
         version: 0.9.30
