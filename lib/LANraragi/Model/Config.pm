@@ -177,6 +177,15 @@ sub get_tagrules {
     );
 }
 
+sub get_disable_openapi {
+
+    if ( $ENV{LRR_DISABLE_OPENAPI} ) {
+        return 1;
+    }
+
+    return &get_redis_conf( "disableopenapi", "0" );
+}
+
 sub get_htmltitle        { return xml_escape( &get_redis_conf( "htmltitle", "LANraragi" ) ) }
 sub get_motd             { return xml_escape( &get_redis_conf( "motd",      "Welcome to this Library running LANraragi!" ) ) }
 sub get_tempmaxsize      { return &get_redis_conf( "tempmaxsize",     "500" ) }
