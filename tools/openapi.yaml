@@ -2599,7 +2599,7 @@ paths:
       tags:
         - categories
       requestBody:
-        required: true
+        required: false
         content:
           application/x-www-form-urlencoded:
             schema:
@@ -3020,7 +3020,7 @@ paths:
       tags:
         - tankoubons
       requestBody:
-        required: true
+        required: false
         content:
           application/x-www-form-urlencoded:
             schema:
