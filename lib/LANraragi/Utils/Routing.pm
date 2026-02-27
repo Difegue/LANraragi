@@ -10,7 +10,7 @@ use Encode;
 use Mojolicious::Plugin::Minion::Admin;
 
 use LANraragi::Utils::Login      qw(is_logged_in_api);
-use LANraragi::Utils::OpenAPI    qw(apply_bypass);
+use LANraragi::Utils::OpenAPI    qw(apply_openapi_mojo_overrides);
 
 use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 
@@ -55,10 +55,8 @@ sub apply_routes {
         }
     );
 
-    # Optionally disable OpenAPI validation
-    if ( $self->LRR_CONF->get_disable_openapi ) {
-        apply_bypass($self);
-    }
+    # Apply OpenAPI validation overrides
+    apply_openapi_mojo_overrides($self);
 
     if ( !IS_UNIX ) {
 
