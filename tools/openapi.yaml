@@ -3569,8 +3569,11 @@ components:
           nullable: true
           description: Summary description of the archive
         isnew:
-          type: boolean
-          description: Whether the archive is newly added
+          oneOf:
+            - type: boolean
+            - type: string
+          nullable: true
+          description: Whether the archive is newly added.
         extension:
           type: string
           description: File extension of the archive
