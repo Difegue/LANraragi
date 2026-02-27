@@ -476,6 +476,7 @@ paths:
                       - 1
                   error:
                     type: string
+                    nullable: true
                   data:
                     type: object
                     description: Arbitrary data returned by the Plugin.
