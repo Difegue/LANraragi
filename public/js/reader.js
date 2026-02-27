@@ -930,7 +930,7 @@ Reader.replaceImageElement = function (selector, cachedImg) {
     };
 
     $old.replaceWith(cachedImg);
-    $(cachedImg).off("load").on("load", Reader.updateMetadata);
+    $(cachedImg).on("load", Reader.updateMetadata);
     $(cachedImg).attr(attrs);
 };
 
@@ -944,9 +944,7 @@ Reader.resetImageElement = function (selector) {
         "id": $old.attr("id"),
         "class": $old.attr("class"),
         "fetchpriority": $old.attr("fetchpriority"),
-        "src": "",
     });
-    $old.off("load");
     $old.replaceWith(fresh);
 };
 
