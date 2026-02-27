@@ -284,29 +284,13 @@ sub get_file_list {
 }
 
 sub add_new {
-    my $self = shift;
-    my $id   = check_id_parameter( $self, "add_new" ) || return;
-
-    return unless exec_with_lock(
-        $self,
-        "archive-write:$id",
-        "add_new",
-        $id,
-        sub {
-            set_isnew( $id, "true" );
-            render_api_response( $self, "add_new" );
-        }
-    );
-}
-
-sub add_new {
     my $self = shift->openapi->valid_input or return;
     my $id   = check_id_parameter( $self, "add_new" ) || return;
 
     return unless exec_with_lock(
         $self,
         "archive-write:$id",
-        "clear_new",
+        "add_new",
         $id,
         sub {
             set_isnew( $id, "true" );
