@@ -347,8 +347,6 @@ Reader.loadImages = function () {
                     `);
                 }
             } else {
-                $("#img").on("load", Reader.updateMetadata);
-
                 // when click left or right img area change page
                 $(document).on("click", (event) => {
                     // check click Y position is in img Y area
@@ -815,7 +813,7 @@ Reader.goToPage = function (page) {
     if (Reader.infiniteScroll) {
         $("#display img").get(Reader.currentPage).scrollIntoView({ block: "nearest" });
     } else {
-        $("#img_doublepage").attr("src", "");
+        Reader.resetImageElement("#img_doublepage");
         $("#display").removeClass("double-mode");
         if (Reader.doublePageMode && Reader.currentPage > 0
             && Reader.currentPage < Reader.maxPage) {
@@ -826,47 +824,19 @@ Reader.goToPage = function (page) {
             if (img1.naturalWidth > img1.naturalHeight || img2.naturalWidth > img2.naturalHeight) {
                 // Depending on whether we were going forward or backward, display img1 or img2
                 const wideImg = Reader.previousPage > Reader.currentPage ? img2 : img1;
-                $("#img").replaceWith(wideImg);
-                $(wideImg).attr({
-                    "id": "img",
-                    "class": "reader-image",
-                    "fetchpriority": "high"
-                });
-                $(wideImg).on("load", Reader.updateMetadata);
+                Reader.replaceImageElement("#img", wideImg);
                 if (wideImg.complete && wideImg.naturalWidth > 0) {
                     setTimeout(() => Reader.updateMetadata(), 0);
                 }
                 Reader.showingSinglePage = true;
             } else {
                 if (Reader.mangaMode) {
-                    $("#img").replaceWith(img2);
-                    $(img2).attr({
-                        "id": "img",
-                        "class": "reader-image",
-                        "fetchpriority": "high"
-                    });
-                    $("#img_doublepage").replaceWith(img1);
-                    $(img1).attr({
-                        "id": "img_doublepage",
-                        "class": "reader-image",
-                        "fetchpriority": "high"
-                    });
+                    Reader.replaceImageElement("#img", img2);
+                    Reader.replaceImageElement("#img_doublepage", img1);
                 } else {
-                    $("#img").replaceWith(img1);
-                    $(img1).attr({
-                        "id": "img",
-                        "class": "reader-image",
-                        "fetchpriority": "high"
-                    });
-                    $("#img_doublepage").replaceWith(img2);
-                    $(img2).attr({
-                        "id": "img_doublepage",
-                        "class": "reader-image",
-                        "fetchpriority": "high"
-                    });
+                    Reader.replaceImageElement("#img", img1);
+                    Reader.replaceImageElement("#img_doublepage", img2);
                 }
-                $("#img").on("load", Reader.updateMetadata);
-                $("#img_doublepage").on("load", Reader.updateMetadata);
                 if (img1.complete && img1.naturalWidth > 0 && img2.complete && img2.naturalWidth > 0) {
                     setTimeout(() => Reader.updateMetadata(), 0);
                 }
@@ -874,13 +844,7 @@ Reader.goToPage = function (page) {
             }
         } else {
             const img = Reader.loadImage(Reader.currentPage);
-            $("#img").replaceWith(img);
-            $(img).attr({
-                "id": "img",
-                "class": "reader-image",
-                "fetchpriority": "high"
-            });
-            $(img).on("load", Reader.updateMetadata);
+            Reader.replaceImageElement("#img", img);
             if (img.complete && img.naturalWidth > 0) {
                 setTimeout(() => Reader.updateMetadata(), 0);
             }
@@ -950,6 +914,40 @@ Reader.loadImage = function (index) {
     }
 
     return Reader.preloadedImg[src];
+};
+
+/**
+ * Replace a reader image DOM element with a preloaded cached Image,
+ * preserving the old element's identity and managing load handlers
+ * to prevent accumulation on reused cache objects.
+ */
+Reader.replaceImageElement = function (selector, cachedImg) {
+    const $old = $(selector);
+    const attrs = {
+        "id": $old.attr("id"),
+        "class": $old.attr("class"),
+        "fetchpriority": $old.attr("fetchpriority"),
+    };
+
+    $old.replaceWith(cachedImg);
+    $(cachedImg).off("load").on("load", Reader.updateMetadata);
+    $(cachedImg).attr(attrs);
+};
+
+/**
+ * Reset a reader image element to an empty state, breaking any
+ * reference to a cached Image object to prevent cache corruption.
+ */
+Reader.resetImageElement = function (selector) {
+    const $old = $(selector);
+    const fresh = $("<img>").attr({
+        "id": $old.attr("id"),
+        "class": $old.attr("class"),
+        "fetchpriority": $old.attr("fetchpriority"),
+        "src": "",
+    });
+    $old.off("load");
+    $old.replaceWith(fresh);
 };
 
 Reader.toggleFitMode = function (e) {
