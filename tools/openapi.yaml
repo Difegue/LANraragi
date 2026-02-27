@@ -3566,6 +3566,7 @@ components:
           description: Comma-separated list of tags associated with the archive
         summary:
           type: string
+          nullable: true
           description: Summary description of the archive
         isnew:
           type: boolean
@@ -3695,6 +3696,7 @@ components:
           description: Comma-separated list of tags associated with the archive
         summary:
           type: string
+          nullable: true
           description: Summary description of the archive
         thumbhash:
           type: string
