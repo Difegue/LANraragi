@@ -440,7 +440,7 @@ paths:
         - name: plugin
           in: query
           description: Namespace of the plugin to use.
-          required: true
+          required: false
           schema:
             type: string
         - name: arg
@@ -449,6 +449,24 @@ paths:
           required: false
           schema:
             type: string
+      requestBody:
+        required: false
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  minLength: 40
+                  maxLength: 40
+                  description: ID of the archive to use the Plugin on. This is only mandatory for metadata plugins.
+                plugin:
+                  type: string
+                  description: Namespace of the plugin to use.
+                arg:
+                  type: string
+                  description: Optional One-Shot argument to use when executing this Plugin.
       responses:
         '200':
           description: Plugin result
@@ -463,6 +481,7 @@ paths:
                       - use_plugin
                   type:
                     type: string
+                    nullable: true
                     enum: 
                       - download
                       - login
@@ -517,7 +536,7 @@ paths:
         - name: plugin
           in: query
           description: Namespace of the plugin to use.
-          required: true
+          required: false
           schema:
             type: string
         - name: arg
@@ -526,6 +545,28 @@ paths:
           required: false
           schema:
             type: string
+      requestBody:
+        required: false
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  minLength: 40
+                  maxLength: 40
+                  description: ID of the archive to use the Plugin on. This is only mandatory for metadata plugins.
+                priority:
+                  type: integer
+                  default: 0
+                  description: Priority of the Minion job. The higher the number, the more important the job is.
+                plugin:
+                  type: string
+                  description: Namespace of the plugin to use.
+                arg:
+                  type: string
+                  description: Optional One-Shot argument to use when executing this Plugin.
       responses:
         '200':
           description: Enqueued job
