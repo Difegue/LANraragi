@@ -752,23 +752,16 @@ Reader.updateMetadata = function () {
     const imageUrl = new URL(img.src);
     const filename = imageUrl.searchParams.get("path");
 
-    const imgDoublePage = $("#img_doublepage")[0];
-    const imageUrlDoublePage = new URL(imgDoublePage.src);
-    const filenameDoublePage = imageUrlDoublePage.searchParams.get("path");
-
     if (!filename && Reader.showingSinglePage) {
         Reader.currentPageLoaded = true;
         $("#i3").removeClass("loading");
         return;
     }
 
-    const width = img.naturalWidth;
-    const height = img.naturalHeight;
-    const widthDoublePage = imgDoublePage.naturalWidth;
-    const heightDoublePage = imgDoublePage.naturalHeight;
-    const widthView = width + widthDoublePage;
-
     if (Reader.showingSinglePage) {
+        const width = img.naturalWidth;
+        const height = img.naturalHeight;
+
         let size = Reader.preloadedSizes[Reader.currentPage];
         if (!size) {
             size = LRR.getImgSize(Reader.pages[Reader.currentPage]);
@@ -780,6 +773,26 @@ Reader.updateMetadata = function () {
             $(".file-info").attr("title", `${filename} :: ${width} x ${height} :: ${size} KB`);
         }
     } else {
+        const imgDoublePage = $("#img_doublepage")[0];
+
+        // this is an edge case we may or may not want to cover
+        if (!imgDoublePage || !imgDoublePage.getAttribute("src")) {
+            console.warn("Reader.updateMetadata: missing #img_doublepage src in double-page branch", {
+                currentPage: Reader.currentPage,
+                showingSinglePage: Reader.showingSinglePage,
+                hasImgDoublePage: !!imgDoublePage,
+            });
+            return;
+        }
+
+        const imageUrlDoublePage = new URL(imgDoublePage.src);
+        const filenameDoublePage = imageUrlDoublePage.searchParams.get("path");
+        const width = img.naturalWidth;
+        const height = img.naturalHeight;
+        const widthDoublePage = imgDoublePage.naturalWidth;
+        const heightDoublePage = imgDoublePage.naturalHeight;
+        const widthView = width + widthDoublePage;
+
         let size = Reader.preloadedSizes[Reader.currentPage];
         let sizePre = Reader.preloadedSizes[Reader.currentPage + 1];
 
