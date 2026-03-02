@@ -152,12 +152,11 @@ Reader.initializeAll = function () {
 
     // Apply full-screen utility
     // F11 Fullscreen is totally another "Fullscreen", so its support is beyong consideration.
+    // Small override function, always returns boolean
+    window.fscreen.inFullscreen = () => !!window.fscreen.fullscreenElement;
     if (!window.fscreen.fullscreenEnabled) {
-        // Fullscreen mode is unsupported
-        $("#toggle-full-screen").hide();
-    } else {
-        // Small override function, always returns boolean
-        window.fscreen.inFullscreen = () => !!window.fscreen.fullscreenElement;
+        // Fullscreen mode is unsupported; use attribute selector to hide all instances
+        $("[id='toggle-full-screen']").hide();
     }
 
     // Infer initial information from the URL
