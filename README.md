@@ -67,6 +67,6 @@ Open source server for archival of comics/manga, running on Mojolicious + Redis.
 
 * Backup your database as JSON to carry your tags over to another LANraragi instance.
 
-  ## Contributors & star history
+## Contributors & star history
 ![contributors & star history](https://githubcard.com/Difegue/LANraragi.svg?d=OSWqufJ4)
 
