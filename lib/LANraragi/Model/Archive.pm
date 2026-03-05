@@ -325,10 +325,6 @@ sub update_metadata {
 sub add_toc_entry {
     my ( $id, $page, $title ) = @_;
 
-    unless ( defined $page and defined $title ) {
-        return "Missing page and/or title.";
-    }
-
     my $redis  = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Archives", "lanraragi" );
     my $toc    = $redis->hget( $id, "toc" );
@@ -338,7 +334,6 @@ sub add_toc_entry {
         $toc          = decode_json($toc);
         $toc->{$page} = $title;
         $toc          = encode_json($toc);
-        $redis->hset( $id, "toc", $toc );
     } catch ($e) {
         $logger->warn(
             "Error while updating ToC: $e -- Will overwrite with a ToC containing the new data. (This is normal if this ID had no ToC yet.)"
@@ -346,8 +341,8 @@ sub add_toc_entry {
         $toc          = {};
         $toc->{$page} = $title;
         $toc          = encode_json($toc);
-        $redis->hset( $id, "toc", "{}" );
     }
+    $redis->hset( $id, "toc", $toc );
 
     $redis->quit();
     return "";
@@ -355,10 +350,6 @@ sub add_toc_entry {
 
 sub remove_toc_entry {
     my ( $id, $page ) = @_;
-
-    unless ( defined $page ) {
-        return "Please specify a page to remove";
-    }
 
     my $redis  = LANraragi::Model::Config->get_redis;
     my $logger = get_logger( "Archives", "lanraragi" );
@@ -369,11 +360,11 @@ sub remove_toc_entry {
         $toc = decode_json($toc);
         delete $toc->{$page};
         $toc = encode_json($toc);
-        $redis->hset( $id, "toc", $toc );
     } catch ($e) {
         $logger->warn("Error while updating ToC: $e -- Will overwrite with a blank ToC.");
-        $redis->hset( $id, "toc", "{}" );
+        $toc = "{}";
     }
+    $redis->hset( $id, "toc", $toc );
 
     $redis->quit();
     return "";
