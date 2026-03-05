@@ -1170,8 +1170,10 @@ Reader.updateArchiveOverlay = function (forceUpdate = false) {
         $(".chapter-selector").html(chapterOptions);
 
         $("#chapter-select").off("change").on("change", function () {
-            Reader.goToPage($(this).val());
+            Reader.goToPage($(this).val() - 1);
         });
+    } else {
+        $(".chapter-selector").html("");
     }
 
     // For each link in the pages array, craft a div and jam it in the overlay.
