@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use utf8;
 use Cwd 'abs_path';
+use URI::Escape;
 
 use Mojo::Util qw(xml_escape);
 use Minion;
@@ -49,7 +50,12 @@ sub get_baseurl { return "$config->{base_url_path}" }
 
 # Create a Minion object connected to the Minion database.
 sub get_minion {
-    my $miniondb = get_redisad . "/" . get_miniondb;
+    my $redisad = get_redisad;
+
+    # URL encode the unix socket path so it can be recognized as the host
+    if ( $redisad =~ m{^/} ) { $redisad = uri_escape( $redisad ); }
+
+    my $miniondb = $redisad . "/" . get_miniondb;
     my $password = get_redispassword;
 
     # If the password is non-empty, add the required delimiters
@@ -72,13 +78,14 @@ sub get_redis_search {
 
 sub get_redis_internal {
 
-    my $db = $_[0];
+    my $db      = $_[0];
+    my $redisad = &get_redisad;
 
     # Default redis server location is localhost:6379.
     # Auto-reconnect on, one attempt every 2ms up to 3 seconds. Die after that.
     # Auth if password is set
     my $redis = Redis->new(
-        server    => &get_redisad,
+        ( $redisad =~ m{^/} ? ( sock => $redisad ) : ( server => $redisad ) ),
         debug     => $ENV{LRR_DEVSERVER} ? "1" : "0",
         reconnect => 3,
         &get_redispassword ? ( password => &get_redispassword ) : ()

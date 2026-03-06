@@ -10,6 +10,7 @@ use Mojo::JSON qw(decode_json encode_json);
 use Storable;
 use Sys::Hostname;
 use Config;
+use URI::Escape;
 
 use LANraragi::Utils::Generic    qw(start_shinobu start_minion);
 use LANraragi::Utils::Logging    qw(get_logger get_logdir);
@@ -166,7 +167,12 @@ sub startup {
         shutdown_from_pid( get_temp . "/minion.pid" );
     }
 
-    my $miniondb      = $self->LRR_CONF->get_redisad . "/" . $self->LRR_CONF->get_miniondb;
+    my $redisad = $self->LRR_CONF->get_redisad;
+
+    # URL encode the unix socket path so it can be recognized as the host
+    if ( $redisad =~ m{^/} ) { $redisad = uri_escape( $redisad ); }
+
+    my $miniondb      = $redisad . "/" . $self->LRR_CONF->get_miniondb;
     my $redispassword = $self->LRR_CONF->get_redispassword;
 
     # If the password is non-empty, add the required delimiters
