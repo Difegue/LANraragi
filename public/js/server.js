@@ -352,7 +352,7 @@ Server.loadBookmarkCategoryId = function () {
  * @param {number} currentPage Page the user navigated to
  */
 Server.updateServerSideProgress = function (id, currentPage) {
-    let endpointUrl = new LRR.apiURL(`/api/archives/${id}/progress/${currentPage + 1}`);
+    let endpointUrl = new LRR.apiURL(`/api/archives/${id}/progress/${currentPage}`);
     return fetch(endpointUrl, { method: "PUT" })
         .then((response) => (response.ok ? {code: response.status, data: response.json()} : { code: response.status, data: {success: 0, error: I18N.GenericReponseError} }))
         .then((response) => {
