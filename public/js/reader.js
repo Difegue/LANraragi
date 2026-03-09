@@ -458,6 +458,12 @@ Reader.loadImages = function () {
             }
 
             if (Reader.showOverlayByDefault) { Reader.toggleArchiveOverlay(); }
+
+            // Resume slideshow if it was active before cross-archive navigation
+            if (sessionStorage.getItem('autoNextPage') === 'true') {
+                sessionStorage.removeItem('autoNextPage');
+                Reader.startAutoNextPage();
+            }
         },
     ).finally(() => {
         if (Reader.pages === undefined) {
@@ -1164,16 +1170,25 @@ Reader.startAutoNextPage = function () {
         if (Reader.autoNextPageCountdown <= 0) {
             clearInterval(Reader.autoNextPageCountdownTaskId);
 
-            if (Reader.mangaMode)
-                Reader.changePage(-1);
-            else
-                Reader.changePage(1);
+            const atLastPage = Reader.mangaMode ? Reader.currentPage === 0 : Reader.currentPage === Reader.maxPage;
 
-            const continueNextPage = Reader.mangaMode ? Reader.currentPage > 0 : Reader.currentPage < Reader.maxPage;
-            if (continueNextPage) {
-                Reader.startAutoNextPage();
-            } else {
+            if (atLastPage) {
+                // At archive boundary: attempt cross-archive navigation.
+                // readNextArchive/readPreviousArchive persists slideshow state
+                // to sessionStorage; loadImages on the new page resumes it.
+                if (Reader.archiveIds.length > 0) {
+                    if (Reader.mangaMode)
+                        Reader.readPreviousArchive();
+                    else
+                        Reader.readNextArchive();
+                }
                 Reader.stopAutoNextPage();
+            } else {
+                if (Reader.mangaMode)
+                    Reader.changePage(-1);
+                else
+                    Reader.changePage(1);
+                Reader.startAutoNextPage();
             }
             return;
         }
@@ -1513,6 +1528,9 @@ Reader.readPreviousArchive = function () {
         } else {
             previousArchiveId = Reader.archiveIds[Reader.archiveIndex - 1];
         }
+        if (Reader.autoNextPage) {
+            sessionStorage.setItem('autoNextPage', 'true');
+        }
         const newUrl = new LRR.apiURL(`/reader?id=${previousArchiveId}`).toString();
         history.pushState({navigation: 'archive'}, '', newUrl);
         window.location.href = newUrl;
@@ -1545,6 +1563,9 @@ Reader.readNextArchive = function () {
             }
         } else {
             nextArchiveId = Reader.archiveIds[Reader.archiveIndex + 1];
+        }
+        if (Reader.autoNextPage) {
+            sessionStorage.setItem('autoNextPage', 'true');
         }
         const newUrl = new LRR.apiURL(`/reader?id=${nextArchiveId}`).toString();
         history.pushState({navigation: 'archive'}, '', newUrl);
