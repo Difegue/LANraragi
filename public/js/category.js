@@ -87,7 +87,7 @@ Category.updateCategoryDetails = function () {
     const categoryID = document.getElementById("category").value;
     const category = Category.categories.find((x) => x.id === categoryID);
 
-    $("#archivelist").hide();
+    $("#staticcontent").hide();
     $("#bookmarklinkfield").hide();
     $("#dynamicplaceholder").show();
 
@@ -100,29 +100,33 @@ Category.updateCategoryDetails = function () {
     document.getElementById("pinned").checked = category.pinned === "1";
 
     if (category.search === "") {
-        // Show archives if static and check the matching IDs
+        // Show tankoubons and archives if static and check the matching IDs
         document.getElementById("bookmark-link").checked = (localStorage.getItem("bookmarkCategoryId") === category.id);
-        $("#archivelist").show();
+        $("#staticcontent").show();
         $("#bookmarklinkfield").show();
         $("#dynamicplaceholder").hide();
         $("#predicatefield").hide();
+
+        // Sort tankoubon list alphabetically
+        const tanklist = $("#tankoubonlist");
+        tanklist.find("li").sort((a, b) => {
+            const upA = $(a).find("label").text().toUpperCase();
+            const upB = $(b).find("label").text().toUpperCase();
+            return upA < upB ? -1 : (upA > upB ? 1 : 0);
+        }).appendTo("#tankoubonlist");
 
         // Sort archive list alphabetically
         const arclist = $("#archivelist");
         arclist.find("li").sort((a, b) => {
             const upA = $(a).find("label").text().toUpperCase();
             const upB = $(b).find("label").text().toUpperCase();
-            if (upA < upB) {
-                return -1;
-            } else if (upA > upB) {
-                return 1;
-            } else {
-                return 0;
-            }
+            return upA < upB ? -1 : (upA > upB ? 1 : 0);
         }).appendTo("#archivelist");
 
         // Uncheck all
-        $(".checklist > * > input:checkbox").prop("checked", false);
+        $("#staticcontent input:checkbox").prop("checked", false);
+
+        // Check items that are in the category (works for both archives and tankoubons)
         category.archives.forEach((id) => {
             const checkbox = document.getElementById(id);
 

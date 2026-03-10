@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+
+<head>
+	<title>[% title %] - [% c.lh("Tankoubon") %]</title>
+
+	<meta name="viewport" content="width=device-width" />
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="apple-mobile-web-status-bar-style" content="black" />
+	<meta name="mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+
+	<link type="image/png" rel="icon" href="favicon.ico" />
+	<link rel="manifest" href="app.webappmanifest" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/lrr.css?$version") %]" />
+
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/fontawesome-all.min.css") %]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/jquery.contextMenu.min.css") %]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/tippy.css") %]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/ReactToastify.min.css") %]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/sweetalert2.min.css") %]" />
+	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/tagger.css") %]" />
+	[% csshead %]
+
+	<style>
+		.field-placeholder {
+			color: #999;
+			font-style: italic;
+		}
+		.editable-field .field-edit {
+			display: inline-block;
+		}
+		.edit-field-btn, .save-field-btn, .cancel-field-btn {
+			cursor: pointer;
+			text-decoration: none;
+		}
+		.save-field-btn { color: green; font-size: 1.5em; }
+		.cancel-field-btn { color: red; font-size: 1.5em; }
+		.edit-field-btn { opacity: 0.6; }
+		.edit-field-btn:hover { opacity: 1; }
+
+		/* Reorder mode styles */
+		.sortable-ghost { opacity: 0.4; }
+		.sortable-chosen { box-shadow: 0 0 10px rgba(0, 123, 255, 0.5); }
+		.drag-handle { cursor: grab; opacity: 0.5; display: none; }
+		.drag-handle:hover { opacity: 1; }
+		.reorder-mode .drag-handle { display: inline-block; }
+		/* Full-width drag handle bar for thumbnails */
+		.drag-handle-bar {
+			width: 100%;
+			text-align: center;
+			padding: 4px 0;
+			background: rgba(0, 0, 0, 0.1);
+			border-radius: 4px 4px 0 0;
+		}
+		.drag-handle-bar:hover { background: rgba(0, 123, 255, 0.2); }
+		.reorder-mode .drag-handle-bar { display: block; }
+		/* Table view drag handle */
+		.itd .drag-handle { margin-right: 8px; }
+		.reorder-mode .id2 a, .reorder-mode .itd a { pointer-events: none; color: inherit; }
+		.reorder-toggle.active { color: #007bff; }
+	</style>
+
+	<script src="[% c.url_for("/js/vendor/jquery.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/preact.umd.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/hooks.umd.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/compat.umd.js") %]" type="text/JAVASCRIPT"></script>
+	<script>window.React = window.preactCompat; window.react = window.preactCompat;</script>
+	<script src="[% c.url_for("/js/vendor/clsx.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/react-toastify.umd.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/jquery.ui.position.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/jquery.contextMenu.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/popper.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/tippy-bundle.umd.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/sweetalert2.min.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/tagger.js") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/vendor/Sortable.min.js") %]" type="text/JAVASCRIPT"></script>
+
+	<script src="[% c.url_for("/js/i18n.js?$version") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/common.js?$version") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/server.js?$version") %]" type="text/JAVASCRIPT"></script>
+	<script src="[% c.url_for("/js/tankoubon_view.js?$version") %]" type="text/JAVASCRIPT"></script>
+
+</head>
+
+<body data-user-logged="[% userlogged %]">
+
+	<div class='ido' style='text-align:center'>
+		<!-- Title field -->
+		<div class="editable-field" id="title-field">
+			<span class="field-display">
+				<h2 class='ih' id="tankoubon-title" style='text-align:center; display:inline;'>[% c.lh("Loading...") %]</h2>
+				[% IF userlogged %]
+				<a href="#" class="edit-field-btn fa fa-pencil-alt" data-field="title" style="display:none; font-size:14px; margin-left:8px;" title="[% c.lh('Edit') %]"></a>
+				[% END %]
+			</span>
+			[% IF userlogged %]
+			<span class="field-edit" style="display:none;">
+				<input type="text" id="edit-title" class="stdinput" style="font-size:1.5em; font-weight:bold; text-align:center; width:400px;" />
+				<a href="#" class="save-field-btn fa fa-check" data-field="title" style="margin-left:8px;" title="[% c.lh('Save') %]"></a>
+				<a href="#" class="cancel-field-btn fa fa-times" data-field="title" style="margin-left:4px;" title="[% c.lh('Cancel') %]"></a>
+			</span>
+			[% END %]
+		</div>
+
+		<div id="tankoubon-metadata" style="margin-bottom: 20px;">
+			<!-- Summary field -->
+			<div class="editable-field" id="summary-field" style="margin-bottom: 10px;">
+				<span class="field-display">
+					<span id="tankoubon-summary" style="font-style: italic;"></span>
+					[% IF userlogged %]
+					<a href="#" class="edit-field-btn fa fa-pencil-alt" data-field="summary" style="display:none; font-size:12px; margin-left:8px;" title="[% c.lh('Edit') %]"></a>
+					[% END %]
+				</span>
+				[% IF userlogged %]
+				<span class="field-edit" style="display:none;">
+					<textarea id="edit-summary" class="stdinput" style="width:400px; height:60px; vertical-align:middle;"></textarea>
+					<a href="#" class="save-field-btn fa fa-check" data-field="summary" style="margin-left:8px; vertical-align:top;" title="[% c.lh('Save') %]"></a>
+					<a href="#" class="cancel-field-btn fa fa-times" data-field="summary" style="margin-left:4px; vertical-align:top;" title="[% c.lh('Cancel') %]"></a>
+				</span>
+				[% END %]
+			</div>
+
+			<!-- Tags field -->
+			<div class="editable-field" id="tags-field" style="margin-bottom: 10px; max-width: 60%; margin-left: auto; margin-right: auto; text-align: left;">
+				<div class="field-label" style="font-weight: bold; margin-bottom: 4px; text-align: left;">
+					[% c.lh("Tags:") %]
+					[% IF userlogged %]
+					<a href="#" class="edit-field-btn fa fa-pencil-alt" data-field="tags" style="display:none; font-size:12px; margin-left:8px;" title="[% c.lh('Edit') %]"></a>
+					[% END %]
+				</div>
+				<span class="field-display">
+					<span id="tankoubon-tags"></span>
+				</span>
+				[% IF userlogged %]
+				<span class="field-edit" style="display:none;width:100%">
+					<textarea id="edit-tags" class="stdinput" autocomplete="off" style="min-height:80px; width:100%; vertical-align:middle;"></textarea>
+					<a href="#" class="save-field-btn fa fa-check" data-field="tags" style="margin-left:8px; vertical-align:top;" title="[% c.lh('Save') %]"></a>
+					<a href="#" class="cancel-field-btn fa fa-times" data-field="tags" style="margin-left:4px; vertical-align:top;" title="[% c.lh('Cancel') %]"></a>
+				</span>
+				[% END %]
+			</div>
+
+			<!-- Count (not editable) -->
+			<div id="tankoubon-count" style="font-size: 10pt; color: #888;"></div>
+
+			<!-- Categories section (logged in users only) -->
+			[% IF userlogged %]
+			<div id="categories-section" style="margin-top: 15px;">
+				<div class="field-label" style="font-weight: bold; margin-bottom: 4px;">
+					[% c.lh("Categories:") %]
+				</div>
+
+				<div id="tankoubon-categories" style="display:inline-block">
+					[% FOREACH tank_categories %]
+					<div class="gt" style="font-size:14px; padding:4px">
+						<a href="[% c.url_for("/").query("c=$id") %]">
+							<span class="label">[% name %]</span>
+						</a>
+						<a href="#" class="remove-category" data-id="[% id %]"
+							style="margin-left:4px; margin-right:2px">×</a>
+					</div>
+					[% END %]
+				</div>
+
+				<br />
+				<span>[% c.lh("Add to : ") %]</span>
+				<select id="add-category-select" class="favtag-btn" style="width:200px; margin-right: 8px">
+					<option selected value="">[% c.lh(" -- No Category -- ") %]</option>
+					[% FOREACH categories %]
+					<option value="[% id %]">[% name %]</option>
+					[% END %]
+				</select>
+				<a class="fas fa-plus" id="add-category" href="#" title="[% c.lh('Add Tankoubon to Category') %]"></a>
+			</div>
+			[% END %]
+		</div>
+
+		<div class="table-options" style="display: none; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+			<div style="flex: 1;"></div>
+			<div id="archive-count-info" style="font-size: 10pt; flex: 1; text-align: center;"></div>
+			<div style="display: flex; align-items: center; gap: 10px; flex: 1; justify-content: flex-end;">
+				[% c.lh("Go to Page:") %]
+				<select class="favtag-btn" id="page-select"></select>
+			<a class="fa fa-list fa-2x mode-toggle thumbnail-toggle table-option" href="#"
+				title="[% c.lh('Switch to Compact Mode') %]"></a>
+			<a class="fa fa-table fa-2x mode-toggle compact-toggle table-option" href="#"
+				title="[% c.lh('Switch to Thumbnail Mode') %]" style="display:none"></a>
+			[% IF userlogged %]
+			<a class="fa fa-arrows-alt fa-2x reorder-toggle table-option" href="#"
+				title="[% c.lh('Reorder Archives') %]" style="display:none"></a>
+			[% END %]
+			</div>
+		</div>
+
+		<div id="paginator-top" class="dataTables_paginate" style="text-align: center; margin-bottom: 10px;"></div>
+
+		<div id="thumbs_container" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;"></div>
+
+		<table id="archive-table" class="itg" style="display:none; width: 100%;">
+			<thead>
+				<tr>
+					<th style="width: 50px;">#</th>
+					<th>[% c.lh("Title") %]</th>
+					<th>[% c.lh("Tags") %]</th>
+				</tr>
+			</thead>
+			<tbody></tbody>
+		</table>
+
+		<div id="empty-message" style="display:none; padding: 50px;">
+			<h2><i class="fas fa-box-open fa-3x"></i></h2>
+			<h2>[% c.lh("This tankoubon has no archives.") %]</h2>
+		</div>
+
+		<div id="paginator-bottom" class="dataTables_paginate" style="text-align: center; margin-top: 10px;"></div>
+
+		<br><br>
+		<a href="[% c.url_for('/').query(ref_query) %]" class="stdbtn">[% c.lh("Return to Library") %]</a>
+	</div>
+
+	[% INCLUDE footer %]
+
+	<script>
+		// Category list for context menu (same pattern as index)
+		const catList = [];
+		[% IF categories.size > 0 %]
+		[% FOREACH categories %]
+		catList.push({ name: "[% name %]", id: "[% id %]" });
+		[% END %]
+		[% END %]
+
+		// Initialize context menu
+		$.contextMenu({
+			selector: '.context-menu',
+			build: ($trigger, e) => {
+				return {
+					callback: function (key, options) {
+						LRR.handleContextMenu(key, $(this).attr("id"), TankoubonView.refreshPage);
+					},
+					items: {
+						"read": { name: "[% c.lh('Read') %]", icon: "fas fa-book" },
+						"download": { name: "[% c.lh('Download') %]", icon: "fas fa-save" },
+						"copy link": { name: "[% c.lh('Copy link') %]", icon: "fas fa-link" },
+						[% IF userlogged %]
+						"sep1": "---------",
+						"edit": { name: "[% c.lh('Edit Metadata') %]", icon: "fas fa-pencil-alt" },
+						"remove from tankoubon": { name: "[% c.lh('Remove from Tankoubon') %]", icon: "fas fa-minus-circle" },
+						"delete": { name: "[% c.lh('Delete') %]", icon: "fas fa-trash-alt" },
+						"rating": {
+							"name": "[% c.lh('Add Rating') %]",
+							"icon": "fas fa-star",
+							"items": LRR.loadContextMenuRatings($trigger.attr("id"), TankoubonView.refreshPage)
+						},
+						"collections": {
+							"name": "[% c.lh('Add to Category') %]",
+							"icon": "fas fa-search-plus",
+							"items": LRR.loadContextMenuCategories(catList, $trigger.attr("id"))
+						}
+						[% END %]
+					}
+				}
+			}
+		});
+
+		// Initialize tankoubon view
+		TankoubonView.init("[% id %]");
+	</script>
+
+</body>
+
+</html>

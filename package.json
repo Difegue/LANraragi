@@ -52,6 +52,7 @@
         "marked": "4.0.15",
         "preact": "10.7.1",
         "react-toastify": "9.0.0-rc-2",
+        "sortablejs": "1.15.6",
         "sweetalert2": "11.22.4",
         "swiper": "8.4.5",
         "tippy.js": "6.3.7"

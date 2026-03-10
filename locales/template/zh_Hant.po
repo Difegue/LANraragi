@@ -202,6 +202,16 @@ msgstr "新增動態分類"
 
 # ------End of Category.html.tt2------
 # ------Start of Config.html.tt2------
+
+msgid "Tankoubons"
+msgstr ""
+
+msgid "Click here to display tankoubons only."
+msgstr ""
+
+msgid "Archives"
+msgstr ""
+
 msgid "Admin Settings"
 msgstr "管理員設定"
 
@@ -315,6 +325,16 @@ msgstr "此操作將刪除舊檔案的中繼資料！請小心使用。"
 
 # ------End of Config_Files.html.tt2------
 # ------Start of Config_Global.html.tt2------
+
+msgid "Language"
+msgstr ""
+
+msgid "Automatic (browser default)"
+msgstr ""
+
+msgid "Select the language for the user interface. Set to Automatic to use your browser's language preference."
+msgstr ""
+
 msgid "Site Title"
 msgstr "網站標題"
 
@@ -362,6 +382,15 @@ msgstr "啟用此選項後，閱讀進度將儲存在瀏覽器中（透過 local
 
 msgid "Consider toggling this option if you're sharing the LANraragi instance with multiple users!"
 msgstr "若此 LANraragi 實例供多人共用，請考慮啟用此選項！"
+
+msgid "Authenticated Progress Tracking"
+msgstr ""
+
+msgid "If enabled, server-side progress will only be saved if you're logged in with a password, and will override clientside progress. This allows guests to browse without affecting the main user's progress."
+msgstr ""
+
+msgid "Combine with clientside progress tracking to allow unauthenticated users to track progress locally."
+msgstr ""
 
 msgid "Debug Mode"
 msgstr "Debug 模式"
@@ -674,6 +703,45 @@ msgstr "排序順序"
 msgid "Crop thumbnails"
 msgstr "裁切縮圖"
 
+msgid "Group by Tankoubon"
+msgstr ""
+
+msgid "New archive"
+msgstr ""
+
+msgid "Archive read"
+msgstr ""
+
+msgid "Tankoubon (collection)"
+msgstr ""
+
+msgid "Select Page"
+msgstr ""
+
+msgid "Deselect Page"
+msgstr ""
+
+msgid "Add to Tankoubon"
+msgstr ""
+
+msgid "Clear"
+msgstr ""
+
+msgid "Select Tankoubon"
+msgstr ""
+
+msgid "Search tankoubons..."
+msgstr ""
+
+msgid "Create New"
+msgstr ""
+
+msgid "%1 archive(s), %2 tankoubon(s) selected"
+msgstr ""
+
+msgid "Cannot add tankoubons to tankoubons - deselect tankoubons first"
+msgstr ""
+
 msgid "Go to Page:"
 msgstr "跳轉至頁面："
 
@@ -909,6 +977,18 @@ msgstr ""
 
 msgid "Add Archive to Category"
 msgstr "將檔案加入分類"
+
+msgid "Rating"
+msgstr ""
+
+msgid "Set Rating"
+msgstr ""
+
+msgid "Clear Rating"
+msgstr ""
+
+msgid " -- Select Rating -- "
+msgstr ""
 
 msgid "Pages"
 msgstr "頁面"
@@ -1284,6 +1364,108 @@ msgstr ""
 "篩選條件遵循與檔案列表中搜尋相同的語法。詳情請參閱<a href="
 "\"https://sugoi.gitbook.io/lanraragi/basic-operations/searching\""
 ">說明文件</a>。"
+
+msgid "Tankoubon"
+msgstr ""
+
+msgid "Error loading tankoubon"
+msgstr ""
+
+msgid "${n} archive(s)"
+msgstr ""
+
+msgid "This tankoubon has no archives."
+msgstr ""
+
+msgid "Tankoubon saved!"
+msgstr ""
+
+msgid "Error saving tankoubon"
+msgstr ""
+
+msgid "(No summary)"
+msgstr ""
+
+msgid "(No tags)"
+msgstr ""
+
+msgid "Tags:"
+msgstr ""
+
+msgid "Reorder Archives"
+msgstr ""
+
+msgid "Archive order saved!"
+msgstr ""
+
+msgid "Error saving archive order"
+msgstr ""
+
+msgid "Add Tankoubon to Category"
+msgstr ""
+
+msgid "Remove from Tankoubon"
+msgstr ""
+
+msgid "Removed from Tankoubon"
+msgstr ""
+
+msgid "Error removing from tankoubon"
+msgstr ""
+
+msgid "Are you sure you want to remove this archive from the tankoubon?"
+msgstr ""
+
+msgid "Yes, remove it!"
+msgstr ""
+
+msgid "Are you sure you want to delete this tankoubon? The archives will remain in your library but will no longer be grouped."
+msgstr ""
+
+msgid "Yes, delete the tankoubon!"
+msgstr ""
+
+msgid "Tankoubon deleted"
+msgstr ""
+
+msgid "Error deleting tankoubon"
+msgstr ""
+
+msgid "New archive"
+msgstr ""
+
+msgid "Archive read"
+msgstr ""
+
+msgid "Tankoubon (collection)"
+msgstr ""
+
+msgid "${n} selected"
+msgstr ""
+
+msgid "${archives} archive(s), ${tanks} tankoubon(s) selected"
+msgstr ""
+
+msgid "Added ${count} archive(s) to \"${name}\""
+msgstr ""
+
+msgid "Error modifying tankoubon"
+msgstr ""
+
+msgid "Error fetching tankoubons"
+msgstr ""
+
+msgid "Enter a name for the new tankoubon"
+msgstr ""
+
+msgid "My Tankoubon"
+msgstr ""
+
+msgid "Please enter a tankoubon name."
+msgstr ""
+
+msgid "No tankoubons yet. Create one!"
+msgstr ""
 
 msgid "Background Worker restarted!"
 msgstr "背景工作程序已重新啟動！"

@@ -103,6 +103,7 @@ sub apply_routes {
     $logged_in->get('/logs/redis')->to('logging#print_redis');
 
     $logged_in->get('/tankoubons')->to('tankoubon#index');
+    $logged_in->get('/tankoubon')->to('tankoubon#view');
 
     $logged_in->get('/duplicates')->to('duplicates#index');
 
@@ -187,6 +188,7 @@ sub apply_routes {
     # Tankoubon API
     $public_api->get('/api/tankoubons')->to('api-tankoubon#get_tankoubon_list');
     $public_api->get('/api/tankoubons/:id')->to('api-tankoubon#get_tankoubon');
+
     $logged_in_api->put('/api/tankoubons')->to('api-tankoubon#create_tankoubon');
     $logged_in_api->put('/api/tankoubons/:id')->to('api-tankoubon#update_tankoubon');
     $logged_in_api->delete('/api/tankoubons/:id')->to('api-tankoubon#delete_tankoubon');

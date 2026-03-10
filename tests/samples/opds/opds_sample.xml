@@ -10,7 +10,7 @@
     <link rel="self" href="/api/opds" type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
     <link rel="start" href="/api/opds" type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
 
-    <link rel="next" href="/api/opds?start=8" type="application/atom+xml;profile=opds-catalog;kind=navigation" />
+    <link rel="next" href="/api/opds?start=12" type="application/atom+xml;profile=opds-catalog;kind=navigation" />
 
     <title>LANraragi</title>
     <updated>2010-01-10T10:03:10Z</updated>
@@ -55,7 +55,7 @@
         <dcterms:publisher></dcterms:publisher>
         <dcterms:issued></dcterms:issued>
         
-        <category term="Archive" />
+        <category term="New Archive" />
         
         <summary>medjed, character:doubles guy, character:king of GETs, check this 5</summary>
 
@@ -72,6 +72,134 @@
              
             />
         <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=28697b96f0ac5858be2666ed10ca47742c955555" />
+    </entry>
+    
+    <entry>
+        <title>Apple Archive</title>
+        <id>urn:lrr:d0be2dc421be4fcd0172e5afceea3970e2f3d940</id>
+        <updated>1970-01-01T00:00:00Z</updated>
+        <published>1970-01-01T00:00:00Z</published>
+        <author>
+            <name></name>
+        </author>
+        <rights></rights>
+        <dcterms:language></dcterms:language>
+        <dcterms:publisher></dcterms:publisher>
+        <dcterms:issued></dcterms:issued>
+        
+        <category term="Archive" />
+        
+        <summary>fruit:apple</summary>
+
+        <link rel="alternate" href="/api/opds/d0be2dc421be4fcd0172e5afceea3970e2f3d940"
+            type="application/atom+xml;type=entry;profile=opds-catalog" />
+
+        <link rel="http://opds-spec.org/image" href="/api/archives/d0be2dc421be4fcd0172e5afceea3970e2f3d940/thumbnail" type="image/jpeg" />
+        <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/d0be2dc421be4fcd0172e5afceea3970e2f3d940/thumbnail"
+            type="image/jpeg" />
+        <link rel="http://opds-spec.org/acquisition" href="/api/archives/d0be2dc421be4fcd0172e5afceea3970e2f3d940/download" title="Download/Read"
+            type="application/x-cbz" />
+        <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
+            href="/api/opds/d0be2dc421be4fcd0172e5afceea3970e2f3d940/pse?page={pageNumber}" pse:count="10" 
+             
+            />
+        <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=d0be2dc421be4fcd0172e5afceea3970e2f3d940" />
+    </entry>
+    
+    <entry>
+        <title>Banana Archive</title>
+        <id>urn:lrr:250e77f12a5ab6972a0895d290c4792f0a326ea8</id>
+        <updated>1970-01-01T00:00:00Z</updated>
+        <published>1970-01-01T00:00:00Z</published>
+        <author>
+            <name></name>
+        </author>
+        <rights></rights>
+        <dcterms:language></dcterms:language>
+        <dcterms:publisher></dcterms:publisher>
+        <dcterms:issued></dcterms:issued>
+        
+        <category term="Archive" />
+        
+        <summary>fruit:banana</summary>
+
+        <link rel="alternate" href="/api/opds/250e77f12a5ab6972a0895d290c4792f0a326ea8"
+            type="application/atom+xml;type=entry;profile=opds-catalog" />
+
+        <link rel="http://opds-spec.org/image" href="/api/archives/250e77f12a5ab6972a0895d290c4792f0a326ea8/thumbnail" type="image/jpeg" />
+        <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/250e77f12a5ab6972a0895d290c4792f0a326ea8/thumbnail"
+            type="image/jpeg" />
+        <link rel="http://opds-spec.org/acquisition" href="/api/archives/250e77f12a5ab6972a0895d290c4792f0a326ea8/download" title="Download/Read"
+            type="application/x-cbz" />
+        <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
+            href="/api/opds/250e77f12a5ab6972a0895d290c4792f0a326ea8/pse?page={pageNumber}" pse:count="10" 
+             
+            />
+        <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=250e77f12a5ab6972a0895d290c4792f0a326ea8" />
+    </entry>
+    
+    <entry>
+        <title>Cherry Archive</title>
+        <id>urn:lrr:7e41c6480852a4a914e48c7a3a4084f193e963d9</id>
+        <updated>1970-01-01T00:00:00Z</updated>
+        <published>1970-01-01T00:00:00Z</published>
+        <author>
+            <name></name>
+        </author>
+        <rights></rights>
+        <dcterms:language></dcterms:language>
+        <dcterms:publisher></dcterms:publisher>
+        <dcterms:issued></dcterms:issued>
+        
+        <category term="Archive" />
+        
+        <summary>fruit:cherry</summary>
+
+        <link rel="alternate" href="/api/opds/7e41c6480852a4a914e48c7a3a4084f193e963d9"
+            type="application/atom+xml;type=entry;profile=opds-catalog" />
+
+        <link rel="http://opds-spec.org/image" href="/api/archives/7e41c6480852a4a914e48c7a3a4084f193e963d9/thumbnail" type="image/jpeg" />
+        <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/7e41c6480852a4a914e48c7a3a4084f193e963d9/thumbnail"
+            type="image/jpeg" />
+        <link rel="http://opds-spec.org/acquisition" href="/api/archives/7e41c6480852a4a914e48c7a3a4084f193e963d9/download" title="Download/Read"
+            type="application/x-cbz" />
+        <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
+            href="/api/opds/7e41c6480852a4a914e48c7a3a4084f193e963d9/pse?page={pageNumber}" pse:count="10" 
+             
+            />
+        <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=7e41c6480852a4a914e48c7a3a4084f193e963d9" />
+    </entry>
+    
+    <entry>
+        <title>Dragon Fruit Archive</title>
+        <id>urn:lrr:af8978b1797b72acfff9595a5a2a373ec3d9106d</id>
+        <updated>1970-01-01T00:00:00Z</updated>
+        <published>1970-01-01T00:00:00Z</published>
+        <author>
+            <name></name>
+        </author>
+        <rights></rights>
+        <dcterms:language></dcterms:language>
+        <dcterms:publisher></dcterms:publisher>
+        <dcterms:issued></dcterms:issued>
+        
+        <category term="Archive" />
+        
+        <summary>fruit:dragon</summary>
+
+        <link rel="alternate" href="/api/opds/af8978b1797b72acfff9595a5a2a373ec3d9106d"
+            type="application/atom+xml;type=entry;profile=opds-catalog" />
+
+        <link rel="http://opds-spec.org/image" href="/api/archives/af8978b1797b72acfff9595a5a2a373ec3d9106d/thumbnail" type="image/jpeg" />
+        <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/af8978b1797b72acfff9595a5a2a373ec3d9106d/thumbnail"
+            type="image/jpeg" />
+        <link rel="http://opds-spec.org/acquisition" href="/api/archives/af8978b1797b72acfff9595a5a2a373ec3d9106d/download" title="Download/Read"
+            type="application/x-cbz" />
+        <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
+            href="/api/opds/af8978b1797b72acfff9595a5a2a373ec3d9106d/pse?page={pageNumber}" pse:count="10" 
+             
+            />
+        <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=af8978b1797b72acfff9595a5a2a373ec3d9106d" />
     </entry>
     
     <entry>

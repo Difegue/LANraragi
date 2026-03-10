@@ -7,6 +7,9 @@ use Redis;
 use Encode;
 use Mojo::Util qw(xml_escape);
 
+use Mojo::URL;
+
+use LANraragi::Model::Category;
 use LANraragi::Utils::Generic qw(generate_themes_header);
 use LANraragi::Utils::Redis   qw(redis_decode);
 
@@ -27,6 +30,46 @@ sub index {
         descstr  => $self->LRR_DESC,
         csshead  => generate_themes_header($self),
         version  => $self->LRR_VERSION
+    );
+}
+
+# View a single tankoubon
+sub view {
+    my $self = shift;
+
+    my $id = $self->req->param('id');
+
+    # Redirect to index if no ID provided or invalid format
+    unless ( $id && $id =~ /^TANK_\d{10}$/ ) {
+        return $self->redirect_to('index');
+    }
+
+    my $userlogged = $self->LRR_CONF->enable_pass == 0 || $self->session('is_logged');
+
+    # Get static category list for the add-to-category dropdown and context menu
+    my @categories = LANraragi::Model::Category->get_static_category_list;
+
+    # Get categories this tankoubon belongs to
+    my @tank_categories = LANraragi::Model::Category::get_categories_containing_archive($id);
+
+    # Get query string from referrer URL for the return link
+    my $referrer = $self->req->headers->referrer;
+    my $query    = "";
+
+    if ($referrer) {
+        $query = Mojo::URL->new($referrer)->query->to_string;
+    }
+
+    $self->render(
+        template        => "tankoubon_view",
+        title           => $self->LRR_CONF->get_htmltitle,
+        id              => $id,
+        categories      => \@categories,
+        tank_categories => \@tank_categories,
+        csshead         => generate_themes_header($self),
+        version         => $self->LRR_VERSION,
+        ref_query       => $query,
+        userlogged      => $userlogged
     );
 }
 

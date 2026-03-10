@@ -21,10 +21,11 @@ use LANraragi::Utils::Logging  qw(get_logger);
 
 use LANraragi::Model::Archive;
 use LANraragi::Model::Category;
+use LANraragi::Model::Tankoubon;
 
-# do_search (filter, category_id, page, key, order, newonly, untaggedonly)
+# do_search (filter, category_id, page, key, order, newonly, untaggedonly, grouptanks, tankoubonsonly)
 # Performs a search on the database.
-sub do_search ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks ) {
+sub do_search ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks, $tankoubonsonly = 0 ) {
 
     my $redis  = LANraragi::Model::Config->get_redis_search;
     my $logger = get_logger( "Search Engine", "lanraragi" );
@@ -46,14 +47,14 @@ sub do_search ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $
 
     # Look in searchcache first
     my $sortorder_inv = $sortorder ? 0 : 1;
-    my $cachekey      = redis_encode("$category_id-$filter-$sortkey-$sortorder-$newonly-$untaggedonly-$grouptanks");
-    my $cachekey_inv  = redis_encode("$category_id-$filter-$sortkey-$sortorder_inv-$newonly-$untaggedonly-$grouptanks");
+    my $cachekey      = redis_encode("$category_id-$filter-$sortkey-$sortorder-$newonly-$untaggedonly-$grouptanks-$tankoubonsonly");
+    my $cachekey_inv  = redis_encode("$category_id-$filter-$sortkey-$sortorder_inv-$newonly-$untaggedonly-$grouptanks-$tankoubonsonly");
     my ( $cachehit, @filtered ) = check_cache( $cachekey, $cachekey_inv );
 
     # Don't use cache for history searches since setting lastreadtime doesn't (and shouldn't) cachebust
     unless ( $cachehit && $sortkey ne "lastread" ) {
         $logger->debug("No cache available (or history-sorted search), doing a full DB parse.");
-        @filtered = search_uncached( $category_id, $filter, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks );
+        @filtered = search_uncached( $category_id, $filter, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks, $tankoubonsonly );
 
         # Cache this query in the search database
         eval { $redis->hset( "LRR_SEARCHCACHE", $cachekey, nfreeze \@filtered ); };
@@ -104,7 +105,7 @@ sub check_cache ( $cachekey, $cachekey_inv ) {
 }
 
 # Grab all our IDs, then filter them down according to the following filters and tokens' ID groups.
-sub search_uncached ( $category_id, $filter, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks ) {
+sub search_uncached ( $category_id, $filter, $sortkey, $sortorder, $newonly, $untaggedonly, $grouptanks, $tankoubonsonly = 0 ) {
 
     my $redis    = LANraragi::Model::Config->get_redis_search;
     my $redis_db = LANraragi::Model::Config->get_redis;
@@ -118,7 +119,12 @@ sub search_uncached ( $category_id, $filter, $sortkey, $sortorder, $newonly, $un
     my @filtered;
     if ($grouptanks) {
 
-        # Start with our tank IDs, and all other archive IDs that aren't in tanks
+        # Start with our tank IDs, and all other archive IDs that aren't in tanks.
+        # NOTE: When searching within a static category with grouptanks enabled, archives that
+        # belong to a tankoubon will only appear if the tankoubon itself is in the category.
+        # If an archive is in the category but its tankoubon is not, the archive will not
+        # appear in results (it's "hidden" by the tank grouping). This is expected behavior -
+        # the archive is grouped under its tank, and the tank isn't in the category.
         @filtered = $redis->smembers("LRR_TANKGROUPED");
     } else {
 
@@ -126,13 +132,18 @@ sub search_uncached ( $category_id, $filter, $sortkey, $sortorder, $newonly, $un
         @filtered = $redis_db->keys('????????????????????????????????????????');
     }
 
-    # If we're using a category, we'll need to get its source data first.
-    my %category = LANraragi::Model::Category::get_category($category_id);
+    # Handle categories (comma-separated for multiple, intersection/AND logic)
+    # Each category either adds search predicates (dynamic) or intersects archive lists (static)
+    my @category_ids = split( /,/, $category_id );
 
-    if (%category) {
+    for my $cat_id (@category_ids) {
+        next if $cat_id eq "";
+
+        my %category = LANraragi::Model::Category::get_category($cat_id);
+        next unless %category;
 
         # If the category is dynamic, get its search predicate and add it to the tokens.
-        # If it's static however, we can use its ID list as the base for our result array.
+        # If it's static however, intersect its ID list with our current filtered results.
         if ( $category{search} ne "" ) {
             my @cat_tokens = compute_search_filter( $category{search} );
             push @tokens, @cat_tokens;
@@ -148,9 +159,26 @@ sub search_uncached ( $category_id, $filter, $sortkey, $sortorder, $newonly, $un
     }
 
     # Check new filter
+    # For tanks, we check if any archive in the tank is new (consistent with display logic)
     if ($newonly) {
         my @new = $redis->smembers("LRR_NEW");
-        @filtered = intersect_arrays( \@new, \@filtered, 0 );
+        my %new_set = map { $_ => 1 } @new;
+
+        @filtered = grep {
+            if (/^TANK_/) {
+                # For tanks, check if any archive in the tank is new
+                # Note: use $redis_db (main DB) not $redis (search DB) for tank data
+                tank_has_archive_in_set( $redis_db, $_, \%new_set );
+            } else {
+                # For regular archives, check membership directly
+                exists $new_set{$_};
+            }
+        } @filtered;
+    }
+
+    # Check tankoubons only filter - show only tank IDs
+    if ($tankoubonsonly) {
+        @filtered = grep { /^TANK_/ } @filtered;
     }
 
     # Iterate through each token and intersect the results with the previous ones.
@@ -418,7 +446,12 @@ sub sort_results ( $sortkey, $sortorder, @filtered ) {
 
     # Employ Lua scripting to fetch data in bulk, thereby minimizing network request frequency
     if ( $sortkey eq "lastread" ) {
-        # Prepare a Lua script to retrieve the lastreadtime for all IDs
+
+        # Separate tanks from archives - tanks need special handling
+        my @tank_ids = grep { /^TANK/ } @filtered;
+        my @archive_ids = grep { !/^TANK/ } @filtered;
+
+        # Prepare a Lua script to retrieve the lastreadtime for all archive IDs
         my $script = <<'LUA';
         local result = {}
         for i=1,#ARGV do
@@ -429,30 +462,43 @@ sub sort_results ( $sortkey, $sortorder, @filtered ) {
         return cjson.encode(result)
 LUA
 
-        # Execute the Lua script
-        my $sha;
-        eval {
-            $sha = $redis->script_load($script);
-            my $total_time = time() - $start_time;
-            $logger->debug("[PERF] lastreadtime Lua script completed in ${total_time}s");
-        };
-        if ($@) {
-            $logger->error("Failed to load Lua script: $@");
-            # Fallback to running individual hget operations for each ID
-            %tmpfilter = map { $_ => $redis->hget( $_, "lastreadtime" ) } @filtered;
-        } else {
-            my $result = $redis->evalsha($sha, 0, @filtered);
-            my $data = eval { decode_json($result) };
+        # Execute the Lua script for archives only
+        if (scalar @archive_ids > 0) {
+            my $sha;
+            eval {
+                $sha = $redis->script_load($script);
+                my $total_time = time() - $start_time;
+                $logger->debug("[PERF] lastreadtime Lua script completed in ${total_time}s");
+            };
             if ($@) {
-                $logger->error("Failed to decode JSON from Lua script: $@");
-                # Revert to the original methodology
-                %tmpfilter = map { $_ => $redis->hget( $_, "lastreadtime" ) } @filtered;
+                $logger->error("Failed to load Lua script: $@");
+                # Fallback to running individual hget operations for each ID
+                %tmpfilter = map { $_ => $redis->hget( $_, "lastreadtime" ) } @archive_ids;
             } else {
-                # Convert the results into a hash table
-                foreach my $item (@$data) {
-                    $tmpfilter{$item->[0]} = $item->[1];
+                my $result = $redis->evalsha($sha, 0, @archive_ids);
+                my $data = eval { decode_json($result) };
+                if ($@) {
+                    $logger->error("Failed to decode JSON from Lua script: $@");
+                    # Revert to the original methodology
+                    %tmpfilter = map { $_ => $redis->hget( $_, "lastreadtime" ) } @archive_ids;
+                } else {
+                    # Convert the results into a hash table
+                    foreach my $item (@$data) {
+                        $tmpfilter{$item->[0]} = $item->[1];
+                    }
                 }
             }
+        }
+
+        # Handle tanks separately - compute max lastreadtime from contained archives
+        foreach my $tank_id (@tank_ids) {
+            my @members = $redis->zrangebyscore($tank_id, 1, "+inf");
+            my $max_time = 0;
+            foreach my $arc (@members) {
+                my $t = $redis->hget($arc, "lastreadtime") || 0;
+                $max_time = $t if $t > $max_time;
+            }
+            $tmpfilter{$tank_id} = $max_time;
         }
 
         # Sorting remains done in Perl -- Invert sort order for lastreadtime, biggest timestamps come first
@@ -462,47 +508,59 @@ LUA
           map  { [ $_, $tmpfilter{$_} ] }            # Map to an array containing the ID and the timestamp
           @filtered;                                 # List of IDs
     } else {
-        # Prepare a Lua script to retrieve all ID-associated tags
-        my $script = <<'LUA';
-        local result = {}
-        for i=1,#ARGV do
-            local id = ARGV[i]
-            local tags = redis.call('HGET', id, 'tags') or ""
-            result[i] = {id, tags}
-        end
-        return cjson.encode(result)
+        # Separate tanks from archives - tanks need special handling for imputed tags
+        my @tank_ids    = grep { /^TANK/ } @filtered;
+        my @archive_ids = grep { !/^TANK/ } @filtered;
+
+        my $re = qr/$sortkey/;
+
+        # Handle archives using Lua script for bulk retrieval
+        if ( scalar @archive_ids > 0 ) {
+            my $script = <<'LUA';
+            local result = {}
+            for i=1,#ARGV do
+                local id = ARGV[i]
+                local tags = redis.call('HGET', id, 'tags') or ""
+                result[i] = {id, tags}
+            end
+            return cjson.encode(result)
 LUA
 
-        # Execute the Lua script
-        my $sha;
-        eval {
-            $sha = $redis->script_load($script);
-            my $total_time = time() - $start_time;
-            $logger->debug("[PERF] Tag retrieval Lua script completed in ${total_time}s");
-        };
-        if ($@) {
-            $logger->error("Failed to load Lua script: $@");
-            # Revert to the original methodology
-            my $re = qr/$sortkey/;
-            %tmpfilter = map { $_ => ( $redis->hget( $_, "tags" ) =~ m/.*${re}:(.*?)(\,.*|$)/ ) ? $1 : "zzzz" } @filtered;
-        } else {
-            my $result = $redis->evalsha($sha, 0, @filtered);
-            my $data = eval { decode_json($result) };
+            my $sha;
+            eval {
+                $sha = $redis->script_load($script);
+                my $total_time = time() - $start_time;
+                $logger->debug("[PERF] Tag retrieval Lua script completed in ${total_time}s");
+            };
             if ($@) {
-                $logger->error("Failed to decode JSON from Lua script: $@");
+                $logger->error("Failed to load Lua script: $@");
                 # Revert to the original methodology
-                my $re = qr/$sortkey/;
-                %tmpfilter = map { $_ => ( $redis->hget( $_, "tags" ) =~ m/.*${re}:(.*?)(\,.*|$)/ ) ? $1 : "zzzz" } @filtered;
+                %tmpfilter = map { $_ => ( $redis->hget( $_, "tags" ) =~ m/.*${re}:(.*?)(\,.*|$)/ ) ? $1 : "zzzz" } @archive_ids;
             } else {
-                my $re = qr/$sortkey/;
-                foreach my $item (@$data) {
-                    my $id = $item->[0];
-                    my $tags = $item->[1];
-                    # Find and use the first tag that matches the sortkey/namespace.
-                    # (If no tag, defaults to "zzzz")
-                    $tmpfilter{$id} = ($tags =~ m/.*${re}:(.*?)(\,.*|$)/) ? $1 : "zzzz";
+                my $result = $redis->evalsha( $sha, 0, @archive_ids );
+                my $data = eval { decode_json($result) };
+                if ($@) {
+                    $logger->error("Failed to decode JSON from Lua script: $@");
+                    # Revert to the original methodology
+                    %tmpfilter =
+                      map { $_ => ( $redis->hget( $_, "tags" ) =~ m/.*${re}:(.*?)(\,.*|$)/ ) ? $1 : "zzzz" } @archive_ids;
+                } else {
+                    foreach my $item (@$data) {
+                        my $id   = $item->[0];
+                        my $tags = $item->[1];
+                        # Find and use the first tag that matches the sortkey/namespace.
+                        # (If no tag, defaults to "zzzz")
+                        $tmpfilter{$id} = ( $tags =~ m/.*${re}:(.*?)(\,.*|$)/ ) ? $1 : "zzzz";
+                    }
                 }
             }
+        }
+
+        # Handle tanks separately - use full imputed tagset for sorting
+        foreach my $tank_id (@tank_ids) {
+            my $tagset = LANraragi::Model::Tankoubon::get_tank_unified_tags($tank_id);
+            my $tags   = join( ",", @{ $tagset->{own_tags} }, @{ $tagset->{imputed_tags} } );
+            $tmpfilter{$tank_id} = ( $tags =~ m/.*${re}:(.*?)(\,.*|$)/ ) ? $1 : "zzzz";
         }
 
         # Read comments from the bottom up for a better understanding of this sort algorithm.
@@ -518,6 +576,17 @@ LUA
     my $total_time = time() - $start_time;
     $logger->debug("[PERF] sort_results completed in ${total_time}s");
     return @sorted;
+}
+
+# Check if a tankoubon has any archive that exists in the given set.
+# Used for filters like "newonly" where we want tanks containing new archives.
+sub tank_has_archive_in_set ( $redis, $tank_id, $set_ref ) {
+    # Get archive IDs from the tank (scores > 0 are archive IDs)
+    my @archives = $redis->zrangebyscore( $tank_id, 1, "+inf" );
+    for my $arc (@archives) {
+        return 1 if exists $set_ref->{$arc};
+    }
+    return 0;
 }
 
 1;

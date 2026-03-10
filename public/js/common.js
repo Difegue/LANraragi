@@ -4,6 +4,9 @@
  */
 const LRR = {};
 
+LRR.isProgressLocal = true;          // Whether to use local (localStorage) progress tracking
+LRR.isProgressAuthenticated = true;  // Whether progress requires authentication
+
 function _get_baseurl_cookie() {
     let cookies = document.cookie;
     let val = cookies.split("; ").find((r) => r.startsWith("lrr_baseurl="))?.split("=")[1];
@@ -281,6 +284,23 @@ LRR.buildTagsDiv = function (tags) {
 };
 
 /**
+ * Build a tooltip when hovering over a tag div, then display it.
+ * @param {*} target The target tags div
+ */
+LRR.buildTagTooltip = function (target) {
+    tippy(target, {
+        content: $(target).next("div").attr("style", "")[0],
+        delay: 0,
+        placement: "auto-start",
+        maxWidth: "none",
+        interactive: true,
+        appendTo: document.body,
+    }).show();
+
+    $(target).attr("onmouseover", "");
+};
+
+/**
  * Build bookmark icon for an archive.
  * @param {*} id
  * @param {*} bookmark_class Either "thumbnail-bookmark-icon" or "title-bookmark-icon".
@@ -298,6 +318,19 @@ LRR.buildBookmarkIconElement = function (id, bookmark_class) {
 };
 
 /**
+ * Get the appropriate view URL for an archive or tankoubon.
+ * Tankoubons link to /tankoubon?id=..., archives link to /reader?id=...
+ * @param {string} id The archive or tankoubon ID
+ * @returns {LRR.apiURL} The appropriate URL
+ */
+LRR.getItemViewURL = function (id) {
+    if (id.startsWith("TANK_")) {
+        return new LRR.apiURL(`/tankoubon?id=${id}`);
+    }
+    return new LRR.apiURL(`/reader?id=${id}`);
+};
+
+/**
  * Build a thumbnail div for the given archive data. Dynamically generates a bookmark icon,
  * such that the toggleability depends on whether the user is logged in.
  * @param {*} data The archive data
@@ -308,20 +341,28 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
     const thumbCss = (localStorage.cropthumbs === "true") ? "id3" : "id3 nocrop";
     // The ID can be in a different field depending on the archive object...
     const id = data.arcid || data.id;
-    let reader_url = new LRR.apiURL(`/reader?id=${id}`);
+    const viewUrl = LRR.getItemViewURL(id);
     const bookmarkIcon = LRR.buildBookmarkIconElement(id, "thumbnail-bookmark-icon");
+
+    // For tankoubons, use the first archive's thumbnail (thumb_archive field)
+    // If thumb_archive is empty string (empty tank), show noThumb.png directly
+    // If thumb_archive is undefined (regular archive), use the item's own ID
+    const thumbId = data.thumb_archive || id;
+    const thumbSrc = data.thumb_archive === ""
+        ? new LRR.apiURL("/img/noThumb.png")
+        : new LRR.apiURL(`/api/archives/${thumbId}/thumbnail`);
 
     // Don't enforce no_fallback=true here, we don't want those divs to trigger Minion jobs
     return `<div class="id1 context-menu swiper-slide" id="${id}">
                 <div class="id2">
                     ${LRR.buildStatusDiv(data)}
-                    <a href="${reader_url}" title="${LRR.encodeHTML(data.title)}">${LRR.encodeHTML(data.title)}</a>
+                    <a href="${viewUrl}" title="${LRR.encodeHTML(data.title)}">${LRR.encodeHTML(data.title)}</a>
                 </div>
                 <div class="${thumbCss}">
-                    <a href="${reader_url}" title="${LRR.encodeHTML(data.title)}">
-                        <img style="position:relative;" id="${id}_thumb" src="${new LRR.apiURL("/img/wait_warmly.jpg")}"/>
+                    <a href="${viewUrl}" title="${LRR.encodeHTML(data.title)}">
+                        <img style="position:relative;" id="${id}_thumb" src="${new LRR.apiURL('/img/wait_warmly.jpg')}"/>
                         <i id="${id}_spinner" class="fa fa-4x fa-cog fa-spin ttspinner"></i>
-                        <img src="${new LRR.apiURL(`/api/archives/${id}/thumbnail`)}"
+                        <img src="${thumbSrc}"
                                 onload="$('#${id}_thumb').remove(); $('#${id}_spinner').remove();"
                                 onerror="this.src='${new LRR.apiURL("/img/noThumb.png")}'"/>
                     </a>
@@ -329,28 +370,48 @@ LRR.buildThumbnailDiv = function (data, tagTooltip = true) {
                 </div>
                 <div class="id4">
                         ${LRR.buildPageCountDiv(data)}
-                        <span class="tags tag-tooltip" ${tagTooltip === true ? "onmouseover=\"IndexTable.buildTagTooltip(this)\"" : ""}>${LRR.colorCodeTags(data.tags)}</span>
+                        <span class="tags tag-tooltip" ${tagTooltip === true ? "onmouseover=\"LRR.buildTagTooltip(this)\"" : ""}>${LRR.colorCodeTags(data.tags)}</span>
                         ${tagTooltip === true ? `<div class="caption caption-tags" style="display: none;" >${LRR.buildTagsDiv(data.tags)}</div>` : ""}
                 </div>
             </div>`;
 };
 
 /**
- * Show an emoji for the given archive data.
+ * Show status emoji(s) for the given archive data.
+ * Can show multiple indicators: new (🆕), read (👑), and tankoubon (📚).
+ * For regular archives, new and read are mutually exclusive.
+ * For tankoubons, both can appear (e.g., mostly read but contains a new archive).
  * @param {*} arcdata The archive data object
  * @returns HTML string
  */
 LRR.buildStatusDiv = function (arcdata) {
     const { isnew } = arcdata;
     let { progress, pagecount } = LRR.getProgress(arcdata);
+    const isTank = arcdata.extension === ".tank";
 
+    let statuses = [];
+
+    // New indicator
     if (isnew === "true") {
-        return "<div class='isnew'>🆕</div>";
-    } else if (pagecount > 0 && (progress / pagecount) > 0.85) { // Consider an archive read if progress is past 85% of total
-        return "<div class='isnew'>👑</div>";
+        statuses.push(`<span title="${I18N.StatusNew}">🆕</span>`);
     }
-    // If there wasn't sufficient data, return an empty string
-    return "";
+
+    // Read indicator - consider read if progress is past 85% of total
+    // For archives: only show if not new (mutually exclusive)
+    // For tankoubons: can show alongside new (tank can have new archives AND be mostly read)
+    if (pagecount > 0 && (progress / pagecount) > 0.85) {
+        if (isTank || isnew !== "true") {
+            statuses.push(`<span title="${I18N.StatusRead}">👑</span>`);
+        }
+    }
+
+    // Tankoubon indicator (last)
+    if (isTank) {
+        statuses.push(`<span title="${I18N.StatusTankoubon}">📚</span>`);
+    }
+
+    if (statuses.length === 0) return "";
+    return `<div class='isnew status-icons'>${statuses.join("")}</div>`;
 };
 
 LRR.buildPageCountDiv = function (arcdata) {
@@ -419,7 +480,7 @@ LRR.getProgress = function (arcdata) {
     const pagecount = parseInt(arcdata.pagecount || 0, 10);
     let progress = -1;
 
-    if (Index.isProgressLocal && !(Index.isProgressAuthenticated && LRR.isUserLogged())) {
+    if (LRR.isProgressLocal && !(LRR.isProgressAuthenticated && LRR.isUserLogged())) {
         progress = parseInt(localStorage.getItem(`${id}-reader`) || 0, 10);
     } else {
         progress = parseInt(arcdata.progress || 0, 10);
@@ -519,6 +580,232 @@ LRR.toast = function (c) {
             };
         })());
 };
+
+// #region Context Menu Functions
+
+/**
+ * Handle context menu clicks.
+ * @param {*} option The clicked option
+ * @param {*} id The Archive ID
+ * @param {*} refreshCallback Optional callback to refresh the view after certain actions
+ */
+LRR.handleContextMenu = function (option, id, refreshCallback) {
+    switch (option) {
+    case "edit":
+        LRR.openInNewTab(new LRR.apiURL(`/edit?id=${id}`));
+        break;
+    case "delete":
+        if (id.startsWith("TANK_")) {
+            // Handle tankoubon deletion
+            LRR.showPopUp({
+                text: I18N.ConfirmTankoubonDeletion,
+                icon: "warning",
+                showCancelButton: true,
+                focusConfirm: false,
+                confirmButtonText: I18N.ConfirmYesTankoubon,
+                reverseButtons: true,
+                confirmButtonColor: "#d33",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Server.deleteTankoubon(id, () => {
+                        if (refreshCallback) {
+                            refreshCallback();
+                        } else {
+                            document.location.reload(true);
+                        }
+                    });
+                }
+            });
+        } else {
+            // Handle archive deletion
+            LRR.showPopUp({
+                text: I18N.ConfirmArchiveDeletion,
+                icon: "warning",
+                showCancelButton: true,
+                focusConfirm: false,
+                confirmButtonText: I18N.ConfirmYes,
+                reverseButtons: true,
+                confirmButtonColor: "#d33",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Server.deleteArchive(id, () => {
+                        if (refreshCallback) {
+                            refreshCallback();
+                        } else {
+                            document.location.reload(true);
+                        }
+                    });
+                }
+            });
+        }
+        break;
+    case "remove from tankoubon":
+        LRR.showPopUp({
+            text: I18N.ConfirmTankoubonRemove,
+            icon: "warning",
+            showCancelButton: true,
+            focusConfirm: false,
+            confirmButtonText: I18N.ConfirmYesRemove,
+            reverseButtons: true,
+            confirmButtonColor: "#d33",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Server.callAPI(
+                    `/api/tankoubons/${TankoubonView.id}/${id}`,
+                    "DELETE",
+                    I18N.TankoubonRemoved,
+                    I18N.TankoubonRemoveError,
+                    () => {
+                        if (refreshCallback) {
+                            refreshCallback();
+                        }
+                    },
+                );
+            }
+        });
+        break;
+    case "read":
+        // TODO: Once reader supports tankoubons, change to /reader?tank_id=${id}
+        LRR.openInNewTab(LRR.getItemViewURL(id));
+        break;
+    case "download":
+        LRR.openInNewTab(new LRR.apiURL(`/api/archives/${id}/download`));
+        break;
+    case "copy link":
+        // TODO: Once reader supports tankoubons, change to use reader URL
+        LRR.copyToClipboard(`${window.location.origin}${LRR.getItemViewURL(id)}`);
+        break;
+    default:
+        break;
+    }
+};
+
+/**
+ * Copy text to clipboard and show a toast notification
+ * @param {string} text The text to copy
+ */
+LRR.copyToClipboard = function (text) {
+    navigator.clipboard.writeText(text).then(() => {
+        LRR.toast({
+            heading: I18N.IndexCopyLinkSuccess,
+            icon: "info",
+            hideAfter: 3000,
+        });
+    }).catch(() => {
+        LRR.toast({
+            heading: I18N.IndexCopyLinkFail,
+            icon: "error",
+            hideAfter: false,
+        });
+    });
+};
+
+/**
+ * Build category list for contextMenu and checkoff the ones the given ID belongs to.
+ * @param {*} catList The list of categories, obtained statically
+ * @param {*} id The ID of the archive or tankoubon to check
+ * @returns Categories
+ */
+LRR.loadContextMenuCategories = (catList, id) => {
+    // Use different endpoint for tankoubons vs archives
+    const endpoint = id.startsWith("TANK_")
+        ? `/api/tankoubons/${id}/categories`
+        : `/api/archives/${id}/categories`;
+
+    return Server.callAPI(endpoint, "GET", null, I18N.IndexIdLoadError(id),
+        (data) => {
+            const items = {};
+
+            for (let i = 0; i < catList.length; i++) {
+                const catId = catList[i].id;
+
+                // If the category is also in the API results,
+                // we can pre-check it when creating the checkbox
+                const isSelected = data.categories.map((x) => x.id).includes(catId);
+                items[catId] = { name: catList[i].name, type: "checkbox" };
+                if (isSelected) { items[catId].selected = true; }
+
+                items[catId].events = {
+                    click() {
+                        if ($(this).is(":checked")) {
+                            Server.addArchiveToCategory(id, catId);
+                            if (typeof Index !== "undefined" && catId === localStorage.getItem("bookmarkCategoryId")) {
+                                Index.bookmarkIconOn(id);
+                            }
+                        } else {
+                            Server.removeArchiveFromCategory(id, catId);
+                            if (typeof Index !== "undefined" && catId === localStorage.getItem("bookmarkCategoryId")) {
+                                Index.bookmarkIconOff(id);
+                            }
+                        }
+                    },
+                };
+            }
+
+            if (Object.keys(items).length === 0) {
+                items.noop = { name: I18N.IndexNoCategories, icon: "far fa-sad-cry" };
+            }
+
+            return items;
+        },
+    );
+};
+
+/**
+ * Build rating options for contextMenu and select the one for the current ID.
+ * @param {*} id The ID of the archive to check
+ * @param {*} refreshCallback Optional callback to refresh the view after rating change
+ * @returns Ratings
+ */
+LRR.loadContextMenuRatings = (id, refreshCallback) => Server.callAPI(`/api/archives/${id}/metadata`, "GET", null, I18N.IndexIdLoadError(id),
+    (data) => {
+        const items = {};
+        const ratings = [{
+            name: I18N.IndexRemoveRating
+        }, {
+            name: "⭐",
+        }, {
+            name: "⭐⭐",
+        }, {
+            name: "⭐⭐⭐",
+        }, {
+            name: "⭐⭐⭐⭐",
+        }, {
+            name: "⭐⭐⭐⭐⭐",
+        }];
+        const tags = LRR.splitTagsByNamespace(data.tags);
+        const hasRating = Object.keys(tags).some(x => x === "rating");
+        const ratingValue = hasRating ? tags["rating"] : [0];
+
+        for (let i = 0; i < ratings.length; i++) {
+            items[i] = ratings[i];
+            items[i].type = "checkbox";
+
+            if (items[i].name === ratingValue[0]) { items[i].selected = true; }
+            items[i].events = {
+                click() {
+                    if(i === 0) delete tags["rating"];
+                    else tags["rating"] = [ratings[i].name];
+
+                    Server.updateTagsFromArchive(id, LRR.buildTagList(tags));
+
+                    // Refresh the view
+                    if (refreshCallback) {
+                        refreshCallback();
+                    } else if (typeof IndexTable !== "undefined" && IndexTable.dataTable) {
+                        IndexTable.dataTable.ajax.reload(null, false);
+                        if (typeof Index !== "undefined") Index.updateCarousel();
+                    }
+                    $(this).parents("ul.context-menu-list").find("input[type='checkbox']").toArray().filter((x) => x !== this).forEach(x => x.checked = false);
+                },
+            };
+        }
+
+        return items;
+    },
+);
+
+// #endregion
 
 jQuery(() => {
     // Initialize toast.

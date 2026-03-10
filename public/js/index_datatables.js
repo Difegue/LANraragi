@@ -73,6 +73,9 @@ IndexTable.initializeAll = function () {
         ajax: {
             url: "search",
             cache: true,
+            data: function (d) {
+                d.grouptanks = localStorage.grouptanks === "true" ? "1" : "0";
+            },
         },
         deferRender: true,
         lengthChange: false,
@@ -102,9 +105,11 @@ IndexTable.initializeAll = function () {
  * @param {*} page Page to load
  */
 IndexTable.doSearch = function (page) {
-    // Add the selected category to the tags column so it's picked up by the search engine
+    // Add the selected categories to the tags column so they're picked up by the search engine
     // This allows for the regular search bar to be used in conjunction with categories.
-    IndexTable.dataTable.column(".tags.itd").search(Index.selectedCategory);
+    // Multiple categories are comma-separated and ANDed together on the backend.
+    const categories = Index.selectedCategories ? [...Index.selectedCategories].join(",") : "";
+    IndexTable.dataTable.column(".tags.itd").search(categories);
 
     // Update search input field
     $("#search-input").val(IndexTable.currentSearch);
@@ -160,7 +165,7 @@ IndexTable.renderColumn = function (namespace, type, data) {
             const spanTags = tagLinks.slice(0, -2); // remove the last comma and space
             const popupTags = matches.map((match) => match[0]).join(","); //
             return `
-                <span class="tag-tooltip" onmouseover="IndexTable.buildTagTooltip(this)" style="text-overflow:ellipsis;">${spanTags}</span>
+                <span class="tag-tooltip" onmouseover="LRR.buildTagTooltip(this)" style="text-overflow:ellipsis;">${spanTags}</span>
                 <div class="caption caption-tags" style="display: none;" >${LRR.buildTagsDiv(popupTags)}</div>
             `;
         } else return "";
@@ -178,12 +183,20 @@ IndexTable.renderTitle = function (data, type) {
     if (type === "display") {
         // For compact mode, the thumbnail API call enforces no_fallback=true in order to queue Minion jobs for missing thumbnails.
         // (Since compact mode is the "base", it's always loaded first even if you're in table mode)
+        // For tankoubons, use the first archive's thumbnail (thumb_archive field)
+        // If thumb_archive is empty string (empty tank), show noThumb.png directly to avoid triggering Minion jobs
+        const thumbId = data.thumb_archive || data.arcid;
+        const thumbSrc = data.thumb_archive === ""
+            ? new LRR.apiURL("/img/noThumb.png")
+            : new LRR.apiURL(`/api/archives/${thumbId}/thumbnail?no_fallback=true`);
+
         const bookmarkIcon = LRR.buildBookmarkIconElement(data.arcid, "title-bookmark-icon");
-        return `${LRR.buildPageCountDiv(data)}${bookmarkIcon}<a id="${data.arcid}" onmouseover="IndexTable.buildImageTooltip(this)" href="${new LRR.apiURL(`/reader?id=${data.arcid}`)}">
+        const viewUrl = LRR.getItemViewURL(data.arcid);
+        return `${LRR.buildPageCountDiv(data)}${LRR.buildStatusDiv(data)}${bookmarkIcon}<a id="${data.arcid}" onmouseover="IndexTable.buildImageTooltip(this)" href="${viewUrl}">
                     ${LRR.encodeHTML(data.title)}
                 </a>
                 <div class="caption" style="display: none;">
-                    <img style="height:300px" src="${new LRR.apiURL(`/api/archives/${data.arcid}/thumbnail?no_fallback=true`)}"
+                    <img style="height:300px" src="${thumbSrc}"
                          onerror="this.src='${new LRR.apiURL("/img/noThumb.png")}'">
                 </div>`;
     }
@@ -199,7 +212,7 @@ IndexTable.renderTitle = function (data, type) {
  */
 IndexTable.renderTags = function (data, type) {
     if (type === "display") {
-        return `<span class="tag-tooltip" onmouseover="IndexTable.buildTagTooltip(this)" style="text-overflow:ellipsis;">
+        return `<span class="tag-tooltip" onmouseover="LRR.buildTagTooltip(this)" style="text-overflow:ellipsis;">
                     ${LRR.colorCodeTags(data)}
                 </span>
                 <div class="caption caption-tags" style="display: none;" >
@@ -334,8 +347,12 @@ IndexTable.buildURLParameters = function () {
 IndexTable.consumeURLParameters = function () {
     const params = new URLSearchParams(window.location.search);
 
-    if (params.has("c")) Index.selectedCategory = params.get("c");
-    else Index.selectedCategory = "";
+    // Parse comma-separated category IDs into the Set
+    if (params.has("c") && params.get("c") !== "") {
+        Index.selectedCategories = new Set(params.get("c").split(","));
+    } else {
+        Index.selectedCategories = new Set();
+    }
 
     if (params.has("q")) { IndexTable.currentSearch = decodeURIComponent(params.get("q")); }
 
@@ -392,20 +409,5 @@ IndexTable.buildImageTooltip = function (target) {
     $(target).attr("onmouseover", ""); // Don't trigger this function again for this element
 };
 
-/**
- * Build a tooltip when hovering over a tag div, then display it.
- * @param {*} target The target tags div
- */
-IndexTable.buildTagTooltip = function (target) {
-    tippy(target, {
-        content: $(target).next("div").attr("style", "")[0],
-        delay: 0,
-        placement: "auto-start",
-        maxWidth: "none",
-        interactive: true,
-        // Have to be outside so that it is not hidden by other elements.
-        appendTo: document.body,
-    }).show(); // Call show() so that the tooltip shows now
-
-    $(target).attr("onmouseover", "");
-};
+// Alias for backward compatibility
+IndexTable.buildTagTooltip = LRR.buildTagTooltip;
