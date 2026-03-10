@@ -343,11 +343,12 @@ Index.promptCustomColumn = function (column) {
     }).then((result) => {
         if (result.isConfirmed) {
             if (!LRR.isNullOrWhitespace(result.value)) {
-                localStorage.setItem(`customColumn${column}`, result.value.trim());
+                const namespace = result.value.trim();
+                localStorage.setItem(`customColumn${column}`, namespace);
 
-                // Absolutely disgusting
-                IndexTable.dataTable.settings()[0].aoColumns[column].sName = result.value.trim();
-                Index.updateTableHeaders();
+                IndexTable.dataTable.settings()[0].aoColumns[column].sName = namespace;
+                // Update header text in-place to preserve DataTables sort handlers
+                $(`#header-${column}`).html(namespace.charAt(0).toUpperCase() + namespace.slice(1));
                 IndexTable.doSearch();
             }
         }
@@ -408,7 +409,8 @@ Index.handleCustomSort = function () {
         order[0][0] = 1;
         localStorage.customColumn1 = namespace;
         IndexTable.dataTable.settings()[0].aoColumns[1].sName = namespace;
-        Index.updateTableHeaders();
+        // Update header text in-place to preserve DataTables sort handlers
+        $(`#header-1`).html(namespace.charAt(0).toUpperCase() + namespace.slice(1));
     }
 
     IndexTable.dataTable.order(order);
