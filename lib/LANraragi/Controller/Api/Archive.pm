@@ -375,7 +375,7 @@ sub update_metadata {
 }
 
 sub add_toc {
-    my $self = shift;
+    my $self = shift->openapi->valid_input or return;
     my $id   = check_id_parameter( $self, "add_toc" ) || return;
 
     my $page  = $self->req->param('page');
@@ -404,7 +404,7 @@ sub add_toc {
 }
 
 sub remove_toc {
-    my $self = shift;
+    my $self = shift->openapi->valid_input or return;
     my $id   = check_id_parameter( $self, "remove_toc" ) || return;
 
     my $page = $self->req->param('page');
