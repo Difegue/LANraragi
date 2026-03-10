@@ -3585,7 +3585,6 @@ components:
         - pagecount
         - lastreadtime
         - size
-        - toc
       properties:
         arcid:
           type: string
