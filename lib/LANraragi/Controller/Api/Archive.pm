@@ -28,17 +28,6 @@ use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 
 # Archive API.
 
-# Handle missing ID parameter for a whole lot of api methods down below.
-sub check_id_parameter {
-    my ( $mojo, $operation ) = @_;
-
-    # Use either the id query param(deprecated), or the URL component.
-    my $id = $mojo->req->param('id') || $mojo->stash('id') || 0;
-    unless ($id) {
-        render_api_response( $mojo, $operation, "No archive ID specified." );
-    }
-    return $id;
-}
 
 sub serve_archivelist {
     my $self   = shift->openapi->valid_input or return;
@@ -58,7 +47,7 @@ sub serve_untagged_archivelist {
 
 sub serve_metadata {
     my $self  = shift->openapi->valid_input or return;
-    my $id    = check_id_parameter( $self, "metadata" ) || return;
+    my $id    = $self->stash('id');
     my $redis = $self->LRR_CONF->get_redis;
 
     my $arcdata = get_archive_json( $redis, $id );
@@ -75,7 +64,7 @@ sub serve_metadata {
 sub get_categories {
 
     my $self = shift->openapi->valid_input or return;
-    my $id   = check_id_parameter( $self, "find_arc_categories" ) || return;
+    my $id   = $self->stash('id');
 
     my @categories = LANraragi::Model::Category::get_categories_containing_archive($id);
 
@@ -90,19 +79,19 @@ sub get_categories {
 
 sub serve_thumbnail {
     my $self = shift->openapi->valid_input or return;
-    my $id   = check_id_parameter( $self, "serve_thumbnail" ) || return;
+    my $id   = $self->stash('id');
     LANraragi::Model::Archive::serve_thumbnail( $self, $id );
 }
 
 sub update_thumbnail {
     my $self = shift->openapi->valid_input or return;
-    my $id   = check_id_parameter( $self, "update_thumbnail" ) || return;
+    my $id   = $self->stash('id');
     LANraragi::Model::Archive::update_thumbnail( $self, $id );
 }
 
 sub generate_page_thumbnails {
     my $self = shift->openapi->valid_input or return;
-    my $id   = check_id_parameter( $self, "generate_page_thumbnails" ) || return;
+    my $id   = $self->stash('id');
     LANraragi::Model::Archive::generate_page_thumbnails( $self, $id );
 }
 
@@ -110,7 +99,7 @@ sub generate_page_thumbnails {
 sub serve_file {
 
     my $self  = shift->openapi->valid_input or return;
-    my $id    = check_id_parameter( $self, "serve_file" ) || return;
+    my $id    = $self->stash('id');
     my $redis = $self->LRR_CONF->get_redis;
 
     my $file = get_archive_path( $redis, $id );
@@ -260,7 +249,7 @@ sub create_archive {
 # Serve an archive page from the temporary folder, using RenderFile.
 sub serve_page {
     my $self = shift->openapi->valid_input or return;
-    my $id   = check_id_parameter( $self, "serve_page" ) || return;
+    my $id   = $self->stash('id');
     my $path = $self->req->param('path')                 || "404.xyz";
 
     LANraragi::Model::Archive::serve_page( $self, $id, $path );
@@ -268,7 +257,7 @@ sub serve_page {
 
 sub get_file_list {
     my $self = shift->openapi->valid_input or return;
-    my $id   = check_id_parameter( $self, "get_file_list" ) || return;
+    my $id   = $self->stash('id');
 
     my $force = $self->req->param('force') eq "true" || "0";
     my $reader_json;
@@ -285,7 +274,7 @@ sub get_file_list {
 
 sub add_new {
     my $self = shift->openapi->valid_input or return;
-    my $id   = check_id_parameter( $self, "add_new" ) || return;
+    my $id   = $self->stash('id');
 
     return unless exec_with_lock(
         $self,
@@ -301,7 +290,7 @@ sub add_new {
 
 sub clear_new {
     my $self = shift->openapi->valid_input or return;
-    my $id   = check_id_parameter( $self, "clear_new" ) || return;
+    my $id   = $self->stash('id');
 
     return unless exec_with_lock(
         $self,
@@ -324,7 +313,7 @@ sub clear_new {
 
 sub delete_archive {
     my $self = shift->openapi->valid_input or return;
-    my $id   = check_id_parameter( $self, "delete_archive" ) || return;
+    my $id   = $self->stash('id');
 
     return unless exec_with_lock(
         $self,
@@ -348,7 +337,7 @@ sub delete_archive {
 
 sub update_metadata {
     my $self = shift->openapi->valid_input or return;
-    my $id   = check_id_parameter( $self, "update_metadata" ) || return;
+    my $id   = $self->stash('id');
 
     my $title   = $self->req->param('title');
     my $tags    = $self->req->param('tags');
@@ -376,7 +365,7 @@ sub update_metadata {
 
 sub add_toc {
     my $self = shift->openapi->valid_input or return;
-    my $id   = check_id_parameter( $self, "add_toc" ) || return;
+    my $id   = $self->stash('id');
 
     my $page  = $self->req->param('page');
     my $title = $self->req->param('title');
@@ -405,7 +394,7 @@ sub add_toc {
 
 sub remove_toc {
     my $self = shift->openapi->valid_input or return;
-    my $id   = check_id_parameter( $self, "remove_toc" ) || return;
+    my $id   = $self->stash('id');
 
     my $page = $self->req->param('page');
 
@@ -432,7 +421,7 @@ sub remove_toc {
 
 sub update_progress {
     my $self = shift->openapi->valid_input or return;
-    my $id   = check_id_parameter( $self, "update_progress" ) || return;
+    my $id   = $self->stash('id');
 
     # Enforce authentication if authprogress is enabled
     if ( LANraragi::Model::Config->enable_authprogress ) {
