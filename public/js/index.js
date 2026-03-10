@@ -961,6 +961,7 @@ Index.resizableColumns = function () {
     let currentIndex;
     let startX;
     let startWidth;
+    let didDrag = false;
 
     const headers = document.querySelectorAll("#header-row th");
     headers.forEach(header => {
@@ -975,17 +976,21 @@ Index.resizableColumns = function () {
                 if (!Number.isInteger(startWidth))
                     startWidth = parseInt(startWidth.replace("px", ""));
 
+                didDrag = false;
+
                 document.addEventListener("mousemove", resizeColumn);
                 document.addEventListener("mouseup", stopResize);
-
-                // Disable DataTables sorting while resizing
-                // (Unfortunately, sorting is perma-disabled after this..)
-                // TODO fix both deprecated and the broken sorting
-                $("th").unbind("click.DT");
 
                 document.body.style.cursor = "col-resize";
             }
         });
+        header.addEventListener("click", function (e) {
+            if (didDrag) {
+                // If releasing from a drag, block click.DT handler from triggering a draw.
+                e.stopImmediatePropagation();
+                didDrag = false;
+            }
+        }, true);
         header.addEventListener("mousemove", function (event) {
             if (event.offsetX > header.offsetWidth - 10) {
                 header.style.cursor = "col-resize";
@@ -996,6 +1001,7 @@ Index.resizableColumns = function () {
     });
 
     function resizeColumn(event) {
+        didDrag = true;
         if (currentHeader) {
             currentHeader.style.cursor = "col-resize";
             let newWidth = startWidth + (event.clientX - startX);
