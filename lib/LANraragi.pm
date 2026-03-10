@@ -145,7 +145,7 @@ sub startup {
 
     # Route Mojolicious/plugin logs (including OpenAPI validation warnings)
     # through LRR's rotating logger pipeline.
-    $self->log( get_logger( "Mojolicious", "lanraragi" ) );
+    $self->log( get_logger( "Mojolicious", "mojo" ) );
 
     #Plugin listing
     my @plugins = get_plugins("metadata");
