@@ -179,6 +179,7 @@ sub get_tagrules {
 
 sub get_disable_openapi {
 
+    # LRR_DISABLE_OPENAPI env var overrides the Redis config.
     if ( $ENV{LRR_DISABLE_OPENAPI} ) {
         return 1;
     }
