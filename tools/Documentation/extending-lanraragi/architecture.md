@@ -18,7 +18,8 @@ Those variables were introduced for the Homebrew package, but they can be declar
 * `LRR_LOG_DIRECTORY` - Log directory override. Changes the location of the `log` folder.
 * `LRR_FORCE_DEBUG` - Debug Mode override. This will force Debug Mode to be enabled regardless of the user setting.
 * `LRR_NETWORK` - Network Interface. See the dedicated page in Advanced Operations.  
-* `LRR_REDIS_ADDRESS` - Redis address override. This has priority over the `redis_address` specified in `lrr.conf`.  
+* `LRR_REDIS_ADDRESS` - Redis address override. This has priority over the `redis_address` specified in `lrr.conf`.
+* `LRR_DISABLE_OPENAPI` - Disable OpenAPI validation override. If set to `1`, API request/response validation is disabled regardless of the user setting.
 
 ## Coding Style
 
@@ -214,7 +215,8 @@ The base architecture is as follows:
 |  |- enableresize <- Whether automatic image resizing is enabled  
 |  |- sizethreshold <- Auto-resizing threshold
 |  |- readerquality <- Auto-resizing quality
-|  |- enablecors <- Whether CORS headers are enabled 
+|  |- enablecors <- Whether CORS headers are enabled
+|  |- disableopenapi <- Whether OpenAPI API schema validation is disabled
 |  |- tagruleson <- Whether tag rules are enabled
 |  |- tagrules <- Tag rules, saved as a big ol' string
 |  |- devmode  <- Whether debug mode is enabled
