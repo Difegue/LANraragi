@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-06 17:24+0200\n"
-"PO-Revision-Date: 2026-01-15 22:01+0000\n"
-"Last-Translator: Yurical <yurical1@outlook.com>\n"
+"PO-Revision-Date: 2026-01-23 05:01+0000\n"
+"Last-Translator: 안세훈 <on9686@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/ko/>\n"
 "Language: ko\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.15.2\n"
+"X-Generator: Weblate 5.16-dev\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -1961,3 +1961,30 @@ msgstr "평점 삭제"
 
 msgid " -- Select Rating -- "
 msgstr " -- 평점 선택 -- "
+
+msgid "Chapters"
+msgstr "챕터"
+
+msgid "Add Chapter at this Page"
+msgstr "이 페이지에 챕터 추가"
+
+msgid "Edit Chapter name"
+msgstr "챕터 이름 편집"
+
+msgid "Delete Chapter"
+msgstr "챕터 삭제"
+
+msgid "Are you sure you want to delete this chapter/section?"
+msgstr "이 챕터/섹션을 삭제하시겠습니까?"
+
+msgid "Enter a title for this chapter/section:"
+msgstr "이 챕터/섹션의 제목을 입력하십시오:"
+
+msgid "Chapter added!"
+msgstr "챕터 추가됨!"
+
+msgid "Error adding/removing chapter:"
+msgstr "챕터 추가/제거 오류:"
+
+msgid "Untitled Chapter"
+msgstr "제목 없는 챕터"

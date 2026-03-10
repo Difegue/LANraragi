@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 03:27+0200\n"
-"PO-Revision-Date: 2025-06-06 13:46+0000\n"
-"Last-Translator: M I <neq6sgn@gmail.com>\n"
+"PO-Revision-Date: 2026-02-15 20:09+0000\n"
+"Last-Translator: Tim Fischbach <tim@fischbach.info>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/de/>\n"
 "Language: de\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.12-dev\n"
+"X-Generator: Weblate 5.16-dev\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -753,7 +753,7 @@ msgid "Delete Archive"
 msgstr ""
 
 msgid "Read Archive"
-msgstr ""
+msgstr "Archiv einlesen"
 
 msgid "Return to Library"
 msgstr ""
@@ -976,6 +976,8 @@ msgstr ""
 
 msgid "Redis logs won't be available from here if you're running from source!"
 msgstr ""
+"Die Redis-Logs sind von hier aus nicht verfügbar, wenn Sie das Programm aus "
+"dem Quellcode ausführen!"
 
 msgid "Currently Viewing:"
 msgstr "Aktuelle Ansicht: "
@@ -1014,6 +1016,8 @@ msgstr "Erweiterungseinstellungen"
 
 msgid "Enable/Disable Auto-Plugin on metadata plugins by checking the toggles."
 msgstr ""
+"Die automatische Plugin-Funktion für Metadaten-Plugins kann durch die "
+"Schalter aktiviert/deaktiviert werden."
 
 msgid "Plugins will be automatically used on new archives if they're toggled here."
 msgstr ""
@@ -1071,15 +1075,15 @@ msgid "This plugin depends on the login plugin"
 msgstr "Dieses Plugin benötigt von dem Login Plugin ab"
 
 msgid "Trigger Script"
-msgstr ""
+msgstr "Trigger-Skript"
 
 # ------End of Plugins.html.tt2------
 # ------Start of Reader.html.tt2------
 msgid "Done reading? Go back to Archive Index"
-msgstr ""
+msgstr "Fertig mit dem Lesen? Zurück zum Archivindex"
 
 msgid "View full-size image"
-msgstr ""
+msgstr "Bild in voller Größe anzeigen"
 
 msgid "Switch to another random archive"
 msgstr ""
@@ -1997,12 +2001,42 @@ msgstr ""
 
 # ------End of Duplicates.html.tt2------
 
-msgid "No duplicates found!"
-msgstr ""
-
 msgid "Run Automatically"
 msgstr "Automatisch Ausführen"
 
-msgid "Plugin Settings"
-msgstr ""
+msgid "The maximum value allowed is 4GB."
+msgstr "Der maximal zulässige Wert beträgt 4 GB."
 
+msgid "Language"
+msgstr "Sprache"
+
+msgid "Automatic (browser default)"
+msgstr "Automatisch (Browser-Standardeinstellung)"
+
+msgid "Select the language for the user interface. Set to Automatic to use your browser's language preference."
+msgstr ""
+"Wählen Sie die Sprache für die Benutzeroberfläche aus. Stellen Sie die "
+"Option auf „Automatisch“, um die Spracheinstellung Ihres Browsers zu "
+"verwenden."
+
+msgid "Authenticated Progress Tracking"
+msgstr "Authentifizierungsfortschrittsverfolgung"
+
+msgid "If enabled, server-side progress will only be saved if you're logged in with a password, and will override clientside progress. This allows guests to browse without affecting the main user's progress."
+msgstr ""
+"Ist diese Option aktiviert, wird der serverseitige Fortschritt nur "
+"gespeichert, wenn Sie mit einem Passwort angemeldet sind. Diese Option "
+"überschreibt den clientseitigen Fortschritt. Dadurch können Gäste surfen, "
+"ohne den Fortschritt des Hauptbenutzers zu verändern."
+
+msgid "Combine with clientside progress tracking to allow unauthenticated users to track progress locally."
+msgstr ""
+"Kombinieren Sie dies mit clientseitiger Fortschrittsverfolgung, um auch "
+"nicht authentifizierten Benutzern die Möglichkeit zu geben, den Fortschritt "
+"lokal zu verfolgen."
+
+msgid "Copy link"
+msgstr "Link kopieren"
+
+msgid "Plugin Settings"
+msgstr "Plugineinstellungen"

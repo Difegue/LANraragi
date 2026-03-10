@@ -152,12 +152,11 @@ Reader.initializeAll = function () {
 
     // Apply full-screen utility
     // F11 Fullscreen is totally another "Fullscreen", so its support is beyong consideration.
+    // Small override function, always returns boolean
+    window.fscreen.inFullscreen = () => !!window.fscreen.fullscreenElement;
     if (!window.fscreen.fullscreenEnabled) {
-        // Fullscreen mode is unsupported
-        $("#toggle-full-screen").hide();
-    } else {
-        // Small override function, always returns boolean
-        window.fscreen.inFullscreen = () => !!window.fscreen.fullscreenElement;
+        // Fullscreen mode is unsupported; use attribute selector to hide all instances
+        $("[id='toggle-full-screen']").hide();
     }
 
     // Infer initial information from the URL
@@ -868,11 +867,11 @@ Reader.goToPage = function (page) {
 Reader.updateProgress = function () {
     // Send an API request to update progress on the server
     if (Reader.authenticateProgress && LRR.isUserLogged()) {
-        Server.callAPI(`/api/archives/${Reader.id}/progress/${Reader.currentPage + 1}`, "PUT", null, I18N.ReaderErrorProgress, null);
+        Server.updateServerSideProgress(Reader.id, Reader.currentPage + 1);
     } else if (Reader.trackProgressLocally) {
         localStorage.setItem(`${Reader.id}-reader`, Reader.currentPage + 1);
     } else if (!Reader.authenticateProgress) {
-        Server.callAPI(`/api/archives/${Reader.id}/progress/${Reader.currentPage + 1}`, "PUT", null, I18N.ReaderErrorProgress, null);
+        Server.updateServerSideProgress(Reader.id, Reader.currentPage + 1);
     }
 };
 
@@ -1171,8 +1170,10 @@ Reader.updateArchiveOverlay = function (forceUpdate = false) {
         $(".chapter-selector").html(chapterOptions);
 
         $("#chapter-select").off("change").on("change", function () {
-            Reader.goToPage($(this).val());
+            Reader.goToPage($(this).val() - 1);
         });
+    } else {
+        $(".chapter-selector").html("");
     }
 
     // For each link in the pages array, craft a div and jam it in the overlay.

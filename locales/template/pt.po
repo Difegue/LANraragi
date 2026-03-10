@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-05 03:27+0200\n"
-"PO-Revision-Date: 2025-09-22 22:39+0000\n"
-"Last-Translator: Mayanna Oliveira <mayannait@gmail.com>\n"
+"PO-Revision-Date: 2026-01-29 14:01+0000\n"
+"Last-Translator: Petingoso <petingavasco@protonmail.com>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/pt/>\n"
 "Language: pt\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.14-dev\n"
+"X-Generator: Weblate 5.16-dev\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -748,7 +748,7 @@ msgid "Delete Archive"
 msgstr ""
 
 msgid "Read Archive"
-msgstr ""
+msgstr "Ler Arquivo"
 
 msgid "Return to Library"
 msgstr ""
@@ -2078,3 +2078,96 @@ msgstr "Ajustes do Plugin"
 
 msgid "No duplicates found!"
 msgstr "Não encontradou arquivos duplicados!"
+
+msgid "The maximum value allowed is 4GB."
+msgstr "O valor máximo permitido é de 4GB."
+
+msgid "Select the language for the user interface. Set to Automatic to use your browser's language preference."
+msgstr ""
+"Selecione a língua para a interface de utilizador. Escolha Automático para "
+"usar a preferência do navegador."
+
+#, fuzzy
+msgid "Authenticated Progress Tracking"
+msgstr "Acompanhamento do Progresso Protegido"
+
+msgid "If enabled, server-side progress will only be saved if you're logged in with a password, and will override clientside progress. This allows guests to browse without affecting the main user's progress."
+msgstr ""
+"Se ligado, progresso no lado do servidor apenas será salvo se estiveres "
+"autenticado com uma password e irá sobrepor-se ao progresso do cliente. Isto "
+"permite convidados a navegarem sem afetar o progresso do utilizador "
+"principal."
+
+#, fuzzy
+msgid "Combine with clientside progress tracking to allow unauthenticated users to track progress locally."
+msgstr ""
+"Combine com Acompanhamento do Progresso do Lado do Cliente para permitir "
+"utilizadores não autenticados a manter o seu progresso localmente."
+
+msgid "Copy link"
+msgstr "Copiar ligação"
+
+msgid "Rating"
+msgstr "Classificação"
+
+msgid "Set Rating"
+msgstr "Definir Classificação"
+
+msgid "Clear Rating"
+msgstr "Limpar Classificação"
+
+msgid " -- Select Rating -- "
+msgstr " -- Selecione Classificação -- "
+
+msgid "N: toggle auto next page"
+msgstr "N: Alternar avanço de página automático"
+
+msgid "Auto next page interval in seconds"
+msgstr "Tempo do avanço de página automático em segundos"
+
+msgid "The default is 10 seconds."
+msgstr "O predefinido é 10 segundos."
+
+msgid "Auto Next Page"
+msgstr "Avanço automático de Página"
+
+msgid "Link copied successfully."
+msgstr "Ligação copiada com sucesso."
+
+msgid "Copy failed."
+msgstr "Falha a copiar."
+
+msgid "Starting auto next page failed!"
+msgstr "Avanço automático de página não falhou a começar!"
+
+msgid "Please set the auto next page interval to a positive number."
+msgstr ""
+"Por favor definia o intervalo do avanço automático de página para um número "
+"positivo."
+
+msgid "Chapters"
+msgstr "Capítulos"
+
+msgid "Add Chapter at this Page"
+msgstr "Adicionar um Capítulo nesta Página"
+
+msgid "Edit Chapter name"
+msgstr "Editar nome do Capítulo"
+
+msgid "Delete Chapter"
+msgstr "Apagar Capítulo"
+
+msgid "Are you sure you want to delete this chapter/section?"
+msgstr "Tens a certeza que queres apagar este capítulo/secção?"
+
+msgid "Enter a title for this chapter/section:"
+msgstr "Introduza um título para este capítulo/secção:"
+
+msgid "Chapter added!"
+msgstr "Capítulo adicionado!"
+
+msgid "Error adding/removing chapter:"
+msgstr "Erro a adicionar/remover capítulo:"
+
+msgid "Untitled Chapter"
+msgstr "Capítulo sem nome"
