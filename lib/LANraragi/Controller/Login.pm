@@ -55,6 +55,11 @@ sub logged_in {
 # For APIs, the request can also be authentified with a valid API Key.
 sub logged_in_api {
     my $self = shift;
+
+    # Allow OPTIONS if being handled by OpenAPI.
+    # See Mojolicious::Plugin::Openai::Security::_build_action.
+    return 1 if $self->req->method eq 'OPTIONS' && $self->match->stack->[-1]{'openapi.default_options'};
+
     return 1 if is_logged_in_api( $self );
     $self->render(
         json   => { error => "This API is protected and requires login or an API Key." },
