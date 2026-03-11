@@ -458,8 +458,8 @@ msgstr "Turn this on if you want to access this service through a web-based wrap
 msgid "Disable OpenAPI Validation"
 msgstr "Disable OpenAPI Validation"
 
-msgid "Disables OpenAPI API schema validation. Turn this on if you are running into validation-related errors."
-msgstr "Disables OpenAPI API schema validation. Turn this on if you are running into validation-related errors."
+msgid "Disables OpenAPI API schema validation. Turn this on if you are running into validation-related errors with old API clients."
+msgstr "Disables OpenAPI API schema validation. Turn this on if you are running into validation-related errors with old API clients."
 
 msgid "Fully effective after restarting LANraragi."
 msgstr "Fully effective after restarting LANraragi."
