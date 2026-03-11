@@ -73,13 +73,11 @@ sub apply_routes {
     $public_routes->get('/logout')->to('login#logout');
 
     # Routers for routes that require auth
-    my $logged_in               = $public_routes->under('/')->to('login#logged_in');
-    my $logged_in_search_api    = $search_api->under('/')->to('login#logged_in');
+    my $logged_in = $public_routes->under('/')->to('login#logged_in');
 
     # No-Fun Mode locks the base routes behind login as well
     if ( $self->LRR_CONF->enable_nofun ) {
-        $public_routes  = $logged_in;
-        $search_api     = $logged_in_search_api;
+        $public_routes = $logged_in;
     }
 
     $public_routes->get('/')->to('index#index');
