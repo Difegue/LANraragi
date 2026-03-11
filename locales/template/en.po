@@ -461,9 +461,6 @@ msgstr "Disable OpenAPI Validation"
 msgid "Disables OpenAPI API schema validation. Turn this on if you are running into validation-related errors with old API clients."
 msgstr "Disables OpenAPI API schema validation. Turn this on if you are running into validation-related errors with old API clients."
 
-msgid "Fully effective after restarting LANraragi."
-msgstr "Fully effective after restarting LANraragi."
-
 # ------End of Config_Security.html.tt2------
 
 # ------Start of Config_Shinobu.html.tt2------
