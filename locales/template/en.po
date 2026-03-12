@@ -577,6 +577,15 @@ msgstr "<b>tag => new-tag</b> : replaces one tag, but use a hash table internall
 msgid "<b>namespace:* -> new-namespace:*</b> : replaces the namespace with the new one"
 msgstr "<b>namespace:* -> new-namespace:*</b> : replaces the namespace with the new one"
 
+msgid "Excluded Namespaces"
+msgstr "Excluded Namespaces"
+
+msgid "Comma-separated list of tag namespaces to exclude from search suggestions and tag statistics."
+msgstr "Comma-separated list of tag namespaces to exclude from search suggestions and tag statistics."
+
+msgid "Clients will use this list to filter out noisy tags from autocomplete and tag clouds."
+msgstr "Clients will use this list to filter out noisy tags from autocomplete and tag clouds."
+
 # ------End of Config_Tags.html.tt2------
 
 # ------Start of Config_Theme.html.tt2------

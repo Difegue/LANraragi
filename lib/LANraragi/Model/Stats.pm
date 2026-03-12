@@ -207,9 +207,12 @@ sub is_url_recorded ($url) {
 
 sub build_tag_stats {
 
-    my $minscore = shift;
-    my $logger   = get_logger( "Tag Stats", "lanraragi" );
+    my ( $minscore, $excluded_ns ) = @_;
+    my $logger = get_logger( "Tag Stats", "lanraragi" );
     $logger->debug("Serving tag statistics with a minimum weight of $minscore");
+
+    # Convert excluded namespaces into a hash for quick lookup
+    my %excluded = map { $_ => 1 } @{ $excluded_ns || [] };
 
     # Login to Redis and grab the stats sorted set
     my $redis    = LANraragi::Model::Config->get_redis_search;
@@ -228,10 +231,10 @@ sub build_tag_stats {
         my $t  = redis_decode($_);
         if ( $t =~ /([^:]*):(.*)/ ) { $ns = $1; $t = $2; }
 
-        if ( $_ ne "" ) {
-            my $j = { text => $t, namespace => $ns, weight => $w };
-            push( @tags, $j );
-        }
+        next if $_ eq "";                       # Skip empty Redis keys
+        next if %excluded && $excluded{$ns};    # Skip tags in excluded namespaces
+
+        push( @tags, { text => $t, namespace => $ns, weight => $w } );
     }
 
     return \@tags;

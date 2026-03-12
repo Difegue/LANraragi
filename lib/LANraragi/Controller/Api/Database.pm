@@ -27,8 +27,14 @@ sub drop_database {
 sub serve_tag_stats {
     my $self = shift->openapi->valid_input or return;
     my $minscore = $self->req->param('minweight') || "1";
+    my $hide_excluded = $self->req->param('hide_excluded_namespaces') || "0";
 
-    $self->render( openapi => LANraragi::Model::Stats::build_tag_stats($minscore) );
+    my @excluded;
+    if ( $hide_excluded eq "true" ) {
+        @excluded = split( /\s*,\s*/, $self->LRR_CONF->get_excludednamespaces );
+    }
+
+    $self->render( openapi => LANraragi::Model::Stats::build_tag_stats( $minscore, \@excluded ) );
 }
 
 sub clean_database {

@@ -2122,6 +2122,14 @@ paths:
             Default is 1 if not specified, to get all tags.
           schema:
             type: integer
+        - name: hide_excluded_namespaces
+          in: query
+          required: false
+          description: >-
+            Set to true to exclude namespaces configured in server settings from
+            the results. Default behavior returns all tags.
+          schema:
+            type: string
       responses:
         '200':
           description: Success response
@@ -3385,6 +3393,11 @@ components:
         cache_last_cleared:
           type: integer
           description: Timestamp for last time the search cache was wiped
+        excluded_namespaces:
+          type: array
+          items:
+            type: string
+          description: List of tag namespaces excluded from search suggestions and tag statistics
       example:
         archives_per_page: 100
         cache_last_cleared: 1728852701
@@ -3399,6 +3412,9 @@ components:
         total_archives: 104
         total_pages_read: 252
         version: 0.9.30
+        excluded_namespaces:
+          - source
+          - date_added
         version_desc: I'm under Japanese influence and my honor's at stake!
         version_name: Law (Earthlings On Fire)
     PluginInfo:
