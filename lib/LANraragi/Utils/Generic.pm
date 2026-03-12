@@ -45,14 +45,14 @@ sub is_archive {
     return $_[0] =~ /^.+\.(?:zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|cb7|cbt|pdf|epub|tar\.zst|zst)$/i;
 }
 
-# Renders the basic success API JSON template.
+# Renders the basic success API JSON template, where the $mojo object inherits the openapi controller.
 # Specifying an error message argument will set the success variable to 0.
 sub render_api_response {
     my ( $mojo, $operation, $errormessage, $successMessage ) = @_;
     my $failed = ( defined $errormessage );
 
     $mojo->render(
-        json => {
+        openapi => {
             operation      => $operation,
             error          => $failed ? xml_escape($errormessage) : "",
             success        => $failed ? 0                         : 1,

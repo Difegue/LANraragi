@@ -120,28 +120,14 @@ sub startup {
     if ( $self->LRR_CONF->enable_devmode ) {
         $self->mode('development');
         $self->LRR_LOGGER->info("LANraragi $version (re-)started. (Debug Mode)");
-
-        my $logpath = get_logdir . "/mojo.log";
-
-        #Tell the mojo logger to log to file
-        $self->log->on(
-            message => sub {
-                my ( $time, $level, @lines ) = @_;
-
-                open( my $fh, '>>', $logpath )
-                  or die "Could not open file '$logpath' $!";
-
-                my $l1 = $lines[0] // "";
-                my $l2 = $lines[1] // "";
-                print $fh "[Mojolicious] $l1 $l2 \n";
-                close $fh;
-            }
-        );
-
     } else {
         $self->mode('production');
         $self->LRR_LOGGER->info("LANraragi $version started. (Production Mode)");
     }
+
+    # Route Mojolicious/plugin logs (including OpenAPI validation warnings)
+    # through LRR's rotating logger pipeline.
+    $self->log( get_logger( "Mojolicious", "mojo" ) );
 
     #Plugin listing
     my @plugins = get_plugins("metadata");

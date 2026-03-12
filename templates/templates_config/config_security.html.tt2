@@ -74,3 +74,18 @@
         </label>
     </td>
 </tr>
+
+<tr>
+    <td class="option-td">
+        <h2 class="ih"> [% c.lh("Disable OpenAPI Validation") %] </h2>
+    </td>
+    <td class="config-td">
+        [% IF disableopenapi %]
+        <input id="disableopenapi" name="disableopenapi" class="fa" type="checkbox" checked> [% ELSE %]
+        <input id="disableopenapi" name="disableopenapi" class="fa" type="checkbox"> [% END %]
+        <label for="disableopenapi">
+            <br>[% c.lh("Disables OpenAPI API schema validation. Turn this on if you are running into validation-related errors with old API clients.") %]
+            <br>[% c.lh("Fully effective after restarting LANraragi.") %]
+        </label>
+    </td>
+</tr>
