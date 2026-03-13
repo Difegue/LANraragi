@@ -141,7 +141,7 @@ IndexTable.doSearch = function (page) {
 IndexTable.renderColumn = function (namespace, type, data) {
     if (type === "display") {
         if (data === "") return "";
-        const regex = new RegExp(`${namespace}:([^,]+)`, "gi"); // catch all values associated to the given namespace
+        const regex = new RegExp(`${namespace}:([^,]+)`, "g"); // catch all values associated to the given namespace
         const matches = [...data.matchAll(regex)];
 
         if (matches != null) {
