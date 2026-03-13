@@ -898,12 +898,12 @@ Reader.loadImage = function (index) {
         const img = new Image();
         img.src = src;
         Reader.preloadedImg[src] = img;
-        if (!Reader.preloadedSizes[index]) {
-            LRR.getImgSizeAsync(src).done((data, textStatus, request) => {
-                const size = parseInt(request.getResponseHeader("Content-Length") / 1024, 10);
-                Reader.preloadedSizes[index] = size;
-            });
-        }
+        img.addEventListener("load", () => {
+            const entry = performance.getEntriesByName(img.src, "resource").pop();
+            if (entry) {
+                Reader.preloadedSizes[index] = Math.round(entry.decodedBodySize / 1024);
+            }
+        });
     }
 
     return Reader.preloadedImg[src];
