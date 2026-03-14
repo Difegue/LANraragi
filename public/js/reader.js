@@ -751,12 +751,10 @@ Reader.loadBookmarkStatus = function () {
 
 Reader.updateMetadata = function () {
     const img = $("#img")[0];
-    const imageUrl = new URL(img.src);
-    const filename = imageUrl.searchParams.get("path");
+    const filename = img.dataset.filename;
 
     const imgDoublePage = $("#img_doublepage")[0];
-    const imageUrlDoublePage = new URL(imgDoublePage.src);
-    const filenameDoublePage = imageUrlDoublePage.searchParams.get("path");
+    const filenameDoublePage = imgDoublePage.dataset.filename;
 
     if (!filename && Reader.showingSinglePage) {
         Reader.currentPageLoaded = true;
@@ -807,7 +805,7 @@ Reader.updateMetadata = function () {
     $("#i3").removeClass("loading");
 };
 
-Reader.goToPage = function (page) {
+Reader.goToPage = async function (page) {
     Reader.previousPage = Reader.currentPage;
     Reader.currentPage = Math.min(Reader.maxPage, Math.max(0, +page));
     Reader.showingSinglePage = false;
@@ -816,31 +814,42 @@ Reader.goToPage = function (page) {
         $("#display img").get(Reader.currentPage).scrollIntoView({ block: "nearest" });
     } else {
         $("#img_doublepage").attr("src", "");
+        $("#img_doublepage").attr("data-filename", "");
         $("#display").removeClass("double-mode");
         if (Reader.doublePageMode && Reader.currentPage > 0
             && Reader.currentPage < Reader.maxPage) {
             // Composite an image and use that as the source
-            const img1 = Reader.loadImage(Reader.currentPage);
-            const img2 = Reader.loadImage(Reader.currentPage + 1);
+            const img1 = await Reader.loadImage(Reader.currentPage);
+            const img1Filename = Reader.getFilename(Reader.currentPage);
+            const img2 = await Reader.loadImage(Reader.currentPage + 1);
+            const img2Filename = Reader.getFilename(Reader.currentPage + 1);
             // If w > h on one of the images(widespread), set canvasdata to the first image only
             if (img1.naturalWidth > img1.naturalHeight || img2.naturalWidth > img2.naturalHeight) {
                 // Depending on whether we were going forward or backward, display img1 or img2
-                const wideSrc = Reader.previousPage > Reader.currentPage ? img2.src : img1.src;
+                const wideSrc = Reader.previousPage > Reader.currentPage ? img2 : img1;
+                const wideFilename = Reader.previousPage > Reader.currentPage ? img2Filename : img1Filename;
                 $("#img").attr("src", wideSrc);
+                $("#img").attr("data-filename", wideFilename);
                 Reader.showingSinglePage = true;
             } else {
                 if (Reader.mangaMode) {
-                    $("#img").attr("src", img2.src);
-                    $("#img_doublepage").attr("src", img1.src);
+                    $("#img").attr("src", img2);
+                    $("#img").attr("data-filename", img2Filename);
+                    $("#img_doublepage").attr("src", img1);
+                    $("#img_doublepage").attr("data-filename", img1Filename);
                 } else {
-                    $("#img").attr("src", img1.src);
-                    $("#img_doublepage").attr("src", img2.src);
+                    $("#img").attr("src", img1);
+                    $("#img").attr("data-filename", img1Filename);
+                    $("#img_doublepage").attr("src", img2);
+                    $("#img_doublepage").attr("data-filename", img2Filename);
                 }
                 $("#display").addClass("double-mode");
             }
         } else {
-            const img = Reader.loadImage(Reader.currentPage);
-            $("#img").attr("src", img.src);
+            const img = await Reader.loadImage(Reader.currentPage);
+            const imgFilename = Reader.getFilename(Reader.currentPage);
+            $("#img").attr("src", img);
+            $("#img").attr("data-filename", imgFilename);
             Reader.showingSinglePage = true;
         }
 
@@ -891,19 +900,14 @@ Reader.preloadImages = function () {
     }
 };
 
-Reader.loadImage = function (index) {
+Reader.loadImage = async function (index) {
     const src = Reader.pages[index];
 
     if (!Reader.preloadedImg[src]) {
-        const img = new Image();
-        img.src = src;
-        Reader.preloadedImg[src] = img;
-        if (!Reader.preloadedSizes[index]) {
-            LRR.getImgSizeAsync(src).done((data, textStatus, request) => {
-                const size = parseInt(request.getResponseHeader("Content-Length") / 1024, 10);
-                Reader.preloadedSizes[index] = size;
-            });
-        }
+        const res = await fetch(src);
+        Reader.preloadedSizes[index] = parseInt(res.headers.get("Content-Length") / 1024, 10);
+        const blob = await res.blob();
+        Reader.preloadedImg[src] = URL.createObjectURL(blob);
     }
 
     return Reader.preloadedImg[src];
@@ -1315,3 +1319,7 @@ Reader.handlePaginator = function () {
             break;
     }
 };
+
+Reader.getFilename = function(index) {
+    return new URLSearchParams(Reader.pages[index].split("?")[1]).get("path");
+}

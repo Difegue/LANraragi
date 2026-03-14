@@ -479,14 +479,6 @@ LRR.getImgSize = function (target) {
     return imgSize;
 };
 
-LRR.getImgSizeAsync = function (target) {
-    return $.ajax({
-        url: target,
-        cache: true,
-        type: "HEAD",
-    });
-};
-
 /**
  * Show a generic toast with a given header and message.
  * This is a compatibility layer to migrate jquery-toast-plugin to react-toastify.
