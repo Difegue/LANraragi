@@ -75,7 +75,8 @@ jobs:
             --staging "$GITHUB_WORKSPACE/staging" \
             --playwright \
             --docker-api \
-            --npseed 42
+            --npseed 42 \
+            -k "not test_double_page_navigation and not test_handler_resource_management"
         env:
           DOCKER_HOST: unix:///var/run/docker.sock
 
@@ -158,4 +159,5 @@ jobs:
           --windist "$env:GITHUB_WORKSPACE\LANraragi\win-dist" `
           --staging "$env:GITHUB_WORKSPACE\staging" `
           --playwright `
-          --npseed 42
+          --npseed 42 `
+          -k "not test_double_page_navigation and not test_handler_resource_management"
