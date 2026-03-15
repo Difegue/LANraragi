@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-04 20:25+0200\n"
-"PO-Revision-Date: 2026-01-27 01:01+0000\n"
+"PO-Revision-Date: 2026-03-15 05:09+0000\n"
 "Last-Translator: gustaavv <gustaavv.git@yahoo.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
 "projects/lanraragi/lanraragi-source/zh_Hans/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.16-dev\n"
+"X-Generator: Weblate 5.17-dev\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -1763,3 +1763,11 @@ msgstr "添加/删除章节时出错："
 
 msgid "Untitled Chapter"
 msgstr "未命名章节"
+
+msgid "Disable OpenAPI Validation"
+msgstr "禁用 OpenAPI 验证"
+
+msgid "Disables OpenAPI API schema validation. Turn this on if you are running into validation-related errors with old API clients."
+msgstr ""
+"禁用 OpenAPI API 模式验证。如果您在使用旧版 API 客户端时遇到与验证相关的错误"
+"，请启用此选项。"
