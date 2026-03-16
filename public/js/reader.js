@@ -107,23 +107,6 @@ Reader.initializeAll = function () {
                 .addClass("far fa-bookmark");
         }
     });
-    $(document).on("click.set-rating", "#set-rating", () => {
-        let tags = LRR.splitTagsByNamespace(Reader.content.tags);
-        let selectedRating = $("#rating").val();
-        if (selectedRating === "") { return };
-        tags.rating = [selectedRating];
-        let tagList = LRR.buildTagList(tags);
-        Server.updateTagsFromArchive(Reader.id, tagList);
-        $("#tagContainer > table").replaceWith(LRR.buildTagsDiv(tagList.join(",")));
-    });
-    $(document).on("click.clear-rating", "#clear-rating", () => {
-        let tags = LRR.splitTagsByNamespace(Reader.content.tags);
-        delete tags.rating;
-        let tagList = LRR.buildTagList(tags);
-        Server.updateTagsFromArchive(Reader.id, tagList);
-        document.querySelector("#rating").selectedIndex = 0;
-        $("#tagContainer > table").replaceWith(LRR.buildTagsDiv(tagList.join(",")));
-    });
 
     $(document).on("click.add-toc", ".add-toc", (e) => { 
         const page = +$(e.target).closest("div[page]").attr("page") + 1; 
@@ -150,6 +133,7 @@ Reader.initializeAll = function () {
         Reader.goToPage(pageNumber);
     });
 
+    
     // Apply full-screen utility
     // F11 Fullscreen is totally another "Fullscreen", so its support is beyong consideration.
     // Small override function, always returns boolean
@@ -193,6 +177,33 @@ Reader.initializeAll = function () {
         }
 
         $("#tagContainer").append(LRR.buildTagsDiv(Reader.content.tags));
+
+        const rating = LRR.splitTagsByNamespace(Reader.content.tags).rating?.at(0).length;
+        new Raty(document.querySelector('[data-raty]'), { 
+            starType: 'i', 
+            cancelButton: true, 
+            cancelClass: 'fas fa-trash raty-cancel', 
+            cancelHint: I18N.ReaderClearRating,
+            cancelPlace: 'right',
+            score: rating,
+            click: function(score, element, evt) {
+
+                let tags = LRR.splitTagsByNamespace(Reader.content.tags);
+                let selectedRating = score;
+
+                if (selectedRating === null) 
+                    delete tags.rating; 
+                else {
+                    // Create a tag with star emoji corresponding to the rating (e.g. rating:⭐⭐⭐ for a 3-star rating)
+                    selectedRating = "⭐".repeat(score);
+                    tags.rating = [selectedRating];
+                }
+                
+                let tagList = LRR.buildTagList(tags);
+                Server.updateTagsFromArchive(Reader.id, tagList);
+                $("#tagContainer > table").replaceWith(LRR.buildTagsDiv(tagList.join(",")));
+            }
+         }).init();
 
         $("#tagContainer").append(`<div class="archive-summary"/>`);
         $(".archive-summary").text(Reader.content.summary);

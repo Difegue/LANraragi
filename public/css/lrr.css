@@ -839,3 +839,30 @@ div.fullscreen img {
 body.infinite-scroll .fullscreen-infinite img {
   margin: 0 auto !important;
 }
+
+
+.star-on-png,
+.star-off-png,
+.raty-cancel {
+  font-size: 1.5em;
+  font-family: var(--fa-style-family, "Font Awesome 6 Free");
+  font-style: normal;
+  font-variant: normal;
+}
+
+.star-on-png:before,
+.star-off-png:before {
+  content: "\f005";
+}
+
+.star-on-png {
+  font-weight: 900;
+}
+
+.star-off-png {
+  font-weight: 400;
+}
+
+.raty-cancel {
+  margin-left: 8px;
+}

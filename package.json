@@ -6,9 +6,6 @@
     "devEngines": {
         "runtime": {
             "name": "node"
-        },
-        "packageManager": {
-            "name": "npm"
         }
     },
     "scripts": {
@@ -51,6 +48,7 @@
         "jquery-contextmenu": "2.9.2",
         "marked": "4.0.15",
         "preact": "10.7.1",
+        "raty-js": "^4.3.0",
         "react-toastify": "9.0.0-rc-2",
         "sweetalert2": "11.22.4",
         "swiper": "8.4.5",
