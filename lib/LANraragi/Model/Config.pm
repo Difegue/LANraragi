@@ -14,7 +14,7 @@ use Mojo::Home;
 use Mojo::JSON qw(decode_json);
 
 # Be very careful about importing LANraragi stuff; this file is used almost everywhere and it's easy to introduce dependency cycles!
-use LANraragi::Utils::Redis      qw(redis_decode);
+use LANraragi::Utils::Redis qw(redis_decode);
 
 # Find the project root directory to load the conf file
 my $home = Mojo::Home->new;
@@ -53,7 +53,7 @@ sub get_minion {
     my $redisad = get_redisad;
 
     # URL encode the unix socket path so it can be recognized as the host
-    if ( $redisad =~ m{^/} ) { $redisad = uri_escape( $redisad ); }
+    if ( $redisad =~ m{^/} ) { $redisad = uri_escape($redisad); }
 
     my $miniondb = $redisad . "/" . get_miniondb;
     my $password = get_redispassword;
@@ -184,7 +184,7 @@ sub get_disable_openapi {
         return 1;
     }
 
-    return &get_redis_conf( "disableopenapi", "0" );
+    return &get_redis_conf( "disableopenapi", "1" );
 }
 
 sub get_htmltitle        { return xml_escape( &get_redis_conf( "htmltitle", "LANraragi" ) ) }
