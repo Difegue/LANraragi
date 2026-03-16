@@ -89,7 +89,7 @@ sub check_cache ( $cachekey, $cachekey_inv ) {
 
         my $frozendata = $redis->hget( "LRR_SEARCHCACHE", $cachekey );
         my @cached = @{ thaw $frozendata };
-        shift @cached;
+        shift @cached; # Discard the keyed count, since they're at the bottom of the list naturally
         @filtered = @cached;
 
     } elsif ( $redis->exists("LRR_SEARCHCACHE") && $redis->hexists( "LRR_SEARCHCACHE", $cachekey_inv ) ) {
