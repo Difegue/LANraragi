@@ -68,7 +68,7 @@ sub exec_enabled_plugins_on_file ($id) {
         }
 
         # update metadata on lock
-        my $acquired, $_ = exec_with_lock_pure([ "archive-write:$id" ], sub {
+        my ($acquired, $_) = exec_with_lock_pure([ "archive-write:$id" ], sub {
             $successes++;
 
             #If the plugin exec returned metadata, add it
