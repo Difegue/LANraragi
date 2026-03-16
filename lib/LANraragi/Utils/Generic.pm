@@ -323,6 +323,7 @@ sub filter_hash_by_keys {
     return %hash;
 }
 
+# TODO: Probably rename to exec_with_lock_render
 # Execute a function under a redis lock context.
 # If the lock cannot be acquired, renders a 423 error and returns false,
 # otherwise executes the function and returns true (or rethrows error if any).
@@ -351,6 +352,7 @@ sub exec_with_lock {
 
 }
 
+# TODO: Probably rename to exec_with_lock
 # exec_with_lock_pure( \@lock_names, $func, $redis (optional), $ttl (optional) )
 # Execute a function under a multi-lock context.
 # Does not implement lock_name sorting,
