@@ -521,11 +521,11 @@ LUA
         my @keyed_ids   = grep { $tmpfilter{$_} ne "zzzz" } @filtered;
         my @unkeyed_ids = grep { $tmpfilter{$_} eq "zzzz" } @filtered;
 
-        # Sort only the keyed archives
-        @sorted = map { $_->[0] }
-          sort { ncmp( $a->[1], $b->[1] ) }
-          map  { [ $_, lc( $tmpfilter{$_} ) ] }
-          @keyed_ids;
+        # Read comments from the bottom up for a better understanding of this sort algorithm.
+        @sorted = map { $_->[0] }                   # Map back to only having the ID
+          sort { ncmp( $a->[1], $b->[1] ) }         # Sort by the tag
+          map  { [ $_, lc( $tmpfilter{$_} ) ] }     # Map to an array containing the ID and the lowercased tag
+          @keyed_ids;                               # List of keyed archive IDs
 
         if ($sortorder) {
             @sorted = reverse @sorted;
