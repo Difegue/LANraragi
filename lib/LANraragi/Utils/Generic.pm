@@ -382,7 +382,7 @@ LUA
 
     # create managed redis connection if not passed
     unless ( defined $redis ) {
-        $redis = LANraragi::Model::Config->get_redis;
+        $redis = LANraragi::Model::Config->get_redis_config; 
         $own_redis = 1;
     }
 
