@@ -32,7 +32,7 @@ BEGIN {
 use Exporter 'import';
 our @EXPORT_OK = qw(is_image is_archive render_api_response get_tag_with_namespace shasum_str start_shinobu
   split_workload_by_cpu start_minion get_css_list generate_themes_header flat get_bytelength array_difference
-  intersect_arrays filter_hash_by_keys exec_with_lock);
+  intersect_arrays filter_hash_by_keys exec_with_lock exec_with_lock_pure);
 
 # Checks if the provided file is an image.
 # Uses non-capturing groups (?:) to avoid modifying the incoming argument.
@@ -323,6 +323,7 @@ sub filter_hash_by_keys {
     return %hash;
 }
 
+# TODO: Probably rename to exec_with_lock_render
 # Execute a function under a redis lock context.
 # If the lock cannot be acquired, renders a 423 error and returns false,
 # otherwise executes the function and returns true (or rethrows error if any).
@@ -330,11 +331,12 @@ sub filter_hash_by_keys {
 sub exec_with_lock {
 
     my ( $mojo, $lock_name, $operation, $resource_id, $func ) = @_;
-    my $redis = LANraragi::Model::Config->get_redis;
 
-    my $lock = $redis->set( $lock_name, 1, 'NX', 'EX', 10 );
-    if ( !$lock ) {
-        $redis->quit();
+    my ($acquired, $response) = exec_with_lock_pure(
+        [ $lock_name ], $func
+    );
+
+    if ( !$acquired ) {
         $mojo->render(
             json => {
                 operation => $operation,
@@ -346,13 +348,96 @@ sub exec_with_lock {
         return 0;
     }
 
-    eval { $func->(); };
-    my $err = $@;
-    $redis->del($lock_name);
-    $redis->quit();
-
-    die $err if $err;
     return 1;
+
+}
+
+# TODO: Probably rename to exec_with_lock
+# exec_with_lock_pure( \@lock_names, $func, $redis (optional), $ttl (optional) )
+# Execute a function under a multi-lock context.
+# Does not implement lock_name sorting,
+# so locks should be passed in a deterministic order to avoid deadlocking.
+# For high-level, fast operations, as the expiry defaults to 10s.
+# Returns a tuple ($acquired, $response), where $response is 
+# function response (if any) if acquired, or undef if not acquired.
+# Redis connection is optional; if not supplied, a managed connection will be created.
+sub exec_with_lock_pure {
+
+    my $lock_names  = shift;
+    my $func        = shift;
+    my $redis       = shift;
+    my $ttl         = shift // 10;
+    my $own_redis   = 0;
+
+    die "Lock name list cannot be empty" unless scalar(@$lock_names);
+
+    # prepare the script for token release
+    # tokens demonstrate ownership over a redis lock, and is used to prevent workers 
+    # from deleting locks that don't belong to them.
+    # https://redis.io/docs/latest/develop/clients/patterns/distributed-locks/#correct-implementation-with-a-single-instance
+    my $release_lua = <<'LUA';
+    if redis.call('GET', KEYS[1]) == ARGV[1] then
+        return redis.call('DEL', KEYS[1])
+    end
+    return 0
+LUA
+
+    # create managed redis connection if not passed
+    unless ( defined $redis ) {
+        $redis = LANraragi::Model::Config->get_redis_config; 
+        $own_redis = 1;
+    }
+
+    # try to acquire all locks, or release all if any lock cannot be acquired.
+    my @lock_name_stack = ();
+    foreach my $lock_name ( @$lock_names ) {
+        my $token = sha256_hex( $lock_name . ":" . $$ . ":" . time() . ":" . rand() );
+        my $lock = eval { $redis->set( $lock_name, $token, 'NX', 'EX', $ttl ) };
+        if ( my $acquire_error = $@ ) {
+            # If a lock acquisition failure happens, then a problem has occurred with Redis.
+            get_logger( "Concurrency", "lanraragi" )->error("Failed to acquire lock $lock_name: $acquire_error");
+            last;
+        }
+        last unless $lock;
+        push( @lock_name_stack, [ $lock_name, $token ] );
+    }
+    # if a single lock fails to acquire, stop trying for the rest, and
+    # go release all previously acquired locks in the reverse order.
+    unless ( scalar(@lock_name_stack) == scalar(@$lock_names) ) {
+        while ( @lock_name_stack ) {
+            my ( $lock_name, $token ) = @{ pop(@lock_name_stack) };
+
+            # This should be best effort release, but if failure happens, 
+            # then continue releasing remaining locks and let TTL take over.
+            my $release_error = eval { $redis->eval( $release_lua, 1, $lock_name, $token ); 1 } ? undef : $@;
+            get_logger( "Concurrency", "lanraragi" )->error("Failed to release lock ($lock_name): $release_error") if $release_error;
+        }
+        if ($own_redis) {
+            my $close_error = eval { $redis->quit(); 1 } ? undef : $@;
+            get_logger( "Concurrency", "lanraragi" )->error("Failed to close Redis connection: $close_error") if $close_error;
+        }
+        return 0, undef;
+    }
+
+    # run the actual business logic (and collect response)
+    my $response = eval { $func->(); };
+    my $fn_err = $@;
+
+    # release all previously acquired locks in reverse order.
+    while ( @lock_name_stack ) {
+        my ( $lock_name, $token ) = @{ pop(@lock_name_stack) };
+        my $release_error = eval { $redis->eval( $release_lua, 1, $lock_name, $token ); 1 } ? undef : $@;
+        get_logger( "Concurrency", "lanraragi" )->error("Failed to release lock after evaluation ($lock_name): $release_error") if $release_error;
+    }
+
+    # close managed connection
+    my $close_error = eval { $redis->quit() if $own_redis; 1 } ? undef : $@;
+    get_logger( "Concurrency", "lanraragi" )->error("Failed to close Redis connection after evaluation: $close_error") if $close_error;
+
+    # throw error if exists
+    die $fn_err if $fn_err;
+    return 1, $response;
+
 }
 
 1;
