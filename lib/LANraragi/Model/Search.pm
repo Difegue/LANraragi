@@ -322,7 +322,7 @@ sub search_uncached ( $category_id, $filter, $sortkey, $sortorder, $newonly, $un
     $redis_db->quit();
 
     # Title sort and unfiltered results: all archives are keyed
-    return ( scalar @filtered, @filtered );
+    return ( -1, @filtered );
 }
 
 # Transform the search engine syntax into a list of tokens.
@@ -546,7 +546,7 @@ LUA
     $logger->debug("[PERF] sort_results completed in ${total_time}s");
 
     # lastread: all returned archives are keyed (nil timestamps filtered out)
-    return ( scalar @sorted, @sorted );
+    return ( -1, @sorted );
 }
 
 1;
