@@ -178,32 +178,35 @@ Reader.initializeAll = function () {
 
         $("#tagContainer").append(LRR.buildTagsDiv(Reader.content.tags));
 
-        const rating = LRR.splitTagsByNamespace(Reader.content.tags).rating?.at(0).length;
-        new Raty(document.querySelector('[data-raty]'), { 
-            starType: 'i', 
-            cancelButton: true, 
-            cancelClass: 'fas fa-trash raty-cancel', 
-            cancelHint: I18N.ReaderClearRating,
-            cancelPlace: 'right',
-            score: rating,
-            click: function(score, element, evt) {
+        const ratyEl = document.querySelector('[data-raty]');
+        if (ratyEl) {
+            const rating = LRR.splitTagsByNamespace(Reader.content.tags).rating?.at(0).length;
+            new Raty(ratyEl, {
+                starType: 'i',
+                cancelButton: true,
+                cancelClass: 'fas fa-trash raty-cancel',
+                cancelHint: I18N.ReaderClearRating,
+                cancelPlace: 'right',
+                score: rating,
+                click: function(score, element, evt) {
 
-                let tags = LRR.splitTagsByNamespace(Reader.content.tags);
-                let selectedRating = score;
+                    let tags = LRR.splitTagsByNamespace(Reader.content.tags);
+                    let selectedRating = score;
 
-                if (selectedRating === null) 
-                    delete tags.rating; 
-                else {
-                    // Create a tag with star emoji corresponding to the rating (e.g. rating:⭐⭐⭐ for a 3-star rating)
-                    selectedRating = "⭐".repeat(score);
-                    tags.rating = [selectedRating];
+                    if (selectedRating === null)
+                        delete tags.rating;
+                    else {
+                        // Create a tag with star emoji corresponding to the rating (e.g. rating:⭐⭐⭐ for a 3-star rating)
+                        selectedRating = "⭐".repeat(score);
+                        tags.rating = [selectedRating];
+                    }
+
+                    let tagList = LRR.buildTagList(tags);
+                    Server.updateTagsFromArchive(Reader.id, tagList);
+                    $("#tagContainer > table").replaceWith(LRR.buildTagsDiv(tagList.join(",")));
                 }
-                
-                let tagList = LRR.buildTagList(tags);
-                Server.updateTagsFromArchive(Reader.id, tagList);
-                $("#tagContainer > table").replaceWith(LRR.buildTagsDiv(tagList.join(",")));
-            }
-         }).init();
+            }).init();
+        }
 
         $("#tagContainer").append(`<div class="archive-summary"/>`);
         $(".archive-summary").text(Reader.content.summary);
