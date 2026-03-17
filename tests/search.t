@@ -36,9 +36,9 @@ sub do_test_search {
 }
 
 do_test_search();
-is( $filtered, 8, qq(Empty search(full index)) );
+is( $filtered, 9, qq(Empty search(full index)) );
 ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, "", 0, 0, 0, 0, 0, 0 );
-is( $filtered, 8, qq(Empty search(tank grouping off)) );
+is( $filtered, 9, qq(Empty search(tank grouping off)) );
 
 $search = qq(Ghost in the Shell);
 do_test_search();
@@ -144,5 +144,56 @@ is( $filtered, 2,                 qq(Tankoubon grouping count) );
 ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( $search, "", 0, 0, 0, 0, 0, 0 );
 is( $filtered, 1,                                          qq(No tank grouping count) );
 is( $ids[0],   "28697b96f0ac5777be2614ed10ca47742c9522fa", qq(Tank grouping disabled) );
+
+note('testing namespace sort partition (keyed archives first, unkeyed at back)...');
+
+my %expected_keyed = map { $_ => 1 } (
+    "4857fd2e7c00db8b0af0337b94055d8445118630",     # artist:shirow masamune
+    "2810d5e0a8d027ecefebca6237031a0fa7b91eb3",     # artist:wada rco
+    "28697b96f0ac5858be2614ed10ca47742c9522fd",     # artist:wada rco
+    "be447b58ea66137c415ee306ee2ac44b308ee484",     # artist:yoshiyuki sadamoto
+);
+my %expected_unkeyed = map { $_ => 1 } (
+    "e69e43e1355267f7d32a4f9b7f2fe108d2401ebf",
+    "e69e43e1355267f7d32a4f9b7f2fe108d2401ebg",
+    "e4c422fd10943dc169e3489a38cdbf57101a5f7e",
+    "28697b96f0ac5777be2614ed10ca47742c9522fa",
+    "28697b96f0ac5858be2666ed10ca47742c955555",
+);
+
+{
+    # Sort by artist, ascending: shirow masamune < wada rco < yoshiyuki sadamoto
+    my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", -1, "artist", 0, 0, 0, 0 );
+    is( $filtered, 9, 'Artist sort should return all archives' );
+
+    # Keyed partition (positions 0-3): boundary positions are deterministic
+    is( $ids[0], "4857fd2e7c00db8b0af0337b94055d8445118630",
+        'Artist asc should place shirow masamune first' );
+    is( $ids[3], "be447b58ea66137c415ee306ee2ac44b308ee484",
+        'Artist asc should place yoshiyuki sadamoto last in keyed partition' );
+    is_deeply( { map { $_ => 1 } @ids[0..3] }, \%expected_keyed,
+        'Artist asc keyed partition should contain all artist-tagged archives' );
+
+    # Unkeyed partition (positions 4-8): archives without artist tag
+    is_deeply( { map { $_ => 1 } @ids[4..8] }, \%expected_unkeyed,
+        'Artist asc should place all unkeyed archives at positions 5-9' );
+}
+
+{
+    # Sort by artist, descending — only keyed partition reverses
+    my ( $total, $filtered, @ids ) = LANraragi::Model::Search::do_search( "", "", -1, "artist", 1, 0, 0, 0 );
+
+    # Keyed partition reversed: boundary positions swap
+    is( $ids[0], "be447b58ea66137c415ee306ee2ac44b308ee484",
+        'Artist desc should place yoshiyuki sadamoto first' );
+    is( $ids[3], "4857fd2e7c00db8b0af0337b94055d8445118630",
+        'Artist desc should place shirow masamune last in keyed partition' );
+    is_deeply( { map { $_ => 1 } @ids[0..3] }, \%expected_keyed,
+        'Artist desc keyed partition should contain all artist-tagged archives' );
+
+    # Unkeyed partition still at back
+    is_deeply( { map { $_ => 1 } @ids[4..8] }, \%expected_unkeyed,
+        'Artist desc should keep all unkeyed archives at positions 5-9' );
+}
 
 done_testing();
