@@ -100,12 +100,26 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: lanraragi
-      - name: Compute tools tree hash
-        id: tools-hash
+      - name: Compute windist cache key
+        id: windist-key
         run: |
           $toolsHash = git -C "$env:GITHUB_WORKSPACE\lanraragi" rev-parse HEAD:tools
-          "hash=$toolsHash" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "key=windist-${{ runner.os }}-$toolsHash" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+      - name: Restore windist cache
+        id: cache-windist
+        uses: actions/cache/restore@v5
+        with:
+          path: ${{ github.workspace }}\windist\win-dist.zip
+          key: ${{ steps.windist-key.outputs.key }}
+      - name: Unzip windist from cache
+        if: steps.cache-windist.outputs.cache-hit == 'true'
+        run: |
+          $dest = Join-Path $env:GITHUB_WORKSPACE "LANraragi\win-dist"
+          New-Item -ItemType Directory -Path $dest -Force | Out-Null
+          $zip = Join-Path $env:GITHUB_WORKSPACE "windist\win-dist.zip"
+          Expand-Archive -Path $zip -DestinationPath $dest -Force
       - name: Setup MSYS2 UCRT64
+        if: steps.cache-windist.outputs.cache-hit != 'true'
         uses: msys2/setup-msys2@v2
         with:
           msystem: UCRT64
@@ -134,16 +148,8 @@ jobs:
             patch
             mingw-w64-ucrt-x86_64-nodejs
             mingw-w64-ucrt-x86_64-tools
-      - name: Cache MSYS2 Perl dependencies
-        uses: actions/cache@v5
-        with:
-          path: |
-            ${{ runner.temp }}\msys64\ucrt64\lib\perl5\site_perl
-            ${{ runner.temp }}\msys64\home\runneradmin\.cpanm
-          key: windows-ucrt64-perl-${{ steps.tools-hash.outputs.hash }}
-          restore-keys: |
-            windows-ucrt64-perl-
       - name: Build
+        if: steps.cache-windist.outputs.cache-hit != 'true'
         shell: msys2 {0}
         working-directory: LANraragi
         run: |
@@ -151,9 +157,24 @@ jobs:
           ./tools/build/windows/cleanup.sh
           ./tools/build/windows/create-dist.sh
       - name: Enable UTF-8
+        if: steps.cache-windist.outputs.cache-hit != 'true'
         working-directory: LANraragi
         run: |
           ./tools/build/windows/utf8-support.ps1
+      - name: Create windist zip for cache
+        if: steps.cache-windist.outputs.cache-hit != 'true'
+        run: |
+          $src = Join-Path $env:GITHUB_WORKSPACE "LANraragi\win-dist"
+          $dstDir = Join-Path $env:GITHUB_WORKSPACE "windist"
+          New-Item -ItemType Directory -Path $dstDir -Force | Out-Null
+          $zip = Join-Path $dstDir "win-dist.zip"
+          Compress-Archive -Path (Join-Path $src '*') -DestinationPath $zip
+      - name: Save windist cache
+        if: steps.cache-windist.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v5
+        with:
+          path: ${{ github.workspace }}\windist\win-dist.zip
+          key: ${{ steps.windist-key.outputs.key }}
       - name: Checkout aio-lanraragi integration tests
         uses: actions/checkout@v4
         with:
