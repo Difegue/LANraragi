@@ -206,10 +206,10 @@ sub add_to_filemap ( $redis_cfg, $file ) {
         }
 
         # Acquire exclusive metadata and file write access for archive by ID with 1m timeout
-        my ($acquired, $_) = exec_with_lock_pure(
+        my ($acquired, undef) = exec_with_lock_pure(
             [ "archive-write:$id" ],
             sub { update_filemap_entry( $logger, $id, $file, $redis_cfg, $redis_arc ) },
-            $redis_arc, 60
+            undef, 60
         );
 
         if ( !$acquired ) {

@@ -181,8 +181,7 @@ sub socket {
 
                 my ( $acquired, $delStatus ) = exec_with_lock_pure(
                     [ "archive-write:$id" ],
-                    sub { LANraragi::Model::Archive::delete_archive($id) },
-                    $redis
+                    sub { LANraragi::Model::Archive::delete_archive($id) }
                 );
 
                 unless ($acquired) {
