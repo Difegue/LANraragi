@@ -206,7 +206,7 @@ sub add_to_filemap ( $redis_cfg, $file ) {
         }
 
         # Acquire exclusive metadata and file write access for archive by ID with 1m timeout
-        my ($acquired, undef) = exec_with_lock_pure(
+        my ($acquired, $is_new) = exec_with_lock_pure(
             [ "archive-write:$id" ],
             sub { update_filemap_entry( $logger, $id, $file, $redis_cfg, $redis_arc ) },
             undef, 60
@@ -214,6 +214,12 @@ sub add_to_filemap ( $redis_cfg, $file ) {
 
         if ( !$acquired ) {
             $logger->warn("Write lock already acquired for archive $file with ID $id, skipping.");
+        }
+
+        # New file handling runs outside the lock so auto-plugin can acquire its own lock.
+        if ( $acquired && $is_new ) {
+            add_new_file( $id, $file );
+            invalidate_cache();
         }
 
     } else {
@@ -289,10 +295,11 @@ sub update_filemap_entry ( $logger, $id, $file, $redis_cfg, $redis_arc ) {
 
     } else {
 
-        # Add to Redis if not present beforehand
-        add_new_file( $id, $file );
-        invalidate_cache();
+        # Signal that this is a new file; caller will handle add_new_file outside the lock.
+        return 1;
     }
+
+    return 0;
 }
 
 # Only handle new files. As per the ChangeNotify doc, it
