@@ -175,6 +175,17 @@ jobs:
         with:
           path: ${{ github.workspace }}\windist\win-dist.zip
           key: ${{ steps.windist-key.outputs.key }}
+      - name: Copy app code to windist
+        shell: bash
+        working-directory: LANraragi
+        run: |
+          cp ./package.json ./win-dist
+          cp ./lrr.conf ./win-dist
+          cp -R ./lib ./win-dist
+          cp -R ./public ./win-dist
+          cp -R ./script ./win-dist
+          cp -R ./templates ./win-dist
+          cp -R ./locales ./win-dist
       - name: Checkout aio-lanraragi integration tests
         uses: actions/checkout@v4
         with:
