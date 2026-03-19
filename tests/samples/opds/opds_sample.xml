@@ -10,7 +10,7 @@
     <link rel="self" href="/api/opds" type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
     <link rel="start" href="/api/opds" type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
 
-    <link rel="next" href="/api/opds?start=8" type="application/atom+xml;profile=opds-catalog;kind=navigation" />
+    <link rel="next" href="/api/opds?start=9" type="application/atom+xml;profile=opds-catalog;kind=navigation" />
 
     <title>LANraragi</title>
     <updated>2010-01-10T10:03:10Z</updated>
@@ -41,7 +41,39 @@
         thr:count="2" />
     
 
-    
+
+    <entry>
+        <title>4f7f5f92300189726765</title>
+        <id>urn:lrr:be447b58ea66137c415ee306ee2ac44b308ee484</id>
+        <updated>1970-01-01T00:00:00Z</updated>
+        <published>1970-01-01T00:00:00Z</published>
+        <author>
+            <name>Yoshiyuki Sadamoto</name>
+        </author>
+        <rights></rights>
+        <dcterms:language></dcterms:language>
+        <dcterms:publisher></dcterms:publisher>
+        <dcterms:issued></dcterms:issued>
+
+        <category term="Archive" />
+
+        <summary>series:Neon Genesis Evangelion, artist:Yoshiyuki Sadamoto, chapter:1, character:Shinji Ikari, character:Misato Katsuragi, science fiction</summary>
+
+        <link rel="alternate" href="/api/opds/be447b58ea66137c415ee306ee2ac44b308ee484"
+            type="application/atom+xml;type=entry;profile=opds-catalog" />
+
+        <link rel="http://opds-spec.org/image" href="/api/archives/be447b58ea66137c415ee306ee2ac44b308ee484/thumbnail" type="image/jpeg" />
+        <link rel="http://opds-spec.org/image/thumbnail" href="/api/archives/be447b58ea66137c415ee306ee2ac44b308ee484/thumbnail"
+            type="image/jpeg" />
+        <link rel="http://opds-spec.org/acquisition" href="/api/archives/be447b58ea66137c415ee306ee2ac44b308ee484/download" title="Download/Read"
+            type="application/x-cbz" />
+        <link rel="http://vaemendis.net/opds-pse/stream" type="image/jpeg"
+            href="/api/opds/be447b58ea66137c415ee306ee2ac44b308ee484/pse?page={pageNumber}" pse:count="34"
+
+            />
+        <link type="text/html" rel="alternate" title="Open in LANraragi" href="/reader?id=be447b58ea66137c415ee306ee2ac44b308ee484" />
+    </entry>
+
     <entry>
         <title>All about Egypt</title>
         <id>urn:lrr:28697b96f0ac5858be2666ed10ca47742c955555</id>

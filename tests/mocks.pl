@@ -112,6 +112,16 @@ sub setup_redis_mock {
             "summary": "CURSE OF RA",
             "lastreadtime": 0
         },
+        "be447b58ea66137c415ee306ee2ac44b308ee484": {
+            "isnew": "false",
+            "pagecount": 34,
+            "progress": 0,
+            "tags": "series:Neon Genesis Evangelion, artist:Yoshiyuki Sadamoto, chapter:1, character:Shinji Ikari, character:Misato Katsuragi, science fiction",
+            "title": "\u4f7f\u5f92\u3001\u8972\u6765",
+            "file": "package.json",
+            "summary": "",
+            "lastreadtime": 0
+        },
         "TANK_1589141306": [
             "name_Hello",
             "28697b96f0ac5858be2666ed10ca47742c955555",

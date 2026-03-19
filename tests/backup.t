@@ -23,6 +23,7 @@ use LANraragi::Model::Backup;
 # Would've liked to compare JSON strings directly here, but since the key order is non-deterministic it's easier to compare the result hashes.
 my %expected_backup =
   %{ decode_json qq({"archives":[
+          {"arcid":"be447b58ea66137c415ee306ee2ac44b308ee484","filename":null,"tags":"series:Neon Genesis Evangelion, artist:Yoshiyuki Sadamoto, chapter:1, character:Shinji Ikari, character:Misato Katsuragi, science fiction","thumbhash":null,"title":"\u4f7f\u5f92\u3001\u8972\u6765", "summary":""},
           {"arcid":"e4c422fd10943dc169e3489a38cdbf57101a5f7e","filename":null,"tags":"parody: jojo's bizarre adventure","thumbhash":null,"title":"Rohan Kishibe goes to Gucci", "summary":""},
           {"arcid":"4857fd2e7c00db8b0af0337b94055d8445118630","filename":null,"tags":"artist:shirow masamune","thumbhash":null,"title":"Ghost in the Shell 1.5 - Human-Error Processor vol01ch01", "summary":""},
           {"arcid":"e69e43e1355267f7d32a4f9b7f2fe108d2401ebf","filename":null,"tags":"character:segata sanshiro, male:very cool","thumbhash":null,"title":"Saturn Backup Cartridge - Japanese Manual", "summary":""},
