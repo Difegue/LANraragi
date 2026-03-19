@@ -248,6 +248,30 @@ The base architecture is as follows:
    |- $columnfilter-$filter-$sortkey-$sortorder-$newonly <- Unique ID for a search. The search result is serialized and saved as the value for this ID.
    +- --title-asc-0 <- Example ID for a search made on titles with no filters.
 
+
+-Redis Database 4 - Metrics
+|
+|- metrics:worker:{PID}:{endpoint_encoded}_{method} <- Per-worker API request metrics
+|  |- count <- Total number of requests
+|  |- duration_sum <- Cumulative request duration in seconds
+|  |- request_size_sum <- Cumulative request payload size in bytes
+|  +- response_size_sum <- Cumulative response payload size in bytes
+|
+|- metrics:http:{PID} <- HTTP worker process metrics
+|- metrics:minion:{PID} <- Minion worker process metrics
+|- metrics:shinobu:{PID} <- Shinobu worker process metrics
+|  |- cpu_user_seconds_total <- Total user CPU time in seconds
+|  |- cpu_system_seconds_total <- Total system CPU time in seconds
+|  |- cpu_seconds_total <- Total CPU time (user + system) in seconds
+|  |- virtual_memory_bytes <- Virtual memory size in bytes
+|  |- resident_memory_bytes <- Resident memory size in bytes
+|  |- open_fds <- Number of open file descriptors
+|  |- max_fds <- Maximum allowed file descriptors
+|  |- start_time_seconds <- Unix epoch time when process started
+|  |- read_bytes_total <- Total bytes read from storage
+|  +- write_bytes_total <- Total bytes written to storage
++
+
 ```
 
 {% hint style="info" %}
