@@ -50,7 +50,8 @@ sub index {
         jxlthumbpages   => $self->LRR_CONF->get_jxlthumbpages,
         csshead         => generate_themes_header($self),
         replacedupe     => $self->LRR_CONF->get_replacedupe,
-        language        => $self->LRR_CONF->get_language
+        language        => $self->LRR_CONF->get_language,
+        excludednamespaces => $self->LRR_CONF->get_excludednamespaces
     );
 }
 
@@ -76,6 +77,7 @@ sub save_config {
         sizethreshold => scalar $self->req->param('sizethreshold'),
         theme         => scalar $self->req->param('theme'),
         language      => scalar $self->req->param('language'),
+        excludednamespaces => scalar $self->req->param('excludednamespaces'),
 
         # For checkboxes,
         # we check if the parameter exists in the POST to return either 1 or 0.

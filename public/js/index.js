@@ -797,13 +797,13 @@ Index.handleContextMenu = function (option, id) {
  * Load tag suggestions for the tag search bar.
  */
 Index.loadTagSuggestions = function () {
-    // Query the tag cloud API to get the most used tags.
-    Server.callAPI("/api/database/stats?minweight=2", "GET", null, I18N.TagStatsLoadFailure,
+    // Query the tag cloud API to get the most used tags, excluding configured namespaces.
+    Server.callAPI("/api/database/stats?minweight=2&hide_excluded_namespaces=true", "GET", null, I18N.TagStatsLoadFailure,
         (data) => {
             // Get namespaces objects in the data array to fill the namespace-sortby combobox
             const namespacesSet = new Set(data.map((element) => (element.namespace === "parody" ? "series" : element.namespace)));
             namespacesSet.forEach((element) => {
-                if (element !== "" && element !== "date_added") {
+                if (element !== "") {
                     $("#namespace-sortby").append(`<option value="${element}">${element.charAt(0).toUpperCase() + element.slice(1)}</option>`);
                 }
             });

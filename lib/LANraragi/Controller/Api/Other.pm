@@ -38,7 +38,10 @@ sub serve_serverinfo {
             authenticated_progress => $self->LRR_CONF->enable_authprogress ? \1 : \0,
             total_pages_read       => $page_stat,
             total_archives         => $arc_stat,
-            cache_last_cleared     => $last_clear
+            cache_last_cleared     => $last_clear,
+            excluded_namespaces    => [
+                split( /\s*,\s*/, $self->LRR_CONF->get_excludednamespaces )
+            ]
         }
     );
 }

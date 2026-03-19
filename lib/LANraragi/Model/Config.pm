@@ -210,5 +210,6 @@ sub get_jxlthumbpages    { return &get_redis_conf( "jxlthumbpages",   "0" ) }
 sub get_replacedupe      { return &get_redis_conf( "replacedupe",     "0" ) }
 sub can_replacetitles    { return &get_redis_conf( "replacetitles",   "1" ) }
 sub get_language         { return &get_redis_conf( "language",        "auto" ) }
+sub get_excludednamespaces { return &get_redis_conf( "excludednamespaces", "source, date_added" ) }
 
 1;

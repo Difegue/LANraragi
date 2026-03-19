@@ -93,6 +93,18 @@
 
 <tr>
     <td class="option-td">
+        <h2 class="ih"> [% c.lh("Excluded Namespaces") %] </h2>
+    </td>
+    <td class="config-td">
+        <input class="stdinput" style="width:100%" maxlength="255" size="20" value="[% excludednamespaces %]"
+            name="excludednamespaces" type="text">
+        <br>[% c.lh("Comma-separated list of tag namespaces to exclude from search suggestions and tag statistics.") %]
+        <br>[% c.lh("Clients will use this list to filter out noisy tags from autocomplete and tag clouds.") %]
+    </td>
+</tr>
+
+<tr>
+    <td class="option-td">
         <h2 class="ih"> [% c.lh("Tag Rules") %] </h2>
     </td>
     <td class="config-td">
