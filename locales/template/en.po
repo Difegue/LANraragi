@@ -1592,6 +1592,9 @@ msgstr "Chapter added!"
 msgid "Error adding/removing chapter:"
 msgstr "Error adding/removing chapter:"
 
+msgid "Clear rating"
+msgstr "Clear rating"
+
 msgid "Untitled Chapter"
 msgstr "Untitled Chapter"
 
