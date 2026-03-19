@@ -22,7 +22,7 @@ description: Other APIs that don't fit a dedicated theme.
 
 ## Metrics
 
-The `/api/metrics` endpoint returns metrics in the [Prometheus exposition format](https://prometheus.io/docs/instrumenting/exposition_formats/#text-format-example).
+The `/api/info/metrics` endpoint returns metrics in the [Prometheus exposition format](https://prometheus.io/docs/instrumenting/exposition_formats/#text-format-example).
 
 ```sh
 # HELP lanraragi_api_requests_total Total number of API requests

@@ -15,11 +15,11 @@ If you enable Debug Mode for troubleshooting purposes, make sure to disable it o
 
 ## Metrics
 
-LANraragi supports exporting server metrics via the `/api/metrics` endpoint in the text-based
+LANraragi supports exporting server metrics via the `/api/info/metrics` endpoint in the text-based
 Prometheus exposition format, allowing you to see server analytics and trendlines using a
 Prometheus/Grafana stack.
 
-The `/api/metrics` endpoint is disabled by default. To enable this feature, go to the "Global 
+The `/api/info/metrics` endpoint is disabled by default. To enable this feature, go to the "Global 
 Settings" configuration and toggle on "Enable Metrics". Then, restart the server.
 
 ![](../.screenshots/metrics_settings.png)
