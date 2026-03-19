@@ -236,18 +236,18 @@ sub startup {
             }
         );
 
-        # Hook to collect API metrics
+        # Hook to collect HTTP request metrics
         $self->hook(
             after_dispatch => sub {
                 my $c = shift;
-                LANraragi::Model::Metrics::collect_api_metrics($c);
+                LANraragi::Model::Metrics::collect_request_metrics($c);
             }
         );
 
-        # Periodically collect process metrics and flush cached API metrics to redis
+        # Periodically collect process metrics and flush cached request metrics to redis
         Mojo::IOLoop->recurring(30 => sub {
             LANraragi::Model::Metrics::collect_process_metrics( "http" );
-            LANraragi::Model::Metrics::flush_api_metrics_to_redis();
+            LANraragi::Model::Metrics::flush_request_metrics_to_redis();
         });
 
         $self->LRR_LOGGER->info("Metrics collection is enabled.");
@@ -276,7 +276,7 @@ sub shutdown_from_pid {
 sub add_sigint_handler {
     my $old_int = $SIG{INT};
     $SIG{INT} = sub {
-        LANraragi::Model::Metrics::flush_api_metrics_to_redis() if LANraragi::Model::Config->enable_metrics;
+        LANraragi::Model::Metrics::flush_request_metrics_to_redis() if LANraragi::Model::Config->enable_metrics;
         shutdown_from_pid( get_temp . "/shinobu.pid" );
         shutdown_from_pid( get_temp . "/minion.pid" );
 

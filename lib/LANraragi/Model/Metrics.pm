@@ -15,12 +15,12 @@ use constant IS_LINUX => ( $^O eq 'linux' );
 use constant IS_MACOS => ( $^O eq 'darwin' );
 use constant IS_WIN32 => ( $^O eq 'MSWin32' );
 
-use constant API_METRICS_FLUSH_INTERVAL     => 1.0;   # min seconds between flushes
-use constant API_METRICS_FLUSH_MAX_UPDATES  => 1000;  # max buffered updates before forced flush
+use constant REQUEST_METRICS_FLUSH_INTERVAL     => 1.0;   # min seconds between flushes
+use constant REQUEST_METRICS_FLUSH_MAX_UPDATES  => 1000;  # max buffered updates before forced flush
 
-my %API_METRICS_CACHE            = ();
-my $API_METRICS_LAST_FLUSH       = 0;
-my $API_METRICS_UPDATE_COUNT     = 0;
+my %REQUEST_METRICS_CACHE            = ();
+my $REQUEST_METRICS_LAST_FLUSH       = 0;
+my $REQUEST_METRICS_UPDATE_COUNT     = 0;
 
 # Get all metrics in Prometheus exposition format.
 sub get_prometheus_metrics {
@@ -208,7 +208,7 @@ sub get_prometheus_stats_metrics {
     my @output;
 
     # Get Redis connection for cache info
-    my $config_redis    = LANraragi::Model::Config->get_redis_config;
+    my $config_redis    = $controller->LRR_CONF->get_redis_config;
     my $last_clear      = $config_redis->hget("LRR_SEARCHCACHE", "created") || time;
     $config_redis->quit();
 
@@ -241,23 +241,23 @@ sub get_prometheus_stats_metrics {
     # Configuration metrics
     push @output, "# TYPE lanraragi_has_password gauge";
     push @output, "# HELP lanraragi_has_password Whether the server has password protection enabled";
-    push @output, "lanraragi_has_password " . (LANraragi::Model::Config->enable_pass ? 1 : 0);
+    push @output, "lanraragi_has_password " . ($controller->LRR_CONF->enable_pass ? 1 : 0);
 
     push @output, "# TYPE lanraragi_debug_mode gauge";
     push @output, "# HELP lanraragi_debug_mode Whether the server is running in debug mode";
-    push @output, "lanraragi_debug_mode " . (LANraragi::Model::Config->enable_devmode ? 1 : 0);
+    push @output, "lanraragi_debug_mode " . ($controller->LRR_CONF->enable_devmode ? 1 : 0);
 
     push @output, "# TYPE lanraragi_nofun_mode gauge";
     push @output, "# HELP lanraragi_nofun_mode Whether the server is running in no-fun mode";
-    push @output, "lanraragi_nofun_mode " . (LANraragi::Model::Config->enable_nofun ? 1 : 0);
+    push @output, "lanraragi_nofun_mode " . ($controller->LRR_CONF->enable_nofun ? 1 : 0);
 
     push @output, "# TYPE lanraragi_server_resizes_images gauge";
     push @output, "# HELP lanraragi_server_resizes_images Whether the server resizes images for bandwidth optimization";
-    push @output, "lanraragi_server_resizes_images " . (LANraragi::Model::Config->enable_resize ? 1 : 0);
+    push @output, "lanraragi_server_resizes_images " . ($controller->LRR_CONF->enable_resize ? 1 : 0);
 
     push @output, "# TYPE lanraragi_archives_per_page gauge";
     push @output, "# HELP lanraragi_archives_per_page Number of archives displayed per page";
-    push @output, "lanraragi_archives_per_page " . LANraragi::Model::Config->get_pagesize;
+    push @output, "lanraragi_archives_per_page " . $controller->LRR_CONF->get_pagesize;
 
     # Archive and page statistics
     push @output, "# TYPE lanraragi_archives_total gauge";
@@ -276,10 +276,10 @@ sub get_prometheus_stats_metrics {
     return @output;
 }
 
-# Record API request metrics to Redis
-# takes a Mojo controller corresponding to the API request being handled.
-# called on every API request.
-sub collect_api_metrics {
+# Record HTTP request metrics to Redis
+# takes a Mojo controller corresponding to the request being handled.
+# called on every HTTP request; unrecognized endpoints are filtered out.
+sub collect_request_metrics {
     my $controller      = shift;
     my $start_time      = $controller->stash('metrics.start_time');
     return unless $start_time;
@@ -300,7 +300,7 @@ sub collect_api_metrics {
     my $metric_base         = "metrics:worker:$$:${endpoint_encoded}_${method}";
 
     # Update in-process cache
-    my $entry = ( $API_METRICS_CACHE{$metric_base} ||= {
+    my $entry = ( $REQUEST_METRICS_CACHE{$metric_base} ||= {
         count             => 0,
         duration_sum      => 0.0,
         request_size_sum  => 0,
@@ -310,10 +310,10 @@ sub collect_api_metrics {
     $entry->{duration_sum}      += $duration;
     $entry->{request_size_sum}  += $request_size;
     $entry->{response_size_sum} += $response_size;
-    $API_METRICS_UPDATE_COUNT++;
+    $REQUEST_METRICS_UPDATE_COUNT++;
 
     # Conditionally flush to redis
-    flush_api_metrics_to_redis();
+    flush_request_metrics_to_redis();
 }
 
 # Record process-level metrics to Redis with the specified key prefix
@@ -402,18 +402,18 @@ sub cleanup_metrics {
 }
 
 # Flush to Redis if time interval elapsed or update count cap reached.
-sub flush_api_metrics_to_redis {
+sub flush_request_metrics_to_redis {
     my $now                 = Time::HiRes::time();
-    my $should_flush_time   = ( $now - $API_METRICS_LAST_FLUSH ) >= API_METRICS_FLUSH_INTERVAL;
-    my $should_flush_count  = $API_METRICS_UPDATE_COUNT >= API_METRICS_FLUSH_MAX_UPDATES;
+    my $should_flush_time   = ( $now - $REQUEST_METRICS_LAST_FLUSH ) >= REQUEST_METRICS_FLUSH_INTERVAL;
+    my $should_flush_count  = $REQUEST_METRICS_UPDATE_COUNT >= REQUEST_METRICS_FLUSH_MAX_UPDATES;
     return unless ( $should_flush_time || $should_flush_count );
-    return unless %API_METRICS_CACHE;
+    return unless %REQUEST_METRICS_CACHE;
 
     my $redis = LANraragi::Model::Config->get_redis_metrics;
     my $error;
     eval {
-        foreach my $base ( keys %API_METRICS_CACHE ) {
-            my $fields = $API_METRICS_CACHE{$base} || {};
+        foreach my $base ( keys %REQUEST_METRICS_CACHE ) {
+            my $fields = $REQUEST_METRICS_CACHE{$base} || {};
             $redis->hincrby($base, "count",               $fields->{count}             || 0);
             $redis->hincrbyfloat($base, "duration_sum",   $fields->{duration_sum}      || 0);
             $redis->hincrby($base, "request_size_sum",    $fields->{request_size_sum}  || 0);
@@ -429,9 +429,9 @@ sub flush_api_metrics_to_redis {
         return;
     }
 
-    %API_METRICS_CACHE        = ();
-    $API_METRICS_UPDATE_COUNT = 0;
-    $API_METRICS_LAST_FLUSH   = $now;
+    %REQUEST_METRICS_CACHE        = ();
+    $REQUEST_METRICS_UPDATE_COUNT = 0;
+    $REQUEST_METRICS_LAST_FLUSH   = $now;
 }
 
 1;
