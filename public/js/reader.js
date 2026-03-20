@@ -115,8 +115,8 @@ Reader.initializeAll = async function () {
         }
     });
 
-    $(document).on("click.add-toc", ".add-toc", (e) => { 
-        const page = +$(e.target).closest("div[page]").attr("page") + 1; 
+    $(document).on("click.add-toc", ".add-toc", (e) => {
+        const page = +$(e.target).closest("div[page]").attr("page") + 1;
         Reader.addTocSection(page);
 
         // Stop event propagation to avoid going to page
@@ -138,12 +138,6 @@ Reader.initializeAll = async function () {
         LRR.closeOverlay();
         const pageNumber = +$(e.target).closest("div[page]").attr("page");
         Reader.goToPage(pageNumber);
-    });
-
-    // When user hits browser back, return to index.
-    window.addEventListener("popstate", (event) => {
-        event.preventDefault();
-        Reader.returnToIndex();
     });
 
     // Apply full-screen utility
@@ -1532,7 +1526,6 @@ Reader.readPreviousArchive = function () {
             sessionStorage.setItem('autoNextPage', 'true');
         }
         const newUrl = new LRR.apiURL(`/reader?id=${previousArchiveId}`).toString();
-        history.pushState({navigation: 'archive'}, '', newUrl);
         window.location.href = newUrl;
     } else {
         LRR.toast({"text": "This is the first archive"});
@@ -1568,7 +1561,6 @@ Reader.readNextArchive = function () {
             sessionStorage.setItem('autoNextPage', 'true');
         }
         const newUrl = new LRR.apiURL(`/reader?id=${nextArchiveId}`).toString();
-        history.pushState({navigation: 'archive'}, '', newUrl);
         window.location.href = newUrl;
     } else {
         LRR.toast({"text": "This is the last archive"});
@@ -1631,20 +1623,11 @@ Reader.loadDatatablesArchives = async function (datatablesPage) {
 };
 
 /**
- * Return to the index page, preserving the search filter from when 
- * the user went from index to reader.
- * 
- * If for some reason history is unavailable, fall back with search
- * parameters.
+ * Return to the index page with state preservation. Navigates to the DT page,
+ * search filter, category, and sort order that were active when the user
+ * entered reader mode, updated by any cross-DT archive navigation.
  */
 Reader.returnToIndex = function () {
-    // Check if we have more than one entry in the history stack
-    // This checks if we can go back in browser history
-    if (window.history.length > 1) {
-        history.back();
-        return;
-    }
-    // Fallback logic
     const indexSearchQuery = localStorage.getItem('currentSearch') || '';
     const indexSelectedCategory = localStorage.getItem('selectedCategory') || '';
     const indexSort = localStorage.getItem('indexSort') || 0;
@@ -1661,7 +1644,5 @@ Reader.returnToIndex = function () {
     if (queryString) {
         returnUrl += '?' + queryString;
     }
-    const indexUrl = new LRR.apiURL(returnUrl).toString();
-    history.pushState({navigation: 'index'}, '', indexUrl);
-    window.location.href = indexUrl;
+    window.location.href = new LRR.apiURL(returnUrl).toString();
 }
