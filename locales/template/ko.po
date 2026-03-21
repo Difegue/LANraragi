@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-06 17:24+0200\n"
-"PO-Revision-Date: 2026-03-17 08:09+0000\n"
+"PO-Revision-Date: 2026-03-21 23:34+0000\n"
 "Last-Translator: 안세훈 <on9686@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/ko/>\n"
@@ -1829,3 +1829,17 @@ msgid "Disables OpenAPI API schema validation. Turn this on if you are running i
 msgstr ""
 "OpenAPI 스키마 검증을 비활성화합니다. 이전 API 클라이언트에서 검증 관련 "
 "오류가 발생하면 이 기능을 켜십시오."
+
+msgid "Excluded Namespaces"
+msgstr "제외된 네임스페이스"
+
+msgid "Comma-separated list of tag namespaces to exclude from search suggestions and tag statistics."
+msgstr "검색 제안 및 태그 통계에서 제외할 태그 네임스페이스. 콤바로 구분합니다."
+
+msgid "Clients will use this list to filter out noisy tags from autocomplete and tag clouds."
+msgstr ""
+"클라이언트는 이 목록을 사용하여 자동 완성 및 태그 클라우드에서 노이즈가 있는 "
+"태그를 필터링합니다."
+
+msgid "Clear rating"
+msgstr "평점 제거"
