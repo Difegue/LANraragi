@@ -138,7 +138,7 @@ I18N.ReaderDeleteTocPrompt = "[% c.lh("Are you sure you want to delete this chap
 I18N.ReaderTocPrompt = "[% c.lh("Enter a title for this chapter/section:") %]";
 I18N.ReaderTocAdded = "[% c.lh("Chapter added!") %]";
 I18N.ReaderTocError = "[% c.lh("Error adding/removing chapter:") %]";
-I18N.ReaderClearRating = "[% c.lh("Clear rating") %]";
+I18N.ReaderClearRating = "[% c.lh("Clear Rating") %]";
 I18N.UntitledChapter = "[% c.lh("Untitled Chapter") %]";
 
 I18N.ScriptRunning = "[% c.lh("A script is already running.") %]";
