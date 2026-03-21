@@ -11,6 +11,7 @@ use Storable;
 use Sys::Hostname;
 use Config;
 use URI::Escape;
+use Time::HiRes qw(gettimeofday);
 
 use LANraragi::Utils::Generic    qw(start_shinobu start_minion);
 use LANraragi::Utils::Logging    qw(get_logger get_logdir);
@@ -23,7 +24,8 @@ use LANraragi::Utils::I18NInitializer;
 
 use LANraragi::Model::Search;
 use LANraragi::Model::Config;
-use LANraragi::Model::Setup qw(first_install_actions);
+use LANraragi::Model::Setup      qw(first_install_actions);
+use LANraragi::Model::Metrics;
 
 use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 
@@ -217,6 +219,41 @@ sub startup {
         }
     );
 
+    # Enable metrics collection if configured.
+    # Metrics collection occurs at 2 layers, the API handling layer and the process layer
+    # API metrics collection is done passively whenever an API call is processed.
+    # Process metrics collection is done actively on a periodic basis.
+    if (LANraragi::Model::Config->enable_metrics) {
+
+        # Clean up metrics from previous server sessions
+        LANraragi::Model::Metrics::cleanup_metrics();
+
+        # Hook to start metrics timing (controllers are owned by their request)
+        $self->hook(
+            before_dispatch => sub {
+                my $c = shift;
+                $c->stash( 'metrics.start_time' => [ gettimeofday ] );
+            }
+        );
+
+        # Hook to collect HTTP request metrics
+        $self->hook(
+            after_dispatch => sub {
+                my $c = shift;
+                LANraragi::Model::Metrics::collect_request_metrics($c);
+            }
+        );
+
+        # Periodically collect process metrics and flush cached request metrics to redis
+        Mojo::IOLoop->recurring(30 => sub {
+            LANraragi::Model::Metrics::collect_process_metrics( "http" );
+            LANraragi::Model::Metrics::flush_request_metrics_to_redis();
+        });
+
+        $self->LRR_LOGGER->info("Metrics collection is enabled.");
+
+    }
+
     LANraragi::Utils::Routing::apply_routes($self);
     $self->LRR_LOGGER->info("Routing done! Ready to receive requests.");
 }
@@ -239,6 +276,7 @@ sub shutdown_from_pid {
 sub add_sigint_handler {
     my $old_int = $SIG{INT};
     $SIG{INT} = sub {
+        LANraragi::Model::Metrics::flush_request_metrics_to_redis() if LANraragi::Model::Config->enable_metrics;
         shutdown_from_pid( get_temp . "/shinobu.pid" );
         shutdown_from_pid( get_temp . "/minion.pid" );
 

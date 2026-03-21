@@ -132,6 +132,11 @@ sub apply_routes {
 
     $logged_in->get('/duplicates')->to('duplicates#index');
 
+    # Metrics API (not part of OpenAPI spec, serves Prometheus format)
+    if ( $self->LRR_CONF->enable_metrics ) {
+        $public_routes->get('/api/info/metrics')->to('api-metrics#serve_metrics');
+    }
+
     $search_api->get('/search')->to('api-search#handle_datatables');
 
 }
