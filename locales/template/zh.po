@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-04 20:25+0200\n"
-"PO-Revision-Date: 2026-03-15 05:09+0000\n"
+"PO-Revision-Date: 2026-03-21 00:09+0000\n"
 "Last-Translator: gustaavv <gustaavv.git@yahoo.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
 "projects/lanraragi/lanraragi-source/zh_Hans/>\n"
@@ -1777,3 +1777,15 @@ msgid "Disables OpenAPI API schema validation. Turn this on if you are running i
 msgstr ""
 "禁用 OpenAPI API 模式验证。如果您在使用旧版 API 客户端时遇到与验证相关的错误"
 "，请启用此选项。"
+
+msgid "Clear rating"
+msgstr "清除评分"
+
+msgid "Excluded Namespaces"
+msgstr "排除的命名空间"
+
+msgid "Comma-separated list of tag namespaces to exclude from search suggestions and tag statistics."
+msgstr "以逗号分隔的标签命名空间列表，用于从搜索建议和标签统计中排除。"
+
+msgid "Clients will use this list to filter out noisy tags from autocomplete and tag clouds."
+msgstr "客户端将使用此列表从自动完成和标签云中过滤掉干扰标签。"
