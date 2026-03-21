@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-04 20:02+0200\n"
-"PO-Revision-Date: 2025-11-25 02:11+0000\n"
+"PO-Revision-Date: 2026-03-21 23:48+0000\n"
 "Last-Translator: Difegue <8237712+Difegue@users.noreply.github.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/lanraragi/"
 "lanraragi-source/fr/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.15-dev\n"
+"X-Generator: Weblate 5.17-dev\n"
 
 # Sample Data
 # ------Start of Backup.html.tt2------
@@ -435,10 +435,12 @@ msgid "Clean Database"
 msgstr "Nettoyer la BDD"
 
 msgid "Enable Metrics"
-msgstr ""
+msgstr "Activer les mesures"
 
 msgid "Enable metrics collection and serve them through the metrics endpoint in the Prometheus exposition format."
 msgstr ""
+"Active l'enregistrement de mesures. Ces dernières seront disponibles via "
+"l'API de mesures au format Prometheus."
 
 msgid "Cleaning the database will remove entries that aren't on your filesystem."
 msgstr ""
@@ -721,7 +723,7 @@ msgid "Delete Archive"
 msgstr "Delete Archive"
 
 msgid "Read Archive"
-msgstr ""
+msgstr "Lire Archive"
 
 msgid "Return to Library"
 msgstr "Return to Library"
@@ -1917,3 +1919,77 @@ msgid "Combine with clientside progress tracking to allow unauthenticated users 
 msgstr ""
 "Vous pouvez combiner cette option avec le suivi côté client pour permettre "
 "aux invités de suivre leur propre progression de lecture localement."
+
+msgid "Language"
+msgstr "Langue"
+
+msgid "Automatic (browser default)"
+msgstr "Automatique (choix du navigateur)"
+
+msgid "Select the language for the user interface. Set to Automatic to use your browser's language preference."
+msgstr ""
+"Choisissez la langue de l'interface utilisateur. \"Automatique\" utilisera "
+"la préférence de votre navigateur."
+
+msgid "Disable OpenAPI Validation"
+msgstr "Désactiver la validation OpenAPI"
+
+msgid "Disables OpenAPI API schema validation. Turn this on if you are running into validation-related errors with old API clients."
+msgstr ""
+"Désactive la validation de l'API via le schéma OpenAPI. Utilisez cette "
+"option si vous rencontrez des erreurs avec certains vieux clients API."
+
+msgid "Excluded Namespaces"
+msgstr "Namespaces exclus"
+
+msgid "Comma-separated list of tag namespaces to exclude from search suggestions and tag statistics."
+msgstr ""
+"Liste de namespaces séparés par virgule qui seront exclus des statistiques "
+"et suggestions."
+
+msgid "Clients will use this list to filter out noisy tags from autocomplete and tag clouds."
+msgstr ""
+"Les clients utiliseront cette liste pour retirer ces tags des suggestions de "
+"recherche et du nuage de tags."
+
+msgid "Rating"
+msgstr "Note"
+
+msgid "Set Rating"
+msgstr "Mettre une note"
+
+msgid "Clear Rating"
+msgstr "Retirer la note"
+
+msgid " -- Select Rating -- "
+msgstr " -- Choisir une note -- "
+
+msgid "Chapters"
+msgstr "Chapitres"
+
+msgid "Add Chapter at this Page"
+msgstr "Ajouter un chapitre commencant à cette page"
+
+msgid "Edit Chapter name"
+msgstr "Modifier le nom du chapitre"
+
+msgid "Delete Chapter"
+msgstr "Supprimer le chapitre"
+
+msgid "Are you sure you want to delete this chapter/section?"
+msgstr "Voulez-vous vraiment supprimer ce chapitre ?"
+
+msgid "Enter a title for this chapter/section:"
+msgstr "Entrez un titre pour ce chapitre :"
+
+msgid "Chapter added!"
+msgstr "Chapitre ajouté !"
+
+msgid "Error adding/removing chapter:"
+msgstr "Erreur lors de l'ajout/suppression du chapitre :"
+
+msgid "Clear rating"
+msgstr ""
+
+msgid "Untitled Chapter"
+msgstr "Chapitre sans nom"
