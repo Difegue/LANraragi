@@ -14,6 +14,7 @@ class Lanraragi < Formula
 
   depends_on "cpanminus"
   depends_on "ghostscript"
+  depends_on "imagemagick"
   depends_on "vips"
   depends_on "libarchive"
   depends_on "node"
@@ -34,6 +35,17 @@ class Lanraragi < Formula
     ENV["OPENSSL_PREFIX"] = Formula["openssl@3"].opt_prefix
     ENV["ARCHIVE_LIBARCHIVE_LIB_DLL"] = Formula["libarchive"].opt_lib/shared_library("libarchive")
     ENV["ALIEN_INSTALL_TYPE"] = "system"
+
+    imagemagick = Formula["imagemagick"]
+    resource("Image::Magick").stage do
+      inreplace "Makefile.PL",
+                "/usr/local/include/ImageMagick-#{imagemagick.version.major}",
+                "#{imagemagick.opt_include}/ImageMagick-#{imagemagick.version.major}"
+
+      system "perl", "Makefile.PL", "INSTALL_BASE=#{libexec}"
+      system "make"
+      system "make", "install"
+    end
 
     system "cpanm", "Config::AutoConf", "--notest", "-l", libexec
     system "npm", "install", *std_npm_args(prefix: false)
