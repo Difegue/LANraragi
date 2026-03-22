@@ -56,7 +56,13 @@ class Lanraragi < Formula
   test do
     # Set PERL5LIB as we're not calling the launcher script
     ENV["PERL5LIB"] = libexec/"lib/perl5"
+
+    # Make sure lanraragi writes files to a path allowed by the sandbox
+    ENV["LRR_LOG_DIRECTORY"] = ENV["LRR_TEMP_DIRECTORY"] = testpath
     %w[server.pid shinobu.pid minion.pid].each { |file| touch file }
+
+    # On top of the brew-core testing, we can and do want to run the test suite for CI.  
+    system "npm", "--prefix", libexec, "test"
 
     # This can't have its _user-facing_ functionality tested in the `brew test`
     # environment because it needs Redis. It fails spectacularly tho with some
@@ -70,13 +76,6 @@ class Lanraragi < Formula
     # Execute through npm to avoid starting a redis-server
     return_value = OS.mac? ? 61 : 111
     assert_match output, shell_output("npm start --prefix #{libexec}", return_value)
-
-    # On top of the brew-core testing, we can and do want to run the test suite for CI.  
-    # Make sure lanraragi writes files to a path allowed by the sandbox
-    ENV["LRR_TEMP_DIRECTORY"] = testpath
-    ENV["LRR_LOG_DIRECTORY"] = testpath/"log"
-
-    system "npm", "--prefix", libexec, "test"
     
   end
 end
