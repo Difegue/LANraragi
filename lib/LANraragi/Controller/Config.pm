@@ -1,12 +1,12 @@
 package LANraragi::Controller::Config;
 use Mojo::Base 'Mojolicious::Controller';
 
-use LANraragi::Utils::Generic    qw(generate_themes_header);
-use LANraragi::Utils::String     qw(trim trim_CRLF);
-use LANraragi::Utils::Database   qw(save_computed_tagrules);
-use LANraragi::Utils::Tags       qw(tags_rules_to_array replace_CRLF restore_CRLF);
-use Mojo::JSON                   qw(encode_json);
-use LANraragi::Utils::Redis      qw(redis_encode);
+use LANraragi::Utils::Generic  qw(generate_themes_header generate_css_detail);
+use LANraragi::Utils::String   qw(trim trim_CRLF);
+use LANraragi::Utils::Database qw(save_computed_tagrules);
+use LANraragi::Utils::Tags     qw(tags_rules_to_array replace_CRLF restore_CRLF);
+use Mojo::JSON                 qw(encode_json);
+use LANraragi::Utils::Redis    qw(redis_encode);
 
 use Authen::Passphrase::BlowfishCrypt;
 
@@ -16,42 +16,43 @@ sub index {
     my $self = shift;
 
     $self->render(
-        template        => "config",
-        version         => $self->LRR_VERSION,
-        vername         => $self->LRR_VERNAME,
-        descstr         => $self->LRR_DESC,
-        motd            => $self->LRR_CONF->get_motd,
-        dirname         => $self->LRR_CONF->get_userdir,
-        thumbdir        => $self->LRR_CONF->get_thumbdir,
-        forceddirname   => ( defined $ENV{LRR_DATA_DIRECTORY}  ? 1 : 0 ),
-        forcedthumbdir  => ( defined $ENV{LRR_THUMB_DIRECTORY} ? 1 : 0 ),
-        pagesize        => $self->LRR_CONF->get_pagesize,
-        enablepass      => $self->LRR_CONF->enable_pass,
-        password        => $self->LRR_CONF->get_password,
-        tagruleson      => $self->LRR_CONF->enable_tagrules,
-        tagrules        => restore_CRLF( $self->LRR_CONF->get_tagrules ),
-        title           => $self->LRR_CONF->get_htmltitle,
-        tempmaxsize     => $self->LRR_CONF->get_tempmaxsize,
-        localprogress   => $self->LRR_CONF->enable_localprogress,
-        authprogress    => $self->LRR_CONF->enable_authprogress,
-        devmode         => $self->LRR_CONF->enable_devmode,
-        nofunmode       => $self->LRR_CONF->enable_nofun,
-        apikey          => $self->LRR_CONF->get_apikey,
-        enablecors      => $self->LRR_CONF->enable_cors,
-        disableopenapi  => $self->LRR_CONF->get_disable_openapi,
-        enablemetrics   => $self->LRR_CONF->enable_metrics,
-        enableresize    => $self->LRR_CONF->enable_resize,
-        sizethreshold   => $self->LRR_CONF->get_threshold,
-        readerquality   => $self->LRR_CONF->get_readquality,
-        theme           => $self->LRR_CONF->get_style,
-        usedateadded    => $self->LRR_CONF->enable_dateadded,
-        usedatemodified => $self->LRR_CONF->use_lastmodified,
-        enablecryptofs  => $self->LRR_CONF->enable_cryptofs,
-        hqthumbpages    => $self->LRR_CONF->get_hqthumbpages,
-        jxlthumbpages   => $self->LRR_CONF->get_jxlthumbpages,
-        csshead         => generate_themes_header($self),
-        replacedupe     => $self->LRR_CONF->get_replacedupe,
-        language        => $self->LRR_CONF->get_language,
+        template           => "config",
+        version            => $self->LRR_VERSION,
+        vername            => $self->LRR_VERNAME,
+        descstr            => $self->LRR_DESC,
+        motd               => $self->LRR_CONF->get_motd,
+        dirname            => $self->LRR_CONF->get_userdir,
+        thumbdir           => $self->LRR_CONF->get_thumbdir,
+        forceddirname      => ( defined $ENV{LRR_DATA_DIRECTORY}  ? 1 : 0 ),
+        forcedthumbdir     => ( defined $ENV{LRR_THUMB_DIRECTORY} ? 1 : 0 ),
+        pagesize           => $self->LRR_CONF->get_pagesize,
+        enablepass         => $self->LRR_CONF->enable_pass,
+        password           => $self->LRR_CONF->get_password,
+        tagruleson         => $self->LRR_CONF->enable_tagrules,
+        tagrules           => restore_CRLF( $self->LRR_CONF->get_tagrules ),
+        title              => $self->LRR_CONF->get_htmltitle,
+        tempmaxsize        => $self->LRR_CONF->get_tempmaxsize,
+        localprogress      => $self->LRR_CONF->enable_localprogress,
+        authprogress       => $self->LRR_CONF->enable_authprogress,
+        devmode            => $self->LRR_CONF->enable_devmode,
+        nofunmode          => $self->LRR_CONF->enable_nofun,
+        apikey             => $self->LRR_CONF->get_apikey,
+        enablecors         => $self->LRR_CONF->enable_cors,
+        disableopenapi     => $self->LRR_CONF->get_disable_openapi,
+        enablemetrics      => $self->LRR_CONF->enable_metrics,
+        enableresize       => $self->LRR_CONF->enable_resize,
+        sizethreshold      => $self->LRR_CONF->get_threshold,
+        readerquality      => $self->LRR_CONF->get_readquality,
+        theme              => $self->LRR_CONF->get_style,
+        usedateadded       => $self->LRR_CONF->enable_dateadded,
+        usedatemodified    => $self->LRR_CONF->use_lastmodified,
+        enablecryptofs     => $self->LRR_CONF->enable_cryptofs,
+        hqthumbpages       => $self->LRR_CONF->get_hqthumbpages,
+        jxlthumbpages      => $self->LRR_CONF->get_jxlthumbpages,
+        csshead            => generate_themes_header($self),
+        csslist            => generate_css_detail,
+        replacedupe        => $self->LRR_CONF->get_replacedupe,
+        language           => $self->LRR_CONF->get_language,
         excludednamespaces => $self->LRR_CONF->get_excludednamespaces
     );
 }
@@ -66,18 +67,18 @@ sub save_config {
     my $errormess = "";
 
     my %confhash = (
-        htmltitle     => scalar $self->req->param('htmltitle'),
-        motd          => scalar $self->req->param('motd'),
-        dirname       => scalar $self->req->param('dirname'),
-        thumbdir      => scalar $self->req->param('thumbdir'),
-        pagesize      => scalar $self->req->param('pagesize'),
-        tagrules      => replace_CRLF( $self->req->param('tagrules') ),
-        tempmaxsize   => scalar $self->req->param('tempmaxsize'),
-        apikey        => scalar $self->req->param('apikey'),
-        readerquality => scalar $self->req->param('readerquality'),
-        sizethreshold => scalar $self->req->param('sizethreshold'),
-        theme         => scalar $self->req->param('theme'),
-        language      => scalar $self->req->param('language'),
+        htmltitle          => scalar $self->req->param('htmltitle'),
+        motd               => scalar $self->req->param('motd'),
+        dirname            => scalar $self->req->param('dirname'),
+        thumbdir           => scalar $self->req->param('thumbdir'),
+        pagesize           => scalar $self->req->param('pagesize'),
+        tagrules           => replace_CRLF( $self->req->param('tagrules') ),
+        tempmaxsize        => scalar $self->req->param('tempmaxsize'),
+        apikey             => scalar $self->req->param('apikey'),
+        readerquality      => scalar $self->req->param('readerquality'),
+        sizethreshold      => scalar $self->req->param('sizethreshold'),
+        theme              => scalar $self->req->param('theme'),
+        language           => scalar $self->req->param('language'),
         excludednamespaces => scalar $self->req->param('excludednamespaces'),
 
         # For checkboxes,

@@ -29,20 +29,7 @@ Config.initializeAll = function () {
     $(document).on("click.genthumb-button", "#genthumb-button", () => Server.regenerateThumbnails(false));
     $(document).on("click.forcethumb-button", "#forcethumb-button", () => Server.regenerateThumbnails(true));
 
-    $(document).on("click.modern", "#modern", () => Config.switch_style("Hachikuji"));
-    $(document).on("click.modern-div", "#modern-div", () => Config.switch_style("Hachikuji"));
-
-    $(document).on("click.modern_clear", "#modern_clear", () => Config.switch_style("Yotsugi"));
-    $(document).on("click.modern-clear-div", "#modern-clear-div", () => Config.switch_style("Yotsugi"));
-
-    $(document).on("click.modern_red", "#modern_red", () => Config.switch_style("Nadeko"));
-    $(document).on("click.modern-red-div", "#modern-red-div", () => Config.switch_style("Nadeko"));
-
-    $(document).on("click.ex", "#ex", () => Config.switch_style("Sad Panda"));
-    $(document).on("click.ex-div", "#ex-div", () => Config.switch_style("Sad Panda"));
-
-    $(document).on("click.g", "#g", () => Config.switch_style("H-Verse"));
-    $(document).on("click.g-div", "#g-div", () => Config.switch_style("H-Verse"));
+    $(document).on("click.theme-switch", ".theme-switch", Config.switchStyle);
 
     Config.enable_pass();
     Config.enable_resize();
@@ -87,14 +74,18 @@ Config.shinobuStatus = function () {
     );
 };
 
-Config.switch_style = function (cssTitle) {
+Config.switchStyle = function (e) {
     let i, linkTag, correctStyle, defaultStyle, newStyle;
     correctStyle = 0;
 
+    const cssTitle = e.currentTarget.title;
+
     for (i = 0, linkTag = document.getElementsByTagName("link"); i < linkTag.length; i++) {
         if ((linkTag[i].rel.indexOf("stylesheet") !== -1) && linkTag[i].title) {
-            if ((linkTag[i].rel.indexOf("alternate stylesheet") !== -1)) linkTag[i].disabled = true;
-            else defaultStyle = linkTag[i];
+            if ((linkTag[i].rel.indexOf("alternate stylesheet") !== -1)) 
+                linkTag[i].disabled = true;
+            else 
+                defaultStyle = linkTag[i];
 
             if (linkTag[i].title === cssTitle) {
                 newStyle = linkTag[i];
