@@ -213,6 +213,8 @@ sub validate_plugin {
 # Install a plugin from the registry.
 # Looks up the namespace in the cached index, downloads the .pm file,
 # validates, and saves to Plugin/Managed/{Type}/.
+# Does not perform cleanup; not responsible for users who `rm` files
+# in managed directories.
 # Returns (plugin_info_hash, undef) on success, (undef, error) on failure.
 sub install_plugin {
     my ( $namespace, $redis ) = @_;
