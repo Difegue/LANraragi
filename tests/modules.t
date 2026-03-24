@@ -47,6 +47,8 @@ my @modules = (
     "LANraragi::Plugin::Metadata::HatH",         "LANraragi::Plugin::Metadata::CopyArchiveTags",
     "LANraragi::Plugin::Login::Pixiv",           "LANraragi::Plugin::Metadata::Pixiv",
     "LANraragi::Plugin::Metadata::EHDLInfo",
+    "LANraragi::Model::Registry",                "LANraragi::Utils::Registry",
+    "LANraragi::Controller::Api::Registry",
 );
 
 # Test all modules load properly

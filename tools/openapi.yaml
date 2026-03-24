@@ -4154,6 +4154,13 @@ components:
             - git
             - local
           description: Registry source type.
+        provider:
+          type: string
+          enum:
+            - github
+            - gitlab
+            - gitea
+          description: Git hosting provider. Required when type is 'git'. Determines how raw file URLs are resolved.
         url:
           type: string
           description: Git repository URL. Required when type is 'git'.

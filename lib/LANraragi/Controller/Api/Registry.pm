@@ -49,6 +49,11 @@ sub set_registry {
             render_api_response( $self, "set_registry", "Missing required field 'url' for git registry." );
             return;
         }
+        my $provider = $body->{provider};
+        unless ( $provider && ( $provider eq "github" || $provider eq "gitlab" || $provider eq "gitea" ) ) {
+            render_api_response( $self, "set_registry", "Missing or invalid 'provider': must be 'github', 'gitlab', or 'gitea'." );
+            return;
+        }
     }
 
     if ( $type eq "local" ) {
@@ -72,6 +77,7 @@ sub set_registry {
             $redis->hset( "LRR_REGISTRY", "type", $type );
 
             if ( $type eq "git" ) {
+                $redis->hset( "LRR_REGISTRY", "provider", $body->{provider} );
                 $redis->hset( "LRR_REGISTRY", "url", $body->{url} );
                 $redis->hset( "LRR_REGISTRY", "ref", $body->{ref} // "main" );
             } elsif ( $type eq "local" ) {

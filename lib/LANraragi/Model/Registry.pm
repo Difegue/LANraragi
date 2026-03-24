@@ -11,28 +11,8 @@ use File::Path qw(make_path);
 use Mojo::JSON qw(decode_json);
 use Mojo::UserAgent;
 
-use LANraragi::Utils::Logging qw(get_logger);
-
-# Resolve a git URL to a raw file URL.
-# Supports GitHub URLs in various formats:
-#   https://github.com/owner/repo.git
-#   https://github.com/owner/repo
-# If $path is provided, resolves to that file; otherwise resolves to registry.json.
-sub resolve_git_raw_url {
-    my ( $url, $ref, $path ) = @_;
-
-    $ref  //= "main";
-    $path //= "registry.json";
-
-    # Extract owner/repo from GitHub URL
-    if ( $url =~ m{github\.com[/:]([^/]+)/([^/]+?)(?:\.git)?$} ) {
-        my $owner = $1;
-        my $repo  = $2;
-        return "https://raw.githubusercontent.com/$owner/$repo/$ref/$path";
-    }
-
-    return;
-}
+use LANraragi::Utils::Logging  qw(get_logger);
+use LANraragi::Utils::Registry qw(resolve_git_raw_url);
 
 # Fetch registry.json from a configured registry source.
 # Returns (content, undef) on success, (undef, error) on failure.
@@ -63,7 +43,7 @@ sub fetch_registry_index {
     }
 
     if ( $type eq "git" ) {
-        my $raw_url = resolve_git_raw_url( $config{url}, $config{ref} );
+        my $raw_url = resolve_git_raw_url( $config{provider}, $config{url}, $config{ref} );
 
         unless ($raw_url) {
             my $error = "Cannot resolve git URL: $config{url}";
@@ -144,7 +124,7 @@ sub install_plugin {
         close $fh;
 
     } elsif ( $type eq "git" ) {
-        my $raw_url = resolve_git_raw_url( $config{url}, $config{ref}, $plugin_path );
+        my $raw_url = resolve_git_raw_url( $config{provider}, $config{url}, $config{ref}, $plugin_path );
 
         unless ($raw_url) {
             return ( undef, "Cannot resolve download URL for $plugin_path" );
