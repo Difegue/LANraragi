@@ -13,7 +13,7 @@ use Mojo::JSON qw(decode_json);
 use Mojo::UserAgent;
 
 use LANraragi::Utils::Logging  qw(get_logger);
-use LANraragi::Utils::Registry qw(resolve_git_raw_url);
+use LANraragi::Utils::Registry qw(resolve_git_raw_url MANAGED_TYPE_DIRS);
 
 # Fetch registry.json from a configured registry source.
 # Returns (content, undef) on success, (undef, error) on failure.
@@ -139,9 +139,80 @@ sub _find_namespace_conflict {
     return $conflict;
 }
 
+# Validate downloaded plugin content against registry metadata and filesystem state.
+# Pure validation — no writes to disk or Redis.
+# Returns ({install_path, install_dir, package}, undef) on success, (undef, error) on failure.
+sub validate_plugin {
+    my ( $content, $namespace, $plugin_meta, $current_install_path ) = @_;
+
+    my $plugin_path  = $plugin_meta->{path};
+    my $plugin_type  = $plugin_meta->{type};
+    my $expected_sha = $plugin_meta->{sha256};
+
+    # SHA-256 integrity
+    if ( $expected_sha && $expected_sha ne "" ) {
+        my $actual_sha = sha256_hex($content);
+        if ( $actual_sha ne $expected_sha ) {
+            return ( undef, "SHA-256 mismatch: expected $expected_sha, got $actual_sha" );
+        }
+    }
+
+    # Extract package declaration
+    my ($pkg) = $content =~ /^package\s+(LANraragi::Plugin::\S+)\s*;/m;
+    unless ($pkg) {
+        return ( undef, "Plugin file does not declare a LANraragi::Plugin:: package." );
+    }
+
+    # Registry path traversal
+    if ( $plugin_path =~ /\.\./ || $plugin_path =~ m{^/} ) {
+        return ( undef, "Invalid plugin path: $plugin_path" );
+    }
+
+    # Type mapping
+    my $type_dir = MANAGED_TYPE_DIRS->{$plugin_type};
+    unless ($type_dir) {
+        return ( undef, "Unknown plugin type '$plugin_type'." );
+    }
+
+    # Extract filename and compute install path
+    my ($filename) = $plugin_path =~ m{([^/]+)$};
+    unless ($filename) {
+        return ( undef, "Cannot extract filename from path: $plugin_path" );
+    }
+
+    my $install_dir  = "lib/LANraragi/Plugin/Managed/$type_dir";
+    my $install_path = "$install_dir/$filename";
+
+    # Package-path consistency
+    my ($stem) = $filename =~ /^(.+)\.pm$/;
+    my $expected_pkg = "LANraragi::Plugin::Managed::${type_dir}::${stem}";
+    if ( $pkg ne $expected_pkg ) {
+        return ( undef, "Package mismatch: declared '$pkg', expected '$expected_pkg' for install to $install_path." );
+    }
+
+    # Package conflict (filesystem scan, skips install_path for upgrades)
+    my $conflict = _find_package_conflict( $pkg, $install_path );
+    if ($conflict) {
+        return ( undef, "Package '$pkg' is already declared in $conflict. Cannot install." );
+    }
+
+    # Namespace conflict (filesystem scan)
+    my $namespace_conflict = _find_namespace_conflict( $namespace, $install_path );
+    if ($namespace_conflict) {
+        return ( undef, "Namespace '$namespace' is already declared in $namespace_conflict. Cannot install." );
+    }
+
+    # Install path occupancy
+    if ( -e $install_path && ( !defined $current_install_path || $current_install_path ne $install_path ) ) {
+        return ( undef, "Install path '$install_path' is already occupied. Cannot install." );
+    }
+
+    return ( { install_path => $install_path, install_dir => $install_dir, package => $pkg }, undef );
+}
+
 # Install a plugin from the registry.
 # Looks up the namespace in the cached index, downloads the .pm file,
-# verifies SHA-256 if present, and saves to Plugin/Managed/.
+# validates, and saves to Plugin/Managed/{Type}/.
 # Returns (plugin_info_hash, undef) on success, (undef, error) on failure.
 sub install_plugin {
     my ( $namespace, $redis ) = @_;
@@ -153,23 +224,16 @@ sub install_plugin {
         return ( undef, "No registry index cached. Run refresh first." );
     }
 
-    my $index_json  = $redis->get("LRR_REGISTRY_INDEX");
-    my $index       = decode_json($index_json);
-    my $plugins     = $index->{plugins};
+    my $index_json = $redis->get("LRR_REGISTRY_INDEX");
+    my $index      = decode_json($index_json);
+    my $plugins    = $index->{plugins};
 
     unless ( $plugins->{$namespace} ) {
         return ( undef, "Plugin '$namespace' not found in registry index." );
     }
 
-    my $plugin_meta     = $plugins->{$namespace};
-    my $plugin_path     = $plugin_meta->{path};
-    my $plugin_type     = $plugin_meta->{type};
-    my $expected_sha    = $plugin_meta->{sha256};
-
-    # Validate path has no traversal
-    if ( $plugin_path =~ /\.\./ || $plugin_path =~ m{^/} ) {
-        return ( undef, "Invalid plugin path: $plugin_path" );
-    }
+    my $plugin_meta = $plugins->{$namespace};
+    my $plugin_path = $plugin_meta->{path};
 
     # Get registry config for download
     unless ( $redis->exists("LRR_REGISTRY") ) {
@@ -217,49 +281,21 @@ sub install_plugin {
         return ( undef, "Unknown registry type: $type" );
     }
 
-    # Verify SHA-256 if provided
-    if ( $expected_sha && $expected_sha ne "" ) {
-        my $actual_sha = sha256_hex($content);
-        if ( $actual_sha ne $expected_sha ) {
-            return ( undef, "SHA-256 mismatch: expected $expected_sha, got $actual_sha" );
-        }
-    }
-
-    # Extract package name from downloaded content and check for conflicts
-    my ($pkg) = $content =~ /^package\s+(LANraragi::Plugin::\S+)\s*;/m;
-    unless ($pkg) {
-        return ( undef, "Plugin file does not declare a LANraragi::Plugin:: package." );
-    }
-
-    # Extract filename from path
-    my ($filename) = $plugin_path =~ m{([^/]+)$};
-    unless ($filename) {
-        return ( undef, "Cannot extract filename from path: $plugin_path" );
-    }
-
-    my $install_dir     = "lib/LANraragi/Plugin/Managed";
-    my $install_path    = "$install_dir/$filename";
-    my $namerds         = "LRR_PLUGIN_" . uc($namespace);
+    # Validate downloaded content
+    my $namerds = "LRR_PLUGIN_" . uc($namespace);
     my $current_install_path;
 
     if ( $redis->hexists( $namerds, "installed_path" ) ) {
         $current_install_path = $redis->hget( $namerds, "installed_path" );
     }
 
-    # Check for package name conflict, skipping the current install path (for upgrades)
-    my $conflict = _find_package_conflict( $pkg, $install_path );
-    if ($conflict) {
-        return ( undef, "Package '$pkg' is already declared in $conflict. Cannot install." );
+    my ( $validated, $error ) = validate_plugin( $content, $namespace, $plugin_meta, $current_install_path );
+    if ($error) {
+        return ( undef, $error );
     }
 
-    my $namespace_conflict = _find_namespace_conflict( $namespace, $install_path );
-    if ($namespace_conflict) {
-        return ( undef, "Namespace '$namespace' is already declared in $namespace_conflict. Cannot install." );
-    }
-
-    if ( -e $install_path && ( !defined $current_install_path || $current_install_path ne $install_path ) ) {
-        return ( undef, "Install path '$install_path' is already occupied. Cannot install." );
-    }
+    my $install_dir  = $validated->{install_dir};
+    my $install_path = $validated->{install_path};
 
     # Create directory if needed
     make_path($install_dir) unless -d $install_dir;
@@ -276,8 +312,8 @@ sub install_plugin {
     $logger->info("Installed plugin '$namespace' to $install_path");
 
     # Store install metadata in Redis
-    $redis->hset( $namerds, "installed_path", $install_path );
-    $redis->hset( $namerds, "installed_version", $plugin_meta->{version} // "" );
+    $redis->hset( $namerds, "installed_path",      $install_path );
+    $redis->hset( $namerds, "installed_version",    $plugin_meta->{version} // "" );
 
     # Load the plugin dynamically
     eval { require $install_path };

@@ -5,7 +5,15 @@ use warnings;
 use utf8;
 
 use Exporter 'import';
-our @EXPORT_OK = qw(resolve_git_raw_url);
+our @EXPORT_OK = qw(resolve_git_raw_url MANAGED_TYPE_DIRS);
+
+# Maps plugin_info type values to directory names under Plugin/Managed/.
+use constant MANAGED_TYPE_DIRS => {
+    metadata => "Metadata",
+    download => "Download",
+    login    => "Login",
+    script   => "Scripts",
+};
 
 # Resolve a git URL to a raw file URL for a given provider.
 # If $path is provided, resolves to that file; otherwise resolves to registry.json.
