@@ -7,6 +7,7 @@ use utf8;
 use Cwd 'abs_path';
 use Digest::SHA qw(sha256_hex);
 use File::Copy;
+use File::Find;
 use File::Path qw(make_path);
 use Mojo::JSON qw(decode_json);
 use Mojo::UserAgent;
@@ -68,9 +69,79 @@ sub fetch_registry_index {
     return ( undef, "Unknown registry type: $type" );
 }
 
+# Check if a package name is already declared by an existing plugin file.
+# Scans all .pm files under Plugin/, skipping the file at $skip_path (for upgrades).
+# Returns the conflicting file path, or undef if no conflict.
+sub _find_package_conflict {
+    my ( $package_name, $skip_path ) = @_;
+
+    my $plugin_dir = "lib/LANraragi/Plugin";
+    my $conflict;
+
+    return unless -d $plugin_dir;
+
+    find(
+        {
+            no_chdir => 1,
+            wanted   => sub {
+                return if $conflict;
+                return unless /\.pm$/;
+
+                my $filepath = $File::Find::name;
+                return if $skip_path && $filepath eq $skip_path;
+
+                open( my $fh, '<', $filepath ) or return;
+                while ( my $line = <$fh> ) {
+                    if ( $line =~ /^package\s+\Q$package_name\E\s*;/ ) {
+                        $conflict = $filepath;
+                        last;
+                    }
+                }
+                close $fh;
+            },
+        },
+        $plugin_dir
+    );
+
+    return $conflict;
+}
+
+sub _find_namespace_conflict {
+    my ( $namespace, $skip_path ) = @_;
+
+    my $plugin_dir = "lib/LANraragi/Plugin";
+    my $conflict;
+
+    return unless -d $plugin_dir;
+
+    find(
+        {
+            no_chdir => 1,
+            wanted   => sub {
+                return if $conflict;
+                return unless /\.pm$/;
+
+                my $filepath = $File::Find::name;
+                return if $skip_path && $filepath eq $skip_path;
+
+                open( my $fh, '<', $filepath ) or return;
+                my $content = do { local $/; <$fh> };
+                close $fh;
+
+                if ( $content =~ /namespace\s*=>\s*['"]\Q$namespace\E['"]/ ) {
+                    $conflict = $filepath;
+                }
+            },
+        },
+        $plugin_dir
+    );
+
+    return $conflict;
+}
+
 # Install a plugin from the registry.
 # Looks up the namespace in the cached index, downloads the .pm file,
-# verifies SHA-256 if present, and saves to Plugin/Installed/{Type}/.
+# verifies SHA-256 if present, and saves to Plugin/Managed/.
 # Returns (plugin_info_hash, undef) on success, (undef, error) on failure.
 sub install_plugin {
     my ( $namespace, $redis ) = @_;
@@ -154,14 +225,41 @@ sub install_plugin {
         }
     }
 
+    # Extract package name from downloaded content and check for conflicts
+    my ($pkg) = $content =~ /^package\s+(LANraragi::Plugin::\S+)\s*;/m;
+    unless ($pkg) {
+        return ( undef, "Plugin file does not declare a LANraragi::Plugin:: package." );
+    }
+
     # Extract filename from path
     my ($filename) = $plugin_path =~ m{([^/]+)$};
     unless ($filename) {
         return ( undef, "Cannot extract filename from path: $plugin_path" );
     }
 
-    my $install_dir     = "lib/LANraragi/Plugin/Sideloaded";
+    my $install_dir     = "lib/LANraragi/Plugin/Managed";
     my $install_path    = "$install_dir/$filename";
+    my $namerds         = "LRR_PLUGIN_" . uc($namespace);
+    my $current_install_path;
+
+    if ( $redis->hexists( $namerds, "installed_path" ) ) {
+        $current_install_path = $redis->hget( $namerds, "installed_path" );
+    }
+
+    # Check for package name conflict, skipping the current install path (for upgrades)
+    my $conflict = _find_package_conflict( $pkg, $install_path );
+    if ($conflict) {
+        return ( undef, "Package '$pkg' is already declared in $conflict. Cannot install." );
+    }
+
+    my $namespace_conflict = _find_namespace_conflict( $namespace, $install_path );
+    if ($namespace_conflict) {
+        return ( undef, "Namespace '$namespace' is already declared in $namespace_conflict. Cannot install." );
+    }
+
+    if ( -e $install_path && ( !defined $current_install_path || $current_install_path ne $install_path ) ) {
+        return ( undef, "Install path '$install_path' is already occupied. Cannot install." );
+    }
 
     # Create directory if needed
     make_path($install_dir) unless -d $install_dir;
@@ -178,7 +276,6 @@ sub install_plugin {
     $logger->info("Installed plugin '$namespace' to $install_path");
 
     # Store install metadata in Redis
-    my $namerds = "LRR_PLUGIN_" . uc($namespace);
     $redis->hset( $namerds, "installed_path", $install_path );
     $redis->hset( $namerds, "installed_version", $plugin_meta->{version} // "" );
 
@@ -209,9 +306,9 @@ sub uninstall_plugin {
         return ( undef, "Plugin '$namespace' has no recorded install path." );
     }
 
-    # Validate the path is under Plugin/Sideloaded/
-    unless ( $install_path =~ m{Plugin/Sideloaded/} ) {
-        return ( undef, "Refusing to delete plugin outside of Sideloaded directory: $install_path" );
+    # Validate the path is under Plugin/Managed/
+    unless ( $install_path =~ m{Plugin/Managed/} ) {
+        return ( undef, "Refusing to delete plugin outside of Managed directory: $install_path" );
     }
 
     # Delete the file
