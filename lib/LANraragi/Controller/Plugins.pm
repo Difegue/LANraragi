@@ -12,6 +12,7 @@ use Cwd;
 use LANraragi::Utils::Generic qw(generate_themes_header);
 use LANraragi::Utils::Plugins qw(get_plugins get_plugin_parameters is_plugin_enabled);
 use LANraragi::Utils::Logging qw(get_logger);
+use LANraragi::Model::Registry;
 
 # This action will render a template
 sub index {
@@ -200,6 +201,40 @@ sub process_upload {
             );
 
             return;
+        }
+
+        # Extract package name for conflict checks
+        my ($pkg) = $filetext =~ /^package\s+(LANraragi::Plugin::\S+)\s*;/m;
+        my ($ns)  = $filetext =~ /namespace\s*=>\s*['"]([^'"]+)['"]/;
+
+        if ($pkg) {
+            my $conflict = LANraragi::Model::Registry::find_package_conflict($pkg);
+            if ($conflict) {
+                $self->render(
+                    json => {
+                        operation => "upload_plugin",
+                        name      => $file->filename,
+                        success   => 0,
+                        error     => "Package '$pkg' conflicts with existing plugin at $conflict."
+                    }
+                );
+                return;
+            }
+        }
+
+        if ($ns) {
+            my $conflict = LANraragi::Model::Registry::find_namespace_conflict($ns);
+            if ($conflict) {
+                $self->render(
+                    json => {
+                        operation => "upload_plugin",
+                        name      => $file->filename,
+                        success   => 0,
+                        error     => "Namespace '$ns' conflicts with existing plugin at $conflict."
+                    }
+                );
+                return;
+            }
         }
 
         my $dir = getcwd() . ("/lib/LANraragi/Plugin/Sideloaded/");

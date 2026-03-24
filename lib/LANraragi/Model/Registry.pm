@@ -72,7 +72,7 @@ sub fetch_registry_index {
 # Check if a package name is already declared by an existing plugin file.
 # Scans all .pm files under Plugin/, skipping the file at $skip_path (for upgrades).
 # Returns the conflicting file path, or undef if no conflict.
-sub _find_package_conflict {
+sub find_package_conflict {
     my ( $package_name, $skip_path ) = @_;
 
     my $plugin_dir = "lib/LANraragi/Plugin";
@@ -106,7 +106,7 @@ sub _find_package_conflict {
     return $conflict;
 }
 
-sub _find_namespace_conflict {
+sub find_namespace_conflict {
     my ( $namespace, $skip_path ) = @_;
 
     my $plugin_dir = "lib/LANraragi/Plugin";
@@ -191,13 +191,13 @@ sub validate_plugin {
     }
 
     # Package conflict (filesystem scan, skips install_path for upgrades)
-    my $conflict = _find_package_conflict( $pkg, $install_path );
+    my $conflict = find_package_conflict( $pkg, $install_path );
     if ($conflict) {
         return ( undef, "Package '$pkg' is already declared in $conflict. Cannot install." );
     }
 
     # Namespace conflict (filesystem scan)
-    my $namespace_conflict = _find_namespace_conflict( $namespace, $install_path );
+    my $namespace_conflict = find_namespace_conflict( $namespace, $install_path );
     if ($namespace_conflict) {
         return ( undef, "Namespace '$namespace' is already declared in $namespace_conflict. Cannot install." );
     }
