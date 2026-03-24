@@ -31,7 +31,7 @@ sub fetch_registry_index {
             return ( undef, $error );
         }
 
-        open( my $fh, '<:utf8', $file ) or do {
+        open( my $fh, '<:raw', $file ) or do {
             my $error = "Cannot read registry file: $!";
             $logger->error($error);
             return ( undef, $error );
