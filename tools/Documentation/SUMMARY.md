@@ -51,6 +51,7 @@
 * [Tankoubon API](api-documentation/tankoubon-api.md)
 * [Stamps API](api-documentation/stamp-api.md)
 * [Plugin API](api-documentation/plugin-api.md)
+* [Registry API](api-documentation/registry-api.md)
 * [Shinobu API](api-documentation/shinobu-api.md)
 * [Minion API](api-documentation/minion-api.md)
 * [OPDS Catalog](api-documentation/opds-catalog.md)

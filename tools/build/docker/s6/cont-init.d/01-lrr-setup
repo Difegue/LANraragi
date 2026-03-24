@@ -34,6 +34,10 @@ if [ "$FIX_PERMS" -eq 1 ]; then
   chmod u+rwx /home/koyomi/lanraragi/lib/LANraragi/Plugin/Sideloaded
   find /home/koyomi/lanraragi/lib/LANraragi/Plugin/Sideloaded -type f -exec chmod u+rwx {} \;
 
+  chown -R koyomi /home/koyomi/lanraragi/lib/LANraragi/Plugin/Managed
+  chmod u+rwx /home/koyomi/lanraragi/lib/LANraragi/Plugin/Managed
+  find /home/koyomi/lanraragi/lib/LANraragi/Plugin/Managed -type f -exec chmod u+rwx {} \;
+
   # Ensure the rest of the content folder is at least readable
   find /home/koyomi/lanraragi/content -name thumb -prune -o -type f -exec chmod u+r  {} \;
   find /home/koyomi/lanraragi/content -name thumb -prune -o -type d -exec chmod u+rx {} \;

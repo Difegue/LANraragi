@@ -24,6 +24,7 @@ use LANraragi::Utils::I18NInitializer;
 
 use LANraragi::Model::Search;
 use LANraragi::Model::Config;
+use LANraragi::Model::Plugins;
 use LANraragi::Model::Setup      qw(first_install_actions);
 use LANraragi::Model::Metrics;
 
@@ -137,6 +138,11 @@ sub startup {
     # Route Mojolicious/plugin logs (including OpenAPI validation warnings)
     # through LRR's rotating logger pipeline.
     $self->log( get_logger( "Mojolicious", "mojo" ) );
+
+    # Reconcile discovered plugins with Redis state.
+    my $redis_config = $self->LRR_CONF->get_redis_config;
+    LANraragi::Model::Plugins::scan_plugins($redis_config);
+    $redis_config->quit();
 
     #Plugin listing
     my @plugins = get_plugins("metadata");
