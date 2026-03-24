@@ -4,7 +4,7 @@ use Mojo::Base 'Mojolicious::Controller';
 use Mojo::JSON qw(decode_json);
 
 use LANraragi::Model::Registry;
-use LANraragi::Utils::Generic qw(render_api_response);
+use LANraragi::Utils::Generic qw(render_api_response exec_with_lock);
 
 sub get_registry {
     my $self    = shift->openapi->valid_input or return;
@@ -58,87 +58,113 @@ sub set_registry {
         }
     }
 
-    my $redis = $self->LRR_CONF->get_redis_config;
+    return unless exec_with_lock(
+        $self,
+        "registry-write",
+        "set_registry",
+        "registry",
+        sub {
+            my $redis = $self->LRR_CONF->get_redis_config;
 
-    # Clear existing registry config before setting new one
-    $redis->del("LRR_REGISTRY");
+            # Clear existing registry config before setting new one
+            $redis->del("LRR_REGISTRY");
 
-    $redis->hset( "LRR_REGISTRY", "type", $type );
+            $redis->hset( "LRR_REGISTRY", "type", $type );
 
-    if ( $type eq "git" ) {
-        $redis->hset( "LRR_REGISTRY", "url", $body->{url} );
-        $redis->hset( "LRR_REGISTRY", "ref", $body->{ref} // "main" );
-    } elsif ( $type eq "local" ) {
-        $redis->hset( "LRR_REGISTRY", "path", $body->{path} );
-    }
+            if ( $type eq "git" ) {
+                $redis->hset( "LRR_REGISTRY", "url", $body->{url} );
+                $redis->hset( "LRR_REGISTRY", "ref", $body->{ref} // "main" );
+            } elsif ( $type eq "local" ) {
+                $redis->hset( "LRR_REGISTRY", "path", $body->{path} );
+            }
 
-    my %registry = $redis->hgetall("LRR_REGISTRY");
-    $redis->quit();
+            my %registry = $redis->hgetall("LRR_REGISTRY");
+            $redis->quit();
 
-    $self->render(
-        openapi => {
-            operation   => "set_registry",
-            success     => 1,
-            registry    => \%registry,
+            $self->render(
+                openapi => {
+                    operation   => "set_registry",
+                    success     => 1,
+                    registry    => \%registry,
+                }
+            );
         }
     );
 }
 
 sub delete_registry {
     my $self    = shift->openapi->valid_input or return;
-    my $redis   = $self->LRR_CONF->get_redis_config;
 
-    $redis->del("LRR_REGISTRY");
-    $redis->del("LRR_REGISTRY_INDEX");
-    $redis->quit();
+    return unless exec_with_lock(
+        $self,
+        "registry-write",
+        "delete_registry",
+        "registry",
+        sub {
+            my $redis = $self->LRR_CONF->get_redis_config;
 
-    render_api_response( $self, "delete_registry" );
+            $redis->del("LRR_REGISTRY");
+            $redis->del("LRR_REGISTRY_INDEX");
+            $redis->quit();
+
+            render_api_response( $self, "delete_registry" );
+        }
+    );
 }
 
 sub refresh_registry {
     my $self    = shift->openapi->valid_input or return;
-    my $redis   = $self->LRR_CONF->get_redis_config;
 
-    unless ( $redis->exists("LRR_REGISTRY") ) {
-        $redis->quit();
-        render_api_response( $self, "refresh_registry", "No registry configured." );
-        return;
-    }
+    return unless exec_with_lock(
+        $self,
+        "registry-write",
+        "refresh_registry",
+        "registry",
+        sub {
+            my $redis = $self->LRR_CONF->get_redis_config;
 
-    my %config = $redis->hgetall("LRR_REGISTRY");
-    my $type   = $config{type};
+            unless ( $redis->exists("LRR_REGISTRY") ) {
+                $redis->quit();
+                render_api_response( $self, "refresh_registry", "No registry configured." );
+                return;
+            }
 
-    my ( $content, $error ) = LANraragi::Model::Registry::fetch_registry_index( $type, %config );
+            my %config = $redis->hgetall("LRR_REGISTRY");
+            my $type   = $config{type};
 
-    if ($error) {
-        $redis->quit();
-        render_api_response( $self, "refresh_registry", $error );
-        return;
-    }
+            my ( $content, $error ) = LANraragi::Model::Registry::fetch_registry_index( $type, %config );
 
-    # Validate the index has a version field
-    my $index = eval { decode_json($content) };
-    if ($@) {
-        $redis->quit();
-        render_api_response( $self, "refresh_registry", "Invalid registry.json: $@" );
-        return;
-    }
+            if ($error) {
+                $redis->quit();
+                render_api_response( $self, "refresh_registry", $error );
+                return;
+            }
 
-    unless ( $index->{version} ) {
-        $redis->quit();
-        render_api_response( $self, "refresh_registry", "Invalid registry.json: missing 'version' field." );
-        return;
-    }
+            # Validate the index has a version field
+            my $index = eval { decode_json($content) };
+            if ($@) {
+                $redis->quit();
+                render_api_response( $self, "refresh_registry", "Invalid registry.json: $@" );
+                return;
+            }
 
-    # Cache the raw JSON
-    $redis->set( "LRR_REGISTRY_INDEX", $content );
-    $redis->quit();
+            unless ( $index->{version} ) {
+                $redis->quit();
+                render_api_response( $self, "refresh_registry", "Invalid registry.json: missing 'version' field." );
+                return;
+            }
 
-    $self->render(
-        openapi => {
-            operation   => "refresh_registry",
-            success     => 1,
-            index       => $index,
+            # Cache the raw JSON
+            $redis->set( "LRR_REGISTRY_INDEX", $content );
+            $redis->quit();
+
+            $self->render(
+                openapi => {
+                    operation   => "refresh_registry",
+                    success     => 1,
+                    index       => $index,
+                }
+            );
         }
     );
 }
@@ -153,27 +179,35 @@ sub install_plugin {
         return;
     }
 
-    my $redis = $self->LRR_CONF->get_redis_config;
-    my ( $plugin_meta, $error ) = eval { LANraragi::Model::Registry::install_plugin( $namespace, $redis ) };
-    if ($@) {
-        $redis->quit();
-        render_api_response( $self, "install_plugin", "Internal error: $@" );
-        return;
-    }
-    $redis->quit();
+    return unless exec_with_lock(
+        $self,
+        "plugin-write:$namespace",
+        "install_plugin",
+        $namespace,
+        sub {
+            my $redis = $self->LRR_CONF->get_redis_config;
+            my ( $plugin_meta, $error ) = eval { LANraragi::Model::Registry::install_plugin( $namespace, $redis ) };
+            if ($@) {
+                $redis->quit();
+                render_api_response( $self, "install_plugin", "Internal error: $@" );
+                return;
+            }
+            $redis->quit();
 
-    if ($error) {
-        render_api_response( $self, "install_plugin", $error );
-        return;
-    }
+            if ($error) {
+                render_api_response( $self, "install_plugin", $error );
+                return;
+            }
 
-    $self->render(
-        openapi => {
-            operation   => "install_plugin",
-            success     => 1,
-            name        => $plugin_meta->{name},
-            namespace   => $namespace,
-            version     => $plugin_meta->{version},
+            $self->render(
+                openapi => {
+                    operation   => "install_plugin",
+                    success     => 1,
+                    name        => $plugin_meta->{name},
+                    namespace   => $namespace,
+                    version     => $plugin_meta->{version},
+                }
+            );
         }
     );
 }
@@ -181,41 +215,68 @@ sub install_plugin {
 sub uninstall_plugin {
     my $self        = shift->openapi->valid_input or return;
     my $namespace   = $self->stash('plugin_namespace');
-    my $redis       = $self->LRR_CONF->get_redis_config;
 
-    my ( $success, $error ) = LANraragi::Model::Registry::uninstall_plugin( $namespace, $redis );
-    $redis->quit();
+    return unless exec_with_lock(
+        $self,
+        "plugin-write:$namespace",
+        "uninstall_plugin",
+        $namespace,
+        sub {
+            my $redis = $self->LRR_CONF->get_redis_config;
 
-    if ($error) {
-        render_api_response( $self, "uninstall_plugin", $error );
-        return;
-    }
+            my ( $success, $error ) = LANraragi::Model::Registry::uninstall_plugin( $namespace, $redis );
+            $redis->quit();
 
-    render_api_response( $self, "uninstall_plugin" );
+            if ($error) {
+                render_api_response( $self, "uninstall_plugin", $error );
+                return;
+            }
+
+            render_api_response( $self, "uninstall_plugin" );
+        }
+    );
 }
 
 sub hide_plugin {
     my $self        = shift->openapi->valid_input or return;
     my $namespace   = $self->stash('plugin_namespace');
-    my $redis       = $self->LRR_CONF->get_redis_config;
-    my $namerds = "LRR_PLUGIN_" . uc($namespace);
 
-    $redis->hset( $namerds, "hidden", "1" );
-    $redis->quit();
+    return unless exec_with_lock(
+        $self,
+        "plugin-write:$namespace",
+        "hide_plugin",
+        $namespace,
+        sub {
+            my $redis   = $self->LRR_CONF->get_redis_config;
+            my $namerds = "LRR_PLUGIN_" . uc($namespace);
 
-    render_api_response( $self, "hide_plugin" );
+            $redis->hset( $namerds, "hidden", "1" );
+            $redis->quit();
+
+            render_api_response( $self, "hide_plugin" );
+        }
+    );
 }
 
 sub unhide_plugin {
     my $self        = shift->openapi->valid_input or return;
     my $namespace   = $self->stash('plugin_namespace');
-    my $redis       = $self->LRR_CONF->get_redis_config;
-    my $namerds     = "LRR_PLUGIN_" . uc($namespace);
 
-    $redis->hset( $namerds, "hidden", "0" );
-    $redis->quit();
+    return unless exec_with_lock(
+        $self,
+        "plugin-write:$namespace",
+        "unhide_plugin",
+        $namespace,
+        sub {
+            my $redis   = $self->LRR_CONF->get_redis_config;
+            my $namerds = "LRR_PLUGIN_" . uc($namespace);
 
-    render_api_response( $self, "unhide_plugin" );
+            $redis->hset( $namerds, "hidden", "0" );
+            $redis->quit();
+
+            render_api_response( $self, "unhide_plugin" );
+        }
+    );
 }
 
 1;
