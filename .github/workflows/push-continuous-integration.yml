@@ -10,11 +10,11 @@ on:
       integration_test_ref:
         description: 'Integration testing repository git commit hash or branch'
         required: true
-        default: 'dfdcd948cbc6d6bbd2db6620d8499bc8698843e3'
+        default: 'dev-registry/main'
 
 env:
   INTEGRATION_TEST_REPOSITORY: ${{ github.event.inputs.integration_test_repository || 'psilabs-dev/aio-lanraragi' }}
-  INTEGRATION_TEST_REF: ${{ github.event.inputs.integration_test_ref || 'dfdcd948cbc6d6bbd2db6620d8499bc8698843e3' }}
+  INTEGRATION_TEST_REF: ${{ github.event.inputs.integration_test_ref || 'dev-registry/main' }}
 
 name: "Continuous Integration \U0001F44C\U0001F440"
 jobs:
@@ -93,6 +93,7 @@ jobs:
             --image lanraragi:ci \
             --staging "$GITHUB_WORKSPACE/staging" \
             --playwright \
+            --dev registry \
             --npseed 42 \
             -k "not test_double_page_navigation and not test_handler_resource_management"
         env:
@@ -223,5 +224,6 @@ jobs:
           --windist "$env:GITHUB_WORKSPACE\LANraragi\win-dist" `
           --staging "$env:GITHUB_WORKSPACE\staging" `
           --playwright `
+          --dev registry `
           --npseed 42 `
           -k "not test_double_page_navigation and not test_handler_resource_management"
